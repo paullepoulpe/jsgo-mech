@@ -42,7 +42,7 @@ func (this *ProcessCommonJSModules) shouldTraverse_impl(t *NodeTraversal, n Node
 		var moduleLoaderErrorHandler ErrorHandler = this.compiler_.getModuleLoader().getErrorHandler()
 		this.compiler_.getModuleLoader().setErrorHandler(icast_ErrorHandler(obj_(finder)))
 		NodeTraversal_traverse(this.compiler_, n, icast_NodeTraversal_Callback(obj_(finder)))
-		var moduleType *CompilerInput_ModuleType = this.compiler_.getInput(n.getInputId()).getJsModuleType()
+		var moduleType CompilerInput_ModuleType = this.compiler_.getInput(n.getInputId()).getJsModuleType()
 		var forceModuleDetection bool = (moduleType == CompilerInput_ModuleType_IMPORTED_SCRIPT)
 		var defaultExportIsConst bool = true
 		var isCommonJsModule bool = finder.isCommonJsModule()
@@ -94,8 +94,8 @@ func (this *ProcessCommonJSModules) getBasePropertyImport_2(moduleName string, r
 }
 
 func (this *ProcessCommonJSModules) getBasePropertyImport(moduleName OptionalOf[string]) OptionalOf[string] {
-	var moduleType *CompilerInput_ModuleType = this.compiler_.getModuleTypeByName(moduleName)
-	if (moduleType != nil) && (moduleType != CompilerInput_ModuleType_COMMONJS) {
+	var moduleType CompilerInput_ModuleType = this.compiler_.getModuleTypeByName(moduleName)
+	if (moduleType != 0) && (moduleType != CompilerInput_ModuleType_COMMONJS) {
 		return moduleName
 	}
 	return Optional_of[string]((sstr_(moduleName.orElse("null")) + "." + sstr_(ProcessCommonJSModules_EXPORT_PROPERTY_NAME)))
@@ -105,7 +105,7 @@ func (this *ProcessCommonJSModules) isCommonJsImport(requireCall Node) bool {
 	return ProcessCommonJSModules_isCommonJsImport(requireCall, this.compiler_.getOptions().getModuleResolutionMode())
 }
 
-func ProcessCommonJSModules_isCommonJsImport(requireCall Node, resolutionMode *ModuleLoader_ResolutionMode) bool {
+func ProcessCommonJSModules_isCommonJsImport(requireCall Node, resolutionMode ModuleLoader_ResolutionMode) bool {
 	if requireCall.isCall() && requireCall.hasTwoChildren() {
 		if ((resolutionMode == ModuleLoader_ResolutionMode_WEBPACK) && (requireCall.getFirstChild().matchesQualifiedName(ProcessCommonJSModules_WEBPACK_REQUIRE) || requireCall.getFirstChild().matchesQualifiedName(ProcessCommonJSModules_WEBPACK_REQUIRE_NAMESPACE))) && (requireCall.getSecondChild().isNumber() || requireCall.getSecondChild().isStringLit()) {
 			return true
@@ -122,7 +122,7 @@ func (this *ProcessCommonJSModules) getCommonJsImportPath(requireCall Node) stri
 	return ProcessCommonJSModules_getCommonJsImportPath(requireCall, this.compiler_.getOptions().getModuleResolutionMode())
 }
 
-func ProcessCommonJSModules_getCommonJsImportPath(requireCall Node, resolutionMode *ModuleLoader_ResolutionMode) string {
+func ProcessCommonJSModules_getCommonJsImportPath(requireCall Node, resolutionMode ModuleLoader_ResolutionMode) string {
 	if resolutionMode == ModuleLoader_ResolutionMode_WEBPACK {
 		var pathArgument Node = func() Node {
 			if requireCall.getChildCount() >= 3 {
@@ -154,7 +154,7 @@ func (this *ProcessCommonJSModules) getImportedModuleName_3(t *NodeTraversal, n 
 	return modulePath.toModuleName()
 }
 
-func ProcessCommonJSModules_isCommonJsExport(t *NodeTraversal, export Node, resolutionMode *ModuleLoader_ResolutionMode) bool {
+func ProcessCommonJSModules_isCommonJsExport(t *NodeTraversal, export Node, resolutionMode ModuleLoader_ResolutionMode) bool {
 	if export.matchesQualifiedName((sstr_(ProcessCommonJSModules_MODULE) + "." + sstr_(ProcessCommonJSModules_EXPORTS))) || (((export.isGetElem() && export.getFirstChild().matchesQualifiedName(ProcessCommonJSModules_MODULE)) && export.getSecondChild().isStringLit()) && (export.getSecondChild().getString() == ProcessCommonJSModules_EXPORTS)) {
 		var v *Var = cast_[*Var](t.getScope().getVar(ProcessCommonJSModules_MODULE).self())
 		if (v == nil) || v.isExtern() {
@@ -173,7 +173,7 @@ func (this *ProcessCommonJSModules) isCommonJsExport(t *NodeTraversal, export No
 	return ProcessCommonJSModules_isCommonJsExport(t, export, this.compiler_.getOptions().getModuleResolutionMode())
 }
 
-func ProcessCommonJSModules_isCommonJsDynamicImportCallback(n Node, resolutionMode *ModuleLoader_ResolutionMode) bool {
+func ProcessCommonJSModules_isCommonJsDynamicImportCallback(n Node, resolutionMode ModuleLoader_ResolutionMode) bool {
 	if (n == 0) || (resolutionMode != ModuleLoader_ResolutionMode_WEBPACK) {
 		return false
 	}
@@ -462,7 +462,7 @@ func (this *ProcessCommonJSModules_FindImportsAndExports) isCommonJsModule() boo
 	return ((len(this.exports) != 0 || len(this.moduleExports) != 0) && !this.hasGoogProvideOrModule)
 }
 
-func (this *ProcessCommonJSModules_FindImportsAndExports) report_2(ignoredLevel *CheckLevel, error_ *JSError) {
+func (this *ProcessCommonJSModules_FindImportsAndExports) report_2(ignoredLevel CheckLevel, error_ *JSError) {
 	this.errors_ = append(this.errors_, error_)
 }
 

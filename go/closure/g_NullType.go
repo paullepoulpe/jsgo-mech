@@ -31,7 +31,7 @@ func new_NullType(registry *JSTypeRegistry) *NullType {
 	return this
 }
 
-func (this *NullType) getTypeClass_impl() *JSTypeClass {
+func (this *NullType) getTypeClass_impl() JSTypeClass {
 	return JSTypeClass_NULL
 }
 
@@ -63,9 +63,9 @@ func (this *NullType) restrictByNotNull_impl() *JSType {
 	return this.registry.getNativeType(JSTypeNative_NO_TYPE)
 }
 
-func (this *NullType) testForEquality_impl(that *JSType) *Tri {
-	var result *Tri = this.ValueType.testForEquality_impl(that)
-	if result != nil {
+func (this *NullType) testForEquality_impl(that *JSType) Tri {
+	var result Tri = this.ValueType.testForEquality_impl(that)
+	if result != 0 {
 		return result
 	}
 	if that.isNullType() || that.isVoidType() {
@@ -81,7 +81,7 @@ func (this *NullType) getDisplayName_impl() OptionalOf[string] {
 	return Optional_of[string]("null")
 }
 
-func (this *NullType) getPossibleToBooleanOutcomes_impl() *BooleanLiteralSet {
+func (this *NullType) getPossibleToBooleanOutcomes_impl() BooleanLiteralSet {
 	return BooleanLiteralSet_FALSE
 }
 
@@ -90,7 +90,7 @@ func (this *NullType) visitUntyped_impl(visitor Visitor) any {
 }
 
 // getTypeClass: an object that is exactly a NullType calls its getTypeClass_impl directly (post-flip); others dispatch.
-func (this *NullType) getTypeClass() *JSTypeClass {
+func (this *NullType) getTypeClass() JSTypeClass {
 	if this.self_ == any(this) {
 		return this.getTypeClass_impl()
 	}
@@ -154,7 +154,7 @@ func (this *NullType) restrictByNotNull() *JSType {
 }
 
 // testForEquality: an object that is exactly a NullType calls its testForEquality_impl directly (post-flip); others dispatch.
-func (this *NullType) testForEquality(p0 *JSType) *Tri {
+func (this *NullType) testForEquality(p0 *JSType) Tri {
 	if this.self_ == any(this) {
 		return this.testForEquality_impl(p0)
 	}
@@ -170,7 +170,7 @@ func (this *NullType) getDisplayName() OptionalOf[string] {
 }
 
 // getPossibleToBooleanOutcomes: an object that is exactly a NullType calls its getPossibleToBooleanOutcomes_impl directly (post-flip); others dispatch.
-func (this *NullType) getPossibleToBooleanOutcomes() *BooleanLiteralSet {
+func (this *NullType) getPossibleToBooleanOutcomes() BooleanLiteralSet {
 	if this.self_ == any(this) {
 		return this.getPossibleToBooleanOutcomes_impl()
 	}

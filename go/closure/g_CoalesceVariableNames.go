@@ -241,7 +241,7 @@ var lambda_CoalesceVariableNames_computeVariableNamesInterferenceGraph_1_ = &Int
 }}
 
 func (this *CoalesceVariableNames) isInMultipleLvalueDecl(v *Var) bool {
-	var declarationType *Token_rhino = v.declarationType()
+	var declarationType Token_rhino = v.declarationType()
 	return func() bool {
 		switch declarationType {
 		case Token_rhino_LET, Token_rhino_CONST, Token_rhino_VAR:

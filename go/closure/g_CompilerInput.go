@@ -14,7 +14,7 @@ type CompilerInput struct {
 	dynamicRequires            []string
 	requireDynamicImports      []string
 	hasFullParseDependencyInfo bool
-	jsModuleType               *CompilerInput_ModuleType
+	jsModuleType               CompilerInput_ModuleType
 	typedScope                 *TypedScope
 	compiler_                  *AbstractCompiler
 	modulePath_                *ModuleLoader_ModulePath
@@ -206,11 +206,11 @@ func (this *CompilerInput) setHasFullParseDependencyInfo(hasFullParseDependencyI
 	this.hasFullParseDependencyInfo = hasFullParseDependencyInfo
 }
 
-func (this *CompilerInput) getJsModuleType() *CompilerInput_ModuleType {
+func (this *CompilerInput) getJsModuleType() CompilerInput_ModuleType {
 	return this.jsModuleType
 }
 
-func (this *CompilerInput) setJsModuleType(moduleType *CompilerInput_ModuleType) {
+func (this *CompilerInput) setJsModuleType(moduleType CompilerInput_ModuleType) {
 	this.jsModuleType = moduleType
 }
 
@@ -457,48 +457,69 @@ func (this *CompilerInput_DepsFinder) visitEs6ModuleName(n Node, parent Node) {
 	this.requires.add(DependencyInfo_Require_es6Import(importedModule.toModuleName(), n.getString()))
 }
 
-type CompilerInput_ModuleType struct {
-	Enum
+type CompilerInput_ModuleType uint8
+
+// CompilerInput_ModuleType_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var CompilerInput_ModuleType_enum_ = [6]Enum{
+	{self_: CompilerInput_ModuleType_NONE, name_: "NONE", ordinal_: 0},
+	{self_: CompilerInput_ModuleType_GOOG, name_: "GOOG", ordinal_: 1},
+	{self_: CompilerInput_ModuleType_ES6, name_: "ES6", ordinal_: 2},
+	{self_: CompilerInput_ModuleType_COMMONJS, name_: "COMMONJS", ordinal_: 3},
+	{self_: CompilerInput_ModuleType_JSON, name_: "JSON", ordinal_: 4},
+	{self_: CompilerInput_ModuleType_IMPORTED_SCRIPT, name_: "IMPORTED_SCRIPT", ordinal_: 5},
 }
 
-func (this *CompilerInput_ModuleType) up_Enum() *Enum {
-	if this == nil {
+func (this CompilerInput_ModuleType) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &CompilerInput_ModuleType_enum_[this-1]
 }
 
-func (this *CompilerInput_ModuleType) init_CompilerInput_ModuleType(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this CompilerInput_ModuleType) name() string {
+	return CompilerInput_ModuleType_enum_[this-1].name_
 }
 
-func new_CompilerInput_ModuleType(name_ string, ordinal_ int32) *CompilerInput_ModuleType {
-	this := &CompilerInput_ModuleType{}
-	this.self_ = this
-	this.init_CompilerInput_ModuleType(name_, ordinal_)
+func (this CompilerInput_ModuleType) ordinal() int32 {
+	return CompilerInput_ModuleType_enum_[this-1].ordinal_
+}
+
+func (this CompilerInput_ModuleType) toString() string {
+	return CompilerInput_ModuleType_enum_[this-1].name_
+}
+
+func (this CompilerInput_ModuleType) compareTo(o any) int32 {
+	return CompilerInput_ModuleType_enum_[this-1].compareTo(o)
+}
+
+func (this CompilerInput_ModuleType) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func CompilerInput_ModuleType_values() []*CompilerInput_ModuleType {
-	return append([]*CompilerInput_ModuleType(nil), CompilerInput_ModuleType_values_...)
+func CompilerInput_ModuleType_values() []CompilerInput_ModuleType {
+	return append([]CompilerInput_ModuleType(nil), CompilerInput_ModuleType_values_...)
 }
 
-func CompilerInput_ModuleType_valueOf(name string) *CompilerInput_ModuleType {
+func CompilerInput_ModuleType_valueOf(name string) CompilerInput_ModuleType {
 	for _, v := range CompilerInput_ModuleType_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("ModuleType", name))
 }
 
-var CompilerInput_ModuleType_NONE *CompilerInput_ModuleType
-var CompilerInput_ModuleType_GOOG *CompilerInput_ModuleType
-var CompilerInput_ModuleType_ES6 *CompilerInput_ModuleType
-var CompilerInput_ModuleType_COMMONJS *CompilerInput_ModuleType
-var CompilerInput_ModuleType_JSON *CompilerInput_ModuleType
-var CompilerInput_ModuleType_IMPORTED_SCRIPT *CompilerInput_ModuleType
-var CompilerInput_ModuleType_values_ []*CompilerInput_ModuleType
+const CompilerInput_ModuleType_NONE CompilerInput_ModuleType = 1
+const CompilerInput_ModuleType_GOOG CompilerInput_ModuleType = 2
+const CompilerInput_ModuleType_ES6 CompilerInput_ModuleType = 3
+const CompilerInput_ModuleType_COMMONJS CompilerInput_ModuleType = 4
+const CompilerInput_ModuleType_JSON CompilerInput_ModuleType = 5
+const CompilerInput_ModuleType_IMPORTED_SCRIPT CompilerInput_ModuleType = 6
+
+var CompilerInput_ModuleType_values_ []CompilerInput_ModuleType
 
 var CompilerInput_ModuleType_clinit_done bool
 
@@ -507,13 +528,7 @@ func CompilerInput_ModuleType_clinit() {
 		return
 	}
 	CompilerInput_ModuleType_clinit_done = true
-	CompilerInput_ModuleType_NONE = new_CompilerInput_ModuleType("NONE", 0)
-	CompilerInput_ModuleType_GOOG = new_CompilerInput_ModuleType("GOOG", 1)
-	CompilerInput_ModuleType_ES6 = new_CompilerInput_ModuleType("ES6", 2)
-	CompilerInput_ModuleType_COMMONJS = new_CompilerInput_ModuleType("COMMONJS", 3)
-	CompilerInput_ModuleType_JSON = new_CompilerInput_ModuleType("JSON", 4)
-	CompilerInput_ModuleType_IMPORTED_SCRIPT = new_CompilerInput_ModuleType("IMPORTED_SCRIPT", 5)
-	CompilerInput_ModuleType_values_ = []*CompilerInput_ModuleType{CompilerInput_ModuleType_NONE, CompilerInput_ModuleType_GOOG, CompilerInput_ModuleType_ES6, CompilerInput_ModuleType_COMMONJS, CompilerInput_ModuleType_JSON, CompilerInput_ModuleType_IMPORTED_SCRIPT}
+	CompilerInput_ModuleType_values_ = []CompilerInput_ModuleType{CompilerInput_ModuleType_NONE, CompilerInput_ModuleType_GOOG, CompilerInput_ModuleType_ES6, CompilerInput_ModuleType_COMMONJS, CompilerInput_ModuleType_JSON, CompilerInput_ModuleType_IMPORTED_SCRIPT}
 	registerEnum_("com.google.javascript.jscomp.CompilerInput.ModuleType", enumValues_(CompilerInput_ModuleType_values_))
 
 }
@@ -566,7 +581,7 @@ func (this *CompilerInput_JsAst) parse(compiler *AbstractCompiler) {
 	if codeRes.isErr() {
 		compiler.report(JSError_make_DiagnosticType_StringArr(AbstractCompiler_READ_ERROR, []string{this.outer_.sourceFile.getName(), codeRes.errorMessage().orElse("null")}))
 	} else {
-		var result *ParserRunner_ParseResult = ParserRunner_parse(icast_StaticSourceFile(obj_(this.outer_.sourceFile)), str_(codeRes.get()), compiler.getParserConfig(func() *AbstractCompiler_ConfigContext {
+		var result *ParserRunner_ParseResult = ParserRunner_parse(icast_StaticSourceFile(obj_(this.outer_.sourceFile)), str_(codeRes.get()), compiler.getParserConfig(func() AbstractCompiler_ConfigContext {
 			if this.outer_.sourceFile.isExtern() {
 				return AbstractCompiler_ConfigContext_EXTERNS
 			}

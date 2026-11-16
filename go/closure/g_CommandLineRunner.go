@@ -295,7 +295,7 @@ func (this *CommandLineRunner) initConfigFromFlags(args []string, out *Output, e
 		this.runCompiler = true
 		var config *AbstractCommandLineRunner_CommandLineConfig = this.getCommandLineConfig()
 		config.setPrintVersion(this.flags.version_).setPrintTree(this.flags.printTree).setPrintTreeJson(this.flags.printTreeJson).setPrintAst(this.flags.printAst).setJscompDevMode(this.flags.jscompDevMode).setLoggingLevel(this.flags.loggingLevel).setExterns(this.flags.externs).setMixedJsSources(mixedSources).setDefaultToStdin().setJsOutputFile(this.flags.jsOutputFile).setChunk(this.flags.chunk_).setVariableMapOutputFile(this.flags.variableMapOutputFile).setCreateNameMapFiles(this.flags.createNameMapFiles).setPropertyMapOutputFile(this.flags.propertyMapOutputFile).setExpectedDiagnostics(this.flags.expectedDiagnostics).setPropertyMapInputFile(this.flags.propertyMapInputFile).setVariableMapInputFile(this.flags.variableMapInputFile).setInstrumentationMappingFile(this.flags.instrumentationMappingOutputFile).setCodingConvention(conv).setSummaryDetailLevel(this.flags.summaryDetailLevel).setOutputWrapper(this.flags.outputWrapper.orElse(nullstr_)).setChunkWrapper(this.flags.chunkWrapper).setChunkOutputPathPrefix(this.flags.chunkOutputPathPrefix).setCreateSourceMap(this.flags.createSourceMap).setSourceMapFormat(this.flags.sourceMapFormat).setSourceMapLocationMappings(mappings).setSourceMapInputFiles(tmapFrom_(tc_string, tc_string, sourceMapInputs, true)).setParseInlineSourceMaps(parseInlineSourceMaps).setApplyInputSourceMaps(applyInputSourceMaps).setWarningGuards(this.flags.guardLevels).setDefine(this.flags.define).setBrowserFeaturesetYear(this.flags.browserFeaturesetYear).setCharset(this.flags.charset).setDependencyOptions(dependencyOptions).setOutputManifest(sliceImm_(tc_string, ImmutableList_of_Object(strobj_(this.flags.outputManifest_)))).setOutputBundle(tlistImm_(tc_string, sliceView_(tc_string, bundleFiles))).setSkipNormalOutputs(skipNormalOutputs).setOutputChunkDependencies(this.flags.outputChunkDependencies).setProcessCommonJSModules(this.flags.processCommonJsModules).setModuleRoots(this.flags.moduleRoot).setWarningsAllowlistFile(this.flags.warningsAllowlistFile).setHideWarningsFor(this.flags.hideWarningsFor).setAngularPass(this.flags.angularPass).setJsonStreamMode(this.flags.jsonStreamMode).setErrorFormat(this.flags.errorFormat)
-		var segmentOfCompilationToRun *CompilerOptions_SegmentOfCompilationToRun = this.flags.segmentOfCompilationToRun
+		var segmentOfCompilationToRun CompilerOptions_SegmentOfCompilationToRun = this.flags.segmentOfCompilationToRun
 		switch segmentOfCompilationToRun {
 		case CompilerOptions_SegmentOfCompilationToRun_CHECKS:
 			Preconditions_checkState_boolean_Object(this.flags.filenameToRestoreFrom.isEmpty(), strobj_("Cannot restore and run CHECKS segment of compilation"))
@@ -328,28 +328,28 @@ func (this *CommandLineRunner) checkChunkName_impl(name string) *Outcome_base {
 func (this *CommandLineRunner) createOptions_impl() *Outcome_base {
 	var options *CompilerOptions = new_CompilerOptions()
 	if !String_isEmpty(this.flags.languageIn) {
-		var languageMode *CompilerOptions_LanguageMode = CompilerOptions_LanguageMode_fromString(Optional_of[string](this.flags.languageIn))
+		var languageMode CompilerOptions_LanguageMode = CompilerOptions_LanguageMode_fromString(Optional_of[string](this.flags.languageIn))
 		if languageMode == CompilerOptions_LanguageMode_UNSUPPORTED {
 			return Outcome_base_err(new_FlagUsageException("Cannot specify the unsupported set of features for language_in.").up_Throwable())
 		}
-		if languageMode != nil {
+		if languageMode != 0 {
 			options.setLanguageIn(languageMode)
 		} else {
 			return Outcome_base_err(new_FlagUsageException(("Unknown language `" + sstr_(this.flags.languageIn) + "' specified. Expected one of: " + objstr_(any(sliceView_(tc_string, CompilerOptions_LanguageMode_validCommandLineNames()))))).up_Throwable())
 		}
 	}
-	var languageMode *CompilerOptions_LanguageMode = CompilerOptions_LanguageMode_fromString(Optional_of[string](this.flags.languageOut))
+	var languageMode CompilerOptions_LanguageMode = CompilerOptions_LanguageMode_fromString(Optional_of[string](this.flags.languageOut))
 	if languageMode == CompilerOptions_LanguageMode_UNSUPPORTED {
 		return Outcome_base_err(new_FlagUsageException("Cannot specify the unsupported set of features for language_out.").up_Throwable())
 	}
-	if languageMode != nil {
+	if languageMode != 0 {
 		options.setLanguageOut(languageMode)
 	} else {
 		return Outcome_base_err(new_FlagUsageException(("Unknown language `" + sstr_(this.flags.languageOut) + "' specified. Expected one of: " + objstr_(any(sliceView_(tc_string, CompilerOptions_LanguageMode_validCommandLineNames()))))).up_Throwable())
 	}
 	options.setCodingConvention(icast_CodingConvention(obj_(new_ClosureCodingConvention_0())))
 	options.setExtraAnnotationNames(Iterable(this.flags.extraAnnotationName))
-	var level *CompilationLevel = this.flags.compilationLevelParsed
+	var level CompilationLevel = this.flags.compilationLevelParsed
 	level.setOptionsForCompilationLevel(options)
 	if this.flags.debug {
 		level.setDebugOptionsForCompilationLevel(options)
@@ -374,11 +374,11 @@ func (this *CommandLineRunner) createOptions_impl() *Outcome_base {
 	}
 	options.setGenerateExports(this.flags.generateExports)
 	options.setExportLocalPropertyDefinitions(this.flags.exportLocalPropertyDefinitions)
-	var wLevel *WarningLevel = this.flags.warningLevel
+	var wLevel WarningLevel = this.flags.warningLevel
 	wLevel.setOptionsForWarningLevel(options)
 	it_1 := foreach_(any(this.flags.formatting))
 	for it_1.next() {
-		var formattingOption *CommandLineRunner_FormattingOption = cast_[*CommandLineRunner_FormattingOption](it_1.v)
+		var formattingOption CommandLineRunner_FormattingOption = cast_[CommandLineRunner_FormattingOption](it_1.v)
 		formattingOption.applyToOptions(options)
 	}
 	options.setClosurePass(this.flags.processClosurePrimitives)
@@ -386,7 +386,7 @@ func (this *CommandLineRunner) createOptions_impl() *Outcome_base {
 	options.setPolymerVersion(this.flags.polymerVersion)
 	options.setChromePass(this.flags.chromePass)
 	if !String_isEmpty(this.flags.j2clPassMode) {
-		var j2clPassMode *CompilerOptions_J2clPassMode = nil
+		var j2clPassMode CompilerOptions_J2clPassMode = 0
 		var j2clPassModeName string = Ascii_toUpperCase(this.flags.j2clPassMode)
 		for _, mode := range CompilerOptions_J2clPassMode_values() {
 			if mode.name() == j2clPassModeName {
@@ -394,7 +394,7 @@ func (this *CommandLineRunner) createOptions_impl() *Outcome_base {
 				break
 			}
 		}
-		if j2clPassMode == nil {
+		if j2clPassMode == 0 {
 			return Outcome_base_err(new_FlagUsageException(("Unknown J2clPassMode `" + sstr_(this.flags.j2clPassMode) + "' specified.")).up_Throwable())
 		}
 		options.setJ2clPass(j2clPassMode)
@@ -485,7 +485,7 @@ func (this *CommandLineRunner) getBundler() *Outcome_base {
 		return Outcome_base_err(optionsOutcome.error())
 	}
 	var options *CompilerOptions = cast_[*CompilerOptions](optionsOutcome.get())
-	var newBundler *ClosureBundler = new_ClosureBundler_Transpiler_Transpiler(Transpiler_transpile_NULL, icast_Transpiler_transpile(obj_(new_BaseTranspiler(new_BaseTranspiler_CompilerSupplier_FeatureSet_ResolutionMode_ImmutableList_ImmutableMap(CompilerOptions_LanguageMode_ECMASCRIPT_NEXT.toFeatureSet().without_2(FeatureSet_Feature_MODULES, []*FeatureSet_Feature{}), options.getModuleResolutionMode(), moduleRoots, options.getBrowserResolverPrefixReplacements()), ""))))
+	var newBundler *ClosureBundler = new_ClosureBundler_Transpiler_Transpiler(Transpiler_transpile_NULL, icast_Transpiler_transpile(obj_(new_BaseTranspiler(new_BaseTranspiler_CompilerSupplier_FeatureSet_ResolutionMode_ImmutableList_ImmutableMap(CompilerOptions_LanguageMode_ECMASCRIPT_NEXT.toFeatureSet().without_2(FeatureSet_Feature_MODULES, []FeatureSet_Feature{}), options.getModuleResolutionMode(), moduleRoots, options.getBrowserResolverPrefixReplacements()), ""))))
 	this.bundler = newBundler
 	return Outcome_base_ok_Object(obj_(newBundler))
 }
@@ -707,7 +707,7 @@ type CommandLineRunner_Flags struct {
 	printAst                           bool
 	emitUseStrict                      bool
 	strictModeInput                    bool
-	jscompDevMode                      *CompilerOptions_DevMode
+	jscompDevMode                      CompilerOptions_DevMode
 	loggingLevel                       string
 	externs                            ListOf[string]
 	js                                 *TList[string]
@@ -716,7 +716,7 @@ type CommandLineRunner_Flags struct {
 	chunk_                             ListOf[string]
 	filenameToSaveTo                   OptionalOf[string]
 	filenameToRestoreFrom              OptionalOf[string]
-	segmentOfCompilationToRun          *CompilerOptions_SegmentOfCompilationToRun
+	segmentOfCompilationToRun          CompilerOptions_SegmentOfCompilationToRun
 	variableMapOutputFile              string
 	instrumentationMappingOutputFile   string
 	createNameMapFiles                 bool
@@ -724,7 +724,7 @@ type CommandLineRunner_Flags struct {
 	propertyMapOutputFile              string
 	thirdParty                         bool
 	summaryDetailLevel                 int32
-	isolationMode                      *CompilerOptions_IsolationMode
+	isolationMode                      CompilerOptions_IsolationMode
 	outputWrapper                      OptionalOf[string]
 	outputWrapperFile                  OptionalOf[string]
 	chunkWrapper                       ListOf[string]
@@ -741,19 +741,19 @@ type CommandLineRunner_Flags struct {
 	define                             ListOf[string]
 	charset                            string
 	compilationLevel                   string
-	compilationLevelParsed             *CompilationLevel
+	compilationLevelParsed             CompilationLevel
 	numParallelThreads                 int32
 	checksOnly                         bool
-	incrementalCheckMode               *CompilerOptions_IncrementalCheckMode
+	incrementalCheckMode               CompilerOptions_IncrementalCheckMode
 	continueAfterErrors                bool
 	useTypesForOptimization            bool
 	assumeFunctionWrapper              bool
-	warningLevel                       *WarningLevel
+	warningLevel                       WarningLevel
 	debug                              bool
 	typedAstOutputFile                 OptionalOf[string]
 	generateExports                    bool
 	exportLocalPropertyDefinitions     bool
-	formatting                         ListOf[*CommandLineRunner_FormattingOption]
+	formatting                         ListOf[CommandLineRunner_FormattingOption]
 	processCommonJsModules             bool
 	moduleRoot                         ListOf[string]
 	processClosurePrimitives           bool
@@ -773,30 +773,30 @@ type CommandLineRunner_Flags struct {
 	warningsAllowlistFile              string
 	hideWarningsFor                    ListOf[string]
 	extraAnnotationName                ListOf[string]
-	tracerMode                         *CompilerOptions_TracerMode
+	tracerMode                         CompilerOptions_TracerMode
 	renamePrefix                       OptionalOf[string]
 	renamePrefixNamespace              OptionalOf[string]
 	conformanceConfigs                 ListOf[string]
-	environment                        *CompilerOptions_Environment
-	jsonStreamMode                     *CompilerOptions_JsonStreamMode
+	environment                        CompilerOptions_Environment
+	jsonStreamMode                     CompilerOptions_JsonStreamMode
 	preserveTypeAnnotations            bool
 	injectLibraries_                   bool
 	forceInjectLibraries               ListOf[string]
-	dependencyMode                     *DependencyOptions_DependencyMode
+	dependencyMode                     DependencyOptions_DependencyMode
 	entryPoint                         ListOf[string]
 	rewritePolyfills                   bool
 	isolatePolyfills                   bool
 	printSourceAfterEachPass           bool
-	moduleResolutionMode               *ModuleLoader_ResolutionMode
+	moduleResolutionMode               ModuleLoader_ResolutionMode
 	browserResolverPrefixReplacements  MapOf[string, string]
 	packageJsonEntryNames              OptionalOf[string]
-	errorFormat                        *AbstractCommandLineRunner_CommandLineConfig_ErrorFormatOption
+	errorFormat                        AbstractCommandLineRunner_CommandLineConfig_ErrorFormatOption
 	renaming                           bool
 	helpMarkdown                       bool
 	instrumentForCoverageOption        string
 	productionInstrumentationArrayName string
-	chunkOutputType                    *CompilerOptions_ChunkOutputType
-	instrumentCodeParsed               *CompilerOptions_InstrumentOption
+	chunkOutputType                    CompilerOptions_ChunkOutputType
+	instrumentCodeParsed               CompilerOptions_InstrumentOption
 	allowDynamicImport                 bool
 	dynamicImportAlias                 OptionalOf[string]
 	assumeStaticInheritanceIsNotUsed   bool
@@ -876,7 +876,7 @@ func (this *CommandLineRunner_Flags) finit_CommandLineRunner_Flags() {
 	this.define = icast_List(new_ArrayList_0().self())
 	this.charset = ""
 	this.compilationLevel = "SIMPLE"
-	this.compilationLevelParsed = nil
+	this.compilationLevelParsed = 0
 	this.numParallelThreads = 1
 	this.checksOnly = false
 	this.incrementalCheckMode = CompilerOptions_IncrementalCheckMode_OFF
@@ -917,7 +917,7 @@ func (this *CommandLineRunner_Flags) finit_CommandLineRunner_Flags() {
 	this.preserveTypeAnnotations = false
 	this.injectLibraries_ = true
 	this.forceInjectLibraries = icast_List(new_ArrayList_0().self())
-	this.dependencyMode = nil
+	this.dependencyMode = 0
 	this.entryPoint = icast_List(new_ArrayList_0().self())
 	this.rewritePolyfills = true
 	this.isolatePolyfills = false
@@ -981,10 +981,10 @@ func (this *CommandLineRunner_Flags) init_CommandLineRunner_Flags() {
 	}, func(v any) {
 		this.strictModeInput = unbox_[bool](v)
 	})
-	this.parser.option("--jscomp_dev_mode").aliases([]string{"--dev_mode"}).hidden_1(true).enumValue(arrmap_(CompilerOptions_DevMode_values(), func(v_ *CompilerOptions_DevMode) *Enum { return v_.up_Enum() }), func() any {
+	this.parser.option("--jscomp_dev_mode").aliases([]string{"--dev_mode"}).hidden_1(true).enumValue(arrmap_(CompilerOptions_DevMode_values(), func(v_ CompilerOptions_DevMode) *Enum { return v_.enum_() }), func() any {
 		return obj_(this.jscompDevMode)
 	}, func(v_ any) {
-		var v *CompilerOptions_DevMode = cast_[*CompilerOptions_DevMode](v_)
+		var v CompilerOptions_DevMode = cast_[CompilerOptions_DevMode](v_)
 		_ = v
 		this.jscompDevMode = v
 	})
@@ -1040,10 +1040,10 @@ func (this *CommandLineRunner_Flags) init_CommandLineRunner_Flags() {
 		_ = v
 		this.filenameToRestoreFrom = Optional_of[string](v)
 	})
-	this.parser.option("--segment_of_compilation_to_run").hidden_1(true).usage("Which segment of the compilation to run.").enumValue(arrmap_(CompilerOptions_SegmentOfCompilationToRun_values(), func(v_ *CompilerOptions_SegmentOfCompilationToRun) *Enum { return v_.up_Enum() }), func() any {
+	this.parser.option("--segment_of_compilation_to_run").hidden_1(true).usage("Which segment of the compilation to run.").enumValue(arrmap_(CompilerOptions_SegmentOfCompilationToRun_values(), func(v_ CompilerOptions_SegmentOfCompilationToRun) *Enum { return v_.enum_() }), func() any {
 		return obj_(this.segmentOfCompilationToRun)
 	}, func(v_ any) {
-		var v *CompilerOptions_SegmentOfCompilationToRun = cast_[*CompilerOptions_SegmentOfCompilationToRun](v_)
+		var v CompilerOptions_SegmentOfCompilationToRun = cast_[CompilerOptions_SegmentOfCompilationToRun](v_)
 		_ = v
 		this.segmentOfCompilationToRun = v
 	})
@@ -1088,10 +1088,10 @@ func (this *CommandLineRunner_Flags) init_CommandLineRunner_Flags() {
 	}, func(v any) {
 		this.summaryDetailLevel = unbox_[int32](v)
 	})
-	this.parser.option("--isolation_mode").usage("If set to IIFE the compiler output will follow the form:\n  (function(){%output%}).call(this);\nOptions: NONE, IIFE").enumValue(arrmap_(CompilerOptions_IsolationMode_values(), func(v_ *CompilerOptions_IsolationMode) *Enum { return v_.up_Enum() }), func() any {
+	this.parser.option("--isolation_mode").usage("If set to IIFE the compiler output will follow the form:\n  (function(){%output%}).call(this);\nOptions: NONE, IIFE").enumValue(arrmap_(CompilerOptions_IsolationMode_values(), func(v_ CompilerOptions_IsolationMode) *Enum { return v_.enum_() }), func() any {
 		return obj_(this.isolationMode)
 	}, func(v_ any) {
-		var v *CompilerOptions_IsolationMode = cast_[*CompilerOptions_IsolationMode](v_)
+		var v CompilerOptions_IsolationMode = cast_[CompilerOptions_IsolationMode](v_)
 		_ = v
 		this.isolationMode = v
 	})
@@ -1207,10 +1207,10 @@ func (this *CommandLineRunner_Flags) init_CommandLineRunner_Flags() {
 	}, func(v any) {
 		this.checksOnly = unbox_[bool](v)
 	})
-	this.parser.option("--incremental_check_mode").usage("Generate or check externs-like .i.js files representing individual libraries.").enumValue(arrmap_(CompilerOptions_IncrementalCheckMode_values(), func(v_ *CompilerOptions_IncrementalCheckMode) *Enum { return v_.up_Enum() }), func() any {
+	this.parser.option("--incremental_check_mode").usage("Generate or check externs-like .i.js files representing individual libraries.").enumValue(arrmap_(CompilerOptions_IncrementalCheckMode_values(), func(v_ CompilerOptions_IncrementalCheckMode) *Enum { return v_.enum_() }), func() any {
 		return obj_(this.incrementalCheckMode)
 	}, func(v_ any) {
-		var v *CompilerOptions_IncrementalCheckMode = cast_[*CompilerOptions_IncrementalCheckMode](v_)
+		var v CompilerOptions_IncrementalCheckMode = cast_[CompilerOptions_IncrementalCheckMode](v_)
 		_ = v
 		this.incrementalCheckMode = v
 	})
@@ -1229,10 +1229,10 @@ func (this *CommandLineRunner_Flags) init_CommandLineRunner_Flags() {
 	}, func(v any) {
 		this.assumeFunctionWrapper = unbox_[bool](v)
 	})
-	this.parser.option("--warning_level").aliases([]string{"-W"}).usage("Specifies the warning level to use. Options: QUIET, DEFAULT, VERBOSE").enumValue(arrmap_(WarningLevel_values(), func(v_ *WarningLevel) *Enum { return v_.up_Enum() }), func() any {
+	this.parser.option("--warning_level").aliases([]string{"-W"}).usage("Specifies the warning level to use. Options: QUIET, DEFAULT, VERBOSE").enumValue(arrmap_(WarningLevel_values(), func(v_ WarningLevel) *Enum { return v_.enum_() }), func() any {
 		return obj_(this.warningLevel)
 	}, func(v_ any) {
-		var v *WarningLevel = cast_[*WarningLevel](v_)
+		var v WarningLevel = cast_[WarningLevel](v_)
 		_ = v
 		this.warningLevel = v
 	})
@@ -1258,7 +1258,7 @@ func (this *CommandLineRunner_Flags) init_CommandLineRunner_Flags() {
 	}, func(v any) {
 		this.exportLocalPropertyDefinitions = unbox_[bool](v)
 	})
-	this.parser.option("--formatting").usage("Specifies which formatting options, if any, should be applied to the output JS. Options: PRETTY_PRINT, PRINT_INPUT_DELIMITER, SINGLE_QUOTES").enumList(arrmap_(CommandLineRunner_FormattingOption_values(), func(v_ *CommandLineRunner_FormattingOption) *Enum { return v_.up_Enum() }), func() any {
+	this.parser.option("--formatting").usage("Specifies which formatting options, if any, should be applied to the output JS. Options: PRETTY_PRINT, PRINT_INPUT_DELIMITER, SINGLE_QUOTES").enumList(arrmap_(CommandLineRunner_FormattingOption_values(), func(v_ CommandLineRunner_FormattingOption) *Enum { return v_.enum_() }), func() any {
 		return any(this.formatting)
 	}, func(v_ any) {
 		var v List = icast_List(v_)
@@ -1384,10 +1384,10 @@ func (this *CommandLineRunner_Flags) init_CommandLineRunner_Flags() {
 		_ = v
 		this.extraAnnotationName = v
 	})
-	this.parser.option("--tracer_mode").hidden_1(true).usage("Shows the duration of each compiler pass and the impact to the compiled output size. Options: ALL, AST_SIZE, RAW_SIZE, TIMING_ONLY, OFF").enumValue(arrmap_(CompilerOptions_TracerMode_values(), func(v_ *CompilerOptions_TracerMode) *Enum { return v_.up_Enum() }), func() any {
+	this.parser.option("--tracer_mode").hidden_1(true).usage("Shows the duration of each compiler pass and the impact to the compiled output size. Options: ALL, AST_SIZE, RAW_SIZE, TIMING_ONLY, OFF").enumValue(arrmap_(CompilerOptions_TracerMode_values(), func(v_ CompilerOptions_TracerMode) *Enum { return v_.enum_() }), func() any {
 		return obj_(this.tracerMode)
 	}, func(v_ any) {
-		var v *CompilerOptions_TracerMode = cast_[*CompilerOptions_TracerMode](v_)
+		var v CompilerOptions_TracerMode = cast_[CompilerOptions_TracerMode](v_)
 		_ = v
 		this.tracerMode = v
 	})
@@ -1412,17 +1412,17 @@ func (this *CommandLineRunner_Flags) init_CommandLineRunner_Flags() {
 		_ = v
 		this.conformanceConfigs = v
 	})
-	this.parser.option("--env").usage("Determines the set of builtin externs to load. Options: BROWSER, CUSTOM. Defaults to BROWSER.").enumValue(arrmap_(CompilerOptions_Environment_values(), func(v_ *CompilerOptions_Environment) *Enum { return v_.up_Enum() }), func() any {
+	this.parser.option("--env").usage("Determines the set of builtin externs to load. Options: BROWSER, CUSTOM. Defaults to BROWSER.").enumValue(arrmap_(CompilerOptions_Environment_values(), func(v_ CompilerOptions_Environment) *Enum { return v_.enum_() }), func() any {
 		return obj_(this.environment)
 	}, func(v_ any) {
-		var v *CompilerOptions_Environment = cast_[*CompilerOptions_Environment](v_)
+		var v CompilerOptions_Environment = cast_[CompilerOptions_Environment](v_)
 		_ = v
 		this.environment = v
 	})
-	this.parser.option("--json_streams").usage("Specifies whether standard input and output streams will be a JSON array of sources. Each source will be an object of the form {path: filename, src: file_contents, source_map: srcmap_contents }. Intended for use by stream-based build systems such as gulpjs. Options: NONE, IN, OUT, BOTH. Defaults to NONE.").enumValue(arrmap_(CompilerOptions_JsonStreamMode_values(), func(v_ *CompilerOptions_JsonStreamMode) *Enum { return v_.up_Enum() }), func() any {
+	this.parser.option("--json_streams").usage("Specifies whether standard input and output streams will be a JSON array of sources. Each source will be an object of the form {path: filename, src: file_contents, source_map: srcmap_contents }. Intended for use by stream-based build systems such as gulpjs. Options: NONE, IN, OUT, BOTH. Defaults to NONE.").enumValue(arrmap_(CompilerOptions_JsonStreamMode_values(), func(v_ CompilerOptions_JsonStreamMode) *Enum { return v_.enum_() }), func() any {
 		return obj_(this.jsonStreamMode)
 	}, func(v_ any) {
-		var v *CompilerOptions_JsonStreamMode = cast_[*CompilerOptions_JsonStreamMode](v_)
+		var v CompilerOptions_JsonStreamMode = cast_[CompilerOptions_JsonStreamMode](v_)
 		_ = v
 		this.jsonStreamMode = v
 	})
@@ -1443,10 +1443,10 @@ func (this *CommandLineRunner_Flags) init_CommandLineRunner_Flags() {
 		_ = v
 		this.forceInjectLibraries = v
 	})
-	this.parser.option("--dependency_mode").usage("Specifies how the compiler should determine the set and order of files for a compilation. Options: NONE the compiler will include all src files in the order listed, SORT_ONLY the compiler will include all source files in dependency order, PRUNE files will only be included if they are transitive dependencies of files listed in the --entry_point flag and then sorted in dependency order, PRUNE_LEGACY same as PRUNE but files that do not goog.provide a namespace and are not modules will be automatically added as --entry_point entries. Defaults to PRUNE_LEGACY if entry points are defined, otherwise to NONE.").enumValue(arrmap_(DependencyOptions_DependencyMode_values(), func(v_ *DependencyOptions_DependencyMode) *Enum { return v_.up_Enum() }), func() any {
+	this.parser.option("--dependency_mode").usage("Specifies how the compiler should determine the set and order of files for a compilation. Options: NONE the compiler will include all src files in the order listed, SORT_ONLY the compiler will include all source files in dependency order, PRUNE files will only be included if they are transitive dependencies of files listed in the --entry_point flag and then sorted in dependency order, PRUNE_LEGACY same as PRUNE but files that do not goog.provide a namespace and are not modules will be automatically added as --entry_point entries. Defaults to PRUNE_LEGACY if entry points are defined, otherwise to NONE.").enumValue(arrmap_(DependencyOptions_DependencyMode_values(), func(v_ DependencyOptions_DependencyMode) *Enum { return v_.enum_() }), func() any {
 		return obj_(this.dependencyMode)
 	}, func(v_ any) {
-		var v *DependencyOptions_DependencyMode = cast_[*DependencyOptions_DependencyMode](v_)
+		var v DependencyOptions_DependencyMode = cast_[DependencyOptions_DependencyMode](v_)
 		_ = v
 		this.dependencyMode = v
 	})
@@ -1472,10 +1472,10 @@ func (this *CommandLineRunner_Flags) init_CommandLineRunner_Flags() {
 	}, func(v any) {
 		this.printSourceAfterEachPass = unbox_[bool](v)
 	})
-	this.parser.option("--module_resolution").usage("Specifies how the compiler locates modules. BROWSER requires all module imports to begin with a '.' or '/' and have a file extension. NODE uses the node module rules. WEBPACK looks up modules from a special lookup map.").enumValue(arrmap_(ModuleLoader_ResolutionMode_values(), func(v_ *ModuleLoader_ResolutionMode) *Enum { return v_.up_Enum() }), func() any {
+	this.parser.option("--module_resolution").usage("Specifies how the compiler locates modules. BROWSER requires all module imports to begin with a '.' or '/' and have a file extension. NODE uses the node module rules. WEBPACK looks up modules from a special lookup map.").enumValue(arrmap_(ModuleLoader_ResolutionMode_values(), func(v_ ModuleLoader_ResolutionMode) *Enum { return v_.enum_() }), func() any {
 		return obj_(this.moduleResolutionMode)
 	}, func(v_ any) {
-		var v *ModuleLoader_ResolutionMode = cast_[*ModuleLoader_ResolutionMode](v_)
+		var v ModuleLoader_ResolutionMode = cast_[ModuleLoader_ResolutionMode](v_)
 		_ = v
 		this.moduleResolutionMode = v
 	})
@@ -1493,10 +1493,10 @@ func (this *CommandLineRunner_Flags) init_CommandLineRunner_Flags() {
 		_ = v
 		this.packageJsonEntryNames = Optional_of[string](v)
 	})
-	this.parser.option("--error_format").usage("Specifies format for error messages.").enumValue(arrmap_(AbstractCommandLineRunner_CommandLineConfig_ErrorFormatOption_values(), func(v_ *AbstractCommandLineRunner_CommandLineConfig_ErrorFormatOption) *Enum { return v_.up_Enum() }), func() any {
+	this.parser.option("--error_format").usage("Specifies format for error messages.").enumValue(arrmap_(AbstractCommandLineRunner_CommandLineConfig_ErrorFormatOption_values(), func(v_ AbstractCommandLineRunner_CommandLineConfig_ErrorFormatOption) *Enum { return v_.enum_() }), func() any {
 		return obj_(this.errorFormat)
 	}, func(v_ any) {
-		var v *AbstractCommandLineRunner_CommandLineConfig_ErrorFormatOption = cast_[*AbstractCommandLineRunner_CommandLineConfig_ErrorFormatOption](v_)
+		var v AbstractCommandLineRunner_CommandLineConfig_ErrorFormatOption = cast_[AbstractCommandLineRunner_CommandLineConfig_ErrorFormatOption](v_)
 		_ = v
 		this.errorFormat = v
 	})
@@ -1524,10 +1524,10 @@ func (this *CommandLineRunner_Flags) init_CommandLineRunner_Flags() {
 		_ = v
 		this.productionInstrumentationArrayName = v
 	})
-	this.parser.option("--chunk_output_type").usage("Indicates what format the compiler should use for output chunks. GLOBAL_NAMESPACE is typically used in conjunction with --rename_prefix_namespace. ES_MODULES outputs chunks as proper modules with 'import' and 'export' statements.").enumValue(arrmap_(CompilerOptions_ChunkOutputType_values(), func(v_ *CompilerOptions_ChunkOutputType) *Enum { return v_.up_Enum() }), func() any {
+	this.parser.option("--chunk_output_type").usage("Indicates what format the compiler should use for output chunks. GLOBAL_NAMESPACE is typically used in conjunction with --rename_prefix_namespace. ES_MODULES outputs chunks as proper modules with 'import' and 'export' statements.").enumValue(arrmap_(CompilerOptions_ChunkOutputType_values(), func(v_ CompilerOptions_ChunkOutputType) *Enum { return v_.enum_() }), func() any {
 		return obj_(this.chunkOutputType)
 	}, func(v_ any) {
-		var v *CompilerOptions_ChunkOutputType = cast_[*CompilerOptions_ChunkOutputType](v_)
+		var v CompilerOptions_ChunkOutputType = cast_[CompilerOptions_ChunkOutputType](v_)
 		_ = v
 		this.chunkOutputType = v
 	})
@@ -1596,11 +1596,11 @@ func (this *CommandLineRunner_Flags) parse(args *TList[string]) *Outcome_base {
 		return Outcome_base_err(parsed.error())
 	}
 	this.compilationLevelParsed = CompilationLevel_fromString(Optional_of[string](Ascii_toUpperCase(this.compilationLevel)))
-	if this.compilationLevelParsed == nil {
+	if this.compilationLevelParsed == 0 {
 		return Outcome_base_err(new_CmdLineException_CmdLineParser_String(this.parser, ("Bad value for --compilation_level: " + sstr_(this.compilationLevel))).up_Throwable())
 	}
 	this.instrumentCodeParsed = CompilerOptions_InstrumentOption_fromString(Optional_of[string](Ascii_toUpperCase(this.instrumentForCoverageOption)))
-	if this.instrumentCodeParsed == nil {
+	if this.instrumentCodeParsed == 0 {
 		return Outcome_base_err(new_CmdLineException_CmdLineParser_String(this.parser, ("Bad value for --instrument_for_coverage_option: " + sstr_(this.instrumentForCoverageOption))).up_Throwable())
 	}
 	return Outcome_base_ok_0()
@@ -1824,29 +1824,46 @@ func CommandLineRunner_Flags_clinit() {
 
 }
 
-type CommandLineRunner_FormattingOption struct {
-	Enum
+type CommandLineRunner_FormattingOption uint8
+
+// CommandLineRunner_FormattingOption_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var CommandLineRunner_FormattingOption_enum_ = [3]Enum{
+	{self_: CommandLineRunner_FormattingOption_PRETTY_PRINT, name_: "PRETTY_PRINT", ordinal_: 0},
+	{self_: CommandLineRunner_FormattingOption_PRINT_INPUT_DELIMITER, name_: "PRINT_INPUT_DELIMITER", ordinal_: 1},
+	{self_: CommandLineRunner_FormattingOption_SINGLE_QUOTES, name_: "SINGLE_QUOTES", ordinal_: 2},
 }
 
-func (this *CommandLineRunner_FormattingOption) up_Enum() *Enum {
-	if this == nil {
+func (this CommandLineRunner_FormattingOption) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &CommandLineRunner_FormattingOption_enum_[this-1]
 }
 
-func (this *CommandLineRunner_FormattingOption) init_CommandLineRunner_FormattingOption(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this CommandLineRunner_FormattingOption) name() string {
+	return CommandLineRunner_FormattingOption_enum_[this-1].name_
 }
 
-func new_CommandLineRunner_FormattingOption(name_ string, ordinal_ int32) *CommandLineRunner_FormattingOption {
-	this := &CommandLineRunner_FormattingOption{}
-	this.self_ = this
-	this.init_CommandLineRunner_FormattingOption(name_, ordinal_)
+func (this CommandLineRunner_FormattingOption) ordinal() int32 {
+	return CommandLineRunner_FormattingOption_enum_[this-1].ordinal_
+}
+
+func (this CommandLineRunner_FormattingOption) toString() string {
+	return CommandLineRunner_FormattingOption_enum_[this-1].name_
+}
+
+func (this CommandLineRunner_FormattingOption) compareTo(o any) int32 {
+	return CommandLineRunner_FormattingOption_enum_[this-1].compareTo(o)
+}
+
+func (this CommandLineRunner_FormattingOption) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func (this *CommandLineRunner_FormattingOption) applyToOptions(options *CompilerOptions) {
+func (this CommandLineRunner_FormattingOption) applyToOptions(options *CompilerOptions) {
 	switch this {
 	case CommandLineRunner_FormattingOption_PRETTY_PRINT:
 		options.setPrettyPrint(true)
@@ -1857,23 +1874,24 @@ func (this *CommandLineRunner_FormattingOption) applyToOptions(options *Compiler
 	}
 }
 
-func CommandLineRunner_FormattingOption_values() []*CommandLineRunner_FormattingOption {
-	return append([]*CommandLineRunner_FormattingOption(nil), CommandLineRunner_FormattingOption_values_...)
+func CommandLineRunner_FormattingOption_values() []CommandLineRunner_FormattingOption {
+	return append([]CommandLineRunner_FormattingOption(nil), CommandLineRunner_FormattingOption_values_...)
 }
 
-func CommandLineRunner_FormattingOption_valueOf(name string) *CommandLineRunner_FormattingOption {
+func CommandLineRunner_FormattingOption_valueOf(name string) CommandLineRunner_FormattingOption {
 	for _, v := range CommandLineRunner_FormattingOption_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("FormattingOption", name))
 }
 
-var CommandLineRunner_FormattingOption_PRETTY_PRINT *CommandLineRunner_FormattingOption
-var CommandLineRunner_FormattingOption_PRINT_INPUT_DELIMITER *CommandLineRunner_FormattingOption
-var CommandLineRunner_FormattingOption_SINGLE_QUOTES *CommandLineRunner_FormattingOption
-var CommandLineRunner_FormattingOption_values_ []*CommandLineRunner_FormattingOption
+const CommandLineRunner_FormattingOption_PRETTY_PRINT CommandLineRunner_FormattingOption = 1
+const CommandLineRunner_FormattingOption_PRINT_INPUT_DELIMITER CommandLineRunner_FormattingOption = 2
+const CommandLineRunner_FormattingOption_SINGLE_QUOTES CommandLineRunner_FormattingOption = 3
+
+var CommandLineRunner_FormattingOption_values_ []CommandLineRunner_FormattingOption
 
 var CommandLineRunner_FormattingOption_clinit_done bool
 
@@ -1882,10 +1900,7 @@ func CommandLineRunner_FormattingOption_clinit() {
 		return
 	}
 	CommandLineRunner_FormattingOption_clinit_done = true
-	CommandLineRunner_FormattingOption_PRETTY_PRINT = new_CommandLineRunner_FormattingOption("PRETTY_PRINT", 0)
-	CommandLineRunner_FormattingOption_PRINT_INPUT_DELIMITER = new_CommandLineRunner_FormattingOption("PRINT_INPUT_DELIMITER", 1)
-	CommandLineRunner_FormattingOption_SINGLE_QUOTES = new_CommandLineRunner_FormattingOption("SINGLE_QUOTES", 2)
-	CommandLineRunner_FormattingOption_values_ = []*CommandLineRunner_FormattingOption{CommandLineRunner_FormattingOption_PRETTY_PRINT, CommandLineRunner_FormattingOption_PRINT_INPUT_DELIMITER, CommandLineRunner_FormattingOption_SINGLE_QUOTES}
+	CommandLineRunner_FormattingOption_values_ = []CommandLineRunner_FormattingOption{CommandLineRunner_FormattingOption_PRETTY_PRINT, CommandLineRunner_FormattingOption_PRINT_INPUT_DELIMITER, CommandLineRunner_FormattingOption_SINGLE_QUOTES}
 	registerEnum_("com.google.javascript.jscomp.CommandLineRunner.FormattingOption", enumValues_(CommandLineRunner_FormattingOption_values_))
 
 }

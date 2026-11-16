@@ -12,7 +12,7 @@ type TemplateAstMatcher struct {
 	localVarMatches      *TList[string]
 	stringLiteralMatches *TMap[string, Node]
 	isLooseMatchField    bool
-	typeMatchingStrategy *TypeMatchingStrategy
+	typeMatchingStrategy TypeMatchingStrategy
 }
 
 func (this *TemplateAstMatcher) finit_TemplateAstMatcher() {
@@ -24,7 +24,7 @@ func (this *TemplateAstMatcher) finit_TemplateAstMatcher() {
 	this.isLooseMatchField = false
 }
 
-func (this *TemplateAstMatcher) init_TemplateAstMatcher(compiler *AbstractCompiler, templateFunctionNode Node, typeMatchingStrategy *TypeMatchingStrategy) {
+func (this *TemplateAstMatcher) init_TemplateAstMatcher(compiler *AbstractCompiler, templateFunctionNode Node, typeMatchingStrategy TypeMatchingStrategy) {
 	this.finit_TemplateAstMatcher()
 	if !templateFunctionNode.isFunction() {
 		Preconditions_checkState_boolean_String_Object(false, "Template node must be a function node. Received: %s", templateFunctionNode.box_())
@@ -32,10 +32,10 @@ func (this *TemplateAstMatcher) init_TemplateAstMatcher(compiler *AbstractCompil
 	this.topScope = compiler.getTopScope()
 	this.typeRegistry = cast_[*JSTypeRegistry](Preconditions_checkNotNull(obj_(compiler.getTypeRegistry())))
 	this.templateStart = this.initTemplate(templateFunctionNode)
-	this.typeMatchingStrategy = cast_[*TypeMatchingStrategy](Preconditions_checkNotNull(obj_(typeMatchingStrategy)))
+	this.typeMatchingStrategy = cast_[TypeMatchingStrategy](Preconditions_checkNotNull(obj_(typeMatchingStrategy)))
 }
 
-func new_TemplateAstMatcher(compiler *AbstractCompiler, templateFunctionNode Node, typeMatchingStrategy *TypeMatchingStrategy) *TemplateAstMatcher {
+func new_TemplateAstMatcher(compiler *AbstractCompiler, templateFunctionNode Node, typeMatchingStrategy TypeMatchingStrategy) *TemplateAstMatcher {
 	this := &TemplateAstMatcher{}
 	this.init_TemplateAstMatcher(compiler, templateFunctionNode, typeMatchingStrategy)
 	return this
@@ -240,7 +240,7 @@ func (this *TemplateAstMatcher) matchesNode(template Node, ast Node) bool {
 		if this.isUnresolvedType(templateType) {
 			return false
 		}
-		var matchResult *TypeMatchingStrategy_MatchResult = this.typeMatchingStrategy.match(templateType, ast.getJSType())
+		var matchResult TypeMatchingStrategy_MatchResult = this.typeMatchingStrategy.match(templateType, ast.getJSType())
 		this.isLooseMatchField = matchResult.isLooseMatch()
 		var isMatch bool = matchResult.isMatch()
 		if isMatch && (previousMatch == 0) {
@@ -302,9 +302,9 @@ func (this *TemplateAstMatcher) isUnresolvedType(type_ *JSType) bool {
 	return false
 }
 
-var TemplateAstMatcher_TEMPLATE_TYPE_PARAM *Token_rhino
-var TemplateAstMatcher_TEMPLATE_LOCAL_NAME *Token_rhino
-var TemplateAstMatcher_TEMPLATE_STRING_LITERAL *Token_rhino
+var TemplateAstMatcher_TEMPLATE_TYPE_PARAM Token_rhino
+var TemplateAstMatcher_TEMPLATE_LOCAL_NAME Token_rhino
+var TemplateAstMatcher_TEMPLATE_STRING_LITERAL Token_rhino
 
 var TemplateAstMatcher_clinit_done bool
 

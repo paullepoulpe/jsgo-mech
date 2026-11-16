@@ -56,7 +56,7 @@ func new_TemplatizedType(registry *JSTypeRegistry, objectType *ObjectType, templ
 	return this
 }
 
-func (this *TemplatizedType) getTypeClass_impl() *JSTypeClass {
+func (this *TemplatizedType) getTypeClass_impl() JSTypeClass {
 	return TemplatizedType_TYPE_CLASS_FIELD
 }
 
@@ -178,7 +178,7 @@ func (this *TemplatizedType) resolveInternal_impl(reporter ErrorReporter_rhino) 
 	panic("unreachable")
 }
 
-var TemplatizedType_TYPE_CLASS_FIELD *JSTypeClass
+var TemplatizedType_TYPE_CLASS_FIELD JSTypeClass
 
 var TemplatizedType_clinit_done bool
 
@@ -192,7 +192,7 @@ func TemplatizedType_clinit() {
 }
 
 // getTypeClass: an object that is exactly a TemplatizedType calls its getTypeClass_impl directly (post-flip); others dispatch.
-func (this *TemplatizedType) getTypeClass() *JSTypeClass {
+func (this *TemplatizedType) getTypeClass() JSTypeClass {
 	if this.self_ == any(this) {
 		return this.getTypeClass_impl()
 	}

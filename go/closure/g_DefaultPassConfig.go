@@ -266,7 +266,7 @@ func (this *DefaultPassConfig) finit_DefaultPassConfig() {
 	this.earlyInlineVariables = PassFactory_builder().setName("earlyInlineVariables").setInternalFactory(&Function_fn{func(compiler_ any) any {
 		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
 		_ = compiler
-		var mode *InlineVariables_Mode
+		var mode InlineVariables_Mode
 		if this.options_.shouldInlineVariables() {
 			mode = InlineVariables_Mode_ALL
 		} else if this.options_.shouldInlineLocalVariables() {
@@ -339,7 +339,7 @@ func (this *DefaultPassConfig) finit_DefaultPassConfig() {
 	this.checkStrictMode = PassFactory_builder().setName("checkStrictMode").setInternalFactory(&Function_fn{func(compiler_ any) any {
 		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
 		_ = compiler
-		var defaultLevel *CheckLevel = func() *CheckLevel {
+		var defaultLevel CheckLevel = func() CheckLevel {
 			if this.options_.expectStrictModeInput() {
 				return CheckLevel_ERROR
 			}
@@ -403,7 +403,7 @@ func (this *DefaultPassConfig) finit_DefaultPassConfig() {
 	this.inlineVariables = PassFactory_builder().setName(PassNames_INLINE_VARIABLES).setRunInFixedPointLoop(true).setInternalFactory(&Function_fn{func(compiler_ any) any {
 		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
 		_ = compiler
-		var mode *InlineVariables_Mode
+		var mode InlineVariables_Mode
 		if this.options_.shouldInlineVariables() {
 			mode = InlineVariables_Mode_ALL
 		} else if this.options_.shouldInlineLocalVariables() {
@@ -428,7 +428,7 @@ func (this *DefaultPassConfig) finit_DefaultPassConfig() {
 	this.removeUnusedCode = PassFactory_builder().setName(PassNames_REMOVE_UNUSED_CODE).setRunInFixedPointLoop(true).setInternalFactory(&Function_fn{func(compiler_ any) any {
 		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
 		_ = compiler
-		return obj_(new_RemoveUnusedCode_Builder(compiler).removeLocalVars(this.options_.shouldRemoveUnusedLocalVariables()).removeGlobals(this.options_.shouldRemoveUnusedVariables()).preserveFunctionExpressionNames(false).removeUnusedPrototypeProperties(this.options_.shouldRemoveUnusedPrototypeProperties()).removeUnusedThisProperties(this.options_.isRemoveUnusedClassProperties()).removeUnusedObjectDefinePropertiesDefinitions(this.options_.isRemoveUnusedClassProperties()).removeUnusedPolyfills((this.options_.getForceLibraryInjectionList().isEmpty() && (this.options_.getInjectPolyfillsNewerThan() == nil))).assumeGettersArePure(this.options_.getAssumeGettersArePure()).disambiguateProperties(this.options_.shouldDisambiguateProperties()).build())
+		return obj_(new_RemoveUnusedCode_Builder(compiler).removeLocalVars(this.options_.shouldRemoveUnusedLocalVariables()).removeGlobals(this.options_.shouldRemoveUnusedVariables()).preserveFunctionExpressionNames(false).removeUnusedPrototypeProperties(this.options_.shouldRemoveUnusedPrototypeProperties()).removeUnusedThisProperties(this.options_.isRemoveUnusedClassProperties()).removeUnusedObjectDefinePropertiesDefinitions(this.options_.isRemoveUnusedClassProperties()).removeUnusedPolyfills((this.options_.getForceLibraryInjectionList().isEmpty() && (this.options_.getInjectPolyfillsNewerThan() == 0))).assumeGettersArePure(this.options_.getAssumeGettersArePure()).disambiguateProperties(this.options_.shouldDisambiguateProperties()).build())
 	}}).build()
 	this.removeUnusedCodeOnce = this.removeUnusedCode.toBuilder().setRunInFixedPointLoop(false).build()
 	this.crossChunkCodeMotion = PassFactory_builder().setName(PassNames_CROSS_CHUNK_CODE_MOTION).setRunInFixedPointLoop(true).setInternalFactory(&Function_fn{func(compiler_ any) any {
@@ -464,7 +464,7 @@ func (this *DefaultPassConfig) finit_DefaultPassConfig() {
 	this.extractPrototypeMemberDeclarations = PassFactory_builder().setName(PassNames_EXTRACT_PROTOTYPE_MEMBER_DECLARATIONS).setInternalFactory(&Function_fn{func(compiler_ any) any {
 		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
 		_ = compiler
-		var pattern *ExtractPrototypeMemberDeclarations_Pattern = func() *ExtractPrototypeMemberDeclarations_Pattern {
+		var pattern ExtractPrototypeMemberDeclarations_Pattern = func() ExtractPrototypeMemberDeclarations_Pattern {
 			switch this.options_.getExtractPrototypeMemberDeclarationsMode() {
 			case CompilerOptions_ExtractPrototypeMemberDeclarationsMode_USE_GLOBAL_TEMP:
 				return ExtractPrototypeMemberDeclarations_Pattern_USE_GLOBAL_TEMP
@@ -1115,7 +1115,7 @@ func (this *DefaultPassConfig) getTranspileOnlyPasses_impl() *PassListBuilder {
 			panic(new_IllegalStateException_String("Polyfill isolation cannot be used in transpileOnly mode").self())
 		}
 		TranspilationPasses_addRewritePolyfillPass(passes)
-	} else if this.options_.getInjectPolyfillsNewerThan() != nil {
+	} else if this.options_.getInjectPolyfillsNewerThan() != 0 {
 		TranspilationPasses_addRewritePolyfillPass(passes)
 	}
 	passes.maybeAdd(this.injectRuntimeLibraries)
@@ -1545,7 +1545,7 @@ func (this *DefaultPassConfig) getEarlyOptimizationPasses() *PassListBuilder {
 	}
 	passes.maybeAdd(this.transpileAndOptimizeClosureUnaware)
 	TranspilationPasses_addTranspilationRuntimeLibraries(passes)
-	if (this.options_.getRewritePolyfills() || this.options_.getIsolatePolyfills()) || (this.options_.getInjectPolyfillsNewerThan() != nil) {
+	if (this.options_.getRewritePolyfills() || this.options_.getIsolatePolyfills()) || (this.options_.getInjectPolyfillsNewerThan() != 0) {
 		TranspilationPasses_addRewritePolyfillPass(passes)
 	}
 	passes.maybeAdd(this.injectRuntimeLibraries)
@@ -1786,7 +1786,7 @@ func DefaultPassConfig_combineChecks(compiler *AbstractCompiler, callbacks []Nod
 	return icast_CompilerPass(obj_(new_CombinedCompilerPass(compiler, callbacks)))
 }
 
-func (this *DefaultPassConfig) createProcessDefines(mode *ProcessDefines_Mode) *PassFactory {
+func (this *DefaultPassConfig) createProcessDefines(mode ProcessDefines_Mode) *PassFactory {
 	return PassFactory_builder().setName(("processDefines_" + sstr_(mode.name()))).setInternalFactory(&Function_fn{func(compiler_ any) any {
 		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
 		_ = compiler
@@ -1807,7 +1807,7 @@ func (this *DefaultPassConfig) runVariableRenaming(compiler *AbstractCompiler, p
 	return rn.getVariableMap()
 }
 
-func (this *DefaultPassConfig) createGatherExternProperties(mode *GatherExternProperties_Mode) *PassFactory {
+func (this *DefaultPassConfig) createGatherExternProperties(mode GatherExternProperties_Mode) *PassFactory {
 	return PassFactory_builder().setName("gatherExternProperties").setInternalFactory(&Function_fn{func(compiler_ any) any {
 		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
 		_ = compiler
@@ -1815,7 +1815,7 @@ func (this *DefaultPassConfig) createGatherExternProperties(mode *GatherExternPr
 	}}).build()
 }
 
-func (this *DefaultPassConfig) getCustomPasses(executionTime *CustomPassExecutionTime) *PassFactory {
+func (this *DefaultPassConfig) getCustomPasses(executionTime CustomPassExecutionTime) *PassFactory {
 	return PassFactory_builder().setName("runCustomPasses").setInternalFactory(&Function_fn{func(compiler_ any) any {
 		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
 		_ = compiler

@@ -73,7 +73,7 @@ func (this *DisambiguateProperties) process_2(externs Node, root Node) {
 	it_7 := propIndex.each()
 	for it_7.next() {
 		var prop *PropertyClustering = it_7.v
-		var renameUsesResult *UseSiteRenamer_RenameUsesResult = renamer.renameUses(prop)
+		var renameUsesResult UseSiteRenamer_RenameUsesResult = renamer.renameUses(prop)
 		trackerSummaryGenerator.addRenameUsesResult(renameUsesResult)
 		if prop.isInvalidated() && Collection_contains_s(this.propertiesThatMustDisambiguate, prop.getName()) {
 			this.compiler_.report(this.createInvalidationError(prop))
@@ -277,7 +277,7 @@ func new_DisambiguateProperties_TrackerSummaryGenerator() *DisambiguatePropertie
 	return this
 }
 
-func (this *DisambiguateProperties_TrackerSummaryGenerator) addRenameUsesResult(renameUsesResult *UseSiteRenamer_RenameUsesResult) {
+func (this *DisambiguateProperties_TrackerSummaryGenerator) addRenameUsesResult(renameUsesResult UseSiteRenamer_RenameUsesResult) {
 	this.total++
 	switch renameUsesResult {
 	case UseSiteRenamer_RenameUsesResult_INVALIDATED:
@@ -389,7 +389,7 @@ type DisambiguateProperties_TypeNodeJson struct {
 	invalidating bool
 	colorId      string
 	edges        ImmutableSortedSetOf[*DisambiguateProperties_TypeEdgeJson]
-	props        ImmutableSortedMapOf[string, *ColorGraphNode_PropAssociation]
+	props        ImmutableSortedMapOf[string, ColorGraphNode_PropAssociation]
 }
 
 func (this *DisambiguateProperties_TypeNodeJson) zero_DisambiguateProperties_TypeNodeJson() {
@@ -408,7 +408,7 @@ func (this *DisambiguateProperties_TypeNodeJson) init_DisambiguateProperties_Typ
 		edgesBuilder.add(obj_(new_DisambiguateProperties_TypeEdgeJson(e)))
 	}
 	this.edges = cast_[*ImmutableSortedSet](obj_(edgesBuilder.build()))
-	var propsBuilder ImmutableSortedMap_BuilderOf[string, *ColorGraphNode_PropAssociation] = ImmutableSortedMap_naturalOrder()
+	var propsBuilder ImmutableSortedMap_BuilderOf[string, ColorGraphNode_PropAssociation] = ImmutableSortedMap_naturalOrder()
 	it_3 := foreach_(any(t.getAssociatedProps().asMap().entrySet()))
 	for it_3.next() {
 		var e Map_Entry = icast_Map_Entry(it_3.v)

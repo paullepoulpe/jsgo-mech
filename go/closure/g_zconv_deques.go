@@ -47,7 +47,7 @@ var tc_p_LiveVariablesAnalysis = &tconv_[*LiveVariablesAnalysis]{box: func(v *Li
 var tc_p_MakeDeclaredNamesUnique_ContextualRenameInverter_ScopeContext = &tconv_[*MakeDeclaredNamesUnique_ContextualRenameInverter_ScopeContext]{box: func(v *MakeDeclaredNamesUnique_ContextualRenameInverter_ScopeContext) any { return obj_(v) }, unbox: func(v any) *MakeDeclaredNamesUnique_ContextualRenameInverter_ScopeContext {
 	return cast_[*MakeDeclaredNamesUnique_ContextualRenameInverter_ScopeContext](v)
 }}
-var tc_p_Parser_FunctionFlavor = &tconv_[*Parser_FunctionFlavor]{box: func(v *Parser_FunctionFlavor) any { return obj_(v) }, unbox: func(v any) *Parser_FunctionFlavor { return cast_[*Parser_FunctionFlavor](v) }}
+var tc_p_Parser_FunctionFlavor = &tconv_[Parser_FunctionFlavor]{box: func(v Parser_FunctionFlavor) any { return obj_(v) }, unbox: func(v any) Parser_FunctionFlavor { return cast_[Parser_FunctionFlavor](v) }}
 var tc_p_RenameLabels_LabelNamespace = &tconv_[*RenameLabels_LabelNamespace]{box: func(v *RenameLabels_LabelNamespace) any { return obj_(v) }, unbox: func(v any) *RenameLabels_LabelNamespace { return cast_[*RenameLabels_LabelNamespace](v) }}
 var tc_p_RewriteAsyncFunctions_LexicalContext = &tconv_[*RewriteAsyncFunctions_LexicalContext]{box: func(v *RewriteAsyncFunctions_LexicalContext) any { return v.self() }, unbox: func(v any) *RewriteAsyncFunctions_LexicalContext { return to_RewriteAsyncFunctions_LexicalContext(v) }}
 var tc_p_RewriteAsyncIteration_LexicalContext = &tconv_[*RewriteAsyncIteration_LexicalContext]{box: func(v *RewriteAsyncIteration_LexicalContext) any { return obj_(v) }, unbox: func(v any) *RewriteAsyncIteration_LexicalContext {

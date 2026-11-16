@@ -6,12 +6,12 @@ type AstFactory struct {
 	colorRegistry       *ColorRegistry
 	registry            *JSTypeRegistry
 	unknownType         *JSType
-	typeMode            *AstFactory_TypeMode
-	lifeCycleStage      *AbstractCompiler_LifeCycleStage
+	typeMode            AstFactory_TypeMode
+	lifeCycleStage      AbstractCompiler_LifeCycleStage
 	runtimeJsLibManager *RuntimeJsLibManager
 }
 
-func (this *AstFactory) init_AstFactory_LifeCycleStage_JSTypeRegistry_ColorRegistry_RuntimeJsLibManager_TypeMode(lifeCycleStage *AbstractCompiler_LifeCycleStage, registry *JSTypeRegistry, colorRegistry *ColorRegistry, runtimeJsLibManager *RuntimeJsLibManager, typeMode *AstFactory_TypeMode) {
+func (this *AstFactory) init_AstFactory_LifeCycleStage_JSTypeRegistry_ColorRegistry_RuntimeJsLibManager_TypeMode(lifeCycleStage AbstractCompiler_LifeCycleStage, registry *JSTypeRegistry, colorRegistry *ColorRegistry, runtimeJsLibManager *RuntimeJsLibManager, typeMode AstFactory_TypeMode) {
 	this.lifeCycleStage = lifeCycleStage
 	this.registry = registry
 	this.runtimeJsLibManager = runtimeJsLibManager
@@ -25,13 +25,13 @@ func (this *AstFactory) init_AstFactory_LifeCycleStage_JSTypeRegistry_ColorRegis
 	this.typeMode = typeMode
 }
 
-func new_AstFactory_LifeCycleStage_JSTypeRegistry_ColorRegistry_RuntimeJsLibManager_TypeMode(lifeCycleStage *AbstractCompiler_LifeCycleStage, registry *JSTypeRegistry, colorRegistry *ColorRegistry, runtimeJsLibManager *RuntimeJsLibManager, typeMode *AstFactory_TypeMode) *AstFactory {
+func new_AstFactory_LifeCycleStage_JSTypeRegistry_ColorRegistry_RuntimeJsLibManager_TypeMode(lifeCycleStage AbstractCompiler_LifeCycleStage, registry *JSTypeRegistry, colorRegistry *ColorRegistry, runtimeJsLibManager *RuntimeJsLibManager, typeMode AstFactory_TypeMode) *AstFactory {
 	this := &AstFactory{}
 	this.init_AstFactory_LifeCycleStage_JSTypeRegistry_ColorRegistry_RuntimeJsLibManager_TypeMode(lifeCycleStage, registry, colorRegistry, runtimeJsLibManager, typeMode)
 	return this
 }
 
-func (this *AstFactory) init_AstFactory_LifeCycleStage_RuntimeJsLibManager(lifeCycleStage *AbstractCompiler_LifeCycleStage, runtimeJsLibManager *RuntimeJsLibManager) {
+func (this *AstFactory) init_AstFactory_LifeCycleStage_RuntimeJsLibManager(lifeCycleStage AbstractCompiler_LifeCycleStage, runtimeJsLibManager *RuntimeJsLibManager) {
 	this.lifeCycleStage = lifeCycleStage
 	this.registry = nil
 	this.runtimeJsLibManager = runtimeJsLibManager
@@ -40,21 +40,21 @@ func (this *AstFactory) init_AstFactory_LifeCycleStage_RuntimeJsLibManager(lifeC
 	this.typeMode = AstFactory_TypeMode_NONE
 }
 
-func new_AstFactory_LifeCycleStage_RuntimeJsLibManager(lifeCycleStage *AbstractCompiler_LifeCycleStage, runtimeJsLibManager *RuntimeJsLibManager) *AstFactory {
+func new_AstFactory_LifeCycleStage_RuntimeJsLibManager(lifeCycleStage AbstractCompiler_LifeCycleStage, runtimeJsLibManager *RuntimeJsLibManager) *AstFactory {
 	this := &AstFactory{}
 	this.init_AstFactory_LifeCycleStage_RuntimeJsLibManager(lifeCycleStage, runtimeJsLibManager)
 	return this
 }
 
-func AstFactory_createFactoryWithoutTypes(lifeCycleStage *AbstractCompiler_LifeCycleStage, runtimeJsLibManager *RuntimeJsLibManager) *AstFactory {
+func AstFactory_createFactoryWithoutTypes(lifeCycleStage AbstractCompiler_LifeCycleStage, runtimeJsLibManager *RuntimeJsLibManager) *AstFactory {
 	return new_AstFactory_LifeCycleStage_RuntimeJsLibManager(lifeCycleStage, runtimeJsLibManager)
 }
 
-func AstFactory_createFactoryWithTypes(lifeCycleStage *AbstractCompiler_LifeCycleStage, registry *JSTypeRegistry, runtimeJsLibManager *RuntimeJsLibManager) *AstFactory {
+func AstFactory_createFactoryWithTypes(lifeCycleStage AbstractCompiler_LifeCycleStage, registry *JSTypeRegistry, runtimeJsLibManager *RuntimeJsLibManager) *AstFactory {
 	return new_AstFactory_LifeCycleStage_JSTypeRegistry_ColorRegistry_RuntimeJsLibManager_TypeMode(lifeCycleStage, registry, nil, runtimeJsLibManager, AstFactory_TypeMode_JSTYPE)
 }
 
-func AstFactory_createFactoryWithColors(lifeCycleStage *AbstractCompiler_LifeCycleStage, colorRegistry *ColorRegistry, runtimeJsLibManager *RuntimeJsLibManager) *AstFactory {
+func AstFactory_createFactoryWithColors(lifeCycleStage AbstractCompiler_LifeCycleStage, colorRegistry *ColorRegistry, runtimeJsLibManager *RuntimeJsLibManager) *AstFactory {
 	return new_AstFactory_LifeCycleStage_JSTypeRegistry_ColorRegistry_RuntimeJsLibManager_TypeMode(lifeCycleStage, nil, colorRegistry, runtimeJsLibManager, AstFactory_TypeMode_COLOR)
 }
 
@@ -270,7 +270,7 @@ func (this *AstFactory) createThisAliasReferenceForEs6Class(aliasName string, fu
 	return this.createName(aliasName, this.getTypeOfThisForEs6Class(functionNode))
 }
 
-func (this *AstFactory) createSingleNameDeclaration(tokenType *Token_rhino, name string, value Node) Node {
+func (this *AstFactory) createSingleNameDeclaration(tokenType Token_rhino, name string, value Node) Node {
 	return func() Node {
 		switch tokenType {
 		case Token_rhino_LET:
@@ -768,7 +768,7 @@ func (this *AstFactory) createObjectDotAssignCall(scope StaticScope, returnType 
 	switch this.typeMode {
 	case AstFactory_TypeMode_JSTYPE:
 		var returnJSType *JSType = returnType.getJSType(this.registry)
-		var objAssignType *JSType = this.registry.createFunctionTypeWithVarArgs(returnJSType, []*JSType{this.registry.getNativeType(JSTypeNative_OBJECT_TYPE), this.registry.createUnionTypeJSTypeNativeVarargs([]*JSTypeNative{JSTypeNative_OBJECT_TYPE, JSTypeNative_NULL_TYPE})}).up_JSType()
+		var objAssignType *JSType = this.registry.createFunctionTypeWithVarArgs(returnJSType, []*JSType{this.registry.getNativeType(JSTypeNative_OBJECT_TYPE), this.registry.createUnionTypeJSTypeNativeVarargs([]JSTypeNative{JSTypeNative_OBJECT_TYPE, JSTypeNative_NULL_TYPE})}).up_JSType()
 		objAssign.setJSType(objAssignType)
 	case AstFactory_TypeMode_COLOR, AstFactory_TypeMode_NONE:
 	}
@@ -1124,7 +1124,7 @@ func (this *AstFactory) createJscompAsyncExecutePromiseGeneratorFunctionCall(sco
 	return call
 }
 
-func (this *AstFactory) getNativeType(nativeType *JSTypeNative) *JSType {
+func (this *AstFactory) getNativeType(nativeType JSTypeNative) *JSType {
 	Preconditions_checkNotNull_Object_Object(obj_(this.registry), strobj_("registry is null"))
 	return to_JSType(Preconditions_checkNotNull_Object_String_Object(this.registry.getNativeType(nativeType).self(), "native type not found: %s", obj_(nativeType)))
 }
@@ -1168,31 +1168,31 @@ func AstFactory_type_Node(node Node) AstFactory_Type {
 }
 
 func AstFactory_typeJSType_JSType(type_ *JSType) AstFactory_Type {
-	return icast_AstFactory_Type(obj_(new_AstFactory_JSTypeOrColor(type_, nil, nil, nil)))
+	return icast_AstFactory_Type(obj_(new_AstFactory_JSTypeOrColor(type_, 0, nil, nil)))
 }
 
-func AstFactory_typeJSTypeNative(type_ *JSTypeNative) AstFactory_Type {
+func AstFactory_typeJSTypeNative(type_ JSTypeNative) AstFactory_Type {
 	return icast_AstFactory_Type(obj_(new_AstFactory_JSTypeOrColor(nil, type_, nil, nil)))
 }
 
 func AstFactory_typeColor(type_ *Color) AstFactory_Type {
-	return icast_AstFactory_Type(obj_(new_AstFactory_JSTypeOrColor(nil, nil, type_, nil)))
+	return icast_AstFactory_Type(obj_(new_AstFactory_JSTypeOrColor(nil, 0, type_, nil)))
 }
 
 func AstFactory_typeColorId(type_ *ColorId) AstFactory_Type {
-	return icast_AstFactory_Type(obj_(new_AstFactory_JSTypeOrColor(nil, nil, nil, type_)))
+	return icast_AstFactory_Type(obj_(new_AstFactory_JSTypeOrColor(nil, 0, nil, type_)))
 }
 
 func AstFactory_typeJSType_JSType_Color(type_ *JSType, color *Color) AstFactory_Type {
-	return icast_AstFactory_Type(obj_(new_AstFactory_JSTypeOrColor(type_, nil, color, nil)))
+	return icast_AstFactory_Type(obj_(new_AstFactory_JSTypeOrColor(type_, 0, color, nil)))
 }
 
-func AstFactory_type_JSTypeNative_Color(type_ *JSTypeNative, color *Color) AstFactory_Type {
+func AstFactory_type_JSTypeNative_Color(type_ JSTypeNative, color *Color) AstFactory_Type {
 	return icast_AstFactory_Type(obj_(new_AstFactory_JSTypeOrColor(nil, type_, color, nil)))
 }
 
 func AstFactory_noTypeInformation() AstFactory_Type {
-	return icast_AstFactory_Type(obj_(new_AstFactory_JSTypeOrColor(nil, nil, nil, nil)))
+	return icast_AstFactory_Type(obj_(new_AstFactory_JSTypeOrColor(nil, 0, nil, nil)))
 }
 
 var AstFactory_DOT_SPLITTER *Splitter
@@ -1215,45 +1215,57 @@ var lambda_AstFactory_clinit_1_ = &Supplier_base_fn{func() any {
 	return obj_(Color_createUnion(tsetFrom_(tch_p_Color, ImmutableSet_of_Object_Object_Object(obj_(StandardColors_BIGINT), obj_(StandardColors_STRING), obj_(StandardColors_NUMBER)), true)))
 }}
 
-type AstFactory_TypeMode struct {
-	Enum
+type AstFactory_TypeMode uint8
+
+// AstFactory_TypeMode_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var AstFactory_TypeMode_enum_ = [3]Enum{
+	{self_: AstFactory_TypeMode_JSTYPE, name_: "JSTYPE", ordinal_: 0},
+	{self_: AstFactory_TypeMode_COLOR, name_: "COLOR", ordinal_: 1},
+	{self_: AstFactory_TypeMode_NONE, name_: "NONE", ordinal_: 2},
 }
 
-func (this *AstFactory_TypeMode) up_Enum() *Enum {
-	if this == nil {
+func (this AstFactory_TypeMode) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &AstFactory_TypeMode_enum_[this-1]
 }
 
-func (this *AstFactory_TypeMode) init_AstFactory_TypeMode(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this AstFactory_TypeMode) name() string { return AstFactory_TypeMode_enum_[this-1].name_ }
+
+func (this AstFactory_TypeMode) ordinal() int32 { return AstFactory_TypeMode_enum_[this-1].ordinal_ }
+
+func (this AstFactory_TypeMode) toString() string { return AstFactory_TypeMode_enum_[this-1].name_ }
+
+func (this AstFactory_TypeMode) compareTo(o any) int32 {
+	return AstFactory_TypeMode_enum_[this-1].compareTo(o)
 }
 
-func new_AstFactory_TypeMode(name_ string, ordinal_ int32) *AstFactory_TypeMode {
-	this := &AstFactory_TypeMode{}
-	this.self_ = this
-	this.init_AstFactory_TypeMode(name_, ordinal_)
+func (this AstFactory_TypeMode) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func AstFactory_TypeMode_values() []*AstFactory_TypeMode {
-	return append([]*AstFactory_TypeMode(nil), AstFactory_TypeMode_values_...)
+func AstFactory_TypeMode_values() []AstFactory_TypeMode {
+	return append([]AstFactory_TypeMode(nil), AstFactory_TypeMode_values_...)
 }
 
-func AstFactory_TypeMode_valueOf(name string) *AstFactory_TypeMode {
+func AstFactory_TypeMode_valueOf(name string) AstFactory_TypeMode {
 	for _, v := range AstFactory_TypeMode_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("TypeMode", name))
 }
 
-var AstFactory_TypeMode_JSTYPE *AstFactory_TypeMode
-var AstFactory_TypeMode_COLOR *AstFactory_TypeMode
-var AstFactory_TypeMode_NONE *AstFactory_TypeMode
-var AstFactory_TypeMode_values_ []*AstFactory_TypeMode
+const AstFactory_TypeMode_JSTYPE AstFactory_TypeMode = 1
+const AstFactory_TypeMode_COLOR AstFactory_TypeMode = 2
+const AstFactory_TypeMode_NONE AstFactory_TypeMode = 3
+
+var AstFactory_TypeMode_values_ []AstFactory_TypeMode
 
 var AstFactory_TypeMode_clinit_done bool
 
@@ -1262,10 +1274,7 @@ func AstFactory_TypeMode_clinit() {
 		return
 	}
 	AstFactory_TypeMode_clinit_done = true
-	AstFactory_TypeMode_JSTYPE = new_AstFactory_TypeMode("JSTYPE", 0)
-	AstFactory_TypeMode_COLOR = new_AstFactory_TypeMode("COLOR", 1)
-	AstFactory_TypeMode_NONE = new_AstFactory_TypeMode("NONE", 2)
-	AstFactory_TypeMode_values_ = []*AstFactory_TypeMode{AstFactory_TypeMode_JSTYPE, AstFactory_TypeMode_COLOR, AstFactory_TypeMode_NONE}
+	AstFactory_TypeMode_values_ = []AstFactory_TypeMode{AstFactory_TypeMode_JSTYPE, AstFactory_TypeMode_COLOR, AstFactory_TypeMode_NONE}
 	registerEnum_("com.google.javascript.jscomp.AstFactory.TypeMode", enumValues_(AstFactory_TypeMode_values_))
 
 }
@@ -1311,19 +1320,19 @@ func (this *AstFactory_TypeOnNode) getColor(registry *ColorRegistry) *Color {
 
 type AstFactory_JSTypeOrColor struct {
 	jstype       *JSType
-	jstypeNative *JSTypeNative
+	jstypeNative JSTypeNative
 	color_       *Color
 	colorId      *ColorId
 }
 
-func (this *AstFactory_JSTypeOrColor) init_AstFactory_JSTypeOrColor(jstype *JSType, jstypeNative *JSTypeNative, color *Color, colorId *ColorId) {
+func (this *AstFactory_JSTypeOrColor) init_AstFactory_JSTypeOrColor(jstype *JSType, jstypeNative JSTypeNative, color *Color, colorId *ColorId) {
 	this.jstype = jstype
 	this.jstypeNative = jstypeNative
 	this.color_ = color
 	this.colorId = colorId
 }
 
-func new_AstFactory_JSTypeOrColor(jstype *JSType, jstypeNative *JSTypeNative, color *Color, colorId *ColorId) *AstFactory_JSTypeOrColor {
+func new_AstFactory_JSTypeOrColor(jstype *JSType, jstypeNative JSTypeNative, color *Color, colorId *ColorId) *AstFactory_JSTypeOrColor {
 	this := &AstFactory_JSTypeOrColor{}
 	this.init_AstFactory_JSTypeOrColor(jstype, jstypeNative, color, colorId)
 	return this

@@ -6,7 +6,7 @@ type ProcessDefines struct {
 	compiler_                           *AbstractCompiler
 	registry                            *JSTypeRegistry
 	replacementValuesFromFlags          ImmutableMapOf[string, Node]
-	mode_                               *ProcessDefines_Mode
+	mode_                               ProcessDefines_Mode
 	namespaceSupplier                   SupplierOf[*GlobalNamespace]
 	recognizeClosureDefines             bool
 	enableZonesDefineName               OptionalOf[string]
@@ -35,7 +35,7 @@ func (this *ProcessDefines) init_ProcessDefines(builder *ProcessDefines_Builder)
 	this.mode_ = builder.mode_
 	this.compiler_ = builder.compiler_
 	this.registry = func() *JSTypeRegistry {
-		if this.mode_.check_ {
+		if ProcessDefines_Mode_check__[this.mode_-1] {
 			return this.compiler_.getTypeRegistry()
 		}
 		return nil
@@ -74,7 +74,7 @@ func (this *ProcessDefines) initNamespace(externs Node, root Node) {
 }
 
 func (this *ProcessDefines) overrideDefines() {
-	if this.mode_.optimize {
+	if ProcessDefines_Mode_optimize_[this.mode_-1] {
 		it_1 := this.defineByDefineName.each()
 		for it_1.next() {
 			var define *ProcessDefines_Define = it_1.v
@@ -114,7 +114,7 @@ func (this *ProcessDefines) overrideDefines() {
 			}
 		}
 	}
-	if this.mode_.optimize {
+	if ProcessDefines_Mode_optimize_[this.mode_-1] {
 		var unusedReplacements SetOf[string] = icast_Set(obj_(Sets_difference(icast_Set(obj_(Sets_union(this.replacementValuesFromFlags.keySet(), this.replacementValuesFromClosureDefines.asMap().keySet()))), icast_Set(obj_(Sets_union(icast_Set(obj_(Sets_union(icast_Set(obj_(ProcessDefines_KNOWN_DEFINES)), this.defineByDefineName.asMap().keySet()))), icast_Set(obj_(this.unknownDefinesToIgnore))))))))
 		it_3 := foreach_(any(unusedReplacements))
 		for it_3.next() {
@@ -296,7 +296,7 @@ func (this *ProcessDefines) collectValidDefineValueExpressions() {
 }
 
 func (this *ProcessDefines) validateDefineDeclarations() {
-	if !this.mode_.check_ {
+	if !ProcessDefines_Mode_check__[this.mode_-1] {
 		return
 	}
 	it_1 := this.defineByDefineName.each()
@@ -317,7 +317,7 @@ func (this *ProcessDefines) validateDefineDeclarations() {
 }
 
 func (this *ProcessDefines) reportInvalidDefineLocations(root Node) {
-	if !this.mode_.check_ {
+	if !ProcessDefines_Mode_check__[this.mode_-1] {
 		return
 	}
 	NodeTraversal_builder().setCompiler(this.compiler_).setCallbackAbstractPostOrderCallbackInterface(&NodeTraversal_AbstractPostOrderCallbackInterface_fn{func(t *NodeTraversal, n Node, parent Node) {
@@ -341,7 +341,7 @@ func (this *ProcessDefines) handleClosureDefinesValue(stringNode Node, valueNode
 			this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(errorNode, ProcessDefines_CLOSURE_DEFINES_MULTIPLE, []string{key, this.replacementValuesFromClosureDefines.get(key).getLocation()}))
 		}
 		this.replacementValuesFromClosureDefines.put(key, valueNode)
-	} else if this.mode_.check_ {
+	} else if ProcessDefines_Mode_check__[this.mode_-1] {
 		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(errorNode, ProcessDefines_CLOSURE_DEFINES_ERROR, []string{}))
 	}
 }
@@ -375,7 +375,7 @@ func ProcessDefines_isGlobalConst(name *GlobalNamespace_Name) bool {
 	return (((name.getTotalSets() == 1) && (cast_[*GlobalNamespace_Ref](name.getDeclaration()) != nil)) && cast_[*GlobalNamespace_Ref](name.getDeclaration()).isSetFromGlobal())
 }
 
-func (this *ProcessDefines) isValidDefineValue(val Node) *Tri {
+func (this *ProcessDefines) isValidDefineValue(val Node) Tri {
 	if val == 0 {
 		return Tri_FALSE
 	}
@@ -390,7 +390,7 @@ func (this *ProcessDefines) isValidDefineValue(val Node) *Tri {
 		return this.isValidDefineValue(val.getFirstChild())
 	case tokOrd1_NAME, tokOrd1_GETPROP:
 		if val.isQualifiedName() {
-			return func() *Tri {
+			return func() Tri {
 				if has_(this.validDefineValueExpressions, val) {
 					return Tri_TRUE
 				}
@@ -525,7 +525,7 @@ func (this *ProcessDefines) verifyIsLast(methodName Node, arg Node) bool {
 	return true
 }
 
-func (this *ProcessDefines) verifyOfType(methodName Node, arg Node, desiredType *Token_rhino) bool {
+func (this *ProcessDefines) verifyOfType(methodName Node, arg Node, desiredType Token_rhino) bool {
 	if arg.getToken() != desiredType {
 		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(methodName, ClosurePrimitiveErrors_INVALID_ARGUMENT_ERROR, []string{methodName.getQualifiedName()}))
 		return false
@@ -574,49 +574,66 @@ func ProcessDefines_clinit() {
 
 }
 
-type ProcessDefines_Mode struct {
-	Enum
-	check_   bool
-	optimize bool
+type ProcessDefines_Mode uint8
+
+// ProcessDefines_Mode_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var ProcessDefines_Mode_enum_ = [3]Enum{
+	{self_: ProcessDefines_Mode_CHECK, name_: "CHECK", ordinal_: 0},
+	{self_: ProcessDefines_Mode_OPTIMIZE, name_: "OPTIMIZE", ordinal_: 1},
+	{self_: ProcessDefines_Mode_CHECK_AND_OPTIMIZE, name_: "CHECK_AND_OPTIMIZE", ordinal_: 2},
 }
 
-func (this *ProcessDefines_Mode) up_Enum() *Enum {
-	if this == nil {
+var ProcessDefines_Mode_check__ [3]bool
+
+var ProcessDefines_Mode_optimize_ [3]bool
+
+func (this ProcessDefines_Mode) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &ProcessDefines_Mode_enum_[this-1]
 }
 
-func (this *ProcessDefines_Mode) init_ProcessDefines_Mode(name_ string, ordinal_ int32, check bool, optimize bool) {
-	this.Enum.init_Enum(name_, ordinal_)
-	this.check_ = check
-	this.optimize = optimize
+func (this ProcessDefines_Mode) name() string { return ProcessDefines_Mode_enum_[this-1].name_ }
+
+func (this ProcessDefines_Mode) ordinal() int32 { return ProcessDefines_Mode_enum_[this-1].ordinal_ }
+
+func (this ProcessDefines_Mode) toString() string { return ProcessDefines_Mode_enum_[this-1].name_ }
+
+func (this ProcessDefines_Mode) compareTo(o any) int32 {
+	return ProcessDefines_Mode_enum_[this-1].compareTo(o)
 }
 
-func new_ProcessDefines_Mode(name_ string, ordinal_ int32, check bool, optimize bool) *ProcessDefines_Mode {
-	this := &ProcessDefines_Mode{}
-	this.self_ = this
-	this.init_ProcessDefines_Mode(name_, ordinal_, check, optimize)
+func (this ProcessDefines_Mode) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func ProcessDefines_Mode_values() []*ProcessDefines_Mode {
-	return append([]*ProcessDefines_Mode(nil), ProcessDefines_Mode_values_...)
+func (this ProcessDefines_Mode) init_ProcessDefines_Mode(check bool, optimize bool) {
+	ProcessDefines_Mode_check__[this-1] = check
+	ProcessDefines_Mode_optimize_[this-1] = optimize
 }
 
-func ProcessDefines_Mode_valueOf(name string) *ProcessDefines_Mode {
+func ProcessDefines_Mode_values() []ProcessDefines_Mode {
+	return append([]ProcessDefines_Mode(nil), ProcessDefines_Mode_values_...)
+}
+
+func ProcessDefines_Mode_valueOf(name string) ProcessDefines_Mode {
 	for _, v := range ProcessDefines_Mode_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("Mode", name))
 }
 
-var ProcessDefines_Mode_CHECK *ProcessDefines_Mode
-var ProcessDefines_Mode_OPTIMIZE *ProcessDefines_Mode
-var ProcessDefines_Mode_CHECK_AND_OPTIMIZE *ProcessDefines_Mode
-var ProcessDefines_Mode_values_ []*ProcessDefines_Mode
+const ProcessDefines_Mode_CHECK ProcessDefines_Mode = 1
+const ProcessDefines_Mode_OPTIMIZE ProcessDefines_Mode = 2
+const ProcessDefines_Mode_CHECK_AND_OPTIMIZE ProcessDefines_Mode = 3
+
+var ProcessDefines_Mode_values_ []ProcessDefines_Mode
 
 var ProcessDefines_Mode_clinit_done bool
 
@@ -625,10 +642,10 @@ func ProcessDefines_Mode_clinit() {
 		return
 	}
 	ProcessDefines_Mode_clinit_done = true
-	ProcessDefines_Mode_CHECK = new_ProcessDefines_Mode("CHECK", 0, true, false)
-	ProcessDefines_Mode_OPTIMIZE = new_ProcessDefines_Mode("OPTIMIZE", 1, false, true)
-	ProcessDefines_Mode_CHECK_AND_OPTIMIZE = new_ProcessDefines_Mode("CHECK_AND_OPTIMIZE", 2, true, true)
-	ProcessDefines_Mode_values_ = []*ProcessDefines_Mode{ProcessDefines_Mode_CHECK, ProcessDefines_Mode_OPTIMIZE, ProcessDefines_Mode_CHECK_AND_OPTIMIZE}
+	ProcessDefines_Mode_CHECK.init_ProcessDefines_Mode(true, false)
+	ProcessDefines_Mode_OPTIMIZE.init_ProcessDefines_Mode(false, true)
+	ProcessDefines_Mode_CHECK_AND_OPTIMIZE.init_ProcessDefines_Mode(true, true)
+	ProcessDefines_Mode_values_ = []ProcessDefines_Mode{ProcessDefines_Mode_CHECK, ProcessDefines_Mode_OPTIMIZE, ProcessDefines_Mode_CHECK_AND_OPTIMIZE}
 	registerEnum_("com.google.javascript.jscomp.ProcessDefines.Mode", enumValues_(ProcessDefines_Mode_values_))
 
 }
@@ -636,7 +653,7 @@ func ProcessDefines_Mode_clinit() {
 type ProcessDefines_Builder struct {
 	compiler_               *AbstractCompiler
 	replacementValues       *TMap[string, Node]
-	mode_                   *ProcessDefines_Mode
+	mode_                   ProcessDefines_Mode
 	namespaceSupplier       SupplierOf[*GlobalNamespace]
 	recognizeClosureDefines bool
 	enableZonesDefineName   OptionalOf[string]
@@ -668,7 +685,7 @@ func (this *ProcessDefines_Builder) putReplacements(replacementValues *TMap[stri
 	return this
 }
 
-func (this *ProcessDefines_Builder) setMode(x *ProcessDefines_Mode) *ProcessDefines_Builder {
+func (this *ProcessDefines_Builder) setMode(x ProcessDefines_Mode) *ProcessDefines_Builder {
 	this.mode_ = x
 	return this
 }

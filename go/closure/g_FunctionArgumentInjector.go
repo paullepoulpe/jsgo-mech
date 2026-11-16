@@ -463,7 +463,7 @@ func (this *FunctionArgumentInjector_ReferencedAfterSideEffect) visit(n Node) {
 
 func (this *FunctionArgumentInjector_ReferencedAfterSideEffect) hasNonLocalSideEffect(n Node) bool {
 	var sideEffect bool = false
-	var type_ *Token_rhino = n.getToken()
+	var type_ Token_rhino = n.getToken()
 	if (NodeUtil_isAssignmentOp(n) || (type_ == Token_rhino_INC)) || (type_ == Token_rhino_DEC) {
 		var lhs Node = n.getFirstChild()
 		if !this.isLocalName(lhs) {

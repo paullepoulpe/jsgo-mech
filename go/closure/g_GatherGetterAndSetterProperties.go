@@ -31,7 +31,7 @@ func GatherGetterAndSetterProperties_update(compiler *AbstractCompiler, externs 
 	compiler.setAccessorSummary(accessorSummary)
 }
 
-func GatherGetterAndSetterProperties_gather(compiler *AbstractCompiler, root Node) ImmutableMapOf[string, *AccessorSummary_PropertyAccessKind] {
+func GatherGetterAndSetterProperties_gather(compiler *AbstractCompiler, root Node) ImmutableMapOf[string, AccessorSummary_PropertyAccessKind] {
 	var gatherCallback *GatherGetterAndSetterProperties_GatherCallback = new_GatherGetterAndSetterProperties_GatherCallback()
 	NodeTraversal_traverse(compiler, root, icast_NodeTraversal_Callback(obj_(gatherCallback)))
 	return ImmutableMap_copyOf(gatherCallback.properties.asMap())
@@ -39,7 +39,7 @@ func GatherGetterAndSetterProperties_gather(compiler *AbstractCompiler, root Nod
 
 type GatherGetterAndSetterProperties_GatherCallback struct {
 	NodeTraversal_AbstractPostOrderCallback
-	properties *TMap[string, *AccessorSummary_PropertyAccessKind]
+	properties *TMap[string, AccessorSummary_PropertyAccessKind]
 }
 
 func (this *GatherGetterAndSetterProperties_GatherCallback) up_NodeTraversal_AbstractPostOrderCallback() *NodeTraversal_AbstractPostOrderCallback {
@@ -65,13 +65,13 @@ func new_GatherGetterAndSetterProperties_GatherCallback() *GatherGetterAndSetter
 	return this
 }
 
-func (this *GatherGetterAndSetterProperties_GatherCallback) record(property string, kind *AccessorSummary_PropertyAccessKind) {
+func (this *GatherGetterAndSetterProperties_GatherCallback) record(property string, kind AccessorSummary_PropertyAccessKind) {
 	Map_merge_f(this.properties.asMap(), strobj_(property), obj_(kind), lambda_GatherGetterAndSetterProperties_GatherCallback_record_1_.f)
 }
 
 // lambda_GatherGetterAndSetterProperties_GatherCallback_record_1_ is a lambda of GatherGetterAndSetterProperties_GatherCallback_record that captures nothing (post-flip step lambdas).
 var lambda_GatherGetterAndSetterProperties_GatherCallback_record_1_ = &BiFunction_fn{func(p0 any, p1 any) any {
-	return obj_(cast_[*AccessorSummary_PropertyAccessKind](p0).unionWith(cast_[*AccessorSummary_PropertyAccessKind](p1)))
+	return obj_(cast_[AccessorSummary_PropertyAccessKind](p0).unionWith(cast_[AccessorSummary_PropertyAccessKind](p1)))
 }}
 
 func (this *GatherGetterAndSetterProperties_GatherCallback) visit_impl(t *NodeTraversal, n Node, parent Node) {

@@ -182,6 +182,6 @@ func LateEs6ToEs3Converter_clinit() {
 		return
 	}
 	LateEs6ToEs3Converter_clinit_done = true
-	LateEs6ToEs3Converter_transpiledFeatures = FeatureSet_BARE_MINIMUM.withFeatureVarargs([]*FeatureSet_Feature{FeatureSet_Feature_COMPUTED_PROPERTIES, FeatureSet_Feature_MEMBER_DECLARATIONS, FeatureSet_Feature_TEMPLATE_LITERALS})
+	LateEs6ToEs3Converter_transpiledFeatures = FeatureSet_BARE_MINIMUM.withFeatureVarargs([]FeatureSet_Feature{FeatureSet_Feature_COMPUTED_PROPERTIES, FeatureSet_Feature_MEMBER_DECLARATIONS, FeatureSet_Feature_TEMPLATE_LITERALS})
 
 }

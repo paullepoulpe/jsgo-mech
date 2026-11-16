@@ -140,7 +140,7 @@ func (this *ReplaceMessages) createNodeForGenderedMsgString(message *JsMessage, 
 	return Outcome_base_ok_Object(callNode.box_())
 }
 
-func (this *ReplaceMessages) createConditionForGrammaticalGender(type_ AstFactory_Type, grammaticalGender *JsMessage_GrammaticalGenderCase, nodeToReplace Node) Node {
+func (this *ReplaceMessages) createConditionForGrammaticalGender(type_ AstFactory_Type, grammaticalGender JsMessage_GrammaticalGenderCase, nodeToReplace Node) Node {
 	if this.collapsePropertiesHasRun {
 		var referenceName string = func() string {
 			switch grammaticalGender {

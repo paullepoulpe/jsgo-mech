@@ -473,7 +473,7 @@ func (this *Es6NormalizeClasses) rewritePrivateMemberAccess(t *NodeTraversal, ge
 			var getCall Node = this.astFactory_.createCallWithUnknownType(getCallee, []Node{tempNameNode2}).srcref(getPropNode)
 			var methodGetProp Node = this.astFactory_.createGetPropWithUnknownType(getCall, memberPropName)
 			var callCallee Node = this.createCallCallee(methodGetProp, isOptionalCall, getPropNode)
-			parent.setToken(func() *Token_rhino {
+			parent.setToken(func() Token_rhino {
 				if callCallee.isOptChainGetProp() {
 					return Token_rhino_OPTCHAIN_CALL
 				}
@@ -497,7 +497,7 @@ func (this *Es6NormalizeClasses) rewritePrivateMemberAccess(t *NodeTraversal, ge
 			receiverArg.srcrefTree(getPropNode)
 			getPropNode.detach()
 			var callCallee Node = this.createCallCallee(methodGetProp, isOptionalCall, getPropNode)
-			parent.setToken(func() *Token_rhino {
+			parent.setToken(func() Token_rhino {
 				if callCallee.isOptChainGetProp() {
 					return Token_rhino_OPTCHAIN_CALL
 				}
@@ -1437,7 +1437,7 @@ func (this *Es6NormalizeClasses_ClassRecord) recordPrivateMember(n Node) {
 		Preconditions_checkArgument_boolean_Object(false, strobj_(name))
 	}
 	var isStatic bool = n.isStaticMember()
-	var kind *Es6NormalizeClasses_ClassRecord_PrivateMemberKind
+	var kind Es6NormalizeClasses_ClassRecord_PrivateMemberKind
 	if n.isMemberFieldDef() {
 		kind = Es6NormalizeClasses_ClassRecord_PrivateMemberKind_FIELD
 	} else if n.isMemberFunctionDef() {
@@ -1560,45 +1560,63 @@ func (this *Es6NormalizeClasses_ClassRecord) createNewSuperclassReferenceNode() 
 	return this.normalizedNames.superClassNode().get().cloneTree()
 }
 
-type Es6NormalizeClasses_ClassRecord_PrivateMemberKind struct {
-	Enum
+type Es6NormalizeClasses_ClassRecord_PrivateMemberKind uint8
+
+// Es6NormalizeClasses_ClassRecord_PrivateMemberKind_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var Es6NormalizeClasses_ClassRecord_PrivateMemberKind_enum_ = [3]Enum{
+	{self_: Es6NormalizeClasses_ClassRecord_PrivateMemberKind_FIELD, name_: "FIELD", ordinal_: 0},
+	{self_: Es6NormalizeClasses_ClassRecord_PrivateMemberKind_METHOD, name_: "METHOD", ordinal_: 1},
+	{self_: Es6NormalizeClasses_ClassRecord_PrivateMemberKind_ACCESSOR, name_: "ACCESSOR", ordinal_: 2},
 }
 
-func (this *Es6NormalizeClasses_ClassRecord_PrivateMemberKind) up_Enum() *Enum {
-	if this == nil {
+func (this Es6NormalizeClasses_ClassRecord_PrivateMemberKind) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &Es6NormalizeClasses_ClassRecord_PrivateMemberKind_enum_[this-1]
 }
 
-func (this *Es6NormalizeClasses_ClassRecord_PrivateMemberKind) init_Es6NormalizeClasses_ClassRecord_PrivateMemberKind(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this Es6NormalizeClasses_ClassRecord_PrivateMemberKind) name() string {
+	return Es6NormalizeClasses_ClassRecord_PrivateMemberKind_enum_[this-1].name_
 }
 
-func new_Es6NormalizeClasses_ClassRecord_PrivateMemberKind(name_ string, ordinal_ int32) *Es6NormalizeClasses_ClassRecord_PrivateMemberKind {
-	this := &Es6NormalizeClasses_ClassRecord_PrivateMemberKind{}
-	this.self_ = this
-	this.init_Es6NormalizeClasses_ClassRecord_PrivateMemberKind(name_, ordinal_)
+func (this Es6NormalizeClasses_ClassRecord_PrivateMemberKind) ordinal() int32 {
+	return Es6NormalizeClasses_ClassRecord_PrivateMemberKind_enum_[this-1].ordinal_
+}
+
+func (this Es6NormalizeClasses_ClassRecord_PrivateMemberKind) toString() string {
+	return Es6NormalizeClasses_ClassRecord_PrivateMemberKind_enum_[this-1].name_
+}
+
+func (this Es6NormalizeClasses_ClassRecord_PrivateMemberKind) compareTo(o any) int32 {
+	return Es6NormalizeClasses_ClassRecord_PrivateMemberKind_enum_[this-1].compareTo(o)
+}
+
+func (this Es6NormalizeClasses_ClassRecord_PrivateMemberKind) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func Es6NormalizeClasses_ClassRecord_PrivateMemberKind_values() []*Es6NormalizeClasses_ClassRecord_PrivateMemberKind {
-	return append([]*Es6NormalizeClasses_ClassRecord_PrivateMemberKind(nil), Es6NormalizeClasses_ClassRecord_PrivateMemberKind_values_...)
+func Es6NormalizeClasses_ClassRecord_PrivateMemberKind_values() []Es6NormalizeClasses_ClassRecord_PrivateMemberKind {
+	return append([]Es6NormalizeClasses_ClassRecord_PrivateMemberKind(nil), Es6NormalizeClasses_ClassRecord_PrivateMemberKind_values_...)
 }
 
-func Es6NormalizeClasses_ClassRecord_PrivateMemberKind_valueOf(name string) *Es6NormalizeClasses_ClassRecord_PrivateMemberKind {
+func Es6NormalizeClasses_ClassRecord_PrivateMemberKind_valueOf(name string) Es6NormalizeClasses_ClassRecord_PrivateMemberKind {
 	for _, v := range Es6NormalizeClasses_ClassRecord_PrivateMemberKind_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("PrivateMemberKind", name))
 }
 
-var Es6NormalizeClasses_ClassRecord_PrivateMemberKind_FIELD *Es6NormalizeClasses_ClassRecord_PrivateMemberKind
-var Es6NormalizeClasses_ClassRecord_PrivateMemberKind_METHOD *Es6NormalizeClasses_ClassRecord_PrivateMemberKind
-var Es6NormalizeClasses_ClassRecord_PrivateMemberKind_ACCESSOR *Es6NormalizeClasses_ClassRecord_PrivateMemberKind
-var Es6NormalizeClasses_ClassRecord_PrivateMemberKind_values_ []*Es6NormalizeClasses_ClassRecord_PrivateMemberKind
+const Es6NormalizeClasses_ClassRecord_PrivateMemberKind_FIELD Es6NormalizeClasses_ClassRecord_PrivateMemberKind = 1
+const Es6NormalizeClasses_ClassRecord_PrivateMemberKind_METHOD Es6NormalizeClasses_ClassRecord_PrivateMemberKind = 2
+const Es6NormalizeClasses_ClassRecord_PrivateMemberKind_ACCESSOR Es6NormalizeClasses_ClassRecord_PrivateMemberKind = 3
+
+var Es6NormalizeClasses_ClassRecord_PrivateMemberKind_values_ []Es6NormalizeClasses_ClassRecord_PrivateMemberKind
 
 var Es6NormalizeClasses_ClassRecord_PrivateMemberKind_clinit_done bool
 
@@ -1607,17 +1625,14 @@ func Es6NormalizeClasses_ClassRecord_PrivateMemberKind_clinit() {
 		return
 	}
 	Es6NormalizeClasses_ClassRecord_PrivateMemberKind_clinit_done = true
-	Es6NormalizeClasses_ClassRecord_PrivateMemberKind_FIELD = new_Es6NormalizeClasses_ClassRecord_PrivateMemberKind("FIELD", 0)
-	Es6NormalizeClasses_ClassRecord_PrivateMemberKind_METHOD = new_Es6NormalizeClasses_ClassRecord_PrivateMemberKind("METHOD", 1)
-	Es6NormalizeClasses_ClassRecord_PrivateMemberKind_ACCESSOR = new_Es6NormalizeClasses_ClassRecord_PrivateMemberKind("ACCESSOR", 2)
-	Es6NormalizeClasses_ClassRecord_PrivateMemberKind_values_ = []*Es6NormalizeClasses_ClassRecord_PrivateMemberKind{Es6NormalizeClasses_ClassRecord_PrivateMemberKind_FIELD, Es6NormalizeClasses_ClassRecord_PrivateMemberKind_METHOD, Es6NormalizeClasses_ClassRecord_PrivateMemberKind_ACCESSOR}
+	Es6NormalizeClasses_ClassRecord_PrivateMemberKind_values_ = []Es6NormalizeClasses_ClassRecord_PrivateMemberKind{Es6NormalizeClasses_ClassRecord_PrivateMemberKind_FIELD, Es6NormalizeClasses_ClassRecord_PrivateMemberKind_METHOD, Es6NormalizeClasses_ClassRecord_PrivateMemberKind_ACCESSOR}
 	registerEnum_("com.google.javascript.jscomp.Es6NormalizeClasses.ClassRecord.PrivateMemberKind", enumValues_(Es6NormalizeClasses_ClassRecord_PrivateMemberKind_values_))
 
 }
 
 type Es6NormalizeClasses_ClassRecord_PrivateMember struct {
 	name_            string
-	kind_            *Es6NormalizeClasses_ClassRecord_PrivateMemberKind
+	kind_            Es6NormalizeClasses_ClassRecord_PrivateMemberKind
 	isStatic         bool
 	methodNode       Node
 	getterNode       Node
@@ -1633,7 +1648,7 @@ func (this *Es6NormalizeClasses_ClassRecord_PrivateMember) finit_Es6NormalizeCla
 	this.declarationNodes = []Node{}
 }
 
-func (this *Es6NormalizeClasses_ClassRecord_PrivateMember) init_Es6NormalizeClasses_ClassRecord_PrivateMember(name string, kind *Es6NormalizeClasses_ClassRecord_PrivateMemberKind, isStatic bool, initialNode Node) {
+func (this *Es6NormalizeClasses_ClassRecord_PrivateMember) init_Es6NormalizeClasses_ClassRecord_PrivateMember(name string, kind Es6NormalizeClasses_ClassRecord_PrivateMemberKind, isStatic bool, initialNode Node) {
 	this.finit_Es6NormalizeClasses_ClassRecord_PrivateMember()
 	this.name_ = name
 	this.kind_ = kind
@@ -1648,7 +1663,7 @@ func (this *Es6NormalizeClasses_ClassRecord_PrivateMember) init_Es6NormalizeClas
 	}
 }
 
-func new_Es6NormalizeClasses_ClassRecord_PrivateMember(name string, kind *Es6NormalizeClasses_ClassRecord_PrivateMemberKind, isStatic bool, initialNode Node) *Es6NormalizeClasses_ClassRecord_PrivateMember {
+func new_Es6NormalizeClasses_ClassRecord_PrivateMember(name string, kind Es6NormalizeClasses_ClassRecord_PrivateMemberKind, isStatic bool, initialNode Node) *Es6NormalizeClasses_ClassRecord_PrivateMember {
 	this := &Es6NormalizeClasses_ClassRecord_PrivateMember{}
 	this.zero_Es6NormalizeClasses_ClassRecord_PrivateMember()
 	this.init_Es6NormalizeClasses_ClassRecord_PrivateMember(name, kind, isStatic, initialNode)

@@ -171,19 +171,19 @@ func (this Node) finit_Node() {
 	this.ps_().originalName = ""
 }
 
-func (this Node) init_Node_Token(token *Token_rhino) {
+func (this Node) init_Node_Token(token Token_rhino) {
 	this.finit_Node()
-	this.ns_().token = Token_rhino_ord1_(token)
+	this.ns_().token = uint8(token)
 }
 
-func new_Node_Token(token *Token_rhino) Node {
+func new_Node_Token(token Token_rhino) Node {
 	this := Node_alloc_()
 	this.zero_Node()
 	this.init_Node_Token(token)
 	return this
 }
 
-func (this Node) init_Node_Token_Node(token *Token_rhino, child Node) {
+func (this Node) init_Node_Token_Node(token Token_rhino, child Node) {
 	this.init_Node_Token(token)
 	this.ns_().first = child
 	child.checkDetached()
@@ -191,14 +191,14 @@ func (this Node) init_Node_Token_Node(token *Token_rhino, child Node) {
 	child.ns_().parent = this
 }
 
-func new_Node_Token_Node(token *Token_rhino, child Node) Node {
+func new_Node_Token_Node(token Token_rhino, child Node) Node {
 	this := Node_alloc_()
 	this.zero_Node()
 	this.init_Node_Token_Node(token, child)
 	return this
 }
 
-func (this Node) init_Node_Token_Node_Node(token *Token_rhino, left Node, right Node) {
+func (this Node) init_Node_Token_Node_Node(token Token_rhino, left Node, right Node) {
 	this.init_Node_Token(token)
 	this.ns_().first = left
 	left.checkDetached()
@@ -210,14 +210,14 @@ func (this Node) init_Node_Token_Node_Node(token *Token_rhino, left Node, right 
 	right.ns_().parent = this
 }
 
-func new_Node_Token_Node_Node(token *Token_rhino, left Node, right Node) Node {
+func new_Node_Token_Node_Node(token Token_rhino, left Node, right Node) Node {
 	this := Node_alloc_()
 	this.zero_Node()
 	this.init_Node_Token_Node_Node(token, left, right)
 	return this
 }
 
-func (this Node) init_Node_Token_Node_Node_Node(token *Token_rhino, left Node, mid Node, right Node) {
+func (this Node) init_Node_Token_Node_Node_Node(token Token_rhino, left Node, mid Node, right Node) {
 	this.init_Node_Token(token)
 	this.ns_().first = left
 	left.checkDetached()
@@ -233,7 +233,7 @@ func (this Node) init_Node_Token_Node_Node_Node(token *Token_rhino, left Node, m
 	right.ns_().parent = this
 }
 
-func new_Node_Token_Node_Node_Node(token *Token_rhino, left Node, mid Node, right Node) Node {
+func new_Node_Token_Node_Node_Node(token Token_rhino, left Node, mid Node, right Node) Node {
 	this := Node_alloc_()
 	this.zero_Node()
 	this.init_Node_Token_Node_Node_Node(token, left, mid, right)
@@ -299,13 +299,13 @@ func Node_newString_String(str string) Node {
 	return Node_newString_Token_String(Token_rhino_STRINGLIT, str)
 }
 
-func Node_newString_Token_String(token *Token_rhino, str string) Node {
+func Node_newString_Token_String(token Token_rhino, str string) Node {
 	var n Node = new_Node_Token(token)
 	n.payload_sets_(RhinoStringPool_addOrGet(str))
 	return n
 }
 
-func Node_newString_Token_LazyInternedStringList_int(token *Token_rhino, stringPool *RhinoStringPool_LazyInternedStringList, offset int32) Node {
+func Node_newString_Token_LazyInternedStringList_int(token Token_rhino, stringPool *RhinoStringPool_LazyInternedStringList, offset int32) Node {
 	var n Node = new_Node_Token(token)
 	n.payload_sets_(stringPool.get(offset))
 	return n
@@ -333,12 +333,12 @@ func Node_newTemplateLitString_LazyInternedStringList_int_int(stringPool *RhinoS
 	return n
 }
 
-func (this Node) getToken() *Token_rhino {
-	return Token_rhino_byOrd1_[this.ns_().token]
+func (this Node) getToken() Token_rhino {
+	return Token_rhino(this.ns_().token)
 }
 
-func (this Node) setToken(token *Token_rhino) {
-	this.ns_().token = Token_rhino_ord1_(token)
+func (this Node) setToken(token Token_rhino) {
+	this.ns_().token = uint8(token)
 }
 
 func (this Node) hasChildren() bool {
@@ -654,7 +654,7 @@ func (this Node) detachChildren() {
 	this.ns_().first = 0
 }
 
-func (this Node) lookupProperty(prop *Node_Prop) *Node_PropListItem {
+func (this Node) lookupProperty(prop Node_Prop) *Node_PropListItem {
 	var propType int8 = int8(prop.ordinal())
 	var x *Node_PropListItem = this.ps_().propListHead
 	for (x != nil) && (propType != x.propType) {
@@ -708,7 +708,7 @@ func (this Node) hasPropBit_(ord int8) bool {
 }
 
 // propItem_: the node's item for a property it has, as Java's list holds it.
-func (this Node) propItem_(prop *Node_Prop) *Node_PropListItem {
+func (this Node) propItem_(prop Node_Prop) *Node_PropListItem {
 	if Node_propBit_[prop.ordinal()].m != 0 {
 		return new_Node_IntPropListItem(int8(prop.ordinal()), 1, nil).up_Node_PropListItem()
 	}
@@ -741,7 +741,7 @@ func (this Node) validateProperties(violationMessageConsumer func(any)) {
 	{
 		var propListItem *Node_PropListItem = this.ps_().propListHead
 		for ; propListItem != nil; propListItem = propListItem.next_ {
-			var prop *Node_Prop = Node_propValues[propListItem.propType]
+			var prop Node_Prop = Node_propValues[propListItem.propType]
 			if !(prop.ordinal() == int32(propListItem.propType)) {
 				Preconditions_checkState_boolean_String_Object(false, "ordinal doesn't match: %s", obj_(prop))
 			}
@@ -753,7 +753,7 @@ func (this Node) validateProperties(violationMessageConsumer func(any)) {
 }
 
 // propertyViolation_: what validateProperties reports for the node's property prop; "" when it is valid.
-func (this Node) propertyViolation_(prop *Node_Prop) string {
+func (this Node) propertyViolation_(prop Node_Prop) string {
 	switch prop {
 	case Node_Prop_IS_PARENTHESIZED:
 		if !IR_mayBeExpression(this) {
@@ -797,7 +797,7 @@ func (this Node) propertyViolation_(prop *Node_Prop) string {
 	return ""
 }
 
-func Node_rebuildListWithoutProp(item *Node_PropListItem, prop *Node_Prop) *Node_PropListItem {
+func Node_rebuildListWithoutProp(item *Node_PropListItem, prop Node_Prop) *Node_PropListItem {
 	if item == nil {
 		return nil
 	} else if int32(item.propType) == prop.ordinal() {
@@ -814,7 +814,7 @@ func Node_rebuildListWithoutProp(item *Node_PropListItem, prop *Node_Prop) *Node
 	panic("unreachable")
 }
 
-func (this Node) getProp(propType *Node_Prop) any {
+func (this Node) getProp(propType Node_Prop) any {
 	var item *Node_PropListItem = this.lookupProperty(propType)
 	if item == nil {
 		if b := Node_propBit_[propType.ordinal()]; this.ns_().propBits[b.i]&b.m != 0 {
@@ -825,7 +825,7 @@ func (this Node) getProp(propType *Node_Prop) any {
 	return item.getObjectValue()
 }
 
-func (this Node) getBooleanProp(propType *Node_Prop) bool {
+func (this Node) getBooleanProp(propType Node_Prop) bool {
 	if b := Node_propBit_[propType.ordinal()]; b.m != 0 {
 		return this.ns_().propBits[b.i]&b.m != 0
 	}
@@ -833,7 +833,7 @@ func (this Node) getBooleanProp(propType *Node_Prop) bool {
 	return (item != nil) && (item.getIntValue() != 0)
 }
 
-func (this Node) getIntProp(propType *Node_Prop) int32 {
+func (this Node) getIntProp(propType Node_Prop) int32 {
 	if b := Node_propBit_[propType.ordinal()]; b.m != 0 {
 		if this.ns_().propBits[b.i]&b.m != 0 {
 			return 1
@@ -847,14 +847,14 @@ func (this Node) getIntProp(propType *Node_Prop) int32 {
 	return item.getIntValue()
 }
 
-func (this Node) putProp(prop *Node_Prop, value any) {
+func (this Node) putProp(prop Node_Prop, value any) {
 	this.ps_().propListHead = Node_rebuildListWithoutProp(this.ps_().propListHead, prop)
 	if value != nil {
 		this.ps_().propListHead = new_Node_ObjectPropListItem(int8(prop.ordinal()), value, this.ps_().propListHead).up_Node_PropListItem()
 	}
 }
 
-func (this Node) putBooleanProp(propType *Node_Prop, value bool) {
+func (this Node) putBooleanProp(propType Node_Prop, value bool) {
 	this.putIntProp(propType, func() int32 {
 		if value {
 			return 1
@@ -863,7 +863,7 @@ func (this Node) putBooleanProp(propType *Node_Prop, value bool) {
 	}())
 }
 
-func (this Node) putIntProp(prop *Node_Prop, value int32) {
+func (this Node) putIntProp(prop Node_Prop, value int32) {
 	if b := Node_propBit_[prop.ordinal()]; b.m != 0 {
 		if value != 0 {
 			this.ns_().propBits[b.i] |= b.m
@@ -878,7 +878,7 @@ func (this Node) putIntProp(prop *Node_Prop, value int32) {
 	}
 }
 
-func (this Node) removeProp(prop *Node_Prop) {
+func (this Node) removeProp(prop Node_Prop) {
 	if b := Node_propBit_[prop.ordinal()]; b.m != 0 {
 		this.ns_().propBits[b.i] &^= b.m
 		return
@@ -921,7 +921,7 @@ func (this Node) serializeProperties() int64 {
 	{
 		var propListItem *Node_PropListItem = this.ps_().propListHead
 		for ; propListItem != nil; propListItem = propListItem.next_ {
-			var prop *Node_Prop = Node_propValues[propListItem.propType]
+			var prop Node_Prop = Node_propValues[propListItem.propType]
 			switch prop {
 			case Node_Prop_TYPE_BEFORE_CAST:
 				propSet = Node_setNodePropertyBit(propSet, NodeProperty_COLOR_FROM_CAST)
@@ -1014,8 +1014,8 @@ func (this Node) deserializeProperties(propSet int64, isInClosureUnawareSubtree 
 			sideEffectFlags |= Node_SideEffectFlags_THROWS
 		case NodeProperty_CLOSURE_UNAWARE_SHADOW:
 		default:
-			var prop *Node_Prop = PropTranslator_deserialize(nodeProperty)
-			if prop == nil {
+			var prop Node_Prop = PropTranslator_deserialize(nodeProperty)
+			if prop == 0 {
 				panic(new_IllegalStateException_String(("Can not translate " + objstr_(obj_(nodeProperty)) + " to AST Prop")).self())
 			}
 			if b := Node_propBit_[prop.ordinal()]; b.m != 0 {
@@ -1074,11 +1074,11 @@ func (this Node) setConstructSignature(value bool) {
 	this.putBooleanProp(Node_Prop_CONSTRUCT_SIGNATURE, value)
 }
 
-func (this Node) getAccessModifier() *JSDocInfo_Visibility {
-	return cast_[*JSDocInfo_Visibility](this.getProp(Node_Prop_ACCESS_MODIFIER))
+func (this Node) getAccessModifier() JSDocInfo_Visibility {
+	return cast_[JSDocInfo_Visibility](this.getProp(Node_Prop_ACCESS_MODIFIER))
 }
 
-func (this Node) setAccessModifier(visibility *JSDocInfo_Visibility) {
+func (this Node) setAccessModifier(visibility JSDocInfo_Visibility) {
 	this.putProp(Node_Prop_ACCESS_MODIFIER, obj_(visibility))
 }
 
@@ -1273,7 +1273,7 @@ func (this Node) getCookedString() OptionalOf[string] {
 }
 
 func (this Node) payloadKindMismatch(wanted string) *ClassCastException {
-	return new_ClassCastException_String((objstr_(obj_(Token_rhino_byOrd1_[this.ns_().token])) + " node is not a " + sstr_(wanted) + " node"))
+	return new_ClassCastException_String((objstr_(obj_(Token_rhino(this.ns_().token))) + " node is not a " + sstr_(wanted) + " node"))
 }
 
 func (this Node) toString() string {
@@ -1287,13 +1287,13 @@ func (this Node) toString_3(printSource bool, printAnnotations bool, printType b
 }
 
 func (this Node) toString_4(sb *StringBuilder, printSource bool, printAnnotations bool, printType bool) {
-	sb.append_Object(obj_(Token_rhino_byOrd1_[this.ns_().token]))
+	sb.append_Object(obj_(Token_rhino(this.ns_().token)))
 	if (*this.payload_s_()) != nullstr_ {
 		sb.append_char(' ')
 		sb.append(this.getString())
 	} else if this.ns_().token == tokOrd1_FUNCTION {
 		sb.append_char(' ')
-		if (this.ns_().first == 0) || (Token_rhino_byOrd1_[this.ns_().first.ns_().token] != Token_rhino_NAME) {
+		if (this.ns_().first == 0) || (Token_rhino(this.ns_().first.ns_().token) != Token_rhino_NAME) {
 			sb.append("<invalid>")
 		} else {
 			sb.append(this.ns_().first.getString())
@@ -1320,7 +1320,7 @@ func (this Node) toString_4(sb *StringBuilder, printSource bool, printAnnotation
 	if printAnnotations {
 		var keys []int8 = this.getSortedPropTypes()
 		for i := int32(0); i < int32(len(keys)); i++ {
-			var type_ *Node_Prop = Node_propValues[keys[i]]
+			var type_ Node_Prop = Node_propValues[keys[i]]
 			if type_ == Node_Prop_CLOSURE_UNAWARE_SHADOW {
 				sb.append(" [is_shadow_host]")
 				continue
@@ -1354,13 +1354,13 @@ func Node_createJsonPairRawValue(name string, value string) string {
 
 func (this Node) toJson(sb Appendable) {
 	sb.append_char('{')
-	sb.append_CharSequence(strobj_(Node_createJsonPair("token", Object_toString(obj_(Token_rhino_byOrd1_[this.ns_().token])))))
+	sb.append_CharSequence(strobj_(Node_createJsonPair("token", Object_toString(obj_(Token_rhino(this.ns_().token))))))
 	if (*this.payload_s_()) != nullstr_ {
 		sb.append_char(',')
 		sb.append_CharSequence(strobj_(Node_createJsonPair("string", this.getString())))
 	} else if this.ns_().token == tokOrd1_FUNCTION {
 		sb.append_char(',')
-		if (this.ns_().first == 0) || (Token_rhino_byOrd1_[this.ns_().first.ns_().token] != Token_rhino_NAME) {
+		if (this.ns_().first == 0) || (Token_rhino(this.ns_().first.ns_().token) != Token_rhino_NAME) {
 			sb.append_CharSequence(strobj_(Node_createJsonPair("functionName", "<invalid>")))
 		} else {
 			sb.append_CharSequence(strobj_(Node_createJsonPair("functionName", this.ns_().first.getString())))
@@ -1391,7 +1391,7 @@ func (this Node) toJson(sb Appendable) {
 		sb.append_CharSequence(strobj_(","))
 		sb.append_CharSequence(strobj_("\"props\":{"))
 		for i := int32(0); i < int32(len(keys)); i++ {
-			var type_ *Node_Prop = Node_propValues[keys[i]]
+			var type_ Node_Prop = Node_propValues[keys[i]]
 			var x *Node_PropListItem = this.propItem_(type_)
 			sb.append_CharSequence(strobj_(Node_createJsonPair(Ascii_toLowerCase(String_valueOf_Object(obj_(type_))), String_replace(String_replace(Object_toString(x.self()), strobj_("\n"), strobj_("\\n")), strobj_("\""), strobj_("\\\"")))))
 			if (i + 1) < int32(len(keys)) {
@@ -1847,22 +1847,22 @@ func (this Node) isEquivalentTo_4(node Node, compareType bool, recurse bool, jsD
 }
 
 func (this Node) isEquivalentToBoolean(node Node, compareType bool, recurse bool, jsDoc bool, sideEffect bool) bool {
-	return this.isEquivalentTo_5(node, func() *Node_RecursionMode {
+	return this.isEquivalentTo_5(node, func() Node_RecursionMode {
 		if recurse {
 			return Node_RecursionMode_DEEP
 		}
 		return Node_RecursionMode_SHALLOW
-	}(), func() *Node_TypeComparison {
+	}(), func() Node_TypeComparison {
 		if compareType {
 			return Node_TypeComparison_COMPARE
 		}
 		return Node_TypeComparison_IGNORE
-	}(), func() *Node_JsDocComparison {
+	}(), func() Node_JsDocComparison {
 		if jsDoc {
 			return Node_JsDocComparison_COMPARE
 		}
 		return Node_JsDocComparison_IGNORE
-	}(), func() *Node_SideEffectComparison {
+	}(), func() Node_SideEffectComparison {
 		if sideEffect {
 			return Node_SideEffectComparison_COMPARE
 		}
@@ -1870,8 +1870,8 @@ func (this Node) isEquivalentToBoolean(node Node, compareType bool, recurse bool
 	}())
 }
 
-func (this Node) isEquivalentTo_5(node Node, recursion *Node_RecursionMode, typeConfig *Node_TypeComparison, jsDocConfig *Node_JsDocComparison, sideEffectConfig *Node_SideEffectComparison) bool {
-	if ((Token_rhino_byOrd1_[this.ns_().token] != Token_rhino_byOrd1_[node.ns_().token]) || (this.getChildCount() != node.getChildCount())) || (Node_payloadClass(this.payload_get_()) != Node_payloadClass(node.payload_get_())) {
+func (this Node) isEquivalentTo_5(node Node, recursion Node_RecursionMode, typeConfig Node_TypeComparison, jsDocConfig Node_JsDocComparison, sideEffectConfig Node_SideEffectComparison) bool {
+	if ((Token_rhino(this.ns_().token) != Token_rhino(node.ns_().token)) || (this.getChildCount() != node.getChildCount())) || (Node_payloadClass(this.payload_get_()) != Node_payloadClass(node.payload_get_())) {
 		return false
 	}
 	if (typeConfig == Node_TypeComparison_COMPARE) && !Objects_equals(this.ps_().jstypeOrColor, node.ps_().jstypeOrColor) {
@@ -1888,18 +1888,18 @@ func (this Node) isEquivalentTo_5(node Node, recursion *Node_RecursionMode, type
 	} else if !thisDte.isEquivalentTo_5(thatDte, recursion, typeConfig, jsDocConfig, sideEffectConfig) {
 		return false
 	}
-	var propSet EnumSetOf[*Node_Prop] = EnumSet_noneOf(classOf_("com.google.javascript.rhino.Node.Prop"))
+	var propSet EnumSetOf[Node_Prop] = EnumSet_noneOf(classOf_("com.google.javascript.rhino.Node.Prop"))
 	{
 		var propListItem *Node_PropListItem = this.ps_().propListHead
 		for ; propListItem != nil; propListItem = propListItem.next_ {
-			var prop *Node_Prop = Node_propValues[propListItem.propType]
+			var prop Node_Prop = Node_propValues[propListItem.propType]
 			propSet.add(obj_(prop))
 		}
 	}
 	{
 		var propListItem *Node_PropListItem = node.ps_().propListHead
 		for ; propListItem != nil; propListItem = propListItem.next_ {
-			var prop *Node_Prop = Node_propValues[propListItem.propType]
+			var prop Node_Prop = Node_propValues[propListItem.propType]
 			propSet.add(obj_(prop))
 		}
 	}
@@ -1912,7 +1912,7 @@ func (this Node) isEquivalentTo_5(node Node, recursion *Node_RecursionMode, type
 	}
 	it_3 := foreach_(obj_(propSet))
 	for it_3.next() {
-		var prop *Node_Prop = cast_[*Node_Prop](it_3.v)
+		var prop Node_Prop = cast_[Node_Prop](it_3.v)
 		if Node_propMapForEqualityKeys.contains(obj_(prop)) {
 			var getter FunctionOf[Node, any] = icast_Function(Node_PROP_MAP_FOR_EQUALITY.get(obj_(prop)))
 			if !Objects_equals(getter.apply(this.box_()), getter.apply(node.box_())) {
@@ -2025,7 +2025,7 @@ func Node_payloadClass(payload any) ClassOf[any] {
 
 func (this Node) getQualifiedName() string {
 	return func() string {
-		switch Token_rhino_byOrd1_[this.ns_().token] {
+		switch Token_rhino(this.ns_().token) {
 		case Token_rhino_NAME:
 			var name string = this.getString()
 			return func() string {
@@ -2187,10 +2187,10 @@ func (this Node) matchesQualifiedName_2(qname string, endIndex int32) bool {
 }
 
 func (this Node) matchesQualifiedNameNode(n Node) bool {
-	if Token_rhino_byOrd1_[n.ns_().token] != Token_rhino_byOrd1_[this.ns_().token] {
+	if Token_rhino(n.ns_().token) != Token_rhino(this.ns_().token) {
 		return false
 	}
-	switch Token_rhino_byOrd1_[this.ns_().token] {
+	switch Token_rhino(this.ns_().token) {
 	case Token_rhino_NAME:
 		return this.matchesNameNode(n)
 	case Token_rhino_THIS, Token_rhino_SUPER:
@@ -2238,7 +2238,7 @@ func (this Node) cloneNode() Node {
 }
 
 func (this Node) cloneNode_1(cloneTypeExprs bool) Node {
-	var clone Node = new_Node_Token(Token_rhino_byOrd1_[this.ns_().token])
+	var clone Node = new_Node_Token(Token_rhino(this.ns_().token))
 	Node_copyBaseNodeFields(this, clone, cloneTypeExprs)
 	clone.payload_copy_(this)
 	return clone
@@ -3159,35 +3159,35 @@ func (this Node) isDeclare() bool {
 	return (this.ns_().token == tokOrd1_DECLARE)
 }
 
-var Node_propValues []*Node_Prop
-var Node_INCRDECR_PROP *Node_Prop
-var Node_QUOTED_PROP *Node_Prop
-var Node_IS_CONSTANT_NAME *Node_Prop
-var Node_IS_NAMESPACE *Node_Prop
-var Node_DIRECT_EVAL *Node_Prop
-var Node_FREE_CALL *Node_Prop
-var Node_REFLECTED_OBJECT *Node_Prop
-var Node_STATIC_MEMBER *Node_Prop
-var Node_GENERATOR_FN *Node_Prop
-var Node_YIELD_ALL *Node_Prop
-var Node_EXPORT_DEFAULT *Node_Prop
-var Node_EXPORT_ALL_FROM *Node_Prop
-var Node_COMPUTED_PROP_METHOD *Node_Prop
-var Node_COMPUTED_PROP_GETTER *Node_Prop
-var Node_COMPUTED_PROP_SETTER *Node_Prop
-var Node_COMPUTED_PROP_VARIABLE *Node_Prop
-var Node_OPT_ES6_TYPED *Node_Prop
-var Node_GENERIC_TYPE_LIST *Node_Prop
-var Node_IMPLEMENTS *Node_Prop
-var Node_CONSTRUCT_SIGNATURE *Node_Prop
-var Node_ACCESS_MODIFIER *Node_Prop
-var Node_GOOG_MODULE *Node_Prop
-var Node_FEATURE_SET *Node_Prop
-var Node_IS_TYPESCRIPT_ABSTRACT *Node_Prop
-var Node_MODULE_ALIAS *Node_Prop
-var Node_MODULE_EXPORT *Node_Prop
-var Node_IS_SHORTHAND_PROPERTY *Node_Prop
-var Node_ES6_MODULE *Node_Prop
+var Node_propValues []Node_Prop
+var Node_INCRDECR_PROP Node_Prop
+var Node_QUOTED_PROP Node_Prop
+var Node_IS_CONSTANT_NAME Node_Prop
+var Node_IS_NAMESPACE Node_Prop
+var Node_DIRECT_EVAL Node_Prop
+var Node_FREE_CALL Node_Prop
+var Node_REFLECTED_OBJECT Node_Prop
+var Node_STATIC_MEMBER Node_Prop
+var Node_GENERATOR_FN Node_Prop
+var Node_YIELD_ALL Node_Prop
+var Node_EXPORT_DEFAULT Node_Prop
+var Node_EXPORT_ALL_FROM Node_Prop
+var Node_COMPUTED_PROP_METHOD Node_Prop
+var Node_COMPUTED_PROP_GETTER Node_Prop
+var Node_COMPUTED_PROP_SETTER Node_Prop
+var Node_COMPUTED_PROP_VARIABLE Node_Prop
+var Node_OPT_ES6_TYPED Node_Prop
+var Node_GENERIC_TYPE_LIST Node_Prop
+var Node_IMPLEMENTS Node_Prop
+var Node_CONSTRUCT_SIGNATURE Node_Prop
+var Node_ACCESS_MODIFIER Node_Prop
+var Node_GOOG_MODULE Node_Prop
+var Node_FEATURE_SET Node_Prop
+var Node_IS_TYPESCRIPT_ABSTRACT Node_Prop
+var Node_MODULE_ALIAS Node_Prop
+var Node_MODULE_EXPORT Node_Prop
+var Node_IS_SHORTHAND_PROPERTY Node_Prop
+var Node_ES6_MODULE Node_Prop
 var Node_NUMBER_PAYLOAD_UNSET any
 var Node_BIGINT_PAYLOAD_UNSET *BigInteger
 
@@ -3321,99 +3321,163 @@ var lambda_Node_clinit_15_ = &Function_fn{func(n_ any) any {
 	return any(bool(n.getBooleanProp(Node_Prop_COMPUTED_PROP_SETTER)))
 }}
 
-type Node_Prop struct {
-	Enum
+type Node_Prop uint8
+
+// Node_Prop_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var Node_Prop_enum_ = [57]Enum{
+	{self_: Node_Prop_IS_PARENTHESIZED, name_: "IS_PARENTHESIZED", ordinal_: 0},
+	{self_: Node_Prop_NON_JSDOC_COMMENT, name_: "NON_JSDOC_COMMENT", ordinal_: 1},
+	{self_: Node_Prop_TRAILING_NON_JSDOC_COMMENT, name_: "TRAILING_NON_JSDOC_COMMENT", ordinal_: 2},
+	{self_: Node_Prop_JSDOC_INFO, name_: "JSDOC_INFO", ordinal_: 3},
+	{self_: Node_Prop_INCRDECR, name_: "INCRDECR", ordinal_: 4},
+	{self_: Node_Prop_QUOTED, name_: "QUOTED", ordinal_: 5},
+	{self_: Node_Prop_SYNTHETIC, name_: "SYNTHETIC", ordinal_: 6},
+	{self_: Node_Prop_ADDED_BLOCK, name_: "ADDED_BLOCK", ordinal_: 7},
+	{self_: Node_Prop_SIDE_EFFECT_FLAGS, name_: "SIDE_EFFECT_FLAGS", ordinal_: 8},
+	{self_: Node_Prop_IS_CONSTANT_NAME, name_: "IS_CONSTANT_NAME", ordinal_: 9},
+	{self_: Node_Prop_IS_NAMESPACE, name_: "IS_NAMESPACE", ordinal_: 10},
+	{self_: Node_Prop_USE_STRICT, name_: "USE_STRICT", ordinal_: 11},
+	{self_: Node_Prop_DIRECT_EVAL, name_: "DIRECT_EVAL", ordinal_: 12},
+	{self_: Node_Prop_FREE_CALL, name_: "FREE_CALL", ordinal_: 13},
+	{self_: Node_Prop_SOURCE_FILE, name_: "SOURCE_FILE", ordinal_: 14},
+	{self_: Node_Prop_INPUT_ID, name_: "INPUT_ID", ordinal_: 15},
+	{self_: Node_Prop_CHANGE_TIME, name_: "CHANGE_TIME", ordinal_: 16},
+	{self_: Node_Prop_REFLECTED_OBJECT, name_: "REFLECTED_OBJECT", ordinal_: 17},
+	{self_: Node_Prop_STATIC_MEMBER, name_: "STATIC_MEMBER", ordinal_: 18},
+	{self_: Node_Prop_GENERATOR_FN, name_: "GENERATOR_FN", ordinal_: 19},
+	{self_: Node_Prop_ARROW_FN, name_: "ARROW_FN", ordinal_: 20},
+	{self_: Node_Prop_ASYNC_FN, name_: "ASYNC_FN", ordinal_: 21},
+	{self_: Node_Prop_YIELD_ALL, name_: "YIELD_ALL", ordinal_: 22},
+	{self_: Node_Prop_EXPORT_DEFAULT, name_: "EXPORT_DEFAULT", ordinal_: 23},
+	{self_: Node_Prop_EXPORT_ALL_FROM, name_: "EXPORT_ALL_FROM", ordinal_: 24},
+	{self_: Node_Prop_CONSTANT_VAR_FLAGS, name_: "CONSTANT_VAR_FLAGS", ordinal_: 25},
+	{self_: Node_Prop_IS_GENERATOR_MARKER, name_: "IS_GENERATOR_MARKER", ordinal_: 26},
+	{self_: Node_Prop_IS_GENERATOR_SAFE, name_: "IS_GENERATOR_SAFE", ordinal_: 27},
+	{self_: Node_Prop_COMPUTED_PROP_METHOD, name_: "COMPUTED_PROP_METHOD", ordinal_: 28},
+	{self_: Node_Prop_COMPUTED_PROP_GETTER, name_: "COMPUTED_PROP_GETTER", ordinal_: 29},
+	{self_: Node_Prop_COMPUTED_PROP_SETTER, name_: "COMPUTED_PROP_SETTER", ordinal_: 30},
+	{self_: Node_Prop_COMPUTED_PROP_VARIABLE, name_: "COMPUTED_PROP_VARIABLE", ordinal_: 31},
+	{self_: Node_Prop_DECLARED_TYPE_EXPR, name_: "DECLARED_TYPE_EXPR", ordinal_: 32},
+	{self_: Node_Prop_TYPE_BEFORE_CAST, name_: "TYPE_BEFORE_CAST", ordinal_: 33},
+	{self_: Node_Prop_COLOR_FROM_CAST, name_: "COLOR_FROM_CAST", ordinal_: 34},
+	{self_: Node_Prop_OPT_ES6_TYPED, name_: "OPT_ES6_TYPED", ordinal_: 35},
+	{self_: Node_Prop_GENERIC_TYPE, name_: "GENERIC_TYPE", ordinal_: 36},
+	{self_: Node_Prop_IMPLEMENTS, name_: "IMPLEMENTS", ordinal_: 37},
+	{self_: Node_Prop_CONSTRUCT_SIGNATURE, name_: "CONSTRUCT_SIGNATURE", ordinal_: 38},
+	{self_: Node_Prop_ACCESS_MODIFIER, name_: "ACCESS_MODIFIER", ordinal_: 39},
+	{self_: Node_Prop_NON_INDEXABLE, name_: "NON_INDEXABLE", ordinal_: 40},
+	{self_: Node_Prop_GOOG_MODULE, name_: "GOOG_MODULE", ordinal_: 41},
+	{self_: Node_Prop_FEATURE_SET, name_: "FEATURE_SET", ordinal_: 42},
+	{self_: Node_Prop_IS_TYPESCRIPT_ABSTRACT, name_: "IS_TYPESCRIPT_ABSTRACT", ordinal_: 43},
+	{self_: Node_Prop_DELETED, name_: "DELETED", ordinal_: 44},
+	{self_: Node_Prop_MODULE_ALIAS, name_: "MODULE_ALIAS", ordinal_: 45},
+	{self_: Node_Prop_IS_UNUSED_PARAMETER, name_: "IS_UNUSED_PARAMETER", ordinal_: 46},
+	{self_: Node_Prop_MODULE_EXPORT, name_: "MODULE_EXPORT", ordinal_: 47},
+	{self_: Node_Prop_IS_SHORTHAND_PROPERTY, name_: "IS_SHORTHAND_PROPERTY", ordinal_: 48},
+	{self_: Node_Prop_ES6_MODULE, name_: "ES6_MODULE", ordinal_: 49},
+	{self_: Node_Prop_TYPEDEF_TYPE, name_: "TYPEDEF_TYPE", ordinal_: 50},
+	{self_: Node_Prop_START_OF_OPT_CHAIN, name_: "START_OF_OPT_CHAIN", ordinal_: 51},
+	{self_: Node_Prop_TRAILING_COMMA, name_: "TRAILING_COMMA", ordinal_: 52},
+	{self_: Node_Prop_SYNTHESIZED_UNFULFILLED_NAME_DECLARATION, name_: "SYNTHESIZED_UNFULFILLED_NAME_DECLARATION", ordinal_: 53},
+	{self_: Node_Prop_CLOSURE_UNAWARE_SHADOW, name_: "CLOSURE_UNAWARE_SHADOW", ordinal_: 54},
+	{self_: Node_Prop_PRIVATE_IDENTIFIER, name_: "PRIVATE_IDENTIFIER", ordinal_: 55},
+	{self_: Node_Prop_IS_IN_CLOSURE_UNAWARE_SUBTREE, name_: "IS_IN_CLOSURE_UNAWARE_SUBTREE", ordinal_: 56},
 }
 
-func (this *Node_Prop) up_Enum() *Enum {
-	if this == nil {
+func (this Node_Prop) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &Node_Prop_enum_[this-1]
 }
 
-func (this *Node_Prop) init_Node_Prop(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
-}
+func (this Node_Prop) name() string { return Node_Prop_enum_[this-1].name_ }
 
-func new_Node_Prop(name_ string, ordinal_ int32) *Node_Prop {
-	this := &Node_Prop{}
-	this.self_ = this
-	this.init_Node_Prop(name_, ordinal_)
+func (this Node_Prop) ordinal() int32 { return Node_Prop_enum_[this-1].ordinal_ }
+
+func (this Node_Prop) toString() string { return Node_Prop_enum_[this-1].name_ }
+
+func (this Node_Prop) compareTo(o any) int32 { return Node_Prop_enum_[this-1].compareTo(o) }
+
+func (this Node_Prop) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func Node_Prop_values() []*Node_Prop {
-	return append([]*Node_Prop(nil), Node_Prop_values_...)
+func Node_Prop_values() []Node_Prop {
+	return append([]Node_Prop(nil), Node_Prop_values_...)
 }
 
-func Node_Prop_valueOf(name string) *Node_Prop {
+func Node_Prop_valueOf(name string) Node_Prop {
 	for _, v := range Node_Prop_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("Prop", name))
 }
 
-var Node_Prop_IS_PARENTHESIZED *Node_Prop
-var Node_Prop_NON_JSDOC_COMMENT *Node_Prop
-var Node_Prop_TRAILING_NON_JSDOC_COMMENT *Node_Prop
-var Node_Prop_JSDOC_INFO *Node_Prop
-var Node_Prop_INCRDECR *Node_Prop
-var Node_Prop_QUOTED *Node_Prop
-var Node_Prop_SYNTHETIC *Node_Prop
-var Node_Prop_ADDED_BLOCK *Node_Prop
-var Node_Prop_SIDE_EFFECT_FLAGS *Node_Prop
-var Node_Prop_IS_CONSTANT_NAME *Node_Prop
-var Node_Prop_IS_NAMESPACE *Node_Prop
-var Node_Prop_USE_STRICT *Node_Prop
-var Node_Prop_DIRECT_EVAL *Node_Prop
-var Node_Prop_FREE_CALL *Node_Prop
-var Node_Prop_SOURCE_FILE *Node_Prop
-var Node_Prop_INPUT_ID *Node_Prop
-var Node_Prop_CHANGE_TIME *Node_Prop
-var Node_Prop_REFLECTED_OBJECT *Node_Prop
-var Node_Prop_STATIC_MEMBER *Node_Prop
-var Node_Prop_GENERATOR_FN *Node_Prop
-var Node_Prop_ARROW_FN *Node_Prop
-var Node_Prop_ASYNC_FN *Node_Prop
-var Node_Prop_YIELD_ALL *Node_Prop
-var Node_Prop_EXPORT_DEFAULT *Node_Prop
-var Node_Prop_EXPORT_ALL_FROM *Node_Prop
-var Node_Prop_CONSTANT_VAR_FLAGS *Node_Prop
-var Node_Prop_IS_GENERATOR_MARKER *Node_Prop
-var Node_Prop_IS_GENERATOR_SAFE *Node_Prop
-var Node_Prop_COMPUTED_PROP_METHOD *Node_Prop
-var Node_Prop_COMPUTED_PROP_GETTER *Node_Prop
-var Node_Prop_COMPUTED_PROP_SETTER *Node_Prop
-var Node_Prop_COMPUTED_PROP_VARIABLE *Node_Prop
-var Node_Prop_DECLARED_TYPE_EXPR *Node_Prop
-var Node_Prop_TYPE_BEFORE_CAST *Node_Prop
-var Node_Prop_COLOR_FROM_CAST *Node_Prop
-var Node_Prop_OPT_ES6_TYPED *Node_Prop
-var Node_Prop_GENERIC_TYPE *Node_Prop
-var Node_Prop_IMPLEMENTS *Node_Prop
-var Node_Prop_CONSTRUCT_SIGNATURE *Node_Prop
-var Node_Prop_ACCESS_MODIFIER *Node_Prop
-var Node_Prop_NON_INDEXABLE *Node_Prop
-var Node_Prop_GOOG_MODULE *Node_Prop
-var Node_Prop_FEATURE_SET *Node_Prop
-var Node_Prop_IS_TYPESCRIPT_ABSTRACT *Node_Prop
-var Node_Prop_DELETED *Node_Prop
-var Node_Prop_MODULE_ALIAS *Node_Prop
-var Node_Prop_IS_UNUSED_PARAMETER *Node_Prop
-var Node_Prop_MODULE_EXPORT *Node_Prop
-var Node_Prop_IS_SHORTHAND_PROPERTY *Node_Prop
-var Node_Prop_ES6_MODULE *Node_Prop
-var Node_Prop_TYPEDEF_TYPE *Node_Prop
-var Node_Prop_START_OF_OPT_CHAIN *Node_Prop
-var Node_Prop_TRAILING_COMMA *Node_Prop
-var Node_Prop_SYNTHESIZED_UNFULFILLED_NAME_DECLARATION *Node_Prop
-var Node_Prop_CLOSURE_UNAWARE_SHADOW *Node_Prop
-var Node_Prop_PRIVATE_IDENTIFIER *Node_Prop
-var Node_Prop_IS_IN_CLOSURE_UNAWARE_SUBTREE *Node_Prop
-var Node_Prop_values_ []*Node_Prop
+const Node_Prop_IS_PARENTHESIZED Node_Prop = 1
+const Node_Prop_NON_JSDOC_COMMENT Node_Prop = 2
+const Node_Prop_TRAILING_NON_JSDOC_COMMENT Node_Prop = 3
+const Node_Prop_JSDOC_INFO Node_Prop = 4
+const Node_Prop_INCRDECR Node_Prop = 5
+const Node_Prop_QUOTED Node_Prop = 6
+const Node_Prop_SYNTHETIC Node_Prop = 7
+const Node_Prop_ADDED_BLOCK Node_Prop = 8
+const Node_Prop_SIDE_EFFECT_FLAGS Node_Prop = 9
+const Node_Prop_IS_CONSTANT_NAME Node_Prop = 10
+const Node_Prop_IS_NAMESPACE Node_Prop = 11
+const Node_Prop_USE_STRICT Node_Prop = 12
+const Node_Prop_DIRECT_EVAL Node_Prop = 13
+const Node_Prop_FREE_CALL Node_Prop = 14
+const Node_Prop_SOURCE_FILE Node_Prop = 15
+const Node_Prop_INPUT_ID Node_Prop = 16
+const Node_Prop_CHANGE_TIME Node_Prop = 17
+const Node_Prop_REFLECTED_OBJECT Node_Prop = 18
+const Node_Prop_STATIC_MEMBER Node_Prop = 19
+const Node_Prop_GENERATOR_FN Node_Prop = 20
+const Node_Prop_ARROW_FN Node_Prop = 21
+const Node_Prop_ASYNC_FN Node_Prop = 22
+const Node_Prop_YIELD_ALL Node_Prop = 23
+const Node_Prop_EXPORT_DEFAULT Node_Prop = 24
+const Node_Prop_EXPORT_ALL_FROM Node_Prop = 25
+const Node_Prop_CONSTANT_VAR_FLAGS Node_Prop = 26
+const Node_Prop_IS_GENERATOR_MARKER Node_Prop = 27
+const Node_Prop_IS_GENERATOR_SAFE Node_Prop = 28
+const Node_Prop_COMPUTED_PROP_METHOD Node_Prop = 29
+const Node_Prop_COMPUTED_PROP_GETTER Node_Prop = 30
+const Node_Prop_COMPUTED_PROP_SETTER Node_Prop = 31
+const Node_Prop_COMPUTED_PROP_VARIABLE Node_Prop = 32
+const Node_Prop_DECLARED_TYPE_EXPR Node_Prop = 33
+const Node_Prop_TYPE_BEFORE_CAST Node_Prop = 34
+const Node_Prop_COLOR_FROM_CAST Node_Prop = 35
+const Node_Prop_OPT_ES6_TYPED Node_Prop = 36
+const Node_Prop_GENERIC_TYPE Node_Prop = 37
+const Node_Prop_IMPLEMENTS Node_Prop = 38
+const Node_Prop_CONSTRUCT_SIGNATURE Node_Prop = 39
+const Node_Prop_ACCESS_MODIFIER Node_Prop = 40
+const Node_Prop_NON_INDEXABLE Node_Prop = 41
+const Node_Prop_GOOG_MODULE Node_Prop = 42
+const Node_Prop_FEATURE_SET Node_Prop = 43
+const Node_Prop_IS_TYPESCRIPT_ABSTRACT Node_Prop = 44
+const Node_Prop_DELETED Node_Prop = 45
+const Node_Prop_MODULE_ALIAS Node_Prop = 46
+const Node_Prop_IS_UNUSED_PARAMETER Node_Prop = 47
+const Node_Prop_MODULE_EXPORT Node_Prop = 48
+const Node_Prop_IS_SHORTHAND_PROPERTY Node_Prop = 49
+const Node_Prop_ES6_MODULE Node_Prop = 50
+const Node_Prop_TYPEDEF_TYPE Node_Prop = 51
+const Node_Prop_START_OF_OPT_CHAIN Node_Prop = 52
+const Node_Prop_TRAILING_COMMA Node_Prop = 53
+const Node_Prop_SYNTHESIZED_UNFULFILLED_NAME_DECLARATION Node_Prop = 54
+const Node_Prop_CLOSURE_UNAWARE_SHADOW Node_Prop = 55
+const Node_Prop_PRIVATE_IDENTIFIER Node_Prop = 56
+const Node_Prop_IS_IN_CLOSURE_UNAWARE_SUBTREE Node_Prop = 57
+
+var Node_Prop_values_ []Node_Prop
 
 var Node_Prop_clinit_done bool
 
@@ -3422,64 +3486,7 @@ func Node_Prop_clinit() {
 		return
 	}
 	Node_Prop_clinit_done = true
-	Node_Prop_IS_PARENTHESIZED = new_Node_Prop("IS_PARENTHESIZED", 0)
-	Node_Prop_NON_JSDOC_COMMENT = new_Node_Prop("NON_JSDOC_COMMENT", 1)
-	Node_Prop_TRAILING_NON_JSDOC_COMMENT = new_Node_Prop("TRAILING_NON_JSDOC_COMMENT", 2)
-	Node_Prop_JSDOC_INFO = new_Node_Prop("JSDOC_INFO", 3)
-	Node_Prop_INCRDECR = new_Node_Prop("INCRDECR", 4)
-	Node_Prop_QUOTED = new_Node_Prop("QUOTED", 5)
-	Node_Prop_SYNTHETIC = new_Node_Prop("SYNTHETIC", 6)
-	Node_Prop_ADDED_BLOCK = new_Node_Prop("ADDED_BLOCK", 7)
-	Node_Prop_SIDE_EFFECT_FLAGS = new_Node_Prop("SIDE_EFFECT_FLAGS", 8)
-	Node_Prop_IS_CONSTANT_NAME = new_Node_Prop("IS_CONSTANT_NAME", 9)
-	Node_Prop_IS_NAMESPACE = new_Node_Prop("IS_NAMESPACE", 10)
-	Node_Prop_USE_STRICT = new_Node_Prop("USE_STRICT", 11)
-	Node_Prop_DIRECT_EVAL = new_Node_Prop("DIRECT_EVAL", 12)
-	Node_Prop_FREE_CALL = new_Node_Prop("FREE_CALL", 13)
-	Node_Prop_SOURCE_FILE = new_Node_Prop("SOURCE_FILE", 14)
-	Node_Prop_INPUT_ID = new_Node_Prop("INPUT_ID", 15)
-	Node_Prop_CHANGE_TIME = new_Node_Prop("CHANGE_TIME", 16)
-	Node_Prop_REFLECTED_OBJECT = new_Node_Prop("REFLECTED_OBJECT", 17)
-	Node_Prop_STATIC_MEMBER = new_Node_Prop("STATIC_MEMBER", 18)
-	Node_Prop_GENERATOR_FN = new_Node_Prop("GENERATOR_FN", 19)
-	Node_Prop_ARROW_FN = new_Node_Prop("ARROW_FN", 20)
-	Node_Prop_ASYNC_FN = new_Node_Prop("ASYNC_FN", 21)
-	Node_Prop_YIELD_ALL = new_Node_Prop("YIELD_ALL", 22)
-	Node_Prop_EXPORT_DEFAULT = new_Node_Prop("EXPORT_DEFAULT", 23)
-	Node_Prop_EXPORT_ALL_FROM = new_Node_Prop("EXPORT_ALL_FROM", 24)
-	Node_Prop_CONSTANT_VAR_FLAGS = new_Node_Prop("CONSTANT_VAR_FLAGS", 25)
-	Node_Prop_IS_GENERATOR_MARKER = new_Node_Prop("IS_GENERATOR_MARKER", 26)
-	Node_Prop_IS_GENERATOR_SAFE = new_Node_Prop("IS_GENERATOR_SAFE", 27)
-	Node_Prop_COMPUTED_PROP_METHOD = new_Node_Prop("COMPUTED_PROP_METHOD", 28)
-	Node_Prop_COMPUTED_PROP_GETTER = new_Node_Prop("COMPUTED_PROP_GETTER", 29)
-	Node_Prop_COMPUTED_PROP_SETTER = new_Node_Prop("COMPUTED_PROP_SETTER", 30)
-	Node_Prop_COMPUTED_PROP_VARIABLE = new_Node_Prop("COMPUTED_PROP_VARIABLE", 31)
-	Node_Prop_DECLARED_TYPE_EXPR = new_Node_Prop("DECLARED_TYPE_EXPR", 32)
-	Node_Prop_TYPE_BEFORE_CAST = new_Node_Prop("TYPE_BEFORE_CAST", 33)
-	Node_Prop_COLOR_FROM_CAST = new_Node_Prop("COLOR_FROM_CAST", 34)
-	Node_Prop_OPT_ES6_TYPED = new_Node_Prop("OPT_ES6_TYPED", 35)
-	Node_Prop_GENERIC_TYPE = new_Node_Prop("GENERIC_TYPE", 36)
-	Node_Prop_IMPLEMENTS = new_Node_Prop("IMPLEMENTS", 37)
-	Node_Prop_CONSTRUCT_SIGNATURE = new_Node_Prop("CONSTRUCT_SIGNATURE", 38)
-	Node_Prop_ACCESS_MODIFIER = new_Node_Prop("ACCESS_MODIFIER", 39)
-	Node_Prop_NON_INDEXABLE = new_Node_Prop("NON_INDEXABLE", 40)
-	Node_Prop_GOOG_MODULE = new_Node_Prop("GOOG_MODULE", 41)
-	Node_Prop_FEATURE_SET = new_Node_Prop("FEATURE_SET", 42)
-	Node_Prop_IS_TYPESCRIPT_ABSTRACT = new_Node_Prop("IS_TYPESCRIPT_ABSTRACT", 43)
-	Node_Prop_DELETED = new_Node_Prop("DELETED", 44)
-	Node_Prop_MODULE_ALIAS = new_Node_Prop("MODULE_ALIAS", 45)
-	Node_Prop_IS_UNUSED_PARAMETER = new_Node_Prop("IS_UNUSED_PARAMETER", 46)
-	Node_Prop_MODULE_EXPORT = new_Node_Prop("MODULE_EXPORT", 47)
-	Node_Prop_IS_SHORTHAND_PROPERTY = new_Node_Prop("IS_SHORTHAND_PROPERTY", 48)
-	Node_Prop_ES6_MODULE = new_Node_Prop("ES6_MODULE", 49)
-	Node_Prop_TYPEDEF_TYPE = new_Node_Prop("TYPEDEF_TYPE", 50)
-	Node_Prop_START_OF_OPT_CHAIN = new_Node_Prop("START_OF_OPT_CHAIN", 51)
-	Node_Prop_TRAILING_COMMA = new_Node_Prop("TRAILING_COMMA", 52)
-	Node_Prop_SYNTHESIZED_UNFULFILLED_NAME_DECLARATION = new_Node_Prop("SYNTHESIZED_UNFULFILLED_NAME_DECLARATION", 53)
-	Node_Prop_CLOSURE_UNAWARE_SHADOW = new_Node_Prop("CLOSURE_UNAWARE_SHADOW", 54)
-	Node_Prop_PRIVATE_IDENTIFIER = new_Node_Prop("PRIVATE_IDENTIFIER", 55)
-	Node_Prop_IS_IN_CLOSURE_UNAWARE_SUBTREE = new_Node_Prop("IS_IN_CLOSURE_UNAWARE_SUBTREE", 56)
-	Node_Prop_values_ = []*Node_Prop{Node_Prop_IS_PARENTHESIZED, Node_Prop_NON_JSDOC_COMMENT, Node_Prop_TRAILING_NON_JSDOC_COMMENT, Node_Prop_JSDOC_INFO, Node_Prop_INCRDECR, Node_Prop_QUOTED, Node_Prop_SYNTHETIC, Node_Prop_ADDED_BLOCK, Node_Prop_SIDE_EFFECT_FLAGS, Node_Prop_IS_CONSTANT_NAME, Node_Prop_IS_NAMESPACE, Node_Prop_USE_STRICT, Node_Prop_DIRECT_EVAL, Node_Prop_FREE_CALL, Node_Prop_SOURCE_FILE, Node_Prop_INPUT_ID, Node_Prop_CHANGE_TIME, Node_Prop_REFLECTED_OBJECT, Node_Prop_STATIC_MEMBER, Node_Prop_GENERATOR_FN, Node_Prop_ARROW_FN, Node_Prop_ASYNC_FN, Node_Prop_YIELD_ALL, Node_Prop_EXPORT_DEFAULT, Node_Prop_EXPORT_ALL_FROM, Node_Prop_CONSTANT_VAR_FLAGS, Node_Prop_IS_GENERATOR_MARKER, Node_Prop_IS_GENERATOR_SAFE, Node_Prop_COMPUTED_PROP_METHOD, Node_Prop_COMPUTED_PROP_GETTER, Node_Prop_COMPUTED_PROP_SETTER, Node_Prop_COMPUTED_PROP_VARIABLE, Node_Prop_DECLARED_TYPE_EXPR, Node_Prop_TYPE_BEFORE_CAST, Node_Prop_COLOR_FROM_CAST, Node_Prop_OPT_ES6_TYPED, Node_Prop_GENERIC_TYPE, Node_Prop_IMPLEMENTS, Node_Prop_CONSTRUCT_SIGNATURE, Node_Prop_ACCESS_MODIFIER, Node_Prop_NON_INDEXABLE, Node_Prop_GOOG_MODULE, Node_Prop_FEATURE_SET, Node_Prop_IS_TYPESCRIPT_ABSTRACT, Node_Prop_DELETED, Node_Prop_MODULE_ALIAS, Node_Prop_IS_UNUSED_PARAMETER, Node_Prop_MODULE_EXPORT, Node_Prop_IS_SHORTHAND_PROPERTY, Node_Prop_ES6_MODULE, Node_Prop_TYPEDEF_TYPE, Node_Prop_START_OF_OPT_CHAIN, Node_Prop_TRAILING_COMMA, Node_Prop_SYNTHESIZED_UNFULFILLED_NAME_DECLARATION, Node_Prop_CLOSURE_UNAWARE_SHADOW, Node_Prop_PRIVATE_IDENTIFIER, Node_Prop_IS_IN_CLOSURE_UNAWARE_SUBTREE}
+	Node_Prop_values_ = []Node_Prop{Node_Prop_IS_PARENTHESIZED, Node_Prop_NON_JSDOC_COMMENT, Node_Prop_TRAILING_NON_JSDOC_COMMENT, Node_Prop_JSDOC_INFO, Node_Prop_INCRDECR, Node_Prop_QUOTED, Node_Prop_SYNTHETIC, Node_Prop_ADDED_BLOCK, Node_Prop_SIDE_EFFECT_FLAGS, Node_Prop_IS_CONSTANT_NAME, Node_Prop_IS_NAMESPACE, Node_Prop_USE_STRICT, Node_Prop_DIRECT_EVAL, Node_Prop_FREE_CALL, Node_Prop_SOURCE_FILE, Node_Prop_INPUT_ID, Node_Prop_CHANGE_TIME, Node_Prop_REFLECTED_OBJECT, Node_Prop_STATIC_MEMBER, Node_Prop_GENERATOR_FN, Node_Prop_ARROW_FN, Node_Prop_ASYNC_FN, Node_Prop_YIELD_ALL, Node_Prop_EXPORT_DEFAULT, Node_Prop_EXPORT_ALL_FROM, Node_Prop_CONSTANT_VAR_FLAGS, Node_Prop_IS_GENERATOR_MARKER, Node_Prop_IS_GENERATOR_SAFE, Node_Prop_COMPUTED_PROP_METHOD, Node_Prop_COMPUTED_PROP_GETTER, Node_Prop_COMPUTED_PROP_SETTER, Node_Prop_COMPUTED_PROP_VARIABLE, Node_Prop_DECLARED_TYPE_EXPR, Node_Prop_TYPE_BEFORE_CAST, Node_Prop_COLOR_FROM_CAST, Node_Prop_OPT_ES6_TYPED, Node_Prop_GENERIC_TYPE, Node_Prop_IMPLEMENTS, Node_Prop_CONSTRUCT_SIGNATURE, Node_Prop_ACCESS_MODIFIER, Node_Prop_NON_INDEXABLE, Node_Prop_GOOG_MODULE, Node_Prop_FEATURE_SET, Node_Prop_IS_TYPESCRIPT_ABSTRACT, Node_Prop_DELETED, Node_Prop_MODULE_ALIAS, Node_Prop_IS_UNUSED_PARAMETER, Node_Prop_MODULE_EXPORT, Node_Prop_IS_SHORTHAND_PROPERTY, Node_Prop_ES6_MODULE, Node_Prop_TYPEDEF_TYPE, Node_Prop_START_OF_OPT_CHAIN, Node_Prop_TRAILING_COMMA, Node_Prop_SYNTHESIZED_UNFULFILLED_NAME_DECLARATION, Node_Prop_CLOSURE_UNAWARE_SHADOW, Node_Prop_PRIVATE_IDENTIFIER, Node_Prop_IS_IN_CLOSURE_UNAWARE_SUBTREE}
 	registerEnum_("com.google.javascript.rhino.Node.Prop", enumValues_(Node_Prop_values_))
 
 }
@@ -3710,53 +3717,65 @@ func (this *Node_AncestorIterable) iterator() IteratorOf[Node] {
 	return icast_Iterator(obj_(new_Node_AncestorIterable_1(this)))
 }
 
-type Node_RecursionMode struct {
-	Enum
+type Node_RecursionMode uint8
+
+// Node_RecursionMode_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var Node_RecursionMode_enum_ = [3]Enum{
+	{self_: Node_RecursionMode_SHALLOW, name_: "SHALLOW", ordinal_: 0},
+	{self_: Node_RecursionMode_DEEP_NO_SHADOW, name_: "DEEP_NO_SHADOW", ordinal_: 1},
+	{self_: Node_RecursionMode_DEEP, name_: "DEEP", ordinal_: 2},
 }
 
-func (this *Node_RecursionMode) up_Enum() *Enum {
-	if this == nil {
+func (this Node_RecursionMode) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &Node_RecursionMode_enum_[this-1]
 }
 
-func (this *Node_RecursionMode) init_Node_RecursionMode(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this Node_RecursionMode) name() string { return Node_RecursionMode_enum_[this-1].name_ }
+
+func (this Node_RecursionMode) ordinal() int32 { return Node_RecursionMode_enum_[this-1].ordinal_ }
+
+func (this Node_RecursionMode) toString() string { return Node_RecursionMode_enum_[this-1].name_ }
+
+func (this Node_RecursionMode) compareTo(o any) int32 {
+	return Node_RecursionMode_enum_[this-1].compareTo(o)
 }
 
-func new_Node_RecursionMode(name_ string, ordinal_ int32) *Node_RecursionMode {
-	this := &Node_RecursionMode{}
-	this.self_ = this
-	this.init_Node_RecursionMode(name_, ordinal_)
+func (this Node_RecursionMode) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func (this *Node_RecursionMode) recurseShadowAst() bool {
+func (this Node_RecursionMode) recurseShadowAst() bool {
 	return (this == Node_RecursionMode_DEEP)
 }
 
-func (this *Node_RecursionMode) recurseChildren() bool {
+func (this Node_RecursionMode) recurseChildren() bool {
 	return ((this == Node_RecursionMode_DEEP) || (this == Node_RecursionMode_DEEP_NO_SHADOW))
 }
 
-func Node_RecursionMode_values() []*Node_RecursionMode {
-	return append([]*Node_RecursionMode(nil), Node_RecursionMode_values_...)
+func Node_RecursionMode_values() []Node_RecursionMode {
+	return append([]Node_RecursionMode(nil), Node_RecursionMode_values_...)
 }
 
-func Node_RecursionMode_valueOf(name string) *Node_RecursionMode {
+func Node_RecursionMode_valueOf(name string) Node_RecursionMode {
 	for _, v := range Node_RecursionMode_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("RecursionMode", name))
 }
 
-var Node_RecursionMode_SHALLOW *Node_RecursionMode
-var Node_RecursionMode_DEEP_NO_SHADOW *Node_RecursionMode
-var Node_RecursionMode_DEEP *Node_RecursionMode
-var Node_RecursionMode_values_ []*Node_RecursionMode
+const Node_RecursionMode_SHALLOW Node_RecursionMode = 1
+const Node_RecursionMode_DEEP_NO_SHADOW Node_RecursionMode = 2
+const Node_RecursionMode_DEEP Node_RecursionMode = 3
+
+var Node_RecursionMode_values_ []Node_RecursionMode
 
 var Node_RecursionMode_clinit_done bool
 
@@ -3765,52 +3784,60 @@ func Node_RecursionMode_clinit() {
 		return
 	}
 	Node_RecursionMode_clinit_done = true
-	Node_RecursionMode_SHALLOW = new_Node_RecursionMode("SHALLOW", 0)
-	Node_RecursionMode_DEEP_NO_SHADOW = new_Node_RecursionMode("DEEP_NO_SHADOW", 1)
-	Node_RecursionMode_DEEP = new_Node_RecursionMode("DEEP", 2)
-	Node_RecursionMode_values_ = []*Node_RecursionMode{Node_RecursionMode_SHALLOW, Node_RecursionMode_DEEP_NO_SHADOW, Node_RecursionMode_DEEP}
+	Node_RecursionMode_values_ = []Node_RecursionMode{Node_RecursionMode_SHALLOW, Node_RecursionMode_DEEP_NO_SHADOW, Node_RecursionMode_DEEP}
 	registerEnum_("com.google.javascript.rhino.Node.RecursionMode", enumValues_(Node_RecursionMode_values_))
 
 }
 
-type Node_TypeComparison struct {
-	Enum
+type Node_TypeComparison uint8
+
+// Node_TypeComparison_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var Node_TypeComparison_enum_ = [2]Enum{
+	{self_: Node_TypeComparison_IGNORE, name_: "IGNORE", ordinal_: 0},
+	{self_: Node_TypeComparison_COMPARE, name_: "COMPARE", ordinal_: 1},
 }
 
-func (this *Node_TypeComparison) up_Enum() *Enum {
-	if this == nil {
+func (this Node_TypeComparison) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &Node_TypeComparison_enum_[this-1]
 }
 
-func (this *Node_TypeComparison) init_Node_TypeComparison(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this Node_TypeComparison) name() string { return Node_TypeComparison_enum_[this-1].name_ }
+
+func (this Node_TypeComparison) ordinal() int32 { return Node_TypeComparison_enum_[this-1].ordinal_ }
+
+func (this Node_TypeComparison) toString() string { return Node_TypeComparison_enum_[this-1].name_ }
+
+func (this Node_TypeComparison) compareTo(o any) int32 {
+	return Node_TypeComparison_enum_[this-1].compareTo(o)
 }
 
-func new_Node_TypeComparison(name_ string, ordinal_ int32) *Node_TypeComparison {
-	this := &Node_TypeComparison{}
-	this.self_ = this
-	this.init_Node_TypeComparison(name_, ordinal_)
+func (this Node_TypeComparison) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func Node_TypeComparison_values() []*Node_TypeComparison {
-	return append([]*Node_TypeComparison(nil), Node_TypeComparison_values_...)
+func Node_TypeComparison_values() []Node_TypeComparison {
+	return append([]Node_TypeComparison(nil), Node_TypeComparison_values_...)
 }
 
-func Node_TypeComparison_valueOf(name string) *Node_TypeComparison {
+func Node_TypeComparison_valueOf(name string) Node_TypeComparison {
 	for _, v := range Node_TypeComparison_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("TypeComparison", name))
 }
 
-var Node_TypeComparison_IGNORE *Node_TypeComparison
-var Node_TypeComparison_COMPARE *Node_TypeComparison
-var Node_TypeComparison_values_ []*Node_TypeComparison
+const Node_TypeComparison_IGNORE Node_TypeComparison = 1
+const Node_TypeComparison_COMPARE Node_TypeComparison = 2
+
+var Node_TypeComparison_values_ []Node_TypeComparison
 
 var Node_TypeComparison_clinit_done bool
 
@@ -3819,51 +3846,60 @@ func Node_TypeComparison_clinit() {
 		return
 	}
 	Node_TypeComparison_clinit_done = true
-	Node_TypeComparison_IGNORE = new_Node_TypeComparison("IGNORE", 0)
-	Node_TypeComparison_COMPARE = new_Node_TypeComparison("COMPARE", 1)
-	Node_TypeComparison_values_ = []*Node_TypeComparison{Node_TypeComparison_IGNORE, Node_TypeComparison_COMPARE}
+	Node_TypeComparison_values_ = []Node_TypeComparison{Node_TypeComparison_IGNORE, Node_TypeComparison_COMPARE}
 	registerEnum_("com.google.javascript.rhino.Node.TypeComparison", enumValues_(Node_TypeComparison_values_))
 
 }
 
-type Node_JsDocComparison struct {
-	Enum
+type Node_JsDocComparison uint8
+
+// Node_JsDocComparison_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var Node_JsDocComparison_enum_ = [2]Enum{
+	{self_: Node_JsDocComparison_IGNORE, name_: "IGNORE", ordinal_: 0},
+	{self_: Node_JsDocComparison_COMPARE, name_: "COMPARE", ordinal_: 1},
 }
 
-func (this *Node_JsDocComparison) up_Enum() *Enum {
-	if this == nil {
+func (this Node_JsDocComparison) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &Node_JsDocComparison_enum_[this-1]
 }
 
-func (this *Node_JsDocComparison) init_Node_JsDocComparison(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this Node_JsDocComparison) name() string { return Node_JsDocComparison_enum_[this-1].name_ }
+
+func (this Node_JsDocComparison) ordinal() int32 { return Node_JsDocComparison_enum_[this-1].ordinal_ }
+
+func (this Node_JsDocComparison) toString() string { return Node_JsDocComparison_enum_[this-1].name_ }
+
+func (this Node_JsDocComparison) compareTo(o any) int32 {
+	return Node_JsDocComparison_enum_[this-1].compareTo(o)
 }
 
-func new_Node_JsDocComparison(name_ string, ordinal_ int32) *Node_JsDocComparison {
-	this := &Node_JsDocComparison{}
-	this.self_ = this
-	this.init_Node_JsDocComparison(name_, ordinal_)
+func (this Node_JsDocComparison) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func Node_JsDocComparison_values() []*Node_JsDocComparison {
-	return append([]*Node_JsDocComparison(nil), Node_JsDocComparison_values_...)
+func Node_JsDocComparison_values() []Node_JsDocComparison {
+	return append([]Node_JsDocComparison(nil), Node_JsDocComparison_values_...)
 }
 
-func Node_JsDocComparison_valueOf(name string) *Node_JsDocComparison {
+func Node_JsDocComparison_valueOf(name string) Node_JsDocComparison {
 	for _, v := range Node_JsDocComparison_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("JsDocComparison", name))
 }
 
-var Node_JsDocComparison_IGNORE *Node_JsDocComparison
-var Node_JsDocComparison_COMPARE *Node_JsDocComparison
-var Node_JsDocComparison_values_ []*Node_JsDocComparison
+const Node_JsDocComparison_IGNORE Node_JsDocComparison = 1
+const Node_JsDocComparison_COMPARE Node_JsDocComparison = 2
+
+var Node_JsDocComparison_values_ []Node_JsDocComparison
 
 var Node_JsDocComparison_clinit_done bool
 
@@ -3872,51 +3908,66 @@ func Node_JsDocComparison_clinit() {
 		return
 	}
 	Node_JsDocComparison_clinit_done = true
-	Node_JsDocComparison_IGNORE = new_Node_JsDocComparison("IGNORE", 0)
-	Node_JsDocComparison_COMPARE = new_Node_JsDocComparison("COMPARE", 1)
-	Node_JsDocComparison_values_ = []*Node_JsDocComparison{Node_JsDocComparison_IGNORE, Node_JsDocComparison_COMPARE}
+	Node_JsDocComparison_values_ = []Node_JsDocComparison{Node_JsDocComparison_IGNORE, Node_JsDocComparison_COMPARE}
 	registerEnum_("com.google.javascript.rhino.Node.JsDocComparison", enumValues_(Node_JsDocComparison_values_))
 
 }
 
-type Node_SideEffectComparison struct {
-	Enum
+type Node_SideEffectComparison uint8
+
+// Node_SideEffectComparison_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var Node_SideEffectComparison_enum_ = [2]Enum{
+	{self_: Node_SideEffectComparison_IGNORE, name_: "IGNORE", ordinal_: 0},
+	{self_: Node_SideEffectComparison_COMPARE, name_: "COMPARE", ordinal_: 1},
 }
 
-func (this *Node_SideEffectComparison) up_Enum() *Enum {
-	if this == nil {
+func (this Node_SideEffectComparison) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &Node_SideEffectComparison_enum_[this-1]
 }
 
-func (this *Node_SideEffectComparison) init_Node_SideEffectComparison(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this Node_SideEffectComparison) name() string {
+	return Node_SideEffectComparison_enum_[this-1].name_
 }
 
-func new_Node_SideEffectComparison(name_ string, ordinal_ int32) *Node_SideEffectComparison {
-	this := &Node_SideEffectComparison{}
-	this.self_ = this
-	this.init_Node_SideEffectComparison(name_, ordinal_)
+func (this Node_SideEffectComparison) ordinal() int32 {
+	return Node_SideEffectComparison_enum_[this-1].ordinal_
+}
+
+func (this Node_SideEffectComparison) toString() string {
+	return Node_SideEffectComparison_enum_[this-1].name_
+}
+
+func (this Node_SideEffectComparison) compareTo(o any) int32 {
+	return Node_SideEffectComparison_enum_[this-1].compareTo(o)
+}
+
+func (this Node_SideEffectComparison) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func Node_SideEffectComparison_values() []*Node_SideEffectComparison {
-	return append([]*Node_SideEffectComparison(nil), Node_SideEffectComparison_values_...)
+func Node_SideEffectComparison_values() []Node_SideEffectComparison {
+	return append([]Node_SideEffectComparison(nil), Node_SideEffectComparison_values_...)
 }
 
-func Node_SideEffectComparison_valueOf(name string) *Node_SideEffectComparison {
+func Node_SideEffectComparison_valueOf(name string) Node_SideEffectComparison {
 	for _, v := range Node_SideEffectComparison_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("SideEffectComparison", name))
 }
 
-var Node_SideEffectComparison_IGNORE *Node_SideEffectComparison
-var Node_SideEffectComparison_COMPARE *Node_SideEffectComparison
-var Node_SideEffectComparison_values_ []*Node_SideEffectComparison
+const Node_SideEffectComparison_IGNORE Node_SideEffectComparison = 1
+const Node_SideEffectComparison_COMPARE Node_SideEffectComparison = 2
+
+var Node_SideEffectComparison_values_ []Node_SideEffectComparison
 
 var Node_SideEffectComparison_clinit_done bool
 
@@ -3925,9 +3976,7 @@ func Node_SideEffectComparison_clinit() {
 		return
 	}
 	Node_SideEffectComparison_clinit_done = true
-	Node_SideEffectComparison_IGNORE = new_Node_SideEffectComparison("IGNORE", 0)
-	Node_SideEffectComparison_COMPARE = new_Node_SideEffectComparison("COMPARE", 1)
-	Node_SideEffectComparison_values_ = []*Node_SideEffectComparison{Node_SideEffectComparison_IGNORE, Node_SideEffectComparison_COMPARE}
+	Node_SideEffectComparison_values_ = []Node_SideEffectComparison{Node_SideEffectComparison_IGNORE, Node_SideEffectComparison_COMPARE}
 	registerEnum_("com.google.javascript.rhino.Node.SideEffectComparison", enumValues_(Node_SideEffectComparison_values_))
 
 }

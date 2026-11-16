@@ -4,7 +4,7 @@ package closure
 
 type LinterMain struct {
 	fix_           bool
-	resolutionMode *ModuleLoader_ResolutionMode
+	resolutionMode ModuleLoader_ResolutionMode
 	files          ListOf[string]
 }
 
@@ -40,10 +40,10 @@ func (this *LinterMain) run(args []string) *Outcome_base {
 	}, func(v any) {
 		this.fix_ = unbox_[bool](v)
 	})
-	parser.option("--resolution_mode").usage("Expected path resolution mode for resolving module specifiers.").enumValue(arrmap_(ModuleLoader_ResolutionMode_values(), func(v_ *ModuleLoader_ResolutionMode) *Enum { return v_.up_Enum() }), func() any {
+	parser.option("--resolution_mode").usage("Expected path resolution mode for resolving module specifiers.").enumValue(arrmap_(ModuleLoader_ResolutionMode_values(), func(v_ ModuleLoader_ResolutionMode) *Enum { return v_.enum_() }), func() any {
 		return obj_(this.resolutionMode)
 	}, func(v_ any) {
-		var v *ModuleLoader_ResolutionMode = cast_[*ModuleLoader_ResolutionMode](v_)
+		var v ModuleLoader_ResolutionMode = cast_[ModuleLoader_ResolutionMode](v_)
 		_ = v
 		this.resolutionMode = v
 	})

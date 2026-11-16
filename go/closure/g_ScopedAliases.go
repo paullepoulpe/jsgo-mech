@@ -9,14 +9,14 @@ type ScopedAliases struct {
 	uniqueIdInput            *CompilerInput
 	scopedAliasNames         *SimpleMultiset
 	closureNamespaces        SetOf[string]
-	invalidModuleGetHandling *ScopedAliases_InvalidModuleGetHandling
+	invalidModuleGetHandling ScopedAliases_InvalidModuleGetHandling
 }
 
 func (this *ScopedAliases) finit_ScopedAliases() {
 	this.scopedAliasNames = SimpleMultiset_create()
 }
 
-func (this *ScopedAliases) init_ScopedAliases(compiler *AbstractCompiler, preprocessorSymbolTable *PreprocessorSymbolTable, closureNamespaces SetOf[string], invalidModuleGetHandling *ScopedAliases_InvalidModuleGetHandling) {
+func (this *ScopedAliases) init_ScopedAliases(compiler *AbstractCompiler, preprocessorSymbolTable *PreprocessorSymbolTable, closureNamespaces SetOf[string], invalidModuleGetHandling ScopedAliases_InvalidModuleGetHandling) {
 	this.finit_ScopedAliases()
 	this.compiler_ = compiler
 	this.preprocessorSymbolTable = preprocessorSymbolTable
@@ -25,7 +25,7 @@ func (this *ScopedAliases) init_ScopedAliases(compiler *AbstractCompiler, prepro
 	this.invalidModuleGetHandling = invalidModuleGetHandling
 }
 
-func new_ScopedAliases(compiler *AbstractCompiler, preprocessorSymbolTable *PreprocessorSymbolTable, closureNamespaces SetOf[string], invalidModuleGetHandling *ScopedAliases_InvalidModuleGetHandling) *ScopedAliases {
+func new_ScopedAliases(compiler *AbstractCompiler, preprocessorSymbolTable *PreprocessorSymbolTable, closureNamespaces SetOf[string], invalidModuleGetHandling ScopedAliases_InvalidModuleGetHandling) *ScopedAliases {
 	this := &ScopedAliases{}
 	this.init_ScopedAliases(compiler, preprocessorSymbolTable, closureNamespaces, invalidModuleGetHandling)
 	return this
@@ -168,48 +168,65 @@ func ScopedAliases_clinit() {
 
 }
 
-type ScopedAliases_InvalidModuleGetHandling struct {
-	Enum
+type ScopedAliases_InvalidModuleGetHandling uint8
+
+// ScopedAliases_InvalidModuleGetHandling_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var ScopedAliases_InvalidModuleGetHandling_enum_ = [2]Enum{
+	{self_: ScopedAliases_InvalidModuleGetHandling_PRESERVE, name_: "PRESERVE", ordinal_: 0},
+	{self_: ScopedAliases_InvalidModuleGetHandling_GIVE_UNIQUE_NAME, name_: "GIVE_UNIQUE_NAME", ordinal_: 1},
 }
 
-func (this *ScopedAliases_InvalidModuleGetHandling) up_Enum() *Enum {
-	if this == nil {
+func (this ScopedAliases_InvalidModuleGetHandling) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &ScopedAliases_InvalidModuleGetHandling_enum_[this-1]
 }
 
-func (this *ScopedAliases_InvalidModuleGetHandling) init_ScopedAliases_InvalidModuleGetHandling(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this ScopedAliases_InvalidModuleGetHandling) name() string {
+	return ScopedAliases_InvalidModuleGetHandling_enum_[this-1].name_
 }
 
-func new_ScopedAliases_InvalidModuleGetHandling(name_ string, ordinal_ int32) *ScopedAliases_InvalidModuleGetHandling {
-	this := &ScopedAliases_InvalidModuleGetHandling{}
-	this.self_ = this
-	this.init_ScopedAliases_InvalidModuleGetHandling(name_, ordinal_)
+func (this ScopedAliases_InvalidModuleGetHandling) ordinal() int32 {
+	return ScopedAliases_InvalidModuleGetHandling_enum_[this-1].ordinal_
+}
+
+func (this ScopedAliases_InvalidModuleGetHandling) toString() string {
+	return ScopedAliases_InvalidModuleGetHandling_enum_[this-1].name_
+}
+
+func (this ScopedAliases_InvalidModuleGetHandling) compareTo(o any) int32 {
+	return ScopedAliases_InvalidModuleGetHandling_enum_[this-1].compareTo(o)
+}
+
+func (this ScopedAliases_InvalidModuleGetHandling) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func (this *ScopedAliases_InvalidModuleGetHandling) shouldGiveUniqueName() bool {
+func (this ScopedAliases_InvalidModuleGetHandling) shouldGiveUniqueName() bool {
 	return Object_equals(obj_(this), obj_(ScopedAliases_InvalidModuleGetHandling_GIVE_UNIQUE_NAME))
 }
 
-func ScopedAliases_InvalidModuleGetHandling_values() []*ScopedAliases_InvalidModuleGetHandling {
-	return append([]*ScopedAliases_InvalidModuleGetHandling(nil), ScopedAliases_InvalidModuleGetHandling_values_...)
+func ScopedAliases_InvalidModuleGetHandling_values() []ScopedAliases_InvalidModuleGetHandling {
+	return append([]ScopedAliases_InvalidModuleGetHandling(nil), ScopedAliases_InvalidModuleGetHandling_values_...)
 }
 
-func ScopedAliases_InvalidModuleGetHandling_valueOf(name string) *ScopedAliases_InvalidModuleGetHandling {
+func ScopedAliases_InvalidModuleGetHandling_valueOf(name string) ScopedAliases_InvalidModuleGetHandling {
 	for _, v := range ScopedAliases_InvalidModuleGetHandling_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("InvalidModuleGetHandling", name))
 }
 
-var ScopedAliases_InvalidModuleGetHandling_PRESERVE *ScopedAliases_InvalidModuleGetHandling
-var ScopedAliases_InvalidModuleGetHandling_GIVE_UNIQUE_NAME *ScopedAliases_InvalidModuleGetHandling
-var ScopedAliases_InvalidModuleGetHandling_values_ []*ScopedAliases_InvalidModuleGetHandling
+const ScopedAliases_InvalidModuleGetHandling_PRESERVE ScopedAliases_InvalidModuleGetHandling = 1
+const ScopedAliases_InvalidModuleGetHandling_GIVE_UNIQUE_NAME ScopedAliases_InvalidModuleGetHandling = 2
+
+var ScopedAliases_InvalidModuleGetHandling_values_ []ScopedAliases_InvalidModuleGetHandling
 
 var ScopedAliases_InvalidModuleGetHandling_clinit_done bool
 
@@ -218,9 +235,7 @@ func ScopedAliases_InvalidModuleGetHandling_clinit() {
 		return
 	}
 	ScopedAliases_InvalidModuleGetHandling_clinit_done = true
-	ScopedAliases_InvalidModuleGetHandling_PRESERVE = new_ScopedAliases_InvalidModuleGetHandling("PRESERVE", 0)
-	ScopedAliases_InvalidModuleGetHandling_GIVE_UNIQUE_NAME = new_ScopedAliases_InvalidModuleGetHandling("GIVE_UNIQUE_NAME", 1)
-	ScopedAliases_InvalidModuleGetHandling_values_ = []*ScopedAliases_InvalidModuleGetHandling{ScopedAliases_InvalidModuleGetHandling_PRESERVE, ScopedAliases_InvalidModuleGetHandling_GIVE_UNIQUE_NAME}
+	ScopedAliases_InvalidModuleGetHandling_values_ = []ScopedAliases_InvalidModuleGetHandling{ScopedAliases_InvalidModuleGetHandling_PRESERVE, ScopedAliases_InvalidModuleGetHandling_GIVE_UNIQUE_NAME}
 	registerEnum_("com.google.javascript.jscomp.ScopedAliases.InvalidModuleGetHandling", enumValues_(ScopedAliases_InvalidModuleGetHandling_values_))
 
 }
@@ -229,7 +244,7 @@ type ScopedAliases_Builder struct {
 	compiler_                *AbstractCompiler
 	preprocessorSymbolTable  *PreprocessorSymbolTable
 	moduleMetadataMap        *ModuleMetadataMap
-	invalidModuleGetHandling *ScopedAliases_InvalidModuleGetHandling
+	invalidModuleGetHandling ScopedAliases_InvalidModuleGetHandling
 }
 
 func (this *ScopedAliases_Builder) finit_ScopedAliases_Builder() {
@@ -259,7 +274,7 @@ func (this *ScopedAliases_Builder) setModuleMetadataMap(moduleMetadataMap *Modul
 	return this
 }
 
-func (this *ScopedAliases_Builder) setInvalidModuleGetHandling(invalidModuleGetHandling *ScopedAliases_InvalidModuleGetHandling) *ScopedAliases_Builder {
+func (this *ScopedAliases_Builder) setInvalidModuleGetHandling(invalidModuleGetHandling ScopedAliases_InvalidModuleGetHandling) *ScopedAliases_Builder {
 	this.invalidModuleGetHandling = invalidModuleGetHandling
 	return this
 }
@@ -726,7 +741,7 @@ func (this *ScopedAliases_Traversal) visit_impl(t *NodeTraversal, n Node, parent
 	if !this.inGoogScopeBody() {
 		return
 	}
-	var type_ *Token_rhino = n.getToken()
+	var type_ Token_rhino = n.getToken()
 	var aliasVar *Var = nil
 	if type_ == Token_rhino_NAME {
 		var name string = n.getString()

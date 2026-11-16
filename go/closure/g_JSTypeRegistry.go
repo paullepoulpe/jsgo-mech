@@ -431,7 +431,7 @@ func (this *JSTypeRegistry) initializeBuiltInTypes() {
 	this.registerNativeType(JSTypeNative_BIGINT_NUMBER_STRING_OBJECT, bigintNumberStringObject)
 	var numberStringSymbol *JSType = this.createUnionType([]*JSType{numberType.up_JSType(), stringType.up_JSType(), symbolType.up_JSType()})
 	this.registerNativeType(JSTypeNative_NUMBER_STRING_SYMBOL, numberStringSymbol)
-	var numberAdditionSupertype *JSType = this.createUnionTypeJSTypeNativeVarargs([]*JSTypeNative{JSTypeNative_VOID_TYPE, JSTypeNative_NULL_TYPE, JSTypeNative_NUMBER_TYPE, JSTypeNative_NUMBER_OBJECT_TYPE, JSTypeNative_BOOLEAN_TYPE, JSTypeNative_BOOLEAN_OBJECT_TYPE})
+	var numberAdditionSupertype *JSType = this.createUnionTypeJSTypeNativeVarargs([]JSTypeNative{JSTypeNative_VOID_TYPE, JSTypeNative_NULL_TYPE, JSTypeNative_NUMBER_TYPE, JSTypeNative_NUMBER_OBJECT_TYPE, JSTypeNative_BOOLEAN_TYPE, JSTypeNative_BOOLEAN_OBJECT_TYPE})
 	this.registerNativeType(JSTypeNative_NUMBER_ADDITION_SUPERTYPE, numberAdditionSupertype)
 	var leastFunctionType *FunctionType = this.createNativeFunctionTypeWithVarArgs(noType.up_JSType(), []*JSType{allType.up_JSType()})
 	this.registerNativeType(JSTypeNative_LEAST_FUNCTION_TYPE, leastFunctionType.up_JSType())
@@ -710,7 +710,7 @@ func (this *JSTypeRegistry) registerForScope(scope StaticScope, type_ *JSType, n
 	this.scopedNameTable.put(this.getRootNodeForScope(scope).box_(), strobj_(name), type_.self())
 }
 
-func (this *JSTypeRegistry) registerNativeType(typeId *JSTypeNative, type_ *JSType) {
+func (this *JSTypeRegistry) registerNativeType(typeId JSTypeNative, type_ *JSType) {
 	this.nativeTypes[typeId.ordinal()] = type_
 }
 
@@ -762,9 +762,9 @@ func (this *JSTypeRegistry) registerPropertyOnType(propertyName string, type_ *J
 	}
 }
 
-func (this *JSTypeRegistry) canPropertyBeDefined(type_ *JSType, propertyName string) *JSTypeRegistry_PropDefinitionKind {
+func (this *JSTypeRegistry) canPropertyBeDefined(type_ *JSType, propertyName string) JSTypeRegistry_PropDefinitionKind {
 	if type_.isStruct() {
-		return func() *JSTypeRegistry_PropDefinitionKind {
+		return func() JSTypeRegistry_PropDefinitionKind {
 			switch type_.getPropertyKind(propertyName) {
 			case JSType_HasPropertyKind_KNOWN_PRESENT:
 				return JSTypeRegistry_PropDefinitionKind_KNOWN
@@ -1040,15 +1040,15 @@ func (this *JSTypeRegistry) getType_5(scope StaticTypedScope, jsTypeName string,
 	return type_
 }
 
-func (this *JSTypeRegistry) getNativeType(typeId *JSTypeNative) *JSType {
+func (this *JSTypeRegistry) getNativeType(typeId JSTypeNative) *JSType {
 	return this.nativeTypes[typeId.ordinal()]
 }
 
-func (this *JSTypeRegistry) getNativeObjectType(typeId *JSTypeNative) *ObjectType {
+func (this *JSTypeRegistry) getNativeObjectType(typeId JSTypeNative) *ObjectType {
 	return to_ObjectType(this.getNativeType(typeId).self())
 }
 
-func (this *JSTypeRegistry) getNativeFunctionType(typeId *JSTypeNative) *FunctionType {
+func (this *JSTypeRegistry) getNativeFunctionType(typeId JSTypeNative) *FunctionType {
 	return to_FunctionType(this.getNativeType(typeId).self())
 }
 
@@ -1085,7 +1085,7 @@ func (this *JSTypeRegistry) createUnionTypeList(variants []*JSType) *JSType {
 	return UnionType_builder(this).addAlternates(variants).build()
 }
 
-func (this *JSTypeRegistry) createUnionTypeJSTypeNativeVarargs(variants []*JSTypeNative) *JSType {
+func (this *JSTypeRegistry) createUnionTypeJSTypeNativeVarargs(variants []JSTypeNative) *JSType {
 	var builder *UnionType_Builder = UnionType_builder(this)
 	for _, type_ := range variants {
 		builder.addAlternate(this.getNativeType(type_))
@@ -1401,7 +1401,7 @@ func (this *JSTypeRegistry) createTypeFromCommentNode_3(n Node, sourceName Optio
 				current = current.getNext()
 			}
 			var returnType *JSType = this.createTypeFromCommentNode_3(current, sourceName, scope)
-			return FunctionType_builder(this).withParameters_1(tlistImm_(tc_p_FunctionType_Parameter, paramBuilder.build())).withReturnType(returnType).withTypeOfThis(thisType).withKind(func() *FunctionType_Kind {
+			return FunctionType_builder(this).withParameters_1(tlistImm_(tc_p_FunctionType_Parameter, paramBuilder.build())).withReturnType(returnType).withTypeOfThis(thisType).withKind(func() FunctionType_Kind {
 				if isConstructor {
 					return FunctionType_Kind_CONSTRUCTOR
 				}
@@ -1543,46 +1543,65 @@ func JSTypeRegistry_clinit() {
 
 }
 
-type JSTypeRegistry_PropDefinitionKind struct {
-	Enum
+type JSTypeRegistry_PropDefinitionKind uint8
+
+// JSTypeRegistry_PropDefinitionKind_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var JSTypeRegistry_PropDefinitionKind_enum_ = [4]Enum{
+	{self_: JSTypeRegistry_PropDefinitionKind_UNKNOWN, name_: "UNKNOWN", ordinal_: 0},
+	{self_: JSTypeRegistry_PropDefinitionKind_KNOWN, name_: "KNOWN", ordinal_: 1},
+	{self_: JSTypeRegistry_PropDefinitionKind_LOOSE, name_: "LOOSE", ordinal_: 2},
+	{self_: JSTypeRegistry_PropDefinitionKind_LOOSE_UNION, name_: "LOOSE_UNION", ordinal_: 3},
 }
 
-func (this *JSTypeRegistry_PropDefinitionKind) up_Enum() *Enum {
-	if this == nil {
+func (this JSTypeRegistry_PropDefinitionKind) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &JSTypeRegistry_PropDefinitionKind_enum_[this-1]
 }
 
-func (this *JSTypeRegistry_PropDefinitionKind) init_JSTypeRegistry_PropDefinitionKind(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this JSTypeRegistry_PropDefinitionKind) name() string {
+	return JSTypeRegistry_PropDefinitionKind_enum_[this-1].name_
 }
 
-func new_JSTypeRegistry_PropDefinitionKind(name_ string, ordinal_ int32) *JSTypeRegistry_PropDefinitionKind {
-	this := &JSTypeRegistry_PropDefinitionKind{}
-	this.self_ = this
-	this.init_JSTypeRegistry_PropDefinitionKind(name_, ordinal_)
+func (this JSTypeRegistry_PropDefinitionKind) ordinal() int32 {
+	return JSTypeRegistry_PropDefinitionKind_enum_[this-1].ordinal_
+}
+
+func (this JSTypeRegistry_PropDefinitionKind) toString() string {
+	return JSTypeRegistry_PropDefinitionKind_enum_[this-1].name_
+}
+
+func (this JSTypeRegistry_PropDefinitionKind) compareTo(o any) int32 {
+	return JSTypeRegistry_PropDefinitionKind_enum_[this-1].compareTo(o)
+}
+
+func (this JSTypeRegistry_PropDefinitionKind) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func JSTypeRegistry_PropDefinitionKind_values() []*JSTypeRegistry_PropDefinitionKind {
-	return append([]*JSTypeRegistry_PropDefinitionKind(nil), JSTypeRegistry_PropDefinitionKind_values_...)
+func JSTypeRegistry_PropDefinitionKind_values() []JSTypeRegistry_PropDefinitionKind {
+	return append([]JSTypeRegistry_PropDefinitionKind(nil), JSTypeRegistry_PropDefinitionKind_values_...)
 }
 
-func JSTypeRegistry_PropDefinitionKind_valueOf(name string) *JSTypeRegistry_PropDefinitionKind {
+func JSTypeRegistry_PropDefinitionKind_valueOf(name string) JSTypeRegistry_PropDefinitionKind {
 	for _, v := range JSTypeRegistry_PropDefinitionKind_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("PropDefinitionKind", name))
 }
 
-var JSTypeRegistry_PropDefinitionKind_UNKNOWN *JSTypeRegistry_PropDefinitionKind
-var JSTypeRegistry_PropDefinitionKind_KNOWN *JSTypeRegistry_PropDefinitionKind
-var JSTypeRegistry_PropDefinitionKind_LOOSE *JSTypeRegistry_PropDefinitionKind
-var JSTypeRegistry_PropDefinitionKind_LOOSE_UNION *JSTypeRegistry_PropDefinitionKind
-var JSTypeRegistry_PropDefinitionKind_values_ []*JSTypeRegistry_PropDefinitionKind
+const JSTypeRegistry_PropDefinitionKind_UNKNOWN JSTypeRegistry_PropDefinitionKind = 1
+const JSTypeRegistry_PropDefinitionKind_KNOWN JSTypeRegistry_PropDefinitionKind = 2
+const JSTypeRegistry_PropDefinitionKind_LOOSE JSTypeRegistry_PropDefinitionKind = 3
+const JSTypeRegistry_PropDefinitionKind_LOOSE_UNION JSTypeRegistry_PropDefinitionKind = 4
+
+var JSTypeRegistry_PropDefinitionKind_values_ []JSTypeRegistry_PropDefinitionKind
 
 var JSTypeRegistry_PropDefinitionKind_clinit_done bool
 
@@ -1591,11 +1610,7 @@ func JSTypeRegistry_PropDefinitionKind_clinit() {
 		return
 	}
 	JSTypeRegistry_PropDefinitionKind_clinit_done = true
-	JSTypeRegistry_PropDefinitionKind_UNKNOWN = new_JSTypeRegistry_PropDefinitionKind("UNKNOWN", 0)
-	JSTypeRegistry_PropDefinitionKind_KNOWN = new_JSTypeRegistry_PropDefinitionKind("KNOWN", 1)
-	JSTypeRegistry_PropDefinitionKind_LOOSE = new_JSTypeRegistry_PropDefinitionKind("LOOSE", 2)
-	JSTypeRegistry_PropDefinitionKind_LOOSE_UNION = new_JSTypeRegistry_PropDefinitionKind("LOOSE_UNION", 3)
-	JSTypeRegistry_PropDefinitionKind_values_ = []*JSTypeRegistry_PropDefinitionKind{JSTypeRegistry_PropDefinitionKind_UNKNOWN, JSTypeRegistry_PropDefinitionKind_KNOWN, JSTypeRegistry_PropDefinitionKind_LOOSE, JSTypeRegistry_PropDefinitionKind_LOOSE_UNION}
+	JSTypeRegistry_PropDefinitionKind_values_ = []JSTypeRegistry_PropDefinitionKind{JSTypeRegistry_PropDefinitionKind_UNKNOWN, JSTypeRegistry_PropDefinitionKind_KNOWN, JSTypeRegistry_PropDefinitionKind_LOOSE, JSTypeRegistry_PropDefinitionKind_LOOSE_UNION}
 	registerEnum_("com.google.javascript.rhino.jstype.JSTypeRegistry.PropDefinitionKind", enumValues_(JSTypeRegistry_PropDefinitionKind_values_))
 
 }

@@ -5,14 +5,14 @@ package closure
 type GatherExternProperties struct {
 	compiler_        *AbstractCompiler
 	externProperties *TSet[string]
-	mode_            *GatherExternProperties_Mode
+	mode_            GatherExternProperties_Mode
 }
 
 func (this *GatherExternProperties) finit_GatherExternProperties() {
 	this.externProperties = newTSet_(tc_string)
 }
 
-func (this *GatherExternProperties) init_GatherExternProperties(compiler *AbstractCompiler, mode *GatherExternProperties_Mode) {
+func (this *GatherExternProperties) init_GatherExternProperties(compiler *AbstractCompiler, mode GatherExternProperties_Mode) {
 	this.finit_GatherExternProperties()
 	this.compiler_ = compiler
 	this.mode_ = mode
@@ -21,7 +21,7 @@ func (this *GatherExternProperties) init_GatherExternProperties(compiler *Abstra
 	}
 }
 
-func new_GatherExternProperties(compiler *AbstractCompiler, mode *GatherExternProperties_Mode) *GatherExternProperties {
+func new_GatherExternProperties(compiler *AbstractCompiler, mode GatherExternProperties_Mode) *GatherExternProperties {
 	this := &GatherExternProperties{}
 	this.init_GatherExternProperties(compiler, mode)
 	return this
@@ -37,7 +37,7 @@ func (this *GatherExternProperties) shouldTraverse(t *NodeTraversal, n Node, par
 }
 
 func (this *GatherExternProperties) visit(t *NodeTraversal, n Node, parent Node) {
-	if this.mode_.optimize {
+	if GatherExternProperties_Mode_optimize_[this.mode_-1] {
 		switch n.ns_().token {
 		case tokOrd1_GETPROP:
 			this.externProperties.add(n.getString())
@@ -51,7 +51,7 @@ func (this *GatherExternProperties) visit(t *NodeTraversal, n Node, parent Node)
 		}
 	}
 	var jsDocInfo *JSDocInfo = n.getJSDocInfo()
-	if (jsDocInfo != nil) && this.mode_.check_ {
+	if (jsDocInfo != nil) && GatherExternProperties_Mode_check__[this.mode_-1] {
 		this.gatherPropertiesFromJSDocInfo(jsDocInfo)
 	}
 }
@@ -109,49 +109,72 @@ func (this *GatherExternProperties) gatherPropertiesFromJsDocRecordType(jsDocRec
 	}
 }
 
-type GatherExternProperties_Mode struct {
-	Enum
-	check_   bool
-	optimize bool
+type GatherExternProperties_Mode uint8
+
+// GatherExternProperties_Mode_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var GatherExternProperties_Mode_enum_ = [3]Enum{
+	{self_: GatherExternProperties_Mode_CHECK, name_: "CHECK", ordinal_: 0},
+	{self_: GatherExternProperties_Mode_OPTIMIZE, name_: "OPTIMIZE", ordinal_: 1},
+	{self_: GatherExternProperties_Mode_CHECK_AND_OPTIMIZE, name_: "CHECK_AND_OPTIMIZE", ordinal_: 2},
 }
 
-func (this *GatherExternProperties_Mode) up_Enum() *Enum {
-	if this == nil {
+var GatherExternProperties_Mode_check__ [3]bool
+
+var GatherExternProperties_Mode_optimize_ [3]bool
+
+func (this GatherExternProperties_Mode) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &GatherExternProperties_Mode_enum_[this-1]
 }
 
-func (this *GatherExternProperties_Mode) init_GatherExternProperties_Mode(name_ string, ordinal_ int32, check bool, optimize bool) {
-	this.Enum.init_Enum(name_, ordinal_)
-	this.check_ = check
-	this.optimize = optimize
+func (this GatherExternProperties_Mode) name() string {
+	return GatherExternProperties_Mode_enum_[this-1].name_
 }
 
-func new_GatherExternProperties_Mode(name_ string, ordinal_ int32, check bool, optimize bool) *GatherExternProperties_Mode {
-	this := &GatherExternProperties_Mode{}
-	this.self_ = this
-	this.init_GatherExternProperties_Mode(name_, ordinal_, check, optimize)
+func (this GatherExternProperties_Mode) ordinal() int32 {
+	return GatherExternProperties_Mode_enum_[this-1].ordinal_
+}
+
+func (this GatherExternProperties_Mode) toString() string {
+	return GatherExternProperties_Mode_enum_[this-1].name_
+}
+
+func (this GatherExternProperties_Mode) compareTo(o any) int32 {
+	return GatherExternProperties_Mode_enum_[this-1].compareTo(o)
+}
+
+func (this GatherExternProperties_Mode) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func GatherExternProperties_Mode_values() []*GatherExternProperties_Mode {
-	return append([]*GatherExternProperties_Mode(nil), GatherExternProperties_Mode_values_...)
+func (this GatherExternProperties_Mode) init_GatherExternProperties_Mode(check bool, optimize bool) {
+	GatherExternProperties_Mode_check__[this-1] = check
+	GatherExternProperties_Mode_optimize_[this-1] = optimize
 }
 
-func GatherExternProperties_Mode_valueOf(name string) *GatherExternProperties_Mode {
+func GatherExternProperties_Mode_values() []GatherExternProperties_Mode {
+	return append([]GatherExternProperties_Mode(nil), GatherExternProperties_Mode_values_...)
+}
+
+func GatherExternProperties_Mode_valueOf(name string) GatherExternProperties_Mode {
 	for _, v := range GatherExternProperties_Mode_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("Mode", name))
 }
 
-var GatherExternProperties_Mode_CHECK *GatherExternProperties_Mode
-var GatherExternProperties_Mode_OPTIMIZE *GatherExternProperties_Mode
-var GatherExternProperties_Mode_CHECK_AND_OPTIMIZE *GatherExternProperties_Mode
-var GatherExternProperties_Mode_values_ []*GatherExternProperties_Mode
+const GatherExternProperties_Mode_CHECK GatherExternProperties_Mode = 1
+const GatherExternProperties_Mode_OPTIMIZE GatherExternProperties_Mode = 2
+const GatherExternProperties_Mode_CHECK_AND_OPTIMIZE GatherExternProperties_Mode = 3
+
+var GatherExternProperties_Mode_values_ []GatherExternProperties_Mode
 
 var GatherExternProperties_Mode_clinit_done bool
 
@@ -160,10 +183,10 @@ func GatherExternProperties_Mode_clinit() {
 		return
 	}
 	GatherExternProperties_Mode_clinit_done = true
-	GatherExternProperties_Mode_CHECK = new_GatherExternProperties_Mode("CHECK", 0, true, false)
-	GatherExternProperties_Mode_OPTIMIZE = new_GatherExternProperties_Mode("OPTIMIZE", 1, false, true)
-	GatherExternProperties_Mode_CHECK_AND_OPTIMIZE = new_GatherExternProperties_Mode("CHECK_AND_OPTIMIZE", 2, true, true)
-	GatherExternProperties_Mode_values_ = []*GatherExternProperties_Mode{GatherExternProperties_Mode_CHECK, GatherExternProperties_Mode_OPTIMIZE, GatherExternProperties_Mode_CHECK_AND_OPTIMIZE}
+	GatherExternProperties_Mode_CHECK.init_GatherExternProperties_Mode(true, false)
+	GatherExternProperties_Mode_OPTIMIZE.init_GatherExternProperties_Mode(false, true)
+	GatherExternProperties_Mode_CHECK_AND_OPTIMIZE.init_GatherExternProperties_Mode(true, true)
+	GatherExternProperties_Mode_values_ = []GatherExternProperties_Mode{GatherExternProperties_Mode_CHECK, GatherExternProperties_Mode_OPTIMIZE, GatherExternProperties_Mode_CHECK_AND_OPTIMIZE}
 	registerEnum_("com.google.javascript.jscomp.GatherExternProperties.Mode", enumValues_(GatherExternProperties_Mode_values_))
 
 }

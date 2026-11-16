@@ -6,7 +6,7 @@ type AbstractPeepholeOptimization struct {
 	self_       AbstractPeepholeOptimization_I
 	compiler_   *AbstractCompiler
 	astAnalyzer *AstAnalyzer
-	newFeatures *TSet[*FeatureSet_Feature]
+	newFeatures *TSet[FeatureSet_Feature]
 }
 
 // AbstractPeepholeOptimization_I holds the methods the dispatchers of AbstractPeepholeOptimization's hierarchy call on the most derived
@@ -119,8 +119,8 @@ func (this *AbstractPeepholeOptimization) getSideEffectFreeStringValue(n Node) O
 	return value
 }
 
-func (this *AbstractPeepholeOptimization) getSideEffectFreeBooleanValue(n Node) *Tri {
-	var value *Tri = NodeUtil_getBooleanValue(n)
+func (this *AbstractPeepholeOptimization) getSideEffectFreeBooleanValue(n Node) Tri {
+	var value Tri = NodeUtil_getBooleanValue(n)
 	if (value != Tri_UNKNOWN) && this.astAnalyzer.mayHaveSideEffects(n) {
 		value = Tri_UNKNOWN
 	}
@@ -158,11 +158,11 @@ func (this *AbstractPeepholeOptimization) markNewScopesChanged(n Node) {
 	NodeUtil_markNewScopesChanged(n, this.compiler_)
 }
 
-func (this *AbstractPeepholeOptimization) addFeatureToEnclosingScript(feature *FeatureSet_Feature) {
+func (this *AbstractPeepholeOptimization) addFeatureToEnclosingScript(feature FeatureSet_Feature) {
 	this.newFeatures.add(feature)
 }
 
-func (this *AbstractPeepholeOptimization) getNewFeatures() ImmutableSetOf[*FeatureSet_Feature] {
+func (this *AbstractPeepholeOptimization) getNewFeatures() ImmutableSetOf[FeatureSet_Feature] {
 	return ImmutableSet_copyOf(icast_Collection(any(this.newFeatures.asSet())))
 }
 

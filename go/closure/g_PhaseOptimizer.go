@@ -160,44 +160,55 @@ func PhaseOptimizer_clinit() {
 
 }
 
-type PhaseOptimizer_State struct {
-	Enum
+type PhaseOptimizer_State uint8
+
+// PhaseOptimizer_State_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var PhaseOptimizer_State_enum_ = [2]Enum{
+	{self_: PhaseOptimizer_State_RUN_PASSES_NOT_RUN_IN_PREV_ITER, name_: "RUN_PASSES_NOT_RUN_IN_PREV_ITER", ordinal_: 0},
+	{self_: PhaseOptimizer_State_RUN_PASSES_THAT_CHANGED_STH_IN_PREV_ITER, name_: "RUN_PASSES_THAT_CHANGED_STH_IN_PREV_ITER", ordinal_: 1},
 }
 
-func (this *PhaseOptimizer_State) up_Enum() *Enum {
-	if this == nil {
+func (this PhaseOptimizer_State) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &PhaseOptimizer_State_enum_[this-1]
 }
 
-func (this *PhaseOptimizer_State) init_PhaseOptimizer_State(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this PhaseOptimizer_State) name() string { return PhaseOptimizer_State_enum_[this-1].name_ }
+
+func (this PhaseOptimizer_State) ordinal() int32 { return PhaseOptimizer_State_enum_[this-1].ordinal_ }
+
+func (this PhaseOptimizer_State) toString() string { return PhaseOptimizer_State_enum_[this-1].name_ }
+
+func (this PhaseOptimizer_State) compareTo(o any) int32 {
+	return PhaseOptimizer_State_enum_[this-1].compareTo(o)
 }
 
-func new_PhaseOptimizer_State(name_ string, ordinal_ int32) *PhaseOptimizer_State {
-	this := &PhaseOptimizer_State{}
-	this.self_ = this
-	this.init_PhaseOptimizer_State(name_, ordinal_)
+func (this PhaseOptimizer_State) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func PhaseOptimizer_State_values() []*PhaseOptimizer_State {
-	return append([]*PhaseOptimizer_State(nil), PhaseOptimizer_State_values_...)
+func PhaseOptimizer_State_values() []PhaseOptimizer_State {
+	return append([]PhaseOptimizer_State(nil), PhaseOptimizer_State_values_...)
 }
 
-func PhaseOptimizer_State_valueOf(name string) *PhaseOptimizer_State {
+func PhaseOptimizer_State_valueOf(name string) PhaseOptimizer_State {
 	for _, v := range PhaseOptimizer_State_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("State", name))
 }
 
-var PhaseOptimizer_State_RUN_PASSES_NOT_RUN_IN_PREV_ITER *PhaseOptimizer_State
-var PhaseOptimizer_State_RUN_PASSES_THAT_CHANGED_STH_IN_PREV_ITER *PhaseOptimizer_State
-var PhaseOptimizer_State_values_ []*PhaseOptimizer_State
+const PhaseOptimizer_State_RUN_PASSES_NOT_RUN_IN_PREV_ITER PhaseOptimizer_State = 1
+const PhaseOptimizer_State_RUN_PASSES_THAT_CHANGED_STH_IN_PREV_ITER PhaseOptimizer_State = 2
+
+var PhaseOptimizer_State_values_ []PhaseOptimizer_State
 
 var PhaseOptimizer_State_clinit_done bool
 
@@ -206,9 +217,7 @@ func PhaseOptimizer_State_clinit() {
 		return
 	}
 	PhaseOptimizer_State_clinit_done = true
-	PhaseOptimizer_State_RUN_PASSES_NOT_RUN_IN_PREV_ITER = new_PhaseOptimizer_State("RUN_PASSES_NOT_RUN_IN_PREV_ITER", 0)
-	PhaseOptimizer_State_RUN_PASSES_THAT_CHANGED_STH_IN_PREV_ITER = new_PhaseOptimizer_State("RUN_PASSES_THAT_CHANGED_STH_IN_PREV_ITER", 1)
-	PhaseOptimizer_State_values_ = []*PhaseOptimizer_State{PhaseOptimizer_State_RUN_PASSES_NOT_RUN_IN_PREV_ITER, PhaseOptimizer_State_RUN_PASSES_THAT_CHANGED_STH_IN_PREV_ITER}
+	PhaseOptimizer_State_values_ = []PhaseOptimizer_State{PhaseOptimizer_State_RUN_PASSES_NOT_RUN_IN_PREV_ITER, PhaseOptimizer_State_RUN_PASSES_THAT_CHANGED_STH_IN_PREV_ITER}
 	registerEnum_("com.google.javascript.jscomp.PhaseOptimizer.State", enumValues_(PhaseOptimizer_State_values_))
 
 }
@@ -352,7 +361,7 @@ func (this *PhaseOptimizer_Loop) process_2(externs Node, root Node) {
 	var madeChanges map[*PhaseOptimizer_NamedPass]struct{} = map[*PhaseOptimizer_NamedPass]struct{}{}
 	var runInPrevIter map[*PhaseOptimizer_NamedPass]struct{} = map[*PhaseOptimizer_NamedPass]struct{}{}
 	var didNotMakeChanges map[*PhaseOptimizer_NamedPass]struct{} = map[*PhaseOptimizer_NamedPass]struct{}{}
-	var state *PhaseOptimizer_State = PhaseOptimizer_State_RUN_PASSES_NOT_RUN_IN_PREV_ITER
+	var state PhaseOptimizer_State = PhaseOptimizer_State_RUN_PASSES_NOT_RUN_IN_PREV_ITER
 	var lastIterMadeChanges bool
 	var count int32 = 1
 	var astSize int32 = NodeUtil_countAstSize(root)

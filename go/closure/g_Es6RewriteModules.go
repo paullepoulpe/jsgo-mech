@@ -12,7 +12,7 @@ type Es6RewriteModules struct {
 	moduleMetadataMap       *ModuleMetadataMap
 	moduleMap               *ModuleMap
 	globalTypedScope        *TypedScope
-	chunkOutputType         *CompilerOptions_ChunkOutputType
+	chunkOutputType         CompilerOptions_ChunkOutputType
 }
 
 func (this *Es6RewriteModules) init_Es6RewriteModules_AbstractCompiler_ModuleMetadataMap_ModuleMap_PreprocessorSymbolTable_TypedScope(compiler *AbstractCompiler, moduleMetadataMap *ModuleMetadataMap, moduleMap *ModuleMap, preprocessorSymbolTable *PreprocessorSymbolTable, globalTypedScope *TypedScope) {
@@ -25,7 +25,7 @@ func new_Es6RewriteModules_AbstractCompiler_ModuleMetadataMap_ModuleMap_Preproce
 	return this
 }
 
-func (this *Es6RewriteModules) init_Es6RewriteModules_AbstractCompiler_ModuleMetadataMap_ModuleMap_PreprocessorSymbolTable_TypedScope_ChunkOutputType(compiler *AbstractCompiler, moduleMetadataMap *ModuleMetadataMap, moduleMap *ModuleMap, preprocessorSymbolTable *PreprocessorSymbolTable, globalTypedScope *TypedScope, chunkOutputType *CompilerOptions_ChunkOutputType) {
+func (this *Es6RewriteModules) init_Es6RewriteModules_AbstractCompiler_ModuleMetadataMap_ModuleMap_PreprocessorSymbolTable_TypedScope_ChunkOutputType(compiler *AbstractCompiler, moduleMetadataMap *ModuleMetadataMap, moduleMap *ModuleMap, preprocessorSymbolTable *PreprocessorSymbolTable, globalTypedScope *TypedScope, chunkOutputType CompilerOptions_ChunkOutputType) {
 	Preconditions_checkNotNull(obj_(moduleMetadataMap))
 	this.compiler_ = compiler
 	this.astFactory_ = compiler.createAstFactory()
@@ -37,7 +37,7 @@ func (this *Es6RewriteModules) init_Es6RewriteModules_AbstractCompiler_ModuleMet
 	this.chunkOutputType = chunkOutputType
 }
 
-func new_Es6RewriteModules_AbstractCompiler_ModuleMetadataMap_ModuleMap_PreprocessorSymbolTable_TypedScope_ChunkOutputType(compiler *AbstractCompiler, moduleMetadataMap *ModuleMetadataMap, moduleMap *ModuleMap, preprocessorSymbolTable *PreprocessorSymbolTable, globalTypedScope *TypedScope, chunkOutputType *CompilerOptions_ChunkOutputType) *Es6RewriteModules {
+func new_Es6RewriteModules_AbstractCompiler_ModuleMetadataMap_ModuleMap_PreprocessorSymbolTable_TypedScope_ChunkOutputType(compiler *AbstractCompiler, moduleMetadataMap *ModuleMetadataMap, moduleMap *ModuleMap, preprocessorSymbolTable *PreprocessorSymbolTable, globalTypedScope *TypedScope, chunkOutputType CompilerOptions_ChunkOutputType) *Es6RewriteModules {
 	this := &Es6RewriteModules{}
 	this.init_Es6RewriteModules_AbstractCompiler_ModuleMetadataMap_ModuleMap_PreprocessorSymbolTable_TypedScope_ChunkOutputType(compiler, moduleMetadataMap, moduleMap, preprocessorSymbolTable, globalTypedScope, chunkOutputType)
 	return this

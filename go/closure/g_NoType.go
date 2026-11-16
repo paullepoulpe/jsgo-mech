@@ -57,7 +57,7 @@ func new_NoType(registry *JSTypeRegistry) *NoType {
 	return this
 }
 
-func (this *NoType) getTypeClass_impl() *JSTypeClass {
+func (this *NoType) getTypeClass_impl() JSTypeClass {
 	return JSTypeClass_NO
 }
 
@@ -77,7 +77,7 @@ func (this *NoType) isVoidable_impl() bool {
 	return true
 }
 
-func (this *NoType) getPossibleToBooleanOutcomes_impl() *BooleanLiteralSet {
+func (this *NoType) getPossibleToBooleanOutcomes_impl() BooleanLiteralSet {
 	return BooleanLiteralSet_BOTH
 }
 
@@ -99,7 +99,7 @@ func (this *NoType) appendTo_impl(sb *TypeStringBuilder) {
 }
 
 // getTypeClass: an object that is exactly a NoType calls its getTypeClass_impl directly (post-flip); others dispatch.
-func (this *NoType) getTypeClass() *JSTypeClass {
+func (this *NoType) getTypeClass() JSTypeClass {
 	if this.self_ == any(this) {
 		return this.getTypeClass_impl()
 	}
@@ -139,7 +139,7 @@ func (this *NoType) isVoidable() bool {
 }
 
 // getPossibleToBooleanOutcomes: an object that is exactly a NoType calls its getPossibleToBooleanOutcomes_impl directly (post-flip); others dispatch.
-func (this *NoType) getPossibleToBooleanOutcomes() *BooleanLiteralSet {
+func (this *NoType) getPossibleToBooleanOutcomes() BooleanLiteralSet {
 	if this.self_ == any(this) {
 		return this.getPossibleToBooleanOutcomes_impl()
 	}

@@ -24,18 +24,18 @@ func new_J2clSuppressWarningsGuard() *J2clSuppressWarningsGuard {
 	return this
 }
 
-func (this *J2clSuppressWarningsGuard) level_impl(error_ *JSError) *CheckLevel {
+func (this *J2clSuppressWarningsGuard) level_impl(error_ *JSError) CheckLevel {
 	if !J2clSourceUtils_isJ2clSourceString(error_.sourceName()) {
-		return nil
+		return 0
 	}
 	if DiagnosticGroups_DEPRECATED.matches(error_) && String_contains(error_.description(), strobj_("forwardDeclare")) {
 		return CheckLevel_OFF
 	}
-	return func() *CheckLevel {
+	return func() CheckLevel {
 		if J2clSuppressWarningsGuard_DEFAULT_J2CL_SUPRRESIONS.matches(error_) {
 			return CheckLevel_OFF
 		}
-		return nil
+		return 0
 	}()
 }
 
@@ -57,7 +57,7 @@ func J2clSuppressWarningsGuard_clinit() {
 }
 
 // level: an object that is exactly a J2clSuppressWarningsGuard calls its level_impl directly (post-flip); others dispatch.
-func (this *J2clSuppressWarningsGuard) level(p0 *JSError) *CheckLevel {
+func (this *J2clSuppressWarningsGuard) level(p0 *JSError) CheckLevel {
 	if this.self_ == any(this) {
 		return this.level_impl(p0)
 	}

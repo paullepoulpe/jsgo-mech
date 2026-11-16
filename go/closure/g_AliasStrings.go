@@ -8,7 +8,7 @@ type AliasStrings struct {
 	outputStringUsageField    bool
 	stringInfoMap             SortedMapOf[string, *AliasStrings_StringInfo]
 	usedHashedAliases         map[string]struct{}
-	aliasStringsMode          *CompilerOptions_AliasStringsMode
+	aliasStringsMode          CompilerOptions_AliasStringsMode
 	chunkVarParentMap         map[*JSChunk]Node
 	unitTestHashReductionMask int32
 }
@@ -20,7 +20,7 @@ func (this *AliasStrings) finit_AliasStrings() {
 	this.unitTestHashReductionMask = -1
 }
 
-func (this *AliasStrings) init_AliasStrings(compiler *AbstractCompiler, chunkGraph *JSChunkGraph, outputStringUsage bool, aliasStringsMode *CompilerOptions_AliasStringsMode) {
+func (this *AliasStrings) init_AliasStrings(compiler *AbstractCompiler, chunkGraph *JSChunkGraph, outputStringUsage bool, aliasStringsMode CompilerOptions_AliasStringsMode) {
 	this.finit_AliasStrings()
 	this.compiler_ = compiler
 	this.chunkGraph = chunkGraph
@@ -29,7 +29,7 @@ func (this *AliasStrings) init_AliasStrings(compiler *AbstractCompiler, chunkGra
 	this.aliasStringsMode = aliasStringsMode
 }
 
-func new_AliasStrings(compiler *AbstractCompiler, chunkGraph *JSChunkGraph, outputStringUsage bool, aliasStringsMode *CompilerOptions_AliasStringsMode) *AliasStrings {
+func new_AliasStrings(compiler *AbstractCompiler, chunkGraph *JSChunkGraph, outputStringUsage bool, aliasStringsMode CompilerOptions_AliasStringsMode) *AliasStrings {
 	this := &AliasStrings{}
 	this.init_AliasStrings(compiler, chunkGraph, outputStringUsage, aliasStringsMode)
 	return this

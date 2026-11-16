@@ -26,7 +26,7 @@ type FunctionTypeBuilder struct {
 	isAbstract_                  bool
 	isKnownAmbiguous             bool
 	parameters                   ImmutableListOf[*FunctionType_Parameter]
-	closurePrimitiveId           *ClosurePrimitive
+	closurePrimitiveId           ClosurePrimitive
 	templateTypeNames            ImmutableListOf[*TemplateType]
 	constructorTemplateTypeNames ImmutableListOf[*TemplateType]
 	declarationScope             *TypedScope
@@ -56,7 +56,7 @@ func (this *FunctionTypeBuilder) finit_FunctionTypeBuilder() {
 	this.isAbstract_ = false
 	this.isKnownAmbiguous = false
 	this.parameters = nil
-	this.closurePrimitiveId = nil
+	this.closurePrimitiveId = 0
 	this.templateTypeNames = ImmutableList_of()
 	this.constructorTemplateTypeNames = ImmutableList_of()
 	this.declarationScope = nil

@@ -16,9 +16,9 @@ type SortingErrorManager struct {
 // object (self_); every class of the hierarchy implements them (post-flip).
 type SortingErrorManager_I interface {
 	generateReport_impl()
-	report_2_impl(*CheckLevel, *JSError)
+	report_2_impl(CheckLevel, *JSError)
 	printSummary_impl()
-	println_impl(*CheckLevel, *JSError)
+	println_impl(CheckLevel, *JSError)
 }
 
 // Bodies of the methods that only the subclasses of BasicErrorManager (2) implement. They put the
@@ -28,7 +28,7 @@ type SortingErrorManager_I interface {
 func (this *SortingErrorManager) printSummary_impl() {
 	panic("printSummary_impl called on a " + goTypeName_(this.self_))
 }
-func (this *SortingErrorManager) println_impl(*CheckLevel, *JSError) {
+func (this *SortingErrorManager) println_impl(CheckLevel, *JSError) {
 	panic("println_impl called on a " + goTypeName_(this.self_))
 }
 
@@ -73,7 +73,7 @@ func new_SortingErrorManager(errorReportGenerators *TSet[SortingErrorManager_Err
 	return this
 }
 
-func (this *SortingErrorManager) report_2_impl(level *CheckLevel, error_ *JSError) {
+func (this *SortingErrorManager) report_2_impl(level CheckLevel, error_ *JSError) {
 	var e *SortingErrorManager_ErrorWithLevel = new_SortingErrorManager_ErrorWithLevel(error_, level)
 	if this.messages.add(obj_(e)) {
 		if level == CheckLevel_ERROR {
@@ -120,7 +120,7 @@ func (this *SortingErrorManager) getTypedPercent() float64 {
 	return this.typedPercent
 }
 
-func (this *SortingErrorManager) filterToListOf(level *CheckLevel) ImmutableListOf[*JSError] {
+func (this *SortingErrorManager) filterToListOf(level CheckLevel) ImmutableListOf[*JSError] {
 	var result ImmutableList_BuilderOf[*JSError] = ImmutableList_builder()
 	it_1 := foreach_(obj_(this.messages))
 	for it_1.next() {
@@ -144,7 +144,7 @@ func (this *SortingErrorManager) generateReport() {
 	this.self_.generateReport_impl()
 }
 
-func (this *SortingErrorManager) report_2(p0 *CheckLevel, p1 *JSError) {
+func (this *SortingErrorManager) report_2(p0 CheckLevel, p1 *JSError) {
 	this.self_.report_2_impl(p0, p1)
 }
 
@@ -230,15 +230,15 @@ const SortingErrorManager_LeveledJSErrorComparator_P1_GT_P2 int32 = 1
 
 type SortingErrorManager_ErrorWithLevel struct {
 	error_ *JSError
-	level_ *CheckLevel
+	level_ CheckLevel
 }
 
-func (this *SortingErrorManager_ErrorWithLevel) init_SortingErrorManager_ErrorWithLevel(error_ *JSError, level *CheckLevel) {
+func (this *SortingErrorManager_ErrorWithLevel) init_SortingErrorManager_ErrorWithLevel(error_ *JSError, level CheckLevel) {
 	this.error_ = error_
 	this.level_ = level
 }
 
-func new_SortingErrorManager_ErrorWithLevel(error_ *JSError, level *CheckLevel) *SortingErrorManager_ErrorWithLevel {
+func new_SortingErrorManager_ErrorWithLevel(error_ *JSError, level CheckLevel) *SortingErrorManager_ErrorWithLevel {
 	this := &SortingErrorManager_ErrorWithLevel{}
 	this.init_SortingErrorManager_ErrorWithLevel(error_, level)
 	return this

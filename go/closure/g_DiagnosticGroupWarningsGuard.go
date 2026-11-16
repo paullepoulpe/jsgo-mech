@@ -5,7 +5,7 @@ package closure
 type DiagnosticGroupWarningsGuard struct {
 	WarningsGuard
 	group      *DiagnosticGroup
-	levelField *CheckLevel
+	levelField CheckLevel
 }
 
 func (this *DiagnosticGroupWarningsGuard) up_WarningsGuard() *WarningsGuard {
@@ -15,38 +15,38 @@ func (this *DiagnosticGroupWarningsGuard) up_WarningsGuard() *WarningsGuard {
 	return &this.WarningsGuard
 }
 
-func (this *DiagnosticGroupWarningsGuard) init_DiagnosticGroupWarningsGuard(group *DiagnosticGroup, level *CheckLevel) {
+func (this *DiagnosticGroupWarningsGuard) init_DiagnosticGroupWarningsGuard(group *DiagnosticGroup, level CheckLevel) {
 	this.WarningsGuard.init_WarningsGuard()
 	this.group = group
 	this.levelField = level
 }
 
-func new_DiagnosticGroupWarningsGuard(group *DiagnosticGroup, level *CheckLevel) *DiagnosticGroupWarningsGuard {
+func new_DiagnosticGroupWarningsGuard(group *DiagnosticGroup, level CheckLevel) *DiagnosticGroupWarningsGuard {
 	this := &DiagnosticGroupWarningsGuard{}
 	this.self_ = this
 	this.init_DiagnosticGroupWarningsGuard(group, level)
 	return this
 }
 
-func (this *DiagnosticGroupWarningsGuard) level_impl(error_ *JSError) *CheckLevel {
-	return func() *CheckLevel {
+func (this *DiagnosticGroupWarningsGuard) level_impl(error_ *JSError) CheckLevel {
+	return func() CheckLevel {
 		if this.group.matches(error_) {
 			return this.levelField
 		}
-		return nil
+		return 0
 	}()
 }
 
-func (this *DiagnosticGroupWarningsGuard) mustRunChecks_impl(otherGroup *DiagnosticGroup) *Tri {
+func (this *DiagnosticGroupWarningsGuard) mustRunChecks_impl(otherGroup *DiagnosticGroup) Tri {
 	if this.levelField.isOn() {
-		return func() *Tri {
+		return func() Tri {
 			if this.groupMatchesAny(otherGroup.getTypes()) {
 				return Tri_TRUE
 			}
 			return Tri_UNKNOWN
 		}()
 	} else {
-		return func() *Tri {
+		return func() Tri {
 			if this.groupMatchesAll(otherGroup.getTypes()) {
 				return Tri_FALSE
 			}
@@ -85,7 +85,7 @@ func (this *DiagnosticGroupWarningsGuard) toString() string {
 const DiagnosticGroupWarningsGuard_serialVersionUID int64 = 1
 
 // level: an object that is exactly a DiagnosticGroupWarningsGuard calls its level_impl directly (post-flip); others dispatch.
-func (this *DiagnosticGroupWarningsGuard) level(p0 *JSError) *CheckLevel {
+func (this *DiagnosticGroupWarningsGuard) level(p0 *JSError) CheckLevel {
 	if this.self_ == any(this) {
 		return this.level_impl(p0)
 	}
@@ -93,7 +93,7 @@ func (this *DiagnosticGroupWarningsGuard) level(p0 *JSError) *CheckLevel {
 }
 
 // mustRunChecks: an object that is exactly a DiagnosticGroupWarningsGuard calls its mustRunChecks_impl directly (post-flip); others dispatch.
-func (this *DiagnosticGroupWarningsGuard) mustRunChecks(p0 *DiagnosticGroup) *Tri {
+func (this *DiagnosticGroupWarningsGuard) mustRunChecks(p0 *DiagnosticGroup) Tri {
 	if this.self_ == any(this) {
 		return this.mustRunChecks_impl(p0)
 	}

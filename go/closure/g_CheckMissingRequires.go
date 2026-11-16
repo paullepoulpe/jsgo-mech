@@ -145,7 +145,7 @@ func (this *CheckMissingRequires) visitJsDocInfo(t *NodeTraversal, currentModule
 	}
 }
 
-func (this *CheckMissingRequires) visitJsDocExpr(t *NodeTraversal, currentModule *ModuleMetadataMap_ModuleMetadata, expr *JSTypeExpression, referenceStrength *CheckMissingRequires_Strength) {
+func (this *CheckMissingRequires) visitJsDocExpr(t *NodeTraversal, currentModule *ModuleMetadataMap_ModuleMetadata, expr *JSTypeExpression, referenceStrength CheckMissingRequires_Strength) {
 	for _, typeNode := range expr.getAllTypeNodes() {
 		this.visitQualifiedName(t, typeNode, currentModule, QualifiedName_of(typeNode.getString()), referenceStrength)
 	}
@@ -219,7 +219,7 @@ func (this *CheckMissingRequires) isTypeScriptSource(n Node) bool {
 	return n.getStaticSourceFile().isTypeScriptSource()
 }
 
-func (this *CheckMissingRequires) visitQualifiedName(t *NodeTraversal, n Node, currentFile *ModuleMetadataMap_ModuleMetadata, qualifiedName *QualifiedName, referenceStrength *CheckMissingRequires_Strength) {
+func (this *CheckMissingRequires) visitQualifiedName(t *NodeTraversal, n Node, currentFile *ModuleMetadataMap_ModuleMetadata, qualifiedName *QualifiedName, referenceStrength CheckMissingRequires_Strength) {
 	var rootName string = qualifiedName.getRoot()
 	if qualifiedName.isSimple() {
 		if has_(this.templateParamNames, rootName) {
@@ -237,7 +237,7 @@ func (this *CheckMissingRequires) visitQualifiedName(t *NodeTraversal, n Node, c
 	}
 }
 
-func (this *CheckMissingRequires) checkMissingRequireThroughShortName(t *NodeTraversal, n Node, localVar *Var, currentFile *ModuleMetadataMap_ModuleMetadata, qualifiedName *QualifiedName, referenceStrength *CheckMissingRequires_Strength) {
+func (this *CheckMissingRequires) checkMissingRequireThroughShortName(t *NodeTraversal, n Node, localVar *Var, currentFile *ModuleMetadataMap_ModuleMetadata, qualifiedName *QualifiedName, referenceStrength CheckMissingRequires_Strength) {
 	if this.isTypeScriptSource(n) {
 		return
 	}
@@ -256,7 +256,7 @@ func (this *CheckMissingRequires) checkMissingRequireThroughShortName(t *NodeTra
 	}
 }
 
-func (this *CheckMissingRequires) checkMissingRequireThroughShortNameInGoogScope(t *NodeTraversal, n Node, localVar *Var, currentFile *ModuleMetadataMap_ModuleMetadata, qualifiedName *QualifiedName, referenceStrength *CheckMissingRequires_Strength) {
+func (this *CheckMissingRequires) checkMissingRequireThroughShortNameInGoogScope(t *NodeTraversal, n Node, localVar *Var, currentFile *ModuleMetadataMap_ModuleMetadata, qualifiedName *QualifiedName, referenceStrength CheckMissingRequires_Strength) {
 	var initialValue Node = localVar.getInitialValue()
 	if initialValue == 0 {
 		return
@@ -306,7 +306,7 @@ func (this *CheckMissingRequires) checkMissingRequireThroughShortNameInGoogScope
 	this.checkNormalizedShortNameImport(t, n, currentFile, originalImport, qualifiedName, normalizedQualifiedName, referenceStrength)
 }
 
-func (this *CheckMissingRequires) checkMissingRequireThroughShortNameInModule(t *NodeTraversal, n Node, require *NodeUtil_GoogRequire, currentFile *ModuleMetadataMap_ModuleMetadata, qualifiedName *QualifiedName, referenceStrength *CheckMissingRequires_Strength) {
+func (this *CheckMissingRequires) checkMissingRequireThroughShortNameInModule(t *NodeTraversal, n Node, require *NodeUtil_GoogRequire, currentFile *ModuleMetadataMap_ModuleMetadata, qualifiedName *QualifiedName, referenceStrength CheckMissingRequires_Strength) {
 	if require == nil {
 		return
 	}
@@ -318,7 +318,7 @@ func (this *CheckMissingRequires) checkMissingRequireThroughShortNameInModule(t 
 	this.checkNormalizedShortNameImport(t, n, currentFile, originalRequiredFile, qualifiedName, normalizeQualifiedName, referenceStrength)
 }
 
-func (this *CheckMissingRequires) checkNormalizedShortNameImport(t *NodeTraversal, n Node, currentFile *ModuleMetadataMap_ModuleMetadata, originalImport *ModuleMetadataMap_ModuleMetadata, originalQualifiedName *QualifiedName, normalizedQualifiedName *QualifiedName, referenceStrength *CheckMissingRequires_Strength) {
+func (this *CheckMissingRequires) checkNormalizedShortNameImport(t *NodeTraversal, n Node, currentFile *ModuleMetadataMap_ModuleMetadata, originalImport *ModuleMetadataMap_ModuleMetadata, originalQualifiedName *QualifiedName, normalizedQualifiedName *QualifiedName, referenceStrength CheckMissingRequires_Strength) {
 	{
 		var subName *QualifiedName = normalizedQualifiedName
 		for ; subName != nil; subName = subName.getOwner() {
@@ -339,14 +339,14 @@ func (this *CheckMissingRequires) checkNormalizedShortNameImport(t *NodeTraversa
 				var toReport *DiagnosticType
 				if currentFile.isModule() {
 					toReport = func() *DiagnosticType {
-						if referenceStrength.isStrong_ {
+						if CheckMissingRequires_Strength_isStrong__[referenceStrength-1] {
 							return CheckMissingRequires_INDIRECT_NAMESPACE_REF_REQUIRE
 						}
 						return CheckMissingRequires_INDIRECT_NAMESPACE_REF_REQUIRE_TYPE
 					}()
 				} else {
 					toReport = func() *DiagnosticType {
-						if referenceStrength.isStrong_ {
+						if CheckMissingRequires_Strength_isStrong__[referenceStrength-1] {
 							return CheckMissingRequires_MISSING_REQUIRE_IN_GOOG_SCOPE
 						}
 						return CheckMissingRequires_MISSING_REQUIRE_TYPE_IN_GOOG_SCOPE
@@ -376,7 +376,7 @@ func (this *CheckMissingRequires) checkNormalizedShortNameImport(t *NodeTraversa
 	}
 }
 
-func (this *CheckMissingRequires) checkMissingRequireThroughFullyQualifiedName(t *NodeTraversal, n Node, currentFile *ModuleMetadataMap_ModuleMetadata, qualifiedName *QualifiedName, referenceStrength *CheckMissingRequires_Strength) {
+func (this *CheckMissingRequires) checkMissingRequireThroughFullyQualifiedName(t *NodeTraversal, n Node, currentFile *ModuleMetadataMap_ModuleMetadata, qualifiedName *QualifiedName, referenceStrength CheckMissingRequires_Strength) {
 	{
 		var subName *QualifiedName = qualifiedName
 		for ; subName != nil; subName = subName.getOwner() {
@@ -397,19 +397,19 @@ func (this *CheckMissingRequires) checkMissingRequireThroughFullyQualifiedName(t
 			var toReport *DiagnosticType
 			if currentFile.isModule() {
 				toReport = func() *DiagnosticType {
-					if referenceStrength.isStrong_ {
+					if CheckMissingRequires_Strength_isStrong__[referenceStrength-1] {
 						return CheckMissingRequires_MISSING_REQUIRE
 					}
 					return CheckMissingRequires_MISSING_REQUIRE_TYPE
 				}()
 			} else if !CheckMissingRequires_hasAcceptableRequire(currentFile, subName, requiredFile, referenceStrength) {
 				toReport = func() *DiagnosticType {
-					if referenceStrength.isStrong_ {
+					if CheckMissingRequires_Strength_isStrong__[referenceStrength-1] {
 						return CheckMissingRequires_MISSING_REQUIRE_IN_PROVIDES_FILE
 					}
 					return CheckMissingRequires_MISSING_REQUIRE_TYPE_IN_PROVIDES_FILE
 				}()
-			} else if !referenceStrength.isTypeOnly && requiredFile.isNonLegacyGoogModule() {
+			} else if !CheckMissingRequires_Strength_isTypeOnly_[referenceStrength-1] && requiredFile.isNonLegacyGoogModule() {
 				toReport = CheckMissingRequires_NON_LEGACY_GOOG_MODULE_REFERENCE
 			} else {
 				return
@@ -449,9 +449,9 @@ func (this *CheckMissingRequires) isAllowedNamespace(currentFile *ModuleMetadata
 	return false
 }
 
-func CheckMissingRequires_hasAcceptableRequire(rdep *ModuleMetadataMap_ModuleMetadata, namespace *QualifiedName, dep *ModuleMetadataMap_ModuleMetadata, referenceStrength *CheckMissingRequires_Strength) bool {
+func CheckMissingRequires_hasAcceptableRequire(rdep *ModuleMetadataMap_ModuleMetadata, namespace *QualifiedName, dep *ModuleMetadataMap_ModuleMetadata, referenceStrength CheckMissingRequires_Strength) bool {
 	var acceptableRequires SetOf[string] = rdep.stronglyRequiredGoogNamespaces().elementSet()
-	if !referenceStrength.isStrong_ {
+	if !CheckMissingRequires_Strength_isStrong__[referenceStrength-1] {
 		acceptableRequires = icast_Set(obj_(Sets_union(acceptableRequires, rdep.weaklyRequiredGoogNamespaces().elementSet())))
 	}
 	acceptableRequires = icast_Set(obj_(Sets_intersection(acceptableRequires, dep.googNamespaces().elementSet())))
@@ -504,49 +504,72 @@ func CheckMissingRequires_clinit() {
 
 }
 
-type CheckMissingRequires_Strength struct {
-	Enum
-	isStrong_  bool
-	isTypeOnly bool
+type CheckMissingRequires_Strength uint8
+
+// CheckMissingRequires_Strength_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var CheckMissingRequires_Strength_enum_ = [3]Enum{
+	{self_: CheckMissingRequires_Strength_CODE, name_: "CODE", ordinal_: 0},
+	{self_: CheckMissingRequires_Strength_IMPLEMENTS_EXTENDS, name_: "IMPLEMENTS_EXTENDS", ordinal_: 1},
+	{self_: CheckMissingRequires_Strength_WEAK_TYPE, name_: "WEAK_TYPE", ordinal_: 2},
 }
 
-func (this *CheckMissingRequires_Strength) up_Enum() *Enum {
-	if this == nil {
+var CheckMissingRequires_Strength_isStrong__ [3]bool
+
+var CheckMissingRequires_Strength_isTypeOnly_ [3]bool
+
+func (this CheckMissingRequires_Strength) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &CheckMissingRequires_Strength_enum_[this-1]
 }
 
-func (this *CheckMissingRequires_Strength) init_CheckMissingRequires_Strength(name_ string, ordinal_ int32, isStrong bool, isTypeOnly bool) {
-	this.Enum.init_Enum(name_, ordinal_)
-	this.isStrong_ = isStrong
-	this.isTypeOnly = isTypeOnly
+func (this CheckMissingRequires_Strength) name() string {
+	return CheckMissingRequires_Strength_enum_[this-1].name_
 }
 
-func new_CheckMissingRequires_Strength(name_ string, ordinal_ int32, isStrong bool, isTypeOnly bool) *CheckMissingRequires_Strength {
-	this := &CheckMissingRequires_Strength{}
-	this.self_ = this
-	this.init_CheckMissingRequires_Strength(name_, ordinal_, isStrong, isTypeOnly)
+func (this CheckMissingRequires_Strength) ordinal() int32 {
+	return CheckMissingRequires_Strength_enum_[this-1].ordinal_
+}
+
+func (this CheckMissingRequires_Strength) toString() string {
+	return CheckMissingRequires_Strength_enum_[this-1].name_
+}
+
+func (this CheckMissingRequires_Strength) compareTo(o any) int32 {
+	return CheckMissingRequires_Strength_enum_[this-1].compareTo(o)
+}
+
+func (this CheckMissingRequires_Strength) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func CheckMissingRequires_Strength_values() []*CheckMissingRequires_Strength {
-	return append([]*CheckMissingRequires_Strength(nil), CheckMissingRequires_Strength_values_...)
+func (this CheckMissingRequires_Strength) init_CheckMissingRequires_Strength(isStrong bool, isTypeOnly bool) {
+	CheckMissingRequires_Strength_isStrong__[this-1] = isStrong
+	CheckMissingRequires_Strength_isTypeOnly_[this-1] = isTypeOnly
 }
 
-func CheckMissingRequires_Strength_valueOf(name string) *CheckMissingRequires_Strength {
+func CheckMissingRequires_Strength_values() []CheckMissingRequires_Strength {
+	return append([]CheckMissingRequires_Strength(nil), CheckMissingRequires_Strength_values_...)
+}
+
+func CheckMissingRequires_Strength_valueOf(name string) CheckMissingRequires_Strength {
 	for _, v := range CheckMissingRequires_Strength_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("Strength", name))
 }
 
-var CheckMissingRequires_Strength_CODE *CheckMissingRequires_Strength
-var CheckMissingRequires_Strength_IMPLEMENTS_EXTENDS *CheckMissingRequires_Strength
-var CheckMissingRequires_Strength_WEAK_TYPE *CheckMissingRequires_Strength
-var CheckMissingRequires_Strength_values_ []*CheckMissingRequires_Strength
+const CheckMissingRequires_Strength_CODE CheckMissingRequires_Strength = 1
+const CheckMissingRequires_Strength_IMPLEMENTS_EXTENDS CheckMissingRequires_Strength = 2
+const CheckMissingRequires_Strength_WEAK_TYPE CheckMissingRequires_Strength = 3
+
+var CheckMissingRequires_Strength_values_ []CheckMissingRequires_Strength
 
 var CheckMissingRequires_Strength_clinit_done bool
 
@@ -555,10 +578,10 @@ func CheckMissingRequires_Strength_clinit() {
 		return
 	}
 	CheckMissingRequires_Strength_clinit_done = true
-	CheckMissingRequires_Strength_CODE = new_CheckMissingRequires_Strength("CODE", 0, true, false)
-	CheckMissingRequires_Strength_IMPLEMENTS_EXTENDS = new_CheckMissingRequires_Strength("IMPLEMENTS_EXTENDS", 1, true, true)
-	CheckMissingRequires_Strength_WEAK_TYPE = new_CheckMissingRequires_Strength("WEAK_TYPE", 2, false, true)
-	CheckMissingRequires_Strength_values_ = []*CheckMissingRequires_Strength{CheckMissingRequires_Strength_CODE, CheckMissingRequires_Strength_IMPLEMENTS_EXTENDS, CheckMissingRequires_Strength_WEAK_TYPE}
+	CheckMissingRequires_Strength_CODE.init_CheckMissingRequires_Strength(true, false)
+	CheckMissingRequires_Strength_IMPLEMENTS_EXTENDS.init_CheckMissingRequires_Strength(true, true)
+	CheckMissingRequires_Strength_WEAK_TYPE.init_CheckMissingRequires_Strength(false, true)
+	CheckMissingRequires_Strength_values_ = []CheckMissingRequires_Strength{CheckMissingRequires_Strength_CODE, CheckMissingRequires_Strength_IMPLEMENTS_EXTENDS, CheckMissingRequires_Strength_WEAK_TYPE}
 	registerEnum_("com.google.javascript.jscomp.CheckMissingRequires.Strength", enumValues_(CheckMissingRequires_Strength_values_))
 
 }

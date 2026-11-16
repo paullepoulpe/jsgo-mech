@@ -41,7 +41,7 @@ func new_ArrowType(registry *JSTypeRegistry, parameters *TList[*FunctionType_Par
 	return this
 }
 
-func (this *ArrowType) getTypeClass_impl() *JSTypeClass {
+func (this *ArrowType) getTypeClass_impl() JSTypeClass {
 	return ArrowType_TYPE_CLASS
 }
 
@@ -71,7 +71,7 @@ func (this *ArrowType) getGreatestSubtype_impl(that *JSType) *JSType {
 	panic(new_UnsupportedOperationException_0().self())
 }
 
-func (this *ArrowType) testForEquality_impl(that *JSType) *Tri {
+func (this *ArrowType) testForEquality_impl(that *JSType) Tri {
 	panic(new_UnsupportedOperationException_0().self())
 }
 
@@ -83,7 +83,7 @@ func (this *ArrowType) visitUntyped_2_impl(visitor RelationshipVisitor, that *JS
 	panic(new_UnsupportedOperationException_0().self())
 }
 
-func (this *ArrowType) getPossibleToBooleanOutcomes_impl() *BooleanLiteralSet {
+func (this *ArrowType) getPossibleToBooleanOutcomes_impl() BooleanLiteralSet {
 	return BooleanLiteralSet_TRUE
 }
 
@@ -138,7 +138,7 @@ func (this *ArrowType) toString_impl() string {
 	return typeStringBuilder.build()
 }
 
-var ArrowType_TYPE_CLASS *JSTypeClass
+var ArrowType_TYPE_CLASS JSTypeClass
 
 var ArrowType_clinit_done bool
 
@@ -152,7 +152,7 @@ func ArrowType_clinit() {
 }
 
 // getTypeClass: an object that is exactly a ArrowType calls its getTypeClass_impl directly (post-flip); others dispatch.
-func (this *ArrowType) getTypeClass() *JSTypeClass {
+func (this *ArrowType) getTypeClass() JSTypeClass {
 	if this.self_ == any(this) {
 		return this.getTypeClass_impl()
 	}
@@ -184,7 +184,7 @@ func (this *ArrowType) getGreatestSubtype(p0 *JSType) *JSType {
 }
 
 // testForEquality: an object that is exactly a ArrowType calls its testForEquality_impl directly (post-flip); others dispatch.
-func (this *ArrowType) testForEquality(p0 *JSType) *Tri {
+func (this *ArrowType) testForEquality(p0 *JSType) Tri {
 	if this.self_ == any(this) {
 		return this.testForEquality_impl(p0)
 	}
@@ -208,7 +208,7 @@ func (this *ArrowType) visitUntyped_2(p0 RelationshipVisitor, p1 *JSType) any {
 }
 
 // getPossibleToBooleanOutcomes: an object that is exactly a ArrowType calls its getPossibleToBooleanOutcomes_impl directly (post-flip); others dispatch.
-func (this *ArrowType) getPossibleToBooleanOutcomes() *BooleanLiteralSet {
+func (this *ArrowType) getPossibleToBooleanOutcomes() BooleanLiteralSet {
 	if this.self_ == any(this) {
 		return this.getPossibleToBooleanOutcomes_impl()
 	}

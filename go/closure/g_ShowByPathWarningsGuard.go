@@ -25,10 +25,10 @@ func new_ShowByPathWarningsGuard_String(checkWarningsOnlyForPath string) *ShowBy
 	return this
 }
 
-func (this *ShowByPathWarningsGuard) init_ShowByPathWarningsGuard_StringArr_ShowType(paths []string, showType *ShowByPathWarningsGuard_ShowType) {
+func (this *ShowByPathWarningsGuard) init_ShowByPathWarningsGuard_StringArr_ShowType(paths []string, showType ShowByPathWarningsGuard_ShowType) {
 	this.WarningsGuard.init_WarningsGuard()
 	Preconditions_checkArgument((paths != nil))
-	Preconditions_checkArgument((showType != nil))
+	Preconditions_checkArgument((showType != 0))
 	var pathList []string = sliceImm_(tc_string, ImmutableList_copyOf_ObjectArr(arrmap_(paths, func(v_ string) any { return strobj_(v_) })))
 	if showType == ShowByPathWarningsGuard_ShowType_INCLUDE {
 		this.warningsGuard = ByPathWarningsGuard_exceptPath(pathList, CheckLevel_OFF)
@@ -37,7 +37,7 @@ func (this *ShowByPathWarningsGuard) init_ShowByPathWarningsGuard_StringArr_Show
 	}
 }
 
-func new_ShowByPathWarningsGuard_StringArr_ShowType(paths []string, showType *ShowByPathWarningsGuard_ShowType) *ShowByPathWarningsGuard {
+func new_ShowByPathWarningsGuard_StringArr_ShowType(paths []string, showType ShowByPathWarningsGuard_ShowType) *ShowByPathWarningsGuard {
 	this := &ShowByPathWarningsGuard{}
 	this.self_ = this
 	this.init_ShowByPathWarningsGuard_StringArr_ShowType(paths, showType)
@@ -48,11 +48,11 @@ func ShowByPathWarningsGuard_createFromPaths(checkWarningsOnlyForPath []string) 
 	return new_ShowByPathWarningsGuard_StringArr_ShowType(checkWarningsOnlyForPath, ShowByPathWarningsGuard_ShowType_INCLUDE)
 }
 
-func ShowByPathWarningsGuard_createFromPath(path string, showType *ShowByPathWarningsGuard_ShowType) *ShowByPathWarningsGuard {
+func ShowByPathWarningsGuard_createFromPath(path string, showType ShowByPathWarningsGuard_ShowType) *ShowByPathWarningsGuard {
 	return new_ShowByPathWarningsGuard_StringArr_ShowType([]string{path}, showType)
 }
 
-func (this *ShowByPathWarningsGuard) level_impl(error_ *JSError) *CheckLevel {
+func (this *ShowByPathWarningsGuard) level_impl(error_ *JSError) CheckLevel {
 	return this.warningsGuard.level(error_)
 }
 
@@ -62,44 +62,61 @@ func (this *ShowByPathWarningsGuard) getPriority_impl() int32 {
 
 const ShowByPathWarningsGuard_serialVersionUID int64 = 1
 
-type ShowByPathWarningsGuard_ShowType struct {
-	Enum
+type ShowByPathWarningsGuard_ShowType uint8
+
+// ShowByPathWarningsGuard_ShowType_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var ShowByPathWarningsGuard_ShowType_enum_ = [2]Enum{
+	{self_: ShowByPathWarningsGuard_ShowType_INCLUDE, name_: "INCLUDE", ordinal_: 0},
+	{self_: ShowByPathWarningsGuard_ShowType_EXCLUDE, name_: "EXCLUDE", ordinal_: 1},
 }
 
-func (this *ShowByPathWarningsGuard_ShowType) up_Enum() *Enum {
-	if this == nil {
+func (this ShowByPathWarningsGuard_ShowType) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &ShowByPathWarningsGuard_ShowType_enum_[this-1]
 }
 
-func (this *ShowByPathWarningsGuard_ShowType) init_ShowByPathWarningsGuard_ShowType(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this ShowByPathWarningsGuard_ShowType) name() string {
+	return ShowByPathWarningsGuard_ShowType_enum_[this-1].name_
 }
 
-func new_ShowByPathWarningsGuard_ShowType(name_ string, ordinal_ int32) *ShowByPathWarningsGuard_ShowType {
-	this := &ShowByPathWarningsGuard_ShowType{}
-	this.self_ = this
-	this.init_ShowByPathWarningsGuard_ShowType(name_, ordinal_)
+func (this ShowByPathWarningsGuard_ShowType) ordinal() int32 {
+	return ShowByPathWarningsGuard_ShowType_enum_[this-1].ordinal_
+}
+
+func (this ShowByPathWarningsGuard_ShowType) toString() string {
+	return ShowByPathWarningsGuard_ShowType_enum_[this-1].name_
+}
+
+func (this ShowByPathWarningsGuard_ShowType) compareTo(o any) int32 {
+	return ShowByPathWarningsGuard_ShowType_enum_[this-1].compareTo(o)
+}
+
+func (this ShowByPathWarningsGuard_ShowType) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func ShowByPathWarningsGuard_ShowType_values() []*ShowByPathWarningsGuard_ShowType {
-	return append([]*ShowByPathWarningsGuard_ShowType(nil), ShowByPathWarningsGuard_ShowType_values_...)
+func ShowByPathWarningsGuard_ShowType_values() []ShowByPathWarningsGuard_ShowType {
+	return append([]ShowByPathWarningsGuard_ShowType(nil), ShowByPathWarningsGuard_ShowType_values_...)
 }
 
-func ShowByPathWarningsGuard_ShowType_valueOf(name string) *ShowByPathWarningsGuard_ShowType {
+func ShowByPathWarningsGuard_ShowType_valueOf(name string) ShowByPathWarningsGuard_ShowType {
 	for _, v := range ShowByPathWarningsGuard_ShowType_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("ShowType", name))
 }
 
-var ShowByPathWarningsGuard_ShowType_INCLUDE *ShowByPathWarningsGuard_ShowType
-var ShowByPathWarningsGuard_ShowType_EXCLUDE *ShowByPathWarningsGuard_ShowType
-var ShowByPathWarningsGuard_ShowType_values_ []*ShowByPathWarningsGuard_ShowType
+const ShowByPathWarningsGuard_ShowType_INCLUDE ShowByPathWarningsGuard_ShowType = 1
+const ShowByPathWarningsGuard_ShowType_EXCLUDE ShowByPathWarningsGuard_ShowType = 2
+
+var ShowByPathWarningsGuard_ShowType_values_ []ShowByPathWarningsGuard_ShowType
 
 var ShowByPathWarningsGuard_ShowType_clinit_done bool
 
@@ -108,15 +125,13 @@ func ShowByPathWarningsGuard_ShowType_clinit() {
 		return
 	}
 	ShowByPathWarningsGuard_ShowType_clinit_done = true
-	ShowByPathWarningsGuard_ShowType_INCLUDE = new_ShowByPathWarningsGuard_ShowType("INCLUDE", 0)
-	ShowByPathWarningsGuard_ShowType_EXCLUDE = new_ShowByPathWarningsGuard_ShowType("EXCLUDE", 1)
-	ShowByPathWarningsGuard_ShowType_values_ = []*ShowByPathWarningsGuard_ShowType{ShowByPathWarningsGuard_ShowType_INCLUDE, ShowByPathWarningsGuard_ShowType_EXCLUDE}
+	ShowByPathWarningsGuard_ShowType_values_ = []ShowByPathWarningsGuard_ShowType{ShowByPathWarningsGuard_ShowType_INCLUDE, ShowByPathWarningsGuard_ShowType_EXCLUDE}
 	registerEnum_("com.google.javascript.jscomp.ShowByPathWarningsGuard.ShowType", enumValues_(ShowByPathWarningsGuard_ShowType_values_))
 
 }
 
 // level: an object that is exactly a ShowByPathWarningsGuard calls its level_impl directly (post-flip); others dispatch.
-func (this *ShowByPathWarningsGuard) level(p0 *JSError) *CheckLevel {
+func (this *ShowByPathWarningsGuard) level(p0 *JSError) CheckLevel {
 	if this.self_ == any(this) {
 		return this.level_impl(p0)
 	}

@@ -229,7 +229,7 @@ func (this *ErrorToFixMapper) getFixForInexistentProperty(error_ *JSError) *Sugg
 	return nil
 }
 
-func (this *ErrorToFixMapper) getFixForMissingRequire(error_ *JSError, importType *SuggestedFix_ImportType) *SuggestedFix {
+func (this *ErrorToFixMapper) getFixForMissingRequire(error_ *JSError, importType SuggestedFix_ImportType) *SuggestedFix {
 	var regexMatcher *Matcher_re2j = ErrorToFixMapper_MISSING_REQUIRE.matcher(strobj_(error_.description()))
 	if ok_, a1_ := regexMatcher.matches(), error_.description(); !ok_ {
 		Preconditions_checkState_boolean_String_Object(false, "Unexpected error description: %s", strobj_(a1_))

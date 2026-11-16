@@ -7,8 +7,8 @@ type SubtypeChecker struct {
 	initialSubtype          *JSType
 	registry                *JSTypeRegistry
 	isUsingStructuralTyping any
-	subtypingMode           *JSType_SubtypingMode
-	subtypeCache            *TMap[*SubtypeChecker_CacheKey, *JSType_MatchStatus]
+	subtypingMode           JSType_SubtypingMode
+	subtypeCache            *TMap[*SubtypeChecker_CacheKey, JSType_MatchStatus]
 	hasRun                  bool
 	recursionDepth          int32
 }
@@ -50,10 +50,10 @@ func (this *SubtypeChecker) setUsingStructuralSubtyping(value bool) *SubtypeChec
 	return this
 }
 
-func (this *SubtypeChecker) setSubtypingMode(value *JSType_SubtypingMode) *SubtypeChecker {
+func (this *SubtypeChecker) setSubtypingMode(value JSType_SubtypingMode) *SubtypeChecker {
 	this.checkHasNotRun()
-	Preconditions_checkState((this.subtypingMode == nil))
-	this.subtypingMode = cast_[*JSType_SubtypingMode](Preconditions_checkNotNull(obj_(value)))
+	Preconditions_checkState((this.subtypingMode == 0))
+	this.subtypingMode = cast_[JSType_SubtypingMode](Preconditions_checkNotNull(obj_(value)))
 	return this
 }
 
@@ -100,8 +100,8 @@ func (this *SubtypeChecker) isSubtypeCaching(subtype *JSType, supertype *JSType)
 		}
 	}
 	var key *SubtypeChecker_CacheKey = new_SubtypeChecker_CacheKey(subtype, supertype)
-	var cached *JSType_MatchStatus = cast_[*JSType_MatchStatus](Map_putIfAbsent(this.subtypeCache.asMap(), obj_(key), obj_(JSType_MatchStatus_PROCESSING)))
-	if cached == nil {
+	var cached JSType_MatchStatus = cast_[JSType_MatchStatus](Map_putIfAbsent(this.subtypeCache.asMap(), obj_(key), obj_(JSType_MatchStatus_PROCESSING)))
+	if cached == 0 {
 		var result bool = this.isSubtypeDispatching(subtype, supertype)
 		this.subtypeCache.put(key, JSType_MatchStatus_valueOfBoolean(result))
 		return result
@@ -253,7 +253,7 @@ func (this *SubtypeChecker) isObjectSubtypeHelper(subtype *ObjectType, supertype
 	return supertype.isImplicitPrototypeOf(subtype)
 }
 
-func (this *SubtypeChecker) isStructuralSubtypeHelper(subtype *ObjectType, supertype *ObjectType, optionality *SubtypeChecker_PropertyOptionality) bool {
+func (this *SubtypeChecker) isStructuralSubtypeHelper(subtype *ObjectType, supertype *ObjectType, optionality SubtypeChecker_PropertyOptionality) bool {
 	var keys *PropertyMap_AllKeys = func() *PropertyMap_AllKeys {
 		if supertype.isRecordType() {
 			return nil
@@ -290,7 +290,7 @@ func (this *SubtypeChecker) isStructuralSubtypeHelper(subtype *ObjectType, super
 	return true
 }
 
-func (this *SubtypeChecker) checkPropertyPresence(propertyKey Property_Key, subtype *ObjectType, supertype *ObjectType, optionality *SubtypeChecker_PropertyOptionality) bool {
+func (this *SubtypeChecker) checkPropertyPresence(propertyKey Property_Key, subtype *ObjectType, supertype *ObjectType, optionality SubtypeChecker_PropertyOptionality) bool {
 	var supertypeProp *JSType = supertype.getPropertyTypeKey(propertyKey)
 	if subtype.hasPropertyKey(propertyKey) {
 		var subtypeProp *JSType = subtype.getPropertyTypeKey(propertyKey)
@@ -425,7 +425,7 @@ func (this *SubtypeChecker) isProxyObjectSubtype(subtype *ProxyObjectType, super
 
 func (this *SubtypeChecker) isTemplateSubtype(subtype *TemplateType, supertype *JSType) bool {
 	if (!subtype.getBound().isUnknownType() && supertype.isTemplateType()) && !supertype.toMaybeTemplateType().getBound().isUnknownType() {
-		return (cast_[*ContainsUpperBoundSuperTypeVisitor_Result](subtype.visit(icast_Visitor(obj_(new_ContainsUpperBoundSuperTypeVisitor(supertype))))) == ContainsUpperBoundSuperTypeVisitor_Result_PRESENT)
+		return (cast_[ContainsUpperBoundSuperTypeVisitor_Result](subtype.visit(icast_Visitor(obj_(new_ContainsUpperBoundSuperTypeVisitor(supertype))))) == ContainsUpperBoundSuperTypeVisitor_Result_PRESENT)
 	} else {
 		return this.isProxyObjectSubtype(subtype.up_ProxyObjectType(), supertype)
 	}
@@ -459,7 +459,7 @@ func (this *SubtypeChecker) isTypeMapSubmap(subtype *ObjectType, supertype *Obje
 	return true
 }
 
-func (this *SubtypeChecker) meetVarianceConstraint(variance *SubtypeChecker_Variance, override *JSType, reference *JSType) bool {
+func (this *SubtypeChecker) meetVarianceConstraint(variance SubtypeChecker_Variance, override *JSType, reference *JSType) bool {
 	return func() bool {
 		switch variance {
 		case SubtypeChecker_Variance_COVARIANT:
@@ -533,8 +533,8 @@ func (this *SubtypeChecker) shouldTreatThisTypesAsCovariant(subtype *FunctionTyp
 	})
 }
 
-func (this *SubtypeChecker) hackTemporarilyChangeSubtypingMode(tempMode *JSType_SubtypingMode, callback func() bool) bool {
-	var originalMode *JSType_SubtypingMode = this.subtypingMode
+func (this *SubtypeChecker) hackTemporarilyChangeSubtypingMode(tempMode JSType_SubtypingMode, callback func() bool) bool {
+	var originalMode JSType_SubtypingMode = this.subtypingMode
 	var ret_1 bool
 	code_1 := func() (code_ int) {
 		defer func() {
@@ -577,48 +577,65 @@ func SubtypeChecker_clinit() {
 
 }
 
-type SubtypeChecker_PropertyOptionality struct {
-	Enum
+type SubtypeChecker_PropertyOptionality uint8
+
+// SubtypeChecker_PropertyOptionality_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var SubtypeChecker_PropertyOptionality_enum_ = [2]Enum{
+	{self_: SubtypeChecker_PropertyOptionality_VOIDABLE_PROPS_ARE_OPTIONAL, name_: "VOIDABLE_PROPS_ARE_OPTIONAL", ordinal_: 0},
+	{self_: SubtypeChecker_PropertyOptionality_ALL_PROPS_ARE_REQUIRED, name_: "ALL_PROPS_ARE_REQUIRED", ordinal_: 1},
 }
 
-func (this *SubtypeChecker_PropertyOptionality) up_Enum() *Enum {
-	if this == nil {
+func (this SubtypeChecker_PropertyOptionality) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &SubtypeChecker_PropertyOptionality_enum_[this-1]
 }
 
-func (this *SubtypeChecker_PropertyOptionality) init_SubtypeChecker_PropertyOptionality(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this SubtypeChecker_PropertyOptionality) name() string {
+	return SubtypeChecker_PropertyOptionality_enum_[this-1].name_
 }
 
-func new_SubtypeChecker_PropertyOptionality(name_ string, ordinal_ int32) *SubtypeChecker_PropertyOptionality {
-	this := &SubtypeChecker_PropertyOptionality{}
-	this.self_ = this
-	this.init_SubtypeChecker_PropertyOptionality(name_, ordinal_)
+func (this SubtypeChecker_PropertyOptionality) ordinal() int32 {
+	return SubtypeChecker_PropertyOptionality_enum_[this-1].ordinal_
+}
+
+func (this SubtypeChecker_PropertyOptionality) toString() string {
+	return SubtypeChecker_PropertyOptionality_enum_[this-1].name_
+}
+
+func (this SubtypeChecker_PropertyOptionality) compareTo(o any) int32 {
+	return SubtypeChecker_PropertyOptionality_enum_[this-1].compareTo(o)
+}
+
+func (this SubtypeChecker_PropertyOptionality) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func (this *SubtypeChecker_PropertyOptionality) isOptional(propType *JSType) bool {
+func (this SubtypeChecker_PropertyOptionality) isOptional(propType *JSType) bool {
 	return ((this == SubtypeChecker_PropertyOptionality_VOIDABLE_PROPS_ARE_OPTIONAL) && propType.isExplicitlyVoidable())
 }
 
-func SubtypeChecker_PropertyOptionality_values() []*SubtypeChecker_PropertyOptionality {
-	return append([]*SubtypeChecker_PropertyOptionality(nil), SubtypeChecker_PropertyOptionality_values_...)
+func SubtypeChecker_PropertyOptionality_values() []SubtypeChecker_PropertyOptionality {
+	return append([]SubtypeChecker_PropertyOptionality(nil), SubtypeChecker_PropertyOptionality_values_...)
 }
 
-func SubtypeChecker_PropertyOptionality_valueOf(name string) *SubtypeChecker_PropertyOptionality {
+func SubtypeChecker_PropertyOptionality_valueOf(name string) SubtypeChecker_PropertyOptionality {
 	for _, v := range SubtypeChecker_PropertyOptionality_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("PropertyOptionality", name))
 }
 
-var SubtypeChecker_PropertyOptionality_VOIDABLE_PROPS_ARE_OPTIONAL *SubtypeChecker_PropertyOptionality
-var SubtypeChecker_PropertyOptionality_ALL_PROPS_ARE_REQUIRED *SubtypeChecker_PropertyOptionality
-var SubtypeChecker_PropertyOptionality_values_ []*SubtypeChecker_PropertyOptionality
+const SubtypeChecker_PropertyOptionality_VOIDABLE_PROPS_ARE_OPTIONAL SubtypeChecker_PropertyOptionality = 1
+const SubtypeChecker_PropertyOptionality_ALL_PROPS_ARE_REQUIRED SubtypeChecker_PropertyOptionality = 2
+
+var SubtypeChecker_PropertyOptionality_values_ []SubtypeChecker_PropertyOptionality
 
 var SubtypeChecker_PropertyOptionality_clinit_done bool
 
@@ -627,53 +644,68 @@ func SubtypeChecker_PropertyOptionality_clinit() {
 		return
 	}
 	SubtypeChecker_PropertyOptionality_clinit_done = true
-	SubtypeChecker_PropertyOptionality_VOIDABLE_PROPS_ARE_OPTIONAL = new_SubtypeChecker_PropertyOptionality("VOIDABLE_PROPS_ARE_OPTIONAL", 0)
-	SubtypeChecker_PropertyOptionality_ALL_PROPS_ARE_REQUIRED = new_SubtypeChecker_PropertyOptionality("ALL_PROPS_ARE_REQUIRED", 1)
-	SubtypeChecker_PropertyOptionality_values_ = []*SubtypeChecker_PropertyOptionality{SubtypeChecker_PropertyOptionality_VOIDABLE_PROPS_ARE_OPTIONAL, SubtypeChecker_PropertyOptionality_ALL_PROPS_ARE_REQUIRED}
+	SubtypeChecker_PropertyOptionality_values_ = []SubtypeChecker_PropertyOptionality{SubtypeChecker_PropertyOptionality_VOIDABLE_PROPS_ARE_OPTIONAL, SubtypeChecker_PropertyOptionality_ALL_PROPS_ARE_REQUIRED}
 	registerEnum_("com.google.javascript.rhino.jstype.SubtypeChecker.PropertyOptionality", enumValues_(SubtypeChecker_PropertyOptionality_values_))
 
 }
 
-type SubtypeChecker_Variance struct {
-	Enum
+type SubtypeChecker_Variance uint8
+
+// SubtypeChecker_Variance_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var SubtypeChecker_Variance_enum_ = [4]Enum{
+	{self_: SubtypeChecker_Variance_COVARIANT, name_: "COVARIANT", ordinal_: 0},
+	{self_: SubtypeChecker_Variance_CONTRAVARIANT, name_: "CONTRAVARIANT", ordinal_: 1},
+	{self_: SubtypeChecker_Variance_BIVARIANT, name_: "BIVARIANT", ordinal_: 2},
+	{self_: SubtypeChecker_Variance_INVARIANT, name_: "INVARIANT", ordinal_: 3},
 }
 
-func (this *SubtypeChecker_Variance) up_Enum() *Enum {
-	if this == nil {
+func (this SubtypeChecker_Variance) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &SubtypeChecker_Variance_enum_[this-1]
 }
 
-func (this *SubtypeChecker_Variance) init_SubtypeChecker_Variance(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this SubtypeChecker_Variance) name() string { return SubtypeChecker_Variance_enum_[this-1].name_ }
+
+func (this SubtypeChecker_Variance) ordinal() int32 {
+	return SubtypeChecker_Variance_enum_[this-1].ordinal_
 }
 
-func new_SubtypeChecker_Variance(name_ string, ordinal_ int32) *SubtypeChecker_Variance {
-	this := &SubtypeChecker_Variance{}
-	this.self_ = this
-	this.init_SubtypeChecker_Variance(name_, ordinal_)
+func (this SubtypeChecker_Variance) toString() string {
+	return SubtypeChecker_Variance_enum_[this-1].name_
+}
+
+func (this SubtypeChecker_Variance) compareTo(o any) int32 {
+	return SubtypeChecker_Variance_enum_[this-1].compareTo(o)
+}
+
+func (this SubtypeChecker_Variance) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func SubtypeChecker_Variance_values() []*SubtypeChecker_Variance {
-	return append([]*SubtypeChecker_Variance(nil), SubtypeChecker_Variance_values_...)
+func SubtypeChecker_Variance_values() []SubtypeChecker_Variance {
+	return append([]SubtypeChecker_Variance(nil), SubtypeChecker_Variance_values_...)
 }
 
-func SubtypeChecker_Variance_valueOf(name string) *SubtypeChecker_Variance {
+func SubtypeChecker_Variance_valueOf(name string) SubtypeChecker_Variance {
 	for _, v := range SubtypeChecker_Variance_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("Variance", name))
 }
 
-var SubtypeChecker_Variance_COVARIANT *SubtypeChecker_Variance
-var SubtypeChecker_Variance_CONTRAVARIANT *SubtypeChecker_Variance
-var SubtypeChecker_Variance_BIVARIANT *SubtypeChecker_Variance
-var SubtypeChecker_Variance_INVARIANT *SubtypeChecker_Variance
-var SubtypeChecker_Variance_values_ []*SubtypeChecker_Variance
+const SubtypeChecker_Variance_COVARIANT SubtypeChecker_Variance = 1
+const SubtypeChecker_Variance_CONTRAVARIANT SubtypeChecker_Variance = 2
+const SubtypeChecker_Variance_BIVARIANT SubtypeChecker_Variance = 3
+const SubtypeChecker_Variance_INVARIANT SubtypeChecker_Variance = 4
+
+var SubtypeChecker_Variance_values_ []SubtypeChecker_Variance
 
 var SubtypeChecker_Variance_clinit_done bool
 
@@ -682,11 +714,7 @@ func SubtypeChecker_Variance_clinit() {
 		return
 	}
 	SubtypeChecker_Variance_clinit_done = true
-	SubtypeChecker_Variance_COVARIANT = new_SubtypeChecker_Variance("COVARIANT", 0)
-	SubtypeChecker_Variance_CONTRAVARIANT = new_SubtypeChecker_Variance("CONTRAVARIANT", 1)
-	SubtypeChecker_Variance_BIVARIANT = new_SubtypeChecker_Variance("BIVARIANT", 2)
-	SubtypeChecker_Variance_INVARIANT = new_SubtypeChecker_Variance("INVARIANT", 3)
-	SubtypeChecker_Variance_values_ = []*SubtypeChecker_Variance{SubtypeChecker_Variance_COVARIANT, SubtypeChecker_Variance_CONTRAVARIANT, SubtypeChecker_Variance_BIVARIANT, SubtypeChecker_Variance_INVARIANT}
+	SubtypeChecker_Variance_values_ = []SubtypeChecker_Variance{SubtypeChecker_Variance_COVARIANT, SubtypeChecker_Variance_CONTRAVARIANT, SubtypeChecker_Variance_BIVARIANT, SubtypeChecker_Variance_INVARIANT}
 	registerEnum_("com.google.javascript.rhino.jstype.SubtypeChecker.Variance", enumValues_(SubtypeChecker_Variance_values_))
 
 }

@@ -3,7 +3,7 @@
 package closure
 
 type MapDiagnosticToSuppression struct {
-	output *DiagnosticToSuppressionMapper_OutputFormat
+	output DiagnosticToSuppressionMapper_OutputFormat
 	help   bool
 }
 
@@ -32,10 +32,10 @@ func MapDiagnosticToSuppression_printHelp() {
 
 func (this *MapDiagnosticToSuppression) printSuppressions(args []string) {
 	var parser *CmdLineParser = new_CmdLineParser()
-	parser.option("--output").usage("Sets the desired output format.\nOptions: md, jsonDefault: json").enumValue(arrmap_(DiagnosticToSuppressionMapper_OutputFormat_values(), func(v_ *DiagnosticToSuppressionMapper_OutputFormat) *Enum { return v_.up_Enum() }), func() any {
+	parser.option("--output").usage("Sets the desired output format.\nOptions: md, jsonDefault: json").enumValue(arrmap_(DiagnosticToSuppressionMapper_OutputFormat_values(), func(v_ DiagnosticToSuppressionMapper_OutputFormat) *Enum { return v_.enum_() }), func() any {
 		return obj_(this.output)
 	}, func(v_ any) {
-		var v *DiagnosticToSuppressionMapper_OutputFormat = cast_[*DiagnosticToSuppressionMapper_OutputFormat](v_)
+		var v DiagnosticToSuppressionMapper_OutputFormat = cast_[DiagnosticToSuppressionMapper_OutputFormat](v_)
 		_ = v
 		this.output = v
 	})

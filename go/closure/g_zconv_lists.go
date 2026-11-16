@@ -17,7 +17,7 @@ var tc_Map_EntryOf_p_InstrumentationPoint__p_ProfilingReport_InstrumentationPoin
 }, unbox: func(v any) Map_EntryOf[*InstrumentationPoint, *ProfilingReport_InstrumentationPointMetrics] {
 	return icast_Map_Entry(v)
 }}
-var tc_Map_EntryOf_p_Token_rhino__BoxedOf_int32__ = &tconv_[Map_EntryOf[*Token_rhino, BoxedOf[int32]]]{box: func(v Map_EntryOf[*Token_rhino, BoxedOf[int32]]) any { return any(v) }, unbox: func(v any) Map_EntryOf[*Token_rhino, BoxedOf[int32]] { return icast_Map_Entry(v) }}
+var tc_Map_EntryOf_p_Token_rhino__BoxedOf_int32__ = &tconv_[Map_EntryOf[Token_rhino, BoxedOf[int32]]]{box: func(v Map_EntryOf[Token_rhino, BoxedOf[int32]]) any { return any(v) }, unbox: func(v any) Map_EntryOf[Token_rhino, BoxedOf[int32]] { return icast_Map_Entry(v) }}
 var tc_Map_EntryOf_string__BoxedOf_int32__ = &tconv_[Map_EntryOf[string, BoxedOf[int32]]]{box: func(v Map_EntryOf[string, BoxedOf[int32]]) any { return any(v) }, unbox: func(v any) Map_EntryOf[string, BoxedOf[int32]] { return icast_Map_Entry(v) }}
 var tc_Map_EntryOf_string__p_PerformanceTracker_Stats_ = &tconv_[Map_EntryOf[string, *PerformanceTracker_Stats]]{box: func(v Map_EntryOf[string, *PerformanceTracker_Stats]) any { return any(v) }, unbox: func(v any) Map_EntryOf[string, *PerformanceTracker_Stats] { return icast_Map_Entry(v) }}
 var tc_Node = &tconv_[Node]{box: func(v Node) any { return v.box_() }, unbox: func(v any) Node { return Node_of_(v) }}
@@ -129,5 +129,5 @@ var tc_p_Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationCon
 }, unbox: func(v any) *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_Case {
 	return cast_[*Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_Case](v)
 }}
-var tc_p_FeatureCollector_FeatureContext = &tconv_[*FeatureCollector_FeatureContext]{box: func(v *FeatureCollector_FeatureContext) any { return obj_(v) }, unbox: func(v any) *FeatureCollector_FeatureContext { return cast_[*FeatureCollector_FeatureContext](v) }}
+var tc_p_FeatureCollector_FeatureContext = &tconv_[FeatureCollector_FeatureContext]{box: func(v FeatureCollector_FeatureContext) any { return obj_(v) }, unbox: func(v any) FeatureCollector_FeatureContext { return cast_[FeatureCollector_FeatureContext](v) }}
 var tc_p_TypeMismatch = &tconv_[*TypeMismatch]{box: func(v *TypeMismatch) any { return obj_(v) }, unbox: func(v any) *TypeMismatch { return cast_[*TypeMismatch](v) }}

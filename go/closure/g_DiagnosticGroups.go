@@ -48,7 +48,7 @@ func DiagnosticGroups_forName(name string) *DiagnosticGroup {
 	return cast_[*DiagnosticGroup](Map_get_s(DiagnosticGroups_groupsByName, name))
 }
 
-func (this *DiagnosticGroups) setWarningLevel(options *CompilerOptions, name string, level *CheckLevel) {
+func (this *DiagnosticGroups) setWarningLevel(options *CompilerOptions, name string, level CheckLevel) {
 	var group *DiagnosticGroup = DiagnosticGroups_forName(name)
 	if obj_(group) == nil {
 		Preconditions_checkNotNull_Object_String_Object(nil, "No warning class for name: %s", strobj_(name))

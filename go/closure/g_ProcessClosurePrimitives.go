@@ -358,18 +358,18 @@ func ProcessClosurePrimitives_processSetCssNameMapping(compiler *AbstractCompile
 	if arg.getNext() != 0 {
 		styleStr = arg.getNext().getString()
 	}
-	var styleOrNull *CssRenamingMap_Style = nil
+	var styleOrNull CssRenamingMap_Style = 0
 	for _, candidate := range CssRenamingMap_Style_values() {
 		if candidate.name() == styleStr {
 			styleOrNull = candidate
 			break
 		}
 	}
-	if styleOrNull == nil {
+	if styleOrNull == 0 {
 		compiler.report(JSError_make_Node_DiagnosticType_StringArr(n, ProcessClosurePrimitives_INVALID_STYLE_ERROR, []string{styleStr}))
 		return nil
 	}
-	var style *CssRenamingMap_Style = styleOrNull
+	var style CssRenamingMap_Style = styleOrNull
 	if style == CssRenamingMap_Style_BY_PART {
 		var errors []string = []string{}
 		it_3 := cssNames.each()
@@ -529,14 +529,14 @@ func ProcessClosurePrimitives_clinit() {
 
 type ProcessClosurePrimitives_1 struct {
 	cap_cssNames *TMap[string, string]
-	cap_style    *CssRenamingMap_Style
+	cap_style    CssRenamingMap_Style
 }
 
 func (this *ProcessClosurePrimitives_1) init_ProcessClosurePrimitives_1() {
 
 }
 
-func new_ProcessClosurePrimitives_1(cap_cssNames *TMap[string, string], cap_style *CssRenamingMap_Style) *ProcessClosurePrimitives_1 {
+func new_ProcessClosurePrimitives_1(cap_cssNames *TMap[string, string], cap_style CssRenamingMap_Style) *ProcessClosurePrimitives_1 {
 	this := &ProcessClosurePrimitives_1{}
 	this.cap_cssNames = cap_cssNames
 	this.cap_style = cap_style
@@ -553,7 +553,7 @@ func (this *ProcessClosurePrimitives_1) get(value string) OptionalOf[string] {
 	panic("unreachable")
 }
 
-func (this *ProcessClosurePrimitives_1) getStyle() *CssRenamingMap_Style {
+func (this *ProcessClosurePrimitives_1) getStyle() CssRenamingMap_Style {
 	return this.cap_style
 }
 

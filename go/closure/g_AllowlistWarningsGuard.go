@@ -52,14 +52,14 @@ func AllowlistWarningsGuard_normalizeAllowlist(allowlist *TSet[string]) Immutabl
 	return ImmutableSet_copyOf(Collection(result.asSet()))
 }
 
-func (this *AllowlistWarningsGuard) level_impl(error_ *JSError) *CheckLevel {
+func (this *AllowlistWarningsGuard) level_impl(error_ *JSError) CheckLevel {
 	if Object_equals(obj_(error_.defaultLevel()), obj_(CheckLevel_ERROR)) {
-		return nil
+		return 0
 	}
 	if !this.allowlist.isEmpty() && this.containWarning(this.formatWarning(error_)) {
 		return CheckLevel_WARNING
 	}
-	return nil
+	return 0
 }
 
 func (this *AllowlistWarningsGuard) containWarning(formattedWarning string) bool {
@@ -182,7 +182,7 @@ func (this *AllowlistWarningsGuard_AllowlistBuilder) setNote(note string) *Allow
 	return this
 }
 
-func (this *AllowlistWarningsGuard_AllowlistBuilder) report_2(level *CheckLevel, error_ *JSError) {
+func (this *AllowlistWarningsGuard_AllowlistBuilder) report_2(level CheckLevel, error_ *JSError) {
 	if Object_equals(obj_(error_.defaultLevel()), obj_(CheckLevel_ERROR)) {
 		return
 	}
@@ -232,7 +232,7 @@ func (this *AllowlistWarningsGuard_AllowlistBuilder) appendAllowlist(out *Output
 }
 
 // level: an object that is exactly a AllowlistWarningsGuard calls its level_impl directly (post-flip); others dispatch.
-func (this *AllowlistWarningsGuard) level(p0 *JSError) *CheckLevel {
+func (this *AllowlistWarningsGuard) level(p0 *JSError) CheckLevel {
 	if this.self_ == any(this) {
 		return this.level_impl(p0)
 	}

@@ -4,15 +4,15 @@ package closure
 
 type FixedPointGraphTraversal struct {
 	callback           FixedPointGraphTraversal_EdgeCallback
-	traversalDirection *FixedPointGraphTraversal_TraversalDirection
+	traversalDirection FixedPointGraphTraversal_TraversalDirection
 }
 
-func (this *FixedPointGraphTraversal) init_FixedPointGraphTraversal(callback FixedPointGraphTraversal_EdgeCallback, traversalDirection *FixedPointGraphTraversal_TraversalDirection) {
+func (this *FixedPointGraphTraversal) init_FixedPointGraphTraversal(callback FixedPointGraphTraversal_EdgeCallback, traversalDirection FixedPointGraphTraversal_TraversalDirection) {
 	this.callback = callback
 	this.traversalDirection = traversalDirection
 }
 
-func new_FixedPointGraphTraversal(callback FixedPointGraphTraversal_EdgeCallback, traversalDirection *FixedPointGraphTraversal_TraversalDirection) *FixedPointGraphTraversal {
+func new_FixedPointGraphTraversal(callback FixedPointGraphTraversal_EdgeCallback, traversalDirection FixedPointGraphTraversal_TraversalDirection) *FixedPointGraphTraversal {
 	this := &FixedPointGraphTraversal{}
 	this.init_FixedPointGraphTraversal(callback, traversalDirection)
 	return this
@@ -102,44 +102,61 @@ func FixedPointGraphTraversal_clinit() {
 
 }
 
-type FixedPointGraphTraversal_TraversalDirection struct {
-	Enum
+type FixedPointGraphTraversal_TraversalDirection uint8
+
+// FixedPointGraphTraversal_TraversalDirection_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var FixedPointGraphTraversal_TraversalDirection_enum_ = [2]Enum{
+	{self_: FixedPointGraphTraversal_TraversalDirection_INWARDS, name_: "INWARDS", ordinal_: 0},
+	{self_: FixedPointGraphTraversal_TraversalDirection_OUTWARDS, name_: "OUTWARDS", ordinal_: 1},
 }
 
-func (this *FixedPointGraphTraversal_TraversalDirection) up_Enum() *Enum {
-	if this == nil {
+func (this FixedPointGraphTraversal_TraversalDirection) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &FixedPointGraphTraversal_TraversalDirection_enum_[this-1]
 }
 
-func (this *FixedPointGraphTraversal_TraversalDirection) init_FixedPointGraphTraversal_TraversalDirection(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this FixedPointGraphTraversal_TraversalDirection) name() string {
+	return FixedPointGraphTraversal_TraversalDirection_enum_[this-1].name_
 }
 
-func new_FixedPointGraphTraversal_TraversalDirection(name_ string, ordinal_ int32) *FixedPointGraphTraversal_TraversalDirection {
-	this := &FixedPointGraphTraversal_TraversalDirection{}
-	this.self_ = this
-	this.init_FixedPointGraphTraversal_TraversalDirection(name_, ordinal_)
+func (this FixedPointGraphTraversal_TraversalDirection) ordinal() int32 {
+	return FixedPointGraphTraversal_TraversalDirection_enum_[this-1].ordinal_
+}
+
+func (this FixedPointGraphTraversal_TraversalDirection) toString() string {
+	return FixedPointGraphTraversal_TraversalDirection_enum_[this-1].name_
+}
+
+func (this FixedPointGraphTraversal_TraversalDirection) compareTo(o any) int32 {
+	return FixedPointGraphTraversal_TraversalDirection_enum_[this-1].compareTo(o)
+}
+
+func (this FixedPointGraphTraversal_TraversalDirection) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func FixedPointGraphTraversal_TraversalDirection_values() []*FixedPointGraphTraversal_TraversalDirection {
-	return append([]*FixedPointGraphTraversal_TraversalDirection(nil), FixedPointGraphTraversal_TraversalDirection_values_...)
+func FixedPointGraphTraversal_TraversalDirection_values() []FixedPointGraphTraversal_TraversalDirection {
+	return append([]FixedPointGraphTraversal_TraversalDirection(nil), FixedPointGraphTraversal_TraversalDirection_values_...)
 }
 
-func FixedPointGraphTraversal_TraversalDirection_valueOf(name string) *FixedPointGraphTraversal_TraversalDirection {
+func FixedPointGraphTraversal_TraversalDirection_valueOf(name string) FixedPointGraphTraversal_TraversalDirection {
 	for _, v := range FixedPointGraphTraversal_TraversalDirection_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("TraversalDirection", name))
 }
 
-var FixedPointGraphTraversal_TraversalDirection_INWARDS *FixedPointGraphTraversal_TraversalDirection
-var FixedPointGraphTraversal_TraversalDirection_OUTWARDS *FixedPointGraphTraversal_TraversalDirection
-var FixedPointGraphTraversal_TraversalDirection_values_ []*FixedPointGraphTraversal_TraversalDirection
+const FixedPointGraphTraversal_TraversalDirection_INWARDS FixedPointGraphTraversal_TraversalDirection = 1
+const FixedPointGraphTraversal_TraversalDirection_OUTWARDS FixedPointGraphTraversal_TraversalDirection = 2
+
+var FixedPointGraphTraversal_TraversalDirection_values_ []FixedPointGraphTraversal_TraversalDirection
 
 var FixedPointGraphTraversal_TraversalDirection_clinit_done bool
 
@@ -148,9 +165,7 @@ func FixedPointGraphTraversal_TraversalDirection_clinit() {
 		return
 	}
 	FixedPointGraphTraversal_TraversalDirection_clinit_done = true
-	FixedPointGraphTraversal_TraversalDirection_INWARDS = new_FixedPointGraphTraversal_TraversalDirection("INWARDS", 0)
-	FixedPointGraphTraversal_TraversalDirection_OUTWARDS = new_FixedPointGraphTraversal_TraversalDirection("OUTWARDS", 1)
-	FixedPointGraphTraversal_TraversalDirection_values_ = []*FixedPointGraphTraversal_TraversalDirection{FixedPointGraphTraversal_TraversalDirection_INWARDS, FixedPointGraphTraversal_TraversalDirection_OUTWARDS}
+	FixedPointGraphTraversal_TraversalDirection_values_ = []FixedPointGraphTraversal_TraversalDirection{FixedPointGraphTraversal_TraversalDirection_INWARDS, FixedPointGraphTraversal_TraversalDirection_OUTWARDS}
 	registerEnum_("com.google.javascript.jscomp.graph.FixedPointGraphTraversal.TraversalDirection", enumValues_(FixedPointGraphTraversal_TraversalDirection_values_))
 
 }

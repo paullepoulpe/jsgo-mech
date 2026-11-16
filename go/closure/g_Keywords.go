@@ -2,50 +2,103 @@
 
 package closure
 
-type Keywords struct {
-	Enum
-	value_ string
-	type__ *TokenType
+type Keywords uint8
+
+// Keywords_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var Keywords_enum_ = [45]Enum{
+	{self_: Keywords_BREAK, name_: "BREAK", ordinal_: 0},
+	{self_: Keywords_CASE, name_: "CASE", ordinal_: 1},
+	{self_: Keywords_CATCH, name_: "CATCH", ordinal_: 2},
+	{self_: Keywords_CONTINUE, name_: "CONTINUE", ordinal_: 3},
+	{self_: Keywords_DEBUGGER, name_: "DEBUGGER", ordinal_: 4},
+	{self_: Keywords_DEFAULT, name_: "DEFAULT", ordinal_: 5},
+	{self_: Keywords_DELETE, name_: "DELETE", ordinal_: 6},
+	{self_: Keywords_DO, name_: "DO", ordinal_: 7},
+	{self_: Keywords_ELSE, name_: "ELSE", ordinal_: 8},
+	{self_: Keywords_FINALLY, name_: "FINALLY", ordinal_: 9},
+	{self_: Keywords_FOR, name_: "FOR", ordinal_: 10},
+	{self_: Keywords_FUNCTION, name_: "FUNCTION", ordinal_: 11},
+	{self_: Keywords_IF, name_: "IF", ordinal_: 12},
+	{self_: Keywords_IN, name_: "IN", ordinal_: 13},
+	{self_: Keywords_INSTANCEOF, name_: "INSTANCEOF", ordinal_: 14},
+	{self_: Keywords_NEW, name_: "NEW", ordinal_: 15},
+	{self_: Keywords_RETURN, name_: "RETURN", ordinal_: 16},
+	{self_: Keywords_SWITCH, name_: "SWITCH", ordinal_: 17},
+	{self_: Keywords_THIS, name_: "THIS", ordinal_: 18},
+	{self_: Keywords_THROW, name_: "THROW", ordinal_: 19},
+	{self_: Keywords_TRY, name_: "TRY", ordinal_: 20},
+	{self_: Keywords_TYPEOF, name_: "TYPEOF", ordinal_: 21},
+	{self_: Keywords_VAR, name_: "VAR", ordinal_: 22},
+	{self_: Keywords_VOID, name_: "VOID", ordinal_: 23},
+	{self_: Keywords_WHILE, name_: "WHILE", ordinal_: 24},
+	{self_: Keywords_WITH, name_: "WITH", ordinal_: 25},
+	{self_: Keywords_CLASS, name_: "CLASS", ordinal_: 26},
+	{self_: Keywords_CONST, name_: "CONST", ordinal_: 27},
+	{self_: Keywords_ENUM, name_: "ENUM", ordinal_: 28},
+	{self_: Keywords_EXPORT, name_: "EXPORT", ordinal_: 29},
+	{self_: Keywords_EXTENDS, name_: "EXTENDS", ordinal_: 30},
+	{self_: Keywords_IMPORT, name_: "IMPORT", ordinal_: 31},
+	{self_: Keywords_SUPER, name_: "SUPER", ordinal_: 32},
+	{self_: Keywords_IMPLEMENTS, name_: "IMPLEMENTS", ordinal_: 33},
+	{self_: Keywords_INTERFACE, name_: "INTERFACE", ordinal_: 34},
+	{self_: Keywords_LET, name_: "LET", ordinal_: 35},
+	{self_: Keywords_PACKAGE, name_: "PACKAGE", ordinal_: 36},
+	{self_: Keywords_PRIVATE, name_: "PRIVATE", ordinal_: 37},
+	{self_: Keywords_PROTECTED, name_: "PROTECTED", ordinal_: 38},
+	{self_: Keywords_PUBLIC, name_: "PUBLIC", ordinal_: 39},
+	{self_: Keywords_STATIC, name_: "STATIC", ordinal_: 40},
+	{self_: Keywords_YIELD, name_: "YIELD", ordinal_: 41},
+	{self_: Keywords_NULL, name_: "NULL", ordinal_: 42},
+	{self_: Keywords_TRUE, name_: "TRUE", ordinal_: 43},
+	{self_: Keywords_FALSE, name_: "FALSE", ordinal_: 44},
 }
 
-func (this *Keywords) up_Enum() *Enum {
-	if this == nil {
+var Keywords_value__ [45]string
+
+var Keywords_type___ [45]TokenType
+
+func (this Keywords) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &Keywords_enum_[this-1]
 }
 
-func (this *Keywords) zero_Keywords() {
-	this.value_ = nullstr_
-}
+func (this Keywords) name() string { return Keywords_enum_[this-1].name_ }
 
-func (this *Keywords) init_Keywords(name_ string, ordinal_ int32, value string, type_ *TokenType) {
-	this.Enum.init_Enum(name_, ordinal_)
-	this.value_ = value
-	this.type__ = type_
-}
+func (this Keywords) ordinal() int32 { return Keywords_enum_[this-1].ordinal_ }
 
-func new_Keywords(name_ string, ordinal_ int32, value string, type_ *TokenType) *Keywords {
-	this := &Keywords{}
-	this.self_ = this
-	this.zero_Keywords()
-	this.init_Keywords(name_, ordinal_, value, type_)
+func (this Keywords) compareTo(o any) int32 { return Keywords_enum_[this-1].compareTo(o) }
+
+func (this Keywords) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func (this *Keywords) toString() string {
-	return this.value_
+func (this Keywords) zero_Keywords() {
+	Keywords_value__[this-1] = nullstr_
+}
+
+func (this Keywords) init_Keywords(value string, type_ TokenType) {
+	Keywords_value__[this-1] = value
+	Keywords_type___[this-1] = type_
+}
+
+func (this Keywords) toString() string {
+	return Keywords_value__[this-1]
 }
 
 func Keywords_isKeywordString(value string) bool {
-	return (Keywords_getString(value) != nil)
+	return (Keywords_getString(value) != 0)
 }
 
-func Keywords_isKeyword(token *TokenType) bool {
-	return (Keywords_get(token) != nil)
+func Keywords_isKeyword(token TokenType) bool {
+	return (Keywords_get(token) != 0)
 }
 
-func Keywords_isStrictKeyword(token *TokenType) bool {
+func Keywords_isStrictKeyword(token TokenType) bool {
 	return func() bool {
 		switch token {
 		case TokenType_IMPLEMENTS, TokenType_INTERFACE, TokenType_LET, TokenType_PACKAGE, TokenType_PRIVATE, TokenType_PROTECTED, TokenType_PUBLIC, TokenType_STATIC, TokenType_YIELD:
@@ -57,77 +110,78 @@ func Keywords_isStrictKeyword(token *TokenType) bool {
 	}()
 }
 
-func Keywords_getTokenType(value string) *TokenType {
-	return cast_[*Keywords](Map_get_s(Keywords_KEYWORDS_BY_NAME, value)).type__
+func Keywords_getTokenType(value string) TokenType {
+	return Keywords_type___[cast_[Keywords](Map_get_s(Keywords_KEYWORDS_BY_NAME, value))-1]
 }
 
-func Keywords_getString(value string) *Keywords {
-	return cast_[*Keywords](Map_get_s(Keywords_KEYWORDS_BY_NAME, value))
+func Keywords_getString(value string) Keywords {
+	return cast_[Keywords](Map_get_s(Keywords_KEYWORDS_BY_NAME, value))
 }
 
-func Keywords_get(token *TokenType) *Keywords {
-	return cast_[*Keywords](Keywords_KEYWORDS_BY_TYPE.get(obj_(token)))
+func Keywords_get(token TokenType) Keywords {
+	return cast_[Keywords](Keywords_KEYWORDS_BY_TYPE.get(obj_(token)))
 }
 
-func Keywords_values() []*Keywords {
-	return append([]*Keywords(nil), Keywords_values_...)
+func Keywords_values() []Keywords {
+	return append([]Keywords(nil), Keywords_values_...)
 }
 
-func Keywords_valueOf(name string) *Keywords {
+func Keywords_valueOf(name string) Keywords {
 	for _, v := range Keywords_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("Keywords", name))
 }
 
-var Keywords_BREAK *Keywords
-var Keywords_CASE *Keywords
-var Keywords_CATCH *Keywords
-var Keywords_CONTINUE *Keywords
-var Keywords_DEBUGGER *Keywords
-var Keywords_DEFAULT *Keywords
-var Keywords_DELETE *Keywords
-var Keywords_DO *Keywords
-var Keywords_ELSE *Keywords
-var Keywords_FINALLY *Keywords
-var Keywords_FOR *Keywords
-var Keywords_FUNCTION *Keywords
-var Keywords_IF *Keywords
-var Keywords_IN *Keywords
-var Keywords_INSTANCEOF *Keywords
-var Keywords_NEW *Keywords
-var Keywords_RETURN *Keywords
-var Keywords_SWITCH *Keywords
-var Keywords_THIS *Keywords
-var Keywords_THROW *Keywords
-var Keywords_TRY *Keywords
-var Keywords_TYPEOF *Keywords
-var Keywords_VAR *Keywords
-var Keywords_VOID *Keywords
-var Keywords_WHILE *Keywords
-var Keywords_WITH *Keywords
-var Keywords_CLASS *Keywords
-var Keywords_CONST *Keywords
-var Keywords_ENUM *Keywords
-var Keywords_EXPORT *Keywords
-var Keywords_EXTENDS *Keywords
-var Keywords_IMPORT *Keywords
-var Keywords_SUPER *Keywords
-var Keywords_IMPLEMENTS *Keywords
-var Keywords_INTERFACE *Keywords
-var Keywords_LET *Keywords
-var Keywords_PACKAGE *Keywords
-var Keywords_PRIVATE *Keywords
-var Keywords_PROTECTED *Keywords
-var Keywords_PUBLIC *Keywords
-var Keywords_STATIC *Keywords
-var Keywords_YIELD *Keywords
-var Keywords_NULL *Keywords
-var Keywords_TRUE *Keywords
-var Keywords_FALSE *Keywords
-var Keywords_values_ []*Keywords
+const Keywords_BREAK Keywords = 1
+const Keywords_CASE Keywords = 2
+const Keywords_CATCH Keywords = 3
+const Keywords_CONTINUE Keywords = 4
+const Keywords_DEBUGGER Keywords = 5
+const Keywords_DEFAULT Keywords = 6
+const Keywords_DELETE Keywords = 7
+const Keywords_DO Keywords = 8
+const Keywords_ELSE Keywords = 9
+const Keywords_FINALLY Keywords = 10
+const Keywords_FOR Keywords = 11
+const Keywords_FUNCTION Keywords = 12
+const Keywords_IF Keywords = 13
+const Keywords_IN Keywords = 14
+const Keywords_INSTANCEOF Keywords = 15
+const Keywords_NEW Keywords = 16
+const Keywords_RETURN Keywords = 17
+const Keywords_SWITCH Keywords = 18
+const Keywords_THIS Keywords = 19
+const Keywords_THROW Keywords = 20
+const Keywords_TRY Keywords = 21
+const Keywords_TYPEOF Keywords = 22
+const Keywords_VAR Keywords = 23
+const Keywords_VOID Keywords = 24
+const Keywords_WHILE Keywords = 25
+const Keywords_WITH Keywords = 26
+const Keywords_CLASS Keywords = 27
+const Keywords_CONST Keywords = 28
+const Keywords_ENUM Keywords = 29
+const Keywords_EXPORT Keywords = 30
+const Keywords_EXTENDS Keywords = 31
+const Keywords_IMPORT Keywords = 32
+const Keywords_SUPER Keywords = 33
+const Keywords_IMPLEMENTS Keywords = 34
+const Keywords_INTERFACE Keywords = 35
+const Keywords_LET Keywords = 36
+const Keywords_PACKAGE Keywords = 37
+const Keywords_PRIVATE Keywords = 38
+const Keywords_PROTECTED Keywords = 39
+const Keywords_PUBLIC Keywords = 40
+const Keywords_STATIC Keywords = 41
+const Keywords_YIELD Keywords = 42
+const Keywords_NULL Keywords = 43
+const Keywords_TRUE Keywords = 44
+const Keywords_FALSE Keywords = 45
+
+var Keywords_values_ []Keywords
 var Keywords_KEYWORDS_BY_NAME *ImmutableMap
 var Keywords_KEYWORDS_BY_TYPE *ImmutableMap
 
@@ -138,61 +192,106 @@ func Keywords_clinit() {
 		return
 	}
 	Keywords_clinit_done = true
-	Keywords_BREAK = new_Keywords("BREAK", 0, "break", TokenType_BREAK)
-	Keywords_CASE = new_Keywords("CASE", 1, "case", TokenType_CASE)
-	Keywords_CATCH = new_Keywords("CATCH", 2, "catch", TokenType_CATCH)
-	Keywords_CONTINUE = new_Keywords("CONTINUE", 3, "continue", TokenType_CONTINUE)
-	Keywords_DEBUGGER = new_Keywords("DEBUGGER", 4, "debugger", TokenType_DEBUGGER)
-	Keywords_DEFAULT = new_Keywords("DEFAULT", 5, "default", TokenType_DEFAULT)
-	Keywords_DELETE = new_Keywords("DELETE", 6, "delete", TokenType_DELETE)
-	Keywords_DO = new_Keywords("DO", 7, "do", TokenType_DO)
-	Keywords_ELSE = new_Keywords("ELSE", 8, "else", TokenType_ELSE)
-	Keywords_FINALLY = new_Keywords("FINALLY", 9, "finally", TokenType_FINALLY)
-	Keywords_FOR = new_Keywords("FOR", 10, "for", TokenType_FOR)
-	Keywords_FUNCTION = new_Keywords("FUNCTION", 11, "function", TokenType_FUNCTION)
-	Keywords_IF = new_Keywords("IF", 12, "if", TokenType_IF)
-	Keywords_IN = new_Keywords("IN", 13, "in", TokenType_IN)
-	Keywords_INSTANCEOF = new_Keywords("INSTANCEOF", 14, "instanceof", TokenType_INSTANCEOF)
-	Keywords_NEW = new_Keywords("NEW", 15, "new", TokenType_NEW)
-	Keywords_RETURN = new_Keywords("RETURN", 16, "return", TokenType_RETURN)
-	Keywords_SWITCH = new_Keywords("SWITCH", 17, "switch", TokenType_SWITCH)
-	Keywords_THIS = new_Keywords("THIS", 18, "this", TokenType_THIS)
-	Keywords_THROW = new_Keywords("THROW", 19, "throw", TokenType_THROW)
-	Keywords_TRY = new_Keywords("TRY", 20, "try", TokenType_TRY)
-	Keywords_TYPEOF = new_Keywords("TYPEOF", 21, "typeof", TokenType_TYPEOF)
-	Keywords_VAR = new_Keywords("VAR", 22, "var", TokenType_VAR)
-	Keywords_VOID = new_Keywords("VOID", 23, "void", TokenType_VOID)
-	Keywords_WHILE = new_Keywords("WHILE", 24, "while", TokenType_WHILE)
-	Keywords_WITH = new_Keywords("WITH", 25, "with", TokenType_WITH)
-	Keywords_CLASS = new_Keywords("CLASS", 26, "class", TokenType_CLASS)
-	Keywords_CONST = new_Keywords("CONST", 27, "const", TokenType_CONST)
-	Keywords_ENUM = new_Keywords("ENUM", 28, "enum", TokenType_ENUM)
-	Keywords_EXPORT = new_Keywords("EXPORT", 29, "export", TokenType_EXPORT)
-	Keywords_EXTENDS = new_Keywords("EXTENDS", 30, "extends", TokenType_EXTENDS)
-	Keywords_IMPORT = new_Keywords("IMPORT", 31, "import", TokenType_IMPORT)
-	Keywords_SUPER = new_Keywords("SUPER", 32, "super", TokenType_SUPER)
-	Keywords_IMPLEMENTS = new_Keywords("IMPLEMENTS", 33, "implements", TokenType_IMPLEMENTS)
-	Keywords_INTERFACE = new_Keywords("INTERFACE", 34, "interface", TokenType_INTERFACE)
-	Keywords_LET = new_Keywords("LET", 35, "let", TokenType_LET)
-	Keywords_PACKAGE = new_Keywords("PACKAGE", 36, "package", TokenType_PACKAGE)
-	Keywords_PRIVATE = new_Keywords("PRIVATE", 37, "private", TokenType_PRIVATE)
-	Keywords_PROTECTED = new_Keywords("PROTECTED", 38, "protected", TokenType_PROTECTED)
-	Keywords_PUBLIC = new_Keywords("PUBLIC", 39, "public", TokenType_PUBLIC)
-	Keywords_STATIC = new_Keywords("STATIC", 40, "static", TokenType_STATIC)
-	Keywords_YIELD = new_Keywords("YIELD", 41, "yield", TokenType_YIELD)
-	Keywords_NULL = new_Keywords("NULL", 42, "null", TokenType_NULL)
-	Keywords_TRUE = new_Keywords("TRUE", 43, "true", TokenType_TRUE)
-	Keywords_FALSE = new_Keywords("FALSE", 44, "false", TokenType_FALSE)
-	Keywords_values_ = []*Keywords{Keywords_BREAK, Keywords_CASE, Keywords_CATCH, Keywords_CONTINUE, Keywords_DEBUGGER, Keywords_DEFAULT, Keywords_DELETE, Keywords_DO, Keywords_ELSE, Keywords_FINALLY, Keywords_FOR, Keywords_FUNCTION, Keywords_IF, Keywords_IN, Keywords_INSTANCEOF, Keywords_NEW, Keywords_RETURN, Keywords_SWITCH, Keywords_THIS, Keywords_THROW, Keywords_TRY, Keywords_TYPEOF, Keywords_VAR, Keywords_VOID, Keywords_WHILE, Keywords_WITH, Keywords_CLASS, Keywords_CONST, Keywords_ENUM, Keywords_EXPORT, Keywords_EXTENDS, Keywords_IMPORT, Keywords_SUPER, Keywords_IMPLEMENTS, Keywords_INTERFACE, Keywords_LET, Keywords_PACKAGE, Keywords_PRIVATE, Keywords_PROTECTED, Keywords_PUBLIC, Keywords_STATIC, Keywords_YIELD, Keywords_NULL, Keywords_TRUE, Keywords_FALSE}
+	Keywords_BREAK.zero_Keywords()
+	Keywords_BREAK.init_Keywords("break", TokenType_BREAK)
+	Keywords_CASE.zero_Keywords()
+	Keywords_CASE.init_Keywords("case", TokenType_CASE)
+	Keywords_CATCH.zero_Keywords()
+	Keywords_CATCH.init_Keywords("catch", TokenType_CATCH)
+	Keywords_CONTINUE.zero_Keywords()
+	Keywords_CONTINUE.init_Keywords("continue", TokenType_CONTINUE)
+	Keywords_DEBUGGER.zero_Keywords()
+	Keywords_DEBUGGER.init_Keywords("debugger", TokenType_DEBUGGER)
+	Keywords_DEFAULT.zero_Keywords()
+	Keywords_DEFAULT.init_Keywords("default", TokenType_DEFAULT)
+	Keywords_DELETE.zero_Keywords()
+	Keywords_DELETE.init_Keywords("delete", TokenType_DELETE)
+	Keywords_DO.zero_Keywords()
+	Keywords_DO.init_Keywords("do", TokenType_DO)
+	Keywords_ELSE.zero_Keywords()
+	Keywords_ELSE.init_Keywords("else", TokenType_ELSE)
+	Keywords_FINALLY.zero_Keywords()
+	Keywords_FINALLY.init_Keywords("finally", TokenType_FINALLY)
+	Keywords_FOR.zero_Keywords()
+	Keywords_FOR.init_Keywords("for", TokenType_FOR)
+	Keywords_FUNCTION.zero_Keywords()
+	Keywords_FUNCTION.init_Keywords("function", TokenType_FUNCTION)
+	Keywords_IF.zero_Keywords()
+	Keywords_IF.init_Keywords("if", TokenType_IF)
+	Keywords_IN.zero_Keywords()
+	Keywords_IN.init_Keywords("in", TokenType_IN)
+	Keywords_INSTANCEOF.zero_Keywords()
+	Keywords_INSTANCEOF.init_Keywords("instanceof", TokenType_INSTANCEOF)
+	Keywords_NEW.zero_Keywords()
+	Keywords_NEW.init_Keywords("new", TokenType_NEW)
+	Keywords_RETURN.zero_Keywords()
+	Keywords_RETURN.init_Keywords("return", TokenType_RETURN)
+	Keywords_SWITCH.zero_Keywords()
+	Keywords_SWITCH.init_Keywords("switch", TokenType_SWITCH)
+	Keywords_THIS.zero_Keywords()
+	Keywords_THIS.init_Keywords("this", TokenType_THIS)
+	Keywords_THROW.zero_Keywords()
+	Keywords_THROW.init_Keywords("throw", TokenType_THROW)
+	Keywords_TRY.zero_Keywords()
+	Keywords_TRY.init_Keywords("try", TokenType_TRY)
+	Keywords_TYPEOF.zero_Keywords()
+	Keywords_TYPEOF.init_Keywords("typeof", TokenType_TYPEOF)
+	Keywords_VAR.zero_Keywords()
+	Keywords_VAR.init_Keywords("var", TokenType_VAR)
+	Keywords_VOID.zero_Keywords()
+	Keywords_VOID.init_Keywords("void", TokenType_VOID)
+	Keywords_WHILE.zero_Keywords()
+	Keywords_WHILE.init_Keywords("while", TokenType_WHILE)
+	Keywords_WITH.zero_Keywords()
+	Keywords_WITH.init_Keywords("with", TokenType_WITH)
+	Keywords_CLASS.zero_Keywords()
+	Keywords_CLASS.init_Keywords("class", TokenType_CLASS)
+	Keywords_CONST.zero_Keywords()
+	Keywords_CONST.init_Keywords("const", TokenType_CONST)
+	Keywords_ENUM.zero_Keywords()
+	Keywords_ENUM.init_Keywords("enum", TokenType_ENUM)
+	Keywords_EXPORT.zero_Keywords()
+	Keywords_EXPORT.init_Keywords("export", TokenType_EXPORT)
+	Keywords_EXTENDS.zero_Keywords()
+	Keywords_EXTENDS.init_Keywords("extends", TokenType_EXTENDS)
+	Keywords_IMPORT.zero_Keywords()
+	Keywords_IMPORT.init_Keywords("import", TokenType_IMPORT)
+	Keywords_SUPER.zero_Keywords()
+	Keywords_SUPER.init_Keywords("super", TokenType_SUPER)
+	Keywords_IMPLEMENTS.zero_Keywords()
+	Keywords_IMPLEMENTS.init_Keywords("implements", TokenType_IMPLEMENTS)
+	Keywords_INTERFACE.zero_Keywords()
+	Keywords_INTERFACE.init_Keywords("interface", TokenType_INTERFACE)
+	Keywords_LET.zero_Keywords()
+	Keywords_LET.init_Keywords("let", TokenType_LET)
+	Keywords_PACKAGE.zero_Keywords()
+	Keywords_PACKAGE.init_Keywords("package", TokenType_PACKAGE)
+	Keywords_PRIVATE.zero_Keywords()
+	Keywords_PRIVATE.init_Keywords("private", TokenType_PRIVATE)
+	Keywords_PROTECTED.zero_Keywords()
+	Keywords_PROTECTED.init_Keywords("protected", TokenType_PROTECTED)
+	Keywords_PUBLIC.zero_Keywords()
+	Keywords_PUBLIC.init_Keywords("public", TokenType_PUBLIC)
+	Keywords_STATIC.zero_Keywords()
+	Keywords_STATIC.init_Keywords("static", TokenType_STATIC)
+	Keywords_YIELD.zero_Keywords()
+	Keywords_YIELD.init_Keywords("yield", TokenType_YIELD)
+	Keywords_NULL.zero_Keywords()
+	Keywords_NULL.init_Keywords("null", TokenType_NULL)
+	Keywords_TRUE.zero_Keywords()
+	Keywords_TRUE.init_Keywords("true", TokenType_TRUE)
+	Keywords_FALSE.zero_Keywords()
+	Keywords_FALSE.init_Keywords("false", TokenType_FALSE)
+	Keywords_values_ = []Keywords{Keywords_BREAK, Keywords_CASE, Keywords_CATCH, Keywords_CONTINUE, Keywords_DEBUGGER, Keywords_DEFAULT, Keywords_DELETE, Keywords_DO, Keywords_ELSE, Keywords_FINALLY, Keywords_FOR, Keywords_FUNCTION, Keywords_IF, Keywords_IN, Keywords_INSTANCEOF, Keywords_NEW, Keywords_RETURN, Keywords_SWITCH, Keywords_THIS, Keywords_THROW, Keywords_TRY, Keywords_TYPEOF, Keywords_VAR, Keywords_VOID, Keywords_WHILE, Keywords_WITH, Keywords_CLASS, Keywords_CONST, Keywords_ENUM, Keywords_EXPORT, Keywords_EXTENDS, Keywords_IMPORT, Keywords_SUPER, Keywords_IMPLEMENTS, Keywords_INTERFACE, Keywords_LET, Keywords_PACKAGE, Keywords_PRIVATE, Keywords_PROTECTED, Keywords_PUBLIC, Keywords_STATIC, Keywords_YIELD, Keywords_NULL, Keywords_TRUE, Keywords_FALSE}
 	registerEnum_("com.google.javascript.jscomp.parsing.parser.Keywords", enumValues_(Keywords_values_))
 	{
-		var keywordsByName ImmutableMap_BuilderOf[string, *Keywords] = ImmutableMap_builder()
-		var keywordsByType EnumMapOf[*TokenType, *Keywords] = new_EnumMap(classOf_("com.google.javascript.jscomp.parsing.parser.TokenType"))
+		var keywordsByName ImmutableMap_BuilderOf[string, Keywords] = ImmutableMap_builder()
+		var keywordsByType EnumMapOf[TokenType, Keywords] = new_EnumMap(classOf_("com.google.javascript.jscomp.parsing.parser.TokenType"))
 		it_1 := foreach_(obj_(EnumSet_allOf(classOf_("com.google.javascript.jscomp.parsing.parser.Keywords"))))
 		for it_1.next() {
-			var kw *Keywords = cast_[*Keywords](it_1.v)
-			keywordsByName.put(strobj_(kw.value_), obj_(kw))
-			keywordsByType.put(obj_(kw.type__), obj_(kw))
+			var kw Keywords = cast_[Keywords](it_1.v)
+			keywordsByName.put(strobj_(Keywords_value__[kw-1]), obj_(kw))
+			keywordsByType.put(obj_(Keywords_type___[kw-1]), obj_(kw))
 		}
 		Keywords_KEYWORDS_BY_NAME = keywordsByName.buildOrThrow()
 		Keywords_KEYWORDS_BY_TYPE = Maps_immutableEnumMap(icast_Map(obj_(keywordsByType)))

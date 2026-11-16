@@ -161,7 +161,7 @@ func (this *ChainableReverseAbstractInterpreter) getRestrictedByTypeOfResult(typ
 	return to_JSType(type_.visit(icast_Visitor(obj_(new_ChainableReverseAbstractInterpreter_RestrictByOneTypeOfResultVisitor(this, value, resultEqualsValue)))))
 }
 
-func (this *ChainableReverseAbstractInterpreter) getNativeType(typeId *JSTypeNative) *JSType {
+func (this *ChainableReverseAbstractInterpreter) getNativeType(typeId JSTypeNative) *JSType {
 	return this.typeRegistry.getNativeType(typeId)
 }
 

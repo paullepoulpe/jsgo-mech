@@ -332,7 +332,7 @@ func (this *ColorPool_Builder) reconcileObjectProtos(id *ColorId, viewToProto Ma
 	var instanceColors ImmutableSet_BuilderOf[*Color] = ImmutableSet_builder()
 	var prototypes ImmutableSet_BuilderOf[*Color] = ImmutableSet_builder()
 	var ownProperties ImmutableSet_BuilderOf[string] = ImmutableSet_builder()
-	var isClosureAssert *Tri = Tri_UNKNOWN
+	var isClosureAssert Tri = Tri_UNKNOWN
 	var isConstructor bool = false
 	var isInvalidating bool = false
 	var propertiesKeepOriginalName bool = false

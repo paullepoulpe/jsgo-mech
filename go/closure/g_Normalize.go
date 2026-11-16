@@ -495,7 +495,7 @@ func (this *Normalize_NormalizeStatements) normalizeAssignShorthand(shorthand No
 	var rhs Node = shorthand.getSecondChild()
 	lhs.detach()
 	rhs.detach()
-	var op *Token_rhino = NodeUtil_getOpFromAssignmentOp(shorthand)
+	var op Token_rhino = NodeUtil_getOpFromAssignmentOp(shorthand)
 	var opNode Node = new_Node_Token_Node_Node(op, lhs.cloneNode().srcref(lhs), rhs).srcref(shorthand).copyTypeFrom(shorthand)
 	shorthand.setToken(Token_rhino_ASSIGN)
 	lhs.copyTypeFrom(shorthand)

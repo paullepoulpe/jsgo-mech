@@ -3,7 +3,7 @@
 package closure
 
 type RewriteGoogJsImports struct {
-	mode_              *RewriteGoogJsImports_Mode
+	mode_              RewriteGoogJsImports_Mode
 	moduleMap          *ModuleMap
 	compiler_          *AbstractCompiler
 	googModule         *Module
@@ -14,7 +14,7 @@ func (this *RewriteGoogJsImports) finit_RewriteGoogJsImports() {
 	this.moduleReplacements = newTMap_(tch_p_Module, tc_p_Module)
 }
 
-func (this *RewriteGoogJsImports) init_RewriteGoogJsImports(compiler *AbstractCompiler, mode *RewriteGoogJsImports_Mode, moduleMap *ModuleMap) {
+func (this *RewriteGoogJsImports) init_RewriteGoogJsImports(compiler *AbstractCompiler, mode RewriteGoogJsImports_Mode, moduleMap *ModuleMap) {
 	this.finit_RewriteGoogJsImports()
 	Preconditions_checkNotNull(obj_(moduleMap))
 	this.compiler_ = compiler
@@ -22,7 +22,7 @@ func (this *RewriteGoogJsImports) init_RewriteGoogJsImports(compiler *AbstractCo
 	this.moduleMap = moduleMap
 }
 
-func new_RewriteGoogJsImports(compiler *AbstractCompiler, mode *RewriteGoogJsImports_Mode, moduleMap *ModuleMap) *RewriteGoogJsImports {
+func new_RewriteGoogJsImports(compiler *AbstractCompiler, mode RewriteGoogJsImports_Mode, moduleMap *ModuleMap) *RewriteGoogJsImports {
 	this := &RewriteGoogJsImports{}
 	this.init_RewriteGoogJsImports(compiler, mode, moduleMap)
 	return this
@@ -186,44 +186,61 @@ func RewriteGoogJsImports_clinit() {
 
 }
 
-type RewriteGoogJsImports_Mode struct {
-	Enum
+type RewriteGoogJsImports_Mode uint8
+
+// RewriteGoogJsImports_Mode_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var RewriteGoogJsImports_Mode_enum_ = [2]Enum{
+	{self_: RewriteGoogJsImports_Mode_LINT_ONLY, name_: "LINT_ONLY", ordinal_: 0},
+	{self_: RewriteGoogJsImports_Mode_LINT_AND_REWRITE, name_: "LINT_AND_REWRITE", ordinal_: 1},
 }
 
-func (this *RewriteGoogJsImports_Mode) up_Enum() *Enum {
-	if this == nil {
+func (this RewriteGoogJsImports_Mode) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &RewriteGoogJsImports_Mode_enum_[this-1]
 }
 
-func (this *RewriteGoogJsImports_Mode) init_RewriteGoogJsImports_Mode(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this RewriteGoogJsImports_Mode) name() string {
+	return RewriteGoogJsImports_Mode_enum_[this-1].name_
 }
 
-func new_RewriteGoogJsImports_Mode(name_ string, ordinal_ int32) *RewriteGoogJsImports_Mode {
-	this := &RewriteGoogJsImports_Mode{}
-	this.self_ = this
-	this.init_RewriteGoogJsImports_Mode(name_, ordinal_)
+func (this RewriteGoogJsImports_Mode) ordinal() int32 {
+	return RewriteGoogJsImports_Mode_enum_[this-1].ordinal_
+}
+
+func (this RewriteGoogJsImports_Mode) toString() string {
+	return RewriteGoogJsImports_Mode_enum_[this-1].name_
+}
+
+func (this RewriteGoogJsImports_Mode) compareTo(o any) int32 {
+	return RewriteGoogJsImports_Mode_enum_[this-1].compareTo(o)
+}
+
+func (this RewriteGoogJsImports_Mode) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func RewriteGoogJsImports_Mode_values() []*RewriteGoogJsImports_Mode {
-	return append([]*RewriteGoogJsImports_Mode(nil), RewriteGoogJsImports_Mode_values_...)
+func RewriteGoogJsImports_Mode_values() []RewriteGoogJsImports_Mode {
+	return append([]RewriteGoogJsImports_Mode(nil), RewriteGoogJsImports_Mode_values_...)
 }
 
-func RewriteGoogJsImports_Mode_valueOf(name string) *RewriteGoogJsImports_Mode {
+func RewriteGoogJsImports_Mode_valueOf(name string) RewriteGoogJsImports_Mode {
 	for _, v := range RewriteGoogJsImports_Mode_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("Mode", name))
 }
 
-var RewriteGoogJsImports_Mode_LINT_ONLY *RewriteGoogJsImports_Mode
-var RewriteGoogJsImports_Mode_LINT_AND_REWRITE *RewriteGoogJsImports_Mode
-var RewriteGoogJsImports_Mode_values_ []*RewriteGoogJsImports_Mode
+const RewriteGoogJsImports_Mode_LINT_ONLY RewriteGoogJsImports_Mode = 1
+const RewriteGoogJsImports_Mode_LINT_AND_REWRITE RewriteGoogJsImports_Mode = 2
+
+var RewriteGoogJsImports_Mode_values_ []RewriteGoogJsImports_Mode
 
 var RewriteGoogJsImports_Mode_clinit_done bool
 
@@ -232,9 +249,7 @@ func RewriteGoogJsImports_Mode_clinit() {
 		return
 	}
 	RewriteGoogJsImports_Mode_clinit_done = true
-	RewriteGoogJsImports_Mode_LINT_ONLY = new_RewriteGoogJsImports_Mode("LINT_ONLY", 0)
-	RewriteGoogJsImports_Mode_LINT_AND_REWRITE = new_RewriteGoogJsImports_Mode("LINT_AND_REWRITE", 1)
-	RewriteGoogJsImports_Mode_values_ = []*RewriteGoogJsImports_Mode{RewriteGoogJsImports_Mode_LINT_ONLY, RewriteGoogJsImports_Mode_LINT_AND_REWRITE}
+	RewriteGoogJsImports_Mode_values_ = []RewriteGoogJsImports_Mode{RewriteGoogJsImports_Mode_LINT_ONLY, RewriteGoogJsImports_Mode_LINT_AND_REWRITE}
 	registerEnum_("com.google.javascript.jscomp.RewriteGoogJsImports.Mode", enumValues_(RewriteGoogJsImports_Mode_values_))
 
 }

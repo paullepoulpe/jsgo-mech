@@ -105,7 +105,7 @@ func (this *ColorGraphBuilder) addInternalColorGraphNode(node *ColorGraphNode) *
 	return flatNode
 }
 
-func (this *ColorGraphBuilder) connectSourceToDest(source *LinkedDirectedGraph_LinkedDiGraphNode, reason *ColorGraphBuilder_EdgeReason, dest *LinkedDirectedGraph_LinkedDiGraphNode) {
+func (this *ColorGraphBuilder) connectSourceToDest(source *LinkedDirectedGraph_LinkedDiGraphNode, reason ColorGraphBuilder_EdgeReason, dest *LinkedDirectedGraph_LinkedDiGraphNode) {
 	if Object_equals(source.self(), dest.self()) || this.colorHoldsInstanceGraph.isConnectedInDirectionLinkedDiGraphNode(source, lambda_ColorGraphBuilder_connectSourceToDest_1_, dest) {
 		return
 	}
@@ -117,44 +117,61 @@ var lambda_ColorGraphBuilder_connectSourceToDest_1_ = &Predicate_base_fn{func(t 
 	return true
 }}
 
-type ColorGraphBuilder_EdgeReason struct {
-	Enum
+type ColorGraphBuilder_EdgeReason uint8
+
+// ColorGraphBuilder_EdgeReason_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var ColorGraphBuilder_EdgeReason_enum_ = [2]Enum{
+	{self_: ColorGraphBuilder_EdgeReason_ALGEBRAIC, name_: "ALGEBRAIC", ordinal_: 0},
+	{self_: ColorGraphBuilder_EdgeReason_CAN_HOLD, name_: "CAN_HOLD", ordinal_: 1},
 }
 
-func (this *ColorGraphBuilder_EdgeReason) up_Enum() *Enum {
-	if this == nil {
+func (this ColorGraphBuilder_EdgeReason) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &ColorGraphBuilder_EdgeReason_enum_[this-1]
 }
 
-func (this *ColorGraphBuilder_EdgeReason) init_ColorGraphBuilder_EdgeReason(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this ColorGraphBuilder_EdgeReason) name() string {
+	return ColorGraphBuilder_EdgeReason_enum_[this-1].name_
 }
 
-func new_ColorGraphBuilder_EdgeReason(name_ string, ordinal_ int32) *ColorGraphBuilder_EdgeReason {
-	this := &ColorGraphBuilder_EdgeReason{}
-	this.self_ = this
-	this.init_ColorGraphBuilder_EdgeReason(name_, ordinal_)
+func (this ColorGraphBuilder_EdgeReason) ordinal() int32 {
+	return ColorGraphBuilder_EdgeReason_enum_[this-1].ordinal_
+}
+
+func (this ColorGraphBuilder_EdgeReason) toString() string {
+	return ColorGraphBuilder_EdgeReason_enum_[this-1].name_
+}
+
+func (this ColorGraphBuilder_EdgeReason) compareTo(o any) int32 {
+	return ColorGraphBuilder_EdgeReason_enum_[this-1].compareTo(o)
+}
+
+func (this ColorGraphBuilder_EdgeReason) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func ColorGraphBuilder_EdgeReason_values() []*ColorGraphBuilder_EdgeReason {
-	return append([]*ColorGraphBuilder_EdgeReason(nil), ColorGraphBuilder_EdgeReason_values_...)
+func ColorGraphBuilder_EdgeReason_values() []ColorGraphBuilder_EdgeReason {
+	return append([]ColorGraphBuilder_EdgeReason(nil), ColorGraphBuilder_EdgeReason_values_...)
 }
 
-func ColorGraphBuilder_EdgeReason_valueOf(name string) *ColorGraphBuilder_EdgeReason {
+func ColorGraphBuilder_EdgeReason_valueOf(name string) ColorGraphBuilder_EdgeReason {
 	for _, v := range ColorGraphBuilder_EdgeReason_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("EdgeReason", name))
 }
 
-var ColorGraphBuilder_EdgeReason_ALGEBRAIC *ColorGraphBuilder_EdgeReason
-var ColorGraphBuilder_EdgeReason_CAN_HOLD *ColorGraphBuilder_EdgeReason
-var ColorGraphBuilder_EdgeReason_values_ []*ColorGraphBuilder_EdgeReason
+const ColorGraphBuilder_EdgeReason_ALGEBRAIC ColorGraphBuilder_EdgeReason = 1
+const ColorGraphBuilder_EdgeReason_CAN_HOLD ColorGraphBuilder_EdgeReason = 2
+
+var ColorGraphBuilder_EdgeReason_values_ []ColorGraphBuilder_EdgeReason
 
 var ColorGraphBuilder_EdgeReason_clinit_done bool
 
@@ -163,9 +180,7 @@ func ColorGraphBuilder_EdgeReason_clinit() {
 		return
 	}
 	ColorGraphBuilder_EdgeReason_clinit_done = true
-	ColorGraphBuilder_EdgeReason_ALGEBRAIC = new_ColorGraphBuilder_EdgeReason("ALGEBRAIC", 0)
-	ColorGraphBuilder_EdgeReason_CAN_HOLD = new_ColorGraphBuilder_EdgeReason("CAN_HOLD", 1)
-	ColorGraphBuilder_EdgeReason_values_ = []*ColorGraphBuilder_EdgeReason{ColorGraphBuilder_EdgeReason_ALGEBRAIC, ColorGraphBuilder_EdgeReason_CAN_HOLD}
+	ColorGraphBuilder_EdgeReason_values_ = []ColorGraphBuilder_EdgeReason{ColorGraphBuilder_EdgeReason_ALGEBRAIC, ColorGraphBuilder_EdgeReason_CAN_HOLD}
 	registerEnum_("com.google.javascript.jscomp.disambiguate.ColorGraphBuilder.EdgeReason", enumValues_(ColorGraphBuilder_EdgeReason_values_))
 
 }

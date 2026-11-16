@@ -7,7 +7,7 @@ type Parser struct {
 	errorReporter        *ErrorReporter_util
 	config               *Parser_Config
 	commentRecorder      *Parser_CommentRecorder
-	functionContextStack []*Parser_FunctionFlavor
+	functionContextStack []Parser_FunctionFlavor
 	features_            *FeatureSet
 	lastSourcePosition   *SourcePosition_util
 	sourceMapURL         OptionalOf[string]
@@ -15,7 +15,7 @@ type Parser struct {
 
 func (this *Parser) finit_Parser() {
 	this.commentRecorder = new_Parser_CommentRecorder(this)
-	this.functionContextStack = []*Parser_FunctionFlavor{}
+	this.functionContextStack = []Parser_FunctionFlavor{}
 	this.features_ = FeatureSet_BARE_MINIMUM
 	this.sourceMapURL = Optional_empty[string]()
 }
@@ -381,7 +381,7 @@ func (this *Parser) parseFieldDefinition(elementInfo *ClassOrObjectElementInfo) 
 }
 
 func (this *Parser) parseMethodDefinition(elementInfo *ClassOrObjectElementInfo, isGenerator bool) *ParseTree {
-	var kind *FunctionDeclarationTree_Kind
+	var kind FunctionDeclarationTree_Kind
 	if elementInfo.hasNameExpr() {
 		kind = FunctionDeclarationTree_Kind_EXPRESSION
 	} else {
@@ -391,7 +391,7 @@ func (this *Parser) parseMethodDefinition(elementInfo *ClassOrObjectElementInfo,
 	if elementInfo.hasName() {
 		builder.setName(elementInfo.getName())
 	}
-	this.parseFunctionTail(builder, func() *Parser_FunctionFlavor {
+	this.parseFunctionTail(builder, func() Parser_FunctionFlavor {
 		if isGenerator {
 			return Parser_FunctionFlavor_GENERATOR
 		}
@@ -442,7 +442,7 @@ func (this *Parser) parseAsyncMethod(elementInfo *ClassOrObjectElementInfo) *Par
 		if this.peekIdOrKeyword() {
 			var name *IdentifierToken = this.eatIdOrKeywordAsId()
 			var builder *FunctionDeclarationTree_Builder = FunctionDeclarationTree_builder(FunctionDeclarationTree_Kind_MEMBER).setAsync(true).setGenerator(generator).setIsClassMember(elementInfo.isClassMember).setStatic(elementInfo.isStatic).setName(name)
-			this.parseFunctionTail(builder, func() *Parser_FunctionFlavor {
+			this.parseFunctionTail(builder, func() Parser_FunctionFlavor {
 				if generator {
 					return Parser_FunctionFlavor_ASYNCHRONOUS_GENERATOR
 				}
@@ -452,7 +452,7 @@ func (this *Parser) parseAsyncMethod(elementInfo *ClassOrObjectElementInfo) *Par
 		} else {
 			var nameExpr *ParseTree = this.parseLiteralExpression().up_ParseTree()
 			var builder *FunctionDeclarationTree_Builder = FunctionDeclarationTree_builder(FunctionDeclarationTree_Kind_EXPRESSION).setAsync(true).setGenerator(generator).setIsClassMember(elementInfo.isClassMember).setStatic(elementInfo.isStatic)
-			this.parseFunctionTail(builder, func() *Parser_FunctionFlavor {
+			this.parseFunctionTail(builder, func() Parser_FunctionFlavor {
 				if generator {
 					return Parser_FunctionFlavor_ASYNCHRONOUS_GENERATOR
 				}
@@ -464,7 +464,7 @@ func (this *Parser) parseAsyncMethod(elementInfo *ClassOrObjectElementInfo) *Par
 	} else {
 		var nameExpr *ParseTree = this.parseComputedPropertyName()
 		var builder *FunctionDeclarationTree_Builder = FunctionDeclarationTree_builder(FunctionDeclarationTree_Kind_EXPRESSION).setAsync(true).setGenerator(generator).setIsClassMember(elementInfo.isClassMember).setStatic(elementInfo.isStatic)
-		this.parseFunctionTail(builder, func() *Parser_FunctionFlavor {
+		this.parseFunctionTail(builder, func() Parser_FunctionFlavor {
 			if generator {
 				return Parser_FunctionFlavor_ASYNCHRONOUS_GENERATOR
 			}
@@ -481,9 +481,9 @@ func (this *Parser) parseClassStaticInitializerBlock() *ParseTree {
 	return this.parseBlock().up_ParseTree()
 }
 
-func (this *Parser) parseFunctionTail(builder *FunctionDeclarationTree_Builder, functionFlavor *Parser_FunctionFlavor) {
+func (this *Parser) parseFunctionTail(builder *FunctionDeclarationTree_Builder, functionFlavor Parser_FunctionFlavor) {
 	this.functionContextStack = append(this.functionContextStack, functionFlavor)
-	builder.setGenerator(functionFlavor.isGenerator).setFormalParameterList(this.parseFormalParameterList()).setFunctionBody(this.parseFunctionBody().up_ParseTree())
+	builder.setGenerator(Parser_FunctionFlavor_isGenerator_[functionFlavor-1]).setFormalParameterList(this.parseFormalParameterList()).setFunctionBody(this.parseFunctionBody().up_ParseTree())
 	slicePop_(tc_p_Parser_FunctionFlavor, &this.functionContextStack)
 }
 
@@ -530,10 +530,10 @@ func (this *Parser) peekFunction_1(index int32) bool {
 
 func (this *Parser) parseFunctionDeclaration() *ParseTree {
 	var start *SourcePosition_util = this.getTreeStartLocation()
-	this.eat(Keywords_FUNCTION.type__)
+	this.eat(Keywords_type___[Keywords_FUNCTION-1])
 	var isGenerator bool = (this.eatOpt(TokenType_STAR) != nil)
 	var builder *FunctionDeclarationTree_Builder = FunctionDeclarationTree_builder(FunctionDeclarationTree_Kind_DECLARATION).setName(this.eatId())
-	this.parseFunctionTail(builder, func() *Parser_FunctionFlavor {
+	this.parseFunctionTail(builder, func() Parser_FunctionFlavor {
 		if isGenerator {
 			return Parser_FunctionFlavor_GENERATOR
 		}
@@ -544,10 +544,10 @@ func (this *Parser) parseFunctionDeclaration() *ParseTree {
 
 func (this *Parser) parseFunctionExpression() *ParseTree {
 	var start *SourcePosition_util = this.getTreeStartLocation()
-	this.eat(Keywords_FUNCTION.type__)
+	this.eat(Keywords_type___[Keywords_FUNCTION-1])
 	var isGenerator bool = (this.eatOpt(TokenType_STAR) != nil)
 	var builder *FunctionDeclarationTree_Builder = FunctionDeclarationTree_builder(FunctionDeclarationTree_Kind_EXPRESSION).setName(this.eatIdOpt())
-	this.parseFunctionTail(builder, func() *Parser_FunctionFlavor {
+	this.parseFunctionTail(builder, func() Parser_FunctionFlavor {
 		if isGenerator {
 			return Parser_FunctionFlavor_GENERATOR
 		}
@@ -564,7 +564,7 @@ func (this *Parser) parseAsyncFunctionDeclaration() *ParseTree {
 		this.eat(TokenType_STAR)
 	}
 	var builder *FunctionDeclarationTree_Builder = FunctionDeclarationTree_builder(FunctionDeclarationTree_Kind_DECLARATION).setName(this.eatId()).setAsync(true)
-	this.parseFunctionTail(builder, func() *Parser_FunctionFlavor {
+	this.parseFunctionTail(builder, func() Parser_FunctionFlavor {
 		if generator {
 			return Parser_FunctionFlavor_ASYNCHRONOUS_GENERATOR
 		}
@@ -581,7 +581,7 @@ func (this *Parser) parseAsyncFunctionExpression() *ParseTree {
 		this.eat(TokenType_STAR)
 	}
 	var builder *FunctionDeclarationTree_Builder = FunctionDeclarationTree_builder(FunctionDeclarationTree_Kind_EXPRESSION).setName(this.eatIdOpt()).setAsync(true)
-	this.parseFunctionTail(builder, func() *Parser_FunctionFlavor {
+	this.parseFunctionTail(builder, func() Parser_FunctionFlavor {
 		if generator {
 			return Parser_FunctionFlavor_ASYNCHRONOUS_GENERATOR
 		}
@@ -775,9 +775,9 @@ func (this *Parser) parseVariableDeclarationListNoIn() *VariableDeclarationListT
 	return this.parseVariableDeclarationList_1(Parser_Expression_NO_IN)
 }
 
-func (this *Parser) parseVariableDeclarationList_1(expressionIn *Parser_Expression) *VariableDeclarationListTree {
+func (this *Parser) parseVariableDeclarationList_1(expressionIn Parser_Expression) *VariableDeclarationListTree {
 	var start *SourcePosition_util = this.getTreeStartLocation()
-	var token *TokenType = this.peekType()
+	var token TokenType = this.peekType()
 	switch token {
 	case TokenType_CONST, TokenType_LET, TokenType_VAR:
 		this.eat(token)
@@ -794,7 +794,7 @@ func (this *Parser) parseVariableDeclarationList_1(expressionIn *Parser_Expressi
 	return new_VariableDeclarationListTree(this.getTreeLocation(start), token, sliceImm_(tc_p_VariableDeclarationTree, declarations.build()))
 }
 
-func (this *Parser) parseVariableDeclaration(binding *TokenType, expressionIn *Parser_Expression) *VariableDeclarationTree {
+func (this *Parser) parseVariableDeclaration(binding TokenType, expressionIn Parser_Expression) *VariableDeclarationTree {
 	var start *SourcePosition_util = this.getTreeStartLocation()
 	var lvalue *ParseTree
 	if this.peekPatternStart() {
@@ -811,7 +811,7 @@ func (this *Parser) parseVariableDeclaration(binding *TokenType, expressionIn *P
 	return new_VariableDeclarationTree(this.getTreeLocation(start), lvalue, initializer)
 }
 
-func (this *Parser) parseInitializer(expressionIn *Parser_Expression) *ParseTree {
+func (this *Parser) parseInitializer(expressionIn Parser_Expression) *ParseTree {
 	this.eat(TokenType_EQUAL)
 	return this.parseAssignment(expressionIn)
 }
@@ -970,7 +970,7 @@ func (this *Parser) checkVanillaForInitializers(variables *VariableDeclarationLi
 	}
 }
 
-func (this *Parser) maybeReportNoInitializer(token *TokenType, lvalue *ParseTree) {
+func (this *Parser) maybeReportNoInitializer(token TokenType, lvalue *ParseTree) {
 	if token == TokenType_CONST {
 		this.reportError("const variables must have an initializer", []any{})
 	} else if lvalue.isPattern() {
@@ -1375,7 +1375,7 @@ func (this *Parser) peekPropertyNameOrComputedProp(tokenIndex int32) bool {
 }
 
 func (this *Parser) peekPropertyName(tokenIndex int32) bool {
-	var type_ *TokenType = this.peekType_1(tokenIndex)
+	var type_ TokenType = this.peekType_1(tokenIndex)
 	return func() bool {
 		switch type_ {
 		case TokenType_IDENTIFIER, TokenType_STRING, TokenType_NUMBER, TokenType_BIGINT:
@@ -1388,7 +1388,7 @@ func (this *Parser) peekPropertyName(tokenIndex int32) bool {
 }
 
 func (this *Parser) parseObjectLiteralPropertyAssignment() *ParseTree {
-	var type_ *TokenType = this.peekType()
+	var type_ TokenType = this.peekType()
 	if type_ == TokenType_STAR {
 		return this.parseObjectLiteralPropertyAssignmentGenerator()
 	} else if type_ == TokenType_ELLIPSIS {
@@ -1429,7 +1429,7 @@ func (this *Parser) parseObjectLiteralPropertyAssignment() *ParseTree {
 }
 
 func (this *Parser) parseObjectLiteralPropertyAssignmentGenerator() *ParseTree {
-	var type_ *TokenType = this.peekType_1(1)
+	var type_ TokenType = this.peekType_1(1)
 	if (((type_ == TokenType_STRING) || (type_ == TokenType_NUMBER)) || (type_ == TokenType_IDENTIFIER)) || Keywords_isKeyword(type_) {
 		return this.parseObjectLiteralMethodDeclaration()
 	} else {
@@ -1612,7 +1612,7 @@ func (this *Parser) peekExpression() bool {
 	}()
 }
 
-func (this *Parser) parse(expressionIn *Parser_Expression) *ParseTree {
+func (this *Parser) parse(expressionIn Parser_Expression) *ParseTree {
 	var start *SourcePosition_util = this.getTreeStartLocation()
 	var result *ParseTree = this.parseAssignment(expressionIn)
 	if (this.peek(TokenType_COMMA) && !this.peek_2(1, TokenType_ELLIPSIS)) && !this.peek_2(1, TokenType_CLOSE_PAREN) {
@@ -1635,7 +1635,7 @@ func (this *Parser) peekAssignmentExpression() bool {
 	return this.peekExpression()
 }
 
-func (this *Parser) parseAssignment(expressionIn *Parser_Expression) *ParseTree {
+func (this *Parser) parseAssignment(expressionIn Parser_Expression) *ParseTree {
 	if this.peek(TokenType_YIELD) && this.inGeneratorContext() {
 		return this.parseYield(expressionIn)
 	}
@@ -1682,7 +1682,7 @@ func (this *Parser) isStartOfAsyncArrowFunction(partialExpression *ParseTree) bo
 	panic("unreachable")
 }
 
-func (this *Parser) completeAssignmentExpressionParseAtArrow_2(leftOfArrow *ParseTree, expressionIn *Parser_Expression) *ParseTree {
+func (this *Parser) completeAssignmentExpressionParseAtArrow_2(leftOfArrow *ParseTree, expressionIn Parser_Expression) *ParseTree {
 	if leftOfArrow.type__ == ParseTreeType_CALL_EXPRESSION {
 		return this.completeAssignmentExpressionParseAtArrow(leftOfArrow.asCallExpression())
 	} else {
@@ -1691,7 +1691,7 @@ func (this *Parser) completeAssignmentExpressionParseAtArrow_2(leftOfArrow *Pars
 	panic("unreachable")
 }
 
-func (this *Parser) completeArrowFunctionParseAtArrow(leftOfArrow *ParseTree, expressionIn *Parser_Expression) *ParseTree {
+func (this *Parser) completeArrowFunctionParseAtArrow(leftOfArrow *ParseTree, expressionIn Parser_Expression) *ParseTree {
 	var arrowFormalParameters *FormalParameterListTree = this.transformToArrowFormalParameters(leftOfArrow)
 	if this.peekImplicitSemiColon() {
 		this.reportError("No newline allowed before '=>'", []any{})
@@ -1733,7 +1733,7 @@ func (this *Parser) completeAssignmentExpressionParseAtArrow(callExpression *Cal
 	return result
 }
 
-func (this *Parser) parseAsyncArrowFunction(expressionIn *Parser_Expression) *ParseTree {
+func (this *Parser) parseAsyncArrowFunction(expressionIn Parser_Expression) *ParseTree {
 	var start *SourcePosition_util = this.getTreeStartLocation()
 	this.eatPredefinedString(Parser_ASYNC)
 	if this.peekImplicitSemiColon() {
@@ -1755,7 +1755,7 @@ func (this *Parser) parseAsyncArrowFunction(expressionIn *Parser_Expression) *Pa
 	return builder.build(this.getTreeLocation(start)).up_ParseTree()
 }
 
-func (this *Parser) parseArrowFunctionBody(expressionIn *Parser_Expression, functionFlavor *Parser_FunctionFlavor) *ParseTree {
+func (this *Parser) parseArrowFunctionBody(expressionIn Parser_Expression, functionFlavor Parser_FunctionFlavor) *ParseTree {
 	this.functionContextStack = append(this.functionContextStack, functionFlavor)
 	var arrowFunctionBody *ParseTree
 	if this.peek(TokenType_OPEN_CURLY) {
@@ -1815,10 +1815,10 @@ func (this *Parser) peekAssignmentOperator() bool {
 }
 
 func (this *Parser) inGeneratorContext() bool {
-	return slicePeekTop_(tc_p_Parser_FunctionFlavor, this.functionContextStack).isGenerator
+	return Parser_FunctionFlavor_isGenerator_[slicePeekTop_(tc_p_Parser_FunctionFlavor, this.functionContextStack)-1]
 }
 
-func (this *Parser) parseYield(expressionIn *Parser_Expression) *ParseTree {
+func (this *Parser) parseYield(expressionIn Parser_Expression) *ParseTree {
 	var start *SourcePosition_util = this.getTreeStartLocation()
 	this.eat(TokenType_YIELD)
 	var isYieldAll bool = false
@@ -1834,7 +1834,7 @@ func (this *Parser) parseYield(expressionIn *Parser_Expression) *ParseTree {
 	return new_YieldExpressionTree(this.getTreeLocation(start), isYieldAll, expression).up_ParseTree()
 }
 
-func (this *Parser) parseConditional(expressionIn *Parser_Expression) *ParseTree {
+func (this *Parser) parseConditional(expressionIn Parser_Expression) *ParseTree {
 	var start *SourcePosition_util = this.getTreeStartLocation()
 	var condition *ParseTree = this.parseShortCircuit(expressionIn)
 	if this.peek(TokenType_QUESTION) {
@@ -1847,7 +1847,7 @@ func (this *Parser) parseConditional(expressionIn *Parser_Expression) *ParseTree
 	return condition
 }
 
-func (this *Parser) parseShortCircuit(expressionIn *Parser_Expression) *ParseTree {
+func (this *Parser) parseShortCircuit(expressionIn Parser_Expression) *ParseTree {
 	var start *SourcePosition_util = this.getTreeStartLocation()
 	var left *ParseTree = this.parseLogicalOR(expressionIn)
 	if this.peek(TokenType_QUESTION_QUESTION) {
@@ -1864,7 +1864,7 @@ func (this *Parser) parseShortCircuit(expressionIn *Parser_Expression) *ParseTre
 	panic("unreachable")
 }
 
-func (this *Parser) parseNullishCoalesce(expressionIn *Parser_Expression, left *ParseTree, start *SourcePosition_util) *ParseTree {
+func (this *Parser) parseNullishCoalesce(expressionIn Parser_Expression, left *ParseTree, start *SourcePosition_util) *ParseTree {
 	for this.peek(TokenType_QUESTION_QUESTION) {
 		var operator *Token_parser = this.eat(TokenType_QUESTION_QUESTION)
 		var right *ParseTree = this.parseBitwiseOR(expressionIn)
@@ -1876,7 +1876,7 @@ func (this *Parser) parseNullishCoalesce(expressionIn *Parser_Expression, left *
 	return left
 }
 
-func (this *Parser) parseLogicalOR(expressionIn *Parser_Expression) *ParseTree {
+func (this *Parser) parseLogicalOR(expressionIn Parser_Expression) *ParseTree {
 	var start *SourcePosition_util = this.getTreeStartLocation()
 	var left *ParseTree = this.parseLogicalAND(expressionIn)
 	for this.peek(TokenType_OR) {
@@ -1887,7 +1887,7 @@ func (this *Parser) parseLogicalOR(expressionIn *Parser_Expression) *ParseTree {
 	return left
 }
 
-func (this *Parser) parseLogicalAND(expressionIn *Parser_Expression) *ParseTree {
+func (this *Parser) parseLogicalAND(expressionIn Parser_Expression) *ParseTree {
 	var start *SourcePosition_util = this.getTreeStartLocation()
 	var left *ParseTree = this.parseBitwiseOR(expressionIn)
 	for this.peek(TokenType_AND) {
@@ -1898,7 +1898,7 @@ func (this *Parser) parseLogicalAND(expressionIn *Parser_Expression) *ParseTree 
 	return left
 }
 
-func (this *Parser) parseBitwiseOR(expressionIn *Parser_Expression) *ParseTree {
+func (this *Parser) parseBitwiseOR(expressionIn Parser_Expression) *ParseTree {
 	var start *SourcePosition_util = this.getTreeStartLocation()
 	var left *ParseTree = this.parseBitwiseXOR(expressionIn)
 	for this.peek(TokenType_BAR) {
@@ -1909,7 +1909,7 @@ func (this *Parser) parseBitwiseOR(expressionIn *Parser_Expression) *ParseTree {
 	return left
 }
 
-func (this *Parser) parseBitwiseXOR(expressionIn *Parser_Expression) *ParseTree {
+func (this *Parser) parseBitwiseXOR(expressionIn Parser_Expression) *ParseTree {
 	var start *SourcePosition_util = this.getTreeStartLocation()
 	var left *ParseTree = this.parseBitwiseAND(expressionIn)
 	for this.peek(TokenType_CARET) {
@@ -1920,7 +1920,7 @@ func (this *Parser) parseBitwiseXOR(expressionIn *Parser_Expression) *ParseTree 
 	return left
 }
 
-func (this *Parser) parseBitwiseAND(expressionIn *Parser_Expression) *ParseTree {
+func (this *Parser) parseBitwiseAND(expressionIn Parser_Expression) *ParseTree {
 	var start *SourcePosition_util = this.getTreeStartLocation()
 	var left *ParseTree = this.parseEquality(expressionIn)
 	for this.peek(TokenType_AMPERSAND) {
@@ -1931,7 +1931,7 @@ func (this *Parser) parseBitwiseAND(expressionIn *Parser_Expression) *ParseTree 
 	return left
 }
 
-func (this *Parser) parseEquality(expressionIn *Parser_Expression) *ParseTree {
+func (this *Parser) parseEquality(expressionIn Parser_Expression) *ParseTree {
 	var start *SourcePosition_util = this.getTreeStartLocation()
 	var left *ParseTree = this.parseRelational(expressionIn)
 	for this.peekEqualityOperator() {
@@ -1954,7 +1954,7 @@ func (this *Parser) peekEqualityOperator() bool {
 	}()
 }
 
-func (this *Parser) parseRelational(expressionIn *Parser_Expression) *ParseTree {
+func (this *Parser) parseRelational(expressionIn Parser_Expression) *ParseTree {
 	var start *SourcePosition_util = this.getTreeStartLocation()
 	var left *ParseTree = this.parseShiftExpression()
 	for this.peekRelationalOperator(expressionIn) {
@@ -1965,7 +1965,7 @@ func (this *Parser) parseRelational(expressionIn *Parser_Expression) *ParseTree 
 	return left
 }
 
-func (this *Parser) peekRelationalOperator(expressionIn *Parser_Expression) bool {
+func (this *Parser) peekRelationalOperator(expressionIn Parser_Expression) bool {
 	return func() bool {
 		switch this.peekType() {
 		case TokenType_OPEN_ANGLE, TokenType_CLOSE_ANGLE, TokenType_GREATER_EQUAL, TokenType_LESS_EQUAL, TokenType_INSTANCEOF:
@@ -2358,7 +2358,7 @@ func (this *Parser) peekPatternStart() bool {
 	return (this.peek(TokenType_OPEN_SQUARE) || this.peek(TokenType_OPEN_CURLY))
 }
 
-func (this *Parser) parsePattern(kind *Parser_PatternKind) *ParseTree {
+func (this *Parser) parsePattern(kind Parser_PatternKind) *ParseTree {
 	switch this.peekType() {
 	case TokenType_OPEN_SQUARE:
 		return this.parseArrayPattern(kind)
@@ -2372,14 +2372,14 @@ func (this *Parser) peekArrayPatternElement() bool {
 	return this.peekExpression()
 }
 
-func (this *Parser) parseIterRest(patternKind *Parser_PatternKind) *ParseTree {
+func (this *Parser) parseIterRest(patternKind Parser_PatternKind) *ParseTree {
 	var start *SourcePosition_util = this.getTreeStartLocation()
 	this.eat(TokenType_ELLIPSIS)
 	var patternAssignmentTarget *ParseTree = this.parseRestAssignmentTarget(patternKind)
 	return new_IterRestTree(this.getTreeLocation(start), patternAssignmentTarget).up_ParseTree()
 }
 
-func (this *Parser) parseRestAssignmentTarget(patternKind *Parser_PatternKind) *ParseTree {
+func (this *Parser) parseRestAssignmentTarget(patternKind Parser_PatternKind) *ParseTree {
 	var patternAssignmentTarget *ParseTree = this.parsePatternAssignmentTargetNoDefault(patternKind)
 	if this.peek(TokenType_EQUAL) {
 		this.reportError("A default value cannot be specified after '...'", []any{})
@@ -2387,7 +2387,7 @@ func (this *Parser) parseRestAssignmentTarget(patternKind *Parser_PatternKind) *
 	return patternAssignmentTarget
 }
 
-func (this *Parser) parseArrayPattern(kind *Parser_PatternKind) *ParseTree {
+func (this *Parser) parseArrayPattern(kind Parser_PatternKind) *ParseTree {
 	var start *SourcePosition_util = this.getTreeStartLocation()
 	var elements ImmutableList_BuilderOf[*ParseTree] = ImmutableList_builder()
 	this.eat(TokenType_OPEN_SQUARE)
@@ -2415,7 +2415,7 @@ func (this *Parser) parseArrayPattern(kind *Parser_PatternKind) *ParseTree {
 	return new_ArrayPatternTree(this.getTreeLocation(start), sliceImm_(tc_p_ParseTree, elements.build())).up_ParseTree()
 }
 
-func (this *Parser) parseObjectPattern(kind *Parser_PatternKind) *ParseTree {
+func (this *Parser) parseObjectPattern(kind Parser_PatternKind) *ParseTree {
 	var start *SourcePosition_util = this.getTreeStartLocation()
 	var fields ImmutableList_BuilderOf[*ParseTree] = ImmutableList_builder()
 	this.eat(TokenType_OPEN_CURLY)
@@ -2442,7 +2442,7 @@ func (this *Parser) peekObjectPatternField() bool {
 	return this.peekPropertyNameOrComputedProp(0)
 }
 
-func (this *Parser) parseObjectPatternField(kind *Parser_PatternKind) *ParseTree {
+func (this *Parser) parseObjectPatternField(kind Parser_PatternKind) *ParseTree {
 	var start *SourcePosition_util = this.getTreeStartLocation()
 	if this.peekType() == TokenType_OPEN_SQUARE {
 		var key *ParseTree = this.parseComputedPropertyName()
@@ -2474,7 +2474,7 @@ func (this *Parser) parseObjectPatternField(kind *Parser_PatternKind) *ParseTree
 	return new_PropertyNameAssignmentTree(this.getTreeLocation(start), name, value).up_ParseTree()
 }
 
-func (this *Parser) parsePatternAssignmentTarget(patternKind *Parser_PatternKind) *ParseTree {
+func (this *Parser) parsePatternAssignmentTarget(patternKind Parser_PatternKind) *ParseTree {
 	var start *SourcePosition_util = this.getTreeStartLocation()
 	var assignmentTarget *ParseTree
 	assignmentTarget = this.parsePatternAssignmentTargetNoDefault(patternKind)
@@ -2486,7 +2486,7 @@ func (this *Parser) parsePatternAssignmentTarget(patternKind *Parser_PatternKind
 	return assignmentTarget
 }
 
-func (this *Parser) parsePatternAssignmentTargetNoDefault(kind *Parser_PatternKind) *ParseTree {
+func (this *Parser) parsePatternAssignmentTargetNoDefault(kind Parser_PatternKind) *ParseTree {
 	var assignmentTarget *ParseTree
 	if this.peekPatternStart() {
 		assignmentTarget = this.parsePattern(kind)
@@ -2535,7 +2535,7 @@ func (this *Parser) getNextLine() int32 {
 	return this.peekToken().location_.start_.line_
 }
 
-func (this *Parser) eatOpt(expectedTokenType *TokenType) *Token_parser {
+func (this *Parser) eatOpt(expectedTokenType TokenType) *Token_parser {
 	if this.peek(expectedTokenType) {
 		return this.eat(expectedTokenType)
 	}
@@ -2552,14 +2552,14 @@ func (this *Parser) peekId() bool {
 
 func (this *Parser) peekId_1(index int32) bool {
 	var token *Token_parser = this.peekToken_1(index)
-	var typeToCheck *TokenType = token.type__
+	var typeToCheck TokenType = token.type__
 	if typeToCheck == TokenType_IDENTIFIER {
 		var value string = token.asIdentifier().getMaybePrivateValue()
-		var k *Keywords = Keywords_getString(value)
-		if k == nil {
+		var k Keywords = Keywords_getString(value)
+		if k == 0 {
 			return true
 		}
-		typeToCheck = k.type__
+		typeToCheck = Keywords_type___[k-1]
 	}
 	return (!this.inStrictContext() && Keywords_isStrictKeyword(typeToCheck))
 }
@@ -2569,7 +2569,7 @@ func (this *Parser) peekIdOrKeyword() bool {
 }
 
 func (this *Parser) peekIdOrKeyword_1(index int32) bool {
-	var type_ *TokenType = this.peekType_1(index)
+	var type_ TokenType = this.peekType_1(index)
 	return ((TokenType_IDENTIFIER == type_) || Keywords_isKeyword(type_))
 }
 
@@ -2619,7 +2619,7 @@ func (this *Parser) eatIdOrKeywordAsId() *IdentifierToken {
 	return nil
 }
 
-func (this *Parser) eat(expectedTokenType *TokenType) *Token_parser {
+func (this *Parser) eat(expectedTokenType TokenType) *Token_parser {
 	var token *Token_parser = this.nextToken()
 	if token.type__ != expectedTokenType {
 		this.reportExpectedError(token, obj_(expectedTokenType))
@@ -2662,19 +2662,19 @@ func (this *Parser) nextTemplateLiteralToken() *TemplateLiteralToken {
 	return token
 }
 
-func (this *Parser) peek(expectedType *TokenType) bool {
+func (this *Parser) peek(expectedType TokenType) bool {
 	return this.peek_2(0, expectedType)
 }
 
-func (this *Parser) peek_2(index int32, expectedType *TokenType) bool {
+func (this *Parser) peek_2(index int32, expectedType TokenType) bool {
 	return (this.peekType_1(index) == expectedType)
 }
 
-func (this *Parser) peekType() *TokenType {
+func (this *Parser) peekType() TokenType {
 	return this.peekType_1(0)
 }
 
-func (this *Parser) peekType_1(index int32) *TokenType {
+func (this *Parser) peekType_1(index int32) TokenType {
 	return this.peekToken_1(index).type__
 }
 
@@ -2725,7 +2725,7 @@ func (this *Parser) reportTemplateErrorIfPresent(templateToken *TemplateLiteralT
 	panic(new_AssertionError_0().self())
 }
 
-func (this *Parser) recordFeatureUsed(feature *FeatureSet_Feature) *Parser {
+func (this *Parser) recordFeatureUsed(feature FeatureSet_Feature) *Parser {
 	this.features_ = this.features_.with(feature)
 	return this
 }
@@ -2734,48 +2734,67 @@ const Parser_SOURCE_MAPPING_URL_PREFIX string = "//# sourceMappingURL="
 const Parser_AWAIT string = "await"
 const Parser_ASYNC string = "async"
 
-type Parser_FunctionFlavor struct {
-	Enum
-	isGenerator bool
+type Parser_FunctionFlavor uint8
+
+// Parser_FunctionFlavor_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var Parser_FunctionFlavor_enum_ = [4]Enum{
+	{self_: Parser_FunctionFlavor_NORMAL, name_: "NORMAL", ordinal_: 0},
+	{self_: Parser_FunctionFlavor_GENERATOR, name_: "GENERATOR", ordinal_: 1},
+	{self_: Parser_FunctionFlavor_ASYNCHRONOUS, name_: "ASYNCHRONOUS", ordinal_: 2},
+	{self_: Parser_FunctionFlavor_ASYNCHRONOUS_GENERATOR, name_: "ASYNCHRONOUS_GENERATOR", ordinal_: 3},
 }
 
-func (this *Parser_FunctionFlavor) up_Enum() *Enum {
-	if this == nil {
+var Parser_FunctionFlavor_isGenerator_ [4]bool
+
+func (this Parser_FunctionFlavor) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &Parser_FunctionFlavor_enum_[this-1]
 }
 
-func (this *Parser_FunctionFlavor) init_Parser_FunctionFlavor(name_ string, ordinal_ int32, isGenerator bool) {
-	this.Enum.init_Enum(name_, ordinal_)
-	this.isGenerator = isGenerator
+func (this Parser_FunctionFlavor) name() string { return Parser_FunctionFlavor_enum_[this-1].name_ }
+
+func (this Parser_FunctionFlavor) ordinal() int32 {
+	return Parser_FunctionFlavor_enum_[this-1].ordinal_
 }
 
-func new_Parser_FunctionFlavor(name_ string, ordinal_ int32, isGenerator bool) *Parser_FunctionFlavor {
-	this := &Parser_FunctionFlavor{}
-	this.self_ = this
-	this.init_Parser_FunctionFlavor(name_, ordinal_, isGenerator)
+func (this Parser_FunctionFlavor) toString() string { return Parser_FunctionFlavor_enum_[this-1].name_ }
+
+func (this Parser_FunctionFlavor) compareTo(o any) int32 {
+	return Parser_FunctionFlavor_enum_[this-1].compareTo(o)
+}
+
+func (this Parser_FunctionFlavor) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func Parser_FunctionFlavor_values() []*Parser_FunctionFlavor {
-	return append([]*Parser_FunctionFlavor(nil), Parser_FunctionFlavor_values_...)
+func (this Parser_FunctionFlavor) init_Parser_FunctionFlavor(isGenerator bool) {
+	Parser_FunctionFlavor_isGenerator_[this-1] = isGenerator
 }
 
-func Parser_FunctionFlavor_valueOf(name string) *Parser_FunctionFlavor {
+func Parser_FunctionFlavor_values() []Parser_FunctionFlavor {
+	return append([]Parser_FunctionFlavor(nil), Parser_FunctionFlavor_values_...)
+}
+
+func Parser_FunctionFlavor_valueOf(name string) Parser_FunctionFlavor {
 	for _, v := range Parser_FunctionFlavor_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("FunctionFlavor", name))
 }
 
-var Parser_FunctionFlavor_NORMAL *Parser_FunctionFlavor
-var Parser_FunctionFlavor_GENERATOR *Parser_FunctionFlavor
-var Parser_FunctionFlavor_ASYNCHRONOUS *Parser_FunctionFlavor
-var Parser_FunctionFlavor_ASYNCHRONOUS_GENERATOR *Parser_FunctionFlavor
-var Parser_FunctionFlavor_values_ []*Parser_FunctionFlavor
+const Parser_FunctionFlavor_NORMAL Parser_FunctionFlavor = 1
+const Parser_FunctionFlavor_GENERATOR Parser_FunctionFlavor = 2
+const Parser_FunctionFlavor_ASYNCHRONOUS Parser_FunctionFlavor = 3
+const Parser_FunctionFlavor_ASYNCHRONOUS_GENERATOR Parser_FunctionFlavor = 4
+
+var Parser_FunctionFlavor_values_ []Parser_FunctionFlavor
 
 var Parser_FunctionFlavor_clinit_done bool
 
@@ -2784,11 +2803,11 @@ func Parser_FunctionFlavor_clinit() {
 		return
 	}
 	Parser_FunctionFlavor_clinit_done = true
-	Parser_FunctionFlavor_NORMAL = new_Parser_FunctionFlavor("NORMAL", 0, false)
-	Parser_FunctionFlavor_GENERATOR = new_Parser_FunctionFlavor("GENERATOR", 1, true)
-	Parser_FunctionFlavor_ASYNCHRONOUS = new_Parser_FunctionFlavor("ASYNCHRONOUS", 2, false)
-	Parser_FunctionFlavor_ASYNCHRONOUS_GENERATOR = new_Parser_FunctionFlavor("ASYNCHRONOUS_GENERATOR", 3, true)
-	Parser_FunctionFlavor_values_ = []*Parser_FunctionFlavor{Parser_FunctionFlavor_NORMAL, Parser_FunctionFlavor_GENERATOR, Parser_FunctionFlavor_ASYNCHRONOUS, Parser_FunctionFlavor_ASYNCHRONOUS_GENERATOR}
+	Parser_FunctionFlavor_NORMAL.init_Parser_FunctionFlavor(false)
+	Parser_FunctionFlavor_GENERATOR.init_Parser_FunctionFlavor(true)
+	Parser_FunctionFlavor_ASYNCHRONOUS.init_Parser_FunctionFlavor(false)
+	Parser_FunctionFlavor_ASYNCHRONOUS_GENERATOR.init_Parser_FunctionFlavor(true)
+	Parser_FunctionFlavor_values_ = []Parser_FunctionFlavor{Parser_FunctionFlavor_NORMAL, Parser_FunctionFlavor_GENERATOR, Parser_FunctionFlavor_ASYNCHRONOUS, Parser_FunctionFlavor_ASYNCHRONOUS_GENERATOR}
 	registerEnum_("com.google.javascript.jscomp.parsing.parser.Parser.FunctionFlavor", enumValues_(Parser_FunctionFlavor_values_))
 
 }
@@ -2810,59 +2829,72 @@ func new_Parser_Config_0() *Parser_Config {
 	return this
 }
 
-func (this *Parser_Config) init_Parser_Config_Mode_boolean(mode *Parser_Config_Mode, isStrictMode bool) {
+func (this *Parser_Config) init_Parser_Config_Mode_boolean(mode Parser_Config_Mode, isStrictMode bool) {
 	this.atLeast6 = !((mode == Parser_Config_Mode_ES3) || (mode == Parser_Config_Mode_ES5))
 	this.atLeast8 = (mode == Parser_Config_Mode_ES8_OR_GREATER)
 	this.isStrictMode = isStrictMode
 	this.warnTrailingCommas = (mode == Parser_Config_Mode_ES3)
 }
 
-func new_Parser_Config_Mode_boolean(mode *Parser_Config_Mode, isStrictMode bool) *Parser_Config {
+func new_Parser_Config_Mode_boolean(mode Parser_Config_Mode, isStrictMode bool) *Parser_Config {
 	this := &Parser_Config{}
 	this.init_Parser_Config_Mode_boolean(mode, isStrictMode)
 	return this
 }
 
-type Parser_Config_Mode struct {
-	Enum
+type Parser_Config_Mode uint8
+
+// Parser_Config_Mode_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var Parser_Config_Mode_enum_ = [4]Enum{
+	{self_: Parser_Config_Mode_ES3, name_: "ES3", ordinal_: 0},
+	{self_: Parser_Config_Mode_ES5, name_: "ES5", ordinal_: 1},
+	{self_: Parser_Config_Mode_ES6_OR_ES7, name_: "ES6_OR_ES7", ordinal_: 2},
+	{self_: Parser_Config_Mode_ES8_OR_GREATER, name_: "ES8_OR_GREATER", ordinal_: 3},
 }
 
-func (this *Parser_Config_Mode) up_Enum() *Enum {
-	if this == nil {
+func (this Parser_Config_Mode) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &Parser_Config_Mode_enum_[this-1]
 }
 
-func (this *Parser_Config_Mode) init_Parser_Config_Mode(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this Parser_Config_Mode) name() string { return Parser_Config_Mode_enum_[this-1].name_ }
+
+func (this Parser_Config_Mode) ordinal() int32 { return Parser_Config_Mode_enum_[this-1].ordinal_ }
+
+func (this Parser_Config_Mode) toString() string { return Parser_Config_Mode_enum_[this-1].name_ }
+
+func (this Parser_Config_Mode) compareTo(o any) int32 {
+	return Parser_Config_Mode_enum_[this-1].compareTo(o)
 }
 
-func new_Parser_Config_Mode(name_ string, ordinal_ int32) *Parser_Config_Mode {
-	this := &Parser_Config_Mode{}
-	this.self_ = this
-	this.init_Parser_Config_Mode(name_, ordinal_)
+func (this Parser_Config_Mode) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func Parser_Config_Mode_values() []*Parser_Config_Mode {
-	return append([]*Parser_Config_Mode(nil), Parser_Config_Mode_values_...)
+func Parser_Config_Mode_values() []Parser_Config_Mode {
+	return append([]Parser_Config_Mode(nil), Parser_Config_Mode_values_...)
 }
 
-func Parser_Config_Mode_valueOf(name string) *Parser_Config_Mode {
+func Parser_Config_Mode_valueOf(name string) Parser_Config_Mode {
 	for _, v := range Parser_Config_Mode_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("Mode", name))
 }
 
-var Parser_Config_Mode_ES3 *Parser_Config_Mode
-var Parser_Config_Mode_ES5 *Parser_Config_Mode
-var Parser_Config_Mode_ES6_OR_ES7 *Parser_Config_Mode
-var Parser_Config_Mode_ES8_OR_GREATER *Parser_Config_Mode
-var Parser_Config_Mode_values_ []*Parser_Config_Mode
+const Parser_Config_Mode_ES3 Parser_Config_Mode = 1
+const Parser_Config_Mode_ES5 Parser_Config_Mode = 2
+const Parser_Config_Mode_ES6_OR_ES7 Parser_Config_Mode = 3
+const Parser_Config_Mode_ES8_OR_GREATER Parser_Config_Mode = 4
+
+var Parser_Config_Mode_values_ []Parser_Config_Mode
 
 var Parser_Config_Mode_clinit_done bool
 
@@ -2871,11 +2903,7 @@ func Parser_Config_Mode_clinit() {
 		return
 	}
 	Parser_Config_Mode_clinit_done = true
-	Parser_Config_Mode_ES3 = new_Parser_Config_Mode("ES3", 0)
-	Parser_Config_Mode_ES5 = new_Parser_Config_Mode("ES5", 1)
-	Parser_Config_Mode_ES6_OR_ES7 = new_Parser_Config_Mode("ES6_OR_ES7", 2)
-	Parser_Config_Mode_ES8_OR_GREATER = new_Parser_Config_Mode("ES8_OR_GREATER", 3)
-	Parser_Config_Mode_values_ = []*Parser_Config_Mode{Parser_Config_Mode_ES3, Parser_Config_Mode_ES5, Parser_Config_Mode_ES6_OR_ES7, Parser_Config_Mode_ES8_OR_GREATER}
+	Parser_Config_Mode_values_ = []Parser_Config_Mode{Parser_Config_Mode_ES3, Parser_Config_Mode_ES5, Parser_Config_Mode_ES6_OR_ES7, Parser_Config_Mode_ES8_OR_GREATER}
 	registerEnum_("com.google.javascript.jscomp.parsing.parser.Parser.Config.Mode", enumValues_(Parser_Config_Mode_values_))
 
 }
@@ -2901,7 +2929,7 @@ func new_Parser_CommentRecorder(outer_ *Parser) *Parser_CommentRecorder {
 	return this
 }
 
-func (this *Parser_CommentRecorder) recordComment(type_ *Comment_Type, range_ *SourceRange, value string) {
+func (this *Parser_CommentRecorder) recordComment(type_ Comment_Type, range_ *SourceRange, value string) {
 	if (this.lastCommentEndPosition == nil) || (range_.end_.offset > this.lastCommentEndPosition.offset) {
 		value = String_trim(value)
 		if String_startsWith(value, Parser_SOURCE_MAPPING_URL_PREFIX) {
@@ -2916,44 +2944,55 @@ func (this *Parser_CommentRecorder) getComments() ImmutableListOf[*Comment] {
 	return cast_[*ImmutableList](obj_(this.comments.build()))
 }
 
-type Parser_Expression struct {
-	Enum
+type Parser_Expression uint8
+
+// Parser_Expression_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var Parser_Expression_enum_ = [2]Enum{
+	{self_: Parser_Expression_NO_IN, name_: "NO_IN", ordinal_: 0},
+	{self_: Parser_Expression_NORMAL, name_: "NORMAL", ordinal_: 1},
 }
 
-func (this *Parser_Expression) up_Enum() *Enum {
-	if this == nil {
+func (this Parser_Expression) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &Parser_Expression_enum_[this-1]
 }
 
-func (this *Parser_Expression) init_Parser_Expression(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this Parser_Expression) name() string { return Parser_Expression_enum_[this-1].name_ }
+
+func (this Parser_Expression) ordinal() int32 { return Parser_Expression_enum_[this-1].ordinal_ }
+
+func (this Parser_Expression) toString() string { return Parser_Expression_enum_[this-1].name_ }
+
+func (this Parser_Expression) compareTo(o any) int32 {
+	return Parser_Expression_enum_[this-1].compareTo(o)
 }
 
-func new_Parser_Expression(name_ string, ordinal_ int32) *Parser_Expression {
-	this := &Parser_Expression{}
-	this.self_ = this
-	this.init_Parser_Expression(name_, ordinal_)
+func (this Parser_Expression) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func Parser_Expression_values() []*Parser_Expression {
-	return append([]*Parser_Expression(nil), Parser_Expression_values_...)
+func Parser_Expression_values() []Parser_Expression {
+	return append([]Parser_Expression(nil), Parser_Expression_values_...)
 }
 
-func Parser_Expression_valueOf(name string) *Parser_Expression {
+func Parser_Expression_valueOf(name string) Parser_Expression {
 	for _, v := range Parser_Expression_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("Expression", name))
 }
 
-var Parser_Expression_NO_IN *Parser_Expression
-var Parser_Expression_NORMAL *Parser_Expression
-var Parser_Expression_values_ []*Parser_Expression
+const Parser_Expression_NO_IN Parser_Expression = 1
+const Parser_Expression_NORMAL Parser_Expression = 2
+
+var Parser_Expression_values_ []Parser_Expression
 
 var Parser_Expression_clinit_done bool
 
@@ -2962,51 +3001,60 @@ func Parser_Expression_clinit() {
 		return
 	}
 	Parser_Expression_clinit_done = true
-	Parser_Expression_NO_IN = new_Parser_Expression("NO_IN", 0)
-	Parser_Expression_NORMAL = new_Parser_Expression("NORMAL", 1)
-	Parser_Expression_values_ = []*Parser_Expression{Parser_Expression_NO_IN, Parser_Expression_NORMAL}
+	Parser_Expression_values_ = []Parser_Expression{Parser_Expression_NO_IN, Parser_Expression_NORMAL}
 	registerEnum_("com.google.javascript.jscomp.parsing.parser.Parser.Expression", enumValues_(Parser_Expression_values_))
 
 }
 
-type Parser_PatternKind struct {
-	Enum
+type Parser_PatternKind uint8
+
+// Parser_PatternKind_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var Parser_PatternKind_enum_ = [2]Enum{
+	{self_: Parser_PatternKind_INITIALIZER, name_: "INITIALIZER", ordinal_: 0},
+	{self_: Parser_PatternKind_ANY, name_: "ANY", ordinal_: 1},
 }
 
-func (this *Parser_PatternKind) up_Enum() *Enum {
-	if this == nil {
+func (this Parser_PatternKind) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &Parser_PatternKind_enum_[this-1]
 }
 
-func (this *Parser_PatternKind) init_Parser_PatternKind(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this Parser_PatternKind) name() string { return Parser_PatternKind_enum_[this-1].name_ }
+
+func (this Parser_PatternKind) ordinal() int32 { return Parser_PatternKind_enum_[this-1].ordinal_ }
+
+func (this Parser_PatternKind) toString() string { return Parser_PatternKind_enum_[this-1].name_ }
+
+func (this Parser_PatternKind) compareTo(o any) int32 {
+	return Parser_PatternKind_enum_[this-1].compareTo(o)
 }
 
-func new_Parser_PatternKind(name_ string, ordinal_ int32) *Parser_PatternKind {
-	this := &Parser_PatternKind{}
-	this.self_ = this
-	this.init_Parser_PatternKind(name_, ordinal_)
+func (this Parser_PatternKind) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func Parser_PatternKind_values() []*Parser_PatternKind {
-	return append([]*Parser_PatternKind(nil), Parser_PatternKind_values_...)
+func Parser_PatternKind_values() []Parser_PatternKind {
+	return append([]Parser_PatternKind(nil), Parser_PatternKind_values_...)
 }
 
-func Parser_PatternKind_valueOf(name string) *Parser_PatternKind {
+func Parser_PatternKind_valueOf(name string) Parser_PatternKind {
 	for _, v := range Parser_PatternKind_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("PatternKind", name))
 }
 
-var Parser_PatternKind_INITIALIZER *Parser_PatternKind
-var Parser_PatternKind_ANY *Parser_PatternKind
-var Parser_PatternKind_values_ []*Parser_PatternKind
+const Parser_PatternKind_INITIALIZER Parser_PatternKind = 1
+const Parser_PatternKind_ANY Parser_PatternKind = 2
+
+var Parser_PatternKind_values_ []Parser_PatternKind
 
 var Parser_PatternKind_clinit_done bool
 
@@ -3015,9 +3063,7 @@ func Parser_PatternKind_clinit() {
 		return
 	}
 	Parser_PatternKind_clinit_done = true
-	Parser_PatternKind_INITIALIZER = new_Parser_PatternKind("INITIALIZER", 0)
-	Parser_PatternKind_ANY = new_Parser_PatternKind("ANY", 1)
-	Parser_PatternKind_values_ = []*Parser_PatternKind{Parser_PatternKind_INITIALIZER, Parser_PatternKind_ANY}
+	Parser_PatternKind_values_ = []Parser_PatternKind{Parser_PatternKind_INITIALIZER, Parser_PatternKind_ANY}
 	registerEnum_("com.google.javascript.jscomp.parsing.parser.Parser.PatternKind", enumValues_(Parser_PatternKind_values_))
 
 }

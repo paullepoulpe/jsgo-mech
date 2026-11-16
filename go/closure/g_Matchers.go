@@ -137,7 +137,7 @@ func Matchers_getJsType(metadata *NodeMetadata, type_ string) *JSType {
 	return metadata.getCompiler().getTypeRegistry().getGlobalType(type_)
 }
 
-func Matchers_getJsTypeJSTypeNative(metadata *NodeMetadata, nativeType *JSTypeNative) *JSType {
+func Matchers_getJsTypeJSTypeNative(metadata *NodeMetadata, nativeType JSTypeNative) *JSType {
 	return metadata.getCompiler().getTypeRegistry().getNativeType(nativeType)
 }
 

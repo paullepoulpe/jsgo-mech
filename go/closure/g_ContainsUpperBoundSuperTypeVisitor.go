@@ -63,7 +63,7 @@ func (this *ContainsUpperBoundSuperTypeVisitor) caseUnionType_impl(type_ *UnionT
 	it_1 := foreach_(obj_(type_.getAlternates()))
 	for it_1.next() {
 		var alt *JSType = to_JSType(it_1.v)
-		var foundInAlt *ContainsUpperBoundSuperTypeVisitor_Result = cast_[*ContainsUpperBoundSuperTypeVisitor_Result](alt.visit(icast_Visitor(obj_(this))))
+		var foundInAlt ContainsUpperBoundSuperTypeVisitor_Result = cast_[ContainsUpperBoundSuperTypeVisitor_Result](alt.visit(icast_Visitor(obj_(this))))
 		if foundInAlt != ContainsUpperBoundSuperTypeVisitor_Result_ABSENT {
 			return obj_(foundInAlt)
 		}
@@ -71,57 +71,75 @@ func (this *ContainsUpperBoundSuperTypeVisitor) caseUnionType_impl(type_ *UnionT
 	return obj_(ContainsUpperBoundSuperTypeVisitor_Result_ABSENT)
 }
 
-func (this *ContainsUpperBoundSuperTypeVisitor) caseForwardingType(type_ *JSType, reference *JSType) *ContainsUpperBoundSuperTypeVisitor_Result {
+func (this *ContainsUpperBoundSuperTypeVisitor) caseForwardingType(type_ *JSType, reference *JSType) ContainsUpperBoundSuperTypeVisitor_Result {
 	if JSCompObjects_identical(type_.self(), this.target.self()) {
 		return ContainsUpperBoundSuperTypeVisitor_Result_PRESENT
 	} else if this.seen.contains(type_.self()) {
 		return ContainsUpperBoundSuperTypeVisitor_Result_CYCLE
 	} else {
 		this.seen.add(type_.self())
-		return cast_[*ContainsUpperBoundSuperTypeVisitor_Result](reference.visit(icast_Visitor(obj_(this))))
+		return cast_[ContainsUpperBoundSuperTypeVisitor_Result](reference.visit(icast_Visitor(obj_(this))))
 	}
 	panic("unreachable")
 }
 
-type ContainsUpperBoundSuperTypeVisitor_Result struct {
-	Enum
+type ContainsUpperBoundSuperTypeVisitor_Result uint8
+
+// ContainsUpperBoundSuperTypeVisitor_Result_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var ContainsUpperBoundSuperTypeVisitor_Result_enum_ = [3]Enum{
+	{self_: ContainsUpperBoundSuperTypeVisitor_Result_PRESENT, name_: "PRESENT", ordinal_: 0},
+	{self_: ContainsUpperBoundSuperTypeVisitor_Result_ABSENT, name_: "ABSENT", ordinal_: 1},
+	{self_: ContainsUpperBoundSuperTypeVisitor_Result_CYCLE, name_: "CYCLE", ordinal_: 2},
 }
 
-func (this *ContainsUpperBoundSuperTypeVisitor_Result) up_Enum() *Enum {
-	if this == nil {
+func (this ContainsUpperBoundSuperTypeVisitor_Result) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &ContainsUpperBoundSuperTypeVisitor_Result_enum_[this-1]
 }
 
-func (this *ContainsUpperBoundSuperTypeVisitor_Result) init_ContainsUpperBoundSuperTypeVisitor_Result(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this ContainsUpperBoundSuperTypeVisitor_Result) name() string {
+	return ContainsUpperBoundSuperTypeVisitor_Result_enum_[this-1].name_
 }
 
-func new_ContainsUpperBoundSuperTypeVisitor_Result(name_ string, ordinal_ int32) *ContainsUpperBoundSuperTypeVisitor_Result {
-	this := &ContainsUpperBoundSuperTypeVisitor_Result{}
-	this.self_ = this
-	this.init_ContainsUpperBoundSuperTypeVisitor_Result(name_, ordinal_)
+func (this ContainsUpperBoundSuperTypeVisitor_Result) ordinal() int32 {
+	return ContainsUpperBoundSuperTypeVisitor_Result_enum_[this-1].ordinal_
+}
+
+func (this ContainsUpperBoundSuperTypeVisitor_Result) toString() string {
+	return ContainsUpperBoundSuperTypeVisitor_Result_enum_[this-1].name_
+}
+
+func (this ContainsUpperBoundSuperTypeVisitor_Result) compareTo(o any) int32 {
+	return ContainsUpperBoundSuperTypeVisitor_Result_enum_[this-1].compareTo(o)
+}
+
+func (this ContainsUpperBoundSuperTypeVisitor_Result) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func ContainsUpperBoundSuperTypeVisitor_Result_values() []*ContainsUpperBoundSuperTypeVisitor_Result {
-	return append([]*ContainsUpperBoundSuperTypeVisitor_Result(nil), ContainsUpperBoundSuperTypeVisitor_Result_values_...)
+func ContainsUpperBoundSuperTypeVisitor_Result_values() []ContainsUpperBoundSuperTypeVisitor_Result {
+	return append([]ContainsUpperBoundSuperTypeVisitor_Result(nil), ContainsUpperBoundSuperTypeVisitor_Result_values_...)
 }
 
-func ContainsUpperBoundSuperTypeVisitor_Result_valueOf(name string) *ContainsUpperBoundSuperTypeVisitor_Result {
+func ContainsUpperBoundSuperTypeVisitor_Result_valueOf(name string) ContainsUpperBoundSuperTypeVisitor_Result {
 	for _, v := range ContainsUpperBoundSuperTypeVisitor_Result_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("Result", name))
 }
 
-var ContainsUpperBoundSuperTypeVisitor_Result_PRESENT *ContainsUpperBoundSuperTypeVisitor_Result
-var ContainsUpperBoundSuperTypeVisitor_Result_ABSENT *ContainsUpperBoundSuperTypeVisitor_Result
-var ContainsUpperBoundSuperTypeVisitor_Result_CYCLE *ContainsUpperBoundSuperTypeVisitor_Result
-var ContainsUpperBoundSuperTypeVisitor_Result_values_ []*ContainsUpperBoundSuperTypeVisitor_Result
+const ContainsUpperBoundSuperTypeVisitor_Result_PRESENT ContainsUpperBoundSuperTypeVisitor_Result = 1
+const ContainsUpperBoundSuperTypeVisitor_Result_ABSENT ContainsUpperBoundSuperTypeVisitor_Result = 2
+const ContainsUpperBoundSuperTypeVisitor_Result_CYCLE ContainsUpperBoundSuperTypeVisitor_Result = 3
+
+var ContainsUpperBoundSuperTypeVisitor_Result_values_ []ContainsUpperBoundSuperTypeVisitor_Result
 
 var ContainsUpperBoundSuperTypeVisitor_Result_clinit_done bool
 
@@ -130,10 +148,7 @@ func ContainsUpperBoundSuperTypeVisitor_Result_clinit() {
 		return
 	}
 	ContainsUpperBoundSuperTypeVisitor_Result_clinit_done = true
-	ContainsUpperBoundSuperTypeVisitor_Result_PRESENT = new_ContainsUpperBoundSuperTypeVisitor_Result("PRESENT", 0)
-	ContainsUpperBoundSuperTypeVisitor_Result_ABSENT = new_ContainsUpperBoundSuperTypeVisitor_Result("ABSENT", 1)
-	ContainsUpperBoundSuperTypeVisitor_Result_CYCLE = new_ContainsUpperBoundSuperTypeVisitor_Result("CYCLE", 2)
-	ContainsUpperBoundSuperTypeVisitor_Result_values_ = []*ContainsUpperBoundSuperTypeVisitor_Result{ContainsUpperBoundSuperTypeVisitor_Result_PRESENT, ContainsUpperBoundSuperTypeVisitor_Result_ABSENT, ContainsUpperBoundSuperTypeVisitor_Result_CYCLE}
+	ContainsUpperBoundSuperTypeVisitor_Result_values_ = []ContainsUpperBoundSuperTypeVisitor_Result{ContainsUpperBoundSuperTypeVisitor_Result_PRESENT, ContainsUpperBoundSuperTypeVisitor_Result_ABSENT, ContainsUpperBoundSuperTypeVisitor_Result_CYCLE}
 	registerEnum_("com.google.javascript.rhino.jstype.ContainsUpperBoundSuperTypeVisitor.Result", enumValues_(ContainsUpperBoundSuperTypeVisitor_Result_values_))
 
 }

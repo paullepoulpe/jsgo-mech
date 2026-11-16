@@ -427,7 +427,7 @@ func RewriteAsyncIteration_clinit() {
 		return
 	}
 	RewriteAsyncIteration_clinit_done = true
-	RewriteAsyncIteration_transpiledFeatures = FeatureSet_BARE_MINIMUM.withFeatureVarargs([]*FeatureSet_Feature{FeatureSet_Feature_ASYNC_GENERATORS, FeatureSet_Feature_FOR_AWAIT_OF})
+	RewriteAsyncIteration_transpiledFeatures = FeatureSet_BARE_MINIMUM.withFeatureVarargs([]FeatureSet_Feature{FeatureSet_Feature_ASYNC_GENERATORS, FeatureSet_Feature_FOR_AWAIT_OF})
 	RewriteAsyncIteration_CANNOT_CONVERT_ASYNCGEN = DiagnosticType_error("JSC_CANNOT_CONVERT_ASYNCGEN", "Cannot convert async generator. {0}")
 
 }

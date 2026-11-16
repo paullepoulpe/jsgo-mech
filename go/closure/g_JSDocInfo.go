@@ -33,8 +33,8 @@ func new_JSDocInfo(bits int64, props TreeMapOf[*JSDocInfo_Property, any]) *JSDoc
 	return this
 }
 
-func (this *JSDocInfo) checkBit(bit *JSDocInfo_Bit) bool {
-	return ((this.propertyBits & bit.mask) != 0)
+func (this *JSDocInfo) checkBit(bit JSDocInfo_Bit) bool {
+	return ((this.propertyBits & JSDocInfo_Bit_mask_[bit-1]) != 0)
 }
 
 func (this *JSDocInfo) asMap() TreeMapOf[*JSDocInfo_Property, any] {
@@ -60,7 +60,7 @@ func (this *JSDocInfo) toBuilder() *JSDocInfo_Builder {
 
 func (this *JSDocInfo) toBuilder_1(transform JSDocInfo_TypeTransform) *JSDocInfo_Builder {
 	var builder *JSDocInfo_Builder = new_JSDocInfo_Builder()
-	builder.bits = (this.propertyBits & (^JSDocInfo_Bit_INLINE_TYPE.mask))
+	builder.bits = (this.propertyBits & (^JSDocInfo_Bit_mask_[JSDocInfo_Bit_INLINE_TYPE-1]))
 	builder.props = this.asMap()
 	builder.populated = true
 	it_1 := foreach_(any(builder.props.entrySet()))
@@ -127,27 +127,27 @@ func (this *JSDocInfo) isAnyIdGenerator() bool {
 }
 
 func (this *JSDocInfo) isConsistentIdGenerator() bool {
-	return (cast_[*JSDocInfo_IdGenerator](JSDocInfo_ID_GENERATOR.get(this)) == JSDocInfo_IdGenerator_CONSISTENT)
+	return (cast_[JSDocInfo_IdGenerator](JSDocInfo_ID_GENERATOR.get(this)) == JSDocInfo_IdGenerator_CONSISTENT)
 }
 
 func (this *JSDocInfo) isStableIdGenerator() bool {
-	return (cast_[*JSDocInfo_IdGenerator](JSDocInfo_ID_GENERATOR.get(this)) == JSDocInfo_IdGenerator_STABLE)
+	return (cast_[JSDocInfo_IdGenerator](JSDocInfo_ID_GENERATOR.get(this)) == JSDocInfo_IdGenerator_STABLE)
 }
 
 func (this *JSDocInfo) isXidGenerator() bool {
-	return (cast_[*JSDocInfo_IdGenerator](JSDocInfo_ID_GENERATOR.get(this)) == JSDocInfo_IdGenerator_XID)
+	return (cast_[JSDocInfo_IdGenerator](JSDocInfo_ID_GENERATOR.get(this)) == JSDocInfo_IdGenerator_XID)
 }
 
 func (this *JSDocInfo) isMappedIdGenerator() bool {
-	return (cast_[*JSDocInfo_IdGenerator](JSDocInfo_ID_GENERATOR.get(this)) == JSDocInfo_IdGenerator_MAPPED)
+	return (cast_[JSDocInfo_IdGenerator](JSDocInfo_ID_GENERATOR.get(this)) == JSDocInfo_IdGenerator_MAPPED)
 }
 
 func (this *JSDocInfo) isIdGenerator() bool {
-	return (cast_[*JSDocInfo_IdGenerator](JSDocInfo_ID_GENERATOR.get(this)) == JSDocInfo_IdGenerator_UNIQUE)
+	return (cast_[JSDocInfo_IdGenerator](JSDocInfo_ID_GENERATOR.get(this)) == JSDocInfo_IdGenerator_UNIQUE)
 }
 
 func (this *JSDocInfo) isConstant() bool {
-	return (((this.propertyBits & ((JSDocInfo_Bit_CONST.mask | JSDocInfo_Bit_DEFINE.mask) | JSDocInfo_Bit_FINAL.mask)) != 0) || ((this.propertyKeysBitset & JSDocInfo_DESCRIPTION.mask) != 0))
+	return (((this.propertyBits & ((JSDocInfo_Bit_mask_[JSDocInfo_Bit_CONST-1] | JSDocInfo_Bit_mask_[JSDocInfo_Bit_DEFINE-1]) | JSDocInfo_Bit_mask_[JSDocInfo_Bit_FINAL-1])) != 0) || ((this.propertyKeysBitset & JSDocInfo_DESCRIPTION.mask) != 0))
 }
 
 func (this *JSDocInfo) hasConstAnnotation() bool {
@@ -195,11 +195,11 @@ func (this *JSDocInfo) isDeprecated() bool {
 }
 
 func (this *JSDocInfo) isInterface() bool {
-	return ((this.propertyBits & (JSDocInfo_Bit_INTERFACE.mask | JSDocInfo_Bit_RECORD.mask)) != 0)
+	return ((this.propertyBits & (JSDocInfo_Bit_mask_[JSDocInfo_Bit_INTERFACE-1] | JSDocInfo_Bit_mask_[JSDocInfo_Bit_RECORD-1])) != 0)
 }
 
 func (this *JSDocInfo) isConstructorOrInterface() bool {
-	return ((this.propertyBits & ((JSDocInfo_Bit_CONSTRUCTOR.mask | JSDocInfo_Bit_INTERFACE.mask) | JSDocInfo_Bit_RECORD.mask)) != 0)
+	return ((this.propertyBits & ((JSDocInfo_Bit_mask_[JSDocInfo_Bit_CONSTRUCTOR-1] | JSDocInfo_Bit_mask_[JSDocInfo_Bit_INTERFACE-1]) | JSDocInfo_Bit_mask_[JSDocInfo_Bit_RECORD-1])) != 0)
 }
 
 func (this *JSDocInfo) isExport() bool {
@@ -271,7 +271,7 @@ func (this *JSDocInfo) isProvideAlreadyProvided() bool {
 }
 
 func (this *JSDocInfo) containsDeclarationExcludingTypelessConst() bool {
-	return (((this.propertyBits & ((((((((JSDocInfo_Bit_CONSTRUCTOR.mask | JSDocInfo_Bit_DEFINE.mask) | JSDocInfo_Bit_OVERRIDE.mask) | JSDocInfo_Bit_EXPORT.mask) | JSDocInfo_Bit_DEPRECATED.mask) | JSDocInfo_Bit_INTERFACE.mask) | JSDocInfo_Bit_IMPLICITCAST.mask) | JSDocInfo_Bit_NOSIDEEFFECTS.mask) | JSDocInfo_Bit_RECORD.mask)) != 0) || ((this.propertyKeysBitset & ((((((((JSDocInfo_TYPE.mask | JSDocInfo_RETURN_TYPE.mask) | JSDocInfo_ENUM_PARAMETER_TYPE.mask) | JSDocInfo_TYPEDEF_TYPE.mask) | JSDocInfo_THIS_TYPE.mask) | JSDocInfo_PARAMETERS.mask) | JSDocInfo_IMPLEMENTED_INTERFACES.mask) | JSDocInfo_BASE_TYPE.mask) | JSDocInfo_VISIBILITY.mask)) != 0))
+	return (((this.propertyBits & ((((((((JSDocInfo_Bit_mask_[JSDocInfo_Bit_CONSTRUCTOR-1] | JSDocInfo_Bit_mask_[JSDocInfo_Bit_DEFINE-1]) | JSDocInfo_Bit_mask_[JSDocInfo_Bit_OVERRIDE-1]) | JSDocInfo_Bit_mask_[JSDocInfo_Bit_EXPORT-1]) | JSDocInfo_Bit_mask_[JSDocInfo_Bit_DEPRECATED-1]) | JSDocInfo_Bit_mask_[JSDocInfo_Bit_INTERFACE-1]) | JSDocInfo_Bit_mask_[JSDocInfo_Bit_IMPLICITCAST-1]) | JSDocInfo_Bit_mask_[JSDocInfo_Bit_NOSIDEEFFECTS-1]) | JSDocInfo_Bit_mask_[JSDocInfo_Bit_RECORD-1])) != 0) || ((this.propertyKeysBitset & ((((((((JSDocInfo_TYPE.mask | JSDocInfo_RETURN_TYPE.mask) | JSDocInfo_ENUM_PARAMETER_TYPE.mask) | JSDocInfo_TYPEDEF_TYPE.mask) | JSDocInfo_THIS_TYPE.mask) | JSDocInfo_PARAMETERS.mask) | JSDocInfo_IMPLEMENTED_INTERFACES.mask) | JSDocInfo_BASE_TYPE.mask) | JSDocInfo_VISIBILITY.mask)) != 0))
 }
 
 func (this *JSDocInfo) containsTypeDeclaration() bool {
@@ -294,7 +294,7 @@ func (this *JSDocInfo) containsFunctionDeclaration() bool {
 }
 
 func (this *JSDocInfo) containsTypeDefinition() bool {
-	return (((this.propertyBits & (JSDocInfo_Bit_CONSTRUCTOR.mask | JSDocInfo_Bit_INTERFACE.mask)) != 0) || ((this.propertyKeysBitset & (JSDocInfo_ENUM_PARAMETER_TYPE.mask | JSDocInfo_TYPEDEF_TYPE.mask)) != 0))
+	return (((this.propertyBits & (JSDocInfo_Bit_mask_[JSDocInfo_Bit_CONSTRUCTOR-1] | JSDocInfo_Bit_mask_[JSDocInfo_Bit_INTERFACE-1])) != 0) || ((this.propertyKeysBitset & (JSDocInfo_ENUM_PARAMETER_TYPE.mask | JSDocInfo_TYPEDEF_TYPE.mask)) != 0))
 }
 
 func (this *JSDocInfo) isAtSignCodePresent() bool {
@@ -307,10 +307,10 @@ func (this *JSDocInfo) isAtSignCodePresent() bool {
 	}()
 }
 
-func (this *JSDocInfo) getVisibility() *JSDocInfo_Visibility {
-	var visibility *JSDocInfo_Visibility = cast_[*JSDocInfo_Visibility](JSDocInfo_VISIBILITY.get(this))
-	return func() *JSDocInfo_Visibility {
-		if visibility != nil {
+func (this *JSDocInfo) getVisibility() JSDocInfo_Visibility {
+	var visibility JSDocInfo_Visibility = cast_[JSDocInfo_Visibility](JSDocInfo_VISIBILITY.get(this))
+	return func() JSDocInfo_Visibility {
+		if visibility != 0 {
 			return visibility
 		}
 		return JSDocInfo_Visibility_INHERITED
@@ -506,11 +506,11 @@ func (this *JSDocInfo) isSassGeneratedCssTs() bool {
 }
 
 func (this *JSDocInfo) isClosureUnawareCode() bool {
-	return (cast_[*JSDocInfo_PerFileClosureUnawareMode](JSDocInfo_CLOSURE_UNAWARE_CONFIG_VALUE.get(this)) != nil)
+	return (cast_[JSDocInfo_PerFileClosureUnawareMode](JSDocInfo_CLOSURE_UNAWARE_CONFIG_VALUE.get(this)) != 0)
 }
 
-func (this *JSDocInfo) getPerFileClosureUnawareMode() *JSDocInfo_PerFileClosureUnawareMode {
-	return cast_[*JSDocInfo_PerFileClosureUnawareMode](JSDocInfo_CLOSURE_UNAWARE_CONFIG_VALUE.get(this))
+func (this *JSDocInfo) getPerFileClosureUnawareMode() JSDocInfo_PerFileClosureUnawareMode {
+	return cast_[JSDocInfo_PerFileClosureUnawareMode](JSDocInfo_CLOSURE_UNAWARE_CONFIG_VALUE.get(this))
 }
 
 func (this *JSDocInfo) isUsedViaDotConstructor() bool {
@@ -534,7 +534,7 @@ func (this *JSDocInfo) toStringVerbose() string {
 	}())
 	for _, b := range JSDocInfo_Bit_values() {
 		if this.checkBit(b) {
-			helper.add_String_boolean(("bit:" + sstr_(b.nameField)), true)
+			helper.add_String_boolean(("bit:" + sstr_(JSDocInfo_Bit_nameField_[b-1])), true)
 		}
 	}
 	var bits int64 = this.propertyKeysBitset
@@ -905,7 +905,7 @@ func JSDocInfo_clinit() {
 	JSDocInfo_CLOSURE_UNAWARE_CONFIG_VALUE = new_JSDocInfo_Property("perFileClosureUnawareMode")
 	JSDocInfo_AUTHORS = new_JSDocInfo_Property("authors")
 	JSDocInfo_SEES = new_JSDocInfo_Property("sees")
-	JSDocInfo_EQUIVALENCE_IGNORED_BITS = (JSDocInfo_Bit_INCLUDE_DOCUMENTATION.mask | JSDocInfo_Bit_INLINE_TYPE.mask)
+	JSDocInfo_EQUIVALENCE_IGNORED_BITS = (JSDocInfo_Bit_mask_[JSDocInfo_Bit_INCLUDE_DOCUMENTATION-1] | JSDocInfo_Bit_mask_[JSDocInfo_Bit_INLINE_TYPE-1])
 
 }
 
@@ -1327,100 +1327,157 @@ func (this *JSDocInfo_NodeMapProperty) equalValues_impl(left_ any, right_ any) b
 	return true
 }
 
-type JSDocInfo_Bit struct {
-	Enum
-	nameField string
-	mask      int64
+type JSDocInfo_Bit uint8
+
+// JSDocInfo_Bit_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var JSDocInfo_Bit_enum_ = [46]Enum{
+	{self_: JSDocInfo_Bit_INLINE_TYPE, name_: "INLINE_TYPE", ordinal_: 0},
+	{self_: JSDocInfo_Bit_INCLUDE_DOCUMENTATION, name_: "INCLUDE_DOCUMENTATION", ordinal_: 1},
+	{self_: JSDocInfo_Bit_CONST, name_: "CONST", ordinal_: 2},
+	{self_: JSDocInfo_Bit_CONSTRUCTOR, name_: "CONSTRUCTOR", ordinal_: 3},
+	{self_: JSDocInfo_Bit_DEFINE, name_: "DEFINE", ordinal_: 4},
+	{self_: JSDocInfo_Bit_TYPE_SUMMARY, name_: "TYPE_SUMMARY", ordinal_: 5},
+	{self_: JSDocInfo_Bit_FINAL, name_: "FINAL", ordinal_: 6},
+	{self_: JSDocInfo_Bit_OVERRIDE, name_: "OVERRIDE", ordinal_: 7},
+	{self_: JSDocInfo_Bit_DEPRECATED, name_: "DEPRECATED", ordinal_: 8},
+	{self_: JSDocInfo_Bit_INTERFACE, name_: "INTERFACE", ordinal_: 9},
+	{self_: JSDocInfo_Bit_EXPORT, name_: "EXPORT", ordinal_: 10},
+	{self_: JSDocInfo_Bit_ENHANCED_NAMESPACE, name_: "ENHANCED_NAMESPACE", ordinal_: 11},
+	{self_: JSDocInfo_Bit_NOINLINE, name_: "NOINLINE", ordinal_: 12},
+	{self_: JSDocInfo_Bit_FILEOVERVIEW, name_: "FILEOVERVIEW", ordinal_: 13},
+	{self_: JSDocInfo_Bit_IMPLICITCAST, name_: "IMPLICITCAST", ordinal_: 14},
+	{self_: JSDocInfo_Bit_NOSIDEEFFECTS, name_: "NOSIDEEFFECTS", ordinal_: 15},
+	{self_: JSDocInfo_Bit_EXTERNS, name_: "EXTERNS", ordinal_: 16},
+	{self_: JSDocInfo_Bit_NOCOMPILE, name_: "NOCOMPILE", ordinal_: 17},
+	{self_: JSDocInfo_Bit_NODTS, name_: "NODTS", ordinal_: 18},
+	{self_: JSDocInfo_Bit_UNRESTRICTED, name_: "UNRESTRICTED", ordinal_: 19},
+	{self_: JSDocInfo_Bit_USED_VIA_DOT_CONSTRUCTOR, name_: "USED_VIA_DOT_CONSTRUCTOR", ordinal_: 20},
+	{self_: JSDocInfo_Bit_STRUCT, name_: "STRUCT", ordinal_: 21},
+	{self_: JSDocInfo_Bit_DICT, name_: "DICT", ordinal_: 22},
+	{self_: JSDocInfo_Bit_NOCOLLAPSE, name_: "NOCOLLAPSE", ordinal_: 23},
+	{self_: JSDocInfo_Bit_RECORD, name_: "RECORD", ordinal_: 24},
+	{self_: JSDocInfo_Bit_ABSTRACT, name_: "ABSTRACT", ordinal_: 25},
+	{self_: JSDocInfo_Bit_PURE_OR_BREAK_MY_CODE, name_: "PURE_OR_BREAK_MY_CODE", ordinal_: 26},
+	{self_: JSDocInfo_Bit_COLLAPSIBLE_OR_BREAK_MY_CODE, name_: "COLLAPSIBLE_OR_BREAK_MY_CODE", ordinal_: 27},
+	{self_: JSDocInfo_Bit_NOCOVERAGE, name_: "NOCOVERAGE", ordinal_: 28},
+	{self_: JSDocInfo_Bit_REQUIRE_INLINING, name_: "REQUIRE_INLINING", ordinal_: 29},
+	{self_: JSDocInfo_Bit_ENCOURAGE_INLINING, name_: "ENCOURAGE_INLINING", ordinal_: 30},
+	{self_: JSDocInfo_Bit_NG_INJECT, name_: "NG_INJECT", ordinal_: 31},
+	{self_: JSDocInfo_Bit_WIZ_ACTION, name_: "WIZ_ACTION", ordinal_: 32},
+	{self_: JSDocInfo_Bit_POLYMER_BEHAVIOR, name_: "POLYMER_BEHAVIOR", ordinal_: 33},
+	{self_: JSDocInfo_Bit_POLYMER, name_: "POLYMER", ordinal_: 34},
+	{self_: JSDocInfo_Bit_CUSTOM_ELEMENT, name_: "CUSTOM_ELEMENT", ordinal_: 35},
+	{self_: JSDocInfo_Bit_MIXIN_CLASS, name_: "MIXIN_CLASS", ordinal_: 36},
+	{self_: JSDocInfo_Bit_MIXIN_FUNCTION, name_: "MIXIN_FUNCTION", ordinal_: 37},
+	{self_: JSDocInfo_Bit_SASS_GENERATED_CSS_TS, name_: "SASS_GENERATED_CSS_TS", ordinal_: 38},
+	{self_: JSDocInfo_Bit_CLOSURE_UNAWARE_CODE, name_: "CLOSURE_UNAWARE_CODE", ordinal_: 39},
+	{self_: JSDocInfo_Bit_PROVIDE_GOOG, name_: "PROVIDE_GOOG", ordinal_: 40},
+	{self_: JSDocInfo_Bit_PROVIDE_ALREADY_PROVIDED, name_: "PROVIDE_ALREADY_PROVIDED", ordinal_: 41},
+	{self_: JSDocInfo_Bit_WIZ_CALLBACK, name_: "WIZ_CALLBACK", ordinal_: 42},
+	{self_: JSDocInfo_Bit_LOG_TYPE_IN_COMPILER, name_: "LOG_TYPE_IN_COMPILER", ordinal_: 43},
+	{self_: JSDocInfo_Bit_CLOSURE_UNAWARE_CONFIG, name_: "CLOSURE_UNAWARE_CONFIG", ordinal_: 44},
+	{self_: JSDocInfo_Bit_LEGACY_NAMED_TS_EXPORT, name_: "LEGACY_NAMED_TS_EXPORT", ordinal_: 45},
 }
 
-func (this *JSDocInfo_Bit) up_Enum() *Enum {
-	if this == nil {
+var JSDocInfo_Bit_nameField_ [46]string
+
+var JSDocInfo_Bit_mask_ [46]int64
+
+func (this JSDocInfo_Bit) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &JSDocInfo_Bit_enum_[this-1]
 }
 
-func (this *JSDocInfo_Bit) zero_JSDocInfo_Bit() {
-	this.nameField = nullstr_
-}
+func (this JSDocInfo_Bit) name() string { return JSDocInfo_Bit_enum_[this-1].name_ }
 
-func (this *JSDocInfo_Bit) init_JSDocInfo_Bit(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
-	if this.ordinal() > 63 {
-		panic(new_AssertionError_Object(strobj_("Too many Bits")).self())
+func (this JSDocInfo_Bit) ordinal() int32 { return JSDocInfo_Bit_enum_[this-1].ordinal_ }
+
+func (this JSDocInfo_Bit) toString() string { return JSDocInfo_Bit_enum_[this-1].name_ }
+
+func (this JSDocInfo_Bit) compareTo(o any) int32 { return JSDocInfo_Bit_enum_[this-1].compareTo(o) }
+
+func (this JSDocInfo_Bit) self() any {
+	if this == 0 {
+		return nil
 	}
-	this.nameField = CaseFormat_UPPER_UNDERSCORE.to(CaseFormat_LOWER_CAMEL, this.name())
-	this.mask = (int64(1) << (uint32(this.ordinal()) & 63))
-}
-
-func new_JSDocInfo_Bit(name_ string, ordinal_ int32) *JSDocInfo_Bit {
-	this := &JSDocInfo_Bit{}
-	this.self_ = this
-	this.zero_JSDocInfo_Bit()
-	this.init_JSDocInfo_Bit(name_, ordinal_)
 	return this
 }
 
-func JSDocInfo_Bit_values() []*JSDocInfo_Bit {
-	return append([]*JSDocInfo_Bit(nil), JSDocInfo_Bit_values_...)
+func (this JSDocInfo_Bit) zero_JSDocInfo_Bit() {
+	JSDocInfo_Bit_nameField_[this-1] = nullstr_
 }
 
-func JSDocInfo_Bit_valueOf(name string) *JSDocInfo_Bit {
+func (this JSDocInfo_Bit) init_JSDocInfo_Bit() {
+	if this.ordinal() > 63 {
+		panic(new_AssertionError_Object(strobj_("Too many Bits")).self())
+	}
+	JSDocInfo_Bit_nameField_[this-1] = CaseFormat_UPPER_UNDERSCORE.to(CaseFormat_LOWER_CAMEL, this.name())
+	JSDocInfo_Bit_mask_[this-1] = (int64(1) << (uint32(this.ordinal()) & 63))
+}
+
+func JSDocInfo_Bit_values() []JSDocInfo_Bit {
+	return append([]JSDocInfo_Bit(nil), JSDocInfo_Bit_values_...)
+}
+
+func JSDocInfo_Bit_valueOf(name string) JSDocInfo_Bit {
 	for _, v := range JSDocInfo_Bit_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("Bit", name))
 }
 
-var JSDocInfo_Bit_INLINE_TYPE *JSDocInfo_Bit
-var JSDocInfo_Bit_INCLUDE_DOCUMENTATION *JSDocInfo_Bit
-var JSDocInfo_Bit_CONST *JSDocInfo_Bit
-var JSDocInfo_Bit_CONSTRUCTOR *JSDocInfo_Bit
-var JSDocInfo_Bit_DEFINE *JSDocInfo_Bit
-var JSDocInfo_Bit_TYPE_SUMMARY *JSDocInfo_Bit
-var JSDocInfo_Bit_FINAL *JSDocInfo_Bit
-var JSDocInfo_Bit_OVERRIDE *JSDocInfo_Bit
-var JSDocInfo_Bit_DEPRECATED *JSDocInfo_Bit
-var JSDocInfo_Bit_INTERFACE *JSDocInfo_Bit
-var JSDocInfo_Bit_EXPORT *JSDocInfo_Bit
-var JSDocInfo_Bit_ENHANCED_NAMESPACE *JSDocInfo_Bit
-var JSDocInfo_Bit_NOINLINE *JSDocInfo_Bit
-var JSDocInfo_Bit_FILEOVERVIEW *JSDocInfo_Bit
-var JSDocInfo_Bit_IMPLICITCAST *JSDocInfo_Bit
-var JSDocInfo_Bit_NOSIDEEFFECTS *JSDocInfo_Bit
-var JSDocInfo_Bit_EXTERNS *JSDocInfo_Bit
-var JSDocInfo_Bit_NOCOMPILE *JSDocInfo_Bit
-var JSDocInfo_Bit_NODTS *JSDocInfo_Bit
-var JSDocInfo_Bit_UNRESTRICTED *JSDocInfo_Bit
-var JSDocInfo_Bit_USED_VIA_DOT_CONSTRUCTOR *JSDocInfo_Bit
-var JSDocInfo_Bit_STRUCT *JSDocInfo_Bit
-var JSDocInfo_Bit_DICT *JSDocInfo_Bit
-var JSDocInfo_Bit_NOCOLLAPSE *JSDocInfo_Bit
-var JSDocInfo_Bit_RECORD *JSDocInfo_Bit
-var JSDocInfo_Bit_ABSTRACT *JSDocInfo_Bit
-var JSDocInfo_Bit_PURE_OR_BREAK_MY_CODE *JSDocInfo_Bit
-var JSDocInfo_Bit_COLLAPSIBLE_OR_BREAK_MY_CODE *JSDocInfo_Bit
-var JSDocInfo_Bit_NOCOVERAGE *JSDocInfo_Bit
-var JSDocInfo_Bit_REQUIRE_INLINING *JSDocInfo_Bit
-var JSDocInfo_Bit_ENCOURAGE_INLINING *JSDocInfo_Bit
-var JSDocInfo_Bit_NG_INJECT *JSDocInfo_Bit
-var JSDocInfo_Bit_WIZ_ACTION *JSDocInfo_Bit
-var JSDocInfo_Bit_POLYMER_BEHAVIOR *JSDocInfo_Bit
-var JSDocInfo_Bit_POLYMER *JSDocInfo_Bit
-var JSDocInfo_Bit_CUSTOM_ELEMENT *JSDocInfo_Bit
-var JSDocInfo_Bit_MIXIN_CLASS *JSDocInfo_Bit
-var JSDocInfo_Bit_MIXIN_FUNCTION *JSDocInfo_Bit
-var JSDocInfo_Bit_SASS_GENERATED_CSS_TS *JSDocInfo_Bit
-var JSDocInfo_Bit_CLOSURE_UNAWARE_CODE *JSDocInfo_Bit
-var JSDocInfo_Bit_PROVIDE_GOOG *JSDocInfo_Bit
-var JSDocInfo_Bit_PROVIDE_ALREADY_PROVIDED *JSDocInfo_Bit
-var JSDocInfo_Bit_WIZ_CALLBACK *JSDocInfo_Bit
-var JSDocInfo_Bit_LOG_TYPE_IN_COMPILER *JSDocInfo_Bit
-var JSDocInfo_Bit_CLOSURE_UNAWARE_CONFIG *JSDocInfo_Bit
-var JSDocInfo_Bit_LEGACY_NAMED_TS_EXPORT *JSDocInfo_Bit
-var JSDocInfo_Bit_values_ []*JSDocInfo_Bit
+const JSDocInfo_Bit_INLINE_TYPE JSDocInfo_Bit = 1
+const JSDocInfo_Bit_INCLUDE_DOCUMENTATION JSDocInfo_Bit = 2
+const JSDocInfo_Bit_CONST JSDocInfo_Bit = 3
+const JSDocInfo_Bit_CONSTRUCTOR JSDocInfo_Bit = 4
+const JSDocInfo_Bit_DEFINE JSDocInfo_Bit = 5
+const JSDocInfo_Bit_TYPE_SUMMARY JSDocInfo_Bit = 6
+const JSDocInfo_Bit_FINAL JSDocInfo_Bit = 7
+const JSDocInfo_Bit_OVERRIDE JSDocInfo_Bit = 8
+const JSDocInfo_Bit_DEPRECATED JSDocInfo_Bit = 9
+const JSDocInfo_Bit_INTERFACE JSDocInfo_Bit = 10
+const JSDocInfo_Bit_EXPORT JSDocInfo_Bit = 11
+const JSDocInfo_Bit_ENHANCED_NAMESPACE JSDocInfo_Bit = 12
+const JSDocInfo_Bit_NOINLINE JSDocInfo_Bit = 13
+const JSDocInfo_Bit_FILEOVERVIEW JSDocInfo_Bit = 14
+const JSDocInfo_Bit_IMPLICITCAST JSDocInfo_Bit = 15
+const JSDocInfo_Bit_NOSIDEEFFECTS JSDocInfo_Bit = 16
+const JSDocInfo_Bit_EXTERNS JSDocInfo_Bit = 17
+const JSDocInfo_Bit_NOCOMPILE JSDocInfo_Bit = 18
+const JSDocInfo_Bit_NODTS JSDocInfo_Bit = 19
+const JSDocInfo_Bit_UNRESTRICTED JSDocInfo_Bit = 20
+const JSDocInfo_Bit_USED_VIA_DOT_CONSTRUCTOR JSDocInfo_Bit = 21
+const JSDocInfo_Bit_STRUCT JSDocInfo_Bit = 22
+const JSDocInfo_Bit_DICT JSDocInfo_Bit = 23
+const JSDocInfo_Bit_NOCOLLAPSE JSDocInfo_Bit = 24
+const JSDocInfo_Bit_RECORD JSDocInfo_Bit = 25
+const JSDocInfo_Bit_ABSTRACT JSDocInfo_Bit = 26
+const JSDocInfo_Bit_PURE_OR_BREAK_MY_CODE JSDocInfo_Bit = 27
+const JSDocInfo_Bit_COLLAPSIBLE_OR_BREAK_MY_CODE JSDocInfo_Bit = 28
+const JSDocInfo_Bit_NOCOVERAGE JSDocInfo_Bit = 29
+const JSDocInfo_Bit_REQUIRE_INLINING JSDocInfo_Bit = 30
+const JSDocInfo_Bit_ENCOURAGE_INLINING JSDocInfo_Bit = 31
+const JSDocInfo_Bit_NG_INJECT JSDocInfo_Bit = 32
+const JSDocInfo_Bit_WIZ_ACTION JSDocInfo_Bit = 33
+const JSDocInfo_Bit_POLYMER_BEHAVIOR JSDocInfo_Bit = 34
+const JSDocInfo_Bit_POLYMER JSDocInfo_Bit = 35
+const JSDocInfo_Bit_CUSTOM_ELEMENT JSDocInfo_Bit = 36
+const JSDocInfo_Bit_MIXIN_CLASS JSDocInfo_Bit = 37
+const JSDocInfo_Bit_MIXIN_FUNCTION JSDocInfo_Bit = 38
+const JSDocInfo_Bit_SASS_GENERATED_CSS_TS JSDocInfo_Bit = 39
+const JSDocInfo_Bit_CLOSURE_UNAWARE_CODE JSDocInfo_Bit = 40
+const JSDocInfo_Bit_PROVIDE_GOOG JSDocInfo_Bit = 41
+const JSDocInfo_Bit_PROVIDE_ALREADY_PROVIDED JSDocInfo_Bit = 42
+const JSDocInfo_Bit_WIZ_CALLBACK JSDocInfo_Bit = 43
+const JSDocInfo_Bit_LOG_TYPE_IN_COMPILER JSDocInfo_Bit = 44
+const JSDocInfo_Bit_CLOSURE_UNAWARE_CONFIG JSDocInfo_Bit = 45
+const JSDocInfo_Bit_LEGACY_NAMED_TS_EXPORT JSDocInfo_Bit = 46
+
+var JSDocInfo_Bit_values_ []JSDocInfo_Bit
 
 var JSDocInfo_Bit_clinit_done bool
 
@@ -1429,53 +1486,99 @@ func JSDocInfo_Bit_clinit() {
 		return
 	}
 	JSDocInfo_Bit_clinit_done = true
-	JSDocInfo_Bit_INLINE_TYPE = new_JSDocInfo_Bit("INLINE_TYPE", 0)
-	JSDocInfo_Bit_INCLUDE_DOCUMENTATION = new_JSDocInfo_Bit("INCLUDE_DOCUMENTATION", 1)
-	JSDocInfo_Bit_CONST = new_JSDocInfo_Bit("CONST", 2)
-	JSDocInfo_Bit_CONSTRUCTOR = new_JSDocInfo_Bit("CONSTRUCTOR", 3)
-	JSDocInfo_Bit_DEFINE = new_JSDocInfo_Bit("DEFINE", 4)
-	JSDocInfo_Bit_TYPE_SUMMARY = new_JSDocInfo_Bit("TYPE_SUMMARY", 5)
-	JSDocInfo_Bit_FINAL = new_JSDocInfo_Bit("FINAL", 6)
-	JSDocInfo_Bit_OVERRIDE = new_JSDocInfo_Bit("OVERRIDE", 7)
-	JSDocInfo_Bit_DEPRECATED = new_JSDocInfo_Bit("DEPRECATED", 8)
-	JSDocInfo_Bit_INTERFACE = new_JSDocInfo_Bit("INTERFACE", 9)
-	JSDocInfo_Bit_EXPORT = new_JSDocInfo_Bit("EXPORT", 10)
-	JSDocInfo_Bit_ENHANCED_NAMESPACE = new_JSDocInfo_Bit("ENHANCED_NAMESPACE", 11)
-	JSDocInfo_Bit_NOINLINE = new_JSDocInfo_Bit("NOINLINE", 12)
-	JSDocInfo_Bit_FILEOVERVIEW = new_JSDocInfo_Bit("FILEOVERVIEW", 13)
-	JSDocInfo_Bit_IMPLICITCAST = new_JSDocInfo_Bit("IMPLICITCAST", 14)
-	JSDocInfo_Bit_NOSIDEEFFECTS = new_JSDocInfo_Bit("NOSIDEEFFECTS", 15)
-	JSDocInfo_Bit_EXTERNS = new_JSDocInfo_Bit("EXTERNS", 16)
-	JSDocInfo_Bit_NOCOMPILE = new_JSDocInfo_Bit("NOCOMPILE", 17)
-	JSDocInfo_Bit_NODTS = new_JSDocInfo_Bit("NODTS", 18)
-	JSDocInfo_Bit_UNRESTRICTED = new_JSDocInfo_Bit("UNRESTRICTED", 19)
-	JSDocInfo_Bit_USED_VIA_DOT_CONSTRUCTOR = new_JSDocInfo_Bit("USED_VIA_DOT_CONSTRUCTOR", 20)
-	JSDocInfo_Bit_STRUCT = new_JSDocInfo_Bit("STRUCT", 21)
-	JSDocInfo_Bit_DICT = new_JSDocInfo_Bit("DICT", 22)
-	JSDocInfo_Bit_NOCOLLAPSE = new_JSDocInfo_Bit("NOCOLLAPSE", 23)
-	JSDocInfo_Bit_RECORD = new_JSDocInfo_Bit("RECORD", 24)
-	JSDocInfo_Bit_ABSTRACT = new_JSDocInfo_Bit("ABSTRACT", 25)
-	JSDocInfo_Bit_PURE_OR_BREAK_MY_CODE = new_JSDocInfo_Bit("PURE_OR_BREAK_MY_CODE", 26)
-	JSDocInfo_Bit_COLLAPSIBLE_OR_BREAK_MY_CODE = new_JSDocInfo_Bit("COLLAPSIBLE_OR_BREAK_MY_CODE", 27)
-	JSDocInfo_Bit_NOCOVERAGE = new_JSDocInfo_Bit("NOCOVERAGE", 28)
-	JSDocInfo_Bit_REQUIRE_INLINING = new_JSDocInfo_Bit("REQUIRE_INLINING", 29)
-	JSDocInfo_Bit_ENCOURAGE_INLINING = new_JSDocInfo_Bit("ENCOURAGE_INLINING", 30)
-	JSDocInfo_Bit_NG_INJECT = new_JSDocInfo_Bit("NG_INJECT", 31)
-	JSDocInfo_Bit_WIZ_ACTION = new_JSDocInfo_Bit("WIZ_ACTION", 32)
-	JSDocInfo_Bit_POLYMER_BEHAVIOR = new_JSDocInfo_Bit("POLYMER_BEHAVIOR", 33)
-	JSDocInfo_Bit_POLYMER = new_JSDocInfo_Bit("POLYMER", 34)
-	JSDocInfo_Bit_CUSTOM_ELEMENT = new_JSDocInfo_Bit("CUSTOM_ELEMENT", 35)
-	JSDocInfo_Bit_MIXIN_CLASS = new_JSDocInfo_Bit("MIXIN_CLASS", 36)
-	JSDocInfo_Bit_MIXIN_FUNCTION = new_JSDocInfo_Bit("MIXIN_FUNCTION", 37)
-	JSDocInfo_Bit_SASS_GENERATED_CSS_TS = new_JSDocInfo_Bit("SASS_GENERATED_CSS_TS", 38)
-	JSDocInfo_Bit_CLOSURE_UNAWARE_CODE = new_JSDocInfo_Bit("CLOSURE_UNAWARE_CODE", 39)
-	JSDocInfo_Bit_PROVIDE_GOOG = new_JSDocInfo_Bit("PROVIDE_GOOG", 40)
-	JSDocInfo_Bit_PROVIDE_ALREADY_PROVIDED = new_JSDocInfo_Bit("PROVIDE_ALREADY_PROVIDED", 41)
-	JSDocInfo_Bit_WIZ_CALLBACK = new_JSDocInfo_Bit("WIZ_CALLBACK", 42)
-	JSDocInfo_Bit_LOG_TYPE_IN_COMPILER = new_JSDocInfo_Bit("LOG_TYPE_IN_COMPILER", 43)
-	JSDocInfo_Bit_CLOSURE_UNAWARE_CONFIG = new_JSDocInfo_Bit("CLOSURE_UNAWARE_CONFIG", 44)
-	JSDocInfo_Bit_LEGACY_NAMED_TS_EXPORT = new_JSDocInfo_Bit("LEGACY_NAMED_TS_EXPORT", 45)
-	JSDocInfo_Bit_values_ = []*JSDocInfo_Bit{JSDocInfo_Bit_INLINE_TYPE, JSDocInfo_Bit_INCLUDE_DOCUMENTATION, JSDocInfo_Bit_CONST, JSDocInfo_Bit_CONSTRUCTOR, JSDocInfo_Bit_DEFINE, JSDocInfo_Bit_TYPE_SUMMARY, JSDocInfo_Bit_FINAL, JSDocInfo_Bit_OVERRIDE, JSDocInfo_Bit_DEPRECATED, JSDocInfo_Bit_INTERFACE, JSDocInfo_Bit_EXPORT, JSDocInfo_Bit_ENHANCED_NAMESPACE, JSDocInfo_Bit_NOINLINE, JSDocInfo_Bit_FILEOVERVIEW, JSDocInfo_Bit_IMPLICITCAST, JSDocInfo_Bit_NOSIDEEFFECTS, JSDocInfo_Bit_EXTERNS, JSDocInfo_Bit_NOCOMPILE, JSDocInfo_Bit_NODTS, JSDocInfo_Bit_UNRESTRICTED, JSDocInfo_Bit_USED_VIA_DOT_CONSTRUCTOR, JSDocInfo_Bit_STRUCT, JSDocInfo_Bit_DICT, JSDocInfo_Bit_NOCOLLAPSE, JSDocInfo_Bit_RECORD, JSDocInfo_Bit_ABSTRACT, JSDocInfo_Bit_PURE_OR_BREAK_MY_CODE, JSDocInfo_Bit_COLLAPSIBLE_OR_BREAK_MY_CODE, JSDocInfo_Bit_NOCOVERAGE, JSDocInfo_Bit_REQUIRE_INLINING, JSDocInfo_Bit_ENCOURAGE_INLINING, JSDocInfo_Bit_NG_INJECT, JSDocInfo_Bit_WIZ_ACTION, JSDocInfo_Bit_POLYMER_BEHAVIOR, JSDocInfo_Bit_POLYMER, JSDocInfo_Bit_CUSTOM_ELEMENT, JSDocInfo_Bit_MIXIN_CLASS, JSDocInfo_Bit_MIXIN_FUNCTION, JSDocInfo_Bit_SASS_GENERATED_CSS_TS, JSDocInfo_Bit_CLOSURE_UNAWARE_CODE, JSDocInfo_Bit_PROVIDE_GOOG, JSDocInfo_Bit_PROVIDE_ALREADY_PROVIDED, JSDocInfo_Bit_WIZ_CALLBACK, JSDocInfo_Bit_LOG_TYPE_IN_COMPILER, JSDocInfo_Bit_CLOSURE_UNAWARE_CONFIG, JSDocInfo_Bit_LEGACY_NAMED_TS_EXPORT}
+	JSDocInfo_Bit_INLINE_TYPE.zero_JSDocInfo_Bit()
+	JSDocInfo_Bit_INLINE_TYPE.init_JSDocInfo_Bit()
+	JSDocInfo_Bit_INCLUDE_DOCUMENTATION.zero_JSDocInfo_Bit()
+	JSDocInfo_Bit_INCLUDE_DOCUMENTATION.init_JSDocInfo_Bit()
+	JSDocInfo_Bit_CONST.zero_JSDocInfo_Bit()
+	JSDocInfo_Bit_CONST.init_JSDocInfo_Bit()
+	JSDocInfo_Bit_CONSTRUCTOR.zero_JSDocInfo_Bit()
+	JSDocInfo_Bit_CONSTRUCTOR.init_JSDocInfo_Bit()
+	JSDocInfo_Bit_DEFINE.zero_JSDocInfo_Bit()
+	JSDocInfo_Bit_DEFINE.init_JSDocInfo_Bit()
+	JSDocInfo_Bit_TYPE_SUMMARY.zero_JSDocInfo_Bit()
+	JSDocInfo_Bit_TYPE_SUMMARY.init_JSDocInfo_Bit()
+	JSDocInfo_Bit_FINAL.zero_JSDocInfo_Bit()
+	JSDocInfo_Bit_FINAL.init_JSDocInfo_Bit()
+	JSDocInfo_Bit_OVERRIDE.zero_JSDocInfo_Bit()
+	JSDocInfo_Bit_OVERRIDE.init_JSDocInfo_Bit()
+	JSDocInfo_Bit_DEPRECATED.zero_JSDocInfo_Bit()
+	JSDocInfo_Bit_DEPRECATED.init_JSDocInfo_Bit()
+	JSDocInfo_Bit_INTERFACE.zero_JSDocInfo_Bit()
+	JSDocInfo_Bit_INTERFACE.init_JSDocInfo_Bit()
+	JSDocInfo_Bit_EXPORT.zero_JSDocInfo_Bit()
+	JSDocInfo_Bit_EXPORT.init_JSDocInfo_Bit()
+	JSDocInfo_Bit_ENHANCED_NAMESPACE.zero_JSDocInfo_Bit()
+	JSDocInfo_Bit_ENHANCED_NAMESPACE.init_JSDocInfo_Bit()
+	JSDocInfo_Bit_NOINLINE.zero_JSDocInfo_Bit()
+	JSDocInfo_Bit_NOINLINE.init_JSDocInfo_Bit()
+	JSDocInfo_Bit_FILEOVERVIEW.zero_JSDocInfo_Bit()
+	JSDocInfo_Bit_FILEOVERVIEW.init_JSDocInfo_Bit()
+	JSDocInfo_Bit_IMPLICITCAST.zero_JSDocInfo_Bit()
+	JSDocInfo_Bit_IMPLICITCAST.init_JSDocInfo_Bit()
+	JSDocInfo_Bit_NOSIDEEFFECTS.zero_JSDocInfo_Bit()
+	JSDocInfo_Bit_NOSIDEEFFECTS.init_JSDocInfo_Bit()
+	JSDocInfo_Bit_EXTERNS.zero_JSDocInfo_Bit()
+	JSDocInfo_Bit_EXTERNS.init_JSDocInfo_Bit()
+	JSDocInfo_Bit_NOCOMPILE.zero_JSDocInfo_Bit()
+	JSDocInfo_Bit_NOCOMPILE.init_JSDocInfo_Bit()
+	JSDocInfo_Bit_NODTS.zero_JSDocInfo_Bit()
+	JSDocInfo_Bit_NODTS.init_JSDocInfo_Bit()
+	JSDocInfo_Bit_UNRESTRICTED.zero_JSDocInfo_Bit()
+	JSDocInfo_Bit_UNRESTRICTED.init_JSDocInfo_Bit()
+	JSDocInfo_Bit_USED_VIA_DOT_CONSTRUCTOR.zero_JSDocInfo_Bit()
+	JSDocInfo_Bit_USED_VIA_DOT_CONSTRUCTOR.init_JSDocInfo_Bit()
+	JSDocInfo_Bit_STRUCT.zero_JSDocInfo_Bit()
+	JSDocInfo_Bit_STRUCT.init_JSDocInfo_Bit()
+	JSDocInfo_Bit_DICT.zero_JSDocInfo_Bit()
+	JSDocInfo_Bit_DICT.init_JSDocInfo_Bit()
+	JSDocInfo_Bit_NOCOLLAPSE.zero_JSDocInfo_Bit()
+	JSDocInfo_Bit_NOCOLLAPSE.init_JSDocInfo_Bit()
+	JSDocInfo_Bit_RECORD.zero_JSDocInfo_Bit()
+	JSDocInfo_Bit_RECORD.init_JSDocInfo_Bit()
+	JSDocInfo_Bit_ABSTRACT.zero_JSDocInfo_Bit()
+	JSDocInfo_Bit_ABSTRACT.init_JSDocInfo_Bit()
+	JSDocInfo_Bit_PURE_OR_BREAK_MY_CODE.zero_JSDocInfo_Bit()
+	JSDocInfo_Bit_PURE_OR_BREAK_MY_CODE.init_JSDocInfo_Bit()
+	JSDocInfo_Bit_COLLAPSIBLE_OR_BREAK_MY_CODE.zero_JSDocInfo_Bit()
+	JSDocInfo_Bit_COLLAPSIBLE_OR_BREAK_MY_CODE.init_JSDocInfo_Bit()
+	JSDocInfo_Bit_NOCOVERAGE.zero_JSDocInfo_Bit()
+	JSDocInfo_Bit_NOCOVERAGE.init_JSDocInfo_Bit()
+	JSDocInfo_Bit_REQUIRE_INLINING.zero_JSDocInfo_Bit()
+	JSDocInfo_Bit_REQUIRE_INLINING.init_JSDocInfo_Bit()
+	JSDocInfo_Bit_ENCOURAGE_INLINING.zero_JSDocInfo_Bit()
+	JSDocInfo_Bit_ENCOURAGE_INLINING.init_JSDocInfo_Bit()
+	JSDocInfo_Bit_NG_INJECT.zero_JSDocInfo_Bit()
+	JSDocInfo_Bit_NG_INJECT.init_JSDocInfo_Bit()
+	JSDocInfo_Bit_WIZ_ACTION.zero_JSDocInfo_Bit()
+	JSDocInfo_Bit_WIZ_ACTION.init_JSDocInfo_Bit()
+	JSDocInfo_Bit_POLYMER_BEHAVIOR.zero_JSDocInfo_Bit()
+	JSDocInfo_Bit_POLYMER_BEHAVIOR.init_JSDocInfo_Bit()
+	JSDocInfo_Bit_POLYMER.zero_JSDocInfo_Bit()
+	JSDocInfo_Bit_POLYMER.init_JSDocInfo_Bit()
+	JSDocInfo_Bit_CUSTOM_ELEMENT.zero_JSDocInfo_Bit()
+	JSDocInfo_Bit_CUSTOM_ELEMENT.init_JSDocInfo_Bit()
+	JSDocInfo_Bit_MIXIN_CLASS.zero_JSDocInfo_Bit()
+	JSDocInfo_Bit_MIXIN_CLASS.init_JSDocInfo_Bit()
+	JSDocInfo_Bit_MIXIN_FUNCTION.zero_JSDocInfo_Bit()
+	JSDocInfo_Bit_MIXIN_FUNCTION.init_JSDocInfo_Bit()
+	JSDocInfo_Bit_SASS_GENERATED_CSS_TS.zero_JSDocInfo_Bit()
+	JSDocInfo_Bit_SASS_GENERATED_CSS_TS.init_JSDocInfo_Bit()
+	JSDocInfo_Bit_CLOSURE_UNAWARE_CODE.zero_JSDocInfo_Bit()
+	JSDocInfo_Bit_CLOSURE_UNAWARE_CODE.init_JSDocInfo_Bit()
+	JSDocInfo_Bit_PROVIDE_GOOG.zero_JSDocInfo_Bit()
+	JSDocInfo_Bit_PROVIDE_GOOG.init_JSDocInfo_Bit()
+	JSDocInfo_Bit_PROVIDE_ALREADY_PROVIDED.zero_JSDocInfo_Bit()
+	JSDocInfo_Bit_PROVIDE_ALREADY_PROVIDED.init_JSDocInfo_Bit()
+	JSDocInfo_Bit_WIZ_CALLBACK.zero_JSDocInfo_Bit()
+	JSDocInfo_Bit_WIZ_CALLBACK.init_JSDocInfo_Bit()
+	JSDocInfo_Bit_LOG_TYPE_IN_COMPILER.zero_JSDocInfo_Bit()
+	JSDocInfo_Bit_LOG_TYPE_IN_COMPILER.init_JSDocInfo_Bit()
+	JSDocInfo_Bit_CLOSURE_UNAWARE_CONFIG.zero_JSDocInfo_Bit()
+	JSDocInfo_Bit_CLOSURE_UNAWARE_CONFIG.init_JSDocInfo_Bit()
+	JSDocInfo_Bit_LEGACY_NAMED_TS_EXPORT.zero_JSDocInfo_Bit()
+	JSDocInfo_Bit_LEGACY_NAMED_TS_EXPORT.init_JSDocInfo_Bit()
+	JSDocInfo_Bit_values_ = []JSDocInfo_Bit{JSDocInfo_Bit_INLINE_TYPE, JSDocInfo_Bit_INCLUDE_DOCUMENTATION, JSDocInfo_Bit_CONST, JSDocInfo_Bit_CONSTRUCTOR, JSDocInfo_Bit_DEFINE, JSDocInfo_Bit_TYPE_SUMMARY, JSDocInfo_Bit_FINAL, JSDocInfo_Bit_OVERRIDE, JSDocInfo_Bit_DEPRECATED, JSDocInfo_Bit_INTERFACE, JSDocInfo_Bit_EXPORT, JSDocInfo_Bit_ENHANCED_NAMESPACE, JSDocInfo_Bit_NOINLINE, JSDocInfo_Bit_FILEOVERVIEW, JSDocInfo_Bit_IMPLICITCAST, JSDocInfo_Bit_NOSIDEEFFECTS, JSDocInfo_Bit_EXTERNS, JSDocInfo_Bit_NOCOMPILE, JSDocInfo_Bit_NODTS, JSDocInfo_Bit_UNRESTRICTED, JSDocInfo_Bit_USED_VIA_DOT_CONSTRUCTOR, JSDocInfo_Bit_STRUCT, JSDocInfo_Bit_DICT, JSDocInfo_Bit_NOCOLLAPSE, JSDocInfo_Bit_RECORD, JSDocInfo_Bit_ABSTRACT, JSDocInfo_Bit_PURE_OR_BREAK_MY_CODE, JSDocInfo_Bit_COLLAPSIBLE_OR_BREAK_MY_CODE, JSDocInfo_Bit_NOCOVERAGE, JSDocInfo_Bit_REQUIRE_INLINING, JSDocInfo_Bit_ENCOURAGE_INLINING, JSDocInfo_Bit_NG_INJECT, JSDocInfo_Bit_WIZ_ACTION, JSDocInfo_Bit_POLYMER_BEHAVIOR, JSDocInfo_Bit_POLYMER, JSDocInfo_Bit_CUSTOM_ELEMENT, JSDocInfo_Bit_MIXIN_CLASS, JSDocInfo_Bit_MIXIN_FUNCTION, JSDocInfo_Bit_SASS_GENERATED_CSS_TS, JSDocInfo_Bit_CLOSURE_UNAWARE_CODE, JSDocInfo_Bit_PROVIDE_GOOG, JSDocInfo_Bit_PROVIDE_ALREADY_PROVIDED, JSDocInfo_Bit_WIZ_CALLBACK, JSDocInfo_Bit_LOG_TYPE_IN_COMPILER, JSDocInfo_Bit_CLOSURE_UNAWARE_CONFIG, JSDocInfo_Bit_LEGACY_NAMED_TS_EXPORT}
 	registerEnum_("com.google.javascript.rhino.JSDocInfo.Bit", enumValues_(JSDocInfo_Bit_values_))
 
 }
@@ -1492,47 +1595,61 @@ func (this *JSDocInfo_TypeTransform_fn) apply(p0 *JSTypeExpression) *JSTypeExpre
 	return this.f(p0)
 }
 
-type JSDocInfo_Visibility struct {
-	Enum
+type JSDocInfo_Visibility uint8
+
+// JSDocInfo_Visibility_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var JSDocInfo_Visibility_enum_ = [5]Enum{
+	{self_: JSDocInfo_Visibility_PRIVATE, name_: "PRIVATE", ordinal_: 0},
+	{self_: JSDocInfo_Visibility_PACKAGE, name_: "PACKAGE", ordinal_: 1},
+	{self_: JSDocInfo_Visibility_PROTECTED, name_: "PROTECTED", ordinal_: 2},
+	{self_: JSDocInfo_Visibility_PUBLIC, name_: "PUBLIC", ordinal_: 3},
+	{self_: JSDocInfo_Visibility_INHERITED, name_: "INHERITED", ordinal_: 4},
 }
 
-func (this *JSDocInfo_Visibility) up_Enum() *Enum {
-	if this == nil {
+func (this JSDocInfo_Visibility) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &JSDocInfo_Visibility_enum_[this-1]
 }
 
-func (this *JSDocInfo_Visibility) init_JSDocInfo_Visibility(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this JSDocInfo_Visibility) name() string { return JSDocInfo_Visibility_enum_[this-1].name_ }
+
+func (this JSDocInfo_Visibility) ordinal() int32 { return JSDocInfo_Visibility_enum_[this-1].ordinal_ }
+
+func (this JSDocInfo_Visibility) toString() string { return JSDocInfo_Visibility_enum_[this-1].name_ }
+
+func (this JSDocInfo_Visibility) compareTo(o any) int32 {
+	return JSDocInfo_Visibility_enum_[this-1].compareTo(o)
 }
 
-func new_JSDocInfo_Visibility(name_ string, ordinal_ int32) *JSDocInfo_Visibility {
-	this := &JSDocInfo_Visibility{}
-	this.self_ = this
-	this.init_JSDocInfo_Visibility(name_, ordinal_)
+func (this JSDocInfo_Visibility) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func JSDocInfo_Visibility_values() []*JSDocInfo_Visibility {
-	return append([]*JSDocInfo_Visibility(nil), JSDocInfo_Visibility_values_...)
+func JSDocInfo_Visibility_values() []JSDocInfo_Visibility {
+	return append([]JSDocInfo_Visibility(nil), JSDocInfo_Visibility_values_...)
 }
 
-func JSDocInfo_Visibility_valueOf(name string) *JSDocInfo_Visibility {
+func JSDocInfo_Visibility_valueOf(name string) JSDocInfo_Visibility {
 	for _, v := range JSDocInfo_Visibility_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("Visibility", name))
 }
 
-var JSDocInfo_Visibility_PRIVATE *JSDocInfo_Visibility
-var JSDocInfo_Visibility_PACKAGE *JSDocInfo_Visibility
-var JSDocInfo_Visibility_PROTECTED *JSDocInfo_Visibility
-var JSDocInfo_Visibility_PUBLIC *JSDocInfo_Visibility
-var JSDocInfo_Visibility_INHERITED *JSDocInfo_Visibility
-var JSDocInfo_Visibility_values_ []*JSDocInfo_Visibility
+const JSDocInfo_Visibility_PRIVATE JSDocInfo_Visibility = 1
+const JSDocInfo_Visibility_PACKAGE JSDocInfo_Visibility = 2
+const JSDocInfo_Visibility_PROTECTED JSDocInfo_Visibility = 3
+const JSDocInfo_Visibility_PUBLIC JSDocInfo_Visibility = 4
+const JSDocInfo_Visibility_INHERITED JSDocInfo_Visibility = 5
+
+var JSDocInfo_Visibility_values_ []JSDocInfo_Visibility
 
 var JSDocInfo_Visibility_clinit_done bool
 
@@ -1541,57 +1658,68 @@ func JSDocInfo_Visibility_clinit() {
 		return
 	}
 	JSDocInfo_Visibility_clinit_done = true
-	JSDocInfo_Visibility_PRIVATE = new_JSDocInfo_Visibility("PRIVATE", 0)
-	JSDocInfo_Visibility_PACKAGE = new_JSDocInfo_Visibility("PACKAGE", 1)
-	JSDocInfo_Visibility_PROTECTED = new_JSDocInfo_Visibility("PROTECTED", 2)
-	JSDocInfo_Visibility_PUBLIC = new_JSDocInfo_Visibility("PUBLIC", 3)
-	JSDocInfo_Visibility_INHERITED = new_JSDocInfo_Visibility("INHERITED", 4)
-	JSDocInfo_Visibility_values_ = []*JSDocInfo_Visibility{JSDocInfo_Visibility_PRIVATE, JSDocInfo_Visibility_PACKAGE, JSDocInfo_Visibility_PROTECTED, JSDocInfo_Visibility_PUBLIC, JSDocInfo_Visibility_INHERITED}
+	JSDocInfo_Visibility_values_ = []JSDocInfo_Visibility{JSDocInfo_Visibility_PRIVATE, JSDocInfo_Visibility_PACKAGE, JSDocInfo_Visibility_PROTECTED, JSDocInfo_Visibility_PUBLIC, JSDocInfo_Visibility_INHERITED}
 	registerEnum_("com.google.javascript.rhino.JSDocInfo.Visibility", enumValues_(JSDocInfo_Visibility_values_))
 
 }
 
-type JSDocInfo_IdGenerator struct {
-	Enum
+type JSDocInfo_IdGenerator uint8
+
+// JSDocInfo_IdGenerator_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var JSDocInfo_IdGenerator_enum_ = [5]Enum{
+	{self_: JSDocInfo_IdGenerator_XID, name_: "XID", ordinal_: 0},
+	{self_: JSDocInfo_IdGenerator_CONSISTENT, name_: "CONSISTENT", ordinal_: 1},
+	{self_: JSDocInfo_IdGenerator_UNIQUE, name_: "UNIQUE", ordinal_: 2},
+	{self_: JSDocInfo_IdGenerator_STABLE, name_: "STABLE", ordinal_: 3},
+	{self_: JSDocInfo_IdGenerator_MAPPED, name_: "MAPPED", ordinal_: 4},
 }
 
-func (this *JSDocInfo_IdGenerator) up_Enum() *Enum {
-	if this == nil {
+func (this JSDocInfo_IdGenerator) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &JSDocInfo_IdGenerator_enum_[this-1]
 }
 
-func (this *JSDocInfo_IdGenerator) init_JSDocInfo_IdGenerator(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this JSDocInfo_IdGenerator) name() string { return JSDocInfo_IdGenerator_enum_[this-1].name_ }
+
+func (this JSDocInfo_IdGenerator) ordinal() int32 {
+	return JSDocInfo_IdGenerator_enum_[this-1].ordinal_
 }
 
-func new_JSDocInfo_IdGenerator(name_ string, ordinal_ int32) *JSDocInfo_IdGenerator {
-	this := &JSDocInfo_IdGenerator{}
-	this.self_ = this
-	this.init_JSDocInfo_IdGenerator(name_, ordinal_)
+func (this JSDocInfo_IdGenerator) toString() string { return JSDocInfo_IdGenerator_enum_[this-1].name_ }
+
+func (this JSDocInfo_IdGenerator) compareTo(o any) int32 {
+	return JSDocInfo_IdGenerator_enum_[this-1].compareTo(o)
+}
+
+func (this JSDocInfo_IdGenerator) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func JSDocInfo_IdGenerator_values() []*JSDocInfo_IdGenerator {
-	return append([]*JSDocInfo_IdGenerator(nil), JSDocInfo_IdGenerator_values_...)
+func JSDocInfo_IdGenerator_values() []JSDocInfo_IdGenerator {
+	return append([]JSDocInfo_IdGenerator(nil), JSDocInfo_IdGenerator_values_...)
 }
 
-func JSDocInfo_IdGenerator_valueOf(name string) *JSDocInfo_IdGenerator {
+func JSDocInfo_IdGenerator_valueOf(name string) JSDocInfo_IdGenerator {
 	for _, v := range JSDocInfo_IdGenerator_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("IdGenerator", name))
 }
 
-var JSDocInfo_IdGenerator_XID *JSDocInfo_IdGenerator
-var JSDocInfo_IdGenerator_CONSISTENT *JSDocInfo_IdGenerator
-var JSDocInfo_IdGenerator_UNIQUE *JSDocInfo_IdGenerator
-var JSDocInfo_IdGenerator_STABLE *JSDocInfo_IdGenerator
-var JSDocInfo_IdGenerator_MAPPED *JSDocInfo_IdGenerator
-var JSDocInfo_IdGenerator_values_ []*JSDocInfo_IdGenerator
+const JSDocInfo_IdGenerator_XID JSDocInfo_IdGenerator = 1
+const JSDocInfo_IdGenerator_CONSISTENT JSDocInfo_IdGenerator = 2
+const JSDocInfo_IdGenerator_UNIQUE JSDocInfo_IdGenerator = 3
+const JSDocInfo_IdGenerator_STABLE JSDocInfo_IdGenerator = 4
+const JSDocInfo_IdGenerator_MAPPED JSDocInfo_IdGenerator = 5
+
+var JSDocInfo_IdGenerator_values_ []JSDocInfo_IdGenerator
 
 var JSDocInfo_IdGenerator_clinit_done bool
 
@@ -1600,55 +1728,68 @@ func JSDocInfo_IdGenerator_clinit() {
 		return
 	}
 	JSDocInfo_IdGenerator_clinit_done = true
-	JSDocInfo_IdGenerator_XID = new_JSDocInfo_IdGenerator("XID", 0)
-	JSDocInfo_IdGenerator_CONSISTENT = new_JSDocInfo_IdGenerator("CONSISTENT", 1)
-	JSDocInfo_IdGenerator_UNIQUE = new_JSDocInfo_IdGenerator("UNIQUE", 2)
-	JSDocInfo_IdGenerator_STABLE = new_JSDocInfo_IdGenerator("STABLE", 3)
-	JSDocInfo_IdGenerator_MAPPED = new_JSDocInfo_IdGenerator("MAPPED", 4)
-	JSDocInfo_IdGenerator_values_ = []*JSDocInfo_IdGenerator{JSDocInfo_IdGenerator_XID, JSDocInfo_IdGenerator_CONSISTENT, JSDocInfo_IdGenerator_UNIQUE, JSDocInfo_IdGenerator_STABLE, JSDocInfo_IdGenerator_MAPPED}
+	JSDocInfo_IdGenerator_values_ = []JSDocInfo_IdGenerator{JSDocInfo_IdGenerator_XID, JSDocInfo_IdGenerator_CONSISTENT, JSDocInfo_IdGenerator_UNIQUE, JSDocInfo_IdGenerator_STABLE, JSDocInfo_IdGenerator_MAPPED}
 	registerEnum_("com.google.javascript.rhino.JSDocInfo.IdGenerator", enumValues_(JSDocInfo_IdGenerator_values_))
 
 }
 
-type JSDocInfo_PerFileClosureUnawareMode struct {
-	Enum
+type JSDocInfo_PerFileClosureUnawareMode uint8
+
+// JSDocInfo_PerFileClosureUnawareMode_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var JSDocInfo_PerFileClosureUnawareMode_enum_ = [3]Enum{
+	{self_: JSDocInfo_PerFileClosureUnawareMode_UNSPECIFIED, name_: "UNSPECIFIED", ordinal_: 0},
+	{self_: JSDocInfo_PerFileClosureUnawareMode_SIMPLE, name_: "SIMPLE", ordinal_: 1},
+	{self_: JSDocInfo_PerFileClosureUnawareMode_WHITESPACE, name_: "WHITESPACE", ordinal_: 2},
 }
 
-func (this *JSDocInfo_PerFileClosureUnawareMode) up_Enum() *Enum {
-	if this == nil {
+func (this JSDocInfo_PerFileClosureUnawareMode) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &JSDocInfo_PerFileClosureUnawareMode_enum_[this-1]
 }
 
-func (this *JSDocInfo_PerFileClosureUnawareMode) init_JSDocInfo_PerFileClosureUnawareMode(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this JSDocInfo_PerFileClosureUnawareMode) name() string {
+	return JSDocInfo_PerFileClosureUnawareMode_enum_[this-1].name_
 }
 
-func new_JSDocInfo_PerFileClosureUnawareMode(name_ string, ordinal_ int32) *JSDocInfo_PerFileClosureUnawareMode {
-	this := &JSDocInfo_PerFileClosureUnawareMode{}
-	this.self_ = this
-	this.init_JSDocInfo_PerFileClosureUnawareMode(name_, ordinal_)
+func (this JSDocInfo_PerFileClosureUnawareMode) ordinal() int32 {
+	return JSDocInfo_PerFileClosureUnawareMode_enum_[this-1].ordinal_
+}
+
+func (this JSDocInfo_PerFileClosureUnawareMode) toString() string {
+	return JSDocInfo_PerFileClosureUnawareMode_enum_[this-1].name_
+}
+
+func (this JSDocInfo_PerFileClosureUnawareMode) compareTo(o any) int32 {
+	return JSDocInfo_PerFileClosureUnawareMode_enum_[this-1].compareTo(o)
+}
+
+func (this JSDocInfo_PerFileClosureUnawareMode) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func JSDocInfo_PerFileClosureUnawareMode_values() []*JSDocInfo_PerFileClosureUnawareMode {
-	return append([]*JSDocInfo_PerFileClosureUnawareMode(nil), JSDocInfo_PerFileClosureUnawareMode_values_...)
+func JSDocInfo_PerFileClosureUnawareMode_values() []JSDocInfo_PerFileClosureUnawareMode {
+	return append([]JSDocInfo_PerFileClosureUnawareMode(nil), JSDocInfo_PerFileClosureUnawareMode_values_...)
 }
 
-func JSDocInfo_PerFileClosureUnawareMode_valueOf(name string) *JSDocInfo_PerFileClosureUnawareMode {
+func JSDocInfo_PerFileClosureUnawareMode_valueOf(name string) JSDocInfo_PerFileClosureUnawareMode {
 	for _, v := range JSDocInfo_PerFileClosureUnawareMode_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("PerFileClosureUnawareMode", name))
 }
 
-var JSDocInfo_PerFileClosureUnawareMode_UNSPECIFIED *JSDocInfo_PerFileClosureUnawareMode
-var JSDocInfo_PerFileClosureUnawareMode_SIMPLE *JSDocInfo_PerFileClosureUnawareMode
-var JSDocInfo_PerFileClosureUnawareMode_WHITESPACE *JSDocInfo_PerFileClosureUnawareMode
-var JSDocInfo_PerFileClosureUnawareMode_values_ []*JSDocInfo_PerFileClosureUnawareMode
+const JSDocInfo_PerFileClosureUnawareMode_UNSPECIFIED JSDocInfo_PerFileClosureUnawareMode = 1
+const JSDocInfo_PerFileClosureUnawareMode_SIMPLE JSDocInfo_PerFileClosureUnawareMode = 2
+const JSDocInfo_PerFileClosureUnawareMode_WHITESPACE JSDocInfo_PerFileClosureUnawareMode = 3
+
+var JSDocInfo_PerFileClosureUnawareMode_values_ []JSDocInfo_PerFileClosureUnawareMode
 
 var JSDocInfo_PerFileClosureUnawareMode_clinit_done bool
 
@@ -1657,10 +1798,7 @@ func JSDocInfo_PerFileClosureUnawareMode_clinit() {
 		return
 	}
 	JSDocInfo_PerFileClosureUnawareMode_clinit_done = true
-	JSDocInfo_PerFileClosureUnawareMode_UNSPECIFIED = new_JSDocInfo_PerFileClosureUnawareMode("UNSPECIFIED", 0)
-	JSDocInfo_PerFileClosureUnawareMode_SIMPLE = new_JSDocInfo_PerFileClosureUnawareMode("SIMPLE", 1)
-	JSDocInfo_PerFileClosureUnawareMode_WHITESPACE = new_JSDocInfo_PerFileClosureUnawareMode("WHITESPACE", 2)
-	JSDocInfo_PerFileClosureUnawareMode_values_ = []*JSDocInfo_PerFileClosureUnawareMode{JSDocInfo_PerFileClosureUnawareMode_UNSPECIFIED, JSDocInfo_PerFileClosureUnawareMode_SIMPLE, JSDocInfo_PerFileClosureUnawareMode_WHITESPACE}
+	JSDocInfo_PerFileClosureUnawareMode_values_ = []JSDocInfo_PerFileClosureUnawareMode{JSDocInfo_PerFileClosureUnawareMode_UNSPECIFIED, JSDocInfo_PerFileClosureUnawareMode_SIMPLE, JSDocInfo_PerFileClosureUnawareMode_WHITESPACE}
 	registerEnum_("com.google.javascript.rhino.JSDocInfo.PerFileClosureUnawareMode", enumValues_(JSDocInfo_PerFileClosureUnawareMode_values_))
 
 }
@@ -2055,7 +2193,7 @@ func (this *JSDocInfo_Builder) recordOriginalCommentPosition(position int32) {
 }
 
 func (this *JSDocInfo_Builder) isPopulatedWithFileOverview() bool {
-	return (this.populated && (((this.bits & (((((JSDocInfo_Bit_FILEOVERVIEW.mask | JSDocInfo_Bit_EXTERNS.mask) | JSDocInfo_Bit_NOCOMPILE.mask) | JSDocInfo_Bit_NOCOVERAGE.mask) | JSDocInfo_Bit_TYPE_SUMMARY.mask) | JSDocInfo_Bit_ENHANCED_NAMESPACE.mask)) != 0) || this.isModsRecorded()))
+	return (this.populated && (((this.bits & (((((JSDocInfo_Bit_mask_[JSDocInfo_Bit_FILEOVERVIEW-1] | JSDocInfo_Bit_mask_[JSDocInfo_Bit_EXTERNS-1]) | JSDocInfo_Bit_mask_[JSDocInfo_Bit_NOCOMPILE-1]) | JSDocInfo_Bit_mask_[JSDocInfo_Bit_NOCOVERAGE-1]) | JSDocInfo_Bit_mask_[JSDocInfo_Bit_TYPE_SUMMARY-1]) | JSDocInfo_Bit_mask_[JSDocInfo_Bit_ENHANCED_NAMESPACE-1])) != 0) || this.isModsRecorded()))
 }
 
 func (this *JSDocInfo_Builder) isDescriptionRecorded() bool {
@@ -2089,7 +2227,7 @@ func (this *JSDocInfo_Builder) build_1(always bool) *JSDocInfo {
 
 func (this *JSDocInfo_Builder) buildAndReset() *JSDocInfo {
 	var info *JSDocInfo = this.build()
-	this.bits &= JSDocInfo_Bit_INCLUDE_DOCUMENTATION.mask
+	this.bits &= JSDocInfo_Bit_mask_[JSDocInfo_Bit_INCLUDE_DOCUMENTATION-1]
 	this.props.clear()
 	this.populated = false
 	return info
@@ -2165,8 +2303,8 @@ func (this *JSDocInfo_Builder) recordBlockDescription(description string) bool {
 	return this.populateProp(JSDocInfo_BLOCK_DESCRIPTION, strobj_(description))
 }
 
-func (this *JSDocInfo_Builder) recordVisibility(visibility *JSDocInfo_Visibility) bool {
-	if cast_[*JSDocInfo_Visibility](this.getProp(JSDocInfo_VISIBILITY)) == nil {
+func (this *JSDocInfo_Builder) recordVisibility(visibility JSDocInfo_Visibility) bool {
+	if cast_[JSDocInfo_Visibility](this.getProp(JSDocInfo_VISIBILITY)) == 0 {
 		this.populated = true
 		this.setProp(JSDocInfo_VISIBILITY, obj_(visibility))
 		return true
@@ -2174,7 +2312,7 @@ func (this *JSDocInfo_Builder) recordVisibility(visibility *JSDocInfo_Visibility
 	return false
 }
 
-func (this *JSDocInfo_Builder) overwriteVisibility(visibility *JSDocInfo_Visibility) {
+func (this *JSDocInfo_Builder) overwriteVisibility(visibility JSDocInfo_Visibility) {
 	this.populated = true
 	this.setProp(JSDocInfo_VISIBILITY, obj_(visibility))
 }
@@ -2498,7 +2636,7 @@ func (this *JSDocInfo_Builder) isConstructorRecorded() bool {
 }
 
 func (this *JSDocInfo_Builder) recordUnrestricted() bool {
-	return ((!this.hasAnySingletonTypeTags() && ((this.bits & ((JSDocInfo_Bit_INTERFACE.mask | JSDocInfo_Bit_DICT.mask) | JSDocInfo_Bit_STRUCT.mask)) == 0)) && this.populateBit(JSDocInfo_Bit_UNRESTRICTED, true))
+	return ((!this.hasAnySingletonTypeTags() && ((this.bits & ((JSDocInfo_Bit_mask_[JSDocInfo_Bit_INTERFACE-1] | JSDocInfo_Bit_mask_[JSDocInfo_Bit_DICT-1]) | JSDocInfo_Bit_mask_[JSDocInfo_Bit_STRUCT-1])) == 0)) && this.populateBit(JSDocInfo_Bit_UNRESTRICTED, true))
 }
 
 func (this *JSDocInfo_Builder) isUnrestrictedRecorded() bool {
@@ -2506,11 +2644,11 @@ func (this *JSDocInfo_Builder) isUnrestrictedRecorded() bool {
 }
 
 func (this *JSDocInfo_Builder) recordAbstract() bool {
-	return (((!this.hasAnySingletonTypeTags() && ((this.bits & (JSDocInfo_Bit_INTERFACE.mask | JSDocInfo_Bit_FINAL.mask)) == 0)) && (cast_[*JSDocInfo_Visibility](this.getProp(JSDocInfo_VISIBILITY)) != JSDocInfo_Visibility_PRIVATE)) && this.populateBit(JSDocInfo_Bit_ABSTRACT, true))
+	return (((!this.hasAnySingletonTypeTags() && ((this.bits & (JSDocInfo_Bit_mask_[JSDocInfo_Bit_INTERFACE-1] | JSDocInfo_Bit_mask_[JSDocInfo_Bit_FINAL-1])) == 0)) && (cast_[JSDocInfo_Visibility](this.getProp(JSDocInfo_VISIBILITY)) != JSDocInfo_Visibility_PRIVATE)) && this.populateBit(JSDocInfo_Bit_ABSTRACT, true))
 }
 
 func (this *JSDocInfo_Builder) recordStruct() bool {
-	return ((!this.hasAnySingletonTypeTags() && ((this.bits & (JSDocInfo_Bit_DICT.mask | JSDocInfo_Bit_UNRESTRICTED.mask)) == 0)) && this.populateBit(JSDocInfo_Bit_STRUCT, true))
+	return ((!this.hasAnySingletonTypeTags() && ((this.bits & (JSDocInfo_Bit_mask_[JSDocInfo_Bit_DICT-1] | JSDocInfo_Bit_mask_[JSDocInfo_Bit_UNRESTRICTED-1])) == 0)) && this.populateBit(JSDocInfo_Bit_STRUCT, true))
 }
 
 func (this *JSDocInfo_Builder) isStructRecorded() bool {
@@ -2518,7 +2656,7 @@ func (this *JSDocInfo_Builder) isStructRecorded() bool {
 }
 
 func (this *JSDocInfo_Builder) recordDict() bool {
-	return ((!this.hasAnySingletonTypeTags() && ((this.bits & (JSDocInfo_Bit_STRUCT.mask | JSDocInfo_Bit_UNRESTRICTED.mask)) == 0)) && this.populateBit(JSDocInfo_Bit_DICT, true))
+	return ((!this.hasAnySingletonTypeTags() && ((this.bits & (JSDocInfo_Bit_mask_[JSDocInfo_Bit_STRUCT-1] | JSDocInfo_Bit_mask_[JSDocInfo_Bit_UNRESTRICTED-1])) == 0)) && this.populateBit(JSDocInfo_Bit_DICT, true))
 }
 
 func (this *JSDocInfo_Builder) isDictRecorded() bool {
@@ -2534,7 +2672,7 @@ func (this *JSDocInfo_Builder) recordDeprecated() bool {
 }
 
 func (this *JSDocInfo_Builder) recordInterface() bool {
-	return ((!this.hasAnySingletonTypeTags() && ((this.bits & (JSDocInfo_Bit_CONSTRUCTOR.mask | JSDocInfo_Bit_ABSTRACT.mask)) == 0)) && this.populateBit(JSDocInfo_Bit_INTERFACE, true))
+	return ((!this.hasAnySingletonTypeTags() && ((this.bits & (JSDocInfo_Bit_mask_[JSDocInfo_Bit_CONSTRUCTOR-1] | JSDocInfo_Bit_mask_[JSDocInfo_Bit_ABSTRACT-1])) == 0)) && this.populateBit(JSDocInfo_Bit_INTERFACE, true))
 }
 
 func (this *JSDocInfo_Builder) recordExport() bool {
@@ -2705,14 +2843,14 @@ func (this *JSDocInfo_Builder) recordLogTypeInCompiler() bool {
 }
 
 func (this *JSDocInfo_Builder) isClosureUnawareCode() bool {
-	return (cast_[*JSDocInfo_PerFileClosureUnawareMode](this.getProp(JSDocInfo_CLOSURE_UNAWARE_CONFIG_VALUE)) != nil)
+	return (cast_[JSDocInfo_PerFileClosureUnawareMode](this.getProp(JSDocInfo_CLOSURE_UNAWARE_CONFIG_VALUE)) != 0)
 }
 
 func (this *JSDocInfo_Builder) recordClosureUnawareCode() bool {
 	return this.populateProp(JSDocInfo_CLOSURE_UNAWARE_CONFIG_VALUE, obj_(JSDocInfo_PerFileClosureUnawareMode_UNSPECIFIED))
 }
 
-func (this *JSDocInfo_Builder) recordClosureUnawareCode_1(mode *JSDocInfo_PerFileClosureUnawareMode) bool {
+func (this *JSDocInfo_Builder) recordClosureUnawareCode_1(mode JSDocInfo_PerFileClosureUnawareMode) bool {
 	return this.populateProp(JSDocInfo_CLOSURE_UNAWARE_CONFIG_VALUE, obj_(mode))
 }
 
@@ -2734,7 +2872,7 @@ func (this *JSDocInfo_Builder) setType(type_ *JSTypeExpression) *JSDocInfo_Build
 }
 
 func (this *JSDocInfo_Builder) hasAnyTypeRelatedTags() bool {
-	return (((((((((this.bits & ((JSDocInfo_Bit_CONSTRUCTOR.mask | JSDocInfo_Bit_INTERFACE.mask) | JSDocInfo_Bit_ABSTRACT.mask)) != 0) || this.hasAnyParameters()) || (cast_[*JSTypeExpression](this.getProp(JSDocInfo_RETURN_TYPE.up_JSDocInfo_Property())) != nil)) || (cast_[*JSTypeExpression](this.getProp(JSDocInfo_BASE_TYPE.up_JSDocInfo_Property())) != nil)) || !this.isPropEmpty(JSDocInfo_EXTENDED_INTERFACES.up_JSDocInfo_Property())) || (cast_[*JSTypeExpression](this.getProp(JSDocInfo_LENDS_NAME.up_JSDocInfo_Property())) != nil)) || (cast_[*JSTypeExpression](this.getProp(JSDocInfo_THIS_TYPE.up_JSDocInfo_Property())) != nil)) || this.hasAnySingletonTypeTags())
+	return (((((((((this.bits & ((JSDocInfo_Bit_mask_[JSDocInfo_Bit_CONSTRUCTOR-1] | JSDocInfo_Bit_mask_[JSDocInfo_Bit_INTERFACE-1]) | JSDocInfo_Bit_mask_[JSDocInfo_Bit_ABSTRACT-1])) != 0) || this.hasAnyParameters()) || (cast_[*JSTypeExpression](this.getProp(JSDocInfo_RETURN_TYPE.up_JSDocInfo_Property())) != nil)) || (cast_[*JSTypeExpression](this.getProp(JSDocInfo_BASE_TYPE.up_JSDocInfo_Property())) != nil)) || !this.isPropEmpty(JSDocInfo_EXTENDED_INTERFACES.up_JSDocInfo_Property())) || (cast_[*JSTypeExpression](this.getProp(JSDocInfo_LENDS_NAME.up_JSDocInfo_Property())) != nil)) || (cast_[*JSTypeExpression](this.getProp(JSDocInfo_THIS_TYPE.up_JSDocInfo_Property())) != nil)) || this.hasAnySingletonTypeTags())
 }
 
 func (this *JSDocInfo_Builder) hasAnyParameters() bool {
@@ -2756,7 +2894,7 @@ func (this *JSDocInfo_Builder) hasAnySingletonSideEffectTags() bool {
 }
 
 func (this *JSDocInfo_Builder) isConstructorOrInterface() bool {
-	return ((this.bits & (JSDocInfo_Bit_CONSTRUCTOR.mask | JSDocInfo_Bit_INTERFACE.mask)) != 0)
+	return ((this.bits & (JSDocInfo_Bit_mask_[JSDocInfo_Bit_CONSTRUCTOR-1] | JSDocInfo_Bit_mask_[JSDocInfo_Bit_INTERFACE-1])) != 0)
 }
 
 func (this *JSDocInfo_Builder) setProp(prop *JSDocInfo_Property, value any) {
@@ -2796,19 +2934,19 @@ func (this *JSDocInfo_Builder) populateProp(prop *JSDocInfo_Property, value any)
 	return (Map_putIfAbsent(icast_Map(obj_(this.props)), prop.self(), value) == nil)
 }
 
-func (this *JSDocInfo_Builder) checkBit(bit *JSDocInfo_Bit) bool {
-	return ((this.bits & bit.mask) != 0)
+func (this *JSDocInfo_Builder) checkBit(bit JSDocInfo_Bit) bool {
+	return ((this.bits & JSDocInfo_Bit_mask_[bit-1]) != 0)
 }
 
-func (this *JSDocInfo_Builder) setBit(bit *JSDocInfo_Bit, value bool) {
+func (this *JSDocInfo_Builder) setBit(bit JSDocInfo_Bit, value bool) {
 	if value {
-		this.bits |= bit.mask
+		this.bits |= JSDocInfo_Bit_mask_[bit-1]
 	} else {
-		this.bits &= (^bit.mask)
+		this.bits &= (^JSDocInfo_Bit_mask_[bit-1])
 	}
 }
 
-func (this *JSDocInfo_Builder) populateBit(bit *JSDocInfo_Bit, value bool) bool {
+func (this *JSDocInfo_Builder) populateBit(bit JSDocInfo_Bit, value bool) bool {
 	if this.checkBit(bit) != value {
 		this.setBit(bit, value)
 		this.populated = true

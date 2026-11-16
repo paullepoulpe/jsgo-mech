@@ -34,7 +34,7 @@ func new_UnknownType(registry *JSTypeRegistry, isChecked bool) *UnknownType {
 	return this
 }
 
-func (this *UnknownType) getTypeClass_impl() *JSTypeClass {
+func (this *UnknownType) getTypeClass_impl() JSTypeClass {
 	return JSTypeClass_UNKNOWN
 }
 
@@ -66,7 +66,7 @@ func (this *UnknownType) matchesSymbolContext_impl() bool {
 	return true
 }
 
-func (this *UnknownType) testForEquality_impl(that *JSType) *Tri {
+func (this *UnknownType) testForEquality_impl(that *JSType) Tri {
 	return Tri_UNKNOWN
 }
 
@@ -119,7 +119,7 @@ func (this *UnknownType) hasDisplayName_impl() bool {
 	return true
 }
 
-func (this *UnknownType) getPossibleToBooleanOutcomes_impl() *BooleanLiteralSet {
+func (this *UnknownType) getPossibleToBooleanOutcomes_impl() BooleanLiteralSet {
 	return BooleanLiteralSet_BOTH
 }
 
@@ -132,7 +132,7 @@ func (this *UnknownType) recursionUnsafeHashCode_impl() int32 {
 }
 
 // getTypeClass: an object that is exactly a UnknownType calls its getTypeClass_impl directly (post-flip); others dispatch.
-func (this *UnknownType) getTypeClass() *JSTypeClass {
+func (this *UnknownType) getTypeClass() JSTypeClass {
 	if this.self_ == any(this) {
 		return this.getTypeClass_impl()
 	}
@@ -196,7 +196,7 @@ func (this *UnknownType) matchesSymbolContext() bool {
 }
 
 // testForEquality: an object that is exactly a UnknownType calls its testForEquality_impl directly (post-flip); others dispatch.
-func (this *UnknownType) testForEquality(p0 *JSType) *Tri {
+func (this *UnknownType) testForEquality(p0 *JSType) Tri {
 	if this.self_ == any(this) {
 		return this.testForEquality_impl(p0)
 	}
@@ -293,7 +293,7 @@ func (this *UnknownType) hasDisplayName() bool {
 }
 
 // getPossibleToBooleanOutcomes: an object that is exactly a UnknownType calls its getPossibleToBooleanOutcomes_impl directly (post-flip); others dispatch.
-func (this *UnknownType) getPossibleToBooleanOutcomes() *BooleanLiteralSet {
+func (this *UnknownType) getPossibleToBooleanOutcomes() BooleanLiteralSet {
 	if this.self_ == any(this) {
 		return this.getPossibleToBooleanOutcomes_impl()
 	}

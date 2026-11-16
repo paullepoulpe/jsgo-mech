@@ -4,7 +4,7 @@ package closure
 
 type PerformanceTracker struct {
 	externsRoot                    Node
-	mode_                          *CompilerOptions_TracerMode
+	mode_                          CompilerOptions_TracerMode
 	codeChange                     *RecentChange
 	jsRoot                         Node
 	initAstSize                    int32
@@ -81,7 +81,7 @@ func (this *PerformanceTracker) finit_PerformanceTracker() {
 	this.ambiguatePropertiesSummary = "not executed"
 }
 
-func (this *PerformanceTracker) init_PerformanceTracker(externsRoot Node, jsRoot Node, mode *CompilerOptions_TracerMode) {
+func (this *PerformanceTracker) init_PerformanceTracker(externsRoot Node, jsRoot Node, mode CompilerOptions_TracerMode) {
 	this.finit_PerformanceTracker()
 	Preconditions_checkArgument_boolean_Object((mode != CompilerOptions_TracerMode_OFF), strobj_("PerformanceTracker can't work without tracer data."))
 	this.startTime = System_currentTimeMillis()
@@ -90,7 +90,7 @@ func (this *PerformanceTracker) init_PerformanceTracker(externsRoot Node, jsRoot
 	this.mode_ = mode
 }
 
-func new_PerformanceTracker(externsRoot Node, jsRoot Node, mode *CompilerOptions_TracerMode) *PerformanceTracker {
+func new_PerformanceTracker(externsRoot Node, jsRoot Node, mode CompilerOptions_TracerMode) *PerformanceTracker {
 	this := &PerformanceTracker{}
 	this.zero_PerformanceTracker()
 	this.init_PerformanceTracker(externsRoot, jsRoot, mode)

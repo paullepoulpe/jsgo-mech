@@ -10,7 +10,7 @@ type JSError struct {
 	charno_       int32
 	length_       int32
 	node_         Node
-	defaultLevel_ *CheckLevel
+	defaultLevel_ CheckLevel
 	requirement_  *Requirement
 }
 
@@ -18,7 +18,7 @@ func (this *JSError) zero_JSError() {
 	this.description_ = nullstr_
 }
 
-func (this *JSError) init_JSError(type_ *DiagnosticType, description string, sourceName OptionalOf[string], lineno int32, charno int32, length int32, node Node, defaultLevel *CheckLevel, requirement *Requirement) {
+func (this *JSError) init_JSError(type_ *DiagnosticType, description string, sourceName OptionalOf[string], lineno int32, charno int32, length int32, node Node, defaultLevel CheckLevel, requirement *Requirement) {
 	Objects_requireNonNull(obj_(type_), "type")
 	Objects_requireNonNull(obj_(defaultLevel), "defaultLevel")
 	this.type__ = type_
@@ -32,7 +32,7 @@ func (this *JSError) init_JSError(type_ *DiagnosticType, description string, sou
 	this.requirement_ = requirement
 }
 
-func new_JSError(type_ *DiagnosticType, description string, sourceName OptionalOf[string], lineno int32, charno int32, length int32, node Node, defaultLevel *CheckLevel, requirement *Requirement) *JSError {
+func new_JSError(type_ *DiagnosticType, description string, sourceName OptionalOf[string], lineno int32, charno int32, length int32, node Node, defaultLevel CheckLevel, requirement *Requirement) *JSError {
 	this := &JSError{}
 	this.zero_JSError()
 	this.init_JSError(type_, description, sourceName, lineno, charno, length, node, defaultLevel, requirement)
@@ -67,7 +67,7 @@ func (this *JSError) getNode() Node {
 	return this.node()
 }
 
-func (this *JSError) getDefaultLevel() *CheckLevel {
+func (this *JSError) getDefaultLevel() CheckLevel {
 	return this.defaultLevel()
 }
 
@@ -121,7 +121,7 @@ func (this *JSError) toString() string {
 	return (sstr_(this.type_().key_) + ". " + sstr_(this.description()) + " at " + sstr_(sourceName) + " line " + sstr_(lineno) + " : " + sstr_(charno))
 }
 
-func (this *JSError) format(level *CheckLevel, formatter MessageFormatter) OptionalOf[string] {
+func (this *JSError) format(level CheckLevel, formatter MessageFormatter) OptionalOf[string] {
 	return func() OptionalOf[string] {
 		switch level {
 		case CheckLevel_ERROR:
@@ -176,7 +176,7 @@ func (this *JSError) node() Node {
 	return this.node_
 }
 
-func (this *JSError) defaultLevel() *CheckLevel {
+func (this *JSError) defaultLevel() CheckLevel {
 	return this.defaultLevel_
 }
 
@@ -230,7 +230,7 @@ func JSError_clinit() {
 type JSError_Builder struct {
 	type__       *DiagnosticType
 	args         []string
-	level_       *CheckLevel
+	level_       CheckLevel
 	n            Node
 	sourceName_  OptionalOf[string]
 	lineno_      int32
@@ -291,8 +291,8 @@ func (this *JSError_Builder) setNodeRange(start Node, end Node) *JSError_Builder
 	return this
 }
 
-func (this *JSError_Builder) setLevel(level *CheckLevel) *JSError_Builder {
-	this.level_ = cast_[*CheckLevel](Preconditions_checkNotNull(obj_(level)))
+func (this *JSError_Builder) setLevel(level CheckLevel) *JSError_Builder {
+	this.level_ = cast_[CheckLevel](Preconditions_checkNotNull(obj_(level)))
 	return this
 }
 

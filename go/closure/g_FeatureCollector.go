@@ -25,13 +25,13 @@ func (this *FeatureCollector) allFeatures() *FeatureSet {
 }
 
 func (this *FeatureCollector) visitScript(script Node) {
-	var emptyContext *TList[*FeatureCollector_FeatureContext] = newTList_(tc_p_FeatureCollector_FeatureContext)
+	var emptyContext *TList[FeatureCollector_FeatureContext] = newTList_(tc_p_FeatureCollector_FeatureContext)
 	emptyContext.add(FeatureCollector_FeatureContext_NONE)
 	this.visitRecursive(emptyContext, script)
 }
 
-func (this *FeatureCollector) visitRecursive(contextStack *TList[*FeatureCollector_FeatureContext], node Node) {
-	var newContext *FeatureCollector_FeatureContext = this.visitSingleNode(contextStack, node)
+func (this *FeatureCollector) visitRecursive(contextStack *TList[FeatureCollector_FeatureContext], node Node) {
+	var newContext FeatureCollector_FeatureContext = this.visitSingleNode(contextStack, node)
 	contextStack.add(newContext)
 	{
 		var child Node = node.getFirstChild()
@@ -42,14 +42,14 @@ func (this *FeatureCollector) visitRecursive(contextStack *TList[*FeatureCollect
 	contextStack.removeAt((contextStack.size() - 1))
 }
 
-func (this *FeatureCollector) visitSingleNode(contextStack *TList[*FeatureCollector_FeatureContext], node Node) *FeatureCollector_FeatureContext {
+func (this *FeatureCollector) visitSingleNode(contextStack *TList[FeatureCollector_FeatureContext], node Node) FeatureCollector_FeatureContext {
 	Preconditions_checkState_boolean_Object((contextStack.size() >= 1), strobj_("The provided feature context stack was empty. It must have at least one element."))
 	this.recordScriptFeatures(contextStack, node)
 	return FeatureCollector_contextFor(contextStack, node)
 }
 
-func (this *FeatureCollector) recordScriptFeatures(contextStack *TList[*FeatureCollector_FeatureContext], node Node) {
-	var parentContext *FeatureCollector_FeatureContext = cast_[*FeatureCollector_FeatureContext](SequencedCollection_getLast(SequencedCollection(contextStack.asList())))
+func (this *FeatureCollector) recordScriptFeatures(contextStack *TList[FeatureCollector_FeatureContext], node Node) {
+	var parentContext FeatureCollector_FeatureContext = cast_[FeatureCollector_FeatureContext](SequencedCollection_getLast(SequencedCollection(contextStack.asList())))
 	switch node.ns_().token {
 	case tokOrd1_FUNCTION:
 		if node.isAsyncGeneratorFunction() {
@@ -189,18 +189,18 @@ func (this *FeatureCollector) recordScriptFeatures(contextStack *TList[*FeatureC
 	}
 }
 
-func (this *FeatureCollector) maybeAddTopLevelAwait(contextStack *TList[*FeatureCollector_FeatureContext]) {
+func (this *FeatureCollector) maybeAddTopLevelAwait(contextStack *TList[FeatureCollector_FeatureContext]) {
 	if !contextStack.asList().contains(obj_(FeatureCollector_FeatureContext_FUNCTION)) {
 		this.addScriptFeature(FeatureSet_Feature_TOP_LEVEL_AWAIT)
 	}
 }
 
-func (this *FeatureCollector) addScriptFeature(x *FeatureSet_Feature) {
+func (this *FeatureCollector) addScriptFeature(x FeatureSet_Feature) {
 	this.scriptFeatures = this.scriptFeatures.with(x)
 }
 
-func FeatureCollector_contextFor(contextStack *TList[*FeatureCollector_FeatureContext], node Node) *FeatureCollector_FeatureContext {
-	return func() *FeatureCollector_FeatureContext {
+func FeatureCollector_contextFor(contextStack *TList[FeatureCollector_FeatureContext], node Node) FeatureCollector_FeatureContext {
+	return func() FeatureCollector_FeatureContext {
 		switch node.ns_().token {
 		case tokOrd1_PARAM_LIST:
 			return FeatureCollector_FeatureContext_PARAM_LIST
@@ -211,8 +211,8 @@ func FeatureCollector_contextFor(contextStack *TList[*FeatureCollector_FeatureCo
 		case tokOrd1_CATCH:
 			return FeatureCollector_FeatureContext_CATCH
 		case tokOrd1_BLOCK:
-			return func() *FeatureCollector_FeatureContext {
-				if Object_equals(obj_(cast_[*FeatureCollector_FeatureContext](SequencedCollection_getLast(SequencedCollection(contextStack.asList())))), obj_(FeatureCollector_FeatureContext_FUNCTION)) {
+			return func() FeatureCollector_FeatureContext {
+				if Object_equals(obj_(cast_[FeatureCollector_FeatureContext](SequencedCollection_getLast(SequencedCollection(contextStack.asList())))), obj_(FeatureCollector_FeatureContext_FUNCTION)) {
 					return FeatureCollector_FeatureContext_NONE
 				}
 				return FeatureCollector_FeatureContext_BLOCK_SCOPE
@@ -228,50 +228,73 @@ func FeatureCollector_contextFor(contextStack *TList[*FeatureCollector_FeatureCo
 	}()
 }
 
-type FeatureCollector_FeatureContext struct {
-	Enum
+type FeatureCollector_FeatureContext uint8
+
+// FeatureCollector_FeatureContext_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var FeatureCollector_FeatureContext_enum_ = [8]Enum{
+	{self_: FeatureCollector_FeatureContext_PARAM_LIST, name_: "PARAM_LIST", ordinal_: 0},
+	{self_: FeatureCollector_FeatureContext_CLASS_MEMBERS, name_: "CLASS_MEMBERS", ordinal_: 1},
+	{self_: FeatureCollector_FeatureContext_CLASS, name_: "CLASS", ordinal_: 2},
+	{self_: FeatureCollector_FeatureContext_CATCH, name_: "CATCH", ordinal_: 3},
+	{self_: FeatureCollector_FeatureContext_BLOCK_SCOPE, name_: "BLOCK_SCOPE", ordinal_: 4},
+	{self_: FeatureCollector_FeatureContext_FUNCTION, name_: "FUNCTION", ordinal_: 5},
+	{self_: FeatureCollector_FeatureContext_OBJECT_LITERAL, name_: "OBJECT_LITERAL", ordinal_: 6},
+	{self_: FeatureCollector_FeatureContext_NONE, name_: "NONE", ordinal_: 7},
 }
 
-func (this *FeatureCollector_FeatureContext) up_Enum() *Enum {
-	if this == nil {
+func (this FeatureCollector_FeatureContext) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &FeatureCollector_FeatureContext_enum_[this-1]
 }
 
-func (this *FeatureCollector_FeatureContext) init_FeatureCollector_FeatureContext(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this FeatureCollector_FeatureContext) name() string {
+	return FeatureCollector_FeatureContext_enum_[this-1].name_
 }
 
-func new_FeatureCollector_FeatureContext(name_ string, ordinal_ int32) *FeatureCollector_FeatureContext {
-	this := &FeatureCollector_FeatureContext{}
-	this.self_ = this
-	this.init_FeatureCollector_FeatureContext(name_, ordinal_)
+func (this FeatureCollector_FeatureContext) ordinal() int32 {
+	return FeatureCollector_FeatureContext_enum_[this-1].ordinal_
+}
+
+func (this FeatureCollector_FeatureContext) toString() string {
+	return FeatureCollector_FeatureContext_enum_[this-1].name_
+}
+
+func (this FeatureCollector_FeatureContext) compareTo(o any) int32 {
+	return FeatureCollector_FeatureContext_enum_[this-1].compareTo(o)
+}
+
+func (this FeatureCollector_FeatureContext) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func FeatureCollector_FeatureContext_values() []*FeatureCollector_FeatureContext {
-	return append([]*FeatureCollector_FeatureContext(nil), FeatureCollector_FeatureContext_values_...)
+func FeatureCollector_FeatureContext_values() []FeatureCollector_FeatureContext {
+	return append([]FeatureCollector_FeatureContext(nil), FeatureCollector_FeatureContext_values_...)
 }
 
-func FeatureCollector_FeatureContext_valueOf(name string) *FeatureCollector_FeatureContext {
+func FeatureCollector_FeatureContext_valueOf(name string) FeatureCollector_FeatureContext {
 	for _, v := range FeatureCollector_FeatureContext_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("FeatureContext", name))
 }
 
-var FeatureCollector_FeatureContext_PARAM_LIST *FeatureCollector_FeatureContext
-var FeatureCollector_FeatureContext_CLASS_MEMBERS *FeatureCollector_FeatureContext
-var FeatureCollector_FeatureContext_CLASS *FeatureCollector_FeatureContext
-var FeatureCollector_FeatureContext_CATCH *FeatureCollector_FeatureContext
-var FeatureCollector_FeatureContext_BLOCK_SCOPE *FeatureCollector_FeatureContext
-var FeatureCollector_FeatureContext_FUNCTION *FeatureCollector_FeatureContext
-var FeatureCollector_FeatureContext_OBJECT_LITERAL *FeatureCollector_FeatureContext
-var FeatureCollector_FeatureContext_NONE *FeatureCollector_FeatureContext
-var FeatureCollector_FeatureContext_values_ []*FeatureCollector_FeatureContext
+const FeatureCollector_FeatureContext_PARAM_LIST FeatureCollector_FeatureContext = 1
+const FeatureCollector_FeatureContext_CLASS_MEMBERS FeatureCollector_FeatureContext = 2
+const FeatureCollector_FeatureContext_CLASS FeatureCollector_FeatureContext = 3
+const FeatureCollector_FeatureContext_CATCH FeatureCollector_FeatureContext = 4
+const FeatureCollector_FeatureContext_BLOCK_SCOPE FeatureCollector_FeatureContext = 5
+const FeatureCollector_FeatureContext_FUNCTION FeatureCollector_FeatureContext = 6
+const FeatureCollector_FeatureContext_OBJECT_LITERAL FeatureCollector_FeatureContext = 7
+const FeatureCollector_FeatureContext_NONE FeatureCollector_FeatureContext = 8
+
+var FeatureCollector_FeatureContext_values_ []FeatureCollector_FeatureContext
 
 var FeatureCollector_FeatureContext_clinit_done bool
 
@@ -280,15 +303,7 @@ func FeatureCollector_FeatureContext_clinit() {
 		return
 	}
 	FeatureCollector_FeatureContext_clinit_done = true
-	FeatureCollector_FeatureContext_PARAM_LIST = new_FeatureCollector_FeatureContext("PARAM_LIST", 0)
-	FeatureCollector_FeatureContext_CLASS_MEMBERS = new_FeatureCollector_FeatureContext("CLASS_MEMBERS", 1)
-	FeatureCollector_FeatureContext_CLASS = new_FeatureCollector_FeatureContext("CLASS", 2)
-	FeatureCollector_FeatureContext_CATCH = new_FeatureCollector_FeatureContext("CATCH", 3)
-	FeatureCollector_FeatureContext_BLOCK_SCOPE = new_FeatureCollector_FeatureContext("BLOCK_SCOPE", 4)
-	FeatureCollector_FeatureContext_FUNCTION = new_FeatureCollector_FeatureContext("FUNCTION", 5)
-	FeatureCollector_FeatureContext_OBJECT_LITERAL = new_FeatureCollector_FeatureContext("OBJECT_LITERAL", 6)
-	FeatureCollector_FeatureContext_NONE = new_FeatureCollector_FeatureContext("NONE", 7)
-	FeatureCollector_FeatureContext_values_ = []*FeatureCollector_FeatureContext{FeatureCollector_FeatureContext_PARAM_LIST, FeatureCollector_FeatureContext_CLASS_MEMBERS, FeatureCollector_FeatureContext_CLASS, FeatureCollector_FeatureContext_CATCH, FeatureCollector_FeatureContext_BLOCK_SCOPE, FeatureCollector_FeatureContext_FUNCTION, FeatureCollector_FeatureContext_OBJECT_LITERAL, FeatureCollector_FeatureContext_NONE}
+	FeatureCollector_FeatureContext_values_ = []FeatureCollector_FeatureContext{FeatureCollector_FeatureContext_PARAM_LIST, FeatureCollector_FeatureContext_CLASS_MEMBERS, FeatureCollector_FeatureContext_CLASS, FeatureCollector_FeatureContext_CATCH, FeatureCollector_FeatureContext_BLOCK_SCOPE, FeatureCollector_FeatureContext_FUNCTION, FeatureCollector_FeatureContext_OBJECT_LITERAL, FeatureCollector_FeatureContext_NONE}
 	registerEnum_("com.google.javascript.jscomp.parsing.FeatureCollector.FeatureContext", enumValues_(FeatureCollector_FeatureContext_values_))
 
 }

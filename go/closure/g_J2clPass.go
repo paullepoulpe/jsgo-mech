@@ -35,20 +35,20 @@ const J2clPass_ALL_CLASS_FILE_NAMES string = "*"
 type J2clPass_InlineSpec struct {
 	classFileName_   string
 	fnNamesToInline_ *TSet[string]
-	inliningMode_    *FunctionInjector_InliningMode
+	inliningMode_    FunctionInjector_InliningMode
 }
 
 func (this *J2clPass_InlineSpec) zero_J2clPass_InlineSpec() {
 	this.classFileName_ = nullstr_
 }
 
-func (this *J2clPass_InlineSpec) init_J2clPass_InlineSpec(classFileName string, fnNamesToInline *TSet[string], inliningMode *FunctionInjector_InliningMode) {
+func (this *J2clPass_InlineSpec) init_J2clPass_InlineSpec(classFileName string, fnNamesToInline *TSet[string], inliningMode FunctionInjector_InliningMode) {
 	this.classFileName_ = classFileName
 	this.fnNamesToInline_ = fnNamesToInline
 	this.inliningMode_ = inliningMode
 }
 
-func new_J2clPass_InlineSpec(classFileName string, fnNamesToInline *TSet[string], inliningMode *FunctionInjector_InliningMode) *J2clPass_InlineSpec {
+func new_J2clPass_InlineSpec(classFileName string, fnNamesToInline *TSet[string], inliningMode FunctionInjector_InliningMode) *J2clPass_InlineSpec {
 	this := &J2clPass_InlineSpec{}
 	this.zero_J2clPass_InlineSpec()
 	this.init_J2clPass_InlineSpec(classFileName, fnNamesToInline, inliningMode)
@@ -63,7 +63,7 @@ func (this *J2clPass_InlineSpec) fnNamesToInline() *TSet[string] {
 	return this.fnNamesToInline_
 }
 
-func (this *J2clPass_InlineSpec) inliningMode() *FunctionInjector_InliningMode {
+func (this *J2clPass_InlineSpec) inliningMode() FunctionInjector_InliningMode {
 	return this.inliningMode_
 }
 
@@ -140,15 +140,15 @@ func (this *J2clPass_ClassStaticFunctionsInliner) findMatchingSpecsForFile(sourc
 
 type J2clPass_ClassStaticFunctionsInliner_InlinableFunction struct {
 	impl_         Node
-	inliningMode_ *FunctionInjector_InliningMode
+	inliningMode_ FunctionInjector_InliningMode
 }
 
-func (this *J2clPass_ClassStaticFunctionsInliner_InlinableFunction) init_J2clPass_ClassStaticFunctionsInliner_InlinableFunction(impl Node, inliningMode *FunctionInjector_InliningMode) {
+func (this *J2clPass_ClassStaticFunctionsInliner_InlinableFunction) init_J2clPass_ClassStaticFunctionsInliner_InlinableFunction(impl Node, inliningMode FunctionInjector_InliningMode) {
 	this.impl_ = impl
 	this.inliningMode_ = inliningMode
 }
 
-func new_J2clPass_ClassStaticFunctionsInliner_InlinableFunction(impl Node, inliningMode *FunctionInjector_InliningMode) *J2clPass_ClassStaticFunctionsInliner_InlinableFunction {
+func new_J2clPass_ClassStaticFunctionsInliner_InlinableFunction(impl Node, inliningMode FunctionInjector_InliningMode) *J2clPass_ClassStaticFunctionsInliner_InlinableFunction {
 	this := &J2clPass_ClassStaticFunctionsInliner_InlinableFunction{}
 	this.init_J2clPass_ClassStaticFunctionsInliner_InlinableFunction(impl, inliningMode)
 	return this
@@ -158,7 +158,7 @@ func (this *J2clPass_ClassStaticFunctionsInliner_InlinableFunction) impl() Node 
 	return this.impl_
 }
 
-func (this *J2clPass_ClassStaticFunctionsInliner_InlinableFunction) inliningMode() *FunctionInjector_InliningMode {
+func (this *J2clPass_ClassStaticFunctionsInliner_InlinableFunction) inliningMode() FunctionInjector_InliningMode {
 	return this.inliningMode_
 }
 
@@ -287,7 +287,7 @@ func (this *J2clPass_ClassStaticFunctionsInliner_StaticCallInliner) visit_impl(t
 	}
 	var fnName string = qualifiedNameNode.getString()
 	var fnImpl Node = fn.impl()
-	var inliningMode *FunctionInjector_InliningMode = fn.inliningMode()
+	var inliningMode FunctionInjector_InliningMode = fn.inliningMode()
 	if (inliningMode == FunctionInjector_InliningMode_DIRECT) && !NodeUtil_getFunctionBody(fnImpl).getFirstChild().isReturn() {
 		panic(new_IllegalStateException_String(("Attempted to direct inline function " + sstr_(qualifiedFnName) + ", but function is not a simple return.")).self())
 	}

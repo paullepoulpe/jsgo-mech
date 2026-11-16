@@ -33,7 +33,7 @@ func RescopeGlobalSymbolsRenameHelper_getDisambiguatedLocalName(name string) str
 	return (sstr_(name) + sstr_(RescopeGlobalSymbolsRenameHelper_DISAMBIGUATION_SUFFIX))
 }
 
-func RescopeGlobalSymbolsRenameHelper_collectUnwrappedLocalNamesInDefiningChunk(optimizeLocalAccess *CompilerOptions_OptimizeLocalAccess, symbolInfo *RescopeGlobalSymbolsInfo, namesStartingWithUnderscore *TSet[string]) ImmutableMapOf[string, string] {
+func RescopeGlobalSymbolsRenameHelper_collectUnwrappedLocalNamesInDefiningChunk(optimizeLocalAccess CompilerOptions_OptimizeLocalAccess, symbolInfo *RescopeGlobalSymbolsInfo, namesStartingWithUnderscore *TSet[string]) ImmutableMapOf[string, string] {
 	if !optimizeLocalAccess.shouldKeepLocalAliasForWrappedReassignables() {
 		return ImmutableMap_of()
 	}
@@ -91,7 +91,7 @@ const RescopeGlobalSymbolsRenameHelper_UNWRAPPED_LOCAL_NAME_PREFIX string = "_"
 type RescopeGlobalSymbolsRenameHelper_HelperBuilder struct {
 	compiler_                   *AbstractCompiler
 	globalSymbolNamespace_      string
-	optimizeLocalAccess         *CompilerOptions_OptimizeLocalAccess
+	optimizeLocalAccess         CompilerOptions_OptimizeLocalAccess
 	namesStartingWithUnderscore *TSet[string]
 }
 
@@ -103,14 +103,14 @@ func (this *RescopeGlobalSymbolsRenameHelper_HelperBuilder) finit_RescopeGlobalS
 	this.namesStartingWithUnderscore = newTSet_(tc_string)
 }
 
-func (this *RescopeGlobalSymbolsRenameHelper_HelperBuilder) init_RescopeGlobalSymbolsRenameHelper_HelperBuilder(compiler *AbstractCompiler, globalSymbolNamespace string, optimizeLocalAccess *CompilerOptions_OptimizeLocalAccess) {
+func (this *RescopeGlobalSymbolsRenameHelper_HelperBuilder) init_RescopeGlobalSymbolsRenameHelper_HelperBuilder(compiler *AbstractCompiler, globalSymbolNamespace string, optimizeLocalAccess CompilerOptions_OptimizeLocalAccess) {
 	this.finit_RescopeGlobalSymbolsRenameHelper_HelperBuilder()
 	this.compiler_ = compiler
 	this.globalSymbolNamespace_ = globalSymbolNamespace
 	this.optimizeLocalAccess = optimizeLocalAccess
 }
 
-func new_RescopeGlobalSymbolsRenameHelper_HelperBuilder(compiler *AbstractCompiler, globalSymbolNamespace string, optimizeLocalAccess *CompilerOptions_OptimizeLocalAccess) *RescopeGlobalSymbolsRenameHelper_HelperBuilder {
+func new_RescopeGlobalSymbolsRenameHelper_HelperBuilder(compiler *AbstractCompiler, globalSymbolNamespace string, optimizeLocalAccess CompilerOptions_OptimizeLocalAccess) *RescopeGlobalSymbolsRenameHelper_HelperBuilder {
 	this := &RescopeGlobalSymbolsRenameHelper_HelperBuilder{}
 	this.zero_RescopeGlobalSymbolsRenameHelper_HelperBuilder()
 	this.init_RescopeGlobalSymbolsRenameHelper_HelperBuilder(compiler, globalSymbolNamespace, optimizeLocalAccess)
