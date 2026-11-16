@@ -1336,7 +1336,14 @@ func (this *NodeTraversal_AbstractShallowStatementCallback) as_NodeTraversal_Abs
 }
 
 func to_NodeTraversal_AbstractShallowStatementCallback(v any) *NodeTraversal_AbstractShallowStatementCallback {
-	if v == nil {
+	switch p := v.(type) {
+	case *DeclaredGlobalExternsOnWindow:
+		return p.as_NodeTraversal_AbstractShallowStatementCallback()
+	case *RescopeGlobalSymbols_RemoveGlobalVarCallback:
+		return p.as_NodeTraversal_AbstractShallowStatementCallback()
+	case *RescopeGlobalSymbols_RewriteGlobalClassFunctionDeclarationsToVarAssignmentsCallback:
+		return p.as_NodeTraversal_AbstractShallowStatementCallback()
+	case nil:
 		return nil
 	}
 	return v.(interface {
@@ -1393,7 +1400,14 @@ func (this *NodeTraversal_AbstractModuleCallback) as_NodeTraversal_AbstractModul
 }
 
 func to_NodeTraversal_AbstractModuleCallback(v any) *NodeTraversal_AbstractModuleCallback {
-	if v == nil {
+	switch p := v.(type) {
+	case *CheckClosureImports_Checker:
+		return p.as_NodeTraversal_AbstractModuleCallback()
+	case *CheckMissingRequires:
+		return p.as_NodeTraversal_AbstractModuleCallback()
+	case *ClosureCheckModule:
+		return p.as_NodeTraversal_AbstractModuleCallback()
+	case nil:
 		return nil
 	}
 	return v.(interface {
@@ -1526,7 +1540,10 @@ func (this *NodeTraversal_AbstractChangedScopeCallback) as_NodeTraversal_Abstrac
 }
 
 func to_NodeTraversal_AbstractChangedScopeCallback(v any) *NodeTraversal_AbstractChangedScopeCallback {
-	if v == nil {
+	switch p := v.(type) {
+	case *DeadPropertyAssignmentElimination_FunctionVisitor:
+		return p.as_NodeTraversal_AbstractChangedScopeCallback()
+	case nil:
 		return nil
 	}
 	return v.(interface {

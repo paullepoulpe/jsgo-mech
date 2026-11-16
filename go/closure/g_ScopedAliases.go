@@ -286,7 +286,12 @@ func (this *ScopedAliases_AliasUsage) as_ScopedAliases_AliasUsage() *ScopedAlias
 }
 
 func to_ScopedAliases_AliasUsage(v any) *ScopedAliases_AliasUsage {
-	if v == nil {
+	switch p := v.(type) {
+	case *ScopedAliases_AliasedNode:
+		return p.as_ScopedAliases_AliasUsage()
+	case *ScopedAliases_AliasedTypeNode:
+		return p.as_ScopedAliases_AliasUsage()
+	case nil:
 		return nil
 	}
 	return v.(interface {

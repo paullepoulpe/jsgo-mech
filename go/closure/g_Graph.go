@@ -30,7 +30,14 @@ type Graph_I interface {
 func (this *Graph) as_Graph() *Graph { return this }
 
 func to_Graph(v any) *Graph {
-	if v == nil {
+	switch p := v.(type) {
+	case *ControlFlowAnalysis_AstControlFlowGraph:
+		return p.as_Graph()
+	case *LinkedDirectedGraph:
+		return p.as_Graph()
+	case *LinkedUndirectedGraph:
+		return p.as_Graph()
+	case nil:
 		return nil
 	}
 	return v.(interface{ as_Graph() *Graph }).as_Graph()

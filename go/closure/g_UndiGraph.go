@@ -9,7 +9,10 @@ type UndiGraph struct {
 func (this *UndiGraph) as_UndiGraph() *UndiGraph { return this }
 
 func to_UndiGraph(v any) *UndiGraph {
-	if v == nil {
+	switch p := v.(type) {
+	case *LinkedUndirectedGraph:
+		return p.as_UndiGraph()
+	case nil:
 		return nil
 	}
 	return v.(interface{ as_UndiGraph() *UndiGraph }).as_UndiGraph()

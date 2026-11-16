@@ -376,7 +376,12 @@ type Source_Lazy_I interface {
 func (this *Source_Lazy) as_Source_Lazy() *Source_Lazy { return this }
 
 func to_Source_Lazy(v any) *Source_Lazy {
-	if v == nil {
+	switch p := v.(type) {
+	case *Source_Lazy_1:
+		return p.as_Source_Lazy()
+	case *Source_Lazy_2:
+		return p.as_Source_Lazy()
+	case nil:
 		return nil
 	}
 	return v.(interface{ as_Source_Lazy() *Source_Lazy }).as_Source_Lazy()

@@ -253,7 +253,12 @@ func (this *LinkedUndirectedGraph_LinkedUndirectedGraphNode) as_LinkedUndirected
 }
 
 func to_LinkedUndirectedGraph_LinkedUndirectedGraphNode(v any) *LinkedUndirectedGraph_LinkedUndirectedGraphNode {
-	if v == nil {
+	switch p := v.(type) {
+	case *LinkedUndirectedGraph_LinkedUndirectedGraphNode:
+		return p
+	case *LinkedUndirectedGraph_AnnotatedLinkedUndirectedGraphNode:
+		return p.as_LinkedUndirectedGraph_LinkedUndirectedGraphNode()
+	case nil:
 		return nil
 	}
 	return v.(interface {
@@ -395,7 +400,12 @@ func (this *LinkedUndirectedGraph_LinkedUndirectedGraphEdge) as_LinkedUndirected
 }
 
 func to_LinkedUndirectedGraph_LinkedUndirectedGraphEdge(v any) *LinkedUndirectedGraph_LinkedUndirectedGraphEdge {
-	if v == nil {
+	switch p := v.(type) {
+	case *LinkedUndirectedGraph_LinkedUndirectedGraphEdge:
+		return p
+	case *LinkedUndirectedGraph_AnnotatedLinkedUndirectedGraphEdge:
+		return p.as_LinkedUndirectedGraph_LinkedUndirectedGraphEdge()
+	case nil:
 		return nil
 	}
 	return v.(interface {

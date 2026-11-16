@@ -53,7 +53,12 @@ func (this *ConvertTypesToColors_RemoveTypes) as_ConvertTypesToColors_RemoveType
 }
 
 func to_ConvertTypesToColors_RemoveTypes(v any) *ConvertTypesToColors_RemoveTypes {
-	if v == nil {
+	switch p := v.(type) {
+	case *ConvertTypesToColors_RemoveTypes:
+		return p
+	case *ConvertTypesToColors_RemoveTypesAndApplyColors:
+		return p.as_ConvertTypesToColors_RemoveTypes()
+	case nil:
 		return nil
 	}
 	return v.(interface {

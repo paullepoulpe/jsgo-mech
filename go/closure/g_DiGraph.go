@@ -9,7 +9,12 @@ type DiGraph struct {
 func (this *DiGraph) as_DiGraph() *DiGraph { return this }
 
 func to_DiGraph(v any) *DiGraph {
-	if v == nil {
+	switch p := v.(type) {
+	case *ControlFlowAnalysis_AstControlFlowGraph:
+		return p.as_DiGraph()
+	case *LinkedDirectedGraph:
+		return p.as_DiGraph()
+	case nil:
 		return nil
 	}
 	return v.(interface{ as_DiGraph() *DiGraph }).as_DiGraph()

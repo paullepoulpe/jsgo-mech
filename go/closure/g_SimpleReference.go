@@ -11,7 +11,12 @@ type SimpleReference struct {
 func (this *SimpleReference) as_SimpleReference() *SimpleReference { return this }
 
 func to_SimpleReference(v any) *SimpleReference {
-	if v == nil {
+	switch p := v.(type) {
+	case *PreprocessorSymbolTable_Reference:
+		return p.as_SimpleReference()
+	case *SymbolTable_Reference:
+		return p.as_SimpleReference()
+	case nil:
 		return nil
 	}
 	return v.(interface{ as_SimpleReference() *SimpleReference }).as_SimpleReference()

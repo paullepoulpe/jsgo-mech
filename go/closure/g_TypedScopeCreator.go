@@ -593,7 +593,14 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) as_TypedScopeCreator_Abstrac
 }
 
 func to_TypedScopeCreator_AbstractScopeBuilder(v any) *TypedScopeCreator_AbstractScopeBuilder {
-	if v == nil {
+	switch p := v.(type) {
+	case *TypedScopeCreator_ClassScopeBuilder:
+		return p.as_TypedScopeCreator_AbstractScopeBuilder()
+	case *TypedScopeCreator_FunctionScopeBuilder:
+		return p.as_TypedScopeCreator_AbstractScopeBuilder()
+	case *TypedScopeCreator_NormalScopeBuilder:
+		return p.as_TypedScopeCreator_AbstractScopeBuilder()
+	case nil:
 		return nil
 	}
 	return v.(interface {

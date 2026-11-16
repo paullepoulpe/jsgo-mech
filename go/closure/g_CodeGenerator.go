@@ -26,7 +26,12 @@ type CodeGenerator_I interface {
 func (this *CodeGenerator) as_CodeGenerator() *CodeGenerator { return this }
 
 func to_CodeGenerator(v any) *CodeGenerator {
-	if v == nil {
+	switch p := v.(type) {
+	case *CodeGenerator:
+		return p
+	case *TypedCodeGenerator:
+		return p.as_CodeGenerator()
+	case nil:
 		return nil
 	}
 	return v.(interface{ as_CodeGenerator() *CodeGenerator }).as_CodeGenerator()

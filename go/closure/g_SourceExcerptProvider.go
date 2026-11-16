@@ -18,7 +18,14 @@ func (this *SourceExcerptProvider_SourceExcerpt) as_SourceExcerptProvider_Source
 }
 
 func to_SourceExcerptProvider_SourceExcerpt(v any) *SourceExcerptProvider_SourceExcerpt {
-	if v == nil {
+	switch p := v.(type) {
+	case *SourceExcerptProvider_SourceExcerpt_1:
+		return p.as_SourceExcerptProvider_SourceExcerpt()
+	case *SourceExcerptProvider_SourceExcerpt_2:
+		return p.as_SourceExcerptProvider_SourceExcerpt()
+	case *SourceExcerptProvider_SourceExcerpt_3:
+		return p.as_SourceExcerptProvider_SourceExcerpt()
+	case nil:
 		return nil
 	}
 	return v.(interface {

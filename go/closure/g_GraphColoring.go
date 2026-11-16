@@ -11,7 +11,10 @@ type GraphColoring struct {
 func (this *GraphColoring) as_GraphColoring() *GraphColoring { return this }
 
 func to_GraphColoring(v any) *GraphColoring {
-	if v == nil {
+	switch p := v.(type) {
+	case *GraphColoring_GreedyGraphColoring:
+		return p.as_GraphColoring()
+	case nil:
 		return nil
 	}
 	return v.(interface{ as_GraphColoring() *GraphColoring }).as_GraphColoring()

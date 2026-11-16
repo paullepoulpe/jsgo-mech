@@ -126,7 +126,14 @@ func (this *InlineVariables_VarExpert) as_InlineVariables_VarExpert() *InlineVar
 }
 
 func to_InlineVariables_VarExpert(v any) *InlineVariables_VarExpert {
-	if v == nil {
+	switch p := v.(type) {
+	case *InlineVariables_1:
+		return p.as_InlineVariables_VarExpert()
+	case *InlineVariables_2:
+		return p.as_InlineVariables_VarExpert()
+	case *InlineVariables_InliningBehavior_StandardVarExpert:
+		return p.as_InlineVariables_VarExpert()
+	case nil:
 		return nil
 	}
 	return v.(interface {

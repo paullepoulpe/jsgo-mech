@@ -12,7 +12,12 @@ type LinkedDirectedGraph struct {
 func (this *LinkedDirectedGraph) as_LinkedDirectedGraph() *LinkedDirectedGraph { return this }
 
 func to_LinkedDirectedGraph(v any) *LinkedDirectedGraph {
-	if v == nil {
+	switch p := v.(type) {
+	case *LinkedDirectedGraph:
+		return p
+	case *ControlFlowAnalysis_AstControlFlowGraph:
+		return p.as_LinkedDirectedGraph()
+	case nil:
 		return nil
 	}
 	return v.(interface{ as_LinkedDirectedGraph() *LinkedDirectedGraph }).as_LinkedDirectedGraph()
@@ -394,7 +399,12 @@ func (this *LinkedDirectedGraph_LinkedDiGraphNode) as_LinkedDirectedGraph_Linked
 }
 
 func to_LinkedDirectedGraph_LinkedDiGraphNode(v any) *LinkedDirectedGraph_LinkedDiGraphNode {
-	if v == nil {
+	switch p := v.(type) {
+	case *LinkedDirectedGraph_LinkedDiGraphNode:
+		return p
+	case *LinkedDirectedGraph_AnnotatedLinkedDiGraphNode:
+		return p.as_LinkedDirectedGraph_LinkedDiGraphNode()
+	case nil:
 		return nil
 	}
 	return v.(interface {
@@ -554,7 +564,12 @@ func (this *LinkedDirectedGraph_LinkedDiGraphEdge) as_LinkedDirectedGraph_Linked
 }
 
 func to_LinkedDirectedGraph_LinkedDiGraphEdge(v any) *LinkedDirectedGraph_LinkedDiGraphEdge {
-	if v == nil {
+	switch p := v.(type) {
+	case *LinkedDirectedGraph_LinkedDiGraphEdge:
+		return p
+	case *LinkedDirectedGraph_AnnotatedLinkedDiGraphEdge:
+		return p.as_LinkedDirectedGraph_LinkedDiGraphEdge()
+	case nil:
 		return nil
 	}
 	return v.(interface {
