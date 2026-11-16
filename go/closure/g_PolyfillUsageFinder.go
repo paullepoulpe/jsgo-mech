@@ -567,7 +567,7 @@ func (this *PolyfillUsageFinder_Traverser) visitGetPropChain(traversal *NodeTrav
 		}
 	} else {
 		var propertyName string = getPropNode.getString()
-		var methodPolyfills ListOf[*PolyfillUsageFinder_Polyfill] = this.outer_.polyfills.methods.get(strobj_(propertyName))
+		var methodPolyfills ListOf[*PolyfillUsageFinder_Polyfill] = this.outer_.polyfills.methods.get_s(propertyName)
 		if !methodPolyfills.isEmpty() && this.includeGuardedUsages.shouldInclude(this.isGuarded(strobj_(("." + sstr_(propertyName))))) {
 			it_1 := foreach_(any(methodPolyfills))
 			for it_1.next() {
