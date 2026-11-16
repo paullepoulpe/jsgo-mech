@@ -1808,6 +1808,10 @@ func Collection_contains_s(c any, k string) bool {
 			if x != nil {
 				return x.contains_s(k)
 			}
+		case *Sets_SetView:
+			if x != nil && x.hasStr != nil {
+				return x.hasStr(k)
+			}
 		}
 	}
 	return asColl_(c).contains(strobj_(k))
