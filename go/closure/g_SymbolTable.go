@@ -2058,7 +2058,7 @@ func (this *SymbolTable_3) visit_impl(t *NodeTraversal, n Node, parent Node) {
 		var ns *SymbolTable_Symbol = this.outer_.declareSymbol(namespaceName, nil, false, this.outer_.getGlobalScope(), arg, nil)
 		this.cap_declaredNamespaces[namespaceName] = ns
 		if n.getGrandparent().isModuleBody() {
-			this.cap_moduleScopes[arg.getString()] = cast_[*SymbolTable_SymbolScope](obj_(this.outer_.scopes.get(n.getGrandparent())))
+			this.cap_moduleScopes[arg.getString()] = this.outer_.scopes.get(n.getGrandparent())
 		}
 	default:
 	}

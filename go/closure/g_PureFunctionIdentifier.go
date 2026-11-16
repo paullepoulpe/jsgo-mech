@@ -704,7 +704,7 @@ func (this *PureFunctionIdentifier_FunctionBodyAnalyzer) exitScope(t *NodeTraver
 	it_1 := foreach_(any(this.outer_.summariesForAllNamesOfFunctionByNode.get(functionEntry.root.box_())))
 	for it_1.next() {
 		var sideEffectInfo *PureFunctionIdentifier_AmbiguatedFunctionSummary = cast_[*PureFunctionIdentifier_AmbiguatedFunctionSummary](it_1.v)
-		if v_, a1_ := obj_(sideEffectInfo), functionEntry.root; v_ == nil {
+		if v_, a1_ := sideEffectInfo, functionEntry.root; v_ == nil {
 			Preconditions_checkNotNull_Object_String_Object(nil, "%s has no side effect info.", a1_.box_())
 		}
 		if sideEffectInfo.mutatesGlobalState() {

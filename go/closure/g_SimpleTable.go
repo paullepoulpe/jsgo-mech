@@ -64,8 +64,8 @@ func (this *SimpleTable) remove(rowKey any, columnKey any) any {
 	return value
 }
 
-func (this *SimpleTable) row(rowKey any) MapOf[any, any] {
-	var row MapOf[any, any] = icast_Map(this.rows.get(rowKey))
+func (this *SimpleTable) row(rowKey *ColorId) MapOf[any, any] {
+	var row MapOf[any, any] = icast_Map(this.rows.get(obj_(rowKey)))
 	return func() Map {
 		if row == nil {
 			return icast_Map(obj_(ImmutableMap_of()))

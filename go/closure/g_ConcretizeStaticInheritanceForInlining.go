@@ -235,7 +235,7 @@ func (this *ConcretizeStaticInheritanceForInlining_FindStaticMembers) visitFunct
 
 func (this *ConcretizeStaticInheritanceForInlining_FindStaticMembers) setAlias(original string, alias string) {
 	Preconditions_checkArgument(has_(this.outer_.classByAlias, original))
-	this.outer_.classByAlias[alias] = cast_[*ConcretizeStaticInheritanceForInlining_JavascriptClass](obj_(this.outer_.classByAlias[original]))
+	this.outer_.classByAlias[alias] = this.outer_.classByAlias[original]
 }
 
 func (this *ConcretizeStaticInheritanceForInlining_FindStaticMembers) visitAssign(t *NodeTraversal, n Node) {

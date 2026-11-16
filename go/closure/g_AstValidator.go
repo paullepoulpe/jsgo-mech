@@ -364,7 +364,7 @@ func (this *AstValidator) validateCallType(callNode Node) {
 		}
 	case AstValidator_TypeInfoValidation_COLOR:
 		var callee Node = callNode.getFirstChild()
-		if v_, a1_ := obj_(callee.getColor()), callNode.toStringTree(); v_ == nil {
+		if v_, a1_ := callee.getColor(), callNode.toStringTree(); v_ == nil {
 			Preconditions_checkNotNull_Object_String_Object(nil, "Callee of\n\n%s\nhas no color.", strobj_(a1_))
 		}
 	case AstValidator_TypeInfoValidation_NONE:

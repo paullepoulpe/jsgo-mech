@@ -146,7 +146,7 @@ func (this *DataFlowAnalysis) flow(node DiGraph_DiGraphNode) bool {
 		return changed
 	} else {
 		var inBefore LatticeElement = icast_LatticeElement(state.getIn())
-		state.setIn(any(this.flowThrough(node.getValue(), icast_LatticeElement(state.getOut()))))
+		state.setIn(this.flowThrough(node.getValue(), icast_LatticeElement(state.getOut())))
 		return !Object_equals(any(inBefore), state.getIn())
 	}
 	panic("unreachable")
@@ -155,7 +155,7 @@ func (this *DataFlowAnalysis) flow(node DiGraph_DiGraphNode) bool {
 func (this *DataFlowAnalysis) joinInputs(node DiGraph_DiGraphNode) {
 	var state *DataFlowAnalysis_LinearFlowState = cast_[*DataFlowAnalysis_LinearFlowState](Annotatable_getAnnotation(Annotatable(node)))
 	if this.isForward() && (this.cfg.getEntry() == node) {
-		state.setIn(any(this.createEntryLattice()))
+		state.setIn(this.createEntryLattice())
 		return
 	}
 	var inEdges *TList[DiGraph_DiGraphEdge] = func() *TList[DiGraph_DiGraphEdge] {
@@ -180,7 +180,7 @@ func (this *DataFlowAnalysis) joinInputs(node DiGraph_DiGraphNode) {
 		result = icast_LatticeElement(joiner.finish())
 	}
 	if this.isForward() {
-		state.setIn(any(result))
+		state.setIn(result)
 	} else {
 		state.setOut(any(result))
 	}
@@ -308,9 +308,9 @@ func (this *DataFlowAnalysis_LinearFlowState) getIn() any {
 	return this.in
 }
 
-func (this *DataFlowAnalysis_LinearFlowState) setIn(in any) {
-	Preconditions_checkNotNull(in)
-	this.in = in
+func (this *DataFlowAnalysis_LinearFlowState) setIn(in LatticeElement) {
+	Preconditions_checkNotNull(any(in))
+	this.in = any(in)
 }
 
 func (this *DataFlowAnalysis_LinearFlowState) getOut() any {
