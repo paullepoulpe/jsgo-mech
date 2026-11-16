@@ -311,7 +311,7 @@ func (this *ProcessTweaks_CollectTweaks) visit_impl(t *NodeTraversal, n Node, pa
 	var tweakInfo *ProcessTweaks_TweakInfo = this.allTweaks.computeIfAbsent_f(tweakId, func(p0 any) any { return obj_(new_ProcessTweaks_TweakInfo(this.outer_, str_(p0))) })
 	switch tweakFunc {
 	case ProcessTweaks_TweakFunction_REGISTER_BOOLEAN, ProcessTweaks_TweakFunction_REGISTER_NUMBER, ProcessTweaks_TweakFunction_REGISTER_STRING:
-		if !ProcessTweaks_ID_MATCHER.matchesAllOf(strobj_(tweakId)) {
+		if !ProcessTweaks_ID_MATCHER.matchesAllOf_s(tweakId) {
 			this.outer_.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(tweakIdNode, ProcessTweaks_INVALID_TWEAK_ID_ERROR, []string{}))
 		}
 		if !t.inGlobalHoistScope() {

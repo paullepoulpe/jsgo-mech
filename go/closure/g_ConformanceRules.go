@@ -279,7 +279,7 @@ func (this *ConformanceRules_AllowList) matches(path string) bool {
 			}
 		}
 	}
-	return ((this.regexp != nil) && (this.regexp.matcher(strobj_(path)).find() || (tsPath.isPresent() && this.regexp.matcher(strobj_(tsPath.get())).find())))
+	return ((this.regexp != nil) && (this.regexp.matcher_s(path).find() || (tsPath.isPresent() && this.regexp.matcher_s(tsPath.get()).find())))
 }
 
 type ConformanceRules_AbstractRule struct {
@@ -429,7 +429,7 @@ func ConformanceRules_AbstractRule_getTypeMatchingStrategy(requirement *Requirem
 func (this *ConformanceRules_AbstractRule) findAllowListForPath(path string) *ConformanceRules_AllowList {
 	var pathRegex Optional_baseOf[*Pattern] = this.compiler_.getOptions().getConformanceRemoveRegexFromPath()
 	if pathRegex.isPresent() {
-		path = cast_[*Pattern](pathRegex.get()).matcher(strobj_(path)).replaceFirst("")
+		path = cast_[*Pattern](pathRegex.get()).matcher_s(path).replaceFirst("")
 	}
 	for _, allowlist := range this.allowlists {
 		if allowlist.matches(path) {
@@ -877,7 +877,7 @@ func (this *ConformanceRules_BannedDependencyRegex) initBannedDependencyRegex(co
 func (this *ConformanceRules_BannedDependencyRegex) checkConformance_impl(t *NodeTraversal, n Node) *ConformanceRules_ConformanceResult {
 	if n.isScript() {
 		var srcFile string = n.getSourceFileName()
-		if (this.pathRegexp != nil) && this.pathRegexp.matcher(strobj_(srcFile)).find() {
+		if (this.pathRegexp != nil) && this.pathRegexp.matcher_s(srcFile).find() {
 			return ConformanceRules_ConformanceResult_VIOLATION
 		}
 	}
@@ -1366,13 +1366,13 @@ func (this *ConformanceRules_BannedStringRegex) checkConformance_impl(traversal 
 		return ConformanceRules_ConformanceResult_CONFORMANCE
 	}
 	if node.isStringLit() {
-		if this.stringPattern.matcher(strobj_(node.getString())).matches() {
+		if this.stringPattern.matcher_s(node.getString()).matches() {
 			return ConformanceRules_ConformanceResult_VIOLATION
 		}
 	} else if node.isTemplateLitString() {
 		var cookedString OptionalOf[string] = node.getCookedString()
 		if cookedString.isPresent() {
-			if this.stringPattern.matcher(strobj_(cookedString.get())).matches() {
+			if this.stringPattern.matcher_s(cookedString.get()).matches() {
 				return ConformanceRules_ConformanceResult_VIOLATION
 			}
 		} else {
@@ -1380,7 +1380,7 @@ func (this *ConformanceRules_BannedStringRegex) checkConformance_impl(traversal 
 				Preconditions_checkState_boolean_String_Object(false, "Found untagged template literal with invalid (uncookable) escape sequence: %s", strobj_(a1_))
 			}
 			var rawString string = node.getRawString()
-			if this.stringPattern.matcher(strobj_(rawString)).matches() {
+			if this.stringPattern.matcher_s(rawString).matches() {
 				return ConformanceRules_ConformanceResult_VIOLATION
 			}
 		}
@@ -1459,7 +1459,7 @@ func ConformanceRules_ConformanceUtil_validateParameterList(compiler *AbstractCo
 }
 
 func ConformanceRules_ConformanceUtil_getPropertyFromDeclarationName(specName string) OptionalOf[string] {
-	var parts []string = sliceImm_(tc_string, ConformanceRules_ON_PROTOTYPE.splitToList(strobj_(specName)))
+	var parts []string = sliceImm_(tc_string, ConformanceRules_ON_PROTOTYPE.splitToList_s(specName))
 	Preconditions_checkState(((int32(len(parts)) == 1) || (int32(len(parts)) == 2)))
 	if int32(len(parts)) == 2 {
 		return Optional_ofNullable[string](sliceAt_(parts, 1))
@@ -1469,7 +1469,7 @@ func ConformanceRules_ConformanceUtil_getPropertyFromDeclarationName(specName st
 
 func ConformanceRules_ConformanceUtil_getClassFromDeclarationName(specName string) OptionalOf[string] {
 	var tmp string = specName
-	var parts []string = sliceImm_(tc_string, ConformanceRules_ON_PROTOTYPE.splitToList(strobj_(tmp)))
+	var parts []string = sliceImm_(tc_string, ConformanceRules_ON_PROTOTYPE.splitToList_s(tmp))
 	Preconditions_checkState(((int32(len(parts)) == 1) || (int32(len(parts)) == 2)))
 	if int32(len(parts)) == 2 {
 		return Optional_ofNullable[string](sliceAt_(parts, 0))
@@ -3129,7 +3129,7 @@ func (this *ConformanceRules_BannedModsRegex) checkConformance_impl(t *NodeTrave
 	if (docInfo == nil) || !docInfo.hasMods() {
 		return ConformanceRules_ConformanceResult_CONFORMANCE
 	}
-	if this.bannedModsRegex.matcher(strobj_(docInfo.getMods())).find() {
+	if this.bannedModsRegex.matcher_s(docInfo.getMods()).find() {
 		return ConformanceRules_ConformanceResult_VIOLATION
 	}
 	return ConformanceRules_ConformanceResult_CONFORMANCE
@@ -3286,7 +3286,7 @@ func (this *ConformanceRules_BanCreateDom) initBanCreateDom(compiler *AbstractCo
 	it_1 := foreach_(any(icast_ProtocolStringList(requirement.getValueList())))
 	for it_1.next() {
 		var value string = str_(it_1.v)
-		var tagAttr []string = sliceImm_(tc_string, ConformanceRules_ON_DOT.splitToList(strobj_(value)))
+		var tagAttr []string = sliceImm_(tc_string, ConformanceRules_ON_DOT.splitToList_s(value))
 		if ((int32(len(tagAttr)) != 2) || String_isEmpty(sliceAt_(tagAttr, 0))) || String_isEmpty(sliceAt_(tagAttr, 1)) {
 			return Outcome_base_err(new_CheckConformance_InvalidRequirementSpec_String("Values must be in the format tagname.attribute.").up_Throwable())
 		}

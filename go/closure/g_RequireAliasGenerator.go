@@ -8,7 +8,7 @@ type RequireAliasGenerator struct {
 }
 
 func (this *RequireAliasGenerator) init_RequireAliasGenerator(namespace string) {
-	this.parts = sliceImm_(tc_string, ImmutableList_copyOf_Iterable(RequireAliasGenerator_DOT_SPLITTER.split(strobj_(namespace))).reverse())
+	this.parts = sliceImm_(tc_string, ImmutableList_copyOf_Iterable(RequireAliasGenerator_DOT_SPLITTER.split_s(namespace)).reverse())
 	this.capitalize = Ascii_isUpperCase(String_charAt(sliceAt_(this.parts, 0), 0))
 }
 

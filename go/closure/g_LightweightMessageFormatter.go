@@ -233,7 +233,7 @@ func (this *LightweightMessageFormatter) padMultipleLines(startCharno int32, sou
 		var charWithLineNumberOffset int32 = ((startCharno + String_indexOf(sourceExcerpt, 124)) + 2)
 		return this.padLine(charWithLineNumberOffset, sourceExcerpt, b, -1, 0)
 	}
-	var lines []string = sliceImm_(tc_string, Splitter_on('\n').splitToList(strobj_(sourceExcerpt)))
+	var lines []string = sliceImm_(tc_string, Splitter_on('\n').splitToList_s(sourceExcerpt))
 	var requiresTruncation bool = (int32(len(lines)) > LightweightMessageFormatter_MAX_MULTILINE_ERROR_LENGTH)
 	var truncationStart int32 = 2
 	var truncationEnd int32 = (int32(len(lines)) - 2)

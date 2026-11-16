@@ -83,7 +83,7 @@ func J2clUndefinedChecksRewriterPass_isUtilCall(node Node, methodName string) bo
 		return false
 	}
 	var qualifiedName string = node.getFirstChild().getOriginalQualifiedName()
-	return (String_contains(qualifiedName, strobj_("nativebootstrap$Util")) && String_endsWith(qualifiedName, methodName))
+	return (String_contains_s(qualifiedName, "nativebootstrap$Util") && String_endsWith(qualifiedName, methodName))
 }
 
 // beginTraversal: an object that is exactly a J2clUndefinedChecksRewriterPass calls its beginTraversal_impl directly (post-flip); others dispatch.

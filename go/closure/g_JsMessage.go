@@ -166,7 +166,7 @@ func (this *JsMessage) isEmpty() bool {
 }
 
 func JsMessage_isLowerCamelCaseWithNumericSuffixes(input string) bool {
-	return JsMessage_JS_PLACEHOLDER_NAME_RE.matcher(strobj_(input)).matches()
+	return JsMessage_JS_PLACEHOLDER_NAME_RE.matcher_s(input).matches()
 }
 
 func JsMessage_toLowerCamelCaseWithNumericSuffixes(input string) string {
@@ -197,7 +197,7 @@ func JsMessage_toLowerCamelCaseWithNumericSuffixes(input string) string {
 }
 
 func JsMessage_isCanonicalPlaceholderNameFormat(name string) bool {
-	return JsMessage_CANONICAL_PLACEHOLDER_NAME_RE.matcher(strobj_(name)).matches()
+	return JsMessage_CANONICAL_PLACEHOLDER_NAME_RE.matcher_s(name).matches()
 }
 
 func (this *JsMessage) getSourceName() OptionalOf[string] {

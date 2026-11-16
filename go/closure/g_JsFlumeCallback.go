@@ -41,7 +41,7 @@ func (this *JsFlumeCallback) shouldTraverse(nodeTraversal *NodeTraversal, n Node
 	if n.isScript() {
 		var filename string = n.getSourceFileName()
 		if ((this.includeFilePattern != nil) && !String_isEmpty(this.includeFilePattern.pattern())) && !String_isEmpty(filename) {
-			return this.includeFilePattern.matcher(strobj_(filename)).find()
+			return this.includeFilePattern.matcher_s(filename).find()
 		}
 	}
 	return true

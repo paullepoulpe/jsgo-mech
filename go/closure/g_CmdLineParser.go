@@ -171,7 +171,7 @@ func (this *CmdLineParser) parseArgument(args []string) *Outcome_base {
 	for cmdLine.hasMore() {
 		var arg string = cmdLine.getCurrentToken()
 		if String_startsWith(arg, "-") {
-			var isKeyValuePair bool = (String_contains(arg, strobj_(" ")) || (String_indexOf(arg, 61) != -1))
+			var isKeyValuePair bool = (String_contains_s(arg, " ") || (String_indexOf(arg, 61) != -1))
 			this.currentOption = func() *CmdLineParser_Option {
 				if isKeyValuePair {
 					return this.findOptionOfKeyValuePair(arg)
@@ -593,7 +593,7 @@ func (this *CmdLineParser_Option) toString() string {
 		return ""
 	}
 	if len(this.aliasesField) != 0 {
-		return (sstr_(this.nameField) + " (" + sstr_(String_join(strobj_(", "), sliceView_(tc_string, this.aliasesField))) + ")")
+		return (sstr_(this.nameField) + " (" + sstr_(String_join_s(", ", sliceView_(tc_string, this.aliasesField))) + ")")
 	}
 	return this.nameField
 }

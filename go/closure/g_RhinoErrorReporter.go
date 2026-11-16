@@ -67,7 +67,7 @@ func RhinoErrorReporter_mapError(message string) *DiagnosticType {
 	it_1 := foreach_(obj_(cast_[*ImmutableSet](RhinoErrorReporter_typeMap.entrySet())))
 	for it_1.next() {
 		var entry Map_Entry = icast_Map_Entry(it_1.v)
-		if cast_[*Pattern](entry.getKey()).matcher(strobj_(message)).matches() {
+		if cast_[*Pattern](entry.getKey()).matcher_s(message).matches() {
 			return cast_[*DiagnosticType](entry.getValue())
 		}
 	}

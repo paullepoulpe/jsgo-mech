@@ -327,7 +327,7 @@ func (this *Es6RewriteModules) rewriteRequires(script Node) {
 func (this *Es6RewriteModules) inlineAliasedTypes(t *NodeTraversal, typeNode Node) {
 	if typeNode.isStringLit() {
 		var name string = typeNode.getString()
-		var split []string = sliceImm_(tc_string, Es6RewriteModules_DOT_SPLITTER.limit(2).splitToList(strobj_(name)))
+		var split []string = sliceImm_(tc_string, Es6RewriteModules_DOT_SPLITTER.limit(2).splitToList_s(name))
 		if cast_[*Var](t.getScope().getVar(sliceAt_(split, 0)).self()) == nil {
 			var replacement *ModuleRenaming_GlobalizedModuleName = this.namesToInlineByAlias[sliceAt_(split, 0)]
 			if replacement != nil {
@@ -737,7 +737,7 @@ func (this *Es6RewriteModules_RenameGlobalVars) fixTypeNode(t *NodeTraversal, ty
 	if typeNode.isStringLit() {
 		var thisModule *Module = this.outer_.moduleMap.getModule(t.getInput().getPath())
 		var name string = typeNode.getString()
-		var splitted []string = sliceImm_(tc_string, Es6RewriteModules_DOT_SPLITTER.splitToList(strobj_(name)))
+		var splitted []string = sliceImm_(tc_string, Es6RewriteModules_DOT_SPLITTER.splitToList_s(name))
 		var baseName string = sliceAt_(splitted, 0)
 		var rest string = ""
 		if int32(len(splitted)) > 1 {

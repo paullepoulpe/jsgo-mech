@@ -39,7 +39,7 @@ func (this *VerifyingErrorManager) report_2_impl(level *CheckLevel, error_ *JSEr
 	var iterator IteratorOf[*Pattern] = this.unmatchedExpectations.asList().iterator()
 	for iterator.hasNext() {
 		var p *Pattern = cast_[*Pattern](iterator.next())
-		if p.matcher(strobj_(formattedError)).find() {
+		if p.matcher_s(formattedError).find() {
 			if matchedPattern == nil {
 				matchedPattern = p
 				Iterator_remove(iterator)

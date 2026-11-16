@@ -1393,7 +1393,7 @@ func (this Node) toJson(sb Appendable) {
 		for i := int32(0); i < int32(len(keys)); i++ {
 			var type_ *Node_Prop = Node_propValues[keys[i]]
 			var x *Node_PropListItem = this.propItem_(type_)
-			sb.append_CharSequence(strobj_(Node_createJsonPair(Ascii_toLowerCase(String_valueOf_Object(obj_(type_))), String_replace(String_replace(Object_toString(x.self()), strobj_("\n"), strobj_("\\n")), strobj_("\""), strobj_("\\\"")))))
+			sb.append_CharSequence(strobj_(Node_createJsonPair(Ascii_toLowerCase(String_valueOf_Object(obj_(type_))), String_replace_s(String_replace_s(Object_toString(x.self()), "\n", "\\n"), "\"", "\\\""))))
 			if (i + 1) < int32(len(keys)) {
 				sb.append_char(',')
 			}
@@ -1402,7 +1402,7 @@ func (this Node) toJson(sb Appendable) {
 	}
 	if this.ps_().jstypeOrColor != nil {
 		sb.append_char(',')
-		sb.append_CharSequence(strobj_(Node_createJsonPair("typeString", String_replace(Object_toString(this.ps_().jstypeOrColor), strobj_("\""), strobj_("\\\"")))))
+		sb.append_CharSequence(strobj_(Node_createJsonPair("typeString", String_replace_s(Object_toString(this.ps_().jstypeOrColor), "\"", "\\\""))))
 	}
 	if this.ns_().first != 0 {
 		sb.append_char(',')

@@ -117,7 +117,7 @@ func VariableMap_fromLines(string_ string) *Outcome_base {
 }
 
 func VariableMap_escape(value string) string {
-	return String_replace(String_replace(String_replace(value, strobj_("\\"), strobj_("\\\\")), strobj_(":"), strobj_("\\:")), strobj_("\n"), strobj_("\\n"))
+	return String_replace_s(String_replace_s(String_replace_s(value, "\\", "\\\\"), ":", "\\:"), "\n", "\\n")
 }
 
 func VariableMap_findIndexOfUnescapedChar(value string, stopChar uint16) int32 {
@@ -141,7 +141,7 @@ func VariableMap_unescape(value string) string {
 		return value
 	}
 	var sb *StringBuilder = new_StringBuilder_int((String_length(value) - 1))
-	sb.append_CharSequence_int_int(strobj_(value), 0, slashIndex)
+	sb.append_CharSequence_int_int_s(value, 0, slashIndex)
 	var len_ int32 = String_length(value)
 	for i := int32(slashIndex); i < len_; i++ {
 		var c uint16 = String_charAt(value, i)

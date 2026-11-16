@@ -36,7 +36,7 @@ func (this *BrowserWithTransformedPrefixesModuleResolver) init_BrowserWithTransf
 		sortedPrefixes = append(sortedPrefixes, replacement.prefix())
 	}
 	Collections_sort(sliceView_(tc_string, sortedPrefixes))
-	this.expectedPrefixes = String_join(strobj_(", "), Iterable(sliceView_(tc_string, sortedPrefixes)))
+	this.expectedPrefixes = String_join_s(", ", Iterable(sliceView_(tc_string, sortedPrefixes)))
 }
 
 // lambda_BrowserWithTransformedPrefixesModuleResolver_init_BrowserWithTransformedPrefixesModuleResolver_1_ is a lambda of BrowserWithTransformedPrefixesModuleResolver_init_BrowserWithTransformedPrefixesModuleResolver that captures nothing (post-flip step lambdas).

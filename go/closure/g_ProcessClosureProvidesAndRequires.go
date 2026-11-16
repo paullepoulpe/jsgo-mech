@@ -168,7 +168,7 @@ func (this *ProcessClosureProvidesAndRequires) handleStubDefinition(t *NodeTrave
 
 func (this *ProcessClosureProvidesAndRequires) checkNestedTypedefProvide(exprResult Node) {
 	var name string = exprResult.getFirstChild().getQualifiedName()
-	if String_isEmpty(name) || !String_contains(name, strobj_(".")) {
+	if String_isEmpty(name) || !String_contains_s(name, ".") {
 		return
 	}
 	if !this.providedNames.containsKey(name) {

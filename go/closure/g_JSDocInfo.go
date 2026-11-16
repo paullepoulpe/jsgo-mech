@@ -303,7 +303,7 @@ func (this *JSDocInfo) isAtSignCodePresent() bool {
 		if entireComment.isEmpty() {
 			return false
 		}
-		return String_contains(entireComment.get(), strobj_("@code"))
+		return String_contains_s(entireComment.get(), "@code")
 	}()
 }
 

@@ -788,7 +788,7 @@ func (this *MakeDeclaredNamesUnique_InlineRenamer) getUniqueName(name string) st
 	if String_isEmpty(name) {
 		return name
 	}
-	if String_contains(name, strobj_(MakeDeclaredNamesUnique_ContextualRenamer_UNIQUE_ID_SEPARATOR)) {
+	if String_contains_s(name, MakeDeclaredNamesUnique_ContextualRenamer_UNIQUE_ID_SEPARATOR) {
 		name = String_substring(name, 0, String_lastIndexOf_String(name, MakeDeclaredNamesUnique_ContextualRenamer_UNIQUE_ID_SEPARATOR))
 	}
 	if this.convention.isExported(name) {

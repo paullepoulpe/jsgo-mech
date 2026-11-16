@@ -30,7 +30,7 @@ func SourceMapResolver_extractSourceMap(jsFile *SourceFile_jscomp, sourceMapURL 
 }
 
 func SourceMapResolver_extractBase64String(url string) OptionalOf[string] {
-	if String_startsWith(url, SourceMapResolver_BASE64_URL_PREFIX) && String_contains(url, strobj_(SourceMapResolver_BASE64_START)) {
+	if String_startsWith(url, SourceMapResolver_BASE64_URL_PREFIX) && String_contains_s(url, SourceMapResolver_BASE64_START) {
 		var base64StartIndex int32 = String_indexOf_String(url, SourceMapResolver_BASE64_START)
 		var mediaType string = String_substring(url, String_length(SourceMapResolver_BASE64_URL_PREFIX), base64StartIndex)
 		if Collection_contains_s(SourceMapResolver_ACCEPTED_MEDIA_TYPES, mediaType) {

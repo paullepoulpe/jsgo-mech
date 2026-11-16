@@ -1360,7 +1360,7 @@ func (this *DefaultPassConfig) getFinalizations_impl() *PassListBuilder {
 		}
 		passes.maybeAdd(this.renameProperties)
 		if this.options_.getRenamePrefixNamespace().isPresent() && (this.options_.getChunkOutputType() == CompilerOptions_ChunkOutputType_GLOBAL_NAMESPACE) {
-			if !DefaultPassConfig_GLOBAL_SYMBOL_NAMESPACE_PATTERN.matcher(strobj_(this.options_.getRenamePrefixNamespace().get())).matches() {
+			if !DefaultPassConfig_GLOBAL_SYMBOL_NAMESPACE_PATTERN.matcher_s(this.options_.getRenamePrefixNamespace().get()).matches() {
 				panic(new_IllegalArgumentException_String(("Illegal character in renamePrefixNamespace name: " + sstr_(this.options_.getRenamePrefixNamespace().get()))).self())
 			}
 			passes.maybeAdd(this.rescopeGlobalSymbols)
@@ -1459,7 +1459,7 @@ func (this *DefaultPassConfig) getFinalizations_impl() *PassListBuilder {
 		passes.maybeAdd(this.stripSideEffectProtection)
 	}
 	if this.options_.getRenamePrefixNamespace().isPresent() && (this.options_.getChunkOutputType() == CompilerOptions_ChunkOutputType_GLOBAL_NAMESPACE) {
-		if !DefaultPassConfig_GLOBAL_SYMBOL_NAMESPACE_PATTERN.matcher(strobj_(this.options_.getRenamePrefixNamespace().get())).matches() {
+		if !DefaultPassConfig_GLOBAL_SYMBOL_NAMESPACE_PATTERN.matcher_s(this.options_.getRenamePrefixNamespace().get()).matches() {
 			panic(new_IllegalArgumentException_String(("Illegal character in renamePrefixNamespace name: " + sstr_(this.options_.getRenamePrefixNamespace().get()))).self())
 		}
 		passes.maybeAdd(this.rescopeGlobalSymbols)

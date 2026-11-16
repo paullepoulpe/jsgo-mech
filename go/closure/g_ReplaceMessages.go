@@ -273,10 +273,10 @@ func (this *ReplaceMessages) constructNonGenderedMsgNode(message *JsMessage, pla
 
 func (this *ReplaceMessages) createNodeForMsgString(options *ReplaceMessages_MsgOptions, s string) Node {
 	if options.escapeLessThan() {
-		s = String_replace(s, strobj_("<"), strobj_("&lt;"))
+		s = String_replace_s(s, "<", "&lt;")
 	}
 	if options.unescapeHtmlEntities() {
-		s = String_replace(String_replace(String_replace(String_replace(String_replace(s, strobj_("&lt;"), strobj_("<")), strobj_("&gt;"), strobj_(">")), strobj_("&apos;"), strobj_("'")), strobj_("&quot;"), strobj_("\"")), strobj_("&amp;"), strobj_("&"))
+		s = String_replace_s(String_replace_s(String_replace_s(String_replace_s(String_replace_s(s, "&lt;", "<"), "&gt;", ">"), "&apos;", "'"), "&quot;", "\""), "&amp;", "&")
 	}
 	return this.astFactory_.createString(s)
 }

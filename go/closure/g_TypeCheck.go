@@ -1397,7 +1397,7 @@ func (this *TypeCheck) checkInterface(n Node, functionType *FunctionType) {
 			var loopType *FunctionType = it_5.v
 			displayNames = append(displayNames, loopType.getDisplayName().orElse(nullstr_))
 		}
-		var strPath string = String_join(strobj_(" -> "), Iterable(sliceView_(tc_string, displayNames)))
+		var strPath string = String_join_s(" -> ", Iterable(sliceView_(tc_string, displayNames)))
 		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, TypeCheck_INTERFACE_EXTENDS_LOOP, []string{loopPath.get(0).getDisplayName().orElse("null"), strPath}))
 	}
 	this.validator.expectAllInterfaceProperties(n, functionType)
@@ -2027,7 +2027,7 @@ func TypeCheck_clinit() {
 	TypeCheck_DETERMINISTIC_TEST = DiagnosticType_warning("JSC_DETERMINISTIC_TEST", "condition always evaluates to {2}\nleft : {0}\nright: {1}")
 	TypeCheck_INEXISTENT_ENUM_ELEMENT = DiagnosticType_warning("JSC_INEXISTENT_ENUM_ELEMENT", "element {0} does not exist on this enum")
 	TypeCheck_INEXISTENT_PROPERTY = DiagnosticType_warning("JSC_INEXISTENT_PROPERTY", "Property {0} never defined on {1}")
-	TypeCheck_POSSIBLE_INEXISTENT_PROPERTY = DiagnosticType_disabled("JSC_POSSIBLE_INEXISTENT_PROPERTY", ("Property {0} never defined on {1}" + sstr_(String_replace(TypeCheck_POSSIBLE_INEXISTENT_PROPERTY_EXPLANATION, strobj_("'"), strobj_("''")))))
+	TypeCheck_POSSIBLE_INEXISTENT_PROPERTY = DiagnosticType_disabled("JSC_POSSIBLE_INEXISTENT_PROPERTY", ("Property {0} never defined on {1}" + sstr_(String_replace_s(TypeCheck_POSSIBLE_INEXISTENT_PROPERTY_EXPLANATION, "'", "''"))))
 	TypeCheck_INEXISTENT_PROPERTY_WITH_SUGGESTION = DiagnosticType_warning("JSC_INEXISTENT_PROPERTY_WITH_SUGGESTION", "Property {0} never defined on {1}. Did you mean {2}?")
 	TypeCheck_STRICT_INEXISTENT_PROPERTY = DiagnosticType_disabled("JSC_STRICT_INEXISTENT_PROPERTY", "Property {0} never defined on {1}")
 	TypeCheck_STRICT_INEXISTENT_UNION_PROPERTY = DiagnosticType_disabled("JSC_STRICT_INEXISTENT_UNION_PROPERTY", "Property {0} not defined on all member types of {1}")

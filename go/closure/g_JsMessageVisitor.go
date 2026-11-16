@@ -741,12 +741,12 @@ func (this *JsMessageVisitor) isMessageName(identifier string) bool {
 
 func JsMessageVisitor_isMessageIdentifier(node Node) bool {
 	var qname string = node.getQualifiedName()
-	return (!String_isEmpty(qname) && String_contains(qname, strobj_(JsMessageVisitor_MSG_PREFIX)))
+	return (!String_isEmpty(qname) && String_contains_s(qname, JsMessageVisitor_MSG_PREFIX))
 }
 
 func (this *JsMessageVisitor) getJsMessageFromNode(t *NodeTraversal, node Node) *JsMessage {
 	var messageName string = node.getQualifiedName()
-	if String_isEmpty(messageName) || !String_contains(messageName, strobj_(JsMessageVisitor_MSG_PREFIX)) {
+	if String_isEmpty(messageName) || !String_contains_s(messageName, JsMessageVisitor_MSG_PREFIX) {
 		return nil
 	}
 	var messageKey string = String_substring_int(messageName, String_indexOf_String(messageName, JsMessageVisitor_MSG_PREFIX))
@@ -759,7 +759,7 @@ func (this *JsMessageVisitor) getJsMessageFromNode(t *NodeTraversal, node Node) 
 }
 
 func JsMessageVisitor_isUnnamedMessageName(identifier string) bool {
-	return JsMessageVisitor_MSG_UNNAMED_PATTERN.matcher(strobj_(identifier)).matches()
+	return JsMessageVisitor_MSG_UNNAMED_PATTERN.matcher_s(identifier).matches()
 }
 
 func (this *JsMessageVisitor) checkNode(node Node, type_ *Token_rhino) *Outcome_base {
@@ -773,11 +773,11 @@ func (this *JsMessageVisitor) checkNode(node Node, type_ *Token_rhino) *Outcome_
 }
 
 func JsMessageVisitor_isScopedAliasesPrefix(name string) bool {
-	return JsMessageVisitor_SCOPED_ALIASES_PREFIX_PATTERN.matcher(strobj_(name)).lookingAt()
+	return JsMessageVisitor_SCOPED_ALIASES_PREFIX_PATTERN.matcher_s(name).lookingAt()
 }
 
 func JsMessageVisitor_removeScopedAliasesPrefix(name string) string {
-	return JsMessageVisitor_SCOPED_ALIASES_PREFIX_PATTERN.matcher(strobj_(name)).replaceFirst("MSG_")
+	return JsMessageVisitor_SCOPED_ALIASES_PREFIX_PATTERN.matcher_s(name).replaceFirst("MSG_")
 }
 
 func (this *JsMessageVisitor) processJsMessageDefinition(p0 JsMessageDefinition) {
@@ -885,7 +885,7 @@ func new_JsMessageVisitor_IcuMessageTemplateString(template string) *JsMessageVi
 func (this *JsMessageVisitor_IcuMessageTemplateString) extractParts(placholderNamesToExtract *TSet[string]) *JsMessageVisitor_ExtractedIcuTemplateParts {
 	var extractedPlaceholderNames ImmutableSet_BuilderOf[string] = ImmutableSet_builder()
 	var partsBuilder ImmutableList_BuilderOf[JsMessage_Part] = ImmutableList_builder()
-	var matcher *Matcher_re2j = JsMessageVisitor_ICU_PLACEHOLDER_RE.matcher(strobj_(this.template))
+	var matcher *Matcher_re2j = JsMessageVisitor_ICU_PLACEHOLDER_RE.matcher_s(this.template)
 	var remainingTemplateStartIndex int32 = 0
 	for matcher.find() {
 		var placeholderName string = matcher.group(1)

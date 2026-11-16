@@ -18,8 +18,8 @@ func (this *DepsFileRegexParser) up_JsFileLineParser() *JsFileLineParser {
 }
 
 func (this *DepsFileRegexParser) finit_DepsFileRegexParser() {
-	this.depMatcher = Pattern_compile((sstr_(JavaRegex_SPACE) + "*goog" + sstr_(JavaRegex_DOT) + "addDependency\\((" + sstr_(JavaRegex_DOT) + "*)\\);?" + sstr_(JavaRegex_SPACE) + "*")).matcher(strobj_(""))
-	this.depArgsMatch = Pattern_compile((sstr_(JavaRegex_SPACE) + "*([^,]*), (\\[[^\\]]*\\]), (\\[[^\\]]*\\])(?:, (true|false|\\{[^{}]*\\}))?" + sstr_(JavaRegex_SPACE) + "*")).matcher(strobj_(""))
+	this.depMatcher = Pattern_compile((sstr_(JavaRegex_SPACE) + "*goog" + sstr_(JavaRegex_DOT) + "addDependency\\((" + sstr_(JavaRegex_DOT) + "*)\\);?" + sstr_(JavaRegex_SPACE) + "*")).matcher_s("")
+	this.depArgsMatch = Pattern_compile((sstr_(JavaRegex_SPACE) + "*([^,]*), (\\[[^\\]]*\\]), (\\[[^\\]]*\\])(?:, (true|false|\\{[^{}]*\\}))?" + sstr_(JavaRegex_SPACE) + "*")).matcher_s("")
 }
 
 func (this *DepsFileRegexParser) init_DepsFileRegexParser_ErrorManager(errorManager ErrorManager) {
@@ -65,7 +65,7 @@ func (this *DepsFileRegexParser) parseFile_2(filePath string, fileContents strin
 
 func (this *DepsFileRegexParser) parseLine_impl(line string) *Outcome_base {
 	var hasDependencies bool = false
-	if String_contains(line, strobj_("addDependency")) {
+	if String_contains_s(line, "addDependency") {
 		this.depMatcher.reset(strobj_(line))
 		if this.depMatcher.matches() {
 			hasDependencies = true
@@ -104,7 +104,7 @@ func (this *DepsFileRegexParser) parseLine_impl(line string) *Outcome_base {
 			this.depInfos.add(any(depInfo))
 		}
 	}
-	return Outcome_base_ok_Object(any(bool(((!this.shortcutMode || hasDependencies) || CharMatcher_whitespace().matchesAllOf(strobj_(line))))))
+	return Outcome_base_ok_Object(any(bool(((!this.shortcutMode || hasDependencies) || CharMatcher_whitespace().matchesAllOf_s(line)))))
 }
 
 func DepsFileRegexParser_requiresParsedFromDeps(symbols ListOf[string]) ImmutableListOf[*DependencyInfo_Require] {

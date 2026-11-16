@@ -145,7 +145,7 @@ func (this *XtbMessageBundle_Handler) startElement(uri string, localName string,
 	case XtbMessageBundle_Handler_BRANCH_ELEM_NAME:
 		Preconditions_checkState((this.msgBuilder != nil))
 		var gender string = atts.getValue(XtbMessageBundle_Handler_BRANCH_NAME_ATT_NAME)
-		var matcher *Matcher_re2j = XtbMessageBundle_Handler_GET_STRING_PATTERN.matcher(strobj_(gender))
+		var matcher *Matcher_re2j = XtbMessageBundle_Handler_GET_STRING_PATTERN.matcher_s(gender)
 		if matcher.find() {
 			this.genderCase = matcher.group(1)
 			Preconditions_checkState_boolean_Object(((((this.genderCase == XtbMessageBundle_Handler_MALE_GENDER_CASE) || (this.genderCase == XtbMessageBundle_Handler_FEMALE_GENDER_CASE)) || (this.genderCase == XtbMessageBundle_Handler_NEUTER_GENDER_CASE)) || (this.genderCase == XtbMessageBundle_Handler_OTHER_GENDER_CASE)), strobj_("Gender case must be one of the following: MASCULINE, FEMININE, NEUTER, or OTHER."))

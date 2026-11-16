@@ -236,7 +236,7 @@ func (this *ReplaceStrings) parseConfiguration(function string) *ReplaceStrings_
 	var last int32 = String_indexOf(function, 41)
 	var colon int32 = String_indexOf_String(function, ReplaceStrings_EXCLUSION_PREFIX)
 	Preconditions_checkState(((first != -1) && (last != -1)))
-	if String_contains(function, strobj_(".prototype.")) {
+	if String_contains_s(function, ".prototype.") {
 		this.compiler_.report(JSError_make_DiagnosticType_StringArr(ReplaceStrings_BAD_REPLACEMENT_CONFIGURATION, []string{function, "Cannot replace strings passed to prototype methods."}))
 		return nil
 	}
@@ -244,7 +244,7 @@ func (this *ReplaceStrings) parseConfiguration(function string) *ReplaceStrings_
 	var params string = String_substring(function, (first + 1), last)
 	var paramCount int32 = 0
 	var replacementParameters ListOf[BoxedOf[int32]] = icast_List(new_ArrayList_0().self())
-	var parts []string = sliceImm_(tc_string, Splitter_on(',').splitToList(strobj_(params)))
+	var parts []string = sliceImm_(tc_string, Splitter_on(',').splitToList_s(params))
 	for _, param := range parts {
 		paramCount++
 		if param == ReplaceStrings_REPLACE_ALL_MARKER {

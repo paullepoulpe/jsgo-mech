@@ -3360,7 +3360,7 @@ func CompilerOptions_LanguageMode_validCommandLineNames() ListOf[string] {
 		if mode != CompilerOptions_LanguageMode_UNSUPPORTED {
 			names.add(strobj_(mode.name()))
 			if String_startsWith(mode.name(), "ECMASCRIPT") {
-				names.add(strobj_(CompilerOptions_ECMASCRIPT_PATTERN.matcher(strobj_(mode.name())).replaceFirst("ES")))
+				names.add(strobj_(CompilerOptions_ECMASCRIPT_PATTERN.matcher_s(mode.name()).replaceFirst("ES")))
 			}
 		}
 	}
@@ -3375,7 +3375,7 @@ func CompilerOptions_LanguageMode_fromString(value OptionalOf[string]) *Compiler
 	if value.isEmpty() {
 		return nil
 	}
-	var canonicalizedName string = CompilerOptions_LEADING_ES_PATTERN.matcher(strobj_(Ascii_toUpperCase(String_trim(value.get())))).replaceFirst("ECMASCRIPT")
+	var canonicalizedName string = CompilerOptions_LEADING_ES_PATTERN.matcher_s(Ascii_toUpperCase(String_trim(value.get()))).replaceFirst("ECMASCRIPT")
 	if (canonicalizedName == "ECMASCRIPT6") || (canonicalizedName == "ECMASCRIPT6_STRICT") {
 		return CompilerOptions_LanguageMode_ECMASCRIPT_2015
 	}

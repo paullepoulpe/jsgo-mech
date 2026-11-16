@@ -48,7 +48,7 @@ func (this *CheckJSDoc) checkJsDocInBlockComments(fileName OptionalOf[string]) {
 	for it_1.next() {
 		var comment *Comment = cast_[*Comment](it_1.v)
 		if comment.type__ == Comment_Type_BLOCK {
-			if CheckJSDoc_COMMENT_PATTERN.matcher(strobj_(comment.value_)).find() {
+			if CheckJSDoc_COMMENT_PATTERN.matcher_s(comment.value_).find() {
 				this.compiler_.report(JSError_make_Optional_int_int_DiagnosticType_StringArr(fileName, (comment.location_.start_.line_ + 1), comment.location_.start_.column_, CheckJSDoc_JSDOC_IN_BLOCK_COMMENT, []string{}))
 			}
 		}

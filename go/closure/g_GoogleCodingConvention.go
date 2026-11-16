@@ -66,7 +66,7 @@ func GoogleCodingConvention_isConstantKey(name string, start int32, end int32) b
 }
 
 func (this *GoogleCodingConvention) isValidEnumKey_impl(key OptionalOf[string]) bool {
-	return GoogleCodingConvention_ENUM_KEY_PATTERN.matcher(strobj_(key.get())).matches()
+	return GoogleCodingConvention_ENUM_KEY_PATTERN.matcher_s(key.get()).matches()
 }
 
 func (this *GoogleCodingConvention) isOptionalParameter_impl(parameter Node) bool {
@@ -88,11 +88,11 @@ func (this *GoogleCodingConvention) isClassFactoryCall_impl(callNode Node) bool 
 
 func (this *GoogleCodingConvention) getPackageName_impl(source StaticSourceFile) OptionalOf[string] {
 	var name string = source.getName()
-	var genfilesMatcher *Matcher_re2j = GoogleCodingConvention_GENFILES_DIR.matcher(strobj_(name))
+	var genfilesMatcher *Matcher_re2j = GoogleCodingConvention_GENFILES_DIR.matcher_s(name)
 	if genfilesMatcher.find() {
 		name = genfilesMatcher.group(2)
 	}
-	var m *Matcher_re2j = GoogleCodingConvention_PACKAGE_WITH_TEST_DIR.matcher(strobj_(name))
+	var m *Matcher_re2j = GoogleCodingConvention_PACKAGE_WITH_TEST_DIR.matcher_s(name)
 	if m.find() {
 		return Optional_ofNullable[string](m.group(1))
 	} else {

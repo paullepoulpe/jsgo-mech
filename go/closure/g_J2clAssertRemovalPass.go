@@ -48,7 +48,7 @@ func J2clAssertRemovalPass_isAssertionMethodName(fnName Node) bool {
 		return false
 	}
 	var originalQname string = fnName.getOriginalQualifiedName()
-	return (String_contains(originalQname, strobj_("Asserts")) && String_contains(originalQname, strobj_(".$assert")))
+	return (String_contains_s(originalQname, "Asserts") && String_contains_s(originalQname, ".$assert"))
 }
 
 // visit: an object that is exactly a J2clAssertRemovalPass calls its visit_impl directly (post-flip); others dispatch.

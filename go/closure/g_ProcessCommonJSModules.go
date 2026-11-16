@@ -320,7 +320,7 @@ func (this *ProcessCommonJSModules) removeWebpackModuleShim(root Node) {
 		if modulePath == nil {
 			return
 		}
-		if String_contains(modulePath.toString(), strobj_("/buildin/module.js")) {
+		if String_contains_s(modulePath.toString(), "/buildin/module.js") {
 			arg.detach()
 			param.detach()
 			this.compiler_.reportChangeToChangeScope(fnc)

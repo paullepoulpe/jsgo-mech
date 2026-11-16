@@ -28,7 +28,7 @@ func (this *J2clSuppressWarningsGuard) level_impl(error_ *JSError) *CheckLevel {
 	if !J2clSourceUtils_isJ2clSourceString(error_.sourceName()) {
 		return nil
 	}
-	if DiagnosticGroups_DEPRECATED.matches(error_) && String_contains(error_.description(), strobj_("forwardDeclare")) {
+	if DiagnosticGroups_DEPRECATED.matches(error_) && String_contains_s(error_.description(), "forwardDeclare") {
 		return CheckLevel_OFF
 	}
 	return func() *CheckLevel {

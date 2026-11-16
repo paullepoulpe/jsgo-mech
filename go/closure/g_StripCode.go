@@ -241,7 +241,7 @@ func (this *StripCode_Strip) removeVarDeclarationsByNameOrRvalue(t *NodeTraversa
 			}()
 			if (this.isStripName(possibleStripName) || this.qualifiedNameBeginsWithStripType(nameNode)) || this.isCallWhoseReturnValueShouldBeStripped(nameNode.getFirstChild()) {
 				this.outer_.varsToRemove.add(strobj_(name))
-				if String_contains(name, strobj_("$")) {
+				if String_contains_s(name, "$") {
 					this.decisionsLog.log(&Supplier_fn{func() any {
 						return strobj_((sstr_(name) + ": initialize with null (" + sstr_(possibleStripName) + ")"))
 					}})

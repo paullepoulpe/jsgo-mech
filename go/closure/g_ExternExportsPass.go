@@ -40,7 +40,7 @@ func new_ExternExportsPass(compiler *AbstractCompiler) *ExternExportsPass {
 }
 
 func ExternExportsPass_computePathPrefixes(path string) ImmutableListOf[string] {
-	var pieces []string = sliceImm_(tc_string, ExternExportsPass_Q_NAME_SPLITTER.splitToList(strobj_(path)))
+	var pieces []string = sliceImm_(tc_string, ExternExportsPass_Q_NAME_SPLITTER.splitToList_s(path))
 	var pathPrefixes ImmutableList_BuilderOf[string] = ImmutableList_builder()
 	var partial string = sliceAt_(pieces, 0)
 	pathPrefixes.add(strobj_(partial))
@@ -298,7 +298,7 @@ func (this *ExternExportsPass_Export) appendExtern(path string, valueToExport No
 
 func (this *ExternExportsPass_Export) appendPathDefinition(path string, initializer Node, jsdoc *JSDocInfo) {
 	var pathDefinition Node
-	if String_contains(path, strobj_(".")) {
+	if String_contains_s(path, ".") {
 		var qualifiedPath Node = NodeUtil_newQName_AbstractCompiler_String(this.outer_.compiler_, path)
 		if initializer.isEmpty() {
 			pathDefinition = NodeUtil_newExpr(qualifiedPath)

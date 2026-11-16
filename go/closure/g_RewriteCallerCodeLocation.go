@@ -169,7 +169,7 @@ func (this *RewriteCallerCodeLocation_RewriteCallerLocationFunctionCalls) visitC
 		return
 	}
 	var name string = firstChild.getQualifiedName()
-	var moduleContentsName string = String_replace(String_replace_char_char(name, '.', '_'), strobj_("module$exports$"), strobj_("module$contents$"))
+	var moduleContentsName string = String_replace_s(String_replace_char_char(name, '.', '_'), "module$exports$", "module$contents$")
 	if !has_(this.outer_.callerLocationFunctionNames, moduleContentsName) {
 		return
 	}

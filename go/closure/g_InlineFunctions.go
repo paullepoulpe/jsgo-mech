@@ -415,7 +415,7 @@ func InlineFunctions_checkOptimizationLevelSupportsRequireInlining(options *Comp
 	if len(problems) == 0 {
 		return new_InlineFunctions_ShouldRequireInlining(true, "")
 	}
-	return new_InlineFunctions_ShouldRequireInlining(false, String_format("[%s]", []any{strobj_(String_join(strobj_(", "), Iterable(sliceView_(tc_string, problems))))}))
+	return new_InlineFunctions_ShouldRequireInlining(false, String_format("[%s]", []any{strobj_(String_join_s(", ", Iterable(sliceView_(tc_string, problems))))}))
 }
 
 var InlineFunctions_MISSED_REQUIRED_INLINING *DiagnosticType

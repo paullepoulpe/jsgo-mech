@@ -416,7 +416,7 @@ func (this *Matchers_10) matches(node Node, metadata *NodeMetadata) bool {
 		}
 		if node.matchesQualifiedName(str_(this.cap_name.get())) {
 			return true
-		} else if String_contains(str_(this.cap_name.get()), strobj_(".prototype.")) {
+		} else if String_contains_s(str_(this.cap_name.get()), ".prototype.") {
 			return Matchers_matchesPrototypeInstanceVar(node, metadata, str_(this.cap_name.get()))
 		}
 	}

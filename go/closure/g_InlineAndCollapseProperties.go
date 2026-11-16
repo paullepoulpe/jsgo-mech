@@ -1549,7 +1549,7 @@ func (this *InlineAndCollapseProperties_CollapseProperties) addStubsForUndeclare
 
 func (this *InlineAndCollapseProperties_CollapseProperties) appendPropForAlias(root string, prop string) string {
 	if String_indexOf(prop, 36) != -1 {
-		prop = String_replace(prop, strobj_("$"), strobj_("$0"))
+		prop = String_replace_s(prop, "$", "$0")
 	}
 	var result string = (sstr_(root) + "$" + sstr_(prop))
 	var id int32 = 1

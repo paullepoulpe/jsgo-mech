@@ -40,7 +40,7 @@ func TypeDeclarationsIR_undefinedType() Node {
 }
 
 func TypeDeclarationsIR_namedType(typeName string) Node {
-	return TypeDeclarationsIR_namedTypeIterable(Splitter_on('.').split(strobj_(typeName)))
+	return TypeDeclarationsIR_namedTypeIterable(Splitter_on('.').split_s(typeName))
 }
 
 func TypeDeclarationsIR_namedTypeIterable(segments IterableOf[string]) Node {

@@ -78,7 +78,7 @@ func J2clUtilGetDefineRewriterPass_isUtilGetDefineCall(n Node) bool {
 }
 
 func J2clUtilGetDefineRewriterPass_isUtilGetDefineMethodName(fnName OptionalOf[string]) bool {
-	return ((fnName.isPresent() && String_endsWith(fnName.get(), ".$getDefine")) && String_contains(fnName.get(), strobj_("Util")))
+	return ((fnName.isPresent() && String_endsWith(fnName.get(), ".$getDefine")) && String_contains_s(fnName.get(), "Util"))
 }
 
 var J2clUtilGetDefineRewriterPass_J2CL_SYSTEM_GET_PROPERTY_CONSTANT_NAME *DiagnosticType

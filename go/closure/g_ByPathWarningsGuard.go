@@ -53,7 +53,7 @@ func (this *ByPathWarningsGuard) level_impl(error_ *JSError) *CheckLevel {
 	if (defaultLevel != CheckLevel_ERROR) && errorPath.isPresent() {
 		var inPath bool = false
 		for _, path := range this.paths {
-			inPath = bor_(inPath, String_contains(errorPath.get(), strobj_(path)))
+			inPath = bor_(inPath, String_contains_s(errorPath.get(), path))
 		}
 		if inPath == this.include {
 			return this.levelField

@@ -67,7 +67,7 @@ func (this *RuntimeJsLibManager) createField(fieldName string) *RuntimeJsLibMana
 	if String_isEmpty(fieldName) {
 		Preconditions_checkArgument_boolean_Object(false, strobj_(fieldName))
 	}
-	var parts []string = sliceImm_(tc_string, Splitter_on('.').splitToList(strobj_(fieldName)))
+	var parts []string = sliceImm_(tc_string, Splitter_on('.').splitToList_s(fieldName))
 	if !(int32(len(parts)) >= 2) {
 		Preconditions_checkArgument_boolean_String_Object(false, "Field name must start with $jscomp., found %s", strobj_(fieldName))
 	}
@@ -133,7 +133,7 @@ func (this *RuntimeJsLibManager) ensureLibraryInjected(resourceName string, forc
 		return this.lastInjectedLibrary
 	}
 	this.recordLibraryInjected(resourceName)
-	var path string = String_join_CharSequence_CharSequenceArr(strobj_(""), []any{strobj_(RuntimeJsLibManager_RUNTIME_LIB_DIR), strobj_(resourceName), strobj_(".js")})
+	var path string = String_join_CharSequence_CharSequenceArr_s("", []any{strobj_(RuntimeJsLibManager_RUNTIME_LIB_DIR), strobj_(resourceName), strobj_(".js")})
 	var ast Node = this.resourceProvider.parse(resourceName, path)
 	this.injectLibraryDependencies(ast, force)
 	return this.injectLibrary(ast)
@@ -167,7 +167,7 @@ func (this *RuntimeJsLibManager) injectLibraryDependencies(ast Node, force bool)
 		var node Node = ast.getFirstChild()
 		for ; ((node != 0) && node.isExprResult()) && node.getFirstChild().isStringLit(); node = ast.getFirstChild() {
 			var directive string = node.getFirstChild().getString()
-			var words []string = sliceImm_(tc_string, Splitter_on(' ').limit(2).splitToList(strobj_(directive)))
+			var words []string = sliceImm_(tc_string, Splitter_on(' ').limit(2).splitToList_s(directive))
 			switch sliceAt_(words, 0) {
 			case "use":
 			case "require":
@@ -277,10 +277,10 @@ func new_RuntimeJsLibManager_FieldsTable() *RuntimeJsLibManager_FieldsTable {
 func RuntimeJsLibManager_FieldsTable_loadFields() ImmutableMapOf[string, string] {
 	var transpilationLibsTxt string = ResourceLoader_loadTextResource((sstr_(ResourceLoader_JSCOMP) + "js/transpilation_libs.txt"))
 	var allFields ImmutableMap_BuilderOf[string, string] = ImmutableMap_builder()
-	it_1 := foreach_(any(Splitter_on('\n').omitEmptyStrings().split(strobj_(transpilationLibsTxt))))
+	it_1 := foreach_(any(Splitter_on('\n').omitEmptyStrings().split_s(transpilationLibsTxt)))
 	for it_1.next() {
 		var line string = str_(it_1.v)
-		var tokens ListOf[string] = Splitter_on(',').limit(2).splitToList(strobj_(line))
+		var tokens ListOf[string] = Splitter_on(',').limit(2).splitToList_s(line)
 		if !(tokens.size() == 2) {
 			Preconditions_checkState_boolean_Object(false, any(tokens))
 		}

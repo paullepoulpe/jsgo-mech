@@ -534,7 +534,7 @@ func (this *JSTypeRegistry) isDeclaredForScope(scope StaticScope, name string) b
 }
 
 func JSTypeRegistry_checkTypeName(typeName string) {
-	Preconditions_checkArgument_boolean_Object(!String_contains(typeName, strobj_("<")), strobj_("Type names cannot contain template annotations."))
+	Preconditions_checkArgument_boolean_Object(!String_contains_s(typeName, "<"), strobj_("Type names cannot contain template annotations."))
 }
 
 func (this *JSTypeRegistry) getTypeInternal(scope StaticScope, name string) *JSType {
@@ -625,7 +625,7 @@ func (this *JSTypeRegistry) resolveViaProperties(declarationScope StaticTypedSco
 	if slot == nil {
 		return nil
 	}
-	var componentNames []string = sliceImm_(tc_string, ImmutableList_copyOf_Iterable(Iterables_skip(JSTypeRegistry_DOT_SPLITTER.split(strobj_(qualifiedName)), 1)))
+	var componentNames []string = sliceImm_(tc_string, ImmutableList_copyOf_Iterable(Iterables_skip(JSTypeRegistry_DOT_SPLITTER.split_s(qualifiedName), 1)))
 	var slotType *JSType = slot.getType()
 	return this.resolveViaPropertyGivenSlot(slotType, 0, componentNames)
 }

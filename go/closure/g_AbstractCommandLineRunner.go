@@ -313,7 +313,7 @@ func AbstractCommandLineRunner_getBuiltinExterns(env *CompilerOptions_Environmen
 	for it_1.next() {
 		var entryName string = it_1.v
 		var filename string = entryName
-		if String_contains(filename, strobj_("/")) {
+		if String_contains_s(filename, "/") {
 			if !String_startsWith(filename, envPrefix) {
 				continue
 			}
@@ -469,8 +469,8 @@ func (this *AbstractCommandLineRunner) createInputs_4(files *TList[*AbstractComm
 					for it_2.next() {
 						var zipEntry *SourceFile_jscomp = cast_[*SourceFile_jscomp](it_2.v)
 						var zipEntryName string = zipEntry.getName()
-						Preconditions_checkState(String_contains(zipEntryName, strobj_(filename)))
-						var zipmap string = String_replace(zipEntryName, strobj_(filename), strobj_(rootFilename))
+						Preconditions_checkState(String_contains_s(zipEntryName, filename))
+						var zipmap string = String_replace_s(zipEntryName, filename, rootFilename)
 						this.rootRelativePathsMap[zipEntryName] = zipmap
 					}
 				}
@@ -722,8 +722,8 @@ func AbstractCommandLineRunner_parseChunkWrappers(specs *TList[string], chunks I
 			return Outcome_base_err(new_FlagUsageException(("Unknown chunk: '" + sstr_(name) + "'")).up_Throwable())
 		}
 		var wrapper string = String_substring_int(spec, (pos + 1))
-		wrapper = String_replace(String_replace(wrapper, strobj_("%output%"), strobj_("%s")), strobj_("%n%"), strobj_("\n"))
-		if !String_contains(wrapper, strobj_("%s")) {
+		wrapper = String_replace_s(String_replace_s(wrapper, "%output%", "%s"), "%n%", "\n")
+		if !String_contains_s(wrapper, "%s") {
 			return Outcome_base_err(new_FlagUsageException(("No %s placeholder in chunk wrapper: '" + sstr_(wrapper) + "'")).up_Throwable())
 		}
 		Map_put_s(wrappers, name, strobj_(wrapper))
@@ -786,7 +786,7 @@ func (this *AbstractCommandLineRunner) writeChunkOutput(fileName string, out App
 		AbstractCommandLineRunner_maybeCreateDirsForPath(fileName)
 	}
 	var baseName string = FilePaths_fileName(fileName)
-	this.writeOutput_8(out, this.compiler_, lt, m, String_replace(str_(Map_get_s(this.parsedChunkWrappers, m.getName())), strobj_("%basename%"), strobj_(baseName)), "%s", nil, fileName)
+	this.writeOutput_8(out, this.compiler_, lt, m, String_replace_s(str_(Map_get_s(this.parsedChunkWrappers, m.getName())), "%basename%", baseName), "%s", nil, fileName)
 	return Outcome_base_ok_0()
 }
 
@@ -1393,7 +1393,7 @@ func (this *AbstractCommandLineRunner) getJavascriptEscaper() Function_baseOf[st
 func (this *AbstractCommandLineRunner) outputSingleBinary(options *CompilerOptions) *Outcome_base {
 	var escaper Function_baseOf[string, string] = nil
 	var marker string = AbstractCommandLineRunner_OUTPUT_MARKER
-	if String_contains(this.config.outputWrapper, strobj_(AbstractCommandLineRunner_OUTPUT_MARKER_JS_STRING)) {
+	if String_contains_s(this.config.outputWrapper, AbstractCommandLineRunner_OUTPUT_MARKER_JS_STRING) {
 		marker = AbstractCommandLineRunner_OUTPUT_MARKER_JS_STRING
 		escaper = this.getJavascriptEscaper()
 	}
@@ -1609,7 +1609,7 @@ func (this *AbstractCommandLineRunner) createExterns_impl(options *CompilerOptio
 }
 
 func (this *AbstractCommandLineRunner) shouldGenerateMapPerChunk(options *CompilerOptions) bool {
-	return (options.shouldGatherSourceMapInfo() && String_contains(options.getSourceMapOutputPath().get(), strobj_("%outname%")))
+	return (options.shouldGatherSourceMapInfo() && String_contains_s(options.getSourceMapOutputPath().get(), "%outname%"))
 }
 
 func (this *AbstractCommandLineRunner) openExternExportsStream(options *CompilerOptions, path string) *Outcome_base {
@@ -1618,7 +1618,7 @@ func (this *AbstractCommandLineRunner) openExternExportsStream(options *Compiler
 		return Outcome_base_ok_Object(nil)
 	}
 	var exPath string = externExportsPath.get()
-	if !String_contains(exPath, strobj_(FilePaths_SEPARATOR)) {
+	if !String_contains_s(exPath, FilePaths_SEPARATOR) {
 		exPath = (sstr_(FilePaths_parent(path).orElse("null")) + sstr_(FilePaths_SEPARATOR) + sstr_(exPath))
 	}
 	return this.fileNameToOutputWriter2(Optional_of[string](exPath))
@@ -1637,7 +1637,7 @@ func (this *AbstractCommandLineRunner) expandCommandLinePath(path string, forChu
 	} else {
 		sub = this.config.jsOutputFile
 	}
-	return Outcome_base_ok_Object(strobj_(String_replace(path, strobj_("%outname%"), strobj_(sub))))
+	return Outcome_base_ok_Object(strobj_(String_replace_s(path, "%outname%", sub)))
 }
 
 func (this *AbstractCommandLineRunner) expandSourceMapPath(options *CompilerOptions, forChunk *JSChunk) *Outcome_base {
@@ -1826,7 +1826,7 @@ func AbstractCommandLineRunner_createDefineReplacements(definitions []string, op
 }
 
 func (this *AbstractCommandLineRunner) shouldGenerateOutputPerChunk(output OptionalOf[string]) bool {
-	return ((len(this.config.chunk_) != 0 && output.isPresent()) && String_contains(output.get(), strobj_("%outname%")))
+	return ((len(this.config.chunk_) != 0 && output.isPresent()) && String_contains_s(output.get(), "%outname%"))
 }
 
 func (this *AbstractCommandLineRunner) outputManifest() *Outcome_base {

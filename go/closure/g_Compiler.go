@@ -437,7 +437,7 @@ func (this *Compiler) mergeAndDeserializeTypedAsts(requiredInputFiles ImmutableS
 
 func (this *Compiler) initRuntimeLibraryTypedAsts_impl(colorPoolBuilder Optional_baseOf[*ColorPool_Builder]) {
 	Preconditions_checkState((this.runtimeLibraryTypedAsts == nil))
-	var path string = String_join_CharSequence_CharSequenceArr(strobj_(""), []any{strobj_("runtime_libs.typedast")})
+	var path string = String_join_CharSequence_CharSequenceArr_s("", []any{strobj_("runtime_libs.typedast")})
 	var typedAsts OptionalOf[[]int8] = Io_readResource(path)
 	if typedAsts.isEmpty() {
 		panic(new_IllegalArgumentException_String("Cannot read from TypedAST input stream").self())
@@ -1015,7 +1015,7 @@ func (this *Compiler) getDebugLogFilterList_impl() []string {
 	if this.getOptions().getDebugLogFilter().isEmpty() {
 		return []string{}
 	}
-	return sliceImm_(tc_string, Splitter_on(',').omitEmptyStrings().splitToList(strobj_(this.getOptions().getDebugLogFilter().get())))
+	return sliceImm_(tc_string, Splitter_on(',').omitEmptyStrings().splitToList_s(this.getOptions().getDebugLogFilter().get()))
 }
 
 func (this *Compiler) createOrReopenLog_impl(owner ClassOf[any], firstNamePart string, restNameParts []string) *LogFile {
@@ -1030,7 +1030,7 @@ func (this *Compiler) createOrReopenLog_impl(owner ClassOf[any], firstNamePart s
 		return LogFile_createOrReopen(file)
 	}
 	for _, filter := range filters {
-		if String_contains(file, strobj_(filter)) {
+		if String_contains_s(file, filter) {
 			return LogFile_createOrReopen(file)
 		}
 	}
@@ -1101,7 +1101,7 @@ func (this *Compiler) getCurrentJsSource() string {
 					it_4 := foreach_(any(fileNameRegexList))
 					for it_4.next() {
 						var regex string = str_(it_4.v)
-						if Pattern_matches(regex, strobj_(fileName)) {
+						if Pattern_matches_s(regex, fileName) {
 							var source string = ("// " + sstr_(fileName) + "\n" + sstr_(this.toSource_1(fileNode)))
 							builder.append(source)
 							break
@@ -1126,7 +1126,7 @@ func (this *Compiler) getCurrentJsSource() string {
 			it_8 := foreach_(any(chunkNameRegexList))
 			for it_8.next() {
 				var regex string = str_(it_8.v)
-				if Pattern_matches(regex, strobj_(chunkName)) {
+				if Pattern_matches_s(regex, chunkName) {
 					var source string = ("// module '" + sstr_(chunkName) + "'\n" + sstr_(this.toSource_2(icast_CodePrinter_LicenseTracker(obj_(lt)), jsChunk)))
 					builder.append(source)
 					break
@@ -2017,7 +2017,7 @@ func (this *Compiler) toSource_4(cb *Compiler_CodeBuilder, licenseTracker CodePr
 			var sourceName string = root.getSourceFileName()
 			Preconditions_checkState(!String_isEmpty(sourceName))
 			Preconditions_checkState(!String_isEmpty(sourceName))
-			delimiter = String_replace(String_replace(String_replace(delimiter, strobj_("%name%"), strobj_(inputName)), strobj_("%num%"), strobj_(String_valueOf(inputSeqNum))), strobj_("%n%"), strobj_("\n"))
+			delimiter = String_replace_s(String_replace_s(String_replace_s(delimiter, "%name%", inputName), "%num%", String_valueOf(inputSeqNum)), "%n%", "\n")
 			cb.append(delimiter).append("\n")
 		}
 		var sourceAndMappings *CodePrinter_SourceAndMappings = this.toSourceAndMappings(root, (inputSeqNum == 0), licenseTracker)
@@ -2795,7 +2795,7 @@ func (this *Compiler) setAccessorSummary_impl(summary *AccessorSummary) {
 func (this *Compiler) loadResourceContents(resourceName string, path string) Node {
 	if this.getLifeCycleStage().hasColorAndSimplifiedJSDoc() {
 		Preconditions_checkNotNull_Object_Object(obj_(this.runtimeLibraryTypedAsts), strobj_("Must call initRuntimeLibraryTypedAsts before calling ensureLibraryInjected during optimizations"))
-		var typedAstSupplier SupplierOf[Node] = icast_Supplier(Preconditions_checkNotNull_Object_String_Object(Map_get_s(this.runtimeLibraryTypedAsts, path), String_join_CharSequence_CharSequenceArr(strobj_(""), []any{strobj_("Missing precompiled .typedast for '%s'. If this file is newly added, "), strobj_("you may need to regenerate runtime_libs.typedast.textproto"), strobj_("")}), strobj_(path)))
+		var typedAstSupplier SupplierOf[Node] = icast_Supplier(Preconditions_checkNotNull_Object_String_Object(Map_get_s(this.runtimeLibraryTypedAsts, path), String_join_CharSequence_CharSequenceArr_s("", []any{strobj_("Missing precompiled .typedast for '%s'. If this file is newly added, "), strobj_("you may need to regenerate runtime_libs.typedast.textproto"), strobj_("")}), strobj_(path)))
 		return Node_of_(typedAstSupplier.get())
 	}
 	Preconditions_checkState_boolean_Object(!this.hasTypeCheckingRun(), strobj_("runtime library injected after type checking but before optimization colors"))
@@ -3290,7 +3290,7 @@ func Compiler_resolveSibling(fromPath string, toPath string) string {
 		}
 	}
 	fromPathParts = append(fromPathParts, toPathParts...)
-	return String_join(strobj_("/"), Iterable(sliceView_(tc_string, fromPathParts)))
+	return String_join_s("/", Iterable(sliceView_(tc_string, fromPathParts)))
 }
 
 func (this *Compiler) resetAndIntitializeSourceMap() {

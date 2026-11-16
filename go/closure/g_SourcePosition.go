@@ -34,5 +34,5 @@ func (this *SourcePosition_util) shortSourceName() string {
 	if this.source == nil {
 		return ""
 	}
-	return str_(Iterables_getLast(Splitter_on('/').split(strobj_(this.source.name_))))
+	return str_(Iterables_getLast(Splitter_on('/').split_s(this.source.name_)))
 }

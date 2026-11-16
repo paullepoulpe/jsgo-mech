@@ -301,7 +301,7 @@ func (this *Es6RewriteModulesToCommonJsModules_Rewriter) addExport(definePropert
 }
 
 func (this *Es6RewriteModulesToCommonJsModules_Rewriter) visitImport(path *ModuleLoader_ModulePath, importDecl Node) {
-	if String_contains(importDecl.getLastChild().getString(), strobj_("://")) {
+	if String_contains_s(importDecl.getLastChild().getString(), "://") {
 		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(importDecl, TranspilationUtil_CANNOT_CONVERT, []string{"Module requests with protocols."}))
 	}
 	this.importRequests.add(obj_(Es6RewriteModulesToCommonJsModules_ModuleRequest_create(Es6RewriteModulesToCommonJsModules_normalizePath(path.resolveModuleAsPath(importDecl.getLastChild().getString()).toString()), this.getVarNameOfImportNode(importDecl))))

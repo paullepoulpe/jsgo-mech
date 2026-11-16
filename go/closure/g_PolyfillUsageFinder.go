@@ -71,7 +71,7 @@ func (this *PolyfillUsageFinder) maybeCreateStaticPolyfillUsageForGetPropChain(t
 	}
 	var rootName string = ownerNode.getString()
 	SequencedCollection_addFirst(icast_SequencedCollection(obj_(components)), strobj_(rootName))
-	var fullName string = String_join(strobj_("."), icast_Iterable(obj_(components)))
+	var fullName string = String_join_s(".", icast_Iterable(obj_(components)))
 	var globalPrefix OptionalOf[string] = PolyfillUsageFinder_findGlobalPrefix(fullName)
 	if globalPrefix.isPresent() {
 		var polyfill *PolyfillUsageFinder_Polyfill = cast_[*PolyfillUsageFinder_Polyfill](Map_get_s(this.polyfills.statics, String_substring_int(fullName, String_length(globalPrefix.get()))))
@@ -323,17 +323,17 @@ func PolyfillUsageFinder_Polyfills_fromTable(table string) *PolyfillUsageFinder_
 	var methods *SimpleListMultimap = SimpleListMultimap_create()
 	var statics ImmutableMap_BuilderOf[string, *PolyfillUsageFinder_Polyfill] = ImmutableMap_builder()
 	var byNativeVersion *SimpleListMultimap = SimpleListMultimap_create()
-	it_1 := foreach_(any(Splitter_on('\n').omitEmptyStrings().split(strobj_(table))))
+	it_1 := foreach_(any(Splitter_on('\n').omitEmptyStrings().split_s(table)))
 	for it_1.next() {
 		var line string = str_(it_1.v)
-		var tokens []string = sliceImm_(tc_string, Splitter_on(' ').omitEmptyStrings().splitToList(strobj_(String_trim(line))))
+		var tokens []string = sliceImm_(tc_string, Splitter_on(' ').omitEmptyStrings().splitToList_s(String_trim(line)))
 		if (int32(len(tokens)) == 1) && String_isEmpty(sliceAt_(tokens, 0)) {
 			continue
 		} else if int32(len(tokens)) < 3 {
 			panic(new_IllegalArgumentException_String(("Invalid table: too few tokens on line: " + sstr_(line))).self())
 		}
 		var symbol string = sliceAt_(tokens, 0)
-		var isPrototypeMethod bool = String_contains(symbol, strobj_(".prototype."))
+		var isPrototypeMethod bool = String_contains_s(symbol, ".prototype.")
 		var nativeVersionStr string = sliceAt_(tokens, 1)
 		var polyfillVersionStr string = sliceAt_(tokens, 2)
 		var polyfill *PolyfillUsageFinder_Polyfill = new_PolyfillUsageFinder_Polyfill(symbol, nativeVersionStr, polyfillVersionStr, func() string {
@@ -348,7 +348,7 @@ func PolyfillUsageFinder_Polyfills_fromTable(table string) *PolyfillUsageFinder_
 			return PolyfillUsageFinder_Polyfill_Kind_STATIC
 		}())
 		if isPrototypeMethod {
-			methods.put(strobj_(PolyfillUsageFinder_PROTOTYPE_PREFIX_PATTERN.matcher(strobj_(symbol)).replaceAll("")), obj_(polyfill))
+			methods.put(strobj_(PolyfillUsageFinder_PROTOTYPE_PREFIX_PATTERN.matcher_s(symbol).replaceAll("")), obj_(polyfill))
 		} else {
 			statics.put(strobj_(symbol), obj_(polyfill))
 		}

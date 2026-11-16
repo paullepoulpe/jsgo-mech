@@ -134,7 +134,7 @@ func (this *ErrorToFixMapper) getFixForRedeclaration(error_ *JSError) *Suggested
 }
 
 func (this *ErrorToFixMapper) getFixForEarlyReference(error_ *JSError) *SuggestedFix {
-	var m *Matcher_re2j = ErrorToFixMapper_EARLY_REF.matcher(strobj_(error_.description()))
+	var m *Matcher_re2j = ErrorToFixMapper_EARLY_REF.matcher_s(error_.description())
 	if m.matches() {
 		var name string = m.group(1)
 		var stmt Node = NodeUtil_getEnclosingStatement(error_.node())
@@ -149,12 +149,12 @@ func (this *ErrorToFixMapper) getFixForReferenceToShortImportByLongName(error_ *
 	var match *Match = new_Match(error_.node(), metadata)
 	var script Node = this.compiler_.getScriptNode(error_.sourceName().orElseThrow())
 	var scriptMetadata *ScriptMetadata = this.getMetadataForScript(script)
-	var fullNameMatcher *Matcher_re2j = ErrorToFixMapper_FULLY_QUALIFIED_NAME.matcher(strobj_(error_.description()))
+	var fullNameMatcher *Matcher_re2j = ErrorToFixMapper_FULLY_QUALIFIED_NAME.matcher_s(error_.description())
 	if ok_, a1_ := fullNameMatcher.matches(), error_.description(); !ok_ {
 		Preconditions_checkState_boolean_Object(false, strobj_(a1_))
 	}
 	var fullName string = fullNameMatcher.group(1)
-	var shortNameMatcher *Matcher_re2j = ErrorToFixMapper_USE_SHORT_NAME.matcher(strobj_(error_.description()))
+	var shortNameMatcher *Matcher_re2j = ErrorToFixMapper_USE_SHORT_NAME.matcher_s(error_.description())
 	var shortName OptionalOf[string]
 	if shortNameMatcher.matches() {
 		shortName = Optional_ofNullable[string](shortNameMatcher.group(1))
@@ -171,7 +171,7 @@ func (this *ErrorToFixMapper) getFixForReferenceToShortImportByLongName(error_ *
 		}
 		return Optional_of[string](error_.node().getString())
 	}()
-	return fix.replace(error_.node(), NodeUtil_newQName_AbstractCompiler_String(this.compiler_, String_replace(oldName.get(), strobj_(fullName), strobj_(shortName.get()))), this.compiler_).build()
+	return fix.replace(error_.node(), NodeUtil_newQName_AbstractCompiler_String(this.compiler_, String_replace_s(oldName.get(), fullName, shortName.get())), this.compiler_).build()
 }
 
 func (this *ErrorToFixMapper) getFixesForImplicitNullabilityErrors(error_ *JSError) ImmutableListOf[*SuggestedFix] {
@@ -212,7 +212,7 @@ func (this *ErrorToFixMapper) getFixForMissingSuper(error_ *JSError) *SuggestedF
 }
 
 func (this *ErrorToFixMapper) getFixForInvalidSuper(error_ *JSError) *SuggestedFix {
-	var m *Matcher_re2j = ErrorToFixMapper_DID_YOU_MEAN.matcher(strobj_(error_.description()))
+	var m *Matcher_re2j = ErrorToFixMapper_DID_YOU_MEAN.matcher_s(error_.description())
 	if m.matches() {
 		var superDotSuggestion string = str_(Optional_ofNullable(strobj_(m.group(1))).orElseThrow())
 		return new_SuggestedFix_Builder().attachMatchedNodeInfo(error_.node(), this.compiler_).setDescription(("Call '" + sstr_(superDotSuggestion) + "' instead")).replace(error_.node(), NodeUtil_newQName_AbstractCompiler_String(this.compiler_, superDotSuggestion), this.compiler_).build()
@@ -221,7 +221,7 @@ func (this *ErrorToFixMapper) getFixForInvalidSuper(error_ *JSError) *SuggestedF
 }
 
 func (this *ErrorToFixMapper) getFixForInexistentProperty(error_ *JSError) *SuggestedFix {
-	var m *Matcher_re2j = ErrorToFixMapper_DID_YOU_MEAN.matcher(strobj_(error_.description()))
+	var m *Matcher_re2j = ErrorToFixMapper_DID_YOU_MEAN.matcher_s(error_.description())
 	if m.matches() {
 		var suggestedPropName string = m.group(1)
 		return new_SuggestedFix_Builder().attachMatchedNodeInfo(error_.node(), this.compiler_).setDescription(("Change property name to '" + sstr_(suggestedPropName) + "'")).rename(error_.node(), suggestedPropName).build()
@@ -230,7 +230,7 @@ func (this *ErrorToFixMapper) getFixForInexistentProperty(error_ *JSError) *Sugg
 }
 
 func (this *ErrorToFixMapper) getFixForMissingRequire(error_ *JSError, importType *SuggestedFix_ImportType) *SuggestedFix {
-	var regexMatcher *Matcher_re2j = ErrorToFixMapper_MISSING_REQUIRE.matcher(strobj_(error_.description()))
+	var regexMatcher *Matcher_re2j = ErrorToFixMapper_MISSING_REQUIRE.matcher_s(error_.description())
 	if ok_, a1_ := regexMatcher.matches(), error_.description(); !ok_ {
 		Preconditions_checkState_boolean_String_Object(false, "Unexpected error description: %s", strobj_(a1_))
 	}
@@ -254,7 +254,7 @@ func (this *ErrorToFixMapper) getFixForMissingRequire(error_ *JSError, importTyp
 	var fix *SuggestedFix_Builder = new_SuggestedFix_Builder().attachMatchedNodeInfo(error_.node(), this.compiler_).addImport(match, namespaceToRequire, importType, scriptMetadata)
 	var alias OptionalOf[string] = scriptMetadata.getAlias(namespaceToRequire)
 	if alias.isPresent() {
-		fix.replace(error_.node(), NodeUtil_newQName_AbstractCompiler_String(this.compiler_, String_replace(qName.get(), strobj_(namespaceToRequire), strobj_(alias.get()))), this.compiler_)
+		fix.replace(error_.node(), NodeUtil_newQName_AbstractCompiler_String(this.compiler_, String_replace_s(qName.get(), namespaceToRequire, alias.get())), this.compiler_)
 	}
 	return fix.build()
 }

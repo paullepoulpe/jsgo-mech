@@ -208,7 +208,7 @@ func (this *TypedCodeGenerator) appendTemplateAnnotations(sb *StringBuilder, typ
 			var typeParam *JSType = to_JSType(it_1.v)
 			formattedTypeParams = append(formattedTypeParams, this.formatTypeVar(typeParam))
 		}
-		sb.append(String_join(strobj_(","), Iterable(sliceView_(tc_string, formattedTypeParams))))
+		sb.append(String_join_s(",", Iterable(sliceView_(tc_string, formattedTypeParams))))
 		sb.append("\n")
 	}
 }

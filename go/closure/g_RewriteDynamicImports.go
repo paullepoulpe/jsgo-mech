@@ -284,7 +284,7 @@ func (this *RewriteDynamicImports_AliasInjectingTraversal) shouldTraverse_impl(t
 		var aliasRootNode Node = this.outer_.astFactory_.createSingleVarNameDeclaration_2(aliasRootName, this.outer_.astFactory_.createObjectLit([]Node{}))
 		aliasRootNode.srcrefTree(externsRoot)
 		externsRoot.addChildToBack(aliasRootNode)
-		var aliasNameParts IteratorOf[string] = Splitter_on_String(".").split(strobj_(this.outer_.alias_.get())).iterator()
+		var aliasNameParts IteratorOf[string] = Splitter_on_String(".").split_s(this.outer_.alias_.get()).iterator()
 		var qName Node = aliasRootNode.getFirstChild().cloneNode()
 		aliasNameParts.next()
 		for aliasNameParts.hasNext() {

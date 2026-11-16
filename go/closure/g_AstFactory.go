@@ -407,7 +407,7 @@ func (this *AstFactory) createQNameUsingJSTypeInfo(globalTypedScope *TypedScope,
 		Preconditions_checkArgument_boolean_Object(false, obj_(globalTypedScope))
 	}
 	this.assertNotAddingColors()
-	var nameParts []string = sliceImm_(tc_string, AstFactory_DOT_SPLITTER.splitToList(strobj_(qname)))
+	var nameParts []string = sliceImm_(tc_string, AstFactory_DOT_SPLITTER.splitToList_s(qname))
 	Preconditions_checkState(len(nameParts) != 0)
 	var receiverPart string = sliceAt_(nameParts, 0)
 	var receiver Node = IR_name(receiverPart)
@@ -420,7 +420,7 @@ func (this *AstFactory) createQNameUsingJSTypeInfo(globalTypedScope *TypedScope,
 }
 
 func (this *AstFactory) createQNameString(scope StaticScope, qname string) Node {
-	return this.createQNameIterable(scope, AstFactory_DOT_SPLITTER.split(strobj_(qname)))
+	return this.createQNameIterable(scope, AstFactory_DOT_SPLITTER.split_s(qname))
 }
 
 func (this *AstFactory) createQNameIterable(scope StaticScope, names IterableOf[string]) Node {
@@ -457,7 +457,7 @@ func (this *AstFactory) createQName_4(scope StaticScope, baseName string, baseNa
 
 func (this *AstFactory) createQName(scope StaticScope, field RuntimeJsLibManager_JsLibField) Node {
 	var qname string = field.assertInjected().qualifiedName()
-	var parts *TList[string] = tlistImm_(tc_string, AstFactory_DOT_SPLITTER.splitToList(strobj_(qname)))
+	var parts *TList[string] = tlistImm_(tc_string, AstFactory_DOT_SPLITTER.splitToList_s(qname))
 	var baseName string = str_(Optional_ofNullable(Iterables_getFirst(Iterable(parts.asList()), nil)).orElseThrow())
 	if !String_startsWith(baseName, "$jscomp") {
 		Preconditions_checkState_boolean_String_Object(false, "Unexpected Field name %s", strobj_(baseName))
@@ -476,11 +476,11 @@ func (this *AstFactory) createQName(scope StaticScope, field RuntimeJsLibManager
 }
 
 func (this *AstFactory) createQNameWithUnknownType(qname string) Node {
-	return this.createQNameWithUnknownTypeIterable(AstFactory_DOT_SPLITTER.split(strobj_(qname)))
+	return this.createQNameWithUnknownTypeIterable(AstFactory_DOT_SPLITTER.split_s(qname))
 }
 
 func (this *AstFactory) createQNameWithUnknownTypeJsLibField(field RuntimeJsLibManager_JsLibField) Node {
-	var parts *TList[string] = tlistImm_(tc_string, AstFactory_DOT_SPLITTER.splitToList(strobj_(field.assertInjected().qualifiedName())))
+	var parts *TList[string] = tlistImm_(tc_string, AstFactory_DOT_SPLITTER.splitToList_s(field.assertInjected().qualifiedName()))
 	var baseName string = str_(Optional_ofNullable(Iterables_getFirst(Iterable(parts.asList()), nil)).orElseThrow())
 	if !String_startsWith(baseName, "$jscomp") {
 		Preconditions_checkState_boolean_String_Object(false, "Unexpected Field name %s", strobj_(baseName))
