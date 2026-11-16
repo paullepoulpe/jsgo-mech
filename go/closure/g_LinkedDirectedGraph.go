@@ -143,14 +143,23 @@ func (this *LinkedDirectedGraph) getOutEdges_impl(nodeValue any) *TList[DiGraph_
 }
 
 func (this *LinkedDirectedGraph) createNode_impl(nodeValue any) GraphNode {
-	return icast_GraphNode(Map_computeIfAbsent(this.nodes_, nodeValue, &Function_fn{func(k any) any {
-		return func() any {
-			if this.useNodeAnnotations {
-				return obj_(new_LinkedDirectedGraph_AnnotatedLinkedDiGraphNode(k))
-			}
-			return new_LinkedDirectedGraph_LinkedDiGraphNode(k).self()
-		}()
-	}}))
+	return icast_GraphNode(this.getOrCreateNode_(nodeValue))
+}
+
+// getOrCreateNode_ is nodes.computeIfAbsent(nodeValue, new node) without the function object
+// (post-flip manual step: two allocations per call); the node made is never null.
+func (this *LinkedDirectedGraph) getOrCreateNode_(nodeValue any) any {
+	if n := this.nodes_.get(nodeValue); n != nil {
+		return n
+	}
+	var n any
+	if this.useNodeAnnotations {
+		n = obj_(new_LinkedDirectedGraph_AnnotatedLinkedDiGraphNode(nodeValue))
+	} else {
+		n = new_LinkedDirectedGraph_LinkedDiGraphNode(nodeValue).self()
+	}
+	this.nodes_.put(nodeValue, n)
+	return n
 }
 
 func (this *LinkedDirectedGraph) getEdges_2_impl(n1 any, n2 any) *TList[UndiGraph_UndiGraphEdge] {
