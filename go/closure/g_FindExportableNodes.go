@@ -196,19 +196,19 @@ func (this FindExportableNodes_Mode) enum_() *Enum {
 }
 
 func (this FindExportableNodes_Mode) name() string {
-	return FindExportableNodes_Mode_enum_[this-1].name_
+	return this.enum_().name_
 }
 
 func (this FindExportableNodes_Mode) ordinal() int32 {
-	return FindExportableNodes_Mode_enum_[this-1].ordinal_
+	return this.enum_().ordinal_
 }
 
 func (this FindExportableNodes_Mode) toString() string {
-	return FindExportableNodes_Mode_enum_[this-1].name_
+	return this.enum_().name_
 }
 
 func (this FindExportableNodes_Mode) compareTo(o any) int32 {
-	return FindExportableNodes_Mode_enum_[this-1].compareTo(o)
+	return this.enum_().compareTo(o)
 }
 
 func (this FindExportableNodes_Mode) self() any {

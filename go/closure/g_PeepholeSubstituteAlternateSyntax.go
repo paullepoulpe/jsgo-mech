@@ -541,19 +541,19 @@ func (this PeepholeSubstituteAlternateSyntax_FoldArrayAction) enum_() *Enum {
 }
 
 func (this PeepholeSubstituteAlternateSyntax_FoldArrayAction) name() string {
-	return PeepholeSubstituteAlternateSyntax_FoldArrayAction_enum_[this-1].name_
+	return this.enum_().name_
 }
 
 func (this PeepholeSubstituteAlternateSyntax_FoldArrayAction) ordinal() int32 {
-	return PeepholeSubstituteAlternateSyntax_FoldArrayAction_enum_[this-1].ordinal_
+	return this.enum_().ordinal_
 }
 
 func (this PeepholeSubstituteAlternateSyntax_FoldArrayAction) toString() string {
-	return PeepholeSubstituteAlternateSyntax_FoldArrayAction_enum_[this-1].name_
+	return this.enum_().name_
 }
 
 func (this PeepholeSubstituteAlternateSyntax_FoldArrayAction) compareTo(o any) int32 {
-	return PeepholeSubstituteAlternateSyntax_FoldArrayAction_enum_[this-1].compareTo(o)
+	return this.enum_().compareTo(o)
 }
 
 func (this PeepholeSubstituteAlternateSyntax_FoldArrayAction) self() any {

@@ -394,19 +394,19 @@ func (this JSTypeReconserializer_State) enum_() *Enum {
 }
 
 func (this JSTypeReconserializer_State) name() string {
-	return JSTypeReconserializer_State_enum_[this-1].name_
+	return this.enum_().name_
 }
 
 func (this JSTypeReconserializer_State) ordinal() int32 {
-	return JSTypeReconserializer_State_enum_[this-1].ordinal_
+	return this.enum_().ordinal_
 }
 
 func (this JSTypeReconserializer_State) toString() string {
-	return JSTypeReconserializer_State_enum_[this-1].name_
+	return this.enum_().name_
 }
 
 func (this JSTypeReconserializer_State) compareTo(o any) int32 {
-	return JSTypeReconserializer_State_enum_[this-1].compareTo(o)
+	return this.enum_().compareTo(o)
 }
 
 func (this JSTypeReconserializer_State) self() any {

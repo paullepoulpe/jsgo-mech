@@ -118,19 +118,19 @@ func (this AccessorSummary_PropertyAccessKind) enum_() *Enum {
 }
 
 func (this AccessorSummary_PropertyAccessKind) name() string {
-	return AccessorSummary_PropertyAccessKind_enum_[this-1].name_
+	return this.enum_().name_
 }
 
 func (this AccessorSummary_PropertyAccessKind) ordinal() int32 {
-	return AccessorSummary_PropertyAccessKind_enum_[this-1].ordinal_
+	return this.enum_().ordinal_
 }
 
 func (this AccessorSummary_PropertyAccessKind) toString() string {
-	return AccessorSummary_PropertyAccessKind_enum_[this-1].name_
+	return this.enum_().name_
 }
 
 func (this AccessorSummary_PropertyAccessKind) compareTo(o any) int32 {
-	return AccessorSummary_PropertyAccessKind_enum_[this-1].compareTo(o)
+	return this.enum_().compareTo(o)
 }
 
 func (this AccessorSummary_PropertyAccessKind) self() any {

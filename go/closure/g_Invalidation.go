@@ -101,14 +101,14 @@ func (this Invalidation_Reason) enum_() *Enum {
 	return &Invalidation_Reason_enum_[this-1]
 }
 
-func (this Invalidation_Reason) name() string { return Invalidation_Reason_enum_[this-1].name_ }
+func (this Invalidation_Reason) name() string { return this.enum_().name_ }
 
-func (this Invalidation_Reason) ordinal() int32 { return Invalidation_Reason_enum_[this-1].ordinal_ }
+func (this Invalidation_Reason) ordinal() int32 { return this.enum_().ordinal_ }
 
-func (this Invalidation_Reason) toString() string { return Invalidation_Reason_enum_[this-1].name_ }
+func (this Invalidation_Reason) toString() string { return this.enum_().name_ }
 
 func (this Invalidation_Reason) compareTo(o any) int32 {
-	return Invalidation_Reason_enum_[this-1].compareTo(o)
+	return this.enum_().compareTo(o)
 }
 
 func (this Invalidation_Reason) self() any {

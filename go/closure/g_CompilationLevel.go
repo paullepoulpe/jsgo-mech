@@ -20,14 +20,14 @@ func (this CompilationLevel) enum_() *Enum {
 	return &CompilationLevel_enum_[this-1]
 }
 
-func (this CompilationLevel) name() string { return CompilationLevel_enum_[this-1].name_ }
+func (this CompilationLevel) name() string { return this.enum_().name_ }
 
-func (this CompilationLevel) ordinal() int32 { return CompilationLevel_enum_[this-1].ordinal_ }
+func (this CompilationLevel) ordinal() int32 { return this.enum_().ordinal_ }
 
-func (this CompilationLevel) toString() string { return CompilationLevel_enum_[this-1].name_ }
+func (this CompilationLevel) toString() string { return this.enum_().name_ }
 
 func (this CompilationLevel) compareTo(o any) int32 {
-	return CompilationLevel_enum_[this-1].compareTo(o)
+	return this.enum_().compareTo(o)
 }
 
 func (this CompilationLevel) self() any {

@@ -414,19 +414,19 @@ func (this NamedType_ResolutionKind) enum_() *Enum {
 }
 
 func (this NamedType_ResolutionKind) name() string {
-	return NamedType_ResolutionKind_enum_[this-1].name_
+	return this.enum_().name_
 }
 
 func (this NamedType_ResolutionKind) ordinal() int32 {
-	return NamedType_ResolutionKind_enum_[this-1].ordinal_
+	return this.enum_().ordinal_
 }
 
 func (this NamedType_ResolutionKind) toString() string {
-	return NamedType_ResolutionKind_enum_[this-1].name_
+	return this.enum_().name_
 }
 
 func (this NamedType_ResolutionKind) compareTo(o any) int32 {
-	return NamedType_ResolutionKind_enum_[this-1].compareTo(o)
+	return this.enum_().compareTo(o)
 }
 
 func (this NamedType_ResolutionKind) self() any {

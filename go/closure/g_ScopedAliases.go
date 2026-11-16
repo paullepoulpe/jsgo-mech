@@ -184,19 +184,19 @@ func (this ScopedAliases_InvalidModuleGetHandling) enum_() *Enum {
 }
 
 func (this ScopedAliases_InvalidModuleGetHandling) name() string {
-	return ScopedAliases_InvalidModuleGetHandling_enum_[this-1].name_
+	return this.enum_().name_
 }
 
 func (this ScopedAliases_InvalidModuleGetHandling) ordinal() int32 {
-	return ScopedAliases_InvalidModuleGetHandling_enum_[this-1].ordinal_
+	return this.enum_().ordinal_
 }
 
 func (this ScopedAliases_InvalidModuleGetHandling) toString() string {
-	return ScopedAliases_InvalidModuleGetHandling_enum_[this-1].name_
+	return this.enum_().name_
 }
 
 func (this ScopedAliases_InvalidModuleGetHandling) compareTo(o any) int32 {
-	return ScopedAliases_InvalidModuleGetHandling_enum_[this-1].compareTo(o)
+	return this.enum_().compareTo(o)
 }
 
 func (this ScopedAliases_InvalidModuleGetHandling) self() any {

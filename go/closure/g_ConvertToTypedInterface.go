@@ -593,19 +593,19 @@ func (this ConvertToTypedInterface_SimplifyDeclarations_TypingLevel) enum_() *En
 }
 
 func (this ConvertToTypedInterface_SimplifyDeclarations_TypingLevel) name() string {
-	return ConvertToTypedInterface_SimplifyDeclarations_TypingLevel_enum_[this-1].name_
+	return this.enum_().name_
 }
 
 func (this ConvertToTypedInterface_SimplifyDeclarations_TypingLevel) ordinal() int32 {
-	return ConvertToTypedInterface_SimplifyDeclarations_TypingLevel_enum_[this-1].ordinal_
+	return this.enum_().ordinal_
 }
 
 func (this ConvertToTypedInterface_SimplifyDeclarations_TypingLevel) toString() string {
-	return ConvertToTypedInterface_SimplifyDeclarations_TypingLevel_enum_[this-1].name_
+	return this.enum_().name_
 }
 
 func (this ConvertToTypedInterface_SimplifyDeclarations_TypingLevel) compareTo(o any) int32 {
-	return ConvertToTypedInterface_SimplifyDeclarations_TypingLevel_enum_[this-1].compareTo(o)
+	return this.enum_().compareTo(o)
 }
 
 func (this ConvertToTypedInterface_SimplifyDeclarations_TypingLevel) self() any {

@@ -202,19 +202,19 @@ func (this RewriteGoogJsImports_Mode) enum_() *Enum {
 }
 
 func (this RewriteGoogJsImports_Mode) name() string {
-	return RewriteGoogJsImports_Mode_enum_[this-1].name_
+	return this.enum_().name_
 }
 
 func (this RewriteGoogJsImports_Mode) ordinal() int32 {
-	return RewriteGoogJsImports_Mode_enum_[this-1].ordinal_
+	return this.enum_().ordinal_
 }
 
 func (this RewriteGoogJsImports_Mode) toString() string {
-	return RewriteGoogJsImports_Mode_enum_[this-1].name_
+	return this.enum_().name_
 }
 
 func (this RewriteGoogJsImports_Mode) compareTo(o any) int32 {
-	return RewriteGoogJsImports_Mode_enum_[this-1].compareTo(o)
+	return this.enum_().compareTo(o)
 }
 
 func (this RewriteGoogJsImports_Mode) self() any {

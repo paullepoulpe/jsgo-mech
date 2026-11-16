@@ -1064,14 +1064,14 @@ func (this FunctionType_Kind) enum_() *Enum {
 	return &FunctionType_Kind_enum_[this-1]
 }
 
-func (this FunctionType_Kind) name() string { return FunctionType_Kind_enum_[this-1].name_ }
+func (this FunctionType_Kind) name() string { return this.enum_().name_ }
 
-func (this FunctionType_Kind) ordinal() int32 { return FunctionType_Kind_enum_[this-1].ordinal_ }
+func (this FunctionType_Kind) ordinal() int32 { return this.enum_().ordinal_ }
 
-func (this FunctionType_Kind) toString() string { return FunctionType_Kind_enum_[this-1].name_ }
+func (this FunctionType_Kind) toString() string { return this.enum_().name_ }
 
 func (this FunctionType_Kind) compareTo(o any) int32 {
-	return FunctionType_Kind_enum_[this-1].compareTo(o)
+	return this.enum_().compareTo(o)
 }
 
 func (this FunctionType_Kind) self() any {
@@ -1130,18 +1130,18 @@ func (this FunctionType_PropAccess) enum_() *Enum {
 	return &FunctionType_PropAccess_enum_[this-1]
 }
 
-func (this FunctionType_PropAccess) name() string { return FunctionType_PropAccess_enum_[this-1].name_ }
+func (this FunctionType_PropAccess) name() string { return this.enum_().name_ }
 
 func (this FunctionType_PropAccess) ordinal() int32 {
-	return FunctionType_PropAccess_enum_[this-1].ordinal_
+	return this.enum_().ordinal_
 }
 
 func (this FunctionType_PropAccess) toString() string {
-	return FunctionType_PropAccess_enum_[this-1].name_
+	return this.enum_().name_
 }
 
 func (this FunctionType_PropAccess) compareTo(o any) int32 {
-	return FunctionType_PropAccess_enum_[this-1].compareTo(o)
+	return this.enum_().compareTo(o)
 }
 
 func (this FunctionType_PropAccess) self() any {
@@ -1200,19 +1200,19 @@ func (this FunctionType_ConstructorAmbiguity) enum_() *Enum {
 }
 
 func (this FunctionType_ConstructorAmbiguity) name() string {
-	return FunctionType_ConstructorAmbiguity_enum_[this-1].name_
+	return this.enum_().name_
 }
 
 func (this FunctionType_ConstructorAmbiguity) ordinal() int32 {
-	return FunctionType_ConstructorAmbiguity_enum_[this-1].ordinal_
+	return this.enum_().ordinal_
 }
 
 func (this FunctionType_ConstructorAmbiguity) toString() string {
-	return FunctionType_ConstructorAmbiguity_enum_[this-1].name_
+	return this.enum_().name_
 }
 
 func (this FunctionType_ConstructorAmbiguity) compareTo(o any) int32 {
-	return FunctionType_ConstructorAmbiguity_enum_[this-1].compareTo(o)
+	return this.enum_().compareTo(o)
 }
 
 func (this FunctionType_ConstructorAmbiguity) self() any {

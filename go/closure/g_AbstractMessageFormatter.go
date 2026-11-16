@@ -131,19 +131,19 @@ func (this AbstractMessageFormatter_Color) enum_() *Enum {
 }
 
 func (this AbstractMessageFormatter_Color) name() string {
-	return AbstractMessageFormatter_Color_enum_[this-1].name_
+	return this.enum_().name_
 }
 
 func (this AbstractMessageFormatter_Color) ordinal() int32 {
-	return AbstractMessageFormatter_Color_enum_[this-1].ordinal_
+	return this.enum_().ordinal_
 }
 
 func (this AbstractMessageFormatter_Color) toString() string {
-	return AbstractMessageFormatter_Color_enum_[this-1].name_
+	return this.enum_().name_
 }
 
 func (this AbstractMessageFormatter_Color) compareTo(o any) int32 {
-	return AbstractMessageFormatter_Color_enum_[this-1].compareTo(o)
+	return this.enum_().compareTo(o)
 }
 
 func (this AbstractMessageFormatter_Color) self() any {

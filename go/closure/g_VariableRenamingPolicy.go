@@ -18,18 +18,18 @@ func (this VariableRenamingPolicy) enum_() *Enum {
 	return &VariableRenamingPolicy_enum_[this-1]
 }
 
-func (this VariableRenamingPolicy) name() string { return VariableRenamingPolicy_enum_[this-1].name_ }
+func (this VariableRenamingPolicy) name() string { return this.enum_().name_ }
 
 func (this VariableRenamingPolicy) ordinal() int32 {
-	return VariableRenamingPolicy_enum_[this-1].ordinal_
+	return this.enum_().ordinal_
 }
 
 func (this VariableRenamingPolicy) toString() string {
-	return VariableRenamingPolicy_enum_[this-1].name_
+	return this.enum_().name_
 }
 
 func (this VariableRenamingPolicy) compareTo(o any) int32 {
-	return VariableRenamingPolicy_enum_[this-1].compareTo(o)
+	return this.enum_().compareTo(o)
 }
 
 func (this VariableRenamingPolicy) self() any {

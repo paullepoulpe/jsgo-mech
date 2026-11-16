@@ -244,19 +244,19 @@ func (this ClosureExportTypeClassifier_Kind) enum_() *Enum {
 }
 
 func (this ClosureExportTypeClassifier_Kind) name() string {
-	return ClosureExportTypeClassifier_Kind_enum_[this-1].name_
+	return this.enum_().name_
 }
 
 func (this ClosureExportTypeClassifier_Kind) ordinal() int32 {
-	return ClosureExportTypeClassifier_Kind_enum_[this-1].ordinal_
+	return this.enum_().ordinal_
 }
 
 func (this ClosureExportTypeClassifier_Kind) toString() string {
-	return ClosureExportTypeClassifier_Kind_enum_[this-1].name_
+	return this.enum_().name_
 }
 
 func (this ClosureExportTypeClassifier_Kind) compareTo(o any) int32 {
-	return ClosureExportTypeClassifier_Kind_enum_[this-1].compareTo(o)
+	return this.enum_().compareTo(o)
 }
 
 func (this ClosureExportTypeClassifier_Kind) self() any {
@@ -332,19 +332,19 @@ func (this ClosureExportTypeClassifier_TsExportType) enum_() *Enum {
 }
 
 func (this ClosureExportTypeClassifier_TsExportType) name() string {
-	return ClosureExportTypeClassifier_TsExportType_enum_[this-1].name_
+	return this.enum_().name_
 }
 
 func (this ClosureExportTypeClassifier_TsExportType) ordinal() int32 {
-	return ClosureExportTypeClassifier_TsExportType_enum_[this-1].ordinal_
+	return this.enum_().ordinal_
 }
 
 func (this ClosureExportTypeClassifier_TsExportType) toString() string {
-	return ClosureExportTypeClassifier_TsExportType_enum_[this-1].name_
+	return this.enum_().name_
 }
 
 func (this ClosureExportTypeClassifier_TsExportType) compareTo(o any) int32 {
-	return ClosureExportTypeClassifier_TsExportType_enum_[this-1].compareTo(o)
+	return this.enum_().compareTo(o)
 }
 
 func (this ClosureExportTypeClassifier_TsExportType) self() any {

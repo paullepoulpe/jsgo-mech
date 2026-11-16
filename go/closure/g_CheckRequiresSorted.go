@@ -236,19 +236,19 @@ func (this CheckRequiresSorted_Mode) enum_() *Enum {
 }
 
 func (this CheckRequiresSorted_Mode) name() string {
-	return CheckRequiresSorted_Mode_enum_[this-1].name_
+	return this.enum_().name_
 }
 
 func (this CheckRequiresSorted_Mode) ordinal() int32 {
-	return CheckRequiresSorted_Mode_enum_[this-1].ordinal_
+	return this.enum_().ordinal_
 }
 
 func (this CheckRequiresSorted_Mode) toString() string {
-	return CheckRequiresSorted_Mode_enum_[this-1].name_
+	return this.enum_().name_
 }
 
 func (this CheckRequiresSorted_Mode) compareTo(o any) int32 {
-	return CheckRequiresSorted_Mode_enum_[this-1].compareTo(o)
+	return this.enum_().compareTo(o)
 }
 
 func (this CheckRequiresSorted_Mode) self() any {
@@ -307,15 +307,15 @@ func (this CheckRequiresSorted_ImportPrimitive) enum_() *Enum {
 }
 
 func (this CheckRequiresSorted_ImportPrimitive) name() string {
-	return CheckRequiresSorted_ImportPrimitive_enum_[this-1].name_
+	return this.enum_().name_
 }
 
 func (this CheckRequiresSorted_ImportPrimitive) ordinal() int32 {
-	return CheckRequiresSorted_ImportPrimitive_enum_[this-1].ordinal_
+	return this.enum_().ordinal_
 }
 
 func (this CheckRequiresSorted_ImportPrimitive) compareTo(o any) int32 {
-	return CheckRequiresSorted_ImportPrimitive_enum_[this-1].compareTo(o)
+	return this.enum_().compareTo(o)
 }
 
 func (this CheckRequiresSorted_ImportPrimitive) self() any {

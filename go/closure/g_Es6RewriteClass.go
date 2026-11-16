@@ -447,19 +447,19 @@ func (this Es6RewriteClass_ClassProperty_PropertyKind) enum_() *Enum {
 }
 
 func (this Es6RewriteClass_ClassProperty_PropertyKind) name() string {
-	return Es6RewriteClass_ClassProperty_PropertyKind_enum_[this-1].name_
+	return this.enum_().name_
 }
 
 func (this Es6RewriteClass_ClassProperty_PropertyKind) ordinal() int32 {
-	return Es6RewriteClass_ClassProperty_PropertyKind_enum_[this-1].ordinal_
+	return this.enum_().ordinal_
 }
 
 func (this Es6RewriteClass_ClassProperty_PropertyKind) toString() string {
-	return Es6RewriteClass_ClassProperty_PropertyKind_enum_[this-1].name_
+	return this.enum_().name_
 }
 
 func (this Es6RewriteClass_ClassProperty_PropertyKind) compareTo(o any) int32 {
-	return Es6RewriteClass_ClassProperty_PropertyKind_enum_[this-1].compareTo(o)
+	return this.enum_().compareTo(o)
 }
 
 func (this Es6RewriteClass_ClassProperty_PropertyKind) self() any {

@@ -18,14 +18,14 @@ func (this ClosurePrimitive) enum_() *Enum {
 	return &ClosurePrimitive_enum_[this-1]
 }
 
-func (this ClosurePrimitive) name() string { return ClosurePrimitive_enum_[this-1].name_ }
+func (this ClosurePrimitive) name() string { return this.enum_().name_ }
 
-func (this ClosurePrimitive) ordinal() int32 { return ClosurePrimitive_enum_[this-1].ordinal_ }
+func (this ClosurePrimitive) ordinal() int32 { return this.enum_().ordinal_ }
 
-func (this ClosurePrimitive) toString() string { return ClosurePrimitive_enum_[this-1].name_ }
+func (this ClosurePrimitive) toString() string { return this.enum_().name_ }
 
 func (this ClosurePrimitive) compareTo(o any) int32 {
-	return ClosurePrimitive_enum_[this-1].compareTo(o)
+	return this.enum_().compareTo(o)
 }
 
 func (this ClosurePrimitive) self() any {

@@ -1145,19 +1145,19 @@ func (this InlineFunctions_ShouldWarnWhenRequireInliningCannotInline) enum_() *E
 }
 
 func (this InlineFunctions_ShouldWarnWhenRequireInliningCannotInline) name() string {
-	return InlineFunctions_ShouldWarnWhenRequireInliningCannotInline_enum_[this-1].name_
+	return this.enum_().name_
 }
 
 func (this InlineFunctions_ShouldWarnWhenRequireInliningCannotInline) ordinal() int32 {
-	return InlineFunctions_ShouldWarnWhenRequireInliningCannotInline_enum_[this-1].ordinal_
+	return this.enum_().ordinal_
 }
 
 func (this InlineFunctions_ShouldWarnWhenRequireInliningCannotInline) toString() string {
-	return InlineFunctions_ShouldWarnWhenRequireInliningCannotInline_enum_[this-1].name_
+	return this.enum_().name_
 }
 
 func (this InlineFunctions_ShouldWarnWhenRequireInliningCannotInline) compareTo(o any) int32 {
-	return InlineFunctions_ShouldWarnWhenRequireInliningCannotInline_enum_[this-1].compareTo(o)
+	return this.enum_().compareTo(o)
 }
 
 func (this InlineFunctions_ShouldWarnWhenRequireInliningCannotInline) self() any {
@@ -1215,19 +1215,19 @@ func (this InlineFunctions_CannotRemoveReason) enum_() *Enum {
 }
 
 func (this InlineFunctions_CannotRemoveReason) name() string {
-	return InlineFunctions_CannotRemoveReason_enum_[this-1].name_
+	return this.enum_().name_
 }
 
 func (this InlineFunctions_CannotRemoveReason) ordinal() int32 {
-	return InlineFunctions_CannotRemoveReason_enum_[this-1].ordinal_
+	return this.enum_().ordinal_
 }
 
 func (this InlineFunctions_CannotRemoveReason) toString() string {
-	return InlineFunctions_CannotRemoveReason_enum_[this-1].name_
+	return this.enum_().name_
 }
 
 func (this InlineFunctions_CannotRemoveReason) compareTo(o any) int32 {
-	return InlineFunctions_CannotRemoveReason_enum_[this-1].compareTo(o)
+	return this.enum_().compareTo(o)
 }
 
 func (this InlineFunctions_CannotRemoveReason) self() any {
@@ -1294,19 +1294,19 @@ func (this InlineFunctions_DisallowInliningReason) enum_() *Enum {
 }
 
 func (this InlineFunctions_DisallowInliningReason) name() string {
-	return InlineFunctions_DisallowInliningReason_enum_[this-1].name_
+	return this.enum_().name_
 }
 
 func (this InlineFunctions_DisallowInliningReason) ordinal() int32 {
-	return InlineFunctions_DisallowInliningReason_enum_[this-1].ordinal_
+	return this.enum_().ordinal_
 }
 
 func (this InlineFunctions_DisallowInliningReason) toString() string {
-	return InlineFunctions_DisallowInliningReason_enum_[this-1].name_
+	return this.enum_().name_
 }
 
 func (this InlineFunctions_DisallowInliningReason) compareTo(o any) int32 {
-	return InlineFunctions_DisallowInliningReason_enum_[this-1].compareTo(o)
+	return this.enum_().compareTo(o)
 }
 
 func (this InlineFunctions_DisallowInliningReason) self() any {

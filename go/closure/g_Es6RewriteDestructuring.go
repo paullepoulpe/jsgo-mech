@@ -641,19 +641,19 @@ func (this Es6RewriteDestructuring_ObjectDestructuringRewriteMode) enum_() *Enum
 }
 
 func (this Es6RewriteDestructuring_ObjectDestructuringRewriteMode) name() string {
-	return Es6RewriteDestructuring_ObjectDestructuringRewriteMode_enum_[this-1].name_
+	return this.enum_().name_
 }
 
 func (this Es6RewriteDestructuring_ObjectDestructuringRewriteMode) ordinal() int32 {
-	return Es6RewriteDestructuring_ObjectDestructuringRewriteMode_enum_[this-1].ordinal_
+	return this.enum_().ordinal_
 }
 
 func (this Es6RewriteDestructuring_ObjectDestructuringRewriteMode) toString() string {
-	return Es6RewriteDestructuring_ObjectDestructuringRewriteMode_enum_[this-1].name_
+	return this.enum_().name_
 }
 
 func (this Es6RewriteDestructuring_ObjectDestructuringRewriteMode) compareTo(o any) int32 {
-	return Es6RewriteDestructuring_ObjectDestructuringRewriteMode_enum_[this-1].compareTo(o)
+	return this.enum_().compareTo(o)
 }
 
 func (this Es6RewriteDestructuring_ObjectDestructuringRewriteMode) self() any {

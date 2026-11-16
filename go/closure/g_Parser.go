@@ -2753,16 +2753,16 @@ func (this Parser_FunctionFlavor) enum_() *Enum {
 	return &Parser_FunctionFlavor_enum_[this-1]
 }
 
-func (this Parser_FunctionFlavor) name() string { return Parser_FunctionFlavor_enum_[this-1].name_ }
+func (this Parser_FunctionFlavor) name() string { return this.enum_().name_ }
 
 func (this Parser_FunctionFlavor) ordinal() int32 {
-	return Parser_FunctionFlavor_enum_[this-1].ordinal_
+	return this.enum_().ordinal_
 }
 
-func (this Parser_FunctionFlavor) toString() string { return Parser_FunctionFlavor_enum_[this-1].name_ }
+func (this Parser_FunctionFlavor) toString() string { return this.enum_().name_ }
 
 func (this Parser_FunctionFlavor) compareTo(o any) int32 {
-	return Parser_FunctionFlavor_enum_[this-1].compareTo(o)
+	return this.enum_().compareTo(o)
 }
 
 func (this Parser_FunctionFlavor) self() any {
@@ -2859,14 +2859,14 @@ func (this Parser_Config_Mode) enum_() *Enum {
 	return &Parser_Config_Mode_enum_[this-1]
 }
 
-func (this Parser_Config_Mode) name() string { return Parser_Config_Mode_enum_[this-1].name_ }
+func (this Parser_Config_Mode) name() string { return this.enum_().name_ }
 
-func (this Parser_Config_Mode) ordinal() int32 { return Parser_Config_Mode_enum_[this-1].ordinal_ }
+func (this Parser_Config_Mode) ordinal() int32 { return this.enum_().ordinal_ }
 
-func (this Parser_Config_Mode) toString() string { return Parser_Config_Mode_enum_[this-1].name_ }
+func (this Parser_Config_Mode) toString() string { return this.enum_().name_ }
 
 func (this Parser_Config_Mode) compareTo(o any) int32 {
-	return Parser_Config_Mode_enum_[this-1].compareTo(o)
+	return this.enum_().compareTo(o)
 }
 
 func (this Parser_Config_Mode) self() any {
@@ -2959,14 +2959,14 @@ func (this Parser_Expression) enum_() *Enum {
 	return &Parser_Expression_enum_[this-1]
 }
 
-func (this Parser_Expression) name() string { return Parser_Expression_enum_[this-1].name_ }
+func (this Parser_Expression) name() string { return this.enum_().name_ }
 
-func (this Parser_Expression) ordinal() int32 { return Parser_Expression_enum_[this-1].ordinal_ }
+func (this Parser_Expression) ordinal() int32 { return this.enum_().ordinal_ }
 
-func (this Parser_Expression) toString() string { return Parser_Expression_enum_[this-1].name_ }
+func (this Parser_Expression) toString() string { return this.enum_().name_ }
 
 func (this Parser_Expression) compareTo(o any) int32 {
-	return Parser_Expression_enum_[this-1].compareTo(o)
+	return this.enum_().compareTo(o)
 }
 
 func (this Parser_Expression) self() any {
@@ -3021,14 +3021,14 @@ func (this Parser_PatternKind) enum_() *Enum {
 	return &Parser_PatternKind_enum_[this-1]
 }
 
-func (this Parser_PatternKind) name() string { return Parser_PatternKind_enum_[this-1].name_ }
+func (this Parser_PatternKind) name() string { return this.enum_().name_ }
 
-func (this Parser_PatternKind) ordinal() int32 { return Parser_PatternKind_enum_[this-1].ordinal_ }
+func (this Parser_PatternKind) ordinal() int32 { return this.enum_().ordinal_ }
 
-func (this Parser_PatternKind) toString() string { return Parser_PatternKind_enum_[this-1].name_ }
+func (this Parser_PatternKind) toString() string { return this.enum_().name_ }
 
 func (this Parser_PatternKind) compareTo(o any) int32 {
-	return Parser_PatternKind_enum_[this-1].compareTo(o)
+	return this.enum_().compareTo(o)
 }
 
 func (this Parser_PatternKind) self() any {
