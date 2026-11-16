@@ -167,7 +167,7 @@ func new_OptimizeCalls_ReferenceMap() *OptimizeCalls_ReferenceMap {
 }
 
 func (this *OptimizeCalls_ReferenceMap) addReference(data *TMap[string, ArrayListOf[Node]], name string, n Node) {
-	var refs ArrayListOf[Node] = data.computeIfAbsent(name, lambda_OptimizeCalls_ReferenceMap_addReference_1_)
+	var refs ArrayListOf[Node] = data.computeIfAbsent_f(name, lambda_OptimizeCalls_ReferenceMap_addReference_1_.f)
 	refs.add(n.box_())
 }
 

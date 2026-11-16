@@ -170,7 +170,7 @@ func (this *ReplaceMessages) createHookExpressionForGenderedMsg(type_ AstFactory
 	var hookHead Node = IR_hook(IR_name(""), IR_string(""), IR_string(""))
 	hookHead.setColor(nodeToReplace.getColor())
 	var placeholderHook Node = hookHead
-	var placeholderNodeProvider ReplaceMessages_PlaceholderNodeProvider = &ReplaceMessages_PlaceholderNodeProvider_fn{func(placeholderName string) Node {
+	var placeholderNodeProvider func(string) Node = func(placeholderName string) Node {
 		var placeholderId OptionalOf[string] = Optional_ofNullable[string](mapStr_(placeholderMapIds, placeholderName))
 		return func() Node {
 			if placeholderId.isPresent() {
@@ -179,7 +179,7 @@ func (this *ReplaceMessages) createHookExpressionForGenderedMsg(type_ AstFactory
 			return 0
 		}()
 		panic("unreachable")
-	}}
+	}
 	for _, grammaticalGender := range msg.getGenderedMessageVariants() {
 		if Object_equals(obj_(grammaticalGender), obj_(JsMessage_GrammaticalGenderCase_OTHER)) {
 			continue
@@ -208,7 +208,7 @@ func (this *ReplaceMessages) createHookExpressionForGenderedMsg(type_ AstFactory
 	return Outcome_base_ok_Object(hookHead.box_())
 }
 
-func (this *ReplaceMessages) buildMessageNode(msgParts []JsMessage_Part, options *ReplaceMessages_MsgOptions, nodeToReplace Node, placeholderNodeProvider ReplaceMessages_PlaceholderNodeProvider, isGenderedMsg bool) *Outcome_base {
+func (this *ReplaceMessages) buildMessageNode(msgParts []JsMessage_Part, options *ReplaceMessages_MsgOptions, nodeToReplace Node, placeholderNodeProvider func(string) Node, isGenderedMsg bool) *Outcome_base {
 	var parts *TList[JsMessage_Part] = ReplaceMessages_mergeStringParts(msgParts)
 	if parts.isEmpty() {
 		return Outcome_base_ok_Object(this.astFactory_.createString("").box_())
@@ -220,7 +220,7 @@ func (this *ReplaceMessages) buildMessageNode(msgParts []JsMessage_Part, options
 		var partNode Node
 		if msgPart.isPlaceholder() {
 			var jsPlaceholderName string = msgPart.getJsPlaceholderName()
-			var valueNode Node = placeholderNodeProvider.get(jsPlaceholderName)
+			var valueNode Node = placeholderNodeProvider(jsPlaceholderName)
 			if valueNode == 0 {
 				if isGenderedMsg {
 					partNode = this.astFactory_.createString(("{" + sstr_(msgPart.getCanonicalPlaceholderName()) + "}"))
@@ -268,7 +268,7 @@ func (this *ReplaceMessages) constructNonGenderedMsgNode(message *JsMessage, pla
 			}
 		}
 	}
-	return this.buildMessageNode(sliceImm_(tc_JsMessage_Part, message.getParts()), options, nodeToReplace, &ReplaceMessages_PlaceholderNodeProvider_fn{func(p0 string) Node { return placeholderMap.get(p0) }}, false)
+	return this.buildMessageNode(sliceImm_(tc_JsMessage_Part, message.getParts()), options, nodeToReplace, func(p0 string) Node { return placeholderMap.get(p0) }, false)
 }
 
 func (this *ReplaceMessages) createNodeForMsgString(options *ReplaceMessages_MsgOptions, s string) Node {

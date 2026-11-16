@@ -151,11 +151,11 @@ func (this *TypedAstSerializer) getSourceFilePointer(n Node) int32 {
 		return 0
 	}
 	SequencedCollection_addLast(icast_SequencedCollection(obj_(this.subtreeSourceFiles)), obj_(sourceFile))
-	return unbox_[int32](Map_computeIfAbsent(this.sourceFilePointers.asMap(), obj_(sourceFile), &Function_fn{func(f_ any) any {
+	return unbox_[int32](Map_computeIfAbsent_f(this.sourceFilePointers.asMap(), obj_(sourceFile), func(f_ any) any {
 		var f *SourceFile_jscomp = cast_[*SourceFile_jscomp](f_)
 		_ = f
 		return any(int32((1 + this.sourceFilePointers.size())))
-	}}))
+	}))
 }
 
 func (this *TypedAstSerializer) addType(n Node, builder *AstNode_Builder) {
@@ -593,7 +593,7 @@ func (this *TypedAstSerializer_ColorTypeSerializer) addTypeForNode(node Node, as
 
 func (this *TypedAstSerializer_ColorTypeSerializer) generateTypePool() *TypePool {
 	var mismatchLocationsForDebugging *SimpleSetMultimap = this.colorRegistry.getMismatchLocationsForDebugging()
-	return this.colorSerializer.generateTypePool(&Function_fn{func(p0 any) any { return any(this.colorRegistry.getDisambiguationSupertypes(cast_[*Color](p0))) }}, &Function_fn{func(color_ any) any {
+	return this.colorSerializer.generateTypePool(func(p0 any) any { return any(this.colorRegistry.getDisambiguationSupertypes(cast_[*Color](p0))) }, &Function_fn{func(color_ any) any {
 		var color *Color = cast_[*Color](color_)
 		_ = color
 		return any(mismatchLocationsForDebugging.get(obj_(color.getId())))

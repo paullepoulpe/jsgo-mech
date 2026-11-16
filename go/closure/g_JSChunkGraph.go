@@ -296,7 +296,7 @@ func (this *JSChunkGraph) getTransitiveDepsDeepestFirst(m *JSChunk) ListOf[*JSCh
 }
 
 func (this *JSChunkGraph) getTransitiveDeps(m *JSChunk) SetOf[*JSChunk] {
-	return icast_Set(this.dependencyMap.computeIfAbsent(obj_(m), lambda_JSChunkGraph_getTransitiveDeps_1_))
+	return icast_Set(this.dependencyMap.computeIfAbsent(obj_(m), lambda_JSChunkGraph_getTransitiveDeps_1_.f))
 }
 
 // lambda_JSChunkGraph_getTransitiveDeps_1_ is a lambda of JSChunkGraph_getTransitiveDeps that captures nothing (post-flip step lambdas).

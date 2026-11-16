@@ -176,7 +176,7 @@ func (this *JSDocInfoPrinter) print(info *JSDocInfo) string {
 	var templates ImmutableMapOf[string, *JSTypeExpression] = info.getTemplateTypes()
 	if !templates.isEmpty() {
 		multiline = true
-		Map_forEach(icast_Map(obj_(templates)), &BiConsumer_fn{func(name_ any, boundExpr_ any) {
+		Map_forEach_f(icast_Map(obj_(templates)), func(name_ any, boundExpr_ any) {
 			var name string = str_(name_)
 			_ = name
 			var boundExpr *JSTypeExpression = cast_[*JSTypeExpression](boundExpr_)
@@ -187,7 +187,7 @@ func (this *JSDocInfoPrinter) print(info *JSDocInfo) string {
 			} else {
 				parts.add(this.buildAnnotationWithType_3("template", boundExpr, Optional_of[string](name)))
 			}
-		}})
+		})
 	}
 	var typeTransformations ImmutableMapOf[string, Node] = info.getTypeTransformations()
 	if !typeTransformations.isEmpty() {

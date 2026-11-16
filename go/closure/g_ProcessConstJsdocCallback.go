@@ -115,7 +115,7 @@ func (this *ProcessConstJsdocCallback) recordNameDeclaration(lhs Node, rhs Node)
 	Preconditions_checkArgument((NodeUtil_isNameDeclaration(lhs.getParent()) || lhs.getParent().isAssign()))
 	var isImport bool = PotentialDeclaration_isImportRhs(rhs)
 	var isAlias bool = PotentialDeclaration_isAliasDeclaration(lhs, rhs)
-	NodeUtil_visitLhsNodesInNode(lhs.getParent(), &Consumer_fn{func(name_ any) {
+	NodeUtil_visitLhsNodesInNode(lhs.getParent(), func(name_ any) {
 		var name Node = Node_of_(name_)
 		_ = name
 		if isAlias || isImport {
@@ -123,7 +123,7 @@ func (this *ProcessConstJsdocCallback) recordNameDeclaration(lhs Node, rhs Node)
 		} else {
 			this.currentFile.recordNameDeclaration(name)
 		}
-	}})
+	})
 }
 
 func (this *ProcessConstJsdocCallback) processDeclarationWithRhs(t *NodeTraversal, lhs Node) {

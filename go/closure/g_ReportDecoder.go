@@ -132,7 +132,7 @@ func ReportDecoder_mergeProfiles(profiles []*ReportProfile) *ReportProfile {
 			it_5 := foreach_(any(fileProfile.getInstrumentationPointsStatsList()))
 			for it_5.next() {
 				var pointStats *InstrumentationPointStats = cast_[*InstrumentationPointStats](it_5.v)
-				Map_compute(frequencies, obj_(pointStats.getPoint()), &BiFunction_fn{func(p_ any, existing any) any {
+				Map_compute_f(frequencies, obj_(pointStats.getPoint()), func(p_ any, existing any) any {
 					var p *InstrumentationPoint = cast_[*InstrumentationPoint](p_)
 					_ = p
 					return any(int64((func() int64 {
@@ -141,8 +141,8 @@ func ReportDecoder_mergeProfiles(profiles []*ReportProfile) *ReportProfile {
 						}
 						return unbox_[int64](existing)
 					}() + pointStats.getTimesExecuted())))
-				}})
-				Map_compute(presences, obj_(pointStats.getPoint()), &BiFunction_fn{func(p_ any, existing_ any) any {
+				})
+				Map_compute_f(presences, obj_(pointStats.getPoint()), func(p_ any, existing_ any) any {
 					var p *InstrumentationPoint = cast_[*InstrumentationPoint](p_)
 					_ = p
 					var existing *InstrumentationPointStats_Presence = cast_[*InstrumentationPointStats_Presence](existing_)
@@ -153,7 +153,7 @@ func ReportDecoder_mergeProfiles(profiles []*ReportProfile) *ReportProfile {
 						}
 						return obj_(existing)
 					}()
-				}})
+				})
 			}
 		}
 	}
@@ -171,7 +171,7 @@ func ReportDecoder_createReportProfile(instrumentationPoints []*InstrumentationP
 	List_sort(sliceView_(tc_p_InstrumentationPointStats, sortedPoints), Comparator_thenComparingInt(Comparator_comparing(lambda_ReportDecoder_createReportProfile_1_), lambda_ReportDecoder_createReportProfile_2_))
 	var pointsByFileName *TMap[string, ListOf[*InstrumentationPointStats]] = newTMap_(tc_string, tc_ListOf_p_InstrumentationPointStats_)
 	for _, pointStats := range sortedPoints {
-		pointsByFileName.computeIfAbsent(pointStats.getPoint().getFileName(), lambda_ReportDecoder_createReportProfile_3_).add(obj_(pointStats))
+		pointsByFileName.computeIfAbsent_f(pointStats.getPoint().getFileName(), lambda_ReportDecoder_createReportProfile_3_.f).add(obj_(pointStats))
 	}
 	var fileProfiles *TList[*FileProfile] = newTList_(tc_p_FileProfile)
 	it_3 := foreach_(any(pointsByFileName.asMap().entrySet()))

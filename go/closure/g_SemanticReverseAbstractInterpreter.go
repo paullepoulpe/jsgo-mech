@@ -117,27 +117,27 @@ func (this *SemanticReverseAbstractInterpreter) getPreciserScopeKnowingCondition
 		}
 	case Token_rhino_EQ:
 		if outcome.isTruthy() {
-			return this.caseEquality(condition, blindScope, lambda_SemanticReverseAbstractInterpreter_getPreciserScopeKnowingConditionOutcome_impl_1_)
+			return this.caseEquality(condition, blindScope, lambda_SemanticReverseAbstractInterpreter_getPreciserScopeKnowingConditionOutcome_impl_1_.f)
 		} else {
-			return this.caseEquality(condition, blindScope, lambda_SemanticReverseAbstractInterpreter_getPreciserScopeKnowingConditionOutcome_impl_2_)
+			return this.caseEquality(condition, blindScope, lambda_SemanticReverseAbstractInterpreter_getPreciserScopeKnowingConditionOutcome_impl_2_.f)
 		}
 	case Token_rhino_NE:
 		if outcome.isTruthy() {
-			return this.caseEquality(condition, blindScope, lambda_SemanticReverseAbstractInterpreter_getPreciserScopeKnowingConditionOutcome_impl_3_)
+			return this.caseEquality(condition, blindScope, lambda_SemanticReverseAbstractInterpreter_getPreciserScopeKnowingConditionOutcome_impl_3_.f)
 		} else {
-			return this.caseEquality(condition, blindScope, lambda_SemanticReverseAbstractInterpreter_getPreciserScopeKnowingConditionOutcome_impl_4_)
+			return this.caseEquality(condition, blindScope, lambda_SemanticReverseAbstractInterpreter_getPreciserScopeKnowingConditionOutcome_impl_4_.f)
 		}
 	case Token_rhino_SHEQ:
 		if outcome.isTruthy() {
-			return this.caseEquality(condition, blindScope, lambda_SemanticReverseAbstractInterpreter_getPreciserScopeKnowingConditionOutcome_impl_5_)
+			return this.caseEquality(condition, blindScope, lambda_SemanticReverseAbstractInterpreter_getPreciserScopeKnowingConditionOutcome_impl_5_.f)
 		} else {
-			return this.caseEquality(condition, blindScope, lambda_SemanticReverseAbstractInterpreter_getPreciserScopeKnowingConditionOutcome_impl_6_)
+			return this.caseEquality(condition, blindScope, lambda_SemanticReverseAbstractInterpreter_getPreciserScopeKnowingConditionOutcome_impl_6_.f)
 		}
 	case Token_rhino_SHNE:
 		if outcome.isTruthy() {
-			return this.caseEquality(condition, blindScope, lambda_SemanticReverseAbstractInterpreter_getPreciserScopeKnowingConditionOutcome_impl_7_)
+			return this.caseEquality(condition, blindScope, lambda_SemanticReverseAbstractInterpreter_getPreciserScopeKnowingConditionOutcome_impl_7_.f)
 		} else {
-			return this.caseEquality(condition, blindScope, lambda_SemanticReverseAbstractInterpreter_getPreciserScopeKnowingConditionOutcome_impl_8_)
+			return this.caseEquality(condition, blindScope, lambda_SemanticReverseAbstractInterpreter_getPreciserScopeKnowingConditionOutcome_impl_8_.f)
 		}
 	case Token_rhino_NAME, Token_rhino_GETPROP:
 		return this.caseNameOrGetProp(condition, blindScope, outcome)
@@ -147,7 +147,7 @@ func (this *SemanticReverseAbstractInterpreter) getPreciserScopeKnowingCondition
 		return this.firstPreciserScopeKnowingConditionOutcome(condition.getFirstChild(), blindScope, outcome.not())
 	case Token_rhino_LE, Token_rhino_LT, Token_rhino_GE, Token_rhino_GT:
 		if outcome.isTruthy() {
-			return this.caseEquality(condition, blindScope, lambda_SemanticReverseAbstractInterpreter_getPreciserScopeKnowingConditionOutcome_impl_9_)
+			return this.caseEquality(condition, blindScope, lambda_SemanticReverseAbstractInterpreter_getPreciserScopeKnowingConditionOutcome_impl_9_.f)
 		}
 	case Token_rhino_INSTANCEOF:
 		return this.caseInstanceOf(condition.getFirstChild(), condition.getLastChild(), blindScope, outcome)
@@ -159,9 +159,9 @@ func (this *SemanticReverseAbstractInterpreter) getPreciserScopeKnowingCondition
 		var left Node = condition.getParent().getPrevious()
 		var right Node = condition.getFirstChild()
 		if outcome.isTruthy() {
-			return this.caseEquality_4(left, right, blindScope, lambda_SemanticReverseAbstractInterpreter_getPreciserScopeKnowingConditionOutcome_impl_10_)
+			return this.caseEquality_4(left, right, blindScope, lambda_SemanticReverseAbstractInterpreter_getPreciserScopeKnowingConditionOutcome_impl_10_.f)
 		} else {
-			return this.caseEquality_4(left, right, blindScope, lambda_SemanticReverseAbstractInterpreter_getPreciserScopeKnowingConditionOutcome_impl_11_)
+			return this.caseEquality_4(left, right, blindScope, lambda_SemanticReverseAbstractInterpreter_getPreciserScopeKnowingConditionOutcome_impl_11_.f)
 		}
 	case Token_rhino_CALL:
 		var left Node = condition.getFirstChild()
@@ -221,11 +221,11 @@ func (this *SemanticReverseAbstractInterpreter) caseIsArray(value Node, blindSco
 	return blindScope
 }
 
-func (this *SemanticReverseAbstractInterpreter) caseEquality(condition Node, blindScope FlowScope, merging Function_baseOf[*JSType_TypePair, *JSType_TypePair]) FlowScope {
+func (this *SemanticReverseAbstractInterpreter) caseEquality(condition Node, blindScope FlowScope, merging func(any) any) FlowScope {
 	return this.caseEquality_4(condition.getFirstChild(), condition.getLastChild(), blindScope, merging)
 }
 
-func (this *SemanticReverseAbstractInterpreter) caseEquality_4(left Node, right Node, blindScope FlowScope, merging Function_baseOf[*JSType_TypePair, *JSType_TypePair]) FlowScope {
+func (this *SemanticReverseAbstractInterpreter) caseEquality_4(left Node, right Node, blindScope FlowScope, merging func(any) any) FlowScope {
 	var leftType *JSType = this.getTypeIfRefinable(left, blindScope)
 	var leftIsRefineable bool
 	if leftType != nil {
@@ -242,7 +242,7 @@ func (this *SemanticReverseAbstractInterpreter) caseEquality_4(left Node, right 
 		rightIsRefineable = false
 		rightType = right.getJSType()
 	}
-	var merged *JSType_TypePair = cast_[*JSType_TypePair](merging.apply(obj_(new_JSType_TypePair(leftType, rightType))))
+	var merged *JSType_TypePair = cast_[*JSType_TypePair](merging(obj_(new_JSType_TypePair(leftType, rightType))))
 	if merged != nil {
 		return this.maybeRestrictTwoNames(blindScope, left, leftType, func() *JSType {
 			if leftIsRefineable {

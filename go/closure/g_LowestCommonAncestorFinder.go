@@ -35,11 +35,11 @@ func (this *LowestCommonAncestorFinder) findAll(roots SetOf[any]) ImmutableSetOf
 		var rootNode DiGraph_DiGraphNode = icast_DiGraph_DiGraphNode(this.graph.getNode(root))
 		Preconditions_checkNotNull_Object_String_Object(any(rootNode), "Root not present in graph: %s", root)
 		var color *LowestCommonAncestorFinder_Color = LowestCommonAncestorFinder_Color_create(bitForRoot)
-		Map_merge(icast_Map(obj_(this.searchColoring)), any(rootNode), obj_(color), lambda_LowestCommonAncestorFinder_findAll_1_)
+		Map_merge_f(icast_Map(obj_(this.searchColoring)), any(rootNode), obj_(color), lambda_LowestCommonAncestorFinder_findAll_1_.f)
 		this.paintAncestors(rootNode, color)
 		bitForRoot = (bitForRoot << 1)
 	}
-	Map_forEach(icast_Map(obj_(this.searchColoring)), &BiConsumer_fn{func(node_ any, color_ any) {
+	Map_forEach_f(icast_Map(obj_(this.searchColoring)), func(node_ any, color_ any) {
 		var node DiGraph_DiGraphNode = icast_DiGraph_DiGraphNode(node_)
 		_ = node
 		var color *LowestCommonAncestorFinder_Color = cast_[*LowestCommonAncestorFinder_Color](color_)
@@ -47,9 +47,9 @@ func (this *LowestCommonAncestorFinder) findAll(roots SetOf[any]) ImmutableSetOf
 		if color.equals(obj_(allColor)) {
 			this.paintAncestors(node, LowestCommonAncestorFinder_Color_NOT_LOWEST)
 		}
-	}})
+	})
 	var results ImmutableSet_BuilderOf[any] = ImmutableSet_builder()
-	Map_forEach(icast_Map(obj_(this.searchColoring)), &BiConsumer_fn{func(node_ any, color_ any) {
+	Map_forEach_f(icast_Map(obj_(this.searchColoring)), func(node_ any, color_ any) {
 		var node DiGraph_DiGraphNode = icast_DiGraph_DiGraphNode(node_)
 		_ = node
 		var color *LowestCommonAncestorFinder_Color = cast_[*LowestCommonAncestorFinder_Color](color_)
@@ -57,7 +57,7 @@ func (this *LowestCommonAncestorFinder) findAll(roots SetOf[any]) ImmutableSetOf
 		if color.equals(obj_(allColor)) {
 			results.add(node.getValue())
 		}
-	}})
+	})
 	this.searchColoring.clear()
 	this.searchQueue.clear()
 	return cast_[*ImmutableSet](obj_(results.build()))

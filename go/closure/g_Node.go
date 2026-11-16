@@ -653,12 +653,12 @@ func (this Node) clonePropsFrom(other Node) Node {
 	return this
 }
 
-func (this Node) validateProperties(violationMessageConsumer ConsumerOf[string]) {
+func (this Node) validateProperties(violationMessageConsumer func(any)) {
 	if this.ps_().propListHead == nil {
 		return
 	}
 	if this.ns_().token == tokOrd1_ROOT {
-		violationMessageConsumer.accept(strobj_("ROOT has properties"))
+		violationMessageConsumer(strobj_("ROOT has properties"))
 	}
 	{
 		var propListItem *Node_PropListItem = this.ps_().propListHead
@@ -668,40 +668,40 @@ func (this Node) validateProperties(violationMessageConsumer ConsumerOf[string])
 			switch prop {
 			case Node_Prop_IS_PARENTHESIZED:
 				if !IR_mayBeExpression(this) {
-					violationMessageConsumer.accept(strobj_("non-expression is parenthesized"))
+					violationMessageConsumer(strobj_("non-expression is parenthesized"))
 				}
 			case Node_Prop_ARROW_FN:
 				if !this.isFunction() {
-					violationMessageConsumer.accept(strobj_("invalid ARROW_FN prop"))
+					violationMessageConsumer(strobj_("invalid ARROW_FN prop"))
 				}
 			case Node_Prop_ASYNC_FN:
 				if !this.isFunction() {
-					violationMessageConsumer.accept(strobj_("invalid ASYNC_FN prop"))
+					violationMessageConsumer(strobj_("invalid ASYNC_FN prop"))
 				}
 			case Node_Prop_SYNTHETIC:
 				if !this.isBlock() {
-					violationMessageConsumer.accept(strobj_("invalid SYNTHETIC prop"))
+					violationMessageConsumer(strobj_("invalid SYNTHETIC prop"))
 				}
 			case Node_Prop_COLOR_FROM_CAST:
 				if this.getColor() == nil {
-					violationMessageConsumer.accept(strobj_("COLOR_FROM_CAST with no Color"))
+					violationMessageConsumer(strobj_("COLOR_FROM_CAST with no Color"))
 				}
 			case Node_Prop_START_OF_OPT_CHAIN:
 				if !((this.isOptChainCall() || this.isOptChainGetElem()) || this.isOptChainGetProp()) {
-					violationMessageConsumer.accept(strobj_("START_OF_OPT_CHAIN on non-optional Node"))
+					violationMessageConsumer(strobj_("START_OF_OPT_CHAIN on non-optional Node"))
 				}
 			case Node_Prop_CONSTANT_VAR_FLAGS:
 				if !(this.isName() || this.isImportStar()) {
-					violationMessageConsumer.accept(strobj_("invalid CONST_VAR_FLAGS"))
+					violationMessageConsumer(strobj_("invalid CONST_VAR_FLAGS"))
 				}
 			case Node_Prop_SYNTHESIZED_UNFULFILLED_NAME_DECLARATION:
 				if !this.isVar() {
-					violationMessageConsumer.accept(strobj_("Expected all synthetic unfulfilled declarations to be `var <name>`"))
+					violationMessageConsumer(strobj_("Expected all synthetic unfulfilled declarations to be `var <name>`"))
 				}
 			case Node_Prop_CLOSURE_UNAWARE_SHADOW:
 				var shadowProp *Node_PropListItem = this.lookupProperty(Node_Prop_CLOSURE_UNAWARE_SHADOW)
 				if !is_[*Node_ObjectPropListItem](shadowProp.self()) || !is_[Node](shadowProp.getObjectValue()) {
-					violationMessageConsumer.accept(strobj_("CLOSURE_UNAWARE_SHADOW property must point to a Node"))
+					violationMessageConsumer(strobj_("CLOSURE_UNAWARE_SHADOW property must point to a Node"))
 				}
 			default:
 			}
@@ -895,11 +895,11 @@ func (this Node) deserializeProperties(propSet int64, isInClosureUnawareSubtree 
 	if sideEffectFlags != 0 {
 		this.ps_().propListHead = new_Node_IntPropListItem(int8(Node_Prop_SIDE_EFFECT_FLAGS.ordinal()), sideEffectFlags, this.ps_().propListHead).up_Node_PropListItem()
 	}
-	this.validateProperties(&Consumer_fn{func(errorMessage_ any) {
+	this.validateProperties(func(errorMessage_ any) {
 		var errorMessage string = str_(errorMessage_)
 		_ = errorMessage
 		panic(new_IllegalStateException_String(("deserialize error: " + sstr_(errorMessage) + ": " + objstr_(this.box_()))).self())
-	}})
+	})
 }
 
 func (this Node) setDeclaredTypeExpression(typeExpression Node) {

@@ -95,7 +95,7 @@ func (this *TypeInferencePass) inferScope(n Node, scope *TypedScope) {
 				continue
 			}
 			var state *DataFlowAnalysis_LinearFlowState = cast_[*DataFlowAnalysis_LinearFlowState](Annotatable_getAnnotation(Annotatable(node)))
-			cast_[*SimpleMultiset](Map_computeIfAbsent(icast_Map(obj_(this.stepCountHistogram)), any(int32(state.getStepCount())), lambda_TypeInferencePass_inferScope_1_)).add(obj_(Node_of_(node.getValue()).getToken()))
+			cast_[*SimpleMultiset](Map_computeIfAbsent_f(icast_Map(obj_(this.stepCountHistogram)), any(int32(state.getStepCount())), lambda_TypeInferencePass_inferScope_1_.f)).add(obj_(Node_of_(node.getValue()).getToken()))
 		}
 	}
 }

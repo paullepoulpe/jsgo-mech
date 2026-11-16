@@ -75,12 +75,12 @@ func (this *CheckNoMutatedEs6Exports) visitExport(export Node) {
 	} else if export.hasOneChild() && !export.getBooleanProp(Node_EXPORT_ALL_FROM) {
 		var declaration Node = export.getFirstChild()
 		if NodeUtil_isNameDeclaration(declaration) {
-			NodeUtil_visitLhsNodesInNode(declaration, &Consumer_fn{func(lhs_ any) {
+			NodeUtil_visitLhsNodesInNode(declaration, func(lhs_ any) {
 				var lhs Node = Node_of_(lhs_)
 				_ = lhs
 				Preconditions_checkState(lhs.isName())
 				this.exportedLocalNames.add(lhs.getString())
-			}})
+			})
 		} else if export.getBooleanProp(Node_EXPORT_DEFAULT) {
 			if !declaration.isClass() && !declaration.isFunction() {
 				return

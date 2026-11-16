@@ -285,27 +285,27 @@ func (this *TypeValidator) expectIndexMatch(n Node, objType *JSType, indexType *
 }
 
 func (this *TypeValidator) expectCanAssignToPropertyOf(n Node, rightType *JSType, leftType *JSType, owner Node, propName OptionalOf[string]) bool {
-	var typeNameSupplier Supplier_baseOf[string]
+	var typeNameSupplier func() any
 	if n.isMemberFieldDef() {
 		var classType *FunctionType = n.getGrandparent().getJSType().assertFunctionType()
-		typeNameSupplier = &Supplier_base_fn{func() any {
+		typeNameSupplier = func() any {
 			return strobj_(classType.getInstanceType().toString())
-		}}
+		}
 	} else {
-		typeNameSupplier = &Supplier_base_fn{func() any {
+		typeNameSupplier = func() any {
 			return strobj_(this.typeRegistry.getReadableTypeName(owner).orElse(nullstr_))
-		}}
+		}
 	}
 	return this.expectCanAssignToPropertyOf_6(n, rightType, leftType, this.getJSType(owner), typeNameSupplier, propName)
 }
 
-func (this *TypeValidator) expectCanAssignToPropertyOf_6(n Node, rightType *JSType, leftType *JSType, ownerType *JSType, typeNameSupplier Supplier_baseOf[string], propName OptionalOf[string]) bool {
+func (this *TypeValidator) expectCanAssignToPropertyOf_6(n Node, rightType *JSType, leftType *JSType, ownerType *JSType, typeNameSupplier func() any, propName OptionalOf[string]) bool {
 	if leftType.isTemplateType() {
 		var left *TemplateType = leftType.toMaybeTemplateType()
 		if (rightType.containsReferenceAncestor(left.up_JSType()) || rightType.isUnknownType()) || left.isUnknownType() {
 			return true
 		} else {
-			this.registerMismatchAndReport_7(n, TypeValidator_TYPE_MISMATCH_WARNING, ("assignment to property " + sstr_(propName.orElse("null")) + " of " + sstr_(str_(typeNameSupplier.get()))), rightType, leftType, icast_Set(obj_(new_LinkedHashSet())), icast_Set(obj_(new_LinkedHashSet())))
+			this.registerMismatchAndReport_7(n, TypeValidator_TYPE_MISMATCH_WARNING, ("assignment to property " + sstr_(propName.orElse("null")) + " of " + sstr_(str_(typeNameSupplier()))), rightType, leftType, icast_Set(obj_(new_LinkedHashSet())), icast_Set(obj_(new_LinkedHashSet())))
 			return false
 		}
 	}
@@ -316,7 +316,7 @@ func (this *TypeValidator) expectCanAssignToPropertyOf_6(n Node, rightType *JSTy
 				return true
 			}
 		}
-		this.mismatchJSType(n, ("assignment to property " + sstr_(propName.orElse("null")) + " of " + sstr_(str_(typeNameSupplier.get()))), rightType, leftType)
+		this.mismatchJSType(n, ("assignment to property " + sstr_(propName.orElse("null")) + " of " + sstr_(str_(typeNameSupplier()))), rightType, leftType)
 		return false
 	}
 	return true

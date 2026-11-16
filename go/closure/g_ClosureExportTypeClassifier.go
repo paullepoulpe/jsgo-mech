@@ -25,7 +25,7 @@ func new_ClosureExportTypeClassifier() *ClosureExportTypeClassifier {
 func ClosureExportTypeClassifier_classify(moduleRoot Node, googNamespace string) *ClosureExportTypeClassifier_TsExportType {
 	var classifier *ClosureExportTypeClassifier = new_ClosureExportTypeClassifier()
 	classifier.addGoogModuleExports()
-	ClosureExportTypeClassifier_forEachTopLevelStatement(moduleRoot, &Consumer_fn{func(p0 any) { classifier.visitStatement(Node_of_(p0)) }})
+	ClosureExportTypeClassifier_forEachTopLevelStatement(moduleRoot, func(p0 any) { classifier.visitStatement(Node_of_(p0)) })
 	var info *ClosureExportTypeClassifier_NameInfo = classifier.topLevelNames[ClosureExportTypeClassifier_EXPORTS]
 	if has_(classifier.forcedNamedExport, googNamespace) || (classifier.kindOfName(info, 0) == ClosureExportTypeClassifier_Kind_NAMESPACE) {
 		return ClosureExportTypeClassifier_TsExportType_NAMED
@@ -39,13 +39,13 @@ func (this *ClosureExportTypeClassifier) addGoogModuleExports() {
 	this.topLevelNames[ClosureExportTypeClassifier_EXPORTS] = info
 }
 
-func ClosureExportTypeClassifier_forEachTopLevelStatement(moduleRoot Node, callback ConsumerOf[Node]) {
+func ClosureExportTypeClassifier_forEachTopLevelStatement(moduleRoot Node, callback func(any)) {
 	Preconditions_checkArgument_boolean_Object((moduleRoot.isScript() && moduleRoot.getFirstChild().isModuleBody()), moduleRoot.box_())
 	var body Node = moduleRoot.getFirstChild()
 	{
 		var statement Node = body.getFirstChild()
 		for ; statement != 0; statement = statement.getNext() {
-			callback.accept(statement.box_())
+			callback(statement.box_())
 		}
 	}
 }

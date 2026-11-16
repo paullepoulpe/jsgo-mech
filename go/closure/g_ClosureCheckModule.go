@@ -277,14 +277,14 @@ func (this *ClosureCheckModule) checkShortGoogRequireCall(t *NodeTraversal, call
 		ClosureCheckModule_checkShortName(t, lhs, callNode.getLastChild().getString())
 	}
 	this.currentModuleInfo.importsByLongRequiredName[ClosureCheckModule_extractFirstArgumentName(callNode).orElse(nullstr_)] = lhs
-	NodeUtil_visitLhsNodesInNode(declaration, &Consumer_fn{func(nameNode_ any) {
+	NodeUtil_visitLhsNodesInNode(declaration, func(nameNode_ any) {
 		var nameNode Node = Node_of_(nameNode_)
 		_ = nameNode
 		var name string = nameNode.getString()
 		if !setAdd_(this.currentModuleInfo.shortImportNames, name) {
 			t.report(nameNode, ClosureCheckModule_DUPLICATE_NAME_SHORT_REQUIRE, []string{name})
 		}
-	}})
+	})
 }
 
 func ClosureCheckModule_checkShortName(t *NodeTraversal, shortNameNode Node, namespace string) {

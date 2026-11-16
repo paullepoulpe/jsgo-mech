@@ -33,7 +33,7 @@ func (this *DisambiguateProperties) process_2(externs Node, root Node) {
 		recv_1 := this.compiler_.getCodingConvention()
 		return &ColorFindPropertyReferences_IsPropertyReflector_fn{func(p0 Node) bool { return recv_1.isPropertyRenameFunction(p0) }}
 	}())
-	var graphBuilder *ColorGraphBuilder = new_ColorGraphBuilder(flattener, lambda_DisambiguateProperties_process_2_1_, this.registry)
+	var graphBuilder *ColorGraphBuilder = new_ColorGraphBuilder(flattener, lambda_DisambiguateProperties_process_2_1_.f, this.registry)
 	var propagator *ClusterPropagator = new_ClusterPropagator()
 	var renamer *UseSiteRenamer = new_UseSiteRenamer(func() *Consumer_fn {
 		recv_2 := this.compiler_
@@ -124,7 +124,7 @@ func DisambiguateProperties_buildRenamingIndex(props *TMap[string, *PropertyClus
 func DisambiguateProperties_invalidateWellKnownProperties(propIndex *TMap[string, *PropertyClustering]) {
 	var names []string = sliceOf_(tc_string, "prototype", "constructor", "then")
 	for _, name := range names {
-		propIndex.computeIfAbsent(name, lambda_DisambiguateProperties_invalidateWellKnownProperties_1_).invalidate(Invalidation_wellKnownProperty())
+		propIndex.computeIfAbsent_f(name, lambda_DisambiguateProperties_invalidateWellKnownProperties_1_.f).invalidate(Invalidation_wellKnownProperty())
 	}
 }
 

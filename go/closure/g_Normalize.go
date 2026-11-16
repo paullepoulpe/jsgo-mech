@@ -245,11 +245,11 @@ func (this *Normalize_NormalizeStatements) splitExportDeclaration(n Node) {
 			c.insertBefore(n)
 			this.addNameNodeToExportSpecs(exportSpecs, name)
 		} else {
-			NodeUtil_visitLhsNodesInNode(c, &Consumer_fn{func(name_ any) {
+			NodeUtil_visitLhsNodesInNode(c, func(name_ any) {
 				var name Node = Node_of_(name_)
 				_ = name
 				this.addNameNodeToExportSpecs(exportSpecs, name)
-			}})
+			})
 			{
 				var child Node = c.getFirstChild()
 				for child != 0 {
@@ -327,7 +327,7 @@ func (this *Normalize_NormalizeStatements) isVarDestructuringDeclaration(n Node)
 func (this *Normalize_NormalizeStatements) rewriteVarDestructuringDeclaration(destructuringLhs Node) {
 	Preconditions_checkState_boolean_Object(!destructuringLhs.getGrandparent().isExport(), strobj_("Export destructuring declarations should be already handled in `splitExportDeclaration` during pre-order traversal."))
 	var var_ Node = destructuringLhs.getParent()
-	NodeUtil_visitLhsNodesInNode(destructuringLhs, &Consumer_fn{func(name_ any) {
+	NodeUtil_visitLhsNodesInNode(destructuringLhs, func(name_ any) {
 		var name Node = Node_of_(name_)
 		_ = name
 		Preconditions_checkState_boolean_String_Object(name.isName(), "lhs in destructuring declaration should be a simple name. (%s)", name.box_())
@@ -337,7 +337,7 @@ func (this *Normalize_NormalizeStatements) rewriteVarDestructuringDeclaration(de
 		}
 		var newVar Node = IR_var_Node(newName).srcref(name)
 		newVar.insertBefore(var_)
-	}})
+	})
 	var destructuringPattern Node = destructuringLhs.removeFirstChild()
 	Preconditions_checkState_boolean_Object(destructuringPattern.isDestructuringPattern(), strobj_("Expected destructuring pattern."))
 	var rhs Node = destructuringLhs.removeFirstChild()
@@ -393,14 +393,14 @@ func (this *Normalize_NormalizeStatements) extractForInitializer(n Node, before 
 				if first.isVar() {
 					var lhs Node = first.getFirstChild()
 					if lhs.isDestructuringLhs() {
-						NodeUtil_visitLhsNodesInNode(lhs, &Consumer_fn{func(name_ any) {
+						NodeUtil_visitLhsNodesInNode(lhs, func(name_ any) {
 							var name Node = Node_of_(name_)
 							_ = name
 							Preconditions_checkState_boolean_String_Object(name.isName(), "lhs in destructuring declaration should be a simple name. (%s)", name.box_())
 							var newName Node = IR_name(name.getString()).srcref(name)
 							var newVar Node = IR_var_Node(newName).srcref(name)
 							newVar.insertBefore(insertBefore)
-						}})
+						})
 						var destructuringPattern Node = lhs.removeFirstChild()
 						first.replaceWith(destructuringPattern)
 					} else {

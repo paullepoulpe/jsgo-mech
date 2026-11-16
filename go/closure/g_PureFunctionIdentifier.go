@@ -227,7 +227,7 @@ func (this *PureFunctionIdentifier) populateDatastructuresForAnalysisTraversal(r
 		var name string = str_(it_5.v)
 		this.summariesByName[name] = PureFunctionIdentifier_AmbiguatedFunctionSummary_createInGraph(this.reverseCallGraph.up_DiGraph(), name)
 	}
-	Map_forEach(referencesByName.asMap(), &BiConsumer_fn{func(p0 any, p1 any) { this.populateFunctionDefinitions(str_(p0), icast_List(p1)) }})
+	Map_forEach_f(referencesByName.asMap(), func(p0 any, p1 any) { this.populateFunctionDefinitions(str_(p0), icast_List(p1)) })
 	this.summariesForAllNamesOfFunctionByNode.put(PureFunctionIdentifier_IMPLICIT_PURE_FN.box_(), obj_(PureFunctionIdentifier_AmbiguatedFunctionSummary_createInGraph(this.reverseCallGraph.up_DiGraph(), "<implicit pure class ctor")))
 }
 
@@ -568,40 +568,40 @@ func (this *PureFunctionIdentifier_FunctionBodyAnalyzer) updateSideEffectsForNod
 			}
 			return PureFunctionIdentifier_FIND_RHS_AND_CHECK_FOR_LOCAL_VALUE
 		}()
-		NodeUtil_visitLhsNodesInNode(node, &Consumer_fn{func(lhsNode_ any) {
+		NodeUtil_visitLhsNodesInNode(node, func(lhsNode_ any) {
 			var lhsNode Node = Node_of_(lhsNode_)
 			_ = lhsNode
 			this.visitLhsNode(encloserSummary, traversal.getScope(), lhsNode, rhsLocality)
-		}})
+		})
 	case tokOrd1_INC, tokOrd1_DEC, tokOrd1_DELPROP:
 		this.visitLhsNode(encloserSummary, traversal.getScope(), node.getOnlyChild(), PureFunctionIdentifier_RHS_IS_ALWAYS_LOCAL)
 	case tokOrd1_FOR_AWAIT_OF:
 		this.deprecatedSetSideEffectsForControlLoss(encloserSummary)
 		fallthrough
 	case tokOrd1_FOR_OF:
-		NodeUtil_visitLhsNodesInNode(node, &Consumer_fn{func(lhsNode_ any) {
+		NodeUtil_visitLhsNodesInNode(node, func(lhsNode_ any) {
 			var lhsNode Node = Node_of_(lhsNode_)
 			_ = lhsNode
 			this.visitLhsNode(encloserSummary, traversal.getScope(), lhsNode, PureFunctionIdentifier_RHS_IS_NEVER_LOCAL)
-		}})
+		})
 		this.checkIteratesImpureIterable(node, encloserSummary)
 	case tokOrd1_FOR_IN:
-		NodeUtil_visitLhsNodesInNode(node, &Consumer_fn{func(lhsNode_ any) {
+		NodeUtil_visitLhsNodesInNode(node, func(lhsNode_ any) {
 			var lhsNode Node = Node_of_(lhsNode_)
 			_ = lhsNode
 			this.visitLhsNode(encloserSummary, traversal.getScope(), lhsNode, PureFunctionIdentifier_RHS_IS_ALWAYS_LOCAL)
-		}})
+		})
 	case tokOrd1_OPTCHAIN_CALL, tokOrd1_CALL, tokOrd1_NEW, tokOrd1_TAGGED_TEMPLATELIT:
 		this.visitCall(encloserSummary, traversal.getScope(), node)
 	case tokOrd1_DESTRUCTURING_LHS:
 		if NodeUtil_isAnyFor(node.getParent()) {
 			break
 		}
-		NodeUtil_visitLhsNodesInNode(node.getParent(), &Consumer_fn{func(lhsNode_ any) {
+		NodeUtil_visitLhsNodesInNode(node.getParent(), func(lhsNode_ any) {
 			var lhsNode Node = Node_of_(lhsNode_)
 			_ = lhsNode
 			this.visitLhsNode(encloserSummary, traversal.getScope(), lhsNode, PureFunctionIdentifier_RHS_IS_NEVER_LOCAL)
-		}})
+		})
 	case tokOrd1_NAME:
 		if NodeUtil_isNameDeclaration(node.getParent()) {
 			var value Node = node.getFirstChild()

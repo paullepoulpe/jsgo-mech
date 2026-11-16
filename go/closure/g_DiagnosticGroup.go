@@ -45,7 +45,7 @@ func DiagnosticGroup_createFromGroups_Optional_DiagnosticGroupArr(name OptionalO
 }
 
 func DiagnosticGroup_forType(type_ *DiagnosticType) *DiagnosticGroup {
-	Map_computeIfAbsent(DiagnosticGroup_singletons, obj_(type_), lambda_DiagnosticGroup_forType_1_)
+	Map_computeIfAbsent_f(DiagnosticGroup_singletons, obj_(type_), lambda_DiagnosticGroup_forType_1_.f)
 	return cast_[*DiagnosticGroup](DiagnosticGroup_singletons.get(obj_(type_)))
 }
 

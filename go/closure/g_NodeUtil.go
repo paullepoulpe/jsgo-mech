@@ -2870,8 +2870,8 @@ func NodeUtil_getVarsDeclaredInBranch(root Node) CollectionOf[Node] {
 	return collector.vars.asMap().values()
 }
 
-func NodeUtil_getLhsNodesHelper(n Node, consumer ConsumerOf[Node]) {
-	nodeUtilLhsNodes_(n, func(x Node) { consumer.accept(x.box_()) })
+func NodeUtil_getLhsNodesHelper(n Node, consumer func(any)) {
+	nodeUtilLhsNodes_(n, func(x Node) { consumer(x.box_()) })
 }
 
 // nodeUtilLhsNodes_ is NodeUtil_getLhsNodesHelper with the consumer as a function value, which
@@ -2911,12 +2911,12 @@ func nodeUtilLhsNodes_(n Node, consumer func(Node)) {
 	}
 }
 
-func NodeUtil_visitLhsNodesInNode(assigningParent Node, consumer ConsumerOf[Node]) {
+func NodeUtil_visitLhsNodesInNode(assigningParent Node, consumer func(any)) {
 	Preconditions_checkArgument_boolean_Object((((((((NodeUtil_isNameDeclaration(assigningParent) || assigningParent.isParamList()) || NodeUtil_isAssignmentOp(assigningParent)) || assigningParent.isCatch()) || assigningParent.isDestructuringLhs()) || assigningParent.isDefaultValue()) || assigningParent.isImport()) || NodeUtil_isEnhancedFor(assigningParent)), assigningParent.box_())
 	NodeUtil_getLhsNodesHelper(assigningParent, consumer)
 }
 
-func NodeUtil_visitLhsNodesInDestructuringPattern(destructuringPattern Node, consumer ConsumerOf[Node]) {
+func NodeUtil_visitLhsNodesInDestructuringPattern(destructuringPattern Node, consumer func(any)) {
 	Preconditions_checkArgument_boolean_Object(destructuringPattern.isDestructuringPattern(), strobj_("Must be a destructuring pattern node."))
 	NodeUtil_getLhsNodesHelper(destructuringPattern, consumer)
 }
@@ -4520,11 +4520,11 @@ func new_NodeUtil_VarCollector() *NodeUtil_VarCollector {
 
 func (this *NodeUtil_VarCollector) visit(n Node) {
 	if n.isVar() {
-		NodeUtil_visitLhsNodesInNode(n, &Consumer_fn{func(name_ any) {
+		NodeUtil_visitLhsNodesInNode(n, func(name_ any) {
 			var name Node = Node_of_(name_)
 			_ = name
 			this.vars.putIfAbsent(name.getString(), name)
-		}})
+		})
 	}
 }
 

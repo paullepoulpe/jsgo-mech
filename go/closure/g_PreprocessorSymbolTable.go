@@ -65,7 +65,7 @@ func (this *PreprocessorSymbolTable) addReference(node Node) {
 }
 
 func (this *PreprocessorSymbolTable) addReference_2(node Node, name string) {
-	this.symbols.computeIfAbsent(name, lambda_PreprocessorSymbolTable_addReference_2_1_)
+	this.symbols.computeIfAbsent_f(name, lambda_PreprocessorSymbolTable_addReference_2_1_.f)
 	this.refs.put(strobj_(name), obj_(new_PreprocessorSymbolTable_Reference(this.symbols.get(name), node)))
 }
 

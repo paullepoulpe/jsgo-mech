@@ -95,11 +95,11 @@ func (this *EsModuleProcessor) visitExportSpecs(t *NodeTraversal, export Node) {
 }
 
 func (this *EsModuleProcessor) visitExportNameDeclaration(t *NodeTraversal, export Node, declaration Node) {
-	NodeUtil_visitLhsNodesInNode(declaration, &Consumer_fn{func(lhs_ any) {
+	NodeUtil_visitLhsNodesInNode(declaration, func(lhs_ any) {
 		var lhs Node = Node_of_(lhs_)
 		_ = lhs
 		this.addExportNameDeclaration(t, lhs, export)
-	}})
+	})
 }
 
 func (this *EsModuleProcessor) addExportNameDeclaration(t *NodeTraversal, lhs Node, export Node) {

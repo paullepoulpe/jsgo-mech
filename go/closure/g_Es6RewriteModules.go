@@ -175,11 +175,11 @@ func (this *Es6RewriteModules) visitExport(t *NodeTraversal, export Node, parent
 
 func (this *Es6RewriteModules) visitExportNameDeclaration(declaration Node) {
 	if (declaration.getJSDocInfo() != nil) && declaration.getJSDocInfo().hasTypedefType() {
-		NodeUtil_visitLhsNodesInNode(declaration, &Consumer_fn{func(lhs_ any) {
+		NodeUtil_visitLhsNodesInNode(declaration, func(lhs_ any) {
 			var lhs Node = Node_of_(lhs_)
 			_ = lhs
 			this.typedefs[lhs.getString()] = struct{}{}
-		}})
+		})
 	}
 }
 

@@ -66,7 +66,7 @@ func new_GatherGetterAndSetterProperties_GatherCallback() *GatherGetterAndSetter
 }
 
 func (this *GatherGetterAndSetterProperties_GatherCallback) record(property string, kind *AccessorSummary_PropertyAccessKind) {
-	Map_merge(this.properties.asMap(), strobj_(property), obj_(kind), lambda_GatherGetterAndSetterProperties_GatherCallback_record_1_)
+	Map_merge_f(this.properties.asMap(), strobj_(property), obj_(kind), lambda_GatherGetterAndSetterProperties_GatherCallback_record_1_.f)
 }
 
 // lambda_GatherGetterAndSetterProperties_GatherCallback_record_1_ is a lambda of GatherGetterAndSetterProperties_GatherCallback_record that captures nothing (post-flip step lambdas).

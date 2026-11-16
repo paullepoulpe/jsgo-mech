@@ -398,7 +398,7 @@ func (this *Compiler) mergeAndDeserializeTypedAsts(requiredInputFiles ImmutableS
 	this.maybeSetTracker()
 	this.setLifeCycleStage(AbstractCompiler_LifeCycleStage_COLORS_AND_SIMPLIFIED_JSDOC)
 	var deserializeTypes bool = options.requiresTypesForOptimization()
-	var astData *TypedAstDeserializer_DeserializedAst = cast_[*TypedAstDeserializer_DeserializedAst](this.runInCompilerThread(&Callable_fn{func() any {
+	var astData *TypedAstDeserializer_DeserializedAst = cast_[*TypedAstDeserializer_DeserializedAst](this.runInCompilerThread(func() any {
 		var tracer *Tracer = this.newTracer("deserializeTypedAst")
 		var ret_1 any
 		code_1 := func() (code_ int) {
@@ -413,7 +413,7 @@ func (this *Compiler) mergeAndDeserializeTypedAsts(requiredInputFiles ImmutableS
 			return ret_1
 		}
 		panic("unreachable")
-	}}))
+	}))
 	this.typedAstFilesystem = astData.getFilesystem()
 	this.externProperties = astData.getExternProperties()
 	this.colorRegistry = cast_[*ColorRegistry](astData.getColorRegistry().orNull())
@@ -424,11 +424,11 @@ func (this *Compiler) mergeAndDeserializeTypedAsts(requiredInputFiles ImmutableS
 		this.runtimeJsLibManager.ensureLibraryInjected(library, false)
 	}
 	this.getSynthesizedExternsInput()
-	this.runInCompilerThread(&Callable_fn{func() any {
+	this.runInCompilerThread(func() any {
 		this.parseForCompilationInternal()
 		return nil
 		panic("unreachable")
-	}})
+	})
 }
 
 func (this *Compiler) initRuntimeLibraryTypedAsts_impl(colorPoolBuilder Optional_baseOf[*ColorPool_Builder]) {
@@ -443,11 +443,11 @@ func (this *Compiler) initRuntimeLibraryTypedAsts_impl(colorPoolBuilder Optional
 	it_1 := foreach_(any(astData.getFilesystem().entrySet()))
 	for it_1.next() {
 		var library Map_Entry = icast_Map_Entry(it_1.v)
-		runtimeLibraryTypedAsts.computeIfAbsent(cast_[*SourceFile_jscomp](library.getKey()).getName(), &Function_fn{func(f_ any) any {
+		runtimeLibraryTypedAsts.computeIfAbsent_f(cast_[*SourceFile_jscomp](library.getKey()).getName(), func(f_ any) any {
 			var f string = str_(f_)
 			_ = f
 			return library.getValue()
-		}})
+		})
 	}
 	this.runtimeLibraryTypedAsts = ImmutableMap_copyOf(runtimeLibraryTypedAsts.asMap())
 }
@@ -651,11 +651,11 @@ func (this *Compiler) stage1Passes() {
 	Preconditions_checkState_boolean_Object((this.chunkGraph != nil), strobj_("No inputs. Did you call init() or initChunks()?"))
 	Preconditions_checkState(!this.hasErrors())
 	Preconditions_checkState(!this.options_.getInstrumentForCoverageOnly())
-	this.runInCompilerThread(&Callable_fn{func() any {
+	this.runInCompilerThread(func() any {
 		this.performChecks()
 		return nil
 		panic("unreachable")
-	}})
+	})
 }
 
 func (this *Compiler) stage2Passes(segmentOfCompilationToRun *CompilerOptions_SegmentOfCompilationToRun) {
@@ -673,26 +673,26 @@ func (this *Compiler) stage2Passes(segmentOfCompilationToRun *CompilerOptions_Se
 			}
 		}
 	}
-	this.runInCompilerThread(&Callable_fn{func() any {
+	this.runInCompilerThread(func() any {
 		if this.options_.shouldOptimize() {
 			this.performTranspilationAndOptimizations(segmentOfCompilationToRun)
 		}
 		return nil
 		panic("unreachable")
-	}})
+	})
 }
 
 func (this *Compiler) stage3Passes() {
 	Preconditions_checkState_boolean_Object((this.chunkGraph != nil), strobj_("No inputs. Did you call init() or initChunks()?"))
 	Preconditions_checkState_boolean_String_Object(!this.hasErrors(), "Cannot run stage3Passes with errors present: %s", obj_(this.getErrors()))
 	Preconditions_checkState(!this.options_.getInstrumentForCoverageOnly())
-	this.runInCompilerThread(&Callable_fn{func() any {
+	this.runInCompilerThread(func() any {
 		if this.options_.shouldOptimize() {
 			this.performFinalizations()
 		}
 		return nil
 		panic("unreachable")
-	}})
+	})
 }
 
 func (this *Compiler) disableThreads() {
@@ -703,7 +703,7 @@ func (this *Compiler) setTimeout(timeout int32) {
 	this.compilerExecutor.setTimeout(timeout)
 }
 
-func (this *Compiler) runInCompilerThread(callable CallableOf[any]) any {
+func (this *Compiler) runInCompilerThread(callable func() any) any {
 	return this.compilerExecutor.runInCompilerThread(callable, ((this.options_ != nil) && this.options_.getTracerMode().isOn()))
 }
 
@@ -719,11 +719,11 @@ func (this *Compiler) performChecks() {
 }
 
 func (this *Compiler) performPostCompilationTasks() {
-	this.runInCompilerThread(&Callable_fn{func() any {
+	this.runInCompilerThread(func() any {
 		this.performPostCompilationTasksInternal()
 		return nil
 		panic("unreachable")
-	}})
+	})
 }
 
 func (this *Compiler) performPostCompilationTasksInternal() {
@@ -768,7 +768,7 @@ func (this *Compiler) performPostCompilationTasksInternal() {
 func (this *Compiler) instrumentForCoverage() {
 	Preconditions_checkState_boolean_Object((this.chunkGraph != nil), strobj_("No inputs. Did you call init() or initChunks()?"))
 	Preconditions_checkState(!this.hasErrors())
-	this.runInCompilerThread(&Callable_fn{func() any {
+	this.runInCompilerThread(func() any {
 		Preconditions_checkState(this.options_.getInstrumentForCoverageOnly())
 		Preconditions_checkState(!this.hasErrors())
 		if this.options_.getInstrumentForCoverageOption() != CompilerOptions_InstrumentOption_NONE {
@@ -776,7 +776,7 @@ func (this *Compiler) instrumentForCoverage() {
 		}
 		return nil
 		panic("unreachable")
-	}})
+	})
 }
 
 func (this *Compiler) instrumentForCoverageInternal(instrumentForCoverageOption *CompilerOptions_InstrumentOption) {
@@ -787,11 +787,11 @@ func (this *Compiler) instrumentForCoverageInternal(instrumentForCoverageOption 
 
 func (this *Compiler) parseForCompilation() {
 	Preconditions_checkState_boolean_Object((this.typedAstFilesystem == nil), strobj_("Unnecessary if initWithTypedAstFilesystem was called"))
-	this.runInCompilerThread(&Callable_fn{func() any {
+	this.runInCompilerThread(func() any {
 		this.parseForCompilationInternal()
 		return nil
 		panic("unreachable")
-	}})
+	})
 }
 
 func (this *Compiler) parseForCompilationInternal() {
@@ -1608,7 +1608,7 @@ func (this *Compiler) setPreferRegexParser(preferRegexParser bool) {
 }
 
 func (this *Compiler) orderInputsWithLargeStack() {
-	this.runInCompilerThread(&Callable_fn{func() any {
+	this.runInCompilerThread(func() any {
 		var tracer *Tracer = this.newTracer("orderInputsWithLargeStack")
 		_ = func() (code_ int) {
 			defer func() {
@@ -1619,7 +1619,7 @@ func (this *Compiler) orderInputsWithLargeStack() {
 		}()
 		return nil
 		panic("unreachable")
-	}})
+	})
 }
 
 func (this *Compiler) orderInputs() {
@@ -1908,7 +1908,7 @@ func (this *Compiler) getDefaultErrorReporter_impl() ErrorReporter_rhino {
 }
 
 func (this *Compiler) toSource_impl() string {
-	return str_(this.runInCompilerThread(&Callable_fn{func() any {
+	return str_(this.runInCompilerThread(func() any {
 		var tracer *Tracer = this.newTracer("toSource")
 		var ret_1 any
 		code_1 := func() (code_ int) {
@@ -1944,7 +1944,7 @@ func (this *Compiler) toSource_impl() string {
 			return ret_1
 		}
 		panic("unreachable")
-	}}))
+	}))
 }
 
 func (this *Compiler) toSourceJSChunk(chunk *JSChunk) string {
@@ -1952,7 +1952,7 @@ func (this *Compiler) toSourceJSChunk(chunk *JSChunk) string {
 }
 
 func (this *Compiler) toSource_2(licenseTracker CodePrinter_LicenseTracker, chunk *JSChunk) string {
-	return str_(this.runInCompilerThread(&Callable_fn{func() any {
+	return str_(this.runInCompilerThread(func() any {
 		var inputs ImmutableListOf[*CompilerInput] = chunk.getInputs()
 		var chunkExterns SetOf[*CompilerInput] = func() Set {
 			if this.options_.shouldPrintExterns() {
@@ -1988,11 +1988,11 @@ func (this *Compiler) toSource_2(licenseTracker CodePrinter_LicenseTracker, chun
 		}
 		return strobj_(cb.toString())
 		panic("unreachable")
-	}}))
+	}))
 }
 
 func (this *Compiler) toSource_4(cb *Compiler_CodeBuilder, licenseTracker CodePrinter_LicenseTracker, inputSeqNum int32, root Node) {
-	this.runInCompilerThread(&Callable_fn{func() any {
+	this.runInCompilerThread(func() any {
 		if this.options_.shouldPrintInputDelimiter() {
 			if (cb.getLength() > 0) && !cb.endsWith("\n") {
 				cb.append("\n")
@@ -2039,7 +2039,7 @@ func (this *Compiler) toSource_4(cb *Compiler_CodeBuilder, licenseTracker CodePr
 		}
 		return nil
 		panic("unreachable")
-	}})
+	})
 }
 
 func (this *Compiler) toSource_1_impl(n Node) string {
@@ -2082,7 +2082,7 @@ func Compiler_getLicenseForFile(compiler *AbstractCompiler, fileName OptionalOf[
 }
 
 func (this *Compiler) toSourceArray(licenseTracker CodePrinter_LicenseTracker, chunk *JSChunk) []string {
-	return cast_[[]string](this.runInCompilerThread(&Callable_fn{func() any {
+	return cast_[[]string](this.runInCompilerThread(func() any {
 		var inputs ImmutableListOf[*CompilerInput] = chunk.getInputs()
 		var numInputs int32 = inputs.size()
 		if numInputs == 0 {
@@ -2101,7 +2101,7 @@ func (this *Compiler) toSourceArray(licenseTracker CodePrinter_LicenseTracker, c
 		}
 		return any(sources)
 		panic("unreachable")
-	}}))
+	}))
 }
 
 func (this *Compiler) performTranspilationAndOptimizations(segmentOfCompilationToRun *CompilerOptions_SegmentOfCompilationToRun) {
@@ -3057,13 +3057,13 @@ func (this *Compiler) restoreFromState(compilerState *JSCompilerStateProto) {
 }
 
 func (this *Compiler) saveState() []int8 {
-	return cast_[[]int8](this.runInCompilerThread(&Callable_fn{func() any {
+	return cast_[[]int8](this.runInCompilerThread(func() any {
 		var tracer *Tracer = this.newTracer("serializeCompilerState")
 		var stateProto *JSCompilerStateProto = cast_[*JSCompilerStateProto](this.getCompilerStateProtoBuilder().build())
 		this.stopTracer(tracer, "serializeCompilerState")
 		tracer = this.newTracer("serializeTypedAst")
 		var typedAstList ListOf[[]int8] = icast_List(new_ArrayList_0().self())
-		SerializeTypedAstPass_createFromConsumer(this.up_AbstractCompiler(), &Consumer_fn{func(p0 any) { typedAstList.add(any(cast_[[]int8](p0))) }}, SerializationOptions_builder().setRuntimeLibraries(ImmutableList_of()).setIncludeDebugInfo(this.getOptions().shouldSerializeExtraDebugInfo()).build()).process_2(this.externsRoot, this.jsRoot)
+		SerializeTypedAstPass_createFromConsumer(this.up_AbstractCompiler(), func(p0 any) { typedAstList.add(any(cast_[[]int8](p0))) }, SerializationOptions_builder().setRuntimeLibraries(ImmutableList_of()).setIncludeDebugInfo(this.getOptions().shouldSerializeExtraDebugInfo()).build()).process_2(this.externsRoot, this.jsRoot)
 		this.stopTracer(tracer, "serializeTypedAst")
 		var typedAsts []int8 = cast_[[]int8](Iterables_getOnlyElement(Iterable(typedAstList)))
 		var stateSize int32 = stateProto.getSerializedSize()
@@ -3079,13 +3079,13 @@ func (this *Compiler) saveState() []int8 {
 		}
 		return any(Io_gzip(uncompressed))
 		panic("unreachable")
-	}}))
+	}))
 }
 
 func (this *Compiler) restoreState(state []int8) *Outcome_base {
 	this.initWarningsGuard(this.options_.getWarningsGuard())
 	this.maybeSetTracker()
-	var restored *Outcome_base = cast_[*Outcome_base](this.runInCompilerThread(&Callable_fn{func() any {
+	var restored *Outcome_base = cast_[*Outcome_base](this.runInCompilerThread(func() any {
 		var tracer *Tracer = this.newTracer(PassNames_DESERIALIZE_COMPILER_STATE)
 		Compiler_logger.fine("Deserializing the CompilerState")
 		var ret_1 any
@@ -3115,7 +3115,7 @@ func (this *Compiler) restoreState(state []int8) *Outcome_base {
 			return ret_1
 		}
 		panic("unreachable")
-	}}))
+	}))
 	if restored.isErr() {
 		return Outcome_base_err(restored.error())
 	}

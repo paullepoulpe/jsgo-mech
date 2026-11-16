@@ -53,7 +53,7 @@ func (this *AmbiguateProperties) getRenamingMap() MapOf[string, string] {
 func (this *AmbiguateProperties) process_2(externs Node, root Node) {
 	this.graphNodeFactory = ColorGraphNodeFactory_createFactory(this.colorRegistry)
 	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(obj_(new_AmbiguateProperties_ProcessPropertiesAndConstructors(this))))
-	var graphBuilder *ColorGraphBuilder = new_ColorGraphBuilder(this.graphNodeFactory, lambda_AmbiguateProperties_process_2_1_, this.colorRegistry)
+	var graphBuilder *ColorGraphBuilder = new_ColorGraphBuilder(this.graphNodeFactory, lambda_AmbiguateProperties_process_2_1_.f, this.colorRegistry)
 	graphBuilder.addAll(icast_Collection(obj_(this.graphNodeFactory.getAllKnownTypes())))
 	var colorGraph *LinkedDirectedGraph = graphBuilder.build()
 	_ = func() (code_ int) {
@@ -157,7 +157,7 @@ var lambda_AmbiguateProperties_process_2_2_ = &FixedPointGraphTraversal_EdgeCall
 }}
 
 func (this *AmbiguateProperties) getProperty(name string) *AmbiguateProperties_Property {
-	return this.propertyMap.computeIfAbsent(name, &Function_fn{func(p0 any) any { return obj_(new_AmbiguateProperties_Property(this, str_(p0))) }})
+	return this.propertyMap.computeIfAbsent_f(name, func(p0 any) any { return obj_(new_AmbiguateProperties_Property(this, str_(p0))) })
 }
 
 func (this *AmbiguateProperties) getColor(n Node) *Color {

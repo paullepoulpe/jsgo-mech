@@ -36,7 +36,7 @@ func (this *CmdLineParser) option(name string) *CmdLineParser_Option {
 	return option
 }
 
-func (this *CmdLineParser) argument(get SupplierOf[ListOf[string]], set ConsumerOf[ListOf[string]]) {
+func (this *CmdLineParser) argument(get func() any, set func(any)) {
 	if this.argumentField != nil {
 		panic(new_IllegalStateException_String("Argument with index 0 is used more than once").self())
 	}
@@ -74,7 +74,7 @@ func (this *CmdLineParser) setUsageWidth(usageWidth int32) {
 	this.usageWidth = usageWidth
 }
 
-func (this *CmdLineParser) printUsage(out *StringBuilder, filter PredicateOf[*CmdLineParser_Option]) {
+func (this *CmdLineParser) printUsage(out *StringBuilder, filter func(any) bool) {
 	var w *StringBuilder = out
 	var len_ int32 = 0
 	it_1 := this.sortedOptions().each()
@@ -95,8 +95,8 @@ func (this *CmdLineParser) printUsage(out *StringBuilder, filter PredicateOf[*Cm
 	}
 }
 
-func (this *CmdLineParser) printOption(out *StringBuilder, option *CmdLineParser_Option, len_ int32, filter PredicateOf[*CmdLineParser_Option]) {
-	if (String_length(option.usageField) == 0) || !filter.test(obj_(option)) {
+func (this *CmdLineParser) printOption(out *StringBuilder, option *CmdLineParser_Option, len_ int32, filter func(any) bool) {
+	if (String_length(option.usageField) == 0) || !filter(obj_(option)) {
 		return
 	}
 	var widthMetadata int32 = Math_min(len_, ((this.usageWidth - 4) / 2))
@@ -364,26 +364,26 @@ func (this *CmdLineParser_Option) required(required bool) *CmdLineParser_Option 
 	return this
 }
 
-func (this *CmdLineParser_Option) string(get SupplierOf[string], set ConsumerOf[string]) {
+func (this *CmdLineParser_Option) string(get func() any, set func(any)) {
 	this.metaVariable = Optional_of[string]("VAL")
 	this.defaultValues = &Supplier_fn{func() any {
-		return any(CmdLineParser_Option_asList(get.get()))
+		return any(CmdLineParser_Option_asList(get()))
 	}}
 	this.handler = &CmdLineParser_Handler_fn{func(params CmdLineParser_Parameters) *Outcome_base {
 		var value *Outcome_base = params.getParameter(0)
 		if value.isErr() {
 			return Outcome_base_err(value.error())
 		}
-		set.accept(value.get())
+		set(value.get())
 		return Outcome_base_ok_Object(any(int32(1)))
 		panic("unreachable")
 	}}
 }
 
-func (this *CmdLineParser_Option) stringList(get SupplierOf[ListOf[string]], set ConsumerOf[ListOf[string]]) {
+func (this *CmdLineParser_Option) stringList(get func() any, set func(any)) {
 	this.metaVariable = Optional_of[string]("VAL")
 	this.defaultValues = &Supplier_fn{func() any {
-		return get.get()
+		return get()
 	}}
 	this.handler = &CmdLineParser_Handler_fn{func(params CmdLineParser_Parameters) *Outcome_base {
 		var value *Outcome_base = params.getParameter(0)
@@ -396,7 +396,7 @@ func (this *CmdLineParser_Option) stringList(get SupplierOf[ListOf[string]], set
 	}}
 }
 
-func (this *CmdLineParser_Option) stringEach(add ConsumerOf[string]) {
+func (this *CmdLineParser_Option) stringEach(add func(any)) {
 	this.metaVariable = Optional_of[string]("VAL")
 	this.defaultValues = nil
 	this.handler = &CmdLineParser_Handler_fn{func(params CmdLineParser_Parameters) *Outcome_base {
@@ -404,16 +404,16 @@ func (this *CmdLineParser_Option) stringEach(add ConsumerOf[string]) {
 		if value.isErr() {
 			return Outcome_base_err(value.error())
 		}
-		add.accept(value.get())
+		add(value.get())
 		return Outcome_base_ok_Object(any(int32(1)))
 		panic("unreachable")
 	}}
 }
 
-func (this *CmdLineParser_Option) integer(get SupplierOf[BoxedOf[int32]], set ConsumerOf[BoxedOf[int32]]) {
+func (this *CmdLineParser_Option) integer(get func() any, set func(any)) {
 	this.metaVariable = Optional_of[string]("N")
 	this.defaultValues = &Supplier_fn{func() any {
-		return any(CmdLineParser_Option_asList(get.get()))
+		return any(CmdLineParser_Option_asList(get()))
 	}}
 	this.handler = &CmdLineParser_Handler_fn{func(params CmdLineParser_Parameters) *Outcome_base {
 		var tokenOutcome *Outcome_base = params.getParameter(0)
@@ -429,42 +429,42 @@ func (this *CmdLineParser_Option) integer(get SupplierOf[BoxedOf[int32]], set Co
 			}
 			return Outcome_base_err(new_CmdLineException_CmdLineParser_String(this.owner_, CmdLineParser_Option_illegalOperand(str_(flagName.get()), token)).up_Throwable())
 		}
-		set.accept(value)
+		set(value)
 		return Outcome_base_ok_Object(any(int32(1)))
 		panic("unreachable")
 	}}
 }
 
-func (this *CmdLineParser_Option) flag(get SupplierOf[BoxedOf[bool]], set ConsumerOf[BoxedOf[bool]]) {
+func (this *CmdLineParser_Option) flag(get func() any, set func(any)) {
 	this.metaVariable = Optional_empty[string]()
 	this.defaultValues = &Supplier_fn{func() any {
-		return any(CmdLineParser_Option_asList(get.get()))
+		return any(CmdLineParser_Option_asList(get()))
 	}}
 	this.handler = &CmdLineParser_Handler_fn{func(params CmdLineParser_Parameters) *Outcome_base {
-		set.accept(any(bool(true)))
+		set(any(bool(true)))
 		return Outcome_base_ok_Object(any(int32(0)))
 		panic("unreachable")
 	}}
 }
 
-func (this *CmdLineParser_Option) bool(get SupplierOf[BoxedOf[bool]], set ConsumerOf[BoxedOf[bool]]) {
+func (this *CmdLineParser_Option) bool(get func() any, set func(any)) {
 	this.metaVariable = Optional_empty[string]()
 	this.defaultValues = &Supplier_fn{func() any {
-		return any(CmdLineParser_Option_asList(get.get()))
+		return any(CmdLineParser_Option_asList(get()))
 	}}
 	this.handler = &CmdLineParser_Handler_fn{func(params CmdLineParser_Parameters) *Outcome_base {
 		var param OptionalOf[string] = params.getParameterOrNull(0)
 		if param.isEmpty() {
-			set.accept(any(bool(true)))
+			set(any(bool(true)))
 			return Outcome_base_ok_Object(any(int32(0)))
 		} else {
 			var lowerParam string = Ascii_toLowerCase(param.get())
 			if Collection_contains_s(CmdLineParser_TRUES, lowerParam) {
-				set.accept(any(bool(true)))
+				set(any(bool(true)))
 			} else if Collection_contains_s(CmdLineParser_FALSES, lowerParam) {
-				set.accept(any(bool(false)))
+				set(any(bool(false)))
 			} else {
-				set.accept(any(bool(true)))
+				set(any(bool(true)))
 				return Outcome_base_ok_Object(any(int32(0)))
 			}
 			return Outcome_base_ok_Object(any(int32(1)))
@@ -473,26 +473,26 @@ func (this *CmdLineParser_Option) bool(get SupplierOf[BoxedOf[bool]], set Consum
 	}}
 }
 
-func (this *CmdLineParser_Option) enumValue(values []*Enum, get SupplierOf[any], set ConsumerOf[any]) {
+func (this *CmdLineParser_Option) enumValue(values []*Enum, get func() any, set func(any)) {
 	this.metaVariable = Optional_of[string](CmdLineParser_Option_enumMetaVariable(values))
 	this.defaultValues = &Supplier_fn{func() any {
-		return any(CmdLineParser_Option_asList(get.get()))
+		return any(CmdLineParser_Option_asList(get()))
 	}}
 	this.handler = &CmdLineParser_Handler_fn{func(params CmdLineParser_Parameters) *Outcome_base {
 		var value *Outcome_base = this.parseEnum(values, params)
 		if value.isErr() {
 			return Outcome_base_err(value.error())
 		}
-		set.accept(value.get())
+		set(value.get())
 		return Outcome_base_ok_Object(any(int32(1)))
 		panic("unreachable")
 	}}
 }
 
-func (this *CmdLineParser_Option) enumList(values []*Enum, get SupplierOf[ListOf[any]], set ConsumerOf[ListOf[any]]) {
+func (this *CmdLineParser_Option) enumList(values []*Enum, get func() any, set func(any)) {
 	this.metaVariable = Optional_of[string](CmdLineParser_Option_enumMetaVariable(values))
 	this.defaultValues = &Supplier_fn{func() any {
-		return get.get()
+		return get()
 	}}
 	this.handler = &CmdLineParser_Handler_fn{func(params CmdLineParser_Parameters) *Outcome_base {
 		var value *Outcome_base = this.parseEnum(values, params)
@@ -505,16 +505,16 @@ func (this *CmdLineParser_Option) enumList(values []*Enum, get SupplierOf[ListOf
 	}}
 }
 
-func (this *CmdLineParser_Option) map_(get SupplierOf[MapOf[string, string]], set ConsumerOf[MapOf[string, string]]) {
+func (this *CmdLineParser_Option) map_(get func() any, set func(any)) {
 	this.metaVariable = Optional_empty[string]()
 	this.defaultValues = &Supplier_fn{func() any {
-		return any(CmdLineParser_Option_asList(get.get()))
+		return any(CmdLineParser_Option_asList(get()))
 	}}
 	this.handler = &CmdLineParser_Handler_fn{func(params CmdLineParser_Parameters) *Outcome_base {
-		var map_ MapOf[string, string] = icast_Map(get.get())
+		var map_ MapOf[string, string] = icast_Map(get())
 		if map_ == nil {
 			map_ = icast_Map(obj_(new_LinkedHashMap()))
-			set.accept(any(map_))
+			set(any(map_))
 		}
 		var argumentOutcome *Outcome_base = params.getParameter(0)
 		if argumentOutcome.isErr() {
@@ -568,11 +568,11 @@ func CmdLineParser_Option_enumMetaVariable(values []*Enum) string {
 	return Object_toString(obj_(rv))
 }
 
-func CmdLineParser_Option_addValue(get SupplierOf[ListOf[any]], set ConsumerOf[ListOf[any]], value any) {
-	var list ListOf[any] = icast_List(get.get())
+func CmdLineParser_Option_addValue(get func() any, set func(any), value any) {
+	var list ListOf[any] = icast_List(get())
 	if list == nil {
 		list = icast_List(new_ArrayList_0().self())
-		set.accept(any(list))
+		set(any(list))
 	}
 	list.add(value)
 }

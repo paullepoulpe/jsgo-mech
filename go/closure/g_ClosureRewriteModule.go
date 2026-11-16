@@ -98,8 +98,8 @@ func (this *ClosureRewriteModule) process_2(externs Node, root Node) {
 	}
 	NodeTraversal_traverseRoots(this.compiler_, icast_NodeTraversal_Callback(obj_(new_ClosureRewriteModule_ScriptUpdater(this, scriptDescriptions))), externs, root)
 	this.declareSyntheticExterns()
-	Iterable_forEach(icast_Iterable(this.googModuleGetCalls.self()), &Consumer_fn{func(p0 any) { this.updateGoogModuleGetCall(Node_of_(p0)) }})
-	Iterable_forEach(icast_Iterable(this.googRequireDynamicCalls.self()), &Consumer_fn{func(p0 any) { this.updateGoogRequireDynamicCall(Node_of_(p0)) }})
+	Iterable_forEach_f(icast_Iterable(this.googModuleGetCalls.self()), func(p0 any) { this.updateGoogModuleGetCall(Node_of_(p0)) })
+	Iterable_forEach_f(icast_Iterable(this.googRequireDynamicCalls.self()), func(p0 any) { this.updateGoogRequireDynamicCall(Node_of_(p0)) })
 }
 
 func (this *ClosureRewriteModule) declareSyntheticExterns() {
@@ -116,7 +116,7 @@ func (this *ClosureRewriteModule) declareSyntheticExterns() {
 		return
 	}
 	var root Node = this.compiler_.getSynthesizedExternsInput().getAstRoot(this.compiler_)
-	Iterable_forEach(icast_Iterable(obj_(vars)), &Consumer_fn{func(p0 any) { root.addChildToBack(Node_of_(p0)) }})
+	Iterable_forEach_f(icast_Iterable(obj_(vars)), func(p0 any) { root.addChildToBack(Node_of_(p0)) })
 }
 
 func (this *ClosureRewriteModule) isNameInGlobalScope(name string) bool {
@@ -284,11 +284,11 @@ func (this *ClosureRewriteModule) recordTopLevelClassOrFunctionName(classOrFunct
 }
 
 func (this *ClosureRewriteModule) recordTopLevelVarNames(varNode Node) {
-	NodeUtil_visitLhsNodesInNode(varNode, &Consumer_fn{func(lhs_ any) {
+	NodeUtil_visitLhsNodesInNode(varNode, func(lhs_ any) {
 		var lhs Node = Node_of_(lhs_)
 		_ = lhs
 		this.currentScript.topLevelNames[lhs.getString()] = struct{}{}
-	}})
+	})
 }
 
 func (this *ClosureRewriteModule) maybeRecordExportDeclaration(t *NodeTraversal, n Node) {
@@ -860,11 +860,11 @@ func (this *ClosureRewriteModule) reportUnrecognizedRequires() {
 			continue
 		}
 		enclosingStatement.detach()
-		NodeUtil_visitLhsNodesInNode(enclosingStatement, &Consumer_fn{func(lhs_ any) {
+		NodeUtil_visitLhsNodesInNode(enclosingStatement, func(lhs_ any) {
 			var lhs Node = Node_of_(lhs_)
 			_ = lhs
 			this.syntheticExterns.putIfAbsent(lhs.getString(), lhs)
-		}})
+		})
 	}
 }
 

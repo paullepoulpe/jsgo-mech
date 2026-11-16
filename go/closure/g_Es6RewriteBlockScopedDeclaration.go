@@ -130,7 +130,7 @@ func (this *Es6RewriteBlockScopedDeclaration) handleLetConstDeclarationListInFor
 	var loopNode Node = parent
 	if lhs.isDestructuringLhs() {
 		Preconditions_checkState_boolean_Object(false, strobj_("Destructuring syntax is unsupported in ES6RewriteBlockScopedDeclarations pass"))
-		NodeUtil_visitLhsNodesInNode(lhs, &Consumer_fn{func(name_ any) {
+		NodeUtil_visitLhsNodesInNode(lhs, func(name_ any) {
 			var name Node = Node_of_(name_)
 			_ = name
 			Preconditions_checkState_boolean_String_Object(name.isName(), "lhs in destructuring declaration should be a simple name. (%s)", name.box_())
@@ -138,7 +138,7 @@ func (this *Es6RewriteBlockScopedDeclaration) handleLetConstDeclarationListInFor
 			var newVar Node = IR_var_Node(newName).srcref(name)
 			Es6RewriteBlockScopedDeclaration_extractInlineJSDoc(declarationList, name, newVar)
 			this.addNodeBeforeLoop(newVar, loopNode)
-		}})
+		})
 		var destructuringPattern Node = lhs.removeFirstChild()
 		first.replaceWith(destructuringPattern)
 	} else {
@@ -299,11 +299,11 @@ func (this *Es6RewriteBlockScopedDeclaration_LoopClosureTransformer) shouldTrave
 			return true
 		}
 		this.nodesHandledForLoopObjectClosure.put(nodeToWrapInClosure.box_(), strobj_(name))
-		var object *Es6RewriteBlockScopedDeclaration_LoopClosureTransformer_LoopObject = cast_[*Es6RewriteBlockScopedDeclaration_LoopClosureTransformer_LoopObject](Map_computeIfAbsent(this.loopObjectMap.asMap(), loopNode.box_(), &Function_fn{func(k_ any) any {
+		var object *Es6RewriteBlockScopedDeclaration_LoopClosureTransformer_LoopObject = cast_[*Es6RewriteBlockScopedDeclaration_LoopClosureTransformer_LoopObject](Map_computeIfAbsent_f(this.loopObjectMap.asMap(), loopNode.box_(), func(k_ any) any {
 			var k Node = Node_of_(k_)
 			_ = k
 			return obj_(new_Es6RewriteBlockScopedDeclaration_LoopClosureTransformer_LoopObject(this.createUniqueObjectName(t.getInput())))
-		}}))
+		}))
 		object.vars.add(obj_(var_))
 		this.nodesRequiringLoopObjectsClosureMap.put(nodeToWrapInClosure.box_(), obj_(object))
 	}

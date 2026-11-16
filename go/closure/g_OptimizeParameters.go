@@ -659,14 +659,14 @@ func (this *OptimizeParameters) eliminateParamsAfter(fnNode Node, formal Node) {
 func (this *OptimizeParameters) rewriteDestructuringPattern(destructuringPattern Node, value Node, stmts *TList[Node]) {
 	Preconditions_checkState(destructuringPattern.isDestructuringPattern())
 	Preconditions_checkState_boolean_Object(!destructuringPattern.hasParent(), strobj_("Formal parameter must be detached for rewriting"))
-	NodeUtil_visitLhsNodesInDestructuringPattern(destructuringPattern, &Consumer_fn{func(name_ any) {
+	NodeUtil_visitLhsNodesInDestructuringPattern(destructuringPattern, func(name_ any) {
 		var name Node = Node_of_(name_)
 		_ = name
 		Preconditions_checkState_boolean_String_Object(name.isName(), "lhs in destructuring declaration should be a simple name. (%s)", name.box_())
 		var newName Node = IR_name(name.getString()).srcref(name)
 		var newVar Node = IR_var_Node(newName).srcref(name)
 		stmts.add(newVar)
-	}})
+	})
 	var expr Node = IR_exprResult(IR_assign(destructuringPattern, value).srcref(destructuringPattern)).srcref(destructuringPattern)
 	stmts.add(expr)
 }

@@ -910,9 +910,9 @@ func (this *Es6NormalizeClasses) convNonCompFieldToGetProp(receiver Node, noncom
 	if "__proto__" == propName {
 		return this.createFieldDefineProperty(noncomputedField, fieldValue, receiver, this.astFactory_.createString(propName))
 	}
-	return this.createFieldAssignment(noncomputedField, fieldValue, &Supplier_fn{func() any {
+	return this.createFieldAssignment(noncomputedField, fieldValue, func() any {
 		return this.astFactory_.createGetProp(receiver, propName, AstFactory_type_Node(noncomputedField)).box_()
-	}})
+	})
 }
 
 func (this *Es6NormalizeClasses) convCompFieldToGetElem(receiver Node, computedField Node, isStatic bool) Node {
@@ -931,31 +931,31 @@ func (this *Es6NormalizeClasses) convCompFieldToGetElem(receiver Node, computedF
 	if "__proto__" == NodeUtil_getStringValue(compFieldNameExpr).orElse("") {
 		return this.createFieldDefineProperty(computedField, fieldValue, receiver, compFieldNameExpr)
 	}
-	return this.createFieldAssignment(computedField, fieldValue, &Supplier_fn{func() any {
+	return this.createFieldAssignment(computedField, fieldValue, func() any {
 		return this.astFactory_.createGetElem(receiver, compFieldNameExpr).box_()
-	}})
+	})
 }
 
 func (this *Es6NormalizeClasses) createFieldDefineProperty(field Node, fieldValue Node, receiver Node, keyNode Node) Node {
-	return this.createFieldInitializationStatement(field, fieldValue, &Function_fn{func(val_ any) any {
+	return this.createFieldInitializationStatement(field, fieldValue, func(val_ any) any {
 		var val Node = Node_of_(val_)
 		_ = val
 		var descriptor Node = this.astFactory_.createObjectLit([]Node{this.astFactory_.createStringKey("configurable", this.astFactory_.createBoolean(true)), this.astFactory_.createStringKey("enumerable", this.astFactory_.createBoolean(true)), this.astFactory_.createStringKey("writable", this.astFactory_.createBoolean(true)), this.astFactory_.createStringKey("value", val)})
 		var definePropertyCall Node = this.astFactory_.createCallWithUnknownType(this.createObjectDotDefineProperty(), []Node{receiver, keyNode, descriptor})
 		return this.astFactory_.exprResult(definePropertyCall).box_()
 		panic("unreachable")
-	}})
+	})
 }
 
-func (this *Es6NormalizeClasses) createFieldAssignment(field Node, fieldValue Node, createAssignLhs SupplierOf[Node]) Node {
-	return this.createFieldInitializationStatement(field, fieldValue, &Function_fn{func(val_ any) any {
+func (this *Es6NormalizeClasses) createFieldAssignment(field Node, fieldValue Node, createAssignLhs func() any) Node {
+	return this.createFieldInitializationStatement(field, fieldValue, func(val_ any) any {
 		var val Node = Node_of_(val_)
 		_ = val
-		return this.astFactory_.createAssignStatement(Node_of_(createAssignLhs.get()), val).box_()
-	}})
+		return this.astFactory_.createAssignStatement(Node_of_(createAssignLhs()), val).box_()
+	})
 }
 
-func (this *Es6NormalizeClasses) createFieldInitializationStatement(field Node, fieldValue Node, createStatement FunctionOf[Node, Node]) Node {
+func (this *Es6NormalizeClasses) createFieldInitializationStatement(field Node, fieldValue Node, createStatement func(any) any) Node {
 	if this.transpileClassFields && !field.isPrivateIdentifier() {
 		field.detach()
 	}
@@ -967,7 +967,7 @@ func (this *Es6NormalizeClasses) createFieldInitializationStatement(field Node, 
 	} else {
 		fieldValue.detach()
 	}
-	var result Node = Node_of_(createStatement.apply(fieldValue.box_()))
+	var result Node = Node_of_(createStatement(fieldValue.box_()))
 	if this.transpileClassFields {
 		result.getFirstChild().setJSDocInfo(field.getJSDocInfo())
 	}

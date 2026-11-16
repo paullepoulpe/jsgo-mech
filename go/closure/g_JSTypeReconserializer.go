@@ -158,13 +158,13 @@ func (this *JSTypeReconserializer) addSupertypeEdges(subtype *ObjectType, serial
 func (this *JSTypeReconserializer) getOrCreateRecord(id *ColorId, jstype *JSType) *JSTypeReconserializer_SeenTypeRecord {
 	Preconditions_checkNotNull(jstype.self())
 	Preconditions_checkState(((JSTypeReconserializer_State_COLLECTING_TYPES == this.state) || (JSTypeReconserializer_State_GENERATING_POOL == this.state)))
-	var record *JSTypeReconserializer_SeenTypeRecord = cast_[*JSTypeReconserializer_SeenTypeRecord](Map_computeIfAbsent(icast_Map(obj_(this.seenTypeRecords)), obj_(id), &Function_fn{func(unused_ any) any {
+	var record *JSTypeReconserializer_SeenTypeRecord = cast_[*JSTypeReconserializer_SeenTypeRecord](Map_computeIfAbsent_f(icast_Map(obj_(this.seenTypeRecords)), obj_(id), func(unused_ any) any {
 		var unused *ColorId = cast_[*ColorId](unused_)
 		_ = unused
 		var pointer int32 = this.seenTypeRecords.size()
 		return obj_(new_JSTypeReconserializer_SeenTypeRecord(id, pointer))
 		panic("unreachable")
-	}}))
+	}))
 	this.typeToRecordCache.put(jstype.self(), obj_(record))
 	record.jstypes = append(record.jstypes, jstype)
 	return record
@@ -256,13 +256,13 @@ func (this *JSTypeReconserializer) seedCachesWithAxiomaticTypes() {
 		var record *JSTypeReconserializer_SeenTypeRecord = new_JSTypeReconserializer_SeenTypeRecord(axiomatic.getId(), index)
 		this.seenTypeRecords.put(obj_(axiomatic.getId()), obj_(record))
 	}
-	Map_forEach(icast_Map(obj_(JSTypeReconserializer_JSTYPE_NATIVE_TO_AXIOMATIC_COLOR_MAP)), &BiConsumer_fn{func(jstypeNative_ any, axiomatic_ any) {
+	Map_forEach_f(icast_Map(obj_(JSTypeReconserializer_JSTYPE_NATIVE_TO_AXIOMATIC_COLOR_MAP)), func(jstypeNative_ any, axiomatic_ any) {
 		var jstypeNative *JSTypeNative = cast_[*JSTypeNative](jstypeNative_)
 		_ = jstypeNative
 		var axiomatic *Color = cast_[*Color](axiomatic_)
 		_ = axiomatic
 		this.getOrCreateRecord(axiomatic.getId(), this.registry.getNativeType(jstypeNative))
-	}})
+	})
 	Preconditions_checkState((this.seenTypeRecords.size() == TypePointers_OFFSET_TO_AXIOMATIC_COLOR.size()))
 }
 
@@ -286,13 +286,13 @@ func (this *JSTypeReconserializer) generateTypePool() *TypePool {
 	var builder *TypePool_Builder = TypePool_newBuilder()
 	if this.serializationMode.includeDebugInfo() {
 		var debugInfo *TypePool_DebugInfo_Builder = builder.getDebugInfoBuilder()
-		Map_forEach(this.invalidatingTypes.getMismatchLocations().inverse().asMap(), &BiConsumer_fn{func(location_ any, types_ any) {
+		Map_forEach_f(this.invalidatingTypes.getMismatchLocations().inverse().asMap(), func(location_ any, types_ any) {
 			var location Node = Node_of_(location_)
 			_ = location
 			var types Set = icast_Set(types_)
 			_ = types
 			debugInfo.addMismatchBuilder().setSourceRef(location.getLocation()).addAllInvolvedColor(icast_Iterable(obj_(this.serializeInvolvedTypes(Collection(types)))))
-		}})
+		})
 	}
 	this.state = JSTypeReconserializer_State_GENERATING_POOL
 	it_1 := foreach_(any(this.seenTypeRecords.values()))
@@ -325,13 +325,13 @@ func (this *JSTypeReconserializer) generateTypePool() *TypePool {
 
 func (this *JSTypeReconserializer) getColorIdToJSTypeMapForDebugging() *SimpleListMultimap {
 	var unordered *SimpleListMultimap = SimpleListMultimap_create()
-	this.typeToRecordCache.forEach(&BiConsumer_fn{func(jstype_ any, record_ any) {
+	this.typeToRecordCache.forEach(func(jstype_ any, record_ any) {
 		var jstype *JSType = to_JSType(jstype_)
 		_ = jstype
 		var record *JSTypeReconserializer_SeenTypeRecord = cast_[*JSTypeReconserializer_SeenTypeRecord](record_)
 		_ = record
 		unordered.put(strobj_(record.colorId.toString()), jstype.self())
-	}})
+	})
 	var colorIdToTypes *SimpleListMultimap = SimpleListMultimap_create()
 	it_1 := foreach_(obj_(ImmutableList_sortedCopyOf_Iterable(Iterable(unordered.keySet()))))
 	for it_1.next() {

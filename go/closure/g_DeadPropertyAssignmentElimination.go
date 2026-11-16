@@ -222,7 +222,7 @@ func (this *DeadPropertyAssignmentElimination_FindCandidateAssignmentTraversal) 
 			return !String_isEmpty(s)
 		})
 	}()
-	var property *DeadPropertyAssignmentElimination_Property = this.propertyMap.computeIfAbsent(propName.orElse(nullstr_), lambda_DeadPropertyAssignmentElimination_FindCandidateAssignmentTraversal_getOrCreateProperty_1_)
+	var property *DeadPropertyAssignmentElimination_Property = this.propertyMap.computeIfAbsent_f(propName.orElse(nullstr_), lambda_DeadPropertyAssignmentElimination_FindCandidateAssignmentTraversal_getOrCreateProperty_1_.f)
 	if propNode.isGetProp() {
 		var parentProperty *DeadPropertyAssignmentElimination_Property = this.getOrCreateProperty(propNode.getFirstChild())
 		if parentProperty != nil {

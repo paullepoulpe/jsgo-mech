@@ -20,11 +20,11 @@ func new_SerializeTypedAstPass(compiler *AbstractCompiler, astConsumer ConsumerO
 	return this
 }
 
-func SerializeTypedAstPass_createFromConsumer(c *AbstractCompiler, out ConsumerOf[[]int8], serializationOptions *SerializationOptions) *SerializeTypedAstPass {
+func SerializeTypedAstPass_createFromConsumer(c *AbstractCompiler, out func(any), serializationOptions *SerializationOptions) *SerializeTypedAstPass {
 	var toBytes ConsumerOf[*TypedAst] = &Consumer_fn{func(ast_ any) {
 		var ast *TypedAst = cast_[*TypedAst](ast_)
 		_ = ast
-		out.accept(any(cast_[*TypedAst_List](TypedAst_List_newBuilder().addTypedAsts(ast).build()).toByteArray()))
+		out(any(cast_[*TypedAst_List](TypedAst_List_newBuilder().addTypedAsts(ast).build()).toByteArray()))
 	}}
 	return new_SerializeTypedAstPass(c, toBytes, serializationOptions)
 }
