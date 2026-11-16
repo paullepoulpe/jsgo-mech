@@ -534,8 +534,12 @@ func (this *Optional_base) toString() string {
 // NullPointerException as a call on null does.
 type Optional struct {
 	value any
-	set   bool // not null
+	s     string // the content when value is optStr_: a String held without boxing it
+	set   bool   // not null
 }
+
+// optStr_ marks an Optional whose content is the string in s.
+var optStr_ any = new(byte)
 
 var optionalUtilEmpty_ = Optional{set: true}
 
@@ -545,13 +549,37 @@ func (this Optional) nn_() {
 	}
 }
 
+// v_ is the content as an object (nil when empty); a string content is boxed only here.
+func (this Optional) v_() any {
+	if this.value == optStr_ {
+		return this.s
+	}
+	return this.value
+}
+
 func Optional_empty() Optional { return optionalUtilEmpty_ }
 
 func Optional_of(v any) Optional {
 	if v == nil {
 		panic(new_NullPointerException_0().self())
 	}
-	return Optional{v, true}
+	return Optional{value: v, set: true}
+}
+
+// Optional_ofStr_ is Optional.of(s) for a String, without boxing it.
+func Optional_ofStr_(s string) Optional {
+	if s == nullstr_ {
+		panic(new_NullPointerException_0().self())
+	}
+	return Optional{value: optStr_, s: s, set: true}
+}
+
+// Optional_ofNullableStr_ is Optional.ofNullable(s) for a String, without boxing it.
+func Optional_ofNullableStr_(s string) Optional {
+	if s == nullstr_ {
+		return optionalUtilEmpty_
+	}
+	return Optional{value: optStr_, s: s, set: true}
 }
 
 func (this Optional) get() any {
@@ -559,14 +587,26 @@ func (this Optional) get() any {
 	if this.value == nil {
 		panic(new_NoSuchElementException_String("No value present").self())
 	}
-	return this.value
+	return this.v_()
+}
+
+// getStr_ is (String) get(), without boxing a string content.
+func (this Optional) getStr_() string {
+	this.nn_()
+	if this.value == optStr_ {
+		return this.s
+	}
+	if this.value == nil {
+		panic(new_NoSuchElementException_String("No value present").self())
+	}
+	return str_(this.value)
 }
 
 func Optional_ofNullable(v any) Optional {
 	if v == nil {
 		return optionalUtilEmpty_
 	}
-	return Optional{v, true}
+	return Optional{value: v, set: true}
 }
 
 func (this Optional) orElse(other any) any {
@@ -574,7 +614,19 @@ func (this Optional) orElse(other any) any {
 	if this.value == nil {
 		return other
 	}
-	return this.value
+	return this.v_()
+}
+
+// orElseStr_ is (String) orElse(other) for a String other, without boxing either.
+func (this Optional) orElseStr_(other string) string {
+	this.nn_()
+	if this.value == optStr_ {
+		return this.s
+	}
+	if this.value == nil {
+		return other
+	}
+	return str_(this.value)
 }
 
 func (this Optional) orElseThrow() any { return this.get() }
@@ -584,7 +636,7 @@ func (this Optional) filter(p Predicate) Optional {
 	if p == nil {
 		panic(new_NullPointerException_0().self())
 	}
-	if this.value == nil || p.test(this.value) {
+	if this.value == nil || p.test(this.v_()) {
 		return this
 	}
 	return optionalUtilEmpty_
@@ -593,7 +645,7 @@ func (this Optional) filter(p Predicate) Optional {
 func (this Optional) ifPresent(c Consumer) {
 	this.nn_()
 	if this.value != nil {
-		c.accept(this.value)
+		c.accept(this.v_())
 	}
 }
 
@@ -603,17 +655,17 @@ func (this Optional) isPresent() bool { this.nn_(); return this.value != nil }
 func (this Optional) equals(o any) bool {
 	this.nn_()
 	x, ok := o.(Optional)
-	return ok && x.set && objequals_(this.value, x.value)
+	return ok && x.set && objequals_(this.v_(), x.v_())
 }
 
-func (this Optional) hashCode() int32 { this.nn_(); return objhash_(this.value) }
+func (this Optional) hashCode() int32 { this.nn_(); return objhash_(this.v_()) }
 
 func (this Optional) toString() string {
 	this.nn_()
 	if this.value == nil {
 		return "Optional.empty"
 	}
-	return "Optional[" + objstr_(this.value) + "]"
+	return "Optional[" + objstr_(this.v_()) + "]"
 }
 
 // ---- Predicates, Functions, Suppliers
