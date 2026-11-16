@@ -12,7 +12,12 @@ type AbstractScope struct {
 func (this *AbstractScope) as_AbstractScope() *AbstractScope { return this }
 
 func to_AbstractScope(v any) *AbstractScope {
-	if v == nil {
+	switch p := v.(type) {
+	case *Scope:
+		return p.as_AbstractScope()
+	case *TypedScope:
+		return p.as_AbstractScope()
+	case nil:
 		return nil
 	}
 	return v.(interface{ as_AbstractScope() *AbstractScope }).as_AbstractScope()

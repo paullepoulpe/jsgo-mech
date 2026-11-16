@@ -11,7 +11,10 @@ type ControlFlowGraph struct {
 func (this *ControlFlowGraph) as_ControlFlowGraph() *ControlFlowGraph { return this }
 
 func to_ControlFlowGraph(v any) *ControlFlowGraph {
-	if v == nil {
+	switch p := v.(type) {
+	case *ControlFlowAnalysis_AstControlFlowGraph:
+		return p.as_ControlFlowGraph()
+	case nil:
 		return nil
 	}
 	return v.(interface{ as_ControlFlowGraph() *ControlFlowGraph }).as_ControlFlowGraph()

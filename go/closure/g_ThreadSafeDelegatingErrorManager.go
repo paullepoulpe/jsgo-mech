@@ -12,7 +12,14 @@ func (this *ThreadSafeDelegatingErrorManager) as_ThreadSafeDelegatingErrorManage
 }
 
 func to_ThreadSafeDelegatingErrorManager(v any) *ThreadSafeDelegatingErrorManager {
-	if v == nil {
+	switch p := v.(type) {
+	case *ThreadSafeDelegatingErrorManager:
+		return p
+	case *ConformanceAllowlister_1:
+		return p.as_ThreadSafeDelegatingErrorManager()
+	case *VerifyingErrorManager:
+		return p.as_ThreadSafeDelegatingErrorManager()
+	case nil:
 		return nil
 	}
 	return v.(interface {

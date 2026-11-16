@@ -581,7 +581,10 @@ func (this *MakeDeclaredNamesUnique_ContextualRenamer) as_MakeDeclaredNamesUniqu
 }
 
 func to_MakeDeclaredNamesUnique_ContextualRenamer(v any) *MakeDeclaredNamesUnique_ContextualRenamer {
-	if v == nil {
+	switch p := v.(type) {
+	case *MakeDeclaredNamesUnique_ContextualRenamer:
+		return p
+	case nil:
 		return nil
 	}
 	return v.(interface {

@@ -12,7 +12,12 @@ type SimpleSlot struct {
 func (this *SimpleSlot) as_SimpleSlot() *SimpleSlot { return this }
 
 func to_SimpleSlot(v any) *SimpleSlot {
-	if v == nil {
+	switch p := v.(type) {
+	case *SimpleSlot:
+		return p
+	case *SymbolTable_Symbol:
+		return p.as_SimpleSlot()
+	case nil:
 		return nil
 	}
 	return v.(interface{ as_SimpleSlot() *SimpleSlot }).as_SimpleSlot()

@@ -3284,7 +3284,12 @@ type Node_PropListItem struct {
 func (this *Node_PropListItem) as_Node_PropListItem() *Node_PropListItem { return this }
 
 func to_Node_PropListItem(v any) *Node_PropListItem {
-	if v == nil {
+	switch p := v.(type) {
+	case *Node_IntPropListItem:
+		return p.as_Node_PropListItem()
+	case *Node_ObjectPropListItem:
+		return p.as_Node_PropListItem()
+	case nil:
 		return nil
 	}
 	return v.(interface{ as_Node_PropListItem() *Node_PropListItem }).as_Node_PropListItem()

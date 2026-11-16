@@ -9,7 +9,10 @@ type InvocationsCallback struct {
 func (this *InvocationsCallback) as_InvocationsCallback() *InvocationsCallback { return this }
 
 func to_InvocationsCallback(v any) *InvocationsCallback {
-	if v == nil {
+	switch p := v.(type) {
+	case *InlineSimpleMethods_InlineTrivialAccessors:
+		return p.as_InvocationsCallback()
+	case nil:
 		return nil
 	}
 	return v.(interface{ as_InvocationsCallback() *InvocationsCallback }).as_InvocationsCallback()

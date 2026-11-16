@@ -9,7 +9,12 @@ type SymbolType struct {
 func (this *SymbolType) as_SymbolType() *SymbolType { return this }
 
 func to_SymbolType(v any) *SymbolType {
-	if v == nil {
+	switch p := v.(type) {
+	case *SymbolType:
+		return p
+	case *KnownSymbolType:
+		return p.as_SymbolType()
+	case nil:
 		return nil
 	}
 	return v.(interface{ as_SymbolType() *SymbolType }).as_SymbolType()

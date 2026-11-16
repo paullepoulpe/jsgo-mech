@@ -16,7 +16,12 @@ func (this *ChainableReverseAbstractInterpreter) as_ChainableReverseAbstractInte
 }
 
 func to_ChainableReverseAbstractInterpreter(v any) *ChainableReverseAbstractInterpreter {
-	if v == nil {
+	switch p := v.(type) {
+	case *ClosureReverseAbstractInterpreter:
+		return p.as_ChainableReverseAbstractInterpreter()
+	case *SemanticReverseAbstractInterpreter:
+		return p.as_ChainableReverseAbstractInterpreter()
+	case nil:
 		return nil
 	}
 	return v.(interface {
@@ -337,7 +342,14 @@ func (this *ChainableReverseAbstractInterpreter_RestrictByTrueTypeOfResultVisito
 }
 
 func to_ChainableReverseAbstractInterpreter_RestrictByTrueTypeOfResultVisitor(v any) *ChainableReverseAbstractInterpreter_RestrictByTrueTypeOfResultVisitor {
-	if v == nil {
+	switch p := v.(type) {
+	case *ChainableReverseAbstractInterpreter_1:
+		return p.as_ChainableReverseAbstractInterpreter_RestrictByTrueTypeOfResultVisitor()
+	case *ClosureReverseAbstractInterpreter_1:
+		return p.as_ChainableReverseAbstractInterpreter_RestrictByTrueTypeOfResultVisitor()
+	case *SemanticReverseAbstractInterpreter_RestrictByTrueInstanceOfResultVisitor:
+		return p.as_ChainableReverseAbstractInterpreter_RestrictByTrueTypeOfResultVisitor()
+	case nil:
 		return nil
 	}
 	return v.(interface {
@@ -421,7 +433,14 @@ func (this *ChainableReverseAbstractInterpreter_RestrictByFalseTypeOfResultVisit
 }
 
 func to_ChainableReverseAbstractInterpreter_RestrictByFalseTypeOfResultVisitor(v any) *ChainableReverseAbstractInterpreter_RestrictByFalseTypeOfResultVisitor {
-	if v == nil {
+	switch p := v.(type) {
+	case *ChainableReverseAbstractInterpreter_2:
+		return p.as_ChainableReverseAbstractInterpreter_RestrictByFalseTypeOfResultVisitor()
+	case *ClosureReverseAbstractInterpreter_2:
+		return p.as_ChainableReverseAbstractInterpreter_RestrictByFalseTypeOfResultVisitor()
+	case *SemanticReverseAbstractInterpreter_RestrictByFalseInstanceOfResultVisitor:
+		return p.as_ChainableReverseAbstractInterpreter_RestrictByFalseTypeOfResultVisitor()
+	case nil:
 		return nil
 	}
 	return v.(interface {

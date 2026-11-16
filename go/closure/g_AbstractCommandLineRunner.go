@@ -29,7 +29,10 @@ func (this *AbstractCommandLineRunner) as_AbstractCommandLineRunner() *AbstractC
 }
 
 func to_AbstractCommandLineRunner(v any) *AbstractCommandLineRunner {
-	if v == nil {
+	switch p := v.(type) {
+	case *CommandLineRunner:
+		return p.as_AbstractCommandLineRunner()
+	case nil:
 		return nil
 	}
 	return v.(interface {

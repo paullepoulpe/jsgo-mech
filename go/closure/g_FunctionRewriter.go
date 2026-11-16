@@ -229,7 +229,14 @@ func (this *FunctionRewriter_SingleReturnStatementReducer) as_FunctionRewriter_S
 }
 
 func to_FunctionRewriter_SingleReturnStatementReducer(v any) *FunctionRewriter_SingleReturnStatementReducer {
-	if v == nil {
+	switch p := v.(type) {
+	case *FunctionRewriter_GetterReducer:
+		return p.as_FunctionRewriter_SingleReturnStatementReducer()
+	case *FunctionRewriter_IdentityReducer:
+		return p.as_FunctionRewriter_SingleReturnStatementReducer()
+	case *FunctionRewriter_ReturnConstantReducer:
+		return p.as_FunctionRewriter_SingleReturnStatementReducer()
+	case nil:
 		return nil
 	}
 	return v.(interface {

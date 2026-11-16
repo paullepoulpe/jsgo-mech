@@ -15,7 +15,12 @@ type JsFileLineParser struct {
 func (this *JsFileLineParser) as_JsFileLineParser() *JsFileLineParser { return this }
 
 func to_JsFileLineParser(v any) *JsFileLineParser {
-	if v == nil {
+	switch p := v.(type) {
+	case *DepsFileRegexParser:
+		return p.as_JsFileLineParser()
+	case *JsFileRegexParser:
+		return p.as_JsFileLineParser()
+	case nil:
 		return nil
 	}
 	return v.(interface{ as_JsFileLineParser() *JsFileLineParser }).as_JsFileLineParser()

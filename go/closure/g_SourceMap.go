@@ -146,7 +146,12 @@ type SourceMap_Format struct {
 func (this *SourceMap_Format) as_SourceMap_Format() *SourceMap_Format { return this }
 
 func to_SourceMap_Format(v any) *SourceMap_Format {
-	if v == nil {
+	switch p := v.(type) {
+	case *SourceMap_Format_1:
+		return p.as_SourceMap_Format()
+	case *SourceMap_Format_2:
+		return p.as_SourceMap_Format()
+	case nil:
 		return nil
 	}
 	return v.(interface{ as_SourceMap_Format() *SourceMap_Format }).as_SourceMap_Format()
@@ -217,7 +222,12 @@ type SourceMap_DetailLevel struct {
 func (this *SourceMap_DetailLevel) as_SourceMap_DetailLevel() *SourceMap_DetailLevel { return this }
 
 func to_SourceMap_DetailLevel(v any) *SourceMap_DetailLevel {
-	if v == nil {
+	switch p := v.(type) {
+	case *SourceMap_DetailLevel_1:
+		return p.as_SourceMap_DetailLevel()
+	case *SourceMap_DetailLevel_2:
+		return p.as_SourceMap_DetailLevel()
+	case nil:
 		return nil
 	}
 	return v.(interface{ as_SourceMap_DetailLevel() *SourceMap_DetailLevel }).as_SourceMap_DetailLevel()

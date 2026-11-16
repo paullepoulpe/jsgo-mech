@@ -14,7 +14,10 @@ type GuardedCallback struct {
 func (this *GuardedCallback) as_GuardedCallback() *GuardedCallback { return this }
 
 func to_GuardedCallback(v any) *GuardedCallback {
-	if v == nil {
+	switch p := v.(type) {
+	case *PolyfillUsageFinder_Traverser:
+		return p.as_GuardedCallback()
+	case nil:
 		return nil
 	}
 	return v.(interface{ as_GuardedCallback() *GuardedCallback }).as_GuardedCallback()

@@ -9,7 +9,14 @@ type QualifiedName struct {
 func (this *QualifiedName) as_QualifiedName() *QualifiedName { return this }
 
 func to_QualifiedName(v any) *QualifiedName {
-	if v == nil {
+	switch p := v.(type) {
+	case *QualifiedName_GetpropQname:
+		return p.as_QualifiedName()
+	case *QualifiedName_NodeQname:
+		return p.as_QualifiedName()
+	case *QualifiedName_StringListQname:
+		return p.as_QualifiedName()
+	case nil:
 		return nil
 	}
 	return v.(interface{ as_QualifiedName() *QualifiedName }).as_QualifiedName()

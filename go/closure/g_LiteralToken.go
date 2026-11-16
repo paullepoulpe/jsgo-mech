@@ -10,7 +10,14 @@ type LiteralToken struct {
 func (this *LiteralToken) as_LiteralToken() *LiteralToken { return this }
 
 func to_LiteralToken(v any) *LiteralToken {
-	if v == nil {
+	switch p := v.(type) {
+	case *LiteralToken:
+		return p
+	case *StringLiteralToken:
+		return p.as_LiteralToken()
+	case *TemplateLiteralToken:
+		return p.as_LiteralToken()
+	case nil:
 		return nil
 	}
 	return v.(interface{ as_LiteralToken() *LiteralToken }).as_LiteralToken()

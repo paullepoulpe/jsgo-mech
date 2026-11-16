@@ -1716,7 +1716,12 @@ func (this *JSDocInfo_StringPosition) as_JSDocInfo_StringPosition() *JSDocInfo_S
 }
 
 func to_JSDocInfo_StringPosition(v any) *JSDocInfo_StringPosition {
-	if v == nil {
+	switch p := v.(type) {
+	case *JSDocInfo_StringPosition:
+		return p
+	case *JSDocInfo_TrimmedStringPosition:
+		return p.as_JSDocInfo_StringPosition()
+	case nil:
 		return nil
 	}
 	return v.(interface {

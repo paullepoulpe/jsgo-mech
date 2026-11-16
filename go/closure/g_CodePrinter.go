@@ -60,7 +60,12 @@ func (this *CodePrinter_MappedCodePrinter) as_CodePrinter_MappedCodePrinter() *C
 }
 
 func to_CodePrinter_MappedCodePrinter(v any) *CodePrinter_MappedCodePrinter {
-	if v == nil {
+	switch p := v.(type) {
+	case *CodePrinter_CompactCodePrinter:
+		return p.as_CodePrinter_MappedCodePrinter()
+	case *CodePrinter_PrettyCodePrinter:
+		return p.as_CodePrinter_MappedCodePrinter()
+	case nil:
 		return nil
 	}
 	return v.(interface {
