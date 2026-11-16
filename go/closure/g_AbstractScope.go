@@ -172,12 +172,21 @@ func (this *AbstractScope) getSlot(name string) StaticSlot {
 }
 
 func (this *AbstractScope) getVar_impl(name string) *AbstractVar {
+	// scope.getOwnSlot(name) at each scope, written out (post-flip manual step): the name is
+	// hashed at most once for the whole chain (Java's String caches its hash), its implicit
+	// variable is looked up once, and the variable is not converted to StaticSlot and back.
+	imp := AbstractScope_ImplicitVar_of(name)
+	var h uint32
 	{
 		var scope *AbstractScope = this.thisScope()
 		for ; scope != nil; scope = scope.getParent() {
-			var var_ *AbstractVar = to_AbstractVar(scope.getOwnSlot(name))
-			if var_ != nil {
+			if var_ := scope.vars.lookup(name, &h); var_ != nil {
 				return var_
+			}
+			if imp != nil {
+				if var_ := scope.getOwnImplicitSlot(imp); var_ != nil {
+					return var_
+				}
 			}
 		}
 	}
