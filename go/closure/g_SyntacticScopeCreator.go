@@ -153,11 +153,9 @@ func (this *SyntacticScopeCreator_ScopeScanner) declareLHS(s *Scope, n Node) {
 	if n.hasOneChild() && n.getFirstChild().isName() {
 		this.declareVar(s, n.getFirstChild())
 	} else {
-		NodeUtil_visitLhsNodesInNode(n, &Consumer_fn{func(lhs_ any) {
-			var lhs Node = Node_of_(lhs_)
-			_ = lhs
-			this.declareVar(s, lhs)
-		}})
+		// NodeUtil.visitLhsNodesInNode, through the function-value walker (post-flip manual step).
+		Preconditions_checkArgument_boolean_Object((((((((NodeUtil_isNameDeclaration(n) || n.isParamList()) || NodeUtil_isAssignmentOp(n)) || n.isCatch()) || n.isDestructuringLhs()) || n.isDefaultValue()) || n.isImport()) || NodeUtil_isEnhancedFor(n)), n.box_())
+		nodeUtilLhsNodes_(n, func(lhs Node) { this.declareVar(s, lhs) })
 	}
 }
 
