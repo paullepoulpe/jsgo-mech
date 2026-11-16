@@ -29,7 +29,7 @@ func ModuleLoader_builder() *ModuleLoader_Builder {
 	return new_ModuleLoader_Builder()
 }
 
-func (this *ModuleLoader) getPackageJsonMainEntries() *TMap[string, string] {
+func (this *ModuleLoader) getPackageJsonMainEntries() map[string]string {
 	return this.moduleResolver.getPackageJsonMainEntries()
 }
 

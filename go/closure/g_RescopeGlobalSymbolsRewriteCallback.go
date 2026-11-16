@@ -9,17 +9,17 @@ type RescopeGlobalSymbolsRewriteCallback struct {
 	renameHelper                            *RescopeGlobalSymbolsRenameHelper
 	preDeclarations                         []*RescopeGlobalSymbolsRewriteCallback_ChunkGlobal
 	localAliasesForUnwrappedCrossChunkNames *TMap[*JSChunk, SetOf[string]]
-	chunksUsingCrossChunkSymbols            *TMap[string, SetOf[*JSChunk]]
-	chunksUsingWrappedReassignableSymbols   *TMap[string, SetOf[*JSChunk]]
-	chunksRequiringWrapperInitialization    *TMap[string, SetOf[*JSChunk]]
+	chunksUsingCrossChunkSymbols            map[string]SetOf[*JSChunk]
+	chunksUsingWrappedReassignableSymbols   map[string]SetOf[*JSChunk]
+	chunksRequiringWrapperInitialization    map[string]SetOf[*JSChunk]
 }
 
 func (this *RescopeGlobalSymbolsRewriteCallback) finit_RescopeGlobalSymbolsRewriteCallback() {
 	this.preDeclarations = []*RescopeGlobalSymbolsRewriteCallback_ChunkGlobal{}
 	this.localAliasesForUnwrappedCrossChunkNames = newTMap_(tc_p_JSChunk, tc_SetOf_string_)
-	this.chunksUsingCrossChunkSymbols = newTMap_(tc_string, tc_SetOf_p_JSChunk_)
-	this.chunksUsingWrappedReassignableSymbols = newTMap_(tc_string, tc_SetOf_p_JSChunk_)
-	this.chunksRequiringWrapperInitialization = newTMap_(tc_string, tc_SetOf_p_JSChunk_)
+	this.chunksUsingCrossChunkSymbols = map[string]SetOf[*JSChunk]{}
+	this.chunksUsingWrappedReassignableSymbols = map[string]SetOf[*JSChunk]{}
+	this.chunksRequiringWrapperInitialization = map[string]SetOf[*JSChunk]{}
 }
 
 func (this *RescopeGlobalSymbolsRewriteCallback) init_RescopeGlobalSymbolsRewriteCallback(compiler *AbstractCompiler, optimizeLocalAccess *CompilerOptions_OptimizeLocalAccess, symbolInfo *RescopeGlobalSymbolsInfo, renameHelper *RescopeGlobalSymbolsRenameHelper) {
@@ -212,7 +212,7 @@ func (this *RescopeGlobalSymbolsRewriteCallback) visitName(t *NodeTraversal, n N
 	}
 	var currentChunk *JSChunk = t.getChunk()
 	if this.optimizeLocalAccess.shouldWrapReassignableSymbols() {
-		this.chunksUsingCrossChunkSymbols.computeIfAbsent(name, &Function_fn{func(k_ any) any {
+		mapComputeIfAbsent_(tc_string, tc_SetOf_p_JSChunk_, this.chunksUsingCrossChunkSymbols, name, &Function_fn{func(k_ any) any {
 			var k string = str_(k_)
 			_ = k
 			return obj_(new_LinkedHashSet())
@@ -250,12 +250,12 @@ func (this *RescopeGlobalSymbolsRewriteCallback) visitName(t *NodeTraversal, n N
 		return
 	}
 	Preconditions_checkState_boolean_String_Object(Collection_contains_s(this.symbolInfo.wrappedCrossChunkNames(), name), "Unexpected unaliased cross-chunk symbol under ALL_CHUNKS_WITH_WRAPPED_REASSIGNABLE_SYMBOLS: %s", strobj_(name))
-	this.chunksUsingWrappedReassignableSymbols.computeIfAbsent(name, &Function_fn{func(k_ any) any {
+	mapComputeIfAbsent_(tc_string, tc_SetOf_p_JSChunk_, this.chunksUsingWrappedReassignableSymbols, name, &Function_fn{func(k_ any) any {
 		var k string = str_(k_)
 		_ = k
 		return obj_(new_LinkedHashSet())
 	}}).add(obj_(currentChunk))
-	this.chunksRequiringWrapperInitialization.computeIfAbsent(name, &Function_fn{func(k_ any) any {
+	mapComputeIfAbsent_(tc_string, tc_SetOf_p_JSChunk_, this.chunksRequiringWrapperInitialization, name, &Function_fn{func(k_ any) any {
 		var k string = str_(k_)
 		_ = k
 		return obj_(new_LinkedHashSet())
@@ -282,7 +282,7 @@ func (this *RescopeGlobalSymbolsRewriteCallback) addGlobalNamespaceAlias(n Node,
 	}
 	var globalTarget Node = IR_getprop_Node_String(IR_name(this.symbolInfo.globalSymbolNamespace()), name)
 	if this.optimizeLocalAccess.shouldWrapReassignableSymbols() && Collection_contains_s(this.symbolInfo.wrappedCrossChunkNames(), name) {
-		this.chunksRequiringWrapperInitialization.computeIfAbsent(name, &Function_fn{func(k_ any) any {
+		mapComputeIfAbsent_(tc_string, tc_SetOf_p_JSChunk_, this.chunksRequiringWrapperInitialization, name, &Function_fn{func(k_ any) any {
 			var k string = str_(k_)
 			_ = k
 			return obj_(new_LinkedHashSet())
@@ -376,19 +376,19 @@ func (this *RescopeGlobalSymbolsRewriteCallback) declareLocalAliasesAndWrappers(
 	var chunkGraph *JSChunkGraph = this.compiler_.getChunkGraph()
 	var chunks IterableOf[*JSChunk] = chunkGraph.getAllChunks()
 	var defaultRootChunk *JSChunk = cast_[*JSChunk](chunks.iterator().next())
-	var wrapperAssignmentChunks *TMap[string, *JSChunk] = newTMap_(tc_string, tc_p_JSChunk)
+	var wrapperAssignmentChunks map[string]*JSChunk = map[string]*JSChunk{}
 	if this.optimizeLocalAccess.shouldWrapReassignableSymbols() && !this.symbolInfo.wrappedCrossChunkNames().isEmpty() {
 		it_1 := foreach_(obj_(this.symbolInfo.wrappedCrossChunkNames()))
 		for it_1.next() {
 			var name string = str_(it_1.v)
-			var chunksRequiringWrapper SetOf[*JSChunk] = this.chunksRequiringWrapperInitialization.getOrDefault(name, icast_Set(obj_(ImmutableSet_of())))
+			var chunksRequiringWrapper SetOf[*JSChunk] = mapGetOr_(this.chunksRequiringWrapperInitialization, name, icast_Set(obj_(ImmutableSet_of())))
 			var wrapperAssignmentChunk *JSChunk = func() *JSChunk {
 				if chunksRequiringWrapper.isEmpty() {
 					return defaultRootChunk
 				}
 				return chunkGraph.getDeepestCommonDependencyInclusive(Collection(chunksRequiringWrapper))
 			}()
-			wrapperAssignmentChunks.put(name, wrapperAssignmentChunk)
+			wrapperAssignmentChunks[name] = wrapperAssignmentChunk
 		}
 	}
 	var cleanupHelperName string = this.getCleanupHelperPropertyName()
@@ -407,7 +407,7 @@ func (this *RescopeGlobalSymbolsRewriteCallback) declareLocalAliasesAndWrappers(
 
 func (this *RescopeGlobalSymbolsRewriteCallback) getCleanupHelperPropertyName() string {
 	var name string = "_"
-	for this.chunksUsingCrossChunkSymbols.containsKey(name) {
+	for has_(this.chunksUsingCrossChunkSymbols, name) {
 		name += "$"
 	}
 	return name
@@ -440,7 +440,7 @@ func (this *RescopeGlobalSymbolsRewriteCallback) declareCleanupHelper(cleanupHel
 	this.compiler_.reportChangeToEnclosingScope(script)
 }
 
-func (this *RescopeGlobalSymbolsRewriteCallback) declareLocalAliasesAndWrappersForChunk(chunk *JSChunk, wrapperAssignmentChunks *TMap[string, *JSChunk], cleanupHelperName string) bool {
+func (this *RescopeGlobalSymbolsRewriteCallback) declareLocalAliasesAndWrappersForChunk(chunk *JSChunk, wrapperAssignmentChunks map[string]*JSChunk, cleanupHelperName string) bool {
 	var inputs ImmutableListOf[*CompilerInput] = chunk.getInputs()
 	if inputs.isEmpty() {
 		return false
@@ -455,8 +455,8 @@ func (this *RescopeGlobalSymbolsRewriteCallback) declareLocalAliasesAndWrappersF
 		it_1 := foreach_(obj_(this.symbolInfo.wrappedCrossChunkNames()))
 		for it_1.next() {
 			var name string = str_(it_1.v)
-			var assignmentChunk *JSChunk = wrapperAssignmentChunks.get(name)
-			var usingChunks SetOf[*JSChunk] = this.chunksUsingWrappedReassignableSymbols.get(name)
+			var assignmentChunk *JSChunk = wrapperAssignmentChunks[name]
+			var usingChunks SetOf[*JSChunk] = this.chunksUsingWrappedReassignableSymbols[name]
 			if Object_equals(obj_(chunk), obj_(assignmentChunk)) {
 				if (usingChunks != nil) && usingChunks.contains(obj_(chunk)) {
 					RescopeGlobalSymbolsRewriteCallback_addDeclaration(script, insertionPoint, IR_var_Node_Node(IR_name(name), IR_assign(IR_getprop_Node_String(IR_name(this.symbolInfo.globalSymbolNamespace()), name), IR_objectlit([]Node{}))))
@@ -528,7 +528,7 @@ func (this *RescopeGlobalSymbolsRewriteCallback) canDeleteFromGlobalNamespace(cu
 	if this.renameHelper.hasUnwrappedLocalNameInDefiningChunk(name) && Collection_contains_s(this.symbolInfo.globalNamesWithInnerScopeWriteInDefiningChunk(), name) {
 		return false
 	}
-	var usingChunks SetOf[*JSChunk] = this.chunksUsingCrossChunkSymbols.get(name)
+	var usingChunks SetOf[*JSChunk] = this.chunksUsingCrossChunkSymbols[name]
 	if (usingChunks == nil) || !usingChunks.contains(obj_(currentChunk)) {
 		return false
 	}

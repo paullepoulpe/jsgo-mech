@@ -817,7 +817,7 @@ func (this *SymbolTable) fillSuperReferences(externs Node, root Node) {
 	NodeTraversal_traverseRoots(this.compiler_, collectSuper, externs, root)
 }
 
-func (this *SymbolTable) addRefsInGoogRequireStatement(n Node, googModuleScopes *TMap[string, *SymbolTable_SymbolScope]) {
+func (this *SymbolTable) addRefsInGoogRequireStatement(n Node, googModuleScopes map[string]*SymbolTable_SymbolScope) {
 	if this.compiler_.getOptions().shouldRewriteModules() {
 		return
 	}
@@ -830,7 +830,7 @@ func (this *SymbolTable) addRefsInGoogRequireStatement(n Node, googModuleScopes 
 		}
 		return module.metadata().moduleType()
 	}()
-	var moduleScope *SymbolTable_SymbolScope = googModuleScopes.get(moduleName)
+	var moduleScope *SymbolTable_SymbolScope = googModuleScopes[moduleName]
 	if n.isName() {
 		var declaration *SymbolTable_Symbol = this.getSymbolForTypeHelper(n.getJSType(), false)
 		if declaration != nil {
@@ -869,8 +869,8 @@ func (this *SymbolTable) addRefsInGoogRequireStatement(n Node, googModuleScopes 
 }
 
 func (this *SymbolTable) fillGoogProvideModuleRequires(externs Node, root Node) {
-	var declaredNamespaces *TMap[string, *SymbolTable_Symbol] = newTMap_(tc_string, tc_p_SymbolTable_Symbol)
-	var moduleScopes *TMap[string, *SymbolTable_SymbolScope] = newTMap_(tc_string, tc_p_SymbolTable_SymbolScope)
+	var declaredNamespaces map[string]*SymbolTable_Symbol = map[string]*SymbolTable_Symbol{}
+	var moduleScopes map[string]*SymbolTable_SymbolScope = map[string]*SymbolTable_SymbolScope{}
 	var looksLikeGoogCall PredicateOf[Node] = &Predicate_fn{func(n_ any) bool {
 		var n Node = Node_of_(n_)
 		_ = n
@@ -2029,8 +2029,8 @@ type SymbolTable_3 struct {
 	NodeTraversal_AbstractPostOrderCallback
 	outer_                 *SymbolTable
 	cap_looksLikeGoogCall  Predicate
-	cap_declaredNamespaces *TMap[string, *SymbolTable_Symbol]
-	cap_moduleScopes       *TMap[string, *SymbolTable_SymbolScope]
+	cap_declaredNamespaces map[string]*SymbolTable_Symbol
+	cap_moduleScopes       map[string]*SymbolTable_SymbolScope
 }
 
 func (this *SymbolTable_3) up_NodeTraversal_AbstractPostOrderCallback() *NodeTraversal_AbstractPostOrderCallback {
@@ -2044,7 +2044,7 @@ func (this *SymbolTable_3) init_SymbolTable_3() {
 	this.NodeTraversal_AbstractPostOrderCallback.init_NodeTraversal_AbstractPostOrderCallback()
 }
 
-func new_SymbolTable_3(outer_ *SymbolTable, cap_looksLikeGoogCall Predicate, cap_declaredNamespaces *TMap[string, *SymbolTable_Symbol], cap_moduleScopes *TMap[string, *SymbolTable_SymbolScope]) *SymbolTable_3 {
+func new_SymbolTable_3(outer_ *SymbolTable, cap_looksLikeGoogCall Predicate, cap_declaredNamespaces map[string]*SymbolTable_Symbol, cap_moduleScopes map[string]*SymbolTable_SymbolScope) *SymbolTable_3 {
 	this := &SymbolTable_3{}
 	this.self_ = this
 	this.outer_ = outer_
@@ -2064,9 +2064,9 @@ func (this *SymbolTable_3) visit_impl(t *NodeTraversal, n Node, parent Node) {
 	switch n.getFirstChild().getString() {
 	case "module", "provide":
 		var ns *SymbolTable_Symbol = this.outer_.declareSymbol(namespaceName, nil, false, this.outer_.getGlobalScope(), arg, nil)
-		this.cap_declaredNamespaces.put(namespaceName, ns)
+		this.cap_declaredNamespaces[namespaceName] = ns
 		if n.getGrandparent().isModuleBody() {
-			this.cap_moduleScopes.put(arg.getString(), cast_[*SymbolTable_SymbolScope](obj_(this.outer_.scopes.get(n.getGrandparent()))))
+			this.cap_moduleScopes[arg.getString()] = cast_[*SymbolTable_SymbolScope](obj_(this.outer_.scopes.get(n.getGrandparent())))
 		}
 	default:
 	}
@@ -2076,8 +2076,8 @@ type SymbolTable_4 struct {
 	NodeTraversal_AbstractPostOrderCallback
 	outer_                 *SymbolTable
 	cap_looksLikeGoogCall  Predicate
-	cap_moduleScopes       *TMap[string, *SymbolTable_SymbolScope]
-	cap_declaredNamespaces *TMap[string, *SymbolTable_Symbol]
+	cap_moduleScopes       map[string]*SymbolTable_SymbolScope
+	cap_declaredNamespaces map[string]*SymbolTable_Symbol
 }
 
 func (this *SymbolTable_4) up_NodeTraversal_AbstractPostOrderCallback() *NodeTraversal_AbstractPostOrderCallback {
@@ -2091,7 +2091,7 @@ func (this *SymbolTable_4) init_SymbolTable_4() {
 	this.NodeTraversal_AbstractPostOrderCallback.init_NodeTraversal_AbstractPostOrderCallback()
 }
 
-func new_SymbolTable_4(outer_ *SymbolTable, cap_looksLikeGoogCall Predicate, cap_moduleScopes *TMap[string, *SymbolTable_SymbolScope], cap_declaredNamespaces *TMap[string, *SymbolTable_Symbol]) *SymbolTable_4 {
+func new_SymbolTable_4(outer_ *SymbolTable, cap_looksLikeGoogCall Predicate, cap_moduleScopes map[string]*SymbolTable_SymbolScope, cap_declaredNamespaces map[string]*SymbolTable_Symbol) *SymbolTable_4 {
 	this := &SymbolTable_4{}
 	this.self_ = this
 	this.outer_ = outer_
@@ -2111,7 +2111,7 @@ func (this *SymbolTable_4) visit_impl(t *NodeTraversal, n Node, parent Node) {
 	switch n.getFirstChild().getString() {
 	case "require", "requireType", "forwardDeclare":
 		this.outer_.addRefsInGoogRequireStatement(n.getParent(), this.cap_moduleScopes)
-		var symbol *SymbolTable_Symbol = this.cap_declaredNamespaces.get(namespaceName)
+		var symbol *SymbolTable_Symbol = this.cap_declaredNamespaces[namespaceName]
 		if symbol != nil {
 			symbol.defineReferenceAt(arg)
 		}

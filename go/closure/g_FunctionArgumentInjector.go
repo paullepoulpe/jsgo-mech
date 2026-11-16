@@ -16,13 +16,13 @@ func new_FunctionArgumentInjector(astAnalyzer *AstAnalyzer) *FunctionArgumentInj
 	return this
 }
 
-func (this *FunctionArgumentInjector) inject(compiler *AbstractCompiler, node Node, parent Node, replacements *TMap[string, Node]) Node {
+func (this *FunctionArgumentInjector) inject(compiler *AbstractCompiler, node Node, parent Node, replacements map[string]Node) Node {
 	return this.inject_5(compiler, node, parent, replacements, true)
 }
 
-func (this *FunctionArgumentInjector) inject_5(compiler *AbstractCompiler, node Node, parent Node, replacements *TMap[string, Node], replaceThis bool) Node {
+func (this *FunctionArgumentInjector) inject_5(compiler *AbstractCompiler, node Node, parent Node, replacements map[string]Node, replaceThis bool) Node {
 	if node.isName() {
-		var replacementTemplate Node = replacements.get(node.getString())
+		var replacementTemplate Node = replacements[node.getString()]
 		if replacementTemplate != 0 {
 			Preconditions_checkState_boolean_Object(!((parent.isFunction() || parent.isVar()) || parent.isCatch()), parent.box_())
 			var replacement Node = replacementTemplate.cloneTree()
@@ -30,13 +30,13 @@ func (this *FunctionArgumentInjector) inject_5(compiler *AbstractCompiler, node 
 			return replacement
 		}
 	} else if replaceThis && node.isThis() {
-		var replacementTemplate Node = replacements.get(FunctionArgumentInjector_THIS_MARKER)
+		var replacementTemplate Node = replacements[FunctionArgumentInjector_THIS_MARKER]
 		Preconditions_checkNotNull(replacementTemplate.box_())
 		if !replacementTemplate.isThis() {
 			var replacement Node = replacementTemplate.cloneTree()
 			node.replaceWith(replacement)
 			if compiler.getAstAnalyzer().mayHaveSideEffects(replacementTemplate) {
-				replacements.remove(FunctionArgumentInjector_THIS_MARKER)
+				delete(replacements, FunctionArgumentInjector_THIS_MARKER)
 			}
 			return replacement
 		}

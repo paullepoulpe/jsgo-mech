@@ -4,11 +4,11 @@ package closure
 
 type ErrorToFixMapper struct {
 	compiler_             *AbstractCompiler
-	metadataForEachScript *TMap[Node, *ScriptMetadata]
+	metadataForEachScript map[Node]*ScriptMetadata
 }
 
 func (this *ErrorToFixMapper) finit_ErrorToFixMapper() {
-	this.metadataForEachScript = newTMap_(tc_Node, tc_p_ScriptMetadata)
+	this.metadataForEachScript = map[Node]*ScriptMetadata{}
 }
 
 func (this *ErrorToFixMapper) init_ErrorToFixMapper(compiler *AbstractCompiler) {
@@ -315,7 +315,7 @@ func (this *ErrorToFixMapper) getFixForConstantCaseErrors(error_ *JSError) *Sugg
 
 func (this *ErrorToFixMapper) getMetadataForScript(script Node) *ScriptMetadata {
 	Preconditions_checkArgument(script.isScript())
-	return cast_[*ScriptMetadata](Map_computeIfAbsent(this.metadataForEachScript.asMap(), script.box_(), &Function_fn{func(s_ any) any {
+	return cast_[*ScriptMetadata](mapComputeIfAbsentObj_(tc_Node, tc_p_ScriptMetadata, this.metadataForEachScript, script.box_(), &Function_fn{func(s_ any) any {
 		var s Node = Node_of_(s_)
 		_ = s
 		return obj_(ScriptMetadata_create(s, this.compiler_))

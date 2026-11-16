@@ -182,17 +182,17 @@ func (this *FunctionToBlockMutator) getUniqueThisName() string {
 
 func (this *FunctionToBlockMutator) aliasAndInlineArguments(fnTemplateRoot Node, paramToArgMap ImmutableMapOf[string, *FunctionArgumentInjector_ParamArgPair], namesToAlias *TSet[string]) Node {
 	if (namesToAlias == nil) || namesToAlias.isEmpty() {
-		var replacements *TMap[string, Node] = newTMap_(tc_string, tc_Node)
+		var replacements map[string]Node = map[string]Node{}
 		it_1 := foreach_(obj_(cast_[*ImmutableSet](paramToArgMap.entrySet())))
 		for it_1.next() {
 			var entry Map_Entry = icast_Map_Entry(it_1.v)
-			replacements.put(str_(entry.getKey()), cast_[*FunctionArgumentInjector_ParamArgPair](entry.getValue()).arg())
+			replacements[str_(entry.getKey())] = cast_[*FunctionArgumentInjector_ParamArgPair](entry.getValue()).arg()
 		}
 		var result Node = this.functionArgumentInjector_.inject(this.compiler_, fnTemplateRoot, 0, replacements)
 		Preconditions_checkState((result == fnTemplateRoot))
 		return result
 	} else {
-		var paramReplacements *TMap[string, Node] = newTMap_(tc_string, tc_Node)
+		var paramReplacements map[string]Node = map[string]Node{}
 		var newAliasesToAdd []Node = []Node{}
 		it_3 := foreach_(obj_(cast_[*ImmutableSet](paramToArgMap.entrySet())))
 		for it_3.next() {
@@ -200,7 +200,7 @@ func (this *FunctionToBlockMutator) aliasAndInlineArguments(fnTemplateRoot Node,
 			var name string = str_(entry.getKey())
 			var arg *FunctionArgumentInjector_ParamArgPair = cast_[*FunctionArgumentInjector_ParamArgPair](entry.getValue())
 			if !namesToAlias.contains(name) {
-				paramReplacements.put(name, arg.arg())
+				paramReplacements[name] = arg.arg()
 				continue
 			}
 			if name == FunctionArgumentInjector_THIS_MARKER {
@@ -214,7 +214,7 @@ func (this *FunctionToBlockMutator) aliasAndInlineArguments(fnTemplateRoot Node,
 					sliceInsert_(&newAliasesToAdd, 0, newNode)
 					replacement = IR_name(newName).srcrefTree(newValue)
 				}
-				paramReplacements.put(FunctionArgumentInjector_THIS_MARKER, replacement)
+				paramReplacements[FunctionArgumentInjector_THIS_MARKER] = replacement
 			} else {
 				var newName Node = arg.paramNode().cloneNode()
 				var newValue Node = arg.arg().cloneTree()

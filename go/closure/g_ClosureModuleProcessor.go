@@ -16,8 +16,8 @@ func new_ClosureModuleProcessor(compiler *AbstractCompiler) *ClosureModuleProces
 	return this
 }
 
-func ClosureModuleProcessor_mayBeAccidentalDefaultExport(importName string, exports *TMap[string, *Binding]) bool {
-	var defaultExport Node = exports.get(Export_NAMESPACE).originatingExport().exportNode()
+func ClosureModuleProcessor_mayBeAccidentalDefaultExport(importName string, exports map[string]*Binding) bool {
+	var defaultExport Node = exports[Export_NAMESPACE].originatingExport().exportNode()
 	Preconditions_checkState_boolean_Object((defaultExport.matchesName("exports") && defaultExport.getParent().isAssign()), defaultExport.box_())
 	var exportedValue Node = defaultExport.getNext()
 	if !exportedValue.isObjectLit() {
@@ -180,7 +180,7 @@ func (this *ClosureModuleProcessor_UnresolvedGoogModule) reportInvalidDestructur
 		var exports ImmutableMapOf[string, *Binding] = unresolvedGoogModule.namespace_
 		if Map_containsKey_s(exports, Export_NAMESPACE) {
 			additionalInfo = Strings_lenientFormat("\nThe goog.module \"%s\" cannot be destructured as it contains a default export, not named exports. See %s.", []any{strobj_(importRecord.moduleRequest()), strobj_("https://github.com/google/closure-library/wiki/goog.module%3A-an-ES6-module-like-alternative-to-goog.provide#destructuring-imports")})
-			if ClosureModuleProcessor_mayBeAccidentalDefaultExport(importRecord.importName(), tmapFrom_(tc_string, tc_p_Binding, exports, true)) {
+			if ClosureModuleProcessor_mayBeAccidentalDefaultExport(importRecord.importName(), mapImm_(tc_string, tc_p_Binding, exports)) {
 				additionalInfo += sstr_(Strings_lenientFormat("\nEither use a non-destructuring require or rewrite the goog.module \"%s\" to support destructuring requires. For example, consider replacing\n  exports = {%s: <value>[, ...]};\nwith individual named export assignments like\n  exports.%s = <value>;\n", []any{strobj_(importRecord.moduleRequest()), strobj_(importRecord.importName()), strobj_(importRecord.importName())}))
 			}
 		}

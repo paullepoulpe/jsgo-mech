@@ -9,14 +9,14 @@ type AliasStrings struct {
 	stringInfoMap             SortedMapOf[string, *AliasStrings_StringInfo]
 	usedHashedAliases         map[string]struct{}
 	aliasStringsMode          *CompilerOptions_AliasStringsMode
-	chunkVarParentMap         *TMap[*JSChunk, Node]
+	chunkVarParentMap         map[*JSChunk]Node
 	unitTestHashReductionMask int32
 }
 
 func (this *AliasStrings) finit_AliasStrings() {
 	this.stringInfoMap = icast_SortedMap(obj_(new_TreeMap()))
 	this.usedHashedAliases = map[string]struct{}{}
-	this.chunkVarParentMap = newTMap_(tc_p_JSChunk, tc_Node)
+	this.chunkVarParentMap = map[*JSChunk]Node{}
 	this.unitTestHashReductionMask = -1
 }
 
@@ -79,7 +79,7 @@ func (this *AliasStrings) visit(t *NodeTraversal, n Node, parent Node) {
 				return
 			}
 		}
-		var varParent Node = Node_of_(Map_computeIfAbsent(this.chunkVarParentMap.asMap(), obj_(chunk), &Function_fn{func(p0 any) any { return this.compiler_.getNodeForCodeInsertion(cast_[*JSChunk](p0)).box_() }}))
+		var varParent Node = Node_of_(mapComputeIfAbsentObj_(tc_p_JSChunk, tc_Node, this.chunkVarParentMap, obj_(chunk), &Function_fn{func(p0 any) any { return this.compiler_.getNodeForCodeInsertion(cast_[*JSChunk](p0)).box_() }}))
 		info.chunkToContainDecl = chunk
 		info.parentForNewVarDecl = varParent
 		info.siblingToInsertVarDeclBefore = varParent.getFirstChild()

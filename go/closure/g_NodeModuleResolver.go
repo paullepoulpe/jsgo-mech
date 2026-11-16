@@ -104,8 +104,8 @@ func (this *NodeModuleResolver) buildPackageJsonMainEntries(packageJsonMainEntri
 	return builder.buildOrThrow()
 }
 
-func (this *NodeModuleResolver) getPackageJsonMainEntries_impl() *TMap[string, string] {
-	return tmapFrom_(tc_string, tc_string, this.packageJsonMainEntries, true)
+func (this *NodeModuleResolver) getPackageJsonMainEntries_impl() map[string]string {
+	return mapImm_(tc_string, tc_string, this.packageJsonMainEntries)
 }
 
 func (this *NodeModuleResolver) resolveJsModule_impl(scriptAddress string, moduleAddress string, sourcename OptionalOf[string], lineno int32, colno int32) OptionalOf[string] {
@@ -247,11 +247,11 @@ func (this *NodeModuleResolver_Factory) create(modulePaths ImmutableSetOf[string
 }
 
 // getPackageJsonMainEntries: an object that is exactly a NodeModuleResolver calls its getPackageJsonMainEntries_impl directly (post-flip); others dispatch.
-func (this *NodeModuleResolver) getPackageJsonMainEntries() *TMap[string, string] {
+func (this *NodeModuleResolver) getPackageJsonMainEntries() map[string]string {
 	if this.self_ == any(this) {
 		return this.getPackageJsonMainEntries_impl()
 	}
-	return this.self_.(interface{ getPackageJsonMainEntries_impl() *TMap[string, string] }).getPackageJsonMainEntries_impl()
+	return this.self_.(interface{ getPackageJsonMainEntries_impl() map[string]string }).getPackageJsonMainEntries_impl()
 }
 
 // resolveJsModule: an object that is exactly a NodeModuleResolver calls its resolveJsModule_impl directly (post-flip); others dispatch.

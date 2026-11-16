@@ -54,15 +54,15 @@ func (this *TemplateAstMatcher) isLooseMatch() bool {
 	return this.isLooseMatchField
 }
 
-func (this *TemplateAstMatcher) getTemplateNodeToMatchMap() *TMap[string, Node] {
-	var map_ *TMap[string, Node] = tmapFrom_(tc_string, tc_Node, this.stringLiteralMatches.asMap(), false)
+func (this *TemplateAstMatcher) getTemplateNodeToMatchMap() map[string]Node {
+	var map_ map[string]Node = mapFrom_(tc_string, tc_Node, this.stringLiteralMatches.asMap())
 	for i := int32(0); i < this.templateParams.size(); i++ {
 		var name string = this.templateParams.get(i)
-		map_.put(name, this.paramNodeMatches[i])
+		map_[name] = this.paramNodeMatches[i]
 	}
 	for i := int32(0); i < this.templateLocals.size(); i++ {
 		var name string = this.templateLocals.get(i)
-		map_.put(name, IR_name(this.localVarMatches.get(i)))
+		map_[name] = IR_name(this.localVarMatches.get(i))
 	}
 	return map_
 }
@@ -89,7 +89,7 @@ func (this *TemplateAstMatcher) initTemplate(templateFunctionNode Node) Node {
 func (this *TemplateAstMatcher) prepTemplatePlaceholders(fn Node) {
 	var locals *TList[string] = this.templateLocals
 	var params *TList[string] = this.templateParams
-	var paramTypes *TMap[string, *JSType] = newTMap_(tc_string, tc_p_JSType)
+	var paramTypes map[string]*JSType = map[string]*JSType{}
 	var fnName string = fn.getFirstChild().getString()
 	fn.getFirstChild().setString("")
 	var templateParametersNode Node = fn.getSecondChild()
@@ -106,7 +106,7 @@ func (this *TemplateAstMatcher) prepTemplatePlaceholders(fn Node) {
 			var type_ *JSType = this.typeRegistry.evaluateTypeExpression(expression, icast_StaticTypedScope(obj_(this.topScope)))
 			Preconditions_checkNotNull(type_.self())
 			params.add(name)
-			paramTypes.put(name, type_)
+			paramTypes[name] = type_
 		}
 	}
 	this.traverse(fn, icast_TemplateAstMatcher_Visitor(obj_(new_TemplateAstMatcher_1(this, locals, params, paramTypes))))
@@ -329,14 +329,14 @@ type TemplateAstMatcher_1 struct {
 	outer_         *TemplateAstMatcher
 	cap_locals     *TList[string]
 	cap_params     *TList[string]
-	cap_paramTypes *TMap[string, *JSType]
+	cap_paramTypes map[string]*JSType
 }
 
 func (this *TemplateAstMatcher_1) init_TemplateAstMatcher_1() {
 
 }
 
-func new_TemplateAstMatcher_1(outer_ *TemplateAstMatcher, cap_locals *TList[string], cap_params *TList[string], cap_paramTypes *TMap[string, *JSType]) *TemplateAstMatcher_1 {
+func new_TemplateAstMatcher_1(outer_ *TemplateAstMatcher, cap_locals *TList[string], cap_params *TList[string], cap_paramTypes map[string]*JSType) *TemplateAstMatcher_1 {
 	this := &TemplateAstMatcher_1{}
 	this.outer_ = outer_
 	this.cap_locals = cap_locals
@@ -354,7 +354,7 @@ func (this *TemplateAstMatcher_1) visit(n Node) {
 			this.cap_locals.add(n.getString())
 		}
 		if Collection_contains_s(this.cap_params.asList(), name) {
-			var type_ *JSType = this.cap_paramTypes.get(name)
+			var type_ *JSType = this.cap_paramTypes[name]
 			var isStringLiteral bool = (type_.isStringValueType() && String_startsWith(name, "string_literal"))
 			this.outer_.replaceNodeInPlace(n, this.outer_.createTemplateParameterNode(this.cap_params.asList().indexOf(strobj_(name)), type_, isStringLiteral))
 		} else if Collection_contains_s(this.cap_locals.asList(), name) {

@@ -17,7 +17,7 @@ type AbstractCommandLineRunner struct {
 	inputsSupplierForTesting    Supplier_baseOf[ListOf[*SourceFile_jscomp]]
 	chunksSupplierForTesting    Supplier_baseOf[ListOf[*JSChunk]]
 	exitCodeReceiver            Function_baseOf[BoxedOf[int32], any]
-	rootRelativePathsMap        *TMap[string, string]
+	rootRelativePathsMap        map[string]string
 	parsedChunkWrappers         MapOf[string, string]
 	parsedChunkOutputFiles      ImmutableMapOf[string, string]
 	parsedChunkConformanceFiles ImmutableMapOf[string, string]
@@ -453,15 +453,15 @@ func (this *AbstractCommandLineRunner) createInputs_4(files *TList[*AbstractComm
 					return Outcome_base_err(newFilesRes.error())
 				}
 				var newFiles ListOf[*SourceFile_jscomp] = icast_List(newFilesRes.get())
-				if this.rootRelativePathsMap.containsKey(filename) {
-					var rootFilename string = this.rootRelativePathsMap.get(filename)
+				if has_(this.rootRelativePathsMap, filename) {
+					var rootFilename string = mapStr_(this.rootRelativePathsMap, filename)
 					it_2 := foreach_(any(newFiles))
 					for it_2.next() {
 						var zipEntry *SourceFile_jscomp = cast_[*SourceFile_jscomp](it_2.v)
 						var zipEntryName string = zipEntry.getName()
 						Preconditions_checkState(String_contains(zipEntryName, strobj_(filename)))
 						var zipmap string = String_replace(zipEntryName, strobj_(filename), strobj_(rootFilename))
-						this.rootRelativePathsMap.put(zipEntryName, zipmap)
+						this.rootRelativePathsMap[zipEntryName] = zipmap
 					}
 				}
 				inputs.addAll(Collection(newFiles))
@@ -2013,7 +2013,7 @@ func (this *AbstractCommandLineRunner) printManifestTo(chunk *JSChunk, out Appen
 		if AbstractCompiler_isFillFileName(name) {
 			continue
 		}
-		var rootRelativePath OptionalOf[string] = Optional_ofNullable(strobj_(this.rootRelativePathsMap.get(name)))
+		var rootRelativePath OptionalOf[string] = Optional_ofNullable(strobj_(mapStr_(this.rootRelativePathsMap, name)))
 		var displayName string = str_(rootRelativePath.orElse(strobj_(name)))
 		out.append_CharSequence(strobj_(displayName))
 		out.append_CharSequence(strobj_("\n"))
@@ -2051,7 +2051,7 @@ func (this *AbstractCommandLineRunner) printBundleTo(chunk *JSChunk, out Appenda
 		if AbstractCompiler_isFillFileName(name) && String_isEmpty(code) {
 			continue
 		}
-		var rootRelativePath OptionalOf[string] = Optional_ofNullable(strobj_(this.rootRelativePathsMap.get(name)))
+		var rootRelativePath OptionalOf[string] = Optional_ofNullable(strobj_(mapStr_(this.rootRelativePathsMap, name)))
 		var displayName string = func() string {
 			if rootRelativePath.isPresent() {
 				return str_(rootRelativePath.get())
@@ -2070,15 +2070,15 @@ func (this *AbstractCommandLineRunner) printBundleTo(chunk *JSChunk, out Appenda
 	return Outcome_base_ok_0()
 }
 
-func (this *AbstractCommandLineRunner) constructRootRelativePathsMap() *TMap[string, string] {
-	var rootRelativePathsMap *TMap[string, string] = newTMap_(tc_string, tc_string)
+func (this *AbstractCommandLineRunner) constructRootRelativePathsMap() map[string]string {
+	var rootRelativePathsMap map[string]string = map[string]string{}
 	for _, mapString := range this.config.manifestMaps {
 		var colonIndex int32 = String_indexOf(mapString, 58)
 		Preconditions_checkState((colonIndex > 0))
 		var execPath string = String_substring(mapString, 0, colonIndex)
 		var rootRelativePath string = String_substring_int(mapString, (colonIndex + 1))
 		Preconditions_checkState((String_indexOf(rootRelativePath, 58) == -1))
-		rootRelativePathsMap.put(execPath, rootRelativePath)
+		rootRelativePathsMap[execPath] = rootRelativePath
 	}
 	return rootRelativePathsMap
 }

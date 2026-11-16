@@ -9,14 +9,14 @@ type InstrumentAsyncContext struct {
 	uniqueIdSupplier      *UniqueIdSupplier
 	shouldInstrumentAwait bool
 	tryFunctionStack      DequeOf[Node]
-	needsInstrumentation  *TMap[Node, *InstrumentAsyncContext_FunctionContext]
+	needsInstrumentation  map[Node]*InstrumentAsyncContext_FunctionContext
 	alreadyInstrumented   map[Node]struct{}
 	hasSuper              map[Node]struct{}
 }
 
 func (this *InstrumentAsyncContext) finit_InstrumentAsyncContext() {
 	this.tryFunctionStack = icast_Deque(obj_(new_ArrayDeque()))
-	this.needsInstrumentation = newTMap_(tc_Node, tc_p_InstrumentAsyncContext_FunctionContext)
+	this.needsInstrumentation = map[Node]*InstrumentAsyncContext_FunctionContext{}
 	this.alreadyInstrumented = map[Node]struct{}{}
 	this.hasSuper = map[Node]struct{}{}
 }
@@ -71,13 +71,13 @@ func (this *InstrumentAsyncContext) visit(t *NodeTraversal, n Node, parent Node)
 		}
 		var context *InstrumentAsyncContext_FunctionContext = func() *InstrumentAsyncContext_FunctionContext {
 			if n.isGeneratorFunction() {
-				return cast_[*InstrumentAsyncContext_FunctionContext](Map_computeIfAbsent(this.needsInstrumentation.asMap(), n.box_(), &Function_fn{func(unused_ any) any {
+				return cast_[*InstrumentAsyncContext_FunctionContext](mapComputeIfAbsentObj_(tc_Node, tc_p_InstrumentAsyncContext_FunctionContext, this.needsInstrumentation, n.box_(), &Function_fn{func(unused_ any) any {
 					var unused Node = Node_of_(unused_)
 					_ = unused
 					return obj_(this.createNewFunctionContext(t.getInput()))
 				}}))
 			}
-			return this.needsInstrumentation.get(n)
+			return this.needsInstrumentation[n]
 		}()
 		if context == nil {
 			return
@@ -108,13 +108,13 @@ func (this *InstrumentAsyncContext) instrumentReentrance(t *NodeTraversal, n Nod
 	} else if parent.isReturn() && (enclosingTry == 0) {
 		return
 	}
-	var functionContext *InstrumentAsyncContext_FunctionContext = cast_[*InstrumentAsyncContext_FunctionContext](Map_computeIfAbsent(this.needsInstrumentation.asMap(), enclosingFunction.box_(), &Function_fn{func(unused_ any) any {
+	var functionContext *InstrumentAsyncContext_FunctionContext = cast_[*InstrumentAsyncContext_FunctionContext](mapComputeIfAbsentObj_(tc_Node, tc_p_InstrumentAsyncContext_FunctionContext, this.needsInstrumentation, enclosingFunction.box_(), &Function_fn{func(unused_ any) any {
 		var unused Node = Node_of_(unused_)
 		_ = unused
 		return obj_(this.createNewFunctionContext(t.getInput()))
 	}}))
 	if enclosingTry != 0 {
-		this.needsInstrumentation.put(enclosingTry, functionContext)
+		this.needsInstrumentation[enclosingTry] = functionContext
 	}
 	if n.isForAwaitOf() {
 		this.instrumentForAwaitOf(t, n, parent, functionContext)
