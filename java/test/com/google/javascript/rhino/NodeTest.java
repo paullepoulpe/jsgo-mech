@@ -749,17 +749,17 @@ public class NodeTest {
 
     n.putBooleanProp(Node.IS_CONSTANT_NAME, false);
 
-    assertThat(n.lookupProperty(Node.IS_CONSTANT_NAME)).isNull();
+    assertThat(n.getPropListDebugString()).isEmpty();
     assertThat(n.getBooleanProp(Node.IS_CONSTANT_NAME)).isFalse();
 
     n.putBooleanProp(Node.IS_CONSTANT_NAME, true);
 
-    assertThat(n.lookupProperty(Node.IS_CONSTANT_NAME)).isNotNull();
+    assertThat(n.getPropListDebugString()).isEqualTo("IS_CONSTANT_NAME");
     assertThat(n.getBooleanProp(Node.IS_CONSTANT_NAME)).isTrue();
 
     n.putBooleanProp(Node.IS_CONSTANT_NAME, false);
 
-    assertThat(n.lookupProperty(Node.IS_CONSTANT_NAME)).isNull();
+    assertThat(n.getPropListDebugString()).isEmpty();
     assertThat(n.getBooleanProp(Node.IS_CONSTANT_NAME)).isFalse();
   }
 

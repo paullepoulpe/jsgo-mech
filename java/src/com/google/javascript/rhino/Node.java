@@ -79,34 +79,34 @@ public final class Node {
 
   enum Prop {
     // Is this Node within parentheses
-    IS_PARENTHESIZED,
+    IS_PARENTHESIZED(0),
     // Contains non-JSDoc comment
     NON_JSDOC_COMMENT,
     TRAILING_NON_JSDOC_COMMENT,
     // Contains a JSDocInfo object
     JSDOC_INFO,
     // Whether incrdecr is pre (false) or post (true)
-    INCRDECR,
+    INCRDECR(1),
     // Set to indicate a quoted object lit key
-    QUOTED,
+    QUOTED(2),
     // A synthetic block. Used to make processing simpler, and does not represent a real block in
     // the source.
-    SYNTHETIC,
+    SYNTHETIC(3),
     // Used to indicate BLOCK that is added
-    ADDED_BLOCK,
+    ADDED_BLOCK(4),
     // Function or constructor call side effect flags.
     SIDE_EFFECT_FLAGS,
     // The variable or property is constant.
     // TODO(lukes): either document the differences or otherwise reconcile with CONSTANT_VAR_FLAGS
-    IS_CONSTANT_NAME,
+    IS_CONSTANT_NAME(5),
     // The variable creates a namespace.
-    IS_NAMESPACE,
+    IS_NAMESPACE(6),
     // The presence of the "use strict" directive on this node.
-    USE_STRICT,
+    USE_STRICT(7),
     // ES5 distinguishes between direct and indirect calls to eval.
     DIRECT_EVAL,
     // A CALL without an explicit "this" value.
-    FREE_CALL,
+    FREE_CALL(8),
     // A StaticSourceFile indicating the file where this node lives.
     SOURCE_FILE,
     // The id of the input associated with this node.
@@ -116,15 +116,15 @@ public final class Node {
     // An object that's used for goog.object.reflect-style reflection.
     REFLECTED_OBJECT,
     // Set if class member definition is static
-    STATIC_MEMBER,
+    STATIC_MEMBER(9),
     // Set if the node is a Generator function or member method.
-    GENERATOR_FN,
+    GENERATOR_FN(10),
     // Set if the node is an arrow function.
-    ARROW_FN,
+    ARROW_FN(11),
     // http://tc39.github.io/ecmascript-asyncawait/
-    ASYNC_FN,
+    ASYNC_FN(12),
     // Set if a yield is a "yield all"
-    YIELD_ALL,
+    YIELD_ALL(13),
     // Set if a export is a "default" export
     EXPORT_DEFAULT,
     // Set if an export is a "*"
@@ -134,9 +134,9 @@ public final class Node {
     // This is an int prop that holds a bitset of {@link ConstantVarFlags} values.
     CONSTANT_VAR_FLAGS,
     // Used by the ES6-to-ES3 translator.
-    IS_GENERATOR_MARKER,
+    IS_GENERATOR_MARKER(14),
     // Used by the ES6-to-ES3 translator.
-    IS_GENERATOR_SAFE,
+    IS_GENERATOR_SAFE(15),
     // A computed property that has the method syntax
     //   ( [prop]() {...} )
     // rather than the property definition syntax
@@ -154,7 +154,7 @@ public final class Node {
     // casted.
     TYPE_BEFORE_CAST,
     // Indicates that this epxression was casted but we don't necessarily know to which type
-    COLOR_FROM_CAST,
+    COLOR_FROM_CAST(16),
     // The node is an optional parameter or property in ES6 Typed syntax.
     OPT_ES6_TYPED,
     // Generic type list in ES6 typed syntax.
@@ -166,7 +166,7 @@ public final class Node {
     // TypeScript accessibility modifiers (public, protected, private)
     ACCESS_MODIFIER,
     // Indicates the node should not be indexed by analysis tools.
-    NON_INDEXABLE,
+    NON_INDEXABLE(17),
     // Indicates that a SCRIPT node is a goog.module. Remains set after the goog.module is
     // desugared.
     GOOG_MODULE,
@@ -175,17 +175,17 @@ public final class Node {
     // Indicates a TypeScript abstract method or class, for use in Migrants
     IS_TYPESCRIPT_ABSTRACT,
     // For passes that work only on deleted funs.
-    DELETED,
+    DELETED(18),
     // Indicates that the node is an alias or a name from goog.require'd module or ES6
     // module. Aliases are desugared and inlined by compiler passes but we need to preserve them for
     // building index.
     MODULE_ALIAS,
     // Mark a parameter as unused. Used to defer work from RemovedUnusedVars to OptimizeParameters.
-    IS_UNUSED_PARAMETER,
+    IS_UNUSED_PARAMETER(19),
     // Mark a property as a module export so that collase properties can act on it.
-    MODULE_EXPORT,
+    MODULE_EXPORT(20),
     // Indicates that a property {x:x} was originally parsed as {x}.
-    IS_SHORTHAND_PROPERTY,
+    IS_SHORTHAND_PROPERTY(21),
     // Indicates that a SCRIPT node is or was an ES module. Remains set after the module is
     // rewritten.
     ES6_MODULE,
@@ -194,10 +194,10 @@ public final class Node {
     TYPEDEF_TYPE,
     // Indicate that a OPTCHAIN_GETPROP, OPTCHAIN_GETELEM, or OPTCHAIN_CALL is the start of an
     // optional chain.
-    START_OF_OPT_CHAIN,
+    START_OF_OPT_CHAIN(22),
     // Indicates a trailing comma in an array literal, object literal, parameter list, or argument
     // list
-    TRAILING_COMMA,
+    TRAILING_COMMA(23),
     // Indicates that a variable declaration was synthesized to provide a declaration of some
     // name referenced in code but never defined, as most compiler passes expect that to be an
     // invariant.
@@ -211,11 +211,38 @@ public final class Node {
     PRIVATE_IDENTIFIER,
     // Indicates that this node is part of a subtree detached because it originated
     // from a Closure-unaware file.
-    IS_IN_CLOSURE_UNAWARE_SUBTREE,
+    IS_IN_CLOSURE_UNAWARE_SUBTREE;
+
+    /**
+     * For a property kept in {@link Node#propBits}, its bit there; 0 for one kept in the property
+     * list. A property with a bit is boolean: it is only ever put with putBooleanProp (or
+     * putIntProp with 0 or 1) and read with getBooleanProp; a set bit stands for an int item of
+     * value 1.
+     */
+    final int bitMask;
+
+    Prop() {
+      this.bitMask = 0;
+    }
+
+    Prop(int bit) {
+      this.bitMask = 1 << bit;
+    }
   }
 
   // Avoid cloning "values" repeatedly in hot code, we save it off now.
   private static final Prop[] propValues = Prop.values();
+
+  /** The properties kept in {@link #propBits}, by bit number. */
+  private static final Prop[] bitProps = new Prop[32];
+
+  static {
+    for (Prop prop : propValues) {
+      if (prop.bitMask != 0) {
+        bitProps[Integer.numberOfTrailingZeros(prop.bitMask)] = prop;
+      }
+    }
+  }
 
   /**
    * Get the NonJSDoc comment string attached to this node.
@@ -568,7 +595,8 @@ public final class Node {
   public final void setIsInClosureUnawareSubtree(boolean value) {
     if (propListHead == null
         || propListHead.propType != Prop.SOURCE_FILE.ordinal()
-        || propListHead.next != null) {
+        || propListHead.next != null
+        || propBits != 0) {
       throw new IllegalArgumentException(
           String.format(
               "Cannot set IS_IN_CLOSURE_UNAWARE_SUBTREE property on a node which proplist is not a"
@@ -918,8 +946,9 @@ public final class Node {
    */
   @CanIgnoreReturnValue
   public final Node clonePropsFrom(Node other) {
-    checkState(this.propListHead == null, "Node has existing properties.");
+    checkState(this.propListHead == null && this.propBits == 0, "Node has existing properties.");
     this.propListHead = other.propListHead;
+    this.propBits = other.propBits;
     return this;
   }
 
@@ -932,7 +961,7 @@ public final class Node {
    */
   @SuppressWarnings("EnumOrdinal") // performance tuning
   public void validateProperties(Consumer<String> violationMessageConsumer) {
-    if (propListHead == null) {
+    if (propListHead == null && propBits == 0) {
       // TODO(bradfordcsmith): Fix the bugs that prevent enabling this validation.
       //
       // In particular:
@@ -957,6 +986,12 @@ public final class Node {
       violationMessageConsumer.accept("ROOT has properties");
     }
 
+    for (int bits = propBits; bits != 0; bits &= bits - 1) {
+      String violation = propertyViolation(bitProps[Integer.numberOfTrailingZeros(bits)]);
+      if (!violation.isEmpty()) {
+        violationMessageConsumer.accept(violation);
+      }
+    }
     for (PropListItem propListItem = propListHead;
         propListItem != null;
         propListItem = propListItem.next) {
@@ -964,74 +999,82 @@ public final class Node {
       // Catch it if the definition of Prop ever changes so that the ordinals don't line up.
       checkState(prop.ordinal() == propListItem.propType, "ordinal doesn't match: %s", prop);
 
-      // TODO(bradfordcsmith): This is not yet an exhaustive list of validations.
-      // Other validations should be added as it is found useful to have them.
-      // Some property validation is done independently in `AstValidator` and could possibly be
-      // moved here.
-      //
-      // This method was added in response to a bug that created an invalid IS_PARENTHESIZED
-      // property that was discovered by a check in `deserializeProperties()`, so initially
-      // this method was created to cover the checks previously done there.
-      switch (prop) {
-        case IS_PARENTHESIZED -> {
-          if (!IR.mayBeExpression(this)) {
-            violationMessageConsumer.accept("non-expression is parenthesized");
-          }
-        }
-        case ARROW_FN -> {
-          if (!isFunction()) {
-            violationMessageConsumer.accept("invalid ARROW_FN prop");
-          }
-        }
-        case ASYNC_FN -> {
-          if (!isFunction()) {
-            violationMessageConsumer.accept("invalid ASYNC_FN prop");
-          }
-        }
-        case SYNTHETIC -> {
-          if (!isBlock()) {
-            violationMessageConsumer.accept("invalid SYNTHETIC prop");
-          }
-        }
-        case COLOR_FROM_CAST -> {
-          if (getColor() == null) {
-            violationMessageConsumer.accept("COLOR_FROM_CAST with no Color");
-          }
-        }
-        case START_OF_OPT_CHAIN -> {
-          if (!(isOptChainCall() || isOptChainGetElem() || isOptChainGetProp())) {
-            violationMessageConsumer.accept("START_OF_OPT_CHAIN on non-optional Node");
-          }
-        }
-        case CONSTANT_VAR_FLAGS -> {
-          if (!(isName() || isImportStar())) {
-            violationMessageConsumer.accept("invalid CONST_VAR_FLAGS");
-          }
-        }
-        case SYNTHESIZED_UNFULFILLED_NAME_DECLARATION -> {
-          // note: we could relax this restriction if VarCheck needed to generate other forms of
-          // synthetic externs
-          if (!isVar()) {
-            // TODO: this check used to also try and validate that the synthetic externs VAR's had
-            // names, but this doesn't work during deserialization because the name is a child node
-            // that we haven't even seen yet when we are validating properties.
-            // || !hasOneChild() || !getFirstChild().isName()) {
-            violationMessageConsumer.accept(
-                "Expected all synthetic unfulfilled declarations to be `var <name>`");
-          }
-        }
-        case CLOSURE_UNAWARE_SHADOW -> {
-          PropListItem shadowProp = lookupProperty(Prop.CLOSURE_UNAWARE_SHADOW);
-          if (!(shadowProp instanceof Node.ObjectPropListItem)
-              || !(shadowProp.getObjectValue() instanceof Node)) {
-            violationMessageConsumer.accept("CLOSURE_UNAWARE_SHADOW property must point to a Node");
-          }
-        }
-        default -> {
-          // No validation is currently done for other properties
-        }
+      String violation = propertyViolation(prop);
+      if (!violation.isEmpty()) {
+        violationMessageConsumer.accept(violation);
       }
     }
+  }
+
+  /** The violation validateProperties reports for the property prop of this node; "" if none. */
+  private String propertyViolation(Prop prop) {
+    // TODO(bradfordcsmith): This is not yet an exhaustive list of validations.
+    // Other validations should be added as it is found useful to have them.
+    // Some property validation is done independently in `AstValidator` and could possibly be
+    // moved here.
+    //
+    // This method was added in response to a bug that created an invalid IS_PARENTHESIZED
+    // property that was discovered by a check in `deserializeProperties()`, so initially
+    // this method was created to cover the checks previously done there.
+    switch (prop) {
+      case IS_PARENTHESIZED -> {
+        if (!IR.mayBeExpression(this)) {
+          return "non-expression is parenthesized";
+        }
+      }
+      case ARROW_FN -> {
+        if (!isFunction()) {
+          return "invalid ARROW_FN prop";
+        }
+      }
+      case ASYNC_FN -> {
+        if (!isFunction()) {
+          return "invalid ASYNC_FN prop";
+        }
+      }
+      case SYNTHETIC -> {
+        if (!isBlock()) {
+          return "invalid SYNTHETIC prop";
+        }
+      }
+      case COLOR_FROM_CAST -> {
+        if (getColor() == null) {
+          return "COLOR_FROM_CAST with no Color";
+        }
+      }
+      case START_OF_OPT_CHAIN -> {
+        if (!(isOptChainCall() || isOptChainGetElem() || isOptChainGetProp())) {
+          return "START_OF_OPT_CHAIN on non-optional Node";
+        }
+      }
+      case CONSTANT_VAR_FLAGS -> {
+        if (!(isName() || isImportStar())) {
+          return "invalid CONST_VAR_FLAGS";
+        }
+      }
+      case SYNTHESIZED_UNFULFILLED_NAME_DECLARATION -> {
+        // note: we could relax this restriction if VarCheck needed to generate other forms of
+        // synthetic externs
+        if (!isVar()) {
+          // TODO: this check used to also try and validate that the synthetic externs VAR's had
+          // names, but this doesn't work during deserialization because the name is a child node
+          // that we haven't even seen yet when we are validating properties.
+          // || !hasOneChild() || !getFirstChild().isName()) {
+          return "Expected all synthetic unfulfilled declarations to be `var <name>`";
+        }
+      }
+      case CLOSURE_UNAWARE_SHADOW -> {
+        PropListItem shadowProp = lookupProperty(Prop.CLOSURE_UNAWARE_SHADOW);
+        if (!(shadowProp instanceof Node.ObjectPropListItem)
+            || !(shadowProp.getObjectValue() instanceof Node)) {
+          return "CLOSURE_UNAWARE_SHADOW property must point to a Node";
+        }
+      }
+      default -> {
+        // No validation is currently done for other properties
+      }
+    }
+    return "";
   }
 
   /**
@@ -1062,6 +1105,10 @@ public final class Node {
   public final @Nullable Object getProp(Prop propType) {
     PropListItem item = lookupProperty(propType);
     if (item == null) {
+      if ((propBits & propType.bitMask) != 0) {
+        // A set bit stands for an int item, which has no object value.
+        throw new UnsupportedOperationException();
+      }
       return null;
     }
     return item.getObjectValue();
@@ -1073,6 +1120,13 @@ public final class Node {
 
   /** Returns the integer value for the property, or 0 if the property is not defined. */
   private int getIntProp(Prop propType) {
+    int bitMask = propType.bitMask;
+    if (bitMask != 0) {
+      if ((propBits & bitMask) != 0) {
+        return 1;
+      }
+      return 0;
+    }
     PropListItem item = lookupProperty(propType);
     if (item == null) {
       return 0;
@@ -1089,6 +1143,11 @@ public final class Node {
   @Deprecated
   @SuppressWarnings("EnumOrdinal") // performance tuning
   public final void putProp(Prop prop, @Nullable Object value) {
+    if (prop.bitMask != 0) {
+      checkArgument(value == null, "%s is a boolean property", prop);
+      removeProp(prop);
+      return;
+    }
     this.propListHead = rebuildListWithoutProp(this.propListHead, prop);
     if (value != null) {
       this.propListHead = new ObjectPropListItem((byte) prop.ordinal(), value, this.propListHead);
@@ -1101,6 +1160,16 @@ public final class Node {
 
   @SuppressWarnings("EnumOrdinal") // performance tuning
   public final void putIntProp(Prop prop, int value) {
+    int bitMask = prop.bitMask;
+    if (bitMask != 0) {
+      checkArgument(value == 0 || value == 1, "%s is a boolean property", prop);
+      if (value != 0) {
+        propBits |= bitMask;
+      } else {
+        propBits &= ~bitMask;
+      }
+      return;
+    }
     this.propListHead = rebuildListWithoutProp(this.propListHead, prop);
     if (value != 0) {
       this.propListHead = new IntPropListItem((byte) prop.ordinal(), value, this.propListHead);
@@ -1108,6 +1177,10 @@ public final class Node {
   }
 
   public final void removeProp(Prop prop) {
+    if (prop.bitMask != 0) {
+      propBits &= ~prop.bitMask;
+      return;
+    }
     this.propListHead = rebuildListWithoutProp(this.propListHead, prop);
   }
 
@@ -1133,6 +1206,14 @@ public final class Node {
 
   public final long serializeProperties() {
     long propSet = 0;
+    for (int bits = propBits; bits != 0; bits &= bits - 1) {
+      // As an int item of the list below would be.
+      NodeProperty nodeProperty =
+          PropTranslator.serialize(bitProps[Integer.numberOfTrailingZeros(bits)]);
+      if (nodeProperty != null) {
+        propSet = setNodePropertyBit(propSet, nodeProperty);
+      }
+    }
     for (PropListItem propListItem = this.propListHead;
         propListItem != null;
         propListItem = propListItem.next) {
@@ -1205,6 +1286,9 @@ public final class Node {
       propListStrRepr.add(Prop.values()[propListItem.propType].name());
       propListItem = propListItem.next;
     }
+    for (int bits = propBits; bits != 0; bits &= bits - 1) {
+      propListStrRepr.add(bitProps[Integer.numberOfTrailingZeros(bits)].name());
+    }
     Joiner joiner = Joiner.on("->");
     return joiner.join(propListStrRepr);
   }
@@ -1212,7 +1296,7 @@ public final class Node {
   @SuppressWarnings("EnumOrdinal") // performance tuning
   public final void deserializeProperties(long propSet, boolean isInClosureUnawareSubtree) {
     if (this.isRoot()) {
-      checkState(this.propListHead == null, this.propListHead);
+      checkState(this.propListHead == null && this.propBits == 0, this.propListHead);
     } else {
       checkState(
           this.validatePropListTailOrdering(isInClosureUnawareSubtree),
@@ -1248,7 +1332,11 @@ public final class Node {
           if (prop == null) {
             throw new IllegalStateException("Can not translate " + nodeProperty + " to AST Prop");
           }
-          this.propListHead = new IntPropListItem((byte) prop.ordinal(), 1, this.propListHead);
+          if (prop.bitMask != 0) {
+            this.propBits |= prop.bitMask;
+          } else {
+            this.propListHead = new IntPropListItem((byte) prop.ordinal(), 1, this.propListHead);
+          }
         }
       }
     }
@@ -1373,11 +1461,16 @@ public final class Node {
     for (PropListItem x = propListHead; x != null; x = x.next) {
       count++;
     }
+    count += Integer.bitCount(propBits);
 
     byte[] keys = new byte[count];
     for (PropListItem x = propListHead; x != null; x = x.next) {
       count--;
       keys[count] = x.propType;
+    }
+    for (int bits = propBits; bits != 0; bits &= bits - 1) {
+      count--;
+      keys[count] = (byte) bitProps[Integer.numberOfTrailingZeros(bits)].ordinal();
     }
 
     Arrays.sort(keys);
@@ -1523,11 +1616,10 @@ public final class Node {
           sb.append(" [is_shadow_host]");
           continue;
         }
-        PropListItem x = lookupProperty(type);
         sb.append(" [");
         sb.append(Ascii.toLowerCase(String.valueOf(type)));
         sb.append(": ");
-        sb.append(x);
+        sb.append(propValueString(type));
         sb.append(']');
       }
       if (!this.originalName.isEmpty()) {
@@ -1541,6 +1633,14 @@ public final class Node {
       sb.append(" : ");
       sb.append(jstypeOrColor.toString());
     }
+  }
+
+  /** The value of a property this node has, as toString and toJson print it. */
+  private String propValueString(Prop type) {
+    if (type.bitMask != 0) {
+      return "1"; // as an int item of value 1 prints
+    }
+    return lookupProperty(type).toString();
   }
 
   private static String createJsonPair(String name, String value) {
@@ -1596,11 +1696,10 @@ public final class Node {
       sb.append("\"props\":{");
       for (int i = 0; i < keys.length; i++) {
         Prop type = propValues[keys[i]];
-        PropListItem x = lookupProperty(type);
         sb.append(
             createJsonPair(
                 Ascii.toLowerCase(String.valueOf(type)),
-                x.toString().replace("\n", "\\n").replace("\"", "\\\"")));
+                propValueString(type).replace("\n", "\\n").replace("\"", "\\\"")));
         if (i + 1 < keys.length) {
           sb.append(',');
         }
@@ -1697,6 +1796,13 @@ public final class Node {
    * replaced by UintMap.
    */
   private transient @Nullable PropListItem propListHead;
+
+  /**
+   * The boolean properties that have a {@link Prop#bitMask}: one bit each, set when the node has
+   * the property. They are never in {@link #propListHead}; everything that reads the properties
+   * of a node reads them from both places.
+   */
+  private transient int propBits;
 
   /**
    * The value of a value-carrying node; its class is the node's kind, fixed at construction:
@@ -2437,6 +2543,9 @@ public final class Node {
       Prop prop = propValues[propListItem.propType];
       propSet.add(prop);
     }
+    for (int bits = this.propBits | node.propBits; bits != 0; bits &= bits - 1) {
+      propSet.add(bitProps[Integer.numberOfTrailingZeros(bits)]);
+    }
 
     for (Prop prop : propSet) {
       if (propMapForEqualityKeys.contains(prop)) {
@@ -2789,6 +2898,7 @@ public final class Node {
     dest.jstypeOrColor = source.jstypeOrColor;
     dest.originalName = source.originalName;
     dest.propListHead = source.propListHead;
+    dest.propBits = source.propBits;
 
     // TODO(johnlenz): Remove this once JSTypeExpression are immutable
     if (cloneTypeExprs) {
