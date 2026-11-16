@@ -67,6 +67,24 @@ func (this *SimpleMultiset) add_2(element any, occurrences int32) int32 {
 	return oldCount
 }
 
+// add_s, add_2_s, setCount_s, count_s and contains_s are add, add_2, setCount, count and
+// contains for a string element that is not boxed (post-flip manual step).
+func (this *SimpleMultiset) add_s(element string) bool {
+	this.add_2_s(element, 1)
+	return true
+}
+
+func (this *SimpleMultiset) add_2_s(element string, occurrences int32) int32 {
+	Preconditions_checkState_boolean_Object(!this.frozen, strobj_("immutable"))
+	Preconditions_checkArgument((occurrences >= 0))
+	var oldCount int32 = this.count_s(element)
+	if occurrences > 0 {
+		Map_put_s(this.counts, element, any(int32((oldCount + occurrences))))
+		this.totalCount += occurrences
+	}
+	return oldCount
+}
+
 func (this *SimpleMultiset) addAll(elements IterableOf[any]) {
 	it_1 := foreach_(any(elements))
 	for it_1.next() {
@@ -85,6 +103,21 @@ func (this *SimpleMultiset) setCount(element any, expectedOldCount int32, newCou
 		this.counts.remove(element)
 	} else {
 		this.counts.put(element, any(int32(newCount)))
+	}
+	this.totalCount += (newCount - expectedOldCount)
+	return true
+}
+
+func (this *SimpleMultiset) setCount_s(element string, expectedOldCount int32, newCount int32) bool {
+	Preconditions_checkState_boolean_Object(!this.frozen, strobj_("immutable"))
+	Preconditions_checkArgument(((expectedOldCount >= 0) && (newCount >= 0)))
+	if this.count_s(element) != expectedOldCount {
+		return false
+	}
+	if newCount == 0 {
+		Map_remove_s(this.counts, element)
+	} else {
+		Map_put_s(this.counts, element, any(int32(newCount)))
 	}
 	this.totalCount += (newCount - expectedOldCount)
 	return true
@@ -119,8 +152,20 @@ func (this *SimpleMultiset) count(element any) int32 {
 	}()
 }
 
+func (this *SimpleMultiset) count_s(element string) int32 {
+	var count any = Map_get_s(this.counts, element)
+	if count == nil {
+		return 0
+	}
+	return unbox_[int32](count)
+}
+
 func (this *SimpleMultiset) contains(element any) bool {
 	return this.counts.containsKey(element)
+}
+
+func (this *SimpleMultiset) contains_s(element string) bool {
+	return Map_containsKey_s(this.counts, element)
 }
 
 func (this *SimpleMultiset) elementSet() SetOf[any] {
