@@ -33,9 +33,10 @@
 // left alone. A root that already has selfI_ is left alone, so the step can be rerun.
 //
 // With -sub (after -retype), the methods a sub-hierarchy's dispatchers call go into R_I too,
-// with a body on R that is never run; see sub.go.
+// with a body on R that is never run; see sub.go. With -enums, an enum whose constants have
+// bodies gets its own interface and field selfI_; see enum.go.
 //
-// usage: vdispatch [-n] [-retype | -sub] <dir of package closure>
+// usage: vdispatch [-n] [-retype | -sub | -enums] <dir of package closure>
 package main
 
 import (
@@ -74,7 +75,7 @@ type root struct {
 }
 
 func main() {
-	report, retype, sub := false, false, false
+	report, retype, sub, enums := false, false, false, false
 	for _, a := range os.Args[1 : len(os.Args)-1] {
 		switch a {
 		case "-n":
@@ -83,13 +84,19 @@ func main() {
 			retype = true
 		case "-sub":
 			sub = true
+		case "-enums":
+			enums = true
 		default:
-			panic("usage: vdispatch [-n] [-retype | -sub] <dir>")
+			panic("usage: vdispatch [-n] [-retype | -sub | -enums] <dir>")
 		}
 	}
 	rw.Load(os.Args[len(os.Args)-1])
 	if sub {
 		subMain(report)
+		return
+	}
+	if enums {
+		enumsMain(report)
 		return
 	}
 
