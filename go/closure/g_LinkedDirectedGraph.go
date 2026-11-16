@@ -376,6 +376,10 @@ type LinkedDirectedGraph_LinkedDiGraphNode struct {
 	outEdges_ TList[DiGraph_DiGraphEdge]
 	value_    any
 	priority  int32
+	// Room for the first in-edge and the first out-edge (post-flip manual step: most nodes of
+	// a control-flow graph have one of each, and their lists then need no array of their own;
+	// a second edge moves the list to an array, as appending past capacity does).
+	inEdge1_, outEdge1_ [1]DiGraph_DiGraphEdge
 }
 
 func (this *LinkedDirectedGraph_LinkedDiGraphNode) as_LinkedDirectedGraph_LinkedDiGraphNode() *LinkedDirectedGraph_LinkedDiGraphNode {
@@ -406,8 +410,8 @@ func (this *LinkedDirectedGraph_LinkedDiGraphNode) self() any {
 }
 
 func (this *LinkedDirectedGraph_LinkedDiGraphNode) finit_LinkedDirectedGraph_LinkedDiGraphNode() {
-	this.inEdges_ = TList[DiGraph_DiGraphEdge]{c: tc_DiGraph_DiGraphEdge}
-	this.outEdges_ = TList[DiGraph_DiGraphEdge]{c: tc_DiGraph_DiGraphEdge}
+	this.inEdges_ = TList[DiGraph_DiGraphEdge]{c: tc_DiGraph_DiGraphEdge, items: this.inEdge1_[:0]}
+	this.outEdges_ = TList[DiGraph_DiGraphEdge]{c: tc_DiGraph_DiGraphEdge, items: this.outEdge1_[:0]}
 	this.priority = -1
 }
 
