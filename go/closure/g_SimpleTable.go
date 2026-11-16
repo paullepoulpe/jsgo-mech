@@ -33,6 +33,17 @@ func (this *SimpleTable) put(rowKey any, columnKey any, value any) any {
 	return row.put(columnKey, value)
 }
 
+// put_s, get_s and contains_s are put, get and contains for a string column key that is not
+// boxed (post-flip manual step).
+func (this *SimpleTable) put_s(rowKey any, columnKey string, value any) any {
+	var row MapOf[any, any] = icast_Map(this.rows.get(rowKey))
+	if row == nil {
+		row = icast_Map(obj_(new_LinkedHashMap()))
+		this.rows.put(rowKey, any(row))
+	}
+	return Map_put_s(row, columnKey, value)
+}
+
 func (this *SimpleTable) get(rowKey any, columnKey any) any {
 	var row MapOf[any, any] = icast_Map(this.rows.get(rowKey))
 	return func() any {
@@ -43,9 +54,22 @@ func (this *SimpleTable) get(rowKey any, columnKey any) any {
 	}()
 }
 
+func (this *SimpleTable) get_s(rowKey any, columnKey string) any {
+	var row MapOf[any, any] = icast_Map(this.rows.get(rowKey))
+	if row == nil {
+		return nil
+	}
+	return Map_get_s(row, columnKey)
+}
+
 func (this *SimpleTable) contains(rowKey any, columnKey any) bool {
 	var row MapOf[any, any] = icast_Map(this.rows.get(rowKey))
 	return ((row != nil) && row.containsKey(columnKey))
+}
+
+func (this *SimpleTable) contains_s(rowKey any, columnKey string) bool {
+	var row MapOf[any, any] = icast_Map(this.rows.get(rowKey))
+	return ((row != nil) && Map_containsKey_s(row, columnKey))
 }
 
 func (this *SimpleTable) containsRow(rowKey any) bool {

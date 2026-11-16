@@ -95,6 +95,30 @@ func (this *SimpleSetMultimap) put(key any, value any) bool {
 	return true
 }
 
+// put_s is put for a string key that is not boxed (post-flip manual step). An
+// insertion-ordered multimap keeps the key in an entry too: it is boxed once, by put.
+func (this *SimpleSetMultimap) put_s(key string, value any) bool {
+	if this.entryOrder != nil {
+		k := strobj_(key)
+		return this.put(k, value)
+	}
+	Preconditions_checkState_boolean_Object(!this.frozen, strobj_("immutable"))
+	var values SetOf[any] = icast_Set(Map_get_s(this.map__, key))
+	if values == nil {
+		values = func() Set {
+			if this.sorted {
+				return icast_Set(obj_(new_TreeSet()))
+			}
+			return icast_Set(obj_(new_LinkedHashSet()))
+		}()
+		values.add(value)
+		Map_put_s(this.map__, key, any(values))
+	} else if !values.add(value) {
+		return false
+	}
+	return true
+}
+
 func (this *SimpleSetMultimap) putAll_2(key any, values IterableOf[any]) {
 	it_1 := foreach_(any(values))
 	for it_1.next() {
@@ -129,6 +153,15 @@ func (this *SimpleSetMultimap) get(key any) SetOf[any] {
 	}()
 }
 
+// get_s is get for a string key that is not boxed (post-flip manual step).
+func (this *SimpleSetMultimap) get_s(key string) SetOf[any] {
+	var values SetOf[any] = icast_Set(Map_get_s(this.map__, key))
+	if values == nil {
+		return icast_Set(obj_(ImmutableSet_of()))
+	}
+	return Collections_unmodifiableSet(values)
+}
+
 func (this *SimpleSetMultimap) containsKey(key any) bool {
 	return this.map__.containsKey(key)
 }
@@ -154,6 +187,24 @@ func (this *SimpleSetMultimap) removeAll(key any) SetOf[any] {
 		for it_1.next() {
 			var value any = it_1.v
 			this.entryOrder.remove_Object(obj_(new_SimpleSetMultimap_Entry(key, value)))
+		}
+	}
+	return Collections_unmodifiableSet(values)
+}
+
+// removeAll_s is removeAll for a string key that is not boxed (post-flip manual step).
+func (this *SimpleSetMultimap) removeAll_s(key string) SetOf[any] {
+	Preconditions_checkState_boolean_Object(!this.frozen, strobj_("immutable"))
+	var values SetOf[any] = icast_Set(Map_remove_s(this.map__, key))
+	if values == nil {
+		return icast_Set(obj_(ImmutableSet_of()))
+	}
+	if this.entryOrder != nil {
+		k := strobj_(key)
+		it_1 := foreach_(any(values))
+		for it_1.next() {
+			var value any = it_1.v
+			this.entryOrder.remove_Object(obj_(new_SimpleSetMultimap_Entry(k, value)))
 		}
 	}
 	return Collections_unmodifiableSet(values)
