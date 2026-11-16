@@ -202,7 +202,7 @@ type CompilerOptions struct {
 	allowDynamicImport                           bool
 	dynamicImportAlias                           OptionalOf[string]
 	chunkOutputType                              *CompilerOptions_ChunkOutputType
-	unknownDefinesToIgnore                       ImmutableListOf[string]
+	unknownDefinesToIgnore                       []string
 	inlineFunctionsLevel                         *CompilerOptions_Reach
 	enableZonesDefineName                        OptionalOf[string]
 	zoneInputPattern                             *Pattern
@@ -294,7 +294,7 @@ func (this *CompilerOptions) finit_CompilerOptions() {
 	this.enableModuleRewriting = true
 	this.allowDynamicImport = false
 	this.dynamicImportAlias = Optional_empty()
-	this.unknownDefinesToIgnore = ImmutableList_of()
+	this.unknownDefinesToIgnore = []string{}
 	this.enableZonesDefineName = Optional_empty()
 	this.zoneInputPattern = nil
 	this.es6ModuleTranspilation = CompilerOptions_Es6ModuleTranspilation_COMPILE
@@ -869,15 +869,15 @@ func (this *CompilerOptions) disables(group *DiagnosticGroup) bool {
 	return (this.warningsGuard.mustRunChecks(group) == Tri_FALSE)
 }
 
-func (this *CompilerOptions) setUnknownDefinesToIgnore(unknownDefinesToIgnore ImmutableListOf[string]) {
+func (this *CompilerOptions) setUnknownDefinesToIgnore(unknownDefinesToIgnore []string) {
 	this.unknownDefinesToIgnore = unknownDefinesToIgnore
 }
 
-func (this *CompilerOptions) addUnknownDefinesToIgnore(unknownDefinesToIgnore ImmutableListOf[string]) {
-	this.unknownDefinesToIgnore = cast_[*ImmutableList](obj_(cast_[*ImmutableList_Builder](obj_(cast_[*ImmutableList_Builder](obj_(ImmutableList_builder().addAll(icast_Iterable(obj_(this.unknownDefinesToIgnore))))).addAll(icast_Iterable(obj_(unknownDefinesToIgnore))))).build()))
+func (this *CompilerOptions) addUnknownDefinesToIgnore(unknownDefinesToIgnore []string) {
+	this.unknownDefinesToIgnore = sliceImm_(tc_string, cast_[*ImmutableList_Builder](obj_(cast_[*ImmutableList_Builder](obj_(ImmutableList_builder().addAll(sliceView_(tc_string, this.unknownDefinesToIgnore)))).addAll(sliceView_(tc_string, unknownDefinesToIgnore)))).build())
 }
 
-func (this *CompilerOptions) getUnknownDefinesToIgnore() ImmutableListOf[string] {
+func (this *CompilerOptions) getUnknownDefinesToIgnore() []string {
 	return this.unknownDefinesToIgnore
 }
 

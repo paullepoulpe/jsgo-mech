@@ -1320,7 +1320,7 @@ func (this *FunctionType_Builder) withTemplateKeysImmutableList(templateKeys Imm
 	if templateKeys == nil {
 		templateKeys = ImmutableList_of()
 	}
-	return cast_[*FunctionType_Builder](cast_[*FunctionType_Builder](this.setTemplateTypeMap(this.registry.getEmptyTemplateTypeMap().copyWithExtension_2(templateKeys, ImmutableList_of())).self()).setTemplateParamCount(templateKeys.size()).self())
+	return cast_[*FunctionType_Builder](cast_[*FunctionType_Builder](this.setTemplateTypeMap(this.registry.getEmptyTemplateTypeMap().copyWithExtension_2(templateKeys, []*JSType{})).self()).setTemplateParamCount(templateKeys.size()).self())
 }
 
 func (this *FunctionType_Builder) withTemplateKeys(templateKeys []*TemplateType) *FunctionType_Builder {

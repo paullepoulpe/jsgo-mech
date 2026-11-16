@@ -10,7 +10,7 @@ type RandomNameGenerator struct {
 	prefix_          string
 	nameCount        int32
 	shuffledFirst    string
-	shuffledNonFirst ImmutableListOf[string]
+	shuffledNonFirst []string
 }
 
 func (this *RandomNameGenerator) zero_RandomNameGenerator() {
@@ -106,7 +106,7 @@ func (this *RandomNameGenerator) shuffleAlphabets() {
 	for i := int32(0); i < RandomNameGenerator_NUM_SHUFFLES; i++ {
 		builder.add(strobj_(RandomNameGenerator_shuffleAndCopyAlphabet(icast_Set(obj_(this.nonFirstChars)), this.random)))
 	}
-	this.shuffledNonFirst = cast_[*ImmutableList](obj_(builder.build()))
+	this.shuffledNonFirst = sliceImm_(tc_string, builder.build())
 }
 
 func (this *RandomNameGenerator) getNameLength(position int32, nameIdx int32) int32 {
@@ -141,7 +141,7 @@ func (this *RandomNameGenerator) generateSuffix(position int32, nameIdx int32) s
 			hasher.putInt(length)
 			hasher.putUnencodedChars(obj_(name))
 			var alphabetIdx int32 = ((hasher.hash().asInt() & 2147483647) % RandomNameGenerator_NUM_SHUFFLES)
-			alphabet = str_(this.shuffledNonFirst.get(alphabetIdx))
+			alphabet = sliceAt_(this.shuffledNonFirst, alphabetIdx)
 		}
 		var alphabetSize int32 = String_length(alphabet)
 		var character uint16 = String_charAt(alphabet, (nameIdx % alphabetSize))

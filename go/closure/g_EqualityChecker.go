@@ -293,9 +293,9 @@ func (this *EqualityChecker) areRecordEqual(left *RecordType, right *RecordType)
 
 func (this *EqualityChecker) areTypeMapEqual(left *TemplateTypeMap, right *TemplateTypeMap) bool {
 	var leftKeys ImmutableListOf[*TemplateType] = left.getTemplateKeys()
-	var leftValues ImmutableListOf[*JSType] = left.getTemplateValues()
+	var leftValues []*JSType = left.getTemplateValues()
 	var rightKeys ImmutableListOf[*TemplateType] = right.getTemplateKeys()
-	var rightValues ImmutableListOf[*JSType] = right.getTemplateValues()
+	var rightValues []*JSType = right.getTemplateValues()
 outer_:
 	for i := int32(0); i < leftKeys.size(); i++ {
 		var leftKey *TemplateType = cast_[*TemplateType](leftKeys.get(i))
@@ -306,14 +306,14 @@ outer_:
 				continue inner_
 			}
 			var leftValue *JSType = func() *JSType {
-				if i < leftValues.size() {
-					return to_JSType(leftValues.get(i))
+				if i < int32(len(leftValues)) {
+					return sliceAt_(leftValues, i)
 				}
 				return left.defaultValueType(leftKey)
 			}()
 			var rightValue *JSType = func() *JSType {
-				if j < rightValues.size() {
-					return to_JSType(rightValues.get(j))
+				if j < int32(len(rightValues)) {
+					return sliceAt_(rightValues, j)
 				}
 				return right.defaultValueType(rightKey)
 			}()

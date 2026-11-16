@@ -17,9 +17,7 @@ func new_ConformanceAllowlister() *ConformanceAllowlister {
 
 func ConformanceAllowlister_getViolatingPaths(compiler *Compiler, externs Node, ast Node, requirement *Requirement) ImmutableSetOf[string] {
 	var result ImmutableSet_BuilderOf[string] = ImmutableSet_builder()
-	it_1 := foreach_(obj_(ConformanceAllowlister_getConformanceErrors(compiler, externs, ast, requirement)))
-	for it_1.next() {
-		var error_ *JSError = cast_[*JSError](it_1.v)
+	for _, error_ := range ConformanceAllowlister_getConformanceErrors(compiler, externs, ast, requirement) {
 		result.add(error_.sourceName().get())
 	}
 	return cast_[*ImmutableSet](obj_(result.build()))
@@ -27,15 +25,13 @@ func ConformanceAllowlister_getViolatingPaths(compiler *Compiler, externs Node, 
 
 func ConformanceAllowlister_getViolatingNodes(compiler *Compiler, externs Node, ast Node, requirement *Requirement) ImmutableSetOf[Node] {
 	var result ImmutableSet_BuilderOf[Node] = ImmutableSet_builder()
-	it_1 := foreach_(obj_(ConformanceAllowlister_getConformanceErrors(compiler, externs, ast, requirement)))
-	for it_1.next() {
-		var error_ *JSError = cast_[*JSError](it_1.v)
+	for _, error_ := range ConformanceAllowlister_getConformanceErrors(compiler, externs, ast, requirement) {
 		result.add(error_.node().box_())
 	}
 	return cast_[*ImmutableSet](obj_(result.build()))
 }
 
-func ConformanceAllowlister_getConformanceErrors(compiler *Compiler, externs Node, ast Node, requirement *Requirement) ImmutableListOf[*JSError] {
+func ConformanceAllowlister_getConformanceErrors(compiler *Compiler, externs Node, ast Node, requirement *Requirement) []*JSError {
 	var cleanedRequirement *Requirement = cast_[*Requirement](cast_[*Requirement_Builder](requirement.toBuilder()).clearWhitelist().clearAllowlist().clearWhitelistRegexp().clearAllowlistRegexp().clearWhitelistEntry().clearAllowlistEntry().setSeverity(Requirement_Severity_ERROR).build())
 	var cleanedConfig *ConformanceConfig = cast_[*ConformanceConfig](ConformanceConfig_newBuilder().addRequirement(cleanedRequirement).build())
 	var oldErrorManager ErrorManager = compiler.getErrorManager()
@@ -49,7 +45,7 @@ func ConformanceAllowlister_getConformanceErrors(compiler *Compiler, externs Nod
 		check.process_2(externs, ast)
 		return 0
 	}()
-	return cast_[*ImmutableList](obj_(errors.build()))
+	return sliceImm_(tc_p_JSError, errors.build())
 }
 
 type ConformanceAllowlister_1 struct {

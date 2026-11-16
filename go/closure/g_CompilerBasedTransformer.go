@@ -40,12 +40,10 @@ func (this *CompilerBasedTransformer) init_CompilerBasedTransformer(compilerSupp
 
 func (this *CompilerBasedTransformer) transform(input *Source) *Source {
 	var result *CompilerBasedTransformer_CompileResult = this.compilerSupplierField.compile(input.path(), input.code())
-	if !result.errors_.isEmpty() {
+	if len(result.errors_) != 0 {
 		var formatter MessageFormatter = ErrorFormat_SOURCELESS.toFormatter(nil, false)
 		var message *StringBuilder = new_StringBuilder().append(this.getTranformationName()).append(" failed.\n")
-		it_1 := foreach_(obj_(result.errors_))
-		for it_1.next() {
-			var error_ *JSError = cast_[*JSError](it_1.v)
+		for _, error_ := range result.errors_ {
 			message.append(formatter.formatError(error_))
 		}
 		panic(new_IllegalStateException_String(Object_toString(obj_(message))).self())
@@ -215,7 +213,7 @@ func CompilerBasedTransformer_CompilerSupplier_clinit() {
 
 type CompilerBasedTransformer_CompileResult struct {
 	source       string
-	errors_      ImmutableListOf[*JSError]
+	errors_      []*JSError
 	transformed_ bool
 	sourceMap_   string
 }
@@ -227,7 +225,7 @@ func (this *CompilerBasedTransformer_CompileResult) zero_CompilerBasedTransforme
 
 func (this *CompilerBasedTransformer_CompileResult) init_CompilerBasedTransformer_CompileResult(source string, errors ImmutableListOf[*JSError], transformed bool, sourceMap string) {
 	this.source = source
-	this.errors_ = cast_[*ImmutableList](Preconditions_checkNotNull(obj_(errors)))
+	this.errors_ = sliceImm_(tc_p_JSError, cast_[*ImmutableList](Preconditions_checkNotNull(obj_(errors))))
 	this.transformed_ = transformed
 	this.sourceMap_ = sourceMap
 }

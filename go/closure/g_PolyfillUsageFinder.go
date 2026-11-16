@@ -355,7 +355,7 @@ func PolyfillUsageFinder_Polyfills_fromTable(table string) *PolyfillUsageFinder_
 	return new_PolyfillUsageFinder_Polyfills(methods.immutableCopy(), statics.buildOrThrow(), byNativeVersion.immutableCopy())
 }
 
-func (this *PolyfillUsageFinder_Polyfills) getPolyfillsNewerThan(languageMode *CompilerOptions_LanguageMode) ImmutableListOf[*PolyfillUsageFinder_Polyfill] {
+func (this *PolyfillUsageFinder_Polyfills) getPolyfillsNewerThan(languageMode *CompilerOptions_LanguageMode) []*PolyfillUsageFinder_Polyfill {
 	var featureSet *FeatureSet = languageMode.toFeatureSet()
 	var result ImmutableList_BuilderOf[*PolyfillUsageFinder_Polyfill] = ImmutableList_builder()
 	it_1 := foreach_(any(this.byNativeVersion.keySet()))
@@ -366,7 +366,7 @@ func (this *PolyfillUsageFinder_Polyfills) getPolyfillsNewerThan(languageMode *C
 			result.addAll(Iterable(this.byNativeVersion.get(strobj_(nativeVersionStr))))
 		}
 	}
-	return cast_[*ImmutableList](obj_(result.build()))
+	return sliceImm_(tc_p_PolyfillUsageFinder_Polyfill, result.build())
 }
 
 type PolyfillUsageFinder_PolyfillUsage struct {

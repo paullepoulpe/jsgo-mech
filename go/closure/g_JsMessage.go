@@ -61,15 +61,15 @@ func (this *JsMessage) getPlaceholderExample(placeholderReference *JsMessage_Pla
 	return str_(Map_getOrDefault_s(this.getPlaceholderNameToExampleMap(), placeholderReference.storedPlaceholderName(), strobj_("-")))
 }
 
-func (this *JsMessage) getGenderedMessageParts(genderCase *JsMessage_GrammaticalGenderCase) ImmutableListOf[JsMessage_Part] {
+func (this *JsMessage) getGenderedMessageParts(genderCase *JsMessage_GrammaticalGenderCase) []JsMessage_Part {
 	if this.getGenderedMessagesMap().isEmpty() {
 		panic(new_UnsupportedOperationException_String("Message does not contain grammatical gendered variants.").self())
 	}
-	return cast_[*ImmutableList](this.getGenderedMessagesMap().get(obj_(genderCase)))
+	return sliceImm_(tc_JsMessage_Part, cast_[*ImmutableList](this.getGenderedMessagesMap().get(obj_(genderCase))))
 }
 
-func (this *JsMessage) getGenderedMessageVariants() ImmutableListOf[*JsMessage_GrammaticalGenderCase] {
-	return cast_[*ImmutableSet](this.getGenderedMessagesMap().keySet()).asList()
+func (this *JsMessage) getGenderedMessageVariants() []*JsMessage_GrammaticalGenderCase {
+	return sliceImm_(tc_p_JsMessage_GrammaticalGenderCase, cast_[*ImmutableSet](this.getGenderedMessagesMap().keySet()).asList())
 }
 
 func (this *JsMessage) asJsMessageString() string {

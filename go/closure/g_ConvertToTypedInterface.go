@@ -401,10 +401,8 @@ func (this *ConvertToTypedInterface_SimplifyDeclarations) removeDuplicateDeclara
 
 func (this *ConvertToTypedInterface_SimplifyDeclarations) simplifyAll() {
 	this.removeDuplicateDeclarations()
-	var seenNames ImmutableListOf[string] = ImmutableList_sortedCopyOf(ConvertToTypedInterface_SimplifyDeclarations_SHORT_TO_LONG, Iterable(this.currentFile.getDeclarations().keySet()))
-	it_1 := foreach_(obj_(seenNames))
-	for it_1.next() {
-		var name string = str_(it_1.v)
+	var seenNames []string = sliceImm_(tc_string, ImmutableList_sortedCopyOf(ConvertToTypedInterface_SimplifyDeclarations_SHORT_TO_LONG, Iterable(this.currentFile.getDeclarations().keySet())))
+	for _, name := range seenNames {
 		it_3 := foreach_(any(this.currentFile.getDeclarations().get(strobj_(name))))
 		for it_3.next() {
 			var decl *PotentialDeclaration = to_PotentialDeclaration(it_3.v)

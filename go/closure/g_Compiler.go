@@ -2940,9 +2940,7 @@ func (this *Compiler) getCompilerStateProtoBuilder() *JSCompilerStateProto_Build
 	for _, chunk := range chunkList {
 		var chunkBuilder *ChunkProto_Builder = ChunkProto_newBuilder()
 		chunkBuilder.setName(chunk.getName())
-		it_5 := foreach_(obj_(chunk.getDependencies()))
-		for it_5.next() {
-			var dep *JSChunk = cast_[*JSChunk](it_5.v)
+		for _, dep := range chunk.getDependencies() {
 			var depIdx any = chunkNameMap[dep.getName()]
 			Preconditions_checkState_boolean_String_Object_Object((depIdx != nil), "Missing dependency %s for chunk %s", strobj_(dep.getName()), strobj_(chunk.getName()))
 			chunkBuilder.addDependencies(unbox_[int32](depIdx))

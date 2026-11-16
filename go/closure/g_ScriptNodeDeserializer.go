@@ -8,19 +8,19 @@ type ScriptNodeDeserializer struct {
 	sourceMappingURL OptionalOf[string]
 	colorPoolShard   Optional_baseOf[*ColorPool_ShardView]
 	stringPool       *StringPool
-	filePool         ImmutableListOf[*SourceFile_jscomp]
+	filePool         []*SourceFile_jscomp
 }
 
-func (this *ScriptNodeDeserializer) init_ScriptNodeDeserializer(ast *LazyAst, stringPool *StringPool, colorPoolShard Optional_baseOf[*ColorPool_ShardView], filePool ImmutableListOf[*SourceFile_jscomp]) {
+func (this *ScriptNodeDeserializer) init_ScriptNodeDeserializer(ast *LazyAst, stringPool *StringPool, colorPoolShard Optional_baseOf[*ColorPool_ShardView], filePool []*SourceFile_jscomp) {
 	this.scriptBytes = ast.getScript()
-	this.sourceFile = cast_[*SourceFile_jscomp](filePool.get((ast.getSourceFile() - 1)))
+	this.sourceFile = sliceAt_(filePool, (ast.getSourceFile() - 1))
 	this.sourceMappingURL = Optional_ofNullable(strobj_(ast.getSourceMappingUrl()))
 	this.colorPoolShard = colorPoolShard
 	this.stringPool = stringPool
 	this.filePool = filePool
 }
 
-func new_ScriptNodeDeserializer(ast *LazyAst, stringPool *StringPool, colorPoolShard Optional_baseOf[*ColorPool_ShardView], filePool ImmutableListOf[*SourceFile_jscomp]) *ScriptNodeDeserializer {
+func new_ScriptNodeDeserializer(ast *LazyAst, stringPool *StringPool, colorPoolShard Optional_baseOf[*ColorPool_ShardView], filePool []*SourceFile_jscomp) *ScriptNodeDeserializer {
 	this := &ScriptNodeDeserializer{}
 	this.init_ScriptNodeDeserializer(ast, stringPool, colorPoolShard, filePool)
 	return this
@@ -436,7 +436,7 @@ func (this *ScriptNodeDeserializer_Runner) owner() *ScriptNodeDeserializer {
 
 func (this *ScriptNodeDeserializer_Runner) visit(astNode *AstNode, contextStack ListOf[*FeatureCollector_FeatureContext], sourceFileTemplate Node) Node {
 	if (sourceFileTemplate == 0) || (astNode.getSourceFile() != 0) {
-		sourceFileTemplate = this.owner().createSourceInfoTemplate(cast_[*SourceFile_jscomp](this.owner().filePool.get((astNode.getSourceFile() - 1))))
+		sourceFileTemplate = this.owner().createSourceInfoTemplate(sliceAt_(this.owner().filePool, (astNode.getSourceFile() - 1)))
 	}
 	var currentLine int32 = (this.previousLine + astNode.getRelativeLine())
 	var currentColumn int32 = (this.previousColumn + astNode.getRelativeColumn())

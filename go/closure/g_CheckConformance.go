@@ -4,7 +4,7 @@ package closure
 
 type CheckConformance struct {
 	compiler_       *AbstractCompiler
-	categories      ImmutableListOf[*CheckConformance_Category]
+	categories      []*CheckConformance_Category
 	mergedBehaviors MapOf[*Requirement, *ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior]
 	ruleToBehavior  MapOf[CheckConformance_Rule, *ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior]
 }
@@ -37,7 +37,7 @@ func new_CheckConformance_AbstractCompiler_ImmutableList_ConformanceReportingMod
 }
 
 func (this *CheckConformance) process_2(externs Node, root Node) {
-	if !this.categories.isEmpty() {
+	if len(this.categories) != 0 {
 		NodeTraversal_traverseRoots(this.compiler_, icast_NodeTraversal_Callback(any(this)), externs, root)
 	}
 }
@@ -51,11 +51,11 @@ func (this *CheckConformance) isScriptOfInterest(sf *SourceFile_jscomp) bool {
 }
 
 func (this *CheckConformance) visit(t *NodeTraversal, n Node, parent Node) {
-	for c := int32((this.categories.size() - 1)); c >= 0; c-- {
-		var category *CheckConformance_Category = cast_[*CheckConformance_Category](this.categories.get(c))
+	for c := int32((int32(len(this.categories)) - 1)); c >= 0; c-- {
+		var category *CheckConformance_Category = sliceAt_(this.categories, c)
 		if category.precondition.shouldCheck(n) {
-			for r := int32((category.rules.size() - 1)); r >= 0; r-- {
-				var rule CheckConformance_Rule = icast_CheckConformance_Rule(category.rules.get(r))
+			for r := int32((int32(len(category.rules)) - 1)); r >= 0; r-- {
+				var rule CheckConformance_Rule = sliceAt_(category.rules, r)
 				var behavior *ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior = cast_[*ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior](Preconditions_checkNotNull(Map_getOrDefault(this.ruleToBehavior, any(rule), obj_(ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior_UNSPECIFIED))))
 				rule.check(t, n, behavior)
 			}
@@ -63,12 +63,12 @@ func (this *CheckConformance) visit(t *NodeTraversal, n Node, parent Node) {
 	}
 }
 
-func (this *CheckConformance) initRules(compiler *AbstractCompiler, configs ImmutableListOf[*ConformanceConfig], reportingMode *CompilerOptions_ConformanceReportingMode) ImmutableListOf[*CheckConformance_Category] {
+func (this *CheckConformance) initRules(compiler *AbstractCompiler, configs ImmutableListOf[*ConformanceConfig], reportingMode *CompilerOptions_ConformanceReportingMode) []*CheckConformance_Category {
 	var builder *SimpleSetMultimap = SimpleSetMultimap_createInsertionOrdered()
 	var isLibraryLevelReportingMode bool = ((reportingMode != nil) && Object_equals(obj_(reportingMode), obj_(CompilerOptions_ConformanceReportingMode_RESPECT_LIBRARY_LEVEL_BEHAVIOR_SPECIFIED_IN_CONFIG)))
 	if isLibraryLevelReportingMode {
 		if !CheckConformance_validateBehaviorSettingOfConfigs(compiler, configs, reportingMode) {
-			return ImmutableList_of()
+			return []*CheckConformance_Category{}
 		}
 	}
 	var mergedRequirements []*Requirement = this.mergeRequirements(compiler, sliceImm_(tc_p_ConformanceConfig, configs), isLibraryLevelReportingMode)
@@ -88,9 +88,9 @@ func (this *CheckConformance) initRules(compiler *AbstractCompiler, configs Immu
 	it_3 := foreach_(any(builder.asMap().entrySet()))
 	for it_3.next() {
 		var e Map_Entry = icast_Map_Entry(it_3.v)
-		result.add(obj_(new_CheckConformance_Category(icast_CheckConformance_Precondition(e.getKey()), ImmutableList_copyOf(icast_Collection(e.getValue())))))
+		result.add(obj_(new_CheckConformance_Category(icast_CheckConformance_Precondition(e.getKey()), sliceImm_(tc_CheckConformance_Rule, ImmutableList_copyOf(icast_Collection(e.getValue()))))))
 	}
-	return cast_[*ImmutableList](obj_(result.build()))
+	return sliceImm_(tc_p_CheckConformance_Category, result.build())
 }
 
 func CheckConformance_validateBehaviorSettingOfConfigs(compiler *AbstractCompiler, configs ImmutableListOf[*ConformanceConfig], reportingMode *CompilerOptions_ConformanceReportingMode) bool {
@@ -374,15 +374,15 @@ func CheckConformance_Precondition_clinit() {
 
 type CheckConformance_Category struct {
 	precondition CheckConformance_Precondition
-	rules        ImmutableListOf[CheckConformance_Rule]
+	rules        []CheckConformance_Rule
 }
 
-func (this *CheckConformance_Category) init_CheckConformance_Category(precondition CheckConformance_Precondition, rules ImmutableListOf[CheckConformance_Rule]) {
+func (this *CheckConformance_Category) init_CheckConformance_Category(precondition CheckConformance_Precondition, rules []CheckConformance_Rule) {
 	this.precondition = precondition
 	this.rules = rules
 }
 
-func new_CheckConformance_Category(precondition CheckConformance_Precondition, rules ImmutableListOf[CheckConformance_Rule]) *CheckConformance_Category {
+func new_CheckConformance_Category(precondition CheckConformance_Precondition, rules []CheckConformance_Rule) *CheckConformance_Category {
 	this := &CheckConformance_Category{}
 	this.init_CheckConformance_Category(precondition, rules)
 	return this

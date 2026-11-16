@@ -45,7 +45,7 @@ func (this *ProcessDefines) init_ProcessDefines(builder *ProcessDefines_Builder)
 	this.recognizeClosureDefines = builder.recognizeClosureDefines
 	this.enableZonesDefineName = builder.enableZonesDefineName
 	this.zoneInputPattern = builder.zoneInputPattern
-	this.unknownDefinesToIgnore = ImmutableSet_copyOf(icast_Collection(obj_(builder.unknownDefinesToIgnore)))
+	this.unknownDefinesToIgnore = ImmutableSet_copyOf(sliceView_(tc_string, builder.unknownDefinesToIgnore))
 }
 
 func new_ProcessDefines(builder *ProcessDefines_Builder) *ProcessDefines {
@@ -637,7 +637,7 @@ type ProcessDefines_Builder struct {
 	recognizeClosureDefines bool
 	enableZonesDefineName   OptionalOf[string]
 	zoneInputPattern        *Pattern
-	unknownDefinesToIgnore  ImmutableListOf[string]
+	unknownDefinesToIgnore  []string
 }
 
 func (this *ProcessDefines_Builder) finit_ProcessDefines_Builder() {
@@ -645,7 +645,7 @@ func (this *ProcessDefines_Builder) finit_ProcessDefines_Builder() {
 	this.recognizeClosureDefines = true
 	this.enableZonesDefineName = Optional_empty()
 	this.zoneInputPattern = nil
-	this.unknownDefinesToIgnore = ImmutableList_of()
+	this.unknownDefinesToIgnore = []string{}
 }
 
 func (this *ProcessDefines_Builder) init_ProcessDefines_Builder(compiler *AbstractCompiler) {
@@ -674,7 +674,7 @@ func (this *ProcessDefines_Builder) injectNamespace(namespaceSupplier SupplierOf
 	return this
 }
 
-func (this *ProcessDefines_Builder) setUnknownDefinesToIgnore(unknownDefinesToIgnore ImmutableListOf[string]) *ProcessDefines_Builder {
+func (this *ProcessDefines_Builder) setUnknownDefinesToIgnore(unknownDefinesToIgnore []string) *ProcessDefines_Builder {
 	this.unknownDefinesToIgnore = unknownDefinesToIgnore
 	return this
 }

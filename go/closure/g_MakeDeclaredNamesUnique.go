@@ -230,7 +230,7 @@ func (this *MakeDeclaredNamesUnique_ContextualRenameInverter) enterScope(t *Node
 		this.variablesStackedByName.pushVariableInfo(icast_MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo(obj_(variableInfo)))
 	}
 	var parent *MakeDeclaredNamesUnique_ContextualRenameInverter_ScopeContext = cast_[*MakeDeclaredNamesUnique_ContextualRenameInverter_ScopeContext](this.scopeContextStack.peek())
-	this.scopeContextStack.push(obj_(new_MakeDeclaredNamesUnique_ContextualRenameInverter_ScopeContext(scope, cast_[*ImmutableList](obj_(declaredVariablesBuilder.build())), parent)))
+	this.scopeContextStack.push(obj_(new_MakeDeclaredNamesUnique_ContextualRenameInverter_ScopeContext(scope, sliceImm_(tc_p_MakeDeclaredNamesUnique_ContextualRenameInverter_DeclaredVariableInfo, declaredVariablesBuilder.build()), parent)))
 }
 
 func (this *MakeDeclaredNamesUnique_ContextualRenameInverter) createDeclaredVariableInfo(var_ *Var) *MakeDeclaredNamesUnique_ContextualRenameInverter_DeclaredVariableInfo {
@@ -422,7 +422,7 @@ func (this *MakeDeclaredNamesUnique_ContextualRenameInverter_DeclaredVariableInf
 type MakeDeclaredNamesUnique_ContextualRenameInverter_ScopeContext struct {
 	parent                *MakeDeclaredNamesUnique_ContextualRenameInverter_ScopeContext
 	scope_                *Scope
-	declaredVariableInfos ImmutableListOf[*MakeDeclaredNamesUnique_ContextualRenameInverter_DeclaredVariableInfo]
+	declaredVariableInfos []*MakeDeclaredNamesUnique_ContextualRenameInverter_DeclaredVariableInfo
 	declared_             []*MakeDeclaredNamesUnique_ContextualRenameInverter_DeclaredVariableInfo // declaredVariableInfos as a typed slice, for the loops below
 	referencedVariables   map[MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo]struct{}
 }
@@ -431,17 +431,17 @@ func (this *MakeDeclaredNamesUnique_ContextualRenameInverter_ScopeContext) finit
 	this.referencedVariables = map[MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo]struct{}{}
 }
 
-func (this *MakeDeclaredNamesUnique_ContextualRenameInverter_ScopeContext) init_MakeDeclaredNamesUnique_ContextualRenameInverter_ScopeContext(scope *Scope, declaredVariableInfos ImmutableListOf[*MakeDeclaredNamesUnique_ContextualRenameInverter_DeclaredVariableInfo], parent *MakeDeclaredNamesUnique_ContextualRenameInverter_ScopeContext) {
+func (this *MakeDeclaredNamesUnique_ContextualRenameInverter_ScopeContext) init_MakeDeclaredNamesUnique_ContextualRenameInverter_ScopeContext(scope *Scope, declaredVariableInfos []*MakeDeclaredNamesUnique_ContextualRenameInverter_DeclaredVariableInfo, parent *MakeDeclaredNamesUnique_ContextualRenameInverter_ScopeContext) {
 	this.finit_MakeDeclaredNamesUnique_ContextualRenameInverter_ScopeContext()
 	this.scope_ = scope
 	this.declaredVariableInfos = declaredVariableInfos
-	for _, x := range toSlice_(declaredVariableInfos) {
+	for _, x := range toSlice_(sliceView_(tc_p_MakeDeclaredNamesUnique_ContextualRenameInverter_DeclaredVariableInfo, declaredVariableInfos)) {
 		this.declared_ = append(this.declared_, cast_[*MakeDeclaredNamesUnique_ContextualRenameInverter_DeclaredVariableInfo](x))
 	}
 	this.parent = parent
 }
 
-func new_MakeDeclaredNamesUnique_ContextualRenameInverter_ScopeContext(scope *Scope, declaredVariableInfos ImmutableListOf[*MakeDeclaredNamesUnique_ContextualRenameInverter_DeclaredVariableInfo], parent *MakeDeclaredNamesUnique_ContextualRenameInverter_ScopeContext) *MakeDeclaredNamesUnique_ContextualRenameInverter_ScopeContext {
+func new_MakeDeclaredNamesUnique_ContextualRenameInverter_ScopeContext(scope *Scope, declaredVariableInfos []*MakeDeclaredNamesUnique_ContextualRenameInverter_DeclaredVariableInfo, parent *MakeDeclaredNamesUnique_ContextualRenameInverter_ScopeContext) *MakeDeclaredNamesUnique_ContextualRenameInverter_ScopeContext {
 	this := &MakeDeclaredNamesUnique_ContextualRenameInverter_ScopeContext{}
 	this.init_MakeDeclaredNamesUnique_ContextualRenameInverter_ScopeContext(scope, declaredVariableInfos, parent)
 	return this

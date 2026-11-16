@@ -19,7 +19,7 @@ func new_ClosureRequireProcessor(nameDeclaration Node, requireKind *Binding_Crea
 	return this
 }
 
-func ClosureRequireProcessor_getAllRequires(nameDeclaration Node) ImmutableListOf[*ClosureRequireProcessor_Require] {
+func ClosureRequireProcessor_getAllRequires(nameDeclaration Node) []*ClosureRequireProcessor_Require {
 	var rhs Node = func() Node {
 		if nameDeclaration.getFirstChild().isDestructuringLhs() {
 			return nameDeclaration.getFirstChild().getSecondChild()
@@ -28,7 +28,7 @@ func ClosureRequireProcessor_getAllRequires(nameDeclaration Node) ImmutableListO
 	}()
 	var requireKind *Binding_CreatedBy = ClosureRequireProcessor_getModuleDependencyTypeFromRhs(rhs)
 	if requireKind == nil {
-		return ImmutableList_of()
+		return []*ClosureRequireProcessor_Require{}
 	}
 	return new_ClosureRequireProcessor(nameDeclaration, requireKind).getAllRequiresInDeclaration()
 }
@@ -48,7 +48,7 @@ func ClosureRequireProcessor_getModuleDependencyTypeFromRhs(value Node) *Binding
 	return cast_[*Binding_CreatedBy](Map_get_s(ClosureRequireProcessor_GOOG_DEPENDENCY_CALLS, callee.getString()))
 }
 
-func (this *ClosureRequireProcessor) getAllRequiresInDeclaration() ImmutableListOf[*ClosureRequireProcessor_Require] {
+func (this *ClosureRequireProcessor) getAllRequiresInDeclaration() []*ClosureRequireProcessor_Require {
 	var rhs Node = func() Node {
 		if this.nameDeclaration.getFirstChild().isDestructuringLhs() {
 			return this.nameDeclaration.getFirstChild().getSecondChild()
@@ -58,18 +58,18 @@ func (this *ClosureRequireProcessor) getAllRequiresInDeclaration() ImmutableList
 	var namespace string = rhs.getSecondChild().getString()
 	if this.nameDeclaration.getFirstChild().isName() {
 		var lhs Node = this.nameDeclaration.getFirstChild()
-		return ImmutableList_of_Object(obj_(ClosureRequireProcessor_Require_create(lhs.getString(), Import_builder().moduleRequest(namespace).localName(lhs.getString()).importName(Export_NAMESPACE).importNode(this.nameDeclaration).nameNode(lhs).build(), this.requireKind)))
+		return sliceOf_(tc_p_ClosureRequireProcessor_Require, ClosureRequireProcessor_Require_create(lhs.getString(), Import_builder().moduleRequest(namespace).localName(lhs.getString()).importName(Export_NAMESPACE).importNode(this.nameDeclaration).nameNode(lhs).build(), this.requireKind))
 	} else {
 		var objectPattern Node = this.nameDeclaration.getFirstFirstChild()
 		if !objectPattern.isObjectPattern() {
-			return ImmutableList_of()
+			return []*ClosureRequireProcessor_Require{}
 		}
 		return this.getAllRequiresFromDestructuring(objectPattern, namespace)
 	}
 	panic("unreachable")
 }
 
-func (this *ClosureRequireProcessor) getAllRequiresFromDestructuring(objectPattern Node, namespace string) ImmutableListOf[*ClosureRequireProcessor_Require] {
+func (this *ClosureRequireProcessor) getAllRequiresFromDestructuring(objectPattern Node, namespace string) []*ClosureRequireProcessor_Require {
 	var requireBuilder ImmutableList_BuilderOf[*ClosureRequireProcessor_Require] = ImmutableList_builder()
 	{
 		var key Node = objectPattern.getFirstChild()
@@ -84,7 +84,7 @@ func (this *ClosureRequireProcessor) getAllRequiresFromDestructuring(objectPatte
 			requireBuilder.add(obj_(ClosureRequireProcessor_Require_create(lhs.getString(), Import_builder().moduleRequest(namespace).localName(lhs.getString()).importName(key.getString()).importNode(this.nameDeclaration).nameNode(lhs).build(), this.requireKind)))
 		}
 	}
-	return cast_[*ImmutableList](obj_(requireBuilder.build()))
+	return sliceImm_(tc_p_ClosureRequireProcessor_Require, requireBuilder.build())
 }
 
 var ClosureRequireProcessor_GOOG_DEPENDENCY_CALLS *ImmutableMap

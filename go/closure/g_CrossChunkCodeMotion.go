@@ -546,9 +546,7 @@ func (this *CrossChunkCodeMotion_DeclarationStatementGroupCycle) moveToPreferred
 	if !Object_equals(obj_(preferredChunk), obj_(this.currentChunk)) {
 		if this.outer_.cccmLog.isLogging() {
 			this.outer_.cccmLog.logString("start DSG Cycle move")
-			it_1 := foreach_(obj_(this.getGlobalSymbolNames()))
-			for it_1.next() {
-				var globalSymbolName string = str_(it_1.v)
+			for _, globalSymbolName := range this.getGlobalSymbolNames() {
 				this.outer_.cccmLog.log(&Supplier_fn{func() any {
 					return strobj_(String_format("Moving DSG for %s from chunk %s to chunk %s", []any{strobj_(globalSymbolName), obj_(this.currentChunk), obj_(preferredChunk)}))
 				}})
@@ -564,14 +562,14 @@ func (this *CrossChunkCodeMotion_DeclarationStatementGroupCycle) moveToPreferred
 	}
 }
 
-func (this *CrossChunkCodeMotion_DeclarationStatementGroupCycle) getGlobalSymbolNames() ImmutableListOf[string] {
+func (this *CrossChunkCodeMotion_DeclarationStatementGroupCycle) getGlobalSymbolNames() []string {
 	var builder ImmutableList_BuilderOf[string] = ImmutableList_builder()
 	it_1 := foreach_(any(this.dsgs))
 	for it_1.next() {
 		var dsg *CrossChunkCodeMotion_DeclarationStatementGroup = cast_[*CrossChunkCodeMotion_DeclarationStatementGroup](it_1.v)
 		builder.add(strobj_(dsg.declaredGlobalSymbol.var_.getName()))
 	}
-	return cast_[*ImmutableList](obj_(builder.build()))
+	return sliceImm_(tc_string, builder.build())
 }
 
 func (this *CrossChunkCodeMotion_DeclarationStatementGroupCycle) moveStatementsToChunk(preferredChunk *JSChunk) {

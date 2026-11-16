@@ -70,10 +70,10 @@ func JSTypeExpression_baseName(name string) string {
 	}()
 }
 
-func (this *JSTypeExpression) getAllTypeNodes() ImmutableListOf[Node] {
+func (this *JSTypeExpression) getAllTypeNodes() []Node {
 	var builder ImmutableList_BuilderOf[Node] = ImmutableList_builder()
 	JSTypeExpression_visitAllTypeNodes(this.root, &Consumer_fn{func(p0 any) { builder.add(Node_of_(p0).box_()) }})
-	return cast_[*ImmutableList](obj_(builder.build()))
+	return sliceImm_(tc_Node, builder.build())
 }
 
 func (this *JSTypeExpression) getAllTypeNames() ImmutableSetOf[string] {

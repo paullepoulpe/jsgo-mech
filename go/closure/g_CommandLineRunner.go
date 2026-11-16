@@ -258,13 +258,13 @@ func (this *CommandLineRunner) initConfigFromFlags(args []string, out *Output, e
 	if this.flags.isolationMode == CompilerOptions_IsolationMode_IIFE {
 		this.flags.outputWrapper = Optional_of(strobj_("(function(){%output%}).call(this);"))
 	}
-	var bundleFiles ImmutableListOf[string] = ImmutableList_of()
+	var bundleFiles []string = []string{}
 	var skipNormalOutputs bool = false
 	if this.flags.compilationLevelParsed == CompilationLevel_BUNDLE {
 		if String_isEmpty(this.flags.jsOutputFile) {
 			this.reportError("--compilation_level=BUNDLE cannot be used without a --js_output_file.")
 		} else {
-			bundleFiles = ImmutableList_of_Object(strobj_(this.flags.jsOutputFile))
+			bundleFiles = sliceOf_(tc_string, this.flags.jsOutputFile)
 			this.flags.jsOutputFile = ""
 			skipNormalOutputs = true
 		}
@@ -294,7 +294,7 @@ func (this *CommandLineRunner) initConfigFromFlags(args []string, out *Output, e
 	} else {
 		this.runCompiler = true
 		var config *AbstractCommandLineRunner_CommandLineConfig = this.getCommandLineConfig()
-		config.setPrintVersion(this.flags.version_).setPrintTree(this.flags.printTree).setPrintTreeJson(this.flags.printTreeJson).setPrintAst(this.flags.printAst).setJscompDevMode(this.flags.jscompDevMode).setLoggingLevel(this.flags.loggingLevel).setExterns(this.flags.externs).setMixedJsSources(mixedSources).setDefaultToStdin().setJsOutputFile(this.flags.jsOutputFile).setChunk(this.flags.chunk_).setVariableMapOutputFile(this.flags.variableMapOutputFile).setCreateNameMapFiles(this.flags.createNameMapFiles).setPropertyMapOutputFile(this.flags.propertyMapOutputFile).setExpectedDiagnostics(this.flags.expectedDiagnostics).setPropertyMapInputFile(this.flags.propertyMapInputFile).setVariableMapInputFile(this.flags.variableMapInputFile).setInstrumentationMappingFile(this.flags.instrumentationMappingOutputFile).setCodingConvention(conv).setSummaryDetailLevel(this.flags.summaryDetailLevel).setOutputWrapper(str_(this.flags.outputWrapper.orElse(nil))).setChunkWrapper(this.flags.chunkWrapper).setChunkOutputPathPrefix(this.flags.chunkOutputPathPrefix).setCreateSourceMap(this.flags.createSourceMap).setSourceMapFormat(this.flags.sourceMapFormat).setSourceMapLocationMappings(mappings).setSourceMapInputFiles(tmapFrom_(tc_string, tc_string, sourceMapInputs, true)).setParseInlineSourceMaps(parseInlineSourceMaps).setApplyInputSourceMaps(applyInputSourceMaps).setWarningGuards(this.flags.guardLevels).setDefine(this.flags.define).setBrowserFeaturesetYear(this.flags.browserFeaturesetYear).setCharset(this.flags.charset).setDependencyOptions(dependencyOptions).setOutputManifest(sliceImm_(tc_string, ImmutableList_of_Object(strobj_(this.flags.outputManifest_)))).setOutputBundle(tlistImm_(tc_string, bundleFiles)).setSkipNormalOutputs(skipNormalOutputs).setOutputChunkDependencies(this.flags.outputChunkDependencies).setProcessCommonJSModules(this.flags.processCommonJsModules).setModuleRoots(this.flags.moduleRoot).setWarningsAllowlistFile(this.flags.warningsAllowlistFile).setHideWarningsFor(this.flags.hideWarningsFor).setAngularPass(this.flags.angularPass).setJsonStreamMode(this.flags.jsonStreamMode).setErrorFormat(this.flags.errorFormat)
+		config.setPrintVersion(this.flags.version_).setPrintTree(this.flags.printTree).setPrintTreeJson(this.flags.printTreeJson).setPrintAst(this.flags.printAst).setJscompDevMode(this.flags.jscompDevMode).setLoggingLevel(this.flags.loggingLevel).setExterns(this.flags.externs).setMixedJsSources(mixedSources).setDefaultToStdin().setJsOutputFile(this.flags.jsOutputFile).setChunk(this.flags.chunk_).setVariableMapOutputFile(this.flags.variableMapOutputFile).setCreateNameMapFiles(this.flags.createNameMapFiles).setPropertyMapOutputFile(this.flags.propertyMapOutputFile).setExpectedDiagnostics(this.flags.expectedDiagnostics).setPropertyMapInputFile(this.flags.propertyMapInputFile).setVariableMapInputFile(this.flags.variableMapInputFile).setInstrumentationMappingFile(this.flags.instrumentationMappingOutputFile).setCodingConvention(conv).setSummaryDetailLevel(this.flags.summaryDetailLevel).setOutputWrapper(str_(this.flags.outputWrapper.orElse(nil))).setChunkWrapper(this.flags.chunkWrapper).setChunkOutputPathPrefix(this.flags.chunkOutputPathPrefix).setCreateSourceMap(this.flags.createSourceMap).setSourceMapFormat(this.flags.sourceMapFormat).setSourceMapLocationMappings(mappings).setSourceMapInputFiles(tmapFrom_(tc_string, tc_string, sourceMapInputs, true)).setParseInlineSourceMaps(parseInlineSourceMaps).setApplyInputSourceMaps(applyInputSourceMaps).setWarningGuards(this.flags.guardLevels).setDefine(this.flags.define).setBrowserFeaturesetYear(this.flags.browserFeaturesetYear).setCharset(this.flags.charset).setDependencyOptions(dependencyOptions).setOutputManifest(sliceImm_(tc_string, ImmutableList_of_Object(strobj_(this.flags.outputManifest_)))).setOutputBundle(tlistImm_(tc_string, sliceView_(tc_string, bundleFiles))).setSkipNormalOutputs(skipNormalOutputs).setOutputChunkDependencies(this.flags.outputChunkDependencies).setProcessCommonJSModules(this.flags.processCommonJsModules).setModuleRoots(this.flags.moduleRoot).setWarningsAllowlistFile(this.flags.warningsAllowlistFile).setHideWarningsFor(this.flags.hideWarningsFor).setAngularPass(this.flags.angularPass).setJsonStreamMode(this.flags.jsonStreamMode).setErrorFormat(this.flags.errorFormat)
 		var segmentOfCompilationToRun *CompilerOptions_SegmentOfCompilationToRun = this.flags.segmentOfCompilationToRun
 		switch segmentOfCompilationToRun {
 		case CompilerOptions_SegmentOfCompilationToRun_CHECKS:
@@ -419,7 +419,7 @@ func (this *CommandLineRunner) createOptions_impl() *Outcome_base {
 		options.setMessageBundle(icast_MessageBundle(obj_(new_EmptyMessageBundle())))
 		options.setWarningLevel(DiagnosticGroups_MSG_CONVENTIONS, CheckLevel_OFF)
 	}
-	options.setConformanceConfigs(sliceImm_(tc_p_ConformanceConfig, CommandLineRunner_loadConformanceConfigs(this.flags.conformanceConfigs)))
+	options.setConformanceConfigs(CommandLineRunner_loadConformanceConfigs(this.flags.conformanceConfigs))
 	options.setPrintSourceAfterEachPass(this.flags.printSourceAfterEachPass)
 	options.setTracerMode(this.flags.tracerMode)
 	options.setStrictModeInput(this.flags.strictModeInput)
@@ -528,7 +528,7 @@ func (this *CommandLineRunner) createExterns_impl(options *CompilerOptions) *Out
 	panic("unreachable")
 }
 
-func CommandLineRunner_loadConformanceConfigs(configPaths ListOf[string]) ImmutableListOf[*ConformanceConfig] {
+func CommandLineRunner_loadConformanceConfigs(configPaths ListOf[string]) []*ConformanceConfig {
 	var configs ImmutableList_BuilderOf[*ConformanceConfig] = ImmutableList_builder()
 	it_1 := foreach_(any(configPaths))
 	for it_1.next() {
@@ -539,7 +539,7 @@ func CommandLineRunner_loadConformanceConfigs(configPaths ListOf[string]) Immuta
 		}
 		configs.add(config.get())
 	}
-	return cast_[*ImmutableList](obj_(configs.build()))
+	return sliceImm_(tc_p_ConformanceConfig, configs.build())
 }
 
 func CommandLineRunner_loadConformanceConfig(configFile string) *Outcome_base {

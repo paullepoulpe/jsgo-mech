@@ -625,9 +625,9 @@ func (this *JSTypeRegistry) resolveViaProperties(declarationScope StaticTypedSco
 	if slot == nil {
 		return nil
 	}
-	var componentNames ImmutableListOf[string] = ImmutableList_copyOf_Iterable(Iterables_skip(JSTypeRegistry_DOT_SPLITTER.split(strobj_(qualifiedName)), 1))
+	var componentNames []string = sliceImm_(tc_string, ImmutableList_copyOf_Iterable(Iterables_skip(JSTypeRegistry_DOT_SPLITTER.split(strobj_(qualifiedName)), 1)))
 	var slotType *JSType = slot.getType()
-	return this.resolveViaPropertyGivenSlot(slotType, 0, sliceImm_(tc_string, componentNames))
+	return this.resolveViaPropertyGivenSlot(slotType, 0, componentNames)
 }
 
 func (this *JSTypeRegistry) resolveViaPropertyGivenSlot(slotType *JSType, definitionNode Node, componentNames []string) *JSType {

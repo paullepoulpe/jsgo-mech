@@ -29,8 +29,8 @@ func (this *PolymerPassFindExterns) visit(t *NodeTraversal, n Node, parent Node)
 	}
 }
 
-func (this *PolymerPassFindExterns) getPolymerElementProps() ImmutableListOf[Node] {
-	return cast_[*ImmutableList](obj_(this.polymerElementProps.build()))
+func (this *PolymerPassFindExterns) getPolymerElementProps() []Node {
+	return sliceImm_(tc_Node, this.polymerElementProps.build())
 }
 
 func (this *PolymerPassFindExterns) getPolymerElementExterns() Node {

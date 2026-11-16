@@ -225,25 +225,25 @@ func ConformanceRules_ConformanceLevel_clinit() {
 }
 
 type ConformanceRules_AllowList struct {
-	prefixes       ImmutableListOf[string]
+	prefixes       []string
 	regexp         *Pattern
 	allowlistEntry *RequirementScopeEntry
 }
 
-func (this *ConformanceRules_AllowList) init_ConformanceRules_AllowList(prefixes ImmutableListOf[string], regexp *Pattern, allowlistEntry *RequirementScopeEntry) {
+func (this *ConformanceRules_AllowList) init_ConformanceRules_AllowList(prefixes []string, regexp *Pattern, allowlistEntry *RequirementScopeEntry) {
 	this.prefixes = prefixes
 	this.regexp = regexp
 	this.allowlistEntry = allowlistEntry
 }
 
-func new_ConformanceRules_AllowList(prefixes ImmutableListOf[string], regexp *Pattern, allowlistEntry *RequirementScopeEntry) *ConformanceRules_AllowList {
+func new_ConformanceRules_AllowList(prefixes []string, regexp *Pattern, allowlistEntry *RequirementScopeEntry) *ConformanceRules_AllowList {
 	this := &ConformanceRules_AllowList{}
 	this.init_ConformanceRules_AllowList(prefixes, regexp, allowlistEntry)
 	return this
 }
 
 func ConformanceRules_AllowList_create(prefixes ListOf[string], regexps ListOf[string]) *Outcome_base {
-	var prefixesCopy ImmutableListOf[string] = ImmutableList_copyOf(Collection(prefixes))
+	var prefixesCopy []string = sliceImm_(tc_string, ImmutableList_copyOf(Collection(prefixes)))
 	var regexp *Outcome_base = ConformanceRules_buildPattern(regexps)
 	if regexp.isErr() {
 		return Outcome_base_err(regexp.error())
@@ -252,7 +252,7 @@ func ConformanceRules_AllowList_create(prefixes ListOf[string], regexps ListOf[s
 }
 
 func ConformanceRules_AllowList_createFromEntry(allowlistEntry *RequirementScopeEntry) *Outcome_base {
-	var prefixesCopy ImmutableListOf[string] = ImmutableList_copyOf(Collection(allowlistEntry.getPrefixList()))
+	var prefixesCopy []string = sliceImm_(tc_string, ImmutableList_copyOf(Collection(allowlistEntry.getPrefixList())))
 	var regexp *Outcome_base = ConformanceRules_buildPattern(allowlistEntry.getRegexpList())
 	if regexp.isErr() {
 		return Outcome_base_err(regexp.error())
@@ -273,9 +273,7 @@ func (this *ConformanceRules_AllowList) matches(path string) bool {
 		}()
 	}()
 	if this.prefixes != nil {
-		it_1 := foreach_(obj_(this.prefixes))
-		for it_1.next() {
-			var prefix string = str_(it_1.v)
+		for _, prefix := range this.prefixes {
 			if !String_isEmpty(path) && (String_startsWith(path, prefix) || (tsPath.isPresent() && String_startsWith(str_(tsPath.get()), prefix))) {
 				return true
 			}
@@ -289,7 +287,7 @@ type ConformanceRules_AbstractRule struct {
 	compiler_                 *AbstractCompiler
 	message_                  string
 	severity                  *Requirement_Severity
-	allowlists                ImmutableListOf[*ConformanceRules_AllowList]
+	allowlists                []*ConformanceRules_AllowList
 	onlyApplyTo               *ConformanceRules_AllowList
 	reportLooseTypeViolations bool
 	typeMatchingStrategy      *TypeMatchingStrategy
@@ -382,7 +380,7 @@ func (this *ConformanceRules_AbstractRule) initAbstractRule(compiler *AbstractCo
 		}
 		allowlistsBuilder.add(allowlist.get())
 	}
-	this.allowlists = cast_[*ImmutableList](obj_(allowlistsBuilder.build()))
+	this.allowlists = sliceImm_(tc_p_ConformanceRules_AllowList, allowlistsBuilder.build())
 	if (requirement.getOnlyApplyToCount() > 0) || (requirement.getOnlyApplyToRegexpCount() > 0) {
 		var onlyApplyToOutcome *Outcome_base = ConformanceRules_AllowList_create(requirement.getOnlyApplyToList(), requirement.getOnlyApplyToRegexpList())
 		if onlyApplyToOutcome.isErr() {
@@ -425,9 +423,7 @@ func (this *ConformanceRules_AbstractRule) findAllowListForPath(path string) *Co
 	if pathRegex.isPresent() {
 		path = cast_[*Pattern](pathRegex.get()).matcher(strobj_(path)).replaceFirst("")
 	}
-	it_1 := foreach_(obj_(this.allowlists))
-	for it_1.next() {
-		var allowlist *ConformanceRules_AllowList = cast_[*ConformanceRules_AllowList](it_1.v)
+	for _, allowlist := range this.allowlists {
 		if allowlist.matches(path) {
 			return allowlist
 		}
@@ -887,7 +883,7 @@ func (this *ConformanceRules_BannedDependencyRegex) checkConformance_impl(t *Nod
 type ConformanceRules_BannedName struct {
 	ConformanceRules_AbstractRule
 	requirementType *Requirement_Type
-	qualifiedNames  ImmutableListOf[Node]
+	qualifiedNames  []Node
 	shortNames      ImmutableSetOf[string]
 }
 
@@ -941,7 +937,7 @@ func (this *ConformanceRules_BannedName) initBannedName(compiler *AbstractCompil
 		qualifiedBuilder.add(qualifiedName.box_())
 		shortBuilder.add(strobj_(qualifiedName.getString()))
 	}
-	this.qualifiedNames = cast_[*ImmutableList](obj_(qualifiedBuilder.build()))
+	this.qualifiedNames = sliceImm_(tc_Node, qualifiedBuilder.build())
 	this.shortNames = cast_[*ImmutableSet](obj_(shortBuilder.build()))
 	return Outcome_base_ok_0()
 }
@@ -960,8 +956,8 @@ func (this *ConformanceRules_BannedName) checkConformance_impl(t *NodeTraversal,
 	if NodeUtil_isInSyntheticScript(n) || !ConformanceRules_BannedName_isRootOfQualifiedNameGlobal(t, n) {
 		return ConformanceRules_ConformanceResult_CONFORMANCE
 	}
-	for i := int32((this.qualifiedNames.size() - 1)); i >= 0; i-- {
-		if n.matchesQualifiedNameNode(Node_of_(this.qualifiedNames.get(i))) {
+	for i := int32((int32(len(this.qualifiedNames)) - 1)); i >= 0; i-- {
+		if n.matchesQualifiedNameNode(sliceAt_(this.qualifiedNames, i)) {
 			return ConformanceRules_ConformanceResult_VIOLATION
 		}
 	}
@@ -1567,7 +1563,7 @@ func ConformanceRules_ConformanceUtil_isEventHandlerAttrName(attr string) bool {
 
 type ConformanceRules_RestrictedNameCall struct {
 	ConformanceRules_AbstractRule
-	restrictions ImmutableListOf[*ConformanceRules_RestrictedNameCall_Restriction]
+	restrictions []*ConformanceRules_RestrictedNameCall_Restriction
 }
 
 func (this *ConformanceRules_RestrictedNameCall) up_ConformanceRules_AbstractRule() *ConformanceRules_AbstractRule {
@@ -1629,14 +1625,14 @@ func (this *ConformanceRules_RestrictedNameCall) initRestrictedNameCall(compiler
 		}
 		builder.add(obj_(new_ConformanceRules_RestrictedNameCall_Restriction(name, restrictedCallType)))
 	}
-	this.restrictions = cast_[*ImmutableList](obj_(builder.build()))
+	this.restrictions = sliceImm_(tc_p_ConformanceRules_RestrictedNameCall_Restriction, builder.build())
 	return Outcome_base_ok_0()
 }
 
 func (this *ConformanceRules_RestrictedNameCall) checkConformance_impl(t *NodeTraversal, n Node) *ConformanceRules_ConformanceResult {
 	if ConformanceRules_ConformanceUtil_isCallTarget(n) && n.isQualifiedName() {
-		for i := int32(0); i < this.restrictions.size(); i++ {
-			var r *ConformanceRules_RestrictedNameCall_Restriction = cast_[*ConformanceRules_RestrictedNameCall_Restriction](this.restrictions.get(i))
+		for i := int32(0); i < int32(len(this.restrictions)); i++ {
+			var r *ConformanceRules_RestrictedNameCall_Restriction = sliceAt_(this.restrictions, i)
 			if n.matchesQualifiedNameNode(r.name_) {
 				if !ConformanceRules_ConformanceUtil_validateCall(this.compiler_, n.getParent(), r.restrictedCallType, false) {
 					return ConformanceRules_ConformanceResult_VIOLATION
@@ -1677,7 +1673,7 @@ func new_ConformanceRules_RestrictedNameCall_Restriction(name Node, restrictedCa
 
 type ConformanceRules_RestrictedMethodCall struct {
 	ConformanceRules_AbstractRule
-	restrictions ImmutableListOf[*ConformanceRules_RestrictedMethodCall_Restriction]
+	restrictions []*ConformanceRules_RestrictedMethodCall_Restriction
 }
 
 func (this *ConformanceRules_RestrictedMethodCall) up_ConformanceRules_AbstractRule() *ConformanceRules_AbstractRule {
@@ -1749,7 +1745,7 @@ func (this *ConformanceRules_RestrictedMethodCall) initRestrictedMethodCall(comp
 		}
 		builder.add(obj_(new_ConformanceRules_RestrictedMethodCall_Restriction(registry.getGlobalType(str_(type_.get())), str_(property.get()), restrictedCallType)))
 	}
-	this.restrictions = cast_[*ImmutableList](obj_(builder.build()))
+	this.restrictions = sliceImm_(tc_p_ConformanceRules_RestrictedMethodCall_Restriction, builder.build())
 	return Outcome_base_ok_0()
 }
 
@@ -1757,8 +1753,8 @@ func (this *ConformanceRules_RestrictedMethodCall) checkConformance_impl(t *Node
 	if !n.isGetProp() || !ConformanceRules_ConformanceUtil_isCallTarget(n) {
 		return ConformanceRules_ConformanceResult_CONFORMANCE
 	}
-	for i := int32(0); i < this.restrictions.size(); i++ {
-		var r *ConformanceRules_RestrictedMethodCall_Restriction = cast_[*ConformanceRules_RestrictedMethodCall_Restriction](this.restrictions.get(i))
+	for i := int32(0); i < int32(len(this.restrictions)); i++ {
+		var r *ConformanceRules_RestrictedMethodCall_Restriction = sliceAt_(this.restrictions, i)
 		var result *ConformanceRules_ConformanceResult = ConformanceRules_ConformanceResult_CONFORMANCE
 		if this.matchesProp(n, r) {
 			result = this.checkConformance_4(t, n, r, false)
@@ -1825,7 +1821,7 @@ func new_ConformanceRules_RestrictedMethodCall_Restriction(type_ *JSType, proper
 
 type ConformanceRules_RestrictedPropertyWrite struct {
 	ConformanceRules_AbstractRule
-	restrictions ImmutableListOf[*ConformanceRules_RestrictedPropertyWrite_Restriction]
+	restrictions []*ConformanceRules_RestrictedPropertyWrite_Restriction
 }
 
 func (this *ConformanceRules_RestrictedPropertyWrite) up_ConformanceRules_AbstractRule() *ConformanceRules_AbstractRule {
@@ -1894,7 +1890,7 @@ func (this *ConformanceRules_RestrictedPropertyWrite) initRestrictedPropertyWrit
 		var restrictedType *JSType = to_JSType(restrictedTypeOutcome.get())
 		builder.add(obj_(new_ConformanceRules_RestrictedPropertyWrite_Restriction(registry.getGlobalType(str_(type_.get())), str_(property.get()), restrictedType)))
 	}
-	this.restrictions = cast_[*ImmutableList](obj_(builder.build()))
+	this.restrictions = sliceImm_(tc_p_ConformanceRules_RestrictedPropertyWrite_Restriction, builder.build())
 	return Outcome_base_ok_0()
 }
 
@@ -1904,9 +1900,7 @@ func (this *ConformanceRules_RestrictedPropertyWrite) checkConformance_impl(t *N
 		var targetType *JSType = n.getFirstChild().getJSType()
 		if (rhsType != nil) && (targetType != nil) {
 			var targetNotNullType *JSType = nil
-			it_1 := foreach_(obj_(this.restrictions))
-			for it_1.next() {
-				var r *ConformanceRules_RestrictedPropertyWrite_Restriction = cast_[*ConformanceRules_RestrictedPropertyWrite_Restriction](it_1.v)
+			for _, r := range this.restrictions {
 				if n.getString() == r.property_ {
 					if !rhsType.isSubtypeOf(r.restrictedType) {
 						if ConformanceRules_ConformanceUtil_isLooseType(targetType) {
@@ -1954,7 +1948,7 @@ func new_ConformanceRules_RestrictedPropertyWrite_Restriction(type_ *JSType, pro
 
 type ConformanceRules_BannedCodePattern struct {
 	ConformanceRules_AbstractRule
-	restrictions ImmutableListOf[*TemplateAstMatcher]
+	restrictions []*TemplateAstMatcher
 }
 
 func (this *ConformanceRules_BannedCodePattern) up_ConformanceRules_AbstractRule() *ConformanceRules_AbstractRule {
@@ -2009,14 +2003,14 @@ func (this *ConformanceRules_BannedCodePattern) initBannedCodePattern(compiler *
 		var astMatcher *TemplateAstMatcher = new_TemplateAstMatcher(compiler, templateRoot, this.typeMatchingStrategy)
 		builder.add(obj_(astMatcher))
 	}
-	this.restrictions = cast_[*ImmutableList](obj_(builder.build()))
+	this.restrictions = sliceImm_(tc_p_TemplateAstMatcher, builder.build())
 	return Outcome_base_ok_0()
 }
 
 func (this *ConformanceRules_BannedCodePattern) checkConformance_impl(t *NodeTraversal, n Node) *ConformanceRules_ConformanceResult {
 	var possibleViolation bool = false
-	for i := int32(0); i < this.restrictions.size(); i++ {
-		var matcher *TemplateAstMatcher = cast_[*TemplateAstMatcher](this.restrictions.get(i))
+	for i := int32(0); i < int32(len(this.restrictions)); i++ {
+		var matcher *TemplateAstMatcher = sliceAt_(this.restrictions, i)
 		if matcher.matches(n) {
 			if matcher.isLooseMatch() {
 				possibleViolation = true
@@ -3631,7 +3625,7 @@ func ConformanceRules_BanElementSetAttribute_clinit() {
 
 type ConformanceRules_BanSettingAttributes struct {
 	ConformanceRules_AbstractRule
-	restrictions ImmutableListOf[*ConformanceRules_BanSettingAttributes_AttributeSettingRestriction]
+	restrictions []*ConformanceRules_BanSettingAttributes_AttributeSettingRestriction
 }
 
 func (this *ConformanceRules_BanSettingAttributes) up_ConformanceRules_AbstractRule() *ConformanceRules_AbstractRule {
@@ -3686,7 +3680,7 @@ func (this *ConformanceRules_BanSettingAttributes) initBanSettingAttributes(comp
 		}
 		builder.add(obj_(new_ConformanceRules_BanSettingAttributes_AttributeSettingRestriction(registry.getGlobalType(str_(type_.get())), str_(property.get()))))
 	}
-	this.restrictions = cast_[*ImmutableList](obj_(builder.build()))
+	this.restrictions = sliceImm_(tc_p_ConformanceRules_BanSettingAttributes_AttributeSettingRestriction, builder.build())
 	return Outcome_base_ok_0()
 }
 
@@ -3718,9 +3712,7 @@ func (this *ConformanceRules_BanSettingAttributes) getBannedPropertyName(node No
 		return Optional_base_absent()
 	}
 	var propertyName string = target.getString()
-	it_1 := foreach_(obj_(this.restrictions))
-	for it_1.next() {
-		var restricted *ConformanceRules_BanSettingAttributes_AttributeSettingRestriction = cast_[*ConformanceRules_BanSettingAttributes_AttributeSettingRestriction](it_1.v)
+	for _, restricted := range this.restrictions {
 		if ((propertyName == restricted.property_) && (restricted.type__ != nil)) && type_.isSubtypeOf(restricted.type__) {
 			return Optional_base_of(strobj_(propertyName))
 		}
@@ -3764,7 +3756,7 @@ func new_ConformanceRules_BanSettingAttributes_AttributeSettingRestriction(type_
 
 type ConformanceRules_BanExecCommand struct {
 	ConformanceRules_AbstractRule
-	bannedAttrs ImmutableListOf[string]
+	bannedAttrs []string
 }
 
 func (this *ConformanceRules_BanExecCommand) up_ConformanceRules_AbstractRule() *ConformanceRules_AbstractRule {
@@ -3810,7 +3802,7 @@ func (this *ConformanceRules_BanExecCommand) initBanExecCommand(compiler *Abstra
 		var v string = str_(it_1.v)
 		bannedAttrsBuilder.add(strobj_(String_toLowerCase(v, Locale_ROOT)))
 	}
-	this.bannedAttrs = cast_[*ImmutableList](obj_(bannedAttrsBuilder.build()))
+	this.bannedAttrs = sliceImm_(tc_string, bannedAttrsBuilder.build())
 	return Outcome_base_ok_0()
 }
 
@@ -3826,7 +3818,7 @@ func (this *ConformanceRules_BanExecCommand) checkConformance_impl(traversal *No
 		return ConformanceRules_ConformanceResult_VIOLATION
 	}
 	var attrName string = attr.getString()
-	if Collection_contains_s(this.bannedAttrs, String_toLowerCase(attrName, Locale_ROOT)) {
+	if sliceHasStr_(this.bannedAttrs, String_toLowerCase(attrName, Locale_ROOT)) {
 		return ConformanceRules_ConformanceResult_VIOLATION
 	}
 	return ConformanceRules_ConformanceResult_CONFORMANCE

@@ -244,9 +244,7 @@ func (this *CmdLineParser) findOptionByName(name string) *CmdLineParser_Option {
 		if name == option.nameField {
 			return option
 		}
-		it_3 := foreach_(obj_(option.aliasesField))
-		for it_3.next() {
-			var alias string = str_(it_3.v)
+		for _, alias := range option.aliasesField {
 			if name == alias {
 				return option
 			}
@@ -293,7 +291,7 @@ type CmdLineParser_Option struct {
 	owner_        *CmdLineParser
 	nameField     string
 	isArgument    bool
-	aliasesField  ImmutableListOf[string]
+	aliasesField  []string
 	usageField    string
 	hiddenField   bool
 	requiredField bool
@@ -308,7 +306,7 @@ func (this *CmdLineParser_Option) zero_CmdLineParser_Option() {
 }
 
 func (this *CmdLineParser_Option) finit_CmdLineParser_Option() {
-	this.aliasesField = ImmutableList_of()
+	this.aliasesField = []string{}
 	this.usageField = ""
 	this.hiddenField = false
 	this.requiredField = false
@@ -343,7 +341,7 @@ func (this *CmdLineParser_Option) aliases(aliases []string) *CmdLineParser_Optio
 	for _, alias := range aliases {
 		this.owner_.checkOptionNotDefined(alias)
 	}
-	this.aliasesField = ImmutableList_copyOf_ObjectArr(arrmap_(aliases, func(v_ string) any { return strobj_(v_) }))
+	this.aliasesField = sliceImm_(tc_string, ImmutableList_copyOf_ObjectArr(arrmap_(aliases, func(v_ string) any { return strobj_(v_) })))
 	this.owner_.optionsSorted = false
 	return this
 }
@@ -591,8 +589,8 @@ func (this *CmdLineParser_Option) toString() string {
 	if this.isArgument {
 		return ""
 	}
-	if !this.aliasesField.isEmpty() {
-		return (sstr_(this.nameField) + " (" + sstr_(String_join(strobj_(", "), icast_Iterable(obj_(this.aliasesField)))) + ")")
+	if len(this.aliasesField) != 0 {
+		return (sstr_(this.nameField) + " (" + sstr_(String_join(strobj_(", "), sliceView_(tc_string, this.aliasesField))) + ")")
 	}
 	return this.nameField
 }

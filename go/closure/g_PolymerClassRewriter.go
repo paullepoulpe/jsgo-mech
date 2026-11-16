@@ -164,8 +164,8 @@ func (this *PolymerClassRewriter) rewritePolymerCall(cls *PolymerClassDefinition
 	this.appendBehaviorPropertiesToBlock(cls, propsAndBehaviorBlock, basePath, false)
 	this.appendPropertiesToBlock(cls.props, propsAndBehaviorBlock, basePath, false)
 	this.appendBehaviorMembersToBlock(cls, propsAndBehaviorBlock)
-	var readOnlyPropsAll ImmutableListOf[*PolymerPass_MemberDefinition] = this.parseReadOnlyProperties(cls, propsAndBehaviorBlock)
-	this.createExportsAndExterns(cls, sliceImm_(tc_p_PolymerPass_MemberDefinition, readOnlyPropsAll))
+	var readOnlyPropsAll []*PolymerPass_MemberDefinition = this.parseReadOnlyProperties(cls, propsAndBehaviorBlock)
+	this.createExportsAndExterns(cls, readOnlyPropsAll)
 	this.removePropertyDocs(objLit, cls.defType)
 	var propsAndBehaviorCode Node = propsAndBehaviorBlock.removeChildren()
 	var parent Node = exprRoot.getParent()
@@ -234,8 +234,8 @@ func (this *PolymerClassRewriter) rewritePolymerClassDeclaration(clazz Node, tra
 	var block Node = IR_block_0()
 	this.appendBehaviorPropertiesToBlock(cls, block, (sstr_(cls.target.getQualifiedName()) + ".prototype."), false)
 	this.appendPropertiesToBlock(cls.props, block, (sstr_(cls.target.getQualifiedName()) + ".prototype."), false)
-	var readOnlyProps ImmutableListOf[*PolymerPass_MemberDefinition] = this.parseReadOnlyProperties(cls, block)
-	this.createExportsAndExterns(cls, sliceImm_(tc_p_PolymerPass_MemberDefinition, readOnlyProps))
+	var readOnlyProps []*PolymerPass_MemberDefinition = this.parseReadOnlyProperties(cls, block)
+	this.createExportsAndExterns(cls, readOnlyProps)
 	var jsDocInfoNode Node = NodeUtil_getBestJSDocInfoNode(clazz)
 	var classInfo *JSDocInfo_Builder = JSDocInfo_Builder_maybeCopyFrom(jsDocInfoNode.getJSDocInfo())
 	var interfaceName OptionalOf[string] = cls.getInterfaceName(this.compiler_.getUniqueIdSupplier())
@@ -305,9 +305,7 @@ func (this *PolymerClassRewriter) addTypesToFunctions(objLit Node, thisType stri
 			}
 		}
 	}
-	it_2 := foreach_(obj_(PolymerPassStaticUtils_extractProperties(objLit, defType, this.compiler_, 0)))
-	for it_2.next() {
-		var property *PolymerPass_MemberDefinition = cast_[*PolymerPass_MemberDefinition](it_2.v)
+	for _, property := range PolymerPassStaticUtils_extractProperties(objLit, defType, this.compiler_, 0) {
 		if !property.value_.isObjectLit() {
 			continue
 		}
@@ -323,7 +321,7 @@ func (this *PolymerClassRewriter) addTypesToFunctions(objLit Node, thisType stri
 	}
 }
 
-func (this *PolymerClassRewriter) parseReadOnlyProperties(cls *PolymerClassDefinition, block Node) ImmutableListOf[*PolymerPass_MemberDefinition] {
+func (this *PolymerClassRewriter) parseReadOnlyProperties(cls *PolymerClassDefinition, block Node) []*PolymerPass_MemberDefinition {
 	var qualifiedPath string = (sstr_(cls.target.getQualifiedName()) + ".prototype.")
 	var readOnlyProps ImmutableList_BuilderOf[*PolymerPass_MemberDefinition] = ImmutableList_builder()
 	it_1 := cls.props.each()
@@ -354,7 +352,7 @@ func (this *PolymerClassRewriter) parseReadOnlyProperties(cls *PolymerClassDefin
 			}
 		}
 	}
-	return cast_[*ImmutableList](obj_(readOnlyProps.build()))
+	return sliceImm_(tc_p_PolymerPass_MemberDefinition, readOnlyProps.build())
 }
 
 func (this *PolymerClassRewriter) getConstructorDoc(cls *PolymerClassDefinition) *JSDocInfo_Builder {
@@ -412,7 +410,7 @@ func (this *PolymerClassRewriter) getPropertyNode(prop *PolymerPass_MemberDefini
 }
 
 func (this *PolymerClassRewriter) appendBehaviorPropertiesToBlock(cls *PolymerClassDefinition, block Node, basePath string, isExternsBlock bool) {
-	if ((cls.behaviors == nil) || cls.behaviors.isEmpty()) || (cls.behaviorProps == nil) {
+	if ((cls.behaviors == nil) || len(cls.behaviors) == 0) || (cls.behaviorProps == nil) {
 		return
 	}
 	it_1 := foreach_(any(cls.behaviorProps.asMap().entrySet()))
@@ -503,9 +501,7 @@ func PolymerClassRewriter_createNewTypeExpressionForExtern(propName string, sour
 }
 
 func (this *PolymerClassRewriter) removePropertyDocs(objLit Node, defType *PolymerClassDefinition_DefinitionType) {
-	it_1 := foreach_(obj_(PolymerPassStaticUtils_extractProperties(objLit, defType, this.compiler_, 0)))
-	for it_1.next() {
-		var prop *PolymerPass_MemberDefinition = cast_[*PolymerPass_MemberDefinition](it_1.v)
+	for _, prop := range PolymerPassStaticUtils_extractProperties(objLit, defType, this.compiler_, 0) {
 		prop.name_.setJSDocInfo(nil)
 	}
 }
@@ -527,9 +523,7 @@ func (this *PolymerClassRewriter) getJSDocInfoBuilderForBehavior(behavior *Polym
 func (this *PolymerClassRewriter) appendBehaviorMembersToBlock(cls *PolymerClassDefinition, block Node) {
 	var qualifiedPath string = (sstr_(cls.target.getQualifiedName()) + ".prototype.")
 	var nameToExprResult map[string]Node = map[string]Node{}
-	it_1 := foreach_(obj_(cls.behaviors))
-	for it_1.next() {
-		var behavior *PolymerBehaviorExtractor_BehaviorDefinition = cast_[*PolymerBehaviorExtractor_BehaviorDefinition](it_1.v)
+	for _, behavior := range cls.behaviors {
 		for _, behaviorFunction := range behavior.functionsToCopy {
 			var fnName string = behaviorFunction.name_.getString()
 			if NodeUtil_getFirstPropMatchingKey(cls.descriptor, fnName) != 0 {
@@ -637,9 +631,7 @@ func (this *PolymerClassRewriter) createExportsAndExterns(cls *PolymerClassDefin
 	this.appendPropertiesToBlock(cls.props, block, interfaceBasePath, true)
 	var uniqueMethods *TMap[string, *PolymerPass_MemberDefinition] = newTMap_(tc_string, tc_p_PolymerPass_MemberDefinition)
 	if cls.behaviors != nil {
-		it_1 := foreach_(obj_(cls.behaviors))
-		for it_1.next() {
-			var behavior *PolymerBehaviorExtractor_BehaviorDefinition = cast_[*PolymerBehaviorExtractor_BehaviorDefinition](it_1.v)
+		for _, behavior := range cls.behaviors {
 			for _, method := range behavior.functionsToCopy {
 				uniqueMethods.put(method.name_.getString(), method)
 			}

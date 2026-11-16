@@ -160,13 +160,13 @@ func PolymerPassStaticUtils_addExportAndNoCollapseToKey(keyNode Node) {
 	keyNode.setJSDocInfo(newDocs.build())
 }
 
-func PolymerPassStaticUtils_extractProperties(descriptor Node, defType *PolymerClassDefinition_DefinitionType, compiler *AbstractCompiler, constructor Node) ImmutableListOf[*PolymerPass_MemberDefinition] {
+func PolymerPassStaticUtils_extractProperties(descriptor Node, defType *PolymerClassDefinition_DefinitionType, compiler *AbstractCompiler, constructor Node) []*PolymerPass_MemberDefinition {
 	var properties Node = descriptor
 	if defType == PolymerClassDefinition_DefinitionType_ObjectLiteral {
 		properties = NodeUtil_getFirstPropMatchingKey(descriptor, "properties")
 	}
 	if properties == 0 {
-		return ImmutableList_of()
+		return []*PolymerPass_MemberDefinition{}
 	}
 	var constructorPropertyJsDoc map[string]*JSDocInfo = map[string]*JSDocInfo{}
 	if constructor != 0 {
@@ -191,7 +191,7 @@ func PolymerPassStaticUtils_extractProperties(descriptor Node, defType *PolymerC
 			members.add(obj_(new_PolymerPass_MemberDefinition(bestJsDoc, keyNode, keyNode.getFirstChild(), enclosingModule)))
 		}
 	}
-	return cast_[*ImmutableList](obj_(members.build()))
+	return sliceImm_(tc_p_PolymerPass_MemberDefinition, members.build())
 }
 
 func PolymerPassStaticUtils_collectConstructorPropertyJsDoc(node Node, map_ map[string]*JSDocInfo) {

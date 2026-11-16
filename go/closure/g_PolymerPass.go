@@ -8,7 +8,7 @@ type PolymerPass struct {
 	tagNameMap                   ImmutableMapOf[string, string]
 	polymerElementExterns        Node
 	nativeExternsAdded           map[string]struct{}
-	polymerElementProps          ImmutableListOf[Node]
+	polymerElementProps          []Node
 	globalNames                  *GlobalNamespace
 	behaviorExtractor            *PolymerBehaviorExtractor
 	warnedPolymer1ExternsMissing bool
@@ -147,9 +147,7 @@ func (this *PolymerPass) appendPolymerElementExterns(def *PolymerClassDefinition
 	baseDocs.changeBaseType(elementBaseType)
 	baseExterns.setJSDocInfo(baseDocs.build())
 	block.addChildToBack(baseExterns)
-	it_1 := foreach_(obj_(this.polymerElementProps))
-	for it_1.next() {
-		var baseProp Node = Node_of_(it_1.v)
+	for _, baseProp := range this.polymerElementProps {
 		var newProp Node = baseProp.cloneTree()
 		var newPropRootName Node = NodeUtil_getRootOfQualifiedName(newProp.getFirstFirstChild())
 		newPropRootName.setString(polymerElementType)

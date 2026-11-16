@@ -3,13 +3,13 @@
 package closure
 
 type RequireAliasGenerator struct {
-	parts      ImmutableListOf[string]
+	parts      []string
 	capitalize bool
 }
 
 func (this *RequireAliasGenerator) init_RequireAliasGenerator(namespace string) {
-	this.parts = ImmutableList_copyOf_Iterable(RequireAliasGenerator_DOT_SPLITTER.split(strobj_(namespace))).reverse()
-	this.capitalize = Ascii_isUpperCase(String_charAt(str_(this.parts.get(0)), 0))
+	this.parts = sliceImm_(tc_string, ImmutableList_copyOf_Iterable(RequireAliasGenerator_DOT_SPLITTER.split(strobj_(namespace))).reverse())
+	this.capitalize = Ascii_isUpperCase(String_charAt(sliceAt_(this.parts, 0), 0))
 }
 
 func new_RequireAliasGenerator(namespace string) *RequireAliasGenerator {
@@ -108,12 +108,12 @@ func (this *RequireAliasGenerator_NameIterator) computeNext() any {
 }
 
 func (this *RequireAliasGenerator_NameIterator) computeNextWithoutFiltering() string {
-	if this.index_ >= this.outer_.parts.size() {
+	if this.index_ >= int32(len(this.outer_.parts)) {
 		var result string = (sstr_(this.concat) + istr_(int64(this.suffix)))
 		this.suffix++
 		return result
 	}
-	var part string = str_(this.outer_.parts.get(this.index_))
+	var part string = sliceAt_(this.outer_.parts, this.index_)
 	this.index_++
 	if this.outer_.capitalize {
 		part = RequireAliasGenerator_captializeFirstChar(part)

@@ -109,13 +109,13 @@ func DestructuredTarget_createTarget(registry *JSTypeRegistry, destructuringPatt
 	return builder.build()
 }
 
-func DestructuredTarget_createAllNonEmptyTargetsInPattern(registry *JSTypeRegistry, patternType *JSType, pattern Node) ImmutableListOf[*DestructuredTarget] {
+func DestructuredTarget_createAllNonEmptyTargetsInPattern(registry *JSTypeRegistry, patternType *JSType, pattern Node) []*DestructuredTarget {
 	return DestructuredTarget_createAllNonEmptyTargetsInPatternSupplier(registry, &Supplier_base_fn{func() any {
 		return patternType.self()
 	}}, pattern)
 }
 
-func DestructuredTarget_createAllNonEmptyTargetsInPatternSupplier(registry *JSTypeRegistry, patternType Supplier_baseOf[*JSType], pattern Node) ImmutableListOf[*DestructuredTarget] {
+func DestructuredTarget_createAllNonEmptyTargetsInPatternSupplier(registry *JSTypeRegistry, patternType Supplier_baseOf[*JSType], pattern Node) []*DestructuredTarget {
 	Preconditions_checkArgument_boolean_Object(pattern.isDestructuringPattern(), pattern.box_())
 	var builder ImmutableList_BuilderOf[*DestructuredTarget] = ImmutableList_builder()
 	{
@@ -127,7 +127,7 @@ func DestructuredTarget_createAllNonEmptyTargetsInPatternSupplier(registry *JSTy
 			builder.add(obj_(DestructuredTarget_createTarget(registry, patternType, child)))
 		}
 	}
-	return cast_[*ImmutableList](obj_(builder.build()))
+	return sliceImm_(tc_p_DestructuredTarget, builder.build())
 }
 
 func (this *DestructuredTarget) inferTypeWithoutUsingDefaultValue() *JSType {

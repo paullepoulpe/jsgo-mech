@@ -48,9 +48,9 @@ func (this *RuntimeJsLibManager) getInjectedLibraries() ImmutableListOf[string] 
 	return ImmutableList_copyOf(Collection(this.injectedLibs.asSet()))
 }
 
-func (this *RuntimeJsLibManager) getExternedFields() ImmutableListOf[RuntimeJsLibManager_ExternedField] {
+func (this *RuntimeJsLibManager) getExternedFields() []RuntimeJsLibManager_ExternedField {
 	if this.mode_ != RuntimeJsLibManager_RuntimeLibraryMode_EXTERN_FIELD_NAMES {
-		return ImmutableList_of()
+		return []RuntimeJsLibManager_ExternedField{}
 	}
 	var result ImmutableList_BuilderOf[RuntimeJsLibManager_ExternedField] = ImmutableList_builder()
 	it_1 := this.internedFields.each()
@@ -60,7 +60,7 @@ func (this *RuntimeJsLibManager) getExternedFields() ImmutableListOf[RuntimeJsLi
 			result.add(obj_(field))
 		}
 	}
-	return cast_[*ImmutableList](obj_(result.build()))
+	return sliceImm_(tc_RuntimeJsLibManager_ExternedField, result.build())
 }
 
 func (this *RuntimeJsLibManager) createField(fieldName string) *RuntimeJsLibManager_InternalField {
