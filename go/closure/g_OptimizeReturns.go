@@ -50,9 +50,7 @@ func (this *OptimizeReturns) process_3(externs Node, root Node, definitions *Opt
 				toOptimize = append(toOptimize, refs)
 			}
 		}
-		it_6 := eachOf_(&toOptimize)
-		for it_6.next() {
-			var refs *ArrayList = it_6.v
+		for _, refs := range toOptimize {
 			it_8 := foreach_(any(OptimizeCalls_ReferenceMap_getFunctionNodes(icast_List(refs.self())).values()))
 			for it_8.next() {
 				var fn Node = Node_of_(it_8.v)

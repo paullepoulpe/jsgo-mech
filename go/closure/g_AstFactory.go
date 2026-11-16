@@ -387,15 +387,15 @@ func (this *AstFactory) createNameWithUnknownType(name string) Node {
 func (this *AstFactory) createQNameUsingJSTypeInfo(globalTypedScope *TypedScope, qname string) Node {
 	Preconditions_checkArgument_boolean_Object(((globalTypedScope == nil) || globalTypedScope.isGlobal()), obj_(globalTypedScope))
 	this.assertNotAddingColors()
-	var nameParts *TList[string] = tlistImm_(tc_string, AstFactory_DOT_SPLITTER.splitToList(strobj_(qname)))
-	Preconditions_checkState(!nameParts.isEmpty())
-	var receiverPart string = nameParts.get(0)
+	var nameParts []string = sliceImm_(tc_string, AstFactory_DOT_SPLITTER.splitToList(strobj_(qname)))
+	Preconditions_checkState(len(nameParts) != 0)
+	var receiverPart string = sliceAt_(nameParts, 0)
 	var receiver Node = IR_name(receiverPart)
 	if this.isAddingTypes() {
 		var var_ *TypedVar = cast_[*TypedVar](Preconditions_checkNotNull_Object_Object(globalTypedScope.getVar(receiverPart).self(), strobj_(receiverPart)))
 		receiver.setJSType(to_JSType(Preconditions_checkNotNull_Object_Object(var_.getType().self(), obj_(var_))))
 	}
-	var otherParts ListOf[string] = nameParts.asList().subList(1, nameParts.size())
+	var otherParts ListOf[string] = sliceView_(tc_string, nameParts).subList(1, int32(len(nameParts)))
 	return this.createGetPropsWithoutColors(receiver, Iterable(otherParts))
 }
 

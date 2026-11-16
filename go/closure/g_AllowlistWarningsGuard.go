@@ -84,7 +84,7 @@ func AllowlistWarningsGuard_loadAllowlistedJsWarningsFile(file string) SetOf[str
 
 func AllowlistWarningsGuard_loadAllowlistedJsWarningsText(text string) SetOf[string] {
 	var result SetOf[string] = icast_Set(obj_(new_LinkedHashSet()))
-	result.addAll(Collection(TextFiles_splitLines(text).asList()))
+	result.addAll(Collection(sliceView_(tc_string, TextFiles_splitLines(text))))
 	return result
 }
 
@@ -98,11 +98,11 @@ func (this *AllowlistWarningsGuard) formatWarning_2(error_ *JSError, withMetaDat
 	if withMetaData {
 		sb.append_int(error_.getLineNumber())
 	}
-	var lines *TList[string] = tlistImm_(tc_string, AllowlistWarningsGuard_LINE_SPLITTER.splitToList(strobj_(error_.description())))
-	sb.append("  ").append(lines.get(0))
+	var lines []string = sliceImm_(tc_string, AllowlistWarningsGuard_LINE_SPLITTER.splitToList(strobj_(error_.description())))
+	sb.append("  ").append(sliceAt_(lines, 0))
 	if withMetaData {
-		for i := int32(1); i < lines.size(); i++ {
-			sb.append("\n# ").append(lines.get(i))
+		for i := int32(1); i < int32(len(lines)); i++ {
+			sb.append("\n# ").append(sliceAt_(lines, i))
 		}
 		sb.append("\n")
 	}

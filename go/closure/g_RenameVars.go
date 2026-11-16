@@ -4,8 +4,8 @@ package closure
 
 type RenameVars struct {
 	compiler_                      *AbstractCompiler
-	globalNameNodes                *TList[Node]
-	localNameNodes                 *TList[Node]
+	globalNameNodes                []Node
+	localNameNodes                 []Node
 	originalNameByNode             map[Node]string
 	pseudoNameMap                  *TMap[Node, string]
 	externNames_                   ImmutableSetOf[string]
@@ -28,8 +28,8 @@ func (this *RenameVars) zero_RenameVars() {
 }
 
 func (this *RenameVars) finit_RenameVars() {
-	this.globalNameNodes = newTList_(tc_Node)
-	this.localNameNodes = newTList_(tc_Node)
+	this.globalNameNodes = []Node{}
+	this.localNameNodes = []Node{}
 	this.originalNameByNode = map[Node]string{}
 	this.renameMap = newTMap_(tc_string, tc_string)
 	this.assignmentCount = 0
@@ -86,12 +86,12 @@ func (this *RenameVars) process_2(externs Node, root Node) {
 		this.reusePreviouslyUsedVariableMap(varsByFrequency)
 	}
 	this.assignNames(varsByFrequency)
-	it_1 := this.globalNameNodes.each()
+	it_1 := eachOf_(&this.globalNameNodes)
 	for it_1.next() {
 		var n Node = it_1.v
 		this.setNameAndReport(n, this.getNewGlobalName(n))
 	}
-	it_3 := this.localNameNodes.each()
+	it_3 := eachOf_(&this.localNameNodes)
 	for it_3.next() {
 		var n Node = it_3.v
 		this.setNameAndReport(n, this.getNewLocalName(n))
@@ -382,12 +382,12 @@ func (this *RenameVars_ProcessVars) visit_impl(t *NodeTraversal, n Node, parent 
 	if local && this.outer_.shouldTemporarilyRenameLocalsInScope(cast_[*Scope](var_.getScope())) {
 		var tempName string = (sstr_(RenameVars_LOCAL_VAR_PREFIX) + istr_(int64(this.outer_.getLocalVarIndex(var_))))
 		this.incCount(tempName)
-		this.outer_.localNameNodes.add(n)
+		this.outer_.localNameNodes = append(this.outer_.localNameNodes, n)
 		this.outer_.originalNameByNode[n] = n.getString()
 		n.setString(tempName)
 	} else if var_ != nil {
 		this.incCount(name)
-		this.outer_.globalNameNodes.add(n)
+		this.outer_.globalNameNodes = append(this.outer_.globalNameNodes, n)
 	}
 }
 

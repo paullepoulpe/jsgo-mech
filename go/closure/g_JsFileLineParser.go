@@ -55,17 +55,17 @@ func (this *JsFileLineParser) didParseSucceed() bool {
 func (this *JsFileLineParser) doParse(filePath string, fileContents string) {
 	this.filePath = Optional_of(strobj_(filePath))
 	this.parseSucceeded = true
-	var lines *TList[string] = TextFiles_splitLines(fileContents)
+	var lines []string = TextFiles_splitLines(fileContents)
 	var lineIndex int32 = 0
 	var line OptionalOf[string] = Optional_empty()
 	this.lineNum = 0
 	var inMultilineComment bool = false
 	var inJsDocComment bool = false
 	for {
-		if lineIndex == lines.size() {
+		if lineIndex == int32(len(lines)) {
 			break
 		}
-		line = Optional_ofNullable(strobj_(lines.get(lineIndex)))
+		line = Optional_ofNullable(strobj_(sliceAt_(lines, lineIndex)))
 		lineIndex++
 		this.lineNum++
 		var revisedLine OptionalOf[string] = line

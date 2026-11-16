@@ -281,7 +281,7 @@ func (this *CommandLineRunner) initConfigFromFlags(args []string, out *Output, e
 		this.reportError("ERROR - renaming cannot be disabled when ADVANCED_OPTIMIZATIONS is used.")
 	}
 	var dependencyOptions *DependencyOptions = nil
-	var dependencyOptionsRes *Outcome_base = DependencyOptions_fromFlags(this.flags.dependencyMode, this.flags.entryPoint, tlistImm_(tc_string, ImmutableList_of()), Optional_empty(), false, false)
+	var dependencyOptionsRes *Outcome_base = DependencyOptions_fromFlags(this.flags.dependencyMode, this.flags.entryPoint, sliceImm_(tc_string, ImmutableList_of()), Optional_empty(), false, false)
 	if dependencyOptionsRes.isErr() {
 		this.reportError(str_(dependencyOptionsRes.errorMessage().orElseThrow()))
 	} else {
@@ -294,7 +294,7 @@ func (this *CommandLineRunner) initConfigFromFlags(args []string, out *Output, e
 	} else {
 		this.runCompiler = true
 		var config *AbstractCommandLineRunner_CommandLineConfig = this.getCommandLineConfig()
-		config.setPrintVersion(this.flags.version_).setPrintTree(this.flags.printTree).setPrintTreeJson(this.flags.printTreeJson).setPrintAst(this.flags.printAst).setJscompDevMode(this.flags.jscompDevMode).setLoggingLevel(this.flags.loggingLevel).setExterns(this.flags.externs).setMixedJsSources(mixedSources).setDefaultToStdin().setJsOutputFile(this.flags.jsOutputFile).setChunk(this.flags.chunk_).setVariableMapOutputFile(this.flags.variableMapOutputFile).setCreateNameMapFiles(this.flags.createNameMapFiles).setPropertyMapOutputFile(this.flags.propertyMapOutputFile).setExpectedDiagnostics(this.flags.expectedDiagnostics).setPropertyMapInputFile(this.flags.propertyMapInputFile).setVariableMapInputFile(this.flags.variableMapInputFile).setInstrumentationMappingFile(this.flags.instrumentationMappingOutputFile).setCodingConvention(conv).setSummaryDetailLevel(this.flags.summaryDetailLevel).setOutputWrapper(str_(this.flags.outputWrapper.orElse(nil))).setChunkWrapper(this.flags.chunkWrapper).setChunkOutputPathPrefix(this.flags.chunkOutputPathPrefix).setCreateSourceMap(this.flags.createSourceMap).setSourceMapFormat(this.flags.sourceMapFormat).setSourceMapLocationMappings(mappings).setSourceMapInputFiles(tmapFrom_(tc_string, tc_string, sourceMapInputs, true)).setParseInlineSourceMaps(parseInlineSourceMaps).setApplyInputSourceMaps(applyInputSourceMaps).setWarningGuards(this.flags.guardLevels).setDefine(this.flags.define).setBrowserFeaturesetYear(this.flags.browserFeaturesetYear).setCharset(this.flags.charset).setDependencyOptions(dependencyOptions).setOutputManifest(tlistImm_(tc_string, ImmutableList_of_Object(strobj_(this.flags.outputManifest_)))).setOutputBundle(tlistImm_(tc_string, bundleFiles)).setSkipNormalOutputs(skipNormalOutputs).setOutputChunkDependencies(this.flags.outputChunkDependencies).setProcessCommonJSModules(this.flags.processCommonJsModules).setModuleRoots(this.flags.moduleRoot).setWarningsAllowlistFile(this.flags.warningsAllowlistFile).setHideWarningsFor(this.flags.hideWarningsFor).setAngularPass(this.flags.angularPass).setJsonStreamMode(this.flags.jsonStreamMode).setErrorFormat(this.flags.errorFormat)
+		config.setPrintVersion(this.flags.version_).setPrintTree(this.flags.printTree).setPrintTreeJson(this.flags.printTreeJson).setPrintAst(this.flags.printAst).setJscompDevMode(this.flags.jscompDevMode).setLoggingLevel(this.flags.loggingLevel).setExterns(this.flags.externs).setMixedJsSources(mixedSources).setDefaultToStdin().setJsOutputFile(this.flags.jsOutputFile).setChunk(this.flags.chunk_).setVariableMapOutputFile(this.flags.variableMapOutputFile).setCreateNameMapFiles(this.flags.createNameMapFiles).setPropertyMapOutputFile(this.flags.propertyMapOutputFile).setExpectedDiagnostics(this.flags.expectedDiagnostics).setPropertyMapInputFile(this.flags.propertyMapInputFile).setVariableMapInputFile(this.flags.variableMapInputFile).setInstrumentationMappingFile(this.flags.instrumentationMappingOutputFile).setCodingConvention(conv).setSummaryDetailLevel(this.flags.summaryDetailLevel).setOutputWrapper(str_(this.flags.outputWrapper.orElse(nil))).setChunkWrapper(this.flags.chunkWrapper).setChunkOutputPathPrefix(this.flags.chunkOutputPathPrefix).setCreateSourceMap(this.flags.createSourceMap).setSourceMapFormat(this.flags.sourceMapFormat).setSourceMapLocationMappings(mappings).setSourceMapInputFiles(tmapFrom_(tc_string, tc_string, sourceMapInputs, true)).setParseInlineSourceMaps(parseInlineSourceMaps).setApplyInputSourceMaps(applyInputSourceMaps).setWarningGuards(this.flags.guardLevels).setDefine(this.flags.define).setBrowserFeaturesetYear(this.flags.browserFeaturesetYear).setCharset(this.flags.charset).setDependencyOptions(dependencyOptions).setOutputManifest(sliceImm_(tc_string, ImmutableList_of_Object(strobj_(this.flags.outputManifest_)))).setOutputBundle(tlistImm_(tc_string, bundleFiles)).setSkipNormalOutputs(skipNormalOutputs).setOutputChunkDependencies(this.flags.outputChunkDependencies).setProcessCommonJSModules(this.flags.processCommonJsModules).setModuleRoots(this.flags.moduleRoot).setWarningsAllowlistFile(this.flags.warningsAllowlistFile).setHideWarningsFor(this.flags.hideWarningsFor).setAngularPass(this.flags.angularPass).setJsonStreamMode(this.flags.jsonStreamMode).setErrorFormat(this.flags.errorFormat)
 		var segmentOfCompilationToRun *CompilerOptions_SegmentOfCompilationToRun = this.flags.segmentOfCompilationToRun
 		switch segmentOfCompilationToRun {
 		case CompilerOptions_SegmentOfCompilationToRun_CHECKS:
@@ -419,7 +419,7 @@ func (this *CommandLineRunner) createOptions_impl() *Outcome_base {
 		options.setMessageBundle(icast_MessageBundle(obj_(new_EmptyMessageBundle())))
 		options.setWarningLevel(DiagnosticGroups_MSG_CONVENTIONS, CheckLevel_OFF)
 	}
-	options.setConformanceConfigs(tlistImm_(tc_p_ConformanceConfig, CommandLineRunner_loadConformanceConfigs(this.flags.conformanceConfigs)))
+	options.setConformanceConfigs(sliceImm_(tc_p_ConformanceConfig, CommandLineRunner_loadConformanceConfigs(this.flags.conformanceConfigs)))
 	options.setPrintSourceAfterEachPass(this.flags.printSourceAfterEachPass)
 	options.setTracerMode(this.flags.tracerMode)
 	options.setStrictModeInput(this.flags.strictModeInput)
@@ -428,7 +428,7 @@ func (this *CommandLineRunner) createOptions_impl() *Outcome_base {
 	options.setModuleResolutionMode(this.flags.moduleResolutionMode)
 	options.setBrowserResolverPrefixReplacements(ImmutableMap_copyOf(this.flags.browserResolverPrefixReplacements))
 	if this.flags.packageJsonEntryNames.isPresent() {
-		var packageJsonEntryNames *TList[string] = this.flags.getPackageJsonEntryNames()
+		var packageJsonEntryNames []string = this.flags.getPackageJsonEntryNames()
 		options.setPackageJsonEntryNames(packageJsonEntryNames)
 	}
 	if !this.flags.renaming {
@@ -624,13 +624,13 @@ func CommandLineRunner_matchPaths(pattern string, allJsInputs MapOf[string, stri
 		pattern = String_substring_int(pattern, 1)
 	}
 	var separator string = FilePaths_SEPARATOR
-	var patternParts *TList[string] = tlistImm_(tc_string, Splitter_on_String(FilePaths_SEPARATOR).splitToList(strobj_(pattern)))
+	var patternParts []string = sliceImm_(tc_string, Splitter_on_String(FilePaths_SEPARATOR).splitToList(strobj_(pattern)))
 	var prefix string = "."
-	for i := int32(0); i < patternParts.size(); i++ {
-		if String_contains(patternParts.get(i), strobj_("*")) {
+	for i := int32(0); i < int32(len(patternParts)); i++ {
+		if String_contains(sliceAt_(patternParts, i), strobj_("*")) {
 			if i > 0 {
-				prefix = Joiner_on(separator).join(Iterable(patternParts.asList().subList(0, i)))
-				pattern = Joiner_on(separator).join(Iterable(patternParts.asList().subList(i, patternParts.size())))
+				prefix = Joiner_on(separator).join(Iterable(sliceView_(tc_string, patternParts).subList(0, i)))
+				pattern = Joiner_on(separator).join(Iterable(sliceView_(tc_string, patternParts).subList(i, int32(len(patternParts)))))
 			}
 			break
 		}
@@ -1777,17 +1777,17 @@ func (this *CommandLineRunner_Flags) splitPipeParts(input IterableOf[string], fl
 	it_1 := foreach_(any(input))
 	for it_1.next() {
 		var inputSourceMap string = str_(it_1.v)
-		var parts *TList[string] = tlistImm_(tc_string, splitter.splitToList(strobj_(inputSourceMap)))
-		if parts.size() != 2 {
+		var parts []string = sliceImm_(tc_string, splitter.splitToList(strobj_(inputSourceMap)))
+		if int32(len(parts)) != 2 {
 			return Outcome_base_err(new_CmdLineException_CmdLineParser_String(this.parser, ("Bad value for " + sstr_(flagName) + " (duplicate key): " + objstr_(any(input)))).up_Throwable())
 		}
-		result.put(strobj_(parts.get(0)), strobj_(parts.get(1)))
+		result.put(strobj_(sliceAt_(parts, 0)), strobj_(sliceAt_(parts, 1)))
 	}
 	return Outcome_base_ok_Object(obj_(result.buildOrThrow()))
 }
 
-func (this *CommandLineRunner_Flags) getPackageJsonEntryNames() *TList[string] {
-	return tlistImm_(tc_string, Splitter_on(',').splitToList(this.packageJsonEntryNames.get()))
+func (this *CommandLineRunner_Flags) getPackageJsonEntryNames() []string {
+	return sliceImm_(tc_string, Splitter_on(',').splitToList(this.packageJsonEntryNames.get()))
 }
 
 func CommandLineRunner_Flags_addMultiFlagValue(values *TList[string], value OptionalOf[string], flag any, entries *TList[*AbstractCommandLineRunner_FlagEntry]) *TList[string] {

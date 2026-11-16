@@ -85,9 +85,9 @@ func (this *NodeIterators_FunctionlessLocalScope) currentParent() Node {
 	}()
 }
 
-func (this *NodeIterators_FunctionlessLocalScope) currentAncestors() *TList[Node] {
-	var list *TList[Node] = tlistFrom_(tc_Node, Collection(this.ancestors))
-	Collections_reverse(list.asList())
+func (this *NodeIterators_FunctionlessLocalScope) currentAncestors() []Node {
+	var list []Node = sliceFrom_(tc_Node, Collection(this.ancestors))
+	Collections_reverse(sliceView_(tc_Node, list))
 	return list
 }
 

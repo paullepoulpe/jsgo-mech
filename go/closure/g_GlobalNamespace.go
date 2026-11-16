@@ -1027,7 +1027,7 @@ type GlobalNamespace_Name struct {
 	outer_                                          *GlobalNamespace
 	baseName                                        string
 	parent                                          *GlobalNamespace_Name
-	props                                           *TList[*GlobalNamespace_Name]
+	props                                           []*GlobalNamespace_Name
 	declaration_                                    *GlobalNamespace_Ref
 	initialization                                  *GlobalNamespace_Ref
 	refsForNode                                     any
@@ -1084,10 +1084,10 @@ func new_GlobalNamespace_Name(outer_ *GlobalNamespace, name string, parent *Glob
 
 func (this *GlobalNamespace_Name) addProperty(name string, sourceKind *GlobalNamespace_SourceKind) *GlobalNamespace_Name {
 	if this.props == nil {
-		this.props = newTList_(tc_p_GlobalNamespace_Name)
+		this.props = []*GlobalNamespace_Name{}
 	}
 	var node *GlobalNamespace_Name = new_GlobalNamespace_Name(this.outer_, name, this, sourceKind)
-	this.props.add(node)
+	this.props = append(this.props, node)
 	return node
 }
 
@@ -1477,7 +1477,7 @@ func (this *GlobalNamespace_Name) canEliminate() bool {
 		return false
 	}
 	if this.props != nil {
-		it_1 := this.props.each()
+		it_1 := eachOf_(&this.props)
 		for it_1.next() {
 			var n *GlobalNamespace_Name = it_1.v
 			if !n.canCollapse() {

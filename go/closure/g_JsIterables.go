@@ -70,7 +70,7 @@ func JsIterables_maybeBoxIterableOrAsyncIterable(type_ *JSType, typeRegistry *JS
 }
 
 func JsIterables_maybeBoxIterableAndPossiblyAsyncIterable(type_ *JSType, typeRegistry *JSTypeRegistry, includeAsyncIterable bool) *JsIterables_MaybeBoxedType {
-	var templatedTypes *TList[*JSType] = newTList_(tc_p_JSType)
+	var templatedTypes []*JSType = []*JSType{}
 	if type_.isUnionType() {
 		it_1 := foreach_(obj_(type_.toMaybeUnionType().getAlternates()))
 		for it_1.next() {
@@ -92,7 +92,7 @@ func JsIterables_maybeBoxIterableAndPossiblyAsyncIterable(type_ *JSType, typeReg
 				}
 				return typeRegistry.getIterableValueTemplate()
 			}()
-			templatedTypes.add(alt.getTemplateTypeMap().getResolvedTemplateType(valueTemplate))
+			templatedTypes = append(templatedTypes, alt.getTemplateTypeMap().getResolvedTemplateType(valueTemplate))
 		}
 	} else {
 		var autoboxedType *JSType = func() *JSType {
@@ -112,7 +112,7 @@ func JsIterables_maybeBoxIterableAndPossiblyAsyncIterable(type_ *JSType, typeReg
 			}
 			return typeRegistry.getIterableValueTemplate()
 		}()
-		templatedTypes.add(autoboxedType.getTemplateTypeMap().getResolvedTemplateType(templateType))
+		templatedTypes = append(templatedTypes, autoboxedType.getTemplateTypeMap().getResolvedTemplateType(templateType))
 	}
 	return new_JsIterables_MaybeBoxedType(typeRegistry.createUnionTypeList(templatedTypes), nil)
 }

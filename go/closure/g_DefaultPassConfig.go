@@ -161,16 +161,16 @@ func (this *DefaultPassConfig) finit_DefaultPassConfig() {
 	this.suspiciousCode = PassFactory_builder().setName("suspiciousCode").setInternalFactory(&Function_fn{func(compiler_ any) any {
 		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
 		_ = compiler
-		var sharedCallbacks *TList[NodeTraversal_Callback] = newTList_(tc_NodeTraversal_Callback)
+		var sharedCallbacks []NodeTraversal_Callback = []NodeTraversal_Callback{}
 		if this.options_.getCheckSuspiciousCode() {
-			sharedCallbacks.add(icast_NodeTraversal_Callback(obj_(new_CheckSuspiciousCode())))
-			sharedCallbacks.add(icast_NodeTraversal_Callback(obj_(new_CheckDuplicateCase(compiler))))
+			sharedCallbacks = append(sharedCallbacks, icast_NodeTraversal_Callback(obj_(new_CheckSuspiciousCode())))
+			sharedCallbacks = append(sharedCallbacks, icast_NodeTraversal_Callback(obj_(new_CheckDuplicateCase(compiler))))
 		}
 		if this.options_.enables(DiagnosticGroups_GLOBAL_THIS) {
-			sharedCallbacks.add(icast_NodeTraversal_Callback(obj_(new_CheckGlobalThis(compiler))))
+			sharedCallbacks = append(sharedCallbacks, icast_NodeTraversal_Callback(obj_(new_CheckGlobalThis(compiler))))
 		}
 		if this.options_.enables(DiagnosticGroups_DEBUGGER_STATEMENT_PRESENT) {
-			sharedCallbacks.add(icast_NodeTraversal_Callback(obj_(new_CheckDebuggerStatement(compiler))))
+			sharedCallbacks = append(sharedCallbacks, icast_NodeTraversal_Callback(obj_(new_CheckDebuggerStatement(compiler))))
 		}
 		return any(DefaultPassConfig_combineChecks(compiler, sharedCallbacks))
 		panic("unreachable")
@@ -188,7 +188,7 @@ func (this *DefaultPassConfig) finit_DefaultPassConfig() {
 	this.checkJsDocAndEs6Modules = PassFactory_builder().setName("checkJsDocAndEs6Modules").setInternalFactory(&Function_fn{func(compiler_ any) any {
 		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
 		_ = compiler
-		return any(DefaultPassConfig_combineChecks(compiler, tlistImm_(tc_NodeTraversal_Callback, ImmutableList_of_Object_Object(obj_(new_CheckJSDoc(compiler)), obj_(new_Es6CheckModule(compiler))))))
+		return any(DefaultPassConfig_combineChecks(compiler, sliceImm_(tc_NodeTraversal_Callback, ImmutableList_of_Object_Object(obj_(new_CheckJSDoc(compiler)), obj_(new_Es6CheckModule(compiler))))))
 	}}).build()
 	this.generateExports = PassFactory_builder().setName(PassNames_GENERATE_EXPORTS).setInternalFactory(&Function_fn{func(compiler_ any) any {
 		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
@@ -411,12 +411,12 @@ func (this *DefaultPassConfig) finit_DefaultPassConfig() {
 	this.checkControlFlow = PassFactory_builder().setName("checkControlFlow").setInternalFactory(&Function_fn{func(compiler_ any) any {
 		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
 		_ = compiler
-		var callbacks *TList[NodeTraversal_Callback] = newTList_(tc_NodeTraversal_Callback)
+		var callbacks []NodeTraversal_Callback = []NodeTraversal_Callback{}
 		if !this.options_.disables(DiagnosticGroups_CHECK_USELESS_CODE) {
-			callbacks.add(icast_NodeTraversal_Callback(obj_(new_CheckUnreachableCode(compiler))))
+			callbacks = append(callbacks, icast_NodeTraversal_Callback(obj_(new_CheckUnreachableCode(compiler))))
 		}
 		if !this.options_.disables(DiagnosticGroups_MISSING_RETURN) {
-			callbacks.add(icast_NodeTraversal_Callback(obj_(new_CheckMissingReturn(compiler))))
+			callbacks = append(callbacks, icast_NodeTraversal_Callback(obj_(new_CheckMissingReturn(compiler))))
 		}
 		return any(DefaultPassConfig_combineChecks(compiler, callbacks))
 		panic("unreachable")
@@ -426,20 +426,20 @@ func (this *DefaultPassConfig) finit_DefaultPassConfig() {
 		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
 		_ = compiler
 		var callbacks ImmutableList_BuilderOf[NodeTraversal_Callback] = cast_[*ImmutableList_Builder](obj_(cast_[*ImmutableList_Builder](obj_(cast_[*ImmutableList_Builder](obj_(cast_[*ImmutableList_Builder](obj_(cast_[*ImmutableList_Builder](obj_(cast_[*ImmutableList_Builder](obj_(cast_[*ImmutableList_Builder](obj_(cast_[*ImmutableList_Builder](obj_(cast_[*ImmutableList_Builder](obj_(cast_[*ImmutableList_Builder](obj_(cast_[*ImmutableList_Builder](obj_(cast_[*ImmutableList_Builder](obj_(cast_[*ImmutableList_Builder](obj_(cast_[*ImmutableList_Builder](obj_(cast_[*ImmutableList_Builder](obj_(cast_[*ImmutableList_Builder](obj_(cast_[*ImmutableList_Builder](obj_(cast_[*ImmutableList_Builder](obj_(ImmutableList_builder().add(obj_(new_CheckConstPrivateProperties(compiler))))).add(obj_(new_CheckConstantCaseNames(compiler))))).add(obj_(new_CheckEmptyStatements(compiler))))).add(obj_(new_CheckEnums(compiler))))).add(obj_(new_CheckEs6ModuleFileStructure(compiler))))).add(obj_(new_CheckEs6Modules(compiler))))).add(obj_(new_CheckNoMutatedEs6Exports(compiler))))).add(obj_(new_CheckGoogModuleTypeScriptName(compiler))))).add(obj_(new_CheckInterfaces(compiler))))).add(obj_(new_CheckJSDocStyle(compiler))))).add(obj_(new_CheckMissingSemicolon(compiler))))).add(obj_(new_CheckNullabilityModifiers(compiler))))).add(obj_(new_CheckPrimitiveAsObject(compiler))))).add(obj_(new_CheckPrototypeProperties(compiler))))).add(obj_(new_CheckUnusedPrivateProperties(compiler))))).add(obj_(new_CheckUnusedLabels(compiler))))).add(obj_(new_CheckUselessBlocks(compiler))))).add(obj_(new_CheckVar(compiler)))))
-		return any(DefaultPassConfig_combineChecks(compiler, tlistImm_(tc_NodeTraversal_Callback, callbacks.build())))
+		return any(DefaultPassConfig_combineChecks(compiler, sliceImm_(tc_NodeTraversal_Callback, callbacks.build())))
 		panic("unreachable")
 	}}).build()
 	this.analyzerChecks = PassFactory_builder().setName(PassNames_ANALYZER_CHECKS).setInternalFactory(&Function_fn{func(compiler_ any) any {
 		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
 		_ = compiler
 		var callbacks ImmutableListOf[NodeTraversal_Callback] = ImmutableList_of_Object_Object_Object(obj_(new_CheckArrayWithGoogObject(compiler)), obj_(new_ImplicitNullabilityCheck(compiler)), obj_(new_CheckNestedNames(compiler)))
-		return any(DefaultPassConfig_combineChecks(compiler, tlistImm_(tc_NodeTraversal_Callback, callbacks)))
+		return any(DefaultPassConfig_combineChecks(compiler, sliceImm_(tc_NodeTraversal_Callback, callbacks)))
 		panic("unreachable")
 	}}).build()
 	this.checkRequiresAndProvidesSorted = PassFactory_builder().setName("checkRequiresAndProvidesSorted").setInternalFactory(&Function_fn{func(compiler_ any) any {
 		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
 		_ = compiler
-		return any(DefaultPassConfig_combineChecks(compiler, tlistImm_(tc_NodeTraversal_Callback, ImmutableList_of_Object_Object(obj_(new_CheckProvidesSorted(CheckProvidesSorted_Mode_COLLECT_AND_REPORT)), obj_(new_CheckRequiresSorted(CheckRequiresSorted_Mode_COLLECT_AND_REPORT))))))
+		return any(DefaultPassConfig_combineChecks(compiler, sliceImm_(tc_NodeTraversal_Callback, ImmutableList_of_Object_Object(obj_(new_CheckProvidesSorted(CheckProvidesSorted_Mode_COLLECT_AND_REPORT)), obj_(new_CheckRequiresSorted(CheckRequiresSorted_Mode_COLLECT_AND_REPORT))))))
 	}}).build()
 	this.checkStrictMode = PassFactory_builder().setName("checkStrictMode").setInternalFactory(&Function_fn{func(compiler_ any) any {
 		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
@@ -1496,8 +1496,8 @@ func DefaultPassConfig_createPeepholeOptimizationsPass(compiler *AbstractCompile
 	return icast_CompilerPass(obj_(new_PeepholeOptimizationsPass(compiler, passName, optimizations)))
 }
 
-func DefaultPassConfig_combineChecks(compiler *AbstractCompiler, callbacks *TList[NodeTraversal_Callback]) CompilerPass {
-	Preconditions_checkArgument(!callbacks.isEmpty())
+func DefaultPassConfig_combineChecks(compiler *AbstractCompiler, callbacks []NodeTraversal_Callback) CompilerPass {
+	Preconditions_checkArgument(len(callbacks) != 0)
 	return icast_CompilerPass(obj_(new_CombinedCompilerPass(compiler, callbacks)))
 }
 
@@ -1804,7 +1804,7 @@ func new_DefaultPassConfig_9(outer_ *DefaultPassConfig, cap_compiler *AbstractCo
 }
 
 func (this *DefaultPassConfig_9) process_2(externs Node, root Node) {
-	var pass *ReplaceStrings = new_ReplaceStrings(this.cap_compiler, this.outer_.options_.getReplaceStringsPlaceholderToken(), tlistImm_(tc_string, this.outer_.options_.getReplaceStringsFunctionDescriptions()))
+	var pass *ReplaceStrings = new_ReplaceStrings(this.cap_compiler, this.outer_.options_.getReplaceStringsPlaceholderToken(), sliceImm_(tc_string, this.outer_.options_.getReplaceStringsFunctionDescriptions()))
 	pass.process_2(externs, root)
 	this.cap_compiler.setStringMap(pass.getStringMap())
 }

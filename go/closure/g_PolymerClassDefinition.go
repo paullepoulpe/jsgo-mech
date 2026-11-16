@@ -110,13 +110,11 @@ func PolymerClassDefinition_extractFromCallNode(callNode Node, compiler *Abstrac
 	it_1 := foreach_(obj_(behaviors))
 	for it_1.next() {
 		var behavior *PolymerBehaviorExtractor_BehaviorDefinition = cast_[*PolymerBehaviorExtractor_BehaviorDefinition](it_1.v)
-		it_3 := behavior.props.each()
-		for it_3.next() {
-			var prop *PolymerPass_MemberDefinition = it_3.v
+		for _, prop := range behavior.props {
 			behaviorProps.put(prop, behavior)
 		}
 	}
-	PolymerClassDefinition_overwriteMembersIfPresent(properties, tlistImm_(tc_p_PolymerPass_MemberDefinition, PolymerPassStaticUtils_extractProperties(descriptor, PolymerClassDefinition_DefinitionType_ObjectLiteral, compiler, 0)))
+	PolymerClassDefinition_overwriteMembersIfPresent(properties, sliceImm_(tc_p_PolymerPass_MemberDefinition, PolymerPassStaticUtils_extractProperties(descriptor, PolymerClassDefinition_DefinitionType_ObjectLiteral, compiler, 0)))
 	PolymerClassDefinition_removeDuplicateBehaviorProps(behaviorProps)
 	PolymerClassDefinition_removeBehaviorPropsOverlappingWithElementProps(behaviorProps, properties)
 	var newFeatures *FeatureSet = nil
@@ -248,10 +246,8 @@ func PolymerClassDefinition_addFunctionAssignmentsFromConstructor(constructor No
 	}
 }
 
-func PolymerClassDefinition_overwriteMembersIfPresent(list *TList[*PolymerPass_MemberDefinition], newMembers *TList[*PolymerPass_MemberDefinition]) {
-	it_1 := newMembers.each()
-	for it_1.next() {
-		var newMember *PolymerPass_MemberDefinition = it_1.v
+func PolymerClassDefinition_overwriteMembersIfPresent(list *TList[*PolymerPass_MemberDefinition], newMembers []*PolymerPass_MemberDefinition) {
+	for _, newMember := range newMembers {
 		it_3 := list.each()
 		for it_3.next() {
 			var member *PolymerPass_MemberDefinition = it_3.v

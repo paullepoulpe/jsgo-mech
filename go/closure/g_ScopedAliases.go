@@ -39,20 +39,18 @@ func (this *ScopedAliases) process_2(externs Node, root Node) {
 	var traversal *ScopedAliases_Traversal = new_ScopedAliases_Traversal(this)
 	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(obj_(traversal)))
 	if !traversal.hasErrors() {
-		var aliasWorkQueue *TList[*ScopedAliases_AliasUsage] = tlistFrom_(tc_p_ScopedAliases_AliasUsage, Collection(traversal.getAliasUsages().asList()))
-		for !aliasWorkQueue.isEmpty() {
-			var newQueue *TList[*ScopedAliases_AliasUsage] = newTList_(tc_p_ScopedAliases_AliasUsage)
-			it_2 := aliasWorkQueue.each()
-			for it_2.next() {
-				var aliasUsage *ScopedAliases_AliasUsage = it_2.v
+		var aliasWorkQueue []*ScopedAliases_AliasUsage = sliceFrom_(tc_p_ScopedAliases_AliasUsage, Collection(traversal.getAliasUsages().asList()))
+		for len(aliasWorkQueue) != 0 {
+			var newQueue []*ScopedAliases_AliasUsage = []*ScopedAliases_AliasUsage{}
+			for _, aliasUsage := range aliasWorkQueue {
 				if aliasUsage.referencesOtherAlias(traversal.deletedAliasVars) {
-					newQueue.add(aliasUsage)
+					newQueue = append(newQueue, aliasUsage)
 				} else {
 					aliasUsage.applyAlias(this.compiler_)
 				}
 			}
-			if newQueue.size() == aliasWorkQueue.size() {
-				var cycleVar *Var = newQueue.get(0).aliasVar
+			if int32(len(newQueue)) == int32(len(aliasWorkQueue)) {
+				var cycleVar *Var = sliceAt_(newQueue, 0).aliasVar
 				this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(cycleVar.getNode(), ScopedAliases_GOOG_SCOPE_ALIAS_CYCLE, []string{cycleVar.getName()}))
 				break
 			} else {

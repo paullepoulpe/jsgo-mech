@@ -104,9 +104,7 @@ func ControlFlowGraph_isEnteringNewCfgNode(n Node) bool {
 
 func (this *ControlFlowGraph) toString() string {
 	var s string = "CFG:\n"
-	it_1 := this.getGraphvizEdges().each()
-	for it_1.next() {
-		var e GraphvizGraph_GraphvizEdge = it_1.v
+	for _, e := range this.getGraphvizEdges() {
 		s += sstr_((sstr_(Object_toString(any(e))) + "\n"))
 	}
 	return s

@@ -93,9 +93,7 @@ func (this *Es6ForOfConverter) visitForOf(t *NodeTraversal, node Node) {
 		labelNames = append(labelNames, insertionPoint.getFirstChild().cloneNode())
 	}
 	var innerLoop Node = newFor
-	it_2 := eachOf_(&labelNames)
-	for it_2.next() {
-		var labelName Node = it_2.v
+	for _, labelName := range labelNames {
 		innerLoop = this.astFactory_.createLabel(labelName, innerLoop)
 	}
 	var tryBlock Node = this.astFactory_.createBlock([]Node{innerLoop})

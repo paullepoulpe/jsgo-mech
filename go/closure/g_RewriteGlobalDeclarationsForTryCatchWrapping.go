@@ -5,12 +5,12 @@ package closure
 type RewriteGlobalDeclarationsForTryCatchWrapping struct {
 	compiler_ *AbstractCompiler
 	functions *SimpleListMultimap
-	classes   *TList[Node]
+	classes   []Node
 }
 
 func (this *RewriteGlobalDeclarationsForTryCatchWrapping) finit_RewriteGlobalDeclarationsForTryCatchWrapping() {
 	this.functions = SimpleListMultimap_create()
-	this.classes = newTList_(tc_Node)
+	this.classes = []Node{}
 }
 
 func (this *RewriteGlobalDeclarationsForTryCatchWrapping) init_RewriteGlobalDeclarationsForTryCatchWrapping(compiler *AbstractCompiler) {
@@ -47,7 +47,7 @@ func (this *RewriteGlobalDeclarationsForTryCatchWrapping) process_2(externs Node
 			this.compiler_.reportChangeToEnclosingScope(addingRoot)
 		}
 	}
-	it_5 := this.classes.each()
+	it_5 := eachOf_(&this.classes)
 	for it_5.next() {
 		var n Node = it_5.v
 		var originalNameNode Node = n.getFirstChild()
@@ -72,7 +72,7 @@ func (this *RewriteGlobalDeclarationsForTryCatchWrapping) visit(t *NodeTraversal
 		this.functions.put(obj_(t.getChunk()), n.box_())
 	}
 	if NodeUtil_isClassDeclaration(n) {
-		this.classes.add(n)
+		this.classes = append(this.classes, n)
 	}
 	if n.isConst() || n.isLet() {
 		n.setToken(Token_rhino_VAR)

@@ -2801,15 +2801,13 @@ func NodeUtil_isValidQualifiedName(mode *FeatureSet, name string) bool {
 	if String_endsWith(name, ".") || String_startsWith(name, ".") {
 		return false
 	}
-	var parts *TList[string] = tlistImm_(tc_string, Splitter_on('.').splitToList(strobj_(name)))
-	it_1 := parts.each()
-	for it_1.next() {
-		var part string = it_1.v
+	var parts []string = sliceImm_(tc_string, Splitter_on('.').splitToList(strobj_(name)))
+	for _, part := range parts {
 		if !NodeUtil_isValidPropertyName(mode, part) {
 			return false
 		}
 	}
-	return NodeUtil_isValidSimpleName(parts.get(0))
+	return NodeUtil_isValidSimpleName(sliceAt_(parts, 0))
 }
 
 func NodeUtil_isValidPropertyName(mode *FeatureSet, name string) bool {
@@ -4080,21 +4078,19 @@ func NodeUtil_markFunctionsDeletedChangeTracker(node Node, changeTracker *Change
 	}
 }
 
-func NodeUtil_getParentChangeScopeNodes(scopeNodes *TList[Node]) *TList[Node] {
+func NodeUtil_getParentChangeScopeNodes(scopeNodes *TList[Node]) []Node {
 	var parentScopeNodes *TSet[Node] = tsetFrom_(tc_Node, Collection(scopeNodes.asList()), false)
 	it_1 := scopeNodes.each()
 	for it_1.next() {
 		var scopeNode Node = it_1.v
 		parentScopeNodes.add(ChangeTracker_getEnclosingChangeScopeRoot(scopeNode))
 	}
-	return tlistFrom_(tc_Node, Collection(parentScopeNodes.asSet()))
+	return sliceFrom_(tc_Node, Collection(parentScopeNodes.asSet()))
 }
 
-func NodeUtil_removeNestedChangeScopeNodes(scopeNodes *TList[Node]) *TList[Node] {
-	var uniqueScopeNodes *TSet[Node] = tsetFrom_(tc_Node, Collection(scopeNodes.asList()), false)
-	it_1 := scopeNodes.each()
-	for it_1.next() {
-		var scopeNode Node = it_1.v
+func NodeUtil_removeNestedChangeScopeNodes(scopeNodes []Node) *TList[Node] {
+	var uniqueScopeNodes *TSet[Node] = tsetFrom_(tc_Node, Collection(sliceView_(tc_Node, scopeNodes)), false)
+	for _, scopeNode := range scopeNodes {
 		{
 			var ancestor Node = scopeNode.getParent()
 			for ; ancestor != 0; ancestor = ancestor.getParent() {

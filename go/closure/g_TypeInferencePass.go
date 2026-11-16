@@ -65,11 +65,9 @@ func (this *TypeInferencePass) inferAllScopes(inferenceRoot Node) *TypedScope {
 			it_5 := foreach_(any(stepCounts))
 			for it_5.next() {
 				var stepCount any = it_5.v
-				var entries *TList[Map_EntryOf[*Token_rhino, BoxedOf[int32]]] = tlistFrom_(tc_Map_EntryOf_p_Token_rhino__BoxedOf_int32__, Collection(cast_[*SimpleMultiset](this.stepCountHistogram.get(stepCount)).entrySet()))
-				List_sort(entries.asList(), Comparator_comparingInt(&ToIntFunction_fn{func(p0 any) int32 { return unbox_[int32](icast_Map_Entry(p0).getValue()) }}))
-				it_7 := entries.each()
-				for it_7.next() {
-					var e Map_Entry = it_7.v
+				var entries []Map_EntryOf[*Token_rhino, BoxedOf[int32]] = sliceFrom_(tc_Map_EntryOf_p_Token_rhino__BoxedOf_int32__, Collection(cast_[*SimpleMultiset](this.stepCountHistogram.get(stepCount)).entrySet()))
+				List_sort(sliceView_(tc_Map_EntryOf_p_Token_rhino__BoxedOf_int32__, entries), Comparator_comparingInt(&ToIntFunction_fn{func(p0 any) int32 { return unbox_[int32](icast_Map_Entry(p0).getValue()) }}))
+				for _, e := range entries {
 					totals[0] += (unbox_[int32](stepCount) * unbox_[int32](e.getValue()))
 					totals[1] += unbox_[int32](e.getValue())
 					histogram.log_2("%s %s %s", []any{stepCount, e.getKey(), e.getValue()})

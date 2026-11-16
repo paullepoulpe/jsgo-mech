@@ -235,8 +235,8 @@ func (this *ProcessClosureProvidesAndRequires) handleCandidateProvideDefinition(
 
 func (this *ProcessClosureProvidesAndRequires) processForwardDeclare(n Node, parent Node) {
 	var convention CodingConvention = this.compiler_.getCodingConvention()
-	var typeDeclarations *TList[string] = convention.identifyTypeDeclarationCall(n)
-	if (!this.preserveGoogProvidesAndRequires && (typeDeclarations != nil)) && (typeDeclarations.size() == 1) {
+	var typeDeclarations []string = convention.identifyTypeDeclarationCall(n)
+	if (!this.preserveGoogProvidesAndRequires && (typeDeclarations != nil)) && (int32(len(typeDeclarations)) == 1) {
 		var toRemove Node = func() Node {
 			if parent.isExprResult() {
 				return parent

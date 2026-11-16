@@ -4,12 +4,12 @@ package closure
 
 type LinkedIdentityHashMap struct {
 	innerMap       IdentityHashMapOf[any, *LinkedIdentityHashMap_Entry]
-	iterationOrder *TList[*LinkedIdentityHashMap_Entry]
+	iterationOrder []*LinkedIdentityHashMap_Entry
 }
 
 func (this *LinkedIdentityHashMap) finit_LinkedIdentityHashMap() {
 	this.innerMap = new_IdentityHashMap()
-	this.iterationOrder = newTList_(tc_p_LinkedIdentityHashMap_Entry)
+	this.iterationOrder = []*LinkedIdentityHashMap_Entry{}
 }
 
 func (this *LinkedIdentityHashMap) init_LinkedIdentityHashMap() {
@@ -37,7 +37,7 @@ func (this *LinkedIdentityHashMap) put(key any, value any) any {
 	if entry == nil {
 		entry = new_LinkedIdentityHashMap_Entry(key, value)
 		this.innerMap.put(key, obj_(entry))
-		this.iterationOrder.add(entry)
+		this.iterationOrder = append(this.iterationOrder, entry)
 		return nil
 	} else {
 		var oldValue any = entry.value_
@@ -69,7 +69,7 @@ func (this *LinkedIdentityHashMap) merge(key any, value any, fn BiFunctionOf[any
 }
 
 func (this *LinkedIdentityHashMap) forEach(fn BiConsumerOf[any, any]) {
-	it_1 := this.iterationOrder.each()
+	it_1 := eachOf_(&this.iterationOrder)
 	for it_1.next() {
 		var entry *LinkedIdentityHashMap_Entry = it_1.v
 		fn.accept(entry.key_, entry.value_)

@@ -604,7 +604,7 @@ func (this *JSTypeRegistry) resolveViaClosureNamespace(reference string) *JSType
 			if namespace.isLegacy() {
 				return nil
 			} else {
-				return this.resolveViaPropertyGivenSlot(namespace.type_(), namespace.definitionNode(), tlistImm_(tc_string, cast_[*ImmutableList](obj_(unusedComponents.build())).reverse()))
+				return this.resolveViaPropertyGivenSlot(namespace.type_(), namespace.definitionNode(), sliceImm_(tc_string, cast_[*ImmutableList](obj_(unusedComponents.build())).reverse()))
 			}
 		}
 		var lastDot int32 = String_lastIndexOf_String(prefix, ".")
@@ -627,11 +627,11 @@ func (this *JSTypeRegistry) resolveViaProperties(declarationScope StaticTypedSco
 	}
 	var componentNames ImmutableListOf[string] = ImmutableList_copyOf_Iterable(Iterables_skip(JSTypeRegistry_DOT_SPLITTER.split(strobj_(qualifiedName)), 1))
 	var slotType *JSType = slot.getType()
-	return this.resolveViaPropertyGivenSlot(slotType, 0, tlistImm_(tc_string, componentNames))
+	return this.resolveViaPropertyGivenSlot(slotType, 0, sliceImm_(tc_string, componentNames))
 }
 
-func (this *JSTypeRegistry) resolveViaPropertyGivenSlot(slotType *JSType, definitionNode Node, componentNames *TList[string]) *JSType {
-	if componentNames.isEmpty() {
+func (this *JSTypeRegistry) resolveViaPropertyGivenSlot(slotType *JSType, definitionNode Node, componentNames []string) *JSType {
+	if len(componentNames) == 0 {
 		var typedefType *JSType = JSTypeRegistry_resolveTypeFromNodeIfTypedef(definitionNode)
 		if typedefType != nil {
 			return typedefType
@@ -640,13 +640,13 @@ func (this *JSTypeRegistry) resolveViaPropertyGivenSlot(slotType *JSType, defini
 	if ((slotType == nil) || slotType.isAllType()) || slotType.isNoType() {
 		return nil
 	}
-	for i := int32(0); i < componentNames.size(); i++ {
-		var component string = componentNames.get(i)
+	for i := int32(0); i < int32(len(componentNames)); i++ {
+		var component string = sliceAt_(componentNames, i)
 		var parentObj *ObjectType = ObjectType_cast(slotType)
 		if ((parentObj == nil) || String_isEmpty(component)) || !parentObj.hasOwnProperty(component) {
 			return nil
 		}
-		if i == (componentNames.size() - 1) {
+		if i == (int32(len(componentNames)) - 1) {
 			var def Node = parentObj.getPropertyDefSite(component)
 			var typedefType *JSType = JSTypeRegistry_resolveTypeFromNodeIfTypedef(def)
 			if typedefType != nil {
@@ -833,12 +833,12 @@ func (this *JSTypeRegistry) getEachReferenceTypeWithProperty(propertyName string
 }
 
 func (this *JSTypeRegistry) findCommonSuperObject(a *ObjectType, b *ObjectType) *ObjectType {
-	var stackA *TList[*ObjectType] = JSTypeRegistry_getSuperStack(a)
-	var stackB *TList[*ObjectType] = JSTypeRegistry_getSuperStack(b)
+	var stackA []*ObjectType = JSTypeRegistry_getSuperStack(a)
+	var stackB []*ObjectType = JSTypeRegistry_getSuperStack(b)
 	var result *ObjectType = this.getNativeObjectType(JSTypeNative_OBJECT_TYPE)
-	for !stackA.isEmpty() && !stackB.isEmpty() {
-		var currentA *ObjectType = stackA.removeAt((stackA.size() - 1))
-		var currentB *ObjectType = stackB.removeAt((stackB.size() - 1))
+	for len(stackA) != 0 && len(stackB) != 0 {
+		var currentA *ObjectType = sliceRemoveAt_(&stackA, (int32(len(stackA)) - 1))
+		var currentB *ObjectType = sliceRemoveAt_(&stackB, (int32(len(stackB)) - 1))
 		if currentA.equals(currentB.self()) {
 			result = currentA
 		} else {
@@ -848,12 +848,12 @@ func (this *JSTypeRegistry) findCommonSuperObject(a *ObjectType, b *ObjectType) 
 	return result
 }
 
-func JSTypeRegistry_getSuperStack(a *ObjectType) *TList[*ObjectType] {
-	var stack *TList[*ObjectType] = newTListN_(tc_p_ObjectType, 5)
+func JSTypeRegistry_getSuperStack(a *ObjectType) []*ObjectType {
+	var stack []*ObjectType = make([]*ObjectType, 0, 5)
 	{
 		var current *ObjectType = a
 		for ; current != nil; current = current.getImplicitPrototype() {
-			stack.add(current)
+			stack = append(stack, current)
 		}
 	}
 	return stack
@@ -1073,10 +1073,10 @@ func (this *JSTypeRegistry) createOptionalNullableType(type_ *JSType) *JSType {
 }
 
 func (this *JSTypeRegistry) createUnionType(variants []*JSType) *JSType {
-	return this.createUnionTypeList(tlistImm_(tc_p_JSType, ImmutableList_copyOf_ObjectArr(arrmap_(variants, func(v_ *JSType) any { return v_.self() }))))
+	return this.createUnionTypeList(sliceImm_(tc_p_JSType, ImmutableList_copyOf_ObjectArr(arrmap_(variants, func(v_ *JSType) any { return v_.self() }))))
 }
 
-func (this *JSTypeRegistry) createUnionTypeList(variants *TList[*JSType]) *JSType {
+func (this *JSTypeRegistry) createUnionTypeList(variants []*JSType) *JSType {
 	return UnionType_builder(this).addAlternates(variants).build()
 }
 
@@ -1104,8 +1104,8 @@ func (this *JSTypeRegistry) createNativeFunctionTypeWithVarArgs(returnType *JSTy
 	return this.createNativeFunctionType(returnType, tlistImm_(tc_p_FunctionType_Parameter, this.createParametersWithVarArgs(parameterTypes)))
 }
 
-func (this *JSTypeRegistry) createFunctionTypeWithInstanceType(instanceType *ObjectType, returnType *JSType, parameterTypes *TList[*JSType]) *JSType {
-	var paramsNode ImmutableListOf[*FunctionType_Parameter] = this.createParameters(arrmap_(parameterTypes.asList().toArray(arrmap_(make([]*JSType, 0), func(v_ *JSType) any { return v_.self() })), func(v_ any) *JSType { return to_JSType(v_) }))
+func (this *JSTypeRegistry) createFunctionTypeWithInstanceType(instanceType *ObjectType, returnType *JSType, parameterTypes []*JSType) *JSType {
+	var paramsNode ImmutableListOf[*FunctionType_Parameter] = this.createParameters(arrmap_(sliceView_(tc_p_JSType, parameterTypes).toArray(arrmap_(make([]*JSType, 0), func(v_ *JSType) any { return v_.self() })), func(v_ any) *JSType { return to_JSType(v_) }))
 	return FunctionType_builder(this).withParameters_1(tlistImm_(tc_p_FunctionType_Parameter, paramsNode)).withReturnType(returnType).withTypeOfThis(instanceType.up_JSType()).build().up_JSType()
 }
 
@@ -1305,7 +1305,7 @@ func (this *JSTypeRegistry) createTypeFromCommentNode_3(n Node, sourceName Optio
 					builder.add(this.createTypeFromCommentNode_3(child, sourceName, scope).self())
 				}
 			}
-			return this.createUnionTypeList(tlistImm_(tc_p_JSType, builder.build()))
+			return this.createUnionTypeList(sliceImm_(tc_p_JSType, builder.build()))
 		case tokOrd1_EMPTY:
 			return this.getNativeType(JSTypeNative_UNKNOWN_TYPE)
 		case tokOrd1_VOID:

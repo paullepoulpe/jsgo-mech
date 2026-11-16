@@ -114,7 +114,7 @@ func (this *ConvertChunksToESModules) addImportStatements() {
 	it_1 := foreach_(any(this.crossChunkImports.asMap().entrySet()))
 	for it_1.next() {
 		var chunkImportsEntry Map_Entry = icast_Map_Entry(it_1.v)
-		var importStatements *TList[Node] = newTList_(tc_Node)
+		var importStatements []Node = []Node{}
 		var importingChunk *JSChunk = cast_[*JSChunk](chunkImportsEntry.getKey())
 		var firstInput *CompilerInput = importingChunk.getFirst()
 		var moduleBody Node = firstInput.getAstRoot(this.compiler_).getFirstChild()
@@ -149,11 +149,9 @@ func (this *ConvertChunksToESModules) addImportStatements() {
 			}
 			importStatement.addChildToFront(IR_empty())
 			importStatement.srcrefTree(moduleBody)
-			importStatements.insert(0, importStatement)
+			sliceInsert_(&importStatements, 0, importStatement)
 		}
-		it_7 := importStatements.each()
-		for it_7.next() {
-			var importStatement Node = it_7.v
+		for _, importStatement := range importStatements {
 			moduleBody.addChildToFront(importStatement)
 		}
 		this.compiler_.reportChangeToEnclosingScope(moduleBody)

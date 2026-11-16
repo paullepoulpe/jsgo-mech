@@ -65,10 +65,10 @@ func (this *RuntimeJsLibManager) getExternedFields() ImmutableListOf[RuntimeJsLi
 
 func (this *RuntimeJsLibManager) createField(fieldName string) *RuntimeJsLibManager_InternalField {
 	Preconditions_checkArgument_boolean_Object(!String_isEmpty(fieldName), strobj_(fieldName))
-	var parts *TList[string] = tlistImm_(tc_string, Splitter_on('.').splitToList(strobj_(fieldName)))
-	Preconditions_checkArgument_boolean_String_Object((parts.size() >= 2), "Field name must start with $jscomp., found %s", strobj_(fieldName))
-	Preconditions_checkArgument_boolean_String_Object((parts.get(0) == "$jscomp"), "Field name must start with $jscomp, found %s", strobj_(fieldName))
-	var propName string = parts.get(1)
+	var parts []string = sliceImm_(tc_string, Splitter_on('.').splitToList(strobj_(fieldName)))
+	Preconditions_checkArgument_boolean_String_Object((int32(len(parts)) >= 2), "Field name must start with $jscomp., found %s", strobj_(fieldName))
+	Preconditions_checkArgument_boolean_String_Object((sliceAt_(parts, 0) == "$jscomp"), "Field name must start with $jscomp, found %s", strobj_(fieldName))
+	var propName string = sliceAt_(parts, 1)
 	var resource OptionalOf[string] = Optional_ofNullable(Map_get_s(RuntimeJsLibManager_FieldsTable_INSTANCE, propName))
 	if resource.isEmpty() {
 		panic(new_NullPointerException_String(("Cannot find definition of " + sstr_(fieldName))).self())
@@ -159,11 +159,11 @@ func (this *RuntimeJsLibManager) injectLibraryDependencies(ast Node, force bool)
 		var node Node = ast.getFirstChild()
 		for ; ((node != 0) && node.isExprResult()) && node.getFirstChild().isStringLit(); node = ast.getFirstChild() {
 			var directive string = node.getFirstChild().getString()
-			var words *TList[string] = tlistImm_(tc_string, Splitter_on(' ').limit(2).splitToList(strobj_(directive)))
-			switch words.get(0) {
+			var words []string = sliceImm_(tc_string, Splitter_on(' ').limit(2).splitToList(strobj_(directive)))
+			switch sliceAt_(words, 0) {
 			case "use":
 			case "require":
-				this.ensureLibraryInjected(words.get(1), force)
+				this.ensureLibraryInjected(sliceAt_(words, 1), force)
 			default:
 				panic(new_IllegalStateException_String(("Bad directive: " + sstr_(directive))).self())
 			}

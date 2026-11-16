@@ -176,7 +176,7 @@ func (this *BaseTranspiler_CompilerSupplier) setOptions(options *CompilerOptions
 	options.setApplyInputSourceMaps(true)
 	options.setSourceMapOutputPath(Optional_of(strobj_("/dev/null")))
 	options.setSourceMapIncludeSourcesContent(true)
-	options.setSourceMapLocationMappings(tlistImm_(tc_SourceMap_LocationMapping, ImmutableList_of_Object(any(&SourceMap_LocationMapping_fn{func(location Optional) Optional {
+	options.setSourceMapLocationMappings(sliceImm_(tc_SourceMap_LocationMapping, ImmutableList_of_Object(any(&SourceMap_LocationMapping_fn{func(location Optional) Optional {
 		if Uris_isValid(str_(location.get())) && Uris_hasScheme(str_(location.get())) {
 			return location
 		}

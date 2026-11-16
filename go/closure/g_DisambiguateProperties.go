@@ -57,18 +57,18 @@ func (this *DisambiguateProperties) process_2(externs Node, root Node) {
 		this.registerOwnDeclaredProperties(colorGraphNode, propIndex)
 	}
 	this.logForDiagnostics("graph", &Supplier_base_fn{func() any {
-		var result *TList[*DisambiguateProperties_TypeNodeJson] = newTList_(tc_p_DisambiguateProperties_TypeNodeJson)
+		var result []*DisambiguateProperties_TypeNodeJson = []*DisambiguateProperties_TypeNodeJson{}
 		it_5 := foreach_(any(graph.getNodes()))
 		for it_5.next() {
 			var n DiGraph_DiGraphNode = icast_DiGraph_DiGraphNode(it_5.v)
-			result.add(new_DisambiguateProperties_TypeNodeJson(n))
+			result = append(result, new_DisambiguateProperties_TypeNodeJson(n))
 		}
-		List_sort(result.asList(), Comparator_comparingInt(&ToIntFunction_fn{func(x_ any) int32 {
+		List_sort(sliceView_(tc_p_DisambiguateProperties_TypeNodeJson, result), Comparator_comparingInt(&ToIntFunction_fn{func(x_ any) int32 {
 			var x *DisambiguateProperties_TypeNodeJson = cast_[*DisambiguateProperties_TypeNodeJson](x_)
 			_ = x
 			return x.index_
 		}}))
-		return obj_(ImmutableList_copyOf(Collection(result.asList())))
+		return obj_(ImmutableList_copyOf(Collection(sliceView_(tc_p_DisambiguateProperties_TypeNodeJson, result))))
 		panic("unreachable")
 	}})
 	this.invalidateBasedOnType(flattener)

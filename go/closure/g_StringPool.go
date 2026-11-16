@@ -7,13 +7,13 @@ type StringPool struct {
 	pool      *RhinoStringPool_LazyInternedStringList
 }
 
-func (this *StringPool) init_StringPool(maxLength int32, pool *TList[string]) {
+func (this *StringPool) init_StringPool(maxLength int32, pool []string) {
 	this.maxLength = maxLength
 	this.pool = new_RhinoStringPool_LazyInternedStringList(pool)
-	Preconditions_checkState(String_isEmpty(pool.get(0)))
+	Preconditions_checkState(String_isEmpty(sliceAt_(pool, 0)))
 }
 
-func new_StringPool(maxLength int32, pool *TList[string]) *StringPool {
+func new_StringPool(maxLength int32, pool []string) *StringPool {
 	this := &StringPool{}
 	this.init_StringPool(maxLength, pool)
 	return this
@@ -21,12 +21,12 @@ func new_StringPool(maxLength int32, pool *TList[string]) *StringPool {
 
 func StringPool_fromProto(proto *StringPoolProto) *StringPool {
 	var decoder *Wtf8_Decoder = Wtf8_decoder(proto.getMaxLength())
-	var pool *TList[string] = newTList_(tc_string)
-	pool.add("")
+	var pool []string = []string{}
+	pool = append(pool, "")
 	var stringsList ListOf[*ByteString] = proto.getStringsList()
 	for i := int32(0); i < stringsList.size(); i++ {
 		var s *ByteString = cast_[*ByteString](stringsList.get(i))
-		pool.add(decoder.decode(s))
+		pool = append(pool, decoder.decode(s))
 	}
 	return new_StringPool(proto.getMaxLength(), pool)
 }
@@ -107,5 +107,5 @@ func (this *StringPool_Builder) putAnd(string_ string) *StringPool_Builder {
 }
 
 func (this *StringPool_Builder) build() *StringPool {
-	return new_StringPool(this.maxLength, tlistFrom_(tc_string, Collection(this.pool.asMap().keySet())))
+	return new_StringPool(this.maxLength, sliceFrom_(tc_string, Collection(this.pool.asMap().keySet())))
 }

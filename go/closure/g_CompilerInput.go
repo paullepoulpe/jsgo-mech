@@ -10,9 +10,9 @@ type CompilerInput struct {
 	dependencyInfo             DependencyInfo
 	extraRequires              *TList[*DependencyInfo_Require]
 	extraProvides              *TList[string]
-	orderedRequires            *TList[*DependencyInfo_Require]
-	dynamicRequires            *TList[string]
-	requireDynamicImports      *TList[string]
+	orderedRequires            []*DependencyInfo_Require
+	dynamicRequires            []string
+	requireDynamicImports      []string
 	hasFullParseDependencyInfo bool
 	jsModuleType               *CompilerInput_ModuleType
 	typedScope                 *TypedScope
@@ -24,9 +24,9 @@ func (this *CompilerInput) finit_CompilerInput() {
 	this.ast = new_CompilerInput_JsAst(this)
 	this.extraRequires = newTList_(tc_p_DependencyInfo_Require)
 	this.extraProvides = newTList_(tc_string)
-	this.orderedRequires = newTList_(tc_p_DependencyInfo_Require)
-	this.dynamicRequires = newTList_(tc_string)
-	this.requireDynamicImports = newTList_(tc_string)
+	this.orderedRequires = []*DependencyInfo_Require{}
+	this.dynamicRequires = []string{}
+	this.requireDynamicImports = []string{}
 	this.hasFullParseDependencyInfo = false
 	this.jsModuleType = CompilerInput_ModuleType_NONE
 }
@@ -121,7 +121,7 @@ func (this *CompilerInput) setCompiler(compiler *AbstractCompiler) {
 
 func (this *CompilerInput) getRequires() ImmutableListOf[*DependencyInfo_Require] {
 	if this.hasFullParseDependencyInfo {
-		return ImmutableList_copyOf(Collection(this.orderedRequires.asList()))
+		return ImmutableList_copyOf(Collection(sliceView_(tc_p_DependencyInfo_Require, this.orderedRequires)))
 	}
 	return this.getDependencyInfo().getRequires()
 }
@@ -169,32 +169,32 @@ func (this *CompilerInput) addProvide(provide string) {
 }
 
 func (this *CompilerInput) addOrderedRequire(require *DependencyInfo_Require) bool {
-	if !this.orderedRequires.asList().contains(obj_(require)) {
-		this.orderedRequires.add(require)
+	if !sliceView_(tc_p_DependencyInfo_Require, this.orderedRequires).contains(obj_(require)) {
+		this.orderedRequires = append(this.orderedRequires, require)
 		return true
 	}
 	return false
 }
 
 func (this *CompilerInput) getDynamicRequires() ImmutableListOf[string] {
-	return ImmutableList_copyOf(Collection(this.dynamicRequires.asList()))
+	return ImmutableList_copyOf(Collection(sliceView_(tc_string, this.dynamicRequires)))
 }
 
 func (this *CompilerInput) addDynamicRequire(require string) bool {
-	if !Collection_contains_s(this.dynamicRequires.asList(), require) {
-		this.dynamicRequires.add(require)
+	if !Collection_contains_s(sliceView_(tc_string, this.dynamicRequires), require) {
+		this.dynamicRequires = append(this.dynamicRequires, require)
 		return true
 	}
 	return false
 }
 
 func (this *CompilerInput) getRequireDynamicImports() ImmutableListOf[string] {
-	return ImmutableList_copyOf(Collection(this.requireDynamicImports.asList()))
+	return ImmutableList_copyOf(Collection(sliceView_(tc_string, this.requireDynamicImports)))
 }
 
 func (this *CompilerInput) addRequireDynamicImports(require string) {
-	if !Collection_contains_s(this.requireDynamicImports.asList(), require) {
-		this.requireDynamicImports.add(require)
+	if !Collection_contains_s(sliceView_(tc_string, this.requireDynamicImports), require) {
+		this.requireDynamicImports = append(this.requireDynamicImports, require)
 	}
 }
 

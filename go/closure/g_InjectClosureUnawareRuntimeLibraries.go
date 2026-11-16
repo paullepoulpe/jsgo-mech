@@ -5,16 +5,16 @@ package closure
 type InjectClosureUnawareRuntimeLibraries struct {
 	mainCompiler        *AbstractCompiler
 	shadowCompiler      *AbstractCompiler
-	closureUnawareCalls *TList[*InjectClosureUnawareRuntimeLibraries_ClosureUnawareCallSite]
+	closureUnawareCalls []*InjectClosureUnawareRuntimeLibraries_ClosureUnawareCallSite
 }
 
-func (this *InjectClosureUnawareRuntimeLibraries) init_InjectClosureUnawareRuntimeLibraries(mainCompiler *AbstractCompiler, shadowCompiler *AbstractCompiler, closureUnawareCalls *TList[*InjectClosureUnawareRuntimeLibraries_ClosureUnawareCallSite]) {
+func (this *InjectClosureUnawareRuntimeLibraries) init_InjectClosureUnawareRuntimeLibraries(mainCompiler *AbstractCompiler, shadowCompiler *AbstractCompiler, closureUnawareCalls []*InjectClosureUnawareRuntimeLibraries_ClosureUnawareCallSite) {
 	this.mainCompiler = mainCompiler
 	this.shadowCompiler = shadowCompiler
 	this.closureUnawareCalls = closureUnawareCalls
 }
 
-func new_InjectClosureUnawareRuntimeLibraries(mainCompiler *AbstractCompiler, shadowCompiler *AbstractCompiler, closureUnawareCalls *TList[*InjectClosureUnawareRuntimeLibraries_ClosureUnawareCallSite]) *InjectClosureUnawareRuntimeLibraries {
+func new_InjectClosureUnawareRuntimeLibraries(mainCompiler *AbstractCompiler, shadowCompiler *AbstractCompiler, closureUnawareCalls []*InjectClosureUnawareRuntimeLibraries_ClosureUnawareCallSite) *InjectClosureUnawareRuntimeLibraries {
 	this := &InjectClosureUnawareRuntimeLibraries{}
 	this.init_InjectClosureUnawareRuntimeLibraries(mainCompiler, shadowCompiler, closureUnawareCalls)
 	return this
@@ -43,9 +43,7 @@ func (this *InjectClosureUnawareRuntimeLibraries) injectFieldsIntoCallSites() {
 		fieldsByNameBuilder.put(strobj_(field.qualifiedName()), any(field))
 	}
 	var fieldsByName ImmutableMapOf[string, RuntimeJsLibManager_ExternedField] = fieldsByNameBuilder.buildOrThrow()
-	it_3 := this.closureUnawareCalls.each()
-	for it_3.next() {
-		var callSite *InjectClosureUnawareRuntimeLibraries_ClosureUnawareCallSite = it_3.v
+	for _, callSite := range this.closureUnawareCalls {
 		var toInject SetOf[RuntimeJsLibManager_ExternedField] = InjectClosureUnawareRuntimeLibraries_gatherRuntimeFields(callSite.closureUnawareFunction(), fieldsByName)
 		this.injectAll(callSite, toInject)
 	}

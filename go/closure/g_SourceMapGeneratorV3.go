@@ -229,8 +229,8 @@ func (this *SourceMapGeneratorV3) addSourceNameMap(out Appendable) {
 func (this *SourceMapGeneratorV3) addSourcesContentMap(out Appendable) {
 	var found bool = false
 	var size int32 = this.sourceFileMap.size()
-	var contents *TList[string] = newTListN_(tc_string, size)
-	contents.asList().addAll(Collection(Collections_nCopies(size, strobj_(""))))
+	var contents []string = make([]string, 0, size)
+	sliceAddAll_(tc_string, &contents, Collection(Collections_nCopies(size, strobj_(""))))
 	it_1 := foreach_(any(this.sourceFileMap.asMap().entrySet()))
 	for it_1.next() {
 		var entry Map_Entry = icast_Map_Entry(it_1.v)
@@ -238,7 +238,7 @@ func (this *SourceMapGeneratorV3) addSourcesContentMap(out Appendable) {
 		Preconditions_checkState((unbox_[int32](index) < size))
 		var content OptionalOf[string] = Optional_ofNullable(strobj_(mapStr_(this.sourceFileContentMap, str_(entry.getKey()))))
 		if content.isPresent() {
-			contents.set(unbox_[int32](index), str_(content.get()))
+			contents[unbox_[int32](index)] = str_(content.get())
 			found = true
 		}
 	}
@@ -251,7 +251,7 @@ func (this *SourceMapGeneratorV3) addSourcesContentMap(out Appendable) {
 		if i != 0 {
 			out.append_CharSequence(strobj_(","))
 		}
-		var sourceContent OptionalOf[string] = Optional_ofNullable(strobj_(contents.get(i)))
+		var sourceContent OptionalOf[string] = Optional_ofNullable(strobj_(sliceAt_(contents, i)))
 		out.append_CharSequence(strobj_(SourceMapGeneratorV3_escapeString(str_(sourceContent.orElse(strobj_(""))))))
 	}
 	out.append_CharSequence(strobj_("]"))
@@ -325,16 +325,14 @@ func (this *SourceMapGeneratorV3) prepMappings() int32 {
 	return (maxLine + this.prefixPosition.getLine())
 }
 
-func (this *SourceMapGeneratorV3) appendIndexMapTo(out Appendable, name string, sections *TList[*SourceMapSection]) {
+func (this *SourceMapGeneratorV3) appendIndexMapTo(out Appendable, name string, sections []*SourceMapSection) {
 	out.append_CharSequence(strobj_("{\n"))
 	SourceMapGeneratorV3_appendFirstField(out, "version", strobj_("3"))
 	SourceMapGeneratorV3_appendField(out, "file", strobj_(SourceMapGeneratorV3_escapeString(name)))
 	SourceMapGeneratorV3_appendFieldStart_Appendable_String(out, "sections")
 	out.append_CharSequence(strobj_("[\n"))
 	var first bool = true
-	it_1 := sections.each()
-	for it_1.next() {
-		var section *SourceMapSection = it_1.v
+	for _, section := range sections {
 		if first {
 			first = false
 		} else {

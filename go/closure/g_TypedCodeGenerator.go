@@ -161,7 +161,7 @@ func (this *TypedCodeGenerator) appendFunctionParamAnnotations(sb *StringBuilder
 	var formals ImmutableListOf[*FunctionType_Parameter] = funType.getParameters()
 	for i := int32(0); i < formals.size(); i++ {
 		sb.append(" * ")
-		TypedCodeGenerator_appendAnnotation(sb, "param", this.getParameterJSDocType(tlistImm_(tc_p_FunctionType_Parameter, formals), i, minArity, maxArity))
+		TypedCodeGenerator_appendAnnotation(sb, "param", this.getParameterJSDocType(sliceImm_(tc_p_FunctionType_Parameter, formals), i, minArity, maxArity))
 		var parameterName string = this.getParameterJSDocName(paramNode, i)
 		sb.append(" ").append(parameterName).append("\n")
 		if paramNode != 0 {
@@ -196,13 +196,13 @@ func (this *TypedCodeGenerator) getClassAnnotation(classType *JSType) string {
 func (this *TypedCodeGenerator) appendTemplateAnnotations(sb *StringBuilder, typeParams CollectionOf[*JSType]) {
 	if !typeParams.isEmpty() {
 		sb.append(" * @template ")
-		var formattedTypeParams *TList[string] = newTList_(tc_string)
+		var formattedTypeParams []string = []string{}
 		it_1 := foreach_(any(typeParams))
 		for it_1.next() {
 			var typeParam *JSType = to_JSType(it_1.v)
-			formattedTypeParams.add(this.formatTypeVar(typeParam))
+			formattedTypeParams = append(formattedTypeParams, this.formatTypeVar(typeParam))
 		}
-		sb.append(String_join(strobj_(","), Iterable(formattedTypeParams.asList())))
+		sb.append(String_join(strobj_(","), Iterable(sliceView_(tc_string, formattedTypeParams))))
 		sb.append("\n")
 	}
 }
@@ -314,12 +314,12 @@ func TypedCodeGenerator_appendAnnotation(sb *StringBuilder, name string, type_ s
 	sb.append("@").append(name).append(" {").append(type_).append("}")
 }
 
-func (this *TypedCodeGenerator) getParameterJSDocType(parameters *TList[*FunctionType_Parameter], index int32, minArgs int32, maxArgs int32) string {
-	var type_ *JSType = parameters.get(index).getJSType()
+func (this *TypedCodeGenerator) getParameterJSDocType(parameters []*FunctionType_Parameter, index int32, minArgs int32, maxArgs int32) string {
+	var type_ *JSType = sliceAt_(parameters, index).getJSType()
 	if index < minArgs {
 		return type_.toAnnotationString(JSType_Nullability_EXPLICIT)
 	}
-	var isRestArgument bool = ((maxArgs == int32(2147483647)) && (index == (parameters.size() - 1)))
+	var isRestArgument bool = ((maxArgs == int32(2147483647)) && (index == (int32(len(parameters)) - 1)))
 	if isRestArgument {
 		return ("..." + sstr_(this.restrictByUndefined(type_).toAnnotationString(JSType_Nullability_EXPLICIT)))
 	}
@@ -333,7 +333,7 @@ func (this *TypedCodeGenerator) restrictByUndefined(type_ *JSType) *JSType {
 	var restricted *JSType = type_.restrictByNotNullOrUndefined()
 	if type_.isNullable() {
 		var nullType *JSType = this.registry.getNativeType(JSTypeNative_NULL_TYPE)
-		return this.registry.createUnionTypeList(tlistImm_(tc_p_JSType, ImmutableList_of_Object_Object(restricted.self(), nullType.self())))
+		return this.registry.createUnionTypeList(sliceImm_(tc_p_JSType, ImmutableList_of_Object_Object(restricted.self(), nullType.self())))
 	}
 	return func() *JSType {
 		if restricted.isEmptyType() {

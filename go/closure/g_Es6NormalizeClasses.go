@@ -767,7 +767,7 @@ func (this *Es6NormalizeClasses) rewriteInstanceMembers(t *NodeTraversal, record
 		for it_2.next() {
 			var pm *Es6NormalizeClasses_ClassRecord_PrivateMember = it_2.v
 			if !pm.isStatic {
-				it_4 := pm.declarationNodes.each()
+				it_4 := eachOf_(&pm.declarationNodes)
 				for it_4.next() {
 					var declNode Node = it_4.v
 					if declNode.getParent() != 0 {
@@ -1054,7 +1054,7 @@ func (this *Es6NormalizeClasses) rewriteStaticMembers(t *NodeTraversal, record *
 		for it_5.next() {
 			var pm *Es6NormalizeClasses_ClassRecord_PrivateMember = it_5.v
 			if pm.isStatic {
-				it_7 := pm.declarationNodes.each()
+				it_7 := eachOf_(&pm.declarationNodes)
 				for it_7.next() {
 					var declNode Node = it_7.v
 					if declNode.getParent() != 0 {
@@ -1407,7 +1407,7 @@ func (this *Es6NormalizeClasses_ClassRecord) recordPrivateMember(n Node) {
 	var pm *Es6NormalizeClasses_ClassRecord_PrivateMember
 	if has_(this.privateMembersByName, name) {
 		pm = this.privateMembersByName[name]
-		pm.declarationNodes.add(n)
+		pm.declarationNodes = append(pm.declarationNodes, n)
 		if n.isGetterDef() {
 			pm.getterNode = n
 		} else if n.isSetterDef() {
@@ -1575,7 +1575,7 @@ type Es6NormalizeClasses_ClassRecord_PrivateMember struct {
 	methodNode       Node
 	getterNode       Node
 	setterNode       Node
-	declarationNodes *TList[Node]
+	declarationNodes []Node
 }
 
 func (this *Es6NormalizeClasses_ClassRecord_PrivateMember) zero_Es6NormalizeClasses_ClassRecord_PrivateMember() {
@@ -1583,7 +1583,7 @@ func (this *Es6NormalizeClasses_ClassRecord_PrivateMember) zero_Es6NormalizeClas
 }
 
 func (this *Es6NormalizeClasses_ClassRecord_PrivateMember) finit_Es6NormalizeClasses_ClassRecord_PrivateMember() {
-	this.declarationNodes = newTList_(tc_Node)
+	this.declarationNodes = []Node{}
 }
 
 func (this *Es6NormalizeClasses_ClassRecord_PrivateMember) init_Es6NormalizeClasses_ClassRecord_PrivateMember(name string, kind *Es6NormalizeClasses_ClassRecord_PrivateMemberKind, isStatic bool, initialNode Node) {
@@ -1591,7 +1591,7 @@ func (this *Es6NormalizeClasses_ClassRecord_PrivateMember) init_Es6NormalizeClas
 	this.name_ = name
 	this.kind_ = kind
 	this.isStatic = isStatic
-	this.declarationNodes.add(initialNode)
+	this.declarationNodes = append(this.declarationNodes, initialNode)
 	if kind == Es6NormalizeClasses_ClassRecord_PrivateMemberKind_METHOD {
 		this.methodNode = initialNode
 	} else if initialNode.isGetterDef() {
@@ -1624,7 +1624,7 @@ func (this *Es6NormalizeClasses_ClassRecord_PrivateMember) getPrimaryDeclaration
 	if this.setterNode != 0 {
 		return this.setterNode
 	}
-	return Node_of_(Iterables_getFirst(Iterable(this.declarationNodes.asList()), nil))
+	return Node_of_(Iterables_getFirst(Iterable(sliceView_(tc_Node, this.declarationNodes)), nil))
 }
 
 type Es6NormalizeClasses_NormalizedNames struct {
