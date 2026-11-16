@@ -144,16 +144,19 @@ func (this *ProcessCommonJSModules) getImportedModuleName(t *NodeTraversal, requ
 }
 
 func (this *ProcessCommonJSModules) getImportedModuleName_3(t *NodeTraversal, n Node, importPath string) string {
-	var modulePath *ModuleLoader_ModulePath = t.getInput().getPath().resolveJsModule(importPath, Optional_of(strobj_(n.getSourceFileName())).filter(&Predicate_fn{func(s_ any) bool {
-		var s string = str_(s_)
-		_ = s
-		return !String_isEmpty(s)
-	}}), n.getLineno(), n.getCharno())
+	var modulePath *ModuleLoader_ModulePath = t.getInput().getPath().resolveJsModule(importPath, Optional_of(strobj_(n.getSourceFileName())).filter(lambda_ProcessCommonJSModules_getImportedModuleName_3_1_), n.getLineno(), n.getCharno())
 	if modulePath == nil {
 		return ModuleIdentifier_forFile(importPath).moduleName()
 	}
 	return modulePath.toModuleName()
 }
+
+// lambda_ProcessCommonJSModules_getImportedModuleName_3_1_ is a lambda of ProcessCommonJSModules_getImportedModuleName_3 that captures nothing (post-flip step lambdas).
+var lambda_ProcessCommonJSModules_getImportedModuleName_3_1_ = &Predicate_fn{func(s_ any) bool {
+	var s string = str_(s_)
+	_ = s
+	return !String_isEmpty(s)
+}}
 
 func ProcessCommonJSModules_isCommonJsExport(t *NodeTraversal, export Node, resolutionMode *ModuleLoader_ResolutionMode) bool {
 	if export.matchesQualifiedName((sstr_(ProcessCommonJSModules_MODULE) + "." + sstr_(ProcessCommonJSModules_EXPORTS))) || (((export.isGetElem() && export.getFirstChild().matchesQualifiedName(ProcessCommonJSModules_MODULE)) && export.getSecondChild().isStringLit()) && (export.getSecondChild().getString() == ProcessCommonJSModules_EXPORTS)) {
@@ -314,11 +317,7 @@ func (this *ProcessCommonJSModules) removeWebpackModuleShim(root Node) {
 	var argCallTarget Node = arg.getFirstChild()
 	if ((arg.isCall() && argCallTarget.isCall()) && this.isCommonJsImport(argCallTarget)) && argCallTarget.getNext().matchesName(ProcessCommonJSModules_MODULE) {
 		var importPath string = this.getCommonJsImportPath(argCallTarget)
-		var modulePath *ModuleLoader_ModulePath = this.compiler_.getInput(root.getInputId()).getPath().resolveJsModule(importPath, Optional_of(strobj_(arg.getSourceFileName())).filter(&Predicate_fn{func(s_ any) bool {
-			var s string = str_(s_)
-			_ = s
-			return !String_isEmpty(s)
-		}}), arg.getLineno(), arg.getCharno())
+		var modulePath *ModuleLoader_ModulePath = this.compiler_.getInput(root.getInputId()).getPath().resolveJsModule(importPath, Optional_of(strobj_(arg.getSourceFileName())).filter(lambda_ProcessCommonJSModules_removeWebpackModuleShim_1_), arg.getLineno(), arg.getCharno())
 		if modulePath == nil {
 			return
 		}
@@ -330,6 +329,13 @@ func (this *ProcessCommonJSModules) removeWebpackModuleShim(root Node) {
 		}
 	}
 }
+
+// lambda_ProcessCommonJSModules_removeWebpackModuleShim_1_ is a lambda of ProcessCommonJSModules_removeWebpackModuleShim that captures nothing (post-flip step lambdas).
+var lambda_ProcessCommonJSModules_removeWebpackModuleShim_1_ = &Predicate_fn{func(s_ any) bool {
+	var s string = str_(s_)
+	_ = s
+	return !String_isEmpty(s)
+}}
 
 func (this *ProcessCommonJSModules) reportNestedScopesDeleted(n Node) {
 	NodeUtil_visitPreOrder_Node_Visitor(n, icast_NodeUtil_Visitor(obj_(new_ProcessCommonJSModules_1(this))))
@@ -413,13 +419,16 @@ type ProcessCommonJSModules_ExportInfo struct {
 func (this *ProcessCommonJSModules_ExportInfo) init_ProcessCommonJSModules_ExportInfo(node Node, scope *Scope) {
 	this.node_ = node
 	this.scope_ = scope
-	var disqualifyingParent Node = NodeUtil_getEnclosingNode(node, &Predicate_base_fn{func(n_ any) bool {
-		var n Node = Node_of_(n_)
-		_ = n
-		return (((n.isIf() || n.isHook()) || n.isFunction()) || n.isArrowFunction())
-	}})
+	var disqualifyingParent Node = NodeUtil_getEnclosingNode(node, lambda_ProcessCommonJSModules_ExportInfo_init_ProcessCommonJSModules_ExportInfo_1_)
 	this.isInSupportedScope = (disqualifyingParent == 0)
 }
+
+// lambda_ProcessCommonJSModules_ExportInfo_init_ProcessCommonJSModules_ExportInfo_1_ is a lambda of ProcessCommonJSModules_ExportInfo_init_ProcessCommonJSModules_ExportInfo that captures nothing (post-flip step lambdas).
+var lambda_ProcessCommonJSModules_ExportInfo_init_ProcessCommonJSModules_ExportInfo_1_ = &Predicate_base_fn{func(n_ any) bool {
+	var n Node = Node_of_(n_)
+	_ = n
+	return (((n.isIf() || n.isHook()) || n.isFunction()) || n.isArrowFunction())
+}}
 
 func new_ProcessCommonJSModules_ExportInfo(node Node, scope *Scope) *ProcessCommonJSModules_ExportInfo {
 	this := &ProcessCommonJSModules_ExportInfo{}
@@ -544,16 +553,19 @@ func (this *ProcessCommonJSModules_FindImportsAndExports) visit(t *NodeTraversal
 
 func (this *ProcessCommonJSModules_FindImportsAndExports) visitRequireCall(t *NodeTraversal, require Node, parent Node) {
 	if (!NodeUtil_isExpressionResultUsed(require) && parent.isExprResult()) && NodeUtil_isStatementBlock(parent.getParent()) {
-		t.getInput().getPath().resolveJsModule(this.outer_.getCommonJsImportPath(require), Optional_of(strobj_(require.getSourceFileName())).filter(&Predicate_fn{func(s_ any) bool {
-			var s string = str_(s_)
-			_ = s
-			return !String_isEmpty(s)
-		}}), require.getLineno(), require.getCharno())
+		t.getInput().getPath().resolveJsModule(this.outer_.getCommonJsImportPath(require), Optional_of(strobj_(require.getSourceFileName())).filter(lambda_ProcessCommonJSModules_FindImportsAndExports_visitRequireCall_1_), require.getLineno(), require.getCharno())
 		var grandparent Node = parent.getParent()
 		parent.detach()
 		this.outer_.compiler_.reportChangeToEnclosingScope(grandparent)
 	}
 }
+
+// lambda_ProcessCommonJSModules_FindImportsAndExports_visitRequireCall_1_ is a lambda of ProcessCommonJSModules_FindImportsAndExports_visitRequireCall that captures nothing (post-flip step lambdas).
+var lambda_ProcessCommonJSModules_FindImportsAndExports_visitRequireCall_1_ = &Predicate_fn{func(s_ any) bool {
+	var s string = str_(s_)
+	_ = s
+	return !String_isEmpty(s)
+}}
 
 func (this *ProcessCommonJSModules_FindImportsAndExports) visitRequireEnsureCall(t *NodeTraversal, call Node) {
 	if !call.hasXChildren(3) {
@@ -818,11 +830,7 @@ func (this *ProcessCommonJSModules_FindImportsAndExports) replaceUmdPatterns() b
 				if call != 0 {
 					newStatements = mutator.mutateWithoutRenaming(factoryLabel, inlinedFn, call, assignedName, false, false)
 					if assignedName.isPresent() {
-						var newName Node = IR_var_Node(NodeUtil_newName_AbstractCompiler_String_Node_Optional(this.outer_.compiler_, str_(assignedName.get()), fn, Optional_of(strobj_(expr.getFirstChild().getQualifiedName())).filter(&Predicate_fn{func(s_ any) bool {
-							var s string = str_(s_)
-							_ = s
-							return !String_isEmpty(s)
-						}}))).srcrefTree(fn)
+						var newName Node = IR_var_Node(NodeUtil_newName_AbstractCompiler_String_Node_Optional(this.outer_.compiler_, str_(assignedName.get()), fn, Optional_of(strobj_(expr.getFirstChild().getQualifiedName())).filter(lambda_ProcessCommonJSModules_FindImportsAndExports_replaceUmdPatterns_1_))).srcrefTree(fn)
 						if (((newStatements.hasChildren() && newStatements.getFirstChild().isExprResult()) && newStatements.getFirstFirstChild().isAssign()) && newStatements.getFirstFirstChild().getFirstChild().isName()) && (newStatements.getFirstFirstChild().getFirstChild().getString() == str_(assignedName.get())) {
 							newName.getFirstChild().addChildToFront(newStatements.getFirstFirstChild().getSecondChild().detach())
 							newStatements.getFirstChild().replaceWith(newName)
@@ -854,6 +862,13 @@ func (this *ProcessCommonJSModules_FindImportsAndExports) replaceUmdPatterns() b
 	}
 	return needsRetraverse
 }
+
+// lambda_ProcessCommonJSModules_FindImportsAndExports_replaceUmdPatterns_1_ is a lambda of ProcessCommonJSModules_FindImportsAndExports_replaceUmdPatterns that captures nothing (post-flip step lambdas).
+var lambda_ProcessCommonJSModules_FindImportsAndExports_replaceUmdPatterns_1_ = &Predicate_fn{func(s_ any) bool {
+	var s string = str_(s_)
+	_ = s
+	return !String_isEmpty(s)
+}}
 
 type ProcessCommonJSModules_FindImportsAndExports_UmdTestInfo struct {
 	enclosingIf  Node
@@ -1152,11 +1167,7 @@ func (this *ProcessCommonJSModules_RewriteModule) maybeUpdateName(t *NodeTravers
 	var importedModuleName OptionalOf[string] = this.getModuleImportName(t, var_.getNode())
 	var name string = n.getQualifiedName()
 	if importedModuleName.isPresent() && (n != var_.getNode()) {
-		this.updateNameReference(t, n, Optional_of(strobj_(name)).filter(&Predicate_fn{func(s_ any) bool {
-			var s string = str_(s_)
-			_ = s
-			return !String_isEmpty(s)
-		}}), str_(importedModuleName.get()), false, false)
+		this.updateNameReference(t, n, Optional_of(strobj_(name)).filter(lambda_ProcessCommonJSModules_RewriteModule_maybeUpdateName_1_), str_(importedModuleName.get()), false, false)
 	} else if this.allowFullRewrite {
 		var exportedName OptionalOf[string] = this.getExportedName(t, n, var_)
 		if (((n != var_.getNode()) || n.getParent().isClass()) && exportedName.isEmpty()) && (((var_ == nil) || (var_.getNameNode().getParent() == 0)) || !NodeUtil_isLhsByDestructuring(var_.getNameNode())) {
@@ -1167,11 +1178,7 @@ func (this *ProcessCommonJSModules_RewriteModule) maybeUpdateName(t *NodeTravers
 		}
 		if (((importedModuleName.isEmpty() && exportedName.isPresent()) && !(str_(exportedName.get()) == name)) && !var_.isParam()) && ((var_.getNameNode().getParent() == 0) || !NodeUtil_isLhsByDestructuring(var_.getNameNode())) {
 			var exportPropIsConst bool = (((this.defaultExportIsConst && Object_equals(obj_(this.outer_.getBasePropertyImport(ProcessCommonJSModules_getModuleName(t.getInput()))), obj_(exportedName))) && (this.outer_.getBaseQualifiedNameNode(n) == n)) && NodeUtil_isLValue(n))
-			this.updateNameReference(t, n, Optional_of(strobj_(name)).filter(&Predicate_fn{func(s_ any) bool {
-				var s string = str_(s_)
-				_ = s
-				return !String_isEmpty(s)
-			}}), str_(exportedName.get()), true, exportPropIsConst)
+			this.updateNameReference(t, n, Optional_of(strobj_(name)).filter(lambda_ProcessCommonJSModules_RewriteModule_maybeUpdateName_2_), str_(exportedName.get()), true, exportPropIsConst)
 		} else if var_.isGlobal() {
 			var currentModuleName OptionalOf[string] = ProcessCommonJSModules_getModuleName(t.getInput())
 			if str_(currentModuleName.get()) == name {
@@ -1184,14 +1191,31 @@ func (this *ProcessCommonJSModules_RewriteModule) maybeUpdateName(t *NodeTravers
 				return
 			}
 			var newName string = (sstr_(name) + "$$" + sstr_(str_(currentModuleName.orElse(strobj_("null")))))
-			this.updateNameReference(t, n, Optional_of(strobj_(name)).filter(&Predicate_fn{func(s_ any) bool {
-				var s string = str_(s_)
-				_ = s
-				return !String_isEmpty(s)
-			}}), newName, false, false)
+			this.updateNameReference(t, n, Optional_of(strobj_(name)).filter(lambda_ProcessCommonJSModules_RewriteModule_maybeUpdateName_3_), newName, false, false)
 		}
 	}
 }
+
+// lambda_ProcessCommonJSModules_RewriteModule_maybeUpdateName_1_ is a lambda of ProcessCommonJSModules_RewriteModule_maybeUpdateName that captures nothing (post-flip step lambdas).
+var lambda_ProcessCommonJSModules_RewriteModule_maybeUpdateName_1_ = &Predicate_fn{func(s_ any) bool {
+	var s string = str_(s_)
+	_ = s
+	return !String_isEmpty(s)
+}}
+
+// lambda_ProcessCommonJSModules_RewriteModule_maybeUpdateName_2_ is a lambda of ProcessCommonJSModules_RewriteModule_maybeUpdateName that captures nothing (post-flip step lambdas).
+var lambda_ProcessCommonJSModules_RewriteModule_maybeUpdateName_2_ = &Predicate_fn{func(s_ any) bool {
+	var s string = str_(s_)
+	_ = s
+	return !String_isEmpty(s)
+}}
+
+// lambda_ProcessCommonJSModules_RewriteModule_maybeUpdateName_3_ is a lambda of ProcessCommonJSModules_RewriteModule_maybeUpdateName that captures nothing (post-flip step lambdas).
+var lambda_ProcessCommonJSModules_RewriteModule_maybeUpdateName_3_ = &Predicate_fn{func(s_ any) bool {
+	var s string = str_(s_)
+	_ = s
+	return !String_isEmpty(s)
+}}
 
 func (this *ProcessCommonJSModules_RewriteModule) updateNameReference(t *NodeTraversal, nameRef Node, originalName OptionalOf[string], newName string, requireFunctionExpressions bool, qualifiedNameIsConst bool) {
 	var parent Node = nameRef.getParent()
@@ -1351,11 +1375,7 @@ func (this *ProcessCommonJSModules_RewriteModule) updateNameReference(t *NodeTra
 
 func (this *ProcessCommonJSModules_RewriteModule) getExportedName(t *NodeTraversal, n Node, var_ *Var) OptionalOf[string] {
 	if (var_ == nil) || !Objects_equals(obj_(var_.getNode().getInputId()), obj_(n.getInputId())) {
-		return Optional_of(strobj_(n.getQualifiedName())).filter(&Predicate_fn{func(s_ any) bool {
-			var s string = str_(s_)
-			_ = s
-			return !String_isEmpty(s)
-		}})
+		return Optional_of(strobj_(n.getQualifiedName())).filter(lambda_ProcessCommonJSModules_RewriteModule_getExportedName_1_)
 	}
 	var baseExportName OptionalOf[string] = this.outer_.getBasePropertyImport(ProcessCommonJSModules_getModuleName(t.getInput()))
 	it_1 := foreach_(obj_(this.exports))
@@ -1373,11 +1393,7 @@ func (this *ProcessCommonJSModules_RewriteModule) getExportedName(t *NodeTravers
 		var exportBaseQName string = exportBase.getQualifiedName()
 		if exportRValue.isObjectLit() {
 			if !("module.exports" == exportBaseQName) {
-				return Optional_of(strobj_(n.getQualifiedName())).filter(&Predicate_fn{func(s_ any) bool {
-					var s string = str_(s_)
-					_ = s
-					return !String_isEmpty(s)
-				}})
+				return Optional_of(strobj_(n.getQualifiedName())).filter(lambda_ProcessCommonJSModules_RewriteModule_getExportedName_2_)
 			}
 			var key Node = exportRValue.getFirstChild()
 			var keyIsExport bool = false
@@ -1400,20 +1416,12 @@ func (this *ProcessCommonJSModules_RewriteModule) getExportedName(t *NodeTravers
 				if export.isInSupportedScope {
 					return Optional_of(strobj_((sstr_(str_(baseExportName.orElse(strobj_("null")))) + "." + sstr_(key.getString()))))
 				} else {
-					return Optional_of(strobj_(n.getQualifiedName())).filter(&Predicate_fn{func(s_ any) bool {
-						var s string = str_(s_)
-						_ = s
-						return !String_isEmpty(s)
-					}})
+					return Optional_of(strobj_(n.getQualifiedName())).filter(lambda_ProcessCommonJSModules_RewriteModule_getExportedName_3_)
 				}
 			}
 		} else {
 			if !export.isInSupportedScope {
-				return Optional_of(strobj_(n.getQualifiedName())).filter(&Predicate_fn{func(s_ any) bool {
-					var s string = str_(s_)
-					_ = s
-					return !String_isEmpty(s)
-				}})
+				return Optional_of(strobj_(n.getQualifiedName())).filter(lambda_ProcessCommonJSModules_RewriteModule_getExportedName_4_)
 			}
 			if var_.getNameNode() == exportedName {
 				var exportPrefix string
@@ -1429,12 +1437,43 @@ func (this *ProcessCommonJSModules_RewriteModule) getExportedName(t *NodeTravers
 			}
 		}
 	}
-	return Optional_of(strobj_(n.getQualifiedName())).filter(&Predicate_fn{func(s_ any) bool {
-		var s string = str_(s_)
-		_ = s
-		return !String_isEmpty(s)
-	}})
+	return Optional_of(strobj_(n.getQualifiedName())).filter(lambda_ProcessCommonJSModules_RewriteModule_getExportedName_5_)
 }
+
+// lambda_ProcessCommonJSModules_RewriteModule_getExportedName_1_ is a lambda of ProcessCommonJSModules_RewriteModule_getExportedName that captures nothing (post-flip step lambdas).
+var lambda_ProcessCommonJSModules_RewriteModule_getExportedName_1_ = &Predicate_fn{func(s_ any) bool {
+	var s string = str_(s_)
+	_ = s
+	return !String_isEmpty(s)
+}}
+
+// lambda_ProcessCommonJSModules_RewriteModule_getExportedName_2_ is a lambda of ProcessCommonJSModules_RewriteModule_getExportedName that captures nothing (post-flip step lambdas).
+var lambda_ProcessCommonJSModules_RewriteModule_getExportedName_2_ = &Predicate_fn{func(s_ any) bool {
+	var s string = str_(s_)
+	_ = s
+	return !String_isEmpty(s)
+}}
+
+// lambda_ProcessCommonJSModules_RewriteModule_getExportedName_3_ is a lambda of ProcessCommonJSModules_RewriteModule_getExportedName that captures nothing (post-flip step lambdas).
+var lambda_ProcessCommonJSModules_RewriteModule_getExportedName_3_ = &Predicate_fn{func(s_ any) bool {
+	var s string = str_(s_)
+	_ = s
+	return !String_isEmpty(s)
+}}
+
+// lambda_ProcessCommonJSModules_RewriteModule_getExportedName_4_ is a lambda of ProcessCommonJSModules_RewriteModule_getExportedName that captures nothing (post-flip step lambdas).
+var lambda_ProcessCommonJSModules_RewriteModule_getExportedName_4_ = &Predicate_fn{func(s_ any) bool {
+	var s string = str_(s_)
+	_ = s
+	return !String_isEmpty(s)
+}}
+
+// lambda_ProcessCommonJSModules_RewriteModule_getExportedName_5_ is a lambda of ProcessCommonJSModules_RewriteModule_getExportedName that captures nothing (post-flip step lambdas).
+var lambda_ProcessCommonJSModules_RewriteModule_getExportedName_5_ = &Predicate_fn{func(s_ any) bool {
+	var s string = str_(s_)
+	_ = s
+	return !String_isEmpty(s)
+}}
 
 func (this *ProcessCommonJSModules_RewriteModule) getExportedNameNode(info *ProcessCommonJSModules_ExportInfo) Node {
 	var qNameBase Node = this.outer_.getBaseQualifiedNameNode(info.node_)

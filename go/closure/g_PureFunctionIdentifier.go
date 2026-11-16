@@ -295,16 +295,19 @@ func (this *PureFunctionIdentifier) populateFunctionDefinitions(name string, ref
 }
 
 func (this *PureFunctionIdentifier) propagateSideEffects() {
-	FixedPointGraphTraversal_newTraversal(&FixedPointGraphTraversal_EdgeCallback_fn{func(source_ any, edge_ any, destination_ any) bool {
-		var source *PureFunctionIdentifier_AmbiguatedFunctionSummary = cast_[*PureFunctionIdentifier_AmbiguatedFunctionSummary](source_)
-		_ = source
-		var edge *PureFunctionIdentifier_SideEffectPropagation = cast_[*PureFunctionIdentifier_SideEffectPropagation](edge_)
-		_ = edge
-		var destination *PureFunctionIdentifier_AmbiguatedFunctionSummary = cast_[*PureFunctionIdentifier_AmbiguatedFunctionSummary](destination_)
-		_ = destination
-		return edge.propagate(source, destination)
-	}}).computeFixedPoint(this.reverseCallGraph.up_DiGraph())
+	FixedPointGraphTraversal_newTraversal(lambda_PureFunctionIdentifier_propagateSideEffects_1_).computeFixedPoint(this.reverseCallGraph.up_DiGraph())
 }
+
+// lambda_PureFunctionIdentifier_propagateSideEffects_1_ is a lambda of PureFunctionIdentifier_propagateSideEffects that captures nothing (post-flip step lambdas).
+var lambda_PureFunctionIdentifier_propagateSideEffects_1_ = &FixedPointGraphTraversal_EdgeCallback_fn{func(source_ any, edge_ any, destination_ any) bool {
+	var source *PureFunctionIdentifier_AmbiguatedFunctionSummary = cast_[*PureFunctionIdentifier_AmbiguatedFunctionSummary](source_)
+	_ = source
+	var edge *PureFunctionIdentifier_SideEffectPropagation = cast_[*PureFunctionIdentifier_SideEffectPropagation](edge_)
+	_ = edge
+	var destination *PureFunctionIdentifier_AmbiguatedFunctionSummary = cast_[*PureFunctionIdentifier_AmbiguatedFunctionSummary](destination_)
+	_ = destination
+	return edge.propagate(source, destination)
+}}
 
 func (this *PureFunctionIdentifier) markPureFunctionCalls() {
 	it_1 := eachOf_(&this.allFunctionCalls)
@@ -423,26 +426,44 @@ func PureFunctionIdentifier_clinit() {
 	PureFunctionIdentifier_clinit_done = true
 	PureFunctionIdentifier_IMPLICIT_PURE_FN = IR_function(IR_name(""), IR_paramList([]Node{}), IR_block_0())
 	PureFunctionIdentifier_UNUSED_ARTIFICIAL_PURE_ANNOTATION = DiagnosticType_disabled("JSC_UNUSED_ARTIFICIAL_PURE_ANNOTATION", "Artificial @nosideeffects annotation cannot be enforced: found ambiguous definitions of {0}.\n\nSide-effectful definitions:\n  {1}")
-	PureFunctionIdentifier_SOURCE_LOCATION_COMPARATOR = Comparator_thenComparingInt(Comparator_thenComparingInt(Comparator_comparing(&Function_fn{func(p0 any) any { return strobj_(Node_of_(p0).getSourceFileName()) }}), &ToIntFunction_fn{func(p0 any) int32 { return Node_of_(p0).getLineno() }}), &ToIntFunction_fn{func(p0 any) int32 { return Node_of_(p0).getCharno() }})
-	PureFunctionIdentifier_RHS_IS_ALWAYS_LOCAL = &Predicate_fn{func(lhs_ any) bool {
-		var lhs Node = Node_of_(lhs_)
-		_ = lhs
-		return true
-	}}
-	PureFunctionIdentifier_RHS_IS_NEVER_LOCAL = &Predicate_fn{func(lhs_ any) bool {
-		var lhs Node = Node_of_(lhs_)
-		_ = lhs
-		return false
-	}}
-	PureFunctionIdentifier_FIND_RHS_AND_CHECK_FOR_LOCAL_VALUE = &Predicate_fn{func(lhs_ any) bool {
-		var lhs Node = Node_of_(lhs_)
-		_ = lhs
-		var rhs Node = NodeUtil_getRValueOfLValue(lhs)
-		return ((rhs == 0) || NodeUtil_evaluatesToLocalValue(rhs))
-		panic("unreachable")
-	}}
+	PureFunctionIdentifier_SOURCE_LOCATION_COMPARATOR = Comparator_thenComparingInt(Comparator_thenComparingInt(Comparator_comparing(lambda_PureFunctionIdentifier_clinit_1_), lambda_PureFunctionIdentifier_clinit_2_), lambda_PureFunctionIdentifier_clinit_3_)
+	PureFunctionIdentifier_RHS_IS_ALWAYS_LOCAL = lambda_PureFunctionIdentifier_clinit_4_
+	PureFunctionIdentifier_RHS_IS_NEVER_LOCAL = lambda_PureFunctionIdentifier_clinit_5_
+	PureFunctionIdentifier_FIND_RHS_AND_CHECK_FOR_LOCAL_VALUE = lambda_PureFunctionIdentifier_clinit_6_
 
 }
+
+// lambda_PureFunctionIdentifier_clinit_1_ is a lambda of PureFunctionIdentifier_clinit that captures nothing (post-flip step lambdas).
+var lambda_PureFunctionIdentifier_clinit_1_ = &Function_fn{func(p0 any) any { return strobj_(Node_of_(p0).getSourceFileName()) }}
+
+// lambda_PureFunctionIdentifier_clinit_2_ is a lambda of PureFunctionIdentifier_clinit that captures nothing (post-flip step lambdas).
+var lambda_PureFunctionIdentifier_clinit_2_ = &ToIntFunction_fn{func(p0 any) int32 { return Node_of_(p0).getLineno() }}
+
+// lambda_PureFunctionIdentifier_clinit_3_ is a lambda of PureFunctionIdentifier_clinit that captures nothing (post-flip step lambdas).
+var lambda_PureFunctionIdentifier_clinit_3_ = &ToIntFunction_fn{func(p0 any) int32 { return Node_of_(p0).getCharno() }}
+
+// lambda_PureFunctionIdentifier_clinit_4_ is a lambda of PureFunctionIdentifier_clinit that captures nothing (post-flip step lambdas).
+var lambda_PureFunctionIdentifier_clinit_4_ = &Predicate_fn{func(lhs_ any) bool {
+	var lhs Node = Node_of_(lhs_)
+	_ = lhs
+	return true
+}}
+
+// lambda_PureFunctionIdentifier_clinit_5_ is a lambda of PureFunctionIdentifier_clinit that captures nothing (post-flip step lambdas).
+var lambda_PureFunctionIdentifier_clinit_5_ = &Predicate_fn{func(lhs_ any) bool {
+	var lhs Node = Node_of_(lhs_)
+	_ = lhs
+	return false
+}}
+
+// lambda_PureFunctionIdentifier_clinit_6_ is a lambda of PureFunctionIdentifier_clinit that captures nothing (post-flip step lambdas).
+var lambda_PureFunctionIdentifier_clinit_6_ = &Predicate_fn{func(lhs_ any) bool {
+	var lhs Node = Node_of_(lhs_)
+	_ = lhs
+	var rhs Node = NodeUtil_getRValueOfLValue(lhs)
+	return ((rhs == 0) || NodeUtil_evaluatesToLocalValue(rhs))
+	panic("unreachable")
+}}
 
 type PureFunctionIdentifier_ExternFunctionAnnotationAnalyzer struct {
 	outer_ *PureFunctionIdentifier

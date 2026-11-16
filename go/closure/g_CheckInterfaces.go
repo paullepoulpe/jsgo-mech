@@ -78,11 +78,7 @@ func CheckInterfaces_checkClassMethods(t *NodeTraversal, classNode Node, ctorDef
 				continue
 			}
 			if memberFuncDef.isStaticMember() {
-				var className OptionalOf[string] = Optional_of(strobj_(NodeUtil_getName(classNode))).filter(&Predicate_fn{func(s_ any) bool {
-					var s string = str_(s_)
-					_ = s
-					return !String_isEmpty(s)
-				}})
+				var className OptionalOf[string] = Optional_of(strobj_(NodeUtil_getName(classNode))).filter(lambda_CheckInterfaces_checkClassMethods_1_)
 				if className.isEmpty() {
 					className = Optional_of(strobj_(CheckInterfaces_ANONYMOUS_CLASSNAME))
 				}
@@ -97,6 +93,13 @@ func CheckInterfaces_checkClassMethods(t *NodeTraversal, classNode Node, ctorDef
 		}
 	}
 }
+
+// lambda_CheckInterfaces_checkClassMethods_1_ is a lambda of CheckInterfaces_checkClassMethods that captures nothing (post-flip step lambdas).
+var lambda_CheckInterfaces_checkClassMethods_1_ = &Predicate_fn{func(s_ any) bool {
+	var s string = str_(s_)
+	_ = s
+	return !String_isEmpty(s)
+}}
 
 func CheckInterfaces_checkConstructorBlock(t *NodeTraversal, funcNode Node) {
 	var block Node = funcNode.getLastChild()

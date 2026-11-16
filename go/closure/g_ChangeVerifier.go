@@ -210,10 +210,13 @@ func new_ChangeVerifier_EqualsResult(equals bool, errorNode Node, errorMessage S
 }
 
 func ChangeVerifier_EqualsResult_equal() *ChangeVerifier_EqualsResult {
-	return new_ChangeVerifier_EqualsResult(true, 0, &Supplier_fn{func() any {
-		return nil
-	}})
+	return new_ChangeVerifier_EqualsResult(true, 0, lambda_ChangeVerifier_EqualsResult_equal_1_)
 }
+
+// lambda_ChangeVerifier_EqualsResult_equal_1_ is a lambda of ChangeVerifier_EqualsResult_equal that captures nothing (post-flip step lambdas).
+var lambda_ChangeVerifier_EqualsResult_equal_1_ = &Supplier_fn{func() any {
+	return nil
+}}
 
 func ChangeVerifier_EqualsResult_notEqual(errorNode Node, error_ string, after any, before any) *ChangeVerifier_EqualsResult {
 	return new_ChangeVerifier_EqualsResult(false, errorNode, &Supplier_fn{func() any {

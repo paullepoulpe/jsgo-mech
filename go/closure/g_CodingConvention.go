@@ -152,17 +152,23 @@ func (this *CodingConvention_SubclassRelationship) init_CodingConvention_Subclas
 	Preconditions_checkArgument_boolean_String_Object(subclassNode.isQualifiedName(), "Expected qualified name, found: %s", subclassNode.box_())
 	Preconditions_checkArgument_boolean_String_Object(superclassNode.isQualifiedName(), "Expected qualified name, found: %s", superclassNode.box_())
 	this.type__ = type_
-	this.subclassName = Optional_of(strobj_(subclassNode.getQualifiedName())).filter(&Predicate_fn{func(s_ any) bool {
-		var s string = str_(s_)
-		_ = s
-		return !String_isEmpty(s)
-	}})
-	this.superclassName = Optional_of(strobj_(superclassNode.getQualifiedName())).filter(&Predicate_fn{func(s_ any) bool {
-		var s string = str_(s_)
-		_ = s
-		return !String_isEmpty(s)
-	}})
+	this.subclassName = Optional_of(strobj_(subclassNode.getQualifiedName())).filter(lambda_CodingConvention_SubclassRelationship_init_CodingConvention_SubclassRelationship_1_)
+	this.superclassName = Optional_of(strobj_(superclassNode.getQualifiedName())).filter(lambda_CodingConvention_SubclassRelationship_init_CodingConvention_SubclassRelationship_2_)
 }
+
+// lambda_CodingConvention_SubclassRelationship_init_CodingConvention_SubclassRelationship_1_ is a lambda of CodingConvention_SubclassRelationship_init_CodingConvention_SubclassRelationship that captures nothing (post-flip step lambdas).
+var lambda_CodingConvention_SubclassRelationship_init_CodingConvention_SubclassRelationship_1_ = &Predicate_fn{func(s_ any) bool {
+	var s string = str_(s_)
+	_ = s
+	return !String_isEmpty(s)
+}}
+
+// lambda_CodingConvention_SubclassRelationship_init_CodingConvention_SubclassRelationship_2_ is a lambda of CodingConvention_SubclassRelationship_init_CodingConvention_SubclassRelationship that captures nothing (post-flip step lambdas).
+var lambda_CodingConvention_SubclassRelationship_init_CodingConvention_SubclassRelationship_2_ = &Predicate_fn{func(s_ any) bool {
+	var s string = str_(s_)
+	_ = s
+	return !String_isEmpty(s)
+}}
 
 func new_CodingConvention_SubclassRelationship(type_ *CodingConvention_SubclassType, subclassNode Node, superclassNode Node) *CodingConvention_SubclassRelationship {
 	this := &CodingConvention_SubclassRelationship{}

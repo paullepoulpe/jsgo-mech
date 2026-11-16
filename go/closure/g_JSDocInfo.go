@@ -2210,7 +2210,7 @@ func (this *JSDocInfo_Builder) recordThrowsAnnotation(annotation string) bool {
 		return false
 	}
 	if !this.hasAnySingletonTypeTags() {
-		var throwsAnnotations ListOf[string] = icast_List(this.getPropWithDefault(JSDocInfo_THROWS_ANNOTATIONS, &Supplier_fn{func() any { return new_ArrayList_0().self() }}))
+		var throwsAnnotations ListOf[string] = icast_List(this.getPropWithDefault(JSDocInfo_THROWS_ANNOTATIONS, lambda_JSDocInfo_Builder_recordThrowsAnnotation_1_))
 		if this.shouldParseDocumentation() {
 			throwsAnnotations.add(strobj_(annotation))
 		} else if throwsAnnotations.isEmpty() {
@@ -2220,21 +2220,30 @@ func (this *JSDocInfo_Builder) recordThrowsAnnotation(annotation string) bool {
 	return true
 }
 
+// lambda_JSDocInfo_Builder_recordThrowsAnnotation_1_ is a lambda of JSDocInfo_Builder_recordThrowsAnnotation that captures nothing (post-flip step lambdas).
+var lambda_JSDocInfo_Builder_recordThrowsAnnotation_1_ = &Supplier_fn{func() any { return new_ArrayList_0().self() }}
+
 func (this *JSDocInfo_Builder) recordAuthor(author string) bool {
 	this.populated = true
 	if this.shouldParseDocumentation() {
-		icast_List(this.getPropWithDefault(JSDocInfo_AUTHORS, &Supplier_fn{func() any { return new_ArrayList_0().self() }})).add(strobj_(author))
+		icast_List(this.getPropWithDefault(JSDocInfo_AUTHORS, lambda_JSDocInfo_Builder_recordAuthor_1_)).add(strobj_(author))
 	}
 	return true
 }
 
+// lambda_JSDocInfo_Builder_recordAuthor_1_ is a lambda of JSDocInfo_Builder_recordAuthor that captures nothing (post-flip step lambdas).
+var lambda_JSDocInfo_Builder_recordAuthor_1_ = &Supplier_fn{func() any { return new_ArrayList_0().self() }}
+
 func (this *JSDocInfo_Builder) recordReference(reference string) bool {
 	this.populated = true
 	if this.shouldParseDocumentation() {
-		icast_List(this.getPropWithDefault(JSDocInfo_SEES, &Supplier_fn{func() any { return new_ArrayList_0().self() }})).add(strobj_(reference))
+		icast_List(this.getPropWithDefault(JSDocInfo_SEES, lambda_JSDocInfo_Builder_recordReference_1_)).add(strobj_(reference))
 	}
 	return true
 }
+
+// lambda_JSDocInfo_Builder_recordReference_1_ is a lambda of JSDocInfo_Builder_recordReference that captures nothing (post-flip step lambdas).
+var lambda_JSDocInfo_Builder_recordReference_1_ = &Supplier_fn{func() any { return new_ArrayList_0().self() }}
 
 func (this *JSDocInfo_Builder) recordConsistentIdGenerator() bool {
 	return this.populateProp(JSDocInfo_ID_GENERATOR, obj_(JSDocInfo_IdGenerator_CONSISTENT))
@@ -2365,8 +2374,11 @@ func (this *JSDocInfo_Builder) recordDescription(description string) bool {
 
 func (this *JSDocInfo_Builder) recordTsType(tsType string) {
 	this.populated = true
-	icast_List(this.getPropWithDefault(JSDocInfo_TS_TYPES, &Supplier_fn{func() any { return new_ArrayList_0().self() }})).add(strobj_(tsType))
+	icast_List(this.getPropWithDefault(JSDocInfo_TS_TYPES, lambda_JSDocInfo_Builder_recordTsType_1_)).add(strobj_(tsType))
 }
+
+// lambda_JSDocInfo_Builder_recordTsType_1_ is a lambda of JSDocInfo_Builder_recordTsType that captures nothing (post-flip step lambdas).
+var lambda_JSDocInfo_Builder_recordTsType_1_ = &Supplier_fn{func() any { return new_ArrayList_0().self() }}
 
 func (this *JSDocInfo_Builder) recordMeaning(meaning string) bool {
 	return this.populateProp(JSDocInfo_MEANING, strobj_(meaning))
@@ -2585,7 +2597,7 @@ func JSDocInfo_Builder_containsEquivalent(list ArrayListOf[*JSTypeExpression], e
 }
 
 func (this *JSDocInfo_Builder) addUnique(prop *JSDocInfo_Property, elem *JSTypeExpression) bool {
-	var list ArrayListOf[*JSTypeExpression] = to_ArrayList(this.getPropWithDefault(prop, &Supplier_fn{func() any { return new_ArrayList_0().self() }}))
+	var list ArrayListOf[*JSTypeExpression] = to_ArrayList(this.getPropWithDefault(prop, lambda_JSDocInfo_Builder_addUnique_1_))
 	if JSDocInfo_Builder_containsEquivalent(list, elem) {
 		return false
 	} else {
@@ -2595,6 +2607,9 @@ func (this *JSDocInfo_Builder) addUnique(prop *JSDocInfo_Property, elem *JSTypeE
 	}
 	panic("unreachable")
 }
+
+// lambda_JSDocInfo_Builder_addUnique_1_ is a lambda of JSDocInfo_Builder_addUnique that captures nothing (post-flip step lambdas).
+var lambda_JSDocInfo_Builder_addUnique_1_ = &Supplier_fn{func() any { return new_ArrayList_0().self() }}
 
 func (this *JSDocInfo_Builder) recordLends(name *JSTypeExpression) bool {
 	return (!this.hasAnyTypeRelatedTags() && this.populateProp(JSDocInfo_LENDS_NAME.up_JSDocInfo_Property(), obj_(name)))
@@ -2753,8 +2768,11 @@ func (this *JSDocInfo_Builder) getPropWithDefault(prop *JSDocInfo_Property, supp
 }
 
 func (this *JSDocInfo_Builder) putPropEntry(prop *JSDocInfo_Property, key any, value any) bool {
-	return (Map_putIfAbsent(icast_Map(obj_(cast_[*LinkedHashMap](this.getPropWithDefault(prop, &Supplier_fn{func() any { return obj_(new_LinkedHashMap()) }})))), key, value) == nil)
+	return (Map_putIfAbsent(icast_Map(obj_(cast_[*LinkedHashMap](this.getPropWithDefault(prop, lambda_JSDocInfo_Builder_putPropEntry_1_)))), key, value) == nil)
 }
+
+// lambda_JSDocInfo_Builder_putPropEntry_1_ is a lambda of JSDocInfo_Builder_putPropEntry that captures nothing (post-flip step lambdas).
+var lambda_JSDocInfo_Builder_putPropEntry_1_ = &Supplier_fn{func() any { return obj_(new_LinkedHashMap()) }}
 
 func (this *JSDocInfo_Builder) populatePropEntry(prop *JSDocInfo_Property, key any, value any) bool {
 	if this.putPropEntry(prop, key, value) {

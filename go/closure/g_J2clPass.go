@@ -236,11 +236,7 @@ func (this *J2clPass_ClassStaticFunctionsInliner_FunctionDefsCollector) visit(t 
 		var qualifiedFnName OptionalOf[string] = func() Optional {
 			switch n.ns_().token {
 			case tokOrd1_ASSIGN:
-				return Optional_of(strobj_(n.getFirstChild().getQualifiedName())).filter(&Predicate_fn{func(s_ any) bool {
-					var s string = str_(s_)
-					_ = s
-					return !String_isEmpty(s)
-				}})
+				return Optional_of(strobj_(n.getFirstChild().getQualifiedName())).filter(lambda_J2clPass_ClassStaticFunctionsInliner_FunctionDefsCollector_visit_1_)
 			case tokOrd1_MEMBER_FUNCTION_DEF:
 				return NodeUtil_getBestLValueName(n)
 			default:
@@ -252,6 +248,13 @@ func (this *J2clPass_ClassStaticFunctionsInliner_FunctionDefsCollector) visit(t 
 		Preconditions_checkState_boolean_String_Object_Object((previousValue == nil), "expected each function to match at most one InliningSpec, but found:\n%s\n%s", obj_(previousValue), obj_(inlinableFunction))
 	}
 }
+
+// lambda_J2clPass_ClassStaticFunctionsInliner_FunctionDefsCollector_visit_1_ is a lambda of J2clPass_ClassStaticFunctionsInliner_FunctionDefsCollector_visit that captures nothing (post-flip step lambdas).
+var lambda_J2clPass_ClassStaticFunctionsInliner_FunctionDefsCollector_visit_1_ = &Predicate_fn{func(s_ any) bool {
+	var s string = str_(s_)
+	_ = s
+	return !String_isEmpty(s)
+}}
 
 type J2clPass_ClassStaticFunctionsInliner_StaticCallInliner struct {
 	NodeTraversal_AbstractPostOrderCallback

@@ -91,17 +91,20 @@ func (this *TypedAstSerializer) serializeScriptNode(script Node) *LazyAst {
 	var sourceFile int32 = this.getSourceFilePointer(script)
 	var scriptProto *AstNode = this.visit(script)
 	this.subtreeSourceFiles.clear()
-	var encodedSourceMap OptionalOf[string] = this.compiler_.getBase64SourceMapContents(Optional_of(strobj_(script.getSourceFileName())).filter(&Predicate_fn{func(s_ any) bool {
-		var s string = str_(s_)
-		_ = s
-		return !String_isEmpty(s)
-	}}))
+	var encodedSourceMap OptionalOf[string] = this.compiler_.getBase64SourceMapContents(Optional_of(strobj_(script.getSourceFileName())).filter(lambda_TypedAstSerializer_serializeScriptNode_1_))
 	var lazyAstBuilder *LazyAst_Builder = LazyAst_newBuilder().setScript(scriptProto.toByteString()).setSourceFile(sourceFile)
 	if encodedSourceMap.isPresent() {
 		lazyAstBuilder.setSourceMappingUrl(str_(encodedSourceMap.get()))
 	}
 	return cast_[*LazyAst](lazyAstBuilder.build())
 }
+
+// lambda_TypedAstSerializer_serializeScriptNode_1_ is a lambda of TypedAstSerializer_serializeScriptNode that captures nothing (post-flip step lambdas).
+var lambda_TypedAstSerializer_serializeScriptNode_1_ = &Predicate_fn{func(s_ any) bool {
+	var s string = str_(s_)
+	_ = s
+	return !String_isEmpty(s)
+}}
 
 func (this *TypedAstSerializer) createWithPositionInfo(n Node) *AstNode_Builder {
 	Preconditions_checkState((n.getLength() >= 0))

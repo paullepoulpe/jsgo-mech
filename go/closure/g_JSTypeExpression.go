@@ -132,14 +132,17 @@ func (this *JSTypeExpression) isVarArgs() bool {
 }
 
 func (this *JSTypeExpression) evaluate(scope StaticTypedScope, registry *JSTypeRegistry) *JSType {
-	var type_ *JSType = registry.createTypeFromCommentNode_3(this.root, Optional_of(strobj_(this.sourceName_)).filter(&Predicate_fn{func(s_ any) bool {
-		var s string = str_(s_)
-		_ = s
-		return !String_isEmpty(s)
-	}}), scope)
+	var type_ *JSType = registry.createTypeFromCommentNode_3(this.root, Optional_of(strobj_(this.sourceName_)).filter(lambda_JSTypeExpression_evaluate_1_), scope)
 	this.root.setJSType(type_)
 	return type_
 }
+
+// lambda_JSTypeExpression_evaluate_1_ is a lambda of JSTypeExpression_evaluate that captures nothing (post-flip step lambdas).
+var lambda_JSTypeExpression_evaluate_1_ = &Predicate_fn{func(s_ any) bool {
+	var s string = str_(s_)
+	_ = s
+	return !String_isEmpty(s)
+}}
 
 func (this *JSTypeExpression) isEquivalentTo(other *JSTypeExpression) bool {
 	return ((other != nil) && this.root.isEquivalentTo(other.root))

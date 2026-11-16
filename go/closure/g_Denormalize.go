@@ -95,7 +95,7 @@ func (this *Denormalize) maybeCollapseIntoForStatements(n Node, parent Node) {
 			}
 		}
 	} else if nextSibling.isVanillaFor() && nextSibling.getFirstChild().isEmpty() {
-		if NodeUtil_has(n, &Predicate_base_fn{func(p0 any) bool { return Node_of_(p0).isIn() }}, Predicates_alwaysTrue()) {
+		if NodeUtil_has(n, lambda_Denormalize_maybeCollapseIntoForStatements_1_, Predicates_alwaysTrue()) {
 			return
 		}
 		var forNode Node = nextSibling
@@ -113,6 +113,9 @@ func (this *Denormalize) maybeCollapseIntoForStatements(n Node, parent Node) {
 		this.compiler_.reportChangeToEnclosingScope(forNode)
 	}
 }
+
+// lambda_Denormalize_maybeCollapseIntoForStatements_1_ is a lambda of Denormalize_maybeCollapseIntoForStatements that captures nothing (post-flip step lambdas).
+var lambda_Denormalize_maybeCollapseIntoForStatements_1_ = &Predicate_base_fn{func(p0 any) bool { return Node_of_(p0).isIn() }}
 
 func (this *Denormalize) maybeCollapseAssignShorthand(n Node, parent Node) {
 	if !this.isCollapsableAssign(n) {

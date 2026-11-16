@@ -192,9 +192,7 @@ func (this *StripCode_Strip) shouldTraverse(t *NodeTraversal, n Node, parent Nod
 	switch n.ns_().token {
 	case tokOrd1_CALL, tokOrd1_NEW:
 		if this.isMethodOrCtorCallThatTriggersRemoval(t, n, parent) {
-			this.decisionsLog.log(&Supplier_fn{func() any {
-				return strobj_("removing function call")
-			}})
+			this.decisionsLog.log(lambda_StripCode_Strip_shouldTraverse_1_)
 			this.replaceHighestNestedCallWithNull(t, n, parent)
 			return false
 		} else {
@@ -205,6 +203,11 @@ func (this *StripCode_Strip) shouldTraverse(t *NodeTraversal, n Node, parent Nod
 	}
 	panic("unreachable")
 }
+
+// lambda_StripCode_Strip_shouldTraverse_1_ is a lambda of StripCode_Strip_shouldTraverse that captures nothing (post-flip step lambdas).
+var lambda_StripCode_Strip_shouldTraverse_1_ = &Supplier_fn{func() any {
+	return strobj_("removing function call")
+}}
 
 func (this *StripCode_Strip) visit(t *NodeTraversal, n Node, parent Node) {
 	switch n.ns_().token {
@@ -426,11 +429,7 @@ func (this *StripCode_Strip) maybeEliminateClassByNameOrExtends(t *NodeTraversal
 	var className string
 	if (nameNode != 0) && nameNode.isQualifiedName() {
 		className = nameNode.getQualifiedName()
-		if this.qualifiedNameBeginsWithStripTypeString(Optional_of(strobj_(className)).filter(&Predicate_fn{func(s_ any) bool {
-			var s string = str_(s_)
-			_ = s
-			return !String_isEmpty(s)
-		}})) {
+		if this.qualifiedNameBeginsWithStripTypeString(Optional_of(strobj_(className)).filter(lambda_StripCode_Strip_maybeEliminateClassByNameOrExtends_1_)) {
 			this.decisionsLog.log(&Supplier_fn{func() any {
 				return strobj_((sstr_(className) + ": removing class"))
 			}})
@@ -448,15 +447,25 @@ func (this *StripCode_Strip) maybeEliminateClassByNameOrExtends(t *NodeTraversal
 	var superclassNode Node = classNode.getSecondChild()
 	if (superclassNode != 0) && superclassNode.isQualifiedName() {
 		var superclassName string = superclassNode.getQualifiedName()
-		if this.qualifiedNameBeginsWithStripTypeString(Optional_of(strobj_(superclassName)).filter(&Predicate_fn{func(s_ any) bool {
-			var s string = str_(s_)
-			_ = s
-			return !String_isEmpty(s)
-		}})) {
+		if this.qualifiedNameBeginsWithStripTypeString(Optional_of(strobj_(superclassName)).filter(lambda_StripCode_Strip_maybeEliminateClassByNameOrExtends_2_)) {
 			t.report(classNode, StripCode_STRIP_TYPE_INHERIT_ERROR, []string{className, superclassName})
 		}
 	}
 }
+
+// lambda_StripCode_Strip_maybeEliminateClassByNameOrExtends_1_ is a lambda of StripCode_Strip_maybeEliminateClassByNameOrExtends that captures nothing (post-flip step lambdas).
+var lambda_StripCode_Strip_maybeEliminateClassByNameOrExtends_1_ = &Predicate_fn{func(s_ any) bool {
+	var s string = str_(s_)
+	_ = s
+	return !String_isEmpty(s)
+}}
+
+// lambda_StripCode_Strip_maybeEliminateClassByNameOrExtends_2_ is a lambda of StripCode_Strip_maybeEliminateClassByNameOrExtends that captures nothing (post-flip step lambdas).
+var lambda_StripCode_Strip_maybeEliminateClassByNameOrExtends_2_ = &Predicate_fn{func(s_ any) bool {
+	var s string = str_(s_)
+	_ = s
+	return !String_isEmpty(s)
+}}
 
 func (this *StripCode_Strip) isCallWhoseReturnValueShouldBeStripped(n Node) bool {
 	if ((n == 0) || (!n.isCall() && !n.isNew())) || !n.hasChildren() {
@@ -468,12 +477,15 @@ func (this *StripCode_Strip) isCallWhoseReturnValueShouldBeStripped(n Node) bool
 
 func (this *StripCode_Strip) qualifiedNameBeginsWithStripType(n Node) bool {
 	var name string = n.getQualifiedName()
-	return this.qualifiedNameBeginsWithStripTypeString(Optional_of(strobj_(name)).filter(&Predicate_fn{func(s_ any) bool {
-		var s string = str_(s_)
-		_ = s
-		return !String_isEmpty(s)
-	}}))
+	return this.qualifiedNameBeginsWithStripTypeString(Optional_of(strobj_(name)).filter(lambda_StripCode_Strip_qualifiedNameBeginsWithStripType_1_))
 }
+
+// lambda_StripCode_Strip_qualifiedNameBeginsWithStripType_1_ is a lambda of StripCode_Strip_qualifiedNameBeginsWithStripType that captures nothing (post-flip step lambdas).
+var lambda_StripCode_Strip_qualifiedNameBeginsWithStripType_1_ = &Predicate_fn{func(s_ any) bool {
+	var s string = str_(s_)
+	_ = s
+	return !String_isEmpty(s)
+}}
 
 func (this *StripCode_Strip) qualifiedNameBeginsWithStripTypeString(name OptionalOf[string]) bool {
 	if name.isPresent() {

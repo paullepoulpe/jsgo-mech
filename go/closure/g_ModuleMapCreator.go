@@ -158,11 +158,7 @@ func (this *ModuleMapCreator_ModuleRequestResolverImpl) resolve_3(moduleRequest 
 		var namespace string = GoogEsImports_getClosureIdFromGoogImportSpecifier(moduleRequest)
 		return this.resolveForClosure(namespace)
 	}
-	var requestedPath *ModuleLoader_ModulePath = modulePath.resolveJsModule(moduleRequest, Optional_of(strobj_(forLineInfo.getSourceFileName())).filter(&Predicate_fn{func(s_ any) bool {
-		var s string = str_(s_)
-		_ = s
-		return !String_isEmpty(s)
-	}}), forLineInfo.getLineno(), forLineInfo.getCharno())
+	var requestedPath *ModuleLoader_ModulePath = modulePath.resolveJsModule(moduleRequest, Optional_of(strobj_(forLineInfo.getSourceFileName())).filter(lambda_ModuleMapCreator_ModuleRequestResolverImpl_resolve_3_1_), forLineInfo.getLineno(), forLineInfo.getCharno())
 	if requestedPath == nil {
 		requestedPath = modulePath.resolveModuleAsPath(moduleRequest)
 		if !this.outer_.unresolvedModules.containsKey(requestedPath.toModuleName()) {
@@ -173,6 +169,13 @@ func (this *ModuleMapCreator_ModuleRequestResolverImpl) resolve_3(moduleRequest 
 	}
 	return this.outer_.unresolvedModules.get(requestedPath.toModuleName())
 }
+
+// lambda_ModuleMapCreator_ModuleRequestResolverImpl_resolve_3_1_ is a lambda of ModuleMapCreator_ModuleRequestResolverImpl_resolve_3 that captures nothing (post-flip step lambdas).
+var lambda_ModuleMapCreator_ModuleRequestResolverImpl_resolve_3_1_ = &Predicate_fn{func(s_ any) bool {
+	var s string = str_(s_)
+	_ = s
+	return !String_isEmpty(s)
+}}
 
 type ModuleMapCreator_ModuleProcessor interface {
 	process(*ModuleMetadataMap_ModuleMetadata, *ModuleLoader_ModulePath, Node) *UnresolvedModule

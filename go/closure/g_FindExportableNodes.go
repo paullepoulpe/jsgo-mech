@@ -55,11 +55,7 @@ func (this *FindExportableNodes) visit_impl(t *NodeTraversal, n Node, parent Nod
 	switch n.ns_().token {
 	case tokOrd1_FUNCTION, tokOrd1_CLASS:
 		if parent.isScript() {
-			export = Optional_of(strobj_(NodeUtil_getName(n))).filter(&Predicate_fn{func(s_ any) bool {
-				var s string = str_(s_)
-				_ = s
-				return !String_isEmpty(s)
-			}})
+			export = Optional_of(strobj_(NodeUtil_getName(n))).filter(lambda_FindExportableNodes_visit_impl_1_)
 			context = n
 			mode = FindExportableNodes_Mode_EXPORT
 		}
@@ -68,11 +64,7 @@ func (this *FindExportableNodes) visit_impl(t *NodeTraversal, n Node, parent Nod
 		var child Node = n.getFirstChild()
 		if parent.isExprResult() && !n.getLastChild().isAssign() {
 			if ((grandparent != 0) && grandparent.isScript()) && child.isQualifiedName() {
-				export = Optional_of(strobj_(child.getQualifiedName())).filter(&Predicate_fn{func(s_ any) bool {
-					var s string = str_(s_)
-					_ = s
-					return !String_isEmpty(s)
-				}})
+				export = Optional_of(strobj_(child.getQualifiedName())).filter(lambda_FindExportableNodes_visit_impl_2_)
 				context = n
 				mode = FindExportableNodes_Mode_EXPORT
 			} else if this.allowLocalExports && child.isGetProp() {
@@ -154,6 +146,20 @@ func (this *FindExportableNodes) visit_impl(t *NodeTraversal, n Node, parent Nod
 		}
 	}
 }
+
+// lambda_FindExportableNodes_visit_impl_1_ is a lambda of FindExportableNodes_visit_impl that captures nothing (post-flip step lambdas).
+var lambda_FindExportableNodes_visit_impl_1_ = &Predicate_fn{func(s_ any) bool {
+	var s string = str_(s_)
+	_ = s
+	return !String_isEmpty(s)
+}}
+
+// lambda_FindExportableNodes_visit_impl_2_ is a lambda of FindExportableNodes_visit_impl that captures nothing (post-flip step lambdas).
+var lambda_FindExportableNodes_visit_impl_2_ = &Predicate_fn{func(s_ any) bool {
+	var s string = str_(s_)
+	_ = s
+	return !String_isEmpty(s)
+}}
 
 func (this *FindExportableNodes) getExports() *TMap[string, Node] {
 	return this.exports

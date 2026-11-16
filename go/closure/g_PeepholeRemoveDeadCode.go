@@ -1141,24 +1141,36 @@ func (this *PeepholeRemoveDeadCode) isRemovableDestructuringTarget(destructrurin
 }
 
 func PeepholeRemoveDeadCode_hasUnnamedBreakOrContinue(n Node) bool {
-	return (NodeUtil_has(n, &Predicate_base_fn{func(node_ any) bool {
-		var node Node = Node_of_(node_)
-		_ = node
-		return (node.isBreak() && !node.hasChildren())
-	}}, &Predicate_base_fn{func(node_ any) bool {
-		var node Node = Node_of_(node_)
-		_ = node
-		return ((!IR_mayBeExpression(node) && !NodeUtil_isLoopStructure(node)) && !node.isSwitch())
-	}}) || NodeUtil_has(n, &Predicate_base_fn{func(node_ any) bool {
-		var node Node = Node_of_(node_)
-		_ = node
-		return (node.isContinue() && !node.hasChildren())
-	}}, &Predicate_base_fn{func(node_ any) bool {
-		var node Node = Node_of_(node_)
-		_ = node
-		return (!IR_mayBeExpression(node) && !NodeUtil_isLoopStructure(node))
-	}}))
+	return (NodeUtil_has(n, lambda_PeepholeRemoveDeadCode_hasUnnamedBreakOrContinue_1_, lambda_PeepholeRemoveDeadCode_hasUnnamedBreakOrContinue_2_) || NodeUtil_has(n, lambda_PeepholeRemoveDeadCode_hasUnnamedBreakOrContinue_3_, lambda_PeepholeRemoveDeadCode_hasUnnamedBreakOrContinue_4_))
 }
+
+// lambda_PeepholeRemoveDeadCode_hasUnnamedBreakOrContinue_1_ is a lambda of PeepholeRemoveDeadCode_hasUnnamedBreakOrContinue that captures nothing (post-flip step lambdas).
+var lambda_PeepholeRemoveDeadCode_hasUnnamedBreakOrContinue_1_ = &Predicate_base_fn{func(node_ any) bool {
+	var node Node = Node_of_(node_)
+	_ = node
+	return (node.isBreak() && !node.hasChildren())
+}}
+
+// lambda_PeepholeRemoveDeadCode_hasUnnamedBreakOrContinue_2_ is a lambda of PeepholeRemoveDeadCode_hasUnnamedBreakOrContinue that captures nothing (post-flip step lambdas).
+var lambda_PeepholeRemoveDeadCode_hasUnnamedBreakOrContinue_2_ = &Predicate_base_fn{func(node_ any) bool {
+	var node Node = Node_of_(node_)
+	_ = node
+	return ((!IR_mayBeExpression(node) && !NodeUtil_isLoopStructure(node)) && !node.isSwitch())
+}}
+
+// lambda_PeepholeRemoveDeadCode_hasUnnamedBreakOrContinue_3_ is a lambda of PeepholeRemoveDeadCode_hasUnnamedBreakOrContinue that captures nothing (post-flip step lambdas).
+var lambda_PeepholeRemoveDeadCode_hasUnnamedBreakOrContinue_3_ = &Predicate_base_fn{func(node_ any) bool {
+	var node Node = Node_of_(node_)
+	_ = node
+	return (node.isContinue() && !node.hasChildren())
+}}
+
+// lambda_PeepholeRemoveDeadCode_hasUnnamedBreakOrContinue_4_ is a lambda of PeepholeRemoveDeadCode_hasUnnamedBreakOrContinue that captures nothing (post-flip step lambdas).
+var lambda_PeepholeRemoveDeadCode_hasUnnamedBreakOrContinue_4_ = &Predicate_base_fn{func(node_ any) bool {
+	var node Node = Node_of_(node_)
+	_ = node
+	return (!IR_mayBeExpression(node) && !NodeUtil_isLoopStructure(node))
+}}
 
 func (this *PeepholeRemoveDeadCode) tryFoldForCondition(forCondition Node) {
 	if this.getSideEffectFreeBooleanValue(forCondition) == Tri_TRUE {

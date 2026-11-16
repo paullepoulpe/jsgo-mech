@@ -21,12 +21,15 @@ func J2clSourceUtils_isJ2clSourceString(sourceFileName OptionalOf[string]) bool 
 
 func J2clSourceUtils_isJ2clSource(scriptNode Node) bool {
 	Preconditions_checkArgument(scriptNode.isScript())
-	return J2clSourceUtils_isJ2clSourceString(Optional_of(strobj_(scriptNode.getSourceFileName())).filter(&Predicate_fn{func(s_ any) bool {
-		var s string = str_(s_)
-		_ = s
-		return !String_isEmpty(s)
-	}}))
+	return J2clSourceUtils_isJ2clSourceString(Optional_of(strobj_(scriptNode.getSourceFileName())).filter(lambda_J2clSourceUtils_isJ2clSource_1_))
 }
+
+// lambda_J2clSourceUtils_isJ2clSource_1_ is a lambda of J2clSourceUtils_isJ2clSource that captures nothing (post-flip step lambdas).
+var lambda_J2clSourceUtils_isJ2clSource_1_ = &Predicate_fn{func(s_ any) bool {
+	var s string = str_(s_)
+	_ = s
+	return !String_isEmpty(s)
+}}
 
 func J2clSourceUtils_isInsideJ2clSource(node Node) bool {
 	var scriptNode Node = func() Node {

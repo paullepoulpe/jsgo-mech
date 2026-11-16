@@ -499,13 +499,16 @@ func (this *Es6RewriteDestructuring) wrapAssignOrDestructuringInCallToArrow(t *N
 }
 
 func (this *Es6RewriteDestructuring) validateNoAwaitOrYieldInNestedAssignmentPattern(pattern Node) {
-	var hasAwaitOrYieldInLhs bool = (NodeUtil_findPreorder(pattern, &Predicate_base_fn{func(n_ any) bool {
-		var n Node = Node_of_(n_)
-		_ = n
-		return (n.isAwait() || n.isYield())
-	}}, NodeUtil_MATCH_NOT_FUNCTION) != 0)
+	var hasAwaitOrYieldInLhs bool = (NodeUtil_findPreorder(pattern, lambda_Es6RewriteDestructuring_validateNoAwaitOrYieldInNestedAssignmentPattern_1_, NodeUtil_MATCH_NOT_FUNCTION) != 0)
 	Preconditions_checkState_boolean_String_Object(!hasAwaitOrYieldInLhs, "Cannot transpile yet: destructuring assignment referencing await or yield in lhs, in nested sub-expression: %s", pattern.box_())
 }
+
+// lambda_Es6RewriteDestructuring_validateNoAwaitOrYieldInNestedAssignmentPattern_1_ is a lambda of Es6RewriteDestructuring_validateNoAwaitOrYieldInNestedAssignmentPattern that captures nothing (post-flip step lambdas).
+var lambda_Es6RewriteDestructuring_validateNoAwaitOrYieldInNestedAssignmentPattern_1_ = &Predicate_base_fn{func(n_ any) bool {
+	var n Node = Node_of_(n_)
+	_ = n
+	return (n.isAwait() || n.isYield())
+}}
 
 func (this *Es6RewriteDestructuring) visitDestructuringPatternInVanillaForInnerVars(t *NodeTraversal, pattern Node) {
 	Preconditions_checkArgument(pattern.isDestructuringPattern())

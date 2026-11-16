@@ -35,9 +35,7 @@ func (this *LowestCommonAncestorFinder) findAll(roots SetOf[any]) ImmutableSetOf
 		var rootNode DiGraph_DiGraphNode = icast_DiGraph_DiGraphNode(this.graph.getNode(root))
 		Preconditions_checkNotNull_Object_String_Object(any(rootNode), "Root not present in graph: %s", root)
 		var color *LowestCommonAncestorFinder_Color = LowestCommonAncestorFinder_Color_create(bitForRoot)
-		Map_merge(icast_Map(obj_(this.searchColoring)), any(rootNode), obj_(color), &BiFunction_fn{func(p0 any, p1 any) any {
-			return obj_(cast_[*LowestCommonAncestorFinder_Color](p0).mix(cast_[*LowestCommonAncestorFinder_Color](p1)))
-		}})
+		Map_merge(icast_Map(obj_(this.searchColoring)), any(rootNode), obj_(color), lambda_LowestCommonAncestorFinder_findAll_1_)
 		this.paintAncestors(rootNode, color)
 		bitForRoot = (bitForRoot << 1)
 	}
@@ -64,6 +62,11 @@ func (this *LowestCommonAncestorFinder) findAll(roots SetOf[any]) ImmutableSetOf
 	this.searchQueue.clear()
 	return cast_[*ImmutableSet](obj_(results.build()))
 }
+
+// lambda_LowestCommonAncestorFinder_findAll_1_ is a lambda of LowestCommonAncestorFinder_findAll that captures nothing (post-flip step lambdas).
+var lambda_LowestCommonAncestorFinder_findAll_1_ = &BiFunction_fn{func(p0 any, p1 any) any {
+	return obj_(cast_[*LowestCommonAncestorFinder_Color](p0).mix(cast_[*LowestCommonAncestorFinder_Color](p1)))
+}}
 
 func (this *LowestCommonAncestorFinder) paintAncestors(root DiGraph_DiGraphNode, color *LowestCommonAncestorFinder_Color) {
 	Preconditions_checkState(this.searchQueue.isEmpty())
@@ -158,7 +161,7 @@ func LowestCommonAncestorFinder_Color_clinit() {
 		func() {
 			arr_1 := LowestCommonAncestorFinder_Color_COMMON_COLOR_CACHE
 			tmp_2 := arrmap_(arr_1, func(v_ *LowestCommonAncestorFinder_Color) any { return obj_(v_) })
-			Arrays_setAll(tmp_2, &IntFunction_fn{func(p0 int32) any { return obj_(new_LowestCommonAncestorFinder_Color(p0)) }})
+			Arrays_setAll(tmp_2, lambda_LowestCommonAncestorFinder_Color_clinit_1_)
 			for i_ := range tmp_2 {
 				arr_1[i_] = cast_[*LowestCommonAncestorFinder_Color](tmp_2[i_])
 			}
@@ -168,3 +171,6 @@ func LowestCommonAncestorFinder_Color_clinit() {
 	LowestCommonAncestorFinder_Color_NOT_LOWEST = new_LowestCommonAncestorFinder_Color(-1)
 
 }
+
+// lambda_LowestCommonAncestorFinder_Color_clinit_1_ is a lambda of LowestCommonAncestorFinder_Color_clinit that captures nothing (post-flip step lambdas).
+var lambda_LowestCommonAncestorFinder_Color_clinit_1_ = &IntFunction_fn{func(p0 int32) any { return obj_(new_LowestCommonAncestorFinder_Color(p0)) }}

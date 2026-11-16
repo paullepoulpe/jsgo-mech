@@ -194,7 +194,7 @@ func (this *DevirtualizeMethods) isEligibleDefinitionFunction(definitionFunction
 			}
 		}
 	}
-	if NodeUtil_has(definitionFunction, &Predicate_base_fn{func(p0 any) bool { return Node_of_(p0).isSuper() }}, Predicates_alwaysTrue()) {
+	if NodeUtil_has(definitionFunction, lambda_DevirtualizeMethods_isEligibleDefinitionFunction_1_, Predicates_alwaysTrue()) {
 		return false
 	}
 	if NodeUtil_doesFunctionReferenceOwnArgumentsObject(definitionFunction) {
@@ -202,6 +202,9 @@ func (this *DevirtualizeMethods) isEligibleDefinitionFunction(definitionFunction
 	}
 	return true
 }
+
+// lambda_DevirtualizeMethods_isEligibleDefinitionFunction_1_ is a lambda of DevirtualizeMethods_isEligibleDefinitionFunction that captures nothing (post-flip step lambdas).
+var lambda_DevirtualizeMethods_isEligibleDefinitionFunction_1_ = &Predicate_base_fn{func(p0 any) bool { return Node_of_(p0).isSuper() }}
 
 func (this *DevirtualizeMethods) isEligibleCallSite(access Node, definitionSite Node) bool {
 	var invocation Node = access.getParent()

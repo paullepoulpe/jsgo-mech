@@ -65,26 +65,32 @@ func (this *PreprocessorSymbolTable) addReference(node Node) {
 }
 
 func (this *PreprocessorSymbolTable) addReference_2(node Node, name string) {
-	this.symbols.computeIfAbsent(name, &Function_fn{func(k_ any) any {
-		var k string = str_(k_)
-		_ = k
-		return new_SimpleSlot(k, nil, true).self()
-	}})
+	this.symbols.computeIfAbsent(name, lambda_PreprocessorSymbolTable_addReference_2_1_)
 	this.refs.put(strobj_(name), obj_(new_PreprocessorSymbolTable_Reference(this.symbols.get(name), node)))
 }
+
+// lambda_PreprocessorSymbolTable_addReference_2_1_ is a lambda of PreprocessorSymbolTable_addReference_2 that captures nothing (post-flip step lambdas).
+var lambda_PreprocessorSymbolTable_addReference_2_1_ = &Function_fn{func(k_ any) any {
+	var k string = str_(k_)
+	_ = k
+	return new_SimpleSlot(k, nil, true).self()
+}}
 
 func (this *PreprocessorSymbolTable) getQualifiedName(n Node) OptionalOf[string] {
 	return func() Optional {
 		if n.isStringLit() {
 			return Optional_of(strobj_(n.getString()))
 		}
-		return Optional_of(strobj_(n.getQualifiedName())).filter(&Predicate_fn{func(s_ any) bool {
-			var s string = str_(s_)
-			_ = s
-			return !String_isEmpty(s)
-		}})
+		return Optional_of(strobj_(n.getQualifiedName())).filter(lambda_PreprocessorSymbolTable_getQualifiedName_1_)
 	}()
 }
+
+// lambda_PreprocessorSymbolTable_getQualifiedName_1_ is a lambda of PreprocessorSymbolTable_getQualifiedName that captures nothing (post-flip step lambdas).
+var lambda_PreprocessorSymbolTable_getQualifiedName_1_ = &Predicate_fn{func(s_ any) bool {
+	var s string = str_(s_)
+	_ = s
+	return !String_isEmpty(s)
+}}
 
 func (this *PreprocessorSymbolTable) lookupQualifiedName(p0 *QualifiedName) *JSType {
 	return StaticTypedScope_lookupQualifiedName_default(icast_StaticTypedScope(any(this)), p0)

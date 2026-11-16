@@ -128,31 +128,19 @@ func (this *ExportTestFunctions_ExportTestFunctionsNodes) visit_impl(t *NodeTrav
 	if parent.isScript() || parent.isModuleBody() {
 		if NodeUtil_isFunctionDeclaration(n) {
 			var functionName string = NodeUtil_getName(n)
-			if ExportTestFunctions_isTestFunction(Optional_of(strobj_(functionName)).filter(&Predicate_fn{func(s_ any) bool {
-				var s string = str_(s_)
-				_ = s
-				return !String_isEmpty(s)
-			}})) {
+			if ExportTestFunctions_isTestFunction(Optional_of(strobj_(functionName)).filter(lambda_ExportTestFunctions_ExportTestFunctionsNodes_visit_impl_1_)) {
 				this.outer_.exportTestFunctionAsSymbol(functionName, n)
 			}
 		} else if this.isNameDeclaredFunction(n) {
 			var functionNode Node = n.getFirstFirstChild()
 			var functionName string = NodeUtil_getName(functionNode)
-			if ExportTestFunctions_isTestFunction(Optional_of(strobj_(functionName)).filter(&Predicate_fn{func(s_ any) bool {
-				var s string = str_(s_)
-				_ = s
-				return !String_isEmpty(s)
-			}})) {
+			if ExportTestFunctions_isTestFunction(Optional_of(strobj_(functionName)).filter(lambda_ExportTestFunctions_ExportTestFunctionsNodes_visit_impl_2_)) {
 				this.outer_.exportTestFunctionAsSymbol(functionName, n)
 			}
 		} else if this.isNameDeclaredClass(n) {
 			var classNode Node = n.getFirstFirstChild()
 			var className string = NodeUtil_getName(classNode)
-			this.exportClass_3(classNode, Optional_of(strobj_(className)).filter(&Predicate_fn{func(s_ any) bool {
-				var s string = str_(s_)
-				_ = s
-				return !String_isEmpty(s)
-			}}), n)
+			this.exportClass_3(classNode, Optional_of(strobj_(className)).filter(lambda_ExportTestFunctions_ExportTestFunctionsNodes_visit_impl_3_), n)
 		} else if n.isClass() {
 			this.exportClass(n)
 		}
@@ -163,11 +151,7 @@ func (this *ExportTestFunctions_ExportTestFunctionsNodes) visit_impl(t *NodeTrav
 			var lastChild Node = n.getLastChild()
 			var nodeName string = firstChild.getQualifiedName()
 			if lastChild.isFunction() {
-				if ExportTestFunctions_isTestFunction(Optional_of(strobj_(nodeName)).filter(&Predicate_fn{func(s_ any) bool {
-					var s string = str_(s_)
-					_ = s
-					return !String_isEmpty(s)
-				}})) {
+				if ExportTestFunctions_isTestFunction(Optional_of(strobj_(nodeName)).filter(lambda_ExportTestFunctions_ExportTestFunctionsNodes_visit_impl_4_)) {
 					if n.getFirstChild().isName() {
 						this.outer_.exportTestFunctionAsSymbol(nodeName, parent)
 					} else {
@@ -175,11 +159,7 @@ func (this *ExportTestFunctions_ExportTestFunctionsNodes) visit_impl(t *NodeTrav
 					}
 				}
 			} else if lastChild.isClass() {
-				this.exportClass_3(lastChild, Optional_of(strobj_(nodeName)).filter(&Predicate_fn{func(s_ any) bool {
-					var s string = str_(s_)
-					_ = s
-					return !String_isEmpty(s)
-				}}), parent)
+				this.exportClass_3(lastChild, Optional_of(strobj_(nodeName)).filter(lambda_ExportTestFunctions_ExportTestFunctionsNodes_visit_impl_5_), parent)
 			}
 		}
 	} else if ExportTestFunctions_isTestSuiteArgument(n, t) {
@@ -199,14 +179,52 @@ func (this *ExportTestFunctions_ExportTestFunctionsNodes) visit_impl(t *NodeTrav
 	}
 }
 
+// lambda_ExportTestFunctions_ExportTestFunctionsNodes_visit_impl_1_ is a lambda of ExportTestFunctions_ExportTestFunctionsNodes_visit_impl that captures nothing (post-flip step lambdas).
+var lambda_ExportTestFunctions_ExportTestFunctionsNodes_visit_impl_1_ = &Predicate_fn{func(s_ any) bool {
+	var s string = str_(s_)
+	_ = s
+	return !String_isEmpty(s)
+}}
+
+// lambda_ExportTestFunctions_ExportTestFunctionsNodes_visit_impl_2_ is a lambda of ExportTestFunctions_ExportTestFunctionsNodes_visit_impl that captures nothing (post-flip step lambdas).
+var lambda_ExportTestFunctions_ExportTestFunctionsNodes_visit_impl_2_ = &Predicate_fn{func(s_ any) bool {
+	var s string = str_(s_)
+	_ = s
+	return !String_isEmpty(s)
+}}
+
+// lambda_ExportTestFunctions_ExportTestFunctionsNodes_visit_impl_3_ is a lambda of ExportTestFunctions_ExportTestFunctionsNodes_visit_impl that captures nothing (post-flip step lambdas).
+var lambda_ExportTestFunctions_ExportTestFunctionsNodes_visit_impl_3_ = &Predicate_fn{func(s_ any) bool {
+	var s string = str_(s_)
+	_ = s
+	return !String_isEmpty(s)
+}}
+
+// lambda_ExportTestFunctions_ExportTestFunctionsNodes_visit_impl_4_ is a lambda of ExportTestFunctions_ExportTestFunctionsNodes_visit_impl that captures nothing (post-flip step lambdas).
+var lambda_ExportTestFunctions_ExportTestFunctionsNodes_visit_impl_4_ = &Predicate_fn{func(s_ any) bool {
+	var s string = str_(s_)
+	_ = s
+	return !String_isEmpty(s)
+}}
+
+// lambda_ExportTestFunctions_ExportTestFunctionsNodes_visit_impl_5_ is a lambda of ExportTestFunctions_ExportTestFunctionsNodes_visit_impl that captures nothing (post-flip step lambdas).
+var lambda_ExportTestFunctions_ExportTestFunctionsNodes_visit_impl_5_ = &Predicate_fn{func(s_ any) bool {
+	var s string = str_(s_)
+	_ = s
+	return !String_isEmpty(s)
+}}
+
 func (this *ExportTestFunctions_ExportTestFunctionsNodes) exportClass(classNode Node) {
 	var className string = NodeUtil_getName(classNode)
-	this.exportClass_3(classNode, Optional_of(strobj_(className)).filter(&Predicate_fn{func(s_ any) bool {
-		var s string = str_(s_)
-		_ = s
-		return !String_isEmpty(s)
-	}}), classNode)
+	this.exportClass_3(classNode, Optional_of(strobj_(className)).filter(lambda_ExportTestFunctions_ExportTestFunctionsNodes_exportClass_1_), classNode)
 }
+
+// lambda_ExportTestFunctions_ExportTestFunctionsNodes_exportClass_1_ is a lambda of ExportTestFunctions_ExportTestFunctionsNodes_exportClass that captures nothing (post-flip step lambdas).
+var lambda_ExportTestFunctions_ExportTestFunctionsNodes_exportClass_1_ = &Predicate_fn{func(s_ any) bool {
+	var s string = str_(s_)
+	_ = s
+	return !String_isEmpty(s)
+}}
 
 func (this *ExportTestFunctions_ExportTestFunctionsNodes) exportClass_3(classNode Node, className OptionalOf[string], addAfter Node) {
 	var classMembers Node = classNode.getLastChild()

@@ -170,13 +170,16 @@ func (this *InferJSDocInfo) inferJSDocForProperty(n Node, parent Node) {
 	}
 	var propType *ObjectType = InferJSDocInfo_dereferenced(lhsType.getPropertyType(propName))
 	if InferJSDocInfo_shouldAttachJSDocToNominalTypeOrShape(propType, aliasedType) {
-		InferJSDocInfo_attachJSDocInfoToNominalTypeOrShape(propType, typeDoc, Optional_of(strobj_(n.getQualifiedName())).filter(&Predicate_fn{func(s_ any) bool {
-			var s string = str_(s_)
-			_ = s
-			return !String_isEmpty(s)
-		}}))
+		InferJSDocInfo_attachJSDocInfoToNominalTypeOrShape(propType, typeDoc, Optional_of(strobj_(n.getQualifiedName())).filter(lambda_InferJSDocInfo_inferJSDocForProperty_1_))
 	}
 }
+
+// lambda_InferJSDocInfo_inferJSDocForProperty_1_ is a lambda of InferJSDocInfo_inferJSDocForProperty that captures nothing (post-flip step lambdas).
+var lambda_InferJSDocInfo_inferJSDocForProperty_1_ = &Predicate_fn{func(s_ any) bool {
+	var s string = str_(s_)
+	_ = s
+	return !String_isEmpty(s)
+}}
 
 func InferJSDocInfo_dereferenced(type_ *JSType) *ObjectType {
 	return func() *ObjectType {

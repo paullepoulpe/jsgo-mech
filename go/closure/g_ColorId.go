@@ -29,16 +29,22 @@ func ColorId_fromUnsignedByte(x int8) *ColorId {
 }
 
 func ColorId_fromBytesByteString(bytes *ByteString) *ColorId {
-	return ColorId_fromBytesAt(obj_(bytes), bytes.size(), &ColorId_ByteAt_fn{func(p0 any, p1 int32) int8 { return cast_[*ByteString](p0).byteAt(p1) }})
+	return ColorId_fromBytesAt(obj_(bytes), bytes.size(), lambda_ColorId_fromBytesByteString_1_)
 }
 
+// lambda_ColorId_fromBytesByteString_1_ is a lambda of ColorId_fromBytesByteString that captures nothing (post-flip step lambdas).
+var lambda_ColorId_fromBytesByteString_1_ = &ColorId_ByteAt_fn{func(p0 any, p1 int32) int8 { return cast_[*ByteString](p0).byteAt(p1) }}
+
 func ColorId_fromBytes(bytes []int8) *ColorId {
-	return ColorId_fromBytesAt(any(bytes), int32(len(bytes)), &ColorId_ByteAt_fn{func(s_ any, i int32) int8 {
-		var s []int8 = cast_[[]int8](s_)
-		_ = s
-		return s[i]
-	}})
+	return ColorId_fromBytesAt(any(bytes), int32(len(bytes)), lambda_ColorId_fromBytes_1_)
 }
+
+// lambda_ColorId_fromBytes_1_ is a lambda of ColorId_fromBytes that captures nothing (post-flip step lambdas).
+var lambda_ColorId_fromBytes_1_ = &ColorId_ByteAt_fn{func(s_ any, i int32) int8 {
+	var s []int8 = cast_[[]int8](s_)
+	_ = s
+	return s[i]
+}}
 
 func ColorId_fromAscii(str string) *ColorId {
 	return ColorId_fromBytesAt(strobj_(str), String_length(str), ColorId_ASCII_AT)
@@ -123,16 +129,19 @@ func ColorId_clinit() {
 	}
 	ColorId_clinit_done = true
 	ColorId_FARM_64 = Hashing_farmHashFingerprint64()
-	ColorId_ASCII_AT = &ColorId_ByteAt_fn{func(s_ any, i int32) int8 {
-		var s string = str_(s_)
-		_ = s
-		var c int32 = String_codePointAt(s, i)
-		Preconditions_checkState_boolean_Object(((0 <= c) && (c < 128)), any(int32(c)))
-		return int8(c)
-		panic("unreachable")
-	}}
+	ColorId_ASCII_AT = lambda_ColorId_clinit_1_
 
 }
+
+// lambda_ColorId_clinit_1_ is a lambda of ColorId_clinit that captures nothing (post-flip step lambdas).
+var lambda_ColorId_clinit_1_ = &ColorId_ByteAt_fn{func(s_ any, i int32) int8 {
+	var s string = str_(s_)
+	_ = s
+	var c int32 = String_codePointAt(s, i)
+	Preconditions_checkState_boolean_Object(((0 <= c) && (c < 128)), any(int32(c)))
+	return int8(c)
+	panic("unreachable")
+}}
 
 type ColorId_ByteAt interface {
 	get(any, int32) int8
