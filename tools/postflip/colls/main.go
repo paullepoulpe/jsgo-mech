@@ -16,7 +16,14 @@
 // code expecting an erased collection or Object, goes through a view (asList, asMap, asSet)
 // with the collection's identity.
 //
-// usage: colls -kind list|map|set [-n] [-v] <dir of package closure>
+// -kind deque: an ArrayDeque used only as a stack (push, pop, peek, poll, getFirst, size,
+// isEmpty, clear; also addFirst, removeFirst...) becomes a *TList[T] whose end is the deque's
+// head (its order reversed: a for-each loop walks it from the end, eachRev), or a deque used
+// at its tail (add, removeLast, getLast..., and a queue: add, poll) a *TList[T] in its own
+// order. A deque pushed at its head and used at its tail, or seen as an erased collection,
+// stays erased.
+//
+// usage: colls -kind list|map|set|deque [-n] [-v] <dir of package closure>
 //
 //	(-n: report only; -v: list the classes)
 package main
@@ -38,16 +45,21 @@ import (
 // ---- union-find over slots
 
 type class struct {
-	elem     []types.Type // element types: T of a list or set; K, V of a map
-	elemText []string
-	cv       []rw.Conv
-	poison   []string
-	elems    [][]ast.Expr // stated element types (alias arguments), per type argument
-	typeExpr []ast.Expr   // declarations to rewrite to *TList[T]
-	edits    []func(c *class) rw.Edit
-	slots    int
-	strKey   bool   // used through a string-key helper: the key must be a string
-	anyAt    string // where a value is boxed into an Object, if anywhere
+	elem       []types.Type // element types: T of a list or set; K, V of a map
+	elemText   []string
+	cv         []rw.Conv
+	poison     []string
+	elems      [][]ast.Expr // stated element types (alias arguments), per type argument
+	typeExpr   []ast.Expr   // declarations to rewrite to *TList[T]
+	edits      []func(c *class) rw.Edit
+	slots      int
+	strKey     bool   // used through a string-key helper: the key must be a string
+	hashKey    bool   // keys compare by Java's hashCode/equals, not by Go's ==
+	dqHead     string // a deque used at its head (push, pop, peek...): the first such use
+	dqTail     string // a deque used at its tail (add, removeLast...): the first such use
+	dqIter     bool   // a deque iterated
+	dqHeadPush string // a deque pushed at its head: the first such use
+	anyAt      string // where a value is boxed into an Object, if anywhere
 }
 
 // ---- kinds
@@ -96,6 +108,21 @@ func kinds() map[string]*kindDef {
 					return "tlistImm_(" + c.convName(0) + ", " + from + ")"
 				}
 				return "tlistFrom_(" + c.convName(0) + ", " + from + ")"
+			},
+		},
+		"deque": {
+			// An ArrayDeque used only as a stack: *TList[T] whose end is the deque's head.
+			name: "deque", held: []types.Type{look("Deque"), ptr("ArrayDeque")}, aliases: []string{"DequeOf", "ArrayDequeOf"}, nargs: 1,
+			conv:      []string{"icast_Deque", "to_ArrayDeque", "cast_[*ArrayDeque]", "Deque"},
+			newFns:    map[string]int{"new_ArrayDeque": 0, "new_ArrayDeque_int": 1},
+			copyFns:   map[string]bool{},
+			immutable: map[string]bool{},
+			goType:    func(c *class) string { return "*TList[" + c.elemText[0] + "]" },
+			newCode: func(c *class, n ast.Expr) string {
+				if n == nil {
+					return "newTList_(" + c.convName(0) + ")"
+				}
+				return "newTListN_(" + c.convName(0) + ", " + rw.Render(n) + ")"
 			},
 		},
 		"map": {
@@ -171,6 +198,16 @@ func union(a, b int) {
 	da.edits = append(da.edits, db.edits...)
 	da.slots += db.slots
 	da.strKey = da.strKey || db.strKey
+	if da.dqHead == "" {
+		da.dqHead = db.dqHead
+	}
+	if da.dqTail == "" {
+		da.dqTail = db.dqTail
+	}
+	da.dqIter = da.dqIter || db.dqIter
+	if da.dqHeadPush == "" {
+		da.dqHeadPush = db.dqHeadPush
+	}
 	if da.anyAt == "" {
 		da.anyAt = db.anyAt
 	}
@@ -191,6 +228,13 @@ func poison(k int, why string) {
 }
 
 var curPos token.Pos
+
+// ctorDest is the slot each constructor of the kind (a new or copied collection) flows into;
+// ctorWhy says why one flows into none.
+var (
+	ctorDest = map[ast.Expr]int{}
+	ctorWhy  = map[ast.Expr]string{}
+)
 
 func edit(k int, f func(c *class) rw.Edit) { c := cls(k); c.edits = append(c.edits, f) }
 
@@ -509,6 +553,9 @@ func climb(e ast.Expr) ast.Expr {
 // flow records that the value of expression src (whose outermost conversion is top) goes to slot dest.
 func flow(dest int, src ast.Expr, top ast.Expr) {
 	v := valueOf(src)
+	if v.kind == vNew || v.kind == vCopy {
+		ctorDest[unwrap(src)] = dest
+	}
 	switch v.kind {
 	case vNil:
 	case vForeign:
@@ -577,6 +624,16 @@ func handle(e ast.Expr) {
 	v := valueOf(e)
 	top := climb(e)
 	p := rw.Parent[top]
+	if v.kind == vNew || v.kind == vCopy {
+		ctorWhy[e] = fmt.Sprintf("used directly in a %T", p)
+		if c, ok := p.(*ast.CallExpr); ok {
+			n, _ := rw.CallName(c)
+			if n == "" {
+				n = rw.Text(c.Fun)
+			}
+			ctorWhy[e] = "passed directly to " + n
+		}
+	}
 	src := v.k
 	if v.kind != vSlot {
 		src = 0
@@ -584,6 +641,14 @@ func handle(e ast.Expr) {
 	// boundary: the value leaves for code that expects an erased List or an Object.
 	boundary := func() {
 		if src == 0 {
+			return
+		}
+		if K.view == "" {
+			if os.Getenv("COLLS_ANY") != "" {
+				pp := rw.Fset.Position(top.Pos())
+				fmt.Fprintf(os.Stderr, "ERASED %s:%d %T | %s\n", filepath.Base(pp.Filename), pp.Line, rw.Parent[top], rw.Text(rw.Parent[top].(ast.Node))[:min(120, len(rw.Text(rw.Parent[top].(ast.Node))))])
+			}
+			poison(src, "seen as an erased "+K.name+" (its order)")
 			return
 		}
 		inner := unwrap(e)
@@ -600,9 +665,17 @@ func handle(e ast.Expr) {
 					return
 				}
 			}
-			if c := cls(src); c.anyAt == "" {
+			if c := cls(src); c.anyAt == "" && !rw.ReadOnlySink(top, true) {
 				p := rw.Fset.Position(top.Pos())
 				c.anyAt = fmt.Sprintf("%s:%d", filepath.Base(p.Filename), p.Line)
+			}
+			if os.Getenv("COLLS_ANY") != "" {
+				pp := rw.Fset.Position(top.Pos())
+				ctx := fmt.Sprintf("%T", rw.Parent[top])
+				if c, ok := rw.Parent[top].(*ast.CallExpr); ok {
+					ctx = "call " + rw.Text(c.Fun)
+				}
+				fmt.Fprintf(os.Stderr, "ANY %s:%d %s | %s\n", filepath.Base(pp.Filename), pp.Line, ctx, rw.Text(top))
 			}
 			edit(src, func(c *class) rw.Edit {
 				return rw.Edit{Node: top, Gen: func() string { return "any(" + rw.Render(inner) + "." + K.view + "())" }}
@@ -671,6 +744,32 @@ func handle(e ast.Expr) {
 		}
 		return
 	case *ast.CallExpr:
+		// SequencedCollection_addFirst(SequencedCollection(d), v) and the like on a deque.
+		if n, _ := rw.CallName(x); K.name == "deque" && src != 0 && (n == "SequencedCollection" || n == "icast_SequencedCollection") && len(x.Args) == 1 {
+			if c2, ok := rw.Up(x).(*ast.CallExpr); ok && len(c2.Args) >= 1 && rw.Unparen(c2.Args[0]) == x {
+				n2, _ := rw.CallName(c2)
+				if m, ok := strings.CutPrefix(n2, "SequencedCollection_"); ok {
+					want := 1
+					if strings.HasPrefix(m, "add") {
+						want = 2
+					}
+					if len(c2.Args) == want {
+						seqUse(src, unwrap(e), m, c2)
+						return
+					}
+				}
+			}
+		}
+		// Preconditions.checkNotNull(d) as a statement: only whether the deque is null.
+		if n, _ := rw.CallName(x); K.name == "deque" && src != 0 && strings.HasPrefix(n, "Preconditions_checkNotNull") && len(x.Args) >= 1 && x.Args[0] == top {
+			if _, stmt := rw.Up(x).(*ast.ExprStmt); stmt {
+				inner := unwrap(e)
+				edit(src, func(c *class) rw.Edit {
+					return rw.Edit{Node: top, Gen: func() string { return "obj_(" + rw.Render(inner) + ")" }}
+				})
+				return
+			}
+		}
 		if n, _ := rw.CallName(x); src != 0 && len(x.Args) >= 2 && x.Args[0] == top && top == unwrap(e) {
 			if m, ok := K.helpers[n]; ok {
 				cls(src).strKey = true
@@ -684,6 +783,9 @@ func handle(e ast.Expr) {
 			}
 			// it := foreach_(any(l))
 			if n, _ := rw.CallName(x); n == "foreach_" && src != 0 && K.name != "map" {
+				if K.name == "deque" {
+					cls(src).dqIter = true
+				}
 				iterate(src, e, x, "v", 0)
 				return
 			}
@@ -772,6 +874,10 @@ func iterate(k int, e ast.Expr, fe *ast.CallExpr, field string, ci int) {
 	}
 	inner := unwrap(e)
 	edit(k, func(c *class) rw.Edit {
+		if c.dqHead != "" && c.dqTail == "" {
+			// A deque used only at its head: from the end of the typed list.
+			return rw.Edit{Node: fe, Gen: func() string { return rw.Render(inner) + ".eachRev()" }}
+		}
 		return rw.Edit{Node: fe, Gen: func() string { return rw.Render(inner) + ".each()" }}
 	})
 	for _, s := range reads {
@@ -841,6 +947,25 @@ func use(k int, recv ast.Expr, m string, call *ast.CallExpr) {
 		case (m == "size" || m == "isEmpty" || m == "clear" || m == "trimToSize") && n == 0, m == "ensureCapacity" && n == 1:
 			return
 		}
+	case "deque":
+		// The deque operations by end and kind (push, pop, peek, poll, get).
+		head := map[string]string{"push": "push", "addFirst": "push", "offerFirst": "push", "pop": "pop", "removeFirst": "pop",
+			"remove_0": "pop", "peek": "peek", "peekFirst": "peek", "poll": "poll", "pollFirst": "poll",
+			"getFirst": "get", "element": "get"}
+		tail := map[string]string{"add": "push", "addLast": "push", "offer": "push", "offerLast": "push", "removeLast": "pop",
+			"peekLast": "peek", "pollLast": "poll", "getLast": "get"}
+		switch {
+		case (m == "size" || m == "isEmpty" || m == "clear") && n == 0:
+			return
+		case head[m] != "" && n == map[bool]int{true: 1}[head[m] == "push"]:
+			dequeOp(k, call.Fun.(*ast.SelectorExpr).X, m, true, head[m], call, args)
+			return
+		case tail[m] != "" && n == map[bool]int{true: 1}[tail[m] == "push"]:
+			dequeOp(k, call.Fun.(*ast.SelectorExpr).X, m, false, tail[m], call, args)
+			return
+		}
+		poison(k, "deque method "+m)
+		return
 	case "set":
 		switch {
 		case m == "add" && n == 1:
@@ -935,6 +1060,58 @@ func use(k int, recv ast.Expr, m string, call *ast.CallExpr) {
 	})
 }
 
+// seqUse handles SequencedCollection_m(SequencedCollection(d), args...) on deque d (recv) as
+// the deque method m with the remaining arguments.
+func seqUse(k int, recv ast.Expr, m string, call *ast.CallExpr) {
+	op := map[string]string{"addFirst": "push", "removeFirst": "pop", "getFirst": "get", "addLast": "push", "removeLast": "pop", "getLast": "get"}[m]
+	if op == "" {
+		poison(k, "deque helper SequencedCollection_"+m)
+		return
+	}
+	dequeOp(k, recv, m, strings.HasSuffix(m, "First"), op, call, call.Args[1:])
+}
+
+// dequeOp rewrites call, the deque method m (operation op at the head or the tail) of class
+// k on recv, into a typed list method. Which one is decided by the class: a deque used only at
+// its head keeps its head at the end of the list (pushes are appends); any other keeps the
+// deque's order, its tail at the end (operations at the head work at index 0, and a class
+// that pushes at its head as well stays erased).
+func dequeOp(k int, recv ast.Expr, m string, atHead bool, op string, call *ast.CallExpr, args []ast.Expr) {
+	_, isStmt := rw.Up(call).(*ast.ExprStmt)
+	c := cls(k)
+	if atHead && c.dqHead == "" {
+		c.dqHead = m
+	}
+	if !atHead && c.dqTail == "" {
+		c.dqTail = m
+	}
+	if atHead && op == "push" && c.dqHeadPush == "" {
+		c.dqHeadPush = m
+	}
+	edit(k, func(c *class) rw.Edit {
+		g := func() string {
+			var ps []string
+			for _, a := range args {
+				ps = append(ps, rw.Unboxed(c.cv[0], c.elem[0], a))
+			}
+			name := map[string]string{"push": "push_", "pop": "pop_", "peek": "peekTop_", "poll": "pollTop_", "get": "getTop_"}[op]
+			if atHead && c.dqTail != "" {
+				name = map[string]string{"pop": "popFirst_", "peek": "peekFirst_", "poll": "pollFirst_", "get": "getFirst_"}[op]
+			}
+			r := rw.Render(recv) + "." + name + "(" + strings.Join(ps, ", ") + ")"
+			if op == "push" && !isStmt {
+				// add, offer, offerFirst, offerLast return true.
+				return "func() bool { " + r + "; return true }()"
+			}
+			return r
+		}
+		if isStmt || op == "push" {
+			return rw.Edit{Node: call, Gen: g}
+		}
+		return rw.Read(c.cv[0], call, g)
+	})
+}
+
 // helper handles a runtime helper that takes the collection first and an unboxed string key
 // (Map_get_s(m, k), Collection_contains_s(s, k), ...).
 func helper(k int, recv ast.Expr, m string, call *ast.CallExpr) {
@@ -987,6 +1164,7 @@ func isInt(e ast.Expr) bool {
 func (c *class) element(i int) (ast.Expr, types.Type, string) {
 	var el ast.Expr
 	var et types.Type
+	var anySlot ast.Expr
 	anyOK := K.name == "map" && i == 1
 	for _, e := range c.elems[i] {
 		if a := rw.AliasArgs(e, "BoxedOf"); a != nil {
@@ -1000,6 +1178,7 @@ func (c *class) element(i int) (ast.Expr, types.Type, string) {
 			continue
 		}
 		if it, ok := types.Unalias(t).(*types.Interface); ok && it.Empty() {
+			anySlot = e
 			continue
 		}
 		if et == nil {
@@ -1022,6 +1201,12 @@ func (c *class) element(i int) (ast.Expr, types.Type, string) {
 		}
 		return nil, nil, "no slot states an element type"
 	}
+	// A slot stating Object (any) may hold values of any class: typed as T, a value of another
+	// class would fail its conversion where Java stored it. (Steps 3-5 allowed this; the
+	// classes they typed are not seen here again.)
+	if anySlot != nil {
+		return nil, nil, "a slot states Object (" + rw.Text(anySlot) + ") and another " + rw.Text(el)
+	}
 	for _, e := range c.elems[i] {
 		if t := typeOf(e); t != nil && !types.AssignableTo(t, et) {
 			if it, ok := types.Unalias(t).(*types.Interface); !ok || !it.Empty() {
@@ -1029,28 +1214,15 @@ func (c *class) element(i int) (ast.Expr, types.Type, string) {
 			}
 		}
 	}
-	if i == 0 && K.name != "list" && !keyOK(et) {
-		return nil, nil, "key type " + rw.Text(el) + " is compared by equals or by interface"
-	}
-	return el, et, ""
-}
-
-var hashed *types.Interface
-
-// keyOK reports whether Go's == on keys of type t is Java's equals.
-func keyOK(t types.Type) bool {
-	switch u := types.Unalias(t).(type) {
-	case *types.Basic:
-		return u.Kind() == types.String
-	case *types.Named:
-		_, isIface := u.Underlying().(*types.Interface)
-		return !isIface && rw.HasMethod(u, "box_")
-	case *types.Pointer:
-		if _, ok := u.Elem().(*types.Named); ok {
-			return !types.Implements(u, hashed)
+	if i == 0 && (K.name == "map" || K.name == "set") {
+		switch rw.KeyMode(et) {
+		case rw.KeyNone:
+			return nil, nil, "key type " + rw.Text(el) + " has no typed comparison"
+		case rw.KeyHash:
+			c.hashKey = true
 		}
 	}
-	return false
+	return el, et, ""
 }
 
 func isString(t types.Type) bool {
@@ -1065,18 +1237,27 @@ var nonIdent = regexp.MustCompile(`[^A-Za-z0-9_]`)
 // convName is the conversion variable of type argument i of the class.
 func (c *class) convName(i int) string {
 	text, t := c.elemText[i], c.elem[i]
-	n := "tc_" + nonIdent.ReplaceAllString(strings.ReplaceAll(text, "*", "p_"), "_")
+	hash := i == 0 && c.hashKey
+	prefix := "tc_"
+	if hash {
+		prefix = "tch_" // a key conversion with Java's hashCode and equals
+	}
+	n := prefix + nonIdent.ReplaceAllString(strings.ReplaceAll(text, "*", "p_"), "_")
 	if rw.Pkg.Scope().Lookup(n) != nil {
 		return n // declared by an earlier step
 	}
 	if _, ok := convs[n]; !ok {
 		cv := rw.ConvFor(t)
-		null := ""
+		extra := ""
 		if isString(t) {
-			null = ", null: nullstr_"
+			extra = ", null: nullstr_"
+		}
+		if hash {
+			extra = fmt.Sprintf(",\n\thash: func(v %s) int32 { return objhash_(%s) }, eq: func(a, b %s) bool { return objequals_(%s, %s) }",
+				text, cv.Box("v"), text, cv.Box("a"), cv.Box("b"))
 		}
 		convs[n] = fmt.Sprintf("var %s = &tconv_[%s]{box: func(v %s) any { return %s }, unbox: func(v any) %s { return %s }%s}",
-			n, text, text, cv.Box("v"), text, cv.Unbox("v"), null)
+			n, text, text, cv.Box("v"), text, cv.Unbox("v"), extra)
 	}
 	return n
 }
@@ -1106,7 +1287,6 @@ func main() {
 	for _, c := range K.conv {
 		transparent[c] = true
 	}
-	hashed = rw.Pkg.Scope().Lookup("hashed_").Type().Underlying().(*types.Interface)
 
 	// Slots: function signatures, interface methods, fields and variables.
 	for _, f := range rw.Files {
@@ -1141,7 +1321,36 @@ func main() {
 						}
 					}
 				}
+			case *ast.RangeStmt:
+				// The keys and elements of a Go slice or map (left by an earlier step) are not slots.
+				curPos = x.Pos()
+				for _, e := range []ast.Expr{x.Key, x.Value} {
+					if e == nil {
+						continue
+					}
+					if v := varOf(e); v != nil && isList(v.Type()) {
+						poison(slotOfVar(v), "element of a Go slice or map")
+					}
+				}
+			case *ast.AssignStmt:
+				// v, ok := m[k], a, b := f(): the values do not come from slots of the class.
+				if len(x.Lhs) != len(x.Rhs) {
+					curPos = x.Pos()
+					for _, e := range x.Lhs {
+						if v := varOf(e); v != nil && isList(v.Type()) {
+							poison(slotOfVar(v), "assigned from a multi-value expression")
+						}
+					}
+				}
 			case *ast.ValueSpec:
+				if len(x.Values) > 0 && len(x.Values) != len(x.Names) {
+					curPos = x.Pos()
+					for _, id := range x.Names {
+						if v, ok := rw.Info.Defs[id].(*types.Var); ok && isList(v.Type()) {
+							poison(slotOfVar(v), "assigned from a multi-value expression")
+						}
+					}
+				}
 				if x.Type != nil && isList(typeOf(x.Type)) {
 					for _, id := range x.Names {
 						if v, ok := rw.Info.Defs[id].(*types.Var); ok {
@@ -1279,6 +1488,7 @@ func main() {
 	fmt.Fprintf(os.Stderr, "casts from Object to the concrete runtime %s type: %d\n", K.name, concreteCasts)
 	// Decide.
 	reasons := map[string]int{}
+	classWhy := map[int]string{}
 	var good []*class
 	nSlots, nGood := 0, 0
 	for r, c := range data {
@@ -1313,17 +1523,74 @@ func main() {
 				why = "boxed into an Object, and Objects are cast back to the concrete runtime type elsewhere"
 				poisonAt[why] = c.anyAt
 			}
+			if why == "" && K.name == "deque" {
+				switch {
+				case c.dqHeadPush != "" && c.dqTail != "":
+					why = "pushed at its head (" + c.dqHeadPush + ") and used at its tail (" + c.dqTail + ")"
+				}
+			}
 			if why == "" && c.strKey && !isString(c.elem[0]) {
 				why = "string-key helper on a collection whose key is not a string"
 			}
 		}
 		if why != "" {
 			reasons[why] += len(c.typeExpr)
+			classWhy[r] = why
 			continue
 		}
 		good = append(good, c)
 		converted[r] = c
 		nGood += len(c.typeExpr)
+	}
+	// Constructors of the kind, by what their class decided.
+	ctorReasons := map[string]int{}
+	ctorAt := map[string]string{}
+	nCtor, nCtorGood := 0, 0
+	for e, d := range ctorDest {
+		nCtor++
+		r := find(d)
+		if _, ok := converted[r]; ok {
+			nCtorGood++
+			continue
+		}
+		why := "class not decided"
+		if c := data[r]; c != nil && len(c.poison) > 0 {
+			why = c.poison[0]
+		} else if c != nil && classWhy[r] != "" {
+			why = classWhy[r]
+		}
+		ctorReasons[why]++
+		if _, ok := ctorAt[why]; !ok {
+			p := rw.Fset.Position(e.Pos())
+			ctorAt[why] = fmt.Sprintf("%s:%d", filepath.Base(p.Filename), p.Line)
+		}
+	}
+	for e, why := range ctorWhy {
+		if _, ok := ctorDest[e]; ok {
+			continue
+		}
+		nCtor++
+		ctorReasons[why]++
+		if _, ok := ctorAt[why]; !ok {
+			p := rw.Fset.Position(e.Pos())
+			ctorAt[why] = fmt.Sprintf("%s:%d", filepath.Base(p.Filename), p.Line)
+		}
+	}
+	if os.Getenv("COLLS_CTORS") != "" {
+		fmt.Fprintf(os.Stderr, "%s constructors: %d; in typed classes: %d\n", K.name, nCtor, nCtorGood)
+		var cr []string
+		for r := range ctorReasons {
+			cr = append(cr, r)
+		}
+		sort.Slice(cr, func(i, j int) bool {
+			if ctorReasons[cr[i]] != ctorReasons[cr[j]] {
+				return ctorReasons[cr[i]] > ctorReasons[cr[j]]
+			}
+			return cr[i] < cr[j]
+		})
+		for _, r := range cr {
+			fmt.Fprintf(os.Stderr, "  ctor stays (%d): %s  [%s]\n", ctorReasons[r], r, ctorAt[r])
+		}
 	}
 	total := 0
 	for _, n := range reasons {
@@ -1382,14 +1649,19 @@ func main() {
 	}
 	sort.Strings(names)
 	var sb strings.Builder
-	sb.WriteString("// Code generated by tools/postflip/colls. DO NOT EDIT.\n\npackage closure\n\n// Element conversions of the typed " + K.name + "s.\n\n")
+	out := filepath.Join(dir, "g_zconv_"+K.name+"s.go")
+	if old, err := os.ReadFile(out); err == nil {
+		sb.Write(old) // conversions of an earlier run stay; the new ones follow
+	} else {
+		sb.WriteString("// Code generated by tools/postflip/colls. DO NOT EDIT.\n\npackage closure\n\n// Element conversions of the typed " + K.name + "s.\n\n")
+	}
 	for _, n := range names {
 		sb.WriteString(convs[n] + "\n")
 	}
 	if len(names) == 0 {
 		return
 	}
-	if err := os.WriteFile(filepath.Join(dir, "g_zconv_"+K.name+"s.go"), []byte(sb.String()), 0o644); err != nil {
+	if err := os.WriteFile(out, []byte(sb.String()), 0o644); err != nil {
 		panic(err)
 	}
 }

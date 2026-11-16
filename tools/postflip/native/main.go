@@ -35,10 +35,21 @@
 // loop cannot change is a range loop; over one it can (a unique slot changed somewhere, and
 // in the loop or through a field) it walks the slice with eachOf_, which reads it anew at
 // every step, as the typed list's cursor did. Step 1's eachOf_ loops over local slices that
-// the loop body does not assign become range loops too.
+// the loop body does not assign become range loops too, and an eachOf_ loop over a field
+// does when nothing the loop body can run changes the field's length (fieldLoops: a
+// call-graph over-approximation; interface calls reach every implementation, calls of
+// function values every function stored where they are called from).
 //
-// -kind map, -kind set: *TMap[K, V] to map[K]V and *TSet[K] to map[K]struct{}. Keys already
-// compare in Go as in Java (step 4-5's condition). A Go map is a reference, like the typed
+// An explicit iterator over a list, it := l.asList().iterator() used only for hasNext and
+// next, becomes a range loop (the canonical `for it.hasNext() { var x T = it.next(); ...}`)
+// or an int cursor (sliceNext_) when the list does not change while it is in use; one that
+// removes through the iterator keeps the typed list. A list boxed for one reading call
+// (rw.ReadOnlySink: equals, toString, a Preconditions message...) gets a view for it. The
+// stack and queue methods of a deque's typed list (colls -kind deque) are slice helpers.
+//
+// -kind map, -kind set: *TMap[K, V] to map[K]V and *TSet[K] to map[K]struct{}, when keys
+// compare in Go as in Java (rw.KeyMode; a typed map whose keys compare by hashCode/equals
+// stays one). A Go map is a reference, like the typed
 // map, so no flow analysis is needed; but its order is not the insertion order, so a class
 // converts only when nothing iterates it, nothing sees it as an erased Map or Set (except
 // Map.computeIfAbsent through the view, and Set.addAll, which do not depend on order), and
@@ -965,6 +976,40 @@ func use(n *node, recv ast.Expr, m string, call *ast.CallExpr) {
 		}
 	case (m == "trimToSize" && len(args) == 0 || m == "ensureCapacity" && len(args) == 1) && stmt && rw.Pure(recv):
 		edit(n, rw.Up(call), func() string { return rw.Del })
+	case m == "push_" && len(args) == 1 && stmt:
+		// A deque used as a stack (colls -kind deque): its head is the end of the slice.
+		if mut() {
+			edit(n, call, func() string { return R() + " = append(" + R() + ", " + A(0) + ")" })
+		}
+	case (m == "pop_" || m == "pollTop_" || m == "popFirst_" || m == "pollFirst_") && len(args) == 0:
+		tc := tcName(elemOf(typeOf(recv)))
+		if tc == "" {
+			poison(n, "no element conversion for "+m)
+		} else if mut() {
+			h := map[string]string{"pop_": "slicePop_", "pollTop_": "slicePollTop_", "popFirst_": "slicePopFirst_", "pollFirst_": "slicePollFirst_"}[m]
+			edit(n, call, func() string { return h + "(" + tc + ", &" + R() + ")" })
+		}
+	case (m == "peekTop_" || m == "getTop_" || m == "peekFirst_" || m == "getFirst_") && len(args) == 0:
+		tc := tcName(elemOf(typeOf(recv)))
+		if tc == "" {
+			poison(n, "no element conversion for "+m)
+		} else {
+			h := map[string]string{"peekTop_": "slicePeekTop_", "getTop_": "sliceTop_", "peekFirst_": "slicePeekFirst_", "getFirst_": "sliceFirst_"}[m]
+			edit(n, call, func() string { return h + "(" + tc + ", " + R() + ")" })
+		}
+	case m == "eachRev" && len(args) == 0 && addr:
+		// From the end of the slice, reading it anew at every step (as the typed list did).
+		before := len(loops)
+		loop(n, recv, call)
+		loops = loops[:before] // not a forward loop: it stays a cursor
+		if as, ok := rw.Parent[call].(*ast.AssignStmt); ok && n.local {
+			if b := loopBody(as); b != nil {
+				n.loops = append(n.loops, b)
+			} else {
+				poison(n, "for-each cursor not followed by its loop")
+			}
+		}
+		edit(n, call, func() string { return "eachRevOf_(&" + R() + ")" })
 	case m == "each" && len(args) == 0:
 		loop(n, recv, call)
 		if as, ok := rw.Parent[call].(*ast.AssignStmt); ok && n.local {
@@ -996,6 +1041,7 @@ var readers = map[string]bool{
 	"Iterables_getOnlyElement": true, "Iterables_getFirst": true, "Iterables_getLast": true, "Iterables_size": true,
 	"Collection_contains_s": true, "String_join": true, "new_ArrayList_Collection": true, "new_LinkedHashSet_Collection": true,
 	"new_ArrayDeque_Collection": true, "tlistFrom_": true, "sliceFrom_": true, "tsetFrom_": true,
+	"ImmutableList_copyOf_Collection": true, "ImmutableSet_copyOf_Collection": true,
 }
 
 // sorters change the list in place, keeping its length.
@@ -1043,6 +1089,15 @@ func view(n *node, recv ast.Expr, call *ast.CallExpr) {
 				top = c
 				continue
 			}
+			// icast_Collection(any(l.asList())): the view seen as another collection interface.
+			if nm, _ := rw.CallName(c); nm == "any" || nm == "obj_" {
+				if c2, ok := rw.Up(c).(*ast.CallExpr); ok && len(c2.Args) == 1 && rw.Unparen(c2.Args[0]) == c {
+					if nm2, _ := rw.CallName(c2); nm2 == "icast_Collection" || nm2 == "icast_Iterable" || nm2 == "icast_List" {
+						top = c2
+						continue
+					}
+				}
+			}
 		}
 		break
 	}
@@ -1057,6 +1112,8 @@ func view(n *node, recv ast.Expr, call *ast.CallExpr) {
 		addr := isVar != nil && rw.Pure(recv)
 		A := func() string { return rw.Render(c.Args[0]) }
 		switch m := p.Sel.Name; {
+		case m == "iterator" && len(c.Args) == 0 && iterSite(n, recv, c):
+			return
 		case readMethods[m]:
 			edit(n, call, viewCode)
 			return
@@ -1072,6 +1129,11 @@ func view(n *node, recv ast.Expr, call *ast.CallExpr) {
 		return
 	case *ast.CallExpr:
 		nm, _ := rw.CallName(p)
+		if (nm == "any" || nm == "obj_") && len(p.Args) == 1 && rw.ReadOnlySink(p, false) {
+			// Boxed for one call that only reads it (equals, toString, a Preconditions message).
+			edit(n, call, viewCode)
+			return
+		}
 		if readers[nm] || sorters[nm] {
 			if sorters[nm] && n.mutated == "" {
 				n.mutated = nm
@@ -1098,6 +1160,187 @@ func view(n *node, recv ast.Expr, call *ast.CallExpr) {
 		return
 	}
 	poison(n, fmt.Sprintf("a view in a %T", rw.Up(top)))
+}
+
+// iterSites are explicit iterators over lists (it := l.asList().iterator(), used only for
+// hasNext and next): over a slice they become an index (an int cursor). The slice must not
+// change while the iterator is in use (decided with the classes), so that Java's iterator
+// could not have thrown ConcurrentModificationException either.
+type iterSiteT struct {
+	n    *node
+	decl ast.Node // the statement declaring the iterator
+	last ast.Node // the last use of the iterator
+	rng  bool     // the loop became a range loop
+}
+
+var iterSites []iterSiteT
+
+// iterSite handles call, recv.asList().iterator(), if its iterator is a local used only for
+// hasNext() and next() in the function declaring it, and reports whether it did.
+func iterSite(n *node, recv ast.Expr, call *ast.CallExpr) bool {
+	var itID *ast.Ident
+	var decl ast.Stmt
+	switch d := rw.Up(call).(type) {
+	case *ast.ValueSpec:
+		if len(d.Names) != 1 || len(d.Values) != 1 {
+			return false
+		}
+		gd, _ := rw.Parent[d].(*ast.GenDecl)
+		if gd == nil || len(gd.Specs) != 1 {
+			return false
+		}
+		ds, _ := rw.Parent[gd].(*ast.DeclStmt)
+		if ds == nil {
+			return false
+		}
+		itID, decl = d.Names[0], ds
+	case *ast.AssignStmt:
+		if d.Tok != token.DEFINE || len(d.Lhs) != 1 || len(d.Rhs) != 1 {
+			return false
+		}
+		itID, _ = d.Lhs[0].(*ast.Ident)
+		decl = d
+	}
+	if itID == nil {
+		return false
+	}
+	it, _ := rw.Info.Defs[itID].(*types.Var)
+	if it == nil {
+		return false
+	}
+	fn := enclosingFn(decl)
+	var hasNext, next []*ast.CallExpr
+	for _, u := range rw.UsesOf[it] {
+		s, ok := rw.Parent[u].(*ast.SelectorExpr)
+		if !ok || enclosingFn(u) != fn {
+			return false
+		}
+		c, ok := rw.Parent[s].(*ast.CallExpr)
+		if !ok || c.Fun != s || len(c.Args) != 0 {
+			return false
+		}
+		switch s.Sel.Name {
+		case "hasNext":
+			hasNext = append(hasNext, c)
+		case "next":
+			next = append(next, c)
+		default:
+			return false
+		}
+	}
+	// recv is evaluated again at every hasNext and next: the same variable there.
+	if !sameAt(recv, decl, rw.UsesOf[it]) {
+		return false
+	}
+	elem := elemOf(typeOf(recv))
+	cv := rw.ConvFor(elem)
+	if !cv.OK {
+		return false
+	}
+	var last ast.Node = decl
+	if us := rw.UsesOf[it]; len(us) > 0 {
+		last = us[len(us)-1]
+	}
+	iterSites = append(iterSites, iterSiteT{n: n, decl: decl, last: last})
+	st := &iterSites[len(iterSites)-1]
+	R := func() string { return rw.Render(recv) }
+	name := itID.Name
+	// The canonical loop: the declaration, then `for it.hasNext() { var x T = it.next(); ... }`
+	// and no other use: a range loop.
+	if fs, first := iterLoop(decl, hasNext, next, elem); fs != nil {
+		vs := first.Decl.(*ast.GenDecl).Specs[0].(*ast.ValueSpec)
+		x := vs.Names[0].Name
+		edit(n, decl, func() string { return rw.Del })
+		edit(n, first, func() string { return rw.Del })
+		edit(n, fs.Cond, func() string { return "_, " + x + " := range " + R() })
+		st.rng = true
+		return true
+	}
+	if ds, ok := decl.(*ast.DeclStmt); ok {
+		edit(n, ds, func() string { return "var " + name + " int" })
+	} else {
+		edit(n, call, func() string { return "0" })
+	}
+	for _, c := range hasNext {
+		edit(n, c, func() string { return "(" + name + " < len(" + R() + "))" })
+	}
+	for _, c := range next {
+		e := rw.Read(cv, c, func() string { return "sliceNext_(" + R() + ", &" + name + ")" })
+		edit(n, e.Node, e.Gen)
+	}
+	return true
+}
+
+// iterLoop returns the loop `for it.hasNext() { var x T = unbox(it.next()); ... }` that
+// directly follows the iterator's declaration, with its first statement, when those are the
+// iterator's only uses and T is the element type.
+func iterLoop(decl ast.Stmt, hasNext, next []*ast.CallExpr, elem types.Type) (*ast.ForStmt, *ast.DeclStmt) {
+	if len(hasNext) != 1 || len(next) != 1 {
+		return nil, nil
+	}
+	list := stmtList(rw.Parent[decl])
+	var fs *ast.ForStmt
+	for i, s := range list {
+		if s == decl && i+1 < len(list) {
+			fs, _ = list[i+1].(*ast.ForStmt)
+		}
+	}
+	if fs == nil || fs.Init != nil || fs.Post != nil || rw.Unparen(fs.Cond) != hasNext[0] || len(fs.Body.List) == 0 {
+		return nil, nil
+	}
+	ds, ok := fs.Body.List[0].(*ast.DeclStmt)
+	if !ok {
+		return nil, nil
+	}
+	gd, ok := ds.Decl.(*ast.GenDecl)
+	if !ok || len(gd.Specs) != 1 {
+		return nil, nil
+	}
+	vs, ok := gd.Specs[0].(*ast.ValueSpec)
+	if !ok || len(vs.Names) != 1 || len(vs.Values) != 1 {
+		return nil, nil
+	}
+	x := rw.Info.Defs[vs.Names[0]].Type()
+	if !types.Identical(x, elem) {
+		return nil, nil
+	}
+	val := rw.Unparen(vs.Values[0])
+	if c, ok := val.(*ast.CallExpr); ok && len(c.Args) == 1 && rw.Unparen(c.Args[0]) == next[0] {
+		if nm, _ := rw.CallName(c); rw.ConvFor(x).IsUnbox(nm) {
+			val = next[0] // unbox(it.next()): the element itself once unboxed
+		}
+	}
+	if val != next[0] {
+		return nil, nil
+	}
+	return fs, ds
+}
+
+// sameAt reports whether expression e (identifiers and fields from one) names the same
+// variable at each of the uses as at decl.
+func sameAt(e ast.Expr, decl ast.Node, uses []*ast.Ident) bool {
+	root := e
+	for {
+		switch x := rw.Unparen(root).(type) {
+		case *ast.SelectorExpr:
+			root = x.X
+			continue
+		case *ast.Ident:
+			o := rw.Info.Uses[x]
+			if o == nil {
+				return false
+			}
+			for _, u := range uses {
+				if sc := rw.Pkg.Scope().Innermost(u.Pos()); sc == nil {
+					return false
+				} else if _, at := sc.LookupParent(x.Name, u.Pos()); at != o {
+					return false
+				}
+			}
+			return true
+		}
+		return false
+	}
 }
 
 // loops are the for-each loops over lists, decided once the classes are.
@@ -1526,6 +1769,18 @@ func main() {
 		}
 	}
 
+	// Explicit iterators: the list does not change while one is in use.
+	for _, st := range iterSites {
+		n := st.n
+		if n.mutated == "" {
+			continue
+		}
+		if n.local && n.v != nil && !capturedAnywhere(n) && !changedIn(n.v, rw.Parent[st.decl]) {
+			continue
+		}
+		curPos = st.decl.Pos()
+		poison(n, "iterated explicitly, and changed ("+n.mutated+")")
+	}
 	reasons := map[string]int{}
 	var good []*class
 	nGood := 0
@@ -1533,6 +1788,16 @@ func main() {
 	for r, c := range data {
 		if find(r) != r || len(c.typeExpr) == 0 {
 			continue
+		}
+		if kind == "map" || kind == "set" {
+			// Keys of a class with its own equals and hashCode stay in the typed map, which
+			// compares them as Java does; a Go map would compare them by ==.
+			for _, te := range c.typeExpr {
+				if as := typeArgs(typeOf(te)); as != nil && rw.KeyMode(as[0]) != rw.KeyEq {
+					c.poison = append([]string{"keys compared by equals"}, c.poison...)
+					break
+				}
+			}
 		}
 		if len(c.poison) > 0 {
 			reasons[c.poison[0]] += len(c.typeExpr)
@@ -1615,6 +1880,7 @@ func main() {
 		}
 		recv := l.recv
 		rw.Rewrite[l.call] = func() string { return "eachOf_(&" + rw.Render(recv) + ")" }
+		pendingField = append(pendingField, fieldSite{as, recv})
 		nEach++
 	}
 	// ImmutableList reads and loops, unboxed where the code unboxes the element.
@@ -1701,7 +1967,19 @@ func main() {
 			return true
 		})
 	}
-	fmt.Fprintf(os.Stderr, "for-each loops: %d range, %d eachOf_; step 1 loops to range: %d\n", nRange, nEach, n1)
+	nf := fieldLoops()
+	fmt.Fprintf(os.Stderr, "for-each loops: %d range, %d eachOf_; step 1 loops to range: %d; eachOf_ loops over fields to range: %d\n", nRange, nEach, n1, nf)
+	nIterRange, nIterIndex := 0, 0
+	for _, st := range iterSites {
+		if conv[cls(st.n)] {
+			if st.rng {
+				nIterRange++
+			} else {
+				nIterIndex++
+			}
+		}
+	}
+	fmt.Fprintf(os.Stderr, "explicit iterators over slices: %d range loops, %d index cursors\n", nIterRange, nIterIndex)
 	fmt.Fprintf(os.Stderr, "files changed: %d\n", rw.Save())
 }
 
@@ -1959,9 +2237,17 @@ func immConv(c *class) string {
 func writeConvs(dir string) {
 	path := filepath.Join(dir, "g_zconv_imm.go")
 	if b, err := os.ReadFile(path); err == nil {
+		// One declaration per var line, with the lines gofmt wrapped it onto.
+		cur := ""
 		for _, l := range strings.Split(string(b), "\n") {
-			if strings.HasPrefix(l, "var tc_") {
-				immConvs[strings.Fields(l)[1]] = l
+			switch {
+			case strings.HasPrefix(l, "var tc_"):
+				cur = strings.Fields(l)[1]
+				immConvs[cur] = l
+			case cur != "" && l != "" && (l[0] == '\t' || l[0] == '}'):
+				immConvs[cur] += "\n" + l
+			default:
+				cur = ""
 			}
 		}
 	}
@@ -2045,3 +2331,682 @@ var immWrappers = map[string]bool{"obj_": true, "any": true, "Collection": true,
 	"icast_Iterable": true, "icast_Collection": true, "icast_List": true}
 
 var nullChecks = map[string]bool{"Objects_requireNonNull": true, "Objects_requireNonNull_Object": true, "Preconditions_checkNotNull": true}
+
+// ---- eachOf_ loops over fields
+
+// fieldLoops rewrites `it := eachOf_(&x.f); for it.next() { ... }` into a range loop when
+// nothing the loop body does can change the length of any slice in field f: the body does
+// not assign f or take its address, and no function it may call does (calls through an
+// interface reach every method of that name; a call of a function value reaches anything,
+// so such a body keeps eachOf_). Then the slice the loop walks is the one it started with,
+// as a range loop reads it. It returns the number of loops rewritten.
+type fieldSite struct {
+	as *ast.AssignStmt
+	x  ast.Expr
+}
+
+// pendingField are the loops this run makes eachOf_ loops (not yet in the source).
+var pendingField []fieldSite
+
+func fieldLoops() int {
+	type site struct {
+		as *ast.AssignStmt
+		x  ast.Expr
+		f  *types.Var
+	}
+	var sites []site
+	fields := map[*types.Var]int{}
+	for _, p := range pendingField {
+		sel, ok := rw.Unparen(p.x).(*ast.SelectorExpr)
+		if !ok || !rw.Pure(sel) || loopBody(p.as) == nil {
+			continue
+		}
+		if v, _ := varOf(sel); v != nil && v.IsField() {
+			if _, ok := fields[v]; !ok {
+				fields[v] = len(fields)
+			}
+			sites = append(sites, site{p.as, sel, v})
+		}
+	}
+	for _, file := range rw.Files {
+		if !generated(file.Pos()) {
+			continue
+		}
+		ast.Inspect(file, func(n ast.Node) bool {
+			as, ok := n.(*ast.AssignStmt)
+			if !ok || as.Tok != token.DEFINE || len(as.Lhs) != 1 || len(as.Rhs) != 1 {
+				return true
+			}
+			if _, done := rw.Rewrite[as]; done {
+				return true
+			}
+			name, call := rw.CallName(as.Rhs[0])
+			if name != "eachOf_" || len(call.Args) != 1 {
+				return true
+			}
+			u, ok := call.Args[0].(*ast.UnaryExpr)
+			if !ok || u.Op != token.AND {
+				return true
+			}
+			sel, ok := u.X.(*ast.SelectorExpr)
+			if !ok || !rw.Pure(sel) || loopBody(as) == nil {
+				return true
+			}
+			v, _ := varOf(sel)
+			if v == nil || !v.IsField() {
+				return true
+			}
+			if _, ok := fields[v]; !ok {
+				fields[v] = len(fields)
+			}
+			sites = append(sites, site{as, sel, v})
+			return true
+		})
+	}
+	if len(sites) == 0 {
+		return 0
+	}
+	// Per function (a declaration or a function literal): the fields of interest it changes,
+	// the functions it calls (a key of a pool for a call of a function value). A function value is a
+	// function literal not called where it is written, or a function or method not called
+	// where it is named: calling one may run any of them.
+	type fnInfo struct {
+		mut   map[int]bool
+		calls map[any]bool // *types.Func or *ast.FuncLit
+	}
+	// A call of a function value may call any function value of its signature (the key
+	// "fv:" + the signature).
+	sigKey := func(t types.Type) string {
+		sig, ok := types.Unalias(t).Underlying().(*types.Signature)
+		if !ok {
+			return "fv:?"
+		}
+		if hasTypeParam(sig) {
+			// In generic code: any function value of as many parameters and results.
+			return fmt.Sprintf("fvg:%d/%d", sig.Params().Len(), sig.Results().Len())
+		}
+		return "fv:" + types.TypeString(types.NewSignatureType(nil, nil, nil, sig.Params(), sig.Results(), sig.Variadic()), nil)
+	}
+	arity := func(t types.Type) string {
+		sig, _ := types.Unalias(t).Underlying().(*types.Signature)
+		if sig == nil {
+			return "fvg:?"
+		}
+		return fmt.Sprintf("fvg:%d/%d", sig.Params().Len(), sig.Results().Len())
+	}
+	methodsByName := map[string][]*types.Func{}
+	infos := map[any]*fnInfo{}
+	values := map[any]string{} // function value -> its signature key
+	// Function-typed fields and parameters of declared functions ("holders"): the functions
+	// stored in each (holderVals: function literals, named functions, other holders), unless
+	// one is stored from anything else, or a parameter's function is called as a function
+	// value (holderOpen): then a call through the holder may call any function value of its
+	// signature.
+	holderVals := map[*types.Var][]any{}
+	holderOpen := map[*types.Var]bool{}
+	holderKey := func(v *types.Var) string { return fmt.Sprintf("hold:%d", v.Origin().Pos()) }
+	isFunc := func(t types.Type) bool { _, ok := types.Unalias(t).Underlying().(*types.Signature); return ok }
+	declParams := map[*types.Var]*types.Func{}
+	for _, file := range rw.Files {
+		for _, d := range file.Decls {
+			if fd, ok := d.(*ast.FuncDecl); ok {
+				if o, ok := rw.Info.Defs[fd.Name].(*types.Func); ok {
+					ps := o.Type().(*types.Signature).Params()
+					for i := 0; i < ps.Len(); i++ {
+						if isFunc(ps.At(i).Type()) {
+							declParams[ps.At(i).Origin()] = o.Origin()
+						}
+					}
+				}
+			}
+		}
+	}
+	holder := func(e ast.Expr) *types.Var {
+		v, _ := varOf(e)
+		if v == nil {
+			return nil
+		}
+		v = v.Origin()
+		if _, ok := declParams[v]; ok || v.IsField() {
+			return v
+		}
+		return nil
+	}
+	stored := func(fv *types.Var, e ast.Expr) {
+		fv = fv.Origin()
+		e = rw.Unparen(e)
+		switch x := e.(type) { // an instantiation f[T] of a generic function
+		case *ast.IndexExpr:
+			e = x.X
+		case *ast.IndexListExpr:
+			e = x.X
+		}
+		switch x := e.(type) {
+		case *ast.FuncLit:
+			holderVals[fv] = append(holderVals[fv], x)
+			return
+		case *ast.Ident:
+			if x.Name == "nil" {
+				return
+			}
+			if f, ok := rw.Info.Uses[x].(*types.Func); ok {
+				holderVals[fv] = append(holderVals[fv], f.Origin())
+				return
+			}
+		case *ast.SelectorExpr:
+			if f, ok := rw.Info.Uses[x.Sel].(*types.Func); ok {
+				if sl := rw.Info.Selections[x]; sl == nil || !types.IsInterface(sl.Recv()) {
+					holderVals[fv] = append(holderVals[fv], f.Origin())
+					return
+				}
+			}
+		}
+		if h := holder(e); h != nil {
+			holderVals[fv] = append(holderVals[fv], holderKey(h))
+			return
+		}
+		holderOpen[fv] = true
+	}
+	for _, file := range rw.Files {
+		ast.Inspect(file, func(n ast.Node) bool {
+			switch x := n.(type) {
+			case *ast.CompositeLit:
+				st, ok := types.Unalias(typeOf(x)).Underlying().(*types.Struct)
+				if !ok {
+					return true
+				}
+				for i, el := range x.Elts {
+					if kv, ok := el.(*ast.KeyValueExpr); ok {
+						if id, ok := kv.Key.(*ast.Ident); ok {
+							if fv, ok := rw.Info.Uses[id].(*types.Var); ok && isFunc(fv.Type()) {
+								stored(fv, kv.Value)
+							}
+						}
+					} else if i < st.NumFields() && isFunc(st.Field(i).Type()) {
+						stored(st.Field(i), el)
+					}
+				}
+			case *ast.AssignStmt:
+				for i, l := range x.Lhs {
+					if h := holder(l); h != nil {
+						if len(x.Lhs) != len(x.Rhs) {
+							holderOpen[h] = true
+						} else {
+							stored(h, x.Rhs[i])
+						}
+					}
+				}
+			case *ast.UnaryExpr:
+				if h := holder(x.X); x.Op == token.AND && h != nil {
+					holderOpen[h] = true
+				}
+			}
+			return true
+		})
+	}
+	// implsOf are the methods an interface call of m on a value of interface type it may
+	// run: method m of every type of the package that implements it.
+	var named []types.Type
+	for _, nm := range rw.Pkg.Scope().Names() {
+		tn, ok := rw.Pkg.Scope().Lookup(nm).(*types.TypeName)
+		if !ok || tn.IsAlias() {
+			continue
+		}
+		if _, isIface := tn.Type().Underlying().(*types.Interface); isIface {
+			continue
+		}
+		named = append(named, tn.Type(), types.NewPointer(tn.Type()))
+	}
+	implCache := map[string][]any{}
+	implsOf := func(it types.Type, m string) []any {
+		key := types.TypeString(it, nil) + "." + m
+		if r, ok := implCache[key]; ok {
+			return r
+		}
+		iface := it.Underlying().(*types.Interface)
+		seen := map[any]bool{}
+		var r []any
+		for _, t := range named {
+			nt, _ := types.Unalias(t).(*types.Named)
+			if p, ok := t.(*types.Pointer); ok {
+				nt, _ = p.Elem().(*types.Named)
+			}
+			generic := nt != nil && nt.TypeParams() != nil
+			if !generic && !types.Implements(t, iface) {
+				continue
+			}
+			o, _, _ := types.LookupFieldOrMethod(t, true, rw.Pkg, m)
+			if f, ok := o.(*types.Func); ok && !seen[f.Origin()] {
+				seen[f.Origin()] = true
+				r = append(r, f.Origin())
+			}
+		}
+		if len(r) == 0 {
+			// No implementation in the package (a library interface): anything of the name.
+			for _, f := range methodsByName[m] {
+				r = append(r, f.Origin())
+			}
+		}
+		implCache[key] = r
+		return r
+	}
+	// callTo records a static call of f; a library function reaches this package only
+	// through what it is given: function values, and the methods of interface values.
+	callTo := func(fi *fnInfo, f *types.Func, x *ast.CallExpr) {
+		if f.Pkg() == rw.Pkg {
+			fi.calls[f.Origin()] = true
+			return
+		}
+		for _, a := range x.Args {
+			switch u := types.Unalias(typeOf(a)).Underlying().(type) {
+			case *types.Signature:
+				fi.calls[sigKey(u)] = true
+			case *types.Interface:
+				if !u.Empty() {
+					fi.calls["an interface given to the library"] = true
+				}
+				for _, m := range []string{"String", "Error"} {
+					for _, mf := range methodsByName[m] {
+						fi.calls[mf.Origin()] = true
+					}
+				}
+			}
+		}
+	}
+	// inStruct are the fields of interest within a struct value of type t (through embedded
+	// and nested struct values): what an assignment of a whole struct value changes.
+	inStruct := func(t types.Type) []int {
+		var r []int
+		var walk func(st *types.Struct, depth int)
+		walk = func(st *types.Struct, depth int) {
+			for i := 0; i < st.NumFields(); i++ {
+				f := st.Field(i)
+				if j, ok := fields[f]; ok {
+					r = append(r, j)
+				}
+				if sub, ok := types.Unalias(f.Type()).Underlying().(*types.Struct); ok && depth < 8 {
+					walk(sub, depth+1)
+				}
+			}
+		}
+		if st, ok := types.Unalias(t).Underlying().(*types.Struct); ok {
+			walk(st, 0)
+		}
+		return r
+	}
+	scan := func(body ast.Node, fi *fnInfo) {
+		ast.Inspect(body, func(n ast.Node) bool {
+			switch x := n.(type) {
+			case *ast.AssignStmt:
+				for _, l := range x.Lhs {
+					if t := typeOf(l); t != nil {
+						for _, j := range inStruct(t) {
+							fi.mut[j] = true
+						}
+					}
+				}
+			case *ast.FuncLit:
+				if x == body {
+					return true
+				}
+				if c, ok := rw.Up(x).(*ast.CallExpr); ok && rw.Unparen(c.Fun) == x {
+					fi.calls[x] = true
+				} else {
+					values[x] = sigKey(typeOf(x))
+				}
+				return false // a function of its own
+			case *ast.Ident:
+				if f, ok := rw.Info.Uses[x].(*types.Func); ok {
+					e := rw.VarExpr(x)
+					if c, ok := rw.Up(e).(*ast.CallExpr); !ok || rw.Unparen(c.Fun) != e {
+						var sl *types.Selection
+						if se, ok := e.(*ast.SelectorExpr); ok {
+							sl = rw.Info.Selections[se]
+						}
+						if sl != nil && types.IsInterface(sl.Recv()) {
+							for _, m := range methodsByName[f.Name()] {
+								values[m.Origin()] = sigKey(m.Type())
+							}
+						} else {
+							values[f.Origin()] = sigKey(f.Type())
+						}
+					}
+					return true
+				}
+				v, ok := rw.Info.Uses[x].(*types.Var)
+				if !ok {
+					return true
+				}
+				i, ok := fields[v]
+				if !ok {
+					return true
+				}
+				e := rw.VarExpr(x)
+				switch p := rw.Up(e).(type) {
+				case *ast.AssignStmt:
+					for _, l := range p.Lhs {
+						if l == e {
+							fi.mut[i] = true
+						}
+					}
+				case *ast.UnaryExpr:
+					if p.Op == token.AND {
+						if c, ok := rw.Up(p).(*ast.CallExpr); ok {
+							if nm, _ := rw.CallName(c); nm == "eachOf_" {
+								return true // reads
+							}
+						}
+						fi.mut[i] = true
+					}
+				case *ast.IncDecStmt:
+					fi.mut[i] = true
+				}
+			case *ast.CallExpr:
+				if tv, ok := rw.Info.Types[x.Fun]; ok && (tv.IsType() || tv.IsBuiltin()) {
+					return true
+				}
+				if _, ok := rw.Unparen(x.Fun).(*ast.FuncLit); ok {
+					return true
+				}
+				if s, ok := rw.Unparen(x.Fun).(*ast.SelectorExpr); ok {
+					if sl, ok := rw.Info.Selections[s]; ok && sl.Kind() == types.MethodVal {
+						f := sl.Obj().(*types.Func)
+						if types.IsInterface(sl.Recv()) && f.Pkg() == rw.Pkg {
+							for _, m := range implsOf(sl.Recv(), f.Name()) {
+								fi.calls[m] = true
+							}
+						} else {
+							callTo(fi, f, x)
+						}
+						return true
+					}
+				}
+				if f := calleeFunc(x); f != nil {
+					callTo(fi, f, x)
+					return true
+				}
+				if h := holder(x.Fun); h != nil {
+					fi.calls[holderKey(h)] = true // a function stored in a field or parameter
+					return true
+				}
+				fi.calls[sigKey(typeOf(x.Fun))] = true
+			}
+			return true
+		})
+	}
+	// Arguments for function-typed parameters, at every call whose callees are known.
+	for _, file := range rw.Files {
+		ast.Inspect(file, func(n ast.Node) bool {
+			x, ok := n.(*ast.CallExpr)
+			if !ok {
+				return true
+			}
+			var targets []*types.Func
+			if s, ok := rw.Unparen(x.Fun).(*ast.SelectorExpr); ok {
+				if sl, ok := rw.Info.Selections[s]; ok && sl.Kind() == types.MethodVal {
+					f := sl.Obj().(*types.Func)
+					if types.IsInterface(sl.Recv()) && f.Pkg() == rw.Pkg {
+						for _, m := range implsOf(sl.Recv(), f.Name()) {
+							targets = append(targets, m.(*types.Func))
+						}
+					} else {
+						targets = append(targets, f.Origin())
+					}
+				}
+			}
+			if targets == nil {
+				if f := calleeFunc(x); f != nil {
+					targets = append(targets, f.Origin())
+				}
+			}
+			for _, f := range targets {
+				ps := f.Type().(*types.Signature).Params()
+				for i, a := range x.Args {
+					if i < ps.Len() {
+						if p := ps.At(i).Origin(); declParams[p] != nil && !(f.Type().(*types.Signature).Variadic() && i >= ps.Len()-1) {
+							stored(p, a)
+						}
+					}
+				}
+			}
+			return true
+		})
+	}
+	var decls []*ast.FuncDecl
+	for _, file := range rw.Files {
+		for _, d := range file.Decls {
+			if fd, ok := d.(*ast.FuncDecl); ok && fd.Body != nil {
+				if o, ok := rw.Info.Defs[fd.Name].(*types.Func); ok {
+					decls = append(decls, fd)
+					if fd.Recv != nil {
+						methodsByName[o.Name()] = append(methodsByName[o.Name()], o)
+					}
+				}
+			}
+		}
+	}
+	for _, fd := range decls {
+		fi := &fnInfo{mut: map[int]bool{}, calls: map[any]bool{}}
+		scan(fd.Body, fi)
+		infos[rw.Info.Defs[fd.Name].(*types.Func)] = fi
+	}
+	for _, file := range rw.Files {
+		ast.Inspect(file, func(n ast.Node) bool {
+			if fl, ok := n.(*ast.FuncLit); ok {
+				fi := &fnInfo{mut: map[int]bool{}, calls: map[any]bool{}}
+				scan(fl, fi)
+				infos[fl] = fi
+			}
+			return true
+		})
+	}
+	// A function used as a value is called with arguments from anywhere.
+	for v := range values {
+		if f, ok := v.(*types.Func); ok {
+			for p, g := range declParams {
+				if g == f {
+					holderOpen[p] = true
+				}
+			}
+		}
+	}
+	for p := range declParams {
+		if _, ok := holderVals[p]; !ok {
+			holderVals[p] = nil // every parameter has a pool
+		}
+	}
+	for fv, vs := range holderVals {
+		pool := &fnInfo{mut: map[int]bool{}, calls: map[any]bool{}}
+		if holderOpen[fv] {
+			pool.calls[sigKey(fv.Type())] = true
+		}
+		for _, v := range vs {
+			pool.calls[v] = true
+		}
+		infos[holderKey(fv)] = pool
+	}
+	for fv := range holderOpen {
+		if _, ok := infos[holderKey(fv)]; !ok {
+			infos[holderKey(fv)] = &fnInfo{mut: map[int]bool{}, calls: map[any]bool{sigKey(fv.Type()): true}}
+		}
+	}
+	// Calling a function value may call any function used as a value with its signature.
+	for v, k := range values {
+		var t types.Type
+		switch f := v.(type) {
+		case *types.Func:
+			t = f.Type()
+		case *ast.FuncLit:
+			t = typeOf(f)
+		}
+		for _, k := range []string{k, arity(t)} {
+			pool, ok := infos[k]
+			if !ok {
+				pool = &fnInfo{mut: map[int]bool{}, calls: map[any]bool{}}
+				infos[k] = pool
+			}
+			pool.calls[v] = true
+		}
+	}
+	// What each function may change: a fixpoint over the call graph (all: no body here).
+	type eff struct {
+		all bool
+		mut map[int]bool
+	}
+	effs := map[any]*eff{}
+	for f, fi := range infos {
+		e := &eff{mut: map[int]bool{}}
+		for i := range fi.mut {
+			e.mut[i] = true
+		}
+		effs[f] = e
+	}
+	callee := func(f any) *eff {
+		if e, ok := effs[f]; ok {
+			return e
+		}
+		if k, ok := f.(string); ok && (strings.HasPrefix(k, "fv") || strings.HasPrefix(k, "hold:")) {
+			return &eff{mut: map[int]bool{}} // no function value of the signature exists
+		}
+		return &eff{all: true} // no body here (a library interface method without one)
+	}
+	for changed := true; changed; {
+		changed = false
+		for f, fi := range infos {
+			e := effs[f]
+			if e.all {
+				continue
+			}
+			for c := range fi.calls {
+				ce := callee(c)
+				if ce.all {
+					e.all, changed = true, true
+					break
+				}
+				for i := range ce.mut {
+					if !e.mut[i] {
+						e.mut[i], changed = true, true
+					}
+				}
+			}
+		}
+	}
+	if tr := os.Getenv("NATIVE_TRACE"); tr != "" {
+		name := func(c any) string {
+			switch f := c.(type) {
+			case *types.Func:
+				return f.FullName()
+			case *ast.FuncLit:
+				return rw.Fset.Position(f.Pos()).String()
+			}
+			return fmt.Sprint(c)
+		}
+		var start any
+		for f := range infos {
+			if name(f) == tr {
+				start = f
+			}
+		}
+		prev := map[any]any{start: nil}
+		q := []any{start}
+		for len(q) > 0 {
+			c := q[0]
+			q = q[1:]
+			fi := infos[c]
+			if k, ok := c.(string); fi == nil && ok && (strings.HasPrefix(k, "fv") || strings.HasPrefix(k, "hold:")) {
+				continue
+			}
+			if fi == nil || len(fi.mut) > 0 {
+				for x := c; x != nil; x = prev[x] {
+					fmt.Fprintf(os.Stderr, "trace: %s (body %v, mut %v)\n", name(x), infos[x] != nil, infos[x] != nil && len(infos[x].mut) > 0)
+				}
+				break
+			}
+			for d := range fi.calls {
+				if _, seen := prev[d]; !seen {
+					prev[d] = c
+					q = append(q, d)
+				}
+			}
+		}
+	}
+	n := 0
+	for _, st := range sites {
+		body := loopBody(st.as)
+		fi := &fnInfo{mut: map[int]bool{}, calls: map[any]bool{}}
+		scan(body, fi)
+		i := fields[st.f]
+		ok := !fi.mut[i]
+		for c := range fi.calls {
+			if ce := callee(c); ce.all || ce.mut[i] {
+				ok = false
+				break
+			}
+		}
+		if os.Getenv("NATIVE_WHY") != "" && !ok {
+			var by []string
+			for c := range fi.calls {
+				if ce := callee(c); ce.all || ce.mut[i] {
+					switch f := c.(type) {
+					case *types.Func:
+						by = append(by, f.FullName())
+					case *ast.FuncLit:
+						by = append(by, rw.Fset.Position(f.Pos()).String())
+					default:
+						by = append(by, fmt.Sprint(f))
+					}
+				}
+			}
+			sort.Strings(by)
+			fmt.Fprintf(os.Stderr, "why: eachOf_ at %s stays: %v %v\n", rw.Fset.Position(st.as.Pos()), fi.mut[i], by)
+		}
+		if ok && rangeLoop(st.as, st.x) {
+			n++
+		}
+	}
+	return n
+}
+
+// hasTypeParam reports whether signature sig mentions a type parameter.
+func hasTypeParam(sig *types.Signature) bool {
+	var has func(t types.Type) bool
+	seen := map[types.Type]bool{}
+	has = func(t types.Type) bool {
+		if seen[t] {
+			return false
+		}
+		seen[t] = true
+		switch u := t.(type) {
+		case *types.TypeParam:
+			return true
+		case *types.Pointer:
+			return has(u.Elem())
+		case *types.Slice:
+			return has(u.Elem())
+		case *types.Array:
+			return has(u.Elem())
+		case *types.Map:
+			return has(u.Key()) || has(u.Elem())
+		case *types.Chan:
+			return has(u.Elem())
+		case *types.Signature:
+			for _, tu := range []*types.Tuple{u.Params(), u.Results()} {
+				for i := 0; i < tu.Len(); i++ {
+					if has(tu.At(i).Type()) {
+						return true
+					}
+				}
+			}
+		case *types.Named:
+			for i := 0; i < u.TypeArgs().Len(); i++ {
+				if has(u.TypeArgs().At(i)) {
+					return true
+				}
+			}
+		case *types.Alias:
+			return has(types.Unalias(u))
+		}
+		return false
+	}
+	return has(sig)
+}
