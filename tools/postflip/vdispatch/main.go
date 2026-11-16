@@ -32,7 +32,10 @@
 // anywhere other than an assignment statement of a concrete pointer in generated code, are
 // left alone. A root that already has selfI_ is left alone, so the step can be rerun.
 //
-// usage: vdispatch [-n] [-retype] <dir of package closure>
+// With -sub (after -retype), the methods a sub-hierarchy's dispatchers call go into R_I too,
+// with a body on R that is never run; see sub.go.
+//
+// usage: vdispatch [-n] [-retype | -sub] <dir of package closure>
 package main
 
 import (
@@ -71,18 +74,24 @@ type root struct {
 }
 
 func main() {
-	report, retype := false, false
+	report, retype, sub := false, false, false
 	for _, a := range os.Args[1 : len(os.Args)-1] {
 		switch a {
 		case "-n":
 			report = true
 		case "-retype":
 			retype = true
+		case "-sub":
+			sub = true
 		default:
-			panic("usage: vdispatch [-n] [-retype] <dir>")
+			panic("usage: vdispatch [-n] [-retype | -sub] <dir>")
 		}
 	}
 	rw.Load(os.Args[len(os.Args)-1])
+	if sub {
+		subMain(report)
+		return
+	}
 
 	// Roots: struct types declaring a field self_ of type any.
 	roots := map[*types.Var]*root{}
