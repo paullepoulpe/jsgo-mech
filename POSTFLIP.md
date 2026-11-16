@@ -162,3 +162,63 @@ behind them are shared:
 Still open:
 - Scope lookups that do not create empty block scopes: 48% of the 3.3M scopes built on bundle
   are empty.
+
+## postflip5: the Java-isms batch (JAVAISMS.md)
+
+Seven groups were prototyped in parallel on `postflip4` (branches `postflip4-sw-*`), each gated
+on its own, then merged here in dependency order: runtime changes and tool sources cherry-picked,
+every tool re-run on the merged tree, each commit gated (runtime tests ok, four projects MATCH).
+
+Measured against pre-flip Java on one machine:
+- bundle, 3 interleaved rounds (medians): 29.94s -> 28.22s; 1.063x -> **1.002x** of Java
+  (best runs 27.85s against Java's 28.14s).
+- typed-full, 4 rounds alternating forward and backward order, so that each commit is compared
+  with its neighbour in the same round (means): 61.94s -> 59.34s; 1.143x -> **1.095x** of Java.
+  Pass time (tracer, 2 runs): 57.7s -> 53.7s against Java's 49.6s.
+- Objects allocated (exact): typed-full 257.8M -> 200.4M (-22%), bundle 114.4M -> 99.4M.
+
+| commit | kind | change | typed-full step (4 rounds) | typed-full objects |
+|---|---|---|---:|---:|
+| d1f9316 | - | gofmt of three files | | |
+| 57df317 | runtime | removing the first element of a short list shifts the rest | -0.8% (3 of 4 rounds faster) | 254.2M |
+| 18181b9 | manual | a graph node has room for its first in- and out-edge | 0.0% | 251.5M |
+| e62ff07 | runtime | EnumSet is a bit set; one ordinal comparator | 0.0% | 243.5M |
+| 614c26c, d01a506, 98238b0, 11648d2 | step `native` | typed lists (347), maps (100), sets (84), immutable lists (206) become slices and Go maps | within noise | 246.2M, 246.2M, 246.0M, 247.5M |
+| df574d1 | step `generics` | `Optional[T]` (2,745 type arguments `string`) | within noise | 232.6M |
+| dcb2004 | step `arraycopy` | System.arraycopy between arrays of one type without boxing (11) | within noise | 230.4M |
+| c4914da | step `lambdas` | a lambda that captures nothing is made once (414) | within noise | 222.8M |
+| fce1c68 | step `vdispatch` | `self_` typed with a named interface per hierarchy; 1,579 of 1,806 dispatch sites call through it | **-2.4% (4 of 4)** | 222.7M |
+| 6503ac1 | step `casts` | `to_X`/`is_X` of small hierarchies check the concrete types first (114 + 25 helpers) | within noise | 222.7M |
+| a1b0aa5 | runtime | `_f` variants of computeIfAbsent, compute, merge, forEach taking Go func values | within noise | 224.0M |
+| 118c067 | step `funcparams` | 62 function-interface parameters only called become Go func values (379 calls, 57 runtime calls) | within noise | 210.0M |
+| 4eaa1fe | step `precond` | Preconditions box their message arguments only when they fail (856) | within noise | 203.0M |
+| 1cdb142 | manual (prototype) | Node keeps 24 boolean properties as bits in its hot record | within noise | 202.5M |
+| ff3de79 | runtime | the Java-signature computeIfAbsent etc. keep their own bodies (a1b0aa5 forwarded through a method value) | within noise | 202.5M |
+| 4e902b3 | runtime | removing the first element of a short native slice shifts the rest (the parser lookahead regrew) | within noise | 200.4M |
+
+"Within noise": the step's sign differed between rounds; this host has slow periods of several
+minutes, and single steps of 1% cannot be resolved in 4 rounds. Their sum is the -4.2% above.
+
+Notes:
+- 1cdb142 does not keep the order of a bit property relative to the list items on failure
+  paths (which of two AST violations is reported first, name order in one exception message).
+  It is a prototype for its final home, a pre-flip Java step (`Node.propBits`), which changes Java
+  and Go alike.
+- The immutable-list step copies immutables built by the erased builders into typed slices
+  (`sliceImm_` through `tlistImm_`, which also allocates a `TList` header): +1.5M objects.
+- Final home of each step (from the prototypes' reports): j2go for `generics`, `lambdas`/
+  `funcparams` (functional interfaces as Go func types), `vdispatch` and `casts` (j2go knows the
+  hierarchy); post-flip for `native` (needs whole-package aliasing and order analysis) and
+  `precond`; runtime for EnumSet; a pre-flip Java step for the node properties.
+
+Where typed-full still trails pre-flip Java (pass time, tracer):
+
+| pass | Java | postflip5 | ratio |
+|---|---:|---:|---:|
+| inlineVariables | 2.37s | 3.61s | 1.52x |
+| removeUnusedCode | 5.00s | 5.98s | 1.20x |
+| flowSensitiveInlineVariables | 1.88s | 2.85s | 1.52x |
+| inferTypes | 6.11s | 6.95s | 1.14x |
+| collapseObjectLiterals | 1.62s | 2.30s | 1.42x |
+| checkTypes | 1.61s | 2.17s | 1.35x |
+| coalesceVariableNames | 1.01s | 1.36s | 1.34x |
