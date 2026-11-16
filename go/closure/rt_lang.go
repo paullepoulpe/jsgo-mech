@@ -12,7 +12,23 @@ import (
 
 var enumRegistry_ = map[string][]any{}
 
-func registerEnum_(class string, values []any) { enumRegistry_[class] = values }
+// registerEnum_ records the constants of an enum, in ordinal order, by class name (for
+// EnumSet.allOf and Class.getEnumConstants) and in each constant (for EnumSet). The constants
+// a constant holds are the most derived objects, as self() gives them.
+func registerEnum_(class string, values []any) {
+	enumRegistry_[class] = values
+	univ := make([]any, len(values))
+	for i, v := range values {
+		e := v.(enumConst_).enum_()
+		if int(e.ordinal_) != i {
+			panic("registerEnum_: " + class + " constants not in ordinal order")
+		}
+		univ[i] = e.self()
+	}
+	for _, v := range univ {
+		v.(enumConst_).enum_().values_ = univ
+	}
+}
 
 func enumValues_[T comparable](vs []T) []any {
 	out := make([]any, len(vs))
