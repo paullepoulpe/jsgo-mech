@@ -2830,23 +2830,23 @@ func ConformanceRules_BanUnresolvedType_getNonConformingPart(type_ *JSType) Opti
 		return Optional_empty[string]()
 	}
 	if type_.isUnionType() {
-		var nonConformingParts ArrayListOf[string] = nil
+		var nonConformingParts *TList[string] = nil
 		it_1 := foreach_(any(type_.getUnionMembers()))
 		for it_1.next() {
 			var part *JSType = to_JSType(it_1.v)
 			var nonConformingPart OptionalOf[string] = ConformanceRules_BanUnresolvedType_getNonConformingPart(part)
 			if nonConformingPart.isPresent() {
-				nonConformingParts = func() *ArrayList {
+				nonConformingParts = func() *TList[string] {
 					if nonConformingParts != nil {
 						return nonConformingParts
 					}
-					return new_ArrayList_0()
+					return newTList_(tc_string)
 				}()
-				nonConformingParts.add(strobj_(nonConformingPart.get()))
+				nonConformingParts.add(nonConformingPart.get())
 			}
 		}
 		if nonConformingParts != nil {
-			return Optional_of[string](Joiner_on_char('|').join(icast_Iterable(nonConformingParts.self())))
+			return Optional_of[string](Joiner_on_char('|').join(icast_Iterable(any(nonConformingParts.asList()))))
 		}
 	} else if type_.isNoResolvedType() {
 		var noResolvedType *ObjectType = type_.toObjectType()

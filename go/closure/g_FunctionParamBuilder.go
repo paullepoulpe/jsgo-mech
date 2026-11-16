@@ -4,12 +4,12 @@ package closure
 
 type FunctionParamBuilder struct {
 	registry   *JSTypeRegistry
-	parameters ArrayListOf[*FunctionType_Parameter]
+	parameters *TList[*FunctionType_Parameter]
 }
 
 func (this *FunctionParamBuilder) init_FunctionParamBuilder_JSTypeRegistry(registry *JSTypeRegistry) {
 	this.registry = registry
-	this.parameters = new_ArrayList_0()
+	this.parameters = newTList_(tc_p_FunctionType_Parameter)
 }
 
 func new_FunctionParamBuilder_JSTypeRegistry(registry *JSTypeRegistry) *FunctionParamBuilder {
@@ -20,7 +20,7 @@ func new_FunctionParamBuilder_JSTypeRegistry(registry *JSTypeRegistry) *Function
 
 func (this *FunctionParamBuilder) init_FunctionParamBuilder_JSTypeRegistry_int(registry *JSTypeRegistry, initialParameterCapacity int32) {
 	this.registry = registry
-	this.parameters = new_ArrayList_int(initialParameterCapacity)
+	this.parameters = newTListN_(tc_p_FunctionType_Parameter, initialParameterCapacity)
 }
 
 func new_FunctionParamBuilder_JSTypeRegistry_int(registry *JSTypeRegistry, initialParameterCapacity int32) *FunctionParamBuilder {
@@ -58,7 +58,7 @@ func (this *FunctionParamBuilder) addVarArgs(type_ *JSType) bool {
 }
 
 func (this *FunctionParamBuilder) newParameterFrom(n *FunctionType_Parameter) {
-	this.parameters.add(obj_(n))
+	this.parameters.add(n)
 }
 
 func (this *FunctionParamBuilder) newOptionalParameterFrom(p *FunctionType_Parameter) {
@@ -72,21 +72,21 @@ func (this *FunctionParamBuilder) newOptionalParameterFrom(p *FunctionType_Param
 
 func (this *FunctionParamBuilder) newParameter(type_ *JSType, isOptional bool, isVariadic bool) {
 	var parameter *FunctionType_Parameter = FunctionType_Parameter_create(type_, isOptional, isVariadic)
-	this.parameters.add(obj_(parameter))
+	this.parameters.add(parameter)
 }
 
 func (this *FunctionParamBuilder) hasOptionalOrVarArgs() bool {
 	if this.parameters.isEmpty() {
 		return false
 	}
-	var lastParam *FunctionType_Parameter = cast_[*FunctionType_Parameter](Iterables_getLast(icast_Iterable(this.parameters.self())))
+	var lastParam *FunctionType_Parameter = cast_[*FunctionType_Parameter](Iterables_getLast(icast_Iterable(any(this.parameters.asList()))))
 	return (lastParam.isOptional() || lastParam.isVariadic())
 }
 
 func (this *FunctionParamBuilder) hasVarArgs() bool {
-	return (!this.parameters.isEmpty() && cast_[*FunctionType_Parameter](Iterables_getLast(icast_Iterable(this.parameters.self()))).isVariadic())
+	return (!this.parameters.isEmpty() && cast_[*FunctionType_Parameter](Iterables_getLast(icast_Iterable(any(this.parameters.asList())))).isVariadic())
 }
 
 func (this *FunctionParamBuilder) build() ImmutableListOf[*FunctionType_Parameter] {
-	return ImmutableList_copyOf(icast_Collection(this.parameters.self()))
+	return ImmutableList_copyOf(icast_Collection(any(this.parameters.asList())))
 }

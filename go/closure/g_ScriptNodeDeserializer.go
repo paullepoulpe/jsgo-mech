@@ -416,9 +416,9 @@ func (this *ScriptNodeDeserializer_Runner) run() Node {
 		}()
 		var astStream *CodedInputStream = this.owner().scriptBytes.newCodedInput()
 		astStream.setRecursionLimit(int32(2147483647))
-		var contextStack ArrayListOf[*FeatureCollector_FeatureContext] = new_ArrayList_0()
-		SequencedCollection_addLast(icast_SequencedCollection(contextStack.self()), obj_(FeatureCollector_FeatureContext_NONE))
-		var scriptNode Node = this.visit(AstNode_parseFrom(astStream, ExtensionRegistry_getEmptyRegistry().up_ExtensionRegistryLite()), icast_List(contextStack.self()), this.owner().createSourceInfoTemplate(this.owner().sourceFile))
+		var contextStack *TList[*FeatureCollector_FeatureContext] = newTList_(tc_p_FeatureCollector_FeatureContext)
+		SequencedCollection_addLast(icast_SequencedCollection(any(contextStack.asList())), obj_(FeatureCollector_FeatureContext_NONE))
+		var scriptNode Node = this.visit(AstNode_parseFrom(astStream, ExtensionRegistry_getEmptyRegistry().up_ExtensionRegistryLite()), contextStack, this.owner().createSourceInfoTemplate(this.owner().sourceFile))
 		scriptNode.setFeatureSet(obj_(this.featureCollector.allFeatures()))
 		ret_1 = scriptNode
 		return 1
@@ -434,7 +434,7 @@ func (this *ScriptNodeDeserializer_Runner) owner() *ScriptNodeDeserializer {
 	return this.outer_
 }
 
-func (this *ScriptNodeDeserializer_Runner) visit(astNode *AstNode, contextStack ListOf[*FeatureCollector_FeatureContext], sourceFileTemplate Node) Node {
+func (this *ScriptNodeDeserializer_Runner) visit(astNode *AstNode, contextStack *TList[*FeatureCollector_FeatureContext], sourceFileTemplate Node) Node {
 	if (sourceFileTemplate == 0) || (astNode.getSourceFile() != 0) {
 		sourceFileTemplate = this.owner().createSourceInfoTemplate(sliceAt_(this.owner().filePool, (astNode.getSourceFile() - 1)))
 	}
@@ -453,7 +453,7 @@ func (this *ScriptNodeDeserializer_Runner) visit(astNode *AstNode, contextStack 
 	this.previousLine = currentLine
 	this.previousColumn = currentColumn
 	if contextStack != nil {
-		SequencedCollection_addLast(SequencedCollection(contextStack), obj_(this.featureCollector.visitSingleNode(Collections_unmodifiableList(contextStack), n)))
+		SequencedCollection_addLast(SequencedCollection(contextStack.asList()), obj_(this.featureCollector.visitSingleNode(contextStack, n)))
 	}
 	if Node_hasBitSet(properties, NodeProperty_CLOSURE_UNAWARE_SHADOW.getNumber()) {
 		var serializedShadowChild *AstNode = astNode.getChild(0)
@@ -475,6 +475,6 @@ func (this *ScriptNodeDeserializer_Runner) visit(astNode *AstNode, contextStack 
 		n.addChildToBack(deserializedChild)
 		this.owner().setOriginalNameIfPresent(child, deserializedChild)
 	}
-	SequencedCollection_removeLast(SequencedCollection(contextStack))
+	SequencedCollection_removeLast(SequencedCollection(contextStack.asList()))
 	return n
 }

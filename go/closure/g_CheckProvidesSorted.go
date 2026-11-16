@@ -4,7 +4,7 @@ package closure
 
 type CheckProvidesSorted struct {
 	mode_            *CheckProvidesSorted_Mode
-	originalProvides ListOf[string]
+	originalProvides *TList[string]
 	firstNode        Node
 	lastNode         Node
 	finished         bool
@@ -13,7 +13,7 @@ type CheckProvidesSorted struct {
 }
 
 func (this *CheckProvidesSorted) finit_CheckProvidesSorted() {
-	this.originalProvides = icast_List(new_ArrayList_0().self())
+	this.originalProvides = newTList_(tc_string)
 	this.firstNode = 0
 	this.lastNode = 0
 	this.finished = false
@@ -58,7 +58,7 @@ func (this *CheckProvidesSorted) visit(t *NodeTraversal, n Node, parent Node) {
 		return
 	}
 	if NodeUtil_isGoogProvideCall(n) && CheckProvidesSorted_areProvideArgumentsValid(n.getFirstChild()) {
-		this.originalProvides.add(strobj_(CheckProvidesSorted_getNamespace(n)))
+		this.originalProvides.add(CheckProvidesSorted_getNamespace(n))
 		if this.firstNode == 0 {
 			this.lastNode = n
 			this.firstNode = n
@@ -87,10 +87,10 @@ func CheckProvidesSorted_formatProvide(namespace string) string {
 }
 
 func (this *CheckProvidesSorted) checkCanonical(t *NodeTraversal) {
-	var sortedProvides []string = sliceFrom_(tc_string, Collection(this.originalProvides))
+	var sortedProvides []string = sliceFrom_(tc_string, Collection(this.originalProvides.asList()))
 	Collections_sort(sliceView_(tc_string, sortedProvides))
 	var canonicalProvides ImmutableListOf[string] = ImmutableList_copyOf(icast_Collection(obj_(new_LinkedHashSet_Collection(Collection(sliceView_(tc_string, sortedProvides))))))
-	if !Object_equals(any(this.originalProvides), obj_(canonicalProvides)) {
+	if !Object_equals(any(this.originalProvides.asList()), obj_(canonicalProvides)) {
 		this.needsFixField = true
 		this.replacement_ = Optional_of[string](String_join(strobj_("\n"), Iterables_transform(icast_Iterable(obj_(canonicalProvides)), lambda_CheckProvidesSorted_checkCanonical_1_)))
 		if this.mode_ == CheckProvidesSorted_Mode_COLLECT_AND_REPORT {

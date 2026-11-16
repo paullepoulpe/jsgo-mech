@@ -73,12 +73,12 @@ func (this *InlineObjectLiterals_InliningBehavior) isVarInlineForbidden(var_ *Va
 	return ((((var_.isGlobal() || var_.isExtern()) || this.outer_.compiler_.getCodingConvention().isExported_2(var_.getName(), true)) || this.outer_.compiler_.getCodingConvention().isPropertyRenameFunction(var_.getNameNode())) || this.staleVars.contains(obj_(var_)))
 }
 
-func (this *InlineObjectLiterals_InliningBehavior) isInlinableObject(refs ListOf[*Reference]) bool {
+func (this *InlineObjectLiterals_InliningBehavior) isInlinableObject(refs *TList[*Reference]) bool {
 	var ret bool = false
 	var validProperties map[string]struct{} = map[string]struct{}{}
-	it_1 := foreach_(any(refs))
+	it_1 := refs.each()
 	for it_1.next() {
-		var ref *Reference = cast_[*Reference](it_1.v)
+		var ref *Reference = it_1.v
 		var name Node = ref.getNode()
 		var parent Node = ref.getParent()
 		var grandparent Node = ref.getGrandparent()
@@ -125,9 +125,9 @@ func (this *InlineObjectLiterals_InliningBehavior) isInlinableObject(refs ListOf
 				}
 				validProperties[child.getString()] = struct{}{}
 				var childVal Node = child.getFirstChild()
-				it_5 := foreach_(any(refs))
+				it_5 := refs.each()
 				for it_5.next() {
-					var t *Reference = cast_[*Reference](it_5.v)
+					var t *Reference = it_5.v
 					var refNode Node = t.getParent()
 					for !NodeUtil_isStatementBlock(refNode) {
 						if refNode == childVal {
@@ -150,9 +150,9 @@ func (this *InlineObjectLiterals_InliningBehavior) isVarOrAssignExprLhs(n Node) 
 
 func (this *InlineObjectLiterals_InliningBehavior) computeVarList(referenceInfo *ReferenceCollection) *TMap[string, string] {
 	var varmap *TMap[string, string] = newTMap_(tc_string, tc_string)
-	it_1 := foreach_(any(referenceInfo.references))
+	it_1 := referenceInfo.references.each()
 	for it_1.next() {
-		var ref *Reference = cast_[*Reference](it_1.v)
+		var ref *Reference = it_1.v
 		if ref.isLvalue() || ref.isInitializingDeclaration() {
 			var val Node = ref.getAssignedValue()
 			if val != 0 {
@@ -311,9 +311,9 @@ func (this *InlineObjectLiterals_InliningBehavior) splitObject(v *Var, init_ *Re
 		this.outer_.compiler_.reportChangeToEnclosingScope(vnode.getParent())
 		vnode.detach()
 	}
-	it_3 := foreach_(any(referenceInfo.references))
+	it_3 := referenceInfo.references.each()
 	for it_3.next() {
-		var ref *Reference = cast_[*Reference](it_3.v)
+		var ref *Reference = it_3.v
 		if defined && (ref == init_) {
 			continue
 		}

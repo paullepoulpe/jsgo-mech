@@ -14,8 +14,8 @@ type ClosureRewriteModule struct {
 	rewriteState                      *ClosureRewriteModule_GlobalRewriteState
 	legacyScriptNamespacesAndPrefixes map[string]struct{}
 	unrecognizedRequires              []*ClosureRewriteModule_UnrecognizedRequire
-	googModuleGetCalls                ArrayListOf[Node]
-	googRequireDynamicCalls           ArrayListOf[Node]
+	googModuleGetCalls                *TList[Node]
+	googRequireDynamicCalls           *TList[Node]
 	globalTypedScope                  *TypedScope
 }
 
@@ -27,8 +27,8 @@ func (this *ClosureRewriteModule) finit_ClosureRewriteModule() {
 	this.rewriteState = new_ClosureRewriteModule_GlobalRewriteState()
 	this.legacyScriptNamespacesAndPrefixes = map[string]struct{}{}
 	this.unrecognizedRequires = []*ClosureRewriteModule_UnrecognizedRequire{}
-	this.googModuleGetCalls = new_ArrayList_0()
-	this.googRequireDynamicCalls = new_ArrayList_0()
+	this.googModuleGetCalls = newTList_(tc_Node)
+	this.googRequireDynamicCalls = newTList_(tc_Node)
 }
 
 func (this *ClosureRewriteModule) init_ClosureRewriteModule(compiler *AbstractCompiler, preprocessorSymbolTable *PreprocessorSymbolTable, globalTypedScope *TypedScope) {
@@ -100,8 +100,8 @@ func (this *ClosureRewriteModule) process_2(externs Node, root Node) {
 	}
 	NodeTraversal_traverseRoots(this.compiler_, icast_NodeTraversal_Callback(obj_(new_ClosureRewriteModule_ScriptUpdater(this, scriptDescriptions))), externs, root)
 	this.declareSyntheticExterns()
-	Iterable_forEach_f(icast_Iterable(this.googModuleGetCalls.self()), func(p0 any) { this.updateGoogModuleGetCall(Node_of_(p0)) })
-	Iterable_forEach_f(icast_Iterable(this.googRequireDynamicCalls.self()), func(p0 any) { this.updateGoogRequireDynamicCall(Node_of_(p0)) })
+	Iterable_forEach_f(icast_Iterable(any(this.googModuleGetCalls.asList())), func(p0 any) { this.updateGoogModuleGetCall(Node_of_(p0)) })
+	Iterable_forEach_f(icast_Iterable(any(this.googRequireDynamicCalls.asList())), func(p0 any) { this.updateGoogRequireDynamicCall(Node_of_(p0)) })
 }
 
 func (this *ClosureRewriteModule) declareSyntheticExterns() {
@@ -241,7 +241,7 @@ func (this *ClosureRewriteModule) recordGoogRequireDynamic(t *NodeTraversal, cal
 	if !this.rewriteState.containsModule(namespaceId) {
 		this.unrecognizedRequires = append(this.unrecognizedRequires, new_ClosureRewriteModule_UnrecognizedRequire(call, namespaceId))
 	}
-	this.googRequireDynamicCalls.add(call.box_())
+	this.googRequireDynamicCalls.add(call)
 }
 
 func (this *ClosureRewriteModule) recordGoogModuleGet(t *NodeTraversal, call Node) {
@@ -254,7 +254,7 @@ func (this *ClosureRewriteModule) recordGoogModuleGet(t *NodeTraversal, call Nod
 	if !this.rewriteState.containsModule(namespaceId) {
 		this.unrecognizedRequires = append(this.unrecognizedRequires, new_ClosureRewriteModule_UnrecognizedRequire(call, namespaceId))
 	}
-	this.googModuleGetCalls.add(call.box_())
+	this.googModuleGetCalls.add(call)
 	var maybeAssign Node = call.getParent()
 	var isFillingAnAlias bool = ((maybeAssign.isAssign() && maybeAssign.getFirstChild().isName()) && maybeAssign.getParent().isExprResult())
 	if !isFillingAnAlias || !this.currentScript.isModule_ {
@@ -274,7 +274,7 @@ func (this *ClosureRewriteModule) recordGoogModuleGet(t *NodeTraversal, call Nod
 	}
 	this.compiler_.reportChangeToEnclosingScope(maybeAssign)
 	maybeAssign.getParent().detach()
-	this.googModuleGetCalls.remove((this.googModuleGetCalls.size() - 1))
+	this.googModuleGetCalls.removeAt((this.googModuleGetCalls.size() - 1))
 }
 
 func (this *ClosureRewriteModule) recordTopLevelClassOrFunctionName(classOrFunctionNode Node) {

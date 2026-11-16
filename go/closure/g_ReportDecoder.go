@@ -25,13 +25,13 @@ func ReportDecoder_parseMappingFromFile(mappingFilePath string) *Outcome_base {
 
 func ReportDecoder_parseMapping(mappingFileContent string) *Outcome_base {
 	var mapping MapOf[string, *InstrumentationPoint] = icast_Map(obj_(new_LinkedHashMap()))
-	var linesOfFile ListOf[string] = Splitter_on('\n').omitEmptyStrings().splitToList(strobj_(mappingFileContent))
+	var linesOfFile *TList[string] = tlistImm_(tc_string, Splitter_on('\n').omitEmptyStrings().splitToList(strobj_(mappingFileContent)))
 	if !(linesOfFile.size() >= 3) {
-		Preconditions_checkState_boolean_String_Object(false, "Malformed report %s", any(linesOfFile))
+		Preconditions_checkState_boolean_String_Object(false, "Malformed report %s", any(linesOfFile.asList()))
 	}
-	var fileNamesLine string = String_trim(str_(linesOfFile.get(0)))
-	var functionNamesLine string = String_trim(str_(linesOfFile.get(1)))
-	var typesLine string = String_trim(str_(linesOfFile.get(2)))
+	var fileNamesLine string = String_trim(linesOfFile.get(0))
+	var functionNamesLine string = String_trim(linesOfFile.get(1))
+	var typesLine string = String_trim(linesOfFile.get(2))
 	Preconditions_checkState(String_startsWith(fileNamesLine, "FileNames:"))
 	Preconditions_checkState(String_startsWith(functionNamesLine, "FunctionNames:"))
 	Preconditions_checkState(String_startsWith(typesLine, "Types:"))
@@ -59,7 +59,7 @@ func ReportDecoder_parseMapping(mappingFileContent string) *Outcome_base {
 		types = append(types, InstrumentationPoint_Type_valueOf(typeAsString))
 	}
 	for i := int32(3); i < linesOfFile.size(); i++ {
-		var lineItem string = str_(linesOfFile.get(i))
+		var lineItem string = linesOfFile.get(i)
 		var id string = String_substring(lineItem, 0, String_indexOf(lineItem, 58))
 		var encodedDetails string = String_substring_int(lineItem, (String_indexOf(lineItem, 58) + 1))
 		var encodedDetailsAsCharIt *ReportDecoder_StringCharIterator = new_ReportDecoder_StringCharIterator(encodedDetails)

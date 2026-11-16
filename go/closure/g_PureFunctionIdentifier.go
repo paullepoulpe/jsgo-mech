@@ -85,20 +85,20 @@ func PureFunctionIdentifier_formatSourceLocation(node Node) string {
 }
 
 func PureFunctionIdentifier_collectCallableLeaves(expr Node, astAnalyzer *AstAnalyzer) ImmutableListOf[Node] {
-	var callables ArrayListOf[Node] = new_ArrayList_0()
+	var callables *TList[Node] = newTList_(tc_Node)
 	var allLegal bool = PureFunctionIdentifier_collectCallableLeavesInternal(expr, callables, astAnalyzer)
 	return func() *ImmutableList {
 		if allLegal {
-			return ImmutableList_copyOf(icast_Collection(callables.self()))
+			return ImmutableList_copyOf(icast_Collection(any(callables.asList())))
 		}
 		return nil
 	}()
 }
 
-func PureFunctionIdentifier_collectCallableLeavesInternal(expr Node, results ArrayListOf[Node], astAnalyzer *AstAnalyzer) bool {
+func PureFunctionIdentifier_collectCallableLeavesInternal(expr Node, results *TList[Node], astAnalyzer *AstAnalyzer) bool {
 	switch expr.ns_().token {
 	case tokOrd1_FUNCTION, tokOrd1_GETPROP, tokOrd1_OPTCHAIN_GETPROP, tokOrd1_NAME:
-		results.add(expr.box_())
+		results.add(expr)
 		return true
 	case tokOrd1_SUPER:
 		{
@@ -123,7 +123,7 @@ func PureFunctionIdentifier_collectCallableLeavesInternal(expr Node, results Arr
 			if ctorDef != 0 {
 				return PureFunctionIdentifier_collectCallableLeavesInternal(ctorDef.getOnlyChild(), results, astAnalyzer)
 			} else if expr.getSecondChild().isEmpty() {
-				results.add(PureFunctionIdentifier_IMPLICIT_PURE_FN.box_())
+				results.add(PureFunctionIdentifier_IMPLICIT_PURE_FN)
 				return true
 			} else {
 				return PureFunctionIdentifier_collectCallableLeavesInternal(expr.getSecondChild(), results, astAnalyzer)
@@ -1082,20 +1082,20 @@ func (this *PureFunctionIdentifier_AmbiguatedFunctionSummary) toString() string 
 }
 
 func (this *PureFunctionIdentifier_AmbiguatedFunctionSummary) sideEffectsToString() string {
-	var status ListOf[string] = icast_List(new_ArrayList_0().self())
+	var status *TList[string] = newTList_(tc_string)
 	if this.mutatesThis() {
-		status.add(strobj_("this"))
+		status.add("this")
 	}
 	if this.mutatesGlobalState() {
-		status.add(strobj_("global"))
+		status.add("global")
 	}
 	if this.mutatesArguments() {
-		status.add(strobj_("args"))
+		status.add("args")
 	}
 	if this.functionThrows() {
-		status.add(strobj_("throw"))
+		status.add("throw")
 	}
-	return Object_toString(any(status))
+	return Object_toString(any(status.asList()))
 }
 
 const PureFunctionIdentifier_AmbiguatedFunctionSummary_THROWS int32 = 1

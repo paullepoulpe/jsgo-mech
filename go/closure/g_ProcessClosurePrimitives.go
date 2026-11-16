@@ -371,19 +371,19 @@ func ProcessClosurePrimitives_processSetCssNameMapping(compiler *AbstractCompile
 	}
 	var style *CssRenamingMap_Style = styleOrNull
 	if style == CssRenamingMap_Style_BY_PART {
-		var errors ListOf[string] = icast_List(new_ArrayList_0().self())
+		var errors *TList[string] = newTList_(tc_string)
 		it_3 := cssNames.each()
 		for it_3.next() {
 			var key string = it_3.k
 			if String_contains(key, strobj_("-")) && !String_startsWith(key, "--") {
-				errors.add(strobj_(key))
+				errors.add(key)
 			}
 		}
 		if !errors.isEmpty() {
-			compiler.report(JSError_make_Node_DiagnosticType_StringArr(n, ProcessClosurePrimitives_INVALID_CSS_RENAMING_MAP, []string{Object_toString(any(errors))}))
+			compiler.report(JSError_make_Node_DiagnosticType_StringArr(n, ProcessClosurePrimitives_INVALID_CSS_RENAMING_MAP, []string{Object_toString(any(errors.asList()))}))
 		}
 	} else if style == CssRenamingMap_Style_BY_WHOLE {
-		var errors ListOf[string] = icast_List(new_ArrayList_0().self())
+		var errors *TList[string] = newTList_(tc_string)
 		it_5 := foreach_(any(cssNames.asMap().entrySet()))
 		for it_5.next() {
 			var b Map_Entry = icast_Map_Entry(it_5.v)
@@ -395,12 +395,12 @@ func ProcessClosurePrimitives_processSetCssNameMapping(compiler *AbstractCompile
 				var a Map_Entry = icast_Map_Entry(it_7.v)
 				var combined OptionalOf[string] = Optional_ofNullable[string](cssNames.get((sstr_(str_(a.getKey())) + "-" + sstr_(str_(b.getKey())))))
 				if combined.isPresent() && !(combined.get() == (sstr_(str_(a.getValue())) + "-" + sstr_(str_(b.getValue())))) {
-					errors.add(strobj_(("map(" + sstr_(str_(a.getKey())) + "-" + sstr_(str_(b.getKey())) + ") != map(" + sstr_(str_(a.getKey())) + ")-map(" + sstr_(str_(b.getKey())) + ")")))
+					errors.add(("map(" + sstr_(str_(a.getKey())) + "-" + sstr_(str_(b.getKey())) + ") != map(" + sstr_(str_(a.getKey())) + ")-map(" + sstr_(str_(b.getKey())) + ")"))
 				}
 			}
 		}
 		if !errors.isEmpty() {
-			compiler.report(JSError_make_Node_DiagnosticType_StringArr(n, ProcessClosurePrimitives_INVALID_CSS_RENAMING_MAP, []string{Object_toString(any(errors))}))
+			compiler.report(JSError_make_Node_DiagnosticType_StringArr(n, ProcessClosurePrimitives_INVALID_CSS_RENAMING_MAP, []string{Object_toString(any(errors.asList()))}))
 		}
 	}
 	return icast_CssRenamingMap(obj_(new_ProcessClosurePrimitives_1(cssNames, style)))

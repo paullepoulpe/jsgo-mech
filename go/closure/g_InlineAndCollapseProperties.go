@@ -163,9 +163,9 @@ func InlineAndCollapseProperties_mayBeGlobalAlias(alias *GlobalNamespace_Ref) bo
 }
 
 func InlineAndCollapseProperties_referencesCollapsibleProperty(aliasRefs *ReferenceCollection, aliasedName *GlobalNamespace_Name, namespace *GlobalNamespace) bool {
-	it_1 := foreach_(any(aliasRefs.references))
+	it_1 := aliasRefs.references.each()
 	for it_1.next() {
-		var ref *Reference = cast_[*Reference](it_1.v)
+		var ref *Reference = it_1.v
 		if ref.getParent() == 0 {
 			continue
 		}
@@ -464,7 +464,7 @@ func (this *InlineAndCollapseProperties_AggressiveInlineAliases) isInlineableMod
 	var firstRhs Node = 0
 	var size int32 = aliasRefs.references.size()
 	for i := int32(0); i < size; i++ {
-		var ref *Reference = cast_[*Reference](aliasRefs.references.get(i))
+		var ref *Reference = aliasRefs.references.get(i)
 		if ref.isVarDeclaration() || ref.getParent().isAssign() {
 			var rhs Node
 			if ref.getParent().isAssign() {
@@ -516,13 +516,13 @@ func (this *InlineAndCollapseProperties_AggressiveInlineAliases) inlineAliasIfPo
 			var readNodes SetOf[GlobalNamespace_AstChange] = icast_Set(obj_(new_LinkedHashSet()))
 			var size int32 = aliasRefs.references.size()
 			var firstRead int32 = func() int32 {
-				if cast_[*Reference](aliasRefs.references.get(0)).isInitializingDeclaration() {
+				if aliasRefs.references.get(0).isInitializingDeclaration() {
 					return 1
 				}
 				return 2
 			}()
 			for i := int32(firstRead); i < size; i++ {
-				var aliasRef *Reference = cast_[*Reference](aliasRefs.references.get(i))
+				var aliasRef *Reference = aliasRefs.references.get(i)
 				readNodes.add(any(this.replaceAliasReference(alias, aliasRef)))
 			}
 			this.replaceAliasingAssignment(alias, name, aliasLhsNode, newNodes)

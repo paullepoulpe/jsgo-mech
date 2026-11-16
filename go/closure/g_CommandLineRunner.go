@@ -335,7 +335,7 @@ func (this *CommandLineRunner) createOptions_impl() *Outcome_base {
 		if languageMode != nil {
 			options.setLanguageIn(languageMode)
 		} else {
-			return Outcome_base_err(new_FlagUsageException(("Unknown language `" + sstr_(this.flags.languageIn) + "' specified. Expected one of: " + objstr_(any(CompilerOptions_LanguageMode_validCommandLineNames())))).up_Throwable())
+			return Outcome_base_err(new_FlagUsageException(("Unknown language `" + sstr_(this.flags.languageIn) + "' specified. Expected one of: " + objstr_(any(CompilerOptions_LanguageMode_validCommandLineNames().asList())))).up_Throwable())
 		}
 	}
 	var languageMode *CompilerOptions_LanguageMode = CompilerOptions_LanguageMode_fromString(Optional_of[string](this.flags.languageOut))
@@ -345,7 +345,7 @@ func (this *CommandLineRunner) createOptions_impl() *Outcome_base {
 	if languageMode != nil {
 		options.setLanguageOut(languageMode)
 	} else {
-		return Outcome_base_err(new_FlagUsageException(("Unknown language `" + sstr_(this.flags.languageOut) + "' specified. Expected one of: " + objstr_(any(CompilerOptions_LanguageMode_validCommandLineNames())))).up_Throwable())
+		return Outcome_base_err(new_FlagUsageException(("Unknown language `" + sstr_(this.flags.languageOut) + "' specified. Expected one of: " + objstr_(any(CompilerOptions_LanguageMode_validCommandLineNames().asList())))).up_Throwable())
 	}
 	options.setCodingConvention(icast_CodingConvention(obj_(new_ClosureCodingConvention_0())))
 	options.setExtraAnnotationNames(Iterable(this.flags.extraAnnotationName))

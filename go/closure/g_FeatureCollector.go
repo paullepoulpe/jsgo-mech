@@ -25,31 +25,31 @@ func (this *FeatureCollector) allFeatures() *FeatureSet {
 }
 
 func (this *FeatureCollector) visitScript(script Node) {
-	var emptyContext ArrayListOf[*FeatureCollector_FeatureContext] = new_ArrayList_0()
-	emptyContext.add(obj_(FeatureCollector_FeatureContext_NONE))
-	this.visitRecursive(icast_List(emptyContext.self()), script)
+	var emptyContext *TList[*FeatureCollector_FeatureContext] = newTList_(tc_p_FeatureCollector_FeatureContext)
+	emptyContext.add(FeatureCollector_FeatureContext_NONE)
+	this.visitRecursive(emptyContext, script)
 }
 
-func (this *FeatureCollector) visitRecursive(contextStack ListOf[*FeatureCollector_FeatureContext], node Node) {
+func (this *FeatureCollector) visitRecursive(contextStack *TList[*FeatureCollector_FeatureContext], node Node) {
 	var newContext *FeatureCollector_FeatureContext = this.visitSingleNode(contextStack, node)
-	contextStack.add(obj_(newContext))
+	contextStack.add(newContext)
 	{
 		var child Node = node.getFirstChild()
 		for ; child != 0; child = child.getNext() {
 			this.visitRecursive(contextStack, child)
 		}
 	}
-	contextStack.remove((contextStack.size() - 1))
+	contextStack.removeAt((contextStack.size() - 1))
 }
 
-func (this *FeatureCollector) visitSingleNode(contextStack ListOf[*FeatureCollector_FeatureContext], node Node) *FeatureCollector_FeatureContext {
+func (this *FeatureCollector) visitSingleNode(contextStack *TList[*FeatureCollector_FeatureContext], node Node) *FeatureCollector_FeatureContext {
 	Preconditions_checkState_boolean_Object((contextStack.size() >= 1), strobj_("The provided feature context stack was empty. It must have at least one element."))
 	this.recordScriptFeatures(contextStack, node)
 	return FeatureCollector_contextFor(contextStack, node)
 }
 
-func (this *FeatureCollector) recordScriptFeatures(contextStack ListOf[*FeatureCollector_FeatureContext], node Node) {
-	var parentContext *FeatureCollector_FeatureContext = cast_[*FeatureCollector_FeatureContext](SequencedCollection_getLast(SequencedCollection(contextStack)))
+func (this *FeatureCollector) recordScriptFeatures(contextStack *TList[*FeatureCollector_FeatureContext], node Node) {
+	var parentContext *FeatureCollector_FeatureContext = cast_[*FeatureCollector_FeatureContext](SequencedCollection_getLast(SequencedCollection(contextStack.asList())))
 	switch node.ns_().token {
 	case tokOrd1_FUNCTION:
 		if node.isAsyncGeneratorFunction() {
@@ -189,8 +189,8 @@ func (this *FeatureCollector) recordScriptFeatures(contextStack ListOf[*FeatureC
 	}
 }
 
-func (this *FeatureCollector) maybeAddTopLevelAwait(contextStack ListOf[*FeatureCollector_FeatureContext]) {
-	if !contextStack.contains(obj_(FeatureCollector_FeatureContext_FUNCTION)) {
+func (this *FeatureCollector) maybeAddTopLevelAwait(contextStack *TList[*FeatureCollector_FeatureContext]) {
+	if !contextStack.asList().contains(obj_(FeatureCollector_FeatureContext_FUNCTION)) {
 		this.addScriptFeature(FeatureSet_Feature_TOP_LEVEL_AWAIT)
 	}
 }
@@ -199,7 +199,7 @@ func (this *FeatureCollector) addScriptFeature(x *FeatureSet_Feature) {
 	this.scriptFeatures = this.scriptFeatures.with(x)
 }
 
-func FeatureCollector_contextFor(contextStack ListOf[*FeatureCollector_FeatureContext], node Node) *FeatureCollector_FeatureContext {
+func FeatureCollector_contextFor(contextStack *TList[*FeatureCollector_FeatureContext], node Node) *FeatureCollector_FeatureContext {
 	return func() *FeatureCollector_FeatureContext {
 		switch node.ns_().token {
 		case tokOrd1_PARAM_LIST:
@@ -212,7 +212,7 @@ func FeatureCollector_contextFor(contextStack ListOf[*FeatureCollector_FeatureCo
 			return FeatureCollector_FeatureContext_CATCH
 		case tokOrd1_BLOCK:
 			return func() *FeatureCollector_FeatureContext {
-				if Object_equals(obj_(cast_[*FeatureCollector_FeatureContext](SequencedCollection_getLast(SequencedCollection(contextStack)))), obj_(FeatureCollector_FeatureContext_FUNCTION)) {
+				if Object_equals(obj_(cast_[*FeatureCollector_FeatureContext](SequencedCollection_getLast(SequencedCollection(contextStack.asList())))), obj_(FeatureCollector_FeatureContext_FUNCTION)) {
 					return FeatureCollector_FeatureContext_NONE
 				}
 				return FeatureCollector_FeatureContext_BLOCK_SCOPE

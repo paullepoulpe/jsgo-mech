@@ -83,7 +83,7 @@ func (this *DepsGenerator) removeMungedSymbols(depFiles MapOf[string, Dependency
 	it_1 := foreach_(any(jsFiles.values()))
 	for it_1.next() {
 		var dependencyInfo DependencyInfo = icast_DependencyInfo(it_1.v)
-		var newRequires ArrayListOf[*DependencyInfo_Require] = new_ArrayList_0()
+		var newRequires *TList[*DependencyInfo_Require] = newTList_(tc_p_DependencyInfo_Require)
 		it_3 := foreach_(obj_(dependencyInfo.getRequires()))
 		for it_3.next() {
 			var require *DependencyInfo_Require = cast_[*DependencyInfo_Require](it_3.v)
@@ -92,10 +92,10 @@ func (this *DepsGenerator) removeMungedSymbols(depFiles MapOf[string, Dependency
 				if provider == nil {
 					this.reportMissingFile(dependencyInfo, require.getRawText())
 				} else {
-					newRequires.add(obj_(require.withSymbol(provider.getPathRelativeToClosureBase())))
+					newRequires.add(require.withSymbol(provider.getPathRelativeToClosureBase()))
 				}
 			} else {
-				newRequires.add(obj_(require))
+				newRequires.add(require)
 			}
 		}
 		var provides ImmutableListOf[string] = dependencyInfo.getProvides()
@@ -111,7 +111,7 @@ func (this *DepsGenerator) removeMungedSymbols(depFiles MapOf[string, Dependency
 			}
 			provides = cast_[*ImmutableList](obj_(builder.build()))
 		}
-		Map_put_s(newJsFiles, dependencyInfo.getPathRelativeToClosureBase(), obj_(SimpleDependencyInfo_builder(dependencyInfo.getPathRelativeToClosureBase(), Optional_of[string](dependencyInfo.getName())).setProvides(icast_Collection(obj_(provides))).setRequires(icast_Collection(newRequires.self())).setLoadFlags(icast_Map(obj_(dependencyInfo.getLoadFlags()))).build()))
+		Map_put_s(newJsFiles, dependencyInfo.getPathRelativeToClosureBase(), obj_(SimpleDependencyInfo_builder(dependencyInfo.getPathRelativeToClosureBase(), Optional_of[string](dependencyInfo.getName())).setProvides(icast_Collection(obj_(provides))).setRequires(icast_Collection(any(newRequires.asList()))).setLoadFlags(icast_Map(obj_(dependencyInfo.getLoadFlags()))).build()))
 	}
 	return newJsFiles
 }

@@ -84,7 +84,7 @@ func (this *AmbiguateProperties) process_2(externs Node, root Node) {
 	var reservedNames ImmutableSet_BuilderOf[string] = cast_[*ImmutableSet_Builder](obj_(cast_[*ImmutableSet_Builder](obj_(ImmutableSet_builder().addAll(icast_Iterable(obj_(this.externedNames))))).addAll(Iterable(this.quotedNames.asSet()))))
 	var numRenamedPropertyNames int32 = 0
 	var numSkippedPropertyNames int32 = 0
-	var nodes ArrayListOf[*AmbiguateProperties_PropertyGraphNode] = new_ArrayList_int(this.propertyMap.size())
+	var nodes *TList[*AmbiguateProperties_PropertyGraphNode] = newTListN_(tc_p_AmbiguateProperties_PropertyGraphNode, this.propertyMap.size())
 	it_8 := this.propertyMap.each()
 	for it_8.next() {
 		var prop *AmbiguateProperties_Property = it_8.v
@@ -93,7 +93,7 @@ func (this *AmbiguateProperties) process_2(externs Node, root Node) {
 			reservedNames.add(strobj_(prop.oldName))
 		} else {
 			numRenamedPropertyNames++
-			nodes.add(obj_(new_AmbiguateProperties_PropertyGraphNode(prop)))
+			nodes.add(new_AmbiguateProperties_PropertyGraphNode(prop))
 		}
 	}
 	var finalNumRenamedPropertyNames int32 = numRenamedPropertyNames
@@ -199,21 +199,21 @@ var lambda_AmbiguateProperties_clinit_1_ = &Comparator_fn{func(p1_ any, p2_ any)
 }}
 
 type AmbiguateProperties_PropertyGraph struct {
-	nodes_ ArrayListOf[*AmbiguateProperties_PropertyGraphNode]
+	nodes_ *TList[*AmbiguateProperties_PropertyGraphNode]
 }
 
-func (this *AmbiguateProperties_PropertyGraph) init_AmbiguateProperties_PropertyGraph(nodes ArrayListOf[*AmbiguateProperties_PropertyGraphNode]) {
+func (this *AmbiguateProperties_PropertyGraph) init_AmbiguateProperties_PropertyGraph(nodes *TList[*AmbiguateProperties_PropertyGraphNode]) {
 	this.nodes_ = nodes
 }
 
-func new_AmbiguateProperties_PropertyGraph(nodes ArrayListOf[*AmbiguateProperties_PropertyGraphNode]) *AmbiguateProperties_PropertyGraph {
+func new_AmbiguateProperties_PropertyGraph(nodes *TList[*AmbiguateProperties_PropertyGraphNode]) *AmbiguateProperties_PropertyGraph {
 	this := &AmbiguateProperties_PropertyGraph{}
 	this.init_AmbiguateProperties_PropertyGraph(nodes)
 	return this
 }
 
 func (this *AmbiguateProperties_PropertyGraph) getNodes() Collection {
-	return icast_Collection(this.nodes_.self())
+	return icast_Collection(any(this.nodes_.asList()))
 }
 
 func (this *AmbiguateProperties_PropertyGraph) getNodeCount() int32 {
@@ -231,9 +231,9 @@ func (this *AmbiguateProperties_PropertyGraph) newSubGraph() SubGraph {
 }
 
 func (this *AmbiguateProperties_PropertyGraph) clearNodeAnnotations() {
-	it_1 := foreach_(this.nodes_.self())
+	it_1 := this.nodes_.each()
 	for it_1.next() {
-		var node *AmbiguateProperties_PropertyGraphNode = cast_[*AmbiguateProperties_PropertyGraphNode](it_1.v)
+		var node *AmbiguateProperties_PropertyGraphNode = it_1.v
 		node.setAnnotation(nil)
 	}
 }

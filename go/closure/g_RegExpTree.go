@@ -1023,12 +1023,12 @@ func (this *RegExpTree_Alternation) up_RegExpTree() *RegExpTree {
 	return &this.RegExpTree
 }
 
-func (this *RegExpTree_Alternation) init_RegExpTree_Alternation(alternatives ListOf[*RegExpTree]) {
+func (this *RegExpTree_Alternation) init_RegExpTree_Alternation(alternatives *TList[*RegExpTree]) {
 	this.RegExpTree.init_RegExpTree()
-	this.alternatives = ImmutableList_copyOf(Collection(alternatives))
+	this.alternatives = ImmutableList_copyOf(Collection(alternatives.asList()))
 }
 
-func new_RegExpTree_Alternation(alternatives ListOf[*RegExpTree]) *RegExpTree_Alternation {
+func new_RegExpTree_Alternation(alternatives *TList[*RegExpTree]) *RegExpTree_Alternation {
 	this := &RegExpTree_Alternation{}
 	this.self_ = this
 	this.init_RegExpTree_Alternation(alternatives)
@@ -1036,7 +1036,7 @@ func new_RegExpTree_Alternation(alternatives ListOf[*RegExpTree]) *RegExpTree_Al
 }
 
 func (this *RegExpTree_Alternation) simplify_impl(flags string) *RegExpTree {
-	var alternatives ListOf[*RegExpTree] = icast_List(new_ArrayList_0().self())
+	var alternatives *TList[*RegExpTree] = newTList_(tc_p_RegExpTree)
 	it_1 := foreach_(obj_(this.alternatives))
 	for it_1.next() {
 		var alternative *RegExpTree = to_RegExpTree(it_1.v)
@@ -1051,14 +1051,14 @@ func (this *RegExpTree_Alternation) simplify_impl(flags string) *RegExpTree {
 			alternation = cast_[*RegExpTree_Alternation](v_)
 			return true
 		}() {
-			alternatives.addAll(icast_Collection(obj_(alternation.alternatives)))
+			alternatives.asList().addAll(icast_Collection(obj_(alternation.alternatives)))
 		} else {
-			alternatives.add(alternative.self())
+			alternatives.add(alternative)
 		}
 	}
 	var last *RegExpTree = nil
 	{
-		var it IteratorOf[*RegExpTree] = alternatives.iterator()
+		var it IteratorOf[*RegExpTree] = alternatives.asList().iterator()
 		for it.hasNext() {
 			var alternative *RegExpTree = to_RegExpTree(it.next())
 			if alternative.equals(RegExpTree_NEVER_MATCHES.self()) {
@@ -1075,7 +1075,7 @@ func (this *RegExpTree_Alternation) simplify_impl(flags string) *RegExpTree {
 		var i int32 = 0
 		var n int32 = alternatives.size()
 		for ; i < n; i++ {
-			var alternative *RegExpTree = to_RegExpTree(alternatives.get(i))
+			var alternative *RegExpTree = alternatives.get(i)
 			var text *RegExpTree_Text
 			_ = text
 			if (func() bool {
@@ -1089,7 +1089,7 @@ func (this *RegExpTree_Alternation) simplify_impl(flags string) *RegExpTree {
 				var end int32 = i
 				var nCharsets int32 = 0
 				for end < n {
-					var follower *RegExpTree = to_RegExpTree(alternatives.get(end))
+					var follower *RegExpTree = alternatives.get(end)
 					if is_[*RegExpTree_Charset](follower.self()) {
 						nCharsets++
 					} else {
@@ -1113,7 +1113,7 @@ func (this *RegExpTree_Alternation) simplify_impl(flags string) *RegExpTree {
 					var memberIdx int32 = 0
 					var chars *CharRanges = CharRanges_EMPTY
 					var ieExplicits *CharRanges = CharRanges_EMPTY
-					var charAlternatives ListOf[*RegExpTree] = alternatives.subList(i, end)
+					var charAlternatives ListOf[*RegExpTree] = alternatives.asList().subList(i, end)
 					it_7 := foreach_(any(charAlternatives))
 					for it_7.next() {
 						var charAlternative *RegExpTree = to_RegExpTree(it_7.v)
@@ -1161,16 +1161,16 @@ func (this *RegExpTree_Alternation) simplify_impl(flags string) *RegExpTree {
 	case 0:
 		return RegExpTree_Empty_INSTANCE.up_RegExpTree()
 	case 1:
-		return to_RegExpTree(alternatives.get(0))
+		return alternatives.get(0)
 	case 2:
-		if is_[*RegExpTree_Empty](alternatives.get(1)) {
-			return new_RegExpTree_Repetition(to_RegExpTree(alternatives.get(0)), 0, 1, true).up_RegExpTree()
-		} else if is_[*RegExpTree_Empty](alternatives.get(0)) {
-			return new_RegExpTree_Repetition(to_RegExpTree(alternatives.get(1)), 0, 1, false).up_RegExpTree()
+		if is_[*RegExpTree_Empty](alternatives.get(1).self()) {
+			return new_RegExpTree_Repetition(alternatives.get(0), 0, 1, true).up_RegExpTree()
+		} else if is_[*RegExpTree_Empty](alternatives.get(0).self()) {
+			return new_RegExpTree_Repetition(alternatives.get(1), 0, 1, false).up_RegExpTree()
 		}
 	}
 	return func() *RegExpTree {
-		if Object_equals(any(alternatives), obj_(this.alternatives)) {
+		if Object_equals(any(alternatives.asList()), obj_(this.alternatives)) {
 			return this.up_RegExpTree()
 		}
 		return new_RegExpTree_Alternation(alternatives).up_RegExpTree()
@@ -2286,7 +2286,7 @@ topLoop_:
 	}
 	if alternatives != nil {
 		alternatives.add(preceder.self())
-		return new_RegExpTree_Alternation(icast_List(obj_(alternatives.build()))).up_RegExpTree()
+		return new_RegExpTree_Alternation(tlistImm_(tc_p_RegExpTree, alternatives.build())).up_RegExpTree()
 	} else {
 		return preceder
 	}

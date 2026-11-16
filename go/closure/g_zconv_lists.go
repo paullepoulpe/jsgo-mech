@@ -118,3 +118,16 @@ var tc_p_Var = &tconv_[*Var]{box: func(v *Var) any { return obj_(v) }, unbox: fu
 var tc_p_VariableMapEntryProto = &tconv_[*VariableMapEntryProto]{box: func(v *VariableMapEntryProto) any { return obj_(v) }, unbox: func(v any) *VariableMapEntryProto { return cast_[*VariableMapEntryProto](v) }}
 var tc_p_WarningsGuard = &tconv_[*WarningsGuard]{box: func(v *WarningsGuard) any { return v.self() }, unbox: func(v any) *WarningsGuard { return to_WarningsGuard(v) }}
 var tc_string = &tconv_[string]{box: func(v string) any { return strobj_(v) }, unbox: func(v any) string { return str_(v) }, null: nullstr_}
+var tc_p_AmbiguateProperties_PropertyGraphNode = &tconv_[*AmbiguateProperties_PropertyGraphNode]{box: func(v *AmbiguateProperties_PropertyGraphNode) any { return obj_(v) }, unbox: func(v any) *AmbiguateProperties_PropertyGraphNode {
+	return cast_[*AmbiguateProperties_PropertyGraphNode](v)
+}}
+var tc_p_CheckRequiresSorted_ImportStatement = &tconv_[*CheckRequiresSorted_ImportStatement]{box: func(v *CheckRequiresSorted_ImportStatement) any { return obj_(v) }, unbox: func(v any) *CheckRequiresSorted_ImportStatement {
+	return cast_[*CheckRequiresSorted_ImportStatement](v)
+}}
+var tc_p_Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_Case = &tconv_[*Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_Case]{box: func(v *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_Case) any {
+	return obj_(v)
+}, unbox: func(v any) *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_Case {
+	return cast_[*Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_Case](v)
+}}
+var tc_p_FeatureCollector_FeatureContext = &tconv_[*FeatureCollector_FeatureContext]{box: func(v *FeatureCollector_FeatureContext) any { return obj_(v) }, unbox: func(v any) *FeatureCollector_FeatureContext { return cast_[*FeatureCollector_FeatureContext](v) }}
+var tc_p_TypeMismatch = &tconv_[*TypeMismatch]{box: func(v *TypeMismatch) any { return obj_(v) }, unbox: func(v any) *TypeMismatch { return cast_[*TypeMismatch](v) }}
