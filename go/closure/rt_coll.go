@@ -1698,6 +1698,12 @@ func Map_get_s(m any, k string) any {
 		if im, ok := m.(*ImmutableMap); ok && im != nil {
 			return im.get_s(k)
 		}
+		if tm, ok := m.(*TreeMap); ok && tm.strKeyed() {
+			if i, ok := tm.search_s(k); ok {
+				return tm.entries[i].val
+			}
+			return nil
+		}
 	}
 	return asMap_(m).get(strobj_(k))
 }
@@ -1709,6 +1715,10 @@ func Map_containsKey_s(m any, k string) bool {
 		}
 		if im, ok := m.(*ImmutableMap); ok && im != nil {
 			return im.containsKey_s(k)
+		}
+		if tm, ok := m.(*TreeMap); ok && tm.strKeyed() {
+			_, ok := tm.search_s(k)
+			return ok
 		}
 	}
 	return asMap_(m).containsKey(strobj_(k))
