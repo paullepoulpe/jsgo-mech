@@ -262,6 +262,9 @@ func (this *ImmutableCollection) contains(v any) bool {
 }
 
 func (this *ImmutableCollection) contains_s(v string) bool {
+	if len(this.items) == 0 {
+		return false // find_ is -1, and v need not be boxed for it
+	}
 	if this.kind == icList_ {
 		for _, x := range this.items {
 			if s, ok := x.(string); ok && s == v {
