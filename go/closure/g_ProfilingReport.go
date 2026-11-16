@@ -15,11 +15,9 @@ func new_ProfilingReport() *ProfilingReport {
 	return this
 }
 
-func ProfilingReport_createTabSeparatedProfilingReport(instrumentationMapping MapOf[string, *InstrumentationPoint], allInstrumentationReports ImmutableListOf[MapOf[string, BoxedOf[int64]]]) string {
+func ProfilingReport_createTabSeparatedProfilingReport(instrumentationMapping MapOf[string, *InstrumentationPoint], allInstrumentationReports []MapOf[string, BoxedOf[int64]]) string {
 	var profiles []*ReportProfile = []*ReportProfile{}
-	it_1 := foreach_(obj_(allInstrumentationReports))
-	for it_1.next() {
-		var report Map = icast_Map(it_1.v)
+	for _, report := range allInstrumentationReports {
 		profiles = append(profiles, ReportDecoder_decodeReport(instrumentationMapping, report))
 	}
 	var metricsBuilder ImmutableMap_BuilderOf[*InstrumentationPoint, *ProfilingReport_InstrumentationPointMetrics] = ImmutableMap_builder()

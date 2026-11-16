@@ -110,15 +110,13 @@ func (this *JSChunk) removeAll() {
 	this.inputs.clear()
 }
 
-func (this *JSChunk) getDependencies() ImmutableListOf[*JSChunk] {
-	return ImmutableList_copyOf(Collection(this.deps.asList()))
+func (this *JSChunk) getDependencies() []*JSChunk {
+	return sliceImm_(tc_p_JSChunk, ImmutableList_copyOf(Collection(this.deps.asList())))
 }
 
 func (this *JSChunk) getSortedDependencyNames() *TList[string] {
 	var names *TList[string] = newTList_(tc_string)
-	it_1 := foreach_(obj_(this.getDependencies()))
-	for it_1.next() {
-		var chunk *JSChunk = cast_[*JSChunk](it_1.v)
+	for _, chunk := range this.getDependencies() {
 		names.add(chunk.getName())
 	}
 	Collections_sort(names.asList())

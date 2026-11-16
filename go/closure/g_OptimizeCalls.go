@@ -4,17 +4,17 @@ package closure
 
 type OptimizeCalls struct {
 	compiler_       *AbstractCompiler
-	passes          ImmutableListOf[OptimizeCalls_CallGraphCompilerPass]
+	passes          []OptimizeCalls_CallGraphCompilerPass
 	considerExterns bool
 }
 
-func (this *OptimizeCalls) init_OptimizeCalls(compiler *AbstractCompiler, passes ImmutableListOf[OptimizeCalls_CallGraphCompilerPass], considerExterns bool) {
+func (this *OptimizeCalls) init_OptimizeCalls(compiler *AbstractCompiler, passes []OptimizeCalls_CallGraphCompilerPass, considerExterns bool) {
 	this.compiler_ = compiler
 	this.passes = passes
 	this.considerExterns = considerExterns
 }
 
-func new_OptimizeCalls(compiler *AbstractCompiler, passes ImmutableListOf[OptimizeCalls_CallGraphCompilerPass], considerExterns bool) *OptimizeCalls {
+func new_OptimizeCalls(compiler *AbstractCompiler, passes []OptimizeCalls_CallGraphCompilerPass, considerExterns bool) *OptimizeCalls {
 	this := &OptimizeCalls{}
 	this.init_OptimizeCalls(compiler, passes, considerExterns)
 	return this
@@ -26,15 +26,13 @@ func OptimizeCalls_builder() *OptimizeCalls_Builder {
 
 func (this *OptimizeCalls) process_2(externs Node, root Node) {
 	Preconditions_checkState(this.compiler_.getLifeCycleStage().isNormalized())
-	if this.passes.isEmpty() {
+	if len(this.passes) == 0 {
 		return
 	}
 	var references *OptimizeCalls_ReferenceMap = new_OptimizeCalls_ReferenceMap()
 	NodeTraversal_traverseRoots(this.compiler_, icast_NodeTraversal_Callback(obj_(new_OptimizeCalls_ReferenceMapBuildingCallback(this, references))), externs, root)
 	this.eliminateAccessorsFrom(references)
-	it_1 := foreach_(obj_(this.passes))
-	for it_1.next() {
-		var pass OptimizeCalls_CallGraphCompilerPass = icast_OptimizeCalls_CallGraphCompilerPass(it_1.v)
+	for _, pass := range this.passes {
 		pass.process_3(externs, root, references)
 	}
 }
@@ -144,7 +142,7 @@ func (this *OptimizeCalls_Builder) addPass(pass OptimizeCalls_CallGraphCompilerP
 func (this *OptimizeCalls_Builder) build() *OptimizeCalls {
 	Preconditions_checkNotNull(this.compiler_.self())
 	Preconditions_checkNotNull(this.considerExterns)
-	return new_OptimizeCalls(this.compiler_, cast_[*ImmutableList](obj_(this.passes.build())), unbox_[bool](this.considerExterns))
+	return new_OptimizeCalls(this.compiler_, sliceImm_(tc_OptimizeCalls_CallGraphCompilerPass, this.passes.build()), unbox_[bool](this.considerExterns))
 }
 
 type OptimizeCalls_ReferenceMap struct {

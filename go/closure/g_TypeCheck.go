@@ -527,9 +527,7 @@ func (this *TypeCheck) checkCanAssignToWithScope(t *NodeTraversal, nodeToWarn No
 }
 
 func (this *TypeCheck) checkDestructuringAssignment(t *NodeTraversal, nodeToWarn Node, pattern Node, rightType *JSType, msg string) {
-	it_1 := foreach_(obj_(DestructuredTarget_createAllNonEmptyTargetsInPattern(this.typeRegistry, rightType, pattern)))
-	for it_1.next() {
-		var target *DestructuredTarget = cast_[*DestructuredTarget](it_1.v)
+	for _, target := range DestructuredTarget_createAllNonEmptyTargetsInPattern(this.typeRegistry, rightType, pattern) {
 		this.checkCanAssignToWithScope(t, nodeToWarn, target.getNode(), target.inferType(), nil, msg)
 	}
 }

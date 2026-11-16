@@ -72,8 +72,8 @@ func (this *SortedDependencies) getInputProviding(symbolName string) *Outcome_ba
 	return Outcome_base_err(new_SortedDependencies_MissingProvideException_String(symbolName).up_Throwable())
 }
 
-func (this *SortedDependencies) getInputsWithoutProvides() ImmutableListOf[any] {
-	return ImmutableList_copyOf(this.nonExportingInputs.asMap().values())
+func (this *SortedDependencies) getInputsWithoutProvides() []any {
+	return sliceImm_(tc_any, ImmutableList_copyOf(this.nonExportingInputs.asMap().values()))
 }
 
 func (this *SortedDependencies) getSortedStrongDependenciesOf(roots ListOf[any]) ImmutableListOf[any] {

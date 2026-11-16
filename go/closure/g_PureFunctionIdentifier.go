@@ -171,7 +171,7 @@ func (this *PureFunctionIdentifier) getGoogCacheCallableExpression(cacheCall *Co
 	return cast_[*ImmutableList](obj_(builder.build()))
 }
 
-func (this *PureFunctionIdentifier) getSummariesForCallee(invocation Node) ImmutableListOf[*PureFunctionIdentifier_AmbiguatedFunctionSummary] {
+func (this *PureFunctionIdentifier) getSummariesForCallee(invocation Node) []*PureFunctionIdentifier_AmbiguatedFunctionSummary {
 	Preconditions_checkArgument_boolean_Object(NodeUtil_isInvocation(invocation), invocation.box_())
 	var cacheCall *CodingConvention_Cache = this.compiler_.getCodingConvention().describeCachingCall(invocation)
 	var callees ImmutableListOf[Node]
@@ -183,7 +183,7 @@ func (this *PureFunctionIdentifier) getSummariesForCallee(invocation Node) Immut
 		callees = PureFunctionIdentifier_collectCallableLeaves(invocation.getFirstChild(), this.astAnalyzer)
 	}
 	if callees == nil {
-		return ImmutableList_of_Object(obj_(this.unknownFunctionSummary))
+		return sliceOf_(tc_p_PureFunctionIdentifier_AmbiguatedFunctionSummary, this.unknownFunctionSummary)
 	}
 	Preconditions_checkState_boolean_Object(!callees.isEmpty(), strobj_("Unexpected empty callees for valid result"))
 	var results ImmutableList_BuilderOf[*PureFunctionIdentifier_AmbiguatedFunctionSummary] = ImmutableList_builder()
@@ -205,7 +205,7 @@ func (this *PureFunctionIdentifier) getSummariesForCallee(invocation Node) Immut
 			}())
 		}
 	}
-	return cast_[*ImmutableList](obj_(results.build()))
+	return sliceImm_(tc_p_PureFunctionIdentifier_AmbiguatedFunctionSummary, results.build())
 }
 
 func (this *PureFunctionIdentifier) populateDatastructuresForAnalysisTraversal(referenceMap *OptimizeCalls_ReferenceMap) {
@@ -308,15 +308,13 @@ func (this *PureFunctionIdentifier) markPureFunctionCalls() {
 	it_1 := eachOf_(&this.allFunctionCalls)
 	for it_1.next() {
 		var callNode Node = it_1.v
-		var calleeSummaries ImmutableListOf[*PureFunctionIdentifier_AmbiguatedFunctionSummary] = this.getSummariesForCallee(callNode)
+		var calleeSummaries []*PureFunctionIdentifier_AmbiguatedFunctionSummary = this.getSummariesForCallee(callNode)
 		var flags *Node_SideEffectFlags = new_Node_SideEffectFlags_0()
-		if calleeSummaries.isEmpty() {
+		if len(calleeSummaries) == 0 {
 			flags.setAllFlags()
 		} else {
 			flags.clearAllFlags()
-			it_3 := foreach_(obj_(calleeSummaries))
-			for it_3.next() {
-				var calleeSummary *PureFunctionIdentifier_AmbiguatedFunctionSummary = cast_[*PureFunctionIdentifier_AmbiguatedFunctionSummary](it_3.v)
+			for _, calleeSummary := range calleeSummaries {
 				Preconditions_checkNotNull(obj_(calleeSummary))
 				if calleeSummary.mutatesGlobalState() {
 					flags.setMutatesGlobalState()
@@ -740,16 +738,14 @@ func (this *PureFunctionIdentifier_FunctionBodyAnalyzer) visitCall(callerInfo *P
 	if invocation.isNew() && !this.outer_.astAnalyzer.constructorCallHasSideEffects(invocation) {
 		return
 	}
-	var calleeSummaries ImmutableListOf[*PureFunctionIdentifier_AmbiguatedFunctionSummary] = this.outer_.getSummariesForCallee(invocation)
-	if calleeSummaries.isEmpty() {
+	var calleeSummaries []*PureFunctionIdentifier_AmbiguatedFunctionSummary = this.outer_.getSummariesForCallee(invocation)
+	if len(calleeSummaries) == 0 {
 		callerInfo.setMutatesGlobalStateAndAllOtherFlags(0)
 		return
 	}
 	var enclosingFunction *PureFunctionIdentifier_FunctionBodyAnalyzer_FunctionStackEntry = cast_[*PureFunctionIdentifier_FunctionBodyAnalyzer_FunctionStackEntry](SequencedCollection_getLast(icast_SequencedCollection(obj_(this.functionScopeStack))))
 	var propagatesThrows bool = (enclosingFunction.catchDepth == 0)
-	it_1 := foreach_(obj_(calleeSummaries))
-	for it_1.next() {
-		var calleeInfo *PureFunctionIdentifier_AmbiguatedFunctionSummary = cast_[*PureFunctionIdentifier_AmbiguatedFunctionSummary](it_1.v)
+	for _, calleeInfo := range calleeSummaries {
 		var edge *PureFunctionIdentifier_SideEffectPropagation = PureFunctionIdentifier_SideEffectPropagation_forInvocation(invocation, scope, enclosingFunction, this.argumentsMatchParameters(invocation), propagatesThrows)
 		this.outer_.reverseCallGraph.connectDiGraphNode(calleeInfo.graphNode, obj_(edge), callerInfo.graphNode)
 	}

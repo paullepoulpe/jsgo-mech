@@ -296,9 +296,7 @@ func (this *ClosureModuleProcessor_ModuleProcessingCallback) addPropertyExport(e
 }
 
 func (this *ClosureModuleProcessor_ModuleProcessingCallback) maybeInitializeRequire(nameDeclaration Node) {
-	it_1 := foreach_(obj_(ClosureRequireProcessor_getAllRequires(nameDeclaration)))
-	for it_1.next() {
-		var require *ClosureRequireProcessor_Require = cast_[*ClosureRequireProcessor_Require](it_1.v)
+	for _, require := range ClosureRequireProcessor_getAllRequires(nameDeclaration) {
 		this.requiresByLocalName.putIfAbsent(require.localName(), require)
 	}
 }

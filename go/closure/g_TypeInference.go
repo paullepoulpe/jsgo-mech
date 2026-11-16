@@ -811,9 +811,7 @@ func (this *TypeInference) traverseDestructuringPattern(pattern Node, scope Flow
 func (this *TypeInference) traverseDestructuringPatternHelper(pattern Node, scope FlowScope, patternType *JSType, declarer TypeInference_TypeDeclaringCallback) FlowScope {
 	Preconditions_checkArgument_boolean_Object(pattern.isDestructuringPattern(), pattern.box_())
 	Preconditions_checkNotNull(patternType.self())
-	it_1 := foreach_(obj_(DestructuredTarget_createAllNonEmptyTargetsInPattern(this.registry, patternType, pattern)))
-	for it_1.next() {
-		var target *DestructuredTarget = cast_[*DestructuredTarget](it_1.v)
+	for _, target := range DestructuredTarget_createAllNonEmptyTargetsInPattern(this.registry, patternType, pattern) {
 		if target.hasComputedProperty() {
 			scope = this.traverse(target.getComputedProperty().getFirstChild(), scope)
 		}

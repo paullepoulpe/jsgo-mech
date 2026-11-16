@@ -180,14 +180,12 @@ func (this *ReplaceMessages) createHookExpressionForGenderedMsg(type_ AstFactory
 		}()
 		panic("unreachable")
 	}}
-	it_1 := foreach_(obj_(msg.getGenderedMessageVariants()))
-	for it_1.next() {
-		var grammaticalGender *JsMessage_GrammaticalGenderCase = cast_[*JsMessage_GrammaticalGenderCase](it_1.v)
+	for _, grammaticalGender := range msg.getGenderedMessageVariants() {
 		if Object_equals(obj_(grammaticalGender), obj_(JsMessage_GrammaticalGenderCase_OTHER)) {
 			continue
 		}
 		var condition Node = this.createConditionForGrammaticalGender(type_, grammaticalGender, nodeToReplace)
-		var genderedMessageNode *Outcome_base = this.buildMessageNode(sliceImm_(tc_JsMessage_Part, msg.getGenderedMessageParts(grammaticalGender)), options, nodeToReplace, placeholderNodeProvider, true)
+		var genderedMessageNode *Outcome_base = this.buildMessageNode(msg.getGenderedMessageParts(grammaticalGender), options, nodeToReplace, placeholderNodeProvider, true)
 		if genderedMessageNode.isErr() {
 			return Outcome_base_err(genderedMessageNode.error())
 		}
@@ -202,7 +200,7 @@ func (this *ReplaceMessages) createHookExpressionForGenderedMsg(type_ AstFactory
 			placeholderHook = currentHook.getLastChild()
 		}
 	}
-	var otherMessageNode *Outcome_base = this.buildMessageNode(sliceImm_(tc_JsMessage_Part, msg.getGenderedMessageParts(JsMessage_GrammaticalGenderCase_OTHER)), options, nodeToReplace, placeholderNodeProvider, true)
+	var otherMessageNode *Outcome_base = this.buildMessageNode(msg.getGenderedMessageParts(JsMessage_GrammaticalGenderCase_OTHER), options, nodeToReplace, placeholderNodeProvider, true)
 	if otherMessageNode.isErr() {
 		return Outcome_base_err(otherMessageNode.error())
 	}
@@ -247,7 +245,7 @@ func (this *ReplaceMessages) buildMessageNode(msgParts []JsMessage_Part, options
 }
 
 func (this *ReplaceMessages) constructStringExprNode(message *JsMessage, placeholderMap *TMap[string, Node], options *ReplaceMessages_MsgOptions, nodeToReplace Node) *Outcome_base {
-	if !message.getGenderedMessageVariants().isEmpty() {
+	if len(message.getGenderedMessageVariants()) != 0 {
 		return this.createNodeForGenderedMsgString(message, placeholderMap, options, nodeToReplace)
 	} else {
 		return this.constructNonGenderedMsgNode(message, placeholderMap, options, nodeToReplace)

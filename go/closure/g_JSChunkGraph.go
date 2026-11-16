@@ -56,9 +56,7 @@ func JSChunkGraph_initChunksByDepth(chunks []*JSChunk) *Outcome_base {
 		var chunk *JSChunk = chunks[chunkIndex]
 		Preconditions_checkState_boolean_String_Object((chunk.getDepth() == -1), "Chunk depth already set: %s", obj_(chunk))
 		var depth int32 = 0
-		it_2 := foreach_(obj_(chunk.getDependencies()))
-		for it_2.next() {
-			var dep *JSChunk = cast_[*JSChunk](it_2.v)
+		for _, dep := range chunk.getDependencies() {
 			var depDepth int32 = dep.getDepth()
 			if depDepth < 0 {
 				return Outcome_base_err(new_JSChunkGraph_ChunkDependenceException(String_format("Chunks not in dependency order: %s preceded %s", []any{strobj_(chunk.getName()), strobj_(dep.getName())}), chunk, dep).up_Throwable())
@@ -135,9 +133,7 @@ func (this *JSChunkGraph) initTransitiveDepsBitSets() []*BitSet {
 		var selfPlusTransitiveDeps *BitSet = new_BitSet_int((chunkIndex + 1))
 		array[chunkIndex] = selfPlusTransitiveDeps
 		selfPlusTransitiveDeps.set(chunkIndex)
-		it_2 := foreach_(obj_(chunk.getDependencies()))
-		for it_2.next() {
-			var dep *JSChunk = cast_[*JSChunk](it_2.v)
+		for _, dep := range chunk.getDependencies() {
 			selfPlusTransitiveDeps.or(array[dep.getIndex()])
 		}
 	}
@@ -209,9 +205,7 @@ func (this *JSChunkGraph) toJson() *SimpleJsonValue {
 		Map_put_s(node.members(), "name", obj_(SimpleJsonValue_ofString(chunk.getName())))
 		var deps *SimpleJsonValue = SimpleJsonValue_newArray()
 		Map_put_s(node.members(), "dependencies", obj_(deps))
-		it_3 := foreach_(obj_(chunk.getDependencies()))
-		for it_3.next() {
-			var m *JSChunk = cast_[*JSChunk](it_3.v)
+		for _, m := range chunk.getDependencies() {
 			deps.elements().add(obj_(SimpleJsonValue_ofString(m.getName())))
 		}
 		var transitiveDeps *SimpleJsonValue = SimpleJsonValue_newArray()
@@ -304,10 +298,8 @@ func (this *JSChunkGraph) getTransitiveDeps(m *JSChunk) SetOf[*JSChunk] {
 
 func JSChunkGraph_moveMarkedWeakSources(weakChunk *JSChunk, inputs IterableOf[*CompilerInput]) {
 	Preconditions_checkNotNull(obj_(weakChunk))
-	var allInputs ImmutableListOf[*CompilerInput] = ImmutableList_copyOf_Iterable(inputs)
-	it_1 := foreach_(obj_(allInputs))
-	for it_1.next() {
-		var i *CompilerInput = cast_[*CompilerInput](it_1.v)
+	var allInputs []*CompilerInput = sliceImm_(tc_p_CompilerInput, ImmutableList_copyOf_Iterable(inputs))
+	for _, i := range allInputs {
 		if i.getSourceFile().isWeak() {
 			var existingChunk *JSChunk = i.getChunk()
 			if existingChunk == weakChunk {
@@ -365,9 +357,7 @@ func (this *JSChunkGraph) manageDependencies(compiler *AbstractCompiler, depende
 	it_9 := foreach_(obj_(originalInputs))
 	for it_9.next() {
 		var input *CompilerInput = cast_[*CompilerInput](it_9.v)
-		it_11 := foreach_(obj_(input.getRequireDynamicImports()))
-		for it_11.next() {
-			var require string = str_(it_11.v)
+		for _, require := range input.getRequireDynamicImports() {
 			if has_(inputsByProvide, require) {
 				entryPointInputs.addAll(icast_Collection(any(inputsByProvide[require])))
 			}
@@ -484,9 +474,8 @@ func (this *JSChunkGraph) createEntryPointInputs(compiler *AbstractCompiler, dep
 			entryPointInputs.add(obj_(baseJs))
 		}
 		if !dependencyOptions.shouldDropMoochers() {
-			it_1 := foreach_(obj_(sorter.getInputsWithoutProvides()))
-			for it_1.next() {
-				var entryPointInput *CompilerInput = cast_[*CompilerInput](it_1.v)
+			for _, it_1 := range sorter.getInputsWithoutProvides() {
+				var entryPointInput *CompilerInput = cast_[*CompilerInput](it_1)
 				if entryPointInput.getSourceFile().isWeak() {
 					compiler.report(JSError_make_DiagnosticType_StringArr(JSChunkGraph_IMPLICIT_WEAK_ENTRY_POINT_ERROR, []string{entryPointInput.getSourceFile().getName()}))
 				} else {
@@ -538,9 +527,7 @@ func (this *JSChunkGraph) toGraphvizGraph() *LinkedDirectedGraph {
 	for it_1.next() {
 		var chunk *JSChunk = cast_[*JSChunk](it_1.v)
 		graphViz.createNode(obj_(chunk))
-		it_3 := foreach_(obj_(chunk.getDependencies()))
-		for it_3.next() {
-			var dep *JSChunk = cast_[*JSChunk](it_3.v)
+		for _, dep := range chunk.getDependencies() {
 			graphViz.createNode(obj_(dep))
 			graphViz.connect(obj_(chunk), strobj_("->"), obj_(dep))
 		}

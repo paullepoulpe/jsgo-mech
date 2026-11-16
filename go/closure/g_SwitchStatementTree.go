@@ -5,7 +5,7 @@ package closure
 type SwitchStatementTree struct {
 	ParseTree
 	expression  *ParseTree
-	caseClauses ImmutableListOf[*ParseTree]
+	caseClauses []*ParseTree
 }
 
 func (this *SwitchStatementTree) up_ParseTree() *ParseTree {
@@ -15,13 +15,13 @@ func (this *SwitchStatementTree) up_ParseTree() *ParseTree {
 	return &this.ParseTree
 }
 
-func (this *SwitchStatementTree) init_SwitchStatementTree(location *SourceRange, expression *ParseTree, caseClauses ImmutableListOf[*ParseTree]) {
+func (this *SwitchStatementTree) init_SwitchStatementTree(location *SourceRange, expression *ParseTree, caseClauses []*ParseTree) {
 	this.ParseTree.init_ParseTree(ParseTreeType_SWITCH_STATEMENT, location)
 	this.expression = expression
 	this.caseClauses = caseClauses
 }
 
-func new_SwitchStatementTree(location *SourceRange, expression *ParseTree, caseClauses ImmutableListOf[*ParseTree]) *SwitchStatementTree {
+func new_SwitchStatementTree(location *SourceRange, expression *ParseTree, caseClauses []*ParseTree) *SwitchStatementTree {
 	this := &SwitchStatementTree{}
 	this.self_ = this
 	this.init_SwitchStatementTree(location, expression, caseClauses)

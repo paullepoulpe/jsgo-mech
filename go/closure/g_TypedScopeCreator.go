@@ -997,11 +997,9 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) inferTypeForDestructuredTarg
 }
 
 func (this *TypedScopeCreator_AbstractScopeBuilder) defineDestructuringPatternInVarDeclaration(pattern Node, scope *TypedScope, patternTypeSupplier Supplier_baseOf[*TypedScopeCreator_RValueInfo]) {
-	it_1 := foreach_(obj_(DestructuredTarget_createAllNonEmptyTargetsInPatternSupplier(this.outer_.typeRegistry, &Supplier_base_fn{func() any {
+	for _, target := range DestructuredTarget_createAllNonEmptyTargetsInPatternSupplier(this.outer_.typeRegistry, &Supplier_base_fn{func() any {
 		return cast_[*TypedScopeCreator_RValueInfo](patternTypeSupplier.get()).type__.self()
-	}}, pattern)))
-	for it_1.next() {
-		var target *DestructuredTarget = cast_[*DestructuredTarget](it_1.v)
+	}}, pattern) {
 		var typeSupplier Supplier_baseOf[*TypedScopeCreator_RValueInfo] = &Supplier_base_fn{func() any {
 			return obj_(this.inferTypeForDestructuredTarget(target, patternTypeSupplier))
 		}}
@@ -2366,9 +2364,7 @@ func (this *TypedScopeCreator_FunctionScopeBuilder) declareNamesInPositionalPara
 }
 
 func (this *TypedScopeCreator_FunctionScopeBuilder) declareDestructuringParameter(isInferred bool, pattern Node, patternType *JSType) {
-	it_1 := foreach_(obj_(DestructuredTarget_createAllNonEmptyTargetsInPattern(this.outer_.typeRegistry, patternType, pattern)))
-	for it_1.next() {
-		var target *DestructuredTarget = cast_[*DestructuredTarget](it_1.v)
+	for _, target := range DestructuredTarget_createAllNonEmptyTargetsInPattern(this.outer_.typeRegistry, patternType, pattern) {
 		var parameterType *JSType = target.inferTypeWithoutUsingDefaultValue()
 		if target.getNode().isDestructuringPattern() {
 			this.declareDestructuringParameter(isInferred, target.getNode(), parameterType)

@@ -966,7 +966,7 @@ func (this *AstFactory) createJSCompMakeIteratorCall(iterable Node, scope Static
 	case AstFactory_TypeMode_JSTYPE:
 		var iterableType *JSType = iterable.getJSType().getTemplateTypeMap().getResolvedTemplateType(this.registry.getIterableValueTemplate())
 		var makeIteratorType *JSType = makeIteratorName.getJSType()
-		makeIteratorName.setJSType(this.replaceTemplate(makeIteratorType, ImmutableList_of_Object(iterableType.self())))
+		makeIteratorName.setJSType(this.replaceTemplate(makeIteratorType, sliceOf_(tc_p_JSType, iterableType)))
 		type_ = AstFactory_typeJSType_JSType(makeIteratorName.getJSType().assertFunctionType().getReturnType())
 	case AstFactory_TypeMode_COLOR:
 		type_ = AstFactory_typeColor(this.colorRegistry.get(StandardColors_ITERATOR_ID))
@@ -994,7 +994,7 @@ func (this *AstFactory) createJscompArrayFromIteratorCall(iterator Node, scope S
 		case AstFactory_TypeMode_JSTYPE:
 			var iterableType *JSType = iterator.getJSType().getTemplateTypeMap().getResolvedTemplateType(this.registry.getIteratorValueTemplate())
 			var makeIteratorType *JSType = makeIteratorName.getJSType()
-			makeIteratorName.setJSType(this.replaceTemplate(makeIteratorType, ImmutableList_of_Object(iterableType.self())))
+			makeIteratorName.setJSType(this.replaceTemplate(makeIteratorType, sliceOf_(tc_p_JSType, iterableType)))
 			return AstFactory_typeJSType_JSType(makeIteratorName.getJSType().assertFunctionType().getReturnType())
 		case AstFactory_TypeMode_COLOR:
 			return AstFactory_typeColor(this.colorRegistry.get(StandardColors_ARRAY_ID))
@@ -1016,7 +1016,7 @@ func (this *AstFactory) createJscompArrayFromIterableCall(iterable Node, scope S
 		case AstFactory_TypeMode_JSTYPE:
 			var iterableType *JSType = iterable.getJSType().getTemplateTypeMap().getResolvedTemplateType(this.registry.getIterableValueTemplate())
 			var makeIterableType *JSType = makeIterableName.getJSType()
-			makeIterableName.setJSType(this.replaceTemplate(makeIterableType, ImmutableList_of_Object(iterableType.self())))
+			makeIterableName.setJSType(this.replaceTemplate(makeIterableType, sliceOf_(tc_p_JSType, iterableType)))
 			return AstFactory_typeJSType_JSType(makeIterableName.getJSType().assertFunctionType().getReturnType())
 		case AstFactory_TypeMode_COLOR:
 			return AstFactory_typeColor(this.colorRegistry.get(StandardColors_ARRAY_ID))
@@ -1038,7 +1038,7 @@ func (this *AstFactory) createJSCompMakeAsyncIteratorCall(iterable Node, scope S
 	case AstFactory_TypeMode_JSTYPE:
 		var asyncIterableType *JSType = JsIterables_maybeBoxIterableOrAsyncIterable(iterable.getJSType(), this.registry).orElse(this.unknownType)
 		var makeAsyncIteratorType *JSType = makeIteratorAsyncName.getJSType()
-		makeIteratorAsyncName.setJSType(this.replaceTemplate(makeAsyncIteratorType, ImmutableList_of_Object(asyncIterableType.self())))
+		makeIteratorAsyncName.setJSType(this.replaceTemplate(makeAsyncIteratorType, sliceOf_(tc_p_JSType, asyncIterableType)))
 		resultType = AstFactory_typeJSType_JSType(makeIteratorAsyncName.getJSType().assertFunctionType().getReturnType())
 	case AstFactory_TypeMode_COLOR:
 		resultType = AstFactory_typeColor(this.colorRegistry.get(StandardColors_ASYNC_ITERATOR_ITERABLE_ID))
@@ -1052,7 +1052,7 @@ func (this *AstFactory) createJSCompMakeAsyncIteratorCall(iterable Node, scope S
 	return call
 }
 
-func (this *AstFactory) replaceTemplate(templatedType *JSType, templateTypes ImmutableListOf[*JSType]) *JSType {
+func (this *AstFactory) replaceTemplate(templatedType *JSType, templateTypes []*JSType) *JSType {
 	var typeMap *TemplateTypeMap = this.registry.getEmptyTemplateTypeMap().copyWithExtension_2(templatedType.getTemplateTypeMap().getTemplateKeys(), templateTypes)
 	var replacer *TemplateTypeReplacer = TemplateTypeReplacer_forPartialReplacement(this.registry, typeMap)
 	return to_JSType(templatedType.visit(icast_Visitor(obj_(replacer))))
@@ -1062,7 +1062,7 @@ func (this *AstFactory) createEmptyAsyncGeneratorWrapperArgument(asyncGeneratorW
 	var generatorType AstFactory_Type = AstFactory_noTypeInformation()
 	if this.isAddingTypes() {
 		if asyncGeneratorWrapperType.isUnknownType() {
-			generatorType = AstFactory_typeJSType_JSType(this.registry.createFunctionType(this.replaceTemplate(this.getNativeType(JSTypeNative_GENERATOR_TYPE), ImmutableList_of_Object(this.unknownType.self())), []*JSType{}).up_JSType())
+			generatorType = AstFactory_typeJSType_JSType(this.registry.createFunctionType(this.replaceTemplate(this.getNativeType(JSTypeNative_GENERATOR_TYPE), sliceOf_(tc_p_JSType, this.unknownType)), []*JSType{}).up_JSType())
 		} else {
 			var innerFunctionReturnType *JSType = cast_[*FunctionType_Parameter](Iterables_getOnlyElement(icast_Iterable(obj_(asyncGeneratorWrapperType.toMaybeFunctionType().getParameters())))).getJSType()
 			generatorType = AstFactory_typeJSType_JSType(this.registry.createFunctionType(innerFunctionReturnType, []*JSType{}).up_JSType())

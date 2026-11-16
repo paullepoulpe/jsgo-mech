@@ -216,7 +216,7 @@ func (this *AbstractCommandLineRunner) setRunOptions(options *CompilerOptions) *
 	}
 	options.setSourceMapDetailLevel(this.config.sourceMapDetailLevel)
 	options.setSourceMapFormat(this.config.sourceMapFormat)
-	options.setSourceMapLocationMappings(sliceImm_(tc_SourceMap_LocationMapping, this.config.sourceMapLocationMappings))
+	options.setSourceMapLocationMappings(this.config.sourceMapLocationMappings)
 	options.setParseInlineSourceMaps(this.config.parseInlineSourceMaps_)
 	options.setApplyInputSourceMaps(this.config.applyInputSourceMaps)
 	var inputSourceMaps ImmutableMap_BuilderOf[string, *SourceMapInput] = new_ImmutableMap_Builder()
@@ -635,9 +635,7 @@ func AbstractCommandLineRunner_createJsChunks(specs *TList[*AbstractCommandLineR
 			return Outcome_base_err(new_FlagUsageException(("Duplicate chunk name: " + sstr_(spec.name_))).up_Throwable())
 		}
 		var chunk *JSChunk = new_JSChunk(spec.name_)
-		it_3 := foreach_(obj_(spec.deps))
-		for it_3.next() {
-			var dep string = str_(it_3.v)
+		for _, dep := range spec.deps {
 			var other *JSChunk = chunksByName.get(dep)
 			if other == nil {
 				return Outcome_base_err(new_FlagUsageException(("Chunk '" + sstr_(spec.name_) + "' depends on unknown chunk '" + sstr_(dep) + "'. Be sure to list chunks in dependency order.")).up_Throwable())
@@ -2189,7 +2187,7 @@ type AbstractCommandLineRunner_CommandLineConfig struct {
 	createSourceMap                  string
 	sourceMapDetailLevel             *SourceMap_DetailLevel
 	sourceMapFormat                  *SourceMap_Format
-	sourceMapLocationMappings        ImmutableListOf[SourceMap_LocationMapping]
+	sourceMapLocationMappings        []SourceMap_LocationMapping
 	applyInputSourceMaps             bool
 	warningGuards                    *TList[*AbstractCommandLineRunner_FlagEntry]
 	define                           []string
@@ -2266,7 +2264,7 @@ func (this *AbstractCommandLineRunner_CommandLineConfig) finit_AbstractCommandLi
 	this.createSourceMap = ""
 	this.sourceMapDetailLevel = SourceMap_DetailLevel_ALL
 	this.sourceMapFormat = SourceMap_Format_DEFAULT
-	this.sourceMapLocationMappings = ImmutableList_of()
+	this.sourceMapLocationMappings = []SourceMap_LocationMapping{}
 	this.applyInputSourceMaps = false
 	this.warningGuards = newTList_(tc_p_AbstractCommandLineRunner_FlagEntry)
 	this.define = []string{}
@@ -2547,7 +2545,7 @@ func (this *AbstractCommandLineRunner_CommandLineConfig) setSourceMapFormat(form
 }
 
 func (this *AbstractCommandLineRunner_CommandLineConfig) setSourceMapLocationMappings(locationMappings ListOf[SourceMap_LocationMapping]) *AbstractCommandLineRunner_CommandLineConfig {
-	this.sourceMapLocationMappings = ImmutableList_copyOf(Collection(locationMappings))
+	this.sourceMapLocationMappings = sliceImm_(tc_SourceMap_LocationMapping, ImmutableList_copyOf(Collection(locationMappings)))
 	return this
 }
 
@@ -2957,7 +2955,7 @@ func (this *AbstractCommandLineRunner_FlagEntry) getValue() string {
 type AbstractCommandLineRunner_JsChunkSpec struct {
 	name_      string
 	numInputs  int32
-	deps       ImmutableListOf[string]
+	deps       []string
 	numJsFiles int32
 }
 
@@ -2965,14 +2963,14 @@ func (this *AbstractCommandLineRunner_JsChunkSpec) zero_AbstractCommandLineRunne
 	this.name_ = nullstr_
 }
 
-func (this *AbstractCommandLineRunner_JsChunkSpec) init_AbstractCommandLineRunner_JsChunkSpec(name string, numInputs int32, deps ImmutableListOf[string]) {
+func (this *AbstractCommandLineRunner_JsChunkSpec) init_AbstractCommandLineRunner_JsChunkSpec(name string, numInputs int32, deps []string) {
 	this.name_ = name
 	this.numInputs = numInputs
 	this.deps = deps
 	this.numJsFiles = numInputs
 }
 
-func new_AbstractCommandLineRunner_JsChunkSpec(name string, numInputs int32, deps ImmutableListOf[string]) *AbstractCommandLineRunner_JsChunkSpec {
+func new_AbstractCommandLineRunner_JsChunkSpec(name string, numInputs int32, deps []string) *AbstractCommandLineRunner_JsChunkSpec {
 	this := &AbstractCommandLineRunner_JsChunkSpec{}
 	this.zero_AbstractCommandLineRunner_JsChunkSpec()
 	this.init_AbstractCommandLineRunner_JsChunkSpec(name, numInputs, deps)
@@ -3005,7 +3003,7 @@ func AbstractCommandLineRunner_JsChunkSpec_create(specString string, isFirstChun
 			return Outcome_base_err(new_FlagUsageException(("Invalid JS file count '" + sstr_(parts[1]) + "' for chunk: " + sstr_(name))).up_Throwable())
 		}
 	}
-	return Outcome_base_ok_Object(obj_(new_AbstractCommandLineRunner_JsChunkSpec(name, numInputs, ImmutableList_copyOf_ObjectArr(arrmap_(deps, func(v_ string) any { return strobj_(v_) })))))
+	return Outcome_base_ok_Object(obj_(new_AbstractCommandLineRunner_JsChunkSpec(name, numInputs, sliceImm_(tc_string, ImmutableList_copyOf_ObjectArr(arrmap_(deps, func(v_ string) any { return strobj_(v_) }))))))
 }
 
 func (this *AbstractCommandLineRunner_JsChunkSpec) getName() string {
@@ -3016,7 +3014,7 @@ func (this *AbstractCommandLineRunner_JsChunkSpec) getNumInputs() int32 {
 	return this.numInputs
 }
 
-func (this *AbstractCommandLineRunner_JsChunkSpec) getDeps() ImmutableListOf[string] {
+func (this *AbstractCommandLineRunner_JsChunkSpec) getDeps() []string {
 	return this.deps
 }
 

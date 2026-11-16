@@ -128,14 +128,14 @@ func (this *J2clPass_ClassStaticFunctionsInliner) run() {
 	NodeTraversal_traverse(this.outer_.compiler_, this.root, icast_NodeTraversal_Callback(obj_(new_J2clPass_ClassStaticFunctionsInliner_StaticCallInliner(this))))
 }
 
-func (this *J2clPass_ClassStaticFunctionsInliner) findMatchingSpecsForFile(sourceFileName string) ImmutableListOf[*J2clPass_InlineSpec] {
+func (this *J2clPass_ClassStaticFunctionsInliner) findMatchingSpecsForFile(sourceFileName string) []*J2clPass_InlineSpec {
 	var matchingSpecs ImmutableList_BuilderOf[*J2clPass_InlineSpec] = ImmutableList_builder()
 	for _, inlineSpec := range this.inlineSpecs {
 		if (inlineSpec.classFileName_ == J2clPass_ALL_CLASS_FILE_NAMES) || String_endsWith(sourceFileName, inlineSpec.classFileName_) {
 			matchingSpecs.add(obj_(inlineSpec))
 		}
 	}
-	return cast_[*ImmutableList](obj_(matchingSpecs.build()))
+	return sliceImm_(tc_p_J2clPass_InlineSpec, matchingSpecs.build())
 }
 
 type J2clPass_ClassStaticFunctionsInliner_InlinableFunction struct {
@@ -183,7 +183,7 @@ func (this *J2clPass_ClassStaticFunctionsInliner_InlinableFunction) toString() s
 
 type J2clPass_ClassStaticFunctionsInliner_FunctionDefsCollector struct {
 	outer_              *J2clPass_ClassStaticFunctionsInliner
-	currFileInlineSpecs ImmutableListOf[*J2clPass_InlineSpec]
+	currFileInlineSpecs []*J2clPass_InlineSpec
 }
 
 func (this *J2clPass_ClassStaticFunctionsInliner_FunctionDefsCollector) init_J2clPass_ClassStaticFunctionsInliner_FunctionDefsCollector() {
@@ -200,7 +200,7 @@ func new_J2clPass_ClassStaticFunctionsInliner_FunctionDefsCollector(outer_ *J2cl
 func (this *J2clPass_ClassStaticFunctionsInliner_FunctionDefsCollector) shouldTraverse(t *NodeTraversal, n Node, parent Node) bool {
 	if n.isScript() {
 		this.currFileInlineSpecs = this.outer_.findMatchingSpecsForFile(n.getSourceFileName())
-		return !this.currFileInlineSpecs.isEmpty()
+		return len(this.currFileInlineSpecs) != 0
 	}
 	return true
 }
@@ -222,9 +222,7 @@ func (this *J2clPass_ClassStaticFunctionsInliner_FunctionDefsCollector) visit(t 
 	default:
 		return
 	}
-	it_2 := foreach_(obj_(this.currFileInlineSpecs))
-	for it_2.next() {
-		var inlineSpec *J2clPass_InlineSpec = cast_[*J2clPass_InlineSpec](it_2.v)
+	for _, inlineSpec := range this.currFileInlineSpecs {
 		if !Collection_contains_s(inlineSpec.fnNamesToInline_, fnName) {
 			continue
 		}

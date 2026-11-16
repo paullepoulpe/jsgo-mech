@@ -84,13 +84,13 @@ func (this *TypedAstDeserializer) toDeserializedAst() *TypedAstDeserializer_Dese
 }
 
 func (this *TypedAstDeserializer) deserializeTypedAst(typedAstProto *TypedAst, compiler *AbstractCompiler, resolveSourceMapAnnotations bool, parseInlineSourceMaps bool) {
-	var fileShard ImmutableListOf[*SourceFile_jscomp] = this.toFileShard(typedAstProto)
+	var fileShard []*SourceFile_jscomp = this.toFileShard(typedAstProto)
 	if Object_equals(obj_(this.mode_), obj_(TypedAstDeserializer_Mode_FULL_AST)) {
 		var containsRequiredInput bool = false
 		it_1 := foreach_(any(Iterables_concat(Iterable(typedAstProto.getExternAstList()), Iterable(typedAstProto.getCodeAstList()))))
 		for it_1.next() {
 			var lazyAst *LazyAst = cast_[*LazyAst](it_1.v)
-			var file *SourceFile_jscomp = cast_[*SourceFile_jscomp](fileShard.get((lazyAst.getSourceFile() - 1)))
+			var file *SourceFile_jscomp = sliceAt_(fileShard, (lazyAst.getSourceFile() - 1))
 			if cast_[*ImmutableSet](this.requiredInputFiles.get()).contains(obj_(file)) {
 				containsRequiredInput = true
 				break
@@ -143,7 +143,7 @@ func (this *TypedAstDeserializer) findExistingFile(filename string) *SourceFile_
 	return this.filePoolBuilder[canonicalPath]
 }
 
-func (this *TypedAstDeserializer) toFileShard(typedAstProto *TypedAst) ImmutableListOf[*SourceFile_jscomp] {
+func (this *TypedAstDeserializer) toFileShard(typedAstProto *TypedAst) []*SourceFile_jscomp {
 	var fileShardBuilder ImmutableList_BuilderOf[*SourceFile_jscomp] = ImmutableList_builder()
 	var protos ListOf[*SourceFileProto] = typedAstProto.getSourceFilePool().getSourceFileList()
 	for i := int32(0); i < protos.size(); i++ {
@@ -158,11 +158,11 @@ func (this *TypedAstDeserializer) toFileShard(typedAstProto *TypedAst) Immutable
 			fileShardBuilder.add(obj_(protoFile))
 		}
 	}
-	return cast_[*ImmutableList](obj_(fileShardBuilder.build()))
+	return sliceImm_(tc_p_SourceFile_jscomp, fileShardBuilder.build())
 }
 
-func (this *TypedAstDeserializer) initLazyAstDeserializer(lazyAst *LazyAst, fileShard ImmutableListOf[*SourceFile_jscomp], colorShard Optional_baseOf[*ColorPool_ShardView], stringShard *StringPool, compiler *AbstractCompiler, resolveSourceMapAnnotations bool, parseInlineSourceMaps bool) {
-	var file *SourceFile_jscomp = cast_[*SourceFile_jscomp](fileShard.get((lazyAst.getSourceFile() - 1)))
+func (this *TypedAstDeserializer) initLazyAstDeserializer(lazyAst *LazyAst, fileShard []*SourceFile_jscomp, colorShard Optional_baseOf[*ColorPool_ShardView], stringShard *StringPool, compiler *AbstractCompiler, resolveSourceMapAnnotations bool, parseInlineSourceMaps bool) {
+	var file *SourceFile_jscomp = sliceAt_(fileShard, (lazyAst.getSourceFile() - 1))
 	if (this.requiredInputFiles.isPresent() && !cast_[*ImmutableSet](this.requiredInputFiles.get()).contains(obj_(file))) && !JSCompObjects_identical(obj_(this.syntheticExterns), obj_(file)) {
 		return
 	}

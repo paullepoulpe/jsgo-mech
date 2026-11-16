@@ -30,9 +30,9 @@ func (this *ImplicitNullabilityCheck) process_2(externs Node, root Node) {
 	NodeTraversal_traverseRoots(this.compiler_, icast_NodeTraversal_Callback(obj_(this)), externs, root)
 }
 
-func ImplicitNullabilityCheck_findImplicitNullabilityResults(info *JSDocInfo, t *NodeTraversal) ImmutableListOf[*ImplicitNullabilityCheck_Result] {
+func ImplicitNullabilityCheck_findImplicitNullabilityResults(info *JSDocInfo, t *NodeTraversal) []*ImplicitNullabilityCheck_Result {
 	if info == nil {
-		return ImmutableList_of()
+		return []*ImplicitNullabilityCheck_Result{}
 	}
 	var builder ImmutableList_BuilderOf[*ImplicitNullabilityCheck_Result] = ImmutableList_builder()
 	it_1 := foreach_(any(info.getTypeNodes()))
@@ -40,14 +40,12 @@ func ImplicitNullabilityCheck_findImplicitNullabilityResults(info *JSDocInfo, t 
 		var typeRoot Node = Node_of_(it_1.v)
 		NodeUtil_visitPreOrder_Node_Visitor_Predicate(typeRoot, icast_NodeUtil_Visitor(obj_(new_ImplicitNullabilityCheck_1(t, builder))), Predicates_alwaysTrue())
 	}
-	return cast_[*ImmutableList](obj_(builder.build()))
+	return sliceImm_(tc_p_ImplicitNullabilityCheck_Result, builder.build())
 }
 
 func (this *ImplicitNullabilityCheck) visit_impl(t *NodeTraversal, n Node, p Node) {
 	var info *JSDocInfo = n.getJSDocInfo()
-	it_1 := foreach_(obj_(ImplicitNullabilityCheck_findImplicitNullabilityResults(info, t)))
-	for it_1.next() {
-		var r *ImplicitNullabilityCheck_Result = cast_[*ImplicitNullabilityCheck_Result](it_1.v)
+	for _, r := range ImplicitNullabilityCheck_findImplicitNullabilityResults(info, t) {
 		var stringNode Node = r.getNode()
 		var dt *DiagnosticType = func() *DiagnosticType {
 			if r.getNullability().isNullable() {

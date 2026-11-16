@@ -68,7 +68,7 @@ func (this *Parser) parseProgram() *ProgramTree {
 			}
 		}()
 		var start *SourcePosition_util = this.lastSourcePosition
-		var sourceElements ImmutableListOf[*ParseTree] = this.parseGlobalSourceElements()
+		var sourceElements []*ParseTree = this.parseGlobalSourceElements()
 		this.eat(TokenType_END_OF_FILE)
 		ret_1 = new_ProgramTree(this.getTreeLocation(start), sourceElements, this.commentRecorder.getComments())
 		return 1
@@ -80,12 +80,12 @@ func (this *Parser) parseProgram() *ProgramTree {
 	panic("unreachable")
 }
 
-func (this *Parser) parseGlobalSourceElements() ImmutableListOf[*ParseTree] {
+func (this *Parser) parseGlobalSourceElements() []*ParseTree {
 	var result ImmutableList_BuilderOf[*ParseTree] = ImmutableList_builder()
 	for !this.peek(TokenType_END_OF_FILE) {
 		result.add(this.parseScriptElement().self())
 	}
-	return cast_[*ImmutableList](obj_(result.build()))
+	return sliceImm_(tc_p_ParseTree, result.build())
 }
 
 func (this *Parser) parseScriptElement() *ParseTree {
@@ -112,7 +112,7 @@ func (this *Parser) parseImportDeclaration() *ParseTree {
 	}
 	var defaultBindingIdentifier *IdentifierToken = nil
 	var nameSpaceImportIdentifier *IdentifierToken = nil
-	var identifierSet ImmutableListOf[*ParseTree] = nil
+	var identifierSet []*ParseTree = nil
 	var parseExplicitNames bool = true
 	if this.peekId() {
 		defaultBindingIdentifier = this.eatId()
@@ -146,7 +146,7 @@ func (this *Parser) parseImportDeclaration() *ParseTree {
 	return new_ImportDeclarationTree(this.getTreeLocation(start), defaultBindingIdentifier, identifierSet, nameSpaceImportIdentifier, moduleSpecifier).up_ParseTree()
 }
 
-func (this *Parser) parseImportSpecifierSet() ImmutableListOf[*ParseTree] {
+func (this *Parser) parseImportSpecifierSet() []*ParseTree {
 	var elements ImmutableList_BuilderOf[*ParseTree] = ImmutableList_builder()
 	this.eat(TokenType_OPEN_CURLY)
 	for this.peekIdOrKeyword() {
@@ -156,7 +156,7 @@ func (this *Parser) parseImportSpecifierSet() ImmutableListOf[*ParseTree] {
 		}
 	}
 	this.eat(TokenType_CLOSE_CURLY)
-	return cast_[*ImmutableList](obj_(elements.build()))
+	return sliceImm_(tc_p_ParseTree, elements.build())
 }
 
 func (this *Parser) parseImportSpecifier() *ParseTree {
@@ -184,7 +184,7 @@ func (this *Parser) parseExportDeclaration() *ParseTree {
 	var needsSemiColon bool = true
 	this.eat(TokenType_EXPORT)
 	var export *ParseTree = nil
-	var exportSpecifierList ImmutableListOf[*ParseTree] = nil
+	var exportSpecifierList []*ParseTree = nil
 	switch this.peekType() {
 	case TokenType_STAR:
 		isExportAll = true
@@ -213,9 +213,7 @@ func (this *Parser) parseExportDeclaration() *ParseTree {
 		this.eatPredefinedString(PredefinedName_FROM)
 		moduleSpecifier = to_LiteralToken(this.eat(TokenType_STRING).self())
 	} else if isExportSpecifier {
-		it_2 := foreach_(obj_(exportSpecifierList))
-		for it_2.next() {
-			var tree *ParseTree = to_ParseTree(it_2.v)
+		for _, tree := range exportSpecifierList {
 			var importedName *IdentifierToken = tree.asExportSpecifier().importedName
 			if importedName.isKeyword() {
 				this.reportError_3(importedName.up_Token_parser(), "cannot use keyword '%s' here.", []any{obj_(importedName)})
@@ -228,7 +226,7 @@ func (this *Parser) parseExportDeclaration() *ParseTree {
 	return new_ExportDeclarationTree(this.getTreeLocation(start), isDefault, isExportAll, export, exportSpecifierList, moduleSpecifier).up_ParseTree()
 }
 
-func (this *Parser) parseExportSpecifierSet() ImmutableListOf[*ParseTree] {
+func (this *Parser) parseExportSpecifierSet() []*ParseTree {
 	var elements ImmutableList_BuilderOf[*ParseTree] = ImmutableList_builder()
 	this.eat(TokenType_OPEN_CURLY)
 	for this.peekIdOrKeyword() {
@@ -238,7 +236,7 @@ func (this *Parser) parseExportSpecifierSet() ImmutableListOf[*ParseTree] {
 		}
 	}
 	this.eat(TokenType_CLOSE_CURLY)
-	return cast_[*ImmutableList](obj_(elements.build()))
+	return sliceImm_(tc_p_ParseTree, elements.build())
 }
 
 func (this *Parser) parseExportSpecifier() *ParseTree {
@@ -277,12 +275,12 @@ func (this *Parser) parseClass(isExpression bool) *ParseTree {
 		superClass = this.parseLeftHandSideExpression()
 	}
 	this.eat(TokenType_OPEN_CURLY)
-	var elements ImmutableListOf[*ParseTree] = this.parseClassElements()
+	var elements []*ParseTree = this.parseClassElements()
 	this.eat(TokenType_CLOSE_CURLY)
 	return new_ClassDeclarationTree(this.getTreeLocation(start), name, superClass, elements).up_ParseTree()
 }
 
-func (this *Parser) parseClassElements() ImmutableListOf[*ParseTree] {
+func (this *Parser) parseClassElements() []*ParseTree {
 	var result ImmutableList_BuilderOf[*ParseTree] = ImmutableList_builder()
 	for {
 		var token *Token_parser = this.peekToken()
@@ -292,7 +290,7 @@ func (this *Parser) parseClassElements() ImmutableListOf[*ParseTree] {
 		} else {
 			if this.isClassElementStart(token) {
 			} else {
-				return cast_[*ImmutableList](obj_(result.build()))
+				return sliceImm_(tc_p_ParseTree, result.build())
 			}
 		}
 		result.add(this.parseClassElement().self())
@@ -663,17 +661,17 @@ func (this *Parser) parseSetterParameterList() *FormalParameterListTree {
 func (this *Parser) parseFunctionBody() *BlockTree {
 	var start *SourcePosition_util = this.getTreeStartLocation()
 	this.eat(TokenType_OPEN_CURLY)
-	var result ImmutableListOf[*ParseTree] = this.parseSourceElementList()
+	var result []*ParseTree = this.parseSourceElementList()
 	this.eat(TokenType_CLOSE_CURLY)
 	return new_BlockTree(this.getTreeLocation(start), result)
 }
 
-func (this *Parser) parseSourceElementList() ImmutableListOf[*ParseTree] {
+func (this *Parser) parseSourceElementList() []*ParseTree {
 	var result ImmutableList_BuilderOf[*ParseTree] = ImmutableList_builder()
 	for this.peekSourceElement() {
 		result.add(this.parseSourceElement().self())
 	}
-	return cast_[*ImmutableList](obj_(result.build()))
+	return sliceImm_(tc_p_ParseTree, result.build())
 }
 
 func (this *Parser) parseIterSpread() *IterSpreadTree {
@@ -749,17 +747,17 @@ func (this *Parser) peekStatementStandard() bool {
 func (this *Parser) parseBlock() *BlockTree {
 	var start *SourcePosition_util = this.getTreeStartLocation()
 	this.eat(TokenType_OPEN_CURLY)
-	var result ImmutableListOf[*ParseTree] = this.parseSourceElementList()
+	var result []*ParseTree = this.parseSourceElementList()
 	this.eat(TokenType_CLOSE_CURLY)
 	return new_BlockTree(this.getTreeLocation(start), result)
 }
 
-func (this *Parser) parseStatementList() ImmutableListOf[*ParseTree] {
+func (this *Parser) parseStatementList() []*ParseTree {
 	var result ImmutableList_BuilderOf[*ParseTree] = ImmutableList_builder()
 	for this.peekStatement() {
 		result.add(this.parseStatement().self())
 	}
-	return cast_[*ImmutableList](obj_(result.build()))
+	return sliceImm_(tc_p_ParseTree, result.build())
 }
 
 func (this *Parser) parseVariableStatement() *VariableStatementTree {
@@ -793,7 +791,7 @@ func (this *Parser) parseVariableDeclarationList_1(expressionIn *Parser_Expressi
 		this.eat(TokenType_COMMA)
 		declarations.add(obj_(this.parseVariableDeclaration(token, expressionIn)))
 	}
-	return new_VariableDeclarationListTree(this.getTreeLocation(start), token, cast_[*ImmutableList](obj_(declarations.build())))
+	return new_VariableDeclarationListTree(this.getTreeLocation(start), token, sliceImm_(tc_p_VariableDeclarationTree, declarations.build()))
 }
 
 func (this *Parser) parseVariableDeclaration(binding *TokenType, expressionIn *Parser_Expression) *VariableDeclarationTree {
@@ -884,10 +882,10 @@ func (this *Parser) parseForStatement() *ParseTree {
 			if awaited {
 				this.reportError("for-await-of is the only allowed asynchronous iteration", []any{})
 			}
-			if variables.declarations.size() > 1 {
+			if int32(len(variables.declarations)) > 1 {
 				this.reportError("for-in statement may not have more than one variable declaration", []any{})
 			}
-			var declaration *VariableDeclarationTree = cast_[*VariableDeclarationTree](variables.declarations.get(0))
+			var declaration *VariableDeclarationTree = sliceAt_(variables.declarations, 0)
 			if declaration.initializer != nil {
 				if this.config.atLeast6 {
 					this.reportError("for-in statement may not have initializer", []any{})
@@ -897,14 +895,14 @@ func (this *Parser) parseForStatement() *ParseTree {
 			}
 			return this.parseForInStatement(start, variables.up_ParseTree())
 		} else if this.peekPredefinedString(PredefinedName_OF) {
-			if variables.declarations.size() > 1 {
+			if int32(len(variables.declarations)) > 1 {
 				if awaited {
 					this.reportError("for-await-of statement may not have more than one variable declaration", []any{})
 				} else {
 					this.reportError("for-of statement may not have more than one variable declaration", []any{})
 				}
 			}
-			var declaration *VariableDeclarationTree = cast_[*VariableDeclarationTree](variables.declarations.get(0))
+			var declaration *VariableDeclarationTree = sliceAt_(variables.declarations, 0)
 			if declaration.initializer != nil {
 				if awaited {
 					this.reportError("for-await-of statement may not have initializer", []any{})
@@ -965,9 +963,7 @@ func (this *Parser) parseForAwaitOfStatement(start *SourcePosition_util, initial
 }
 
 func (this *Parser) checkVanillaForInitializers(variables *VariableDeclarationListTree) {
-	it_1 := foreach_(obj_(variables.declarations))
-	for it_1.next() {
-		var declaration *VariableDeclarationTree = cast_[*VariableDeclarationTree](it_1.v)
+	for _, declaration := range variables.declarations {
 		if declaration.initializer == nil {
 			this.maybeReportNoInitializer(variables.declarationType_, declaration.lvalue)
 		}
@@ -1075,12 +1071,12 @@ func (this *Parser) parseSwitchStatement() *ParseTree {
 	var expression *ParseTree = this.parseExpression()
 	this.eat(TokenType_CLOSE_PAREN)
 	this.eat(TokenType_OPEN_CURLY)
-	var caseClauses ImmutableListOf[*ParseTree] = this.parseCaseClauses()
+	var caseClauses []*ParseTree = this.parseCaseClauses()
 	this.eat(TokenType_CLOSE_CURLY)
 	return new_SwitchStatementTree(this.getTreeLocation(start), expression, caseClauses).up_ParseTree()
 }
 
-func (this *Parser) parseCaseClauses() ImmutableListOf[*ParseTree] {
+func (this *Parser) parseCaseClauses() []*ParseTree {
 	var foundDefaultClause bool = false
 	var result ImmutableList_BuilderOf[*ParseTree] = ImmutableList_builder()
 	for {
@@ -1090,7 +1086,7 @@ func (this *Parser) parseCaseClauses() ImmutableListOf[*ParseTree] {
 			this.eat(TokenType_CASE)
 			var expression *ParseTree = this.parseExpression()
 			this.eat(TokenType_COLON)
-			var statements ImmutableListOf[*ParseTree] = this.parseCaseStatementsOpt()
+			var statements []*ParseTree = this.parseCaseStatementsOpt()
 			result.add(obj_(new_CaseClauseTree(this.getTreeLocation(start), expression, statements)))
 		case TokenType_DEFAULT:
 			if foundDefaultClause {
@@ -1102,13 +1098,13 @@ func (this *Parser) parseCaseClauses() ImmutableListOf[*ParseTree] {
 			this.eat(TokenType_COLON)
 			result.add(obj_(new_DefaultClauseTree(this.getTreeLocation(start), this.parseCaseStatementsOpt())))
 		default:
-			return cast_[*ImmutableList](obj_(result.build()))
+			return sliceImm_(tc_p_ParseTree, result.build())
 		}
 	}
 	panic("unreachable")
 }
 
-func (this *Parser) parseCaseStatementsOpt() ImmutableListOf[*ParseTree] {
+func (this *Parser) parseCaseStatementsOpt() []*ParseTree {
 	return this.parseStatementList()
 }
 
@@ -1287,7 +1283,7 @@ func (this *Parser) parseTemplateLiteral(operand *ParseTree) *TemplateLiteralExp
 	var elements ImmutableList_BuilderOf[*ParseTree] = ImmutableList_builder()
 	elements.add(obj_(new_TemplateLiteralPortionTree(templateToken.location_, templateToken.up_Token_parser())))
 	if templateToken.type__ == TokenType_NO_SUBSTITUTION_TEMPLATE {
-		return new_TemplateLiteralExpressionTree(this.getTreeLocation(start), operand, cast_[*ImmutableList](obj_(elements.build())))
+		return new_TemplateLiteralExpressionTree(this.getTreeLocation(start), operand, sliceImm_(tc_p_ParseTree, elements.build()))
 	}
 	var expression *ParseTree = this.parseExpression()
 	elements.add(obj_(new_TemplateSubstitutionTree(expression.location_, expression)))
@@ -1306,7 +1302,7 @@ func (this *Parser) parseTemplateLiteral(operand *ParseTree) *TemplateLiteralExp
 		expression = this.parseExpression()
 		elements.add(obj_(new_TemplateSubstitutionTree(expression.location_, expression)))
 	}
-	return new_TemplateLiteralExpressionTree(this.getTreeLocation(start), operand, cast_[*ImmutableList](obj_(elements.build())))
+	return new_TemplateLiteralExpressionTree(this.getTreeLocation(start), operand, sliceImm_(tc_p_ParseTree, elements.build()))
 }
 
 func (this *Parser) nextLiteralToken() *Token_parser {
@@ -1345,7 +1341,7 @@ func (this *Parser) parseArrayLiteral() *ParseTree {
 	}
 	this.eat(TokenType_CLOSE_SQUARE)
 	this.maybeReportTrailingComma(trailingCommaToken)
-	return new_ArrayLiteralExpressionTree(this.getTreeLocation(start), cast_[*ImmutableList](obj_(elements.build())), (trailingCommaToken != nil)).up_ParseTree()
+	return new_ArrayLiteralExpressionTree(this.getTreeLocation(start), sliceImm_(tc_p_ParseTree, elements.build()), (trailingCommaToken != nil)).up_ParseTree()
 }
 
 func (this *Parser) parseObjectLiteral() *ParseTree {
@@ -1362,7 +1358,7 @@ func (this *Parser) parseObjectLiteral() *ParseTree {
 	}
 	this.eat(TokenType_CLOSE_CURLY)
 	this.maybeReportTrailingComma(commaToken)
-	return new_ObjectLiteralExpressionTree(this.getTreeLocation(start), cast_[*ImmutableList](obj_(result.build())), (commaToken != nil)).up_ParseTree()
+	return new_ObjectLiteralExpressionTree(this.getTreeLocation(start), sliceImm_(tc_p_ParseTree, result.build()), (commaToken != nil)).up_ParseTree()
 }
 
 func (this *Parser) maybeReportTrailingComma(commaToken *Token_parser) {
@@ -1580,7 +1576,7 @@ func (this *Parser) parseCoverParenthesizedExpressionAndArrowParameterList() *Pa
 			return this.parseFormalParameterList().up_ParseTree()
 		} else {
 			this.eat(TokenType_COMMA)
-			result = new_CommaExpressionTree(this.getTreeLocation(start), ImmutableList_of_Object_Object(result.self(), this.parseParameter().self())).up_ParseTree()
+			result = new_CommaExpressionTree(this.getTreeLocation(start), sliceOf_(tc_p_ParseTree, result, this.parseParameter())).up_ParseTree()
 		}
 	}
 	this.eat(TokenType_CLOSE_PAREN)
@@ -1626,7 +1622,7 @@ func (this *Parser) parse(expressionIn *Parser_Expression) *ParseTree {
 			this.eat(TokenType_COMMA)
 			exprs.add(this.parseAssignment(expressionIn).self())
 		}
-		return new_CommaExpressionTree(this.getTreeLocation(start), cast_[*ImmutableList](obj_(exprs.build()))).up_ParseTree()
+		return new_CommaExpressionTree(this.getTreeLocation(start), sliceImm_(tc_p_ParseTree, exprs.build())).up_ParseTree()
 	}
 	return result
 }
@@ -2416,7 +2412,7 @@ func (this *Parser) parseArrayPattern(kind *Parser_PatternKind) *ParseTree {
 	if this.eat(TokenType_CLOSE_SQUARE) == nil {
 		return new_MissingPrimaryExpressionTree(this.getTreeLocation(this.getTreeStartLocation())).up_ParseTree()
 	}
-	return new_ArrayPatternTree(this.getTreeLocation(start), cast_[*ImmutableList](obj_(elements.build()))).up_ParseTree()
+	return new_ArrayPatternTree(this.getTreeLocation(start), sliceImm_(tc_p_ParseTree, elements.build())).up_ParseTree()
 }
 
 func (this *Parser) parseObjectPattern(kind *Parser_PatternKind) *ParseTree {
@@ -2439,7 +2435,7 @@ func (this *Parser) parseObjectPattern(kind *Parser_PatternKind) *ParseTree {
 		fields.add(obj_(new_ObjectRestTree(this.getTreeLocation(restStart), patternAssignmentTarget)))
 	}
 	this.eat(TokenType_CLOSE_CURLY)
-	return new_ObjectPatternTree(this.getTreeLocation(start), cast_[*ImmutableList](obj_(fields.build()))).up_ParseTree()
+	return new_ObjectPatternTree(this.getTreeLocation(start), sliceImm_(tc_p_ParseTree, fields.build())).up_ParseTree()
 }
 
 func (this *Parser) peekObjectPatternField() bool {

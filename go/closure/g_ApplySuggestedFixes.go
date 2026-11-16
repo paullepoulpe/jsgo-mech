@@ -44,9 +44,9 @@ func ApplySuggestedFixes_applySuggestedFixesToFiles(fixes IterableOf[*SuggestedF
 	return Outcome_base_ok_0()
 }
 
-func ApplySuggestedFixes_applyAllSuggestedFixChoicesToCode(fixChoices IterableOf[*SuggestedFix], fileNameToCodeMap map[string]string) ImmutableListOf[ImmutableMapOf[string, string]] {
+func ApplySuggestedFixes_applyAllSuggestedFixChoicesToCode(fixChoices IterableOf[*SuggestedFix], fileNameToCodeMap map[string]string) []ImmutableMapOf[string, string] {
 	if Iterables_isEmpty(fixChoices) {
-		return ImmutableList_of_Object(obj_(ImmutableMap_of()))
+		return sliceOf_(tc_ImmutableMapOf_string__string_, ImmutableMap_of())
 	}
 	var alternativeCount int32 = cast_[*SuggestedFix](Iterables_getFirst(fixChoices, nil)).getAlternatives().size()
 	Preconditions_checkArgument_boolean_Object(ApplySuggestedFixes_allHaveAlternativeCount(fixChoices, alternativeCount), strobj_("All SuggestedFixAlternatives must offer an equal number of choices for this utility to make sense"))
@@ -54,7 +54,7 @@ func ApplySuggestedFixes_applyAllSuggestedFixChoicesToCode(fixChoices IterableOf
 	for i := int32(0); i < alternativeCount; i++ {
 		result.add(obj_(ApplySuggestedFixes_applySuggestedFixChoicesToCode(fixChoices, i, fileNameToCodeMap)))
 	}
-	return cast_[*ImmutableList](obj_(result.build()))
+	return sliceImm_(tc_ImmutableMapOf_string__string_, result.build())
 }
 
 func ApplySuggestedFixes_allHaveAlternativeCount(fixChoices IterableOf[*SuggestedFix], alternativeCount int32) bool {

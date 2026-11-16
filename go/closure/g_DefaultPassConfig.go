@@ -432,8 +432,8 @@ func (this *DefaultPassConfig) finit_DefaultPassConfig() {
 	this.analyzerChecks = PassFactory_builder().setName(PassNames_ANALYZER_CHECKS).setInternalFactory(&Function_fn{func(compiler_ any) any {
 		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
 		_ = compiler
-		var callbacks ImmutableListOf[NodeTraversal_Callback] = ImmutableList_of_Object_Object_Object(obj_(new_CheckArrayWithGoogObject(compiler)), obj_(new_ImplicitNullabilityCheck(compiler)), obj_(new_CheckNestedNames(compiler)))
-		return any(DefaultPassConfig_combineChecks(compiler, sliceImm_(tc_NodeTraversal_Callback, callbacks)))
+		var callbacks []NodeTraversal_Callback = sliceOf_(tc_NodeTraversal_Callback, icast_NodeTraversal_Callback(obj_(new_CheckArrayWithGoogObject(compiler))), icast_NodeTraversal_Callback(obj_(new_ImplicitNullabilityCheck(compiler))), icast_NodeTraversal_Callback(obj_(new_CheckNestedNames(compiler))))
+		return any(DefaultPassConfig_combineChecks(compiler, callbacks))
 		panic("unreachable")
 	}}).build()
 	this.checkRequiresAndProvidesSorted = PassFactory_builder().setName("checkRequiresAndProvidesSorted").setInternalFactory(&Function_fn{func(compiler_ any) any {

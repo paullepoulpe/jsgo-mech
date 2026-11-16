@@ -146,9 +146,7 @@ func (this *CheckMissingRequires) visitJsDocInfo(t *NodeTraversal, currentModule
 }
 
 func (this *CheckMissingRequires) visitJsDocExpr(t *NodeTraversal, currentModule *ModuleMetadataMap_ModuleMetadata, expr *JSTypeExpression, referenceStrength *CheckMissingRequires_Strength) {
-	it_1 := foreach_(obj_(expr.getAllTypeNodes()))
-	for it_1.next() {
-		var typeNode Node = Node_of_(it_1.v)
+	for _, typeNode := range expr.getAllTypeNodes() {
 		this.visitQualifiedName(t, typeNode, currentModule, QualifiedName_of(typeNode.getString()), referenceStrength)
 	}
 }

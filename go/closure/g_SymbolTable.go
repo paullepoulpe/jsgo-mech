@@ -44,12 +44,12 @@ func (this *SymbolTable) getReferences(symbol *SymbolTable_Symbol) IterableOf[*S
 	return Iterable(Collections_unmodifiableCollection(symbol.references.asMap().values()))
 }
 
-func (this *SymbolTable) getReferenceList(symbol *SymbolTable_Symbol) ImmutableListOf[*SymbolTable_Reference] {
-	return ImmutableList_copyOf(symbol.references.asMap().values())
+func (this *SymbolTable) getReferenceList(symbol *SymbolTable_Symbol) []*SymbolTable_Reference {
+	return sliceImm_(tc_p_SymbolTable_Reference, ImmutableList_copyOf(symbol.references.asMap().values()))
 }
 
-func (this *SymbolTable) getAllSymbols() ImmutableListOf[*SymbolTable_Symbol] {
-	return ImmutableList_copyOf_Iterable(this.symbols.values())
+func (this *SymbolTable) getAllSymbols() []*SymbolTable_Symbol {
+	return sliceImm_(tc_p_SymbolTable_Symbol, ImmutableList_copyOf_Iterable(this.symbols.values()))
 }
 
 func (this *SymbolTable) getAllSymbolsSorted() ListOf[*SymbolTable_Symbol] {
@@ -289,9 +289,7 @@ func (this *SymbolTable) toDebugStringTree() string {
 		}
 	}
 	var visitedScopes map[*SymbolTable_SymbolScope]struct{} = setFrom_(tc_p_SymbolTable_SymbolScope, this.getAllScopes())
-	it_5 := foreach_(obj_(this.getAllSymbols()))
-	for it_5.next() {
-		var symbol *SymbolTable_Symbol = cast_[*SymbolTable_Symbol](it_5.v)
+	for _, symbol := range this.getAllSymbols() {
 		if (symbol.propertyScope == nil) || has_(visitedScopes, symbol.propertyScope) {
 			continue
 		}
@@ -331,9 +329,7 @@ func (this *SymbolTable) toDebugStringTree_4(builder *StringBuilder, prefix stri
 
 func (this *SymbolTable) toDebugString() string {
 	var builder *StringBuilder = new_StringBuilder()
-	it_1 := foreach_(obj_(this.getAllSymbols()))
-	for it_1.next() {
-		var symbol *SymbolTable_Symbol = cast_[*SymbolTable_Symbol](it_1.v)
+	for _, symbol := range this.getAllSymbols() {
 		this.toDebugString_4(builder, "", symbol, true)
 	}
 	return Object_toString(obj_(builder))
@@ -534,9 +530,7 @@ func (this *SymbolTable) renameSymbol(scope *SymbolTable_SymbolScope, sym *Symbo
 }
 
 func (this *SymbolTable) fillNamespaceReferences() {
-	it_1 := foreach_(obj_(this.getAllSymbols()))
-	for it_1.next() {
-		var symbol *SymbolTable_Symbol = cast_[*SymbolTable_Symbol](it_1.v)
+	for _, symbol := range this.getAllSymbols() {
 		var qName string = symbol.getName()
 		var rootIndex int32 = String_indexOf(qName, 46)
 		if rootIndex == -1 {
@@ -584,9 +578,7 @@ func (this *SymbolTable) fillNamespaceReferences() {
 func (this *SymbolTable) fillPropertyScopes() {
 	var types *TList[*SymbolTable_Symbol] = newTList_(tc_p_SymbolTable_Symbol)
 	var exports *TList[*SymbolTable_Symbol] = newTList_(tc_p_SymbolTable_Symbol)
-	it_1 := foreach_(obj_(this.getAllSymbols()))
-	for it_1.next() {
-		var sym *SymbolTable_Symbol = cast_[*SymbolTable_Symbol](it_1.v)
+	for _, sym := range this.getAllSymbols() {
 		if this.needsPropertyScope(sym) {
 			var name string = sym.getName()
 			if name == "exports" {
@@ -649,10 +641,8 @@ func (this *SymbolTable) needsPropertyScope(sym *SymbolTable_Symbol) bool {
 }
 
 func (this *SymbolTable) pruneOrphanedNames() {
-	it_1 := foreach_(obj_(this.getAllSymbols()))
 nextSymbol_:
-	for it_1.next() {
-		var s *SymbolTable_Symbol = cast_[*SymbolTable_Symbol](it_1.v)
+	for _, s := range this.getAllSymbols() {
 		var currentName string = s.getName()
 		if s.isProperty() || (this.compiler_.getModuleMap().getClosureModule(currentName) != nil) {
 			continue
@@ -679,9 +669,7 @@ func (this *SymbolTable) fillPropertySymbols(externs Node, root Node) {
 
 func (this *SymbolTable) fillJSDocInfo(externs Node, root Node) {
 	NodeTraversal_traverseRoots(this.compiler_, icast_NodeTraversal_Callback(obj_(new_SymbolTable_JSDocInfoCollector(this, this.compiler_.getTypeRegistry()))), externs, root)
-	it_1 := foreach_(obj_(this.getAllSymbols()))
-	for it_1.next() {
-		var sym *SymbolTable_Symbol = cast_[*SymbolTable_Symbol](it_1.v)
+	for _, sym := range this.getAllSymbols() {
 		var info *JSDocInfo = sym.getJSDocInfo()
 		if info == nil {
 			continue

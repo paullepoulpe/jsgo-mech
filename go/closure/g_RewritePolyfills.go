@@ -56,11 +56,9 @@ func (this *RewritePolyfills) process_2(externs Node, root Node) {
 	}
 	var librariesToInject ImmutableListOf[string]
 	if this.injectPolyfillsNewerThan != nil {
-		var polyfillsToInject ImmutableListOf[*PolyfillUsageFinder_Polyfill] = this.polyfills.getPolyfillsNewerThan(this.injectPolyfillsNewerThan)
+		var polyfillsToInject []*PolyfillUsageFinder_Polyfill = this.polyfills.getPolyfillsNewerThan(this.injectPolyfillsNewerThan)
 		var librariesToInjectBuilder ImmutableList_BuilderOf[string] = ImmutableList_builder()
-		it_1 := foreach_(obj_(polyfillsToInject))
-		for it_1.next() {
-			var p *PolyfillUsageFinder_Polyfill = cast_[*PolyfillUsageFinder_Polyfill](it_1.v)
+		for _, p := range polyfillsToInject {
 			if !String_isEmpty(p.library) {
 				librariesToInjectBuilder.add(strobj_(p.library))
 			}

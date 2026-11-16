@@ -383,17 +383,15 @@ func (this *ConvertChunksToESModules_FindCrossChunkReferences) shouldTraverse_im
 func (this *ConvertChunksToESModules_FindCrossChunkReferences) visitScript(t *NodeTraversal, script Node) {
 	Preconditions_checkState(script.isScript())
 	var chunk *JSChunk = t.getChunk()
-	var chunkDependencies ImmutableListOf[*JSChunk] = chunk.getDependencies()
+	var chunkDependencies []*JSChunk = chunk.getDependencies()
 	Map_putIfAbsent(this.outer_.crossChunkExports.asMap(), obj_(chunk), obj_(new_LinkedHashSet()))
-	if !chunkDependencies.isEmpty() {
+	if len(chunkDependencies) != 0 {
 		var namesToImportByChunk MapOf[*JSChunk, SetOf[string]] = icast_Map(Map_computeIfAbsent(this.outer_.crossChunkImports.asMap(), obj_(chunk), &Function_fn{func(k_ any) any {
 			var k *JSChunk = cast_[*JSChunk](k_)
 			_ = k
 			return obj_(new_LinkedHashMap())
 		}}))
-		it_1 := foreach_(obj_(chunkDependencies))
-		for it_1.next() {
-			var dependency *JSChunk = cast_[*JSChunk](it_1.v)
+		for _, dependency := range chunkDependencies {
 			Map_computeIfAbsent(namesToImportByChunk, obj_(dependency), &Function_fn{func(k_ any) any {
 				var k *JSChunk = cast_[*JSChunk](k_)
 				_ = k

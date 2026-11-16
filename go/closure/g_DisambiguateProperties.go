@@ -116,10 +116,8 @@ func DisambiguateProperties_buildRenamingIndex(props *TMap[string, *PropertyClus
 }
 
 func DisambiguateProperties_invalidateWellKnownProperties(propIndex *TMap[string, *PropertyClustering]) {
-	var names ImmutableListOf[string] = ImmutableList_of_Object_Object_Object(strobj_("prototype"), strobj_("constructor"), strobj_("then"))
-	it_1 := foreach_(obj_(names))
-	for it_1.next() {
-		var name string = str_(it_1.v)
+	var names []string = sliceOf_(tc_string, "prototype", "constructor", "then")
+	for _, name := range names {
 		propIndex.computeIfAbsent(name, &Function_fn{func(p0 any) any { return obj_(new_PropertyClustering(str_(p0))) }}).invalidate(Invalidation_wellKnownProperty())
 	}
 }
