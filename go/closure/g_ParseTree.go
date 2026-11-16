@@ -4,7 +4,7 @@ package closure
 
 type ParseTree struct {
 	self_     any
-	type__    *ParseTreeType
+	type__    ParseTreeType
 	location_ *SourceRange
 }
 
@@ -29,12 +29,12 @@ func (this *ParseTree) self() any {
 	return this.self_
 }
 
-func (this *ParseTree) init_ParseTree(type_ *ParseTreeType, location *SourceRange) {
+func (this *ParseTree) init_ParseTree(type_ ParseTreeType, location *SourceRange) {
 	this.type__ = type_
 	this.location_ = location
 }
 
-func new_ParseTree(type_ *ParseTreeType, location *SourceRange) *ParseTree {
+func new_ParseTree(type_ ParseTreeType, location *SourceRange) *ParseTree {
 	this := &ParseTree{}
 	this.self_ = this
 	this.init_ParseTree(type_, location)

@@ -418,7 +418,7 @@ func (this *TypeInference) initializeEnhancedForScope(source Node, output FlowSc
 	var item Node = source.getFirstChild()
 	var obj Node = item.getNext()
 	var informed FlowScope = this.traverse(obj, output)
-	var assignmentType *TypeInference_AssignmentType
+	var assignmentType TypeInference_AssignmentType
 	if NodeUtil_isNameDeclaration(item) {
 		item = item.getFirstChild()
 		assignmentType = TypeInference_AssignmentType_DECLARATION
@@ -537,7 +537,7 @@ func (this *TypeInference) traverseNewTarget(newTargetNode Node) {
 	var root Node = scope.getRootNode()
 	var parent Node = root.getParent()
 	if parent.getGrandparent().isClass() {
-		var type_ *JSTypeNative = func() *JSTypeNative {
+		var type_ JSTypeNative = func() JSTypeNative {
 			if NodeUtil_isEs6ConstructorMemberFunctionDef(parent) {
 				return JSTypeNative_FUNCTION_TYPE
 			}
@@ -648,11 +648,11 @@ func TypeInference_addMissingInterfaceProperties(constructor *JSType) {
 	}
 }
 
-func (this *TypeInference) updateScopeForAssignment(scope FlowScope, target Node, resultType *JSType, type_ *TypeInference_AssignmentType) FlowScope {
+func (this *TypeInference) updateScopeForAssignment(scope FlowScope, target Node, resultType *JSType, type_ TypeInference_AssignmentType) FlowScope {
 	return this.updateScopeForAssignment_5(scope, target, resultType, target, type_)
 }
 
-func (this *TypeInference) updateScopeForAssignment_5(scope FlowScope, target Node, resultType *JSType, updateNode Node, type_ *TypeInference_AssignmentType) FlowScope {
+func (this *TypeInference) updateScopeForAssignment_5(scope FlowScope, target Node, resultType *JSType, updateNode Node, type_ TypeInference_AssignmentType) FlowScope {
 	Preconditions_checkNotNull(resultType.self())
 	Preconditions_checkState(((updateNode == 0) || (updateNode == target)))
 	var targetType *JSType = target.getJSType()
@@ -809,7 +809,7 @@ func (this *TypeInference) traverseDeclarationChild(n Node, scope FlowScope) Flo
 	return this.traverseDestructuringPattern(n.getFirstChild(), scope, this.getJSType(n.getSecondChild()), TypeInference_AssignmentType_DECLARATION)
 }
 
-func (this *TypeInference) traverseDestructuringPattern(pattern Node, scope FlowScope, patternType *JSType, assignmentType *TypeInference_AssignmentType) FlowScope {
+func (this *TypeInference) traverseDestructuringPattern(pattern Node, scope FlowScope, patternType *JSType, assignmentType TypeInference_AssignmentType) FlowScope {
 	return this.traverseDestructuringPatternHelper(pattern, scope, patternType, func(flowScope FlowScope, targetNode Node, targetType *JSType) FlowScope {
 		targetType = func() *JSType {
 			if targetType != nil {
@@ -908,7 +908,7 @@ func (this *TypeInference) traverseImportSpec(scope FlowScope, spec Node) FlowSc
 	return scope
 }
 
-func TypeInference_getBigIntPresence(type_ *JSType) *TypeInference_BigIntPresence {
+func TypeInference_getBigIntPresence(type_ *JSType) TypeInference_BigIntPresence {
 	if type_.isOnlyBigInt() {
 		return TypeInference_BigIntPresence_ALL_BIGINT
 	}
@@ -947,7 +947,7 @@ func TypeInference_getBigIntPresence(type_ *JSType) *TypeInference_BigIntPresenc
 
 func (this *TypeInference) traverseUnaryPlus(n Node, scope FlowScope) FlowScope {
 	scope = this.traverseChildren(n, scope)
-	var bigintPresenceInOperand *TypeInference_BigIntPresence = TypeInference_getBigIntPresence(this.getJSType(n.getFirstChild()))
+	var bigintPresenceInOperand TypeInference_BigIntPresence = TypeInference_getBigIntPresence(this.getJSType(n.getFirstChild()))
 	if bigintPresenceInOperand != TypeInference_BigIntPresence_NO_BIGINT {
 		n.setJSType(this.getNativeType(JSTypeNative_NO_TYPE))
 	} else {
@@ -971,8 +971,8 @@ func (this *TypeInference) traverseBigIntCompatibleUnaryOperator(n Node, scope F
 
 func (this *TypeInference) traverseBigIntCompatibleBinaryOperator(n Node, scope FlowScope) FlowScope {
 	scope = this.traverseChildren(n, scope)
-	var leftBigIntPresence *TypeInference_BigIntPresence = TypeInference_getBigIntPresence(this.getJSType(n.getFirstChild()))
-	var rightBigIntPresence *TypeInference_BigIntPresence = TypeInference_getBigIntPresence(this.getJSType(n.getLastChild()))
+	var leftBigIntPresence TypeInference_BigIntPresence = TypeInference_getBigIntPresence(this.getJSType(n.getFirstChild()))
+	var rightBigIntPresence TypeInference_BigIntPresence = TypeInference_getBigIntPresence(this.getJSType(n.getLastChild()))
 	if leftBigIntPresence != rightBigIntPresence {
 		n.setJSType(this.getNativeType(JSTypeNative_NO_TYPE))
 	} else {
@@ -1893,7 +1893,7 @@ func (this *TypeInference) traverseDynamicImport(dynamicImport Node, scope FlowS
 	return this.traverseChildren(dynamicImport, scope)
 }
 
-func TypeInference_joinBooleanOutcomes(isAnd bool, left *BooleanLiteralSet, right *BooleanLiteralSet) *BooleanLiteralSet {
+func TypeInference_joinBooleanOutcomes(isAnd bool, left BooleanLiteralSet, right BooleanLiteralSet) BooleanLiteralSet {
 	return right.union(left.intersection(BooleanLiteralSet_get(!isAnd)))
 }
 
@@ -1901,7 +1901,7 @@ func (this *TypeInference) newBooleanOutcomePair(jsType *JSType, flowScope FlowS
 	if jsType == nil {
 		return new_TypeInference_BooleanOutcomePair(this, BooleanLiteralSet_BOTH, BooleanLiteralSet_BOTH, flowScope, flowScope)
 	}
-	return new_TypeInference_BooleanOutcomePair(this, jsType.getPossibleToBooleanOutcomes(), func() *BooleanLiteralSet {
+	return new_TypeInference_BooleanOutcomePair(this, jsType.getPossibleToBooleanOutcomes(), func() BooleanLiteralSet {
 		if this.registry.getNativeType(JSTypeNative_BOOLEAN_TYPE).isSubtypeOf(jsType) {
 			return BooleanLiteralSet_BOTH
 		}
@@ -1937,7 +1937,7 @@ func (this *TypeInference) getJSType(n Node) *JSType {
 	panic("unreachable")
 }
 
-func (this *TypeInference) getNativeType(typeId *JSTypeNative) *JSType {
+func (this *TypeInference) getNativeType(typeId JSTypeNative) *JSType {
 	return this.registry.getNativeType(typeId)
 }
 
@@ -1959,7 +1959,7 @@ func TypeInference_clinit() {
 	}
 	TypeInference_clinit_done = true
 	TypeInference_REASSIGN_CLASS_PROTOTYPE = DiagnosticType_error("JSC_REASSIGN_CLASS_PROTOTYPE", "Reassigning a class prototype is not allowed")
-	TypeInference_TOKENS_ALLOWING_NULL_TYPES = Sets_immutableEnumSet(Token_rhino_NAME.up_Enum(), []*Enum{Token_rhino_CALL.up_Enum(), Token_rhino_NEW.up_Enum()})
+	TypeInference_TOKENS_ALLOWING_NULL_TYPES = Sets_immutableEnumSet(Token_rhino_NAME.enum_(), []*Enum{Token_rhino_CALL.enum_(), Token_rhino_NEW.enum_()})
 
 }
 
@@ -1975,44 +1975,61 @@ func (this *TypeInference_TypeDeclaringCallback_fn) declareTypeInScope(p0 FlowSc
 	return this.f(p0, p1, p2)
 }
 
-type TypeInference_AssignmentType struct {
-	Enum
+type TypeInference_AssignmentType uint8
+
+// TypeInference_AssignmentType_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var TypeInference_AssignmentType_enum_ = [2]Enum{
+	{self_: TypeInference_AssignmentType_DECLARATION, name_: "DECLARATION", ordinal_: 0},
+	{self_: TypeInference_AssignmentType_ASSIGN, name_: "ASSIGN", ordinal_: 1},
 }
 
-func (this *TypeInference_AssignmentType) up_Enum() *Enum {
-	if this == nil {
+func (this TypeInference_AssignmentType) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &TypeInference_AssignmentType_enum_[this-1]
 }
 
-func (this *TypeInference_AssignmentType) init_TypeInference_AssignmentType(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this TypeInference_AssignmentType) name() string {
+	return TypeInference_AssignmentType_enum_[this-1].name_
 }
 
-func new_TypeInference_AssignmentType(name_ string, ordinal_ int32) *TypeInference_AssignmentType {
-	this := &TypeInference_AssignmentType{}
-	this.self_ = this
-	this.init_TypeInference_AssignmentType(name_, ordinal_)
+func (this TypeInference_AssignmentType) ordinal() int32 {
+	return TypeInference_AssignmentType_enum_[this-1].ordinal_
+}
+
+func (this TypeInference_AssignmentType) toString() string {
+	return TypeInference_AssignmentType_enum_[this-1].name_
+}
+
+func (this TypeInference_AssignmentType) compareTo(o any) int32 {
+	return TypeInference_AssignmentType_enum_[this-1].compareTo(o)
+}
+
+func (this TypeInference_AssignmentType) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func TypeInference_AssignmentType_values() []*TypeInference_AssignmentType {
-	return append([]*TypeInference_AssignmentType(nil), TypeInference_AssignmentType_values_...)
+func TypeInference_AssignmentType_values() []TypeInference_AssignmentType {
+	return append([]TypeInference_AssignmentType(nil), TypeInference_AssignmentType_values_...)
 }
 
-func TypeInference_AssignmentType_valueOf(name string) *TypeInference_AssignmentType {
+func TypeInference_AssignmentType_valueOf(name string) TypeInference_AssignmentType {
 	for _, v := range TypeInference_AssignmentType_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("AssignmentType", name))
 }
 
-var TypeInference_AssignmentType_DECLARATION *TypeInference_AssignmentType
-var TypeInference_AssignmentType_ASSIGN *TypeInference_AssignmentType
-var TypeInference_AssignmentType_values_ []*TypeInference_AssignmentType
+const TypeInference_AssignmentType_DECLARATION TypeInference_AssignmentType = 1
+const TypeInference_AssignmentType_ASSIGN TypeInference_AssignmentType = 2
+
+var TypeInference_AssignmentType_values_ []TypeInference_AssignmentType
 
 var TypeInference_AssignmentType_clinit_done bool
 
@@ -2021,53 +2038,70 @@ func TypeInference_AssignmentType_clinit() {
 		return
 	}
 	TypeInference_AssignmentType_clinit_done = true
-	TypeInference_AssignmentType_DECLARATION = new_TypeInference_AssignmentType("DECLARATION", 0)
-	TypeInference_AssignmentType_ASSIGN = new_TypeInference_AssignmentType("ASSIGN", 1)
-	TypeInference_AssignmentType_values_ = []*TypeInference_AssignmentType{TypeInference_AssignmentType_DECLARATION, TypeInference_AssignmentType_ASSIGN}
+	TypeInference_AssignmentType_values_ = []TypeInference_AssignmentType{TypeInference_AssignmentType_DECLARATION, TypeInference_AssignmentType_ASSIGN}
 	registerEnum_("com.google.javascript.jscomp.TypeInference.AssignmentType", enumValues_(TypeInference_AssignmentType_values_))
 
 }
 
-type TypeInference_BigIntPresence struct {
-	Enum
+type TypeInference_BigIntPresence uint8
+
+// TypeInference_BigIntPresence_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var TypeInference_BigIntPresence_enum_ = [4]Enum{
+	{self_: TypeInference_BigIntPresence_NO_BIGINT, name_: "NO_BIGINT", ordinal_: 0},
+	{self_: TypeInference_BigIntPresence_ALL_BIGINT, name_: "ALL_BIGINT", ordinal_: 1},
+	{self_: TypeInference_BigIntPresence_BIGINT_OR_NUMBER, name_: "BIGINT_OR_NUMBER", ordinal_: 2},
+	{self_: TypeInference_BigIntPresence_BIGINT_OR_OTHER, name_: "BIGINT_OR_OTHER", ordinal_: 3},
 }
 
-func (this *TypeInference_BigIntPresence) up_Enum() *Enum {
-	if this == nil {
+func (this TypeInference_BigIntPresence) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &TypeInference_BigIntPresence_enum_[this-1]
 }
 
-func (this *TypeInference_BigIntPresence) init_TypeInference_BigIntPresence(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this TypeInference_BigIntPresence) name() string {
+	return TypeInference_BigIntPresence_enum_[this-1].name_
 }
 
-func new_TypeInference_BigIntPresence(name_ string, ordinal_ int32) *TypeInference_BigIntPresence {
-	this := &TypeInference_BigIntPresence{}
-	this.self_ = this
-	this.init_TypeInference_BigIntPresence(name_, ordinal_)
+func (this TypeInference_BigIntPresence) ordinal() int32 {
+	return TypeInference_BigIntPresence_enum_[this-1].ordinal_
+}
+
+func (this TypeInference_BigIntPresence) toString() string {
+	return TypeInference_BigIntPresence_enum_[this-1].name_
+}
+
+func (this TypeInference_BigIntPresence) compareTo(o any) int32 {
+	return TypeInference_BigIntPresence_enum_[this-1].compareTo(o)
+}
+
+func (this TypeInference_BigIntPresence) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func TypeInference_BigIntPresence_values() []*TypeInference_BigIntPresence {
-	return append([]*TypeInference_BigIntPresence(nil), TypeInference_BigIntPresence_values_...)
+func TypeInference_BigIntPresence_values() []TypeInference_BigIntPresence {
+	return append([]TypeInference_BigIntPresence(nil), TypeInference_BigIntPresence_values_...)
 }
 
-func TypeInference_BigIntPresence_valueOf(name string) *TypeInference_BigIntPresence {
+func TypeInference_BigIntPresence_valueOf(name string) TypeInference_BigIntPresence {
 	for _, v := range TypeInference_BigIntPresence_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("BigIntPresence", name))
 }
 
-var TypeInference_BigIntPresence_NO_BIGINT *TypeInference_BigIntPresence
-var TypeInference_BigIntPresence_ALL_BIGINT *TypeInference_BigIntPresence
-var TypeInference_BigIntPresence_BIGINT_OR_NUMBER *TypeInference_BigIntPresence
-var TypeInference_BigIntPresence_BIGINT_OR_OTHER *TypeInference_BigIntPresence
-var TypeInference_BigIntPresence_values_ []*TypeInference_BigIntPresence
+const TypeInference_BigIntPresence_NO_BIGINT TypeInference_BigIntPresence = 1
+const TypeInference_BigIntPresence_ALL_BIGINT TypeInference_BigIntPresence = 2
+const TypeInference_BigIntPresence_BIGINT_OR_NUMBER TypeInference_BigIntPresence = 3
+const TypeInference_BigIntPresence_BIGINT_OR_OTHER TypeInference_BigIntPresence = 4
+
+var TypeInference_BigIntPresence_values_ []TypeInference_BigIntPresence
 
 var TypeInference_BigIntPresence_clinit_done bool
 
@@ -2076,11 +2110,7 @@ func TypeInference_BigIntPresence_clinit() {
 		return
 	}
 	TypeInference_BigIntPresence_clinit_done = true
-	TypeInference_BigIntPresence_NO_BIGINT = new_TypeInference_BigIntPresence("NO_BIGINT", 0)
-	TypeInference_BigIntPresence_ALL_BIGINT = new_TypeInference_BigIntPresence("ALL_BIGINT", 1)
-	TypeInference_BigIntPresence_BIGINT_OR_NUMBER = new_TypeInference_BigIntPresence("BIGINT_OR_NUMBER", 2)
-	TypeInference_BigIntPresence_BIGINT_OR_OTHER = new_TypeInference_BigIntPresence("BIGINT_OR_OTHER", 3)
-	TypeInference_BigIntPresence_values_ = []*TypeInference_BigIntPresence{TypeInference_BigIntPresence_NO_BIGINT, TypeInference_BigIntPresence_ALL_BIGINT, TypeInference_BigIntPresence_BIGINT_OR_NUMBER, TypeInference_BigIntPresence_BIGINT_OR_OTHER}
+	TypeInference_BigIntPresence_values_ = []TypeInference_BigIntPresence{TypeInference_BigIntPresence_NO_BIGINT, TypeInference_BigIntPresence_ALL_BIGINT, TypeInference_BigIntPresence_BIGINT_OR_NUMBER, TypeInference_BigIntPresence_BIGINT_OR_OTHER}
 	registerEnum_("com.google.javascript.jscomp.TypeInference.BigIntPresence", enumValues_(TypeInference_BigIntPresence_values_))
 
 }
@@ -2105,8 +2135,8 @@ func new_TypeInference_OptChainInfo(endOfChain Node, startOfChain Node) *TypeInf
 
 type TypeInference_BooleanOutcomePair struct {
 	outer_            *TypeInference
-	toBooleanOutcomes *BooleanLiteralSet
-	booleanValues     *BooleanLiteralSet
+	toBooleanOutcomes BooleanLiteralSet
+	booleanValues     BooleanLiteralSet
 	leftScope         FlowScope
 	rightScope        FlowScope
 	joinedScope       FlowScope
@@ -2116,7 +2146,7 @@ func (this *TypeInference_BooleanOutcomePair) finit_TypeInference_BooleanOutcome
 	this.joinedScope = nil
 }
 
-func (this *TypeInference_BooleanOutcomePair) init_TypeInference_BooleanOutcomePair(toBooleanOutcomes *BooleanLiteralSet, booleanValues *BooleanLiteralSet, leftScope FlowScope, rightScope FlowScope) {
+func (this *TypeInference_BooleanOutcomePair) init_TypeInference_BooleanOutcomePair(toBooleanOutcomes BooleanLiteralSet, booleanValues BooleanLiteralSet, leftScope FlowScope, rightScope FlowScope) {
 	this.finit_TypeInference_BooleanOutcomePair()
 	this.toBooleanOutcomes = toBooleanOutcomes
 	this.booleanValues = booleanValues
@@ -2124,7 +2154,7 @@ func (this *TypeInference_BooleanOutcomePair) init_TypeInference_BooleanOutcomeP
 	this.rightScope = rightScope
 }
 
-func new_TypeInference_BooleanOutcomePair(outer_ *TypeInference, toBooleanOutcomes *BooleanLiteralSet, booleanValues *BooleanLiteralSet, leftScope FlowScope, rightScope FlowScope) *TypeInference_BooleanOutcomePair {
+func new_TypeInference_BooleanOutcomePair(outer_ *TypeInference, toBooleanOutcomes BooleanLiteralSet, booleanValues BooleanLiteralSet, leftScope FlowScope, rightScope FlowScope) *TypeInference_BooleanOutcomePair {
 	this := &TypeInference_BooleanOutcomePair{}
 	this.outer_ = outer_
 	this.init_TypeInference_BooleanOutcomePair(toBooleanOutcomes, booleanValues, leftScope, rightScope)
@@ -2142,7 +2172,7 @@ func (this *TypeInference_BooleanOutcomePair) getJoinedFlowScope() FlowScope {
 	return this.joinedScope
 }
 
-func (this *TypeInference_BooleanOutcomePair) getOutcomeFlowScope(nodeType *Token_rhino, outcome bool) FlowScope {
+func (this *TypeInference_BooleanOutcomePair) getOutcomeFlowScope(nodeType Token_rhino, outcome bool) FlowScope {
 	if ((nodeType == Token_rhino_AND) && outcome) || ((nodeType == Token_rhino_OR) && !outcome) {
 		return this.rightScope
 	} else {
@@ -2179,7 +2209,7 @@ func new_TypeInference_1(outer_ *TypeInference, cap_source Node, cap_output Flow
 	return this
 }
 
-func (this *TypeInference_1) branchFlow(branch *ControlFlowGraph_Branch) any {
+func (this *TypeInference_1) branchFlow(branch ControlFlowGraph_Branch) any {
 	switch branch {
 	case ControlFlowGraph_Branch_ON_TRUE:
 		if NodeUtil_isEnhancedFor(this.cap_source) {

@@ -4,7 +4,7 @@ package closure
 
 type Es6RewriteDestructuring struct {
 	compiler_                    *AbstractCompiler
-	rewriteMode                  *Es6RewriteDestructuring_ObjectDestructuringRewriteMode
+	rewriteMode                  Es6RewriteDestructuring_ObjectDestructuringRewriteMode
 	astFactory_                  *AstFactory
 	namespace_                   StaticScope
 	useJscompAssign              bool
@@ -28,7 +28,7 @@ func (this *Es6RewriteDestructuring) init_Es6RewriteDestructuring(builder *Es6Re
 	this.useJscompAssign = !this.compiler_.getOptions().getOutputFeatureSet().containsFeatureSet(FeatureSet_ES2015)
 	switch this.rewriteMode {
 	case Es6RewriteDestructuring_ObjectDestructuringRewriteMode_REWRITE_ALL_OBJECT_PATTERNS:
-		this.featuresToTriggerRunningPass = FeatureSet_BARE_MINIMUM.withFeatureVarargs([]*FeatureSet_Feature{FeatureSet_Feature_DEFAULT_PARAMETERS, FeatureSet_Feature_ARRAY_DESTRUCTURING, FeatureSet_Feature_ARRAY_PATTERN_REST, FeatureSet_Feature_OBJECT_DESTRUCTURING})
+		this.featuresToTriggerRunningPass = FeatureSet_BARE_MINIMUM.withFeatureVarargs([]FeatureSet_Feature{FeatureSet_Feature_DEFAULT_PARAMETERS, FeatureSet_Feature_ARRAY_DESTRUCTURING, FeatureSet_Feature_ARRAY_PATTERN_REST, FeatureSet_Feature_OBJECT_DESTRUCTURING})
 		this.featuresToMarkAsRemoved = this.featuresToTriggerRunningPass.with(FeatureSet_Feature_OBJECT_PATTERN_REST)
 	case Es6RewriteDestructuring_ObjectDestructuringRewriteMode_REWRITE_OBJECT_REST:
 		this.featuresToTriggerRunningPass = FeatureSet_BARE_MINIMUM.with(FeatureSet_Feature_OBJECT_PATTERN_REST)
@@ -584,7 +584,7 @@ func (this *Es6RewriteDestructuring) visitDestructuringPatternInEnhancedForInner
 	Preconditions_checkState(NodeUtil_isEnhancedFor(forNode))
 	var block Node = forNode.getLastChild()
 	destructuringLhs.replaceWith(this.createTempVarNameNode(tempVarName, AstFactory_type_Node(pattern)).srcref(pattern))
-	var declarationType *Token_rhino = declarationNode.getToken()
+	var declarationType Token_rhino = declarationNode.getToken()
 	var decl Node = IR_declaration_Node_Node_Token(pattern.detach(), this.createTempVarNameNode(tempVarName, AstFactory_type_Node(pattern)), declarationType)
 	decl.srcrefTreeIfMissing(pattern)
 	var newBlock Node = IR_block_Node(decl)
@@ -627,44 +627,61 @@ func (this *Es6RewriteDestructuring) defaultValueHook(getprop Node, defaultValue
 
 const Es6RewriteDestructuring_DESTRUCTURING_TEMP_VAR string = "$jscomp$destructuring$var"
 
-type Es6RewriteDestructuring_ObjectDestructuringRewriteMode struct {
-	Enum
+type Es6RewriteDestructuring_ObjectDestructuringRewriteMode uint8
+
+// Es6RewriteDestructuring_ObjectDestructuringRewriteMode_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var Es6RewriteDestructuring_ObjectDestructuringRewriteMode_enum_ = [2]Enum{
+	{self_: Es6RewriteDestructuring_ObjectDestructuringRewriteMode_REWRITE_ALL_OBJECT_PATTERNS, name_: "REWRITE_ALL_OBJECT_PATTERNS", ordinal_: 0},
+	{self_: Es6RewriteDestructuring_ObjectDestructuringRewriteMode_REWRITE_OBJECT_REST, name_: "REWRITE_OBJECT_REST", ordinal_: 1},
 }
 
-func (this *Es6RewriteDestructuring_ObjectDestructuringRewriteMode) up_Enum() *Enum {
-	if this == nil {
+func (this Es6RewriteDestructuring_ObjectDestructuringRewriteMode) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &Es6RewriteDestructuring_ObjectDestructuringRewriteMode_enum_[this-1]
 }
 
-func (this *Es6RewriteDestructuring_ObjectDestructuringRewriteMode) init_Es6RewriteDestructuring_ObjectDestructuringRewriteMode(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this Es6RewriteDestructuring_ObjectDestructuringRewriteMode) name() string {
+	return Es6RewriteDestructuring_ObjectDestructuringRewriteMode_enum_[this-1].name_
 }
 
-func new_Es6RewriteDestructuring_ObjectDestructuringRewriteMode(name_ string, ordinal_ int32) *Es6RewriteDestructuring_ObjectDestructuringRewriteMode {
-	this := &Es6RewriteDestructuring_ObjectDestructuringRewriteMode{}
-	this.self_ = this
-	this.init_Es6RewriteDestructuring_ObjectDestructuringRewriteMode(name_, ordinal_)
+func (this Es6RewriteDestructuring_ObjectDestructuringRewriteMode) ordinal() int32 {
+	return Es6RewriteDestructuring_ObjectDestructuringRewriteMode_enum_[this-1].ordinal_
+}
+
+func (this Es6RewriteDestructuring_ObjectDestructuringRewriteMode) toString() string {
+	return Es6RewriteDestructuring_ObjectDestructuringRewriteMode_enum_[this-1].name_
+}
+
+func (this Es6RewriteDestructuring_ObjectDestructuringRewriteMode) compareTo(o any) int32 {
+	return Es6RewriteDestructuring_ObjectDestructuringRewriteMode_enum_[this-1].compareTo(o)
+}
+
+func (this Es6RewriteDestructuring_ObjectDestructuringRewriteMode) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func Es6RewriteDestructuring_ObjectDestructuringRewriteMode_values() []*Es6RewriteDestructuring_ObjectDestructuringRewriteMode {
-	return append([]*Es6RewriteDestructuring_ObjectDestructuringRewriteMode(nil), Es6RewriteDestructuring_ObjectDestructuringRewriteMode_values_...)
+func Es6RewriteDestructuring_ObjectDestructuringRewriteMode_values() []Es6RewriteDestructuring_ObjectDestructuringRewriteMode {
+	return append([]Es6RewriteDestructuring_ObjectDestructuringRewriteMode(nil), Es6RewriteDestructuring_ObjectDestructuringRewriteMode_values_...)
 }
 
-func Es6RewriteDestructuring_ObjectDestructuringRewriteMode_valueOf(name string) *Es6RewriteDestructuring_ObjectDestructuringRewriteMode {
+func Es6RewriteDestructuring_ObjectDestructuringRewriteMode_valueOf(name string) Es6RewriteDestructuring_ObjectDestructuringRewriteMode {
 	for _, v := range Es6RewriteDestructuring_ObjectDestructuringRewriteMode_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("ObjectDestructuringRewriteMode", name))
 }
 
-var Es6RewriteDestructuring_ObjectDestructuringRewriteMode_REWRITE_ALL_OBJECT_PATTERNS *Es6RewriteDestructuring_ObjectDestructuringRewriteMode
-var Es6RewriteDestructuring_ObjectDestructuringRewriteMode_REWRITE_OBJECT_REST *Es6RewriteDestructuring_ObjectDestructuringRewriteMode
-var Es6RewriteDestructuring_ObjectDestructuringRewriteMode_values_ []*Es6RewriteDestructuring_ObjectDestructuringRewriteMode
+const Es6RewriteDestructuring_ObjectDestructuringRewriteMode_REWRITE_ALL_OBJECT_PATTERNS Es6RewriteDestructuring_ObjectDestructuringRewriteMode = 1
+const Es6RewriteDestructuring_ObjectDestructuringRewriteMode_REWRITE_OBJECT_REST Es6RewriteDestructuring_ObjectDestructuringRewriteMode = 2
+
+var Es6RewriteDestructuring_ObjectDestructuringRewriteMode_values_ []Es6RewriteDestructuring_ObjectDestructuringRewriteMode
 
 var Es6RewriteDestructuring_ObjectDestructuringRewriteMode_clinit_done bool
 
@@ -673,16 +690,14 @@ func Es6RewriteDestructuring_ObjectDestructuringRewriteMode_clinit() {
 		return
 	}
 	Es6RewriteDestructuring_ObjectDestructuringRewriteMode_clinit_done = true
-	Es6RewriteDestructuring_ObjectDestructuringRewriteMode_REWRITE_ALL_OBJECT_PATTERNS = new_Es6RewriteDestructuring_ObjectDestructuringRewriteMode("REWRITE_ALL_OBJECT_PATTERNS", 0)
-	Es6RewriteDestructuring_ObjectDestructuringRewriteMode_REWRITE_OBJECT_REST = new_Es6RewriteDestructuring_ObjectDestructuringRewriteMode("REWRITE_OBJECT_REST", 1)
-	Es6RewriteDestructuring_ObjectDestructuringRewriteMode_values_ = []*Es6RewriteDestructuring_ObjectDestructuringRewriteMode{Es6RewriteDestructuring_ObjectDestructuringRewriteMode_REWRITE_ALL_OBJECT_PATTERNS, Es6RewriteDestructuring_ObjectDestructuringRewriteMode_REWRITE_OBJECT_REST}
+	Es6RewriteDestructuring_ObjectDestructuringRewriteMode_values_ = []Es6RewriteDestructuring_ObjectDestructuringRewriteMode{Es6RewriteDestructuring_ObjectDestructuringRewriteMode_REWRITE_ALL_OBJECT_PATTERNS, Es6RewriteDestructuring_ObjectDestructuringRewriteMode_REWRITE_OBJECT_REST}
 	registerEnum_("com.google.javascript.jscomp.Es6RewriteDestructuring.ObjectDestructuringRewriteMode", enumValues_(Es6RewriteDestructuring_ObjectDestructuringRewriteMode_values_))
 
 }
 
 type Es6RewriteDestructuring_Builder struct {
 	compiler_   *AbstractCompiler
-	rewriteMode *Es6RewriteDestructuring_ObjectDestructuringRewriteMode
+	rewriteMode Es6RewriteDestructuring_ObjectDestructuringRewriteMode
 }
 
 func (this *Es6RewriteDestructuring_Builder) finit_Es6RewriteDestructuring_Builder() {
@@ -700,7 +715,7 @@ func new_Es6RewriteDestructuring_Builder(compiler *AbstractCompiler) *Es6Rewrite
 	return this
 }
 
-func (this *Es6RewriteDestructuring_Builder) setDestructuringRewriteMode(rewriteMode *Es6RewriteDestructuring_ObjectDestructuringRewriteMode) *Es6RewriteDestructuring_Builder {
+func (this *Es6RewriteDestructuring_Builder) setDestructuringRewriteMode(rewriteMode Es6RewriteDestructuring_ObjectDestructuringRewriteMode) *Es6RewriteDestructuring_Builder {
 	this.rewriteMode = rewriteMode
 	return this
 }

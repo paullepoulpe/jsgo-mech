@@ -4,7 +4,7 @@ package closure
 
 type RuntimeJsLibManager struct {
 	changeTracker        *ChangeTracker
-	mode_                *RuntimeJsLibManager_RuntimeLibraryMode
+	mode_                RuntimeJsLibManager_RuntimeLibraryMode
 	resourceProvider     RuntimeJsLibManager_ResourceProvider
 	nodeForCodeInsertion SupplierOf[Node]
 	injectedLibs         *TSet[string]
@@ -18,7 +18,7 @@ func (this *RuntimeJsLibManager) finit_RuntimeJsLibManager() {
 	this.lastInjectedLibrary = 0
 }
 
-func (this *RuntimeJsLibManager) init_RuntimeJsLibManager(changeTracker *ChangeTracker, mode *RuntimeJsLibManager_RuntimeLibraryMode, resourceProvider RuntimeJsLibManager_ResourceProvider, nodeForCodeInsertion SupplierOf[Node]) {
+func (this *RuntimeJsLibManager) init_RuntimeJsLibManager(changeTracker *ChangeTracker, mode RuntimeJsLibManager_RuntimeLibraryMode, resourceProvider RuntimeJsLibManager_ResourceProvider, nodeForCodeInsertion SupplierOf[Node]) {
 	this.finit_RuntimeJsLibManager()
 	this.mode_ = mode
 	this.changeTracker = changeTracker
@@ -26,13 +26,13 @@ func (this *RuntimeJsLibManager) init_RuntimeJsLibManager(changeTracker *ChangeT
 	this.nodeForCodeInsertion = nodeForCodeInsertion
 }
 
-func new_RuntimeJsLibManager(changeTracker *ChangeTracker, mode *RuntimeJsLibManager_RuntimeLibraryMode, resourceProvider RuntimeJsLibManager_ResourceProvider, nodeForCodeInsertion SupplierOf[Node]) *RuntimeJsLibManager {
+func new_RuntimeJsLibManager(changeTracker *ChangeTracker, mode RuntimeJsLibManager_RuntimeLibraryMode, resourceProvider RuntimeJsLibManager_ResourceProvider, nodeForCodeInsertion SupplierOf[Node]) *RuntimeJsLibManager {
 	this := &RuntimeJsLibManager{}
 	this.init_RuntimeJsLibManager(changeTracker, mode, resourceProvider, nodeForCodeInsertion)
 	return this
 }
 
-func RuntimeJsLibManager_create(mode *RuntimeJsLibManager_RuntimeLibraryMode, resourceProvider RuntimeJsLibManager_ResourceProvider, changeTracker *ChangeTracker, nodeForCodeInsertion SupplierOf[Node]) *RuntimeJsLibManager {
+func RuntimeJsLibManager_create(mode RuntimeJsLibManager_RuntimeLibraryMode, resourceProvider RuntimeJsLibManager_ResourceProvider, changeTracker *ChangeTracker, nodeForCodeInsertion SupplierOf[Node]) *RuntimeJsLibManager {
 	return new_RuntimeJsLibManager(changeTracker, mode, resourceProvider, nodeForCodeInsertion)
 }
 
@@ -190,47 +190,67 @@ func (this *RuntimeJsLibManager) getLastInjectedLibrary() Node {
 
 const RuntimeJsLibManager_RUNTIME_LIB_DIR string = "src/com/google/javascript/jscomp/js/"
 
-type RuntimeJsLibManager_RuntimeLibraryMode struct {
-	Enum
+type RuntimeJsLibManager_RuntimeLibraryMode uint8
+
+// RuntimeJsLibManager_RuntimeLibraryMode_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var RuntimeJsLibManager_RuntimeLibraryMode_enum_ = [5]Enum{
+	{self_: RuntimeJsLibManager_RuntimeLibraryMode_INJECT, name_: "INJECT", ordinal_: 0},
+	{self_: RuntimeJsLibManager_RuntimeLibraryMode_NO_OP, name_: "NO_OP", ordinal_: 1},
+	{self_: RuntimeJsLibManager_RuntimeLibraryMode_RECORD_ONLY, name_: "RECORD_ONLY", ordinal_: 2},
+	{self_: RuntimeJsLibManager_RuntimeLibraryMode_RECORD_AND_VALIDATE_FIELDS, name_: "RECORD_AND_VALIDATE_FIELDS", ordinal_: 3},
+	{self_: RuntimeJsLibManager_RuntimeLibraryMode_EXTERN_FIELD_NAMES, name_: "EXTERN_FIELD_NAMES", ordinal_: 4},
 }
 
-func (this *RuntimeJsLibManager_RuntimeLibraryMode) up_Enum() *Enum {
-	if this == nil {
+func (this RuntimeJsLibManager_RuntimeLibraryMode) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &RuntimeJsLibManager_RuntimeLibraryMode_enum_[this-1]
 }
 
-func (this *RuntimeJsLibManager_RuntimeLibraryMode) init_RuntimeJsLibManager_RuntimeLibraryMode(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this RuntimeJsLibManager_RuntimeLibraryMode) name() string {
+	return RuntimeJsLibManager_RuntimeLibraryMode_enum_[this-1].name_
 }
 
-func new_RuntimeJsLibManager_RuntimeLibraryMode(name_ string, ordinal_ int32) *RuntimeJsLibManager_RuntimeLibraryMode {
-	this := &RuntimeJsLibManager_RuntimeLibraryMode{}
-	this.self_ = this
-	this.init_RuntimeJsLibManager_RuntimeLibraryMode(name_, ordinal_)
+func (this RuntimeJsLibManager_RuntimeLibraryMode) ordinal() int32 {
+	return RuntimeJsLibManager_RuntimeLibraryMode_enum_[this-1].ordinal_
+}
+
+func (this RuntimeJsLibManager_RuntimeLibraryMode) toString() string {
+	return RuntimeJsLibManager_RuntimeLibraryMode_enum_[this-1].name_
+}
+
+func (this RuntimeJsLibManager_RuntimeLibraryMode) compareTo(o any) int32 {
+	return RuntimeJsLibManager_RuntimeLibraryMode_enum_[this-1].compareTo(o)
+}
+
+func (this RuntimeJsLibManager_RuntimeLibraryMode) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func RuntimeJsLibManager_RuntimeLibraryMode_values() []*RuntimeJsLibManager_RuntimeLibraryMode {
-	return append([]*RuntimeJsLibManager_RuntimeLibraryMode(nil), RuntimeJsLibManager_RuntimeLibraryMode_values_...)
+func RuntimeJsLibManager_RuntimeLibraryMode_values() []RuntimeJsLibManager_RuntimeLibraryMode {
+	return append([]RuntimeJsLibManager_RuntimeLibraryMode(nil), RuntimeJsLibManager_RuntimeLibraryMode_values_...)
 }
 
-func RuntimeJsLibManager_RuntimeLibraryMode_valueOf(name string) *RuntimeJsLibManager_RuntimeLibraryMode {
+func RuntimeJsLibManager_RuntimeLibraryMode_valueOf(name string) RuntimeJsLibManager_RuntimeLibraryMode {
 	for _, v := range RuntimeJsLibManager_RuntimeLibraryMode_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("RuntimeLibraryMode", name))
 }
 
-var RuntimeJsLibManager_RuntimeLibraryMode_INJECT *RuntimeJsLibManager_RuntimeLibraryMode
-var RuntimeJsLibManager_RuntimeLibraryMode_NO_OP *RuntimeJsLibManager_RuntimeLibraryMode
-var RuntimeJsLibManager_RuntimeLibraryMode_RECORD_ONLY *RuntimeJsLibManager_RuntimeLibraryMode
-var RuntimeJsLibManager_RuntimeLibraryMode_RECORD_AND_VALIDATE_FIELDS *RuntimeJsLibManager_RuntimeLibraryMode
-var RuntimeJsLibManager_RuntimeLibraryMode_EXTERN_FIELD_NAMES *RuntimeJsLibManager_RuntimeLibraryMode
-var RuntimeJsLibManager_RuntimeLibraryMode_values_ []*RuntimeJsLibManager_RuntimeLibraryMode
+const RuntimeJsLibManager_RuntimeLibraryMode_INJECT RuntimeJsLibManager_RuntimeLibraryMode = 1
+const RuntimeJsLibManager_RuntimeLibraryMode_NO_OP RuntimeJsLibManager_RuntimeLibraryMode = 2
+const RuntimeJsLibManager_RuntimeLibraryMode_RECORD_ONLY RuntimeJsLibManager_RuntimeLibraryMode = 3
+const RuntimeJsLibManager_RuntimeLibraryMode_RECORD_AND_VALIDATE_FIELDS RuntimeJsLibManager_RuntimeLibraryMode = 4
+const RuntimeJsLibManager_RuntimeLibraryMode_EXTERN_FIELD_NAMES RuntimeJsLibManager_RuntimeLibraryMode = 5
+
+var RuntimeJsLibManager_RuntimeLibraryMode_values_ []RuntimeJsLibManager_RuntimeLibraryMode
 
 var RuntimeJsLibManager_RuntimeLibraryMode_clinit_done bool
 
@@ -239,12 +259,7 @@ func RuntimeJsLibManager_RuntimeLibraryMode_clinit() {
 		return
 	}
 	RuntimeJsLibManager_RuntimeLibraryMode_clinit_done = true
-	RuntimeJsLibManager_RuntimeLibraryMode_INJECT = new_RuntimeJsLibManager_RuntimeLibraryMode("INJECT", 0)
-	RuntimeJsLibManager_RuntimeLibraryMode_NO_OP = new_RuntimeJsLibManager_RuntimeLibraryMode("NO_OP", 1)
-	RuntimeJsLibManager_RuntimeLibraryMode_RECORD_ONLY = new_RuntimeJsLibManager_RuntimeLibraryMode("RECORD_ONLY", 2)
-	RuntimeJsLibManager_RuntimeLibraryMode_RECORD_AND_VALIDATE_FIELDS = new_RuntimeJsLibManager_RuntimeLibraryMode("RECORD_AND_VALIDATE_FIELDS", 3)
-	RuntimeJsLibManager_RuntimeLibraryMode_EXTERN_FIELD_NAMES = new_RuntimeJsLibManager_RuntimeLibraryMode("EXTERN_FIELD_NAMES", 4)
-	RuntimeJsLibManager_RuntimeLibraryMode_values_ = []*RuntimeJsLibManager_RuntimeLibraryMode{RuntimeJsLibManager_RuntimeLibraryMode_INJECT, RuntimeJsLibManager_RuntimeLibraryMode_NO_OP, RuntimeJsLibManager_RuntimeLibraryMode_RECORD_ONLY, RuntimeJsLibManager_RuntimeLibraryMode_RECORD_AND_VALIDATE_FIELDS, RuntimeJsLibManager_RuntimeLibraryMode_EXTERN_FIELD_NAMES}
+	RuntimeJsLibManager_RuntimeLibraryMode_values_ = []RuntimeJsLibManager_RuntimeLibraryMode{RuntimeJsLibManager_RuntimeLibraryMode_INJECT, RuntimeJsLibManager_RuntimeLibraryMode_NO_OP, RuntimeJsLibManager_RuntimeLibraryMode_RECORD_ONLY, RuntimeJsLibManager_RuntimeLibraryMode_RECORD_AND_VALIDATE_FIELDS, RuntimeJsLibManager_RuntimeLibraryMode_EXTERN_FIELD_NAMES}
 	registerEnum_("com.google.javascript.jscomp.js.RuntimeJsLibManager.RuntimeLibraryMode", enumValues_(RuntimeJsLibManager_RuntimeLibraryMode_values_))
 
 }

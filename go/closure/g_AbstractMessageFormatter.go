@@ -61,7 +61,7 @@ func AbstractMessageFormatter_termSupportsColor(term string) bool {
 	return Collection_contains_s(AbstractMessageFormatter_SUPPORTED_COLOR_TERMINALS, term)
 }
 
-func (this *AbstractMessageFormatter) getLevelName(level *CheckLevel) string {
+func (this *AbstractMessageFormatter) getLevelName(level CheckLevel) string {
 	return func() string {
 		switch level {
 		case CheckLevel_ERROR:
@@ -82,7 +82,7 @@ func (this *AbstractMessageFormatter) maybeEmbolden(text string) string {
 	return (sstr_(AbstractMessageFormatter_Color_BOLD.getControlCharacter()) + sstr_(text) + sstr_(AbstractMessageFormatter_Color_UNBOLD.getControlCharacter()))
 }
 
-func (this *AbstractMessageFormatter) maybeColorize(text string, color *AbstractMessageFormatter_Color) string {
+func (this *AbstractMessageFormatter) maybeColorize(text string, color AbstractMessageFormatter_Color) string {
 	if !this.colorize {
 		return text
 	}
@@ -110,58 +110,81 @@ func AbstractMessageFormatter_clinit() {
 
 }
 
-type AbstractMessageFormatter_Color struct {
-	Enum
-	controlCharacter string
+type AbstractMessageFormatter_Color uint8
+
+// AbstractMessageFormatter_Color_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var AbstractMessageFormatter_Color_enum_ = [5]Enum{
+	{self_: AbstractMessageFormatter_Color_ERROR, name_: "ERROR", ordinal_: 0},
+	{self_: AbstractMessageFormatter_Color_WARNING, name_: "WARNING", ordinal_: 1},
+	{self_: AbstractMessageFormatter_Color_NO_COLOR, name_: "NO_COLOR", ordinal_: 2},
+	{self_: AbstractMessageFormatter_Color_BOLD, name_: "BOLD", ordinal_: 3},
+	{self_: AbstractMessageFormatter_Color_UNBOLD, name_: "UNBOLD", ordinal_: 4},
 }
 
-func (this *AbstractMessageFormatter_Color) up_Enum() *Enum {
-	if this == nil {
+var AbstractMessageFormatter_Color_controlCharacter_ [5]string
+
+func (this AbstractMessageFormatter_Color) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &AbstractMessageFormatter_Color_enum_[this-1]
 }
 
-func (this *AbstractMessageFormatter_Color) zero_AbstractMessageFormatter_Color() {
-	this.controlCharacter = nullstr_
+func (this AbstractMessageFormatter_Color) name() string {
+	return AbstractMessageFormatter_Color_enum_[this-1].name_
 }
 
-func (this *AbstractMessageFormatter_Color) init_AbstractMessageFormatter_Color(name_ string, ordinal_ int32, controlCharacter string) {
-	this.Enum.init_Enum(name_, ordinal_)
-	this.controlCharacter = controlCharacter
+func (this AbstractMessageFormatter_Color) ordinal() int32 {
+	return AbstractMessageFormatter_Color_enum_[this-1].ordinal_
 }
 
-func new_AbstractMessageFormatter_Color(name_ string, ordinal_ int32, controlCharacter string) *AbstractMessageFormatter_Color {
-	this := &AbstractMessageFormatter_Color{}
-	this.self_ = this
-	this.zero_AbstractMessageFormatter_Color()
-	this.init_AbstractMessageFormatter_Color(name_, ordinal_, controlCharacter)
+func (this AbstractMessageFormatter_Color) toString() string {
+	return AbstractMessageFormatter_Color_enum_[this-1].name_
+}
+
+func (this AbstractMessageFormatter_Color) compareTo(o any) int32 {
+	return AbstractMessageFormatter_Color_enum_[this-1].compareTo(o)
+}
+
+func (this AbstractMessageFormatter_Color) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func (this *AbstractMessageFormatter_Color) getControlCharacter() string {
-	return this.controlCharacter
+func (this AbstractMessageFormatter_Color) zero_AbstractMessageFormatter_Color() {
+	AbstractMessageFormatter_Color_controlCharacter_[this-1] = nullstr_
 }
 
-func AbstractMessageFormatter_Color_values() []*AbstractMessageFormatter_Color {
-	return append([]*AbstractMessageFormatter_Color(nil), AbstractMessageFormatter_Color_values_...)
+func (this AbstractMessageFormatter_Color) init_AbstractMessageFormatter_Color(controlCharacter string) {
+	AbstractMessageFormatter_Color_controlCharacter_[this-1] = controlCharacter
 }
 
-func AbstractMessageFormatter_Color_valueOf(name string) *AbstractMessageFormatter_Color {
+func (this AbstractMessageFormatter_Color) getControlCharacter() string {
+	return AbstractMessageFormatter_Color_controlCharacter_[this-1]
+}
+
+func AbstractMessageFormatter_Color_values() []AbstractMessageFormatter_Color {
+	return append([]AbstractMessageFormatter_Color(nil), AbstractMessageFormatter_Color_values_...)
+}
+
+func AbstractMessageFormatter_Color_valueOf(name string) AbstractMessageFormatter_Color {
 	for _, v := range AbstractMessageFormatter_Color_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("Color", name))
 }
 
-var AbstractMessageFormatter_Color_ERROR *AbstractMessageFormatter_Color
-var AbstractMessageFormatter_Color_WARNING *AbstractMessageFormatter_Color
-var AbstractMessageFormatter_Color_NO_COLOR *AbstractMessageFormatter_Color
-var AbstractMessageFormatter_Color_BOLD *AbstractMessageFormatter_Color
-var AbstractMessageFormatter_Color_UNBOLD *AbstractMessageFormatter_Color
-var AbstractMessageFormatter_Color_values_ []*AbstractMessageFormatter_Color
+const AbstractMessageFormatter_Color_ERROR AbstractMessageFormatter_Color = 1
+const AbstractMessageFormatter_Color_WARNING AbstractMessageFormatter_Color = 2
+const AbstractMessageFormatter_Color_NO_COLOR AbstractMessageFormatter_Color = 3
+const AbstractMessageFormatter_Color_BOLD AbstractMessageFormatter_Color = 4
+const AbstractMessageFormatter_Color_UNBOLD AbstractMessageFormatter_Color = 5
+
+var AbstractMessageFormatter_Color_values_ []AbstractMessageFormatter_Color
 
 var AbstractMessageFormatter_Color_clinit_done bool
 
@@ -170,12 +193,17 @@ func AbstractMessageFormatter_Color_clinit() {
 		return
 	}
 	AbstractMessageFormatter_Color_clinit_done = true
-	AbstractMessageFormatter_Color_ERROR = new_AbstractMessageFormatter_Color("ERROR", 0, "\x1b[31m")
-	AbstractMessageFormatter_Color_WARNING = new_AbstractMessageFormatter_Color("WARNING", 1, "\x1b[35m")
-	AbstractMessageFormatter_Color_NO_COLOR = new_AbstractMessageFormatter_Color("NO_COLOR", 2, "\x1b[39m")
-	AbstractMessageFormatter_Color_BOLD = new_AbstractMessageFormatter_Color("BOLD", 3, "\x1b[1m")
-	AbstractMessageFormatter_Color_UNBOLD = new_AbstractMessageFormatter_Color("UNBOLD", 4, "\x1b[0m")
-	AbstractMessageFormatter_Color_values_ = []*AbstractMessageFormatter_Color{AbstractMessageFormatter_Color_ERROR, AbstractMessageFormatter_Color_WARNING, AbstractMessageFormatter_Color_NO_COLOR, AbstractMessageFormatter_Color_BOLD, AbstractMessageFormatter_Color_UNBOLD}
+	AbstractMessageFormatter_Color_ERROR.zero_AbstractMessageFormatter_Color()
+	AbstractMessageFormatter_Color_ERROR.init_AbstractMessageFormatter_Color("\x1b[31m")
+	AbstractMessageFormatter_Color_WARNING.zero_AbstractMessageFormatter_Color()
+	AbstractMessageFormatter_Color_WARNING.init_AbstractMessageFormatter_Color("\x1b[35m")
+	AbstractMessageFormatter_Color_NO_COLOR.zero_AbstractMessageFormatter_Color()
+	AbstractMessageFormatter_Color_NO_COLOR.init_AbstractMessageFormatter_Color("\x1b[39m")
+	AbstractMessageFormatter_Color_BOLD.zero_AbstractMessageFormatter_Color()
+	AbstractMessageFormatter_Color_BOLD.init_AbstractMessageFormatter_Color("\x1b[1m")
+	AbstractMessageFormatter_Color_UNBOLD.zero_AbstractMessageFormatter_Color()
+	AbstractMessageFormatter_Color_UNBOLD.init_AbstractMessageFormatter_Color("\x1b[0m")
+	AbstractMessageFormatter_Color_values_ = []AbstractMessageFormatter_Color{AbstractMessageFormatter_Color_ERROR, AbstractMessageFormatter_Color_WARNING, AbstractMessageFormatter_Color_NO_COLOR, AbstractMessageFormatter_Color_BOLD, AbstractMessageFormatter_Color_UNBOLD}
 	registerEnum_("com.google.javascript.jscomp.AbstractMessageFormatter.Color", enumValues_(AbstractMessageFormatter_Color_values_))
 
 }

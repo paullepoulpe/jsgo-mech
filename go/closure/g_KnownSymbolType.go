@@ -45,7 +45,7 @@ func new_KnownSymbolType(registry *JSTypeRegistry, name string) *KnownSymbolType
 	return this
 }
 
-func (this *KnownSymbolType) getTypeClass_impl() *JSTypeClass {
+func (this *KnownSymbolType) getTypeClass_impl() JSTypeClass {
 	return KnownSymbolType_TYPE_CLASS
 }
 
@@ -61,7 +61,7 @@ func (this *KnownSymbolType) toMaybeKnownSymbolType_impl() *KnownSymbolType {
 	return this
 }
 
-var KnownSymbolType_TYPE_CLASS *JSTypeClass
+var KnownSymbolType_TYPE_CLASS JSTypeClass
 
 var KnownSymbolType_clinit_done bool
 
@@ -75,7 +75,7 @@ func KnownSymbolType_clinit() {
 }
 
 // getTypeClass: an object that is exactly a KnownSymbolType calls its getTypeClass_impl directly (post-flip); others dispatch.
-func (this *KnownSymbolType) getTypeClass() *JSTypeClass {
+func (this *KnownSymbolType) getTypeClass() JSTypeClass {
 	if this.self_ == any(this) {
 		return this.getTypeClass_impl()
 	}

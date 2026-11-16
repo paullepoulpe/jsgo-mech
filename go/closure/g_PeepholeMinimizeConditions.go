@@ -252,7 +252,7 @@ func (this *PeepholeMinimizeConditions) tryMinimizeNot(n Node) Node {
 	Preconditions_checkArgument(n.isNot())
 	var parent Node = n.getParent()
 	var notChild Node = n.getFirstChild()
-	var complementOperator *Token_rhino
+	var complementOperator Token_rhino
 	switch notChild.ns_().token {
 	case tokOrd1_EQ:
 		complementOperator = Token_rhino_NE
@@ -297,8 +297,8 @@ func (this *PeepholeMinimizeConditions) tryMinimizeHook(n Node) Node {
 	var thenBranch Node = originalCond.getNext()
 	var elseBranch Node = thenBranch.getNext()
 	if NodeUtil_isBooleanResult(thenBranch) && NodeUtil_isBooleanResult(elseBranch) {
-		var thenVal *Tri = this.getSideEffectFreeBooleanValue(thenBranch)
-		var elseVal *Tri = this.getSideEffectFreeBooleanValue(elseBranch)
+		var thenVal Tri = this.getSideEffectFreeBooleanValue(thenBranch)
+		var elseVal Tri = this.getSideEffectFreeBooleanValue(elseBranch)
 		var replacement Node = 0
 		if (thenVal == Tri_TRUE) && (elseVal == Tri_FALSE) {
 			var cond Node = originalCond.detach()
@@ -657,9 +657,9 @@ func (this *PeepholeMinimizeConditions) performConditionSubstitutions(n Node) No
 			var right Node = n.getLastChild()
 			left = this.performConditionSubstitutions(left)
 			right = this.performConditionSubstitutions(right)
-			var rightVal *Tri = this.getSideEffectFreeBooleanValue(right)
+			var rightVal Tri = this.getSideEffectFreeBooleanValue(right)
 			if this.getSideEffectFreeBooleanValue(right) != Tri_UNKNOWN {
-				var type_ *Token_rhino = n.getToken()
+				var type_ Token_rhino = n.getToken()
 				var replacement Node = 0
 				var rval bool = rightVal.toBoolean(true)
 				if ((type_ == Token_rhino_OR) && !rval) || ((type_ == Token_rhino_AND) && rval) {
@@ -685,8 +685,8 @@ func (this *PeepholeMinimizeConditions) performConditionSubstitutions(n Node) No
 			trueNode = this.performConditionSubstitutions(trueNode)
 			falseNode = this.performConditionSubstitutions(falseNode)
 			var replacement Node = 0
-			var trueNodeVal *Tri = this.getSideEffectFreeBooleanValue(trueNode)
-			var falseNodeVal *Tri = this.getSideEffectFreeBooleanValue(falseNode)
+			var trueNodeVal Tri = this.getSideEffectFreeBooleanValue(trueNode)
+			var falseNodeVal Tri = this.getSideEffectFreeBooleanValue(falseNode)
 			if (trueNodeVal == Tri_TRUE) && (falseNodeVal == Tri_FALSE) {
 				condition.detach()
 				replacement = condition
@@ -710,7 +710,7 @@ func (this *PeepholeMinimizeConditions) performConditionSubstitutions(n Node) No
 			}
 			return n
 		default:
-			var nVal *Tri = this.getSideEffectFreeBooleanValue(n)
+			var nVal Tri = this.getSideEffectFreeBooleanValue(n)
 			if nVal != Tri_UNKNOWN {
 				var result bool = nVal.toBoolean(true)
 				var equivalentResult int32 = func() int32 {

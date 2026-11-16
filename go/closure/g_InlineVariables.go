@@ -4,22 +4,22 @@ package closure
 
 type InlineVariables struct {
 	compiler_ *AbstractCompiler
-	mode_     *InlineVariables_Mode
+	mode_     InlineVariables_Mode
 }
 
-func (this *InlineVariables) init_InlineVariables(compiler *AbstractCompiler, mode *InlineVariables_Mode) {
+func (this *InlineVariables) init_InlineVariables(compiler *AbstractCompiler, mode InlineVariables_Mode) {
 	this.compiler_ = compiler
 	this.mode_ = mode
 }
 
-func new_InlineVariables(compiler *AbstractCompiler, mode *InlineVariables_Mode) *InlineVariables {
+func new_InlineVariables(compiler *AbstractCompiler, mode InlineVariables_Mode) *InlineVariables {
 	this := &InlineVariables{}
 	this.init_InlineVariables(compiler, mode)
 	return this
 }
 
 func (this *InlineVariables) process_2(externs Node, root Node) {
-	var callback *ReferenceCollector = new_ReferenceCollector_AbstractCompiler_Behavior_ScopeCreator_Predicate(this.compiler_, icast_ReferenceCollector_Behavior(obj_(new_InlineVariables_InliningBehavior(this))), icast_ScopeCreator(obj_(new_SyntacticScopeCreator_AbstractCompiler(this.compiler_))), this.mode_.varPredicate)
+	var callback *ReferenceCollector = new_ReferenceCollector_AbstractCompiler_Behavior_ScopeCreator_Predicate(this.compiler_, icast_ReferenceCollector_Behavior(obj_(new_InlineVariables_InliningBehavior(this))), icast_ScopeCreator(obj_(new_SyntacticScopeCreator_AbstractCompiler(this.compiler_))), InlineVariables_Mode_varPredicate_[this.mode_-1])
 	callback.process_2(externs, root)
 }
 
@@ -47,47 +47,63 @@ func InlineVariables_clinit() {
 
 }
 
-type InlineVariables_Mode struct {
-	Enum
-	varPredicate Predicate_baseOf[*Var]
+type InlineVariables_Mode uint8
+
+// InlineVariables_Mode_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var InlineVariables_Mode_enum_ = [3]Enum{
+	{self_: InlineVariables_Mode_CONSTANTS_ONLY, name_: "CONSTANTS_ONLY", ordinal_: 0},
+	{self_: InlineVariables_Mode_LOCALS_ONLY, name_: "LOCALS_ONLY", ordinal_: 1},
+	{self_: InlineVariables_Mode_ALL, name_: "ALL", ordinal_: 2},
 }
 
-func (this *InlineVariables_Mode) up_Enum() *Enum {
-	if this == nil {
+var InlineVariables_Mode_varPredicate_ [3]Predicate_baseOf[*Var]
+
+func (this InlineVariables_Mode) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &InlineVariables_Mode_enum_[this-1]
 }
 
-func (this *InlineVariables_Mode) init_InlineVariables_Mode(name_ string, ordinal_ int32, varPredicate Predicate_baseOf[*Var]) {
-	this.Enum.init_Enum(name_, ordinal_)
-	this.varPredicate = varPredicate
+func (this InlineVariables_Mode) name() string { return InlineVariables_Mode_enum_[this-1].name_ }
+
+func (this InlineVariables_Mode) ordinal() int32 { return InlineVariables_Mode_enum_[this-1].ordinal_ }
+
+func (this InlineVariables_Mode) toString() string { return InlineVariables_Mode_enum_[this-1].name_ }
+
+func (this InlineVariables_Mode) compareTo(o any) int32 {
+	return InlineVariables_Mode_enum_[this-1].compareTo(o)
 }
 
-func new_InlineVariables_Mode(name_ string, ordinal_ int32, varPredicate Predicate_baseOf[*Var]) *InlineVariables_Mode {
-	this := &InlineVariables_Mode{}
-	this.self_ = this
-	this.init_InlineVariables_Mode(name_, ordinal_, varPredicate)
+func (this InlineVariables_Mode) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func InlineVariables_Mode_values() []*InlineVariables_Mode {
-	return append([]*InlineVariables_Mode(nil), InlineVariables_Mode_values_...)
+func (this InlineVariables_Mode) init_InlineVariables_Mode(varPredicate Predicate_baseOf[*Var]) {
+	InlineVariables_Mode_varPredicate_[this-1] = varPredicate
 }
 
-func InlineVariables_Mode_valueOf(name string) *InlineVariables_Mode {
+func InlineVariables_Mode_values() []InlineVariables_Mode {
+	return append([]InlineVariables_Mode(nil), InlineVariables_Mode_values_...)
+}
+
+func InlineVariables_Mode_valueOf(name string) InlineVariables_Mode {
 	for _, v := range InlineVariables_Mode_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("Mode", name))
 }
 
-var InlineVariables_Mode_CONSTANTS_ONLY *InlineVariables_Mode
-var InlineVariables_Mode_LOCALS_ONLY *InlineVariables_Mode
-var InlineVariables_Mode_ALL *InlineVariables_Mode
-var InlineVariables_Mode_values_ []*InlineVariables_Mode
+const InlineVariables_Mode_CONSTANTS_ONLY InlineVariables_Mode = 1
+const InlineVariables_Mode_LOCALS_ONLY InlineVariables_Mode = 2
+const InlineVariables_Mode_ALL InlineVariables_Mode = 3
+
+var InlineVariables_Mode_values_ []InlineVariables_Mode
 
 var InlineVariables_Mode_clinit_done bool
 
@@ -96,10 +112,10 @@ func InlineVariables_Mode_clinit() {
 		return
 	}
 	InlineVariables_Mode_clinit_done = true
-	InlineVariables_Mode_CONSTANTS_ONLY = new_InlineVariables_Mode("CONSTANTS_ONLY", 0, lambda_InlineVariables_Mode_clinit_1_)
-	InlineVariables_Mode_LOCALS_ONLY = new_InlineVariables_Mode("LOCALS_ONLY", 1, lambda_InlineVariables_Mode_clinit_2_)
-	InlineVariables_Mode_ALL = new_InlineVariables_Mode("ALL", 2, Predicates_alwaysTrue())
-	InlineVariables_Mode_values_ = []*InlineVariables_Mode{InlineVariables_Mode_CONSTANTS_ONLY, InlineVariables_Mode_LOCALS_ONLY, InlineVariables_Mode_ALL}
+	InlineVariables_Mode_CONSTANTS_ONLY.init_InlineVariables_Mode(lambda_InlineVariables_Mode_clinit_1_)
+	InlineVariables_Mode_LOCALS_ONLY.init_InlineVariables_Mode(lambda_InlineVariables_Mode_clinit_2_)
+	InlineVariables_Mode_ALL.init_InlineVariables_Mode(Predicates_alwaysTrue())
+	InlineVariables_Mode_values_ = []InlineVariables_Mode{InlineVariables_Mode_CONSTANTS_ONLY, InlineVariables_Mode_LOCALS_ONLY, InlineVariables_Mode_ALL}
 	registerEnum_("com.google.javascript.jscomp.InlineVariables.Mode", enumValues_(InlineVariables_Mode_values_))
 
 }

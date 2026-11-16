@@ -77,7 +77,7 @@ func new_NoObjectType(registry *JSTypeRegistry) *NoObjectType {
 	return this
 }
 
-func (this *NoObjectType) getTypeClass_impl() *JSTypeClass {
+func (this *NoObjectType) getTypeClass_impl() JSTypeClass {
 	return JSTypeClass_NO_OBJECT
 }
 
@@ -151,7 +151,7 @@ func (this *NoObjectType) resolveInternal_impl(reporter ErrorReporter_rhino) *JS
 }
 
 // getTypeClass: an object that is exactly a NoObjectType calls its getTypeClass_impl directly (post-flip); others dispatch.
-func (this *NoObjectType) getTypeClass() *JSTypeClass {
+func (this *NoObjectType) getTypeClass() JSTypeClass {
 	if this.self_ == any(this) {
 		return this.getTypeClass_impl()
 	}

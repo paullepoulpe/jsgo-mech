@@ -218,7 +218,7 @@ func Es6ConvertSuper_clinit() {
 		return
 	}
 	Es6ConvertSuper_clinit_done = true
-	Es6ConvertSuper_FEATURES_TO_RUN_FOR = FeatureSet_BARE_MINIMUM.withFeatureVarargs([]*FeatureSet_Feature{FeatureSet_Feature_SUPER, FeatureSet_Feature_CLASSES})
+	Es6ConvertSuper_FEATURES_TO_RUN_FOR = FeatureSet_BARE_MINIMUM.withFeatureVarargs([]FeatureSet_Feature{FeatureSet_Feature_SUPER, FeatureSet_Feature_CLASSES})
 
 }
 

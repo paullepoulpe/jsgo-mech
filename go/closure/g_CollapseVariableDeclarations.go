@@ -97,7 +97,7 @@ func (this *CollapseVariableDeclarations_GatherCollapses) visit_impl(t *NodeTrav
 		return
 	}
 	var varNode Node = n
-	var nType *Token_rhino = n.getToken()
+	var nType Token_rhino = n.getToken()
 	n = n.getNext()
 	var hasNodesToCollapse bool = false
 	for (n != 0) && (nType == n.getToken()) {

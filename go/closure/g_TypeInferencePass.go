@@ -65,7 +65,7 @@ func (this *TypeInferencePass) inferAllScopes(inferenceRoot Node) *TypedScope {
 			it_5 := foreach_(any(stepCounts))
 			for it_5.next() {
 				var stepCount any = it_5.v
-				var entries []Map_EntryOf[*Token_rhino, BoxedOf[int32]] = sliceFrom_(tc_Map_EntryOf_p_Token_rhino__BoxedOf_int32__, Collection(cast_[*SimpleMultiset](this.stepCountHistogram.get(stepCount)).entrySet()))
+				var entries []Map_EntryOf[Token_rhino, BoxedOf[int32]] = sliceFrom_(tc_Map_EntryOf_p_Token_rhino__BoxedOf_int32__, Collection(cast_[*SimpleMultiset](this.stepCountHistogram.get(stepCount)).entrySet()))
 				List_sort(sliceView_(tc_Map_EntryOf_p_Token_rhino__BoxedOf_int32__, entries), Comparator_comparingInt(lambda_TypeInferencePass_inferAllScopes_1_))
 				for _, e := range entries {
 					totals[0] += (unbox_[int32](stepCount) * unbox_[int32](e.getValue()))

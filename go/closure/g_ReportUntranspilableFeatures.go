@@ -5,7 +5,7 @@ package closure
 type ReportUntranspilableFeatures struct {
 	AbstractPeepholeTranspilation
 	compiler_                      *AbstractCompiler
-	browserFeatureSetYear          *CompilerOptions_BrowserFeaturesetYear
+	browserFeatureSetYear          CompilerOptions_BrowserFeaturesetYear
 	untranspilableFeaturesToRemove *FeatureSet
 }
 
@@ -16,7 +16,7 @@ func (this *ReportUntranspilableFeatures) up_AbstractPeepholeTranspilation() *Ab
 	return &this.AbstractPeepholeTranspilation
 }
 
-func (this *ReportUntranspilableFeatures) init_ReportUntranspilableFeatures(compiler *AbstractCompiler, browserFeatureSetYear *CompilerOptions_BrowserFeaturesetYear, outputFeatures *FeatureSet) {
+func (this *ReportUntranspilableFeatures) init_ReportUntranspilableFeatures(compiler *AbstractCompiler, browserFeatureSetYear CompilerOptions_BrowserFeaturesetYear, outputFeatures *FeatureSet) {
 	this.AbstractPeepholeTranspilation.init_AbstractPeepholeTranspilation()
 	Preconditions_checkNotNull(compiler.self())
 	Preconditions_checkNotNull(obj_(outputFeatures))
@@ -25,7 +25,7 @@ func (this *ReportUntranspilableFeatures) init_ReportUntranspilableFeatures(comp
 	this.untranspilableFeaturesToRemove = ReportUntranspilableFeatures_ALL_UNTRANSPILABLE_FEATURES.without(outputFeatures)
 }
 
-func new_ReportUntranspilableFeatures(compiler *AbstractCompiler, browserFeatureSetYear *CompilerOptions_BrowserFeaturesetYear, outputFeatures *FeatureSet) *ReportUntranspilableFeatures {
+func new_ReportUntranspilableFeatures(compiler *AbstractCompiler, browserFeatureSetYear CompilerOptions_BrowserFeaturesetYear, outputFeatures *FeatureSet) *ReportUntranspilableFeatures {
 	this := &ReportUntranspilableFeatures{}
 	this.self_ = this
 	this.init_ReportUntranspilableFeatures(compiler, browserFeatureSetYear, outputFeatures)
@@ -106,17 +106,17 @@ func (this *ReportUntranspilableFeatures) checkForUntranspilable(root Node) {
 	}
 }
 
-func (this *ReportUntranspilableFeatures) reportUntranspilable(feature *FeatureSet_Feature, node Node) {
-	var minimumLanguageMode *Config_LanguageMode = Config_LanguageMode_minimumRequiredFor(feature)
+func (this *ReportUntranspilableFeatures) reportUntranspilable(feature FeatureSet_Feature, node Node) {
+	var minimumLanguageMode Config_LanguageMode = Config_LanguageMode_minimumRequiredFor(feature)
 	if minimumLanguageMode == Config_LanguageMode_UNSUPPORTED {
 		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(node, ReportUntranspilableFeatures_UNSUPPORTED_FEATURE_PRESENT, []string{feature.toString()}))
 		return
 	}
 	var minimum string
 	var suggestion string = " Consider targeting a more modern output."
-	if this.browserFeatureSetYear != nil {
-		var minimumYear *CompilerOptions_BrowserFeaturesetYear = CompilerOptions_BrowserFeaturesetYear_minimumRequiredFor(feature)
-		if minimumYear == nil {
+	if this.browserFeatureSetYear != 0 {
+		var minimumYear CompilerOptions_BrowserFeaturesetYear = CompilerOptions_BrowserFeaturesetYear_minimumRequiredFor(feature)
+		if minimumYear == 0 {
 			minimum = (objstr_(obj_(minimumLanguageMode)) + ", which is not yet supported by any browser featureset year")
 			suggestion = ""
 		} else {
@@ -242,11 +242,11 @@ func ReportUntranspilableFeatures_clinit() {
 	ReportUntranspilableFeatures_clinit_done = true
 	ReportUntranspilableFeatures_UNTRANSPILABLE_FEATURE_PRESENT = DiagnosticType_error("JSC_UNTRANSPILABLE", "Cannot convert feature \"{0}\" to targeted output language. Feature requires at minimum {1}.{2}")
 	ReportUntranspilableFeatures_UNSUPPORTED_FEATURE_PRESENT = DiagnosticType_error("JSC_UNSUPPORTED", "The feature \"{0}\" is currently unsupported for transpilation.")
-	ReportUntranspilableFeatures_UNTRANSPILABLE_ES5_FEATURES = FeatureSet_BARE_MINIMUM.withFeatureVarargs([]*FeatureSet_Feature{FeatureSet_Feature_GETTER, FeatureSet_Feature_SETTER})
-	ReportUntranspilableFeatures_UNTRANSPILABLE_2018_FEATURES = FeatureSet_BARE_MINIMUM.withFeatureVarargs([]*FeatureSet_Feature{FeatureSet_Feature_REGEXP_FLAG_S, FeatureSet_Feature_REGEXP_LOOKBEHIND, FeatureSet_Feature_REGEXP_NAMED_GROUPS, FeatureSet_Feature_REGEXP_UNICODE_PROPERTY_ESCAPE})
+	ReportUntranspilableFeatures_UNTRANSPILABLE_ES5_FEATURES = FeatureSet_BARE_MINIMUM.withFeatureVarargs([]FeatureSet_Feature{FeatureSet_Feature_GETTER, FeatureSet_Feature_SETTER})
+	ReportUntranspilableFeatures_UNTRANSPILABLE_2018_FEATURES = FeatureSet_BARE_MINIMUM.withFeatureVarargs([]FeatureSet_Feature{FeatureSet_Feature_REGEXP_FLAG_S, FeatureSet_Feature_REGEXP_LOOKBEHIND, FeatureSet_Feature_REGEXP_NAMED_GROUPS, FeatureSet_Feature_REGEXP_UNICODE_PROPERTY_ESCAPE})
 	ReportUntranspilableFeatures_UNTRANSPILABLE_2019_FEATURES = FeatureSet_BARE_MINIMUM.with(FeatureSet_Feature_UNESCAPED_UNICODE_LINE_OR_PARAGRAPH_SEP)
 	ReportUntranspilableFeatures_UNTRANSPILABLE_2020_FEATURES = FeatureSet_BARE_MINIMUM.with(FeatureSet_Feature_BIGINT)
-	ReportUntranspilableFeatures_UNTRANSPILABLE_2022_FEATURES = FeatureSet_BARE_MINIMUM.withFeatureVarargs([]*FeatureSet_Feature{FeatureSet_Feature_REGEXP_FLAG_D, FeatureSet_Feature_TOP_LEVEL_AWAIT})
+	ReportUntranspilableFeatures_UNTRANSPILABLE_2022_FEATURES = FeatureSet_BARE_MINIMUM.withFeatureVarargs([]FeatureSet_Feature{FeatureSet_Feature_REGEXP_FLAG_D, FeatureSet_Feature_TOP_LEVEL_AWAIT})
 	ReportUntranspilableFeatures_ALL_UNTRANSPILABLE_FEATURES = FeatureSet_BARE_MINIMUM.union(ReportUntranspilableFeatures_UNTRANSPILABLE_ES5_FEATURES).union(ReportUntranspilableFeatures_UNTRANSPILABLE_2018_FEATURES).union(ReportUntranspilableFeatures_UNTRANSPILABLE_2019_FEATURES).union(ReportUntranspilableFeatures_UNTRANSPILABLE_2022_FEATURES).union(ReportUntranspilableFeatures_UNTRANSPILABLE_2020_FEATURES)
 
 }

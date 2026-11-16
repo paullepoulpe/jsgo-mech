@@ -31,13 +31,13 @@ func new_BooleanType(registry *JSTypeRegistry) *BooleanType {
 	return this
 }
 
-func (this *BooleanType) getTypeClass_impl() *JSTypeClass {
+func (this *BooleanType) getTypeClass_impl() JSTypeClass {
 	return JSTypeClass_BOOLEAN
 }
 
-func (this *BooleanType) testForEquality_impl(that *JSType) *Tri {
-	var result *Tri = this.ValueType.testForEquality_impl(that)
-	if result != nil {
+func (this *BooleanType) testForEquality_impl(that *JSType) Tri {
+	var result Tri = this.ValueType.testForEquality_impl(that)
+	if result != 0 {
 		return result
 	}
 	if ((that.isUnknownType() || that.isSubtypeOf(this.getNativeType(JSTypeNative_NUMBER_STRING_BOOLEAN))) || that.isSubtypeOf(this.getNativeType(JSTypeNative_BIGINT_TYPE))) || that.isObject() {
@@ -70,7 +70,7 @@ func (this *BooleanType) getDisplayName_impl() OptionalOf[string] {
 	return Optional_of[string]("boolean")
 }
 
-func (this *BooleanType) getPossibleToBooleanOutcomes_impl() *BooleanLiteralSet {
+func (this *BooleanType) getPossibleToBooleanOutcomes_impl() BooleanLiteralSet {
 	return BooleanLiteralSet_BOTH
 }
 
@@ -79,7 +79,7 @@ func (this *BooleanType) visitUntyped_impl(visitor Visitor) any {
 }
 
 // getTypeClass: an object that is exactly a BooleanType calls its getTypeClass_impl directly (post-flip); others dispatch.
-func (this *BooleanType) getTypeClass() *JSTypeClass {
+func (this *BooleanType) getTypeClass() JSTypeClass {
 	if this.self_ == any(this) {
 		return this.getTypeClass_impl()
 	}
@@ -87,7 +87,7 @@ func (this *BooleanType) getTypeClass() *JSTypeClass {
 }
 
 // testForEquality: an object that is exactly a BooleanType calls its testForEquality_impl directly (post-flip); others dispatch.
-func (this *BooleanType) testForEquality(p0 *JSType) *Tri {
+func (this *BooleanType) testForEquality(p0 *JSType) Tri {
 	if this.self_ == any(this) {
 		return this.testForEquality_impl(p0)
 	}
@@ -143,7 +143,7 @@ func (this *BooleanType) getDisplayName() OptionalOf[string] {
 }
 
 // getPossibleToBooleanOutcomes: an object that is exactly a BooleanType calls its getPossibleToBooleanOutcomes_impl directly (post-flip); others dispatch.
-func (this *BooleanType) getPossibleToBooleanOutcomes() *BooleanLiteralSet {
+func (this *BooleanType) getPossibleToBooleanOutcomes() BooleanLiteralSet {
 	if this.self_ == any(this) {
 		return this.getPossibleToBooleanOutcomes_impl()
 	}

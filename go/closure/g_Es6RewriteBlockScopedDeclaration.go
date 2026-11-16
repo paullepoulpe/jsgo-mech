@@ -210,7 +210,7 @@ func Es6RewriteBlockScopedDeclaration_clinit() {
 		return
 	}
 	Es6RewriteBlockScopedDeclaration_clinit_done = true
-	Es6RewriteBlockScopedDeclaration_transpiledFeatures = FeatureSet_BARE_MINIMUM.withFeatureVarargs([]*FeatureSet_Feature{FeatureSet_Feature_LET_DECLARATIONS, FeatureSet_Feature_CONST_DECLARATIONS})
+	Es6RewriteBlockScopedDeclaration_transpiledFeatures = FeatureSet_BARE_MINIMUM.withFeatureVarargs([]FeatureSet_Feature{FeatureSet_Feature_LET_DECLARATIONS, FeatureSet_Feature_CONST_DECLARATIONS})
 
 }
 

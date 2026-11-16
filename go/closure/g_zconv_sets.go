@@ -6,7 +6,7 @@ package closure
 
 var tc_p_BasicBlock = &tconv_[*BasicBlock]{box: func(v *BasicBlock) any { return obj_(v) }, unbox: func(v any) *BasicBlock { return cast_[*BasicBlock](v) }}
 var tc_p_CrossChunkCodeMotion_GlobalSymbol = &tconv_[*CrossChunkCodeMotion_GlobalSymbol]{box: func(v *CrossChunkCodeMotion_GlobalSymbol) any { return obj_(v) }, unbox: func(v any) *CrossChunkCodeMotion_GlobalSymbol { return cast_[*CrossChunkCodeMotion_GlobalSymbol](v) }}
-var tc_p_FeatureSet_Feature = &tconv_[*FeatureSet_Feature]{box: func(v *FeatureSet_Feature) any { return obj_(v) }, unbox: func(v any) *FeatureSet_Feature { return cast_[*FeatureSet_Feature](v) }}
+var tc_p_FeatureSet_Feature = &tconv_[FeatureSet_Feature]{box: func(v FeatureSet_Feature) any { return obj_(v) }, unbox: func(v any) FeatureSet_Feature { return cast_[FeatureSet_Feature](v) }}
 var tc_p_FlowSensitiveInlineVariables_Candidate = &tconv_[*FlowSensitiveInlineVariables_Candidate]{box: func(v *FlowSensitiveInlineVariables_Candidate) any { return obj_(v) }, unbox: func(v any) *FlowSensitiveInlineVariables_Candidate {
 	return cast_[*FlowSensitiveInlineVariables_Candidate](v)
 }}

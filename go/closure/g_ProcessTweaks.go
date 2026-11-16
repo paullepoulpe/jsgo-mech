@@ -40,7 +40,7 @@ func (this *ProcessTweaks) stripAllCalls(tweakInfos *TMap[string, *ProcessTweaks
 				if isRegistered {
 					newValue = tweakInfo.getDefaultValueNode().cloneNode()
 				} else {
-					var registerFunction *ProcessTweaks_TweakFunction = functionCall.tweakFunc.registerFunction
+					var registerFunction ProcessTweaks_TweakFunction = ProcessTweaks_TweakFunction_registerFunction_[functionCall.tweakFunc-1]
 					newValue = registerFunction.createDefaultValueNode()
 				}
 				callNode.replaceWith(newValue)
@@ -93,108 +93,111 @@ func ProcessTweaks_clinit() {
 		ProcessTweaks_TWEAK_FUNCTIONS_MAP = icast_Map(obj_(new_LinkedHashMap()))
 		it_1 := foreach_(obj_(EnumSet_allOf(classOf_("com.google.javascript.jscomp.ProcessTweaks.TweakFunction"))))
 		for it_1.next() {
-			var func_ *ProcessTweaks_TweakFunction = cast_[*ProcessTweaks_TweakFunction](it_1.v)
+			var func_ ProcessTweaks_TweakFunction = cast_[ProcessTweaks_TweakFunction](it_1.v)
 			Map_put_s(ProcessTweaks_TWEAK_FUNCTIONS_MAP, func_.getName(), obj_(func_))
 		}
 	}
 
 }
 
-type ProcessTweaks_TweakFunction struct {
-	Enum
-	nameField        string
-	expectedTypeName OptionalOf[string]
-	validNodeTypeA   *Token_rhino
-	validNodeTypeB   *Token_rhino
-	registerFunction *ProcessTweaks_TweakFunction
+type ProcessTweaks_TweakFunction uint8
+
+// ProcessTweaks_TweakFunction_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var ProcessTweaks_TweakFunction_enum_ = [6]Enum{
+	{self_: ProcessTweaks_TweakFunction_REGISTER_BOOLEAN, name_: "REGISTER_BOOLEAN", ordinal_: 0},
+	{self_: ProcessTweaks_TweakFunction_REGISTER_NUMBER, name_: "REGISTER_NUMBER", ordinal_: 1},
+	{self_: ProcessTweaks_TweakFunction_REGISTER_STRING, name_: "REGISTER_STRING", ordinal_: 2},
+	{self_: ProcessTweaks_TweakFunction_GET_BOOLEAN, name_: "GET_BOOLEAN", ordinal_: 3},
+	{self_: ProcessTweaks_TweakFunction_GET_NUMBER, name_: "GET_NUMBER", ordinal_: 4},
+	{self_: ProcessTweaks_TweakFunction_GET_STRING, name_: "GET_STRING", ordinal_: 5},
 }
 
-func (this *ProcessTweaks_TweakFunction) up_Enum() *Enum {
-	if this == nil {
+var ProcessTweaks_TweakFunction_nameField_ [6]string
+
+var ProcessTweaks_TweakFunction_expectedTypeName_ [6]OptionalOf[string]
+
+var ProcessTweaks_TweakFunction_validNodeTypeA_ [6]Token_rhino
+
+var ProcessTweaks_TweakFunction_validNodeTypeB_ [6]Token_rhino
+
+var ProcessTweaks_TweakFunction_registerFunction_ [6]ProcessTweaks_TweakFunction
+
+func (this ProcessTweaks_TweakFunction) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &ProcessTweaks_TweakFunction_enum_[this-1]
 }
 
-func (this *ProcessTweaks_TweakFunction) zero_ProcessTweaks_TweakFunction() {
-	this.nameField = nullstr_
+func (this ProcessTweaks_TweakFunction) name() string {
+	return ProcessTweaks_TweakFunction_enum_[this-1].name_
 }
 
-func (this *ProcessTweaks_TweakFunction) init_ProcessTweaks_TweakFunction_String_String_Token(name_ string, ordinal_ int32, name string, expectedTypeName string, validNodeTypeA *Token_rhino) {
-	this.init_ProcessTweaks_TweakFunction_String_Optional_Token_Token_TweakFunction(name_, ordinal_, name, Optional_of[string](expectedTypeName), validNodeTypeA, Token_rhino_EMPTY, nil)
+func (this ProcessTweaks_TweakFunction) ordinal() int32 {
+	return ProcessTweaks_TweakFunction_enum_[this-1].ordinal_
 }
 
-func new_ProcessTweaks_TweakFunction_String_String_Token(name_ string, ordinal_ int32, name string, expectedTypeName string, validNodeTypeA *Token_rhino) *ProcessTweaks_TweakFunction {
-	this := &ProcessTweaks_TweakFunction{}
-	this.self_ = this
-	this.zero_ProcessTweaks_TweakFunction()
-	this.init_ProcessTweaks_TweakFunction_String_String_Token(name_, ordinal_, name, expectedTypeName, validNodeTypeA)
+func (this ProcessTweaks_TweakFunction) toString() string {
+	return ProcessTweaks_TweakFunction_enum_[this-1].name_
+}
+
+func (this ProcessTweaks_TweakFunction) compareTo(o any) int32 {
+	return ProcessTweaks_TweakFunction_enum_[this-1].compareTo(o)
+}
+
+func (this ProcessTweaks_TweakFunction) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func (this *ProcessTweaks_TweakFunction) init_ProcessTweaks_TweakFunction_String_String_Token_Token(name_ string, ordinal_ int32, name string, expectedTypeName string, validNodeTypeA *Token_rhino, validNodeTypeB *Token_rhino) {
-	this.init_ProcessTweaks_TweakFunction_String_Optional_Token_Token_TweakFunction(name_, ordinal_, name, Optional_of[string](expectedTypeName), validNodeTypeA, validNodeTypeB, nil)
+func (this ProcessTweaks_TweakFunction) zero_ProcessTweaks_TweakFunction() {
+	ProcessTweaks_TweakFunction_nameField_[this-1] = nullstr_
 }
 
-func new_ProcessTweaks_TweakFunction_String_String_Token_Token(name_ string, ordinal_ int32, name string, expectedTypeName string, validNodeTypeA *Token_rhino, validNodeTypeB *Token_rhino) *ProcessTweaks_TweakFunction {
-	this := &ProcessTweaks_TweakFunction{}
-	this.self_ = this
-	this.zero_ProcessTweaks_TweakFunction()
-	this.init_ProcessTweaks_TweakFunction_String_String_Token_Token(name_, ordinal_, name, expectedTypeName, validNodeTypeA, validNodeTypeB)
-	return this
+func (this ProcessTweaks_TweakFunction) init_ProcessTweaks_TweakFunction_String_String_Token(name string, expectedTypeName string, validNodeTypeA Token_rhino) {
+	this.init_ProcessTweaks_TweakFunction_String_Optional_Token_Token_TweakFunction(name, Optional_of[string](expectedTypeName), validNodeTypeA, Token_rhino_EMPTY, 0)
 }
 
-func (this *ProcessTweaks_TweakFunction) init_ProcessTweaks_TweakFunction_String_TweakFunction(name_ string, ordinal_ int32, name string, registerFunction *ProcessTweaks_TweakFunction) {
-	this.init_ProcessTweaks_TweakFunction_String_Optional_Token_Token_TweakFunction(name_, ordinal_, name, Optional_empty[string](), Token_rhino_EMPTY, Token_rhino_EMPTY, registerFunction)
+func (this ProcessTweaks_TweakFunction) init_ProcessTweaks_TweakFunction_String_String_Token_Token(name string, expectedTypeName string, validNodeTypeA Token_rhino, validNodeTypeB Token_rhino) {
+	this.init_ProcessTweaks_TweakFunction_String_Optional_Token_Token_TweakFunction(name, Optional_of[string](expectedTypeName), validNodeTypeA, validNodeTypeB, 0)
 }
 
-func new_ProcessTweaks_TweakFunction_String_TweakFunction(name_ string, ordinal_ int32, name string, registerFunction *ProcessTweaks_TweakFunction) *ProcessTweaks_TweakFunction {
-	this := &ProcessTweaks_TweakFunction{}
-	this.self_ = this
-	this.zero_ProcessTweaks_TweakFunction()
-	this.init_ProcessTweaks_TweakFunction_String_TweakFunction(name_, ordinal_, name, registerFunction)
-	return this
+func (this ProcessTweaks_TweakFunction) init_ProcessTweaks_TweakFunction_String_TweakFunction(name string, registerFunction ProcessTweaks_TweakFunction) {
+	this.init_ProcessTweaks_TweakFunction_String_Optional_Token_Token_TweakFunction(name, Optional_empty[string](), Token_rhino_EMPTY, Token_rhino_EMPTY, registerFunction)
 }
 
-func (this *ProcessTweaks_TweakFunction) init_ProcessTweaks_TweakFunction_String_Optional_Token_Token_TweakFunction(name_ string, ordinal_ int32, name string, expectedTypeName OptionalOf[string], validNodeTypeA *Token_rhino, validNodeTypeB *Token_rhino, registerFunction *ProcessTweaks_TweakFunction) {
-	this.Enum.init_Enum(name_, ordinal_)
-	this.nameField = name
-	this.expectedTypeName = expectedTypeName
-	this.validNodeTypeA = validNodeTypeA
-	this.validNodeTypeB = validNodeTypeB
-	this.registerFunction = registerFunction
+func (this ProcessTweaks_TweakFunction) init_ProcessTweaks_TweakFunction_String_Optional_Token_Token_TweakFunction(name string, expectedTypeName OptionalOf[string], validNodeTypeA Token_rhino, validNodeTypeB Token_rhino, registerFunction ProcessTweaks_TweakFunction) {
+	ProcessTweaks_TweakFunction_nameField_[this-1] = name
+	ProcessTweaks_TweakFunction_expectedTypeName_[this-1] = expectedTypeName
+	ProcessTweaks_TweakFunction_validNodeTypeA_[this-1] = validNodeTypeA
+	ProcessTweaks_TweakFunction_validNodeTypeB_[this-1] = validNodeTypeB
+	ProcessTweaks_TweakFunction_registerFunction_[this-1] = registerFunction
 }
 
-func new_ProcessTweaks_TweakFunction_String_Optional_Token_Token_TweakFunction(name_ string, ordinal_ int32, name string, expectedTypeName OptionalOf[string], validNodeTypeA *Token_rhino, validNodeTypeB *Token_rhino, registerFunction *ProcessTweaks_TweakFunction) *ProcessTweaks_TweakFunction {
-	this := &ProcessTweaks_TweakFunction{}
-	this.self_ = this
-	this.zero_ProcessTweaks_TweakFunction()
-	this.init_ProcessTweaks_TweakFunction_String_Optional_Token_Token_TweakFunction(name_, ordinal_, name, expectedTypeName, validNodeTypeA, validNodeTypeB, registerFunction)
-	return this
+func (this ProcessTweaks_TweakFunction) isValidNodeType(type_ Token_rhino) bool {
+	return ((type_ == ProcessTweaks_TweakFunction_validNodeTypeA_[this-1]) || (type_ == ProcessTweaks_TweakFunction_validNodeTypeB_[this-1]))
 }
 
-func (this *ProcessTweaks_TweakFunction) isValidNodeType(type_ *Token_rhino) bool {
-	return ((type_ == this.validNodeTypeA) || (type_ == this.validNodeTypeB))
-}
-
-func (this *ProcessTweaks_TweakFunction) isCorrectRegisterFunction(registerFunction *ProcessTweaks_TweakFunction) bool {
+func (this ProcessTweaks_TweakFunction) isCorrectRegisterFunction(registerFunction ProcessTweaks_TweakFunction) bool {
 	Preconditions_checkNotNull(obj_(registerFunction))
-	return (this.registerFunction == registerFunction)
+	return (ProcessTweaks_TweakFunction_registerFunction_[this-1] == registerFunction)
 }
 
-func (this *ProcessTweaks_TweakFunction) isGetterFunction() bool {
-	return (this.registerFunction != nil)
+func (this ProcessTweaks_TweakFunction) isGetterFunction() bool {
+	return (ProcessTweaks_TweakFunction_registerFunction_[this-1] != 0)
 }
 
-func (this *ProcessTweaks_TweakFunction) getName() string {
-	return this.nameField
+func (this ProcessTweaks_TweakFunction) getName() string {
+	return ProcessTweaks_TweakFunction_nameField_[this-1]
 }
 
-func (this *ProcessTweaks_TweakFunction) getExpectedTypeName() OptionalOf[string] {
-	return this.expectedTypeName
+func (this ProcessTweaks_TweakFunction) getExpectedTypeName() OptionalOf[string] {
+	return ProcessTweaks_TweakFunction_expectedTypeName_[this-1]
 }
 
-func (this *ProcessTweaks_TweakFunction) createDefaultValueNode() Node {
+func (this ProcessTweaks_TweakFunction) createDefaultValueNode() Node {
 	return func() Node {
 		switch this {
 		case ProcessTweaks_TweakFunction_REGISTER_BOOLEAN:
@@ -210,26 +213,27 @@ func (this *ProcessTweaks_TweakFunction) createDefaultValueNode() Node {
 	}()
 }
 
-func ProcessTweaks_TweakFunction_values() []*ProcessTweaks_TweakFunction {
-	return append([]*ProcessTweaks_TweakFunction(nil), ProcessTweaks_TweakFunction_values_...)
+func ProcessTweaks_TweakFunction_values() []ProcessTweaks_TweakFunction {
+	return append([]ProcessTweaks_TweakFunction(nil), ProcessTweaks_TweakFunction_values_...)
 }
 
-func ProcessTweaks_TweakFunction_valueOf(name string) *ProcessTweaks_TweakFunction {
+func ProcessTweaks_TweakFunction_valueOf(name string) ProcessTweaks_TweakFunction {
 	for _, v := range ProcessTweaks_TweakFunction_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("TweakFunction", name))
 }
 
-var ProcessTweaks_TweakFunction_REGISTER_BOOLEAN *ProcessTweaks_TweakFunction
-var ProcessTweaks_TweakFunction_REGISTER_NUMBER *ProcessTweaks_TweakFunction
-var ProcessTweaks_TweakFunction_REGISTER_STRING *ProcessTweaks_TweakFunction
-var ProcessTweaks_TweakFunction_GET_BOOLEAN *ProcessTweaks_TweakFunction
-var ProcessTweaks_TweakFunction_GET_NUMBER *ProcessTweaks_TweakFunction
-var ProcessTweaks_TweakFunction_GET_STRING *ProcessTweaks_TweakFunction
-var ProcessTweaks_TweakFunction_values_ []*ProcessTweaks_TweakFunction
+const ProcessTweaks_TweakFunction_REGISTER_BOOLEAN ProcessTweaks_TweakFunction = 1
+const ProcessTweaks_TweakFunction_REGISTER_NUMBER ProcessTweaks_TweakFunction = 2
+const ProcessTweaks_TweakFunction_REGISTER_STRING ProcessTweaks_TweakFunction = 3
+const ProcessTweaks_TweakFunction_GET_BOOLEAN ProcessTweaks_TweakFunction = 4
+const ProcessTweaks_TweakFunction_GET_NUMBER ProcessTweaks_TweakFunction = 5
+const ProcessTweaks_TweakFunction_GET_STRING ProcessTweaks_TweakFunction = 6
+
+var ProcessTweaks_TweakFunction_values_ []ProcessTweaks_TweakFunction
 
 var ProcessTweaks_TweakFunction_clinit_done bool
 
@@ -238,13 +242,19 @@ func ProcessTweaks_TweakFunction_clinit() {
 		return
 	}
 	ProcessTweaks_TweakFunction_clinit_done = true
-	ProcessTweaks_TweakFunction_REGISTER_BOOLEAN = new_ProcessTweaks_TweakFunction_String_String_Token_Token("REGISTER_BOOLEAN", 0, "goog.tweak.registerBoolean", "boolean", Token_rhino_TRUE, Token_rhino_FALSE)
-	ProcessTweaks_TweakFunction_REGISTER_NUMBER = new_ProcessTweaks_TweakFunction_String_String_Token("REGISTER_NUMBER", 1, "goog.tweak.registerNumber", "number", Token_rhino_NUMBER)
-	ProcessTweaks_TweakFunction_REGISTER_STRING = new_ProcessTweaks_TweakFunction_String_String_Token("REGISTER_STRING", 2, "goog.tweak.registerString", "string", Token_rhino_STRINGLIT)
-	ProcessTweaks_TweakFunction_GET_BOOLEAN = new_ProcessTweaks_TweakFunction_String_TweakFunction("GET_BOOLEAN", 3, "goog.tweak.getBoolean", ProcessTweaks_TweakFunction_REGISTER_BOOLEAN)
-	ProcessTweaks_TweakFunction_GET_NUMBER = new_ProcessTweaks_TweakFunction_String_TweakFunction("GET_NUMBER", 4, "goog.tweak.getNumber", ProcessTweaks_TweakFunction_REGISTER_NUMBER)
-	ProcessTweaks_TweakFunction_GET_STRING = new_ProcessTweaks_TweakFunction_String_TweakFunction("GET_STRING", 5, "goog.tweak.getString", ProcessTweaks_TweakFunction_REGISTER_STRING)
-	ProcessTweaks_TweakFunction_values_ = []*ProcessTweaks_TweakFunction{ProcessTweaks_TweakFunction_REGISTER_BOOLEAN, ProcessTweaks_TweakFunction_REGISTER_NUMBER, ProcessTweaks_TweakFunction_REGISTER_STRING, ProcessTweaks_TweakFunction_GET_BOOLEAN, ProcessTweaks_TweakFunction_GET_NUMBER, ProcessTweaks_TweakFunction_GET_STRING}
+	ProcessTweaks_TweakFunction_REGISTER_BOOLEAN.zero_ProcessTweaks_TweakFunction()
+	ProcessTweaks_TweakFunction_REGISTER_BOOLEAN.init_ProcessTweaks_TweakFunction_String_String_Token_Token("goog.tweak.registerBoolean", "boolean", Token_rhino_TRUE, Token_rhino_FALSE)
+	ProcessTweaks_TweakFunction_REGISTER_NUMBER.zero_ProcessTweaks_TweakFunction()
+	ProcessTweaks_TweakFunction_REGISTER_NUMBER.init_ProcessTweaks_TweakFunction_String_String_Token("goog.tweak.registerNumber", "number", Token_rhino_NUMBER)
+	ProcessTweaks_TweakFunction_REGISTER_STRING.zero_ProcessTweaks_TweakFunction()
+	ProcessTweaks_TweakFunction_REGISTER_STRING.init_ProcessTweaks_TweakFunction_String_String_Token("goog.tweak.registerString", "string", Token_rhino_STRINGLIT)
+	ProcessTweaks_TweakFunction_GET_BOOLEAN.zero_ProcessTweaks_TweakFunction()
+	ProcessTweaks_TweakFunction_GET_BOOLEAN.init_ProcessTweaks_TweakFunction_String_TweakFunction("goog.tweak.getBoolean", ProcessTweaks_TweakFunction_REGISTER_BOOLEAN)
+	ProcessTweaks_TweakFunction_GET_NUMBER.zero_ProcessTweaks_TweakFunction()
+	ProcessTweaks_TweakFunction_GET_NUMBER.init_ProcessTweaks_TweakFunction_String_TweakFunction("goog.tweak.getNumber", ProcessTweaks_TweakFunction_REGISTER_NUMBER)
+	ProcessTweaks_TweakFunction_GET_STRING.zero_ProcessTweaks_TweakFunction()
+	ProcessTweaks_TweakFunction_GET_STRING.init_ProcessTweaks_TweakFunction_String_TweakFunction("goog.tweak.getString", ProcessTweaks_TweakFunction_REGISTER_STRING)
+	ProcessTweaks_TweakFunction_values_ = []ProcessTweaks_TweakFunction{ProcessTweaks_TweakFunction_REGISTER_BOOLEAN, ProcessTweaks_TweakFunction_REGISTER_NUMBER, ProcessTweaks_TweakFunction_REGISTER_STRING, ProcessTweaks_TweakFunction_GET_BOOLEAN, ProcessTweaks_TweakFunction_GET_NUMBER, ProcessTweaks_TweakFunction_GET_STRING}
 	registerEnum_("com.google.javascript.jscomp.ProcessTweaks.TweakFunction", enumValues_(ProcessTweaks_TweakFunction_values_))
 
 }
@@ -298,8 +308,8 @@ func (this *ProcessTweaks_CollectTweaks) visit_impl(t *NodeTraversal, n Node, pa
 		return
 	}
 	var callName string = n.getFirstChild().getQualifiedName()
-	var tweakFunc *ProcessTweaks_TweakFunction = cast_[*ProcessTweaks_TweakFunction](Map_get_s(ProcessTweaks_TWEAK_FUNCTIONS_MAP, callName))
-	if tweakFunc == nil {
+	var tweakFunc ProcessTweaks_TweakFunction = cast_[ProcessTweaks_TweakFunction](Map_get_s(ProcessTweaks_TWEAK_FUNCTIONS_MAP, callName))
+	if tweakFunc == 0 {
 		return
 	}
 	var tweakIdNode Node = n.getSecondChild()
@@ -330,28 +340,28 @@ func (this *ProcessTweaks_CollectTweaks) visit_impl(t *NodeTraversal, n Node, pa
 }
 
 type ProcessTweaks_TweakFunctionCall struct {
-	tweakFunc *ProcessTweaks_TweakFunction
+	tweakFunc ProcessTweaks_TweakFunction
 	callNode_ Node
 	valueNode Node
 }
 
-func (this *ProcessTweaks_TweakFunctionCall) init_ProcessTweaks_TweakFunctionCall_TweakFunction_Node(tweakFunc *ProcessTweaks_TweakFunction, callNode Node) {
+func (this *ProcessTweaks_TweakFunctionCall) init_ProcessTweaks_TweakFunctionCall_TweakFunction_Node(tweakFunc ProcessTweaks_TweakFunction, callNode Node) {
 	this.init_ProcessTweaks_TweakFunctionCall_TweakFunction_Node_Node(tweakFunc, callNode, 0)
 }
 
-func new_ProcessTweaks_TweakFunctionCall_TweakFunction_Node(tweakFunc *ProcessTweaks_TweakFunction, callNode Node) *ProcessTweaks_TweakFunctionCall {
+func new_ProcessTweaks_TweakFunctionCall_TweakFunction_Node(tweakFunc ProcessTweaks_TweakFunction, callNode Node) *ProcessTweaks_TweakFunctionCall {
 	this := &ProcessTweaks_TweakFunctionCall{}
 	this.init_ProcessTweaks_TweakFunctionCall_TweakFunction_Node(tweakFunc, callNode)
 	return this
 }
 
-func (this *ProcessTweaks_TweakFunctionCall) init_ProcessTweaks_TweakFunctionCall_TweakFunction_Node_Node(tweakFunc *ProcessTweaks_TweakFunction, callNode Node, valueNode Node) {
+func (this *ProcessTweaks_TweakFunctionCall) init_ProcessTweaks_TweakFunctionCall_TweakFunction_Node_Node(tweakFunc ProcessTweaks_TweakFunction, callNode Node, valueNode Node) {
 	this.callNode_ = callNode
 	this.tweakFunc = tweakFunc
 	this.valueNode = valueNode
 }
 
-func new_ProcessTweaks_TweakFunctionCall_TweakFunction_Node_Node(tweakFunc *ProcessTweaks_TweakFunction, callNode Node, valueNode Node) *ProcessTweaks_TweakFunctionCall {
+func new_ProcessTweaks_TweakFunctionCall_TweakFunction_Node_Node(tweakFunc ProcessTweaks_TweakFunction, callNode Node, valueNode Node) *ProcessTweaks_TweakFunctionCall {
 	this := &ProcessTweaks_TweakFunctionCall{}
 	this.init_ProcessTweaks_TweakFunctionCall_TweakFunction_Node_Node(tweakFunc, callNode, valueNode)
 	return this
@@ -393,8 +403,8 @@ func (this *ProcessTweaks_TweakInfo) emitAllTypeWarnings() {
 	for it_1.next() {
 		var call *ProcessTweaks_TweakFunctionCall = it_1.v
 		var valueNode Node = call.valueNode
-		var tweakFunc *ProcessTweaks_TweakFunction = call.tweakFunc
-		var registerFunc *ProcessTweaks_TweakFunction = this.registerCall.tweakFunc
+		var tweakFunc ProcessTweaks_TweakFunction = call.tweakFunc
+		var registerFunc ProcessTweaks_TweakFunction = this.registerCall.tweakFunc
 		if valueNode != 0 {
 			if !registerFunc.isValidNodeType(valueNode.getToken()) {
 				this.outer_.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(valueNode, ProcessTweaks_INVALID_TWEAK_DEFAULT_VALUE_WARNING, []string{this.tweakId, registerFunc.getName(), registerFunc.getExpectedTypeName().orElse("null")}))
@@ -407,12 +417,12 @@ func (this *ProcessTweaks_TweakInfo) emitAllTypeWarnings() {
 	}
 }
 
-func (this *ProcessTweaks_TweakInfo) addRegisterCall(tweakFunc *ProcessTweaks_TweakFunction, callNode Node, defaultValueNode Node) {
+func (this *ProcessTweaks_TweakInfo) addRegisterCall(tweakFunc ProcessTweaks_TweakFunction, callNode Node, defaultValueNode Node) {
 	this.registerCall = new_ProcessTweaks_TweakFunctionCall_TweakFunction_Node_Node(tweakFunc, callNode, defaultValueNode)
 	this.functionCalls = append(this.functionCalls, this.registerCall)
 }
 
-func (this *ProcessTweaks_TweakInfo) addGetterCall(tweakFunc *ProcessTweaks_TweakFunction, callNode Node) {
+func (this *ProcessTweaks_TweakInfo) addGetterCall(tweakFunc ProcessTweaks_TweakFunction, callNode Node) {
 	this.functionCalls = append(this.functionCalls, new_ProcessTweaks_TweakFunctionCall_TweakFunction_Node(tweakFunc, callNode))
 }
 

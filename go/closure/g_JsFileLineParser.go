@@ -147,7 +147,7 @@ func (this *JsFileLineParser) doParse(filePath string, fileContents string) {
 			var keepGoing *Outcome_base = this.parseLine(revisedLine.get())
 			if keepGoing.isErr() {
 				var e *JsFileLineParser_ParseException = cast_[*JsFileLineParser_ParseException](keepGoing.error().self())
-				this.errorManager.report_2(func() *CheckLevel {
+				this.errorManager.report_2(func() CheckLevel {
 					if e.isFatal() {
 						return CheckLevel_ERROR
 					}

@@ -57,13 +57,13 @@ func new_SymbolType(registry *JSTypeRegistry) *SymbolType {
 	return this
 }
 
-func (this *SymbolType) getTypeClass_impl() *JSTypeClass {
+func (this *SymbolType) getTypeClass_impl() JSTypeClass {
 	return JSTypeClass_SYMBOL
 }
 
-func (this *SymbolType) testForEquality_impl(that *JSType) *Tri {
-	var result *Tri = this.ValueType.testForEquality_impl(that)
-	if result != nil {
+func (this *SymbolType) testForEquality_impl(that *JSType) Tri {
+	var result Tri = this.ValueType.testForEquality_impl(that)
+	if result != 0 {
 		return result
 	}
 	if that.canCastTo(this.getNativeType(JSTypeNative_SYMBOL_TYPE)) || that.canCastTo(this.getNativeType(JSTypeNative_SYMBOL_OBJECT_TYPE)) {
@@ -100,7 +100,7 @@ func (this *SymbolType) autoboxesTo_impl() *JSType {
 	return this.getNativeType(JSTypeNative_SYMBOL_OBJECT_TYPE)
 }
 
-func (this *SymbolType) getPossibleToBooleanOutcomes_impl() *BooleanLiteralSet {
+func (this *SymbolType) getPossibleToBooleanOutcomes_impl() BooleanLiteralSet {
 	return BooleanLiteralSet_TRUE
 }
 
@@ -109,7 +109,7 @@ func (this *SymbolType) visitUntyped_impl(visitor Visitor) any {
 }
 
 // getTypeClass: an object that is exactly a SymbolType calls its getTypeClass_impl directly (post-flip); others dispatch.
-func (this *SymbolType) getTypeClass() *JSTypeClass {
+func (this *SymbolType) getTypeClass() JSTypeClass {
 	if this.self_ == any(this) {
 		return this.getTypeClass_impl()
 	}
@@ -117,7 +117,7 @@ func (this *SymbolType) getTypeClass() *JSTypeClass {
 }
 
 // testForEquality: an object that is exactly a SymbolType calls its testForEquality_impl directly (post-flip); others dispatch.
-func (this *SymbolType) testForEquality(p0 *JSType) *Tri {
+func (this *SymbolType) testForEquality(p0 *JSType) Tri {
 	if this.self_ == any(this) {
 		return this.testForEquality_impl(p0)
 	}
@@ -181,7 +181,7 @@ func (this *SymbolType) autoboxesTo() *JSType {
 }
 
 // getPossibleToBooleanOutcomes: an object that is exactly a SymbolType calls its getPossibleToBooleanOutcomes_impl directly (post-flip); others dispatch.
-func (this *SymbolType) getPossibleToBooleanOutcomes() *BooleanLiteralSet {
+func (this *SymbolType) getPossibleToBooleanOutcomes() BooleanLiteralSet {
 	if this.self_ == any(this) {
 		return this.getPossibleToBooleanOutcomes_impl()
 	}

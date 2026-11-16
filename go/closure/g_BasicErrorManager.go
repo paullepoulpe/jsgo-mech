@@ -54,8 +54,8 @@ func (this *BasicErrorManager) generateReport_impl() {
 	this.printSummary()
 }
 
-func (this *BasicErrorManager) println(p0 *CheckLevel, p1 *JSError) {
-	this.self_.(interface{ println_impl(*CheckLevel, *JSError) }).println_impl(p0, p1)
+func (this *BasicErrorManager) println(p0 CheckLevel, p1 *JSError) {
+	this.self_.(interface{ println_impl(CheckLevel, *JSError) }).println_impl(p0, p1)
 }
 
 func (this *BasicErrorManager) printSummary() {

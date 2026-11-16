@@ -137,7 +137,7 @@ func (this *DataFlowAnalysis) flow(node DiGraph_DiGraphNode) bool {
 			for it_1.next() {
 				var outEdge DiGraph_DiGraphEdge = it_1.v
 				var outBranchBefore LatticeElement = icast_LatticeElement(Annotatable_getAnnotation(Annotatable(outEdge)))
-				outEdge.setAnnotation(icast_Annotation_graph(brancher.branchFlow(cast_[*ControlFlowGraph_Branch](outEdge.getValue()))))
+				outEdge.setAnnotation(icast_Annotation_graph(brancher.branchFlow(cast_[ControlFlowGraph_Branch](outEdge.getValue()))))
 				if !changed {
 					changed = !Object_equals(any(outBranchBefore), any(Annotatable_getAnnotation(Annotatable(outEdge))))
 				}
@@ -265,14 +265,14 @@ type DataFlowAnalysis_FlowJoiner interface {
 }
 
 type DataFlowAnalysis_FlowBrancher interface {
-	branchFlow(*ControlFlowGraph_Branch) any
+	branchFlow(ControlFlowGraph_Branch) any
 }
 
 type DataFlowAnalysis_FlowBrancher_fn struct {
-	f func(*ControlFlowGraph_Branch) any
+	f func(ControlFlowGraph_Branch) any
 }
 
-func (this *DataFlowAnalysis_FlowBrancher_fn) branchFlow(p0 *ControlFlowGraph_Branch) any {
+func (this *DataFlowAnalysis_FlowBrancher_fn) branchFlow(p0 ControlFlowGraph_Branch) any {
 	return this.f(p0)
 }
 

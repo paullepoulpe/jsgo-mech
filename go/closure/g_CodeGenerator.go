@@ -20,7 +20,7 @@ type CodeGenerator struct {
 // CodeGenerator_I holds the methods the dispatchers of CodeGenerator's hierarchy call on the most derived
 // object (self_); every class of the hierarchy implements them (post-flip).
 type CodeGenerator_I interface {
-	add_2_impl(Node, *CodeGenerator_Context)
+	add_2_impl(Node, CodeGenerator_Context)
 }
 
 func (this *CodeGenerator) as_CodeGenerator() *CodeGenerator { return this }
@@ -179,11 +179,11 @@ func (this *CodeGenerator) addNode(n Node) {
 	this.add_2(n, CodeGenerator_Context_OTHER)
 }
 
-func (this *CodeGenerator) add_2_impl(node Node, context *CodeGenerator_Context) {
+func (this *CodeGenerator) add_2_impl(node Node, context CodeGenerator_Context) {
 	this.add_3(node, context, true)
 }
 
-func (this *CodeGenerator) add_3(node Node, context *CodeGenerator_Context, printComments bool) {
+func (this *CodeGenerator) add_3(node Node, context CodeGenerator_Context, printComments bool) {
 	if !this.cc.continueProcessing() {
 		return
 	}
@@ -201,7 +201,7 @@ func (this *CodeGenerator) add_3(node Node, context *CodeGenerator_Context, prin
 		this.printLeadingCommentsInOrder(node)
 	}
 	this.cc.trackLicenses(node)
-	var type_ *Token_rhino = node.getToken()
+	var type_ Token_rhino = node.getToken()
 	var opstr OptionalOf[string] = NodeUtil_opToStr(type_)
 	var childCount int32 = node.getChildCount()
 	var first Node = node.getFirstChild()
@@ -211,7 +211,7 @@ func (this *CodeGenerator) add_3(node Node, context *CodeGenerator_Context, prin
 			Preconditions_checkState_boolean_String_Object_int(false, "Bad binary operator \"%s\": expected 2 arguments but got %s", strobj_(a1_), a2_)
 		}
 		var p int32 = this.precedence(node)
-		var rhsContext *CodeGenerator_Context = CodeGenerator_getContextForNoInOperator(context)
+		var rhsContext CodeGenerator_Context = CodeGenerator_getContextForNoInOperator(context)
 		var needsParens bool = (((context == CodeGenerator_Context_START_OF_EXPR) || context.atArrowFunctionBody()) && first.isObjectPattern())
 		if node.isAssign() && needsParens {
 			this.add("(")
@@ -377,7 +377,7 @@ func (this *CodeGenerator) add_3(node Node, context *CodeGenerator_Context, prin
 			Preconditions_checkState_boolean_String_Object_int(false, "%s wrong number of children: %s", node.box_(), childCount)
 		}
 		var p int32 = NodeUtil_precedence(type_)
-		var rhsContext *CodeGenerator_Context = CodeGenerator_getContextForNoInOperator(context)
+		var rhsContext CodeGenerator_Context = CodeGenerator_getContextForNoInOperator(context)
 		this.addExpr(first, (p + 1), context)
 		this.cc.addOp("?", true)
 		this.addExpr(first.getNext(), 1, rhsContext)
@@ -1268,7 +1268,7 @@ func (this *CodeGenerator) precedence(n Node) int32 {
 	return NodeUtil_precedence(n.getToken())
 }
 
-func (this *CodeGenerator) addInvocationTarget(node Node, context *CodeGenerator_Context) {
+func (this *CodeGenerator) addInvocationTarget(node Node, context CodeGenerator_Context) {
 	var first Node = node.getFirstChild()
 	var needsParens bool = NodeUtil_isOptChainNode(first)
 	if CodeGenerator_isIndirectEval(first) || (node.getBooleanProp(Node_FREE_CALL) && NodeUtil_isNormalOrOptChainGet(first)) {
@@ -1308,7 +1308,7 @@ func (this *CodeGenerator) arrowFunctionNeedsParens(n Node) bool {
 	panic("unreachable")
 }
 
-func (this *CodeGenerator) addArrowFunction(n Node, first Node, last Node, context *CodeGenerator_Context) {
+func (this *CodeGenerator) addArrowFunction(n Node, first Node, last Node, context CodeGenerator_Context) {
 	if !String_isEmpty(first.getString()) {
 		Preconditions_checkState_boolean_Object(false, first.box_())
 	}
@@ -1334,7 +1334,7 @@ func (this *CodeGenerator) addArrowFunction(n Node, first Node, last Node, conte
 	}
 }
 
-func (this *CodeGenerator) addFunction(n Node, first Node, last Node, context *CodeGenerator_Context) {
+func (this *CodeGenerator) addFunction(n Node, first Node, last Node, context CodeGenerator_Context) {
 	var funcNeedsParens bool = (context == CodeGenerator_Context_START_OF_EXPR)
 	if funcNeedsParens {
 		this.add("(")
@@ -1363,8 +1363,8 @@ func (this *CodeGenerator) addFunction(n Node, first Node, last Node, context *C
 }
 
 func (this *CodeGenerator) maybeAddAccessibilityModifier(n Node) {
-	var access *JSDocInfo_Visibility = n.getAccessModifier()
-	if access != nil {
+	var access JSDocInfo_Visibility = n.getAccessModifier()
+	if access != 0 {
 		this.add((sstr_(Ascii_toLowerCase(Object_toString(obj_(access)))) + " "))
 	}
 }
@@ -1390,7 +1390,7 @@ func (this *CodeGenerator) maybeAddOptional(n Node) {
 	}
 }
 
-func (this *CodeGenerator) unrollBinaryOperator(n Node, op *Token_rhino, opStr string, context *CodeGenerator_Context, rhsContext *CodeGenerator_Context, leftPrecedence int32, rightPrecedence int32) {
+func (this *CodeGenerator) unrollBinaryOperator(n Node, op Token_rhino, opStr string, context CodeGenerator_Context, rhsContext CodeGenerator_Context, leftPrecedence int32, rightPrecedence int32) {
 	var firstNonOperator Node = n.getFirstChild()
 	for firstNonOperator.getToken() == op {
 		firstNonOperator = firstNonOperator.getFirstChild()
@@ -1433,7 +1433,7 @@ func CodeGenerator_isIndirectEval(n Node) bool {
 	return ((n.isName() && ("eval" == n.getString())) && !n.getBooleanProp(Node_DIRECT_EVAL))
 }
 
-func (this *CodeGenerator) addNonEmptyStatement(n Node, context *CodeGenerator_Context, allowNonBlockChild bool) {
+func (this *CodeGenerator) addNonEmptyStatement(n Node, context CodeGenerator_Context, allowNonBlockChild bool) {
 	var nodeToProcess Node = n
 	if !allowNonBlockChild && !n.isBlock() {
 		panic(new_Error_String("Missing BLOCK child.").self())
@@ -1501,7 +1501,7 @@ func CodeGenerator_isBlockDeclOrDo(n Node) bool {
 	panic("unreachable")
 }
 
-func (this *CodeGenerator) addExpr(n Node, minPrecedence int32, context *CodeGenerator_Context) {
+func (this *CodeGenerator) addExpr(n Node, minPrecedence int32, context CodeGenerator_Context) {
 	if this.opRequiresParentheses(n, minPrecedence, context) {
 		this.add("(")
 		this.add_2(n, CodeGenerator_Context_OTHER)
@@ -1511,7 +1511,7 @@ func (this *CodeGenerator) addExpr(n Node, minPrecedence int32, context *CodeGen
 	}
 }
 
-func (this *CodeGenerator) opRequiresParentheses(n Node, minPrecedence int32, context *CodeGenerator_Context) bool {
+func (this *CodeGenerator) opRequiresParentheses(n Node, minPrecedence int32, context CodeGenerator_Context) bool {
 	if context.inForInInitClause() && n.isIn() {
 		return true
 	} else if NodeUtil_isUnaryOperator(n) && this.isFirstOperandOfExponentiationExpression(n) {
@@ -1561,7 +1561,7 @@ func (this *CodeGenerator) addList_2(firstInList Node, separator string) {
 	this.addList_4(firstInList, true, CodeGenerator_Context_OTHER, separator)
 }
 
-func (this *CodeGenerator) addList_4(firstInList Node, isArrayOrFunctionArgument bool, lhsContext *CodeGenerator_Context, separator string) {
+func (this *CodeGenerator) addList_4(firstInList Node, isArrayOrFunctionArgument bool, lhsContext CodeGenerator_Context, separator string) {
 	if firstInList == 0 {
 		return
 	}
@@ -1930,8 +1930,8 @@ func CodeGenerator_getFirstNonEmptyChild(n Node) Node {
 	return 0
 }
 
-func CodeGenerator_getContextForNonEmptyExpression(currentContext *CodeGenerator_Context) *CodeGenerator_Context {
-	return func() *CodeGenerator_Context {
+func CodeGenerator_getContextForNonEmptyExpression(currentContext CodeGenerator_Context) CodeGenerator_Context {
+	return func() CodeGenerator_Context {
 		if currentContext == CodeGenerator_Context_BEFORE_DANGLING_ELSE {
 			return CodeGenerator_Context_BEFORE_DANGLING_ELSE
 		}
@@ -1939,8 +1939,8 @@ func CodeGenerator_getContextForNonEmptyExpression(currentContext *CodeGenerator
 	}()
 }
 
-func CodeGenerator_getContextForNoInOperator(context *CodeGenerator_Context) *CodeGenerator_Context {
-	return func() *CodeGenerator_Context {
+func CodeGenerator_getContextForNoInOperator(context CodeGenerator_Context) CodeGenerator_Context {
+	return func() CodeGenerator_Context {
 		if context.inForInInitClause() {
 			return context
 		}
@@ -1948,8 +1948,8 @@ func CodeGenerator_getContextForNoInOperator(context *CodeGenerator_Context) *Co
 	}()
 }
 
-func CodeGenerator_getContextForArrowFunctionBody(context *CodeGenerator_Context) *CodeGenerator_Context {
-	return func() *CodeGenerator_Context {
+func CodeGenerator_getContextForArrowFunctionBody(context CodeGenerator_Context) CodeGenerator_Context {
+	return func() CodeGenerator_Context {
 		if context.inForInInitClause() {
 			return CodeGenerator_Context_START_OF_ARROW_FN_IN_FOR_INIT
 		}
@@ -1957,7 +1957,7 @@ func CodeGenerator_getContextForArrowFunctionBody(context *CodeGenerator_Context
 	}()
 }
 
-func (this *CodeGenerator) processEnd(n Node, context *CodeGenerator_Context) {
+func (this *CodeGenerator) processEnd(n Node, context CodeGenerator_Context) {
 	switch n.ns_().token {
 	case tokOrd1_CLASS, tokOrd1_INTERFACE, tokOrd1_ENUM, tokOrd1_NAMESPACE:
 		this.cc.endClass((context == CodeGenerator_Context_STATEMENT))
@@ -1992,7 +1992,7 @@ func (this *CodeGenerator) processEnd(n Node, context *CodeGenerator_Context) {
 	}
 }
 
-func (this *CodeGenerator) add_2(p0 Node, p1 *CodeGenerator_Context) {
+func (this *CodeGenerator) add_2(p0 Node, p1 CodeGenerator_Context) {
 	this.self_.add_2_impl(p0, p1)
 }
 
@@ -2012,72 +2012,88 @@ func CodeGenerator_clinit() {
 
 }
 
-type CodeGenerator_Context struct {
-	Enum
-	inForInitClause bool
-	atArrowFnBody   bool
+type CodeGenerator_Context uint8
+
+// CodeGenerator_Context_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var CodeGenerator_Context_enum_ = [7]Enum{
+	{self_: CodeGenerator_Context_STATEMENT, name_: "STATEMENT", ordinal_: 0},
+	{self_: CodeGenerator_Context_BEFORE_DANGLING_ELSE, name_: "BEFORE_DANGLING_ELSE", ordinal_: 1},
+	{self_: CodeGenerator_Context_START_OF_EXPR, name_: "START_OF_EXPR", ordinal_: 2},
+	{self_: CodeGenerator_Context_IN_FOR_INIT_CLAUSE, name_: "IN_FOR_INIT_CLAUSE", ordinal_: 3},
+	{self_: CodeGenerator_Context_START_OF_ARROW_FN_BODY, name_: "START_OF_ARROW_FN_BODY", ordinal_: 4},
+	{self_: CodeGenerator_Context_START_OF_ARROW_FN_IN_FOR_INIT, name_: "START_OF_ARROW_FN_IN_FOR_INIT", ordinal_: 5},
+	{self_: CodeGenerator_Context_OTHER, name_: "OTHER", ordinal_: 6},
 }
 
-func (this *CodeGenerator_Context) up_Enum() *Enum {
-	if this == nil {
+var CodeGenerator_Context_inForInitClause_ [7]bool
+
+var CodeGenerator_Context_atArrowFnBody_ [7]bool
+
+func (this CodeGenerator_Context) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &CodeGenerator_Context_enum_[this-1]
 }
 
-func (this *CodeGenerator_Context) init_CodeGenerator_Context_0(name_ string, ordinal_ int32) {
-	this.init_CodeGenerator_Context_boolean_boolean(name_, ordinal_, false, false)
+func (this CodeGenerator_Context) name() string { return CodeGenerator_Context_enum_[this-1].name_ }
+
+func (this CodeGenerator_Context) ordinal() int32 {
+	return CodeGenerator_Context_enum_[this-1].ordinal_
 }
 
-func new_CodeGenerator_Context_0(name_ string, ordinal_ int32) *CodeGenerator_Context {
-	this := &CodeGenerator_Context{}
-	this.self_ = this
-	this.init_CodeGenerator_Context_0(name_, ordinal_)
+func (this CodeGenerator_Context) toString() string { return CodeGenerator_Context_enum_[this-1].name_ }
+
+func (this CodeGenerator_Context) compareTo(o any) int32 {
+	return CodeGenerator_Context_enum_[this-1].compareTo(o)
+}
+
+func (this CodeGenerator_Context) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func (this *CodeGenerator_Context) init_CodeGenerator_Context_boolean_boolean(name_ string, ordinal_ int32, inForInitClause bool, atStartOfArrowFnBody bool) {
-	this.Enum.init_Enum(name_, ordinal_)
-	this.inForInitClause = inForInitClause
-	this.atArrowFnBody = atStartOfArrowFnBody
+func (this CodeGenerator_Context) init_CodeGenerator_Context_0() {
+	this.init_CodeGenerator_Context_boolean_boolean(false, false)
 }
 
-func new_CodeGenerator_Context_boolean_boolean(name_ string, ordinal_ int32, inForInitClause bool, atStartOfArrowFnBody bool) *CodeGenerator_Context {
-	this := &CodeGenerator_Context{}
-	this.self_ = this
-	this.init_CodeGenerator_Context_boolean_boolean(name_, ordinal_, inForInitClause, atStartOfArrowFnBody)
-	return this
+func (this CodeGenerator_Context) init_CodeGenerator_Context_boolean_boolean(inForInitClause bool, atStartOfArrowFnBody bool) {
+	CodeGenerator_Context_inForInitClause_[this-1] = inForInitClause
+	CodeGenerator_Context_atArrowFnBody_[this-1] = atStartOfArrowFnBody
 }
 
-func (this *CodeGenerator_Context) inForInInitClause() bool {
-	return this.inForInitClause
+func (this CodeGenerator_Context) inForInInitClause() bool {
+	return CodeGenerator_Context_inForInitClause_[this-1]
 }
 
-func (this *CodeGenerator_Context) atArrowFunctionBody() bool {
-	return this.atArrowFnBody
+func (this CodeGenerator_Context) atArrowFunctionBody() bool {
+	return CodeGenerator_Context_atArrowFnBody_[this-1]
 }
 
-func CodeGenerator_Context_values() []*CodeGenerator_Context {
-	return append([]*CodeGenerator_Context(nil), CodeGenerator_Context_values_...)
+func CodeGenerator_Context_values() []CodeGenerator_Context {
+	return append([]CodeGenerator_Context(nil), CodeGenerator_Context_values_...)
 }
 
-func CodeGenerator_Context_valueOf(name string) *CodeGenerator_Context {
+func CodeGenerator_Context_valueOf(name string) CodeGenerator_Context {
 	for _, v := range CodeGenerator_Context_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("Context", name))
 }
 
-var CodeGenerator_Context_STATEMENT *CodeGenerator_Context
-var CodeGenerator_Context_BEFORE_DANGLING_ELSE *CodeGenerator_Context
-var CodeGenerator_Context_START_OF_EXPR *CodeGenerator_Context
-var CodeGenerator_Context_IN_FOR_INIT_CLAUSE *CodeGenerator_Context
-var CodeGenerator_Context_START_OF_ARROW_FN_BODY *CodeGenerator_Context
-var CodeGenerator_Context_START_OF_ARROW_FN_IN_FOR_INIT *CodeGenerator_Context
-var CodeGenerator_Context_OTHER *CodeGenerator_Context
-var CodeGenerator_Context_values_ []*CodeGenerator_Context
+const CodeGenerator_Context_STATEMENT CodeGenerator_Context = 1
+const CodeGenerator_Context_BEFORE_DANGLING_ELSE CodeGenerator_Context = 2
+const CodeGenerator_Context_START_OF_EXPR CodeGenerator_Context = 3
+const CodeGenerator_Context_IN_FOR_INIT_CLAUSE CodeGenerator_Context = 4
+const CodeGenerator_Context_START_OF_ARROW_FN_BODY CodeGenerator_Context = 5
+const CodeGenerator_Context_START_OF_ARROW_FN_IN_FOR_INIT CodeGenerator_Context = 6
+const CodeGenerator_Context_OTHER CodeGenerator_Context = 7
+
+var CodeGenerator_Context_values_ []CodeGenerator_Context
 
 var CodeGenerator_Context_clinit_done bool
 
@@ -2086,14 +2102,14 @@ func CodeGenerator_Context_clinit() {
 		return
 	}
 	CodeGenerator_Context_clinit_done = true
-	CodeGenerator_Context_STATEMENT = new_CodeGenerator_Context_0("STATEMENT", 0)
-	CodeGenerator_Context_BEFORE_DANGLING_ELSE = new_CodeGenerator_Context_0("BEFORE_DANGLING_ELSE", 1)
-	CodeGenerator_Context_START_OF_EXPR = new_CodeGenerator_Context_0("START_OF_EXPR", 2)
-	CodeGenerator_Context_IN_FOR_INIT_CLAUSE = new_CodeGenerator_Context_boolean_boolean("IN_FOR_INIT_CLAUSE", 3, true, false)
-	CodeGenerator_Context_START_OF_ARROW_FN_BODY = new_CodeGenerator_Context_boolean_boolean("START_OF_ARROW_FN_BODY", 4, false, true)
-	CodeGenerator_Context_START_OF_ARROW_FN_IN_FOR_INIT = new_CodeGenerator_Context_boolean_boolean("START_OF_ARROW_FN_IN_FOR_INIT", 5, true, true)
-	CodeGenerator_Context_OTHER = new_CodeGenerator_Context_0("OTHER", 6)
-	CodeGenerator_Context_values_ = []*CodeGenerator_Context{CodeGenerator_Context_STATEMENT, CodeGenerator_Context_BEFORE_DANGLING_ELSE, CodeGenerator_Context_START_OF_EXPR, CodeGenerator_Context_IN_FOR_INIT_CLAUSE, CodeGenerator_Context_START_OF_ARROW_FN_BODY, CodeGenerator_Context_START_OF_ARROW_FN_IN_FOR_INIT, CodeGenerator_Context_OTHER}
+	CodeGenerator_Context_STATEMENT.init_CodeGenerator_Context_0()
+	CodeGenerator_Context_BEFORE_DANGLING_ELSE.init_CodeGenerator_Context_0()
+	CodeGenerator_Context_START_OF_EXPR.init_CodeGenerator_Context_0()
+	CodeGenerator_Context_IN_FOR_INIT_CLAUSE.init_CodeGenerator_Context_boolean_boolean(true, false)
+	CodeGenerator_Context_START_OF_ARROW_FN_BODY.init_CodeGenerator_Context_boolean_boolean(false, true)
+	CodeGenerator_Context_START_OF_ARROW_FN_IN_FOR_INIT.init_CodeGenerator_Context_boolean_boolean(true, true)
+	CodeGenerator_Context_OTHER.init_CodeGenerator_Context_0()
+	CodeGenerator_Context_values_ = []CodeGenerator_Context{CodeGenerator_Context_STATEMENT, CodeGenerator_Context_BEFORE_DANGLING_ELSE, CodeGenerator_Context_START_OF_EXPR, CodeGenerator_Context_IN_FOR_INIT_CLAUSE, CodeGenerator_Context_START_OF_ARROW_FN_BODY, CodeGenerator_Context_START_OF_ARROW_FN_IN_FOR_INIT, CodeGenerator_Context_OTHER}
 	registerEnum_("com.google.javascript.jscomp.CodeGenerator.Context", enumValues_(CodeGenerator_Context_values_))
 
 }

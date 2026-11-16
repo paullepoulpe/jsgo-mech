@@ -576,45 +576,63 @@ var lambda_ConvertToTypedInterface_SimplifyDeclarations_clinit_2_ = &Function_fn
 	panic("unreachable")
 }}
 
-type ConvertToTypedInterface_SimplifyDeclarations_TypingLevel struct {
-	Enum
+type ConvertToTypedInterface_SimplifyDeclarations_TypingLevel uint8
+
+// ConvertToTypedInterface_SimplifyDeclarations_TypingLevel_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var ConvertToTypedInterface_SimplifyDeclarations_TypingLevel_enum_ = [3]Enum{
+	{self_: ConvertToTypedInterface_SimplifyDeclarations_TypingLevel_TYPED_JSDOC_DECLARATION, name_: "TYPED_JSDOC_DECLARATION", ordinal_: 0},
+	{self_: ConvertToTypedInterface_SimplifyDeclarations_TypingLevel_UNTYPED_JSDOC_DECLARATION, name_: "UNTYPED_JSDOC_DECLARATION", ordinal_: 1},
+	{self_: ConvertToTypedInterface_SimplifyDeclarations_TypingLevel_NO_JSDOC, name_: "NO_JSDOC", ordinal_: 2},
 }
 
-func (this *ConvertToTypedInterface_SimplifyDeclarations_TypingLevel) up_Enum() *Enum {
-	if this == nil {
+func (this ConvertToTypedInterface_SimplifyDeclarations_TypingLevel) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &ConvertToTypedInterface_SimplifyDeclarations_TypingLevel_enum_[this-1]
 }
 
-func (this *ConvertToTypedInterface_SimplifyDeclarations_TypingLevel) init_ConvertToTypedInterface_SimplifyDeclarations_TypingLevel(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this ConvertToTypedInterface_SimplifyDeclarations_TypingLevel) name() string {
+	return ConvertToTypedInterface_SimplifyDeclarations_TypingLevel_enum_[this-1].name_
 }
 
-func new_ConvertToTypedInterface_SimplifyDeclarations_TypingLevel(name_ string, ordinal_ int32) *ConvertToTypedInterface_SimplifyDeclarations_TypingLevel {
-	this := &ConvertToTypedInterface_SimplifyDeclarations_TypingLevel{}
-	this.self_ = this
-	this.init_ConvertToTypedInterface_SimplifyDeclarations_TypingLevel(name_, ordinal_)
+func (this ConvertToTypedInterface_SimplifyDeclarations_TypingLevel) ordinal() int32 {
+	return ConvertToTypedInterface_SimplifyDeclarations_TypingLevel_enum_[this-1].ordinal_
+}
+
+func (this ConvertToTypedInterface_SimplifyDeclarations_TypingLevel) toString() string {
+	return ConvertToTypedInterface_SimplifyDeclarations_TypingLevel_enum_[this-1].name_
+}
+
+func (this ConvertToTypedInterface_SimplifyDeclarations_TypingLevel) compareTo(o any) int32 {
+	return ConvertToTypedInterface_SimplifyDeclarations_TypingLevel_enum_[this-1].compareTo(o)
+}
+
+func (this ConvertToTypedInterface_SimplifyDeclarations_TypingLevel) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func ConvertToTypedInterface_SimplifyDeclarations_TypingLevel_values() []*ConvertToTypedInterface_SimplifyDeclarations_TypingLevel {
-	return append([]*ConvertToTypedInterface_SimplifyDeclarations_TypingLevel(nil), ConvertToTypedInterface_SimplifyDeclarations_TypingLevel_values_...)
+func ConvertToTypedInterface_SimplifyDeclarations_TypingLevel_values() []ConvertToTypedInterface_SimplifyDeclarations_TypingLevel {
+	return append([]ConvertToTypedInterface_SimplifyDeclarations_TypingLevel(nil), ConvertToTypedInterface_SimplifyDeclarations_TypingLevel_values_...)
 }
 
-func ConvertToTypedInterface_SimplifyDeclarations_TypingLevel_valueOf(name string) *ConvertToTypedInterface_SimplifyDeclarations_TypingLevel {
+func ConvertToTypedInterface_SimplifyDeclarations_TypingLevel_valueOf(name string) ConvertToTypedInterface_SimplifyDeclarations_TypingLevel {
 	for _, v := range ConvertToTypedInterface_SimplifyDeclarations_TypingLevel_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("TypingLevel", name))
 }
 
-var ConvertToTypedInterface_SimplifyDeclarations_TypingLevel_TYPED_JSDOC_DECLARATION *ConvertToTypedInterface_SimplifyDeclarations_TypingLevel
-var ConvertToTypedInterface_SimplifyDeclarations_TypingLevel_UNTYPED_JSDOC_DECLARATION *ConvertToTypedInterface_SimplifyDeclarations_TypingLevel
-var ConvertToTypedInterface_SimplifyDeclarations_TypingLevel_NO_JSDOC *ConvertToTypedInterface_SimplifyDeclarations_TypingLevel
-var ConvertToTypedInterface_SimplifyDeclarations_TypingLevel_values_ []*ConvertToTypedInterface_SimplifyDeclarations_TypingLevel
+const ConvertToTypedInterface_SimplifyDeclarations_TypingLevel_TYPED_JSDOC_DECLARATION ConvertToTypedInterface_SimplifyDeclarations_TypingLevel = 1
+const ConvertToTypedInterface_SimplifyDeclarations_TypingLevel_UNTYPED_JSDOC_DECLARATION ConvertToTypedInterface_SimplifyDeclarations_TypingLevel = 2
+const ConvertToTypedInterface_SimplifyDeclarations_TypingLevel_NO_JSDOC ConvertToTypedInterface_SimplifyDeclarations_TypingLevel = 3
+
+var ConvertToTypedInterface_SimplifyDeclarations_TypingLevel_values_ []ConvertToTypedInterface_SimplifyDeclarations_TypingLevel
 
 var ConvertToTypedInterface_SimplifyDeclarations_TypingLevel_clinit_done bool
 
@@ -623,10 +641,7 @@ func ConvertToTypedInterface_SimplifyDeclarations_TypingLevel_clinit() {
 		return
 	}
 	ConvertToTypedInterface_SimplifyDeclarations_TypingLevel_clinit_done = true
-	ConvertToTypedInterface_SimplifyDeclarations_TypingLevel_TYPED_JSDOC_DECLARATION = new_ConvertToTypedInterface_SimplifyDeclarations_TypingLevel("TYPED_JSDOC_DECLARATION", 0)
-	ConvertToTypedInterface_SimplifyDeclarations_TypingLevel_UNTYPED_JSDOC_DECLARATION = new_ConvertToTypedInterface_SimplifyDeclarations_TypingLevel("UNTYPED_JSDOC_DECLARATION", 1)
-	ConvertToTypedInterface_SimplifyDeclarations_TypingLevel_NO_JSDOC = new_ConvertToTypedInterface_SimplifyDeclarations_TypingLevel("NO_JSDOC", 2)
-	ConvertToTypedInterface_SimplifyDeclarations_TypingLevel_values_ = []*ConvertToTypedInterface_SimplifyDeclarations_TypingLevel{ConvertToTypedInterface_SimplifyDeclarations_TypingLevel_TYPED_JSDOC_DECLARATION, ConvertToTypedInterface_SimplifyDeclarations_TypingLevel_UNTYPED_JSDOC_DECLARATION, ConvertToTypedInterface_SimplifyDeclarations_TypingLevel_NO_JSDOC}
+	ConvertToTypedInterface_SimplifyDeclarations_TypingLevel_values_ = []ConvertToTypedInterface_SimplifyDeclarations_TypingLevel{ConvertToTypedInterface_SimplifyDeclarations_TypingLevel_TYPED_JSDOC_DECLARATION, ConvertToTypedInterface_SimplifyDeclarations_TypingLevel_UNTYPED_JSDOC_DECLARATION, ConvertToTypedInterface_SimplifyDeclarations_TypingLevel_NO_JSDOC}
 	registerEnum_("com.google.javascript.jscomp.ijs.ConvertToTypedInterface.SimplifyDeclarations.TypingLevel", enumValues_(ConvertToTypedInterface_SimplifyDeclarations_TypingLevel_values_))
 
 }

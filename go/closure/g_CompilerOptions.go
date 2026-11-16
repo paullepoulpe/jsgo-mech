@@ -4,12 +4,12 @@ package closure
 
 type CompilerOptions struct {
 	emitUseStrict                                Optional_baseOf[BoxedOf[bool]]
-	languageIn                                   *CompilerOptions_LanguageMode
+	languageIn                                   CompilerOptions_LanguageMode
 	outputFeatureSet                             Optional_baseOf[*FeatureSet]
-	experimentalOutputFeatureSet                 Optional_baseOf[*CompilerOptions_ExperimentalOutputFeatureSet]
+	experimentalOutputFeatureSet                 Optional_baseOf[CompilerOptions_ExperimentalOutputFeatureSet]
 	languageOutIsDefaultStrict                   Optional_baseOf[BoxedOf[bool]]
-	environment                                  *CompilerOptions_Environment
-	browserFeaturesetYear                        *CompilerOptions_BrowserFeaturesetYear
+	environment                                  CompilerOptions_Environment
+	browserFeaturesetYear                        CompilerOptions_BrowserFeaturesetYear
 	instrumentForCoverageOnly                    bool
 	typedAstOutputFile                           OptionalOf[string]
 	mergedPrecompiledLibraries                   bool
@@ -18,12 +18,12 @@ type CompilerOptions struct {
 	preserveDetailedSourceInfo                   bool
 	preserveNonJSDocComments                     bool
 	continueAfterErrors                          bool
-	incrementalCheckMode                         *CompilerOptions_IncrementalCheckMode
-	parseJsDocDocumentation                      *Config_JsDocParsing
+	incrementalCheckMode                         CompilerOptions_IncrementalCheckMode
+	parseJsDocDocumentation                      Config_JsDocParsing
 	printExterns                                 bool
 	inferTypes                                   bool
 	skipNonTranspilationPasses                   bool
-	devMode                                      *CompilerOptions_DevMode
+	devMode                                      CompilerOptions_DevMode
 	checkDeterminism                             bool
 	dependencyOptions                            *DependencyOptions
 	messageBundle                                MessageBundle
@@ -35,7 +35,7 @@ type CompilerOptions struct {
 	numParallelThreads                           int32
 	foldConstants                                bool
 	deadAssignmentElimination                    bool
-	deadPropertyAssignmentElimination            *Tri
+	deadPropertyAssignmentElimination            Tri
 	inlineConstantVars                           bool
 	maxFunctionSizeAfterInlining                 int32
 	inlineProperties                             bool
@@ -51,14 +51,14 @@ type CompilerOptions struct {
 	inlineLocalVariables                         bool
 	flowSensitiveInlineVariables                 bool
 	smartNameRemoval                             bool
-	extractPrototypeMemberDeclarations           *CompilerOptions_ExtractPrototypeMemberDeclarationsMode
+	extractPrototypeMemberDeclarations           CompilerOptions_ExtractPrototypeMemberDeclarationsMode
 	removeUnusedPrototypeProperties_             bool
 	removeUnusedClassProperties                  bool
 	removeUnusedVars                             bool
 	removeUnusedLocalVars                        bool
 	collapseVariableDeclarations                 bool
 	collapseAnonymousFunctions                   bool
-	aliasStringsMode                             *CompilerOptions_AliasStringsMode
+	aliasStringsMode                             CompilerOptions_AliasStringsMode
 	outputJsStringUsage                          bool
 	convertToDottedProperties                    bool
 	rewriteFunctionExpressions                   bool
@@ -67,8 +67,8 @@ type CompilerOptions struct {
 	useTypesForLocalOptimization_                bool
 	useSizeHeuristicToStopOptimizationLoop       bool
 	optimizationLoopMaxIterations                int32
-	variableRenaming                             *VariableRenamingPolicy
-	propertyRenaming                             *PropertyRenamingPolicy
+	variableRenaming                             VariableRenamingPolicy
+	propertyRenaming                             PropertyRenamingPolicy
 	propertyRenamingOnlyCompilationMode          bool
 	labelRenaming                                bool
 	reserveRawExports                            bool
@@ -77,8 +77,8 @@ type CompilerOptions struct {
 	renamePrefix                                 OptionalOf[string]
 	renamePrefixNamespace                        OptionalOf[string]
 	renamePrefixNamespaceAssumeCrossChunkNames   bool
-	optimizeLocalAccessForGlobalSymbolNamespace  *CompilerOptions_OptimizeLocalAccess
-	collapsePropertiesLevel                      *CompilerOptions_PropertyCollapseLevel
+	optimizeLocalAccessForGlobalSymbolNamespace  CompilerOptions_OptimizeLocalAccess
+	collapsePropertiesLevel                      CompilerOptions_PropertyCollapseLevel
 	collapseObjectLiterals                       bool
 	devirtualizeMethods                          bool
 	computeFunctionSideEffects                   bool
@@ -102,7 +102,7 @@ type CompilerOptions struct {
 	angularPass                                  bool
 	polymerPass                                  bool
 	chromePass                                   bool
-	j2clPassMode                                 *CompilerOptions_J2clPassMode
+	j2clPassMode                                 CompilerOptions_J2clPassMode
 	j2clMinifierEnabled                          bool
 	j2clMinifierPruningManifest                  OptionalOf[string]
 	removeAbstractMethods                        bool
@@ -114,10 +114,10 @@ type CompilerOptions struct {
 	stripNamePrefixes                            ImmutableSetOf[string]
 	customPasses                                 *SimpleSetMultimap
 	defineReplacements                           *TMap[string, any]
-	tweakProcessing                              *CompilerOptions_TweakProcessing
+	tweakProcessing                              CompilerOptions_TweakProcessing
 	rewriteGlobalDeclarationsForTryCatchWrapping bool
 	checksOnly                                   bool
-	outputJs                                     *CompilerOptions_OutputJs
+	outputJs                                     CompilerOptions_OutputJs
 	generateExports                              bool
 	exportLocalPropertyDefinitions               bool
 	cssRenamingMap                               CssRenamingMap
@@ -130,16 +130,16 @@ type CompilerOptions struct {
 	replaceStringsFunctionDescriptions           ImmutableListOf[string]
 	replaceStringsPlaceholderToken               string
 	propertiesThatMustDisambiguate               ImmutableSetOf[string]
-	validateRequireInliningAnnotation            *Tri
+	validateRequireInliningAnnotation            Tri
 	processCommonJSModules                       bool
 	moduleRoots                                  ImmutableListOf[string]
 	rewritePolyfills                             bool
 	isolatePolyfills                             bool
-	injectPolyfillsNewerThan                     *CompilerOptions_LanguageMode
-	es6SubclassTranspilation                     *CompilerOptions_Es6SubclassTranspilation
+	injectPolyfillsNewerThan                     CompilerOptions_LanguageMode
+	es6SubclassTranspilation                     CompilerOptions_Es6SubclassTranspilation
 	instrumentAsyncContext                       bool
 	forceLibraryInjection                        ImmutableListOf[string]
-	runtimeLibraryMode                           *RuntimeJsLibManager_RuntimeLibraryMode
+	runtimeLibraryMode                           RuntimeJsLibManager_RuntimeLibraryMode
 	assumeForwardDeclaredForMissingTypesField    bool
 	unusedImportsToRemove                        ImmutableSetOf[string]
 	preserveTypeAnnotations                      bool
@@ -160,7 +160,7 @@ type CompilerOptions struct {
 	filesToPrintAfterEachPassRegexList           ListOf[string]
 	chunksToPrintAfterEachPassRegexList          ListOf[string]
 	qnameUsesToPrintAfterEachPassList            ListOf[string]
-	tracer                                       *CompilerOptions_TracerMode
+	tracer                                       CompilerOptions_TracerMode
 	tracerOutput                                 OptionalOf[string]
 	colorizeErrorOutput                          bool
 	errorFormat                                  *ErrorFormat
@@ -185,28 +185,28 @@ type CompilerOptions struct {
 	assumePropertiesAreStaticallyAnalyzable      bool
 	assumeStaticInheritanceIsNotUsed             bool
 	errorHandler                                 ErrorHandler
-	instrumentForCoverageOption                  *CompilerOptions_InstrumentOption
+	instrumentForCoverageOption                  CompilerOptions_InstrumentOption
 	productionInstrumentationArrayName           string
 	conformanceConfigs                           ImmutableListOf[*ConformanceConfig]
-	conformanceReportingMode                     *CompilerOptions_ConformanceReportingMode
+	conformanceReportingMode                     CompilerOptions_ConformanceReportingMode
 	conformanceRemoveRegexFromPath               Optional_baseOf[*Pattern]
 	wrapGoogModulesForWhitespaceOnly             bool
 	printConfig_                                 bool
 	isStrictModeInput                            Optional_baseOf[BoxedOf[bool]]
 	rewriteModulesBeforeTypechecking             bool
 	enableModuleRewriting                        bool
-	moduleResolutionMode                         *ModuleLoader_ResolutionMode
+	moduleResolutionMode                         ModuleLoader_ResolutionMode
 	browserResolverPrefixReplacements            ImmutableMapOf[string, string]
 	pathEscaper                                  *ModuleLoader_PathEscaper
 	packageJsonEntryNames                        []string
 	allowDynamicImport                           bool
 	dynamicImportAlias                           OptionalOf[string]
-	chunkOutputType                              *CompilerOptions_ChunkOutputType
+	chunkOutputType                              CompilerOptions_ChunkOutputType
 	unknownDefinesToIgnore                       []string
-	inlineFunctionsLevel                         *CompilerOptions_Reach
+	inlineFunctionsLevel                         CompilerOptions_Reach
 	enableZonesDefineName                        OptionalOf[string]
 	zoneInputPattern                             *Pattern
-	es6ModuleTranspilation                       *CompilerOptions_Es6ModuleTranspilation
+	es6ModuleTranspilation                       CompilerOptions_Es6ModuleTranspilation
 }
 
 func (this *CompilerOptions) zero_CompilerOptions() {
@@ -250,7 +250,7 @@ func (this *CompilerOptions) finit_CompilerOptions() {
 	this.moduleRoots = ImmutableList_of_Object(strobj_(ModuleLoader_DEFAULT_FILENAME_PREFIX))
 	this.rewritePolyfills = false
 	this.isolatePolyfills = false
-	this.injectPolyfillsNewerThan = nil
+	this.injectPolyfillsNewerThan = 0
 	this.es6SubclassTranspilation = CompilerOptions_Es6SubclassTranspilation_CONCISE_UNSAFE
 	this.instrumentAsyncContext = false
 	this.forceLibraryInjection = ImmutableList_of()
@@ -444,7 +444,7 @@ func (this *CompilerOptions) setAlwaysGatherSourceMapInfo(shouldAlwaysGatherSour
 	this.shouldAlwaysGatherSourceMapInfo_ = shouldAlwaysGatherSourceMapInfo
 }
 
-func (this *CompilerOptions) getBrowserFeaturesetYearObject() *CompilerOptions_BrowserFeaturesetYear {
+func (this *CompilerOptions) getBrowserFeaturesetYearObject() CompilerOptions_BrowserFeaturesetYear {
 	return this.browserFeaturesetYear
 }
 
@@ -452,7 +452,7 @@ func (this *CompilerOptions) setBrowserFeaturesetYear(year int32) {
 	this.setBrowserFeaturesetYearEnum(CompilerOptions_BrowserFeaturesetYear_from(year))
 }
 
-func (this *CompilerOptions) setBrowserFeaturesetYearEnum(year *CompilerOptions_BrowserFeaturesetYear) {
+func (this *CompilerOptions) setBrowserFeaturesetYearEnum(year CompilerOptions_BrowserFeaturesetYear) {
 	this.browserFeaturesetYear = year
 	this.browserFeaturesetYear.setDependentValuesFromYear(this)
 }
@@ -501,7 +501,7 @@ func (this *CompilerOptions) shouldInferConsts() bool {
 	return this.inferConsts
 }
 
-func (this *CompilerOptions) setIncrementalChecks(value *CompilerOptions_IncrementalCheckMode) {
+func (this *CompilerOptions) setIncrementalChecks(value CompilerOptions_IncrementalCheckMode) {
 	this.incrementalCheckMode = value
 	switch value {
 	case CompilerOptions_IncrementalCheckMode_OFF:
@@ -523,7 +523,7 @@ func (this *CompilerOptions) shouldPrintExterns() bool {
 	return (this.printExterns || (this.incrementalCheckMode == CompilerOptions_IncrementalCheckMode_GENERATE_IJS))
 }
 
-func (this *CompilerOptions) setCheckGlobalThisLevel(level *CheckLevel) {
+func (this *CompilerOptions) setCheckGlobalThisLevel(level CheckLevel) {
 
 }
 
@@ -543,11 +543,11 @@ func (this *CompilerOptions) assumeCrossChunkNamesForRenamePrefixNamespace() boo
 	return this.renamePrefixNamespaceAssumeCrossChunkNames
 }
 
-func (this *CompilerOptions) setOptimizeLocalAccessForGlobalSymbolNamespace(optimize *CompilerOptions_OptimizeLocalAccess) {
+func (this *CompilerOptions) setOptimizeLocalAccessForGlobalSymbolNamespace(optimize CompilerOptions_OptimizeLocalAccess) {
 	this.optimizeLocalAccessForGlobalSymbolNamespace = optimize
 }
 
-func (this *CompilerOptions) getOptimizeLocalAccessForGlobalSymbolNamespace() *CompilerOptions_OptimizeLocalAccess {
+func (this *CompilerOptions) getOptimizeLocalAccessForGlobalSymbolNamespace() CompilerOptions_OptimizeLocalAccess {
 	return this.optimizeLocalAccessForGlobalSymbolNamespace
 }
 
@@ -555,7 +555,7 @@ func (this *CompilerOptions) shouldCollapseProperties() bool {
 	return (this.collapsePropertiesLevel != CompilerOptions_PropertyCollapseLevel_NONE)
 }
 
-func (this *CompilerOptions) getPropertyCollapseLevel() *CompilerOptions_PropertyCollapseLevel {
+func (this *CompilerOptions) getPropertyCollapseLevel() CompilerOptions_PropertyCollapseLevel {
 	return this.collapsePropertiesLevel
 }
 
@@ -654,11 +654,11 @@ func (this *CompilerOptions) getQnameUsesToPrintAfterEachPassList() ListOf[strin
 	return this.qnameUsesToPrintAfterEachPassList
 }
 
-func (this *CompilerOptions) getTracerMode() *CompilerOptions_TracerMode {
+func (this *CompilerOptions) getTracerMode() CompilerOptions_TracerMode {
 	return this.tracer
 }
 
-func (this *CompilerOptions) setTracerMode(mode *CompilerOptions_TracerMode) {
+func (this *CompilerOptions) setTracerMode(mode CompilerOptions_TracerMode) {
 	this.tracer = mode
 }
 
@@ -710,11 +710,11 @@ func (this *CompilerOptions) getAssumeStaticInheritanceIsNotUsed() bool {
 	return this.assumeStaticInheritanceIsNotUsed
 }
 
-func (this *CompilerOptions) getConformanceReportingMode() *CompilerOptions_ConformanceReportingMode {
+func (this *CompilerOptions) getConformanceReportingMode() CompilerOptions_ConformanceReportingMode {
 	return this.conformanceReportingMode
 }
 
-func (this *CompilerOptions) setConformanceReportingMode(mode *CompilerOptions_ConformanceReportingMode) {
+func (this *CompilerOptions) setConformanceReportingMode(mode CompilerOptions_ConformanceReportingMode) {
 	this.conformanceReportingMode = mode
 }
 
@@ -881,7 +881,7 @@ func (this *CompilerOptions) getUnknownDefinesToIgnore() []string {
 	return this.unknownDefinesToIgnore
 }
 
-func (this *CompilerOptions) setWarningLevel(type_ *DiagnosticGroup, level *CheckLevel) {
+func (this *CompilerOptions) setWarningLevel(type_ *DiagnosticGroup, level CheckLevel) {
 	this.addWarningsGuard(new_DiagnosticGroupWarningsGuard(type_, level).up_WarningsGuard())
 }
 
@@ -897,7 +897,7 @@ func (this *CompilerOptions) addWarningsGuard(guard *WarningsGuard) {
 	this.warningsGuard.addGuard(guard)
 }
 
-func (this *CompilerOptions) setRenamingPolicy(newVariablePolicy *VariableRenamingPolicy, newPropertyPolicy *PropertyRenamingPolicy) {
+func (this *CompilerOptions) setRenamingPolicy(newVariablePolicy VariableRenamingPolicy, newPropertyPolicy PropertyRenamingPolicy) {
 	this.variableRenaming = newVariablePolicy
 	this.propertyRenaming = newPropertyPolicy
 }
@@ -952,11 +952,11 @@ func (this *CompilerOptions) getChunkIdHashFunction() Xid_HashFunction {
 	return this.chunkIdHashFunction
 }
 
-func (this *CompilerOptions) setInlineFunctions(reach *CompilerOptions_Reach) {
+func (this *CompilerOptions) setInlineFunctions(reach CompilerOptions_Reach) {
 	this.inlineFunctionsLevel = reach
 }
 
-func (this *CompilerOptions) getInlineFunctionsLevel() *CompilerOptions_Reach {
+func (this *CompilerOptions) getInlineFunctionsLevel() CompilerOptions_Reach {
 	return this.inlineFunctionsLevel
 }
 
@@ -977,7 +977,7 @@ func (this *CompilerOptions) shouldInlineVariables() bool {
 	return this.inlineVariables
 }
 
-func (this *CompilerOptions) setInlineVariablesReach(reach *CompilerOptions_Reach) {
+func (this *CompilerOptions) setInlineVariablesReach(reach CompilerOptions_Reach) {
 	switch reach {
 	case CompilerOptions_Reach_ALL:
 		this.inlineVariables = true
@@ -999,7 +999,7 @@ func (this *CompilerOptions) shouldInlineProperties() bool {
 	return this.inlineProperties
 }
 
-func (this *CompilerOptions) setRemoveUnusedVariables(reach *CompilerOptions_Reach) {
+func (this *CompilerOptions) setRemoveUnusedVariables(reach CompilerOptions_Reach) {
 	switch reach {
 	case CompilerOptions_Reach_ALL:
 		this.removeUnusedVars = true
@@ -1066,11 +1066,11 @@ func (this *CompilerOptions) isChecksOnly() bool {
 	return this.checksOnly
 }
 
-func (this *CompilerOptions) setOutputJs(outputJs *CompilerOptions_OutputJs) {
+func (this *CompilerOptions) setOutputJs(outputJs CompilerOptions_OutputJs) {
 	this.outputJs = outputJs
 }
 
-func (this *CompilerOptions) getOutputJs() *CompilerOptions_OutputJs {
+func (this *CompilerOptions) getOutputJs() CompilerOptions_OutputJs {
 	return this.outputJs
 }
 
@@ -1117,11 +1117,11 @@ func (this *CompilerOptions) isChromePassEnabled() bool {
 	return this.chromePass
 }
 
-func (this *CompilerOptions) setJ2clPass(j2clPassMode *CompilerOptions_J2clPassMode) {
+func (this *CompilerOptions) setJ2clPass(j2clPassMode CompilerOptions_J2clPassMode) {
 	this.j2clPassMode = j2clPassMode
 }
 
-func (this *CompilerOptions) getJ2clPass() *CompilerOptions_J2clPassMode {
+func (this *CompilerOptions) getJ2clPass() CompilerOptions_J2clPassMode {
 	return this.j2clPassMode
 }
 
@@ -1181,23 +1181,23 @@ func (this *CompilerOptions) getOutputCharset() OptionalOf[string] {
 	return this.outputCharset
 }
 
-func (this *CompilerOptions) setTweakProcessing(tweakProcessing *CompilerOptions_TweakProcessing) {
+func (this *CompilerOptions) setTweakProcessing(tweakProcessing CompilerOptions_TweakProcessing) {
 	this.tweakProcessing = tweakProcessing
 }
 
-func (this *CompilerOptions) getTweakProcessing() *CompilerOptions_TweakProcessing {
+func (this *CompilerOptions) getTweakProcessing() CompilerOptions_TweakProcessing {
 	return this.tweakProcessing
 }
 
-func (this *CompilerOptions) setLanguage(language *CompilerOptions_LanguageMode) {
+func (this *CompilerOptions) setLanguage(language CompilerOptions_LanguageMode) {
 	Preconditions_checkState((language != CompilerOptions_LanguageMode_NO_TRANSPILE))
 	this.setLanguageIn(language)
 	this.setLanguageOut(language)
 }
 
-func (this *CompilerOptions) setLanguageIn(languageIn *CompilerOptions_LanguageMode) {
+func (this *CompilerOptions) setLanguageIn(languageIn CompilerOptions_LanguageMode) {
 	Preconditions_checkState((languageIn != CompilerOptions_LanguageMode_NO_TRANSPILE))
-	this.languageIn = func() *CompilerOptions_LanguageMode {
+	this.languageIn = func() CompilerOptions_LanguageMode {
 		if languageIn == CompilerOptions_LanguageMode_STABLE {
 			return CompilerOptions_LanguageMode_STABLE_IN
 		}
@@ -1205,16 +1205,16 @@ func (this *CompilerOptions) setLanguageIn(languageIn *CompilerOptions_LanguageM
 	}()
 }
 
-func (this *CompilerOptions) getLanguageIn() *CompilerOptions_LanguageMode {
+func (this *CompilerOptions) getLanguageIn() CompilerOptions_LanguageMode {
 	return this.languageIn
 }
 
-func (this *CompilerOptions) setLanguageOut(languageOut *CompilerOptions_LanguageMode) {
+func (this *CompilerOptions) setLanguageOut(languageOut CompilerOptions_LanguageMode) {
 	if languageOut == CompilerOptions_LanguageMode_NO_TRANSPILE {
 		this.languageOutIsDefaultStrict = Optional_base_absent()
 		this.outputFeatureSet = Optional_base_absent()
 	} else {
-		languageOut = func() *CompilerOptions_LanguageMode {
+		languageOut = func() CompilerOptions_LanguageMode {
 			if languageOut == CompilerOptions_LanguageMode_STABLE {
 				return CompilerOptions_LanguageMode_STABLE_OUT
 			}
@@ -1242,7 +1242,7 @@ func (this *CompilerOptions) getOutputFeatureSet() *FeatureSet {
 
 func (this *CompilerOptions) setTranspilePublicClassFields(transpile bool) {
 	if transpile {
-		this.setOutputFeatureSet(this.getOutputFeatureSet().without_2(FeatureSet_Feature_PUBLIC_CLASS_FIELDS, []*FeatureSet_Feature{}))
+		this.setOutputFeatureSet(this.getOutputFeatureSet().without_2(FeatureSet_Feature_PUBLIC_CLASS_FIELDS, []FeatureSet_Feature{}))
 	} else {
 		this.setOutputFeatureSet(this.getOutputFeatureSet().with(FeatureSet_Feature_PUBLIC_CLASS_FIELDS))
 	}
@@ -1252,11 +1252,11 @@ func (this *CompilerOptions) getTranspilePublicClassFields() bool {
 	return !this.getOutputFeatureSet().has(FeatureSet_Feature_PUBLIC_CLASS_FIELDS)
 }
 
-func (this *CompilerOptions) setExperimentalOutputFeatureSet(experimentalOutputFeatureSet *CompilerOptions_ExperimentalOutputFeatureSet) {
+func (this *CompilerOptions) setExperimentalOutputFeatureSet(experimentalOutputFeatureSet CompilerOptions_ExperimentalOutputFeatureSet) {
 	this.experimentalOutputFeatureSet = Optional_base_fromNullable(obj_(experimentalOutputFeatureSet))
 }
 
-func (this *CompilerOptions) getExperimentalOutputFeatureSet() Optional_baseOf[*CompilerOptions_ExperimentalOutputFeatureSet] {
+func (this *CompilerOptions) getExperimentalOutputFeatureSet() Optional_baseOf[CompilerOptions_ExperimentalOutputFeatureSet] {
 	return this.experimentalOutputFeatureSet
 }
 
@@ -1264,15 +1264,15 @@ func (this *CompilerOptions) needsTranspilationFrom(languageLevel *FeatureSet) b
 	return (this.getLanguageIn().toFeatureSet().containsFeatureSet(languageLevel) && !this.getOutputFeatureSet().containsFeatureSet(languageLevel))
 }
 
-func (this *CompilerOptions) needsTranspilationOf(feature *FeatureSet_Feature) bool {
+func (this *CompilerOptions) needsTranspilationOf(feature FeatureSet_Feature) bool {
 	return (this.getLanguageIn().toFeatureSet().has(feature) && !this.getOutputFeatureSet().has(feature))
 }
 
-func (this *CompilerOptions) setEnvironment(environment *CompilerOptions_Environment) {
+func (this *CompilerOptions) setEnvironment(environment CompilerOptions_Environment) {
 	this.environment = environment
 }
 
-func (this *CompilerOptions) getEnvironment() *CompilerOptions_Environment {
+func (this *CompilerOptions) getEnvironment() CompilerOptions_Environment {
 	return this.environment
 }
 
@@ -1320,7 +1320,7 @@ func (this *CompilerOptions) setValidateRequiredInlinings(validateRequireInlinin
 	this.validateRequireInliningAnnotation = Tri_forBoolean(validateRequireInliningAnnotation)
 }
 
-func (this *CompilerOptions) getShouldValidateRequiredInlinings() *Tri {
+func (this *CompilerOptions) getShouldValidateRequiredInlinings() Tri {
 	return this.validateRequireInliningAnnotation
 }
 
@@ -1348,11 +1348,11 @@ func (this *CompilerOptions) canContinueAfterErrors() bool {
 	return this.continueAfterErrors
 }
 
-func (this *CompilerOptions) setParseJsDocDocumentation(parseJsDocDocumentation *Config_JsDocParsing) {
+func (this *CompilerOptions) setParseJsDocDocumentation(parseJsDocDocumentation Config_JsDocParsing) {
 	this.parseJsDocDocumentation = parseJsDocDocumentation
 }
 
-func (this *CompilerOptions) isParseJsDocDocumentation() *Config_JsDocParsing {
+func (this *CompilerOptions) isParseJsDocDocumentation() Config_JsDocParsing {
 	return this.parseJsDocDocumentation
 }
 
@@ -1364,11 +1364,11 @@ func (this *CompilerOptions) getSkipNonTranspilationPasses() bool {
 	return this.skipNonTranspilationPasses
 }
 
-func (this *CompilerOptions) setDevMode(devMode *CompilerOptions_DevMode) {
+func (this *CompilerOptions) setDevMode(devMode CompilerOptions_DevMode) {
 	this.devMode = devMode
 }
 
-func (this *CompilerOptions) getDevMode() *CompilerOptions_DevMode {
+func (this *CompilerOptions) getDevMode() CompilerOptions_DevMode {
 	return this.devMode
 }
 
@@ -1525,7 +1525,7 @@ func (this *CompilerOptions) getSmartNameRemoval() bool {
 }
 
 func (this *CompilerOptions) setExtractPrototypeMemberDeclarations(enabled bool) {
-	this.extractPrototypeMemberDeclarations = func() *CompilerOptions_ExtractPrototypeMemberDeclarationsMode {
+	this.extractPrototypeMemberDeclarations = func() CompilerOptions_ExtractPrototypeMemberDeclarationsMode {
 		if enabled {
 			return CompilerOptions_ExtractPrototypeMemberDeclarationsMode_USE_GLOBAL_TEMP
 		}
@@ -1533,11 +1533,11 @@ func (this *CompilerOptions) setExtractPrototypeMemberDeclarations(enabled bool)
 	}()
 }
 
-func (this *CompilerOptions) setExtractPrototypeMemberDeclarationsMode(mode *CompilerOptions_ExtractPrototypeMemberDeclarationsMode) {
+func (this *CompilerOptions) setExtractPrototypeMemberDeclarationsMode(mode CompilerOptions_ExtractPrototypeMemberDeclarationsMode) {
 	this.extractPrototypeMemberDeclarations = mode
 }
 
-func (this *CompilerOptions) getExtractPrototypeMemberDeclarationsMode() *CompilerOptions_ExtractPrototypeMemberDeclarationsMode {
+func (this *CompilerOptions) getExtractPrototypeMemberDeclarationsMode() CompilerOptions_ExtractPrototypeMemberDeclarationsMode {
 	return this.extractPrototypeMemberDeclarations
 }
 
@@ -1570,11 +1570,11 @@ func (this *CompilerOptions) shouldCollapseAnonymousFunctions() bool {
 	return this.collapseAnonymousFunctions
 }
 
-func (this *CompilerOptions) setAliasStringsMode(aliasStringsMode *CompilerOptions_AliasStringsMode) {
+func (this *CompilerOptions) setAliasStringsMode(aliasStringsMode CompilerOptions_AliasStringsMode) {
 	this.aliasStringsMode = aliasStringsMode
 }
 
-func (this *CompilerOptions) getAliasStringsMode() *CompilerOptions_AliasStringsMode {
+func (this *CompilerOptions) getAliasStringsMode() CompilerOptions_AliasStringsMode {
 	return this.aliasStringsMode
 }
 
@@ -1639,19 +1639,19 @@ func (this *CompilerOptions) setOptimizeESClassConstructors(optimizeESClassConst
 	this.optimizeESClassConstructors = optimizeESClassConstructors
 }
 
-func (this *CompilerOptions) setVariableRenaming(variableRenaming *VariableRenamingPolicy) {
+func (this *CompilerOptions) setVariableRenaming(variableRenaming VariableRenamingPolicy) {
 	this.variableRenaming = variableRenaming
 }
 
-func (this *CompilerOptions) getVariableRenaming() *VariableRenamingPolicy {
+func (this *CompilerOptions) getVariableRenaming() VariableRenamingPolicy {
 	return this.variableRenaming
 }
 
-func (this *CompilerOptions) setPropertyRenaming(propertyRenaming *PropertyRenamingPolicy) {
+func (this *CompilerOptions) setPropertyRenaming(propertyRenaming PropertyRenamingPolicy) {
 	this.propertyRenaming = propertyRenaming
 }
 
-func (this *CompilerOptions) getPropertyRenaming() *PropertyRenamingPolicy {
+func (this *CompilerOptions) getPropertyRenaming() PropertyRenamingPolicy {
 	return this.propertyRenaming
 }
 
@@ -1711,12 +1711,12 @@ func (this *CompilerOptions) setRenamePrefixNamespace(renamePrefixNamespace Opti
 	this.renamePrefixNamespace = renamePrefixNamespace
 }
 
-func (this *CompilerOptions) setCollapsePropertiesLevel(level *CompilerOptions_PropertyCollapseLevel) {
+func (this *CompilerOptions) setCollapsePropertiesLevel(level CompilerOptions_PropertyCollapseLevel) {
 	this.collapsePropertiesLevel = level
 }
 
 func (this *CompilerOptions) setCollapseProperties(fullyCollapse bool) {
-	this.collapsePropertiesLevel = func() *CompilerOptions_PropertyCollapseLevel {
+	this.collapsePropertiesLevel = func() CompilerOptions_PropertyCollapseLevel {
 		if fullyCollapse {
 			return CompilerOptions_PropertyCollapseLevel_ALL
 		}
@@ -1724,7 +1724,7 @@ func (this *CompilerOptions) setCollapseProperties(fullyCollapse bool) {
 	}()
 }
 
-func (this *CompilerOptions) getCollapsePropertiesLevel() *CompilerOptions_PropertyCollapseLevel {
+func (this *CompilerOptions) getCollapsePropertiesLevel() CompilerOptions_PropertyCollapseLevel {
 	return this.collapsePropertiesLevel
 }
 
@@ -1900,14 +1900,14 @@ func (this *CompilerOptions) getStripNamePrefixes() ImmutableSetOf[string] {
 	return this.stripNamePrefixes
 }
 
-func (this *CompilerOptions) addCustomPass(time *CustomPassExecutionTime, customPass CompilerPass) {
+func (this *CompilerOptions) addCustomPass(time CustomPassExecutionTime, customPass CompilerPass) {
 	if this.customPasses == nil {
 		this.customPasses = SimpleSetMultimap_createInsertionOrdered()
 	}
 	this.customPasses.put(obj_(time), any(customPass))
 }
 
-func (this *CompilerOptions) getCustomPassesAt(executionTime *CustomPassExecutionTime) ImmutableListOf[CompilerPass] {
+func (this *CompilerOptions) getCustomPassesAt(executionTime CustomPassExecutionTime) ImmutableListOf[CompilerPass] {
 	return func() *ImmutableList {
 		if this.customPasses == nil {
 			return ImmutableList_of()
@@ -2164,11 +2164,11 @@ func (this *CompilerOptions) getProcessCommonJSModules() bool {
 	return this.processCommonJSModules
 }
 
-func (this *CompilerOptions) setEs6ModuleTranspilation(value *CompilerOptions_Es6ModuleTranspilation) {
+func (this *CompilerOptions) setEs6ModuleTranspilation(value CompilerOptions_Es6ModuleTranspilation) {
 	this.es6ModuleTranspilation = value
 }
 
-func (this *CompilerOptions) getEs6ModuleTranspilation() *CompilerOptions_Es6ModuleTranspilation {
+func (this *CompilerOptions) getEs6ModuleTranspilation() CompilerOptions_Es6ModuleTranspilation {
 	return this.es6ModuleTranspilation
 }
 
@@ -2203,11 +2203,11 @@ func (this *CompilerOptions) getIsolatePolyfills() bool {
 	return this.isolatePolyfills
 }
 
-func (this *CompilerOptions) setInjectPolyfillsNewerThan(injectPolyfillsNewerThan *CompilerOptions_LanguageMode) {
+func (this *CompilerOptions) setInjectPolyfillsNewerThan(injectPolyfillsNewerThan CompilerOptions_LanguageMode) {
 	this.injectPolyfillsNewerThan = injectPolyfillsNewerThan
 }
 
-func (this *CompilerOptions) getInjectPolyfillsNewerThan() *CompilerOptions_LanguageMode {
+func (this *CompilerOptions) getInjectPolyfillsNewerThan() CompilerOptions_LanguageMode {
 	return this.injectPolyfillsNewerThan
 }
 
@@ -2220,11 +2220,11 @@ func (this *CompilerOptions) getInstrumentAsyncContext() bool {
 	return this.instrumentAsyncContext
 }
 
-func (this *CompilerOptions) setEs6SubclassTranspilation(es6SubclassTranspilation *CompilerOptions_Es6SubclassTranspilation) {
+func (this *CompilerOptions) setEs6SubclassTranspilation(es6SubclassTranspilation CompilerOptions_Es6SubclassTranspilation) {
 	this.es6SubclassTranspilation = es6SubclassTranspilation
 }
 
-func (this *CompilerOptions) getEs6SubclassTranspilation() *CompilerOptions_Es6SubclassTranspilation {
+func (this *CompilerOptions) getEs6SubclassTranspilation() CompilerOptions_Es6SubclassTranspilation {
 	return this.es6SubclassTranspilation
 }
 
@@ -2237,7 +2237,7 @@ func (this *CompilerOptions) getForceLibraryInjectionList() ImmutableListOf[stri
 }
 
 func (this *CompilerOptions) setPreventLibraryInjection(preventLibraryInjection bool) {
-	this.runtimeLibraryMode = func() *RuntimeJsLibManager_RuntimeLibraryMode {
+	this.runtimeLibraryMode = func() RuntimeJsLibManager_RuntimeLibraryMode {
 		if preventLibraryInjection {
 			return RuntimeJsLibManager_RuntimeLibraryMode_NO_OP
 		}
@@ -2245,11 +2245,11 @@ func (this *CompilerOptions) setPreventLibraryInjection(preventLibraryInjection 
 	}()
 }
 
-func (this *CompilerOptions) setRuntimeLibraryMode(runtimeLibraryMode *RuntimeJsLibManager_RuntimeLibraryMode) {
+func (this *CompilerOptions) setRuntimeLibraryMode(runtimeLibraryMode RuntimeJsLibManager_RuntimeLibraryMode) {
 	this.runtimeLibraryMode = runtimeLibraryMode
 }
 
-func (this *CompilerOptions) getRuntimeLibraryMode() *RuntimeJsLibManager_RuntimeLibraryMode {
+func (this *CompilerOptions) getRuntimeLibraryMode() RuntimeJsLibManager_RuntimeLibraryMode {
 	return this.runtimeLibraryMode
 }
 
@@ -2261,11 +2261,11 @@ func (this *CompilerOptions) getUnusedImportsToRemove() ImmutableSetOf[string] {
 	return this.unusedImportsToRemove
 }
 
-func (this *CompilerOptions) setInstrumentForCoverageOption(instrumentForCoverageOption *CompilerOptions_InstrumentOption) {
-	this.instrumentForCoverageOption = cast_[*CompilerOptions_InstrumentOption](Preconditions_checkNotNull(obj_(instrumentForCoverageOption)))
+func (this *CompilerOptions) setInstrumentForCoverageOption(instrumentForCoverageOption CompilerOptions_InstrumentOption) {
+	this.instrumentForCoverageOption = cast_[CompilerOptions_InstrumentOption](Preconditions_checkNotNull(obj_(instrumentForCoverageOption)))
 }
 
-func (this *CompilerOptions) getInstrumentForCoverageOption() *CompilerOptions_InstrumentOption {
+func (this *CompilerOptions) getInstrumentForCoverageOption() CompilerOptions_InstrumentOption {
 	return this.instrumentForCoverageOption
 }
 
@@ -2302,11 +2302,11 @@ func (this *CompilerOptions) setEmitUseStrict(emitUseStrict bool) *CompilerOptio
 	return this
 }
 
-func (this *CompilerOptions) getModuleResolutionMode() *ModuleLoader_ResolutionMode {
+func (this *CompilerOptions) getModuleResolutionMode() ModuleLoader_ResolutionMode {
 	return this.moduleResolutionMode
 }
 
-func (this *CompilerOptions) setModuleResolutionMode(moduleResolutionMode *ModuleLoader_ResolutionMode) {
+func (this *CompilerOptions) setModuleResolutionMode(moduleResolutionMode ModuleLoader_ResolutionMode) {
 	this.moduleResolutionMode = moduleResolutionMode
 }
 
@@ -2350,11 +2350,11 @@ func (this *CompilerOptions) getMaxOptimizationLoopIterations() int32 {
 	return this.optimizationLoopMaxIterations
 }
 
-func (this *CompilerOptions) getChunkOutputType() *CompilerOptions_ChunkOutputType {
+func (this *CompilerOptions) getChunkOutputType() CompilerOptions_ChunkOutputType {
 	return this.chunkOutputType
 }
 
-func (this *CompilerOptions) setChunkOutputType(chunkOutputType *CompilerOptions_ChunkOutputType) {
+func (this *CompilerOptions) setChunkOutputType(chunkOutputType CompilerOptions_ChunkOutputType) {
 	this.chunkOutputType = chunkOutputType
 }
 
@@ -2480,53 +2480,67 @@ func CompilerOptions_clinit() {
 
 }
 
-type CompilerOptions_Reach struct {
-	Enum
+type CompilerOptions_Reach uint8
+
+// CompilerOptions_Reach_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var CompilerOptions_Reach_enum_ = [3]Enum{
+	{self_: CompilerOptions_Reach_ALL, name_: "ALL", ordinal_: 0},
+	{self_: CompilerOptions_Reach_LOCAL_ONLY, name_: "LOCAL_ONLY", ordinal_: 1},
+	{self_: CompilerOptions_Reach_NONE, name_: "NONE", ordinal_: 2},
 }
 
-func (this *CompilerOptions_Reach) up_Enum() *Enum {
-	if this == nil {
+func (this CompilerOptions_Reach) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &CompilerOptions_Reach_enum_[this-1]
 }
 
-func (this *CompilerOptions_Reach) init_CompilerOptions_Reach(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this CompilerOptions_Reach) name() string { return CompilerOptions_Reach_enum_[this-1].name_ }
+
+func (this CompilerOptions_Reach) ordinal() int32 {
+	return CompilerOptions_Reach_enum_[this-1].ordinal_
 }
 
-func new_CompilerOptions_Reach(name_ string, ordinal_ int32) *CompilerOptions_Reach {
-	this := &CompilerOptions_Reach{}
-	this.self_ = this
-	this.init_CompilerOptions_Reach(name_, ordinal_)
+func (this CompilerOptions_Reach) toString() string { return CompilerOptions_Reach_enum_[this-1].name_ }
+
+func (this CompilerOptions_Reach) compareTo(o any) int32 {
+	return CompilerOptions_Reach_enum_[this-1].compareTo(o)
+}
+
+func (this CompilerOptions_Reach) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func (this *CompilerOptions_Reach) isOn() bool {
+func (this CompilerOptions_Reach) isOn() bool {
 	return (this != CompilerOptions_Reach_NONE)
 }
 
-func (this *CompilerOptions_Reach) includesGlobals() bool {
+func (this CompilerOptions_Reach) includesGlobals() bool {
 	return (this == CompilerOptions_Reach_ALL)
 }
 
-func CompilerOptions_Reach_values() []*CompilerOptions_Reach {
-	return append([]*CompilerOptions_Reach(nil), CompilerOptions_Reach_values_...)
+func CompilerOptions_Reach_values() []CompilerOptions_Reach {
+	return append([]CompilerOptions_Reach(nil), CompilerOptions_Reach_values_...)
 }
 
-func CompilerOptions_Reach_valueOf(name string) *CompilerOptions_Reach {
+func CompilerOptions_Reach_valueOf(name string) CompilerOptions_Reach {
 	for _, v := range CompilerOptions_Reach_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("Reach", name))
 }
 
-var CompilerOptions_Reach_ALL *CompilerOptions_Reach
-var CompilerOptions_Reach_LOCAL_ONLY *CompilerOptions_Reach
-var CompilerOptions_Reach_NONE *CompilerOptions_Reach
-var CompilerOptions_Reach_values_ []*CompilerOptions_Reach
+const CompilerOptions_Reach_ALL CompilerOptions_Reach = 1
+const CompilerOptions_Reach_LOCAL_ONLY CompilerOptions_Reach = 2
+const CompilerOptions_Reach_NONE CompilerOptions_Reach = 3
+
+var CompilerOptions_Reach_values_ []CompilerOptions_Reach
 
 var CompilerOptions_Reach_clinit_done bool
 
@@ -2535,53 +2549,68 @@ func CompilerOptions_Reach_clinit() {
 		return
 	}
 	CompilerOptions_Reach_clinit_done = true
-	CompilerOptions_Reach_ALL = new_CompilerOptions_Reach("ALL", 0)
-	CompilerOptions_Reach_LOCAL_ONLY = new_CompilerOptions_Reach("LOCAL_ONLY", 1)
-	CompilerOptions_Reach_NONE = new_CompilerOptions_Reach("NONE", 2)
-	CompilerOptions_Reach_values_ = []*CompilerOptions_Reach{CompilerOptions_Reach_ALL, CompilerOptions_Reach_LOCAL_ONLY, CompilerOptions_Reach_NONE}
+	CompilerOptions_Reach_values_ = []CompilerOptions_Reach{CompilerOptions_Reach_ALL, CompilerOptions_Reach_LOCAL_ONLY, CompilerOptions_Reach_NONE}
 	registerEnum_("com.google.javascript.jscomp.CompilerOptions.Reach", enumValues_(CompilerOptions_Reach_values_))
 
 }
 
-type CompilerOptions_PropertyCollapseLevel struct {
-	Enum
+type CompilerOptions_PropertyCollapseLevel uint8
+
+// CompilerOptions_PropertyCollapseLevel_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var CompilerOptions_PropertyCollapseLevel_enum_ = [3]Enum{
+	{self_: CompilerOptions_PropertyCollapseLevel_ALL, name_: "ALL", ordinal_: 0},
+	{self_: CompilerOptions_PropertyCollapseLevel_NONE, name_: "NONE", ordinal_: 1},
+	{self_: CompilerOptions_PropertyCollapseLevel_MODULE_EXPORT, name_: "MODULE_EXPORT", ordinal_: 2},
 }
 
-func (this *CompilerOptions_PropertyCollapseLevel) up_Enum() *Enum {
-	if this == nil {
+func (this CompilerOptions_PropertyCollapseLevel) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &CompilerOptions_PropertyCollapseLevel_enum_[this-1]
 }
 
-func (this *CompilerOptions_PropertyCollapseLevel) init_CompilerOptions_PropertyCollapseLevel(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this CompilerOptions_PropertyCollapseLevel) name() string {
+	return CompilerOptions_PropertyCollapseLevel_enum_[this-1].name_
 }
 
-func new_CompilerOptions_PropertyCollapseLevel(name_ string, ordinal_ int32) *CompilerOptions_PropertyCollapseLevel {
-	this := &CompilerOptions_PropertyCollapseLevel{}
-	this.self_ = this
-	this.init_CompilerOptions_PropertyCollapseLevel(name_, ordinal_)
+func (this CompilerOptions_PropertyCollapseLevel) ordinal() int32 {
+	return CompilerOptions_PropertyCollapseLevel_enum_[this-1].ordinal_
+}
+
+func (this CompilerOptions_PropertyCollapseLevel) toString() string {
+	return CompilerOptions_PropertyCollapseLevel_enum_[this-1].name_
+}
+
+func (this CompilerOptions_PropertyCollapseLevel) compareTo(o any) int32 {
+	return CompilerOptions_PropertyCollapseLevel_enum_[this-1].compareTo(o)
+}
+
+func (this CompilerOptions_PropertyCollapseLevel) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func CompilerOptions_PropertyCollapseLevel_values() []*CompilerOptions_PropertyCollapseLevel {
-	return append([]*CompilerOptions_PropertyCollapseLevel(nil), CompilerOptions_PropertyCollapseLevel_values_...)
+func CompilerOptions_PropertyCollapseLevel_values() []CompilerOptions_PropertyCollapseLevel {
+	return append([]CompilerOptions_PropertyCollapseLevel(nil), CompilerOptions_PropertyCollapseLevel_values_...)
 }
 
-func CompilerOptions_PropertyCollapseLevel_valueOf(name string) *CompilerOptions_PropertyCollapseLevel {
+func CompilerOptions_PropertyCollapseLevel_valueOf(name string) CompilerOptions_PropertyCollapseLevel {
 	for _, v := range CompilerOptions_PropertyCollapseLevel_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("PropertyCollapseLevel", name))
 }
 
-var CompilerOptions_PropertyCollapseLevel_ALL *CompilerOptions_PropertyCollapseLevel
-var CompilerOptions_PropertyCollapseLevel_NONE *CompilerOptions_PropertyCollapseLevel
-var CompilerOptions_PropertyCollapseLevel_MODULE_EXPORT *CompilerOptions_PropertyCollapseLevel
-var CompilerOptions_PropertyCollapseLevel_values_ []*CompilerOptions_PropertyCollapseLevel
+const CompilerOptions_PropertyCollapseLevel_ALL CompilerOptions_PropertyCollapseLevel = 1
+const CompilerOptions_PropertyCollapseLevel_NONE CompilerOptions_PropertyCollapseLevel = 2
+const CompilerOptions_PropertyCollapseLevel_MODULE_EXPORT CompilerOptions_PropertyCollapseLevel = 3
+
+var CompilerOptions_PropertyCollapseLevel_values_ []CompilerOptions_PropertyCollapseLevel
 
 var CompilerOptions_PropertyCollapseLevel_clinit_done bool
 
@@ -2590,46 +2619,72 @@ func CompilerOptions_PropertyCollapseLevel_clinit() {
 		return
 	}
 	CompilerOptions_PropertyCollapseLevel_clinit_done = true
-	CompilerOptions_PropertyCollapseLevel_ALL = new_CompilerOptions_PropertyCollapseLevel("ALL", 0)
-	CompilerOptions_PropertyCollapseLevel_NONE = new_CompilerOptions_PropertyCollapseLevel("NONE", 1)
-	CompilerOptions_PropertyCollapseLevel_MODULE_EXPORT = new_CompilerOptions_PropertyCollapseLevel("MODULE_EXPORT", 2)
-	CompilerOptions_PropertyCollapseLevel_values_ = []*CompilerOptions_PropertyCollapseLevel{CompilerOptions_PropertyCollapseLevel_ALL, CompilerOptions_PropertyCollapseLevel_NONE, CompilerOptions_PropertyCollapseLevel_MODULE_EXPORT}
+	CompilerOptions_PropertyCollapseLevel_values_ = []CompilerOptions_PropertyCollapseLevel{CompilerOptions_PropertyCollapseLevel_ALL, CompilerOptions_PropertyCollapseLevel_NONE, CompilerOptions_PropertyCollapseLevel_MODULE_EXPORT}
 	registerEnum_("com.google.javascript.jscomp.CompilerOptions.PropertyCollapseLevel", enumValues_(CompilerOptions_PropertyCollapseLevel_values_))
 
 }
 
-type CompilerOptions_BrowserFeaturesetYear struct {
-	Enum
-	year       int32
-	featureSet *FeatureSet
+type CompilerOptions_BrowserFeaturesetYear uint8
+
+// CompilerOptions_BrowserFeaturesetYear_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var CompilerOptions_BrowserFeaturesetYear_enum_ = [10]Enum{
+	{self_: CompilerOptions_BrowserFeaturesetYear_YEAR_2012, name_: "YEAR_2012", ordinal_: 0},
+	{self_: CompilerOptions_BrowserFeaturesetYear_YEAR_2018, name_: "YEAR_2018", ordinal_: 1},
+	{self_: CompilerOptions_BrowserFeaturesetYear_YEAR_2019, name_: "YEAR_2019", ordinal_: 2},
+	{self_: CompilerOptions_BrowserFeaturesetYear_YEAR_2020, name_: "YEAR_2020", ordinal_: 3},
+	{self_: CompilerOptions_BrowserFeaturesetYear_YEAR_2021, name_: "YEAR_2021", ordinal_: 4},
+	{self_: CompilerOptions_BrowserFeaturesetYear_YEAR_2022, name_: "YEAR_2022", ordinal_: 5},
+	{self_: CompilerOptions_BrowserFeaturesetYear_YEAR_2023, name_: "YEAR_2023", ordinal_: 6},
+	{self_: CompilerOptions_BrowserFeaturesetYear_YEAR_2024, name_: "YEAR_2024", ordinal_: 7},
+	{self_: CompilerOptions_BrowserFeaturesetYear_YEAR_2025, name_: "YEAR_2025", ordinal_: 8},
+	{self_: CompilerOptions_BrowserFeaturesetYear_YEAR_2026, name_: "YEAR_2026", ordinal_: 9},
 }
 
-func (this *CompilerOptions_BrowserFeaturesetYear) up_Enum() *Enum {
-	if this == nil {
+var CompilerOptions_BrowserFeaturesetYear_year_ [10]int32
+
+var CompilerOptions_BrowserFeaturesetYear_featureSet_ [10]*FeatureSet
+
+func (this CompilerOptions_BrowserFeaturesetYear) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &CompilerOptions_BrowserFeaturesetYear_enum_[this-1]
 }
 
-func (this *CompilerOptions_BrowserFeaturesetYear) init_CompilerOptions_BrowserFeaturesetYear(name_ string, ordinal_ int32, year int32, featureSet *FeatureSet) {
-	this.Enum.init_Enum(name_, ordinal_)
-	this.year = year
-	this.featureSet = featureSet
+func (this CompilerOptions_BrowserFeaturesetYear) name() string {
+	return CompilerOptions_BrowserFeaturesetYear_enum_[this-1].name_
 }
 
-func new_CompilerOptions_BrowserFeaturesetYear(name_ string, ordinal_ int32, year int32, featureSet *FeatureSet) *CompilerOptions_BrowserFeaturesetYear {
-	this := &CompilerOptions_BrowserFeaturesetYear{}
-	this.self_ = this
-	this.init_CompilerOptions_BrowserFeaturesetYear(name_, ordinal_, year, featureSet)
+func (this CompilerOptions_BrowserFeaturesetYear) ordinal() int32 {
+	return CompilerOptions_BrowserFeaturesetYear_enum_[this-1].ordinal_
+}
+
+func (this CompilerOptions_BrowserFeaturesetYear) toString() string {
+	return CompilerOptions_BrowserFeaturesetYear_enum_[this-1].name_
+}
+
+func (this CompilerOptions_BrowserFeaturesetYear) compareTo(o any) int32 {
+	return CompilerOptions_BrowserFeaturesetYear_enum_[this-1].compareTo(o)
+}
+
+func (this CompilerOptions_BrowserFeaturesetYear) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func CompilerOptions_BrowserFeaturesetYear_from(year int32) *CompilerOptions_BrowserFeaturesetYear {
+func (this CompilerOptions_BrowserFeaturesetYear) init_CompilerOptions_BrowserFeaturesetYear(year int32, featureSet *FeatureSet) {
+	CompilerOptions_BrowserFeaturesetYear_year_[this-1] = year
+	CompilerOptions_BrowserFeaturesetYear_featureSet_[this-1] = featureSet
+}
+
+func CompilerOptions_BrowserFeaturesetYear_from(year int32) CompilerOptions_BrowserFeaturesetYear {
 	var yearRes *Outcome_base = CompilerOptions_BrowserFeaturesetYear_fromResult(year)
 	if yearRes.isErr() {
 		panic(to_IllegalStateException(yearRes.error().self()).self())
 	}
-	return cast_[*CompilerOptions_BrowserFeaturesetYear](yearRes.get())
+	return cast_[CompilerOptions_BrowserFeaturesetYear](yearRes.get())
 }
 
 func CompilerOptions_BrowserFeaturesetYear_fromResult(year int32) *Outcome_base {
@@ -2639,59 +2694,60 @@ func CompilerOptions_BrowserFeaturesetYear_fromResult(year int32) *Outcome_base 
 	return Outcome_base_ok_Object(CompilerOptions_BrowserFeaturesetYear_YEAR_MAP.get(any(int32(year))))
 }
 
-func (this *CompilerOptions_BrowserFeaturesetYear) setDependentValuesFromYear(options *CompilerOptions) {
-	options.setOutputFeatureSet(this.featureSet)
+func (this CompilerOptions_BrowserFeaturesetYear) setDependentValuesFromYear(options *CompilerOptions) {
+	options.setOutputFeatureSet(CompilerOptions_BrowserFeaturesetYear_featureSet_[this-1])
 	options.languageOutIsDefaultStrict = Optional_base_of(any(bool(true)))
-	options.setDefineToNumberLiteral("goog.FEATURESET_YEAR", this.year)
-	options.setDefineToBooleanLiteral("$jscomp.ASSUME_ES5", (this.year > 2012))
-	options.setDefineToBooleanLiteral("$jscomp.ASSUME_ES6", (this.year >= 2018))
-	options.setDefineToBooleanLiteral("$jscomp.ASSUME_ES2020", (this.year >= 2021))
+	options.setDefineToNumberLiteral("goog.FEATURESET_YEAR", CompilerOptions_BrowserFeaturesetYear_year_[this-1])
+	options.setDefineToBooleanLiteral("$jscomp.ASSUME_ES5", (CompilerOptions_BrowserFeaturesetYear_year_[this-1] > 2012))
+	options.setDefineToBooleanLiteral("$jscomp.ASSUME_ES6", (CompilerOptions_BrowserFeaturesetYear_year_[this-1] >= 2018))
+	options.setDefineToBooleanLiteral("$jscomp.ASSUME_ES2020", (CompilerOptions_BrowserFeaturesetYear_year_[this-1] >= 2021))
 }
 
-func (this *CompilerOptions_BrowserFeaturesetYear) getFeatureSet() *FeatureSet {
-	return this.featureSet
+func (this CompilerOptions_BrowserFeaturesetYear) getFeatureSet() *FeatureSet {
+	return CompilerOptions_BrowserFeaturesetYear_featureSet_[this-1]
 }
 
-func (this *CompilerOptions_BrowserFeaturesetYear) getYear() int32 {
-	return this.year
+func (this CompilerOptions_BrowserFeaturesetYear) getYear() int32 {
+	return CompilerOptions_BrowserFeaturesetYear_year_[this-1]
 }
 
-func CompilerOptions_BrowserFeaturesetYear_minimumRequiredFor(feature *FeatureSet_Feature) *CompilerOptions_BrowserFeaturesetYear {
+func CompilerOptions_BrowserFeaturesetYear_minimumRequiredFor(feature FeatureSet_Feature) CompilerOptions_BrowserFeaturesetYear {
 	it_1 := foreach_(obj_(cast_[*ImmutableSet](CompilerOptions_BrowserFeaturesetYear_YEAR_MAP.keySet())))
 	for it_1.next() {
 		var year int32 = unbox_[int32](it_1.v)
-		var yearObject *CompilerOptions_BrowserFeaturesetYear = cast_[*CompilerOptions_BrowserFeaturesetYear](CompilerOptions_BrowserFeaturesetYear_YEAR_MAP.get(any(int32(year))))
+		var yearObject CompilerOptions_BrowserFeaturesetYear = cast_[CompilerOptions_BrowserFeaturesetYear](CompilerOptions_BrowserFeaturesetYear_YEAR_MAP.get(any(int32(year))))
 		if yearObject.getFeatureSet().contains(feature) {
 			return yearObject
 		}
 	}
-	return nil
+	return 0
 }
 
-func CompilerOptions_BrowserFeaturesetYear_values() []*CompilerOptions_BrowserFeaturesetYear {
-	return append([]*CompilerOptions_BrowserFeaturesetYear(nil), CompilerOptions_BrowserFeaturesetYear_values_...)
+func CompilerOptions_BrowserFeaturesetYear_values() []CompilerOptions_BrowserFeaturesetYear {
+	return append([]CompilerOptions_BrowserFeaturesetYear(nil), CompilerOptions_BrowserFeaturesetYear_values_...)
 }
 
-func CompilerOptions_BrowserFeaturesetYear_valueOf(name string) *CompilerOptions_BrowserFeaturesetYear {
+func CompilerOptions_BrowserFeaturesetYear_valueOf(name string) CompilerOptions_BrowserFeaturesetYear {
 	for _, v := range CompilerOptions_BrowserFeaturesetYear_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("BrowserFeaturesetYear", name))
 }
 
-var CompilerOptions_BrowserFeaturesetYear_YEAR_2012 *CompilerOptions_BrowserFeaturesetYear
-var CompilerOptions_BrowserFeaturesetYear_YEAR_2018 *CompilerOptions_BrowserFeaturesetYear
-var CompilerOptions_BrowserFeaturesetYear_YEAR_2019 *CompilerOptions_BrowserFeaturesetYear
-var CompilerOptions_BrowserFeaturesetYear_YEAR_2020 *CompilerOptions_BrowserFeaturesetYear
-var CompilerOptions_BrowserFeaturesetYear_YEAR_2021 *CompilerOptions_BrowserFeaturesetYear
-var CompilerOptions_BrowserFeaturesetYear_YEAR_2022 *CompilerOptions_BrowserFeaturesetYear
-var CompilerOptions_BrowserFeaturesetYear_YEAR_2023 *CompilerOptions_BrowserFeaturesetYear
-var CompilerOptions_BrowserFeaturesetYear_YEAR_2024 *CompilerOptions_BrowserFeaturesetYear
-var CompilerOptions_BrowserFeaturesetYear_YEAR_2025 *CompilerOptions_BrowserFeaturesetYear
-var CompilerOptions_BrowserFeaturesetYear_YEAR_2026 *CompilerOptions_BrowserFeaturesetYear
-var CompilerOptions_BrowserFeaturesetYear_values_ []*CompilerOptions_BrowserFeaturesetYear
+const CompilerOptions_BrowserFeaturesetYear_YEAR_2012 CompilerOptions_BrowserFeaturesetYear = 1
+const CompilerOptions_BrowserFeaturesetYear_YEAR_2018 CompilerOptions_BrowserFeaturesetYear = 2
+const CompilerOptions_BrowserFeaturesetYear_YEAR_2019 CompilerOptions_BrowserFeaturesetYear = 3
+const CompilerOptions_BrowserFeaturesetYear_YEAR_2020 CompilerOptions_BrowserFeaturesetYear = 4
+const CompilerOptions_BrowserFeaturesetYear_YEAR_2021 CompilerOptions_BrowserFeaturesetYear = 5
+const CompilerOptions_BrowserFeaturesetYear_YEAR_2022 CompilerOptions_BrowserFeaturesetYear = 6
+const CompilerOptions_BrowserFeaturesetYear_YEAR_2023 CompilerOptions_BrowserFeaturesetYear = 7
+const CompilerOptions_BrowserFeaturesetYear_YEAR_2024 CompilerOptions_BrowserFeaturesetYear = 8
+const CompilerOptions_BrowserFeaturesetYear_YEAR_2025 CompilerOptions_BrowserFeaturesetYear = 9
+const CompilerOptions_BrowserFeaturesetYear_YEAR_2026 CompilerOptions_BrowserFeaturesetYear = 10
+
+var CompilerOptions_BrowserFeaturesetYear_values_ []CompilerOptions_BrowserFeaturesetYear
 var CompilerOptions_BrowserFeaturesetYear_YEAR_MAP *ImmutableMap
 
 var CompilerOptions_BrowserFeaturesetYear_clinit_done bool
@@ -2701,60 +2757,77 @@ func CompilerOptions_BrowserFeaturesetYear_clinit() {
 		return
 	}
 	CompilerOptions_BrowserFeaturesetYear_clinit_done = true
-	CompilerOptions_BrowserFeaturesetYear_YEAR_2012 = new_CompilerOptions_BrowserFeaturesetYear("YEAR_2012", 0, 2012, CompilerOptions_LanguageMode_ECMASCRIPT5_STRICT.toFeatureSet())
-	CompilerOptions_BrowserFeaturesetYear_YEAR_2018 = new_CompilerOptions_BrowserFeaturesetYear("YEAR_2018", 1, 2018, CompilerOptions_LanguageMode_ECMASCRIPT_2016.toFeatureSet())
-	CompilerOptions_BrowserFeaturesetYear_YEAR_2019 = new_CompilerOptions_BrowserFeaturesetYear("YEAR_2019", 2, 2019, FeatureSet_BROWSER_2019)
-	CompilerOptions_BrowserFeaturesetYear_YEAR_2020 = new_CompilerOptions_BrowserFeaturesetYear("YEAR_2020", 3, 2020, FeatureSet_BROWSER_2020)
-	CompilerOptions_BrowserFeaturesetYear_YEAR_2021 = new_CompilerOptions_BrowserFeaturesetYear("YEAR_2021", 4, 2021, FeatureSet_BROWSER_2021)
-	CompilerOptions_BrowserFeaturesetYear_YEAR_2022 = new_CompilerOptions_BrowserFeaturesetYear("YEAR_2022", 5, 2022, FeatureSet_BROWSER_2022)
-	CompilerOptions_BrowserFeaturesetYear_YEAR_2023 = new_CompilerOptions_BrowserFeaturesetYear("YEAR_2023", 6, 2023, FeatureSet_BROWSER_2023)
-	CompilerOptions_BrowserFeaturesetYear_YEAR_2024 = new_CompilerOptions_BrowserFeaturesetYear("YEAR_2024", 7, 2024, FeatureSet_BROWSER_2024)
-	CompilerOptions_BrowserFeaturesetYear_YEAR_2025 = new_CompilerOptions_BrowserFeaturesetYear("YEAR_2025", 8, 2025, FeatureSet_BROWSER_2025)
-	CompilerOptions_BrowserFeaturesetYear_YEAR_2026 = new_CompilerOptions_BrowserFeaturesetYear("YEAR_2026", 9, 2026, FeatureSet_BROWSER_2026)
-	CompilerOptions_BrowserFeaturesetYear_values_ = []*CompilerOptions_BrowserFeaturesetYear{CompilerOptions_BrowserFeaturesetYear_YEAR_2012, CompilerOptions_BrowserFeaturesetYear_YEAR_2018, CompilerOptions_BrowserFeaturesetYear_YEAR_2019, CompilerOptions_BrowserFeaturesetYear_YEAR_2020, CompilerOptions_BrowserFeaturesetYear_YEAR_2021, CompilerOptions_BrowserFeaturesetYear_YEAR_2022, CompilerOptions_BrowserFeaturesetYear_YEAR_2023, CompilerOptions_BrowserFeaturesetYear_YEAR_2024, CompilerOptions_BrowserFeaturesetYear_YEAR_2025, CompilerOptions_BrowserFeaturesetYear_YEAR_2026}
+	CompilerOptions_BrowserFeaturesetYear_YEAR_2012.init_CompilerOptions_BrowserFeaturesetYear(2012, CompilerOptions_LanguageMode_ECMASCRIPT5_STRICT.toFeatureSet())
+	CompilerOptions_BrowserFeaturesetYear_YEAR_2018.init_CompilerOptions_BrowserFeaturesetYear(2018, CompilerOptions_LanguageMode_ECMASCRIPT_2016.toFeatureSet())
+	CompilerOptions_BrowserFeaturesetYear_YEAR_2019.init_CompilerOptions_BrowserFeaturesetYear(2019, FeatureSet_BROWSER_2019)
+	CompilerOptions_BrowserFeaturesetYear_YEAR_2020.init_CompilerOptions_BrowserFeaturesetYear(2020, FeatureSet_BROWSER_2020)
+	CompilerOptions_BrowserFeaturesetYear_YEAR_2021.init_CompilerOptions_BrowserFeaturesetYear(2021, FeatureSet_BROWSER_2021)
+	CompilerOptions_BrowserFeaturesetYear_YEAR_2022.init_CompilerOptions_BrowserFeaturesetYear(2022, FeatureSet_BROWSER_2022)
+	CompilerOptions_BrowserFeaturesetYear_YEAR_2023.init_CompilerOptions_BrowserFeaturesetYear(2023, FeatureSet_BROWSER_2023)
+	CompilerOptions_BrowserFeaturesetYear_YEAR_2024.init_CompilerOptions_BrowserFeaturesetYear(2024, FeatureSet_BROWSER_2024)
+	CompilerOptions_BrowserFeaturesetYear_YEAR_2025.init_CompilerOptions_BrowserFeaturesetYear(2025, FeatureSet_BROWSER_2025)
+	CompilerOptions_BrowserFeaturesetYear_YEAR_2026.init_CompilerOptions_BrowserFeaturesetYear(2026, FeatureSet_BROWSER_2026)
+	CompilerOptions_BrowserFeaturesetYear_values_ = []CompilerOptions_BrowserFeaturesetYear{CompilerOptions_BrowserFeaturesetYear_YEAR_2012, CompilerOptions_BrowserFeaturesetYear_YEAR_2018, CompilerOptions_BrowserFeaturesetYear_YEAR_2019, CompilerOptions_BrowserFeaturesetYear_YEAR_2020, CompilerOptions_BrowserFeaturesetYear_YEAR_2021, CompilerOptions_BrowserFeaturesetYear_YEAR_2022, CompilerOptions_BrowserFeaturesetYear_YEAR_2023, CompilerOptions_BrowserFeaturesetYear_YEAR_2024, CompilerOptions_BrowserFeaturesetYear_YEAR_2025, CompilerOptions_BrowserFeaturesetYear_YEAR_2026}
 	registerEnum_("com.google.javascript.jscomp.CompilerOptions.BrowserFeaturesetYear", enumValues_(CompilerOptions_BrowserFeaturesetYear_values_))
 	CompilerOptions_BrowserFeaturesetYear_YEAR_MAP = ImmutableMap_of_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object(any(int32(2012)), obj_(CompilerOptions_BrowserFeaturesetYear_YEAR_2012), any(int32(2018)), obj_(CompilerOptions_BrowserFeaturesetYear_YEAR_2018), any(int32(2019)), obj_(CompilerOptions_BrowserFeaturesetYear_YEAR_2019), any(int32(2020)), obj_(CompilerOptions_BrowserFeaturesetYear_YEAR_2020), any(int32(2021)), obj_(CompilerOptions_BrowserFeaturesetYear_YEAR_2021), any(int32(2022)), obj_(CompilerOptions_BrowserFeaturesetYear_YEAR_2022), any(int32(2023)), obj_(CompilerOptions_BrowserFeaturesetYear_YEAR_2023), any(int32(2024)), obj_(CompilerOptions_BrowserFeaturesetYear_YEAR_2024), any(int32(2025)), obj_(CompilerOptions_BrowserFeaturesetYear_YEAR_2025), any(int32(2026)), obj_(CompilerOptions_BrowserFeaturesetYear_YEAR_2026))
 
 }
 
-type CompilerOptions_IncrementalCheckMode struct {
-	Enum
+type CompilerOptions_IncrementalCheckMode uint8
+
+// CompilerOptions_IncrementalCheckMode_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var CompilerOptions_IncrementalCheckMode_enum_ = [2]Enum{
+	{self_: CompilerOptions_IncrementalCheckMode_OFF, name_: "OFF", ordinal_: 0},
+	{self_: CompilerOptions_IncrementalCheckMode_GENERATE_IJS, name_: "GENERATE_IJS", ordinal_: 1},
 }
 
-func (this *CompilerOptions_IncrementalCheckMode) up_Enum() *Enum {
-	if this == nil {
+func (this CompilerOptions_IncrementalCheckMode) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &CompilerOptions_IncrementalCheckMode_enum_[this-1]
 }
 
-func (this *CompilerOptions_IncrementalCheckMode) init_CompilerOptions_IncrementalCheckMode(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this CompilerOptions_IncrementalCheckMode) name() string {
+	return CompilerOptions_IncrementalCheckMode_enum_[this-1].name_
 }
 
-func new_CompilerOptions_IncrementalCheckMode(name_ string, ordinal_ int32) *CompilerOptions_IncrementalCheckMode {
-	this := &CompilerOptions_IncrementalCheckMode{}
-	this.self_ = this
-	this.init_CompilerOptions_IncrementalCheckMode(name_, ordinal_)
+func (this CompilerOptions_IncrementalCheckMode) ordinal() int32 {
+	return CompilerOptions_IncrementalCheckMode_enum_[this-1].ordinal_
+}
+
+func (this CompilerOptions_IncrementalCheckMode) toString() string {
+	return CompilerOptions_IncrementalCheckMode_enum_[this-1].name_
+}
+
+func (this CompilerOptions_IncrementalCheckMode) compareTo(o any) int32 {
+	return CompilerOptions_IncrementalCheckMode_enum_[this-1].compareTo(o)
+}
+
+func (this CompilerOptions_IncrementalCheckMode) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func CompilerOptions_IncrementalCheckMode_values() []*CompilerOptions_IncrementalCheckMode {
-	return append([]*CompilerOptions_IncrementalCheckMode(nil), CompilerOptions_IncrementalCheckMode_values_...)
+func CompilerOptions_IncrementalCheckMode_values() []CompilerOptions_IncrementalCheckMode {
+	return append([]CompilerOptions_IncrementalCheckMode(nil), CompilerOptions_IncrementalCheckMode_values_...)
 }
 
-func CompilerOptions_IncrementalCheckMode_valueOf(name string) *CompilerOptions_IncrementalCheckMode {
+func CompilerOptions_IncrementalCheckMode_valueOf(name string) CompilerOptions_IncrementalCheckMode {
 	for _, v := range CompilerOptions_IncrementalCheckMode_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("IncrementalCheckMode", name))
 }
 
-var CompilerOptions_IncrementalCheckMode_OFF *CompilerOptions_IncrementalCheckMode
-var CompilerOptions_IncrementalCheckMode_GENERATE_IJS *CompilerOptions_IncrementalCheckMode
-var CompilerOptions_IncrementalCheckMode_values_ []*CompilerOptions_IncrementalCheckMode
+const CompilerOptions_IncrementalCheckMode_OFF CompilerOptions_IncrementalCheckMode = 1
+const CompilerOptions_IncrementalCheckMode_GENERATE_IJS CompilerOptions_IncrementalCheckMode = 2
+
+var CompilerOptions_IncrementalCheckMode_values_ []CompilerOptions_IncrementalCheckMode
 
 var CompilerOptions_IncrementalCheckMode_clinit_done bool
 
@@ -2763,53 +2836,70 @@ func CompilerOptions_IncrementalCheckMode_clinit() {
 		return
 	}
 	CompilerOptions_IncrementalCheckMode_clinit_done = true
-	CompilerOptions_IncrementalCheckMode_OFF = new_CompilerOptions_IncrementalCheckMode("OFF", 0)
-	CompilerOptions_IncrementalCheckMode_GENERATE_IJS = new_CompilerOptions_IncrementalCheckMode("GENERATE_IJS", 1)
-	CompilerOptions_IncrementalCheckMode_values_ = []*CompilerOptions_IncrementalCheckMode{CompilerOptions_IncrementalCheckMode_OFF, CompilerOptions_IncrementalCheckMode_GENERATE_IJS}
+	CompilerOptions_IncrementalCheckMode_values_ = []CompilerOptions_IncrementalCheckMode{CompilerOptions_IncrementalCheckMode_OFF, CompilerOptions_IncrementalCheckMode_GENERATE_IJS}
 	registerEnum_("com.google.javascript.jscomp.CompilerOptions.IncrementalCheckMode", enumValues_(CompilerOptions_IncrementalCheckMode_values_))
 
 }
 
-type CompilerOptions_ExtractPrototypeMemberDeclarationsMode struct {
-	Enum
+type CompilerOptions_ExtractPrototypeMemberDeclarationsMode uint8
+
+// CompilerOptions_ExtractPrototypeMemberDeclarationsMode_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var CompilerOptions_ExtractPrototypeMemberDeclarationsMode_enum_ = [4]Enum{
+	{self_: CompilerOptions_ExtractPrototypeMemberDeclarationsMode_OFF, name_: "OFF", ordinal_: 0},
+	{self_: CompilerOptions_ExtractPrototypeMemberDeclarationsMode_USE_GLOBAL_TEMP, name_: "USE_GLOBAL_TEMP", ordinal_: 1},
+	{self_: CompilerOptions_ExtractPrototypeMemberDeclarationsMode_USE_CHUNK_TEMP, name_: "USE_CHUNK_TEMP", ordinal_: 2},
+	{self_: CompilerOptions_ExtractPrototypeMemberDeclarationsMode_USE_IIFE, name_: "USE_IIFE", ordinal_: 3},
 }
 
-func (this *CompilerOptions_ExtractPrototypeMemberDeclarationsMode) up_Enum() *Enum {
-	if this == nil {
+func (this CompilerOptions_ExtractPrototypeMemberDeclarationsMode) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &CompilerOptions_ExtractPrototypeMemberDeclarationsMode_enum_[this-1]
 }
 
-func (this *CompilerOptions_ExtractPrototypeMemberDeclarationsMode) init_CompilerOptions_ExtractPrototypeMemberDeclarationsMode(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this CompilerOptions_ExtractPrototypeMemberDeclarationsMode) name() string {
+	return CompilerOptions_ExtractPrototypeMemberDeclarationsMode_enum_[this-1].name_
 }
 
-func new_CompilerOptions_ExtractPrototypeMemberDeclarationsMode(name_ string, ordinal_ int32) *CompilerOptions_ExtractPrototypeMemberDeclarationsMode {
-	this := &CompilerOptions_ExtractPrototypeMemberDeclarationsMode{}
-	this.self_ = this
-	this.init_CompilerOptions_ExtractPrototypeMemberDeclarationsMode(name_, ordinal_)
+func (this CompilerOptions_ExtractPrototypeMemberDeclarationsMode) ordinal() int32 {
+	return CompilerOptions_ExtractPrototypeMemberDeclarationsMode_enum_[this-1].ordinal_
+}
+
+func (this CompilerOptions_ExtractPrototypeMemberDeclarationsMode) toString() string {
+	return CompilerOptions_ExtractPrototypeMemberDeclarationsMode_enum_[this-1].name_
+}
+
+func (this CompilerOptions_ExtractPrototypeMemberDeclarationsMode) compareTo(o any) int32 {
+	return CompilerOptions_ExtractPrototypeMemberDeclarationsMode_enum_[this-1].compareTo(o)
+}
+
+func (this CompilerOptions_ExtractPrototypeMemberDeclarationsMode) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func CompilerOptions_ExtractPrototypeMemberDeclarationsMode_values() []*CompilerOptions_ExtractPrototypeMemberDeclarationsMode {
-	return append([]*CompilerOptions_ExtractPrototypeMemberDeclarationsMode(nil), CompilerOptions_ExtractPrototypeMemberDeclarationsMode_values_...)
+func CompilerOptions_ExtractPrototypeMemberDeclarationsMode_values() []CompilerOptions_ExtractPrototypeMemberDeclarationsMode {
+	return append([]CompilerOptions_ExtractPrototypeMemberDeclarationsMode(nil), CompilerOptions_ExtractPrototypeMemberDeclarationsMode_values_...)
 }
 
-func CompilerOptions_ExtractPrototypeMemberDeclarationsMode_valueOf(name string) *CompilerOptions_ExtractPrototypeMemberDeclarationsMode {
+func CompilerOptions_ExtractPrototypeMemberDeclarationsMode_valueOf(name string) CompilerOptions_ExtractPrototypeMemberDeclarationsMode {
 	for _, v := range CompilerOptions_ExtractPrototypeMemberDeclarationsMode_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("ExtractPrototypeMemberDeclarationsMode", name))
 }
 
-var CompilerOptions_ExtractPrototypeMemberDeclarationsMode_OFF *CompilerOptions_ExtractPrototypeMemberDeclarationsMode
-var CompilerOptions_ExtractPrototypeMemberDeclarationsMode_USE_GLOBAL_TEMP *CompilerOptions_ExtractPrototypeMemberDeclarationsMode
-var CompilerOptions_ExtractPrototypeMemberDeclarationsMode_USE_CHUNK_TEMP *CompilerOptions_ExtractPrototypeMemberDeclarationsMode
-var CompilerOptions_ExtractPrototypeMemberDeclarationsMode_USE_IIFE *CompilerOptions_ExtractPrototypeMemberDeclarationsMode
-var CompilerOptions_ExtractPrototypeMemberDeclarationsMode_values_ []*CompilerOptions_ExtractPrototypeMemberDeclarationsMode
+const CompilerOptions_ExtractPrototypeMemberDeclarationsMode_OFF CompilerOptions_ExtractPrototypeMemberDeclarationsMode = 1
+const CompilerOptions_ExtractPrototypeMemberDeclarationsMode_USE_GLOBAL_TEMP CompilerOptions_ExtractPrototypeMemberDeclarationsMode = 2
+const CompilerOptions_ExtractPrototypeMemberDeclarationsMode_USE_CHUNK_TEMP CompilerOptions_ExtractPrototypeMemberDeclarationsMode = 3
+const CompilerOptions_ExtractPrototypeMemberDeclarationsMode_USE_IIFE CompilerOptions_ExtractPrototypeMemberDeclarationsMode = 4
+
+var CompilerOptions_ExtractPrototypeMemberDeclarationsMode_values_ []CompilerOptions_ExtractPrototypeMemberDeclarationsMode
 
 var CompilerOptions_ExtractPrototypeMemberDeclarationsMode_clinit_done bool
 
@@ -2818,54 +2908,68 @@ func CompilerOptions_ExtractPrototypeMemberDeclarationsMode_clinit() {
 		return
 	}
 	CompilerOptions_ExtractPrototypeMemberDeclarationsMode_clinit_done = true
-	CompilerOptions_ExtractPrototypeMemberDeclarationsMode_OFF = new_CompilerOptions_ExtractPrototypeMemberDeclarationsMode("OFF", 0)
-	CompilerOptions_ExtractPrototypeMemberDeclarationsMode_USE_GLOBAL_TEMP = new_CompilerOptions_ExtractPrototypeMemberDeclarationsMode("USE_GLOBAL_TEMP", 1)
-	CompilerOptions_ExtractPrototypeMemberDeclarationsMode_USE_CHUNK_TEMP = new_CompilerOptions_ExtractPrototypeMemberDeclarationsMode("USE_CHUNK_TEMP", 2)
-	CompilerOptions_ExtractPrototypeMemberDeclarationsMode_USE_IIFE = new_CompilerOptions_ExtractPrototypeMemberDeclarationsMode("USE_IIFE", 3)
-	CompilerOptions_ExtractPrototypeMemberDeclarationsMode_values_ = []*CompilerOptions_ExtractPrototypeMemberDeclarationsMode{CompilerOptions_ExtractPrototypeMemberDeclarationsMode_OFF, CompilerOptions_ExtractPrototypeMemberDeclarationsMode_USE_GLOBAL_TEMP, CompilerOptions_ExtractPrototypeMemberDeclarationsMode_USE_CHUNK_TEMP, CompilerOptions_ExtractPrototypeMemberDeclarationsMode_USE_IIFE}
+	CompilerOptions_ExtractPrototypeMemberDeclarationsMode_values_ = []CompilerOptions_ExtractPrototypeMemberDeclarationsMode{CompilerOptions_ExtractPrototypeMemberDeclarationsMode_OFF, CompilerOptions_ExtractPrototypeMemberDeclarationsMode_USE_GLOBAL_TEMP, CompilerOptions_ExtractPrototypeMemberDeclarationsMode_USE_CHUNK_TEMP, CompilerOptions_ExtractPrototypeMemberDeclarationsMode_USE_IIFE}
 	registerEnum_("com.google.javascript.jscomp.CompilerOptions.ExtractPrototypeMemberDeclarationsMode", enumValues_(CompilerOptions_ExtractPrototypeMemberDeclarationsMode_values_))
 
 }
 
-type CompilerOptions_OutputJs struct {
-	Enum
+type CompilerOptions_OutputJs uint8
+
+// CompilerOptions_OutputJs_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var CompilerOptions_OutputJs_enum_ = [3]Enum{
+	{self_: CompilerOptions_OutputJs_NONE, name_: "NONE", ordinal_: 0},
+	{self_: CompilerOptions_OutputJs_SENTINEL, name_: "SENTINEL", ordinal_: 1},
+	{self_: CompilerOptions_OutputJs_NORMAL, name_: "NORMAL", ordinal_: 2},
 }
 
-func (this *CompilerOptions_OutputJs) up_Enum() *Enum {
-	if this == nil {
+func (this CompilerOptions_OutputJs) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &CompilerOptions_OutputJs_enum_[this-1]
 }
 
-func (this *CompilerOptions_OutputJs) init_CompilerOptions_OutputJs(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this CompilerOptions_OutputJs) name() string {
+	return CompilerOptions_OutputJs_enum_[this-1].name_
 }
 
-func new_CompilerOptions_OutputJs(name_ string, ordinal_ int32) *CompilerOptions_OutputJs {
-	this := &CompilerOptions_OutputJs{}
-	this.self_ = this
-	this.init_CompilerOptions_OutputJs(name_, ordinal_)
+func (this CompilerOptions_OutputJs) ordinal() int32 {
+	return CompilerOptions_OutputJs_enum_[this-1].ordinal_
+}
+
+func (this CompilerOptions_OutputJs) toString() string {
+	return CompilerOptions_OutputJs_enum_[this-1].name_
+}
+
+func (this CompilerOptions_OutputJs) compareTo(o any) int32 {
+	return CompilerOptions_OutputJs_enum_[this-1].compareTo(o)
+}
+
+func (this CompilerOptions_OutputJs) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func CompilerOptions_OutputJs_values() []*CompilerOptions_OutputJs {
-	return append([]*CompilerOptions_OutputJs(nil), CompilerOptions_OutputJs_values_...)
+func CompilerOptions_OutputJs_values() []CompilerOptions_OutputJs {
+	return append([]CompilerOptions_OutputJs(nil), CompilerOptions_OutputJs_values_...)
 }
 
-func CompilerOptions_OutputJs_valueOf(name string) *CompilerOptions_OutputJs {
+func CompilerOptions_OutputJs_valueOf(name string) CompilerOptions_OutputJs {
 	for _, v := range CompilerOptions_OutputJs_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("OutputJs", name))
 }
 
-var CompilerOptions_OutputJs_NONE *CompilerOptions_OutputJs
-var CompilerOptions_OutputJs_SENTINEL *CompilerOptions_OutputJs
-var CompilerOptions_OutputJs_NORMAL *CompilerOptions_OutputJs
-var CompilerOptions_OutputJs_values_ []*CompilerOptions_OutputJs
+const CompilerOptions_OutputJs_NONE CompilerOptions_OutputJs = 1
+const CompilerOptions_OutputJs_SENTINEL CompilerOptions_OutputJs = 2
+const CompilerOptions_OutputJs_NORMAL CompilerOptions_OutputJs = 3
+
+var CompilerOptions_OutputJs_values_ []CompilerOptions_OutputJs
 
 var CompilerOptions_OutputJs_clinit_done bool
 
@@ -2874,52 +2978,66 @@ func CompilerOptions_OutputJs_clinit() {
 		return
 	}
 	CompilerOptions_OutputJs_clinit_done = true
-	CompilerOptions_OutputJs_NONE = new_CompilerOptions_OutputJs("NONE", 0)
-	CompilerOptions_OutputJs_SENTINEL = new_CompilerOptions_OutputJs("SENTINEL", 1)
-	CompilerOptions_OutputJs_NORMAL = new_CompilerOptions_OutputJs("NORMAL", 2)
-	CompilerOptions_OutputJs_values_ = []*CompilerOptions_OutputJs{CompilerOptions_OutputJs_NONE, CompilerOptions_OutputJs_SENTINEL, CompilerOptions_OutputJs_NORMAL}
+	CompilerOptions_OutputJs_values_ = []CompilerOptions_OutputJs{CompilerOptions_OutputJs_NONE, CompilerOptions_OutputJs_SENTINEL, CompilerOptions_OutputJs_NORMAL}
 	registerEnum_("com.google.javascript.jscomp.CompilerOptions.OutputJs", enumValues_(CompilerOptions_OutputJs_values_))
 
 }
 
-type CompilerOptions_ConformanceReportingMode struct {
-	Enum
+type CompilerOptions_ConformanceReportingMode uint8
+
+// CompilerOptions_ConformanceReportingMode_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var CompilerOptions_ConformanceReportingMode_enum_ = [2]Enum{
+	{self_: CompilerOptions_ConformanceReportingMode_IGNORE_LIBRARY_LEVEL_BEHAVIOR_SPECIFIED_IN_CONFIG, name_: "IGNORE_LIBRARY_LEVEL_BEHAVIOR_SPECIFIED_IN_CONFIG", ordinal_: 0},
+	{self_: CompilerOptions_ConformanceReportingMode_RESPECT_LIBRARY_LEVEL_BEHAVIOR_SPECIFIED_IN_CONFIG, name_: "RESPECT_LIBRARY_LEVEL_BEHAVIOR_SPECIFIED_IN_CONFIG", ordinal_: 1},
 }
 
-func (this *CompilerOptions_ConformanceReportingMode) up_Enum() *Enum {
-	if this == nil {
+func (this CompilerOptions_ConformanceReportingMode) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &CompilerOptions_ConformanceReportingMode_enum_[this-1]
 }
 
-func (this *CompilerOptions_ConformanceReportingMode) init_CompilerOptions_ConformanceReportingMode(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this CompilerOptions_ConformanceReportingMode) name() string {
+	return CompilerOptions_ConformanceReportingMode_enum_[this-1].name_
 }
 
-func new_CompilerOptions_ConformanceReportingMode(name_ string, ordinal_ int32) *CompilerOptions_ConformanceReportingMode {
-	this := &CompilerOptions_ConformanceReportingMode{}
-	this.self_ = this
-	this.init_CompilerOptions_ConformanceReportingMode(name_, ordinal_)
+func (this CompilerOptions_ConformanceReportingMode) ordinal() int32 {
+	return CompilerOptions_ConformanceReportingMode_enum_[this-1].ordinal_
+}
+
+func (this CompilerOptions_ConformanceReportingMode) toString() string {
+	return CompilerOptions_ConformanceReportingMode_enum_[this-1].name_
+}
+
+func (this CompilerOptions_ConformanceReportingMode) compareTo(o any) int32 {
+	return CompilerOptions_ConformanceReportingMode_enum_[this-1].compareTo(o)
+}
+
+func (this CompilerOptions_ConformanceReportingMode) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func CompilerOptions_ConformanceReportingMode_values() []*CompilerOptions_ConformanceReportingMode {
-	return append([]*CompilerOptions_ConformanceReportingMode(nil), CompilerOptions_ConformanceReportingMode_values_...)
+func CompilerOptions_ConformanceReportingMode_values() []CompilerOptions_ConformanceReportingMode {
+	return append([]CompilerOptions_ConformanceReportingMode(nil), CompilerOptions_ConformanceReportingMode_values_...)
 }
 
-func CompilerOptions_ConformanceReportingMode_valueOf(name string) *CompilerOptions_ConformanceReportingMode {
+func CompilerOptions_ConformanceReportingMode_valueOf(name string) CompilerOptions_ConformanceReportingMode {
 	for _, v := range CompilerOptions_ConformanceReportingMode_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("ConformanceReportingMode", name))
 }
 
-var CompilerOptions_ConformanceReportingMode_IGNORE_LIBRARY_LEVEL_BEHAVIOR_SPECIFIED_IN_CONFIG *CompilerOptions_ConformanceReportingMode
-var CompilerOptions_ConformanceReportingMode_RESPECT_LIBRARY_LEVEL_BEHAVIOR_SPECIFIED_IN_CONFIG *CompilerOptions_ConformanceReportingMode
-var CompilerOptions_ConformanceReportingMode_values_ []*CompilerOptions_ConformanceReportingMode
+const CompilerOptions_ConformanceReportingMode_IGNORE_LIBRARY_LEVEL_BEHAVIOR_SPECIFIED_IN_CONFIG CompilerOptions_ConformanceReportingMode = 1
+const CompilerOptions_ConformanceReportingMode_RESPECT_LIBRARY_LEVEL_BEHAVIOR_SPECIFIED_IN_CONFIG CompilerOptions_ConformanceReportingMode = 2
+
+var CompilerOptions_ConformanceReportingMode_values_ []CompilerOptions_ConformanceReportingMode
 
 var CompilerOptions_ConformanceReportingMode_clinit_done bool
 
@@ -2928,51 +3046,66 @@ func CompilerOptions_ConformanceReportingMode_clinit() {
 		return
 	}
 	CompilerOptions_ConformanceReportingMode_clinit_done = true
-	CompilerOptions_ConformanceReportingMode_IGNORE_LIBRARY_LEVEL_BEHAVIOR_SPECIFIED_IN_CONFIG = new_CompilerOptions_ConformanceReportingMode("IGNORE_LIBRARY_LEVEL_BEHAVIOR_SPECIFIED_IN_CONFIG", 0)
-	CompilerOptions_ConformanceReportingMode_RESPECT_LIBRARY_LEVEL_BEHAVIOR_SPECIFIED_IN_CONFIG = new_CompilerOptions_ConformanceReportingMode("RESPECT_LIBRARY_LEVEL_BEHAVIOR_SPECIFIED_IN_CONFIG", 1)
-	CompilerOptions_ConformanceReportingMode_values_ = []*CompilerOptions_ConformanceReportingMode{CompilerOptions_ConformanceReportingMode_IGNORE_LIBRARY_LEVEL_BEHAVIOR_SPECIFIED_IN_CONFIG, CompilerOptions_ConformanceReportingMode_RESPECT_LIBRARY_LEVEL_BEHAVIOR_SPECIFIED_IN_CONFIG}
+	CompilerOptions_ConformanceReportingMode_values_ = []CompilerOptions_ConformanceReportingMode{CompilerOptions_ConformanceReportingMode_IGNORE_LIBRARY_LEVEL_BEHAVIOR_SPECIFIED_IN_CONFIG, CompilerOptions_ConformanceReportingMode_RESPECT_LIBRARY_LEVEL_BEHAVIOR_SPECIFIED_IN_CONFIG}
 	registerEnum_("com.google.javascript.jscomp.CompilerOptions.ConformanceReportingMode", enumValues_(CompilerOptions_ConformanceReportingMode_values_))
 
 }
 
-type CompilerOptions_ExperimentalOutputFeatureSet struct {
-	Enum
+type CompilerOptions_ExperimentalOutputFeatureSet uint8
+
+// CompilerOptions_ExperimentalOutputFeatureSet_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var CompilerOptions_ExperimentalOutputFeatureSet_enum_ = [2]Enum{
+	{self_: CompilerOptions_ExperimentalOutputFeatureSet_ES5_WITH_SOME_PERFORMANT_ES2015_AND_ASYNC_FUNCTIONS, name_: "ES5_WITH_SOME_PERFORMANT_ES2015_AND_ASYNC_FUNCTIONS", ordinal_: 0},
+	{self_: CompilerOptions_ExperimentalOutputFeatureSet_BROWSER_2019_WITHOUT_CLASSES_AND_SPREAD, name_: "BROWSER_2019_WITHOUT_CLASSES_AND_SPREAD", ordinal_: 1},
 }
 
-func (this *CompilerOptions_ExperimentalOutputFeatureSet) up_Enum() *Enum {
-	if this == nil {
+func (this CompilerOptions_ExperimentalOutputFeatureSet) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &CompilerOptions_ExperimentalOutputFeatureSet_enum_[this-1]
 }
 
-func (this *CompilerOptions_ExperimentalOutputFeatureSet) init_CompilerOptions_ExperimentalOutputFeatureSet(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this CompilerOptions_ExperimentalOutputFeatureSet) name() string {
+	return CompilerOptions_ExperimentalOutputFeatureSet_enum_[this-1].name_
 }
 
-func new_CompilerOptions_ExperimentalOutputFeatureSet(name_ string, ordinal_ int32) *CompilerOptions_ExperimentalOutputFeatureSet {
-	this := &CompilerOptions_ExperimentalOutputFeatureSet{}
-	this.self_ = this
-	this.init_CompilerOptions_ExperimentalOutputFeatureSet(name_, ordinal_)
+func (this CompilerOptions_ExperimentalOutputFeatureSet) ordinal() int32 {
+	return CompilerOptions_ExperimentalOutputFeatureSet_enum_[this-1].ordinal_
+}
+
+func (this CompilerOptions_ExperimentalOutputFeatureSet) toString() string {
+	return CompilerOptions_ExperimentalOutputFeatureSet_enum_[this-1].name_
+}
+
+func (this CompilerOptions_ExperimentalOutputFeatureSet) compareTo(o any) int32 {
+	return CompilerOptions_ExperimentalOutputFeatureSet_enum_[this-1].compareTo(o)
+}
+
+func (this CompilerOptions_ExperimentalOutputFeatureSet) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func CompilerOptions_ExperimentalOutputFeatureSet_values() []*CompilerOptions_ExperimentalOutputFeatureSet {
-	return append([]*CompilerOptions_ExperimentalOutputFeatureSet(nil), CompilerOptions_ExperimentalOutputFeatureSet_values_...)
+func CompilerOptions_ExperimentalOutputFeatureSet_values() []CompilerOptions_ExperimentalOutputFeatureSet {
+	return append([]CompilerOptions_ExperimentalOutputFeatureSet(nil), CompilerOptions_ExperimentalOutputFeatureSet_values_...)
 }
 
-func CompilerOptions_ExperimentalOutputFeatureSet_valueOf(name string) *CompilerOptions_ExperimentalOutputFeatureSet {
+func CompilerOptions_ExperimentalOutputFeatureSet_valueOf(name string) CompilerOptions_ExperimentalOutputFeatureSet {
 	for _, v := range CompilerOptions_ExperimentalOutputFeatureSet_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("ExperimentalOutputFeatureSet", name))
 }
 
-var CompilerOptions_ExperimentalOutputFeatureSet_ES5_WITH_SOME_PERFORMANT_ES2015_AND_ASYNC_FUNCTIONS *CompilerOptions_ExperimentalOutputFeatureSet
-var CompilerOptions_ExperimentalOutputFeatureSet_BROWSER_2019_WITHOUT_CLASSES_AND_SPREAD *CompilerOptions_ExperimentalOutputFeatureSet
-var CompilerOptions_ExperimentalOutputFeatureSet_values_ []*CompilerOptions_ExperimentalOutputFeatureSet
+const CompilerOptions_ExperimentalOutputFeatureSet_ES5_WITH_SOME_PERFORMANT_ES2015_AND_ASYNC_FUNCTIONS CompilerOptions_ExperimentalOutputFeatureSet = 1
+const CompilerOptions_ExperimentalOutputFeatureSet_BROWSER_2019_WITHOUT_CLASSES_AND_SPREAD CompilerOptions_ExperimentalOutputFeatureSet = 2
+
+var CompilerOptions_ExperimentalOutputFeatureSet_values_ []CompilerOptions_ExperimentalOutputFeatureSet
 
 var CompilerOptions_ExperimentalOutputFeatureSet_clinit_done bool
 
@@ -2981,53 +3114,70 @@ func CompilerOptions_ExperimentalOutputFeatureSet_clinit() {
 		return
 	}
 	CompilerOptions_ExperimentalOutputFeatureSet_clinit_done = true
-	CompilerOptions_ExperimentalOutputFeatureSet_ES5_WITH_SOME_PERFORMANT_ES2015_AND_ASYNC_FUNCTIONS = new_CompilerOptions_ExperimentalOutputFeatureSet("ES5_WITH_SOME_PERFORMANT_ES2015_AND_ASYNC_FUNCTIONS", 0)
-	CompilerOptions_ExperimentalOutputFeatureSet_BROWSER_2019_WITHOUT_CLASSES_AND_SPREAD = new_CompilerOptions_ExperimentalOutputFeatureSet("BROWSER_2019_WITHOUT_CLASSES_AND_SPREAD", 1)
-	CompilerOptions_ExperimentalOutputFeatureSet_values_ = []*CompilerOptions_ExperimentalOutputFeatureSet{CompilerOptions_ExperimentalOutputFeatureSet_ES5_WITH_SOME_PERFORMANT_ES2015_AND_ASYNC_FUNCTIONS, CompilerOptions_ExperimentalOutputFeatureSet_BROWSER_2019_WITHOUT_CLASSES_AND_SPREAD}
+	CompilerOptions_ExperimentalOutputFeatureSet_values_ = []CompilerOptions_ExperimentalOutputFeatureSet{CompilerOptions_ExperimentalOutputFeatureSet_ES5_WITH_SOME_PERFORMANT_ES2015_AND_ASYNC_FUNCTIONS, CompilerOptions_ExperimentalOutputFeatureSet_BROWSER_2019_WITHOUT_CLASSES_AND_SPREAD}
 	registerEnum_("com.google.javascript.jscomp.CompilerOptions.ExperimentalOutputFeatureSet", enumValues_(CompilerOptions_ExperimentalOutputFeatureSet_values_))
 
 }
 
-type CompilerOptions_Es6ModuleTranspilation struct {
-	Enum
+type CompilerOptions_Es6ModuleTranspilation uint8
+
+// CompilerOptions_Es6ModuleTranspilation_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var CompilerOptions_Es6ModuleTranspilation_enum_ = [4]Enum{
+	{self_: CompilerOptions_Es6ModuleTranspilation_NONE, name_: "NONE", ordinal_: 0},
+	{self_: CompilerOptions_Es6ModuleTranspilation_RELATIVIZE_IMPORT_PATHS, name_: "RELATIVIZE_IMPORT_PATHS", ordinal_: 1},
+	{self_: CompilerOptions_Es6ModuleTranspilation_TO_COMMON_JS_LIKE_MODULES, name_: "TO_COMMON_JS_LIKE_MODULES", ordinal_: 2},
+	{self_: CompilerOptions_Es6ModuleTranspilation_COMPILE, name_: "COMPILE", ordinal_: 3},
 }
 
-func (this *CompilerOptions_Es6ModuleTranspilation) up_Enum() *Enum {
-	if this == nil {
+func (this CompilerOptions_Es6ModuleTranspilation) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &CompilerOptions_Es6ModuleTranspilation_enum_[this-1]
 }
 
-func (this *CompilerOptions_Es6ModuleTranspilation) init_CompilerOptions_Es6ModuleTranspilation(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this CompilerOptions_Es6ModuleTranspilation) name() string {
+	return CompilerOptions_Es6ModuleTranspilation_enum_[this-1].name_
 }
 
-func new_CompilerOptions_Es6ModuleTranspilation(name_ string, ordinal_ int32) *CompilerOptions_Es6ModuleTranspilation {
-	this := &CompilerOptions_Es6ModuleTranspilation{}
-	this.self_ = this
-	this.init_CompilerOptions_Es6ModuleTranspilation(name_, ordinal_)
+func (this CompilerOptions_Es6ModuleTranspilation) ordinal() int32 {
+	return CompilerOptions_Es6ModuleTranspilation_enum_[this-1].ordinal_
+}
+
+func (this CompilerOptions_Es6ModuleTranspilation) toString() string {
+	return CompilerOptions_Es6ModuleTranspilation_enum_[this-1].name_
+}
+
+func (this CompilerOptions_Es6ModuleTranspilation) compareTo(o any) int32 {
+	return CompilerOptions_Es6ModuleTranspilation_enum_[this-1].compareTo(o)
+}
+
+func (this CompilerOptions_Es6ModuleTranspilation) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func CompilerOptions_Es6ModuleTranspilation_values() []*CompilerOptions_Es6ModuleTranspilation {
-	return append([]*CompilerOptions_Es6ModuleTranspilation(nil), CompilerOptions_Es6ModuleTranspilation_values_...)
+func CompilerOptions_Es6ModuleTranspilation_values() []CompilerOptions_Es6ModuleTranspilation {
+	return append([]CompilerOptions_Es6ModuleTranspilation(nil), CompilerOptions_Es6ModuleTranspilation_values_...)
 }
 
-func CompilerOptions_Es6ModuleTranspilation_valueOf(name string) *CompilerOptions_Es6ModuleTranspilation {
+func CompilerOptions_Es6ModuleTranspilation_valueOf(name string) CompilerOptions_Es6ModuleTranspilation {
 	for _, v := range CompilerOptions_Es6ModuleTranspilation_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("Es6ModuleTranspilation", name))
 }
 
-var CompilerOptions_Es6ModuleTranspilation_NONE *CompilerOptions_Es6ModuleTranspilation
-var CompilerOptions_Es6ModuleTranspilation_RELATIVIZE_IMPORT_PATHS *CompilerOptions_Es6ModuleTranspilation
-var CompilerOptions_Es6ModuleTranspilation_TO_COMMON_JS_LIKE_MODULES *CompilerOptions_Es6ModuleTranspilation
-var CompilerOptions_Es6ModuleTranspilation_COMPILE *CompilerOptions_Es6ModuleTranspilation
-var CompilerOptions_Es6ModuleTranspilation_values_ []*CompilerOptions_Es6ModuleTranspilation
+const CompilerOptions_Es6ModuleTranspilation_NONE CompilerOptions_Es6ModuleTranspilation = 1
+const CompilerOptions_Es6ModuleTranspilation_RELATIVIZE_IMPORT_PATHS CompilerOptions_Es6ModuleTranspilation = 2
+const CompilerOptions_Es6ModuleTranspilation_TO_COMMON_JS_LIKE_MODULES CompilerOptions_Es6ModuleTranspilation = 3
+const CompilerOptions_Es6ModuleTranspilation_COMPILE CompilerOptions_Es6ModuleTranspilation = 4
+
+var CompilerOptions_Es6ModuleTranspilation_values_ []CompilerOptions_Es6ModuleTranspilation
 
 var CompilerOptions_Es6ModuleTranspilation_clinit_done bool
 
@@ -3036,53 +3186,66 @@ func CompilerOptions_Es6ModuleTranspilation_clinit() {
 		return
 	}
 	CompilerOptions_Es6ModuleTranspilation_clinit_done = true
-	CompilerOptions_Es6ModuleTranspilation_NONE = new_CompilerOptions_Es6ModuleTranspilation("NONE", 0)
-	CompilerOptions_Es6ModuleTranspilation_RELATIVIZE_IMPORT_PATHS = new_CompilerOptions_Es6ModuleTranspilation("RELATIVIZE_IMPORT_PATHS", 1)
-	CompilerOptions_Es6ModuleTranspilation_TO_COMMON_JS_LIKE_MODULES = new_CompilerOptions_Es6ModuleTranspilation("TO_COMMON_JS_LIKE_MODULES", 2)
-	CompilerOptions_Es6ModuleTranspilation_COMPILE = new_CompilerOptions_Es6ModuleTranspilation("COMPILE", 3)
-	CompilerOptions_Es6ModuleTranspilation_values_ = []*CompilerOptions_Es6ModuleTranspilation{CompilerOptions_Es6ModuleTranspilation_NONE, CompilerOptions_Es6ModuleTranspilation_RELATIVIZE_IMPORT_PATHS, CompilerOptions_Es6ModuleTranspilation_TO_COMMON_JS_LIKE_MODULES, CompilerOptions_Es6ModuleTranspilation_COMPILE}
+	CompilerOptions_Es6ModuleTranspilation_values_ = []CompilerOptions_Es6ModuleTranspilation{CompilerOptions_Es6ModuleTranspilation_NONE, CompilerOptions_Es6ModuleTranspilation_RELATIVIZE_IMPORT_PATHS, CompilerOptions_Es6ModuleTranspilation_TO_COMMON_JS_LIKE_MODULES, CompilerOptions_Es6ModuleTranspilation_COMPILE}
 	registerEnum_("com.google.javascript.jscomp.CompilerOptions.Es6ModuleTranspilation", enumValues_(CompilerOptions_Es6ModuleTranspilation_values_))
 
 }
 
-type CompilerOptions_Es6SubclassTranspilation struct {
-	Enum
+type CompilerOptions_Es6SubclassTranspilation uint8
+
+// CompilerOptions_Es6SubclassTranspilation_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var CompilerOptions_Es6SubclassTranspilation_enum_ = [2]Enum{
+	{self_: CompilerOptions_Es6SubclassTranspilation_CONCISE_UNSAFE, name_: "CONCISE_UNSAFE", ordinal_: 0},
+	{self_: CompilerOptions_Es6SubclassTranspilation_SAFE_REFLECT_CONSTRUCT, name_: "SAFE_REFLECT_CONSTRUCT", ordinal_: 1},
 }
 
-func (this *CompilerOptions_Es6SubclassTranspilation) up_Enum() *Enum {
-	if this == nil {
+func (this CompilerOptions_Es6SubclassTranspilation) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &CompilerOptions_Es6SubclassTranspilation_enum_[this-1]
 }
 
-func (this *CompilerOptions_Es6SubclassTranspilation) init_CompilerOptions_Es6SubclassTranspilation(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this CompilerOptions_Es6SubclassTranspilation) name() string {
+	return CompilerOptions_Es6SubclassTranspilation_enum_[this-1].name_
 }
 
-func new_CompilerOptions_Es6SubclassTranspilation(name_ string, ordinal_ int32) *CompilerOptions_Es6SubclassTranspilation {
-	this := &CompilerOptions_Es6SubclassTranspilation{}
-	this.self_ = this
-	this.init_CompilerOptions_Es6SubclassTranspilation(name_, ordinal_)
+func (this CompilerOptions_Es6SubclassTranspilation) ordinal() int32 {
+	return CompilerOptions_Es6SubclassTranspilation_enum_[this-1].ordinal_
+}
+
+func (this CompilerOptions_Es6SubclassTranspilation) toString() string {
+	return CompilerOptions_Es6SubclassTranspilation_enum_[this-1].name_
+}
+
+func (this CompilerOptions_Es6SubclassTranspilation) compareTo(o any) int32 {
+	return CompilerOptions_Es6SubclassTranspilation_enum_[this-1].compareTo(o)
+}
+
+func (this CompilerOptions_Es6SubclassTranspilation) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func CompilerOptions_Es6SubclassTranspilation_values() []*CompilerOptions_Es6SubclassTranspilation {
-	return append([]*CompilerOptions_Es6SubclassTranspilation(nil), CompilerOptions_Es6SubclassTranspilation_values_...)
+func CompilerOptions_Es6SubclassTranspilation_values() []CompilerOptions_Es6SubclassTranspilation {
+	return append([]CompilerOptions_Es6SubclassTranspilation(nil), CompilerOptions_Es6SubclassTranspilation_values_...)
 }
 
-func CompilerOptions_Es6SubclassTranspilation_valueOf(name string) *CompilerOptions_Es6SubclassTranspilation {
+func CompilerOptions_Es6SubclassTranspilation_valueOf(name string) CompilerOptions_Es6SubclassTranspilation {
 	for _, v := range CompilerOptions_Es6SubclassTranspilation_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("Es6SubclassTranspilation", name))
 }
 
-var CompilerOptions_Es6SubclassTranspilation_CONCISE_UNSAFE *CompilerOptions_Es6SubclassTranspilation
-var CompilerOptions_Es6SubclassTranspilation_SAFE_REFLECT_CONSTRUCT *CompilerOptions_Es6SubclassTranspilation
-var CompilerOptions_Es6SubclassTranspilation_values_ []*CompilerOptions_Es6SubclassTranspilation
+const CompilerOptions_Es6SubclassTranspilation_CONCISE_UNSAFE CompilerOptions_Es6SubclassTranspilation = 1
+const CompilerOptions_Es6SubclassTranspilation_SAFE_REFLECT_CONSTRUCT CompilerOptions_Es6SubclassTranspilation = 2
+
+var CompilerOptions_Es6SubclassTranspilation_values_ []CompilerOptions_Es6SubclassTranspilation
 
 var CompilerOptions_Es6SubclassTranspilation_clinit_done bool
 
@@ -3091,40 +3254,56 @@ func CompilerOptions_Es6SubclassTranspilation_clinit() {
 		return
 	}
 	CompilerOptions_Es6SubclassTranspilation_clinit_done = true
-	CompilerOptions_Es6SubclassTranspilation_CONCISE_UNSAFE = new_CompilerOptions_Es6SubclassTranspilation("CONCISE_UNSAFE", 0)
-	CompilerOptions_Es6SubclassTranspilation_SAFE_REFLECT_CONSTRUCT = new_CompilerOptions_Es6SubclassTranspilation("SAFE_REFLECT_CONSTRUCT", 1)
-	CompilerOptions_Es6SubclassTranspilation_values_ = []*CompilerOptions_Es6SubclassTranspilation{CompilerOptions_Es6SubclassTranspilation_CONCISE_UNSAFE, CompilerOptions_Es6SubclassTranspilation_SAFE_REFLECT_CONSTRUCT}
+	CompilerOptions_Es6SubclassTranspilation_values_ = []CompilerOptions_Es6SubclassTranspilation{CompilerOptions_Es6SubclassTranspilation_CONCISE_UNSAFE, CompilerOptions_Es6SubclassTranspilation_SAFE_REFLECT_CONSTRUCT}
 	registerEnum_("com.google.javascript.jscomp.CompilerOptions.Es6SubclassTranspilation", enumValues_(CompilerOptions_Es6SubclassTranspilation_values_))
 
 }
 
-type CompilerOptions_InstrumentOption struct {
-	Enum
+type CompilerOptions_InstrumentOption uint8
+
+// CompilerOptions_InstrumentOption_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var CompilerOptions_InstrumentOption_enum_ = [4]Enum{
+	{self_: CompilerOptions_InstrumentOption_NONE, name_: "NONE", ordinal_: 0},
+	{self_: CompilerOptions_InstrumentOption_LINE_ONLY, name_: "LINE_ONLY", ordinal_: 1},
+	{self_: CompilerOptions_InstrumentOption_BRANCH_ONLY, name_: "BRANCH_ONLY", ordinal_: 2},
+	{self_: CompilerOptions_InstrumentOption_PRODUCTION, name_: "PRODUCTION", ordinal_: 3},
 }
 
-func (this *CompilerOptions_InstrumentOption) up_Enum() *Enum {
-	if this == nil {
+func (this CompilerOptions_InstrumentOption) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &CompilerOptions_InstrumentOption_enum_[this-1]
 }
 
-func (this *CompilerOptions_InstrumentOption) init_CompilerOptions_InstrumentOption(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this CompilerOptions_InstrumentOption) name() string {
+	return CompilerOptions_InstrumentOption_enum_[this-1].name_
 }
 
-func new_CompilerOptions_InstrumentOption(name_ string, ordinal_ int32) *CompilerOptions_InstrumentOption {
-	this := &CompilerOptions_InstrumentOption{}
-	this.self_ = this
-	this.init_CompilerOptions_InstrumentOption(name_, ordinal_)
+func (this CompilerOptions_InstrumentOption) ordinal() int32 {
+	return CompilerOptions_InstrumentOption_enum_[this-1].ordinal_
+}
+
+func (this CompilerOptions_InstrumentOption) toString() string {
+	return CompilerOptions_InstrumentOption_enum_[this-1].name_
+}
+
+func (this CompilerOptions_InstrumentOption) compareTo(o any) int32 {
+	return CompilerOptions_InstrumentOption_enum_[this-1].compareTo(o)
+}
+
+func (this CompilerOptions_InstrumentOption) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func CompilerOptions_InstrumentOption_fromString(value OptionalOf[string]) *CompilerOptions_InstrumentOption {
+func CompilerOptions_InstrumentOption_fromString(value OptionalOf[string]) CompilerOptions_InstrumentOption {
 	if value.isEmpty() {
-		return nil
+		return 0
 	}
-	return func() *CompilerOptions_InstrumentOption {
+	return func() CompilerOptions_InstrumentOption {
 		switch value.get() {
 		case "NONE":
 			return CompilerOptions_InstrumentOption_NONE
@@ -3135,30 +3314,31 @@ func CompilerOptions_InstrumentOption_fromString(value OptionalOf[string]) *Comp
 		case "PRODUCTION":
 			return CompilerOptions_InstrumentOption_PRODUCTION
 		default:
-			return nil
+			return 0
 		}
 		panic("unreachable")
 	}()
 }
 
-func CompilerOptions_InstrumentOption_values() []*CompilerOptions_InstrumentOption {
-	return append([]*CompilerOptions_InstrumentOption(nil), CompilerOptions_InstrumentOption_values_...)
+func CompilerOptions_InstrumentOption_values() []CompilerOptions_InstrumentOption {
+	return append([]CompilerOptions_InstrumentOption(nil), CompilerOptions_InstrumentOption_values_...)
 }
 
-func CompilerOptions_InstrumentOption_valueOf(name string) *CompilerOptions_InstrumentOption {
+func CompilerOptions_InstrumentOption_valueOf(name string) CompilerOptions_InstrumentOption {
 	for _, v := range CompilerOptions_InstrumentOption_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("InstrumentOption", name))
 }
 
-var CompilerOptions_InstrumentOption_NONE *CompilerOptions_InstrumentOption
-var CompilerOptions_InstrumentOption_LINE_ONLY *CompilerOptions_InstrumentOption
-var CompilerOptions_InstrumentOption_BRANCH_ONLY *CompilerOptions_InstrumentOption
-var CompilerOptions_InstrumentOption_PRODUCTION *CompilerOptions_InstrumentOption
-var CompilerOptions_InstrumentOption_values_ []*CompilerOptions_InstrumentOption
+const CompilerOptions_InstrumentOption_NONE CompilerOptions_InstrumentOption = 1
+const CompilerOptions_InstrumentOption_LINE_ONLY CompilerOptions_InstrumentOption = 2
+const CompilerOptions_InstrumentOption_BRANCH_ONLY CompilerOptions_InstrumentOption = 3
+const CompilerOptions_InstrumentOption_PRODUCTION CompilerOptions_InstrumentOption = 4
+
+var CompilerOptions_InstrumentOption_values_ []CompilerOptions_InstrumentOption
 
 var CompilerOptions_InstrumentOption_clinit_done bool
 
@@ -3167,53 +3347,66 @@ func CompilerOptions_InstrumentOption_clinit() {
 		return
 	}
 	CompilerOptions_InstrumentOption_clinit_done = true
-	CompilerOptions_InstrumentOption_NONE = new_CompilerOptions_InstrumentOption("NONE", 0)
-	CompilerOptions_InstrumentOption_LINE_ONLY = new_CompilerOptions_InstrumentOption("LINE_ONLY", 1)
-	CompilerOptions_InstrumentOption_BRANCH_ONLY = new_CompilerOptions_InstrumentOption("BRANCH_ONLY", 2)
-	CompilerOptions_InstrumentOption_PRODUCTION = new_CompilerOptions_InstrumentOption("PRODUCTION", 3)
-	CompilerOptions_InstrumentOption_values_ = []*CompilerOptions_InstrumentOption{CompilerOptions_InstrumentOption_NONE, CompilerOptions_InstrumentOption_LINE_ONLY, CompilerOptions_InstrumentOption_BRANCH_ONLY, CompilerOptions_InstrumentOption_PRODUCTION}
+	CompilerOptions_InstrumentOption_values_ = []CompilerOptions_InstrumentOption{CompilerOptions_InstrumentOption_NONE, CompilerOptions_InstrumentOption_LINE_ONLY, CompilerOptions_InstrumentOption_BRANCH_ONLY, CompilerOptions_InstrumentOption_PRODUCTION}
 	registerEnum_("com.google.javascript.jscomp.CompilerOptions.InstrumentOption", enumValues_(CompilerOptions_InstrumentOption_values_))
 
 }
 
-type CompilerOptions_ChunkOutputType struct {
-	Enum
+type CompilerOptions_ChunkOutputType uint8
+
+// CompilerOptions_ChunkOutputType_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var CompilerOptions_ChunkOutputType_enum_ = [2]Enum{
+	{self_: CompilerOptions_ChunkOutputType_GLOBAL_NAMESPACE, name_: "GLOBAL_NAMESPACE", ordinal_: 0},
+	{self_: CompilerOptions_ChunkOutputType_ES_MODULES, name_: "ES_MODULES", ordinal_: 1},
 }
 
-func (this *CompilerOptions_ChunkOutputType) up_Enum() *Enum {
-	if this == nil {
+func (this CompilerOptions_ChunkOutputType) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &CompilerOptions_ChunkOutputType_enum_[this-1]
 }
 
-func (this *CompilerOptions_ChunkOutputType) init_CompilerOptions_ChunkOutputType(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this CompilerOptions_ChunkOutputType) name() string {
+	return CompilerOptions_ChunkOutputType_enum_[this-1].name_
 }
 
-func new_CompilerOptions_ChunkOutputType(name_ string, ordinal_ int32) *CompilerOptions_ChunkOutputType {
-	this := &CompilerOptions_ChunkOutputType{}
-	this.self_ = this
-	this.init_CompilerOptions_ChunkOutputType(name_, ordinal_)
+func (this CompilerOptions_ChunkOutputType) ordinal() int32 {
+	return CompilerOptions_ChunkOutputType_enum_[this-1].ordinal_
+}
+
+func (this CompilerOptions_ChunkOutputType) toString() string {
+	return CompilerOptions_ChunkOutputType_enum_[this-1].name_
+}
+
+func (this CompilerOptions_ChunkOutputType) compareTo(o any) int32 {
+	return CompilerOptions_ChunkOutputType_enum_[this-1].compareTo(o)
+}
+
+func (this CompilerOptions_ChunkOutputType) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func CompilerOptions_ChunkOutputType_values() []*CompilerOptions_ChunkOutputType {
-	return append([]*CompilerOptions_ChunkOutputType(nil), CompilerOptions_ChunkOutputType_values_...)
+func CompilerOptions_ChunkOutputType_values() []CompilerOptions_ChunkOutputType {
+	return append([]CompilerOptions_ChunkOutputType(nil), CompilerOptions_ChunkOutputType_values_...)
 }
 
-func CompilerOptions_ChunkOutputType_valueOf(name string) *CompilerOptions_ChunkOutputType {
+func CompilerOptions_ChunkOutputType_valueOf(name string) CompilerOptions_ChunkOutputType {
 	for _, v := range CompilerOptions_ChunkOutputType_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("ChunkOutputType", name))
 }
 
-var CompilerOptions_ChunkOutputType_GLOBAL_NAMESPACE *CompilerOptions_ChunkOutputType
-var CompilerOptions_ChunkOutputType_ES_MODULES *CompilerOptions_ChunkOutputType
-var CompilerOptions_ChunkOutputType_values_ []*CompilerOptions_ChunkOutputType
+const CompilerOptions_ChunkOutputType_GLOBAL_NAMESPACE CompilerOptions_ChunkOutputType = 1
+const CompilerOptions_ChunkOutputType_ES_MODULES CompilerOptions_ChunkOutputType = 2
+
+var CompilerOptions_ChunkOutputType_values_ []CompilerOptions_ChunkOutputType
 
 var CompilerOptions_ChunkOutputType_clinit_done bool
 
@@ -3222,83 +3415,102 @@ func CompilerOptions_ChunkOutputType_clinit() {
 		return
 	}
 	CompilerOptions_ChunkOutputType_clinit_done = true
-	CompilerOptions_ChunkOutputType_GLOBAL_NAMESPACE = new_CompilerOptions_ChunkOutputType("GLOBAL_NAMESPACE", 0)
-	CompilerOptions_ChunkOutputType_ES_MODULES = new_CompilerOptions_ChunkOutputType("ES_MODULES", 1)
-	CompilerOptions_ChunkOutputType_values_ = []*CompilerOptions_ChunkOutputType{CompilerOptions_ChunkOutputType_GLOBAL_NAMESPACE, CompilerOptions_ChunkOutputType_ES_MODULES}
+	CompilerOptions_ChunkOutputType_values_ = []CompilerOptions_ChunkOutputType{CompilerOptions_ChunkOutputType_GLOBAL_NAMESPACE, CompilerOptions_ChunkOutputType_ES_MODULES}
 	registerEnum_("com.google.javascript.jscomp.CompilerOptions.ChunkOutputType", enumValues_(CompilerOptions_ChunkOutputType_values_))
 
 }
 
-type CompilerOptions_OptimizeLocalAccess struct {
-	Enum
+type CompilerOptions_OptimizeLocalAccess uint8
+
+// CompilerOptions_OptimizeLocalAccess_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var CompilerOptions_OptimizeLocalAccess_enum_ = [6]Enum{
+	{self_: CompilerOptions_OptimizeLocalAccess_DISABLED, name_: "DISABLED", ordinal_: 0},
+	{self_: CompilerOptions_OptimizeLocalAccess_DEFINING_CHUNK_ONLY, name_: "DEFINING_CHUNK_ONLY", ordinal_: 1},
+	{self_: CompilerOptions_OptimizeLocalAccess_ALL_CHUNKS, name_: "ALL_CHUNKS", ordinal_: 2},
+	{self_: CompilerOptions_OptimizeLocalAccess_ALL_CHUNKS_WITH_WRAPPED_REASSIGNABLE_SYMBOLS, name_: "ALL_CHUNKS_WITH_WRAPPED_REASSIGNABLE_SYMBOLS", ordinal_: 3},
+	{self_: CompilerOptions_OptimizeLocalAccess_ALL_CHUNKS_WITH_WRAPPED_REASSIGNABLE_SYMBOLS_IMPROVED, name_: "ALL_CHUNKS_WITH_WRAPPED_REASSIGNABLE_SYMBOLS_IMPROVED", ordinal_: 4},
+	{self_: CompilerOptions_OptimizeLocalAccess_DELETE_GLOBALS_ON_LAST_ACCESS, name_: "DELETE_GLOBALS_ON_LAST_ACCESS", ordinal_: 5},
 }
 
-func (this *CompilerOptions_OptimizeLocalAccess) up_Enum() *Enum {
-	if this == nil {
+func (this CompilerOptions_OptimizeLocalAccess) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &CompilerOptions_OptimizeLocalAccess_enum_[this-1]
 }
 
-func (this *CompilerOptions_OptimizeLocalAccess) init_CompilerOptions_OptimizeLocalAccess(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this CompilerOptions_OptimizeLocalAccess) name() string {
+	return CompilerOptions_OptimizeLocalAccess_enum_[this-1].name_
 }
 
-func new_CompilerOptions_OptimizeLocalAccess(name_ string, ordinal_ int32) *CompilerOptions_OptimizeLocalAccess {
-	this := &CompilerOptions_OptimizeLocalAccess{}
-	this.self_ = this
-	this.init_CompilerOptions_OptimizeLocalAccess(name_, ordinal_)
+func (this CompilerOptions_OptimizeLocalAccess) ordinal() int32 {
+	return CompilerOptions_OptimizeLocalAccess_enum_[this-1].ordinal_
+}
+
+func (this CompilerOptions_OptimizeLocalAccess) toString() string {
+	return CompilerOptions_OptimizeLocalAccess_enum_[this-1].name_
+}
+
+func (this CompilerOptions_OptimizeLocalAccess) compareTo(o any) int32 {
+	return CompilerOptions_OptimizeLocalAccess_enum_[this-1].compareTo(o)
+}
+
+func (this CompilerOptions_OptimizeLocalAccess) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func (this *CompilerOptions_OptimizeLocalAccess) shouldOptimize() bool {
+func (this CompilerOptions_OptimizeLocalAccess) shouldOptimize() bool {
 	return (this != CompilerOptions_OptimizeLocalAccess_DISABLED)
 }
 
-func (this *CompilerOptions_OptimizeLocalAccess) shouldOptimizeAllChunks() bool {
+func (this CompilerOptions_OptimizeLocalAccess) shouldOptimizeAllChunks() bool {
 	return (this.ordinal() >= CompilerOptions_OptimizeLocalAccess_ALL_CHUNKS.ordinal())
 }
 
-func (this *CompilerOptions_OptimizeLocalAccess) shouldWrapReassignableSymbols() bool {
+func (this CompilerOptions_OptimizeLocalAccess) shouldWrapReassignableSymbols() bool {
 	return (this.ordinal() >= CompilerOptions_OptimizeLocalAccess_ALL_CHUNKS_WITH_WRAPPED_REASSIGNABLE_SYMBOLS.ordinal())
 }
 
-func (this *CompilerOptions_OptimizeLocalAccess) shouldPreserveLocalVarDeclarations() bool {
+func (this CompilerOptions_OptimizeLocalAccess) shouldPreserveLocalVarDeclarations() bool {
 	return (this.ordinal() >= CompilerOptions_OptimizeLocalAccess_ALL_CHUNKS_WITH_WRAPPED_REASSIGNABLE_SYMBOLS_IMPROVED.ordinal())
 }
 
-func (this *CompilerOptions_OptimizeLocalAccess) shouldRewriteCompoundAndIncrementWritesInPlace() bool {
+func (this CompilerOptions_OptimizeLocalAccess) shouldRewriteCompoundAndIncrementWritesInPlace() bool {
 	return (this.ordinal() >= CompilerOptions_OptimizeLocalAccess_ALL_CHUNKS_WITH_WRAPPED_REASSIGNABLE_SYMBOLS_IMPROVED.ordinal())
 }
 
-func (this *CompilerOptions_OptimizeLocalAccess) shouldKeepLocalAliasForWrappedReassignables() bool {
+func (this CompilerOptions_OptimizeLocalAccess) shouldKeepLocalAliasForWrappedReassignables() bool {
 	return (this.ordinal() >= CompilerOptions_OptimizeLocalAccess_ALL_CHUNKS_WITH_WRAPPED_REASSIGNABLE_SYMBOLS_IMPROVED.ordinal())
 }
 
-func (this *CompilerOptions_OptimizeLocalAccess) shouldDeleteGlobalsOnLastAccess() bool {
+func (this CompilerOptions_OptimizeLocalAccess) shouldDeleteGlobalsOnLastAccess() bool {
 	return (this == CompilerOptions_OptimizeLocalAccess_DELETE_GLOBALS_ON_LAST_ACCESS)
 }
 
-func CompilerOptions_OptimizeLocalAccess_values() []*CompilerOptions_OptimizeLocalAccess {
-	return append([]*CompilerOptions_OptimizeLocalAccess(nil), CompilerOptions_OptimizeLocalAccess_values_...)
+func CompilerOptions_OptimizeLocalAccess_values() []CompilerOptions_OptimizeLocalAccess {
+	return append([]CompilerOptions_OptimizeLocalAccess(nil), CompilerOptions_OptimizeLocalAccess_values_...)
 }
 
-func CompilerOptions_OptimizeLocalAccess_valueOf(name string) *CompilerOptions_OptimizeLocalAccess {
+func CompilerOptions_OptimizeLocalAccess_valueOf(name string) CompilerOptions_OptimizeLocalAccess {
 	for _, v := range CompilerOptions_OptimizeLocalAccess_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("OptimizeLocalAccess", name))
 }
 
-var CompilerOptions_OptimizeLocalAccess_DISABLED *CompilerOptions_OptimizeLocalAccess
-var CompilerOptions_OptimizeLocalAccess_DEFINING_CHUNK_ONLY *CompilerOptions_OptimizeLocalAccess
-var CompilerOptions_OptimizeLocalAccess_ALL_CHUNKS *CompilerOptions_OptimizeLocalAccess
-var CompilerOptions_OptimizeLocalAccess_ALL_CHUNKS_WITH_WRAPPED_REASSIGNABLE_SYMBOLS *CompilerOptions_OptimizeLocalAccess
-var CompilerOptions_OptimizeLocalAccess_ALL_CHUNKS_WITH_WRAPPED_REASSIGNABLE_SYMBOLS_IMPROVED *CompilerOptions_OptimizeLocalAccess
-var CompilerOptions_OptimizeLocalAccess_DELETE_GLOBALS_ON_LAST_ACCESS *CompilerOptions_OptimizeLocalAccess
-var CompilerOptions_OptimizeLocalAccess_values_ []*CompilerOptions_OptimizeLocalAccess
+const CompilerOptions_OptimizeLocalAccess_DISABLED CompilerOptions_OptimizeLocalAccess = 1
+const CompilerOptions_OptimizeLocalAccess_DEFINING_CHUNK_ONLY CompilerOptions_OptimizeLocalAccess = 2
+const CompilerOptions_OptimizeLocalAccess_ALL_CHUNKS CompilerOptions_OptimizeLocalAccess = 3
+const CompilerOptions_OptimizeLocalAccess_ALL_CHUNKS_WITH_WRAPPED_REASSIGNABLE_SYMBOLS CompilerOptions_OptimizeLocalAccess = 4
+const CompilerOptions_OptimizeLocalAccess_ALL_CHUNKS_WITH_WRAPPED_REASSIGNABLE_SYMBOLS_IMPROVED CompilerOptions_OptimizeLocalAccess = 5
+const CompilerOptions_OptimizeLocalAccess_DELETE_GLOBALS_ON_LAST_ACCESS CompilerOptions_OptimizeLocalAccess = 6
+
+var CompilerOptions_OptimizeLocalAccess_values_ []CompilerOptions_OptimizeLocalAccess
 
 var CompilerOptions_OptimizeLocalAccess_clinit_done bool
 
@@ -3307,40 +3519,64 @@ func CompilerOptions_OptimizeLocalAccess_clinit() {
 		return
 	}
 	CompilerOptions_OptimizeLocalAccess_clinit_done = true
-	CompilerOptions_OptimizeLocalAccess_DISABLED = new_CompilerOptions_OptimizeLocalAccess("DISABLED", 0)
-	CompilerOptions_OptimizeLocalAccess_DEFINING_CHUNK_ONLY = new_CompilerOptions_OptimizeLocalAccess("DEFINING_CHUNK_ONLY", 1)
-	CompilerOptions_OptimizeLocalAccess_ALL_CHUNKS = new_CompilerOptions_OptimizeLocalAccess("ALL_CHUNKS", 2)
-	CompilerOptions_OptimizeLocalAccess_ALL_CHUNKS_WITH_WRAPPED_REASSIGNABLE_SYMBOLS = new_CompilerOptions_OptimizeLocalAccess("ALL_CHUNKS_WITH_WRAPPED_REASSIGNABLE_SYMBOLS", 3)
-	CompilerOptions_OptimizeLocalAccess_ALL_CHUNKS_WITH_WRAPPED_REASSIGNABLE_SYMBOLS_IMPROVED = new_CompilerOptions_OptimizeLocalAccess("ALL_CHUNKS_WITH_WRAPPED_REASSIGNABLE_SYMBOLS_IMPROVED", 4)
-	CompilerOptions_OptimizeLocalAccess_DELETE_GLOBALS_ON_LAST_ACCESS = new_CompilerOptions_OptimizeLocalAccess("DELETE_GLOBALS_ON_LAST_ACCESS", 5)
-	CompilerOptions_OptimizeLocalAccess_values_ = []*CompilerOptions_OptimizeLocalAccess{CompilerOptions_OptimizeLocalAccess_DISABLED, CompilerOptions_OptimizeLocalAccess_DEFINING_CHUNK_ONLY, CompilerOptions_OptimizeLocalAccess_ALL_CHUNKS, CompilerOptions_OptimizeLocalAccess_ALL_CHUNKS_WITH_WRAPPED_REASSIGNABLE_SYMBOLS, CompilerOptions_OptimizeLocalAccess_ALL_CHUNKS_WITH_WRAPPED_REASSIGNABLE_SYMBOLS_IMPROVED, CompilerOptions_OptimizeLocalAccess_DELETE_GLOBALS_ON_LAST_ACCESS}
+	CompilerOptions_OptimizeLocalAccess_values_ = []CompilerOptions_OptimizeLocalAccess{CompilerOptions_OptimizeLocalAccess_DISABLED, CompilerOptions_OptimizeLocalAccess_DEFINING_CHUNK_ONLY, CompilerOptions_OptimizeLocalAccess_ALL_CHUNKS, CompilerOptions_OptimizeLocalAccess_ALL_CHUNKS_WITH_WRAPPED_REASSIGNABLE_SYMBOLS, CompilerOptions_OptimizeLocalAccess_ALL_CHUNKS_WITH_WRAPPED_REASSIGNABLE_SYMBOLS_IMPROVED, CompilerOptions_OptimizeLocalAccess_DELETE_GLOBALS_ON_LAST_ACCESS}
 	registerEnum_("com.google.javascript.jscomp.CompilerOptions.OptimizeLocalAccess", enumValues_(CompilerOptions_OptimizeLocalAccess_values_))
 
 }
 
-type CompilerOptions_LanguageMode struct {
-	Enum
+type CompilerOptions_LanguageMode uint8
+
+// CompilerOptions_LanguageMode_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var CompilerOptions_LanguageMode_enum_ = [16]Enum{
+	{self_: CompilerOptions_LanguageMode_ECMASCRIPT3, name_: "ECMASCRIPT3", ordinal_: 0},
+	{self_: CompilerOptions_LanguageMode_ECMASCRIPT5, name_: "ECMASCRIPT5", ordinal_: 1},
+	{self_: CompilerOptions_LanguageMode_ECMASCRIPT5_STRICT, name_: "ECMASCRIPT5_STRICT", ordinal_: 2},
+	{self_: CompilerOptions_LanguageMode_ECMASCRIPT_2015, name_: "ECMASCRIPT_2015", ordinal_: 3},
+	{self_: CompilerOptions_LanguageMode_ECMASCRIPT_2016, name_: "ECMASCRIPT_2016", ordinal_: 4},
+	{self_: CompilerOptions_LanguageMode_ECMASCRIPT_2017, name_: "ECMASCRIPT_2017", ordinal_: 5},
+	{self_: CompilerOptions_LanguageMode_ECMASCRIPT_2018, name_: "ECMASCRIPT_2018", ordinal_: 6},
+	{self_: CompilerOptions_LanguageMode_ECMASCRIPT_2019, name_: "ECMASCRIPT_2019", ordinal_: 7},
+	{self_: CompilerOptions_LanguageMode_ECMASCRIPT_2020, name_: "ECMASCRIPT_2020", ordinal_: 8},
+	{self_: CompilerOptions_LanguageMode_ECMASCRIPT_2021, name_: "ECMASCRIPT_2021", ordinal_: 9},
+	{self_: CompilerOptions_LanguageMode_ECMASCRIPT_2022, name_: "ECMASCRIPT_2022", ordinal_: 10},
+	{self_: CompilerOptions_LanguageMode_ECMASCRIPT_NEXT, name_: "ECMASCRIPT_NEXT", ordinal_: 11},
+	{self_: CompilerOptions_LanguageMode_STABLE, name_: "STABLE", ordinal_: 12},
+	{self_: CompilerOptions_LanguageMode_NO_TRANSPILE, name_: "NO_TRANSPILE", ordinal_: 13},
+	{self_: CompilerOptions_LanguageMode_UNSTABLE, name_: "UNSTABLE", ordinal_: 14},
+	{self_: CompilerOptions_LanguageMode_UNSUPPORTED, name_: "UNSUPPORTED", ordinal_: 15},
 }
 
-func (this *CompilerOptions_LanguageMode) up_Enum() *Enum {
-	if this == nil {
+func (this CompilerOptions_LanguageMode) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &CompilerOptions_LanguageMode_enum_[this-1]
 }
 
-func (this *CompilerOptions_LanguageMode) init_CompilerOptions_LanguageMode(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this CompilerOptions_LanguageMode) name() string {
+	return CompilerOptions_LanguageMode_enum_[this-1].name_
 }
 
-func new_CompilerOptions_LanguageMode(name_ string, ordinal_ int32) *CompilerOptions_LanguageMode {
-	this := &CompilerOptions_LanguageMode{}
-	this.self_ = this
-	this.init_CompilerOptions_LanguageMode(name_, ordinal_)
+func (this CompilerOptions_LanguageMode) ordinal() int32 {
+	return CompilerOptions_LanguageMode_enum_[this-1].ordinal_
+}
+
+func (this CompilerOptions_LanguageMode) toString() string {
+	return CompilerOptions_LanguageMode_enum_[this-1].name_
+}
+
+func (this CompilerOptions_LanguageMode) compareTo(o any) int32 {
+	return CompilerOptions_LanguageMode_enum_[this-1].compareTo(o)
+}
+
+func (this CompilerOptions_LanguageMode) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func (this *CompilerOptions_LanguageMode) isDefaultStrict() bool {
+func (this CompilerOptions_LanguageMode) isDefaultStrict() bool {
 	return func() bool {
 		switch this {
 		case CompilerOptions_LanguageMode_ECMASCRIPT3, CompilerOptions_LanguageMode_ECMASCRIPT5:
@@ -3356,7 +3592,7 @@ func CompilerOptions_LanguageMode_validCommandLineNames() ListOf[string] {
 	var names ListOf[string] = icast_List(new_ArrayList_0().self())
 	it_1 := foreach_(obj_(EnumSet_allOf(classOf_("com.google.javascript.jscomp.CompilerOptions.LanguageMode"))))
 	for it_1.next() {
-		var mode *CompilerOptions_LanguageMode = cast_[*CompilerOptions_LanguageMode](it_1.v)
+		var mode CompilerOptions_LanguageMode = cast_[CompilerOptions_LanguageMode](it_1.v)
 		if mode != CompilerOptions_LanguageMode_UNSUPPORTED {
 			names.add(strobj_(mode.name()))
 			if String_startsWith(mode.name(), "ECMASCRIPT") {
@@ -3371,9 +3607,9 @@ func CompilerOptions_LanguageMode_validCommandLineNames() ListOf[string] {
 	return names
 }
 
-func CompilerOptions_LanguageMode_fromString(value OptionalOf[string]) *CompilerOptions_LanguageMode {
+func CompilerOptions_LanguageMode_fromString(value OptionalOf[string]) CompilerOptions_LanguageMode {
 	if value.isEmpty() {
-		return nil
+		return 0
 	}
 	var canonicalizedName string = CompilerOptions_LEADING_ES_PATTERN.matcher(strobj_(Ascii_toUpperCase(String_trim(value.get())))).replaceFirst("ECMASCRIPT")
 	if (canonicalizedName == "ECMASCRIPT6") || (canonicalizedName == "ECMASCRIPT6_STRICT") {
@@ -3384,10 +3620,10 @@ func CompilerOptions_LanguageMode_fromString(value OptionalOf[string]) *Compiler
 			return mode
 		}
 	}
-	return nil
+	return 0
 }
 
-func (this *CompilerOptions_LanguageMode) toFeatureSet() *FeatureSet {
+func (this CompilerOptions_LanguageMode) toFeatureSet() *FeatureSet {
 	return func() *FeatureSet {
 		switch this {
 		case CompilerOptions_LanguageMode_ECMASCRIPT3:
@@ -3423,38 +3659,39 @@ func (this *CompilerOptions_LanguageMode) toFeatureSet() *FeatureSet {
 	}()
 }
 
-func CompilerOptions_LanguageMode_values() []*CompilerOptions_LanguageMode {
-	return append([]*CompilerOptions_LanguageMode(nil), CompilerOptions_LanguageMode_values_...)
+func CompilerOptions_LanguageMode_values() []CompilerOptions_LanguageMode {
+	return append([]CompilerOptions_LanguageMode(nil), CompilerOptions_LanguageMode_values_...)
 }
 
-func CompilerOptions_LanguageMode_valueOf(name string) *CompilerOptions_LanguageMode {
+func CompilerOptions_LanguageMode_valueOf(name string) CompilerOptions_LanguageMode {
 	for _, v := range CompilerOptions_LanguageMode_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("LanguageMode", name))
 }
 
-var CompilerOptions_LanguageMode_ECMASCRIPT3 *CompilerOptions_LanguageMode
-var CompilerOptions_LanguageMode_ECMASCRIPT5 *CompilerOptions_LanguageMode
-var CompilerOptions_LanguageMode_ECMASCRIPT5_STRICT *CompilerOptions_LanguageMode
-var CompilerOptions_LanguageMode_ECMASCRIPT_2015 *CompilerOptions_LanguageMode
-var CompilerOptions_LanguageMode_ECMASCRIPT_2016 *CompilerOptions_LanguageMode
-var CompilerOptions_LanguageMode_ECMASCRIPT_2017 *CompilerOptions_LanguageMode
-var CompilerOptions_LanguageMode_ECMASCRIPT_2018 *CompilerOptions_LanguageMode
-var CompilerOptions_LanguageMode_ECMASCRIPT_2019 *CompilerOptions_LanguageMode
-var CompilerOptions_LanguageMode_ECMASCRIPT_2020 *CompilerOptions_LanguageMode
-var CompilerOptions_LanguageMode_ECMASCRIPT_2021 *CompilerOptions_LanguageMode
-var CompilerOptions_LanguageMode_ECMASCRIPT_2022 *CompilerOptions_LanguageMode
-var CompilerOptions_LanguageMode_ECMASCRIPT_NEXT *CompilerOptions_LanguageMode
-var CompilerOptions_LanguageMode_STABLE *CompilerOptions_LanguageMode
-var CompilerOptions_LanguageMode_NO_TRANSPILE *CompilerOptions_LanguageMode
-var CompilerOptions_LanguageMode_UNSTABLE *CompilerOptions_LanguageMode
-var CompilerOptions_LanguageMode_UNSUPPORTED *CompilerOptions_LanguageMode
-var CompilerOptions_LanguageMode_values_ []*CompilerOptions_LanguageMode
-var CompilerOptions_LanguageMode_STABLE_IN *CompilerOptions_LanguageMode
-var CompilerOptions_LanguageMode_STABLE_OUT *CompilerOptions_LanguageMode
+const CompilerOptions_LanguageMode_ECMASCRIPT3 CompilerOptions_LanguageMode = 1
+const CompilerOptions_LanguageMode_ECMASCRIPT5 CompilerOptions_LanguageMode = 2
+const CompilerOptions_LanguageMode_ECMASCRIPT5_STRICT CompilerOptions_LanguageMode = 3
+const CompilerOptions_LanguageMode_ECMASCRIPT_2015 CompilerOptions_LanguageMode = 4
+const CompilerOptions_LanguageMode_ECMASCRIPT_2016 CompilerOptions_LanguageMode = 5
+const CompilerOptions_LanguageMode_ECMASCRIPT_2017 CompilerOptions_LanguageMode = 6
+const CompilerOptions_LanguageMode_ECMASCRIPT_2018 CompilerOptions_LanguageMode = 7
+const CompilerOptions_LanguageMode_ECMASCRIPT_2019 CompilerOptions_LanguageMode = 8
+const CompilerOptions_LanguageMode_ECMASCRIPT_2020 CompilerOptions_LanguageMode = 9
+const CompilerOptions_LanguageMode_ECMASCRIPT_2021 CompilerOptions_LanguageMode = 10
+const CompilerOptions_LanguageMode_ECMASCRIPT_2022 CompilerOptions_LanguageMode = 11
+const CompilerOptions_LanguageMode_ECMASCRIPT_NEXT CompilerOptions_LanguageMode = 12
+const CompilerOptions_LanguageMode_STABLE CompilerOptions_LanguageMode = 13
+const CompilerOptions_LanguageMode_NO_TRANSPILE CompilerOptions_LanguageMode = 14
+const CompilerOptions_LanguageMode_UNSTABLE CompilerOptions_LanguageMode = 15
+const CompilerOptions_LanguageMode_UNSUPPORTED CompilerOptions_LanguageMode = 16
+
+var CompilerOptions_LanguageMode_values_ []CompilerOptions_LanguageMode
+var CompilerOptions_LanguageMode_STABLE_IN CompilerOptions_LanguageMode
+var CompilerOptions_LanguageMode_STABLE_OUT CompilerOptions_LanguageMode
 
 var CompilerOptions_LanguageMode_clinit_done bool
 
@@ -3463,69 +3700,70 @@ func CompilerOptions_LanguageMode_clinit() {
 		return
 	}
 	CompilerOptions_LanguageMode_clinit_done = true
-	CompilerOptions_LanguageMode_ECMASCRIPT3 = new_CompilerOptions_LanguageMode("ECMASCRIPT3", 0)
-	CompilerOptions_LanguageMode_ECMASCRIPT5 = new_CompilerOptions_LanguageMode("ECMASCRIPT5", 1)
-	CompilerOptions_LanguageMode_ECMASCRIPT5_STRICT = new_CompilerOptions_LanguageMode("ECMASCRIPT5_STRICT", 2)
-	CompilerOptions_LanguageMode_ECMASCRIPT_2015 = new_CompilerOptions_LanguageMode("ECMASCRIPT_2015", 3)
-	CompilerOptions_LanguageMode_ECMASCRIPT_2016 = new_CompilerOptions_LanguageMode("ECMASCRIPT_2016", 4)
-	CompilerOptions_LanguageMode_ECMASCRIPT_2017 = new_CompilerOptions_LanguageMode("ECMASCRIPT_2017", 5)
-	CompilerOptions_LanguageMode_ECMASCRIPT_2018 = new_CompilerOptions_LanguageMode("ECMASCRIPT_2018", 6)
-	CompilerOptions_LanguageMode_ECMASCRIPT_2019 = new_CompilerOptions_LanguageMode("ECMASCRIPT_2019", 7)
-	CompilerOptions_LanguageMode_ECMASCRIPT_2020 = new_CompilerOptions_LanguageMode("ECMASCRIPT_2020", 8)
-	CompilerOptions_LanguageMode_ECMASCRIPT_2021 = new_CompilerOptions_LanguageMode("ECMASCRIPT_2021", 9)
-	CompilerOptions_LanguageMode_ECMASCRIPT_2022 = new_CompilerOptions_LanguageMode("ECMASCRIPT_2022", 10)
-	CompilerOptions_LanguageMode_ECMASCRIPT_NEXT = new_CompilerOptions_LanguageMode("ECMASCRIPT_NEXT", 11)
-	CompilerOptions_LanguageMode_STABLE = new_CompilerOptions_LanguageMode("STABLE", 12)
-	CompilerOptions_LanguageMode_NO_TRANSPILE = new_CompilerOptions_LanguageMode("NO_TRANSPILE", 13)
-	CompilerOptions_LanguageMode_UNSTABLE = new_CompilerOptions_LanguageMode("UNSTABLE", 14)
-	CompilerOptions_LanguageMode_UNSUPPORTED = new_CompilerOptions_LanguageMode("UNSUPPORTED", 15)
-	CompilerOptions_LanguageMode_values_ = []*CompilerOptions_LanguageMode{CompilerOptions_LanguageMode_ECMASCRIPT3, CompilerOptions_LanguageMode_ECMASCRIPT5, CompilerOptions_LanguageMode_ECMASCRIPT5_STRICT, CompilerOptions_LanguageMode_ECMASCRIPT_2015, CompilerOptions_LanguageMode_ECMASCRIPT_2016, CompilerOptions_LanguageMode_ECMASCRIPT_2017, CompilerOptions_LanguageMode_ECMASCRIPT_2018, CompilerOptions_LanguageMode_ECMASCRIPT_2019, CompilerOptions_LanguageMode_ECMASCRIPT_2020, CompilerOptions_LanguageMode_ECMASCRIPT_2021, CompilerOptions_LanguageMode_ECMASCRIPT_2022, CompilerOptions_LanguageMode_ECMASCRIPT_NEXT, CompilerOptions_LanguageMode_STABLE, CompilerOptions_LanguageMode_NO_TRANSPILE, CompilerOptions_LanguageMode_UNSTABLE, CompilerOptions_LanguageMode_UNSUPPORTED}
+	CompilerOptions_LanguageMode_values_ = []CompilerOptions_LanguageMode{CompilerOptions_LanguageMode_ECMASCRIPT3, CompilerOptions_LanguageMode_ECMASCRIPT5, CompilerOptions_LanguageMode_ECMASCRIPT5_STRICT, CompilerOptions_LanguageMode_ECMASCRIPT_2015, CompilerOptions_LanguageMode_ECMASCRIPT_2016, CompilerOptions_LanguageMode_ECMASCRIPT_2017, CompilerOptions_LanguageMode_ECMASCRIPT_2018, CompilerOptions_LanguageMode_ECMASCRIPT_2019, CompilerOptions_LanguageMode_ECMASCRIPT_2020, CompilerOptions_LanguageMode_ECMASCRIPT_2021, CompilerOptions_LanguageMode_ECMASCRIPT_2022, CompilerOptions_LanguageMode_ECMASCRIPT_NEXT, CompilerOptions_LanguageMode_STABLE, CompilerOptions_LanguageMode_NO_TRANSPILE, CompilerOptions_LanguageMode_UNSTABLE, CompilerOptions_LanguageMode_UNSUPPORTED}
 	registerEnum_("com.google.javascript.jscomp.CompilerOptions.LanguageMode", enumValues_(CompilerOptions_LanguageMode_values_))
 	CompilerOptions_LanguageMode_STABLE_IN = CompilerOptions_LanguageMode_ECMASCRIPT_NEXT
 	CompilerOptions_LanguageMode_STABLE_OUT = CompilerOptions_LanguageMode_ECMASCRIPT5
 
 }
 
-type CompilerOptions_DevMode struct {
-	Enum
+type CompilerOptions_DevMode uint8
+
+// CompilerOptions_DevMode_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var CompilerOptions_DevMode_enum_ = [4]Enum{
+	{self_: CompilerOptions_DevMode_OFF, name_: "OFF", ordinal_: 0},
+	{self_: CompilerOptions_DevMode_START, name_: "START", ordinal_: 1},
+	{self_: CompilerOptions_DevMode_START_AND_END, name_: "START_AND_END", ordinal_: 2},
+	{self_: CompilerOptions_DevMode_EVERY_PASS, name_: "EVERY_PASS", ordinal_: 3},
 }
 
-func (this *CompilerOptions_DevMode) up_Enum() *Enum {
-	if this == nil {
+func (this CompilerOptions_DevMode) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &CompilerOptions_DevMode_enum_[this-1]
 }
 
-func (this *CompilerOptions_DevMode) init_CompilerOptions_DevMode(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this CompilerOptions_DevMode) name() string { return CompilerOptions_DevMode_enum_[this-1].name_ }
+
+func (this CompilerOptions_DevMode) ordinal() int32 {
+	return CompilerOptions_DevMode_enum_[this-1].ordinal_
 }
 
-func new_CompilerOptions_DevMode(name_ string, ordinal_ int32) *CompilerOptions_DevMode {
-	this := &CompilerOptions_DevMode{}
-	this.self_ = this
-	this.init_CompilerOptions_DevMode(name_, ordinal_)
+func (this CompilerOptions_DevMode) toString() string {
+	return CompilerOptions_DevMode_enum_[this-1].name_
+}
+
+func (this CompilerOptions_DevMode) compareTo(o any) int32 {
+	return CompilerOptions_DevMode_enum_[this-1].compareTo(o)
+}
+
+func (this CompilerOptions_DevMode) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func CompilerOptions_DevMode_values() []*CompilerOptions_DevMode {
-	return append([]*CompilerOptions_DevMode(nil), CompilerOptions_DevMode_values_...)
+func CompilerOptions_DevMode_values() []CompilerOptions_DevMode {
+	return append([]CompilerOptions_DevMode(nil), CompilerOptions_DevMode_values_...)
 }
 
-func CompilerOptions_DevMode_valueOf(name string) *CompilerOptions_DevMode {
+func CompilerOptions_DevMode_valueOf(name string) CompilerOptions_DevMode {
 	for _, v := range CompilerOptions_DevMode_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("DevMode", name))
 }
 
-var CompilerOptions_DevMode_OFF *CompilerOptions_DevMode
-var CompilerOptions_DevMode_START *CompilerOptions_DevMode
-var CompilerOptions_DevMode_START_AND_END *CompilerOptions_DevMode
-var CompilerOptions_DevMode_EVERY_PASS *CompilerOptions_DevMode
-var CompilerOptions_DevMode_values_ []*CompilerOptions_DevMode
+const CompilerOptions_DevMode_OFF CompilerOptions_DevMode = 1
+const CompilerOptions_DevMode_START CompilerOptions_DevMode = 2
+const CompilerOptions_DevMode_START_AND_END CompilerOptions_DevMode = 3
+const CompilerOptions_DevMode_EVERY_PASS CompilerOptions_DevMode = 4
+
+var CompilerOptions_DevMode_values_ []CompilerOptions_DevMode
 
 var CompilerOptions_DevMode_clinit_done bool
 
@@ -3534,65 +3772,82 @@ func CompilerOptions_DevMode_clinit() {
 		return
 	}
 	CompilerOptions_DevMode_clinit_done = true
-	CompilerOptions_DevMode_OFF = new_CompilerOptions_DevMode("OFF", 0)
-	CompilerOptions_DevMode_START = new_CompilerOptions_DevMode("START", 1)
-	CompilerOptions_DevMode_START_AND_END = new_CompilerOptions_DevMode("START_AND_END", 2)
-	CompilerOptions_DevMode_EVERY_PASS = new_CompilerOptions_DevMode("EVERY_PASS", 3)
-	CompilerOptions_DevMode_values_ = []*CompilerOptions_DevMode{CompilerOptions_DevMode_OFF, CompilerOptions_DevMode_START, CompilerOptions_DevMode_START_AND_END, CompilerOptions_DevMode_EVERY_PASS}
+	CompilerOptions_DevMode_values_ = []CompilerOptions_DevMode{CompilerOptions_DevMode_OFF, CompilerOptions_DevMode_START, CompilerOptions_DevMode_START_AND_END, CompilerOptions_DevMode_EVERY_PASS}
 	registerEnum_("com.google.javascript.jscomp.CompilerOptions.DevMode", enumValues_(CompilerOptions_DevMode_values_))
 
 }
 
-type CompilerOptions_TracerMode struct {
-	Enum
+type CompilerOptions_TracerMode uint8
+
+// CompilerOptions_TracerMode_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var CompilerOptions_TracerMode_enum_ = [6]Enum{
+	{self_: CompilerOptions_TracerMode_ALL, name_: "ALL", ordinal_: 0},
+	{self_: CompilerOptions_TracerMode_RAW_SIZE, name_: "RAW_SIZE", ordinal_: 1},
+	{self_: CompilerOptions_TracerMode_AST_SIZE_AND_PRUNING, name_: "AST_SIZE_AND_PRUNING", ordinal_: 2},
+	{self_: CompilerOptions_TracerMode_AST_SIZE, name_: "AST_SIZE", ordinal_: 3},
+	{self_: CompilerOptions_TracerMode_TIMING_ONLY, name_: "TIMING_ONLY", ordinal_: 4},
+	{self_: CompilerOptions_TracerMode_OFF, name_: "OFF", ordinal_: 5},
 }
 
-func (this *CompilerOptions_TracerMode) up_Enum() *Enum {
-	if this == nil {
+func (this CompilerOptions_TracerMode) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &CompilerOptions_TracerMode_enum_[this-1]
 }
 
-func (this *CompilerOptions_TracerMode) init_CompilerOptions_TracerMode(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this CompilerOptions_TracerMode) name() string {
+	return CompilerOptions_TracerMode_enum_[this-1].name_
 }
 
-func new_CompilerOptions_TracerMode(name_ string, ordinal_ int32) *CompilerOptions_TracerMode {
-	this := &CompilerOptions_TracerMode{}
-	this.self_ = this
-	this.init_CompilerOptions_TracerMode(name_, ordinal_)
+func (this CompilerOptions_TracerMode) ordinal() int32 {
+	return CompilerOptions_TracerMode_enum_[this-1].ordinal_
+}
+
+func (this CompilerOptions_TracerMode) toString() string {
+	return CompilerOptions_TracerMode_enum_[this-1].name_
+}
+
+func (this CompilerOptions_TracerMode) compareTo(o any) int32 {
+	return CompilerOptions_TracerMode_enum_[this-1].compareTo(o)
+}
+
+func (this CompilerOptions_TracerMode) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func (this *CompilerOptions_TracerMode) isOn() bool {
+func (this CompilerOptions_TracerMode) isOn() bool {
 	return (this != CompilerOptions_TracerMode_OFF)
 }
 
-func (this *CompilerOptions_TracerMode) doPruningAnalysis() bool {
+func (this CompilerOptions_TracerMode) doPruningAnalysis() bool {
 	return (((this == CompilerOptions_TracerMode_AST_SIZE_AND_PRUNING) || (this == CompilerOptions_TracerMode_ALL)) || (this == CompilerOptions_TracerMode_RAW_SIZE))
 }
 
-func CompilerOptions_TracerMode_values() []*CompilerOptions_TracerMode {
-	return append([]*CompilerOptions_TracerMode(nil), CompilerOptions_TracerMode_values_...)
+func CompilerOptions_TracerMode_values() []CompilerOptions_TracerMode {
+	return append([]CompilerOptions_TracerMode(nil), CompilerOptions_TracerMode_values_...)
 }
 
-func CompilerOptions_TracerMode_valueOf(name string) *CompilerOptions_TracerMode {
+func CompilerOptions_TracerMode_valueOf(name string) CompilerOptions_TracerMode {
 	for _, v := range CompilerOptions_TracerMode_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("TracerMode", name))
 }
 
-var CompilerOptions_TracerMode_ALL *CompilerOptions_TracerMode
-var CompilerOptions_TracerMode_RAW_SIZE *CompilerOptions_TracerMode
-var CompilerOptions_TracerMode_AST_SIZE_AND_PRUNING *CompilerOptions_TracerMode
-var CompilerOptions_TracerMode_AST_SIZE *CompilerOptions_TracerMode
-var CompilerOptions_TracerMode_TIMING_ONLY *CompilerOptions_TracerMode
-var CompilerOptions_TracerMode_OFF *CompilerOptions_TracerMode
-var CompilerOptions_TracerMode_values_ []*CompilerOptions_TracerMode
+const CompilerOptions_TracerMode_ALL CompilerOptions_TracerMode = 1
+const CompilerOptions_TracerMode_RAW_SIZE CompilerOptions_TracerMode = 2
+const CompilerOptions_TracerMode_AST_SIZE_AND_PRUNING CompilerOptions_TracerMode = 3
+const CompilerOptions_TracerMode_AST_SIZE CompilerOptions_TracerMode = 4
+const CompilerOptions_TracerMode_TIMING_ONLY CompilerOptions_TracerMode = 5
+const CompilerOptions_TracerMode_OFF CompilerOptions_TracerMode = 6
+
+var CompilerOptions_TracerMode_values_ []CompilerOptions_TracerMode
 
 var CompilerOptions_TracerMode_clinit_done bool
 
@@ -3601,64 +3856,76 @@ func CompilerOptions_TracerMode_clinit() {
 		return
 	}
 	CompilerOptions_TracerMode_clinit_done = true
-	CompilerOptions_TracerMode_ALL = new_CompilerOptions_TracerMode("ALL", 0)
-	CompilerOptions_TracerMode_RAW_SIZE = new_CompilerOptions_TracerMode("RAW_SIZE", 1)
-	CompilerOptions_TracerMode_AST_SIZE_AND_PRUNING = new_CompilerOptions_TracerMode("AST_SIZE_AND_PRUNING", 2)
-	CompilerOptions_TracerMode_AST_SIZE = new_CompilerOptions_TracerMode("AST_SIZE", 3)
-	CompilerOptions_TracerMode_TIMING_ONLY = new_CompilerOptions_TracerMode("TIMING_ONLY", 4)
-	CompilerOptions_TracerMode_OFF = new_CompilerOptions_TracerMode("OFF", 5)
-	CompilerOptions_TracerMode_values_ = []*CompilerOptions_TracerMode{CompilerOptions_TracerMode_ALL, CompilerOptions_TracerMode_RAW_SIZE, CompilerOptions_TracerMode_AST_SIZE_AND_PRUNING, CompilerOptions_TracerMode_AST_SIZE, CompilerOptions_TracerMode_TIMING_ONLY, CompilerOptions_TracerMode_OFF}
+	CompilerOptions_TracerMode_values_ = []CompilerOptions_TracerMode{CompilerOptions_TracerMode_ALL, CompilerOptions_TracerMode_RAW_SIZE, CompilerOptions_TracerMode_AST_SIZE_AND_PRUNING, CompilerOptions_TracerMode_AST_SIZE, CompilerOptions_TracerMode_TIMING_ONLY, CompilerOptions_TracerMode_OFF}
 	registerEnum_("com.google.javascript.jscomp.CompilerOptions.TracerMode", enumValues_(CompilerOptions_TracerMode_values_))
 
 }
 
-type CompilerOptions_TweakProcessing struct {
-	Enum
+type CompilerOptions_TweakProcessing uint8
+
+// CompilerOptions_TweakProcessing_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var CompilerOptions_TweakProcessing_enum_ = [3]Enum{
+	{self_: CompilerOptions_TweakProcessing_OFF, name_: "OFF", ordinal_: 0},
+	{self_: CompilerOptions_TweakProcessing_CHECK, name_: "CHECK", ordinal_: 1},
+	{self_: CompilerOptions_TweakProcessing_STRIP, name_: "STRIP", ordinal_: 2},
 }
 
-func (this *CompilerOptions_TweakProcessing) up_Enum() *Enum {
-	if this == nil {
+func (this CompilerOptions_TweakProcessing) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &CompilerOptions_TweakProcessing_enum_[this-1]
 }
 
-func (this *CompilerOptions_TweakProcessing) init_CompilerOptions_TweakProcessing(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this CompilerOptions_TweakProcessing) name() string {
+	return CompilerOptions_TweakProcessing_enum_[this-1].name_
 }
 
-func new_CompilerOptions_TweakProcessing(name_ string, ordinal_ int32) *CompilerOptions_TweakProcessing {
-	this := &CompilerOptions_TweakProcessing{}
-	this.self_ = this
-	this.init_CompilerOptions_TweakProcessing(name_, ordinal_)
+func (this CompilerOptions_TweakProcessing) ordinal() int32 {
+	return CompilerOptions_TweakProcessing_enum_[this-1].ordinal_
+}
+
+func (this CompilerOptions_TweakProcessing) toString() string {
+	return CompilerOptions_TweakProcessing_enum_[this-1].name_
+}
+
+func (this CompilerOptions_TweakProcessing) compareTo(o any) int32 {
+	return CompilerOptions_TweakProcessing_enum_[this-1].compareTo(o)
+}
+
+func (this CompilerOptions_TweakProcessing) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func (this *CompilerOptions_TweakProcessing) isOn() bool {
+func (this CompilerOptions_TweakProcessing) isOn() bool {
 	return (this != CompilerOptions_TweakProcessing_OFF)
 }
 
-func (this *CompilerOptions_TweakProcessing) shouldStrip() bool {
+func (this CompilerOptions_TweakProcessing) shouldStrip() bool {
 	return (this == CompilerOptions_TweakProcessing_STRIP)
 }
 
-func CompilerOptions_TweakProcessing_values() []*CompilerOptions_TweakProcessing {
-	return append([]*CompilerOptions_TweakProcessing(nil), CompilerOptions_TweakProcessing_values_...)
+func CompilerOptions_TweakProcessing_values() []CompilerOptions_TweakProcessing {
+	return append([]CompilerOptions_TweakProcessing(nil), CompilerOptions_TweakProcessing_values_...)
 }
 
-func CompilerOptions_TweakProcessing_valueOf(name string) *CompilerOptions_TweakProcessing {
+func CompilerOptions_TweakProcessing_valueOf(name string) CompilerOptions_TweakProcessing {
 	for _, v := range CompilerOptions_TweakProcessing_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("TweakProcessing", name))
 }
 
-var CompilerOptions_TweakProcessing_OFF *CompilerOptions_TweakProcessing
-var CompilerOptions_TweakProcessing_CHECK *CompilerOptions_TweakProcessing
-var CompilerOptions_TweakProcessing_STRIP *CompilerOptions_TweakProcessing
-var CompilerOptions_TweakProcessing_values_ []*CompilerOptions_TweakProcessing
+const CompilerOptions_TweakProcessing_OFF CompilerOptions_TweakProcessing = 1
+const CompilerOptions_TweakProcessing_CHECK CompilerOptions_TweakProcessing = 2
+const CompilerOptions_TweakProcessing_STRIP CompilerOptions_TweakProcessing = 3
+
+var CompilerOptions_TweakProcessing_values_ []CompilerOptions_TweakProcessing
 
 var CompilerOptions_TweakProcessing_clinit_done bool
 
@@ -3667,52 +3934,66 @@ func CompilerOptions_TweakProcessing_clinit() {
 		return
 	}
 	CompilerOptions_TweakProcessing_clinit_done = true
-	CompilerOptions_TweakProcessing_OFF = new_CompilerOptions_TweakProcessing("OFF", 0)
-	CompilerOptions_TweakProcessing_CHECK = new_CompilerOptions_TweakProcessing("CHECK", 1)
-	CompilerOptions_TweakProcessing_STRIP = new_CompilerOptions_TweakProcessing("STRIP", 2)
-	CompilerOptions_TweakProcessing_values_ = []*CompilerOptions_TweakProcessing{CompilerOptions_TweakProcessing_OFF, CompilerOptions_TweakProcessing_CHECK, CompilerOptions_TweakProcessing_STRIP}
+	CompilerOptions_TweakProcessing_values_ = []CompilerOptions_TweakProcessing{CompilerOptions_TweakProcessing_OFF, CompilerOptions_TweakProcessing_CHECK, CompilerOptions_TweakProcessing_STRIP}
 	registerEnum_("com.google.javascript.jscomp.CompilerOptions.TweakProcessing", enumValues_(CompilerOptions_TweakProcessing_values_))
 
 }
 
-type CompilerOptions_IsolationMode struct {
-	Enum
+type CompilerOptions_IsolationMode uint8
+
+// CompilerOptions_IsolationMode_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var CompilerOptions_IsolationMode_enum_ = [2]Enum{
+	{self_: CompilerOptions_IsolationMode_NONE, name_: "NONE", ordinal_: 0},
+	{self_: CompilerOptions_IsolationMode_IIFE, name_: "IIFE", ordinal_: 1},
 }
 
-func (this *CompilerOptions_IsolationMode) up_Enum() *Enum {
-	if this == nil {
+func (this CompilerOptions_IsolationMode) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &CompilerOptions_IsolationMode_enum_[this-1]
 }
 
-func (this *CompilerOptions_IsolationMode) init_CompilerOptions_IsolationMode(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this CompilerOptions_IsolationMode) name() string {
+	return CompilerOptions_IsolationMode_enum_[this-1].name_
 }
 
-func new_CompilerOptions_IsolationMode(name_ string, ordinal_ int32) *CompilerOptions_IsolationMode {
-	this := &CompilerOptions_IsolationMode{}
-	this.self_ = this
-	this.init_CompilerOptions_IsolationMode(name_, ordinal_)
+func (this CompilerOptions_IsolationMode) ordinal() int32 {
+	return CompilerOptions_IsolationMode_enum_[this-1].ordinal_
+}
+
+func (this CompilerOptions_IsolationMode) toString() string {
+	return CompilerOptions_IsolationMode_enum_[this-1].name_
+}
+
+func (this CompilerOptions_IsolationMode) compareTo(o any) int32 {
+	return CompilerOptions_IsolationMode_enum_[this-1].compareTo(o)
+}
+
+func (this CompilerOptions_IsolationMode) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func CompilerOptions_IsolationMode_values() []*CompilerOptions_IsolationMode {
-	return append([]*CompilerOptions_IsolationMode(nil), CompilerOptions_IsolationMode_values_...)
+func CompilerOptions_IsolationMode_values() []CompilerOptions_IsolationMode {
+	return append([]CompilerOptions_IsolationMode(nil), CompilerOptions_IsolationMode_values_...)
 }
 
-func CompilerOptions_IsolationMode_valueOf(name string) *CompilerOptions_IsolationMode {
+func CompilerOptions_IsolationMode_valueOf(name string) CompilerOptions_IsolationMode {
 	for _, v := range CompilerOptions_IsolationMode_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("IsolationMode", name))
 }
 
-var CompilerOptions_IsolationMode_NONE *CompilerOptions_IsolationMode
-var CompilerOptions_IsolationMode_IIFE *CompilerOptions_IsolationMode
-var CompilerOptions_IsolationMode_values_ []*CompilerOptions_IsolationMode
+const CompilerOptions_IsolationMode_NONE CompilerOptions_IsolationMode = 1
+const CompilerOptions_IsolationMode_IIFE CompilerOptions_IsolationMode = 2
+
+var CompilerOptions_IsolationMode_values_ []CompilerOptions_IsolationMode
 
 var CompilerOptions_IsolationMode_clinit_done bool
 
@@ -3721,56 +4002,76 @@ func CompilerOptions_IsolationMode_clinit() {
 		return
 	}
 	CompilerOptions_IsolationMode_clinit_done = true
-	CompilerOptions_IsolationMode_NONE = new_CompilerOptions_IsolationMode("NONE", 0)
-	CompilerOptions_IsolationMode_IIFE = new_CompilerOptions_IsolationMode("IIFE", 1)
-	CompilerOptions_IsolationMode_values_ = []*CompilerOptions_IsolationMode{CompilerOptions_IsolationMode_NONE, CompilerOptions_IsolationMode_IIFE}
+	CompilerOptions_IsolationMode_values_ = []CompilerOptions_IsolationMode{CompilerOptions_IsolationMode_NONE, CompilerOptions_IsolationMode_IIFE}
 	registerEnum_("com.google.javascript.jscomp.CompilerOptions.IsolationMode", enumValues_(CompilerOptions_IsolationMode_values_))
 
 }
 
-type CompilerOptions_SegmentOfCompilationToRun struct {
-	Enum
+type CompilerOptions_SegmentOfCompilationToRun uint8
+
+// CompilerOptions_SegmentOfCompilationToRun_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var CompilerOptions_SegmentOfCompilationToRun_enum_ = [7]Enum{
+	{self_: CompilerOptions_SegmentOfCompilationToRun_ENTIRE_COMPILATION, name_: "ENTIRE_COMPILATION", ordinal_: 0},
+	{self_: CompilerOptions_SegmentOfCompilationToRun_CHECKS, name_: "CHECKS", ordinal_: 1},
+	{self_: CompilerOptions_SegmentOfCompilationToRun_OPTIMIZATIONS_FIRST_HALF, name_: "OPTIMIZATIONS_FIRST_HALF", ordinal_: 2},
+	{self_: CompilerOptions_SegmentOfCompilationToRun_OPTIMIZATIONS_SECOND_HALF, name_: "OPTIMIZATIONS_SECOND_HALF", ordinal_: 3},
+	{self_: CompilerOptions_SegmentOfCompilationToRun_OPTIMIZATIONS, name_: "OPTIMIZATIONS", ordinal_: 4},
+	{self_: CompilerOptions_SegmentOfCompilationToRun_OPTIMIZATIONS_AND_FINALIZATIONS, name_: "OPTIMIZATIONS_AND_FINALIZATIONS", ordinal_: 5},
+	{self_: CompilerOptions_SegmentOfCompilationToRun_FINALIZATIONS, name_: "FINALIZATIONS", ordinal_: 6},
 }
 
-func (this *CompilerOptions_SegmentOfCompilationToRun) up_Enum() *Enum {
-	if this == nil {
+func (this CompilerOptions_SegmentOfCompilationToRun) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &CompilerOptions_SegmentOfCompilationToRun_enum_[this-1]
 }
 
-func (this *CompilerOptions_SegmentOfCompilationToRun) init_CompilerOptions_SegmentOfCompilationToRun(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this CompilerOptions_SegmentOfCompilationToRun) name() string {
+	return CompilerOptions_SegmentOfCompilationToRun_enum_[this-1].name_
 }
 
-func new_CompilerOptions_SegmentOfCompilationToRun(name_ string, ordinal_ int32) *CompilerOptions_SegmentOfCompilationToRun {
-	this := &CompilerOptions_SegmentOfCompilationToRun{}
-	this.self_ = this
-	this.init_CompilerOptions_SegmentOfCompilationToRun(name_, ordinal_)
+func (this CompilerOptions_SegmentOfCompilationToRun) ordinal() int32 {
+	return CompilerOptions_SegmentOfCompilationToRun_enum_[this-1].ordinal_
+}
+
+func (this CompilerOptions_SegmentOfCompilationToRun) toString() string {
+	return CompilerOptions_SegmentOfCompilationToRun_enum_[this-1].name_
+}
+
+func (this CompilerOptions_SegmentOfCompilationToRun) compareTo(o any) int32 {
+	return CompilerOptions_SegmentOfCompilationToRun_enum_[this-1].compareTo(o)
+}
+
+func (this CompilerOptions_SegmentOfCompilationToRun) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func CompilerOptions_SegmentOfCompilationToRun_values() []*CompilerOptions_SegmentOfCompilationToRun {
-	return append([]*CompilerOptions_SegmentOfCompilationToRun(nil), CompilerOptions_SegmentOfCompilationToRun_values_...)
+func CompilerOptions_SegmentOfCompilationToRun_values() []CompilerOptions_SegmentOfCompilationToRun {
+	return append([]CompilerOptions_SegmentOfCompilationToRun(nil), CompilerOptions_SegmentOfCompilationToRun_values_...)
 }
 
-func CompilerOptions_SegmentOfCompilationToRun_valueOf(name string) *CompilerOptions_SegmentOfCompilationToRun {
+func CompilerOptions_SegmentOfCompilationToRun_valueOf(name string) CompilerOptions_SegmentOfCompilationToRun {
 	for _, v := range CompilerOptions_SegmentOfCompilationToRun_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("SegmentOfCompilationToRun", name))
 }
 
-var CompilerOptions_SegmentOfCompilationToRun_ENTIRE_COMPILATION *CompilerOptions_SegmentOfCompilationToRun
-var CompilerOptions_SegmentOfCompilationToRun_CHECKS *CompilerOptions_SegmentOfCompilationToRun
-var CompilerOptions_SegmentOfCompilationToRun_OPTIMIZATIONS_FIRST_HALF *CompilerOptions_SegmentOfCompilationToRun
-var CompilerOptions_SegmentOfCompilationToRun_OPTIMIZATIONS_SECOND_HALF *CompilerOptions_SegmentOfCompilationToRun
-var CompilerOptions_SegmentOfCompilationToRun_OPTIMIZATIONS *CompilerOptions_SegmentOfCompilationToRun
-var CompilerOptions_SegmentOfCompilationToRun_OPTIMIZATIONS_AND_FINALIZATIONS *CompilerOptions_SegmentOfCompilationToRun
-var CompilerOptions_SegmentOfCompilationToRun_FINALIZATIONS *CompilerOptions_SegmentOfCompilationToRun
-var CompilerOptions_SegmentOfCompilationToRun_values_ []*CompilerOptions_SegmentOfCompilationToRun
+const CompilerOptions_SegmentOfCompilationToRun_ENTIRE_COMPILATION CompilerOptions_SegmentOfCompilationToRun = 1
+const CompilerOptions_SegmentOfCompilationToRun_CHECKS CompilerOptions_SegmentOfCompilationToRun = 2
+const CompilerOptions_SegmentOfCompilationToRun_OPTIMIZATIONS_FIRST_HALF CompilerOptions_SegmentOfCompilationToRun = 3
+const CompilerOptions_SegmentOfCompilationToRun_OPTIMIZATIONS_SECOND_HALF CompilerOptions_SegmentOfCompilationToRun = 4
+const CompilerOptions_SegmentOfCompilationToRun_OPTIMIZATIONS CompilerOptions_SegmentOfCompilationToRun = 5
+const CompilerOptions_SegmentOfCompilationToRun_OPTIMIZATIONS_AND_FINALIZATIONS CompilerOptions_SegmentOfCompilationToRun = 6
+const CompilerOptions_SegmentOfCompilationToRun_FINALIZATIONS CompilerOptions_SegmentOfCompilationToRun = 7
+
+var CompilerOptions_SegmentOfCompilationToRun_values_ []CompilerOptions_SegmentOfCompilationToRun
 
 var CompilerOptions_SegmentOfCompilationToRun_clinit_done bool
 
@@ -3779,58 +4080,70 @@ func CompilerOptions_SegmentOfCompilationToRun_clinit() {
 		return
 	}
 	CompilerOptions_SegmentOfCompilationToRun_clinit_done = true
-	CompilerOptions_SegmentOfCompilationToRun_ENTIRE_COMPILATION = new_CompilerOptions_SegmentOfCompilationToRun("ENTIRE_COMPILATION", 0)
-	CompilerOptions_SegmentOfCompilationToRun_CHECKS = new_CompilerOptions_SegmentOfCompilationToRun("CHECKS", 1)
-	CompilerOptions_SegmentOfCompilationToRun_OPTIMIZATIONS_FIRST_HALF = new_CompilerOptions_SegmentOfCompilationToRun("OPTIMIZATIONS_FIRST_HALF", 2)
-	CompilerOptions_SegmentOfCompilationToRun_OPTIMIZATIONS_SECOND_HALF = new_CompilerOptions_SegmentOfCompilationToRun("OPTIMIZATIONS_SECOND_HALF", 3)
-	CompilerOptions_SegmentOfCompilationToRun_OPTIMIZATIONS = new_CompilerOptions_SegmentOfCompilationToRun("OPTIMIZATIONS", 4)
-	CompilerOptions_SegmentOfCompilationToRun_OPTIMIZATIONS_AND_FINALIZATIONS = new_CompilerOptions_SegmentOfCompilationToRun("OPTIMIZATIONS_AND_FINALIZATIONS", 5)
-	CompilerOptions_SegmentOfCompilationToRun_FINALIZATIONS = new_CompilerOptions_SegmentOfCompilationToRun("FINALIZATIONS", 6)
-	CompilerOptions_SegmentOfCompilationToRun_values_ = []*CompilerOptions_SegmentOfCompilationToRun{CompilerOptions_SegmentOfCompilationToRun_ENTIRE_COMPILATION, CompilerOptions_SegmentOfCompilationToRun_CHECKS, CompilerOptions_SegmentOfCompilationToRun_OPTIMIZATIONS_FIRST_HALF, CompilerOptions_SegmentOfCompilationToRun_OPTIMIZATIONS_SECOND_HALF, CompilerOptions_SegmentOfCompilationToRun_OPTIMIZATIONS, CompilerOptions_SegmentOfCompilationToRun_OPTIMIZATIONS_AND_FINALIZATIONS, CompilerOptions_SegmentOfCompilationToRun_FINALIZATIONS}
+	CompilerOptions_SegmentOfCompilationToRun_values_ = []CompilerOptions_SegmentOfCompilationToRun{CompilerOptions_SegmentOfCompilationToRun_ENTIRE_COMPILATION, CompilerOptions_SegmentOfCompilationToRun_CHECKS, CompilerOptions_SegmentOfCompilationToRun_OPTIMIZATIONS_FIRST_HALF, CompilerOptions_SegmentOfCompilationToRun_OPTIMIZATIONS_SECOND_HALF, CompilerOptions_SegmentOfCompilationToRun_OPTIMIZATIONS, CompilerOptions_SegmentOfCompilationToRun_OPTIMIZATIONS_AND_FINALIZATIONS, CompilerOptions_SegmentOfCompilationToRun_FINALIZATIONS}
 	registerEnum_("com.google.javascript.jscomp.CompilerOptions.SegmentOfCompilationToRun", enumValues_(CompilerOptions_SegmentOfCompilationToRun_values_))
 
 }
 
-type CompilerOptions_AliasStringsMode struct {
-	Enum
+type CompilerOptions_AliasStringsMode uint8
+
+// CompilerOptions_AliasStringsMode_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var CompilerOptions_AliasStringsMode_enum_ = [4]Enum{
+	{self_: CompilerOptions_AliasStringsMode_NONE, name_: "NONE", ordinal_: 0},
+	{self_: CompilerOptions_AliasStringsMode_LARGE, name_: "LARGE", ordinal_: 1},
+	{self_: CompilerOptions_AliasStringsMode_ALL, name_: "ALL", ordinal_: 2},
+	{self_: CompilerOptions_AliasStringsMode_ALL_AGGRESSIVE, name_: "ALL_AGGRESSIVE", ordinal_: 3},
 }
 
-func (this *CompilerOptions_AliasStringsMode) up_Enum() *Enum {
-	if this == nil {
+func (this CompilerOptions_AliasStringsMode) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &CompilerOptions_AliasStringsMode_enum_[this-1]
 }
 
-func (this *CompilerOptions_AliasStringsMode) init_CompilerOptions_AliasStringsMode(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this CompilerOptions_AliasStringsMode) name() string {
+	return CompilerOptions_AliasStringsMode_enum_[this-1].name_
 }
 
-func new_CompilerOptions_AliasStringsMode(name_ string, ordinal_ int32) *CompilerOptions_AliasStringsMode {
-	this := &CompilerOptions_AliasStringsMode{}
-	this.self_ = this
-	this.init_CompilerOptions_AliasStringsMode(name_, ordinal_)
+func (this CompilerOptions_AliasStringsMode) ordinal() int32 {
+	return CompilerOptions_AliasStringsMode_enum_[this-1].ordinal_
+}
+
+func (this CompilerOptions_AliasStringsMode) toString() string {
+	return CompilerOptions_AliasStringsMode_enum_[this-1].name_
+}
+
+func (this CompilerOptions_AliasStringsMode) compareTo(o any) int32 {
+	return CompilerOptions_AliasStringsMode_enum_[this-1].compareTo(o)
+}
+
+func (this CompilerOptions_AliasStringsMode) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func CompilerOptions_AliasStringsMode_values() []*CompilerOptions_AliasStringsMode {
-	return append([]*CompilerOptions_AliasStringsMode(nil), CompilerOptions_AliasStringsMode_values_...)
+func CompilerOptions_AliasStringsMode_values() []CompilerOptions_AliasStringsMode {
+	return append([]CompilerOptions_AliasStringsMode(nil), CompilerOptions_AliasStringsMode_values_...)
 }
 
-func CompilerOptions_AliasStringsMode_valueOf(name string) *CompilerOptions_AliasStringsMode {
+func CompilerOptions_AliasStringsMode_valueOf(name string) CompilerOptions_AliasStringsMode {
 	for _, v := range CompilerOptions_AliasStringsMode_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("AliasStringsMode", name))
 }
 
-var CompilerOptions_AliasStringsMode_NONE *CompilerOptions_AliasStringsMode
-var CompilerOptions_AliasStringsMode_LARGE *CompilerOptions_AliasStringsMode
-var CompilerOptions_AliasStringsMode_ALL *CompilerOptions_AliasStringsMode
-var CompilerOptions_AliasStringsMode_ALL_AGGRESSIVE *CompilerOptions_AliasStringsMode
-var CompilerOptions_AliasStringsMode_values_ []*CompilerOptions_AliasStringsMode
+const CompilerOptions_AliasStringsMode_NONE CompilerOptions_AliasStringsMode = 1
+const CompilerOptions_AliasStringsMode_LARGE CompilerOptions_AliasStringsMode = 2
+const CompilerOptions_AliasStringsMode_ALL CompilerOptions_AliasStringsMode = 3
+const CompilerOptions_AliasStringsMode_ALL_AGGRESSIVE CompilerOptions_AliasStringsMode = 4
+
+var CompilerOptions_AliasStringsMode_values_ []CompilerOptions_AliasStringsMode
 
 var CompilerOptions_AliasStringsMode_clinit_done bool
 
@@ -3839,53 +4152,66 @@ func CompilerOptions_AliasStringsMode_clinit() {
 		return
 	}
 	CompilerOptions_AliasStringsMode_clinit_done = true
-	CompilerOptions_AliasStringsMode_NONE = new_CompilerOptions_AliasStringsMode("NONE", 0)
-	CompilerOptions_AliasStringsMode_LARGE = new_CompilerOptions_AliasStringsMode("LARGE", 1)
-	CompilerOptions_AliasStringsMode_ALL = new_CompilerOptions_AliasStringsMode("ALL", 2)
-	CompilerOptions_AliasStringsMode_ALL_AGGRESSIVE = new_CompilerOptions_AliasStringsMode("ALL_AGGRESSIVE", 3)
-	CompilerOptions_AliasStringsMode_values_ = []*CompilerOptions_AliasStringsMode{CompilerOptions_AliasStringsMode_NONE, CompilerOptions_AliasStringsMode_LARGE, CompilerOptions_AliasStringsMode_ALL, CompilerOptions_AliasStringsMode_ALL_AGGRESSIVE}
+	CompilerOptions_AliasStringsMode_values_ = []CompilerOptions_AliasStringsMode{CompilerOptions_AliasStringsMode_NONE, CompilerOptions_AliasStringsMode_LARGE, CompilerOptions_AliasStringsMode_ALL, CompilerOptions_AliasStringsMode_ALL_AGGRESSIVE}
 	registerEnum_("com.google.javascript.jscomp.CompilerOptions.AliasStringsMode", enumValues_(CompilerOptions_AliasStringsMode_values_))
 
 }
 
-type CompilerOptions_Environment struct {
-	Enum
+type CompilerOptions_Environment uint8
+
+// CompilerOptions_Environment_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var CompilerOptions_Environment_enum_ = [2]Enum{
+	{self_: CompilerOptions_Environment_BROWSER, name_: "BROWSER", ordinal_: 0},
+	{self_: CompilerOptions_Environment_CUSTOM, name_: "CUSTOM", ordinal_: 1},
 }
 
-func (this *CompilerOptions_Environment) up_Enum() *Enum {
-	if this == nil {
+func (this CompilerOptions_Environment) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &CompilerOptions_Environment_enum_[this-1]
 }
 
-func (this *CompilerOptions_Environment) init_CompilerOptions_Environment(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this CompilerOptions_Environment) name() string {
+	return CompilerOptions_Environment_enum_[this-1].name_
 }
 
-func new_CompilerOptions_Environment(name_ string, ordinal_ int32) *CompilerOptions_Environment {
-	this := &CompilerOptions_Environment{}
-	this.self_ = this
-	this.init_CompilerOptions_Environment(name_, ordinal_)
+func (this CompilerOptions_Environment) ordinal() int32 {
+	return CompilerOptions_Environment_enum_[this-1].ordinal_
+}
+
+func (this CompilerOptions_Environment) toString() string {
+	return CompilerOptions_Environment_enum_[this-1].name_
+}
+
+func (this CompilerOptions_Environment) compareTo(o any) int32 {
+	return CompilerOptions_Environment_enum_[this-1].compareTo(o)
+}
+
+func (this CompilerOptions_Environment) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func CompilerOptions_Environment_values() []*CompilerOptions_Environment {
-	return append([]*CompilerOptions_Environment(nil), CompilerOptions_Environment_values_...)
+func CompilerOptions_Environment_values() []CompilerOptions_Environment {
+	return append([]CompilerOptions_Environment(nil), CompilerOptions_Environment_values_...)
 }
 
-func CompilerOptions_Environment_valueOf(name string) *CompilerOptions_Environment {
+func CompilerOptions_Environment_valueOf(name string) CompilerOptions_Environment {
 	for _, v := range CompilerOptions_Environment_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("Environment", name))
 }
 
-var CompilerOptions_Environment_BROWSER *CompilerOptions_Environment
-var CompilerOptions_Environment_CUSTOM *CompilerOptions_Environment
-var CompilerOptions_Environment_values_ []*CompilerOptions_Environment
+const CompilerOptions_Environment_BROWSER CompilerOptions_Environment = 1
+const CompilerOptions_Environment_CUSTOM CompilerOptions_Environment = 2
+
+var CompilerOptions_Environment_values_ []CompilerOptions_Environment
 
 var CompilerOptions_Environment_clinit_done bool
 
@@ -3894,53 +4220,70 @@ func CompilerOptions_Environment_clinit() {
 		return
 	}
 	CompilerOptions_Environment_clinit_done = true
-	CompilerOptions_Environment_BROWSER = new_CompilerOptions_Environment("BROWSER", 0)
-	CompilerOptions_Environment_CUSTOM = new_CompilerOptions_Environment("CUSTOM", 1)
-	CompilerOptions_Environment_values_ = []*CompilerOptions_Environment{CompilerOptions_Environment_BROWSER, CompilerOptions_Environment_CUSTOM}
+	CompilerOptions_Environment_values_ = []CompilerOptions_Environment{CompilerOptions_Environment_BROWSER, CompilerOptions_Environment_CUSTOM}
 	registerEnum_("com.google.javascript.jscomp.CompilerOptions.Environment", enumValues_(CompilerOptions_Environment_values_))
 
 }
 
-type CompilerOptions_JsonStreamMode struct {
-	Enum
+type CompilerOptions_JsonStreamMode uint8
+
+// CompilerOptions_JsonStreamMode_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var CompilerOptions_JsonStreamMode_enum_ = [4]Enum{
+	{self_: CompilerOptions_JsonStreamMode_NONE, name_: "NONE", ordinal_: 0},
+	{self_: CompilerOptions_JsonStreamMode_IN, name_: "IN", ordinal_: 1},
+	{self_: CompilerOptions_JsonStreamMode_OUT, name_: "OUT", ordinal_: 2},
+	{self_: CompilerOptions_JsonStreamMode_BOTH, name_: "BOTH", ordinal_: 3},
 }
 
-func (this *CompilerOptions_JsonStreamMode) up_Enum() *Enum {
-	if this == nil {
+func (this CompilerOptions_JsonStreamMode) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &CompilerOptions_JsonStreamMode_enum_[this-1]
 }
 
-func (this *CompilerOptions_JsonStreamMode) init_CompilerOptions_JsonStreamMode(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this CompilerOptions_JsonStreamMode) name() string {
+	return CompilerOptions_JsonStreamMode_enum_[this-1].name_
 }
 
-func new_CompilerOptions_JsonStreamMode(name_ string, ordinal_ int32) *CompilerOptions_JsonStreamMode {
-	this := &CompilerOptions_JsonStreamMode{}
-	this.self_ = this
-	this.init_CompilerOptions_JsonStreamMode(name_, ordinal_)
+func (this CompilerOptions_JsonStreamMode) ordinal() int32 {
+	return CompilerOptions_JsonStreamMode_enum_[this-1].ordinal_
+}
+
+func (this CompilerOptions_JsonStreamMode) toString() string {
+	return CompilerOptions_JsonStreamMode_enum_[this-1].name_
+}
+
+func (this CompilerOptions_JsonStreamMode) compareTo(o any) int32 {
+	return CompilerOptions_JsonStreamMode_enum_[this-1].compareTo(o)
+}
+
+func (this CompilerOptions_JsonStreamMode) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func CompilerOptions_JsonStreamMode_values() []*CompilerOptions_JsonStreamMode {
-	return append([]*CompilerOptions_JsonStreamMode(nil), CompilerOptions_JsonStreamMode_values_...)
+func CompilerOptions_JsonStreamMode_values() []CompilerOptions_JsonStreamMode {
+	return append([]CompilerOptions_JsonStreamMode(nil), CompilerOptions_JsonStreamMode_values_...)
 }
 
-func CompilerOptions_JsonStreamMode_valueOf(name string) *CompilerOptions_JsonStreamMode {
+func CompilerOptions_JsonStreamMode_valueOf(name string) CompilerOptions_JsonStreamMode {
 	for _, v := range CompilerOptions_JsonStreamMode_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("JsonStreamMode", name))
 }
 
-var CompilerOptions_JsonStreamMode_NONE *CompilerOptions_JsonStreamMode
-var CompilerOptions_JsonStreamMode_IN *CompilerOptions_JsonStreamMode
-var CompilerOptions_JsonStreamMode_OUT *CompilerOptions_JsonStreamMode
-var CompilerOptions_JsonStreamMode_BOTH *CompilerOptions_JsonStreamMode
-var CompilerOptions_JsonStreamMode_values_ []*CompilerOptions_JsonStreamMode
+const CompilerOptions_JsonStreamMode_NONE CompilerOptions_JsonStreamMode = 1
+const CompilerOptions_JsonStreamMode_IN CompilerOptions_JsonStreamMode = 2
+const CompilerOptions_JsonStreamMode_OUT CompilerOptions_JsonStreamMode = 3
+const CompilerOptions_JsonStreamMode_BOTH CompilerOptions_JsonStreamMode = 4
+
+var CompilerOptions_JsonStreamMode_values_ []CompilerOptions_JsonStreamMode
 
 var CompilerOptions_JsonStreamMode_clinit_done bool
 
@@ -3949,57 +4292,70 @@ func CompilerOptions_JsonStreamMode_clinit() {
 		return
 	}
 	CompilerOptions_JsonStreamMode_clinit_done = true
-	CompilerOptions_JsonStreamMode_NONE = new_CompilerOptions_JsonStreamMode("NONE", 0)
-	CompilerOptions_JsonStreamMode_IN = new_CompilerOptions_JsonStreamMode("IN", 1)
-	CompilerOptions_JsonStreamMode_OUT = new_CompilerOptions_JsonStreamMode("OUT", 2)
-	CompilerOptions_JsonStreamMode_BOTH = new_CompilerOptions_JsonStreamMode("BOTH", 3)
-	CompilerOptions_JsonStreamMode_values_ = []*CompilerOptions_JsonStreamMode{CompilerOptions_JsonStreamMode_NONE, CompilerOptions_JsonStreamMode_IN, CompilerOptions_JsonStreamMode_OUT, CompilerOptions_JsonStreamMode_BOTH}
+	CompilerOptions_JsonStreamMode_values_ = []CompilerOptions_JsonStreamMode{CompilerOptions_JsonStreamMode_NONE, CompilerOptions_JsonStreamMode_IN, CompilerOptions_JsonStreamMode_OUT, CompilerOptions_JsonStreamMode_BOTH}
 	registerEnum_("com.google.javascript.jscomp.CompilerOptions.JsonStreamMode", enumValues_(CompilerOptions_JsonStreamMode_values_))
 
 }
 
-type CompilerOptions_J2clPassMode struct {
-	Enum
+type CompilerOptions_J2clPassMode uint8
+
+// CompilerOptions_J2clPassMode_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var CompilerOptions_J2clPassMode_enum_ = [2]Enum{
+	{self_: CompilerOptions_J2clPassMode_OFF, name_: "OFF", ordinal_: 0},
+	{self_: CompilerOptions_J2clPassMode_AUTO, name_: "AUTO", ordinal_: 1},
 }
 
-func (this *CompilerOptions_J2clPassMode) up_Enum() *Enum {
-	if this == nil {
+func (this CompilerOptions_J2clPassMode) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &CompilerOptions_J2clPassMode_enum_[this-1]
 }
 
-func (this *CompilerOptions_J2clPassMode) init_CompilerOptions_J2clPassMode(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this CompilerOptions_J2clPassMode) name() string {
+	return CompilerOptions_J2clPassMode_enum_[this-1].name_
 }
 
-func new_CompilerOptions_J2clPassMode(name_ string, ordinal_ int32) *CompilerOptions_J2clPassMode {
-	this := &CompilerOptions_J2clPassMode{}
-	this.self_ = this
-	this.init_CompilerOptions_J2clPassMode(name_, ordinal_)
+func (this CompilerOptions_J2clPassMode) ordinal() int32 {
+	return CompilerOptions_J2clPassMode_enum_[this-1].ordinal_
+}
+
+func (this CompilerOptions_J2clPassMode) toString() string {
+	return CompilerOptions_J2clPassMode_enum_[this-1].name_
+}
+
+func (this CompilerOptions_J2clPassMode) compareTo(o any) int32 {
+	return CompilerOptions_J2clPassMode_enum_[this-1].compareTo(o)
+}
+
+func (this CompilerOptions_J2clPassMode) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func (this *CompilerOptions_J2clPassMode) shouldAddJ2clPasses() bool {
+func (this CompilerOptions_J2clPassMode) shouldAddJ2clPasses() bool {
 	return (this == CompilerOptions_J2clPassMode_AUTO)
 }
 
-func CompilerOptions_J2clPassMode_values() []*CompilerOptions_J2clPassMode {
-	return append([]*CompilerOptions_J2clPassMode(nil), CompilerOptions_J2clPassMode_values_...)
+func CompilerOptions_J2clPassMode_values() []CompilerOptions_J2clPassMode {
+	return append([]CompilerOptions_J2clPassMode(nil), CompilerOptions_J2clPassMode_values_...)
 }
 
-func CompilerOptions_J2clPassMode_valueOf(name string) *CompilerOptions_J2clPassMode {
+func CompilerOptions_J2clPassMode_valueOf(name string) CompilerOptions_J2clPassMode {
 	for _, v := range CompilerOptions_J2clPassMode_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("J2clPassMode", name))
 }
 
-var CompilerOptions_J2clPassMode_OFF *CompilerOptions_J2clPassMode
-var CompilerOptions_J2clPassMode_AUTO *CompilerOptions_J2clPassMode
-var CompilerOptions_J2clPassMode_values_ []*CompilerOptions_J2clPassMode
+const CompilerOptions_J2clPassMode_OFF CompilerOptions_J2clPassMode = 1
+const CompilerOptions_J2clPassMode_AUTO CompilerOptions_J2clPassMode = 2
+
+var CompilerOptions_J2clPassMode_values_ []CompilerOptions_J2clPassMode
 
 var CompilerOptions_J2clPassMode_clinit_done bool
 
@@ -4008,9 +4364,7 @@ func CompilerOptions_J2clPassMode_clinit() {
 		return
 	}
 	CompilerOptions_J2clPassMode_clinit_done = true
-	CompilerOptions_J2clPassMode_OFF = new_CompilerOptions_J2clPassMode("OFF", 0)
-	CompilerOptions_J2clPassMode_AUTO = new_CompilerOptions_J2clPassMode("AUTO", 1)
-	CompilerOptions_J2clPassMode_values_ = []*CompilerOptions_J2clPassMode{CompilerOptions_J2clPassMode_OFF, CompilerOptions_J2clPassMode_AUTO}
+	CompilerOptions_J2clPassMode_values_ = []CompilerOptions_J2clPassMode{CompilerOptions_J2clPassMode_OFF, CompilerOptions_J2clPassMode_AUTO}
 	registerEnum_("com.google.javascript.jscomp.CompilerOptions.J2clPassMode", enumValues_(CompilerOptions_J2clPassMode_values_))
 
 }

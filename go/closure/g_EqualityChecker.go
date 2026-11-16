@@ -3,8 +3,8 @@
 package closure
 
 type EqualityChecker struct {
-	eqMethod       *EqualityChecker_EqMethod
-	eqCache        LinkedHashMapOf[*EqualityChecker_CacheKey, *JSType_MatchStatus]
+	eqMethod       EqualityChecker_EqMethod
+	eqCache        LinkedHashMapOf[*EqualityChecker_CacheKey, JSType_MatchStatus]
 	recursionDepth int32
 	hasRun         bool
 }
@@ -24,9 +24,9 @@ func new_EqualityChecker() *EqualityChecker {
 	return this
 }
 
-func (this *EqualityChecker) setEqMethod(x *EqualityChecker_EqMethod) *EqualityChecker {
+func (this *EqualityChecker) setEqMethod(x EqualityChecker_EqMethod) *EqualityChecker {
 	this.checkHasNotRun()
-	Preconditions_checkState((this.eqMethod == nil))
+	Preconditions_checkState((this.eqMethod == 0))
 	this.eqMethod = x
 	return this
 }
@@ -69,8 +69,8 @@ func (this *EqualityChecker) areEqualCaching(left *JSType, right *JSType) bool {
 		}
 	}
 	var key *EqualityChecker_CacheKey = new_EqualityChecker_CacheKey(left, right)
-	var cached *JSType_MatchStatus = cast_[*JSType_MatchStatus](Map_putIfAbsent(icast_Map(obj_(this.eqCache)), obj_(key), obj_(JSType_MatchStatus_PROCESSING)))
-	if cached == nil {
+	var cached JSType_MatchStatus = cast_[JSType_MatchStatus](Map_putIfAbsent(icast_Map(obj_(this.eqCache)), obj_(key), obj_(JSType_MatchStatus_PROCESSING)))
+	if cached == 0 {
 		var result bool = this.areEqualInternal(left, right)
 		this.eqCache.put(obj_(key), obj_(JSType_MatchStatus_valueOfBoolean(result)))
 		return result
@@ -341,44 +341,61 @@ func EqualityChecker_unwrapNominalTypeProxies(objType *ObjectType) *ObjectType {
 
 const EqualityChecker_POTENTIALLY_CYCLIC_RECURSION_DEPTH int32 = 20
 
-type EqualityChecker_EqMethod struct {
-	Enum
+type EqualityChecker_EqMethod uint8
+
+// EqualityChecker_EqMethod_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var EqualityChecker_EqMethod_enum_ = [2]Enum{
+	{self_: EqualityChecker_EqMethod_IDENTITY, name_: "IDENTITY", ordinal_: 0},
+	{self_: EqualityChecker_EqMethod_DATA_FLOW, name_: "DATA_FLOW", ordinal_: 1},
 }
 
-func (this *EqualityChecker_EqMethod) up_Enum() *Enum {
-	if this == nil {
+func (this EqualityChecker_EqMethod) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &EqualityChecker_EqMethod_enum_[this-1]
 }
 
-func (this *EqualityChecker_EqMethod) init_EqualityChecker_EqMethod(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this EqualityChecker_EqMethod) name() string {
+	return EqualityChecker_EqMethod_enum_[this-1].name_
 }
 
-func new_EqualityChecker_EqMethod(name_ string, ordinal_ int32) *EqualityChecker_EqMethod {
-	this := &EqualityChecker_EqMethod{}
-	this.self_ = this
-	this.init_EqualityChecker_EqMethod(name_, ordinal_)
+func (this EqualityChecker_EqMethod) ordinal() int32 {
+	return EqualityChecker_EqMethod_enum_[this-1].ordinal_
+}
+
+func (this EqualityChecker_EqMethod) toString() string {
+	return EqualityChecker_EqMethod_enum_[this-1].name_
+}
+
+func (this EqualityChecker_EqMethod) compareTo(o any) int32 {
+	return EqualityChecker_EqMethod_enum_[this-1].compareTo(o)
+}
+
+func (this EqualityChecker_EqMethod) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func EqualityChecker_EqMethod_values() []*EqualityChecker_EqMethod {
-	return append([]*EqualityChecker_EqMethod(nil), EqualityChecker_EqMethod_values_...)
+func EqualityChecker_EqMethod_values() []EqualityChecker_EqMethod {
+	return append([]EqualityChecker_EqMethod(nil), EqualityChecker_EqMethod_values_...)
 }
 
-func EqualityChecker_EqMethod_valueOf(name string) *EqualityChecker_EqMethod {
+func EqualityChecker_EqMethod_valueOf(name string) EqualityChecker_EqMethod {
 	for _, v := range EqualityChecker_EqMethod_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("EqMethod", name))
 }
 
-var EqualityChecker_EqMethod_IDENTITY *EqualityChecker_EqMethod
-var EqualityChecker_EqMethod_DATA_FLOW *EqualityChecker_EqMethod
-var EqualityChecker_EqMethod_values_ []*EqualityChecker_EqMethod
+const EqualityChecker_EqMethod_IDENTITY EqualityChecker_EqMethod = 1
+const EqualityChecker_EqMethod_DATA_FLOW EqualityChecker_EqMethod = 2
+
+var EqualityChecker_EqMethod_values_ []EqualityChecker_EqMethod
 
 var EqualityChecker_EqMethod_clinit_done bool
 
@@ -387,9 +404,7 @@ func EqualityChecker_EqMethod_clinit() {
 		return
 	}
 	EqualityChecker_EqMethod_clinit_done = true
-	EqualityChecker_EqMethod_IDENTITY = new_EqualityChecker_EqMethod("IDENTITY", 0)
-	EqualityChecker_EqMethod_DATA_FLOW = new_EqualityChecker_EqMethod("DATA_FLOW", 1)
-	EqualityChecker_EqMethod_values_ = []*EqualityChecker_EqMethod{EqualityChecker_EqMethod_IDENTITY, EqualityChecker_EqMethod_DATA_FLOW}
+	EqualityChecker_EqMethod_values_ = []EqualityChecker_EqMethod{EqualityChecker_EqMethod_IDENTITY, EqualityChecker_EqMethod_DATA_FLOW}
 	registerEnum_("com.google.javascript.rhino.jstype.EqualityChecker.EqMethod", enumValues_(EqualityChecker_EqMethod_values_))
 
 }

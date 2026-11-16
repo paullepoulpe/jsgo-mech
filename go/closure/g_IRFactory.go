@@ -18,7 +18,7 @@ type IRFactory struct {
 	closureUnawareTemplateNode Node
 	jsdocTracker               *IRFactory_CommentTracker
 	nonJsdocTracker            *IRFactory_CommentTracker
-	jsDocSourceKind            *JsDocInfoParser_JsDocSourceKind
+	jsDocSourceKind            JsDocInfoParser_JsDocSourceKind
 	currentFileIsExterns       bool
 	features_                  *FeatureSet
 	resultNode                 Node
@@ -34,7 +34,7 @@ func (this *IRFactory) finit_IRFactory() {
 	this.closureUnawareCodeRanges = icast_RangeSet(obj_(TreeRangeSet_create()))
 }
 
-func (this *IRFactory) init_IRFactory(sourceFile StaticSourceFile, config *Config, errorReporter ErrorReporter_rhino, comments ImmutableListOf[*Comment], fileWithContent *SourceFile_parser, jsDocSourceKind *JsDocInfoParser_JsDocSourceKind) {
+func (this *IRFactory) init_IRFactory(sourceFile StaticSourceFile, config *Config, errorReporter ErrorReporter_rhino, comments ImmutableListOf[*Comment], fileWithContent *SourceFile_parser, jsDocSourceKind JsDocInfoParser_JsDocSourceKind) {
 	this.finit_IRFactory()
 	this.jsdocTracker = new_IRFactory_CommentTracker(comments, lambda_IRFactory_init_IRFactory_1_)
 	this.nonJsdocTracker = new_IRFactory_CommentTracker(comments, lambda_IRFactory_init_IRFactory_2_)
@@ -76,7 +76,7 @@ var lambda_IRFactory_init_IRFactory_2_ = &Predicate_fn{func(c_ any) bool {
 	return (c.type__ != Comment_Type_JSDOC)
 }}
 
-func new_IRFactory(sourceFile StaticSourceFile, config *Config, errorReporter ErrorReporter_rhino, comments ImmutableListOf[*Comment], fileWithContent *SourceFile_parser, jsDocSourceKind *JsDocInfoParser_JsDocSourceKind) *IRFactory {
+func new_IRFactory(sourceFile StaticSourceFile, config *Config, errorReporter ErrorReporter_rhino, comments ImmutableListOf[*Comment], fileWithContent *SourceFile_parser, jsDocSourceKind JsDocInfoParser_JsDocSourceKind) *IRFactory {
 	this := &IRFactory{}
 	this.init_IRFactory(sourceFile, config, errorReporter, comments, fileWithContent, jsDocSourceKind)
 	return this
@@ -95,7 +95,7 @@ func (this *IRFactory) createClosureUnawareTemplateNode() Node {
 }
 
 func IRFactory_transformTree(tree *ProgramTree, sourceFile StaticSourceFile, config *Config, errorReporter ErrorReporter_rhino, file *SourceFile_parser) *IRFactory {
-	var jsDocSourceKind *JsDocInfoParser_JsDocSourceKind = func() *JsDocInfoParser_JsDocSourceKind {
+	var jsDocSourceKind JsDocInfoParser_JsDocSourceKind = func() JsDocInfoParser_JsDocSourceKind {
 		if sourceFile.isTypeScriptSource() {
 			return JsDocInfoParser_JsDocSourceKind_TSICKLE
 		}
@@ -742,8 +742,8 @@ func IRFactory_charno(location *SourcePosition_util) int32 {
 	return location.column_
 }
 
-func IRFactory_languageFeatureWarningMessage(feature *FeatureSet_Feature) string {
-	var forFeature *Config_LanguageMode = Config_LanguageMode_minimumRequiredFor(feature)
+func IRFactory_languageFeatureWarningMessage(feature FeatureSet_Feature) string {
+	var forFeature Config_LanguageMode = Config_LanguageMode_minimumRequiredFor(feature)
 	if forFeature == Config_LanguageMode_UNSUPPORTED {
 		return ("This language feature is not currently supported by the compiler: " + objstr_(obj_(feature)))
 	} else {
@@ -752,7 +752,7 @@ func IRFactory_languageFeatureWarningMessage(feature *FeatureSet_Feature) string
 	panic("unreachable")
 }
 
-func (this *IRFactory) maybeWarnForFeature(node *ParseTree, feature *FeatureSet_Feature) {
+func (this *IRFactory) maybeWarnForFeature(node *ParseTree, feature FeatureSet_Feature) {
 	this.features_ = this.features_.with(feature)
 	if this.withinClosureUnawareCodeRange(node.location_.start_.line_, node.location_.start_.column_) {
 		return
@@ -765,7 +765,7 @@ func (this *IRFactory) maybeWarnForFeature(node *ParseTree, feature *FeatureSet_
 	}
 }
 
-func (this *IRFactory) maybeWarnForFeatureToken(token *Token_parser, feature *FeatureSet_Feature) {
+func (this *IRFactory) maybeWarnForFeatureToken(token *Token_parser, feature FeatureSet_Feature) {
 	this.features_ = this.features_.with(feature)
 	if this.withinClosureUnawareCodeRange(token.location_.start_.line_, token.location_.start_.column_) {
 		return
@@ -778,7 +778,7 @@ func (this *IRFactory) maybeWarnForFeatureToken(token *Token_parser, feature *Fe
 	}
 }
 
-func (this *IRFactory) maybeWarnForFeatureNode(node Node, feature *FeatureSet_Feature) {
+func (this *IRFactory) maybeWarnForFeatureNode(node Node, feature FeatureSet_Feature) {
 	this.features_ = this.features_.with(feature)
 	if this.withinClosureUnawareCodeRange(node.getLineno(), node.getCharno()) {
 		return
@@ -871,7 +871,7 @@ func (this *IRFactory) reportErrorIfYieldOrAwaitInDefaultValue(defaultValueNode 
 	}
 }
 
-func IRFactory_findNodeTypeInExpression(expressionNode Node, token *Token_rhino) Node {
+func IRFactory_findNodeTypeInExpression(expressionNode Node, token Token_rhino) Node {
 	var worklist DequeOf[Node] = icast_Deque(obj_(new_ArrayDeque()))
 	worklist.add(expressionNode.box_())
 	for !worklist.isEmpty() {
@@ -1019,8 +1019,8 @@ func (this *IRFactory) normalizeString(token *LiteralToken, templateLiteral bool
 	return Object_toString(obj_(result))
 }
 
-func (this *IRFactory) isSupportedForInputLanguageMode(feature *FeatureSet_Feature) bool {
-	return this.config.languageMode().featureSet.has(feature)
+func (this *IRFactory) isSupportedForInputLanguageMode(feature FeatureSet_Feature) bool {
+	return Config_LanguageMode_featureSet_[this.config.languageMode()-1].has(feature)
 }
 
 func (this *IRFactory) inStrictContext() bool {
@@ -1221,8 +1221,8 @@ func IRFactory_hexdigit(c uint16) int32 {
 	}()
 }
 
-func IRFactory_transformBooleanTokenType(token *TokenType) *Token_rhino {
-	return func() *Token_rhino {
+func IRFactory_transformBooleanTokenType(token TokenType) Token_rhino {
+	return func() Token_rhino {
 		switch token {
 		case TokenType_TRUE:
 			return Token_rhino_TRUE
@@ -1235,8 +1235,8 @@ func IRFactory_transformBooleanTokenType(token *TokenType) *Token_rhino {
 	}()
 }
 
-func IRFactory_transformUpdateTokenType(token *TokenType) *Token_rhino {
-	return func() *Token_rhino {
+func IRFactory_transformUpdateTokenType(token TokenType) Token_rhino {
+	return func() Token_rhino {
 		switch token {
 		case TokenType_PLUS_PLUS:
 			return Token_rhino_INC
@@ -1249,8 +1249,8 @@ func IRFactory_transformUpdateTokenType(token *TokenType) *Token_rhino {
 	}()
 }
 
-func IRFactory_transformUnaryTokenType(token *TokenType) *Token_rhino {
-	return func() *Token_rhino {
+func IRFactory_transformUnaryTokenType(token TokenType) Token_rhino {
+	return func() Token_rhino {
 		switch token {
 		case TokenType_BANG:
 			return Token_rhino_NOT
@@ -1273,8 +1273,8 @@ func IRFactory_transformUnaryTokenType(token *TokenType) *Token_rhino {
 	}()
 }
 
-func IRFactory_transformBinaryTokenType(token *TokenType) *Token_rhino {
-	return func() *Token_rhino {
+func IRFactory_transformBinaryTokenType(token TokenType) Token_rhino {
+	return func() Token_rhino {
 		switch token {
 		case TokenType_BAR:
 			return Token_rhino_BITOR
@@ -1367,19 +1367,19 @@ func IRFactory_transformBinaryTokenType(token *TokenType) *Token_rhino {
 	}()
 }
 
-func (this *IRFactory) newNode(type_ *Token_rhino) Node {
+func (this *IRFactory) newNode(type_ Token_rhino) Node {
 	return new_Node_Token(type_).clonePropsFrom(this.templateNode)
 }
 
-func (this *IRFactory) newNode_2(type_ *Token_rhino, child1 Node) Node {
+func (this *IRFactory) newNode_2(type_ Token_rhino, child1 Node) Node {
 	return new_Node_Token_Node(type_, child1).clonePropsFrom(this.templateNode)
 }
 
-func (this *IRFactory) newNode_3(type_ *Token_rhino, child1 Node, child2 Node) Node {
+func (this *IRFactory) newNode_3(type_ Token_rhino, child1 Node, child2 Node) Node {
 	return new_Node_Token_Node_Node(type_, child1, child2).clonePropsFrom(this.templateNode)
 }
 
-func (this *IRFactory) newNode_4(type_ *Token_rhino, child1 Node, child2 Node, child3 Node) Node {
+func (this *IRFactory) newNode_4(type_ Token_rhino, child1 Node, child2 Node, child3 Node) Node {
 	return new_Node_Token_Node_Node_Node(type_, child1, child2, child3).clonePropsFrom(this.templateNode)
 }
 
@@ -1387,7 +1387,7 @@ func (this *IRFactory) newStringNode(value string) Node {
 	return IR_string(value).clonePropsFrom(this.templateNode)
 }
 
-func (this *IRFactory) newStringNode_2(type_ *Token_rhino, value string) Node {
+func (this *IRFactory) newStringNode_2(type_ Token_rhino, value string) Node {
 	return Node_newString_Token_String(type_, value).clonePropsFrom(this.templateNode)
 }
 
@@ -1613,7 +1613,7 @@ func new_IRFactory_TransformDispatcher(outer_ *IRFactory) *IRFactory_TransformDi
 	return this
 }
 
-func (this *IRFactory_TransformDispatcher) newStringNodeFromIdentifier(type_ *Token_rhino, identifierType *IRFactory_TransformDispatcher_IdentifierType, identifierToken *IdentifierToken) Node {
+func (this *IRFactory_TransformDispatcher) newStringNodeFromIdentifier(type_ Token_rhino, identifierType IRFactory_TransformDispatcher_IdentifierType, identifierToken *IdentifierToken) Node {
 	if !this.classScope.inScope() {
 		identifierType = IRFactory_TransformDispatcher_IdentifierType_STANDARD
 	}
@@ -1635,7 +1635,7 @@ func (this *IRFactory_TransformDispatcher) newStringNodeFromIdentifier(type_ *To
 	return node
 }
 
-func (this *IRFactory_TransformDispatcher) processObjectLitKey(input *Token_parser, output *Token_rhino, identifierType *IRFactory_TransformDispatcher_IdentifierType) Node {
+func (this *IRFactory_TransformDispatcher) processObjectLitKey(input *Token_parser, output Token_rhino, identifierType IRFactory_TransformDispatcher_IdentifierType) Node {
 	if input == nil {
 		return this.createMissingExpressionNode()
 	}
@@ -2073,7 +2073,7 @@ func (this *IRFactory_TransformDispatcher) processFunction(functionTree *Functio
 	var isAsync bool = functionTree.isAsync
 	var isGenerator bool = functionTree.isGenerator
 	var isSignature bool = (functionTree.functionBody.type__ == ParseTreeType_EMPTY_STATEMENT)
-	var identifierType *IRFactory_TransformDispatcher_IdentifierType = func() *IRFactory_TransformDispatcher_IdentifierType {
+	var identifierType IRFactory_TransformDispatcher_IdentifierType = func() IRFactory_TransformDispatcher_IdentifierType {
 		if functionTree.isClassMember {
 			return IRFactory_TransformDispatcher_IdentifierType_CAN_BE_PRIVATE
 		}
@@ -2332,11 +2332,11 @@ func (this *IRFactory_TransformDispatcher) processLabeledStatement(labelTree *La
 	return this.outer_.newNode_3(Token_rhino_LABEL, this.transformLabelName(labelTree.name_), statement)
 }
 
-func (this *IRFactory_TransformDispatcher) processName(nameNode *IdentifierExpressionTree, identifierType *IRFactory_TransformDispatcher_IdentifierType) Node {
+func (this *IRFactory_TransformDispatcher) processName(nameNode *IdentifierExpressionTree, identifierType IRFactory_TransformDispatcher_IdentifierType) Node {
 	return this.processName_3(nameNode.identifierToken, Token_rhino_NAME, identifierType)
 }
 
-func (this *IRFactory_TransformDispatcher) processName_3(identifierToken *IdentifierToken, output *Token_rhino, identifierType *IRFactory_TransformDispatcher_IdentifierType) Node {
+func (this *IRFactory_TransformDispatcher) processName_3(identifierToken *IdentifierToken, output Token_rhino, identifierType IRFactory_TransformDispatcher_IdentifierType) Node {
 	var comment *NonJSDocComment = this.outer_.parseNonJSDocCommentAt(identifierToken.getStart(), true)
 	var node Node = this.newStringNodeFromIdentifier(output, identifierType, identifierToken)
 	if output == Token_rhino_NAME {
@@ -2376,11 +2376,11 @@ func (this *IRFactory_TransformDispatcher) processTemplateLiteralToken(token *Te
 	return node
 }
 
-func (this *IRFactory_TransformDispatcher) processNameWithInlineCommentsIdentifierExpressionTree(identifierExpression *IdentifierExpressionTree, identifierType *IRFactory_TransformDispatcher_IdentifierType) Node {
+func (this *IRFactory_TransformDispatcher) processNameWithInlineCommentsIdentifierExpressionTree(identifierExpression *IdentifierExpressionTree, identifierType IRFactory_TransformDispatcher_IdentifierType) Node {
 	return this.processNameWithInlineComments(identifierExpression.identifierToken, identifierType)
 }
 
-func (this *IRFactory_TransformDispatcher) processNameWithInlineComments(identifierToken *IdentifierToken, identifierType *IRFactory_TransformDispatcher_IdentifierType) Node {
+func (this *IRFactory_TransformDispatcher) processNameWithInlineComments(identifierToken *IdentifierToken, identifierType IRFactory_TransformDispatcher_IdentifierType) Node {
 	var info *JSDocInfo = this.outer_.parseInlineJSDocAt(identifierToken.getStart())
 	var comment *NonJSDocComment = this.outer_.parseNonJSDocCommentAt(identifierToken.getStart(), false)
 	this.maybeWarnReservedKeyword(identifierToken)
@@ -2522,7 +2522,7 @@ func (this *IRFactory_TransformDispatcher) processComputedPropertySetter(tree *C
 }
 
 func (this *IRFactory_TransformDispatcher) processGetAccessor(tree *GetAccessorTree) Node {
-	var key Node = this.processObjectLitKey(tree.propertyName_, Token_rhino_GETTER_DEF, func() *IRFactory_TransformDispatcher_IdentifierType {
+	var key Node = this.processObjectLitKey(tree.propertyName_, Token_rhino_GETTER_DEF, func() IRFactory_TransformDispatcher_IdentifierType {
 		if tree.isClassMember {
 			return IRFactory_TransformDispatcher_IdentifierType_CAN_BE_PRIVATE
 		}
@@ -2541,7 +2541,7 @@ func (this *IRFactory_TransformDispatcher) processGetAccessor(tree *GetAccessorT
 }
 
 func (this *IRFactory_TransformDispatcher) processSetAccessor(tree *SetAccessorTree) Node {
-	var key Node = this.processObjectLitKey(tree.propertyName_, Token_rhino_SETTER_DEF, func() *IRFactory_TransformDispatcher_IdentifierType {
+	var key Node = this.processObjectLitKey(tree.propertyName_, Token_rhino_SETTER_DEF, func() IRFactory_TransformDispatcher_IdentifierType {
 		if tree.isClassMember {
 			return IRFactory_TransformDispatcher_IdentifierType_CAN_BE_PRIVATE
 		}
@@ -2594,7 +2594,7 @@ func (this *IRFactory_TransformDispatcher) processPropertyGet(getNode *MemberExp
 	if propName == nil {
 		return leftChild
 	}
-	var identifierType *IRFactory_TransformDispatcher_IdentifierType = func() *IRFactory_TransformDispatcher_IdentifierType {
+	var identifierType IRFactory_TransformDispatcher_IdentifierType = func() IRFactory_TransformDispatcher_IdentifierType {
 		if leftChild.isSuper() {
 			return IRFactory_TransformDispatcher_IdentifierType_STANDARD
 		}
@@ -2614,7 +2614,7 @@ func (this *IRFactory_TransformDispatcher) processOptChainPropertyGet(getNode *O
 	if propName == nil {
 		return leftChild
 	}
-	var identifierType *IRFactory_TransformDispatcher_IdentifierType = func() *IRFactory_TransformDispatcher_IdentifierType {
+	var identifierType IRFactory_TransformDispatcher_IdentifierType = func() IRFactory_TransformDispatcher_IdentifierType {
 		if leftChild.isSuper() {
 			return IRFactory_TransformDispatcher_IdentifierType_STANDARD
 		}
@@ -2655,7 +2655,7 @@ func (this *IRFactory_TransformDispatcher) validateRegExpFlags(tree *LiteralExpr
 		switch flag {
 		case 'g', 'i', 'm':
 		case 'u', 'y':
-			var feature *FeatureSet_Feature = func() *FeatureSet_Feature {
+			var feature FeatureSet_Feature = func() FeatureSet_Feature {
 				if flag == 'u' {
 					return FeatureSet_Feature_REGEXP_FLAG_U
 				}
@@ -2789,7 +2789,7 @@ func (this *IRFactory_TransformDispatcher) processFinally(finallyNode *FinallyTr
 }
 
 func (this *IRFactory_TransformDispatcher) processUnaryExpression(exprNode *UnaryExpressionTree) Node {
-	var type_ *Token_rhino = IRFactory_transformUnaryTokenType(exprNode.operator.type__)
+	var type_ Token_rhino = IRFactory_transformUnaryTokenType(exprNode.operator.type__)
 	var operand Node = this.outer_.transform(exprNode.operand)
 	switch type_ {
 	case Token_rhino_DELPROP:
@@ -2807,12 +2807,12 @@ func (this *IRFactory_TransformDispatcher) processUnaryExpression(exprNode *Unar
 }
 
 func (this *IRFactory_TransformDispatcher) processUpdateExpression(updateExpr *UpdateExpressionTree) Node {
-	var type_ *Token_rhino = IRFactory_transformUpdateTokenType(updateExpr.operator.type__)
+	var type_ Token_rhino = IRFactory_transformUpdateTokenType(updateExpr.operator.type__)
 	var operand Node = this.outer_.transform(updateExpr.operand)
 	return this.createUpdateNode(type_, (updateExpr.operatorPosition == UpdateExpressionTree_OperatorPosition_POSTFIX), operand)
 }
 
-func (this *IRFactory_TransformDispatcher) createUpdateNode(type_ *Token_rhino, postfix bool, operand Node) Node {
+func (this *IRFactory_TransformDispatcher) createUpdateNode(type_ Token_rhino, postfix bool, operand Node) Node {
 	var assignTarget Node = func() Node {
 		if operand.isCast() {
 			return operand.getFirstChild()
@@ -2842,7 +2842,7 @@ func (this *IRFactory_TransformDispatcher) processVariableStatement(stmt *Variab
 }
 
 func (this *IRFactory_TransformDispatcher) processVariableDeclarationList(decl *VariableDeclarationListTree) Node {
-	var declType *Token_rhino
+	var declType Token_rhino
 	switch decl.declarationType_ {
 	case TokenType_CONST:
 		this.outer_.maybeWarnForFeature(decl.up_ParseTree(), FeatureSet_Feature_CONST_DECLARATIONS)
@@ -3260,7 +3260,7 @@ func (this *IRFactory_TransformDispatcher) checkParameters(tree *FormalParameter
 	return good
 }
 
-func (this *IRFactory_TransformDispatcher) transformList(type_ *Token_rhino, list []*ParseTree) Node {
+func (this *IRFactory_TransformDispatcher) transformList(type_ Token_rhino, list []*ParseTree) Node {
 	var n Node = this.outer_.newNode(type_)
 	for _, tree := range list {
 		n.addChildToBack(this.outer_.transform(tree))
@@ -3268,7 +3268,7 @@ func (this *IRFactory_TransformDispatcher) transformList(type_ *Token_rhino, lis
 	return n
 }
 
-func (this *IRFactory_TransformDispatcher) transformListOrEmpty(type_ *Token_rhino, list []*ParseTree) Node {
+func (this *IRFactory_TransformDispatcher) transformListOrEmpty(type_ Token_rhino, list []*ParseTree) Node {
 	if (list == nil) || len(list) == 0 {
 		return this.outer_.newNode(Token_rhino_EMPTY)
 	} else {
@@ -3362,7 +3362,7 @@ func (this *IRFactory_TransformDispatcher) process(node *ParseTree) Node {
 	case ParseTreeType_PAREN_EXPRESSION:
 		return this.processParenthesizedExpression(node.asParenExpression())
 	case ParseTreeType_IDENTIFIER_EXPRESSION:
-		return this.processName(node.asIdentifierExpression(), func() *IRFactory_TransformDispatcher_IdentifierType {
+		return this.processName(node.asIdentifierExpression(), func() IRFactory_TransformDispatcher_IdentifierType {
 			if this.privateIdLhsOfInScope.inScope() {
 				return IRFactory_TransformDispatcher_IdentifierType_CAN_BE_PRIVATE
 			}
@@ -3517,44 +3517,61 @@ func (this *IRFactory_TransformDispatcher_AutoDecrement_fn) close() {
 	this.f()
 }
 
-type IRFactory_TransformDispatcher_IdentifierType struct {
-	Enum
+type IRFactory_TransformDispatcher_IdentifierType uint8
+
+// IRFactory_TransformDispatcher_IdentifierType_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var IRFactory_TransformDispatcher_IdentifierType_enum_ = [2]Enum{
+	{self_: IRFactory_TransformDispatcher_IdentifierType_STANDARD, name_: "STANDARD", ordinal_: 0},
+	{self_: IRFactory_TransformDispatcher_IdentifierType_CAN_BE_PRIVATE, name_: "CAN_BE_PRIVATE", ordinal_: 1},
 }
 
-func (this *IRFactory_TransformDispatcher_IdentifierType) up_Enum() *Enum {
-	if this == nil {
+func (this IRFactory_TransformDispatcher_IdentifierType) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &IRFactory_TransformDispatcher_IdentifierType_enum_[this-1]
 }
 
-func (this *IRFactory_TransformDispatcher_IdentifierType) init_IRFactory_TransformDispatcher_IdentifierType(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this IRFactory_TransformDispatcher_IdentifierType) name() string {
+	return IRFactory_TransformDispatcher_IdentifierType_enum_[this-1].name_
 }
 
-func new_IRFactory_TransformDispatcher_IdentifierType(name_ string, ordinal_ int32) *IRFactory_TransformDispatcher_IdentifierType {
-	this := &IRFactory_TransformDispatcher_IdentifierType{}
-	this.self_ = this
-	this.init_IRFactory_TransformDispatcher_IdentifierType(name_, ordinal_)
+func (this IRFactory_TransformDispatcher_IdentifierType) ordinal() int32 {
+	return IRFactory_TransformDispatcher_IdentifierType_enum_[this-1].ordinal_
+}
+
+func (this IRFactory_TransformDispatcher_IdentifierType) toString() string {
+	return IRFactory_TransformDispatcher_IdentifierType_enum_[this-1].name_
+}
+
+func (this IRFactory_TransformDispatcher_IdentifierType) compareTo(o any) int32 {
+	return IRFactory_TransformDispatcher_IdentifierType_enum_[this-1].compareTo(o)
+}
+
+func (this IRFactory_TransformDispatcher_IdentifierType) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func IRFactory_TransformDispatcher_IdentifierType_values() []*IRFactory_TransformDispatcher_IdentifierType {
-	return append([]*IRFactory_TransformDispatcher_IdentifierType(nil), IRFactory_TransformDispatcher_IdentifierType_values_...)
+func IRFactory_TransformDispatcher_IdentifierType_values() []IRFactory_TransformDispatcher_IdentifierType {
+	return append([]IRFactory_TransformDispatcher_IdentifierType(nil), IRFactory_TransformDispatcher_IdentifierType_values_...)
 }
 
-func IRFactory_TransformDispatcher_IdentifierType_valueOf(name string) *IRFactory_TransformDispatcher_IdentifierType {
+func IRFactory_TransformDispatcher_IdentifierType_valueOf(name string) IRFactory_TransformDispatcher_IdentifierType {
 	for _, v := range IRFactory_TransformDispatcher_IdentifierType_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("IdentifierType", name))
 }
 
-var IRFactory_TransformDispatcher_IdentifierType_STANDARD *IRFactory_TransformDispatcher_IdentifierType
-var IRFactory_TransformDispatcher_IdentifierType_CAN_BE_PRIVATE *IRFactory_TransformDispatcher_IdentifierType
-var IRFactory_TransformDispatcher_IdentifierType_values_ []*IRFactory_TransformDispatcher_IdentifierType
+const IRFactory_TransformDispatcher_IdentifierType_STANDARD IRFactory_TransformDispatcher_IdentifierType = 1
+const IRFactory_TransformDispatcher_IdentifierType_CAN_BE_PRIVATE IRFactory_TransformDispatcher_IdentifierType = 2
+
+var IRFactory_TransformDispatcher_IdentifierType_values_ []IRFactory_TransformDispatcher_IdentifierType
 
 var IRFactory_TransformDispatcher_IdentifierType_clinit_done bool
 
@@ -3563,9 +3580,7 @@ func IRFactory_TransformDispatcher_IdentifierType_clinit() {
 		return
 	}
 	IRFactory_TransformDispatcher_IdentifierType_clinit_done = true
-	IRFactory_TransformDispatcher_IdentifierType_STANDARD = new_IRFactory_TransformDispatcher_IdentifierType("STANDARD", 0)
-	IRFactory_TransformDispatcher_IdentifierType_CAN_BE_PRIVATE = new_IRFactory_TransformDispatcher_IdentifierType("CAN_BE_PRIVATE", 1)
-	IRFactory_TransformDispatcher_IdentifierType_values_ = []*IRFactory_TransformDispatcher_IdentifierType{IRFactory_TransformDispatcher_IdentifierType_STANDARD, IRFactory_TransformDispatcher_IdentifierType_CAN_BE_PRIVATE}
+	IRFactory_TransformDispatcher_IdentifierType_values_ = []IRFactory_TransformDispatcher_IdentifierType{IRFactory_TransformDispatcher_IdentifierType_STANDARD, IRFactory_TransformDispatcher_IdentifierType_CAN_BE_PRIVATE}
 	registerEnum_("com.google.javascript.jscomp.parsing.IRFactory.TransformDispatcher.IdentifierType", enumValues_(IRFactory_TransformDispatcher_IdentifierType_values_))
 
 }

@@ -15,11 +15,11 @@ func new_ParserRunner() *ParserRunner {
 	return this
 }
 
-func ParserRunner_createConfig_LanguageMode_Set_StrictMode(languageMode *Config_LanguageMode, extraAnnotationNames *TSet[string], strictMode *Config_StrictMode) *Config {
+func ParserRunner_createConfig_LanguageMode_Set_StrictMode(languageMode Config_LanguageMode, extraAnnotationNames *TSet[string], strictMode Config_StrictMode) *Config {
 	return ParserRunner_createConfig_LanguageMode_JsDocParsing_RunMode_Set_boolean_StrictMode(languageMode, Config_JsDocParsing_TYPES_ONLY, Config_RunMode_STOP_AFTER_ERROR, extraAnnotationNames, true, strictMode)
 }
 
-func ParserRunner_createConfig_LanguageMode_JsDocParsing_RunMode_Set_boolean_StrictMode(languageMode *Config_LanguageMode, jsdocParsingMode *Config_JsDocParsing, runMode *Config_RunMode, extraAnnotationNames *TSet[string], parseInlineSourceMaps bool, strictMode *Config_StrictMode) *Config {
+func ParserRunner_createConfig_LanguageMode_JsDocParsing_RunMode_Set_boolean_StrictMode(languageMode Config_LanguageMode, jsdocParsingMode Config_JsDocParsing, runMode Config_RunMode, extraAnnotationNames *TSet[string], parseInlineSourceMaps bool, strictMode Config_StrictMode) *Config {
 	ParserRunner_initResourceConfig()
 	var effectiveAnnotationNames *TSet[string]
 	if extraAnnotationNames == nil {
@@ -105,9 +105,9 @@ func ParserRunner_parse(sourceFile StaticSourceFile, sourceString string, config
 }
 
 func ParserRunner_newParserConfig(config *Config) *Parser_Config {
-	var languageMode *Config_LanguageMode = config.languageMode()
+	var languageMode Config_LanguageMode = config.languageMode()
 	var isStrictMode bool = config.strictMode().isStrict()
-	var parserConfigLanguageMode *Parser_Config_Mode = func() *Parser_Config_Mode {
+	var parserConfigLanguageMode Parser_Config_Mode = func() Parser_Config_Mode {
 		switch languageMode {
 		case Config_LanguageMode_ECMASCRIPT3:
 			return Parser_Config_Mode_ES3
@@ -120,7 +120,7 @@ func ParserRunner_newParserConfig(config *Config) *Parser_Config {
 		}
 		panic("unreachable")
 	}()
-	return new_Parser_Config_Mode_boolean(cast_[*Parser_Config_Mode](Preconditions_checkNotNull(obj_(parserConfigLanguageMode))), isStrictMode)
+	return new_Parser_Config_Mode_boolean(cast_[Parser_Config_Mode](Preconditions_checkNotNull(obj_(parserConfigLanguageMode))), isStrictMode)
 }
 
 var ParserRunner_annotationNames *ImmutableSet

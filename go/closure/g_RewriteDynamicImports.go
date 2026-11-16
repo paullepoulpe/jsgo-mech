@@ -25,7 +25,7 @@ func (this *RewriteDynamicImports) finit_RewriteDynamicImports() {
 	this.wrappedDynamicImportCallback = false
 }
 
-func (this *RewriteDynamicImports) init_RewriteDynamicImports(compiler *AbstractCompiler, alias OptionalOf[string], chunkOutputType *CompilerOptions_ChunkOutputType) {
+func (this *RewriteDynamicImports) init_RewriteDynamicImports(compiler *AbstractCompiler, alias OptionalOf[string], chunkOutputType CompilerOptions_ChunkOutputType) {
 	this.NodeTraversal_AbstractPostOrderCallback.init_NodeTraversal_AbstractPostOrderCallback()
 	this.finit_RewriteDynamicImports()
 	this.compiler_ = compiler
@@ -35,7 +35,7 @@ func (this *RewriteDynamicImports) init_RewriteDynamicImports(compiler *Abstract
 	this.shouldWrapDynamicImportCallbacks = (chunkOutputType == CompilerOptions_ChunkOutputType_ES_MODULES)
 }
 
-func new_RewriteDynamicImports(compiler *AbstractCompiler, alias OptionalOf[string], chunkOutputType *CompilerOptions_ChunkOutputType) *RewriteDynamicImports {
+func new_RewriteDynamicImports(compiler *AbstractCompiler, alias OptionalOf[string], chunkOutputType CompilerOptions_ChunkOutputType) *RewriteDynamicImports {
 	this := &RewriteDynamicImports{}
 	this.self_ = this
 	this.init_RewriteDynamicImports(compiler, alias, chunkOutputType)

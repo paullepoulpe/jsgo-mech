@@ -104,7 +104,7 @@ func JsdocUtil_replaceAnnotatedTypesWithUnusableType(jsdoc *JSDocInfo) *JSDocInf
 	if jsdoc.isConstant() {
 		builder.recordConstancy()
 	}
-	if jsdoc.getVisibility() != nil {
+	if jsdoc.getVisibility() != 0 {
 		builder.recordVisibility(jsdoc.getVisibility())
 	}
 	return builder.build()

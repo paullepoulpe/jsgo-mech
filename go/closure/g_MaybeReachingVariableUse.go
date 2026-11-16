@@ -60,7 +60,7 @@ func (this *MaybeReachingVariableUse) hasExceptionHandler(cfgNode Node) bool {
 	it_1 := branchEdges.each()
 	for it_1.next() {
 		var edge DiGraph_DiGraphEdge = it_1.v
-		if cast_[*ControlFlowGraph_Branch](edge.getValue()) == ControlFlowGraph_Branch_ON_EX {
+		if cast_[ControlFlowGraph_Branch](edge.getValue()) == ControlFlowGraph_Branch_ON_EX {
 			return true
 		}
 	}

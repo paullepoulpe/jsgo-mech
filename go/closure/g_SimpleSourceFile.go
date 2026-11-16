@@ -4,19 +4,19 @@ package closure
 
 type SimpleSourceFile struct {
 	name_ string
-	kind_ *StaticSourceFile_SourceKind
+	kind_ StaticSourceFile_SourceKind
 }
 
 func (this *SimpleSourceFile) zero_SimpleSourceFile() {
 	this.name_ = nullstr_
 }
 
-func (this *SimpleSourceFile) init_SimpleSourceFile(name string, kind *StaticSourceFile_SourceKind) {
+func (this *SimpleSourceFile) init_SimpleSourceFile(name string, kind StaticSourceFile_SourceKind) {
 	this.name_ = name
 	this.kind_ = kind
 }
 
-func new_SimpleSourceFile(name string, kind *StaticSourceFile_SourceKind) *SimpleSourceFile {
+func new_SimpleSourceFile(name string, kind StaticSourceFile_SourceKind) *SimpleSourceFile {
 	this := &SimpleSourceFile{}
 	this.zero_SimpleSourceFile()
 	this.init_SimpleSourceFile(name, kind)
@@ -27,7 +27,7 @@ func (this *SimpleSourceFile) getName() string {
 	return this.name_
 }
 
-func (this *SimpleSourceFile) getKind() *StaticSourceFile_SourceKind {
+func (this *SimpleSourceFile) getKind() StaticSourceFile_SourceKind {
 	return this.kind_
 }
 

@@ -31,13 +31,13 @@ func new_NumberType(registry *JSTypeRegistry) *NumberType {
 	return this
 }
 
-func (this *NumberType) getTypeClass_impl() *JSTypeClass {
+func (this *NumberType) getTypeClass_impl() JSTypeClass {
 	return JSTypeClass_NUMBER
 }
 
-func (this *NumberType) testForEquality_impl(that *JSType) *Tri {
-	var result *Tri = this.ValueType.testForEquality_impl(that)
-	if result != nil {
+func (this *NumberType) testForEquality_impl(that *JSType) Tri {
+	var result Tri = this.ValueType.testForEquality_impl(that)
+	if result != 0 {
 		return result
 	}
 	if ((((that.isUnknownType() || that.isSubtypeOf(this.getNativeType(JSTypeNative_OBJECT_TYPE))) || that.isSubtypeOf(this.getNativeType(JSTypeNative_NUMBER_TYPE))) || that.isSubtypeOf(this.getNativeType(JSTypeNative_STRING_TYPE))) || that.isSubtypeOf(this.getNativeType(JSTypeNative_BOOLEAN_TYPE))) || that.isSubtypeOf(this.getNativeType(JSTypeNative_BIGINT_TYPE)) {
@@ -66,7 +66,7 @@ func (this *NumberType) getDisplayName_impl() OptionalOf[string] {
 	return Optional_of[string]("number")
 }
 
-func (this *NumberType) getPossibleToBooleanOutcomes_impl() *BooleanLiteralSet {
+func (this *NumberType) getPossibleToBooleanOutcomes_impl() BooleanLiteralSet {
 	return BooleanLiteralSet_BOTH
 }
 
@@ -79,7 +79,7 @@ func (this *NumberType) autoboxesTo_impl() *JSType {
 }
 
 // getTypeClass: an object that is exactly a NumberType calls its getTypeClass_impl directly (post-flip); others dispatch.
-func (this *NumberType) getTypeClass() *JSTypeClass {
+func (this *NumberType) getTypeClass() JSTypeClass {
 	if this.self_ == any(this) {
 		return this.getTypeClass_impl()
 	}
@@ -87,7 +87,7 @@ func (this *NumberType) getTypeClass() *JSTypeClass {
 }
 
 // testForEquality: an object that is exactly a NumberType calls its testForEquality_impl directly (post-flip); others dispatch.
-func (this *NumberType) testForEquality(p0 *JSType) *Tri {
+func (this *NumberType) testForEquality(p0 *JSType) Tri {
 	if this.self_ == any(this) {
 		return this.testForEquality_impl(p0)
 	}
@@ -135,7 +135,7 @@ func (this *NumberType) getDisplayName() OptionalOf[string] {
 }
 
 // getPossibleToBooleanOutcomes: an object that is exactly a NumberType calls its getPossibleToBooleanOutcomes_impl directly (post-flip); others dispatch.
-func (this *NumberType) getPossibleToBooleanOutcomes() *BooleanLiteralSet {
+func (this *NumberType) getPossibleToBooleanOutcomes() BooleanLiteralSet {
 	if this.self_ == any(this) {
 		return this.getPossibleToBooleanOutcomes_impl()
 	}

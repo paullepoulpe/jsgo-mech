@@ -39,7 +39,7 @@ func (this *CheckNestedNames) visit(t *NodeTraversal, n Node, parent Node) {
 			return
 		}
 		var ownerName string = owner.getString()
-		var declarationKind *CheckNestedNames_DeclarationKind = this.getNestedDeclarationKind(n, parent)
+		var declarationKind CheckNestedNames_DeclarationKind = this.getNestedDeclarationKind(n, parent)
 		if CheckNestedNames_NESTED_KIND_TO_REPORT.containsKey(obj_(declarationKind)) {
 			var nestedKind string = str_(CheckNestedNames_NESTED_KIND_TO_REPORT.get(obj_(declarationKind)))
 			t.report(targetGetProp, CheckNestedNames_NESTED_NAME_IN_GOOG_MODULE, []string{nestedKind, ownerName})
@@ -61,7 +61,7 @@ func CheckNestedNames_isDotPrototype(getProp Node) bool {
 	return (getProp.isGetProp() && (getProp.getString() == "prototype"))
 }
 
-func (this *CheckNestedNames) getNestedDeclarationKind(lhs Node, parent Node) *CheckNestedNames_DeclarationKind {
+func (this *CheckNestedNames) getNestedDeclarationKind(lhs Node, parent Node) CheckNestedNames_DeclarationKind {
 	if !lhs.isFirstChildOf(parent) {
 		Preconditions_checkArgument_boolean_Object(false, lhs.box_())
 	}
@@ -78,7 +78,7 @@ func (this *CheckNestedNames) getNestedDeclarationKind(lhs Node, parent Node) *C
 			return CheckNestedNames_DeclarationKind_CLASS
 		}
 	}
-	return nil
+	return 0
 }
 
 var CheckNestedNames_NESTED_NAME_IN_GOOG_MODULE *DiagnosticType
@@ -96,46 +96,65 @@ func CheckNestedNames_clinit() {
 
 }
 
-type CheckNestedNames_DeclarationKind struct {
-	Enum
+type CheckNestedNames_DeclarationKind uint8
+
+// CheckNestedNames_DeclarationKind_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var CheckNestedNames_DeclarationKind_enum_ = [4]Enum{
+	{self_: CheckNestedNames_DeclarationKind_CLASS, name_: "CLASS", ordinal_: 0},
+	{self_: CheckNestedNames_DeclarationKind_ENUM, name_: "ENUM", ordinal_: 1},
+	{self_: CheckNestedNames_DeclarationKind_TYPEDEF, name_: "TYPEDEF", ordinal_: 2},
+	{self_: CheckNestedNames_DeclarationKind_INTERFACE, name_: "INTERFACE", ordinal_: 3},
 }
 
-func (this *CheckNestedNames_DeclarationKind) up_Enum() *Enum {
-	if this == nil {
+func (this CheckNestedNames_DeclarationKind) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &CheckNestedNames_DeclarationKind_enum_[this-1]
 }
 
-func (this *CheckNestedNames_DeclarationKind) init_CheckNestedNames_DeclarationKind(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this CheckNestedNames_DeclarationKind) name() string {
+	return CheckNestedNames_DeclarationKind_enum_[this-1].name_
 }
 
-func new_CheckNestedNames_DeclarationKind(name_ string, ordinal_ int32) *CheckNestedNames_DeclarationKind {
-	this := &CheckNestedNames_DeclarationKind{}
-	this.self_ = this
-	this.init_CheckNestedNames_DeclarationKind(name_, ordinal_)
+func (this CheckNestedNames_DeclarationKind) ordinal() int32 {
+	return CheckNestedNames_DeclarationKind_enum_[this-1].ordinal_
+}
+
+func (this CheckNestedNames_DeclarationKind) toString() string {
+	return CheckNestedNames_DeclarationKind_enum_[this-1].name_
+}
+
+func (this CheckNestedNames_DeclarationKind) compareTo(o any) int32 {
+	return CheckNestedNames_DeclarationKind_enum_[this-1].compareTo(o)
+}
+
+func (this CheckNestedNames_DeclarationKind) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func CheckNestedNames_DeclarationKind_values() []*CheckNestedNames_DeclarationKind {
-	return append([]*CheckNestedNames_DeclarationKind(nil), CheckNestedNames_DeclarationKind_values_...)
+func CheckNestedNames_DeclarationKind_values() []CheckNestedNames_DeclarationKind {
+	return append([]CheckNestedNames_DeclarationKind(nil), CheckNestedNames_DeclarationKind_values_...)
 }
 
-func CheckNestedNames_DeclarationKind_valueOf(name string) *CheckNestedNames_DeclarationKind {
+func CheckNestedNames_DeclarationKind_valueOf(name string) CheckNestedNames_DeclarationKind {
 	for _, v := range CheckNestedNames_DeclarationKind_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("DeclarationKind", name))
 }
 
-var CheckNestedNames_DeclarationKind_CLASS *CheckNestedNames_DeclarationKind
-var CheckNestedNames_DeclarationKind_ENUM *CheckNestedNames_DeclarationKind
-var CheckNestedNames_DeclarationKind_TYPEDEF *CheckNestedNames_DeclarationKind
-var CheckNestedNames_DeclarationKind_INTERFACE *CheckNestedNames_DeclarationKind
-var CheckNestedNames_DeclarationKind_values_ []*CheckNestedNames_DeclarationKind
+const CheckNestedNames_DeclarationKind_CLASS CheckNestedNames_DeclarationKind = 1
+const CheckNestedNames_DeclarationKind_ENUM CheckNestedNames_DeclarationKind = 2
+const CheckNestedNames_DeclarationKind_TYPEDEF CheckNestedNames_DeclarationKind = 3
+const CheckNestedNames_DeclarationKind_INTERFACE CheckNestedNames_DeclarationKind = 4
+
+var CheckNestedNames_DeclarationKind_values_ []CheckNestedNames_DeclarationKind
 
 var CheckNestedNames_DeclarationKind_clinit_done bool
 
@@ -144,11 +163,7 @@ func CheckNestedNames_DeclarationKind_clinit() {
 		return
 	}
 	CheckNestedNames_DeclarationKind_clinit_done = true
-	CheckNestedNames_DeclarationKind_CLASS = new_CheckNestedNames_DeclarationKind("CLASS", 0)
-	CheckNestedNames_DeclarationKind_ENUM = new_CheckNestedNames_DeclarationKind("ENUM", 1)
-	CheckNestedNames_DeclarationKind_TYPEDEF = new_CheckNestedNames_DeclarationKind("TYPEDEF", 2)
-	CheckNestedNames_DeclarationKind_INTERFACE = new_CheckNestedNames_DeclarationKind("INTERFACE", 3)
-	CheckNestedNames_DeclarationKind_values_ = []*CheckNestedNames_DeclarationKind{CheckNestedNames_DeclarationKind_CLASS, CheckNestedNames_DeclarationKind_ENUM, CheckNestedNames_DeclarationKind_TYPEDEF, CheckNestedNames_DeclarationKind_INTERFACE}
+	CheckNestedNames_DeclarationKind_values_ = []CheckNestedNames_DeclarationKind{CheckNestedNames_DeclarationKind_CLASS, CheckNestedNames_DeclarationKind_ENUM, CheckNestedNames_DeclarationKind_TYPEDEF, CheckNestedNames_DeclarationKind_INTERFACE}
 	registerEnum_("com.google.javascript.jscomp.lint.CheckNestedNames.DeclarationKind", enumValues_(CheckNestedNames_DeclarationKind_values_))
 
 }

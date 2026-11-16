@@ -53,14 +53,14 @@ func (this *CheckUnreachableCode) initScope(controlFlowGraph *ControlFlowGraph) 
 var lambda_CheckUnreachableCode_initScope_1_ = &Predicate_base_fn{func(p0 any) bool { return CheckUnreachableCode_isReachable(cast_[*GraphReachability_EdgeTuple](p0)) }}
 
 func CheckUnreachableCode_isReachable(input *GraphReachability_EdgeTuple) bool {
-	var branch *ControlFlowGraph_Branch = cast_[*ControlFlowGraph_Branch](input.edge)
+	var branch ControlFlowGraph_Branch = cast_[ControlFlowGraph_Branch](input.edge)
 	if !branch.isConditional() {
 		return true
 	}
 	var predecessor Node = Node_of_(input.sourceNode_)
 	var condition Node = NodeUtil_getConditionExpression(predecessor)
 	if condition != 0 {
-		var val *Tri = NodeUtil_getBooleanValue(condition)
+		var val Tri = NodeUtil_getBooleanValue(condition)
 		if val != Tri_UNKNOWN {
 			return (val.toBoolean(true) == (branch == ControlFlowGraph_Branch_ON_TRUE))
 		}

@@ -23,7 +23,7 @@ var tc_SetOf_p_JSChunk_ = &tconv_[SetOf[*JSChunk]]{box: func(v SetOf[*JSChunk]) 
 var tc_SetOf_string_ = &tconv_[SetOf[string]]{box: func(v SetOf[string]) any { return any(v) }, unbox: func(v any) SetOf[string] { return icast_Set(v) }}
 var tc_SupplierOf_Node_ = &tconv_[SupplierOf[Node]]{box: func(v SupplierOf[Node]) any { return any(v) }, unbox: func(v any) SupplierOf[Node] { return icast_Supplier(v) }}
 var tc_any = &tconv_[any]{box: func(v any) any { return v }, unbox: func(v any) any { return v }}
-var tc_p_AccessorSummary_PropertyAccessKind = &tconv_[*AccessorSummary_PropertyAccessKind]{box: func(v *AccessorSummary_PropertyAccessKind) any { return obj_(v) }, unbox: func(v any) *AccessorSummary_PropertyAccessKind { return cast_[*AccessorSummary_PropertyAccessKind](v) }}
+var tc_p_AccessorSummary_PropertyAccessKind = &tconv_[AccessorSummary_PropertyAccessKind]{box: func(v AccessorSummary_PropertyAccessKind) any { return obj_(v) }, unbox: func(v any) AccessorSummary_PropertyAccessKind { return cast_[AccessorSummary_PropertyAccessKind](v) }}
 var tc_p_AmbiguateProperties_Property = &tconv_[*AmbiguateProperties_Property]{box: func(v *AmbiguateProperties_Property) any { return obj_(v) }, unbox: func(v any) *AmbiguateProperties_Property { return cast_[*AmbiguateProperties_Property](v) }}
 var tc_p_Binding = &tconv_[*Binding]{box: func(v *Binding) any { return obj_(v) }, unbox: func(v any) *Binding { return cast_[*Binding](v) }}
 var tc_p_ClosureExportTypeClassifier_NameInfo = &tconv_[*ClosureExportTypeClassifier_NameInfo]{box: func(v *ClosureExportTypeClassifier_NameInfo) any { return obj_(v) }, unbox: func(v any) *ClosureExportTypeClassifier_NameInfo {
@@ -31,7 +31,7 @@ var tc_p_ClosureExportTypeClassifier_NameInfo = &tconv_[*ClosureExportTypeClassi
 }}
 var tc_p_ClosureRequireProcessor_Require = &tconv_[*ClosureRequireProcessor_Require]{box: func(v *ClosureRequireProcessor_Require) any { return obj_(v) }, unbox: func(v any) *ClosureRequireProcessor_Require { return cast_[*ClosureRequireProcessor_Require](v) }}
 var tc_p_ColorGraphNode = &tconv_[*ColorGraphNode]{box: func(v *ColorGraphNode) any { return obj_(v) }, unbox: func(v any) *ColorGraphNode { return cast_[*ColorGraphNode](v) }}
-var tc_p_ColorGraphNode_PropAssociation = &tconv_[*ColorGraphNode_PropAssociation]{box: func(v *ColorGraphNode_PropAssociation) any { return obj_(v) }, unbox: func(v any) *ColorGraphNode_PropAssociation { return cast_[*ColorGraphNode_PropAssociation](v) }}
+var tc_p_ColorGraphNode_PropAssociation = &tconv_[ColorGraphNode_PropAssociation]{box: func(v ColorGraphNode_PropAssociation) any { return obj_(v) }, unbox: func(v any) ColorGraphNode_PropAssociation { return cast_[ColorGraphNode_PropAssociation](v) }}
 var tc_p_ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior = &tconv_[*ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior]{box: func(v *ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior) any { return obj_(v) }, unbox: func(v any) *ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior {
 	return cast_[*ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior](v)
 }}
@@ -59,7 +59,7 @@ var tc_p_J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_J2clProperty = &
 	return to_J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_J2clProperty(v)
 }}
 var tc_p_JSDocInfo = &tconv_[*JSDocInfo]{box: func(v *JSDocInfo) any { return obj_(v) }, unbox: func(v any) *JSDocInfo { return cast_[*JSDocInfo](v) }}
-var tc_p_JsMessage_GrammaticalGenderCase = &tconv_[*JsMessage_GrammaticalGenderCase]{box: func(v *JsMessage_GrammaticalGenderCase) any { return obj_(v) }, unbox: func(v any) *JsMessage_GrammaticalGenderCase { return cast_[*JsMessage_GrammaticalGenderCase](v) }}
+var tc_p_JsMessage_GrammaticalGenderCase = &tconv_[JsMessage_GrammaticalGenderCase]{box: func(v JsMessage_GrammaticalGenderCase) any { return obj_(v) }, unbox: func(v any) JsMessage_GrammaticalGenderCase { return cast_[JsMessage_GrammaticalGenderCase](v) }}
 var tc_p_Module = &tconv_[*Module]{box: func(v *Module) any { return obj_(v) }, unbox: func(v any) *Module { return cast_[*Module](v) }}
 var tc_p_ModuleMetadataMap_ModuleMetadata = &tconv_[*ModuleMetadataMap_ModuleMetadata]{box: func(v *ModuleMetadataMap_ModuleMetadata) any { return obj_(v) }, unbox: func(v any) *ModuleMetadataMap_ModuleMetadata { return cast_[*ModuleMetadataMap_ModuleMetadata](v) }}
 var tc_p_PerformanceTracker_Stats = &tconv_[*PerformanceTracker_Stats]{box: func(v *PerformanceTracker_Stats) any { return obj_(v) }, unbox: func(v any) *PerformanceTracker_Stats { return cast_[*PerformanceTracker_Stats](v) }}

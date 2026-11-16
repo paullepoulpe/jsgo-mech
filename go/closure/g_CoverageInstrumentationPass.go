@@ -5,8 +5,8 @@ package closure
 type CoverageInstrumentationPass struct {
 	compiler_                          *AbstractCompiler
 	instrumentationData                map[string]*FileInstrumentationData
-	reach                              *CoverageInstrumentationPass_CoverageReach
-	instrumentOption                   *CompilerOptions_InstrumentOption
+	reach                              CoverageInstrumentationPass_CoverageReach
+	instrumentOption                   CompilerOptions_InstrumentOption
 	productionInstrumentationArrayName string
 }
 
@@ -14,7 +14,7 @@ func (this *CoverageInstrumentationPass) zero_CoverageInstrumentationPass() {
 	this.productionInstrumentationArrayName = nullstr_
 }
 
-func (this *CoverageInstrumentationPass) init_CoverageInstrumentationPass_AbstractCompiler_CoverageReach_InstrumentOption_String(compiler *AbstractCompiler, reach *CoverageInstrumentationPass_CoverageReach, instrumentOption *CompilerOptions_InstrumentOption, productionInstrumentationArrayName string) {
+func (this *CoverageInstrumentationPass) init_CoverageInstrumentationPass_AbstractCompiler_CoverageReach_InstrumentOption_String(compiler *AbstractCompiler, reach CoverageInstrumentationPass_CoverageReach, instrumentOption CompilerOptions_InstrumentOption, productionInstrumentationArrayName string) {
 	this.compiler_ = compiler
 	this.reach = reach
 	this.instrumentOption = instrumentOption
@@ -22,18 +22,18 @@ func (this *CoverageInstrumentationPass) init_CoverageInstrumentationPass_Abstra
 	this.instrumentationData = map[string]*FileInstrumentationData{}
 }
 
-func new_CoverageInstrumentationPass_AbstractCompiler_CoverageReach_InstrumentOption_String(compiler *AbstractCompiler, reach *CoverageInstrumentationPass_CoverageReach, instrumentOption *CompilerOptions_InstrumentOption, productionInstrumentationArrayName string) *CoverageInstrumentationPass {
+func new_CoverageInstrumentationPass_AbstractCompiler_CoverageReach_InstrumentOption_String(compiler *AbstractCompiler, reach CoverageInstrumentationPass_CoverageReach, instrumentOption CompilerOptions_InstrumentOption, productionInstrumentationArrayName string) *CoverageInstrumentationPass {
 	this := &CoverageInstrumentationPass{}
 	this.zero_CoverageInstrumentationPass()
 	this.init_CoverageInstrumentationPass_AbstractCompiler_CoverageReach_InstrumentOption_String(compiler, reach, instrumentOption, productionInstrumentationArrayName)
 	return this
 }
 
-func (this *CoverageInstrumentationPass) init_CoverageInstrumentationPass_AbstractCompiler_CoverageReach(compiler *AbstractCompiler, reach *CoverageInstrumentationPass_CoverageReach) {
+func (this *CoverageInstrumentationPass) init_CoverageInstrumentationPass_AbstractCompiler_CoverageReach(compiler *AbstractCompiler, reach CoverageInstrumentationPass_CoverageReach) {
 	this.init_CoverageInstrumentationPass_AbstractCompiler_CoverageReach_InstrumentOption_String(compiler, reach, CompilerOptions_InstrumentOption_LINE_ONLY, "")
 }
 
-func new_CoverageInstrumentationPass_AbstractCompiler_CoverageReach(compiler *AbstractCompiler, reach *CoverageInstrumentationPass_CoverageReach) *CoverageInstrumentationPass {
+func new_CoverageInstrumentationPass_AbstractCompiler_CoverageReach(compiler *AbstractCompiler, reach CoverageInstrumentationPass_CoverageReach) *CoverageInstrumentationPass {
 	this := &CoverageInstrumentationPass{}
 	this.zero_CoverageInstrumentationPass()
 	this.init_CoverageInstrumentationPass_AbstractCompiler_CoverageReach(compiler, reach)
@@ -102,44 +102,61 @@ func (this *CoverageInstrumentationPass) createConditionalObjectDecl(name string
 
 const CoverageInstrumentationPass_JS_INSTRUMENTATION_OBJECT_NAME string = "__jscov"
 
-type CoverageInstrumentationPass_CoverageReach struct {
-	Enum
+type CoverageInstrumentationPass_CoverageReach uint8
+
+// CoverageInstrumentationPass_CoverageReach_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var CoverageInstrumentationPass_CoverageReach_enum_ = [2]Enum{
+	{self_: CoverageInstrumentationPass_CoverageReach_ALL, name_: "ALL", ordinal_: 0},
+	{self_: CoverageInstrumentationPass_CoverageReach_CONDITIONAL, name_: "CONDITIONAL", ordinal_: 1},
 }
 
-func (this *CoverageInstrumentationPass_CoverageReach) up_Enum() *Enum {
-	if this == nil {
+func (this CoverageInstrumentationPass_CoverageReach) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &CoverageInstrumentationPass_CoverageReach_enum_[this-1]
 }
 
-func (this *CoverageInstrumentationPass_CoverageReach) init_CoverageInstrumentationPass_CoverageReach(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this CoverageInstrumentationPass_CoverageReach) name() string {
+	return CoverageInstrumentationPass_CoverageReach_enum_[this-1].name_
 }
 
-func new_CoverageInstrumentationPass_CoverageReach(name_ string, ordinal_ int32) *CoverageInstrumentationPass_CoverageReach {
-	this := &CoverageInstrumentationPass_CoverageReach{}
-	this.self_ = this
-	this.init_CoverageInstrumentationPass_CoverageReach(name_, ordinal_)
+func (this CoverageInstrumentationPass_CoverageReach) ordinal() int32 {
+	return CoverageInstrumentationPass_CoverageReach_enum_[this-1].ordinal_
+}
+
+func (this CoverageInstrumentationPass_CoverageReach) toString() string {
+	return CoverageInstrumentationPass_CoverageReach_enum_[this-1].name_
+}
+
+func (this CoverageInstrumentationPass_CoverageReach) compareTo(o any) int32 {
+	return CoverageInstrumentationPass_CoverageReach_enum_[this-1].compareTo(o)
+}
+
+func (this CoverageInstrumentationPass_CoverageReach) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func CoverageInstrumentationPass_CoverageReach_values() []*CoverageInstrumentationPass_CoverageReach {
-	return append([]*CoverageInstrumentationPass_CoverageReach(nil), CoverageInstrumentationPass_CoverageReach_values_...)
+func CoverageInstrumentationPass_CoverageReach_values() []CoverageInstrumentationPass_CoverageReach {
+	return append([]CoverageInstrumentationPass_CoverageReach(nil), CoverageInstrumentationPass_CoverageReach_values_...)
 }
 
-func CoverageInstrumentationPass_CoverageReach_valueOf(name string) *CoverageInstrumentationPass_CoverageReach {
+func CoverageInstrumentationPass_CoverageReach_valueOf(name string) CoverageInstrumentationPass_CoverageReach {
 	for _, v := range CoverageInstrumentationPass_CoverageReach_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("CoverageReach", name))
 }
 
-var CoverageInstrumentationPass_CoverageReach_ALL *CoverageInstrumentationPass_CoverageReach
-var CoverageInstrumentationPass_CoverageReach_CONDITIONAL *CoverageInstrumentationPass_CoverageReach
-var CoverageInstrumentationPass_CoverageReach_values_ []*CoverageInstrumentationPass_CoverageReach
+const CoverageInstrumentationPass_CoverageReach_ALL CoverageInstrumentationPass_CoverageReach = 1
+const CoverageInstrumentationPass_CoverageReach_CONDITIONAL CoverageInstrumentationPass_CoverageReach = 2
+
+var CoverageInstrumentationPass_CoverageReach_values_ []CoverageInstrumentationPass_CoverageReach
 
 var CoverageInstrumentationPass_CoverageReach_clinit_done bool
 
@@ -148,9 +165,7 @@ func CoverageInstrumentationPass_CoverageReach_clinit() {
 		return
 	}
 	CoverageInstrumentationPass_CoverageReach_clinit_done = true
-	CoverageInstrumentationPass_CoverageReach_ALL = new_CoverageInstrumentationPass_CoverageReach("ALL", 0)
-	CoverageInstrumentationPass_CoverageReach_CONDITIONAL = new_CoverageInstrumentationPass_CoverageReach("CONDITIONAL", 1)
-	CoverageInstrumentationPass_CoverageReach_values_ = []*CoverageInstrumentationPass_CoverageReach{CoverageInstrumentationPass_CoverageReach_ALL, CoverageInstrumentationPass_CoverageReach_CONDITIONAL}
+	CoverageInstrumentationPass_CoverageReach_values_ = []CoverageInstrumentationPass_CoverageReach{CoverageInstrumentationPass_CoverageReach_ALL, CoverageInstrumentationPass_CoverageReach_CONDITIONAL}
 	registerEnum_("com.google.javascript.jscomp.instrumentation.CoverageInstrumentationPass.CoverageReach", enumValues_(CoverageInstrumentationPass_CoverageReach_values_))
 
 }

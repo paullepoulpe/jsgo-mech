@@ -34,7 +34,7 @@ func new_UnionType(builder *UnionType_Builder) *UnionType {
 	return this
 }
 
-func (this *UnionType) getTypeClass_impl() *JSTypeClass {
+func (this *UnionType) getTypeClass_impl() JSTypeClass {
 	return UnionType_TYPE_CLASS
 }
 
@@ -158,12 +158,12 @@ func (this *UnionType) restrictByNotNull_impl() *JSType {
 // lambda_UnionType_restrictByNotNull_impl_1_ is a lambda of UnionType_restrictByNotNull_impl that captures nothing (post-flip step lambdas).
 var lambda_UnionType_restrictByNotNull_impl_1_ = &Function_fn{func(p0 any) any { return to_JSType(p0).restrictByNotNull().self() }}
 
-func (this *UnionType) testForEquality_impl(that *JSType) *Tri {
-	var result *Tri = nil
+func (this *UnionType) testForEquality_impl(that *JSType) Tri {
+	var result Tri = 0
 	for i := int32(0); i < this.alternates.size(); i++ {
 		var t *JSType = to_JSType(this.alternates.get(i))
-		var test *Tri = t.testForEquality(that)
-		if result == nil {
+		var test Tri = t.testForEquality(that)
+		if result == 0 {
 			result = test
 		} else if !Object_equals(obj_(result), obj_(test)) {
 			return Tri_UNKNOWN
@@ -257,7 +257,7 @@ func UnionType_getGreatestSubtypeUnionType(union *UnionType, that *JSType) *JSTy
 	panic("unreachable")
 }
 
-func (this *UnionType) getPropertyKind_2_impl(pname Property_Key, autobox bool) *JSType_HasPropertyKind {
+func (this *UnionType) getPropertyKind_2_impl(pname Property_Key, autobox bool) JSType_HasPropertyKind {
 	var found bool = false
 	var always bool = true
 	for i := int32(0); i < this.alternates.size(); i++ {
@@ -278,9 +278,9 @@ func (this *UnionType) getPropertyKind_2_impl(pname Property_Key, autobox bool) 
 			break
 		}
 	}
-	return func() *JSType_HasPropertyKind {
+	return func() JSType_HasPropertyKind {
 		if found {
-			return func() *JSType_HasPropertyKind {
+			return func() JSType_HasPropertyKind {
 				if always {
 					return JSType_HasPropertyKind_KNOWN_PRESENT
 				}
@@ -346,8 +346,8 @@ func (this *UnionType) getRestrictedTypeGivenOutcome_impl(outcome *Outcome_rhino
 	}, this)
 }
 
-func (this *UnionType) getPossibleToBooleanOutcomes_impl() *BooleanLiteralSet {
-	var literals *BooleanLiteralSet = BooleanLiteralSet_EMPTY
+func (this *UnionType) getPossibleToBooleanOutcomes_impl() BooleanLiteralSet {
+	var literals BooleanLiteralSet = BooleanLiteralSet_EMPTY
 	for i := int32(0); i < this.alternates.size(); i++ {
 		var element *JSType = to_JSType(this.alternates.get(i))
 		literals = literals.union(element.getPossibleToBooleanOutcomes())
@@ -464,7 +464,7 @@ func (this *UnionType) hasAnyTemplateTypesInternal_impl() bool {
 // lambda_UnionType_hasAnyTemplateTypesInternal_impl_1_ is a lambda of UnionType_hasAnyTemplateTypesInternal_impl that captures nothing (post-flip step lambdas).
 var lambda_UnionType_hasAnyTemplateTypesInternal_impl_1_ = &Predicate_fn{func(p0 any) bool { return to_JSType(p0).hasAnyTemplateTypes() }}
 
-var UnionType_TYPE_CLASS *JSTypeClass
+var UnionType_TYPE_CLASS JSTypeClass
 
 const UnionType_MAX_UNION_SIZE int32 = 30
 
@@ -692,7 +692,7 @@ func (this *UnionType_Builder) checkHasNotBuilt() {
 }
 
 // getTypeClass: an object that is exactly a UnionType calls its getTypeClass_impl directly (post-flip); others dispatch.
-func (this *UnionType) getTypeClass() *JSTypeClass {
+func (this *UnionType) getTypeClass() JSTypeClass {
 	if this.self_ == any(this) {
 		return this.getTypeClass_impl()
 	}
@@ -780,7 +780,7 @@ func (this *UnionType) restrictByNotNull() *JSType {
 }
 
 // testForEquality: an object that is exactly a UnionType calls its testForEquality_impl directly (post-flip); others dispatch.
-func (this *UnionType) testForEquality(p0 *JSType) *Tri {
+func (this *UnionType) testForEquality(p0 *JSType) Tri {
 	if this.self_ == any(this) {
 		return this.testForEquality_impl(p0)
 	}
@@ -844,7 +844,7 @@ func (this *UnionType) getLeastSupertype(p0 *JSType) *JSType {
 }
 
 // getPropertyKind_2: an object that is exactly a UnionType calls its getPropertyKind_2_impl directly (post-flip); others dispatch.
-func (this *UnionType) getPropertyKind_2(p0 Property_Key, p1 bool) *JSType_HasPropertyKind {
+func (this *UnionType) getPropertyKind_2(p0 Property_Key, p1 bool) JSType_HasPropertyKind {
 	if this.self_ == any(this) {
 		return this.getPropertyKind_2_impl(p0, p1)
 	}
@@ -893,7 +893,7 @@ func (this *UnionType) getRestrictedTypeGivenOutcome(p0 *Outcome_rhino) *JSType 
 }
 
 // getPossibleToBooleanOutcomes: an object that is exactly a UnionType calls its getPossibleToBooleanOutcomes_impl directly (post-flip); others dispatch.
-func (this *UnionType) getPossibleToBooleanOutcomes() *BooleanLiteralSet {
+func (this *UnionType) getPossibleToBooleanOutcomes() BooleanLiteralSet {
 	if this.self_ == any(this) {
 		return this.getPossibleToBooleanOutcomes_impl()
 	}

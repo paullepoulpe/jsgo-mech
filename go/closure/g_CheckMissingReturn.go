@@ -29,13 +29,13 @@ func new_CheckMissingReturn(compiler *AbstractCompiler) *CheckMissingReturn {
 }
 
 func CheckMissingReturn_goesThroughTrueCondition(input DiGraph_DiGraphEdge) bool {
-	var branch *ControlFlowGraph_Branch = cast_[*ControlFlowGraph_Branch](input.getValue())
+	var branch ControlFlowGraph_Branch = cast_[ControlFlowGraph_Branch](input.getValue())
 	if branch == ControlFlowGraph_Branch_ON_EX {
 		return false
 	} else if branch.isConditional() {
 		var condition Node = NodeUtil_getConditionExpression(Node_of_(input.getSource().getValue()))
 		if condition != 0 {
-			var val *Tri = NodeUtil_getBooleanValue(condition)
+			var val Tri = NodeUtil_getBooleanValue(condition)
 			if val != Tri_UNKNOWN {
 				return (val.toBoolean(true) == (branch == ControlFlowGraph_Branch_ON_TRUE))
 			}

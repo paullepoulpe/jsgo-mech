@@ -160,7 +160,7 @@ func PolymerPassStaticUtils_addExportAndNoCollapseToKey(keyNode Node) {
 	keyNode.setJSDocInfo(newDocs.build())
 }
 
-func PolymerPassStaticUtils_extractProperties(descriptor Node, defType *PolymerClassDefinition_DefinitionType, compiler *AbstractCompiler, constructor Node) []*PolymerPass_MemberDefinition {
+func PolymerPassStaticUtils_extractProperties(descriptor Node, defType PolymerClassDefinition_DefinitionType, compiler *AbstractCompiler, constructor Node) []*PolymerPass_MemberDefinition {
 	var properties Node = descriptor
 	if defType == PolymerClassDefinition_DefinitionType_ObjectLiteral {
 		properties = NodeUtil_getFirstPropMatchingKey(descriptor, "properties")

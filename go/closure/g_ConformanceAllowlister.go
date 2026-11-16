@@ -41,7 +41,7 @@ func ConformanceAllowlister_getConformanceErrors(compiler *Compiler, externs Nod
 			compiler.setErrorManager(oldErrorManager)
 		}()
 		compiler.setErrorManager(icast_ErrorManager(obj_(new_ConformanceAllowlister_1(errors, oldErrorManager))))
-		var check *CheckConformance = new_CheckConformance_AbstractCompiler_ImmutableList_ConformanceReportingMode(compiler.up_AbstractCompiler(), ImmutableList_of_Object(obj_(cleanedConfig)), nil)
+		var check *CheckConformance = new_CheckConformance_AbstractCompiler_ImmutableList_ConformanceReportingMode(compiler.up_AbstractCompiler(), ImmutableList_of_Object(obj_(cleanedConfig)), 0)
 		check.process_2(externs, ast)
 		return 0
 	}()

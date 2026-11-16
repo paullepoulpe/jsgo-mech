@@ -36,7 +36,7 @@ func (this *Es6RewriteSpreadExpressions) process_2(externs Node, root Node) {
 }
 
 func (this *Es6RewriteSpreadExpressions) visit_impl(traversal *NodeTraversal, current Node, parent Node) {
-	var token *Token_rhino = current.getToken()
+	var token Token_rhino = current.getToken()
 	if ((token == Token_rhino_ARRAYLIT) || (token == Token_rhino_NEW)) || (token == Token_rhino_CALL) {
 		{
 			var child Node = current.getFirstChild()

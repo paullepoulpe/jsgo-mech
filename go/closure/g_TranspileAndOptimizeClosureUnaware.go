@@ -4,15 +4,15 @@ package closure
 
 type TranspileAndOptimizeClosureUnaware struct {
 	original_ *AbstractCompiler
-	mode_     *NestedCompilerRunner_Mode
+	mode_     NestedCompilerRunner_Mode
 }
 
-func (this *TranspileAndOptimizeClosureUnaware) init_TranspileAndOptimizeClosureUnaware(original *AbstractCompiler, mode *NestedCompilerRunner_Mode) {
+func (this *TranspileAndOptimizeClosureUnaware) init_TranspileAndOptimizeClosureUnaware(original *AbstractCompiler, mode NestedCompilerRunner_Mode) {
 	this.original_ = original
 	this.mode_ = mode
 }
 
-func new_TranspileAndOptimizeClosureUnaware(original *AbstractCompiler, mode *NestedCompilerRunner_Mode) *TranspileAndOptimizeClosureUnaware {
+func new_TranspileAndOptimizeClosureUnaware(original *AbstractCompiler, mode NestedCompilerRunner_Mode) *TranspileAndOptimizeClosureUnaware {
 	this := &TranspileAndOptimizeClosureUnaware{}
 	this.init_TranspileAndOptimizeClosureUnaware(original, mode)
 	return this
@@ -174,10 +174,10 @@ func (this *TranspileAndOptimizeClosureUnaware_CollectShadowAsts) shouldTraverse
 		return false
 	}
 	var fileJsDoc *JSDocInfo = n.getJSDocInfo()
-	if (fileJsDoc == nil) || (fileJsDoc.getPerFileClosureUnawareMode() == nil) {
+	if (fileJsDoc == nil) || (fileJsDoc.getPerFileClosureUnawareMode() == 0) {
 		return true
 	}
-	var minificationLevel *JSDocInfo_PerFileClosureUnawareMode = fileJsDoc.getPerFileClosureUnawareMode()
+	var minificationLevel JSDocInfo_PerFileClosureUnawareMode = fileJsDoc.getPerFileClosureUnawareMode()
 	return func() bool {
 		switch minificationLevel {
 		case JSDocInfo_PerFileClosureUnawareMode_UNSPECIFIED, JSDocInfo_PerFileClosureUnawareMode_SIMPLE:

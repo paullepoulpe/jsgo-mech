@@ -273,8 +273,8 @@ func (this *AstAnalyzer) nodeTypeMayHaveSideEffects(n Node) bool {
 	}()
 }
 
-func (this *AstAnalyzer) getPropertyKind(name string) *AccessorSummary_PropertyAccessKind {
-	return func() *AccessorSummary_PropertyAccessKind {
+func (this *AstAnalyzer) getPropertyKind(name string) AccessorSummary_PropertyAccessKind {
+	return func() AccessorSummary_PropertyAccessKind {
 		if this.assumeGettersArePure_ {
 			return AccessorSummary_PropertyAccessKind_NORMAL
 		}

@@ -24,18 +24,18 @@ func new_ClosureUnawareCodeWarningsGuard() *ClosureUnawareCodeWarningsGuard {
 	return this
 }
 
-func (this *ClosureUnawareCodeWarningsGuard) level_impl(error_ *JSError) *CheckLevel {
+func (this *ClosureUnawareCodeWarningsGuard) level_impl(error_ *JSError) CheckLevel {
 	if !ClosureUnawareCodeWarningsGuard_DEFAULT_CLOSURE_UNAWARE_CODE_SUPPRESSIONS.matches(error_) {
-		return nil
+		return 0
 	}
 	var node Node = error_.node()
 	if node == 0 {
-		return nil
+		return 0
 	}
 	if node.isClosureUnawareCode() {
 		return CheckLevel_OFF
 	}
-	return nil
+	return 0
 }
 
 func (this *ClosureUnawareCodeWarningsGuard) getPriority_impl() int32 {
@@ -56,7 +56,7 @@ func ClosureUnawareCodeWarningsGuard_clinit() {
 }
 
 // level: an object that is exactly a ClosureUnawareCodeWarningsGuard calls its level_impl directly (post-flip); others dispatch.
-func (this *ClosureUnawareCodeWarningsGuard) level(p0 *JSError) *CheckLevel {
+func (this *ClosureUnawareCodeWarningsGuard) level(p0 *JSError) CheckLevel {
 	if this.self_ == any(this) {
 		return this.level_impl(p0)
 	}

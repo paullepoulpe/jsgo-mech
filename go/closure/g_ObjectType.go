@@ -161,9 +161,9 @@ func (this *ObjectType) getRawType() *ObjectType {
 	}()
 }
 
-func (this *ObjectType) testForEquality_impl(that *JSType) *Tri {
-	var result *Tri = this.JSType.testForEquality_impl(that)
-	if result != nil {
+func (this *ObjectType) testForEquality_impl(that *JSType) Tri {
+	var result Tri = this.JSType.testForEquality_impl(that)
+	if result != 0 {
 		return result
 	}
 	if (((((that.isUnknownType() || that.isSubtypeOf(this.getNativeType(JSTypeNative_OBJECT_TYPE))) || that.isSubtypeOf(this.getNativeType(JSTypeNative_NUMBER_TYPE))) || that.isSubtypeOf(this.getNativeType(JSTypeNative_STRING_TYPE))) || that.isSubtypeOf(this.getNativeType(JSTypeNative_BOOLEAN_TYPE))) || that.isSubtypeOf(this.getNativeType(JSTypeNative_SYMBOL_TYPE))) || that.isSubtypeOf(this.getNativeType(JSTypeNative_BIGINT_TYPE)) {
@@ -359,16 +359,16 @@ func (this *ObjectType) getPropertyTypeFromSlot(slot StaticTypedSlot) *JSType {
 	return slot.getType()
 }
 
-func (this *ObjectType) getPropertyKind_2_impl(propertyName Property_Key, autobox bool) *JSType_HasPropertyKind {
+func (this *ObjectType) getPropertyKind_2_impl(propertyName Property_Key, autobox bool) JSType_HasPropertyKind {
 	return JSType_HasPropertyKind_of(((this.isEmptyType() || this.isUnknownType()) || (this.getSlot(propertyName) != nil)))
 }
 
-func (this *ObjectType) getOwnPropertyKindString(propertyName string) *JSType_HasPropertyKind {
+func (this *ObjectType) getOwnPropertyKindString(propertyName string) JSType_HasPropertyKind {
 	return this.getOwnPropertyKind(icast_Property_Key(obj_(new_Property_StringKey(propertyName))))
 }
 
-func (this *ObjectType) getOwnPropertyKind(propertyName Property_Key) *JSType_HasPropertyKind {
-	return func() *JSType_HasPropertyKind {
+func (this *ObjectType) getOwnPropertyKind(propertyName Property_Key) JSType_HasPropertyKind {
+	return func() JSType_HasPropertyKind {
 		if this.getOwnSlot(propertyName) != nil {
 			return JSType_HasPropertyKind_KNOWN_PRESENT
 		}
@@ -510,7 +510,7 @@ func ObjectType_deeplyUnwrap(original *ObjectType) *ObjectType {
 	return current
 }
 
-func (this *ObjectType) getPossibleToBooleanOutcomes_impl() *BooleanLiteralSet {
+func (this *ObjectType) getPossibleToBooleanOutcomes_impl() BooleanLiteralSet {
 	return BooleanLiteralSet_TRUE
 }
 
@@ -744,7 +744,7 @@ func (this *ObjectType) getDisplayName() OptionalOf[string] {
 }
 
 // testForEquality: an object that is exactly a ObjectType calls its testForEquality_impl directly (post-flip); others dispatch.
-func (this *ObjectType) testForEquality(p0 *JSType) *Tri {
+func (this *ObjectType) testForEquality(p0 *JSType) Tri {
 	if this.self_ == any(this) {
 		return this.testForEquality_impl(p0)
 	}
@@ -760,7 +760,7 @@ func (this *ObjectType) findPropertyTypeWithoutConsideringTemplateTypes(p0 Prope
 }
 
 // getPropertyKind_2: an object that is exactly a ObjectType calls its getPropertyKind_2_impl directly (post-flip); others dispatch.
-func (this *ObjectType) getPropertyKind_2(p0 Property_Key, p1 bool) *JSType_HasPropertyKind {
+func (this *ObjectType) getPropertyKind_2(p0 Property_Key, p1 bool) JSType_HasPropertyKind {
 	if this.self_ == any(this) {
 		return this.getPropertyKind_2_impl(p0, p1)
 	}
@@ -792,7 +792,7 @@ func (this *ObjectType) visitUntyped_2(p0 RelationshipVisitor, p1 *JSType) any {
 }
 
 // getPossibleToBooleanOutcomes: an object that is exactly a ObjectType calls its getPossibleToBooleanOutcomes_impl directly (post-flip); others dispatch.
-func (this *ObjectType) getPossibleToBooleanOutcomes() *BooleanLiteralSet {
+func (this *ObjectType) getPossibleToBooleanOutcomes() BooleanLiteralSet {
 	if this.self_ == any(this) {
 		return this.getPossibleToBooleanOutcomes_impl()
 	}

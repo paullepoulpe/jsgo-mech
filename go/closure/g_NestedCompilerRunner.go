@@ -8,7 +8,7 @@ type NestedCompilerRunner struct {
 	baseChunk        *JSChunk
 	original_        *AbstractCompiler
 	shadowOptions    *CompilerOptions
-	mode_            *NestedCompilerRunner_Mode
+	mode_            NestedCompilerRunner_Mode
 	shadowPassConfig *PassConfig
 }
 
@@ -18,7 +18,7 @@ func (this *NestedCompilerRunner) finit_NestedCompilerRunner() {
 	this.baseChunk = new_JSChunk("shadow_base")
 }
 
-func (this *NestedCompilerRunner) init_NestedCompilerRunner(original *AbstractCompiler, shadowOptions *CompilerOptions, mode *NestedCompilerRunner_Mode, shadowPassConfig *PassConfig) {
+func (this *NestedCompilerRunner) init_NestedCompilerRunner(original *AbstractCompiler, shadowOptions *CompilerOptions, mode NestedCompilerRunner_Mode, shadowPassConfig *PassConfig) {
 	this.finit_NestedCompilerRunner()
 	this.original_ = original
 	this.shadowOptions = shadowOptions
@@ -26,13 +26,13 @@ func (this *NestedCompilerRunner) init_NestedCompilerRunner(original *AbstractCo
 	this.shadowPassConfig = shadowPassConfig
 }
 
-func new_NestedCompilerRunner(original *AbstractCompiler, shadowOptions *CompilerOptions, mode *NestedCompilerRunner_Mode, shadowPassConfig *PassConfig) *NestedCompilerRunner {
+func new_NestedCompilerRunner(original *AbstractCompiler, shadowOptions *CompilerOptions, mode NestedCompilerRunner_Mode, shadowPassConfig *PassConfig) *NestedCompilerRunner {
 	this := &NestedCompilerRunner{}
 	this.init_NestedCompilerRunner(original, shadowOptions, mode, shadowPassConfig)
 	return this
 }
 
-func NestedCompilerRunner_create(original *AbstractCompiler, shadowOptions *CompilerOptions, mode *NestedCompilerRunner_Mode, shadowPassConfig *PassConfig) *NestedCompilerRunner {
+func NestedCompilerRunner_create(original *AbstractCompiler, shadowOptions *CompilerOptions, mode NestedCompilerRunner_Mode, shadowPassConfig *PassConfig) *NestedCompilerRunner {
 	return new_NestedCompilerRunner(original, shadowOptions, mode, shadowPassConfig)
 }
 
@@ -124,44 +124,61 @@ func (this *NestedCompilerRunner) checkInvariants() {
 	}
 }
 
-type NestedCompilerRunner_Mode struct {
-	Enum
+type NestedCompilerRunner_Mode uint8
+
+// NestedCompilerRunner_Mode_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var NestedCompilerRunner_Mode_enum_ = [2]Enum{
+	{self_: NestedCompilerRunner_Mode_TRANSPILE_AND_OPTIMIZE, name_: "TRANSPILE_AND_OPTIMIZE", ordinal_: 0},
+	{self_: NestedCompilerRunner_Mode_TRANSPILE_ONLY, name_: "TRANSPILE_ONLY", ordinal_: 1},
 }
 
-func (this *NestedCompilerRunner_Mode) up_Enum() *Enum {
-	if this == nil {
+func (this NestedCompilerRunner_Mode) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &NestedCompilerRunner_Mode_enum_[this-1]
 }
 
-func (this *NestedCompilerRunner_Mode) init_NestedCompilerRunner_Mode(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this NestedCompilerRunner_Mode) name() string {
+	return NestedCompilerRunner_Mode_enum_[this-1].name_
 }
 
-func new_NestedCompilerRunner_Mode(name_ string, ordinal_ int32) *NestedCompilerRunner_Mode {
-	this := &NestedCompilerRunner_Mode{}
-	this.self_ = this
-	this.init_NestedCompilerRunner_Mode(name_, ordinal_)
+func (this NestedCompilerRunner_Mode) ordinal() int32 {
+	return NestedCompilerRunner_Mode_enum_[this-1].ordinal_
+}
+
+func (this NestedCompilerRunner_Mode) toString() string {
+	return NestedCompilerRunner_Mode_enum_[this-1].name_
+}
+
+func (this NestedCompilerRunner_Mode) compareTo(o any) int32 {
+	return NestedCompilerRunner_Mode_enum_[this-1].compareTo(o)
+}
+
+func (this NestedCompilerRunner_Mode) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func NestedCompilerRunner_Mode_values() []*NestedCompilerRunner_Mode {
-	return append([]*NestedCompilerRunner_Mode(nil), NestedCompilerRunner_Mode_values_...)
+func NestedCompilerRunner_Mode_values() []NestedCompilerRunner_Mode {
+	return append([]NestedCompilerRunner_Mode(nil), NestedCompilerRunner_Mode_values_...)
 }
 
-func NestedCompilerRunner_Mode_valueOf(name string) *NestedCompilerRunner_Mode {
+func NestedCompilerRunner_Mode_valueOf(name string) NestedCompilerRunner_Mode {
 	for _, v := range NestedCompilerRunner_Mode_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("Mode", name))
 }
 
-var NestedCompilerRunner_Mode_TRANSPILE_AND_OPTIMIZE *NestedCompilerRunner_Mode
-var NestedCompilerRunner_Mode_TRANSPILE_ONLY *NestedCompilerRunner_Mode
-var NestedCompilerRunner_Mode_values_ []*NestedCompilerRunner_Mode
+const NestedCompilerRunner_Mode_TRANSPILE_AND_OPTIMIZE NestedCompilerRunner_Mode = 1
+const NestedCompilerRunner_Mode_TRANSPILE_ONLY NestedCompilerRunner_Mode = 2
+
+var NestedCompilerRunner_Mode_values_ []NestedCompilerRunner_Mode
 
 var NestedCompilerRunner_Mode_clinit_done bool
 
@@ -170,9 +187,7 @@ func NestedCompilerRunner_Mode_clinit() {
 		return
 	}
 	NestedCompilerRunner_Mode_clinit_done = true
-	NestedCompilerRunner_Mode_TRANSPILE_AND_OPTIMIZE = new_NestedCompilerRunner_Mode("TRANSPILE_AND_OPTIMIZE", 0)
-	NestedCompilerRunner_Mode_TRANSPILE_ONLY = new_NestedCompilerRunner_Mode("TRANSPILE_ONLY", 1)
-	NestedCompilerRunner_Mode_values_ = []*NestedCompilerRunner_Mode{NestedCompilerRunner_Mode_TRANSPILE_AND_OPTIMIZE, NestedCompilerRunner_Mode_TRANSPILE_ONLY}
+	NestedCompilerRunner_Mode_values_ = []NestedCompilerRunner_Mode{NestedCompilerRunner_Mode_TRANSPILE_AND_OPTIMIZE, NestedCompilerRunner_Mode_TRANSPILE_ONLY}
 	registerEnum_("com.google.javascript.jscomp.NestedCompilerRunner.Mode", enumValues_(NestedCompilerRunner_Mode_values_))
 
 }

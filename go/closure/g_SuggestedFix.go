@@ -73,44 +73,59 @@ func SuggestedFix_getStartPositionForNodeConsideringComments(node Node) int32 {
 	return start
 }
 
-type SuggestedFix_ImportType struct {
-	Enum
+type SuggestedFix_ImportType uint8
+
+// SuggestedFix_ImportType_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var SuggestedFix_ImportType_enum_ = [2]Enum{
+	{self_: SuggestedFix_ImportType_REQUIRE, name_: "REQUIRE", ordinal_: 0},
+	{self_: SuggestedFix_ImportType_REQUIRE_TYPE, name_: "REQUIRE_TYPE", ordinal_: 1},
 }
 
-func (this *SuggestedFix_ImportType) up_Enum() *Enum {
-	if this == nil {
+func (this SuggestedFix_ImportType) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &SuggestedFix_ImportType_enum_[this-1]
 }
 
-func (this *SuggestedFix_ImportType) init_SuggestedFix_ImportType(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this SuggestedFix_ImportType) name() string { return SuggestedFix_ImportType_enum_[this-1].name_ }
+
+func (this SuggestedFix_ImportType) ordinal() int32 {
+	return SuggestedFix_ImportType_enum_[this-1].ordinal_
 }
 
-func new_SuggestedFix_ImportType(name_ string, ordinal_ int32) *SuggestedFix_ImportType {
-	this := &SuggestedFix_ImportType{}
-	this.self_ = this
-	this.init_SuggestedFix_ImportType(name_, ordinal_)
+func (this SuggestedFix_ImportType) toString() string {
+	return SuggestedFix_ImportType_enum_[this-1].name_
+}
+
+func (this SuggestedFix_ImportType) compareTo(o any) int32 {
+	return SuggestedFix_ImportType_enum_[this-1].compareTo(o)
+}
+
+func (this SuggestedFix_ImportType) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func SuggestedFix_ImportType_values() []*SuggestedFix_ImportType {
-	return append([]*SuggestedFix_ImportType(nil), SuggestedFix_ImportType_values_...)
+func SuggestedFix_ImportType_values() []SuggestedFix_ImportType {
+	return append([]SuggestedFix_ImportType(nil), SuggestedFix_ImportType_values_...)
 }
 
-func SuggestedFix_ImportType_valueOf(name string) *SuggestedFix_ImportType {
+func SuggestedFix_ImportType_valueOf(name string) SuggestedFix_ImportType {
 	for _, v := range SuggestedFix_ImportType_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("ImportType", name))
 }
 
-var SuggestedFix_ImportType_REQUIRE *SuggestedFix_ImportType
-var SuggestedFix_ImportType_REQUIRE_TYPE *SuggestedFix_ImportType
-var SuggestedFix_ImportType_values_ []*SuggestedFix_ImportType
+const SuggestedFix_ImportType_REQUIRE SuggestedFix_ImportType = 1
+const SuggestedFix_ImportType_REQUIRE_TYPE SuggestedFix_ImportType = 2
+
+var SuggestedFix_ImportType_values_ []SuggestedFix_ImportType
 
 var SuggestedFix_ImportType_clinit_done bool
 
@@ -119,9 +134,7 @@ func SuggestedFix_ImportType_clinit() {
 		return
 	}
 	SuggestedFix_ImportType_clinit_done = true
-	SuggestedFix_ImportType_REQUIRE = new_SuggestedFix_ImportType("REQUIRE", 0)
-	SuggestedFix_ImportType_REQUIRE_TYPE = new_SuggestedFix_ImportType("REQUIRE_TYPE", 1)
-	SuggestedFix_ImportType_values_ = []*SuggestedFix_ImportType{SuggestedFix_ImportType_REQUIRE, SuggestedFix_ImportType_REQUIRE_TYPE}
+	SuggestedFix_ImportType_values_ = []SuggestedFix_ImportType{SuggestedFix_ImportType_REQUIRE, SuggestedFix_ImportType_REQUIRE_TYPE}
 	registerEnum_("com.google.javascript.refactoring.SuggestedFix.ImportType", enumValues_(SuggestedFix_ImportType_values_))
 
 }
@@ -449,7 +462,7 @@ func (this *SuggestedFix_Builder) deleteArgument(n Node, position int32) *Sugges
 	return this
 }
 
-func SuggestedFix_Builder_createImportNode(importType *SuggestedFix_ImportType, alias OptionalOf[string], namespace string) Node {
+func SuggestedFix_Builder_createImportNode(importType SuggestedFix_ImportType, alias OptionalOf[string], namespace string) Node {
 	var requireFlavor string = func() string {
 		switch importType {
 		case SuggestedFix_ImportType_REQUIRE:
@@ -487,7 +500,7 @@ func SuggestedFix_Builder_firstUnusedAlias(namespace string, scriptMetadata *Scr
 	panic(new_AssertionError_0().self())
 }
 
-func (this *SuggestedFix_Builder) addImport(m *Match, namespace string, importType *SuggestedFix_ImportType, scriptMetadata *ScriptMetadata) *SuggestedFix_Builder {
+func (this *SuggestedFix_Builder) addImport(m *Match, namespace string, importType SuggestedFix_ImportType, scriptMetadata *ScriptMetadata) *SuggestedFix_Builder {
 	var alias OptionalOf[string]
 	if scriptMetadata.supportsRequireAliases() {
 		var existingAlias OptionalOf[string] = scriptMetadata.getAlias(namespace)

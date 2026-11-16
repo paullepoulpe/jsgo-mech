@@ -15,11 +15,11 @@ func new_PropTranslator() *PropTranslator {
 	return this
 }
 
-func PropTranslator_serialize(x *Node_Prop) *NodeProperty {
+func PropTranslator_serialize(x Node_Prop) *NodeProperty {
 	return PropTranslator_rhinoToProtoProp[x.ordinal()]
 }
 
-func PropTranslator_deserialize(x *NodeProperty) *Node_Prop {
+func PropTranslator_deserialize(x *NodeProperty) Node_Prop {
 	return PropTranslator_protoToRhinoProp[x.ordinal()]
 }
 
@@ -36,7 +36,7 @@ func PropTranslator_setProps() {
 	}
 }
 
-func PropTranslator_serializeProp(prop *Node_Prop) *NodeProperty {
+func PropTranslator_serializeProp(prop Node_Prop) *NodeProperty {
 	return func() *NodeProperty {
 		switch prop {
 		case Node_Prop_ARROW_FN:
@@ -125,14 +125,14 @@ func PropTranslator_checkUnexpectedNullProtoProps() {
 		case NodeProperty_MUTATES_GLOBAL_STATE, NodeProperty_MUTATES_THIS, NodeProperty_MUTATES_ARGUMENTS, NodeProperty_THROWS:
 		case NodeProperty_CLOSURE_UNAWARE_SHADOW:
 		default:
-			if !(PropTranslator_protoToRhinoProp[protoProp.ordinal()] != nil) {
+			if !(PropTranslator_protoToRhinoProp[protoProp.ordinal()] != 0) {
 				Preconditions_checkState_boolean_String_Object(false, "Hit unhandled node property: %s", obj_(protoProp))
 			}
 		}
 	}
 }
 
-var PropTranslator_protoToRhinoProp []*Node_Prop
+var PropTranslator_protoToRhinoProp []Node_Prop
 var PropTranslator_rhinoToProtoProp []*NodeProperty
 
 var PropTranslator_clinit_done bool
@@ -142,7 +142,7 @@ func PropTranslator_clinit() {
 		return
 	}
 	PropTranslator_clinit_done = true
-	PropTranslator_protoToRhinoProp = make([]*Node_Prop, int32(len(NodeProperty_values())))
+	PropTranslator_protoToRhinoProp = make([]Node_Prop, int32(len(NodeProperty_values())))
 	PropTranslator_rhinoToProtoProp = make([]*NodeProperty, int32(len(Node_Prop_values())))
 	{
 		PropTranslator_setProps()

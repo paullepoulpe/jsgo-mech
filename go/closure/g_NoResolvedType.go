@@ -36,7 +36,7 @@ func new_NoResolvedType(registry *JSTypeRegistry, referenceName string, template
 	return this
 }
 
-func (this *NoResolvedType) getTypeClass_impl() *JSTypeClass {
+func (this *NoResolvedType) getTypeClass_impl() JSTypeClass {
 	return JSTypeClass_NO_RESOLVED
 }
 
@@ -52,11 +52,11 @@ func (this *NoResolvedType) isNoResolvedType_impl() bool {
 	return true
 }
 
-func (this *NoResolvedType) getPossibleToBooleanOutcomes_impl() *BooleanLiteralSet {
+func (this *NoResolvedType) getPossibleToBooleanOutcomes_impl() BooleanLiteralSet {
 	return BooleanLiteralSet_BOTH
 }
 
-func (this *NoResolvedType) testForEquality_impl(that *JSType) *Tri {
+func (this *NoResolvedType) testForEquality_impl(that *JSType) Tri {
 	return Tri_UNKNOWN
 }
 
@@ -90,7 +90,7 @@ func (this *NoResolvedType) appendTo_impl(sb *TypeStringBuilder) {
 }
 
 // getTypeClass: an object that is exactly a NoResolvedType calls its getTypeClass_impl directly (post-flip); others dispatch.
-func (this *NoResolvedType) getTypeClass() *JSTypeClass {
+func (this *NoResolvedType) getTypeClass() JSTypeClass {
 	if this.self_ == any(this) {
 		return this.getTypeClass_impl()
 	}
@@ -122,7 +122,7 @@ func (this *NoResolvedType) isNoResolvedType() bool {
 }
 
 // getPossibleToBooleanOutcomes: an object that is exactly a NoResolvedType calls its getPossibleToBooleanOutcomes_impl directly (post-flip); others dispatch.
-func (this *NoResolvedType) getPossibleToBooleanOutcomes() *BooleanLiteralSet {
+func (this *NoResolvedType) getPossibleToBooleanOutcomes() BooleanLiteralSet {
 	if this.self_ == any(this) {
 		return this.getPossibleToBooleanOutcomes_impl()
 	}
@@ -130,7 +130,7 @@ func (this *NoResolvedType) getPossibleToBooleanOutcomes() *BooleanLiteralSet {
 }
 
 // testForEquality: an object that is exactly a NoResolvedType calls its testForEquality_impl directly (post-flip); others dispatch.
-func (this *NoResolvedType) testForEquality(p0 *JSType) *Tri {
+func (this *NoResolvedType) testForEquality(p0 *JSType) Tri {
 	if this.self_ == any(this) {
 		return this.testForEquality_impl(p0)
 	}

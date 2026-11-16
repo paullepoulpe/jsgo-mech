@@ -403,8 +403,8 @@ func PureFunctionIdentifier_nameForReference(nameRef Node) OptionalOf[string] {
 	}()
 }
 
-func (this *PureFunctionIdentifier) getPropertyKind(name string) *AccessorSummary_PropertyAccessKind {
-	return func() *AccessorSummary_PropertyAccessKind {
+func (this *PureFunctionIdentifier) getPropertyKind(name string) AccessorSummary_PropertyAccessKind {
+	return func() AccessorSummary_PropertyAccessKind {
 		if this.assumeGettersArePure_ {
 			return AccessorSummary_PropertyAccessKind_NORMAL
 		}
@@ -1118,6 +1118,6 @@ func new_PureFunctionIdentifier_Driver(compiler *AbstractCompiler) *PureFunction
 }
 
 func (this *PureFunctionIdentifier_Driver) process_2(externs Node, root Node) {
-	var shouldValidate *CheckLevel = this.compiler_.getOptions().getWarningsGuard().level(JSError_make_DiagnosticType_StringArr(PureFunctionIdentifier_UNUSED_ARTIFICIAL_PURE_ANNOTATION, []string{"", ""}))
+	var shouldValidate CheckLevel = this.compiler_.getOptions().getWarningsGuard().level(JSError_make_DiagnosticType_StringArr(PureFunctionIdentifier_UNUSED_ARTIFICIAL_PURE_ANNOTATION, []string{"", ""}))
 	OptimizeCalls_builder().setCompiler(this.compiler_).setConsiderExterns(true).addPass(icast_OptimizeCalls_CallGraphCompilerPass(obj_(new_PureFunctionIdentifier(this.compiler_, this.compiler_.getOptions().getAssumeGettersArePure(), (shouldValidate != CheckLevel_OFF))))).build().process_2(externs, root)
 }

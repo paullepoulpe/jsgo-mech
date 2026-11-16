@@ -15,7 +15,7 @@ func new_DefaultExterns() *DefaultExterns {
 	return this
 }
 
-func DefaultExterns_prepareExterns(env *CompilerOptions_Environment, externs *TMap[string, *SourceFile_jscomp]) ListOf[*SourceFile_jscomp] {
+func DefaultExterns_prepareExterns(env CompilerOptions_Environment, externs *TMap[string, *SourceFile_jscomp]) ListOf[*SourceFile_jscomp] {
 	var out ListOf[*SourceFile_jscomp] = icast_List(new_ArrayList_0().self())
 	it_1 := foreach_(obj_(DefaultExterns_BUILTIN_LANG_EXTERNS))
 	for it_1.next() {

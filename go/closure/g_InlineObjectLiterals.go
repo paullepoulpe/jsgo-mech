@@ -291,7 +291,7 @@ func (this *InlineObjectLiterals_InliningBehavior) splitObject(v *Var, init_ *Re
 		var entry Map_Entry = icast_Map_Entry(it_1.v)
 		var val Node = initvals[str_(entry.getKey())]
 		var lhs Node = IR_name(str_(entry.getValue()))
-		var declarationType *Token_rhino = func() *Token_rhino {
+		var declarationType Token_rhino = func() Token_rhino {
 			if isBlockScoped {
 				return Token_rhino_LET
 			}

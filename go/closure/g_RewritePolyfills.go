@@ -9,21 +9,21 @@ type RewritePolyfills struct {
 	injectPolyfills          bool
 	isolatePolyfills         bool
 	libraries                *TSet[string]
-	injectPolyfillsNewerThan *CompilerOptions_LanguageMode
+	injectPolyfillsNewerThan CompilerOptions_LanguageMode
 	disambiguateProperties_  bool
 }
 
-func (this *RewritePolyfills) init_RewritePolyfills_AbstractCompiler_boolean_boolean_LanguageMode_boolean(compiler *AbstractCompiler, injectPolyfills bool, isolatePolyfills bool, injectPolyfillsNewerThan *CompilerOptions_LanguageMode, disambiguateProperties bool) {
+func (this *RewritePolyfills) init_RewritePolyfills_AbstractCompiler_boolean_boolean_LanguageMode_boolean(compiler *AbstractCompiler, injectPolyfills bool, isolatePolyfills bool, injectPolyfillsNewerThan CompilerOptions_LanguageMode, disambiguateProperties bool) {
 	this.init_RewritePolyfills_AbstractCompiler_RuntimeJsLibManager_Polyfills_boolean_boolean_LanguageMode_boolean(compiler, compiler.getRuntimeJsLibManager(), PolyfillUsageFinder_Polyfills_fromTable(ResourceLoader_loadTextResource((sstr_(ResourceLoader_JSCOMP) + "js/polyfills.txt"))), injectPolyfills, isolatePolyfills, injectPolyfillsNewerThan, disambiguateProperties)
 }
 
-func new_RewritePolyfills_AbstractCompiler_boolean_boolean_LanguageMode_boolean(compiler *AbstractCompiler, injectPolyfills bool, isolatePolyfills bool, injectPolyfillsNewerThan *CompilerOptions_LanguageMode, disambiguateProperties bool) *RewritePolyfills {
+func new_RewritePolyfills_AbstractCompiler_boolean_boolean_LanguageMode_boolean(compiler *AbstractCompiler, injectPolyfills bool, isolatePolyfills bool, injectPolyfillsNewerThan CompilerOptions_LanguageMode, disambiguateProperties bool) *RewritePolyfills {
 	this := &RewritePolyfills{}
 	this.init_RewritePolyfills_AbstractCompiler_boolean_boolean_LanguageMode_boolean(compiler, injectPolyfills, isolatePolyfills, injectPolyfillsNewerThan, disambiguateProperties)
 	return this
 }
 
-func (this *RewritePolyfills) init_RewritePolyfills_AbstractCompiler_RuntimeJsLibManager_Polyfills_boolean_boolean_LanguageMode_boolean(compiler *AbstractCompiler, runtimeJsLibManager *RuntimeJsLibManager, polyfills *PolyfillUsageFinder_Polyfills, injectPolyfills bool, isolatePolyfills bool, injectPolyfillsNewerThan *CompilerOptions_LanguageMode, disambiguateProperties bool) {
+func (this *RewritePolyfills) init_RewritePolyfills_AbstractCompiler_RuntimeJsLibManager_Polyfills_boolean_boolean_LanguageMode_boolean(compiler *AbstractCompiler, runtimeJsLibManager *RuntimeJsLibManager, polyfills *PolyfillUsageFinder_Polyfills, injectPolyfills bool, isolatePolyfills bool, injectPolyfillsNewerThan CompilerOptions_LanguageMode, disambiguateProperties bool) {
 	this.compiler_ = compiler
 	this.runtimeJsLibManager = runtimeJsLibManager
 	this.polyfills = polyfills
@@ -33,7 +33,7 @@ func (this *RewritePolyfills) init_RewritePolyfills_AbstractCompiler_RuntimeJsLi
 	this.disambiguateProperties_ = disambiguateProperties
 }
 
-func new_RewritePolyfills_AbstractCompiler_RuntimeJsLibManager_Polyfills_boolean_boolean_LanguageMode_boolean(compiler *AbstractCompiler, runtimeJsLibManager *RuntimeJsLibManager, polyfills *PolyfillUsageFinder_Polyfills, injectPolyfills bool, isolatePolyfills bool, injectPolyfillsNewerThan *CompilerOptions_LanguageMode, disambiguateProperties bool) *RewritePolyfills {
+func new_RewritePolyfills_AbstractCompiler_RuntimeJsLibManager_Polyfills_boolean_boolean_LanguageMode_boolean(compiler *AbstractCompiler, runtimeJsLibManager *RuntimeJsLibManager, polyfills *PolyfillUsageFinder_Polyfills, injectPolyfills bool, isolatePolyfills bool, injectPolyfillsNewerThan CompilerOptions_LanguageMode, disambiguateProperties bool) *RewritePolyfills {
 	this := &RewritePolyfills{}
 	this.init_RewritePolyfills_AbstractCompiler_RuntimeJsLibManager_Polyfills_boolean_boolean_LanguageMode_boolean(compiler, runtimeJsLibManager, polyfills, injectPolyfills, isolatePolyfills, injectPolyfillsNewerThan, disambiguateProperties)
 	return this
@@ -47,7 +47,7 @@ func (this *RewritePolyfills) process_2(externs Node, root Node) {
 		synthesizedExternsAstRoot.addChildToBack(jscompLookupMethodDecl)
 		this.compiler_.reportChangeToEnclosingScope(jscompLookupMethodDecl)
 	}
-	if !this.injectPolyfills && (this.injectPolyfillsNewerThan == nil) {
+	if !this.injectPolyfills && (this.injectPolyfillsNewerThan == 0) {
 		return
 	}
 	if this.injectPolyfills {
@@ -55,7 +55,7 @@ func (this *RewritePolyfills) process_2(externs Node, root Node) {
 		new_PolyfillUsageFinder(this.compiler_, this.polyfills, this.disambiguateProperties_).traverseExcludingGuarded(root, &Consumer_fn{func(p0 any) { this.inject(cast_[*PolyfillUsageFinder_PolyfillUsage](p0)) }})
 	}
 	var librariesToInject ImmutableListOf[string]
-	if this.injectPolyfillsNewerThan != nil {
+	if this.injectPolyfillsNewerThan != 0 {
 		var polyfillsToInject []*PolyfillUsageFinder_Polyfill = this.polyfills.getPolyfillsNewerThan(this.injectPolyfillsNewerThan)
 		var librariesToInjectBuilder ImmutableList_BuilderOf[string] = ImmutableList_builder()
 		for _, p := range polyfillsToInject {
@@ -67,7 +67,7 @@ func (this *RewritePolyfills) process_2(externs Node, root Node) {
 	} else {
 		librariesToInject = ImmutableList_copyOf(Collection(this.libraries.asSet()))
 	}
-	this.injectAll(icast_Iterable(obj_(librariesToInject)), (this.injectPolyfillsNewerThan != nil))
+	this.injectAll(icast_Iterable(obj_(librariesToInject)), (this.injectPolyfillsNewerThan != 0))
 }
 
 func (this *RewritePolyfills) injectAll(librariesToInject IterableOf[string], forceInjection bool) {

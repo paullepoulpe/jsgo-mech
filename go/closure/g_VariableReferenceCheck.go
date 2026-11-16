@@ -197,7 +197,7 @@ func VariableReferenceCheck_clinit() {
 	VariableReferenceCheck_GOOG_REQUIRE = QualifiedName_of("goog.require")
 	VariableReferenceCheck_GOOG_REQUIRE_TYPE = QualifiedName_of("goog.requireType")
 	VariableReferenceCheck_GOOG_FORWARD_DECLARE = QualifiedName_of("goog.forwardDeclare")
-	VariableReferenceCheck_BLOCKLESS_DECLARATION_FORBIDDEN_STATEMENTS = Sets_immutableEnumSet(Token_rhino_IF.up_Enum(), []*Enum{Token_rhino_FOR.up_Enum(), Token_rhino_FOR_IN.up_Enum(), Token_rhino_FOR_OF.up_Enum(), Token_rhino_FOR_AWAIT_OF.up_Enum(), Token_rhino_WHILE.up_Enum()})
+	VariableReferenceCheck_BLOCKLESS_DECLARATION_FORBIDDEN_STATEMENTS = Sets_immutableEnumSet(Token_rhino_IF.enum_(), []*Enum{Token_rhino_FOR.enum_(), Token_rhino_FOR_IN.enum_(), Token_rhino_FOR_OF.enum_(), Token_rhino_FOR_AWAIT_OF.enum_(), Token_rhino_WHILE.enum_()})
 	VariableReferenceCheck_GOOG_SCOPE = QualifiedName_of("goog.scope")
 
 }

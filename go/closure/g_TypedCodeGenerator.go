@@ -29,7 +29,7 @@ func new_TypedCodeGenerator(consumer *CodeConsumer, options *CompilerOptions, re
 	return this
 }
 
-func (this *TypedCodeGenerator) add_2_impl(n Node, context *CodeGenerator_Context) {
+func (this *TypedCodeGenerator) add_2_impl(n Node, context CodeGenerator_Context) {
 	this.maybeAddTypeAnnotation(n)
 	this.CodeGenerator.add_2_impl(n, context)
 }
@@ -356,7 +356,7 @@ func (this *TypedCodeGenerator) restrictByUndefined(type_ *JSType) *JSType {
 }
 
 // add_2: an object that is exactly a TypedCodeGenerator calls its add_2_impl directly (post-flip); others dispatch.
-func (this *TypedCodeGenerator) add_2(p0 Node, p1 *CodeGenerator_Context) {
+func (this *TypedCodeGenerator) add_2(p0 Node, p1 CodeGenerator_Context) {
 	if this.self_ == any(this) {
 		this.add_2_impl(p0, p1)
 		return

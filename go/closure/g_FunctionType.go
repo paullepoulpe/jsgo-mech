@@ -4,11 +4,11 @@ package closure
 
 type FunctionType struct {
 	PrototypeObjectType
-	constructorAmbiguity       *FunctionType_ConstructorAmbiguity
+	constructorAmbiguity       FunctionType_ConstructorAmbiguity
 	call                       *ArrowType
 	prototypeSlot              *Property
-	kind_                      *FunctionType_Kind
-	propAccess                 *FunctionType_PropAccess
+	kind_                      FunctionType_Kind
+	propAccess                 FunctionType_PropAccess
 	typeOfThis                 *JSType
 	source                     Node
 	googModuleId               string
@@ -16,7 +16,7 @@ type FunctionType struct {
 	isAbstractField            bool
 	implementedInterfaces      ImmutableListOf[*ObjectType]
 	extendedInterfaces         ImmutableListOf[*ObjectType]
-	closurePrimitive           *ClosurePrimitive
+	closurePrimitive           ClosurePrimitive
 	canonicalRepresentation    *FunctionType
 }
 
@@ -87,7 +87,7 @@ func (this *FunctionType) init_FunctionType(builder *FunctionType_Builder) {
 	this.source = source
 	this.googModuleId = builder.googModuleId
 	this.kind_ = builder.kind_
-	this.constructorAmbiguity = func() *FunctionType_ConstructorAmbiguity {
+	this.constructorAmbiguity = func() FunctionType_ConstructorAmbiguity {
 		if builder.isKnownAmbiguous {
 			return FunctionType_ConstructorAmbiguity_IS_AMBIGUOUS_CONSTRUCTOR
 		}
@@ -139,7 +139,7 @@ func new_FunctionType(builder *FunctionType_Builder) *FunctionType {
 	return this
 }
 
-func (this *FunctionType) getTypeClass_impl() *JSTypeClass {
+func (this *FunctionType) getTypeClass_impl() JSTypeClass {
 	return FunctionType_TYPE_CLASS_FIELD
 }
 
@@ -163,12 +163,12 @@ func (this *FunctionType) isOrdinaryFunction_impl() bool {
 	return (this.kind_ == FunctionType_Kind_ORDINARY)
 }
 
-func (this *FunctionType) getKind() *FunctionType_Kind {
+func (this *FunctionType) getKind() FunctionType_Kind {
 	return this.kind_
 }
 
 func (this *FunctionType) makesStructs() bool {
-	if !this.hasInstanceType() || (this.propAccess == nil) {
+	if !this.hasInstanceType() || (this.propAccess == 0) {
 		return false
 	}
 	return func() bool {
@@ -192,7 +192,7 @@ func (this *FunctionType) makesStructs() bool {
 }
 
 func (this *FunctionType) makesDicts() bool {
-	if !this.isConstructor() || (this.propAccess == nil) {
+	if !this.isConstructor() || (this.propAccess == 0) {
 		return false
 	}
 	return func() bool {
@@ -985,8 +985,8 @@ func (this *FunctionType) isAmbiguousConstructor() bool {
 	return (this.constructorAmbiguity == FunctionType_ConstructorAmbiguity_IS_AMBIGUOUS_CONSTRUCTOR)
 }
 
-func (this *FunctionType) calculateConstructorAmbiguity() *FunctionType_ConstructorAmbiguity {
-	var constructorAmbiguity *FunctionType_ConstructorAmbiguity
+func (this *FunctionType) calculateConstructorAmbiguity() FunctionType_ConstructorAmbiguity {
+	var constructorAmbiguity FunctionType_ConstructorAmbiguity
 	if this.isUnknownType() {
 		constructorAmbiguity = FunctionType_ConstructorAmbiguity_IS_AMBIGUOUS_CONSTRUCTOR
 	} else if this.isNativeObjectType() {
@@ -1012,7 +1012,7 @@ func (this *FunctionType) isDelegateProxy() bool {
 	return (this.hasReferenceName() && String_endsWith(this.getReferenceName().get(), FunctionType_DELEGATE_SUFFIX))
 }
 
-func (this *FunctionType) getClosurePrimitive() *ClosurePrimitive {
+func (this *FunctionType) getClosurePrimitive() ClosurePrimitive {
 	return this.closurePrimitive
 }
 
@@ -1032,7 +1032,7 @@ func (this *FunctionType) getCanonicalRepresentation() *FunctionType {
 	return this.canonicalRepresentation
 }
 
-var FunctionType_TYPE_CLASS_FIELD *JSTypeClass
+var FunctionType_TYPE_CLASS_FIELD JSTypeClass
 var FunctionType_DELEGATE_SUFFIX string
 
 var FunctionType_clinit_done bool
@@ -1047,46 +1047,59 @@ func FunctionType_clinit() {
 
 }
 
-type FunctionType_Kind struct {
-	Enum
+type FunctionType_Kind uint8
+
+// FunctionType_Kind_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var FunctionType_Kind_enum_ = [4]Enum{
+	{self_: FunctionType_Kind_ORDINARY, name_: "ORDINARY", ordinal_: 0},
+	{self_: FunctionType_Kind_CONSTRUCTOR, name_: "CONSTRUCTOR", ordinal_: 1},
+	{self_: FunctionType_Kind_INTERFACE, name_: "INTERFACE", ordinal_: 2},
+	{self_: FunctionType_Kind_NONE, name_: "NONE", ordinal_: 3},
 }
 
-func (this *FunctionType_Kind) up_Enum() *Enum {
-	if this == nil {
+func (this FunctionType_Kind) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &FunctionType_Kind_enum_[this-1]
 }
 
-func (this *FunctionType_Kind) init_FunctionType_Kind(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this FunctionType_Kind) name() string { return FunctionType_Kind_enum_[this-1].name_ }
+
+func (this FunctionType_Kind) ordinal() int32 { return FunctionType_Kind_enum_[this-1].ordinal_ }
+
+func (this FunctionType_Kind) toString() string { return FunctionType_Kind_enum_[this-1].name_ }
+
+func (this FunctionType_Kind) compareTo(o any) int32 {
+	return FunctionType_Kind_enum_[this-1].compareTo(o)
 }
 
-func new_FunctionType_Kind(name_ string, ordinal_ int32) *FunctionType_Kind {
-	this := &FunctionType_Kind{}
-	this.self_ = this
-	this.init_FunctionType_Kind(name_, ordinal_)
+func (this FunctionType_Kind) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func FunctionType_Kind_values() []*FunctionType_Kind {
-	return append([]*FunctionType_Kind(nil), FunctionType_Kind_values_...)
+func FunctionType_Kind_values() []FunctionType_Kind {
+	return append([]FunctionType_Kind(nil), FunctionType_Kind_values_...)
 }
 
-func FunctionType_Kind_valueOf(name string) *FunctionType_Kind {
+func FunctionType_Kind_valueOf(name string) FunctionType_Kind {
 	for _, v := range FunctionType_Kind_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("Kind", name))
 }
 
-var FunctionType_Kind_ORDINARY *FunctionType_Kind
-var FunctionType_Kind_CONSTRUCTOR *FunctionType_Kind
-var FunctionType_Kind_INTERFACE *FunctionType_Kind
-var FunctionType_Kind_NONE *FunctionType_Kind
-var FunctionType_Kind_values_ []*FunctionType_Kind
+const FunctionType_Kind_ORDINARY FunctionType_Kind = 1
+const FunctionType_Kind_CONSTRUCTOR FunctionType_Kind = 2
+const FunctionType_Kind_INTERFACE FunctionType_Kind = 3
+const FunctionType_Kind_NONE FunctionType_Kind = 4
+
+var FunctionType_Kind_values_ []FunctionType_Kind
 
 var FunctionType_Kind_clinit_done bool
 
@@ -1095,55 +1108,68 @@ func FunctionType_Kind_clinit() {
 		return
 	}
 	FunctionType_Kind_clinit_done = true
-	FunctionType_Kind_ORDINARY = new_FunctionType_Kind("ORDINARY", 0)
-	FunctionType_Kind_CONSTRUCTOR = new_FunctionType_Kind("CONSTRUCTOR", 1)
-	FunctionType_Kind_INTERFACE = new_FunctionType_Kind("INTERFACE", 2)
-	FunctionType_Kind_NONE = new_FunctionType_Kind("NONE", 3)
-	FunctionType_Kind_values_ = []*FunctionType_Kind{FunctionType_Kind_ORDINARY, FunctionType_Kind_CONSTRUCTOR, FunctionType_Kind_INTERFACE, FunctionType_Kind_NONE}
+	FunctionType_Kind_values_ = []FunctionType_Kind{FunctionType_Kind_ORDINARY, FunctionType_Kind_CONSTRUCTOR, FunctionType_Kind_INTERFACE, FunctionType_Kind_NONE}
 	registerEnum_("com.google.javascript.rhino.jstype.FunctionType.Kind", enumValues_(FunctionType_Kind_values_))
 
 }
 
-type FunctionType_PropAccess struct {
-	Enum
+type FunctionType_PropAccess uint8
+
+// FunctionType_PropAccess_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var FunctionType_PropAccess_enum_ = [4]Enum{
+	{self_: FunctionType_PropAccess_ANY, name_: "ANY", ordinal_: 0},
+	{self_: FunctionType_PropAccess_ANY_EXPLICIT, name_: "ANY_EXPLICIT", ordinal_: 1},
+	{self_: FunctionType_PropAccess_STRUCT, name_: "STRUCT", ordinal_: 2},
+	{self_: FunctionType_PropAccess_DICT, name_: "DICT", ordinal_: 3},
 }
 
-func (this *FunctionType_PropAccess) up_Enum() *Enum {
-	if this == nil {
+func (this FunctionType_PropAccess) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &FunctionType_PropAccess_enum_[this-1]
 }
 
-func (this *FunctionType_PropAccess) init_FunctionType_PropAccess(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this FunctionType_PropAccess) name() string { return FunctionType_PropAccess_enum_[this-1].name_ }
+
+func (this FunctionType_PropAccess) ordinal() int32 {
+	return FunctionType_PropAccess_enum_[this-1].ordinal_
 }
 
-func new_FunctionType_PropAccess(name_ string, ordinal_ int32) *FunctionType_PropAccess {
-	this := &FunctionType_PropAccess{}
-	this.self_ = this
-	this.init_FunctionType_PropAccess(name_, ordinal_)
+func (this FunctionType_PropAccess) toString() string {
+	return FunctionType_PropAccess_enum_[this-1].name_
+}
+
+func (this FunctionType_PropAccess) compareTo(o any) int32 {
+	return FunctionType_PropAccess_enum_[this-1].compareTo(o)
+}
+
+func (this FunctionType_PropAccess) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func FunctionType_PropAccess_values() []*FunctionType_PropAccess {
-	return append([]*FunctionType_PropAccess(nil), FunctionType_PropAccess_values_...)
+func FunctionType_PropAccess_values() []FunctionType_PropAccess {
+	return append([]FunctionType_PropAccess(nil), FunctionType_PropAccess_values_...)
 }
 
-func FunctionType_PropAccess_valueOf(name string) *FunctionType_PropAccess {
+func FunctionType_PropAccess_valueOf(name string) FunctionType_PropAccess {
 	for _, v := range FunctionType_PropAccess_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("PropAccess", name))
 }
 
-var FunctionType_PropAccess_ANY *FunctionType_PropAccess
-var FunctionType_PropAccess_ANY_EXPLICIT *FunctionType_PropAccess
-var FunctionType_PropAccess_STRUCT *FunctionType_PropAccess
-var FunctionType_PropAccess_DICT *FunctionType_PropAccess
-var FunctionType_PropAccess_values_ []*FunctionType_PropAccess
+const FunctionType_PropAccess_ANY FunctionType_PropAccess = 1
+const FunctionType_PropAccess_ANY_EXPLICIT FunctionType_PropAccess = 2
+const FunctionType_PropAccess_STRUCT FunctionType_PropAccess = 3
+const FunctionType_PropAccess_DICT FunctionType_PropAccess = 4
+
+var FunctionType_PropAccess_values_ []FunctionType_PropAccess
 
 var FunctionType_PropAccess_clinit_done bool
 
@@ -1152,54 +1178,68 @@ func FunctionType_PropAccess_clinit() {
 		return
 	}
 	FunctionType_PropAccess_clinit_done = true
-	FunctionType_PropAccess_ANY = new_FunctionType_PropAccess("ANY", 0)
-	FunctionType_PropAccess_ANY_EXPLICIT = new_FunctionType_PropAccess("ANY_EXPLICIT", 1)
-	FunctionType_PropAccess_STRUCT = new_FunctionType_PropAccess("STRUCT", 2)
-	FunctionType_PropAccess_DICT = new_FunctionType_PropAccess("DICT", 3)
-	FunctionType_PropAccess_values_ = []*FunctionType_PropAccess{FunctionType_PropAccess_ANY, FunctionType_PropAccess_ANY_EXPLICIT, FunctionType_PropAccess_STRUCT, FunctionType_PropAccess_DICT}
+	FunctionType_PropAccess_values_ = []FunctionType_PropAccess{FunctionType_PropAccess_ANY, FunctionType_PropAccess_ANY_EXPLICIT, FunctionType_PropAccess_STRUCT, FunctionType_PropAccess_DICT}
 	registerEnum_("com.google.javascript.rhino.jstype.FunctionType.PropAccess", enumValues_(FunctionType_PropAccess_values_))
 
 }
 
-type FunctionType_ConstructorAmbiguity struct {
-	Enum
+type FunctionType_ConstructorAmbiguity uint8
+
+// FunctionType_ConstructorAmbiguity_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var FunctionType_ConstructorAmbiguity_enum_ = [3]Enum{
+	{self_: FunctionType_ConstructorAmbiguity_UNKNOWN, name_: "UNKNOWN", ordinal_: 0},
+	{self_: FunctionType_ConstructorAmbiguity_IS_AMBIGUOUS_CONSTRUCTOR, name_: "IS_AMBIGUOUS_CONSTRUCTOR", ordinal_: 1},
+	{self_: FunctionType_ConstructorAmbiguity_IS_UNAMBIGUOUS_CONSTRUCTOR, name_: "IS_UNAMBIGUOUS_CONSTRUCTOR", ordinal_: 2},
 }
 
-func (this *FunctionType_ConstructorAmbiguity) up_Enum() *Enum {
-	if this == nil {
+func (this FunctionType_ConstructorAmbiguity) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &FunctionType_ConstructorAmbiguity_enum_[this-1]
 }
 
-func (this *FunctionType_ConstructorAmbiguity) init_FunctionType_ConstructorAmbiguity(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this FunctionType_ConstructorAmbiguity) name() string {
+	return FunctionType_ConstructorAmbiguity_enum_[this-1].name_
 }
 
-func new_FunctionType_ConstructorAmbiguity(name_ string, ordinal_ int32) *FunctionType_ConstructorAmbiguity {
-	this := &FunctionType_ConstructorAmbiguity{}
-	this.self_ = this
-	this.init_FunctionType_ConstructorAmbiguity(name_, ordinal_)
+func (this FunctionType_ConstructorAmbiguity) ordinal() int32 {
+	return FunctionType_ConstructorAmbiguity_enum_[this-1].ordinal_
+}
+
+func (this FunctionType_ConstructorAmbiguity) toString() string {
+	return FunctionType_ConstructorAmbiguity_enum_[this-1].name_
+}
+
+func (this FunctionType_ConstructorAmbiguity) compareTo(o any) int32 {
+	return FunctionType_ConstructorAmbiguity_enum_[this-1].compareTo(o)
+}
+
+func (this FunctionType_ConstructorAmbiguity) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func FunctionType_ConstructorAmbiguity_values() []*FunctionType_ConstructorAmbiguity {
-	return append([]*FunctionType_ConstructorAmbiguity(nil), FunctionType_ConstructorAmbiguity_values_...)
+func FunctionType_ConstructorAmbiguity_values() []FunctionType_ConstructorAmbiguity {
+	return append([]FunctionType_ConstructorAmbiguity(nil), FunctionType_ConstructorAmbiguity_values_...)
 }
 
-func FunctionType_ConstructorAmbiguity_valueOf(name string) *FunctionType_ConstructorAmbiguity {
+func FunctionType_ConstructorAmbiguity_valueOf(name string) FunctionType_ConstructorAmbiguity {
 	for _, v := range FunctionType_ConstructorAmbiguity_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("ConstructorAmbiguity", name))
 }
 
-var FunctionType_ConstructorAmbiguity_UNKNOWN *FunctionType_ConstructorAmbiguity
-var FunctionType_ConstructorAmbiguity_IS_AMBIGUOUS_CONSTRUCTOR *FunctionType_ConstructorAmbiguity
-var FunctionType_ConstructorAmbiguity_IS_UNAMBIGUOUS_CONSTRUCTOR *FunctionType_ConstructorAmbiguity
-var FunctionType_ConstructorAmbiguity_values_ []*FunctionType_ConstructorAmbiguity
+const FunctionType_ConstructorAmbiguity_UNKNOWN FunctionType_ConstructorAmbiguity = 1
+const FunctionType_ConstructorAmbiguity_IS_AMBIGUOUS_CONSTRUCTOR FunctionType_ConstructorAmbiguity = 2
+const FunctionType_ConstructorAmbiguity_IS_UNAMBIGUOUS_CONSTRUCTOR FunctionType_ConstructorAmbiguity = 3
+
+var FunctionType_ConstructorAmbiguity_values_ []FunctionType_ConstructorAmbiguity
 
 var FunctionType_ConstructorAmbiguity_clinit_done bool
 
@@ -1208,10 +1248,7 @@ func FunctionType_ConstructorAmbiguity_clinit() {
 		return
 	}
 	FunctionType_ConstructorAmbiguity_clinit_done = true
-	FunctionType_ConstructorAmbiguity_UNKNOWN = new_FunctionType_ConstructorAmbiguity("UNKNOWN", 0)
-	FunctionType_ConstructorAmbiguity_IS_AMBIGUOUS_CONSTRUCTOR = new_FunctionType_ConstructorAmbiguity("IS_AMBIGUOUS_CONSTRUCTOR", 1)
-	FunctionType_ConstructorAmbiguity_IS_UNAMBIGUOUS_CONSTRUCTOR = new_FunctionType_ConstructorAmbiguity("IS_UNAMBIGUOUS_CONSTRUCTOR", 2)
-	FunctionType_ConstructorAmbiguity_values_ = []*FunctionType_ConstructorAmbiguity{FunctionType_ConstructorAmbiguity_UNKNOWN, FunctionType_ConstructorAmbiguity_IS_AMBIGUOUS_CONSTRUCTOR, FunctionType_ConstructorAmbiguity_IS_UNAMBIGUOUS_CONSTRUCTOR}
+	FunctionType_ConstructorAmbiguity_values_ = []FunctionType_ConstructorAmbiguity{FunctionType_ConstructorAmbiguity_UNKNOWN, FunctionType_ConstructorAmbiguity_IS_AMBIGUOUS_CONSTRUCTOR, FunctionType_ConstructorAmbiguity_IS_UNAMBIGUOUS_CONSTRUCTOR}
 	registerEnum_("com.google.javascript.rhino.jstype.FunctionType.ConstructorAmbiguity", enumValues_(FunctionType_ConstructorAmbiguity_values_))
 
 }
@@ -1225,12 +1262,12 @@ type FunctionType_Builder struct {
 	typeOfThis              *JSType
 	setPrototypeBasedOn_    *ObjectType
 	constructorOnlyKeys     ImmutableSetOf[*TemplateType]
-	kind_                   *FunctionType_Kind
+	kind_                   FunctionType_Kind
 	isAbstract_             bool
 	isKnownAmbiguous        bool
 	returnTypeIsInferred    bool
 	returnsOwnInstanceType  bool
-	primitiveId             *ClosurePrimitive
+	primitiveId             ClosurePrimitive
 	canonicalRepresentation *FunctionType
 }
 
@@ -1255,7 +1292,7 @@ func (this *FunctionType_Builder) finit_FunctionType_Builder() {
 	this.constructorOnlyKeys = ImmutableSet_of()
 	this.kind_ = FunctionType_Kind_ORDINARY
 	this.isKnownAmbiguous = false
-	this.primitiveId = nil
+	this.primitiveId = 0
 	this.canonicalRepresentation = nil
 }
 
@@ -1340,7 +1377,7 @@ func (this *FunctionType_Builder) withConstructorTemplateKeys(constructorOnlyKey
 	return this
 }
 
-func (this *FunctionType_Builder) withKind(kind *FunctionType_Kind) *FunctionType_Builder {
+func (this *FunctionType_Builder) withKind(kind FunctionType_Kind) *FunctionType_Builder {
 	this.kind_ = kind
 	return this
 }
@@ -1375,7 +1412,7 @@ func (this *FunctionType_Builder) withPrototypeBasedOn(setPrototypeBasedOn *Obje
 	return this
 }
 
-func (this *FunctionType_Builder) withClosurePrimitiveId(id *ClosurePrimitive) *FunctionType_Builder {
+func (this *FunctionType_Builder) withClosurePrimitiveId(id ClosurePrimitive) *FunctionType_Builder {
 	this.primitiveId = id
 	return this
 }
@@ -1465,7 +1502,7 @@ func (this *FunctionType_Parameter) hashCode() int32 {
 }
 
 // getTypeClass: an object that is exactly a FunctionType calls its getTypeClass_impl directly (post-flip); others dispatch.
-func (this *FunctionType) getTypeClass() *JSTypeClass {
+func (this *FunctionType) getTypeClass() JSTypeClass {
 	if this.self_ == any(this) {
 		return this.getTypeClass_impl()
 	}

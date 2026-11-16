@@ -132,20 +132,20 @@ func (this *TypedScope) declare(name string, nameNode Node, type_ *JSType, input
 	return var_
 }
 
-func (this *TypedScope) makeImplicitVar_impl(var_ *AbstractScope_ImplicitVar) *AbstractVar {
+func (this *TypedScope) makeImplicitVar_impl(var_ AbstractScope_ImplicitVar) *AbstractVar {
 	if this.isGlobal() {
 		return nil
 	} else if Object_equals(obj_(var_), obj_(AbstractScope_ImplicitVar_EXPORTS)) {
 		return nil
 	}
-	return new_TypedVar(false, var_.nameField, 0, this.getImplicitVarType(var_), this, -1, nil).up_AbstractVar()
+	return new_TypedVar(false, AbstractScope_ImplicitVar_nameField_[var_-1], 0, this.getImplicitVarType(var_), this, -1, nil).up_AbstractVar()
 }
 
-func (this *TypedScope) hasOwnImplicitSlot_impl(name *AbstractScope_ImplicitVar) bool {
-	return (((name != nil) && !Object_equals(obj_(name), obj_(AbstractScope_ImplicitVar_EXPORTS))) && name.isMadeByScope(this.up_AbstractScope()))
+func (this *TypedScope) hasOwnImplicitSlot_impl(name AbstractScope_ImplicitVar) bool {
+	return (((name != 0) && !Object_equals(obj_(name), obj_(AbstractScope_ImplicitVar_EXPORTS))) && name.isMadeByScope(this.up_AbstractScope()))
 }
 
-func (this *TypedScope) getImplicitVarType(var_ *AbstractScope_ImplicitVar) *JSType {
+func (this *TypedScope) getImplicitVarType(var_ AbstractScope_ImplicitVar) *JSType {
 	switch var_ {
 	case AbstractScope_ImplicitVar_ARGUMENTS:
 		var globalArgs *TypedVar = cast_[*TypedVar](cast_[*TypedScope](this.getGlobalScope().self()).getVar(Var_ARGUMENTS).self())
@@ -273,7 +273,7 @@ func (this *TypedScope) getParent() *AbstractScope {
 }
 
 // makeImplicitVar: an object that is exactly a TypedScope calls its makeImplicitVar_impl directly (post-flip); others dispatch.
-func (this *TypedScope) makeImplicitVar(p0 *AbstractScope_ImplicitVar) *AbstractVar {
+func (this *TypedScope) makeImplicitVar(p0 AbstractScope_ImplicitVar) *AbstractVar {
 	if this.self_ == any(this) {
 		return this.makeImplicitVar_impl(p0)
 	}
@@ -281,7 +281,7 @@ func (this *TypedScope) makeImplicitVar(p0 *AbstractScope_ImplicitVar) *Abstract
 }
 
 // hasOwnImplicitSlot: an object that is exactly a TypedScope calls its hasOwnImplicitSlot_impl directly (post-flip); others dispatch.
-func (this *TypedScope) hasOwnImplicitSlot(p0 *AbstractScope_ImplicitVar) bool {
+func (this *TypedScope) hasOwnImplicitSlot(p0 AbstractScope_ImplicitVar) bool {
 	if this.self_ == any(this) {
 		return this.hasOwnImplicitSlot_impl(p0)
 	}

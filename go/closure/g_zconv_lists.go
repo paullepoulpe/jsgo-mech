@@ -17,7 +17,7 @@ var tc_Map_EntryOf_p_InstrumentationPoint__p_ProfilingReport_InstrumentationPoin
 }, unbox: func(v any) Map_EntryOf[*InstrumentationPoint, *ProfilingReport_InstrumentationPointMetrics] {
 	return icast_Map_Entry(v)
 }}
-var tc_Map_EntryOf_p_Token_rhino__BoxedOf_int32__ = &tconv_[Map_EntryOf[*Token_rhino, BoxedOf[int32]]]{box: func(v Map_EntryOf[*Token_rhino, BoxedOf[int32]]) any { return any(v) }, unbox: func(v any) Map_EntryOf[*Token_rhino, BoxedOf[int32]] { return icast_Map_Entry(v) }}
+var tc_Map_EntryOf_p_Token_rhino__BoxedOf_int32__ = &tconv_[Map_EntryOf[Token_rhino, BoxedOf[int32]]]{box: func(v Map_EntryOf[Token_rhino, BoxedOf[int32]]) any { return any(v) }, unbox: func(v any) Map_EntryOf[Token_rhino, BoxedOf[int32]] { return icast_Map_Entry(v) }}
 var tc_Map_EntryOf_string__BoxedOf_int32__ = &tconv_[Map_EntryOf[string, BoxedOf[int32]]]{box: func(v Map_EntryOf[string, BoxedOf[int32]]) any { return any(v) }, unbox: func(v any) Map_EntryOf[string, BoxedOf[int32]] { return icast_Map_Entry(v) }}
 var tc_Map_EntryOf_string__p_PerformanceTracker_Stats_ = &tconv_[Map_EntryOf[string, *PerformanceTracker_Stats]]{box: func(v Map_EntryOf[string, *PerformanceTracker_Stats]) any { return any(v) }, unbox: func(v any) Map_EntryOf[string, *PerformanceTracker_Stats] { return icast_Map_Entry(v) }}
 var tc_Node = &tconv_[Node]{box: func(v Node) any { return v.box_() }, unbox: func(v any) Node { return Node_of_(v) }}

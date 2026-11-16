@@ -11,7 +11,7 @@ func (this *JSTypeColorIdHasher) init_JSTypeColorIdHasher(registry *JSTypeRegist
 	it_1 := foreach_(obj_(cast_[*ImmutableSet](JSTypeColorIdHasher_NATIVE_TYPE_TO_ID.entrySet())))
 	for it_1.next() {
 		var e Map_Entry = icast_Map_Entry(it_1.v)
-		standardColorObjectIdsBuilder.put(registry.getNativeObjectType(cast_[*JSTypeNative](e.getKey())).self(), e.getValue())
+		standardColorObjectIdsBuilder.put(registry.getNativeObjectType(cast_[JSTypeNative](e.getKey())).self(), e.getValue())
 	}
 	this.standardColorObjectIds = standardColorObjectIdsBuilder.buildOrThrow()
 }

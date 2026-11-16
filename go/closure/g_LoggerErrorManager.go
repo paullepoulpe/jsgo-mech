@@ -46,7 +46,7 @@ func new_LoggerErrorManager_Logger(logger *Logger) *LoggerErrorManager {
 	return this
 }
 
-func (this *LoggerErrorManager) println_impl(level *CheckLevel, error_ *JSError) {
+func (this *LoggerErrorManager) println_impl(level CheckLevel, error_ *JSError) {
 	switch level {
 	case CheckLevel_ERROR:
 		this.logger.severe(error_.format(level, this.formatter).orElseThrow())
@@ -71,12 +71,12 @@ func (this *LoggerErrorManager) printSummary_impl() {
 }
 
 // println: an object that is exactly a LoggerErrorManager calls its println_impl directly (post-flip); others dispatch.
-func (this *LoggerErrorManager) println(p0 *CheckLevel, p1 *JSError) {
+func (this *LoggerErrorManager) println(p0 CheckLevel, p1 *JSError) {
 	if this.self_ == any(this) {
 		this.println_impl(p0, p1)
 		return
 	}
-	this.self_.(interface{ println_impl(*CheckLevel, *JSError) }).println_impl(p0, p1)
+	this.self_.(interface{ println_impl(CheckLevel, *JSError) }).println_impl(p0, p1)
 }
 
 // printSummary: an object that is exactly a LoggerErrorManager calls its printSummary_impl directly (post-flip); others dispatch.

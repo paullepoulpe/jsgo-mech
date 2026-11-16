@@ -15,7 +15,7 @@ func (this *CheckConformance) finit_CheckConformance() {
 }
 
 func (this *CheckConformance) init_CheckConformance_AbstractCompiler(compiler *AbstractCompiler) {
-	this.init_CheckConformance_AbstractCompiler_ImmutableList_ConformanceReportingMode(compiler, ImmutableList_of(), nil)
+	this.init_CheckConformance_AbstractCompiler_ImmutableList_ConformanceReportingMode(compiler, ImmutableList_of(), 0)
 }
 
 func new_CheckConformance_AbstractCompiler(compiler *AbstractCompiler) *CheckConformance {
@@ -24,13 +24,13 @@ func new_CheckConformance_AbstractCompiler(compiler *AbstractCompiler) *CheckCon
 	return this
 }
 
-func (this *CheckConformance) init_CheckConformance_AbstractCompiler_ImmutableList_ConformanceReportingMode(compiler *AbstractCompiler, configs ImmutableListOf[*ConformanceConfig], reportingMode *CompilerOptions_ConformanceReportingMode) {
+func (this *CheckConformance) init_CheckConformance_AbstractCompiler_ImmutableList_ConformanceReportingMode(compiler *AbstractCompiler, configs ImmutableListOf[*ConformanceConfig], reportingMode CompilerOptions_ConformanceReportingMode) {
 	this.finit_CheckConformance()
 	this.compiler_ = compiler
 	this.categories = this.initRules(compiler, configs, reportingMode)
 }
 
-func new_CheckConformance_AbstractCompiler_ImmutableList_ConformanceReportingMode(compiler *AbstractCompiler, configs ImmutableListOf[*ConformanceConfig], reportingMode *CompilerOptions_ConformanceReportingMode) *CheckConformance {
+func new_CheckConformance_AbstractCompiler_ImmutableList_ConformanceReportingMode(compiler *AbstractCompiler, configs ImmutableListOf[*ConformanceConfig], reportingMode CompilerOptions_ConformanceReportingMode) *CheckConformance {
 	this := &CheckConformance{}
 	this.init_CheckConformance_AbstractCompiler_ImmutableList_ConformanceReportingMode(compiler, configs, reportingMode)
 	return this
@@ -63,9 +63,9 @@ func (this *CheckConformance) visit(t *NodeTraversal, n Node, parent Node) {
 	}
 }
 
-func (this *CheckConformance) initRules(compiler *AbstractCompiler, configs ImmutableListOf[*ConformanceConfig], reportingMode *CompilerOptions_ConformanceReportingMode) []*CheckConformance_Category {
+func (this *CheckConformance) initRules(compiler *AbstractCompiler, configs ImmutableListOf[*ConformanceConfig], reportingMode CompilerOptions_ConformanceReportingMode) []*CheckConformance_Category {
 	var builder *SimpleSetMultimap = SimpleSetMultimap_createInsertionOrdered()
-	var isLibraryLevelReportingMode bool = ((reportingMode != nil) && Object_equals(obj_(reportingMode), obj_(CompilerOptions_ConformanceReportingMode_RESPECT_LIBRARY_LEVEL_BEHAVIOR_SPECIFIED_IN_CONFIG)))
+	var isLibraryLevelReportingMode bool = ((reportingMode != 0) && Object_equals(obj_(reportingMode), obj_(CompilerOptions_ConformanceReportingMode_RESPECT_LIBRARY_LEVEL_BEHAVIOR_SPECIFIED_IN_CONFIG)))
 	if isLibraryLevelReportingMode {
 		if !CheckConformance_validateBehaviorSettingOfConfigs(compiler, configs, reportingMode) {
 			return []*CheckConformance_Category{}
@@ -93,7 +93,7 @@ func (this *CheckConformance) initRules(compiler *AbstractCompiler, configs Immu
 	return sliceImm_(tc_p_CheckConformance_Category, result.build())
 }
 
-func CheckConformance_validateBehaviorSettingOfConfigs(compiler *AbstractCompiler, configs ImmutableListOf[*ConformanceConfig], reportingMode *CompilerOptions_ConformanceReportingMode) bool {
+func CheckConformance_validateBehaviorSettingOfConfigs(compiler *AbstractCompiler, configs ImmutableListOf[*ConformanceConfig], reportingMode CompilerOptions_ConformanceReportingMode) bool {
 	Preconditions_checkState(Object_equals(obj_(reportingMode), obj_(CompilerOptions_ConformanceReportingMode_RESPECT_LIBRARY_LEVEL_BEHAVIOR_SPECIFIED_IN_CONFIG)))
 	var baseRequirementBehaviors map[string]*ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior = map[string]*ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior{}
 	it_1 := foreach_(obj_(configs))

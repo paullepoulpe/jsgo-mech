@@ -265,7 +265,7 @@ func (this *ControlFlowAnalysis) handleFor(forNode Node) {
 func (this *ControlFlowAnalysis) handleSwitch(node Node) {
 	var switchBody Node = node.getLastChild()
 	this.createEdge(node, ControlFlowGraph_Branch_UNCOND, switchBody)
-	var next Node = ControlFlowAnalysis_getNextSiblingOfType(switchBody.getFirstChild(), []*Token_rhino{Token_rhino_CASE, Token_rhino_EMPTY})
+	var next Node = ControlFlowAnalysis_getNextSiblingOfType(switchBody.getFirstChild(), []Token_rhino{Token_rhino_CASE, Token_rhino_EMPTY})
 	if next != 0 {
 		this.createEdge(switchBody, ControlFlowGraph_Branch_UNCOND, next)
 	} else {
@@ -280,13 +280,13 @@ func (this *ControlFlowAnalysis) handleSwitch(node Node) {
 
 func (this *ControlFlowAnalysis) handleCase(caseNode Node) {
 	this.createEdge(caseNode, ControlFlowGraph_Branch_ON_TRUE, caseNode.getSecondChild())
-	var next Node = ControlFlowAnalysis_getNextSiblingOfType(caseNode.getNext(), []*Token_rhino{Token_rhino_CASE})
+	var next Node = ControlFlowAnalysis_getNextSiblingOfType(caseNode.getNext(), []Token_rhino{Token_rhino_CASE})
 	if next != 0 {
 		Preconditions_checkState(next.isCase())
 		this.createEdge(caseNode, ControlFlowGraph_Branch_ON_FALSE, next)
 	} else {
 		var switchBody Node = caseNode.getParent()
-		var deflt Node = ControlFlowAnalysis_getNextSiblingOfType(switchBody.getFirstChild(), []*Token_rhino{Token_rhino_DEFAULT_CASE})
+		var deflt Node = ControlFlowAnalysis_getNextSiblingOfType(switchBody.getFirstChild(), []Token_rhino{Token_rhino_DEFAULT_CASE})
 		if deflt != 0 {
 			this.createEdge(caseNode, ControlFlowGraph_Branch_ON_FALSE, deflt)
 		} else {
@@ -558,7 +558,7 @@ func ControlFlowAnalysis_computeFallThrough(n Node) Node {
 	}()
 }
 
-func (this *ControlFlowAnalysis) createEdge(fromNode Node, branch *ControlFlowGraph_Branch, toNode Node) {
+func (this *ControlFlowAnalysis) createEdge(fromNode Node, branch ControlFlowGraph_Branch, toNode Node) {
 	// createNode twice, then connectIfNotFound (isConnected: an edge with this value in either
 	// direction; else connect), with each graph node looked up once (post-flip manual step: six
 	// lookups per edge before). The control-flow graph overrides none of these methods.
@@ -620,7 +620,7 @@ func (this *ControlFlowAnalysis) connectToPossibleExceptionHandlerUnconditionall
 	}
 }
 
-func ControlFlowAnalysis_getNextSiblingOfType(first Node, types []*Token_rhino) Node {
+func ControlFlowAnalysis_getNextSiblingOfType(first Node, types []Token_rhino) Node {
 	{
 		var c Node = first
 		for ; c != 0; c = c.getNext() {

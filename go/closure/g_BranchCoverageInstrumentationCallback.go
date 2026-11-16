@@ -66,7 +66,7 @@ func (this *BranchCoverageInstrumentationCallback) visit_impl(traversal *NodeTra
 		it_1 := cfg.getOutEdges(node.box_()).each()
 		for it_1.next() {
 			var outEdge DiGraph_DiGraphEdge = it_1.v
-			if cast_[*ControlFlowGraph_Branch](outEdge.getValue()) == ControlFlowGraph_Branch_ON_FALSE {
+			if cast_[ControlFlowGraph_Branch](outEdge.getValue()) == ControlFlowGraph_Branch_ON_FALSE {
 				var destination Node = Node_of_(outEdge.getDestination().getValue())
 				if (((destination != 0) && destination.isBlock()) && (destination.getParent() != 0)) && destination.getParent().isIf() {
 					hasDefaultBlock = true
@@ -94,7 +94,7 @@ func (this *BranchCoverageInstrumentationCallback) visit_impl(traversal *NodeTra
 		it_3 := cfg.getOutEdges(node.box_()).each()
 		for it_3.next() {
 			var outEdge DiGraph_DiGraphEdge = it_3.v
-			if cast_[*ControlFlowGraph_Branch](outEdge.getValue()) == ControlFlowGraph_Branch_ON_FALSE {
+			if cast_[ControlFlowGraph_Branch](outEdge.getValue()) == ControlFlowGraph_Branch_ON_FALSE {
 				var destination Node = Node_of_(outEdge.getDestination().getValue())
 				if (destination != 0) && destination.isBlock() {
 					blocks = append(blocks, destination)

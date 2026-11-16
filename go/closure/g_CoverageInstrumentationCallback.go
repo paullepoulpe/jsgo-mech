@@ -4,15 +4,15 @@ package closure
 
 type CoverageInstrumentationCallback struct {
 	instrumentationData map[string]*FileInstrumentationData
-	reach               *CoverageInstrumentationPass_CoverageReach
+	reach               CoverageInstrumentationPass_CoverageReach
 }
 
-func (this *CoverageInstrumentationCallback) init_CoverageInstrumentationCallback(instrumentationData map[string]*FileInstrumentationData, reach *CoverageInstrumentationPass_CoverageReach) {
+func (this *CoverageInstrumentationCallback) init_CoverageInstrumentationCallback(instrumentationData map[string]*FileInstrumentationData, reach CoverageInstrumentationPass_CoverageReach) {
 	this.instrumentationData = instrumentationData
 	this.reach = reach
 }
 
-func new_CoverageInstrumentationCallback(instrumentationData map[string]*FileInstrumentationData, reach *CoverageInstrumentationPass_CoverageReach) *CoverageInstrumentationCallback {
+func new_CoverageInstrumentationCallback(instrumentationData map[string]*FileInstrumentationData, reach CoverageInstrumentationPass_CoverageReach) *CoverageInstrumentationCallback {
 	this := &CoverageInstrumentationCallback{}
 	this.init_CoverageInstrumentationCallback(instrumentationData, reach)
 	return this

@@ -26,12 +26,12 @@ type JSType_I interface {
 	getGreatestSubtype_impl(*JSType) *JSType
 	getJSDocInfo_impl() *JSDocInfo
 	getLeastSupertype_impl(*JSType) *JSType
-	getPossibleToBooleanOutcomes_impl() *BooleanLiteralSet
-	getPropertyKind_2_impl(Property_Key, bool) *JSType_HasPropertyKind
+	getPossibleToBooleanOutcomes_impl() BooleanLiteralSet
+	getPropertyKind_2_impl(Property_Key, bool) JSType_HasPropertyKind
 	getRestrictedTypeGivenOutcome_impl(*Outcome_rhino) *JSType
 	getTemplateParamCount_impl() int32
 	getTemplateTypeMap_impl() *TemplateTypeMap
-	getTypeClass_impl() *JSTypeClass
+	getTypeClass_impl() JSTypeClass
 	getTypesUnderEquality_impl(*JSType) *JSType_TypePair
 	getTypesUnderInequality_impl(*JSType) *JSType_TypePair
 	getTypesUnderShallowInequality_impl(*JSType) *JSType_TypePair
@@ -88,7 +88,7 @@ type JSType_I interface {
 	restrictByNotNull_impl() *JSType
 	restrictByNotUndefined_impl() *JSType
 	setValidator_impl(Predicate_base) bool
-	testForEquality_impl(*JSType) *Tri
+	testForEquality_impl(*JSType) Tri
 	toMaybeEnumElementType_impl() *EnumElementType
 	toMaybeEnumType_impl() *EnumType
 	toMaybeFunctionType_impl() *FunctionType
@@ -147,7 +147,7 @@ func (this *JSType) init_JSType_JSTypeRegistry_TemplateTypeMap(registry *JSTypeR
 	registry.getResolver().addUnresolved(this)
 }
 
-func (this *JSType) getNativeType(typeId *JSTypeNative) *JSType {
+func (this *JSType) getNativeType(typeId JSTypeNative) *JSType {
 	return this.registry.getNativeType(typeId)
 }
 
@@ -164,19 +164,19 @@ func (this *JSType) hasDisplayName_impl() bool {
 	return (displayName.isPresent() && !String_isEmpty(displayName.get()))
 }
 
-func (this *JSType) getPropertyKindKey(pname Property_Key) *JSType_HasPropertyKind {
+func (this *JSType) getPropertyKindKey(pname Property_Key) JSType_HasPropertyKind {
 	return this.getPropertyKind_2(pname, true)
 }
 
-func (this *JSType) getPropertyKind_2_impl(pname Property_Key, autobox bool) *JSType_HasPropertyKind {
+func (this *JSType) getPropertyKind_2_impl(pname Property_Key, autobox bool) JSType_HasPropertyKind {
 	return JSType_HasPropertyKind_ABSENT
 }
 
-func (this *JSType) getPropertyKindString(pname string, autobox bool) *JSType_HasPropertyKind {
+func (this *JSType) getPropertyKindString(pname string, autobox bool) JSType_HasPropertyKind {
 	return this.getPropertyKind_2(icast_Property_Key(obj_(new_Property_StringKey(pname))), autobox)
 }
 
-func (this *JSType) getPropertyKind(pname string) *JSType_HasPropertyKind {
+func (this *JSType) getPropertyKind(pname string) JSType_HasPropertyKind {
 	return this.getPropertyKindKey(icast_Property_Key(obj_(new_Property_StringKey(pname))))
 }
 
@@ -354,7 +354,7 @@ func (this *JSType) isDict_impl() bool {
 
 func (this *JSType) containsReferenceAncestor(target *JSType) bool {
 	var visitor *ContainsUpperBoundSuperTypeVisitor = new_ContainsUpperBoundSuperTypeVisitor(target)
-	return (cast_[*ContainsUpperBoundSuperTypeVisitor_Result](this.visit(icast_Visitor(obj_(visitor)))) == ContainsUpperBoundSuperTypeVisitor_Result_PRESENT)
+	return (cast_[ContainsUpperBoundSuperTypeVisitor_Result](this.visit(icast_Visitor(obj_(visitor)))) == ContainsUpperBoundSuperTypeVisitor_Result_PRESENT)
 }
 
 func (this *JSType) isLiteralObject() bool {
@@ -706,11 +706,11 @@ func (this *JSType) canTestForEqualityWith(that *JSType) bool {
 	return Object_equals(obj_(this.testForEquality(that)), obj_(Tri_UNKNOWN))
 }
 
-func (this *JSType) testForEquality_impl(that *JSType) *Tri {
+func (this *JSType) testForEquality_impl(that *JSType) Tri {
 	return this.testForEqualityHelper(this, that)
 }
 
-func (this *JSType) testForEqualityHelper(aType *JSType, bType *JSType) *Tri {
+func (this *JSType) testForEqualityHelper(aType *JSType, bType *JSType) Tri {
 	if ((((bType.isAllType() || bType.isUnknownType()) || bType.isNoResolvedType()) || aType.isAllType()) || aType.isUnknownType()) || aType.isNoResolvedType() {
 		return Tri_UNKNOWN
 	}
@@ -747,7 +747,7 @@ func (this *JSType) testForEqualityHelper(aType *JSType, bType *JSType) *Tri {
 		return bType.testForEquality(aType)
 	}
 	if aType.isSymbol() {
-		return func() *Tri {
+		return func() Tri {
 			if bType.canCastTo(this.getNativeType(JSTypeNative_SYMBOL_TYPE)) || bType.canCastTo(this.getNativeType(JSTypeNative_SYMBOL_OBJECT_TYPE)) {
 				return Tri_UNKNOWN
 			}
@@ -755,14 +755,14 @@ func (this *JSType) testForEqualityHelper(aType *JSType, bType *JSType) *Tri {
 		}()
 	}
 	if bType.isSymbol() {
-		return func() *Tri {
+		return func() Tri {
 			if aType.canCastTo(this.getNativeType(JSTypeNative_SYMBOL_TYPE)) || aType.canCastTo(this.getNativeType(JSTypeNative_SYMBOL_OBJECT_TYPE)) {
 				return Tri_UNKNOWN
 			}
 			return Tri_FALSE
 		}()
 	}
-	return nil
+	return 0
 }
 
 func (this *JSType) canTestForShallowEqualityWith(that *JSType) bool {
@@ -876,7 +876,7 @@ func (this *JSType) getRestrictedTypeGivenOutcome_impl(outcome *Outcome_rhino) *
 			return this.getNativeType(JSTypeNative_NO_TYPE)
 		}
 	}
-	var literals *BooleanLiteralSet = this.getPossibleToBooleanOutcomes()
+	var literals BooleanLiteralSet = this.getPossibleToBooleanOutcomes()
 	if literals.contains(outcome.isTruthy()) {
 		return this
 	} else {
@@ -962,7 +962,7 @@ func (this *JSType) isSubtype(supertype *JSType) bool {
 	return this.isSubtypeOf(supertype)
 }
 
-func (this *JSType) isSubtype_2(supertype *JSType, mode *JSType_SubtypingMode) bool {
+func (this *JSType) isSubtype_2(supertype *JSType, mode JSType_SubtypingMode) bool {
 	return this.isSubtypeOf_2(supertype, mode)
 }
 
@@ -970,7 +970,7 @@ func (this *JSType) isSubtypeOf(supertype *JSType) bool {
 	return this.registry.subtypeChecker_().setSubtype(this).setSupertype(supertype).setUsingStructuralSubtyping(true).setSubtypingMode(JSType_SubtypingMode_NORMAL).checkAndRelease_()
 }
 
-func (this *JSType) isSubtypeOf_2(supertype *JSType, mode *JSType_SubtypingMode) bool {
+func (this *JSType) isSubtypeOf_2(supertype *JSType, mode JSType_SubtypingMode) bool {
 	return this.registry.subtypeChecker_().setSubtype(this).setSupertype(supertype).setUsingStructuralSubtyping(true).setSubtypingMode(mode).checkAndRelease_()
 }
 
@@ -1029,7 +1029,7 @@ func (this *JSType) toString_impl() string {
 	return new_TypeStringBuilder(false).appendJSType(this).build()
 }
 
-func (this *JSType) toAnnotationString(nullability *JSType_Nullability) string {
+func (this *JSType) toAnnotationString(nullability JSType_Nullability) string {
 	var builder *TypeStringBuilder = new_TypeStringBuilder(true)
 	return func() *TypeStringBuilder {
 		if nullability == JSType_Nullability_EXPLICIT {
@@ -1047,7 +1047,7 @@ func (this *JSType) toMaybeObjectType() *ObjectType {
 	return this.toObjectType()
 }
 
-func (this *JSType) getTypeClass() *JSTypeClass {
+func (this *JSType) getTypeClass() JSTypeClass {
 	return this.self_.getTypeClass_impl()
 }
 
@@ -1063,7 +1063,7 @@ func (this *JSType) matchesObjectContext() bool {
 	return this.self_.matchesObjectContext_impl()
 }
 
-func (this *JSType) testForEquality(p0 *JSType) *Tri {
+func (this *JSType) testForEquality(p0 *JSType) Tri {
 	return this.self_.testForEquality_impl(p0)
 }
 
@@ -1087,7 +1087,7 @@ func (this *JSType) visitUntyped_2(p0 RelationshipVisitor, p1 *JSType) any {
 	return this.self_.visitUntyped_2_impl(p0, p1)
 }
 
-func (this *JSType) getPossibleToBooleanOutcomes() *BooleanLiteralSet {
+func (this *JSType) getPossibleToBooleanOutcomes() BooleanLiteralSet {
 	return this.self_.getPossibleToBooleanOutcomes_impl()
 }
 
@@ -1139,7 +1139,7 @@ func (this *JSType) isBooleanValueType() bool {
 	return this.self_.isBooleanValueType_impl()
 }
 
-func (this *JSType) getPropertyKind_2(p0 Property_Key, p1 bool) *JSType_HasPropertyKind {
+func (this *JSType) getPropertyKind_2(p0 Property_Key, p1 bool) JSType_HasPropertyKind {
 	return this.self_.getPropertyKind_2_impl(p0, p1)
 }
 
@@ -1402,30 +1402,45 @@ func JSType_clinit() {
 
 }
 
-type JSType_HasPropertyKind struct {
-	Enum
+type JSType_HasPropertyKind uint8
+
+// JSType_HasPropertyKind_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var JSType_HasPropertyKind_enum_ = [3]Enum{
+	{self_: JSType_HasPropertyKind_ABSENT, name_: "ABSENT", ordinal_: 0},
+	{self_: JSType_HasPropertyKind_KNOWN_PRESENT, name_: "KNOWN_PRESENT", ordinal_: 1},
+	{self_: JSType_HasPropertyKind_MAYBE_PRESENT, name_: "MAYBE_PRESENT", ordinal_: 2},
 }
 
-func (this *JSType_HasPropertyKind) up_Enum() *Enum {
-	if this == nil {
+func (this JSType_HasPropertyKind) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &JSType_HasPropertyKind_enum_[this-1]
 }
 
-func (this *JSType_HasPropertyKind) init_JSType_HasPropertyKind(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this JSType_HasPropertyKind) name() string { return JSType_HasPropertyKind_enum_[this-1].name_ }
+
+func (this JSType_HasPropertyKind) ordinal() int32 {
+	return JSType_HasPropertyKind_enum_[this-1].ordinal_
 }
 
-func new_JSType_HasPropertyKind(name_ string, ordinal_ int32) *JSType_HasPropertyKind {
-	this := &JSType_HasPropertyKind{}
-	this.self_ = this
-	this.init_JSType_HasPropertyKind(name_, ordinal_)
+func (this JSType_HasPropertyKind) toString() string {
+	return JSType_HasPropertyKind_enum_[this-1].name_
+}
+
+func (this JSType_HasPropertyKind) compareTo(o any) int32 {
+	return JSType_HasPropertyKind_enum_[this-1].compareTo(o)
+}
+
+func (this JSType_HasPropertyKind) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func JSType_HasPropertyKind_of(has bool) *JSType_HasPropertyKind {
-	return func() *JSType_HasPropertyKind {
+func JSType_HasPropertyKind_of(has bool) JSType_HasPropertyKind {
+	return func() JSType_HasPropertyKind {
 		if has {
 			return JSType_HasPropertyKind_KNOWN_PRESENT
 		}
@@ -1433,23 +1448,24 @@ func JSType_HasPropertyKind_of(has bool) *JSType_HasPropertyKind {
 	}()
 }
 
-func JSType_HasPropertyKind_values() []*JSType_HasPropertyKind {
-	return append([]*JSType_HasPropertyKind(nil), JSType_HasPropertyKind_values_...)
+func JSType_HasPropertyKind_values() []JSType_HasPropertyKind {
+	return append([]JSType_HasPropertyKind(nil), JSType_HasPropertyKind_values_...)
 }
 
-func JSType_HasPropertyKind_valueOf(name string) *JSType_HasPropertyKind {
+func JSType_HasPropertyKind_valueOf(name string) JSType_HasPropertyKind {
 	for _, v := range JSType_HasPropertyKind_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("HasPropertyKind", name))
 }
 
-var JSType_HasPropertyKind_ABSENT *JSType_HasPropertyKind
-var JSType_HasPropertyKind_KNOWN_PRESENT *JSType_HasPropertyKind
-var JSType_HasPropertyKind_MAYBE_PRESENT *JSType_HasPropertyKind
-var JSType_HasPropertyKind_values_ []*JSType_HasPropertyKind
+const JSType_HasPropertyKind_ABSENT JSType_HasPropertyKind = 1
+const JSType_HasPropertyKind_KNOWN_PRESENT JSType_HasPropertyKind = 2
+const JSType_HasPropertyKind_MAYBE_PRESENT JSType_HasPropertyKind = 3
+
+var JSType_HasPropertyKind_values_ []JSType_HasPropertyKind
 
 var JSType_HasPropertyKind_clinit_done bool
 
@@ -1458,52 +1474,60 @@ func JSType_HasPropertyKind_clinit() {
 		return
 	}
 	JSType_HasPropertyKind_clinit_done = true
-	JSType_HasPropertyKind_ABSENT = new_JSType_HasPropertyKind("ABSENT", 0)
-	JSType_HasPropertyKind_KNOWN_PRESENT = new_JSType_HasPropertyKind("KNOWN_PRESENT", 1)
-	JSType_HasPropertyKind_MAYBE_PRESENT = new_JSType_HasPropertyKind("MAYBE_PRESENT", 2)
-	JSType_HasPropertyKind_values_ = []*JSType_HasPropertyKind{JSType_HasPropertyKind_ABSENT, JSType_HasPropertyKind_KNOWN_PRESENT, JSType_HasPropertyKind_MAYBE_PRESENT}
+	JSType_HasPropertyKind_values_ = []JSType_HasPropertyKind{JSType_HasPropertyKind_ABSENT, JSType_HasPropertyKind_KNOWN_PRESENT, JSType_HasPropertyKind_MAYBE_PRESENT}
 	registerEnum_("com.google.javascript.rhino.jstype.JSType.HasPropertyKind", enumValues_(JSType_HasPropertyKind_values_))
 
 }
 
-type JSType_SubtypingMode struct {
-	Enum
+type JSType_SubtypingMode uint8
+
+// JSType_SubtypingMode_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var JSType_SubtypingMode_enum_ = [2]Enum{
+	{self_: JSType_SubtypingMode_NORMAL, name_: "NORMAL", ordinal_: 0},
+	{self_: JSType_SubtypingMode_IGNORE_NULL_UNDEFINED, name_: "IGNORE_NULL_UNDEFINED", ordinal_: 1},
 }
 
-func (this *JSType_SubtypingMode) up_Enum() *Enum {
-	if this == nil {
+func (this JSType_SubtypingMode) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &JSType_SubtypingMode_enum_[this-1]
 }
 
-func (this *JSType_SubtypingMode) init_JSType_SubtypingMode(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this JSType_SubtypingMode) name() string { return JSType_SubtypingMode_enum_[this-1].name_ }
+
+func (this JSType_SubtypingMode) ordinal() int32 { return JSType_SubtypingMode_enum_[this-1].ordinal_ }
+
+func (this JSType_SubtypingMode) toString() string { return JSType_SubtypingMode_enum_[this-1].name_ }
+
+func (this JSType_SubtypingMode) compareTo(o any) int32 {
+	return JSType_SubtypingMode_enum_[this-1].compareTo(o)
 }
 
-func new_JSType_SubtypingMode(name_ string, ordinal_ int32) *JSType_SubtypingMode {
-	this := &JSType_SubtypingMode{}
-	this.self_ = this
-	this.init_JSType_SubtypingMode(name_, ordinal_)
+func (this JSType_SubtypingMode) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func JSType_SubtypingMode_values() []*JSType_SubtypingMode {
-	return append([]*JSType_SubtypingMode(nil), JSType_SubtypingMode_values_...)
+func JSType_SubtypingMode_values() []JSType_SubtypingMode {
+	return append([]JSType_SubtypingMode(nil), JSType_SubtypingMode_values_...)
 }
 
-func JSType_SubtypingMode_valueOf(name string) *JSType_SubtypingMode {
+func JSType_SubtypingMode_valueOf(name string) JSType_SubtypingMode {
 	for _, v := range JSType_SubtypingMode_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("SubtypingMode", name))
 }
 
-var JSType_SubtypingMode_NORMAL *JSType_SubtypingMode
-var JSType_SubtypingMode_IGNORE_NULL_UNDEFINED *JSType_SubtypingMode
-var JSType_SubtypingMode_values_ []*JSType_SubtypingMode
+const JSType_SubtypingMode_NORMAL JSType_SubtypingMode = 1
+const JSType_SubtypingMode_IGNORE_NULL_UNDEFINED JSType_SubtypingMode = 2
+
+var JSType_SubtypingMode_values_ []JSType_SubtypingMode
 
 var JSType_SubtypingMode_clinit_done bool
 
@@ -1512,9 +1536,7 @@ func JSType_SubtypingMode_clinit() {
 		return
 	}
 	JSType_SubtypingMode_clinit_done = true
-	JSType_SubtypingMode_NORMAL = new_JSType_SubtypingMode("NORMAL", 0)
-	JSType_SubtypingMode_IGNORE_NULL_UNDEFINED = new_JSType_SubtypingMode("IGNORE_NULL_UNDEFINED", 1)
-	JSType_SubtypingMode_values_ = []*JSType_SubtypingMode{JSType_SubtypingMode_NORMAL, JSType_SubtypingMode_IGNORE_NULL_UNDEFINED}
+	JSType_SubtypingMode_values_ = []JSType_SubtypingMode{JSType_SubtypingMode_NORMAL, JSType_SubtypingMode_IGNORE_NULL_UNDEFINED}
 	registerEnum_("com.google.javascript.rhino.jstype.JSType.SubtypingMode", enumValues_(JSType_SubtypingMode_values_))
 
 }
@@ -1540,36 +1562,51 @@ type JSType_WithSourceRef interface {
 	getGoogModuleId() string
 }
 
-type JSType_MatchStatus struct {
-	Enum
-	isSubtype_ bool
+type JSType_MatchStatus uint8
+
+// JSType_MatchStatus_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var JSType_MatchStatus_enum_ = [3]Enum{
+	{self_: JSType_MatchStatus_MATCH, name_: "MATCH", ordinal_: 0},
+	{self_: JSType_MatchStatus_NOT_MATCH, name_: "NOT_MATCH", ordinal_: 1},
+	{self_: JSType_MatchStatus_PROCESSING, name_: "PROCESSING", ordinal_: 2},
 }
 
-func (this *JSType_MatchStatus) up_Enum() *Enum {
-	if this == nil {
+var JSType_MatchStatus_isSubtype__ [3]bool
+
+func (this JSType_MatchStatus) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &JSType_MatchStatus_enum_[this-1]
 }
 
-func (this *JSType_MatchStatus) init_JSType_MatchStatus(name_ string, ordinal_ int32, isSubtype bool) {
-	this.Enum.init_Enum(name_, ordinal_)
-	this.isSubtype_ = isSubtype
+func (this JSType_MatchStatus) name() string { return JSType_MatchStatus_enum_[this-1].name_ }
+
+func (this JSType_MatchStatus) ordinal() int32 { return JSType_MatchStatus_enum_[this-1].ordinal_ }
+
+func (this JSType_MatchStatus) toString() string { return JSType_MatchStatus_enum_[this-1].name_ }
+
+func (this JSType_MatchStatus) compareTo(o any) int32 {
+	return JSType_MatchStatus_enum_[this-1].compareTo(o)
 }
 
-func new_JSType_MatchStatus(name_ string, ordinal_ int32, isSubtype bool) *JSType_MatchStatus {
-	this := &JSType_MatchStatus{}
-	this.self_ = this
-	this.init_JSType_MatchStatus(name_, ordinal_, isSubtype)
+func (this JSType_MatchStatus) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func (this *JSType_MatchStatus) subtypeValue() bool {
-	return this.isSubtype_
+func (this JSType_MatchStatus) init_JSType_MatchStatus(isSubtype bool) {
+	JSType_MatchStatus_isSubtype__[this-1] = isSubtype
 }
 
-func JSType_MatchStatus_valueOfBoolean(match bool) *JSType_MatchStatus {
-	return func() *JSType_MatchStatus {
+func (this JSType_MatchStatus) subtypeValue() bool {
+	return JSType_MatchStatus_isSubtype__[this-1]
+}
+
+func JSType_MatchStatus_valueOfBoolean(match bool) JSType_MatchStatus {
+	return func() JSType_MatchStatus {
 		if match {
 			return JSType_MatchStatus_MATCH
 		}
@@ -1577,23 +1614,24 @@ func JSType_MatchStatus_valueOfBoolean(match bool) *JSType_MatchStatus {
 	}()
 }
 
-func JSType_MatchStatus_values() []*JSType_MatchStatus {
-	return append([]*JSType_MatchStatus(nil), JSType_MatchStatus_values_...)
+func JSType_MatchStatus_values() []JSType_MatchStatus {
+	return append([]JSType_MatchStatus(nil), JSType_MatchStatus_values_...)
 }
 
-func JSType_MatchStatus_valueOf(name string) *JSType_MatchStatus {
+func JSType_MatchStatus_valueOf(name string) JSType_MatchStatus {
 	for _, v := range JSType_MatchStatus_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("MatchStatus", name))
 }
 
-var JSType_MatchStatus_MATCH *JSType_MatchStatus
-var JSType_MatchStatus_NOT_MATCH *JSType_MatchStatus
-var JSType_MatchStatus_PROCESSING *JSType_MatchStatus
-var JSType_MatchStatus_values_ []*JSType_MatchStatus
+const JSType_MatchStatus_MATCH JSType_MatchStatus = 1
+const JSType_MatchStatus_NOT_MATCH JSType_MatchStatus = 2
+const JSType_MatchStatus_PROCESSING JSType_MatchStatus = 3
+
+var JSType_MatchStatus_values_ []JSType_MatchStatus
 
 var JSType_MatchStatus_clinit_done bool
 
@@ -1602,52 +1640,63 @@ func JSType_MatchStatus_clinit() {
 		return
 	}
 	JSType_MatchStatus_clinit_done = true
-	JSType_MatchStatus_MATCH = new_JSType_MatchStatus("MATCH", 0, true)
-	JSType_MatchStatus_NOT_MATCH = new_JSType_MatchStatus("NOT_MATCH", 1, false)
-	JSType_MatchStatus_PROCESSING = new_JSType_MatchStatus("PROCESSING", 2, true)
-	JSType_MatchStatus_values_ = []*JSType_MatchStatus{JSType_MatchStatus_MATCH, JSType_MatchStatus_NOT_MATCH, JSType_MatchStatus_PROCESSING}
+	JSType_MatchStatus_MATCH.init_JSType_MatchStatus(true)
+	JSType_MatchStatus_NOT_MATCH.init_JSType_MatchStatus(false)
+	JSType_MatchStatus_PROCESSING.init_JSType_MatchStatus(true)
+	JSType_MatchStatus_values_ = []JSType_MatchStatus{JSType_MatchStatus_MATCH, JSType_MatchStatus_NOT_MATCH, JSType_MatchStatus_PROCESSING}
 	registerEnum_("com.google.javascript.rhino.jstype.JSType.MatchStatus", enumValues_(JSType_MatchStatus_values_))
 
 }
 
-type JSType_Nullability struct {
-	Enum
+type JSType_Nullability uint8
+
+// JSType_Nullability_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var JSType_Nullability_enum_ = [2]Enum{
+	{self_: JSType_Nullability_EXPLICIT, name_: "EXPLICIT", ordinal_: 0},
+	{self_: JSType_Nullability_IMPLICIT, name_: "IMPLICIT", ordinal_: 1},
 }
 
-func (this *JSType_Nullability) up_Enum() *Enum {
-	if this == nil {
+func (this JSType_Nullability) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &JSType_Nullability_enum_[this-1]
 }
 
-func (this *JSType_Nullability) init_JSType_Nullability(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this JSType_Nullability) name() string { return JSType_Nullability_enum_[this-1].name_ }
+
+func (this JSType_Nullability) ordinal() int32 { return JSType_Nullability_enum_[this-1].ordinal_ }
+
+func (this JSType_Nullability) toString() string { return JSType_Nullability_enum_[this-1].name_ }
+
+func (this JSType_Nullability) compareTo(o any) int32 {
+	return JSType_Nullability_enum_[this-1].compareTo(o)
 }
 
-func new_JSType_Nullability(name_ string, ordinal_ int32) *JSType_Nullability {
-	this := &JSType_Nullability{}
-	this.self_ = this
-	this.init_JSType_Nullability(name_, ordinal_)
+func (this JSType_Nullability) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func JSType_Nullability_values() []*JSType_Nullability {
-	return append([]*JSType_Nullability(nil), JSType_Nullability_values_...)
+func JSType_Nullability_values() []JSType_Nullability {
+	return append([]JSType_Nullability(nil), JSType_Nullability_values_...)
 }
 
-func JSType_Nullability_valueOf(name string) *JSType_Nullability {
+func JSType_Nullability_valueOf(name string) JSType_Nullability {
 	for _, v := range JSType_Nullability_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("Nullability", name))
 }
 
-var JSType_Nullability_EXPLICIT *JSType_Nullability
-var JSType_Nullability_IMPLICIT *JSType_Nullability
-var JSType_Nullability_values_ []*JSType_Nullability
+const JSType_Nullability_EXPLICIT JSType_Nullability = 1
+const JSType_Nullability_IMPLICIT JSType_Nullability = 2
+
+var JSType_Nullability_values_ []JSType_Nullability
 
 var JSType_Nullability_clinit_done bool
 
@@ -1656,9 +1705,7 @@ func JSType_Nullability_clinit() {
 		return
 	}
 	JSType_Nullability_clinit_done = true
-	JSType_Nullability_EXPLICIT = new_JSType_Nullability("EXPLICIT", 0)
-	JSType_Nullability_IMPLICIT = new_JSType_Nullability("IMPLICIT", 1)
-	JSType_Nullability_values_ = []*JSType_Nullability{JSType_Nullability_EXPLICIT, JSType_Nullability_IMPLICIT}
+	JSType_Nullability_values_ = []JSType_Nullability{JSType_Nullability_EXPLICIT, JSType_Nullability_IMPLICIT}
 	registerEnum_("com.google.javascript.rhino.jstype.JSType.Nullability", enumValues_(JSType_Nullability_values_))
 
 }
