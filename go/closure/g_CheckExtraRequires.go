@@ -32,7 +32,6 @@ func (this *CheckExtraRequires) init_CheckExtraRequires(compiler *AbstractCompil
 func new_CheckExtraRequires(compiler *AbstractCompiler, requiresToRemove ImmutableSetOf[string]) *CheckExtraRequires {
 	this := &CheckExtraRequires{}
 	this.self_ = this
-	this.selfI_ = this
 	this.init_CheckExtraRequires(compiler, requiresToRemove)
 	return this
 }
@@ -232,5 +231,5 @@ func (this *CheckExtraRequires) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
 		this.visit_impl(p0, p1, p2)
 		return
 	}
-	this.selfI_.visit_impl(p0, p1, p2)
+	this.self_.visit_impl(p0, p1, p2)
 }

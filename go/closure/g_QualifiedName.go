@@ -3,12 +3,11 @@
 package closure
 
 type QualifiedName struct {
-	self_  any
-	selfI_ QualifiedName_I
+	self_ QualifiedName_I
 }
 
 // QualifiedName_I holds the methods the dispatchers of QualifiedName's hierarchy call on the most derived
-// object (selfI_, set with self_); every class of the hierarchy implements them (post-flip).
+// object (self_); every class of the hierarchy implements them (post-flip).
 type QualifiedName_I interface {
 	appendTo_impl(*StringBuilder, any)
 	components_impl() Iterable
@@ -101,35 +100,35 @@ func (this *QualifiedName) getprop(propertyName string) *QualifiedName {
 }
 
 func (this *QualifiedName) getOwner() *QualifiedName {
-	return this.selfI_.getOwner_impl()
+	return this.self_.getOwner_impl()
 }
 
 func (this *QualifiedName) getComponent() string {
-	return this.selfI_.getComponent_impl()
+	return this.self_.getComponent_impl()
 }
 
 func (this *QualifiedName) isSimple() bool {
-	return this.selfI_.isSimple_impl()
+	return this.self_.isSimple_impl()
 }
 
 func (this *QualifiedName) appendTo(p0 *StringBuilder, p1 any) {
-	this.selfI_.appendTo_impl(p0, p1)
+	this.self_.appendTo_impl(p0, p1)
 }
 
 func (this *QualifiedName) components() Iterable {
-	return this.selfI_.components_impl()
+	return this.self_.components_impl()
 }
 
 func (this *QualifiedName) getComponentCount() int32 {
-	return this.selfI_.getComponentCount_impl()
+	return this.self_.getComponentCount_impl()
 }
 
 func (this *QualifiedName) matches(p0 Node) bool {
-	return this.selfI_.matches_impl(p0)
+	return this.self_.matches_impl(p0)
 }
 
 func (this *QualifiedName) join() Optional {
-	return this.selfI_.join_impl()
+	return this.self_.join_impl()
 }
 
 var QualifiedName_THIS string
@@ -169,7 +168,6 @@ func (this *QualifiedName_StringListQname) init_QualifiedName_StringListQname(te
 func new_QualifiedName_StringListQname(terms ImmutableListOf[string], size int32) *QualifiedName_StringListQname {
 	this := &QualifiedName_StringListQname{}
 	this.self_ = this
-	this.selfI_ = this
 	this.init_QualifiedName_StringListQname(terms, size)
 	return this
 }
@@ -262,7 +260,6 @@ func (this *QualifiedName_GetpropQname) init_QualifiedName_GetpropQname(owner *Q
 func new_QualifiedName_GetpropQname(owner *QualifiedName, prop string) *QualifiedName_GetpropQname {
 	this := &QualifiedName_GetpropQname{}
 	this.self_ = this
-	this.selfI_ = this
 	this.zero_QualifiedName_GetpropQname()
 	this.init_QualifiedName_GetpropQname(owner, prop)
 	return this
@@ -313,7 +310,6 @@ func (this *QualifiedName_NodeQname) init_QualifiedName_NodeQname(n Node) {
 func new_QualifiedName_NodeQname(n Node) *QualifiedName_NodeQname {
 	this := &QualifiedName_NodeQname{}
 	this.self_ = this
-	this.selfI_ = this
 	this.init_QualifiedName_NodeQname(n)
 	return this
 }
@@ -382,7 +378,7 @@ func (this *QualifiedName_StringListQname) getOwner() *QualifiedName {
 	if this.self_ == any(this) {
 		return this.getOwner_impl()
 	}
-	return this.selfI_.getOwner_impl()
+	return this.self_.getOwner_impl()
 }
 
 // getComponent: an object that is exactly a QualifiedName_StringListQname calls its getComponent_impl directly (post-flip); others dispatch.
@@ -390,7 +386,7 @@ func (this *QualifiedName_StringListQname) getComponent() string {
 	if this.self_ == any(this) {
 		return this.getComponent_impl()
 	}
-	return this.selfI_.getComponent_impl()
+	return this.self_.getComponent_impl()
 }
 
 // isSimple: an object that is exactly a QualifiedName_StringListQname calls its isSimple_impl directly (post-flip); others dispatch.
@@ -398,7 +394,7 @@ func (this *QualifiedName_StringListQname) isSimple() bool {
 	if this.self_ == any(this) {
 		return this.isSimple_impl()
 	}
-	return this.selfI_.isSimple_impl()
+	return this.self_.isSimple_impl()
 }
 
 // appendTo: an object that is exactly a QualifiedName_StringListQname calls its appendTo_impl directly (post-flip); others dispatch.
@@ -407,7 +403,7 @@ func (this *QualifiedName_StringListQname) appendTo(p0 *StringBuilder, p1 any) {
 		this.appendTo_impl(p0, p1)
 		return
 	}
-	this.selfI_.appendTo_impl(p0, p1)
+	this.self_.appendTo_impl(p0, p1)
 }
 
 // components: an object that is exactly a QualifiedName_StringListQname calls its components_impl directly (post-flip); others dispatch.
@@ -415,7 +411,7 @@ func (this *QualifiedName_StringListQname) components() Iterable {
 	if this.self_ == any(this) {
 		return this.components_impl()
 	}
-	return this.selfI_.components_impl()
+	return this.self_.components_impl()
 }
 
 // getComponentCount: an object that is exactly a QualifiedName_StringListQname calls its getComponentCount_impl directly (post-flip); others dispatch.
@@ -423,7 +419,7 @@ func (this *QualifiedName_StringListQname) getComponentCount() int32 {
 	if this.self_ == any(this) {
 		return this.getComponentCount_impl()
 	}
-	return this.selfI_.getComponentCount_impl()
+	return this.self_.getComponentCount_impl()
 }
 
 // matches: an object that is exactly a QualifiedName_StringListQname calls its matches_impl directly (post-flip); others dispatch.
@@ -431,7 +427,7 @@ func (this *QualifiedName_StringListQname) matches(p0 Node) bool {
 	if this.self_ == any(this) {
 		return this.matches_impl(p0)
 	}
-	return this.selfI_.matches_impl(p0)
+	return this.self_.matches_impl(p0)
 }
 
 // getOwner: an object that is exactly a QualifiedName_GetpropQname calls its getOwner_impl directly (post-flip); others dispatch.
@@ -439,7 +435,7 @@ func (this *QualifiedName_GetpropQname) getOwner() *QualifiedName {
 	if this.self_ == any(this) {
 		return this.getOwner_impl()
 	}
-	return this.selfI_.getOwner_impl()
+	return this.self_.getOwner_impl()
 }
 
 // getComponent: an object that is exactly a QualifiedName_GetpropQname calls its getComponent_impl directly (post-flip); others dispatch.
@@ -447,7 +443,7 @@ func (this *QualifiedName_GetpropQname) getComponent() string {
 	if this.self_ == any(this) {
 		return this.getComponent_impl()
 	}
-	return this.selfI_.getComponent_impl()
+	return this.self_.getComponent_impl()
 }
 
 // isSimple: an object that is exactly a QualifiedName_GetpropQname calls its isSimple_impl directly (post-flip); others dispatch.
@@ -455,7 +451,7 @@ func (this *QualifiedName_GetpropQname) isSimple() bool {
 	if this.self_ == any(this) {
 		return this.isSimple_impl()
 	}
-	return this.selfI_.isSimple_impl()
+	return this.self_.isSimple_impl()
 }
 
 // appendTo: an object that is exactly a QualifiedName_GetpropQname calls its appendTo_impl directly (post-flip); others dispatch.
@@ -464,7 +460,7 @@ func (this *QualifiedName_GetpropQname) appendTo(p0 *StringBuilder, p1 any) {
 		this.appendTo_impl(p0, p1)
 		return
 	}
-	this.selfI_.appendTo_impl(p0, p1)
+	this.self_.appendTo_impl(p0, p1)
 }
 
 // matches: an object that is exactly a QualifiedName_GetpropQname calls its matches_impl directly (post-flip); others dispatch.
@@ -472,7 +468,7 @@ func (this *QualifiedName_GetpropQname) matches(p0 Node) bool {
 	if this.self_ == any(this) {
 		return this.matches_impl(p0)
 	}
-	return this.selfI_.matches_impl(p0)
+	return this.self_.matches_impl(p0)
 }
 
 // getComponentCount: an object that is exactly a QualifiedName_GetpropQname calls its getComponentCount_impl directly (post-flip); others dispatch.
@@ -480,7 +476,7 @@ func (this *QualifiedName_GetpropQname) getComponentCount() int32 {
 	if this.self_ == any(this) {
 		return this.getComponentCount_impl()
 	}
-	return this.selfI_.getComponentCount_impl()
+	return this.self_.getComponentCount_impl()
 }
 
 // getOwner: an object that is exactly a QualifiedName_NodeQname calls its getOwner_impl directly (post-flip); others dispatch.
@@ -488,7 +484,7 @@ func (this *QualifiedName_NodeQname) getOwner() *QualifiedName {
 	if this.self_ == any(this) {
 		return this.getOwner_impl()
 	}
-	return this.selfI_.getOwner_impl()
+	return this.self_.getOwner_impl()
 }
 
 // getComponent: an object that is exactly a QualifiedName_NodeQname calls its getComponent_impl directly (post-flip); others dispatch.
@@ -496,7 +492,7 @@ func (this *QualifiedName_NodeQname) getComponent() string {
 	if this.self_ == any(this) {
 		return this.getComponent_impl()
 	}
-	return this.selfI_.getComponent_impl()
+	return this.self_.getComponent_impl()
 }
 
 // isSimple: an object that is exactly a QualifiedName_NodeQname calls its isSimple_impl directly (post-flip); others dispatch.
@@ -504,7 +500,7 @@ func (this *QualifiedName_NodeQname) isSimple() bool {
 	if this.self_ == any(this) {
 		return this.isSimple_impl()
 	}
-	return this.selfI_.isSimple_impl()
+	return this.self_.isSimple_impl()
 }
 
 // appendTo: an object that is exactly a QualifiedName_NodeQname calls its appendTo_impl directly (post-flip); others dispatch.
@@ -513,7 +509,7 @@ func (this *QualifiedName_NodeQname) appendTo(p0 *StringBuilder, p1 any) {
 		this.appendTo_impl(p0, p1)
 		return
 	}
-	this.selfI_.appendTo_impl(p0, p1)
+	this.self_.appendTo_impl(p0, p1)
 }
 
 // join: an object that is exactly a QualifiedName_NodeQname calls its join_impl directly (post-flip); others dispatch.
@@ -521,7 +517,7 @@ func (this *QualifiedName_NodeQname) join() Optional {
 	if this.self_ == any(this) {
 		return this.join_impl()
 	}
-	return this.selfI_.join_impl()
+	return this.self_.join_impl()
 }
 
 // matches: an object that is exactly a QualifiedName_NodeQname calls its matches_impl directly (post-flip); others dispatch.
@@ -529,7 +525,7 @@ func (this *QualifiedName_NodeQname) matches(p0 Node) bool {
 	if this.self_ == any(this) {
 		return this.matches_impl(p0)
 	}
-	return this.selfI_.matches_impl(p0)
+	return this.self_.matches_impl(p0)
 }
 
 // getComponentCount: an object that is exactly a QualifiedName_NodeQname calls its getComponentCount_impl directly (post-flip); others dispatch.
@@ -537,5 +533,5 @@ func (this *QualifiedName_NodeQname) getComponentCount() int32 {
 	if this.self_ == any(this) {
 		return this.getComponentCount_impl()
 	}
-	return this.selfI_.getComponentCount_impl()
+	return this.self_.getComponentCount_impl()
 }

@@ -272,7 +272,6 @@ func (this *J2clPass_ClassStaticFunctionsInliner_StaticCallInliner) init_J2clPas
 func new_J2clPass_ClassStaticFunctionsInliner_StaticCallInliner(outer_ *J2clPass_ClassStaticFunctionsInliner) *J2clPass_ClassStaticFunctionsInliner_StaticCallInliner {
 	this := &J2clPass_ClassStaticFunctionsInliner_StaticCallInliner{}
 	this.self_ = this
-	this.selfI_ = this
 	this.outer_ = outer_
 	this.init_J2clPass_ClassStaticFunctionsInliner_StaticCallInliner()
 	return this
@@ -308,5 +307,5 @@ func (this *J2clPass_ClassStaticFunctionsInliner_StaticCallInliner) visit(p0 *No
 		this.visit_impl(p0, p1, p2)
 		return
 	}
-	this.selfI_.visit_impl(p0, p1, p2)
+	this.self_.visit_impl(p0, p1, p2)
 }

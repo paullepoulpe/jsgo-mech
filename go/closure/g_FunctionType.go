@@ -127,7 +127,6 @@ func (this *FunctionType) init_FunctionType(builder *FunctionType_Builder) {
 func new_FunctionType(builder *FunctionType_Builder) *FunctionType {
 	this := &FunctionType{}
 	this.self_ = this
-	this.selfI_ = this
 	this.zero_FunctionType()
 	this.init_FunctionType(builder)
 	return this
@@ -1261,7 +1260,6 @@ func (this *FunctionType_Builder) init_FunctionType_Builder(registry *JSTypeRegi
 func new_FunctionType_Builder(registry *JSTypeRegistry) *FunctionType_Builder {
 	this := &FunctionType_Builder{}
 	this.self_ = this
-	this.selfI_ = this
 	this.zero_FunctionType_Builder()
 	this.init_FunctionType_Builder(registry)
 	return this
@@ -1463,7 +1461,7 @@ func (this *FunctionType) getTypeClass() *JSTypeClass {
 	if this.self_ == any(this) {
 		return this.getTypeClass_impl()
 	}
-	return this.selfI_.getTypeClass_impl()
+	return this.self_.getTypeClass_impl()
 }
 
 // getConstructor: an object that is exactly a FunctionType calls its getConstructor_impl directly (post-flip); others dispatch.
@@ -1479,7 +1477,7 @@ func (this *FunctionType) isInstanceType() bool {
 	if this.self_ == any(this) {
 		return this.isInstanceType_impl()
 	}
-	return this.selfI_.isInstanceType_impl()
+	return this.self_.isInstanceType_impl()
 }
 
 // isConstructor: an object that is exactly a FunctionType calls its isConstructor_impl directly (post-flip); others dispatch.
@@ -1487,7 +1485,7 @@ func (this *FunctionType) isConstructor() bool {
 	if this.self_ == any(this) {
 		return this.isConstructor_impl()
 	}
-	return this.selfI_.isConstructor_impl()
+	return this.self_.isConstructor_impl()
 }
 
 // isInterface: an object that is exactly a FunctionType calls its isInterface_impl directly (post-flip); others dispatch.
@@ -1495,7 +1493,7 @@ func (this *FunctionType) isInterface() bool {
 	if this.self_ == any(this) {
 		return this.isInterface_impl()
 	}
-	return this.selfI_.isInterface_impl()
+	return this.self_.isInterface_impl()
 }
 
 // isOrdinaryFunction: an object that is exactly a FunctionType calls its isOrdinaryFunction_impl directly (post-flip); others dispatch.
@@ -1503,7 +1501,7 @@ func (this *FunctionType) isOrdinaryFunction() bool {
 	if this.self_ == any(this) {
 		return this.isOrdinaryFunction_impl()
 	}
-	return this.selfI_.isOrdinaryFunction_impl()
+	return this.self_.isOrdinaryFunction_impl()
 }
 
 // toMaybeFunctionType: an object that is exactly a FunctionType calls its toMaybeFunctionType_impl directly (post-flip); others dispatch.
@@ -1511,7 +1509,7 @@ func (this *FunctionType) toMaybeFunctionType() *FunctionType {
 	if this.self_ == any(this) {
 		return this.toMaybeFunctionType_impl()
 	}
-	return this.selfI_.toMaybeFunctionType_impl()
+	return this.self_.toMaybeFunctionType_impl()
 }
 
 // canBeCalled: an object that is exactly a FunctionType calls its canBeCalled_impl directly (post-flip); others dispatch.
@@ -1519,7 +1517,7 @@ func (this *FunctionType) canBeCalled() bool {
 	if this.self_ == any(this) {
 		return this.canBeCalled_impl()
 	}
-	return this.selfI_.canBeCalled_impl()
+	return this.self_.canBeCalled_impl()
 }
 
 // getSlot: an object that is exactly a FunctionType calls its getSlot_impl directly (post-flip); others dispatch.
@@ -1569,7 +1567,7 @@ func (this *FunctionType) recursionUnsafeHashCode() int32 {
 	if this.self_ == any(this) {
 		return this.recursionUnsafeHashCode_impl()
 	}
-	return this.selfI_.recursionUnsafeHashCode_impl()
+	return this.self_.recursionUnsafeHashCode_impl()
 }
 
 // appendTo: an object that is exactly a FunctionType calls its appendTo_impl directly (post-flip); others dispatch.
@@ -1578,7 +1576,7 @@ func (this *FunctionType) appendTo(p0 *TypeStringBuilder) {
 		this.appendTo_impl(p0)
 		return
 	}
-	this.selfI_.appendTo_impl(p0)
+	this.self_.appendTo_impl(p0)
 }
 
 // visitUntyped: an object that is exactly a FunctionType calls its visitUntyped_impl directly (post-flip); others dispatch.
@@ -1586,7 +1584,7 @@ func (this *FunctionType) visitUntyped(p0 Visitor) any {
 	if this.self_ == any(this) {
 		return this.visitUntyped_impl(p0)
 	}
-	return this.selfI_.visitUntyped_impl(p0)
+	return this.self_.visitUntyped_impl(p0)
 }
 
 // visitUntyped_2: an object that is exactly a FunctionType calls its visitUntyped_2_impl directly (post-flip); others dispatch.
@@ -1594,7 +1592,7 @@ func (this *FunctionType) visitUntyped_2(p0 RelationshipVisitor, p1 *JSType) any
 	if this.self_ == any(this) {
 		return this.visitUntyped_2_impl(p0, p1)
 	}
-	return this.selfI_.visitUntyped_2_impl(p0, p1)
+	return this.self_.visitUntyped_2_impl(p0, p1)
 }
 
 // getTypeOfThis: an object that is exactly a FunctionType calls its getTypeOfThis_impl directly (post-flip); others dispatch.
@@ -1627,7 +1625,7 @@ func (this *FunctionType) resolveInternal(p0 ErrorReporter_rhino) *JSType {
 	if this.self_ == any(this) {
 		return this.resolveInternal_impl(p0)
 	}
-	return this.selfI_.resolveInternal_impl(p0)
+	return this.self_.resolveInternal_impl(p0)
 }
 
 // hasAnyTemplateTypesInternal: an object that is exactly a FunctionType calls its hasAnyTemplateTypesInternal_impl directly (post-flip); others dispatch.
@@ -1635,7 +1633,7 @@ func (this *FunctionType) hasAnyTemplateTypesInternal() bool {
 	if this.self_ == any(this) {
 		return this.hasAnyTemplateTypesInternal_impl()
 	}
-	return this.selfI_.hasAnyTemplateTypesInternal_impl()
+	return this.self_.hasAnyTemplateTypesInternal_impl()
 }
 
 // isStructuralInterface: an object that is exactly a FunctionType calls its isStructuralInterface_impl directly (post-flip); others dispatch.
@@ -1643,7 +1641,7 @@ func (this *FunctionType) isStructuralInterface() bool {
 	if this.self_ == any(this) {
 		return this.isStructuralInterface_impl()
 	}
-	return this.selfI_.isStructuralInterface_impl()
+	return this.self_.isStructuralInterface_impl()
 }
 
 // getPropertyTypeMap: an object that is exactly a FunctionType calls its getPropertyTypeMap_impl directly (post-flip); others dispatch.
@@ -1659,5 +1657,5 @@ func (this *FunctionType_Builder) build() *PrototypeObjectType {
 	if this.self_ == any(this) {
 		return this.build_impl()
 	}
-	return this.selfI_.build_impl()
+	return this.self_.build_impl()
 }

@@ -28,7 +28,6 @@ func (this *CheckEs6ModuleFileStructure) init_CheckEs6ModuleFileStructure(compil
 func new_CheckEs6ModuleFileStructure(compiler *AbstractCompiler) *CheckEs6ModuleFileStructure {
 	this := &CheckEs6ModuleFileStructure{}
 	this.self_ = this
-	this.selfI_ = this
 	this.init_CheckEs6ModuleFileStructure(compiler)
 	return this
 }
@@ -193,5 +192,5 @@ func (this *CheckEs6ModuleFileStructure) shouldTraverse(p0 *NodeTraversal, p1 No
 	if this.self_ == any(this) {
 		return this.shouldTraverse_impl(p0, p1, p2)
 	}
-	return this.selfI_.shouldTraverse_impl(p0, p1, p2)
+	return this.self_.shouldTraverse_impl(p0, p1, p2)
 }

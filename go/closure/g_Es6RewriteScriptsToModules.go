@@ -22,7 +22,6 @@ func (this *Es6RewriteScriptsToModules) init_Es6RewriteScriptsToModules(compiler
 func new_Es6RewriteScriptsToModules(compiler *AbstractCompiler) *Es6RewriteScriptsToModules {
 	this := &Es6RewriteScriptsToModules{}
 	this.self_ = this
-	this.selfI_ = this
 	this.init_Es6RewriteScriptsToModules(compiler)
 	return this
 }
@@ -62,5 +61,5 @@ func (this *Es6RewriteScriptsToModules) shouldTraverse(p0 *NodeTraversal, p1 Nod
 	if this.self_ == any(this) {
 		return this.shouldTraverse_impl(p0, p1, p2)
 	}
-	return this.selfI_.shouldTraverse_impl(p0, p1, p2)
+	return this.self_.shouldTraverse_impl(p0, p1, p2)
 }

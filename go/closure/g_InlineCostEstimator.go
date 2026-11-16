@@ -70,7 +70,6 @@ func (this *InlineCostEstimator_CompiledSizeEstimator) init_InlineCostEstimator_
 func new_InlineCostEstimator_CompiledSizeEstimator(costThreshold int32) *InlineCostEstimator_CompiledSizeEstimator {
 	this := &InlineCostEstimator_CompiledSizeEstimator{}
 	this.self_ = this
-	this.selfI_ = this
 	this.init_InlineCostEstimator_CompiledSizeEstimator(costThreshold)
 	return this
 }
@@ -113,7 +112,7 @@ func (this *InlineCostEstimator_CompiledSizeEstimator) continueProcessing() bool
 	if this.self_ == any(this) {
 		return this.continueProcessing_impl()
 	}
-	return this.selfI_.continueProcessing_impl()
+	return this.self_.continueProcessing_impl()
 }
 
 // getLastChar: an object that is exactly a InlineCostEstimator_CompiledSizeEstimator calls its getLastChar_impl directly (post-flip); others dispatch.
@@ -121,7 +120,7 @@ func (this *InlineCostEstimator_CompiledSizeEstimator) getLastChar() uint16 {
 	if this.self_ == any(this) {
 		return this.getLastChar_impl()
 	}
-	return this.selfI_.getLastChar_impl()
+	return this.self_.getLastChar_impl()
 }
 
 // append: an object that is exactly a InlineCostEstimator_CompiledSizeEstimator calls its append_impl directly (post-flip); others dispatch.
@@ -130,7 +129,7 @@ func (this *InlineCostEstimator_CompiledSizeEstimator) append(p0 string) {
 		this.append_impl(p0)
 		return
 	}
-	this.selfI_.append_impl(p0)
+	this.self_.append_impl(p0)
 }
 
 // addIdentifier: an object that is exactly a InlineCostEstimator_CompiledSizeEstimator calls its addIdentifier_impl directly (post-flip); others dispatch.
@@ -139,7 +138,7 @@ func (this *InlineCostEstimator_CompiledSizeEstimator) addIdentifier(p0 string) 
 		this.addIdentifier_impl(p0)
 		return
 	}
-	this.selfI_.addIdentifier_impl(p0)
+	this.self_.addIdentifier_impl(p0)
 }
 
 // addConstant: an object that is exactly a InlineCostEstimator_CompiledSizeEstimator calls its addConstant_impl directly (post-flip); others dispatch.
@@ -148,5 +147,5 @@ func (this *InlineCostEstimator_CompiledSizeEstimator) addConstant(p0 string) {
 		this.addConstant_impl(p0)
 		return
 	}
-	this.selfI_.addConstant_impl(p0)
+	this.self_.addConstant_impl(p0)
 }

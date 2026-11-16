@@ -123,7 +123,6 @@ func (this *TypeInferencePass_FirstScopeBuildingCallback) init_TypeInferencePass
 func new_TypeInferencePass_FirstScopeBuildingCallback() *TypeInferencePass_FirstScopeBuildingCallback {
 	this := &TypeInferencePass_FirstScopeBuildingCallback{}
 	this.self_ = this
-	this.selfI_ = this
 	this.init_TypeInferencePass_FirstScopeBuildingCallback()
 	return this
 }
@@ -155,7 +154,6 @@ func (this *TypeInferencePass_SecondScopeBuildingCallback) init_TypeInferencePas
 func new_TypeInferencePass_SecondScopeBuildingCallback(outer_ *TypeInferencePass) *TypeInferencePass_SecondScopeBuildingCallback {
 	this := &TypeInferencePass_SecondScopeBuildingCallback{}
 	this.self_ = this
-	this.selfI_ = this
 	this.outer_ = outer_
 	this.init_TypeInferencePass_SecondScopeBuildingCallback()
 	return this
@@ -178,7 +176,7 @@ func (this *TypeInferencePass_FirstScopeBuildingCallback) enterScope(p0 *NodeTra
 		this.enterScope_impl(p0)
 		return
 	}
-	this.selfI_.enterScope_impl(p0)
+	this.self_.enterScope_impl(p0)
 }
 
 // visit: an object that is exactly a TypeInferencePass_FirstScopeBuildingCallback calls its visit_impl directly (post-flip); others dispatch.
@@ -187,7 +185,7 @@ func (this *TypeInferencePass_FirstScopeBuildingCallback) visit(p0 *NodeTraversa
 		this.visit_impl(p0, p1, p2)
 		return
 	}
-	this.selfI_.visit_impl(p0, p1, p2)
+	this.self_.visit_impl(p0, p1, p2)
 }
 
 // enterScope: an object that is exactly a TypeInferencePass_SecondScopeBuildingCallback calls its enterScope_impl directly (post-flip); others dispatch.
@@ -196,7 +194,7 @@ func (this *TypeInferencePass_SecondScopeBuildingCallback) enterScope(p0 *NodeTr
 		this.enterScope_impl(p0)
 		return
 	}
-	this.selfI_.enterScope_impl(p0)
+	this.self_.enterScope_impl(p0)
 }
 
 // visit: an object that is exactly a TypeInferencePass_SecondScopeBuildingCallback calls its visit_impl directly (post-flip); others dispatch.
@@ -205,5 +203,5 @@ func (this *TypeInferencePass_SecondScopeBuildingCallback) visit(p0 *NodeTravers
 		this.visit_impl(p0, p1, p2)
 		return
 	}
-	this.selfI_.visit_impl(p0, p1, p2)
+	this.self_.visit_impl(p0, p1, p2)
 }

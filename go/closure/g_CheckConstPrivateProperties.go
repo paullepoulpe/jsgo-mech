@@ -32,7 +32,6 @@ func (this *CheckConstPrivateProperties) init_CheckConstPrivateProperties(compil
 func new_CheckConstPrivateProperties(compiler *AbstractCompiler) *CheckConstPrivateProperties {
 	this := &CheckConstPrivateProperties{}
 	this.self_ = this
-	this.selfI_ = this
 	this.init_CheckConstPrivateProperties(compiler)
 	return this
 }
@@ -134,5 +133,5 @@ func (this *CheckConstPrivateProperties) visit(p0 *NodeTraversal, p1 Node, p2 No
 		this.visit_impl(p0, p1, p2)
 		return
 	}
-	this.selfI_.visit_impl(p0, p1, p2)
+	this.self_.visit_impl(p0, p1, p2)
 }

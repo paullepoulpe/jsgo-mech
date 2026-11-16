@@ -223,7 +223,6 @@ func (this *TranspileAndOptimizeClosureUnaware_RuntimeLibInjectionPassConfig) in
 func new_TranspileAndOptimizeClosureUnaware_RuntimeLibInjectionPassConfig(options *CompilerOptions, injectRuntimeLibs *PassFactory) *TranspileAndOptimizeClosureUnaware_RuntimeLibInjectionPassConfig {
 	this := &TranspileAndOptimizeClosureUnaware_RuntimeLibInjectionPassConfig{}
 	this.self_ = this
-	this.selfI_ = this
 	this.init_TranspileAndOptimizeClosureUnaware_RuntimeLibInjectionPassConfig(options, injectRuntimeLibs)
 	return this
 }
@@ -245,7 +244,7 @@ func (this *TranspileAndOptimizeClosureUnaware_RuntimeLibInjectionPassConfig) ge
 	if this.self_ == any(this) {
 		return this.getTranspileOnlyPasses_impl()
 	}
-	return this.selfI_.getTranspileOnlyPasses_impl()
+	return this.self_.getTranspileOnlyPasses_impl()
 }
 
 // getFinalizations: an object that is exactly a TranspileAndOptimizeClosureUnaware_RuntimeLibInjectionPassConfig calls its getFinalizations_impl directly (post-flip); others dispatch.
@@ -253,5 +252,5 @@ func (this *TranspileAndOptimizeClosureUnaware_RuntimeLibInjectionPassConfig) ge
 	if this.self_ == any(this) {
 		return this.getFinalizations_impl()
 	}
-	return this.selfI_.getFinalizations_impl()
+	return this.self_.getFinalizations_impl()
 }

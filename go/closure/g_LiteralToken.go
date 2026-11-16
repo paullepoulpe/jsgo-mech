@@ -47,7 +47,6 @@ func (this *LiteralToken) init_LiteralToken(type_ *TokenType, value string, loca
 func new_LiteralToken(type_ *TokenType, value string, location *SourceRange) *LiteralToken {
 	this := &LiteralToken{}
 	this.self_ = this
-	this.selfI_ = this
 	this.zero_LiteralToken()
 	this.init_LiteralToken(type_, value, location)
 	return this
@@ -62,5 +61,5 @@ func (this *LiteralToken) toString() string {
 	if this.self_ == any(this) {
 		return this.toString_impl()
 	}
-	return this.selfI_.toString_impl()
+	return this.self_.toString_impl()
 }

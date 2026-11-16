@@ -24,7 +24,6 @@ func (this *ChromePass) init_ChromePass(compiler *AbstractCompiler) {
 func new_ChromePass(compiler *AbstractCompiler) *ChromePass {
 	this := &ChromePass{}
 	this.self_ = this
-	this.selfI_ = this
 	this.init_ChromePass(compiler)
 	return this
 }
@@ -268,7 +267,6 @@ func (this *ChromePass_RenameInternalsToExternalsCallback) init_ChromePass_Renam
 func new_ChromePass_RenameInternalsToExternalsCallback(outer_ *ChromePass, namespaceName string, exports *TMap[string, string], namespaceBlock Node) *ChromePass_RenameInternalsToExternalsCallback {
 	this := &ChromePass_RenameInternalsToExternalsCallback{}
 	this.self_ = this
-	this.selfI_ = this
 	this.zero_ChromePass_RenameInternalsToExternalsCallback()
 	this.outer_ = outer_
 	this.init_ChromePass_RenameInternalsToExternalsCallback(namespaceName, exports, namespaceBlock)
@@ -332,7 +330,7 @@ func (this *ChromePass) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
 		this.visit_impl(p0, p1, p2)
 		return
 	}
-	this.selfI_.visit_impl(p0, p1, p2)
+	this.self_.visit_impl(p0, p1, p2)
 }
 
 // visit: an object that is exactly a ChromePass_RenameInternalsToExternalsCallback calls its visit_impl directly (post-flip); others dispatch.
@@ -341,5 +339,5 @@ func (this *ChromePass_RenameInternalsToExternalsCallback) visit(p0 *NodeTravers
 		this.visit_impl(p0, p1, p2)
 		return
 	}
-	this.selfI_.visit_impl(p0, p1, p2)
+	this.self_.visit_impl(p0, p1, p2)
 }

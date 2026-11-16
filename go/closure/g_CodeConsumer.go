@@ -3,8 +3,7 @@
 package closure
 
 type CodeConsumer struct {
-	self_               any
-	selfI_              CodeConsumer_I
+	self_               CodeConsumer_I
 	statementNeedsEnded bool
 	statementStarted    bool
 	sawFunction         bool
@@ -13,7 +12,7 @@ type CodeConsumer struct {
 }
 
 // CodeConsumer_I holds the methods the dispatchers of CodeConsumer's hierarchy call on the most derived
-// object (selfI_, set with self_); every class of the hierarchy implements them (post-flip).
+// object (self_); every class of the hierarchy implements them (post-flip).
 type CodeConsumer_I interface {
 	addConstant_impl(string)
 	addIdentifier_impl(string)
@@ -353,111 +352,111 @@ func (this *CodeConsumer) endFile_impl() {
 }
 
 func (this *CodeConsumer) append(p0 string) {
-	this.selfI_.append_impl(p0)
+	this.self_.append_impl(p0)
 }
 
 func (this *CodeConsumer) trackLicenses(p0 Node) {
-	this.selfI_.trackLicenses_impl(p0)
+	this.self_.trackLicenses_impl(p0)
 }
 
 func (this *CodeConsumer) startSourceMapping(p0 Node) {
-	this.selfI_.startSourceMapping_impl(p0)
+	this.self_.startSourceMapping_impl(p0)
 }
 
 func (this *CodeConsumer) endSourceMapping(p0 Node) {
-	this.selfI_.endSourceMapping_impl(p0)
+	this.self_.endSourceMapping_impl(p0)
 }
 
 func (this *CodeConsumer) getLastChar() uint16 {
-	return this.selfI_.getLastChar_impl()
+	return this.self_.getLastChar_impl()
 }
 
 func (this *CodeConsumer) addNumber(p0 float64, p1 Node) {
-	this.selfI_.addNumber_impl(p0, p1)
+	this.self_.addNumber_impl(p0, p1)
 }
 
 func (this *CodeConsumer) startNewLine() {
-	this.selfI_.startNewLine_impl()
+	this.self_.startNewLine_impl()
 }
 
 func (this *CodeConsumer) maybeLineBreak() {
-	this.selfI_.maybeLineBreak_impl()
+	this.self_.maybeLineBreak_impl()
 }
 
 func (this *CodeConsumer) maybeCutLine() {
-	this.selfI_.maybeCutLine_impl()
+	this.self_.maybeCutLine_impl()
 }
 
 func (this *CodeConsumer) endLine() {
-	this.selfI_.endLine_impl()
+	this.self_.endLine_impl()
 }
 
 func (this *CodeConsumer) appendBlockStart() {
-	this.selfI_.appendBlockStart_impl()
+	this.self_.appendBlockStart_impl()
 }
 
 func (this *CodeConsumer) appendBlockEnd() {
-	this.selfI_.appendBlockEnd_impl()
+	this.self_.appendBlockEnd_impl()
 }
 
 func (this *CodeConsumer) listSeparator() {
-	this.selfI_.listSeparator_impl()
+	this.self_.listSeparator_impl()
 }
 
 func (this *CodeConsumer) optionalListSeparator() {
-	this.selfI_.optionalListSeparator_impl()
+	this.self_.optionalListSeparator_impl()
 }
 
 func (this *CodeConsumer) endFunction(p0 bool) {
-	this.selfI_.endFunction_impl(p0)
+	this.self_.endFunction_impl(p0)
 }
 
 func (this *CodeConsumer) beginCaseBody() {
-	this.selfI_.beginCaseBody_impl()
+	this.self_.beginCaseBody_impl()
 }
 
 func (this *CodeConsumer) endCaseBody() {
-	this.selfI_.endCaseBody_impl()
+	this.self_.endCaseBody_impl()
 }
 
 func (this *CodeConsumer) appendOp(p0 string, p1 bool) {
-	this.selfI_.appendOp_impl(p0, p1)
+	this.self_.appendOp_impl(p0, p1)
 }
 
 func (this *CodeConsumer) shouldPreserveExtras(p0 Node) bool {
-	return this.selfI_.shouldPreserveExtras_impl(p0)
+	return this.self_.shouldPreserveExtras_impl(p0)
 }
 
 func (this *CodeConsumer) maybeInsertSpace() {
-	this.selfI_.maybeInsertSpace_impl()
+	this.self_.maybeInsertSpace_impl()
 }
 
 func (this *CodeConsumer) breakAfterBlockFor(p0 Node, p1 bool) bool {
-	return this.selfI_.breakAfterBlockFor_impl(p0, p1)
+	return this.self_.breakAfterBlockFor_impl(p0, p1)
 }
 
 func (this *CodeConsumer) endStatement_2(p0 bool, p1 bool) {
-	this.selfI_.endStatement_2_impl(p0, p1)
+	this.self_.endStatement_2_impl(p0, p1)
 }
 
 func (this *CodeConsumer) endFile() {
-	this.selfI_.endFile_impl()
+	this.self_.endFile_impl()
 }
 
 func (this *CodeConsumer) notePreferredLineBreak() {
-	this.selfI_.notePreferredLineBreak_impl()
+	this.self_.notePreferredLineBreak_impl()
 }
 
 func (this *CodeConsumer) continueProcessing() bool {
-	return this.selfI_.continueProcessing_impl()
+	return this.self_.continueProcessing_impl()
 }
 
 func (this *CodeConsumer) addIdentifier(p0 string) {
-	this.selfI_.addIdentifier_impl(p0)
+	this.self_.addIdentifier_impl(p0)
 }
 
 func (this *CodeConsumer) addConstant(p0 string) {
-	this.selfI_.addConstant_impl(p0)
+	this.self_.addConstant_impl(p0)
 }
 
 var CodeConsumer_LEADING_ZERO_PATTERN *Pattern

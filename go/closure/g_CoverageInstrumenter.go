@@ -20,7 +20,6 @@ func (this *CoverageInstrumenter) init_CoverageInstrumenter(compilerSupplier *Co
 func new_CoverageInstrumenter(compilerSupplier *CompilerBasedTransformer_CompilerSupplier) *CoverageInstrumenter {
 	this := &CoverageInstrumenter{}
 	this.self_ = this
-	this.selfI_ = this
 	this.init_CoverageInstrumenter(compilerSupplier)
 	return this
 }
@@ -68,7 +67,6 @@ func (this *CoverageInstrumenter_CompilerSupplier) init_CoverageInstrumenter_Com
 func new_CoverageInstrumenter_CompilerSupplier() *CoverageInstrumenter_CompilerSupplier {
 	this := &CoverageInstrumenter_CompilerSupplier{}
 	this.self_ = this
-	this.selfI_ = this
 	this.init_CoverageInstrumenter_CompilerSupplier()
 	return this
 }
@@ -93,7 +91,7 @@ func (this *CoverageInstrumenter) getRuntime() Optional {
 	if this.self_ == any(this) {
 		return this.getRuntime_impl()
 	}
-	return this.selfI_.getRuntime_impl()
+	return this.self_.getRuntime_impl()
 }
 
 // getTranformationName: an object that is exactly a CoverageInstrumenter calls its getTranformationName_impl directly (post-flip); others dispatch.
@@ -101,7 +99,7 @@ func (this *CoverageInstrumenter) getTranformationName() string {
 	if this.self_ == any(this) {
 		return this.getTranformationName_impl()
 	}
-	return this.selfI_.getTranformationName_impl()
+	return this.self_.getTranformationName_impl()
 }
 
 // setOptions: an object that is exactly a CoverageInstrumenter_CompilerSupplier calls its setOptions_impl directly (post-flip); others dispatch.
@@ -110,7 +108,7 @@ func (this *CoverageInstrumenter_CompilerSupplier) setOptions(p0 *CompilerOption
 		this.setOptions_impl(p0)
 		return
 	}
-	this.selfI_.setOptions_impl(p0)
+	this.self_.setOptions_impl(p0)
 }
 
 // transformed: an object that is exactly a CoverageInstrumenter_CompilerSupplier calls its transformed_impl directly (post-flip); others dispatch.
@@ -118,5 +116,5 @@ func (this *CoverageInstrumenter_CompilerSupplier) transformed(p0 *Result) bool 
 	if this.self_ == any(this) {
 		return this.transformed_impl(p0)
 	}
-	return this.selfI_.transformed_impl(p0)
+	return this.self_.transformed_impl(p0)
 }

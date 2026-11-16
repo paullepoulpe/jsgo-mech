@@ -683,12 +683,11 @@ func (this *SourceFile_Builder) withPathInternal(path string) *SourceFile_Builde
 }
 
 type SourceFile_CodeLoader struct {
-	self_  any
-	selfI_ SourceFile_CodeLoader_I
+	self_ SourceFile_CodeLoader_I
 }
 
 // SourceFile_CodeLoader_I holds the methods the dispatchers of SourceFile_CodeLoader's hierarchy call on the most derived
-// object (selfI_, set with self_); every class of the hierarchy implements them (post-flip).
+// object (self_); every class of the hierarchy implements them (post-flip).
 type SourceFile_CodeLoader_I interface {
 	loadUncachedCode_impl() *Outcome_base
 	loadUncachedText_impl() *Outcome_base
@@ -729,15 +728,15 @@ func (this *SourceFile_CodeLoader) loadUncachedText_impl() *Outcome_base {
 }
 
 func (this *SourceFile_CodeLoader) loadUncachedCode() *Outcome_base {
-	return this.selfI_.loadUncachedCode_impl()
+	return this.self_.loadUncachedCode_impl()
 }
 
 func (this *SourceFile_CodeLoader) toProtoLocationBuilder(p0 string) *SourceFileProto_Builder {
-	return this.selfI_.toProtoLocationBuilder_impl(p0)
+	return this.self_.toProtoLocationBuilder_impl(p0)
 }
 
 func (this *SourceFile_CodeLoader) loadUncachedText() *Outcome_base {
-	return this.selfI_.loadUncachedText_impl()
+	return this.self_.loadUncachedText_impl()
 }
 
 type SourceFile_CodeLoader_Preloaded struct {
@@ -764,7 +763,6 @@ func (this *SourceFile_CodeLoader_Preloaded) init_SourceFile_CodeLoader_Preloade
 func new_SourceFile_CodeLoader_Preloaded(preloadedCode string) *SourceFile_CodeLoader_Preloaded {
 	this := &SourceFile_CodeLoader_Preloaded{}
 	this.self_ = this
-	this.selfI_ = this
 	this.zero_SourceFile_CodeLoader_Preloaded()
 	this.init_SourceFile_CodeLoader_Preloaded(preloadedCode)
 	return this
@@ -798,7 +796,6 @@ func (this *SourceFile_CodeLoader_StubSourceFileCodeLoader) init_SourceFile_Code
 func new_SourceFile_CodeLoader_StubSourceFileCodeLoader() *SourceFile_CodeLoader_StubSourceFileCodeLoader {
 	this := &SourceFile_CodeLoader_StubSourceFileCodeLoader{}
 	this.self_ = this
-	this.selfI_ = this
 	this.init_SourceFile_CodeLoader_StubSourceFileCodeLoader()
 	return this
 }
@@ -840,7 +837,6 @@ func (this *SourceFile_CodeLoader_OnDisk) init_SourceFile_CodeLoader_OnDisk(rela
 func new_SourceFile_CodeLoader_OnDisk(relativePath string, c string) *SourceFile_CodeLoader_OnDisk {
 	this := &SourceFile_CodeLoader_OnDisk{}
 	this.self_ = this
-	this.selfI_ = this
 	this.zero_SourceFile_CodeLoader_OnDisk()
 	this.init_SourceFile_CodeLoader_OnDisk(relativePath, c)
 	return this
@@ -901,7 +897,6 @@ func (this *SourceFile_CodeLoader_AtZip) init_SourceFile_CodeLoader_AtZip(zipNam
 func new_SourceFile_CodeLoader_AtZip(zipName string, entryName string, c string) *SourceFile_CodeLoader_AtZip {
 	this := &SourceFile_CodeLoader_AtZip{}
 	this.self_ = this
-	this.selfI_ = this
 	this.zero_SourceFile_CodeLoader_AtZip()
 	this.init_SourceFile_CodeLoader_AtZip(zipName, entryName, c)
 	return this
@@ -935,7 +930,7 @@ func (this *SourceFile_CodeLoader_Preloaded) loadUncachedCode() *Outcome_base {
 	if this.self_ == any(this) {
 		return this.loadUncachedCode_impl()
 	}
-	return this.selfI_.loadUncachedCode_impl()
+	return this.self_.loadUncachedCode_impl()
 }
 
 // toProtoLocationBuilder: an object that is exactly a SourceFile_CodeLoader_Preloaded calls its toProtoLocationBuilder_impl directly (post-flip); others dispatch.
@@ -943,7 +938,7 @@ func (this *SourceFile_CodeLoader_Preloaded) toProtoLocationBuilder(p0 string) *
 	if this.self_ == any(this) {
 		return this.toProtoLocationBuilder_impl(p0)
 	}
-	return this.selfI_.toProtoLocationBuilder_impl(p0)
+	return this.self_.toProtoLocationBuilder_impl(p0)
 }
 
 // loadUncachedCode: an object that is exactly a SourceFile_CodeLoader_StubSourceFileCodeLoader calls its loadUncachedCode_impl directly (post-flip); others dispatch.
@@ -951,7 +946,7 @@ func (this *SourceFile_CodeLoader_StubSourceFileCodeLoader) loadUncachedCode() *
 	if this.self_ == any(this) {
 		return this.loadUncachedCode_impl()
 	}
-	return this.selfI_.loadUncachedCode_impl()
+	return this.self_.loadUncachedCode_impl()
 }
 
 // toProtoLocationBuilder: an object that is exactly a SourceFile_CodeLoader_StubSourceFileCodeLoader calls its toProtoLocationBuilder_impl directly (post-flip); others dispatch.
@@ -959,7 +954,7 @@ func (this *SourceFile_CodeLoader_StubSourceFileCodeLoader) toProtoLocationBuild
 	if this.self_ == any(this) {
 		return this.toProtoLocationBuilder_impl(p0)
 	}
-	return this.selfI_.toProtoLocationBuilder_impl(p0)
+	return this.self_.toProtoLocationBuilder_impl(p0)
 }
 
 // loadUncachedCode: an object that is exactly a SourceFile_CodeLoader_OnDisk calls its loadUncachedCode_impl directly (post-flip); others dispatch.
@@ -967,7 +962,7 @@ func (this *SourceFile_CodeLoader_OnDisk) loadUncachedCode() *Outcome_base {
 	if this.self_ == any(this) {
 		return this.loadUncachedCode_impl()
 	}
-	return this.selfI_.loadUncachedCode_impl()
+	return this.self_.loadUncachedCode_impl()
 }
 
 // loadUncachedText: an object that is exactly a SourceFile_CodeLoader_OnDisk calls its loadUncachedText_impl directly (post-flip); others dispatch.
@@ -975,7 +970,7 @@ func (this *SourceFile_CodeLoader_OnDisk) loadUncachedText() *Outcome_base {
 	if this.self_ == any(this) {
 		return this.loadUncachedText_impl()
 	}
-	return this.selfI_.loadUncachedText_impl()
+	return this.self_.loadUncachedText_impl()
 }
 
 // toProtoLocationBuilder: an object that is exactly a SourceFile_CodeLoader_OnDisk calls its toProtoLocationBuilder_impl directly (post-flip); others dispatch.
@@ -983,7 +978,7 @@ func (this *SourceFile_CodeLoader_OnDisk) toProtoLocationBuilder(p0 string) *Sou
 	if this.self_ == any(this) {
 		return this.toProtoLocationBuilder_impl(p0)
 	}
-	return this.selfI_.toProtoLocationBuilder_impl(p0)
+	return this.self_.toProtoLocationBuilder_impl(p0)
 }
 
 // loadUncachedCode: an object that is exactly a SourceFile_CodeLoader_AtZip calls its loadUncachedCode_impl directly (post-flip); others dispatch.
@@ -991,7 +986,7 @@ func (this *SourceFile_CodeLoader_AtZip) loadUncachedCode() *Outcome_base {
 	if this.self_ == any(this) {
 		return this.loadUncachedCode_impl()
 	}
-	return this.selfI_.loadUncachedCode_impl()
+	return this.self_.loadUncachedCode_impl()
 }
 
 // loadUncachedText: an object that is exactly a SourceFile_CodeLoader_AtZip calls its loadUncachedText_impl directly (post-flip); others dispatch.
@@ -999,7 +994,7 @@ func (this *SourceFile_CodeLoader_AtZip) loadUncachedText() *Outcome_base {
 	if this.self_ == any(this) {
 		return this.loadUncachedText_impl()
 	}
-	return this.selfI_.loadUncachedText_impl()
+	return this.self_.loadUncachedText_impl()
 }
 
 // toProtoLocationBuilder: an object that is exactly a SourceFile_CodeLoader_AtZip calls its toProtoLocationBuilder_impl directly (post-flip); others dispatch.
@@ -1007,7 +1002,7 @@ func (this *SourceFile_CodeLoader_AtZip) toProtoLocationBuilder(p0 string) *Sour
 	if this.self_ == any(this) {
 		return this.toProtoLocationBuilder_impl(p0)
 	}
-	return this.selfI_.toProtoLocationBuilder_impl(p0)
+	return this.self_.toProtoLocationBuilder_impl(p0)
 }
 
 // SourceFile_lineEnds_ calls f, for every line terminator of code (a \r\n pair counting once),

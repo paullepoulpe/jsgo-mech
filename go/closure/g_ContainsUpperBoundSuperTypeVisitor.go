@@ -28,7 +28,6 @@ func (this *ContainsUpperBoundSuperTypeVisitor) init_ContainsUpperBoundSuperType
 func new_ContainsUpperBoundSuperTypeVisitor(target *JSType) *ContainsUpperBoundSuperTypeVisitor {
 	this := &ContainsUpperBoundSuperTypeVisitor{}
 	this.self_ = this
-	this.selfI_ = this
 	this.init_ContainsUpperBoundSuperTypeVisitor(target)
 	return this
 }
@@ -144,7 +143,7 @@ func (this *ContainsUpperBoundSuperTypeVisitor) caseDefault(p0 *JSType) any {
 	if this.self_ == any(this) {
 		return this.caseDefault_impl(p0)
 	}
-	return this.selfI_.caseDefault_impl(p0)
+	return this.self_.caseDefault_impl(p0)
 }
 
 // caseTemplateType: an object that is exactly a ContainsUpperBoundSuperTypeVisitor calls its caseTemplateType_impl directly (post-flip); others dispatch.
@@ -152,7 +151,7 @@ func (this *ContainsUpperBoundSuperTypeVisitor) caseTemplateType(p0 *TemplateTyp
 	if this.self_ == any(this) {
 		return this.caseTemplateType_impl(p0)
 	}
-	return this.selfI_.caseTemplateType_impl(p0)
+	return this.self_.caseTemplateType_impl(p0)
 }
 
 // caseNamedType: an object that is exactly a ContainsUpperBoundSuperTypeVisitor calls its caseNamedType_impl directly (post-flip); others dispatch.
@@ -160,7 +159,7 @@ func (this *ContainsUpperBoundSuperTypeVisitor) caseNamedType(p0 *NamedType) any
 	if this.self_ == any(this) {
 		return this.caseNamedType_impl(p0)
 	}
-	return this.selfI_.caseNamedType_impl(p0)
+	return this.self_.caseNamedType_impl(p0)
 }
 
 // caseTemplatizedType: an object that is exactly a ContainsUpperBoundSuperTypeVisitor calls its caseTemplatizedType_impl directly (post-flip); others dispatch.
@@ -168,7 +167,7 @@ func (this *ContainsUpperBoundSuperTypeVisitor) caseTemplatizedType(p0 *Templati
 	if this.self_ == any(this) {
 		return this.caseTemplatizedType_impl(p0)
 	}
-	return this.selfI_.caseTemplatizedType_impl(p0)
+	return this.self_.caseTemplatizedType_impl(p0)
 }
 
 // caseUnionType: an object that is exactly a ContainsUpperBoundSuperTypeVisitor calls its caseUnionType_impl directly (post-flip); others dispatch.
@@ -176,5 +175,5 @@ func (this *ContainsUpperBoundSuperTypeVisitor) caseUnionType(p0 *UnionType) any
 	if this.self_ == any(this) {
 		return this.caseUnionType_impl(p0)
 	}
-	return this.selfI_.caseUnionType_impl(p0)
+	return this.self_.caseUnionType_impl(p0)
 }

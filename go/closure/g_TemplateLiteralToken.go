@@ -38,7 +38,6 @@ func (this *TemplateLiteralToken) init_TemplateLiteralToken(type_ *TokenType, va
 func new_TemplateLiteralToken(type_ *TokenType, value string, errorMsg string, errorLevel *TemplateLiteralToken_ErrorLevel, position *SourcePosition_util, location *SourceRange) *TemplateLiteralToken {
 	this := &TemplateLiteralToken{}
 	this.self_ = this
-	this.selfI_ = this
 	this.zero_TemplateLiteralToken()
 	this.init_TemplateLiteralToken(type_, value, errorMsg, errorLevel, position, location)
 	return this
@@ -110,5 +109,5 @@ func (this *TemplateLiteralToken) toString() string {
 	if this.self_ == any(this) {
 		return this.toString_impl()
 	}
-	return this.selfI_.toString_impl()
+	return this.self_.toString_impl()
 }

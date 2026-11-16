@@ -34,13 +34,12 @@ func CodingConventions_defaultIsFunctionCallThatAlwaysThrows(n Node, alwaysThrow
 }
 
 type CodingConventions_Proxy struct {
-	self_          any
-	selfI_         CodingConventions_Proxy_I
+	self_          CodingConventions_Proxy_I
 	nextConvention CodingConvention
 }
 
 // CodingConventions_Proxy_I holds the methods the dispatchers of CodingConventions_Proxy's hierarchy call on the most derived
-// object (selfI_, set with self_); every class of the hierarchy implements them (post-flip).
+// object (self_); every class of the hierarchy implements them (post-flip).
 type CodingConventions_Proxy_I interface {
 	applySingletonGetter_impl(*NominalTypeBuilder, *FunctionType)
 	applySubclassRelationship_impl(*NominalTypeBuilder, *NominalTypeBuilder, *CodingConvention_SubclassType)
@@ -105,7 +104,6 @@ func (this *CodingConventions_Proxy) init_CodingConventions_Proxy(convention Cod
 func new_CodingConventions_Proxy(convention CodingConvention) *CodingConventions_Proxy {
 	this := &CodingConventions_Proxy{}
 	this.self_ = this
-	this.selfI_ = this
 	this.init_CodingConventions_Proxy(convention)
 	return this
 }
@@ -227,111 +225,111 @@ func (this *CodingConventions_Proxy) getObjectLiteralCast_impl(callNode Node) *C
 }
 
 func (this *CodingConventions_Proxy) getSingletonGetterClassName(p0 Node) string {
-	return this.selfI_.getSingletonGetterClassName_impl(p0)
+	return this.self_.getSingletonGetterClassName_impl(p0)
 }
 
 func (this *CodingConventions_Proxy) applySingletonGetter(p0 *NominalTypeBuilder, p1 *FunctionType) {
-	this.selfI_.applySingletonGetter_impl(p0, p1)
+	this.self_.applySingletonGetter_impl(p0, p1)
 }
 
 func (this *CodingConventions_Proxy) applySubclassRelationship(p0 *NominalTypeBuilder, p1 *NominalTypeBuilder, p2 *CodingConvention_SubclassType) {
-	this.selfI_.applySubclassRelationship_impl(p0, p1, p2)
+	this.self_.applySubclassRelationship_impl(p0, p1, p2)
 }
 
 func (this *CodingConventions_Proxy) getClassesDefinedByCall(p0 Node) *CodingConvention_SubclassRelationship {
-	return this.selfI_.getClassesDefinedByCall_impl(p0)
+	return this.self_.getClassesDefinedByCall_impl(p0)
 }
 
 func (this *CodingConventions_Proxy) isSuperClassReference(p0 string) bool {
-	return this.selfI_.isSuperClassReference_impl(p0)
+	return this.self_.isSuperClassReference_impl(p0)
 }
 
 func (this *CodingConventions_Proxy) extractIsModuleFile(p0 Node, p1 Node) bool {
-	return this.selfI_.extractIsModuleFile_impl(p0, p1)
+	return this.self_.extractIsModuleFile_impl(p0, p1)
 }
 
 func (this *CodingConventions_Proxy) extractClassNameIfProvide(p0 Node, p1 Node) Optional {
-	return this.selfI_.extractClassNameIfProvide_impl(p0, p1)
+	return this.self_.extractClassNameIfProvide_impl(p0, p1)
 }
 
 func (this *CodingConventions_Proxy) extractClassNameIfRequire(p0 Node, p1 Node) Optional {
-	return this.selfI_.extractClassNameIfRequire_impl(p0, p1)
+	return this.self_.extractClassNameIfRequire_impl(p0, p1)
 }
 
 func (this *CodingConventions_Proxy) getExportPropertyFunction() string {
-	return this.selfI_.getExportPropertyFunction_impl()
+	return this.self_.getExportPropertyFunction_impl()
 }
 
 func (this *CodingConventions_Proxy) getExportSymbolFunction() string {
-	return this.selfI_.getExportSymbolFunction_impl()
+	return this.self_.getExportSymbolFunction_impl()
 }
 
 func (this *CodingConventions_Proxy) identifyTypeDeclarationCall(p0 Node) *TList[string] {
-	return this.selfI_.identifyTypeDeclarationCall_impl(p0)
+	return this.self_.identifyTypeDeclarationCall_impl(p0)
 }
 
 func (this *CodingConventions_Proxy) getAbstractMethodName() string {
-	return this.selfI_.getAbstractMethodName_impl()
+	return this.self_.getAbstractMethodName_impl()
 }
 
 func (this *CodingConventions_Proxy) isPropertyTestFunction(p0 Node) bool {
-	return this.selfI_.isPropertyTestFunction_impl(p0)
+	return this.self_.isPropertyTestFunction_impl(p0)
 }
 
 func (this *CodingConventions_Proxy) isPropertyRenameFunction(p0 Node) bool {
-	return this.selfI_.isPropertyRenameFunction_impl(p0)
+	return this.self_.isPropertyRenameFunction_impl(p0)
 }
 
 func (this *CodingConventions_Proxy) isFunctionCallThatAlwaysThrows(p0 Node) bool {
-	return this.selfI_.isFunctionCallThatAlwaysThrows_impl(p0)
+	return this.self_.isFunctionCallThatAlwaysThrows_impl(p0)
 }
 
 func (this *CodingConventions_Proxy) getObjectLiteralCast(p0 Node) *CodingConvention_ObjectLiteralCast {
-	return this.selfI_.getObjectLiteralCast_impl(p0)
+	return this.self_.getObjectLiteralCast_impl(p0)
 }
 
 func (this *CodingConventions_Proxy) getAssertionFunctions() Collection {
-	return this.selfI_.getAssertionFunctions_impl()
+	return this.self_.getAssertionFunctions_impl()
 }
 
 func (this *CodingConventions_Proxy) describeFunctionBind(p0 Node, p1 bool) *CodingConvention_Bind {
-	return this.selfI_.describeFunctionBind_impl(p0, p1)
+	return this.self_.describeFunctionBind_impl(p0, p1)
 }
 
 func (this *CodingConventions_Proxy) describeCachingCall(p0 Node) *CodingConvention_Cache {
-	return this.selfI_.describeCachingCall_impl(p0)
+	return this.self_.describeCachingCall_impl(p0)
 }
 
 func (this *CodingConventions_Proxy) isConstant(p0 string) bool {
-	return this.selfI_.isConstant_impl(p0)
+	return this.self_.isConstant_impl(p0)
 }
 
 func (this *CodingConventions_Proxy) isConstantKey(p0 string) bool {
-	return this.selfI_.isConstantKey_impl(p0)
+	return this.self_.isConstantKey_impl(p0)
 }
 
 func (this *CodingConventions_Proxy) isValidEnumKey(p0 Optional) bool {
-	return this.selfI_.isValidEnumKey_impl(p0)
+	return this.self_.isValidEnumKey_impl(p0)
 }
 
 func (this *CodingConventions_Proxy) isOptionalParameter(p0 Node) bool {
-	return this.selfI_.isOptionalParameter_impl(p0)
+	return this.self_.isOptionalParameter_impl(p0)
 }
 
 func (this *CodingConventions_Proxy) isVarArgsParameter(p0 Node) bool {
-	return this.selfI_.isVarArgsParameter_impl(p0)
+	return this.self_.isVarArgsParameter_impl(p0)
 }
 
 func (this *CodingConventions_Proxy) isExported_2(p0 string, p1 bool) bool {
-	return this.selfI_.isExported_2_impl(p0, p1)
+	return this.self_.isExported_2_impl(p0, p1)
 }
 
 func (this *CodingConventions_Proxy) isClassFactoryCall(p0 Node) bool {
-	return this.selfI_.isClassFactoryCall_impl(p0)
+	return this.self_.isClassFactoryCall_impl(p0)
 }
 
 func (this *CodingConventions_Proxy) getPackageName(p0 StaticSourceFile) Optional {
-	return this.selfI_.getPackageName_impl(p0)
+	return this.self_.getPackageName_impl(p0)
 }
 
 func (this *CodingConventions_Proxy) blockRenamingForProperty(p0 string) bool {

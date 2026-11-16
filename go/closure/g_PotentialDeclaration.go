@@ -3,15 +3,14 @@
 package closure
 
 type PotentialDeclaration struct {
-	self_              any
-	selfI_             PotentialDeclaration_I
+	self_              PotentialDeclaration_I
 	fullyQualifiedName string
 	lhs                Node
 	rhs                Node
 }
 
 // PotentialDeclaration_I holds the methods the dispatchers of PotentialDeclaration's hierarchy call on the most derived
-// object (selfI_, set with self_); every class of the hierarchy implements them (post-flip).
+// object (self_); every class of the hierarchy implements them (post-flip).
 type PotentialDeclaration_I interface {
 	breakDownDestructure_impl(*AbstractCompiler) bool
 	getRemovableNode_impl() Node
@@ -258,23 +257,23 @@ func PotentialDeclaration_truncateStringKeyValue(stringKey Node) {
 }
 
 func (this *PotentialDeclaration) simplify(p0 *AbstractCompiler) {
-	this.selfI_.simplify_impl(p0)
+	this.self_.simplify_impl(p0)
 }
 
 func (this *PotentialDeclaration) breakDownDestructure(p0 *AbstractCompiler) bool {
-	return this.selfI_.breakDownDestructure_impl(p0)
+	return this.self_.breakDownDestructure_impl(p0)
 }
 
 func (this *PotentialDeclaration) shouldPreserve() bool {
-	return this.selfI_.shouldPreserve_impl()
+	return this.self_.shouldPreserve_impl()
 }
 
 func (this *PotentialDeclaration) getRemovableNode() Node {
-	return this.selfI_.getRemovableNode_impl()
+	return this.self_.getRemovableNode_impl()
 }
 
 func (this *PotentialDeclaration) isDefiniteDeclaration(p0 *AbstractCompiler) bool {
-	return this.selfI_.isDefiniteDeclaration_impl(p0)
+	return this.self_.isDefiniteDeclaration_impl(p0)
 }
 
 const PotentialDeclaration_STRING_ENUM_RETAIN_CAP int32 = 10
@@ -324,7 +323,6 @@ func (this *PotentialDeclaration_NameDeclaration) init_PotentialDeclaration_Name
 func new_PotentialDeclaration_NameDeclaration(fullyQualifiedName string, lhs Node, rhs Node) *PotentialDeclaration_NameDeclaration {
 	this := &PotentialDeclaration_NameDeclaration{}
 	this.self_ = this
-	this.selfI_ = this
 	this.zero_PotentialDeclaration_NameDeclaration()
 	this.init_PotentialDeclaration_NameDeclaration(fullyQualifiedName, lhs, rhs)
 	return this
@@ -458,7 +456,6 @@ func (this *PotentialDeclaration_ThisPropDeclaration) init_PotentialDeclaration_
 func new_PotentialDeclaration_ThisPropDeclaration(fullyQualifiedName string, lhs Node, rhs Node) *PotentialDeclaration_ThisPropDeclaration {
 	this := &PotentialDeclaration_ThisPropDeclaration{}
 	this.self_ = this
-	this.selfI_ = this
 	this.zero_PotentialDeclaration_ThisPropDeclaration()
 	this.init_PotentialDeclaration_ThisPropDeclaration(fullyQualifiedName, lhs, rhs)
 	return this
@@ -499,7 +496,6 @@ func (this *PotentialDeclaration_DefineDeclaration) init_PotentialDeclaration_De
 func new_PotentialDeclaration_DefineDeclaration(qualifiedName string, lhs Node, rhs Node) *PotentialDeclaration_DefineDeclaration {
 	this := &PotentialDeclaration_DefineDeclaration{}
 	this.self_ = this
-	this.selfI_ = this
 	this.zero_PotentialDeclaration_DefineDeclaration()
 	this.init_PotentialDeclaration_DefineDeclaration(qualifiedName, lhs, rhs)
 	return this
@@ -583,7 +579,6 @@ func (this *PotentialDeclaration_MethodDeclaration) init_PotentialDeclaration_Me
 func new_PotentialDeclaration_MethodDeclaration(name string, functionNode Node) *PotentialDeclaration_MethodDeclaration {
 	this := &PotentialDeclaration_MethodDeclaration{}
 	this.self_ = this
-	this.selfI_ = this
 	this.zero_PotentialDeclaration_MethodDeclaration()
 	this.init_PotentialDeclaration_MethodDeclaration(name, functionNode)
 	return this
@@ -619,7 +614,6 @@ func (this *PotentialDeclaration_MemberFieldDeclaration) init_PotentialDeclarati
 func new_PotentialDeclaration_MemberFieldDeclaration(name OptionalOf[string], lhs Node, rhs Node) *PotentialDeclaration_MemberFieldDeclaration {
 	this := &PotentialDeclaration_MemberFieldDeclaration{}
 	this.self_ = this
-	this.selfI_ = this
 	this.zero_PotentialDeclaration_MemberFieldDeclaration()
 	this.init_PotentialDeclaration_MemberFieldDeclaration(name, lhs, rhs)
 	return this
@@ -658,7 +652,6 @@ func (this *PotentialDeclaration_StringKeyDeclaration) init_PotentialDeclaration
 func new_PotentialDeclaration_StringKeyDeclaration(name string, stringKeyNode Node) *PotentialDeclaration_StringKeyDeclaration {
 	this := &PotentialDeclaration_StringKeyDeclaration{}
 	this.self_ = this
-	this.selfI_ = this
 	this.zero_PotentialDeclaration_StringKeyDeclaration()
 	this.init_PotentialDeclaration_StringKeyDeclaration(name, stringKeyNode)
 	return this
@@ -722,7 +715,6 @@ func (this *PotentialDeclaration_PolymerBehaviorPropertiesDeclaration) init_Pote
 func new_PotentialDeclaration_PolymerBehaviorPropertiesDeclaration(name string, stringKeyNode Node) *PotentialDeclaration_PolymerBehaviorPropertiesDeclaration {
 	this := &PotentialDeclaration_PolymerBehaviorPropertiesDeclaration{}
 	this.self_ = this
-	this.selfI_ = this
 	this.zero_PotentialDeclaration_PolymerBehaviorPropertiesDeclaration()
 	this.init_PotentialDeclaration_PolymerBehaviorPropertiesDeclaration(name, stringKeyNode)
 	return this
@@ -786,7 +778,6 @@ func (this *PotentialDeclaration_AliasDeclaration) init_PotentialDeclaration_Ali
 func new_PotentialDeclaration_AliasDeclaration(name string, lhs Node) *PotentialDeclaration_AliasDeclaration {
 	this := &PotentialDeclaration_AliasDeclaration{}
 	this.self_ = this
-	this.selfI_ = this
 	this.zero_PotentialDeclaration_AliasDeclaration()
 	this.init_PotentialDeclaration_AliasDeclaration(name, lhs)
 	return this
@@ -821,7 +812,7 @@ func (this *PotentialDeclaration_NameDeclaration) simplify(p0 *AbstractCompiler)
 		this.simplify_impl(p0)
 		return
 	}
-	this.selfI_.simplify_impl(p0)
+	this.self_.simplify_impl(p0)
 }
 
 // breakDownDestructure: an object that is exactly a PotentialDeclaration_NameDeclaration calls its breakDownDestructure_impl directly (post-flip); others dispatch.
@@ -829,7 +820,7 @@ func (this *PotentialDeclaration_NameDeclaration) breakDownDestructure(p0 *Abstr
 	if this.self_ == any(this) {
 		return this.breakDownDestructure_impl(p0)
 	}
-	return this.selfI_.breakDownDestructure_impl(p0)
+	return this.self_.breakDownDestructure_impl(p0)
 }
 
 // shouldPreserve: an object that is exactly a PotentialDeclaration_NameDeclaration calls its shouldPreserve_impl directly (post-flip); others dispatch.
@@ -837,7 +828,7 @@ func (this *PotentialDeclaration_NameDeclaration) shouldPreserve() bool {
 	if this.self_ == any(this) {
 		return this.shouldPreserve_impl()
 	}
-	return this.selfI_.shouldPreserve_impl()
+	return this.self_.shouldPreserve_impl()
 }
 
 // simplify: an object that is exactly a PotentialDeclaration_ThisPropDeclaration calls its simplify_impl directly (post-flip); others dispatch.
@@ -846,7 +837,7 @@ func (this *PotentialDeclaration_ThisPropDeclaration) simplify(p0 *AbstractCompi
 		this.simplify_impl(p0)
 		return
 	}
-	this.selfI_.simplify_impl(p0)
+	this.self_.simplify_impl(p0)
 }
 
 // simplify: an object that is exactly a PotentialDeclaration_DefineDeclaration calls its simplify_impl directly (post-flip); others dispatch.
@@ -855,7 +846,7 @@ func (this *PotentialDeclaration_DefineDeclaration) simplify(p0 *AbstractCompile
 		this.simplify_impl(p0)
 		return
 	}
-	this.selfI_.simplify_impl(p0)
+	this.self_.simplify_impl(p0)
 }
 
 // simplify: an object that is exactly a PotentialDeclaration_MethodDeclaration calls its simplify_impl directly (post-flip); others dispatch.
@@ -864,7 +855,7 @@ func (this *PotentialDeclaration_MethodDeclaration) simplify(p0 *AbstractCompile
 		this.simplify_impl(p0)
 		return
 	}
-	this.selfI_.simplify_impl(p0)
+	this.self_.simplify_impl(p0)
 }
 
 // getRemovableNode: an object that is exactly a PotentialDeclaration_MethodDeclaration calls its getRemovableNode_impl directly (post-flip); others dispatch.
@@ -872,7 +863,7 @@ func (this *PotentialDeclaration_MethodDeclaration) getRemovableNode() Node {
 	if this.self_ == any(this) {
 		return this.getRemovableNode_impl()
 	}
-	return this.selfI_.getRemovableNode_impl()
+	return this.self_.getRemovableNode_impl()
 }
 
 // simplify: an object that is exactly a PotentialDeclaration_MemberFieldDeclaration calls its simplify_impl directly (post-flip); others dispatch.
@@ -881,7 +872,7 @@ func (this *PotentialDeclaration_MemberFieldDeclaration) simplify(p0 *AbstractCo
 		this.simplify_impl(p0)
 		return
 	}
-	this.selfI_.simplify_impl(p0)
+	this.self_.simplify_impl(p0)
 }
 
 // getRemovableNode: an object that is exactly a PotentialDeclaration_MemberFieldDeclaration calls its getRemovableNode_impl directly (post-flip); others dispatch.
@@ -889,7 +880,7 @@ func (this *PotentialDeclaration_MemberFieldDeclaration) getRemovableNode() Node
 	if this.self_ == any(this) {
 		return this.getRemovableNode_impl()
 	}
-	return this.selfI_.getRemovableNode_impl()
+	return this.self_.getRemovableNode_impl()
 }
 
 // simplify: an object that is exactly a PotentialDeclaration_StringKeyDeclaration calls its simplify_impl directly (post-flip); others dispatch.
@@ -898,7 +889,7 @@ func (this *PotentialDeclaration_StringKeyDeclaration) simplify(p0 *AbstractComp
 		this.simplify_impl(p0)
 		return
 	}
-	this.selfI_.simplify_impl(p0)
+	this.self_.simplify_impl(p0)
 }
 
 // shouldPreserve: an object that is exactly a PotentialDeclaration_StringKeyDeclaration calls its shouldPreserve_impl directly (post-flip); others dispatch.
@@ -906,7 +897,7 @@ func (this *PotentialDeclaration_StringKeyDeclaration) shouldPreserve() bool {
 	if this.self_ == any(this) {
 		return this.shouldPreserve_impl()
 	}
-	return this.selfI_.shouldPreserve_impl()
+	return this.self_.shouldPreserve_impl()
 }
 
 // getRemovableNode: an object that is exactly a PotentialDeclaration_StringKeyDeclaration calls its getRemovableNode_impl directly (post-flip); others dispatch.
@@ -914,7 +905,7 @@ func (this *PotentialDeclaration_StringKeyDeclaration) getRemovableNode() Node {
 	if this.self_ == any(this) {
 		return this.getRemovableNode_impl()
 	}
-	return this.selfI_.getRemovableNode_impl()
+	return this.self_.getRemovableNode_impl()
 }
 
 // simplify: an object that is exactly a PotentialDeclaration_PolymerBehaviorPropertiesDeclaration calls its simplify_impl directly (post-flip); others dispatch.
@@ -923,7 +914,7 @@ func (this *PotentialDeclaration_PolymerBehaviorPropertiesDeclaration) simplify(
 		this.simplify_impl(p0)
 		return
 	}
-	this.selfI_.simplify_impl(p0)
+	this.self_.simplify_impl(p0)
 }
 
 // shouldPreserve: an object that is exactly a PotentialDeclaration_PolymerBehaviorPropertiesDeclaration calls its shouldPreserve_impl directly (post-flip); others dispatch.
@@ -931,7 +922,7 @@ func (this *PotentialDeclaration_PolymerBehaviorPropertiesDeclaration) shouldPre
 	if this.self_ == any(this) {
 		return this.shouldPreserve_impl()
 	}
-	return this.selfI_.shouldPreserve_impl()
+	return this.self_.shouldPreserve_impl()
 }
 
 // getRemovableNode: an object that is exactly a PotentialDeclaration_PolymerBehaviorPropertiesDeclaration calls its getRemovableNode_impl directly (post-flip); others dispatch.
@@ -939,7 +930,7 @@ func (this *PotentialDeclaration_PolymerBehaviorPropertiesDeclaration) getRemova
 	if this.self_ == any(this) {
 		return this.getRemovableNode_impl()
 	}
-	return this.selfI_.getRemovableNode_impl()
+	return this.self_.getRemovableNode_impl()
 }
 
 // simplify: an object that is exactly a PotentialDeclaration_AliasDeclaration calls its simplify_impl directly (post-flip); others dispatch.
@@ -948,7 +939,7 @@ func (this *PotentialDeclaration_AliasDeclaration) simplify(p0 *AbstractCompiler
 		this.simplify_impl(p0)
 		return
 	}
-	this.selfI_.simplify_impl(p0)
+	this.self_.simplify_impl(p0)
 }
 
 // getRemovableNode: an object that is exactly a PotentialDeclaration_AliasDeclaration calls its getRemovableNode_impl directly (post-flip); others dispatch.
@@ -956,7 +947,7 @@ func (this *PotentialDeclaration_AliasDeclaration) getRemovableNode() Node {
 	if this.self_ == any(this) {
 		return this.getRemovableNode_impl()
 	}
-	return this.selfI_.getRemovableNode_impl()
+	return this.self_.getRemovableNode_impl()
 }
 
 // isDefiniteDeclaration: an object that is exactly a PotentialDeclaration_AliasDeclaration calls its isDefiniteDeclaration_impl directly (post-flip); others dispatch.
@@ -964,7 +955,7 @@ func (this *PotentialDeclaration_AliasDeclaration) isDefiniteDeclaration(p0 *Abs
 	if this.self_ == any(this) {
 		return this.isDefiniteDeclaration_impl(p0)
 	}
-	return this.selfI_.isDefiniteDeclaration_impl(p0)
+	return this.self_.isDefiniteDeclaration_impl(p0)
 }
 
 // shouldPreserve: an object that is exactly a PotentialDeclaration_AliasDeclaration calls its shouldPreserve_impl directly (post-flip); others dispatch.
@@ -972,5 +963,5 @@ func (this *PotentialDeclaration_AliasDeclaration) shouldPreserve() bool {
 	if this.self_ == any(this) {
 		return this.shouldPreserve_impl()
 	}
-	return this.selfI_.shouldPreserve_impl()
+	return this.self_.shouldPreserve_impl()
 }

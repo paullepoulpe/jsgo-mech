@@ -32,7 +32,6 @@ func (this *NoResolvedType) init_NoResolvedType(registry *JSTypeRegistry, refere
 func new_NoResolvedType(registry *JSTypeRegistry, referenceName string, templateTypes ImmutableListOf[*JSType]) *NoResolvedType {
 	this := &NoResolvedType{}
 	this.self_ = this
-	this.selfI_ = this
 	this.init_NoResolvedType(registry, referenceName, templateTypes)
 	return this
 }
@@ -95,7 +94,7 @@ func (this *NoResolvedType) getTypeClass() *JSTypeClass {
 	if this.self_ == any(this) {
 		return this.getTypeClass_impl()
 	}
-	return this.selfI_.getTypeClass_impl()
+	return this.self_.getTypeClass_impl()
 }
 
 // getReferenceName: an object that is exactly a NoResolvedType calls its getReferenceName_impl directly (post-flip); others dispatch.
@@ -119,7 +118,7 @@ func (this *NoResolvedType) isNoResolvedType() bool {
 	if this.self_ == any(this) {
 		return this.isNoResolvedType_impl()
 	}
-	return this.selfI_.isNoResolvedType_impl()
+	return this.self_.isNoResolvedType_impl()
 }
 
 // getPossibleToBooleanOutcomes: an object that is exactly a NoResolvedType calls its getPossibleToBooleanOutcomes_impl directly (post-flip); others dispatch.
@@ -127,7 +126,7 @@ func (this *NoResolvedType) getPossibleToBooleanOutcomes() *BooleanLiteralSet {
 	if this.self_ == any(this) {
 		return this.getPossibleToBooleanOutcomes_impl()
 	}
-	return this.selfI_.getPossibleToBooleanOutcomes_impl()
+	return this.self_.getPossibleToBooleanOutcomes_impl()
 }
 
 // testForEquality: an object that is exactly a NoResolvedType calls its testForEquality_impl directly (post-flip); others dispatch.
@@ -135,7 +134,7 @@ func (this *NoResolvedType) testForEquality(p0 *JSType) *Tri {
 	if this.self_ == any(this) {
 		return this.testForEquality_impl(p0)
 	}
-	return this.selfI_.testForEquality_impl(p0)
+	return this.self_.testForEquality_impl(p0)
 }
 
 // resolveInternal: an object that is exactly a NoResolvedType calls its resolveInternal_impl directly (post-flip); others dispatch.
@@ -143,7 +142,7 @@ func (this *NoResolvedType) resolveInternal(p0 ErrorReporter_rhino) *JSType {
 	if this.self_ == any(this) {
 		return this.resolveInternal_impl(p0)
 	}
-	return this.selfI_.resolveInternal_impl(p0)
+	return this.self_.resolveInternal_impl(p0)
 }
 
 // getConstructor: an object that is exactly a NoResolvedType calls its getConstructor_impl directly (post-flip); others dispatch.
@@ -167,7 +166,7 @@ func (this *NoResolvedType) recursionUnsafeHashCode() int32 {
 	if this.self_ == any(this) {
 		return this.recursionUnsafeHashCode_impl()
 	}
-	return this.selfI_.recursionUnsafeHashCode_impl()
+	return this.self_.recursionUnsafeHashCode_impl()
 }
 
 // defineProperty: an object that is exactly a NoResolvedType calls its defineProperty_impl directly (post-flip); others dispatch.
@@ -186,5 +185,5 @@ func (this *NoResolvedType) appendTo(p0 *TypeStringBuilder) {
 		this.appendTo_impl(p0)
 		return
 	}
-	this.selfI_.appendTo_impl(p0)
+	this.self_.appendTo_impl(p0)
 }

@@ -94,7 +94,6 @@ func (this *ScriptMetadata_FillerCallback) init_ScriptMetadata_FillerCallback(to
 func new_ScriptMetadata_FillerCallback(toFill *ScriptMetadata) *ScriptMetadata_FillerCallback {
 	this := &ScriptMetadata_FillerCallback{}
 	this.self_ = this
-	this.selfI_ = this
 	this.init_ScriptMetadata_FillerCallback(toFill)
 	return this
 }
@@ -193,5 +192,5 @@ func (this *ScriptMetadata_FillerCallback) visit(p0 *NodeTraversal, p1 Node, p2 
 		this.visit_impl(p0, p1, p2)
 		return
 	}
-	this.selfI_.visit_impl(p0, p1, p2)
+	this.self_.visit_impl(p0, p1, p2)
 }

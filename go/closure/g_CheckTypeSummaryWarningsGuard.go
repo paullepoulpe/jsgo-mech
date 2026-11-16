@@ -22,7 +22,6 @@ func (this *CheckTypeSummaryWarningsGuard) init_CheckTypeSummaryWarningsGuard(le
 func new_CheckTypeSummaryWarningsGuard(level *CheckLevel) *CheckTypeSummaryWarningsGuard {
 	this := &CheckTypeSummaryWarningsGuard{}
 	this.self_ = this
-	this.selfI_ = this
 	this.init_CheckTypeSummaryWarningsGuard(level)
 	return this
 }
@@ -55,7 +54,7 @@ func (this *CheckTypeSummaryWarningsGuard) level(p0 *JSError) *CheckLevel {
 	if this.self_ == any(this) {
 		return this.level_impl(p0)
 	}
-	return this.selfI_.level_impl(p0)
+	return this.self_.level_impl(p0)
 }
 
 // getPriority: an object that is exactly a CheckTypeSummaryWarningsGuard calls its getPriority_impl directly (post-flip); others dispatch.
@@ -63,5 +62,5 @@ func (this *CheckTypeSummaryWarningsGuard) getPriority() int32 {
 	if this.self_ == any(this) {
 		return this.getPriority_impl()
 	}
-	return this.selfI_.getPriority_impl()
+	return this.self_.getPriority_impl()
 }

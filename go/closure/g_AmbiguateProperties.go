@@ -311,7 +311,6 @@ func (this *AmbiguateProperties_ProcessPropertiesAndConstructors) init_Ambiguate
 func new_AmbiguateProperties_ProcessPropertiesAndConstructors(outer_ *AmbiguateProperties) *AmbiguateProperties_ProcessPropertiesAndConstructors {
 	this := &AmbiguateProperties_ProcessPropertiesAndConstructors{}
 	this.self_ = this
-	this.selfI_ = this
 	this.outer_ = outer_
 	this.init_AmbiguateProperties_ProcessPropertiesAndConstructors()
 	return this
@@ -533,5 +532,5 @@ func (this *AmbiguateProperties_ProcessPropertiesAndConstructors) visit(p0 *Node
 		this.visit_impl(p0, p1, p2)
 		return
 	}
-	this.selfI_.visit_impl(p0, p1, p2)
+	this.self_.visit_impl(p0, p1, p2)
 }

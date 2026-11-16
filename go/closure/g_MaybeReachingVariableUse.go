@@ -24,7 +24,6 @@ func (this *MaybeReachingVariableUse) init_MaybeReachingVariableUse(cfg *Control
 func new_MaybeReachingVariableUse(cfg *ControlFlowGraph, escaped SetOf[*Var], allVarsInFn *TMap[string, *Var]) *MaybeReachingVariableUse {
 	this := &MaybeReachingVariableUse{}
 	this.self_ = this
-	this.selfI_ = this
 	this.init_MaybeReachingVariableUse(cfg, escaped, allVarsInFn)
 	return this
 }
@@ -338,7 +337,7 @@ func (this *MaybeReachingVariableUse) isForward() bool {
 	if this.self_ == any(this) {
 		return this.isForward_impl()
 	}
-	return this.selfI_.isForward_impl()
+	return this.self_.isForward_impl()
 }
 
 // createEntryLattice: an object that is exactly a MaybeReachingVariableUse calls its createEntryLattice_impl directly (post-flip); others dispatch.
@@ -346,7 +345,7 @@ func (this *MaybeReachingVariableUse) createEntryLattice() LatticeElement {
 	if this.self_ == any(this) {
 		return this.createEntryLattice_impl()
 	}
-	return this.selfI_.createEntryLattice_impl()
+	return this.self_.createEntryLattice_impl()
 }
 
 // createInitialEstimateLattice: an object that is exactly a MaybeReachingVariableUse calls its createInitialEstimateLattice_impl directly (post-flip); others dispatch.
@@ -354,7 +353,7 @@ func (this *MaybeReachingVariableUse) createInitialEstimateLattice() LatticeElem
 	if this.self_ == any(this) {
 		return this.createInitialEstimateLattice_impl()
 	}
-	return this.selfI_.createInitialEstimateLattice_impl()
+	return this.self_.createInitialEstimateLattice_impl()
 }
 
 // createFlowJoiner: an object that is exactly a MaybeReachingVariableUse calls its createFlowJoiner_impl directly (post-flip); others dispatch.
@@ -362,7 +361,7 @@ func (this *MaybeReachingVariableUse) createFlowJoiner() DataFlowAnalysis_FlowJo
 	if this.self_ == any(this) {
 		return this.createFlowJoiner_impl()
 	}
-	return this.selfI_.createFlowJoiner_impl()
+	return this.self_.createFlowJoiner_impl()
 }
 
 // flowThrough: an object that is exactly a MaybeReachingVariableUse calls its flowThrough_impl directly (post-flip); others dispatch.
@@ -370,5 +369,5 @@ func (this *MaybeReachingVariableUse) flowThrough(p0 any, p1 LatticeElement) Lat
 	if this.self_ == any(this) {
 		return this.flowThrough_impl(p0, p1)
 	}
-	return this.selfI_.flowThrough_impl(p0, p1)
+	return this.self_.flowThrough_impl(p0, p1)
 }

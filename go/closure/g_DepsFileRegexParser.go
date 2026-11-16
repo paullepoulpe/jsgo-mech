@@ -29,7 +29,6 @@ func (this *DepsFileRegexParser) init_DepsFileRegexParser_ErrorManager(errorMana
 func new_DepsFileRegexParser_ErrorManager(errorManager ErrorManager) *DepsFileRegexParser {
 	this := &DepsFileRegexParser{}
 	this.self_ = this
-	this.selfI_ = this
 	this.init_DepsFileRegexParser_ErrorManager(errorManager)
 	return this
 }
@@ -43,7 +42,6 @@ func (this *DepsFileRegexParser) init_DepsFileRegexParser_Function_ErrorManager(
 func new_DepsFileRegexParser_Function_ErrorManager(pathTranslator Function_baseOf[string, string], errorManager ErrorManager) *DepsFileRegexParser {
 	this := &DepsFileRegexParser{}
 	this.self_ = this
-	this.selfI_ = this
 	this.init_DepsFileRegexParser_Function_ErrorManager(pathTranslator, errorManager)
 	return this
 }
@@ -148,5 +146,5 @@ func (this *DepsFileRegexParser) parseLine(p0 string) *Outcome_base {
 	if this.self_ == any(this) {
 		return this.parseLine_impl(p0)
 	}
-	return this.selfI_.parseLine_impl(p0)
+	return this.self_.parseLine_impl(p0)
 }

@@ -23,7 +23,6 @@ func (this *CollapseAnonymousFunctions) init_CollapseAnonymousFunctions(compiler
 func new_CollapseAnonymousFunctions(compiler *AbstractCompiler) *CollapseAnonymousFunctions {
 	this := &CollapseAnonymousFunctions{}
 	this.self_ = this
-	this.selfI_ = this
 	this.init_CollapseAnonymousFunctions(compiler)
 	return this
 }
@@ -93,5 +92,5 @@ func (this *CollapseAnonymousFunctions) visit(p0 *NodeTraversal, p1 Node, p2 Nod
 		this.visit_impl(p0, p1, p2)
 		return
 	}
-	this.selfI_.visit_impl(p0, p1, p2)
+	this.self_.visit_impl(p0, p1, p2)
 }

@@ -27,7 +27,6 @@ func (this *StringType) init_StringType(registry *JSTypeRegistry) {
 func new_StringType(registry *JSTypeRegistry) *StringType {
 	this := &StringType{}
 	this.self_ = this
-	this.selfI_ = this
 	this.init_StringType(registry)
 	return this
 }
@@ -84,7 +83,7 @@ func (this *StringType) getTypeClass() *JSTypeClass {
 	if this.self_ == any(this) {
 		return this.getTypeClass_impl()
 	}
-	return this.selfI_.getTypeClass_impl()
+	return this.self_.getTypeClass_impl()
 }
 
 // testForEquality: an object that is exactly a StringType calls its testForEquality_impl directly (post-flip); others dispatch.
@@ -92,7 +91,7 @@ func (this *StringType) testForEquality(p0 *JSType) *Tri {
 	if this.self_ == any(this) {
 		return this.testForEquality_impl(p0)
 	}
-	return this.selfI_.testForEquality_impl(p0)
+	return this.self_.testForEquality_impl(p0)
 }
 
 // isStringValueType: an object that is exactly a StringType calls its isStringValueType_impl directly (post-flip); others dispatch.
@@ -100,7 +99,7 @@ func (this *StringType) isStringValueType() bool {
 	if this.self_ == any(this) {
 		return this.isStringValueType_impl()
 	}
-	return this.selfI_.isStringValueType_impl()
+	return this.self_.isStringValueType_impl()
 }
 
 // matchesNumberContext: an object that is exactly a StringType calls its matchesNumberContext_impl directly (post-flip); others dispatch.
@@ -108,7 +107,7 @@ func (this *StringType) matchesNumberContext() bool {
 	if this.self_ == any(this) {
 		return this.matchesNumberContext_impl()
 	}
-	return this.selfI_.matchesNumberContext_impl()
+	return this.self_.matchesNumberContext_impl()
 }
 
 // matchesStringContext: an object that is exactly a StringType calls its matchesStringContext_impl directly (post-flip); others dispatch.
@@ -116,7 +115,7 @@ func (this *StringType) matchesStringContext() bool {
 	if this.self_ == any(this) {
 		return this.matchesStringContext_impl()
 	}
-	return this.selfI_.matchesStringContext_impl()
+	return this.self_.matchesStringContext_impl()
 }
 
 // matchesObjectContext: an object that is exactly a StringType calls its matchesObjectContext_impl directly (post-flip); others dispatch.
@@ -124,7 +123,7 @@ func (this *StringType) matchesObjectContext() bool {
 	if this.self_ == any(this) {
 		return this.matchesObjectContext_impl()
 	}
-	return this.selfI_.matchesObjectContext_impl()
+	return this.self_.matchesObjectContext_impl()
 }
 
 // getDisplayName: an object that is exactly a StringType calls its getDisplayName_impl directly (post-flip); others dispatch.
@@ -132,7 +131,7 @@ func (this *StringType) getDisplayName() Optional {
 	if this.self_ == any(this) {
 		return this.getDisplayName_impl()
 	}
-	return this.selfI_.getDisplayName_impl()
+	return this.self_.getDisplayName_impl()
 }
 
 // autoboxesTo: an object that is exactly a StringType calls its autoboxesTo_impl directly (post-flip); others dispatch.
@@ -140,7 +139,7 @@ func (this *StringType) autoboxesTo() *JSType {
 	if this.self_ == any(this) {
 		return this.autoboxesTo_impl()
 	}
-	return this.selfI_.autoboxesTo_impl()
+	return this.self_.autoboxesTo_impl()
 }
 
 // getPossibleToBooleanOutcomes: an object that is exactly a StringType calls its getPossibleToBooleanOutcomes_impl directly (post-flip); others dispatch.
@@ -148,7 +147,7 @@ func (this *StringType) getPossibleToBooleanOutcomes() *BooleanLiteralSet {
 	if this.self_ == any(this) {
 		return this.getPossibleToBooleanOutcomes_impl()
 	}
-	return this.selfI_.getPossibleToBooleanOutcomes_impl()
+	return this.self_.getPossibleToBooleanOutcomes_impl()
 }
 
 // visitUntyped: an object that is exactly a StringType calls its visitUntyped_impl directly (post-flip); others dispatch.
@@ -156,5 +155,5 @@ func (this *StringType) visitUntyped(p0 Visitor) any {
 	if this.self_ == any(this) {
 		return this.visitUntyped_impl(p0)
 	}
-	return this.selfI_.visitUntyped_impl(p0)
+	return this.self_.visitUntyped_impl(p0)
 }

@@ -32,7 +32,6 @@ func (this *CheckRegExp) init_CheckRegExp(compiler *AbstractCompiler, assumeAllG
 func new_CheckRegExp(compiler *AbstractCompiler, assumeAllGlobalRegexpUsagesVisible bool, reportErrors bool) *CheckRegExp {
 	this := &CheckRegExp{}
 	this.self_ = this
-	this.selfI_ = this
 	this.init_CheckRegExp(compiler, assumeAllGlobalRegexpUsagesVisible, reportErrors)
 	return this
 }
@@ -110,5 +109,5 @@ func (this *CheckRegExp) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
 		this.visit_impl(p0, p1, p2)
 		return
 	}
-	this.selfI_.visit_impl(p0, p1, p2)
+	this.self_.visit_impl(p0, p1, p2)
 }

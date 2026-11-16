@@ -3,14 +3,13 @@
 package closure
 
 type AbstractMessageFormatter struct {
-	self_    any
-	selfI_   AbstractMessageFormatter_I
+	self_    AbstractMessageFormatter_I
 	source   SourceExcerptProvider
 	colorize bool
 }
 
 // AbstractMessageFormatter_I holds the methods the dispatchers of AbstractMessageFormatter's hierarchy call on the most derived
-// object (selfI_, set with self_); every class of the hierarchy implements them (post-flip).
+// object (self_); every class of the hierarchy implements them (post-flip).
 type AbstractMessageFormatter_I interface {
 	formatError_impl(*JSError) string
 	formatWarning_impl(*JSError) string
@@ -88,11 +87,11 @@ func (this *AbstractMessageFormatter) maybeColorize(text string, color *Abstract
 }
 
 func (this *AbstractMessageFormatter) formatError(p0 *JSError) string {
-	return this.selfI_.formatError_impl(p0)
+	return this.self_.formatError_impl(p0)
 }
 
 func (this *AbstractMessageFormatter) formatWarning(p0 *JSError) string {
-	return this.selfI_.formatWarning_impl(p0)
+	return this.self_.formatWarning_impl(p0)
 }
 
 var AbstractMessageFormatter_SUPPORTED_COLOR_TERMINALS *ImmutableSet

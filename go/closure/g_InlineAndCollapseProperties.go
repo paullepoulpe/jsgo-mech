@@ -769,7 +769,6 @@ func (this *InlineAndCollapseProperties_RewriteSimpleDestructuringAliases) init_
 func new_InlineAndCollapseProperties_RewriteSimpleDestructuringAliases() *InlineAndCollapseProperties_RewriteSimpleDestructuringAliases {
 	this := &InlineAndCollapseProperties_RewriteSimpleDestructuringAliases{}
 	this.self_ = this
-	this.selfI_ = this
 	this.init_InlineAndCollapseProperties_RewriteSimpleDestructuringAliases()
 	return this
 }
@@ -1554,7 +1553,6 @@ func (this *InlineAndCollapseProperties_CollapseProperties_FindDynamicallyImport
 func new_InlineAndCollapseProperties_CollapseProperties_FindDynamicallyImportedModules(outer_ *InlineAndCollapseProperties_CollapseProperties, processCommonJSModules bool, resolutionMode *ModuleLoader_ResolutionMode) *InlineAndCollapseProperties_CollapseProperties_FindDynamicallyImportedModules {
 	this := &InlineAndCollapseProperties_CollapseProperties_FindDynamicallyImportedModules{}
 	this.self_ = this
-	this.selfI_ = this
 	this.outer_ = outer_
 	this.init_InlineAndCollapseProperties_CollapseProperties_FindDynamicallyImportedModules(processCommonJSModules, resolutionMode)
 	return this
@@ -1622,7 +1620,6 @@ func (this *InlineAndCollapseProperties_InlineAliases_AliasesCollector) init_Inl
 func new_InlineAndCollapseProperties_InlineAliases_AliasesCollector(outer_ *InlineAndCollapseProperties_InlineAliases) *InlineAndCollapseProperties_InlineAliases_AliasesCollector {
 	this := &InlineAndCollapseProperties_InlineAliases_AliasesCollector{}
 	this.self_ = this
-	this.selfI_ = this
 	this.outer_ = outer_
 	this.init_InlineAndCollapseProperties_InlineAliases_AliasesCollector()
 	return this
@@ -1681,7 +1678,6 @@ func (this *InlineAndCollapseProperties_InlineAliases_AliasesInliner) init_Inlin
 func new_InlineAndCollapseProperties_InlineAliases_AliasesInliner(outer_ *InlineAndCollapseProperties_InlineAliases) *InlineAndCollapseProperties_InlineAliases_AliasesInliner {
 	this := &InlineAndCollapseProperties_InlineAliases_AliasesInliner{}
 	this.self_ = this
-	this.selfI_ = this
 	this.outer_ = outer_
 	this.init_InlineAndCollapseProperties_InlineAliases_AliasesInliner()
 	return this
@@ -1738,7 +1734,7 @@ func (this *InlineAndCollapseProperties_RewriteSimpleDestructuringAliases) visit
 		this.visit_impl(p0, p1, p2)
 		return
 	}
-	this.selfI_.visit_impl(p0, p1, p2)
+	this.self_.visit_impl(p0, p1, p2)
 }
 
 // visit: an object that is exactly a InlineAndCollapseProperties_CollapseProperties_FindDynamicallyImportedModules calls its visit_impl directly (post-flip); others dispatch.
@@ -1747,7 +1743,7 @@ func (this *InlineAndCollapseProperties_CollapseProperties_FindDynamicallyImport
 		this.visit_impl(p0, p1, p2)
 		return
 	}
-	this.selfI_.visit_impl(p0, p1, p2)
+	this.self_.visit_impl(p0, p1, p2)
 }
 
 // visit: an object that is exactly a InlineAndCollapseProperties_InlineAliases_AliasesCollector calls its visit_impl directly (post-flip); others dispatch.
@@ -1756,7 +1752,7 @@ func (this *InlineAndCollapseProperties_InlineAliases_AliasesCollector) visit(p0
 		this.visit_impl(p0, p1, p2)
 		return
 	}
-	this.selfI_.visit_impl(p0, p1, p2)
+	this.self_.visit_impl(p0, p1, p2)
 }
 
 // visit: an object that is exactly a InlineAndCollapseProperties_InlineAliases_AliasesInliner calls its visit_impl directly (post-flip); others dispatch.
@@ -1765,5 +1761,5 @@ func (this *InlineAndCollapseProperties_InlineAliases_AliasesInliner) visit(p0 *
 		this.visit_impl(p0, p1, p2)
 		return
 	}
-	this.selfI_.visit_impl(p0, p1, p2)
+	this.self_.visit_impl(p0, p1, p2)
 }

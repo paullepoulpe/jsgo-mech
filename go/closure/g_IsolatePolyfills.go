@@ -219,7 +219,6 @@ func (this *IsolatePolyfills_1) init_IsolatePolyfills_1() {
 func new_IsolatePolyfills_1(outer_ *IsolatePolyfills, cap_actualPolyfills *ImmutableSet_Builder) *IsolatePolyfills_1 {
 	this := &IsolatePolyfills_1{}
 	this.self_ = this
-	this.selfI_ = this
 	this.outer_ = outer_
 	this.cap_actualPolyfills = cap_actualPolyfills
 	this.init_IsolatePolyfills_1()
@@ -239,5 +238,5 @@ func (this *IsolatePolyfills_1) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
 		this.visit_impl(p0, p1, p2)
 		return
 	}
-	this.selfI_.visit_impl(p0, p1, p2)
+	this.self_.visit_impl(p0, p1, p2)
 }

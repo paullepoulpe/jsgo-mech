@@ -367,7 +367,6 @@ func (this *VariableReferenceCheck_ReferenceCheckingBehavior_1) init_VariableRef
 func new_VariableReferenceCheck_ReferenceCheckingBehavior_1(outer_ *VariableReferenceCheck_ReferenceCheckingBehavior, cap_varsInFunctionBody *TSet[string], cap_scope *Scope) *VariableReferenceCheck_ReferenceCheckingBehavior_1 {
 	this := &VariableReferenceCheck_ReferenceCheckingBehavior_1{}
 	this.self_ = this
-	this.selfI_ = this
 	this.outer_ = outer_
 	this.cap_varsInFunctionBody = cap_varsInFunctionBody
 	this.cap_scope = cap_scope
@@ -391,5 +390,5 @@ func (this *VariableReferenceCheck_ReferenceCheckingBehavior_1) visit(p0 *NodeTr
 		this.visit_impl(p0, p1, p2)
 		return
 	}
-	this.selfI_.visit_impl(p0, p1, p2)
+	this.self_.visit_impl(p0, p1, p2)
 }

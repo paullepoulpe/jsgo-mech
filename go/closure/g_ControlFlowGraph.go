@@ -59,7 +59,6 @@ func (this *ControlFlowGraph) init_ControlFlowGraph(entry any, nodeAnnotations b
 func new_ControlFlowGraph(entry any, nodeAnnotations bool, edgeAnnotations bool) *ControlFlowGraph {
 	this := &ControlFlowGraph{}
 	this.self_ = this
-	this.selfI_ = this
 	this.init_ControlFlowGraph(entry, nodeAnnotations, edgeAnnotations)
 	return this
 }
@@ -181,12 +180,11 @@ func ControlFlowGraph_Branch_clinit() {
 }
 
 type ControlFlowGraph_AbstractCfgNodeTraversalCallback struct {
-	self_  any
-	selfI_ ControlFlowGraph_AbstractCfgNodeTraversalCallback_I
+	self_ ControlFlowGraph_AbstractCfgNodeTraversalCallback_I
 }
 
 // ControlFlowGraph_AbstractCfgNodeTraversalCallback_I holds the methods the dispatchers of ControlFlowGraph_AbstractCfgNodeTraversalCallback's hierarchy call on the most derived
-// object (selfI_, set with self_); every class of the hierarchy implements them (post-flip).
+// object (self_); every class of the hierarchy implements them (post-flip).
 type ControlFlowGraph_AbstractCfgNodeTraversalCallback_I interface {
 	visit_impl(*NodeTraversal, Node, Node)
 }
@@ -230,5 +228,5 @@ func (this *ControlFlowGraph_AbstractCfgNodeTraversalCallback) shouldTraverse(no
 }
 
 func (this *ControlFlowGraph_AbstractCfgNodeTraversalCallback) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
-	this.selfI_.visit_impl(p0, p1, p2)
+	this.self_.visit_impl(p0, p1, p2)
 }

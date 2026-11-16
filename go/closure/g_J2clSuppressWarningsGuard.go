@@ -20,7 +20,6 @@ func (this *J2clSuppressWarningsGuard) init_J2clSuppressWarningsGuard() {
 func new_J2clSuppressWarningsGuard() *J2clSuppressWarningsGuard {
 	this := &J2clSuppressWarningsGuard{}
 	this.self_ = this
-	this.selfI_ = this
 	this.init_J2clSuppressWarningsGuard()
 	return this
 }
@@ -62,7 +61,7 @@ func (this *J2clSuppressWarningsGuard) level(p0 *JSError) *CheckLevel {
 	if this.self_ == any(this) {
 		return this.level_impl(p0)
 	}
-	return this.selfI_.level_impl(p0)
+	return this.self_.level_impl(p0)
 }
 
 // getPriority: an object that is exactly a J2clSuppressWarningsGuard calls its getPriority_impl directly (post-flip); others dispatch.
@@ -70,5 +69,5 @@ func (this *J2clSuppressWarningsGuard) getPriority() int32 {
 	if this.self_ == any(this) {
 		return this.getPriority_impl()
 	}
-	return this.selfI_.getPriority_impl()
+	return this.self_.getPriority_impl()
 }

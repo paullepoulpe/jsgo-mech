@@ -30,7 +30,6 @@ func (this *LightweightMessageFormatter) init_LightweightMessageFormatter_0() {
 func new_LightweightMessageFormatter_0() *LightweightMessageFormatter {
 	this := &LightweightMessageFormatter{}
 	this.self_ = this
-	this.selfI_ = this
 	this.init_LightweightMessageFormatter_0()
 	return this
 }
@@ -42,7 +41,6 @@ func (this *LightweightMessageFormatter) init_LightweightMessageFormatter_Source
 func new_LightweightMessageFormatter_SourceExcerptProvider(source SourceExcerptProvider) *LightweightMessageFormatter {
 	this := &LightweightMessageFormatter{}
 	this.self_ = this
-	this.selfI_ = this
 	this.init_LightweightMessageFormatter_SourceExcerptProvider(source)
 	return this
 }
@@ -57,7 +55,6 @@ func (this *LightweightMessageFormatter) init_LightweightMessageFormatter_Source
 func new_LightweightMessageFormatter_SourceExcerptProvider_SourceExcerpt(source SourceExcerptProvider, defaultFormat *SourceExcerptProvider_SourceExcerpt) *LightweightMessageFormatter {
 	this := &LightweightMessageFormatter{}
 	this.self_ = this
-	this.selfI_ = this
 	this.init_LightweightMessageFormatter_SourceExcerptProvider_SourceExcerpt(source, defaultFormat)
 	return this
 }
@@ -342,7 +339,7 @@ func (this *LightweightMessageFormatter) formatError(p0 *JSError) string {
 	if this.self_ == any(this) {
 		return this.formatError_impl(p0)
 	}
-	return this.selfI_.formatError_impl(p0)
+	return this.self_.formatError_impl(p0)
 }
 
 // formatWarning: an object that is exactly a LightweightMessageFormatter calls its formatWarning_impl directly (post-flip); others dispatch.
@@ -350,5 +347,5 @@ func (this *LightweightMessageFormatter) formatWarning(p0 *JSError) string {
 	if this.self_ == any(this) {
 		return this.formatWarning_impl(p0)
 	}
-	return this.selfI_.formatWarning_impl(p0)
+	return this.self_.formatWarning_impl(p0)
 }

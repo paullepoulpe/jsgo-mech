@@ -288,7 +288,6 @@ func (this *ProcessTweaks_CollectTweaks) init_ProcessTweaks_CollectTweaks() {
 func new_ProcessTweaks_CollectTweaks(outer_ *ProcessTweaks) *ProcessTweaks_CollectTweaks {
 	this := &ProcessTweaks_CollectTweaks{}
 	this.self_ = this
-	this.selfI_ = this
 	this.outer_ = outer_
 	this.init_ProcessTweaks_CollectTweaks()
 	return this
@@ -438,5 +437,5 @@ func (this *ProcessTweaks_CollectTweaks) visit(p0 *NodeTraversal, p1 Node, p2 No
 		this.visit_impl(p0, p1, p2)
 		return
 	}
-	this.selfI_.visit_impl(p0, p1, p2)
+	this.self_.visit_impl(p0, p1, p2)
 }

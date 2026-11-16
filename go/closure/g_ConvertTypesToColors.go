@@ -89,7 +89,6 @@ func (this *ConvertTypesToColors_RemoveTypes) init_ConvertTypesToColors_RemoveTy
 func new_ConvertTypesToColors_RemoveTypes() *ConvertTypesToColors_RemoveTypes {
 	this := &ConvertTypesToColors_RemoveTypes{}
 	this.self_ = this
-	this.selfI_ = this
 	this.init_ConvertTypesToColors_RemoveTypes()
 	return this
 }
@@ -134,7 +133,6 @@ func (this *ConvertTypesToColors_RemoveTypesAndApplyColors) init_ConvertTypesToC
 func new_ConvertTypesToColors_RemoveTypesAndApplyColors(colorPoolShard *ColorPool_ShardView, typePointersByJstype *LinkedIdentityHashMap) *ConvertTypesToColors_RemoveTypesAndApplyColors {
 	this := &ConvertTypesToColors_RemoveTypesAndApplyColors{}
 	this.self_ = this
-	this.selfI_ = this
 	this.init_ConvertTypesToColors_RemoveTypesAndApplyColors(colorPoolShard, typePointersByJstype)
 	return this
 }
@@ -160,7 +158,7 @@ func (this *ConvertTypesToColors_RemoveTypes) visit(p0 *NodeTraversal, p1 Node, 
 		this.visit_impl(p0, p1, p2)
 		return
 	}
-	this.selfI_.visit_impl(p0, p1, p2)
+	this.self_.visit_impl(p0, p1, p2)
 }
 
 // visit: an object that is exactly a ConvertTypesToColors_RemoveTypesAndApplyColors calls its visit_impl directly (post-flip); others dispatch.
@@ -169,5 +167,5 @@ func (this *ConvertTypesToColors_RemoveTypesAndApplyColors) visit(p0 *NodeTraver
 		this.visit_impl(p0, p1, p2)
 		return
 	}
-	this.selfI_.visit_impl(p0, p1, p2)
+	this.self_.visit_impl(p0, p1, p2)
 }

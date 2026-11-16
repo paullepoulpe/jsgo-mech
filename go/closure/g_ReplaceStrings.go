@@ -44,7 +44,6 @@ func (this *ReplaceStrings) init_ReplaceStrings(compiler *AbstractCompiler, plac
 func new_ReplaceStrings(compiler *AbstractCompiler, placeholderToken string, functionsToInspect *TList[string]) *ReplaceStrings {
 	this := &ReplaceStrings{}
 	this.self_ = this
-	this.selfI_ = this
 	this.zero_ReplaceStrings()
 	this.init_ReplaceStrings(compiler, placeholderToken, functionsToInspect)
 	return this
@@ -369,5 +368,5 @@ func (this *ReplaceStrings) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
 		this.visit_impl(p0, p1, p2)
 		return
 	}
-	this.selfI_.visit_impl(p0, p1, p2)
+	this.self_.visit_impl(p0, p1, p2)
 }

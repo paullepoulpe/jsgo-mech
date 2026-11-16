@@ -30,7 +30,6 @@ func (this *UnionType) init_UnionType(builder *UnionType_Builder) {
 func new_UnionType(builder *UnionType_Builder) *UnionType {
 	this := &UnionType{}
 	this.self_ = this
-	this.selfI_ = this
 	this.init_UnionType(builder)
 	return this
 }
@@ -646,7 +645,7 @@ func (this *UnionType) getTypeClass() *JSTypeClass {
 	if this.self_ == any(this) {
 		return this.getTypeClass_impl()
 	}
-	return this.selfI_.getTypeClass_impl()
+	return this.self_.getTypeClass_impl()
 }
 
 // matchesNumberContext: an object that is exactly a UnionType calls its matchesNumberContext_impl directly (post-flip); others dispatch.
@@ -654,7 +653,7 @@ func (this *UnionType) matchesNumberContext() bool {
 	if this.self_ == any(this) {
 		return this.matchesNumberContext_impl()
 	}
-	return this.selfI_.matchesNumberContext_impl()
+	return this.self_.matchesNumberContext_impl()
 }
 
 // matchesStringContext: an object that is exactly a UnionType calls its matchesStringContext_impl directly (post-flip); others dispatch.
@@ -662,7 +661,7 @@ func (this *UnionType) matchesStringContext() bool {
 	if this.self_ == any(this) {
 		return this.matchesStringContext_impl()
 	}
-	return this.selfI_.matchesStringContext_impl()
+	return this.self_.matchesStringContext_impl()
 }
 
 // matchesSymbolContext: an object that is exactly a UnionType calls its matchesSymbolContext_impl directly (post-flip); others dispatch.
@@ -670,7 +669,7 @@ func (this *UnionType) matchesSymbolContext() bool {
 	if this.self_ == any(this) {
 		return this.matchesSymbolContext_impl()
 	}
-	return this.selfI_.matchesSymbolContext_impl()
+	return this.self_.matchesSymbolContext_impl()
 }
 
 // matchesObjectContext: an object that is exactly a UnionType calls its matchesObjectContext_impl directly (post-flip); others dispatch.
@@ -678,7 +677,7 @@ func (this *UnionType) matchesObjectContext() bool {
 	if this.self_ == any(this) {
 		return this.matchesObjectContext_impl()
 	}
-	return this.selfI_.matchesObjectContext_impl()
+	return this.self_.matchesObjectContext_impl()
 }
 
 // findPropertyTypeWithoutConsideringTemplateTypes: an object that is exactly a UnionType calls its findPropertyTypeWithoutConsideringTemplateTypes_impl directly (post-flip); others dispatch.
@@ -686,7 +685,7 @@ func (this *UnionType) findPropertyTypeWithoutConsideringTemplateTypes(p0 Proper
 	if this.self_ == any(this) {
 		return this.findPropertyTypeWithoutConsideringTemplateTypes_impl(p0)
 	}
-	return this.selfI_.findPropertyTypeWithoutConsideringTemplateTypes_impl(p0)
+	return this.self_.findPropertyTypeWithoutConsideringTemplateTypes_impl(p0)
 }
 
 // canBeCalled: an object that is exactly a UnionType calls its canBeCalled_impl directly (post-flip); others dispatch.
@@ -694,7 +693,7 @@ func (this *UnionType) canBeCalled() bool {
 	if this.self_ == any(this) {
 		return this.canBeCalled_impl()
 	}
-	return this.selfI_.canBeCalled_impl()
+	return this.self_.canBeCalled_impl()
 }
 
 // autobox: an object that is exactly a UnionType calls its autobox_impl directly (post-flip); others dispatch.
@@ -702,7 +701,7 @@ func (this *UnionType) autobox() *JSType {
 	if this.self_ == any(this) {
 		return this.autobox_impl()
 	}
-	return this.selfI_.autobox_impl()
+	return this.self_.autobox_impl()
 }
 
 // restrictByNotNullOrUndefined: an object that is exactly a UnionType calls its restrictByNotNullOrUndefined_impl directly (post-flip); others dispatch.
@@ -710,7 +709,7 @@ func (this *UnionType) restrictByNotNullOrUndefined() *JSType {
 	if this.self_ == any(this) {
 		return this.restrictByNotNullOrUndefined_impl()
 	}
-	return this.selfI_.restrictByNotNullOrUndefined_impl()
+	return this.self_.restrictByNotNullOrUndefined_impl()
 }
 
 // restrictByNotUndefined: an object that is exactly a UnionType calls its restrictByNotUndefined_impl directly (post-flip); others dispatch.
@@ -718,7 +717,7 @@ func (this *UnionType) restrictByNotUndefined() *JSType {
 	if this.self_ == any(this) {
 		return this.restrictByNotUndefined_impl()
 	}
-	return this.selfI_.restrictByNotUndefined_impl()
+	return this.self_.restrictByNotUndefined_impl()
 }
 
 // restrictByNotNull: an object that is exactly a UnionType calls its restrictByNotNull_impl directly (post-flip); others dispatch.
@@ -726,7 +725,7 @@ func (this *UnionType) restrictByNotNull() *JSType {
 	if this.self_ == any(this) {
 		return this.restrictByNotNull_impl()
 	}
-	return this.selfI_.restrictByNotNull_impl()
+	return this.self_.restrictByNotNull_impl()
 }
 
 // testForEquality: an object that is exactly a UnionType calls its testForEquality_impl directly (post-flip); others dispatch.
@@ -734,7 +733,7 @@ func (this *UnionType) testForEquality(p0 *JSType) *Tri {
 	if this.self_ == any(this) {
 		return this.testForEquality_impl(p0)
 	}
-	return this.selfI_.testForEquality_impl(p0)
+	return this.self_.testForEquality_impl(p0)
 }
 
 // isNullable: an object that is exactly a UnionType calls its isNullable_impl directly (post-flip); others dispatch.
@@ -742,7 +741,7 @@ func (this *UnionType) isNullable() bool {
 	if this.self_ == any(this) {
 		return this.isNullable_impl()
 	}
-	return this.selfI_.isNullable_impl()
+	return this.self_.isNullable_impl()
 }
 
 // isVoidable: an object that is exactly a UnionType calls its isVoidable_impl directly (post-flip); others dispatch.
@@ -750,7 +749,7 @@ func (this *UnionType) isVoidable() bool {
 	if this.self_ == any(this) {
 		return this.isVoidable_impl()
 	}
-	return this.selfI_.isVoidable_impl()
+	return this.self_.isVoidable_impl()
 }
 
 // isExplicitlyVoidable: an object that is exactly a UnionType calls its isExplicitlyVoidable_impl directly (post-flip); others dispatch.
@@ -758,7 +757,7 @@ func (this *UnionType) isExplicitlyVoidable() bool {
 	if this.self_ == any(this) {
 		return this.isExplicitlyVoidable_impl()
 	}
-	return this.selfI_.isExplicitlyVoidable_impl()
+	return this.self_.isExplicitlyVoidable_impl()
 }
 
 // isUnknownType: an object that is exactly a UnionType calls its isUnknownType_impl directly (post-flip); others dispatch.
@@ -766,7 +765,7 @@ func (this *UnionType) isUnknownType() bool {
 	if this.self_ == any(this) {
 		return this.isUnknownType_impl()
 	}
-	return this.selfI_.isUnknownType_impl()
+	return this.self_.isUnknownType_impl()
 }
 
 // isStruct: an object that is exactly a UnionType calls its isStruct_impl directly (post-flip); others dispatch.
@@ -774,7 +773,7 @@ func (this *UnionType) isStruct() bool {
 	if this.self_ == any(this) {
 		return this.isStruct_impl()
 	}
-	return this.selfI_.isStruct_impl()
+	return this.self_.isStruct_impl()
 }
 
 // isDict: an object that is exactly a UnionType calls its isDict_impl directly (post-flip); others dispatch.
@@ -782,7 +781,7 @@ func (this *UnionType) isDict() bool {
 	if this.self_ == any(this) {
 		return this.isDict_impl()
 	}
-	return this.selfI_.isDict_impl()
+	return this.self_.isDict_impl()
 }
 
 // getLeastSupertype: an object that is exactly a UnionType calls its getLeastSupertype_impl directly (post-flip); others dispatch.
@@ -790,7 +789,7 @@ func (this *UnionType) getLeastSupertype(p0 *JSType) *JSType {
 	if this.self_ == any(this) {
 		return this.getLeastSupertype_impl(p0)
 	}
-	return this.selfI_.getLeastSupertype_impl(p0)
+	return this.self_.getLeastSupertype_impl(p0)
 }
 
 // getPropertyKind_2: an object that is exactly a UnionType calls its getPropertyKind_2_impl directly (post-flip); others dispatch.
@@ -798,7 +797,7 @@ func (this *UnionType) getPropertyKind_2(p0 Property_Key, p1 bool) *JSType_HasPr
 	if this.self_ == any(this) {
 		return this.getPropertyKind_2_impl(p0, p1)
 	}
-	return this.selfI_.getPropertyKind_2_impl(p0, p1)
+	return this.self_.getPropertyKind_2_impl(p0, p1)
 }
 
 // recursionUnsafeHashCode: an object that is exactly a UnionType calls its recursionUnsafeHashCode_impl directly (post-flip); others dispatch.
@@ -806,7 +805,7 @@ func (this *UnionType) recursionUnsafeHashCode() int32 {
 	if this.self_ == any(this) {
 		return this.recursionUnsafeHashCode_impl()
 	}
-	return this.selfI_.recursionUnsafeHashCode_impl()
+	return this.self_.recursionUnsafeHashCode_impl()
 }
 
 // toMaybeUnionType: an object that is exactly a UnionType calls its toMaybeUnionType_impl directly (post-flip); others dispatch.
@@ -814,7 +813,7 @@ func (this *UnionType) toMaybeUnionType() *UnionType {
 	if this.self_ == any(this) {
 		return this.toMaybeUnionType_impl()
 	}
-	return this.selfI_.toMaybeUnionType_impl()
+	return this.self_.toMaybeUnionType_impl()
 }
 
 // isObject: an object that is exactly a UnionType calls its isObject_impl directly (post-flip); others dispatch.
@@ -822,7 +821,7 @@ func (this *UnionType) isObject() bool {
 	if this.self_ == any(this) {
 		return this.isObject_impl()
 	}
-	return this.selfI_.isObject_impl()
+	return this.self_.isObject_impl()
 }
 
 // appendTo: an object that is exactly a UnionType calls its appendTo_impl directly (post-flip); others dispatch.
@@ -831,7 +830,7 @@ func (this *UnionType) appendTo(p0 *TypeStringBuilder) {
 		this.appendTo_impl(p0)
 		return
 	}
-	this.selfI_.appendTo_impl(p0)
+	this.self_.appendTo_impl(p0)
 }
 
 // getRestrictedTypeGivenOutcome: an object that is exactly a UnionType calls its getRestrictedTypeGivenOutcome_impl directly (post-flip); others dispatch.
@@ -839,7 +838,7 @@ func (this *UnionType) getRestrictedTypeGivenOutcome(p0 *Outcome_rhino) *JSType 
 	if this.self_ == any(this) {
 		return this.getRestrictedTypeGivenOutcome_impl(p0)
 	}
-	return this.selfI_.getRestrictedTypeGivenOutcome_impl(p0)
+	return this.self_.getRestrictedTypeGivenOutcome_impl(p0)
 }
 
 // getPossibleToBooleanOutcomes: an object that is exactly a UnionType calls its getPossibleToBooleanOutcomes_impl directly (post-flip); others dispatch.
@@ -847,7 +846,7 @@ func (this *UnionType) getPossibleToBooleanOutcomes() *BooleanLiteralSet {
 	if this.self_ == any(this) {
 		return this.getPossibleToBooleanOutcomes_impl()
 	}
-	return this.selfI_.getPossibleToBooleanOutcomes_impl()
+	return this.self_.getPossibleToBooleanOutcomes_impl()
 }
 
 // getTypesUnderEquality: an object that is exactly a UnionType calls its getTypesUnderEquality_impl directly (post-flip); others dispatch.
@@ -855,7 +854,7 @@ func (this *UnionType) getTypesUnderEquality(p0 *JSType) *JSType_TypePair {
 	if this.self_ == any(this) {
 		return this.getTypesUnderEquality_impl(p0)
 	}
-	return this.selfI_.getTypesUnderEquality_impl(p0)
+	return this.self_.getTypesUnderEquality_impl(p0)
 }
 
 // getTypesUnderInequality: an object that is exactly a UnionType calls its getTypesUnderInequality_impl directly (post-flip); others dispatch.
@@ -863,7 +862,7 @@ func (this *UnionType) getTypesUnderInequality(p0 *JSType) *JSType_TypePair {
 	if this.self_ == any(this) {
 		return this.getTypesUnderInequality_impl(p0)
 	}
-	return this.selfI_.getTypesUnderInequality_impl(p0)
+	return this.self_.getTypesUnderInequality_impl(p0)
 }
 
 // getTypesUnderShallowInequality: an object that is exactly a UnionType calls its getTypesUnderShallowInequality_impl directly (post-flip); others dispatch.
@@ -871,7 +870,7 @@ func (this *UnionType) getTypesUnderShallowInequality(p0 *JSType) *JSType_TypePa
 	if this.self_ == any(this) {
 		return this.getTypesUnderShallowInequality_impl(p0)
 	}
-	return this.selfI_.getTypesUnderShallowInequality_impl(p0)
+	return this.self_.getTypesUnderShallowInequality_impl(p0)
 }
 
 // visitUntyped: an object that is exactly a UnionType calls its visitUntyped_impl directly (post-flip); others dispatch.
@@ -879,7 +878,7 @@ func (this *UnionType) visitUntyped(p0 Visitor) any {
 	if this.self_ == any(this) {
 		return this.visitUntyped_impl(p0)
 	}
-	return this.selfI_.visitUntyped_impl(p0)
+	return this.self_.visitUntyped_impl(p0)
 }
 
 // visitUntyped_2: an object that is exactly a UnionType calls its visitUntyped_2_impl directly (post-flip); others dispatch.
@@ -887,7 +886,7 @@ func (this *UnionType) visitUntyped_2(p0 RelationshipVisitor, p1 *JSType) any {
 	if this.self_ == any(this) {
 		return this.visitUntyped_2_impl(p0, p1)
 	}
-	return this.selfI_.visitUntyped_2_impl(p0, p1)
+	return this.self_.visitUntyped_2_impl(p0, p1)
 }
 
 // resolveInternal: an object that is exactly a UnionType calls its resolveInternal_impl directly (post-flip); others dispatch.
@@ -895,7 +894,7 @@ func (this *UnionType) resolveInternal(p0 ErrorReporter_rhino) *JSType {
 	if this.self_ == any(this) {
 		return this.resolveInternal_impl(p0)
 	}
-	return this.selfI_.resolveInternal_impl(p0)
+	return this.self_.resolveInternal_impl(p0)
 }
 
 // collapseUnion: an object that is exactly a UnionType calls its collapseUnion_impl directly (post-flip); others dispatch.
@@ -903,7 +902,7 @@ func (this *UnionType) collapseUnion() *JSType {
 	if this.self_ == any(this) {
 		return this.collapseUnion_impl()
 	}
-	return this.selfI_.collapseUnion_impl()
+	return this.self_.collapseUnion_impl()
 }
 
 // matchConstraint: an object that is exactly a UnionType calls its matchConstraint_impl directly (post-flip); others dispatch.
@@ -912,7 +911,7 @@ func (this *UnionType) matchConstraint(p0 *JSType) {
 		this.matchConstraint_impl(p0)
 		return
 	}
-	this.selfI_.matchConstraint_impl(p0)
+	this.self_.matchConstraint_impl(p0)
 }
 
 // hasAnyTemplateTypesInternal: an object that is exactly a UnionType calls its hasAnyTemplateTypesInternal_impl directly (post-flip); others dispatch.
@@ -920,5 +919,5 @@ func (this *UnionType) hasAnyTemplateTypesInternal() bool {
 	if this.self_ == any(this) {
 		return this.hasAnyTemplateTypesInternal_impl()
 	}
-	return this.selfI_.hasAnyTemplateTypesInternal_impl()
+	return this.self_.hasAnyTemplateTypesInternal_impl()
 }

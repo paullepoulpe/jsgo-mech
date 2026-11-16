@@ -3,14 +3,13 @@
 package closure
 
 type DataFlowAnalysis struct {
-	self_     any
-	selfI_    DataFlowAnalysis_I
+	self_     DataFlowAnalysis_I
 	cfg       *ControlFlowGraph
 	workQueue *DataFlowAnalysis_UniqueQueue
 }
 
 // DataFlowAnalysis_I holds the methods the dispatchers of DataFlowAnalysis's hierarchy call on the most derived
-// object (selfI_, set with self_); every class of the hierarchy implements them (post-flip).
+// object (self_); every class of the hierarchy implements them (post-flip).
 type DataFlowAnalysis_I interface {
 	createEntryLattice_impl() LatticeElement
 	createFlowBrancher_impl(any, LatticeElement) DataFlowAnalysis_FlowBrancher
@@ -231,31 +230,31 @@ func DataFlowAnalysis_isReferencedInNonStaticClassField(refScope *Scope, targetS
 }
 
 func (this *DataFlowAnalysis) isForward() bool {
-	return this.selfI_.isForward_impl()
+	return this.self_.isForward_impl()
 }
 
 func (this *DataFlowAnalysis) createEntryLattice() LatticeElement {
-	return this.selfI_.createEntryLattice_impl()
+	return this.self_.createEntryLattice_impl()
 }
 
 func (this *DataFlowAnalysis) createInitialEstimateLattice() LatticeElement {
-	return this.selfI_.createInitialEstimateLattice_impl()
+	return this.self_.createInitialEstimateLattice_impl()
 }
 
 func (this *DataFlowAnalysis) createFlowJoiner() DataFlowAnalysis_FlowJoiner {
-	return this.selfI_.createFlowJoiner_impl()
+	return this.self_.createFlowJoiner_impl()
 }
 
 func (this *DataFlowAnalysis) flowThrough(p0 any, p1 LatticeElement) LatticeElement {
-	return this.selfI_.flowThrough_impl(p0, p1)
+	return this.self_.flowThrough_impl(p0, p1)
 }
 
 func (this *DataFlowAnalysis) isBranched() bool {
-	return this.selfI_.isBranched_impl()
+	return this.self_.isBranched_impl()
 }
 
 func (this *DataFlowAnalysis) createFlowBrancher(p0 any, p1 LatticeElement) DataFlowAnalysis_FlowBrancher {
-	return this.selfI_.createFlowBrancher_impl(p0, p1)
+	return this.self_.createFlowBrancher_impl(p0, p1)
 }
 
 const DataFlowAnalysis_MAX_STEPS_PER_NODE int32 = 20000
@@ -394,7 +393,6 @@ func (this *DataFlowAnalysis_1) init_DataFlowAnalysis_1() {
 func new_DataFlowAnalysis_1(cap_jsScope *Scope, cap_escaped Set) *DataFlowAnalysis_1 {
 	this := &DataFlowAnalysis_1{}
 	this.self_ = this
-	this.selfI_ = this
 	this.cap_jsScope = cap_jsScope
 	this.cap_escaped = cap_escaped
 	this.init_DataFlowAnalysis_1()
@@ -426,5 +424,5 @@ func (this *DataFlowAnalysis_1) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
 		this.visit_impl(p0, p1, p2)
 		return
 	}
-	this.selfI_.visit_impl(p0, p1, p2)
+	this.self_.visit_impl(p0, p1, p2)
 }

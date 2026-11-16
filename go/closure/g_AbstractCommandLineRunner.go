@@ -3,8 +3,7 @@
 package closure
 
 type AbstractCommandLineRunner struct {
-	self_                       any
-	selfI_                      AbstractCommandLineRunner_I
+	self_                       AbstractCommandLineRunner_I
 	config                      *AbstractCommandLineRunner_CommandLineConfig
 	in                          *Io_Input
 	defaultJsOutput             *Output
@@ -26,7 +25,7 @@ type AbstractCommandLineRunner struct {
 }
 
 // AbstractCommandLineRunner_I holds the methods the dispatchers of AbstractCommandLineRunner's hierarchy call on the most derived
-// object (selfI_, set with self_); every class of the hierarchy implements them (post-flip).
+// object (self_); every class of the hierarchy implements them (post-flip).
 type AbstractCommandLineRunner_I interface {
 	checkChunkName_impl(string) *Outcome_base
 	createExterns_impl(*CompilerOptions) *Outcome_base
@@ -2108,7 +2107,7 @@ func (this *AbstractCommandLineRunner) addAllowlistWarningsGuard(p0 *CompilerOpt
 }
 
 func (this *AbstractCommandLineRunner) checkChunkName(p0 string) *Outcome_base {
-	return this.selfI_.checkChunkName_impl(p0)
+	return this.self_.checkChunkName_impl(p0)
 }
 
 func (this *AbstractCommandLineRunner) createOptions() *Outcome_base {
@@ -2128,7 +2127,7 @@ func (this *AbstractCommandLineRunner) appendRuntimeTo(p0 Appendable) *Outcome_b
 }
 
 func (this *AbstractCommandLineRunner) createExterns(p0 *CompilerOptions) *Outcome_base {
-	return this.selfI_.createExterns_impl(p0)
+	return this.self_.createExterns_impl(p0)
 }
 
 var AbstractCommandLineRunner_EQUALS_PATTERN *Pattern

@@ -22,7 +22,6 @@ func (this *CheckTypeImportCodeReferences) init_CheckTypeImportCodeReferences(co
 func new_CheckTypeImportCodeReferences(compiler *AbstractCompiler) *CheckTypeImportCodeReferences {
 	this := &CheckTypeImportCodeReferences{}
 	this.self_ = this
-	this.selfI_ = this
 	this.init_CheckTypeImportCodeReferences(compiler)
 	return this
 }
@@ -80,5 +79,5 @@ func (this *CheckTypeImportCodeReferences) visit(p0 *NodeTraversal, p1 Node, p2 
 		this.visit_impl(p0, p1, p2)
 		return
 	}
-	this.selfI_.visit_impl(p0, p1, p2)
+	this.self_.visit_impl(p0, p1, p2)
 }

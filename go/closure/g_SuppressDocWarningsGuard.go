@@ -24,7 +24,6 @@ func (this *SuppressDocWarningsGuard) init_SuppressDocWarningsGuard(compiler *Ab
 func new_SuppressDocWarningsGuard(compiler *AbstractCompiler, suppressors *TMap[string, *DiagnosticGroup]) *SuppressDocWarningsGuard {
 	this := &SuppressDocWarningsGuard{}
 	this.self_ = this
-	this.selfI_ = this
 	this.init_SuppressDocWarningsGuard(compiler, suppressors)
 	return this
 }
@@ -119,7 +118,7 @@ func (this *SuppressDocWarningsGuard) level(p0 *JSError) *CheckLevel {
 	if this.self_ == any(this) {
 		return this.level_impl(p0)
 	}
-	return this.selfI_.level_impl(p0)
+	return this.self_.level_impl(p0)
 }
 
 // getPriority: an object that is exactly a SuppressDocWarningsGuard calls its getPriority_impl directly (post-flip); others dispatch.
@@ -127,5 +126,5 @@ func (this *SuppressDocWarningsGuard) getPriority() int32 {
 	if this.self_ == any(this) {
 		return this.getPriority_impl()
 	}
-	return this.selfI_.getPriority_impl()
+	return this.self_.getPriority_impl()
 }

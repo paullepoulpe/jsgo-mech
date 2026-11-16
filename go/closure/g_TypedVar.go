@@ -46,7 +46,6 @@ func (this *TypedVar) init_TypedVar(inferred bool, name string, nameNode Node, t
 func new_TypedVar(inferred bool, name string, nameNode Node, type_ *JSType, scope *TypedScope, index int32, input *CompilerInput) *TypedVar {
 	this := &TypedVar{}
 	this.self_ = this
-	this.selfI_ = this
 	this.zero_TypedVar()
 	this.init_TypedVar(inferred, name, nameNode, type_, scope, index, input)
 	return this

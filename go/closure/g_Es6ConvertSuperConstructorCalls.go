@@ -543,7 +543,6 @@ func (this *Es6ConvertSuperConstructorCalls_UndefinedReturnValueCheck_1) init_Es
 func new_Es6ConvertSuperConstructorCalls_UndefinedReturnValueCheck_1(outer_ *Es6ConvertSuperConstructorCalls_UndefinedReturnValueCheck) *Es6ConvertSuperConstructorCalls_UndefinedReturnValueCheck_1 {
 	this := &Es6ConvertSuperConstructorCalls_UndefinedReturnValueCheck_1{}
 	this.self_ = this
-	this.selfI_ = this
 	this.outer_ = outer_
 	this.init_Es6ConvertSuperConstructorCalls_UndefinedReturnValueCheck_1()
 	return this
@@ -563,5 +562,5 @@ func (this *Es6ConvertSuperConstructorCalls_UndefinedReturnValueCheck_1) visit(p
 		this.visit_impl(p0, p1, p2)
 		return
 	}
-	this.selfI_.visit_impl(p0, p1, p2)
+	this.self_.visit_impl(p0, p1, p2)
 }

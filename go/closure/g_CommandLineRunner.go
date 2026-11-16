@@ -37,7 +37,6 @@ func (this *CommandLineRunner) init_CommandLineRunner_StringArr(args []string) {
 func new_CommandLineRunner_StringArr(args []string) *CommandLineRunner {
 	this := &CommandLineRunner{}
 	this.self_ = this
-	this.selfI_ = this
 	this.zero_CommandLineRunner()
 	this.init_CommandLineRunner_StringArr(args)
 	return this
@@ -52,7 +51,6 @@ func (this *CommandLineRunner) init_CommandLineRunner_StringArr_Output_Output(ar
 func new_CommandLineRunner_StringArr_Output_Output(args []string, out *Output, err *Output) *CommandLineRunner {
 	this := &CommandLineRunner{}
 	this.self_ = this
-	this.selfI_ = this
 	this.zero_CommandLineRunner()
 	this.init_CommandLineRunner_StringArr_Output_Output(args, out, err)
 	return this
@@ -67,7 +65,6 @@ func (this *CommandLineRunner) init_CommandLineRunner_StringArr_Input_Output_Out
 func new_CommandLineRunner_StringArr_Input_Output_Output(args []string, in *Io_Input, out *Output, err *Output) *CommandLineRunner {
 	this := &CommandLineRunner{}
 	this.self_ = this
-	this.selfI_ = this
 	this.zero_CommandLineRunner()
 	this.init_CommandLineRunner_StringArr_Input_Output_Output(args, in, out, err)
 	return this
@@ -1941,7 +1938,7 @@ func (this *CommandLineRunner) checkChunkName(p0 string) *Outcome_base {
 	if this.self_ == any(this) {
 		return this.checkChunkName_impl(p0)
 	}
-	return this.selfI_.checkChunkName_impl(p0)
+	return this.self_.checkChunkName_impl(p0)
 }
 
 // createOptions: an object that is exactly a CommandLineRunner calls its createOptions_impl directly (post-flip); others dispatch.
@@ -1981,5 +1978,5 @@ func (this *CommandLineRunner) createExterns(p0 *CompilerOptions) *Outcome_base 
 	if this.self_ == any(this) {
 		return this.createExterns_impl(p0)
 	}
-	return this.selfI_.createExterns_impl(p0)
+	return this.self_.createExterns_impl(p0)
 }

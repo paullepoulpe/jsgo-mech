@@ -37,7 +37,6 @@ func (this *ArrowType) init_ArrowType(registry *JSTypeRegistry, parameters *TLis
 func new_ArrowType(registry *JSTypeRegistry, parameters *TList[*FunctionType_Parameter], returnType *JSType, returnTypeInferred bool) *ArrowType {
 	this := &ArrowType{}
 	this.self_ = this
-	this.selfI_ = this
 	this.init_ArrowType(registry, parameters, returnType, returnTypeInferred)
 	return this
 }
@@ -157,7 +156,7 @@ func (this *ArrowType) getTypeClass() *JSTypeClass {
 	if this.self_ == any(this) {
 		return this.getTypeClass_impl()
 	}
-	return this.selfI_.getTypeClass_impl()
+	return this.self_.getTypeClass_impl()
 }
 
 // recursionUnsafeHashCode: an object that is exactly a ArrowType calls its recursionUnsafeHashCode_impl directly (post-flip); others dispatch.
@@ -165,7 +164,7 @@ func (this *ArrowType) recursionUnsafeHashCode() int32 {
 	if this.self_ == any(this) {
 		return this.recursionUnsafeHashCode_impl()
 	}
-	return this.selfI_.recursionUnsafeHashCode_impl()
+	return this.self_.recursionUnsafeHashCode_impl()
 }
 
 // getLeastSupertype: an object that is exactly a ArrowType calls its getLeastSupertype_impl directly (post-flip); others dispatch.
@@ -173,7 +172,7 @@ func (this *ArrowType) getLeastSupertype(p0 *JSType) *JSType {
 	if this.self_ == any(this) {
 		return this.getLeastSupertype_impl(p0)
 	}
-	return this.selfI_.getLeastSupertype_impl(p0)
+	return this.self_.getLeastSupertype_impl(p0)
 }
 
 // getGreatestSubtype: an object that is exactly a ArrowType calls its getGreatestSubtype_impl directly (post-flip); others dispatch.
@@ -181,7 +180,7 @@ func (this *ArrowType) getGreatestSubtype(p0 *JSType) *JSType {
 	if this.self_ == any(this) {
 		return this.getGreatestSubtype_impl(p0)
 	}
-	return this.selfI_.getGreatestSubtype_impl(p0)
+	return this.self_.getGreatestSubtype_impl(p0)
 }
 
 // testForEquality: an object that is exactly a ArrowType calls its testForEquality_impl directly (post-flip); others dispatch.
@@ -189,7 +188,7 @@ func (this *ArrowType) testForEquality(p0 *JSType) *Tri {
 	if this.self_ == any(this) {
 		return this.testForEquality_impl(p0)
 	}
-	return this.selfI_.testForEquality_impl(p0)
+	return this.self_.testForEquality_impl(p0)
 }
 
 // visitUntyped: an object that is exactly a ArrowType calls its visitUntyped_impl directly (post-flip); others dispatch.
@@ -197,7 +196,7 @@ func (this *ArrowType) visitUntyped(p0 Visitor) any {
 	if this.self_ == any(this) {
 		return this.visitUntyped_impl(p0)
 	}
-	return this.selfI_.visitUntyped_impl(p0)
+	return this.self_.visitUntyped_impl(p0)
 }
 
 // visitUntyped_2: an object that is exactly a ArrowType calls its visitUntyped_2_impl directly (post-flip); others dispatch.
@@ -205,7 +204,7 @@ func (this *ArrowType) visitUntyped_2(p0 RelationshipVisitor, p1 *JSType) any {
 	if this.self_ == any(this) {
 		return this.visitUntyped_2_impl(p0, p1)
 	}
-	return this.selfI_.visitUntyped_2_impl(p0, p1)
+	return this.self_.visitUntyped_2_impl(p0, p1)
 }
 
 // getPossibleToBooleanOutcomes: an object that is exactly a ArrowType calls its getPossibleToBooleanOutcomes_impl directly (post-flip); others dispatch.
@@ -213,7 +212,7 @@ func (this *ArrowType) getPossibleToBooleanOutcomes() *BooleanLiteralSet {
 	if this.self_ == any(this) {
 		return this.getPossibleToBooleanOutcomes_impl()
 	}
-	return this.selfI_.getPossibleToBooleanOutcomes_impl()
+	return this.self_.getPossibleToBooleanOutcomes_impl()
 }
 
 // resolveInternal: an object that is exactly a ArrowType calls its resolveInternal_impl directly (post-flip); others dispatch.
@@ -221,7 +220,7 @@ func (this *ArrowType) resolveInternal(p0 ErrorReporter_rhino) *JSType {
 	if this.self_ == any(this) {
 		return this.resolveInternal_impl(p0)
 	}
-	return this.selfI_.resolveInternal_impl(p0)
+	return this.self_.resolveInternal_impl(p0)
 }
 
 // appendTo: an object that is exactly a ArrowType calls its appendTo_impl directly (post-flip); others dispatch.
@@ -230,7 +229,7 @@ func (this *ArrowType) appendTo(p0 *TypeStringBuilder) {
 		this.appendTo_impl(p0)
 		return
 	}
-	this.selfI_.appendTo_impl(p0)
+	this.self_.appendTo_impl(p0)
 }
 
 // hasAnyTemplateTypesInternal: an object that is exactly a ArrowType calls its hasAnyTemplateTypesInternal_impl directly (post-flip); others dispatch.
@@ -238,7 +237,7 @@ func (this *ArrowType) hasAnyTemplateTypesInternal() bool {
 	if this.self_ == any(this) {
 		return this.hasAnyTemplateTypesInternal_impl()
 	}
-	return this.selfI_.hasAnyTemplateTypesInternal_impl()
+	return this.self_.hasAnyTemplateTypesInternal_impl()
 }
 
 // toString: an object that is exactly a ArrowType calls its toString_impl directly (post-flip); others dispatch.
@@ -246,5 +245,5 @@ func (this *ArrowType) toString() string {
 	if this.self_ == any(this) {
 		return this.toString_impl()
 	}
-	return this.selfI_.toString_impl()
+	return this.self_.toString_impl()
 }

@@ -49,7 +49,6 @@ func (this *NodeModuleResolver) init_NodeModuleResolver(modulePaths ImmutableSet
 func new_NodeModuleResolver(modulePaths ImmutableSetOf[string], moduleRootPaths ImmutableListOf[string], packageJsonMainEntries *TMap[string, string], errorHandler ErrorHandler, pathEscaper *ModuleLoader_PathEscaper) *NodeModuleResolver {
 	this := &NodeModuleResolver{}
 	this.self_ = this
-	this.selfI_ = this
 	this.init_NodeModuleResolver(modulePaths, moduleRootPaths, packageJsonMainEntries, errorHandler, pathEscaper)
 	return this
 }
@@ -252,7 +251,7 @@ func (this *NodeModuleResolver) getPackageJsonMainEntries() *TMap[string, string
 	if this.self_ == any(this) {
 		return this.getPackageJsonMainEntries_impl()
 	}
-	return this.selfI_.getPackageJsonMainEntries_impl()
+	return this.self_.getPackageJsonMainEntries_impl()
 }
 
 // resolveJsModule: an object that is exactly a NodeModuleResolver calls its resolveJsModule_impl directly (post-flip); others dispatch.
@@ -260,7 +259,7 @@ func (this *NodeModuleResolver) resolveJsModule(p0 string, p1 string, p2 Optiona
 	if this.self_ == any(this) {
 		return this.resolveJsModule_impl(p0, p1, p2, p3, p4)
 	}
-	return this.selfI_.resolveJsModule_impl(p0, p1, p2, p3, p4)
+	return this.self_.resolveJsModule_impl(p0, p1, p2, p3, p4)
 }
 
 // resolveJsModuleSilently: an object that is exactly a NodeModuleResolver calls its resolveJsModuleSilently_impl directly (post-flip); others dispatch.
@@ -268,5 +267,5 @@ func (this *NodeModuleResolver) resolveJsModuleSilently(p0 string, p1 string) Op
 	if this.self_ == any(this) {
 		return this.resolveJsModuleSilently_impl(p0, p1)
 	}
-	return this.selfI_.resolveJsModuleSilently_impl(p0, p1)
+	return this.self_.resolveJsModuleSilently_impl(p0, p1)
 }

@@ -22,7 +22,6 @@ func (this *CheckArrayWithGoogObject) init_CheckArrayWithGoogObject(compiler *Ab
 func new_CheckArrayWithGoogObject(compiler *AbstractCompiler) *CheckArrayWithGoogObject {
 	this := &CheckArrayWithGoogObject{}
 	this.self_ = this
-	this.selfI_ = this
 	this.init_CheckArrayWithGoogObject(compiler)
 	return this
 }
@@ -98,5 +97,5 @@ func (this *CheckArrayWithGoogObject) visit(p0 *NodeTraversal, p1 Node, p2 Node)
 		this.visit_impl(p0, p1, p2)
 		return
 	}
-	this.selfI_.visit_impl(p0, p1, p2)
+	this.self_.visit_impl(p0, p1, p2)
 }

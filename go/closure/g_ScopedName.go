@@ -3,12 +3,11 @@
 package closure
 
 type ScopedName struct {
-	self_  any
-	selfI_ ScopedName_I
+	self_ ScopedName_I
 }
 
 // ScopedName_I holds the methods the dispatchers of ScopedName's hierarchy call on the most derived
-// object (selfI_, set with self_); every class of the hierarchy implements them (post-flip).
+// object (self_); every class of the hierarchy implements them (post-flip).
 type ScopedName_I interface {
 	getName_impl() string
 	getScopeRoot_impl() Node
@@ -69,11 +68,11 @@ func (this *ScopedName) hashCode() int32 {
 }
 
 func (this *ScopedName) getName() string {
-	return this.selfI_.getName_impl()
+	return this.self_.getName_impl()
 }
 
 func (this *ScopedName) getScopeRoot() Node {
-	return this.selfI_.getScopeRoot_impl()
+	return this.self_.getScopeRoot_impl()
 }
 
 type ScopedName_Simple struct {
@@ -102,7 +101,6 @@ func (this *ScopedName_Simple) init_ScopedName_Simple(name string, scopeRoot Nod
 func new_ScopedName_Simple(name string, scopeRoot Node) *ScopedName_Simple {
 	this := &ScopedName_Simple{}
 	this.self_ = this
-	this.selfI_ = this
 	this.zero_ScopedName_Simple()
 	this.init_ScopedName_Simple(name, scopeRoot)
 	return this
@@ -121,7 +119,7 @@ func (this *ScopedName_Simple) getName() string {
 	if this.self_ == any(this) {
 		return this.getName_impl()
 	}
-	return this.selfI_.getName_impl()
+	return this.self_.getName_impl()
 }
 
 // getScopeRoot: an object that is exactly a ScopedName_Simple calls its getScopeRoot_impl directly (post-flip); others dispatch.
@@ -129,5 +127,5 @@ func (this *ScopedName_Simple) getScopeRoot() Node {
 	if this.self_ == any(this) {
 		return this.getScopeRoot_impl()
 	}
-	return this.selfI_.getScopeRoot_impl()
+	return this.self_.getScopeRoot_impl()
 }

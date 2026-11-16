@@ -22,7 +22,6 @@ func (this *Es6RewriteBlockScopedFunctionDeclaration) init_Es6RewriteBlockScoped
 func new_Es6RewriteBlockScopedFunctionDeclaration(compiler *AbstractCompiler) *Es6RewriteBlockScopedFunctionDeclaration {
 	this := &Es6RewriteBlockScopedFunctionDeclaration{}
 	this.self_ = this
-	this.selfI_ = this
 	this.init_Es6RewriteBlockScopedFunctionDeclaration(compiler)
 	return this
 }
@@ -70,5 +69,5 @@ func (this *Es6RewriteBlockScopedFunctionDeclaration) visit(p0 *NodeTraversal, p
 		this.visit_impl(p0, p1, p2)
 		return
 	}
-	this.selfI_.visit_impl(p0, p1, p2)
+	this.self_.visit_impl(p0, p1, p2)
 }

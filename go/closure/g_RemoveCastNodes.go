@@ -39,7 +39,6 @@ func (this *RemoveCastNodes_RemoveCastsCallback) init_RemoveCastNodes_RemoveCast
 func new_RemoveCastNodes_RemoveCastsCallback(outer_ *RemoveCastNodes) *RemoveCastNodes_RemoveCastsCallback {
 	this := &RemoveCastNodes_RemoveCastsCallback{}
 	this.self_ = this
-	this.selfI_ = this
 	this.outer_ = outer_
 	this.init_RemoveCastNodes_RemoveCastsCallback()
 	return this
@@ -58,5 +57,5 @@ func (this *RemoveCastNodes_RemoveCastsCallback) visit(p0 *NodeTraversal, p1 Nod
 		this.visit_impl(p0, p1, p2)
 		return
 	}
-	this.selfI_.visit_impl(p0, p1, p2)
+	this.self_.visit_impl(p0, p1, p2)
 }

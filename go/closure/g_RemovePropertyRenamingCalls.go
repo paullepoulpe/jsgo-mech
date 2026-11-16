@@ -39,7 +39,6 @@ func (this *RemovePropertyRenamingCalls_RemoveCompilerPropertyRenamingCallback) 
 func new_RemovePropertyRenamingCalls_RemoveCompilerPropertyRenamingCallback(outer_ *RemovePropertyRenamingCalls) *RemovePropertyRenamingCalls_RemoveCompilerPropertyRenamingCallback {
 	this := &RemovePropertyRenamingCalls_RemoveCompilerPropertyRenamingCallback{}
 	this.self_ = this
-	this.selfI_ = this
 	this.outer_ = outer_
 	this.init_RemovePropertyRenamingCalls_RemoveCompilerPropertyRenamingCallback()
 	return this
@@ -69,5 +68,5 @@ func (this *RemovePropertyRenamingCalls_RemoveCompilerPropertyRenamingCallback) 
 		this.visit_impl(p0, p1, p2)
 		return
 	}
-	this.selfI_.visit_impl(p0, p1, p2)
+	this.self_.visit_impl(p0, p1, p2)
 }

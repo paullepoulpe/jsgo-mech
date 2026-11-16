@@ -22,7 +22,6 @@ func (this *CheckInterfaces) init_CheckInterfaces(compiler *AbstractCompiler) {
 func new_CheckInterfaces(compiler *AbstractCompiler) *CheckInterfaces {
 	this := &CheckInterfaces{}
 	this.self_ = this
-	this.selfI_ = this
 	this.init_CheckInterfaces(compiler)
 	return this
 }
@@ -153,5 +152,5 @@ func (this *CheckInterfaces) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
 		this.visit_impl(p0, p1, p2)
 		return
 	}
-	this.selfI_.visit_impl(p0, p1, p2)
+	this.self_.visit_impl(p0, p1, p2)
 }

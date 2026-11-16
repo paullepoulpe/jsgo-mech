@@ -154,7 +154,6 @@ func (this *Es6RewriteModulesToCommonJsModules_Rewriter) init_Es6RewriteModulesT
 func new_Es6RewriteModulesToCommonJsModules_Rewriter(compiler *AbstractCompiler, script Node) *Es6RewriteModulesToCommonJsModules_Rewriter {
 	this := &Es6RewriteModulesToCommonJsModules_Rewriter{}
 	this.self_ = this
-	this.selfI_ = this
 	this.init_Es6RewriteModulesToCommonJsModules_Rewriter(compiler, script)
 	return this
 }
@@ -422,5 +421,5 @@ func (this *Es6RewriteModulesToCommonJsModules_Rewriter) visit(p0 *NodeTraversal
 		this.visit_impl(p0, p1, p2)
 		return
 	}
-	this.selfI_.visit_impl(p0, p1, p2)
+	this.self_.visit_impl(p0, p1, p2)
 }

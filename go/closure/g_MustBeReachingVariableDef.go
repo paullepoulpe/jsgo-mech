@@ -26,7 +26,6 @@ func (this *MustBeReachingVariableDef) init_MustBeReachingVariableDef(cfg *Contr
 func new_MustBeReachingVariableDef(cfg *ControlFlowGraph, compiler *AbstractCompiler, escaped SetOf[*Var], allVarsInFn *TMap[string, *Var]) *MustBeReachingVariableDef {
 	this := &MustBeReachingVariableDef{}
 	this.self_ = this
-	this.selfI_ = this
 	this.init_MustBeReachingVariableDef(cfg, compiler, escaped, allVarsInFn)
 	return this
 }
@@ -454,7 +453,6 @@ func (this *MustBeReachingVariableDef_1) init_MustBeReachingVariableDef_1() {
 func new_MustBeReachingVariableDef_1(outer_ *MustBeReachingVariableDef, cap_def *MustBeReachingVariableDef_Definition) *MustBeReachingVariableDef_1 {
 	this := &MustBeReachingVariableDef_1{}
 	this.self_ = this
-	this.selfI_ = this
 	this.outer_ = outer_
 	this.cap_def = cap_def
 	this.init_MustBeReachingVariableDef_1()
@@ -477,7 +475,7 @@ func (this *MustBeReachingVariableDef) isForward() bool {
 	if this.self_ == any(this) {
 		return this.isForward_impl()
 	}
-	return this.selfI_.isForward_impl()
+	return this.self_.isForward_impl()
 }
 
 // createEntryLattice: an object that is exactly a MustBeReachingVariableDef calls its createEntryLattice_impl directly (post-flip); others dispatch.
@@ -485,7 +483,7 @@ func (this *MustBeReachingVariableDef) createEntryLattice() LatticeElement {
 	if this.self_ == any(this) {
 		return this.createEntryLattice_impl()
 	}
-	return this.selfI_.createEntryLattice_impl()
+	return this.self_.createEntryLattice_impl()
 }
 
 // createInitialEstimateLattice: an object that is exactly a MustBeReachingVariableDef calls its createInitialEstimateLattice_impl directly (post-flip); others dispatch.
@@ -493,7 +491,7 @@ func (this *MustBeReachingVariableDef) createInitialEstimateLattice() LatticeEle
 	if this.self_ == any(this) {
 		return this.createInitialEstimateLattice_impl()
 	}
-	return this.selfI_.createInitialEstimateLattice_impl()
+	return this.self_.createInitialEstimateLattice_impl()
 }
 
 // createFlowJoiner: an object that is exactly a MustBeReachingVariableDef calls its createFlowJoiner_impl directly (post-flip); others dispatch.
@@ -501,7 +499,7 @@ func (this *MustBeReachingVariableDef) createFlowJoiner() DataFlowAnalysis_FlowJ
 	if this.self_ == any(this) {
 		return this.createFlowJoiner_impl()
 	}
-	return this.selfI_.createFlowJoiner_impl()
+	return this.self_.createFlowJoiner_impl()
 }
 
 // flowThrough: an object that is exactly a MustBeReachingVariableDef calls its flowThrough_impl directly (post-flip); others dispatch.
@@ -509,7 +507,7 @@ func (this *MustBeReachingVariableDef) flowThrough(p0 any, p1 LatticeElement) La
 	if this.self_ == any(this) {
 		return this.flowThrough_impl(p0, p1)
 	}
-	return this.selfI_.flowThrough_impl(p0, p1)
+	return this.self_.flowThrough_impl(p0, p1)
 }
 
 // visit: an object that is exactly a MustBeReachingVariableDef_1 calls its visit_impl directly (post-flip); others dispatch.
@@ -518,5 +516,5 @@ func (this *MustBeReachingVariableDef_1) visit(p0 *NodeTraversal, p1 Node, p2 No
 		this.visit_impl(p0, p1, p2)
 		return
 	}
-	this.selfI_.visit_impl(p0, p1, p2)
+	this.self_.visit_impl(p0, p1, p2)
 }

@@ -105,7 +105,6 @@ func (this *InlineProperties_GatherCandidates) init_InlineProperties_GatherCandi
 func new_InlineProperties_GatherCandidates(outer_ *InlineProperties) *InlineProperties_GatherCandidates {
 	this := &InlineProperties_GatherCandidates{}
 	this.self_ = this
-	this.selfI_ = this
 	this.outer_ = outer_
 	this.init_InlineProperties_GatherCandidates()
 	return this
@@ -234,7 +233,6 @@ func (this *InlineProperties_ReplaceCandidates) init_InlineProperties_ReplaceCan
 func new_InlineProperties_ReplaceCandidates(outer_ *InlineProperties) *InlineProperties_ReplaceCandidates {
 	this := &InlineProperties_ReplaceCandidates{}
 	this.self_ = this
-	this.selfI_ = this
 	this.outer_ = outer_
 	this.init_InlineProperties_ReplaceCandidates()
 	return this
@@ -310,7 +308,7 @@ func (this *InlineProperties_GatherCandidates) visit(p0 *NodeTraversal, p1 Node,
 		this.visit_impl(p0, p1, p2)
 		return
 	}
-	this.selfI_.visit_impl(p0, p1, p2)
+	this.self_.visit_impl(p0, p1, p2)
 }
 
 // visit: an object that is exactly a InlineProperties_ReplaceCandidates calls its visit_impl directly (post-flip); others dispatch.
@@ -319,5 +317,5 @@ func (this *InlineProperties_ReplaceCandidates) visit(p0 *NodeTraversal, p1 Node
 		this.visit_impl(p0, p1, p2)
 		return
 	}
-	this.selfI_.visit_impl(p0, p1, p2)
+	this.self_.visit_impl(p0, p1, p2)
 }

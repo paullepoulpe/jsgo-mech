@@ -38,7 +38,6 @@ func (this *Var) init_Var(name string, nameNode Node, scope *Scope, index int32,
 func new_Var(name string, nameNode Node, scope *Scope, index int32, input *CompilerInput, implicitGoogNamespaceDefinition Node) *Var {
 	this := &Var{}
 	this.self_ = this
-	this.selfI_ = this
 	this.zero_Var()
 	this.init_Var(name, nameNode, scope, index, input, implicitGoogNamespaceDefinition)
 	return this

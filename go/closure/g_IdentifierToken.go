@@ -28,7 +28,6 @@ func (this *IdentifierToken) init_IdentifierToken(location *SourceRange, value s
 func new_IdentifierToken(location *SourceRange, value string) *IdentifierToken {
 	this := &IdentifierToken{}
 	this.self_ = this
-	this.selfI_ = this
 	this.zero_IdentifierToken()
 	this.init_IdentifierToken(location, value)
 	return this
@@ -64,5 +63,5 @@ func (this *IdentifierToken) toString() string {
 	if this.self_ == any(this) {
 		return this.toString_impl()
 	}
-	return this.selfI_.toString_impl()
+	return this.self_.toString_impl()
 }

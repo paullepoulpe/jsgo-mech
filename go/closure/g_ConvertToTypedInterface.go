@@ -336,7 +336,6 @@ func (this *ConvertToTypedInterface_PropagateConstJsdoc) init_ConvertToTypedInte
 func new_ConvertToTypedInterface_PropagateConstJsdoc(currentFile *FileInfo) *ConvertToTypedInterface_PropagateConstJsdoc {
 	this := &ConvertToTypedInterface_PropagateConstJsdoc{}
 	this.self_ = this
-	this.selfI_ = this
 	this.init_ConvertToTypedInterface_PropagateConstJsdoc(currentFile)
 	return this
 }

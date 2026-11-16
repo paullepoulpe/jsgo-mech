@@ -219,7 +219,6 @@ func (this *EsModuleProcessor_FindMutableExports) init_EsModuleProcessor_FindMut
 func new_EsModuleProcessor_FindMutableExports(exports *TList[*Export]) *EsModuleProcessor_FindMutableExports {
 	this := &EsModuleProcessor_FindMutableExports{}
 	this.self_ = this
-	this.selfI_ = this
 	this.init_EsModuleProcessor_FindMutableExports(exports)
 	return this
 }
@@ -356,7 +355,6 @@ func (this *EsModuleProcessor_UnresolvedEsModule) init_EsModuleProcessor_Unresol
 func new_EsModuleProcessor_UnresolvedEsModule(outer_ *EsModuleProcessor, metadata *ModuleMetadataMap_ModuleMetadata, path *ModuleLoader_ModulePath, importsByLocalName ImmutableMapOf[string, *Import], localExports ImmutableListOf[*Export], indirectExports ImmutableListOf[*Export], starExports ImmutableListOf[*Export]) *EsModuleProcessor_UnresolvedEsModule {
 	this := &EsModuleProcessor_UnresolvedEsModule{}
 	this.self_ = this
-	this.selfI_ = this
 	this.outer_ = outer_
 	this.init_EsModuleProcessor_UnresolvedEsModule(metadata, path, importsByLocalName, localExports, indirectExports, starExports)
 	return this
@@ -624,7 +622,7 @@ func (this *EsModuleProcessor_FindMutableExports) visit(p0 *NodeTraversal, p1 No
 		this.visit_impl(p0, p1, p2)
 		return
 	}
-	this.selfI_.visit_impl(p0, p1, p2)
+	this.self_.visit_impl(p0, p1, p2)
 }
 
 // reset: an object that is exactly a EsModuleProcessor_UnresolvedEsModule calls its reset_impl directly (post-flip); others dispatch.
@@ -633,7 +631,7 @@ func (this *EsModuleProcessor_UnresolvedEsModule) reset() {
 		this.reset_impl()
 		return
 	}
-	this.selfI_.reset_impl()
+	this.self_.reset_impl()
 }
 
 // resolve_2: an object that is exactly a EsModuleProcessor_UnresolvedEsModule calls its resolve_2_impl directly (post-flip); others dispatch.
@@ -641,7 +639,7 @@ func (this *EsModuleProcessor_UnresolvedEsModule) resolve_2(p0 ModuleRequestReso
 	if this.self_ == any(this) {
 		return this.resolve_2_impl(p0, p1)
 	}
-	return this.selfI_.resolve_2_impl(p0, p1)
+	return this.self_.resolve_2_impl(p0, p1)
 }
 
 // metadata: an object that is exactly a EsModuleProcessor_UnresolvedEsModule calls its metadata_impl directly (post-flip); others dispatch.
@@ -649,7 +647,7 @@ func (this *EsModuleProcessor_UnresolvedEsModule) metadata() *ModuleMetadataMap_
 	if this.self_ == any(this) {
 		return this.metadata_impl()
 	}
-	return this.selfI_.metadata_impl()
+	return this.self_.metadata_impl()
 }
 
 // getExportedNames: an object that is exactly a EsModuleProcessor_UnresolvedEsModule calls its getExportedNames_impl directly (post-flip); others dispatch.
@@ -657,7 +655,7 @@ func (this *EsModuleProcessor_UnresolvedEsModule) getExportedNames(p0 ModuleRequ
 	if this.self_ == any(this) {
 		return this.getExportedNames_impl(p0)
 	}
-	return this.selfI_.getExportedNames_impl(p0)
+	return this.self_.getExportedNames_impl(p0)
 }
 
 // getExportedNames_2: an object that is exactly a EsModuleProcessor_UnresolvedEsModule calls its getExportedNames_2_impl directly (post-flip); others dispatch.
@@ -665,7 +663,7 @@ func (this *EsModuleProcessor_UnresolvedEsModule) getExportedNames_2(p0 ModuleRe
 	if this.self_ == any(this) {
 		return this.getExportedNames_2_impl(p0, p1)
 	}
-	return this.selfI_.getExportedNames_2_impl(p0, p1)
+	return this.self_.getExportedNames_2_impl(p0, p1)
 }
 
 // resolveExport_5: an object that is exactly a EsModuleProcessor_UnresolvedEsModule calls its resolveExport_5_impl directly (post-flip); others dispatch.
@@ -673,5 +671,5 @@ func (this *EsModuleProcessor_UnresolvedEsModule) resolveExport_5(p0 ModuleReque
 	if this.self_ == any(this) {
 		return this.resolveExport_5_impl(p0, p1, p2, p3, p4)
 	}
-	return this.selfI_.resolveExport_5_impl(p0, p1, p2, p3, p4)
+	return this.self_.resolveExport_5_impl(p0, p1, p2, p3, p4)
 }

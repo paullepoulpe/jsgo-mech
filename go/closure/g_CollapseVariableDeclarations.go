@@ -81,7 +81,6 @@ func (this *CollapseVariableDeclarations_GatherCollapses) init_CollapseVariableD
 func new_CollapseVariableDeclarations_GatherCollapses(outer_ *CollapseVariableDeclarations) *CollapseVariableDeclarations_GatherCollapses {
 	this := &CollapseVariableDeclarations_GatherCollapses{}
 	this.self_ = this
-	this.selfI_ = this
 	this.outer_ = outer_
 	this.init_CollapseVariableDeclarations_GatherCollapses()
 	return this
@@ -118,5 +117,5 @@ func (this *CollapseVariableDeclarations_GatherCollapses) visit(p0 *NodeTraversa
 		this.visit_impl(p0, p1, p2)
 		return
 	}
-	this.selfI_.visit_impl(p0, p1, p2)
+	this.self_.visit_impl(p0, p1, p2)
 }

@@ -25,12 +25,11 @@ type Visitor interface {
 }
 
 type Visitor_WithDefaultCase struct {
-	self_  any
-	selfI_ Visitor_WithDefaultCase_I
+	self_ Visitor_WithDefaultCase_I
 }
 
 // Visitor_WithDefaultCase_I holds the methods the dispatchers of Visitor_WithDefaultCase's hierarchy call on the most derived
-// object (selfI_, set with self_); every class of the hierarchy implements them (post-flip).
+// object (self_); every class of the hierarchy implements them (post-flip).
 type Visitor_WithDefaultCase_I interface {
 	caseDefault_impl(*JSType) any
 	caseEnumElementType_impl(*EnumElementType) any
@@ -149,29 +148,29 @@ func (this *Visitor_WithDefaultCase) caseTemplateType_impl(type_ *TemplateType) 
 }
 
 func (this *Visitor_WithDefaultCase) caseDefault(p0 *JSType) any {
-	return this.selfI_.caseDefault_impl(p0)
+	return this.self_.caseDefault_impl(p0)
 }
 
 func (this *Visitor_WithDefaultCase) caseEnumElementType(p0 *EnumElementType) any {
-	return this.selfI_.caseEnumElementType_impl(p0)
+	return this.self_.caseEnumElementType_impl(p0)
 }
 
 func (this *Visitor_WithDefaultCase) caseFunctionType(p0 *FunctionType) any {
-	return this.selfI_.caseFunctionType_impl(p0)
+	return this.self_.caseFunctionType_impl(p0)
 }
 
 func (this *Visitor_WithDefaultCase) caseNamedType(p0 *NamedType) any {
-	return this.selfI_.caseNamedType_impl(p0)
+	return this.self_.caseNamedType_impl(p0)
 }
 
 func (this *Visitor_WithDefaultCase) caseUnionType(p0 *UnionType) any {
-	return this.selfI_.caseUnionType_impl(p0)
+	return this.self_.caseUnionType_impl(p0)
 }
 
 func (this *Visitor_WithDefaultCase) caseTemplatizedType(p0 *TemplatizedType) any {
-	return this.selfI_.caseTemplatizedType_impl(p0)
+	return this.self_.caseTemplatizedType_impl(p0)
 }
 
 func (this *Visitor_WithDefaultCase) caseTemplateType(p0 *TemplateType) any {
-	return this.selfI_.caseTemplateType_impl(p0)
+	return this.self_.caseTemplateType_impl(p0)
 }

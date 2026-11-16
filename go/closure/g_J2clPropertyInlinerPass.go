@@ -158,15 +158,14 @@ func (this *J2clPropertyInlinerPass_StaticFieldGetterSetterInliner) looksLikeAJ2
 }
 
 type J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_J2clProperty struct {
-	self_          any
-	selfI_         J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_J2clProperty_I
+	self_          J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_J2clProperty_I
 	getKey_        Node
 	setKey_        Node
 	isSafeToInline bool
 }
 
 // J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_J2clProperty_I holds the methods the dispatchers of J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_J2clProperty's hierarchy call on the most derived
-// object (selfI_, set with self_); every class of the hierarchy implements them (post-flip).
+// object (self_); every class of the hierarchy implements them (post-flip).
 type J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_J2clProperty_I interface {
 	remove_impl()
 }
@@ -205,7 +204,7 @@ func (this *J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_J2clProperty)
 }
 
 func (this *J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_J2clProperty) remove() {
-	this.selfI_.remove_impl()
+	this.self_.remove_impl()
 }
 
 type J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_J2clPropertyEs5 struct {
@@ -229,7 +228,6 @@ func (this *J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_J2clPropertyE
 func new_J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_J2clPropertyEs5(outer_ *J2clPropertyInlinerPass_StaticFieldGetterSetterInliner, getKey Node, setKey Node) *J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_J2clPropertyEs5 {
 	this := &J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_J2clPropertyEs5{}
 	this.self_ = this
-	this.selfI_ = this
 	this.outer_ = outer_
 	this.init_J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_J2clPropertyEs5(getKey, setKey)
 	return this
@@ -268,7 +266,6 @@ func (this *J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_J2clPropertyE
 func new_J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_J2clPropertyEs6(outer_ *J2clPropertyInlinerPass_StaticFieldGetterSetterInliner, getKey Node, setKey Node) *J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_J2clPropertyEs6 {
 	this := &J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_J2clPropertyEs6{}
 	this.self_ = this
-	this.selfI_ = this
 	this.outer_ = outer_
 	this.init_J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_J2clPropertyEs6(getKey, setKey)
 	return this
@@ -311,7 +308,6 @@ func (this *J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_GatherJ2CLCla
 func new_J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_GatherJ2CLClassGetterSetters(outer_ *J2clPropertyInlinerPass_StaticFieldGetterSetterInliner) *J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_GatherJ2CLClassGetterSetters {
 	this := &J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_GatherJ2CLClassGetterSetters{}
 	this.self_ = this
-	this.selfI_ = this
 	this.outer_ = outer_
 	this.init_J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_GatherJ2CLClassGetterSetters()
 	return this
@@ -420,7 +416,6 @@ func (this *J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_DetermineInli
 func new_J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_DetermineInlinableProperties(allGetterSetters *TMap[string, *J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_J2clProperty]) *J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_DetermineInlinableProperties {
 	this := &J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_DetermineInlinableProperties{}
 	this.self_ = this
-	this.selfI_ = this
 	this.init_J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_DetermineInlinableProperties(allGetterSetters)
 	return this
 }
@@ -459,7 +454,6 @@ func (this *J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_InlinePropert
 func new_J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_InlinePropertiesPass(outer_ *J2clPropertyInlinerPass_StaticFieldGetterSetterInliner, allGetterSetters *TMap[string, *J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_J2clProperty]) *J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_InlinePropertiesPass {
 	this := &J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_InlinePropertiesPass{}
 	this.self_ = this
-	this.selfI_ = this
 	this.outer_ = outer_
 	this.init_J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_InlinePropertiesPass(allGetterSetters)
 	return this
@@ -521,7 +515,7 @@ func (this *J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_J2clPropertyE
 		this.remove_impl()
 		return
 	}
-	this.selfI_.remove_impl()
+	this.self_.remove_impl()
 }
 
 // remove: an object that is exactly a J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_J2clPropertyEs6 calls its remove_impl directly (post-flip); others dispatch.
@@ -530,7 +524,7 @@ func (this *J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_J2clPropertyE
 		this.remove_impl()
 		return
 	}
-	this.selfI_.remove_impl()
+	this.self_.remove_impl()
 }
 
 // visit: an object that is exactly a J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_GatherJ2CLClassGetterSetters calls its visit_impl directly (post-flip); others dispatch.
@@ -539,7 +533,7 @@ func (this *J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_GatherJ2CLCla
 		this.visit_impl(p0, p1, p2)
 		return
 	}
-	this.selfI_.visit_impl(p0, p1, p2)
+	this.self_.visit_impl(p0, p1, p2)
 }
 
 // visit: an object that is exactly a J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_DetermineInlinableProperties calls its visit_impl directly (post-flip); others dispatch.
@@ -548,7 +542,7 @@ func (this *J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_DetermineInli
 		this.visit_impl(p0, p1, p2)
 		return
 	}
-	this.selfI_.visit_impl(p0, p1, p2)
+	this.self_.visit_impl(p0, p1, p2)
 }
 
 // visit: an object that is exactly a J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_InlinePropertiesPass calls its visit_impl directly (post-flip); others dispatch.
@@ -557,5 +551,5 @@ func (this *J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_InlinePropert
 		this.visit_impl(p0, p1, p2)
 		return
 	}
-	this.selfI_.visit_impl(p0, p1, p2)
+	this.self_.visit_impl(p0, p1, p2)
 }

@@ -92,7 +92,6 @@ func (this *JsMessageExtractor_ExtractMessagesVisitor) init_JsMessageExtractor_E
 func new_JsMessageExtractor_ExtractMessagesVisitor(outer_ *JsMessageExtractor, compiler *AbstractCompiler) *JsMessageExtractor_ExtractMessagesVisitor {
 	this := &JsMessageExtractor_ExtractMessagesVisitor{}
 	this.self_ = this
-	this.selfI_ = this
 	this.outer_ = outer_
 	this.init_JsMessageExtractor_ExtractMessagesVisitor(compiler)
 	return this

@@ -26,7 +26,6 @@ func (this *J2clStringValueOfRewriterPass) init_J2clStringValueOfRewriterPass() 
 func new_J2clStringValueOfRewriterPass() *J2clStringValueOfRewriterPass {
 	this := &J2clStringValueOfRewriterPass{}
 	this.self_ = this
-	this.selfI_ = this
 	this.init_J2clStringValueOfRewriterPass()
 	return this
 }
@@ -75,7 +74,7 @@ func (this *J2clStringValueOfRewriterPass) beginTraversal(p0 *AbstractCompiler) 
 		this.beginTraversal_impl(p0)
 		return
 	}
-	this.selfI_.beginTraversal_impl(p0)
+	this.self_.beginTraversal_impl(p0)
 }
 
 // optimizeSubtree: an object that is exactly a J2clStringValueOfRewriterPass calls its optimizeSubtree_impl directly (post-flip); others dispatch.
@@ -83,5 +82,5 @@ func (this *J2clStringValueOfRewriterPass) optimizeSubtree(p0 Node) Node {
 	if this.self_ == any(this) {
 		return this.optimizeSubtree_impl(p0)
 	}
-	return this.selfI_.optimizeSubtree_impl(p0)
+	return this.self_.optimizeSubtree_impl(p0)
 }

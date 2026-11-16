@@ -37,7 +37,6 @@ func (this *InstanceObjectType) init_InstanceObjectType(builder *InstanceObjectT
 func new_InstanceObjectType(builder *InstanceObjectType_Builder) *InstanceObjectType {
 	this := &InstanceObjectType{}
 	this.self_ = this
-	this.selfI_ = this
 	this.init_InstanceObjectType(builder)
 	return this
 }
@@ -200,7 +199,6 @@ func (this *InstanceObjectType_Builder) init_InstanceObjectType_Builder(registry
 func new_InstanceObjectType_Builder(registry *JSTypeRegistry) *InstanceObjectType_Builder {
 	this := &InstanceObjectType_Builder{}
 	this.self_ = this
-	this.selfI_ = this
 	this.init_InstanceObjectType_Builder(registry)
 	return this
 }
@@ -219,7 +217,7 @@ func (this *InstanceObjectType) getTypeClass() *JSTypeClass {
 	if this.self_ == any(this) {
 		return this.getTypeClass_impl()
 	}
-	return this.selfI_.getTypeClass_impl()
+	return this.self_.getTypeClass_impl()
 }
 
 // getReferenceName: an object that is exactly a InstanceObjectType calls its getReferenceName_impl directly (post-flip); others dispatch.
@@ -262,7 +260,7 @@ func (this *InstanceObjectType) appendTo(p0 *TypeStringBuilder) {
 		this.appendTo_impl(p0)
 		return
 	}
-	this.selfI_.appendTo_impl(p0)
+	this.self_.appendTo_impl(p0)
 }
 
 // isTheObjectType: an object that is exactly a InstanceObjectType calls its isTheObjectType_impl directly (post-flip); others dispatch.
@@ -270,7 +268,7 @@ func (this *InstanceObjectType) isTheObjectType() bool {
 	if this.self_ == any(this) {
 		return this.isTheObjectType_impl()
 	}
-	return this.selfI_.isTheObjectType_impl()
+	return this.self_.isTheObjectType_impl()
 }
 
 // isInstanceType: an object that is exactly a InstanceObjectType calls its isInstanceType_impl directly (post-flip); others dispatch.
@@ -278,7 +276,7 @@ func (this *InstanceObjectType) isInstanceType() bool {
 	if this.self_ == any(this) {
 		return this.isInstanceType_impl()
 	}
-	return this.selfI_.isInstanceType_impl()
+	return this.self_.isInstanceType_impl()
 }
 
 // isArrayType: an object that is exactly a InstanceObjectType calls its isArrayType_impl directly (post-flip); others dispatch.
@@ -286,7 +284,7 @@ func (this *InstanceObjectType) isArrayType() bool {
 	if this.self_ == any(this) {
 		return this.isArrayType_impl()
 	}
-	return this.selfI_.isArrayType_impl()
+	return this.self_.isArrayType_impl()
 }
 
 // isReadonlyArrayType: an object that is exactly a InstanceObjectType calls its isReadonlyArrayType_impl directly (post-flip); others dispatch.
@@ -294,7 +292,7 @@ func (this *InstanceObjectType) isReadonlyArrayType() bool {
 	if this.self_ == any(this) {
 		return this.isReadonlyArrayType_impl()
 	}
-	return this.selfI_.isReadonlyArrayType_impl()
+	return this.self_.isReadonlyArrayType_impl()
 }
 
 // isBigIntObjectType: an object that is exactly a InstanceObjectType calls its isBigIntObjectType_impl directly (post-flip); others dispatch.
@@ -302,7 +300,7 @@ func (this *InstanceObjectType) isBigIntObjectType() bool {
 	if this.self_ == any(this) {
 		return this.isBigIntObjectType_impl()
 	}
-	return this.selfI_.isBigIntObjectType_impl()
+	return this.self_.isBigIntObjectType_impl()
 }
 
 // isStringObjectType: an object that is exactly a InstanceObjectType calls its isStringObjectType_impl directly (post-flip); others dispatch.
@@ -310,7 +308,7 @@ func (this *InstanceObjectType) isStringObjectType() bool {
 	if this.self_ == any(this) {
 		return this.isStringObjectType_impl()
 	}
-	return this.selfI_.isStringObjectType_impl()
+	return this.self_.isStringObjectType_impl()
 }
 
 // isSymbolObjectType: an object that is exactly a InstanceObjectType calls its isSymbolObjectType_impl directly (post-flip); others dispatch.
@@ -318,7 +316,7 @@ func (this *InstanceObjectType) isSymbolObjectType() bool {
 	if this.self_ == any(this) {
 		return this.isSymbolObjectType_impl()
 	}
-	return this.selfI_.isSymbolObjectType_impl()
+	return this.self_.isSymbolObjectType_impl()
 }
 
 // isBooleanObjectType: an object that is exactly a InstanceObjectType calls its isBooleanObjectType_impl directly (post-flip); others dispatch.
@@ -326,7 +324,7 @@ func (this *InstanceObjectType) isBooleanObjectType() bool {
 	if this.self_ == any(this) {
 		return this.isBooleanObjectType_impl()
 	}
-	return this.selfI_.isBooleanObjectType_impl()
+	return this.self_.isBooleanObjectType_impl()
 }
 
 // isNumberObjectType: an object that is exactly a InstanceObjectType calls its isNumberObjectType_impl directly (post-flip); others dispatch.
@@ -334,7 +332,7 @@ func (this *InstanceObjectType) isNumberObjectType() bool {
 	if this.self_ == any(this) {
 		return this.isNumberObjectType_impl()
 	}
-	return this.selfI_.isNumberObjectType_impl()
+	return this.self_.isNumberObjectType_impl()
 }
 
 // isDateType: an object that is exactly a InstanceObjectType calls its isDateType_impl directly (post-flip); others dispatch.
@@ -342,7 +340,7 @@ func (this *InstanceObjectType) isDateType() bool {
 	if this.self_ == any(this) {
 		return this.isDateType_impl()
 	}
-	return this.selfI_.isDateType_impl()
+	return this.self_.isDateType_impl()
 }
 
 // isRegexpType: an object that is exactly a InstanceObjectType calls its isRegexpType_impl directly (post-flip); others dispatch.
@@ -350,7 +348,7 @@ func (this *InstanceObjectType) isRegexpType() bool {
 	if this.self_ == any(this) {
 		return this.isRegexpType_impl()
 	}
-	return this.selfI_.isRegexpType_impl()
+	return this.self_.isRegexpType_impl()
 }
 
 // isNominalType: an object that is exactly a InstanceObjectType calls its isNominalType_impl directly (post-flip); others dispatch.
@@ -358,7 +356,7 @@ func (this *InstanceObjectType) isNominalType() bool {
 	if this.self_ == any(this) {
 		return this.isNominalType_impl()
 	}
-	return this.selfI_.isNominalType_impl()
+	return this.self_.isNominalType_impl()
 }
 
 // recursionUnsafeHashCode: an object that is exactly a InstanceObjectType calls its recursionUnsafeHashCode_impl directly (post-flip); others dispatch.
@@ -366,7 +364,7 @@ func (this *InstanceObjectType) recursionUnsafeHashCode() int32 {
 	if this.self_ == any(this) {
 		return this.recursionUnsafeHashCode_impl()
 	}
-	return this.selfI_.recursionUnsafeHashCode_impl()
+	return this.self_.recursionUnsafeHashCode_impl()
 }
 
 // getCtorImplementedInterfaces: an object that is exactly a InstanceObjectType calls its getCtorImplementedInterfaces_impl directly (post-flip); others dispatch.
@@ -390,7 +388,7 @@ func (this *InstanceObjectType) resolveInternal(p0 ErrorReporter_rhino) *JSType 
 	if this.self_ == any(this) {
 		return this.resolveInternal_impl(p0)
 	}
-	return this.selfI_.resolveInternal_impl(p0)
+	return this.self_.resolveInternal_impl(p0)
 }
 
 // build: an object that is exactly a InstanceObjectType_Builder calls its build_impl directly (post-flip); others dispatch.
@@ -398,5 +396,5 @@ func (this *InstanceObjectType_Builder) build() *PrototypeObjectType {
 	if this.self_ == any(this) {
 		return this.build_impl()
 	}
-	return this.selfI_.build_impl()
+	return this.self_.build_impl()
 }

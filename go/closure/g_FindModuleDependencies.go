@@ -204,7 +204,6 @@ func (this *FindModuleDependencies_FindGoogProvideOrGoogModule) init_FindModuleD
 func new_FindModuleDependencies_FindGoogProvideOrGoogModule() *FindModuleDependencies_FindGoogProvideOrGoogModule {
 	this := &FindModuleDependencies_FindGoogProvideOrGoogModule{}
 	this.self_ = this
-	this.selfI_ = this
 	this.init_FindModuleDependencies_FindGoogProvideOrGoogModule()
 	return this
 }
@@ -235,5 +234,5 @@ func (this *FindModuleDependencies_FindGoogProvideOrGoogModule) shouldTraverse(p
 	if this.self_ == any(this) {
 		return this.shouldTraverse_impl(p0, p1, p2)
 	}
-	return this.selfI_.shouldTraverse_impl(p0, p1, p2)
+	return this.self_.shouldTraverse_impl(p0, p1, p2)
 }

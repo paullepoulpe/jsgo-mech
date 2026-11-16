@@ -41,7 +41,6 @@ func (this *TemplateType) init_TemplateType_JSTypeRegistry_String(registry *JSTy
 func new_TemplateType_JSTypeRegistry_String(registry *JSTypeRegistry, name string) *TemplateType {
 	this := &TemplateType{}
 	this.self_ = this
-	this.selfI_ = this
 	this.zero_TemplateType()
 	this.init_TemplateType_JSTypeRegistry_String(registry, name)
 	return this
@@ -54,7 +53,6 @@ func (this *TemplateType) init_TemplateType_JSTypeRegistry_String_JSType(registr
 func new_TemplateType_JSTypeRegistry_String_JSType(registry *JSTypeRegistry, name string, bound *JSType) *TemplateType {
 	this := &TemplateType{}
 	this.self_ = this
-	this.selfI_ = this
 	this.zero_TemplateType()
 	this.init_TemplateType_JSTypeRegistry_String_JSType(registry, name, bound)
 	return this
@@ -81,7 +79,6 @@ func (this *TemplateType) init_TemplateType_JSTypeRegistry_String_JSType_Node(re
 func new_TemplateType_JSTypeRegistry_String_JSType_Node(registry *JSTypeRegistry, name string, bound *JSType, typeTransformation Node) *TemplateType {
 	this := &TemplateType{}
 	this.self_ = this
-	this.selfI_ = this
 	this.zero_TemplateType()
 	this.init_TemplateType_JSTypeRegistry_String_JSType_Node(registry, name, bound, typeTransformation)
 	return this
@@ -171,7 +168,7 @@ func (this *TemplateType) getTypeClass() *JSTypeClass {
 	if this.self_ == any(this) {
 		return this.getTypeClass_impl()
 	}
-	return this.selfI_.getTypeClass_impl()
+	return this.self_.getTypeClass_impl()
 }
 
 // getReferenceName: an object that is exactly a TemplateType calls its getReferenceName_impl directly (post-flip); others dispatch.
@@ -188,7 +185,7 @@ func (this *TemplateType) appendTo(p0 *TypeStringBuilder) {
 		this.appendTo_impl(p0)
 		return
 	}
-	this.selfI_.appendTo_impl(p0)
+	this.self_.appendTo_impl(p0)
 }
 
 // toMaybeTemplateType: an object that is exactly a TemplateType calls its toMaybeTemplateType_impl directly (post-flip); others dispatch.
@@ -196,7 +193,7 @@ func (this *TemplateType) toMaybeTemplateType() *TemplateType {
 	if this.self_ == any(this) {
 		return this.toMaybeTemplateType_impl()
 	}
-	return this.selfI_.toMaybeTemplateType_impl()
+	return this.self_.toMaybeTemplateType_impl()
 }
 
 // hasAnyTemplateTypesInternal: an object that is exactly a TemplateType calls its hasAnyTemplateTypesInternal_impl directly (post-flip); others dispatch.
@@ -204,7 +201,7 @@ func (this *TemplateType) hasAnyTemplateTypesInternal() bool {
 	if this.self_ == any(this) {
 		return this.hasAnyTemplateTypesInternal_impl()
 	}
-	return this.selfI_.hasAnyTemplateTypesInternal_impl()
+	return this.self_.hasAnyTemplateTypesInternal_impl()
 }
 
 // visitUntyped: an object that is exactly a TemplateType calls its visitUntyped_impl directly (post-flip); others dispatch.
@@ -212,7 +209,7 @@ func (this *TemplateType) visitUntyped(p0 Visitor) any {
 	if this.self_ == any(this) {
 		return this.visitUntyped_impl(p0)
 	}
-	return this.selfI_.visitUntyped_impl(p0)
+	return this.self_.visitUntyped_impl(p0)
 }
 
 // visitUntyped_2: an object that is exactly a TemplateType calls its visitUntyped_2_impl directly (post-flip); others dispatch.
@@ -220,7 +217,7 @@ func (this *TemplateType) visitUntyped_2(p0 RelationshipVisitor, p1 *JSType) any
 	if this.self_ == any(this) {
 		return this.visitUntyped_2_impl(p0, p1)
 	}
-	return this.selfI_.visitUntyped_2_impl(p0, p1)
+	return this.self_.visitUntyped_2_impl(p0, p1)
 }
 
 // setValidator: an object that is exactly a TemplateType calls its setValidator_impl directly (post-flip); others dispatch.
@@ -228,7 +225,7 @@ func (this *TemplateType) setValidator(p0 Predicate_base) bool {
 	if this.self_ == any(this) {
 		return this.setValidator_impl(p0)
 	}
-	return this.selfI_.setValidator_impl(p0)
+	return this.self_.setValidator_impl(p0)
 }
 
 // recursionUnsafeHashCode: an object that is exactly a TemplateType calls its recursionUnsafeHashCode_impl directly (post-flip); others dispatch.
@@ -236,5 +233,5 @@ func (this *TemplateType) recursionUnsafeHashCode() int32 {
 	if this.self_ == any(this) {
 		return this.recursionUnsafeHashCode_impl()
 	}
-	return this.selfI_.recursionUnsafeHashCode_impl()
+	return this.self_.recursionUnsafeHashCode_impl()
 }

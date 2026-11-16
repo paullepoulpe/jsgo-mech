@@ -802,7 +802,6 @@ func (this *ControlFlowAnalysis_AstControlFlowGraph) init_ControlFlowAnalysis_As
 func new_ControlFlowAnalysis_AstControlFlowGraph(entry Node, edgeAnnotations bool) *ControlFlowAnalysis_AstControlFlowGraph {
 	this := &ControlFlowAnalysis_AstControlFlowGraph{}
 	this.self_ = this
-	this.selfI_ = this
 	this.init_ControlFlowAnalysis_AstControlFlowGraph(entry, edgeAnnotations)
 	return this
 }

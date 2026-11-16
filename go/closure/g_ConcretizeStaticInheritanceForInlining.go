@@ -178,7 +178,6 @@ func (this *ConcretizeStaticInheritanceForInlining_FindStaticMembers) init_Concr
 func new_ConcretizeStaticInheritanceForInlining_FindStaticMembers(outer_ *ConcretizeStaticInheritanceForInlining) *ConcretizeStaticInheritanceForInlining_FindStaticMembers {
 	this := &ConcretizeStaticInheritanceForInlining_FindStaticMembers{}
 	this.self_ = this
-	this.selfI_ = this
 	this.outer_ = outer_
 	this.init_ConcretizeStaticInheritanceForInlining_FindStaticMembers()
 	return this
@@ -280,5 +279,5 @@ func (this *ConcretizeStaticInheritanceForInlining_FindStaticMembers) visit(p0 *
 		this.visit_impl(p0, p1, p2)
 		return
 	}
-	this.selfI_.visit_impl(p0, p1, p2)
+	this.self_.visit_impl(p0, p1, p2)
 }

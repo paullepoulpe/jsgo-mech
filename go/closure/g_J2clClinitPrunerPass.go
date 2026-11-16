@@ -242,7 +242,6 @@ func (this *J2clClinitPrunerPass_LookAheadRedundantClinitPruner) init_J2clClinit
 func new_J2clClinitPrunerPass_LookAheadRedundantClinitPruner(outer_ *J2clClinitPrunerPass) *J2clClinitPrunerPass_LookAheadRedundantClinitPruner {
 	this := &J2clClinitPrunerPass_LookAheadRedundantClinitPruner{}
 	this.self_ = this
-	this.selfI_ = this
 	this.outer_ = outer_
 	this.init_J2clClinitPrunerPass_LookAheadRedundantClinitPruner()
 	return this
@@ -342,7 +341,6 @@ func (this *J2clClinitPrunerPass_EmptyClinitPruner) init_J2clClinitPrunerPass_Em
 func new_J2clClinitPrunerPass_EmptyClinitPruner(outer_ *J2clClinitPrunerPass) *J2clClinitPrunerPass_EmptyClinitPruner {
 	this := &J2clClinitPrunerPass_EmptyClinitPruner{}
 	this.self_ = this
-	this.selfI_ = this
 	this.outer_ = outer_
 	this.init_J2clClinitPrunerPass_EmptyClinitPruner()
 	return this
@@ -442,7 +440,6 @@ func (this *J2clClinitPrunerPass_1) init_J2clClinitPrunerPass_1() {
 func new_J2clClinitPrunerPass_1(outer_ *J2clClinitPrunerPass, cap_clinitReferences *SimpleSetMultimap) *J2clClinitPrunerPass_1 {
 	this := &J2clClinitPrunerPass_1{}
 	this.self_ = this
-	this.selfI_ = this
 	this.outer_ = outer_
 	this.cap_clinitReferences = cap_clinitReferences
 	this.init_J2clClinitPrunerPass_1()
@@ -462,7 +459,7 @@ func (this *J2clClinitPrunerPass_LookAheadRedundantClinitPruner) visit(p0 *NodeT
 		this.visit_impl(p0, p1, p2)
 		return
 	}
-	this.selfI_.visit_impl(p0, p1, p2)
+	this.self_.visit_impl(p0, p1, p2)
 }
 
 // visit: an object that is exactly a J2clClinitPrunerPass_EmptyClinitPruner calls its visit_impl directly (post-flip); others dispatch.
@@ -471,7 +468,7 @@ func (this *J2clClinitPrunerPass_EmptyClinitPruner) visit(p0 *NodeTraversal, p1 
 		this.visit_impl(p0, p1, p2)
 		return
 	}
-	this.selfI_.visit_impl(p0, p1, p2)
+	this.self_.visit_impl(p0, p1, p2)
 }
 
 // visit: an object that is exactly a J2clClinitPrunerPass_1 calls its visit_impl directly (post-flip); others dispatch.
@@ -480,5 +477,5 @@ func (this *J2clClinitPrunerPass_1) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
 		this.visit_impl(p0, p1, p2)
 		return
 	}
-	this.selfI_.visit_impl(p0, p1, p2)
+	this.self_.visit_impl(p0, p1, p2)
 }

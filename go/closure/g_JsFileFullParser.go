@@ -248,7 +248,6 @@ func (this *JsFileFullParser_1) init_JsFileFullParser_1() {
 func new_JsFileFullParser_1(cap_errorReporter *JsFileFullParser_DelegatingReporter) *JsFileFullParser_1 {
 	this := &JsFileFullParser_1{}
 	this.self_ = this
-	this.selfI_ = this
 	this.cap_errorReporter = cap_errorReporter
 	this.init_JsFileFullParser_1()
 	return this

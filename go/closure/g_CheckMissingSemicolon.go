@@ -22,7 +22,6 @@ func (this *CheckMissingSemicolon) init_CheckMissingSemicolon(compiler *Abstract
 func new_CheckMissingSemicolon(compiler *AbstractCompiler) *CheckMissingSemicolon {
 	this := &CheckMissingSemicolon{}
 	this.self_ = this
-	this.selfI_ = this
 	this.init_CheckMissingSemicolon(compiler)
 	return this
 }
@@ -95,5 +94,5 @@ func (this *CheckMissingSemicolon) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
 		this.visit_impl(p0, p1, p2)
 		return
 	}
-	this.selfI_.visit_impl(p0, p1, p2)
+	this.self_.visit_impl(p0, p1, p2)
 }

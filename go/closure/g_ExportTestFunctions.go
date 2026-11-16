@@ -116,7 +116,6 @@ func (this *ExportTestFunctions_ExportTestFunctionsNodes) init_ExportTestFunctio
 func new_ExportTestFunctions_ExportTestFunctionsNodes(outer_ *ExportTestFunctions) *ExportTestFunctions_ExportTestFunctionsNodes {
 	this := &ExportTestFunctions_ExportTestFunctionsNodes{}
 	this.self_ = this
-	this.selfI_ = this
 	this.outer_ = outer_
 	this.init_ExportTestFunctions_ExportTestFunctionsNodes()
 	return this
@@ -269,5 +268,5 @@ func (this *ExportTestFunctions_ExportTestFunctionsNodes) visit(p0 *NodeTraversa
 		this.visit_impl(p0, p1, p2)
 		return
 	}
-	this.selfI_.visit_impl(p0, p1, p2)
+	this.self_.visit_impl(p0, p1, p2)
 }

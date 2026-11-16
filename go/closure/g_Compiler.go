@@ -153,7 +153,6 @@ func (this *Compiler) init_Compiler_0() {
 func new_Compiler_0() *Compiler {
 	this := &Compiler{}
 	this.self_ = this
-	this.selfI_ = this
 	this.zero_Compiler()
 	this.init_Compiler_0()
 	return this
@@ -170,7 +169,6 @@ func (this *Compiler) init_Compiler_Output(outStream *Output) {
 func new_Compiler_Output(outStream *Output) *Compiler {
 	this := &Compiler{}
 	this.self_ = this
-	this.selfI_ = this
 	this.zero_Compiler()
 	this.init_Compiler_Output(outStream)
 	return this
@@ -3410,8 +3408,7 @@ func new_Compiler_ResolvedSourceMap() *Compiler_ResolvedSourceMap {
 }
 
 type Compiler_SeenSetLicenseTracker struct {
-	self_                  any
-	selfI_                 Compiler_SeenSetLicenseTracker_I
+	self_                  Compiler_SeenSetLicenseTracker_I
 	compiler_              *AbstractCompiler
 	globallyUniqueLicenses *TSet[string]
 	currentlySeenLicenses  *TSet[string]
@@ -3419,7 +3416,7 @@ type Compiler_SeenSetLicenseTracker struct {
 }
 
 // Compiler_SeenSetLicenseTracker_I holds the methods the dispatchers of Compiler_SeenSetLicenseTracker's hierarchy call on the most derived
-// object (selfI_, set with self_); every class of the hierarchy implements them (post-flip).
+// object (self_); every class of the hierarchy implements them (post-flip).
 type Compiler_SeenSetLicenseTracker_I interface {
 	shouldUseLicenseInfo_impl(Node) bool
 }
@@ -3501,7 +3498,7 @@ func (this *Compiler_SeenSetLicenseTracker) emitLicenses() ImmutableSetOf[string
 }
 
 func (this *Compiler_SeenSetLicenseTracker) shouldUseLicenseInfo(p0 Node) bool {
-	return this.selfI_.shouldUseLicenseInfo_impl(p0)
+	return this.self_.shouldUseLicenseInfo_impl(p0)
 }
 
 type Compiler_ScriptNodeLicensesOnlyTracker struct {
@@ -3526,7 +3523,6 @@ func (this *Compiler_ScriptNodeLicensesOnlyTracker) init_Compiler_ScriptNodeLice
 func new_Compiler_ScriptNodeLicensesOnlyTracker(compiler *AbstractCompiler) *Compiler_ScriptNodeLicensesOnlyTracker {
 	this := &Compiler_ScriptNodeLicensesOnlyTracker{}
 	this.self_ = this
-	this.selfI_ = this
 	this.zero_Compiler_ScriptNodeLicensesOnlyTracker()
 	this.init_Compiler_ScriptNodeLicensesOnlyTracker(compiler)
 	return this
@@ -3558,7 +3554,6 @@ func (this *Compiler_SingleBinaryLicenseTracker) init_Compiler_SingleBinaryLicen
 func new_Compiler_SingleBinaryLicenseTracker(compiler *AbstractCompiler) *Compiler_SingleBinaryLicenseTracker {
 	this := &Compiler_SingleBinaryLicenseTracker{}
 	this.self_ = this
-	this.selfI_ = this
 	this.zero_Compiler_SingleBinaryLicenseTracker()
 	this.init_Compiler_SingleBinaryLicenseTracker(compiler)
 	return this
@@ -3805,7 +3800,6 @@ func (this *Compiler_2) init_Compiler_2() {
 func new_Compiler_2(outer_ *Compiler, cap_result *TList[Node]) *Compiler_2 {
 	this := &Compiler_2{}
 	this.self_ = this
-	this.selfI_ = this
 	this.outer_ = outer_
 	this.cap_result = cap_result
 	this.init_Compiler_2()
@@ -3836,7 +3830,7 @@ func (this *Compiler) initRuntimeLibraryTypedAsts(p0 *Optional_base) {
 		this.initRuntimeLibraryTypedAsts_impl(p0)
 		return
 	}
-	this.selfI_.initRuntimeLibraryTypedAsts_impl(p0)
+	this.self_.initRuntimeLibraryTypedAsts_impl(p0)
 }
 
 // getRuntimeJsLibManager: an object that is exactly a Compiler calls its getRuntimeJsLibManager_impl directly (post-flip); others dispatch.
@@ -4806,7 +4800,7 @@ func (this *Compiler_ScriptNodeLicensesOnlyTracker) shouldUseLicenseInfo(p0 Node
 	if this.self_ == any(this) {
 		return this.shouldUseLicenseInfo_impl(p0)
 	}
-	return this.selfI_.shouldUseLicenseInfo_impl(p0)
+	return this.self_.shouldUseLicenseInfo_impl(p0)
 }
 
 // shouldUseLicenseInfo: an object that is exactly a Compiler_SingleBinaryLicenseTracker calls its shouldUseLicenseInfo_impl directly (post-flip); others dispatch.
@@ -4814,7 +4808,7 @@ func (this *Compiler_SingleBinaryLicenseTracker) shouldUseLicenseInfo(p0 Node) b
 	if this.self_ == any(this) {
 		return this.shouldUseLicenseInfo_impl(p0)
 	}
-	return this.selfI_.shouldUseLicenseInfo_impl(p0)
+	return this.self_.shouldUseLicenseInfo_impl(p0)
 }
 
 // shouldTraverse: an object that is exactly a Compiler_2 calls its shouldTraverse_impl directly (post-flip); others dispatch.
@@ -4822,5 +4816,5 @@ func (this *Compiler_2) shouldTraverse(p0 *NodeTraversal, p1 Node, p2 Node) bool
 	if this.self_ == any(this) {
 		return this.shouldTraverse_impl(p0, p1, p2)
 	}
-	return this.selfI_.shouldTraverse_impl(p0, p1, p2)
+	return this.self_.shouldTraverse_impl(p0, p1, p2)
 }

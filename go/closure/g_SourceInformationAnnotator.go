@@ -22,7 +22,6 @@ func (this *SourceInformationAnnotator) init_SourceInformationAnnotator(sourceFi
 func new_SourceInformationAnnotator(sourceFileToCheck OptionalOf[string]) *SourceInformationAnnotator {
 	this := &SourceInformationAnnotator{}
 	this.self_ = this
-	this.selfI_ = this
 	this.init_SourceInformationAnnotator(sourceFileToCheck)
 	return this
 }
@@ -83,5 +82,5 @@ func (this *SourceInformationAnnotator) visit(p0 *NodeTraversal, p1 Node, p2 Nod
 		this.visit_impl(p0, p1, p2)
 		return
 	}
-	this.selfI_.visit_impl(p0, p1, p2)
+	this.self_.visit_impl(p0, p1, p2)
 }

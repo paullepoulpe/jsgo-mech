@@ -36,7 +36,6 @@ func (this *FixingErrorManager) init_FixingErrorManager_0() {
 func new_FixingErrorManager_0() *FixingErrorManager {
 	this := &FixingErrorManager{}
 	this.self_ = this
-	this.selfI_ = this
 	this.init_FixingErrorManager_0()
 	return this
 }
@@ -50,7 +49,6 @@ func (this *FixingErrorManager) init_FixingErrorManager_ImmutableSet(unfixableEr
 func new_FixingErrorManager_ImmutableSet(unfixableErrors ImmutableSetOf[*DiagnosticType]) *FixingErrorManager {
 	this := &FixingErrorManager{}
 	this.self_ = this
-	this.selfI_ = this
 	this.init_FixingErrorManager_ImmutableSet(unfixableErrors)
 	return this
 }
@@ -203,7 +201,7 @@ func (this *FixingErrorManager) report_2(p0 *CheckLevel, p1 *JSError) {
 		this.report_2_impl(p0, p1)
 		return
 	}
-	this.selfI_.report_2_impl(p0, p1)
+	this.self_.report_2_impl(p0, p1)
 }
 
 // printSummary: an object that is exactly a FixingErrorManager calls its printSummary_impl directly (post-flip); others dispatch.

@@ -36,7 +36,6 @@ func (this *PerformanceTrackerCodeSizeEstimator) init_PerformanceTrackerCodeSize
 func new_PerformanceTrackerCodeSizeEstimator(trackGzSize bool) *PerformanceTrackerCodeSizeEstimator {
 	this := &PerformanceTrackerCodeSizeEstimator{}
 	this.self_ = this
-	this.selfI_ = this
 	this.init_PerformanceTrackerCodeSizeEstimator(trackGzSize)
 	return this
 }
@@ -95,7 +94,7 @@ func (this *PerformanceTrackerCodeSizeEstimator) append(p0 string) {
 		this.append_impl(p0)
 		return
 	}
-	this.selfI_.append_impl(p0)
+	this.self_.append_impl(p0)
 }
 
 // getLastChar: an object that is exactly a PerformanceTrackerCodeSizeEstimator calls its getLastChar_impl directly (post-flip); others dispatch.
@@ -103,5 +102,5 @@ func (this *PerformanceTrackerCodeSizeEstimator) getLastChar() uint16 {
 	if this.self_ == any(this) {
 		return this.getLastChar_impl()
 	}
-	return this.selfI_.getLastChar_impl()
+	return this.self_.getLastChar_impl()
 }

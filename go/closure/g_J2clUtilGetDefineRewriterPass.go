@@ -23,7 +23,6 @@ func (this *J2clUtilGetDefineRewriterPass) init_J2clUtilGetDefineRewriterPass(co
 func new_J2clUtilGetDefineRewriterPass(compiler *AbstractCompiler) *J2clUtilGetDefineRewriterPass {
 	this := &J2clUtilGetDefineRewriterPass{}
 	this.self_ = this
-	this.selfI_ = this
 	this.init_J2clUtilGetDefineRewriterPass(compiler)
 	return this
 }
@@ -129,7 +128,6 @@ func (this *J2clUtilGetDefineRewriterPass_CheckGetDefineCalls) init_J2clUtilGetD
 func new_J2clUtilGetDefineRewriterPass_CheckGetDefineCalls(outer_ *J2clUtilGetDefineRewriterPass) *J2clUtilGetDefineRewriterPass_CheckGetDefineCalls {
 	this := &J2clUtilGetDefineRewriterPass_CheckGetDefineCalls{}
 	this.self_ = this
-	this.selfI_ = this
 	this.outer_ = outer_
 	this.init_J2clUtilGetDefineRewriterPass_CheckGetDefineCalls()
 	return this
@@ -191,7 +189,7 @@ func (this *J2clUtilGetDefineRewriterPass) visit(p0 *NodeTraversal, p1 Node, p2 
 		this.visit_impl(p0, p1, p2)
 		return
 	}
-	this.selfI_.visit_impl(p0, p1, p2)
+	this.self_.visit_impl(p0, p1, p2)
 }
 
 // visit: an object that is exactly a J2clUtilGetDefineRewriterPass_CheckGetDefineCalls calls its visit_impl directly (post-flip); others dispatch.
@@ -200,5 +198,5 @@ func (this *J2clUtilGetDefineRewriterPass_CheckGetDefineCalls) visit(p0 *NodeTra
 		this.visit_impl(p0, p1, p2)
 		return
 	}
-	this.selfI_.visit_impl(p0, p1, p2)
+	this.self_.visit_impl(p0, p1, p2)
 }

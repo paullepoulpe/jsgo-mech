@@ -24,7 +24,6 @@ func (this *StrictModeCheck) init_StrictModeCheck(compiler *AbstractCompiler, de
 func new_StrictModeCheck(compiler *AbstractCompiler, defaultLevel *CheckLevel) *StrictModeCheck {
 	this := &StrictModeCheck{}
 	this.self_ = this
-	this.selfI_ = this
 	this.init_StrictModeCheck(compiler, defaultLevel)
 	return this
 }
@@ -190,7 +189,6 @@ func (this *StrictModeCheck_NonExternChecks) init_StrictModeCheck_NonExternCheck
 func new_StrictModeCheck_NonExternChecks(outer_ *StrictModeCheck) *StrictModeCheck_NonExternChecks {
 	this := &StrictModeCheck_NonExternChecks{}
 	this.self_ = this
-	this.selfI_ = this
 	this.outer_ = outer_
 	this.init_StrictModeCheck_NonExternChecks()
 	return this
@@ -236,7 +234,7 @@ func (this *StrictModeCheck) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
 		this.visit_impl(p0, p1, p2)
 		return
 	}
-	this.selfI_.visit_impl(p0, p1, p2)
+	this.self_.visit_impl(p0, p1, p2)
 }
 
 // visit: an object that is exactly a StrictModeCheck_NonExternChecks calls its visit_impl directly (post-flip); others dispatch.
@@ -245,5 +243,5 @@ func (this *StrictModeCheck_NonExternChecks) visit(p0 *NodeTraversal, p1 Node, p
 		this.visit_impl(p0, p1, p2)
 		return
 	}
-	this.selfI_.visit_impl(p0, p1, p2)
+	this.self_.visit_impl(p0, p1, p2)
 }

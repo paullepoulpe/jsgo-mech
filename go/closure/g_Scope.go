@@ -25,7 +25,6 @@ func (this *Scope) init_Scope_Scope_Node(parent *Scope, rootNode Node) {
 func new_Scope_Scope_Node(parent *Scope, rootNode Node) *Scope {
 	this := &Scope{}
 	this.self_ = this
-	this.selfI_ = this
 	this.init_Scope_Scope_Node(parent, rootNode)
 	return this
 }
@@ -40,7 +39,6 @@ func (this *Scope) init_Scope_Node(rootNode Node) {
 func new_Scope_Node(rootNode Node) *Scope {
 	this := &Scope{}
 	this.self_ = this
-	this.selfI_ = this
 	this.init_Scope_Node(rootNode)
 	return this
 }
@@ -95,7 +93,7 @@ func (this *Scope) untyped() *Scope {
 	if this.self_ == any(this) {
 		return this.untyped_impl()
 	}
-	return this.selfI_.untyped_impl()
+	return this.self_.untyped_impl()
 }
 
 // getDepth: an object that is exactly a Scope calls its getDepth_impl directly (post-flip); others dispatch.
@@ -103,7 +101,7 @@ func (this *Scope) getDepth() int32 {
 	if this.self_ == any(this) {
 		return this.getDepth_impl()
 	}
-	return this.selfI_.getDepth_impl()
+	return this.self_.getDepth_impl()
 }
 
 // getParent: an object that is exactly a Scope calls its getParent_impl directly (post-flip); others dispatch.
@@ -111,7 +109,7 @@ func (this *Scope) getParent() *AbstractScope {
 	if this.self_ == any(this) {
 		return this.getParent_impl()
 	}
-	return this.selfI_.getParent_impl()
+	return this.self_.getParent_impl()
 }
 
 // makeImplicitVar: an object that is exactly a Scope calls its makeImplicitVar_impl directly (post-flip); others dispatch.
@@ -119,5 +117,5 @@ func (this *Scope) makeImplicitVar(p0 *AbstractScope_ImplicitVar) *AbstractVar {
 	if this.self_ == any(this) {
 		return this.makeImplicitVar_impl(p0)
 	}
-	return this.selfI_.makeImplicitVar_impl(p0)
+	return this.self_.makeImplicitVar_impl(p0)
 }

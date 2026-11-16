@@ -195,7 +195,6 @@ func (this *CheckClosureImports_Checker) init_CheckClosureImports_Checker(compil
 func new_CheckClosureImports_Checker(outer_ *CheckClosureImports, compiler *AbstractCompiler, moduleMetadataMap *ModuleMetadataMap) *CheckClosureImports_Checker {
 	this := &CheckClosureImports_Checker{}
 	this.self_ = this
-	this.selfI_ = this
 	this.outer_ = outer_
 	this.init_CheckClosureImports_Checker(compiler, moduleMetadataMap)
 	return this
@@ -709,7 +708,7 @@ func (this *CheckClosureImports_Checker) enterModule(p0 *ModuleMetadataMap_Modul
 		this.enterModule_impl(p0, p1)
 		return
 	}
-	this.selfI_.enterModule_impl(p0, p1)
+	this.self_.enterModule_impl(p0, p1)
 }
 
 // visit_4: an object that is exactly a CheckClosureImports_Checker calls its visit_4_impl directly (post-flip); others dispatch.
@@ -718,7 +717,7 @@ func (this *CheckClosureImports_Checker) visit_4(p0 *NodeTraversal, p1 Node, p2 
 		this.visit_4_impl(p0, p1, p2, p3)
 		return
 	}
-	this.selfI_.visit_4_impl(p0, p1, p2, p3)
+	this.self_.visit_4_impl(p0, p1, p2, p3)
 }
 
 // allowDestructuring: an object that is exactly a CheckClosureImports_ClosureImport_1 calls its allowDestructuring_impl directly (post-flip); others dispatch.

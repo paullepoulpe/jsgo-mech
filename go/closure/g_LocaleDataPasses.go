@@ -76,7 +76,6 @@ func (this *LocaleDataPasses_ProtectCurrentLocale) init_LocaleDataPasses_Protect
 func new_LocaleDataPasses_ProtectCurrentLocale(compiler *AbstractCompiler) *LocaleDataPasses_ProtectCurrentLocale {
 	this := &LocaleDataPasses_ProtectCurrentLocale{}
 	this.self_ = this
-	this.selfI_ = this
 	this.init_LocaleDataPasses_ProtectCurrentLocale(compiler)
 	return this
 }
@@ -130,7 +129,6 @@ func (this *LocaleDataPasses_LocaleSubstitutions) init_LocaleDataPasses_LocaleSu
 func new_LocaleDataPasses_LocaleSubstitutions(compiler *AbstractCompiler, locale OptionalOf[string]) *LocaleDataPasses_LocaleSubstitutions {
 	this := &LocaleDataPasses_LocaleSubstitutions{}
 	this.self_ = this
-	this.selfI_ = this
 	this.zero_LocaleDataPasses_LocaleSubstitutions()
 	this.init_LocaleDataPasses_LocaleSubstitutions(compiler, locale)
 	return this
@@ -156,7 +154,7 @@ func (this *LocaleDataPasses_ProtectCurrentLocale) visit(p0 *NodeTraversal, p1 N
 		this.visit_impl(p0, p1, p2)
 		return
 	}
-	this.selfI_.visit_impl(p0, p1, p2)
+	this.self_.visit_impl(p0, p1, p2)
 }
 
 // visit: an object that is exactly a LocaleDataPasses_LocaleSubstitutions calls its visit_impl directly (post-flip); others dispatch.
@@ -165,5 +163,5 @@ func (this *LocaleDataPasses_LocaleSubstitutions) visit(p0 *NodeTraversal, p1 No
 		this.visit_impl(p0, p1, p2)
 		return
 	}
-	this.selfI_.visit_impl(p0, p1, p2)
+	this.self_.visit_impl(p0, p1, p2)
 }

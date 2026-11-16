@@ -37,7 +37,6 @@ func (this *PrintStreamErrorManager) init_PrintStreamErrorManager_MessageFormatt
 func new_PrintStreamErrorManager_MessageFormatter_Output(formatter MessageFormatter, stream *Output) *PrintStreamErrorManager {
 	this := &PrintStreamErrorManager{}
 	this.self_ = this
-	this.selfI_ = this
 	this.init_PrintStreamErrorManager_MessageFormatter_Output(formatter, stream)
 	return this
 }
@@ -49,7 +48,6 @@ func (this *PrintStreamErrorManager) init_PrintStreamErrorManager_Output(stream 
 func new_PrintStreamErrorManager_Output(stream *Output) *PrintStreamErrorManager {
 	this := &PrintStreamErrorManager{}
 	this.self_ = this
-	this.selfI_ = this
 	this.init_PrintStreamErrorManager_Output(stream)
 	return this
 }

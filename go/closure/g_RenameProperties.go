@@ -224,7 +224,6 @@ func (this *RenameProperties_ProcessProperties) init_RenameProperties_ProcessPro
 func new_RenameProperties_ProcessProperties(outer_ *RenameProperties) *RenameProperties_ProcessProperties {
 	this := &RenameProperties_ProcessProperties{}
 	this.self_ = this
-	this.selfI_ = this
 	this.outer_ = outer_
 	this.init_RenameProperties_ProcessProperties()
 	return this
@@ -355,5 +354,5 @@ func (this *RenameProperties_ProcessProperties) visit(p0 *NodeTraversal, p1 Node
 		this.visit_impl(p0, p1, p2)
 		return
 	}
-	this.selfI_.visit_impl(p0, p1, p2)
+	this.self_.visit_impl(p0, p1, p2)
 }

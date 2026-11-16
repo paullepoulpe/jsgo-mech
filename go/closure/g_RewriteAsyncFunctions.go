@@ -208,14 +208,13 @@ func (this *RewriteAsyncFunctions_SuperPropertyWrappers) asCollection() Collecti
 }
 
 type RewriteAsyncFunctions_LexicalContext struct {
-	self_           any
-	selfI_          RewriteAsyncFunctions_LexicalContext_I
+	self_           RewriteAsyncFunctions_LexicalContext_I
 	contextRootNode Node
 	uniqueId        string
 }
 
 // RewriteAsyncFunctions_LexicalContext_I holds the methods the dispatchers of RewriteAsyncFunctions_LexicalContext's hierarchy call on the most derived
-// object (selfI_, set with self_); every class of the hierarchy implements them (post-flip).
+// object (self_); every class of the hierarchy implements them (post-flip).
 type RewriteAsyncFunctions_LexicalContext_I interface {
 	getContextForNode_impl(*NodeTraversal, Node) *RewriteAsyncFunctions_LexicalContext
 	visit_impl(*NodeTraversal, Node)
@@ -262,11 +261,11 @@ func (this *RewriteAsyncFunctions_LexicalContext) getContextRootNode() Node {
 }
 
 func (this *RewriteAsyncFunctions_LexicalContext) getContextForNode(p0 *NodeTraversal, p1 Node) *RewriteAsyncFunctions_LexicalContext {
-	return this.selfI_.getContextForNode_impl(p0, p1)
+	return this.self_.getContextForNode_impl(p0, p1)
 }
 
 func (this *RewriteAsyncFunctions_LexicalContext) visit(p0 *NodeTraversal, p1 Node) {
-	this.selfI_.visit_impl(p0, p1)
+	this.self_.visit_impl(p0, p1)
 }
 
 type RewriteAsyncFunctions_RootContext struct {
@@ -292,7 +291,6 @@ func (this *RewriteAsyncFunctions_RootContext) init_RewriteAsyncFunctions_RootCo
 func new_RewriteAsyncFunctions_RootContext(outer_ *RewriteAsyncFunctions, contextRootNode Node, uniqueId string) *RewriteAsyncFunctions_RootContext {
 	this := &RewriteAsyncFunctions_RootContext{}
 	this.self_ = this
-	this.selfI_ = this
 	this.zero_RewriteAsyncFunctions_RootContext()
 	this.outer_ = outer_
 	this.init_RewriteAsyncFunctions_RootContext(contextRootNode, uniqueId)
@@ -338,7 +336,6 @@ func (this *RewriteAsyncFunctions_ParameterListContext) init_RewriteAsyncFunctio
 func new_RewriteAsyncFunctions_ParameterListContext(outer_ *RewriteAsyncFunctions, functionContext *RewriteAsyncFunctions_FunctionContext, contextRootNode Node, uniqueId string) *RewriteAsyncFunctions_ParameterListContext {
 	this := &RewriteAsyncFunctions_ParameterListContext{}
 	this.self_ = this
-	this.selfI_ = this
 	this.zero_RewriteAsyncFunctions_ParameterListContext()
 	this.outer_ = outer_
 	this.init_RewriteAsyncFunctions_ParameterListContext(functionContext, contextRootNode, uniqueId)
@@ -414,7 +411,6 @@ func (this *RewriteAsyncFunctions_FunctionContext) init_RewriteAsyncFunctions_Fu
 func new_RewriteAsyncFunctions_FunctionContext_Node_String(outer_ *RewriteAsyncFunctions, contextRootNode Node, uniqueId string) *RewriteAsyncFunctions_FunctionContext {
 	this := &RewriteAsyncFunctions_FunctionContext{}
 	this.self_ = this
-	this.selfI_ = this
 	this.zero_RewriteAsyncFunctions_FunctionContext()
 	this.outer_ = outer_
 	this.init_RewriteAsyncFunctions_FunctionContext_Node_String(contextRootNode, uniqueId)
@@ -448,7 +444,6 @@ func (this *RewriteAsyncFunctions_FunctionContext) init_RewriteAsyncFunctions_Fu
 func new_RewriteAsyncFunctions_FunctionContext_FunctionContext_Node_String(outer_ *RewriteAsyncFunctions, outerAsyncContext *RewriteAsyncFunctions_FunctionContext, contextRootNode Node, uniqueId string) *RewriteAsyncFunctions_FunctionContext {
 	this := &RewriteAsyncFunctions_FunctionContext{}
 	this.self_ = this
-	this.selfI_ = this
 	this.zero_RewriteAsyncFunctions_FunctionContext()
 	this.outer_ = outer_
 	this.init_RewriteAsyncFunctions_FunctionContext_FunctionContext_Node_String(outerAsyncContext, contextRootNode, uniqueId)
@@ -562,7 +557,7 @@ func (this *RewriteAsyncFunctions_RootContext) getContextForNode(p0 *NodeTravers
 	if this.self_ == any(this) {
 		return this.getContextForNode_impl(p0, p1)
 	}
-	return this.selfI_.getContextForNode_impl(p0, p1)
+	return this.self_.getContextForNode_impl(p0, p1)
 }
 
 // visit: an object that is exactly a RewriteAsyncFunctions_RootContext calls its visit_impl directly (post-flip); others dispatch.
@@ -571,7 +566,7 @@ func (this *RewriteAsyncFunctions_RootContext) visit(p0 *NodeTraversal, p1 Node)
 		this.visit_impl(p0, p1)
 		return
 	}
-	this.selfI_.visit_impl(p0, p1)
+	this.self_.visit_impl(p0, p1)
 }
 
 // getContextForNode: an object that is exactly a RewriteAsyncFunctions_ParameterListContext calls its getContextForNode_impl directly (post-flip); others dispatch.
@@ -579,7 +574,7 @@ func (this *RewriteAsyncFunctions_ParameterListContext) getContextForNode(p0 *No
 	if this.self_ == any(this) {
 		return this.getContextForNode_impl(p0, p1)
 	}
-	return this.selfI_.getContextForNode_impl(p0, p1)
+	return this.self_.getContextForNode_impl(p0, p1)
 }
 
 // visit: an object that is exactly a RewriteAsyncFunctions_ParameterListContext calls its visit_impl directly (post-flip); others dispatch.
@@ -588,7 +583,7 @@ func (this *RewriteAsyncFunctions_ParameterListContext) visit(p0 *NodeTraversal,
 		this.visit_impl(p0, p1)
 		return
 	}
-	this.selfI_.visit_impl(p0, p1)
+	this.self_.visit_impl(p0, p1)
 }
 
 // getContextForNode: an object that is exactly a RewriteAsyncFunctions_FunctionContext calls its getContextForNode_impl directly (post-flip); others dispatch.
@@ -596,7 +591,7 @@ func (this *RewriteAsyncFunctions_FunctionContext) getContextForNode(p0 *NodeTra
 	if this.self_ == any(this) {
 		return this.getContextForNode_impl(p0, p1)
 	}
-	return this.selfI_.getContextForNode_impl(p0, p1)
+	return this.self_.getContextForNode_impl(p0, p1)
 }
 
 // visit: an object that is exactly a RewriteAsyncFunctions_FunctionContext calls its visit_impl directly (post-flip); others dispatch.
@@ -605,5 +600,5 @@ func (this *RewriteAsyncFunctions_FunctionContext) visit(p0 *NodeTraversal, p1 N
 		this.visit_impl(p0, p1)
 		return
 	}
-	this.selfI_.visit_impl(p0, p1)
+	this.self_.visit_impl(p0, p1)
 }

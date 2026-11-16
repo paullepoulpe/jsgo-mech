@@ -3,14 +3,13 @@
 package closure
 
 type Graph struct {
-	self_               any
-	selfI_              Graph_I
+	self_               Graph_I
 	nodeAnnotationStack DequeOf[*Graph_GraphAnnotationState]
 	edgeAnnotationStack DequeOf[*Graph_GraphAnnotationState]
 }
 
 // Graph_I holds the methods the dispatchers of Graph's hierarchy call on the most derived
-// object (selfI_, set with self_); every class of the hierarchy implements them (post-flip).
+// object (self_); every class of the hierarchy implements them (post-flip).
 type Graph_I interface {
 	connect_impl(any, any, any)
 	createNode_impl(any) GraphNode
@@ -134,59 +133,59 @@ func Graph_popAnnotations(stack DequeOf[*Graph_GraphAnnotationState]) {
 }
 
 func (this *Graph) createNode(p0 any) GraphNode {
-	return this.selfI_.createNode_impl(p0)
+	return this.self_.createNode_impl(p0)
 }
 
 func (this *Graph) getNodes() Collection {
-	return this.selfI_.getNodes_impl()
+	return this.self_.getNodes_impl()
 }
 
 func (this *Graph) getNode(p0 any) GraphNode {
-	return this.selfI_.getNode_impl(p0)
+	return this.self_.getNode_impl(p0)
 }
 
 func (this *Graph) getEdges() *TList[Graph_GraphEdge] {
-	return this.selfI_.getEdges_impl()
+	return this.self_.getEdges_impl()
 }
 
 func (this *Graph) getEdges_2(p0 any, p1 any) *TList[UndiGraph_UndiGraphEdge] {
-	return this.selfI_.getEdges_2_impl(p0, p1)
+	return this.self_.getEdges_2_impl(p0, p1)
 }
 
 func (this *Graph) isConnected(p0 any, p1 any) bool {
-	return this.selfI_.isConnected_impl(p0, p1)
+	return this.self_.isConnected_impl(p0, p1)
 }
 
 func (this *Graph) isConnected_3(p0 any, p1 any, p2 any) bool {
-	return this.selfI_.isConnected_3_impl(p0, p1, p2)
+	return this.self_.isConnected_3_impl(p0, p1, p2)
 }
 
 func (this *Graph) newSubGraph() SubGraph {
-	return this.selfI_.newSubGraph_impl()
+	return this.self_.newSubGraph_impl()
 }
 
 func (this *Graph) connect(p0 any, p1 any, p2 any) {
-	this.selfI_.connect_impl(p0, p1, p2)
+	this.self_.connect_impl(p0, p1, p2)
 }
 
 func (this *Graph) disconnect(p0 any, p1 any) {
-	this.selfI_.disconnect_impl(p0, p1)
+	this.self_.disconnect_impl(p0, p1)
 }
 
 func (this *Graph) getFirstEdge(p0 any, p1 any) Graph_GraphEdge {
-	return this.selfI_.getFirstEdge_impl(p0, p1)
+	return this.self_.getFirstEdge_impl(p0, p1)
 }
 
 func (this *Graph) getNodeCount() int32 {
-	return this.selfI_.getNodeCount_impl()
+	return this.self_.getNodeCount_impl()
 }
 
 func (this *Graph) getNeighborNodes(p0 any) *TList[GraphNode] {
-	return this.selfI_.getNeighborNodes_impl(p0)
+	return this.self_.getNeighborNodes_impl(p0)
 }
 
 func (this *Graph) getNodeDegree(p0 any) int32 {
-	return this.selfI_.getNodeDegree_impl(p0)
+	return this.self_.getNodeDegree_impl(p0)
 }
 
 type Graph_AnnotationState struct {

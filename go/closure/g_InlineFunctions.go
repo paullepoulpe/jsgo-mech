@@ -444,7 +444,6 @@ func (this *InlineFunctions_FindCandidateFunctions) init_InlineFunctions_FindCan
 func new_InlineFunctions_FindCandidateFunctions(outer_ *InlineFunctions) *InlineFunctions_FindCandidateFunctions {
 	this := &InlineFunctions_FindCandidateFunctions{}
 	this.self_ = this
-	this.selfI_ = this
 	this.outer_ = outer_
 	this.init_InlineFunctions_FindCandidateFunctions()
 	return this
@@ -563,7 +562,6 @@ func (this *InlineFunctions_CallVisitor) init_InlineFunctions_CallVisitor(fns *T
 func new_InlineFunctions_CallVisitor(fns *TMap[string, *InlineFunctions_FunctionState], anonFns *TMap[Node, string], callback InlineFunctions_CallVisitorCallback) *InlineFunctions_CallVisitor {
 	this := &InlineFunctions_CallVisitor{}
 	this.self_ = this
-	this.selfI_ = this
 	this.init_InlineFunctions_CallVisitor(fns, anonFns, callback)
 	return this
 }
@@ -623,7 +621,6 @@ func (this *InlineFunctions_FindCandidatesReferences) init_InlineFunctions_FindC
 func new_InlineFunctions_FindCandidatesReferences(outer_ *InlineFunctions, fns *TMap[string, *InlineFunctions_FunctionState], anonFns *TMap[Node, string]) *InlineFunctions_FindCandidatesReferences {
 	this := &InlineFunctions_FindCandidatesReferences{}
 	this.self_ = this
-	this.selfI_ = this
 	this.outer_ = outer_
 	this.init_InlineFunctions_FindCandidatesReferences(fns, anonFns)
 	return this
@@ -1346,7 +1343,7 @@ func (this *InlineFunctions_FindCandidateFunctions) visit(p0 *NodeTraversal, p1 
 		this.visit_impl(p0, p1, p2)
 		return
 	}
-	this.selfI_.visit_impl(p0, p1, p2)
+	this.self_.visit_impl(p0, p1, p2)
 }
 
 // visit: an object that is exactly a InlineFunctions_CallVisitor calls its visit_impl directly (post-flip); others dispatch.
@@ -1355,7 +1352,7 @@ func (this *InlineFunctions_CallVisitor) visit(p0 *NodeTraversal, p1 Node, p2 No
 		this.visit_impl(p0, p1, p2)
 		return
 	}
-	this.selfI_.visit_impl(p0, p1, p2)
+	this.self_.visit_impl(p0, p1, p2)
 }
 
 // visit: an object that is exactly a InlineFunctions_FindCandidatesReferences calls its visit_impl directly (post-flip); others dispatch.
@@ -1364,5 +1361,5 @@ func (this *InlineFunctions_FindCandidatesReferences) visit(p0 *NodeTraversal, p
 		this.visit_impl(p0, p1, p2)
 		return
 	}
-	this.selfI_.visit_impl(p0, p1, p2)
+	this.self_.visit_impl(p0, p1, p2)
 }

@@ -20,7 +20,6 @@ func (this *GoogBindToArrow) init_GoogBindToArrow() {
 func new_GoogBindToArrow() *GoogBindToArrow {
 	this := &GoogBindToArrow{}
 	this.self_ = this
-	this.selfI_ = this
 	this.init_GoogBindToArrow()
 	return this
 }
@@ -89,5 +88,5 @@ func (this *GoogBindToArrow) processMatch(p0 *Match) *TList[*SuggestedFix] {
 	if this.self_ == any(this) {
 		return this.processMatch_impl(p0)
 	}
-	return this.selfI_.processMatch_impl(p0)
+	return this.self_.processMatch_impl(p0)
 }

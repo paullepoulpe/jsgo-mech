@@ -3,13 +3,12 @@
 package closure
 
 type ThreadSafeDelegatingErrorManager struct {
-	self_     any
-	selfI_    ThreadSafeDelegatingErrorManager_I
+	self_     ThreadSafeDelegatingErrorManager_I
 	delegated ErrorManager
 }
 
 // ThreadSafeDelegatingErrorManager_I holds the methods the dispatchers of ThreadSafeDelegatingErrorManager's hierarchy call on the most derived
-// object (selfI_, set with self_); every class of the hierarchy implements them (post-flip).
+// object (self_); every class of the hierarchy implements them (post-flip).
 type ThreadSafeDelegatingErrorManager_I interface {
 	generateReport_impl()
 	report_2_impl(*CheckLevel, *JSError)
@@ -50,7 +49,6 @@ func (this *ThreadSafeDelegatingErrorManager) init_ThreadSafeDelegatingErrorMana
 func new_ThreadSafeDelegatingErrorManager(delegated ErrorManager) *ThreadSafeDelegatingErrorManager {
 	this := &ThreadSafeDelegatingErrorManager{}
 	this.self_ = this
-	this.selfI_ = this
 	this.init_ThreadSafeDelegatingErrorManager(delegated)
 	return this
 }
@@ -96,13 +94,13 @@ func (this *ThreadSafeDelegatingErrorManager) shouldReportConformanceViolation_i
 }
 
 func (this *ThreadSafeDelegatingErrorManager) shouldReportConformanceViolation(p0 *Requirement, p1 *Optional_base, p2 *JSError, p3 *ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior, p4 bool) bool {
-	return this.selfI_.shouldReportConformanceViolation_impl(p0, p1, p2, p3, p4)
+	return this.self_.shouldReportConformanceViolation_impl(p0, p1, p2, p3, p4)
 }
 
 func (this *ThreadSafeDelegatingErrorManager) report_2(p0 *CheckLevel, p1 *JSError) {
-	this.selfI_.report_2_impl(p0, p1)
+	this.self_.report_2_impl(p0, p1)
 }
 
 func (this *ThreadSafeDelegatingErrorManager) generateReport() {
-	this.selfI_.generateReport_impl()
+	this.self_.generateReport_impl()
 }

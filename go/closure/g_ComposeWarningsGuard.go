@@ -35,7 +35,6 @@ func (this *ComposeWarningsGuard) init_ComposeWarningsGuard(guards *TList[*Warni
 func new_ComposeWarningsGuard(guards *TList[*WarningsGuard]) *ComposeWarningsGuard {
 	this := &ComposeWarningsGuard{}
 	this.self_ = this
-	this.selfI_ = this
 	this.init_ComposeWarningsGuard(guards)
 	return this
 }
@@ -184,7 +183,7 @@ func (this *ComposeWarningsGuard) level(p0 *JSError) *CheckLevel {
 	if this.self_ == any(this) {
 		return this.level_impl(p0)
 	}
-	return this.selfI_.level_impl(p0)
+	return this.self_.level_impl(p0)
 }
 
 // mustRunChecks: an object that is exactly a ComposeWarningsGuard calls its mustRunChecks_impl directly (post-flip); others dispatch.
@@ -192,5 +191,5 @@ func (this *ComposeWarningsGuard) mustRunChecks(p0 *DiagnosticGroup) *Tri {
 	if this.self_ == any(this) {
 		return this.mustRunChecks_impl(p0)
 	}
-	return this.selfI_.mustRunChecks_impl(p0)
+	return this.self_.mustRunChecks_impl(p0)
 }

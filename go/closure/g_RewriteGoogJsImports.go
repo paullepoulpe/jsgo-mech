@@ -281,7 +281,6 @@ func (this *RewriteGoogJsImports_ReferenceReplacer) init_RewriteGoogJsImports_Re
 func new_RewriteGoogJsImports_ReferenceReplacer(outer_ *RewriteGoogJsImports, script Node, googImportNode Node, module *Module, globalizeAllReferences bool) *RewriteGoogJsImports_ReferenceReplacer {
 	this := &RewriteGoogJsImports_ReferenceReplacer{}
 	this.self_ = this
-	this.selfI_ = this
 	this.outer_ = outer_
 	this.init_RewriteGoogJsImports_ReferenceReplacer(script, googImportNode, module, globalizeAllReferences)
 	return this
@@ -332,7 +331,6 @@ func (this *RewriteGoogJsImports_FindReexports) init_RewriteGoogJsImports_FindRe
 func new_RewriteGoogJsImports_FindReexports(hasGoogImport bool) *RewriteGoogJsImports_FindReexports {
 	this := &RewriteGoogJsImports_FindReexports{}
 	this.self_ = this
-	this.selfI_ = this
 	this.init_RewriteGoogJsImports_FindReexports(hasGoogImport)
 	return this
 }
@@ -375,7 +373,7 @@ func (this *RewriteGoogJsImports_ReferenceReplacer) visit(p0 *NodeTraversal, p1 
 		this.visit_impl(p0, p1, p2)
 		return
 	}
-	this.selfI_.visit_impl(p0, p1, p2)
+	this.self_.visit_impl(p0, p1, p2)
 }
 
 // shouldTraverse: an object that is exactly a RewriteGoogJsImports_FindReexports calls its shouldTraverse_impl directly (post-flip); others dispatch.
@@ -383,5 +381,5 @@ func (this *RewriteGoogJsImports_FindReexports) shouldTraverse(p0 *NodeTraversal
 	if this.self_ == any(this) {
 		return this.shouldTraverse_impl(p0, p1, p2)
 	}
-	return this.selfI_.shouldTraverse_impl(p0, p1, p2)
+	return this.self_.shouldTraverse_impl(p0, p1, p2)
 }

@@ -22,7 +22,6 @@ func (this *CheckEmptyStatements) init_CheckEmptyStatements(compiler *AbstractCo
 func new_CheckEmptyStatements(compiler *AbstractCompiler) *CheckEmptyStatements {
 	this := &CheckEmptyStatements{}
 	this.self_ = this
-	this.selfI_ = this
 	this.init_CheckEmptyStatements(compiler)
 	return this
 }
@@ -56,5 +55,5 @@ func (this *CheckEmptyStatements) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
 		this.visit_impl(p0, p1, p2)
 		return
 	}
-	this.selfI_.visit_impl(p0, p1, p2)
+	this.self_.visit_impl(p0, p1, p2)
 }

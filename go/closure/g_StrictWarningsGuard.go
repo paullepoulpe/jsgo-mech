@@ -20,7 +20,6 @@ func (this *StrictWarningsGuard) init_StrictWarningsGuard() {
 func new_StrictWarningsGuard() *StrictWarningsGuard {
 	this := &StrictWarningsGuard{}
 	this.self_ = this
-	this.selfI_ = this
 	this.init_StrictWarningsGuard()
 	return this
 }
@@ -61,7 +60,7 @@ func (this *StrictWarningsGuard) level(p0 *JSError) *CheckLevel {
 	if this.self_ == any(this) {
 		return this.level_impl(p0)
 	}
-	return this.selfI_.level_impl(p0)
+	return this.self_.level_impl(p0)
 }
 
 // getPriority: an object that is exactly a StrictWarningsGuard calls its getPriority_impl directly (post-flip); others dispatch.
@@ -69,5 +68,5 @@ func (this *StrictWarningsGuard) getPriority() int32 {
 	if this.self_ == any(this) {
 		return this.getPriority_impl()
 	}
-	return this.selfI_.getPriority_impl()
+	return this.self_.getPriority_impl()
 }

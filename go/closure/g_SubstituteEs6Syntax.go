@@ -28,7 +28,6 @@ func (this *SubstituteEs6Syntax) init_SubstituteEs6Syntax(compiler *AbstractComp
 func new_SubstituteEs6Syntax(compiler *AbstractCompiler) *SubstituteEs6Syntax {
 	this := &SubstituteEs6Syntax{}
 	this.self_ = this
-	this.selfI_ = this
 	this.init_SubstituteEs6Syntax(compiler)
 	return this
 }
@@ -79,5 +78,5 @@ func (this *SubstituteEs6Syntax) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
 		this.visit_impl(p0, p1, p2)
 		return
 	}
-	this.selfI_.visit_impl(p0, p1, p2)
+	this.self_.visit_impl(p0, p1, p2)
 }

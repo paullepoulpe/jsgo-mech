@@ -3,12 +3,11 @@
 package closure
 
 type UnresolvedModule struct {
-	self_  any
-	selfI_ UnresolvedModule_I
+	self_ UnresolvedModule_I
 }
 
 // UnresolvedModule_I holds the methods the dispatchers of UnresolvedModule's hierarchy call on the most derived
-// object (selfI_, set with self_); every class of the hierarchy implements them (post-flip).
+// object (self_); every class of the hierarchy implements them (post-flip).
 type UnresolvedModule_I interface {
 	getExportedNames_2_impl(ModuleRequestResolver, Set) *ImmutableSet
 	getExportedNames_impl(ModuleRequestResolver) *ImmutableSet
@@ -61,29 +60,29 @@ func (this *UnresolvedModule) hashCode() int32 {
 }
 
 func (this *UnresolvedModule) resolveExport(p0 ModuleRequestResolver, p1 Optional) *ResolveExportResult {
-	return this.selfI_.resolveExport_impl(p0, p1)
+	return this.self_.resolveExport_impl(p0, p1)
 }
 
 func (this *UnresolvedModule) resolveExport_5(p0 ModuleRequestResolver, p1 Optional, p2 Optional, p3 Set, p4 Set) *ResolveExportResult {
-	return this.selfI_.resolveExport_5_impl(p0, p1, p2, p3, p4)
+	return this.self_.resolveExport_5_impl(p0, p1, p2, p3, p4)
 }
 
 func (this *UnresolvedModule) resolve_2(p0 ModuleRequestResolver, p1 Optional) *Module {
-	return this.selfI_.resolve_2_impl(p0, p1)
+	return this.self_.resolve_2_impl(p0, p1)
 }
 
 func (this *UnresolvedModule) metadata() *ModuleMetadataMap_ModuleMetadata {
-	return this.selfI_.metadata_impl()
+	return this.self_.metadata_impl()
 }
 
 func (this *UnresolvedModule) getExportedNames(p0 ModuleRequestResolver) *ImmutableSet {
-	return this.selfI_.getExportedNames_impl(p0)
+	return this.self_.getExportedNames_impl(p0)
 }
 
 func (this *UnresolvedModule) getExportedNames_2(p0 ModuleRequestResolver, p1 Set) *ImmutableSet {
-	return this.selfI_.getExportedNames_2_impl(p0, p1)
+	return this.self_.getExportedNames_2_impl(p0, p1)
 }
 
 func (this *UnresolvedModule) reset() {
-	this.selfI_.reset_impl()
+	this.self_.reset_impl()
 }

@@ -3,13 +3,12 @@
 package closure
 
 type Invalidation struct {
-	self_  any
-	selfI_ Invalidation_I
+	self_  Invalidation_I
 	reason *Invalidation_Reason
 }
 
 // Invalidation_I holds the methods the dispatchers of Invalidation's hierarchy call on the most derived
-// object (selfI_, set with self_); every class of the hierarchy implements them (post-flip).
+// object (self_); every class of the hierarchy implements them (post-flip).
 type Invalidation_I interface {
 	toLogsGson_impl() any
 }
@@ -42,7 +41,6 @@ func (this *Invalidation) init_Invalidation(reason *Invalidation_Reason) {
 func new_Invalidation(reason *Invalidation_Reason) *Invalidation {
 	this := &Invalidation{}
 	this.self_ = this
-	this.selfI_ = this
 	this.init_Invalidation(reason)
 	return this
 }
@@ -66,7 +64,7 @@ func (this *Invalidation) toLogsGson_impl() any {
 }
 
 func (this *Invalidation) toLogsGson() any {
-	return this.selfI_.toLogsGson_impl()
+	return this.self_.toLogsGson_impl()
 }
 
 var Invalidation_WELL_KNOWN_PROPERTY *Invalidation
@@ -157,7 +155,6 @@ func (this *Invalidation_WithReceiverType) init_Invalidation_WithReceiverType(re
 func new_Invalidation_WithReceiverType(reason *Invalidation_Reason, receiverType int32) *Invalidation_WithReceiverType {
 	this := &Invalidation_WithReceiverType{}
 	this.self_ = this
-	this.selfI_ = this
 	this.init_Invalidation_WithReceiverType(reason, receiverType)
 	return this
 }
@@ -174,5 +171,5 @@ func (this *Invalidation_WithReceiverType) toLogsGson() any {
 	if this.self_ == any(this) {
 		return this.toLogsGson_impl()
 	}
-	return this.selfI_.toLogsGson_impl()
+	return this.self_.toLogsGson_impl()
 }

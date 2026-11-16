@@ -3,12 +3,11 @@
 package closure
 
 type LogFile struct {
-	self_  any
-	selfI_ LogFile_I
+	self_ LogFile_I
 }
 
 // LogFile_I holds the methods the dispatchers of LogFile's hierarchy call on the most derived
-// object (selfI_, set with self_); every class of the hierarchy implements them (post-flip).
+// object (self_); every class of the hierarchy implements them (post-flip).
 type LogFile_I interface {
 	close_impl()
 	isLogging_impl() bool
@@ -55,39 +54,39 @@ func LogFile_createNoOp() *LogFile {
 }
 
 func (this *LogFile) logObject(p0 any) *LogFile {
-	return this.selfI_.logObject_impl(p0)
+	return this.self_.logObject_impl(p0)
 }
 
 func (this *LogFile) logString(p0 string) *LogFile {
-	return this.selfI_.logString_impl(p0)
+	return this.self_.logString_impl(p0)
 }
 
 func (this *LogFile) log(p0 Supplier) *LogFile {
-	return this.selfI_.log_impl(p0)
+	return this.self_.log_impl(p0)
 }
 
 func (this *LogFile) log_2(p0 string, p1 []any) *LogFile {
-	return this.selfI_.log_2_impl(p0, p1)
+	return this.self_.log_2_impl(p0, p1)
 }
 
 func (this *LogFile) logJsonObject(p0 any) *LogFile {
-	return this.selfI_.logJsonObject_impl(p0)
+	return this.self_.logJsonObject_impl(p0)
 }
 
 func (this *LogFile) logJsonSupplier(p0 Supplier) *LogFile {
-	return this.selfI_.logJsonSupplier_impl(p0)
+	return this.self_.logJsonSupplier_impl(p0)
 }
 
 func (this *LogFile) logJson(p0 LogFile_StreamedJsonProducer) *LogFile {
-	return this.selfI_.logJson_impl(p0)
+	return this.self_.logJson_impl(p0)
 }
 
 func (this *LogFile) close() {
-	this.selfI_.close_impl()
+	this.self_.close_impl()
 }
 
 func (this *LogFile) isLogging() bool {
-	return this.selfI_.isLogging_impl()
+	return this.self_.isLogging_impl()
 }
 
 type LogFile_StreamedJsonProducer interface {

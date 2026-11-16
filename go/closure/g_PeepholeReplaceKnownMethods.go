@@ -24,7 +24,6 @@ func (this *PeepholeReplaceKnownMethods) init_PeepholeReplaceKnownMethods(late b
 func new_PeepholeReplaceKnownMethods(late bool, useTypes bool) *PeepholeReplaceKnownMethods {
 	this := &PeepholeReplaceKnownMethods{}
 	this.self_ = this
-	this.selfI_ = this
 	this.init_PeepholeReplaceKnownMethods(late, useTypes)
 	return this
 }
@@ -1277,5 +1276,5 @@ func (this *PeepholeReplaceKnownMethods) optimizeSubtree(p0 Node) Node {
 	if this.self_ == any(this) {
 		return this.optimizeSubtree_impl(p0)
 	}
-	return this.selfI_.optimizeSubtree_impl(p0)
+	return this.self_.optimizeSubtree_impl(p0)
 }
