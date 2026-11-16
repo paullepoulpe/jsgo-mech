@@ -138,6 +138,13 @@ func (this *SourceMap) setSourceFileMapping(mapping SourceFileMapping) {
 
 type SourceMap_Format struct {
 	Enum
+	selfI_ SourceMap_Format_I
+}
+
+// SourceMap_Format_I holds the methods the dispatchers of enum SourceMap_Format call on its
+// constant (selfI_, set with self_); every constant of the enum implements them (post-flip).
+type SourceMap_Format_I interface {
+	getInstance_impl() *SourceMap
 }
 
 func (this *SourceMap_Format) as_SourceMap_Format() *SourceMap_Format { return this }
@@ -178,7 +185,7 @@ func (this *SourceMap_Format) init_SourceMap_Format(name_ string, ordinal_ int32
 }
 
 func (this *SourceMap_Format) getInstance() *SourceMap {
-	return this.self_.(interface{ getInstance_impl() *SourceMap }).getInstance_impl()
+	return this.selfI_.getInstance_impl()
 }
 
 func SourceMap_Format_values() []*SourceMap_Format {
@@ -214,6 +221,13 @@ func SourceMap_Format_clinit() {
 
 type SourceMap_DetailLevel struct {
 	Enum
+	selfI_ SourceMap_DetailLevel_I
+}
+
+// SourceMap_DetailLevel_I holds the methods the dispatchers of enum SourceMap_DetailLevel call on its
+// constant (selfI_, set with self_); every constant of the enum implements them (post-flip).
+type SourceMap_DetailLevel_I interface {
+	apply_impl(any) bool
 }
 
 func (this *SourceMap_DetailLevel) as_SourceMap_DetailLevel() *SourceMap_DetailLevel { return this }
@@ -254,7 +268,7 @@ func (this *SourceMap_DetailLevel) init_SourceMap_DetailLevel(name_ string, ordi
 }
 
 func (this *SourceMap_DetailLevel) apply(p0 any) bool {
-	return this.self_.(interface{ apply_impl(any) bool }).apply_impl(p0)
+	return this.selfI_.apply_impl(p0)
 }
 
 func (this *SourceMap_DetailLevel) test(p0 any) bool {
@@ -404,6 +418,7 @@ func (this *SourceMap_Format_1) init_SourceMap_Format_1(name_ string, ordinal_ i
 func new_SourceMap_Format_1(name_ string, ordinal_ int32) *SourceMap_Format_1 {
 	this := &SourceMap_Format_1{}
 	this.self_ = this
+	this.selfI_ = this
 	this.init_SourceMap_Format_1(name_, ordinal_)
 	return this
 }
@@ -464,6 +479,7 @@ func (this *SourceMap_Format_2) init_SourceMap_Format_2(name_ string, ordinal_ i
 func new_SourceMap_Format_2(name_ string, ordinal_ int32) *SourceMap_Format_2 {
 	this := &SourceMap_Format_2{}
 	this.self_ = this
+	this.selfI_ = this
 	this.init_SourceMap_Format_2(name_, ordinal_)
 	return this
 }
@@ -524,6 +540,7 @@ func (this *SourceMap_DetailLevel_1) init_SourceMap_DetailLevel_1(name_ string, 
 func new_SourceMap_DetailLevel_1(name_ string, ordinal_ int32) *SourceMap_DetailLevel_1 {
 	this := &SourceMap_DetailLevel_1{}
 	this.self_ = this
+	this.selfI_ = this
 	this.init_SourceMap_DetailLevel_1(name_, ordinal_)
 	return this
 }
@@ -586,6 +603,7 @@ func (this *SourceMap_DetailLevel_2) init_SourceMap_DetailLevel_2(name_ string, 
 func new_SourceMap_DetailLevel_2(name_ string, ordinal_ int32) *SourceMap_DetailLevel_2 {
 	this := &SourceMap_DetailLevel_2{}
 	this.self_ = this
+	this.selfI_ = this
 	this.init_SourceMap_DetailLevel_2(name_, ordinal_)
 	return this
 }
@@ -628,7 +646,7 @@ func (this *SourceMap_Format_1) getInstance() *SourceMap {
 	if this.self_ == any(this) {
 		return this.getInstance_impl()
 	}
-	return this.self_.(interface{ getInstance_impl() *SourceMap }).getInstance_impl()
+	return this.selfI_.getInstance_impl()
 }
 
 // getInstance: an object that is exactly a SourceMap_Format_2 calls its getInstance_impl directly (post-flip); others dispatch.
@@ -636,7 +654,7 @@ func (this *SourceMap_Format_2) getInstance() *SourceMap {
 	if this.self_ == any(this) {
 		return this.getInstance_impl()
 	}
-	return this.self_.(interface{ getInstance_impl() *SourceMap }).getInstance_impl()
+	return this.selfI_.getInstance_impl()
 }
 
 // apply: an object that is exactly a SourceMap_DetailLevel_1 calls its apply_impl directly (post-flip); others dispatch.
@@ -644,7 +662,7 @@ func (this *SourceMap_DetailLevel_1) apply(p0 any) bool {
 	if this.self_ == any(this) {
 		return this.apply_impl(p0)
 	}
-	return this.self_.(interface{ apply_impl(any) bool }).apply_impl(p0)
+	return this.selfI_.apply_impl(p0)
 }
 
 // apply: an object that is exactly a SourceMap_DetailLevel_2 calls its apply_impl directly (post-flip); others dispatch.
@@ -652,5 +670,5 @@ func (this *SourceMap_DetailLevel_2) apply(p0 any) bool {
 	if this.self_ == any(this) {
 		return this.apply_impl(p0)
 	}
-	return this.self_.(interface{ apply_impl(any) bool }).apply_impl(p0)
+	return this.selfI_.apply_impl(p0)
 }

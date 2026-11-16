@@ -11,6 +11,13 @@ type SourceExcerptProvider interface {
 
 type SourceExcerptProvider_SourceExcerpt struct {
 	Enum
+	selfI_ SourceExcerptProvider_SourceExcerpt_I
+}
+
+// SourceExcerptProvider_SourceExcerpt_I holds the methods the dispatchers of enum SourceExcerptProvider_SourceExcerpt call on its
+// constant (selfI_, set with self_); every constant of the enum implements them (post-flip).
+type SourceExcerptProvider_SourceExcerpt_I interface {
+	get_5_impl(SourceExcerptProvider, OptionalOf[string], int32, int32, SourceExcerptProvider_ExcerptFormatter) OptionalOf[string]
 }
 
 func (this *SourceExcerptProvider_SourceExcerpt) as_SourceExcerptProvider_SourceExcerpt() *SourceExcerptProvider_SourceExcerpt {
@@ -63,9 +70,7 @@ func (this *SourceExcerptProvider_SourceExcerpt) get(source SourceExcerptProvide
 }
 
 func (this *SourceExcerptProvider_SourceExcerpt) get_5(p0 SourceExcerptProvider, p1 OptionalOf[string], p2 int32, p3 int32, p4 SourceExcerptProvider_ExcerptFormatter) OptionalOf[string] {
-	return this.self_.(interface {
-		get_5_impl(SourceExcerptProvider, OptionalOf[string], int32, int32, SourceExcerptProvider_ExcerptFormatter) OptionalOf[string]
-	}).get_5_impl(p0, p1, p2, p3, p4)
+	return this.selfI_.get_5_impl(p0, p1, p2, p3, p4)
 }
 
 func SourceExcerptProvider_SourceExcerpt_values() []*SourceExcerptProvider_SourceExcerpt {
@@ -131,6 +136,7 @@ func (this *SourceExcerptProvider_SourceExcerpt_1) init_SourceExcerptProvider_So
 func new_SourceExcerptProvider_SourceExcerpt_1(name_ string, ordinal_ int32) *SourceExcerptProvider_SourceExcerpt_1 {
 	this := &SourceExcerptProvider_SourceExcerpt_1{}
 	this.self_ = this
+	this.selfI_ = this
 	this.init_SourceExcerptProvider_SourceExcerpt_1(name_, ordinal_)
 	return this
 }
@@ -191,6 +197,7 @@ func (this *SourceExcerptProvider_SourceExcerpt_2) init_SourceExcerptProvider_So
 func new_SourceExcerptProvider_SourceExcerpt_2(name_ string, ordinal_ int32) *SourceExcerptProvider_SourceExcerpt_2 {
 	this := &SourceExcerptProvider_SourceExcerpt_2{}
 	this.self_ = this
+	this.selfI_ = this
 	this.init_SourceExcerptProvider_SourceExcerpt_2(name_, ordinal_)
 	return this
 }
@@ -251,6 +258,7 @@ func (this *SourceExcerptProvider_SourceExcerpt_3) init_SourceExcerptProvider_So
 func new_SourceExcerptProvider_SourceExcerpt_3(name_ string, ordinal_ int32) *SourceExcerptProvider_SourceExcerpt_3 {
 	this := &SourceExcerptProvider_SourceExcerpt_3{}
 	this.self_ = this
+	this.selfI_ = this
 	this.init_SourceExcerptProvider_SourceExcerpt_3(name_, ordinal_)
 	return this
 }
@@ -291,9 +299,7 @@ func (this *SourceExcerptProvider_SourceExcerpt_1) get_5(p0 SourceExcerptProvide
 	if this.self_ == any(this) {
 		return this.get_5_impl(p0, p1, p2, p3, p4)
 	}
-	return this.self_.(interface {
-		get_5_impl(SourceExcerptProvider, OptionalOf[string], int32, int32, SourceExcerptProvider_ExcerptFormatter) OptionalOf[string]
-	}).get_5_impl(p0, p1, p2, p3, p4)
+	return this.selfI_.get_5_impl(p0, p1, p2, p3, p4)
 }
 
 // get_5: an object that is exactly a SourceExcerptProvider_SourceExcerpt_2 calls its get_5_impl directly (post-flip); others dispatch.
@@ -301,9 +307,7 @@ func (this *SourceExcerptProvider_SourceExcerpt_2) get_5(p0 SourceExcerptProvide
 	if this.self_ == any(this) {
 		return this.get_5_impl(p0, p1, p2, p3, p4)
 	}
-	return this.self_.(interface {
-		get_5_impl(SourceExcerptProvider, OptionalOf[string], int32, int32, SourceExcerptProvider_ExcerptFormatter) OptionalOf[string]
-	}).get_5_impl(p0, p1, p2, p3, p4)
+	return this.selfI_.get_5_impl(p0, p1, p2, p3, p4)
 }
 
 // get_5: an object that is exactly a SourceExcerptProvider_SourceExcerpt_3 calls its get_5_impl directly (post-flip); others dispatch.
@@ -311,7 +315,5 @@ func (this *SourceExcerptProvider_SourceExcerpt_3) get_5(p0 SourceExcerptProvide
 	if this.self_ == any(this) {
 		return this.get_5_impl(p0, p1, p2, p3, p4)
 	}
-	return this.self_.(interface {
-		get_5_impl(SourceExcerptProvider, OptionalOf[string], int32, int32, SourceExcerptProvider_ExcerptFormatter) OptionalOf[string]
-	}).get_5_impl(p0, p1, p2, p3, p4)
+	return this.selfI_.get_5_impl(p0, p1, p2, p3, p4)
 }

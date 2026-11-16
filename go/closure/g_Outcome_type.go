@@ -4,6 +4,15 @@ package closure
 
 type Outcome_type struct {
 	Enum
+	selfI_ Outcome_type_I
+}
+
+// Outcome_type_I holds the methods the dispatchers of enum Outcome_type call on its
+// constant (selfI_, set with self_); every constant of the enum implements them (post-flip).
+type Outcome_type_I interface {
+	isNullish_impl() *Tri
+	isTruthy_impl() bool
+	not_impl() *Outcome_type
 }
 
 func (this *Outcome_type) as_Outcome_type() *Outcome_type { return this }
@@ -53,15 +62,15 @@ func Outcome_type_forBoolean(val bool) *Outcome_type {
 }
 
 func (this *Outcome_type) isTruthy() bool {
-	return this.self_.(interface{ isTruthy_impl() bool }).isTruthy_impl()
+	return this.selfI_.isTruthy_impl()
 }
 
 func (this *Outcome_type) isNullish() *Tri {
-	return this.self_.(interface{ isNullish_impl() *Tri }).isNullish_impl()
+	return this.selfI_.isNullish_impl()
 }
 
 func (this *Outcome_type) not() *Outcome_type {
-	return this.self_.(interface{ not_impl() *Outcome_type }).not_impl()
+	return this.selfI_.not_impl()
 }
 
 func Outcome_type_values() []*Outcome_type {
@@ -120,6 +129,7 @@ func (this *Outcome_1_type) init_Outcome_1_type(name_ string, ordinal_ int32) {
 func new_Outcome_1_type(name_ string, ordinal_ int32) *Outcome_1_type {
 	this := &Outcome_1_type{}
 	this.self_ = this
+	this.selfI_ = this
 	this.init_Outcome_1_type(name_, ordinal_)
 	return this
 }
@@ -188,6 +198,7 @@ func (this *Outcome_2_type) init_Outcome_2_type(name_ string, ordinal_ int32) {
 func new_Outcome_2_type(name_ string, ordinal_ int32) *Outcome_2_type {
 	this := &Outcome_2_type{}
 	this.self_ = this
+	this.selfI_ = this
 	this.init_Outcome_2_type(name_, ordinal_)
 	return this
 }
@@ -236,7 +247,7 @@ func (this *Outcome_1_type) isTruthy() bool {
 	if this.self_ == any(this) {
 		return this.isTruthy_impl()
 	}
-	return this.self_.(interface{ isTruthy_impl() bool }).isTruthy_impl()
+	return this.selfI_.isTruthy_impl()
 }
 
 // isNullish: an object that is exactly a Outcome_1_type calls its isNullish_impl directly (post-flip); others dispatch.
@@ -244,7 +255,7 @@ func (this *Outcome_1_type) isNullish() *Tri {
 	if this.self_ == any(this) {
 		return this.isNullish_impl()
 	}
-	return this.self_.(interface{ isNullish_impl() *Tri }).isNullish_impl()
+	return this.selfI_.isNullish_impl()
 }
 
 // not: an object that is exactly a Outcome_1_type calls its not_impl directly (post-flip); others dispatch.
@@ -252,7 +263,7 @@ func (this *Outcome_1_type) not() *Outcome_type {
 	if this.self_ == any(this) {
 		return this.not_impl()
 	}
-	return this.self_.(interface{ not_impl() *Outcome_type }).not_impl()
+	return this.selfI_.not_impl()
 }
 
 // isTruthy: an object that is exactly a Outcome_2_type calls its isTruthy_impl directly (post-flip); others dispatch.
@@ -260,7 +271,7 @@ func (this *Outcome_2_type) isTruthy() bool {
 	if this.self_ == any(this) {
 		return this.isTruthy_impl()
 	}
-	return this.self_.(interface{ isTruthy_impl() bool }).isTruthy_impl()
+	return this.selfI_.isTruthy_impl()
 }
 
 // isNullish: an object that is exactly a Outcome_2_type calls its isNullish_impl directly (post-flip); others dispatch.
@@ -268,7 +279,7 @@ func (this *Outcome_2_type) isNullish() *Tri {
 	if this.self_ == any(this) {
 		return this.isNullish_impl()
 	}
-	return this.self_.(interface{ isNullish_impl() *Tri }).isNullish_impl()
+	return this.selfI_.isNullish_impl()
 }
 
 // not: an object that is exactly a Outcome_2_type calls its not_impl directly (post-flip); others dispatch.
@@ -276,5 +287,5 @@ func (this *Outcome_2_type) not() *Outcome_type {
 	if this.self_ == any(this) {
 		return this.not_impl()
 	}
-	return this.self_.(interface{ not_impl() *Outcome_type }).not_impl()
+	return this.selfI_.not_impl()
 }
