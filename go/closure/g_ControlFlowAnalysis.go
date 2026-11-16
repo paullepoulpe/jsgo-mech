@@ -92,8 +92,11 @@ func (this *ControlFlowAnalysis) prioritizeFromEntryNode(entry DiGraph_DiGraphNo
 		}
 		this.priorityCounter++
 		current.setPriority(this.priorityCounter)
-		var successors *TList[DiGraph_DiGraphNode] = this.cfg.getDirectedSuccNodesDiGraphNode(current)
-		worklist.addAll(Collection(successors.asList()))
+		// worklist.addAll(successors of current), from its out-edges in order, without the list
+		// and its view (post-flip manual step).
+		for _, e := range to_LinkedDirectedGraph_LinkedDiGraphNode(current).getOutEdges().items {
+			worklist.add(any(to_LinkedDirectedGraph_LinkedDiGraphEdge(any(e)).getDestination()))
+		}
 	}
 }
 
