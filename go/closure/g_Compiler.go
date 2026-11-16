@@ -75,7 +75,7 @@ type Compiler struct {
 	instrumentationMapping         *VariableMap
 	idGeneratorMap                 OptionalOf[string]
 	transpiledFiles                bool
-	exportedNames                  LinkedHashSetOf[string]
+	exportedNames                  *TSet[string]
 	defineNames                    ImmutableSetOf[string]
 	moduleMetadataMap              *ModuleMetadataMap
 	moduleMap                      *ModuleMap
@@ -137,7 +137,7 @@ func (this *Compiler) finit_Compiler() {
 	this.instrumentationMapping = nil
 	this.idGeneratorMap = Optional_empty[string]()
 	this.transpiledFiles = false
-	this.exportedNames = new_LinkedHashSet()
+	this.exportedNames = newTSet_(tc_string)
 	this.defineNames = ImmutableSet_of()
 }
 
@@ -221,7 +221,7 @@ func (this *Compiler) initOptions(options *CompilerOptions) {
 		} else {
 			var builder ImmutableSet_BuilderOf[SortingErrorManager_ErrorReportGenerator] = ImmutableSet_builder()
 			cast_[*ImmutableSet_Builder](obj_(builder.add(obj_(new_PrintStreamErrorReportGenerator(this.createMessageFormatter(), this.outStream, options.getSummaryDetailLevel()))))).addAll(Iterable(options.getExtraReportGenerators().asList()))
-			this.setErrorManager(icast_ErrorManager(new_SortingErrorManager(icast_Set(obj_(builder.build()))).self()))
+			this.setErrorManager(icast_ErrorManager(new_SortingErrorManager(tsetFrom_(tc_SortingErrorManager_ErrorReportGenerator, builder.build(), true)).self()))
 		}
 	}
 	if options.getSkipNonTranspilationPasses() {
@@ -2600,11 +2600,11 @@ func (this *Compiler) getInstrumentationMapping() *VariableMap {
 }
 
 func (this *Compiler) addExportedNames_impl(exportedNames *TSet[string]) {
-	this.exportedNames.addAll(Collection(exportedNames.asSet()))
+	this.exportedNames.asSet().addAll(Collection(exportedNames.asSet()))
 }
 
-func (this *Compiler) getExportedNames_impl() SetOf[string] {
-	return icast_Set(obj_(this.exportedNames))
+func (this *Compiler) getExportedNames_impl() *TSet[string] {
+	return this.exportedNames
 }
 
 func (this *Compiler) setDefineNames_impl(defineNames CollectionOf[string]) {
@@ -2980,7 +2980,7 @@ func (this *Compiler) getCompilerStateProtoBuilder() *JSCompilerStateProto_Build
 		}
 		builder.addChunks(cast_[*ChunkProto](chunkBuilder.build()))
 	}
-	builder.setUniqueNameId(this.uniqueNameId).addAllUniqueIdSupplier(Iterable(this.uniqueIdSupplier.toProto().asList())).addAllExportedNames(icast_Iterable(obj_(this.exportedNames)))
+	builder.setUniqueNameId(this.uniqueNameId).addAllUniqueIdSupplier(Iterable(this.uniqueIdSupplier.toProto().asList())).addAllExportedNames(icast_Iterable(any(this.exportedNames.asSet())))
 	builder.setHasCssNames((this.cssNames != nil))
 	if this.cssNames != nil {
 		builder.addAllCssNames(Iterable(this.cssNames.asSet()))
@@ -3037,7 +3037,7 @@ func (this *Compiler) restoreFromState(compilerState *JSCompilerStateProto) {
 	this.uniqueNameId = compilerState.getUniqueNameId()
 	this.uniqueIdSupplier = UniqueIdSupplier_fromProto(compilerState.getUniqueIdSupplierList())
 	this.exportedNames.clear()
-	this.exportedNames.addAll(Collection(compilerState.getExportedNamesList()))
+	this.exportedNames.asSet().addAll(Collection(compilerState.getExportedNamesList()))
 	if compilerState.getHasCssNames() {
 		this.cssNames = tsetFrom_(tc_string, Collection(compilerState.getCssNamesList()), false)
 	} else {
@@ -4565,7 +4565,7 @@ func (this *Compiler) addExportedNames(p0 *TSet[string]) {
 }
 
 // getExportedNames: an object that is exactly a Compiler calls its getExportedNames_impl directly (post-flip); others dispatch.
-func (this *Compiler) getExportedNames() Set {
+func (this *Compiler) getExportedNames() *TSet[string] {
 	if this.self_ == any(this) {
 		return this.getExportedNames_impl()
 	}

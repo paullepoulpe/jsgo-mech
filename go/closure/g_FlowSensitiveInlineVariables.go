@@ -50,16 +50,16 @@ func (this *FlowSensitiveInlineVariables) enterScope(t *NodeTraversal) {
 	}
 	var scopeCreator *SyntacticScopeCreator = cast_[*SyntacticScopeCreator](t.getScopeCreator())
 	this.cfg = ControlFlowAnalysis_builder().setCompiler(this.compiler_).setCfgRoot(functionScopeRoot).setIncludeEdgeAnnotations(true).computeCfg()
-	var escaped LinkedHashSetOf[*Var] = new_LinkedHashSet()
+	var escaped *TSet[*Var] = newTSet_(tch_p_Var)
 	var scope *Scope = t.getScope()
 	var allVarsDeclaredInFunction *NodeUtil_AllVarsDeclaredInFunction = NodeUtil_getAllVarsDeclaredInFunction(this.compiler_, icast_ScopeCreator(obj_(scopeCreator)), cast_[*Scope](scope.getParent().self()))
 	var allVarsInFn *TMap[string, *Var] = allVarsDeclaredInFunction.getAllVariables()
-	DataFlowAnalysis_computeEscaped(cast_[*Scope](scope.getParent().self()), icast_Set(obj_(escaped)), this.compiler_, icast_ScopeCreator(obj_(scopeCreator)), allVarsInFn)
-	this.reachingDef = new_MustBeReachingVariableDef(this.cfg, this.compiler_, icast_Set(obj_(escaped)), allVarsInFn)
+	DataFlowAnalysis_computeEscaped(cast_[*Scope](scope.getParent().self()), escaped, this.compiler_, icast_ScopeCreator(obj_(scopeCreator)), allVarsInFn)
+	this.reachingDef = new_MustBeReachingVariableDef(this.cfg, this.compiler_, escaped, allVarsInFn)
 	this.reachingDef.analyze()
 	this.candidates = newTSet_(tc_p_FlowSensitiveInlineVariables_Candidate)
 	NodeTraversal_traverse(this.compiler_, t.getScopeRoot(), icast_NodeTraversal_Callback(obj_(new_FlowSensitiveInlineVariables_GatherCandidates(this))))
-	this.reachingUses = new_MaybeReachingVariableUse(this.cfg, icast_Set(obj_(escaped)), allVarsInFn)
+	this.reachingUses = new_MaybeReachingVariableUse(this.cfg, escaped, allVarsInFn)
 	this.reachingUses.analyze()
 	for !this.candidates.isEmpty() {
 		var c *FlowSensitiveInlineVariables_Candidate = cast_[*FlowSensitiveInlineVariables_Candidate](this.candidates.asSet().iterator().next())
@@ -72,7 +72,7 @@ func (this *FlowSensitiveInlineVariables) enterScope(t *NodeTraversal) {
 					var it IteratorOf[*FlowSensitiveInlineVariables_Candidate] = this.candidates.asSet().iterator()
 					for it.hasNext() {
 						var other *FlowSensitiveInlineVariables_Candidate = cast_[*FlowSensitiveInlineVariables_Candidate](it.next())
-						if other.defMetadata.depends.contains(t.getScope().getVar(c.varName_).self()) && !other.defMetadata.depends.containsAll(Collection(c.defMetadata.depends)) {
+						if other.defMetadata.depends.contains(cast_[*Var](t.getScope().getVar(c.varName_).self())) && !other.defMetadata.depends.asSet().containsAll(Collection(c.defMetadata.depends.asSet())) {
 							Iterator_remove(it)
 						}
 					}
@@ -376,9 +376,9 @@ func (this *FlowSensitiveInlineVariables_Candidate) canInline(scope *Scope) bool
 	}
 	var namesToCheck map[string]struct{} = map[string]struct{}{}
 	if this.defMetadata.depends != nil {
-		it_1 := foreach_(any(this.defMetadata.depends))
+		it_1 := this.defMetadata.depends.each()
 		for it_1.next() {
-			var var_ *Var = cast_[*Var](it_1.v)
+			var var_ *Var = it_1.v
 			namesToCheck[var_.getName()] = struct{}{}
 		}
 	}

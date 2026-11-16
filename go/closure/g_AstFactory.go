@@ -532,7 +532,7 @@ func (this *AstFactory) createPrototypeAccess(receiver Node) Node {
 			if possiblePrototypes.isEmpty() {
 				return StandardColors_UNKNOWN
 			}
-			return Color_createUnion(icast_Set(obj_(possiblePrototypes)))
+			return Color_createUnion(tsetFrom_(tch_p_Color, possiblePrototypes, true))
 		}())
 	case AstFactory_TypeMode_NONE:
 	}
@@ -688,7 +688,7 @@ func (this *AstFactory) createAnd(left Node, right Node) Node {
 	case AstFactory_TypeMode_COLOR:
 		var leftColor *Color = cast_[*Color](Preconditions_checkNotNull_Object_Object(obj_(left.getColor()), left.box_()))
 		var rightColor *Color = cast_[*Color](Preconditions_checkNotNull_Object_Object(obj_(right.getColor()), right.box_()))
-		result.setColor(Color_createUnion(icast_Set(obj_(ImmutableSet_of_Object_Object(obj_(leftColor), obj_(rightColor))))))
+		result.setColor(Color_createUnion(tsetFrom_(tch_p_Color, ImmutableSet_of_Object_Object(obj_(leftColor), obj_(rightColor)), true)))
 	case AstFactory_TypeMode_NONE:
 	}
 	return result
@@ -704,7 +704,7 @@ func (this *AstFactory) createOr(left Node, right Node) Node {
 	case AstFactory_TypeMode_COLOR:
 		var leftColor *Color = cast_[*Color](Preconditions_checkNotNull_Object_Object(obj_(left.getColor()), left.box_()))
 		var rightColor *Color = cast_[*Color](Preconditions_checkNotNull_Object_Object(obj_(right.getColor()), right.box_()))
-		result.setColor(Color_createUnion(icast_Set(obj_(ImmutableSet_of_Object_Object(obj_(leftColor), obj_(rightColor))))))
+		result.setColor(Color_createUnion(tsetFrom_(tch_p_Color, ImmutableSet_of_Object_Object(obj_(leftColor), obj_(rightColor)), true)))
 	case AstFactory_TypeMode_NONE:
 	}
 	return result
@@ -806,7 +806,7 @@ func (this *AstFactory) getInstanceOfColor(color *Color) *Color {
 		if possibleInstanceColors.isEmpty() {
 			return StandardColors_UNKNOWN
 		}
-		return Color_createUnion(icast_Set(obj_(possibleInstanceColors)))
+		return Color_createUnion(tsetFrom_(tch_p_Color, possibleInstanceColors, true))
 	}()
 }
 
@@ -963,7 +963,7 @@ func (this *AstFactory) createHook(condition Node, expr1 Node, expr2 Node) Node 
 	case AstFactory_TypeMode_JSTYPE:
 		result.setJSType(this.registry.createUnionType([]*JSType{expr1.getJSType(), expr2.getJSType()}))
 	case AstFactory_TypeMode_COLOR:
-		result.setColor(Color_createUnion(icast_Set(obj_(ImmutableSet_of_Object_Object(obj_(expr1.getColor()), obj_(expr2.getColor()))))))
+		result.setColor(Color_createUnion(tsetFrom_(tch_p_Color, ImmutableSet_of_Object_Object(obj_(expr1.getColor()), obj_(expr2.getColor())), true)))
 	case AstFactory_TypeMode_NONE:
 	}
 	return result
@@ -1212,7 +1212,7 @@ func AstFactory_clinit() {
 
 // lambda_AstFactory_clinit_1_ is a lambda of AstFactory_clinit that captures nothing (post-flip step lambdas).
 var lambda_AstFactory_clinit_1_ = &Supplier_base_fn{func() any {
-	return obj_(Color_createUnion(icast_Set(obj_(ImmutableSet_of_Object_Object_Object(obj_(StandardColors_BIGINT), obj_(StandardColors_STRING), obj_(StandardColors_NUMBER))))))
+	return obj_(Color_createUnion(tsetFrom_(tch_p_Color, ImmutableSet_of_Object_Object_Object(obj_(StandardColors_BIGINT), obj_(StandardColors_STRING), obj_(StandardColors_NUMBER)), true)))
 }}
 
 type AstFactory_TypeMode struct {

@@ -103,7 +103,7 @@ func (this *ClosureModuleProcessor_UnresolvedGoogModule) resolveExport_impl(modu
 	return ResolveExportResult_NOT_FOUND
 }
 
-func (this *ClosureModuleProcessor_UnresolvedGoogModule) resolveExport_5_impl(moduleRequestResolver ModuleRequestResolver, moduleSpecifier OptionalOf[string], exportName OptionalOf[string], resolveSet SetOf[*ExportTrace], exportStarSet SetOf[*UnresolvedModule]) *ResolveExportResult {
+func (this *ClosureModuleProcessor_UnresolvedGoogModule) resolveExport_5_impl(moduleRequestResolver ModuleRequestResolver, moduleSpecifier OptionalOf[string], exportName OptionalOf[string], resolveSet *TSet[*ExportTrace], exportStarSet *TSet[*UnresolvedModule]) *ResolveExportResult {
 	return this.resolveExport(moduleRequestResolver, exportName)
 }
 
@@ -137,7 +137,7 @@ func (this *ClosureModuleProcessor_UnresolvedGoogModule) resolveImport(moduleReq
 	} else if importRecord.importName() == Export_NAMESPACE {
 		return ResolveExportResult_of(Binding_from_ModuleMetadata_Node_String_CreatedBy(requested.metadata(), importRecord.nameNode(), importRecord.moduleRequest(), require.createdBy()))
 	} else {
-		var result *ResolveExportResult = requested.resolveExport_5(moduleRequestResolver, Optional_of[string](importRecord.moduleRequest()), Optional_of[string](importRecord.importName()), icast_Set(obj_(new_LinkedHashSet())), icast_Set(obj_(new_LinkedHashSet())))
+		var result *ResolveExportResult = requested.resolveExport_5(moduleRequestResolver, Optional_of[string](importRecord.moduleRequest()), Optional_of[string](importRecord.importName()), newTSet_(tch_p_ExportTrace), newTSet_(tc_p_UnresolvedModule))
 		if !result.found() && !result.hadError() {
 			this.reportInvalidDestructuringRequire(requested, importRecord)
 			return ResolveExportResult_ERROR
@@ -161,7 +161,7 @@ func (this *ClosureModuleProcessor_UnresolvedGoogModule) getExportedNames_impl(m
 	panic(new_UnsupportedOperationException_0().self())
 }
 
-func (this *ClosureModuleProcessor_UnresolvedGoogModule) getExportedNames_2_impl(moduleRequestResolver ModuleRequestResolver, visited SetOf[*UnresolvedModule]) ImmutableSetOf[string] {
+func (this *ClosureModuleProcessor_UnresolvedGoogModule) getExportedNames_2_impl(moduleRequestResolver ModuleRequestResolver, visited *TSet[*UnresolvedModule]) ImmutableSetOf[string] {
 	panic(new_UnsupportedOperationException_0().self())
 }
 
@@ -314,7 +314,7 @@ func (this *ClosureModuleProcessor_UnresolvedGoogModule) resolveExport(p0 Module
 }
 
 // resolveExport_5: an object that is exactly a ClosureModuleProcessor_UnresolvedGoogModule calls its resolveExport_5_impl directly (post-flip); others dispatch.
-func (this *ClosureModuleProcessor_UnresolvedGoogModule) resolveExport_5(p0 ModuleRequestResolver, p1 OptionalOf[string], p2 OptionalOf[string], p3 Set, p4 Set) *ResolveExportResult {
+func (this *ClosureModuleProcessor_UnresolvedGoogModule) resolveExport_5(p0 ModuleRequestResolver, p1 OptionalOf[string], p2 OptionalOf[string], p3 *TSet[*ExportTrace], p4 *TSet[*UnresolvedModule]) *ResolveExportResult {
 	if this.self_ == any(this) {
 		return this.resolveExport_5_impl(p0, p1, p2, p3, p4)
 	}
@@ -346,7 +346,7 @@ func (this *ClosureModuleProcessor_UnresolvedGoogModule) getExportedNames(p0 Mod
 }
 
 // getExportedNames_2: an object that is exactly a ClosureModuleProcessor_UnresolvedGoogModule calls its getExportedNames_2_impl directly (post-flip); others dispatch.
-func (this *ClosureModuleProcessor_UnresolvedGoogModule) getExportedNames_2(p0 ModuleRequestResolver, p1 Set) *ImmutableSet {
+func (this *ClosureModuleProcessor_UnresolvedGoogModule) getExportedNames_2(p0 ModuleRequestResolver, p1 *TSet[*UnresolvedModule]) *ImmutableSet {
 	if this.self_ == any(this) {
 		return this.getExportedNames_2_impl(p0, p1)
 	}

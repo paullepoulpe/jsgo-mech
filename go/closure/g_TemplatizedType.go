@@ -61,23 +61,23 @@ func (this *TemplatizedType) getTypeClass_impl() *JSTypeClass {
 }
 
 func (this *TemplatizedType) getCtorImplementedInterfaces_impl() IterableOf[*ObjectType] {
-	var resolvedImplementedInterfaces LinkedHashSetOf[*ObjectType] = new_LinkedHashSet()
+	var resolvedImplementedInterfaces *TSet[*ObjectType] = newTSet_(tch_p_ObjectType)
 	it_1 := foreach_(any(this.getReferencedObjTypeInternal().getCtorImplementedInterfaces()))
 	for it_1.next() {
 		var obj *ObjectType = to_ObjectType(it_1.v)
-		resolvedImplementedInterfaces.add(to_JSType(obj.visit(icast_Visitor(obj_(this.replacer)))).toObjectType().self())
+		resolvedImplementedInterfaces.add(to_JSType(obj.visit(icast_Visitor(obj_(this.replacer)))).toObjectType())
 	}
-	return icast_Iterable(obj_(resolvedImplementedInterfaces))
+	return icast_Iterable(any(resolvedImplementedInterfaces.asSet()))
 }
 
 func (this *TemplatizedType) getCtorExtendedInterfaces_impl() IterableOf[*ObjectType] {
-	var resolvedExtendedInterfaces LinkedHashSetOf[*ObjectType] = new_LinkedHashSet()
+	var resolvedExtendedInterfaces *TSet[*ObjectType] = newTSet_(tch_p_ObjectType)
 	it_1 := foreach_(any(this.getReferencedObjTypeInternal().getCtorExtendedInterfaces()))
 	for it_1.next() {
 		var obj *ObjectType = to_ObjectType(it_1.v)
-		resolvedExtendedInterfaces.add(to_JSType(obj.visit(icast_Visitor(obj_(this.replacer)))).toObjectType().self())
+		resolvedExtendedInterfaces.add(to_JSType(obj.visit(icast_Visitor(obj_(this.replacer)))).toObjectType())
 	}
-	return icast_Iterable(obj_(resolvedExtendedInterfaces))
+	return icast_Iterable(any(resolvedExtendedInterfaces.asSet()))
 }
 
 func (this *TemplatizedType) appendTo_impl(sb *TypeStringBuilder) {

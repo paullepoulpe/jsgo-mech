@@ -13,3 +13,23 @@ var tc_p_FlowSensitiveInlineVariables_Candidate = &tconv_[*FlowSensitiveInlineVa
 var tc_p_PhaseOptimizer_NamedPass = &tconv_[*PhaseOptimizer_NamedPass]{box: func(v *PhaseOptimizer_NamedPass) any { return obj_(v) }, unbox: func(v any) *PhaseOptimizer_NamedPass { return cast_[*PhaseOptimizer_NamedPass](v) }}
 var tc_p_PropertyMap = &tconv_[*PropertyMap]{box: func(v *PropertyMap) any { return obj_(v) }, unbox: func(v any) *PropertyMap { return cast_[*PropertyMap](v) }}
 var tc_p_Tracer = &tconv_[*Tracer]{box: func(v *Tracer) any { return obj_(v) }, unbox: func(v any) *Tracer { return cast_[*Tracer](v) }}
+var tch_GlobalNamespace_AstChange = &tconv_[GlobalNamespace_AstChange]{box: func(v GlobalNamespace_AstChange) any { return any(v) }, unbox: func(v any) GlobalNamespace_AstChange { return icast_GlobalNamespace_AstChange(v) },
+	hash: func(v GlobalNamespace_AstChange) int32 { return objhash_(any(v)) }, eq: func(a, b GlobalNamespace_AstChange) bool { return objequals_(any(a), any(b)) }}
+var tch_p_CharRanges = &tconv_[*CharRanges]{box: func(v *CharRanges) any { return obj_(v) }, unbox: func(v any) *CharRanges { return cast_[*CharRanges](v) },
+	hash: func(v *CharRanges) int32 { return objhash_(obj_(v)) }, eq: func(a, b *CharRanges) bool { return objequals_(obj_(a), obj_(b)) }}
+var tch_p_Es6RewriteModulesToCommonJsModules_ModuleRequest = &tconv_[*Es6RewriteModulesToCommonJsModules_ModuleRequest]{box: func(v *Es6RewriteModulesToCommonJsModules_ModuleRequest) any { return obj_(v) }, unbox: func(v any) *Es6RewriteModulesToCommonJsModules_ModuleRequest {
+	return cast_[*Es6RewriteModulesToCommonJsModules_ModuleRequest](v)
+},
+	hash: func(v *Es6RewriteModulesToCommonJsModules_ModuleRequest) int32 { return objhash_(obj_(v)) }, eq: func(a, b *Es6RewriteModulesToCommonJsModules_ModuleRequest) bool { return objequals_(obj_(a), obj_(b)) }}
+var tch_p_ExportTrace = &tconv_[*ExportTrace]{box: func(v *ExportTrace) any { return obj_(v) }, unbox: func(v any) *ExportTrace { return cast_[*ExportTrace](v) },
+	hash: func(v *ExportTrace) int32 { return objhash_(obj_(v)) }, eq: func(a, b *ExportTrace) bool { return objequals_(obj_(a), obj_(b)) }}
+var tch_p_FunctionType = &tconv_[*FunctionType]{box: func(v *FunctionType) any { return v.self() }, unbox: func(v any) *FunctionType { return to_FunctionType(v) },
+	hash: func(v *FunctionType) int32 { return objhash_(v.self()) }, eq: func(a, b *FunctionType) bool { return objequals_(a.self(), b.self()) }}
+var tch_p_JSType = &tconv_[*JSType]{box: func(v *JSType) any { return v.self() }, unbox: func(v any) *JSType { return to_JSType(v) },
+	hash: func(v *JSType) int32 { return objhash_(v.self()) }, eq: func(a, b *JSType) bool { return objequals_(a.self(), b.self()) }}
+var tch_p_ObjectType = &tconv_[*ObjectType]{box: func(v *ObjectType) any { return v.self() }, unbox: func(v any) *ObjectType { return to_ObjectType(v) },
+	hash: func(v *ObjectType) int32 { return objhash_(v.self()) }, eq: func(a, b *ObjectType) bool { return objequals_(a.self(), b.self()) }}
+var tch_p_ScopedName = &tconv_[*ScopedName]{box: func(v *ScopedName) any { return v.self() }, unbox: func(v any) *ScopedName { return to_ScopedName(v) },
+	hash: func(v *ScopedName) int32 { return objhash_(v.self()) }, eq: func(a, b *ScopedName) bool { return objequals_(a.self(), b.self()) }}
+var tch_p_SimpleSetMultimap_Entry = &tconv_[*SimpleSetMultimap_Entry]{box: func(v *SimpleSetMultimap_Entry) any { return obj_(v) }, unbox: func(v any) *SimpleSetMultimap_Entry { return cast_[*SimpleSetMultimap_Entry](v) },
+	hash: func(v *SimpleSetMultimap_Entry) int32 { return objhash_(obj_(v)) }, eq: func(a, b *SimpleSetMultimap_Entry) bool { return objequals_(obj_(a), obj_(b)) }}

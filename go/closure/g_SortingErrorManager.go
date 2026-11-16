@@ -48,12 +48,12 @@ func (this *SortingErrorManager) finit_SortingErrorManager() {
 	this.typedPercent = 0.0
 }
 
-func (this *SortingErrorManager) init_SortingErrorManager(errorReportGenerators SetOf[SortingErrorManager_ErrorReportGenerator]) {
+func (this *SortingErrorManager) init_SortingErrorManager(errorReportGenerators *TSet[SortingErrorManager_ErrorReportGenerator]) {
 	this.finit_SortingErrorManager()
-	this.errorReportGenerators = ImmutableSet_copyOf(Collection(errorReportGenerators))
+	this.errorReportGenerators = ImmutableSet_copyOf(Collection(errorReportGenerators.asSet()))
 }
 
-func new_SortingErrorManager(errorReportGenerators SetOf[SortingErrorManager_ErrorReportGenerator]) *SortingErrorManager {
+func new_SortingErrorManager(errorReportGenerators *TSet[SortingErrorManager_ErrorReportGenerator]) *SortingErrorManager {
 	this := &SortingErrorManager{}
 	this.self_ = this
 	this.init_SortingErrorManager(errorReportGenerators)

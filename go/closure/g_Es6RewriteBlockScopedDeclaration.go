@@ -308,7 +308,7 @@ func (this *Es6RewriteBlockScopedDeclaration_LoopClosureTransformer) shouldTrave
 			_ = k
 			return obj_(new_Es6RewriteBlockScopedDeclaration_LoopClosureTransformer_LoopObject(this.createUniqueObjectName(t.getInput())))
 		}))
-		object.vars.add(obj_(var_))
+		object.vars.add(var_)
 		this.nodesRequiringLoopObjectsClosureMap.put(nodeToWrapInClosure.box_(), obj_(object))
 	}
 	return true
@@ -456,9 +456,9 @@ func (this *Es6RewriteBlockScopedDeclaration_LoopClosureTransformer) changeVanil
 }
 
 func (this *Es6RewriteBlockScopedDeclaration_LoopClosureTransformer) changeLoopLocalVariablesToProperties(loopNode Node, loopObject *Es6RewriteBlockScopedDeclaration_LoopClosureTransformer_LoopObject) {
-	it_1 := foreach_(any(loopObject.vars))
+	it_1 := loopObject.vars.each()
 	for it_1.next() {
-		var var_ *Var = cast_[*Var](it_1.v)
+		var var_ *Var = it_1.v
 		var newPropertyName string = this.getLoopObjPropName(var_)
 		it_3 := foreach_(any(this.referenceMap.get(obj_(var_))))
 		for it_3.next() {
@@ -523,9 +523,9 @@ func (this *Es6RewriteBlockScopedDeclaration_LoopClosureTransformer) assignLoopV
 }
 
 func (this *Es6RewriteBlockScopedDeclaration_LoopClosureTransformer) renameVarsToProperties(loopObject *Es6RewriteBlockScopedDeclaration_LoopClosureTransformer_LoopObject, objectLitNextIteration Node, scopeRoot Node) {
-	it_1 := foreach_(any(loopObject.vars))
+	it_1 := loopObject.vars.each()
 	for it_1.next() {
-		var var_ *Var = cast_[*Var](it_1.v)
+		var var_ *Var = it_1.v
 		var newPropertyName string = this.getLoopObjPropName(var_)
 		var newPropertyValue Node = func() Node {
 			if var_.getScopeRoot() == scopeRoot {
@@ -555,7 +555,7 @@ const Es6RewriteBlockScopedDeclaration_LoopClosureTransformer_LOOP_OBJECT_NAME s
 
 type Es6RewriteBlockScopedDeclaration_LoopClosureTransformer_LoopObject struct {
 	name_ string
-	vars  SetOf[*Var]
+	vars  *TSet[*Var]
 }
 
 func (this *Es6RewriteBlockScopedDeclaration_LoopClosureTransformer_LoopObject) zero_Es6RewriteBlockScopedDeclaration_LoopClosureTransformer_LoopObject() {
@@ -563,7 +563,7 @@ func (this *Es6RewriteBlockScopedDeclaration_LoopClosureTransformer_LoopObject) 
 }
 
 func (this *Es6RewriteBlockScopedDeclaration_LoopClosureTransformer_LoopObject) finit_Es6RewriteBlockScopedDeclaration_LoopClosureTransformer_LoopObject() {
-	this.vars = icast_Set(obj_(new_LinkedHashSet()))
+	this.vars = newTSet_(tch_p_Var)
 }
 
 func (this *Es6RewriteBlockScopedDeclaration_LoopClosureTransformer_LoopObject) init_Es6RewriteBlockScopedDeclaration_LoopClosureTransformer_LoopObject(name string) {

@@ -6,7 +6,7 @@ type LiveVariablesAnalysis struct {
 	DataFlowAnalysis
 	jsScope        *Scope
 	jsScopeChild   *Scope
-	escaped        SetOf[*Var]
+	escaped        *TSet[*Var]
 	scopeVariables map[string]BoxedOf[int32]
 	orderedVars    *TList[*Var]
 	allVarsInFn    *TMap[string, *Var]
@@ -26,7 +26,7 @@ func (this *LiveVariablesAnalysis) init_LiveVariablesAnalysis(cfg *ControlFlowGr
 	}
 	this.jsScope = jsScope
 	this.jsScopeChild = jsScopeChild
-	this.escaped = icast_Set(obj_(new_LinkedHashSet()))
+	this.escaped = newTSet_(tch_p_Var)
 	this.scopeVariables = map[string]BoxedOf[int32]{}
 	this.orderedVars = allVarsDeclaredInFunction.getAllVariablesInOrder()
 	this.allVarsInFn = allVarsDeclaredInFunction.getAllVariables()
@@ -51,7 +51,7 @@ func (this *LiveVariablesAnalysis) addScopeVariables() {
 	}
 }
 
-func (this *LiveVariablesAnalysis) getEscapedLocals() SetOf[*Var] {
+func (this *LiveVariablesAnalysis) getEscapedLocals() *TSet[*Var] {
 	return this.escaped
 }
 
@@ -228,7 +228,7 @@ func (this *LiveVariablesAnalysis) addToSetIfLocal(node Node, set *BitSet) {
 	if !local {
 		return
 	}
-	if !this.escaped.contains(obj_(var_)) {
+	if !this.escaped.contains(var_) {
 		set.set(this.getVarIndex(var_.getName()))
 	}
 }
@@ -244,7 +244,7 @@ func (this *LiveVariablesAnalysis) markAllParametersEscaped() {
 		var param Node = paramList.getFirstChild()
 		for ; param != 0; param = param.getNext() {
 			if param.isName() {
-				this.escaped.add(this.jsScope.getVar(param.getString()).self())
+				this.escaped.add(cast_[*Var](this.jsScope.getVar(param.getString()).self()))
 			}
 		}
 	}

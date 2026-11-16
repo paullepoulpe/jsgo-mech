@@ -62,15 +62,15 @@ func ColorId_fromBytesAt(source any, length int32, byteAt ColorId_ByteAt) *Color
 	return new_ColorId(rightAligned)
 }
 
-func ColorId_union(ids SetOf[*ColorId]) *ColorId {
+func ColorId_union(ids *TSet[*ColorId]) *ColorId {
 	if ids.size() <= 1 {
-		return cast_[*ColorId](Iterables_getOnlyElement(Iterable(ids)))
+		return cast_[*ColorId](Iterables_getOnlyElement(Iterable(ids.asSet())))
 	}
 	var index int32 = 0
 	var sorted []int64 = make([]int64, ids.size())
-	it_1 := foreach_(any(ids))
+	it_1 := ids.each()
 	for it_1.next() {
-		var id *ColorId = cast_[*ColorId](it_1.v)
+		var id *ColorId = it_1.v
 		sorted[index] = id.rightAligned
 		index++
 	}

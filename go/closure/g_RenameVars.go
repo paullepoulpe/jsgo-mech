@@ -14,7 +14,7 @@ type RenameVars struct {
 	prevUsedRenameMap              *VariableMap
 	prefix_                        string
 	assignmentCount                int32
-	localBleedingFunctions         SetOf[*Var]
+	localBleedingFunctions         *TSet[*Var]
 	localBleedingFunctionsPerScope *SimpleListMultimap
 	assignments                    *TMap[string, *RenameVars_Assignment]
 	localRenamingOnly              bool
@@ -33,7 +33,7 @@ func (this *RenameVars) finit_RenameVars() {
 	this.originalNameByNode = map[Node]string{}
 	this.renameMap = newTMap_(tc_string, tc_string)
 	this.assignmentCount = 0
-	this.localBleedingFunctions = icast_Set(obj_(new_LinkedHashSet()))
+	this.localBleedingFunctions = newTSet_(tch_p_Var)
 	this.localBleedingFunctionsPerScope = SimpleListMultimap_create()
 	this.assignments = newTMap_(tc_string, tc_p_RenameVars_Assignment)
 }
@@ -226,7 +226,7 @@ func (this *RenameVars) getLocalVarIndex(v *Var) int32 {
 	if s == nil {
 		panic(new_IllegalArgumentException_String("Var is not local").self())
 	}
-	var isBleedingIntoScope bool = ((cast_[*Scope](s.getParent().self()) != nil) && this.localBleedingFunctions.contains(obj_(v)))
+	var isBleedingIntoScope bool = ((cast_[*Scope](s.getParent().self()) != nil) && this.localBleedingFunctions.contains(v))
 	for cast_[*Scope](s.getParent().self()) != nil {
 		if isBleedingIntoScope {
 			num += (this.localBleedingFunctionsPerScope.get(obj_(s)).indexOf(obj_(v)) + 1)
@@ -342,7 +342,7 @@ func (this *RenameVars_ProcessVars) enterScope(t *NodeTraversal) {
 	for it_1.next() {
 		var current *Var = cast_[*Var](it_1.v)
 		if current.isBleedingFunction() {
-			this.outer_.localBleedingFunctions.add(obj_(current))
+			this.outer_.localBleedingFunctions.add(current)
 			this.outer_.localBleedingFunctionsPerScope.put(scope.getParent().self(), obj_(current))
 		}
 	}

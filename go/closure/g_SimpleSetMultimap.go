@@ -5,7 +5,7 @@ package closure
 type SimpleSetMultimap struct {
 	map__      MapOf[any, SetOf[any]]
 	sorted     bool
-	entryOrder LinkedHashSetOf[*SimpleSetMultimap_Entry]
+	entryOrder *TSet[*SimpleSetMultimap_Entry]
 	frozen     bool
 }
 
@@ -22,9 +22,9 @@ func (this *SimpleSetMultimap) init_SimpleSetMultimap(sorted bool, insertionOrde
 		return icast_Map(obj_(new_LinkedHashMap()))
 	}()
 	this.sorted = sorted
-	this.entryOrder = func() *LinkedHashSet {
+	this.entryOrder = func() *TSet[*SimpleSetMultimap_Entry] {
 		if insertionOrdered {
-			return new_LinkedHashSet()
+			return newTSet_(tch_p_SimpleSetMultimap_Entry)
 		}
 		return nil
 	}()
@@ -90,7 +90,7 @@ func (this *SimpleSetMultimap) put(key any, value any) bool {
 		return false
 	}
 	if this.entryOrder != nil {
-		this.entryOrder.add(obj_(new_SimpleSetMultimap_Entry(key, value)))
+		this.entryOrder.add(new_SimpleSetMultimap_Entry(key, value))
 	}
 	return true
 }
@@ -105,9 +105,9 @@ func (this *SimpleSetMultimap) putAll_2(key any, values IterableOf[any]) {
 
 func (this *SimpleSetMultimap) putAll(other *SimpleSetMultimap) {
 	if other.entryOrder != nil {
-		it_1 := foreach_(obj_(other.entryOrder))
+		it_1 := other.entryOrder.each()
 		for it_1.next() {
-			var e *SimpleSetMultimap_Entry = cast_[*SimpleSetMultimap_Entry](it_1.v)
+			var e *SimpleSetMultimap_Entry = it_1.v
 			this.put(e.key(), e.value())
 		}
 	} else {
@@ -153,7 +153,7 @@ func (this *SimpleSetMultimap) removeAll(key any) SetOf[any] {
 		it_1 := foreach_(any(values))
 		for it_1.next() {
 			var value any = it_1.v
-			this.entryOrder.remove_Object(obj_(new_SimpleSetMultimap_Entry(key, value)))
+			this.entryOrder.remove(new_SimpleSetMultimap_Entry(key, value))
 		}
 	}
 	return Collections_unmodifiableSet(values)
@@ -264,7 +264,7 @@ type SimpleSetMultimap_InsertionOrderedValuesIterator struct {
 }
 
 func (this *SimpleSetMultimap_InsertionOrderedValuesIterator) finit_SimpleSetMultimap_InsertionOrderedValuesIterator() {
-	this.entries = this.outer_.entryOrder.iterator()
+	this.entries = this.outer_.entryOrder.asSet().iterator()
 	this.last = nil
 }
 

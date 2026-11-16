@@ -277,7 +277,7 @@ func (this *SubtypeChecker) isStructuralSubtypeHelper(subtype *ObjectType, super
 		if supertype.isRecordType() {
 			return Iterable(supertype.getOwnPropertyKnownSymbols())
 		}
-		return Iterable(keys.knownSymbolKeys())
+		return Iterable(keys.knownSymbolKeys().asSet())
 	}()
 	it_3 := foreach_(any(knownSymbols))
 	for it_3.next() {

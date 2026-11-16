@@ -6,11 +6,11 @@ type DisambiguateProperties struct {
 	compiler_                      *AbstractCompiler
 	propertiesThatMustDisambiguate ImmutableSetOf[string]
 	registry                       *ColorRegistry
-	mayHavePropertySeenSet         LinkedHashSetOf[*Color]
+	mayHavePropertySeenSet         *TSet[*Color]
 }
 
 func (this *DisambiguateProperties) finit_DisambiguateProperties() {
-	this.mayHavePropertySeenSet = new_LinkedHashSet()
+	this.mayHavePropertySeenSet = newTSet_(tch_p_Color)
 }
 
 func (this *DisambiguateProperties) init_DisambiguateProperties(compiler *AbstractCompiler, propertiesThatMustDisambiguate ImmutableSetOf[string]) {
@@ -166,9 +166,9 @@ func (this *DisambiguateProperties) mayHaveProperty(color *Color, propertyName s
 	var ret_1 bool
 	code_1 := func() (code_ int) {
 		defer func() {
-			this.mayHavePropertySeenSet.remove_Object(obj_(color))
+			this.mayHavePropertySeenSet.remove(color)
 		}()
-		if !this.mayHavePropertySeenSet.add(obj_(color)) {
+		if !this.mayHavePropertySeenSet.add(color) {
 			ret_1 = false
 			return 1
 		}

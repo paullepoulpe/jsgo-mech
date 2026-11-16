@@ -404,7 +404,7 @@ func (this *AbstractCompiler) addExportedNames(p0 *TSet[string]) {
 	this.self_.(*Compiler).addExportedNames_impl(p0)
 }
 
-func (this *AbstractCompiler) getExportedNames() Set {
+func (this *AbstractCompiler) getExportedNames() *TSet[string] {
 	return this.self_.(*Compiler).getExportedNames_impl()
 }
 

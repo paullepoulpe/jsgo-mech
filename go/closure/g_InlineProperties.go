@@ -161,7 +161,7 @@ func (this *InlineProperties_GatherCandidates) maybeRecordCandidateClassFieldDef
 			if possibleInstances.isEmpty() {
 				return StandardColors_UNKNOWN
 			}
-			return Color_createUnion(icast_Set(obj_(possibleInstances)))
+			return Color_createUnion(tsetFrom_(tch_p_Color, possibleInstances, true))
 		}()
 	}
 	return this.maybeStoreCandidateValue(c, propName, value)
@@ -215,7 +215,7 @@ func (this *InlineProperties_GatherCandidates) inConstructor(t *NodeTraversal) b
 type InlineProperties_ReplaceCandidates struct {
 	NodeTraversal_AbstractPostOrderCallback
 	outer_                     *InlineProperties
-	hasInSupertypesListSeenSet LinkedHashSetOf[*Color]
+	hasInSupertypesListSeenSet *TSet[*Color]
 }
 
 func (this *InlineProperties_ReplaceCandidates) up_NodeTraversal_AbstractPostOrderCallback() *NodeTraversal_AbstractPostOrderCallback {
@@ -226,7 +226,7 @@ func (this *InlineProperties_ReplaceCandidates) up_NodeTraversal_AbstractPostOrd
 }
 
 func (this *InlineProperties_ReplaceCandidates) finit_InlineProperties_ReplaceCandidates() {
-	this.hasInSupertypesListSeenSet = new_LinkedHashSet()
+	this.hasInSupertypesListSeenSet = newTSet_(tch_p_Color)
 }
 
 func (this *InlineProperties_ReplaceCandidates) init_InlineProperties_ReplaceCandidates() {
@@ -274,9 +274,9 @@ func (this *InlineProperties_ReplaceCandidates) hasInSupertypesList(subCtor *Col
 	var ret_1 bool
 	code_1 := func() (code_ int) {
 		defer func() {
-			this.hasInSupertypesListSeenSet.remove_Object(obj_(subCtor))
+			this.hasInSupertypesListSeenSet.remove(subCtor)
 		}()
-		if !this.hasInSupertypesListSeenSet.add(obj_(subCtor)) {
+		if !this.hasInSupertypesListSeenSet.add(subCtor) {
 			ret_1 = false
 			return 1
 		}

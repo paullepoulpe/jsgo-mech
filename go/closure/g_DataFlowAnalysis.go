@@ -203,7 +203,7 @@ func (this *DataFlowAnalysis) getInputFromEdge(edge DiGraph_DiGraphEdge) Lattice
 	panic("unreachable")
 }
 
-func DataFlowAnalysis_computeEscaped(jsScope *Scope, escaped SetOf[*Var], compiler *AbstractCompiler, scopeCreator ScopeCreator, allVarsInFn *TMap[string, *Var]) {
+func DataFlowAnalysis_computeEscaped(jsScope *Scope, escaped *TSet[*Var], compiler *AbstractCompiler, scopeCreator ScopeCreator, allVarsInFn *TMap[string, *Var]) {
 	Preconditions_checkArgument(jsScope.isFunctionScope())
 	var finder *NodeTraversal_AbstractPostOrderCallback = new_DataFlowAnalysis_1(jsScope, escaped).up_NodeTraversal_AbstractPostOrderCallback()
 	NodeTraversal_builder().setCompiler(compiler).setCallback(icast_NodeTraversal_Callback(finder.self())).setScopeCreator(scopeCreator).traverseAtScope(jsScope.up_AbstractScope())
@@ -211,7 +211,7 @@ func DataFlowAnalysis_computeEscaped(jsScope *Scope, escaped SetOf[*Var], compil
 	for it_1.next() {
 		var var_ *Var = it_1.v
 		if var_.getParentNode().isCatch() || compiler.getCodingConvention().isExported(var_.getName()) {
-			escaped.add(obj_(var_))
+			escaped.add(var_)
 		}
 	}
 }
@@ -376,7 +376,7 @@ func (this *DataFlowAnalysis_UniqueQueue) clear() {
 type DataFlowAnalysis_1 struct {
 	NodeTraversal_AbstractPostOrderCallback
 	cap_jsScope *Scope
-	cap_escaped Set
+	cap_escaped *TSet[*Var]
 }
 
 func (this *DataFlowAnalysis_1) up_NodeTraversal_AbstractPostOrderCallback() *NodeTraversal_AbstractPostOrderCallback {
@@ -390,7 +390,7 @@ func (this *DataFlowAnalysis_1) init_DataFlowAnalysis_1() {
 	this.NodeTraversal_AbstractPostOrderCallback.init_NodeTraversal_AbstractPostOrderCallback()
 }
 
-func new_DataFlowAnalysis_1(cap_jsScope *Scope, cap_escaped Set) *DataFlowAnalysis_1 {
+func new_DataFlowAnalysis_1(cap_jsScope *Scope, cap_escaped *TSet[*Var]) *DataFlowAnalysis_1 {
 	this := &DataFlowAnalysis_1{}
 	this.self_ = this
 	this.cap_jsScope = cap_jsScope
@@ -414,7 +414,7 @@ func (this *DataFlowAnalysis_1) visit_impl(t *NodeTraversal, n Node, parent Node
 	}
 	var referenceCfgScope *Scope = cast_[*Scope](t.getScope().getClosestCfgRootScope().self())
 	if (referenceCfgScope != variableCfgScope) || DataFlowAnalysis_isReferencedInNonStaticClassField(t.getScope(), variableCfgScope) {
-		this.cap_escaped.add(obj_(var_))
+		this.cap_escaped.add(var_)
 	}
 }
 

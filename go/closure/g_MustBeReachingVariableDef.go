@@ -5,7 +5,7 @@ package closure
 type MustBeReachingVariableDef struct {
 	DataFlowAnalysis
 	compiler_   *AbstractCompiler
-	escaped     SetOf[*Var]
+	escaped     *TSet[*Var]
 	allVarsInFn *TMap[string, *Var]
 }
 
@@ -16,14 +16,14 @@ func (this *MustBeReachingVariableDef) up_DataFlowAnalysis() *DataFlowAnalysis {
 	return &this.DataFlowAnalysis
 }
 
-func (this *MustBeReachingVariableDef) init_MustBeReachingVariableDef(cfg *ControlFlowGraph, compiler *AbstractCompiler, escaped SetOf[*Var], allVarsInFn *TMap[string, *Var]) {
+func (this *MustBeReachingVariableDef) init_MustBeReachingVariableDef(cfg *ControlFlowGraph, compiler *AbstractCompiler, escaped *TSet[*Var], allVarsInFn *TMap[string, *Var]) {
 	this.DataFlowAnalysis.init_DataFlowAnalysis(cfg)
 	this.compiler_ = compiler
 	this.escaped = escaped
 	this.allVarsInFn = allVarsInFn
 }
 
-func new_MustBeReachingVariableDef(cfg *ControlFlowGraph, compiler *AbstractCompiler, escaped SetOf[*Var], allVarsInFn *TMap[string, *Var]) *MustBeReachingVariableDef {
+func new_MustBeReachingVariableDef(cfg *ControlFlowGraph, compiler *AbstractCompiler, escaped *TSet[*Var], allVarsInFn *TMap[string, *Var]) *MustBeReachingVariableDef {
 	this := &MustBeReachingVariableDef{}
 	this.self_ = this
 	this.init_MustBeReachingVariableDef(cfg, compiler, escaped, allVarsInFn)
@@ -205,11 +205,11 @@ func (this *MustBeReachingVariableDef) addToDefIfLocal(name string, node Node, r
 		if otherDef == nil {
 			continue
 		}
-		if otherDef.depends.contains(obj_(var_)) {
+		if otherDef.depends.contains(var_) {
 			def.reachingDef.ents[i_].val = nil
 		}
 	}
-	if !this.escaped.contains(obj_(var_)) {
+	if !this.escaped.contains(var_) {
 		if node == 0 {
 			def.reachingDef.put(var_, nil)
 		} else {
@@ -235,9 +235,9 @@ func (this *MustBeReachingVariableDef) escapeParameters(output *MustBeReachingVa
 		if value == nil {
 			continue
 		}
-		it_5 := foreach_(any(value.depends))
+		it_5 := value.depends.each()
 		for it_5.next() {
-			var dep *Var = cast_[*Var](it_5.v)
+			var dep *Var = it_5.v
 			if MustBeReachingVariableDef_isParameter(dep) {
 				output.reachingDef.ents[i_].val = nil
 				break
@@ -278,9 +278,9 @@ func (this *MustBeReachingVariableDef) dependsOnOuterScopeVars(def *MustBeReachi
 	if def.unknownDependencies {
 		return true
 	}
-	it_1 := foreach_(any(def.depends))
+	it_1 := def.depends.each()
 	for it_1.next() {
-		var s *Var = cast_[*Var](it_1.v)
+		var s *Var = it_1.v
 		if cast_[*Scope](s.getScope()).isCatchScope() {
 			return true
 		}
@@ -290,12 +290,12 @@ func (this *MustBeReachingVariableDef) dependsOnOuterScopeVars(def *MustBeReachi
 
 type MustBeReachingVariableDef_Definition struct {
 	node_               Node
-	depends             SetOf[*Var]
+	depends             *TSet[*Var]
 	unknownDependencies bool
 }
 
 func (this *MustBeReachingVariableDef_Definition) finit_MustBeReachingVariableDef_Definition() {
-	this.depends = icast_Set(obj_(new_LinkedHashSet()))
+	this.depends = newTSet_(tch_p_Var)
 	this.unknownDependencies = false
 }
 
@@ -467,7 +467,7 @@ func (this *MustBeReachingVariableDef_1) visit_impl(t *NodeTraversal, n Node, pa
 		if dep == nil {
 			this.cap_def.unknownDependencies = true
 		} else {
-			this.cap_def.depends.add(obj_(dep))
+			this.cap_def.depends.add(dep)
 		}
 	}
 }

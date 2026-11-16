@@ -404,13 +404,13 @@ func (this *InlineAndCollapseProperties_AggressiveInlineAliases) maybeInlineInne
 	var collector *ReferenceCollector = new_ReferenceCollector_AbstractCompiler_Behavior_ScopeCreator_Predicate(this.outer_.compiler_, ReferenceCollector_DO_NOTHING_BEHAVIOR, icast_ScopeCreator(obj_(syntacticScopeCreator)), Predicates_equalTo(obj_(innerNameVar)))
 	collector.processScope(innerScope)
 	var innerNameRefs *ReferenceCollection = collector.getReferences_Var(innerNameVar)
-	var newNodes SetOf[GlobalNamespace_AstChange] = icast_Set(obj_(new_LinkedHashSet()))
+	var newNodes *TSet[GlobalNamespace_AstChange] = newTSet_(tch_GlobalNamespace_AstChange)
 	it_1 := foreach_(obj_(innerNameRefs))
 	for it_1.next() {
 		var innerNameRef *Reference = cast_[*Reference](it_1.v)
 		var innerNameRefNode Node = innerNameRef.getNode()
 		if NodeUtil_isNormalGet(innerNameRefNode.getParent()) {
-			newNodes.add(any(this.replaceAliasReference(globalNameDeclaration, innerNameRef)))
+			newNodes.add(this.replaceAliasReference(globalNameDeclaration, innerNameRef))
 		}
 	}
 	this.outer_.namespace_.scanNewNodes(newNodes)
@@ -441,7 +441,7 @@ func (this *InlineAndCollapseProperties_AggressiveInlineAliases) rewriteAllSubcl
 		}
 	}
 	if subclassPropNameObj != nil {
-		var newNodes SetOf[GlobalNamespace_AstChange] = icast_Set(obj_(new_LinkedHashSet()))
+		var newNodes *TSet[GlobalNamespace_AstChange] = newTSet_(tch_GlobalNamespace_AstChange)
 		var superclassNameNode Node = cast_[*GlobalNamespace_Ref](superclassNameObj.getDeclaration()).getNode()
 		if superclassNameNode.isName() {
 			superclassNameNode = superclassNameNode.cloneNode()
@@ -511,9 +511,9 @@ func (this *InlineAndCollapseProperties_AggressiveInlineAliases) inlineAliasIfPo
 		var aliasScope *Scope = cast_[*Scope](aliasVar.getScope())
 		collector.processScope(aliasScope)
 		var aliasRefs *ReferenceCollection = collector.getReferences_Var(aliasVar)
-		var newNodes SetOf[GlobalNamespace_AstChange] = icast_Set(obj_(new_LinkedHashSet()))
+		var newNodes *TSet[GlobalNamespace_AstChange] = newTSet_(tch_GlobalNamespace_AstChange)
 		if aliasRefs.isWellDefined() && (aliasRefs.isAssignedOnceInLifetime() || this.isInlineableModuleExportsAlias(name, aliasRefs)) {
-			var readNodes SetOf[GlobalNamespace_AstChange] = icast_Set(obj_(new_LinkedHashSet()))
+			var readNodes *TSet[GlobalNamespace_AstChange] = newTSet_(tch_GlobalNamespace_AstChange)
 			var size int32 = aliasRefs.references.size()
 			var firstRead int32 = func() int32 {
 				if aliasRefs.references.get(0).isInitializingDeclaration() {
@@ -523,10 +523,10 @@ func (this *InlineAndCollapseProperties_AggressiveInlineAliases) inlineAliasIfPo
 			}()
 			for i := int32(firstRead); i < size; i++ {
 				var aliasRef *Reference = aliasRefs.references.get(i)
-				readNodes.add(any(this.replaceAliasReference(alias, aliasRef)))
+				readNodes.add(this.replaceAliasReference(alias, aliasRef))
 			}
 			this.replaceAliasingAssignment(alias, name, aliasLhsNode, newNodes)
-			newNodes.addAll(Collection(readNodes))
+			newNodes.addAllT(readNodes)
 			namespace.scanNewNodes(newNodes)
 			return
 		}
@@ -553,7 +553,7 @@ func (this *InlineAndCollapseProperties_AggressiveInlineAliases) partiallyInline
 			return false
 		}
 	}
-	var readNodes SetOf[GlobalNamespace_AstChange] = icast_Set(obj_(new_LinkedHashSet()))
+	var readNodes *TSet[GlobalNamespace_AstChange] = newTSet_(tch_GlobalNamespace_AstChange)
 	var alreadySeenInitialAlias bool = false
 	var foundNonReplaceableAlias bool = false
 	it_3 := foreach_(obj_(aliasRefs))
@@ -569,23 +569,23 @@ func (this *InlineAndCollapseProperties_AggressiveInlineAliases) partiallyInline
 		var refBlock *BasicBlock = aliasRef.getBasicBlock()
 		if ((refBlock != aliasBlock) && aliasBlock.provablyExecutesBefore(refBlock)) || ((refBlock == aliasBlock) && alreadySeenInitialAlias) {
 			this.codeChanged = true
-			readNodes.add(any(this.replaceAliasReference(alias, aliasRef)))
+			readNodes.add(this.replaceAliasReference(alias, aliasRef))
 		} else {
 			foundNonReplaceableAlias = true
 		}
 	}
-	var newNodes SetOf[GlobalNamespace_AstChange] = icast_Set(obj_(new_LinkedHashSet()))
+	var newNodes *TSet[GlobalNamespace_AstChange] = newTSet_(tch_GlobalNamespace_AstChange)
 	if !foundNonReplaceableAlias {
 		this.replaceAliasingAssignment(alias, aliasingName, aliasLhsNode, newNodes)
 	}
-	newNodes.addAll(Collection(readNodes))
+	newNodes.addAllT(readNodes)
 	if this.codeChanged {
 		namespace.scanNewNodes(newNodes)
 	}
 	return !foundNonReplaceableAlias
 }
 
-func (this *InlineAndCollapseProperties_AggressiveInlineAliases) replaceAliasingAssignment(alias *GlobalNamespace_Ref, aliasName *GlobalNamespace_Name, aliasLhsNode Node, newNodes SetOf[GlobalNamespace_AstChange]) {
+func (this *InlineAndCollapseProperties_AggressiveInlineAliases) replaceAliasingAssignment(alias *GlobalNamespace_Ref, aliasName *GlobalNamespace_Name, aliasLhsNode Node, newNodes *TSet[GlobalNamespace_AstChange]) {
 	var assignment Node = aliasLhsNode.getParent()
 	if !NodeUtil_isNameDeclaration(assignment) && NodeUtil_isExpressionResultUsed(assignment) {
 		if !assignment.isAssign() {
@@ -594,7 +594,7 @@ func (this *InlineAndCollapseProperties_AggressiveInlineAliases) replaceAliasing
 		var assignmentParent Node = assignment.getParent()
 		var rhs Node = alias.getNode().detach()
 		assignment.replaceWith(rhs)
-		newNodes.add(obj_(new_GlobalNamespace_RefBasedAstChange(alias, rhs)))
+		newNodes.add(icast_GlobalNamespace_AstChange(obj_(new_GlobalNamespace_RefBasedAstChange(alias, rhs))))
 		this.outer_.compiler_.reportChangeToEnclosingScope(assignmentParent)
 	} else {
 		var aliasParent Node = alias.getNode().getParent()
@@ -649,9 +649,9 @@ func (this *InlineAndCollapseProperties_AggressiveInlineAliases) inlineGlobalAli
 		if !aliasInlinability.shouldInlineUsages() {
 			return
 		}
-		var readNodes SetOf[GlobalNamespace_AstChange] = this.rewriteAliasReferences(aliasingName, alias, aliasInlinability)
+		var readNodes *TSet[GlobalNamespace_AstChange] = this.rewriteAliasReferences(aliasingName, alias, aliasInlinability)
 		this.rewriteAliasProps(aliasingName, alias.getNode(), 0, readNodes)
-		var newNodes SetOf[GlobalNamespace_AstChange] = icast_Set(obj_(new_LinkedHashSet()))
+		var newNodes *TSet[GlobalNamespace_AstChange] = newTSet_(tch_GlobalNamespace_AstChange)
 		if aliasInlinability.shouldRemoveDeclaration() {
 			var aliasInitialization *GlobalNamespace_Ref = aliasingName.getInitialization()
 			if aliasInitialization.isTwin() {
@@ -661,7 +661,7 @@ func (this *InlineAndCollapseProperties_AggressiveInlineAliases) inlineGlobalAli
 				var aliasGrandparent Node = aliasParent.getParent()
 				aliasParent.replaceWith(alias.getNode().detach())
 				aliasingName.removeRef(aliasInitialization)
-				newNodes.add(obj_(new_GlobalNamespace_RefBasedAstChange(alias, alias.getNode())))
+				newNodes.add(icast_GlobalNamespace_AstChange(obj_(new_GlobalNamespace_RefBasedAstChange(alias, alias.getNode()))))
 				this.outer_.compiler_.reportChangeToEnclosingScope(aliasGrandparent)
 			} else {
 				alias.getNode().replaceWith(IR_nullNode())
@@ -670,13 +670,13 @@ func (this *InlineAndCollapseProperties_AggressiveInlineAliases) inlineGlobalAli
 			this.codeChanged = true
 			name.removeRef(alias)
 		}
-		newNodes.addAll(Collection(readNodes))
+		newNodes.addAllT(readNodes)
 		namespace.scanNewNodes(newNodes)
 	}
 }
 
-func (this *InlineAndCollapseProperties_AggressiveInlineAliases) rewriteAliasReferences(aliasingName *GlobalNamespace_Name, aliasingRef *GlobalNamespace_Ref, aliasInlinability *GlobalNamespace_Inlinability) SetOf[GlobalNamespace_AstChange] {
-	var newNodes SetOf[GlobalNamespace_AstChange] = icast_Set(obj_(new_LinkedHashSet()))
+func (this *InlineAndCollapseProperties_AggressiveInlineAliases) rewriteAliasReferences(aliasingName *GlobalNamespace_Name, aliasingRef *GlobalNamespace_Ref, aliasInlinability *GlobalNamespace_Inlinability) *TSet[GlobalNamespace_AstChange] {
+	var newNodes *TSet[GlobalNamespace_AstChange] = newTSet_(tch_GlobalNamespace_AstChange)
 	var refs []*GlobalNamespace_Ref = sliceFrom_(tc_p_GlobalNamespace_Ref, aliasingName.getRefs())
 	var initializationChunk *JSChunk = func() *JSChunk {
 		if aliasingName.getInitialization() != nil {
@@ -709,14 +709,14 @@ func (this *InlineAndCollapseProperties_AggressiveInlineAliases) rewriteAliasRef
 			newNode.srcref(node)
 			node.replaceWith(newNode)
 			this.outer_.compiler_.reportChangeToEnclosingScope(newNode)
-			newNodes.add(obj_(new_GlobalNamespace_RefBasedAstChange(ref, newNode)))
+			newNodes.add(icast_GlobalNamespace_AstChange(obj_(new_GlobalNamespace_RefBasedAstChange(ref, newNode))))
 		}
 		aliasingName.removeRef(ref)
 	}
 	return newNodes
 }
 
-func (this *InlineAndCollapseProperties_AggressiveInlineAliases) rewriteAliasProps(name *GlobalNamespace_Name, value Node, depth int32, newNodes SetOf[GlobalNamespace_AstChange]) {
+func (this *InlineAndCollapseProperties_AggressiveInlineAliases) rewriteAliasProps(name *GlobalNamespace_Name, value Node, depth int32, newNodes *TSet[GlobalNamespace_AstChange]) {
 	if name.props == nil {
 		return
 	}
@@ -730,7 +730,7 @@ func (this *InlineAndCollapseProperties_AggressiveInlineAliases) rewriteAliasPro
 	}
 }
 
-func (this *InlineAndCollapseProperties_AggressiveInlineAliases) rewriteNestedAliasReference(value Node, depth int32, newNodes SetOf[GlobalNamespace_AstChange], prop *GlobalNamespace_Name) {
+func (this *InlineAndCollapseProperties_AggressiveInlineAliases) rewriteNestedAliasReference(value Node, depth int32, newNodes *TSet[GlobalNamespace_AstChange], prop *GlobalNamespace_Name) {
 	this.rewriteAliasProps(prop, value, (depth + 1), newNodes)
 	var refs []*GlobalNamespace_Ref = sliceFrom_(tc_p_GlobalNamespace_Ref, prop.getRefs())
 	for _, ref := range refs {
@@ -764,7 +764,7 @@ func (this *InlineAndCollapseProperties_AggressiveInlineAliases) rewriteNestedAl
 		target.replaceWith(newValue)
 		this.outer_.compiler_.reportChangeToEnclosingScope(newValue)
 		prop.removeRef(ref)
-		newNodes.add(obj_(new_GlobalNamespace_RefBasedAstChange(ref, ref.getNode())))
+		newNodes.add(icast_GlobalNamespace_AstChange(obj_(new_GlobalNamespace_RefBasedAstChange(ref, ref.getNode()))))
 		this.codeChanged = true
 	}
 }
@@ -884,11 +884,11 @@ func (this *InlineAndCollapseProperties_RewriteSimpleDestructuringAliases) expan
 type InlineAndCollapseProperties_CollapseProperties struct {
 	outer_                     *InlineAndCollapseProperties
 	nameMap                    *TMap[string, *GlobalNamespace_Name]
-	dynamicallyImportedModules LinkedHashSetOf[string]
+	dynamicallyImportedModules *TSet[string]
 }
 
 func (this *InlineAndCollapseProperties_CollapseProperties) finit_InlineAndCollapseProperties_CollapseProperties() {
-	this.dynamicallyImportedModules = new_LinkedHashSet()
+	this.dynamicallyImportedModules = newTSet_(tc_string)
 }
 
 func (this *InlineAndCollapseProperties_CollapseProperties) init_InlineAndCollapseProperties_CollapseProperties() {
@@ -927,7 +927,7 @@ func (this *InlineAndCollapseProperties_CollapseProperties) canCollapse(name *Gl
 		if !name.isModuleExport() {
 			this.logDecisionForName_3(name, inlinability, "module export: canCollapse() returns false")
 			return false
-		} else if Collection_contains_s(this.dynamicallyImportedModules, name.getBaseName()) {
+		} else if this.dynamicallyImportedModules.contains(name.getBaseName()) {
 			this.logDecisionForName_3(name, inlinability, "dynamic module export: canCollapse() returns false")
 			return false
 		}
@@ -962,12 +962,12 @@ func (this *InlineAndCollapseProperties_CollapseProperties) canEliminate(name *G
 
 func (this *InlineAndCollapseProperties_CollapseProperties) checkNamespaces() ImmutableSetOf[*GlobalNamespace_Name] {
 	var escaped ImmutableSet_BuilderOf[*GlobalNamespace_Name] = ImmutableSet_builder()
-	var dynamicallyImportedModuleRefs map[string]struct{} = setFrom_(tc_string, icast_Collection(obj_(this.dynamicallyImportedModules)))
+	var dynamicallyImportedModuleRefs map[string]struct{} = setFrom_(tc_string, icast_Collection(any(this.dynamicallyImportedModules.asSet())))
 	if !this.dynamicallyImportedModules.isEmpty() {
 		it_1 := this.nameMap.each()
 		for it_1.next() {
 			var name *GlobalNamespace_Name = it_1.v
-			if Collection_contains_s(this.dynamicallyImportedModules, name.getFullName()) {
+			if this.dynamicallyImportedModules.contains(name.getFullName()) {
 				this.logDecisionForName(name, "escapes - dynamically imported module namespace")
 				escaped.add(obj_(name))
 				if name.props == nil {
@@ -1592,12 +1592,12 @@ func (this *InlineAndCollapseProperties_CollapseProperties_FindDynamicallyImport
 	if ((((((this.processCommonJSModules && n.isGetProp()) && n.isQualifiedName()) && (n.getParent() != 0)) && n.getParent().isReturn()) && n.getGrandparent().isBlock()) && n.getGrandparent().hasOneChild()) && n.getGrandparent().getParent().isFunction() {
 		var potentialCallback Node = NodeUtil_getEnclosingFunction(n)
 		if (potentialCallback != 0) && ProcessCommonJSModules_isCommonJsDynamicImportCallback(NodeUtil_getEnclosingFunction(potentialCallback), this.moduleResolutionMode) {
-			Collection_add_s(this.outer_.dynamicallyImportedModules, NodeUtil_getRootOfQualifiedNameString(n.getQualifiedName()))
+			this.outer_.dynamicallyImportedModules.add(NodeUtil_getRootOfQualifiedNameString(n.getQualifiedName()))
 		}
 	} else if ConvertChunksToESModules_isDynamicImportCallback(n) {
 		var moduleNamespace Node = ConvertChunksToESModules_getDynamicImportCallbackModuleNamespace(this.outer_.outer_.compiler_, n)
 		if moduleNamespace != 0 {
-			Collection_add_s(this.outer_.dynamicallyImportedModules, moduleNamespace.getQualifiedName())
+			this.outer_.dynamicallyImportedModules.add(moduleNamespace.getQualifiedName())
 		}
 	}
 }
@@ -1746,10 +1746,10 @@ func (this *InlineAndCollapseProperties_InlineAliases_AliasesInliner) isLeftmost
 }
 
 func (this *InlineAndCollapseProperties_InlineAliases_AliasesInliner) resolveAlias(name string, n Node) string {
-	var aliasPath SetOf[string] = icast_Set(obj_(new_LinkedHashSet()))
+	var aliasPath *TSet[string] = newTSet_(tc_string)
 	for has_(this.outer_.aliases_, name) {
-		if !Collection_add_s(aliasPath, name) {
-			this.outer_.outer_.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, InlineAndCollapseProperties_ALIAS_CYCLE, []string{Object_toString(any(aliasPath)), name}))
+		if !aliasPath.add(name) {
+			this.outer_.outer_.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, InlineAndCollapseProperties_ALIAS_CYCLE, []string{Object_toString(any(aliasPath.asSet())), name}))
 			delete(this.outer_.aliases_, name)
 			break
 		}

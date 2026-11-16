@@ -62,17 +62,17 @@ func ColorPool_createTrimmedOffsetToId(typePool *TypePool) []*ColorId {
 			panic(new_AssertionError_Object(obj_(proto)).self())
 		}
 	}
-	var seenIds LinkedHashSetOf[*ColorId] = new_LinkedHashSet()
+	var seenIds *TSet[*ColorId] = newTSet_(tch_p_ColorId)
 	for i := int32(0); i < int32(len(ids)); i++ {
 		var proto *TypeProto = typePool.getType(i)
-		MalformedTypedAstException_checkWellFormed_boolean_String_Object(seenIds.add(obj_(ids[i])), "Duplicate ID in single shard", obj_(proto))
+		MalformedTypedAstException_checkWellFormed_boolean_String_Object(seenIds.add(ids[i]), "Duplicate ID in single shard", obj_(proto))
 	}
 	return sliceImm_(tc_p_ColorId, ImmutableList_copyOf_ObjectArr(arrmap_(ids, func(v_ *ColorId) any { return obj_(v_) })))
 }
 
 func ColorPool_createUnionColorId(proto *TypeProto, allObjectIds []*ColorId) *ColorId {
 	MalformedTypedAstException_checkWellFormed_boolean_String_Object((proto.getUnion().getUnionMemberCount() > 1), "Union has too few members", obj_(proto))
-	var members LinkedHashSetOf[*ColorId] = new_LinkedHashSet()
+	var members *TSet[*ColorId] = newTSet_(tch_p_ColorId)
 	var unionMemberList ListOf[BoxedOf[int32]] = proto.getUnion().getUnionMemberList()
 	for i := int32(0); i < unionMemberList.size(); i++ {
 		var memberPointer any = unionMemberList.get(i)
@@ -83,9 +83,9 @@ func ColorPool_createUnionColorId(proto *TypeProto, allObjectIds []*ColorId) *Co
 			return allObjectIds[TypePointers_trimOffset(unbox_[int32](memberPointer))]
 		}()
 		MalformedTypedAstException_checkWellFormed_boolean_String_Object((memberId != nil), "Union member not found", obj_(proto))
-		members.add(obj_(memberId))
+		members.add(memberId)
 	}
-	return ColorId_union(icast_Set(obj_(members)))
+	return ColorId_union(members)
 }
 
 func ColorPool_validatePointer(offset int32, shard *ColorPool_ShardView) int32 {
@@ -367,7 +367,7 @@ func (this *ColorPool_Builder) reconcileObjectProtos(id *ColorId, viewToProto Ma
 }
 
 func (this *ColorPool_Builder) reconcileUnionProtos(id *ColorId, viewToProto MapOf[*ColorPool_ShardView, *TypeProto]) *Color {
-	var union LinkedHashSetOf[*Color] = new_LinkedHashSet()
+	var union *TSet[*Color] = newTSet_(tch_p_Color)
 	Map_forEach_f(viewToProto, func(shard_ any, proto_ any) {
 		var shard *ColorPool_ShardView = cast_[*ColorPool_ShardView](shard_)
 		_ = shard
@@ -382,10 +382,10 @@ func (this *ColorPool_Builder) reconcileUnionProtos(id *ColorId, viewToProto Map
 			var memberId *ColorId = shard.getId(unbox_[int32](memberPointer))
 			var member *Color = this.lookupOrReconcileColor(memberId)
 			MalformedTypedAstException_checkWellFormed_boolean_String_Object(!member.isUnion(), "Reconciling union with non-union", obj_(proto))
-			union.add(obj_(member))
+			union.add(member)
 		}
 	})
-	var result *Color = Color_createUnion(icast_Set(obj_(union)))
+	var result *Color = Color_createUnion(union)
 	if !id.equals(obj_(result.getId())) {
 		Preconditions_checkState_boolean_String_Object_Object(false, "%s == %s", obj_(id), obj_(result))
 	}

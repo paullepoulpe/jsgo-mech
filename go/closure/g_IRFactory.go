@@ -11,7 +11,7 @@ type IRFactory struct {
 	transformDispatcher        *IRFactory_TransformDispatcher
 	reservedKeywords           ImmutableSetOf[string]
 	parsedComments             map[*Comment]struct{}
-	licenseBuilder             LinkedHashSetOf[string]
+	licenseBuilder             *TSet[string]
 	firstFileoverview          *JSDocInfo
 	templateNode               Node
 	defaultTemplateNode        Node
@@ -27,7 +27,7 @@ type IRFactory struct {
 
 func (this *IRFactory) finit_IRFactory() {
 	this.parsedComments = map[*Comment]struct{}{}
-	this.licenseBuilder = new_LinkedHashSet()
+	this.licenseBuilder = newTSet_(tc_string)
 	this.firstFileoverview = nil
 	this.currentFileIsExterns = false
 	this.features_ = FeatureSet_BARE_MINIMUM
@@ -410,7 +410,7 @@ func (this *IRFactory) setFileOverviewJsDoc(irNode Node) {
 		return this.firstFileoverview.toBuilder()
 	}()
 	if !this.licenseBuilder.isEmpty() {
-		fileoverview.recordLicense(String_join(strobj_(""), icast_Iterable(obj_(this.licenseBuilder))))
+		fileoverview.recordLicense(String_join(strobj_(""), icast_Iterable(any(this.licenseBuilder.asSet()))))
 	}
 	irNode.setJSDocInfo(fileoverview.build_1(false))
 }
@@ -433,7 +433,7 @@ func (this *IRFactory) transformBlock(node *ParseTree) Node {
 
 func (this *IRFactory) handlePossibleFileOverviewJsDoc(jsDocParser *JsDocInfoParser) bool {
 	if jsDocParser.getLicenseText().isPresent() {
-		Collection_add_s(this.licenseBuilder, jsDocParser.getLicenseText().get())
+		this.licenseBuilder.add(jsDocParser.getLicenseText().get())
 	}
 	var newFileoverview *JSDocInfo = jsDocParser.getFileOverviewJSDocInfo()
 	if JSCompObjects_identical(obj_(newFileoverview), obj_(this.firstFileoverview)) {

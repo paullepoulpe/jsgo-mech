@@ -1326,7 +1326,7 @@ func (this *TypeCheck) checkConstructor(n Node, functionType *FunctionType) {
 		if baseConstructor != nil {
 			this.checkStructDictSubtyping(n, functionType, baseConstructor)
 		}
-		var alreadySeenInterfaces SetOf[*JSType] = icast_Set(obj_(new_LinkedHashSet()))
+		var alreadySeenInterfaces *TSet[*JSType] = newTSet_(tch_p_JSType)
 		it_1 := foreach_(obj_(functionType.getOwnImplementedInterfaces()))
 		for it_1.next() {
 			var baseInterface *JSType = to_JSType(it_1.v)
@@ -1344,7 +1344,7 @@ func (this *TypeCheck) checkConstructor(n Node, functionType *FunctionType) {
 				this.report(n, TypeCheck_BAD_IMPLEMENTED_TYPE, []string{this.getBestFunctionName(n)})
 			}
 			baseInterface = this.normalizeTemplatizedType(baseInterface)
-			if !alreadySeenInterfaces.add(baseInterface.self()) {
+			if !alreadySeenInterfaces.add(baseInterface) {
 				this.report(n, TypeCheck_SAME_INTERFACE_MULTIPLE_IMPLEMENTS, []string{baseInterface.toString()})
 			}
 		}
@@ -1790,7 +1790,7 @@ func (this *TypeCheck) checkJsdocInfoContainsObjectWithBadKey(n Node) {
 func (this *TypeCheck) checkTypeContainsObjectWithBadKey(n Node, type_ *JSTypeExpression) {
 	if (type_ != nil) && (type_.getRoot().getJSType() != nil) {
 		var realType *JSType = type_.getRoot().getJSType()
-		var objectWithBadKey *JSType = this.findObjectWithNonStringifiableKey(realType, icast_Set(obj_(new_LinkedHashSet())))
+		var objectWithBadKey *JSType = this.findObjectWithNonStringifiableKey(realType, newTSet_(tch_p_JSType))
 		if objectWithBadKey != nil {
 			this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, TypeCheck_NON_STRINGIFIABLE_OBJECT_KEY, []string{objectWithBadKey.toString()}))
 		}
@@ -1860,11 +1860,11 @@ func (this *TypeCheck) isObjectTypeWithNonStringifiableKey(type_ *JSType) bool {
 	panic("unreachable")
 }
 
-func (this *TypeCheck) findObjectWithNonStringifiableKey(type_ *JSType, alreadyCheckedTypes SetOf[*JSType]) *JSType {
-	if alreadyCheckedTypes.contains(type_.self()) {
+func (this *TypeCheck) findObjectWithNonStringifiableKey(type_ *JSType, alreadyCheckedTypes *TSet[*JSType]) *JSType {
+	if alreadyCheckedTypes.contains(type_) {
 		return nil
 	} else {
-		alreadyCheckedTypes.add(type_.self())
+		alreadyCheckedTypes.add(type_)
 	}
 	if this.isObjectTypeWithNonStringifiableKey(type_) {
 		return type_

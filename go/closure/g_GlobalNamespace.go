@@ -153,11 +153,11 @@ func (this *GlobalNamespace) getNameIndex() *TMap[string, *GlobalNamespace_Name]
 	return this.nameMap
 }
 
-func (this *GlobalNamespace) scanNewNodes(newNodes SetOf[GlobalNamespace_AstChange]) {
+func (this *GlobalNamespace) scanNewNodes(newNodes *TSet[GlobalNamespace_AstChange]) {
 	var builder *GlobalNamespace_BuildGlobalNamespace = new_GlobalNamespace_BuildGlobalNamespace(this)
-	it_1 := foreach_(any(newNodes))
+	it_1 := newNodes.each()
 	for it_1.next() {
-		var info GlobalNamespace_AstChange = icast_GlobalNamespace_AstChange(it_1.v)
+		var info GlobalNamespace_AstChange = it_1.v
 		if !info.node().isQualifiedName() && !NodeUtil_mayBeObjectLitKey(info.node()) {
 			continue
 		}

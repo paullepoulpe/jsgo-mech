@@ -15,7 +15,7 @@ func (this *AllowlistWarningsGuard) up_WarningsGuard() *WarningsGuard {
 }
 
 func (this *AllowlistWarningsGuard) init_AllowlistWarningsGuard_0() {
-	this.init_AllowlistWarningsGuard_Set(icast_Set(obj_(ImmutableSet_of())))
+	this.init_AllowlistWarningsGuard_Set(tsetFrom_(tc_string, ImmutableSet_of(), true))
 }
 
 func new_AllowlistWarningsGuard_0() *AllowlistWarningsGuard {
@@ -25,24 +25,24 @@ func new_AllowlistWarningsGuard_0() *AllowlistWarningsGuard {
 	return this
 }
 
-func (this *AllowlistWarningsGuard) init_AllowlistWarningsGuard_Set(allowlist SetOf[string]) {
+func (this *AllowlistWarningsGuard) init_AllowlistWarningsGuard_Set(allowlist *TSet[string]) {
 	this.WarningsGuard.init_WarningsGuard()
-	Preconditions_checkNotNull(any(allowlist))
+	Preconditions_checkNotNull(any(allowlist.asSet()))
 	this.allowlist = AllowlistWarningsGuard_normalizeAllowlist(allowlist)
 }
 
-func new_AllowlistWarningsGuard_Set(allowlist SetOf[string]) *AllowlistWarningsGuard {
+func new_AllowlistWarningsGuard_Set(allowlist *TSet[string]) *AllowlistWarningsGuard {
 	this := &AllowlistWarningsGuard{}
 	this.self_ = this
 	this.init_AllowlistWarningsGuard_Set(allowlist)
 	return this
 }
 
-func AllowlistWarningsGuard_normalizeAllowlist(allowlist SetOf[string]) ImmutableSetOf[string] {
+func AllowlistWarningsGuard_normalizeAllowlist(allowlist *TSet[string]) ImmutableSetOf[string] {
 	var result *TSet[string] = newTSet_(tc_string)
-	it_1 := foreach_(any(allowlist))
+	it_1 := allowlist.each()
 	for it_1.next() {
-		var line string = str_(it_1.v)
+		var line string = it_1.v
 		var trimmed string = String_trim(line)
 		if String_isEmpty(trimmed) || (String_charAt(trimmed, 0) == '#') {
 			continue
@@ -74,7 +74,7 @@ func AllowlistWarningsGuard_fromFile(file string) *AllowlistWarningsGuard {
 	return new_AllowlistWarningsGuard_Set(AllowlistWarningsGuard_loadAllowlistedJsWarningsFile(file))
 }
 
-func AllowlistWarningsGuard_loadAllowlistedJsWarningsFile(file string) SetOf[string] {
+func AllowlistWarningsGuard_loadAllowlistedJsWarningsFile(file string) *TSet[string] {
 	var text *Outcome_base = TextFiles_read(file, Charsets_UTF_8)
 	if text.isErr() {
 		panic(new_RuntimeException_Throwable(text.error()).self())
@@ -82,9 +82,9 @@ func AllowlistWarningsGuard_loadAllowlistedJsWarningsFile(file string) SetOf[str
 	return AllowlistWarningsGuard_loadAllowlistedJsWarningsText(str_(text.get()))
 }
 
-func AllowlistWarningsGuard_loadAllowlistedJsWarningsText(text string) SetOf[string] {
-	var result SetOf[string] = icast_Set(obj_(new_LinkedHashSet()))
-	result.addAll(Collection(sliceView_(tc_string, TextFiles_splitLines(text))))
+func AllowlistWarningsGuard_loadAllowlistedJsWarningsText(text string) *TSet[string] {
+	var result *TSet[string] = newTSet_(tc_string)
+	result.asSet().addAll(Collection(sliceView_(tc_string, TextFiles_splitLines(text))))
 	return result
 }
 
@@ -143,14 +143,14 @@ func AllowlistWarningsGuard_clinit() {
 
 type AllowlistWarningsGuard_AllowlistBuilder struct {
 	outer_          *AllowlistWarningsGuard
-	warnings_       SetOf[*JSError]
+	warnings_       *TSet[*JSError]
 	productName     OptionalOf[string]
 	generatorTarget OptionalOf[string]
 	headerNote      OptionalOf[string]
 }
 
 func (this *AllowlistWarningsGuard_AllowlistBuilder) finit_AllowlistWarningsGuard_AllowlistBuilder() {
-	this.warnings_ = icast_Set(obj_(new_LinkedHashSet()))
+	this.warnings_ = newTSet_(tch_p_JSError)
 	this.productName = Optional_empty[string]()
 	this.generatorTarget = Optional_empty[string]()
 	this.headerNote = Optional_empty[string]()
@@ -186,7 +186,7 @@ func (this *AllowlistWarningsGuard_AllowlistBuilder) report_2(level *CheckLevel,
 	if Object_equals(obj_(error_.defaultLevel()), obj_(CheckLevel_ERROR)) {
 		return
 	}
-	this.warnings_.add(obj_(error_))
+	this.warnings_.add(error_)
 }
 
 func (this *AllowlistWarningsGuard_AllowlistBuilder) writeAllowlist(out string) *Outcome_base {
@@ -210,9 +210,9 @@ func (this *AllowlistWarningsGuard_AllowlistBuilder) appendAllowlist(out *Output
 		out.append_CharSequence(strobj_(("#" + sstr_(Joiner_on("\n# ").join(Splitter_on('\n').split(strobj_(this.headerNote.get())))) + "\n")))
 	}
 	var warningsByType *SimpleSetMultimap = SimpleSetMultimap_createSorted()
-	it_1 := foreach_(any(this.warnings_))
+	it_1 := this.warnings_.each()
 	for it_1.next() {
-		var warning *JSError = cast_[*JSError](it_1.v)
+		var warning *JSError = it_1.v
 		warningsByType.put(obj_(warning.type_()), strobj_(this.outer_.formatWarning_2(warning, true)))
 	}
 	it_3 := foreach_(any(warningsByType.keySet()))

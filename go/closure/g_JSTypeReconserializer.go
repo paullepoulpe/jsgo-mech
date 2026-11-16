@@ -92,32 +92,32 @@ func (this *JSTypeReconserializer) recordType(type_ *JSType) *JSTypeReconseriali
 
 func (this *JSTypeReconserializer) recordUnionType(type_ *UnionType) *JSTypeReconserializer_SeenTypeRecord {
 	Preconditions_checkNotNull(obj_(type_))
-	var altRecords LinkedHashSetOf[*JSTypeReconserializer_SeenTypeRecord] = new_LinkedHashSet()
+	var altRecords *TSet[*JSTypeReconserializer_SeenTypeRecord] = newTSet_(tc_p_JSTypeReconserializer_SeenTypeRecord)
 	it_1 := foreach_(obj_(type_.getAlternates()))
 	for it_1.next() {
 		var altType *JSType = to_JSType(it_1.v)
 		var alt *JSTypeReconserializer_SeenTypeRecord = this.recordType(altType)
 		if alt.unionMembers == nil {
-			altRecords.add(obj_(alt))
+			altRecords.add(alt)
 		} else {
-			altRecords.addAll(icast_Collection(obj_(alt.unionMembers)))
+			altRecords.asSet().addAll(icast_Collection(obj_(alt.unionMembers)))
 		}
 	}
 	if altRecords.size() == 1 {
-		return cast_[*JSTypeReconserializer_SeenTypeRecord](Iterables_getOnlyElement(icast_Iterable(obj_(altRecords))))
+		return cast_[*JSTypeReconserializer_SeenTypeRecord](Iterables_getOnlyElement(icast_Iterable(any(altRecords.asSet()))))
 	}
 	var alternateIds ImmutableSet_BuilderOf[*ColorId] = ImmutableSet_builder()
-	it_3 := foreach_(obj_(altRecords))
+	it_3 := altRecords.each()
 	for it_3.next() {
-		var altRecord *JSTypeReconserializer_SeenTypeRecord = cast_[*JSTypeReconserializer_SeenTypeRecord](it_3.v)
+		var altRecord *JSTypeReconserializer_SeenTypeRecord = it_3.v
 		alternateIds.add(obj_(altRecord.colorId))
 	}
-	var unionId *ColorId = ColorId_union(icast_Set(obj_(alternateIds.build())))
+	var unionId *ColorId = ColorId_union(tsetFrom_(tch_p_ColorId, alternateIds.build(), true))
 	var record *JSTypeReconserializer_SeenTypeRecord = this.getOrCreateRecord(unionId, type_.up_JSType())
 	if record.unionMembers == nil {
-		record.unionMembers = ImmutableSet_copyOf(icast_Collection(obj_(altRecords)))
+		record.unionMembers = ImmutableSet_copyOf(icast_Collection(any(altRecords.asSet())))
 	} else if this.serializationMode.runValidation() {
-		if ok_, a1_, a2_, a3_ := Object_equals(obj_(altRecords), obj_(record.unionMembers)), unionId, JSTypeReconserializer_colorIdsOf(icast_Collection(obj_(altRecords))), JSTypeReconserializer_colorIdsOf(icast_Collection(obj_(record.unionMembers))); !ok_ {
+		if ok_, a1_, a2_, a3_ := Object_equals(any(altRecords.asSet()), obj_(record.unionMembers)), unionId, JSTypeReconserializer_colorIdsOf(icast_Collection(any(altRecords.asSet()))), JSTypeReconserializer_colorIdsOf(icast_Collection(obj_(record.unionMembers))); !ok_ {
 			Preconditions_checkState_boolean_String_Object_Object_Object(false, "Unions with same ID must have same members: %s => %s == %s", obj_(a1_), obj_(a2_), obj_(a3_))
 		}
 	}

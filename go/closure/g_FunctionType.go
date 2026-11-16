@@ -101,7 +101,7 @@ func (this *FunctionType) init_FunctionType(builder *FunctionType_Builder) {
 			var typeOfThisBuilder *InstanceObjectType_Builder = InstanceObjectType_builderForCtor(this)
 			var ctorKeys ImmutableSetOf[*TemplateType] = builder.constructorOnlyKeys
 			if !ctorKeys.isEmpty() {
-				cast_[*InstanceObjectType_Builder](typeOfThisBuilder.setTemplateTypeMap(this.templateTypeMap.copyWithoutKeys(icast_Set(obj_(ctorKeys)))).self()).setTemplateParamCount((this.getTemplateParamCount() - ctorKeys.size()))
+				cast_[*InstanceObjectType_Builder](typeOfThisBuilder.setTemplateTypeMap(this.templateTypeMap.copyWithoutKeys(tsetFrom_(tch_p_TemplateType, ctorKeys, true))).self()).setTemplateParamCount((this.getTemplateParamCount() - ctorKeys.size()))
 			}
 			this.typeOfThis = typeOfThisBuilder.build().up_JSType()
 		case FunctionType_Kind_ORDINARY:
@@ -390,22 +390,22 @@ func (this *FunctionType) setPrototypeNoCheck(prototype *ObjectType, propertyNod
 }
 
 func (this *FunctionType) getAllImplementedInterfaces() IterableOf[*ObjectType] {
-	var interfaces SetOf[*ObjectType] = icast_Set(obj_(new_LinkedHashSet()))
+	var interfaces *TSet[*ObjectType] = newTSet_(tch_p_ObjectType)
 	it_1 := foreach_(obj_(this.getImplementedInterfaces()))
 	for it_1.next() {
 		var type_ *ObjectType = to_ObjectType(it_1.v)
 		this.addRelatedInterfaces(type_, interfaces)
 	}
-	return Iterable(interfaces)
+	return Iterable(interfaces.asSet())
 }
 
-func (this *FunctionType) addRelatedInterfaces(instance *ObjectType, set SetOf[*ObjectType]) {
+func (this *FunctionType) addRelatedInterfaces(instance *ObjectType, set *TSet[*ObjectType]) {
 	var constructor *FunctionType = instance.getConstructor()
 	if constructor != nil {
 		if !constructor.isInterface() {
 			return
 		}
-		if !set.add(instance.self()) {
+		if !set.add(instance) {
 			return
 		}
 		it_1 := foreach_(any(instance.getCtorExtendedInterfaces()))
@@ -417,13 +417,13 @@ func (this *FunctionType) addRelatedInterfaces(instance *ObjectType, set SetOf[*
 }
 
 func (this *FunctionType) getAncestorInterfaces() CollectionOf[*ObjectType] {
-	var result SetOf[*ObjectType] = icast_Set(obj_(new_LinkedHashSet()))
+	var result *TSet[*ObjectType] = newTSet_(tch_p_ObjectType)
 	if this.isConstructor() {
-		result.addAll(icast_Collection(obj_(this.getImplementedInterfaces())))
+		result.asSet().addAll(icast_Collection(obj_(this.getImplementedInterfaces())))
 	} else {
-		result.addAll(icast_Collection(obj_(this.getExtendedInterfaces())))
+		result.asSet().addAll(icast_Collection(obj_(this.getExtendedInterfaces())))
 	}
-	return Collection(result)
+	return Collection(result.asSet())
 }
 
 func (this *FunctionType) getImplementedInterfaces() ImmutableListOf[*ObjectType] {
@@ -872,11 +872,11 @@ func (this *FunctionType) isAbstract() bool {
 
 func (this *FunctionType) getPropertyTypeMap_impl() *TMap[string, *JSType] {
 	var propTypeMap *TMap[string, *JSType] = newTMap_(tc_string, tc_p_JSType)
-	FunctionType_updatePropertyTypeMap(this, propTypeMap, new_LinkedHashSet())
+	FunctionType_updatePropertyTypeMap(this, propTypeMap, newTSet_(tch_p_FunctionType))
 	return propTypeMap
 }
 
-func FunctionType_updatePropertyTypeMap(type_ *FunctionType, propTypeMap *TMap[string, *JSType], cache LinkedHashSetOf[*FunctionType]) {
+func FunctionType_updatePropertyTypeMap(type_ *FunctionType, propTypeMap *TMap[string, *JSType], cache *TSet[*FunctionType]) {
 	if type_ == nil {
 		return
 	}
@@ -898,21 +898,21 @@ func FunctionType_updatePropertyTypeMap(type_ *FunctionType, propTypeMap *TMap[s
 		for it_3.next() {
 			var interfaceType *ObjectType = to_ObjectType(it_3.v)
 			var superConstructor *FunctionType = interfaceType.getConstructor()
-			if (superConstructor == nil) || cache.contains(superConstructor.self()) {
+			if (superConstructor == nil) || cache.contains(superConstructor) {
 				continue
 			}
-			cache.add(superConstructor.self())
+			cache.add(superConstructor)
 			FunctionType_updatePropertyTypeMap(superConstructor, propTypeMap, cache)
-			cache.remove_Object(superConstructor.self())
+			cache.remove(superConstructor)
 		}
 	}
 }
 
 func (this *FunctionType) checkExtendsLoop() *TList[*FunctionType] {
-	return this.checkExtendsLoop_2(icast_Set(obj_(new_LinkedHashSet())), newTList_(tc_p_FunctionType))
+	return this.checkExtendsLoop_2(newTSet_(tch_p_FunctionType), newTList_(tc_p_FunctionType))
 }
 
-func (this *FunctionType) checkExtendsLoop_2(cache SetOf[*FunctionType], path *TList[*FunctionType]) *TList[*FunctionType] {
+func (this *FunctionType) checkExtendsLoop_2(cache *TSet[*FunctionType], path *TList[*FunctionType]) *TList[*FunctionType] {
 	var iterable ImmutableListOf[*ObjectType] = this.getExtendedInterfaces()
 	if iterable != nil {
 		it_1 := foreach_(obj_(iterable))
@@ -922,20 +922,20 @@ func (this *FunctionType) checkExtendsLoop_2(cache SetOf[*FunctionType], path *T
 			if superConstructor == nil {
 				continue
 			}
-			if cache.contains(superConstructor.self()) {
+			if cache.contains(superConstructor) {
 				path.add(superConstructor)
 				for !JSCompObjects_identical(path.get(0).self(), superConstructor.self()) {
 					path.removeAt(0)
 				}
 				return path
 			}
-			cache.add(superConstructor.self())
+			cache.add(superConstructor)
 			path.add(superConstructor)
 			var result *TList[*FunctionType] = superConstructor.checkExtendsLoop_2(cache, path)
 			if result != nil {
 				return result
 			}
-			cache.remove_Object(superConstructor.self())
+			cache.remove(superConstructor)
 			path.removeAt((path.size() - 1))
 		}
 	}

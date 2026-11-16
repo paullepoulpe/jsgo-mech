@@ -6,7 +6,7 @@ type AbstractPeepholeOptimization struct {
 	self_       AbstractPeepholeOptimization_I
 	compiler_   *AbstractCompiler
 	astAnalyzer *AstAnalyzer
-	newFeatures LinkedHashSetOf[*FeatureSet_Feature]
+	newFeatures *TSet[*FeatureSet_Feature]
 }
 
 // AbstractPeepholeOptimization_I holds the methods the dispatchers of AbstractPeepholeOptimization's hierarchy call on the most derived
@@ -44,7 +44,7 @@ func (this *AbstractPeepholeOptimization) self() any {
 }
 
 func (this *AbstractPeepholeOptimization) finit_AbstractPeepholeOptimization() {
-	this.newFeatures = new_LinkedHashSet()
+	this.newFeatures = newTSet_(tc_p_FeatureSet_Feature)
 }
 
 func (this *AbstractPeepholeOptimization) init_AbstractPeepholeOptimization() {
@@ -72,7 +72,7 @@ func (this *AbstractPeepholeOptimization) beginTraversal_impl(compiler *Abstract
 }
 
 func (this *AbstractPeepholeOptimization) endTraversal() {
-	if ok_, a1_, a2_ := this.newFeatures.isEmpty(), this.newFeatures, Object_getClass(this.self()).getName(); !ok_ {
+	if ok_, a1_, a2_ := this.newFeatures.isEmpty(), this.newFeatures.asSet(), Object_getClass(this.self()).getName(); !ok_ {
 		Preconditions_checkState_boolean_String_Object_Object(false, "Expected getNewFeatures() to be empty in endTraversal() but found %s for %s", obj_(a1_), strobj_(a2_))
 	}
 	this.compiler_ = nil
@@ -159,11 +159,11 @@ func (this *AbstractPeepholeOptimization) markNewScopesChanged(n Node) {
 }
 
 func (this *AbstractPeepholeOptimization) addFeatureToEnclosingScript(feature *FeatureSet_Feature) {
-	this.newFeatures.add(obj_(feature))
+	this.newFeatures.add(feature)
 }
 
 func (this *AbstractPeepholeOptimization) getNewFeatures() ImmutableSetOf[*FeatureSet_Feature] {
-	return ImmutableSet_copyOf(icast_Collection(obj_(this.newFeatures)))
+	return ImmutableSet_copyOf(icast_Collection(any(this.newFeatures.asSet())))
 }
 
 func (this *AbstractPeepholeOptimization) clearNewFeatures() {

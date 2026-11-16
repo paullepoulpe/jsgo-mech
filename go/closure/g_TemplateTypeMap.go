@@ -104,7 +104,7 @@ func (this *TemplateTypeMap) copyWithExtension_3(keys ImmutableListOf[*TemplateT
 	return new_TemplateTypeMap(this.registry, extendedKeys, sliceImm_(tc_p_JSType, ImmutableList_copyOf(icast_Collection(any(extendedValues.asList())))), extendedsubMapStarts)
 }
 
-func (this *TemplateTypeMap) copyWithoutKeys(removals SetOf[*TemplateType]) *TemplateTypeMap {
+func (this *TemplateTypeMap) copyWithoutKeys(removals *TSet[*TemplateType]) *TemplateTypeMap {
 	var keys ImmutableList_BuilderOf[*TemplateType] = ImmutableList_builder()
 	var newsubMapStarts *BitSet = new_BitSet()
 	keys.addAll(Iterable(this.templateKeys.subList(0, int32(len(this.templateValues)))))
@@ -116,7 +116,7 @@ func (this *TemplateTypeMap) copyWithoutKeys(removals SetOf[*TemplateType]) *Tem
 	for i := int32(int32(len(this.templateValues))); i < this.templateKeys.size(); i++ {
 		var key *TemplateType = cast_[*TemplateType](this.templateKeys.get(i))
 		inNewSubmap = (inNewSubmap || this.subMapStarts.get(i))
-		if !removals.contains(obj_(key)) {
+		if !removals.contains(key) {
 			keys.add(obj_(key))
 			newsubMapStarts.set_int_boolean((int32(len(this.templateValues)) + newKeysSize), inNewSubmap)
 			newKeysSize++

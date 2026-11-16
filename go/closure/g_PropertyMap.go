@@ -168,7 +168,7 @@ func (this *PropertyMap) getAllKeys() *PropertyMap_AllKeys {
 	}
 	if (maxAncestorCounter != this.cachedKeySetCounter) || (this.cachedKeySet == nil) {
 		var keys TreeSetOf[string] = new_TreeSet()
-		var knownSymbolsKeys SetOf[*KnownSymbolType] = icast_Set(obj_(new_LinkedHashSet()))
+		var knownSymbolsKeys *TSet[*KnownSymbolType] = newTSet_(tch_p_KnownSymbolType)
 		it_3 := ancestors.each()
 		for it_3.next() {
 			var ancestor *PropertyMap = it_3.v
@@ -176,12 +176,12 @@ func (this *PropertyMap) getAllKeys() *PropertyMap_AllKeys {
 			ancestor.cachedKeySet = nil
 			ancestor.cachedKnownSymbolsKeySet = nil
 			keys.addAll(Collection(ancestor.getOwnPropertyNames()))
-			knownSymbolsKeys.addAll(Collection(ancestor.getOwnKnownSymbols()))
+			knownSymbolsKeys.asSet().addAll(Collection(ancestor.getOwnKnownSymbols()))
 		}
 		this.cachedKeySet = ImmutableSortedSet_copyOfSorted(icast_SortedSet(obj_(keys)))
-		this.cachedKnownSymbolsKeySet = ImmutableSet_copyOf(Collection(knownSymbolsKeys))
+		this.cachedKnownSymbolsKeySet = ImmutableSet_copyOf(Collection(knownSymbolsKeys.asSet()))
 	}
-	return new_PropertyMap_AllKeys(this.cachedKeySet, icast_Set(obj_(this.cachedKnownSymbolsKeySet)))
+	return new_PropertyMap_AllKeys(this.cachedKeySet, tsetFrom_(tch_p_KnownSymbolType, this.cachedKnownSymbolsKeySet, true))
 }
 
 func (this *PropertyMap) collectAllAncestors(ancestors *TSet[*PropertyMap]) {
@@ -271,15 +271,15 @@ func PropertyMap_clinit() {
 
 type PropertyMap_AllKeys struct {
 	stringKeys_      ImmutableSortedSetOf[string]
-	knownSymbolKeys_ SetOf[*KnownSymbolType]
+	knownSymbolKeys_ *TSet[*KnownSymbolType]
 }
 
-func (this *PropertyMap_AllKeys) init_PropertyMap_AllKeys(stringKeys ImmutableSortedSetOf[string], knownSymbolKeys SetOf[*KnownSymbolType]) {
+func (this *PropertyMap_AllKeys) init_PropertyMap_AllKeys(stringKeys ImmutableSortedSetOf[string], knownSymbolKeys *TSet[*KnownSymbolType]) {
 	this.stringKeys_ = stringKeys
 	this.knownSymbolKeys_ = knownSymbolKeys
 }
 
-func new_PropertyMap_AllKeys(stringKeys ImmutableSortedSetOf[string], knownSymbolKeys SetOf[*KnownSymbolType]) *PropertyMap_AllKeys {
+func new_PropertyMap_AllKeys(stringKeys ImmutableSortedSetOf[string], knownSymbolKeys *TSet[*KnownSymbolType]) *PropertyMap_AllKeys {
 	this := &PropertyMap_AllKeys{}
 	this.init_PropertyMap_AllKeys(stringKeys, knownSymbolKeys)
 	return this
@@ -289,7 +289,7 @@ func (this *PropertyMap_AllKeys) stringKeys() *ImmutableSortedSet {
 	return this.stringKeys_
 }
 
-func (this *PropertyMap_AllKeys) knownSymbolKeys() Set {
+func (this *PropertyMap_AllKeys) knownSymbolKeys() *TSet[*KnownSymbolType] {
 	return this.knownSymbolKeys_
 }
 
@@ -298,16 +298,16 @@ func (this *PropertyMap_AllKeys) equals(p0 any) bool {
 	if !ok || o == nil {
 		return false
 	}
-	return true && Objects_equals(obj_(this.stringKeys_), obj_(o.stringKeys_)) && Objects_equals(any(this.knownSymbolKeys_), any(o.knownSymbolKeys_))
+	return true && Objects_equals(obj_(this.stringKeys_), obj_(o.stringKeys_)) && Objects_equals(any(this.knownSymbolKeys_.asSet()), any(o.knownSymbolKeys_.asSet()))
 }
 
 func (this *PropertyMap_AllKeys) hashCode() int32 {
 	var h int32
 	h = h*31 + Objects_hashCode(obj_(this.stringKeys_))
-	h = h*31 + Objects_hashCode(any(this.knownSymbolKeys_))
+	h = h*31 + Objects_hashCode(any(this.knownSymbolKeys_.asSet()))
 	return h
 }
 
 func (this *PropertyMap_AllKeys) toString() string {
-	return "AllKeys[" + "stringKeys=" + objstr_(obj_(this.stringKeys_)) + ", knownSymbolKeys=" + objstr_(any(this.knownSymbolKeys_)) + "]"
+	return "AllKeys[" + "stringKeys=" + objstr_(obj_(this.stringKeys_)) + ", knownSymbolKeys=" + objstr_(any(this.knownSymbolKeys_.asSet())) + "]"
 }

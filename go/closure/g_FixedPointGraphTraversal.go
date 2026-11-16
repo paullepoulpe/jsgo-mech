@@ -46,20 +46,20 @@ func (this *FixedPointGraphTraversal) computeFixedPointSet(graph *DiGraph, entry
 	var cycleCount int64 = 0
 	var nodeCount int64 = Math_min_long_long(int64(graph.getNodeCount()), FixedPointGraphTraversal_MAX_NODE_COUNT_FOR_ITERATION_LIMIT)
 	var maxIterations int64 = Math_max_long_long(((nodeCount * nodeCount) * nodeCount), 100)
-	var workSet LinkedHashSetOf[DiGraph_DiGraphNode] = new_LinkedHashSet()
+	var workSet *TSet[DiGraph_DiGraphNode] = newTSet_(tc_DiGraph_DiGraphNode)
 	it_1 := foreach_(any(entrySet))
 	for it_1.next() {
 		var n any = it_1.v
-		workSet.add(any(graph.getNode(n)))
+		workSet.add(icast_DiGraph_DiGraphNode(any(graph.getNode(n))))
 	}
 	for ; !workSet.isEmpty() && (cycleCount < maxIterations); cycleCount++ {
-		this.visitNode(icast_DiGraph_DiGraphNode(SequencedCollection_getFirst(icast_SequencedCollection(obj_(workSet)))), workSet)
+		this.visitNode(icast_DiGraph_DiGraphNode(SequencedCollection_getFirst(icast_SequencedCollection(any(workSet.asSet())))), workSet)
 	}
 	Preconditions_checkState_boolean_Object((cycleCount != maxIterations), strobj_(FixedPointGraphTraversal_NON_HALTING_ERROR_MSG))
 }
 
-func (this *FixedPointGraphTraversal) visitNode(node DiGraph_DiGraphNode, workSet LinkedHashSetOf[DiGraph_DiGraphNode]) {
-	workSet.remove_Object(any(node))
+func (this *FixedPointGraphTraversal) visitNode(node DiGraph_DiGraphNode, workSet *TSet[DiGraph_DiGraphNode]) {
+	workSet.remove(node)
 	switch this.traversalDirection {
 	case FixedPointGraphTraversal_TraversalDirection_OUTWARDS:
 		var sourceValue any = node.getValue()
@@ -68,7 +68,7 @@ func (this *FixedPointGraphTraversal) visitNode(node DiGraph_DiGraphNode, workSe
 			var edge DiGraph_DiGraphEdge = it_2.v
 			var destValue any = edge.getDestination().getValue()
 			if this.callback.traverseEdge(sourceValue, edge.getValue(), destValue) {
-				workSet.add(any(edge.getDestination()))
+				workSet.add(edge.getDestination())
 			}
 		}
 		return
@@ -79,7 +79,7 @@ func (this *FixedPointGraphTraversal) visitNode(node DiGraph_DiGraphNode, workSe
 			var edge DiGraph_DiGraphEdge = it_4.v
 			var revDestValue any = edge.getSource().getValue()
 			if this.callback.traverseEdge(revSourceValue, edge.getValue(), revDestValue) {
-				workSet.add(any(edge.getSource()))
+				workSet.add(edge.getSource())
 			}
 		}
 		return

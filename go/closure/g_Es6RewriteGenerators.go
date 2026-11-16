@@ -22,7 +22,7 @@ func (this *Es6RewriteGenerators) init_Es6RewriteGenerators(compiler *AbstractCo
 	this.astFactory_ = compiler.createAstFactory()
 	this.namespace_ = compiler.getTranspilationNamespace()
 	if compiler.hasOptimizationColors() {
-		this.nullableStringType = Color_createUnion(icast_Set(obj_(ImmutableSet_of_Object_Object(obj_(StandardColors_NULL_OR_VOID), obj_(StandardColors_STRING)))))
+		this.nullableStringType = Color_createUnion(tsetFrom_(tch_p_Color, ImmutableSet_of_Object_Object(obj_(StandardColors_NULL_OR_VOID), obj_(StandardColors_STRING)), true))
 	} else {
 		this.nullableStringType = nil
 	}

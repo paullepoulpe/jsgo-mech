@@ -28,11 +28,11 @@ const InlineObjectLiterals_STRING_KEY_IDENTIFIER string = "string_key"
 
 type InlineObjectLiterals_InliningBehavior struct {
 	outer_    *InlineObjectLiterals
-	staleVars SetOf[*Var]
+	staleVars *TSet[*Var]
 }
 
 func (this *InlineObjectLiterals_InliningBehavior) finit_InlineObjectLiterals_InliningBehavior() {
-	this.staleVars = icast_Set(obj_(new_LinkedHashSet()))
+	this.staleVars = newTSet_(tch_p_Var)
 }
 
 func (this *InlineObjectLiterals_InliningBehavior) init_InlineObjectLiterals_InliningBehavior() {
@@ -58,7 +58,7 @@ func (this *InlineObjectLiterals_InliningBehavior) afterExitScope(t *NodeTravers
 			continue
 		}
 		if this.isInlinableObject(referenceInfo.references) {
-			this.staleVars.add(obj_(v))
+			this.staleVars.add(v)
 			var init_ *Reference = referenceInfo.getInitializingReference()
 			this.splitObject(v, init_, referenceInfo)
 		}
@@ -70,7 +70,7 @@ func (this *InlineObjectLiterals_InliningBehavior) recordStaleVarReferencesInTre
 }
 
 func (this *InlineObjectLiterals_InliningBehavior) isVarInlineForbidden(var_ *Var) bool {
-	return ((((var_.isGlobal() || var_.isExtern()) || this.outer_.compiler_.getCodingConvention().isExported_2(var_.getName(), true)) || this.outer_.compiler_.getCodingConvention().isPropertyRenameFunction(var_.getNameNode())) || this.staleVars.contains(obj_(var_)))
+	return ((((var_.isGlobal() || var_.isExtern()) || this.outer_.compiler_.getCodingConvention().isExported_2(var_.getName(), true)) || this.outer_.compiler_.getCodingConvention().isPropertyRenameFunction(var_.getNameNode())) || this.staleVars.contains(var_))
 }
 
 func (this *InlineObjectLiterals_InliningBehavior) isInlinableObject(refs *TList[*Reference]) bool {
@@ -363,6 +363,6 @@ func new_InlineObjectLiterals_InliningBehavior_1(outer_ *InlineObjectLiterals_In
 
 func (this *InlineObjectLiterals_InliningBehavior_1) visit(node Node) {
 	if node.isName() {
-		this.outer_.staleVars.add(this.cap_scope.getVar(node.getString()).self())
+		this.outer_.staleVars.add(cast_[*Var](this.cap_scope.getVar(node.getString()).self()))
 	}
 }

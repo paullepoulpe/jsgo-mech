@@ -128,7 +128,7 @@ type Es6RewriteModulesToCommonJsModules_Rewriter struct {
 	script_                  Node
 	exportedNameToLocalQName MapOf[string, *Es6RewriteModulesToCommonJsModules_LocalQName]
 	imports                  *TSet[Node]
-	importRequests           SetOf[*Es6RewriteModulesToCommonJsModules_ModuleRequest]
+	importRequests           *TSet[*Es6RewriteModulesToCommonJsModules_ModuleRequest]
 	compiler_                *AbstractCompiler
 	modulePath_              *ModuleLoader_ModulePath
 }
@@ -146,7 +146,7 @@ func (this *Es6RewriteModulesToCommonJsModules_Rewriter) init_Es6RewriteModulesT
 	this.script_ = script
 	this.requireInsertSpot = 0
 	this.exportedNameToLocalQName = icast_Map(obj_(new_TreeMap()))
-	this.importRequests = icast_Set(obj_(new_LinkedHashSet()))
+	this.importRequests = newTSet_(tch_p_Es6RewriteModulesToCommonJsModules_ModuleRequest)
 	this.imports = newTSet_(tc_Node)
 	this.modulePath_ = compiler.getInput(script.getInputId()).getPath()
 }
@@ -242,9 +242,9 @@ func (this *Es6RewriteModulesToCommonJsModules_Rewriter) addRequireCalls() {
 			importDecl.detach()
 		}
 		var importedNames map[string]struct{} = map[string]struct{}{}
-		it_3 := foreach_(any(this.importRequests))
+		it_3 := this.importRequests.each()
 		for it_3.next() {
-			var request *Es6RewriteModulesToCommonJsModules_ModuleRequest = cast_[*Es6RewriteModulesToCommonJsModules_ModuleRequest](it_3.v)
+			var request *Es6RewriteModulesToCommonJsModules_ModuleRequest = it_3.v
 			var varName string = request.varName()
 			if setAdd_(importedNames, varName) {
 				var requireCall Node = IR_call(IR_name(Es6RewriteModulesToCommonJsModules_REQUIRE), []Node{IR_string(request.specifier())})
@@ -267,9 +267,9 @@ func (this *Es6RewriteModulesToCommonJsModules_Rewriter) registerAndLoadModule(t
 	block.addChildrenToFront(this.script_.removeChildren())
 	var moduleFunction Node = IR_function(IR_name(""), IR_paramList([]Node{IR_name(Es6RewriteModulesToCommonJsModules_REQUIRE), IR_name(Es6RewriteModulesToCommonJsModules_EXPORTS), IR_name(Es6RewriteModulesToCommonJsModules_MODULE)}), block)
 	var shallowDeps Node = new_Node_Token(Token_rhino_ARRAYLIT)
-	it_1 := foreach_(any(this.importRequests))
+	it_1 := this.importRequests.each()
 	for it_1.next() {
-		var request *Es6RewriteModulesToCommonJsModules_ModuleRequest = cast_[*Es6RewriteModulesToCommonJsModules_ModuleRequest](it_1.v)
+		var request *Es6RewriteModulesToCommonJsModules_ModuleRequest = it_1.v
 		shallowDeps.addChildToBack(IR_string(request.specifier()))
 	}
 	var exprResult Node = IR_exprResult(IR_call(IR_getprop_Node_String(IR_name("$jscomp"), "registerAndLoadModule"), []Node{moduleFunction, IR_string(Es6RewriteModulesToCommonJsModules_normalizePath(this.compiler_.getModuleLoader().resolve(t.getInput().getName()).toString())), shallowDeps}))
@@ -304,7 +304,7 @@ func (this *Es6RewriteModulesToCommonJsModules_Rewriter) visitImport(path *Modul
 	if String_contains(importDecl.getLastChild().getString(), strobj_("://")) {
 		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(importDecl, TranspilationUtil_CANNOT_CONVERT, []string{"Module requests with protocols."}))
 	}
-	this.importRequests.add(obj_(Es6RewriteModulesToCommonJsModules_ModuleRequest_create(Es6RewriteModulesToCommonJsModules_normalizePath(path.resolveModuleAsPath(importDecl.getLastChild().getString()).toString()), this.getVarNameOfImportNode(importDecl))))
+	this.importRequests.add(Es6RewriteModulesToCommonJsModules_ModuleRequest_create(Es6RewriteModulesToCommonJsModules_normalizePath(path.resolveModuleAsPath(importDecl.getLastChild().getString()).toString()), this.getVarNameOfImportNode(importDecl)))
 	this.imports.add(importDecl)
 }
 

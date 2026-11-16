@@ -1718,22 +1718,22 @@ func (this *RegExpTree_Charset) simplify_impl(flags string) *RegExpTree {
 	}
 	var best *CharRanges = this.ranges_
 	if String_indexOf(flags, 105) >= 0 {
-		var options SetOf[*CharRanges] = icast_Set(obj_(new_LinkedHashSet()))
-		options.add(obj_(CaseCanonicalize_expandToAllMatched(this.ranges_)))
-		options.add(obj_(CaseCanonicalize_reduceToMinimum(this.ranges_)))
+		var options *TSet[*CharRanges] = newTSet_(tch_p_CharRanges)
+		options.add(CaseCanonicalize_expandToAllMatched(this.ranges_))
+		options.add(CaseCanonicalize_reduceToMinimum(this.ranges_))
 		var lcaseLetters *CharRanges = this.ranges_.intersection(RegExpTree_LCASE_LETTERS)
 		var ucaseLetters *CharRanges = this.ranges_.intersection(RegExpTree_UCASE_LETTERS)
 		var lcaseLettersToUpper *CharRanges = lcaseLetters.shift(-32)
 		var ucaseLettersToLower *CharRanges = ucaseLetters.shift(32)
-		options.add(obj_(this.ranges_.union(ucaseLettersToLower)))
-		options.add(obj_(this.ranges_.union(lcaseLettersToUpper)))
-		options.add(obj_(this.ranges_.union(lcaseLettersToUpper).union(ucaseLettersToLower)))
-		options.add(obj_(this.ranges_.union(ucaseLettersToLower).difference(ucaseLetters)))
-		options.add(obj_(this.ranges_.union(lcaseLettersToUpper).difference(lcaseLetters)))
+		options.add(this.ranges_.union(ucaseLettersToLower))
+		options.add(this.ranges_.union(lcaseLettersToUpper))
+		options.add(this.ranges_.union(lcaseLettersToUpper).union(ucaseLettersToLower))
+		options.add(this.ranges_.union(ucaseLettersToLower).difference(ucaseLetters))
+		options.add(this.ranges_.union(lcaseLettersToUpper).difference(lcaseLetters))
 		var bestComplexity int32 = RegExpTree_Charset_complexityWordFolded(this.ranges_)
-		it_1 := foreach_(any(options))
+		it_1 := options.each()
 		for it_1.next() {
-			var option *CharRanges = cast_[*CharRanges](it_1.v)
+			var option *CharRanges = it_1.v
 			var complexity int32 = RegExpTree_Charset_complexityWordFolded(option)
 			if complexity < bestComplexity {
 				bestComplexity = complexity

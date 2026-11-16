@@ -68,7 +68,7 @@ func (this *PureFunctionIdentifier) validateArtificialPurity() {
 			if summary.name_ == ".constructor" {
 				continue
 			}
-			var sortedReasons []Node = sliceFrom_(tc_Node, icast_Collection(obj_(summary.impureFunctionReasonsForDebugging)))
+			var sortedReasons []Node = sliceFrom_(tc_Node, icast_Collection(any(summary.impureFunctionReasonsForDebugging.asSet())))
 			List_sort(sliceView_(tc_Node, sortedReasons), PureFunctionIdentifier_SOURCE_LOCATION_COMPARATOR)
 			var formattedReasons []string = []string{}
 			for _, reason := range sortedReasons {
@@ -616,7 +616,7 @@ func (this *PureFunctionIdentifier_FunctionBodyAnalyzer) updateSideEffectsForNod
 			if (value != 0) && !NodeUtil_evaluatesToLocalValue(value) {
 				var scope *Scope = traversal.getScope()
 				var var_ *Var = cast_[*Var](scope.getVar(node.getString()).self())
-				cast_[*PureFunctionIdentifier_FunctionBodyAnalyzer_FunctionStackEntry](SequencedCollection_getLast(icast_SequencedCollection(obj_(this.functionScopeStack)))).skiplistedVars.add(obj_(var_))
+				cast_[*PureFunctionIdentifier_FunctionBodyAnalyzer_FunctionStackEntry](SequencedCollection_getLast(icast_SequencedCollection(obj_(this.functionScopeStack)))).skiplistedVars.add(var_)
 			}
 		}
 	case tokOrd1_THROW:
@@ -714,12 +714,12 @@ func (this *PureFunctionIdentifier_FunctionBodyAnalyzer) exitScope(t *NodeTraver
 		for it_3.next() {
 			var v *Var = cast_[*Var](it_3.v)
 			var isFromDestructuring bool = NodeUtil_isLhsByDestructuring(v.getNameNode())
-			if ((v.isParam() && !isFromDestructuring) && !functionEntry.skiplistedVars.contains(obj_(v))) && functionEntry.taintedVars.contains(obj_(v)) {
+			if ((v.isParam() && !isFromDestructuring) && !functionEntry.skiplistedVars.contains(v)) && functionEntry.taintedVars.contains(v) {
 				sideEffectInfo.setMutatesArgumentAt(PureFunctionIdentifier_getParamIndex(v), v.getNode())
 				continue
 			}
 			if !functionEntry.isLocalVar(v, t.getScope()) {
-				if functionEntry.taintedVars.contains(obj_(v)) {
+				if functionEntry.taintedVars.contains(v) {
 					sideEffectInfo.setMutatesGlobalStateAndAllOtherFlags(v.getNode())
 					break
 				}
@@ -745,7 +745,7 @@ func (this *PureFunctionIdentifier_FunctionBodyAnalyzer) visitLhsNode(encloserSu
 			if objectNode.isName() {
 				var var_ *Var = cast_[*Var](scope.getVar(objectNode.getString()).self())
 				if PureFunctionIdentifier_FunctionBodyAnalyzer_isVarDeclaredInSameContainerScope(var_, scope) {
-					cast_[*PureFunctionIdentifier_FunctionBodyAnalyzer_FunctionStackEntry](SequencedCollection_getLast(icast_SequencedCollection(obj_(this.functionScopeStack)))).taintedVars.add(obj_(var_))
+					cast_[*PureFunctionIdentifier_FunctionBodyAnalyzer_FunctionStackEntry](SequencedCollection_getLast(icast_SequencedCollection(obj_(this.functionScopeStack)))).taintedVars.add(var_)
 				} else {
 					encloserSummary.setMutatesGlobalStateAndAllOtherFlags(lhs)
 				}
@@ -760,7 +760,7 @@ func (this *PureFunctionIdentifier_FunctionBodyAnalyzer) visitLhsNode(encloserSu
 		var var_ *Var = cast_[*Var](scope.getVar(lhs.getString()).self())
 		if PureFunctionIdentifier_FunctionBodyAnalyzer_isVarDeclaredInSameContainerScope(var_, scope) {
 			if !hasLocalRhs.test(lhs.box_()) {
-				cast_[*PureFunctionIdentifier_FunctionBodyAnalyzer_FunctionStackEntry](SequencedCollection_getLast(icast_SequencedCollection(obj_(this.functionScopeStack)))).skiplistedVars.add(obj_(var_))
+				cast_[*PureFunctionIdentifier_FunctionBodyAnalyzer_FunctionStackEntry](SequencedCollection_getLast(icast_SequencedCollection(obj_(this.functionScopeStack)))).skiplistedVars.add(var_)
 			}
 		} else {
 			encloserSummary.setMutatesGlobalStateAndAllOtherFlags(lhs)
@@ -806,15 +806,15 @@ func (this *PureFunctionIdentifier_FunctionBodyAnalyzer) addToCatchDepthIfTryBlo
 
 type PureFunctionIdentifier_FunctionBodyAnalyzer_FunctionStackEntry struct {
 	root               Node
-	skiplistedVars     LinkedHashSetOf[*Var]
-	taintedVars        LinkedHashSetOf[*Var]
+	skiplistedVars     *TSet[*Var]
+	taintedVars        *TSet[*Var]
 	isArtificiallyPure bool
 	catchDepth         int32
 }
 
 func (this *PureFunctionIdentifier_FunctionBodyAnalyzer_FunctionStackEntry) finit_PureFunctionIdentifier_FunctionBodyAnalyzer_FunctionStackEntry() {
-	this.skiplistedVars = new_LinkedHashSet()
-	this.taintedVars = new_LinkedHashSet()
+	this.skiplistedVars = newTSet_(tch_p_Var)
+	this.taintedVars = newTSet_(tch_p_Var)
 	this.catchDepth = 0
 }
 
@@ -831,7 +831,7 @@ func new_PureFunctionIdentifier_FunctionBodyAnalyzer_FunctionStackEntry(root Nod
 }
 
 func (this *PureFunctionIdentifier_FunctionBodyAnalyzer_FunctionStackEntry) isLocalVar(v *Var, scope *Scope) bool {
-	return (((PureFunctionIdentifier_FunctionBodyAnalyzer_isVarDeclaredInSameContainerScope(v, scope) && !this.skiplistedVars.contains(obj_(v))) && !v.isParam()) && !v.isCatch())
+	return (((PureFunctionIdentifier_FunctionBodyAnalyzer_isVarDeclaredInSameContainerScope(v, scope) && !this.skiplistedVars.contains(v)) && !v.isParam()) && !v.isCatch())
 }
 
 type PureFunctionIdentifier_SideEffectPropagation struct {
@@ -968,7 +968,7 @@ type PureFunctionIdentifier_AmbiguatedFunctionSummary struct {
 	bitmask                           int32
 	mutatedParamMask                  int64
 	collectImpureDebuggingReason      bool
-	impureFunctionReasonsForDebugging LinkedHashSetOf[Node]
+	impureFunctionReasonsForDebugging *TSet[Node]
 }
 
 func (this *PureFunctionIdentifier_AmbiguatedFunctionSummary) zero_PureFunctionIdentifier_AmbiguatedFunctionSummary() {
@@ -1011,9 +1011,9 @@ func (this *PureFunctionIdentifier_AmbiguatedFunctionSummary) maybeCollectImpure
 		return
 	}
 	if this.impureFunctionReasonsForDebugging == nil {
-		this.impureFunctionReasonsForDebugging = new_LinkedHashSet()
+		this.impureFunctionReasonsForDebugging = newTSet_(tc_Node)
 	}
-	this.impureFunctionReasonsForDebugging.add(NodeUtil_getEnclosingFunction(debuggingReason).box_())
+	this.impureFunctionReasonsForDebugging.add(NodeUtil_getEnclosingFunction(debuggingReason))
 }
 
 func (this *PureFunctionIdentifier_AmbiguatedFunctionSummary) mutatesThis() bool {

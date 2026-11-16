@@ -15,7 +15,7 @@ type TypedScopeCreator struct {
 	memoized                     *TMap[Node, *TypedScope]
 	reservedNamesForScope        *SimpleListMultimap
 	functionsWithNonEmptyReturns map[Node]struct{}
-	escapedVarNames              SetOf[*ScopedName]
+	escapedVarNames              *TSet[*ScopedName]
 	assignedVarNames             *SimpleMultiset
 	unknownType                  *ObjectType
 	weakImports                  []*TypedScopeCreator_WeakModuleImport
@@ -321,7 +321,7 @@ func (this *TypedScopeCreator) finishAndFreeze() {
 func (this *TypedScopeCreator) clearCommonState() {
 	this.reservedNamesForScope = SimpleListMultimap_create()
 	this.functionsWithNonEmptyReturns = map[Node]struct{}{}
-	this.escapedVarNames = icast_Set(obj_(new_LinkedHashSet()))
+	this.escapedVarNames = newTSet_(tch_p_ScopedName)
 	this.assignedVarNames = SimpleMultiset_create()
 	this.weakImports = []*TypedScopeCreator_WeakModuleImport{}
 	this.unresolvedNodes = []Node{}
@@ -1516,7 +1516,7 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) createEnumTypeFromNodes(rVal
 func (this *TypedScopeCreator_AbstractScopeBuilder) declare(scope *TypedScope, name string, n Node, type_ *JSType, input *CompilerInput, inferred bool) *TypedVar {
 	var var_ *TypedVar = scope.declare(name, n, type_, input, inferred)
 	var scopedName *ScopedName = ScopedName_of(name, scope.getRootNode())
-	if this.outer_.escapedVarNames.contains(scopedName.self()) {
+	if this.outer_.escapedVarNames.contains(scopedName) {
 		var_.markEscaped()
 	}
 	if this.outer_.assignedVarNames.count(scopedName.self()) == 1 {
@@ -1902,7 +1902,7 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) isQualifiedNameInferred(qNam
 	if this.hasControlStructureAncestor(n.getParent()) {
 		return true
 	}
-	if (ownerScope != nil) && this.outer_.escapedVarNames.contains(ScopedName_of(qName.orElse(nullstr_), ownerScope.getRootNode()).self()) {
+	if (ownerScope != nil) && this.outer_.escapedVarNames.contains(ScopedName_of(qName.orElse(nullstr_), ownerScope.getRootNode())) {
 		return true
 	}
 	return false
@@ -2641,7 +2641,7 @@ func (this *TypedScopeCreator_FirstOrderFunctionAnalyzer) visit_impl(t *NodeTrav
 				var scopedName *ScopedName = ScopedName_of(name, ownerScope.getRootNode())
 				this.outer_.assignedVarNames.add(scopedName.self())
 				if !containerScope.hasSameContainerScope(ownerScope.up_AbstractScope()) {
-					this.outer_.escapedVarNames.add(scopedName.self())
+					this.outer_.escapedVarNames.add(scopedName)
 				}
 			}
 		}
@@ -2652,7 +2652,7 @@ func (this *TypedScopeCreator_FirstOrderFunctionAnalyzer) visit_impl(t *NodeTrav
 		if var_ != nil {
 			var ownerScope *Scope = cast_[*Scope](var_.getScope())
 			if ownerScope.isLocal() && !containerScope.hasSameContainerScope(ownerScope.up_AbstractScope()) {
-				this.outer_.escapedVarNames.add(ScopedName_of(n.getQualifiedName(), ownerScope.getRootNode()).self())
+				this.outer_.escapedVarNames.add(ScopedName_of(n.getQualifiedName(), ownerScope.getRootNode()))
 			}
 		}
 	}

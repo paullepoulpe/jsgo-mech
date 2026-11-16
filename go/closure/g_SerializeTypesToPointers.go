@@ -253,7 +253,7 @@ func SerializeTypesToPointers_TypeMismatchJson_typePointerToId(poolOffset int32,
 			var pointer any = it_2.v
 			memberIds.add(obj_(SerializeTypesToPointers_TypeMismatchJson_typePointerToId(unbox_[int32](pointer), typePool)))
 		}
-		return ColorId_union(icast_Set(obj_(memberIds.build())))
+		return ColorId_union(tsetFrom_(tch_p_ColorId, memberIds.build(), true))
 	case TypeProto_KindCase_OBJECT:
 		return ColorId_fromBytesByteString(typeProto.getObject().getUuid())
 	case TypeProto_KindCase_KIND_NOT_SET:

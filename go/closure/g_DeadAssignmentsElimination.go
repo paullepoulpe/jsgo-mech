@@ -160,7 +160,7 @@ func (this *DeadAssignmentsElimination) tryRemoveAssignment_5(t *NodeTraversal, 
 			return
 		}
 		var var_ *Var = allVarsInFn.get(name)
-		if this.liveness.getEscapedLocals().contains(obj_(var_)) {
+		if this.liveness.getEscapedLocals().contains(var_) {
 			return
 		}
 		if (((rhs != 0) && rhs.isName()) && (rhs.getString() == var_.getName())) && n.isAssign() {

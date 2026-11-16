@@ -8,7 +8,7 @@ type TypedScope struct {
 	depth         int32
 	module_       *Module
 	isBottomField bool
-	reservedNames SetOf[string]
+	reservedNames *TSet[string]
 }
 
 func (this *TypedScope) up_AbstractScope() *AbstractScope {
@@ -24,11 +24,11 @@ func (this *TypedScope) init_TypedScope_TypedScope_Node_Set_Module(parent *Typed
 	this.parent = parent
 	this.depth = (parent.depth + 1)
 	this.isBottomField = false
-	this.reservedNames = func() Set {
+	this.reservedNames = func() *TSet[string] {
 		if reservedNames.isEmpty() {
-			return icast_Set(obj_(ImmutableSet_of()))
+			return tsetFrom_(tc_string, ImmutableSet_of(), true)
 		}
-		return icast_Set(obj_(new_LinkedHashSet_Collection(Collection(reservedNames.asSet()))))
+		return tsetFrom_(tc_string, Collection(reservedNames.asSet()), false)
 	}()
 	this.module_ = module
 }
@@ -46,7 +46,7 @@ func (this *TypedScope) init_TypedScope_Node_boolean(rootNode Node, isBottom boo
 	this.parent = nil
 	this.depth = 0
 	this.isBottomField = isBottom
-	this.reservedNames = icast_Set(obj_(ImmutableSet_of()))
+	this.reservedNames = tsetFrom_(tc_string, ImmutableSet_of(), true)
 	this.module_ = nil
 }
 
@@ -75,9 +75,9 @@ func (this *TypedScope) typed_impl() *TypedScope {
 
 func (this *TypedScope) validateCompletelyBuilt() {
 	if !this.reservedNames.isEmpty() {
-		Preconditions_checkState_boolean_String_Object_Object(false, "Expected %s to have no reserved names, found: %s. This probably indicates a bug in TypedScopeCreator where it is failing to declare a variable.", obj_(this), any(this.reservedNames))
+		Preconditions_checkState_boolean_String_Object_Object(false, "Expected %s to have no reserved names, found: %s. This probably indicates a bug in TypedScopeCreator where it is failing to declare a variable.", obj_(this), any(this.reservedNames.asSet()))
 	}
-	this.reservedNames = icast_Set(obj_(ImmutableSet_of()))
+	this.reservedNames = tsetFrom_(tc_string, ImmutableSet_of(), true)
 }
 
 func (this *TypedScope) isBottom() bool {
@@ -125,7 +125,7 @@ func (this *TypedScope) getTypeOfThis() *JSType {
 func (this *TypedScope) declare(name string, nameNode Node, type_ *JSType, input *CompilerInput, inferred bool) *TypedVar {
 	Preconditions_checkState(!String_isEmpty(name))
 	if !this.reservedNames.isEmpty() {
-		Collection_remove_s(this.reservedNames, name)
+		this.reservedNames.remove(name)
 	}
 	var var_ *TypedVar = new_TypedVar(inferred, name, nameNode, type_, this, this.getVarCount(), input)
 	this.declareInternal(name, var_.up_AbstractVar())
@@ -234,7 +234,7 @@ func (this *TypedScope) getTypeThroughNamespace(moduleId string) *JSType {
 }
 
 func (this *TypedScope) getTopmostScopeOfEventualDeclaration_impl(name string) StaticScope {
-	if (cast_[*TypedVar](this.getOwnSlot(name)) != nil) || Collection_contains_s(this.reservedNames, name) {
+	if (cast_[*TypedVar](this.getOwnSlot(name)) != nil) || this.reservedNames.contains(name) {
 		return icast_StaticScope(obj_(this))
 	} else if cast_[*TypedScope](this.getParent().self()) == nil {
 		return nil

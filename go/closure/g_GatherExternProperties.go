@@ -4,12 +4,12 @@ package closure
 
 type GatherExternProperties struct {
 	compiler_        *AbstractCompiler
-	externProperties LinkedHashSetOf[string]
+	externProperties *TSet[string]
 	mode_            *GatherExternProperties_Mode
 }
 
 func (this *GatherExternProperties) finit_GatherExternProperties() {
-	this.externProperties = new_LinkedHashSet()
+	this.externProperties = newTSet_(tc_string)
 }
 
 func (this *GatherExternProperties) init_GatherExternProperties(compiler *AbstractCompiler, mode *GatherExternProperties_Mode) {
@@ -17,7 +17,7 @@ func (this *GatherExternProperties) init_GatherExternProperties(compiler *Abstra
 	this.compiler_ = compiler
 	this.mode_ = mode
 	if compiler.getExternProperties() != nil {
-		this.externProperties.addAll(icast_Collection(obj_(compiler.getExternProperties())))
+		this.externProperties.asSet().addAll(icast_Collection(obj_(compiler.getExternProperties())))
 	}
 }
 
@@ -29,7 +29,7 @@ func new_GatherExternProperties(compiler *AbstractCompiler, mode *GatherExternPr
 
 func (this *GatherExternProperties) process_2(externs Node, root Node) {
 	NodeTraversal_traverse(this.compiler_, externs, icast_NodeTraversal_Callback(any(this)))
-	this.compiler_.setExternProperties(ImmutableSet_copyOf(icast_Collection(obj_(this.externProperties))))
+	this.compiler_.setExternProperties(ImmutableSet_copyOf(icast_Collection(any(this.externProperties.asSet()))))
 }
 
 func (this *GatherExternProperties) shouldTraverse(t *NodeTraversal, n Node, parent Node) bool {
@@ -40,13 +40,13 @@ func (this *GatherExternProperties) visit(t *NodeTraversal, n Node, parent Node)
 	if this.mode_.optimize {
 		switch n.ns_().token {
 		case tokOrd1_GETPROP:
-			Collection_add_s(this.externProperties, n.getString())
+			this.externProperties.add(n.getString())
 		case tokOrd1_STRING_KEY:
 			if parent.isObjectLit() {
-				Collection_add_s(this.externProperties, n.getString())
+				this.externProperties.add(n.getString())
 			}
 		case tokOrd1_MEMBER_FUNCTION_DEF, tokOrd1_MEMBER_FIELD_DEF, tokOrd1_GETTER_DEF, tokOrd1_SETTER_DEF:
-			Collection_add_s(this.externProperties, n.getString())
+			this.externProperties.add(n.getString())
 		default:
 		}
 	}
@@ -101,7 +101,7 @@ func (this *GatherExternProperties) gatherPropertiesFromJsDocRecordType(jsDocRec
 			if String_startsWith(fieldName, "'") || String_startsWith(fieldName, "\"") {
 				fieldName = String_substring(fieldName, 1, (String_length(fieldName) - 1))
 			}
-			Collection_add_s(this.externProperties, fieldName)
+			this.externProperties.add(fieldName)
 			if fieldTypeNode != 0 {
 				this.gatherPropertiesFromJsTypeExpressionNode(fieldTypeNode)
 			}

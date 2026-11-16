@@ -42,12 +42,12 @@ func (this *InjectClosureUnawareRuntimeLibraries) injectFieldsIntoCallSites() {
 	}
 	var fieldsByName ImmutableMapOf[string, RuntimeJsLibManager_ExternedField] = fieldsByNameBuilder.buildOrThrow()
 	for _, callSite := range this.closureUnawareCalls {
-		var toInject SetOf[RuntimeJsLibManager_ExternedField] = InjectClosureUnawareRuntimeLibraries_gatherRuntimeFields(callSite.closureUnawareFunction(), fieldsByName)
+		var toInject *TSet[RuntimeJsLibManager_ExternedField] = InjectClosureUnawareRuntimeLibraries_gatherRuntimeFields(callSite.closureUnawareFunction(), fieldsByName)
 		this.injectAll(callSite, toInject)
 	}
 }
 
-func (this *InjectClosureUnawareRuntimeLibraries) injectAll(callSite *InjectClosureUnawareRuntimeLibraries_ClosureUnawareCallSite, toInject SetOf[RuntimeJsLibManager_ExternedField]) {
+func (this *InjectClosureUnawareRuntimeLibraries) injectAll(callSite *InjectClosureUnawareRuntimeLibraries_ClosureUnawareCallSite, toInject *TSet[RuntimeJsLibManager_ExternedField]) {
 	if toInject.isEmpty() {
 		return
 	}
@@ -56,9 +56,9 @@ func (this *InjectClosureUnawareRuntimeLibraries) injectAll(callSite *InjectClos
 	if parameterParent.hasChildren() && parameterParent.getLastChild().isRest() {
 		panic(new_IllegalStateException_String(("rest parameters not allowed in closureUnaware function parameters, found " + objstr_(parameterParent.getLastChild().box_()))).self())
 	}
-	it_1 := foreach_(any(toInject))
+	it_1 := toInject.each()
 	for it_1.next() {
-		var field RuntimeJsLibManager_ExternedField = icast_RuntimeJsLibManager_ExternedField(it_1.v)
+		var field RuntimeJsLibManager_ExternedField = it_1.v
 		var parameter Node = IR_name(field.qualifiedName()).srcref(parameterParent)
 		var argument Node = NodeUtil_newQName_AbstractCompiler_String(this.mainCompiler, field.uncompiledName()).srcrefTree(argumentParent)
 		parameterParent.addChildToBack(parameter)
@@ -68,15 +68,15 @@ func (this *InjectClosureUnawareRuntimeLibraries) injectAll(callSite *InjectClos
 	}
 }
 
-func InjectClosureUnawareRuntimeLibraries_gatherRuntimeFields(root Node, allKnownFields ImmutableMapOf[string, RuntimeJsLibManager_ExternedField]) SetOf[RuntimeJsLibManager_ExternedField] {
-	var seen SetOf[RuntimeJsLibManager_ExternedField] = icast_Set(obj_(new_LinkedHashSet()))
+func InjectClosureUnawareRuntimeLibraries_gatherRuntimeFields(root Node, allKnownFields ImmutableMapOf[string, RuntimeJsLibManager_ExternedField]) *TSet[RuntimeJsLibManager_ExternedField] {
+	var seen *TSet[RuntimeJsLibManager_ExternedField] = newTSet_(tc_RuntimeJsLibManager_ExternedField)
 	var visitor NodeUtil_Visitor = &NodeUtil_Visitor_fn{func(n Node) {
 		if !n.isName() {
 			return
 		}
 		var field RuntimeJsLibManager_ExternedField = icast_RuntimeJsLibManager_ExternedField(Map_get_s(allKnownFields, n.getString()))
 		if field != nil {
-			seen.add(any(field))
+			seen.add(field)
 		}
 	}}
 	NodeUtil_visitPreOrder_Node_Visitor(root, visitor)
