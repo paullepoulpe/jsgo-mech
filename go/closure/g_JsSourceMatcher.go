@@ -20,6 +20,6 @@ func (this *JsSourceMatcher) matches(n Node, metadata *NodeMetadata) bool {
 	return this.matcher.matches(n)
 }
 
-func (this *JsSourceMatcher) getTemplateNodeToMatchMap() *TMap[string, Node] {
+func (this *JsSourceMatcher) getTemplateNodeToMatchMap() map[string]Node {
 	return this.matcher.getTemplateNodeToMatchMap()
 }

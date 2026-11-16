@@ -7,7 +7,7 @@ type RenameVars struct {
 	globalNameNodes                []Node
 	localNameNodes                 []Node
 	originalNameByNode             map[Node]string
-	pseudoNameMap                  *TMap[Node, string]
+	pseudoNameMap                  map[Node]string
 	externNames_                   ImmutableSetOf[string]
 	reservedNames                  SetOf[string]
 	renameMap                      *TMap[string, string]
@@ -44,7 +44,7 @@ func (this *RenameVars) init_RenameVars(compiler *AbstractCompiler, prefix Optio
 	this.prefix_ = str_(prefix.orElse(strobj_("")))
 	this.localRenamingOnly = localRenamingOnly
 	if generatePseudoNames {
-		this.pseudoNameMap = newTMap_(tc_Node, tc_string)
+		this.pseudoNameMap = map[Node]string{}
 	} else {
 		this.pseudoNameMap = nil
 	}
@@ -116,7 +116,7 @@ func (this *RenameVars) getNewGlobalName(n Node) OptionalOf[string] {
 	var a *RenameVars_Assignment = this.assignments.get(oldName)
 	if a.newName.isPresent() && !(str_(a.newName.get()) == oldName) {
 		if this.pseudoNameMap != nil {
-			return Optional_ofNullable(strobj_(this.pseudoNameMap.get(n)))
+			return Optional_ofNullable(strobj_(mapStr_(this.pseudoNameMap, n)))
 		}
 		return a.newName
 	} else {
@@ -130,7 +130,7 @@ func (this *RenameVars) getNewLocalName(n Node) OptionalOf[string] {
 	var a *RenameVars_Assignment = this.assignments.get(oldTempName)
 	if !(str_(a.newName.get()) == oldTempName) {
 		if this.pseudoNameMap != nil {
-			return Optional_ofNullable(strobj_(this.pseudoNameMap.get(n)))
+			return Optional_ofNullable(strobj_(mapStr_(this.pseudoNameMap, n)))
 		}
 		return a.newName
 	}
@@ -138,7 +138,7 @@ func (this *RenameVars) getNewLocalName(n Node) OptionalOf[string] {
 }
 
 func (this *RenameVars) recordPseudoName(n Node) {
-	this.pseudoNameMap.put(n, ("$" + sstr_(n.getString()) + "$$"))
+	this.pseudoNameMap[n] = ("$" + sstr_(n.getString()) + "$$")
 }
 
 func (this *RenameVars) reusePreviouslyUsedVariableMap(varsToRename SortedSetOf[*RenameVars_Assignment]) {

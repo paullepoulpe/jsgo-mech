@@ -66,7 +66,7 @@ type Compiler struct {
 	syntheticExternsInput          *CompilerInput
 	syntheticTypeSummaryFile       *SourceFile_jscomp
 	syntheticTypeSummaryInput      *CompilerInput
-	indexProvidersByType           *TMap[ClassOf[any], IndexProvider]
+	indexProvidersByType           map[ClassOf[any]]IndexProvider
 	crossChunkIdGenerator          *IdGenerator
 	cssNames                       *TSet[string]
 	variableMap                    *VariableMap
@@ -133,7 +133,7 @@ func (this *Compiler) finit_Compiler() {
 	this.preferRegexParserField = false
 	this.SYNTHETIC_EXTERNS_FILE = SourceFile_jscomp_fromCode_String_String_SourceKind((sstr_(Compiler_SYNTHETIC_FILE_NAME_PREFIX) + "externs] "), "", StaticSourceFile_SourceKind_EXTERN)
 	this.syntheticTypeSummaryFile = SourceFile_jscomp_fromCode_String_String_SourceKind((sstr_(Compiler_SYNTHETIC_FILE_NAME_PREFIX) + "typeSummary] "), "", StaticSourceFile_SourceKind_EXTERN)
-	this.indexProvidersByType = newTMap_(tc_ClassOf_any_, tc_IndexProvider)
+	this.indexProvidersByType = map[ClassOf[any]]IndexProvider{}
 	this.crossChunkIdGenerator = new_IdGenerator()
 	this.cssNames = nil
 	this.variableMap = nil
@@ -1647,8 +1647,8 @@ func (this *Compiler) orderInputs() {
 func (this *Compiler) findModulesFromEntryPoints(supportEs6Modules bool, supportCommonJSModules bool) {
 	this.maybeDoThreadedParsing()
 	var entryPoints []*CompilerInput = []*CompilerInput{}
-	var inputsByProvide *TMap[string, *CompilerInput] = newTMap_(tc_string, tc_p_CompilerInput)
-	var inputsByIdentifier *TMap[string, *CompilerInput] = newTMap_(tc_string, tc_p_CompilerInput)
+	var inputsByProvide map[string]*CompilerInput = map[string]*CompilerInput{}
+	var inputsByIdentifier map[string]*CompilerInput = map[string]*CompilerInput{}
 	it_1 := foreach_(any(this.chunkGraph.getAllInputs()))
 	for it_1.next() {
 		var input *CompilerInput = cast_[*CompilerInput](it_1.v)
@@ -1660,19 +1660,19 @@ func (this *Compiler) findModulesFromEntryPoints(supportEs6Modules bool, support
 		if !this.options_.getDependencyOptions().shouldDropMoochers() && Iterables_isEmpty(provides) {
 			entryPoints = append(entryPoints, input)
 		}
-		inputsByIdentifier.put(ModuleIdentifier_forFile(input.getPath().toString()).toString(), input)
+		inputsByIdentifier[ModuleIdentifier_forFile(input.getPath().toString()).toString()] = input
 		it_3 := foreach_(any(provides))
 		for it_3.next() {
 			var provide string = str_(it_3.v)
-			inputsByProvide.put(provide, input)
+			inputsByProvide[provide] = input
 		}
 	}
 	it_5 := foreach_(obj_(this.options_.getDependencyOptions().entryPoints()))
 	for it_5.next() {
 		var moduleIdentifier *ModuleIdentifier = cast_[*ModuleIdentifier](it_5.v)
-		var input *CompilerInput = inputsByProvide.get(moduleIdentifier.toString())
+		var input *CompilerInput = inputsByProvide[moduleIdentifier.toString()]
 		if input == nil {
-			input = inputsByIdentifier.get(moduleIdentifier.toString())
+			input = inputsByIdentifier[moduleIdentifier.toString()]
 		}
 		if input != nil {
 			entryPoints = append(entryPoints, input)
@@ -1689,7 +1689,7 @@ func (this *Compiler) findModulesFromEntryPoints(supportEs6Modules bool, support
 	}
 }
 
-func (this *Compiler) findModulesFromInput(input *CompilerInput, wasImportedByModule bool, inputs *TSet[*CompilerInput], inputsByIdentifier *TMap[string, *CompilerInput], inputsByProvide *TMap[string, *CompilerInput], supportEs6Modules bool, supportCommonJSModules bool) {
+func (this *Compiler) findModulesFromInput(input *CompilerInput, wasImportedByModule bool, inputs *TSet[*CompilerInput], inputsByIdentifier map[string]*CompilerInput, inputsByProvide map[string]*CompilerInput, supportEs6Modules bool, supportCommonJSModules bool) {
 	if !inputs.remove(input) {
 		if wasImportedByModule && (input.getJsModuleType() == CompilerInput_ModuleType_NONE) {
 			input.setJsModuleType(CompilerInput_ModuleType_IMPORTED_SCRIPT)
@@ -1708,11 +1708,11 @@ func (this *Compiler) findModulesFromInput(input *CompilerInput, wasImportedByMo
 		var requiredNamespace string = str_(it_1.v)
 		var requiredInput *CompilerInput = nil
 		var requiredByModuleImport bool = false
-		if inputsByProvide.containsKey(requiredNamespace) {
-			requiredInput = inputsByProvide.get(requiredNamespace)
-		} else if inputsByIdentifier.containsKey(requiredNamespace) {
+		if has_(inputsByProvide, requiredNamespace) {
+			requiredInput = inputsByProvide[requiredNamespace]
+		} else if has_(inputsByIdentifier, requiredNamespace) {
 			requiredByModuleImport = true
-			requiredInput = inputsByIdentifier.get(requiredNamespace)
+			requiredInput = inputsByIdentifier[requiredNamespace]
 		}
 		if requiredInput != nil {
 			this.findModulesFromInput(requiredInput, requiredByModuleImport, inputs, inputsByIdentifier, inputsByProvide, supportEs6Modules, supportCommonJSModules)
@@ -2170,13 +2170,13 @@ func (this *Compiler) getChangeTracker_impl() *ChangeTracker {
 
 func (this *Compiler) addIndexProvider_impl(indexProvider IndexProvider) {
 	var type_ ClassOf[any] = indexProvider.getType()
-	if this.indexProvidersByType.put(type_, indexProvider) != nil {
+	if mapPut_(tc_IndexProvider, this.indexProvidersByType, type_, indexProvider) != nil {
 		panic(new_IllegalStateException_String(("A provider is already registered for index of type " + sstr_(type_.getSimpleName()))).self())
 	}
 }
 
 func (this *Compiler) getIndexUntyped_impl(key ClassOf[any]) any {
-	var indexProvider IndexProvider = this.indexProvidersByType.get(key)
+	var indexProvider IndexProvider = this.indexProvidersByType[key]
 	if indexProvider == nil {
 		return nil
 	}

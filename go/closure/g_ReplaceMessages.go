@@ -112,13 +112,13 @@ func (this *ReplaceMessages) createNodeForGenderedMsgString(message *JsMessage, 
 	var paramList Node = this.astFactory_.createParamList([]string{})
 	var type_ AstFactory_Type = AstFactory_type_Node(nodeToReplace)
 	var uniqueId string = this.compiler_.getUniqueIdSupplier().getUniqueId(this.compiler_.getInput(NodeUtil_getInputId(nodeToReplace)))
-	var placeholderMapIds *TMap[string, string] = newTMap_(tc_string, tc_string)
+	var placeholderMapIds map[string]string = map[string]string{}
 	it_1 := placeholderMap.each()
 	for it_1.next() {
 		var placeholderName string = it_1.k
 		var placeholderId string = (sstr_(placeholderName) + sstr_(uniqueId))
 		paramList.addChildToBack(this.astFactory_.createName(placeholderId, type_))
-		placeholderMapIds.put(placeholderName, placeholderId)
+		placeholderMapIds[placeholderName] = placeholderId
 	}
 	var hookExpressionOutcome *Outcome_base = this.createHookExpressionForGenderedMsg(type_, message, options, nodeToReplace, placeholderMapIds)
 	if hookExpressionOutcome.isErr() {
@@ -166,12 +166,12 @@ func (this *ReplaceMessages) createConditionForGrammaticalGender(type_ AstFactor
 	panic("unreachable")
 }
 
-func (this *ReplaceMessages) createHookExpressionForGenderedMsg(type_ AstFactory_Type, msg *JsMessage, options *ReplaceMessages_MsgOptions, nodeToReplace Node, placeholderMapIds *TMap[string, string]) *Outcome_base {
+func (this *ReplaceMessages) createHookExpressionForGenderedMsg(type_ AstFactory_Type, msg *JsMessage, options *ReplaceMessages_MsgOptions, nodeToReplace Node, placeholderMapIds map[string]string) *Outcome_base {
 	var hookHead Node = IR_hook(IR_name(""), IR_string(""), IR_string(""))
 	hookHead.setColor(nodeToReplace.getColor())
 	var placeholderHook Node = hookHead
 	var placeholderNodeProvider ReplaceMessages_PlaceholderNodeProvider = &ReplaceMessages_PlaceholderNodeProvider_fn{func(placeholderName string) Node {
-		var placeholderId OptionalOf[string] = Optional_ofNullable(strobj_(placeholderMapIds.get(placeholderName)))
+		var placeholderId OptionalOf[string] = Optional_ofNullable(strobj_(mapStr_(placeholderMapIds, placeholderName)))
 		return func() Node {
 			if placeholderId.isPresent() {
 				return this.astFactory_.createName(str_(placeholderId.get()), AstFactory_type_Node(nodeToReplace))

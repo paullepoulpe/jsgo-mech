@@ -4,7 +4,7 @@ package closure
 
 type CoverageInstrumentationPass struct {
 	compiler_                          *AbstractCompiler
-	instrumentationData                *TMap[string, *FileInstrumentationData]
+	instrumentationData                map[string]*FileInstrumentationData
 	reach                              *CoverageInstrumentationPass_CoverageReach
 	instrumentOption                   *CompilerOptions_InstrumentOption
 	productionInstrumentationArrayName string
@@ -19,7 +19,7 @@ func (this *CoverageInstrumentationPass) init_CoverageInstrumentationPass_Abstra
 	this.reach = reach
 	this.instrumentOption = instrumentOption
 	this.productionInstrumentationArrayName = productionInstrumentationArrayName
-	this.instrumentationData = newTMap_(tc_string, tc_p_FileInstrumentationData)
+	this.instrumentationData = map[string]*FileInstrumentationData{}
 }
 
 func new_CoverageInstrumentationPass_AbstractCompiler_CoverageReach_InstrumentOption_String(compiler *AbstractCompiler, reach *CoverageInstrumentationPass_CoverageReach, instrumentOption *CompilerOptions_InstrumentOption, productionInstrumentationArrayName string) *CoverageInstrumentationPass {

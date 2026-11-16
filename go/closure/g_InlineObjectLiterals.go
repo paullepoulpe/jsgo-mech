@@ -188,13 +188,13 @@ func (this *InlineObjectLiterals_InliningBehavior) computeVarList(referenceInfo 
 	return varmap
 }
 
-func (this *InlineObjectLiterals_InliningBehavior) fillInitialValues(init_ *Reference, initvals *TMap[string, Node]) {
+func (this *InlineObjectLiterals_InliningBehavior) fillInitialValues(init_ *Reference, initvals map[string]Node) {
 	var object Node = init_.getAssignedValue()
 	Preconditions_checkState_boolean_Object(object.isObjectLit(), object.box_())
 	{
 		var key Node = object.getFirstChild()
 		for ; key != 0; key = key.getNext() {
-			initvals.put(key.getString(), key.removeFirstChild())
+			initvals[key.getString()] = key.removeFirstChild()
 		}
 	}
 }
@@ -251,7 +251,7 @@ func (this *InlineObjectLiterals_InliningBehavior) replaceAssignmentExpression(v
 
 func (this *InlineObjectLiterals_InliningBehavior) splitObject(v *Var, init_ *Reference, referenceInfo *ReferenceCollection) {
 	var varmap *TMap[string, string] = this.computeVarList(referenceInfo)
-	var initvals *TMap[string, Node] = newTMap_(tc_string, tc_Node)
+	var initvals map[string]Node = map[string]Node{}
 	var vnode Node
 	var isBlockScoped bool = (v.isLet() || v.isConst())
 	var defined bool = (referenceInfo.isWellDefined() && NodeUtil_isNameDeclaration(init_.getParent()))
@@ -279,7 +279,7 @@ func (this *InlineObjectLiterals_InliningBehavior) splitObject(v *Var, init_ *Re
 	it_1 := foreach_(any(varmap.asMap().entrySet()))
 	for it_1.next() {
 		var entry Map_Entry = icast_Map_Entry(it_1.v)
-		var val Node = initvals.get(str_(entry.getKey()))
+		var val Node = initvals[str_(entry.getKey())]
 		var lhs Node = IR_name(str_(entry.getValue()))
 		var declarationType *Token_rhino = func() *Token_rhino {
 			if isBlockScoped {
