@@ -173,7 +173,7 @@ func PolymerPassStaticUtils_extractProperties(descriptor Node, defType PolymerCl
 		PolymerPassStaticUtils_collectConstructorPropertyJsDoc(constructor, constructorPropertyJsDoc)
 	}
 	var enclosingModule Node = NodeUtil_getEnclosingModuleIfPresent(descriptor)
-	var members ImmutableList_BuilderOf[*PolymerPass_MemberDefinition] = ImmutableList_builder()
+	var members []*PolymerPass_MemberDefinition
 	{
 		var keyNode Node = properties.getFirstChild()
 		for ; keyNode != 0; keyNode = keyNode.getNext() {
@@ -188,10 +188,10 @@ func PolymerPassStaticUtils_extractProperties(descriptor Node, defType PolymerCl
 			} else {
 				bestJsDoc = propertiesConfigJsDoc
 			}
-			members.add(obj_(new_PolymerPass_MemberDefinition(bestJsDoc, keyNode, keyNode.getFirstChild(), enclosingModule)))
+			members = immAdd_(tc_p_PolymerPass_MemberDefinition, members, new_PolymerPass_MemberDefinition(bestJsDoc, keyNode, keyNode.getFirstChild(), enclosingModule))
 		}
 	}
-	return sliceImm_(tc_p_PolymerPass_MemberDefinition, members.build())
+	return immBuilt_(members)
 }
 
 func PolymerPassStaticUtils_collectConstructorPropertyJsDoc(node Node, map_ map[string]*JSDocInfo) {

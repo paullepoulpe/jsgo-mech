@@ -49,7 +49,7 @@ var lambda_LintPassConfig_finit_LintPassConfig_2_ = &Function_fn{func(p0 any) an
 var lambda_LintPassConfig_finit_LintPassConfig_3_ = &Function_fn{func(compiler_ any) any {
 	var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
 	_ = compiler
-	return obj_(new_CombinedCompilerPass(compiler, sliceImm_(tc_NodeTraversal_Callback, ImmutableList_of_Object_Object(obj_(new_CheckInterfaces(compiler)), obj_(new_CheckPrototypeProperties(compiler))))))
+	return obj_(new_CombinedCompilerPass(compiler, sliceOf_(tc_NodeTraversal_Callback, icast_NodeTraversal_Callback(obj_(new_CheckInterfaces(compiler))), icast_NodeTraversal_Callback(obj_(new_CheckPrototypeProperties(compiler))))))
 }}
 
 func (this *LintPassConfig) init_LintPassConfig(options *CompilerOptions) {

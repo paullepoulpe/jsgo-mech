@@ -70,7 +70,7 @@ func (this *ClosureRequireProcessor) getAllRequiresInDeclaration() []*ClosureReq
 }
 
 func (this *ClosureRequireProcessor) getAllRequiresFromDestructuring(objectPattern Node, namespace string) []*ClosureRequireProcessor_Require {
-	var requireBuilder ImmutableList_BuilderOf[*ClosureRequireProcessor_Require] = ImmutableList_builder()
+	var requireBuilder []*ClosureRequireProcessor_Require
 	{
 		var key Node = objectPattern.getFirstChild()
 		for ; key != 0; key = key.getNext() {
@@ -81,10 +81,10 @@ func (this *ClosureRequireProcessor) getAllRequiresFromDestructuring(objectPatte
 			if !lhs.isName() {
 				continue
 			}
-			requireBuilder.add(obj_(ClosureRequireProcessor_Require_create(lhs.getString(), Import_builder().moduleRequest(namespace).localName(lhs.getString()).importName(key.getString()).importNode(this.nameDeclaration).nameNode(lhs).build(), this.requireKind)))
+			requireBuilder = immAdd_(tc_p_ClosureRequireProcessor_Require, requireBuilder, ClosureRequireProcessor_Require_create(lhs.getString(), Import_builder().moduleRequest(namespace).localName(lhs.getString()).importName(key.getString()).importNode(this.nameDeclaration).nameNode(lhs).build(), this.requireKind))
 		}
 	}
-	return sliceImm_(tc_p_ClosureRequireProcessor_Require, requireBuilder.build())
+	return immBuilt_(requireBuilder)
 }
 
 var ClosureRequireProcessor_GOOG_DEPENDENCY_CALLS *ImmutableMap

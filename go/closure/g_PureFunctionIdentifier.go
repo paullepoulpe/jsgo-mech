@@ -188,7 +188,7 @@ func (this *PureFunctionIdentifier) getSummariesForCallee(invocation Node) []*Pu
 		return sliceOf_(tc_p_PureFunctionIdentifier_AmbiguatedFunctionSummary, this.unknownFunctionSummary)
 	}
 	Preconditions_checkState_boolean_Object(!callees.isEmpty(), strobj_("Unexpected empty callees for valid result"))
-	var results ImmutableList_BuilderOf[*PureFunctionIdentifier_AmbiguatedFunctionSummary] = ImmutableList_builder()
+	var results []*PureFunctionIdentifier_AmbiguatedFunctionSummary
 	it_1 := foreach_(obj_(callees))
 	for it_1.next() {
 		var callee Node = Node_of_(it_1.v)
@@ -200,10 +200,10 @@ func (this *PureFunctionIdentifier) getSummariesForCallee(invocation Node) []*Pu
 			if summariesForFunction.isEmpty() {
 				Preconditions_checkState_boolean_String_Object(false, "Function missed during analysis: %s", callee.box_())
 			}
-			results.addAll(Iterable(summariesForFunction))
+			results = immAddAll_(tc_p_PureFunctionIdentifier_AmbiguatedFunctionSummary, results, Iterable(summariesForFunction))
 		} else {
 			var calleeName OptionalOf[string] = PureFunctionIdentifier_nameForReference(callee)
-			results.add(func() any {
+			results = immAddObj_(tc_p_PureFunctionIdentifier_AmbiguatedFunctionSummary, results, func() any {
 				if calleeName.isPresent() {
 					return obj_(mapGetOr_(this.summariesByName, calleeName.get(), this.unknownFunctionSummary))
 				}
@@ -211,7 +211,7 @@ func (this *PureFunctionIdentifier) getSummariesForCallee(invocation Node) []*Pu
 			}())
 		}
 	}
-	return sliceImm_(tc_p_PureFunctionIdentifier_AmbiguatedFunctionSummary, results.build())
+	return immBuilt_(results)
 }
 
 func (this *PureFunctionIdentifier) populateDatastructuresForAnalysisTraversal(referenceMap *OptimizeCalls_ReferenceMap) {

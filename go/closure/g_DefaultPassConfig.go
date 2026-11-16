@@ -596,7 +596,7 @@ var lambda_DefaultPassConfig_finit_DefaultPassConfig_2_ = &Function_fn{func(comp
 var lambda_DefaultPassConfig_finit_DefaultPassConfig_3_ = &Function_fn{func(compiler_ any) any {
 	var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
 	_ = compiler
-	return any(DefaultPassConfig_combineChecks(compiler, sliceImm_(tc_NodeTraversal_Callback, ImmutableList_of_Object_Object(obj_(new_CheckJSDoc(compiler)), obj_(new_Es6CheckModule(compiler))))))
+	return any(DefaultPassConfig_combineChecks(compiler, sliceOf_(tc_NodeTraversal_Callback, icast_NodeTraversal_Callback(obj_(new_CheckJSDoc(compiler))), icast_NodeTraversal_Callback(obj_(new_Es6CheckModule(compiler))))))
 }}
 
 // lambda_DefaultPassConfig_finit_DefaultPassConfig_4_ is a lambda of DefaultPassConfig_finit_DefaultPassConfig that captures nothing (post-flip step lambdas).
@@ -775,7 +775,7 @@ var lambda_DefaultPassConfig_finit_DefaultPassConfig_30_ = &Function_fn{func(com
 var lambda_DefaultPassConfig_finit_DefaultPassConfig_31_ = &Function_fn{func(compiler_ any) any {
 	var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
 	_ = compiler
-	return any(DefaultPassConfig_combineChecks(compiler, sliceImm_(tc_NodeTraversal_Callback, ImmutableList_of_Object_Object(obj_(new_CheckProvidesSorted(CheckProvidesSorted_Mode_COLLECT_AND_REPORT)), obj_(new_CheckRequiresSorted(CheckRequiresSorted_Mode_COLLECT_AND_REPORT))))))
+	return any(DefaultPassConfig_combineChecks(compiler, sliceOf_(tc_NodeTraversal_Callback, icast_NodeTraversal_Callback(obj_(new_CheckProvidesSorted(CheckProvidesSorted_Mode_COLLECT_AND_REPORT))), icast_NodeTraversal_Callback(obj_(new_CheckRequiresSorted(CheckRequiresSorted_Mode_COLLECT_AND_REPORT))))))
 }}
 
 // lambda_DefaultPassConfig_finit_DefaultPassConfig_32_ is a lambda of DefaultPassConfig_finit_DefaultPassConfig that captures nothing (post-flip step lambdas).

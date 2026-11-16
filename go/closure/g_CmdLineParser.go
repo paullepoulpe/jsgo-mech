@@ -344,7 +344,7 @@ func (this *CmdLineParser_Option) aliases(aliases []string) *CmdLineParser_Optio
 	for _, alias := range aliases {
 		this.owner_.checkOptionNotDefined(alias)
 	}
-	this.aliasesField = sliceImm_(tc_string, ImmutableList_copyOf_ObjectArr(arrmap_(aliases, func(v_ string) any { return strobj_(v_) })))
+	this.aliasesField = immCopyArr_(tc_string, aliases)
 	this.owner_.optionsSorted = false
 	return this
 }

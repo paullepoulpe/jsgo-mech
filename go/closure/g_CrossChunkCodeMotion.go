@@ -567,11 +567,11 @@ func (this *CrossChunkCodeMotion_DeclarationStatementGroupCycle) moveToPreferred
 }
 
 func (this *CrossChunkCodeMotion_DeclarationStatementGroupCycle) getGlobalSymbolNames() []string {
-	var builder ImmutableList_BuilderOf[string] = ImmutableList_builder()
+	var builder []string
 	for _, dsg := range this.dsgs {
-		builder.add(strobj_(dsg.declaredGlobalSymbol.var_.getName()))
+		builder = immAdd_(tc_string, builder, dsg.declaredGlobalSymbol.var_.getName())
 	}
-	return sliceImm_(tc_string, builder.build())
+	return immBuilt_(builder)
 }
 
 func (this *CrossChunkCodeMotion_DeclarationStatementGroupCycle) moveStatementsToChunk(preferredChunk *JSChunk) {

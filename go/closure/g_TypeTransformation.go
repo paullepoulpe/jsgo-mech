@@ -133,11 +133,11 @@ func (this *TypeTransformation) getCallParams(n Node) []Node {
 	if !n.isCall() {
 		Preconditions_checkArgument_boolean_String_Object(false, "Expected a call node, found %s", n.box_())
 	}
-	var builder ImmutableList_BuilderOf[Node] = new_ImmutableList_Builder()
+	var builder []Node
 	for i := int32(0); i < this.getCallParamCount(n); i++ {
-		builder.add(this.getCallArgument(n, i).box_())
+		builder = immAdd_(tc_Node, builder, this.getCallArgument(n, i))
 	}
-	return sliceImm_(tc_Node, builder.build())
+	return immBuilt_(builder)
 }
 
 func (this *TypeTransformation) getComputedPropValue(n Node) Node {
@@ -449,7 +449,7 @@ func (this *TypeTransformation) evalMapunion(ttlAst Node, nameResolver *TypeTran
 		var newNameResolver *TypeTransformation_NameResolver = new_TypeTransformation_NameResolver(this.addNewEntry(nameResolver.typeVars, paramName, unionType.self()), nameResolver.nameVars)
 		return this.evalInternal(mapFunctionBody, newNameResolver)
 	}
-	var unionElms []*JSType = sliceImm_(tc_p_JSType, ImmutableList_copyOf_Iterable(unionType.getUnionMembers()))
+	var unionElms []*JSType = immCopyOf_(tc_p_JSType, unionType.getUnionMembers())
 	var unionSize int32 = int32(len(unionElms))
 	var newUnionElms []*JSType = make([]*JSType, unionSize)
 	var i int32 = 0
@@ -521,7 +521,7 @@ func (this *TypeTransformation) evalRecordParam(ttlAst Node, nameResolver *TypeT
 
 func (this *TypeTransformation) evalRecordType(ttlAst Node, nameResolver *TypeTransformation_NameResolver) *JSType {
 	var paramCount int32 = this.getCallParamCount(ttlAst)
-	var recTypesBuilder ImmutableList_BuilderOf[*ObjectType] = new_ImmutableList_Builder()
+	var recTypesBuilder []*ObjectType
 	for i := int32(0); i < paramCount; i++ {
 		var type_ *JSType = this.evalRecordParam(this.getCallArgument(ttlAst, i), nameResolver)
 		var objType *ObjectType = type_.toMaybeObjectType()
@@ -531,10 +531,10 @@ func (this *TypeTransformation) evalRecordType(ttlAst Node, nameResolver *TypeTr
 		}
 		var recType *JSType = this.registry.buildRecordTypeFromObject(objType)
 		if !recType.equals(this.getObjectType().self()) {
-			recTypesBuilder.add(recType.toMaybeObjectType().self())
+			recTypesBuilder = immAdd_(tc_p_ObjectType, recTypesBuilder, recType.toMaybeObjectType())
 		}
 	}
-	return this.joinRecordTypes(sliceImm_(tc_p_ObjectType, recTypesBuilder.build()))
+	return this.joinRecordTypes(immBuilt_(recTypesBuilder))
 }
 
 func (this *TypeTransformation) putNewPropInPropertyMap(props *TMap[string, *JSType], newPropName string, newPropValue *JSType) {

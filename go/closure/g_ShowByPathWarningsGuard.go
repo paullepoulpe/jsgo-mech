@@ -29,7 +29,7 @@ func (this *ShowByPathWarningsGuard) init_ShowByPathWarningsGuard_StringArr_Show
 	this.WarningsGuard.init_WarningsGuard()
 	Preconditions_checkArgument((paths != nil))
 	Preconditions_checkArgument((showType != 0))
-	var pathList []string = sliceImm_(tc_string, ImmutableList_copyOf_ObjectArr(arrmap_(paths, func(v_ string) any { return strobj_(v_) })))
+	var pathList []string = immCopyArr_(tc_string, paths)
 	if showType == ShowByPathWarningsGuard_ShowType_INCLUDE {
 		this.warningsGuard = ByPathWarningsGuard_exceptPath(pathList, CheckLevel_OFF)
 	} else {

@@ -129,13 +129,13 @@ func (this *J2clPass_ClassStaticFunctionsInliner) run() {
 }
 
 func (this *J2clPass_ClassStaticFunctionsInliner) findMatchingSpecsForFile(sourceFileName string) []*J2clPass_InlineSpec {
-	var matchingSpecs ImmutableList_BuilderOf[*J2clPass_InlineSpec] = ImmutableList_builder()
+	var matchingSpecs []*J2clPass_InlineSpec
 	for _, inlineSpec := range this.inlineSpecs {
 		if (inlineSpec.classFileName_ == J2clPass_ALL_CLASS_FILE_NAMES) || String_endsWith(sourceFileName, inlineSpec.classFileName_) {
-			matchingSpecs.add(obj_(inlineSpec))
+			matchingSpecs = immAdd_(tc_p_J2clPass_InlineSpec, matchingSpecs, inlineSpec)
 		}
 	}
-	return sliceImm_(tc_p_J2clPass_InlineSpec, matchingSpecs.build())
+	return immBuilt_(matchingSpecs)
 }
 
 type J2clPass_ClassStaticFunctionsInliner_InlinableFunction struct {

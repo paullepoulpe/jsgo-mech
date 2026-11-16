@@ -52,15 +52,15 @@ func (this *RuntimeJsLibManager) getExternedFields() []RuntimeJsLibManager_Exter
 	if this.mode_ != RuntimeJsLibManager_RuntimeLibraryMode_EXTERN_FIELD_NAMES {
 		return []RuntimeJsLibManager_ExternedField{}
 	}
-	var result ImmutableList_BuilderOf[RuntimeJsLibManager_ExternedField] = ImmutableList_builder()
+	var result []RuntimeJsLibManager_ExternedField
 	it_1 := this.internedFields.each()
 	for it_1.next() {
 		var field *RuntimeJsLibManager_InternalField = it_1.v
 		if field.isInjected() {
-			result.add(obj_(field))
+			result = immAddObj_(tc_RuntimeJsLibManager_ExternedField, result, obj_(field))
 		}
 	}
-	return sliceImm_(tc_RuntimeJsLibManager_ExternedField, result.build())
+	return immBuilt_(result)
 }
 
 func (this *RuntimeJsLibManager) createField(fieldName string) *RuntimeJsLibManager_InternalField {

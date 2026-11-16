@@ -258,7 +258,7 @@ func new_ConformanceRules_AllowList(prefixes []string, regexp *Pattern, allowlis
 }
 
 func ConformanceRules_AllowList_create(prefixes ListOf[string], regexps ListOf[string]) *Outcome_base {
-	var prefixesCopy []string = sliceImm_(tc_string, ImmutableList_copyOf(Collection(prefixes)))
+	var prefixesCopy []string = immCopyOf_(tc_string, Collection(prefixes))
 	var regexp *Outcome_base = ConformanceRules_buildPattern(regexps)
 	if regexp.isErr() {
 		return Outcome_base_err(regexp.error())
@@ -267,7 +267,7 @@ func ConformanceRules_AllowList_create(prefixes ListOf[string], regexps ListOf[s
 }
 
 func ConformanceRules_AllowList_createFromEntry(allowlistEntry *RequirementScopeEntry) *Outcome_base {
-	var prefixesCopy []string = sliceImm_(tc_string, ImmutableList_copyOf(Collection(allowlistEntry.getPrefixList())))
+	var prefixesCopy []string = immCopyOf_(tc_string, Collection(allowlistEntry.getPrefixList()))
 	var regexp *Outcome_base = ConformanceRules_buildPattern(allowlistEntry.getRegexpList())
 	if regexp.isErr() {
 		return Outcome_base_err(regexp.error())
@@ -367,7 +367,7 @@ func (this *ConformanceRules_AbstractRule) initAbstractRule(compiler *AbstractCo
 	} else {
 		this.severity = requirement.getSeverity()
 	}
-	var allowlistsBuilder ImmutableList_BuilderOf[*ConformanceRules_AllowList] = new_ImmutableList_Builder()
+	var allowlistsBuilder []*ConformanceRules_AllowList
 	it_1 := foreach_(any(requirement.getWhitelistEntryList()))
 	for it_1.next() {
 		var entry *RequirementScopeEntry = cast_[*RequirementScopeEntry](it_1.v)
@@ -375,7 +375,7 @@ func (this *ConformanceRules_AbstractRule) initAbstractRule(compiler *AbstractCo
 		if allowlist.isErr() {
 			return Outcome_base_err(allowlist.error())
 		}
-		allowlistsBuilder.add(allowlist.get())
+		allowlistsBuilder = immAddObj_(tc_p_ConformanceRules_AllowList, allowlistsBuilder, allowlist.get())
 	}
 	it_3 := foreach_(any(requirement.getAllowlistEntryList()))
 	for it_3.next() {
@@ -384,26 +384,26 @@ func (this *ConformanceRules_AbstractRule) initAbstractRule(compiler *AbstractCo
 		if allowlist.isErr() {
 			return Outcome_base_err(allowlist.error())
 		}
-		allowlistsBuilder.add(allowlist.get())
+		allowlistsBuilder = immAddObj_(tc_p_ConformanceRules_AllowList, allowlistsBuilder, allowlist.get())
 	}
 	if this.tsIsAllowlisted() {
-		allowlistsBuilder.add(obj_(ConformanceRules_ALL_TS_ALLOWLIST))
+		allowlistsBuilder = immAdd_(tc_p_ConformanceRules_AllowList, allowlistsBuilder, ConformanceRules_ALL_TS_ALLOWLIST)
 	}
 	if (requirement.getWhitelistCount() > 0) || (requirement.getWhitelistRegexpCount() > 0) {
 		var allowlist *Outcome_base = ConformanceRules_AllowList_create(requirement.getWhitelistList(), requirement.getWhitelistRegexpList())
 		if allowlist.isErr() {
 			return Outcome_base_err(allowlist.error())
 		}
-		allowlistsBuilder.add(allowlist.get())
+		allowlistsBuilder = immAddObj_(tc_p_ConformanceRules_AllowList, allowlistsBuilder, allowlist.get())
 	}
 	if (requirement.getAllowlistCount() > 0) || (requirement.getAllowlistRegexpCount() > 0) {
 		var allowlist *Outcome_base = ConformanceRules_AllowList_create(requirement.getAllowlistList(), requirement.getAllowlistRegexpList())
 		if allowlist.isErr() {
 			return Outcome_base_err(allowlist.error())
 		}
-		allowlistsBuilder.add(allowlist.get())
+		allowlistsBuilder = immAddObj_(tc_p_ConformanceRules_AllowList, allowlistsBuilder, allowlist.get())
 	}
-	this.allowlists = sliceImm_(tc_p_ConformanceRules_AllowList, allowlistsBuilder.build())
+	this.allowlists = immBuilt_(allowlistsBuilder)
 	if (requirement.getOnlyApplyToCount() > 0) || (requirement.getOnlyApplyToRegexpCount() > 0) {
 		var onlyApplyToOutcome *Outcome_base = ConformanceRules_AllowList_create(requirement.getOnlyApplyToList(), requirement.getOnlyApplyToRegexpList())
 		if onlyApplyToOutcome.isErr() {
@@ -947,16 +947,16 @@ func (this *ConformanceRules_BannedName) initBannedName(compiler *AbstractCompil
 		return Outcome_base_err(new_CheckConformance_InvalidRequirementSpec_String("missing value").up_Throwable())
 	}
 	this.requirementType = requirement.getType()
-	var qualifiedBuilder ImmutableList_BuilderOf[Node] = ImmutableList_builder()
+	var qualifiedBuilder []Node
 	var shortBuilder ImmutableSet_BuilderOf[string] = ImmutableSet_builder()
 	it_1 := foreach_(any(icast_ProtocolStringList(requirement.getValueList())))
 	for it_1.next() {
 		var name string = str_(it_1.v)
 		var qualifiedName Node = NodeUtil_newQName_AbstractCompiler_String(compiler, name)
-		qualifiedBuilder.add(qualifiedName.box_())
+		qualifiedBuilder = immAdd_(tc_Node, qualifiedBuilder, qualifiedName)
 		shortBuilder.add(strobj_(qualifiedName.getString()))
 	}
-	this.qualifiedNames = sliceImm_(tc_Node, qualifiedBuilder.build())
+	this.qualifiedNames = immBuilt_(qualifiedBuilder)
 	this.shortNames = cast_[*ImmutableSet](obj_(shortBuilder.build()))
 	return Outcome_base_ok_0()
 }
@@ -1469,15 +1469,15 @@ func ConformanceRules_ConformanceUtil_validateParameterList(compiler *AbstractCo
 	if isCallInvocation && (arg != 0) {
 		arg = arg.getNext()
 	}
-	var argumentTypes ImmutableList_BuilderOf[*JSType] = ImmutableList_builder()
+	var argumentTypes []*JSType
 	for ; arg != 0; arg = arg.getNext() {
 		var argType *JSType = arg.getJSType()
 		if argType == nil {
 			argType = compiler.getTypeRegistry().getNativeType(JSTypeNative_UNKNOWN_TYPE)
 		}
-		argumentTypes.add(argType.self())
+		argumentTypes = immAdd_(tc_p_JSType, argumentTypes, argType)
 	}
-	return functionType.acceptsArguments(sliceImm_(tc_p_JSType, argumentTypes.build()))
+	return functionType.acceptsArguments(immBuilt_(argumentTypes))
 }
 
 func ConformanceRules_ConformanceUtil_getPropertyFromDeclarationName(specName string) OptionalOf[string] {
@@ -1637,7 +1637,7 @@ func (this *ConformanceRules_RestrictedNameCall) initRestrictedNameCall(compiler
 	if requirement.getValueCount() == 0 {
 		return Outcome_base_err(new_CheckConformance_InvalidRequirementSpec_String("missing value").up_Throwable())
 	}
-	var builder ImmutableList_BuilderOf[*ConformanceRules_RestrictedNameCall_Restriction] = ImmutableList_builder()
+	var builder []*ConformanceRules_RestrictedNameCall_Restriction
 	it_1 := foreach_(any(icast_ProtocolStringList(requirement.getValueList())))
 	for it_1.next() {
 		var value string = str_(it_1.v)
@@ -1654,9 +1654,9 @@ func (this *ConformanceRules_RestrictedNameCall) initRestrictedNameCall(compiler
 		if restrictedCallType == nil {
 			return Outcome_base_err(new_CheckConformance_InvalidRequirementSpec_String("invalid conformance type").up_Throwable())
 		}
-		builder.add(obj_(new_ConformanceRules_RestrictedNameCall_Restriction(name, restrictedCallType)))
+		builder = immAdd_(tc_p_ConformanceRules_RestrictedNameCall_Restriction, builder, new_ConformanceRules_RestrictedNameCall_Restriction(name, restrictedCallType))
 	}
-	this.restrictions = sliceImm_(tc_p_ConformanceRules_RestrictedNameCall_Restriction, builder.build())
+	this.restrictions = immBuilt_(builder)
 	return Outcome_base_ok_0()
 }
 
@@ -1748,7 +1748,7 @@ func (this *ConformanceRules_RestrictedMethodCall) initRestrictedMethodCall(comp
 		return Outcome_base_err(new_CheckConformance_InvalidRequirementSpec_String("missing value").up_Throwable())
 	}
 	var registry *JSTypeRegistry = compiler.getTypeRegistry()
-	var builder ImmutableList_BuilderOf[*ConformanceRules_RestrictedMethodCall_Restriction] = ImmutableList_builder()
+	var builder []*ConformanceRules_RestrictedMethodCall_Restriction
 	it_1 := foreach_(any(icast_ProtocolStringList(requirement.getValueList())))
 	for it_1.next() {
 		var value string = str_(it_1.v)
@@ -1774,9 +1774,9 @@ func (this *ConformanceRules_RestrictedMethodCall) initRestrictedMethodCall(comp
 		if restrictedCallType == nil {
 			return Outcome_base_err(new_CheckConformance_InvalidRequirementSpec_String("invalid conformance type").up_Throwable())
 		}
-		builder.add(obj_(new_ConformanceRules_RestrictedMethodCall_Restriction(registry.getGlobalType(type_.get()), property.get(), restrictedCallType)))
+		builder = immAdd_(tc_p_ConformanceRules_RestrictedMethodCall_Restriction, builder, new_ConformanceRules_RestrictedMethodCall_Restriction(registry.getGlobalType(type_.get()), property.get(), restrictedCallType))
 	}
-	this.restrictions = sliceImm_(tc_p_ConformanceRules_RestrictedMethodCall_Restriction, builder.build())
+	this.restrictions = immBuilt_(builder)
 	return Outcome_base_ok_0()
 }
 
@@ -1896,7 +1896,7 @@ func (this *ConformanceRules_RestrictedPropertyWrite) initRestrictedPropertyWrit
 		return Outcome_base_err(new_CheckConformance_InvalidRequirementSpec_String("missing value").up_Throwable())
 	}
 	var registry *JSTypeRegistry = compiler.getTypeRegistry()
-	var builder ImmutableList_BuilderOf[*ConformanceRules_RestrictedPropertyWrite_Restriction] = ImmutableList_builder()
+	var builder []*ConformanceRules_RestrictedPropertyWrite_Restriction
 	it_1 := foreach_(any(icast_ProtocolStringList(requirement.getValueList())))
 	for it_1.next() {
 		var value string = str_(it_1.v)
@@ -1919,9 +1919,9 @@ func (this *ConformanceRules_RestrictedPropertyWrite) initRestrictedPropertyWrit
 			return Outcome_base_err(restrictedTypeOutcome.error())
 		}
 		var restrictedType *JSType = to_JSType(restrictedTypeOutcome.get())
-		builder.add(obj_(new_ConformanceRules_RestrictedPropertyWrite_Restriction(registry.getGlobalType(type_.get()), property.get(), restrictedType)))
+		builder = immAdd_(tc_p_ConformanceRules_RestrictedPropertyWrite_Restriction, builder, new_ConformanceRules_RestrictedPropertyWrite_Restriction(registry.getGlobalType(type_.get()), property.get(), restrictedType))
 	}
-	this.restrictions = sliceImm_(tc_p_ConformanceRules_RestrictedPropertyWrite_Restriction, builder.build())
+	this.restrictions = immBuilt_(builder)
 	return Outcome_base_ok_0()
 }
 
@@ -2022,7 +2022,7 @@ func (this *ConformanceRules_BannedCodePattern) initBannedCodePattern(compiler *
 	if requirement.getValueCount() == 0 {
 		return Outcome_base_err(new_CheckConformance_InvalidRequirementSpec_String("missing value").up_Throwable())
 	}
-	var builder ImmutableList_BuilderOf[*TemplateAstMatcher] = ImmutableList_builder()
+	var builder []*TemplateAstMatcher
 	it_1 := foreach_(any(icast_ProtocolStringList(requirement.getValueList())))
 	for it_1.next() {
 		var value string = str_(it_1.v)
@@ -2032,9 +2032,9 @@ func (this *ConformanceRules_BannedCodePattern) initBannedCodePattern(compiler *
 		}
 		var templateRoot Node = parseRoot.getFirstChild()
 		var astMatcher *TemplateAstMatcher = new_TemplateAstMatcher(compiler, templateRoot, this.typeMatchingStrategy)
-		builder.add(obj_(astMatcher))
+		builder = immAdd_(tc_p_TemplateAstMatcher, builder, astMatcher)
 	}
-	this.restrictions = sliceImm_(tc_p_TemplateAstMatcher, builder.build())
+	this.restrictions = immBuilt_(builder)
 	return Outcome_base_ok_0()
 }
 
@@ -3799,7 +3799,7 @@ func (this *ConformanceRules_BanSettingAttributes) initBanSettingAttributes(comp
 		return Outcome_base_err(new_CheckConformance_InvalidRequirementSpec_String("missing value").up_Throwable())
 	}
 	var registry *JSTypeRegistry = compiler.getTypeRegistry()
-	var builder ImmutableList_BuilderOf[*ConformanceRules_BanSettingAttributes_AttributeSettingRestriction] = ImmutableList_builder()
+	var builder []*ConformanceRules_BanSettingAttributes_AttributeSettingRestriction
 	it_1 := foreach_(any(icast_ProtocolStringList(requirement.getValueList())))
 	for it_1.next() {
 		var value string = str_(it_1.v)
@@ -3808,9 +3808,9 @@ func (this *ConformanceRules_BanSettingAttributes) initBanSettingAttributes(comp
 		if type_.isEmpty() || property.isEmpty() {
 			return Outcome_base_err(new_CheckConformance_InvalidRequirementSpec_String("bad prop value").up_Throwable())
 		}
-		builder.add(obj_(new_ConformanceRules_BanSettingAttributes_AttributeSettingRestriction(registry.getGlobalType(type_.get()), property.get())))
+		builder = immAdd_(tc_p_ConformanceRules_BanSettingAttributes_AttributeSettingRestriction, builder, new_ConformanceRules_BanSettingAttributes_AttributeSettingRestriction(registry.getGlobalType(type_.get()), property.get()))
 	}
-	this.restrictions = sliceImm_(tc_p_ConformanceRules_BanSettingAttributes_AttributeSettingRestriction, builder.build())
+	this.restrictions = immBuilt_(builder)
 	return Outcome_base_ok_0()
 }
 
@@ -3926,13 +3926,13 @@ func (this *ConformanceRules_BanExecCommand) initBanExecCommand(compiler *Abstra
 	if superInited.isErr() {
 		return Outcome_base_err(superInited.error())
 	}
-	var bannedAttrsBuilder ImmutableList_BuilderOf[string] = ImmutableList_builder()
+	var bannedAttrsBuilder []string
 	it_1 := foreach_(any(icast_ProtocolStringList(requirement.getValueList())))
 	for it_1.next() {
 		var v string = str_(it_1.v)
-		bannedAttrsBuilder.add(strobj_(String_toLowerCase(v, Locale_ROOT)))
+		bannedAttrsBuilder = immAdd_(tc_string, bannedAttrsBuilder, String_toLowerCase(v, Locale_ROOT))
 	}
-	this.bannedAttrs = sliceImm_(tc_string, bannedAttrsBuilder.build())
+	this.bannedAttrs = immBuilt_(bannedAttrsBuilder)
 	return Outcome_base_ok_0()
 }
 

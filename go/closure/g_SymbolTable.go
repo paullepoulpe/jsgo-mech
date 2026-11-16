@@ -45,11 +45,11 @@ func (this *SymbolTable) getReferences(symbol *SymbolTable_Symbol) IterableOf[*S
 }
 
 func (this *SymbolTable) getReferenceList(symbol *SymbolTable_Symbol) []*SymbolTable_Reference {
-	return sliceImm_(tc_p_SymbolTable_Reference, ImmutableList_copyOf(symbol.references.asMap().values()))
+	return immCopyOf_(tc_p_SymbolTable_Reference, symbol.references.asMap().values())
 }
 
 func (this *SymbolTable) getAllSymbols() []*SymbolTable_Symbol {
-	return sliceImm_(tc_p_SymbolTable_Symbol, ImmutableList_copyOf_Iterable(this.symbols.values()))
+	return immCopyOf_(tc_p_SymbolTable_Symbol, this.symbols.values())
 }
 
 func (this *SymbolTable) getAllSymbolsSorted() ListOf[*SymbolTable_Symbol] {

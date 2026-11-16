@@ -121,17 +121,17 @@ func DestructuredTarget_createAllNonEmptyTargetsInPatternSupplier(registry *JSTy
 	if !pattern.isDestructuringPattern() {
 		Preconditions_checkArgument_boolean_Object(false, pattern.box_())
 	}
-	var builder ImmutableList_BuilderOf[*DestructuredTarget] = ImmutableList_builder()
+	var builder []*DestructuredTarget
 	{
 		var child Node = pattern.getFirstChild()
 		for ; child != 0; child = child.getNext() {
 			if child.isEmpty() {
 				continue
 			}
-			builder.add(obj_(DestructuredTarget_createTarget(registry, patternType, child)))
+			builder = immAdd_(tc_p_DestructuredTarget, builder, DestructuredTarget_createTarget(registry, patternType, child))
 		}
 	}
-	return sliceImm_(tc_p_DestructuredTarget, builder.build())
+	return immBuilt_(builder)
 }
 
 func (this *DestructuredTarget) inferTypeWithoutUsingDefaultValue() *JSType {

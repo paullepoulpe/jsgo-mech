@@ -50,7 +50,7 @@ func new_ReplaceStrings(compiler *AbstractCompiler, placeholderToken string, fun
 }
 
 func (this *ReplaceStrings) getResult() []*ReplaceStrings_Result {
-	return sliceImm_(tc_p_ReplaceStrings_Result, ImmutableList_copyOf_Iterable(Iterables_filter(Iterable(this.results.asMap().values()), ReplaceStrings_USED_RESULTS)))
+	return immCopyOf_(tc_p_ReplaceStrings_Result, Iterables_filter(Iterable(this.results.asMap().values()), ReplaceStrings_USED_RESULTS))
 }
 
 func (this *ReplaceStrings) getStringMap() *VariableMap {

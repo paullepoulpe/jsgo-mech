@@ -58,15 +58,15 @@ func Promises_createAsyncReturnableType(registry *JSTypeRegistry, maybeThenable 
 		}
 		return ImmutableList_of_Object(maybeThenable.self())
 	}()
-	var asyncTemplateAlternatesBuilder ImmutableList_BuilderOf[*JSType] = ImmutableList_builder()
+	var asyncTemplateAlternatesBuilder []*JSType
 	it_1 := foreach_(obj_(alternates))
 	for it_1.next() {
 		var t *JSType = to_JSType(it_1.v)
 		if t.isSubtypeOf(iThenableOfUnknownType) {
-			asyncTemplateAlternatesBuilder.add(Promises_getTemplateTypeOfThenable(registry, t).self())
+			asyncTemplateAlternatesBuilder = immAdd_(tc_p_JSType, asyncTemplateAlternatesBuilder, Promises_getTemplateTypeOfThenable(registry, t))
 		}
 	}
-	var asyncTemplateAlternates []*JSType = sliceImm_(tc_p_JSType, asyncTemplateAlternatesBuilder.build())
+	var asyncTemplateAlternates []*JSType = immBuilt_(asyncTemplateAlternatesBuilder)
 	if len(asyncTemplateAlternates) == 0 {
 		return unknownType
 	}

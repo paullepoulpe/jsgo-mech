@@ -144,21 +144,21 @@ func (this *TypedAstDeserializer) findExistingFile(filename string) *SourceFile_
 }
 
 func (this *TypedAstDeserializer) toFileShard(typedAstProto *TypedAst) []*SourceFile_jscomp {
-	var fileShardBuilder ImmutableList_BuilderOf[*SourceFile_jscomp] = ImmutableList_builder()
+	var fileShardBuilder []*SourceFile_jscomp
 	var protos ListOf[*SourceFileProto] = typedAstProto.getSourceFilePool().getSourceFileList()
 	for i := int32(0); i < protos.size(); i++ {
 		var p *SourceFileProto = cast_[*SourceFileProto](protos.get(i))
 		var existingFile *SourceFile_jscomp = this.findExistingFile(p.getFilename())
 		if existingFile != nil {
 			existingFile.restoreCachedStateFrom(p)
-			fileShardBuilder.add(obj_(existingFile))
+			fileShardBuilder = immAdd_(tc_p_SourceFile_jscomp, fileShardBuilder, existingFile)
 		} else {
 			var protoFile *SourceFile_jscomp = SourceFile_jscomp_fromProto_SourceFileProto(p)
 			this.addToFilePool(p.getFilename(), protoFile)
-			fileShardBuilder.add(obj_(protoFile))
+			fileShardBuilder = immAdd_(tc_p_SourceFile_jscomp, fileShardBuilder, protoFile)
 		}
 	}
-	return sliceImm_(tc_p_SourceFile_jscomp, fileShardBuilder.build())
+	return immBuilt_(fileShardBuilder)
 }
 
 func (this *TypedAstDeserializer) initLazyAstDeserializer(lazyAst *LazyAst, fileShard []*SourceFile_jscomp, colorShard Optional_baseOf[*ColorPool_ShardView], stringShard *StringPool, compiler *AbstractCompiler, resolveSourceMapAnnotations bool, parseInlineSourceMaps bool) {

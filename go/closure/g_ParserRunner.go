@@ -87,11 +87,11 @@ func ParserRunner_parse(sourceFile StaticSourceFile, sourceString string, config
 			root.setFeatureSet(obj_(features))
 			if config.jsDocParsingMode().shouldParseDescriptions() {
 				comments = p.getComments()
-				var builder ImmutableList_BuilderOf[*SourceRange] = ImmutableList_builderWithExpectedSize(int32(len(tree.sourceElements)))
+				var builder []*SourceRange = make([]*SourceRange, 0, int32(len(tree.sourceElements)))
 				for _, element := range tree.sourceElements {
-					builder.add(obj_(element.location_))
+					builder = immAdd_(tc_p_SourceRange, builder, element.location_)
 				}
-				topLevelStatementRanges = sliceImm_(tc_p_SourceRange, builder.build())
+				topLevelStatementRanges = immBuilt_(builder)
 			}
 		}
 		ret_1 = new_ParserRunner_ParseResult_Node_List_ImmutableList_FeatureSet_Optional(root, comments, topLevelStatementRanges, features, p.getSourceMapURL())

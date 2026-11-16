@@ -38,7 +38,7 @@ func (this *PolymerBehaviorExtractor) extractBehaviors(behaviorArray Node, modul
 		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(behaviorArray, PolymerPassErrors_POLYMER_INVALID_BEHAVIOR_ARRAY, []string{}))
 		return []*PolymerBehaviorExtractor_BehaviorDefinition{}
 	}
-	var behaviors ImmutableList_BuilderOf[*PolymerBehaviorExtractor_BehaviorDefinition] = ImmutableList_builder()
+	var behaviors []*PolymerBehaviorExtractor_BehaviorDefinition
 	{
 		var behaviorName Node = behaviorArray.getFirstChild()
 		for ; behaviorName != 0; behaviorName = behaviorName.getNext() {
@@ -50,7 +50,7 @@ func (this *PolymerBehaviorExtractor) extractBehaviors(behaviorArray Node, modul
 					this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(behaviorName, PolymerPassErrors_POLYMER_INVALID_BEHAVIOR, []string{}))
 				}
 				var behaviorModule Node = NodeUtil_getEnclosingModuleIfPresent(behaviorName)
-				behaviors.add(obj_(new_PolymerBehaviorExtractor_BehaviorDefinition(PolymerPassStaticUtils_extractProperties(behaviorName, PolymerClassDefinition_DefinitionType_ObjectLiteral, this.compiler_, 0), PolymerBehaviorExtractor_getBehaviorFunctionsToCopy(behaviorName), PolymerBehaviorExtractor_getNonPropertyMembersToCopy(behaviorName), NodeUtil_getEnclosingScopeRoot(behaviorName).isRoot(), cast_[*FeatureSet](NodeUtil_getEnclosingScript(behaviorName).getFeatureSet()), behaviorModule)))
+				behaviors = immAdd_(tc_p_PolymerBehaviorExtractor_BehaviorDefinition, behaviors, new_PolymerBehaviorExtractor_BehaviorDefinition(PolymerPassStaticUtils_extractProperties(behaviorName, PolymerClassDefinition_DefinitionType_ObjectLiteral, this.compiler_, 0), PolymerBehaviorExtractor_getBehaviorFunctionsToCopy(behaviorName), PolymerBehaviorExtractor_getNonPropertyMembersToCopy(behaviorName), NodeUtil_getEnclosingScopeRoot(behaviorName).isRoot(), cast_[*FeatureSet](NodeUtil_getEnclosingScript(behaviorName).getFeatureSet()), behaviorModule))
 				continue
 			}
 			var resolveResult *PolymerBehaviorExtractor_ResolveBehaviorNameResult
@@ -65,7 +65,7 @@ func (this *PolymerBehaviorExtractor) extractBehaviors(behaviorArray Node, modul
 			}
 			var behaviorValue Node = resolveResult.node_
 			if behaviorValue.isArrayLit() {
-				behaviors.addAll(sliceView_(tc_p_PolymerBehaviorExtractor_BehaviorDefinition, this.extractBehaviors(behaviorValue, resolveResult.moduleMetadata_)))
+				behaviors = immAddAll_(tc_p_PolymerBehaviorExtractor_BehaviorDefinition, behaviors, sliceView_(tc_p_PolymerBehaviorExtractor_BehaviorDefinition, this.extractBehaviors(behaviorValue, resolveResult.moduleMetadata_)))
 			} else if behaviorValue.isObjectLit() {
 				PolymerPassStaticUtils_switchDollarSignPropsToBrackets(behaviorValue, this.compiler_)
 				PolymerPassStaticUtils_quoteListenerAndHostAttributeKeys(behaviorValue, this.compiler_)
@@ -73,13 +73,13 @@ func (this *PolymerBehaviorExtractor) extractBehaviors(behaviorArray Node, modul
 					this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(behaviorValue, PolymerPassErrors_POLYMER_INVALID_BEHAVIOR, []string{}))
 				}
 				var behaviorModule Node = NodeUtil_getEnclosingModuleIfPresent(behaviorValue)
-				behaviors.add(obj_(new_PolymerBehaviorExtractor_BehaviorDefinition(PolymerPassStaticUtils_extractProperties(behaviorValue, PolymerClassDefinition_DefinitionType_ObjectLiteral, this.compiler_, 0), PolymerBehaviorExtractor_getBehaviorFunctionsToCopy(behaviorValue), PolymerBehaviorExtractor_getNonPropertyMembersToCopy(behaviorValue), resolveResult.isGlobalDeclaration, cast_[*FeatureSet](NodeUtil_getEnclosingScript(behaviorValue).getFeatureSet()), behaviorModule)))
+				behaviors = immAdd_(tc_p_PolymerBehaviorExtractor_BehaviorDefinition, behaviors, new_PolymerBehaviorExtractor_BehaviorDefinition(PolymerPassStaticUtils_extractProperties(behaviorValue, PolymerClassDefinition_DefinitionType_ObjectLiteral, this.compiler_, 0), PolymerBehaviorExtractor_getBehaviorFunctionsToCopy(behaviorValue), PolymerBehaviorExtractor_getNonPropertyMembersToCopy(behaviorValue), resolveResult.isGlobalDeclaration, cast_[*FeatureSet](NodeUtil_getEnclosingScript(behaviorValue).getFeatureSet()), behaviorModule))
 			} else {
 				this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(behaviorName, PolymerPassErrors_POLYMER_UNQUALIFIED_BEHAVIOR, []string{}))
 			}
 		}
 	}
-	return sliceImm_(tc_p_PolymerBehaviorExtractor_BehaviorDefinition, behaviors.build())
+	return immBuilt_(behaviors)
 }
 
 func (this *PolymerBehaviorExtractor) resolveBehaviorName(name OptionalOf[string], moduleMetadata *ModuleMetadataMap_ModuleMetadata) *PolymerBehaviorExtractor_ResolveBehaviorNameResult {
@@ -295,18 +295,18 @@ func (this *PolymerBehaviorExtractor) resolveModuleNamespaceBinding(b *Binding, 
 
 func PolymerBehaviorExtractor_getBehaviorFunctionsToCopy(behaviorObjLit Node) []*PolymerPass_MemberDefinition {
 	Preconditions_checkState(behaviorObjLit.isObjectLit())
-	var functionsToCopy ImmutableList_BuilderOf[*PolymerPass_MemberDefinition] = ImmutableList_builder()
+	var functionsToCopy []*PolymerPass_MemberDefinition
 	var enclosingModule Node = NodeUtil_getEnclosingModuleIfPresent(behaviorObjLit)
 	{
 		var keyNode Node = behaviorObjLit.getFirstChild()
 		for ; keyNode != 0; keyNode = keyNode.getNext() {
 			var isFunctionDefinition bool = ((keyNode.isStringKey() && keyNode.getFirstChild().isFunction()) || keyNode.isMemberFunctionDef())
 			if isFunctionDefinition && !Collection_contains_s(PolymerBehaviorExtractor_BEHAVIOR_NAMES_NOT_TO_COPY, keyNode.getString()) {
-				functionsToCopy.add(obj_(new_PolymerPass_MemberDefinition(NodeUtil_getBestJSDocInfo(keyNode), keyNode, keyNode.getFirstChild(), enclosingModule)))
+				functionsToCopy = immAdd_(tc_p_PolymerPass_MemberDefinition, functionsToCopy, new_PolymerPass_MemberDefinition(NodeUtil_getBestJSDocInfo(keyNode), keyNode, keyNode.getFirstChild(), enclosingModule))
 			}
 		}
 	}
-	return sliceImm_(tc_p_PolymerPass_MemberDefinition, functionsToCopy.build())
+	return immBuilt_(functionsToCopy)
 }
 
 func PolymerBehaviorExtractor_getQualifiedNameThroughCast(node Node) OptionalOf[string] {
@@ -333,18 +333,18 @@ func PolymerBehaviorExtractor_getQualifiedNameThroughCast(node Node) OptionalOf[
 
 func PolymerBehaviorExtractor_getNonPropertyMembersToCopy(behaviorObjLit Node) []*PolymerPass_MemberDefinition {
 	Preconditions_checkState(behaviorObjLit.isObjectLit())
-	var membersToCopy ImmutableList_BuilderOf[*PolymerPass_MemberDefinition] = ImmutableList_builder()
+	var membersToCopy []*PolymerPass_MemberDefinition
 	var enclosingModule Node = NodeUtil_getEnclosingModuleIfPresent(behaviorObjLit)
 	{
 		var keyNode Node = behaviorObjLit.getFirstChild()
 		for ; keyNode != 0; keyNode = keyNode.getNext() {
 			var isNonFunctionMember bool = (keyNode.isGetterDef() || (keyNode.isStringKey() && !keyNode.getFirstChild().isFunction()))
 			if isNonFunctionMember && !Collection_contains_s(PolymerBehaviorExtractor_BEHAVIOR_NAMES_NOT_TO_COPY, keyNode.getString()) {
-				membersToCopy.add(obj_(new_PolymerPass_MemberDefinition(NodeUtil_getBestJSDocInfo(keyNode), keyNode, keyNode.getFirstChild(), enclosingModule)))
+				membersToCopy = immAdd_(tc_p_PolymerPass_MemberDefinition, membersToCopy, new_PolymerPass_MemberDefinition(NodeUtil_getBestJSDocInfo(keyNode), keyNode, keyNode.getFirstChild(), enclosingModule))
 			}
 		}
 	}
-	return sliceImm_(tc_p_PolymerPass_MemberDefinition, membersToCopy.build())
+	return immBuilt_(membersToCopy)
 }
 
 var PolymerBehaviorExtractor_BEHAVIOR_NAMES_NOT_TO_COPY *ImmutableSet

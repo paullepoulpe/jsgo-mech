@@ -10,7 +10,7 @@ type SourceMap struct {
 }
 
 func (this *SourceMap) finit_SourceMap() {
-	this.prefixMappings = sliceImm_(tc_SourceMap_LocationMapping, ImmutableList_of())
+	this.prefixMappings = []SourceMap_LocationMapping{}
 	this.sourceLocationFixupCache = map[string]string{}
 }
 

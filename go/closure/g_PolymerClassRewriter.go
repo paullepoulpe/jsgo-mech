@@ -331,7 +331,7 @@ func (this *PolymerClassRewriter) addTypesToFunctions(objLit Node, thisType stri
 
 func (this *PolymerClassRewriter) parseReadOnlyProperties(cls *PolymerClassDefinition, block Node) []*PolymerPass_MemberDefinition {
 	var qualifiedPath string = (sstr_(cls.target.getQualifiedName()) + ".prototype.")
-	var readOnlyProps ImmutableList_BuilderOf[*PolymerPass_MemberDefinition] = ImmutableList_builder()
+	var readOnlyProps []*PolymerPass_MemberDefinition
 	it_1 := cls.props.each()
 	for it_1.next() {
 		var prop *PolymerPass_MemberDefinition = it_1.v
@@ -341,7 +341,7 @@ func (this *PolymerClassRewriter) parseReadOnlyProperties(cls *PolymerClassDefin
 				var setter Node = this.makeReadOnlySetter(prop, qualifiedPath)
 				setter.srcrefTreeIfMissing(prop.name_)
 				block.addChildToBack(setter)
-				readOnlyProps.add(obj_(prop))
+				readOnlyProps = immAdd_(tc_p_PolymerPass_MemberDefinition, readOnlyProps, prop)
 			}
 		}
 	}
@@ -355,12 +355,12 @@ func (this *PolymerClassRewriter) parseReadOnlyProperties(cls *PolymerClassDefin
 					var setter Node = this.makeReadOnlySetter(prop, qualifiedPath)
 					setter.srcrefTreeIfMissing(prop.name_)
 					block.addChildToBack(setter)
-					readOnlyProps.add(obj_(prop))
+					readOnlyProps = immAdd_(tc_p_PolymerPass_MemberDefinition, readOnlyProps, prop)
 				}
 			}
 		}
 	}
-	return sliceImm_(tc_p_PolymerPass_MemberDefinition, readOnlyProps.build())
+	return immBuilt_(readOnlyProps)
 }
 
 func (this *PolymerClassRewriter) getConstructorDoc(cls *PolymerClassDefinition) *JSDocInfo_Builder {

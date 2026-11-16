@@ -986,13 +986,13 @@ func (this *AbstractCommandLineRunner) doRun() *Outcome_base {
 					}
 				}
 			}
-			var inputs ImmutableList_BuilderOf[*CompilerInput] = ImmutableList_builder()
+			var inputs []*CompilerInput
 			it_6 := foreach_(any(sources))
 			for it_6.next() {
 				var source *SourceFile_jscomp = cast_[*SourceFile_jscomp](it_6.v)
-				inputs.add(obj_(new_CompilerInput_SourceFile_boolean(source, false)))
+				inputs = immAdd_(tc_p_CompilerInput, inputs, new_CompilerInput_SourceFile_boolean(source, false))
 			}
-			var chunksOutcome *Outcome_base = AbstractCommandLineRunner_createJsChunks(jsChunkSpecs, sliceImm_(tc_p_CompilerInput, inputs.build()))
+			var chunksOutcome *Outcome_base = AbstractCommandLineRunner_createJsChunks(jsChunkSpecs, immBuilt_(inputs))
 			if chunksOutcome.isErr() {
 				return Outcome_base_err(chunksOutcome.error())
 			}
@@ -2284,7 +2284,7 @@ func (this *AbstractCommandLineRunner_CommandLineConfig) finit_AbstractCommandLi
 	this.outputChunkDependencies = Optional_empty[string]()
 	this.outputBundles = tlistImm_(tc_string, ImmutableList_of())
 	this.skipNormalOutputs = false
-	this.manifestMaps = sliceImm_(tc_string, ImmutableList_of())
+	this.manifestMaps = []string{}
 	this.processCommonJSModules = false
 	this.moduleRoots = icast_List(obj_(ImmutableList_of_Object(strobj_(ModuleLoader_DEFAULT_FILENAME_PREFIX))))
 	this.warningsAllowFile = ""
@@ -2561,7 +2561,7 @@ func (this *AbstractCommandLineRunner_CommandLineConfig) setSourceMapFormat(form
 }
 
 func (this *AbstractCommandLineRunner_CommandLineConfig) setSourceMapLocationMappings(locationMappings ListOf[SourceMap_LocationMapping]) *AbstractCommandLineRunner_CommandLineConfig {
-	this.sourceMapLocationMappings = sliceImm_(tc_SourceMap_LocationMapping, ImmutableList_copyOf(Collection(locationMappings)))
+	this.sourceMapLocationMappings = immCopyOf_(tc_SourceMap_LocationMapping, Collection(locationMappings))
 	return this
 }
 
@@ -3062,7 +3062,7 @@ func AbstractCommandLineRunner_JsChunkSpec_create(specString string, isFirstChun
 			return Outcome_base_err(new_FlagUsageException(("Invalid JS file count '" + sstr_(parts[1]) + "' for chunk: " + sstr_(name))).up_Throwable())
 		}
 	}
-	return Outcome_base_ok_Object(obj_(new_AbstractCommandLineRunner_JsChunkSpec(name, numInputs, sliceImm_(tc_string, ImmutableList_copyOf_ObjectArr(arrmap_(deps, func(v_ string) any { return strobj_(v_) }))))))
+	return Outcome_base_ok_Object(obj_(new_AbstractCommandLineRunner_JsChunkSpec(name, numInputs, immCopyArr_(tc_string, deps))))
 }
 
 func (this *AbstractCommandLineRunner_JsChunkSpec) getName() string {

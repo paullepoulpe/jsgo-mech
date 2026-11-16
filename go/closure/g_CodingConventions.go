@@ -447,7 +447,7 @@ func (this *CodingConventions_DefaultCodingConvention) getExportSymbolFunction()
 }
 
 func (this *CodingConventions_DefaultCodingConvention) identifyTypeDeclarationCall(n Node) []string {
-	return sliceImm_(tc_string, ImmutableList_of())
+	return []string{}
 }
 
 func (this *CodingConventions_DefaultCodingConvention) applySubclassRelationship(parent *NominalTypeBuilder, child *NominalTypeBuilder, type_ CodingConvention_SubclassType) {
