@@ -16,51 +16,28 @@ func new_PrebuildDependencyInfo(numParalleThreads int32) *PrebuildDependencyInfo
 	return this
 }
 
+// prebuild builds the dependency information of the inputs one after the other on the calling goroutine (post-flip,
+// manual edit). Java does it on a pool of numParallelThreads threads and waits for all of
+// them; the runtime's executor ran each task at once on the calling goroutine already, so the
+// pool, its threads and the futures only wrapped direct calls. As before, an input that throws
+// does not stop the others, and the first one's exception is thrown after all of them, as
+// Futures.allAsList(...).get() reports it: an ExecutionException of it, in a RuntimeException.
 func (this *PrebuildDependencyInfo) prebuild(allInputs IterableOf[*CompilerInput]) {
-	var threadFactory ThreadFactory = icast_ThreadFactory(obj_(new_PrebuildDependencyInfo_1(this)))
-	var poolExecutor *ThreadPoolExecutor = new_ThreadPoolExecutor_int_int_long_TimeUnit_BlockingQueue_ThreadFactory(this.numParallelThreads, this.numParallelThreads, int64(int32(2147483647)), TimeUnit_SECONDS, icast_BlockingQueue(obj_(new_LinkedBlockingQueue())), threadFactory)
-	var executorService ListeningExecutorService = MoreExecutors_listeningDecorator(icast_ExecutorService(poolExecutor.self()))
-	var futureList ListOf[ListenableFutureOf[any]] = icast_List(new_ArrayList_int(Iterables_size(allInputs)).self())
+	var failed *Throwable
 	it_1 := foreach_(any(allInputs))
 	for it_1.next() {
 		var input *CompilerInput = cast_[*CompilerInput](it_1.v)
-		futureList.add(any(executorService.submit(&Callable_fn{func() any { return any(input.getDependencyInfo()) }})))
-	}
-	poolExecutor.shutdown()
-	_ = func() (code_ int) {
-		defer func() {
-			if r_ := recover(); r_ != nil {
-				ex_ := catch_(r_)
-				if is_InterruptedException(ex_) || is_ExecutionException(ex_) {
-					var e *Exception = to_Exception(ex_)
-					panic(new_RuntimeException_Throwable(e.up_Throwable()).self())
-					return
+		func() {
+			defer func() {
+				if r_ := recover(); r_ != nil && failed == nil {
+					failed = to_Throwable(caught_(r_))
 				}
-				panic(r_)
-			}
+			}()
+			input.getDependencyInfo()
 		}()
-		Futures_allAsList(Iterable(futureList)).get()
-		return 0
-	}()
-}
-
-type PrebuildDependencyInfo_1 struct {
-	outer_ *PrebuildDependencyInfo
-}
-
-func (this *PrebuildDependencyInfo_1) init_PrebuildDependencyInfo_1() {
-
-}
-
-func new_PrebuildDependencyInfo_1(outer_ *PrebuildDependencyInfo) *PrebuildDependencyInfo_1 {
-	this := &PrebuildDependencyInfo_1{}
-	this.outer_ = outer_
-	this.init_PrebuildDependencyInfo_1()
-	return this
-}
-
-func (this *PrebuildDependencyInfo_1) newThread(r Runnable) *Thread {
-	var t *Thread = new_Thread_ThreadGroup_Runnable_String_long(nil, r, "jscompiler-PrebuildDependencyInfo", CompilerExecutor_COMPILER_STACK_SIZE)
-	t.setDaemon(true)
-	return t
+	}
+	if failed != nil {
+		var e *Exception = to_Exception(new_ExecutionException_Throwable(failed).self())
+		panic(new_RuntimeException_Throwable(e.up_Throwable()).self())
+	}
 }
