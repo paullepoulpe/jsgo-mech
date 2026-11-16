@@ -152,7 +152,8 @@ func (this *AliasStrings) replaceStringWithAliasName(n Node, name string, info *
 }
 
 func (this *AliasStrings) outputStringUsage() {
-	var sb *StringBuilder = new_StringBuilder_String("Strings used more than once:\n")
+	var sb strBuilder_
+	sb.append("Strings used more than once:\n")
 	it_1 := foreach_(any(this.stringInfoMap.entrySet()))
 	for it_1.next() {
 		var stringInfoEntry Map_Entry = icast_Map_Entry(it_1.v)
@@ -165,7 +166,7 @@ func (this *AliasStrings) outputStringUsage() {
 			sb.append_char('\n')
 		}
 	}
-	AliasStrings_logger.fine(Object_toString(obj_(sb)))
+	AliasStrings_logger.fine(sb.toString())
 }
 
 var AliasStrings_logger *Logger
@@ -224,7 +225,7 @@ func (this *AliasStrings_StringInfo) encodeStringAsIdentifier(prefix string, s s
 	var maxLimit int32 = 20
 	var length int32 = String_length(s)
 	var limit int32 = Math_min(length, maxLimit)
-	var sb *StringBuilder = new_StringBuilder()
+	var sb strBuilder_
 	sb.append(prefix)
 	var protectHex bool = false
 	for i := int32(0); i < limit; i++ {
@@ -244,12 +245,12 @@ func (this *AliasStrings_StringInfo) encodeStringAsIdentifier(prefix string, s s
 		}
 	}
 	if length == limit {
-		return Object_toString(obj_(sb))
+		return sb.toString()
 	}
 	var hash int32 = (String_hashCode(s) & this.outer_.unitTestHashReductionMask)
 	sb.append_char('_')
 	sb.append(Integer_toHexString(hash))
-	var encoded string = Object_toString(obj_(sb))
+	var encoded string = sb.toString()
 	if !setAdd_(this.outer_.usedHashedAliases, encoded) {
 		encoded += sstr_(("_" + istr_(int64(this.id))))
 	}

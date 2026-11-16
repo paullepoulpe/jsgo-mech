@@ -271,7 +271,7 @@ func (this *Source_Builder) codeSupplier() *Source_Lazy {
 
 func (this *Source_Builder) autoBuild() *Source {
 	if (((((((int32(this.set0) != 1) || this.path_.isEmpty()) || this.sourceMap_.isEmpty()) || this.sourceUrl_.isEmpty()) || this.sourceMappingUrl_.isEmpty()) || (this.runtimesField == nil)) || (this.loadFlags_ == nil)) || (this.codeSupplierField == nil) {
-		var missing *StringBuilder = new_StringBuilder()
+		var missing strBuilder_
 		if this.path_.isEmpty() {
 			missing.append(" path")
 		}
@@ -296,7 +296,7 @@ func (this *Source_Builder) autoBuild() *Source {
 		if this.codeSupplierField == nil {
 			missing.append(" codeSupplier")
 		}
-		panic(new_IllegalStateException_String(("Missing required properties:" + objstr_(obj_(missing)))).self())
+		panic(new_IllegalStateException_String(("Missing required properties:" + missing.toString())).self())
 	}
 	return new_Source(this.path_.get(), this.sourceMap_.get(), this.sourceUrl_.get(), this.sourceMappingUrl_.get(), this.runtimesField, this.loadFlags_, this.estimatedSize_, this.codeSupplierField, this.originalCodeSupplierField)
 }

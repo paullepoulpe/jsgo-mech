@@ -1612,9 +1612,10 @@ func (this *JsDocInfoParser) parseNameExpression(token JsDocToken) Node {
 	var startLineno int32 = this.stream.getLineno()
 	var startCharno int32 = this.stream.getCharno()
 	var startOffset int32 = (this.stream.getCursor() - String_length(this.stream.getString()))
-	var typeName *StringBuilder = new_StringBuilder_String(this.stream.getString())
+	var typeName strBuilder_
+	typeName.append(this.stream.getString())
 	var endOffset int32 = this.stream.getCursor()
-	for this.match(JsDocToken_EOL) && String_endsWith(Object_toString(obj_(typeName)), ".") {
+	for this.match(JsDocToken_EOL) && String_endsWith(typeName.toString(), ".") {
 		this.skipEOLs()
 		if this.match(JsDocToken_STRING) {
 			this.next()
@@ -1622,7 +1623,7 @@ func (this *JsDocInfoParser) parseNameExpression(token JsDocToken) Node {
 			typeName.append(this.stream.getString())
 		}
 	}
-	var str Node = this.newStringNode(Object_toString(obj_(typeName)))
+	var str Node = this.newStringNode(typeName.toString())
 	str.setLinenoCharno(startLineno, startCharno)
 	str.setLength((endOffset - startOffset))
 	return str

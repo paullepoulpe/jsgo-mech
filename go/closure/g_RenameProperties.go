@@ -97,7 +97,7 @@ func (this *RenameProperties) process_2(externs Node, root Node) {
 		var nodeEntry Map_Entry = icast_Map_Entry(it_3.v)
 		var parent Node = Node_of_(nodeEntry.getValue())
 		var firstArg Node = Node_of_(nodeEntry.getKey()).getSecondChild()
-		var sb *StringBuilder = new_StringBuilder()
+		var sb strBuilder_
 		it_5 := foreach_(any(RenameProperties_DOT_SPLITTER.split_s(firstArg.getString())))
 		for it_5.next() {
 			var oldName string = str_(it_5.v)
@@ -118,7 +118,7 @@ func (this *RenameProperties) process_2(externs Node, root Node) {
 			}
 			sb.append(replacement)
 		}
-		Node_of_(nodeEntry.getKey()).replaceWith(IR_string(Object_toString(obj_(sb))))
+		Node_of_(nodeEntry.getKey()).replaceWith(IR_string(sb.toString()))
 		this.compiler_.reportChangeToEnclosingScope(parent)
 	}
 	it_7 := eachOf_(&this.toRemove)

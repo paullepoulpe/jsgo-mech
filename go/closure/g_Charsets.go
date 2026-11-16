@@ -59,7 +59,8 @@ func Charsets_decodeOther(bytes []int8, canonical string, strict bool) OptionalO
 	}
 	var ascii bool = (canonical == Charsets_US_ASCII)
 	var windows bool = (canonical == Charsets_WINDOWS_1252)
-	var text *StringBuilder = new_StringBuilder_int(int32(len(bytes)))
+	var text strBuilder_
+	text.grow(int32(len(bytes)))
 	for _, signed := range bytes {
 		var b int32 = (int32(signed) & 255)
 		var c uint16 = uint16(b)
@@ -73,7 +74,7 @@ func Charsets_decodeOther(bytes []int8, canonical string, strict bool) OptionalO
 		}
 		text.append_char(c)
 	}
-	return Optional_of[string](Object_toString(obj_(text)))
+	return Optional_of[string](text.toString())
 }
 
 func Charsets_decodeUtf16(bytes []int8, canonical string, strict bool) OptionalOf[string] {

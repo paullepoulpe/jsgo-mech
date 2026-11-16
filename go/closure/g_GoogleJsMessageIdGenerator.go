@@ -18,7 +18,7 @@ func new_GoogleJsMessageIdGenerator(projectId OptionalOf[string]) *GoogleJsMessa
 
 func (this *GoogleJsMessageIdGenerator) generateId(meaning OptionalOf[string], messageParts *TList[JsMessage_Part]) string {
 	Preconditions_checkState(meaning.isPresent())
-	var sb *StringBuilder = new_StringBuilder()
+	var sb strBuilder_
 	it_1 := messageParts.each()
 	for it_1.next() {
 		var part JsMessage_Part = it_1.v
@@ -28,7 +28,7 @@ func (this *GoogleJsMessageIdGenerator) generateId(meaning OptionalOf[string], m
 			sb.append(part.getString())
 		}
 	}
-	var tcValue string = Object_toString(obj_(sb))
+	var tcValue string = sb.toString()
 	var projectScopedMeaning string = (sstr_(func() string {
 		if String_isEmpty(this.projectId.orElse("")) {
 			return ""

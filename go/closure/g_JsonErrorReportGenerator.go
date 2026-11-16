@@ -59,7 +59,8 @@ func (this *JsonErrorReportGenerator) generateReport(manager *SortingErrorManage
 			}
 			var sourceExcerpt OptionalOf[string] = SourceExcerptProvider_SourceExcerpt_LINE.get(this.sourceExcerptProvider, sourceName, lineNumber, icast_SourceExcerptProvider_ExcerptFormatter(obj_(JsonErrorReportGenerator_excerptFormatter)))
 			if sourceExcerpt.isPresent() {
-				var b *StringBuilder = new_StringBuilder_String(sourceExcerpt.get())
+				var b strBuilder_
+				b.append(sourceExcerpt.get())
 				b.append("\n")
 				if (0 <= charno) && (charno <= String_length(sourceExcerpt.get())) {
 					for i := int32(0); i < charno; i++ {
@@ -79,7 +80,7 @@ func (this *JsonErrorReportGenerator) generateReport(manager *SortingErrorManage
 						}
 					}
 				}
-				jsonWriter.name("context").stringValue(Optional_of[string](Object_toString(obj_(b))))
+				jsonWriter.name("context").stringValue(Optional_of[string](b.toString()))
 			}
 			var mapping *Mapping_OriginalMapping = this.sourceExcerptProvider.getSourceMapping_Optional_int_int(sourceName, message.error_.getLineNumber(), message.error_.charno())
 			if mapping != nil {
@@ -91,7 +92,7 @@ func (this *JsonErrorReportGenerator) generateReport(manager *SortingErrorManage
 			}
 			jsonWriter.endObject()
 		}
-		var summaryBuilder *StringBuilder = new_StringBuilder()
+		var summaryBuilder strBuilder_
 		if manager.getTypedPercent() > 0.0 {
 			summaryBuilder.append(String_format("%d error(s), %d warning(s), %.1f%% typed", []any{any(int32(manager.getErrorCount())), any(int32(manager.getWarningCount())), any(float64(manager.getTypedPercent()))}))
 		} else {
@@ -99,7 +100,7 @@ func (this *JsonErrorReportGenerator) generateReport(manager *SortingErrorManage
 		}
 		jsonWriter.beginObject()
 		jsonWriter.name("level").stringValue(Optional_of[string]("info"))
-		jsonWriter.name("description").stringValue(Optional_of[string](Object_toString(obj_(summaryBuilder))))
+		jsonWriter.name("description").stringValue(Optional_of[string](summaryBuilder.toString()))
 		jsonWriter.endObject()
 		jsonWriter.endArray()
 	}

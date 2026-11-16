@@ -56,7 +56,7 @@ func DotFormatter_toDot_Node_ControlFlowGraph(n Node, inCFG *ControlFlowGraph) s
 }
 
 func DotFormatter_toDot_GraphvizGraph(graph GraphvizGraph) string {
-	var builder *StringBuilder = new_StringBuilder()
+	var builder strBuilder_
 	builder.append(func() string {
 		if graph.isDirected() {
 			return "digraph"
@@ -104,7 +104,7 @@ func DotFormatter_toDot_GraphvizGraph(graph GraphvizGraph) string {
 		builder.append(";\n")
 	}
 	builder.append("}\n")
-	return Object_toString(obj_(builder))
+	return builder.toString()
 }
 
 // lambda_DotFormatter_toDot_GraphvizGraph_1_ is a lambda of DotFormatter_toDot_GraphvizGraph that captures nothing (post-flip step lambdas).

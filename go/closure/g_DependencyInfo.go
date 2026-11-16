@@ -268,7 +268,7 @@ func (this *DependencyInfo_Require_Builder) setSymbol(value string) *DependencyI
 
 func (this *DependencyInfo_Require_Builder) build() *DependencyInfo_Require {
 	if (this.symbol_.isEmpty() || this.rawText.isEmpty()) || (this.type__ == 0) {
-		var missing *StringBuilder = new_StringBuilder()
+		var missing strBuilder_
 		if this.symbol_.isEmpty() {
 			missing.append(" symbol")
 		}
@@ -278,7 +278,7 @@ func (this *DependencyInfo_Require_Builder) build() *DependencyInfo_Require {
 		if this.type__ == 0 {
 			missing.append(" type")
 		}
-		panic(new_IllegalStateException_String(("Missing required properties:" + objstr_(obj_(missing)))).self())
+		panic(new_IllegalStateException_String(("Missing required properties:" + missing.toString())).self())
 	}
 	return new_DependencyInfo_Require(this.symbol_.get(), this.rawText.get(), this.type__)
 }

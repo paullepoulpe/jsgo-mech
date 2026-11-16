@@ -168,7 +168,7 @@ func (this *Module_Builder) closureNamespace(value OptionalOf[string]) *Module_B
 
 func (this *Module_Builder) build() *Module {
 	if (((this.metadataField == nil) || (this.namespaceField == nil)) || (this.boundNamesField == nil)) || (this.localNameToLocalExportField == nil) {
-		var missing *StringBuilder = new_StringBuilder()
+		var missing strBuilder_
 		if this.metadataField == nil {
 			missing.append(" metadata")
 		}
@@ -181,7 +181,7 @@ func (this *Module_Builder) build() *Module {
 		if this.localNameToLocalExportField == nil {
 			missing.append(" localNameToLocalExport")
 		}
-		panic(new_IllegalStateException_String(("Missing required properties:" + objstr_(obj_(missing)))).self())
+		panic(new_IllegalStateException_String(("Missing required properties:" + missing.toString())).self())
 	}
 	return new_Module(this.metadataField, this.pathField, this.namespaceField, this.boundNamesField, this.localNameToLocalExportField, this.closureNamespaceField)
 }

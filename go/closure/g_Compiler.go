@@ -1084,7 +1084,7 @@ func (this *Compiler) getCurrentJsSource() string {
 	var fileNameRegexList []string = this.options_.getFilesToPrintAfterEachPassRegexList()
 	var chunkNameRegexList []string = this.options_.getChunksToPrintAfterEachPassRegexList()
 	var qnameSet *TSet[string] = tsetFrom_(tc_string, Collection(sliceView_(tc_string, this.options_.getQnameUsesToPrintAfterEachPassList())), false)
-	var builder *StringBuilder = new_StringBuilder()
+	var builder strBuilder_
 	if (len(fileNameRegexList) == 0 && len(chunkNameRegexList) == 0) && qnameSet.isEmpty() {
 		return this.toSource()
 	}
@@ -1183,7 +1183,7 @@ func (this *Compiler) getCurrentJsSource() string {
 			builder.append(String_format("// %s\n", []any{strobj_(statement.getLocation())})).append(this.toSource_1(statement)).append("\n")
 		}
 	}
-	return Object_toString(obj_(builder))
+	return builder.toString()
 }
 
 // lambda_Compiler_getCurrentJsSource_1_ is a lambda of Compiler_getCurrentJsSource that captures nothing (post-flip step lambdas).
@@ -2054,7 +2054,7 @@ func (this *Compiler) toSource_4(cb *Compiler_CodeBuilder, licenseTracker CodePr
 
 func (this *Compiler) toSource_1_impl(n Node) string {
 	this.initCompilerOptionsIfTesting()
-	var sb *StringBuilder = new_StringBuilder()
+	var sb strBuilder_
 	var lt *Compiler_ScriptNodeLicensesOnlyTracker = new_Compiler_ScriptNodeLicensesOnlyTracker(this.up_AbstractCompiler())
 	var code string = this.toSourceAndMappings(n, false, icast_CodePrinter_LicenseTracker(obj_(lt))).source
 	it_1 := foreach_(obj_(lt.emitLicenses()))
@@ -2063,7 +2063,7 @@ func (this *Compiler) toSource_1_impl(n Node) string {
 		sb.append("/*\n").append(license).append("*/\n")
 	}
 	sb.append(code)
-	return Object_toString(obj_(sb))
+	return sb.toString()
 }
 
 func (this *Compiler) toSourceAndMappings(n Node, firstOutput bool, licenseTracker CodePrinter_LicenseTracker) *CodePrinter_SourceAndMappings {

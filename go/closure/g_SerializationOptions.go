@@ -96,7 +96,7 @@ func (this *SerializationOptions_Builder) setRuntimeLibraries(runtimeLibraries I
 
 func (this *SerializationOptions_Builder) build() *SerializationOptions {
 	if (int32(this.set0) != 3) || (this.runtimeLibraries_ == nil) {
-		var missing *StringBuilder = new_StringBuilder()
+		var missing strBuilder_
 		if (int32(this.set0) & 1) == 0 {
 			missing.append(" includeDebugInfo")
 		}
@@ -106,7 +106,7 @@ func (this *SerializationOptions_Builder) build() *SerializationOptions {
 		if this.runtimeLibraries_ == nil {
 			missing.append(" runtimeLibraries")
 		}
-		panic(new_IllegalStateException_String(("Missing required properties:" + objstr_(obj_(missing)))).self())
+		panic(new_IllegalStateException_String(("Missing required properties:" + missing.toString())).self())
 	}
 	return new_SerializationOptions(this.includeDebugInfo_, this.runValidation_, this.runtimeLibraries_)
 }

@@ -225,7 +225,7 @@ func (this *SimpleDependencyInfo_Builder) setGoogModule(isModule bool) *SimpleDe
 
 func (this *SimpleDependencyInfo_Builder) build() *SimpleDependencyInfo {
 	if ((((((int32(this.set0) != 3) || this.name_.isEmpty()) || this.pathRelativeToClosureBase.isEmpty()) || (this.provides == nil)) || (this.requires == nil)) || (this.typeRequires == nil)) || (this.loadFlags_ == nil) {
-		var missing *StringBuilder = new_StringBuilder()
+		var missing strBuilder_
 		if this.name_.isEmpty() {
 			missing.append(" name")
 		}
@@ -250,7 +250,7 @@ func (this *SimpleDependencyInfo_Builder) build() *SimpleDependencyInfo {
 		if (int32(this.set0) & 2) == 0 {
 			missing.append(" hasNoCompileAnnotation")
 		}
-		panic(new_IllegalStateException_String(("Missing required properties:" + objstr_(obj_(missing)))).self())
+		panic(new_IllegalStateException_String(("Missing required properties:" + missing.toString())).self())
 	}
 	return new_SimpleDependencyInfo(this.name_.get(), this.pathRelativeToClosureBase.get(), this.provides, this.requires, this.typeRequires, this.loadFlags_, this.hasExternsAnnotation, this.hasNoCompileAnnotation)
 }
