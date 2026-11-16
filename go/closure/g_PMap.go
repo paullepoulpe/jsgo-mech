@@ -9,8 +9,8 @@ type PMap interface {
 	get(any) any
 	plus(any, any) PMap
 	minus(any) PMap
-	reconcile(PMap, PMap_Reconciler) PMap
-	equivalent(PMap, BiPredicate) bool
+	reconcile(PMap, func(any, any, any) any) PMap
+	equivalent(PMap, func(any, any) bool) bool
 }
 
 type PMap_Reconciler interface {

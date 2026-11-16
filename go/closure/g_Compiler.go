@@ -115,7 +115,7 @@ func (this *Compiler) finit_Compiler() {
 	this.phaseOptimizer = nil
 	this.forwardDeclaredTypes = icast_Set(obj_(new_LinkedHashSet()))
 	this.typeCheckingHasRun = false
-	this.oldErrorReporter = RhinoErrorReporter_forOldRhino(icast_ErrorHandler(obj_(this)))
+	this.oldErrorReporter = RhinoErrorReporter_forOldRhino(this.report_2)
 	this.compilerExecutor = this.createCompilerExecutor()
 	this.externProperties = nil
 	this.accessorSummary = nil
@@ -277,17 +277,17 @@ func (this *Compiler) initOptions(options *CompilerOptions) {
 
 func (this *Compiler) printConfig() {
 	if this.isDebugLoggingEnabled() {
-		this.logToFile("externs.log", &Supplier_fn{func() any { return strobj_(Object_toString(this.externs.self())) }})
-		this.logToFile("inputs.json", func() *Supplier_fn {
+		this.logToFile("externs.log", func() any { return strobj_(Object_toString(this.externs.self())) })
+		this.logToFile("inputs.json", func() func() any {
 			recv_1 := Compiler_toPrettyJson(this.chunkGraph.toJson())
-			return &Supplier_fn{func() any { return strobj_(String_toString(recv_1)) }}
+			return func() any { return strobj_(String_toString(recv_1)) }
 		}())
-		this.logToFile("options.log", &Supplier_fn{func() any {
+		this.logToFile("options.log", func() any {
 			return strobj_(this.options_.toString())
-		}})
-		this.logToFile("warningsGuard.log", &Supplier_fn{func() any {
+		})
+		this.logToFile("warningsGuard.log", func() any {
 			return strobj_(Object_toString(this.warningsGuard.self()))
-		}})
+		})
 	} else {
 		var err *Output = Output_stderr()
 		err.println("==== Externs ====")
@@ -312,14 +312,14 @@ func Compiler_toPrettyJson(element *SimpleJsonValue) string {
 
 func (this *Compiler) maybeLogPrunedInputs() {
 	if this.isDebugLoggingEnabled() {
-		this.logToFile("inputs_pruned.json", func() *Supplier_fn {
+		this.logToFile("inputs_pruned.json", func() func() any {
 			recv_1 := Compiler_toPrettyJson(this.chunkGraph.toJson())
-			return &Supplier_fn{func() any { return strobj_(String_toString(recv_1)) }}
+			return func() any { return strobj_(String_toString(recv_1)) }
 		}())
 	}
 }
 
-func (this *Compiler) logToFile(logFileName string, logStringSupplier SupplierOf[string]) {
+func (this *Compiler) logToFile(logFileName string, logStringSupplier func() any) {
 	_ = func() (code_ int) {
 		var log *LogFile = this.createOrReopenLog(Object_getClass(obj_(this)), logFileName, []string{})
 		defer closeResource_(log.self())
@@ -499,7 +499,7 @@ func (this *Compiler) initChunks(externs ListOf[*SourceFile_jscomp], chunks List
 		chunkGraphLog.logString(DotFormatter_toDot_GraphvizGraph(icast_GraphvizGraph(this.chunkGraph.toGraphvizGraph().self())))
 		return 0
 	}()
-	this.runtimeJsLibManager = RuntimeJsLibManager_create(options.getRuntimeLibraryMode(), &RuntimeJsLibManager_ResourceProvider_fn{func(p0 string, p1 string) Node { return this.loadResourceContents(p0, p1) }}, this.changeTracker, func() Supplier {
+	this.runtimeJsLibManager = RuntimeJsLibManager_create(options.getRuntimeLibraryMode(), func(p0 string, p1 string) Node { return this.loadResourceContents(p0, p1) }, this.changeTracker, func() Supplier {
 		if options.getRuntimeLibraryMode() == RuntimeJsLibManager_RuntimeLibraryMode_EXTERN_FIELD_NAMES {
 			return &Supplier_fn{func() any { return this.getSynthesizedExternsRoot().box_() }}
 		}
@@ -517,7 +517,7 @@ func (this *Compiler) initBasedOnOptions() {
 		this.sourceMap_ = this.options_.getSourceMapFormat().getInstance()
 		this.sourceMap_.setPrefixMappings(sliceImm_(tc_SourceMap_LocationMapping, this.options_.getSourceMapLocationMappings()))
 		if this.options_.getApplyInputSourceMaps() {
-			this.sourceMap_.setSourceFileMapping(icast_SourceFileMapping(obj_(this)))
+			this.sourceMap_.setSourceFileMapping(this.getSourceMapping_Optional_int_int)
 			if this.options_.getSourceMapIncludeSourcesContent() {
 				it_1 := foreach_(obj_(cast_[*ImmutableCollection](ImmutableSortedMap_copyOf(icast_Map(obj_(this.inputSourceMaps))).values())))
 				for it_1.next() {
@@ -1162,7 +1162,7 @@ func (this *Compiler) getCurrentJsSource() string {
 		it_16 := statements.each()
 		for it_16.next() {
 			var statement Node = it_16.v
-			if !NodeUtil_has(statement, &Predicate_base_fn{func(n_ any) bool {
+			if !NodeUtil_has(statement, func(n_ any) bool {
 				var n Node = Node_of_(n_)
 				_ = n
 				Preconditions_checkNotNull(n.box_())
@@ -1181,7 +1181,7 @@ func (this *Compiler) getCurrentJsSource() string {
 					return false
 				}
 				panic("unreachable")
-			}}, lambda_Compiler_getCurrentJsSource_1_) {
+			}, lambda_Compiler_getCurrentJsSource_1_) {
 				continue
 			}
 			builder.append(String_format("// %s\n", []any{strobj_(statement.getLocation())})).append(this.toSource_1(statement)).append("\n")
@@ -1453,11 +1453,11 @@ func (this *Compiler) getTypeMismatches_impl() IterableOf[*TypeMismatch] {
 func (this *Compiler) getTranspilationNamespace_impl() StaticScope {
 	if this.transpilationNamespace == nil {
 		var gn *GlobalNamespace = new_GlobalNamespace_AbstractCompiler_Node_Node(this.up_AbstractCompiler(), this.getExternsRoot(), this.getJsRoot())
-		gn.setShouldTraverseScriptPredicate(&Predicate_fn{func(script_ any) bool {
+		gn.setShouldTraverseScriptPredicate(func(script_ any) bool {
 			var script Node = Node_of_(script_)
 			_ = script
 			return (script.isFromExterns() || script.isFirstChildOf(this.getJsRoot()))
-		}})
+		})
 		gn.getNameForest()
 		this.transpilationNamespace = icast_StaticScope(obj_(gn))
 	}
@@ -1675,7 +1675,7 @@ func (this *Compiler) findModulesFromEntryPoints(supportEs6Modules bool, support
 	it_1 := foreach_(any(this.chunkGraph.getAllInputs()))
 	for it_1.next() {
 		var input *CompilerInput = cast_[*CompilerInput](it_1.v)
-		var provides IterableOf[string] = Iterables_filter(icast_Iterable(obj_(input.getProvides())), lambda_Compiler_findModulesFromEntryPoints_1_)
+		var provides IterableOf[string] = Iterables_filter_f(icast_Iterable(obj_(input.getProvides())), lambda_Compiler_findModulesFromEntryPoints_1_)
 		if !this.options_.getDependencyOptions().shouldDropMoochers() && Iterables_isEmpty(provides) {
 			entryPoints = append(entryPoints, input)
 		}
@@ -1709,11 +1709,11 @@ func (this *Compiler) findModulesFromEntryPoints(supportEs6Modules bool, support
 }
 
 // lambda_Compiler_findModulesFromEntryPoints_1_ is a lambda of Compiler_findModulesFromEntryPoints that captures nothing (post-flip step lambdas).
-var lambda_Compiler_findModulesFromEntryPoints_1_ = &Predicate_base_fn{func(p_ any) bool {
+func lambda_Compiler_findModulesFromEntryPoints_1_(p_ any) bool {
 	var p string = str_(p_)
 	_ = p
 	return !String_startsWith(p, "module$")
-}}
+}
 
 func (this *Compiler) findModulesFromInput(input *CompilerInput, wasImportedByModule bool, inputs map[*CompilerInput]struct{}, inputsByIdentifier map[string]*CompilerInput, inputsByProvide map[string]*CompilerInput, supportEs6Modules bool, supportCommonJSModules bool) {
 	if !setRemove_(inputs, input) {
@@ -2232,9 +2232,9 @@ func (this *Compiler) reportFunctionDeleted_impl(n Node) {
 	this.changeTracker.reportFunctionDeleted(n)
 }
 
-func (this *Compiler) reportDisambiguatePropertiesSummary_impl(summarySupplier SupplierOf[string]) {
+func (this *Compiler) reportDisambiguatePropertiesSummary_impl(summarySupplier func() any) {
 	if this.tracker != nil {
-		this.tracker.setDisambiguatePropertiesSummary(str_(summarySupplier.get()))
+		this.tracker.setDisambiguatePropertiesSummary(str_(summarySupplier()))
 	}
 }
 
@@ -4335,7 +4335,7 @@ func (this *Compiler) reportFunctionDeleted(p0 Node) {
 }
 
 // reportDisambiguatePropertiesSummary: an object that is exactly a Compiler calls its reportDisambiguatePropertiesSummary_impl directly (post-flip); others dispatch.
-func (this *Compiler) reportDisambiguatePropertiesSummary(p0 Supplier) {
+func (this *Compiler) reportDisambiguatePropertiesSummary(p0 func() any) {
 	if this.self_ == any(this) {
 		this.reportDisambiguatePropertiesSummary_impl(p0)
 		return

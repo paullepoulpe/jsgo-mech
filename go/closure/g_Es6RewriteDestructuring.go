@@ -516,11 +516,11 @@ func (this *Es6RewriteDestructuring) validateNoAwaitOrYieldInNestedAssignmentPat
 }
 
 // lambda_Es6RewriteDestructuring_validateNoAwaitOrYieldInNestedAssignmentPattern_1_ is a lambda of Es6RewriteDestructuring_validateNoAwaitOrYieldInNestedAssignmentPattern that captures nothing (post-flip step lambdas).
-var lambda_Es6RewriteDestructuring_validateNoAwaitOrYieldInNestedAssignmentPattern_1_ = &Predicate_base_fn{func(n_ any) bool {
+func lambda_Es6RewriteDestructuring_validateNoAwaitOrYieldInNestedAssignmentPattern_1_(n_ any) bool {
 	var n Node = Node_of_(n_)
 	_ = n
 	return (n.isAwait() || n.isYield())
-}}
+}
 
 func (this *Es6RewriteDestructuring) visitDestructuringPatternInVanillaForInnerVars(t *NodeTraversal, pattern Node) {
 	Preconditions_checkArgument(pattern.isDestructuringPattern())
@@ -558,11 +558,11 @@ func (this *Es6RewriteDestructuring) visitDestructuringPatternInVanillaForInnerV
 		}
 	case tokOrd1_LET:
 		{
-			ParsingUtil_getParamOrPatternNames(pattern, &Consumer_fn{func(name_ any) {
+			ParsingUtil_getParamOrPatternNames(pattern, func(name_ any) {
 				var name Node = Node_of_(name_)
 				_ = name
 				name.cloneNode().insertBefore(destructuringLhs)
-			}})
+			})
 			var unusedVar Node = this.astFactory_.createNameWithUnknownType((sstr_(this.getTempVariableName()) + "$unused")).srcref(destructuringLhs)
 			destructuringLhs.replaceWith(unusedVar)
 			unusedVar.addChildToBack(destructuringLhs)

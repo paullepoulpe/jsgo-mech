@@ -241,11 +241,11 @@ func OptimizeParameters_mayReferenceParamBeforeBody(function Node) bool {
 		return false
 	}
 	var namesByNames *SimpleListMultimap = SimpleListMultimap_create()
-	NodeUtil_visitPostOrder_Node_Visitor(paramList, &NodeUtil_Visitor_fn{func(n Node) {
+	NodeUtil_visitPostOrder_Node_Visitor(paramList, func(n Node) {
 		if n.isName() {
 			namesByNames.put(strobj_(n.getString()), n.box_())
 		}
-	}})
+	})
 	it_1 := foreach_(any(namesByNames.asMap().values()))
 	for it_1.next() {
 		var names Collection = icast_Collection(it_1.v)

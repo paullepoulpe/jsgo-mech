@@ -139,7 +139,7 @@ func CheckRequiresSorted_canonicalizeImports(importsByNamespace *SimpleListMulti
 			strongestPrimitive = CheckRequiresSorted_ImportPrimitive_stronger(strongestPrimitive, i.primitive())
 		}
 		var hasAliasing bool = false
-		it_5 := foreach_(any(Iterables_filter(Iterable(allImports), lambda_CheckRequiresSorted_canonicalizeImports_1_)))
+		it_5 := foreach_(any(Iterables_filter_f(Iterable(allImports), lambda_CheckRequiresSorted_canonicalizeImports_1_)))
 		for it_5.next() {
 			var stmt *CheckRequiresSorted_ImportStatement = cast_[*CheckRequiresSorted_ImportStatement](it_5.v)
 			canonicalImports.add(obj_(stmt.upgrade(strongestPrimitive)))
@@ -199,7 +199,9 @@ func CheckRequiresSorted_canonicalizeImports(importsByNamespace *SimpleListMulti
 }
 
 // lambda_CheckRequiresSorted_canonicalizeImports_1_ is a lambda of CheckRequiresSorted_canonicalizeImports that captures nothing (post-flip step lambdas).
-var lambda_CheckRequiresSorted_canonicalizeImports_1_ = &Predicate_base_fn{func(p0 any) bool { return cast_[*CheckRequiresSorted_ImportStatement](p0).isAliasing() }}
+func lambda_CheckRequiresSorted_canonicalizeImports_1_(p0 any) bool {
+	return cast_[*CheckRequiresSorted_ImportStatement](p0).isAliasing()
+}
 
 var CheckRequiresSorted_REQUIRES_NOT_SORTED *DiagnosticType
 var CheckRequiresSorted_GOOG_REQUIRE *QualifiedName

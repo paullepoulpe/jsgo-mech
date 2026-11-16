@@ -29,20 +29,20 @@ func new_DisambiguateProperties(compiler *AbstractCompiler, propertiesThatMustDi
 func (this *DisambiguateProperties) process_2(externs Node, root Node) {
 	Preconditions_checkArgument((externs.getParent() == root.getParent()))
 	var flattener *ColorGraphNodeFactory = ColorGraphNodeFactory_createFactory(this.registry)
-	var findRefs *ColorFindPropertyReferences = new_ColorFindPropertyReferences(flattener, func() *ColorFindPropertyReferences_IsPropertyReflector_fn {
+	var findRefs *ColorFindPropertyReferences = new_ColorFindPropertyReferences(flattener, func() func(Node) bool {
 		recv_1 := this.compiler_.getCodingConvention()
-		return &ColorFindPropertyReferences_IsPropertyReflector_fn{func(p0 Node) bool { return recv_1.isPropertyRenameFunction(p0) }}
+		return func(p0 Node) bool { return recv_1.isPropertyRenameFunction(p0) }
 	}())
-	var graphBuilder *ColorGraphBuilder = new_ColorGraphBuilder(flattener, lambda_DisambiguateProperties_process_2_1_.f, this.registry)
+	var graphBuilder *ColorGraphBuilder = new_ColorGraphBuilder(flattener, lambda_DisambiguateProperties_process_2_1_, this.registry)
 	var propagator *ClusterPropagator = new_ClusterPropagator()
-	var renamer *UseSiteRenamer = new_UseSiteRenamer(func() *Consumer_fn {
+	var renamer *UseSiteRenamer = new_UseSiteRenamer(func() func(any) {
 		recv_2 := this.compiler_
-		return &Consumer_fn{func(p0 any) { recv_2.reportChangeToEnclosingScope(Node_of_(p0)) }}
+		return func(p0 any) { recv_2.reportChangeToEnclosingScope(Node_of_(p0)) }
 	}())
 	NodeTraversal_traverse(this.compiler_, externs.getParent(), icast_NodeTraversal_Callback(obj_(findRefs)))
 	var propIndex *TMap[string, *PropertyClustering] = findRefs.getPropertyIndex()
 	DisambiguateProperties_invalidateWellKnownProperties(propIndex)
-	this.logForDiagnosticsStreamedJsonProducer("prop_refs", icast_LogFile_StreamedJsonProducer(obj_(new_DisambiguateProperties_1(this, propIndex))))
+	this.logForDiagnosticsStreamedJsonProducer("prop_refs", new_DisambiguateProperties_1(this, propIndex).writeJson)
 	graphBuilder.addAll(icast_Collection(obj_(flattener.getAllKnownTypes())))
 	var graph *DiGraph = graphBuilder.build().up_DiGraph()
 	it_3 := foreach_(obj_(flattener.getAllKnownTypes()))
@@ -63,7 +63,7 @@ func (this *DisambiguateProperties) process_2(externs Node, root Node) {
 			var n DiGraph_DiGraphNode = icast_DiGraph_DiGraphNode(it_5.v)
 			result = append(result, new_DisambiguateProperties_TypeNodeJson(n))
 		}
-		List_sort(sliceView_(tc_p_DisambiguateProperties_TypeNodeJson, result), Comparator_comparingInt(lambda_DisambiguateProperties_process_2_2_))
+		List_sort(sliceView_(tc_p_DisambiguateProperties_TypeNodeJson, result), Comparator_comparingInt_f(lambda_DisambiguateProperties_process_2_2_))
 		return obj_(ImmutableList_copyOf(Collection(sliceView_(tc_p_DisambiguateProperties_TypeNodeJson, result))))
 		panic("unreachable")
 	}})
@@ -79,7 +79,7 @@ func (this *DisambiguateProperties) process_2(externs Node, root Node) {
 			this.compiler_.report(this.createInvalidationError(prop))
 		}
 	}
-	this.compiler_.reportDisambiguatePropertiesSummary(&Supplier_fn{func() any { return strobj_(trackerSummaryGenerator.buildSummaryString()) }})
+	this.compiler_.reportDisambiguatePropertiesSummary(func() any { return strobj_(trackerSummaryGenerator.buildSummaryString()) })
 	this.logForDiagnostics("renaming_index", &Supplier_base_fn{func() any {
 		return obj_(DisambiguateProperties_buildRenamingIndex(propIndex, renamer))
 	}})
@@ -91,14 +91,16 @@ func (this *DisambiguateProperties) process_2(externs Node, root Node) {
 }
 
 // lambda_DisambiguateProperties_process_2_1_ is a lambda of DisambiguateProperties_process_2 that captures nothing (post-flip step lambdas).
-var lambda_DisambiguateProperties_process_2_1_ = &LowestCommonAncestorFinder_Factory_fn{func(p0 *DiGraph) *LowestCommonAncestorFinder { return new_LowestCommonAncestorFinder(p0) }}
+func lambda_DisambiguateProperties_process_2_1_(p0 *DiGraph) *LowestCommonAncestorFinder {
+	return new_LowestCommonAncestorFinder(p0)
+}
 
 // lambda_DisambiguateProperties_process_2_2_ is a lambda of DisambiguateProperties_process_2 that captures nothing (post-flip step lambdas).
-var lambda_DisambiguateProperties_process_2_2_ = &ToIntFunction_fn{func(x_ any) int32 {
+func lambda_DisambiguateProperties_process_2_2_(x_ any) int32 {
 	var x *DisambiguateProperties_TypeNodeJson = cast_[*DisambiguateProperties_TypeNodeJson](x_)
 	_ = x
 	return x.index_
-}}
+}
 
 func (this *DisambiguateProperties) createInvalidationError(prop *PropertyClustering) *JSError {
 	var additionalContext string = ""
@@ -124,12 +126,14 @@ func DisambiguateProperties_buildRenamingIndex(props *TMap[string, *PropertyClus
 func DisambiguateProperties_invalidateWellKnownProperties(propIndex *TMap[string, *PropertyClustering]) {
 	var names []string = sliceOf_(tc_string, "prototype", "constructor", "then")
 	for _, name := range names {
-		propIndex.computeIfAbsent_f(name, lambda_DisambiguateProperties_invalidateWellKnownProperties_1_.f).invalidate(Invalidation_wellKnownProperty())
+		propIndex.computeIfAbsent_f(name, lambda_DisambiguateProperties_invalidateWellKnownProperties_1_).invalidate(Invalidation_wellKnownProperty())
 	}
 }
 
 // lambda_DisambiguateProperties_invalidateWellKnownProperties_1_ is a lambda of DisambiguateProperties_invalidateWellKnownProperties that captures nothing (post-flip step lambdas).
-var lambda_DisambiguateProperties_invalidateWellKnownProperties_1_ = &Function_fn{func(p0 any) any { return obj_(new_PropertyClustering(str_(p0))) }}
+func lambda_DisambiguateProperties_invalidateWellKnownProperties_1_(p0 any) any {
+	return obj_(new_PropertyClustering(str_(p0)))
+}
 
 func (this *DisambiguateProperties) invalidateBasedOnType(flattener *ColorGraphNodeFactory) {
 	it_1 := foreach_(obj_(flattener.getAllKnownTypes()))
@@ -231,7 +235,7 @@ func (this *DisambiguateProperties) logForDiagnostics(name string, data Supplier
 	}()
 }
 
-func (this *DisambiguateProperties) logForDiagnosticsStreamedJsonProducer(name string, data LogFile_StreamedJsonProducer) {
+func (this *DisambiguateProperties) logForDiagnosticsStreamedJsonProducer(name string, data func(*SimpleJsonWriter)) {
 	_ = func() (code_ int) {
 		var log *LogFile = this.compiler_.createOrReopenLog(Object_getClass(any(this)), (sstr_(name) + ".log"), []string{})
 		defer closeResource_(log.self())

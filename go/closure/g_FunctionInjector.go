@@ -40,7 +40,7 @@ func (this *FunctionInjector) doesFunctionMeetMinimumRequirements(fnName string,
 	var block Node = NodeUtil_getFunctionBody(fnNode)
 	var fnRecursionName string = fnNode.getFirstChild().getString()
 	var referencesArguments bool = NodeUtil_isNameReferenced_Node_String_Predicate(block, "arguments", NodeUtil_MATCH_ANYTHING_BUT_NON_ARROW_FUNCTION)
-	var blocksInjection Predicate_baseOf[Node] = &Predicate_base_fn{func(n_ any) bool {
+	var blocksInjection func(any) bool = func(n_ any) bool {
 		var n Node = Node_of_(n_)
 		_ = n
 		if n.isName() {
@@ -50,7 +50,7 @@ func (this *FunctionInjector) doesFunctionMeetMinimumRequirements(fnName string,
 		}
 		return false
 		panic("unreachable")
-	}}
+	}
 	return (!referencesArguments && !NodeUtil_has(block, blocksInjection, Predicates_alwaysTrue()))
 }
 
@@ -314,11 +314,11 @@ func (this *FunctionInjector) referencesEval(fn Node) bool {
 }
 
 // lambda_FunctionInjector_referencesEval_1_ is a lambda of FunctionInjector_referencesEval that captures nothing (post-flip step lambdas).
-var lambda_FunctionInjector_referencesEval_1_ = &Predicate_base_fn{func(n_ any) bool {
+func lambda_FunctionInjector_referencesEval_1_(n_ any) bool {
 	var n Node = Node_of_(n_)
 	_ = n
 	return (n.isName() && (n.getString() == "eval"))
-}}
+}
 
 func (this *FunctionInjector) innerFunctionOf(containerFn Node) Node {
 	Preconditions_checkState(containerFn.isFunction())
@@ -351,7 +351,7 @@ func (this *FunctionInjector) innerFunctionOf(containerFn Node) Node {
 }
 
 func (this *FunctionInjector) callMeetsBlockInliningRequirements(callRef *FunctionInjector_Reference, calleeFn Node, namesToAlias ImmutableSetOf[string]) bool {
-	var calleeContainsVars bool = NodeUtil_has(NodeUtil_getFunctionBody(calleeFn), icast_Predicate_base(obj_(new_NodeUtil_MatchDeclaration())), icast_Predicate_base(obj_(new_NodeUtil_MatchShallowStatement())))
+	var calleeContainsVars bool = NodeUtil_has(NodeUtil_getFunctionBody(calleeFn), new_NodeUtil_MatchDeclaration().apply, icast_Predicate_base(obj_(new_NodeUtil_MatchShallowStatement())))
 	var forbidTemps bool = false
 	if !cast_[*Scope](callRef.scope_.getClosestHoistScope().self()).isGlobal() {
 		var callerFn Node = cast_[*Scope](callRef.scope_.getClosestHoistScope().self()).getRootNode().getParent()

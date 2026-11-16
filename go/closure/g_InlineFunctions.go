@@ -38,15 +38,15 @@ func new_InlineFunctions(compiler *AbstractCompiler, safeNameIdSupplier Supplier
 }
 
 func (this *InlineFunctions) getOrCreateFunctionState(fnName string) *InlineFunctions_FunctionState {
-	return this.fns.computeIfAbsent_f(fnName, lambda_InlineFunctions_getOrCreateFunctionState_1_.f)
+	return this.fns.computeIfAbsent_f(fnName, lambda_InlineFunctions_getOrCreateFunctionState_1_)
 }
 
 // lambda_InlineFunctions_getOrCreateFunctionState_1_ is a lambda of InlineFunctions_getOrCreateFunctionState that captures nothing (post-flip step lambdas).
-var lambda_InlineFunctions_getOrCreateFunctionState_1_ = &Function_fn{func(k_ any) any {
+func lambda_InlineFunctions_getOrCreateFunctionState_1_(k_ any) any {
 	var k string = str_(k_)
 	_ = k
 	return obj_(new_InlineFunctions_FunctionState())
-}}
+}
 
 func (this *InlineFunctions) process_2(externs Node, root Node) {
 	Preconditions_checkState(this.compiler_.getLifeCycleStage().isNormalized())
@@ -67,7 +67,7 @@ func (this *InlineFunctions) process_2(externs Node, root Node) {
 	}
 	this.resolveInlineConflicts()
 	this.decomposeExpressions()
-	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(new_InlineFunctions_CallVisitor(this.fns, this.anonFns, icast_InlineFunctions_CallVisitorCallback(obj_(new_InlineFunctions_Inline(this.injector)))).self()))
+	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(new_InlineFunctions_CallVisitor(this.fns, this.anonFns, new_InlineFunctions_Inline(this.injector).visitCallSite).self()))
 	this.removeInlinedFunctions()
 }
 
@@ -157,14 +157,16 @@ func (this *InlineFunctions) updateFunctionStateForInlining(fn InlineFunctions_F
 }
 
 // lambda_InlineFunctions_updateFunctionStateForInlining_1_ is a lambda of InlineFunctions_updateFunctionStateForInlining that captures nothing (post-flip step lambdas).
-var lambda_InlineFunctions_updateFunctionStateForInlining_1_ = &Predicate_base_fn{func(p0 any) bool { return NodeUtil_isFunctionOrNonStaticClassFieldInitializer(Node_of_(p0)) }}
+func lambda_InlineFunctions_updateFunctionStateForInlining_1_(p0 any) bool {
+	return NodeUtil_isFunctionOrNonStaticClassFieldInitializer(Node_of_(p0))
+}
 
 // lambda_InlineFunctions_updateFunctionStateForInlining_2_ is a lambda of InlineFunctions_updateFunctionStateForInlining that captures nothing (post-flip step lambdas).
-var lambda_InlineFunctions_updateFunctionStateForInlining_2_ = &Predicate_base_fn{func(n_ any) bool {
+func lambda_InlineFunctions_updateFunctionStateForInlining_2_(n_ any) bool {
 	var n Node = Node_of_(n_)
 	_ = n
 	return (n.isLet() || n.isConst())
-}}
+}
 
 func (this *InlineFunctions) hasNoInlineAnnotation(fnNode Node) bool {
 	var jsDocInfo *JSDocInfo = NodeUtil_getBestJSDocInfo(fnNode)
@@ -183,7 +185,7 @@ func InlineFunctions_hasRequireInliningAnnotation(fnNode Node) bool {
 
 func InlineFunctions_hasLocalNames(fnNode Node) bool {
 	var block Node = NodeUtil_getFunctionBody(fnNode)
-	return (NodeUtil_getFunctionParameters(fnNode).hasChildren() || NodeUtil_has(block, icast_Predicate_base(obj_(new_NodeUtil_MatchDeclaration())), icast_Predicate_base(obj_(new_NodeUtil_MatchShallowStatement()))))
+	return (NodeUtil_getFunctionParameters(fnNode).hasChildren() || NodeUtil_has(block, new_NodeUtil_MatchDeclaration().apply, icast_Predicate_base(obj_(new_NodeUtil_MatchShallowStatement()))))
 }
 
 func (this *InlineFunctions) isCandidateFunction(fn InlineFunctions_Function) bool {
@@ -276,16 +278,16 @@ func (this *InlineFunctions) resolveInlineConflicts() {
 
 func InlineFunctions_hasNonInlinableParam(node Node) bool {
 	Preconditions_checkNotNull(node.box_())
-	var pred Predicate_baseOf[Node] = lambda_InlineFunctions_hasNonInlinableParam_1_
+	var pred func(any) bool = lambda_InlineFunctions_hasNonInlinableParam_1_
 	return NodeUtil_has(node, pred, Predicates_alwaysTrue())
 }
 
 // lambda_InlineFunctions_hasNonInlinableParam_1_ is a lambda of InlineFunctions_hasNonInlinableParam that captures nothing (post-flip step lambdas).
-var lambda_InlineFunctions_hasNonInlinableParam_1_ = &Predicate_base_fn{func(input_ any) bool {
+func lambda_InlineFunctions_hasNonInlinableParam_1_(input_ any) bool {
 	var input Node = Node_of_(input_)
 	_ = input
 	return (input.isDefaultValue() || input.isDestructuringPattern())
-}}
+}
 
 func (this *InlineFunctions) resolveInlineConflictsForFunction(functionState *InlineFunctions_FunctionState) {
 	if !functionState.hasReferences() || !functionState.canInline() {
@@ -527,7 +529,7 @@ func (this *InlineFunctions_CallVisitorCallback_fn) visitCallSite(p0 *NodeTraver
 
 type InlineFunctions_CallVisitor struct {
 	NodeTraversal_AbstractPostOrderCallback
-	callback        InlineFunctions_CallVisitorCallback
+	callback        func(*NodeTraversal, Node, *InlineFunctions_FunctionState)
 	functionMap     *TMap[string, *InlineFunctions_FunctionState]
 	anonFunctionMap map[Node]string
 }
@@ -571,14 +573,14 @@ func (this *InlineFunctions_CallVisitor) up_NodeTraversal_AbstractPostOrderCallb
 	return &this.NodeTraversal_AbstractPostOrderCallback
 }
 
-func (this *InlineFunctions_CallVisitor) init_InlineFunctions_CallVisitor(fns *TMap[string, *InlineFunctions_FunctionState], anonFns map[Node]string, callback InlineFunctions_CallVisitorCallback) {
+func (this *InlineFunctions_CallVisitor) init_InlineFunctions_CallVisitor(fns *TMap[string, *InlineFunctions_FunctionState], anonFns map[Node]string, callback func(*NodeTraversal, Node, *InlineFunctions_FunctionState)) {
 	this.NodeTraversal_AbstractPostOrderCallback.init_NodeTraversal_AbstractPostOrderCallback()
 	this.functionMap = fns
 	this.anonFunctionMap = anonFns
 	this.callback = callback
 }
 
-func new_InlineFunctions_CallVisitor(fns *TMap[string, *InlineFunctions_FunctionState], anonFns map[Node]string, callback InlineFunctions_CallVisitorCallback) *InlineFunctions_CallVisitor {
+func new_InlineFunctions_CallVisitor(fns *TMap[string, *InlineFunctions_FunctionState], anonFns map[Node]string, callback func(*NodeTraversal, Node, *InlineFunctions_FunctionState)) *InlineFunctions_CallVisitor {
 	this := &InlineFunctions_CallVisitor{}
 	this.self_ = this
 	this.init_InlineFunctions_CallVisitor(fns, anonFns, callback)
@@ -606,7 +608,7 @@ func (this *InlineFunctions_CallVisitor) visit_impl(t *NodeTraversal, n Node, pa
 		if name.isPresent() {
 			var functionState *InlineFunctions_FunctionState = this.functionMap.get(name.get())
 			if functionState != nil {
-				this.callback.visitCallSite(t, n, functionState)
+				this.callback(t, n, functionState)
 			}
 		}
 	default:
@@ -634,7 +636,7 @@ func (this *InlineFunctions_FindCandidatesReferences) up_NodeTraversal_AbstractP
 
 func (this *InlineFunctions_FindCandidatesReferences) init_InlineFunctions_FindCandidatesReferences(fns *TMap[string, *InlineFunctions_FunctionState], anonFns map[Node]string) {
 	this.InlineFunctions_CallVisitor.init_InlineFunctions_CallVisitor(fns, anonFns, nil)
-	this.callback = icast_InlineFunctions_CallVisitorCallback(obj_(this))
+	this.callback = this.visitCallSite
 }
 
 func new_InlineFunctions_FindCandidatesReferences(outer_ *InlineFunctions, fns *TMap[string, *InlineFunctions_FunctionState], anonFns map[Node]string) *InlineFunctions_FindCandidatesReferences {

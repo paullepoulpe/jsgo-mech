@@ -128,14 +128,14 @@ func (this *FlowSensitiveInlineVariables) visit(t *NodeTraversal, n Node, parent
 
 }
 
-func FlowSensitiveInlineVariables_checkPostExpressions(n Node, expressionRoot Node, predicate Predicate_baseOf[Node]) bool {
+func FlowSensitiveInlineVariables_checkPostExpressions(n Node, expressionRoot Node, predicate func(any) bool) bool {
 	{
 		var p Node = n
 		for ; p != expressionRoot; p = p.getParent() {
 			{
 				var cur Node = p.getNext()
 				for ; cur != 0; cur = cur.getNext() {
-					if predicate.apply(cur.box_()) {
+					if predicate(cur.box_()) {
 						return true
 					}
 				}
@@ -145,14 +145,14 @@ func FlowSensitiveInlineVariables_checkPostExpressions(n Node, expressionRoot No
 	return false
 }
 
-func FlowSensitiveInlineVariables_checkPreExpressions(n Node, expressionRoot Node, predicate Predicate_baseOf[Node]) bool {
+func FlowSensitiveInlineVariables_checkPreExpressions(n Node, expressionRoot Node, predicate func(any) bool) bool {
 	{
 		var p Node = n
 		for ; p != expressionRoot; p = p.getParent() {
 			var oldestSibling Node = p.getParent().getFirstChild()
 			if oldestSibling.isDestructuringPattern() {
 				if p.isDestructuringPattern() {
-					if (p.getNext() != 0) && predicate.apply(p.getNext().box_()) {
+					if (p.getNext() != 0) && predicate(p.getNext().box_()) {
 						return true
 					}
 				}
@@ -161,7 +161,7 @@ func FlowSensitiveInlineVariables_checkPreExpressions(n Node, expressionRoot Nod
 			{
 				var cur Node = oldestSibling
 				for ; cur != p; cur = cur.getNext() {
-					if predicate.apply(cur.box_()) {
+					if predicate(cur.box_()) {
 						return true
 					}
 				}
@@ -383,10 +383,10 @@ func (this *FlowSensitiveInlineVariables_Candidate) canInline(scope *Scope) bool
 		}
 	}
 	var sideEffectPredicateWithNames *FlowSensitiveInlineVariables_SideEffectPredicate = new_FlowSensitiveInlineVariables_SideEffectPredicate_Set(this.outer_, namesToCheck)
-	if FlowSensitiveInlineVariables_checkPostExpressions(this.def, this.getDefCfgNode(), icast_Predicate_base(obj_(sideEffectPredicateWithNames))) {
+	if FlowSensitiveInlineVariables_checkPostExpressions(this.def, this.getDefCfgNode(), sideEffectPredicateWithNames.apply) {
 		return false
 	}
-	if FlowSensitiveInlineVariables_checkPreExpressions(this.use, this.useCfgNode, icast_Predicate_base(obj_(sideEffectPredicateWithNames))) {
+	if FlowSensitiveInlineVariables_checkPreExpressions(this.use, this.useCfgNode, sideEffectPredicateWithNames.apply) {
 		return false
 	}
 	if this.outer_.compiler_.getAstAnalyzer().mayHaveSideEffects(this.def.getLastChild()) {
@@ -467,7 +467,7 @@ func (this *FlowSensitiveInlineVariables_Candidate) isRhsSafeToInline(usageScope
 	if NodeUtil_has(this.def.getLastChild(), lambda_FlowSensitiveInlineVariables_Candidate_isRhsSafeToInline_1_, lambda_FlowSensitiveInlineVariables_Candidate_isRhsSafeToInline_2_) {
 		return false
 	}
-	if NodeUtil_has(this.def.getLastChild(), &Predicate_base_fn{func(input_ any) bool {
+	if NodeUtil_has(this.def.getLastChild(), func(input_ any) bool {
 		var input Node = Node_of_(input_)
 		_ = input
 		if input.isName() {
@@ -478,14 +478,14 @@ func (this *FlowSensitiveInlineVariables_Candidate) isRhsSafeToInline(usageScope
 		}
 		return false
 		panic("unreachable")
-	}}, Predicates_alwaysTrue()) {
+	}, Predicates_alwaysTrue()) {
 		return false
 	}
 	return true
 }
 
 // lambda_FlowSensitiveInlineVariables_Candidate_isRhsSafeToInline_1_ is a lambda of FlowSensitiveInlineVariables_Candidate_isRhsSafeToInline that captures nothing (post-flip step lambdas).
-var lambda_FlowSensitiveInlineVariables_Candidate_isRhsSafeToInline_1_ = &Predicate_base_fn{func(input_ any) bool {
+func lambda_FlowSensitiveInlineVariables_Candidate_isRhsSafeToInline_1_(input_ any) bool {
 	var input Node = Node_of_(input_)
 	_ = input
 	switch input.ns_().token {
@@ -495,7 +495,7 @@ var lambda_FlowSensitiveInlineVariables_Candidate_isRhsSafeToInline_1_ = &Predic
 	}
 	return false
 	panic("unreachable")
-}}
+}
 
 // lambda_FlowSensitiveInlineVariables_Candidate_isRhsSafeToInline_2_ is a lambda of FlowSensitiveInlineVariables_Candidate_isRhsSafeToInline that captures nothing (post-flip step lambdas).
 var lambda_FlowSensitiveInlineVariables_Candidate_isRhsSafeToInline_2_ = &Predicate_base_fn{func(input_ any) bool {

@@ -66,7 +66,7 @@ func (this *TypeInferencePass) inferAllScopes(inferenceRoot Node) *TypedScope {
 			for it_5.next() {
 				var stepCount any = it_5.v
 				var entries []Map_EntryOf[*Token_rhino, BoxedOf[int32]] = sliceFrom_(tc_Map_EntryOf_p_Token_rhino__BoxedOf_int32__, Collection(cast_[*SimpleMultiset](this.stepCountHistogram.get(stepCount)).entrySet()))
-				List_sort(sliceView_(tc_Map_EntryOf_p_Token_rhino__BoxedOf_int32__, entries), Comparator_comparingInt(lambda_TypeInferencePass_inferAllScopes_1_))
+				List_sort(sliceView_(tc_Map_EntryOf_p_Token_rhino__BoxedOf_int32__, entries), Comparator_comparingInt_f(lambda_TypeInferencePass_inferAllScopes_1_))
 				for _, e := range entries {
 					totals[0] += (unbox_[int32](stepCount) * unbox_[int32](e.getValue()))
 					totals[1] += unbox_[int32](e.getValue())
@@ -81,7 +81,9 @@ func (this *TypeInferencePass) inferAllScopes(inferenceRoot Node) *TypedScope {
 }
 
 // lambda_TypeInferencePass_inferAllScopes_1_ is a lambda of TypeInferencePass_inferAllScopes that captures nothing (post-flip step lambdas).
-var lambda_TypeInferencePass_inferAllScopes_1_ = &ToIntFunction_fn{func(p0 any) int32 { return unbox_[int32](icast_Map_Entry(p0).getValue()) }}
+func lambda_TypeInferencePass_inferAllScopes_1_(p0 any) int32 {
+	return unbox_[int32](icast_Map_Entry(p0).getValue())
+}
 
 func (this *TypeInferencePass) inferScope(n Node, scope *TypedScope) {
 	var cfg *ControlFlowGraph = this.computeCfg(n)
@@ -95,15 +97,15 @@ func (this *TypeInferencePass) inferScope(n Node, scope *TypedScope) {
 				continue
 			}
 			var state *DataFlowAnalysis_LinearFlowState = cast_[*DataFlowAnalysis_LinearFlowState](Annotatable_getAnnotation(Annotatable(node)))
-			cast_[*SimpleMultiset](Map_computeIfAbsent_f(icast_Map(obj_(this.stepCountHistogram)), any(int32(state.getStepCount())), lambda_TypeInferencePass_inferScope_1_.f)).add(obj_(Node_of_(node.getValue()).getToken()))
+			cast_[*SimpleMultiset](Map_computeIfAbsent_f(icast_Map(obj_(this.stepCountHistogram)), any(int32(state.getStepCount())), lambda_TypeInferencePass_inferScope_1_)).add(obj_(Node_of_(node.getValue()).getToken()))
 		}
 	}
 }
 
 // lambda_TypeInferencePass_inferScope_1_ is a lambda of TypeInferencePass_inferScope that captures nothing (post-flip step lambdas).
-var lambda_TypeInferencePass_inferScope_1_ = &Function_fn{func(k any) any {
+func lambda_TypeInferencePass_inferScope_1_(k any) any {
 	return obj_(SimpleMultiset_create())
-}}
+}
 
 func (this *TypeInferencePass) computeCfg(n Node) *ControlFlowGraph {
 	return ControlFlowAnalysis_builder().setCompiler(this.compiler_).setCfgRoot(n).setIncludeEdgeAnnotations(true).computeCfg()

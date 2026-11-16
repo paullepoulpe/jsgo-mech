@@ -27,7 +27,7 @@ func Matchers_anyOf(matchers []Matcher) Matcher {
 	return icast_Matcher(obj_(new_Matchers_3(matchers)))
 }
 
-func Matchers_not(matcher Matcher) Matcher {
+func Matchers_not(matcher func(Node, *NodeMetadata) bool) Matcher {
 	return icast_Matcher(obj_(new_Matchers_4(matcher)))
 }
 
@@ -109,7 +109,7 @@ func Matchers_enumDefinitionOfType(type_ string) Matcher {
 	return icast_Matcher(obj_(new_Matchers_12(type_)))
 }
 
-func Matchers_assignmentWithRhs(rhsMatcher Matcher) Matcher {
+func Matchers_assignmentWithRhs(rhsMatcher func(Node, *NodeMetadata) bool) Matcher {
 	return icast_Matcher(obj_(new_Matchers_13(rhsMatcher)))
 }
 
@@ -261,14 +261,14 @@ func (this *Matchers_3) matches(node Node, metadata *NodeMetadata) bool {
 }
 
 type Matchers_4 struct {
-	cap_matcher Matcher
+	cap_matcher func(Node, *NodeMetadata) bool
 }
 
 func (this *Matchers_4) init_Matchers_4() {
 
 }
 
-func new_Matchers_4(cap_matcher Matcher) *Matchers_4 {
+func new_Matchers_4(cap_matcher func(Node, *NodeMetadata) bool) *Matchers_4 {
 	this := &Matchers_4{}
 	this.cap_matcher = cap_matcher
 	this.init_Matchers_4()
@@ -276,7 +276,7 @@ func new_Matchers_4(cap_matcher Matcher) *Matchers_4 {
 }
 
 func (this *Matchers_4) matches(node Node, metadata *NodeMetadata) bool {
-	return !this.cap_matcher.matches(node, metadata)
+	return !this.cap_matcher(node, metadata)
 }
 
 type Matchers_5 struct {
@@ -467,14 +467,14 @@ func (this *Matchers_12) matches(node Node, metadata *NodeMetadata) bool {
 }
 
 type Matchers_13 struct {
-	cap_rhsMatcher Matcher
+	cap_rhsMatcher func(Node, *NodeMetadata) bool
 }
 
 func (this *Matchers_13) init_Matchers_13() {
 
 }
 
-func new_Matchers_13(cap_rhsMatcher Matcher) *Matchers_13 {
+func new_Matchers_13(cap_rhsMatcher func(Node, *NodeMetadata) bool) *Matchers_13 {
 	this := &Matchers_13{}
 	this.cap_rhsMatcher = cap_rhsMatcher
 	this.init_Matchers_13()
@@ -482,7 +482,7 @@ func new_Matchers_13(cap_rhsMatcher Matcher) *Matchers_13 {
 }
 
 func (this *Matchers_13) matches(node Node, metadata *NodeMetadata) bool {
-	return (node.isAssign() && this.cap_rhsMatcher.matches(node.getLastChild(), metadata))
+	return (node.isAssign() && this.cap_rhsMatcher(node.getLastChild(), metadata))
 }
 
 type Matchers_14 struct {

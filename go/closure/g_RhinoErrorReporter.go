@@ -4,7 +4,7 @@ package closure
 
 type RhinoErrorReporter struct {
 	self_            any
-	internalReporter ErrorHandler
+	internalReporter func(*CheckLevel, *JSError)
 }
 
 func (this *RhinoErrorReporter) as_RhinoErrorReporter() *RhinoErrorReporter { return this }
@@ -31,11 +31,11 @@ func (this *RhinoErrorReporter) self() any {
 	return this.self_
 }
 
-func (this *RhinoErrorReporter) init_RhinoErrorReporter(internalReporter ErrorHandler) {
+func (this *RhinoErrorReporter) init_RhinoErrorReporter(internalReporter func(*CheckLevel, *JSError)) {
 	this.internalReporter = internalReporter
 }
 
-func new_RhinoErrorReporter(internalReporter ErrorHandler) *RhinoErrorReporter {
+func new_RhinoErrorReporter(internalReporter func(*CheckLevel, *JSError)) *RhinoErrorReporter {
 	this := &RhinoErrorReporter{}
 	this.self_ = this
 	this.init_RhinoErrorReporter(internalReporter)
@@ -51,16 +51,16 @@ func RhinoErrorReporter_replacePlaceHolders(s string) *Pattern {
 	return Pattern_compile(Object_toString(obj_(regex)))
 }
 
-func RhinoErrorReporter_forOldRhino(internalReporter ErrorHandler) ErrorReporter_rhino {
+func RhinoErrorReporter_forOldRhino(internalReporter func(*CheckLevel, *JSError)) ErrorReporter_rhino {
 	return icast_ErrorReporter_rhino(obj_(new_RhinoErrorReporter_OldRhinoErrorReporter(internalReporter)))
 }
 
 func (this *RhinoErrorReporter) warningAtLine(message string, sourceName OptionalOf[string], line int32, lineOffset int32) {
-	this.internalReporter.report_2(nil, RhinoErrorReporter_makeError(message, sourceName, line, lineOffset, CheckLevel_WARNING))
+	this.internalReporter(nil, RhinoErrorReporter_makeError(message, sourceName, line, lineOffset, CheckLevel_WARNING))
 }
 
 func (this *RhinoErrorReporter) errorAtLine(message string, sourceName OptionalOf[string], line int32, lineOffset int32) {
-	this.internalReporter.report_2(nil, RhinoErrorReporter_makeError(message, sourceName, line, lineOffset, CheckLevel_ERROR))
+	this.internalReporter(nil, RhinoErrorReporter_makeError(message, sourceName, line, lineOffset, CheckLevel_ERROR))
 }
 
 func RhinoErrorReporter_mapError(message string) *DiagnosticType {
@@ -162,11 +162,11 @@ func (this *RhinoErrorReporter_OldRhinoErrorReporter) up_RhinoErrorReporter() *R
 	return &this.RhinoErrorReporter
 }
 
-func (this *RhinoErrorReporter_OldRhinoErrorReporter) init_RhinoErrorReporter_OldRhinoErrorReporter(internalReporter ErrorHandler) {
+func (this *RhinoErrorReporter_OldRhinoErrorReporter) init_RhinoErrorReporter_OldRhinoErrorReporter(internalReporter func(*CheckLevel, *JSError)) {
 	this.RhinoErrorReporter.init_RhinoErrorReporter(internalReporter)
 }
 
-func new_RhinoErrorReporter_OldRhinoErrorReporter(internalReporter ErrorHandler) *RhinoErrorReporter_OldRhinoErrorReporter {
+func new_RhinoErrorReporter_OldRhinoErrorReporter(internalReporter func(*CheckLevel, *JSError)) *RhinoErrorReporter_OldRhinoErrorReporter {
 	this := &RhinoErrorReporter_OldRhinoErrorReporter{}
 	this.self_ = this
 	this.init_RhinoErrorReporter_OldRhinoErrorReporter(internalReporter)

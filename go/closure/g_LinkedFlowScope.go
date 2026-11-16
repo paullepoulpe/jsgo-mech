@@ -210,9 +210,9 @@ func (this *LinkedFlowScope) equals(other any) bool {
 }
 
 // lambda_LinkedFlowScope_equals_1_ is a lambda of LinkedFlowScope_equals that captures nothing (post-flip step lambdas).
-var lambda_LinkedFlowScope_equals_1_ = &BiPredicate_fn{func(p0 any, p1 any) bool {
+func lambda_LinkedFlowScope_equals_1_(p0 any, p1 any) bool {
 	return LinkedFlowScope_equalScopes(cast_[*LinkedFlowScope_OverlayScope](p0), cast_[*LinkedFlowScope_OverlayScope](p1))
-}}
+}
 
 func LinkedFlowScope_equalScopes(left *LinkedFlowScope_OverlayScope, right *LinkedFlowScope_OverlayScope) bool {
 	if left == right {
@@ -222,9 +222,9 @@ func LinkedFlowScope_equalScopes(left *LinkedFlowScope_OverlayScope, right *Link
 }
 
 // lambda_LinkedFlowScope_equalScopes_1_ is a lambda of LinkedFlowScope_equalScopes that captures nothing (post-flip step lambdas).
-var lambda_LinkedFlowScope_equalScopes_1_ = &BiPredicate_fn{func(p0 any, p1 any) bool {
+func lambda_LinkedFlowScope_equalScopes_1_(p0 any, p1 any) bool {
 	return LinkedFlowScope_equalSlots(icast_StaticTypedSlot(obj_(cast_[*LinkedFlowScope_OverlaySlot](p0))), icast_StaticTypedSlot(obj_(cast_[*LinkedFlowScope_OverlaySlot](p1))))
-}}
+}
 
 func LinkedFlowScope_equalSlots(slotA StaticTypedSlot, slotB StaticTypedSlot) bool {
 	return ((slotA == slotB) || !slotA.getType().differsFrom(slotB.getType()))
@@ -235,7 +235,7 @@ func (this *LinkedFlowScope) hashCode() int32 {
 }
 
 func LinkedFlowScope_join(linkedA *LinkedFlowScope, linkedB *LinkedFlowScope, commonParent *TypedScope) PMap {
-	return linkedA.trimScopes(commonParent).reconcile(linkedB.trimScopes(commonParent), &PMap_Reconciler_fn{func(scopeKey_ any, scopeA_ any, scopeB_ any) any {
+	return linkedA.trimScopes(commonParent).reconcile(linkedB.trimScopes(commonParent), func(scopeKey_ any, scopeA_ any, scopeB_ any) any {
 		var scopeKey *TypedScope = cast_[*TypedScope](scopeKey_)
 		_ = scopeKey
 		var scopeA *LinkedFlowScope_OverlayScope = cast_[*LinkedFlowScope_OverlayScope](scopeA_)
@@ -293,7 +293,7 @@ func LinkedFlowScope_join(linkedA *LinkedFlowScope, linkedB *LinkedFlowScope, co
 				return scopeB.scope_
 			}()
 		}()
-		return obj_(new_LinkedFlowScope_OverlayScope_TypedScope_PMap(bestScope, slotsA.reconcile(slotsB, &PMap_Reconciler_fn{func(slotKey_ any, slotA_ any, slotB_ any) any {
+		return obj_(new_LinkedFlowScope_OverlayScope_TypedScope_PMap(bestScope, slotsA.reconcile(slotsB, func(slotKey_ any, slotA_ any, slotB_ any) any {
 			var slotKey string = str_(slotKey_)
 			_ = slotKey
 			var slotA *LinkedFlowScope_OverlaySlot = cast_[*LinkedFlowScope_OverlaySlot](slotA_)
@@ -366,9 +366,9 @@ func LinkedFlowScope_join(linkedA *LinkedFlowScope, linkedB *LinkedFlowScope, co
 				return obj_(new_LinkedFlowScope_OverlaySlot(name, joinedType))
 			}()
 			panic("unreachable")
-		}})))
+		})))
 		panic("unreachable")
-	}})
+	})
 }
 
 func (this *LinkedFlowScope) lookupQualifiedName(p0 *QualifiedName) *JSType {

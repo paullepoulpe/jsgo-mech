@@ -33,31 +33,33 @@ func ColorId_fromBytesByteString(bytes *ByteString) *ColorId {
 }
 
 // lambda_ColorId_fromBytesByteString_1_ is a lambda of ColorId_fromBytesByteString that captures nothing (post-flip step lambdas).
-var lambda_ColorId_fromBytesByteString_1_ = &ColorId_ByteAt_fn{func(p0 any, p1 int32) int8 { return cast_[*ByteString](p0).byteAt(p1) }}
+func lambda_ColorId_fromBytesByteString_1_(p0 any, p1 int32) int8 {
+	return cast_[*ByteString](p0).byteAt(p1)
+}
 
 func ColorId_fromBytes(bytes []int8) *ColorId {
 	return ColorId_fromBytesAt(any(bytes), int32(len(bytes)), lambda_ColorId_fromBytes_1_)
 }
 
 // lambda_ColorId_fromBytes_1_ is a lambda of ColorId_fromBytes that captures nothing (post-flip step lambdas).
-var lambda_ColorId_fromBytes_1_ = &ColorId_ByteAt_fn{func(s_ any, i int32) int8 {
+func lambda_ColorId_fromBytes_1_(s_ any, i int32) int8 {
 	var s []int8 = cast_[[]int8](s_)
 	_ = s
 	return s[i]
-}}
+}
 
 func ColorId_fromAscii(str string) *ColorId {
 	return ColorId_fromBytesAt(strobj_(str), String_length(str), ColorId_ASCII_AT)
 }
 
-func ColorId_fromBytesAt(source any, length int32, byteAt ColorId_ByteAt) *ColorId {
+func ColorId_fromBytesAt(source any, length int32, byteAt func(any, int32) int8) *ColorId {
 	if !(length <= 8) {
 		Preconditions_checkState_boolean_Object(false, any(int32(length)))
 	}
 	var rightAligned int64 = 0
 	for i := int32(0); i < length; i++ {
 		rightAligned = (rightAligned << 8)
-		rightAligned |= (int64(byteAt.get(source, i)) & 255)
+		rightAligned |= (int64(byteAt(source, i)) & 255)
 	}
 	return new_ColorId(rightAligned)
 }
@@ -121,7 +123,7 @@ func (this *ColorId) toLogsGson() any {
 }
 
 var ColorId_FARM_64 HashFunction
-var ColorId_ASCII_AT ColorId_ByteAt
+var ColorId_ASCII_AT func(any, int32) int8
 
 var ColorId_clinit_done bool
 
@@ -136,7 +138,7 @@ func ColorId_clinit() {
 }
 
 // lambda_ColorId_clinit_1_ is a lambda of ColorId_clinit that captures nothing (post-flip step lambdas).
-var lambda_ColorId_clinit_1_ = &ColorId_ByteAt_fn{func(s_ any, i int32) int8 {
+func lambda_ColorId_clinit_1_(s_ any, i int32) int8 {
 	var s string = str_(s_)
 	_ = s
 	var c int32 = String_codePointAt(s, i)
@@ -145,7 +147,7 @@ var lambda_ColorId_clinit_1_ = &ColorId_ByteAt_fn{func(s_ any, i int32) int8 {
 	}
 	return int8(c)
 	panic("unreachable")
-}}
+}
 
 type ColorId_ByteAt interface {
 	get(any, int32) int8

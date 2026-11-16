@@ -1946,13 +1946,13 @@ func (this *DefaultPassConfig_3) process_2(externs Node, jsRoot Node) {
 		}
 		return Optional_empty[ImmutableSet_BuilderOf[string]]()
 	}()
-	var pass *ReplaceCssNames = new_ReplaceCssNames(this.cap_compiler, this.outer_.options_.getCssRenamingMap(), &ReplaceCssNames_CssNameCollector_fn{func(cssName string) {
+	var pass *ReplaceCssNames = new_ReplaceCssNames(this.cap_compiler, this.outer_.options_.getCssRenamingMap(), func(cssName string) {
 		cssNames.ifPresent(&Consumer_fn{func(builder_ any) {
 			var builder *ImmutableSet_Builder = cast_[*ImmutableSet_Builder](builder_)
 			_ = builder
 			builder.add(strobj_(cssName))
 		}})
-	}}, setImm_(tc_string, this.outer_.options_.getCssRenamingSkiplist()))
+	}, setImm_(tc_string, this.outer_.options_.getCssRenamingSkiplist()))
 	pass.process_2(externs, jsRoot)
 	this.cap_compiler.setCssNames(func() *TSet[string] {
 		if cssNames.isPresent() {

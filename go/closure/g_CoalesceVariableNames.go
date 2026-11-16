@@ -23,11 +23,11 @@ func (this *CoalesceVariableNames) up_NodeTraversal_AbstractCfgCallback() *NodeT
 }
 
 func (this *CoalesceVariableNames) finit_CoalesceVariableNames() {
-	this.coloringTieBreaker = Comparator_comparingInt(&ToIntFunction_fn{func(arg_ any) int32 {
+	this.coloringTieBreaker = Comparator_comparingInt_f(func(arg_ any) int32 {
 		var arg *Var = cast_[*Var](arg_)
 		_ = arg
 		return this.liveness.getVarIndex(arg.getName())
-	}})
+	})
 	this.shouldOptimizeScopeStack = icast_Deque(obj_(new_ArrayDeque()))
 }
 
@@ -40,7 +40,7 @@ func (this *CoalesceVariableNames) init_CoalesceVariableNames(compiler *Abstract
 	this.liveAnalyses = icast_Deque(obj_(new_ArrayDeque()))
 	this.usePseudoNames = usePseudoNames
 	this.astFactory_ = compiler.createAstFactory()
-	this.scopeCreator = new_MemoizedScopeCreator(icast_ScopeCreator(obj_(new_SyntacticScopeCreator_AbstractCompiler(compiler))))
+	this.scopeCreator = new_MemoizedScopeCreator(new_SyntacticScopeCreator_AbstractCompiler(compiler).createScopeAbstractScope)
 }
 
 func new_CoalesceVariableNames(compiler *AbstractCompiler, usePseudoNames bool) *CoalesceVariableNames {
@@ -261,7 +261,9 @@ func (this *CoalesceVariableNames) isInMultipleLvalueDecl(v *Var) bool {
 }
 
 // lambda_CoalesceVariableNames_isInMultipleLvalueDecl_1_ is a lambda of CoalesceVariableNames_isInMultipleLvalueDecl that captures nothing (post-flip step lambdas).
-var lambda_CoalesceVariableNames_isInMultipleLvalueDecl_1_ = &Predicate_base_fn{func(p0 any) bool { return NodeUtil_isNameDeclaration(Node_of_(p0)) }}
+func lambda_CoalesceVariableNames_isInMultipleLvalueDecl_1_(p0 any) bool {
+	return NodeUtil_isNameDeclaration(Node_of_(p0))
+}
 
 func (this *CoalesceVariableNames) removeVarDeclaration(name Node, originalVar *Var) {
 	var var_ Node = NodeUtil_getEnclosingNode(name, lambda_CoalesceVariableNames_removeVarDeclaration_1_)
@@ -304,7 +306,9 @@ func (this *CoalesceVariableNames) removeVarDeclaration(name Node, originalVar *
 }
 
 // lambda_CoalesceVariableNames_removeVarDeclaration_1_ is a lambda of CoalesceVariableNames_removeVarDeclaration that captures nothing (post-flip step lambdas).
-var lambda_CoalesceVariableNames_removeVarDeclaration_1_ = &Predicate_base_fn{func(p0 any) bool { return NodeUtil_isNameDeclaration(Node_of_(p0)) }}
+func lambda_CoalesceVariableNames_removeVarDeclaration_1_(p0 any) bool {
+	return NodeUtil_isNameDeclaration(Node_of_(p0))
+}
 
 func (this *CoalesceVariableNames) makeDeclarationVar(coalescedName *Var) {
 	if coalescedName.isConst() || coalescedName.isLet() {
@@ -319,7 +323,9 @@ func (this *CoalesceVariableNames) makeDeclarationVar(coalescedName *Var) {
 }
 
 // lambda_CoalesceVariableNames_makeDeclarationVar_1_ is a lambda of CoalesceVariableNames_makeDeclarationVar that captures nothing (post-flip step lambdas).
-var lambda_CoalesceVariableNames_makeDeclarationVar_1_ = &Predicate_base_fn{func(p0 any) bool { return NodeUtil_isNameDeclaration(Node_of_(p0)) }}
+func lambda_CoalesceVariableNames_makeDeclarationVar_1_(p0 any) bool {
+	return NodeUtil_isNameDeclaration(Node_of_(p0))
+}
 
 func CoalesceVariableNames_isUninitializedLetNameInLoopBody(nameNode Node) bool {
 	if !nameNode.isName() {

@@ -6,7 +6,7 @@ type ColorFindPropertyReferences struct {
 	NodeTraversal_AbstractPostOrderCallback
 	propIndex             *TMap[string, *PropertyClustering]
 	colorGraphNodeFactory *ColorGraphNodeFactory
-	isPropertyReflector   ColorFindPropertyReferences_IsPropertyReflector
+	isPropertyReflector   func(Node) bool
 }
 
 func (this *ColorFindPropertyReferences) up_NodeTraversal_AbstractPostOrderCallback() *NodeTraversal_AbstractPostOrderCallback {
@@ -20,14 +20,14 @@ func (this *ColorFindPropertyReferences) finit_ColorFindPropertyReferences() {
 	this.propIndex = newTMap_(tc_string, tc_p_PropertyClustering)
 }
 
-func (this *ColorFindPropertyReferences) init_ColorFindPropertyReferences(colorGraphNodeFactory *ColorGraphNodeFactory, isPropertyReflector ColorFindPropertyReferences_IsPropertyReflector) {
+func (this *ColorFindPropertyReferences) init_ColorFindPropertyReferences(colorGraphNodeFactory *ColorGraphNodeFactory, isPropertyReflector func(Node) bool) {
 	this.NodeTraversal_AbstractPostOrderCallback.init_NodeTraversal_AbstractPostOrderCallback()
 	this.finit_ColorFindPropertyReferences()
 	this.colorGraphNodeFactory = colorGraphNodeFactory
 	this.isPropertyReflector = isPropertyReflector
 }
 
-func new_ColorFindPropertyReferences(colorGraphNodeFactory *ColorGraphNodeFactory, isPropertyReflector ColorFindPropertyReferences_IsPropertyReflector) *ColorFindPropertyReferences {
+func new_ColorFindPropertyReferences(colorGraphNodeFactory *ColorGraphNodeFactory, isPropertyReflector func(Node) bool) *ColorFindPropertyReferences {
 	this := &ColorFindPropertyReferences{}
 	this.self_ = this
 	this.init_ColorFindPropertyReferences(colorGraphNodeFactory, isPropertyReflector)
@@ -75,7 +75,7 @@ func (this *ColorFindPropertyReferences) handleCall(t *NodeTraversal, call Node)
 	if !target.isQualifiedName() {
 		return
 	}
-	if this.isPropertyReflector.test(target) {
+	if this.isPropertyReflector(target) {
 		this.handlePropertyReflectorCall(t, call)
 	} else if NodeUtil_isObjectDefinePropertiesDefinition(call) {
 		this.handleObjectDefineProperties(t, call)
@@ -181,7 +181,7 @@ func (this *ColorFindPropertyReferences) traverseObjectlitLike(t *NodeTraversal,
 }
 
 func (this *ColorFindPropertyReferences) registerPropertyUse(t *NodeTraversal, site Node, owner *Color) {
-	var prop *PropertyClustering = this.propIndex.computeIfAbsent_f(site.getString(), lambda_ColorFindPropertyReferences_registerPropertyUse_1_.f)
+	var prop *PropertyClustering = this.propIndex.computeIfAbsent_f(site.getString(), lambda_ColorFindPropertyReferences_registerPropertyUse_1_)
 	var flatOwner *ColorGraphNode = this.colorGraphNodeFactory.createNode(owner)
 	flatOwner.getAssociatedProps().put(prop, ColorGraphNode_PropAssociation_AST)
 	prop.getClusters().add(obj_(flatOwner))
@@ -192,7 +192,9 @@ func (this *ColorFindPropertyReferences) registerPropertyUse(t *NodeTraversal, s
 }
 
 // lambda_ColorFindPropertyReferences_registerPropertyUse_1_ is a lambda of ColorFindPropertyReferences_registerPropertyUse that captures nothing (post-flip step lambdas).
-var lambda_ColorFindPropertyReferences_registerPropertyUse_1_ = &Function_fn{func(p0 any) any { return obj_(new_PropertyClustering(str_(p0))) }}
+func lambda_ColorFindPropertyReferences_registerPropertyUse_1_(p0 any) any {
+	return obj_(new_PropertyClustering(str_(p0)))
+}
 
 type ColorFindPropertyReferences_IsPropertyReflector interface {
 	test(Node) bool

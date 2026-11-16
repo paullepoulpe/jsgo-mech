@@ -1077,15 +1077,15 @@ func (this *InlineAndCollapseProperties_CollapseProperties) logDecisionForName_3
 }
 
 func (this *InlineAndCollapseProperties_CollapseProperties) logDecisionForName(name *GlobalNamespace_Name, message string) {
-	this.outer_.decisionsLog.log(&Supplier_fn{func() any {
+	this.outer_.decisionsLog.log(func() any {
 		return strobj_(String_format("%s: %s", []any{strobj_(name.getFullName()), strobj_(message)}))
-	}})
+	})
 }
 
 func (this *InlineAndCollapseProperties_CollapseProperties) logDecisionForNameSupplier(name *GlobalNamespace_Name, messageSupplier func() any) {
-	this.outer_.decisionsLog.log(&Supplier_fn{func() any {
+	this.outer_.decisionsLog.log(func() any {
 		return strobj_(String_format("%s: %s", []any{strobj_(name.getFullName()), messageSupplier()}))
-	}})
+	})
 }
 
 func (this *InlineAndCollapseProperties_CollapseProperties) flattenSimpleStubDeclaration(name *GlobalNamespace_Name, alias string) {

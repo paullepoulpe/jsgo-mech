@@ -15,7 +15,7 @@ type GlobalNamespace struct {
 	globalNames                   *TList[*GlobalNamespace_Name]
 	nameMap                       *TMap[string, *GlobalNamespace_Name]
 	nameMapByModule               *SimpleTable
-	shouldTraverseScript          PredicateOf[Node]
+	shouldTraverseScript          func(any) bool
 }
 
 func (this *GlobalNamespace) finit_GlobalNamespace() {
@@ -29,11 +29,11 @@ func (this *GlobalNamespace) finit_GlobalNamespace() {
 }
 
 // lambda_GlobalNamespace_finit_GlobalNamespace_1_ is a lambda of GlobalNamespace_finit_GlobalNamespace that captures nothing (post-flip step lambdas).
-var lambda_GlobalNamespace_finit_GlobalNamespace_1_ = &Predicate_fn{func(n_ any) bool {
+func lambda_GlobalNamespace_finit_GlobalNamespace_1_(n_ any) bool {
 	var n Node = Node_of_(n_)
 	_ = n
 	return true
-}}
+}
 
 func (this *GlobalNamespace) init_GlobalNamespace_AbstractCompiler_Node(compiler *AbstractCompiler, root Node) {
 	this.init_GlobalNamespace_LogFile_AbstractCompiler_Node_Node(nil, compiler, 0, root)
@@ -74,7 +74,7 @@ func GlobalNamespace_createFromDecisionsLog(decisionsLog *LogFile, compiler *Abs
 	return new_GlobalNamespace_LogFile_AbstractCompiler_Node_Node(decisionsLog, compiler, 0, root)
 }
 
-func (this *GlobalNamespace) setShouldTraverseScriptPredicate(shouldTraverseScript PredicateOf[Node]) {
+func (this *GlobalNamespace) setShouldTraverseScriptPredicate(shouldTraverseScript func(any) bool) {
 	this.shouldTraverseScript = shouldTraverseScript
 }
 
@@ -477,7 +477,7 @@ func new_GlobalNamespace_BuildGlobalNamespace(outer_ *GlobalNamespace) *GlobalNa
 }
 
 func (this *GlobalNamespace_BuildGlobalNamespace) shouldTraverse_impl(t *NodeTraversal, n Node, parent Node) bool {
-	if n.isScript() && !this.outer_.shouldTraverseScript.test(n.box_()) {
+	if n.isScript() && !this.outer_.shouldTraverseScript(n.box_()) {
 		return false
 	}
 	if this.outer_.hasExternsRoot() && n.isScript() {
@@ -1822,9 +1822,9 @@ func (this *GlobalNamespace_Name) logChildNamesDecision(inlinability *GlobalName
 
 func (this *GlobalNamespace_Name) logChildNamesDecisionSupplier(inlinability *GlobalNamespace_Inlinability, reasonSupplier func() any) {
 	if (this.outer_.decisionsLog != nil) && this.outer_.decisionsLog.isLogging() {
-		this.outer_.decisionsLog.log(&Supplier_fn{func() any {
+		this.outer_.decisionsLog.log(func() any {
 			return strobj_(String_format("%s: children: %s: %s", []any{strobj_(this.getFullName()), obj_(inlinability), reasonSupplier()}))
-		}})
+		})
 	}
 }
 

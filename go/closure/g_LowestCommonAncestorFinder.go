@@ -37,7 +37,7 @@ func (this *LowestCommonAncestorFinder) findAll(roots SetOf[any]) ImmutableSetOf
 			Preconditions_checkNotNull_Object_String_Object(nil, "Root not present in graph: %s", root)
 		}
 		var color *LowestCommonAncestorFinder_Color = LowestCommonAncestorFinder_Color_create(bitForRoot)
-		Map_merge_f(icast_Map(obj_(this.searchColoring)), any(rootNode), obj_(color), lambda_LowestCommonAncestorFinder_findAll_1_.f)
+		Map_merge_f(icast_Map(obj_(this.searchColoring)), any(rootNode), obj_(color), lambda_LowestCommonAncestorFinder_findAll_1_)
 		this.paintAncestors(rootNode, color)
 		bitForRoot = (bitForRoot << 1)
 	}
@@ -66,9 +66,9 @@ func (this *LowestCommonAncestorFinder) findAll(roots SetOf[any]) ImmutableSetOf
 }
 
 // lambda_LowestCommonAncestorFinder_findAll_1_ is a lambda of LowestCommonAncestorFinder_findAll that captures nothing (post-flip step lambdas).
-var lambda_LowestCommonAncestorFinder_findAll_1_ = &BiFunction_fn{func(p0 any, p1 any) any {
+func lambda_LowestCommonAncestorFinder_findAll_1_(p0 any, p1 any) any {
 	return obj_(cast_[*LowestCommonAncestorFinder_Color](p0).mix(cast_[*LowestCommonAncestorFinder_Color](p1)))
-}}
+}
 
 func (this *LowestCommonAncestorFinder) paintAncestors(root DiGraph_DiGraphNode, color *LowestCommonAncestorFinder_Color) {
 	Preconditions_checkState(this.searchQueue.isEmpty())

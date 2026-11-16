@@ -7,7 +7,7 @@ type ProcessDefines struct {
 	registry                            *JSTypeRegistry
 	replacementValuesFromFlags          ImmutableMapOf[string, Node]
 	mode_                               *ProcessDefines_Mode
-	namespaceSupplier                   SupplierOf[*GlobalNamespace]
+	namespaceSupplier                   func() any
 	recognizeClosureDefines             bool
 	enableZonesDefineName               OptionalOf[string]
 	zoneInputPattern                    *Pattern
@@ -66,7 +66,7 @@ func (this *ProcessDefines) process_2(externs Node, root Node) {
 
 func (this *ProcessDefines) initNamespace(externs Node, root Node) {
 	if this.namespaceSupplier != nil {
-		this.namespace_ = cast_[*GlobalNamespace](this.namespaceSupplier.get())
+		this.namespace_ = cast_[*GlobalNamespace](this.namespaceSupplier())
 	}
 	if this.namespace_ == nil {
 		this.namespace_ = new_GlobalNamespace_AbstractCompiler_Node_Node(this.compiler_, externs, root)
@@ -320,7 +320,7 @@ func (this *ProcessDefines) reportInvalidDefineLocations(root Node) {
 	if !this.mode_.check_ {
 		return
 	}
-	NodeTraversal_builder().setCompiler(this.compiler_).setCallbackAbstractPostOrderCallbackInterface(&NodeTraversal_AbstractPostOrderCallbackInterface_fn{func(t *NodeTraversal, n Node, parent Node) {
+	NodeTraversal_builder().setCompiler(this.compiler_).setCallbackAbstractPostOrderCallbackInterface(func(t *NodeTraversal, n Node, parent Node) {
 		var jsdoc *JSDocInfo = n.getJSDocInfo()
 		if ((jsdoc != nil) && jsdoc.isDefine()) && setAdd_(this.knownDefineJsdocs, jsdoc) {
 			this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, ProcessDefines_INVALID_DEFINE_LOCATION, []string{}))
@@ -331,7 +331,7 @@ func (this *ProcessDefines) reportInvalidDefineLocations(root Node) {
 		if (n.matchesName("CLOSURE_DEFINES") && (NodeUtil_isNameDeclaration(parent) || (parent.isGetElem() && parent.getParent().isAssign()))) && !NodeUtil_getEnclosingScopeRoot(n).isRoot() {
 			this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, ProcessDefines_NON_GLOBAL_CLOSURE_DEFINES_ERROR, []string{}))
 		}
-	}}).traverse(root)
+	}).traverse(root)
 }
 
 func (this *ProcessDefines) handleClosureDefinesValue(stringNode Node, valueNode Node, errorNode Node) {
@@ -637,7 +637,7 @@ type ProcessDefines_Builder struct {
 	compiler_               *AbstractCompiler
 	replacementValues       *TMap[string, Node]
 	mode_                   *ProcessDefines_Mode
-	namespaceSupplier       SupplierOf[*GlobalNamespace]
+	namespaceSupplier       func() any
 	recognizeClosureDefines bool
 	enableZonesDefineName   OptionalOf[string]
 	zoneInputPattern        *Pattern
@@ -673,7 +673,7 @@ func (this *ProcessDefines_Builder) setMode(x *ProcessDefines_Mode) *ProcessDefi
 	return this
 }
 
-func (this *ProcessDefines_Builder) injectNamespace(namespaceSupplier SupplierOf[*GlobalNamespace]) *ProcessDefines_Builder {
+func (this *ProcessDefines_Builder) injectNamespace(namespaceSupplier func() any) *ProcessDefines_Builder {
 	this.namespaceSupplier = namespaceSupplier
 	return this
 }

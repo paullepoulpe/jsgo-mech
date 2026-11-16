@@ -72,11 +72,11 @@ func (this *HamtPMap) values() IterableOf[any] {
 }
 
 // lambda_HamtPMap_values_1_ is a lambda of HamtPMap_values that captures nothing (post-flip step lambdas).
-var lambda_HamtPMap_values_1_ = &Function_base_fn{func(map__ any) any {
+func lambda_HamtPMap_values_1_(map__ any) any {
 	var map_ *HamtPMap = cast_[*HamtPMap](map__)
 	_ = map_
 	return map_.value_
-}}
+}
 
 func (this *HamtPMap) keys() IterableOf[any] {
 	if this.isEmpty() {
@@ -88,11 +88,11 @@ func (this *HamtPMap) keys() IterableOf[any] {
 }
 
 // lambda_HamtPMap_keys_1_ is a lambda of HamtPMap_keys that captures nothing (post-flip step lambdas).
-var lambda_HamtPMap_keys_1_ = &Function_base_fn{func(map__ any) any {
+func lambda_HamtPMap_keys_1_(map__ any) any {
 	var map_ *HamtPMap = cast_[*HamtPMap](map__)
 	_ = map_
 	return map_.key_
-}}
+}
 
 func (this *HamtPMap) get(key any) any {
 	return func() any {
@@ -215,7 +215,7 @@ func (this *HamtPMap) minus_3(key any, hash int32, value []any) *HamtPMap {
 	panic("unreachable")
 }
 
-func (this *HamtPMap) reconcile(that PMap, joiner PMap_Reconciler) PMap {
+func (this *HamtPMap) reconcile(that PMap, joiner func(any, any, any) any) PMap {
 	var result *HamtPMap = HamtPMap_reconcile(func() *HamtPMap {
 		if !this.isEmpty() {
 			return this
@@ -227,7 +227,7 @@ func (this *HamtPMap) reconcile(that PMap, joiner PMap_Reconciler) PMap {
 		}
 		return nil
 	}(), func(k any, v1 any, v2 any) any {
-		return Preconditions_checkNotNull(joiner.merge(k, v1, v2))
+		return Preconditions_checkNotNull(joiner(k, v1, v2))
 	})
 	return func() PMap {
 		if result != nil {
@@ -328,7 +328,7 @@ func HamtPMap_reconcile(t1 *HamtPMap, t2 *HamtPMap, joiner func(any, any, any) a
 	return new_HamtPMap(key, hash, newValue, newMask, newChildren)
 }
 
-func (this *HamtPMap) equivalent(that PMap, equivalence BiPredicateOf[any, any]) bool {
+func (this *HamtPMap) equivalent(that PMap, equivalence func(any, any) bool) bool {
 	return HamtPMap_equivalent(func() *HamtPMap {
 		if !this.isEmpty() {
 			return this
@@ -342,7 +342,7 @@ func (this *HamtPMap) equivalent(that PMap, equivalence BiPredicateOf[any, any])
 	}(), equivalence)
 }
 
-func HamtPMap_equivalent(t1 *HamtPMap, t2 *HamtPMap, equivalence BiPredicateOf[any, any]) bool {
+func HamtPMap_equivalent(t1 *HamtPMap, t2 *HamtPMap, equivalence func(any, any) bool) bool {
 	if t1 == t2 {
 		return true
 	} else if (t1 == nil) || (t2 == nil) {
@@ -356,7 +356,7 @@ func HamtPMap_equivalent(t1 *HamtPMap, t2 *HamtPMap, equivalence BiPredicateOf[a
 			return false
 		}
 	}
-	if !equivalence.test(t1.value_, t2.value_) {
+	if !equivalence(t1.value_, t2.value_) {
 		return false
 	}
 	var mask int32 = (t1.mask | t2.mask)
@@ -559,14 +559,14 @@ func HamtPMap_clinit() {
 
 type HamtPMap_Iter struct {
 	queue       DequeOf[*HamtPMap]
-	transformer Function_baseOf[*HamtPMap, any]
+	transformer func(any) any
 }
 
 func (this *HamtPMap_Iter) finit_HamtPMap_Iter() {
 	this.queue = icast_Deque(obj_(new_ArrayDeque()))
 }
 
-func (this *HamtPMap_Iter) init_HamtPMap_Iter(map_ *HamtPMap, transformer Function_baseOf[*HamtPMap, any]) {
+func (this *HamtPMap_Iter) init_HamtPMap_Iter(map_ *HamtPMap, transformer func(any) any) {
 	this.finit_HamtPMap_Iter()
 	this.transformer = transformer
 	if !map_.isEmpty() {
@@ -574,7 +574,7 @@ func (this *HamtPMap_Iter) init_HamtPMap_Iter(map_ *HamtPMap, transformer Functi
 	}
 }
 
-func new_HamtPMap_Iter(map_ *HamtPMap, transformer Function_baseOf[*HamtPMap, any]) *HamtPMap_Iter {
+func new_HamtPMap_Iter(map_ *HamtPMap, transformer func(any) any) *HamtPMap_Iter {
 	this := &HamtPMap_Iter{}
 	this.init_HamtPMap_Iter(map_, transformer)
 	return this
@@ -589,7 +589,7 @@ func (this *HamtPMap_Iter) next() any {
 	for i := int32((int32(len(top.children_)) - 1)); i >= 0; i-- {
 		this.queue.add(obj_(top.children_[i]))
 	}
-	return this.transformer.apply(obj_(top))
+	return this.transformer(obj_(top))
 }
 
 func (this *HamtPMap_Iter) remove() {

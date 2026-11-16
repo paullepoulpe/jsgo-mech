@@ -6,7 +6,7 @@ type SourceMap struct {
 	generator                SourceMapGenerator
 	prefixMappings           []SourceMap_LocationMapping
 	sourceLocationFixupCache map[string]string
-	mapping                  SourceFileMapping
+	mapping                  func(OptionalOf[string], int32, int32) *Mapping_OriginalMapping
 }
 
 func (this *SourceMap) finit_SourceMap() {
@@ -42,7 +42,7 @@ func (this *SourceMap) addMapping_3(node Node, outputStartPosition *FilePosition
 		return !String_isEmpty(s)
 	})
 	if this.mapping != nil {
-		var sourceMapping *Mapping_OriginalMapping = this.mapping.getSourceMapping_Optional_int_int(sourceFileName, lineNo, charNo)
+		var sourceMapping *Mapping_OriginalMapping = this.mapping(sourceFileName, lineNo, charNo)
 		if sourceMapping == nil {
 		} else if Object_equals(obj_(sourceMapping), obj_(Mapping_OriginalMapping_getDefaultInstance())) {
 			return
@@ -132,7 +132,7 @@ func (this *SourceMap) setPrefixMappings(sourceMapLocationMappings []SourceMap_L
 	this.prefixMappings = sourceMapLocationMappings
 }
 
-func (this *SourceMap) setSourceFileMapping(mapping SourceFileMapping) {
+func (this *SourceMap) setSourceFileMapping(mapping func(OptionalOf[string], int32, int32) *Mapping_OriginalMapping) {
 	this.mapping = mapping
 }
 

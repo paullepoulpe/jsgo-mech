@@ -275,7 +275,7 @@ func (this *FunctionArgumentInjector) findParametersReferencedAfterSideEffect(pa
 	var locals *TSet[string] = tsetFrom_(tc_string, icast_Collection(obj_(parameters)), false)
 	FunctionArgumentInjector_gatherLocalNames(root, locals)
 	var collector *FunctionArgumentInjector_ReferencedAfterSideEffect = new_FunctionArgumentInjector_ReferencedAfterSideEffect(this, parameters, ImmutableSet_copyOf(Collection(locals.asSet())))
-	NodeUtil_visitPostOrder_Node_Visitor_Predicate(root, icast_NodeUtil_Visitor(obj_(collector)), icast_Predicate_base(obj_(collector)))
+	NodeUtil_visitPostOrder_Node_Visitor_Predicate(root, collector.visit, icast_Predicate_base(obj_(collector)))
 	return new_FunctionArgumentInjector_SetContainer(collector.getParametersReferencedAfterSideEffect(), collector.getParametersWithNamesReferencedBeforeParameter())
 }
 

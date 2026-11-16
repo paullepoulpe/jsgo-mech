@@ -89,7 +89,7 @@ func (this *RemoveUnusedCode) traverseAndRemoveUnusedReferences(root Node) {
 	if !scope.hasSlot(NodeUtil_JSC_PROPERTY_NAME_FN) {
 		scope.declare(NodeUtil_JSC_PROPERTY_NAME_FN, 0, nil)
 	}
-	this.polyfillUsageFinder.traverseOnlyGuarded(root, &Consumer_fn{func(p0 any) { this.storePolyfill(cast_[*PolyfillUsageFinder_PolyfillUsage](p0)) }})
+	this.polyfillUsageFinder.traverseOnlyGuarded(root, func(p0 any) { this.storePolyfill(cast_[*PolyfillUsageFinder_PolyfillUsage](p0)) })
 	this.worklist.add(obj_(new_RemoveUnusedCode_Continuation(this, root, scope)))
 	for !this.worklist.isEmpty() {
 		var continuation *RemoveUnusedCode_Continuation = cast_[*RemoveUnusedCode_Continuation](this.worklist.remove_0())
@@ -112,7 +112,7 @@ func (this *RemoveUnusedCode) removeIndependentlyRemovableProperties() {
 	it_1 := foreach_(any(this.removablesForPropertyNames.keySet()))
 	for it_1.next() {
 		var propName string = str_(it_1.v)
-		this.removalLog.log(icast_Supplier(obj_(RemoveUnusedCode_RemovalLogRecord_forProperty(propName))))
+		this.removalLog.log(RemoveUnusedCode_RemovalLogRecord_forProperty(propName).get)
 		it_3 := foreach_(any(this.removablesForPropertyNames.get(strobj_(propName))))
 		for it_3.next() {
 			var removable *RemoveUnusedCode_Removable = to_RemoveUnusedCode_Removable(it_3.v)
@@ -1058,7 +1058,7 @@ func (this *RemoveUnusedCode) markUnusedParameters(paramList Node, fparamScope *
 			if varInfo.isRemovable() {
 				param.setUnusedParameter(true)
 				this.compiler_.reportChangeToEnclosingScope(paramList)
-				this.removalLog.log(icast_Supplier(obj_(RemoveUnusedCode_RemovalLogRecord_forMarkingNamedArg(paramNameNode, paramList))))
+				this.removalLog.log(RemoveUnusedCode_RemovalLogRecord_forMarkingNamedArg(paramNameNode, paramList).get)
 			}
 		}
 	}
@@ -1089,14 +1089,14 @@ func (this *RemoveUnusedCode) maybeRemoveUnusedTrailingParameters(argList Node, 
 				break
 			} else {
 				NodeUtil_deleteNode(lastArg, this.compiler_)
-				this.removalLog.log(icast_Supplier(obj_(RemoveUnusedCode_RemovalLogRecord_forDestructuringArg(argList))))
+				this.removalLog.log(RemoveUnusedCode_RemovalLogRecord_forDestructuringArg(argList).get)
 				continue
 			}
 		}
 		var varInfo RemoveUnusedCode_VarInfo = this.getVarInfo(this.getVarForNameNode(argNode, fparamScope))
 		if varInfo.isRemovable() {
 			NodeUtil_deleteNode(lastArg, this.compiler_)
-			this.removalLog.log(icast_Supplier(obj_(RemoveUnusedCode_RemovalLogRecord_forNamedArg(argNode, argList))))
+			this.removalLog.log(RemoveUnusedCode_RemovalLogRecord_forNamedArg(argNode, argList).get)
 		} else {
 			break
 		}
@@ -1157,14 +1157,14 @@ func (this *RemoveUnusedCode) getVarInfo(var_ *Var) RemoveUnusedCode_VarInfo {
 	Preconditions_checkNotNull(obj_(var_))
 	var isGlobal bool = var_.isGlobal()
 	if var_.isExtern() {
-		this.unremovableLog.log(&Supplier_fn{func() any {
+		this.unremovableLog.log(func() any {
 			return strobj_(String_format("%s: extern", []any{strobj_(var_.getName())}))
-		}})
+		})
 		return this.canonicalUnremovableVarInfo
 	} else if this.codingConvention.isExported_2(var_.getName(), !isGlobal) {
-		this.unremovableLog.log(&Supplier_fn{func() any {
+		this.unremovableLog.log(func() any {
 			return strobj_(String_format("%s: exported by convention", []any{strobj_(var_.getName())}))
-		}})
+		})
 		return this.canonicalUnremovableVarInfo
 	} else if var_.isArguments() {
 		return this.canonicalUnremovableVarInfo
@@ -1214,7 +1214,7 @@ func (this *RemoveUnusedCode) removeUnreferencedVarsAndPolyfills() {
 		if !varInfo.isRemovable() {
 			continue
 		}
-		this.removalLog.log(icast_Supplier(obj_(RemoveUnusedCode_RemovalLogRecord_forVar(var_))))
+		this.removalLog.log(RemoveUnusedCode_RemovalLogRecord_forVar(var_).get)
 		varInfo.removeAllRemovables()
 		var nameNode Node = var_.getNameNode()
 		var toRemove Node = nameNode.getParent()
@@ -1235,7 +1235,7 @@ func (this *RemoveUnusedCode) removeUnreferencedVarsAndPolyfills() {
 	for iter.hasNext() {
 		var polyfill *RemoveUnusedCode_PolyfillInfo = to_RemoveUnusedCode_PolyfillInfo(iter.next())
 		if polyfill.isRemovable_ {
-			this.removalLog.log(icast_Supplier(obj_(RemoveUnusedCode_RemovalLogRecord_forPolyfill(polyfill))))
+			this.removalLog.log(RemoveUnusedCode_RemovalLogRecord_forPolyfill(polyfill).get)
 			polyfill.removable.remove(this.compiler_)
 			Iterator_remove(iter)
 		}

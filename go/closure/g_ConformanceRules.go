@@ -1502,12 +1502,12 @@ func ConformanceRules_ConformanceUtil_getValueFromGlobalName(scope *Scope, gns *
 	if (((gn == nil) || (gn.getGlobalSets() != 1)) || (gn.getTotalSets() != 1)) || !ConformanceRules_ConformanceUtil_isAnnotatedAsConst(gn.getJSDocInfo()) {
 		return Optional_empty[string]()
 	}
-	return ConformanceRules_ConformanceUtil_inferStringValue(scope, NodeUtil_getRValueOfLValue(cast_[*GlobalNamespace_Ref](gn.getDeclaration()).getNode()), &Supplier_fn{func() any {
+	return ConformanceRules_ConformanceUtil_inferStringValue(scope, NodeUtil_getRValueOfLValue(cast_[*GlobalNamespace_Ref](gn.getDeclaration()).getNode()), func() any {
 		return obj_(gns)
-	}})
+	})
 }
 
-func ConformanceRules_ConformanceUtil_inferStringValue(scope *Scope, node Node, globalNamespaceSupplier SupplierOf[*GlobalNamespace]) OptionalOf[string] {
+func ConformanceRules_ConformanceUtil_inferStringValue(scope *Scope, node Node, globalNamespaceSupplier func() any) OptionalOf[string] {
 	if node == 0 {
 		return Optional_empty[string]()
 	}
@@ -1543,7 +1543,7 @@ func ConformanceRules_ConformanceUtil_inferStringValue(scope *Scope, node Node, 
 			}
 			return ConformanceRules_ConformanceUtil_inferStringValue(nil, NodeUtil_getFirstPropMatchingKey(enumSource, node.getString()), globalNamespaceSupplier)
 		} else if type_.isString() {
-			var gns *GlobalNamespace = cast_[*GlobalNamespace](globalNamespaceSupplier.get())
+			var gns *GlobalNamespace = cast_[*GlobalNamespace](globalNamespaceSupplier())
 			if gns == nil {
 				return Optional_empty[string]()
 			}
@@ -3432,7 +3432,7 @@ func ConformanceRules_BanCreateDom_clinit() {
 
 type ConformanceRules_SecuritySensitiveAttributes struct {
 	bannedAtrrs             ImmutableSetOf[string]
-	globalNamespaceSupplier SupplierOf[*GlobalNamespace]
+	globalNamespaceSupplier func() any
 }
 
 func (this *ConformanceRules_SecuritySensitiveAttributes) init_ConformanceRules_SecuritySensitiveAttributes_0() {
@@ -3440,9 +3440,9 @@ func (this *ConformanceRules_SecuritySensitiveAttributes) init_ConformanceRules_
 }
 
 // lambda_ConformanceRules_SecuritySensitiveAttributes_init_ConformanceRules_SecuritySensitiveAttributes_0_1_ is a lambda of ConformanceRules_SecuritySensitiveAttributes_init_ConformanceRules_SecuritySensitiveAttributes_0 that captures nothing (post-flip step lambdas).
-var lambda_ConformanceRules_SecuritySensitiveAttributes_init_ConformanceRules_SecuritySensitiveAttributes_0_1_ = &Supplier_fn{func() any {
+func lambda_ConformanceRules_SecuritySensitiveAttributes_init_ConformanceRules_SecuritySensitiveAttributes_0_1_() any {
 	return nil
-}}
+}
 
 func new_ConformanceRules_SecuritySensitiveAttributes_0() *ConformanceRules_SecuritySensitiveAttributes {
 	this := &ConformanceRules_SecuritySensitiveAttributes{}
@@ -3450,17 +3450,17 @@ func new_ConformanceRules_SecuritySensitiveAttributes_0() *ConformanceRules_Secu
 	return this
 }
 
-func (this *ConformanceRules_SecuritySensitiveAttributes) init_ConformanceRules_SecuritySensitiveAttributes_Supplier(globalNamespaceSupplier SupplierOf[*GlobalNamespace]) {
+func (this *ConformanceRules_SecuritySensitiveAttributes) init_ConformanceRules_SecuritySensitiveAttributes_Supplier(globalNamespaceSupplier func() any) {
 	this.init_ConformanceRules_SecuritySensitiveAttributes_Collection_Supplier(icast_Collection(obj_(ConformanceRules_SecuritySensitiveAttributes_ALL_BANNED_ATTRS)), globalNamespaceSupplier)
 }
 
-func new_ConformanceRules_SecuritySensitiveAttributes_Supplier(globalNamespaceSupplier SupplierOf[*GlobalNamespace]) *ConformanceRules_SecuritySensitiveAttributes {
+func new_ConformanceRules_SecuritySensitiveAttributes_Supplier(globalNamespaceSupplier func() any) *ConformanceRules_SecuritySensitiveAttributes {
 	this := &ConformanceRules_SecuritySensitiveAttributes{}
 	this.init_ConformanceRules_SecuritySensitiveAttributes_Supplier(globalNamespaceSupplier)
 	return this
 }
 
-func (this *ConformanceRules_SecuritySensitiveAttributes) init_ConformanceRules_SecuritySensitiveAttributes_Collection_Supplier(bannedAtrrs CollectionOf[string], globalNamespaceSupplier SupplierOf[*GlobalNamespace]) {
+func (this *ConformanceRules_SecuritySensitiveAttributes) init_ConformanceRules_SecuritySensitiveAttributes_Collection_Supplier(bannedAtrrs CollectionOf[string], globalNamespaceSupplier func() any) {
 	var bannedAtrrsBuilder ImmutableSet_BuilderOf[string] = ImmutableSet_builder()
 	it_1 := foreach_(any(bannedAtrrs))
 	for it_1.next() {
@@ -3471,7 +3471,7 @@ func (this *ConformanceRules_SecuritySensitiveAttributes) init_ConformanceRules_
 	this.globalNamespaceSupplier = globalNamespaceSupplier
 }
 
-func new_ConformanceRules_SecuritySensitiveAttributes_Collection_Supplier(bannedAtrrs CollectionOf[string], globalNamespaceSupplier SupplierOf[*GlobalNamespace]) *ConformanceRules_SecuritySensitiveAttributes {
+func new_ConformanceRules_SecuritySensitiveAttributes_Collection_Supplier(bannedAtrrs CollectionOf[string], globalNamespaceSupplier func() any) *ConformanceRules_SecuritySensitiveAttributes {
 	this := &ConformanceRules_SecuritySensitiveAttributes{}
 	this.init_ConformanceRules_SecuritySensitiveAttributes_Collection_Supplier(bannedAtrrs, globalNamespaceSupplier)
 	return this
@@ -3482,9 +3482,9 @@ func ConformanceRules_SecuritySensitiveAttributes_createFromBannedAttrs(bannedAt
 }
 
 // lambda_ConformanceRules_SecuritySensitiveAttributes_createFromBannedAttrs_1_ is a lambda of ConformanceRules_SecuritySensitiveAttributes_createFromBannedAttrs that captures nothing (post-flip step lambdas).
-var lambda_ConformanceRules_SecuritySensitiveAttributes_createFromBannedAttrs_1_ = &Supplier_fn{func() any {
+func lambda_ConformanceRules_SecuritySensitiveAttributes_createFromBannedAttrs_1_() any {
 	return nil
-}}
+}
 
 func (this *ConformanceRules_SecuritySensitiveAttributes) contains(attributeName string) bool {
 	return Collection_contains_s(this.bannedAtrrs, attributeName)
@@ -3584,7 +3584,7 @@ func (this *ConformanceRules_BanElementSetAttribute) initBanElementSetAttribute(
 	if superInited.isErr() {
 		return Outcome_base_err(superInited.error())
 	}
-	this.securitySensitiveAttributes = new_ConformanceRules_SecuritySensitiveAttributes_Collection_Supplier(Collection(requirement.getValueList()), &Supplier_fn{func() any { return obj_(this.getGlobalNamespace()) }})
+	this.securitySensitiveAttributes = new_ConformanceRules_SecuritySensitiveAttributes_Collection_Supplier(Collection(requirement.getValueList()), func() any { return obj_(this.getGlobalNamespace()) })
 	this.defaultDecisionForUncertainCases = func() *ConformanceRules_ConformanceResult {
 		if requirement.getReportLooseTypeViolations() {
 			return ConformanceRules_ConformanceResult_VIOLATION
@@ -3666,7 +3666,7 @@ func (this *ConformanceRules_BanElementSetAttribute) getBannedPropertyName(callN
 
 func (this *ConformanceRules_BanElementSetAttribute) checkConformanceOnGetElement(traversal *NodeTraversal, getElementNode Node) *ConformanceRules_ConformanceResult {
 	var key Node = getElementNode.getSecondChild()
-	var keyName OptionalOf[string] = ConformanceRules_ConformanceUtil_inferStringValue(traversal.getScope(), key, &Supplier_fn{func() any { return obj_(this.getGlobalNamespace()) }})
+	var keyName OptionalOf[string] = ConformanceRules_ConformanceUtil_inferStringValue(traversal.getScope(), key, func() any { return obj_(this.getGlobalNamespace()) })
 	if keyName.isPresent() {
 		if this.securitySensitiveAttributes.contains(String_toLowerCase(keyName.get(), Locale_ROOT)) || (this.requirement_.getReportLooseTypeViolations() && ((keyName.get() == "innerHTML") || (keyName.get() == "outerHTML"))) {
 			if this.hasElementType(getElementNode) {

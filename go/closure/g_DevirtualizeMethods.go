@@ -210,7 +210,9 @@ func (this *DevirtualizeMethods) isEligibleDefinitionFunction(definitionFunction
 }
 
 // lambda_DevirtualizeMethods_isEligibleDefinitionFunction_1_ is a lambda of DevirtualizeMethods_isEligibleDefinitionFunction that captures nothing (post-flip step lambdas).
-var lambda_DevirtualizeMethods_isEligibleDefinitionFunction_1_ = &Predicate_base_fn{func(p0 any) bool { return Node_of_(p0).isSuper() }}
+func lambda_DevirtualizeMethods_isEligibleDefinitionFunction_1_(p0 any) bool {
+	return Node_of_(p0).isSuper()
+}
 
 func (this *DevirtualizeMethods) isEligibleCallSite(access Node, definitionSite Node) bool {
 	var invocation Node = access.getParent()

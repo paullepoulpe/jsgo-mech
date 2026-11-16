@@ -4,40 +4,40 @@ package closure
 
 type SerializeTypedAstPass struct {
 	compiler_            *AbstractCompiler
-	consumer             ConsumerOf[*TypedAst]
+	consumer             func(any)
 	serializationOptions *SerializationOptions
 }
 
-func (this *SerializeTypedAstPass) init_SerializeTypedAstPass(compiler *AbstractCompiler, astConsumer ConsumerOf[*TypedAst], serializationOptions *SerializationOptions) {
+func (this *SerializeTypedAstPass) init_SerializeTypedAstPass(compiler *AbstractCompiler, astConsumer func(any), serializationOptions *SerializationOptions) {
 	this.compiler_ = compiler
 	this.consumer = astConsumer
 	this.serializationOptions = serializationOptions
 }
 
-func new_SerializeTypedAstPass(compiler *AbstractCompiler, astConsumer ConsumerOf[*TypedAst], serializationOptions *SerializationOptions) *SerializeTypedAstPass {
+func new_SerializeTypedAstPass(compiler *AbstractCompiler, astConsumer func(any), serializationOptions *SerializationOptions) *SerializeTypedAstPass {
 	this := &SerializeTypedAstPass{}
 	this.init_SerializeTypedAstPass(compiler, astConsumer, serializationOptions)
 	return this
 }
 
 func SerializeTypedAstPass_createFromConsumer(c *AbstractCompiler, out func(any), serializationOptions *SerializationOptions) *SerializeTypedAstPass {
-	var toBytes ConsumerOf[*TypedAst] = &Consumer_fn{func(ast_ any) {
+	var toBytes func(any) = func(ast_ any) {
 		var ast *TypedAst = cast_[*TypedAst](ast_)
 		_ = ast
 		out(any(cast_[*TypedAst_List](TypedAst_List_newBuilder().addTypedAsts(ast).build()).toByteArray()))
-	}}
+	}
 	return new_SerializeTypedAstPass(c, toBytes, serializationOptions)
 }
 
 func SerializeTypedAstPass_createFromPath(compiler *AbstractCompiler, outputPath string, serializationOptions *SerializationOptions) *SerializeTypedAstPass {
-	var toPath ConsumerOf[*TypedAst] = &Consumer_fn{func(ast_ any) {
+	var toPath func(any) = func(ast_ any) {
 		var ast *TypedAst = cast_[*TypedAst](ast_)
 		_ = ast
 		var written *Outcome_base = Io_writeBytes(outputPath, Io_gzip(cast_[*TypedAst_List](TypedAst_List_newBuilder().addTypedAsts(ast).build()).toByteArray()))
 		if written.isErr() {
 			panic(new_IllegalArgumentException_String_Throwable("Cannot create TypedAst output file", written.error()).self())
 		}
-	}}
+	}
 	return new_SerializeTypedAstPass(compiler, toPath, serializationOptions)
 }
 
@@ -45,5 +45,5 @@ func (this *SerializeTypedAstPass) process_2(externs Node, root Node) {
 	new_RemoveCastNodes(this.compiler_).process_2(externs, root)
 	var serializer *TypedAstSerializer = new_TypedAstSerializer(this.compiler_, this.serializationOptions)
 	var ast *TypedAst = serializer.serializeRoots(externs, root)
-	this.consumer.accept(obj_(ast))
+	this.consumer(obj_(ast))
 }

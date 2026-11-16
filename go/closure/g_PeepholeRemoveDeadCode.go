@@ -1179,11 +1179,11 @@ func PeepholeRemoveDeadCode_hasUnnamedBreakOrContinue(n Node) bool {
 }
 
 // lambda_PeepholeRemoveDeadCode_hasUnnamedBreakOrContinue_1_ is a lambda of PeepholeRemoveDeadCode_hasUnnamedBreakOrContinue that captures nothing (post-flip step lambdas).
-var lambda_PeepholeRemoveDeadCode_hasUnnamedBreakOrContinue_1_ = &Predicate_base_fn{func(node_ any) bool {
+func lambda_PeepholeRemoveDeadCode_hasUnnamedBreakOrContinue_1_(node_ any) bool {
 	var node Node = Node_of_(node_)
 	_ = node
 	return (node.isBreak() && !node.hasChildren())
-}}
+}
 
 // lambda_PeepholeRemoveDeadCode_hasUnnamedBreakOrContinue_2_ is a lambda of PeepholeRemoveDeadCode_hasUnnamedBreakOrContinue that captures nothing (post-flip step lambdas).
 var lambda_PeepholeRemoveDeadCode_hasUnnamedBreakOrContinue_2_ = &Predicate_base_fn{func(node_ any) bool {
@@ -1193,11 +1193,11 @@ var lambda_PeepholeRemoveDeadCode_hasUnnamedBreakOrContinue_2_ = &Predicate_base
 }}
 
 // lambda_PeepholeRemoveDeadCode_hasUnnamedBreakOrContinue_3_ is a lambda of PeepholeRemoveDeadCode_hasUnnamedBreakOrContinue that captures nothing (post-flip step lambdas).
-var lambda_PeepholeRemoveDeadCode_hasUnnamedBreakOrContinue_3_ = &Predicate_base_fn{func(node_ any) bool {
+func lambda_PeepholeRemoveDeadCode_hasUnnamedBreakOrContinue_3_(node_ any) bool {
 	var node Node = Node_of_(node_)
 	_ = node
 	return (node.isContinue() && !node.hasChildren())
-}}
+}
 
 // lambda_PeepholeRemoveDeadCode_hasUnnamedBreakOrContinue_4_ is a lambda of PeepholeRemoveDeadCode_hasUnnamedBreakOrContinue that captures nothing (post-flip step lambdas).
 var lambda_PeepholeRemoveDeadCode_hasUnnamedBreakOrContinue_4_ = &Predicate_base_fn{func(node_ any) bool {
@@ -1231,7 +1231,7 @@ func (this *PeepholeRemoveDeadCode) tryRemoveOptionalChaining(optionalChain Node
 	return result
 }
 
-var PeepholeRemoveDeadCode_MATCH_UNNAMED_BREAK Predicate_base
+var PeepholeRemoveDeadCode_MATCH_UNNAMED_BREAK func(any) bool
 
 var PeepholeRemoveDeadCode_clinit_done bool
 
@@ -1240,7 +1240,7 @@ func PeepholeRemoveDeadCode_clinit() {
 		return
 	}
 	PeepholeRemoveDeadCode_clinit_done = true
-	PeepholeRemoveDeadCode_MATCH_UNNAMED_BREAK = icast_Predicate_base(obj_(new_PeepholeRemoveDeadCode_MatchUnnamedBreak()))
+	PeepholeRemoveDeadCode_MATCH_UNNAMED_BREAK = new_PeepholeRemoveDeadCode_MatchUnnamedBreak().apply
 
 }
 

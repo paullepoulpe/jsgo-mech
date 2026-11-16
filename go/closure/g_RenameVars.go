@@ -258,16 +258,16 @@ func RenameVars_clinit() {
 		return
 	}
 	RenameVars_clinit_done = true
-	RenameVars_ORDER_OF_OCCURRENCE_COMPARATOR = Comparator_comparingInt(lambda_RenameVars_clinit_1_)
+	RenameVars_ORDER_OF_OCCURRENCE_COMPARATOR = Comparator_comparingInt_f(lambda_RenameVars_clinit_1_)
 
 }
 
 // lambda_RenameVars_clinit_1_ is a lambda of RenameVars_clinit that captures nothing (post-flip step lambdas).
-var lambda_RenameVars_clinit_1_ = &ToIntFunction_fn{func(arg_ any) int32 {
+func lambda_RenameVars_clinit_1_(arg_ any) int32 {
 	var arg *RenameVars_Assignment = cast_[*RenameVars_Assignment](arg_)
 	_ = arg
 	return arg.orderOfOccurrence
-}}
+}
 
 type RenameVars_Assignment struct {
 	outer_            *RenameVars

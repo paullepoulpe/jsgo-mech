@@ -13,9 +13,9 @@ type AbstractCommandLineRunner struct {
 	outputCharset2              OptionalOf[string]
 	legacyOutputCharset         OptionalOf[string]
 	testMode                    bool
-	externsSupplierForTesting   Supplier_baseOf[ListOf[*SourceFile_jscomp]]
-	inputsSupplierForTesting    Supplier_baseOf[ListOf[*SourceFile_jscomp]]
-	chunksSupplierForTesting    Supplier_baseOf[ListOf[*JSChunk]]
+	externsSupplierForTesting   func() any
+	inputsSupplierForTesting    func() any
+	chunksSupplierForTesting    func() any
 	exitCodeReceiver            Function_baseOf[BoxedOf[int32], any]
 	rootRelativePathsMap        map[string]string
 	parsedChunkWrappers         MapOf[string, string]
@@ -96,7 +96,7 @@ func (this *AbstractCommandLineRunner) init_AbstractCommandLineRunner_Input_Outp
 	this.err = cast_[*Output](Preconditions_checkNotNull(obj_(err)))
 }
 
-func (this *AbstractCommandLineRunner) enableTestMode(externsSupplier Supplier_baseOf[ListOf[*SourceFile_jscomp]], inputsSupplier Supplier_baseOf[ListOf[*SourceFile_jscomp]], chunksSupplier Supplier_baseOf[ListOf[*JSChunk]], exitCodeReceiver Function_baseOf[BoxedOf[int32], any]) {
+func (this *AbstractCommandLineRunner) enableTestMode(externsSupplier func() any, inputsSupplier func() any, chunksSupplier func() any, exitCodeReceiver Function_baseOf[BoxedOf[int32], any]) {
 	Preconditions_checkArgument(((inputsSupplier == nil) != (chunksSupplier == nil)))
 	this.testMode = true
 	this.externsSupplierForTesting = externsSupplier
@@ -580,7 +580,7 @@ func (this *AbstractCommandLineRunner) createSourceInputs(jsChunkSpecs *TList[*A
 	if this.isInTestMode() {
 		return Outcome_base_ok_Object(func() any {
 			if this.inputsSupplierForTesting != nil {
-				return this.inputsSupplierForTesting.get()
+				return this.inputsSupplierForTesting()
 			}
 			return nil
 		}())
@@ -974,7 +974,7 @@ func (this *AbstractCommandLineRunner) doRun() *Outcome_base {
 	var sources ListOf[*SourceFile_jscomp] = icast_List(sourcesOutcome.get())
 	if !jsChunkSpecs.isEmpty() {
 		if this.isInTestMode() {
-			chunks = icast_List(this.chunksSupplierForTesting.get())
+			chunks = icast_List(this.chunksSupplierForTesting())
 		} else {
 			if Object_equals(obj_(CompilerOptions_JsonStreamMode_IN), obj_(this.config.jsonStreamMode)) || Object_equals(obj_(CompilerOptions_JsonStreamMode_NONE), obj_(this.config.jsonStreamMode)) {
 				it_4 := jsChunkSpecs.each()
@@ -1603,7 +1603,7 @@ func (this *AbstractCommandLineRunner) getOutputCharset2() *Outcome_base {
 
 func (this *AbstractCommandLineRunner) createExterns_impl(options *CompilerOptions) *Outcome_base {
 	if this.isInTestMode() {
-		return Outcome_base_ok_Object(this.externsSupplierForTesting.get())
+		return Outcome_base_ok_Object(this.externsSupplierForTesting())
 	}
 	return this.createExternInputs(this.config.externs)
 }

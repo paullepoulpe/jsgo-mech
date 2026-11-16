@@ -594,7 +594,7 @@ type SourceFile_Builder struct {
 	isStubSourceFileForAlreadyProvidedInput_ bool
 	path_                                    OptionalOf[string]
 	zipEntryPath                             OptionalOf[string]
-	lazyContent                              SupplierOf[string]
+	lazyContent                              func() any
 }
 
 func (this *SourceFile_Builder) zero_SourceFile_Builder() {
@@ -637,7 +637,7 @@ func (this *SourceFile_Builder) withPath(path string) *SourceFile_Builder {
 }
 
 func (this *SourceFile_Builder) withContent(x string) *SourceFile_Builder {
-	this.lazyContent = &Supplier_fn{func() any { return strobj_(String_toString(x)) }}
+	this.lazyContent = func() any { return strobj_(String_toString(x)) }
 	return this
 }
 
@@ -675,7 +675,7 @@ func (this *SourceFile_Builder) build() *SourceFile_jscomp {
 		return file
 	}
 	if this.lazyContent != nil {
-		return new_SourceFile_jscomp(new_SourceFile_CodeLoader_Preloaded(str_(this.lazyContent.get())).up_SourceFile_CodeLoader(), displayPath.get(), this.kind_)
+		return new_SourceFile_jscomp(new_SourceFile_CodeLoader_Preloaded(str_(this.lazyContent())).up_SourceFile_CodeLoader(), displayPath.get(), this.kind_)
 	}
 	if this.zipEntryPath.isPresent() {
 		return new_SourceFile_jscomp(new_SourceFile_CodeLoader_AtZip(this.path_.orElse(nullstr_), this.zipEntryPath.get(), this.charset).up_SourceFile_CodeLoader(), displayPath.get(), this.kind_)

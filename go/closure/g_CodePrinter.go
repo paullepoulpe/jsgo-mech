@@ -15,7 +15,7 @@ func new_CodePrinter() *CodePrinter {
 	return this
 }
 
-func CodePrinter_toSource(root Node, outputFormat *CodePrinter_Format, options *CompilerOptions, licenseTracker CodePrinter_LicenseTracker, tagAsTypeSummary bool, tagAsStrict bool, lineBreak bool, codeGeneratorFactory CodePrinter_Builder_CodeGeneratorFactory) *CodePrinter_SourceAndMappings {
+func CodePrinter_toSource(root Node, outputFormat *CodePrinter_Format, options *CompilerOptions, licenseTracker CodePrinter_LicenseTracker, tagAsTypeSummary bool, tagAsStrict bool, lineBreak bool, codeGeneratorFactory func(*CodePrinter_Format, *CodeConsumer) *CodeGenerator) *CodePrinter_SourceAndMappings {
 	Preconditions_checkState((options.getSourceMapDetailLevel() != nil))
 	var mcp *CodePrinter_MappedCodePrinter = func() *CodePrinter_MappedCodePrinter {
 		if outputFormat == CodePrinter_Format_COMPACT {
@@ -23,7 +23,7 @@ func CodePrinter_toSource(root Node, outputFormat *CodePrinter_Format, options *
 		}
 		return new_CodePrinter_PrettyCodePrinter(options.getLineLengthThreshold(), options.shouldGatherSourceMapInfo(), options.getSourceMapDetailLevel(), licenseTracker).up_CodePrinter_MappedCodePrinter()
 	}()
-	var cg *CodeGenerator = codeGeneratorFactory.getCodeGenerator(outputFormat, mcp.up_CodeConsumer())
+	var cg *CodeGenerator = codeGeneratorFactory(outputFormat, mcp.up_CodeConsumer())
 	if tagAsTypeSummary {
 		cg.tagAsTypeSummary()
 	}
@@ -604,13 +604,13 @@ type CodePrinter_Builder struct {
 	tagAsStrict_         bool
 	licenseTracker       CodePrinter_LicenseTracker
 	registry             *JSTypeRegistry
-	codeGeneratorFactory CodePrinter_Builder_CodeGeneratorFactory
+	codeGeneratorFactory func(*CodePrinter_Format, *CodeConsumer) *CodeGenerator
 }
 
 func (this *CodePrinter_Builder) finit_CodePrinter_Builder() {
 	this.options_ = new_CompilerOptions()
 	this.outputTypes = false
-	this.codeGeneratorFactory = icast_CodePrinter_Builder_CodeGeneratorFactory(obj_(new_CodePrinter_Builder_1(this)))
+	this.codeGeneratorFactory = new_CodePrinter_Builder_1(this).getCodeGenerator
 }
 
 func (this *CodePrinter_Builder) init_CodePrinter_Builder(node Node) {
@@ -666,7 +666,7 @@ func (this *CodePrinter_Builder) setTagAsStrict(tagAsStrict bool) *CodePrinter_B
 	return this
 }
 
-func (this *CodePrinter_Builder) setCodeGeneratorFactory(factory CodePrinter_Builder_CodeGeneratorFactory) *CodePrinter_Builder {
+func (this *CodePrinter_Builder) setCodeGeneratorFactory(factory func(*CodePrinter_Format, *CodeConsumer) *CodeGenerator) *CodePrinter_Builder {
 	this.codeGeneratorFactory = factory
 	return this
 }

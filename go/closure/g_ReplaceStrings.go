@@ -50,12 +50,12 @@ func new_ReplaceStrings(compiler *AbstractCompiler, placeholderToken string, fun
 }
 
 func (this *ReplaceStrings) getResult() []*ReplaceStrings_Result {
-	return sliceImm_(tc_p_ReplaceStrings_Result, ImmutableList_copyOf_Iterable(Iterables_filter(Iterable(this.results.asMap().values()), ReplaceStrings_USED_RESULTS)))
+	return sliceImm_(tc_p_ReplaceStrings_Result, ImmutableList_copyOf_Iterable(Iterables_filter_f(Iterable(this.results.asMap().values()), ReplaceStrings_USED_RESULTS)))
 }
 
 func (this *ReplaceStrings) getStringMap() *VariableMap {
 	var map_ ImmutableMap_BuilderOf[string, string] = ImmutableMap_builder()
-	it_1 := foreach_(any(Iterables_filter(Iterable(this.results.asMap().values()), ReplaceStrings_USED_RESULTS)))
+	it_1 := foreach_(any(Iterables_filter_f(Iterable(this.results.asMap().values()), ReplaceStrings_USED_RESULTS)))
 	for it_1.next() {
 		var result *ReplaceStrings_Result = cast_[*ReplaceStrings_Result](it_1.v)
 		map_.put(strobj_(result.replacement_), strobj_(result.original_))
@@ -283,7 +283,7 @@ const ReplaceStrings_EXCLUSION_PREFIX string = ":!"
 const ReplaceStrings_REPLACE_ONE_MARKER string = "?"
 const ReplaceStrings_REPLACE_ALL_MARKER string = "*"
 
-var ReplaceStrings_USED_RESULTS Predicate_base
+var ReplaceStrings_USED_RESULTS func(any) bool
 
 var ReplaceStrings_clinit_done bool
 
@@ -300,11 +300,11 @@ func ReplaceStrings_clinit() {
 }
 
 // lambda_ReplaceStrings_clinit_1_ is a lambda of ReplaceStrings_clinit that captures nothing (post-flip step lambdas).
-var lambda_ReplaceStrings_clinit_1_ = &Predicate_base_fn{func(result_ any) bool {
+func lambda_ReplaceStrings_clinit_1_(result_ any) bool {
 	var result *ReplaceStrings_Result = cast_[*ReplaceStrings_Result](result_)
 	_ = result
 	return result.didReplacement
-}}
+}
 
 type ReplaceStrings_Config struct {
 	name_                    string

@@ -119,7 +119,7 @@ func (this *Denormalize) maybeCollapseIntoForStatements(n Node, parent Node) {
 }
 
 // lambda_Denormalize_maybeCollapseIntoForStatements_1_ is a lambda of Denormalize_maybeCollapseIntoForStatements that captures nothing (post-flip step lambdas).
-var lambda_Denormalize_maybeCollapseIntoForStatements_1_ = &Predicate_base_fn{func(p0 any) bool { return Node_of_(p0).isIn() }}
+func lambda_Denormalize_maybeCollapseIntoForStatements_1_(p0 any) bool { return Node_of_(p0).isIn() }
 
 func (this *Denormalize) maybeCollapseAssignShorthand(n Node, parent Node) {
 	if !this.isCollapsableAssign(n) {
