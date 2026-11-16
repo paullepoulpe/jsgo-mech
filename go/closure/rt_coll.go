@@ -1647,6 +1647,11 @@ func Comparator_comparingInt(f ToIntFunction) Comparator {
 	return &intKeyCmp_{key: func(v any) int32 { return f.applyAsInt(v) }}
 }
 
+// Comparator_comparingInt_f is Comparator_comparingInt with the key function as a Go func value.
+func Comparator_comparingInt_f(f func(any) int32) Comparator {
+	return &cmpFunc_{func(a, b any) int32 { return Integer_compare(f(a), f(b)) }}
+}
+
 func Comparator_comparingLong(f ToLongFunction) Comparator {
 	return &longKeyCmp_{f}
 }
