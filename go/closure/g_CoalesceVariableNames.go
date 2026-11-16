@@ -450,7 +450,7 @@ func (this *CoalesceVariableNames) enterScopeWithCfg(p0 *NodeTraversal) {
 		this.enterScopeWithCfg_impl(p0)
 		return
 	}
-	this.self_.(interface{ enterScopeWithCfg_impl(*NodeTraversal) }).enterScopeWithCfg_impl(p0)
+	this.self_.enterScopeWithCfg_impl(p0)
 }
 
 // exitScopeWithCfg: an object that is exactly a CoalesceVariableNames calls its exitScopeWithCfg_impl directly (post-flip); others dispatch.
@@ -459,7 +459,7 @@ func (this *CoalesceVariableNames) exitScopeWithCfg(p0 *NodeTraversal) {
 		this.exitScopeWithCfg_impl(p0)
 		return
 	}
-	this.self_.(interface{ exitScopeWithCfg_impl(*NodeTraversal) }).exitScopeWithCfg_impl(p0)
+	this.self_.exitScopeWithCfg_impl(p0)
 }
 
 // visit: an object that is exactly a CoalesceVariableNames calls its visit_impl directly (post-flip); others dispatch.
@@ -468,7 +468,5 @@ func (this *CoalesceVariableNames) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
 		this.visit_impl(p0, p1, p2)
 		return
 	}
-	this.self_.(interface {
-		visit_impl(*NodeTraversal, Node, Node)
-	}).visit_impl(p0, p1, p2)
+	this.self_.visit_impl(p0, p1, p2)
 }

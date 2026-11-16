@@ -300,7 +300,5 @@ func (this *J2clPass_ClassStaticFunctionsInliner_StaticCallInliner) visit(p0 *No
 		this.visit_impl(p0, p1, p2)
 		return
 	}
-	this.self_.(interface {
-		visit_impl(*NodeTraversal, Node, Node)
-	}).visit_impl(p0, p1, p2)
+	this.self_.visit_impl(p0, p1, p2)
 }

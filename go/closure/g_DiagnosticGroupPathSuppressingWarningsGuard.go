@@ -54,5 +54,5 @@ func (this *DiagnosticGroupPathSuppressingWarningsGuard) level(p0 *JSError) *Che
 	if this.self_ == any(this) {
 		return this.level_impl(p0)
 	}
-	return this.self_.(interface{ level_impl(*JSError) *CheckLevel }).level_impl(p0)
+	return this.self_.level_impl(p0)
 }

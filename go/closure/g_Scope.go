@@ -93,7 +93,7 @@ func (this *Scope) untyped() *Scope {
 	if this.self_ == any(this) {
 		return this.untyped_impl()
 	}
-	return this.self_.(interface{ untyped_impl() *Scope }).untyped_impl()
+	return this.self_.untyped_impl()
 }
 
 // getDepth: an object that is exactly a Scope calls its getDepth_impl directly (post-flip); others dispatch.
@@ -101,7 +101,7 @@ func (this *Scope) getDepth() int32 {
 	if this.self_ == any(this) {
 		return this.getDepth_impl()
 	}
-	return this.self_.(interface{ getDepth_impl() int32 }).getDepth_impl()
+	return this.self_.getDepth_impl()
 }
 
 // getParent: an object that is exactly a Scope calls its getParent_impl directly (post-flip); others dispatch.
@@ -109,7 +109,7 @@ func (this *Scope) getParent() *AbstractScope {
 	if this.self_ == any(this) {
 		return this.getParent_impl()
 	}
-	return this.self_.(interface{ getParent_impl() *AbstractScope }).getParent_impl()
+	return this.self_.getParent_impl()
 }
 
 // makeImplicitVar: an object that is exactly a Scope calls its makeImplicitVar_impl directly (post-flip); others dispatch.
@@ -117,7 +117,5 @@ func (this *Scope) makeImplicitVar(p0 *AbstractScope_ImplicitVar) *AbstractVar {
 	if this.self_ == any(this) {
 		return this.makeImplicitVar_impl(p0)
 	}
-	return this.self_.(interface {
-		makeImplicitVar_impl(*AbstractScope_ImplicitVar) *AbstractVar
-	}).makeImplicitVar_impl(p0)
+	return this.self_.makeImplicitVar_impl(p0)
 }

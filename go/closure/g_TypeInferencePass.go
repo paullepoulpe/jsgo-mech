@@ -180,7 +180,7 @@ func (this *TypeInferencePass_FirstScopeBuildingCallback) enterScope(p0 *NodeTra
 		this.enterScope_impl(p0)
 		return
 	}
-	this.self_.(interface{ enterScope_impl(*NodeTraversal) }).enterScope_impl(p0)
+	this.self_.enterScope_impl(p0)
 }
 
 // visit: an object that is exactly a TypeInferencePass_FirstScopeBuildingCallback calls its visit_impl directly (post-flip); others dispatch.
@@ -189,9 +189,7 @@ func (this *TypeInferencePass_FirstScopeBuildingCallback) visit(p0 *NodeTraversa
 		this.visit_impl(p0, p1, p2)
 		return
 	}
-	this.self_.(interface {
-		visit_impl(*NodeTraversal, Node, Node)
-	}).visit_impl(p0, p1, p2)
+	this.self_.visit_impl(p0, p1, p2)
 }
 
 // enterScope: an object that is exactly a TypeInferencePass_SecondScopeBuildingCallback calls its enterScope_impl directly (post-flip); others dispatch.
@@ -200,7 +198,7 @@ func (this *TypeInferencePass_SecondScopeBuildingCallback) enterScope(p0 *NodeTr
 		this.enterScope_impl(p0)
 		return
 	}
-	this.self_.(interface{ enterScope_impl(*NodeTraversal) }).enterScope_impl(p0)
+	this.self_.enterScope_impl(p0)
 }
 
 // visit: an object that is exactly a TypeInferencePass_SecondScopeBuildingCallback calls its visit_impl directly (post-flip); others dispatch.
@@ -209,7 +207,5 @@ func (this *TypeInferencePass_SecondScopeBuildingCallback) visit(p0 *NodeTravers
 		this.visit_impl(p0, p1, p2)
 		return
 	}
-	this.self_.(interface {
-		visit_impl(*NodeTraversal, Node, Node)
-	}).visit_impl(p0, p1, p2)
+	this.self_.visit_impl(p0, p1, p2)
 }

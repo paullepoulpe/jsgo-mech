@@ -927,7 +927,13 @@ type NodeTraversal_ScopedCallback interface {
 }
 
 type NodeTraversal_AbstractPostOrderCallback struct {
-	self_ any
+	self_ NodeTraversal_AbstractPostOrderCallback_I
+}
+
+// NodeTraversal_AbstractPostOrderCallback_I holds the methods the dispatchers of NodeTraversal_AbstractPostOrderCallback's hierarchy call on the most derived
+// object (self_); every class of the hierarchy implements them (post-flip).
+type NodeTraversal_AbstractPostOrderCallback_I interface {
+	visit_impl(*NodeTraversal, Node, Node)
 }
 
 func (this *NodeTraversal_AbstractPostOrderCallback) as_NodeTraversal_AbstractPostOrderCallback() *NodeTraversal_AbstractPostOrderCallback {
@@ -966,13 +972,17 @@ func (this *NodeTraversal_AbstractPostOrderCallback) shouldTraverse(nodeTraversa
 }
 
 func (this *NodeTraversal_AbstractPostOrderCallback) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
-	this.self_.(interface {
-		visit_impl(*NodeTraversal, Node, Node)
-	}).visit_impl(p0, p1, p2)
+	this.self_.visit_impl(p0, p1, p2)
 }
 
 type NodeTraversal_ExternsSkippingCallback struct {
-	self_ any
+	self_ NodeTraversal_ExternsSkippingCallback_I
+}
+
+// NodeTraversal_ExternsSkippingCallback_I holds the methods the dispatchers of NodeTraversal_ExternsSkippingCallback's hierarchy call on the most derived
+// object (self_); every class of the hierarchy implements them (post-flip).
+type NodeTraversal_ExternsSkippingCallback_I interface {
+	visit_impl(*NodeTraversal, Node, Node)
 }
 
 func (this *NodeTraversal_ExternsSkippingCallback) as_NodeTraversal_ExternsSkippingCallback() *NodeTraversal_ExternsSkippingCallback {
@@ -1011,9 +1021,7 @@ func (this *NodeTraversal_ExternsSkippingCallback) shouldTraverse(t *NodeTravers
 }
 
 func (this *NodeTraversal_ExternsSkippingCallback) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
-	this.self_.(interface {
-		visit_impl(*NodeTraversal, Node, Node)
-	}).visit_impl(p0, p1, p2)
+	this.self_.visit_impl(p0, p1, p2)
 }
 
 type NodeTraversal_AbstractPostOrderCallbackInterface interface {
@@ -1029,7 +1037,13 @@ func (this *NodeTraversal_AbstractPostOrderCallbackInterface_fn) visit(p0 *NodeT
 }
 
 type NodeTraversal_AbstractPreOrderCallback struct {
-	self_ any
+	self_ NodeTraversal_AbstractPreOrderCallback_I
+}
+
+// NodeTraversal_AbstractPreOrderCallback_I holds the methods the dispatchers of NodeTraversal_AbstractPreOrderCallback's hierarchy call on the most derived
+// object (self_); every class of the hierarchy implements them (post-flip).
+type NodeTraversal_AbstractPreOrderCallback_I interface {
+	shouldTraverse_impl(*NodeTraversal, Node, Node) bool
 }
 
 func (this *NodeTraversal_AbstractPreOrderCallback) as_NodeTraversal_AbstractPreOrderCallback() *NodeTraversal_AbstractPreOrderCallback {
@@ -1068,13 +1082,19 @@ func (this *NodeTraversal_AbstractPreOrderCallback) visit(t *NodeTraversal, n No
 }
 
 func (this *NodeTraversal_AbstractPreOrderCallback) shouldTraverse(p0 *NodeTraversal, p1 Node, p2 Node) bool {
-	return this.self_.(interface {
-		shouldTraverse_impl(*NodeTraversal, Node, Node) bool
-	}).shouldTraverse_impl(p0, p1, p2)
+	return this.self_.shouldTraverse_impl(p0, p1, p2)
 }
 
 type NodeTraversal_AbstractScopedCallback struct {
-	self_ any
+	self_ NodeTraversal_AbstractScopedCallback_I
+}
+
+// NodeTraversal_AbstractScopedCallback_I holds the methods the dispatchers of NodeTraversal_AbstractScopedCallback's hierarchy call on the most derived
+// object (self_); every class of the hierarchy implements them (post-flip).
+type NodeTraversal_AbstractScopedCallback_I interface {
+	enterScope_impl(*NodeTraversal)
+	exitScope_impl(*NodeTraversal)
+	visit_impl(*NodeTraversal, Node, Node)
 }
 
 func (this *NodeTraversal_AbstractScopedCallback) as_NodeTraversal_AbstractScopedCallback() *NodeTraversal_AbstractScopedCallback {
@@ -1121,22 +1141,29 @@ func (this *NodeTraversal_AbstractScopedCallback) exitScope_impl(t *NodeTraversa
 }
 
 func (this *NodeTraversal_AbstractScopedCallback) enterScope(p0 *NodeTraversal) {
-	this.self_.(interface{ enterScope_impl(*NodeTraversal) }).enterScope_impl(p0)
+	this.self_.enterScope_impl(p0)
 }
 
 func (this *NodeTraversal_AbstractScopedCallback) exitScope(p0 *NodeTraversal) {
-	this.self_.(interface{ exitScope_impl(*NodeTraversal) }).exitScope_impl(p0)
+	this.self_.exitScope_impl(p0)
 }
 
 func (this *NodeTraversal_AbstractScopedCallback) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
-	this.self_.(interface {
-		visit_impl(*NodeTraversal, Node, Node)
-	}).visit_impl(p0, p1, p2)
+	this.self_.visit_impl(p0, p1, p2)
 }
 
 type NodeTraversal_AbstractCfgCallback struct {
-	self_ any
+	self_ NodeTraversal_AbstractCfgCallback_I
 	cfgs  ArrayDequeOf[any]
+}
+
+// NodeTraversal_AbstractCfgCallback_I holds the methods the dispatchers of NodeTraversal_AbstractCfgCallback's hierarchy call on the most derived
+// object (self_); every class of the hierarchy implements them (post-flip).
+type NodeTraversal_AbstractCfgCallback_I interface {
+	enterScopeWithCfg_impl(*NodeTraversal)
+	exitScopeWithCfg_impl(*NodeTraversal)
+	shouldTraverse_impl(*NodeTraversal, Node, Node) bool
+	visit_impl(*NodeTraversal, Node, Node)
 }
 
 func (this *NodeTraversal_AbstractCfgCallback) as_NodeTraversal_AbstractCfgCallback() *NodeTraversal_AbstractCfgCallback {
@@ -1230,27 +1257,29 @@ func (this *NodeTraversal_AbstractCfgCallback) visit_impl(t *NodeTraversal, n No
 }
 
 func (this *NodeTraversal_AbstractCfgCallback) enterScopeWithCfg(p0 *NodeTraversal) {
-	this.self_.(interface{ enterScopeWithCfg_impl(*NodeTraversal) }).enterScopeWithCfg_impl(p0)
+	this.self_.enterScopeWithCfg_impl(p0)
 }
 
 func (this *NodeTraversal_AbstractCfgCallback) shouldTraverse(p0 *NodeTraversal, p1 Node, p2 Node) bool {
-	return this.self_.(interface {
-		shouldTraverse_impl(*NodeTraversal, Node, Node) bool
-	}).shouldTraverse_impl(p0, p1, p2)
+	return this.self_.shouldTraverse_impl(p0, p1, p2)
 }
 
 func (this *NodeTraversal_AbstractCfgCallback) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
-	this.self_.(interface {
-		visit_impl(*NodeTraversal, Node, Node)
-	}).visit_impl(p0, p1, p2)
+	this.self_.visit_impl(p0, p1, p2)
 }
 
 func (this *NodeTraversal_AbstractCfgCallback) exitScopeWithCfg(p0 *NodeTraversal) {
-	this.self_.(interface{ exitScopeWithCfg_impl(*NodeTraversal) }).exitScopeWithCfg_impl(p0)
+	this.self_.exitScopeWithCfg_impl(p0)
 }
 
 type NodeTraversal_AbstractShallowCallback struct {
-	self_ any
+	self_ NodeTraversal_AbstractShallowCallback_I
+}
+
+// NodeTraversal_AbstractShallowCallback_I holds the methods the dispatchers of NodeTraversal_AbstractShallowCallback's hierarchy call on the most derived
+// object (self_); every class of the hierarchy implements them (post-flip).
+type NodeTraversal_AbstractShallowCallback_I interface {
+	visit_impl(*NodeTraversal, Node, Node)
 }
 
 func (this *NodeTraversal_AbstractShallowCallback) as_NodeTraversal_AbstractShallowCallback() *NodeTraversal_AbstractShallowCallback {
@@ -1289,13 +1318,17 @@ func (this *NodeTraversal_AbstractShallowCallback) shouldTraverse(nodeTraversal 
 }
 
 func (this *NodeTraversal_AbstractShallowCallback) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
-	this.self_.(interface {
-		visit_impl(*NodeTraversal, Node, Node)
-	}).visit_impl(p0, p1, p2)
+	this.self_.visit_impl(p0, p1, p2)
 }
 
 type NodeTraversal_AbstractShallowStatementCallback struct {
-	self_ any
+	self_ NodeTraversal_AbstractShallowStatementCallback_I
+}
+
+// NodeTraversal_AbstractShallowStatementCallback_I holds the methods the dispatchers of NodeTraversal_AbstractShallowStatementCallback's hierarchy call on the most derived
+// object (self_); every class of the hierarchy implements them (post-flip).
+type NodeTraversal_AbstractShallowStatementCallback_I interface {
+	visit_impl(*NodeTraversal, Node, Node)
 }
 
 func (this *NodeTraversal_AbstractShallowStatementCallback) as_NodeTraversal_AbstractShallowStatementCallback() *NodeTraversal_AbstractShallowStatementCallback {
@@ -1334,18 +1367,25 @@ func (this *NodeTraversal_AbstractShallowStatementCallback) shouldTraverse(nodeT
 }
 
 func (this *NodeTraversal_AbstractShallowStatementCallback) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
-	this.self_.(interface {
-		visit_impl(*NodeTraversal, Node, Node)
-	}).visit_impl(p0, p1, p2)
+	this.self_.visit_impl(p0, p1, p2)
 }
 
 type NodeTraversal_AbstractModuleCallback struct {
-	self_             any
+	self_             NodeTraversal_AbstractModuleCallback_I
 	compiler_         *AbstractCompiler
 	moduleMetadataMap *ModuleMetadataMap
 	currentModule     *ModuleMetadataMap_ModuleMetadata
 	scopeRoot         Node
 	inLoadModule      bool
+}
+
+// NodeTraversal_AbstractModuleCallback_I holds the methods the dispatchers of NodeTraversal_AbstractModuleCallback's hierarchy call on the most derived
+// object (self_); every class of the hierarchy implements them (post-flip).
+type NodeTraversal_AbstractModuleCallback_I interface {
+	enterModule_impl(*ModuleMetadataMap_ModuleMetadata, Node)
+	exitModule_impl(*ModuleMetadataMap_ModuleMetadata, Node)
+	shouldTraverse_4_impl(*NodeTraversal, Node, *ModuleMetadataMap_ModuleMetadata, Node) bool
+	visit_4_impl(*NodeTraversal, Node, *ModuleMetadataMap_ModuleMetadata, Node)
 }
 
 func (this *NodeTraversal_AbstractModuleCallback) as_NodeTraversal_AbstractModuleCallback() *NodeTraversal_AbstractModuleCallback {
@@ -1449,27 +1489,19 @@ func (this *NodeTraversal_AbstractModuleCallback) visit_4_impl(t *NodeTraversal,
 }
 
 func (this *NodeTraversal_AbstractModuleCallback) enterModule(p0 *ModuleMetadataMap_ModuleMetadata, p1 Node) {
-	this.self_.(interface {
-		enterModule_impl(*ModuleMetadataMap_ModuleMetadata, Node)
-	}).enterModule_impl(p0, p1)
+	this.self_.enterModule_impl(p0, p1)
 }
 
 func (this *NodeTraversal_AbstractModuleCallback) visit_4(p0 *NodeTraversal, p1 Node, p2 *ModuleMetadataMap_ModuleMetadata, p3 Node) {
-	this.self_.(interface {
-		visit_4_impl(*NodeTraversal, Node, *ModuleMetadataMap_ModuleMetadata, Node)
-	}).visit_4_impl(p0, p1, p2, p3)
+	this.self_.visit_4_impl(p0, p1, p2, p3)
 }
 
 func (this *NodeTraversal_AbstractModuleCallback) shouldTraverse_4(p0 *NodeTraversal, p1 Node, p2 *ModuleMetadataMap_ModuleMetadata, p3 Node) bool {
-	return this.self_.(interface {
-		shouldTraverse_4_impl(*NodeTraversal, Node, *ModuleMetadataMap_ModuleMetadata, Node) bool
-	}).shouldTraverse_4_impl(p0, p1, p2, p3)
+	return this.self_.shouldTraverse_4_impl(p0, p1, p2, p3)
 }
 
 func (this *NodeTraversal_AbstractModuleCallback) exitModule(p0 *ModuleMetadataMap_ModuleMetadata, p1 Node) {
-	this.self_.(interface {
-		exitModule_impl(*ModuleMetadataMap_ModuleMetadata, Node)
-	}).exitModule_impl(p0, p1)
+	this.self_.exitModule_impl(p0, p1)
 }
 
 var NodeTraversal_AbstractModuleCallback_GOOG_MODULE *QualifiedName
@@ -1707,9 +1739,7 @@ func (this *NodeTraversal_AbstractChangedScopeCallback) shouldTraverse(p0 *NodeT
 	if this.self_ == any(this) {
 		return this.shouldTraverse_impl(p0, p1, p2)
 	}
-	return this.self_.(interface {
-		shouldTraverse_impl(*NodeTraversal, Node, Node) bool
-	}).shouldTraverse_impl(p0, p1, p2)
+	return this.self_.shouldTraverse_impl(p0, p1, p2)
 }
 
 // visit: an object that is exactly a NodeTraversal_Builder_1 calls its visit_impl directly (post-flip); others dispatch.
@@ -1718,7 +1748,5 @@ func (this *NodeTraversal_Builder_1) visit(p0 *NodeTraversal, p1 Node, p2 Node) 
 		this.visit_impl(p0, p1, p2)
 		return
 	}
-	this.self_.(interface {
-		visit_impl(*NodeTraversal, Node, Node)
-	}).visit_impl(p0, p1, p2)
+	this.self_.visit_impl(p0, p1, p2)
 }

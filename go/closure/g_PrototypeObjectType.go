@@ -411,7 +411,7 @@ var lambda_PrototypeObjectType_clinit_1_ = &Comparator_fn{func(thisProp_ any, ot
 }}
 
 type PrototypeObjectType_Builder struct {
-	self_              any
+	self_              PrototypeObjectType_Builder_I
 	registry           *JSTypeRegistry
 	className          OptionalOf[string]
 	implicitPrototype  *ObjectType
@@ -419,6 +419,13 @@ type PrototypeObjectType_Builder struct {
 	anonymousType      bool
 	templateTypeMap    *TemplateTypeMap
 	templateParamCount int32
+}
+
+// PrototypeObjectType_Builder_I holds the methods the dispatchers of PrototypeObjectType_Builder's hierarchy call on the most derived
+// object (self_); every class of the hierarchy implements them (post-flip).
+type PrototypeObjectType_Builder_I interface {
+	build_impl() *PrototypeObjectType
+	setName_impl(OptionalOf[string]) *PrototypeObjectType_Builder
 }
 
 func (this *PrototypeObjectType_Builder) as_PrototypeObjectType_Builder() *PrototypeObjectType_Builder {
@@ -504,13 +511,11 @@ func (this *PrototypeObjectType_Builder) build_impl() *PrototypeObjectType {
 }
 
 func (this *PrototypeObjectType_Builder) setName(p0 OptionalOf[string]) *PrototypeObjectType_Builder {
-	return this.self_.(interface {
-		setName_impl(OptionalOf[string]) *PrototypeObjectType_Builder
-	}).setName_impl(p0)
+	return this.self_.setName_impl(p0)
 }
 
 func (this *PrototypeObjectType_Builder) build() *PrototypeObjectType {
-	return this.self_.(interface{ build_impl() *PrototypeObjectType }).build_impl()
+	return this.self_.build_impl()
 }
 
 type PrototypeObjectType_PropertyForPrettyPrinting struct {
@@ -573,7 +578,7 @@ func (this *PrototypeObjectType) getTypeClass() *JSTypeClass {
 	if this.self_ == any(this) {
 		return this.getTypeClass_impl()
 	}
-	return this.self_.(interface{ getTypeClass_impl() *JSTypeClass }).getTypeClass_impl()
+	return this.self_.getTypeClass_impl()
 }
 
 // getPropertyMap: an object that is exactly a PrototypeObjectType calls its getPropertyMap_impl directly (post-flip); others dispatch.
@@ -619,7 +624,7 @@ func (this *PrototypeObjectType) matchesNumberContext() bool {
 	if this.self_ == any(this) {
 		return this.matchesNumberContext_impl()
 	}
-	return this.self_.(interface{ matchesNumberContext_impl() bool }).matchesNumberContext_impl()
+	return this.self_.matchesNumberContext_impl()
 }
 
 // matchesStringContext: an object that is exactly a PrototypeObjectType calls its matchesStringContext_impl directly (post-flip); others dispatch.
@@ -627,7 +632,7 @@ func (this *PrototypeObjectType) matchesStringContext() bool {
 	if this.self_ == any(this) {
 		return this.matchesStringContext_impl()
 	}
-	return this.self_.(interface{ matchesStringContext_impl() bool }).matchesStringContext_impl()
+	return this.self_.matchesStringContext_impl()
 }
 
 // matchesSymbolContext: an object that is exactly a PrototypeObjectType calls its matchesSymbolContext_impl directly (post-flip); others dispatch.
@@ -635,7 +640,7 @@ func (this *PrototypeObjectType) matchesSymbolContext() bool {
 	if this.self_ == any(this) {
 		return this.matchesSymbolContext_impl()
 	}
-	return this.self_.(interface{ matchesSymbolContext_impl() bool }).matchesSymbolContext_impl()
+	return this.self_.matchesSymbolContext_impl()
 }
 
 // matchesObjectContext: an object that is exactly a PrototypeObjectType calls its matchesObjectContext_impl directly (post-flip); others dispatch.
@@ -643,7 +648,7 @@ func (this *PrototypeObjectType) matchesObjectContext() bool {
 	if this.self_ == any(this) {
 		return this.matchesObjectContext_impl()
 	}
-	return this.self_.(interface{ matchesObjectContext_impl() bool }).matchesObjectContext_impl()
+	return this.self_.matchesObjectContext_impl()
 }
 
 // appendTo: an object that is exactly a PrototypeObjectType calls its appendTo_impl directly (post-flip); others dispatch.
@@ -652,7 +657,7 @@ func (this *PrototypeObjectType) appendTo(p0 *TypeStringBuilder) {
 		this.appendTo_impl(p0)
 		return
 	}
-	this.self_.(interface{ appendTo_impl(*TypeStringBuilder) }).appendTo_impl(p0)
+	this.self_.appendTo_impl(p0)
 }
 
 // getConstructor: an object that is exactly a PrototypeObjectType calls its getConstructor_impl directly (post-flip); others dispatch.
@@ -676,7 +681,7 @@ func (this *PrototypeObjectType) getTemplateParamCount() int32 {
 	if this.self_ == any(this) {
 		return this.getTemplateParamCount_impl()
 	}
-	return this.self_.(interface{ getTemplateParamCount_impl() int32 }).getTemplateParamCount_impl()
+	return this.self_.getTemplateParamCount_impl()
 }
 
 // getReferenceName: an object that is exactly a PrototypeObjectType calls its getReferenceName_impl directly (post-flip); others dispatch.
@@ -692,7 +697,7 @@ func (this *PrototypeObjectType) isNativeObjectType() bool {
 	if this.self_ == any(this) {
 		return this.isNativeObjectType_impl()
 	}
-	return this.self_.(interface{ isNativeObjectType_impl() bool }).isNativeObjectType_impl()
+	return this.self_.isNativeObjectType_impl()
 }
 
 // setOwnerFunction: an object that is exactly a PrototypeObjectType calls its setOwnerFunction_impl directly (post-flip); others dispatch.
@@ -733,9 +738,7 @@ func (this *PrototypeObjectType) resolveInternal(p0 ErrorReporter_rhino) *JSType
 	if this.self_ == any(this) {
 		return this.resolveInternal_impl(p0)
 	}
-	return this.self_.(interface {
-		resolveInternal_impl(ErrorReporter_rhino) *JSType
-	}).resolveInternal_impl(p0)
+	return this.self_.resolveInternal_impl(p0)
 }
 
 // matchConstraint: an object that is exactly a PrototypeObjectType calls its matchConstraint_impl directly (post-flip); others dispatch.
@@ -744,7 +747,7 @@ func (this *PrototypeObjectType) matchConstraint(p0 *JSType) {
 		this.matchConstraint_impl(p0)
 		return
 	}
-	this.self_.(interface{ matchConstraint_impl(*JSType) }).matchConstraint_impl(p0)
+	this.self_.matchConstraint_impl(p0)
 }
 
 // recursionUnsafeHashCode: an object that is exactly a PrototypeObjectType calls its recursionUnsafeHashCode_impl directly (post-flip); others dispatch.
@@ -752,5 +755,5 @@ func (this *PrototypeObjectType) recursionUnsafeHashCode() int32 {
 	if this.self_ == any(this) {
 		return this.recursionUnsafeHashCode_impl()
 	}
-	return this.self_.(interface{ recursionUnsafeHashCode_impl() int32 }).recursionUnsafeHashCode_impl()
+	return this.self_.recursionUnsafeHashCode_impl()
 }

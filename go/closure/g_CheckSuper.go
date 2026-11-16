@@ -152,8 +152,19 @@ func CheckSuper_clinit() {
 }
 
 type CheckSuper_Context struct {
-	self_       any
+	self_       CheckSuper_Context_I
 	contextNode Node
+}
+
+// CheckSuper_Context_I holds the methods the dispatchers of CheckSuper_Context's hierarchy call on the most derived
+// object (self_); every class of the hierarchy implements them (post-flip).
+type CheckSuper_Context_I interface {
+	getContextForArrowFunctionNode_impl(Node) *CheckSuper_Context
+	visitContextNode_impl(*NodeTraversal)
+	visitReturn_impl(*NodeTraversal, Node)
+	visitSuperConstructorCall_impl(*NodeTraversal, Node)
+	visitSuperPropertyAccess_impl(*NodeTraversal, Node)
+	visitThis_impl(*NodeTraversal, Node)
 }
 
 func (this *CheckSuper_Context) as_CheckSuper_Context() *CheckSuper_Context { return this }
@@ -198,29 +209,27 @@ func (this *CheckSuper_Context) visitContextNode_impl(t *NodeTraversal) {
 }
 
 func (this *CheckSuper_Context) visitSuperPropertyAccess(p0 *NodeTraversal, p1 Node) {
-	this.self_.(interface{ visitSuperPropertyAccess_impl(*NodeTraversal, Node) }).visitSuperPropertyAccess_impl(p0, p1)
+	this.self_.visitSuperPropertyAccess_impl(p0, p1)
 }
 
 func (this *CheckSuper_Context) visitSuperConstructorCall(p0 *NodeTraversal, p1 Node) {
-	this.self_.(interface{ visitSuperConstructorCall_impl(*NodeTraversal, Node) }).visitSuperConstructorCall_impl(p0, p1)
+	this.self_.visitSuperConstructorCall_impl(p0, p1)
 }
 
 func (this *CheckSuper_Context) getContextForArrowFunctionNode(p0 Node) *CheckSuper_Context {
-	return this.self_.(interface {
-		getContextForArrowFunctionNode_impl(Node) *CheckSuper_Context
-	}).getContextForArrowFunctionNode_impl(p0)
+	return this.self_.getContextForArrowFunctionNode_impl(p0)
 }
 
 func (this *CheckSuper_Context) visitThis(p0 *NodeTraversal, p1 Node) {
-	this.self_.(interface{ visitThis_impl(*NodeTraversal, Node) }).visitThis_impl(p0, p1)
+	this.self_.visitThis_impl(p0, p1)
 }
 
 func (this *CheckSuper_Context) visitReturn(p0 *NodeTraversal, p1 Node) {
-	this.self_.(interface{ visitReturn_impl(*NodeTraversal, Node) }).visitReturn_impl(p0, p1)
+	this.self_.visitReturn_impl(p0, p1)
 }
 
 func (this *CheckSuper_Context) visitContextNode(p0 *NodeTraversal) {
-	this.self_.(interface{ visitContextNode_impl(*NodeTraversal) }).visitContextNode_impl(p0)
+	this.self_.visitContextNode_impl(p0)
 }
 
 type CheckSuper_SuperPropertyAccessAllowedContext struct {
@@ -509,7 +518,7 @@ func (this *CheckSuper_SuperPropertyAccessAllowedContext) visitSuperPropertyAcce
 		this.visitSuperPropertyAccess_impl(p0, p1)
 		return
 	}
-	this.self_.(interface{ visitSuperPropertyAccess_impl(*NodeTraversal, Node) }).visitSuperPropertyAccess_impl(p0, p1)
+	this.self_.visitSuperPropertyAccess_impl(p0, p1)
 }
 
 // visitSuperConstructorCall: an object that is exactly a CheckSuper_SuperPropertyAccessAllowedContext calls its visitSuperConstructorCall_impl directly (post-flip); others dispatch.
@@ -518,7 +527,7 @@ func (this *CheckSuper_SuperPropertyAccessAllowedContext) visitSuperConstructorC
 		this.visitSuperConstructorCall_impl(p0, p1)
 		return
 	}
-	this.self_.(interface{ visitSuperConstructorCall_impl(*NodeTraversal, Node) }).visitSuperConstructorCall_impl(p0, p1)
+	this.self_.visitSuperConstructorCall_impl(p0, p1)
 }
 
 // getContextForArrowFunctionNode: an object that is exactly a CheckSuper_SuperPropertyAccessAllowedContext calls its getContextForArrowFunctionNode_impl directly (post-flip); others dispatch.
@@ -526,9 +535,7 @@ func (this *CheckSuper_SuperPropertyAccessAllowedContext) getContextForArrowFunc
 	if this.self_ == any(this) {
 		return this.getContextForArrowFunctionNode_impl(p0)
 	}
-	return this.self_.(interface {
-		getContextForArrowFunctionNode_impl(Node) *CheckSuper_Context
-	}).getContextForArrowFunctionNode_impl(p0)
+	return this.self_.getContextForArrowFunctionNode_impl(p0)
 }
 
 // getContextForArrowFunctionNode: an object that is exactly a CheckSuper_SuperNotAllowedContext calls its getContextForArrowFunctionNode_impl directly (post-flip); others dispatch.
@@ -536,9 +543,7 @@ func (this *CheckSuper_SuperNotAllowedContext) getContextForArrowFunctionNode(p0
 	if this.self_ == any(this) {
 		return this.getContextForArrowFunctionNode_impl(p0)
 	}
-	return this.self_.(interface {
-		getContextForArrowFunctionNode_impl(Node) *CheckSuper_Context
-	}).getContextForArrowFunctionNode_impl(p0)
+	return this.self_.getContextForArrowFunctionNode_impl(p0)
 }
 
 // visitSuperConstructorCall: an object that is exactly a CheckSuper_SuperNotAllowedContext calls its visitSuperConstructorCall_impl directly (post-flip); others dispatch.
@@ -547,7 +552,7 @@ func (this *CheckSuper_SuperNotAllowedContext) visitSuperConstructorCall(p0 *Nod
 		this.visitSuperConstructorCall_impl(p0, p1)
 		return
 	}
-	this.self_.(interface{ visitSuperConstructorCall_impl(*NodeTraversal, Node) }).visitSuperConstructorCall_impl(p0, p1)
+	this.self_.visitSuperConstructorCall_impl(p0, p1)
 }
 
 // visitSuperPropertyAccess: an object that is exactly a CheckSuper_SuperNotAllowedContext calls its visitSuperPropertyAccess_impl directly (post-flip); others dispatch.
@@ -556,7 +561,7 @@ func (this *CheckSuper_SuperNotAllowedContext) visitSuperPropertyAccess(p0 *Node
 		this.visitSuperPropertyAccess_impl(p0, p1)
 		return
 	}
-	this.self_.(interface{ visitSuperPropertyAccess_impl(*NodeTraversal, Node) }).visitSuperPropertyAccess_impl(p0, p1)
+	this.self_.visitSuperPropertyAccess_impl(p0, p1)
 }
 
 // getContextForArrowFunctionNode: an object that is exactly a CheckSuper_MethodContext calls its getContextForArrowFunctionNode_impl directly (post-flip); others dispatch.
@@ -564,9 +569,7 @@ func (this *CheckSuper_MethodContext) getContextForArrowFunctionNode(p0 Node) *C
 	if this.self_ == any(this) {
 		return this.getContextForArrowFunctionNode_impl(p0)
 	}
-	return this.self_.(interface {
-		getContextForArrowFunctionNode_impl(Node) *CheckSuper_Context
-	}).getContextForArrowFunctionNode_impl(p0)
+	return this.self_.getContextForArrowFunctionNode_impl(p0)
 }
 
 // visitSuperPropertyAccess: an object that is exactly a CheckSuper_MethodContext calls its visitSuperPropertyAccess_impl directly (post-flip); others dispatch.
@@ -575,7 +578,7 @@ func (this *CheckSuper_MethodContext) visitSuperPropertyAccess(p0 *NodeTraversal
 		this.visitSuperPropertyAccess_impl(p0, p1)
 		return
 	}
-	this.self_.(interface{ visitSuperPropertyAccess_impl(*NodeTraversal, Node) }).visitSuperPropertyAccess_impl(p0, p1)
+	this.self_.visitSuperPropertyAccess_impl(p0, p1)
 }
 
 // visitSuperConstructorCall: an object that is exactly a CheckSuper_MethodContext calls its visitSuperConstructorCall_impl directly (post-flip); others dispatch.
@@ -584,7 +587,7 @@ func (this *CheckSuper_MethodContext) visitSuperConstructorCall(p0 *NodeTraversa
 		this.visitSuperConstructorCall_impl(p0, p1)
 		return
 	}
-	this.self_.(interface{ visitSuperConstructorCall_impl(*NodeTraversal, Node) }).visitSuperConstructorCall_impl(p0, p1)
+	this.self_.visitSuperConstructorCall_impl(p0, p1)
 }
 
 // getContextForArrowFunctionNode: an object that is exactly a CheckSuper_ConstructorContext calls its getContextForArrowFunctionNode_impl directly (post-flip); others dispatch.
@@ -592,9 +595,7 @@ func (this *CheckSuper_ConstructorContext) getContextForArrowFunctionNode(p0 Nod
 	if this.self_ == any(this) {
 		return this.getContextForArrowFunctionNode_impl(p0)
 	}
-	return this.self_.(interface {
-		getContextForArrowFunctionNode_impl(Node) *CheckSuper_Context
-	}).getContextForArrowFunctionNode_impl(p0)
+	return this.self_.getContextForArrowFunctionNode_impl(p0)
 }
 
 // visitSuperConstructorCall: an object that is exactly a CheckSuper_ConstructorContext calls its visitSuperConstructorCall_impl directly (post-flip); others dispatch.
@@ -603,7 +604,7 @@ func (this *CheckSuper_ConstructorContext) visitSuperConstructorCall(p0 *NodeTra
 		this.visitSuperConstructorCall_impl(p0, p1)
 		return
 	}
-	this.self_.(interface{ visitSuperConstructorCall_impl(*NodeTraversal, Node) }).visitSuperConstructorCall_impl(p0, p1)
+	this.self_.visitSuperConstructorCall_impl(p0, p1)
 }
 
 // visitSuperPropertyAccess: an object that is exactly a CheckSuper_ConstructorContext calls its visitSuperPropertyAccess_impl directly (post-flip); others dispatch.
@@ -612,7 +613,7 @@ func (this *CheckSuper_ConstructorContext) visitSuperPropertyAccess(p0 *NodeTrav
 		this.visitSuperPropertyAccess_impl(p0, p1)
 		return
 	}
-	this.self_.(interface{ visitSuperPropertyAccess_impl(*NodeTraversal, Node) }).visitSuperPropertyAccess_impl(p0, p1)
+	this.self_.visitSuperPropertyAccess_impl(p0, p1)
 }
 
 // visitThis: an object that is exactly a CheckSuper_ConstructorContext calls its visitThis_impl directly (post-flip); others dispatch.
@@ -621,7 +622,7 @@ func (this *CheckSuper_ConstructorContext) visitThis(p0 *NodeTraversal, p1 Node)
 		this.visitThis_impl(p0, p1)
 		return
 	}
-	this.self_.(interface{ visitThis_impl(*NodeTraversal, Node) }).visitThis_impl(p0, p1)
+	this.self_.visitThis_impl(p0, p1)
 }
 
 // visitReturn: an object that is exactly a CheckSuper_ConstructorContext calls its visitReturn_impl directly (post-flip); others dispatch.
@@ -630,7 +631,7 @@ func (this *CheckSuper_ConstructorContext) visitReturn(p0 *NodeTraversal, p1 Nod
 		this.visitReturn_impl(p0, p1)
 		return
 	}
-	this.self_.(interface{ visitReturn_impl(*NodeTraversal, Node) }).visitReturn_impl(p0, p1)
+	this.self_.visitReturn_impl(p0, p1)
 }
 
 // visitContextNode: an object that is exactly a CheckSuper_ConstructorContext calls its visitContextNode_impl directly (post-flip); others dispatch.
@@ -639,7 +640,7 @@ func (this *CheckSuper_ConstructorContext) visitContextNode(p0 *NodeTraversal) {
 		this.visitContextNode_impl(p0)
 		return
 	}
-	this.self_.(interface{ visitContextNode_impl(*NodeTraversal) }).visitContextNode_impl(p0)
+	this.self_.visitContextNode_impl(p0)
 }
 
 // getContextForArrowFunctionNode: an object that is exactly a CheckSuper_ConstructorArrowContext calls its getContextForArrowFunctionNode_impl directly (post-flip); others dispatch.
@@ -647,9 +648,7 @@ func (this *CheckSuper_ConstructorArrowContext) getContextForArrowFunctionNode(p
 	if this.self_ == any(this) {
 		return this.getContextForArrowFunctionNode_impl(p0)
 	}
-	return this.self_.(interface {
-		getContextForArrowFunctionNode_impl(Node) *CheckSuper_Context
-	}).getContextForArrowFunctionNode_impl(p0)
+	return this.self_.getContextForArrowFunctionNode_impl(p0)
 }
 
 // visitSuperConstructorCall: an object that is exactly a CheckSuper_ConstructorArrowContext calls its visitSuperConstructorCall_impl directly (post-flip); others dispatch.
@@ -658,7 +657,7 @@ func (this *CheckSuper_ConstructorArrowContext) visitSuperConstructorCall(p0 *No
 		this.visitSuperConstructorCall_impl(p0, p1)
 		return
 	}
-	this.self_.(interface{ visitSuperConstructorCall_impl(*NodeTraversal, Node) }).visitSuperConstructorCall_impl(p0, p1)
+	this.self_.visitSuperConstructorCall_impl(p0, p1)
 }
 
 // visitSuperPropertyAccess: an object that is exactly a CheckSuper_ConstructorArrowContext calls its visitSuperPropertyAccess_impl directly (post-flip); others dispatch.
@@ -667,5 +666,5 @@ func (this *CheckSuper_ConstructorArrowContext) visitSuperPropertyAccess(p0 *Nod
 		this.visitSuperPropertyAccess_impl(p0, p1)
 		return
 	}
-	this.self_.(interface{ visitSuperPropertyAccess_impl(*NodeTraversal, Node) }).visitSuperPropertyAccess_impl(p0, p1)
+	this.self_.visitSuperPropertyAccess_impl(p0, p1)
 }

@@ -1660,9 +1660,7 @@ func (this *ProcessCommonJSModules) shouldTraverse(p0 *NodeTraversal, p1 Node, p
 	if this.self_ == any(this) {
 		return this.shouldTraverse_impl(p0, p1, p2)
 	}
-	return this.self_.(interface {
-		shouldTraverse_impl(*NodeTraversal, Node, Node) bool
-	}).shouldTraverse_impl(p0, p1, p2)
+	return this.self_.shouldTraverse_impl(p0, p1, p2)
 }
 
 // visit: an object that is exactly a ProcessCommonJSModules_RewriteModule calls its visit_impl directly (post-flip); others dispatch.
@@ -1671,7 +1669,5 @@ func (this *ProcessCommonJSModules_RewriteModule) visit(p0 *NodeTraversal, p1 No
 		this.visit_impl(p0, p1, p2)
 		return
 	}
-	this.self_.(interface {
-		visit_impl(*NodeTraversal, Node, Node)
-	}).visit_impl(p0, p1, p2)
+	this.self_.visit_impl(p0, p1, p2)
 }

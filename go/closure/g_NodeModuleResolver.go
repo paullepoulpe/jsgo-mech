@@ -254,7 +254,7 @@ func (this *NodeModuleResolver) getPackageJsonMainEntries() map[string]string {
 	if this.self_ == any(this) {
 		return this.getPackageJsonMainEntries_impl()
 	}
-	return this.self_.(interface{ getPackageJsonMainEntries_impl() map[string]string }).getPackageJsonMainEntries_impl()
+	return this.self_.getPackageJsonMainEntries_impl()
 }
 
 // resolveJsModule: an object that is exactly a NodeModuleResolver calls its resolveJsModule_impl directly (post-flip); others dispatch.
@@ -262,9 +262,7 @@ func (this *NodeModuleResolver) resolveJsModule(p0 string, p1 string, p2 Optiona
 	if this.self_ == any(this) {
 		return this.resolveJsModule_impl(p0, p1, p2, p3, p4)
 	}
-	return this.self_.(interface {
-		resolveJsModule_impl(string, string, OptionalOf[string], int32, int32) OptionalOf[string]
-	}).resolveJsModule_impl(p0, p1, p2, p3, p4)
+	return this.self_.resolveJsModule_impl(p0, p1, p2, p3, p4)
 }
 
 // resolveJsModuleSilently: an object that is exactly a NodeModuleResolver calls its resolveJsModuleSilently_impl directly (post-flip); others dispatch.
@@ -272,7 +270,5 @@ func (this *NodeModuleResolver) resolveJsModuleSilently(p0 string, p1 string) Op
 	if this.self_ == any(this) {
 		return this.resolveJsModuleSilently_impl(p0, p1)
 	}
-	return this.self_.(interface {
-		resolveJsModuleSilently_impl(string, string) OptionalOf[string]
-	}).resolveJsModuleSilently_impl(p0, p1)
+	return this.self_.resolveJsModuleSilently_impl(p0, p1)
 }

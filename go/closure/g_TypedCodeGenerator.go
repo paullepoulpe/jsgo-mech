@@ -349,7 +349,5 @@ func (this *TypedCodeGenerator) add_2(p0 Node, p1 *CodeGenerator_Context) {
 		this.add_2_impl(p0, p1)
 		return
 	}
-	this.self_.(interface {
-		add_2_impl(Node, *CodeGenerator_Context)
-	}).add_2_impl(p0, p1)
+	this.self_.add_2_impl(p0, p1)
 }

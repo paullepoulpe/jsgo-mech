@@ -88,7 +88,5 @@ func (this *GoogBindToArrow) processMatch(p0 *Match) *TList[*SuggestedFix] {
 	if this.self_ == any(this) {
 		return this.processMatch_impl(p0)
 	}
-	return this.self_.(interface {
-		processMatch_impl(*Match) *TList[*SuggestedFix]
-	}).processMatch_impl(p0)
+	return this.self_.processMatch_impl(p0)
 }

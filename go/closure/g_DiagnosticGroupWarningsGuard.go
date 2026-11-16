@@ -89,7 +89,7 @@ func (this *DiagnosticGroupWarningsGuard) level(p0 *JSError) *CheckLevel {
 	if this.self_ == any(this) {
 		return this.level_impl(p0)
 	}
-	return this.self_.(interface{ level_impl(*JSError) *CheckLevel }).level_impl(p0)
+	return this.self_.level_impl(p0)
 }
 
 // mustRunChecks: an object that is exactly a DiagnosticGroupWarningsGuard calls its mustRunChecks_impl directly (post-flip); others dispatch.
@@ -97,5 +97,5 @@ func (this *DiagnosticGroupWarningsGuard) mustRunChecks(p0 *DiagnosticGroup) *Tr
 	if this.self_ == any(this) {
 		return this.mustRunChecks_impl(p0)
 	}
-	return this.self_.(interface{ mustRunChecks_impl(*DiagnosticGroup) *Tri }).mustRunChecks_impl(p0)
+	return this.self_.mustRunChecks_impl(p0)
 }

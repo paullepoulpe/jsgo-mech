@@ -3,12 +3,19 @@
 package closure
 
 type SourcePosition_rhino struct {
-	self_       any
+	self_       SourcePosition_rhino_I
 	item        any
 	startLineno int32
 	startCharno int32
 	endLineno   int32
 	endCharno   int32
+}
+
+// SourcePosition_rhino_I holds the methods the dispatchers of SourcePosition_rhino's hierarchy call on the most derived
+// object (self_); every class of the hierarchy implements them (post-flip).
+type SourcePosition_rhino_I interface {
+	isEquivalentTo_impl(*SourcePosition_rhino) bool
+	setItem_impl(any)
 }
 
 func (this *SourcePosition_rhino) as_SourcePosition_rhino() *SourcePosition_rhino { return this }
@@ -85,5 +92,5 @@ func (this *SourcePosition_rhino) isSamePositionAs(that *SourcePosition_rhino) b
 }
 
 func (this *SourcePosition_rhino) setItem(p0 any) {
-	this.self_.(interface{ setItem_impl(any) }).setItem_impl(p0)
+	this.self_.setItem_impl(p0)
 }

@@ -298,7 +298,7 @@ func (this *AbstractVar) getName() string {
 	if this.self_ == any(this) {
 		return this.getName_impl()
 	}
-	return this.self_.(interface{ getName_impl() string }).getName_impl()
+	return this.self_.getName_impl()
 }
 
 // getScopeRoot: an object that is exactly a AbstractVar calls its getScopeRoot_impl directly (post-flip); others dispatch.
@@ -306,5 +306,5 @@ func (this *AbstractVar) getScopeRoot() Node {
 	if this.self_ == any(this) {
 		return this.getScopeRoot_impl()
 	}
-	return this.self_.(interface{ getScopeRoot_impl() Node }).getScopeRoot_impl()
+	return this.self_.getScopeRoot_impl()
 }

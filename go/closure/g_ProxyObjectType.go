@@ -408,7 +408,7 @@ func (this *ProxyObjectType) getTypeClass() *JSTypeClass {
 	if this.self_ == any(this) {
 		return this.getTypeClass_impl()
 	}
-	return this.self_.(interface{ getTypeClass_impl() *JSTypeClass }).getTypeClass_impl()
+	return this.self_.getTypeClass_impl()
 }
 
 // getPropertyKind_2: an object that is exactly a ProxyObjectType calls its getPropertyKind_2_impl directly (post-flip); others dispatch.
@@ -416,9 +416,7 @@ func (this *ProxyObjectType) getPropertyKind_2(p0 Property_Key, p1 bool) *JSType
 	if this.self_ == any(this) {
 		return this.getPropertyKind_2_impl(p0, p1)
 	}
-	return this.self_.(interface {
-		getPropertyKind_2_impl(Property_Key, bool) *JSType_HasPropertyKind
-	}).getPropertyKind_2_impl(p0, p1)
+	return this.self_.getPropertyKind_2_impl(p0, p1)
 }
 
 // getPropertyMap: an object that is exactly a ProxyObjectType calls its getPropertyMap_impl directly (post-flip); others dispatch.
@@ -434,7 +432,7 @@ func (this *ProxyObjectType) loosenTypecheckingDueToForwardReferencedSupertype()
 	if this.self_ == any(this) {
 		return this.loosenTypecheckingDueToForwardReferencedSupertype_impl()
 	}
-	return this.self_.(interface{ loosenTypecheckingDueToForwardReferencedSupertype_impl() bool }).loosenTypecheckingDueToForwardReferencedSupertype_impl()
+	return this.self_.loosenTypecheckingDueToForwardReferencedSupertype_impl()
 }
 
 // setValidator: an object that is exactly a ProxyObjectType calls its setValidator_impl directly (post-flip); others dispatch.
@@ -442,7 +440,7 @@ func (this *ProxyObjectType) setValidator(p0 Predicate_base) bool {
 	if this.self_ == any(this) {
 		return this.setValidator_impl(p0)
 	}
-	return this.self_.(interface{ setValidator_impl(Predicate_base) bool }).setValidator_impl(p0)
+	return this.self_.setValidator_impl(p0)
 }
 
 // getReferenceName: an object that is exactly a ProxyObjectType calls its getReferenceName_impl directly (post-flip); others dispatch.
@@ -458,7 +456,7 @@ func (this *ProxyObjectType) matchesNumberContext() bool {
 	if this.self_ == any(this) {
 		return this.matchesNumberContext_impl()
 	}
-	return this.self_.(interface{ matchesNumberContext_impl() bool }).matchesNumberContext_impl()
+	return this.self_.matchesNumberContext_impl()
 }
 
 // matchesStringContext: an object that is exactly a ProxyObjectType calls its matchesStringContext_impl directly (post-flip); others dispatch.
@@ -466,7 +464,7 @@ func (this *ProxyObjectType) matchesStringContext() bool {
 	if this.self_ == any(this) {
 		return this.matchesStringContext_impl()
 	}
-	return this.self_.(interface{ matchesStringContext_impl() bool }).matchesStringContext_impl()
+	return this.self_.matchesStringContext_impl()
 }
 
 // matchesSymbolContext: an object that is exactly a ProxyObjectType calls its matchesSymbolContext_impl directly (post-flip); others dispatch.
@@ -474,7 +472,7 @@ func (this *ProxyObjectType) matchesSymbolContext() bool {
 	if this.self_ == any(this) {
 		return this.matchesSymbolContext_impl()
 	}
-	return this.self_.(interface{ matchesSymbolContext_impl() bool }).matchesSymbolContext_impl()
+	return this.self_.matchesSymbolContext_impl()
 }
 
 // matchesObjectContext: an object that is exactly a ProxyObjectType calls its matchesObjectContext_impl directly (post-flip); others dispatch.
@@ -482,7 +480,7 @@ func (this *ProxyObjectType) matchesObjectContext() bool {
 	if this.self_ == any(this) {
 		return this.matchesObjectContext_impl()
 	}
-	return this.self_.(interface{ matchesObjectContext_impl() bool }).matchesObjectContext_impl()
+	return this.self_.matchesObjectContext_impl()
 }
 
 // canBeCalled: an object that is exactly a ProxyObjectType calls its canBeCalled_impl directly (post-flip); others dispatch.
@@ -490,7 +488,7 @@ func (this *ProxyObjectType) canBeCalled() bool {
 	if this.self_ == any(this) {
 		return this.canBeCalled_impl()
 	}
-	return this.self_.(interface{ canBeCalled_impl() bool }).canBeCalled_impl()
+	return this.self_.canBeCalled_impl()
 }
 
 // isStructuralType: an object that is exactly a ProxyObjectType calls its isStructuralType_impl directly (post-flip); others dispatch.
@@ -498,7 +496,7 @@ func (this *ProxyObjectType) isStructuralType() bool {
 	if this.self_ == any(this) {
 		return this.isStructuralType_impl()
 	}
-	return this.self_.(interface{ isStructuralType_impl() bool }).isStructuralType_impl()
+	return this.self_.isStructuralType_impl()
 }
 
 // isNoType: an object that is exactly a ProxyObjectType calls its isNoType_impl directly (post-flip); others dispatch.
@@ -506,7 +504,7 @@ func (this *ProxyObjectType) isNoType() bool {
 	if this.self_ == any(this) {
 		return this.isNoType_impl()
 	}
-	return this.self_.(interface{ isNoType_impl() bool }).isNoType_impl()
+	return this.self_.isNoType_impl()
 }
 
 // isNoObjectType: an object that is exactly a ProxyObjectType calls its isNoObjectType_impl directly (post-flip); others dispatch.
@@ -514,7 +512,7 @@ func (this *ProxyObjectType) isNoObjectType() bool {
 	if this.self_ == any(this) {
 		return this.isNoObjectType_impl()
 	}
-	return this.self_.(interface{ isNoObjectType_impl() bool }).isNoObjectType_impl()
+	return this.self_.isNoObjectType_impl()
 }
 
 // isNoResolvedType: an object that is exactly a ProxyObjectType calls its isNoResolvedType_impl directly (post-flip); others dispatch.
@@ -522,7 +520,7 @@ func (this *ProxyObjectType) isNoResolvedType() bool {
 	if this.self_ == any(this) {
 		return this.isNoResolvedType_impl()
 	}
-	return this.self_.(interface{ isNoResolvedType_impl() bool }).isNoResolvedType_impl()
+	return this.self_.isNoResolvedType_impl()
 }
 
 // isUnknownType: an object that is exactly a ProxyObjectType calls its isUnknownType_impl directly (post-flip); others dispatch.
@@ -530,7 +528,7 @@ func (this *ProxyObjectType) isUnknownType() bool {
 	if this.self_ == any(this) {
 		return this.isUnknownType_impl()
 	}
-	return this.self_.(interface{ isUnknownType_impl() bool }).isUnknownType_impl()
+	return this.self_.isUnknownType_impl()
 }
 
 // isCheckedUnknownType: an object that is exactly a ProxyObjectType calls its isCheckedUnknownType_impl directly (post-flip); others dispatch.
@@ -538,7 +536,7 @@ func (this *ProxyObjectType) isCheckedUnknownType() bool {
 	if this.self_ == any(this) {
 		return this.isCheckedUnknownType_impl()
 	}
-	return this.self_.(interface{ isCheckedUnknownType_impl() bool }).isCheckedUnknownType_impl()
+	return this.self_.isCheckedUnknownType_impl()
 }
 
 // isNullable: an object that is exactly a ProxyObjectType calls its isNullable_impl directly (post-flip); others dispatch.
@@ -546,7 +544,7 @@ func (this *ProxyObjectType) isNullable() bool {
 	if this.self_ == any(this) {
 		return this.isNullable_impl()
 	}
-	return this.self_.(interface{ isNullable_impl() bool }).isNullable_impl()
+	return this.self_.isNullable_impl()
 }
 
 // isVoidable: an object that is exactly a ProxyObjectType calls its isVoidable_impl directly (post-flip); others dispatch.
@@ -554,7 +552,7 @@ func (this *ProxyObjectType) isVoidable() bool {
 	if this.self_ == any(this) {
 		return this.isVoidable_impl()
 	}
-	return this.self_.(interface{ isVoidable_impl() bool }).isVoidable_impl()
+	return this.self_.isVoidable_impl()
 }
 
 // toMaybeEnumType: an object that is exactly a ProxyObjectType calls its toMaybeEnumType_impl directly (post-flip); others dispatch.
@@ -562,7 +560,7 @@ func (this *ProxyObjectType) toMaybeEnumType() *EnumType {
 	if this.self_ == any(this) {
 		return this.toMaybeEnumType_impl()
 	}
-	return this.self_.(interface{ toMaybeEnumType_impl() *EnumType }).toMaybeEnumType_impl()
+	return this.self_.toMaybeEnumType_impl()
 }
 
 // isConstructor: an object that is exactly a ProxyObjectType calls its isConstructor_impl directly (post-flip); others dispatch.
@@ -570,7 +568,7 @@ func (this *ProxyObjectType) isConstructor() bool {
 	if this.self_ == any(this) {
 		return this.isConstructor_impl()
 	}
-	return this.self_.(interface{ isConstructor_impl() bool }).isConstructor_impl()
+	return this.self_.isConstructor_impl()
 }
 
 // isNominalType: an object that is exactly a ProxyObjectType calls its isNominalType_impl directly (post-flip); others dispatch.
@@ -578,7 +576,7 @@ func (this *ProxyObjectType) isNominalType() bool {
 	if this.self_ == any(this) {
 		return this.isNominalType_impl()
 	}
-	return this.self_.(interface{ isNominalType_impl() bool }).isNominalType_impl()
+	return this.self_.isNominalType_impl()
 }
 
 // isInstanceType: an object that is exactly a ProxyObjectType calls its isInstanceType_impl directly (post-flip); others dispatch.
@@ -586,7 +584,7 @@ func (this *ProxyObjectType) isInstanceType() bool {
 	if this.self_ == any(this) {
 		return this.isInstanceType_impl()
 	}
-	return this.self_.(interface{ isInstanceType_impl() bool }).isInstanceType_impl()
+	return this.self_.isInstanceType_impl()
 }
 
 // isInterface: an object that is exactly a ProxyObjectType calls its isInterface_impl directly (post-flip); others dispatch.
@@ -594,7 +592,7 @@ func (this *ProxyObjectType) isInterface() bool {
 	if this.self_ == any(this) {
 		return this.isInterface_impl()
 	}
-	return this.self_.(interface{ isInterface_impl() bool }).isInterface_impl()
+	return this.self_.isInterface_impl()
 }
 
 // isOrdinaryFunction: an object that is exactly a ProxyObjectType calls its isOrdinaryFunction_impl directly (post-flip); others dispatch.
@@ -602,7 +600,7 @@ func (this *ProxyObjectType) isOrdinaryFunction() bool {
 	if this.self_ == any(this) {
 		return this.isOrdinaryFunction_impl()
 	}
-	return this.self_.(interface{ isOrdinaryFunction_impl() bool }).isOrdinaryFunction_impl()
+	return this.self_.isOrdinaryFunction_impl()
 }
 
 // isAllType: an object that is exactly a ProxyObjectType calls its isAllType_impl directly (post-flip); others dispatch.
@@ -610,7 +608,7 @@ func (this *ProxyObjectType) isAllType() bool {
 	if this.self_ == any(this) {
 		return this.isAllType_impl()
 	}
-	return this.self_.(interface{ isAllType_impl() bool }).isAllType_impl()
+	return this.self_.isAllType_impl()
 }
 
 // isStruct: an object that is exactly a ProxyObjectType calls its isStruct_impl directly (post-flip); others dispatch.
@@ -618,7 +616,7 @@ func (this *ProxyObjectType) isStruct() bool {
 	if this.self_ == any(this) {
 		return this.isStruct_impl()
 	}
-	return this.self_.(interface{ isStruct_impl() bool }).isStruct_impl()
+	return this.self_.isStruct_impl()
 }
 
 // isDict: an object that is exactly a ProxyObjectType calls its isDict_impl directly (post-flip); others dispatch.
@@ -626,7 +624,7 @@ func (this *ProxyObjectType) isDict() bool {
 	if this.self_ == any(this) {
 		return this.isDict_impl()
 	}
-	return this.self_.(interface{ isDict_impl() bool }).isDict_impl()
+	return this.self_.isDict_impl()
 }
 
 // isNativeObjectType: an object that is exactly a ProxyObjectType calls its isNativeObjectType_impl directly (post-flip); others dispatch.
@@ -634,7 +632,7 @@ func (this *ProxyObjectType) isNativeObjectType() bool {
 	if this.self_ == any(this) {
 		return this.isNativeObjectType_impl()
 	}
-	return this.self_.(interface{ isNativeObjectType_impl() bool }).isNativeObjectType_impl()
+	return this.self_.isNativeObjectType_impl()
 }
 
 // toMaybeRecordType: an object that is exactly a ProxyObjectType calls its toMaybeRecordType_impl directly (post-flip); others dispatch.
@@ -642,7 +640,7 @@ func (this *ProxyObjectType) toMaybeRecordType() *RecordType {
 	if this.self_ == any(this) {
 		return this.toMaybeRecordType_impl()
 	}
-	return this.self_.(interface{ toMaybeRecordType_impl() *RecordType }).toMaybeRecordType_impl()
+	return this.self_.toMaybeRecordType_impl()
 }
 
 // toMaybeUnionType: an object that is exactly a ProxyObjectType calls its toMaybeUnionType_impl directly (post-flip); others dispatch.
@@ -650,7 +648,7 @@ func (this *ProxyObjectType) toMaybeUnionType() *UnionType {
 	if this.self_ == any(this) {
 		return this.toMaybeUnionType_impl()
 	}
-	return this.self_.(interface{ toMaybeUnionType_impl() *UnionType }).toMaybeUnionType_impl()
+	return this.self_.toMaybeUnionType_impl()
 }
 
 // toMaybeFunctionType: an object that is exactly a ProxyObjectType calls its toMaybeFunctionType_impl directly (post-flip); others dispatch.
@@ -658,7 +656,7 @@ func (this *ProxyObjectType) toMaybeFunctionType() *FunctionType {
 	if this.self_ == any(this) {
 		return this.toMaybeFunctionType_impl()
 	}
-	return this.self_.(interface{ toMaybeFunctionType_impl() *FunctionType }).toMaybeFunctionType_impl()
+	return this.self_.toMaybeFunctionType_impl()
 }
 
 // toMaybeEnumElementType: an object that is exactly a ProxyObjectType calls its toMaybeEnumElementType_impl directly (post-flip); others dispatch.
@@ -666,7 +664,7 @@ func (this *ProxyObjectType) toMaybeEnumElementType() *EnumElementType {
 	if this.self_ == any(this) {
 		return this.toMaybeEnumElementType_impl()
 	}
-	return this.self_.(interface{ toMaybeEnumElementType_impl() *EnumElementType }).toMaybeEnumElementType_impl()
+	return this.self_.toMaybeEnumElementType_impl()
 }
 
 // toMaybeKnownSymbolType: an object that is exactly a ProxyObjectType calls its toMaybeKnownSymbolType_impl directly (post-flip); others dispatch.
@@ -674,7 +672,7 @@ func (this *ProxyObjectType) toMaybeKnownSymbolType() *KnownSymbolType {
 	if this.self_ == any(this) {
 		return this.toMaybeKnownSymbolType_impl()
 	}
-	return this.self_.(interface{ toMaybeKnownSymbolType_impl() *KnownSymbolType }).toMaybeKnownSymbolType_impl()
+	return this.self_.toMaybeKnownSymbolType_impl()
 }
 
 // testForEquality: an object that is exactly a ProxyObjectType calls its testForEquality_impl directly (post-flip); others dispatch.
@@ -682,7 +680,7 @@ func (this *ProxyObjectType) testForEquality(p0 *JSType) *Tri {
 	if this.self_ == any(this) {
 		return this.testForEquality_impl(p0)
 	}
-	return this.self_.(interface{ testForEquality_impl(*JSType) *Tri }).testForEquality_impl(p0)
+	return this.self_.testForEquality_impl(p0)
 }
 
 // getOwnerFunction: an object that is exactly a ProxyObjectType calls its getOwnerFunction_impl directly (post-flip); others dispatch.
@@ -714,7 +712,7 @@ func (this *ProxyObjectType) recursionUnsafeHashCode() int32 {
 	if this.self_ == any(this) {
 		return this.recursionUnsafeHashCode_impl()
 	}
-	return this.self_.(interface{ recursionUnsafeHashCode_impl() int32 }).recursionUnsafeHashCode_impl()
+	return this.self_.recursionUnsafeHashCode_impl()
 }
 
 // appendTo: an object that is exactly a ProxyObjectType calls its appendTo_impl directly (post-flip); others dispatch.
@@ -723,7 +721,7 @@ func (this *ProxyObjectType) appendTo(p0 *TypeStringBuilder) {
 		this.appendTo_impl(p0)
 		return
 	}
-	this.self_.(interface{ appendTo_impl(*TypeStringBuilder) }).appendTo_impl(p0)
+	this.self_.appendTo_impl(p0)
 }
 
 // getImplicitPrototype: an object that is exactly a ProxyObjectType calls its getImplicitPrototype_impl directly (post-flip); others dispatch.
@@ -749,7 +747,7 @@ func (this *ProxyObjectType) findPropertyTypeWithoutConsideringTemplateTypes(p0 
 	if this.self_ == any(this) {
 		return this.findPropertyTypeWithoutConsideringTemplateTypes_impl(p0)
 	}
-	return this.self_.(interface{ findPropertyTypeWithoutConsideringTemplateTypes_impl(Property_Key) *JSType }).findPropertyTypeWithoutConsideringTemplateTypes_impl(p0)
+	return this.self_.findPropertyTypeWithoutConsideringTemplateTypes_impl(p0)
 }
 
 // getJSDocInfo: an object that is exactly a ProxyObjectType calls its getJSDocInfo_impl directly (post-flip); others dispatch.
@@ -757,7 +755,7 @@ func (this *ProxyObjectType) getJSDocInfo() *JSDocInfo {
 	if this.self_ == any(this) {
 		return this.getJSDocInfo_impl()
 	}
-	return this.self_.(interface{ getJSDocInfo_impl() *JSDocInfo }).getJSDocInfo_impl()
+	return this.self_.getJSDocInfo_impl()
 }
 
 // setJSDocInfo: an object that is exactly a ProxyObjectType calls its setJSDocInfo_impl directly (post-flip); others dispatch.
@@ -801,7 +799,7 @@ func (this *ProxyObjectType) getTemplateParamCount() int32 {
 	if this.self_ == any(this) {
 		return this.getTemplateParamCount_impl()
 	}
-	return this.self_.(interface{ getTemplateParamCount_impl() int32 }).getTemplateParamCount_impl()
+	return this.self_.getTemplateParamCount_impl()
 }
 
 // visitUntyped: an object that is exactly a ProxyObjectType calls its visitUntyped_impl directly (post-flip); others dispatch.
@@ -809,7 +807,7 @@ func (this *ProxyObjectType) visitUntyped(p0 Visitor) any {
 	if this.self_ == any(this) {
 		return this.visitUntyped_impl(p0)
 	}
-	return this.self_.(interface{ visitUntyped_impl(Visitor) any }).visitUntyped_impl(p0)
+	return this.self_.visitUntyped_impl(p0)
 }
 
 // visitUntyped_2: an object that is exactly a ProxyObjectType calls its visitUntyped_2_impl directly (post-flip); others dispatch.
@@ -817,9 +815,7 @@ func (this *ProxyObjectType) visitUntyped_2(p0 RelationshipVisitor, p1 *JSType) 
 	if this.self_ == any(this) {
 		return this.visitUntyped_2_impl(p0, p1)
 	}
-	return this.self_.(interface {
-		visitUntyped_2_impl(RelationshipVisitor, *JSType) any
-	}).visitUntyped_2_impl(p0, p1)
+	return this.self_.visitUntyped_2_impl(p0, p1)
 }
 
 // resolveInternal: an object that is exactly a ProxyObjectType calls its resolveInternal_impl directly (post-flip); others dispatch.
@@ -827,9 +823,7 @@ func (this *ProxyObjectType) resolveInternal(p0 ErrorReporter_rhino) *JSType {
 	if this.self_ == any(this) {
 		return this.resolveInternal_impl(p0)
 	}
-	return this.self_.(interface {
-		resolveInternal_impl(ErrorReporter_rhino) *JSType
-	}).resolveInternal_impl(p0)
+	return this.self_.resolveInternal_impl(p0)
 }
 
 // getTypeOfThis: an object that is exactly a ProxyObjectType calls its getTypeOfThis_impl directly (post-flip); others dispatch.
@@ -845,7 +839,7 @@ func (this *ProxyObjectType) collapseUnion() *JSType {
 	if this.self_ == any(this) {
 		return this.collapseUnion_impl()
 	}
-	return this.self_.(interface{ collapseUnion_impl() *JSType }).collapseUnion_impl()
+	return this.self_.collapseUnion_impl()
 }
 
 // matchConstraint: an object that is exactly a ProxyObjectType calls its matchConstraint_impl directly (post-flip); others dispatch.
@@ -854,7 +848,7 @@ func (this *ProxyObjectType) matchConstraint(p0 *JSType) {
 		this.matchConstraint_impl(p0)
 		return
 	}
-	this.self_.(interface{ matchConstraint_impl(*JSType) }).matchConstraint_impl(p0)
+	this.self_.matchConstraint_impl(p0)
 }
 
 // toMaybeTemplatizedType: an object that is exactly a ProxyObjectType calls its toMaybeTemplatizedType_impl directly (post-flip); others dispatch.
@@ -862,7 +856,7 @@ func (this *ProxyObjectType) toMaybeTemplatizedType() *TemplatizedType {
 	if this.self_ == any(this) {
 		return this.toMaybeTemplatizedType_impl()
 	}
-	return this.self_.(interface{ toMaybeTemplatizedType_impl() *TemplatizedType }).toMaybeTemplatizedType_impl()
+	return this.self_.toMaybeTemplatizedType_impl()
 }
 
 // toMaybeTemplateType: an object that is exactly a ProxyObjectType calls its toMaybeTemplateType_impl directly (post-flip); others dispatch.
@@ -870,7 +864,7 @@ func (this *ProxyObjectType) toMaybeTemplateType() *TemplateType {
 	if this.self_ == any(this) {
 		return this.toMaybeTemplateType_impl()
 	}
-	return this.self_.(interface{ toMaybeTemplateType_impl() *TemplateType }).toMaybeTemplateType_impl()
+	return this.self_.toMaybeTemplateType_impl()
 }
 
 // hasAnyTemplateTypesInternal: an object that is exactly a ProxyObjectType calls its hasAnyTemplateTypesInternal_impl directly (post-flip); others dispatch.
@@ -878,7 +872,7 @@ func (this *ProxyObjectType) hasAnyTemplateTypesInternal() bool {
 	if this.self_ == any(this) {
 		return this.hasAnyTemplateTypesInternal_impl()
 	}
-	return this.self_.(interface{ hasAnyTemplateTypesInternal_impl() bool }).hasAnyTemplateTypesInternal_impl()
+	return this.self_.hasAnyTemplateTypesInternal_impl()
 }
 
 // getTemplateTypeMap: an object that is exactly a ProxyObjectType calls its getTemplateTypeMap_impl directly (post-flip); others dispatch.
@@ -886,5 +880,5 @@ func (this *ProxyObjectType) getTemplateTypeMap() *TemplateTypeMap {
 	if this.self_ == any(this) {
 		return this.getTemplateTypeMap_impl()
 	}
-	return this.self_.(interface{ getTemplateTypeMap_impl() *TemplateTypeMap }).getTemplateTypeMap_impl()
+	return this.self_.getTemplateTypeMap_impl()
 }

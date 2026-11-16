@@ -201,10 +201,16 @@ func ExternExportsPass_clinit() {
 }
 
 type ExternExportsPass_Export struct {
-	self_      any
+	self_      ExternExportsPass_Export_I
 	outer_     *ExternExportsPass
 	symbolName string
 	value_     Node
+}
+
+// ExternExportsPass_Export_I holds the methods the dispatchers of ExternExportsPass_Export's hierarchy call on the most derived
+// object (self_); every class of the hierarchy implements them (post-flip).
+type ExternExportsPass_Export_I interface {
+	getExportedPath_impl() string
 }
 
 func (this *ExternExportsPass_Export) as_ExternExportsPass_Export() *ExternExportsPass_Export {
@@ -436,7 +442,7 @@ func (this *ExternExportsPass_Export) getValue() Node {
 }
 
 func (this *ExternExportsPass_Export) getExportedPath() string {
-	return this.self_.(interface{ getExportedPath_impl() string }).getExportedPath_impl()
+	return this.self_.getExportedPath_impl()
 }
 
 type ExternExportsPass_SymbolExport struct {
@@ -531,9 +537,7 @@ func (this *ExternExportsPass) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
 		this.visit_impl(p0, p1, p2)
 		return
 	}
-	this.self_.(interface {
-		visit_impl(*NodeTraversal, Node, Node)
-	}).visit_impl(p0, p1, p2)
+	this.self_.visit_impl(p0, p1, p2)
 }
 
 // getExportedPath: an object that is exactly a ExternExportsPass_SymbolExport calls its getExportedPath_impl directly (post-flip); others dispatch.
@@ -541,7 +545,7 @@ func (this *ExternExportsPass_SymbolExport) getExportedPath() string {
 	if this.self_ == any(this) {
 		return this.getExportedPath_impl()
 	}
-	return this.self_.(interface{ getExportedPath_impl() string }).getExportedPath_impl()
+	return this.self_.getExportedPath_impl()
 }
 
 // getExportedPath: an object that is exactly a ExternExportsPass_PropertyExport calls its getExportedPath_impl directly (post-flip); others dispatch.
@@ -549,5 +553,5 @@ func (this *ExternExportsPass_PropertyExport) getExportedPath() string {
 	if this.self_ == any(this) {
 		return this.getExportedPath_impl()
 	}
-	return this.self_.(interface{ getExportedPath_impl() string }).getExportedPath_impl()
+	return this.self_.getExportedPath_impl()
 }

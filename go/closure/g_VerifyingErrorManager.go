@@ -86,7 +86,7 @@ func (this *VerifyingErrorManager) report_2(p0 *CheckLevel, p1 *JSError) {
 		this.report_2_impl(p0, p1)
 		return
 	}
-	this.self_.(interface{ report_2_impl(*CheckLevel, *JSError) }).report_2_impl(p0, p1)
+	this.self_.report_2_impl(p0, p1)
 }
 
 // generateReport: an object that is exactly a VerifyingErrorManager calls its generateReport_impl directly (post-flip); others dispatch.
@@ -95,5 +95,5 @@ func (this *VerifyingErrorManager) generateReport() {
 		this.generateReport_impl()
 		return
 	}
-	this.self_.(interface{ generateReport_impl() }).generateReport_impl()
+	this.self_.generateReport_impl()
 }

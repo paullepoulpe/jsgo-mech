@@ -3,11 +3,20 @@
 package closure
 
 type ModuleResolver struct {
-	self_           any
+	self_           ModuleResolver_I
 	modulePaths     ImmutableSetOf[string]
 	moduleRootPaths ImmutableListOf[string]
 	errorHandler    ErrorHandler
 	pathEscaper     *ModuleLoader_PathEscaper
+}
+
+// ModuleResolver_I holds the methods the dispatchers of ModuleResolver's hierarchy call on the most derived
+// object (self_); every class of the hierarchy implements them (post-flip).
+type ModuleResolver_I interface {
+	getPackageJsonMainEntries_impl() map[string]string
+	resolveJsModuleSilently_impl(string, string) OptionalOf[string]
+	resolveJsModule_impl(string, string, OptionalOf[string], int32, int32) OptionalOf[string]
+	resolveModuleAsPath_impl(string, string) string
 }
 
 func (this *ModuleResolver) as_ModuleResolver() *ModuleResolver { return this }
@@ -90,21 +99,17 @@ func (this *ModuleResolver) setErrorHandler(errorHandler ErrorHandler) {
 }
 
 func (this *ModuleResolver) resolveJsModule(p0 string, p1 string, p2 OptionalOf[string], p3 int32, p4 int32) OptionalOf[string] {
-	return this.self_.(interface {
-		resolveJsModule_impl(string, string, OptionalOf[string], int32, int32) OptionalOf[string]
-	}).resolveJsModule_impl(p0, p1, p2, p3, p4)
+	return this.self_.resolveJsModule_impl(p0, p1, p2, p3, p4)
 }
 
 func (this *ModuleResolver) resolveJsModuleSilently(p0 string, p1 string) OptionalOf[string] {
-	return this.self_.(interface {
-		resolveJsModuleSilently_impl(string, string) OptionalOf[string]
-	}).resolveJsModuleSilently_impl(p0, p1)
+	return this.self_.resolveJsModuleSilently_impl(p0, p1)
 }
 
 func (this *ModuleResolver) resolveModuleAsPath(p0 string, p1 string) string {
-	return this.self_.(interface{ resolveModuleAsPath_impl(string, string) string }).resolveModuleAsPath_impl(p0, p1)
+	return this.self_.resolveModuleAsPath_impl(p0, p1)
 }
 
 func (this *ModuleResolver) getPackageJsonMainEntries() map[string]string {
-	return this.self_.(interface{ getPackageJsonMainEntries_impl() map[string]string }).getPackageJsonMainEntries_impl()
+	return this.self_.getPackageJsonMainEntries_impl()
 }
