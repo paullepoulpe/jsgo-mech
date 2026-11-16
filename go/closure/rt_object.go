@@ -100,7 +100,13 @@ var nextIdentityHash_ int32 = 0x1000
 
 // identityHash_ is System.identityHashCode. Go's collector never moves objects, so for a
 // pointer the address is a stable identity; other values get a number from a table.
+// An enum constant is identified by its Enum record.
 func identityHash_(v any) int32 {
+	if e, ok := v.(enumConst_); ok {
+		// An enum constant, an object or an integer: the address of its Enum record, which is
+		// the object's own address when the constant is an object.
+		v = e.enum_()
+	}
 	if h, ok := v.(interface{ handle_() uint32 }); ok {
 		// An object of a handle class: its handle is its identity.
 		return handleHash_(h.handle_())
