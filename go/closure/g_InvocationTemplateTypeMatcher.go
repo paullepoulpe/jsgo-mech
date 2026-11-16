@@ -157,7 +157,7 @@ func (this *InvocationTemplateTypeMatcher) recordTemplateMatch(template *Templat
 	if match.isUnknownType() {
 		return
 	}
-	this.matchedTypes.merge(obj_(template), match.self(), lambda_InvocationTemplateTypeMatcher_recordTemplateMatch_1_)
+	this.matchedTypes.merge(obj_(template), match.self(), lambda_InvocationTemplateTypeMatcher_recordTemplateMatch_1_.f)
 }
 
 // lambda_InvocationTemplateTypeMatcher_recordTemplateMatch_1_ is a lambda of InvocationTemplateTypeMatcher_recordTemplateMatch that captures nothing (post-flip step lambdas).
@@ -165,7 +165,7 @@ var lambda_InvocationTemplateTypeMatcher_recordTemplateMatch_1_ = &BiFunction_fn
 
 func (this *InvocationTemplateTypeMatcher) copyMatchedTypes() ImmutableMapOf[*TemplateType, *JSType] {
 	var builder ImmutableMap_BuilderOf[*TemplateType, *JSType] = ImmutableMap_builder()
-	this.matchedTypes.forEach(&BiConsumer_fn{func(p0 any, p1 any) { builder.put(obj_(cast_[*TemplateType](p0)), to_JSType(p1).self()) }})
+	this.matchedTypes.forEach(func(p0 any, p1 any) { builder.put(obj_(cast_[*TemplateType](p0)), to_JSType(p1).self()) })
 	return builder.buildOrThrow()
 }
 

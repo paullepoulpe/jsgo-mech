@@ -27,7 +27,7 @@ func ColorGraphNodeFactory_createFactory(colorRegistry *ColorRegistry) *ColorGra
 
 func (this *ColorGraphNodeFactory) createNode(color *Color) *ColorGraphNode {
 	var key *Color = this.simplifyColor(color)
-	return cast_[*ColorGraphNode](Map_computeIfAbsent(icast_Map(obj_(this.typeIndex)), obj_(key), &Function_fn{func(p0 any) any { return obj_(this.newColorGraphNode(cast_[*Color](p0))) }}))
+	return cast_[*ColorGraphNode](Map_computeIfAbsent_f(icast_Map(obj_(this.typeIndex)), obj_(key), func(p0 any) any { return obj_(this.newColorGraphNode(cast_[*Color](p0))) }))
 }
 
 func (this *ColorGraphNodeFactory) getAllKnownTypes() ImmutableSetOf[*ColorGraphNode] {

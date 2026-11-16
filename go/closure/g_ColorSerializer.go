@@ -44,23 +44,23 @@ func (this *ColorSerializer) addColors(colors CollectionOf[*Color]) ImmutableLis
 }
 
 func (this *ColorSerializer) addColor(color *Color) int32 {
-	return unbox_[int32](Map_computeIfAbsent(icast_Map(obj_(this.colorIdToTypePointer)), obj_(color.getId()), &Function_fn{func(unusedKey_ any) any {
+	return unbox_[int32](Map_computeIfAbsent_f(icast_Map(obj_(this.colorIdToTypePointer)), obj_(color.getId()), func(unusedKey_ any) any {
 		var unusedKey *ColorId = cast_[*ColorId](unusedKey_)
 		_ = unusedKey
 		var index int32 = this.colorsInSerializedOrder.size()
 		this.colorsInSerializedOrder.add(color)
 		return any(int32(index))
 		panic("unreachable")
-	}}))
+	}))
 }
 
-func (this *ColorSerializer) generateTypePool(getDisambiguationSupertypesFn FunctionOf[*Color, SetOf[*Color]], getMismatchSourceRefsFn FunctionOf[*Color, SetOf[string]]) *TypePool {
+func (this *ColorSerializer) generateTypePool(getDisambiguationSupertypesFn func(any) any, getMismatchSourceRefsFn FunctionOf[*Color, SetOf[string]]) *TypePool {
 	var typePoolBuilder *TypePool_Builder = TypePool_newBuilder()
 	for i := int32(TypePointers_untrimOffset(0)); i < this.colorsInSerializedOrder.size(); i++ {
 		var color *Color = this.colorsInSerializedOrder.get(i)
 		var typePointer any = this.colorIdToTypePointer.get(obj_(color.getId()))
 		typePoolBuilder.addType(this.generateTypeProto(color))
-		it_2 := foreach_(any(icast_Set(getDisambiguationSupertypesFn.apply(obj_(color)))))
+		it_2 := foreach_(any(icast_Set(getDisambiguationSupertypesFn(obj_(color)))))
 		for it_2.next() {
 			var supertype *Color = cast_[*Color](it_2.v)
 			typePoolBuilder.addDisambiguationEdgesBuilder().setSubtype(unbox_[int32](typePointer)).setSupertype(this.addColor(supertype))
@@ -77,7 +77,7 @@ func (this *ColorSerializer) generateTypePool(getDisambiguationSupertypesFn Func
 			it_6 := foreach_(any(icast_Set(getMismatchSourceRefsFn.apply(obj_(color)))))
 			for it_6.next() {
 				var srcRef string = str_(it_6.v)
-				var typePointerList ArrayListOf[BoxedOf[int32]] = srcRefToTypePointerList.computeIfAbsent(srcRef, lambda_ColorSerializer_generateTypePool_1_)
+				var typePointerList ArrayListOf[BoxedOf[int32]] = srcRefToTypePointerList.computeIfAbsent_f(srcRef, lambda_ColorSerializer_generateTypePool_1_.f)
 				typePointerList.add(typePointer)
 			}
 		}

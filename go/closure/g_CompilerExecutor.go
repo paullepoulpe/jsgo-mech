@@ -46,7 +46,7 @@ func (this *CompilerExecutor) setDebugMessage(debugMessage string) {
 	this.debugMessage = Optional_of(strobj_(debugMessage))
 }
 
-func (this *CompilerExecutor) runInCompilerThread(callable CallableOf[any], dumpTraceReport bool) any {
+func (this *CompilerExecutor) runInCompilerThread(callable func() any, dumpTraceReport bool) any {
 	var executor ExecutorService = this.getExecutorService()
 	var result any = nil
 	var exception []*Throwable = make([]*Throwable, 1)
@@ -92,7 +92,7 @@ func (this *CompilerExecutor) runInCompilerThread(callable CallableOf[any], dump
 					if dumpTraceReport {
 						Tracer_initCurrentThreadTrace_0()
 					}
-					ret_2 = callable.call()
+					ret_2 = callable()
 					return 1
 					return 0
 				}()
@@ -123,7 +123,7 @@ func (this *CompilerExecutor) runInCompilerThread(callable CallableOf[any], dump
 					panic(r_)
 				}
 			}()
-			result = callable.call()
+			result = callable()
 			return 0
 		}()
 	}

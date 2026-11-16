@@ -235,7 +235,7 @@ func (this *ExtractPrototypeMemberDeclarations_GatherExtractionInfo) visit_impl(
 			var instance *ExtractPrototypeMemberDeclarations_ExtractionInstance = new_ExtractPrototypeMemberDeclarations_ExtractionInstance(this.outer_, prototypeMember, n)
 			cur = cast_[*ExtractPrototypeMemberDeclarations_PrototypeMemberDeclaration](Iterables_getLast(Iterable(instance.declarations.asList()))).node_
 			if instance.isFavorable() {
-				Map_computeIfAbsent(this.instancesByChunk.asMap(), obj_(t.getChunk()), lambda_ExtractPrototypeMemberDeclarations_GatherExtractionInfo_visit_impl_1_)
+				Map_computeIfAbsent_f(this.instancesByChunk.asMap(), obj_(t.getChunk()), lambda_ExtractPrototypeMemberDeclarations_GatherExtractionInfo_visit_impl_1_.f)
 				var instanceInfo *ExtractPrototypeMemberDeclarations_ExtractionInstanceInfo = this.instancesByChunk.get(t.getChunk())
 				instanceInfo.instances.add(instance)
 				instanceInfo.totalDelta += instance.delta

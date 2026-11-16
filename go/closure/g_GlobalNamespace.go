@@ -1722,19 +1722,19 @@ func (this *GlobalNamespace_Name) canCollapseOrInlineChildNames() *GlobalNamespa
 		this.logChildNamesDecision(GlobalNamespace_Inlinability_DO_NOT_INLINE, "getter/setter")
 		return GlobalNamespace_Inlinability_DO_NOT_INLINE
 	} else if this.globalSets != 1 {
-		this.logChildNamesDecisionSupplier(GlobalNamespace_Inlinability_DO_NOT_INLINE, &Supplier_fn{func() any {
+		this.logChildNamesDecisionSupplier(GlobalNamespace_Inlinability_DO_NOT_INLINE, func() any {
 			return strobj_(String_format("set %d times globally", []any{any(int32(this.globalSets))}))
-		}})
+		})
 		return GlobalNamespace_Inlinability_DO_NOT_INLINE
 	} else if this.localSets != 0 {
-		this.logChildNamesDecisionSupplier(GlobalNamespace_Inlinability_DO_NOT_INLINE, &Supplier_fn{func() any {
+		this.logChildNamesDecisionSupplier(GlobalNamespace_Inlinability_DO_NOT_INLINE, func() any {
 			return strobj_(String_format("set %d times locally", []any{any(int32(this.localSets))}))
-		}})
+		})
 		return GlobalNamespace_Inlinability_DO_NOT_INLINE
 	} else if this.deleteProps != 0 {
-		this.logChildNamesDecisionSupplier(GlobalNamespace_Inlinability_DO_NOT_INLINE, &Supplier_fn{func() any {
+		this.logChildNamesDecisionSupplier(GlobalNamespace_Inlinability_DO_NOT_INLINE, func() any {
 			return strobj_(String_format("properties are deleted %d times", []any{any(int32(this.deleteProps))}))
-		}})
+		})
 		return GlobalNamespace_Inlinability_DO_NOT_INLINE
 	}
 	Preconditions_checkNotNull(obj_(this.declaration_))
@@ -1765,9 +1765,9 @@ func (this *GlobalNamespace_Name) canCollapseOrInlineChildNames() *GlobalNamespa
 	}
 	if this.aliasingGets > 0 {
 		var unsafeInlinability *GlobalNamespace_Inlinability = this.getUnsafeInlinabilityBasedOnDeclaredType()
-		this.logChildNamesDecisionSupplier(unsafeInlinability, &Supplier_fn{func() any {
+		this.logChildNamesDecisionSupplier(unsafeInlinability, func() any {
 			return strobj_(String_format("%d aliasing gets exist", []any{any(int32(this.aliasingGets))}))
-		}})
+		})
 		return unsafeInlinability
 	}
 	if this.parent == nil {
@@ -1790,10 +1790,10 @@ func (this *GlobalNamespace_Name) logChildNamesDecision(inlinability *GlobalName
 	}
 }
 
-func (this *GlobalNamespace_Name) logChildNamesDecisionSupplier(inlinability *GlobalNamespace_Inlinability, reasonSupplier SupplierOf[string]) {
+func (this *GlobalNamespace_Name) logChildNamesDecisionSupplier(inlinability *GlobalNamespace_Inlinability, reasonSupplier func() any) {
 	if (this.outer_.decisionsLog != nil) && this.outer_.decisionsLog.isLogging() {
 		this.outer_.decisionsLog.log(&Supplier_fn{func() any {
-			return strobj_(String_format("%s: children: %s: %s", []any{strobj_(this.getFullName()), obj_(inlinability), reasonSupplier.get()}))
+			return strobj_(String_format("%s: children: %s: %s", []any{strobj_(this.getFullName()), obj_(inlinability), reasonSupplier()}))
 		}})
 	}
 }

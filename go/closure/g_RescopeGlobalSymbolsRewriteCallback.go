@@ -63,7 +63,7 @@ func (this *RescopeGlobalSymbolsRewriteCallback) visit(t *NodeTraversal, n Node,
 
 func (this *RescopeGlobalSymbolsRewriteCallback) visitNameDeclaration(t *NodeTraversal, declaration Node) {
 	var allLhsNodes *TList[Node] = newTList_(tc_Node)
-	NodeUtil_visitLhsNodesInNode(declaration, &Consumer_fn{func(p0 any) { allLhsNodes.add(Node_of_(p0)) }})
+	NodeUtil_visitLhsNodesInNode(declaration, func(p0 any) { allLhsNodes.add(Node_of_(p0)) })
 	if allLhsNodes.isEmpty() {
 		return
 	}
@@ -125,11 +125,11 @@ func (this *RescopeGlobalSymbolsRewriteCallback) rewriteNameDeclaration(t *NodeT
 						}
 					}
 				} else if child.isDestructuringLhs() {
-					NodeUtil_visitLhsNodesInNode(child, &Consumer_fn{func(lhs_ any) {
+					NodeUtil_visitLhsNodesInNode(child, func(lhs_ any) {
 						var lhs Node = Node_of_(lhs_)
 						_ = lhs
 						this.maybeAddPreDeclaration(t, lhs, isGlobalDeclaration)
-					}})
+					})
 					var assign Node = IR_assign(child.removeFirstChild(), child.removeFirstChild())
 					child.replaceWith(assign)
 					assign.setJSDocInfo(declaration.getJSDocInfo())
@@ -212,7 +212,7 @@ func (this *RescopeGlobalSymbolsRewriteCallback) visitName(t *NodeTraversal, n N
 	}
 	var currentChunk *JSChunk = t.getChunk()
 	if this.optimizeLocalAccess.shouldWrapReassignableSymbols() {
-		this.chunksUsingCrossChunkSymbols.computeIfAbsent(name, lambda_RescopeGlobalSymbolsRewriteCallback_visitName_1_).add(obj_(currentChunk))
+		this.chunksUsingCrossChunkSymbols.computeIfAbsent_f(name, lambda_RescopeGlobalSymbolsRewriteCallback_visitName_1_.f).add(obj_(currentChunk))
 	}
 	if this.optimizeLocalAccess.shouldOptimize() && !Collection_contains_s(this.symbolInfo.crossChunkNamesWithWriteFromOtherChunk(), name) {
 		var definingChunk *JSChunk = var_.getInput().getChunk()
@@ -231,7 +231,7 @@ func (this *RescopeGlobalSymbolsRewriteCallback) visitName(t *NodeTraversal, n N
 			}
 		} else if this.optimizeLocalAccess.shouldOptimizeAllChunks() && (!this.optimizeLocalAccess.shouldWrapReassignableSymbols() || !Collection_contains_s(this.symbolInfo.wrappedCrossChunkNames(), name)) {
 			if !Collection_contains_s(this.symbolInfo.globalNamesWithInnerScopeWriteInDefiningChunk(), name) && this.compiler_.getChunkGraph().dependsOn(currentChunk, definingChunk) {
-				Collection_add_s(icast_Set(Map_computeIfAbsent(this.localAliasesForUnwrappedCrossChunkNames.asMap(), obj_(currentChunk), lambda_RescopeGlobalSymbolsRewriteCallback_visitName_2_)), name)
+				Collection_add_s(icast_Set(Map_computeIfAbsent_f(this.localAliasesForUnwrappedCrossChunkNames.asMap(), obj_(currentChunk), lambda_RescopeGlobalSymbolsRewriteCallback_visitName_2_.f)), name)
 				return
 			}
 		}
@@ -242,8 +242,8 @@ func (this *RescopeGlobalSymbolsRewriteCallback) visitName(t *NodeTraversal, n N
 		return
 	}
 	Preconditions_checkState_boolean_String_Object(Collection_contains_s(this.symbolInfo.wrappedCrossChunkNames(), name), "Unexpected unaliased cross-chunk symbol under ALL_CHUNKS_WITH_WRAPPED_REASSIGNABLE_SYMBOLS: %s", strobj_(name))
-	this.chunksUsingWrappedReassignableSymbols.computeIfAbsent(name, lambda_RescopeGlobalSymbolsRewriteCallback_visitName_3_).add(obj_(currentChunk))
-	this.chunksRequiringWrapperInitialization.computeIfAbsent(name, lambda_RescopeGlobalSymbolsRewriteCallback_visitName_4_).add(obj_(currentChunk))
+	this.chunksUsingWrappedReassignableSymbols.computeIfAbsent_f(name, lambda_RescopeGlobalSymbolsRewriteCallback_visitName_3_.f).add(obj_(currentChunk))
+	this.chunksRequiringWrapperInitialization.computeIfAbsent_f(name, lambda_RescopeGlobalSymbolsRewriteCallback_visitName_4_.f).add(obj_(currentChunk))
 	var replacement Node = IR_getprop_Node_String(IR_name(name), "_")
 	this.replaceSymbol(n, name, replacement)
 }
@@ -294,7 +294,7 @@ func (this *RescopeGlobalSymbolsRewriteCallback) addGlobalNamespaceAlias(n Node,
 	}
 	var globalTarget Node = IR_getprop_Node_String(IR_name(this.symbolInfo.globalSymbolNamespace()), name)
 	if this.optimizeLocalAccess.shouldWrapReassignableSymbols() && Collection_contains_s(this.symbolInfo.wrappedCrossChunkNames(), name) {
-		this.chunksRequiringWrapperInitialization.computeIfAbsent(name, lambda_RescopeGlobalSymbolsRewriteCallback_addGlobalNamespaceAlias_1_).add(obj_(currentChunk))
+		this.chunksRequiringWrapperInitialization.computeIfAbsent_f(name, lambda_RescopeGlobalSymbolsRewriteCallback_addGlobalNamespaceAlias_1_.f).add(obj_(currentChunk))
 		globalTarget = IR_getprop_Node_String(globalTarget, "_")
 	}
 	var parent Node = n.getParent()

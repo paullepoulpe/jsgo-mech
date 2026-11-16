@@ -1680,9 +1680,9 @@ func (this *TypeCheck) visitModuleBody(t *NodeTraversal, moduleBody Node) {
 		if parentObjectType == nil {
 			return
 		}
-		this.validator.expectCanAssignToPropertyOf_6(googModuleCall, moduleBody.getJSType(), parentObjectType.getPropertyType(moduleName.getComponent()), parentObjectType.up_JSType(), &Supplier_base_fn{func() any {
+		this.validator.expectCanAssignToPropertyOf_6(googModuleCall, moduleBody.getJSType(), parentObjectType.getPropertyType(moduleName.getComponent()), parentObjectType.up_JSType(), func() any {
 			return moduleName.getOwner().join().orElse(nil)
-		}}, Optional_of(strobj_(moduleName.getComponent())))
+		}, Optional_of(strobj_(moduleName.getComponent())))
 	}
 }
 

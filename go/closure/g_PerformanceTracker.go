@@ -320,11 +320,11 @@ func (this *PerformanceTracker) populatePassSummary() {
 	for it_1.next() {
 		var logStat *PerformanceTracker_Stats = it_1.v
 		var passName string = logStat.pass
-		var entry *PerformanceTracker_Stats = tmpPassSummary.computeIfAbsent(passName, &Function_fn{func(k_ any) any {
+		var entry *PerformanceTracker_Stats = tmpPassSummary.computeIfAbsent_f(passName, func(k_ any) any {
 			var k string = str_(k_)
 			_ = k
 			return obj_(new_PerformanceTracker_Stats(k, logStat.isOneTime))
-		}})
+		})
 		entry.runtime_ += logStat.runtime_
 		entry.allocMem = Math_max(entry.allocMem, logStat.allocMem)
 		entry.runs++

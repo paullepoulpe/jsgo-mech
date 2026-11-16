@@ -134,7 +134,7 @@ func ReportDecoder_mergeProfiles(profiles *TList[*ReportProfile]) *ReportProfile
 			it_5 := foreach_(any(fileProfile.getInstrumentationPointsStatsList()))
 			for it_5.next() {
 				var pointStats *InstrumentationPointStats = cast_[*InstrumentationPointStats](it_5.v)
-				Map_compute(frequencies, obj_(pointStats.getPoint()), &BiFunction_fn{func(p_ any, existing any) any {
+				Map_compute_f(frequencies, obj_(pointStats.getPoint()), func(p_ any, existing any) any {
 					var p *InstrumentationPoint = cast_[*InstrumentationPoint](p_)
 					_ = p
 					return any(int64((func() int64 {
@@ -143,8 +143,8 @@ func ReportDecoder_mergeProfiles(profiles *TList[*ReportProfile]) *ReportProfile
 						}
 						return unbox_[int64](existing)
 					}() + pointStats.getTimesExecuted())))
-				}})
-				Map_compute(presences, obj_(pointStats.getPoint()), &BiFunction_fn{func(p_ any, existing_ any) any {
+				})
+				Map_compute_f(presences, obj_(pointStats.getPoint()), func(p_ any, existing_ any) any {
 					var p *InstrumentationPoint = cast_[*InstrumentationPoint](p_)
 					_ = p
 					var existing *InstrumentationPointStats_Presence = cast_[*InstrumentationPointStats_Presence](existing_)
@@ -155,7 +155,7 @@ func ReportDecoder_mergeProfiles(profiles *TList[*ReportProfile]) *ReportProfile
 						}
 						return obj_(existing)
 					}()
-				}})
+				})
 			}
 		}
 	}
@@ -175,7 +175,7 @@ func ReportDecoder_createReportProfile(instrumentationPoints *TList[*Instrumenta
 	it_1 := sortedPoints.each()
 	for it_1.next() {
 		var pointStats *InstrumentationPointStats = it_1.v
-		pointsByFileName.computeIfAbsent(pointStats.getPoint().getFileName(), lambda_ReportDecoder_createReportProfile_3_).add(obj_(pointStats))
+		pointsByFileName.computeIfAbsent_f(pointStats.getPoint().getFileName(), lambda_ReportDecoder_createReportProfile_3_.f).add(obj_(pointStats))
 	}
 	var fileProfiles *TList[*FileProfile] = newTList_(tc_p_FileProfile)
 	it_3 := foreach_(any(pointsByFileName.asMap().entrySet()))

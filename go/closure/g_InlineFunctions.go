@@ -38,7 +38,7 @@ func new_InlineFunctions(compiler *AbstractCompiler, safeNameIdSupplier Supplier
 }
 
 func (this *InlineFunctions) getOrCreateFunctionState(fnName string) *InlineFunctions_FunctionState {
-	return this.fns.computeIfAbsent(fnName, lambda_InlineFunctions_getOrCreateFunctionState_1_)
+	return this.fns.computeIfAbsent_f(fnName, lambda_InlineFunctions_getOrCreateFunctionState_1_.f)
 }
 
 // lambda_InlineFunctions_getOrCreateFunctionState_1_ is a lambda of InlineFunctions_getOrCreateFunctionState that captures nothing (post-flip step lambdas).

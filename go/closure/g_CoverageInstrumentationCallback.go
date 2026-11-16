@@ -32,11 +32,11 @@ func (this *CoverageInstrumentationCallback) newInstrumentationNode(traversal *N
 	var getElemNode Node = IR_getelem(IR_name(arrayName), IR_number(float64((lineNumber - 1))))
 	var exprNode Node = IR_exprResult(IR_assign(getElemNode, IR_trueNode()))
 	var fileName OptionalOf[string] = CoverageInstrumentationCallback_getFileName(traversal)
-	this.instrumentationData.computeIfAbsent(str_(fileName.orElse(nil)), &Function_fn{func(k_ any) any {
+	this.instrumentationData.computeIfAbsent_f(str_(fileName.orElse(nil)), func(k_ any) any {
 		var k string = str_(k_)
 		_ = k
 		return obj_(new_FileInstrumentationData(k, arrayName))
-	}})
+	})
 	func() *FileInstrumentationData {
 		if fileName.isPresent() {
 			return this.instrumentationData.get(str_(fileName.get()))

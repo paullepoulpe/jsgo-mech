@@ -1139,11 +1139,11 @@ func (this *SymbolTable_Symbol) getFunctionType() *FunctionType {
 }
 
 func (this *SymbolTable_Symbol) defineReferenceAt(n Node) *SymbolTable_Reference {
-	return cast_[*SymbolTable_Reference](Map_computeIfAbsent(this.references.asMap(), n.box_(), &Function_fn{func(k_ any) any {
+	return cast_[*SymbolTable_Reference](Map_computeIfAbsent_f(this.references.asMap(), n.box_(), func(k_ any) any {
 		var k Node = Node_of_(k_)
 		_ = k
 		return obj_(new_SymbolTable_Reference(this, k))
-	}}))
+	}))
 }
 
 func (this *SymbolTable_Symbol) setDeclaration(ref *SymbolTable_Reference) {

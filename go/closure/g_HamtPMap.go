@@ -226,9 +226,9 @@ func (this *HamtPMap) reconcile(that PMap, joiner PMap_Reconciler) PMap {
 			return cast_[*HamtPMap](that)
 		}
 		return nil
-	}(), &PMap_Reconciler_fn{func(k any, v1 any, v2 any) any {
+	}(), func(k any, v1 any, v2 any) any {
 		return Preconditions_checkNotNull(joiner.merge(k, v1, v2))
-	}})
+	})
 	return func() PMap {
 		if result != nil {
 			return icast_PMap(obj_(result))
@@ -237,11 +237,11 @@ func (this *HamtPMap) reconcile(that PMap, joiner PMap_Reconciler) PMap {
 	}()
 }
 
-func HamtPMap_reconcile(t1 *HamtPMap, t2 *HamtPMap, joiner PMap_Reconciler) *HamtPMap {
+func HamtPMap_reconcile(t1 *HamtPMap, t2 *HamtPMap, joiner func(any, any, any) any) *HamtPMap {
 	if t1 == t2 {
 		return t1
 	} else if t1 == nil {
-		var newValue any = joiner.merge(t2.key_, nil, t2.value_)
+		var newValue any = joiner(t2.key_, nil, t2.value_)
 		var newChildren []*HamtPMap = arrmap_(Arrays_copyOf_ObjectArr_int(arrmap_(t2.children_, func(v_ *HamtPMap) any { return obj_(v_) }), int32(len(t2.children_))), func(v_ any) *HamtPMap { return cast_[*HamtPMap](v_) })
 		for i := int32(0); i < int32(len(newChildren)); i++ {
 			newChildren[i] = HamtPMap_reconcile(nil, newChildren[i], joiner)
@@ -253,7 +253,7 @@ func HamtPMap_reconcile(t1 *HamtPMap, t2 *HamtPMap, joiner PMap_Reconciler) *Ham
 			return HamtPMap_deleteRoot(t2.mask, newChildren)
 		}()
 	} else if t2 == nil {
-		var newValue any = joiner.merge(t1.key_, t1.value_, nil)
+		var newValue any = joiner(t1.key_, t1.value_, nil)
 		var newChildren []*HamtPMap = arrmap_(Arrays_copyOf_ObjectArr_int(arrmap_(t1.children_, func(v_ *HamtPMap) any { return obj_(v_) }), int32(len(t1.children_))), func(v_ any) *HamtPMap { return cast_[*HamtPMap](v_) })
 		for i := int32(0); i < int32(len(newChildren)); i++ {
 			newChildren[i] = HamtPMap_reconcile(newChildren[i], nil, joiner)
@@ -286,7 +286,7 @@ func HamtPMap_reconcile(t1 *HamtPMap, t2 *HamtPMap, joiner PMap_Reconciler) *Ham
 		if Objects_equals(t1.value_, t2.value_) {
 			return t1.value_
 		}
-		return joiner.merge(func() any {
+		return joiner(func() any {
 			if t1.key_ != nil {
 				return t1.key_
 			}

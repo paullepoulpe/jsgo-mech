@@ -739,9 +739,9 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) visit(t *NodeTraversal, n No
 		this.visitPostorder(t, n, parent)
 	}
 	if !isScopeRoot && this.deferredActions.containsKey(n.box_()) {
-		Iterable_forEach(Iterable(this.deferredActions.removeAll(n.box_())), lambda_TypedScopeCreator_AbstractScopeBuilder_visit_1_)
+		Iterable_forEach_f(Iterable(this.deferredActions.removeAll(n.box_())), lambda_TypedScopeCreator_AbstractScopeBuilder_visit_1_.f)
 	} else if isScopeRoot && !this.deferredActions.isEmpty() {
-		Iterable_forEach(Iterable(this.deferredActions.values()), lambda_TypedScopeCreator_AbstractScopeBuilder_visit_2_)
+		Iterable_forEach_f(Iterable(this.deferredActions.values()), lambda_TypedScopeCreator_AbstractScopeBuilder_visit_2_.f)
 	}
 }
 
@@ -911,12 +911,12 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) assertDefinitionNode(n Node,
 
 func (this *TypedScopeCreator_AbstractScopeBuilder) defineCatch(n Node) {
 	this.assertDefinitionNode(n, Token_rhino_CATCH)
-	NodeUtil_visitLhsNodesInNode(n, &Consumer_fn{func(catchName_ any) {
+	NodeUtil_visitLhsNodesInNode(n, func(catchName_ any) {
 		var catchName Node = Node_of_(catchName_)
 		_ = catchName
 		var type_ *JSType = this.getDeclaredType(catchName.getJSDocInfo(), catchName, 0, nil)
 		new_TypedScopeCreator_AbstractScopeBuilder_SlotDefiner(this).forDeclarationNode(catchName).forVariableName(Optional_of(strobj_(catchName.getString()))).inScope(this.currentScope).withType(type_).allowLaterTypeInference((type_ == nil)).defineSlot()
-	}})
+	})
 }
 
 func (this *TypedScopeCreator_AbstractScopeBuilder) defineAssignAsIfVarDeclaration(assignment Node) {

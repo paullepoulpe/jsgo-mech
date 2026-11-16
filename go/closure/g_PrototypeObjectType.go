@@ -196,7 +196,7 @@ func (this *PrototypeObjectType) appendTo_impl(sb *TypeStringBuilder) {
 		}
 	}
 	var multiline bool = (!sb.isForAnnotations() && (properties.size() > 1))
-	sb.append("{").indent(&Runnable_fn{func() {
+	sb.append("{").indent(func() {
 		if multiline {
 			sb.breakLineAndIndent()
 		}
@@ -219,7 +219,7 @@ func (this *PrototypeObjectType) appendTo_impl(sb *TypeStringBuilder) {
 				}
 			}
 		}
-	}})
+	})
 	if multiline {
 		sb.breakLineAndIndent()
 	}

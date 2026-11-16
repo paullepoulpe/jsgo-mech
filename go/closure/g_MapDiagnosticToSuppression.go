@@ -32,18 +32,18 @@ func MapDiagnosticToSuppression_printHelp() {
 
 func (this *MapDiagnosticToSuppression) printSuppressions(args []string) {
 	var parser *CmdLineParser = new_CmdLineParser()
-	parser.option("--output").usage("Sets the desired output format.\nOptions: md, jsonDefault: json").enumValue(arrmap_(DiagnosticToSuppressionMapper_OutputFormat_values(), func(v_ *DiagnosticToSuppressionMapper_OutputFormat) *Enum { return v_.up_Enum() }), &Supplier_fn{func() any {
+	parser.option("--output").usage("Sets the desired output format.\nOptions: md, jsonDefault: json").enumValue(arrmap_(DiagnosticToSuppressionMapper_OutputFormat_values(), func(v_ *DiagnosticToSuppressionMapper_OutputFormat) *Enum { return v_.up_Enum() }), func() any {
 		return obj_(this.output)
-	}}, &Consumer_fn{func(v_ any) {
+	}, func(v_ any) {
 		var v *DiagnosticToSuppressionMapper_OutputFormat = cast_[*DiagnosticToSuppressionMapper_OutputFormat](v_)
 		_ = v
 		this.output = v
-	}})
-	parser.option("--help").usage("Usage").flag(&Supplier_fn{func() any {
+	})
+	parser.option("--help").usage("Usage").flag(func() any {
 		return any(bool(this.help))
-	}}, &Consumer_fn{func(v any) {
+	}, func(v any) {
 		this.help = unbox_[bool](v)
-	}})
+	})
 	var parsed *Outcome_base = parser.parseArgument(args)
 	if parsed.isErr() {
 		var ex *CmdLineException = cast_[*CmdLineException](parsed.error().self())

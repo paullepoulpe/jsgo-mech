@@ -94,11 +94,11 @@ func (this *StringPool_Builder) put(string_ string) int32 {
 	if String_length(string_) > this.maxLength {
 		this.maxLength = String_length(string_)
 	}
-	return unbox_[int32](this.pool.computeIfAbsent(string_, &Function_fn{func(unused_ any) any {
+	return unbox_[int32](this.pool.computeIfAbsent_f(string_, func(unused_ any) any {
 		var unused string = str_(unused_)
 		_ = unused
 		return any(int32(this.pool.size()))
-	}}))
+	}))
 }
 
 func (this *StringPool_Builder) putAnd(string_ string) *StringPool_Builder {

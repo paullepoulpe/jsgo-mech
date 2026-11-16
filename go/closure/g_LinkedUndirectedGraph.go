@@ -74,14 +74,14 @@ func (this *LinkedUndirectedGraph) disconnect_impl(srcValue any, destValue any) 
 }
 
 func (this *LinkedUndirectedGraph) createUndirectedGraphNode_impl(nodeValue any) UndiGraph_UndiGraphNode {
-	return icast_UndiGraph_UndiGraphNode(Map_computeIfAbsent(this.nodes_, nodeValue, &Function_fn{func(k any) any {
+	return icast_UndiGraph_UndiGraphNode(Map_computeIfAbsent_f(this.nodes_, nodeValue, func(k any) any {
 		return func() any {
 			if this.useNodeAnnotations {
 				return obj_(new_LinkedUndirectedGraph_AnnotatedLinkedUndirectedGraphNode(k))
 			}
 			return new_LinkedUndirectedGraph_LinkedUndirectedGraphNode(k).self()
 		}()
-	}}))
+	}))
 }
 
 func (this *LinkedUndirectedGraph) getNeighborNodes_impl(value any) *TList[GraphNode] {

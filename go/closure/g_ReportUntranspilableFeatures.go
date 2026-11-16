@@ -144,7 +144,7 @@ func (this *ReportUntranspilableFeatures) checkForRegExpSFlag(regexpNode Node) {
 
 func (this *ReportUntranspilableFeatures) checkForLookbehind(regexpNode Node, tree *RegExpTree) {
 	Preconditions_checkArgument((regexpNode != 0))
-	if ReportUntranspilableFeatures_anySubtreeMeetsPredicate(tree, lambda_ReportUntranspilableFeatures_checkForLookbehind_1_) {
+	if ReportUntranspilableFeatures_anySubtreeMeetsPredicate(tree, lambda_ReportUntranspilableFeatures_checkForLookbehind_1_.f) {
 		this.reportUntranspilable(FeatureSet_Feature_REGEXP_LOOKBEHIND, regexpNode)
 	}
 }
@@ -158,7 +158,7 @@ var lambda_ReportUntranspilableFeatures_checkForLookbehind_1_ = &Predicate_fn{fu
 
 func (this *ReportUntranspilableFeatures) checkForNamedGroups(regexpNode Node, tree *RegExpTree) {
 	Preconditions_checkArgument((regexpNode != 0))
-	if ReportUntranspilableFeatures_anySubtreeMeetsPredicate(tree, lambda_ReportUntranspilableFeatures_checkForNamedGroups_1_) {
+	if ReportUntranspilableFeatures_anySubtreeMeetsPredicate(tree, lambda_ReportUntranspilableFeatures_checkForNamedGroups_1_.f) {
 		this.reportUntranspilable(FeatureSet_Feature_REGEXP_NAMED_GROUPS, regexpNode)
 	}
 }
@@ -172,7 +172,7 @@ var lambda_ReportUntranspilableFeatures_checkForNamedGroups_1_ = &Predicate_fn{f
 
 func (this *ReportUntranspilableFeatures) checkForUnicodePropertyEscape(regexpNode Node, tree *RegExpTree) {
 	Preconditions_checkArgument((regexpNode != 0))
-	if ReportUntranspilableFeatures_anySubtreeMeetsPredicate(tree, lambda_ReportUntranspilableFeatures_checkForUnicodePropertyEscape_1_) {
+	if ReportUntranspilableFeatures_anySubtreeMeetsPredicate(tree, lambda_ReportUntranspilableFeatures_checkForUnicodePropertyEscape_1_.f) {
 		this.reportUntranspilable(FeatureSet_Feature_REGEXP_UNICODE_PROPERTY_ESCAPE, regexpNode)
 	}
 }
@@ -205,8 +205,8 @@ func (this *ReportUntranspilableFeatures) checkForTopLevelAwait(awaitNode Node) 
 	}
 }
 
-func ReportUntranspilableFeatures_anySubtreeMeetsPredicate(tree *RegExpTree, p PredicateOf[*RegExpTree]) bool {
-	if p.test(tree.self()) {
+func ReportUntranspilableFeatures_anySubtreeMeetsPredicate(tree *RegExpTree, p func(any) bool) bool {
+	if p(tree.self()) {
 		return true
 	}
 	it_1 := foreach_(any(tree.children()))

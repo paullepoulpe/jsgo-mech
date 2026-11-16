@@ -210,14 +210,14 @@ func (this *ColorPool_Builder) addShard(typePool *TypePool, stringPool *StringPo
 
 func (this *ColorPool_Builder) build() *ColorPool {
 	Preconditions_checkState_boolean_Object(this.idToProto.isEmpty(), strobj_("build has already been called"))
-	this.forEachShard(&Consumer_fn{func(shard_ any) {
+	this.forEachShard(func(shard_ any) {
 		var shard *ColorPool_ShardView = cast_[*ColorPool_ShardView](shard_)
 		_ = shard
 		for i := int32(0); i < shard.typePool.getTypeCount(); i++ {
 			var id *ColorId = cast_[*ColorId](shard.trimmedOffsetToId.get(i))
 			this.idToProto.put(obj_(id), obj_(shard), obj_(shard.typePool.getType(i)))
 		}
-	}})
+	})
 	it_2 := foreach_(obj_(cast_[*ImmutableSet](StandardColors_AXIOMATIC_COLORS.keySet())))
 	for it_2.next() {
 		var id *ColorId = cast_[*ColorId](it_2.v)
@@ -231,13 +231,13 @@ func (this *ColorPool_Builder) build() *ColorPool {
 	it_6 := foreach_(obj_(ColorRegistry_REQUIRED_IDS))
 	for it_6.next() {
 		var colorId *ColorId = cast_[*ColorId](it_6.v)
-		this.registry.setNativeColor(cast_[*Color](Map_computeIfAbsent(icast_Map(obj_(this.idToColor)), obj_(colorId), &Function_fn{func(unused_ any) any {
+		this.registry.setNativeColor(cast_[*Color](Map_computeIfAbsent_f(icast_Map(obj_(this.idToColor)), obj_(colorId), func(unused_ any) any {
 			var unused *ColorId = cast_[*ColorId](unused_)
 			_ = unused
 			return obj_(Color_singleBuilder().setId(colorId).build())
-		}})))
+		})))
 	}
-	this.forEachShard(&Consumer_fn{func(shard_ any) {
+	this.forEachShard(func(shard_ any) {
 		var shard *ColorPool_ShardView = cast_[*ColorPool_ShardView](shard_)
 		_ = shard
 		it_8 := foreach_(any(shard.typePool.getDisambiguationEdgesList()))
@@ -245,28 +245,28 @@ func (this *ColorPool_Builder) build() *ColorPool {
 			var edge *SubtypingEdge = cast_[*SubtypingEdge](it_8.v)
 			this.registry.addDisambiguationEdge(cast_[*Color](this.idToColor.get(obj_(shard.getId(ColorPool_validatePointer(edge.getSubtype(), shard))))), cast_[*Color](this.idToColor.get(obj_(shard.getId(ColorPool_validatePointer(edge.getSupertype(), shard))))))
 		}
-	}})
+	})
 	var shardViewsForTesting ImmutableList_BuilderOf[*ColorPool_ShardView] = ImmutableList_builder()
 	if this.forTestingField {
-		this.forEachShard(&Consumer_fn{func(p0 any) { shardViewsForTesting.add(obj_(cast_[*ColorPool_ShardView](p0))) }})
+		this.forEachShard(func(p0 any) { shardViewsForTesting.add(obj_(cast_[*ColorPool_ShardView](p0))) })
 	}
 	var colorPool *ColorPool = new_ColorPool(this.idToColor, this.registry.build(), cast_[*ImmutableList](obj_(shardViewsForTesting.build())))
-	this.forEachShard(&Consumer_fn{func(shard_ any) {
+	this.forEachShard(func(shard_ any) {
 		var shard *ColorPool_ShardView = cast_[*ColorPool_ShardView](shard_)
 		_ = shard
 		shard.updateStateAfterColorPoolIsBuilt(colorPool)
-	}})
+	})
 	return colorPool
 }
 
-func (this *ColorPool_Builder) forEachShard(fn ConsumerOf[*ColorPool_ShardView]) {
-	this.protoToShard.forEach(&BiConsumer_fn{func(unused_ any, shard_ any) {
+func (this *ColorPool_Builder) forEachShard(fn func(any)) {
+	this.protoToShard.forEach(func(unused_ any, shard_ any) {
 		var unused *TypePool = cast_[*TypePool](unused_)
 		_ = unused
 		var shard *ColorPool_ShardView = cast_[*ColorPool_ShardView](shard_)
 		_ = shard
-		fn.accept(obj_(shard))
-	}})
+		fn(obj_(shard))
+	})
 }
 
 func (this *ColorPool_Builder) reconcilationDebugStackProtos() ImmutableListOf[ImmutableMapOf[*ColorPool_ShardView, *TypeProto]] {
@@ -360,7 +360,7 @@ func (this *ColorPool_Builder) reconcileObjectProtos(id *ColorId, viewToProto Ma
 
 func (this *ColorPool_Builder) reconcileUnionProtos(id *ColorId, viewToProto MapOf[*ColorPool_ShardView, *TypeProto]) *Color {
 	var union LinkedHashSetOf[*Color] = new_LinkedHashSet()
-	Map_forEach(viewToProto, &BiConsumer_fn{func(shard_ any, proto_ any) {
+	Map_forEach_f(viewToProto, func(shard_ any, proto_ any) {
 		var shard *ColorPool_ShardView = cast_[*ColorPool_ShardView](shard_)
 		_ = shard
 		var proto *TypeProto = cast_[*TypeProto](proto_)
@@ -374,7 +374,7 @@ func (this *ColorPool_Builder) reconcileUnionProtos(id *ColorId, viewToProto Map
 			MalformedTypedAstException_checkWellFormed_boolean_String_Object(!member.isUnion(), "Reconciling union with non-union", obj_(proto))
 			union.add(obj_(member))
 		}
-	}})
+	})
 	var result *Color = Color_createUnion(icast_Set(obj_(union)))
 	Preconditions_checkState_boolean_String_Object_Object(id.equals(obj_(result.getId())), "%s == %s", obj_(id), obj_(result))
 	return result

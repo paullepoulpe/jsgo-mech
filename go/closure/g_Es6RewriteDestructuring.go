@@ -181,7 +181,7 @@ func (this *Es6RewriteDestructuring) rewriteVarDestructuringDeclaration(destruct
 	Preconditions_checkState_boolean_Object(destructuringLhs.isDestructuringLhs(), destructuringLhs.box_())
 	Preconditions_checkState_boolean_Object(!destructuringLhs.getGrandparent().isExport(), strobj_("Export destructuring declarations not expected inside a function body."))
 	var var_ Node = destructuringLhs.getParent()
-	NodeUtil_visitLhsNodesInNode(destructuringLhs, &Consumer_fn{func(name_ any) {
+	NodeUtil_visitLhsNodesInNode(destructuringLhs, func(name_ any) {
 		var name Node = Node_of_(name_)
 		_ = name
 		Preconditions_checkState_boolean_String_Object(name.isName(), "lhs in destructuring declaration should be a simple name. (%s)", name.box_())
@@ -191,7 +191,7 @@ func (this *Es6RewriteDestructuring) rewriteVarDestructuringDeclaration(destruct
 		}
 		var newVar Node = IR_var_Node(newName).srcref(name)
 		newVar.insertBefore(var_)
-	}})
+	})
 	var destructuringPattern Node = destructuringLhs.removeFirstChild()
 	Preconditions_checkState_boolean_String_Object(destructuringPattern.isDestructuringPattern(), "Expected destructuring pattern but got %s", strobj_(destructuringPattern.toStringTree()))
 	var rhs Node = destructuringLhs.removeFirstChild()

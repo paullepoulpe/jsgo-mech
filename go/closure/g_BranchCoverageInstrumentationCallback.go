@@ -77,11 +77,11 @@ func (this *BranchCoverageInstrumentationCallback) visit_impl(traversal *NodeTra
 		if !hasDefaultBlock {
 			this.addDefaultBlock(node)
 		}
-		this.instrumentationData.computeIfAbsent(str_(fileName.orElse(nil)), &Function_fn{func(k_ any) any {
+		this.instrumentationData.computeIfAbsent_f(str_(fileName.orElse(nil)), func(k_ any) any {
 			var k string = str_(k_)
 			_ = k
 			return obj_(new_FileInstrumentationData(k, BranchCoverageInstrumentationCallback_createArrayName(traversal)))
-		}})
+		})
 		this.processBranchInfo(node, func() *FileInstrumentationData {
 			if fileName.isPresent() {
 				return this.instrumentationData.get(str_(fileName.get()))
@@ -109,11 +109,11 @@ func (this *BranchCoverageInstrumentationCallback) visit_impl(traversal *NodeTra
 				}
 			}
 		}
-		this.instrumentationData.computeIfAbsent(str_(fileName.orElse(nil)), &Function_fn{func(k_ any) any {
+		this.instrumentationData.computeIfAbsent_f(str_(fileName.orElse(nil)), func(k_ any) any {
 			var k string = str_(k_)
 			_ = k
 			return obj_(new_FileInstrumentationData(k, BranchCoverageInstrumentationCallback_createArrayName(traversal)))
-		}})
+		})
 		this.processBranchInfo(node, func() *FileInstrumentationData {
 			if fileName.isPresent() {
 				return this.instrumentationData.get(str_(fileName.get()))
@@ -157,11 +157,11 @@ func (this *BranchCoverageInstrumentationCallback) newBranchInstrumentationNode(
 	var getElemNode Node = IR_getelem(IR_name(arrayName), IR_number(float64(idx)))
 	var exprNode Node = IR_exprResult(IR_assign(getElemNode, IR_trueNode()))
 	var fileName OptionalOf[string] = traversal.getSourceName()
-	this.instrumentationData.computeIfAbsent(str_(fileName.orElse(nil)), &Function_fn{func(k_ any) any {
+	this.instrumentationData.computeIfAbsent_f(str_(fileName.orElse(nil)), func(k_ any) any {
 		var k string = str_(k_)
 		_ = k
 		return obj_(new_FileInstrumentationData(k, arrayName))
-	}})
+	})
 	return exprNode.srcrefTreeIfMissing(node)
 }
 

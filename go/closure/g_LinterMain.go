@@ -35,25 +35,25 @@ func LinterMain_main(args []string) {
 
 func (this *LinterMain) run(args []string) *Outcome_base {
 	var parser *CmdLineParser = new_CmdLineParser()
-	parser.option("--fix").usage("Fix lint warnings automatically").flag(&Supplier_fn{func() any {
+	parser.option("--fix").usage("Fix lint warnings automatically").flag(func() any {
 		return any(bool(this.fix_))
-	}}, &Consumer_fn{func(v any) {
+	}, func(v any) {
 		this.fix_ = unbox_[bool](v)
-	}})
-	parser.option("--resolution_mode").usage("Expected path resolution mode for resolving module specifiers.").enumValue(arrmap_(ModuleLoader_ResolutionMode_values(), func(v_ *ModuleLoader_ResolutionMode) *Enum { return v_.up_Enum() }), &Supplier_fn{func() any {
+	})
+	parser.option("--resolution_mode").usage("Expected path resolution mode for resolving module specifiers.").enumValue(arrmap_(ModuleLoader_ResolutionMode_values(), func(v_ *ModuleLoader_ResolutionMode) *Enum { return v_.up_Enum() }), func() any {
 		return obj_(this.resolutionMode)
-	}}, &Consumer_fn{func(v_ any) {
+	}, func(v_ any) {
 		var v *ModuleLoader_ResolutionMode = cast_[*ModuleLoader_ResolutionMode](v_)
 		_ = v
 		this.resolutionMode = v
-	}})
-	parser.argument(&Supplier_fn{func() any {
+	})
+	parser.argument(func() any {
 		return any(this.files)
-	}}, &Consumer_fn{func(v_ any) {
+	}, func(v_ any) {
 		var v List = icast_List(v_)
 		_ = v
 		this.files = v
-	}})
+	})
 	parser.parseArgument(args).get()
 	var linter *Linter = Linter_builder().withModuleResolutionMode(this.resolutionMode).build()
 	it_1 := foreach_(any(this.files))

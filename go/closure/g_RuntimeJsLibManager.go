@@ -91,7 +91,7 @@ func (this *RuntimeJsLibManager) getJsLibField(fieldName string) RuntimeJsLibMan
 }
 
 func (this *RuntimeJsLibManager) getJsLibFieldInternal(fieldName string) *RuntimeJsLibManager_InternalField {
-	return this.internedFields.computeIfAbsent(fieldName, &Function_fn{func(p0 any) any { return obj_(this.createField(str_(p0))) }})
+	return this.internedFields.computeIfAbsent_f(fieldName, func(p0 any) any { return obj_(this.createField(str_(p0))) })
 }
 
 func (this *RuntimeJsLibManager) injectLibForField(fieldName string) {

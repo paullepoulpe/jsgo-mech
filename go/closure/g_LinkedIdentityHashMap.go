@@ -47,32 +47,32 @@ func (this *LinkedIdentityHashMap) put(key any, value any) any {
 	panic("unreachable")
 }
 
-func (this *LinkedIdentityHashMap) computeIfAbsent(key any, fn FunctionOf[any, any]) any {
+func (this *LinkedIdentityHashMap) computeIfAbsent(key any, fn func(any) any) any {
 	var oldValue any = this.get(key)
 	if oldValue != nil {
 		return oldValue
 	}
-	var newValue any = fn.apply(key)
+	var newValue any = fn(key)
 	this.put(key, newValue)
 	return newValue
 }
 
-func (this *LinkedIdentityHashMap) merge(key any, value any, fn BiFunctionOf[any, any, any]) any {
+func (this *LinkedIdentityHashMap) merge(key any, value any, fn func(any, any) any) any {
 	var oldValue any = this.get(key)
 	if oldValue == nil {
 		this.put(key, value)
 		return value
 	}
-	var mergeValue any = fn.apply(oldValue, value)
+	var mergeValue any = fn(oldValue, value)
 	this.put(key, mergeValue)
 	return mergeValue
 }
 
-func (this *LinkedIdentityHashMap) forEach(fn BiConsumerOf[any, any]) {
+func (this *LinkedIdentityHashMap) forEach(fn func(any, any)) {
 	it_1 := this.iterationOrder.each()
 	for it_1.next() {
 		var entry *LinkedIdentityHashMap_Entry = it_1.v
-		fn.accept(entry.key_, entry.value_)
+		fn(entry.key_, entry.value_)
 	}
 }
 

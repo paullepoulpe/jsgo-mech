@@ -61,7 +61,7 @@ func TypedAstDeserializer_deserialize(compiler *AbstractCompiler, syntheticExter
 	Preconditions_checkArgument_boolean_Object((colorPool.isPresent() == (Object_equals(obj_(mode), obj_(TypedAstDeserializer_Mode_RUNTIME_LIBRARY_ONLY)) && includeTypeInformation)), strobj_("ColorPool.Builder required iff deserializing runtime libraries & including types"))
 	var deserializer *TypedAstDeserializer = new_TypedAstDeserializer(syntheticExterns, colorPool, requiredInputFiles, mode, includeTypeInformation)
 	deserializer.addToFilePool(syntheticExterns.getName(), syntheticExterns)
-	Map_forEach(icast_Map(obj_(scriptSourceFiles)), &BiConsumer_fn{func(p0 any, p1 any) { deserializer.addToFilePool(str_(p0), cast_[*SourceFile_jscomp](p1)) }})
+	Map_forEach_f(icast_Map(obj_(scriptSourceFiles)), func(p0 any, p1 any) { deserializer.addToFilePool(str_(p0), cast_[*SourceFile_jscomp](p1)) })
 	if !Object_equals(obj_(mode), obj_(TypedAstDeserializer_Mode_RUNTIME_LIBRARY_ONLY)) {
 		compiler.initRuntimeLibraryTypedAsts(deserializer.colorPoolBuilder)
 	}
@@ -167,18 +167,18 @@ func (this *TypedAstDeserializer) initLazyAstDeserializer(lazyAst *LazyAst, file
 		return
 	}
 	if file.isWeak() {
-		Map_computeIfAbsent(Map(this.typedAstFilesystem), obj_(file), lambda_TypedAstDeserializer_initLazyAstDeserializer_1_)
+		Map_computeIfAbsent_f(Map(this.typedAstFilesystem), obj_(file), lambda_TypedAstDeserializer_initLazyAstDeserializer_1_.f)
 		return
 	}
 	var deserializer *ScriptNodeDeserializer = new_ScriptNodeDeserializer(lazyAst, stringShard, colorShard, fileShard)
 	if JSCompObjects_identical(obj_(this.syntheticExterns), obj_(file)) {
 		this.syntheticExternsDeserializers.add(deserializer)
 	} else {
-		Map_computeIfAbsent(Map(this.typedAstFilesystem), obj_(file), &Function_fn{func(f_ any) any {
+		Map_computeIfAbsent_f(Map(this.typedAstFilesystem), obj_(file), func(f_ any) any {
 			var f *SourceFile_jscomp = cast_[*SourceFile_jscomp](f_)
 			_ = f
 			return any(&Supplier_fn{func() any { return deserializer.deserializeNew().box_() }})
-		}})
+		})
 	}
 	TypedAstDeserializer_addInputSourceMap(deserializer, compiler, resolveSourceMapAnnotations, parseInlineSourceMaps)
 }

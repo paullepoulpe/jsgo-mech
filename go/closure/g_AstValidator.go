@@ -1988,11 +1988,11 @@ func (this *AstValidator) validateFeature(feature *FeatureSet_Feature, n Node) {
 }
 
 func (this *AstValidator) validateProperties(n Node) {
-	n.validateProperties(&Consumer_fn{func(errorMessage_ any) {
+	n.validateProperties(func(errorMessage_ any) {
 		var errorMessage string = str_(errorMessage_)
 		_ = errorMessage
 		this.violation(errorMessage, n)
-	}})
+	})
 }
 
 func (this *AstValidator) validateRequiredInlinings(n Node) {

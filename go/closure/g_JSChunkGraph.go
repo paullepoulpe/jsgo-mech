@@ -302,7 +302,7 @@ func (this *JSChunkGraph) getTransitiveDepsDeepestFirst(m *JSChunk) ListOf[*JSCh
 }
 
 func (this *JSChunkGraph) getTransitiveDeps(m *JSChunk) SetOf[*JSChunk] {
-	return icast_Set(this.dependencyMap.computeIfAbsent(obj_(m), lambda_JSChunkGraph_getTransitiveDeps_1_))
+	return icast_Set(this.dependencyMap.computeIfAbsent(obj_(m), lambda_JSChunkGraph_getTransitiveDeps_1_.f))
 }
 
 // lambda_JSChunkGraph_getTransitiveDeps_1_ is a lambda of JSChunkGraph_getTransitiveDeps that captures nothing (post-flip step lambdas).
@@ -342,11 +342,11 @@ func (this *JSChunkGraph) manageDependencies(compiler *AbstractCompiler, depende
 		it_3 := foreach_(obj_(input.getKnownProvides()))
 		for it_3.next() {
 			var provide string = str_(it_3.v)
-			inputsByProvide.computeIfAbsent(provide, lambda_JSChunkGraph_manageDependencies_1_)
+			inputsByProvide.computeIfAbsent_f(provide, lambda_JSChunkGraph_manageDependencies_1_.f)
 			inputsByProvide.get(provide).add(obj_(input))
 		}
 		var chunkName string = input.getPath().toModuleName()
-		inputsByProvide.computeIfAbsent(chunkName, lambda_JSChunkGraph_manageDependencies_2_)
+		inputsByProvide.computeIfAbsent_f(chunkName, lambda_JSChunkGraph_manageDependencies_2_.f)
 		inputsByProvide.get(chunkName).add(obj_(input))
 	}
 	it_5 := foreach_(obj_(originalInputs))

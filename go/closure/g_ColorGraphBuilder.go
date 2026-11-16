@@ -14,15 +14,15 @@ func (this *ColorGraphBuilder) finit_ColorGraphBuilder() {
 	this.colorHoldsInstanceGraph = LinkedDirectedGraph_createWithoutAnnotations()
 }
 
-func (this *ColorGraphBuilder) init_ColorGraphBuilder(nodeFactory *ColorGraphNodeFactory, lcaFinderFactory LowestCommonAncestorFinder_Factory, registry *ColorRegistry) {
+func (this *ColorGraphBuilder) init_ColorGraphBuilder(nodeFactory *ColorGraphNodeFactory, lcaFinderFactory func(*DiGraph) *LowestCommonAncestorFinder, registry *ColorRegistry) {
 	this.finit_ColorGraphBuilder()
 	this.registry = registry
 	this.nodeFactory = nodeFactory
-	this.lcaFinder = lcaFinderFactory.create(this.colorHoldsInstanceGraph.up_DiGraph())
+	this.lcaFinder = lcaFinderFactory(this.colorHoldsInstanceGraph.up_DiGraph())
 	this.topNode = to_LinkedDirectedGraph_LinkedDiGraphNode(this.colorHoldsInstanceGraph.createNode(obj_(this.nodeFactory.createNode(StandardColors_UNKNOWN))))
 }
 
-func new_ColorGraphBuilder(nodeFactory *ColorGraphNodeFactory, lcaFinderFactory LowestCommonAncestorFinder_Factory, registry *ColorRegistry) *ColorGraphBuilder {
+func new_ColorGraphBuilder(nodeFactory *ColorGraphNodeFactory, lcaFinderFactory func(*DiGraph) *LowestCommonAncestorFinder, registry *ColorRegistry) *ColorGraphBuilder {
 	this := &ColorGraphBuilder{}
 	this.init_ColorGraphBuilder(nodeFactory, lcaFinderFactory, registry)
 	return this
@@ -33,11 +33,11 @@ func (this *ColorGraphBuilder) add(flat *ColorGraphNode) {
 }
 
 func (this *ColorGraphBuilder) addAll(flats CollectionOf[*ColorGraphNode]) {
-	Iterable_forEach(Iterable(flats), &Consumer_fn{func(p0 any) { this.add(cast_[*ColorGraphNode](p0)) }})
+	Iterable_forEach_f(Iterable(flats), func(p0 any) { this.add(cast_[*ColorGraphNode](p0)) })
 }
 
 func (this *ColorGraphBuilder) build() *LinkedDirectedGraph {
-	Iterable_forEach(Iterable(this.colorHoldsInstanceGraph.getNodes()), &Consumer_fn{func(p0 any) { this.connectUnionWithAncestors(to_LinkedDirectedGraph_LinkedDiGraphNode(p0)) }})
+	Iterable_forEach_f(Iterable(this.colorHoldsInstanceGraph.getNodes()), func(p0 any) { this.connectUnionWithAncestors(to_LinkedDirectedGraph_LinkedDiGraphNode(p0)) })
 	var temp *LinkedDirectedGraph = this.colorHoldsInstanceGraph
 	this.colorHoldsInstanceGraph = nil
 	return temp

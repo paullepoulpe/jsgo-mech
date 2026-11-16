@@ -369,7 +369,7 @@ func (this *Es6RewriteModulesToCommonJsModules_Rewriter) visitExportSpecs(t *Nod
 }
 
 func (this *Es6RewriteModulesToCommonJsModules_Rewriter) visitExportNameDeclaration(declaration Node) {
-	NodeUtil_visitLhsNodesInNode(declaration, &Consumer_fn{func(p0 any) { this.addExportedName(Node_of_(p0)) }})
+	NodeUtil_visitLhsNodesInNode(declaration, func(p0 any) { this.addExportedName(Node_of_(p0)) })
 }
 
 func (this *Es6RewriteModulesToCommonJsModules_Rewriter) addExportedName(lhs Node) {

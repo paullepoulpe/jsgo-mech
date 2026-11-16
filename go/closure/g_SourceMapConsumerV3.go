@@ -255,7 +255,7 @@ func (this *SourceMapConsumerV3) createReverseMapping() {
 			var sourceLine int32 = this.mappings.getSourceLine(i)
 			if (sourceFileId != SourceMapConsumerV3_UNMAPPED) && (sourceLine != SourceMapConsumerV3_UNMAPPED) {
 				var originalFile string = this.sources[sourceFileId]
-				var lineToCollectionMap MapOf[BoxedOf[int32], CollectionOf[*Mapping_OriginalMapping]] = this.reverseSourceMapping.computeIfAbsent(originalFile, lambda_SourceMapConsumerV3_createReverseMapping_1_)
+				var lineToCollectionMap MapOf[BoxedOf[int32], CollectionOf[*Mapping_OriginalMapping]] = this.reverseSourceMapping.computeIfAbsent_f(originalFile, lambda_SourceMapConsumerV3_createReverseMapping_1_.f)
 				if !lineToCollectionMap.containsKey(any(int32(sourceLine))) {
 					lineToCollectionMap.put(any(int32(sourceLine)), new_ArrayList_int(1).self())
 				}

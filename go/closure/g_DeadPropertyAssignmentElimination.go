@@ -223,7 +223,7 @@ func (this *DeadPropertyAssignmentElimination_FindCandidateAssignmentTraversal) 
 		}
 		return Optional_of(strobj_(propNode.getQualifiedName())).filter(lambda_DeadPropertyAssignmentElimination_FindCandidateAssignmentTraversal_getOrCreateProperty_1_)
 	}()
-	var property *DeadPropertyAssignmentElimination_Property = this.propertyMap.computeIfAbsent(str_(propName.orElse(nil)), lambda_DeadPropertyAssignmentElimination_FindCandidateAssignmentTraversal_getOrCreateProperty_2_)
+	var property *DeadPropertyAssignmentElimination_Property = this.propertyMap.computeIfAbsent_f(str_(propName.orElse(nil)), lambda_DeadPropertyAssignmentElimination_FindCandidateAssignmentTraversal_getOrCreateProperty_2_.f)
 	if propNode.isGetProp() {
 		var parentProperty *DeadPropertyAssignmentElimination_Property = this.getOrCreateProperty(propNode.getFirstChild())
 		if parentProperty != nil {

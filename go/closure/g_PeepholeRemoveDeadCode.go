@@ -745,13 +745,13 @@ func (this *PeepholeRemoveDeadCode) redeclareIfBlockScopedVar(decl Node, parent 
 	if decl.isClass() {
 		blockScopedVars = append(blockScopedVars, decl.getFirstChild())
 	} else {
-		NodeUtil_visitLhsNodesInNode(decl, &Consumer_fn{func(n_ any) {
+		NodeUtil_visitLhsNodesInNode(decl, func(n_ any) {
 			var n Node = Node_of_(n_)
 			_ = n
 			if n.isName() {
 				blockScopedVars = append(blockScopedVars, n)
 			}
-		}})
+		})
 	}
 	var addBefore Node = NodeUtil_getInsertionPointAfterAllInnerFunctionDeclarations(parent)
 	it_1 := eachOf_(&blockScopedVars)

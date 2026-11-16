@@ -71,11 +71,11 @@ func (this *InstrumentAsyncContext) visit(t *NodeTraversal, n Node, parent Node)
 		}
 		var context *InstrumentAsyncContext_FunctionContext = func() *InstrumentAsyncContext_FunctionContext {
 			if n.isGeneratorFunction() {
-				return cast_[*InstrumentAsyncContext_FunctionContext](Map_computeIfAbsent(this.needsInstrumentation.asMap(), n.box_(), &Function_fn{func(unused_ any) any {
+				return cast_[*InstrumentAsyncContext_FunctionContext](Map_computeIfAbsent_f(this.needsInstrumentation.asMap(), n.box_(), func(unused_ any) any {
 					var unused Node = Node_of_(unused_)
 					_ = unused
 					return obj_(this.createNewFunctionContext(t.getInput()))
-				}}))
+				}))
 			}
 			return this.needsInstrumentation.get(n)
 		}()
@@ -108,11 +108,11 @@ func (this *InstrumentAsyncContext) instrumentReentrance(t *NodeTraversal, n Nod
 	} else if parent.isReturn() && (enclosingTry == 0) {
 		return
 	}
-	var functionContext *InstrumentAsyncContext_FunctionContext = cast_[*InstrumentAsyncContext_FunctionContext](Map_computeIfAbsent(this.needsInstrumentation.asMap(), enclosingFunction.box_(), &Function_fn{func(unused_ any) any {
+	var functionContext *InstrumentAsyncContext_FunctionContext = cast_[*InstrumentAsyncContext_FunctionContext](Map_computeIfAbsent_f(this.needsInstrumentation.asMap(), enclosingFunction.box_(), func(unused_ any) any {
 		var unused Node = Node_of_(unused_)
 		_ = unused
 		return obj_(this.createNewFunctionContext(t.getInput()))
-	}}))
+	}))
 	if enclosingTry != 0 {
 		this.needsInstrumentation.put(enclosingTry, functionContext)
 	}

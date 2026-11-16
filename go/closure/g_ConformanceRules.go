@@ -2980,13 +2980,13 @@ func (this *ConformanceRules_BanGlobalVars) isAllowlisted(n Node) bool {
 	}
 	if NodeUtil_isNameDeclaration(n) {
 		var allowlisted []bool = []bool{true}
-		NodeUtil_visitLhsNodesInNode(n, &Consumer_fn{func(name_ any) {
+		NodeUtil_visitLhsNodesInNode(n, func(name_ any) {
 			var name Node = Node_of_(name_)
 			_ = name
 			if !this.isAllowlistedName(name.getString()) {
 				allowlisted[0] = false
 			}
-		}})
+		})
 		return allowlisted[0]
 	}
 	return false

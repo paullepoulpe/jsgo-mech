@@ -492,7 +492,7 @@ func (this *MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfoStackMa
 }
 
 func (this *MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfoStackMap) getVariableInfoStack(name string) DequeOf[MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo] {
-	return this.mapOfStacks.computeIfAbsent(name, lambda_MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfoStackMap_getVariableInfoStack_1_)
+	return this.mapOfStacks.computeIfAbsent_f(name, lambda_MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfoStackMap_getVariableInfoStack_1_.f)
 }
 
 // lambda_MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfoStackMap_getVariableInfoStack_1_ is a lambda of MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfoStackMap_getVariableInfoStack that captures nothing (post-flip step lambdas).
@@ -759,7 +759,7 @@ func (this *MakeDeclaredNamesUnique_InlineRenamer) addDeclaredName(name string, 
 	if hoisted && (any(this.hoistRenamer) != any(this)) {
 		this.hoistRenamer.addDeclaredName(name, hoisted)
 	} else {
-		this.declarations.computeIfAbsent(name, &Function_fn{func(p0 any) any { return strobj_(this.getUniqueName(str_(p0))) }})
+		this.declarations.computeIfAbsent_f(name, func(p0 any) any { return strobj_(this.getUniqueName(str_(p0))) })
 	}
 }
 
