@@ -50,7 +50,9 @@ func (this *CheckUnreachableCode) initScope(controlFlowGraph *ControlFlowGraph) 
 }
 
 // lambda_CheckUnreachableCode_initScope_1_ is a lambda of CheckUnreachableCode_initScope that captures nothing (post-flip step lambdas).
-var lambda_CheckUnreachableCode_initScope_1_ = &Predicate_base_fn{func(p0 any) bool { return CheckUnreachableCode_isReachable(cast_[*GraphReachability_EdgeTuple](p0)) }}
+func lambda_CheckUnreachableCode_initScope_1_(p0 any) bool {
+	return CheckUnreachableCode_isReachable(cast_[*GraphReachability_EdgeTuple](p0))
+}
 
 func CheckUnreachableCode_isReachable(input *GraphReachability_EdgeTuple) bool {
 	var branch ControlFlowGraph_Branch = cast_[ControlFlowGraph_Branch](input.edge)

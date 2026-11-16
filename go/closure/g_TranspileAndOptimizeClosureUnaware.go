@@ -89,7 +89,9 @@ func (this *TranspileAndOptimizeClosureUnaware) createInjectRuntimeLibrariesPass
 }
 
 // lambda_TranspileAndOptimizeClosureUnaware_createInjectRuntimeLibrariesPass_1_ is a lambda of TranspileAndOptimizeClosureUnaware_createInjectRuntimeLibrariesPass that captures nothing (post-flip step lambdas).
-var lambda_TranspileAndOptimizeClosureUnaware_createInjectRuntimeLibrariesPass_1_ = &Predicate_base_fn{func(p0 any) bool { return Node_of_(p0).isFunction() }}
+func lambda_TranspileAndOptimizeClosureUnaware_createInjectRuntimeLibrariesPass_1_(p0 any) bool {
+	return Node_of_(p0).isFunction()
+}
 
 // lambda_TranspileAndOptimizeClosureUnaware_createInjectRuntimeLibrariesPass_2_ is a lambda of TranspileAndOptimizeClosureUnaware_createInjectRuntimeLibrariesPass that captures nothing (post-flip step lambdas).
 var lambda_TranspileAndOptimizeClosureUnaware_createInjectRuntimeLibrariesPass_2_ = &Predicate_base_fn{func(childToVisit_ any) bool {

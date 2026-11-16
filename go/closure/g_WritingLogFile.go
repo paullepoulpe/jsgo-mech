@@ -46,8 +46,8 @@ func (this *WritingLogFile) logString_impl(value string) *LogFile {
 	return this.logInternal(value)
 }
 
-func (this *WritingLogFile) log_impl(value SupplierOf[string]) *LogFile {
-	return this.logInternal(str_(value.get()))
+func (this *WritingLogFile) log_impl(value func() any) *LogFile {
+	return this.logInternal(str_(value()))
 }
 
 func (this *WritingLogFile) log_2_impl(template string, values []any) *LogFile {
@@ -62,20 +62,20 @@ func (this *WritingLogFile) logJsonSupplier_impl(value SupplierOf[any]) *LogFile
 	return this.logInternal(LogsGson_toJson(value.get()))
 }
 
-func (this *WritingLogFile) logJson_impl(producer LogFile_StreamedJsonProducer) *LogFile {
+func (this *WritingLogFile) logJson_impl(producer func(*SimpleJsonWriter)) *LogFile {
 	var jsonWriter *SimpleJsonWriter = new_SimpleJsonWriter()
-	jsonWriter.setSink(&Consumer_fn{func(text_ any) {
+	jsonWriter.setSink(func(text_ any) {
 		var text string = str_(text_)
 		_ = text
 		this.writer.print(text)
-	}})
+	})
 	var closed *Outcome_base
 	_ = func() (code_ int) {
 		defer func() {
 			this.writer.print(jsonWriter.takeText())
 			closed = this.writer.close()
 		}()
-		producer.writeJson(jsonWriter)
+		producer(jsonWriter)
 		return 0
 	}()
 	if closed.isErr() {
@@ -117,7 +117,7 @@ func (this *WritingLogFile) logString(p0 string) *LogFile {
 }
 
 // log: an object that is exactly a WritingLogFile calls its log_impl directly (post-flip); others dispatch.
-func (this *WritingLogFile) log(p0 Supplier) *LogFile {
+func (this *WritingLogFile) log(p0 func() any) *LogFile {
 	if this.self_ == any(this) {
 		return this.log_impl(p0)
 	}
@@ -149,7 +149,7 @@ func (this *WritingLogFile) logJsonSupplier(p0 Supplier) *LogFile {
 }
 
 // logJson: an object that is exactly a WritingLogFile calls its logJson_impl directly (post-flip); others dispatch.
-func (this *WritingLogFile) logJson(p0 LogFile_StreamedJsonProducer) *LogFile {
+func (this *WritingLogFile) logJson(p0 func(*SimpleJsonWriter)) *LogFile {
 	if this.self_ == any(this) {
 		return this.logJson_impl(p0)
 	}

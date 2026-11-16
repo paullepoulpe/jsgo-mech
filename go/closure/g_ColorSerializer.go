@@ -4,8 +4,8 @@ package closure
 
 type ColorSerializer struct {
 	serializationMode       *SerializationOptions
-	getStringPoolIndexFn    FunctionOf[string, BoxedOf[int32]]
-	propertyFilter          PredicateOf[string]
+	getStringPoolIndexFn    func(any) any
+	propertyFilter          func(any) bool
 	colorIdToTypePointer    *TMap[*ColorId, any]
 	colorsInSerializedOrder []*Color
 }
@@ -15,7 +15,7 @@ func (this *ColorSerializer) finit_ColorSerializer() {
 	this.colorsInSerializedOrder = []*Color{}
 }
 
-func (this *ColorSerializer) init_ColorSerializer(serializationMode *SerializationOptions, stringPoolIndexFn FunctionOf[string, BoxedOf[int32]], propertyFilter PredicateOf[string]) {
+func (this *ColorSerializer) init_ColorSerializer(serializationMode *SerializationOptions, stringPoolIndexFn func(any) any, propertyFilter func(any) bool) {
 	this.finit_ColorSerializer()
 	this.serializationMode = serializationMode
 	this.getStringPoolIndexFn = stringPoolIndexFn
@@ -27,7 +27,7 @@ func (this *ColorSerializer) init_ColorSerializer(serializationMode *Serializati
 	}
 }
 
-func new_ColorSerializer(serializationMode *SerializationOptions, stringPoolIndexFn FunctionOf[string, BoxedOf[int32]], propertyFilter PredicateOf[string]) *ColorSerializer {
+func new_ColorSerializer(serializationMode *SerializationOptions, stringPoolIndexFn func(any) any, propertyFilter func(any) bool) *ColorSerializer {
 	this := &ColorSerializer{}
 	this.init_ColorSerializer(serializationMode, stringPoolIndexFn, propertyFilter)
 	return this
@@ -77,7 +77,7 @@ func (this *ColorSerializer) generateTypePool(getDisambiguationSupertypesFn func
 			it_6 := foreach_(any(icast_Set(getMismatchSourceRefsFn.apply(obj_(color)))))
 			for it_6.next() {
 				var srcRef string = str_(it_6.v)
-				var typePointerList ArrayListOf[BoxedOf[int32]] = srcRefToTypePointerList.computeIfAbsent_f(srcRef, lambda_ColorSerializer_generateTypePool_1_.f)
+				var typePointerList ArrayListOf[BoxedOf[int32]] = srcRefToTypePointerList.computeIfAbsent_f(srcRef, lambda_ColorSerializer_generateTypePool_1_)
 				typePointerList.add(typePointer)
 			}
 		}
@@ -91,11 +91,11 @@ func (this *ColorSerializer) generateTypePool(getDisambiguationSupertypesFn func
 }
 
 // lambda_ColorSerializer_generateTypePool_1_ is a lambda of ColorSerializer_generateTypePool that captures nothing (post-flip step lambdas).
-var lambda_ColorSerializer_generateTypePool_1_ = &Function_fn{func(key_ any) any {
+func lambda_ColorSerializer_generateTypePool_1_(key_ any) any {
 	var key string = str_(key_)
 	_ = key
 	return new_ArrayList_0().self()
-}}
+}
 
 func (this *ColorSerializer) generateTypeProto(color *Color) *TypeProto {
 	var typeProtoBuilder *TypeProto_Builder = TypeProto_newBuilder()
@@ -113,8 +113,8 @@ func (this *ColorSerializer) getOwnPropertyStringPoolOffsets(color *Color) Immut
 	it_1 := foreach_(obj_(color.getOwnProperties()))
 	for it_1.next() {
 		var ownProperty string = str_(it_1.v)
-		if this.propertyFilter.test(strobj_(ownProperty)) {
-			builder.add(this.getStringPoolIndexFn.apply(strobj_(ownProperty)))
+		if this.propertyFilter(strobj_(ownProperty)) {
+			builder.add(this.getStringPoolIndexFn(strobj_(ownProperty)))
 		}
 	}
 	return cast_[*ImmutableList](obj_(builder.build()))

@@ -1249,7 +1249,7 @@ func (this *CodeGenerator) add_3(node Node, context CodeGenerator_Context, print
 }
 
 // lambda_CodeGenerator_add_3_1_ is a lambda of CodeGenerator_add_3 that captures nothing (post-flip step lambdas).
-var lambda_CodeGenerator_add_3_1_ = &Predicate_base_fn{func(p0 any) bool { return Node_of_(p0).isCall() }}
+func lambda_CodeGenerator_add_3_1_(p0 any) bool { return Node_of_(p0).isCall() }
 
 func (this *CodeGenerator) addIdentifier(identifier string) {
 	this.cc.addIdentifier(CodeGenerator_identifierEscape(identifier))

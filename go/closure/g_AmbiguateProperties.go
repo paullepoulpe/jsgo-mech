@@ -53,7 +53,7 @@ func (this *AmbiguateProperties) getRenamingMap() *TMap[string, string] {
 func (this *AmbiguateProperties) process_2(externs Node, root Node) {
 	this.graphNodeFactory = ColorGraphNodeFactory_createFactory(this.colorRegistry)
 	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(obj_(new_AmbiguateProperties_ProcessPropertiesAndConstructors(this))))
-	var graphBuilder *ColorGraphBuilder = new_ColorGraphBuilder(this.graphNodeFactory, lambda_AmbiguateProperties_process_2_1_.f, this.colorRegistry)
+	var graphBuilder *ColorGraphBuilder = new_ColorGraphBuilder(this.graphNodeFactory, lambda_AmbiguateProperties_process_2_1_, this.colorRegistry)
 	graphBuilder.addAll(icast_Collection(obj_(this.graphNodeFactory.getAllKnownTypes())))
 	var colorGraph *LinkedDirectedGraph = graphBuilder.build()
 	_ = func() (code_ int) {
@@ -138,7 +138,9 @@ func (this *AmbiguateProperties) process_2(externs Node, root Node) {
 }
 
 // lambda_AmbiguateProperties_process_2_1_ is a lambda of AmbiguateProperties_process_2 that captures nothing (post-flip step lambdas).
-var lambda_AmbiguateProperties_process_2_1_ = &LowestCommonAncestorFinder_Factory_fn{func(p0 *DiGraph) *LowestCommonAncestorFinder { return new_LowestCommonAncestorFinder(p0) }}
+func lambda_AmbiguateProperties_process_2_1_(p0 *DiGraph) *LowestCommonAncestorFinder {
+	return new_LowestCommonAncestorFinder(p0)
+}
 
 // lambda_AmbiguateProperties_process_2_2_ is a lambda of AmbiguateProperties_process_2 that captures nothing (post-flip step lambdas).
 var lambda_AmbiguateProperties_process_2_2_ = &FixedPointGraphTraversal_EdgeCallback_fn{func(subtype_ any, e any, supertype_ any) bool {

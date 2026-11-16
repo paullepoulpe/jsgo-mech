@@ -4,19 +4,19 @@ package closure
 
 type RewriteOptionalChainingOperator struct {
 	compiler_                    *AbstractCompiler
-	getTmpVarNameCreatorForInput FunctionOf[*CompilerInput, OptionalChainRewriter_TmpVarNameCreator]
+	getTmpVarNameCreatorForInput func(any) any
 }
 
 func (this *RewriteOptionalChainingOperator) init_RewriteOptionalChainingOperator_AbstractCompiler(compiler *AbstractCompiler) {
 	this.compiler_ = compiler
 	var uniqueIdSupplier *UniqueIdSupplier = compiler.getUniqueIdSupplier()
-	this.getTmpVarNameCreatorForInput = &Function_fn{func(input_ any) any {
+	this.getTmpVarNameCreatorForInput = func(input_ any) any {
 		var input *CompilerInput = cast_[*CompilerInput](input_)
 		_ = input
 		return any(&OptionalChainRewriter_TmpVarNameCreator_fn{func() string {
 			return ("$jscomp$optchain$tmp" + sstr_(uniqueIdSupplier.getUniqueId(input)))
 		}})
-	}}
+	}
 }
 
 func new_RewriteOptionalChainingOperator_AbstractCompiler(compiler *AbstractCompiler) *RewriteOptionalChainingOperator {
@@ -27,11 +27,11 @@ func new_RewriteOptionalChainingOperator_AbstractCompiler(compiler *AbstractComp
 
 func (this *RewriteOptionalChainingOperator) init_RewriteOptionalChainingOperator_AbstractCompiler_TmpVarNameCreator(compiler *AbstractCompiler, tmpVarNameCreator OptionalChainRewriter_TmpVarNameCreator) {
 	this.compiler_ = compiler
-	this.getTmpVarNameCreatorForInput = &Function_fn{func(input_ any) any {
+	this.getTmpVarNameCreatorForInput = func(input_ any) any {
 		var input *CompilerInput = cast_[*CompilerInput](input_)
 		_ = input
 		return any(tmpVarNameCreator)
-	}}
+	}
 }
 
 func new_RewriteOptionalChainingOperator_AbstractCompiler_TmpVarNameCreator(compiler *AbstractCompiler, tmpVarNameCreator OptionalChainRewriter_TmpVarNameCreator) *RewriteOptionalChainingOperator {
@@ -69,7 +69,7 @@ func new_RewriteOptionalChainingOperator_TranspilationCallback(outer_ *RewriteOp
 
 func (this *RewriteOptionalChainingOperator_TranspilationCallback) shouldTraverse(t *NodeTraversal, n Node, parent Node) bool {
 	if n.isScript() {
-		this.rewriterBuilder.setTmpVarNameCreator(icast_OptionalChainRewriter_TmpVarNameCreator(this.outer_.getTmpVarNameCreatorForInput.apply(obj_(t.getInput()))))
+		this.rewriterBuilder.setTmpVarNameCreator(icast_OptionalChainRewriter_TmpVarNameCreator(this.outer_.getTmpVarNameCreatorForInput(obj_(t.getInput()))))
 		var scriptFeatures *FeatureSet = NodeUtil_getFeatureSetOfScript(n)
 		return ((scriptFeatures == nil) || scriptFeatures.contains(FeatureSet_Feature_OPTIONAL_CHAINING))
 	}

@@ -15,7 +15,7 @@ type RenameProperties struct {
 	externedNames                   *TSet[string]
 	quotedNames                     *TSet[string]
 	nameGenerator                   NameGenerator
-	propertyRenameEligibilityFilter PredicateOf[Node]
+	propertyRenameEligibilityFilter func(any) bool
 	filteredOutNames                map[string]struct{}
 }
 
@@ -34,11 +34,11 @@ func (this *RenameProperties) init_RenameProperties_AbstractCompiler_boolean_Var
 }
 
 // lambda_RenameProperties_init_RenameProperties_AbstractCompiler_boolean_VariableMap_Set_Set_NameGenerator_1_ is a lambda of RenameProperties_init_RenameProperties_AbstractCompiler_boolean_VariableMap_Set_Set_NameGenerator that captures nothing (post-flip step lambdas).
-var lambda_RenameProperties_init_RenameProperties_AbstractCompiler_boolean_VariableMap_Set_Set_NameGenerator_1_ = &Predicate_fn{func(n_ any) bool {
+func lambda_RenameProperties_init_RenameProperties_AbstractCompiler_boolean_VariableMap_Set_Set_NameGenerator_1_(n_ any) bool {
 	var n Node = Node_of_(n_)
 	_ = n
 	return true
-}}
+}
 
 func new_RenameProperties_AbstractCompiler_boolean_VariableMap_Set_Set_NameGenerator(compiler *AbstractCompiler, generatePseudoNames bool, prevUsedPropertyMap *VariableMap, reservedFirstCharacters SetOf[BoxedOf[uint16]], reservedNonFirstCharacters SetOf[BoxedOf[uint16]], nameGenerator NameGenerator) *RenameProperties {
 	this := &RenameProperties{}
@@ -46,7 +46,7 @@ func new_RenameProperties_AbstractCompiler_boolean_VariableMap_Set_Set_NameGener
 	return this
 }
 
-func (this *RenameProperties) init_RenameProperties_AbstractCompiler_boolean_VariableMap_Set_Set_NameGenerator_Predicate(compiler *AbstractCompiler, generatePseudoNames bool, prevUsedPropertyMap *VariableMap, reservedFirstCharacters SetOf[BoxedOf[uint16]], reservedNonFirstCharacters SetOf[BoxedOf[uint16]], nameGenerator NameGenerator, propertyRenameEligibilityFilter PredicateOf[Node]) {
+func (this *RenameProperties) init_RenameProperties_AbstractCompiler_boolean_VariableMap_Set_Set_NameGenerator_Predicate(compiler *AbstractCompiler, generatePseudoNames bool, prevUsedPropertyMap *VariableMap, reservedFirstCharacters SetOf[BoxedOf[uint16]], reservedNonFirstCharacters SetOf[BoxedOf[uint16]], nameGenerator NameGenerator, propertyRenameEligibilityFilter func(any) bool) {
 	this.finit_RenameProperties()
 	this.compiler_ = compiler
 	this.generatePseudoNames = generatePseudoNames
@@ -58,7 +58,7 @@ func (this *RenameProperties) init_RenameProperties_AbstractCompiler_boolean_Var
 	this.externedNames.asSet().addAll(icast_Collection(obj_(compiler.getExternProperties())))
 }
 
-func new_RenameProperties_AbstractCompiler_boolean_VariableMap_Set_Set_NameGenerator_Predicate(compiler *AbstractCompiler, generatePseudoNames bool, prevUsedPropertyMap *VariableMap, reservedFirstCharacters SetOf[BoxedOf[uint16]], reservedNonFirstCharacters SetOf[BoxedOf[uint16]], nameGenerator NameGenerator, propertyRenameEligibilityFilter PredicateOf[Node]) *RenameProperties {
+func new_RenameProperties_AbstractCompiler_boolean_VariableMap_Set_Set_NameGenerator_Predicate(compiler *AbstractCompiler, generatePseudoNames bool, prevUsedPropertyMap *VariableMap, reservedFirstCharacters SetOf[BoxedOf[uint16]], reservedNonFirstCharacters SetOf[BoxedOf[uint16]], nameGenerator NameGenerator, propertyRenameEligibilityFilter func(any) bool) *RenameProperties {
 	this := &RenameProperties{}
 	this.init_RenameProperties_AbstractCompiler_boolean_VariableMap_Set_Set_NameGenerator_Predicate(compiler, generatePseudoNames, prevUsedPropertyMap, reservedFirstCharacters, reservedNonFirstCharacters, nameGenerator, propertyRenameEligibilityFilter)
 	return this
@@ -250,7 +250,7 @@ func (this *RenameProperties_ProcessProperties) visit_impl(t *NodeTraversal, n N
 			this.outer_.callNodeToParentMap.put(n, parent)
 			this.countCallCandidates(t, n)
 			var stringArgument Node = n.getSecondChild()
-			if !this.outer_.propertyRenameEligibilityFilter.test(n.box_()) {
+			if !this.outer_.propertyRenameEligibilityFilter(n.box_()) {
 				it_2 := foreach_(any(RenameProperties_DOT_SPLITTER.split_s(stringArgument.getString())))
 				for it_2.next() {
 					var name string = str_(it_2.v)
@@ -295,7 +295,7 @@ func (this *RenameProperties_ProcessProperties) visit_impl(t *NodeTraversal, n N
 func (this *RenameProperties_ProcessProperties) maybeMarkCandidate(n Node) {
 	var name string = n.getString()
 	if !this.outer_.externedNames.contains(name) {
-		if !this.outer_.propertyRenameEligibilityFilter.test(n.box_()) {
+		if !this.outer_.propertyRenameEligibilityFilter(n.box_()) {
 			this.outer_.filteredOutNames[n.getString()] = struct{}{}
 		}
 		this.outer_.stringNodesToRename = append(this.outer_.stringNodesToRename, n)
@@ -324,12 +324,14 @@ func (this *RenameProperties_ProcessProperties) countCallCandidates(t *NodeTrave
 }
 
 func (this *RenameProperties_ProcessProperties) countPropertyOccurrence(name string) {
-	var prop *RenameProperties_Property = this.outer_.propertyMap.computeIfAbsent_f(name, lambda_RenameProperties_ProcessProperties_countPropertyOccurrence_1_.f)
+	var prop *RenameProperties_Property = this.outer_.propertyMap.computeIfAbsent_f(name, lambda_RenameProperties_ProcessProperties_countPropertyOccurrence_1_)
 	prop.numOccurrences++
 }
 
 // lambda_RenameProperties_ProcessProperties_countPropertyOccurrence_1_ is a lambda of RenameProperties_ProcessProperties_countPropertyOccurrence that captures nothing (post-flip step lambdas).
-var lambda_RenameProperties_ProcessProperties_countPropertyOccurrence_1_ = &Function_fn{func(p0 any) any { return obj_(new_RenameProperties_Property(str_(p0))) }}
+func lambda_RenameProperties_ProcessProperties_countPropertyOccurrence_1_(p0 any) any {
+	return obj_(new_RenameProperties_Property(str_(p0)))
+}
 
 type RenameProperties_Property struct {
 	oldName        string

@@ -167,7 +167,7 @@ func (this *TypedAstDeserializer) initLazyAstDeserializer(lazyAst *LazyAst, file
 		return
 	}
 	if file.isWeak() {
-		Map_computeIfAbsent_f(Map(this.typedAstFilesystem), obj_(file), lambda_TypedAstDeserializer_initLazyAstDeserializer_1_.f)
+		Map_computeIfAbsent_f(Map(this.typedAstFilesystem), obj_(file), lambda_TypedAstDeserializer_initLazyAstDeserializer_1_)
 		return
 	}
 	var deserializer *ScriptNodeDeserializer = new_ScriptNodeDeserializer(lazyAst, stringShard, colorShard, fileShard)
@@ -184,9 +184,9 @@ func (this *TypedAstDeserializer) initLazyAstDeserializer(lazyAst *LazyAst, file
 }
 
 // lambda_TypedAstDeserializer_initLazyAstDeserializer_1_ is a lambda of TypedAstDeserializer_initLazyAstDeserializer that captures nothing (post-flip step lambdas).
-var lambda_TypedAstDeserializer_initLazyAstDeserializer_1_ = &Function_fn{func(p0 any) any {
+func lambda_TypedAstDeserializer_initLazyAstDeserializer_1_(p0 any) any {
 	return any(TypedAstDeserializer_createStubWeakScriptNode(cast_[*SourceFile_jscomp](p0)))
-}}
+}
 
 func TypedAstDeserializer_addInputSourceMap(deserializer *ScriptNodeDeserializer, compiler *AbstractCompiler, resolveSourceMapAnnotations bool, parseInlineSourceMaps bool) {
 	var sourceFile *SourceFile_jscomp = deserializer.getSourceFile()

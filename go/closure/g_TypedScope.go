@@ -179,7 +179,7 @@ func (this *TypedScope) getImplicitVarType(var_ AbstractScope_ImplicitVar) *JSTy
 }
 
 func (this *TypedScope) getDeclarativelyUnboundVarsWithoutTypes() IterableOf[*TypedVar] {
-	return Iterables_filter(this.getVarIterable(), &Predicate_base_fn{func(p0 any) bool { return this.isDeclarativelyUnboundVarWithoutType(cast_[*TypedVar](p0)) }})
+	return Iterables_filter_f(this.getVarIterable(), func(p0 any) bool { return this.isDeclarativelyUnboundVarWithoutType(cast_[*TypedVar](p0)) })
 }
 
 func (this *TypedScope) isDeclarativelyUnboundVarWithoutType(var_ *TypedVar) bool {

@@ -4,7 +4,7 @@ package closure
 
 type AstValidator struct {
 	compiler_                        *AbstractCompiler
-	violationHandler                 AstValidator_ViolationHandler
+	violationHandler                 func(string, Node)
 	currentScript                    Node
 	typeValidationMode               AstValidator_TypeInfoValidation
 	isScriptFeatureValidationEnabled bool
@@ -15,7 +15,7 @@ func (this *AstValidator) finit_AstValidator() {
 	this.typeValidationMode = AstValidator_TypeInfoValidation_NONE
 }
 
-func (this *AstValidator) init_AstValidator_AbstractCompiler_ViolationHandler_boolean_boolean(compiler *AbstractCompiler, handler AstValidator_ViolationHandler, validateScriptFeatures bool, shouldValidateRequiredInlinings bool) {
+func (this *AstValidator) init_AstValidator_AbstractCompiler_ViolationHandler_boolean_boolean(compiler *AbstractCompiler, handler func(string, Node), validateScriptFeatures bool, shouldValidateRequiredInlinings bool) {
 	this.finit_AstValidator()
 	this.compiler_ = compiler
 	this.violationHandler = handler
@@ -23,7 +23,7 @@ func (this *AstValidator) init_AstValidator_AbstractCompiler_ViolationHandler_bo
 	this.shouldValidateRequiredInlinings = shouldValidateRequiredInlinings
 }
 
-func new_AstValidator_AbstractCompiler_ViolationHandler_boolean_boolean(compiler *AbstractCompiler, handler AstValidator_ViolationHandler, validateScriptFeatures bool, shouldValidateRequiredInlinings bool) *AstValidator {
+func new_AstValidator_AbstractCompiler_ViolationHandler_boolean_boolean(compiler *AbstractCompiler, handler func(string, Node), validateScriptFeatures bool, shouldValidateRequiredInlinings bool) *AstValidator {
 	this := &AstValidator{}
 	this.init_AstValidator_AbstractCompiler_ViolationHandler_boolean_boolean(compiler, handler, validateScriptFeatures, shouldValidateRequiredInlinings)
 	return this
@@ -40,7 +40,7 @@ func new_AstValidator_AbstractCompiler(compiler *AbstractCompiler) *AstValidator
 }
 
 func (this *AstValidator) init_AstValidator_AbstractCompiler_boolean(compiler *AbstractCompiler, validateScriptFeatures bool) {
-	this.init_AstValidator_AbstractCompiler_ViolationHandler_boolean_boolean(compiler, icast_AstValidator_ViolationHandler(obj_(new_AstValidator_1(this))), validateScriptFeatures, Object_equals(obj_(compiler.getOptions().getShouldValidateRequiredInlinings()), obj_(Tri_TRUE)))
+	this.init_AstValidator_AbstractCompiler_ViolationHandler_boolean_boolean(compiler, new_AstValidator_1(this).handleViolation, validateScriptFeatures, Object_equals(obj_(compiler.getOptions().getShouldValidateRequiredInlinings()), obj_(Tri_TRUE)))
 }
 
 func new_AstValidator_AbstractCompiler_boolean(compiler *AbstractCompiler, validateScriptFeatures bool) *AstValidator {
@@ -1915,7 +1915,7 @@ func (this *AstValidator) validateNamespaceElements(n Node, isAmbient bool) {
 }
 
 func (this *AstValidator) violation(message string, n Node) {
-	this.violationHandler.handleViolation(message, n)
+	this.violationHandler(message, n)
 }
 
 func (this *AstValidator) validateFirstNodeOfOptChain(n Node) {

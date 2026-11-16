@@ -507,7 +507,7 @@ func TypedAstSerializer_createJSTypeSerializer(compiler *AbstractCompiler, seria
 
 func (this *TypedAstSerializer) createColorTypeSerializer(compiler *AbstractCompiler, serializationMode *SerializationOptions, stringPoolBuilder *StringPool_Builder) *TypedAstSerializer_ColorTypeSerializer {
 	var usedPropertyNames ImmutableSetOf[string] = TypedAstSerializer_collectUsedPropertyNames(compiler)
-	var colorSerializer *ColorSerializer = new_ColorSerializer(serializationMode, &Function_fn{func(p0 any) any { return any(int32(stringPoolBuilder.put(str_(p0)))) }}, &Predicate_fn{func(p0 any) bool { return Collection_contains_s(usedPropertyNames, str_(p0)) }})
+	var colorSerializer *ColorSerializer = new_ColorSerializer(serializationMode, func(p0 any) any { return any(int32(stringPoolBuilder.put(str_(p0)))) }, func(p0 any) bool { return Collection_contains_s(usedPropertyNames, str_(p0)) })
 	return new_TypedAstSerializer_ColorTypeSerializer(colorSerializer, compiler.getColorRegistry())
 }
 

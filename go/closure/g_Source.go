@@ -332,8 +332,8 @@ func (this *Source_Transformer_fn) compose(p0 Source_Transformer) Source_Transfo
 	return Source_Transformer_compose_default(this, p0)
 }
 
-func Source_Transformer_of(function FunctionOf[*Source, *Source]) Source_Transformer {
-	return &Source_Transformer_fn{func(p0 *Source) *Source { return cast_[*Source](function.apply(obj_(p0))) }}
+func Source_Transformer_of(function func(any) any) Source_Transformer {
+	return &Source_Transformer_fn{func(p0 *Source) *Source { return cast_[*Source](function(obj_(p0))) }}
 }
 
 func Source_Transformer_identity() Source_Transformer {

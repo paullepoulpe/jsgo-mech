@@ -237,7 +237,7 @@ func (this *RescopeGlobalSymbolsRewriteCallback) visitName(t *NodeTraversal, n N
 			}
 		} else if this.optimizeLocalAccess.shouldOptimizeAllChunks() && (!this.optimizeLocalAccess.shouldWrapReassignableSymbols() || !Collection_contains_s(this.symbolInfo.wrappedCrossChunkNames(), name)) {
 			if !Collection_contains_s(this.symbolInfo.globalNamesWithInnerScopeWriteInDefiningChunk(), name) && this.compiler_.getChunkGraph().dependsOn(currentChunk, definingChunk) {
-				Collection_add_s(icast_Set(Map_computeIfAbsent_f(this.localAliasesForUnwrappedCrossChunkNames.asMap(), obj_(currentChunk), lambda_RescopeGlobalSymbolsRewriteCallback_visitName_2_.f)), name)
+				Collection_add_s(icast_Set(Map_computeIfAbsent_f(this.localAliasesForUnwrappedCrossChunkNames.asMap(), obj_(currentChunk), lambda_RescopeGlobalSymbolsRewriteCallback_visitName_2_)), name)
 				return
 			}
 		}
@@ -264,11 +264,11 @@ var lambda_RescopeGlobalSymbolsRewriteCallback_visitName_1_ = &Function_fn{func(
 }}
 
 // lambda_RescopeGlobalSymbolsRewriteCallback_visitName_2_ is a lambda of RescopeGlobalSymbolsRewriteCallback_visitName that captures nothing (post-flip step lambdas).
-var lambda_RescopeGlobalSymbolsRewriteCallback_visitName_2_ = &Function_fn{func(k_ any) any {
+func lambda_RescopeGlobalSymbolsRewriteCallback_visitName_2_(k_ any) any {
 	var k *JSChunk = cast_[*JSChunk](k_)
 	_ = k
 	return obj_(new_LinkedHashSet())
-}}
+}
 
 // lambda_RescopeGlobalSymbolsRewriteCallback_visitName_3_ is a lambda of RescopeGlobalSymbolsRewriteCallback_visitName that captures nothing (post-flip step lambdas).
 var lambda_RescopeGlobalSymbolsRewriteCallback_visitName_3_ = &Function_fn{func(k_ any) any {

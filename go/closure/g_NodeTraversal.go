@@ -267,7 +267,7 @@ func NodeTraversal_traverseAtScope(compiler *AbstractCompiler, cb NodeTraversal_
 
 func NodeTraversal_traverseScopeRoots(compiler *AbstractCompiler, scopeNodes *TList[Node], cb NodeTraversal_Callback, traverseNested bool) {
 	var scb *NodeTraversal_1TraverseScopeRootsCallback = new_NodeTraversal_1TraverseScopeRootsCallback(traverseNested, cb)
-	var scopeCreator *MemoizedScopeCreator = new_MemoizedScopeCreator(icast_ScopeCreator(obj_(new_SyntacticScopeCreator_AbstractCompiler(compiler))))
+	var scopeCreator *MemoizedScopeCreator = new_MemoizedScopeCreator(new_SyntacticScopeCreator_AbstractCompiler(compiler).createScopeAbstractScope)
 	it_1 := scopeNodes.each()
 	for it_1.next() {
 		var scopeNode Node = it_1.v
@@ -1632,7 +1632,7 @@ func (this *NodeTraversal_Builder) setCallback(x NodeTraversal_Callback) *NodeTr
 	return this
 }
 
-func (this *NodeTraversal_Builder) setCallbackAbstractPostOrderCallbackInterface(x NodeTraversal_AbstractPostOrderCallbackInterface) *NodeTraversal_Builder {
+func (this *NodeTraversal_Builder) setCallbackAbstractPostOrderCallbackInterface(x func(*NodeTraversal, Node, Node)) *NodeTraversal_Builder {
 	this.callback = icast_NodeTraversal_Callback(obj_(new_NodeTraversal_Builder_1(this, x)))
 	return this
 }
@@ -1743,7 +1743,7 @@ func (this *NodeTraversal_1TraverseScopeRootsCallback) exitScope(t *NodeTraversa
 type NodeTraversal_Builder_1 struct {
 	NodeTraversal_AbstractPostOrderCallback
 	outer_ *NodeTraversal_Builder
-	cap_x  NodeTraversal_AbstractPostOrderCallbackInterface
+	cap_x  func(*NodeTraversal, Node, Node)
 }
 
 func (this *NodeTraversal_Builder_1) up_NodeTraversal_AbstractPostOrderCallback() *NodeTraversal_AbstractPostOrderCallback {
@@ -1757,7 +1757,7 @@ func (this *NodeTraversal_Builder_1) init_NodeTraversal_Builder_1() {
 	this.NodeTraversal_AbstractPostOrderCallback.init_NodeTraversal_AbstractPostOrderCallback()
 }
 
-func new_NodeTraversal_Builder_1(outer_ *NodeTraversal_Builder, cap_x NodeTraversal_AbstractPostOrderCallbackInterface) *NodeTraversal_Builder_1 {
+func new_NodeTraversal_Builder_1(outer_ *NodeTraversal_Builder, cap_x func(*NodeTraversal, Node, Node)) *NodeTraversal_Builder_1 {
 	this := &NodeTraversal_Builder_1{}
 	this.self_ = this
 	this.outer_ = outer_
@@ -1767,7 +1767,7 @@ func new_NodeTraversal_Builder_1(outer_ *NodeTraversal_Builder, cap_x NodeTraver
 }
 
 func (this *NodeTraversal_Builder_1) visit_impl(t *NodeTraversal, n Node, parent Node) {
-	this.cap_x.visit(t, n, parent)
+	this.cap_x(t, n, parent)
 }
 
 // shouldTraverse: an object that is exactly a NodeTraversal_AbstractChangedScopeCallback calls its shouldTraverse_impl directly (post-flip); others dispatch.

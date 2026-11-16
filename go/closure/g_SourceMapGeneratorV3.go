@@ -124,24 +124,24 @@ func (this *SourceMapGeneratorV3) mergeMapSection(line int32, column int32, mapS
 	if parsed.isErr() {
 		return Outcome_base_err(parsed.error())
 	}
-	section.visitMappings(icast_SourceMapConsumerV3_EntryVisitor(obj_(new_SourceMapGeneratorV3_ConsumerEntryVisitor(this))))
+	section.visitMappings(new_SourceMapGeneratorV3_ConsumerEntryVisitor(this).visit)
 	return Outcome_base_ok_0()
 }
 
-func (this *SourceMapGeneratorV3) mergeMapSection_4(line int32, column int32, mapSectionContents string, mergeAction SourceMapGeneratorV3_ExtensionMergeAction) *Outcome_base {
+func (this *SourceMapGeneratorV3) mergeMapSection_4(line int32, column int32, mapSectionContents string, mergeAction func(string, any, any) any) *Outcome_base {
 	this.setStartingPosition(line, column)
 	var section *SourceMapConsumerV3 = new_SourceMapConsumerV3()
 	var parsed *Outcome_base = section.parse(mapSectionContents)
 	if parsed.isErr() {
 		return Outcome_base_err(parsed.error())
 	}
-	section.visitMappings(icast_SourceMapConsumerV3_EntryVisitor(obj_(new_SourceMapGeneratorV3_ConsumerEntryVisitor(this))))
+	section.visitMappings(new_SourceMapGeneratorV3_ConsumerEntryVisitor(this).visit)
 	it_1 := foreach_(any(section.getExtensions().asMap().entrySet()))
 	for it_1.next() {
 		var entry Map_Entry = icast_Map_Entry(it_1.v)
 		var extensionKey string = str_(entry.getKey())
 		if this.extensions.containsKey(extensionKey) {
-			this.extensions.put(extensionKey, mergeAction.merge(extensionKey, this.extensions.get(extensionKey), entry.getValue()))
+			this.extensions.put(extensionKey, mergeAction(extensionKey, this.extensions.get(extensionKey), entry.getValue()))
 		} else {
 			this.extensions.put(extensionKey, entry.getValue())
 		}

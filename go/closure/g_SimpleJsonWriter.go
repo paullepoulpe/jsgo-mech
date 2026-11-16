@@ -9,7 +9,7 @@ type SimpleJsonWriter struct {
 	htmlSafe       bool
 	serializeNulls bool
 	deferredName   OptionalOf[string]
-	sink           ConsumerOf[string]
+	sink           func(any)
 }
 
 func (this *SimpleJsonWriter) zero_SimpleJsonWriter() {
@@ -127,7 +127,7 @@ func (this *SimpleJsonWriter) longValue(value int64) *SimpleJsonWriter {
 	return this
 }
 
-func (this *SimpleJsonWriter) setSink(sink ConsumerOf[string]) {
+func (this *SimpleJsonWriter) setSink(sink func(any)) {
 	this.sink = sink
 }
 
@@ -166,7 +166,7 @@ func (this *SimpleJsonWriter) close(empty int32, nonempty int32, closeBracket ui
 
 func (this *SimpleJsonWriter) beforeValue() {
 	if (this.sink != nil) && (this.out.length() >= SimpleJsonWriter_SINK_THRESHOLD) {
-		this.sink.accept(strobj_(this.takeText()))
+		this.sink(strobj_(this.takeText()))
 	}
 	var top int32 = (this.stack.size() - 1)
 	var context int32 = unbox_[int32](this.stack.get(top))

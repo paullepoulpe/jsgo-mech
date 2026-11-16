@@ -551,9 +551,9 @@ func (this *CrossChunkCodeMotion_DeclarationStatementGroupCycle) moveToPreferred
 		if this.outer_.cccmLog.isLogging() {
 			this.outer_.cccmLog.logString("start DSG Cycle move")
 			for _, globalSymbolName := range this.getGlobalSymbolNames() {
-				this.outer_.cccmLog.log(&Supplier_fn{func() any {
+				this.outer_.cccmLog.log(func() any {
 					return strobj_(String_format("Moving DSG for %s from chunk %s to chunk %s", []any{strobj_(globalSymbolName), obj_(this.currentChunk), obj_(preferredChunk)}))
-				}})
+				})
 			}
 		}
 		this.moveStatementsToChunk(preferredChunk)

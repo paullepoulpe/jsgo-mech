@@ -32,7 +32,7 @@ func (this *NoOpLogFile) logString_impl(value string) *LogFile {
 	return this.up_LogFile()
 }
 
-func (this *NoOpLogFile) log_impl(value SupplierOf[string]) *LogFile {
+func (this *NoOpLogFile) log_impl(value func() any) *LogFile {
 	return this.up_LogFile()
 }
 
@@ -48,7 +48,7 @@ func (this *NoOpLogFile) logJsonSupplier_impl(value SupplierOf[any]) *LogFile {
 	return this.up_LogFile()
 }
 
-func (this *NoOpLogFile) logJson_impl(producer LogFile_StreamedJsonProducer) *LogFile {
+func (this *NoOpLogFile) logJson_impl(producer func(*SimpleJsonWriter)) *LogFile {
 	return this.up_LogFile()
 }
 
@@ -77,7 +77,7 @@ func (this *NoOpLogFile) logString(p0 string) *LogFile {
 }
 
 // log: an object that is exactly a NoOpLogFile calls its log_impl directly (post-flip); others dispatch.
-func (this *NoOpLogFile) log(p0 Supplier) *LogFile {
+func (this *NoOpLogFile) log(p0 func() any) *LogFile {
 	if this.self_ == any(this) {
 		return this.log_impl(p0)
 	}
@@ -109,7 +109,7 @@ func (this *NoOpLogFile) logJsonSupplier(p0 Supplier) *LogFile {
 }
 
 // logJson: an object that is exactly a NoOpLogFile calls its logJson_impl directly (post-flip); others dispatch.
-func (this *NoOpLogFile) logJson(p0 LogFile_StreamedJsonProducer) *LogFile {
+func (this *NoOpLogFile) logJson(p0 func(*SimpleJsonWriter)) *LogFile {
 	if this.self_ == any(this) {
 		return this.logJson_impl(p0)
 	}
