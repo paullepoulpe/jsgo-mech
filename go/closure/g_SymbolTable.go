@@ -859,25 +859,28 @@ func (this *SymbolTable) addRefsInGoogRequireStatement(n Node, googModuleScopes 
 func (this *SymbolTable) fillGoogProvideModuleRequires(externs Node, root Node) {
 	var declaredNamespaces map[string]*SymbolTable_Symbol = map[string]*SymbolTable_Symbol{}
 	var moduleScopes map[string]*SymbolTable_SymbolScope = map[string]*SymbolTable_SymbolScope{}
-	var looksLikeGoogCall PredicateOf[Node] = &Predicate_fn{func(n_ any) bool {
-		var n Node = Node_of_(n_)
-		_ = n
-		if !n.isCall() {
-			return false
-		}
-		var left Node = n.getFirstChild()
-		var arg Node = n.getSecondChild()
-		if (!((left.isGetProp() && left.getFirstChild().isName()) && (left.getFirstChild().getString() == "goog")) || (arg == 0)) || !arg.isStringLit() {
-			return false
-		}
-		return true
-		panic("unreachable")
-	}}
+	var looksLikeGoogCall PredicateOf[Node] = lambda_SymbolTable_fillGoogProvideModuleRequires_1_
 	var collectModuleScopes NodeTraversal_Callback = icast_NodeTraversal_Callback(obj_(new_SymbolTable_3(this, looksLikeGoogCall, declaredNamespaces, moduleScopes)))
 	var processRequireStatements NodeTraversal_Callback = icast_NodeTraversal_Callback(obj_(new_SymbolTable_4(this, looksLikeGoogCall, moduleScopes, declaredNamespaces)))
 	NodeTraversal_traverseRoots(this.compiler_, collectModuleScopes, externs, root)
 	NodeTraversal_traverseRoots(this.compiler_, processRequireStatements, externs, root)
 }
+
+// lambda_SymbolTable_fillGoogProvideModuleRequires_1_ is a lambda of SymbolTable_fillGoogProvideModuleRequires that captures nothing (post-flip step lambdas).
+var lambda_SymbolTable_fillGoogProvideModuleRequires_1_ = &Predicate_fn{func(n_ any) bool {
+	var n Node = Node_of_(n_)
+	_ = n
+	if !n.isCall() {
+		return false
+	}
+	var left Node = n.getFirstChild()
+	var arg Node = n.getSecondChild()
+	if (!((left.isGetProp() && left.getFirstChild().isName()) && (left.getFirstChild().getString() == "goog")) || (arg == 0)) || !arg.isStringLit() {
+		return false
+	}
+	return true
+	panic("unreachable")
+}}
 
 func (this *SymbolTable) flattenGoogModuleExports() {
 	it_1 := foreach_(any(this.getAllScopes()))

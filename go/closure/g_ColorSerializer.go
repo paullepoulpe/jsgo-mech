@@ -77,11 +77,7 @@ func (this *ColorSerializer) generateTypePool(getDisambiguationSupertypesFn Func
 			it_6 := foreach_(any(icast_Set(getMismatchSourceRefsFn.apply(obj_(color)))))
 			for it_6.next() {
 				var srcRef string = str_(it_6.v)
-				var typePointerList ArrayListOf[BoxedOf[int32]] = srcRefToTypePointerList.computeIfAbsent(srcRef, &Function_fn{func(key_ any) any {
-					var key string = str_(key_)
-					_ = key
-					return new_ArrayList_0().self()
-				}})
+				var typePointerList ArrayListOf[BoxedOf[int32]] = srcRefToTypePointerList.computeIfAbsent(srcRef, lambda_ColorSerializer_generateTypePool_1_)
 				typePointerList.add(typePointer)
 			}
 		}
@@ -93,6 +89,13 @@ func (this *ColorSerializer) generateTypePool(getDisambiguationSupertypesFn Func
 	}
 	return cast_[*TypePool](typePoolBuilder.build())
 }
+
+// lambda_ColorSerializer_generateTypePool_1_ is a lambda of ColorSerializer_generateTypePool that captures nothing (post-flip step lambdas).
+var lambda_ColorSerializer_generateTypePool_1_ = &Function_fn{func(key_ any) any {
+	var key string = str_(key_)
+	_ = key
+	return new_ArrayList_0().self()
+}}
 
 func (this *ColorSerializer) generateTypeProto(color *Color) *TypeProto {
 	var typeProtoBuilder *TypeProto_Builder = TypeProto_newBuilder()

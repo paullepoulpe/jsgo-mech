@@ -3050,46 +3050,91 @@ func Node_clinit() {
 	Node_ES6_MODULE = Node_Prop_ES6_MODULE
 	Node_NUMBER_PAYLOAD_UNSET = any(float64(0.0))
 	Node_BIGINT_PAYLOAD_UNSET = BigInteger_ZERO
-	Node_PROP_MAP_FOR_EQUALITY = new_ImmutableMap_Builder().put(obj_(Node_Prop_ARROW_FN), any(&Function_fn{func(p0 any) any { return any(bool(Node_of_(p0).isArrowFunction())) }})).put(obj_(Node_Prop_ASYNC_FN), any(&Function_fn{func(p0 any) any { return any(bool(Node_of_(p0).isAsyncFunction())) }})).put(obj_(Node_Prop_GENERATOR_FN), any(&Function_fn{func(p0 any) any { return any(bool(Node_of_(p0).isGeneratorFunction())) }})).put(obj_(Node_Prop_START_OF_OPT_CHAIN), any(&Function_fn{func(p0 any) any { return any(bool(Node_of_(p0).isOptionalChainStart())) }})).put(obj_(Node_Prop_STATIC_MEMBER), any(&Function_fn{func(p0 any) any { return any(bool(Node_of_(p0).isStaticMember())) }})).put(obj_(Node_Prop_YIELD_ALL), any(&Function_fn{func(p0 any) any { return any(bool(Node_of_(p0).isYieldAll())) }})).put(obj_(Node_Prop_EXPORT_DEFAULT), any(&Function_fn{func(n_ any) any {
-		var n Node = Node_of_(n_)
-		_ = n
-		return any(int32(n.getIntProp(Node_Prop_EXPORT_DEFAULT)))
-	}})).put(obj_(Node_Prop_EXPORT_ALL_FROM), any(&Function_fn{func(n_ any) any {
-		var n Node = Node_of_(n_)
-		_ = n
-		return any(int32(n.getIntProp(Node_Prop_EXPORT_ALL_FROM)))
-	}})).put(obj_(Node_Prop_INCRDECR), any(&Function_fn{func(n_ any) any {
-		var n Node = Node_of_(n_)
-		_ = n
-		return any(int32(n.getIntProp(Node_Prop_INCRDECR)))
-	}})).put(obj_(Node_Prop_QUOTED), any(&Function_fn{func(n_ any) any {
-		var n Node = Node_of_(n_)
-		_ = n
-		return any(int32(n.getIntProp(Node_Prop_QUOTED)))
-	}})).put(obj_(Node_Prop_FREE_CALL), any(&Function_fn{func(n_ any) any {
-		var n Node = Node_of_(n_)
-		_ = n
-		return any(bool(n.getBooleanProp(Node_Prop_FREE_CALL)))
-	}})).put(obj_(Node_Prop_DIRECT_EVAL), any(&Function_fn{func(n_ any) any {
-		var n Node = Node_of_(n_)
-		_ = n
-		return any(bool(n.getBooleanProp(Node_Prop_DIRECT_EVAL)))
-	}})).put(obj_(Node_Prop_COMPUTED_PROP_METHOD), any(&Function_fn{func(n_ any) any {
-		var n Node = Node_of_(n_)
-		_ = n
-		return any(bool(n.getBooleanProp(Node_Prop_COMPUTED_PROP_METHOD)))
-	}})).put(obj_(Node_Prop_COMPUTED_PROP_GETTER), any(&Function_fn{func(n_ any) any {
-		var n Node = Node_of_(n_)
-		_ = n
-		return any(bool(n.getBooleanProp(Node_Prop_COMPUTED_PROP_GETTER)))
-	}})).put(obj_(Node_Prop_COMPUTED_PROP_SETTER), any(&Function_fn{func(n_ any) any {
-		var n Node = Node_of_(n_)
-		_ = n
-		return any(bool(n.getBooleanProp(Node_Prop_COMPUTED_PROP_SETTER)))
-	}})).buildOrThrow()
+	Node_PROP_MAP_FOR_EQUALITY = new_ImmutableMap_Builder().put(obj_(Node_Prop_ARROW_FN), any(lambda_Node_clinit_1_)).put(obj_(Node_Prop_ASYNC_FN), any(lambda_Node_clinit_2_)).put(obj_(Node_Prop_GENERATOR_FN), any(lambda_Node_clinit_3_)).put(obj_(Node_Prop_START_OF_OPT_CHAIN), any(lambda_Node_clinit_4_)).put(obj_(Node_Prop_STATIC_MEMBER), any(lambda_Node_clinit_5_)).put(obj_(Node_Prop_YIELD_ALL), any(lambda_Node_clinit_6_)).put(obj_(Node_Prop_EXPORT_DEFAULT), any(lambda_Node_clinit_7_)).put(obj_(Node_Prop_EXPORT_ALL_FROM), any(lambda_Node_clinit_8_)).put(obj_(Node_Prop_INCRDECR), any(lambda_Node_clinit_9_)).put(obj_(Node_Prop_QUOTED), any(lambda_Node_clinit_10_)).put(obj_(Node_Prop_FREE_CALL), any(lambda_Node_clinit_11_)).put(obj_(Node_Prop_DIRECT_EVAL), any(lambda_Node_clinit_12_)).put(obj_(Node_Prop_COMPUTED_PROP_METHOD), any(lambda_Node_clinit_13_)).put(obj_(Node_Prop_COMPUTED_PROP_GETTER), any(lambda_Node_clinit_14_)).put(obj_(Node_Prop_COMPUTED_PROP_SETTER), any(lambda_Node_clinit_15_)).buildOrThrow()
 	Node_propMapForEqualityKeys = EnumSet_copyOf(Collection(Node_PROP_MAP_FOR_EQUALITY.keySet()))
 
 }
+
+// lambda_Node_clinit_1_ is a lambda of Node_clinit that captures nothing (post-flip step lambdas).
+var lambda_Node_clinit_1_ = &Function_fn{func(p0 any) any { return any(bool(Node_of_(p0).isArrowFunction())) }}
+
+// lambda_Node_clinit_2_ is a lambda of Node_clinit that captures nothing (post-flip step lambdas).
+var lambda_Node_clinit_2_ = &Function_fn{func(p0 any) any { return any(bool(Node_of_(p0).isAsyncFunction())) }}
+
+// lambda_Node_clinit_3_ is a lambda of Node_clinit that captures nothing (post-flip step lambdas).
+var lambda_Node_clinit_3_ = &Function_fn{func(p0 any) any { return any(bool(Node_of_(p0).isGeneratorFunction())) }}
+
+// lambda_Node_clinit_4_ is a lambda of Node_clinit that captures nothing (post-flip step lambdas).
+var lambda_Node_clinit_4_ = &Function_fn{func(p0 any) any { return any(bool(Node_of_(p0).isOptionalChainStart())) }}
+
+// lambda_Node_clinit_5_ is a lambda of Node_clinit that captures nothing (post-flip step lambdas).
+var lambda_Node_clinit_5_ = &Function_fn{func(p0 any) any { return any(bool(Node_of_(p0).isStaticMember())) }}
+
+// lambda_Node_clinit_6_ is a lambda of Node_clinit that captures nothing (post-flip step lambdas).
+var lambda_Node_clinit_6_ = &Function_fn{func(p0 any) any { return any(bool(Node_of_(p0).isYieldAll())) }}
+
+// lambda_Node_clinit_7_ is a lambda of Node_clinit that captures nothing (post-flip step lambdas).
+var lambda_Node_clinit_7_ = &Function_fn{func(n_ any) any {
+	var n Node = Node_of_(n_)
+	_ = n
+	return any(int32(n.getIntProp(Node_Prop_EXPORT_DEFAULT)))
+}}
+
+// lambda_Node_clinit_8_ is a lambda of Node_clinit that captures nothing (post-flip step lambdas).
+var lambda_Node_clinit_8_ = &Function_fn{func(n_ any) any {
+	var n Node = Node_of_(n_)
+	_ = n
+	return any(int32(n.getIntProp(Node_Prop_EXPORT_ALL_FROM)))
+}}
+
+// lambda_Node_clinit_9_ is a lambda of Node_clinit that captures nothing (post-flip step lambdas).
+var lambda_Node_clinit_9_ = &Function_fn{func(n_ any) any {
+	var n Node = Node_of_(n_)
+	_ = n
+	return any(int32(n.getIntProp(Node_Prop_INCRDECR)))
+}}
+
+// lambda_Node_clinit_10_ is a lambda of Node_clinit that captures nothing (post-flip step lambdas).
+var lambda_Node_clinit_10_ = &Function_fn{func(n_ any) any {
+	var n Node = Node_of_(n_)
+	_ = n
+	return any(int32(n.getIntProp(Node_Prop_QUOTED)))
+}}
+
+// lambda_Node_clinit_11_ is a lambda of Node_clinit that captures nothing (post-flip step lambdas).
+var lambda_Node_clinit_11_ = &Function_fn{func(n_ any) any {
+	var n Node = Node_of_(n_)
+	_ = n
+	return any(bool(n.getBooleanProp(Node_Prop_FREE_CALL)))
+}}
+
+// lambda_Node_clinit_12_ is a lambda of Node_clinit that captures nothing (post-flip step lambdas).
+var lambda_Node_clinit_12_ = &Function_fn{func(n_ any) any {
+	var n Node = Node_of_(n_)
+	_ = n
+	return any(bool(n.getBooleanProp(Node_Prop_DIRECT_EVAL)))
+}}
+
+// lambda_Node_clinit_13_ is a lambda of Node_clinit that captures nothing (post-flip step lambdas).
+var lambda_Node_clinit_13_ = &Function_fn{func(n_ any) any {
+	var n Node = Node_of_(n_)
+	_ = n
+	return any(bool(n.getBooleanProp(Node_Prop_COMPUTED_PROP_METHOD)))
+}}
+
+// lambda_Node_clinit_14_ is a lambda of Node_clinit that captures nothing (post-flip step lambdas).
+var lambda_Node_clinit_14_ = &Function_fn{func(n_ any) any {
+	var n Node = Node_of_(n_)
+	_ = n
+	return any(bool(n.getBooleanProp(Node_Prop_COMPUTED_PROP_GETTER)))
+}}
+
+// lambda_Node_clinit_15_ is a lambda of Node_clinit that captures nothing (post-flip step lambdas).
+var lambda_Node_clinit_15_ = &Function_fn{func(n_ any) any {
+	var n Node = Node_of_(n_)
+	_ = n
+	return any(bool(n.getBooleanProp(Node_Prop_COMPUTED_PROP_SETTER)))
+}}
 
 type Node_Prop struct {
 	Enum

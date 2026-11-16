@@ -411,13 +411,16 @@ type ProcessCommonJSModules_ExportInfo struct {
 func (this *ProcessCommonJSModules_ExportInfo) init_ProcessCommonJSModules_ExportInfo(node Node, scope *Scope) {
 	this.node_ = node
 	this.scope_ = scope
-	var disqualifyingParent Node = NodeUtil_getEnclosingNode(node, &Predicate_base_fn{func(n_ any) bool {
-		var n Node = Node_of_(n_)
-		_ = n
-		return (((n.isIf() || n.isHook()) || n.isFunction()) || n.isArrowFunction())
-	}})
+	var disqualifyingParent Node = NodeUtil_getEnclosingNode(node, lambda_ProcessCommonJSModules_ExportInfo_init_ProcessCommonJSModules_ExportInfo_1_)
 	this.isInSupportedScope = (disqualifyingParent == 0)
 }
+
+// lambda_ProcessCommonJSModules_ExportInfo_init_ProcessCommonJSModules_ExportInfo_1_ is a lambda of ProcessCommonJSModules_ExportInfo_init_ProcessCommonJSModules_ExportInfo that captures nothing (post-flip step lambdas).
+var lambda_ProcessCommonJSModules_ExportInfo_init_ProcessCommonJSModules_ExportInfo_1_ = &Predicate_base_fn{func(n_ any) bool {
+	var n Node = Node_of_(n_)
+	_ = n
+	return (((n.isIf() || n.isHook()) || n.isFunction()) || n.isArrowFunction())
+}}
 
 func new_ProcessCommonJSModules_ExportInfo(node Node, scope *Scope) *ProcessCommonJSModules_ExportInfo {
 	this := &ProcessCommonJSModules_ExportInfo{}

@@ -49,19 +49,7 @@ func (this *Es6ConvertSuper) visitSuper(node Node, parent Node) {
 	if exprRoot.getParent().isGetElem() || exprRoot.getParent().isGetProp() {
 		exprRoot = exprRoot.getParent()
 	}
-	var enclosingMemberDef Node = NodeUtil_getEnclosingNode(exprRoot, &Predicate_base_fn{func(n_ any) bool {
-		var n Node = Node_of_(n_)
-		_ = n
-		return func() bool {
-			switch n.ns_().token {
-			case tokOrd1_MEMBER_FUNCTION_DEF, tokOrd1_GETTER_DEF, tokOrd1_SETTER_DEF, tokOrd1_COMPUTED_PROP:
-				return true
-			default:
-				return false
-			}
-			panic("unreachable")
-		}()
-	}})
+	var enclosingMemberDef Node = NodeUtil_getEnclosingNode(exprRoot, lambda_Es6ConvertSuper_visitSuper_1_)
 	if (enclosingMemberDef == 0) || enclosingMemberDef.getParent().isObjectLit() {
 		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(node, TranspilationUtil_CANNOT_CONVERT, []string{"super is not supported in object literal methods."}))
 		return
@@ -84,6 +72,21 @@ func (this *Es6ConvertSuper) visitSuper(node Node, parent Node) {
 		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(node, TranspilationUtil_CANNOT_CONVERT_YET, []string{"Only calls to super or to a method of super are supported."}))
 	}
 }
+
+// lambda_Es6ConvertSuper_visitSuper_1_ is a lambda of Es6ConvertSuper_visitSuper that captures nothing (post-flip step lambdas).
+var lambda_Es6ConvertSuper_visitSuper_1_ = &Predicate_base_fn{func(n_ any) bool {
+	var n Node = Node_of_(n_)
+	_ = n
+	return func() bool {
+		switch n.ns_().token {
+		case tokOrd1_MEMBER_FUNCTION_DEF, tokOrd1_GETTER_DEF, tokOrd1_SETTER_DEF, tokOrd1_COMPUTED_PROP:
+			return true
+		default:
+			return false
+		}
+		panic("unreachable")
+	}()
+}}
 
 func (this *Es6ConvertSuper) visitSuperCall(node Node, parent Node, enclosingMemberDef Node) {
 	Preconditions_checkState_boolean_Object(parent.isCall(), parent.box_())

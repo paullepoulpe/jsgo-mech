@@ -30,12 +30,15 @@ func (this *RenameProperties) finit_RenameProperties() {
 }
 
 func (this *RenameProperties) init_RenameProperties_AbstractCompiler_boolean_VariableMap_Set_Set_NameGenerator(compiler *AbstractCompiler, generatePseudoNames bool, prevUsedPropertyMap *VariableMap, reservedFirstCharacters SetOf[BoxedOf[uint16]], reservedNonFirstCharacters SetOf[BoxedOf[uint16]], nameGenerator NameGenerator) {
-	this.init_RenameProperties_AbstractCompiler_boolean_VariableMap_Set_Set_NameGenerator_Predicate(compiler, generatePseudoNames, prevUsedPropertyMap, reservedFirstCharacters, reservedNonFirstCharacters, nameGenerator, &Predicate_fn{func(n_ any) bool {
-		var n Node = Node_of_(n_)
-		_ = n
-		return true
-	}})
+	this.init_RenameProperties_AbstractCompiler_boolean_VariableMap_Set_Set_NameGenerator_Predicate(compiler, generatePseudoNames, prevUsedPropertyMap, reservedFirstCharacters, reservedNonFirstCharacters, nameGenerator, lambda_RenameProperties_init_RenameProperties_AbstractCompiler_boolean_VariableMap_Set_Set_NameGenerator_1_)
 }
+
+// lambda_RenameProperties_init_RenameProperties_AbstractCompiler_boolean_VariableMap_Set_Set_NameGenerator_1_ is a lambda of RenameProperties_init_RenameProperties_AbstractCompiler_boolean_VariableMap_Set_Set_NameGenerator that captures nothing (post-flip step lambdas).
+var lambda_RenameProperties_init_RenameProperties_AbstractCompiler_boolean_VariableMap_Set_Set_NameGenerator_1_ = &Predicate_fn{func(n_ any) bool {
+	var n Node = Node_of_(n_)
+	_ = n
+	return true
+}}
 
 func new_RenameProperties_AbstractCompiler_boolean_VariableMap_Set_Set_NameGenerator(compiler *AbstractCompiler, generatePseudoNames bool, prevUsedPropertyMap *VariableMap, reservedFirstCharacters SetOf[BoxedOf[uint16]], reservedNonFirstCharacters SetOf[BoxedOf[uint16]], nameGenerator NameGenerator) *RenameProperties {
 	this := &RenameProperties{}
@@ -189,21 +192,24 @@ func RenameProperties_clinit() {
 	}
 	RenameProperties_clinit_done = true
 	RenameProperties_DOT_SPLITTER = Splitter_on('.')
-	RenameProperties_FREQUENCY_COMPARATOR = &Comparator_fn{func(p1_ any, p2_ any) int32 {
-		var p1 *RenameProperties_Property = cast_[*RenameProperties_Property](p1_)
-		_ = p1
-		var p2 *RenameProperties_Property = cast_[*RenameProperties_Property](p2_)
-		_ = p2
-		if p1.numOccurrences != p2.numOccurrences {
-			return (p2.numOccurrences - p1.numOccurrences)
-		}
-		return String_compareTo(p1.oldName, p2.oldName)
-		panic("unreachable")
-	}}
+	RenameProperties_FREQUENCY_COMPARATOR = lambda_RenameProperties_clinit_1_
 	RenameProperties_BAD_CALL = DiagnosticType_error("JSC_BAD_RENAME_PROPERTY_FUNCTION_NAME_CALL", "Bad {0} call - the first argument must be a string literal")
 	RenameProperties_BAD_ARG = DiagnosticType_error("JSC_BAD_RENAME_PROPERTY_FUNCTION_NAME_ARG", "Bad {0} argument - ''{1}'' is not a valid JavaScript identifier")
 
 }
+
+// lambda_RenameProperties_clinit_1_ is a lambda of RenameProperties_clinit that captures nothing (post-flip step lambdas).
+var lambda_RenameProperties_clinit_1_ = &Comparator_fn{func(p1_ any, p2_ any) int32 {
+	var p1 *RenameProperties_Property = cast_[*RenameProperties_Property](p1_)
+	_ = p1
+	var p2 *RenameProperties_Property = cast_[*RenameProperties_Property](p2_)
+	_ = p2
+	if p1.numOccurrences != p2.numOccurrences {
+		return (p2.numOccurrences - p1.numOccurrences)
+	}
+	return String_compareTo(p1.oldName, p2.oldName)
+	panic("unreachable")
+}}
 
 type RenameProperties_ProcessProperties struct {
 	NodeTraversal_AbstractPostOrderCallback
@@ -318,9 +324,12 @@ func (this *RenameProperties_ProcessProperties) countCallCandidates(t *NodeTrave
 }
 
 func (this *RenameProperties_ProcessProperties) countPropertyOccurrence(name string) {
-	var prop *RenameProperties_Property = this.outer_.propertyMap.computeIfAbsent(name, &Function_fn{func(p0 any) any { return obj_(new_RenameProperties_Property(str_(p0))) }})
+	var prop *RenameProperties_Property = this.outer_.propertyMap.computeIfAbsent(name, lambda_RenameProperties_ProcessProperties_countPropertyOccurrence_1_)
 	prop.numOccurrences++
 }
+
+// lambda_RenameProperties_ProcessProperties_countPropertyOccurrence_1_ is a lambda of RenameProperties_ProcessProperties_countPropertyOccurrence that captures nothing (post-flip step lambdas).
+var lambda_RenameProperties_ProcessProperties_countPropertyOccurrence_1_ = &Function_fn{func(p0 any) any { return obj_(new_RenameProperties_Property(str_(p0))) }}
 
 type RenameProperties_Property struct {
 	oldName        string

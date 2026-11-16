@@ -121,12 +121,7 @@ func (this *Compiler) finit_Compiler() {
 	this.accessorSummary = nil
 	this.changeTracker = new_ChangeTracker()
 	this.resolvedSourceMap = new_Compiler_ResolvedSourceMap()
-	this.validityCheck = PassFactory_builder().setName("validityCheck").setRunInFixedPointLoop(true).setInternalFactory(&Function_fn{func(p0 any) any { return obj_(new_ValidityCheck(to_AbstractCompiler(p0))) }}).setCondition(&Function_fn{func(o_ any) any {
-		var o *CompilerOptions = cast_[*CompilerOptions](o_)
-		_ = o
-		panic(new_IllegalStateException_String("Unexpected").self())
-		panic("unreachable")
-	}}).build()
+	this.validityCheck = PassFactory_builder().setName("validityCheck").setRunInFixedPointLoop(true).setInternalFactory(lambda_Compiler_finit_Compiler_1_).setCondition(lambda_Compiler_finit_Compiler_2_).build()
 	this.currentPassIndex = -1
 	this.stage = AbstractCompiler_LifeCycleStage_RAW
 	this.topScope = nil
@@ -145,6 +140,17 @@ func (this *Compiler) finit_Compiler() {
 	this.exportedNames = new_LinkedHashSet()
 	this.defineNames = ImmutableSet_of()
 }
+
+// lambda_Compiler_finit_Compiler_1_ is a lambda of Compiler_finit_Compiler that captures nothing (post-flip step lambdas).
+var lambda_Compiler_finit_Compiler_1_ = &Function_fn{func(p0 any) any { return obj_(new_ValidityCheck(to_AbstractCompiler(p0))) }}
+
+// lambda_Compiler_finit_Compiler_2_ is a lambda of Compiler_finit_Compiler that captures nothing (post-flip step lambdas).
+var lambda_Compiler_finit_Compiler_2_ = &Function_fn{func(o_ any) any {
+	var o *CompilerOptions = cast_[*CompilerOptions](o_)
+	_ = o
+	panic(new_IllegalStateException_String("Unexpected").self())
+	panic("unreachable")
+}}
 
 func (this *Compiler) init_Compiler_0() {
 	this.init_Compiler_Output(nil)
@@ -1165,11 +1171,7 @@ func (this *Compiler) getCurrentJsSource() string {
 					return false
 				}
 				panic("unreachable")
-			}}, &Predicate_base_fn{func(node_ any) bool {
-				var node Node = Node_of_(node_)
-				_ = node
-				return true
-			}}) {
+			}}, lambda_Compiler_getCurrentJsSource_1_) {
 				continue
 			}
 			builder.append(String_format("// %s\n", []any{strobj_(statement.getLocation())})).append(this.toSource_1(statement)).append("\n")
@@ -1177,6 +1179,13 @@ func (this *Compiler) getCurrentJsSource() string {
 	}
 	return Object_toString(obj_(builder))
 }
+
+// lambda_Compiler_getCurrentJsSource_1_ is a lambda of Compiler_getCurrentJsSource that captures nothing (post-flip step lambdas).
+var lambda_Compiler_getCurrentJsSource_1_ = &Predicate_base_fn{func(node_ any) bool {
+	var node Node = Node_of_(node_)
+	_ = node
+	return true
+}}
 
 func (this *Compiler) getTopLevelStatements(root Node) *TList[Node] {
 	var result *TList[Node] = newTList_(tc_Node)
@@ -1652,11 +1661,7 @@ func (this *Compiler) findModulesFromEntryPoints(supportEs6Modules bool, support
 	it_1 := foreach_(any(this.chunkGraph.getAllInputs()))
 	for it_1.next() {
 		var input *CompilerInput = cast_[*CompilerInput](it_1.v)
-		var provides IterableOf[string] = Iterables_filter(icast_Iterable(obj_(input.getProvides())), &Predicate_base_fn{func(p_ any) bool {
-			var p string = str_(p_)
-			_ = p
-			return !String_startsWith(p, "module$")
-		}})
+		var provides IterableOf[string] = Iterables_filter(icast_Iterable(obj_(input.getProvides())), lambda_Compiler_findModulesFromEntryPoints_1_)
 		if !this.options_.getDependencyOptions().shouldDropMoochers() && Iterables_isEmpty(provides) {
 			entryPoints = append(entryPoints, input)
 		}
@@ -1688,6 +1693,13 @@ func (this *Compiler) findModulesFromEntryPoints(supportEs6Modules bool, support
 		this.findModulesFromInput(entryPoint, false, workingInputSet, inputsByIdentifier, inputsByProvide, supportEs6Modules, supportCommonJSModules)
 	}
 }
+
+// lambda_Compiler_findModulesFromEntryPoints_1_ is a lambda of Compiler_findModulesFromEntryPoints that captures nothing (post-flip step lambdas).
+var lambda_Compiler_findModulesFromEntryPoints_1_ = &Predicate_base_fn{func(p_ any) bool {
+	var p string = str_(p_)
+	_ = p
+	return !String_startsWith(p, "module$")
+}}
 
 func (this *Compiler) findModulesFromInput(input *CompilerInput, wasImportedByModule bool, inputs map[*CompilerInput]struct{}, inputsByIdentifier map[string]*CompilerInput, inputsByProvide map[string]*CompilerInput, supportEs6Modules bool, supportCommonJSModules bool) {
 	if !setRemove_(inputs, input) {

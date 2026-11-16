@@ -157,7 +157,7 @@ func (this *DefaultPassConfig) finit_DefaultPassConfig() {
 		_ = compiler
 		return obj_(new_CheckSideEffects(compiler, this.options_.getCheckSuspiciousCode(), this.options_.shouldProtectHiddenSideEffects()))
 	}}).build()
-	this.stripSideEffectProtection = PassFactory_builder().setName(PassNames_STRIP_SIDE_EFFECT_PROTECTION).setInternalFactory(&Function_fn{func(p0 any) any { return obj_(new_CheckSideEffects_StripProtection(to_AbstractCompiler(p0))) }}).build()
+	this.stripSideEffectProtection = PassFactory_builder().setName(PassNames_STRIP_SIDE_EFFECT_PROTECTION).setInternalFactory(lambda_DefaultPassConfig_finit_DefaultPassConfig_1_).build()
 	this.suspiciousCode = PassFactory_builder().setName("suspiciousCode").setInternalFactory(&Function_fn{func(compiler_ any) any {
 		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
 		_ = compiler
@@ -180,16 +180,8 @@ func (this *DefaultPassConfig) finit_DefaultPassConfig() {
 		_ = compiler
 		return obj_(new_CheckExtraRequires(compiler, this.options_.getUnusedImportsToRemove()))
 	}}).build()
-	this.checkMissingRequires = PassFactory_builder().setName("checkMissingRequires").setInternalFactory(&Function_fn{func(compiler_ any) any {
-		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
-		_ = compiler
-		return obj_(new_CheckMissingRequires(compiler, compiler.getModuleMetadataMap()))
-	}}).build()
-	this.checkJsDocAndEs6Modules = PassFactory_builder().setName("checkJsDocAndEs6Modules").setInternalFactory(&Function_fn{func(compiler_ any) any {
-		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
-		_ = compiler
-		return any(DefaultPassConfig_combineChecks(compiler, sliceImm_(tc_NodeTraversal_Callback, ImmutableList_of_Object_Object(obj_(new_CheckJSDoc(compiler)), obj_(new_Es6CheckModule(compiler))))))
-	}}).build()
+	this.checkMissingRequires = PassFactory_builder().setName("checkMissingRequires").setInternalFactory(lambda_DefaultPassConfig_finit_DefaultPassConfig_2_).build()
+	this.checkJsDocAndEs6Modules = PassFactory_builder().setName("checkJsDocAndEs6Modules").setInternalFactory(lambda_DefaultPassConfig_finit_DefaultPassConfig_3_).build()
 	this.generateExports = PassFactory_builder().setName(PassNames_GENERATE_EXPORTS).setInternalFactory(&Function_fn{func(compiler_ any) any {
 		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
 		_ = compiler
@@ -204,19 +196,9 @@ func (this *DefaultPassConfig) finit_DefaultPassConfig() {
 		return obj_(new_DefaultPassConfig_1(this, pass, compiler))
 		panic("unreachable")
 	}}).build()
-	this.generateIjs = PassFactory_builder().setName("generateIjs").setInternalFactory(&Function_fn{func(p0 any) any { return obj_(new_ConvertToTypedInterface(to_AbstractCompiler(p0))) }}).build()
-	this.removeExtraRequires = PassFactory_builder().setName("removeExtraRequires").setInternalFactory(&Function_fn{func(p0 any) any { return obj_(new_ExtraRequireRemover(to_AbstractCompiler(p0))) }}).build()
-	this.exportTestFunctions = PassFactory_builder().setName(PassNames_EXPORT_TEST_FUNCTIONS).setInternalFactory(&Function_fn{func(compiler_ any) any {
-		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
-		_ = compiler
-		var convention CodingConvention = compiler.getCodingConvention()
-		if !String_isEmpty(convention.getExportSymbolFunction()) {
-			return obj_(new_ExportTestFunctions(compiler, convention.getExportSymbolFunction(), convention.getExportPropertyFunction()))
-		} else {
-			return obj_(ErrorPass_createFromDiagnosticType(compiler, DefaultPassConfig_GENERATE_EXPORTS_ERROR))
-		}
-		panic("unreachable")
-	}}).build()
+	this.generateIjs = PassFactory_builder().setName("generateIjs").setInternalFactory(lambda_DefaultPassConfig_finit_DefaultPassConfig_4_).build()
+	this.removeExtraRequires = PassFactory_builder().setName("removeExtraRequires").setInternalFactory(lambda_DefaultPassConfig_finit_DefaultPassConfig_5_).build()
+	this.exportTestFunctions = PassFactory_builder().setName(PassNames_EXPORT_TEST_FUNCTIONS).setInternalFactory(lambda_DefaultPassConfig_finit_DefaultPassConfig_6_).build()
 	this.gatherRawExports = PassFactory_builder().setName(PassNames_GATHER_RAW_EXPORTS).setInternalFactory(&Function_fn{func(compiler_ any) any {
 		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
 		_ = compiler
@@ -242,17 +224,13 @@ func (this *DefaultPassConfig) finit_DefaultPassConfig() {
 		}})
 		panic("unreachable")
 	}}).build()
-	this.angularPass = PassFactory_builder().setName(PassNames_ANGULAR_PASS).setInternalFactory(&Function_fn{func(p0 any) any { return obj_(new_AngularPass(to_AbstractCompiler(p0))) }}).build()
+	this.angularPass = PassFactory_builder().setName(PassNames_ANGULAR_PASS).setInternalFactory(lambda_DefaultPassConfig_finit_DefaultPassConfig_7_).build()
 	this.replaceMessagesForChrome = PassFactory_builder().setName(PassNames_REPLACE_MESSAGES).setInternalFactory(&Function_fn{func(compiler_ any) any {
 		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
 		_ = compiler
 		return obj_(new_ReplaceMessagesForChrome(compiler, icast_JsMessage_IdGenerator(obj_(new_GoogleJsMessageIdGenerator(Optional_of[string](this.options_.getTcProjectId()))))))
 	}}).build()
-	this.closureGoogScopeAliasesForIjs = PassFactory_builder().setName("closureGoogScopeAliasesForIjs").setInternalFactory(&Function_fn{func(compiler_ any) any {
-		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
-		_ = compiler
-		return obj_(ScopedAliases_builder(compiler).build())
-	}}).build()
+	this.closureGoogScopeAliasesForIjs = PassFactory_builder().setName("closureGoogScopeAliasesForIjs").setInternalFactory(lambda_DefaultPassConfig_finit_DefaultPassConfig_8_).build()
 	this.closureGoogScopeAliases = PassFactory_builder().setName("closureGoogScopeAliases").setInternalFactory(&Function_fn{func(compiler_ any) any {
 		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
 		_ = compiler
@@ -260,19 +238,11 @@ func (this *DefaultPassConfig) finit_DefaultPassConfig() {
 		return obj_(ScopedAliases_builder(compiler).setPreprocessorSymbolTable(this.preprocessorSymbolTableFactory.getInstanceOrNull()).setModuleMetadataMap(compiler.getModuleMetadataMap()).setInvalidModuleGetHandling(ScopedAliases_InvalidModuleGetHandling_GIVE_UNIQUE_NAME).build())
 		panic("unreachable")
 	}}).build()
-	this.injectRuntimeLibraries = PassFactory_builder().setName("InjectRuntimeLibraries").setInternalFactory(&Function_fn{func(compiler_ any) any {
-		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
-		_ = compiler
-		return obj_(new_InjectRuntimeLibraries(compiler, ImmutableSet_copyOf(icast_Collection(obj_(compiler.getOptions().getForceLibraryInjectionList())))))
-	}}).build()
-	this.removeWeakSources = PassFactory_builder().setName("removeWeakSources").setInternalFactory(&Function_fn{func(p0 any) any { return obj_(new_RemoveWeakSources(to_AbstractCompiler(p0))) }}).build()
-	this.declaredGlobalExternsOnWindow = PassFactory_builder().setName(PassNames_DECLARED_GLOBAL_EXTERNS_ON_WINDOW).setInternalFactory(&Function_fn{func(p0 any) any { return obj_(new_DeclaredGlobalExternsOnWindow(to_AbstractCompiler(p0))) }}).build()
-	this.checkTypeImportCodeReferences = PassFactory_builder().setName("checkTypeImportCodeReferences").setInternalFactory(&Function_fn{func(p0 any) any { return obj_(new_CheckTypeImportCodeReferences(to_AbstractCompiler(p0))) }}).build()
-	this.closureCheckModule = PassFactory_builder().setName("closureCheckModule").setInternalFactory(&Function_fn{func(compiler_ any) any {
-		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
-		_ = compiler
-		return obj_(new_ClosureCheckModule(compiler, compiler.getModuleMetadataMap()))
-	}}).build()
+	this.injectRuntimeLibraries = PassFactory_builder().setName("InjectRuntimeLibraries").setInternalFactory(lambda_DefaultPassConfig_finit_DefaultPassConfig_9_).build()
+	this.removeWeakSources = PassFactory_builder().setName("removeWeakSources").setInternalFactory(lambda_DefaultPassConfig_finit_DefaultPassConfig_10_).build()
+	this.declaredGlobalExternsOnWindow = PassFactory_builder().setName(PassNames_DECLARED_GLOBAL_EXTERNS_ON_WINDOW).setInternalFactory(lambda_DefaultPassConfig_finit_DefaultPassConfig_11_).build()
+	this.checkTypeImportCodeReferences = PassFactory_builder().setName("checkTypeImportCodeReferences").setInternalFactory(lambda_DefaultPassConfig_finit_DefaultPassConfig_12_).build()
+	this.closureCheckModule = PassFactory_builder().setName("closureCheckModule").setInternalFactory(lambda_DefaultPassConfig_finit_DefaultPassConfig_13_).build()
 	this.closureRewriteModule = PassFactory_builder().setName("closureRewriteModule").setInternalFactory(&Function_fn{func(compiler_ any) any {
 		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
 		_ = compiler
@@ -280,16 +250,8 @@ func (this *DefaultPassConfig) finit_DefaultPassConfig() {
 		return obj_(new_ClosureRewriteModule(compiler, this.preprocessorSymbolTableFactory.getInstanceOrNull(), compiler.getTopScope()))
 		panic("unreachable")
 	}}).build()
-	this.checkClosureImports = PassFactory_builder().setName("checkGoogRequires").setInternalFactory(&Function_fn{func(compiler_ any) any {
-		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
-		_ = compiler
-		return obj_(new_CheckClosureImports(compiler, compiler.getModuleMetadataMap()))
-	}}).build()
-	this.rewriteGoogJsImports = PassFactory_builder().setName("rewriteGoogJsImports").setInternalFactory(&Function_fn{func(compiler_ any) any {
-		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
-		_ = compiler
-		return obj_(new_RewriteGoogJsImports(compiler, RewriteGoogJsImports_Mode_LINT_AND_REWRITE, compiler.getModuleMap()))
-	}}).build()
+	this.checkClosureImports = PassFactory_builder().setName("checkGoogRequires").setInternalFactory(lambda_DefaultPassConfig_finit_DefaultPassConfig_14_).build()
+	this.rewriteGoogJsImports = PassFactory_builder().setName("rewriteGoogJsImports").setInternalFactory(lambda_DefaultPassConfig_finit_DefaultPassConfig_15_).build()
 	this.closureReplaceGetCssName = PassFactory_builder().setName("closureReplaceGetCssName").setInternalFactory(&Function_fn{func(compiler_ any) any {
 		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
 		_ = compiler
@@ -300,18 +262,7 @@ func (this *DefaultPassConfig) finit_DefaultPassConfig() {
 		_ = compiler
 		return obj_(new_CreateSyntheticBlocks(compiler, this.options_.getSyntheticBlockStartMarker().orElse(nullstr_), this.options_.getSyntheticBlockEndMarker().orElse(nullstr_)))
 	}}).build()
-	this.earlyPeepholeOptimizations = PassFactory_builder().setName("earlyPeepholeOptimizations").setInternalFactory(&Function_fn{func(compiler_ any) any {
-		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
-		_ = compiler
-		var useTypesForOptimization bool = compiler.getOptions().shouldUseTypesForLocalOptimization()
-		var peepholeOptimizations ListOf[*AbstractPeepholeOptimization] = icast_List(new_ArrayList_0().self())
-		peepholeOptimizations.add(obj_(new_PeepholeRemoveDeadCode()))
-		if compiler.getOptions().getJ2clPass().shouldAddJ2clPasses() {
-			peepholeOptimizations.add(obj_(new_J2clEqualitySameRewriterPass(useTypesForOptimization)))
-		}
-		return obj_(new_PeepholeOptimizationsPass(compiler, "earlyPeepholeOptimizations", peepholeOptimizations))
-		panic("unreachable")
-	}}).build()
+	this.earlyPeepholeOptimizations = PassFactory_builder().setName("earlyPeepholeOptimizations").setInternalFactory(lambda_DefaultPassConfig_finit_DefaultPassConfig_16_).build()
 	this.earlyInlineVariables = PassFactory_builder().setName("earlyInlineVariables").setInternalFactory(&Function_fn{func(compiler_ any) any {
 		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
 		_ = compiler
@@ -326,21 +277,9 @@ func (this *DefaultPassConfig) finit_DefaultPassConfig() {
 		return obj_(new_InlineVariables(compiler, mode))
 		panic("unreachable")
 	}}).build()
-	this.peepholeOptimizations = PassFactory_builder().setName(PassNames_PEEPHOLE_OPTIMIZATIONS).setRunInFixedPointLoop(true).setInternalFactory(&Function_fn{func(compiler_ any) any {
-		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
-		_ = compiler
-		return any(DefaultPassConfig_createPeepholeOptimizationsPass(compiler, PassNames_PEEPHOLE_OPTIMIZATIONS, true))
-	}}).build()
-	this.peepholeOptimizationsOnceNormalized = PassFactory_builder().setName(PassNames_PEEPHOLE_OPTIMIZATIONS).setInternalFactory(&Function_fn{func(compiler_ any) any {
-		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
-		_ = compiler
-		return any(DefaultPassConfig_createPeepholeOptimizationsPass(compiler, PassNames_PEEPHOLE_OPTIMIZATIONS, true))
-	}}).build()
-	this.peepholeOptimizationsOnceNonNormalized = PassFactory_builder().setName(PassNames_PEEPHOLE_OPTIMIZATIONS).setInternalFactory(&Function_fn{func(compiler_ any) any {
-		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
-		_ = compiler
-		return any(DefaultPassConfig_createPeepholeOptimizationsPass(compiler, PassNames_PEEPHOLE_OPTIMIZATIONS, false))
-	}}).build()
+	this.peepholeOptimizations = PassFactory_builder().setName(PassNames_PEEPHOLE_OPTIMIZATIONS).setRunInFixedPointLoop(true).setInternalFactory(lambda_DefaultPassConfig_finit_DefaultPassConfig_17_).build()
+	this.peepholeOptimizationsOnceNormalized = PassFactory_builder().setName(PassNames_PEEPHOLE_OPTIMIZATIONS).setInternalFactory(lambda_DefaultPassConfig_finit_DefaultPassConfig_18_).build()
+	this.peepholeOptimizationsOnceNonNormalized = PassFactory_builder().setName(PassNames_PEEPHOLE_OPTIMIZATIONS).setInternalFactory(lambda_DefaultPassConfig_finit_DefaultPassConfig_19_).build()
 	this.latePeepholeOptimizations = PassFactory_builder().setName("latePeepholeOptimizations").setInternalFactory(&Function_fn{func(compiler_ any) any {
 		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
 		_ = compiler
@@ -349,8 +288,8 @@ func (this *DefaultPassConfig) finit_DefaultPassConfig() {
 		return obj_(PeepholeOptimizationsPass_createFromOptimizations(compiler, "latePeepholeOptimizations", []*AbstractPeepholeOptimization{new_StatementFusion().up_AbstractPeepholeOptimization(), new_PeepholeRemoveDeadCode().up_AbstractPeepholeOptimization(), new_PeepholeMinimizeConditions(late).up_AbstractPeepholeOptimization(), new_PeepholeSubstituteAlternateSyntax(late).up_AbstractPeepholeOptimization(), new_PeepholeReplaceKnownMethods(late, useTypesForOptimization).up_AbstractPeepholeOptimization(), new_PeepholeFoldConstants(late, useTypesForOptimization).up_AbstractPeepholeOptimization()}))
 		panic("unreachable")
 	}}).build()
-	this.checkVars_ = PassFactory_builder().setName(PassNames_CHECK_VARS).setInternalFactory(&Function_fn{func(p0 any) any { return obj_(new_VarCheck_AbstractCompiler(to_AbstractCompiler(p0))) }}).build()
-	this.inferConsts = PassFactory_builder().setName(PassNames_INFER_CONSTS).setInternalFactory(&Function_fn{func(p0 any) any { return obj_(new_InferConsts(to_AbstractCompiler(p0))) }}).build()
+	this.checkVars_ = PassFactory_builder().setName(PassNames_CHECK_VARS).setInternalFactory(lambda_DefaultPassConfig_finit_DefaultPassConfig_20_).build()
+	this.inferConsts = PassFactory_builder().setName(PassNames_INFER_CONSTS).setInternalFactory(lambda_DefaultPassConfig_finit_DefaultPassConfig_21_).build()
 	this.checkRegExp = PassFactory_builder().setName(PassNames_CHECK_REG_EXP).setInternalFactory(&Function_fn{func(compiler_ any) any {
 		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
 		_ = compiler
@@ -365,38 +304,12 @@ func (this *DefaultPassConfig) finit_DefaultPassConfig() {
 		return obj_(new_DefaultPassConfig_5(this, regExpCheck, compiler))
 		panic("unreachable")
 	}}).build()
-	this.checkVariableReferences = PassFactory_builder().setName(PassNames_CHECK_VARIABLE_REFERENCES).setInternalFactory(&Function_fn{func(p0 any) any { return obj_(new_VariableReferenceCheck(to_AbstractCompiler(p0))) }}).build()
-	this.checkSuper = PassFactory_builder().setName("checkSuper").setInternalFactory(&Function_fn{func(p0 any) any { return obj_(new_CheckSuper(to_AbstractCompiler(p0))) }}).build()
-	this.clearTypedScopeCreatorPass = PassFactory_builder().setName("clearTypedScopeCreatorPass").setInternalFactory(&Function_fn{func(compiler_ any) any {
-		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
-		_ = compiler
-		return any(&CompilerPass_fn{func(externs Node, root Node) {
-			compiler.clearTypedScopeCreator()
-		}})
-	}}).build()
-	this.clearTopTypedScopePass = PassFactory_builder().setName("clearTopTypedScopePass").setInternalFactory(&Function_fn{func(compiler_ any) any {
-		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
-		_ = compiler
-		return any(&CompilerPass_fn{func(externs Node, root Node) {
-			compiler.setTopScope(nil)
-			it_1 := foreach_(any(compiler.getInputsInOrder()))
-			for it_1.next() {
-				var compilerInput *CompilerInput = cast_[*CompilerInput](it_1.v)
-				compilerInput.setTypedScope(nil)
-			}
-		}})
-	}}).build()
-	this.inferTypes = PassFactory_builder().setName(PassNames_INFER_TYPES).setInternalFactory(&Function_fn{func(compiler_ any) any {
-		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
-		_ = compiler
-		return any(&CompilerPass_fn{func(unused Node, srcRoot Node) {
-			var globalRoot Node = srcRoot.getParent()
-			var inferencePass *TypeInferencePass = new_TypeInferencePass(compiler, compiler.getReverseAbstractInterpreter(), cast_[*TypedScopeCreator](compiler.getTypedScopeCreator()))
-			compiler.setTypeCheckingHasRun(true)
-			compiler.setTopScope(inferencePass.inferAllScopes(globalRoot))
-		}})
-	}}).build()
-	this.inferJsDocInfo = PassFactory_builder().setName("inferJsDocInfo").setInternalFactory(&Function_fn{func(p0 any) any { return obj_(new_InferJSDocInfo(to_AbstractCompiler(p0))) }}).build()
+	this.checkVariableReferences = PassFactory_builder().setName(PassNames_CHECK_VARIABLE_REFERENCES).setInternalFactory(lambda_DefaultPassConfig_finit_DefaultPassConfig_22_).build()
+	this.checkSuper = PassFactory_builder().setName("checkSuper").setInternalFactory(lambda_DefaultPassConfig_finit_DefaultPassConfig_23_).build()
+	this.clearTypedScopeCreatorPass = PassFactory_builder().setName("clearTypedScopeCreatorPass").setInternalFactory(lambda_DefaultPassConfig_finit_DefaultPassConfig_24_).build()
+	this.clearTopTypedScopePass = PassFactory_builder().setName("clearTopTypedScopePass").setInternalFactory(lambda_DefaultPassConfig_finit_DefaultPassConfig_25_).build()
+	this.inferTypes = PassFactory_builder().setName(PassNames_INFER_TYPES).setInternalFactory(lambda_DefaultPassConfig_finit_DefaultPassConfig_26_).build()
+	this.inferJsDocInfo = PassFactory_builder().setName("inferJsDocInfo").setInternalFactory(lambda_DefaultPassConfig_finit_DefaultPassConfig_27_).build()
 	this.checkTypes = PassFactory_builder().setName(PassNames_CHECK_TYPES).setInternalFactory(&Function_fn{func(compiler_ any) any {
 		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
 		_ = compiler
@@ -419,26 +332,10 @@ func (this *DefaultPassConfig) finit_DefaultPassConfig() {
 		return any(DefaultPassConfig_combineChecks(compiler, callbacks))
 		panic("unreachable")
 	}}).build()
-	this.checkAccessControls = PassFactory_builder().setName("checkAccessControls").setInternalFactory(&Function_fn{func(p0 any) any { return obj_(new_CheckAccessControls(to_AbstractCompiler(p0))) }}).build()
-	this.lintChecks = PassFactory_builder().setName(PassNames_LINT_CHECKS).setInternalFactory(&Function_fn{func(compiler_ any) any {
-		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
-		_ = compiler
-		var callbacks ImmutableList_BuilderOf[NodeTraversal_Callback] = cast_[*ImmutableList_Builder](obj_(cast_[*ImmutableList_Builder](obj_(cast_[*ImmutableList_Builder](obj_(cast_[*ImmutableList_Builder](obj_(cast_[*ImmutableList_Builder](obj_(cast_[*ImmutableList_Builder](obj_(cast_[*ImmutableList_Builder](obj_(cast_[*ImmutableList_Builder](obj_(cast_[*ImmutableList_Builder](obj_(cast_[*ImmutableList_Builder](obj_(cast_[*ImmutableList_Builder](obj_(cast_[*ImmutableList_Builder](obj_(cast_[*ImmutableList_Builder](obj_(cast_[*ImmutableList_Builder](obj_(cast_[*ImmutableList_Builder](obj_(cast_[*ImmutableList_Builder](obj_(cast_[*ImmutableList_Builder](obj_(cast_[*ImmutableList_Builder](obj_(ImmutableList_builder().add(obj_(new_CheckConstPrivateProperties(compiler))))).add(obj_(new_CheckConstantCaseNames(compiler))))).add(obj_(new_CheckEmptyStatements(compiler))))).add(obj_(new_CheckEnums(compiler))))).add(obj_(new_CheckEs6ModuleFileStructure(compiler))))).add(obj_(new_CheckEs6Modules(compiler))))).add(obj_(new_CheckNoMutatedEs6Exports(compiler))))).add(obj_(new_CheckGoogModuleTypeScriptName(compiler))))).add(obj_(new_CheckInterfaces(compiler))))).add(obj_(new_CheckJSDocStyle(compiler))))).add(obj_(new_CheckMissingSemicolon(compiler))))).add(obj_(new_CheckNullabilityModifiers(compiler))))).add(obj_(new_CheckPrimitiveAsObject(compiler))))).add(obj_(new_CheckPrototypeProperties(compiler))))).add(obj_(new_CheckUnusedPrivateProperties(compiler))))).add(obj_(new_CheckUnusedLabels(compiler))))).add(obj_(new_CheckUselessBlocks(compiler))))).add(obj_(new_CheckVar(compiler)))))
-		return any(DefaultPassConfig_combineChecks(compiler, sliceImm_(tc_NodeTraversal_Callback, callbacks.build())))
-		panic("unreachable")
-	}}).build()
-	this.analyzerChecks = PassFactory_builder().setName(PassNames_ANALYZER_CHECKS).setInternalFactory(&Function_fn{func(compiler_ any) any {
-		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
-		_ = compiler
-		var callbacks []NodeTraversal_Callback = sliceOf_(tc_NodeTraversal_Callback, icast_NodeTraversal_Callback(obj_(new_CheckArrayWithGoogObject(compiler))), icast_NodeTraversal_Callback(obj_(new_ImplicitNullabilityCheck(compiler))), icast_NodeTraversal_Callback(obj_(new_CheckNestedNames(compiler))))
-		return any(DefaultPassConfig_combineChecks(compiler, callbacks))
-		panic("unreachable")
-	}}).build()
-	this.checkRequiresAndProvidesSorted = PassFactory_builder().setName("checkRequiresAndProvidesSorted").setInternalFactory(&Function_fn{func(compiler_ any) any {
-		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
-		_ = compiler
-		return any(DefaultPassConfig_combineChecks(compiler, sliceImm_(tc_NodeTraversal_Callback, ImmutableList_of_Object_Object(obj_(new_CheckProvidesSorted(CheckProvidesSorted_Mode_COLLECT_AND_REPORT)), obj_(new_CheckRequiresSorted(CheckRequiresSorted_Mode_COLLECT_AND_REPORT))))))
-	}}).build()
+	this.checkAccessControls = PassFactory_builder().setName("checkAccessControls").setInternalFactory(lambda_DefaultPassConfig_finit_DefaultPassConfig_28_).build()
+	this.lintChecks = PassFactory_builder().setName(PassNames_LINT_CHECKS).setInternalFactory(lambda_DefaultPassConfig_finit_DefaultPassConfig_29_).build()
+	this.analyzerChecks = PassFactory_builder().setName(PassNames_ANALYZER_CHECKS).setInternalFactory(lambda_DefaultPassConfig_finit_DefaultPassConfig_30_).build()
+	this.checkRequiresAndProvidesSorted = PassFactory_builder().setName("checkRequiresAndProvidesSorted").setInternalFactory(lambda_DefaultPassConfig_finit_DefaultPassConfig_31_).build()
 	this.checkStrictMode = PassFactory_builder().setName("checkStrictMode").setInternalFactory(&Function_fn{func(compiler_ any) any {
 		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
 		_ = compiler
@@ -463,9 +360,9 @@ func (this *DefaultPassConfig) finit_DefaultPassConfig() {
 		_ = compiler
 		return obj_(new_DefaultPassConfig_7(this, compiler))
 	}}).build()
-	this.checkConsts = PassFactory_builder().setName("checkConsts").setInternalFactory(&Function_fn{func(p0 any) any { return obj_(new_ConstCheck(to_AbstractCompiler(p0))) }}).build()
-	this.rewriteCallerCodeLocation = PassFactory_builder().setName("rewriteCallerCodeLocation").setInternalFactory(&Function_fn{func(p0 any) any { return obj_(new_RewriteCallerCodeLocation(to_AbstractCompiler(p0))) }}).build()
-	this.replaceToggles = PassFactory_builder().setName("replaceToggles").setInternalFactory(&Function_fn{func(p0 any) any { return obj_(new_ReplaceToggles(to_AbstractCompiler(p0))) }}).build()
+	this.checkConsts = PassFactory_builder().setName("checkConsts").setInternalFactory(lambda_DefaultPassConfig_finit_DefaultPassConfig_32_).build()
+	this.rewriteCallerCodeLocation = PassFactory_builder().setName("rewriteCallerCodeLocation").setInternalFactory(lambda_DefaultPassConfig_finit_DefaultPassConfig_33_).build()
+	this.replaceToggles = PassFactory_builder().setName("replaceToggles").setInternalFactory(lambda_DefaultPassConfig_finit_DefaultPassConfig_34_).build()
 	this.replaceIdGenerators = PassFactory_builder().setName(PassNames_REPLACE_ID_GENERATORS).setInternalFactory(&Function_fn{func(compiler_ any) any {
 		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
 		_ = compiler
@@ -481,60 +378,28 @@ func (this *DefaultPassConfig) finit_DefaultPassConfig() {
 		_ = compiler
 		return obj_(new_ClosureCodeRemoval(compiler, this.options_.shouldRemoveAbstractMethods(), this.options_.shouldRemoveClosureAsserts()))
 	}}).build()
-	this.closureOptimizePrimitives = PassFactory_builder().setName("closureOptimizePrimitives").setInternalFactory(&Function_fn{func(compiler_ any) any {
-		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
-		_ = compiler
-		return obj_(new_ClosureOptimizePrimitives(compiler, compiler.getOptions().getOutputFeatureSet().containsFeatureSet(FeatureSet_ES2015)))
-	}}).build()
+	this.closureOptimizePrimitives = PassFactory_builder().setName("closureOptimizePrimitives").setInternalFactory(lambda_DefaultPassConfig_finit_DefaultPassConfig_35_).build()
 	this.rescopeGlobalSymbols = PassFactory_builder().setName("rescopeGlobalSymbols").setInternalFactory(&Function_fn{func(compiler_ any) any {
 		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
 		_ = compiler
 		return obj_(new_RescopeGlobalSymbols_AbstractCompiler_String_boolean_OptimizeLocalAccess(compiler, this.options_.getRenamePrefixNamespace().orElse(nullstr_), this.options_.assumeCrossChunkNamesForRenamePrefixNamespace(), this.options_.getOptimizeLocalAccessForGlobalSymbolNamespace()))
 	}}).build()
-	this.convertChunksToESModules = PassFactory_builder().setName("convertChunksToESModules").setInternalFactory(&Function_fn{func(p0 any) any { return obj_(new_ConvertChunksToESModules(to_AbstractCompiler(p0))) }}).build()
+	this.convertChunksToESModules = PassFactory_builder().setName("convertChunksToESModules").setInternalFactory(lambda_DefaultPassConfig_finit_DefaultPassConfig_36_).build()
 	this.inlineAndCollapseProperties = PassFactory_builder().setName("inlineAndCollapseProperties").setInternalFactory(&Function_fn{func(compiler_ any) any {
 		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
 		_ = compiler
 		return obj_(InlineAndCollapseProperties_builder(compiler).setPropertyCollapseLevel(this.options_.getPropertyCollapseLevel()).setChunkOutputType(this.options_.getChunkOutputType()).setHaveModulesBeenRewritten(this.options_.getProcessCommonJSModules()).setModuleResolutionMode(this.options_.getModuleResolutionMode()).build())
-	}}).setPreconditionCheck(&Function_fn{func(options_ any) any {
-		var options *CompilerOptions = cast_[*CompilerOptions](options_)
-		_ = options
-		return obj_(new_PassFactory_PreconditionResult(((options.getPropertyCollapseLevel() == CompilerOptions_PropertyCollapseLevel_NONE) || options.getAssumePropertiesAreStaticallyAnalyzable()), Optional_of[string]("requires assumePropertiesAreStaticallyAnalyzable to be enabled")))
-	}}).build()
-	this.collapseObjectLiterals = PassFactory_builder().setName(PassNames_COLLAPSE_OBJECT_LITERALS).setRunInFixedPointLoop(true).setInternalFactory(&Function_fn{func(compiler_ any) any {
-		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
-		_ = compiler
-		return obj_(new_InlineObjectLiterals(compiler, compiler.getUniqueNameIdSupplier()))
-	}}).build()
+	}}).setPreconditionCheck(lambda_DefaultPassConfig_finit_DefaultPassConfig_37_).build()
+	this.collapseObjectLiterals = PassFactory_builder().setName(PassNames_COLLAPSE_OBJECT_LITERALS).setRunInFixedPointLoop(true).setInternalFactory(lambda_DefaultPassConfig_finit_DefaultPassConfig_38_).build()
 	this.disambiguateProperties_ = PassFactory_builder().setName(PassNames_DISAMBIGUATE_PROPERTIES).setInternalFactory(&Function_fn{func(compiler_ any) any {
 		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
 		_ = compiler
 		return obj_(new_DisambiguateProperties(compiler, this.options_.getPropertiesThatMustDisambiguate()))
-	}}).setPreconditionCheck(&Function_fn{func(p0 any) any {
-		return obj_(DefaultPassConfig_requirePropertiesAreStaticallyAnalyzable(cast_[*CompilerOptions](p0)))
-	}}).build()
-	this.devirtualizeMethods = PassFactory_builder().setName(PassNames_DEVIRTUALIZE_METHODS).setInternalFactory(&Function_fn{func(compiler_ any) any {
-		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
-		_ = compiler
-		return obj_(OptimizeCalls_builder().setCompiler(compiler).setConsiderExterns(false).addPass(icast_OptimizeCalls_CallGraphCompilerPass(obj_(new_DevirtualizeMethods(compiler)))).build())
-	}}).setPreconditionCheck(&Function_fn{func(p0 any) any {
-		return obj_(DefaultPassConfig_requirePropertiesAreStaticallyAnalyzable(cast_[*CompilerOptions](p0)))
-	}}).build()
-	this.optimizeCalls = PassFactory_builder().setName(PassNames_OPTIMIZE_CALLS).setRunInFixedPointLoop(true).setInternalFactory(&Function_fn{func(compiler_ any) any {
-		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
-		_ = compiler
-		return obj_(OptimizeCalls_builder().setCompiler(compiler).setConsiderExterns(false).addPass(icast_OptimizeCalls_CallGraphCompilerPass(obj_(new_OptimizeReturns(compiler)))).addPass(icast_OptimizeCalls_CallGraphCompilerPass(obj_(new_OptimizeParameters(compiler)))).build())
-	}}).setPreconditionCheck(&Function_fn{func(p0 any) any {
-		return obj_(DefaultPassConfig_requirePropertiesAreStaticallyAnalyzable(cast_[*CompilerOptions](p0)))
-	}}).build()
-	this.optimizeConstructors = PassFactory_builder().setName("optimizeConstructors").setRunInFixedPointLoop(false).setInternalFactory(&Function_fn{func(compiler_ any) any {
-		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
-		_ = compiler
-		return obj_(OptimizeCalls_builder().setCompiler(compiler).setConsiderExterns(false).addPass(icast_OptimizeCalls_CallGraphCompilerPass(obj_(new_OptimizeConstructors(compiler)))).build())
-	}}).build()
-	this.markPureFunctions = PassFactory_builder().setName("markPureFunctions").setInternalFactory(&Function_fn{func(p0 any) any { return obj_(new_PureFunctionIdentifier_Driver(to_AbstractCompiler(p0))) }}).setPreconditionCheck(&Function_fn{func(p0 any) any {
-		return obj_(DefaultPassConfig_requirePropertiesAreStaticallyAnalyzable(cast_[*CompilerOptions](p0)))
-	}}).build()
+	}}).setPreconditionCheck(lambda_DefaultPassConfig_finit_DefaultPassConfig_39_).build()
+	this.devirtualizeMethods = PassFactory_builder().setName(PassNames_DEVIRTUALIZE_METHODS).setInternalFactory(lambda_DefaultPassConfig_finit_DefaultPassConfig_40_).setPreconditionCheck(lambda_DefaultPassConfig_finit_DefaultPassConfig_41_).build()
+	this.optimizeCalls = PassFactory_builder().setName(PassNames_OPTIMIZE_CALLS).setRunInFixedPointLoop(true).setInternalFactory(lambda_DefaultPassConfig_finit_DefaultPassConfig_42_).setPreconditionCheck(lambda_DefaultPassConfig_finit_DefaultPassConfig_43_).build()
+	this.optimizeConstructors = PassFactory_builder().setName("optimizeConstructors").setRunInFixedPointLoop(false).setInternalFactory(lambda_DefaultPassConfig_finit_DefaultPassConfig_44_).build()
+	this.markPureFunctions = PassFactory_builder().setName("markPureFunctions").setInternalFactory(lambda_DefaultPassConfig_finit_DefaultPassConfig_45_).setPreconditionCheck(lambda_DefaultPassConfig_finit_DefaultPassConfig_46_).build()
 	this.inlineVariables = PassFactory_builder().setName(PassNames_INLINE_VARIABLES).setRunInFixedPointLoop(true).setInternalFactory(&Function_fn{func(compiler_ any) any {
 		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
 		_ = compiler
@@ -549,25 +414,17 @@ func (this *DefaultPassConfig) finit_DefaultPassConfig() {
 		return obj_(new_InlineVariables(compiler, mode))
 		panic("unreachable")
 	}}).build()
-	this.inlineConstants = PassFactory_builder().setName("inlineConstants").setRunInFixedPointLoop(true).setInternalFactory(&Function_fn{func(compiler_ any) any {
-		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
-		_ = compiler
-		return obj_(new_InlineVariables(compiler, InlineVariables_Mode_CONSTANTS_ONLY))
-	}}).build()
-	this.inlineSimpleMethods = PassFactory_builder().setName("inlineSimpleMethods").setRunInFixedPointLoop(true).setInternalFactory(&Function_fn{func(p0 any) any { return obj_(new_InlineSimpleMethods(to_AbstractCompiler(p0))) }}).setPreconditionCheck(&Function_fn{func(p0 any) any {
-		return obj_(DefaultPassConfig_requirePropertiesAreStaticallyAnalyzable(cast_[*CompilerOptions](p0)))
-	}}).build()
-	this.deadAssignmentsElimination = PassFactory_builder().setName(PassNames_DEAD_ASSIGNMENT_ELIMINATION).setRunInFixedPointLoop(true).setInternalFactory(&Function_fn{func(p0 any) any { return obj_(new_DeadAssignmentsElimination(to_AbstractCompiler(p0))) }}).build()
-	this.deadPropertyAssignmentElimination = PassFactory_builder().setName("deadPropertyAssignmentElimination").setRunInFixedPointLoop(true).setInternalFactory(&Function_fn{func(p0 any) any { return obj_(new_DeadPropertyAssignmentElimination(to_AbstractCompiler(p0))) }}).setPreconditionCheck(&Function_fn{func(p0 any) any {
-		return obj_(DefaultPassConfig_requirePropertiesAreStaticallyAnalyzable(cast_[*CompilerOptions](p0)))
-	}}).build()
+	this.inlineConstants = PassFactory_builder().setName("inlineConstants").setRunInFixedPointLoop(true).setInternalFactory(lambda_DefaultPassConfig_finit_DefaultPassConfig_47_).build()
+	this.inlineSimpleMethods = PassFactory_builder().setName("inlineSimpleMethods").setRunInFixedPointLoop(true).setInternalFactory(lambda_DefaultPassConfig_finit_DefaultPassConfig_48_).setPreconditionCheck(lambda_DefaultPassConfig_finit_DefaultPassConfig_49_).build()
+	this.deadAssignmentsElimination = PassFactory_builder().setName(PassNames_DEAD_ASSIGNMENT_ELIMINATION).setRunInFixedPointLoop(true).setInternalFactory(lambda_DefaultPassConfig_finit_DefaultPassConfig_50_).build()
+	this.deadPropertyAssignmentElimination = PassFactory_builder().setName("deadPropertyAssignmentElimination").setRunInFixedPointLoop(true).setInternalFactory(lambda_DefaultPassConfig_finit_DefaultPassConfig_51_).setPreconditionCheck(lambda_DefaultPassConfig_finit_DefaultPassConfig_52_).build()
 	this.inlineFunctions = PassFactory_builder().setName(PassNames_INLINE_FUNCTIONS).setRunInFixedPointLoop(true).setInternalFactory(&Function_fn{func(compiler_ any) any {
 		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
 		_ = compiler
 		return obj_(new_InlineFunctions(compiler, compiler.getUniqueNameIdSupplier(), this.options_.getInlineFunctionsLevel(), (this.options_.assumeStrictThis() || this.options_.expectStrictModeInput()), this.options_.getMaxFunctionSizeAfterInlining()))
 	}}).build()
-	this.inlineProperties = PassFactory_builder().setName(PassNames_INLINE_PROPERTIES).setRunInFixedPointLoop(true).setInternalFactory(&Function_fn{func(p0 any) any { return obj_(new_InlineProperties(to_AbstractCompiler(p0))) }}).build()
-	this.isolatePolyfills = PassFactory_builder().setName("IsolatePolyfills").setInternalFactory(&Function_fn{func(p0 any) any { return obj_(new_IsolatePolyfills_AbstractCompiler(to_AbstractCompiler(p0))) }}).build()
+	this.inlineProperties = PassFactory_builder().setName(PassNames_INLINE_PROPERTIES).setRunInFixedPointLoop(true).setInternalFactory(lambda_DefaultPassConfig_finit_DefaultPassConfig_53_).build()
+	this.isolatePolyfills = PassFactory_builder().setName("IsolatePolyfills").setInternalFactory(lambda_DefaultPassConfig_finit_DefaultPassConfig_54_).build()
 	this.removeUnusedCode = PassFactory_builder().setName(PassNames_REMOVE_UNUSED_CODE).setRunInFixedPointLoop(true).setInternalFactory(&Function_fn{func(compiler_ any) any {
 		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
 		_ = compiler
@@ -584,7 +441,7 @@ func (this *DefaultPassConfig) finit_DefaultPassConfig() {
 		_ = compiler
 		return obj_(new_CrossChunkMethodMotion(compiler, compiler.getCrossChunkIdGenerator(), false, this.options_.getCrossChunkCodeMotionNoStubMethods()))
 	}}).build()
-	this.flowSensitiveInlineVariables = PassFactory_builder().setName(PassNames_FLOW_SENSITIVE_INLINE_VARIABLES).setInternalFactory(&Function_fn{func(p0 any) any { return obj_(new_FlowSensitiveInlineVariables(to_AbstractCompiler(p0))) }}).build()
+	this.flowSensitiveInlineVariables = PassFactory_builder().setName(PassNames_FLOW_SENSITIVE_INLINE_VARIABLES).setInternalFactory(lambda_DefaultPassConfig_finit_DefaultPassConfig_55_).build()
 	this.coalesceVariableNames = PassFactory_builder().setName(PassNames_COALESCE_VARIABLE_NAMES).setInternalFactory(&Function_fn{func(compiler_ any) any {
 		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
 		_ = compiler
@@ -603,7 +460,7 @@ func (this *DefaultPassConfig) finit_DefaultPassConfig() {
 		return obj_(new_PeepholeOptimizationsPass(compiler, PassNames_POST_NORMALIZE_PEEPHOLE, icast_List(obj_(optimizations.build()))))
 		panic("unreachable")
 	}}).build()
-	this.collapseVariableDeclarations = PassFactory_builder().setName(PassNames_COLLAPSE_VARIABLE_DECLARATIONS).setInternalFactory(&Function_fn{func(p0 any) any { return obj_(new_CollapseVariableDeclarations(to_AbstractCompiler(p0))) }}).build()
+	this.collapseVariableDeclarations = PassFactory_builder().setName(PassNames_COLLAPSE_VARIABLE_DECLARATIONS).setInternalFactory(lambda_DefaultPassConfig_finit_DefaultPassConfig_56_).build()
 	this.extractPrototypeMemberDeclarations = PassFactory_builder().setName(PassNames_EXTRACT_PROTOTYPE_MEMBER_DECLARATIONS).setInternalFactory(&Function_fn{func(compiler_ any) any {
 		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
 		_ = compiler
@@ -622,14 +479,10 @@ func (this *DefaultPassConfig) finit_DefaultPassConfig() {
 		}()
 		return obj_(new_ExtractPrototypeMemberDeclarations(compiler, pattern))
 		panic("unreachable")
-	}}).setPreconditionCheck(&Function_fn{func(p0 any) any {
-		return obj_(DefaultPassConfig_requirePropertiesAreStaticallyAnalyzable(cast_[*CompilerOptions](p0)))
-	}}).build()
-	this.rewriteFunctionExpressions = PassFactory_builder().setName(PassNames_REWRITE_FUNCTION_EXPRESSIONS).setInternalFactory(&Function_fn{func(p0 any) any { return obj_(new_FunctionRewriter(to_AbstractCompiler(p0))) }}).build()
-	this.collapseAnonymousFunctions = PassFactory_builder().setName(PassNames_COLLAPSE_ANONYMOUS_FUNCTIONS).setInternalFactory(&Function_fn{func(p0 any) any { return obj_(new_CollapseAnonymousFunctions(to_AbstractCompiler(p0))) }}).build()
-	this.rewriteGlobalDeclarationsForTryCatchWrapping = PassFactory_builder().setName("rewriteGlobalDeclarationsForTryCatchWrapping").setInternalFactory(&Function_fn{func(p0 any) any {
-		return obj_(new_RewriteGlobalDeclarationsForTryCatchWrapping(to_AbstractCompiler(p0)))
-	}}).build()
+	}}).setPreconditionCheck(lambda_DefaultPassConfig_finit_DefaultPassConfig_57_).build()
+	this.rewriteFunctionExpressions = PassFactory_builder().setName(PassNames_REWRITE_FUNCTION_EXPRESSIONS).setInternalFactory(lambda_DefaultPassConfig_finit_DefaultPassConfig_58_).build()
+	this.collapseAnonymousFunctions = PassFactory_builder().setName(PassNames_COLLAPSE_ANONYMOUS_FUNCTIONS).setInternalFactory(lambda_DefaultPassConfig_finit_DefaultPassConfig_59_).build()
+	this.rewriteGlobalDeclarationsForTryCatchWrapping = PassFactory_builder().setName("rewriteGlobalDeclarationsForTryCatchWrapping").setInternalFactory(lambda_DefaultPassConfig_finit_DefaultPassConfig_60_).build()
 	this.aliasStrings = PassFactory_builder().setName("aliasStrings").setInternalFactory(&Function_fn{func(compiler_ any) any {
 		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
 		_ = compiler
@@ -639,24 +492,20 @@ func (this *DefaultPassConfig) finit_DefaultPassConfig() {
 		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
 		_ = compiler
 		return obj_(new_AmbiguateProperties(compiler, icast_Set(obj_(this.options_.getPropertyReservedNamingFirstChars())), icast_Set(obj_(this.options_.getPropertyReservedNamingNonFirstChars())), tsetFrom_(tc_string, compiler.getExternProperties(), true)))
-	}}).setPreconditionCheck(&Function_fn{func(p0 any) any {
-		return obj_(DefaultPassConfig_requirePropertiesAreStaticallyAnalyzable(cast_[*CompilerOptions](p0)))
-	}}).build()
+	}}).setPreconditionCheck(lambda_DefaultPassConfig_finit_DefaultPassConfig_61_).build()
 	this.markUnnormalized = PassFactory_builder().setName("markUnnormalized").setInternalFactory(&Function_fn{func(compiler_ any) any {
 		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
 		_ = compiler
 		return obj_(new_DefaultPassConfig_10(this, compiler))
 	}}).build()
-	this.normalize = PassFactory_builder().setName(PassNames_NORMALIZE).setInternalFactory(&Function_fn{func(p0 any) any { return obj_(Normalize_createNormalizeForOptimizations(to_AbstractCompiler(p0))) }}).build()
-	this.externExports = PassFactory_builder().setName(PassNames_EXTERN_EXPORTS).setInternalFactory(&Function_fn{func(p0 any) any { return obj_(new_ExternExportsPass(to_AbstractCompiler(p0))) }}).build()
+	this.normalize = PassFactory_builder().setName(PassNames_NORMALIZE).setInternalFactory(lambda_DefaultPassConfig_finit_DefaultPassConfig_62_).build()
+	this.externExports = PassFactory_builder().setName(PassNames_EXTERN_EXPORTS).setInternalFactory(lambda_DefaultPassConfig_finit_DefaultPassConfig_63_).build()
 	this.denormalize = PassFactory_builder().setName("denormalize").setInternalFactory(&Function_fn{func(compiler_ any) any {
 		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
 		_ = compiler
 		return obj_(new_Denormalize(compiler, this.options_.getOutputFeatureSet()))
 	}}).build()
-	this.invertContextualRenaming = PassFactory_builder().setName("invertContextualRenaming").setInternalFactory(&Function_fn{func(p0 any) any {
-		return any(MakeDeclaredNamesUnique_getContextualRenameInverter(to_AbstractCompiler(p0)))
-	}}).build()
+	this.invertContextualRenaming = PassFactory_builder().setName("invertContextualRenaming").setInternalFactory(lambda_DefaultPassConfig_finit_DefaultPassConfig_64_).build()
 	this.renameProperties = PassFactory_builder().setName("renameProperties").setInternalFactory(&Function_fn{func(compiler_ any) any {
 		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
 		_ = compiler
@@ -664,10 +513,8 @@ func (this *DefaultPassConfig) finit_DefaultPassConfig() {
 		var prevPropertyMap *VariableMap = this.options_.getInputPropertyMap()
 		return obj_(new_DefaultPassConfig_11(this, compiler, prevPropertyMap))
 		panic("unreachable")
-	}}).setPreconditionCheck(&Function_fn{func(p0 any) any {
-		return obj_(DefaultPassConfig_requirePropertiesAreStaticallyAnalyzable(cast_[*CompilerOptions](p0)))
-	}}).build()
-	this.removePropertyRenamingCalls = PassFactory_builder().setName("removePropertyRenamingCalls").setInternalFactory(&Function_fn{func(p0 any) any { return obj_(new_RemovePropertyRenamingCalls(to_AbstractCompiler(p0))) }}).build()
+	}}).setPreconditionCheck(lambda_DefaultPassConfig_finit_DefaultPassConfig_65_).build()
+	this.removePropertyRenamingCalls = PassFactory_builder().setName("removePropertyRenamingCalls").setInternalFactory(lambda_DefaultPassConfig_finit_DefaultPassConfig_66_).build()
 	this.renameVars = PassFactory_builder().setName("renameVars").setInternalFactory(&Function_fn{func(compiler_ any) any {
 		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
 		_ = compiler
@@ -675,14 +522,10 @@ func (this *DefaultPassConfig) finit_DefaultPassConfig() {
 		return obj_(new_DefaultPassConfig_12(this, compiler, prevVariableMap))
 		panic("unreachable")
 	}}).build()
-	this.renameLabels = PassFactory_builder().setName("renameLabels").setInternalFactory(&Function_fn{func(p0 any) any { return obj_(new_RenameLabels_AbstractCompiler(to_AbstractCompiler(p0))) }}).build()
-	this.convertToDottedProperties = PassFactory_builder().setName(PassNames_CONVERT_TO_DOTTED_PROPERTIES).setInternalFactory(&Function_fn{func(p0 any) any { return obj_(new_ConvertToDottedProperties(to_AbstractCompiler(p0))) }}).build()
-	this.checkAstValidity = PassFactory_builder().setName("checkAstValidity").setInternalFactory(&Function_fn{func(p0 any) any { return obj_(new_AstValidator_AbstractCompiler(to_AbstractCompiler(p0))) }}).build()
-	this.varCheckValidity = PassFactory_builder().setName("varCheckValidity").setInternalFactory(&Function_fn{func(compiler_ any) any {
-		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
-		_ = compiler
-		return obj_(new_VarCheck_AbstractCompiler_boolean(compiler, true))
-	}}).build()
+	this.renameLabels = PassFactory_builder().setName("renameLabels").setInternalFactory(lambda_DefaultPassConfig_finit_DefaultPassConfig_67_).build()
+	this.convertToDottedProperties = PassFactory_builder().setName(PassNames_CONVERT_TO_DOTTED_PROPERTIES).setInternalFactory(lambda_DefaultPassConfig_finit_DefaultPassConfig_68_).build()
+	this.checkAstValidity = PassFactory_builder().setName("checkAstValidity").setInternalFactory(lambda_DefaultPassConfig_finit_DefaultPassConfig_69_).build()
+	this.varCheckValidity = PassFactory_builder().setName("varCheckValidity").setInternalFactory(lambda_DefaultPassConfig_finit_DefaultPassConfig_70_).build()
 	this.instrumentForCodeCoverage = PassFactory_builder().setName("instrumentForCodeCoverage").setInternalFactory(&Function_fn{func(compiler_ any) any {
 		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
 		_ = compiler
@@ -690,46 +533,33 @@ func (this *DefaultPassConfig) finit_DefaultPassConfig() {
 	}}).build()
 	this.gatherExternPropertiesCheck = this.createGatherExternProperties(GatherExternProperties_Mode_CHECK)
 	this.gatherExternPropertiesOptimize = this.createGatherExternProperties(GatherExternProperties_Mode_OPTIMIZE)
-	this.polymerPass = PassFactory_builder().setName("polymerPass").setInternalFactory(&Function_fn{func(p0 any) any { return obj_(new_PolymerPass(to_AbstractCompiler(p0))) }}).build()
-	this.chromePass = PassFactory_builder().setName("chromePass").setInternalFactory(&Function_fn{func(p0 any) any { return obj_(new_ChromePass(to_AbstractCompiler(p0))) }}).build()
-	this.j2clConstantHoisterPass = PassFactory_builder().setName("j2clConstantHoisterPass").setRunInFixedPointLoop(true).setInternalFactory(&Function_fn{func(p0 any) any { return obj_(new_J2clConstantHoisterPass(to_AbstractCompiler(p0))) }}).build()
-	this.j2clClinitPass = PassFactory_builder().setName("j2clClinitPass").setRunInFixedPointLoop(true).setInternalFactory(&Function_fn{func(compiler_ any) any {
-		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
-		_ = compiler
-		var changedScopeNodes *TList[Node] = compiler.getChangeTracker().getChangedScopeNodesForPass("j2clClinitPass")
-		return obj_(new_J2clClinitPrunerPass(compiler, changedScopeNodes))
-		panic("unreachable")
-	}}).build()
-	this.j2clPropertyInlinerPass = PassFactory_builder().setName("j2clPropertyInlinerPass").setInternalFactory(&Function_fn{func(p0 any) any { return obj_(new_J2clPropertyInlinerPass(to_AbstractCompiler(p0))) }}).build()
-	this.j2clPass = PassFactory_builder().setName("j2clPass").setInternalFactory(&Function_fn{func(p0 any) any { return obj_(new_J2clPass(to_AbstractCompiler(p0))) }}).build()
-	this.j2clUtilGetDefineRewriterPass = PassFactory_builder().setName("j2clUtilGetDefineRewriterPass").setInternalFactory(&Function_fn{func(p0 any) any { return obj_(new_J2clUtilGetDefineRewriterPass(to_AbstractCompiler(p0))) }}).build()
-	this.j2clAssertRemovalPass = PassFactory_builder().setName("j2clAssertRemovalPass").setInternalFactory(&Function_fn{func(p0 any) any { return obj_(new_J2clAssertRemovalPass(to_AbstractCompiler(p0))) }}).build()
-	this.j2clSourceFileChecker = PassFactory_builder().setName("j2clSourceFileChecker").setInternalFactory(&Function_fn{func(p0 any) any { return obj_(new_J2clSourceFileChecker(to_AbstractCompiler(p0))) }}).build()
-	this.j2clChecksPass = PassFactory_builder().setName("j2clChecksPass").setInternalFactory(&Function_fn{func(p0 any) any { return obj_(new_J2clChecksPass(to_AbstractCompiler(p0))) }}).build()
+	this.polymerPass = PassFactory_builder().setName("polymerPass").setInternalFactory(lambda_DefaultPassConfig_finit_DefaultPassConfig_71_).build()
+	this.chromePass = PassFactory_builder().setName("chromePass").setInternalFactory(lambda_DefaultPassConfig_finit_DefaultPassConfig_72_).build()
+	this.j2clConstantHoisterPass = PassFactory_builder().setName("j2clConstantHoisterPass").setRunInFixedPointLoop(true).setInternalFactory(lambda_DefaultPassConfig_finit_DefaultPassConfig_73_).build()
+	this.j2clClinitPass = PassFactory_builder().setName("j2clClinitPass").setRunInFixedPointLoop(true).setInternalFactory(lambda_DefaultPassConfig_finit_DefaultPassConfig_74_).build()
+	this.j2clPropertyInlinerPass = PassFactory_builder().setName("j2clPropertyInlinerPass").setInternalFactory(lambda_DefaultPassConfig_finit_DefaultPassConfig_75_).build()
+	this.j2clPass = PassFactory_builder().setName("j2clPass").setInternalFactory(lambda_DefaultPassConfig_finit_DefaultPassConfig_76_).build()
+	this.j2clUtilGetDefineRewriterPass = PassFactory_builder().setName("j2clUtilGetDefineRewriterPass").setInternalFactory(lambda_DefaultPassConfig_finit_DefaultPassConfig_77_).build()
+	this.j2clAssertRemovalPass = PassFactory_builder().setName("j2clAssertRemovalPass").setInternalFactory(lambda_DefaultPassConfig_finit_DefaultPassConfig_78_).build()
+	this.j2clSourceFileChecker = PassFactory_builder().setName("j2clSourceFileChecker").setInternalFactory(lambda_DefaultPassConfig_finit_DefaultPassConfig_79_).build()
+	this.j2clChecksPass = PassFactory_builder().setName("j2clChecksPass").setInternalFactory(lambda_DefaultPassConfig_finit_DefaultPassConfig_80_).build()
 	this.checkConformance_ = PassFactory_builder().setName(PassNames_CHECK_CONFORMANCE).setInternalFactory(&Function_fn{func(compiler_ any) any {
 		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
 		_ = compiler
 		return obj_(new_CheckConformance_AbstractCompiler_ImmutableList_ConformanceReportingMode(compiler, this.options_.getConformanceConfigs(), this.options_.getConformanceReportingMode()))
 	}}).build()
-	this.removeCastNodes = PassFactory_builder().setName("removeCastNodes").setInternalFactory(&Function_fn{func(p0 any) any { return obj_(new_RemoveCastNodes(to_AbstractCompiler(p0))) }}).build()
-	this.typesToColors = PassFactory_builder().setName("typesToColors").setInternalFactory(&Function_fn{func(compiler_ any) any {
-		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
-		_ = compiler
-		return any(&CompilerPass_fn{func(externs Node, js Node) {
-			new_ConvertTypesToColors(compiler, SerializationOptions_builder().setIncludeDebugInfo(compiler.getOptions().shouldSerializeExtraDebugInfo()).build()).process_2(externs, js)
-			compiler.setLifeCycleStage(AbstractCompiler_LifeCycleStage_COLORS_AND_SIMPLIFIED_JSDOC)
-		}})
-	}}).build()
+	this.removeCastNodes = PassFactory_builder().setName("removeCastNodes").setInternalFactory(lambda_DefaultPassConfig_finit_DefaultPassConfig_81_).build()
+	this.typesToColors = PassFactory_builder().setName("typesToColors").setInternalFactory(lambda_DefaultPassConfig_finit_DefaultPassConfig_82_).build()
 	this.serializeTypedAst = PassFactory_builder().setName("serializeTypedAst").setInternalFactory(&Function_fn{func(compiler_ any) any {
 		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
 		_ = compiler
 		return obj_(SerializeTypedAstPass_createFromPath(compiler, this.options_.getTypedAstOutputFile().orElse(nullstr_), SerializationOptions_builder().setIncludeDebugInfo(compiler.getOptions().shouldSerializeExtraDebugInfo()).setRuntimeLibraries(compiler.getRuntimeJsLibManager().getInjectedLibraries()).build()))
 	}}).build()
-	this.removeUnnecessarySyntheticExterns = PassFactory_builder().setName("removeUnnecessarySyntheticExterns").setInternalFactory(&Function_fn{func(p0 any) any { return obj_(new_RemoveUnnecessarySyntheticExterns(to_AbstractCompiler(p0))) }}).build()
-	this.optimizeToEs6 = PassFactory_builder().setName("optimizeToEs6").setInternalFactory(&Function_fn{func(p0 any) any { return obj_(new_SubstituteEs6Syntax(to_AbstractCompiler(p0))) }}).build()
-	this.whitespaceWrapGoogModules = PassFactory_builder().setName("whitespaceWrapGoogModules").setInternalFactory(&Function_fn{func(p0 any) any { return obj_(new_WhitespaceWrapGoogModules(to_AbstractCompiler(p0))) }}).build()
-	this.rewriteCommonJsModules = PassFactory_builder().setName(PassNames_REWRITE_COMMON_JS_MODULES).setInternalFactory(&Function_fn{func(p0 any) any { return obj_(new_ProcessCommonJSModules(to_AbstractCompiler(p0))) }}).build()
-	this.rewriteScriptsToEs6Modules = PassFactory_builder().setName(PassNames_REWRITE_SCRIPTS_TO_ES6_MODULES).setInternalFactory(&Function_fn{func(p0 any) any { return obj_(new_Es6RewriteScriptsToModules(to_AbstractCompiler(p0))) }}).build()
+	this.removeUnnecessarySyntheticExterns = PassFactory_builder().setName("removeUnnecessarySyntheticExterns").setInternalFactory(lambda_DefaultPassConfig_finit_DefaultPassConfig_83_).build()
+	this.optimizeToEs6 = PassFactory_builder().setName("optimizeToEs6").setInternalFactory(lambda_DefaultPassConfig_finit_DefaultPassConfig_84_).build()
+	this.whitespaceWrapGoogModules = PassFactory_builder().setName("whitespaceWrapGoogModules").setInternalFactory(lambda_DefaultPassConfig_finit_DefaultPassConfig_85_).build()
+	this.rewriteCommonJsModules = PassFactory_builder().setName(PassNames_REWRITE_COMMON_JS_MODULES).setInternalFactory(lambda_DefaultPassConfig_finit_DefaultPassConfig_86_).build()
+	this.rewriteScriptsToEs6Modules = PassFactory_builder().setName(PassNames_REWRITE_SCRIPTS_TO_ES6_MODULES).setInternalFactory(lambda_DefaultPassConfig_finit_DefaultPassConfig_87_).build()
 	this.gatherModuleMetadataPass = PassFactory_builder().setName(PassNames_GATHER_MODULE_METADATA).setInternalFactory(&Function_fn{func(compiler_ any) any {
 		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
 		_ = compiler
@@ -737,56 +567,511 @@ func (this *DefaultPassConfig) finit_DefaultPassConfig() {
 		return obj_(new_GatherModuleMetadata(compiler, this.options_.getProcessCommonJSModules(), this.options_.getModuleResolutionMode()))
 		panic("unreachable")
 	}}).build()
-	this.createModuleMapPass = PassFactory_builder().setName(PassNames_CREATE_MODULE_MAP).setInternalFactory(&Function_fn{func(compiler_ any) any {
-		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
-		_ = compiler
-		return obj_(new_ModuleMapCreator(compiler, compiler.getModuleMetadataMap()))
-	}}).build()
-	this.gatherGettersAndSetters = PassFactory_builder().setName(PassNames_GATHER_GETTERS_AND_SETTERS).setInternalFactory(&Function_fn{func(p0 any) any { return obj_(new_GatherGetterAndSetterProperties(to_AbstractCompiler(p0))) }}).build()
-	this.addSyntheticScript = PassFactory_builder().setName("ADD_SYNTHETIC_SCRIPT").setInternalFactory(&Function_fn{func(compiler_ any) any {
-		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
-		_ = compiler
-		return any(&CompilerPass_fn{func(externs Node, js Node) {
-			compiler.initializeSyntheticCodeInput()
-		}})
-	}}).build()
-	this.removeSyntheticScript = PassFactory_builder().setName("REMOVE_SYNTHETIC_SCRIPT").setInternalFactory(&Function_fn{func(compiler_ any) any {
-		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
-		_ = compiler
-		return any(&CompilerPass_fn{func(externs Node, js Node) {
-			compiler.removeSyntheticCodeInput()
-		}})
-	}}).build()
-	this.mergeSyntheticScript = PassFactory_builder().setName("MERGE_SYNTHETIC_SCRIPT").setInternalFactory(&Function_fn{func(compiler_ any) any {
-		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
-		_ = compiler
-		return any(&CompilerPass_fn{func(externs Node, js Node) {
-			compiler.mergeSyntheticCodeInput()
-		}})
-	}}).build()
-	this.protectLocaleData = PassFactory_builder().setName("protectLocaleData").setInternalFactory(&Function_fn{func(compiler_ any) any {
-		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
-		_ = compiler
-		return any(&CompilerPass_fn{func(externs Node, root Node) {
-			new_LocaleDataPasses_ProtectGoogLocale(compiler).process_2(externs, root)
-		}})
-	}}).build()
+	this.createModuleMapPass = PassFactory_builder().setName(PassNames_CREATE_MODULE_MAP).setInternalFactory(lambda_DefaultPassConfig_finit_DefaultPassConfig_88_).build()
+	this.gatherGettersAndSetters = PassFactory_builder().setName(PassNames_GATHER_GETTERS_AND_SETTERS).setInternalFactory(lambda_DefaultPassConfig_finit_DefaultPassConfig_89_).build()
+	this.addSyntheticScript = PassFactory_builder().setName("ADD_SYNTHETIC_SCRIPT").setInternalFactory(lambda_DefaultPassConfig_finit_DefaultPassConfig_90_).build()
+	this.removeSyntheticScript = PassFactory_builder().setName("REMOVE_SYNTHETIC_SCRIPT").setInternalFactory(lambda_DefaultPassConfig_finit_DefaultPassConfig_91_).build()
+	this.mergeSyntheticScript = PassFactory_builder().setName("MERGE_SYNTHETIC_SCRIPT").setInternalFactory(lambda_DefaultPassConfig_finit_DefaultPassConfig_92_).build()
+	this.protectLocaleData = PassFactory_builder().setName("protectLocaleData").setInternalFactory(lambda_DefaultPassConfig_finit_DefaultPassConfig_93_).build()
 	this.substituteLocaleData = PassFactory_builder().setName("SubstituteLocaleData").setInternalFactory(&Function_fn{func(compiler_ any) any {
 		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
 		_ = compiler
 		return obj_(new_DefaultPassConfig_14(this, compiler))
 	}}).build()
-	this.transpileOnlyClosureUnaware = PassFactory_builder().setName("TranspileOnlyClosureUnaware").setInternalFactory(&Function_fn{func(compiler_ any) any {
-		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
-		_ = compiler
-		return obj_(new_TranspileAndOptimizeClosureUnaware(compiler, NestedCompilerRunner_Mode_TRANSPILE_ONLY))
-	}}).build()
-	this.transpileAndOptimizeClosureUnaware = PassFactory_builder().setName("TranspileAndOptimizeClosureUnaware").setInternalFactory(&Function_fn{func(compiler_ any) any {
-		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
-		_ = compiler
-		return obj_(new_TranspileAndOptimizeClosureUnaware(compiler, NestedCompilerRunner_Mode_TRANSPILE_AND_OPTIMIZE))
-	}}).build()
+	this.transpileOnlyClosureUnaware = PassFactory_builder().setName("TranspileOnlyClosureUnaware").setInternalFactory(lambda_DefaultPassConfig_finit_DefaultPassConfig_94_).build()
+	this.transpileAndOptimizeClosureUnaware = PassFactory_builder().setName("TranspileAndOptimizeClosureUnaware").setInternalFactory(lambda_DefaultPassConfig_finit_DefaultPassConfig_95_).build()
 }
+
+// lambda_DefaultPassConfig_finit_DefaultPassConfig_1_ is a lambda of DefaultPassConfig_finit_DefaultPassConfig that captures nothing (post-flip step lambdas).
+var lambda_DefaultPassConfig_finit_DefaultPassConfig_1_ = &Function_fn{func(p0 any) any { return obj_(new_CheckSideEffects_StripProtection(to_AbstractCompiler(p0))) }}
+
+// lambda_DefaultPassConfig_finit_DefaultPassConfig_2_ is a lambda of DefaultPassConfig_finit_DefaultPassConfig that captures nothing (post-flip step lambdas).
+var lambda_DefaultPassConfig_finit_DefaultPassConfig_2_ = &Function_fn{func(compiler_ any) any {
+	var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
+	_ = compiler
+	return obj_(new_CheckMissingRequires(compiler, compiler.getModuleMetadataMap()))
+}}
+
+// lambda_DefaultPassConfig_finit_DefaultPassConfig_3_ is a lambda of DefaultPassConfig_finit_DefaultPassConfig that captures nothing (post-flip step lambdas).
+var lambda_DefaultPassConfig_finit_DefaultPassConfig_3_ = &Function_fn{func(compiler_ any) any {
+	var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
+	_ = compiler
+	return any(DefaultPassConfig_combineChecks(compiler, sliceImm_(tc_NodeTraversal_Callback, ImmutableList_of_Object_Object(obj_(new_CheckJSDoc(compiler)), obj_(new_Es6CheckModule(compiler))))))
+}}
+
+// lambda_DefaultPassConfig_finit_DefaultPassConfig_4_ is a lambda of DefaultPassConfig_finit_DefaultPassConfig that captures nothing (post-flip step lambdas).
+var lambda_DefaultPassConfig_finit_DefaultPassConfig_4_ = &Function_fn{func(p0 any) any { return obj_(new_ConvertToTypedInterface(to_AbstractCompiler(p0))) }}
+
+// lambda_DefaultPassConfig_finit_DefaultPassConfig_5_ is a lambda of DefaultPassConfig_finit_DefaultPassConfig that captures nothing (post-flip step lambdas).
+var lambda_DefaultPassConfig_finit_DefaultPassConfig_5_ = &Function_fn{func(p0 any) any { return obj_(new_ExtraRequireRemover(to_AbstractCompiler(p0))) }}
+
+// lambda_DefaultPassConfig_finit_DefaultPassConfig_6_ is a lambda of DefaultPassConfig_finit_DefaultPassConfig that captures nothing (post-flip step lambdas).
+var lambda_DefaultPassConfig_finit_DefaultPassConfig_6_ = &Function_fn{func(compiler_ any) any {
+	var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
+	_ = compiler
+	var convention CodingConvention = compiler.getCodingConvention()
+	if !String_isEmpty(convention.getExportSymbolFunction()) {
+		return obj_(new_ExportTestFunctions(compiler, convention.getExportSymbolFunction(), convention.getExportPropertyFunction()))
+	} else {
+		return obj_(ErrorPass_createFromDiagnosticType(compiler, DefaultPassConfig_GENERATE_EXPORTS_ERROR))
+	}
+	panic("unreachable")
+}}
+
+// lambda_DefaultPassConfig_finit_DefaultPassConfig_7_ is a lambda of DefaultPassConfig_finit_DefaultPassConfig that captures nothing (post-flip step lambdas).
+var lambda_DefaultPassConfig_finit_DefaultPassConfig_7_ = &Function_fn{func(p0 any) any { return obj_(new_AngularPass(to_AbstractCompiler(p0))) }}
+
+// lambda_DefaultPassConfig_finit_DefaultPassConfig_8_ is a lambda of DefaultPassConfig_finit_DefaultPassConfig that captures nothing (post-flip step lambdas).
+var lambda_DefaultPassConfig_finit_DefaultPassConfig_8_ = &Function_fn{func(compiler_ any) any {
+	var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
+	_ = compiler
+	return obj_(ScopedAliases_builder(compiler).build())
+}}
+
+// lambda_DefaultPassConfig_finit_DefaultPassConfig_9_ is a lambda of DefaultPassConfig_finit_DefaultPassConfig that captures nothing (post-flip step lambdas).
+var lambda_DefaultPassConfig_finit_DefaultPassConfig_9_ = &Function_fn{func(compiler_ any) any {
+	var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
+	_ = compiler
+	return obj_(new_InjectRuntimeLibraries(compiler, ImmutableSet_copyOf(icast_Collection(obj_(compiler.getOptions().getForceLibraryInjectionList())))))
+}}
+
+// lambda_DefaultPassConfig_finit_DefaultPassConfig_10_ is a lambda of DefaultPassConfig_finit_DefaultPassConfig that captures nothing (post-flip step lambdas).
+var lambda_DefaultPassConfig_finit_DefaultPassConfig_10_ = &Function_fn{func(p0 any) any { return obj_(new_RemoveWeakSources(to_AbstractCompiler(p0))) }}
+
+// lambda_DefaultPassConfig_finit_DefaultPassConfig_11_ is a lambda of DefaultPassConfig_finit_DefaultPassConfig that captures nothing (post-flip step lambdas).
+var lambda_DefaultPassConfig_finit_DefaultPassConfig_11_ = &Function_fn{func(p0 any) any { return obj_(new_DeclaredGlobalExternsOnWindow(to_AbstractCompiler(p0))) }}
+
+// lambda_DefaultPassConfig_finit_DefaultPassConfig_12_ is a lambda of DefaultPassConfig_finit_DefaultPassConfig that captures nothing (post-flip step lambdas).
+var lambda_DefaultPassConfig_finit_DefaultPassConfig_12_ = &Function_fn{func(p0 any) any { return obj_(new_CheckTypeImportCodeReferences(to_AbstractCompiler(p0))) }}
+
+// lambda_DefaultPassConfig_finit_DefaultPassConfig_13_ is a lambda of DefaultPassConfig_finit_DefaultPassConfig that captures nothing (post-flip step lambdas).
+var lambda_DefaultPassConfig_finit_DefaultPassConfig_13_ = &Function_fn{func(compiler_ any) any {
+	var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
+	_ = compiler
+	return obj_(new_ClosureCheckModule(compiler, compiler.getModuleMetadataMap()))
+}}
+
+// lambda_DefaultPassConfig_finit_DefaultPassConfig_14_ is a lambda of DefaultPassConfig_finit_DefaultPassConfig that captures nothing (post-flip step lambdas).
+var lambda_DefaultPassConfig_finit_DefaultPassConfig_14_ = &Function_fn{func(compiler_ any) any {
+	var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
+	_ = compiler
+	return obj_(new_CheckClosureImports(compiler, compiler.getModuleMetadataMap()))
+}}
+
+// lambda_DefaultPassConfig_finit_DefaultPassConfig_15_ is a lambda of DefaultPassConfig_finit_DefaultPassConfig that captures nothing (post-flip step lambdas).
+var lambda_DefaultPassConfig_finit_DefaultPassConfig_15_ = &Function_fn{func(compiler_ any) any {
+	var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
+	_ = compiler
+	return obj_(new_RewriteGoogJsImports(compiler, RewriteGoogJsImports_Mode_LINT_AND_REWRITE, compiler.getModuleMap()))
+}}
+
+// lambda_DefaultPassConfig_finit_DefaultPassConfig_16_ is a lambda of DefaultPassConfig_finit_DefaultPassConfig that captures nothing (post-flip step lambdas).
+var lambda_DefaultPassConfig_finit_DefaultPassConfig_16_ = &Function_fn{func(compiler_ any) any {
+	var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
+	_ = compiler
+	var useTypesForOptimization bool = compiler.getOptions().shouldUseTypesForLocalOptimization()
+	var peepholeOptimizations ListOf[*AbstractPeepholeOptimization] = icast_List(new_ArrayList_0().self())
+	peepholeOptimizations.add(obj_(new_PeepholeRemoveDeadCode()))
+	if compiler.getOptions().getJ2clPass().shouldAddJ2clPasses() {
+		peepholeOptimizations.add(obj_(new_J2clEqualitySameRewriterPass(useTypesForOptimization)))
+	}
+	return obj_(new_PeepholeOptimizationsPass(compiler, "earlyPeepholeOptimizations", peepholeOptimizations))
+	panic("unreachable")
+}}
+
+// lambda_DefaultPassConfig_finit_DefaultPassConfig_17_ is a lambda of DefaultPassConfig_finit_DefaultPassConfig that captures nothing (post-flip step lambdas).
+var lambda_DefaultPassConfig_finit_DefaultPassConfig_17_ = &Function_fn{func(compiler_ any) any {
+	var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
+	_ = compiler
+	return any(DefaultPassConfig_createPeepholeOptimizationsPass(compiler, PassNames_PEEPHOLE_OPTIMIZATIONS, true))
+}}
+
+// lambda_DefaultPassConfig_finit_DefaultPassConfig_18_ is a lambda of DefaultPassConfig_finit_DefaultPassConfig that captures nothing (post-flip step lambdas).
+var lambda_DefaultPassConfig_finit_DefaultPassConfig_18_ = &Function_fn{func(compiler_ any) any {
+	var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
+	_ = compiler
+	return any(DefaultPassConfig_createPeepholeOptimizationsPass(compiler, PassNames_PEEPHOLE_OPTIMIZATIONS, true))
+}}
+
+// lambda_DefaultPassConfig_finit_DefaultPassConfig_19_ is a lambda of DefaultPassConfig_finit_DefaultPassConfig that captures nothing (post-flip step lambdas).
+var lambda_DefaultPassConfig_finit_DefaultPassConfig_19_ = &Function_fn{func(compiler_ any) any {
+	var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
+	_ = compiler
+	return any(DefaultPassConfig_createPeepholeOptimizationsPass(compiler, PassNames_PEEPHOLE_OPTIMIZATIONS, false))
+}}
+
+// lambda_DefaultPassConfig_finit_DefaultPassConfig_20_ is a lambda of DefaultPassConfig_finit_DefaultPassConfig that captures nothing (post-flip step lambdas).
+var lambda_DefaultPassConfig_finit_DefaultPassConfig_20_ = &Function_fn{func(p0 any) any { return obj_(new_VarCheck_AbstractCompiler(to_AbstractCompiler(p0))) }}
+
+// lambda_DefaultPassConfig_finit_DefaultPassConfig_21_ is a lambda of DefaultPassConfig_finit_DefaultPassConfig that captures nothing (post-flip step lambdas).
+var lambda_DefaultPassConfig_finit_DefaultPassConfig_21_ = &Function_fn{func(p0 any) any { return obj_(new_InferConsts(to_AbstractCompiler(p0))) }}
+
+// lambda_DefaultPassConfig_finit_DefaultPassConfig_22_ is a lambda of DefaultPassConfig_finit_DefaultPassConfig that captures nothing (post-flip step lambdas).
+var lambda_DefaultPassConfig_finit_DefaultPassConfig_22_ = &Function_fn{func(p0 any) any { return obj_(new_VariableReferenceCheck(to_AbstractCompiler(p0))) }}
+
+// lambda_DefaultPassConfig_finit_DefaultPassConfig_23_ is a lambda of DefaultPassConfig_finit_DefaultPassConfig that captures nothing (post-flip step lambdas).
+var lambda_DefaultPassConfig_finit_DefaultPassConfig_23_ = &Function_fn{func(p0 any) any { return obj_(new_CheckSuper(to_AbstractCompiler(p0))) }}
+
+// lambda_DefaultPassConfig_finit_DefaultPassConfig_24_ is a lambda of DefaultPassConfig_finit_DefaultPassConfig that captures nothing (post-flip step lambdas).
+var lambda_DefaultPassConfig_finit_DefaultPassConfig_24_ = &Function_fn{func(compiler_ any) any {
+	var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
+	_ = compiler
+	return any(&CompilerPass_fn{func(externs Node, root Node) {
+		compiler.clearTypedScopeCreator()
+	}})
+}}
+
+// lambda_DefaultPassConfig_finit_DefaultPassConfig_25_ is a lambda of DefaultPassConfig_finit_DefaultPassConfig that captures nothing (post-flip step lambdas).
+var lambda_DefaultPassConfig_finit_DefaultPassConfig_25_ = &Function_fn{func(compiler_ any) any {
+	var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
+	_ = compiler
+	return any(&CompilerPass_fn{func(externs Node, root Node) {
+		compiler.setTopScope(nil)
+		it_1 := foreach_(any(compiler.getInputsInOrder()))
+		for it_1.next() {
+			var compilerInput *CompilerInput = cast_[*CompilerInput](it_1.v)
+			compilerInput.setTypedScope(nil)
+		}
+	}})
+}}
+
+// lambda_DefaultPassConfig_finit_DefaultPassConfig_26_ is a lambda of DefaultPassConfig_finit_DefaultPassConfig that captures nothing (post-flip step lambdas).
+var lambda_DefaultPassConfig_finit_DefaultPassConfig_26_ = &Function_fn{func(compiler_ any) any {
+	var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
+	_ = compiler
+	return any(&CompilerPass_fn{func(unused Node, srcRoot Node) {
+		var globalRoot Node = srcRoot.getParent()
+		var inferencePass *TypeInferencePass = new_TypeInferencePass(compiler, compiler.getReverseAbstractInterpreter(), cast_[*TypedScopeCreator](compiler.getTypedScopeCreator()))
+		compiler.setTypeCheckingHasRun(true)
+		compiler.setTopScope(inferencePass.inferAllScopes(globalRoot))
+	}})
+}}
+
+// lambda_DefaultPassConfig_finit_DefaultPassConfig_27_ is a lambda of DefaultPassConfig_finit_DefaultPassConfig that captures nothing (post-flip step lambdas).
+var lambda_DefaultPassConfig_finit_DefaultPassConfig_27_ = &Function_fn{func(p0 any) any { return obj_(new_InferJSDocInfo(to_AbstractCompiler(p0))) }}
+
+// lambda_DefaultPassConfig_finit_DefaultPassConfig_28_ is a lambda of DefaultPassConfig_finit_DefaultPassConfig that captures nothing (post-flip step lambdas).
+var lambda_DefaultPassConfig_finit_DefaultPassConfig_28_ = &Function_fn{func(p0 any) any { return obj_(new_CheckAccessControls(to_AbstractCompiler(p0))) }}
+
+// lambda_DefaultPassConfig_finit_DefaultPassConfig_29_ is a lambda of DefaultPassConfig_finit_DefaultPassConfig that captures nothing (post-flip step lambdas).
+var lambda_DefaultPassConfig_finit_DefaultPassConfig_29_ = &Function_fn{func(compiler_ any) any {
+	var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
+	_ = compiler
+	var callbacks ImmutableList_BuilderOf[NodeTraversal_Callback] = cast_[*ImmutableList_Builder](obj_(cast_[*ImmutableList_Builder](obj_(cast_[*ImmutableList_Builder](obj_(cast_[*ImmutableList_Builder](obj_(cast_[*ImmutableList_Builder](obj_(cast_[*ImmutableList_Builder](obj_(cast_[*ImmutableList_Builder](obj_(cast_[*ImmutableList_Builder](obj_(cast_[*ImmutableList_Builder](obj_(cast_[*ImmutableList_Builder](obj_(cast_[*ImmutableList_Builder](obj_(cast_[*ImmutableList_Builder](obj_(cast_[*ImmutableList_Builder](obj_(cast_[*ImmutableList_Builder](obj_(cast_[*ImmutableList_Builder](obj_(cast_[*ImmutableList_Builder](obj_(cast_[*ImmutableList_Builder](obj_(cast_[*ImmutableList_Builder](obj_(ImmutableList_builder().add(obj_(new_CheckConstPrivateProperties(compiler))))).add(obj_(new_CheckConstantCaseNames(compiler))))).add(obj_(new_CheckEmptyStatements(compiler))))).add(obj_(new_CheckEnums(compiler))))).add(obj_(new_CheckEs6ModuleFileStructure(compiler))))).add(obj_(new_CheckEs6Modules(compiler))))).add(obj_(new_CheckNoMutatedEs6Exports(compiler))))).add(obj_(new_CheckGoogModuleTypeScriptName(compiler))))).add(obj_(new_CheckInterfaces(compiler))))).add(obj_(new_CheckJSDocStyle(compiler))))).add(obj_(new_CheckMissingSemicolon(compiler))))).add(obj_(new_CheckNullabilityModifiers(compiler))))).add(obj_(new_CheckPrimitiveAsObject(compiler))))).add(obj_(new_CheckPrototypeProperties(compiler))))).add(obj_(new_CheckUnusedPrivateProperties(compiler))))).add(obj_(new_CheckUnusedLabels(compiler))))).add(obj_(new_CheckUselessBlocks(compiler))))).add(obj_(new_CheckVar(compiler)))))
+	return any(DefaultPassConfig_combineChecks(compiler, sliceImm_(tc_NodeTraversal_Callback, callbacks.build())))
+	panic("unreachable")
+}}
+
+// lambda_DefaultPassConfig_finit_DefaultPassConfig_30_ is a lambda of DefaultPassConfig_finit_DefaultPassConfig that captures nothing (post-flip step lambdas).
+var lambda_DefaultPassConfig_finit_DefaultPassConfig_30_ = &Function_fn{func(compiler_ any) any {
+	var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
+	_ = compiler
+	var callbacks []NodeTraversal_Callback = sliceOf_(tc_NodeTraversal_Callback, icast_NodeTraversal_Callback(obj_(new_CheckArrayWithGoogObject(compiler))), icast_NodeTraversal_Callback(obj_(new_ImplicitNullabilityCheck(compiler))), icast_NodeTraversal_Callback(obj_(new_CheckNestedNames(compiler))))
+	return any(DefaultPassConfig_combineChecks(compiler, callbacks))
+	panic("unreachable")
+}}
+
+// lambda_DefaultPassConfig_finit_DefaultPassConfig_31_ is a lambda of DefaultPassConfig_finit_DefaultPassConfig that captures nothing (post-flip step lambdas).
+var lambda_DefaultPassConfig_finit_DefaultPassConfig_31_ = &Function_fn{func(compiler_ any) any {
+	var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
+	_ = compiler
+	return any(DefaultPassConfig_combineChecks(compiler, sliceImm_(tc_NodeTraversal_Callback, ImmutableList_of_Object_Object(obj_(new_CheckProvidesSorted(CheckProvidesSorted_Mode_COLLECT_AND_REPORT)), obj_(new_CheckRequiresSorted(CheckRequiresSorted_Mode_COLLECT_AND_REPORT))))))
+}}
+
+// lambda_DefaultPassConfig_finit_DefaultPassConfig_32_ is a lambda of DefaultPassConfig_finit_DefaultPassConfig that captures nothing (post-flip step lambdas).
+var lambda_DefaultPassConfig_finit_DefaultPassConfig_32_ = &Function_fn{func(p0 any) any { return obj_(new_ConstCheck(to_AbstractCompiler(p0))) }}
+
+// lambda_DefaultPassConfig_finit_DefaultPassConfig_33_ is a lambda of DefaultPassConfig_finit_DefaultPassConfig that captures nothing (post-flip step lambdas).
+var lambda_DefaultPassConfig_finit_DefaultPassConfig_33_ = &Function_fn{func(p0 any) any { return obj_(new_RewriteCallerCodeLocation(to_AbstractCompiler(p0))) }}
+
+// lambda_DefaultPassConfig_finit_DefaultPassConfig_34_ is a lambda of DefaultPassConfig_finit_DefaultPassConfig that captures nothing (post-flip step lambdas).
+var lambda_DefaultPassConfig_finit_DefaultPassConfig_34_ = &Function_fn{func(p0 any) any { return obj_(new_ReplaceToggles(to_AbstractCompiler(p0))) }}
+
+// lambda_DefaultPassConfig_finit_DefaultPassConfig_35_ is a lambda of DefaultPassConfig_finit_DefaultPassConfig that captures nothing (post-flip step lambdas).
+var lambda_DefaultPassConfig_finit_DefaultPassConfig_35_ = &Function_fn{func(compiler_ any) any {
+	var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
+	_ = compiler
+	return obj_(new_ClosureOptimizePrimitives(compiler, compiler.getOptions().getOutputFeatureSet().containsFeatureSet(FeatureSet_ES2015)))
+}}
+
+// lambda_DefaultPassConfig_finit_DefaultPassConfig_36_ is a lambda of DefaultPassConfig_finit_DefaultPassConfig that captures nothing (post-flip step lambdas).
+var lambda_DefaultPassConfig_finit_DefaultPassConfig_36_ = &Function_fn{func(p0 any) any { return obj_(new_ConvertChunksToESModules(to_AbstractCompiler(p0))) }}
+
+// lambda_DefaultPassConfig_finit_DefaultPassConfig_37_ is a lambda of DefaultPassConfig_finit_DefaultPassConfig that captures nothing (post-flip step lambdas).
+var lambda_DefaultPassConfig_finit_DefaultPassConfig_37_ = &Function_fn{func(options_ any) any {
+	var options *CompilerOptions = cast_[*CompilerOptions](options_)
+	_ = options
+	return obj_(new_PassFactory_PreconditionResult(((options.getPropertyCollapseLevel() == CompilerOptions_PropertyCollapseLevel_NONE) || options.getAssumePropertiesAreStaticallyAnalyzable()), Optional_of[string]("requires assumePropertiesAreStaticallyAnalyzable to be enabled")))
+}}
+
+// lambda_DefaultPassConfig_finit_DefaultPassConfig_38_ is a lambda of DefaultPassConfig_finit_DefaultPassConfig that captures nothing (post-flip step lambdas).
+var lambda_DefaultPassConfig_finit_DefaultPassConfig_38_ = &Function_fn{func(compiler_ any) any {
+	var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
+	_ = compiler
+	return obj_(new_InlineObjectLiterals(compiler, compiler.getUniqueNameIdSupplier()))
+}}
+
+// lambda_DefaultPassConfig_finit_DefaultPassConfig_39_ is a lambda of DefaultPassConfig_finit_DefaultPassConfig that captures nothing (post-flip step lambdas).
+var lambda_DefaultPassConfig_finit_DefaultPassConfig_39_ = &Function_fn{func(p0 any) any {
+	return obj_(DefaultPassConfig_requirePropertiesAreStaticallyAnalyzable(cast_[*CompilerOptions](p0)))
+}}
+
+// lambda_DefaultPassConfig_finit_DefaultPassConfig_40_ is a lambda of DefaultPassConfig_finit_DefaultPassConfig that captures nothing (post-flip step lambdas).
+var lambda_DefaultPassConfig_finit_DefaultPassConfig_40_ = &Function_fn{func(compiler_ any) any {
+	var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
+	_ = compiler
+	return obj_(OptimizeCalls_builder().setCompiler(compiler).setConsiderExterns(false).addPass(icast_OptimizeCalls_CallGraphCompilerPass(obj_(new_DevirtualizeMethods(compiler)))).build())
+}}
+
+// lambda_DefaultPassConfig_finit_DefaultPassConfig_41_ is a lambda of DefaultPassConfig_finit_DefaultPassConfig that captures nothing (post-flip step lambdas).
+var lambda_DefaultPassConfig_finit_DefaultPassConfig_41_ = &Function_fn{func(p0 any) any {
+	return obj_(DefaultPassConfig_requirePropertiesAreStaticallyAnalyzable(cast_[*CompilerOptions](p0)))
+}}
+
+// lambda_DefaultPassConfig_finit_DefaultPassConfig_42_ is a lambda of DefaultPassConfig_finit_DefaultPassConfig that captures nothing (post-flip step lambdas).
+var lambda_DefaultPassConfig_finit_DefaultPassConfig_42_ = &Function_fn{func(compiler_ any) any {
+	var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
+	_ = compiler
+	return obj_(OptimizeCalls_builder().setCompiler(compiler).setConsiderExterns(false).addPass(icast_OptimizeCalls_CallGraphCompilerPass(obj_(new_OptimizeReturns(compiler)))).addPass(icast_OptimizeCalls_CallGraphCompilerPass(obj_(new_OptimizeParameters(compiler)))).build())
+}}
+
+// lambda_DefaultPassConfig_finit_DefaultPassConfig_43_ is a lambda of DefaultPassConfig_finit_DefaultPassConfig that captures nothing (post-flip step lambdas).
+var lambda_DefaultPassConfig_finit_DefaultPassConfig_43_ = &Function_fn{func(p0 any) any {
+	return obj_(DefaultPassConfig_requirePropertiesAreStaticallyAnalyzable(cast_[*CompilerOptions](p0)))
+}}
+
+// lambda_DefaultPassConfig_finit_DefaultPassConfig_44_ is a lambda of DefaultPassConfig_finit_DefaultPassConfig that captures nothing (post-flip step lambdas).
+var lambda_DefaultPassConfig_finit_DefaultPassConfig_44_ = &Function_fn{func(compiler_ any) any {
+	var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
+	_ = compiler
+	return obj_(OptimizeCalls_builder().setCompiler(compiler).setConsiderExterns(false).addPass(icast_OptimizeCalls_CallGraphCompilerPass(obj_(new_OptimizeConstructors(compiler)))).build())
+}}
+
+// lambda_DefaultPassConfig_finit_DefaultPassConfig_45_ is a lambda of DefaultPassConfig_finit_DefaultPassConfig that captures nothing (post-flip step lambdas).
+var lambda_DefaultPassConfig_finit_DefaultPassConfig_45_ = &Function_fn{func(p0 any) any { return obj_(new_PureFunctionIdentifier_Driver(to_AbstractCompiler(p0))) }}
+
+// lambda_DefaultPassConfig_finit_DefaultPassConfig_46_ is a lambda of DefaultPassConfig_finit_DefaultPassConfig that captures nothing (post-flip step lambdas).
+var lambda_DefaultPassConfig_finit_DefaultPassConfig_46_ = &Function_fn{func(p0 any) any {
+	return obj_(DefaultPassConfig_requirePropertiesAreStaticallyAnalyzable(cast_[*CompilerOptions](p0)))
+}}
+
+// lambda_DefaultPassConfig_finit_DefaultPassConfig_47_ is a lambda of DefaultPassConfig_finit_DefaultPassConfig that captures nothing (post-flip step lambdas).
+var lambda_DefaultPassConfig_finit_DefaultPassConfig_47_ = &Function_fn{func(compiler_ any) any {
+	var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
+	_ = compiler
+	return obj_(new_InlineVariables(compiler, InlineVariables_Mode_CONSTANTS_ONLY))
+}}
+
+// lambda_DefaultPassConfig_finit_DefaultPassConfig_48_ is a lambda of DefaultPassConfig_finit_DefaultPassConfig that captures nothing (post-flip step lambdas).
+var lambda_DefaultPassConfig_finit_DefaultPassConfig_48_ = &Function_fn{func(p0 any) any { return obj_(new_InlineSimpleMethods(to_AbstractCompiler(p0))) }}
+
+// lambda_DefaultPassConfig_finit_DefaultPassConfig_49_ is a lambda of DefaultPassConfig_finit_DefaultPassConfig that captures nothing (post-flip step lambdas).
+var lambda_DefaultPassConfig_finit_DefaultPassConfig_49_ = &Function_fn{func(p0 any) any {
+	return obj_(DefaultPassConfig_requirePropertiesAreStaticallyAnalyzable(cast_[*CompilerOptions](p0)))
+}}
+
+// lambda_DefaultPassConfig_finit_DefaultPassConfig_50_ is a lambda of DefaultPassConfig_finit_DefaultPassConfig that captures nothing (post-flip step lambdas).
+var lambda_DefaultPassConfig_finit_DefaultPassConfig_50_ = &Function_fn{func(p0 any) any { return obj_(new_DeadAssignmentsElimination(to_AbstractCompiler(p0))) }}
+
+// lambda_DefaultPassConfig_finit_DefaultPassConfig_51_ is a lambda of DefaultPassConfig_finit_DefaultPassConfig that captures nothing (post-flip step lambdas).
+var lambda_DefaultPassConfig_finit_DefaultPassConfig_51_ = &Function_fn{func(p0 any) any { return obj_(new_DeadPropertyAssignmentElimination(to_AbstractCompiler(p0))) }}
+
+// lambda_DefaultPassConfig_finit_DefaultPassConfig_52_ is a lambda of DefaultPassConfig_finit_DefaultPassConfig that captures nothing (post-flip step lambdas).
+var lambda_DefaultPassConfig_finit_DefaultPassConfig_52_ = &Function_fn{func(p0 any) any {
+	return obj_(DefaultPassConfig_requirePropertiesAreStaticallyAnalyzable(cast_[*CompilerOptions](p0)))
+}}
+
+// lambda_DefaultPassConfig_finit_DefaultPassConfig_53_ is a lambda of DefaultPassConfig_finit_DefaultPassConfig that captures nothing (post-flip step lambdas).
+var lambda_DefaultPassConfig_finit_DefaultPassConfig_53_ = &Function_fn{func(p0 any) any { return obj_(new_InlineProperties(to_AbstractCompiler(p0))) }}
+
+// lambda_DefaultPassConfig_finit_DefaultPassConfig_54_ is a lambda of DefaultPassConfig_finit_DefaultPassConfig that captures nothing (post-flip step lambdas).
+var lambda_DefaultPassConfig_finit_DefaultPassConfig_54_ = &Function_fn{func(p0 any) any { return obj_(new_IsolatePolyfills_AbstractCompiler(to_AbstractCompiler(p0))) }}
+
+// lambda_DefaultPassConfig_finit_DefaultPassConfig_55_ is a lambda of DefaultPassConfig_finit_DefaultPassConfig that captures nothing (post-flip step lambdas).
+var lambda_DefaultPassConfig_finit_DefaultPassConfig_55_ = &Function_fn{func(p0 any) any { return obj_(new_FlowSensitiveInlineVariables(to_AbstractCompiler(p0))) }}
+
+// lambda_DefaultPassConfig_finit_DefaultPassConfig_56_ is a lambda of DefaultPassConfig_finit_DefaultPassConfig that captures nothing (post-flip step lambdas).
+var lambda_DefaultPassConfig_finit_DefaultPassConfig_56_ = &Function_fn{func(p0 any) any { return obj_(new_CollapseVariableDeclarations(to_AbstractCompiler(p0))) }}
+
+// lambda_DefaultPassConfig_finit_DefaultPassConfig_57_ is a lambda of DefaultPassConfig_finit_DefaultPassConfig that captures nothing (post-flip step lambdas).
+var lambda_DefaultPassConfig_finit_DefaultPassConfig_57_ = &Function_fn{func(p0 any) any {
+	return obj_(DefaultPassConfig_requirePropertiesAreStaticallyAnalyzable(cast_[*CompilerOptions](p0)))
+}}
+
+// lambda_DefaultPassConfig_finit_DefaultPassConfig_58_ is a lambda of DefaultPassConfig_finit_DefaultPassConfig that captures nothing (post-flip step lambdas).
+var lambda_DefaultPassConfig_finit_DefaultPassConfig_58_ = &Function_fn{func(p0 any) any { return obj_(new_FunctionRewriter(to_AbstractCompiler(p0))) }}
+
+// lambda_DefaultPassConfig_finit_DefaultPassConfig_59_ is a lambda of DefaultPassConfig_finit_DefaultPassConfig that captures nothing (post-flip step lambdas).
+var lambda_DefaultPassConfig_finit_DefaultPassConfig_59_ = &Function_fn{func(p0 any) any { return obj_(new_CollapseAnonymousFunctions(to_AbstractCompiler(p0))) }}
+
+// lambda_DefaultPassConfig_finit_DefaultPassConfig_60_ is a lambda of DefaultPassConfig_finit_DefaultPassConfig that captures nothing (post-flip step lambdas).
+var lambda_DefaultPassConfig_finit_DefaultPassConfig_60_ = &Function_fn{func(p0 any) any {
+	return obj_(new_RewriteGlobalDeclarationsForTryCatchWrapping(to_AbstractCompiler(p0)))
+}}
+
+// lambda_DefaultPassConfig_finit_DefaultPassConfig_61_ is a lambda of DefaultPassConfig_finit_DefaultPassConfig that captures nothing (post-flip step lambdas).
+var lambda_DefaultPassConfig_finit_DefaultPassConfig_61_ = &Function_fn{func(p0 any) any {
+	return obj_(DefaultPassConfig_requirePropertiesAreStaticallyAnalyzable(cast_[*CompilerOptions](p0)))
+}}
+
+// lambda_DefaultPassConfig_finit_DefaultPassConfig_62_ is a lambda of DefaultPassConfig_finit_DefaultPassConfig that captures nothing (post-flip step lambdas).
+var lambda_DefaultPassConfig_finit_DefaultPassConfig_62_ = &Function_fn{func(p0 any) any { return obj_(Normalize_createNormalizeForOptimizations(to_AbstractCompiler(p0))) }}
+
+// lambda_DefaultPassConfig_finit_DefaultPassConfig_63_ is a lambda of DefaultPassConfig_finit_DefaultPassConfig that captures nothing (post-flip step lambdas).
+var lambda_DefaultPassConfig_finit_DefaultPassConfig_63_ = &Function_fn{func(p0 any) any { return obj_(new_ExternExportsPass(to_AbstractCompiler(p0))) }}
+
+// lambda_DefaultPassConfig_finit_DefaultPassConfig_64_ is a lambda of DefaultPassConfig_finit_DefaultPassConfig that captures nothing (post-flip step lambdas).
+var lambda_DefaultPassConfig_finit_DefaultPassConfig_64_ = &Function_fn{func(p0 any) any {
+	return any(MakeDeclaredNamesUnique_getContextualRenameInverter(to_AbstractCompiler(p0)))
+}}
+
+// lambda_DefaultPassConfig_finit_DefaultPassConfig_65_ is a lambda of DefaultPassConfig_finit_DefaultPassConfig that captures nothing (post-flip step lambdas).
+var lambda_DefaultPassConfig_finit_DefaultPassConfig_65_ = &Function_fn{func(p0 any) any {
+	return obj_(DefaultPassConfig_requirePropertiesAreStaticallyAnalyzable(cast_[*CompilerOptions](p0)))
+}}
+
+// lambda_DefaultPassConfig_finit_DefaultPassConfig_66_ is a lambda of DefaultPassConfig_finit_DefaultPassConfig that captures nothing (post-flip step lambdas).
+var lambda_DefaultPassConfig_finit_DefaultPassConfig_66_ = &Function_fn{func(p0 any) any { return obj_(new_RemovePropertyRenamingCalls(to_AbstractCompiler(p0))) }}
+
+// lambda_DefaultPassConfig_finit_DefaultPassConfig_67_ is a lambda of DefaultPassConfig_finit_DefaultPassConfig that captures nothing (post-flip step lambdas).
+var lambda_DefaultPassConfig_finit_DefaultPassConfig_67_ = &Function_fn{func(p0 any) any { return obj_(new_RenameLabels_AbstractCompiler(to_AbstractCompiler(p0))) }}
+
+// lambda_DefaultPassConfig_finit_DefaultPassConfig_68_ is a lambda of DefaultPassConfig_finit_DefaultPassConfig that captures nothing (post-flip step lambdas).
+var lambda_DefaultPassConfig_finit_DefaultPassConfig_68_ = &Function_fn{func(p0 any) any { return obj_(new_ConvertToDottedProperties(to_AbstractCompiler(p0))) }}
+
+// lambda_DefaultPassConfig_finit_DefaultPassConfig_69_ is a lambda of DefaultPassConfig_finit_DefaultPassConfig that captures nothing (post-flip step lambdas).
+var lambda_DefaultPassConfig_finit_DefaultPassConfig_69_ = &Function_fn{func(p0 any) any { return obj_(new_AstValidator_AbstractCompiler(to_AbstractCompiler(p0))) }}
+
+// lambda_DefaultPassConfig_finit_DefaultPassConfig_70_ is a lambda of DefaultPassConfig_finit_DefaultPassConfig that captures nothing (post-flip step lambdas).
+var lambda_DefaultPassConfig_finit_DefaultPassConfig_70_ = &Function_fn{func(compiler_ any) any {
+	var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
+	_ = compiler
+	return obj_(new_VarCheck_AbstractCompiler_boolean(compiler, true))
+}}
+
+// lambda_DefaultPassConfig_finit_DefaultPassConfig_71_ is a lambda of DefaultPassConfig_finit_DefaultPassConfig that captures nothing (post-flip step lambdas).
+var lambda_DefaultPassConfig_finit_DefaultPassConfig_71_ = &Function_fn{func(p0 any) any { return obj_(new_PolymerPass(to_AbstractCompiler(p0))) }}
+
+// lambda_DefaultPassConfig_finit_DefaultPassConfig_72_ is a lambda of DefaultPassConfig_finit_DefaultPassConfig that captures nothing (post-flip step lambdas).
+var lambda_DefaultPassConfig_finit_DefaultPassConfig_72_ = &Function_fn{func(p0 any) any { return obj_(new_ChromePass(to_AbstractCompiler(p0))) }}
+
+// lambda_DefaultPassConfig_finit_DefaultPassConfig_73_ is a lambda of DefaultPassConfig_finit_DefaultPassConfig that captures nothing (post-flip step lambdas).
+var lambda_DefaultPassConfig_finit_DefaultPassConfig_73_ = &Function_fn{func(p0 any) any { return obj_(new_J2clConstantHoisterPass(to_AbstractCompiler(p0))) }}
+
+// lambda_DefaultPassConfig_finit_DefaultPassConfig_74_ is a lambda of DefaultPassConfig_finit_DefaultPassConfig that captures nothing (post-flip step lambdas).
+var lambda_DefaultPassConfig_finit_DefaultPassConfig_74_ = &Function_fn{func(compiler_ any) any {
+	var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
+	_ = compiler
+	var changedScopeNodes *TList[Node] = compiler.getChangeTracker().getChangedScopeNodesForPass("j2clClinitPass")
+	return obj_(new_J2clClinitPrunerPass(compiler, changedScopeNodes))
+	panic("unreachable")
+}}
+
+// lambda_DefaultPassConfig_finit_DefaultPassConfig_75_ is a lambda of DefaultPassConfig_finit_DefaultPassConfig that captures nothing (post-flip step lambdas).
+var lambda_DefaultPassConfig_finit_DefaultPassConfig_75_ = &Function_fn{func(p0 any) any { return obj_(new_J2clPropertyInlinerPass(to_AbstractCompiler(p0))) }}
+
+// lambda_DefaultPassConfig_finit_DefaultPassConfig_76_ is a lambda of DefaultPassConfig_finit_DefaultPassConfig that captures nothing (post-flip step lambdas).
+var lambda_DefaultPassConfig_finit_DefaultPassConfig_76_ = &Function_fn{func(p0 any) any { return obj_(new_J2clPass(to_AbstractCompiler(p0))) }}
+
+// lambda_DefaultPassConfig_finit_DefaultPassConfig_77_ is a lambda of DefaultPassConfig_finit_DefaultPassConfig that captures nothing (post-flip step lambdas).
+var lambda_DefaultPassConfig_finit_DefaultPassConfig_77_ = &Function_fn{func(p0 any) any { return obj_(new_J2clUtilGetDefineRewriterPass(to_AbstractCompiler(p0))) }}
+
+// lambda_DefaultPassConfig_finit_DefaultPassConfig_78_ is a lambda of DefaultPassConfig_finit_DefaultPassConfig that captures nothing (post-flip step lambdas).
+var lambda_DefaultPassConfig_finit_DefaultPassConfig_78_ = &Function_fn{func(p0 any) any { return obj_(new_J2clAssertRemovalPass(to_AbstractCompiler(p0))) }}
+
+// lambda_DefaultPassConfig_finit_DefaultPassConfig_79_ is a lambda of DefaultPassConfig_finit_DefaultPassConfig that captures nothing (post-flip step lambdas).
+var lambda_DefaultPassConfig_finit_DefaultPassConfig_79_ = &Function_fn{func(p0 any) any { return obj_(new_J2clSourceFileChecker(to_AbstractCompiler(p0))) }}
+
+// lambda_DefaultPassConfig_finit_DefaultPassConfig_80_ is a lambda of DefaultPassConfig_finit_DefaultPassConfig that captures nothing (post-flip step lambdas).
+var lambda_DefaultPassConfig_finit_DefaultPassConfig_80_ = &Function_fn{func(p0 any) any { return obj_(new_J2clChecksPass(to_AbstractCompiler(p0))) }}
+
+// lambda_DefaultPassConfig_finit_DefaultPassConfig_81_ is a lambda of DefaultPassConfig_finit_DefaultPassConfig that captures nothing (post-flip step lambdas).
+var lambda_DefaultPassConfig_finit_DefaultPassConfig_81_ = &Function_fn{func(p0 any) any { return obj_(new_RemoveCastNodes(to_AbstractCompiler(p0))) }}
+
+// lambda_DefaultPassConfig_finit_DefaultPassConfig_82_ is a lambda of DefaultPassConfig_finit_DefaultPassConfig that captures nothing (post-flip step lambdas).
+var lambda_DefaultPassConfig_finit_DefaultPassConfig_82_ = &Function_fn{func(compiler_ any) any {
+	var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
+	_ = compiler
+	return any(&CompilerPass_fn{func(externs Node, js Node) {
+		new_ConvertTypesToColors(compiler, SerializationOptions_builder().setIncludeDebugInfo(compiler.getOptions().shouldSerializeExtraDebugInfo()).build()).process_2(externs, js)
+		compiler.setLifeCycleStage(AbstractCompiler_LifeCycleStage_COLORS_AND_SIMPLIFIED_JSDOC)
+	}})
+}}
+
+// lambda_DefaultPassConfig_finit_DefaultPassConfig_83_ is a lambda of DefaultPassConfig_finit_DefaultPassConfig that captures nothing (post-flip step lambdas).
+var lambda_DefaultPassConfig_finit_DefaultPassConfig_83_ = &Function_fn{func(p0 any) any { return obj_(new_RemoveUnnecessarySyntheticExterns(to_AbstractCompiler(p0))) }}
+
+// lambda_DefaultPassConfig_finit_DefaultPassConfig_84_ is a lambda of DefaultPassConfig_finit_DefaultPassConfig that captures nothing (post-flip step lambdas).
+var lambda_DefaultPassConfig_finit_DefaultPassConfig_84_ = &Function_fn{func(p0 any) any { return obj_(new_SubstituteEs6Syntax(to_AbstractCompiler(p0))) }}
+
+// lambda_DefaultPassConfig_finit_DefaultPassConfig_85_ is a lambda of DefaultPassConfig_finit_DefaultPassConfig that captures nothing (post-flip step lambdas).
+var lambda_DefaultPassConfig_finit_DefaultPassConfig_85_ = &Function_fn{func(p0 any) any { return obj_(new_WhitespaceWrapGoogModules(to_AbstractCompiler(p0))) }}
+
+// lambda_DefaultPassConfig_finit_DefaultPassConfig_86_ is a lambda of DefaultPassConfig_finit_DefaultPassConfig that captures nothing (post-flip step lambdas).
+var lambda_DefaultPassConfig_finit_DefaultPassConfig_86_ = &Function_fn{func(p0 any) any { return obj_(new_ProcessCommonJSModules(to_AbstractCompiler(p0))) }}
+
+// lambda_DefaultPassConfig_finit_DefaultPassConfig_87_ is a lambda of DefaultPassConfig_finit_DefaultPassConfig that captures nothing (post-flip step lambdas).
+var lambda_DefaultPassConfig_finit_DefaultPassConfig_87_ = &Function_fn{func(p0 any) any { return obj_(new_Es6RewriteScriptsToModules(to_AbstractCompiler(p0))) }}
+
+// lambda_DefaultPassConfig_finit_DefaultPassConfig_88_ is a lambda of DefaultPassConfig_finit_DefaultPassConfig that captures nothing (post-flip step lambdas).
+var lambda_DefaultPassConfig_finit_DefaultPassConfig_88_ = &Function_fn{func(compiler_ any) any {
+	var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
+	_ = compiler
+	return obj_(new_ModuleMapCreator(compiler, compiler.getModuleMetadataMap()))
+}}
+
+// lambda_DefaultPassConfig_finit_DefaultPassConfig_89_ is a lambda of DefaultPassConfig_finit_DefaultPassConfig that captures nothing (post-flip step lambdas).
+var lambda_DefaultPassConfig_finit_DefaultPassConfig_89_ = &Function_fn{func(p0 any) any { return obj_(new_GatherGetterAndSetterProperties(to_AbstractCompiler(p0))) }}
+
+// lambda_DefaultPassConfig_finit_DefaultPassConfig_90_ is a lambda of DefaultPassConfig_finit_DefaultPassConfig that captures nothing (post-flip step lambdas).
+var lambda_DefaultPassConfig_finit_DefaultPassConfig_90_ = &Function_fn{func(compiler_ any) any {
+	var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
+	_ = compiler
+	return any(&CompilerPass_fn{func(externs Node, js Node) {
+		compiler.initializeSyntheticCodeInput()
+	}})
+}}
+
+// lambda_DefaultPassConfig_finit_DefaultPassConfig_91_ is a lambda of DefaultPassConfig_finit_DefaultPassConfig that captures nothing (post-flip step lambdas).
+var lambda_DefaultPassConfig_finit_DefaultPassConfig_91_ = &Function_fn{func(compiler_ any) any {
+	var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
+	_ = compiler
+	return any(&CompilerPass_fn{func(externs Node, js Node) {
+		compiler.removeSyntheticCodeInput()
+	}})
+}}
+
+// lambda_DefaultPassConfig_finit_DefaultPassConfig_92_ is a lambda of DefaultPassConfig_finit_DefaultPassConfig that captures nothing (post-flip step lambdas).
+var lambda_DefaultPassConfig_finit_DefaultPassConfig_92_ = &Function_fn{func(compiler_ any) any {
+	var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
+	_ = compiler
+	return any(&CompilerPass_fn{func(externs Node, js Node) {
+		compiler.mergeSyntheticCodeInput()
+	}})
+}}
+
+// lambda_DefaultPassConfig_finit_DefaultPassConfig_93_ is a lambda of DefaultPassConfig_finit_DefaultPassConfig that captures nothing (post-flip step lambdas).
+var lambda_DefaultPassConfig_finit_DefaultPassConfig_93_ = &Function_fn{func(compiler_ any) any {
+	var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
+	_ = compiler
+	return any(&CompilerPass_fn{func(externs Node, root Node) {
+		new_LocaleDataPasses_ProtectGoogLocale(compiler).process_2(externs, root)
+	}})
+}}
+
+// lambda_DefaultPassConfig_finit_DefaultPassConfig_94_ is a lambda of DefaultPassConfig_finit_DefaultPassConfig that captures nothing (post-flip step lambdas).
+var lambda_DefaultPassConfig_finit_DefaultPassConfig_94_ = &Function_fn{func(compiler_ any) any {
+	var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
+	_ = compiler
+	return obj_(new_TranspileAndOptimizeClosureUnaware(compiler, NestedCompilerRunner_Mode_TRANSPILE_ONLY))
+}}
+
+// lambda_DefaultPassConfig_finit_DefaultPassConfig_95_ is a lambda of DefaultPassConfig_finit_DefaultPassConfig that captures nothing (post-flip step lambdas).
+var lambda_DefaultPassConfig_finit_DefaultPassConfig_95_ = &Function_fn{func(compiler_ any) any {
+	var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
+	_ = compiler
+	return obj_(new_TranspileAndOptimizeClosureUnaware(compiler, NestedCompilerRunner_Mode_TRANSPILE_AND_OPTIMIZE))
+}}
 
 func (this *DefaultPassConfig) init_DefaultPassConfig(options *CompilerOptions) {
 	this.PassConfig.init_PassConfig(options)
@@ -1572,14 +1857,20 @@ func DefaultPassConfig_clinit() {
 	DefaultPassConfig_clinit_done = true
 	DefaultPassConfig_GLOBAL_SYMBOL_NAMESPACE_PATTERN = Pattern_compile("^[a-zA-Z0-9$_]+$")
 	DefaultPassConfig_GENERATE_EXPORTS_ERROR = DiagnosticType_error("JSC_GENERATE_EXPORTS_ERROR", "Exports can only be generated if export symbol/property functions are set.")
-	DefaultPassConfig_forbidDynamicImportUsage = PassFactory_builder().setName("FORBID_DYNAMIC_IMPORT").setInternalFactory(&Function_fn{func(p0 any) any { return obj_(new_ForbidDynamicImportUsage(to_AbstractCompiler(p0))) }}).build()
-	DefaultPassConfig_rewriteDynamicImports = PassFactory_builder().setName("REWRITE_DYNAMIC_IMPORT").setInternalFactory(&Function_fn{func(compiler_ any) any {
-		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
-		_ = compiler
-		return obj_(new_RewriteDynamicImports(compiler, compiler.getOptions().getDynamicImportAlias(), compiler.getOptions().getChunkOutputType()))
-	}}).build()
+	DefaultPassConfig_forbidDynamicImportUsage = PassFactory_builder().setName("FORBID_DYNAMIC_IMPORT").setInternalFactory(lambda_DefaultPassConfig_clinit_1_).build()
+	DefaultPassConfig_rewriteDynamicImports = PassFactory_builder().setName("REWRITE_DYNAMIC_IMPORT").setInternalFactory(lambda_DefaultPassConfig_clinit_2_).build()
 
 }
+
+// lambda_DefaultPassConfig_clinit_1_ is a lambda of DefaultPassConfig_clinit that captures nothing (post-flip step lambdas).
+var lambda_DefaultPassConfig_clinit_1_ = &Function_fn{func(p0 any) any { return obj_(new_ForbidDynamicImportUsage(to_AbstractCompiler(p0))) }}
+
+// lambda_DefaultPassConfig_clinit_2_ is a lambda of DefaultPassConfig_clinit that captures nothing (post-flip step lambdas).
+var lambda_DefaultPassConfig_clinit_2_ = &Function_fn{func(compiler_ any) any {
+	var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
+	_ = compiler
+	return obj_(new_RewriteDynamicImports(compiler, compiler.getOptions().getDynamicImportAlias(), compiler.getOptions().getChunkOutputType()))
+}}
 
 type DefaultPassConfig_1 struct {
 	outer_       *DefaultPassConfig

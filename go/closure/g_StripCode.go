@@ -184,9 +184,7 @@ func (this *StripCode_Strip) shouldTraverse(t *NodeTraversal, n Node, parent Nod
 	switch n.ns_().token {
 	case tokOrd1_CALL, tokOrd1_NEW:
 		if this.isMethodOrCtorCallThatTriggersRemoval(t, n, parent) {
-			this.decisionsLog.log(&Supplier_fn{func() any {
-				return strobj_("removing function call")
-			}})
+			this.decisionsLog.log(lambda_StripCode_Strip_shouldTraverse_1_)
 			this.replaceHighestNestedCallWithNull(t, n, parent)
 			return false
 		} else {
@@ -197,6 +195,11 @@ func (this *StripCode_Strip) shouldTraverse(t *NodeTraversal, n Node, parent Nod
 	}
 	panic("unreachable")
 }
+
+// lambda_StripCode_Strip_shouldTraverse_1_ is a lambda of StripCode_Strip_shouldTraverse that captures nothing (post-flip step lambdas).
+var lambda_StripCode_Strip_shouldTraverse_1_ = &Supplier_fn{func() any {
+	return strobj_("removing function call")
+}}
 
 func (this *StripCode_Strip) visit(t *NodeTraversal, n Node, parent Node) {
 	switch n.ns_().token {

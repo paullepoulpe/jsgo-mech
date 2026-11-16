@@ -52,17 +52,20 @@ func (this *CmdLineParser) checkOptionNotDefined(name string) {
 
 func (this *CmdLineParser) sortedOptions() *TList[*CmdLineParser_Option] {
 	if !this.optionsSorted {
-		Collections_sort_List_Comparator(this.options_.asList(), &Comparator_fn{func(o1_ any, o2_ any) int32 {
-			var o1 *CmdLineParser_Option = cast_[*CmdLineParser_Option](o1_)
-			_ = o1
-			var o2 *CmdLineParser_Option = cast_[*CmdLineParser_Option](o2_)
-			_ = o2
-			return String_compareTo(o1.toString(), o2.toString())
-		}})
+		Collections_sort_List_Comparator(this.options_.asList(), lambda_CmdLineParser_sortedOptions_1_)
 		this.optionsSorted = true
 	}
 	return this.options_
 }
+
+// lambda_CmdLineParser_sortedOptions_1_ is a lambda of CmdLineParser_sortedOptions that captures nothing (post-flip step lambdas).
+var lambda_CmdLineParser_sortedOptions_1_ = &Comparator_fn{func(o1_ any, o2_ any) int32 {
+	var o1 *CmdLineParser_Option = cast_[*CmdLineParser_Option](o1_)
+	_ = o1
+	var o2 *CmdLineParser_Option = cast_[*CmdLineParser_Option](o2_)
+	_ = o2
+	return String_compareTo(o1.toString(), o2.toString())
+}}
 
 func (this *CmdLineParser) setUsageWidth(usageWidth int32) {
 	if usageWidth < 0 {

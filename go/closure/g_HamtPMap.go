@@ -67,26 +67,32 @@ func (this *HamtPMap) values() IterableOf[any] {
 		return Iterable(Collections_emptyList())
 	}
 	return &Iterable_fn{func() Iterator {
-		return icast_Iterator(obj_(new_HamtPMap_Iter(this, &Function_base_fn{func(map__ any) any {
-			var map_ *HamtPMap = cast_[*HamtPMap](map__)
-			_ = map_
-			return map_.value_
-		}})))
+		return icast_Iterator(obj_(new_HamtPMap_Iter(this, lambda_HamtPMap_values_1_)))
 	}}
 }
+
+// lambda_HamtPMap_values_1_ is a lambda of HamtPMap_values that captures nothing (post-flip step lambdas).
+var lambda_HamtPMap_values_1_ = &Function_base_fn{func(map__ any) any {
+	var map_ *HamtPMap = cast_[*HamtPMap](map__)
+	_ = map_
+	return map_.value_
+}}
 
 func (this *HamtPMap) keys() IterableOf[any] {
 	if this.isEmpty() {
 		return Iterable(Collections_emptyList())
 	}
 	return &Iterable_fn{func() Iterator {
-		return icast_Iterator(obj_(new_HamtPMap_Iter(this, &Function_base_fn{func(map__ any) any {
-			var map_ *HamtPMap = cast_[*HamtPMap](map__)
-			_ = map_
-			return map_.key_
-		}})))
+		return icast_Iterator(obj_(new_HamtPMap_Iter(this, lambda_HamtPMap_keys_1_)))
 	}}
 }
+
+// lambda_HamtPMap_keys_1_ is a lambda of HamtPMap_keys that captures nothing (post-flip step lambdas).
+var lambda_HamtPMap_keys_1_ = &Function_base_fn{func(map__ any) any {
+	var map_ *HamtPMap = cast_[*HamtPMap](map__)
+	_ = map_
+	return map_.key_
+}}
 
 func (this *HamtPMap) get(key any) any {
 	return func() any {

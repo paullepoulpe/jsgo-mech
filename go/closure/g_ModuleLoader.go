@@ -162,12 +162,18 @@ func ModuleLoader_clinit() {
 	ModuleLoader_MODULE_CONFLICT = DiagnosticType_warning("JSC_MODULE_CONFLICT", "File cannot be a combination of goog.provide, goog.module, and/or ES6 module: {0}")
 	ModuleLoader_LOAD_WARNING = DiagnosticType_error("JSC_JS_MODULE_LOAD_WARNING", "Failed to load module \"{0}\"")
 	ModuleLoader_INVALID_MODULE_PATH = DiagnosticType_error("JSC_INVALID_MODULE_PATH", "Invalid module path \"{0}\" for resolution mode \"{1}\"")
-	ModuleLoader_BEST_MATCH_PATH_ORDERING = Comparator_thenComparing_Comparator(Comparator_reversed(Comparator_comparingInt(&ToIntFunction_fn{func(p0 any) int32 { return String_length(str_(p0)) }})), Comparator_naturalOrder())
-	ModuleLoader_NOOP_ERROR_HANDER = &ErrorHandler_fn{func(level *CheckLevel, error_ *JSError) {
-	}}
+	ModuleLoader_BEST_MATCH_PATH_ORDERING = Comparator_thenComparing_Comparator(Comparator_reversed(Comparator_comparingInt(lambda_ModuleLoader_clinit_1_)), Comparator_naturalOrder())
+	ModuleLoader_NOOP_ERROR_HANDER = lambda_ModuleLoader_clinit_2_
 	ModuleLoader_EMPTY = ModuleLoader_builder().setModuleRoots(icast_Iterable(obj_(ImmutableList_of()))).setInputs(icast_Iterable(obj_(ImmutableList_of()))).setFactory(BrowserModuleResolver_FACTORY).build()
 
 }
+
+// lambda_ModuleLoader_clinit_1_ is a lambda of ModuleLoader_clinit that captures nothing (post-flip step lambdas).
+var lambda_ModuleLoader_clinit_1_ = &ToIntFunction_fn{func(p0 any) int32 { return String_length(str_(p0)) }}
+
+// lambda_ModuleLoader_clinit_2_ is a lambda of ModuleLoader_clinit that captures nothing (post-flip step lambdas).
+var lambda_ModuleLoader_clinit_2_ = &ErrorHandler_fn{func(level *CheckLevel, error_ *JSError) {
+}}
 
 type ModuleLoader_Builder struct {
 	errorHandler ErrorHandler

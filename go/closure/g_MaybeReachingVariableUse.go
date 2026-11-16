@@ -249,31 +249,37 @@ func (this *MaybeReachingVariableUse_ReachingUses) put(v *Var, n Node) {
 }
 
 func (this *MaybeReachingVariableUse_ReachingUses) join(other *MaybeReachingVariableUse_ReachingUses) {
-	this.mayUsePMap = this.mayUsePMap.reconcile(other.mayUsePMap, &PMap_Reconciler_fn{func(var__ any, thisVal_ any, thatVal_ any) any {
-		var var_ *Var = cast_[*Var](var__)
-		_ = var_
-		var thisVal PMap = icast_PMap(thisVal_)
-		_ = thisVal
-		var thatVal PMap = icast_PMap(thatVal_)
-		_ = thatVal
-		if thisVal == nil {
-			return any(thatVal)
-		}
-		if thatVal == nil {
-			return any(thisVal)
-		}
-		return any(thisVal.reconcile(thatVal, &PMap_Reconciler_fn{func(node_ any, unused1_ any, unused2_ any) any {
-			var node Node = Node_of_(node_)
-			_ = node
-			var unused1 Node = Node_of_(unused1_)
-			_ = unused1
-			var unused2 Node = Node_of_(unused2_)
-			_ = unused2
-			return node.box_()
-		}}))
-		panic("unreachable")
-	}})
+	this.mayUsePMap = this.mayUsePMap.reconcile(other.mayUsePMap, lambda_MaybeReachingVariableUse_ReachingUses_join_1_)
 }
+
+// lambda_MaybeReachingVariableUse_ReachingUses_join_1_ is a lambda of MaybeReachingVariableUse_ReachingUses_join that captures nothing (post-flip step lambdas).
+var lambda_MaybeReachingVariableUse_ReachingUses_join_1_ = &PMap_Reconciler_fn{func(var__ any, thisVal_ any, thatVal_ any) any {
+	var var_ *Var = cast_[*Var](var__)
+	_ = var_
+	var thisVal PMap = icast_PMap(thisVal_)
+	_ = thisVal
+	var thatVal PMap = icast_PMap(thatVal_)
+	_ = thatVal
+	if thisVal == nil {
+		return any(thatVal)
+	}
+	if thatVal == nil {
+		return any(thisVal)
+	}
+	return any(thisVal.reconcile(thatVal, lambda_MaybeReachingVariableUse_ReachingUses_join_2_))
+	panic("unreachable")
+}}
+
+// lambda_MaybeReachingVariableUse_ReachingUses_join_2_ is a lambda of MaybeReachingVariableUse_ReachingUses_join that captures nothing (post-flip step lambdas).
+var lambda_MaybeReachingVariableUse_ReachingUses_join_2_ = &PMap_Reconciler_fn{func(node_ any, unused1_ any, unused2_ any) any {
+	var node Node = Node_of_(node_)
+	_ = node
+	var unused1 Node = Node_of_(unused1_)
+	_ = unused1
+	var unused2 Node = Node_of_(unused2_)
+	_ = unused2
+	return node.box_()
+}}
 
 func (this *MaybeReachingVariableUse_ReachingUses) equals(other any) bool {
 	var reachingUses *MaybeReachingVariableUse_ReachingUses
@@ -285,16 +291,22 @@ func (this *MaybeReachingVariableUse_ReachingUses) equals(other any) bool {
 		}
 		reachingUses = cast_[*MaybeReachingVariableUse_ReachingUses](v_)
 		return true
-	}() && reachingUses.mayUsePMap.equivalent(this.mayUsePMap, &BiPredicate_fn{func(p0 any, p1 any) bool {
-		return MaybeReachingVariableUse_ReachingUses_equalMaps(icast_PMap(p0), icast_PMap(p1))
-	}}))
+	}() && reachingUses.mayUsePMap.equivalent(this.mayUsePMap, lambda_MaybeReachingVariableUse_ReachingUses_equals_1_))
 }
 
+// lambda_MaybeReachingVariableUse_ReachingUses_equals_1_ is a lambda of MaybeReachingVariableUse_ReachingUses_equals that captures nothing (post-flip step lambdas).
+var lambda_MaybeReachingVariableUse_ReachingUses_equals_1_ = &BiPredicate_fn{func(p0 any, p1 any) bool {
+	return MaybeReachingVariableUse_ReachingUses_equalMaps(icast_PMap(p0), icast_PMap(p1))
+}}
+
 func MaybeReachingVariableUse_ReachingUses_equalMaps(map1 PMap, map2 PMap) bool {
-	return ((map1 == map2) || map1.equivalent(map2, &BiPredicate_fn{func(p0 any, p1 any) bool {
-		return MaybeReachingVariableUse_ReachingUses_equalNodes(Node_of_(p0), Node_of_(p1))
-	}}))
+	return ((map1 == map2) || map1.equivalent(map2, lambda_MaybeReachingVariableUse_ReachingUses_equalMaps_1_))
 }
+
+// lambda_MaybeReachingVariableUse_ReachingUses_equalMaps_1_ is a lambda of MaybeReachingVariableUse_ReachingUses_equalMaps that captures nothing (post-flip step lambdas).
+var lambda_MaybeReachingVariableUse_ReachingUses_equalMaps_1_ = &BiPredicate_fn{func(p0 any, p1 any) bool {
+	return MaybeReachingVariableUse_ReachingUses_equalNodes(Node_of_(p0), Node_of_(p1))
+}}
 
 func MaybeReachingVariableUse_ReachingUses_equalNodes(n1 Node, n2 Node) bool {
 	return (n1 == n2)

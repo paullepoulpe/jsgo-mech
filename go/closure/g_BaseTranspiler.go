@@ -176,14 +176,17 @@ func (this *BaseTranspiler_CompilerSupplier) setOptions(options *CompilerOptions
 	options.setApplyInputSourceMaps(true)
 	options.setSourceMapOutputPath(Optional_of[string]("/dev/null"))
 	options.setSourceMapIncludeSourcesContent(true)
-	options.setSourceMapLocationMappings(sliceImm_(tc_SourceMap_LocationMapping, ImmutableList_of_Object(any(&SourceMap_LocationMapping_fn{func(location Optional[any]) Optional[any] {
-		if Uris_isValid(str_(location.get())) && Uris_hasScheme(str_(location.get())) {
-			return location
-		}
-		return optErase_(new_SourceMap_PrefixLocationMapping("", "/").map_(optConv_(location, func(v any) string { return str_(v) })))
-		panic("unreachable")
-	}}))))
+	options.setSourceMapLocationMappings(sliceImm_(tc_SourceMap_LocationMapping, ImmutableList_of_Object(any(lambda_BaseTranspiler_CompilerSupplier_setOptions_1_))))
 }
+
+// lambda_BaseTranspiler_CompilerSupplier_setOptions_1_ is a lambda of BaseTranspiler_CompilerSupplier_setOptions that captures nothing (post-flip step lambdas).
+var lambda_BaseTranspiler_CompilerSupplier_setOptions_1_ = &SourceMap_LocationMapping_fn{func(location Optional[any]) Optional[any] {
+	if Uris_isValid(str_(location.get())) && Uris_hasScheme(str_(location.get())) {
+		return location
+	}
+	return optErase_(new_SourceMap_PrefixLocationMapping("", "/").map_(optConv_(location, func(v any) string { return str_(v) })))
+	panic("unreachable")
+}}
 
 func (this *BaseTranspiler_CompilerSupplier) createTrivialExterns() *SourceFile_jscomp {
 	return SourceFile_jscomp_fromCode_String_String("externs.js", "function Symbol() {}")

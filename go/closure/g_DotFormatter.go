@@ -94,7 +94,7 @@ func DotFormatter_toDot_GraphvizGraph(graph GraphvizGraph) string {
 		builder.append(";\n")
 	}
 	var edges []GraphvizGraph_GraphvizEdge = graph.getGraphvizEdges()
-	List_sort(sliceView_(tc_GraphvizGraph_GraphvizEdge, edges), Comparator_thenComparing(Comparator_comparing(&Function_fn{func(p0 any) any { return strobj_(icast_GraphvizGraph_GraphvizEdge(p0).getNode1Id()) }}), &Function_fn{func(p0 any) any { return strobj_(icast_GraphvizGraph_GraphvizEdge(p0).getNode2Id()) }}))
+	List_sort(sliceView_(tc_GraphvizGraph_GraphvizEdge, edges), Comparator_thenComparing(Comparator_comparing(lambda_DotFormatter_toDot_GraphvizGraph_1_), lambda_DotFormatter_toDot_GraphvizGraph_2_))
 	for _, edge := range edges {
 		builder.append(DotFormatter_INDENT)
 		builder.append(edge.getNode1Id())
@@ -106,6 +106,12 @@ func DotFormatter_toDot_GraphvizGraph(graph GraphvizGraph) string {
 	builder.append("}\n")
 	return Object_toString(obj_(builder))
 }
+
+// lambda_DotFormatter_toDot_GraphvizGraph_1_ is a lambda of DotFormatter_toDot_GraphvizGraph that captures nothing (post-flip step lambdas).
+var lambda_DotFormatter_toDot_GraphvizGraph_1_ = &Function_fn{func(p0 any) any { return strobj_(icast_GraphvizGraph_GraphvizEdge(p0).getNode1Id()) }}
+
+// lambda_DotFormatter_toDot_GraphvizGraph_2_ is a lambda of DotFormatter_toDot_GraphvizGraph that captures nothing (post-flip step lambdas).
+var lambda_DotFormatter_toDot_GraphvizGraph_2_ = &Function_fn{func(p0 any) any { return strobj_(icast_GraphvizGraph_GraphvizEdge(p0).getNode2Id()) }}
 
 func DotFormatter_appendDot(n Node, inCFG *ControlFlowGraph, builder Appendable) {
 	var unused *DotFormatter = new_DotFormatter_Node_ControlFlowGraph_Appendable_boolean(n, inCFG, builder, false)

@@ -492,12 +492,15 @@ func (this *MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfoStackMa
 }
 
 func (this *MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfoStackMap) getVariableInfoStack(name string) DequeOf[MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo] {
-	return mapComputeIfAbsent_(tc_string, tc_DequeOf_MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo_, this.mapOfStacks, name, &Function_fn{func(ignoredKey_ any) any {
-		var ignoredKey string = str_(ignoredKey_)
-		_ = ignoredKey
-		return obj_(new_ArrayDeque())
-	}})
+	return mapComputeIfAbsent_(tc_string, tc_DequeOf_MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo_, this.mapOfStacks, name, lambda_MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfoStackMap_getVariableInfoStack_1_)
 }
+
+// lambda_MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfoStackMap_getVariableInfoStack_1_ is a lambda of MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfoStackMap_getVariableInfoStack that captures nothing (post-flip step lambdas).
+var lambda_MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfoStackMap_getVariableInfoStack_1_ = &Function_fn{func(ignoredKey_ any) any {
+	var ignoredKey string = str_(ignoredKey_)
+	_ = ignoredKey
+	return obj_(new_ArrayDeque())
+}}
 
 func (this *MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfoStackMap) getOrCreateCurrentVariableInfo(name string) MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo {
 	var variableInfoStack DequeOf[MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo] = this.getVariableInfoStack(name)

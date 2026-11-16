@@ -52,11 +52,7 @@ func (this *PolymerClassRewriter) insertGeneratedDeclarationCodeToGlobalScope(en
 	case tokOrd1_CALL:
 		{
 			Preconditions_checkState(PolymerClassRewriter_isIIFE(enclosingNode))
-			var enclosingNodeForIIFE Node = NodeUtil_getEnclosingNode(enclosingNode.getParent(), &Predicate_base_fn{func(node_ any) bool {
-				var node Node = Node_of_(node_)
-				_ = node
-				return (node.isScript() || node.isModuleBody())
-			}})
+			var enclosingNodeForIIFE Node = NodeUtil_getEnclosingNode(enclosingNode.getParent(), lambda_PolymerClassRewriter_insertGeneratedDeclarationCodeToGlobalScope_1_)
 			if enclosingNodeForIIFE.isScript() {
 				enclosingNodeForIIFE.addChildToFront(declarationCode)
 				this.compiler_.reportChangeToChangeScope(NodeUtil_getEnclosingScript(enclosingNodeForIIFE))
@@ -79,6 +75,13 @@ func (this *PolymerClassRewriter) insertGeneratedDeclarationCodeToGlobalScope(en
 		panic(new_RuntimeException_String("Enclosing node for Polymer is incorrect").self())
 	}
 }
+
+// lambda_PolymerClassRewriter_insertGeneratedDeclarationCodeToGlobalScope_1_ is a lambda of PolymerClassRewriter_insertGeneratedDeclarationCodeToGlobalScope that captures nothing (post-flip step lambdas).
+var lambda_PolymerClassRewriter_insertGeneratedDeclarationCodeToGlobalScope_1_ = &Predicate_base_fn{func(node_ any) bool {
+	var node Node = Node_of_(node_)
+	_ = node
+	return (node.isScript() || node.isModuleBody())
+}}
 
 func (this *PolymerClassRewriter) getNodeForInsertion(enclosingScript Node) Node {
 	if NodeUtil_isFromTypeSummary(enclosingScript) {
@@ -170,11 +173,7 @@ func (this *PolymerClassRewriter) rewritePolymerCall(cls *PolymerClassDefinition
 	var propsAndBehaviorCode Node = propsAndBehaviorBlock.removeChildren()
 	var parent Node = exprRoot.getParent()
 	if (!traversal.inGlobalScope() && cls.hasGeneratedLhs) && !cls.target.isGetProp() {
-		var enclosingNode Node = NodeUtil_getEnclosingNode(parent, &Predicate_base_fn{func(node_ any) bool {
-			var node Node = Node_of_(node_)
-			_ = node
-			return (((node.isScript() || node.isModuleBody()) || PolymerClassRewriter_isIIFE(node)) || PolymerClassRewriter_isFunctionArgInGoogLoadModule(node))
-		}})
+		var enclosingNode Node = NodeUtil_getEnclosingNode(parent, lambda_PolymerClassRewriter_rewritePolymerCall_1_)
 		this.insertGeneratedDeclarationCodeToGlobalScope(enclosingNode, declarationCode)
 		if propsAndBehaviorCode != 0 {
 			this.insertGeneratedPropsAndBehaviorCode(enclosingNode, propsAndBehaviorCode)
@@ -218,6 +217,13 @@ func (this *PolymerClassRewriter) rewritePolymerCall(cls *PolymerClassDefinition
 		}
 	}
 }
+
+// lambda_PolymerClassRewriter_rewritePolymerCall_1_ is a lambda of PolymerClassRewriter_rewritePolymerCall that captures nothing (post-flip step lambdas).
+var lambda_PolymerClassRewriter_rewritePolymerCall_1_ = &Predicate_base_fn{func(node_ any) bool {
+	var node Node = Node_of_(node_)
+	_ = node
+	return (((node.isScript() || node.isModuleBody()) || PolymerClassRewriter_isIIFE(node)) || PolymerClassRewriter_isFunctionArgInGoogLoadModule(node))
+}}
 
 func (this *PolymerClassRewriter) rewritePolymerClassDeclaration(clazz Node, traversal *NodeTraversal, cls *PolymerClassDefinition) {
 	if cls.descriptor != 0 {

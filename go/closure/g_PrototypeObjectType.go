@@ -369,43 +369,46 @@ func PrototypeObjectType_clinit() {
 	}
 	PrototypeObjectType_clinit_done = true
 	PrototypeObjectType_TYPE_CLASS = JSTypeClass_PROTOTYPE_OBJECT
-	PrototypeObjectType_PROP_COMPARATOR = &Comparator_fn{func(thisProp_ any, otherProp_ any) int32 {
-		var thisProp *PrototypeObjectType_PropertyForPrettyPrinting = cast_[*PrototypeObjectType_PropertyForPrettyPrinting](thisProp_)
-		_ = thisProp
-		var otherProp *PrototypeObjectType_PropertyForPrettyPrinting = cast_[*PrototypeObjectType_PropertyForPrettyPrinting](otherProp_)
-		_ = otherProp
-		if !(thisProp.key().humanReadableName() == otherProp.key().humanReadableName()) {
-			return String_compareTo(thisProp.key().humanReadableName(), otherProp.key().humanReadableName())
-		}
-		return func() int32 {
-			switch thisProp.key().kind() {
-			case Property_KeyKind_STRING:
-				return func() int32 {
-					switch otherProp.key().kind() {
-					case Property_KeyKind_STRING:
-						return String_compareTo(thisProp.key().string(), otherProp.key().string())
-					case Property_KeyKind_SYMBOL:
-						return -1
-					}
-					panic("unreachable")
-				}()
-			case Property_KeyKind_SYMBOL:
-				return func() int32 {
-					switch otherProp.key().kind() {
-					case Property_KeyKind_STRING:
-						return 1
-					case Property_KeyKind_SYMBOL:
-						return String_compareTo(thisProp.type_().toString(), otherProp.type_().toString())
-					}
-					panic("unreachable")
-				}()
-			}
-			panic("unreachable")
-		}()
-		panic("unreachable")
-	}}
+	PrototypeObjectType_PROP_COMPARATOR = lambda_PrototypeObjectType_clinit_1_
 
 }
+
+// lambda_PrototypeObjectType_clinit_1_ is a lambda of PrototypeObjectType_clinit that captures nothing (post-flip step lambdas).
+var lambda_PrototypeObjectType_clinit_1_ = &Comparator_fn{func(thisProp_ any, otherProp_ any) int32 {
+	var thisProp *PrototypeObjectType_PropertyForPrettyPrinting = cast_[*PrototypeObjectType_PropertyForPrettyPrinting](thisProp_)
+	_ = thisProp
+	var otherProp *PrototypeObjectType_PropertyForPrettyPrinting = cast_[*PrototypeObjectType_PropertyForPrettyPrinting](otherProp_)
+	_ = otherProp
+	if !(thisProp.key().humanReadableName() == otherProp.key().humanReadableName()) {
+		return String_compareTo(thisProp.key().humanReadableName(), otherProp.key().humanReadableName())
+	}
+	return func() int32 {
+		switch thisProp.key().kind() {
+		case Property_KeyKind_STRING:
+			return func() int32 {
+				switch otherProp.key().kind() {
+				case Property_KeyKind_STRING:
+					return String_compareTo(thisProp.key().string(), otherProp.key().string())
+				case Property_KeyKind_SYMBOL:
+					return -1
+				}
+				panic("unreachable")
+			}()
+		case Property_KeyKind_SYMBOL:
+			return func() int32 {
+				switch otherProp.key().kind() {
+				case Property_KeyKind_STRING:
+					return 1
+				case Property_KeyKind_SYMBOL:
+					return String_compareTo(thisProp.type_().toString(), otherProp.type_().toString())
+				}
+				panic("unreachable")
+			}()
+		}
+		panic("unreachable")
+	}()
+	panic("unreachable")
+}}
 
 type PrototypeObjectType_Builder struct {
 	self_              any

@@ -54,11 +54,14 @@ func BrowserModuleResolver_clinit() {
 		return
 	}
 	BrowserModuleResolver_clinit_done = true
-	BrowserModuleResolver_FACTORY = &ModuleLoader_ModuleResolverFactory_fn{func(p0 *ImmutableSet, p1 *ImmutableList, p2 ErrorHandler, p3 *ModuleLoader_PathEscaper) *ModuleResolver {
-		return new_BrowserModuleResolver(p0, p1, p2, p3).up_ModuleResolver()
-	}}
+	BrowserModuleResolver_FACTORY = lambda_BrowserModuleResolver_clinit_1_
 
 }
+
+// lambda_BrowserModuleResolver_clinit_1_ is a lambda of BrowserModuleResolver_clinit that captures nothing (post-flip step lambdas).
+var lambda_BrowserModuleResolver_clinit_1_ = &ModuleLoader_ModuleResolverFactory_fn{func(p0 *ImmutableSet, p1 *ImmutableList, p2 ErrorHandler, p3 *ModuleLoader_PathEscaper) *ModuleResolver {
+	return new_BrowserModuleResolver(p0, p1, p2, p3).up_ModuleResolver()
+}}
 
 // resolveJsModule: an object that is exactly a BrowserModuleResolver calls its resolveJsModule_impl directly (post-flip); others dispatch.
 func (this *BrowserModuleResolver) resolveJsModule(p0 string, p1 string, p2 OptionalOf[string], p3 int32, p4 int32) OptionalOf[string] {

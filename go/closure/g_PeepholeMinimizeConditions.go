@@ -618,13 +618,16 @@ func PeepholeMinimizeConditions_isLowerPrecedence(n Node, precedence int32) bool
 }
 
 func PeepholeMinimizeConditions_isPropertyAssignmentInExpression(n Node) bool {
-	var isPropertyAssignmentInExpressionPredicate Predicate_baseOf[Node] = &Predicate_base_fn{func(input_ any) bool {
-		var input Node = Node_of_(input_)
-		_ = input
-		return (input.isGetProp() && input.getParent().isAssign())
-	}}
+	var isPropertyAssignmentInExpressionPredicate Predicate_baseOf[Node] = lambda_PeepholeMinimizeConditions_isPropertyAssignmentInExpression_1_
 	return NodeUtil_has(n, isPropertyAssignmentInExpressionPredicate, NodeUtil_MATCH_NOT_FUNCTION)
 }
+
+// lambda_PeepholeMinimizeConditions_isPropertyAssignmentInExpression_1_ is a lambda of PeepholeMinimizeConditions_isPropertyAssignmentInExpression that captures nothing (post-flip step lambdas).
+var lambda_PeepholeMinimizeConditions_isPropertyAssignmentInExpression_1_ = &Predicate_base_fn{func(input_ any) bool {
+	var input Node = Node_of_(input_)
+	_ = input
+	return (input.isGetProp() && input.getParent().isAssign())
+}}
 
 func (this *PeepholeMinimizeConditions) tryMinimizeCondition(n Node) Node {
 	n = this.performConditionSubstitutions(n)

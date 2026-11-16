@@ -139,9 +139,7 @@ func (this *RemoveUnusedCode) traverseNode(n Node, scope *Scope) {
 						if !logsOn_(this.unremovableLog) {
 							return noReason_
 						}
-						return &Supplier_fn{func() any {
-							return strobj_("exported class")
-						}}
+						return lambda_RemoveUnusedCode_traverseNode_1_
 					}())
 				}
 			} else {
@@ -204,6 +202,11 @@ func (this *RemoveUnusedCode) traverseNode(n Node, scope *Scope) {
 		this.traverseChildren(n, scope)
 	}
 }
+
+// lambda_RemoveUnusedCode_traverseNode_1_ is a lambda of RemoveUnusedCode_traverseNode that captures nothing (post-flip step lambdas).
+var lambda_RemoveUnusedCode_traverseNode_1_ = &Supplier_fn{func() any {
+	return strobj_("exported class")
+}}
 
 func (this *RemoveUnusedCode) traverseInstanceof(instanceofNode Node, scope *Scope) {
 	Preconditions_checkArgument_boolean_Object(instanceofNode.isInstanceOf(), instanceofNode.box_())
@@ -520,15 +523,18 @@ func (this *RemoveUnusedCode) traverseCatch(catchNode Node, scope *Scope) {
 			if !logsOn_(this.unremovableLog) {
 				return noReason_
 			}
-			return &Supplier_fn{func() any {
-				return strobj_("catch variable")
-			}}
+			return lambda_RemoveUnusedCode_traverseCatch_1_
 		}())
 	} else {
 		this.traverseNode(exceptionNameNode, scope)
 	}
 	this.traverseNode(block, scope)
 }
+
+// lambda_RemoveUnusedCode_traverseCatch_1_ is a lambda of RemoveUnusedCode_traverseCatch that captures nothing (post-flip step lambdas).
+var lambda_RemoveUnusedCode_traverseCatch_1_ = &Supplier_fn{func() any {
+	return strobj_("catch variable")
+}}
 
 func (this *RemoveUnusedCode) traverseEnhancedFor(enhancedFor Node, scope *Scope) {
 	var forScope *Scope = this.scopeCreator.createScope(enhancedFor, scope)
@@ -541,9 +547,7 @@ func (this *RemoveUnusedCode) traverseEnhancedFor(enhancedFor Node, scope *Scope
 			if !logsOn_(this.unremovableLog) {
 				return noReason_
 			}
-			return &Supplier_fn{func() any {
-				return strobj_("for-of or for-in loop variable")
-			}}
+			return lambda_RemoveUnusedCode_traverseEnhancedFor_1_
 		}())
 	} else if NodeUtil_isNameDeclaration(iterationTarget) {
 		var declNode Node = iterationTarget.getOnlyChild()
@@ -557,9 +561,7 @@ func (this *RemoveUnusedCode) traverseEnhancedFor(enhancedFor Node, scope *Scope
 				if !logsOn_(this.unremovableLog) {
 					return noReason_
 				}
-				return &Supplier_fn{func() any {
-					return strobj_("for-of or for-in loop variable")
-				}}
+				return lambda_RemoveUnusedCode_traverseEnhancedFor_2_
 			}())
 		}
 	} else {
@@ -568,6 +570,16 @@ func (this *RemoveUnusedCode) traverseEnhancedFor(enhancedFor Node, scope *Scope
 	this.traverseNode(collection, forScope)
 	this.traverseNode(body, forScope)
 }
+
+// lambda_RemoveUnusedCode_traverseEnhancedFor_1_ is a lambda of RemoveUnusedCode_traverseEnhancedFor that captures nothing (post-flip step lambdas).
+var lambda_RemoveUnusedCode_traverseEnhancedFor_1_ = &Supplier_fn{func() any {
+	return strobj_("for-of or for-in loop variable")
+}}
+
+// lambda_RemoveUnusedCode_traverseEnhancedFor_2_ is a lambda of RemoveUnusedCode_traverseEnhancedFor that captures nothing (post-flip step lambdas).
+var lambda_RemoveUnusedCode_traverseEnhancedFor_2_ = &Supplier_fn{func() any {
+	return strobj_("for-of or for-in loop variable")
+}}
 
 func (this *RemoveUnusedCode) traverseVanillaFor(forNode Node, scope *Scope) {
 	var forScope *Scope = this.scopeCreator.createScope(forNode, scope)
@@ -602,9 +614,7 @@ func (this *RemoveUnusedCode) traverseVanillaForNameDeclarations(nameDeclaration
 						if !logsOn_(this.unremovableLog) {
 							return noReason_
 						}
-						return &Supplier_fn{func() any {
-							return strobj_("for-loop variable initialization has side-effects")
-						}}
+						return lambda_RemoveUnusedCode_traverseVanillaForNameDeclarations_1_
 					}())
 					this.traverseNode(valueNode, scope)
 				} else {
@@ -615,6 +625,11 @@ func (this *RemoveUnusedCode) traverseVanillaForNameDeclarations(nameDeclaration
 		}
 	}
 }
+
+// lambda_RemoveUnusedCode_traverseVanillaForNameDeclarations_1_ is a lambda of RemoveUnusedCode_traverseVanillaForNameDeclarations that captures nothing (post-flip step lambdas).
+var lambda_RemoveUnusedCode_traverseVanillaForNameDeclarations_1_ = &Supplier_fn{func() any {
+	return strobj_("for-loop variable initialization has side-effects")
+}}
 
 func (this *RemoveUnusedCode) traverseDeclarationStatement(declarationStatement Node, scope *Scope) {
 	var nameNode Node = declarationStatement.getOnlyChild()
@@ -821,9 +836,7 @@ func (this *RemoveUnusedCode) traverseClassDeclaration(classNode Node, scope *Sc
 			if !logsOn_(this.unremovableLog) {
 				return noReason_
 			}
-			return &Supplier_fn{func() any {
-				return strobj_("exported class")
-			}}
+			return lambda_RemoveUnusedCode_traverseClassDeclaration_1_
 		}())
 		this.traverseNode(baseClassExpression, scope)
 		this.traverseChildren(classBodyNode, classScope)
@@ -832,9 +845,7 @@ func (this *RemoveUnusedCode) traverseClassDeclaration(classNode Node, scope *Sc
 			if !logsOn_(this.unremovableLog) {
 				return noReason_
 			}
-			return &Supplier_fn{func() any {
-				return strobj_("base class expression has side-effects")
-			}}
+			return lambda_RemoveUnusedCode_traverseClassDeclaration_2_
 		}())
 		this.traverseNode(baseClassExpression, scope)
 		this.traverseClassMembers(classBodyNode, classScope)
@@ -843,9 +854,7 @@ func (this *RemoveUnusedCode) traverseClassDeclaration(classNode Node, scope *Sc
 			if !logsOn_(this.unremovableLog) {
 				return noReason_
 			}
-			return &Supplier_fn{func() any {
-				return strobj_("class body has side-effects")
-			}}
+			return lambda_RemoveUnusedCode_traverseClassDeclaration_3_
 		}())
 		this.traverseNode(baseClassExpression, scope)
 		this.traverseClassMembers(classBodyNode, classScope)
@@ -854,6 +863,21 @@ func (this *RemoveUnusedCode) traverseClassDeclaration(classNode Node, scope *Sc
 		varInfo.addRemovable(builder.buildClassDeclaration(classNode).up_RemoveUnusedCode_Removable())
 	}
 }
+
+// lambda_RemoveUnusedCode_traverseClassDeclaration_1_ is a lambda of RemoveUnusedCode_traverseClassDeclaration that captures nothing (post-flip step lambdas).
+var lambda_RemoveUnusedCode_traverseClassDeclaration_1_ = &Supplier_fn{func() any {
+	return strobj_("exported class")
+}}
+
+// lambda_RemoveUnusedCode_traverseClassDeclaration_2_ is a lambda of RemoveUnusedCode_traverseClassDeclaration that captures nothing (post-flip step lambdas).
+var lambda_RemoveUnusedCode_traverseClassDeclaration_2_ = &Supplier_fn{func() any {
+	return strobj_("base class expression has side-effects")
+}}
+
+// lambda_RemoveUnusedCode_traverseClassDeclaration_3_ is a lambda of RemoveUnusedCode_traverseClassDeclaration that captures nothing (post-flip step lambdas).
+var lambda_RemoveUnusedCode_traverseClassDeclaration_3_ = &Supplier_fn{func() any {
+	return strobj_("class body has side-effects")
+}}
 
 func (this *RemoveUnusedCode) traverseClassExpression(classNode Node, scope *Scope) {
 	Preconditions_checkArgument(classNode.isClass())
@@ -1067,9 +1091,7 @@ func (this *RemoveUnusedCode) traverseVar(var_ *Var) RemoveUnusedCode_VarInfo {
 					if !logsOn_(this.unremovableLog) {
 						return noReason_
 					}
-					return &Supplier_fn{func() any {
-						return strobj_("parameter in function using arguments")
-					}}
+					return lambda_RemoveUnusedCode_traverseVar_1_
 				}())
 			}
 		}
@@ -1079,6 +1101,11 @@ func (this *RemoveUnusedCode) traverseVar(var_ *Var) RemoveUnusedCode_VarInfo {
 	}
 	panic("unreachable")
 }
+
+// lambda_RemoveUnusedCode_traverseVar_1_ is a lambda of RemoveUnusedCode_traverseVar that captures nothing (post-flip step lambdas).
+var lambda_RemoveUnusedCode_traverseVar_1_ = &Supplier_fn{func() any {
+	return strobj_("parameter in function using arguments")
+}}
 
 func RemoveUnusedCode_nameOfParam(param Node) Node {
 	return func() Node {
@@ -1125,18 +1152,14 @@ func (this *RemoveUnusedCode) getVarInfo(var_ *Var) RemoveUnusedCode_VarInfo {
 					if !logsOn_(this.unremovableLog) {
 						return noReason_
 					}
-					return &Supplier_fn{func() any {
-						return strobj_("not removing globals")
-					}}
+					return lambda_RemoveUnusedCode_getVarInfo_1_
 				}())
 			} else if !this.removeLocalVars_ && !isGlobal {
 				varInfo.setIsExplicitlyNotRemovable(func() Supplier {
 					if !logsOn_(this.unremovableLog) {
 						return noReason_
 					}
-					return &Supplier_fn{func() any {
-						return strobj_("not removing locals")
-					}}
+					return lambda_RemoveUnusedCode_getVarInfo_2_
 				}())
 			}
 			this.varInfoMap.put(var_, varInfo)
@@ -1145,6 +1168,16 @@ func (this *RemoveUnusedCode) getVarInfo(var_ *Var) RemoveUnusedCode_VarInfo {
 	}
 	panic("unreachable")
 }
+
+// lambda_RemoveUnusedCode_getVarInfo_1_ is a lambda of RemoveUnusedCode_getVarInfo that captures nothing (post-flip step lambdas).
+var lambda_RemoveUnusedCode_getVarInfo_1_ = &Supplier_fn{func() any {
+	return strobj_("not removing globals")
+}}
+
+// lambda_RemoveUnusedCode_getVarInfo_2_ is a lambda of RemoveUnusedCode_getVarInfo that captures nothing (post-flip step lambdas).
+var lambda_RemoveUnusedCode_getVarInfo_2_ = &Supplier_fn{func() any {
+	return strobj_("not removing locals")
+}}
 
 func (this *RemoveUnusedCode) removeUnreferencedVarsAndPolyfills() {
 	for i_ := 0; i_ < len(this.varInfoMap.ents); i_++ {
@@ -1390,10 +1423,13 @@ func new_RemoveUnusedCode_RemovalLogRecord_String_Supplier_Supplier(kind string,
 }
 
 func (this *RemoveUnusedCode_RemovalLogRecord) init_RemoveUnusedCode_RemovalLogRecord_String_Supplier(kind string, nameSupplier SupplierOf[string]) {
-	this.init_RemoveUnusedCode_RemovalLogRecord_String_Supplier_Supplier(kind, nameSupplier, &Supplier_fn{func() any {
-		return strobj_("")
-	}})
+	this.init_RemoveUnusedCode_RemovalLogRecord_String_Supplier_Supplier(kind, nameSupplier, lambda_RemoveUnusedCode_RemovalLogRecord_init_RemoveUnusedCode_RemovalLogRecord_String_Supplier_1_)
 }
+
+// lambda_RemoveUnusedCode_RemovalLogRecord_init_RemoveUnusedCode_RemovalLogRecord_String_Supplier_1_ is a lambda of RemoveUnusedCode_RemovalLogRecord_init_RemoveUnusedCode_RemovalLogRecord_String_Supplier that captures nothing (post-flip step lambdas).
+var lambda_RemoveUnusedCode_RemovalLogRecord_init_RemoveUnusedCode_RemovalLogRecord_String_Supplier_1_ = &Supplier_fn{func() any {
+	return strobj_("")
+}}
 
 func new_RemoveUnusedCode_RemovalLogRecord_String_Supplier(kind string, nameSupplier SupplierOf[string]) *RemoveUnusedCode_RemovalLogRecord {
 	this := &RemoveUnusedCode_RemovalLogRecord{}
@@ -1425,10 +1461,13 @@ func RemoveUnusedCode_RemovalLogRecord_forNamedArg(nameNode Node, argList Node) 
 }
 
 func RemoveUnusedCode_RemovalLogRecord_forDestructuringArg(argList Node) *RemoveUnusedCode_RemovalLogRecord {
-	return new_RemoveUnusedCode_RemovalLogRecord_String_Supplier_Supplier("arg", &Supplier_fn{func() any {
-		return strobj_("<pattern>")
-	}}, RemoveUnusedCode_RemovalLogRecord_getLoggableFunctionNameSupplier(argList))
+	return new_RemoveUnusedCode_RemovalLogRecord_String_Supplier_Supplier("arg", lambda_RemoveUnusedCode_RemovalLogRecord_forDestructuringArg_1_, RemoveUnusedCode_RemovalLogRecord_getLoggableFunctionNameSupplier(argList))
 }
+
+// lambda_RemoveUnusedCode_RemovalLogRecord_forDestructuringArg_1_ is a lambda of RemoveUnusedCode_RemovalLogRecord_forDestructuringArg that captures nothing (post-flip step lambdas).
+var lambda_RemoveUnusedCode_RemovalLogRecord_forDestructuringArg_1_ = &Supplier_fn{func() any {
+	return strobj_("<pattern>")
+}}
 
 func RemoveUnusedCode_RemovalLogRecord_forMarkingNamedArg(nameNode Node, argList Node) *RemoveUnusedCode_RemovalLogRecord {
 	return new_RemoveUnusedCode_RemovalLogRecord_String_Supplier_Supplier("argmark", &Supplier_fn{func() any { return strobj_(nameNode.getString()) }}, RemoveUnusedCode_RemovalLogRecord_getLoggableFunctionNameSupplier(argList))
@@ -2798,9 +2837,7 @@ func (this *RemoveUnusedCode_RealVarInfo) addRemovable(removable *RemoveUnusedCo
 			if !logsOn_(this.outer_.unremovableLog) {
 				return noReason_
 			}
-			return &Supplier_fn{func() any {
-				return strobj_("hasNonLocalOrNonLiteralValue && requiresLocalLiteralValueForRemoval")
-			}}
+			return lambda_RemoveUnusedCode_RealVarInfo_addRemovable_1_
 		}())
 	}
 	if this.isEntirelyRemovable {
@@ -2809,6 +2846,11 @@ func (this *RemoveUnusedCode_RealVarInfo) addRemovable(removable *RemoveUnusedCo
 		this.outer_.considerForIndependentRemoval(removable)
 	}
 }
+
+// lambda_RemoveUnusedCode_RealVarInfo_addRemovable_1_ is a lambda of RemoveUnusedCode_RealVarInfo_addRemovable that captures nothing (post-flip step lambdas).
+var lambda_RemoveUnusedCode_RealVarInfo_addRemovable_1_ = &Supplier_fn{func() any {
+	return strobj_("hasNonLocalOrNonLiteralValue && requiresLocalLiteralValueForRemoval")
+}}
 
 func (this *RemoveUnusedCode_RealVarInfo) isRemovable() bool {
 	return this.isEntirelyRemovable

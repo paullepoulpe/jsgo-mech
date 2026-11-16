@@ -545,22 +545,28 @@ func ConvertToTypedInterface_SimplifyDeclarations_clinit() {
 		return
 	}
 	ConvertToTypedInterface_SimplifyDeclarations_clinit_done = true
-	ConvertToTypedInterface_SimplifyDeclarations_SHORT_TO_LONG = Comparator_comparing(&Function_fn{func(p0 any) any { return any(int32(ConvertToTypedInterface_SimplifyDeclarations_countDots(str_(p0)))) }})
-	ConvertToTypedInterface_SimplifyDeclarations_DECLARATIONS_FIRST = Comparator_comparing(&Function_fn{func(decl_ any) any {
-		var decl *PotentialDeclaration = to_PotentialDeclaration(decl_)
-		_ = decl
-		var jsdoc *JSDocInfo = decl.getJsDoc()
-		if jsdoc == nil {
-			return obj_(ConvertToTypedInterface_SimplifyDeclarations_TypingLevel_NO_JSDOC)
-		}
-		if jsdoc.getTypeNodes().isEmpty() {
-			return obj_(ConvertToTypedInterface_SimplifyDeclarations_TypingLevel_UNTYPED_JSDOC_DECLARATION)
-		}
-		return obj_(ConvertToTypedInterface_SimplifyDeclarations_TypingLevel_TYPED_JSDOC_DECLARATION)
-		panic("unreachable")
-	}})
+	ConvertToTypedInterface_SimplifyDeclarations_SHORT_TO_LONG = Comparator_comparing(lambda_ConvertToTypedInterface_SimplifyDeclarations_clinit_1_)
+	ConvertToTypedInterface_SimplifyDeclarations_DECLARATIONS_FIRST = Comparator_comparing(lambda_ConvertToTypedInterface_SimplifyDeclarations_clinit_2_)
 
 }
+
+// lambda_ConvertToTypedInterface_SimplifyDeclarations_clinit_1_ is a lambda of ConvertToTypedInterface_SimplifyDeclarations_clinit that captures nothing (post-flip step lambdas).
+var lambda_ConvertToTypedInterface_SimplifyDeclarations_clinit_1_ = &Function_fn{func(p0 any) any { return any(int32(ConvertToTypedInterface_SimplifyDeclarations_countDots(str_(p0)))) }}
+
+// lambda_ConvertToTypedInterface_SimplifyDeclarations_clinit_2_ is a lambda of ConvertToTypedInterface_SimplifyDeclarations_clinit that captures nothing (post-flip step lambdas).
+var lambda_ConvertToTypedInterface_SimplifyDeclarations_clinit_2_ = &Function_fn{func(decl_ any) any {
+	var decl *PotentialDeclaration = to_PotentialDeclaration(decl_)
+	_ = decl
+	var jsdoc *JSDocInfo = decl.getJsDoc()
+	if jsdoc == nil {
+		return obj_(ConvertToTypedInterface_SimplifyDeclarations_TypingLevel_NO_JSDOC)
+	}
+	if jsdoc.getTypeNodes().isEmpty() {
+		return obj_(ConvertToTypedInterface_SimplifyDeclarations_TypingLevel_UNTYPED_JSDOC_DECLARATION)
+	}
+	return obj_(ConvertToTypedInterface_SimplifyDeclarations_TypingLevel_TYPED_JSDOC_DECLARATION)
+	panic("unreachable")
+}}
 
 type ConvertToTypedInterface_SimplifyDeclarations_TypingLevel struct {
 	Enum

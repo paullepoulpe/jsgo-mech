@@ -293,13 +293,16 @@ func ReplaceStrings_clinit() {
 	ReplaceStrings_COMMA_PATTERN = Pattern_compile(",")
 	ReplaceStrings_BAD_REPLACEMENT_CONFIGURATION = DiagnosticType_error("JSC_BAD_REPLACEMENT_CONFIGURATION", "Bad replacement configuration \"{0}\": {1}")
 	ReplaceStrings_STRING_REPLACEMENT_TAGGED_TEMPLATE = DiagnosticType_warning("JSC_STRING_REPLACEMENT_TAGGED_TEMPLATE", "Cannot string-replace arguments of a template literal tag function.")
-	ReplaceStrings_USED_RESULTS = &Predicate_base_fn{func(result_ any) bool {
-		var result *ReplaceStrings_Result = cast_[*ReplaceStrings_Result](result_)
-		_ = result
-		return result.didReplacement
-	}}
+	ReplaceStrings_USED_RESULTS = lambda_ReplaceStrings_clinit_1_
 
 }
+
+// lambda_ReplaceStrings_clinit_1_ is a lambda of ReplaceStrings_clinit that captures nothing (post-flip step lambdas).
+var lambda_ReplaceStrings_clinit_1_ = &Predicate_base_fn{func(result_ any) bool {
+	var result *ReplaceStrings_Result = cast_[*ReplaceStrings_Result](result_)
+	_ = result
+	return result.didReplacement
+}}
 
 type ReplaceStrings_Config struct {
 	name_                    string

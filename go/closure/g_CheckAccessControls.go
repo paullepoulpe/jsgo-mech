@@ -698,9 +698,7 @@ func (this *CheckAccessControls) createPropertyReference(sourceNode Node) *Check
 					return strobj_(this.typeRegistry.getReadableTypeName(parent).orElse(nullstr_))
 				}})
 			case tokOrd1_CLASS_MEMBERS:
-				builder.setName(sourceNode.getString()).setReceiverType(this.typeRegistry.getNativeObjectType(JSTypeNative_UNKNOWN_TYPE)).setMutation(!(sourceNode.isMemberFieldDef() && !sourceNode.hasChildren())).setDeclaration(true).setOverride((jsdoc != nil)).setReadableTypeName(&Supplier_fn{func() any {
-					return strobj_("")
-				}})
+				builder.setName(sourceNode.getString()).setReceiverType(this.typeRegistry.getNativeObjectType(JSTypeNative_UNKNOWN_TYPE)).setMutation(!(sourceNode.isMemberFieldDef() && !sourceNode.hasChildren())).setDeclaration(true).setOverride((jsdoc != nil)).setReadableTypeName(lambda_CheckAccessControls_createPropertyReference_1_)
 				var ctorType *JSType = parent.getParent().getJSType()
 				if (ctorType != nil) && ctorType.isFunctionType() {
 					var ctorFunctionType *FunctionType = ctorType.toMaybeFunctionType()
@@ -723,6 +721,11 @@ func (this *CheckAccessControls) createPropertyReference(sourceNode Node) *Check
 	}
 	return builder.setSourceNode(sourceNode).build()
 }
+
+// lambda_CheckAccessControls_createPropertyReference_1_ is a lambda of CheckAccessControls_createPropertyReference that captures nothing (post-flip step lambdas).
+var lambda_CheckAccessControls_createPropertyReference_1_ = &Supplier_fn{func() any {
+	return strobj_("")
+}}
 
 func CheckAccessControls_getEffectivePropertyVisibility(propRef *CheckAccessControls_PropertyReference, referenceType *ObjectType, fileVisibilityMap ImmutableMapOf[StaticSourceFile, *JSDocInfo_Visibility]) *JSDocInfo_Visibility {
 	var propertyName string = propRef.name()

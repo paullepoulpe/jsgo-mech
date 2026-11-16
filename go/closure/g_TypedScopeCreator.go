@@ -735,11 +735,17 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) visit(t *NodeTraversal, n No
 		this.visitPostorder(t, n, parent)
 	}
 	if !isScopeRoot && this.deferredActions.containsKey(n.box_()) {
-		Iterable_forEach(Iterable(this.deferredActions.removeAll(n.box_())), &Consumer_fn{func(p0 any) { icast_Runnable(p0).run() }})
+		Iterable_forEach(Iterable(this.deferredActions.removeAll(n.box_())), lambda_TypedScopeCreator_AbstractScopeBuilder_visit_1_)
 	} else if isScopeRoot && !this.deferredActions.isEmpty() {
-		Iterable_forEach(Iterable(this.deferredActions.values()), &Consumer_fn{func(p0 any) { icast_Runnable(p0).run() }})
+		Iterable_forEach(Iterable(this.deferredActions.values()), lambda_TypedScopeCreator_AbstractScopeBuilder_visit_2_)
 	}
 }
+
+// lambda_TypedScopeCreator_AbstractScopeBuilder_visit_1_ is a lambda of TypedScopeCreator_AbstractScopeBuilder_visit that captures nothing (post-flip step lambdas).
+var lambda_TypedScopeCreator_AbstractScopeBuilder_visit_1_ = &Consumer_fn{func(p0 any) { icast_Runnable(p0).run() }}
+
+// lambda_TypedScopeCreator_AbstractScopeBuilder_visit_2_ is a lambda of TypedScopeCreator_AbstractScopeBuilder_visit that captures nothing (post-flip step lambdas).
+var lambda_TypedScopeCreator_AbstractScopeBuilder_visit_2_ = &Consumer_fn{func(p0 any) { icast_Runnable(p0).run() }}
 
 func (this *TypedScopeCreator_AbstractScopeBuilder) visitPreorder_impl(t *NodeTraversal, n Node, parent Node) {
 

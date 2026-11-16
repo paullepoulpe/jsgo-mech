@@ -586,13 +586,16 @@ func (this *Es6NormalizeClasses) rewriteThisToThisDotSelf(fn Node) bool {
 			n.replaceWith(target)
 			this.compiler_.reportChangeToEnclosingScope(target)
 		}
-	}}, &Predicate_base_fn{func(n_ any) bool {
-		var n Node = Node_of_(n_)
-		_ = n
-		return (!n.isClass() && (!n.isFunction() || n.isArrowFunction()))
-	}})
+	}}, lambda_Es6NormalizeClasses_rewriteThisToThisDotSelf_1_)
 	return hasThis[0]
 }
+
+// lambda_Es6NormalizeClasses_rewriteThisToThisDotSelf_1_ is a lambda of Es6NormalizeClasses_rewriteThisToThisDotSelf that captures nothing (post-flip step lambdas).
+var lambda_Es6NormalizeClasses_rewriteThisToThisDotSelf_1_ = &Predicate_base_fn{func(n_ any) bool {
+	var n Node = Node_of_(n_)
+	_ = n
+	return (!n.isClass() && (!n.isFunction() || n.isArrowFunction()))
+}}
 
 func (this *Es6NormalizeClasses) hasThisReference(fn Node) bool {
 	var fnBody Node = NodeUtil_getFunctionBody(fn)
@@ -604,13 +607,16 @@ func (this *Es6NormalizeClasses) hasThisReference(fn Node) bool {
 		if n.isThis() {
 			hasThis[0] = true
 		}
-	}}, &Predicate_base_fn{func(n_ any) bool {
-		var n Node = Node_of_(n_)
-		_ = n
-		return (!n.isClass() && (!n.isFunction() || n.isArrowFunction()))
-	}})
+	}}, lambda_Es6NormalizeClasses_hasThisReference_1_)
 	return hasThis[0]
 }
+
+// lambda_Es6NormalizeClasses_hasThisReference_1_ is a lambda of Es6NormalizeClasses_hasThisReference that captures nothing (post-flip step lambdas).
+var lambda_Es6NormalizeClasses_hasThisReference_1_ = &Predicate_base_fn{func(n_ any) bool {
+	var n Node = Node_of_(n_)
+	_ = n
+	return (!n.isClass() && (!n.isFunction() || n.isArrowFunction()))
+}}
 
 func (this *Es6NormalizeClasses) rewriteSuperReferencesInPrivateMember(memberNode Node, record *Es6NormalizeClasses_ClassRecord) {
 	if record.normalizedNames.superClassNode().isEmpty() {
@@ -664,12 +670,15 @@ func (this *Es6NormalizeClasses) rewriteSuperReferencesInPrivateMember(memberNod
 				this.compiler_.reportChangeToEnclosingScope(fnBody)
 			}
 		}
-	}}, &Predicate_base_fn{func(n_ any) bool {
-		var n Node = Node_of_(n_)
-		_ = n
-		return !n.isClass()
-	}})
+	}}, lambda_Es6NormalizeClasses_rewriteSuperReferencesInPrivateMember_1_)
 }
+
+// lambda_Es6NormalizeClasses_rewriteSuperReferencesInPrivateMember_1_ is a lambda of Es6NormalizeClasses_rewriteSuperReferencesInPrivateMember that captures nothing (post-flip step lambdas).
+var lambda_Es6NormalizeClasses_rewriteSuperReferencesInPrivateMember_1_ = &Predicate_base_fn{func(n_ any) bool {
+	var n Node = Node_of_(n_)
+	_ = n
+	return !n.isClass()
+}}
 
 func (this *Es6NormalizeClasses) rewriteSideEffectedComputedProps(t *NodeTraversal, record *Es6NormalizeClasses_ClassRecord, insertionPoint Node) {
 	var computedPropsWithSideEffects DequeOf[Node] = record.computedPropsWithSideEffects
@@ -1067,15 +1076,7 @@ func (this *Es6NormalizeClasses) rewriteStaticMembers(t *NodeTraversal, record *
 	if !staticInitTempParent.hasChildren() {
 		return
 	}
-	if (!hasPriv && !NodeUtil_has(staticInitTempParent, &Predicate_base_fn{func(n_ any) bool {
-		var n Node = Node_of_(n_)
-		_ = n
-		return (n.isSuper() || n.isPrivateIdentifier())
-	}}, &Predicate_base_fn{func(n_ any) bool {
-		var n Node = Node_of_(n_)
-		_ = n
-		return (!n.isClass() && (!n.isFunction() || n.isArrowFunction()))
-	}})) {
+	if !hasPriv && !NodeUtil_has(staticInitTempParent, lambda_Es6NormalizeClasses_rewriteStaticMembers_1_, lambda_Es6NormalizeClasses_rewriteStaticMembers_2_) {
 		for staticInitTempParent.hasChildren() {
 			staticInitTempParent.getLastChild().detach().insertAfter(insertionPoint)
 		}
@@ -1098,6 +1099,20 @@ func (this *Es6NormalizeClasses) rewriteStaticMembers(t *NodeTraversal, record *
 	var staticInitCallStmt Node = this.astFactory_.exprResult(staticInitCall)
 	staticInitCallStmt.insertAfter(insertionPoint)
 }
+
+// lambda_Es6NormalizeClasses_rewriteStaticMembers_1_ is a lambda of Es6NormalizeClasses_rewriteStaticMembers that captures nothing (post-flip step lambdas).
+var lambda_Es6NormalizeClasses_rewriteStaticMembers_1_ = &Predicate_base_fn{func(n_ any) bool {
+	var n Node = Node_of_(n_)
+	_ = n
+	return (n.isSuper() || n.isPrivateIdentifier())
+}}
+
+// lambda_Es6NormalizeClasses_rewriteStaticMembers_2_ is a lambda of Es6NormalizeClasses_rewriteStaticMembers that captures nothing (post-flip step lambdas).
+var lambda_Es6NormalizeClasses_rewriteStaticMembers_2_ = &Predicate_base_fn{func(n_ any) bool {
+	var n Node = Node_of_(n_)
+	_ = n
+	return (!n.isClass() && (!n.isFunction() || n.isArrowFunction()))
+}}
 
 func (this *Es6NormalizeClasses) addStaticPrivateMembers(record *Es6NormalizeClasses_ClassRecord, privName string, staticInitTempParent Node) {
 	it_1 := eachOf_(&record.privateMembers)

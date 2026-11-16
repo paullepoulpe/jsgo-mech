@@ -25,12 +25,15 @@ func (this *GlobalNamespace) finit_GlobalNamespace() {
 	this.globalNames = newTList_(tc_p_GlobalNamespace_Name)
 	this.nameMap = newTMap_(tc_string, tc_p_GlobalNamespace_Name)
 	this.nameMapByModule = SimpleTable_create()
-	this.shouldTraverseScript = &Predicate_fn{func(n_ any) bool {
-		var n Node = Node_of_(n_)
-		_ = n
-		return true
-	}}
+	this.shouldTraverseScript = lambda_GlobalNamespace_finit_GlobalNamespace_1_
 }
+
+// lambda_GlobalNamespace_finit_GlobalNamespace_1_ is a lambda of GlobalNamespace_finit_GlobalNamespace that captures nothing (post-flip step lambdas).
+var lambda_GlobalNamespace_finit_GlobalNamespace_1_ = &Predicate_fn{func(n_ any) bool {
+	var n Node = Node_of_(n_)
+	_ = n
+	return true
+}}
 
 func (this *GlobalNamespace) init_GlobalNamespace_AbstractCompiler_Node(compiler *AbstractCompiler, root Node) {
 	this.init_GlobalNamespace_LogFile_AbstractCompiler_Node_Node(nil, compiler, 0, root)

@@ -409,11 +409,7 @@ func (this *JsMessageVisitor) extractJsMessageDefinition(msgNode Node, jsDocInfo
 	if requiredKeysChecked.isErr() {
 		return Outcome_base_err(requiredKeysChecked.error())
 	}
-	var unexpectedKeysChecked *Outcome_base = placeholderObjectLiteralMap.checkForUnexpectedKeys(setImm_(tc_string, placeholderNamesFromText), &Function_fn{func(placeholderName_ any) any {
-		var placeholderName string = str_(placeholderName_)
-		_ = placeholderName
-		return strobj_(("Unused message placeholder: " + sstr_(placeholderName)))
-	}})
+	var unexpectedKeysChecked *Outcome_base = placeholderObjectLiteralMap.checkForUnexpectedKeys(setImm_(tc_string, placeholderNamesFromText), lambda_JsMessageVisitor_extractJsMessageDefinition_1_)
 	if unexpectedKeysChecked.isErr() {
 		return Outcome_base_err(unexpectedKeysChecked.error())
 	}
@@ -431,6 +427,13 @@ func (this *JsMessageVisitor) extractJsMessageDefinition(msgNode Node, jsDocInfo
 	var result JsMessageDefinition = icast_JsMessageDefinition(obj_(new_JsMessageVisitor_2(this, jsExtractedMessage, msgNode, msgTextNode, valuesObjLit, placeholderValuesMap, jsMessageOptions)))
 	return Outcome_base_ok_Object(any(result))
 }
+
+// lambda_JsMessageVisitor_extractJsMessageDefinition_1_ is a lambda of JsMessageVisitor_extractJsMessageDefinition that captures nothing (post-flip step lambdas).
+var lambda_JsMessageVisitor_extractJsMessageDefinition_1_ = &Function_fn{func(placeholderName_ any) any {
+	var placeholderName string = str_(placeholderName_)
+	_ = placeholderName
+	return strobj_(("Unused message placeholder: " + sstr_(placeholderName)))
+}}
 
 func (this *JsMessageVisitor) extractIcuTemplateDefinition(msgNode Node, jsDocInfo *JSDocInfo, messageKeyFromLhs string, sourceName string) *Outcome_base {
 	if jsDocInfo != nil {
@@ -491,11 +494,7 @@ func (this *JsMessageVisitor) extractJsMessageOptions(optionsBag Node) *Outcome_
 		return Outcome_base_err(objectLiteralMapOutcome.error())
 	}
 	var objectLiteralMap JsMessageVisitor_ObjectLiteralMap = icast_JsMessageVisitor_ObjectLiteralMap(objectLiteralMapOutcome.get())
-	var unexpectedKeysChecked *Outcome_base = objectLiteralMap.checkForUnexpectedKeys(setImm_(tc_string, JsMessageVisitor_MESSAGE_OPTION_NAMES), &Function_fn{func(optionName_ any) any {
-		var optionName string = str_(optionName_)
-		_ = optionName
-		return strobj_(("Unknown option: " + sstr_(optionName)))
-	}})
+	var unexpectedKeysChecked *Outcome_base = objectLiteralMap.checkForUnexpectedKeys(setImm_(tc_string, JsMessageVisitor_MESSAGE_OPTION_NAMES), lambda_JsMessageVisitor_extractJsMessageOptions_1_)
 	if unexpectedKeysChecked.isErr() {
 		return Outcome_base_err(unexpectedKeysChecked.error())
 	}
@@ -535,17 +534,20 @@ func (this *JsMessageVisitor) extractJsMessageOptions(optionsBag Node) *Outcome_
 	return Outcome_base_ok_Object(any(result))
 }
 
+// lambda_JsMessageVisitor_extractJsMessageOptions_1_ is a lambda of JsMessageVisitor_extractJsMessageOptions that captures nothing (post-flip step lambdas).
+var lambda_JsMessageVisitor_extractJsMessageOptions_1_ = &Function_fn{func(optionName_ any) any {
+	var optionName string = str_(optionName_)
+	_ = optionName
+	return strobj_(("Unknown option: " + sstr_(optionName)))
+}}
+
 func (this *JsMessageVisitor) extractIcuTemplateOptions(optionsBag Node) *Outcome_base {
 	var objectLiteralMapOutcome *Outcome_base = JsMessageVisitor_extractObjectLiteralMap(optionsBag)
 	if objectLiteralMapOutcome.isErr() {
 		return Outcome_base_err(objectLiteralMapOutcome.error())
 	}
 	var objectLiteralMap JsMessageVisitor_ObjectLiteralMap = icast_JsMessageVisitor_ObjectLiteralMap(objectLiteralMapOutcome.get())
-	var unexpectedKeysChecked *Outcome_base = objectLiteralMap.checkForUnexpectedKeys(setImm_(tc_string, JsMessageVisitor_ICU_TEMPLATE_OPTION_NAMES), &Function_fn{func(optionName_ any) any {
-		var optionName string = str_(optionName_)
-		_ = optionName
-		return strobj_(("Unknown option: " + sstr_(optionName)))
-	}})
+	var unexpectedKeysChecked *Outcome_base = objectLiteralMap.checkForUnexpectedKeys(setImm_(tc_string, JsMessageVisitor_ICU_TEMPLATE_OPTION_NAMES), lambda_JsMessageVisitor_extractIcuTemplateOptions_1_)
 	if unexpectedKeysChecked.isErr() {
 		return Outcome_base_err(unexpectedKeysChecked.error())
 	}
@@ -613,6 +615,13 @@ func (this *JsMessageVisitor) extractIcuTemplateOptions(optionsBag Node) *Outcom
 	var result JsMessageVisitor_IcuTemplateOptions = icast_JsMessageVisitor_IcuTemplateOptions(obj_(new_JsMessageVisitor_6(this, description, optErase_(meaning), optErase_(alternateMessageId), placeholderExamplesMap, placeholderOriginalCodeMap, placeholderNames, exampleObjectLiteralMap, originalCodeObjectLiteralMap)))
 	return Outcome_base_ok_Object(any(result))
 }
+
+// lambda_JsMessageVisitor_extractIcuTemplateOptions_1_ is a lambda of JsMessageVisitor_extractIcuTemplateOptions that captures nothing (post-flip step lambdas).
+var lambda_JsMessageVisitor_extractIcuTemplateOptions_1_ = &Function_fn{func(optionName_ any) any {
+	var optionName string = str_(optionName_)
+	_ = optionName
+	return strobj_(("Unknown option: " + sstr_(optionName)))
+}}
 
 func JsMessageVisitor_extractBooleanStringKeyValue(stringKeyNode Node) *Outcome_base {
 	if stringKeyNode == 0 {
@@ -1335,20 +1344,26 @@ func (this *JsMessageVisitor_5) getPlaceholderOriginalCodeMap() ImmutableMapOf[s
 }
 
 func (this *JsMessageVisitor_5) checkForUnknownPlaceholders(knownPlaceholders map[string]struct{}) *Outcome_base {
-	var exampleChecked *Outcome_base = this.cap_exampleObjectLiteralMap.checkForUnexpectedKeys(knownPlaceholders, &Function_fn{func(unknownName_ any) any {
-		var unknownName string = str_(unknownName_)
-		_ = unknownName
-		return strobj_(("Unknown placeholder: " + sstr_(unknownName)))
-	}})
+	var exampleChecked *Outcome_base = this.cap_exampleObjectLiteralMap.checkForUnexpectedKeys(knownPlaceholders, lambda_JsMessageVisitor_5_checkForUnknownPlaceholders_1_)
 	if exampleChecked.isErr() {
 		return Outcome_base_err(exampleChecked.error())
 	}
-	return this.cap_originalCodeObjectLiteralMap.checkForUnexpectedKeys(knownPlaceholders, &Function_fn{func(unknownName_ any) any {
-		var unknownName string = str_(unknownName_)
-		_ = unknownName
-		return strobj_(("Unknown placeholder: " + sstr_(unknownName)))
-	}})
+	return this.cap_originalCodeObjectLiteralMap.checkForUnexpectedKeys(knownPlaceholders, lambda_JsMessageVisitor_5_checkForUnknownPlaceholders_2_)
 }
+
+// lambda_JsMessageVisitor_5_checkForUnknownPlaceholders_1_ is a lambda of JsMessageVisitor_5_checkForUnknownPlaceholders that captures nothing (post-flip step lambdas).
+var lambda_JsMessageVisitor_5_checkForUnknownPlaceholders_1_ = &Function_fn{func(unknownName_ any) any {
+	var unknownName string = str_(unknownName_)
+	_ = unknownName
+	return strobj_(("Unknown placeholder: " + sstr_(unknownName)))
+}}
+
+// lambda_JsMessageVisitor_5_checkForUnknownPlaceholders_2_ is a lambda of JsMessageVisitor_5_checkForUnknownPlaceholders that captures nothing (post-flip step lambdas).
+var lambda_JsMessageVisitor_5_checkForUnknownPlaceholders_2_ = &Function_fn{func(unknownName_ any) any {
+	var unknownName string = str_(unknownName_)
+	_ = unknownName
+	return strobj_(("Unknown placeholder: " + sstr_(unknownName)))
+}}
 
 type JsMessageVisitor_6 struct {
 	outer_                           *JsMessageVisitor
@@ -1406,20 +1421,26 @@ func (this *JsMessageVisitor_6) getPlaceholderNames() ImmutableSetOf[string] {
 }
 
 func (this *JsMessageVisitor_6) checkForUnknownPlaceholders(knownPlaceholders map[string]struct{}) *Outcome_base {
-	var exampleChecked *Outcome_base = this.cap_exampleObjectLiteralMap.checkForUnexpectedKeys(knownPlaceholders, &Function_fn{func(unknownName_ any) any {
-		var unknownName string = str_(unknownName_)
-		_ = unknownName
-		return strobj_(("Unknown placeholder: " + sstr_(unknownName)))
-	}})
+	var exampleChecked *Outcome_base = this.cap_exampleObjectLiteralMap.checkForUnexpectedKeys(knownPlaceholders, lambda_JsMessageVisitor_6_checkForUnknownPlaceholders_1_)
 	if exampleChecked.isErr() {
 		return Outcome_base_err(exampleChecked.error())
 	}
-	return this.cap_originalCodeObjectLiteralMap.checkForUnexpectedKeys(knownPlaceholders, &Function_fn{func(unknownName_ any) any {
-		var unknownName string = str_(unknownName_)
-		_ = unknownName
-		return strobj_(("Unknown placeholder: " + sstr_(unknownName)))
-	}})
+	return this.cap_originalCodeObjectLiteralMap.checkForUnexpectedKeys(knownPlaceholders, lambda_JsMessageVisitor_6_checkForUnknownPlaceholders_2_)
 }
+
+// lambda_JsMessageVisitor_6_checkForUnknownPlaceholders_1_ is a lambda of JsMessageVisitor_6_checkForUnknownPlaceholders that captures nothing (post-flip step lambdas).
+var lambda_JsMessageVisitor_6_checkForUnknownPlaceholders_1_ = &Function_fn{func(unknownName_ any) any {
+	var unknownName string = str_(unknownName_)
+	_ = unknownName
+	return strobj_(("Unknown placeholder: " + sstr_(unknownName)))
+}}
+
+// lambda_JsMessageVisitor_6_checkForUnknownPlaceholders_2_ is a lambda of JsMessageVisitor_6_checkForUnknownPlaceholders that captures nothing (post-flip step lambdas).
+var lambda_JsMessageVisitor_6_checkForUnknownPlaceholders_2_ = &Function_fn{func(unknownName_ any) any {
+	var unknownName string = str_(unknownName_)
+	_ = unknownName
+	return strobj_(("Unknown placeholder: " + sstr_(unknownName)))
+}}
 
 type JsMessageVisitor_7 struct {
 	cap_originalMsgText  string

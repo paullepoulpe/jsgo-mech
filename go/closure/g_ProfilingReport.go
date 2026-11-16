@@ -41,23 +41,7 @@ func ProfilingReport_createTabSeparatedProfilingReport(instrumentationMapping Ma
 		}
 	}
 	var result []Map_EntryOf[*InstrumentationPoint, *ProfilingReport_InstrumentationPointMetrics] = sliceFrom_(tc_Map_EntryOf_p_InstrumentationPoint__p_ProfilingReport_InstrumentationPointMetrics_, Collection(metrics.entrySet()))
-	Collections_sort_List_Comparator(sliceView_(tc_Map_EntryOf_p_InstrumentationPoint__p_ProfilingReport_InstrumentationPointMetrics_, result), Comparator_thenComparingInt(Comparator_thenComparingInt(Comparator_thenComparingLong(Comparator_comparing(&Function_fn{func(point_ any) any {
-		var point Map_Entry = icast_Map_Entry(point_)
-		_ = point
-		return strobj_(cast_[*InstrumentationPoint](point.getKey()).getFileName())
-	}}), &ToLongFunction_fn{func(point_ any) int64 {
-		var point Map_Entry = icast_Map_Entry(point_)
-		_ = point
-		return (-cast_[*ProfilingReport_InstrumentationPointMetrics](point.getValue()).totalTimesExecuted)
-	}}), &ToIntFunction_fn{func(point_ any) int32 {
-		var point Map_Entry = icast_Map_Entry(point_)
-		_ = point
-		return cast_[*InstrumentationPoint](point.getKey()).getLineNumber()
-	}}), &ToIntFunction_fn{func(point_ any) int32 {
-		var point Map_Entry = icast_Map_Entry(point_)
-		_ = point
-		return cast_[*InstrumentationPoint](point.getKey()).getType().getNumber()
-	}}))
+	Collections_sort_List_Comparator(sliceView_(tc_Map_EntryOf_p_InstrumentationPoint__p_ProfilingReport_InstrumentationPointMetrics_, result), Comparator_thenComparingInt(Comparator_thenComparingInt(Comparator_thenComparingLong(Comparator_comparing(lambda_ProfilingReport_createTabSeparatedProfilingReport_1_), lambda_ProfilingReport_createTabSeparatedProfilingReport_2_), lambda_ProfilingReport_createTabSeparatedProfilingReport_3_), lambda_ProfilingReport_createTabSeparatedProfilingReport_4_))
 	var output []ListOf[string] = []ListOf[string]{}
 	output = append(output, icast_List(obj_(ImmutableList_of_Object_Object_Object_Object_Object_Object(strobj_("File"), strobj_("Function name"), strobj_("Line"), strobj_("Type"), strobj_("Total executed"), strobj_("Reports occurred")))))
 	for _, entry := range result {
@@ -69,6 +53,34 @@ func ProfilingReport_createTabSeparatedProfilingReport(instrumentationMapping Ma
 	}
 	return String_join(strobj_("\n"), Iterable(sliceView_(tc_string, rows)))
 }
+
+// lambda_ProfilingReport_createTabSeparatedProfilingReport_1_ is a lambda of ProfilingReport_createTabSeparatedProfilingReport that captures nothing (post-flip step lambdas).
+var lambda_ProfilingReport_createTabSeparatedProfilingReport_1_ = &Function_fn{func(point_ any) any {
+	var point Map_Entry = icast_Map_Entry(point_)
+	_ = point
+	return strobj_(cast_[*InstrumentationPoint](point.getKey()).getFileName())
+}}
+
+// lambda_ProfilingReport_createTabSeparatedProfilingReport_2_ is a lambda of ProfilingReport_createTabSeparatedProfilingReport that captures nothing (post-flip step lambdas).
+var lambda_ProfilingReport_createTabSeparatedProfilingReport_2_ = &ToLongFunction_fn{func(point_ any) int64 {
+	var point Map_Entry = icast_Map_Entry(point_)
+	_ = point
+	return (-cast_[*ProfilingReport_InstrumentationPointMetrics](point.getValue()).totalTimesExecuted)
+}}
+
+// lambda_ProfilingReport_createTabSeparatedProfilingReport_3_ is a lambda of ProfilingReport_createTabSeparatedProfilingReport that captures nothing (post-flip step lambdas).
+var lambda_ProfilingReport_createTabSeparatedProfilingReport_3_ = &ToIntFunction_fn{func(point_ any) int32 {
+	var point Map_Entry = icast_Map_Entry(point_)
+	_ = point
+	return cast_[*InstrumentationPoint](point.getKey()).getLineNumber()
+}}
+
+// lambda_ProfilingReport_createTabSeparatedProfilingReport_4_ is a lambda of ProfilingReport_createTabSeparatedProfilingReport that captures nothing (post-flip step lambdas).
+var lambda_ProfilingReport_createTabSeparatedProfilingReport_4_ = &ToIntFunction_fn{func(point_ any) int32 {
+	var point Map_Entry = icast_Map_Entry(point_)
+	_ = point
+	return cast_[*InstrumentationPoint](point.getKey()).getType().getNumber()
+}}
 
 type ProfilingReport_InstrumentationPointMetrics struct {
 	totalTimesExecuted int64

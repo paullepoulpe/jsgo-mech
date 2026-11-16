@@ -141,7 +141,7 @@ func new_GraphColoring_GreedyGraphColoring_AdjacencyGraph_Comparator(graph Adjac
 
 func (this *GraphColoring_GreedyGraphColoring) color_impl() int32 {
 	var worklist *TList[GraphNode] = tlistFrom_(tc_GraphNode, this.graph.getNodes())
-	Collections_sort_List_Comparator(worklist.asList(), Comparator_comparing_Function_Comparator(&Function_fn{func(p0 any) any { return icast_GraphNode(p0).getValue() }}, &Comparator_fn{func(leftProperty any, rightProperty any) int32 {
+	Collections_sort_List_Comparator(worklist.asList(), Comparator_comparing_Function_Comparator(lambda_GraphColoring_GreedyGraphColoring_color_impl_1_, &Comparator_fn{func(leftProperty any, rightProperty any) int32 {
 		var result int32 = (this.graph.getWeight(rightProperty) - this.graph.getWeight(leftProperty))
 		return func() int32 {
 			if (result == 0) && (this.tieBreaker != nil) {
@@ -172,6 +172,9 @@ func (this *GraphColoring_GreedyGraphColoring) color_impl() int32 {
 	this.colorToNodeMap = map_
 	return count
 }
+
+// lambda_GraphColoring_GreedyGraphColoring_color_impl_1_ is a lambda of GraphColoring_GreedyGraphColoring_color_impl that captures nothing (post-flip step lambdas).
+var lambda_GraphColoring_GreedyGraphColoring_color_impl_1_ = &Function_fn{func(p0 any) any { return icast_GraphNode(p0).getValue() }}
 
 // color: an object that is exactly a GraphColoring_GreedyGraphColoring calls its color_impl directly (post-flip); others dispatch.
 func (this *GraphColoring_GreedyGraphColoring) color() int32 {

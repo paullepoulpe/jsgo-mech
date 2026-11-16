@@ -60,7 +60,7 @@ func (this *DeadPropertyAssignmentElimination_FunctionVisitor) enterChangedScope
 		return
 	}
 	var body Node = NodeUtil_getFunctionBody(root)
-	if (!body.hasChildren() || NodeUtil_has(body, &Predicate_base_fn{func(p0 any) bool { return NodeUtil_isFunctionOrNonStaticClassFieldInitializer(Node_of_(p0)) }}, Predicates_alwaysTrue())) {
+	if !body.hasChildren() || NodeUtil_has(body, lambda_DeadPropertyAssignmentElimination_FunctionVisitor_enterChangedScopeRoot_impl_1_, Predicates_alwaysTrue()) {
 		return
 	}
 	var traversal *DeadPropertyAssignmentElimination_FindCandidateAssignmentTraversal = new_DeadPropertyAssignmentElimination_FindCandidateAssignmentTraversal(this.skiplistedPropNames)
@@ -92,6 +92,9 @@ func (this *DeadPropertyAssignmentElimination_FunctionVisitor) enterChangedScope
 		}
 	}
 }
+
+// lambda_DeadPropertyAssignmentElimination_FunctionVisitor_enterChangedScopeRoot_impl_1_ is a lambda of DeadPropertyAssignmentElimination_FunctionVisitor_enterChangedScopeRoot_impl that captures nothing (post-flip step lambdas).
+var lambda_DeadPropertyAssignmentElimination_FunctionVisitor_enterChangedScopeRoot_impl_1_ = &Predicate_base_fn{func(p0 any) bool { return NodeUtil_isFunctionOrNonStaticClassFieldInitializer(Node_of_(p0)) }}
 
 type DeadPropertyAssignmentElimination_Property struct {
 	name_     string
@@ -219,7 +222,7 @@ func (this *DeadPropertyAssignmentElimination_FindCandidateAssignmentTraversal) 
 			return !String_isEmpty(s)
 		})
 	}()
-	var property *DeadPropertyAssignmentElimination_Property = this.propertyMap.computeIfAbsent(propName.orElse(nullstr_), &Function_fn{func(p0 any) any { return obj_(new_DeadPropertyAssignmentElimination_Property(str_(p0))) }})
+	var property *DeadPropertyAssignmentElimination_Property = this.propertyMap.computeIfAbsent(propName.orElse(nullstr_), lambda_DeadPropertyAssignmentElimination_FindCandidateAssignmentTraversal_getOrCreateProperty_1_)
 	if propNode.isGetProp() {
 		var parentProperty *DeadPropertyAssignmentElimination_Property = this.getOrCreateProperty(propNode.getFirstChild())
 		if parentProperty != nil {
@@ -228,6 +231,9 @@ func (this *DeadPropertyAssignmentElimination_FindCandidateAssignmentTraversal) 
 	}
 	return property
 }
+
+// lambda_DeadPropertyAssignmentElimination_FindCandidateAssignmentTraversal_getOrCreateProperty_1_ is a lambda of DeadPropertyAssignmentElimination_FindCandidateAssignmentTraversal_getOrCreateProperty that captures nothing (post-flip step lambdas).
+var lambda_DeadPropertyAssignmentElimination_FindCandidateAssignmentTraversal_getOrCreateProperty_1_ = &Function_fn{func(p0 any) any { return obj_(new_DeadPropertyAssignmentElimination_Property(str_(p0))) }}
 
 func (this *DeadPropertyAssignmentElimination_FindCandidateAssignmentTraversal) shouldTraverse(nodeTraversal *NodeTraversal, n Node, parent Node) bool {
 	return this.visitNode(n, parent)

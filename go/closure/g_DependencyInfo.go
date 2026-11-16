@@ -309,12 +309,15 @@ func DependencyInfo_Util_writeJsObject(out Appendable, map_ *TMap[string, string
 }
 
 func DependencyInfo_Util_writeJsArray(out Appendable, values CollectionOf[string]) {
-	var quoted IterableOf[string] = Iterables_transform(Iterable(values), &Function_base_fn{func(arg_ any) any {
-		var arg string = str_(arg_)
-		_ = arg
-		return strobj_(("'" + sstr_(String_replace(arg, strobj_("'"), strobj_("\\'"))) + "'"))
-	}})
+	var quoted IterableOf[string] = Iterables_transform(Iterable(values), lambda_DependencyInfo_Util_writeJsArray_1_)
 	out.append_CharSequence(strobj_("["))
 	out.append_CharSequence(strobj_(Joiner_on(", ").join(quoted)))
 	out.append_CharSequence(strobj_("]"))
 }
+
+// lambda_DependencyInfo_Util_writeJsArray_1_ is a lambda of DependencyInfo_Util_writeJsArray that captures nothing (post-flip step lambdas).
+var lambda_DependencyInfo_Util_writeJsArray_1_ = &Function_base_fn{func(arg_ any) any {
+	var arg string = str_(arg_)
+	_ = arg
+	return strobj_(("'" + sstr_(String_replace(arg, strobj_("'"), strobj_("\\'"))) + "'"))
+}}

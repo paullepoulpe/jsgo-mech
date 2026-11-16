@@ -152,8 +152,11 @@ func (this *JSChunkGraph) initSubtreeSize() []int32 {
 }
 
 func (this *JSChunkGraph) getAllInputs() IterableOf[*CompilerInput] {
-	return Iterables_concat_Iterable(Iterables_transform(Iterable(Arrays_asList(arrmap_(this.chunks, func(v_ *JSChunk) any { return obj_(v_) }))), &Function_base_fn{func(p0 any) any { return obj_(cast_[*JSChunk](p0).getInputs()) }}))
+	return Iterables_concat_Iterable(Iterables_transform(Iterable(Arrays_asList(arrmap_(this.chunks, func(v_ *JSChunk) any { return obj_(v_) }))), lambda_JSChunkGraph_getAllInputs_1_))
 }
+
+// lambda_JSChunkGraph_getAllInputs_1_ is a lambda of JSChunkGraph_getAllInputs that captures nothing (post-flip step lambdas).
+var lambda_JSChunkGraph_getAllInputs_1_ = &Function_base_fn{func(p0 any) any { return obj_(cast_[*JSChunk](p0).getInputs()) }}
 
 func (this *JSChunkGraph) getInputCount() int32 {
 	var count int32 = 0
@@ -293,8 +296,11 @@ func (this *JSChunkGraph) getTransitiveDepsDeepestFirst(m *JSChunk) ListOf[*JSCh
 }
 
 func (this *JSChunkGraph) getTransitiveDeps(m *JSChunk) SetOf[*JSChunk] {
-	return icast_Set(this.dependencyMap.computeIfAbsent(obj_(m), &Function_fn{func(p0 any) any { return any(cast_[*JSChunk](p0).getAllDependencies()) }}))
+	return icast_Set(this.dependencyMap.computeIfAbsent(obj_(m), lambda_JSChunkGraph_getTransitiveDeps_1_))
 }
+
+// lambda_JSChunkGraph_getTransitiveDeps_1_ is a lambda of JSChunkGraph_getTransitiveDeps that captures nothing (post-flip step lambdas).
+var lambda_JSChunkGraph_getTransitiveDeps_1_ = &Function_fn{func(p0 any) any { return any(cast_[*JSChunk](p0).getAllDependencies()) }}
 
 func JSChunkGraph_moveMarkedWeakSources(weakChunk *JSChunk, inputs IterableOf[*CompilerInput]) {
 	Preconditions_checkNotNull(obj_(weakChunk))
@@ -328,19 +334,11 @@ func (this *JSChunkGraph) manageDependencies(compiler *AbstractCompiler, depende
 		it_3 := foreach_(obj_(input.getKnownProvides()))
 		for it_3.next() {
 			var provide string = str_(it_3.v)
-			mapComputeIfAbsent_(tc_string, tc_SetOf_p_CompilerInput_, inputsByProvide, provide, &Function_fn{func(k_ any) any {
-				var k string = str_(k_)
-				_ = k
-				return obj_(new_LinkedHashSet())
-			}})
+			mapComputeIfAbsent_(tc_string, tc_SetOf_p_CompilerInput_, inputsByProvide, provide, lambda_JSChunkGraph_manageDependencies_1_)
 			inputsByProvide[provide].add(obj_(input))
 		}
 		var chunkName string = input.getPath().toModuleName()
-		mapComputeIfAbsent_(tc_string, tc_SetOf_p_CompilerInput_, inputsByProvide, chunkName, &Function_fn{func(k_ any) any {
-			var k string = str_(k_)
-			_ = k
-			return obj_(new_LinkedHashSet())
-		}})
+		mapComputeIfAbsent_(tc_string, tc_SetOf_p_CompilerInput_, inputsByProvide, chunkName, lambda_JSChunkGraph_manageDependencies_2_)
 		inputsByProvide[chunkName].add(obj_(input))
 	}
 	it_5 := foreach_(obj_(originalInputs))
@@ -442,6 +440,20 @@ func (this *JSChunkGraph) manageDependencies(compiler *AbstractCompiler, depende
 	}
 	return Outcome_base_ok_Object(obj_(new_JSChunkGraph_DependencyManagementResult(ImmutableList_copyOf(Collection(orderedInputs)), sorter, ImmutableSet_copyOf(Collection(entryPointInputs)))))
 }
+
+// lambda_JSChunkGraph_manageDependencies_1_ is a lambda of JSChunkGraph_manageDependencies that captures nothing (post-flip step lambdas).
+var lambda_JSChunkGraph_manageDependencies_1_ = &Function_fn{func(k_ any) any {
+	var k string = str_(k_)
+	_ = k
+	return obj_(new_LinkedHashSet())
+}}
+
+// lambda_JSChunkGraph_manageDependencies_2_ is a lambda of JSChunkGraph_manageDependencies that captures nothing (post-flip step lambdas).
+var lambda_JSChunkGraph_manageDependencies_2_ = &Function_fn{func(k_ any) any {
+	var k string = str_(k_)
+	_ = k
+	return obj_(new_LinkedHashSet())
+}}
 
 func (this *JSChunkGraph) getDepthFirstDependenciesOf(rootInput *CompilerInput, unreachedInputs map[*CompilerInput]struct{}, inputsByProvide map[string]SetOf[*CompilerInput]) *TList[*CompilerInput] {
 	var orderedInputs *TList[*CompilerInput] = newTList_(tc_p_CompilerInput)

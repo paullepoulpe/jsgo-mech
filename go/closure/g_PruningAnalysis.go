@@ -53,11 +53,7 @@ func (this *PruningAnalysis) calculateBottlenecks() ImmutableMapOf[string, Boxed
 		}
 	}
 	var sortedBlame []Map_EntryOf[string, BoxedOf[int32]] = sliceFrom_(tc_Map_EntryOf_string__BoxedOf_int32__, Collection(bottleneckBlame.asMap().entrySet()))
-	List_sort(sliceView_(tc_Map_EntryOf_string__BoxedOf_int32__, sortedBlame), Comparator_reversed(Comparator_comparingInt(&ToIntFunction_fn{func(entry_ any) int32 {
-		var entry Map_Entry = icast_Map_Entry(entry_)
-		_ = entry
-		return unbox_[int32](entry.getValue())
-	}})))
+	List_sort(sliceView_(tc_Map_EntryOf_string__BoxedOf_int32__, sortedBlame), Comparator_reversed(Comparator_comparingInt(lambda_PruningAnalysis_calculateBottlenecks_1_)))
 	var result ImmutableMap_BuilderOf[string, BoxedOf[int32]] = ImmutableMap_builder()
 	for i := int32(0); (i < int32(len(sortedBlame))) && (i < PruningAnalysis_BOTTLENECK_THRESHOLD); i++ {
 		var entry Map_EntryOf[string, BoxedOf[int32]] = sliceAt_(sortedBlame, i)
@@ -65,6 +61,13 @@ func (this *PruningAnalysis) calculateBottlenecks() ImmutableMapOf[string, Boxed
 	}
 	return result.buildOrThrow()
 }
+
+// lambda_PruningAnalysis_calculateBottlenecks_1_ is a lambda of PruningAnalysis_calculateBottlenecks that captures nothing (post-flip step lambdas).
+var lambda_PruningAnalysis_calculateBottlenecks_1_ = &ToIntFunction_fn{func(entry_ any) int32 {
+	var entry Map_Entry = icast_Map_Entry(entry_)
+	_ = entry
+	return unbox_[int32](entry.getValue())
+}}
 
 func (this *PruningAnalysis) buildGraph() *DiGraph {
 	var graph *DiGraph = LinkedDirectedGraph_create().up_DiGraph()
