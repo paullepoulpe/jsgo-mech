@@ -152,10 +152,10 @@ func (this *CharRanges) union(other *CharRanges) *CharRanges {
 		}
 	}
 	if i < m {
-		System_arraycopy(any(q), i, any(out), k, (m - i))
+		arraycopy_(q, i, out, k, (m - i))
 		k += (m - i)
 	} else if j < n {
-		System_arraycopy(any(r), j, any(out), k, (n - j))
+		arraycopy_(r, j, out, k, (n - j))
 		k += (n - j)
 	}
 	if k != int32(len(out)) {
@@ -197,7 +197,7 @@ func (this *CharRanges) intersection(other *CharRanges) *CharRanges {
 				} else {
 					if intersectionIdx == int32(len(intersection)) {
 						var newArr []int32 = make([]int32, (intersectionIdx * 2))
-						System_arraycopy(any(intersection), 0, any(newArr), 0, intersectionIdx)
+						arraycopy_(intersection, 0, newArr, 0, intersectionIdx)
 						intersection = newArr
 					}
 					intersection[intersectionIdx] = pos
@@ -249,7 +249,7 @@ func (this *CharRanges) difference(subtrahendRanges *CharRanges) *CharRanges {
 			} else {
 				if dIdx == int32(len(difference)) {
 					var newArr []int32 = make([]int32, (dIdx * 2))
-					System_arraycopy(any(difference), 0, any(newArr), 0, dIdx)
+					arraycopy_(difference, 0, newArr, 0, dIdx)
 					difference = newArr
 				}
 				difference[dIdx] = pos

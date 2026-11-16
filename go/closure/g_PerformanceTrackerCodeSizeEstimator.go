@@ -78,7 +78,7 @@ func (this *PerformanceTrackerCodeSizeEstimator) getZippedCodeSize() int32 {
 		it_3 := foreach_(any(this.output))
 		for it_3.next() {
 			var chunk []int8 = cast_[[]int8](it_3.v)
-			System_arraycopy(any(chunk), 0, any(bytes), offset, int32(len(chunk)))
+			arraycopy_(chunk, 0, bytes, offset, int32(len(chunk)))
 			offset += int32(len(chunk))
 		}
 		return int32(len(Io_gzip(bytes)))
