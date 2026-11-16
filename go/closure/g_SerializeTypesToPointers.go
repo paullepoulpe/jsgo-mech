@@ -31,7 +31,7 @@ func new_SerializeTypesToPointers(compiler *AbstractCompiler, jstypeReconseriali
 func SerializeTypesToPointers_create(compiler *AbstractCompiler, stringPoolBuilder *StringPool_Builder, serializationOptions *SerializationOptions) *SerializeTypesToPointers {
 	var invalidatingTypes *InvalidatingTypes = new_InvalidatingTypes_Builder(compiler.getTypeRegistry()).addAllTypeMismatches(compiler.getTypeMismatches()).build()
 	var propertiesReferencedInAst map[string]struct{} = map[string]struct{}{}
-	var jsTypeReconserializer *JSTypeReconserializer = JSTypeReconserializer_create(compiler.getTypeRegistry(), invalidatingTypes, stringPoolBuilder, &Predicate_fn{func(p0 any) bool { return has_(propertiesReferencedInAst, str_(p0)) }}, serializationOptions)
+	var jsTypeReconserializer *JSTypeReconserializer = JSTypeReconserializer_create(compiler.getTypeRegistry(), invalidatingTypes, stringPoolBuilder, func(p0 any) bool { return has_(propertiesReferencedInAst, str_(p0)) }, serializationOptions)
 	return new_SerializeTypesToPointers(compiler, jsTypeReconserializer, propertiesReferencedInAst)
 }
 
@@ -63,16 +63,16 @@ func (this *SerializeTypesToPointers) logSerializationDebugInfo(serializer *JSTy
 		defer closeResource_(log.self())
 		if log.isLogging() {
 			var allSerializedTypes MapOf[string, ListOf[*JSType]] = serializer.getColorIdToJSTypeMapForDebugging().asMap()
-			log.logJson(icast_LogFile_StreamedJsonProducer(obj_(new_SerializeTypesToPointers_StreamObjectUuidsJson(allSerializedTypes))))
+			log.logJson(new_SerializeTypesToPointers_StreamObjectUuidsJson(allSerializedTypes).writeJson)
 		}
 		return 0
 	}()
 	_ = func() (code_ int) {
 		var log *LogFile = this.compiler_.createOrReopenLog(Object_getClass(any(this)), "mismatches.log", []string{})
 		defer closeResource_(log.self())
-		log.log(&Supplier_fn{func() any {
+		log.log(func() any {
 			return strobj_(SerializeTypesToPointers_typeMismatchesToJson(this.logTypeMismatches(this.compiler_.getTypeMismatches(), serializer, typePool)))
-		}})
+		})
 		return 0
 	}()
 }

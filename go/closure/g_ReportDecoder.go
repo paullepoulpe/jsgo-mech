@@ -173,7 +173,7 @@ func ReportDecoder_createReportProfile(instrumentationPoints []*InstrumentationP
 	List_sort(sliceView_(tc_p_InstrumentationPointStats, sortedPoints), Comparator_thenComparingInt(Comparator_comparing(lambda_ReportDecoder_createReportProfile_1_), lambda_ReportDecoder_createReportProfile_2_))
 	var pointsByFileName *TMap[string, ListOf[*InstrumentationPointStats]] = newTMap_(tc_string, tc_ListOf_p_InstrumentationPointStats_)
 	for _, pointStats := range sortedPoints {
-		pointsByFileName.computeIfAbsent_f(pointStats.getPoint().getFileName(), lambda_ReportDecoder_createReportProfile_3_.f).add(obj_(pointStats))
+		pointsByFileName.computeIfAbsent_f(pointStats.getPoint().getFileName(), lambda_ReportDecoder_createReportProfile_3_).add(obj_(pointStats))
 	}
 	var fileProfiles *TList[*FileProfile] = newTList_(tc_p_FileProfile)
 	it_3 := foreach_(any(pointsByFileName.asMap().entrySet()))
@@ -200,11 +200,11 @@ var lambda_ReportDecoder_createReportProfile_2_ = &ToIntFunction_fn{func(pointSt
 }}
 
 // lambda_ReportDecoder_createReportProfile_3_ is a lambda of ReportDecoder_createReportProfile that captures nothing (post-flip step lambdas).
-var lambda_ReportDecoder_createReportProfile_3_ = &Function_fn{func(k_ any) any {
+func lambda_ReportDecoder_createReportProfile_3_(k_ any) any {
 	var k string = str_(k_)
 	_ = k
 	return new_ArrayList_0().self()
-}}
+}
 
 // lambda_ReportDecoder_createReportProfile_4_ is a lambda of ReportDecoder_createReportProfile that captures nothing (post-flip step lambdas).
 var lambda_ReportDecoder_createReportProfile_4_ = &Function_fn{func(p0 any) any { return strobj_(cast_[*FileProfile](p0).getFileName()) }}

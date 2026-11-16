@@ -416,11 +416,11 @@ func (this *ProcessCommonJSModules_ExportInfo) init_ProcessCommonJSModules_Expor
 }
 
 // lambda_ProcessCommonJSModules_ExportInfo_init_ProcessCommonJSModules_ExportInfo_1_ is a lambda of ProcessCommonJSModules_ExportInfo_init_ProcessCommonJSModules_ExportInfo that captures nothing (post-flip step lambdas).
-var lambda_ProcessCommonJSModules_ExportInfo_init_ProcessCommonJSModules_ExportInfo_1_ = &Predicate_base_fn{func(n_ any) bool {
+func lambda_ProcessCommonJSModules_ExportInfo_init_ProcessCommonJSModules_ExportInfo_1_(n_ any) bool {
 	var n Node = Node_of_(n_)
 	_ = n
 	return (((n.isIf() || n.isHook()) || n.isFunction()) || n.isArrowFunction())
-}}
+}
 
 func new_ProcessCommonJSModules_ExportInfo(node Node, scope *Scope) *ProcessCommonJSModules_ExportInfo {
 	this := &ProcessCommonJSModules_ExportInfo{}
@@ -984,11 +984,11 @@ func (this *ProcessCommonJSModules_RewriteModule) visit_impl(t *NodeTraversal, n
 			if NodeUtil_isLhsByDestructuring(n) {
 				this.maybeUpdateName(t, n, nameDeclaration)
 			} else if (nameDeclaration.getNode() != 0) && objequalsBy_(nameDeclaration.getNode().getInputId(), obj_(n.getInputId()), (*InputId).equals) {
-				var enclosingDeclaration Node = NodeUtil_getEnclosingNode(n, &Predicate_base_fn{func(node_ any) bool {
+				var enclosingDeclaration Node = NodeUtil_getEnclosingNode(n, func(node_ any) bool {
 					var node Node = Node_of_(node_)
 					_ = node
 					return (node == nameDeclaration.getNameNode())
-				}})
+				})
 				if ((enclosingDeclaration == 0) || (enclosingDeclaration == n)) || (cast_[*Scope](nameDeclaration.getScope()) != t.getScope()) {
 					this.maybeUpdateName(t, n, nameDeclaration)
 				}

@@ -356,7 +356,7 @@ func (this *CheckConformance_Precondition_fn) shouldCheck(p0 Node) bool {
 }
 
 var CheckConformance_Precondition_CHECK_ALL CheckConformance_Precondition
-var CheckConformance_Precondition_IS_CONSTRUCTOR_OR_CLASS CheckConformance_Precondition
+var CheckConformance_Precondition_IS_CONSTRUCTOR_OR_CLASS func(Node) bool
 
 var CheckConformance_Precondition_clinit_done bool
 
@@ -371,9 +371,9 @@ func CheckConformance_Precondition_clinit() {
 }
 
 // lambda_CheckConformance_Precondition_clinit_1_ is a lambda of CheckConformance_Precondition_clinit that captures nothing (post-flip step lambdas).
-var lambda_CheckConformance_Precondition_clinit_1_ = &CheckConformance_Precondition_fn{func(n Node) bool {
+func lambda_CheckConformance_Precondition_clinit_1_(n Node) bool {
 	return (n.isClass() || NodeUtil_isConstructor(n))
-}}
+}
 
 type CheckConformance_Category struct {
 	precondition CheckConformance_Precondition

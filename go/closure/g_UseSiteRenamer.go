@@ -3,7 +3,7 @@
 package closure
 
 type UseSiteRenamer struct {
-	mutationCb    ConsumerOf[Node]
+	mutationCb    func(any)
 	renamingIndex *SimpleSetMultimap
 }
 
@@ -11,12 +11,12 @@ func (this *UseSiteRenamer) finit_UseSiteRenamer() {
 	this.renamingIndex = SimpleSetMultimap_create()
 }
 
-func (this *UseSiteRenamer) init_UseSiteRenamer(mutationCb ConsumerOf[Node]) {
+func (this *UseSiteRenamer) init_UseSiteRenamer(mutationCb func(any)) {
 	this.finit_UseSiteRenamer()
 	this.mutationCb = mutationCb
 }
 
-func new_UseSiteRenamer(mutationCb ConsumerOf[Node]) *UseSiteRenamer {
+func new_UseSiteRenamer(mutationCb func(any)) *UseSiteRenamer {
 	this := &UseSiteRenamer{}
 	this.init_UseSiteRenamer(mutationCb)
 	return this
@@ -41,7 +41,7 @@ func (this *UseSiteRenamer) renameUses(prop *PropertyClustering) UseSiteRenamer_
 		var newName string = str_(clusterNames.get(obj_(flatRep)))
 		if !(site.getString() == newName) {
 			site.setString(newName)
-			this.mutationCb.accept(site.box_())
+			this.mutationCb(site.box_())
 		}
 	}
 	return UseSiteRenamer_RenameUsesResult_DISAMBIGUATED

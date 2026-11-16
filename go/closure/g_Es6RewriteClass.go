@@ -133,11 +133,11 @@ func (this *Es6RewriteClass) visitClass(t *NodeTraversal, classNode Node, parent
 }
 
 func (this *Es6RewriteClass) reportPrimitiveReturns(constructor Node) {
-	NodeUtil_visitPostOrder_Node_Visitor_Predicate(NodeUtil_getFunctionBody(constructor), &NodeUtil_Visitor_fn{func(n Node) {
+	NodeUtil_visitPostOrder_Node_Visitor_Predicate(NodeUtil_getFunctionBody(constructor), func(n Node) {
 		if ((n.isReturn() && n.hasChildren()) && NodeUtil_isImmutableValue(n.getFirstChild())) && (NodeUtil_getKnownValueType(n.getFirstChild()) != NodeUtil_ValueType_VOID) {
 			this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, Es6RewriteClass_CONSTRUCTOR_PRIMITIVE_RETURN, []string{}))
 		}
-	}}, lambda_Es6RewriteClass_reportPrimitiveReturns_1_)
+	}, lambda_Es6RewriteClass_reportPrimitiveReturns_1_)
 }
 
 // lambda_Es6RewriteClass_reportPrimitiveReturns_1_ is a lambda of Es6RewriteClass_reportPrimitiveReturns that captures nothing (post-flip step lambdas).

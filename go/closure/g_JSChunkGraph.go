@@ -303,11 +303,13 @@ func (this *JSChunkGraph) getTransitiveDepsDeepestFirst(m *JSChunk) ListOf[*JSCh
 }
 
 func (this *JSChunkGraph) getTransitiveDeps(m *JSChunk) SetOf[*JSChunk] {
-	return icast_Set(this.dependencyMap.computeIfAbsent(obj_(m), lambda_JSChunkGraph_getTransitiveDeps_1_.f))
+	return icast_Set(this.dependencyMap.computeIfAbsent(obj_(m), lambda_JSChunkGraph_getTransitiveDeps_1_))
 }
 
 // lambda_JSChunkGraph_getTransitiveDeps_1_ is a lambda of JSChunkGraph_getTransitiveDeps that captures nothing (post-flip step lambdas).
-var lambda_JSChunkGraph_getTransitiveDeps_1_ = &Function_fn{func(p0 any) any { return any(cast_[*JSChunk](p0).getAllDependencies()) }}
+func lambda_JSChunkGraph_getTransitiveDeps_1_(p0 any) any {
+	return any(cast_[*JSChunk](p0).getAllDependencies())
+}
 
 func JSChunkGraph_moveMarkedWeakSources(weakChunk *JSChunk, inputs IterableOf[*CompilerInput]) {
 	Preconditions_checkNotNull(obj_(weakChunk))

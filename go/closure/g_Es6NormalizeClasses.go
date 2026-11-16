@@ -587,14 +587,14 @@ func (this *Es6NormalizeClasses) rewriteThisToThisDotSelf(fn Node) bool {
 		return false
 	}
 	var hasThis []bool = make([]bool, 1)
-	NodeUtil_visitPostOrder_Node_Visitor_Predicate(fnBody, &NodeUtil_Visitor_fn{func(n Node) {
+	NodeUtil_visitPostOrder_Node_Visitor_Predicate(fnBody, func(n Node) {
 		if n.isThis() {
 			hasThis[0] = true
 			var target Node = this.astFactory_.createGetPropWithUnknownType(this.astFactory_.createThis(AstFactory_typeColor(StandardColors_UNKNOWN)), "$self").srcref(n)
 			n.replaceWith(target)
 			this.compiler_.reportChangeToEnclosingScope(target)
 		}
-	}}, lambda_Es6NormalizeClasses_rewriteThisToThisDotSelf_1_)
+	}, lambda_Es6NormalizeClasses_rewriteThisToThisDotSelf_1_)
 	return hasThis[0]
 }
 
@@ -611,11 +611,11 @@ func (this *Es6NormalizeClasses) hasThisReference(fn Node) bool {
 		return false
 	}
 	var hasThis []bool = make([]bool, 1)
-	NodeUtil_visitPostOrder_Node_Visitor_Predicate(fnBody, &NodeUtil_Visitor_fn{func(n Node) {
+	NodeUtil_visitPostOrder_Node_Visitor_Predicate(fnBody, func(n Node) {
 		if n.isThis() {
 			hasThis[0] = true
 		}
-	}}, lambda_Es6NormalizeClasses_hasThisReference_1_)
+	}, lambda_Es6NormalizeClasses_hasThisReference_1_)
 	return hasThis[0]
 }
 
@@ -636,7 +636,7 @@ func (this *Es6NormalizeClasses) rewriteSuperReferencesInPrivateMember(memberNod
 		return
 	}
 	var isStatic bool = memberNode.isStaticMember()
-	NodeUtil_visitPostOrder_Node_Visitor_Predicate(fnBody, &NodeUtil_Visitor_fn{func(n Node) {
+	NodeUtil_visitPostOrder_Node_Visitor_Predicate(fnBody, func(n Node) {
 		if n.isSuper() {
 			var parent Node = n.getParent()
 			if parent.isGetProp() || parent.isGetElem() {
@@ -678,7 +678,7 @@ func (this *Es6NormalizeClasses) rewriteSuperReferencesInPrivateMember(memberNod
 				this.compiler_.reportChangeToEnclosingScope(fnBody)
 			}
 		}
-	}}, lambda_Es6NormalizeClasses_rewriteSuperReferencesInPrivateMember_1_)
+	}, lambda_Es6NormalizeClasses_rewriteSuperReferencesInPrivateMember_1_)
 }
 
 // lambda_Es6NormalizeClasses_rewriteSuperReferencesInPrivateMember_1_ is a lambda of Es6NormalizeClasses_rewriteSuperReferencesInPrivateMember that captures nothing (post-flip step lambdas).
@@ -1125,11 +1125,11 @@ func (this *Es6NormalizeClasses) rewriteStaticMembers(t *NodeTraversal, record *
 }
 
 // lambda_Es6NormalizeClasses_rewriteStaticMembers_1_ is a lambda of Es6NormalizeClasses_rewriteStaticMembers that captures nothing (post-flip step lambdas).
-var lambda_Es6NormalizeClasses_rewriteStaticMembers_1_ = &Predicate_base_fn{func(n_ any) bool {
+func lambda_Es6NormalizeClasses_rewriteStaticMembers_1_(n_ any) bool {
 	var n Node = Node_of_(n_)
 	_ = n
 	return (n.isSuper() || n.isPrivateIdentifier())
-}}
+}
 
 // lambda_Es6NormalizeClasses_rewriteStaticMembers_2_ is a lambda of Es6NormalizeClasses_rewriteStaticMembers that captures nothing (post-flip step lambdas).
 var lambda_Es6NormalizeClasses_rewriteStaticMembers_2_ = &Predicate_base_fn{func(n_ any) bool {

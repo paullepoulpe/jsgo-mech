@@ -52,7 +52,7 @@ func (this *RewritePolyfills) process_2(externs Node, root Node) {
 	}
 	if this.injectPolyfills {
 		this.libraries = newTSet_(tc_string)
-		new_PolyfillUsageFinder(this.compiler_, this.polyfills, this.disambiguateProperties_).traverseExcludingGuarded(root, &Consumer_fn{func(p0 any) { this.inject(cast_[*PolyfillUsageFinder_PolyfillUsage](p0)) }})
+		new_PolyfillUsageFinder(this.compiler_, this.polyfills, this.disambiguateProperties_).traverseExcludingGuarded(root, func(p0 any) { this.inject(cast_[*PolyfillUsageFinder_PolyfillUsage](p0)) })
 	}
 	var librariesToInject ImmutableListOf[string]
 	if this.injectPolyfillsNewerThan != 0 {

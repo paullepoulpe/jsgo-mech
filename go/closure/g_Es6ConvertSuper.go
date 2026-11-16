@@ -74,7 +74,7 @@ func (this *Es6ConvertSuper) visitSuper(node Node, parent Node) {
 }
 
 // lambda_Es6ConvertSuper_visitSuper_1_ is a lambda of Es6ConvertSuper_visitSuper that captures nothing (post-flip step lambdas).
-var lambda_Es6ConvertSuper_visitSuper_1_ = &Predicate_base_fn{func(n_ any) bool {
+func lambda_Es6ConvertSuper_visitSuper_1_(n_ any) bool {
 	var n Node = Node_of_(n_)
 	_ = n
 	return func() bool {
@@ -86,7 +86,7 @@ var lambda_Es6ConvertSuper_visitSuper_1_ = &Predicate_base_fn{func(n_ any) bool 
 		}
 		panic("unreachable")
 	}()
-}}
+}
 
 func (this *Es6ConvertSuper) visitSuperCall(node Node, parent Node, enclosingMemberDef Node) {
 	if !parent.isCall() {

@@ -62,7 +62,7 @@ func (this *IsolatePolyfills) process_2(externs Node, root Node) {
 	var injectedPolyfills ImmutableSetOf[string] = this.findAllInjectedPolyfills()
 	var polyfillUsages []*PolyfillUsageFinder_PolyfillUsage = []*PolyfillUsageFinder_PolyfillUsage{}
 	var shouldDisambiguateProperties bool = this.compiler_.getOptions().shouldDisambiguateProperties()
-	new_PolyfillUsageFinder(this.compiler_, this.polyfills, shouldDisambiguateProperties).traverseIncludingGuarded(root, &Consumer_fn{func(p0 any) { polyfillUsages = append(polyfillUsages, cast_[*PolyfillUsageFinder_PolyfillUsage](p0)) }})
+	new_PolyfillUsageFinder(this.compiler_, this.polyfills, shouldDisambiguateProperties).traverseIncludingGuarded(root, func(p0 any) { polyfillUsages = append(polyfillUsages, cast_[*PolyfillUsageFinder_PolyfillUsage](p0)) })
 	var visitedNodes map[Node]struct{} = map[Node]struct{}{}
 	it_1 := eachOf_(&polyfillUsages)
 	for it_1.next() {

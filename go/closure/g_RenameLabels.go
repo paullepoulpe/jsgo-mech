@@ -4,13 +4,13 @@ package closure
 
 type RenameLabels struct {
 	compiler_    *AbstractCompiler
-	nameSupplier SupplierOf[string]
+	nameSupplier func() any
 	removeUnused bool
 	markChanges  bool
 }
 
 func (this *RenameLabels) init_RenameLabels_AbstractCompiler(compiler *AbstractCompiler) {
-	this.init_RenameLabels_AbstractCompiler_Supplier_boolean_boolean(compiler, icast_Supplier(obj_(new_RenameLabels_DefaultNameSupplier())), true, true)
+	this.init_RenameLabels_AbstractCompiler_Supplier_boolean_boolean(compiler, new_RenameLabels_DefaultNameSupplier().get, true, true)
 }
 
 func new_RenameLabels_AbstractCompiler(compiler *AbstractCompiler) *RenameLabels {
@@ -19,14 +19,14 @@ func new_RenameLabels_AbstractCompiler(compiler *AbstractCompiler) *RenameLabels
 	return this
 }
 
-func (this *RenameLabels) init_RenameLabels_AbstractCompiler_Supplier_boolean_boolean(compiler *AbstractCompiler, supplier SupplierOf[string], removeUnused bool, markChanges bool) {
+func (this *RenameLabels) init_RenameLabels_AbstractCompiler_Supplier_boolean_boolean(compiler *AbstractCompiler, supplier func() any, removeUnused bool, markChanges bool) {
 	this.compiler_ = compiler
 	this.nameSupplier = supplier
 	this.removeUnused = removeUnused
 	this.markChanges = markChanges
 }
 
-func new_RenameLabels_AbstractCompiler_Supplier_boolean_boolean(compiler *AbstractCompiler, supplier SupplierOf[string], removeUnused bool, markChanges bool) *RenameLabels {
+func new_RenameLabels_AbstractCompiler_Supplier_boolean_boolean(compiler *AbstractCompiler, supplier func() any, removeUnused bool, markChanges bool) *RenameLabels {
 	this := &RenameLabels{}
 	this.init_RenameLabels_AbstractCompiler_Supplier_boolean_boolean(compiler, supplier, removeUnused, markChanges)
 	return this
@@ -100,7 +100,7 @@ func (this *RenameLabels_ProcessLabels) shouldTraverse(nodeTraversal *NodeTraver
 		Preconditions_checkState(!has_(current.renameMap, name))
 		current.renameMap[name] = li
 		if int32(len(this.names_)) < currentDepth {
-			this.names_ = append(this.names_, str_(this.outer_.nameSupplier.get()))
+			this.names_ = append(this.names_, str_(this.outer_.nameSupplier()))
 		}
 	}
 	return true

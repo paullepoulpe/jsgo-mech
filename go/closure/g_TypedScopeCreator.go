@@ -235,7 +235,7 @@ func (this *TypedScopeCreator) createInitialScope(root Node) *TypedScope {
 	if !root.isRoot() {
 		Preconditions_checkArgument_boolean_Object(false, root.box_())
 	}
-	var scopeCreator *MemoizedScopeCreator = new_MemoizedScopeCreator(icast_ScopeCreator(obj_(new_SyntacticScopeCreator_AbstractCompiler(this.compiler_))))
+	var scopeCreator *MemoizedScopeCreator = new_MemoizedScopeCreator(new_SyntacticScopeCreator_AbstractCompiler(this.compiler_).createScopeAbstractScope)
 	NodeTraversal_builder().setCompiler(this.compiler_).setCallback(icast_NodeTraversal_Callback(obj_(new_TypedScopeCreator_FirstOrderFunctionAnalyzer(this)))).setScopeCreator(icast_ScopeCreator(obj_(scopeCreator))).traverseRoots(root.getFirstChild(), root.getLastChild())
 	NodeTraversal_builder().setCompiler(this.compiler_).setCallback(icast_NodeTraversal_Callback(obj_(new_TypedScopeCreator_IdentifyEnumsAndTypedefsAsNonNullable(this.typeRegistry)))).setScopeCreator(icast_ScopeCreator(obj_(scopeCreator))).traverse(root)
 	var s *TypedScope = TypedScope_createGlobalScope(root)
@@ -778,17 +778,17 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) visit(t *NodeTraversal, n No
 		this.visitPostorder(t, n, parent)
 	}
 	if !isScopeRoot && this.deferredActions.containsKey(n.box_()) {
-		Iterable_forEach_f(Iterable(this.deferredActions.removeAll(n.box_())), lambda_TypedScopeCreator_AbstractScopeBuilder_visit_1_.f)
+		Iterable_forEach_f(Iterable(this.deferredActions.removeAll(n.box_())), lambda_TypedScopeCreator_AbstractScopeBuilder_visit_1_)
 	} else if isScopeRoot && !this.deferredActions.isEmpty() {
-		Iterable_forEach_f(Iterable(this.deferredActions.values()), lambda_TypedScopeCreator_AbstractScopeBuilder_visit_2_.f)
+		Iterable_forEach_f(Iterable(this.deferredActions.values()), lambda_TypedScopeCreator_AbstractScopeBuilder_visit_2_)
 	}
 }
 
 // lambda_TypedScopeCreator_AbstractScopeBuilder_visit_1_ is a lambda of TypedScopeCreator_AbstractScopeBuilder_visit that captures nothing (post-flip step lambdas).
-var lambda_TypedScopeCreator_AbstractScopeBuilder_visit_1_ = &Consumer_fn{func(p0 any) { icast_Runnable(p0).run() }}
+func lambda_TypedScopeCreator_AbstractScopeBuilder_visit_1_(p0 any) { icast_Runnable(p0).run() }
 
 // lambda_TypedScopeCreator_AbstractScopeBuilder_visit_2_ is a lambda of TypedScopeCreator_AbstractScopeBuilder_visit that captures nothing (post-flip step lambdas).
-var lambda_TypedScopeCreator_AbstractScopeBuilder_visit_2_ = &Consumer_fn{func(p0 any) { icast_Runnable(p0).run() }}
+func lambda_TypedScopeCreator_AbstractScopeBuilder_visit_2_(p0 any) { icast_Runnable(p0).run() }
 
 func (this *TypedScopeCreator_AbstractScopeBuilder) visitPreorder_impl(t *NodeTraversal, n Node, parent Node) {
 
@@ -1018,22 +1018,22 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) defineVarChild(declarationIn
 			}
 			return
 		}
-		this.defineDestructuringPatternInVarDeclaration(pattern, scope, &Supplier_base_fn{func() any {
+		this.defineDestructuringPatternInVarDeclaration(pattern, scope, func() any {
 			return func() any {
 				if value != 0 {
 					return obj_(new_TypedScopeCreator_RValueInfo(this.getDeclaredRValueType(0, value), value.getQualifiedNameObject()))
 				}
 				return obj_(new_TypedScopeCreator_RValueInfo(this.outer_.unknownType.up_JSType(), nil))
 			}()
-		}})
+		})
 	}
 }
 
-func (this *TypedScopeCreator_AbstractScopeBuilder) inferTypeForDestructuredTarget(target *DestructuredTarget, patternTypeSupplier Supplier_baseOf[*TypedScopeCreator_RValueInfo]) *TypedScopeCreator_RValueInfo {
+func (this *TypedScopeCreator_AbstractScopeBuilder) inferTypeForDestructuredTarget(target *DestructuredTarget, patternTypeSupplier func() any) *TypedScopeCreator_RValueInfo {
 	if !target.hasStringKey() || target.hasDefaultValue() {
 		return TypedScopeCreator_RValueInfo_empty()
 	}
-	var rvalue *TypedScopeCreator_RValueInfo = cast_[*TypedScopeCreator_RValueInfo](patternTypeSupplier.get())
+	var rvalue *TypedScopeCreator_RValueInfo = cast_[*TypedScopeCreator_RValueInfo](patternTypeSupplier())
 	var patternType *JSType = rvalue.type__
 	var propertyName string = target.getStringKey().getString()
 	var qname *QualifiedName = func() *QualifiedName {
@@ -1052,13 +1052,13 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) inferTypeForDestructuredTarg
 	return new_TypedScopeCreator_RValueInfo(nil, qname)
 }
 
-func (this *TypedScopeCreator_AbstractScopeBuilder) defineDestructuringPatternInVarDeclaration(pattern Node, scope *TypedScope, patternTypeSupplier Supplier_baseOf[*TypedScopeCreator_RValueInfo]) {
-	for _, target := range DestructuredTarget_createAllNonEmptyTargetsInPatternSupplier(this.outer_.typeRegistry, &Supplier_base_fn{func() any {
-		return cast_[*TypedScopeCreator_RValueInfo](patternTypeSupplier.get()).type__.self()
-	}}, pattern) {
-		var typeSupplier Supplier_baseOf[*TypedScopeCreator_RValueInfo] = &Supplier_base_fn{func() any {
+func (this *TypedScopeCreator_AbstractScopeBuilder) defineDestructuringPatternInVarDeclaration(pattern Node, scope *TypedScope, patternTypeSupplier func() any) {
+	for _, target := range DestructuredTarget_createAllNonEmptyTargetsInPatternSupplier(this.outer_.typeRegistry, func() any {
+		return cast_[*TypedScopeCreator_RValueInfo](patternTypeSupplier()).type__.self()
+	}, pattern) {
+		var typeSupplier func() any = func() any {
 			return obj_(this.inferTypeForDestructuredTarget(target, patternTypeSupplier))
-		}}
+		}
 		if target.getNode().isDestructuringPattern() {
 			this.defineDestructuringPatternInVarDeclaration(target.getNode(), scope, typeSupplier)
 		} else {
@@ -1585,7 +1585,7 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) getLValueRootScope(n Node) *
 	return cast_[*TypedScope](this.currentHoistScope.getGlobalScope().self())
 }
 
-func (this *TypedScopeCreator_AbstractScopeBuilder) getDeclaredType(info *JSDocInfo, lValue Node, rValue Node, declaredRValueTypeSupplier Supplier_baseOf[*TypedScopeCreator_RValueInfo]) *JSType {
+func (this *TypedScopeCreator_AbstractScopeBuilder) getDeclaredType(info *JSDocInfo, lValue Node, rValue Node, declaredRValueTypeSupplier func() any) *JSType {
 	if (info != nil) && info.hasType() {
 		var type_ *JSType = this.getDeclaredTypeInAnnotation(lValue, info)
 		if (((type_.isSymbol() && lValue.isFromExterns()) && lValue.isGetProp()) && lValue.getFirstChild().matchesName("Symbol")) && this.currentScope.isGlobal() {
@@ -1630,7 +1630,7 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) getDeclaredType(info *JSDocI
 				return rValueType
 			}
 		} else if declaredRValueTypeSupplier != nil {
-			var rvalueInfo *TypedScopeCreator_RValueInfo = cast_[*TypedScopeCreator_RValueInfo](declaredRValueTypeSupplier.get())
+			var rvalueInfo *TypedScopeCreator_RValueInfo = cast_[*TypedScopeCreator_RValueInfo](declaredRValueTypeSupplier())
 			if rvalueInfo != nil {
 				this.declareAliasTypeIfRvalueIsAliasable(lValue, rvalueInfo.qualifiedName_, rvalueInfo.type__, this.currentScope)
 				if rvalueInfo.type__ != nil {

@@ -92,12 +92,14 @@ func CodeReplacement_clinit() {
 		return
 	}
 	CodeReplacement_clinit_done = true
-	CodeReplacement_APPLICATION_ORDER = Comparator_thenComparing(Comparator_thenComparing(Comparator_thenComparingInt(Comparator_comparingInt(lambda_CodeReplacement_clinit_1_), lambda_CodeReplacement_clinit_2_), lambda_CodeReplacement_clinit_3_), lambda_CodeReplacement_clinit_4_)
+	CodeReplacement_APPLICATION_ORDER = Comparator_thenComparing(Comparator_thenComparing(Comparator_thenComparingInt(Comparator_comparingInt_f(lambda_CodeReplacement_clinit_1_), lambda_CodeReplacement_clinit_2_), lambda_CodeReplacement_clinit_3_), lambda_CodeReplacement_clinit_4_)
 
 }
 
 // lambda_CodeReplacement_clinit_1_ is a lambda of CodeReplacement_clinit that captures nothing (post-flip step lambdas).
-var lambda_CodeReplacement_clinit_1_ = &ToIntFunction_fn{func(p0 any) int32 { return cast_[*CodeReplacement](p0).getStartPosition() }}
+func lambda_CodeReplacement_clinit_1_(p0 any) int32 {
+	return cast_[*CodeReplacement](p0).getStartPosition()
+}
 
 // lambda_CodeReplacement_clinit_2_ is a lambda of CodeReplacement_clinit that captures nothing (post-flip step lambdas).
 var lambda_CodeReplacement_clinit_2_ = &ToIntFunction_fn{func(p0 any) int32 { return cast_[*CodeReplacement](p0).getLength() }}

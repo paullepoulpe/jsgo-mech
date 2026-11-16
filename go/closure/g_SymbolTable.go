@@ -863,7 +863,7 @@ func (this *SymbolTable) addRefsInGoogRequireStatement(n Node, googModuleScopes 
 func (this *SymbolTable) fillGoogProvideModuleRequires(externs Node, root Node) {
 	var declaredNamespaces map[string]*SymbolTable_Symbol = map[string]*SymbolTable_Symbol{}
 	var moduleScopes map[string]*SymbolTable_SymbolScope = map[string]*SymbolTable_SymbolScope{}
-	var looksLikeGoogCall PredicateOf[Node] = lambda_SymbolTable_fillGoogProvideModuleRequires_1_
+	var looksLikeGoogCall func(any) bool = lambda_SymbolTable_fillGoogProvideModuleRequires_1_
 	var collectModuleScopes NodeTraversal_Callback = icast_NodeTraversal_Callback(obj_(new_SymbolTable_3(this, looksLikeGoogCall, declaredNamespaces, moduleScopes)))
 	var processRequireStatements NodeTraversal_Callback = icast_NodeTraversal_Callback(obj_(new_SymbolTable_4(this, looksLikeGoogCall, moduleScopes, declaredNamespaces)))
 	NodeTraversal_traverseRoots(this.compiler_, collectModuleScopes, externs, root)
@@ -871,7 +871,7 @@ func (this *SymbolTable) fillGoogProvideModuleRequires(externs Node, root Node) 
 }
 
 // lambda_SymbolTable_fillGoogProvideModuleRequires_1_ is a lambda of SymbolTable_fillGoogProvideModuleRequires that captures nothing (post-flip step lambdas).
-var lambda_SymbolTable_fillGoogProvideModuleRequires_1_ = &Predicate_fn{func(n_ any) bool {
+func lambda_SymbolTable_fillGoogProvideModuleRequires_1_(n_ any) bool {
 	var n Node = Node_of_(n_)
 	_ = n
 	if !n.isCall() {
@@ -884,7 +884,7 @@ var lambda_SymbolTable_fillGoogProvideModuleRequires_1_ = &Predicate_fn{func(n_ 
 	}
 	return true
 	panic("unreachable")
-}}
+}
 
 func (this *SymbolTable) flattenGoogModuleExports() {
 	it_1 := foreach_(any(this.getAllScopes()))
@@ -2020,7 +2020,7 @@ func (this *SymbolTable_2) visit_impl(t *NodeTraversal, n Node, parent Node) {
 type SymbolTable_3 struct {
 	NodeTraversal_AbstractPostOrderCallback
 	outer_                 *SymbolTable
-	cap_looksLikeGoogCall  Predicate
+	cap_looksLikeGoogCall  func(any) bool
 	cap_declaredNamespaces map[string]*SymbolTable_Symbol
 	cap_moduleScopes       map[string]*SymbolTable_SymbolScope
 }
@@ -2036,7 +2036,7 @@ func (this *SymbolTable_3) init_SymbolTable_3() {
 	this.NodeTraversal_AbstractPostOrderCallback.init_NodeTraversal_AbstractPostOrderCallback()
 }
 
-func new_SymbolTable_3(outer_ *SymbolTable, cap_looksLikeGoogCall Predicate, cap_declaredNamespaces map[string]*SymbolTable_Symbol, cap_moduleScopes map[string]*SymbolTable_SymbolScope) *SymbolTable_3 {
+func new_SymbolTable_3(outer_ *SymbolTable, cap_looksLikeGoogCall func(any) bool, cap_declaredNamespaces map[string]*SymbolTable_Symbol, cap_moduleScopes map[string]*SymbolTable_SymbolScope) *SymbolTable_3 {
 	this := &SymbolTable_3{}
 	this.self_ = this
 	this.outer_ = outer_
@@ -2048,7 +2048,7 @@ func new_SymbolTable_3(outer_ *SymbolTable, cap_looksLikeGoogCall Predicate, cap
 }
 
 func (this *SymbolTable_3) visit_impl(t *NodeTraversal, n Node, parent Node) {
-	if !this.cap_looksLikeGoogCall.test(n.box_()) {
+	if !this.cap_looksLikeGoogCall(n.box_()) {
 		return
 	}
 	var arg Node = n.getSecondChild()
@@ -2067,7 +2067,7 @@ func (this *SymbolTable_3) visit_impl(t *NodeTraversal, n Node, parent Node) {
 type SymbolTable_4 struct {
 	NodeTraversal_AbstractPostOrderCallback
 	outer_                 *SymbolTable
-	cap_looksLikeGoogCall  Predicate
+	cap_looksLikeGoogCall  func(any) bool
 	cap_moduleScopes       map[string]*SymbolTable_SymbolScope
 	cap_declaredNamespaces map[string]*SymbolTable_Symbol
 }
@@ -2083,7 +2083,7 @@ func (this *SymbolTable_4) init_SymbolTable_4() {
 	this.NodeTraversal_AbstractPostOrderCallback.init_NodeTraversal_AbstractPostOrderCallback()
 }
 
-func new_SymbolTable_4(outer_ *SymbolTable, cap_looksLikeGoogCall Predicate, cap_moduleScopes map[string]*SymbolTable_SymbolScope, cap_declaredNamespaces map[string]*SymbolTable_Symbol) *SymbolTable_4 {
+func new_SymbolTable_4(outer_ *SymbolTable, cap_looksLikeGoogCall func(any) bool, cap_moduleScopes map[string]*SymbolTable_SymbolScope, cap_declaredNamespaces map[string]*SymbolTable_Symbol) *SymbolTable_4 {
 	this := &SymbolTable_4{}
 	this.self_ = this
 	this.outer_ = outer_
@@ -2095,7 +2095,7 @@ func new_SymbolTable_4(outer_ *SymbolTable, cap_looksLikeGoogCall Predicate, cap
 }
 
 func (this *SymbolTable_4) visit_impl(t *NodeTraversal, n Node, parent Node) {
-	if !this.cap_looksLikeGoogCall.test(n.box_()) {
+	if !this.cap_looksLikeGoogCall(n.box_()) {
 		return
 	}
 	var arg Node = n.getSecondChild()

@@ -119,27 +119,27 @@ func (this *SemanticReverseAbstractInterpreter) getPreciserScopeKnowingCondition
 		}
 	case Token_rhino_EQ:
 		if outcome.isTruthy() {
-			return this.caseEquality(condition, blindScope, lambda_SemanticReverseAbstractInterpreter_getPreciserScopeKnowingConditionOutcome_impl_1_.f)
+			return this.caseEquality(condition, blindScope, lambda_SemanticReverseAbstractInterpreter_getPreciserScopeKnowingConditionOutcome_impl_1_)
 		} else {
-			return this.caseEquality(condition, blindScope, lambda_SemanticReverseAbstractInterpreter_getPreciserScopeKnowingConditionOutcome_impl_2_.f)
+			return this.caseEquality(condition, blindScope, lambda_SemanticReverseAbstractInterpreter_getPreciserScopeKnowingConditionOutcome_impl_2_)
 		}
 	case Token_rhino_NE:
 		if outcome.isTruthy() {
-			return this.caseEquality(condition, blindScope, lambda_SemanticReverseAbstractInterpreter_getPreciserScopeKnowingConditionOutcome_impl_3_.f)
+			return this.caseEquality(condition, blindScope, lambda_SemanticReverseAbstractInterpreter_getPreciserScopeKnowingConditionOutcome_impl_3_)
 		} else {
-			return this.caseEquality(condition, blindScope, lambda_SemanticReverseAbstractInterpreter_getPreciserScopeKnowingConditionOutcome_impl_4_.f)
+			return this.caseEquality(condition, blindScope, lambda_SemanticReverseAbstractInterpreter_getPreciserScopeKnowingConditionOutcome_impl_4_)
 		}
 	case Token_rhino_SHEQ:
 		if outcome.isTruthy() {
-			return this.caseEquality(condition, blindScope, lambda_SemanticReverseAbstractInterpreter_getPreciserScopeKnowingConditionOutcome_impl_5_.f)
+			return this.caseEquality(condition, blindScope, lambda_SemanticReverseAbstractInterpreter_getPreciserScopeKnowingConditionOutcome_impl_5_)
 		} else {
-			return this.caseEquality(condition, blindScope, lambda_SemanticReverseAbstractInterpreter_getPreciserScopeKnowingConditionOutcome_impl_6_.f)
+			return this.caseEquality(condition, blindScope, lambda_SemanticReverseAbstractInterpreter_getPreciserScopeKnowingConditionOutcome_impl_6_)
 		}
 	case Token_rhino_SHNE:
 		if outcome.isTruthy() {
-			return this.caseEquality(condition, blindScope, lambda_SemanticReverseAbstractInterpreter_getPreciserScopeKnowingConditionOutcome_impl_7_.f)
+			return this.caseEquality(condition, blindScope, lambda_SemanticReverseAbstractInterpreter_getPreciserScopeKnowingConditionOutcome_impl_7_)
 		} else {
-			return this.caseEquality(condition, blindScope, lambda_SemanticReverseAbstractInterpreter_getPreciserScopeKnowingConditionOutcome_impl_8_.f)
+			return this.caseEquality(condition, blindScope, lambda_SemanticReverseAbstractInterpreter_getPreciserScopeKnowingConditionOutcome_impl_8_)
 		}
 	case Token_rhino_NAME, Token_rhino_GETPROP:
 		return this.caseNameOrGetProp(condition, blindScope, outcome)
@@ -149,7 +149,7 @@ func (this *SemanticReverseAbstractInterpreter) getPreciserScopeKnowingCondition
 		return this.firstPreciserScopeKnowingConditionOutcome(condition.getFirstChild(), blindScope, outcome.not())
 	case Token_rhino_LE, Token_rhino_LT, Token_rhino_GE, Token_rhino_GT:
 		if outcome.isTruthy() {
-			return this.caseEquality(condition, blindScope, lambda_SemanticReverseAbstractInterpreter_getPreciserScopeKnowingConditionOutcome_impl_9_.f)
+			return this.caseEquality(condition, blindScope, lambda_SemanticReverseAbstractInterpreter_getPreciserScopeKnowingConditionOutcome_impl_9_)
 		}
 	case Token_rhino_INSTANCEOF:
 		return this.caseInstanceOf(condition.getFirstChild(), condition.getLastChild(), blindScope, outcome)
@@ -161,9 +161,9 @@ func (this *SemanticReverseAbstractInterpreter) getPreciserScopeKnowingCondition
 		var left Node = condition.getParent().getPrevious()
 		var right Node = condition.getFirstChild()
 		if outcome.isTruthy() {
-			return this.caseEquality_4(left, right, blindScope, lambda_SemanticReverseAbstractInterpreter_getPreciserScopeKnowingConditionOutcome_impl_10_.f)
+			return this.caseEquality_4(left, right, blindScope, lambda_SemanticReverseAbstractInterpreter_getPreciserScopeKnowingConditionOutcome_impl_10_)
 		} else {
-			return this.caseEquality_4(left, right, blindScope, lambda_SemanticReverseAbstractInterpreter_getPreciserScopeKnowingConditionOutcome_impl_11_.f)
+			return this.caseEquality_4(left, right, blindScope, lambda_SemanticReverseAbstractInterpreter_getPreciserScopeKnowingConditionOutcome_impl_11_)
 		}
 	case Token_rhino_CALL:
 		var left Node = condition.getFirstChild()
@@ -177,37 +177,59 @@ func (this *SemanticReverseAbstractInterpreter) getPreciserScopeKnowingCondition
 }
 
 // lambda_SemanticReverseAbstractInterpreter_getPreciserScopeKnowingConditionOutcome_impl_1_ is a lambda of SemanticReverseAbstractInterpreter_getPreciserScopeKnowingConditionOutcome_impl that captures nothing (post-flip step lambdas).
-var lambda_SemanticReverseAbstractInterpreter_getPreciserScopeKnowingConditionOutcome_impl_1_ = &Function_base_fn{func(p0 any) any { return obj_(SemanticReverseAbstractInterpreter_eq(cast_[*JSType_TypePair](p0))) }}
+func lambda_SemanticReverseAbstractInterpreter_getPreciserScopeKnowingConditionOutcome_impl_1_(p0 any) any {
+	return obj_(SemanticReverseAbstractInterpreter_eq(cast_[*JSType_TypePair](p0)))
+}
 
 // lambda_SemanticReverseAbstractInterpreter_getPreciserScopeKnowingConditionOutcome_impl_2_ is a lambda of SemanticReverseAbstractInterpreter_getPreciserScopeKnowingConditionOutcome_impl that captures nothing (post-flip step lambdas).
-var lambda_SemanticReverseAbstractInterpreter_getPreciserScopeKnowingConditionOutcome_impl_2_ = &Function_base_fn{func(p0 any) any { return obj_(SemanticReverseAbstractInterpreter_ne(cast_[*JSType_TypePair](p0))) }}
+func lambda_SemanticReverseAbstractInterpreter_getPreciserScopeKnowingConditionOutcome_impl_2_(p0 any) any {
+	return obj_(SemanticReverseAbstractInterpreter_ne(cast_[*JSType_TypePair](p0)))
+}
 
 // lambda_SemanticReverseAbstractInterpreter_getPreciserScopeKnowingConditionOutcome_impl_3_ is a lambda of SemanticReverseAbstractInterpreter_getPreciserScopeKnowingConditionOutcome_impl that captures nothing (post-flip step lambdas).
-var lambda_SemanticReverseAbstractInterpreter_getPreciserScopeKnowingConditionOutcome_impl_3_ = &Function_base_fn{func(p0 any) any { return obj_(SemanticReverseAbstractInterpreter_ne(cast_[*JSType_TypePair](p0))) }}
+func lambda_SemanticReverseAbstractInterpreter_getPreciserScopeKnowingConditionOutcome_impl_3_(p0 any) any {
+	return obj_(SemanticReverseAbstractInterpreter_ne(cast_[*JSType_TypePair](p0)))
+}
 
 // lambda_SemanticReverseAbstractInterpreter_getPreciserScopeKnowingConditionOutcome_impl_4_ is a lambda of SemanticReverseAbstractInterpreter_getPreciserScopeKnowingConditionOutcome_impl that captures nothing (post-flip step lambdas).
-var lambda_SemanticReverseAbstractInterpreter_getPreciserScopeKnowingConditionOutcome_impl_4_ = &Function_base_fn{func(p0 any) any { return obj_(SemanticReverseAbstractInterpreter_eq(cast_[*JSType_TypePair](p0))) }}
+func lambda_SemanticReverseAbstractInterpreter_getPreciserScopeKnowingConditionOutcome_impl_4_(p0 any) any {
+	return obj_(SemanticReverseAbstractInterpreter_eq(cast_[*JSType_TypePair](p0)))
+}
 
 // lambda_SemanticReverseAbstractInterpreter_getPreciserScopeKnowingConditionOutcome_impl_5_ is a lambda of SemanticReverseAbstractInterpreter_getPreciserScopeKnowingConditionOutcome_impl that captures nothing (post-flip step lambdas).
-var lambda_SemanticReverseAbstractInterpreter_getPreciserScopeKnowingConditionOutcome_impl_5_ = &Function_base_fn{func(p0 any) any { return obj_(SemanticReverseAbstractInterpreter_sheq(cast_[*JSType_TypePair](p0))) }}
+func lambda_SemanticReverseAbstractInterpreter_getPreciserScopeKnowingConditionOutcome_impl_5_(p0 any) any {
+	return obj_(SemanticReverseAbstractInterpreter_sheq(cast_[*JSType_TypePair](p0)))
+}
 
 // lambda_SemanticReverseAbstractInterpreter_getPreciserScopeKnowingConditionOutcome_impl_6_ is a lambda of SemanticReverseAbstractInterpreter_getPreciserScopeKnowingConditionOutcome_impl that captures nothing (post-flip step lambdas).
-var lambda_SemanticReverseAbstractInterpreter_getPreciserScopeKnowingConditionOutcome_impl_6_ = &Function_base_fn{func(p0 any) any { return obj_(SemanticReverseAbstractInterpreter_shne(cast_[*JSType_TypePair](p0))) }}
+func lambda_SemanticReverseAbstractInterpreter_getPreciserScopeKnowingConditionOutcome_impl_6_(p0 any) any {
+	return obj_(SemanticReverseAbstractInterpreter_shne(cast_[*JSType_TypePair](p0)))
+}
 
 // lambda_SemanticReverseAbstractInterpreter_getPreciserScopeKnowingConditionOutcome_impl_7_ is a lambda of SemanticReverseAbstractInterpreter_getPreciserScopeKnowingConditionOutcome_impl that captures nothing (post-flip step lambdas).
-var lambda_SemanticReverseAbstractInterpreter_getPreciserScopeKnowingConditionOutcome_impl_7_ = &Function_base_fn{func(p0 any) any { return obj_(SemanticReverseAbstractInterpreter_shne(cast_[*JSType_TypePair](p0))) }}
+func lambda_SemanticReverseAbstractInterpreter_getPreciserScopeKnowingConditionOutcome_impl_7_(p0 any) any {
+	return obj_(SemanticReverseAbstractInterpreter_shne(cast_[*JSType_TypePair](p0)))
+}
 
 // lambda_SemanticReverseAbstractInterpreter_getPreciserScopeKnowingConditionOutcome_impl_8_ is a lambda of SemanticReverseAbstractInterpreter_getPreciserScopeKnowingConditionOutcome_impl that captures nothing (post-flip step lambdas).
-var lambda_SemanticReverseAbstractInterpreter_getPreciserScopeKnowingConditionOutcome_impl_8_ = &Function_base_fn{func(p0 any) any { return obj_(SemanticReverseAbstractInterpreter_sheq(cast_[*JSType_TypePair](p0))) }}
+func lambda_SemanticReverseAbstractInterpreter_getPreciserScopeKnowingConditionOutcome_impl_8_(p0 any) any {
+	return obj_(SemanticReverseAbstractInterpreter_sheq(cast_[*JSType_TypePair](p0)))
+}
 
 // lambda_SemanticReverseAbstractInterpreter_getPreciserScopeKnowingConditionOutcome_impl_9_ is a lambda of SemanticReverseAbstractInterpreter_getPreciserScopeKnowingConditionOutcome_impl that captures nothing (post-flip step lambdas).
-var lambda_SemanticReverseAbstractInterpreter_getPreciserScopeKnowingConditionOutcome_impl_9_ = &Function_base_fn{func(p0 any) any { return obj_(SemanticReverseAbstractInterpreter_ineq(cast_[*JSType_TypePair](p0))) }}
+func lambda_SemanticReverseAbstractInterpreter_getPreciserScopeKnowingConditionOutcome_impl_9_(p0 any) any {
+	return obj_(SemanticReverseAbstractInterpreter_ineq(cast_[*JSType_TypePair](p0)))
+}
 
 // lambda_SemanticReverseAbstractInterpreter_getPreciserScopeKnowingConditionOutcome_impl_10_ is a lambda of SemanticReverseAbstractInterpreter_getPreciserScopeKnowingConditionOutcome_impl that captures nothing (post-flip step lambdas).
-var lambda_SemanticReverseAbstractInterpreter_getPreciserScopeKnowingConditionOutcome_impl_10_ = &Function_base_fn{func(p0 any) any { return obj_(SemanticReverseAbstractInterpreter_sheq(cast_[*JSType_TypePair](p0))) }}
+func lambda_SemanticReverseAbstractInterpreter_getPreciserScopeKnowingConditionOutcome_impl_10_(p0 any) any {
+	return obj_(SemanticReverseAbstractInterpreter_sheq(cast_[*JSType_TypePair](p0)))
+}
 
 // lambda_SemanticReverseAbstractInterpreter_getPreciserScopeKnowingConditionOutcome_impl_11_ is a lambda of SemanticReverseAbstractInterpreter_getPreciserScopeKnowingConditionOutcome_impl that captures nothing (post-flip step lambdas).
-var lambda_SemanticReverseAbstractInterpreter_getPreciserScopeKnowingConditionOutcome_impl_11_ = &Function_base_fn{func(p0 any) any { return obj_(SemanticReverseAbstractInterpreter_shne(cast_[*JSType_TypePair](p0))) }}
+func lambda_SemanticReverseAbstractInterpreter_getPreciserScopeKnowingConditionOutcome_impl_11_(p0 any) any {
+	return obj_(SemanticReverseAbstractInterpreter_shne(cast_[*JSType_TypePair](p0)))
+}
 
 func (this *SemanticReverseAbstractInterpreter) caseIsArray(value Node, blindScope FlowScope, outcome *Outcome_rhino) FlowScope {
 	var type_ *JSType = this.getTypeIfRefinable(value, blindScope)

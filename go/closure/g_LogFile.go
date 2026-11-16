@@ -13,11 +13,11 @@ type LogFile_I interface {
 	isLogging_impl() bool
 	logJsonObject_impl(any) *LogFile
 	logJsonSupplier_impl(Supplier) *LogFile
-	logJson_impl(LogFile_StreamedJsonProducer) *LogFile
+	logJson_impl(func(*SimpleJsonWriter)) *LogFile
 	logObject_impl(any) *LogFile
 	logString_impl(string) *LogFile
 	log_2_impl(string, []any) *LogFile
-	log_impl(Supplier) *LogFile
+	log_impl(func() any) *LogFile
 }
 
 func (this *LogFile) as_LogFile() *LogFile { return this }
@@ -66,7 +66,7 @@ func (this *LogFile) logString(p0 string) *LogFile {
 	return this.self_.logString_impl(p0)
 }
 
-func (this *LogFile) log(p0 Supplier) *LogFile {
+func (this *LogFile) log(p0 func() any) *LogFile {
 	return this.self_.log_impl(p0)
 }
 
@@ -82,7 +82,7 @@ func (this *LogFile) logJsonSupplier(p0 Supplier) *LogFile {
 	return this.self_.logJsonSupplier_impl(p0)
 }
 
-func (this *LogFile) logJson(p0 LogFile_StreamedJsonProducer) *LogFile {
+func (this *LogFile) logJson(p0 func(*SimpleJsonWriter)) *LogFile {
 	return this.self_.logJson_impl(p0)
 }
 

@@ -5,14 +5,14 @@ package closure
 type ReplaceCssNames struct {
 	compiler_                    *AbstractCompiler
 	astFactory_                  *AstFactory
-	cssNameCollector             ReplaceCssNames_CssNameCollector
+	cssNameCollector             func(string)
 	cssNamesBySymbol             map[string]string
 	classesObjectsQualifiedNames map[string]struct{}
 	symbolMap                    CssRenamingMap
 	skiplist                     map[string]struct{}
 }
 
-func (this *ReplaceCssNames) init_ReplaceCssNames(compiler *AbstractCompiler, symbolMap CssRenamingMap, cssNameCollector ReplaceCssNames_CssNameCollector, skiplist map[string]struct{}) {
+func (this *ReplaceCssNames) init_ReplaceCssNames(compiler *AbstractCompiler, symbolMap CssRenamingMap, cssNameCollector func(string), skiplist map[string]struct{}) {
 	this.compiler_ = compiler
 	this.astFactory_ = compiler.createAstFactory()
 	this.symbolMap = symbolMap
@@ -22,7 +22,7 @@ func (this *ReplaceCssNames) init_ReplaceCssNames(compiler *AbstractCompiler, sy
 	this.classesObjectsQualifiedNames = map[string]struct{}{}
 }
 
-func new_ReplaceCssNames(compiler *AbstractCompiler, symbolMap CssRenamingMap, cssNameCollector ReplaceCssNames_CssNameCollector, skiplist map[string]struct{}) *ReplaceCssNames {
+func new_ReplaceCssNames(compiler *AbstractCompiler, symbolMap CssRenamingMap, cssNameCollector func(string), skiplist map[string]struct{}) *ReplaceCssNames {
 	this := &ReplaceCssNames{}
 	this.init_ReplaceCssNames(compiler, symbolMap, cssNameCollector, skiplist)
 	return this
@@ -39,7 +39,7 @@ func (this *ReplaceCssNames) process_2(externs Node, root Node) {
 			this.cssNamesBySymbol[getCssNameInstance.getCssClosureClassesMemberName().orElse(nullstr_)] = cssClassName.orElse(nullstr_)
 			this.classesObjectsQualifiedNames[getCssNameInstance.getCssClosureClassesQualifiedName().orElseThrow()] = struct{}{}
 		} else {
-			this.cssNameCollector.add(cssClassName.orElse(nullstr_))
+			this.cssNameCollector(cssClassName.orElse(nullstr_))
 		}
 		getCssNameInstance.replaceWithExpression()
 	}
@@ -501,7 +501,7 @@ func (this *ReplaceCssNames_CountCssNamesBySymbol) visit(t *NodeTraversal, n Nod
 		return
 	}
 	var className string = mapStr_(this.outer_.cssNamesBySymbol, classQualifiedName)
-	this.outer_.cssNameCollector.add(className)
+	this.outer_.cssNameCollector(className)
 }
 
 // visit: an object that is exactly a ReplaceCssNames_FindSetCssNameTraversal calls its visit_impl directly (post-flip); others dispatch.

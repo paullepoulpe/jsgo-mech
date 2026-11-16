@@ -75,7 +75,9 @@ func (this *Es6RewriteBlockScopedDeclaration) inLoop(n Node) bool {
 }
 
 // lambda_Es6RewriteBlockScopedDeclaration_inLoop_1_ is a lambda of Es6RewriteBlockScopedDeclaration_inLoop that captures nothing (post-flip step lambdas).
-var lambda_Es6RewriteBlockScopedDeclaration_inLoop_1_ = &Predicate_base_fn{func(p0 any) bool { return Es6RewriteBlockScopedDeclaration_isLoopOrFunction(Node_of_(p0)) }}
+func lambda_Es6RewriteBlockScopedDeclaration_inLoop_1_(p0 any) bool {
+	return Es6RewriteBlockScopedDeclaration_isLoopOrFunction(Node_of_(p0))
+}
 
 func Es6RewriteBlockScopedDeclaration_isLoopOrFunction(n Node) bool {
 	return (n.isFunction() || NodeUtil_isLoopStructure(n))
