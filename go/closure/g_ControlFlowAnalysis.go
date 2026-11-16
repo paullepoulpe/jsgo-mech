@@ -48,7 +48,9 @@ func (this *ControlFlowAnalysis) getCfg() *ControlFlowGraph {
 }
 
 func (this *ControlFlowAnalysis) computeCfg(root Node) {
-	Preconditions_checkArgument_boolean_String_Object(NodeUtil_isValidCfgRoot(root), "Unexpected control flow graph root %s", root.box_())
+	if !NodeUtil_isValidCfgRoot(root) {
+		Preconditions_checkArgument_boolean_String_Object(false, "Unexpected control flow graph root %s", root.box_())
+	}
 	this.root = root
 	this.astPosition = new_LinkedIdentityHashMap()
 	this.astPositionCounter = 0

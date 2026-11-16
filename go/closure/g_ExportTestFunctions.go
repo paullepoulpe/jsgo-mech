@@ -45,7 +45,9 @@ func (this *ExportTestFunctions) exportTestFunctionAsSymbol(testFunctionName str
 }
 
 func (this *ExportTestFunctions) exportTestFunctionAsProperty(fullyQualifiedFunctionName Node, node Node) {
-	Preconditions_checkState_boolean_Object(fullyQualifiedFunctionName.isGetProp(), fullyQualifiedFunctionName.box_())
+	if !fullyQualifiedFunctionName.isGetProp() {
+		Preconditions_checkState_boolean_Object(false, fullyQualifiedFunctionName.box_())
+	}
 	var testFunctionName string = NodeUtil_getPrototypePropertyName(node.getFirstChild())
 	if String_startsWith(node.getFirstChild().getQualifiedName(), "window.") {
 		testFunctionName = String_substring_int(node.getFirstChild().getQualifiedName(), String_length("window."))

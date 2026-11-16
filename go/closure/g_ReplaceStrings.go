@@ -258,7 +258,9 @@ func (this *ReplaceStrings) parseConfiguration(function string) *ReplaceStrings_
 			Preconditions_checkState(!replacementParameters.contains(any(int32(ReplaceStrings_Config_REPLACE_ALL_VALUE))))
 			replacementParameters.add(any(int32(paramCount)))
 		} else {
-			Preconditions_checkState_boolean_String_Object(String_isEmpty(param), "Unknown marker (%s)", strobj_(param))
+			if !String_isEmpty(param) {
+				Preconditions_checkState_boolean_String_Object(false, "Unknown marker (%s)", strobj_(param))
+			}
 		}
 	}
 	Preconditions_checkState(!replacementParameters.isEmpty())

@@ -149,8 +149,12 @@ type CodingConvention_SubclassRelationship struct {
 }
 
 func (this *CodingConvention_SubclassRelationship) init_CodingConvention_SubclassRelationship(type_ *CodingConvention_SubclassType, subclassNode Node, superclassNode Node) {
-	Preconditions_checkArgument_boolean_String_Object(subclassNode.isQualifiedName(), "Expected qualified name, found: %s", subclassNode.box_())
-	Preconditions_checkArgument_boolean_String_Object(superclassNode.isQualifiedName(), "Expected qualified name, found: %s", superclassNode.box_())
+	if !subclassNode.isQualifiedName() {
+		Preconditions_checkArgument_boolean_String_Object(false, "Expected qualified name, found: %s", subclassNode.box_())
+	}
+	if !superclassNode.isQualifiedName() {
+		Preconditions_checkArgument_boolean_String_Object(false, "Expected qualified name, found: %s", superclassNode.box_())
+	}
 	this.type__ = type_
 	this.subclassName = Optional_of(strobj_(subclassNode.getQualifiedName())).filter(&Predicate_fn{func(s_ any) bool {
 		var s string = str_(s_)

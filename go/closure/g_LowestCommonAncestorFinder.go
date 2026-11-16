@@ -33,7 +33,9 @@ func (this *LowestCommonAncestorFinder) findAll(roots SetOf[any]) ImmutableSetOf
 	for it_1.next() {
 		var root any = it_1.v
 		var rootNode DiGraph_DiGraphNode = icast_DiGraph_DiGraphNode(this.graph.getNode(root))
-		Preconditions_checkNotNull_Object_String_Object(any(rootNode), "Root not present in graph: %s", root)
+		if any(rootNode) == nil {
+			Preconditions_checkNotNull_Object_String_Object(nil, "Root not present in graph: %s", root)
+		}
 		var color *LowestCommonAncestorFinder_Color = LowestCommonAncestorFinder_Color_create(bitForRoot)
 		Map_merge(icast_Map(obj_(this.searchColoring)), any(rootNode), obj_(color), &BiFunction_fn{func(p0 any, p1 any) any {
 			return obj_(cast_[*LowestCommonAncestorFinder_Color](p0).mix(cast_[*LowestCommonAncestorFinder_Color](p1)))

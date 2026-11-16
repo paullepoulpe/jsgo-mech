@@ -106,8 +106,12 @@ func (this *CompilerInput) clearAst() {
 }
 
 func (this *CompilerInput) initShadowAst(shadowScript Node) {
-	Preconditions_checkArgument_boolean_Object(shadowScript.isScript(), shadowScript.box_())
-	Preconditions_checkState_boolean_Object(shadowScript.getIsInClosureUnawareSubtree(), shadowScript.box_())
+	if !shadowScript.isScript() {
+		Preconditions_checkArgument_boolean_Object(false, shadowScript.box_())
+	}
+	if !shadowScript.getIsInClosureUnawareSubtree() {
+		Preconditions_checkState_boolean_Object(false, shadowScript.box_())
+	}
 	this.ast.root = shadowScript
 }
 
@@ -227,8 +231,12 @@ func (this *CompilerInput) getDependencyInfo() DependencyInfo {
 }
 
 func (this *CompilerInput) generateDependencyInfo() DependencyInfo {
-	Preconditions_checkNotNull_Object_String_Object(this.compiler_.self(), "Expected setCompiler to be called first: %s", any(this))
-	Preconditions_checkNotNull_Object_String_Object(any(this.compiler_.getErrorManager()), "Expected compiler to call an error manager: %s", any(this))
+	if this.compiler_.self() == nil {
+		Preconditions_checkNotNull_Object_String_Object(nil, "Expected setCompiler to be called first: %s", any(this))
+	}
+	if any(this.compiler_.getErrorManager()) == nil {
+		Preconditions_checkNotNull_Object_String_Object(nil, "Expected compiler to call an error manager: %s", any(this))
+	}
 	if JsFileRegexParser_isSupported() && this.compiler_.preferRegexParser() {
 		var codeRes *Outcome_base = this.getSourceFile().readCode()
 		if codeRes.isErr() {

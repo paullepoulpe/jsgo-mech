@@ -139,7 +139,9 @@ func (this *PeepholeSubstituteAlternateSyntax) tryRotateAssociativeOperator(n No
 }
 
 func (this *PeepholeSubstituteAlternateSyntax) tryFoldSimpleFunctionCall(n Node) Node {
-	Preconditions_checkState_boolean_Object(n.isCall(), n.box_())
+	if !n.isCall() {
+		Preconditions_checkState_boolean_Object(false, n.box_())
+	}
 	var callTarget Node = n.getFirstChild()
 	if (callTarget == 0) || !callTarget.isName() {
 		return n
@@ -464,7 +466,9 @@ func (this *PeepholeSubstituteAlternateSyntax) tryMinimizeStringArrayLiteral(n N
 }
 
 func (this *PeepholeSubstituteAlternateSyntax) tryTurnTemplateStringsToStrings(n Node) Node {
-	Preconditions_checkState_boolean_Object(n.isTemplateLit(), n.box_())
+	if !n.isTemplateLit() {
+		Preconditions_checkState_boolean_Object(false, n.box_())
+	}
 	if n.getParent().isTaggedTemplateLit() {
 		return n
 	}

@@ -26,7 +26,9 @@ func ReportDecoder_parseMappingFromFile(mappingFilePath string) *Outcome_base {
 func ReportDecoder_parseMapping(mappingFileContent string) *Outcome_base {
 	var mapping MapOf[string, *InstrumentationPoint] = icast_Map(obj_(new_LinkedHashMap()))
 	var linesOfFile ListOf[string] = Splitter_on('\n').omitEmptyStrings().splitToList(strobj_(mappingFileContent))
-	Preconditions_checkState_boolean_String_Object((linesOfFile.size() >= 3), "Malformed report %s", any(linesOfFile))
+	if !(linesOfFile.size() >= 3) {
+		Preconditions_checkState_boolean_String_Object(false, "Malformed report %s", any(linesOfFile))
+	}
 	var fileNamesLine string = String_trim(str_(linesOfFile.get(0)))
 	var functionNamesLine string = String_trim(str_(linesOfFile.get(1)))
 	var typesLine string = String_trim(str_(linesOfFile.get(2)))

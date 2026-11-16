@@ -309,11 +309,15 @@ func (this *AstValidator) validatePseudoExpression(n Node, allowedPseudoexpressi
 	var allowedTokensSet ImmutableSetOf[*Token_rhino] = ImmutableSet_copyOf_ObjectArr(arrmap_(allowedPseudoexpressions, func(v_ *Token_rhino) any { return obj_(v_) }))
 	switch n.ns_().token {
 	case tokOrd1_EMPTY:
-		Preconditions_checkArgument_boolean_String_Object(allowedTokensSet.contains(obj_(Token_rhino_EMPTY)), "Unexpected pseudoexpression %s", n.box_())
+		if !allowedTokensSet.contains(obj_(Token_rhino_EMPTY)) {
+			Preconditions_checkArgument_boolean_String_Object(false, "Unexpected pseudoexpression %s", n.box_())
+		}
 		this.validateProperties(n)
 		this.validateChildless(n)
 	case tokOrd1_ITER_SPREAD:
-		Preconditions_checkArgument_boolean_String_Object(allowedTokensSet.contains(obj_(Token_rhino_ITER_SPREAD)), "Unexpected pseudoexpression %s", n.box_())
+		if !allowedTokensSet.contains(obj_(Token_rhino_ITER_SPREAD)) {
+			Preconditions_checkArgument_boolean_String_Object(false, "Unexpected pseudoexpression %s", n.box_())
+		}
 		this.validateProperties(n)
 		this.validateChildCount(n)
 		this.validateFeature(FeatureSet_Feature_SPREAD_EXPRESSIONS, n)
@@ -360,7 +364,9 @@ func (this *AstValidator) validateCallType(callNode Node) {
 		}
 	case AstValidator_TypeInfoValidation_COLOR:
 		var callee Node = callNode.getFirstChild()
-		Preconditions_checkNotNull_Object_String_Object(obj_(callee.getColor()), "Callee of\n\n%s\nhas no color.", strobj_(callNode.toStringTree()))
+		if v_, a1_ := obj_(callee.getColor()), callNode.toStringTree(); v_ == nil {
+			Preconditions_checkNotNull_Object_String_Object(nil, "Callee of\n\n%s\nhas no color.", strobj_(a1_))
+		}
 	case AstValidator_TypeInfoValidation_NONE:
 		panic(new_AssertionError_0().self())
 	}
@@ -446,7 +452,9 @@ func (this *AstValidator) isInParameterListOfFunction(child Node, functionNode N
 	{
 		var parent Node = child.getParent()
 		for ; parent != functionNode; parent = parent.getParent() {
-			Preconditions_checkNotNull_Object_String_Object_Object(parent.box_(), "%s not contained in function %s", child.box_(), functionNode.box_())
+			if parent.box_() == nil {
+				Preconditions_checkNotNull_Object_String_Object_Object(nil, "%s not contained in function %s", child.box_(), functionNode.box_())
+			}
 			if parent == paramList {
 				return true
 			}
@@ -1538,7 +1546,9 @@ func (this *AstValidator) validateAssignmentOpTarget(lhs Node, contextType *Toke
 }
 
 func (this *AstValidator) validateGetElem(n Node) {
-	Preconditions_checkArgument_boolean_Object(n.isGetElem(), n.box_())
+	if !n.isGetElem() {
+		Preconditions_checkArgument_boolean_Object(false, n.box_())
+	}
 	this.validateProperties(n)
 	this.validateChildCount_2(n, 2)
 	this.validatePropertyReferenceTarget(n.getFirstChild())
@@ -1547,7 +1557,9 @@ func (this *AstValidator) validateGetElem(n Node) {
 
 func (this *AstValidator) validateOptChainGetElem(node Node) {
 	this.validateFeature(FeatureSet_Feature_OPTIONAL_CHAINING, node)
-	Preconditions_checkArgument_boolean_Object(node.isOptChainGetElem(), node.box_())
+	if !node.isOptChainGetElem() {
+		Preconditions_checkArgument_boolean_Object(false, node.box_())
+	}
 	this.validateProperties(node)
 	this.validateChildCount_2(node, 2)
 	this.validateExpression(node.getFirstChild())

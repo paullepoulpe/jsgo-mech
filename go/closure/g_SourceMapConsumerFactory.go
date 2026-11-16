@@ -50,7 +50,9 @@ func SourceMapConsumerFactory_parseFast(contents string) *Outcome_base {
 			return Outcome_base_err(sourceMapObjectOutcome.error())
 		}
 		var sourceMapObject *SourceMapObject = cast_[*SourceMapObject](sourceMapObjectOutcome.get())
-		Preconditions_checkArgument_boolean_String_int((sourceMapObject.getVersion() == 3), "Unknown source map version:%s", sourceMapObject.getVersion())
+		if ok_, a1_ := (sourceMapObject.getVersion() == 3), sourceMapObject.getVersion(); !ok_ {
+			Preconditions_checkArgument_boolean_String_int(false, "Unknown source map version:%s", a1_)
+		}
 		var consumer *SourceMapConsumerV3 = new_SourceMapConsumerV3()
 		var parsed *Outcome_base = consumer.parse_2(sourceMapObject, nil)
 		if parsed.isErr() {

@@ -24,7 +24,9 @@ func new_CheckSuper(compiler *AbstractCompiler) *CheckSuper {
 
 func (this *CheckSuper) process_2(externs Node, root Node) {
 	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(any(this)))
-	Preconditions_checkState_boolean_Object(this.contextStack.isEmpty(), obj_(ImmutableList_of_Object(obj_(this.contextStack))))
+	if ok_, a1_ := this.contextStack.isEmpty(), ImmutableList_of_Object(obj_(this.contextStack)); !ok_ {
+		Preconditions_checkState_boolean_Object(false, obj_(a1_))
+	}
 }
 
 func (this *CheckSuper) shouldTraverse(t *NodeTraversal, n Node, parent Node) bool {
@@ -101,13 +103,17 @@ func (this *CheckSuper) visit(t *NodeTraversal, n Node, parent Node) {
 }
 
 func (this *CheckSuper) isSuperConstructorCall(superNode Node) bool {
-	Preconditions_checkState_boolean_Object(superNode.isSuper(), superNode.box_())
+	if !superNode.isSuper() {
+		Preconditions_checkState_boolean_Object(false, superNode.box_())
+	}
 	var parent Node = superNode.getParent()
 	return (parent.isCall() && superNode.isFirstChildOf(parent))
 }
 
 func (this *CheckSuper) isSuperPropertyAccess(superNode Node) bool {
-	Preconditions_checkState_boolean_Object(superNode.isSuper(), superNode.box_())
+	if !superNode.isSuper() {
+		Preconditions_checkState_boolean_Object(false, superNode.box_())
+	}
 	var parent Node = superNode.getParent()
 	return (NodeUtil_isNormalGet(parent) && superNode.isFirstChildOf(parent))
 }
@@ -305,12 +311,16 @@ func (this *CheckSuper_MethodContext) up_CheckSuper_Context() *CheckSuper_Contex
 
 func (this *CheckSuper_MethodContext) init_CheckSuper_MethodContext(functionNode Node) {
 	this.CheckSuper_Context.init_CheckSuper_Context(functionNode)
-	Preconditions_checkArgument_boolean_Object((functionNode.isFunction() && NodeUtil_isMethodDeclaration(functionNode)), functionNode.box_())
+	if !(functionNode.isFunction() && NodeUtil_isMethodDeclaration(functionNode)) {
+		Preconditions_checkArgument_boolean_Object(false, functionNode.box_())
+	}
 	var objLitOrClassMembers Node = Node_of_(Preconditions_checkNotNull(functionNode.getGrandparent().box_()))
 	if objLitOrClassMembers.isObjectLit() {
 		this.isClassMethod = false
 	} else {
-		Preconditions_checkState_boolean_Object(objLitOrClassMembers.isClassMembers(), objLitOrClassMembers.box_())
+		if !objLitOrClassMembers.isClassMembers() {
+			Preconditions_checkState_boolean_Object(false, objLitOrClassMembers.box_())
+		}
 		this.isClassMethod = true
 	}
 }
@@ -386,7 +396,9 @@ func (this *CheckSuper_ConstructorContext) finit_CheckSuper_ConstructorContext()
 func (this *CheckSuper_ConstructorContext) init_CheckSuper_ConstructorContext(contextNode Node) {
 	this.CheckSuper_Context.init_CheckSuper_Context(contextNode)
 	this.finit_CheckSuper_ConstructorContext()
-	Preconditions_checkArgument_boolean_Object(NodeUtil_isEs6Constructor(contextNode), contextNode.box_())
+	if !NodeUtil_isEs6Constructor(contextNode) {
+		Preconditions_checkArgument_boolean_Object(false, contextNode.box_())
+	}
 	var classNode Node = NodeUtil_getEnclosingClass(contextNode)
 	this.hasParentClass = !classNode.getSecondChild().isEmpty()
 	this.hasInstanceElements = NodeUtil_hasInstanceElements(classNode)

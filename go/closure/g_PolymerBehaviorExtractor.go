@@ -208,7 +208,9 @@ func (this *PolymerBehaviorExtractor) resolveGoogModuleGet(moduleNamespace strin
 	} else if closureModule.isGoogProvide() {
 		return this.resolveBehaviorName(Optional_of(strobj_(moduleNamespace)), nil)
 	}
-	Preconditions_checkState_boolean_Object(closureModule.isGoogModule(), obj_(closureModule))
+	if !closureModule.isGoogModule() {
+		Preconditions_checkState_boolean_Object(false, obj_(closureModule))
+	}
 	return this.resolveBehaviorName(Optional_of(strobj_(PolymerBehaviorExtractor_GOOG_MODULE_EXPORTS)), closureModule)
 }
 
@@ -222,7 +224,9 @@ func (this *PolymerBehaviorExtractor) getNameIfModuleImport(name string, metadat
 		}
 		return this.moduleMap.getModule(metadata.path())
 	}()
-	Preconditions_checkNotNull_Object_Object(obj_(module), obj_(metadata))
+	if obj_(module) == nil {
+		Preconditions_checkNotNull_Object_Object(nil, obj_(metadata))
+	}
 	var dot int32 = String_indexOf(name, 46)
 	var root string = func() string {
 		if dot == -1 {
@@ -250,7 +254,9 @@ func (this *PolymerBehaviorExtractor) getNameIfModuleImport(name string, metadat
 	} else if importMetadata.isGoogModule() {
 		originatingName = (sstr_(PolymerBehaviorExtractor_GOOG_MODULE_EXPORTS) + "." + sstr_(str_(b.originatingExport().exportName().orElse(strobj_("null")))) + sstr_(rest))
 	} else {
-		Preconditions_checkState_boolean_Object(importMetadata.isGoogProvide(), obj_(importMetadata))
+		if !importMetadata.isGoogProvide() {
+			Preconditions_checkState_boolean_Object(false, obj_(importMetadata))
+		}
 		originatingName = (sstr_(str_(b.closureNamespace().orElse(strobj_("null")))) + "." + sstr_(str_(b.originatingExport().exportName().orElse(strobj_("null")))) + sstr_(rest))
 	}
 	return this.resolveBehaviorName(Optional_of(strobj_(originatingName)), importMetadata)

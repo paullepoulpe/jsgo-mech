@@ -56,7 +56,9 @@ func (this *Es6RewriteSpreadExpressions) visitArrayLitOrCallWithSpread(t *NodeTr
 	} else if spreadParent.isCall() {
 		this.visitCallContainingSpread(t, spreadParent)
 	} else {
-		Preconditions_checkArgument_boolean_Object(spreadParent.isNew(), spreadParent.box_())
+		if !spreadParent.isNew() {
+			Preconditions_checkArgument_boolean_Object(false, spreadParent.box_())
+		}
 		this.visitNewWithSpread(spreadParent)
 	}
 }

@@ -302,7 +302,9 @@ func (this *TemplateTypeReplacer) caseTemplateType(type_ *TemplateType) any {
 	this.seenTypes.add(obj_(type_))
 	var visitedReplacement *JSType = to_JSType(replacement.visit(icast_Visitor(any(this))))
 	this.seenTypes.remove_Object(obj_(type_))
-	Preconditions_checkState_boolean_String_Object(!JSCompObjects_identical(visitedReplacement.self(), obj_(this.keyType)), "Trying to replace key %s with the same value", obj_(this.keyType))
+	if JSCompObjects_identical(visitedReplacement.self(), obj_(this.keyType)) {
+		Preconditions_checkState_boolean_String_Object(false, "Trying to replace key %s with the same value", obj_(this.keyType))
+	}
 	return visitedReplacement.self()
 }
 

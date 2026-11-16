@@ -14,7 +14,9 @@ type OptionalChainRewriter struct {
 }
 
 func (this *OptionalChainRewriter) init_OptionalChainRewriter(builder *OptionalChainRewriter_Builder, wholeChain Node) {
-	Preconditions_checkArgument_boolean_Object(NodeUtil_isEndOfFullOptChain(wholeChain), wholeChain.box_())
+	if !NodeUtil_isEndOfFullOptChain(wholeChain) {
+		Preconditions_checkArgument_boolean_Object(false, wholeChain.box_())
+	}
 	this.compiler_ = builder.compiler_
 	this.astFactory_ = builder.astFactory_
 	this.tmpVarNameCreator = icast_OptionalChainRewriter_TmpVarNameCreator(Preconditions_checkNotNull(any(builder.tmpVarNameCreator)))
@@ -41,7 +43,9 @@ func OptionalChainRewriter_builder(compiler *AbstractCompiler) *OptionalChainRew
 }
 
 func (this *OptionalChainRewriter) rewrite() {
-	Preconditions_checkState_boolean_String_Object(NodeUtil_isOptChainNode(this.wholeChain), "already rewritten: %s", this.wholeChain.box_())
+	if !NodeUtil_isOptChainNode(this.wholeChain) {
+		Preconditions_checkState_boolean_String_Object(false, "already rewritten: %s", this.wholeChain.box_())
+	}
 	var startNodeStack ArrayDequeOf[Node] = new_ArrayDeque()
 	var subchainEnd Node = this.wholeChain
 	for NodeUtil_isOptChainNode(subchainEnd) {
@@ -66,7 +70,9 @@ func (this *OptionalChainRewriter) rewrite() {
 	if this.chainParent.isDelProp() {
 		for !this.deletesToDelete.isEmpty() {
 			var delete_ Node = Node_of_(SequencedCollection_removeFirst(icast_SequencedCollection(obj_(this.deletesToDelete))))
-			Preconditions_checkState_boolean_Object(delete_.getFirstChild().isHook(), delete_.box_())
+			if !delete_.getFirstChild().isHook() {
+				Preconditions_checkState_boolean_Object(false, delete_.box_())
+			}
 			var hook Node = delete_.getFirstChild()
 			hook.detach()
 			delete_.replaceWith(hook)
@@ -84,7 +90,9 @@ func (this *OptionalChainRewriter) rewriteInitialSegment(fullChainStart Node, fu
 	if isBeingDeleted {
 		SequencedCollection_addLast(icast_SequencedCollection(obj_(this.deletesToDelete)), fullChainEnd.getParent().box_())
 	}
-	Preconditions_checkArgument_boolean_Object(!NodeUtil_isOptChainNode(receiverNode), receiverNode.box_())
+	if NodeUtil_isOptChainNode(receiverNode) {
+		Preconditions_checkArgument_boolean_Object(false, receiverNode.box_())
+	}
 	NodeUtil_convertToNonOptionalChainSegment(initialChainEnd)
 	var placeholder Node = IR_empty()
 	fullChainEnd.replaceWith(placeholder)

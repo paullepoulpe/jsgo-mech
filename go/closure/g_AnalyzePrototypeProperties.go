@@ -158,7 +158,9 @@ func (this *AnalyzePrototypeProperties_ProcessProperties) enterScope(t *NodeTrav
 	} else if t.inGlobalScope() {
 		this.symbolStack.push(obj_(new_AnalyzePrototypeProperties_NameContext(this.outer_.globalNode, scope)))
 	} else {
-		Preconditions_checkState_boolean_Object((((NodeUtil_createsBlockScope(root) || root.isModuleBody()) || root.isComputedFieldDef()) || root.isMemberFieldDef()), obj_(scope))
+		if !(((NodeUtil_createsBlockScope(root) || root.isModuleBody()) || root.isComputedFieldDef()) || root.isMemberFieldDef()) {
+			Preconditions_checkState_boolean_Object(false, obj_(scope))
+		}
 		this.symbolStack.push(obj_(new_AnalyzePrototypeProperties_NameContext(this.outer_.anonymousNode, scope)))
 	}
 }

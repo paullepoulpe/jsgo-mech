@@ -56,9 +56,13 @@ func (this *Es6RewriteClass) visitClass(t *NodeTraversal, classNode Node, parent
 		panic(new_IllegalStateException_String(("Can only convert classes that are declarations or the right hand side of a simple assignment: " + objstr_(classNode.box_()))).self())
 	}
 	if metadata.hasSuperClass() {
-		Preconditions_checkState_boolean_String_Object(metadata.superClassNameNode().isQualifiedName(), "Expected Es6NormalizeClasses to make all extends clauses into qualified  names, found %s", metadata.superClassNameNode().box_())
+		if ok_, a1_ := metadata.superClassNameNode().isQualifiedName(), metadata.superClassNameNode(); !ok_ {
+			Preconditions_checkState_boolean_String_Object(false, "Expected Es6NormalizeClasses to make all extends clauses into qualified  names, found %s", a1_.box_())
+		}
 	}
-	Preconditions_checkState_boolean_String_Object(NodeUtil_isStatement(metadata.insertionPoint().getNode()), "insertion point must be a statement: %s", metadata.insertionPoint().getNode().box_())
+	if ok_, a1_ := NodeUtil_isStatement(metadata.insertionPoint().getNode()), metadata.insertionPoint().getNode(); !ok_ {
+		Preconditions_checkState_boolean_String_Object(false, "insertion point must be a statement: %s", a1_.box_())
+	}
 	var constructor Node = 0
 	var classMembers Node = classNode.getLastChild()
 	{
@@ -77,8 +81,12 @@ func (this *Es6RewriteClass) visitClass(t *NodeTraversal, classNode Node, parent
 				}
 			} else if member.isEmpty() {
 			} else {
-				Preconditions_checkState_boolean_String_Object((member.isMemberFunctionDef() || member.isComputedProp()), "Unexpected class member: (%s)", member.box_())
-				Preconditions_checkState_boolean_String_Object(!member.getBooleanProp(Node_COMPUTED_PROP_VARIABLE), "Member variables should have been transpiled earlier: (%s)", member.box_())
+				if !(member.isMemberFunctionDef() || member.isComputedProp()) {
+					Preconditions_checkState_boolean_String_Object(false, "Unexpected class member: (%s)", member.box_())
+				}
+				if member.getBooleanProp(Node_COMPUTED_PROP_VARIABLE) {
+					Preconditions_checkState_boolean_String_Object(false, "Member variables should have been transpiled earlier: (%s)", member.box_())
+				}
 				this.visitMethod(member, metadata)
 			}
 			member = next
@@ -251,7 +259,9 @@ func (this *Es6RewriteClass) visitNonMethodMember(member Node, metadata *Es6Rewr
 	if !member.isStaticMember() {
 		return
 	}
-	Preconditions_checkState_boolean_Object(!member.isComputedProp(), member.box_())
+	if member.isComputedProp() {
+		Preconditions_checkState_boolean_Object(false, member.box_())
+	}
 	var membersToDeclare MapOf[string, *Es6RewriteClass_ClassProperty] = metadata.classMembersToDeclare()
 	var builder *Es6RewriteClass_ClassProperty_Builder = Es6RewriteClass_ClassProperty_builder()
 	var memberName string = member.getString()

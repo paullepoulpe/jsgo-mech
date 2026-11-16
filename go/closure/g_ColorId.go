@@ -45,7 +45,9 @@ func ColorId_fromAscii(str string) *ColorId {
 }
 
 func ColorId_fromBytesAt(source any, length int32, byteAt ColorId_ByteAt) *ColorId {
-	Preconditions_checkState_boolean_Object((length <= 8), any(int32(length)))
+	if !(length <= 8) {
+		Preconditions_checkState_boolean_Object(false, any(int32(length)))
+	}
 	var rightAligned int64 = 0
 	for i := int32(0); i < length; i++ {
 		rightAligned = (rightAligned << 8)
@@ -127,7 +129,9 @@ func ColorId_clinit() {
 		var s string = str_(s_)
 		_ = s
 		var c int32 = String_codePointAt(s, i)
-		Preconditions_checkState_boolean_Object(((0 <= c) && (c < 128)), any(int32(c)))
+		if !((0 <= c) && (c < 128)) {
+			Preconditions_checkState_boolean_Object(false, any(int32(c)))
+		}
 		return int8(c)
 		panic("unreachable")
 	}}

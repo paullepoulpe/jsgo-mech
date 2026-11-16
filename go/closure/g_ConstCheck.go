@@ -73,7 +73,9 @@ func (this *ConstCheck) visit_impl(t *NodeTraversal, n Node, parent Node) {
 }
 
 func (this *ConstCheck) isConstant(var_ *Var, nameNode Node) bool {
-	Preconditions_checkNotNull_Object_String_Object(obj_(var_), "Found unexpected undeclared name %s", nameNode.box_())
+	if obj_(var_) == nil {
+		Preconditions_checkNotNull_Object_String_Object(nil, "Found unexpected undeclared name %s", nameNode.box_())
+	}
 	return (var_.isConst() || var_.isDeclaredOrInferredConst())
 }
 

@@ -73,7 +73,9 @@ func (this *ModuleImportResolver) getScopedNameForClosureNamespace(moduleId stri
 }
 
 func (this *ModuleImportResolver) getGoogModuleScopeRoot(module *Module) Node {
-	Preconditions_checkArgument_boolean_Object(module.metadata().isGoogModule(), obj_(module.metadata()))
+	if ok_, a1_ := module.metadata().isGoogModule(), module.metadata(); !ok_ {
+		Preconditions_checkArgument_boolean_Object(false, obj_(a1_))
+	}
 	var scriptNode Node = module.metadata().rootNode()
 	if (scriptNode.isScript() && scriptNode.hasOneChild()) && scriptNode.getOnlyChild().isModuleBody() {
 		return scriptNode.getOnlyChild()
@@ -85,8 +87,12 @@ func (this *ModuleImportResolver) getGoogModuleScopeRoot(module *Module) Node {
 }
 
 func (this *ModuleImportResolver) declareEsModuleImports(module *Module, scope *TypedScope, moduleInput *CompilerInput) ImmutableMapOf[Node, *ScopedName] {
-	Preconditions_checkArgument_boolean_Object(module.metadata().isEs6Module(), obj_(module))
-	Preconditions_checkArgument_boolean_Object(scope.isModuleScope(), obj_(scope))
+	if !module.metadata().isEs6Module() {
+		Preconditions_checkArgument_boolean_Object(false, obj_(module))
+	}
+	if !scope.isModuleScope() {
+		Preconditions_checkArgument_boolean_Object(false, obj_(scope))
+	}
 	var missingNames ImmutableMap_BuilderOf[Node, *ScopedName] = ImmutableMap_builder()
 	it_1 := foreach_(obj_(cast_[*ImmutableSet](module.boundNames().entrySet())))
 	for it_1.next() {
@@ -99,7 +105,9 @@ func (this *ModuleImportResolver) declareEsModuleImports(module *Module, scope *
 		var export *ScopedName = this.getScopedNameFromEsBinding(binding)
 		var modScope *TypedScope = cast_[*TypedScope](this.nodeToScopeMapper.apply(export.getScopeRoot().box_()))
 		if modScope == nil {
-			Preconditions_checkState_boolean_Object((binding.sourceNode().getString() == localName), binding.sourceNode().box_())
+			if ok_, a1_ := (binding.sourceNode().getString() == localName), binding.sourceNode(); !ok_ {
+				Preconditions_checkState_boolean_Object(false, a1_.box_())
+			}
 			missingNames.put(binding.sourceNode().box_(), export.self())
 			continue
 		}
@@ -118,8 +126,12 @@ func (this *ModuleImportResolver) declareEsModuleImports(module *Module, scope *
 }
 
 func (this *ModuleImportResolver) updateEsModuleNamespaceType(namespace *ObjectType, module *Module, scope *TypedScope) {
-	Preconditions_checkArgument_boolean_Object(module.metadata().isEs6Module(), obj_(module))
-	Preconditions_checkArgument_boolean_Object(scope.isModuleScope(), obj_(scope))
+	if !module.metadata().isEs6Module() {
+		Preconditions_checkArgument_boolean_Object(false, obj_(module))
+	}
+	if !scope.isModuleScope() {
+		Preconditions_checkArgument_boolean_Object(false, obj_(scope))
+	}
 	it_1 := foreach_(obj_(cast_[*ImmutableSet](module.namespace().entrySet())))
 	for it_1.next() {
 		var boundName Map_Entry = icast_Map_Entry(it_1.v)
@@ -180,7 +192,9 @@ func (this *ModuleImportResolver) getScopedNameFromEsBinding(binding *Binding) *
 		switch originalMetadata.moduleType() {
 		case ModuleMetadataMap_ModuleType_ES6_MODULE:
 			var scriptNode Node = originalMetadata.rootNode()
-			Preconditions_checkState_boolean_Object(((scriptNode == 0) || scriptNode.isScript()), scriptNode.box_())
+			if !((scriptNode == 0) || scriptNode.isScript()) {
+				Preconditions_checkState_boolean_Object(false, scriptNode.box_())
+			}
 			return ScopedName_of(str_(name.orElse(nil)), func() Node {
 				if scriptNode != 0 {
 					return scriptNode.getOnlyChild()

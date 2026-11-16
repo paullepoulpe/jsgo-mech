@@ -36,7 +36,9 @@ func new_LineNumberScanner(sourceFile *SourceFile_parser) *LineNumberScanner {
 }
 
 func (this *LineNumberScanner) getSourcePosition(offset int32) *SourcePosition_util {
-	Preconditions_checkArgument_boolean_String_int_int((offset >= this.lastLineStart), "Must call rewindTo before calling getSourcePosition for an earlier line (%s < %s)", offset, this.lastLineStart)
+	if !(offset >= this.lastLineStart) {
+		Preconditions_checkArgument_boolean_String_int_int(false, "Must call rewindTo before calling getSourcePosition for an earlier line (%s < %s)", offset, this.lastLineStart)
+	}
 	for offset >= this.nextLineStart {
 		this.advanceLine()
 	}

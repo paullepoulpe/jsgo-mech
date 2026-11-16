@@ -668,7 +668,9 @@ func (this *OptimizeParameters) rewriteDestructuringPattern(destructuringPattern
 	NodeUtil_visitLhsNodesInDestructuringPattern(destructuringPattern, &Consumer_fn{func(name_ any) {
 		var name Node = Node_of_(name_)
 		_ = name
-		Preconditions_checkState_boolean_String_Object(name.isName(), "lhs in destructuring declaration should be a simple name. (%s)", name.box_())
+		if !name.isName() {
+			Preconditions_checkState_boolean_String_Object(false, "lhs in destructuring declaration should be a simple name. (%s)", name.box_())
+		}
 		var newName Node = IR_name(name.getString()).srcref(name)
 		var newVar Node = IR_var_Node(newName).srcref(name)
 		stmts.add(newVar)

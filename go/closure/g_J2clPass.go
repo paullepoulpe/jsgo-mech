@@ -249,7 +249,9 @@ func (this *J2clPass_ClassStaticFunctionsInliner_FunctionDefsCollector) visit(t 
 			panic("unreachable")
 		}()
 		var previousValue *J2clPass_ClassStaticFunctionsInliner_InlinableFunction = this.outer_.fnsToInlineByQualifiedName.put(str_(qualifiedFnName.orElse(nil)), inlinableFunction)
-		Preconditions_checkState_boolean_String_Object_Object((previousValue == nil), "expected each function to match at most one InliningSpec, but found:\n%s\n%s", obj_(previousValue), obj_(inlinableFunction))
+		if !(previousValue == nil) {
+			Preconditions_checkState_boolean_String_Object_Object(false, "expected each function to match at most one InliningSpec, but found:\n%s\n%s", obj_(previousValue), obj_(inlinableFunction))
+		}
 	}
 }
 

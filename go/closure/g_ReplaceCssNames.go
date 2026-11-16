@@ -359,13 +359,19 @@ func (this *ReplaceCssNames_GetCssNameInstance) isValid() bool {
 }
 
 func (this *ReplaceCssNames_GetCssNameInstance) getValidationError() *JSError {
-	Preconditions_checkNotNull_Object_String_Object(obj_(this.validationError), "No validation error found: %s", this.callNode_.box_())
+	if obj_(this.validationError) == nil {
+		Preconditions_checkNotNull_Object_String_Object(nil, "No validation error found: %s", this.callNode_.box_())
+	}
 	return this.validationError
 }
 
 func (this *ReplaceCssNames_GetCssNameInstance) replaceWithExpression() {
-	Preconditions_checkState_boolean_String_Object(this.isValid(), "not a valid goog.getCssName() call: %s", this.callNode_.box_())
-	Preconditions_checkNotNull_Object_String_Object(this.callNode_.getParent().box_(), "already replaced: %s", this.callNode_.box_())
+	if !this.isValid() {
+		Preconditions_checkState_boolean_String_Object(false, "not a valid goog.getCssName() call: %s", this.callNode_.box_())
+	}
+	if this.callNode_.getParent().box_() == nil {
+		Preconditions_checkNotNull_Object_String_Object(nil, "already replaced: %s", this.callNode_.box_())
+	}
 	var childCount int32 = this.callNode_.getChildCount()
 	switch childCount {
 	case 2:
@@ -379,7 +385,9 @@ func (this *ReplaceCssNames_GetCssNameInstance) replaceWithExpression() {
 
 func (this *ReplaceCssNames_GetCssNameInstance) replaceWithConvertedSingleArg() {
 	var stringLitArg Node = Node_of_(Preconditions_checkNotNull_Object_Object(this.callNode_.getSecondChild().box_(), this.callNode_.box_()))
-	Preconditions_checkState_boolean_String_Object(stringLitArg.isStringLit(), "not a string literal: %s", stringLitArg.box_())
+	if !stringLitArg.isStringLit() {
+		Preconditions_checkState_boolean_String_Object(false, "not a string literal: %s", stringLitArg.box_())
+	}
 	stringLitArg.detach()
 	this.outer_.processStringNode(stringLitArg)
 	this.callNode_.replaceWith(stringLitArg)
@@ -403,12 +411,16 @@ func (this *ReplaceCssNames_GetCssNameInstance) isCssClosureFileClassesMember() 
 }
 
 func (this *ReplaceCssNames_GetCssNameInstance) getCssClosureClassesQualifiedName() OptionalOf[string] {
-	Preconditions_checkState_boolean_String_Object(this.cssClosureClassesQualifiedName.isPresent(), "Not a css closure file classes object: %s", this.callNode_.box_())
+	if !this.cssClosureClassesQualifiedName.isPresent() {
+		Preconditions_checkState_boolean_String_Object(false, "Not a css closure file classes object: %s", this.callNode_.box_())
+	}
 	return this.cssClosureClassesQualifiedName
 }
 
 func (this *ReplaceCssNames_GetCssNameInstance) getCssClosureClassesMemberName() OptionalOf[string] {
-	Preconditions_checkState_boolean_String_Object(this.cssClosureClassesQualifiedName.isPresent(), "Not a css closure file classes object: %s", this.callNode_.box_())
+	if !this.cssClosureClassesQualifiedName.isPresent() {
+		Preconditions_checkState_boolean_String_Object(false, "Not a css closure file classes object: %s", this.callNode_.box_())
+	}
 	var ancestors *Node_AncestorIterable = this.callNode_.getAncestors()
 	it_1 := foreach_(obj_(ancestors))
 	for it_1.next() {
@@ -421,18 +433,26 @@ func (this *ReplaceCssNames_GetCssNameInstance) getCssClosureClassesMemberName()
 }
 
 func (this *ReplaceCssNames_GetCssNameInstance) getCssClassName() OptionalOf[string] {
-	Preconditions_checkState_boolean_String_Object(this.isValid(), "not a valid goog.getCssName() call: %s", this.callNode_.box_())
-	Preconditions_checkNotNull_Object_String_Object(this.callNode_.getParent().box_(), "already replaced: %s", this.callNode_.box_())
+	if !this.isValid() {
+		Preconditions_checkState_boolean_String_Object(false, "not a valid goog.getCssName() call: %s", this.callNode_.box_())
+	}
+	if this.callNode_.getParent().box_() == nil {
+		Preconditions_checkNotNull_Object_String_Object(nil, "already replaced: %s", this.callNode_.box_())
+	}
 	var childCount int32 = this.callNode_.getChildCount()
 	var firstArg Node = Node_of_(Preconditions_checkNotNull_Object_Object(this.callNode_.getSecondChild().box_(), this.callNode_.box_()))
 	return func() Optional {
 		switch childCount {
 		case 2:
-			Preconditions_checkState_boolean_String_Object(firstArg.isStringLit(), "not a string literal: %s", firstArg.box_())
+			if !firstArg.isStringLit() {
+				Preconditions_checkState_boolean_String_Object(false, "not a string literal: %s", firstArg.box_())
+			}
 			return Optional_of(strobj_(firstArg.getString()))
 		case 3:
 			var secondArg Node = Node_of_(Preconditions_checkNotNull_Object_Object(firstArg.getNext().box_(), firstArg.box_()))
-			Preconditions_checkState_boolean_String_Object(secondArg.isStringLit(), "not a string literal: %s", secondArg.box_())
+			if !secondArg.isStringLit() {
+				Preconditions_checkState_boolean_String_Object(false, "not a string literal: %s", secondArg.box_())
+			}
 			return Optional_of(strobj_(secondArg.getString()))
 		default:
 			panic(new_IllegalStateException_String(String_format("invalid number of children: %s for: %s", []any{any(int32(childCount)), this.callNode_.box_()})).self())

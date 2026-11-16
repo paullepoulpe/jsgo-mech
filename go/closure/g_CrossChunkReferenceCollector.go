@@ -153,7 +153,9 @@ func (this *CrossChunkReferenceCollector) canMoveValue(scope *Scope, valueNode N
 				if member.isComputedProp() {
 					var keyExpr Node = member.getFirstChild()
 					var method Node = member.getLastChild()
-					Preconditions_checkState_boolean_Object(method.isFunction(), method.box_())
+					if !method.isFunction() {
+						Preconditions_checkState_boolean_Object(false, method.box_())
+					}
 					if !this.canMoveValue(scope, keyExpr) {
 						return false
 					}
@@ -169,7 +171,9 @@ func (this *CrossChunkReferenceCollector) canMoveValue(scope *Scope, valueNode N
 				} else if member.isBlock() {
 					return false
 				} else {
-					Preconditions_checkState_boolean_Object((member.isMemberFunctionDef() || NodeUtil_isGetOrSetKey(member)), member.box_())
+					if !(member.isMemberFunctionDef() || NodeUtil_isGetOrSetKey(member)) {
+						Preconditions_checkState_boolean_Object(false, member.box_())
+					}
 				}
 			}
 		}
@@ -224,7 +228,9 @@ func (this *CrossChunkReferenceCollector) canMoveValue(scope *Scope, valueNode N
 						return false
 					}
 				} else {
-					Preconditions_checkState_boolean_Object(child.isTemplateLitString(), child.box_())
+					if !child.isTemplateLitString() {
+						Preconditions_checkState_boolean_Object(false, child.box_())
+					}
 				}
 			}
 		}
@@ -260,7 +266,9 @@ func new_CrossChunkReferenceCollector_TopLevelStatementCollectingBehavior(outer_
 
 func (this *CrossChunkReferenceCollector_TopLevelStatementCollectingBehavior) beforeTraverseNode(t *NodeTraversal, n Node, parent Node) {
 	if (parent != 0) && NodeUtil_isTopLevel(parent) {
-		Preconditions_checkState_boolean_Object((this.outer_.topLevelStatementDraft == nil), n.box_())
+		if !(this.outer_.topLevelStatementDraft == nil) {
+			Preconditions_checkState_boolean_Object(false, n.box_())
+		}
 		this.outer_.topLevelStatementDraft = this.outer_.initializeDraftStatement(t.getChunk(), n)
 	}
 }

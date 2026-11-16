@@ -961,7 +961,9 @@ func (this *FunctionType) forgetParameterAndReturnTypes() *FunctionType {
 }
 
 func (this *FunctionType) getConstructorOnlyTemplateParameters() ImmutableListOf[*TemplateType] {
-	Preconditions_checkState_boolean_Object(this.isConstructor(), this.self())
+	if !this.isConstructor() {
+		Preconditions_checkState_boolean_Object(false, this.self())
+	}
 	if this.source == 0 {
 		return ImmutableList_of()
 	}

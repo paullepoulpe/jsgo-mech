@@ -482,12 +482,16 @@ func (this *JsMessage_PlaceholderReference) isCanonicalFormat() bool {
 }
 
 func JsMessage_PlaceholderReference_createForJsName(name string) *JsMessage_PlaceholderReference {
-	Preconditions_checkArgument_boolean_String_Object(JsMessage_isLowerCamelCaseWithNumericSuffixes(name), "invalid JS placeholder name format: '%s'", strobj_(name))
+	if !JsMessage_isLowerCamelCaseWithNumericSuffixes(name) {
+		Preconditions_checkArgument_boolean_String_Object(false, "invalid JS placeholder name format: '%s'", strobj_(name))
+	}
 	return new_JsMessage_PlaceholderReference(name, false)
 }
 
 func JsMessage_PlaceholderReference_createForCanonicalName(name string) *JsMessage_PlaceholderReference {
-	Preconditions_checkArgument_boolean_String_Object(JsMessage_isCanonicalPlaceholderNameFormat(name), "not a canonical placeholder name format: '%s'", strobj_(name))
+	if !JsMessage_isCanonicalPlaceholderNameFormat(name) {
+		Preconditions_checkArgument_boolean_String_Object(false, "not a canonical placeholder name format: '%s'", strobj_(name))
+	}
 	return new_JsMessage_PlaceholderReference(name, true)
 }
 
@@ -697,7 +701,9 @@ func (this *JsMessage_Builder) setIsAnonymous(isAnonymous bool) *JsMessage_Build
 }
 
 func (this *JsMessage_Builder) setId(id OptionalOf[string]) *JsMessage_Builder {
-	Preconditions_checkState_boolean_String_Object_Object(this.id.isEmpty(), "id already set to '%s': cannot change it to '%s'", this.id.orElse(strobj_("null")), id.orElse(strobj_("null")))
+	if ok_, a1_, a2_ := this.id.isEmpty(), this.id.orElse(strobj_("null")), id.orElse(strobj_("null")); !ok_ {
+		Preconditions_checkState_boolean_String_Object_Object(false, "id already set to '%s': cannot change it to '%s'", a1_, a2_)
+	}
 	this.id = id
 	return this
 }

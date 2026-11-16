@@ -20,14 +20,18 @@ func DefaultExterns_prepareExterns(env *CompilerOptions_Environment, externs *TM
 	it_1 := foreach_(obj_(DefaultExterns_BUILTIN_LANG_EXTERNS))
 	for it_1.next() {
 		var key string = str_(it_1.v)
-		Preconditions_checkState_boolean_String_Object(externs.containsKey(key), "Externs must contain builtin: %s", strobj_(key))
+		if !externs.containsKey(key) {
+			Preconditions_checkState_boolean_String_Object(false, "Externs must contain builtin: %s", strobj_(key))
+		}
 		out.add(obj_(externs.remove(key)))
 	}
 	if env == CompilerOptions_Environment_BROWSER {
 		it_3 := foreach_(obj_(DefaultExterns_BROWSER_EXTERN_DEP_ORDER))
 		for it_3.next() {
 			var key string = str_(it_3.v)
-			Preconditions_checkState_boolean_String_Object_Object(externs.containsKey(key), "Externs must contain builtin for env %s: %s", obj_(env), strobj_(key))
+			if !externs.containsKey(key) {
+				Preconditions_checkState_boolean_String_Object_Object(false, "Externs must contain builtin for env %s: %s", obj_(env), strobj_(key))
+			}
 			out.add(obj_(externs.remove(key)))
 		}
 		out.addAll(externs.asMap().values())

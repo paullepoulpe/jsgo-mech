@@ -26,7 +26,9 @@ func (this *TemplateAstMatcher) finit_TemplateAstMatcher() {
 
 func (this *TemplateAstMatcher) init_TemplateAstMatcher(compiler *AbstractCompiler, templateFunctionNode Node, typeMatchingStrategy *TypeMatchingStrategy) {
 	this.finit_TemplateAstMatcher()
-	Preconditions_checkState_boolean_String_Object(templateFunctionNode.isFunction(), "Template node must be a function node. Received: %s", templateFunctionNode.box_())
+	if !templateFunctionNode.isFunction() {
+		Preconditions_checkState_boolean_String_Object(false, "Template node must be a function node. Received: %s", templateFunctionNode.box_())
+	}
 	this.topScope = compiler.getTopScope()
 	this.typeRegistry = cast_[*JSTypeRegistry](Preconditions_checkNotNull(obj_(compiler.getTypeRegistry())))
 	this.templateStart = this.initTemplate(templateFunctionNode)
@@ -95,14 +97,18 @@ func (this *TemplateAstMatcher) prepTemplatePlaceholders(fn Node) {
 	var templateParametersNode Node = fn.getSecondChild()
 	var info *JSDocInfo = NodeUtil_getBestJSDocInfo(fn)
 	if templateParametersNode.hasChildren() {
-		Preconditions_checkNotNull_Object_String_Object(obj_(info), "Missing JSDoc declaration for template function %s", strobj_(fnName))
+		if obj_(info) == nil {
+			Preconditions_checkNotNull_Object_String_Object(nil, "Missing JSDoc declaration for template function %s", strobj_(fnName))
+		}
 	}
 	{
 		var paramNode Node = templateParametersNode.getFirstChild()
 		for ; paramNode != 0; paramNode = paramNode.getNext() {
 			var name string = paramNode.getString()
 			var expression *JSTypeExpression = info.getParameterType(Optional_of(strobj_(name)))
-			Preconditions_checkNotNull_Object_String_Object_Object(obj_(expression), "Missing JSDoc for parameter %s of template function %s", strobj_(name), strobj_(fnName))
+			if obj_(expression) == nil {
+				Preconditions_checkNotNull_Object_String_Object_Object(nil, "Missing JSDoc for parameter %s of template function %s", strobj_(name), strobj_(fnName))
+			}
 			var type_ *JSType = this.typeRegistry.evaluateTypeExpression(expression, icast_StaticTypedScope(obj_(this.topScope)))
 			Preconditions_checkNotNull(type_.self())
 			params.add(name)

@@ -251,7 +251,9 @@ func (this *CodeConsumer) addOp(op string, binOp bool) {
 }
 
 func (this *CodeConsumer) addNumber_impl(x float64, n Node) {
-	Preconditions_checkState_boolean_Object(JSCompDoubles_isPositive(x), any(float64(x)))
+	if !JSCompDoubles_isPositive(x) {
+		Preconditions_checkState_boolean_Object(false, any(float64(x)))
+	}
 	this.addConstant(CodeConsumer_formatNumber(x))
 }
 

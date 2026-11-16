@@ -311,7 +311,9 @@ func (this *NamedType) handleUnresolvedType(reporter ErrorReporter_rhino) {
 func (this *NamedType) localVariableShadowsGlobalNamespace(root string) bool {
 	var rootVar StaticSlot = this.resolutionScope.getSlot(root)
 	if rootVar != nil {
-		Preconditions_checkNotNull_Object_Object(any(rootVar.getScope()), any(rootVar))
+		if any(rootVar.getScope()) == nil {
+			Preconditions_checkNotNull_Object_Object(nil, any(rootVar))
+		}
 		var parent StaticScope = rootVar.getScope().getParentScope()
 		if parent != nil {
 			var globalVar StaticSlot = parent.getSlot(root)

@@ -369,7 +369,9 @@ func (this *ExternExportsPass_Export) getOriginalNameForParam(paramNode Node) st
 			return nameOrPatternNode.getString()
 		}()
 	} else {
-		Preconditions_checkState_boolean_Object(nameOrPatternNode.isDestructuringPattern(), nameOrPatternNode.box_())
+		if !nameOrPatternNode.isDestructuringPattern() {
+			Preconditions_checkState_boolean_Object(false, nameOrPatternNode.box_())
+		}
 		return ""
 	}
 	panic("unreachable")
