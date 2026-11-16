@@ -305,7 +305,7 @@ func (this *CheckJSDocStyle) checkLicenseComment(t *NodeTraversal, n Node) {
 		return
 	}
 	var license string = n.getJSDocInfo().getLicense().get()
-	if String_contains(license, strobj_("@externs")) {
+	if String_contains_s(license, "@externs") {
 		t.report(n, CheckJSDocStyle_LICENSE_CONTAINS_AT_EXTERNS, []string{})
 	}
 }

@@ -410,7 +410,7 @@ func (this *IRFactory) setFileOverviewJsDoc(irNode Node) {
 		return this.firstFileoverview.toBuilder()
 	}()
 	if !this.licenseBuilder.isEmpty() {
-		fileoverview.recordLicense(String_join(strobj_(""), icast_Iterable(any(this.licenseBuilder.asSet()))))
+		fileoverview.recordLicense(String_join_s("", icast_Iterable(any(this.licenseBuilder.asSet()))))
 	}
 	irNode.setJSDocInfo(fileoverview.build_1(false))
 }
@@ -519,7 +519,7 @@ func (this *IRFactory) parseInlineJSDocAt(pos *SourcePosition_util) *JSDocInfo {
 	}
 	var comment *Comment = this.getJSDocCommentAt(pos)
 	return func() *JSDocInfo {
-		if (comment != nil) && !String_contains(comment.value_, strobj_("@")) {
+		if (comment != nil) && !String_contains_s(comment.value_, "@") {
 			return this.parseInlineTypeDoc(comment)
 		}
 		return this.parseJSDocInfoFrom(comment)
@@ -541,7 +541,7 @@ func (this *IRFactory) parseNonJSDocCommentAt(pos *SourcePosition_util, isInline
 		if withinClosureUnawareCodeRange {
 			var currentJsDocComment *Comment = this.jsdocTracker.current()
 			if (currentComment == nil) || ((currentJsDocComment != nil) && (IRFactory_COMMENT_START_POSITION_COMPARATOR.compare(obj_(currentComment), obj_(currentJsDocComment)) > 0)) {
-				if String_contains(currentJsDocComment.value_, strobj_("@license")) {
+				if String_contains_s(currentJsDocComment.value_, "@license") {
 					this.jsdocTracker.advance()
 					continue
 				}
@@ -900,7 +900,7 @@ func (this *IRFactory) normalizeRegex(token *LiteralToken) string {
 	var result *StringBuilder = new_StringBuilder()
 	var start int32 = 1
 	for cur != -1 {
-		result.append_CharSequence_int_int(strobj_(value), start, cur)
+		result.append_CharSequence_int_int_s(value, start, cur)
 		cur++
 		var c uint16 = String_charAt(value, cur)
 		switch c {
@@ -913,14 +913,14 @@ func (this *IRFactory) normalizeRegex(token *LiteralToken) string {
 		start = (cur + 1)
 		cur = String_indexOf_int_int(value, 92, start)
 	}
-	result.append_CharSequence_int_int(strobj_(value), start, lastSlash)
+	result.append_CharSequence_int_int_s(value, start, lastSlash)
 	return Object_toString(obj_(result))
 }
 
 func (this *IRFactory) normalizeString(token *LiteralToken, templateLiteral bool) string {
 	var value string = token.value_
 	if String_indexOf(value, 13) >= 0 {
-		value = IRFactory_CR_OR_CRLF_PATTERN.matcher(strobj_(value)).replaceAll("\n")
+		value = IRFactory_CR_OR_CRLF_PATTERN.matcher_s(value).replaceAll("\n")
 	}
 	var start int32 = func() int32 {
 		if templateLiteral {
@@ -939,7 +939,7 @@ func (this *IRFactory) normalizeString(token *LiteralToken, templateLiteral bool
 	}
 	var result *StringBuilder = new_StringBuilder()
 	for cur != -1 {
-		result.append_CharSequence_int_int(strobj_(value), start, cur)
+		result.append_CharSequence_int_int_s(value, start, cur)
 		cur += 1
 		var c uint16 = String_charAt(value, cur)
 		switch c {
@@ -1010,7 +1010,7 @@ func (this *IRFactory) normalizeString(token *LiteralToken, templateLiteral bool
 		start = (cur + 1)
 		cur = String_indexOf_int_int(value, 92, start)
 	}
-	result.append_CharSequence_int_int(strobj_(value), start, func() int32 {
+	result.append_CharSequence_int_int_s(value, start, func() int32 {
 		if templateLiteral {
 			return String_length(value)
 		}
@@ -1029,7 +1029,7 @@ func (this *IRFactory) inStrictContext() bool {
 
 func (this *IRFactory) normalizeNumber(token *LiteralToken) float64 {
 	var value string = token.value_
-	if String_contains(value, strobj_("_")) {
+	if String_contains_s(value, "_") {
 		value = this.removeNumericSeparators(value, token)
 	}
 	var location *SourceRange = token.location_
@@ -1117,7 +1117,7 @@ func (this *IRFactory) normalizeNumber(token *LiteralToken) float64 {
 func (this *IRFactory) normalizeBigInt(token *LiteralToken) *BigInteger {
 	var value string = token.value_
 	value = String_substring(value, 0, String_indexOf(value, 110))
-	if String_contains(value, strobj_("_")) {
+	if String_contains_s(value, "_") {
 		value = this.removeNumericSeparators(value, token)
 	}
 	var length int32 = String_length(value)
@@ -1149,7 +1149,7 @@ func (this *IRFactory) normalizeBigInt(token *LiteralToken) *BigInteger {
 
 func (this *IRFactory) removeNumericSeparators(value string, token *LiteralToken) string {
 	this.maybeWarnForFeatureToken(token.up_Token_parser(), FeatureSet_Feature_NUMERIC_SEPARATOR)
-	return String_replace(value, strobj_("_"), strobj_(""))
+	return String_replace_s(value, "_", "")
 }
 
 func IRFactory_roundLargeRadixLiteral(v float64, digits string, radix int32) float64 {

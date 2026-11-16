@@ -52,7 +52,7 @@ func ParserRunner_initResourceConfig() {
 }
 
 func ParserRunner_extractList(configProp string) ImmutableSetOf[string] {
-	return ImmutableSet_copyOf_Iterable(Splitter_on(',').trimResults().split(strobj_(configProp)))
+	return ImmutableSet_copyOf_Iterable(Splitter_on(',').trimResults().split_s(configProp))
 }
 
 func ParserRunner_parse(sourceFile StaticSourceFile, sourceString string, config *Config, errorReporter ErrorReporter_rhino) *ParserRunner_ParseResult {

@@ -471,7 +471,7 @@ func (this *SymbolTable) copySymbolTo_3(sym StaticSlot, declNode Node, scope *Sy
 }
 
 func SymbolTable_sanitizeSpecialChars(s string) string {
-	return String_replace(String_replace(String_replace(s, strobj_("\\"), strobj_("\\\\")), strobj_("\x00"), strobj_("\\0")), strobj_("\n"), strobj_("\\n"))
+	return String_replace_s(String_replace_s(String_replace_s(s, "\\", "\\\\"), "\x00", "\\0"), "\n", "\\n")
 }
 
 func (this *SymbolTable) addSymbol(name string, type_ *JSType, inferred bool, scope *SymbolTable_SymbolScope, declNode Node) *SymbolTable_Symbol {
@@ -1716,7 +1716,7 @@ func (this *SymbolTable_JSDocInfoCollector) visitTypeNode(templateTypeNames Immu
 				}
 				return n.getString()
 			}()
-			if String_contains(typeString, strobj_(".")) {
+			if String_contains_s(typeString, ".") {
 				var lastPart string = String_substring_int(typeString, (String_lastIndexOf(typeString, 46) + 1))
 				var copy_ Node = n.cloneNode()
 				copy_.setLinenoCharno(copy_.getLineno(), ((copy_.getCharno() + copy_.getLength()) - String_length(lastPart)))

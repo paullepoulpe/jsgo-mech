@@ -50,7 +50,7 @@ func ModuleLoader_isAmbiguousIdentifier(name string) bool {
 }
 
 func ModuleLoader_isPathIdentifier(name string) bool {
-	return String_contains(name, strobj_(ModuleLoader_MODULE_SLASH))
+	return String_contains_s(name, ModuleLoader_MODULE_SLASH)
 }
 
 func (this *ModuleLoader) createRootPaths(roots IterableOf[string]) ImmutableListOf[string] {

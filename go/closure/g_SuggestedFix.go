@@ -399,7 +399,7 @@ func (this *SuggestedFix_Builder) replaceTypePattern(n Node, type_ string, patte
 	var originalComment OptionalOf[string] = info.getOriginalCommentString()
 	var originalPosition int32 = info.getOriginalCommentPosition()
 	if originalComment.isPresent() {
-		var m *Matcher_re2j = pattern.matcher(strobj_(originalComment.get()))
+		var m *Matcher_re2j = pattern.matcher_s(originalComment.get())
 		for m.find() {
 			this.replacements.put(strobj_(n.getSourceFileName()), obj_(CodeReplacement_create_int_int_String((originalPosition+m.start()), (m.end()-m.start()), ("@"+sstr_(m.group(1))+" {"+sstr_(type_)+"}"))))
 		}

@@ -111,12 +111,12 @@ func ApplySuggestedFixes_applyCodeReplacements(replacements CollectionOf[*CodeRe
 	it_1 := foreach_(obj_(sortedReplacements))
 	for it_1.next() {
 		var replacement *CodeReplacement = cast_[*CodeReplacement](it_1.v)
-		sb.append_CharSequence_int_int(strobj_(code), lastIndex, replacement.getStartPosition())
+		sb.append_CharSequence_int_int_s(code, lastIndex, replacement.getStartPosition())
 		sb.append(replacement.getNewContent())
 		lastIndex = replacement.getEndPosition()
 	}
 	if lastIndex <= String_length(code) {
-		sb.append_CharSequence_int_int(strobj_(code), lastIndex, String_length(code))
+		sb.append_CharSequence_int_int_s(code, lastIndex, String_length(code))
 	}
 	return Object_toString(obj_(sb))
 }

@@ -81,7 +81,7 @@ func ExportTestFunctions_isGoogTestingTestSuite(t *NodeTraversal, qname Node) bo
 }
 
 func ExportTestFunctions_isTestFunction(functionName OptionalOf[string]) bool {
-	return (functionName.isPresent() && ExportTestFunctions_TEST_FUNCTIONS_NAME_PATTERN.matcher(strobj_(functionName.get())).matches())
+	return (functionName.isPresent() && ExportTestFunctions_TEST_FUNCTIONS_NAME_PATTERN.matcher_s(functionName.get()).matches())
 }
 
 var ExportTestFunctions_TEST_FUNCTIONS_NAME_PATTERN *Pattern

@@ -979,7 +979,7 @@ func (this *JsDocInfoParser) parseTtlAst(ttlExtraction *JsDocInfoParser_Extracti
 }
 
 func JsDocInfoParser_validTemplateTypeName(name OptionalOf[string]) bool {
-	return ((name.isPresent() && !String_isEmpty(name.get())) && JsDocInfoParser_TEMPLATE_NAME_MATCHER.matchesAllOf(strobj_(name.get())))
+	return ((name.isPresent() && !String_isEmpty(name.get())) && JsDocInfoParser_TEMPLATE_NAME_MATCHER.matchesAllOf_s(name.get()))
 }
 
 func (this *JsDocInfoParser) recordDescription(token JsDocToken) JsDocToken {

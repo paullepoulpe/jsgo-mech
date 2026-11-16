@@ -116,7 +116,7 @@ func (this *CheckRequiresSorted) checkCanonical(t *NodeTraversal) {
 	var canonicalImports *TList[*CheckRequiresSorted_ImportStatement] = CheckRequiresSorted_canonicalizeImports(this.importsByNamespace)
 	if !Object_equals(any(sliceView_(tc_p_CheckRequiresSorted_ImportStatement, this.originalImports)), any(canonicalImports.asList())) {
 		this.needsFixField = true
-		this.replacement_ = Optional_of[string](String_join(strobj_("\n"), Iterables_transform(Iterable(canonicalImports.asList()), lambda_CheckRequiresSorted_checkCanonical_1_)))
+		this.replacement_ = Optional_of[string](String_join_s("\n", Iterables_transform(Iterable(canonicalImports.asList()), lambda_CheckRequiresSorted_checkCanonical_1_)))
 		if this.mode_ == CheckRequiresSorted_Mode_COLLECT_AND_REPORT {
 			t.report(this.firstNode, CheckRequiresSorted_REQUIRES_NOT_SORTED, []string{this.replacement_.orElse("null")})
 		}

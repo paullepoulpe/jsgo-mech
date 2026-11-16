@@ -38,7 +38,7 @@ func (this *GatherModuleMetadata) process_2(externs Node, root Node) {
 }
 
 func GatherModuleMetadata_isValidModuleId(id string) bool {
-	it_1 := foreach_(any(GatherModuleMetadata_DOT_SPLITTER.split(strobj_(id))))
+	it_1 := foreach_(any(GatherModuleMetadata_DOT_SPLITTER.split_s(id)))
 	for it_1.next() {
 		var segment string = str_(it_1.v)
 		if String_isEmpty(segment) {
@@ -50,7 +50,7 @@ func GatherModuleMetadata_isValidModuleId(id string) bool {
 			}
 		}
 	}
-	return GatherModuleMetadata_NAMESPACE_SEGMENT_REGEX.matcher(strobj_(id)).matches()
+	return GatherModuleMetadata_NAMESPACE_SEGMENT_REGEX.matcher_s(id).matches()
 }
 
 var GatherModuleMetadata_MIXED_MODULE_TYPE *DiagnosticType

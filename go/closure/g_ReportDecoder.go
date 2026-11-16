@@ -25,7 +25,7 @@ func ReportDecoder_parseMappingFromFile(mappingFilePath string) *Outcome_base {
 
 func ReportDecoder_parseMapping(mappingFileContent string) *Outcome_base {
 	var mapping MapOf[string, *InstrumentationPoint] = icast_Map(obj_(new_LinkedHashMap()))
-	var linesOfFile []string = sliceImm_(tc_string, Splitter_on('\n').omitEmptyStrings().splitToList(strobj_(mappingFileContent)))
+	var linesOfFile []string = sliceImm_(tc_string, Splitter_on('\n').omitEmptyStrings().splitToList_s(mappingFileContent))
 	if !(int32(len(linesOfFile)) >= 3) {
 		Preconditions_checkState_boolean_String_Object(false, "Malformed report %s", any(sliceView_(tc_string, linesOfFile)))
 	}
@@ -105,7 +105,7 @@ func ReportDecoder_decodeReport(mapping MapOf[string, *InstrumentationPoint], fr
 }
 
 func ReportDecoder_createProfileOfStaticallyUsedCode(mapping *TMap[string, *InstrumentationPoint], fileContent string, instrumentationArrayName string) *ReportProfile {
-	var matcher *Matcher_re2j = Pattern_compile((sstr_(instrumentationArrayName) + "\\.push\\(['\"](" + sstr_(JavaRegex_DOT) + "*?)['\"]\\)")).matcher(strobj_(fileContent))
+	var matcher *Matcher_re2j = Pattern_compile((sstr_(instrumentationArrayName) + "\\.push\\(['\"](" + sstr_(JavaRegex_DOT) + "*?)['\"]\\)")).matcher_s(fileContent)
 	var encodedPoints map[string]struct{} = map[string]struct{}{}
 	for matcher.find() {
 		encodedPoints[matcher.group(1)] = struct{}{}

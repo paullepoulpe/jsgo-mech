@@ -137,7 +137,7 @@ func (this *ReportUntranspilableFeatures) checkForRegExpSFlag(regexpNode Node) {
 		}
 		return ""
 	}()
-	if String_contains(flags, strobj_("s")) {
+	if String_contains_s(flags, "s") {
 		this.reportUntranspilable(FeatureSet_Feature_REGEXP_FLAG_S, regexpNode)
 	}
 }
@@ -192,7 +192,7 @@ func (this *ReportUntranspilableFeatures) checkForRegExpDFlag(regexpNode Node) {
 		}
 		return ""
 	}()
-	if String_contains(flags, strobj_("d")) {
+	if String_contains_s(flags, "d") {
 		this.reportUntranspilable(FeatureSet_Feature_REGEXP_FLAG_D, regexpNode)
 	}
 }

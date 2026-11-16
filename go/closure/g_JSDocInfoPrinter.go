@@ -294,7 +294,7 @@ func (this *JSDocInfoPrinter) print(info *JSDocInfo) string {
 		parts.add(("@tsType " + sstr_(tsType)))
 	}
 	if this.printDesc && info.getBlockDescription().isPresent() {
-		var cleaned string = JSDocInfoPrinter_DESCRIPTION_LINE_START_PATTERN.matcher(strobj_(info.getBlockDescription().get())).replaceAll("\n")
+		var cleaned string = JSDocInfoPrinter_DESCRIPTION_LINE_START_PATTERN.matcher_s(info.getBlockDescription().get()).replaceAll("\n")
 		if !String_isEmpty(cleaned) {
 			multiline = true
 			cleaned = String_trim(cleaned)
@@ -311,7 +311,7 @@ func (this *JSDocInfoPrinter) print(info *JSDocInfo) string {
 		Joiner_on(" ").appendTo(sb, Iterable(parts.asList()))
 		sb.append(" */")
 	}
-	var s string = JSDocInfoPrinter_STAR_WITHOUT_SPACE_PATTERN.matcher(strobj_(String_replace(Object_toString(obj_(sb)), strobj_("\n"), strobj_("\n *")))).replaceAll("\n * $1")
+	var s string = JSDocInfoPrinter_STAR_WITHOUT_SPACE_PATTERN.matcher_s(String_replace_s(Object_toString(obj_(sb)), "\n", "\n *")).replaceAll("\n * $1")
 	if multiline {
 		s += "\n */\n"
 	} else {

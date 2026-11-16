@@ -744,7 +744,7 @@ func (this *Scanner_parser) scanIdentifierOrKeyword(beginToken int32, ch uint16)
 }
 
 func Scanner_parser_processUnicodeEscapes(value OptionalOf[string]) OptionalOf[string] {
-	for String_contains(value.get(), strobj_("\\")) {
+	for String_contains_s(value.get(), "\\") {
 		var escapeStart int32 = String_indexOf(value.get(), 92)
 		var ret_2 Optional[any]
 		code_2 := func() (code_ int) {

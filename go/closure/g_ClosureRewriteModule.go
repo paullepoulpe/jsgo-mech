@@ -918,7 +918,7 @@ func (this *ClosureRewriteModule) safeSetString(n Node, newString string) {
 }
 
 func (this *ClosureRewriteModule) safeSetMaybeQualifiedString(nameNode Node, newString string, isModuleNamespace bool) {
-	if !String_contains(newString, strobj_(".")) {
+	if !String_contains_s(newString, ".") {
 		this.safeSetString(nameNode, newString)
 		var parent Node = nameNode.getParent()
 		if ((isModuleNamespace && parent.isGetProp()) && nameNode.getGrandparent().isCall()) && parent.isFirstChildOf(nameNode.getGrandparent()) {
@@ -1755,7 +1755,7 @@ func (this *ClosureRewriteModule_ReplaceJsDocRefs) rewriteIfClosureNamespaceRef(
 			this.outer_.safeSetString(typeRefNode, (sstr_(binaryNamespaceIfModule.get()) + sstr_(suffix)))
 			return
 		}
-		if String_contains(prefixTypeName, strobj_(".")) {
+		if String_contains_s(prefixTypeName, ".") {
 			prefixTypeName = String_substring(prefixTypeName, 0, String_lastIndexOf(prefixTypeName, 46))
 			suffix = String_substring_int(typeName, String_length(prefixTypeName))
 		} else {

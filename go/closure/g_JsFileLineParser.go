@@ -47,7 +47,7 @@ func (this *JsFileLineParser) self() any {
 
 func (this *JsFileLineParser) finit_JsFileLineParser() {
 	this.shortcutMode = false
-	this.valueMatcher = JsFileLineParser_STRING_LITERAL_PATTERN.matcher(strobj_(""))
+	this.valueMatcher = JsFileLineParser_STRING_LITERAL_PATTERN.matcher_s("")
 	this.filePath = Optional_empty[string]()
 }
 
@@ -253,7 +253,7 @@ func (this *JsFileLineParser) parseJsStringArray(input string) *Outcome_base {
 }
 
 func (this *JsFileLineParser) parseJsStringMap(input string) *Outcome_base {
-	input = CharMatcher_whitespace().trimFrom(strobj_(input))
+	input = CharMatcher_whitespace().trimFrom_s(input)
 	var checked *Outcome_base
 	checked = JsFileLineParser_check(((!String_isEmpty(input) && (String_charAt(input, 0) == '{')) && (String_charAt(input, (String_length(input)-1)) == '}')), "Syntax error when parsing JS object")
 	if checked.isErr() {

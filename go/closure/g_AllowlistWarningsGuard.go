@@ -47,7 +47,7 @@ func AllowlistWarningsGuard_normalizeAllowlist(allowlist *TSet[string]) Immutabl
 		if String_isEmpty(trimmed) || (String_charAt(trimmed, 0) == '#') {
 			continue
 		}
-		result.add(AllowlistWarningsGuard_LINE_NUMBER.matcher(strobj_(trimmed)).replaceFirst(":"))
+		result.add(AllowlistWarningsGuard_LINE_NUMBER.matcher_s(trimmed).replaceFirst(":"))
 	}
 	return ImmutableSet_copyOf(Collection(result.asSet()))
 }
@@ -98,7 +98,7 @@ func (this *AllowlistWarningsGuard) formatWarning_2(error_ *JSError, withMetaDat
 	if withMetaData {
 		sb.append_int(error_.getLineNumber())
 	}
-	var lines []string = sliceImm_(tc_string, AllowlistWarningsGuard_LINE_SPLITTER.splitToList(strobj_(error_.description())))
+	var lines []string = sliceImm_(tc_string, AllowlistWarningsGuard_LINE_SPLITTER.splitToList_s(error_.description()))
 	sb.append("  ").append(sliceAt_(lines, 0))
 	if withMetaData {
 		for i := int32(1); i < int32(len(lines)); i++ {
@@ -111,7 +111,7 @@ func (this *AllowlistWarningsGuard) formatWarning_2(error_ *JSError, withMetaDat
 
 func (this *AllowlistWarningsGuard) normalizeSourceName(sourceName OptionalOf[string]) OptionalOf[string] {
 	if sourceName.isPresent() {
-		return Optional_ofNullable[string](AllowlistWarningsGuard_BLAZE_OUT_DIR_PATTERN.matcher(strobj_(sourceName.get())).replaceFirst(""))
+		return Optional_ofNullable[string](AllowlistWarningsGuard_BLAZE_OUT_DIR_PATTERN.matcher_s(sourceName.get()).replaceFirst(""))
 	}
 	return sourceName
 }
@@ -207,7 +207,7 @@ func (this *AllowlistWarningsGuard_AllowlistBuilder) appendAllowlist(out *Output
 		out.append_CharSequence(strobj_(("# When you fix any of these warnings, run " + sstr_(this.generatorTarget.get()) + " task.\n")))
 	}
 	if this.headerNote.isPresent() {
-		out.append_CharSequence(strobj_(("#" + sstr_(Joiner_on("\n# ").join(Splitter_on('\n').split(strobj_(this.headerNote.get())))) + "\n")))
+		out.append_CharSequence(strobj_(("#" + sstr_(Joiner_on("\n# ").join(Splitter_on('\n').split_s(this.headerNote.get()))) + "\n")))
 	}
 	var warningsByType *SimpleSetMultimap = SimpleSetMultimap_createSorted()
 	it_1 := this.warnings_.each()
@@ -221,7 +221,7 @@ func (this *AllowlistWarningsGuard_AllowlistBuilder) appendAllowlist(out *Output
 		if DiagnosticGroups_DEPRECATED.matchesDiagnosticType(type_) {
 			continue
 		}
-		cast_[*Output](cast_[*Output](cast_[*Output](out.append_CharSequence(strobj_("\n# Warning "))).append_CharSequence(strobj_(type_.key_))).append_CharSequence(strobj_(": "))).println(str_(AllowlistWarningsGuard_LINE_SPLITTER.split(strobj_(type_.formatField)).iterator().next()))
+		cast_[*Output](cast_[*Output](cast_[*Output](out.append_CharSequence(strobj_("\n# Warning "))).append_CharSequence(strobj_(type_.key_))).append_CharSequence(strobj_(": "))).println(str_(AllowlistWarningsGuard_LINE_SPLITTER.split_s(type_.formatField).iterator().next()))
 		it_5 := foreach_(any(warningsByType.get(obj_(type_))))
 		for it_5.next() {
 			var warning string = str_(it_5.v)

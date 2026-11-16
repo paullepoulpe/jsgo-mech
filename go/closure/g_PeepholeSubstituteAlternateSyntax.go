@@ -498,7 +498,7 @@ func PeepholeSubstituteAlternateSyntax_pickDelimiter(strings []string) OptionalO
 NEXT_DELIMITER_:
 	for ; delimiters[i] != nullstr_; i++ {
 		for _, cur := range strings {
-			if String_contains(cur, strobj_(delimiters[i])) {
+			if String_contains_s(cur, delimiters[i]) {
 				continue NEXT_DELIMITER_
 			}
 		}

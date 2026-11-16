@@ -33,7 +33,7 @@ func (this *SourceFile_jscomp) init_SourceFile_jscomp(loader *SourceFile_CodeLoa
 		panic(new_IllegalArgumentException_String("a source must have a name").self())
 	}
 	if !("/" == Platform_getFileSeperator()) {
-		fileName = String_replace(fileName, strobj_(Platform_getFileSeperator()), strobj_("/"))
+		fileName = String_replace_s(fileName, Platform_getFileSeperator(), "/")
 	}
 	this.loader = loader
 	this.fileName = fileName

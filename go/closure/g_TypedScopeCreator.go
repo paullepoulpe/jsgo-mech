@@ -1099,7 +1099,7 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) getBestTypeName(lvalue Node,
 		return Optional_empty[string]()
 	}
 	if this.isGoogModuleExports(lvalue) {
-		return Optional_of[string](String_replace(syntacticLvalueName.get(), strobj_("exports"), strobj_(this.getModule().closureNamespace().get())))
+		return Optional_of[string](String_replace_s(syntacticLvalueName.get(), "exports", this.getModule().closureNamespace().get()))
 	}
 	return syntacticLvalueName
 }
@@ -2131,7 +2131,7 @@ func (this *TypedScopeCreator_AbstractScopeBuilder_SlotDefiner) defineSlot() {
 	var parent Node = this.declarationNode.getParent()
 	var scopeToDeclareIn *TypedScope = this.scope_
 	var isGlobalVar bool = (this.declarationNode.isName() && scopeToDeclareIn.isGlobal())
-	var shouldDeclareOnGlobalThis bool = ((isGlobalVar && (parent.isVar() || parent.isFunction())) || (this.forGoogProvidedNameField && !String_contains(this.variableName.get(), strobj_("."))))
+	var shouldDeclareOnGlobalThis bool = ((isGlobalVar && (parent.isVar() || parent.isFunction())) || (this.forGoogProvidedNameField && !String_contains_s(this.variableName.get(), ".")))
 	if (((scopeToDeclareIn != this.outer_.currentHoistScope) && scopeToDeclareIn.isGlobal()) && scopeToDeclareIn.hasOwnSlot(this.variableName.get())) && !this.forGoogProvidedNameField {
 		scopeToDeclareIn = this.outer_.currentHoistScope
 	}

@@ -374,11 +374,11 @@ func (this *PeepholeReplaceKnownMethods) tryFoldStringTrim(subtree Node, stringN
 	var result OptionalOf[string] = func() OptionalOf[string] {
 		switch functionName {
 		case "trim":
-			return Optional_ofNullable[string](PeepholeReplaceKnownMethods_TRIM_BOTH_PATTERN.matcher(strobj_(stringNode.getString())).replaceAll(""))
+			return Optional_ofNullable[string](PeepholeReplaceKnownMethods_TRIM_BOTH_PATTERN.matcher_s(stringNode.getString()).replaceAll(""))
 		case "trimStart", "trimLeft":
-			return Optional_ofNullable[string](PeepholeReplaceKnownMethods_TRIM_START_PATTERN.matcher(strobj_(stringNode.getString())).replaceAll(""))
+			return Optional_ofNullable[string](PeepholeReplaceKnownMethods_TRIM_START_PATTERN.matcher_s(stringNode.getString()).replaceAll(""))
 		case "trimEnd", "trimRight":
-			return Optional_ofNullable[string](PeepholeReplaceKnownMethods_TRIM_END_PATTERN.matcher(strobj_(stringNode.getString())).replaceAll(""))
+			return Optional_ofNullable[string](PeepholeReplaceKnownMethods_TRIM_END_PATTERN.matcher_s(stringNode.getString()).replaceAll(""))
 		default:
 			return Optional_empty[string]()
 		}
@@ -963,7 +963,7 @@ func (this *PeepholeReplaceKnownMethods) tryFoldStringReplace(n Node, stringNode
 	}
 	var lookForPattern string = arg1.getString()
 	var replacementPattern string = arg2.getString()
-	if String_contains(replacementPattern, strobj_("$")) {
+	if String_contains_s(replacementPattern, "$") {
 		return n
 	}
 	var original string = stringNode.getString()
@@ -990,11 +990,11 @@ func (this *PeepholeReplaceKnownMethods) tryFoldStringReplaceAll(n Node, stringN
 		return n
 	}
 	var replacementPattern string = arg2.getString()
-	if String_contains(replacementPattern, strobj_("$")) {
+	if String_contains_s(replacementPattern, "$") {
 		return n
 	}
 	var original string = stringNode.getString()
-	var newString string = String_replace(original, strobj_(arg1.getString()), strobj_(replacementPattern))
+	var newString string = String_replace_s(original, arg1.getString(), replacementPattern)
 	var resultNode Node = IR_string(newString).srcref(stringNode)
 	var parent Node = n.getParent()
 	n.replaceWith(resultNode)

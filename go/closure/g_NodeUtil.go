@@ -301,7 +301,7 @@ func NodeUtil_doGetNumberValue(n Node, numberConversions bool) any {
 }
 
 func NodeUtil_getStringNumberValue(rawJsString string) any {
-	if String_contains(rawJsString, strobj_("\x0b")) {
+	if String_contains_s(rawJsString, "\x0b") {
 		return nil
 	}
 	var s string = NodeUtil_trimJsWhiteSpace(rawJsString)
@@ -444,7 +444,7 @@ func NodeUtil_getBigIntValue(n Node) *BigInteger {
 }
 
 func NodeUtil_getStringBigIntValue(rawJsString string) *BigInteger {
-	if String_contains(rawJsString, strobj_("\x0b")) {
+	if String_contains_s(rawJsString, "\x0b") {
 		return nil
 	}
 	var s string = NodeUtil_trimJsWhiteSpace(rawJsString)
@@ -2918,7 +2918,7 @@ func NodeUtil_isValidQualifiedName(mode *FeatureSet, name string) bool {
 	if String_endsWith(name, ".") || String_startsWith(name, ".") {
 		return false
 	}
-	var parts []string = sliceImm_(tc_string, Splitter_on('.').splitToList(strobj_(name)))
+	var parts []string = sliceImm_(tc_string, Splitter_on('.').splitToList_s(name))
 	for _, part := range parts {
 		if !NodeUtil_isValidPropertyName(mode, part) {
 			return false
@@ -4449,7 +4449,7 @@ func NodeUtil_estimateNumLines(scriptNode Node) int32 {
 }
 
 func NodeUtil_getOriginalName(name string) string {
-	name = NodeUtil_UNIQUE_NAME_SUFFIX_PATTERN.matcher(strobj_(name)).replaceAll("")
+	name = NodeUtil_UNIQUE_NAME_SUFFIX_PATTERN.matcher_s(name).replaceAll("")
 	name = MakeDeclaredNamesUnique_ContextualRenameInverter_getOriginalName(name)
 	if String_startsWith(name, "module$exports$") {
 		var lastDollar int32 = String_lastIndexOf(name, 36)

@@ -741,7 +741,7 @@ func (this *ProcessDefines_ClosureDefinesCollector) shouldTraverse(t *NodeTraver
 func (this *ProcessDefines_ClosureDefinesCollector) visit(t *NodeTraversal, n Node, parent Node) {
 	if n.isScript() && (this.outer_.zoneInputPattern != nil) {
 		var source string = n.getSourceFileName()
-		if !String_isEmpty(source) && this.outer_.zoneInputPattern.matcher(strobj_(source)).matches() {
+		if !String_isEmpty(source) && this.outer_.zoneInputPattern.matcher_s(source).matches() {
 			this.outer_.hasZoneInput = true
 		}
 	}

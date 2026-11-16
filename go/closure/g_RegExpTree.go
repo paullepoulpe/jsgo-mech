@@ -2473,7 +2473,7 @@ func (this *RegExpTree_1Parser) parseEscapeChar() int32 {
 			return 9
 		case 'u':
 			return func() int32 {
-				if (String_contains(this.cap_flags, strobj_("u")) && (this.pos < this.limit)) && (String_charAt(this.cap_pattern, this.pos) == '{') {
+				if (String_contains_s(this.cap_flags, "u") && (this.pos < this.limit)) && (String_charAt(this.cap_pattern, this.pos) == '{') {
 					return this.parseBracedUnicodeEscape()
 				}
 				return this.parseHex(4)
@@ -2521,7 +2521,7 @@ func (this *RegExpTree_1Parser) parseEscape() *RegExpTree {
 	if (ch == 'b') || (ch == 'B') {
 		this.pos++
 		return new_RegExpTree_WordBoundary(ch).up_RegExpTree()
-	} else if ((ch == 'p') || (ch == 'P')) && String_contains(this.cap_flags, strobj_("u")) {
+	} else if ((ch == 'p') || (ch == 'P')) && String_contains_s(this.cap_flags, "u") {
 		var negated bool = (ch == 'P')
 		this.pos++
 		if (this.pos < this.limit) && (String_charAt(this.cap_pattern, this.pos) == '{') {

@@ -55,7 +55,7 @@ func (this *Parser) parseProgram() *ProgramTree {
 				ex_ := catch_(r_)
 				if is_Error(ex_) {
 					var e *Error = to_Error(ex_)
-					if String_contains(Object_toString(e.self()), strobj_("java.lang.StackOverflowError")) {
+					if String_contains_s(Object_toString(e.self()), "java.lang.StackOverflowError") {
 						this.reportError("Too deep recursion while parsing", []any{})
 						ret_1 = nil
 						code_ = 1
@@ -1255,7 +1255,7 @@ func (this *Parser) parseLiteralExpression() *LiteralExpressionTree {
 	if (literal.type__ == TokenType_STRING) && cast_[*StringLiteralToken](literal.self()).hasUnescapedUnicodeLineOrParagraphSeparator() {
 		this.recordFeatureUsed(FeatureSet_Feature_UNESCAPED_UNICODE_LINE_OR_PARAGRAPH_SEP)
 	}
-	if (literal.type__ == TokenType_NUMBER) && String_contains(literal.toString(), strobj_("_")) {
+	if (literal.type__ == TokenType_NUMBER) && String_contains_s(literal.toString(), "_") {
 		this.recordFeatureUsed(FeatureSet_Feature_NUMERIC_SEPARATOR)
 	}
 	if literal.type__ == TokenType_BIGINT {

@@ -288,7 +288,7 @@ func (this *NamedType) handleUnresolvedType(reporter ErrorReporter_rhino) {
 	if !isForwardDeclared {
 		var msg string = ("Bad type annotation. Unknown type " + sstr_(this.reference))
 		var root string = func() string {
-			if String_contains(this.reference, strobj_(".")) {
+			if String_contains_s(this.reference, ".") {
 				return String_substring(this.reference, 0, String_indexOf_String(this.reference, "."))
 			}
 			return this.reference

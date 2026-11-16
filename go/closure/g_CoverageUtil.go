@@ -16,7 +16,7 @@ func new_CoverageUtil() *CoverageUtil {
 }
 
 func CoverageUtil_createIdentifierFromText(inputText string) string {
-	return CoverageUtil_NON_ALPHANUMERIC_PATTERN.matcher(strobj_(inputText)).replaceAll("_")
+	return CoverageUtil_NON_ALPHANUMERIC_PATTERN.matcher_s(inputText).replaceAll("_")
 }
 
 var CoverageUtil_NON_ALPHANUMERIC_PATTERN *Pattern

@@ -164,7 +164,7 @@ func (this *ClosureCheckModule) checkImproperReferenceToImport(t *NodeTraversal,
 	if importLhs == 0 {
 		return true
 	}
-	if !String_contains(qname.get(), strobj_(".")) && ClosureCheckModule_isLocalVar(cast_[*Var](t.getScope().getVar(qname.get()).self())) {
+	if !String_contains_s(qname.get(), ".") && ClosureCheckModule_isLocalVar(cast_[*Var](t.getScope().getVar(qname.get()).self())) {
 		return true
 	}
 	if importLhs.isName() {

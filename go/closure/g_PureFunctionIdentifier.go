@@ -74,7 +74,7 @@ func (this *PureFunctionIdentifier) validateArtificialPurity() {
 			for _, reason := range sortedReasons {
 				formattedReasons = append(formattedReasons, PureFunctionIdentifier_formatSourceLocation(reason))
 			}
-			var sideEffectfulDefinitions string = String_join(strobj_("\n  "), Iterable(sliceView_(tc_string, formattedReasons)))
+			var sideEffectfulDefinitions string = String_join_s("\n  ", Iterable(sliceView_(tc_string, formattedReasons)))
 			this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(function, PureFunctionIdentifier_UNUSED_ARTIFICIAL_PURE_ANNOTATION, []string{summary.name_, sideEffectfulDefinitions}))
 		}
 	}

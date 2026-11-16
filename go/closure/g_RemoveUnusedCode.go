@@ -1471,7 +1471,7 @@ func new_RemoveUnusedCode_RemovalLogRecord_String_Supplier(kind string, nameSupp
 }
 
 func (this *RemoveUnusedCode_RemovalLogRecord) get() any {
-	return strobj_(String_join_CharSequence_CharSequenceArr(strobj_("\t"), []any{strobj_(this.kind_), this.nameSupplier.get(), this.functionNameSupplier.get()}))
+	return strobj_(String_join_CharSequence_CharSequenceArr_s("\t", []any{strobj_(this.kind_), this.nameSupplier.get(), this.functionNameSupplier.get()}))
 }
 
 func RemoveUnusedCode_RemovalLogRecord_forProperty(propName string) *RemoveUnusedCode_RemovalLogRecord {
@@ -2188,7 +2188,7 @@ func (this *RemoveUnusedCode_Polyfill) init_RemoveUnusedCode_Polyfill(builder *R
 	this.RemoveUnusedCode_Removable.outer_ = this.outer_
 	this.RemoveUnusedCode_Removable.init_RemoveUnusedCode_Removable(0, builder)
 	this.polyfillNode = polyfillNode
-	this.isPatch = String_contains(polyfillNode.getFirstFirstChild().getString(), strobj_("patch"))
+	this.isPatch = String_contains_s(polyfillNode.getFirstFirstChild().getString(), "patch")
 }
 
 func new_RemoveUnusedCode_Polyfill(outer_ *RemoveUnusedCode, builder *RemoveUnusedCode_RemovableBuilder, polyfillNode Node) *RemoveUnusedCode_Polyfill {

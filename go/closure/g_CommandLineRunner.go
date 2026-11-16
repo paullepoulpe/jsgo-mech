@@ -75,11 +75,11 @@ func CommandLineRunner_processArgs(args []string) *TList[string] {
 	var quotesPattern *Pattern = Pattern_compile(("^['\"](" + sstr_(JavaRegex_DOT) + "*)['\"]$"))
 	var processedArgs *TList[string] = newTList_(tc_string)
 	for _, arg := range args {
-		var matcher *Matcher_re2j = argPattern.matcher(strobj_(arg))
+		var matcher *Matcher_re2j = argPattern.matcher_s(arg)
 		if matcher.matches() {
 			processedArgs.add(matcher.group(1))
 			var value string = matcher.group(2)
-			var quotesMatcher *Matcher_re2j = quotesPattern.matcher(strobj_(value))
+			var quotesMatcher *Matcher_re2j = quotesPattern.matcher_s(value)
 			if quotesMatcher.matches() {
 				processedArgs.add(quotesMatcher.group(1))
 			} else {
@@ -182,7 +182,7 @@ func (this *CommandLineRunner) processFlagFile(flagFileString string) *Outcome_b
 }
 
 func (this *CommandLineRunner) getVersionText_impl() string {
-	return String_join_CharSequence_CharSequenceArr(strobj_("\n"), []any{strobj_("Closure Compiler (http://github.com/google/closure-compiler)"), strobj_(("Version: " + sstr_("v20261104")))})
+	return String_join_CharSequence_CharSequenceArr_s("\n", []any{strobj_("Closure Compiler (http://github.com/google/closure-compiler)"), strobj_(("Version: " + sstr_("v20261104")))})
 }
 
 func (this *CommandLineRunner) readFlagInputs(processedArgs *TList[string], flagInputs *CommandLineRunner_FlagInputs) *Outcome_base {
@@ -249,7 +249,7 @@ func (this *CommandLineRunner) initConfigFromFlags(args []string, out *Output, e
 			this.flags.outputWrapper = Optional_ofNullable[string](str_(outputWrapper.get()))
 		}
 	}
-	if !String_isEmpty(this.flags.outputWrapper.get()) && !String_contains(this.flags.outputWrapper.get(), strobj_(CommandLineRunner_OUTPUT_MARKER_FIELD)) {
+	if !String_isEmpty(this.flags.outputWrapper.get()) && !String_contains_s(this.flags.outputWrapper.get(), CommandLineRunner_OUTPUT_MARKER_FIELD) {
 		this.reportError(("ERROR - invalid output_wrapper specified. Missing '" + sstr_(CommandLineRunner_OUTPUT_MARKER_FIELD) + "'."))
 	}
 	if !String_isEmpty(this.flags.outputWrapper.get()) && (this.flags.isolationMode != CompilerOptions_IsolationMode_NONE) {
@@ -319,7 +319,7 @@ func (this *CommandLineRunner) addAllowlistWarningsGuard_impl(options *CompilerO
 }
 
 func (this *CommandLineRunner) checkChunkName_impl(name string) *Outcome_base {
-	if !TokenStream_isJSIdentifier(CommandLineRunner_extraChunkNameChars.matcher(strobj_(name)).replaceAll("_")) {
+	if !TokenStream_isJSIdentifier(CommandLineRunner_extraChunkNameChars.matcher_s(name).replaceAll("_")) {
 		return Outcome_base_err(new_FlagUsageException(("Invalid chunk name: '" + sstr_(name) + "'")).up_Throwable())
 	}
 	return Outcome_base_ok_0()
@@ -589,7 +589,7 @@ func CommandLineRunner_findJsFiles_Collection_boolean(patterns CollectionOf[stri
 	it_1 := foreach_(any(patterns))
 	for it_1.next() {
 		var pattern string = str_(it_1.v)
-		if !String_contains(pattern, strobj_("*")) && !String_startsWith(pattern, "!") {
+		if !String_contains_s(pattern, "*") && !String_startsWith(pattern, "!") {
 			if Io_isDirectory(pattern) {
 				var directory string = FilePaths_clean(pattern)
 				var matched *Outcome_base = CommandLineRunner_matchPaths(func() string {
@@ -624,10 +624,10 @@ func CommandLineRunner_matchPaths(pattern string, allJsInputs MapOf[string, stri
 		pattern = String_substring_int(pattern, 1)
 	}
 	var separator string = FilePaths_SEPARATOR
-	var patternParts []string = sliceImm_(tc_string, Splitter_on_String(FilePaths_SEPARATOR).splitToList(strobj_(pattern)))
+	var patternParts []string = sliceImm_(tc_string, Splitter_on_String(FilePaths_SEPARATOR).splitToList_s(pattern))
 	var prefix string = "."
 	for i := int32(0); i < int32(len(patternParts)); i++ {
-		if String_contains(sliceAt_(patternParts, i), strobj_("*")) {
+		if String_contains_s(sliceAt_(patternParts, i), "*") {
 			if i > 0 {
 				prefix = Joiner_on(separator).join(Iterable(sliceView_(tc_string, patternParts).subList(0, i)))
 				pattern = Joiner_on(separator).join(Iterable(sliceView_(tc_string, patternParts).subList(i, int32(len(patternParts)))))
@@ -1620,7 +1620,7 @@ func (this *CommandLineRunner_Flags) printUsage(ps *Output) {
 		}
 		if str_(entry.getKey()) == "Warning and Error Management" {
 			if this.helpMarkdown {
-				suffix = ("\n## Available Error Groups\n\n  - " + sstr_(String_replace(DiagnosticGroups_DIAGNOSTIC_GROUP_NAMES, strobj_(", "), strobj_("\n  - "))))
+				suffix = ("\n## Available Error Groups\n\n  - " + sstr_(String_replace_s(DiagnosticGroups_DIAGNOSTIC_GROUP_NAMES, ", ", "\n  - ")))
 			} else {
 				suffix = ("\n" + sstr_(CommandLineRunner_Flags_BOLD_PREFIX) + "Available Error Groups: " + sstr_(CommandLineRunner_Flags_NORMAL_PREFIX) + sstr_(DiagnosticGroups_DIAGNOSTIC_GROUP_NAMES))
 			}
@@ -1650,16 +1650,16 @@ func (this *CommandLineRunner_Flags) printCategoryUsage(categoryName string, opt
 			this.parser.printUsage(stringWriter, func(option_ any) bool {
 				var option *CmdLineParser_Option = cast_[*CmdLineParser_Option](option_)
 				_ = option
-				return (!option.hidden() && (optionName == CommandLineRunner_LEADING_DASHES_PATTERN.matcher(strobj_(option.name())).replaceFirst("")))
+				return (!option.hidden() && (optionName == CommandLineRunner_LEADING_DASHES_PATTERN.matcher_s(option.name()).replaceFirst("")))
 			})
 			var rawOptionUsage string = Object_toString(obj_(stringWriter))
 			var delimiterIndex int32 = String_indexOf_String(rawOptionUsage, " : ")
 			if delimiterIndex > 0 {
 				outputStream.append(("\n**" + sstr_(String_trim(String_substring(rawOptionUsage, 0, delimiterIndex))) + "**  \n"))
-				var optionDescription string = String_trim(CommandLineRunner_Flags_MARKDOWN_CHARS_TO_ESCAPE.matcher(strobj_(String_substring_int(rawOptionUsage, (delimiterIndex + 3)))).replaceAll("\\\\$0"))
+				var optionDescription string = String_trim(CommandLineRunner_Flags_MARKDOWN_CHARS_TO_ESCAPE.matcher_s(String_substring_int(rawOptionUsage, (delimiterIndex + 3))).replaceAll("\\\\$0"))
 				outputStream.append((sstr_(optionDescription) + "\n"))
 			} else {
-				outputStream.append(CommandLineRunner_Flags_MARKDOWN_CHARS_TO_ESCAPE.matcher(strobj_(rawOptionUsage)).replaceAll("\\\\$0"))
+				outputStream.append(CommandLineRunner_Flags_MARKDOWN_CHARS_TO_ESCAPE.matcher_s(rawOptionUsage).replaceAll("\\\\$0"))
 			}
 		}
 	} else {
@@ -1667,7 +1667,7 @@ func (this *CommandLineRunner_Flags) printCategoryUsage(categoryName string, opt
 		this.parser.printUsage(outputStream, func(option_ any) bool {
 			var option *CmdLineParser_Option = cast_[*CmdLineParser_Option](option_)
 			_ = option
-			return (!option.hidden() && Collection_contains_s(options, CommandLineRunner_LEADING_DASHES_PATTERN.matcher(strobj_(option.name())).replaceFirst("")))
+			return (!option.hidden() && Collection_contains_s(options, CommandLineRunner_LEADING_DASHES_PATTERN.matcher_s(option.name()).replaceFirst("")))
 		})
 	}
 	if suffix.isPresent() {
@@ -1682,7 +1682,7 @@ func (this *CommandLineRunner_Flags) printStringLineWrapped(input string, output
 	}
 	var endIndex int32 = this.maxLineLength
 	var subString string = String_substring(input, 0, this.maxLineLength)
-	var whitespaceMatcher *Matcher_re2j = CommandLineRunner_Flags_WHITESPACE_PATTERN.matcher(strobj_(subString))
+	var whitespaceMatcher *Matcher_re2j = CommandLineRunner_Flags_WHITESPACE_PATTERN.matcher_s(subString)
 	var foundMatch bool = false
 	for whitespaceMatcher.find() {
 		endIndex = whitespaceMatcher.start()
@@ -1777,7 +1777,7 @@ func (this *CommandLineRunner_Flags) splitPipeParts(input IterableOf[string], fl
 	it_1 := foreach_(any(input))
 	for it_1.next() {
 		var inputSourceMap string = str_(it_1.v)
-		var parts []string = sliceImm_(tc_string, splitter.splitToList(strobj_(inputSourceMap)))
+		var parts []string = sliceImm_(tc_string, splitter.splitToList_s(inputSourceMap))
 		if int32(len(parts)) != 2 {
 			return Outcome_base_err(new_CmdLineException_CmdLineParser_String(this.parser, ("Bad value for " + sstr_(flagName) + " (duplicate key): " + objstr_(any(input)))).up_Throwable())
 		}
@@ -1787,7 +1787,7 @@ func (this *CommandLineRunner_Flags) splitPipeParts(input IterableOf[string], fl
 }
 
 func (this *CommandLineRunner_Flags) getPackageJsonEntryNames() []string {
-	return sliceImm_(tc_string, Splitter_on(',').splitToList(strobj_(this.packageJsonEntryNames.get())))
+	return sliceImm_(tc_string, Splitter_on(',').splitToList_s(this.packageJsonEntryNames.get()))
 }
 
 func CommandLineRunner_Flags_addMultiFlagValue(values *TList[string], value OptionalOf[string], flag any, entries *TList[*AbstractCommandLineRunner_FlagEntry]) *TList[string] {
