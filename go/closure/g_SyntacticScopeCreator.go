@@ -126,7 +126,9 @@ func (this *SyntacticScopeCreator_ScopeScanner) populate() {
 		}
 		return
 	case tokOrd1_ROOT, tokOrd1_SCRIPT:
-		Preconditions_checkState_boolean_Object(this.scope_.isGlobal(), obj_(this.scope_))
+		if !this.scope_.isGlobal() {
+			Preconditions_checkState_boolean_Object(false, obj_(this.scope_))
+		}
 		this.scanVars(n, this.scope_, this.scope_)
 		return
 	case tokOrd1_MODULE_BODY:
@@ -154,7 +156,9 @@ func (this *SyntacticScopeCreator_ScopeScanner) declareLHS(s *Scope, n Node) {
 		this.declareVar(s, n.getFirstChild())
 	} else {
 		// NodeUtil.visitLhsNodesInNode, through the function-value walker (post-flip manual step).
-		Preconditions_checkArgument_boolean_Object((((((((NodeUtil_isNameDeclaration(n) || n.isParamList()) || NodeUtil_isAssignmentOp(n)) || n.isCatch()) || n.isDestructuringLhs()) || n.isDefaultValue()) || n.isImport()) || NodeUtil_isEnhancedFor(n)), n.box_())
+		if !(((((((NodeUtil_isNameDeclaration(n) || n.isParamList()) || NodeUtil_isAssignmentOp(n)) || n.isCatch()) || n.isDestructuringLhs()) || n.isDefaultValue()) || n.isImport()) || NodeUtil_isEnhancedFor(n)) {
+			Preconditions_checkArgument_boolean_Object(false, n.box_())
+		}
 		nodeUtilLhsNodes_(n, func(lhs Node) { this.declareVar(s, lhs) })
 	}
 }
@@ -198,7 +202,9 @@ func (this *SyntacticScopeCreator_ScopeScanner) scanVars(n Node, hoistScope *Sco
 		this.declareVar(blockScope, n.getFirstChild())
 		return
 	case tokOrd1_CATCH:
-		Preconditions_checkState_boolean_Object(n.hasTwoChildren(), n.box_())
+		if !n.hasTwoChildren() {
+			Preconditions_checkState_boolean_Object(false, n.box_())
+		}
 		if blockScope != nil {
 			this.declareLHS(blockScope, n)
 		}
@@ -256,7 +262,9 @@ func (this *SyntacticScopeCreator_ScopeScanner) scanVars(n Node, hoistScope *Sco
 }
 
 func (this *SyntacticScopeCreator_ScopeScanner) declareVar(s *Scope, n Node) {
-	Preconditions_checkState_boolean_String_Object((n.isName() || n.isImportStar()), "Invalid node for declareVar: %s", n.box_())
+	if !(n.isName() || n.isImportStar()) {
+		Preconditions_checkState_boolean_String_Object(false, "Invalid node for declareVar: %s", n.box_())
+	}
 	var name string = n.getString()
 	var v *Var = cast_[*Var](s.getOwnSlot(name))
 	if v != nil {

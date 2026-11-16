@@ -39,7 +39,9 @@ func Property_createFromKey(name Property_Key, type_ *JSType, inferred bool, pro
 		}
 		panic("unreachable")
 	}()
-	Preconditions_checkNotNull_Object_String_Object(type_.self(), "Null type specified for %s", any(name))
+	if type_.self() == nil {
+		Preconditions_checkNotNull_Object_String_Object(nil, "Null type specified for %s", any(name))
+	}
 	return new_Property(nameObject, type_, inferred, propertyNode)
 }
 

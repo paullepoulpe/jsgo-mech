@@ -1099,7 +1099,9 @@ func (this *CompilerOptions) getAngularPass() bool {
 }
 
 func (this *CompilerOptions) setPolymerVersion(polymerVersion any) {
-	Preconditions_checkArgument_boolean_String_Object((((polymerVersion == nil) || (unbox_[int32](polymerVersion) == 1)) || (unbox_[int32](polymerVersion) == 2)), "Invalid Polymer version: (%s)", polymerVersion)
+	if !(((polymerVersion == nil) || (unbox_[int32](polymerVersion) == 1)) || (unbox_[int32](polymerVersion) == 2)) {
+		Preconditions_checkArgument_boolean_String_Object(false, "Invalid Polymer version: (%s)", polymerVersion)
+	}
 	this.polymerPass = (polymerVersion != nil)
 }
 

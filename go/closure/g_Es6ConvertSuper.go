@@ -89,8 +89,12 @@ var lambda_Es6ConvertSuper_visitSuper_1_ = &Predicate_base_fn{func(n_ any) bool 
 }}
 
 func (this *Es6ConvertSuper) visitSuperCall(node Node, parent Node, enclosingMemberDef Node) {
-	Preconditions_checkState_boolean_Object(parent.isCall(), parent.box_())
-	Preconditions_checkState_boolean_Object(node.isSuper(), node.box_())
+	if !parent.isCall() {
+		Preconditions_checkState_boolean_Object(false, parent.box_())
+	}
+	if !node.isSuper() {
+		Preconditions_checkState_boolean_Object(false, node.box_())
+	}
 	var clazz Node = NodeUtil_getEnclosingClass(node)
 	var superName Node = clazz.getSecondChild()
 	if !superName.isQualifiedName() {
@@ -110,8 +114,12 @@ func (this *Es6ConvertSuper) visitSuperCall(node Node, parent Node, enclosingMem
 }
 
 func (this *Es6ConvertSuper) visitSuperPropertyCall(node Node, parent Node, enclosingMemberDef Node) {
-	Preconditions_checkState_boolean_Object((parent.isGetProp() || parent.isGetElem()), parent.box_())
-	Preconditions_checkState_boolean_Object(node.isSuper(), node.box_())
+	if !(parent.isGetProp() || parent.isGetElem()) {
+		Preconditions_checkState_boolean_Object(false, parent.box_())
+	}
+	if !node.isSuper() {
+		Preconditions_checkState_boolean_Object(false, node.box_())
+	}
 	var grandparent Node = parent.getParent()
 	Preconditions_checkState(grandparent.isCall())
 	var clazz Node = NodeUtil_getEnclosingClass(node)
@@ -147,8 +155,12 @@ func (this *Es6ConvertSuper) visitSuperPropertyCall(node Node, parent Node, encl
 }
 
 func (this *Es6ConvertSuper) visitSuperPropertyAccess(node Node, parent Node, enclosingMemberDef Node) {
-	Preconditions_checkState_boolean_Object((parent.isGetProp() || parent.isGetElem()), parent.box_())
-	Preconditions_checkState_boolean_Object(node.isSuper(), node.box_())
+	if !(parent.isGetProp() || parent.isGetElem()) {
+		Preconditions_checkState_boolean_Object(false, parent.box_())
+	}
+	if !node.isSuper() {
+		Preconditions_checkState_boolean_Object(false, node.box_())
+	}
 	var grandparent Node = parent.getParent()
 	if NodeUtil_isLValue(parent) {
 		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(parent, TranspilationUtil_CANNOT_CONVERT_YET, []string{"assigning to a super property"}))

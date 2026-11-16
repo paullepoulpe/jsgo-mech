@@ -878,7 +878,9 @@ func (this *JSTypeRegistry) declareTypeForExactScope(scope StaticScope, name str
 }
 
 func (this *JSTypeRegistry) overwriteDeclaredType(scope StaticScope, name string, type_ *JSType) {
-	Preconditions_checkState_boolean_String_Object(this.isDeclaredForScope(scope, name), "missing name %s", strobj_(name))
+	if !this.isDeclaredForScope(scope, name) {
+		Preconditions_checkState_boolean_String_Object(false, "missing name %s", strobj_(name))
+	}
 	this.register(scope, type_, name)
 }
 
@@ -907,7 +909,9 @@ func JSTypeRegistry_getSimpleReadableJSTypeName(type_ *JSType) OptionalOf[string
 		}
 		var source Node = type_.toObjectType().getConstructor().getSource()
 		if source != 0 {
-			Preconditions_checkState_boolean_Object((source.isFunction() || source.isClass()), source.box_())
+			if !(source.isFunction() || source.isClass()) {
+				Preconditions_checkState_boolean_Object(false, source.box_())
+			}
 			var readable string = source.getFirstChild().getOriginalName()
 			if !String_isEmpty(readable) {
 				return Optional_of[string](readable)
@@ -1023,7 +1027,9 @@ func (this *JSTypeRegistry) getType_5(scope StaticTypedScope, jsTypeName string,
 	if thisType != nil {
 		type_ = thisType.getTemplateTypeMap().getLastTemplateTypeKeyByName(jsTypeName).up_JSType()
 		if type_ != nil {
-			Preconditions_checkState_boolean_String_Object(type_.isTemplateType(), "expected:%s", type_.self())
+			if !type_.isTemplateType() {
+				Preconditions_checkState_boolean_String_Object(false, "expected:%s", type_.self())
+			}
 			return type_
 		}
 	}
@@ -1409,7 +1415,9 @@ func (this *JSTypeRegistry) createTypeFromCommentNode_3(n Node, sourceName Optio
 }
 
 func (this *JSTypeRegistry) addNullabilityBasedOnParseContext(n Node, type_ *JSType, scope StaticScope) *JSType {
-	Preconditions_checkState_boolean_Object((n.isName() || n.isStringLit()), n.box_())
+	if !(n.isName() || n.isStringLit()) {
+		Preconditions_checkState_boolean_Object(false, n.box_())
+	}
 	Preconditions_checkNotNull(type_.self())
 	if this.isNonNullableName(scope, n.getString()) {
 		return type_

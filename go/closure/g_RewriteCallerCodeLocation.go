@@ -99,7 +99,9 @@ func (this *RewriteCallerCodeLocation_FindCallerLocationFunctions) isGoogCallerL
 }
 
 func (this *RewriteCallerCodeLocation_FindCallerLocationFunctions) visitParamListAndAddCallerLocationFunctionNames(n Node, t *NodeTraversal) {
-	Preconditions_checkState_boolean_Object(n.isParamList(), n.box_())
+	if !n.isParamList() {
+		Preconditions_checkState_boolean_Object(false, n.box_())
+	}
 	var defaultValuesCount int32 = 0
 	var paramPosition int32 = 0
 	{

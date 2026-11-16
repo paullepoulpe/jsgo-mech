@@ -89,9 +89,15 @@ func (this *TypeCheck) process_2(externsRoot Node, jsRoot Node) {
 func (this *TypeCheck) processForTesting(externsRoot Node, jsRoot Node) *TypedScope {
 	Preconditions_checkState((this.scopeCreator == nil))
 	Preconditions_checkState((this.topScope == nil))
-	Preconditions_checkArgument_boolean_Object(((externsRoot == 0) || externsRoot.isRoot()), externsRoot.box_())
-	Preconditions_checkArgument_boolean_Object(jsRoot.isRoot(), jsRoot.box_())
-	Preconditions_checkState_boolean_Object((jsRoot.hasParent() && jsRoot.getParent().isRoot()), jsRoot.getParent().box_())
+	if !((externsRoot == 0) || externsRoot.isRoot()) {
+		Preconditions_checkArgument_boolean_Object(false, externsRoot.box_())
+	}
+	if !jsRoot.isRoot() {
+		Preconditions_checkArgument_boolean_Object(false, jsRoot.box_())
+	}
+	if ok_, a1_ := (jsRoot.hasParent() && jsRoot.getParent().isRoot()), jsRoot.getParent(); !ok_ {
+		Preconditions_checkState_boolean_Object(false, a1_.box_())
+	}
 	Preconditions_checkState_boolean_Object(((externsRoot == 0) || (externsRoot.getNext() == jsRoot)), strobj_("externs root must be the preceding sibling of the js root"))
 	this.scopeCreator = new_TypedScopeCreator_AbstractCompiler(this.compiler_)
 	this.topScope = new_TypeInferencePass(this.compiler_, this.reverseInterpreter, this.scopeCreator).inferAllScopes(jsRoot.getParent())
@@ -533,7 +539,9 @@ func (this *TypeCheck) checkDestructuringAssignment(t *NodeTraversal, nodeToWarn
 }
 
 func (this *TypeCheck) checkCanAssignToNameGetpropOrGetelem(t *NodeTraversal, nodeToWarn Node, lvalue Node, rightType *JSType, info *JSDocInfo, msg string) {
-	Preconditions_checkArgument_boolean_Object((((lvalue.isName() || lvalue.isGetProp()) || lvalue.isGetElem()) || lvalue.isCast()), lvalue.box_())
+	if !(((lvalue.isName() || lvalue.isGetProp()) || lvalue.isGetElem()) || lvalue.isCast()) {
+		Preconditions_checkArgument_boolean_Object(false, lvalue.box_())
+	}
 	this.checkNotReadonlyPropertyAssignment(lvalue)
 	if lvalue.isGetProp() {
 		var object Node = lvalue.getFirstChild()
@@ -687,7 +695,9 @@ func (this *TypeCheck) visitObjectOrClassLiteralKey(key Node, owner Node, ownerT
 				var classConstructorType *FunctionType = owner.getJSType().assertFunctionType()
 				this.checkPropertyInheritanceOnClassMember(key, icast_Property_Key(obj_(new_Property_SymbolKey(keyType.toMaybeKnownSymbolType()))), classConstructorType)
 			} else {
-				Preconditions_checkState_boolean_String_Object(owner.isObjectLit(), "Unexpected owner %s", owner.box_())
+				if !owner.isObjectLit() {
+					Preconditions_checkState_boolean_String_Object(false, "Unexpected owner %s", owner.box_())
+				}
 				var objectCastType *ObjectType = ObjectType_cast(ownerType.restrictByNotNullOrUndefined())
 				var expectedPropertyType *JSType = this.getPropertyTypeIfDeclared(objectCastType, icast_Property_Key(obj_(new_Property_SymbolKey(keyType.toMaybeKnownSymbolType()))))
 				this.validator.expectCanAssignToPropertyOf(key, expectedPropertyType, this.getJSType(key.getSecondChild()), owner, keyType.toMaybeKnownSymbolType().getDisplayName())
@@ -793,7 +803,9 @@ func (this *TypeCheck) checkDeclaredPropertyAgainstNominalInheritance(n Node, ct
 		if implementedInterface.isUnknownType() || implementedInterface.isEmptyType() {
 			continue
 		}
-		Preconditions_checkState_boolean_Object(implementedInterface.isInstanceType(), implementedInterface.self())
+		if !implementedInterface.isInstanceType() {
+			Preconditions_checkState_boolean_Object(false, implementedInterface.self())
+		}
 		var propSlot *Property_OwnedProperty = implementedInterface.findClosestDefinition(propertyName)
 		var interfaceHasProperty bool = (propSlot != nil)
 		foundProperty = bor_(foundProperty, interfaceHasProperty)
@@ -991,7 +1003,9 @@ func (this *TypeCheck) visitOptChainGetProp(optChainGetProp Node) {
 }
 
 func (this *TypeCheck) checkPropertyAccessForGetProp(getProp Node) {
-	Preconditions_checkArgument_boolean_Object((getProp.isGetProp() || getProp.isOptChainGetProp()), getProp.box_())
+	if !(getProp.isGetProp() || getProp.isOptChainGetProp()) {
+		Preconditions_checkArgument_boolean_Object(false, getProp.box_())
+	}
 	var objNode Node = getProp.getFirstChild()
 	var objType *JSType = this.getJSType(objNode)
 	var propType *JSType = this.getJSType(getProp)
@@ -1000,8 +1014,12 @@ func (this *TypeCheck) checkPropertyAccessForGetProp(getProp Node) {
 }
 
 func (this *TypeCheck) checkPropertyAccessForDestructuring(pattern Node, objectType *JSType, stringKey Node, inferredPropType *JSType) {
-	Preconditions_checkArgument_boolean_Object(pattern.isDestructuringPattern(), pattern.box_())
-	Preconditions_checkArgument_boolean_Object(stringKey.isStringKey(), stringKey.box_())
+	if !pattern.isDestructuringPattern() {
+		Preconditions_checkArgument_boolean_Object(false, pattern.box_())
+	}
+	if !stringKey.isStringKey() {
+		Preconditions_checkArgument_boolean_Object(false, stringKey.box_())
+	}
 	var objNode Node = 0
 	var patternParent Node = pattern.getParent()
 	if (patternParent.isAssign() || patternParent.isDestructuringLhs()) && (pattern.getNext() != 0) {
@@ -1180,7 +1198,9 @@ func (this *TypeCheck) visitVar(t *NodeTraversal, n Node) {
 					this.checkCanAssignToWithScope(t, value, child, valueType, info, "initializing variable")
 				}
 			} else {
-				Preconditions_checkState_boolean_Object(child.isDestructuringLhs(), child.box_())
+				if !child.isDestructuringLhs() {
+					Preconditions_checkState_boolean_Object(false, child.box_())
+				}
 				var name Node = child.getFirstChild()
 				var value Node = child.getSecondChild()
 				var valueType *JSType = this.getJSType(value)

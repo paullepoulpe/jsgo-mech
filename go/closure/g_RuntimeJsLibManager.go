@@ -64,10 +64,16 @@ func (this *RuntimeJsLibManager) getExternedFields() []RuntimeJsLibManager_Exter
 }
 
 func (this *RuntimeJsLibManager) createField(fieldName string) *RuntimeJsLibManager_InternalField {
-	Preconditions_checkArgument_boolean_Object(!String_isEmpty(fieldName), strobj_(fieldName))
+	if String_isEmpty(fieldName) {
+		Preconditions_checkArgument_boolean_Object(false, strobj_(fieldName))
+	}
 	var parts []string = sliceImm_(tc_string, Splitter_on('.').splitToList(strobj_(fieldName)))
-	Preconditions_checkArgument_boolean_String_Object((int32(len(parts)) >= 2), "Field name must start with $jscomp., found %s", strobj_(fieldName))
-	Preconditions_checkArgument_boolean_String_Object((sliceAt_(parts, 0) == "$jscomp"), "Field name must start with $jscomp, found %s", strobj_(fieldName))
+	if !(int32(len(parts)) >= 2) {
+		Preconditions_checkArgument_boolean_String_Object(false, "Field name must start with $jscomp., found %s", strobj_(fieldName))
+	}
+	if !(sliceAt_(parts, 0) == "$jscomp") {
+		Preconditions_checkArgument_boolean_String_Object(false, "Field name must start with $jscomp, found %s", strobj_(fieldName))
+	}
 	var propName string = sliceAt_(parts, 1)
 	var resource OptionalOf[string] = Optional_ofNullable[string](str_(Map_get_s(RuntimeJsLibManager_FieldsTable_INSTANCE, propName)))
 	if resource.isEmpty() {
@@ -102,7 +108,9 @@ func (this *RuntimeJsLibManager) injectLibForField(fieldName string) {
 	field.markInjected()
 	if this.mode_ == RuntimeJsLibManager_RuntimeLibraryMode_EXTERN_FIELD_NAMES {
 		var externRoot Node = Node_of_(this.nodeForCodeInsertion.get())
-		Preconditions_checkState_boolean_Object(externRoot.isFromExterns(), externRoot.box_())
+		if !externRoot.isFromExterns() {
+			Preconditions_checkState_boolean_Object(false, externRoot.box_())
+		}
 		var declaration Node = IR_var_Node(IR_name(field.qualifiedName()))
 		declaration.getFirstChild().putBooleanProp(Node_IS_CONSTANT_NAME, true)
 		externRoot.addChildToBack(declaration)
@@ -273,7 +281,9 @@ func RuntimeJsLibManager_FieldsTable_loadFields() ImmutableMapOf[string, string]
 	for it_1.next() {
 		var line string = str_(it_1.v)
 		var tokens ListOf[string] = Splitter_on(',').limit(2).splitToList(strobj_(line))
-		Preconditions_checkState_boolean_Object((tokens.size() == 2), any(tokens))
+		if !(tokens.size() == 2) {
+			Preconditions_checkState_boolean_Object(false, any(tokens))
+		}
 		var fieldName string = str_(tokens.get(0))
 		var resourcePath string = str_(tokens.get(1))
 		allFields.put(strobj_(fieldName), strobj_(resourcePath))
@@ -339,7 +349,9 @@ func (this *RuntimeJsLibManager_InternalField) assertInjected() RuntimeJsLibMana
 	switch this.outer_.mode_ {
 	case RuntimeJsLibManager_RuntimeLibraryMode_NO_OP, RuntimeJsLibManager_RuntimeLibraryMode_RECORD_ONLY:
 	case RuntimeJsLibManager_RuntimeLibraryMode_RECORD_AND_VALIDATE_FIELDS, RuntimeJsLibManager_RuntimeLibraryMode_INJECT, RuntimeJsLibManager_RuntimeLibraryMode_EXTERN_FIELD_NAMES:
-		Preconditions_checkState_boolean_String_Object(this.injected, "Field %s is not injected", strobj_(this.uncompiledNameField))
+		if !this.injected {
+			Preconditions_checkState_boolean_String_Object(false, "Field %s is not injected", strobj_(this.uncompiledNameField))
+		}
 	}
 	return icast_RuntimeJsLibManager_InjectedJsLibField(any(this))
 }

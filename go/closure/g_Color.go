@@ -192,7 +192,9 @@ func Color_createUnion(elements SetOf[*Color]) *Color {
 }
 
 func (this *Color) isPrimitive() bool {
-	Preconditions_checkState_boolean_Object(!this.isUnion(), any(this))
+	if this.isUnion() {
+		Preconditions_checkState_boolean_Object(false, any(this))
+	}
 	return StandardColors_PRIMITIVE_COLORS.containsKey(obj_(this.getId()))
 }
 
@@ -369,22 +371,34 @@ func (this *Color_Builder) buildInternal() *Color {
 
 func (this *Color_Builder) build() *Color {
 	var result *Color = this.buildInternal()
-	Preconditions_checkState_boolean_Object(result.getUnionElements().isEmpty(), obj_(result))
-	Preconditions_checkState_boolean_Object((result.getBoxId() == nil), obj_(result))
-	Preconditions_checkState_boolean_Object(!StandardColors_AXIOMATIC_COLORS.containsKey(obj_(result.getId())), obj_(result))
+	if !result.getUnionElements().isEmpty() {
+		Preconditions_checkState_boolean_Object(false, obj_(result))
+	}
+	if !(result.getBoxId() == nil) {
+		Preconditions_checkState_boolean_Object(false, obj_(result))
+	}
+	if StandardColors_AXIOMATIC_COLORS.containsKey(obj_(result.getId())) {
+		Preconditions_checkState_boolean_Object(false, obj_(result))
+	}
 	return result
 }
 
 func (this *Color_Builder) buildUnion() *Color {
 	var result *Color = this.buildInternal()
-	Preconditions_checkState_boolean_Object((result.getUnionElements().size() > 1), obj_(result))
-	Preconditions_checkState_boolean_Object((result.getBoxId() == nil), obj_(result))
+	if !(result.getUnionElements().size() > 1) {
+		Preconditions_checkState_boolean_Object(false, obj_(result))
+	}
+	if !(result.getBoxId() == nil) {
+		Preconditions_checkState_boolean_Object(false, obj_(result))
+	}
 	return result
 }
 
 func (this *Color_Builder) buildAxiomatic() *Color {
 	Preconditions_checkState_boolean_Object((StandardColors_AXIOMATIC_COLORS == nil), strobj_("StandardColors are all defined"))
 	var result *Color = this.buildInternal()
-	Preconditions_checkState_boolean_Object(result.getUnionElements().isEmpty(), obj_(result))
+	if !result.getUnionElements().isEmpty() {
+		Preconditions_checkState_boolean_Object(false, obj_(result))
+	}
 	return result
 }

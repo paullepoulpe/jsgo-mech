@@ -93,7 +93,9 @@ func (this *DevirtualizeMethods) isPrototypeOrStaticMethodDefinition(node Node) 
 			}
 			return false
 		case tokOrd1_STRING_KEY:
-			Preconditions_checkArgument_boolean_Object(parent.isObjectLit(), parent.box_())
+			if !parent.isObjectLit() {
+				Preconditions_checkArgument_boolean_Object(false, parent.box_())
+			}
 			return (DevirtualizeMethods_isPrototypeObjectLit(parent) && node.getFirstChild().isFunction())
 		default:
 			return false
@@ -103,7 +105,9 @@ func (this *DevirtualizeMethods) isPrototypeOrStaticMethodDefinition(node Node) 
 }
 
 func DevirtualizeMethods_isPrototypeObjectLit(objectLit Node) bool {
-	Preconditions_checkArgument_boolean_Object(objectLit.isObjectLit(), objectLit.box_())
+	if !objectLit.isObjectLit() {
+		Preconditions_checkArgument_boolean_Object(false, objectLit.box_())
+	}
 	var parent Node = objectLit.getParent()
 	return (objectLit.isSecondChildOf(parent) && NodeUtil_isPrototypeAssignment(parent.getFirstChild()))
 }
@@ -179,7 +183,9 @@ func (this *DevirtualizeMethods) isEligibleDefinitionSite(name string, definitio
 }
 
 func (this *DevirtualizeMethods) isEligibleDefinitionFunction(definitionFunction Node) bool {
-	Preconditions_checkArgument_boolean_Object(definitionFunction.isFunction(), definitionFunction.box_())
+	if !definitionFunction.isFunction() {
+		Preconditions_checkArgument_boolean_Object(false, definitionFunction.box_())
+	}
 	if definitionFunction.isArrowFunction() {
 		return false
 	}
@@ -228,7 +234,9 @@ func (this *DevirtualizeMethods) allDefinitionsEquivalent(definitions Collection
 		return true
 	}
 	var definition Node = Node_of_(Iterables_get(Iterable(definitions), 0))
-	Preconditions_checkArgument_boolean_Object(definition.isFunction(), definition.box_())
+	if !definition.isFunction() {
+		Preconditions_checkArgument_boolean_Object(false, definition.box_())
+	}
 	it_1 := foreach_(any(definitions))
 	for it_1.next() {
 		var d Node = Node_of_(it_1.v)
@@ -240,9 +248,13 @@ func (this *DevirtualizeMethods) allDefinitionsEquivalent(definitions Collection
 }
 
 func (this *DevirtualizeMethods) rewriteCall(getprop Node, newMethodName string, isConstantName bool) {
-	Preconditions_checkArgument_boolean_Object(getprop.isGetProp(), getprop.box_())
+	if !getprop.isGetProp() {
+		Preconditions_checkArgument_boolean_Object(false, getprop.box_())
+	}
 	var call Node = getprop.getParent()
-	Preconditions_checkArgument_boolean_Object(call.isCall(), call.box_())
+	if !call.isCall() {
+		Preconditions_checkArgument_boolean_Object(false, call.box_())
+	}
 	var receiver Node = getprop.getFirstChild()
 	receiver.detach()
 	getprop.replaceWith(receiver)
@@ -343,7 +355,9 @@ func DevirtualizeMethods_isScopingOrBranchingConstruct(node Node) bool {
 }
 
 func DevirtualizeMethods_localNameIsDeclaredByClass(clazz Node) bool {
-	Preconditions_checkArgument_boolean_Object(clazz.isClass(), clazz.box_())
+	if !clazz.isClass() {
+		Preconditions_checkArgument_boolean_Object(false, clazz.box_())
+	}
 	if clazz.getFirstChild().isEmpty() {
 		return false
 	} else if NodeUtil_isStatement(clazz) {

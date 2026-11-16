@@ -37,7 +37,9 @@ func (this *TypedVar) init_TypedVar(inferred bool, name string, nameNode Node, t
 	this.AbstractVar.init_AbstractVar(name, nameNode, scope.up_AbstractScope(), index, input, 0)
 	this.finit_TypedVar()
 	if nameNode != 0 {
-		Preconditions_checkArgument_boolean_String_Object(TypedVar_NAME_NODE_TYPES.contains(obj_(nameNode.getToken())), "Invalid name node token %s", obj_(nameNode.getToken()))
+		if ok_, a1_ := TypedVar_NAME_NODE_TYPES.contains(obj_(nameNode.getToken())), nameNode.getToken(); !ok_ {
+			Preconditions_checkArgument_boolean_String_Object(false, "Invalid name node token %s", obj_(a1_))
+		}
 	}
 	this.type__ = type_
 	this.typeInferred = inferred

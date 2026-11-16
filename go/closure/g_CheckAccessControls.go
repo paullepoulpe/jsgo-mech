@@ -64,7 +64,9 @@ func CheckAccessControls_primaryAccessControlScopeRootFor(node Node) Node {
 }
 
 func (this *CheckAccessControls) bestInstanceTypeForMethodOrCtor(n Node) *ObjectType {
-	Preconditions_checkState_boolean_Object(CheckAccessControls_isFunctionOrClass(n), n.box_())
+	if !CheckAccessControls_isFunctionOrClass(n) {
+		Preconditions_checkState_boolean_Object(false, n.box_())
+	}
 	var parent Node = n.getParent()
 	if NodeUtil_isFunctionDeclaration(n) || n.isClass() {
 		return CheckAccessControls_instanceTypeFor(n.getJSType())
@@ -661,7 +663,9 @@ func (this *CheckAccessControls) getTypeOfThis(scopeRoot Node) *JSType {
 		var classNode Node = NodeUtil_getEnclosingClass(scopeRoot)
 		return classNode.getJSType()
 	}
-	Preconditions_checkArgument_boolean_Object(scopeRoot.isFunction(), scopeRoot.box_())
+	if !scopeRoot.isFunction() {
+		Preconditions_checkArgument_boolean_Object(false, scopeRoot.box_())
+	}
 	var nodeType *JSType = scopeRoot.getJSType()
 	if (nodeType != nil) && nodeType.isFunctionType() {
 		return nodeType.toMaybeFunctionType().getTypeOfThis()

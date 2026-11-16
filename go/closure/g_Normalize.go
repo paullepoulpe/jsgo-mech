@@ -218,13 +218,17 @@ func (this *Normalize_NormalizeStatements) annotateConstantsByConvention(n Node)
 		return
 	}
 	if !n.getBooleanProp(Node_IS_CONSTANT_NAME) && NodeUtil_isConstantByConvention(this.compiler_.getCodingConvention(), n) {
-		Preconditions_checkState_boolean_String_Object(!this.assertOnChange_, "Not marked as constant when it should be: %s", n.box_())
+		if this.assertOnChange_ {
+			Preconditions_checkState_boolean_String_Object(false, "Not marked as constant when it should be: %s", n.box_())
+		}
 		n.putBooleanProp(Node_IS_CONSTANT_NAME, true)
 	}
 }
 
 func (this *Normalize_NormalizeStatements) annotateFunctionExpressionNameAsConstant(n Node) {
-	Preconditions_checkState_boolean_String_Object(n.isName(), "Expected NAME node but got %s", strobj_(Object_toString(obj_(n.getToken()))))
+	if ok_, a1_ := n.isName(), Object_toString(obj_(n.getToken())); !ok_ {
+		Preconditions_checkState_boolean_String_Object(false, "Expected NAME node but got %s", strobj_(a1_))
+	}
 	if Normalize_isFunctionExpressionNameNode(n) {
 		n.putBooleanProp(Node_IS_CONSTANT_NAME, true)
 	}
@@ -279,7 +283,9 @@ func (this *Normalize_NormalizeStatements) addNameNodeToExportSpecs(exportSpecs 
 }
 
 func (this *Normalize_NormalizeStatements) normalizeBlocklessFunction(n Node) {
-	Preconditions_checkState_boolean_Object(n.isFunction(), n.box_())
+	if !n.isFunction() {
+		Preconditions_checkState_boolean_Object(false, n.box_())
+	}
 	if !NodeUtil_getFunctionBody(n).isBlock() {
 		var returnValue Node = NodeUtil_getFunctionBody(n)
 		var body Node = IR_block_Node(IR_returnNode_Node(returnValue.detach()))
@@ -330,7 +336,9 @@ func (this *Normalize_NormalizeStatements) rewriteVarDestructuringDeclaration(de
 	NodeUtil_visitLhsNodesInNode(destructuringLhs, func(name_ any) {
 		var name Node = Node_of_(name_)
 		_ = name
-		Preconditions_checkState_boolean_String_Object(name.isName(), "lhs in destructuring declaration should be a simple name. (%s)", name.box_())
+		if !name.isName() {
+			Preconditions_checkState_boolean_String_Object(false, "lhs in destructuring declaration should be a simple name. (%s)", name.box_())
+		}
 		var newName Node = IR_name(name.getString()).srcref(name)
 		if name.getBooleanProp(Node_IS_CONSTANT_NAME) {
 			newName.putBooleanProp(Node_IS_CONSTANT_NAME, true)
@@ -396,7 +404,9 @@ func (this *Normalize_NormalizeStatements) extractForInitializer(n Node, before 
 						NodeUtil_visitLhsNodesInNode(lhs, func(name_ any) {
 							var name Node = Node_of_(name_)
 							_ = name
-							Preconditions_checkState_boolean_String_Object(name.isName(), "lhs in destructuring declaration should be a simple name. (%s)", name.box_())
+							if !name.isName() {
+								Preconditions_checkState_boolean_String_Object(false, "lhs in destructuring declaration should be a simple name. (%s)", name.box_())
+							}
 							var newName Node = IR_name(name.getString()).srcref(name)
 							var newVar Node = IR_var_Node(newName).srcref(name)
 							newVar.insertBefore(insertBefore)
@@ -558,7 +568,9 @@ func (this *Normalize_DuplicateDeclarationHandler) replaceVarWithAssignment(n No
 		parent.replaceWith(statement)
 		this.outer_.reportCodeChange("Duplicate VAR declaration", statement)
 	} else {
-		Preconditions_checkState_boolean_Object(NodeUtil_isStatementBlock(grandparent), grandparent.box_())
+		if !NodeUtil_isStatementBlock(grandparent) {
+			Preconditions_checkState_boolean_Object(false, grandparent.box_())
+		}
 		parent.detach()
 		this.outer_.reportCodeChange("Duplicate VAR declaration", grandparent)
 	}

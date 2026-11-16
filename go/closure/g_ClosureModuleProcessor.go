@@ -18,7 +18,9 @@ func new_ClosureModuleProcessor(compiler *AbstractCompiler) *ClosureModuleProces
 
 func ClosureModuleProcessor_mayBeAccidentalDefaultExport(importName string, exports map[string]*Binding) bool {
 	var defaultExport Node = exports[Export_NAMESPACE].originatingExport().exportNode()
-	Preconditions_checkState_boolean_Object((defaultExport.matchesName("exports") && defaultExport.getParent().isAssign()), defaultExport.box_())
+	if !(defaultExport.matchesName("exports") && defaultExport.getParent().isAssign()) {
+		Preconditions_checkState_boolean_Object(false, defaultExport.box_())
+	}
 	var exportedValue Node = defaultExport.getNext()
 	if !exportedValue.isObjectLit() {
 		return false
@@ -35,7 +37,9 @@ func ClosureModuleProcessor_mayBeAccidentalDefaultExport(importName string, expo
 }
 
 func (this *ClosureModuleProcessor) process(metadata *ModuleMetadataMap_ModuleMetadata, path *ModuleLoader_ModulePath, script Node) *UnresolvedModule {
-	Preconditions_checkArgument_boolean_String_Object((script.isScript() || script.isCall()), "Unexpected module root %s", script.box_())
+	if !(script.isScript() || script.isCall()) {
+		Preconditions_checkArgument_boolean_String_Object(false, "Unexpected module root %s", script.box_())
+	}
 	Preconditions_checkArgument_boolean_Object((script.isCall() || (path != nil)), strobj_("Non goog.loadModules must have a path"))
 	var moduleProcessingCallback *ClosureModuleProcessor_ModuleProcessingCallback = new_ClosureModuleProcessor_ModuleProcessingCallback(metadata)
 	NodeTraversal_traverse(this.compiler_, script, icast_NodeTraversal_Callback(obj_(moduleProcessingCallback)))

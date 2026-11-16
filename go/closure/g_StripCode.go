@@ -228,7 +228,9 @@ func (this *StripCode_Strip) removeVarDeclarationsByNameOrRvalue(t *NodeTraversa
 			if nameNode.isDestructuringLhs() {
 				continue
 			}
-			Preconditions_checkState_boolean_Object(nameNode.isName(), nameNode.box_())
+			if !nameNode.isName() {
+				Preconditions_checkState_boolean_Object(false, nameNode.box_())
+			}
 			var name string = nameNode.getString()
 			var lastDollarSign int32 = String_lastIndexOf(name, 36)
 			var possibleStripName string = func() string {
@@ -381,7 +383,9 @@ func (this *StripCode_Strip) maybeEliminateAssignmentByLvalueName(t *NodeTravers
 }
 
 func (this *StripCode_Strip) maybeEliminateExpressionByName(n Node) {
-	Preconditions_checkArgument_boolean_Object(n.isExprResult(), n.box_())
+	if !n.isExprResult() {
+		Preconditions_checkArgument_boolean_Object(false, n.box_())
+	}
 	var parent Node = n.getParent()
 	if parent == 0 {
 		return

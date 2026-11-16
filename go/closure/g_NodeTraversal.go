@@ -156,7 +156,9 @@ func (this *NodeTraversal) formatNodePosition(n Node) string {
 }
 
 func (this *NodeTraversal) traverseWithScope(root Node, s *AbstractScope) {
-	Preconditions_checkState_boolean_Object((s.isGlobal() || s.isModuleScope()), s.self())
+	if !(s.isGlobal() || s.isModuleScope()) {
+		Preconditions_checkState_boolean_Object(false, s.self())
+	}
 	_ = func() (code_ int) {
 		defer func() {
 			if r_ := recover(); r_ != nil {
@@ -252,7 +254,9 @@ func (this *NodeTraversal) traverseAtScope(s *AbstractScope) {
 			this.callback.visit(this, n, 0)
 		}
 	default:
-		Preconditions_checkState_boolean_String_Object((s.isGlobal() || s.isModuleScope()), "Expected global or module scope. Got: (%s)", s.self())
+		if !(s.isGlobal() || s.isModuleScope()) {
+			Preconditions_checkState_boolean_String_Object(false, "Expected global or module scope. Got: (%s)", s.self())
+		}
 		this.traverseWithScope(n, s)
 	}
 }
@@ -381,7 +385,9 @@ func (this *NodeTraversal) handleDestructuringOrDefaultValue(n Node, parent Node
 		var first Node = n.getFirstChild()
 		var second Node = first.getNext()
 		if second != 0 {
-			Preconditions_checkState_boolean_Object((second.getNext() == 0), second.box_())
+			if !(second.getNext() == 0) {
+				Preconditions_checkState_boolean_Object(false, second.box_())
+			}
 			this.traverseBranch(second, n)
 		}
 		this.traverseBranch(first, n)
@@ -811,7 +817,9 @@ func (this *NodeTraversal) report_4(start Node, end Node, diagnosticType *Diagno
 func (this *NodeTraversal) reportCodeChange() {
 	var changeScope Node = this.currentChangeScope
 	Preconditions_checkNotNull(changeScope.box_())
-	Preconditions_checkState_boolean_Object(ChangeTracker_isChangeScopeRoot(changeScope), changeScope.box_())
+	if !ChangeTracker_isChangeScopeRoot(changeScope) {
+		Preconditions_checkState_boolean_Object(false, changeScope.box_())
+	}
 	this.compiler_.reportChangeToChangeScope(changeScope)
 }
 

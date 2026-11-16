@@ -79,7 +79,9 @@ func (this *GatherExternProperties) gatherPropertiesFromJsTypeExpressionNode(jsT
 }
 
 func (this *GatherExternProperties) gatherPropertiesFromJsDocRecordType(jsDocRecordNode Node) {
-	Preconditions_checkState_boolean_Object((jsDocRecordNode.ns_().token == tokOrd1_LB), jsDocRecordNode.box_())
+	if !(jsDocRecordNode.ns_().token == tokOrd1_LB) {
+		Preconditions_checkState_boolean_Object(false, jsDocRecordNode.box_())
+	}
 	{
 		var fieldNode Node = jsDocRecordNode.getFirstChild()
 		for ; fieldNode != 0; fieldNode = fieldNode.getNext() {
@@ -92,7 +94,9 @@ func (this *GatherExternProperties) gatherPropertiesFromJsDocRecordType(jsDocRec
 				fieldNameNode = fieldNode
 				fieldTypeNode = 0
 			}
-			Preconditions_checkState_boolean_Object(fieldNameNode.isStringKey(), fieldNameNode.box_())
+			if !fieldNameNode.isStringKey() {
+				Preconditions_checkState_boolean_Object(false, fieldNameNode.box_())
+			}
 			var fieldName string = fieldNameNode.getString()
 			if String_startsWith(fieldName, "'") || String_startsWith(fieldName, "\"") {
 				fieldName = String_substring(fieldName, 1, (String_length(fieldName) - 1))

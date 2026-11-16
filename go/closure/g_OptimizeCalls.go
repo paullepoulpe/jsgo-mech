@@ -77,7 +77,9 @@ func OptimizeCalls_isAllowedReference(n Node) bool {
 		if n.isFirstChildOf(parent) {
 			return false
 		} else {
-			Preconditions_checkState_boolean_Object(n.isSecondChildOf(parent), parent.box_())
+			if !n.isSecondChildOf(parent) {
+				Preconditions_checkState_boolean_Object(false, parent.box_())
+			}
 			if NodeUtil_getEs6ClassConstructorMemberFunctionDef(parent) == 0 {
 				return false
 			} else {
@@ -231,14 +233,18 @@ func OptimizeCalls_ReferenceMap_definitionFunctionNodesFor(definitionSite Node) 
 		if definitionSite.isMemberFunctionDef() {
 			fns.add(definitionSite.getLastChild().box_())
 		} else {
-			Preconditions_checkArgument_boolean_Object(definitionSite.isMemberFieldDef(), definitionSite.box_())
+			if !definitionSite.isMemberFieldDef() {
+				Preconditions_checkArgument_boolean_Object(false, definitionSite.box_())
+			}
 			var value Node = definitionSite.getFirstChild()
 			if value != 0 {
 				OptimizeCalls_ReferenceMap_addValueFunctionNodes(fns, value)
 			}
 		}
 	case tokOrd1_OBJECTLIT:
-		Preconditions_checkArgument_boolean_Object((definitionSite.isStringKey() || definitionSite.isMemberFunctionDef()), definitionSite.box_())
+		if !(definitionSite.isStringKey() || definitionSite.isMemberFunctionDef()) {
+			Preconditions_checkArgument_boolean_Object(false, definitionSite.box_())
+		}
 		OptimizeCalls_ReferenceMap_addValueFunctionNodes(fns, definitionSite.getLastChild())
 	case tokOrd1_ASSIGN:
 		var target Node = parent.getFirstChild()
@@ -307,15 +313,23 @@ func OptimizeCalls_ReferenceMap_isNewTarget(n Node) bool {
 
 func OptimizeCalls_ReferenceMap_getCallOrNewNodeForTarget(n Node) Node {
 	var maybeCall Node = n.getParent()
-	Preconditions_checkState_boolean_String_Object_Object(n.isFirstChildOf(maybeCall), "%s\n\n%s", maybeCall.box_(), n.box_())
+	if !n.isFirstChildOf(maybeCall) {
+		Preconditions_checkState_boolean_String_Object_Object(false, "%s\n\n%s", maybeCall.box_(), n.box_())
+	}
 	if NodeUtil_isCallOrNew(maybeCall) {
 		return maybeCall
 	} else {
 		var child Node = maybeCall
 		maybeCall = child.getParent()
-		Preconditions_checkState_boolean_Object(NodeUtil_isNormalOrOptChainGetProp(child), child.box_())
-		Preconditions_checkState_boolean_Object(NodeUtil_isNormalOrOptChainCall(maybeCall), maybeCall.box_())
-		Preconditions_checkState_boolean_String_Object_Object(child.isFirstChildOf(maybeCall), "%s\n\n%s", maybeCall.box_(), child.box_())
+		if !NodeUtil_isNormalOrOptChainGetProp(child) {
+			Preconditions_checkState_boolean_Object(false, child.box_())
+		}
+		if !NodeUtil_isNormalOrOptChainCall(maybeCall) {
+			Preconditions_checkState_boolean_Object(false, maybeCall.box_())
+		}
+		if !child.isFirstChildOf(maybeCall) {
+			Preconditions_checkState_boolean_String_Object_Object(false, "%s\n\n%s", maybeCall.box_(), child.box_())
+		}
 		return maybeCall
 	}
 	panic("unreachable")

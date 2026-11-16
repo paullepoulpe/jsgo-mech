@@ -98,7 +98,9 @@ func (this *ColorFindPropertyReferences) handleClass(t *NodeTraversal, classNode
 				return obj_(Color_createUnion(icast_Set(obj_(classInstanceType))))
 			}()
 		} else {
-			Preconditions_checkState_boolean_Object(((m.isMemberFunctionDef() || m.isGetterDef()) || m.isSetterDef()), m.box_())
+			if !((m.isMemberFunctionDef() || m.isGetterDef()) || m.isSetterDef()) {
+				Preconditions_checkState_boolean_Object(false, m.box_())
+			}
 			var classPrototypeType ImmutableSetOf[*Color] = classType.getPrototypes()
 			return func() any {
 				if classPrototypeType.isEmpty() {

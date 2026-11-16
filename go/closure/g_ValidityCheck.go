@@ -142,9 +142,13 @@ func (this *ValidityCheck_VerifyConstants) visit_impl(t *NodeTraversal, n Node, 
 				}
 			}
 			if expectedConst {
-				Preconditions_checkState_boolean_String_Object((expectedConst == isConst), "The name %s is not annotated as constant.", strobj_(name))
+				if !(expectedConst == isConst) {
+					Preconditions_checkState_boolean_String_Object(false, "The name %s is not annotated as constant.", strobj_(name))
+				}
 			} else {
-				Preconditions_checkState_boolean_String_Object((expectedConst == isConst), "The name %s should not be annotated as constant.", strobj_(name))
+				if !(expectedConst == isConst) {
+					Preconditions_checkState_boolean_String_Object(false, "The name %s should not be annotated as constant.", strobj_(name))
+				}
 			}
 		}
 		var value any = this.constantMap[name]

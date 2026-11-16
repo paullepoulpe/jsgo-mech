@@ -75,7 +75,9 @@ func (this *CoalesceVariableNames) enterScopeWithCfg_impl(t *NodeTraversal) {
 	}
 	this.shouldOptimizeScopeStack.push(any(bool(true)))
 	var scope *Scope = t.getScope()
-	Preconditions_checkState_boolean_Object(scope.isFunctionScope(), obj_(scope))
+	if !scope.isFunctionScope() {
+		Preconditions_checkState_boolean_Object(false, obj_(scope))
+	}
 	var cfg *ControlFlowGraph = this.getControlFlowGraph(this.compiler_)
 	this.liveness = new_LiveVariablesAnalysis(cfg, scope, nil, this.compiler_, icast_ScopeCreator(obj_(this.scopeCreator)), allVarsDeclaredInFunction)
 	if FeatureSet_ES3.containsFeatureSet(this.compiler_.getOptions().getOutputFeatureSet()) {
@@ -276,7 +278,9 @@ func (this *CoalesceVariableNames) removeVarDeclaration(name Node, originalVar *
 	} else if NodeUtil_isEnhancedFor(parent) {
 		var_.replaceWith(name.detach())
 	} else {
-		Preconditions_checkState_boolean_Object((var_.hasOneChild() && (var_.getFirstChild() == name)), var_.box_())
+		if !(var_.hasOneChild() && (var_.getFirstChild() == name)) {
+			Preconditions_checkState_boolean_Object(false, var_.box_())
+		}
 		if name.hasChildren() {
 			var value Node = name.removeFirstChild()
 			name.detach()
@@ -318,7 +322,9 @@ func (this *CoalesceVariableNames) makeDeclarationVar(coalescedName *Var) {
 var lambda_CoalesceVariableNames_makeDeclarationVar_1_ = &Predicate_base_fn{func(p0 any) bool { return NodeUtil_isNameDeclaration(Node_of_(p0)) }}
 
 func CoalesceVariableNames_isUninitializedLetNameInLoopBody(nameNode Node) bool {
-	Preconditions_checkState_boolean_Object(nameNode.isName(), nameNode.box_())
+	if !nameNode.isName() {
+		Preconditions_checkState_boolean_Object(false, nameNode.box_())
+	}
 	var letNode Node = nameNode.getParent()
 	if !letNode.isLet() {
 		return false

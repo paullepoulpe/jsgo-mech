@@ -126,7 +126,9 @@ func new_ColorPool_ShardView(typePool *TypePool, stringPool *StringPool, trimmed
 }
 
 func (this *ColorPool_ShardView) getColor(pointer int32) *Color {
-	Preconditions_checkState_boolean_Object((this.colorPool != nil), any(this))
+	if !(this.colorPool != nil) {
+		Preconditions_checkState_boolean_Object(false, any(this))
+	}
 	return this.colorPool.getColor(this.getId(pointer))
 }
 
@@ -188,7 +190,9 @@ func (this *ColorPool_Builder) addShard(typePool *TypePool, stringPool *StringPo
 	Preconditions_checkState_boolean_Object(this.idToProto.isEmpty(), strobj_("build has already been called"))
 	var existing *ColorPool_ShardView = cast_[*ColorPool_ShardView](this.protoToShard.get(obj_(typePool)))
 	if existing != nil {
-		Preconditions_checkState_boolean_Object(JSCompObjects_identical(obj_(typePool), obj_(TypePool_getDefaultInstance())), obj_(typePool))
+		if !JSCompObjects_identical(obj_(typePool), obj_(TypePool_getDefaultInstance())) {
+			Preconditions_checkState_boolean_Object(false, obj_(typePool))
+		}
 		return existing
 	}
 	var trimmedOffsetToId []*ColorId = ColorPool_createTrimmedOffsetToId(typePool)
@@ -296,7 +300,9 @@ func (this *ColorPool_Builder) lookupOrReconcileColor(id *ColorId) *Color {
 		}
 		var viewToProto MapOf[*ColorPool_ShardView, *TypeProto] = this.idToProto.row(obj_(id))
 		var sample *TypeProto = cast_[*TypeProto](Iterables_getFirst(Iterable(viewToProto.values()), nil))
-		Preconditions_checkNotNull_Object_Object(obj_(sample), obj_(id))
+		if obj_(sample) == nil {
+			Preconditions_checkNotNull_Object_Object(nil, obj_(id))
+		}
 		var result *Color = func() *Color {
 			switch sample.getKindCase() {
 			case TypeProto_KindCase_OBJECT:
@@ -308,7 +314,9 @@ func (this *ColorPool_Builder) lookupOrReconcileColor(id *ColorId) *Color {
 			}
 			panic("unreachable")
 		}()
-		Preconditions_checkState_boolean_Object((result != nil), obj_(id))
+		if !(result != nil) {
+			Preconditions_checkState_boolean_Object(false, obj_(id))
+		}
 		this.idToColor.put(obj_(id), obj_(result))
 		ret_1 = result
 		return 1
@@ -365,7 +373,9 @@ func (this *ColorPool_Builder) reconcileUnionProtos(id *ColorId, viewToProto Map
 		_ = shard
 		var proto *TypeProto = cast_[*TypeProto](proto_)
 		_ = proto
-		Preconditions_checkState_boolean_Object(proto.hasUnion(), obj_(proto))
+		if !proto.hasUnion() {
+			Preconditions_checkState_boolean_Object(false, obj_(proto))
+		}
 		var unionMemberList ListOf[BoxedOf[int32]] = proto.getUnion().getUnionMemberList()
 		for i := int32(0); i < unionMemberList.size(); i++ {
 			var memberPointer any = unionMemberList.get(i)
@@ -376,6 +386,8 @@ func (this *ColorPool_Builder) reconcileUnionProtos(id *ColorId, viewToProto Map
 		}
 	})
 	var result *Color = Color_createUnion(icast_Set(obj_(union)))
-	Preconditions_checkState_boolean_String_Object_Object(id.equals(obj_(result.getId())), "%s == %s", obj_(id), obj_(result))
+	if !id.equals(obj_(result.getId())) {
+		Preconditions_checkState_boolean_String_Object_Object(false, "%s == %s", obj_(id), obj_(result))
+	}
 	return result
 }

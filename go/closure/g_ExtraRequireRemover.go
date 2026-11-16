@@ -116,11 +116,15 @@ func (this *ExtraRequireRemover) removeExtraRequire(call Node, require string) {
 		nameDeclaration.detach()
 		return
 	}
-	Preconditions_checkState_boolean_Object(call.getParent().isStringKey(), call.getParent().box_())
+	if ok_, a1_ := call.getParent().isStringKey(), call.getParent(); !ok_ {
+		Preconditions_checkState_boolean_Object(false, a1_.box_())
+	}
 	var objectPattern Node = call.getGrandparent()
 	if objectPattern.hasOneChild() {
 		var nameDeclaration Node = objectPattern.getGrandparent()
-		Preconditions_checkState_boolean_Object(NodeUtil_isNameDeclaration(nameDeclaration), nameDeclaration.box_())
+		if !NodeUtil_isNameDeclaration(nameDeclaration) {
+			Preconditions_checkState_boolean_Object(false, nameDeclaration.box_())
+		}
 		this.compiler_.reportChangeToEnclosingScope(nameDeclaration.getParent())
 		nameDeclaration.detach()
 		return
@@ -177,7 +181,9 @@ func (this *ExtraRequireRemover) addUsagesOfAllPrefixes(qualifiedName *Qualified
 }
 
 func (this *ExtraRequireRemover) visitQualifiedName(n Node) {
-	Preconditions_checkArgument_boolean_Object(n.isQualifiedName(), n.box_())
+	if !n.isQualifiedName() {
+		Preconditions_checkArgument_boolean_Object(false, n.box_())
+	}
 	this.addUsagesOfAllPrefixes(n.getQualifiedNameObject())
 }
 

@@ -255,7 +255,9 @@ func CodePrinter_MappedCodePrinter_adjustEndPosition(lineLengths ListOf[BoxedOf[
 	if line >= lineLengths.size() {
 		return endPosition
 	}
-	Preconditions_checkState_boolean_String_Object_Object((endPosition.getColumn() <= unbox_[int32](lineLengths.get(line))), "End position %s points to a column larger than line length %s", obj_(endPosition), lineLengths.get(line))
+	if ok_, a1_, a2_ := (endPosition.getColumn() <= unbox_[int32](lineLengths.get(line))), endPosition, lineLengths.get(line); !ok_ {
+		Preconditions_checkState_boolean_String_Object_Object(false, "End position %s points to a column larger than line length %s", obj_(a1_), a2_)
+	}
 	if endPosition.getColumn() == unbox_[int32](lineLengths.get(line)) {
 		return new_FilePosition((line + 1), 0)
 	}
@@ -308,7 +310,9 @@ func (this *CodePrinter_PrettyCodePrinter) append_impl(str string) {
 }
 
 func (this *CodePrinter_PrettyCodePrinter) addNumber_impl(x float64, n Node) {
-	Preconditions_checkState_boolean_Object(JSCompDoubles_isPositive(x), any(float64(x)))
+	if !JSCompDoubles_isPositive(x) {
+		Preconditions_checkState_boolean_Object(false, any(float64(x)))
+	}
 	var numberFromSource OptionalOf[string] = CodePrinter_PrettyCodePrinter_getNumberFromSource(n)
 	if numberFromSource.isEmpty() {
 		this.CodePrinter_MappedCodePrinter.addNumber_impl(x, n)
@@ -425,7 +429,9 @@ func CodePrinter_PrettyCodePrinter_getTryForCatch(n Node) Node {
 }
 
 func (this *CodePrinter_PrettyCodePrinter) breakAfterBlockFor_impl(n Node, isStatementContext bool) bool {
-	Preconditions_checkState_boolean_Object(n.isBlock(), n.box_())
+	if !n.isBlock() {
+		Preconditions_checkState_boolean_Object(false, n.box_())
+	}
 	var parent Node = n.getParent()
 	var type_ *Token_rhino = parent.getToken()
 	return func() bool {

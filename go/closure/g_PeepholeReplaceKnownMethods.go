@@ -41,11 +41,15 @@ func (this *PeepholeReplaceKnownMethods) optimizeSubtree_impl(subtree Node) Node
 }
 
 func (this *PeepholeReplaceKnownMethods) tryFoldKnownMethods(subtree Node) Node {
-	Preconditions_checkArgument_boolean_Object(subtree.isCall(), subtree.box_())
+	if !subtree.isCall() {
+		Preconditions_checkArgument_boolean_Object(false, subtree.box_())
+	}
 	subtree = this.tryFoldArrayJoin(subtree)
 	if subtree.isCall() {
 		subtree = this.tryToFoldArrayConcat(subtree)
-		Preconditions_checkState_boolean_Object(subtree.isCall(), subtree.box_())
+		if !subtree.isCall() {
+			Preconditions_checkState_boolean_Object(false, subtree.box_())
+		}
 		var callTarget Node = Node_of_(Preconditions_checkNotNull(subtree.getFirstChild().box_()))
 		if callTarget.isGetProp() {
 			if this.isASTNormalized() && callTarget.getFirstChild().isQualifiedName() {
@@ -737,7 +741,9 @@ func (this *PeepholeReplaceKnownMethods) tryFoldStringAt(n Node, stringNode Node
 }
 
 func (this *PeepholeReplaceKnownMethods) tryFoldArrayJoin(n Node) Node {
-	Preconditions_checkState_boolean_Object(n.isCall(), n.box_())
+	if !n.isCall() {
+		Preconditions_checkState_boolean_Object(false, n.box_())
+	}
 	var callTarget Node = n.getFirstChild()
 	if (callTarget == 0) || !callTarget.isGetProp() {
 		return n
@@ -1099,7 +1105,9 @@ func (this *PeepholeReplaceKnownMethods) tryFoldStringSplit(n Node, stringNode N
 }
 
 func (this *PeepholeReplaceKnownMethods) tryToFoldArrayConcat(n Node) Node {
-	Preconditions_checkArgument_boolean_Object(n.isCall(), n.box_())
+	if !n.isCall() {
+		Preconditions_checkArgument_boolean_Object(false, n.box_())
+	}
 	if !this.isASTNormalized() || !this.useTypes {
 		return n
 	}
@@ -1161,7 +1169,9 @@ func (this *PeepholeReplaceKnownMethods) tryToFoldConcatChaining(concatFunctionC
 }
 
 func PeepholeReplaceKnownMethods_createConcatFunctionCallForNode(n Node) *PeepholeReplaceKnownMethods_ConcatFunctionCall {
-	Preconditions_checkArgument_boolean_Object(n.isCall(), n.box_())
+	if !n.isCall() {
+		Preconditions_checkArgument_boolean_Object(false, n.box_())
+	}
 	var callTarget Node = Node_of_(Preconditions_checkNotNull(n.getFirstChild().box_()))
 	if !callTarget.isGetProp() || !(callTarget.getString() == "concat") {
 		return nil

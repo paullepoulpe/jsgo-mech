@@ -274,7 +274,9 @@ func (this *Es6NormalizeClasses) visit(t *NodeTraversal, n Node, parent Node) {
 		}
 	case tokOrd1_CLASS:
 		var currClassRecord *Es6NormalizeClasses_ClassRecord = cast_[*Es6NormalizeClasses_ClassRecord](SequencedCollection_removeFirst(SequencedCollection(this.classStack)))
-		Preconditions_checkState_boolean_String_Object((currClassRecord.classNode == n), "unexpected node: %s", n.box_())
+		if !(currClassRecord.classNode == n) {
+			Preconditions_checkState_boolean_String_Object(false, "unexpected node: %s", n.box_())
+		}
 		if currClassRecord.normalizedNames.shouldExtractExtends_ {
 			if !this.canExtractExtendsSimply(n) {
 				this.pushDownNodeIntoNewIife(n)
@@ -290,9 +292,13 @@ func (this *Es6NormalizeClasses) visit(t *NodeTraversal, n Node, parent Node) {
 			parent = n.getParent()
 		}
 		var classNameNode Node = NodeUtil_getNameNode(n)
-		Preconditions_checkState_boolean_String_Object((classNameNode != 0), "Class missing a name: %s", n.box_())
+		if !(classNameNode != 0) {
+			Preconditions_checkState_boolean_String_Object(false, "Class missing a name: %s", n.box_())
+		}
 		var classInsertionPoint Node = this.getStatementDeclaringClass(n, classNameNode)
-		Preconditions_checkState_boolean_String_Object((classInsertionPoint != 0), "Class was not extracted: %s", n.box_())
+		if !(classInsertionPoint != 0) {
+			Preconditions_checkState_boolean_String_Object(false, "Class was not extracted: %s", n.box_())
+		}
 		if currClassRecord.bindingIdentifier.isPresent() && (parent.isName() || parent.isAssign()) {
 			n.getFirstChild().replaceWith(IR_empty().srcref(n.getFirstChild()))
 			this.compiler_.reportChangeToEnclosingScope(n)
@@ -387,7 +393,9 @@ func (this *Es6NormalizeClasses) findPrivateMember(name string) *Es6NormalizeCla
 }
 
 func (this *Es6NormalizeClasses) rewritePrivateIn(t *NodeTraversal, inNode Node) {
-	Preconditions_checkArgument_boolean_Object(inNode.isIn(), inNode.box_())
+	if !inNode.isIn() {
+		Preconditions_checkArgument_boolean_Object(false, inNode.box_())
+	}
 	var left Node = inNode.getFirstChild()
 	var name string = left.getString()
 	var resolved *Es6NormalizeClasses_ResolvedPrivateMember = this.findPrivateMember(name)
@@ -693,7 +701,9 @@ func (this *Es6NormalizeClasses) rewriteSideEffectedComputedProps(t *NodeTravers
 }
 
 func (this *Es6NormalizeClasses) extractExpressionFromCompField(t *NodeTraversal, record *Es6NormalizeClasses_ClassRecord, memberField Node, insertionPoint Node) {
-	Preconditions_checkArgument_boolean_Object((memberField.isComputedFieldDef() || memberField.isComputedProp()), memberField.box_())
+	if !(memberField.isComputedFieldDef() || memberField.isComputedProp()) {
+		Preconditions_checkArgument_boolean_Object(false, memberField.box_())
+	}
 	var compExpression Node = memberField.removeFirstChild()
 	var compFieldVar Node = this.astFactory_.createSingleVarNameDeclaration_2(this.generateUniqueCompFieldVarName(t), compExpression).srcrefTreeIfMissing(record.classNode)
 	var compFieldName Node = compFieldVar.getFirstChild()
@@ -741,7 +751,9 @@ func (this *Es6NormalizeClasses) rewriteInstanceMembers(t *NodeTraversal, record
 	}
 	for !instanceMembers.isEmpty() {
 		var instanceMember Node = Node_of_(instanceMembers.remove_0())
-		Preconditions_checkState_boolean_Object((instanceMember.isMemberFieldDef() || instanceMember.isComputedFieldDef()), instanceMember.box_())
+		if !(instanceMember.isMemberFieldDef() || instanceMember.isComputedFieldDef()) {
+			Preconditions_checkState_boolean_Object(false, instanceMember.box_())
+		}
 		if instanceMember.isPrivateIdentifier() {
 			if this.transpilePrivateClassFields {
 				var privName OptionalOf[string] = record.getPrivateVarName(this.compiler_, t)
@@ -812,7 +824,9 @@ func (this *Es6NormalizeClasses) moveConstructorParamDefaultsAfterFields(t *Node
 					param.replaceWith(lhs)
 					lhs.setJSDocInfo(jsDoc)
 				} else {
-					Preconditions_checkState_boolean_Object(lhs.isDestructuringPattern(), lhs.box_())
+					if !lhs.isDestructuringPattern() {
+						Preconditions_checkState_boolean_Object(false, lhs.box_())
+					}
 					var tempParam Node = this.astFactory_.createName(this.generateUniqueTmpVarName(t), AstFactory_type_Node(lhs))
 					var rhs Node = this.createDefaultValueHook(tempParam, defaultValue)
 					var letStmt Node = IR_let_Node_Node(lhs, rhs).srcrefTreeIfMissing(param)
@@ -849,7 +863,9 @@ func (this *Es6NormalizeClasses) createDefaultValueHook(paramName Node, defaultV
 }
 
 func (this *Es6NormalizeClasses) addTemporaryInsertionPoint(ctorBlock Node, classRecord *Es6NormalizeClasses_ClassRecord) Node {
-	Preconditions_checkState_boolean_String_Object((int32(len(classRecord.superCalls)) <= 1), "classes with public fields must have only one super() call at the constructor root: %s", classRecord.classNode.box_())
+	if ok_, a1_ := (int32(len(classRecord.superCalls)) <= 1), classRecord.classNode; !ok_ {
+		Preconditions_checkState_boolean_String_Object(false, "classes with public fields must have only one super() call at the constructor root: %s", a1_.box_())
+	}
 	var tempNode Node = IR_empty()
 	if int32(len(classRecord.superCalls)) == 1 {
 		var stmt Node = this.ensureSuperCallIsOwnStatement(classRecord.superCalls[0])
@@ -879,7 +895,9 @@ func (this *Es6NormalizeClasses) ensureSuperCallIsOwnStatement(superCall Node) N
 	if parent.isExprResult() {
 		return parent
 	}
-	Preconditions_checkState_boolean_String_Object((this.expressionDecomposer.canExposeExpression(superCall) != ExpressionDecomposer_DecompositionType_UNDECOMPOSABLE), "Cannot decompose super() call in a class with class fields. Move super() call to the root of the constructor. %s", superCall.box_())
+	if !(this.expressionDecomposer.canExposeExpression(superCall) != ExpressionDecomposer_DecompositionType_UNDECOMPOSABLE) {
+		Preconditions_checkState_boolean_String_Object(false, "Cannot decompose super() call in a class with class fields. Move super() call to the root of the constructor. %s", superCall.box_())
+	}
 	this.expressionDecomposer.maybeExposeExpression(superCall)
 	this.expressionDecomposer.moveExpression(superCall)
 	return NodeUtil_getEnclosingStatement(superCall)
@@ -901,7 +919,9 @@ func (this *Es6NormalizeClasses) createObjectDotDefineProperty() Node {
 
 func (this *Es6NormalizeClasses) convNonCompFieldToGetProp(receiver Node, noncomputedField Node, isStatic bool) Node {
 	Preconditions_checkArgument(noncomputedField.isMemberFieldDef())
-	Preconditions_checkArgument_boolean_Object((receiver.getParent() == 0), receiver.box_())
+	if !(receiver.getParent() == 0) {
+		Preconditions_checkArgument_boolean_Object(false, receiver.box_())
+	}
 	var fieldValue Node = 0
 	if isStatic || this.transpileClassFields {
 		fieldValue = noncomputedField.getFirstChild()
@@ -916,8 +936,12 @@ func (this *Es6NormalizeClasses) convNonCompFieldToGetProp(receiver Node, noncom
 }
 
 func (this *Es6NormalizeClasses) convCompFieldToGetElem(receiver Node, computedField Node, isStatic bool) Node {
-	Preconditions_checkArgument_boolean_Object(computedField.isComputedFieldDef(), computedField.box_())
-	Preconditions_checkArgument_boolean_Object((receiver.getParent() == 0), receiver.box_())
+	if !computedField.isComputedFieldDef() {
+		Preconditions_checkArgument_boolean_Object(false, computedField.box_())
+	}
+	if !(receiver.getParent() == 0) {
+		Preconditions_checkArgument_boolean_Object(false, receiver.box_())
+	}
 	var fieldValue Node = 0
 	if (computedField.getChildCount() == 2) && (isStatic || this.transpileClassFields) {
 		fieldValue = computedField.getLastChild()
@@ -1199,7 +1223,9 @@ func (this *Es6NormalizeClasses) visitThisAndSuper(t *NodeTraversal, n Node) {
 	}
 	var classNode Node = rootNode.getGrandparent()
 	var classRecord *Es6NormalizeClasses_ClassRecord = cast_[*Es6NormalizeClasses_ClassRecord](this.classStack.peek())
-	Preconditions_checkState_boolean_String_Object_Object((classRecord.classNode == classNode), "wrong class node: %s != %s", classRecord.classNode.box_(), classNode.box_())
+	if ok_, a1_, a2_ := (classRecord.classNode == classNode), classRecord.classNode, classNode; !ok_ {
+		Preconditions_checkState_boolean_String_Object_Object(false, "wrong class node: %s != %s", a1_.box_(), a2_.box_())
+	}
 	var newNameNode Node = 0
 	if forceRewriteStaticThis {
 		newNameNode = classRecord.createNewNameReferenceNode().srcrefTree(n)
@@ -1407,7 +1433,9 @@ func new_Es6NormalizeClasses_ClassRecord(normalizedNames *Es6NormalizeClasses_No
 func (this *Es6NormalizeClasses_ClassRecord) recordPrivateMember(n Node) {
 	Preconditions_checkArgument(n.isPrivateIdentifier())
 	var name string = n.getString()
-	Preconditions_checkArgument_boolean_Object(String_startsWith(name, "#"), strobj_(name))
+	if !String_startsWith(name, "#") {
+		Preconditions_checkArgument_boolean_Object(false, strobj_(name))
+	}
 	var isStatic bool = n.isStaticMember()
 	var kind *Es6NormalizeClasses_ClassRecord_PrivateMemberKind
 	if n.isMemberFieldDef() {
@@ -1508,8 +1536,12 @@ func (this *Es6NormalizeClasses_ClassRecord) recordStaticBlock(block Node) {
 }
 
 func (this *Es6NormalizeClasses_ClassRecord) recordConstructorScope(s *Scope) {
-	Preconditions_checkArgument_boolean_Object(s.isFunctionBlockScope(), obj_(s))
-	Preconditions_checkState_boolean_Object(this.constructorVars.isEmpty(), obj_(this.constructorVars))
+	if !s.isFunctionBlockScope() {
+		Preconditions_checkArgument_boolean_Object(false, obj_(s))
+	}
+	if !this.constructorVars.isEmpty() {
+		Preconditions_checkState_boolean_Object(false, obj_(this.constructorVars))
+	}
 	var argsScope *Scope = cast_[*Scope](s.getParent().self())
 	this.constructorVars = cast_[*ImmutableSet](obj_(cast_[*ImmutableSet_Builder](obj_(cast_[*ImmutableSet_Builder](obj_(ImmutableSet_builder().addAll(s.getAllSymbols()))).addAll(argsScope.getAllSymbols()))).build()))
 }
@@ -1650,8 +1682,12 @@ type Es6NormalizeClasses_NormalizedNames struct {
 }
 
 func (this *Es6NormalizeClasses_NormalizedNames) init_Es6NormalizeClasses_NormalizedNames(classNameNode Node, superClassNode OptionalOf[Node], shouldExtractClass bool, shouldExtractExtends bool) {
-	Preconditions_checkArgument_boolean_Object(classNameNode.isQualifiedName(), classNameNode.box_())
-	Preconditions_checkArgument_boolean_Object((superClassNode.isEmpty() || superClassNode.get().isQualifiedName()), obj_(optErase_(superClassNode)))
+	if !classNameNode.isQualifiedName() {
+		Preconditions_checkArgument_boolean_Object(false, classNameNode.box_())
+	}
+	if ok_, a1_ := (superClassNode.isEmpty() || superClassNode.get().isQualifiedName()), optErase_(superClassNode); !ok_ {
+		Preconditions_checkArgument_boolean_Object(false, obj_(a1_))
+	}
 	this.classNameNode_ = classNameNode
 	this.superClassNode_ = superClassNode
 	this.shouldExtractClass_ = shouldExtractClass

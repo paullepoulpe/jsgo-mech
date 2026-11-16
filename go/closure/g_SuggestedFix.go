@@ -194,7 +194,9 @@ func (this *SuggestedFix_Builder) insertBefore(nodeToInsertBefore Node, content 
 
 func (this *SuggestedFix_Builder) insertBeforeString(nodeToInsertBefore Node, content string, sortKey string) *SuggestedFix_Builder {
 	var startPosition int32 = SuggestedFix_getStartPositionForNodeConsideringComments(nodeToInsertBefore)
-	Preconditions_checkState_boolean_String_Object(!String_isEmpty(nodeToInsertBefore.getSourceFileName()), "No source file name for node: %s", nodeToInsertBefore.box_())
+	if String_isEmpty(nodeToInsertBefore.getSourceFileName()) {
+		Preconditions_checkState_boolean_String_Object(false, "No source file name for node: %s", nodeToInsertBefore.box_())
+	}
 	this.replacements.put(strobj_(nodeToInsertBefore.getSourceFileName()), obj_(CodeReplacement_create_int_int_String_String(startPosition, 0, content, sortKey)))
 	return this
 }
@@ -270,7 +272,9 @@ func (this *SuggestedFix_Builder) rename_3(n Node, name string, replaceNameSubtr
 			return n
 		}()
 	case tokOrd1_STRINGLIT:
-		Preconditions_checkState_boolean_Object(n.getParent().isGetProp(), n.box_())
+		if !n.getParent().isGetProp() {
+			Preconditions_checkState_boolean_Object(false, n.box_())
+		}
 		range_ = n
 	case tokOrd1_STRING_KEY, tokOrd1_NAME:
 		range_ = n
@@ -361,7 +365,9 @@ func (this *SuggestedFix_Builder) addOrReplaceJsDoc(n Node, newJsDoc string) *Su
 
 func (this *SuggestedFix_Builder) changeJsDocType(n Node, compiler *AbstractCompiler, type_ string) *SuggestedFix_Builder {
 	var typeNode Node = JsDocInfoParser_parseTypeString(type_)
-	Preconditions_checkNotNull_Object_String_Object(typeNode.box_(), "Invalid type: %s", strobj_(type_))
+	if typeNode.box_() == nil {
+		Preconditions_checkNotNull_Object_String_Object(nil, "Invalid type: %s", strobj_(type_))
+	}
 	var typeExpr *JSTypeExpression = new_JSTypeExpression(typeNode, "jsflume")
 	var newJsType *JSType = typeExpr.evaluate(nil, compiler.getTypeRegistry())
 	if newJsType == nil {
@@ -374,7 +380,9 @@ func (this *SuggestedFix_Builder) changeJsDocType(n Node, compiler *AbstractComp
 
 func (this *SuggestedFix_Builder) replaceTypePattern(n Node, type_ string, pattern *Pattern) {
 	var info *JSDocInfo = NodeUtil_getBestJSDocInfo(n)
-	Preconditions_checkNotNull_Object_String_Object(obj_(info), "Node %s does not have JS Doc associated with it.", n.box_())
+	if obj_(info) == nil {
+		Preconditions_checkNotNull_Object_String_Object(nil, "Node %s does not have JS Doc associated with it.", n.box_())
+	}
 	var originalComment OptionalOf[string] = info.getOriginalCommentString()
 	var originalPosition int32 = info.getOriginalCommentPosition()
 	if originalComment.isPresent() {

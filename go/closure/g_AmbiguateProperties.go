@@ -388,7 +388,9 @@ func (this *AmbiguateProperties_ProcessPropertiesAndConstructors) processCall(ca
 }
 
 func (this *AmbiguateProperties_ProcessPropertiesAndConstructors) processObjectProperty(objectLit Node, key Node, type_ *Color) {
-	Preconditions_checkArgument_boolean_Object((objectLit.isObjectLit() || objectLit.isObjectPattern()), objectLit.box_())
+	if !(objectLit.isObjectLit() || objectLit.isObjectPattern()) {
+		Preconditions_checkArgument_boolean_Object(false, objectLit.box_())
+	}
 	switch key.ns_().token {
 	case tokOrd1_COMPUTED_PROP:
 		if key.getFirstChild().isStringLit() {

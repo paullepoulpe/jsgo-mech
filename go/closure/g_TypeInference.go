@@ -33,7 +33,9 @@ func (this *TypeInference) finit_TypeInference() {
 func (this *TypeInference) init_TypeInference(compiler *AbstractCompiler, cfg *ControlFlowGraph, reverseInterpreter ReverseAbstractInterpreter, syntacticScope *TypedScope, scopeCreator *TypedScopeCreator, assertionFunctionLookup *CodingConvention_AssertionFunctionLookup) {
 	this.DataFlowAnalysis.init_DataFlowAnalysis(cfg)
 	this.finit_TypeInference()
-	Preconditions_checkArgument_boolean_String_Object_Object((syntacticScope.getRootNode() == Node_of_(cfg.getEntry().getValue())), "Expected syntactic scope to be rooted at CFG root node of %s, but instead got syntactic scope root node of %s", any(cfg.getEntry()), syntacticScope.getRootNode().box_())
+	if ok_, a1_, a2_ := (syntacticScope.getRootNode() == Node_of_(cfg.getEntry().getValue())), cfg.getEntry(), syntacticScope.getRootNode(); !ok_ {
+		Preconditions_checkArgument_boolean_String_Object_Object(false, "Expected syntactic scope to be rooted at CFG root node of %s, but instead got syntactic scope root node of %s", any(a1_), a2_.box_())
+	}
 	this.compiler_ = to_AbstractCompiler(Preconditions_checkNotNull(compiler.self()))
 	this.registry = cast_[*JSTypeRegistry](Preconditions_checkNotNull(obj_(compiler.getTypeRegistry())))
 	this.reverseInterpreter = icast_ReverseAbstractInterpreter(Preconditions_checkNotNull(any(reverseInterpreter)))
@@ -159,7 +161,9 @@ func (this *TypeInference) updateDestructuringParameter(pattern Node, inferredTy
 
 func (this *TypeInference) updateNamedParameter(paramName Node, hasDefaultValue bool, inferredType *JSType, entryFlowScope FlowScope) FlowScope {
 	var var_ *TypedVar = cast_[*TypedVar](this.containerScope.getVar(paramName.getString()).self())
-	Preconditions_checkNotNull_Object_String_Object(obj_(var_), "Missing var for parameter %s", paramName.box_())
+	if obj_(var_) == nil {
+		Preconditions_checkNotNull_Object_String_Object(nil, "Missing var for parameter %s", paramName.box_())
+	}
 	paramName.setJSType(inferredType)
 	if var_.isTypeInferred() {
 		var_.setType(inferredType)
@@ -219,7 +223,9 @@ func (this *TypeInference) updateModuleScope(module *Module, syntacticBlockScope
 		if rootNode.isModuleBody() {
 			rootNode.setJSType(exportsType)
 		} else {
-			Preconditions_checkState_boolean_Object(rootNode.isBlock(), rootNode.box_())
+			if !rootNode.isBlock() {
+				Preconditions_checkState_boolean_Object(false, rootNode.box_())
+			}
 			var paramList Node = NodeUtil_getFunctionParameters(rootNode.getParent())
 			paramList.getOnlyChild().setJSType(exportsType)
 		}
@@ -469,14 +475,18 @@ func (this *TypeInference) traverseAssignUnsignedRightShift(n Node, scope FlowSc
 }
 
 func (this *TypeInference) traverseCall(callNode Node, originalScope FlowScope) FlowScope {
-	Preconditions_checkArgument_boolean_Object((callNode.isCall() || callNode.isOptChainCall()), callNode.box_())
+	if !(callNode.isCall() || callNode.isOptChainCall()) {
+		Preconditions_checkArgument_boolean_Object(false, callNode.box_())
+	}
 	var scopeAfterChildren FlowScope = this.traverseChildren(callNode, originalScope)
 	var scopeAfterExecution FlowScope = this.setCallNodeTypeAfterChildrenTraversed(callNode, scopeAfterChildren)
 	return this.tightenTypesAfterAssertions(scopeAfterExecution, callNode)
 }
 
 func (this *TypeInference) traverseTaggedTemplateLit(tagTempLitNode Node, originalScope FlowScope) FlowScope {
-	Preconditions_checkArgument_boolean_Object(tagTempLitNode.isTaggedTemplateLit(), tagTempLitNode.box_())
+	if !tagTempLitNode.isTaggedTemplateLit() {
+		Preconditions_checkArgument_boolean_Object(false, tagTempLitNode.box_())
+	}
 	var scopeAfterChildren FlowScope = this.traverseChildren(tagTempLitNode, originalScope)
 	var scopeAfterExecution FlowScope = this.setCallNodeTypeAfterChildrenTraversed(tagTempLitNode, scopeAfterChildren)
 	if tagTempLitNode.getJSType() == nil {
@@ -576,7 +586,9 @@ func (this *TypeInference) traverseCatch(catchNode Node, scope FlowScope) FlowSc
 		var pattern Node = catchNode.getFirstChild()
 		return this.traverseDestructuringPattern(pattern, scope, this.unknownType.up_JSType(), TypeInference_AssignmentType_DECLARATION)
 	} else {
-		Preconditions_checkState_boolean_Object(catchTarget.isEmpty(), catchTarget.box_())
+		if !catchTarget.isEmpty() {
+			Preconditions_checkState_boolean_Object(false, catchTarget.box_())
+		}
 		return scope
 	}
 	panic("unreachable")
@@ -790,7 +802,9 @@ func (this *TypeInference) traverseDeclarationChild(n Node, scope FlowScope) Flo
 	if n.isName() {
 		return this.traverseName(n, scope)
 	}
-	Preconditions_checkState_boolean_Object(n.isDestructuringLhs(), n.box_())
+	if !n.isDestructuringLhs() {
+		Preconditions_checkState_boolean_Object(false, n.box_())
+	}
 	scope = this.traverse(n.getSecondChild(), scope)
 	return this.traverseDestructuringPattern(n.getFirstChild(), scope, this.getJSType(n.getSecondChild()), TypeInference_AssignmentType_DECLARATION)
 }
@@ -809,7 +823,9 @@ func (this *TypeInference) traverseDestructuringPattern(pattern Node, scope Flow
 }
 
 func (this *TypeInference) traverseDestructuringPatternHelper(pattern Node, scope FlowScope, patternType *JSType, declarer func(FlowScope, Node, *JSType) FlowScope) FlowScope {
-	Preconditions_checkArgument_boolean_Object(pattern.isDestructuringPattern(), pattern.box_())
+	if !pattern.isDestructuringPattern() {
+		Preconditions_checkArgument_boolean_Object(false, pattern.box_())
+	}
 	Preconditions_checkNotNull(patternType.self())
 	for _, target := range DestructuredTarget_createAllNonEmptyTargetsInPattern(this.registry, patternType, pattern) {
 		if target.hasComputedProperty() {
@@ -1333,7 +1349,9 @@ func (this *TypeInference) updateBind(n Node) {
 }
 
 func (this *TypeInference) updateTypeOfArguments(n Node, fnType *FunctionType) {
-	Preconditions_checkState_boolean_Object(NodeUtil_isInvocation(n), n.box_())
+	if !NodeUtil_isInvocation(n) {
+		Preconditions_checkState_boolean_Object(false, n.box_())
+	}
 	var parameters IteratorOf[*FunctionType_Parameter] = fnType.getParameters().iterator()
 	if n.isTaggedTemplateLit() {
 		if !parameters.hasNext() {
@@ -1892,7 +1910,9 @@ func (this *TypeInference) newBooleanOutcomePair(jsType *JSType, flowScope FlowS
 }
 
 func (this *TypeInference) redeclareSimpleVar(scope FlowScope, nameNode Node, varType *JSType) FlowScope {
-	Preconditions_checkState_boolean_Object(nameNode.isName(), nameNode.box_())
+	if !nameNode.isName() {
+		Preconditions_checkState_boolean_Object(false, nameNode.box_())
+	}
 	var varName string = nameNode.getString()
 	if varType == nil {
 		varType = this.getNativeType(JSTypeNative_UNKNOWN_TYPE)

@@ -226,8 +226,12 @@ func (this *J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_J2clPropertyE
 
 func (this *J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_J2clPropertyEs5) init_J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_J2clPropertyEs5(getKey Node, setKey Node) {
 	this.J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_J2clProperty.init_J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_J2clProperty(getKey, setKey)
-	Preconditions_checkArgument_boolean_Object((getKey.isStringKey() && (getKey.getString() == "get")), getKey.box_())
-	Preconditions_checkArgument_boolean_Object(((setKey == 0) || (setKey.isStringKey() && (setKey.getString() == "set"))), setKey.box_())
+	if !(getKey.isStringKey() && (getKey.getString() == "get")) {
+		Preconditions_checkArgument_boolean_Object(false, getKey.box_())
+	}
+	if !((setKey == 0) || (setKey.isStringKey() && (setKey.getString() == "set"))) {
+		Preconditions_checkArgument_boolean_Object(false, setKey.box_())
+	}
 }
 
 func new_J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_J2clPropertyEs5(outer_ *J2clPropertyInlinerPass_StaticFieldGetterSetterInliner, getKey Node, setKey Node) *J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_J2clPropertyEs5 {
@@ -241,7 +245,9 @@ func new_J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_J2clPropertyEs5(
 func (this *J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_J2clPropertyEs5) remove_impl() {
 	var nodeToDetach Node = this.getKey_.getGrandparent()
 	var objectLit Node = nodeToDetach.getParent()
-	Preconditions_checkState_boolean_Object(objectLit.isObjectLit(), objectLit.box_())
+	if !objectLit.isObjectLit() {
+		Preconditions_checkState_boolean_Object(false, objectLit.box_())
+	}
 	nodeToDetach.detach()
 	NodeUtil_markFunctionsDeleted(nodeToDetach, this.outer_.outer_.compiler_)
 	this.outer_.outer_.compiler_.reportChangeToEnclosingScope(objectLit)
@@ -264,8 +270,12 @@ func (this *J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_J2clPropertyE
 
 func (this *J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_J2clPropertyEs6) init_J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_J2clPropertyEs6(getKey Node, setKey Node) {
 	this.J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_J2clProperty.init_J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_J2clProperty(getKey, setKey)
-	Preconditions_checkArgument_boolean_Object(getKey.isGetterDef(), getKey.box_())
-	Preconditions_checkArgument_boolean_Object(((setKey == 0) || setKey.isSetterDef()), setKey.box_())
+	if !getKey.isGetterDef() {
+		Preconditions_checkArgument_boolean_Object(false, getKey.box_())
+	}
+	if !((setKey == 0) || setKey.isSetterDef()) {
+		Preconditions_checkArgument_boolean_Object(false, setKey.box_())
+	}
 }
 
 func new_J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_J2clPropertyEs6(outer_ *J2clPropertyInlinerPass_StaticFieldGetterSetterInliner, getKey Node, setKey Node) *J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_J2clPropertyEs6 {
@@ -278,7 +288,9 @@ func new_J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_J2clPropertyEs6(
 
 func (this *J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_J2clPropertyEs6) remove_impl() {
 	var classMembers Node = this.getKey_.getParent()
-	Preconditions_checkState_boolean_Object(classMembers.isClassMembers(), classMembers.box_())
+	if !classMembers.isClassMembers() {
+		Preconditions_checkState_boolean_Object(false, classMembers.box_())
+	}
 	this.getKey_.detach()
 	NodeUtil_markFunctionsDeleted(this.getKey_, this.outer_.outer_.compiler_)
 	if this.setKey_ != 0 {

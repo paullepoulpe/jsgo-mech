@@ -113,7 +113,9 @@ func (this *MustBeReachingVariableDef) computeMustDef(n Node, cfgNode Node, outp
 							return cfgNode
 						}(), c.getFirstChild(), output)
 					} else {
-						Preconditions_checkState_boolean_Object(c.isDestructuringLhs(), c.box_())
+						if !c.isDestructuringLhs() {
+							Preconditions_checkState_boolean_Object(false, c.box_())
+						}
 						this.computeMustDef(c.getSecondChild(), cfgNode, output, conditional)
 						this.computeMustDef(c.getFirstChild(), cfgNode, output, conditional)
 					}

@@ -204,7 +204,9 @@ func (this *SourceFile_jscomp) markAsClosureUnawareCode() {
 }
 
 func (this *SourceFile_jscomp) getLineOfOffset(offset int32) int32 {
-	Preconditions_checkArgument_boolean_String_int((offset >= 0), "offset must be non-negative: %s", offset)
+	if !(offset >= 0) {
+		Preconditions_checkArgument_boolean_String_int(false, "offset must be non-negative: %s", offset)
+	}
 	this.findLineOffsets()
 	var search int32 = Arrays_binarySearch(this.lineOffsets, offset)
 	if search >= 0 {
@@ -433,14 +435,22 @@ func SourceFile_jscomp_canonicalizePathForMatching(path string) string {
 }
 
 func (this *SourceFile_jscomp) restoreCachedStateFrom(protoSourceFile *SourceFileProto) {
-	Preconditions_checkState_boolean_String_Object_Object(((protoSourceFile.getFilename() == this.getName()) || (SourceFile_jscomp_canonicalizePathForMatching(protoSourceFile.getFilename()) == SourceFile_jscomp_canonicalizePathForMatching(this.getName()))), "Cannot restore state for %s from %s", strobj_(this.getName()), strobj_(protoSourceFile.getFilename()))
+	if ok_, a1_, a2_ := ((protoSourceFile.getFilename() == this.getName()) || (SourceFile_jscomp_canonicalizePathForMatching(protoSourceFile.getFilename()) == SourceFile_jscomp_canonicalizePathForMatching(this.getName()))), this.getName(), protoSourceFile.getFilename(); !ok_ {
+		Preconditions_checkState_boolean_String_Object_Object(false, "Cannot restore state for %s from %s", strobj_(a1_), strobj_(a2_))
+	}
 	if protoSourceFile.getSourceKind() == SourceFileProto_SourceKind_EXTERN {
-		Preconditions_checkState_boolean_String_Object((this.getKind() == StaticSourceFile_SourceKind_EXTERN), "TypedAST compilations must pass all extern files as externs, not js, but found %s", strobj_(this.getName()))
+		if ok_, a1_ := (this.getKind() == StaticSourceFile_SourceKind_EXTERN), this.getName(); !ok_ {
+			Preconditions_checkState_boolean_String_Object(false, "TypedAST compilations must pass all extern files as externs, not js, but found %s", strobj_(a1_))
+		}
 	}
 	var protoNumLines int32 = (protoSourceFile.getNumLinesPlusOne() - 1)
 	var protoNumBytes int32 = (protoSourceFile.getNumBytesPlusOne() - 1)
-	Preconditions_checkState_boolean_String_int((protoNumLines >= -1), "protoNumLines must be >= -1: %s", protoNumLines)
-	Preconditions_checkState_boolean_String_int((protoNumBytes >= -1), "protoNumBytes must be >= -1: %s", protoNumBytes)
+	if !(protoNumLines >= -1) {
+		Preconditions_checkState_boolean_String_int(false, "protoNumLines must be >= -1: %s", protoNumLines)
+	}
+	if !(protoNumBytes >= -1) {
+		Preconditions_checkState_boolean_String_int(false, "protoNumBytes must be >= -1: %s", protoNumBytes)
+	}
 	this.numLines = func() int32 {
 		if protoNumLines != -1 {
 			return protoNumLines
@@ -461,8 +471,12 @@ func SourceFile_jscomp_fromProto_SourceFileProto(protoSourceFile *SourceFileProt
 	var sourceFile *SourceFile_jscomp = SourceFile_jscomp_fromProto_SourceFileProto_SourceKind(protoSourceFile, sourceKind)
 	var protoNumLines int32 = (protoSourceFile.getNumLinesPlusOne() - 1)
 	var protoNumBytes int32 = (protoSourceFile.getNumBytesPlusOne() - 1)
-	Preconditions_checkState_boolean_String_int((protoNumLines >= -1), "protoNumLines must be >= -1: %s", protoNumLines)
-	Preconditions_checkState_boolean_String_int((protoNumBytes >= -1), "protoNumBytes must be >= -1: %s", protoNumBytes)
+	if !(protoNumLines >= -1) {
+		Preconditions_checkState_boolean_String_int(false, "protoNumLines must be >= -1: %s", protoNumLines)
+	}
+	if !(protoNumBytes >= -1) {
+		Preconditions_checkState_boolean_String_int(false, "protoNumBytes must be >= -1: %s", protoNumBytes)
+	}
 	sourceFile.numLines = protoNumLines
 	sourceFile.numBytes = protoNumBytes
 	if protoSourceFile.getIsClosureUnawareCode() {

@@ -74,7 +74,9 @@ func (this *TypedScope) typed_impl() *TypedScope {
 }
 
 func (this *TypedScope) validateCompletelyBuilt() {
-	Preconditions_checkState_boolean_String_Object_Object(this.reservedNames.isEmpty(), "Expected %s to have no reserved names, found: %s. This probably indicates a bug in TypedScopeCreator where it is failing to declare a variable.", obj_(this), any(this.reservedNames))
+	if !this.reservedNames.isEmpty() {
+		Preconditions_checkState_boolean_String_Object_Object(false, "Expected %s to have no reserved names, found: %s. This probably indicates a bug in TypedScopeCreator where it is failing to declare a variable.", obj_(this), any(this.reservedNames))
+	}
 	this.reservedNames = icast_Set(obj_(ImmutableSet_of()))
 }
 

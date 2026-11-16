@@ -478,9 +478,13 @@ func (this *SymbolTable) addSymbol(name string, type_ *JSType, inferred bool, sc
 	name = SymbolTable_sanitizeSpecialChars(name)
 	var symbol *SymbolTable_Symbol = new_SymbolTable_Symbol(name, type_, inferred, scope)
 	var replacedSymbol *SymbolTable_Symbol = cast_[*SymbolTable_Symbol](this.symbols.put(declNode.box_(), strobj_(name), obj_(symbol)))
-	Preconditions_checkState_boolean_String_Object_Object((replacedSymbol == nil), "Found duplicate symbol %s in global index. Type %s", strobj_(name), type_.self())
+	if !(replacedSymbol == nil) {
+		Preconditions_checkState_boolean_String_Object_Object(false, "Found duplicate symbol %s in global index. Type %s", strobj_(name), type_.self())
+	}
 	replacedSymbol = scope.ownSymbols.put(name, symbol)
-	Preconditions_checkState_boolean_String_Object_Object((replacedSymbol == nil), "Found duplicate symbol %s in its scope. Type %s", strobj_(name), type_.self())
+	if !(replacedSymbol == nil) {
+		Preconditions_checkState_boolean_String_Object_Object(false, "Found duplicate symbol %s in its scope. Type %s", strobj_(name), type_.self())
+	}
 	return symbol
 }
 

@@ -446,7 +446,9 @@ func (this Node) addChildToFront(child Node) {
 }
 
 func (this Node) addChildToBack(child Node) {
-	Preconditions_checkArgument_boolean_String_Object_Object_Object((child.ns_().parent == 0), "Cannot add already-owned child node.\nChild: %s\nExisting parent: %s\nNew parent: %s", child.box_(), child.ns_().parent.box_(), this.box_())
+	if ok_, a1_, a2_, a3_ := (child.ns_().parent == 0), child, child.ns_().parent, this; !ok_ {
+		Preconditions_checkArgument_boolean_String_Object_Object_Object(false, "Cannot add already-owned child node.\nChild: %s\nExisting parent: %s\nNew parent: %s", a1_.box_(), a2_.box_(), a3_.box_())
+	}
 	Preconditions_checkArgument((child.ns_().next_ == 0))
 	Preconditions_checkArgument((child.cs_().previous == 0))
 	if this.ns_().first == 0 {
@@ -465,7 +467,9 @@ func (this Node) addChildrenToFront(children Node) {
 	if children == 0 {
 		return
 	}
-	Preconditions_checkNotNull_Object_Object(children.cs_().previous.box_(), children.box_())
+	if children.cs_().previous.box_() == nil {
+		Preconditions_checkNotNull_Object_Object(nil, children.box_())
+	}
 	{
 		var child Node = children
 		for ; child != 0; child = child.ns_().next_ {
@@ -524,7 +528,9 @@ func (this Node) addChildrenAfter(children Node, node Node) {
 		return
 	}
 	Preconditions_checkArgument(((node == 0) || (node.ns_().parent == this)))
-	Preconditions_checkNotNull_Object_Object(children.cs_().previous.box_(), children.box_())
+	if children.cs_().previous.box_() == nil {
+		Preconditions_checkNotNull_Object_Object(nil, children.box_())
+	}
 	if node == 0 {
 		this.addChildrenToFront(children)
 		return
@@ -595,13 +601,21 @@ func (this Node) detach() Node {
 }
 
 func (this Node) checkAttached() {
-	Preconditions_checkState_boolean_String_Object((this.ns_().parent != 0), "Has no parent: %s", this.box_())
+	if !(this.ns_().parent != 0) {
+		Preconditions_checkState_boolean_String_Object(false, "Has no parent: %s", this.box_())
+	}
 }
 
 func (this Node) checkDetached() {
-	Preconditions_checkState_boolean_String_Object((this.ns_().parent == 0), "Has parent: %s", this.box_())
-	Preconditions_checkState_boolean_String_Object((this.ns_().next_ == 0), "Has next: %s", this.box_())
-	Preconditions_checkState_boolean_String_Object((this.cs_().previous == 0), "Has previous: %s", this.box_())
+	if !(this.ns_().parent == 0) {
+		Preconditions_checkState_boolean_String_Object(false, "Has parent: %s", this.box_())
+	}
+	if !(this.ns_().next_ == 0) {
+		Preconditions_checkState_boolean_String_Object(false, "Has next: %s", this.box_())
+	}
+	if !(this.cs_().previous == 0) {
+		Preconditions_checkState_boolean_String_Object(false, "Has previous: %s", this.box_())
+	}
 }
 
 func (this Node) removeFirstChild() Node {
@@ -664,7 +678,9 @@ func (this Node) validateProperties(violationMessageConsumer func(any)) {
 		var propListItem *Node_PropListItem = this.ps_().propListHead
 		for ; propListItem != nil; propListItem = propListItem.next_ {
 			var prop *Node_Prop = Node_propValues[propListItem.propType]
-			Preconditions_checkState_boolean_String_Object((prop.ordinal() == int32(propListItem.propType)), "ordinal doesn't match: %s", obj_(prop))
+			if !(prop.ordinal() == int32(propListItem.propType)) {
+				Preconditions_checkState_boolean_String_Object(false, "ordinal doesn't match: %s", obj_(prop))
+			}
 			switch prop {
 			case Node_Prop_IS_PARENTHESIZED:
 				if !IR_mayBeExpression(this) {
@@ -856,7 +872,9 @@ func (this Node) getPropListDebugString() string {
 
 func (this Node) deserializeProperties(propSet int64, isInClosureUnawareSubtree bool) {
 	if this.isRoot() {
-		Preconditions_checkState_boolean_Object((this.ps_().propListHead == nil), this.ps_().propListHead.self())
+		if ok_, a1_ := (this.ps_().propListHead == nil), this.ps_().propListHead; !ok_ {
+			Preconditions_checkState_boolean_Object(false, a1_.self())
+		}
 	} else {
 		Preconditions_checkState_boolean_Object(this.validatePropListTailOrdering(isInClosureUnawareSubtree), strobj_("Node not ready to receive properties"))
 	}
@@ -1016,8 +1034,12 @@ func (this Node) getDouble() float64 {
 }
 
 func (this Node) setDouble(x float64) {
-	Preconditions_checkState_boolean_Object(!Double_isNaN(x), any(float64(x)))
-	Preconditions_checkState_boolean_Object(JSCompDoubles_isPositive(x), any(float64(x)))
+	if Double_isNaN(x) {
+		Preconditions_checkState_boolean_Object(false, any(float64(x)))
+	}
+	if !JSCompDoubles_isPositive(x) {
+		Preconditions_checkState_boolean_Object(false, any(float64(x)))
+	}
 	if !is_[float64](this.ps_().payload) {
 		panic(this.payloadKindMismatch("number").self())
 	}
@@ -1042,7 +1064,9 @@ func (this Node) getBigInt() *BigInteger {
 
 func (this Node) setBigInt(number *BigInteger) {
 	Preconditions_checkNotNull(obj_(number))
-	Preconditions_checkState_boolean_Object((number.signum() >= 0), obj_(number))
+	if !(number.signum() >= 0) {
+		Preconditions_checkState_boolean_Object(false, obj_(number))
+	}
 	if !is_[*BigInteger](this.ps_().payload) {
 		panic(this.payloadKindMismatch("bigint").self())
 	}
@@ -2194,7 +2218,9 @@ func (this Node) getJSTypeRequired() *JSType {
 }
 
 func (this Node) setJSType(x *JSType) Node {
-	Preconditions_checkState_boolean_Object(((this.ps_().jstypeOrColor == nil) || is_JSType(this.ps_().jstypeOrColor)), this.box_())
+	if !((this.ps_().jstypeOrColor == nil) || is_JSType(this.ps_().jstypeOrColor)) {
+		Preconditions_checkState_boolean_Object(false, this.box_())
+	}
 	this.ps_().jstypeOrColor = x.self()
 	return this
 }
@@ -2218,7 +2244,9 @@ func (this Node) getColor() *Color {
 }
 
 func (this Node) setColor(x *Color) Node {
-	Preconditions_checkState_boolean_Object(((this.ps_().jstypeOrColor == nil) || is_[*Color](this.ps_().jstypeOrColor)), this.box_())
+	if !((this.ps_().jstypeOrColor == nil) || is_[*Color](this.ps_().jstypeOrColor)) {
+		Preconditions_checkState_boolean_Object(false, this.box_())
+	}
 	this.ps_().jstypeOrColor = obj_(x)
 	return this
 }
@@ -2291,7 +2319,9 @@ func (this Node) isSyntheticBlock() bool {
 }
 
 func (this Node) setIsSynthesizedUnfulfilledNameDeclaration(val bool) {
-	Preconditions_checkState_boolean_String_Object((((this.ns_().token == tokOrd1_VAR) && this.hasOneChild()) && this.getFirstChild().isName()), "Expected all synthetic unfulfilled declarations to be `var <name>`, found %s", this.box_())
+	if !(((this.ns_().token == tokOrd1_VAR) && this.hasOneChild()) && this.getFirstChild().isName()) {
+		Preconditions_checkState_boolean_String_Object(false, "Expected all synthetic unfulfilled declarations to be `var <name>`, found %s", this.box_())
+	}
 	this.putBooleanProp(Node_Prop_SYNTHESIZED_UNFULFILLED_NAME_DECLARATION, val)
 }
 
@@ -2395,7 +2425,9 @@ func (this Node) hasTrailingComma() bool {
 }
 
 func (this Node) setSideEffectFlagsInt(flags int32) {
-	Preconditions_checkState_boolean_String_Object((((this.isCall() || this.isOptChainCall()) || this.isNew()) || this.isTaggedTemplateLit()), "Side-effect flags can only be set on invocation nodes; got %s", this.box_())
+	if !(((this.isCall() || this.isOptChainCall()) || this.isNew()) || this.isTaggedTemplateLit()) {
+		Preconditions_checkState_boolean_String_Object(false, "Side-effect flags can only be set on invocation nodes; got %s", this.box_())
+	}
 	this.putIntProp(Node_Prop_SIDE_EFFECT_FLAGS, ((^flags) & Node_SideEffectFlags_USED_BITS_MASK))
 }
 
@@ -2452,22 +2484,30 @@ func (this Node) setConstantVarFlag(flag int32, value bool) {
 }
 
 func (this Node) isDeclaredConstantVar() bool {
-	Preconditions_checkState_boolean_String_Object((this.isName() || this.isImportStar()), "Should only be called on name or import * nodes. Found %s", this.box_())
+	if !(this.isName() || this.isImportStar()) {
+		Preconditions_checkState_boolean_String_Object(false, "Should only be called on name or import * nodes. Found %s", this.box_())
+	}
 	return Node_anyBitSet(this.getConstantVarFlags(), Node_ConstantVarFlags_DECLARED)
 }
 
 func (this Node) setDeclaredConstantVar(value bool) {
-	Preconditions_checkState_boolean_String_Object((this.isName() || this.isImportStar()), "Should only be called on name or import * nodes. Found %s", this.box_())
+	if !(this.isName() || this.isImportStar()) {
+		Preconditions_checkState_boolean_String_Object(false, "Should only be called on name or import * nodes. Found %s", this.box_())
+	}
 	this.setConstantVarFlag(Node_ConstantVarFlags_DECLARED, value)
 }
 
 func (this Node) isInferredConstantVar() bool {
-	Preconditions_checkState_boolean_String_Object((this.isName() || this.isImportStar()), "Should only be called on name or import * nodes. Found %s", this.box_())
+	if !(this.isName() || this.isImportStar()) {
+		Preconditions_checkState_boolean_String_Object(false, "Should only be called on name or import * nodes. Found %s", this.box_())
+	}
 	return Node_anyBitSet(this.getConstantVarFlags(), Node_ConstantVarFlags_INFERRED)
 }
 
 func (this Node) setInferredConstantVar(value bool) {
-	Preconditions_checkState_boolean_String_Object((this.isName() || this.isImportStar()), "Should only be called on name or import * nodes. Found %s", this.box_())
+	if !(this.isName() || this.isImportStar()) {
+		Preconditions_checkState_boolean_String_Object(false, "Should only be called on name or import * nodes. Found %s", this.box_())
+	}
 	this.setConstantVarFlag(Node_ConstantVarFlags_INFERRED, value)
 }
 
@@ -2476,7 +2516,9 @@ func (this Node) isQuotedStringKey() bool {
 }
 
 func (this Node) setQuotedStringKey() {
-	Preconditions_checkState_boolean_Object(((*this.payload_s_()) != nullstr_), this.box_())
+	if !((*this.payload_s_()) != nullstr_) {
+		Preconditions_checkState_boolean_Object(false, this.box_())
+	}
 	this.putBooleanProp(Node_Prop_QUOTED, true)
 }
 
@@ -2485,7 +2527,9 @@ func (this Node) isPrivateIdentifier() bool {
 }
 
 func (this Node) setPrivateIdentifier() {
-	Preconditions_checkState_boolean_Object(((*this.payload_s_()) != nullstr_), this.box_())
+	if !((*this.payload_s_()) != nullstr_) {
+		Preconditions_checkState_boolean_Object(false, this.box_())
+	}
 	Preconditions_checkState(String_startsWith(this.getString(), "#"))
 	this.putBooleanProp(Node_Prop_PRIVATE_IDENTIFIER, true)
 }

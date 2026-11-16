@@ -54,8 +54,12 @@ func (this *LateEs6ToEs3Converter) visit(t *NodeTraversal, n Node, parent Node) 
 		if (lhs.isGetProp() && rhs.isFunction()) && lhs.getFirstChild().isName() {
 			var qName *QualifiedName = QualifiedName_of("$jscomp.createTemplateTagFirstArgWithRaw")
 			if qName.matches(lhs) {
-				Preconditions_checkNotNull_Object_Object(n.getParent().box_(), n.box_())
-				Preconditions_checkState_boolean_Object(n.getParent().isExprResult(), n.box_())
+				if n.getParent().box_() == nil {
+					Preconditions_checkNotNull_Object_Object(nil, n.box_())
+				}
+				if !n.getParent().isExprResult() {
+					Preconditions_checkState_boolean_Object(false, n.box_())
+				}
 				this.templateLitInsertionPoint = n.getParent().getNext()
 			}
 		}

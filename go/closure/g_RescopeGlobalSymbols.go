@@ -345,7 +345,9 @@ func (this *RescopeGlobalSymbols_RemoveGlobalVarCallback) visit_impl(t *NodeTrav
 		{
 			var c Node = n.getFirstChild()
 			for ; c != 0; c = c.getNext() {
-				Preconditions_checkState_boolean_String_Object(!c.isDestructuringLhs(), "Unexpected DESTRUCTURING_LHS child: %s", c.box_())
+				if c.isDestructuringLhs() {
+					Preconditions_checkState_boolean_String_Object(false, "Unexpected DESTRUCTURING_LHS child: %s", c.box_())
+				}
 				if this.preserveLocalVarDeclarations && c.isName() {
 					if currentVar == 0 {
 						currentVar = IR_var_Node(c.cloneTree()).srcref(n)

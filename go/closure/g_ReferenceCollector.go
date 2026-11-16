@@ -131,7 +131,9 @@ func (this *ReferenceCollector) pushNewBlock(root Node) {
 
 func (this *ReferenceCollector) popLastBlock(root Node) {
 	var last *BasicBlock = cast_[*BasicBlock](SequencedCollection_removeLast(icast_SequencedCollection(obj_(this.blockStack))))
-	Preconditions_checkState_boolean_Object(JSCompObjects_identical(root.box_(), last.getRoot().box_()), root.box_())
+	if !JSCompObjects_identical(root.box_(), last.getRoot().box_()) {
+		Preconditions_checkState_boolean_Object(false, root.box_())
+	}
 }
 
 func ReferenceCollector_isBlockBoundary(n Node, parent Node) bool {

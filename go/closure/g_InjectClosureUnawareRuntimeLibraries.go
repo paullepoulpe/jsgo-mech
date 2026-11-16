@@ -89,8 +89,12 @@ type InjectClosureUnawareRuntimeLibraries_ClosureUnawareCallSite struct {
 }
 
 func (this *InjectClosureUnawareRuntimeLibraries_ClosureUnawareCallSite) init_InjectClosureUnawareRuntimeLibraries_ClosureUnawareCallSite(callNode Node, closureUnawareFunction Node) {
-	Preconditions_checkArgument_boolean_Object(callNode.isCall(), callNode.box_())
-	Preconditions_checkArgument_boolean_Object(closureUnawareFunction.isFunction(), closureUnawareFunction.box_())
+	if !callNode.isCall() {
+		Preconditions_checkArgument_boolean_Object(false, callNode.box_())
+	}
+	if !closureUnawareFunction.isFunction() {
+		Preconditions_checkArgument_boolean_Object(false, closureUnawareFunction.box_())
+	}
 	this.callNode_ = callNode
 	this.closureUnawareFunction_ = closureUnawareFunction
 }

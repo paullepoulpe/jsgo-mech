@@ -85,7 +85,9 @@ func (this *ModuleLoader) resolvePaths(inputs IterableOf[DependencyInfo]) Immuta
 	}
 	List_sort(sortedModulePaths.asList(), ModuleLoader_BEST_MATCH_PATH_ORDERING)
 	var dupeModulePaths *SimpleMultiset = SimpleMultiset_copyOf(Iterable(sortedModulePaths.asList()))
-	Preconditions_checkState_boolean_String_Object((dupeModulePaths.size() == dupeModulePaths.elementSet().size()), "Duplicate module paths after resolving: %s", obj_(dupeModulePaths))
+	if !(dupeModulePaths.size() == dupeModulePaths.elementSet().size()) {
+		Preconditions_checkState_boolean_String_Object(false, "Duplicate module paths after resolving: %s", obj_(dupeModulePaths))
+	}
 	return ImmutableSet_copyOf(Collection(dupeModulePaths.elementSet()))
 }
 

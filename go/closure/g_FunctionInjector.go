@@ -97,7 +97,9 @@ func (this *FunctionInjector) isSupportedCallType(callNode Node, fnNode Node) bo
 }
 
 func FunctionInjector_hasSpreadCallArgument(callNode Node) bool {
-	Preconditions_checkArgument_boolean_Object(NodeUtil_isNormalOrOptChainCall(callNode), callNode.box_())
+	if !NodeUtil_isNormalOrOptChainCall(callNode) {
+		Preconditions_checkArgument_boolean_Object(false, callNode.box_())
+	}
 	{
 		var arg Node = callNode.getSecondChild()
 		for ; arg != 0; arg = arg.getNext() {
@@ -145,7 +147,9 @@ func (this *FunctionInjector) inlineReturnValue(ref *FunctionInjector_Reference,
 		newExpression = NodeUtil_newUndefinedNode(srcLocation)
 	} else {
 		var returnNode Node = block.getFirstChild()
-		Preconditions_checkArgument_boolean_Object(returnNode.isReturn(), returnNode.box_())
+		if !returnNode.isReturn() {
+			Preconditions_checkArgument_boolean_Object(false, returnNode.box_())
+		}
 		var safeReturnNode Node = returnNode.cloneTree()
 		var inlineResult Node = this.functionArgumentInjector_.inject(nil, safeReturnNode, 0, paramReplacements)
 		Preconditions_checkArgument((safeReturnNode == inlineResult))

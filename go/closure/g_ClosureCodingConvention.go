@@ -195,7 +195,9 @@ func (this *ClosureCodingConvention) isFunctionCallThatAlwaysThrows_impl(n Node)
 }
 
 func (this *ClosureCodingConvention) getObjectLiteralCast_impl(callNode Node) *CodingConvention_ObjectLiteralCast {
-	Preconditions_checkArgument_boolean_String_Object(callNode.isCall(), "Expected call node but found %s", callNode.box_())
+	if !callNode.isCall() {
+		Preconditions_checkArgument_boolean_String_Object(false, "Expected call node but found %s", callNode.box_())
+	}
 	var proxyCast *CodingConvention_ObjectLiteralCast = this.CodingConventions_Proxy.getObjectLiteralCast_impl(callNode)
 	if proxyCast != nil {
 		return proxyCast
