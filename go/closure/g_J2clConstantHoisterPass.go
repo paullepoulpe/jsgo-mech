@@ -24,7 +24,7 @@ func (this *J2clConstantHoisterPass) process_2(externs Node, root Node) {
 	var hoistableFunctions *TSet[Node] = newTSet_(tc_Node)
 	NodeTraversal_builder().setCompiler(this.compiler_).setCallbackAbstractPostOrderCallbackInterface(&NodeTraversal_AbstractPostOrderCallbackInterface_fn{func(t *NodeTraversal, node Node, parent Node) {
 		if (parent != 0) && NodeUtil_isLValue(node) {
-			fieldAssignments.put(strobj_(node.getQualifiedName()), parent.box_())
+			fieldAssignments.put_s(node.getQualifiedName(), parent.box_())
 		}
 		if J2clConstantHoisterPass_isHoistableFunction(t, node) {
 			hoistableFunctions.add(node)

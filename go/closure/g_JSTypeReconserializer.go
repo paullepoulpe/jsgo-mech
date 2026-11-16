@@ -338,13 +338,13 @@ func (this *JSTypeReconserializer) getColorIdToJSTypeMapForDebugging() *SimpleLi
 		_ = jstype
 		var record *JSTypeReconserializer_SeenTypeRecord = cast_[*JSTypeReconserializer_SeenTypeRecord](record_)
 		_ = record
-		unordered.put(strobj_(record.colorId.toString()), jstype.self())
+		unordered.put_s(record.colorId.toString(), jstype.self())
 	})
 	var colorIdToTypes *SimpleListMultimap = SimpleListMultimap_create()
 	it_1 := foreach_(obj_(ImmutableList_sortedCopyOf_Iterable(Iterable(unordered.keySet()))))
 	for it_1.next() {
 		var colorId string = str_(it_1.v)
-		colorIdToTypes.putAll(strobj_(colorId), Iterable(unordered.get(strobj_(colorId))))
+		colorIdToTypes.putAll_s(colorId, Iterable(unordered.get_s(colorId)))
 	}
 	return colorIdToTypes.immutableCopy()
 }

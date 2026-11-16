@@ -24,12 +24,12 @@ func new_UseSiteRenamer(mutationCb ConsumerOf[Node]) *UseSiteRenamer {
 
 func (this *UseSiteRenamer) renameUses(prop *PropertyClustering) UseSiteRenamer_RenameUsesResult {
 	if prop.isInvalidated() {
-		this.renamingIndex.put(strobj_(prop.getName()), strobj_(UseSiteRenamer_INVALIDATED_NAME_VALUE))
+		this.renamingIndex.put_s(prop.getName(), strobj_(UseSiteRenamer_INVALIDATED_NAME_VALUE))
 		return UseSiteRenamer_RenameUsesResult_INVALIDATED
 	}
 	var clusterNames ImmutableMapOf[*ColorGraphNode, string] = UseSiteRenamer_createAllClusterNames(prop)
 	if clusterNames.size() <= 1 {
-		this.renamingIndex.put(strobj_(prop.getName()), strobj_(prop.getName()))
+		this.renamingIndex.put_s(prop.getName(), strobj_(prop.getName()))
 		return UseSiteRenamer_RenameUsesResult_ONLY_ONE_CLUSTER
 	}
 	this.renamingIndex.putAll_2(strobj_(prop.getName()), Iterable(clusterNames.values()))

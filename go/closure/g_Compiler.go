@@ -1148,7 +1148,7 @@ func (this *Compiler) getCurrentJsSource() string {
 		for it_12.next() {
 			var qname string = it_12.v
 			builder.append(String_format("// '%s'\n", []any{strobj_(qname)}))
-			it_14 := foreach_(any(originalToNewQNameMap.get(strobj_(qname))))
+			it_14 := foreach_(any(originalToNewQNameMap.get_s(qname)))
 			for it_14.next() {
 				var newName string = str_(it_14.v)
 				builder.append(String_format("// '%s' (originally '%s')\n", []any{strobj_(newName), strobj_(qname)}))
@@ -1171,7 +1171,7 @@ func (this *Compiler) getCurrentJsSource() string {
 				}
 				var originalQname string = n.getOriginalQualifiedName()
 				if !String_isEmpty(originalQname) && qnameSet.contains(originalQname) {
-					originalToNewQNameMap.put(strobj_(originalQname), strobj_(qname))
+					originalToNewQNameMap.put_s(originalQname, strobj_(qname))
 					return true
 				} else {
 					return false

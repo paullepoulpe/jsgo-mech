@@ -59,7 +59,7 @@ func (this *FileInfo) getDeclarations() *SimpleListMultimap {
 }
 
 func (this *FileInfo) recordDeclaration(decl *PotentialDeclaration) {
-	this.declarations.put(strobj_(decl.getFullyQualifiedName()), decl.self())
+	this.declarations.put_s(decl.getFullyQualifiedName(), decl.self())
 }
 
 func (this *FileInfo) recordImport(localName string) {
@@ -67,7 +67,7 @@ func (this *FileInfo) recordImport(localName string) {
 }
 
 func (this *FileInfo) isNameDeclared(fullyQualifiedName string) bool {
-	return this.declarations.containsKey(strobj_(fullyQualifiedName))
+	return this.declarations.containsKey_s(fullyQualifiedName)
 }
 
 func FileInfo_containsPrefix(fullyQualifiedName string, prefixNamespaces IterableOf[string]) bool {

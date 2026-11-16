@@ -689,7 +689,7 @@ func JSTypeRegistry_resolveTypeFromNodeIfTypedef(node Node) *JSType {
 
 func (this *JSTypeRegistry) getTypeForScopeInternal(scope StaticScope, name string) *JSType {
 	var rootNode Node = this.getRootNodeForScope(scope)
-	var type_ *JSType = to_JSType(this.scopedNameTable.get(rootNode.box_(), strobj_(name)))
+	var type_ *JSType = to_JSType(this.scopedNameTable.get_s(rootNode.box_(), name))
 	return type_
 }
 
@@ -707,7 +707,7 @@ func (this *JSTypeRegistry) register(scope StaticScope, type_ *JSType, name stri
 }
 
 func (this *JSTypeRegistry) registerForScope(scope StaticScope, type_ *JSType, name string) {
-	this.scopedNameTable.put(this.getRootNodeForScope(scope).box_(), strobj_(name), type_.self())
+	this.scopedNameTable.put_s(this.getRootNodeForScope(scope).box_(), name, type_.self())
 }
 
 func (this *JSTypeRegistry) registerNativeType(typeId JSTypeNative, type_ *JSType) {
@@ -756,9 +756,9 @@ func (this *JSTypeRegistry) registerPropertyOnType(propertyName string, type_ *J
 		objType = to_ObjectType(v_)
 		return true
 	}() && objType.hasReferenceName() {
-		this.eachRefTypeIndexedByProperty.put(strobj_(propertyName), objType.self())
+		this.eachRefTypeIndexedByProperty.put_s(propertyName, objType.self())
 	} else {
-		this.nonRefTypesIndexedByProperty.put(strobj_(propertyName), type_.self())
+		this.nonRefTypesIndexedByProperty.put_s(propertyName, type_.self())
 	}
 }
 
@@ -786,11 +786,11 @@ func (this *JSTypeRegistry) canPropertyBeDefined(type_ *JSType, propertyName str
 			}
 		}
 		var associatedTypes IterableOf[*JSType] = icast_Iterable(obj_(ImmutableList_of()))
-		if this.nonRefTypesIndexedByProperty.containsKey(strobj_(propertyName)) {
-			associatedTypes = Iterable(this.nonRefTypesIndexedByProperty.get(strobj_(propertyName)))
+		if this.nonRefTypesIndexedByProperty.containsKey_s(propertyName) {
+			associatedTypes = Iterable(this.nonRefTypesIndexedByProperty.get_s(propertyName))
 		}
-		if this.eachRefTypeIndexedByProperty.containsKey(strobj_(propertyName)) {
-			associatedTypes = Iterables_concat(associatedTypes, Iterable(this.eachRefTypeIndexedByProperty.get(strobj_(propertyName))))
+		if this.eachRefTypeIndexedByProperty.containsKey_s(propertyName) {
+			associatedTypes = Iterables_concat(associatedTypes, Iterable(this.eachRefTypeIndexedByProperty.get_s(propertyName)))
 		}
 		it_3 := foreach_(any(associatedTypes))
 		for it_3.next() {
@@ -824,8 +824,8 @@ func (this *JSTypeRegistry) canPropertyBeDefined(type_ *JSType, propertyName str
 }
 
 func (this *JSTypeRegistry) getEachReferenceTypeWithProperty(propertyName string) IterableOf[*ObjectType] {
-	if this.eachRefTypeIndexedByProperty.containsKey(strobj_(propertyName)) {
-		return Iterable(this.eachRefTypeIndexedByProperty.get(strobj_(propertyName)))
+	if this.eachRefTypeIndexedByProperty.containsKey_s(propertyName) {
+		return Iterable(this.eachRefTypeIndexedByProperty.get_s(propertyName))
 	} else {
 		return icast_Iterable(obj_(ImmutableList_of()))
 	}
@@ -1493,7 +1493,7 @@ func (this *JSTypeRegistry) registerTemplateTypeNamesInScope(keys IterableOf[*Te
 	it_1 := foreach_(any(keys))
 	for it_1.next() {
 		var key *TemplateType = cast_[*TemplateType](it_1.v)
-		this.scopedNameTable.put(scopeRoot.box_(), strobj_(key.getReferenceName().orElseThrow()), obj_(key))
+		this.scopedNameTable.put_s(scopeRoot.box_(), key.getReferenceName().orElseThrow(), obj_(key))
 	}
 }
 

@@ -224,10 +224,10 @@ func (this *PureFunctionIdentifier) populateDatastructuresForAnalysisTraversal(r
 	it_3 := foreach_(any(referenceMap.getPropReferences()))
 	for it_3.next() {
 		var entry Map_Entry = icast_Map_Entry(it_3.v)
-		referencesByName.putAll(strobj_((sstr_(PureFunctionIdentifier_PROP_NAME_PREFIX) + sstr_(str_(entry.getKey())))), icast_Iterable(entry.getValue()))
+		referencesByName.putAll_s((sstr_(PureFunctionIdentifier_PROP_NAME_PREFIX) + sstr_(str_(entry.getKey()))), icast_Iterable(entry.getValue()))
 	}
-	Preconditions_checkState(!referencesByName.containsKey(strobj_("")))
-	Preconditions_checkState(!referencesByName.containsKey(strobj_(PureFunctionIdentifier_PROP_NAME_PREFIX)))
+	Preconditions_checkState(!referencesByName.containsKey_s(""))
+	Preconditions_checkState(!referencesByName.containsKey_s(PureFunctionIdentifier_PROP_NAME_PREFIX))
 	it_5 := foreach_(any(referencesByName.keySet()))
 	for it_5.next() {
 		var name string = str_(it_5.v)

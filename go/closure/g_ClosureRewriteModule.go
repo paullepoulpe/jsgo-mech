@@ -70,7 +70,7 @@ func (this *ClosureRewriteModule) isUnrequiredWeakNamespace(call Node, namespace
 		return false
 	}
 	var callerMetadata *ModuleMetadataMap_ModuleMetadata = cast_[*ModuleMetadataMap_ModuleMetadata](Map_get_s(this.compiler_.getModuleMetadataMap().getModulesByPath(), call.getSourceFileName()))
-	return ((callerMetadata == nil) || !callerMetadata.stronglyRequiredGoogNamespaces().contains(strobj_(namespaceId)))
+	return ((callerMetadata == nil) || !callerMetadata.stronglyRequiredGoogNamespaces().contains_s(namespaceId))
 }
 
 func (this *ClosureRewriteModule) process_2(externs Node, root Node) {

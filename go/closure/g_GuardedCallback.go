@@ -88,7 +88,7 @@ func (this *GuardedCallback) promoteAbruptReturns(parent Node) {
 }
 
 func (this *GuardedCallback) isGuarded(resource string) bool {
-	if this.guarded.contains(strobj_(resource)) {
+	if this.guarded.contains_s(resource) {
 		return true
 	}
 	var context *GuardedCallback_Context = slicePeekTop_(tc_p_GuardedCallback_Context, this.contextStack)

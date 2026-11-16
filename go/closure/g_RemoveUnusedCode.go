@@ -113,7 +113,7 @@ func (this *RemoveUnusedCode) removeIndependentlyRemovableProperties() {
 	for it_1.next() {
 		var propName string = str_(it_1.v)
 		this.removalLog.log(icast_Supplier(obj_(RemoveUnusedCode_RemovalLogRecord_forProperty(propName))))
-		it_3 := foreach_(any(this.removablesForPropertyNames.get(strobj_(propName))))
+		it_3 := foreach_(any(this.removablesForPropertyNames.get_s(propName)))
 		for it_3.next() {
 			var removable *RemoveUnusedCode_Removable = to_RemoveUnusedCode_Removable(it_3.v)
 			removable.remove(this.compiler_)
@@ -231,7 +231,7 @@ func (this *RemoveUnusedCode) traverseNormalOrOptChainGetProp(getProp Node, scop
 	var objectNode Node = getProp.getFirstChild()
 	var propertyName string = getProp.getString()
 	if this.polyfills.containsKey_s(propertyName) {
-		it_1 := foreach_(any(this.polyfills.get(strobj_(propertyName))))
+		it_1 := foreach_(any(this.polyfills.get_s(propertyName)))
 		for it_1.next() {
 			var info *RemoveUnusedCode_PolyfillInfo = to_RemoveUnusedCode_PolyfillInfo(it_1.v)
 			if info.isRemovable_ {
@@ -326,7 +326,7 @@ func (this *RemoveUnusedCode) traverseCompoundAssign(compoundAssignNode Node, sc
 
 func (this *RemoveUnusedCode) traverseNameNode(n Node, scope *Scope) RemoveUnusedCode_VarInfo {
 	if this.polyfills.containsKey_s(n.getString()) {
-		it_1 := foreach_(any(this.polyfills.get(strobj_(n.getString()))))
+		it_1 := foreach_(any(this.polyfills.get_s(n.getString())))
 		for it_1.next() {
 			var info *RemoveUnusedCode_PolyfillInfo = to_RemoveUnusedCode_PolyfillInfo(it_1.v)
 			if info.isRemovable_ {
@@ -354,7 +354,7 @@ func (this *RemoveUnusedCode) traverseCall(callNode Node, scope *Scope) {
 			polyfillName = ("TypedArray.prototype." + sstr_(polyfillName))
 		}
 		var info *RemoveUnusedCode_PolyfillInfo = this.createPolyfillInfo(callNode, scope, polyfillName)
-		this.polyfills.put(strobj_(info.key_), info.self())
+		this.polyfills.put_s(info.key_, info.self())
 		this.traverseNode(callNode.getFirstChild(), scope)
 	} else if (NodeUtil_isGoogWeakUsageCall(callNode) && callNode.hasTwoChildren()) && callNode.getSecondChild().isName() {
 		var varInfo RemoveUnusedCode_VarInfo = this.traverseNameNode(callNode.getSecondChild(), scope)
@@ -988,7 +988,7 @@ func (this *RemoveUnusedCode) removeUnreferencedFunctionArgs(fparamScope *Scope)
 
 func (this *RemoveUnusedCode) markPropertyNameAsPinned(propertyName string) {
 	if setAdd_(this.pinnedPropertyNames, propertyName) {
-		it_1 := foreach_(any(this.removablesForPropertyNames.removeAll(strobj_(propertyName))))
+		it_1 := foreach_(any(this.removablesForPropertyNames.removeAll_s(propertyName)))
 		for it_1.next() {
 			var removable *RemoveUnusedCode_Removable = to_RemoveUnusedCode_Removable(it_1.v)
 			removable.applyContinuations()
@@ -1002,7 +1002,7 @@ func (this *RemoveUnusedCode) considerForIndependentRemoval(removable *RemoveUnu
 		if has_(this.pinnedPropertyNames, propertyName) || this.codingConvention.isExported_2(propertyName, false) {
 			removable.applyContinuations()
 		} else if this.isIndependentlyRemovable(removable) {
-			this.removablesForPropertyNames.put(strobj_(propertyName), removable.self())
+			this.removablesForPropertyNames.put_s(propertyName, removable.self())
 		} else {
 			removable.applyContinuations()
 			this.markPropertyNameAsPinned(propertyName)

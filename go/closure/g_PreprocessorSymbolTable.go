@@ -47,7 +47,7 @@ func (this *PreprocessorSymbolTable) getOwnSlot(name string) StaticSlot {
 func (this *PreprocessorSymbolTable) getReferences_StaticSlot(symbol_ StaticSlot) IterableOf[*PreprocessorSymbolTable_Reference] {
 	var symbol *SimpleSlot = to_SimpleSlot(symbol_)
 	_ = symbol
-	return Iterable(Collections_unmodifiableCollection(Collection(this.refs.get(strobj_(symbol.getName())))))
+	return Iterable(Collections_unmodifiableCollection(Collection(this.refs.get_s(symbol.getName()))))
 }
 
 func (this *PreprocessorSymbolTable) getAllSymbols() IterableOf[*SimpleSlot] {
@@ -66,7 +66,7 @@ func (this *PreprocessorSymbolTable) addReference(node Node) {
 
 func (this *PreprocessorSymbolTable) addReference_2(node Node, name string) {
 	this.symbols.computeIfAbsent_f(name, lambda_PreprocessorSymbolTable_addReference_2_1_.f)
-	this.refs.put(strobj_(name), obj_(new_PreprocessorSymbolTable_Reference(this.symbols.get(name), node)))
+	this.refs.put_s(name, obj_(new_PreprocessorSymbolTable_Reference(this.symbols.get(name), node)))
 }
 
 // lambda_PreprocessorSymbolTable_addReference_2_1_ is a lambda of PreprocessorSymbolTable_addReference_2 that captures nothing (post-flip step lambdas).

@@ -136,7 +136,7 @@ func (this *JsFileRegexParser) parseJsDocCommentLine_impl(line string) bool {
 
 func (this *JsFileRegexParser) applyGoogMatcher(line string) *Outcome_base {
 	var lineHasProvidesOrRequires bool = false
-	this.googMatcher.reset(strobj_(line))
+	this.googMatcher.reset_s(line)
 	for this.googMatcher.find() {
 		lineHasProvidesOrRequires = true
 		if this.includeGoogBase && !this.fileHasProvidesOrRequires {
@@ -203,7 +203,7 @@ func (this *JsFileRegexParser) parseLine_impl(line string) *Outcome_base {
 		this.googMatcherBuffer = ""
 	}
 	if String_startsWith(line, "import") || String_startsWith(line, "export") {
-		this.es6Matcher.reset(strobj_(line))
+		this.es6Matcher.reset_s(line)
 		for this.es6Matcher.find() {
 			this.setModuleType(JsFileRegexParser_ModuleType_ES6_MODULE)
 			lineHasProvidesOrRequires = true

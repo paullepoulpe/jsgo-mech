@@ -212,7 +212,7 @@ func (this *EsModuleProcessor_FindMutableExports) init_EsModuleProcessor_FindMut
 	it_1 := exports.each()
 	for it_1.next() {
 		var e *Export = it_1.v
-		this.exportsByLocalName.put(strobj_(e.localName().orElse(nullstr_)), obj_(e))
+		this.exportsByLocalName.put_s(e.localName().orElse(nullstr_), obj_(e))
 	}
 }
 
@@ -231,7 +231,7 @@ func (this *EsModuleProcessor_FindMutableExports) visit_impl(t *NodeTraversal, n
 	if !NodeUtil_isLValue(n) || cast_[*Scope](scope.getClosestHoistScope().self()).isModuleScope() {
 		return
 	}
-	var exports ListOf[*Export] = this.exportsByLocalName.get(strobj_(n.getString()))
+	var exports ListOf[*Export] = this.exportsByLocalName.get_s(n.getString())
 	if exports.isEmpty() {
 		return
 	}
@@ -246,7 +246,7 @@ func (this *EsModuleProcessor_FindMutableExports) visit_impl(t *NodeTraversal, n
 		var mutated *Export = e.mutatedCopy()
 		this.exports.set(i, mutated)
 		this.exportsByLocalName.remove(strobj_(e.localName().orElse(nullstr_)), obj_(e))
-		this.exportsByLocalName.put(strobj_(e.localName().orElse(nullstr_)), obj_(mutated))
+		this.exportsByLocalName.put_s(e.localName().orElse(nullstr_), obj_(mutated))
 	}
 }
 
