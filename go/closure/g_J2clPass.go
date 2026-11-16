@@ -233,14 +233,13 @@ func (this *J2clPass_ClassStaticFunctionsInliner_FunctionDefsCollector) visit(t 
 			continue
 		}
 		var inlinableFunction *J2clPass_ClassStaticFunctionsInliner_InlinableFunction = new_J2clPass_ClassStaticFunctionsInliner_InlinableFunction(n.getLastChild(), inlineSpec.inliningMode_)
-		var qualifiedFnName OptionalOf[string] = func() Optional {
+		var qualifiedFnName OptionalOf[string] = func() OptionalOf[string] {
 			switch n.ns_().token {
 			case tokOrd1_ASSIGN:
-				return Optional_of(strobj_(n.getFirstChild().getQualifiedName())).filter(&Predicate_fn{func(s_ any) bool {
-					var s string = str_(s_)
+				return Optional_of[string](n.getFirstChild().getQualifiedName()).filterFn_(func(s string) bool {
 					_ = s
 					return !String_isEmpty(s)
-				}})
+				})
 			case tokOrd1_MEMBER_FUNCTION_DEF:
 				return NodeUtil_getBestLValueName(n)
 			default:
@@ -248,7 +247,7 @@ func (this *J2clPass_ClassStaticFunctionsInliner_FunctionDefsCollector) visit(t 
 			}
 			panic("unreachable")
 		}()
-		var previousValue *J2clPass_ClassStaticFunctionsInliner_InlinableFunction = this.outer_.fnsToInlineByQualifiedName.put(str_(qualifiedFnName.orElse(nil)), inlinableFunction)
+		var previousValue *J2clPass_ClassStaticFunctionsInliner_InlinableFunction = this.outer_.fnsToInlineByQualifiedName.put(qualifiedFnName.orElse(nullstr_), inlinableFunction)
 		Preconditions_checkState_boolean_String_Object_Object((previousValue == nil), "expected each function to match at most one InliningSpec, but found:\n%s\n%s", obj_(previousValue), obj_(inlinableFunction))
 	}
 }

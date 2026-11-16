@@ -303,7 +303,7 @@ func (this *JSDocInfo) isAtSignCodePresent() bool {
 		if entireComment.isEmpty() {
 			return false
 		}
-		return String_contains(str_(entireComment.get()), strobj_("@code"))
+		return String_contains(entireComment.get(), strobj_("@code"))
 	}()
 }
 
@@ -323,7 +323,7 @@ func (this *JSDocInfo) getParameterType(parameter OptionalOf[string]) *JSTypeExp
 		if params != nil {
 			return func() *JSTypeExpression {
 				if parameter.isPresent() {
-					return cast_[*JSTypeExpression](Map_get_s(params, str_(parameter.get())))
+					return cast_[*JSTypeExpression](Map_get_s(params, parameter.get()))
 				}
 				return nil
 			}()
@@ -354,9 +354,9 @@ func (this *JSDocInfo) getParameterNames() *TSet[string] {
 func (this *JSDocInfo) getParameterNameAt(index int32) OptionalOf[string] {
 	var params LinkedHashMapOf[string, *JSTypeExpression] = cast_[*LinkedHashMap](JSDocInfo_PARAMETERS.get(this))
 	if (params == nil) || (index >= params.size()) {
-		return Optional_empty()
+		return Optional_empty[string]()
 	}
-	return Optional_ofNullable(Iterables_get(Iterable(params.keySet()), index))
+	return Optional_ofNullable[string](str_(Iterables_get(Iterable(params.keySet()), index)))
 }
 
 func (this *JSDocInfo) getParameterCount() int32 {
@@ -432,7 +432,7 @@ func (this *JSDocInfo) getBaseType() *JSTypeExpression {
 }
 
 func (this *JSDocInfo) getDescription() OptionalOf[string] {
-	return Optional_ofNullable(JSDocInfo_DESCRIPTION.get(this))
+	return Optional_ofNullable[string](str_(JSDocInfo_DESCRIPTION.get(this)))
 }
 
 func (this *JSDocInfo) getTsTypes() ImmutableListOf[string] {
@@ -446,11 +446,11 @@ func (this *JSDocInfo) getTsTypes() ImmutableListOf[string] {
 }
 
 func (this *JSDocInfo) getMeaning() OptionalOf[string] {
-	return Optional_ofNullable(JSDocInfo_MEANING.get(this))
+	return Optional_ofNullable[string](str_(JSDocInfo_MEANING.get(this)))
 }
 
 func (this *JSDocInfo) getAlternateMessageId() OptionalOf[string] {
-	return Optional_ofNullable(JSDocInfo_ALTERNATE_MESSAGE_ID.get(this))
+	return Optional_ofNullable[string](str_(JSDocInfo_ALTERNATE_MESSAGE_ID.get(this)))
 }
 
 func (this *JSDocInfo) getLendsName() *JSTypeExpression {
@@ -462,7 +462,7 @@ func (this *JSDocInfo) hasLendsName() bool {
 }
 
 func (this *JSDocInfo) getClosurePrimitiveId() OptionalOf[string] {
-	return Optional_ofNullable(JSDocInfo_CLOSURE_PRIMITIVE_ID.get(this))
+	return Optional_ofNullable[string](str_(JSDocInfo_CLOSURE_PRIMITIVE_ID.get(this)))
 }
 
 func (this *JSDocInfo) hasClosurePrimitiveId() bool {
@@ -518,7 +518,7 @@ func (this *JSDocInfo) isUsedViaDotConstructor() bool {
 }
 
 func (this *JSDocInfo) getLicense() OptionalOf[string] {
-	return Optional_ofNullable(JSDocInfo_LICENSE.get(this))
+	return Optional_ofNullable[string](str_(JSDocInfo_LICENSE.get(this)))
 }
 
 func (this *JSDocInfo) toString() string {
@@ -581,7 +581,7 @@ func (this *JSDocInfo) getExtendedInterfacesCount() int32 {
 }
 
 func (this *JSDocInfo) getDeprecationReason() OptionalOf[string] {
-	return Optional_ofNullable(JSDocInfo_DEPRECATION_REASON.get(this))
+	return Optional_ofNullable[string](str_(JSDocInfo_DEPRECATION_REASON.get(this)))
 }
 
 func (this *JSDocInfo) getSuppressions() SetOf[string] {
@@ -626,11 +626,11 @@ func (this *JSDocInfo) hasDescriptionForParameter(name string) bool {
 
 func (this *JSDocInfo) getDescriptionForParameter(name string) OptionalOf[string] {
 	var params LinkedHashMapOf[string, string] = cast_[*LinkedHashMap](JSDocInfo_PARAMETER_DESCRIPTIONS.get(this))
-	return func() Optional {
+	return func() OptionalOf[string] {
 		if params != nil {
-			return Optional_ofNullable(Map_get_s(params, name))
+			return Optional_ofNullable[string](str_(Map_get_s(params, name)))
 		}
-		return Optional_empty()
+		return Optional_empty[string]()
 	}()
 }
 
@@ -643,11 +643,11 @@ func (this *JSDocInfo) getReferences() ListOf[string] {
 }
 
 func (this *JSDocInfo) getReturnDescription() OptionalOf[string] {
-	return Optional_ofNullable(JSDocInfo_RETURN_DESCRIPTION.get(this))
+	return Optional_ofNullable[string](str_(JSDocInfo_RETURN_DESCRIPTION.get(this)))
 }
 
 func (this *JSDocInfo) getBlockDescription() OptionalOf[string] {
-	return Optional_ofNullable(JSDocInfo_BLOCK_DESCRIPTION.get(this))
+	return Optional_ofNullable[string](str_(JSDocInfo_BLOCK_DESCRIPTION.get(this)))
 }
 
 func (this *JSDocInfo) hasFileOverview() bool {
@@ -750,7 +750,7 @@ func (this *JSDocInfo) hasModifies() bool {
 }
 
 func (this *JSDocInfo) getOriginalCommentString() OptionalOf[string] {
-	return Optional_ofNullable(JSDocInfo_SOURCE_COMMENT.get(this))
+	return Optional_ofNullable[string](str_(JSDocInfo_SOURCE_COMMENT.get(this)))
 }
 
 func (this *JSDocInfo) getOriginalCommentPosition() int32 {
@@ -2416,8 +2416,8 @@ func (this *JSDocInfo_Builder) addLicense(license string) bool {
 	if !this.licenseTexts.add(license) {
 		return false
 	}
-	var txt OptionalOf[string] = Optional_ofNullable(this.getProp(JSDocInfo_LICENSE))
-	return this.recordLicense(RhinoStringPool_addOrGet((sstr_(str_(txt.orElse(strobj_("")))) + sstr_(license))))
+	var txt OptionalOf[string] = Optional_ofNullable[string](str_(this.getProp(JSDocInfo_LICENSE)))
+	return this.recordLicense(RhinoStringPool_addOrGet((sstr_(txt.orElse("")) + sstr_(license))))
 }
 
 func (this *JSDocInfo_Builder) recordNoCompile() bool {
@@ -2562,7 +2562,7 @@ func (this *JSDocInfo_Builder) isInterfaceRecorded() bool {
 
 func (this *JSDocInfo_Builder) hasParameter(name OptionalOf[string]) bool {
 	var params MapOf[string, *JSTypeExpression] = icast_Map(this.getProp(JSDocInfo_PARAMETERS.up_JSDocInfo_Property()))
-	return (((params != nil) && name.isPresent()) && Map_containsKey_s(params, str_(name.get())))
+	return (((params != nil) && name.isPresent()) && Map_containsKey_s(params, name.get()))
 }
 
 func (this *JSDocInfo_Builder) recordImplementedInterface(interfaceType *JSTypeExpression) bool {

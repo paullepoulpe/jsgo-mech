@@ -115,7 +115,7 @@ func (this *FunctionInjector) inline(ref *FunctionInjector_Reference, fnName Opt
 }
 
 func (this *FunctionInjector) unsafeInline(ref *FunctionInjector_Reference, fnName string, fnNode Node) Node {
-	return this.internalInline(ref, Optional_of(strobj_(fnName)), fnNode)
+	return this.internalInline(ref, Optional_of[string](fnName), fnNode)
 }
 
 func (this *FunctionInjector) internalInline(ref *FunctionInjector_Reference, fnName OptionalOf[string], fnNode Node) Node {
@@ -123,7 +123,7 @@ func (this *FunctionInjector) internalInline(ref *FunctionInjector_Reference, fn
 	if ref.mode_ == FunctionInjector_InliningMode_DIRECT {
 		result = this.inlineReturnValue(ref, fnNode)
 	} else {
-		result = this.inlineFunction(ref, fnNode, str_(fnName.orElse(strobj_(""))))
+		result = this.inlineFunction(ref, fnNode, fnName.orElse(""))
 	}
 	this.compiler_.reportChangeToEnclosingScope(result)
 	return result
@@ -204,17 +204,17 @@ func (this *FunctionInjector) inlineFunction(ref *FunctionInjector_Reference, fn
 	var grandParent Node = parent.getParent()
 	var callSiteType *FunctionInjector_CallSiteType = this.classifyCallSite(ref)
 	Preconditions_checkArgument((callSiteType != FunctionInjector_CallSiteType_UNSUPPORTED))
-	var resultName OptionalOf[string] = Optional_empty()
+	var resultName OptionalOf[string] = Optional_empty[string]()
 	var needsDefaultReturnResult bool = true
 	switch callSiteType {
 	case FunctionInjector_CallSiteType_SIMPLE_ASSIGNMENT:
-		resultName = Optional_of(strobj_(parent.getFirstChild().getString()))
-		FunctionInjector_removeConstantVarAnnotation(ref.scope_, str_(resultName.get()))
+		resultName = Optional_of[string](parent.getFirstChild().getString())
+		FunctionInjector_removeConstantVarAnnotation(ref.scope_, resultName.get())
 	case FunctionInjector_CallSiteType_VAR_DECL_SIMPLE_ASSIGNMENT:
-		resultName = Optional_of(strobj_(parent.getString()))
-		FunctionInjector_removeConstantVarAnnotation(ref.scope_, str_(resultName.get()))
+		resultName = Optional_of[string](parent.getString())
+		FunctionInjector_removeConstantVarAnnotation(ref.scope_, resultName.get())
 	case FunctionInjector_CallSiteType_SIMPLE_CALL:
-		resultName = Optional_empty()
+		resultName = Optional_empty[string]()
 		needsDefaultReturnResult = false
 	case FunctionInjector_CallSiteType_EXPRESSION:
 		panic(new_IllegalStateException_String("Movable expressions must be moved before inlining.").self())

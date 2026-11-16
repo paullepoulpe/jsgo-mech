@@ -137,7 +137,7 @@ func (this *SuggestedFix_Builder) finit_SuggestedFix_Builder() {
 	this.matchedNodeInfo = nil
 	this.replacements = SimpleSetMultimap_create()
 	this.alternatives = ImmutableList_builder()
-	this.description_ = Optional_empty()
+	this.description_ = Optional_empty[string]()
 }
 
 func (this *SuggestedFix_Builder) init_SuggestedFix_Builder() {
@@ -353,7 +353,7 @@ func (this *SuggestedFix_Builder) addOrReplaceJsDoc(n Node, newJsDoc string) *Su
 	var jsDoc *JSDocInfo = NodeUtil_getBestJSDocInfo(n)
 	if jsDoc != nil {
 		offset = jsDoc.getOriginalCommentPosition()
-		length = String_length(str_(jsDoc.getOriginalCommentString().get()))
+		length = String_length(jsDoc.getOriginalCommentString().get())
 	}
 	this.replacements.put(strobj_(n.getSourceFileName()), obj_(CodeReplacement_create_int_int_String(offset, length, newJsDoc)))
 	return this
@@ -378,7 +378,7 @@ func (this *SuggestedFix_Builder) replaceTypePattern(n Node, type_ string, patte
 	var originalComment OptionalOf[string] = info.getOriginalCommentString()
 	var originalPosition int32 = info.getOriginalCommentPosition()
 	if originalComment.isPresent() {
-		var m *Matcher_re2j = pattern.matcher(originalComment.get())
+		var m *Matcher_re2j = pattern.matcher(strobj_(originalComment.get()))
 		for m.find() {
 			this.replacements.put(strobj_(n.getSourceFileName()), obj_(CodeReplacement_create_int_int_String((originalPosition+m.start()), (m.end()-m.start()), ("@"+sstr_(m.group(1))+" {"+sstr_(type_)+"}"))))
 		}
@@ -453,7 +453,7 @@ func SuggestedFix_Builder_createImportNode(importType *SuggestedFix_ImportType, 
 	}()
 	var callNode Node = IR_call(IR_getprop_Node_String(IR_name("goog"), requireFlavor), []Node{IR_string(namespace)})
 	if alias.isPresent() {
-		return IR_constNode(IR_name(str_(alias.get())), callNode)
+		return IR_constNode(IR_name(alias.get()), callNode)
 	} else {
 		return IR_exprResult(callNode)
 	}
@@ -486,13 +486,13 @@ func (this *SuggestedFix_Builder) addImport(m *Match, namespace string, importTy
 		if existingAlias.isPresent() {
 			alias = existingAlias
 		} else if String_indexOf(namespace, 46) == -1 {
-			alias = Optional_of(strobj_(namespace))
+			alias = Optional_of[string](namespace)
 		} else {
-			alias = Optional_of(strobj_(SuggestedFix_Builder_firstUnusedAlias(namespace, scriptMetadata)))
+			alias = Optional_of[string](SuggestedFix_Builder_firstUnusedAlias(namespace, scriptMetadata))
 		}
-		scriptMetadata.addAlias(namespace, str_(alias.orElse(nil)))
+		scriptMetadata.addAlias(namespace, alias.orElse(nullstr_))
 	} else {
-		alias = Optional_empty()
+		alias = Optional_empty[string]()
 	}
 	var metadata *NodeMetadata = m.getMetadata()
 	var existingNode Node = SuggestedFix_Builder_findGoogRequireNode(m.getNode(), metadata, namespace)
@@ -502,10 +502,10 @@ func (this *SuggestedFix_Builder) addImport(m *Match, namespace string, importTy
 			if NodeUtil_isCallTo(existingNode.getFirstChild(), "goog.forwardDeclare") {
 				newNode = SuggestedFix_Builder_createImportNode(importType, alias, namespace)
 			} else {
-				newNode = IR_constNode(IR_name(str_(alias.get())), existingNode.getFirstChild().cloneTree())
+				newNode = IR_constNode(IR_name(alias.get()), existingNode.getFirstChild().cloneTree())
 			}
 			this.replace(existingNode, newNode, m.getMetadata().getCompiler())
-			scriptMetadata.addAlias(namespace, str_(alias.get()))
+			scriptMetadata.addAlias(namespace, alias.get())
 		}
 		return this
 	}
@@ -539,7 +539,7 @@ func (this *SuggestedFix_Builder) addImport(m *Match, namespace string, importTy
 			if !String_isEmpty(originalName) {
 				requireName = originalName
 			}
-			if String_compareTo(str_(alias.get()), requireName) < 0 {
+			if String_compareTo(alias.get(), requireName) < 0 {
 				nodeToInsertBefore = child
 				break
 			}
@@ -628,7 +628,7 @@ func (this *SuggestedFix_Builder) generateCode(compiler *AbstractCompiler, node 
 }
 
 func (this *SuggestedFix_Builder) setDescription(description string) *SuggestedFix_Builder {
-	this.description_ = Optional_of(strobj_(description))
+	this.description_ = Optional_of[string](description)
 	return this
 }
 

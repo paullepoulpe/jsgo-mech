@@ -25,7 +25,7 @@ func new_RenamingToken(name_ string, ordinal_ int32) *RenamingToken {
 }
 
 func (this *RenamingToken) get(value string) OptionalOf[string] {
-	return Optional_empty()
+	return Optional_empty[string]()
 }
 
 func RenamingToken_values() []*RenamingToken {

@@ -112,10 +112,10 @@ func (this *TypeValidator) expectAutoboxesToIterable(n Node, type_ *JSType, msg 
 func (this *TypeValidator) expectAutoboxesToIterableOrAsyncIterable(n Node, type_ *JSType, msg string) OptionalOf[*JSType] {
 	var maybeBoxed *JsIterables_MaybeBoxedType = JsIterables_maybeBoxIterableOrAsyncIterable(type_, this.typeRegistry)
 	if maybeBoxed.isMatch() {
-		return Optional_of(maybeBoxed.getTemplatedType().self())
+		return Optional_of[*JSType](maybeBoxed.getTemplatedType())
 	}
 	this.mismatchJSType(n, msg, type_, this.iterableOrAsyncIterable)
-	return Optional_empty()
+	return Optional_empty[*JSType]()
 }
 
 func (this *TypeValidator) expectGeneratorSupertype(n Node, type_ *JSType, msg string) {
@@ -293,7 +293,7 @@ func (this *TypeValidator) expectCanAssignToPropertyOf(n Node, rightType *JSType
 		}}
 	} else {
 		typeNameSupplier = &Supplier_base_fn{func() any {
-			return this.typeRegistry.getReadableTypeName(owner).orElse(nil)
+			return strobj_(this.typeRegistry.getReadableTypeName(owner).orElse(nullstr_))
 		}}
 	}
 	return this.expectCanAssignToPropertyOf_6(n, rightType, leftType, this.getJSType(owner), typeNameSupplier, propName)
@@ -305,7 +305,7 @@ func (this *TypeValidator) expectCanAssignToPropertyOf_6(n Node, rightType *JSTy
 		if (rightType.containsReferenceAncestor(left.up_JSType()) || rightType.isUnknownType()) || left.isUnknownType() {
 			return true
 		} else {
-			this.registerMismatchAndReport_7(n, TypeValidator_TYPE_MISMATCH_WARNING, ("assignment to property " + sstr_(str_(propName.orElse(strobj_("null")))) + " of " + sstr_(str_(typeNameSupplier.get()))), rightType, leftType, icast_Set(obj_(new_LinkedHashSet())), icast_Set(obj_(new_LinkedHashSet())))
+			this.registerMismatchAndReport_7(n, TypeValidator_TYPE_MISMATCH_WARNING, ("assignment to property " + sstr_(propName.orElse("null")) + " of " + sstr_(str_(typeNameSupplier.get()))), rightType, leftType, icast_Set(obj_(new_LinkedHashSet())), icast_Set(obj_(new_LinkedHashSet())))
 			return false
 		}
 	}
@@ -316,7 +316,7 @@ func (this *TypeValidator) expectCanAssignToPropertyOf_6(n Node, rightType *JSTy
 				return true
 			}
 		}
-		this.mismatchJSType(n, ("assignment to property " + sstr_(str_(propName.orElse(strobj_("null")))) + " of " + sstr_(str_(typeNameSupplier.get()))), rightType, leftType)
+		this.mismatchJSType(n, ("assignment to property " + sstr_(propName.orElse("null")) + " of " + sstr_(str_(typeNameSupplier.get()))), rightType, leftType)
 		return false
 	}
 	return true
@@ -341,7 +341,7 @@ func (this *TypeValidator) expectCanAssignTo(n Node, rightType *JSType, leftType
 
 func (this *TypeValidator) expectArgumentMatchesParameter(n Node, argType *JSType, paramType *JSType, callNode Node, ordinal int32) {
 	if !argType.isSubtypeOf(paramType) {
-		this.mismatchJSType(n, ("actual parameter " + istr_(int64(ordinal)) + " of " + sstr_(str_(this.typeRegistry.getReadableTypeNameNoDeref(callNode.getFirstChild()).orElse(strobj_("null")))) + " does not match formal parameter"), argType, paramType)
+		this.mismatchJSType(n, ("actual parameter " + istr_(int64(ordinal)) + " of " + sstr_(this.typeRegistry.getReadableTypeNameNoDeref(callNode.getFirstChild()).orElse("null")) + " does not match formal parameter"), argType, paramType)
 	}
 }
 
@@ -477,7 +477,7 @@ func (this *TypeValidator) expectInterfaceProperty(n Node, instance *ObjectType,
 		if implementedInterface.getPropertyTypeKey(propName).isVoidable() {
 			return
 		}
-		this.registerMismatchAndReport(instance.up_JSType(), implementedInterface.up_JSType(), JSError_make_Node_DiagnosticType_StringArr(n, TypeValidator_INTERFACE_METHOD_NOT_IMPLEMENTED, []string{propName.humanReadableName(), str_(implementedInterface.getReferenceName().orElse(strobj_("null"))), instance.toString()}))
+		this.registerMismatchAndReport(instance.up_JSType(), implementedInterface.up_JSType(), JSError_make_Node_DiagnosticType_StringArr(n, TypeValidator_INTERFACE_METHOD_NOT_IMPLEMENTED, []string{propName.humanReadableName(), implementedInterface.getReferenceName().orElse("null"), instance.toString()}))
 	} else {
 		var local bool = propSlot.getOwnerInstanceType().equals(instance.self())
 		if !local && instance.getConstructor().isInterface() {
@@ -514,7 +514,7 @@ func (this *TypeValidator) checkPropertyType(n Node, instance *JSType, parent *O
 			return TypeValidator_HIDDEN_INTERFACE_PROPERTY_MISMATCH
 		}
 		return TypeValidator_HIDDEN_SUPERCLASS_PROPERTY_MISMATCH
-	}(), []string{propertyName.humanReadableName(), str_(parent.getReferenceName().orElse(strobj_("null"))), required.toString(), found.toString(), instance.toString()})
+	}(), []string{propertyName.humanReadableName(), parent.getReferenceName().orElse("null"), required.toString(), found.toString(), instance.toString()})
 	this.registerMismatchAndReport(found, required, err)
 }
 
@@ -770,7 +770,7 @@ func (this *TypeValidator_WellFormedTemplatizedTypeVerifier) caseTemplatizedType
 		if i < referencedTemplates.size() {
 			var templateType *TemplateType = cast_[*TemplateType](referencedTemplates.get(i))
 			if !assignedType.isSubtype(templateType.getBound()) {
-				this.outer_.registerMismatchAndReport(assignedType, templateType.getBound(), JSError_make_Node_DiagnosticType_StringArr(this.node_, RhinoErrorReporter_BOUNDED_GENERIC_TYPE_ERROR, []string{assignedType.toString(), str_(templateType.getReferenceName().orElse(strobj_("null"))), templateType.getBound().toString()}))
+				this.outer_.registerMismatchAndReport(assignedType, templateType.getBound(), JSError_make_Node_DiagnosticType_StringArr(this.node_, RhinoErrorReporter_BOUNDED_GENERIC_TYPE_ERROR, []string{assignedType.toString(), templateType.getReferenceName().orElse("null"), templateType.getBound().toString()}))
 				return any(bool(false))
 			}
 		}

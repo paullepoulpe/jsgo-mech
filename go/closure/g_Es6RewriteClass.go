@@ -480,7 +480,7 @@ type Es6RewriteClass_ClassProperty_Builder struct {
 }
 
 func (this *Es6RewriteClass_ClassProperty_Builder) finit_Es6RewriteClass_ClassProperty_Builder() {
-	this.propertyKeyField = Optional_empty()
+	this.propertyKeyField = Optional_empty[string]()
 }
 
 func (this *Es6RewriteClass_ClassProperty_Builder) init_Es6RewriteClass_ClassProperty_Builder() {
@@ -494,7 +494,7 @@ func new_Es6RewriteClass_ClassProperty_Builder() *Es6RewriteClass_ClassProperty_
 }
 
 func (this *Es6RewriteClass_ClassProperty_Builder) propertyKey(value string) *Es6RewriteClass_ClassProperty_Builder {
-	this.propertyKeyField = Optional_of(strobj_(value))
+	this.propertyKeyField = Optional_of[string](value)
 	return this
 }
 
@@ -533,7 +533,7 @@ func (this *Es6RewriteClass_ClassProperty_Builder) build() *Es6RewriteClass_Clas
 		}
 		panic(new_IllegalStateException_String(("Missing required properties:" + objstr_(obj_(missing)))).self())
 	}
-	return new_Es6RewriteClass_ClassProperty(str_(this.propertyKeyField.get()), this.kindField, this.jsDocInfoField, this.propertyTypeField)
+	return new_Es6RewriteClass_ClassProperty(this.propertyKeyField.get(), this.kindField, this.jsDocInfoField, this.propertyTypeField)
 }
 
 type Es6RewriteClass_ClassDeclarationMetadata struct {

@@ -62,19 +62,18 @@ func (this *J2clChecksPass) isType(jsType *JSType, fileName string) bool {
 		return false
 	}
 	var sourceName OptionalOf[string] = this.getSourceName(jsType)
-	return (sourceName.isPresent() && String_endsWith(str_(sourceName.get()), fileName))
+	return (sourceName.isPresent() && String_endsWith(sourceName.get(), fileName))
 }
 
 func (this *J2clChecksPass) getSourceName(jsType *JSType) OptionalOf[string] {
 	var constructor *FunctionType = jsType.toMaybeObjectType().getConstructor()
 	if constructor == nil {
-		return Optional_of(strobj_(""))
+		return Optional_of[string]("")
 	}
-	return Optional_of(strobj_(NodeUtil_getSourceName(constructor.getSource()))).filter(&Predicate_fn{func(s_ any) bool {
-		var s string = str_(s_)
+	return Optional_of[string](NodeUtil_getSourceName(constructor.getSource())).filterFn_(func(s string) bool {
 		_ = s
 		return !String_isEmpty(s)
-	}})
+	})
 }
 
 func (this *J2clChecksPass) process_2(externs Node, root Node) {

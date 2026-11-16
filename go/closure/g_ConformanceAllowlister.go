@@ -20,7 +20,7 @@ func ConformanceAllowlister_getViolatingPaths(compiler *Compiler, externs Node, 
 	it_1 := foreach_(obj_(ConformanceAllowlister_getConformanceErrors(compiler, externs, ast, requirement)))
 	for it_1.next() {
 		var error_ *JSError = cast_[*JSError](it_1.v)
-		result.add(error_.sourceName().get())
+		result.add(strobj_(error_.sourceName().get()))
 	}
 	return cast_[*ImmutableSet](obj_(result.build()))
 }

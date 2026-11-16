@@ -94,7 +94,7 @@ func (this *JsFileRegexParser) parseReader(filePath string, closureRelativePath 
 		Map_put_s(loadFlags, "module", strobj_("es6"))
 	default:
 	}
-	var dependencyInfo DependencyInfo = icast_DependencyInfo(obj_(SimpleDependencyInfo_builder(closureRelativePath, Optional_of(strobj_(filePath))).setProvides(Collection(this.provides.asList())).setRequires(Collection(this.requires.asList())).setTypeRequires(Collection(this.typeRequires.asList())).setLoadFlags(loadFlags).setHasExternsAnnotation(this.hasExternsAnnotation).setHasNoCompileAnnotation(this.hasNoCompileAnnotation).build()))
+	var dependencyInfo DependencyInfo = icast_DependencyInfo(obj_(SimpleDependencyInfo_builder(closureRelativePath, Optional_of[string](filePath)).setProvides(Collection(this.provides.asList())).setRequires(Collection(this.requires.asList())).setTypeRequires(Collection(this.typeRequires.asList())).setLoadFlags(loadFlags).setHasExternsAnnotation(this.hasExternsAnnotation).setHasNoCompileAnnotation(this.hasNoCompileAnnotation).build()))
 	if JsFileRegexParser_logger.isLoggable(Level_FINE) {
 		JsFileRegexParser_logger.fine(("DepInfo: " + objstr_(any(dependencyInfo))))
 	}
@@ -113,7 +113,7 @@ func (this *JsFileRegexParser) setModuleType(type_ *JsFileRegexParser_ModuleType
 	var provideEs6ModuleConflict bool = (es6Module && provide)
 	var googEs6ModuleConflict bool = ((googModule || this.seenLoadModule) && es6Module)
 	if (provideGoogModuleConflict || provideEs6ModuleConflict) || googEs6ModuleConflict {
-		this.errorManager.report_2(CheckLevel_WARNING, JSError_make_Optional_int_int_DiagnosticType_StringArr(Optional_of(strobj_(this.file.toString())), -1, -1, ModuleLoader_MODULE_CONFLICT, []string{this.file.toString()}))
+		this.errorManager.report_2(CheckLevel_WARNING, JSError_make_Optional_int_int_DiagnosticType_StringArr(Optional_of[string](this.file.toString()), -1, -1, ModuleLoader_MODULE_CONFLICT, []string{this.file.toString()}))
 		return false
 	}
 	this.moduleType_ = type_
@@ -207,16 +207,16 @@ func (this *JsFileRegexParser) parseLine_impl(line string) *Outcome_base {
 		for this.es6Matcher.find() {
 			this.setModuleType(JsFileRegexParser_ModuleType_ES6_MODULE)
 			lineHasProvidesOrRequires = true
-			var arg OptionalOf[string] = Optional_ofNullable(strobj_(this.es6Matcher.group(1)))
+			var arg OptionalOf[string] = Optional_ofNullable[string](this.es6Matcher.group(1))
 			if arg.isPresent() {
-				if String_startsWith(str_(arg.get()), "goog:") {
-					this.requires.add(DependencyInfo_Require_googRequireSymbol(String_substring_int(str_(arg.get()), 5)))
+				if String_startsWith(arg.get(), "goog:") {
+					this.requires.add(DependencyInfo_Require_googRequireSymbol(String_substring_int(arg.get(), 5)))
 				} else {
-					var path *ModuleLoader_ModulePath = this.file.resolveJsModule(str_(arg.get()), this.filePath, this.lineNum, this.es6Matcher.start())
+					var path *ModuleLoader_ModulePath = this.file.resolveJsModule(arg.get(), this.filePath, this.lineNum, this.es6Matcher.start())
 					if path == nil {
-						path = this.file.resolveModuleAsPath(str_(arg.get()))
+						path = this.file.resolveModuleAsPath(arg.get())
 					}
-					this.requires.add(DependencyInfo_Require_es6Import(path.toModuleName(), str_(arg.get())))
+					this.requires.add(DependencyInfo_Require_es6Import(path.toModuleName(), arg.get()))
 				}
 			}
 		}

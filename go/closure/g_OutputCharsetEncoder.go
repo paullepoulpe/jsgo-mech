@@ -7,10 +7,10 @@ type OutputCharsetEncoder struct {
 }
 
 func (this *OutputCharsetEncoder) init_OutputCharsetEncoder(outputCharset OptionalOf[string]) {
-	if outputCharset.isEmpty() || (Charsets_name(str_(outputCharset.get())) == Charsets_US_ASCII) {
-		this.charset = Optional_empty()
+	if outputCharset.isEmpty() || (Charsets_name(outputCharset.get()) == Charsets_US_ASCII) {
+		this.charset = Optional_empty[string]()
 	} else {
-		this.charset = Optional_of(strobj_(Charsets_name(str_(outputCharset.get()))))
+		this.charset = Optional_of[string](Charsets_name(outputCharset.get()))
 	}
 }
 
@@ -21,5 +21,5 @@ func new_OutputCharsetEncoder(outputCharset OptionalOf[string]) *OutputCharsetEn
 }
 
 func (this *OutputCharsetEncoder) canEncode(c uint16) bool {
-	return (this.charset.isPresent() && Charsets_canEncode(c, str_(this.charset.get())))
+	return (this.charset.isPresent() && Charsets_canEncode(c, this.charset.get()))
 }

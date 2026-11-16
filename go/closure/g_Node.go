@@ -311,22 +311,22 @@ func Node_newString_Token_LazyInternedStringList_int(token *Token_rhino, stringP
 
 func Node_newTemplateLitString_Optional_String(cooked OptionalOf[string], raw string) Node {
 	var n Node = new_Node_Token(Token_rhino_TEMPLATELIT_STRING)
-	n.payload_set_(obj_(new_Node_TemplateLiteralSubstring(func() Optional {
+	n.payload_set_(obj_(new_Node_TemplateLiteralSubstring(func() OptionalOf[string] {
 		if cooked.isEmpty() {
-			return Optional_empty()
+			return Optional_empty[string]()
 		}
-		return Optional_of(strobj_(RhinoStringPool_addOrGet(str_(cooked.get()))))
+		return Optional_of[string](RhinoStringPool_addOrGet(cooked.get()))
 	}(), RhinoStringPool_addOrGet(raw))))
 	return n
 }
 
 func Node_newTemplateLitString_LazyInternedStringList_int_int(stringPool *RhinoStringPool_LazyInternedStringList, cookedOffsetOrNegativeOne int32, rawOffset int32) Node {
 	var n Node = new_Node_Token(Token_rhino_TEMPLATELIT_STRING)
-	n.payload_set_(obj_(new_Node_TemplateLiteralSubstring(func() Optional {
+	n.payload_set_(obj_(new_Node_TemplateLiteralSubstring(func() OptionalOf[string] {
 		if cookedOffsetOrNegativeOne == -1 {
-			return Optional_empty()
+			return Optional_empty[string]()
 		}
-		return Optional_of(strobj_(stringPool.get(cookedOffsetOrNegativeOne)))
+		return Optional_of[string](stringPool.get(cookedOffsetOrNegativeOne))
 	}(), stringPool.get(rawOffset))))
 	return n
 }
@@ -1842,7 +1842,7 @@ func (this Node) isEquivalentTo_5(node Node, recursion *Node_RecursionMode, type
 					return true
 				}() {
 					var other *Node_TemplateLiteralSubstring = cast_[*Node_TemplateLiteralSubstring](node.payload_get_())
-					return (RhinoStringPool_uncheckedEquals(substring.raw, other.raw) && Object_equals(obj_(substring.cooked), obj_(other.cooked)))
+					return (RhinoStringPool_uncheckedEquals(substring.raw, other.raw) && Object_equals(obj_(optErase_(substring.cooked)), obj_(optErase_(other.cooked))))
 				}
 			}
 		}

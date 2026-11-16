@@ -44,7 +44,7 @@ func (this *ValueType) resolveInternal_impl(reporter ErrorReporter_rhino) *JSTyp
 }
 
 func (this *ValueType) appendTo_impl(sb *TypeStringBuilder) {
-	sb.append(str_(this.getDisplayName().orElse(nil)))
+	sb.append(this.getDisplayName().orElse(nullstr_))
 }
 
 func (this *ValueType) hasDisplayName_impl() bool {

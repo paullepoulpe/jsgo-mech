@@ -91,14 +91,13 @@ func (this *TypedAstSerializer) serializeScriptNode(script Node) *LazyAst {
 	var sourceFile int32 = this.getSourceFilePointer(script)
 	var scriptProto *AstNode = this.visit(script)
 	this.subtreeSourceFiles.clear()
-	var encodedSourceMap OptionalOf[string] = this.compiler_.getBase64SourceMapContents(Optional_of(strobj_(script.getSourceFileName())).filter(&Predicate_fn{func(s_ any) bool {
-		var s string = str_(s_)
+	var encodedSourceMap OptionalOf[string] = this.compiler_.getBase64SourceMapContents(Optional_of[string](script.getSourceFileName()).filterFn_(func(s string) bool {
 		_ = s
 		return !String_isEmpty(s)
-	}}))
+	}))
 	var lazyAstBuilder *LazyAst_Builder = LazyAst_newBuilder().setScript(scriptProto.toByteString()).setSourceFile(sourceFile)
 	if encodedSourceMap.isPresent() {
-		lazyAstBuilder.setSourceMappingUrl(str_(encodedSourceMap.get()))
+		lazyAstBuilder.setSourceMappingUrl(encodedSourceMap.get())
 	}
 	return cast_[*LazyAst](lazyAstBuilder.build())
 }
@@ -173,7 +172,7 @@ func (this *TypedAstSerializer) valueTranslator(builder *AstNode_Builder, n Node
 			if n.getCookedString().isEmpty() {
 				return -1
 			}
-			return this.stringPool.put(str_(n.getCookedString().get()))
+			return this.stringPool.put(n.getCookedString().get())
 		}()).build()))
 		return
 	case tokOrd1_NUMBER:

@@ -146,7 +146,7 @@ func (this *ModuleMapCreator_ModuleRequestResolverImpl) resolveImport(i *Import)
 }
 
 func (this *ModuleMapCreator_ModuleRequestResolverImpl) resolve(e *Export) *UnresolvedModule {
-	return this.resolve_3(str_(e.moduleRequest().get()), e.modulePath(), e.exportNode())
+	return this.resolve_3(e.moduleRequest().get(), e.modulePath(), e.exportNode())
 }
 
 func (this *ModuleMapCreator_ModuleRequestResolverImpl) resolveForClosure(namespace string) *UnresolvedModule {
@@ -158,11 +158,10 @@ func (this *ModuleMapCreator_ModuleRequestResolverImpl) resolve_3(moduleRequest 
 		var namespace string = GoogEsImports_getClosureIdFromGoogImportSpecifier(moduleRequest)
 		return this.resolveForClosure(namespace)
 	}
-	var requestedPath *ModuleLoader_ModulePath = modulePath.resolveJsModule(moduleRequest, Optional_of(strobj_(forLineInfo.getSourceFileName())).filter(&Predicate_fn{func(s_ any) bool {
-		var s string = str_(s_)
+	var requestedPath *ModuleLoader_ModulePath = modulePath.resolveJsModule(moduleRequest, Optional_of[string](forLineInfo.getSourceFileName()).filterFn_(func(s string) bool {
 		_ = s
 		return !String_isEmpty(s)
-	}}), forLineInfo.getLineno(), forLineInfo.getCharno())
+	}), forLineInfo.getLineno(), forLineInfo.getCharno())
 	if requestedPath == nil {
 		requestedPath = modulePath.resolveModuleAsPath(moduleRequest)
 		if !this.outer_.unresolvedModules.containsKey(requestedPath.toModuleName()) {
@@ -235,7 +234,7 @@ func (this *ModuleMapCreator_ModuleRequestResolverImpl_1) getExportedNames_2_imp
 }
 
 func (this *ModuleMapCreator_ModuleRequestResolverImpl_1) resolveExport_5_impl(moduleRequestResolver ModuleRequestResolver, moduleSpecifier OptionalOf[string], exportName OptionalOf[string], resolveSet SetOf[*ExportTrace], exportStarSet SetOf[*UnresolvedModule]) *ResolveExportResult {
-	return ResolveExportResult_of(Binding_from_Export_Node(Export_builder().localName(exportName).moduleMetadata(this.cap_metadata).modulePath(this.cap_path).closureNamespace(Optional_empty()).build(), 0))
+	return ResolveExportResult_of(Binding_from_Export_Node(Export_builder().localName(exportName).moduleMetadata(this.cap_metadata).modulePath(this.cap_path).closureNamespace(Optional_empty[string]()).build(), 0))
 }
 
 // reset: an object that is exactly a ModuleMapCreator_ModuleRequestResolverImpl_1 calls its reset_impl directly (post-flip); others dispatch.
@@ -248,12 +247,12 @@ func (this *ModuleMapCreator_ModuleRequestResolverImpl_1) reset() {
 }
 
 // resolve_2: an object that is exactly a ModuleMapCreator_ModuleRequestResolverImpl_1 calls its resolve_2_impl directly (post-flip); others dispatch.
-func (this *ModuleMapCreator_ModuleRequestResolverImpl_1) resolve_2(p0 ModuleRequestResolver, p1 Optional) *Module {
+func (this *ModuleMapCreator_ModuleRequestResolverImpl_1) resolve_2(p0 ModuleRequestResolver, p1 OptionalOf[string]) *Module {
 	if this.self_ == any(this) {
 		return this.resolve_2_impl(p0, p1)
 	}
 	return this.self_.(interface {
-		resolve_2_impl(ModuleRequestResolver, Optional) *Module
+		resolve_2_impl(ModuleRequestResolver, OptionalOf[string]) *Module
 	}).resolve_2_impl(p0, p1)
 }
 
@@ -288,11 +287,11 @@ func (this *ModuleMapCreator_ModuleRequestResolverImpl_1) getExportedNames_2(p0 
 }
 
 // resolveExport_5: an object that is exactly a ModuleMapCreator_ModuleRequestResolverImpl_1 calls its resolveExport_5_impl directly (post-flip); others dispatch.
-func (this *ModuleMapCreator_ModuleRequestResolverImpl_1) resolveExport_5(p0 ModuleRequestResolver, p1 Optional, p2 Optional, p3 Set, p4 Set) *ResolveExportResult {
+func (this *ModuleMapCreator_ModuleRequestResolverImpl_1) resolveExport_5(p0 ModuleRequestResolver, p1 OptionalOf[string], p2 OptionalOf[string], p3 Set, p4 Set) *ResolveExportResult {
 	if this.self_ == any(this) {
 		return this.resolveExport_5_impl(p0, p1, p2, p3, p4)
 	}
 	return this.self_.(interface {
-		resolveExport_5_impl(ModuleRequestResolver, Optional, Optional, Set, Set) *ResolveExportResult
+		resolveExport_5_impl(ModuleRequestResolver, OptionalOf[string], OptionalOf[string], Set, Set) *ResolveExportResult
 	}).resolveExport_5_impl(p0, p1, p2, p3, p4)
 }

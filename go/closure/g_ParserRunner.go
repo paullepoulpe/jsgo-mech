@@ -179,12 +179,12 @@ func new_ParserRunner_Es6ErrorReporter(reporter ErrorReporter_rhino, reportAllEr
 func (this *ParserRunner_Es6ErrorReporter) reportError_impl(location *SourcePosition_util, message string) {
 	if this.reportAllErrors || !this.errorSeen {
 		this.errorSeen = true
-		this.reporter.error(message, Optional_of(strobj_(location.source.name_)), (location.line_ + 1), location.column_)
+		this.reporter.error(message, Optional_of[string](location.source.name_), (location.line_ + 1), location.column_)
 	}
 }
 
 func (this *ParserRunner_Es6ErrorReporter) reportWarning_impl(location *SourcePosition_util, message string) {
-	this.reporter.warning(message, Optional_of(strobj_(location.source.name_)), (location.line_ + 1), location.column_)
+	this.reporter.warning(message, Optional_of[string](location.source.name_), (location.line_ + 1), location.column_)
 }
 
 type ParserRunner_ParseResult struct {
@@ -196,7 +196,7 @@ type ParserRunner_ParseResult struct {
 }
 
 func (this *ParserRunner_ParseResult) init_ParserRunner_ParseResult_Node_List_FeatureSet_String(ast Node, comments ListOf[*Comment], features *FeatureSet, sourceMapURL string) {
-	this.init_ParserRunner_ParseResult_Node_List_ImmutableList_FeatureSet_Optional(ast, comments, ImmutableList_of(), features, Optional_of(strobj_(sourceMapURL)))
+	this.init_ParserRunner_ParseResult_Node_List_ImmutableList_FeatureSet_Optional(ast, comments, ImmutableList_of(), features, Optional_of[string](sourceMapURL))
 }
 
 func new_ParserRunner_ParseResult_Node_List_FeatureSet_String(ast Node, comments ListOf[*Comment], features *FeatureSet, sourceMapURL string) *ParserRunner_ParseResult {

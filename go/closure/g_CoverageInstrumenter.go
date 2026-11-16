@@ -25,7 +25,7 @@ func new_CoverageInstrumenter(compilerSupplier *CompilerBasedTransformer_Compile
 }
 
 func (this *CoverageInstrumenter) getRuntime_impl() OptionalOf[string] {
-	return Optional_empty()
+	return Optional_empty[string]()
 }
 
 func (this *CoverageInstrumenter) getTranformationName_impl() string {
@@ -76,7 +76,7 @@ func (this *CoverageInstrumenter_CompilerSupplier) setOptions_impl(options *Comp
 	options.setLanguageOut(CompilerOptions_LanguageMode_ECMASCRIPT5)
 	options.setLanguageIn(CompilerOptions_LanguageMode_ECMASCRIPT_NEXT)
 	options.setStrictModeInput(false)
-	options.setSourceMapOutputPath(Optional_of(strobj_("/dev/null")))
+	options.setSourceMapOutputPath(Optional_of[string]("/dev/null"))
 	options.setVariableRenaming(VariableRenamingPolicy_OFF)
 	options.setInstrumentForCoverageOption(CompilerOptions_InstrumentOption_LINE_ONLY)
 	options.setInstrumentForCoverageOnly(true)
@@ -87,11 +87,11 @@ func (this *CoverageInstrumenter_CompilerSupplier) transformed_impl(result *Resu
 }
 
 // getRuntime: an object that is exactly a CoverageInstrumenter calls its getRuntime_impl directly (post-flip); others dispatch.
-func (this *CoverageInstrumenter) getRuntime() Optional {
+func (this *CoverageInstrumenter) getRuntime() OptionalOf[string] {
 	if this.self_ == any(this) {
 		return this.getRuntime_impl()
 	}
-	return this.self_.(interface{ getRuntime_impl() Optional }).getRuntime_impl()
+	return this.self_.(interface{ getRuntime_impl() OptionalOf[string] }).getRuntime_impl()
 }
 
 // getTranformationName: an object that is exactly a CoverageInstrumenter calls its getTranformationName_impl directly (post-flip); others dispatch.

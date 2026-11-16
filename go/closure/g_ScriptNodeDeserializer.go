@@ -14,7 +14,7 @@ type ScriptNodeDeserializer struct {
 func (this *ScriptNodeDeserializer) init_ScriptNodeDeserializer(ast *LazyAst, stringPool *StringPool, colorPoolShard Optional_baseOf[*ColorPool_ShardView], filePool ImmutableListOf[*SourceFile_jscomp]) {
 	this.scriptBytes = ast.getScript()
 	this.sourceFile = cast_[*SourceFile_jscomp](filePool.get((ast.getSourceFile() - 1)))
-	this.sourceMappingURL = Optional_ofNullable(strobj_(ast.getSourceMappingUrl()))
+	this.sourceMappingURL = Optional_ofNullable[string](ast.getSourceMappingUrl())
 	this.colorPoolShard = colorPoolShard
 	this.stringPool = stringPool
 	this.filePool = filePool

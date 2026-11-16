@@ -55,14 +55,14 @@ func FilePaths_parent(path string) OptionalOf[string] {
 	var plain string = FilePaths_clean(path)
 	var slash int32 = String_lastIndexOf(plain, 47)
 	if (slash < 0) || (plain == "/") {
-		return Optional_empty()
+		return Optional_empty[string]()
 	}
-	return Optional_of(func() any {
+	return Optional_of[string](str_(func() any {
 		if slash == 0 {
 			return strobj_("/")
 		}
 		return strobj_(String_substring(plain, 0, slash))
-	}())
+	}()))
 }
 
 func FilePaths_names(plain string) *TList[string] {
@@ -146,22 +146,22 @@ func FilePaths_relativize(path string, other string) OptionalOf[string] {
 	var base string = FilePaths_clean(path)
 	var target string = FilePaths_clean(other)
 	if FilePaths_isAbsolute(base) != FilePaths_isAbsolute(target) {
-		return Optional_empty()
+		return Optional_empty[string]()
 	}
 	if base == target {
-		return Optional_of(strobj_(""))
+		return Optional_of[string]("")
 	}
 	if String_isEmpty(base) {
-		return Optional_of(strobj_(target))
+		return Optional_of[string](target)
 	}
 	if FilePaths_hasDots(base) || FilePaths_hasDots(target) {
 		base = FilePaths_normalize(base)
 		target = FilePaths_normalize(target)
 		if base == target {
-			return Optional_of(strobj_(""))
+			return Optional_of[string]("")
 		}
 		if String_isEmpty(base) {
-			return Optional_of(strobj_(target))
+			return Optional_of[string](target)
 		}
 	}
 	var from *TList[string] = FilePaths_names(base)
@@ -178,7 +178,7 @@ func FilePaths_relativize(path string, other string) OptionalOf[string] {
 	var result *StringBuilder = new_StringBuilder()
 	for i := int32(common); i < from.size(); i++ {
 		if from.get(i) == ".." {
-			return Optional_empty()
+			return Optional_empty[string]()
 		}
 		result.append(func() string {
 			if result.length() > 0 {
@@ -191,7 +191,7 @@ func FilePaths_relativize(path string, other string) OptionalOf[string] {
 	if (result.length() > 0) && !String_isEmpty(rest) {
 		result.append_char('/')
 	}
-	return Optional_of(strobj_(Object_toString(obj_(result.append(rest)))))
+	return Optional_of[string](Object_toString(obj_(result.append(rest))))
 }
 
 func FilePaths_hasDots(plain string) bool {

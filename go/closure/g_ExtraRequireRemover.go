@@ -32,17 +32,17 @@ func (this *ExtraRequireRemover) process_2(externs Node, root Node) {
 func (this *ExtraRequireRemover) extractNamespace(call Node, primitiveNames []*QualifiedName) OptionalOf[string] {
 	var callee Node = call.getFirstChild()
 	if !callee.isGetProp() {
-		return Optional_empty()
+		return Optional_empty[string]()
 	}
 	for _, primitiveName := range primitiveNames {
 		if primitiveName.matches(callee) {
 			var target Node = callee.getNext()
 			if (target != 0) && target.isStringLit() {
-				return Optional_of(strobj_(target.getString()))
+				return Optional_of[string](target.getString())
 			}
 		}
 	}
-	return Optional_empty()
+	return Optional_empty[string]()
 }
 
 func (this *ExtraRequireRemover) extractNamespaceIfRequire(call Node) OptionalOf[string] {
@@ -100,11 +100,10 @@ func (this *ExtraRequireRemover) removeExtraRequire(call Node, require string) {
 		return
 	}
 	if call.getParent().isExprResult() {
-		if (!call.getGrandparent().isModuleBody() || J2clSourceUtils_isJ2clHeaderSource(Optional_of(strobj_(call.getSourceFileName())).filter(&Predicate_fn{func(s_ any) bool {
-			var s string = str_(s_)
+		if !call.getGrandparent().isModuleBody() || J2clSourceUtils_isJ2clHeaderSource(Optional_of[string](call.getSourceFileName()).filterFn_(func(s string) bool {
 			_ = s
 			return !String_isEmpty(s)
-		}}))) {
+		})) {
 			this.compiler_.reportChangeToEnclosingScope(call.getParent())
 			call.getParent().detach()
 		}
@@ -160,7 +159,7 @@ func (this *ExtraRequireRemover) visitGoogRequire(namespace string, googRequireC
 func (this *ExtraRequireRemover) visitCallNode(call Node, parent Node) {
 	var required OptionalOf[string] = this.extractNamespaceIfRequire(call)
 	if required.isPresent() {
-		this.visitGoogRequire(str_(required.get()), call, parent)
+		this.visitGoogRequire(required.get(), call, parent)
 		return
 	}
 	var callee Node = call.getFirstChild()
@@ -170,10 +169,10 @@ func (this *ExtraRequireRemover) visitCallNode(call Node, parent Node) {
 }
 
 func (this *ExtraRequireRemover) addUsagesOfAllPrefixes(qualifiedName *QualifiedName) {
-	this.usages[str_(qualifiedName.join().orElse(nil))] = struct{}{}
+	this.usages[qualifiedName.join().orElse(nullstr_)] = struct{}{}
 	for !qualifiedName.isSimple() {
 		qualifiedName = qualifiedName.getOwner()
-		this.usages[str_(qualifiedName.join().orElse(nil))] = struct{}{}
+		this.usages[qualifiedName.join().orElse(nullstr_)] = struct{}{}
 	}
 }
 

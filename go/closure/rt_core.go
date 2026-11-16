@@ -6,6 +6,7 @@ package closure
 import (
 	"fmt"
 	"math"
+	"reflect"
 	"strconv"
 )
 
@@ -50,6 +51,37 @@ func strobj_(s string) any {
 		return nil
 	}
 	return s
+}
+
+// isnull_ is `v == null` for a value of a type argument, as the erased code would see it once
+// boxed: a String is null when it is nullstr_, a class pointer, handle or interface when it is
+// nil (obj_ and box_ make those nil); arrays and numbers box to non-null objects.
+func isnull_[T any](v T) bool {
+	if p, ok := any(&v).(*string); ok {
+		return *p == nullstr_
+	}
+	x := any(v)
+	if x == nil {
+		return true
+	}
+	if h, ok := x.(interface{ box_() any }); ok {
+		return h.box_() == nil
+	}
+	r := reflect.ValueOf(x)
+	return r.Kind() == reflect.Pointer && r.IsNil()
+}
+
+// boxValue_ is a value of a type argument boxed as the erased code boxes it: the most derived
+// object of a class, the handle's box, a String as itself (never null here).
+func boxValue_[T any](v T) any {
+	x := any(v)
+	if s, ok := x.(interface{ self() any }); ok {
+		return s.self()
+	}
+	if h, ok := x.(interface{ box_() any }); ok {
+		return h.box_()
+	}
+	return x
 }
 
 func isstr_(v any) bool {

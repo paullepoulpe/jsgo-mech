@@ -367,23 +367,23 @@ func (this *PeepholeReplaceKnownMethods) tryFoldStringToUpperCase(subtree Node, 
 }
 
 func (this *PeepholeReplaceKnownMethods) tryFoldStringTrim(subtree Node, stringNode Node, functionName string) Node {
-	var result OptionalOf[string] = func() Optional {
+	var result OptionalOf[string] = func() OptionalOf[string] {
 		switch functionName {
 		case "trim":
-			return Optional_ofNullable(strobj_(PeepholeReplaceKnownMethods_TRIM_BOTH_PATTERN.matcher(strobj_(stringNode.getString())).replaceAll("")))
+			return Optional_ofNullable[string](PeepholeReplaceKnownMethods_TRIM_BOTH_PATTERN.matcher(strobj_(stringNode.getString())).replaceAll(""))
 		case "trimStart", "trimLeft":
-			return Optional_ofNullable(strobj_(PeepholeReplaceKnownMethods_TRIM_START_PATTERN.matcher(strobj_(stringNode.getString())).replaceAll("")))
+			return Optional_ofNullable[string](PeepholeReplaceKnownMethods_TRIM_START_PATTERN.matcher(strobj_(stringNode.getString())).replaceAll(""))
 		case "trimEnd", "trimRight":
-			return Optional_ofNullable(strobj_(PeepholeReplaceKnownMethods_TRIM_END_PATTERN.matcher(strobj_(stringNode.getString())).replaceAll("")))
+			return Optional_ofNullable[string](PeepholeReplaceKnownMethods_TRIM_END_PATTERN.matcher(strobj_(stringNode.getString())).replaceAll(""))
 		default:
-			return Optional_empty()
+			return Optional_empty[string]()
 		}
 		panic("unreachable")
 	}()
 	if result.isEmpty() {
 		return subtree
 	}
-	var replacement Node = IR_string(str_(result.get())).srcref(subtree)
+	var replacement Node = IR_string(result.get()).srcref(subtree)
 	subtree.replaceWith(replacement)
 	this.reportChangeToEnclosingScope(replacement)
 	return replacement
@@ -447,29 +447,29 @@ func (this *PeepholeReplaceKnownMethods) tryFoldParseNumber(n Node, functionName
 			if stringVal.isEmpty() {
 				return n
 			}
-			var checkVal any = NodeUtil_getStringNumberValue(str_(stringVal.get()))
+			var checkVal any = NodeUtil_getStringNumberValue(stringVal.get())
 			if checkVal == nil {
 				return n
 			}
-			stringVal = Optional_of(strobj_(NodeUtil_trimJsWhiteSpace(str_(stringVal.get()))))
-			if String_isEmpty(str_(stringVal.get())) {
+			stringVal = Optional_of[string](NodeUtil_trimJsWhiteSpace(stringVal.get()))
+			if String_isEmpty(stringVal.get()) {
 				return n
 			}
-			if str_(stringVal.get()) == "0" {
+			if stringVal.get() == "0" {
 				var newNode Node = IR_number(0)
 				n.replaceWith(newNode)
 				this.reportChangeToEnclosingScope(newNode)
 				return newNode
 			}
 			var normalizedNewVal string = "0"
-			var parsed any = Doubles_tryParse(String_trim(str_(stringVal.get())))
+			var parsed any = Doubles_tryParse(String_trim(stringVal.get()))
 			if parsed == nil {
 				return n
 			}
 			var newVal float64 = unbox_[float64](parsed)
 			var newNode Node = NodeUtil_numberNode(newVal, n)
 			normalizedNewVal = PeepholeReplaceKnownMethods_normalizeNumericString(String_valueOf_double(newVal))
-			if !(PeepholeReplaceKnownMethods_normalizeNumericString(str_(stringVal.get())) == normalizedNewVal) {
+			if !(PeepholeReplaceKnownMethods_normalizeNumericString(stringVal.get()) == normalizedNewVal) {
 				return n
 			}
 			n.replaceWith(newNode)
@@ -481,31 +481,31 @@ func (this *PeepholeReplaceKnownMethods) tryFoldParseNumber(n Node, functionName
 	if stringVal.isEmpty() {
 		return n
 	}
-	stringVal = Optional_of(strobj_(NodeUtil_trimJsWhiteSpace(str_(stringVal.get()))))
-	if String_isEmpty(str_(stringVal.get())) {
+	stringVal = Optional_of[string](NodeUtil_trimJsWhiteSpace(stringVal.get()))
+	if String_isEmpty(stringVal.get()) {
 		return n
 	}
 	var isNegative bool = false
-	if String_startsWith(str_(stringVal.get()), "-") {
+	if String_startsWith(stringVal.get(), "-") {
 		isNegative = true
-		stringVal = Optional_of(strobj_(String_substring_int(str_(stringVal.get()), 1)))
-	} else if String_startsWith(str_(stringVal.get()), "+") {
-		stringVal = Optional_of(strobj_(String_substring_int(str_(stringVal.get()), 1)))
+		stringVal = Optional_of[string](String_substring_int(stringVal.get(), 1))
+	} else if String_startsWith(stringVal.get(), "+") {
+		stringVal = Optional_of[string](String_substring_int(stringVal.get(), 1))
 	}
 	if (radix == 0) || (radix == 16) {
-		if (String_length(str_(stringVal.get())) > 1) && Ascii_equalsIgnoreCase(strobj_(String_substring(str_(stringVal.get()), 0, 2)), strobj_("0x")) {
+		if (String_length(stringVal.get()) > 1) && Ascii_equalsIgnoreCase(strobj_(String_substring(stringVal.get(), 0, 2)), strobj_("0x")) {
 			radix = 16
-			stringVal = Optional_of(strobj_(String_substring_int(str_(stringVal.get()), 2)))
+			stringVal = Optional_of[string](String_substring_int(stringVal.get(), 2))
 		} else if radix == 0 {
-			if !this.isEcmaScript5OrGreater() && String_startsWith(str_(stringVal.get()), "0") {
+			if !this.isEcmaScript5OrGreater() && String_startsWith(stringVal.get(), "0") {
 				return n
 			}
 			radix = 10
 		}
 	}
 	var endDigitIndex int32 = 0
-	for endDigitIndex < String_length(str_(stringVal.get())) {
-		var c uint16 = String_charAt(str_(stringVal.get()), endDigitIndex)
+	for endDigitIndex < String_length(stringVal.get()) {
+		var c uint16 = String_charAt(stringVal.get(), endDigitIndex)
 		if PeepholeReplaceKnownMethods_getRadixDigit(c, radix) < 0 {
 			break
 		}
@@ -514,7 +514,7 @@ func (this *PeepholeReplaceKnownMethods) tryFoldParseNumber(n Node, functionName
 	if endDigitIndex == 0 {
 		return n
 	}
-	var digits string = String_substring(str_(stringVal.get()), 0, endDigitIndex)
+	var digits string = String_substring(stringVal.get(), 0, endDigitIndex)
 	var bi *BigInteger = new_BigInteger(digits, radix)
 	var newVal float64 = bi.doubleValue()
 	if isNegative {
@@ -582,9 +582,9 @@ func (this *PeepholeReplaceKnownMethods) tryFoldStringIndexOf(n Node, functionNa
 	}
 	var indexVal int32 = func() int32 {
 		if isIndexOf {
-			return String_indexOf_String_int(lstring, str_(searchValue.get()), fromIndex)
+			return String_indexOf_String_int(lstring, searchValue.get(), fromIndex)
 		}
-		return String_lastIndexOf_String_int(lstring, str_(searchValue.get()), fromIndex)
+		return String_lastIndexOf_String_int(lstring, searchValue.get(), fromIndex)
 	}()
 	var newNode Node = NodeUtil_numberNode(float64(indexVal), n)
 	n.replaceWith(newNode)
@@ -616,7 +616,7 @@ func (this *PeepholeReplaceKnownMethods) tryFoldStringIncludes(n Node, lstringNo
 			return n
 		}
 	}
-	var contains bool = (String_indexOf_String_int(lstring, str_(searchValue.get()), fromIndex) != -1)
+	var contains bool = (String_indexOf_String_int(lstring, searchValue.get(), fromIndex) != -1)
 	var newNode Node = NodeUtil_booleanNode(contains).srcref(n)
 	n.replaceWith(newNode)
 	this.reportChangeToEnclosingScope(newNode)
@@ -647,7 +647,7 @@ func (this *PeepholeReplaceKnownMethods) tryFoldStringStartsWith(n Node, lstring
 			return n
 		}
 	}
-	var result bool = String_startsWith_String_int(lstring, str_(searchValue.get()), start)
+	var result bool = String_startsWith_String_int(lstring, searchValue.get(), start)
 	var newNode Node = NodeUtil_booleanNode(result).srcref(n)
 	n.replaceWith(newNode)
 	this.reportChangeToEnclosingScope(newNode)
@@ -682,9 +682,9 @@ func (this *PeepholeReplaceKnownMethods) tryFoldStringEndsWith(n Node, lstringNo
 			return n
 		}
 	}
-	var searchLength int32 = String_length(str_(searchValue.get()))
+	var searchLength int32 = String_length(searchValue.get())
 	var start int32 = (end - searchLength)
-	var result bool = ((start >= 0) && String_startsWith_String_int(lstring, str_(searchValue.get()), start))
+	var result bool = ((start >= 0) && String_startsWith_String_int(lstring, searchValue.get(), start))
 	var newNode Node = NodeUtil_booleanNode(result).srcref(n)
 	n.replaceWith(newNode)
 	this.reportChangeToEnclosingScope(newNode)
@@ -756,9 +756,9 @@ func (this *PeepholeReplaceKnownMethods) tryFoldArrayJoin(n Node) Node {
 		right.detach()
 		this.reportChangeToEnclosingScope(n)
 	}
-	var joinString OptionalOf[string] = func() Optional {
+	var joinString OptionalOf[string] = func() OptionalOf[string] {
 		if (right == 0) || NodeUtil_isUndefined(right) {
-			return Optional_of(strobj_(","))
+			return Optional_of[string](",")
 		}
 		return NodeUtil_getStringValue(right)
 	}()
@@ -772,13 +772,13 @@ func (this *PeepholeReplaceKnownMethods) tryFoldArrayJoin(n Node) Node {
 			if sb == nil {
 				sb = new_StringBuilder()
 			} else {
-				sb.append(str_(joinString.orElse(strobj_("null"))))
+				sb.append(joinString.orElse("null"))
 			}
 			var elementStr OptionalOf[string] = NodeUtil_getArrayElementStringValue(elem)
 			if elementStr.isEmpty() {
 				return n
 			}
-			sb.append(str_(elementStr.get()))
+			sb.append(elementStr.get())
 		} else {
 			if sb != nil {
 				Preconditions_checkNotNull(prev.box_())
@@ -1038,7 +1038,7 @@ func (this *PeepholeReplaceKnownMethods) jsSplit(stringValue string, separator O
 		return []string{stringValue}
 	}
 	var splitStrings *TList[string] = newTList_(tc_string)
-	if String_isEmpty(str_(separator.get())) {
+	if String_isEmpty(separator.get()) {
 		for i := int32(0); (i < String_length(stringValue)) && (i < limit); i++ {
 			splitStrings.add(String_substring(stringValue, i, (i + 1)))
 		}
@@ -1046,12 +1046,12 @@ func (this *PeepholeReplaceKnownMethods) jsSplit(stringValue string, separator O
 		var startIndex int32 = 0
 		var matchIndex int32
 		for {
-			matchIndex = PeepholeReplaceKnownMethods_jsSplitMatch(stringValue, startIndex, str_(separator.get()))
+			matchIndex = PeepholeReplaceKnownMethods_jsSplitMatch(stringValue, startIndex, separator.get())
 			if !((matchIndex >= 0) && (splitStrings.size() < limit)) {
 				break
 			}
 			splitStrings.add(String_substring(stringValue, startIndex, matchIndex))
-			startIndex = (matchIndex + String_length(str_(separator.get())))
+			startIndex = (matchIndex + String_length(separator.get()))
 		}
 		if splitStrings.size() < limit {
 			if startIndex < String_length(stringValue) {
@@ -1070,12 +1070,12 @@ func (this *PeepholeReplaceKnownMethods) tryFoldStringSplit(n Node, stringNode N
 	}
 	Preconditions_checkArgument(n.isCall())
 	Preconditions_checkArgument(stringNode.isStringLit())
-	var separator OptionalOf[string] = Optional_empty()
+	var separator OptionalOf[string] = Optional_empty[string]()
 	var stringValue string = stringNode.getString()
 	var limit int32 = (String_length(stringValue) + 1)
 	if arg1 != 0 {
 		if arg1.isStringLit() {
-			separator = Optional_of(strobj_(arg1.getString()))
+			separator = Optional_of[string](arg1.getString())
 		} else if !arg1.isNull() {
 			return n
 		}

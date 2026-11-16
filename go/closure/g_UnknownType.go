@@ -87,7 +87,7 @@ func (this *UnknownType) visitUntyped_2_impl(visitor RelationshipVisitor, that *
 }
 
 func (this *UnknownType) appendTo_impl(sb *TypeStringBuilder) {
-	sb.append(str_(this.getReferenceName().orElseThrow()))
+	sb.append(this.getReferenceName().orElseThrow())
 }
 
 func (this *UnknownType) defineProperty_impl(propertyName Property_Key, type_ *JSType, inferred bool, propertyNode Node) bool {
@@ -103,16 +103,16 @@ func (this *UnknownType) getConstructor_impl() *FunctionType {
 }
 
 func (this *UnknownType) getReferenceName_impl() OptionalOf[string] {
-	return func() Optional {
+	return func() OptionalOf[string] {
 		if this.isChecked {
-			return Optional_of(strobj_("??"))
+			return Optional_of[string]("??")
 		}
-		return Optional_of(strobj_("?"))
+		return Optional_of[string]("?")
 	}()
 }
 
 func (this *UnknownType) getDisplayName_impl() OptionalOf[string] {
-	return Optional_of(strobj_("Unknown"))
+	return Optional_of[string]("Unknown")
 }
 
 func (this *UnknownType) hasDisplayName_impl() bool {
@@ -273,19 +273,19 @@ func (this *UnknownType) getConstructor() *FunctionType {
 }
 
 // getReferenceName: an object that is exactly a UnknownType calls its getReferenceName_impl directly (post-flip); others dispatch.
-func (this *UnknownType) getReferenceName() Optional {
+func (this *UnknownType) getReferenceName() OptionalOf[string] {
 	if this.self_ == any(this) {
 		return this.getReferenceName_impl()
 	}
-	return this.self_.(interface{ getReferenceName_impl() Optional }).getReferenceName_impl()
+	return this.self_.(interface{ getReferenceName_impl() OptionalOf[string] }).getReferenceName_impl()
 }
 
 // getDisplayName: an object that is exactly a UnknownType calls its getDisplayName_impl directly (post-flip); others dispatch.
-func (this *UnknownType) getDisplayName() Optional {
+func (this *UnknownType) getDisplayName() OptionalOf[string] {
 	if this.self_ == any(this) {
 		return this.getDisplayName_impl()
 	}
-	return this.self_.(interface{ getDisplayName_impl() Optional }).getDisplayName_impl()
+	return this.self_.(interface{ getDisplayName_impl() OptionalOf[string] }).getDisplayName_impl()
 }
 
 // hasDisplayName: an object that is exactly a UnknownType calls its hasDisplayName_impl directly (post-flip); others dispatch.

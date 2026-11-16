@@ -261,27 +261,27 @@ func ConformanceRules_AllowList_createFromEntry(allowlistEntry *RequirementScope
 }
 
 func (this *ConformanceRules_AllowList) matches(path string) bool {
-	var tsPath OptionalOf[string] = func() Optional {
+	var tsPath OptionalOf[string] = func() OptionalOf[string] {
 		if String_endsWith(path, ".closure.js") {
-			return Optional_of(strobj_((sstr_(String_substring(path, 0, (String_length(path)-String_length(".closure.js")))) + ".ts")))
+			return Optional_of[string]((sstr_(String_substring(path, 0, (String_length(path)-String_length(".closure.js")))) + ".ts"))
 		}
-		return func() Optional {
+		return func() OptionalOf[string] {
 			if String_endsWith(path, ".tsx.cl.js") {
-				return Optional_of(strobj_(String_substring(path, 0, (String_length(path) - String_length(".cl.js")))))
+				return Optional_of[string](String_substring(path, 0, (String_length(path) - String_length(".cl.js"))))
 			}
-			return Optional_empty()
+			return Optional_empty[string]()
 		}()
 	}()
 	if this.prefixes != nil {
 		it_1 := foreach_(obj_(this.prefixes))
 		for it_1.next() {
 			var prefix string = str_(it_1.v)
-			if !String_isEmpty(path) && (String_startsWith(path, prefix) || (tsPath.isPresent() && String_startsWith(str_(tsPath.get()), prefix))) {
+			if !String_isEmpty(path) && (String_startsWith(path, prefix) || (tsPath.isPresent() && String_startsWith(tsPath.get(), prefix))) {
 				return true
 			}
 		}
 	}
-	return ((this.regexp != nil) && (this.regexp.matcher(strobj_(path)).find() || (tsPath.isPresent() && this.regexp.matcher(tsPath.get()).find())))
+	return ((this.regexp != nil) && (this.regexp.matcher(strobj_(path)).find() || (tsPath.isPresent() && this.regexp.matcher(strobj_(tsPath.get())).find())))
 }
 
 type ConformanceRules_AbstractRule struct {
@@ -1073,14 +1073,14 @@ func (this *ConformanceRules_BannedProperty) initBannedProperty(compiler *Abstra
 		if typename.isEmpty() || property.isEmpty() {
 			return Outcome_base_err(new_CheckConformance_InvalidRequirementSpec_String("bad prop value").up_Throwable())
 		}
-		var type_ *JSType = this.registry.getGlobalType(str_(typename.get()))
+		var type_ *JSType = this.registry.getGlobalType(typename.get())
 		if type_ == nil {
-			type_ = this.registry.resolveViaClosureNamespace(str_(typename.get()))
+			type_ = this.registry.resolveViaClosureNamespace(typename.get())
 		}
 		if ((type_ == nil) || type_.isUnknownType()) || type_.isEmptyType() {
 			continue
 		}
-		builder.put(property.get(), type_.self())
+		builder.put(strobj_(property.get()), type_.self())
 	}
 	this.props = builder.immutableCopy()
 	return Outcome_base_ok_0()
@@ -1094,7 +1094,7 @@ func (this *ConformanceRules_BannedProperty) checkConformance_impl(t *NodeTraver
 	var name OptionalOf[string] = this.extractName(n)
 	var checkTypes SetOf[*JSType] = func() Set {
 		if name.isPresent() {
-			return this.props.get(name.get())
+			return this.props.get(strobj_(name.get()))
 		}
 		return icast_Set(obj_(ImmutableSet_of()))
 	}()
@@ -1181,28 +1181,28 @@ func (this *ConformanceRules_BannedProperty) extractType(n Node) *JSType {
 }
 
 func (this *ConformanceRules_BannedProperty) extractName(n Node) OptionalOf[string] {
-	return func() Optional {
+	return func() OptionalOf[string] {
 		switch n.ns_().token {
 		case tokOrd1_GETPROP, tokOrd1_STRING_KEY:
-			return Optional_of(strobj_(n.getString()))
+			return Optional_of[string](n.getString())
 		case tokOrd1_GETELEM:
 			var string_ Node = n.getSecondChild()
-			return func() Optional {
+			return func() OptionalOf[string] {
 				if string_.isStringLit() {
-					return Optional_of(strobj_(string_.getString()))
+					return Optional_of[string](string_.getString())
 				}
-				return Optional_empty()
+				return Optional_empty[string]()
 			}()
 		case tokOrd1_COMPUTED_PROP:
 			var string_ Node = n.getFirstChild()
-			return func() Optional {
+			return func() OptionalOf[string] {
 				if string_.isStringLit() {
-					return Optional_of(strobj_(string_.getString()))
+					return Optional_of[string](string_.getString())
 				}
-				return Optional_empty()
+				return Optional_empty[string]()
 			}()
 		default:
-			return Optional_empty()
+			return Optional_empty[string]()
 		}
 		panic("unreachable")
 	}()
@@ -1369,7 +1369,7 @@ func (this *ConformanceRules_BannedStringRegex) checkConformance_impl(traversal 
 	} else if node.isTemplateLitString() {
 		var cookedString OptionalOf[string] = node.getCookedString()
 		if cookedString.isPresent() {
-			if this.stringPattern.matcher(cookedString.get()).matches() {
+			if this.stringPattern.matcher(strobj_(cookedString.get())).matches() {
 				return ConformanceRules_ConformanceResult_VIOLATION
 			}
 		} else {
@@ -1457,9 +1457,9 @@ func ConformanceRules_ConformanceUtil_getPropertyFromDeclarationName(specName st
 	var parts *TList[string] = tlistImm_(tc_string, ConformanceRules_ON_PROTOTYPE.splitToList(strobj_(specName)))
 	Preconditions_checkState(((parts.size() == 1) || (parts.size() == 2)))
 	if parts.size() == 2 {
-		return Optional_ofNullable(strobj_(parts.get(1)))
+		return Optional_ofNullable[string](parts.get(1))
 	}
-	return Optional_empty()
+	return Optional_empty[string]()
 }
 
 func ConformanceRules_ConformanceUtil_getClassFromDeclarationName(specName string) OptionalOf[string] {
@@ -1467,9 +1467,9 @@ func ConformanceRules_ConformanceUtil_getClassFromDeclarationName(specName strin
 	var parts *TList[string] = tlistImm_(tc_string, ConformanceRules_ON_PROTOTYPE.splitToList(strobj_(tmp)))
 	Preconditions_checkState(((parts.size() == 1) || (parts.size() == 2)))
 	if parts.size() == 2 {
-		return Optional_ofNullable(strobj_(parts.get(0)))
+		return Optional_ofNullable[string](parts.get(0))
 	}
-	return Optional_empty()
+	return Optional_empty[string]()
 }
 
 func ConformanceRules_ConformanceUtil_removeTypeDecl(specName string) *Outcome_base {
@@ -1483,9 +1483,9 @@ func ConformanceRules_ConformanceUtil_removeTypeDecl(specName string) *Outcome_b
 func ConformanceRules_ConformanceUtil_getTypeFromValue(specName string) OptionalOf[string] {
 	var index int32 = String_indexOf(specName, 58)
 	if index < 1 {
-		return Optional_empty()
+		return Optional_empty[string]()
 	}
-	return Optional_of(strobj_(String_substring_int(specName, (index + 1))))
+	return Optional_of[string](String_substring_int(specName, (index + 1)))
 }
 
 func ConformanceRules_ConformanceUtil_isAnnotatedAsConst(jsdoc *JSDocInfo) bool {
@@ -1495,7 +1495,7 @@ func ConformanceRules_ConformanceUtil_isAnnotatedAsConst(jsdoc *JSDocInfo) bool 
 func ConformanceRules_ConformanceUtil_getValueFromGlobalName(scope *Scope, gns *GlobalNamespace, qualifiedName string) OptionalOf[string] {
 	var gn *GlobalNamespace_Name = cast_[*GlobalNamespace_Name](gns.getOwnSlot(qualifiedName))
 	if (((gn == nil) || (gn.getGlobalSets() != 1)) || (gn.getTotalSets() != 1)) || !ConformanceRules_ConformanceUtil_isAnnotatedAsConst(gn.getJSDocInfo()) {
-		return Optional_empty()
+		return Optional_empty[string]()
 	}
 	return ConformanceRules_ConformanceUtil_inferStringValue(scope, NodeUtil_getRValueOfLValue(cast_[*GlobalNamespace_Ref](gn.getDeclaration()).getNode()), &Supplier_fn{func() any {
 		return obj_(gns)
@@ -1504,50 +1504,50 @@ func ConformanceRules_ConformanceUtil_getValueFromGlobalName(scope *Scope, gns *
 
 func ConformanceRules_ConformanceUtil_inferStringValue(scope *Scope, node Node, globalNamespaceSupplier SupplierOf[*GlobalNamespace]) OptionalOf[string] {
 	if node == 0 {
-		return Optional_empty()
+		return Optional_empty[string]()
 	}
 	switch node.ns_().token {
 	case tokOrd1_STRING_KEY, tokOrd1_STRINGLIT, tokOrd1_TEMPLATELIT, tokOrd1_TEMPLATELIT_STRING:
 		return NodeUtil_getStringValue(node)
 	case tokOrd1_NAME:
 		if scope == nil {
-			return Optional_empty()
+			return Optional_empty[string]()
 		}
 		var name string = node.getString()
 		var var_ *Var = cast_[*Var](scope.getVar(name).self())
 		if var_ == nil {
-			return Optional_empty()
+			return Optional_empty[string]()
 		}
 		if !var_.isConst() && !ConformanceRules_ConformanceUtil_isAnnotatedAsConst(var_.getJSDocInfo()) {
-			return Optional_empty()
+			return Optional_empty[string]()
 		}
 		var initialValue Node = var_.getInitialValue()
 		return ConformanceRules_ConformanceUtil_inferStringValue(cast_[*Scope](var_.getScope()), initialValue, globalNamespaceSupplier)
 	case tokOrd1_GETPROP:
 		var type_ *JSType = node.getJSType()
 		if type_ == nil {
-			return Optional_empty()
+			return Optional_empty[string]()
 		}
 		if type_.isEnumElementType() {
 			var enumSource Node = type_.toMaybeEnumElementType().getEnumType().getSource()
 			if enumSource == 0 {
-				return Optional_empty()
+				return Optional_empty[string]()
 			}
 			if !enumSource.isObjectLit() && !enumSource.isClassMembers() {
-				return Optional_empty()
+				return Optional_empty[string]()
 			}
 			return ConformanceRules_ConformanceUtil_inferStringValue(nil, NodeUtil_getFirstPropMatchingKey(enumSource, node.getString()), globalNamespaceSupplier)
 		} else if type_.isString() {
 			var gns *GlobalNamespace = cast_[*GlobalNamespace](globalNamespaceSupplier.get())
 			if gns == nil {
-				return Optional_empty()
+				return Optional_empty[string]()
 			}
 			return ConformanceRules_ConformanceUtil_getValueFromGlobalName(scope, gns, node.getQualifiedName())
 		}
-		return Optional_empty()
+		return Optional_empty[string]()
 	default:
 	}
-	return Optional_empty()
+	return Optional_empty[string]()
 }
 
 func ConformanceRules_ConformanceUtil_isXid(type_ *JSType) bool {
@@ -1555,7 +1555,7 @@ func ConformanceRules_ConformanceUtil_isXid(type_ *JSType) bool {
 		return false
 	}
 	var enumElTy *EnumElementType = type_.toMaybeEnumElementType()
-	if (enumElTy != nil) && (str_(enumElTy.getEnumType().getReferenceName().get()) == "enum{xid.String}") {
+	if (enumElTy != nil) && (enumElTy.getEnumType().getReferenceName().get() == "enum{xid.String}") {
 		return true
 	}
 	return false
@@ -1614,12 +1614,12 @@ func (this *ConformanceRules_RestrictedNameCall) initRestrictedNameCall(compiler
 	it_1 := foreach_(any(icast_ProtocolStringList(requirement.getValueList())))
 	for it_1.next() {
 		var value string = str_(it_1.v)
-		var name Node = NodeUtil_newQName_AbstractCompiler_String(compiler, str_(ConformanceRules_RestrictedNameCall_getNameFromValue(value).get()))
+		var name Node = NodeUtil_newQName_AbstractCompiler_String(compiler, ConformanceRules_RestrictedNameCall_getNameFromValue(value).get())
 		var restrictedDecl OptionalOf[string] = ConformanceRules_ConformanceUtil_getTypeFromValue(value)
 		if (name == 0) || restrictedDecl.isEmpty() {
 			return Outcome_base_err(new_CheckConformance_InvalidRequirementSpec_String("bad prop value").up_Throwable())
 		}
-		var restrictedCallTypeOutcome *Outcome_base = ConformanceRules_ConformanceUtil_evaluateTypeString(compiler, str_(restrictedDecl.get()))
+		var restrictedCallTypeOutcome *Outcome_base = ConformanceRules_ConformanceUtil_evaluateTypeString(compiler, restrictedDecl.get())
 		if restrictedCallTypeOutcome.isErr() {
 			return Outcome_base_err(restrictedCallTypeOutcome.error())
 		}
@@ -1654,9 +1654,9 @@ func (this *ConformanceRules_RestrictedNameCall) checkConformance_impl(t *NodeTr
 func ConformanceRules_RestrictedNameCall_getNameFromValue(specName string) OptionalOf[string] {
 	var index int32 = String_indexOf(specName, 58)
 	if index < 1 {
-		return Optional_empty()
+		return Optional_empty[string]()
 	}
-	return Optional_of(strobj_(String_substring(specName, 0, index)))
+	return Optional_of[string](String_substring(specName, 0, index))
 }
 
 type ConformanceRules_RestrictedNameCall_Restriction struct {
@@ -1739,7 +1739,7 @@ func (this *ConformanceRules_RestrictedMethodCall) initRestrictedMethodCall(comp
 		if (type_.isEmpty() || property.isEmpty()) || restrictedDecl.isEmpty() {
 			return Outcome_base_err(new_CheckConformance_InvalidRequirementSpec_String("bad prop value").up_Throwable())
 		}
-		var restrictedCallTypeOutcome *Outcome_base = ConformanceRules_ConformanceUtil_evaluateTypeString(compiler, str_(restrictedDecl.get()))
+		var restrictedCallTypeOutcome *Outcome_base = ConformanceRules_ConformanceUtil_evaluateTypeString(compiler, restrictedDecl.get())
 		if restrictedCallTypeOutcome.isErr() {
 			return Outcome_base_err(restrictedCallTypeOutcome.error())
 		}
@@ -1747,7 +1747,7 @@ func (this *ConformanceRules_RestrictedMethodCall) initRestrictedMethodCall(comp
 		if restrictedCallType == nil {
 			return Outcome_base_err(new_CheckConformance_InvalidRequirementSpec_String("invalid conformance type").up_Throwable())
 		}
-		builder.add(obj_(new_ConformanceRules_RestrictedMethodCall_Restriction(registry.getGlobalType(str_(type_.get())), str_(property.get()), restrictedCallType)))
+		builder.add(obj_(new_ConformanceRules_RestrictedMethodCall_Restriction(registry.getGlobalType(type_.get()), property.get(), restrictedCallType)))
 	}
 	this.restrictions = cast_[*ImmutableList](obj_(builder.build()))
 	return Outcome_base_ok_0()
@@ -1887,12 +1887,12 @@ func (this *ConformanceRules_RestrictedPropertyWrite) initRestrictedPropertyWrit
 		if (type_.isEmpty() || property.isEmpty()) || restrictedDecl.isEmpty() {
 			return Outcome_base_err(new_CheckConformance_InvalidRequirementSpec_String("bad prop value").up_Throwable())
 		}
-		var restrictedTypeOutcome *Outcome_base = ConformanceRules_ConformanceUtil_evaluateTypeString(compiler, str_(restrictedDecl.get()))
+		var restrictedTypeOutcome *Outcome_base = ConformanceRules_ConformanceUtil_evaluateTypeString(compiler, restrictedDecl.get())
 		if restrictedTypeOutcome.isErr() {
 			return Outcome_base_err(restrictedTypeOutcome.error())
 		}
 		var restrictedType *JSType = to_JSType(restrictedTypeOutcome.get())
-		builder.add(obj_(new_ConformanceRules_RestrictedPropertyWrite_Restriction(registry.getGlobalType(str_(type_.get())), str_(property.get()), restrictedType)))
+		builder.add(obj_(new_ConformanceRules_RestrictedPropertyWrite_Restriction(registry.getGlobalType(type_.get()), property.get(), restrictedType)))
 	}
 	this.restrictions = cast_[*ImmutableList](obj_(builder.build()))
 	return Outcome_base_ok_0()
@@ -2729,7 +2729,7 @@ func (this *ConformanceRules_BanUnresolvedType) checkConformance_impl(t *NodeTra
 		var type_ *JSType = target.getJSType()
 		var nonConformingPart OptionalOf[string] = ConformanceRules_BanUnresolvedType_getNonConformingPart(type_)
 		if nonConformingPart.isPresent() && !this.isTypeImmediatelyTightened(n) {
-			return new_ConformanceRules_ConformanceResult_ConformanceLevel_String(ConformanceRules_ConformanceLevel_VIOLATION, ("Reference to type '" + sstr_(str_(nonConformingPart.get())) + "' never resolved."))
+			return new_ConformanceRules_ConformanceResult_ConformanceLevel_String(ConformanceRules_ConformanceLevel_VIOLATION, ("Reference to type '" + sstr_(nonConformingPart.get()) + "' never resolved."))
 		}
 	}
 	return ConformanceRules_ConformanceResult_CONFORMANCE
@@ -2737,7 +2737,7 @@ func (this *ConformanceRules_BanUnresolvedType) checkConformance_impl(t *NodeTra
 
 func ConformanceRules_BanUnresolvedType_getNonConformingPart(type_ *JSType) OptionalOf[string] {
 	if type_ == nil {
-		return Optional_empty()
+		return Optional_empty[string]()
 	}
 	if type_.isUnionType() {
 		var nonConformingParts ArrayListOf[string] = nil
@@ -2752,17 +2752,17 @@ func ConformanceRules_BanUnresolvedType_getNonConformingPart(type_ *JSType) Opti
 					}
 					return new_ArrayList_0()
 				}()
-				nonConformingParts.add(nonConformingPart.get())
+				nonConformingParts.add(strobj_(nonConformingPart.get()))
 			}
 		}
 		if nonConformingParts != nil {
-			return Optional_of(strobj_(Joiner_on_char('|').join(icast_Iterable(nonConformingParts.self()))))
+			return Optional_of[string](Joiner_on_char('|').join(icast_Iterable(nonConformingParts.self())))
 		}
 	} else if type_.isNoResolvedType() {
 		var noResolvedType *ObjectType = type_.toObjectType()
 		return noResolvedType.getReferenceName()
 	}
-	return Optional_empty()
+	return Optional_empty[string]()
 }
 
 type ConformanceRules_StrictBanUnresolvedType struct {
@@ -2819,7 +2819,7 @@ func (this *ConformanceRules_StrictBanUnresolvedType) initStrictBanUnresolvedTyp
 func (this *ConformanceRules_StrictBanUnresolvedType) checkConformance_impl(t *NodeTraversal, n Node) *ConformanceRules_ConformanceResult {
 	var nonConformingPart OptionalOf[string] = ConformanceRules_BanUnresolvedType_getNonConformingPart(n.getJSType())
 	if nonConformingPart.isPresent() && !this.isTypeImmediatelyTightened(n) {
-		return new_ConformanceRules_ConformanceResult_ConformanceLevel_String(ConformanceRules_ConformanceLevel_VIOLATION, ("Reference to type '" + sstr_(str_(nonConformingPart.get())) + "' never resolved."))
+		return new_ConformanceRules_ConformanceResult_ConformanceLevel_String(ConformanceRules_ConformanceLevel_VIOLATION, ("Reference to type '" + sstr_(nonConformingPart.get()) + "' never resolved."))
 	}
 	return ConformanceRules_ConformanceResult_CONFORMANCE
 }
@@ -3289,9 +3289,9 @@ func (this *ConformanceRules_BanCreateDom) getTagNames(tag Node) CollectionOf[st
 		return nil
 	}
 	var typeAsObj *ObjectType = type_.toMaybeObjectType()
-	if str_(typeAsObj.getRawType().getDisplayName().get()) == "goog.dom.TagName" {
+	if typeAsObj.getRawType().getDisplayName().get() == "goog.dom.TagName" {
 		var tagType *JSType = to_JSType(Iterables_getOnlyElement(icast_Iterable(obj_(typeAsObj.getTemplateTypes()))))
-		return Collection(ConformanceRules_BanCreateDom_ELEMENT_TAG_NAMES.get(tagType.getDisplayName().orElse(nil)))
+		return Collection(ConformanceRules_BanCreateDom_ELEMENT_TAG_NAMES.get(strobj_(tagType.getDisplayName().orElse(nullstr_))))
 	}
 	return nil
 }
@@ -3398,8 +3398,8 @@ func (this *ConformanceRules_SecuritySensitiveAttributes) checkConformanceForAtt
 			return ConformanceRules_ConformanceResult_VIOLATION
 		}()
 	}
-	literalName = Optional_of(strobj_(String_toLowerCase(str_(literalName.get()), Locale_ROOT)))
-	if Collection_contains_s(this.bannedAtrrs, str_(literalName.get())) || ConformanceRules_ConformanceUtil_isEventHandlerAttrName(str_(literalName.get())) {
+	literalName = Optional_of[string](String_toLowerCase(literalName.get(), Locale_ROOT))
+	if Collection_contains_s(this.bannedAtrrs, literalName.get()) || ConformanceRules_ConformanceUtil_isEventHandlerAttrName(literalName.get()) {
 		return ConformanceRules_ConformanceResult_VIOLATION
 	}
 	return ConformanceRules_ConformanceResult_CONFORMANCE
@@ -3411,7 +3411,7 @@ func (this *ConformanceRules_SecuritySensitiveAttributes) checkConformanceForAtt
 		return ConformanceRules_ConformanceResult_CONFORMANCE
 	}
 	return func() *ConformanceRules_ConformanceResult {
-		if this.contains(String_toLowerCase(str_(literalName.get()), Locale_ROOT)) {
+		if this.contains(String_toLowerCase(literalName.get(), Locale_ROOT)) {
 			return ConformanceRules_ConformanceResult_VIOLATION
 		}
 		return ConformanceRules_ConformanceResult_CONFORMANCE
@@ -3566,7 +3566,7 @@ func (this *ConformanceRules_BanElementSetAttribute) checkConformanceOnGetElemen
 	var key Node = getElementNode.getSecondChild()
 	var keyName OptionalOf[string] = ConformanceRules_ConformanceUtil_inferStringValue(traversal.getScope(), key, &Supplier_fn{func() any { return obj_(this.getGlobalNamespace()) }})
 	if keyName.isPresent() {
-		if this.securitySensitiveAttributes.contains(String_toLowerCase(str_(keyName.get()), Locale_ROOT)) || (this.requirement_.getReportLooseTypeViolations() && ((str_(keyName.get()) == "innerHTML") || (str_(keyName.get()) == "outerHTML"))) {
+		if this.securitySensitiveAttributes.contains(String_toLowerCase(keyName.get(), Locale_ROOT)) || (this.requirement_.getReportLooseTypeViolations() && ((keyName.get() == "innerHTML") || (keyName.get() == "outerHTML"))) {
 			if this.hasElementType(getElementNode) {
 				return ConformanceRules_ConformanceResult_VIOLATION
 			}
@@ -3684,7 +3684,7 @@ func (this *ConformanceRules_BanSettingAttributes) initBanSettingAttributes(comp
 		if type_.isEmpty() || property.isEmpty() {
 			return Outcome_base_err(new_CheckConformance_InvalidRequirementSpec_String("bad prop value").up_Throwable())
 		}
-		builder.add(obj_(new_ConformanceRules_BanSettingAttributes_AttributeSettingRestriction(registry.getGlobalType(str_(type_.get())), str_(property.get()))))
+		builder.add(obj_(new_ConformanceRules_BanSettingAttributes_AttributeSettingRestriction(registry.getGlobalType(type_.get()), property.get())))
 	}
 	this.restrictions = cast_[*ImmutableList](obj_(builder.build()))
 	return Outcome_base_ok_0()

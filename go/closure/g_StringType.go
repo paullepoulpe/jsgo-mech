@@ -63,7 +63,7 @@ func (this *StringType) matchesObjectContext_impl() bool {
 }
 
 func (this *StringType) getDisplayName_impl() OptionalOf[string] {
-	return Optional_of(strobj_("string"))
+	return Optional_of[string]("string")
 }
 
 func (this *StringType) autoboxesTo_impl() *JSType {
@@ -127,11 +127,11 @@ func (this *StringType) matchesObjectContext() bool {
 }
 
 // getDisplayName: an object that is exactly a StringType calls its getDisplayName_impl directly (post-flip); others dispatch.
-func (this *StringType) getDisplayName() Optional {
+func (this *StringType) getDisplayName() OptionalOf[string] {
 	if this.self_ == any(this) {
 		return this.getDisplayName_impl()
 	}
-	return this.self_.(interface{ getDisplayName_impl() Optional }).getDisplayName_impl()
+	return this.self_.(interface{ getDisplayName_impl() OptionalOf[string] }).getDisplayName_impl()
 }
 
 // autoboxesTo: an object that is exactly a StringType calls its autoboxesTo_impl directly (post-flip); others dispatch.

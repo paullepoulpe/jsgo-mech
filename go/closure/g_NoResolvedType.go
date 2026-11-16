@@ -24,7 +24,7 @@ func (this *NoResolvedType) up_JSType() *JSType {
 
 func (this *NoResolvedType) init_NoResolvedType(registry *JSTypeRegistry, referenceName string, templateTypes ImmutableListOf[*JSType]) {
 	this.ObjectType.init_ObjectType_JSTypeRegistry(registry)
-	this.referenceName = Optional_of(strobj_(referenceName))
+	this.referenceName = Optional_of[string](referenceName)
 	this.templateTypes = templateTypes
 	this.eagerlyResolveToSelf()
 }
@@ -85,7 +85,7 @@ func (this *NoResolvedType) appendTo_impl(sb *TypeStringBuilder) {
 		if sb.isForAnnotations() {
 			return "?"
 		}
-		return ("NoResolvedType<" + sstr_(str_(this.referenceName.orElse(strobj_("null")))) + ">")
+		return ("NoResolvedType<" + sstr_(this.referenceName.orElse("null")) + ">")
 	}())
 }
 
@@ -98,11 +98,11 @@ func (this *NoResolvedType) getTypeClass() *JSTypeClass {
 }
 
 // getReferenceName: an object that is exactly a NoResolvedType calls its getReferenceName_impl directly (post-flip); others dispatch.
-func (this *NoResolvedType) getReferenceName() Optional {
+func (this *NoResolvedType) getReferenceName() OptionalOf[string] {
 	if this.self_ == any(this) {
 		return this.getReferenceName_impl()
 	}
-	return this.self_.(interface{ getReferenceName_impl() Optional }).getReferenceName_impl()
+	return this.self_.(interface{ getReferenceName_impl() OptionalOf[string] }).getReferenceName_impl()
 }
 
 // getTemplateTypes: an object that is exactly a NoResolvedType calls its getTemplateTypes_impl directly (post-flip); others dispatch.

@@ -116,7 +116,7 @@ func (this *EnumElementType) appendTo_impl(sb *TypeStringBuilder) {
 	if sb.isForAnnotations() {
 		sb.appendJSType(this.primitiveType)
 	} else {
-		sb.append(str_(this.getReferenceName().orElse(nil))).append("<").appendJSType(this.primitiveType).append(">")
+		sb.append(this.getReferenceName().orElse(nullstr_)).append("<").appendJSType(this.primitiveType).append(">")
 	}
 }
 
@@ -322,11 +322,11 @@ func (this *EnumElementType) appendTo(p0 *TypeStringBuilder) {
 }
 
 // getReferenceName: an object that is exactly a EnumElementType calls its getReferenceName_impl directly (post-flip); others dispatch.
-func (this *EnumElementType) getReferenceName() Optional {
+func (this *EnumElementType) getReferenceName() OptionalOf[string] {
 	if this.self_ == any(this) {
 		return this.getReferenceName_impl()
 	}
-	return this.self_.(interface{ getReferenceName_impl() Optional }).getReferenceName_impl()
+	return this.self_.(interface{ getReferenceName_impl() OptionalOf[string] }).getReferenceName_impl()
 }
 
 // visitUntyped: an object that is exactly a EnumElementType calls its visitUntyped_impl directly (post-flip); others dispatch.

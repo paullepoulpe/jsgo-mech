@@ -55,13 +55,13 @@ func (this *CompilerBasedTransformer) transform(input *Source) *Source {
 	}
 	var builder *Source_Builder = input.toBuilder().setCode(result.source).setSourceMap(result.sourceMap_)
 	if this.getRuntime().isPresent() {
-		builder.addRuntime([]string{this.compilerSupplierField.runtime(str_(this.getRuntime().get()))})
+		builder.addRuntime([]string{this.compilerSupplierField.runtime(this.getRuntime().get())})
 	}
 	return builder.build()
 }
 
-func (this *CompilerBasedTransformer) getRuntime() Optional {
-	return this.self_.(interface{ getRuntime_impl() Optional }).getRuntime_impl()
+func (this *CompilerBasedTransformer) getRuntime() OptionalOf[string] {
+	return this.self_.(interface{ getRuntime_impl() OptionalOf[string] }).getRuntime_impl()
 }
 
 func (this *CompilerBasedTransformer) getTranformationName() string {
@@ -140,7 +140,7 @@ func (this *CompilerBasedTransformer_CompilerSupplier) compile(path string, code
 					panic(r_)
 				}
 			}()
-			result.sourceMap_.appendTo(icast_Appendable(obj_(sourceMap)), Optional_of(strobj_(path)))
+			result.sourceMap_.appendTo(icast_Appendable(obj_(sourceMap)), Optional_of[string](path))
 			return 0
 		}()
 	}
@@ -183,7 +183,7 @@ func (this *CompilerBasedTransformer_CompilerSupplier) setOptions_impl(options *
 	options.setPropertyRenaming(PropertyRenamingPolicy_OFF)
 	options.setWrapGoogModulesForWhitespaceOnly(false)
 	options.setPrettyPrint(true)
-	options.setSourceMapOutputPath(Optional_of(strobj_("/dev/null")))
+	options.setSourceMapOutputPath(Optional_of[string]("/dev/null"))
 	options.setSourceMapIncludeSourcesContent(true)
 	options.setWarningLevel(CompilerBasedTransformer_CompilerSupplier_ES5_WARNINGS, CheckLevel_OFF)
 }

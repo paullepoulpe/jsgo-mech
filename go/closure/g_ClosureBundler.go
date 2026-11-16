@@ -40,7 +40,7 @@ func new_ClosureBundler_Transpiler(transpiler Transpiler_transpile) *ClosureBund
 }
 
 func (this *ClosureBundler) init_ClosureBundler_Transpiler_Transpiler(transpiler Transpiler_transpile, es6ModuleTranspiler Transpiler_transpile) {
-	this.init_ClosureBundler_Transpiler_Transpiler_EvalMode_Optional_String_Object_Map_boolean(transpiler, es6ModuleTranspiler, ClosureBundler_EvalMode_NORMAL, Optional_empty(), "unknown_source", nil, icast_Map(obj_(new_ConcurrentHashMap())), false)
+	this.init_ClosureBundler_Transpiler_Transpiler_EvalMode_Optional_String_Object_Map_boolean(transpiler, es6ModuleTranspiler, ClosureBundler_EvalMode_NORMAL, Optional_empty[string](), "unknown_source", nil, icast_Map(obj_(new_ConcurrentHashMap())), false)
 }
 
 func new_ClosureBundler_Transpiler_Transpiler(transpiler Transpiler_transpile, es6ModuleTranspiler Transpiler_transpile) *ClosureBundler {
@@ -95,7 +95,7 @@ func (this *ClosureBundler) useEval(useEval bool) *ClosureBundler {
 }
 
 func (this *ClosureBundler) withSourceUrl(newSourceUrl string) *ClosureBundler {
-	return new_ClosureBundler_Transpiler_Transpiler_EvalMode_Optional_String_Object_Map_boolean(this.transpiler, this.es6ModuleTranspiler, this.mode_, Optional_of(strobj_(newSourceUrl)), this.path_, this.minifier, this.sourceMapCache, this.embedSourcemapField)
+	return new_ClosureBundler_Transpiler_Transpiler_EvalMode_Optional_String_Object_Map_boolean(this.transpiler, this.es6ModuleTranspiler, this.mode_, Optional_of[string](newSourceUrl), this.path_, this.minifier, this.sourceMapCache, this.embedSourcemapField)
 }
 
 func (this *ClosureBundler) withPath(newPath string) *ClosureBundler {
@@ -124,18 +124,18 @@ func (this *ClosureBundler) appendTo(out Appendable, info DependencyInfo, conten
 func (this *ClosureBundler) appendRuntimeTo(out Appendable) {
 	var runtime string = this.transpiler.runtime()
 	if !String_isEmpty(runtime) {
-		this.mode_.appendTraditional(runtime, out, Optional_empty())
+		this.mode_.appendTraditional(runtime, out, Optional_empty[string]())
 	}
 	if this.transpiler == Transpiler_transpile_NULL {
-		this.mode_.appendTraditional(this.es6ModuleTranspiler.runtime(), out, Optional_empty())
+		this.mode_.appendTraditional(this.es6ModuleTranspiler.runtime(), out, Optional_empty[string]())
 	}
-	this.mode_.appendTraditional("this.CLOSURE_EVAL_PREFILTER = function(s) { return s; };", out, Optional_empty())
-	this.mode_.appendTraditional("(function(thisValue){", out, Optional_empty())
-	this.mode_.appendTraditional("var isChrome87 = false; try {isChrome87 =  eval(trustedTypes.emptyScript) !== trustedTypes.emptyScript } catch (e) {} if (typeof trustedTypes !== 'undefined' && trustedTypes.createPolicy &&isChrome87 ) {", out, Optional_empty())
-	this.mode_.appendTraditional("  var policy = trustedTypes.createPolicy('goog#devserver',{ createScript: function(s){ return s; }});", out, Optional_empty())
-	this.mode_.appendTraditional("  thisValue.CLOSURE_EVAL_PREFILTER = policy.createScript.bind(policy);", out, Optional_empty())
-	this.mode_.appendTraditional("}", out, Optional_empty())
-	this.mode_.appendTraditional("})(this);", out, Optional_empty())
+	this.mode_.appendTraditional("this.CLOSURE_EVAL_PREFILTER = function(s) { return s; };", out, Optional_empty[string]())
+	this.mode_.appendTraditional("(function(thisValue){", out, Optional_empty[string]())
+	this.mode_.appendTraditional("var isChrome87 = false; try {isChrome87 =  eval(trustedTypes.emptyScript) !== trustedTypes.emptyScript } catch (e) {} if (typeof trustedTypes !== 'undefined' && trustedTypes.createPolicy &&isChrome87 ) {", out, Optional_empty[string]())
+	this.mode_.appendTraditional("  var policy = trustedTypes.createPolicy('goog#devserver',{ createScript: function(s){ return s; }});", out, Optional_empty[string]())
+	this.mode_.appendTraditional("  thisValue.CLOSURE_EVAL_PREFILTER = policy.createScript.bind(policy);", out, Optional_empty[string]())
+	this.mode_.appendTraditional("}", out, Optional_empty[string]())
+	this.mode_.appendTraditional("})(this);", out, Optional_empty[string]())
 }
 
 func (this *ClosureBundler) getSourceMap(path string) string {
@@ -168,7 +168,7 @@ func ClosureBundler_appendSourceUrl(out Appendable, mode *ClosureBundler_EscapeM
 	if sourceUrl.isEmpty() {
 		return
 	}
-	var toAppend string = ("\n//# sourceURL=" + sstr_(str_(sourceUrl.get())) + "\n")
+	var toAppend string = ("\n//# sourceURL=" + sstr_(sourceUrl.get()) + "\n")
 	mode.append(toAppend, out)
 }
 
@@ -214,15 +214,15 @@ func (this *ClosureBundler_EvalMode) init_ClosureBundler_EvalMode(name_ string, 
 	this.Enum.init_Enum(name_, ordinal_)
 }
 
-func (this *ClosureBundler_EvalMode) appendTraditional(p0 string, p1 Appendable, p2 Optional) {
+func (this *ClosureBundler_EvalMode) appendTraditional(p0 string, p1 Appendable, p2 OptionalOf[string]) {
 	this.self_.(interface {
-		appendTraditional_impl(string, Appendable, Optional)
+		appendTraditional_impl(string, Appendable, OptionalOf[string])
 	}).appendTraditional_impl(p0, p1, p2)
 }
 
-func (this *ClosureBundler_EvalMode) appendGoogModule(p0 string, p1 Appendable, p2 Optional) {
+func (this *ClosureBundler_EvalMode) appendGoogModule(p0 string, p1 Appendable, p2 OptionalOf[string]) {
 	this.self_.(interface {
-		appendGoogModule_impl(string, Appendable, Optional)
+		appendGoogModule_impl(string, Appendable, OptionalOf[string])
 	}).appendGoogModule_impl(p0, p1, p2)
 }
 
@@ -593,46 +593,46 @@ func ClosureBundler_EscapeMode_2_clinit() {
 }
 
 // appendTraditional: an object that is exactly a ClosureBundler_EvalMode_1 calls its appendTraditional_impl directly (post-flip); others dispatch.
-func (this *ClosureBundler_EvalMode_1) appendTraditional(p0 string, p1 Appendable, p2 Optional) {
+func (this *ClosureBundler_EvalMode_1) appendTraditional(p0 string, p1 Appendable, p2 OptionalOf[string]) {
 	if this.self_ == any(this) {
 		this.appendTraditional_impl(p0, p1, p2)
 		return
 	}
 	this.self_.(interface {
-		appendTraditional_impl(string, Appendable, Optional)
+		appendTraditional_impl(string, Appendable, OptionalOf[string])
 	}).appendTraditional_impl(p0, p1, p2)
 }
 
 // appendGoogModule: an object that is exactly a ClosureBundler_EvalMode_1 calls its appendGoogModule_impl directly (post-flip); others dispatch.
-func (this *ClosureBundler_EvalMode_1) appendGoogModule(p0 string, p1 Appendable, p2 Optional) {
+func (this *ClosureBundler_EvalMode_1) appendGoogModule(p0 string, p1 Appendable, p2 OptionalOf[string]) {
 	if this.self_ == any(this) {
 		this.appendGoogModule_impl(p0, p1, p2)
 		return
 	}
 	this.self_.(interface {
-		appendGoogModule_impl(string, Appendable, Optional)
+		appendGoogModule_impl(string, Appendable, OptionalOf[string])
 	}).appendGoogModule_impl(p0, p1, p2)
 }
 
 // appendTraditional: an object that is exactly a ClosureBundler_EvalMode_2 calls its appendTraditional_impl directly (post-flip); others dispatch.
-func (this *ClosureBundler_EvalMode_2) appendTraditional(p0 string, p1 Appendable, p2 Optional) {
+func (this *ClosureBundler_EvalMode_2) appendTraditional(p0 string, p1 Appendable, p2 OptionalOf[string]) {
 	if this.self_ == any(this) {
 		this.appendTraditional_impl(p0, p1, p2)
 		return
 	}
 	this.self_.(interface {
-		appendTraditional_impl(string, Appendable, Optional)
+		appendTraditional_impl(string, Appendable, OptionalOf[string])
 	}).appendTraditional_impl(p0, p1, p2)
 }
 
 // appendGoogModule: an object that is exactly a ClosureBundler_EvalMode_2 calls its appendGoogModule_impl directly (post-flip); others dispatch.
-func (this *ClosureBundler_EvalMode_2) appendGoogModule(p0 string, p1 Appendable, p2 Optional) {
+func (this *ClosureBundler_EvalMode_2) appendGoogModule(p0 string, p1 Appendable, p2 OptionalOf[string]) {
 	if this.self_ == any(this) {
 		this.appendGoogModule_impl(p0, p1, p2)
 		return
 	}
 	this.self_.(interface {
-		appendGoogModule_impl(string, Appendable, Optional)
+		appendGoogModule_impl(string, Appendable, OptionalOf[string])
 	}).appendGoogModule_impl(p0, p1, p2)
 }
 

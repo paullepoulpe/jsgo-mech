@@ -107,7 +107,7 @@ func (this *EnumType) appendTo_impl(sb *TypeStringBuilder) {
 		if sb.isForAnnotations() {
 			return "!Object"
 		}
-		return str_(this.getReferenceName().orElse(nil))
+		return this.getReferenceName().orElse(nullstr_)
 	}())
 }
 
@@ -185,7 +185,7 @@ func (this *EnumType_Builder) zero_EnumType_Builder() {
 }
 
 func (this *EnumType_Builder) finit_EnumType_Builder() {
-	this.elementName = Optional_empty()
+	this.elementName = Optional_empty[string]()
 	this.googModuleId = ""
 }
 
@@ -203,7 +203,7 @@ func new_EnumType_Builder(registry *JSTypeRegistry) *EnumType_Builder {
 }
 
 func (this *EnumType_Builder) setName_impl(x OptionalOf[string]) *PrototypeObjectType_Builder {
-	this.PrototypeObjectType_Builder.setName_impl(Optional_of(strobj_(("enum{" + sstr_(str_(x.orElse(strobj_("null")))) + "}"))))
+	this.PrototypeObjectType_Builder.setName_impl(Optional_of[string](("enum{" + sstr_(x.orElse("null")) + "}")))
 	this.elementName = x
 	return this.up_PrototypeObjectType_Builder()
 }
@@ -277,11 +277,11 @@ func (this *EnumType) appendTo(p0 *TypeStringBuilder) {
 }
 
 // getDisplayName: an object that is exactly a EnumType calls its getDisplayName_impl directly (post-flip); others dispatch.
-func (this *EnumType) getDisplayName() Optional {
+func (this *EnumType) getDisplayName() OptionalOf[string] {
 	if this.self_ == any(this) {
 		return this.getDisplayName_impl()
 	}
-	return this.self_.(interface{ getDisplayName_impl() Optional }).getDisplayName_impl()
+	return this.self_.(interface{ getDisplayName_impl() OptionalOf[string] }).getDisplayName_impl()
 }
 
 // visitUntyped: an object that is exactly a EnumType calls its visitUntyped_impl directly (post-flip); others dispatch.
@@ -345,12 +345,12 @@ func (this *EnumType) resolveInternal(p0 ErrorReporter_rhino) *JSType {
 }
 
 // setName: an object that is exactly a EnumType_Builder calls its setName_impl directly (post-flip); others dispatch.
-func (this *EnumType_Builder) setName(p0 Optional) *PrototypeObjectType_Builder {
+func (this *EnumType_Builder) setName(p0 OptionalOf[string]) *PrototypeObjectType_Builder {
 	if this.self_ == any(this) {
 		return this.setName_impl(p0)
 	}
 	return this.self_.(interface {
-		setName_impl(Optional) *PrototypeObjectType_Builder
+		setName_impl(OptionalOf[string]) *PrototypeObjectType_Builder
 	}).setName_impl(p0)
 }
 

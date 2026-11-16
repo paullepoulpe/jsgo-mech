@@ -58,7 +58,7 @@ func (this *Module) localNameToLocalExport() *ImmutableMap {
 	return this.localNameToLocalExport_
 }
 
-func (this *Module) closureNamespace() Optional {
+func (this *Module) closureNamespace() OptionalOf[string] {
 	return this.closureNamespace_
 }
 
@@ -67,7 +67,7 @@ func (this *Module) equals(p0 any) bool {
 	if !ok || o == nil {
 		return false
 	}
-	return true && Objects_equals(obj_(this.metadata_), obj_(o.metadata_)) && Objects_equals(obj_(this.path_), obj_(o.path_)) && Objects_equals(obj_(this.namespace_), obj_(o.namespace_)) && Objects_equals(obj_(this.boundNames_), obj_(o.boundNames_)) && Objects_equals(obj_(this.localNameToLocalExport_), obj_(o.localNameToLocalExport_)) && Objects_equals(obj_(this.closureNamespace_), obj_(o.closureNamespace_))
+	return true && Objects_equals(obj_(this.metadata_), obj_(o.metadata_)) && Objects_equals(obj_(this.path_), obj_(o.path_)) && Objects_equals(obj_(this.namespace_), obj_(o.namespace_)) && Objects_equals(obj_(this.boundNames_), obj_(o.boundNames_)) && Objects_equals(obj_(this.localNameToLocalExport_), obj_(o.localNameToLocalExport_)) && Objects_equals(obj_(optErase_(this.closureNamespace_)), obj_(optErase_(o.closureNamespace_)))
 }
 
 func (this *Module) hashCode() int32 {
@@ -77,12 +77,12 @@ func (this *Module) hashCode() int32 {
 	h = h*31 + Objects_hashCode(obj_(this.namespace_))
 	h = h*31 + Objects_hashCode(obj_(this.boundNames_))
 	h = h*31 + Objects_hashCode(obj_(this.localNameToLocalExport_))
-	h = h*31 + Objects_hashCode(obj_(this.closureNamespace_))
+	h = h*31 + Objects_hashCode(obj_(optErase_(this.closureNamespace_)))
 	return h
 }
 
 func (this *Module) toString() string {
-	return "Module[" + "metadata=" + objstr_(obj_(this.metadata_)) + ", path=" + objstr_(obj_(this.path_)) + ", namespace=" + objstr_(obj_(this.namespace_)) + ", boundNames=" + objstr_(obj_(this.boundNames_)) + ", localNameToLocalExport=" + objstr_(obj_(this.localNameToLocalExport_)) + ", closureNamespace=" + objstr_(obj_(this.closureNamespace_)) + "]"
+	return "Module[" + "metadata=" + objstr_(obj_(this.metadata_)) + ", path=" + objstr_(obj_(this.path_)) + ", namespace=" + objstr_(obj_(this.namespace_)) + ", boundNames=" + objstr_(obj_(this.boundNames_)) + ", localNameToLocalExport=" + objstr_(obj_(this.localNameToLocalExport_)) + ", closureNamespace=" + objstr_(obj_(optErase_(this.closureNamespace_))) + "]"
 }
 
 type Module_Builder struct {
@@ -95,7 +95,7 @@ type Module_Builder struct {
 }
 
 func (this *Module_Builder) finit_Module_Builder() {
-	this.closureNamespaceField = Optional_empty()
+	this.closureNamespaceField = Optional_empty[string]()
 }
 
 func (this *Module_Builder) init_Module_Builder_0() {

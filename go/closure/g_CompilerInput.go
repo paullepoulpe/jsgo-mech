@@ -219,7 +219,7 @@ func (this *CompilerInput) getDependencyInfo() DependencyInfo {
 		this.dependencyInfo = this.generateDependencyInfo()
 	}
 	if !this.extraRequires.isEmpty() || !this.extraProvides.isEmpty() {
-		this.dependencyInfo = icast_DependencyInfo(obj_(SimpleDependencyInfo_builder(this.getName(), Optional_of(strobj_(this.getName()))).setProvides(icast_Collection(obj_(CompilerInput_concat(icast_Iterable(obj_(this.dependencyInfo.getProvides())), Iterable(this.extraProvides.asList()))))).setRequires(icast_Collection(obj_(CompilerInput_concat(icast_Iterable(obj_(this.dependencyInfo.getRequires())), Iterable(this.extraRequires.asList()))))).setTypeRequires(icast_Collection(obj_(this.dependencyInfo.getTypeRequires()))).setLoadFlags(icast_Map(obj_(this.dependencyInfo.getLoadFlags()))).setHasExternsAnnotation(this.dependencyInfo.getHasExternsAnnotation()).setHasNoCompileAnnotation(this.dependencyInfo.getHasNoCompileAnnotation()).build()))
+		this.dependencyInfo = icast_DependencyInfo(obj_(SimpleDependencyInfo_builder(this.getName(), Optional_of[string](this.getName())).setProvides(icast_Collection(obj_(CompilerInput_concat(icast_Iterable(obj_(this.dependencyInfo.getProvides())), Iterable(this.extraProvides.asList()))))).setRequires(icast_Collection(obj_(CompilerInput_concat(icast_Iterable(obj_(this.dependencyInfo.getRequires())), Iterable(this.extraRequires.asList()))))).setTypeRequires(icast_Collection(obj_(this.dependencyInfo.getTypeRequires()))).setLoadFlags(icast_Map(obj_(this.dependencyInfo.getLoadFlags()))).setHasExternsAnnotation(this.dependencyInfo.getHasExternsAnnotation()).setHasNoCompileAnnotation(this.dependencyInfo.getHasNoCompileAnnotation()).build()))
 		this.extraRequires.clear()
 		this.extraProvides.clear()
 	}
@@ -232,7 +232,7 @@ func (this *CompilerInput) generateDependencyInfo() DependencyInfo {
 	if JsFileRegexParser_isSupported() && this.compiler_.preferRegexParser() {
 		var codeRes *Outcome_base = this.getSourceFile().readCode()
 		if codeRes.isErr() {
-			this.compiler_.getErrorManager().report_2(CheckLevel_ERROR, JSError_make_DiagnosticType_StringArr(AbstractCompiler_READ_ERROR, []string{this.getName(), str_(codeRes.errorMessage().orElse(strobj_("null")))}))
+			this.compiler_.getErrorManager().report_2(CheckLevel_ERROR, JSError_make_DiagnosticType_StringArr(AbstractCompiler_READ_ERROR, []string{this.getName(), codeRes.errorMessage().orElse("null")}))
 			return icast_DependencyInfo(obj_(SimpleDependencyInfo_EMPTY))
 		}
 		var info DependencyInfo = new_JsFileRegexParser(this.compiler_.getErrorManager()).setModuleLoader(this.compiler_.getModuleLoader()).setIncludeGoogBase(true).parseFile(this.getName(), this.getName(), str_(codeRes.get()))
@@ -245,7 +245,7 @@ func (this *CompilerInput) generateDependencyInfo() DependencyInfo {
 		}
 		finder.visitTree(root)
 		var info *JSDocInfo = root.getJSDocInfo()
-		return icast_DependencyInfo(obj_(SimpleDependencyInfo_builder("", Optional_of(strobj_(""))).setProvides(Collection(finder.provides.asList())).setRequires(Collection(finder.requires.asList())).setTypeRequires(Collection(finder.typeRequires.asList())).setLoadFlags(finder.loadFlags_).setHasExternsAnnotation(((info != nil) && info.isExterns())).setHasNoCompileAnnotation(((info != nil) && info.isNoCompile())).build()))
+		return icast_DependencyInfo(obj_(SimpleDependencyInfo_builder("", Optional_of[string]("")).setProvides(Collection(finder.provides.asList())).setRequires(Collection(finder.requires.asList())).setTypeRequires(Collection(finder.typeRequires.asList())).setLoadFlags(finder.loadFlags_).setHasExternsAnnotation(((info != nil) && info.isExterns())).setHasNoCompileAnnotation(((info != nil) && info.isNoCompile())).build()))
 	}
 	panic("unreachable")
 }
@@ -442,7 +442,7 @@ func (this *CompilerInput_DepsFinder) visitEs6ModuleName(n Node, parent Node) {
 		this.requires.add(DependencyInfo_Require_googRequireSymbol(String_substring_int(moduleName, 5)))
 		return
 	}
-	var importedModule *ModuleLoader_ModulePath = this.modulePath_.resolveJsModule(moduleName, Optional_of(strobj_(this.modulePath_.toString())), n.getLineno(), n.getCharno())
+	var importedModule *ModuleLoader_ModulePath = this.modulePath_.resolveJsModule(moduleName, Optional_of[string](this.modulePath_.toString()), n.getLineno(), n.getCharno())
 	if importedModule == nil {
 		importedModule = this.modulePath_.resolveModuleAsPath(moduleName)
 	}
@@ -556,7 +556,7 @@ func (this *CompilerInput_JsAst) isParsed() bool {
 func (this *CompilerInput_JsAst) parse(compiler *AbstractCompiler) {
 	var codeRes *Outcome_base = this.outer_.sourceFile.readCode()
 	if codeRes.isErr() {
-		compiler.report(JSError_make_DiagnosticType_StringArr(AbstractCompiler_READ_ERROR, []string{this.outer_.sourceFile.getName(), str_(codeRes.errorMessage().orElse(strobj_("null")))}))
+		compiler.report(JSError_make_DiagnosticType_StringArr(AbstractCompiler_READ_ERROR, []string{this.outer_.sourceFile.getName(), codeRes.errorMessage().orElse("null")}))
 	} else {
 		var result *ParserRunner_ParseResult = ParserRunner_parse(icast_StaticSourceFile(obj_(this.outer_.sourceFile)), str_(codeRes.get()), compiler.getParserConfig(func() *AbstractCompiler_ConfigContext {
 			if this.outer_.sourceFile.isExtern() {
@@ -571,7 +571,7 @@ func (this *CompilerInput_JsAst) parse(compiler *AbstractCompiler) {
 		}
 		if result.sourceMapURL.isPresent() && compiler.getOptions().getResolveSourceMapAnnotations() {
 			var parseInline bool = compiler.getOptions().getParseInlineSourceMaps()
-			var sourceMapSourceFile *SourceFile_jscomp = SourceMapResolver_extractSourceMap(this.outer_.sourceFile, str_(result.sourceMapURL.get()), parseInline)
+			var sourceMapSourceFile *SourceFile_jscomp = SourceMapResolver_extractSourceMap(this.outer_.sourceFile, result.sourceMapURL.get(), parseInline)
 			if sourceMapSourceFile != nil {
 				compiler.addInputSourceMap(this.outer_.sourceFile.getName(), new_SourceMapInput(sourceMapSourceFile))
 			}

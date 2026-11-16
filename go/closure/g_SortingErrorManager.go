@@ -175,7 +175,7 @@ func (this *SortingErrorManager_LeveledJSErrorComparator) compare(p1_ any, p2_ a
 	var source1 OptionalOf[string] = p1.error_.sourceName()
 	var source2 OptionalOf[string] = p2.error_.sourceName()
 	if source1.isPresent() && source2.isPresent() {
-		var sourceCompare int32 = String_compareTo(str_(source1.get()), str_(source2.get()))
+		var sourceCompare int32 = String_compareTo(source1.get(), source2.get())
 		if sourceCompare != 0 {
 			return sourceCompare
 		}
@@ -225,7 +225,7 @@ func new_SortingErrorManager_ErrorWithLevel(error_ *JSError, level *CheckLevel) 
 }
 
 func (this *SortingErrorManager_ErrorWithLevel) hashCode() int32 {
-	return Objects_hash([]any{obj_(this.level_), strobj_(this.error_.description()), obj_(this.error_.sourceName()), any(int32(this.error_.getLineNumber())), any(int32(this.error_.charno()))})
+	return Objects_hash([]any{obj_(this.level_), strobj_(this.error_.description()), obj_(optErase_(this.error_.sourceName())), any(int32(this.error_.getLineNumber())), any(int32(this.error_.charno()))})
 }
 
 func (this *SortingErrorManager_ErrorWithLevel) equals(obj any) bool {
@@ -241,5 +241,5 @@ func (this *SortingErrorManager_ErrorWithLevel) equals(obj any) bool {
 	}()) {
 		return false
 	}
-	return ((((Objects_equals(obj_(this.level_), obj_(e.level_)) && (this.error_.description() == e.error_.description())) && Object_equals(obj_(this.error_.sourceName()), obj_(e.error_.sourceName()))) && (this.error_.getLineNumber() == e.error_.getLineNumber())) && (this.error_.charno() == e.error_.charno()))
+	return ((((Objects_equals(obj_(this.level_), obj_(e.level_)) && (this.error_.description() == e.error_.description())) && Object_equals(obj_(optErase_(this.error_.sourceName())), obj_(optErase_(e.error_.sourceName())))) && (this.error_.getLineNumber() == e.error_.getLineNumber())) && (this.error_.charno() == e.error_.charno()))
 }

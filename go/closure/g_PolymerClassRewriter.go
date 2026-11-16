@@ -239,7 +239,7 @@ func (this *PolymerClassRewriter) rewritePolymerClassDeclaration(clazz Node, tra
 	var jsDocInfoNode Node = NodeUtil_getBestJSDocInfoNode(clazz)
 	var classInfo *JSDocInfo_Builder = JSDocInfo_Builder_maybeCopyFrom(jsDocInfoNode.getJSDocInfo())
 	var interfaceName OptionalOf[string] = cls.getInterfaceName(this.compiler_.getUniqueIdSupplier())
-	var interfaceType *JSTypeExpression = new_JSTypeExpression(new_Node_Token_Node(Token_rhino_BANG, IR_string(str_(interfaceName.get()))).srcrefTree(jsDocInfoNode), PolymerClassRewriter_VIRTUAL_FILE)
+	var interfaceType *JSTypeExpression = new_JSTypeExpression(new_Node_Token_Node(Token_rhino_BANG, IR_string(interfaceName.get())).srcrefTree(jsDocInfoNode), PolymerClassRewriter_VIRTUAL_FILE)
 	classInfo.recordImplementedInterface(interfaceType)
 	jsDocInfoNode.setJSDocInfo(classInfo.build())
 	var insertAfterReference Node = NodeUtil_getEnclosingStatement(clazz)
@@ -363,7 +363,7 @@ func (this *PolymerClassRewriter) getConstructorDoc(cls *PolymerClassDefinition)
 	var baseType *JSTypeExpression = new_JSTypeExpression(new_Node_Token_Node(Token_rhino_BANG, IR_string(PolymerPassStaticUtils_getPolymerElementType(cls))).srcrefTree(cls.definition), PolymerClassRewriter_VIRTUAL_FILE)
 	constructorDoc.recordBaseType(baseType)
 	var interfaceName OptionalOf[string] = cls.getInterfaceName(this.compiler_.getUniqueIdSupplier())
-	var interfaceType *JSTypeExpression = new_JSTypeExpression(new_Node_Token_Node(Token_rhino_BANG, IR_string(str_(interfaceName.get()))).srcrefTree(cls.definition), PolymerClassRewriter_VIRTUAL_FILE)
+	var interfaceType *JSTypeExpression = new_JSTypeExpression(new_Node_Token_Node(Token_rhino_BANG, IR_string(interfaceName.get())).srcrefTree(cls.definition), PolymerClassRewriter_VIRTUAL_FILE)
 	constructorDoc.recordImplementedInterface(interfaceType)
 	return constructorDoc
 }
@@ -474,11 +474,10 @@ func (this *PolymerClassRewriter) createVarsInExternsBlock(block Node, propertyN
 		var n Node = Node_newString_Token_String(Token_rhino_NAME, varName)
 		var var_ Node = new_Node_Token(Token_rhino_VAR)
 		var_.addChildToBack(n)
-		var newType *JSTypeExpression = PolymerClassRewriter_createNewTypeExpressionForExtern(propName, Optional_of(strobj_(propType.getSourceName())).filter(&Predicate_fn{func(s_ any) bool {
-			var s string = str_(s_)
+		var newType *JSTypeExpression = PolymerClassRewriter_createNewTypeExpressionForExtern(propName, Optional_of[string](propType.getSourceName()).filterFn_(func(s string) bool {
 			_ = s
 			return !String_isEmpty(s)
-		}}), prop)
+		}), prop)
 		var oldInfoBuilder *JSDocInfo_Builder = JSDocInfo_Builder_maybeCopyFrom(prop.info)
 		var info *JSDocInfo = oldInfoBuilder.build()
 		var newInfo *JSDocInfo_Builder = JSDocInfo_Builder_copyFromWithNewType(info, newType)
@@ -499,7 +498,7 @@ func PolymerClassRewriter_createNewTypeExpressionForExtern(propName string, sour
 	leftBracket.addChildToBack(colon)
 	leftCurly.addChildToBack(leftBracket)
 	leftCurly.srcrefTreeIfMissing(prop.name_)
-	return new_JSTypeExpression(leftCurly, str_(sourceName.orElse(strobj_(""))))
+	return new_JSTypeExpression(leftCurly, sourceName.orElse(""))
 }
 
 func (this *PolymerClassRewriter) removePropertyDocs(objLit Node, defType *PolymerClassDefinition_DefinitionType) {
@@ -631,12 +630,12 @@ func (this *PolymerClassRewriter) createExportsAndExterns(cls *PolymerClassDefin
 	var interfaceName OptionalOf[string] = cls.getInterfaceName(this.compiler_.getUniqueIdSupplier())
 	var fnNode Node = NodeUtil_emptyFunction()
 	this.compiler_.reportChangeToChangeScope(fnNode)
-	var varNode Node = IR_var_Node_Node(NodeUtil_newQName_AbstractCompiler_String(this.compiler_, str_(interfaceName.get())), fnNode)
+	var varNode Node = IR_var_Node_Node(NodeUtil_newQName_AbstractCompiler_String(this.compiler_, interfaceName.get()), fnNode)
 	var info *JSDocInfo_Builder = JSDocInfo_builder().parseDocumentation()
 	info.recordInterface()
 	varNode.setJSDocInfo(info.build())
 	block.addChildToBack(varNode)
-	var interfaceBasePath string = (sstr_(str_(interfaceName.orElse(strobj_("null")))) + ".prototype.")
+	var interfaceBasePath string = (sstr_(interfaceName.orElse("null")) + ".prototype.")
 	this.appendBehaviorPropertiesToBlock(cls, block, interfaceBasePath, true)
 	this.appendPropertiesToBlock(cls.props, block, interfaceBasePath, true)
 	var uniqueMethods *TMap[string, *PolymerPass_MemberDefinition] = newTMap_(tc_string, tc_p_PolymerPass_MemberDefinition)

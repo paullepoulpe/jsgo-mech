@@ -570,22 +570,22 @@ func (this *InlineFunctions_CallVisitor) visit_impl(t *NodeTraversal, n Node, pa
 	switch n.ns_().token {
 	case tokOrd1_OPTCHAIN_CALL, tokOrd1_CALL:
 		var child Node = n.getFirstChild()
-		var name OptionalOf[string] = Optional_empty()
+		var name OptionalOf[string] = Optional_empty[string]()
 		if child.isName() {
-			name = Optional_of(strobj_(child.getString()))
+			name = Optional_of[string](child.getString())
 		} else if child.isFunction() {
-			name = Optional_ofNullable(strobj_(this.anonFunctionMap.get(child)))
+			name = Optional_ofNullable[string](this.anonFunctionMap.get(child))
 		} else if NodeUtil_isFunctionObjectCall(n) {
 			Preconditions_checkState(NodeUtil_isNormalOrOptChainGet(child))
 			var fnIdentifyingNode Node = child.getFirstChild()
 			if fnIdentifyingNode.isName() {
-				name = Optional_of(strobj_(fnIdentifyingNode.getString()))
+				name = Optional_of[string](fnIdentifyingNode.getString())
 			} else if fnIdentifyingNode.isFunction() {
-				name = Optional_ofNullable(strobj_(this.anonFunctionMap.get(fnIdentifyingNode)))
+				name = Optional_ofNullable[string](this.anonFunctionMap.get(fnIdentifyingNode))
 			}
 		}
 		if name.isPresent() {
-			var functionState *InlineFunctions_FunctionState = this.functionMap.get(str_(name.get()))
+			var functionState *InlineFunctions_FunctionState = this.functionMap.get(name.get())
 			if functionState != nil {
 				this.callback.visitCallSite(t, n, functionState)
 			}
@@ -719,7 +719,7 @@ func (this *InlineFunctions_Inline) inlineFunction(t *NodeTraversal, ref *Inline
 	var fn InlineFunctions_Function = functionState.getFn()
 	var fnName string = fn.getName()
 	var fnNode Node = functionState.getSafeFnNode()
-	var newExpr Node = this.injector.inline(ref.up_FunctionInjector_Reference(), Optional_of(strobj_(fnName)), fnNode)
+	var newExpr Node = this.injector.inline(ref.up_FunctionInjector_Reference(), Optional_of[string](fnName), fnNode)
 	if !Object_equals(newExpr.box_(), ref.callNode_.box_()) {
 		t.getCompiler().reportChangeToEnclosingScope(newExpr)
 	}

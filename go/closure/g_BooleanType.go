@@ -67,7 +67,7 @@ func (this *BooleanType) autoboxesTo_impl() *JSType {
 }
 
 func (this *BooleanType) getDisplayName_impl() OptionalOf[string] {
-	return Optional_of(strobj_("boolean"))
+	return Optional_of[string]("boolean")
 }
 
 func (this *BooleanType) getPossibleToBooleanOutcomes_impl() *BooleanLiteralSet {
@@ -135,11 +135,11 @@ func (this *BooleanType) autoboxesTo() *JSType {
 }
 
 // getDisplayName: an object that is exactly a BooleanType calls its getDisplayName_impl directly (post-flip); others dispatch.
-func (this *BooleanType) getDisplayName() Optional {
+func (this *BooleanType) getDisplayName() OptionalOf[string] {
 	if this.self_ == any(this) {
 		return this.getDisplayName_impl()
 	}
-	return this.self_.(interface{ getDisplayName_impl() Optional }).getDisplayName_impl()
+	return this.self_.(interface{ getDisplayName_impl() OptionalOf[string] }).getDisplayName_impl()
 }
 
 // getPossibleToBooleanOutcomes: an object that is exactly a BooleanType calls its getPossibleToBooleanOutcomes_impl directly (post-flip); others dispatch.

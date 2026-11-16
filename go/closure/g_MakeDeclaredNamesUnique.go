@@ -81,7 +81,7 @@ func (this *MakeDeclaredNamesUnique) visitNameOrImportStar(t *NodeTraversal, n N
 		return
 	}
 	if this.assertOnChange_ {
-		panic(new_IllegalStateException_String(("Unexpected renaming in MakeDeclaredNamesUnique. new name: " + sstr_(str_(newName.get())) + " for " + objstr_(n.box_()))).self())
+		panic(new_IllegalStateException_String(("Unexpected renaming in MakeDeclaredNamesUnique. new name: " + sstr_(newName.get()) + " for " + objstr_(n.box_()))).self())
 	}
 	var renamer MakeDeclaredNamesUnique_Renamer = icast_MakeDeclaredNamesUnique_Renamer(this.renamerStack.peek())
 	if renamer.stripConstIfReplaced() {
@@ -93,7 +93,7 @@ func (this *MakeDeclaredNamesUnique) visitNameOrImportStar(t *NodeTraversal, n N
 			jsDocInfoNode.setJSDocInfo(builder.build())
 		}
 	}
-	n.setString(str_(newName.get()))
+	n.setString(newName.get())
 	if this.markChanges {
 		t.reportCodeChange()
 		if parent.isFunction() && NodeUtil_isFunctionDeclaration(parent) {
@@ -111,7 +111,7 @@ func (this *MakeDeclaredNamesUnique) getReplacementName(oldName string) Optional
 			return newName
 		}
 	}
-	return Optional_empty()
+	return Optional_empty[string]()
 }
 
 func (this *MakeDeclaredNamesUnique) findDeclaredNames(t *NodeTraversal, n Node) {
@@ -170,7 +170,7 @@ func (this *MakeDeclaredNamesUnique_Builder) build() *MakeDeclaredNamesUnique {
 
 type MakeDeclaredNamesUnique_Renamer interface {
 	addDeclaredName(string, bool)
-	getReplacementName(string) Optional
+	getReplacementName(string) OptionalOf[string]
 	stripConstIfReplaced() bool
 	createForChildScope(Node, bool) MakeDeclaredNamesUnique_Renamer
 	getHoistRenamer() MakeDeclaredNamesUnique_Renamer
@@ -661,20 +661,20 @@ func (this *MakeDeclaredNamesUnique_ContextualRenamer) addDeclaredName(name stri
 	} else {
 		if !(name == MakeDeclaredNamesUnique_ARGUMENTS) {
 			if this.global {
-				this.reserveName(Optional_of(strobj_(name)))
+				this.reserveName(Optional_of[string](name))
 			} else {
 				if !Map_containsKey_s(this.declarations, name) {
-					var id int32 = this.incrementNameCount(Optional_of(strobj_(name)))
-					var newName OptionalOf[string] = Optional_empty()
+					var id int32 = this.incrementNameCount(Optional_of[string](name))
+					var newName OptionalOf[string] = Optional_empty[string]()
 					if id != 0 {
-						newName = Optional_of(strobj_(MakeDeclaredNamesUnique_ContextualRenamer_getUniqueName(name, id)))
-						for newName.isPresent() && this.nameUsage.contains(newName.get()) {
+						newName = Optional_of[string](MakeDeclaredNamesUnique_ContextualRenamer_getUniqueName(name, id))
+						for newName.isPresent() && this.nameUsage.contains(strobj_(newName.get())) {
 							id = this.incrementNameCount(newName)
-							newName = Optional_of(strobj_(MakeDeclaredNamesUnique_ContextualRenamer_getUniqueName(name, id)))
+							newName = Optional_of[string](MakeDeclaredNamesUnique_ContextualRenamer_getUniqueName(name, id))
 						}
 						this.reserveName(newName)
 					}
-					Map_put_s(this.declarations, name, obj_(newName))
+					Map_put_s(this.declarations, name, obj_(optErase_(newName)))
 				}
 			}
 		}
@@ -682,7 +682,7 @@ func (this *MakeDeclaredNamesUnique_ContextualRenamer) addDeclaredName(name stri
 }
 
 func (this *MakeDeclaredNamesUnique_ContextualRenamer) getReplacementName(oldName string) OptionalOf[string] {
-	return cast_[Optional](Map_getOrDefault_s(this.declarations, oldName, obj_(Optional_empty())))
+	return optConv_(cast_[Optional[any]](Map_getOrDefault_s(this.declarations, oldName, obj_(Optional_empty[any]()))), func(v any) string { return str_(v) })
 }
 
 func MakeDeclaredNamesUnique_ContextualRenamer_getUniqueName(name string, id int32) string {
@@ -690,11 +690,11 @@ func MakeDeclaredNamesUnique_ContextualRenamer_getUniqueName(name string, id int
 }
 
 func (this *MakeDeclaredNamesUnique_ContextualRenamer) reserveName(name OptionalOf[string]) {
-	this.nameUsage.setCount(name.orElse(nil), 0, 1)
+	this.nameUsage.setCount(strobj_(name.orElse(nullstr_)), 0, 1)
 }
 
 func (this *MakeDeclaredNamesUnique_ContextualRenamer) incrementNameCount(name OptionalOf[string]) int32 {
-	return this.nameUsage.add_2(name.orElse(nil), 1)
+	return this.nameUsage.add_2(strobj_(name.orElse(nullstr_)), 1)
 }
 
 func (this *MakeDeclaredNamesUnique_ContextualRenamer) stripConstIfReplaced() bool {
@@ -774,7 +774,7 @@ func (this *MakeDeclaredNamesUnique_InlineRenamer) getUniqueName(name string) st
 }
 
 func (this *MakeDeclaredNamesUnique_InlineRenamer) getReplacementName(oldName string) OptionalOf[string] {
-	return Optional_ofNullable(strobj_(this.declarations.get(oldName)))
+	return Optional_ofNullable[string](this.declarations.get(oldName))
 }
 
 func (this *MakeDeclaredNamesUnique_InlineRenamer) createForChildScope(scopeRoot Node, hoistingTargetScope bool) MakeDeclaredNamesUnique_Renamer {
@@ -849,11 +849,11 @@ func (this *MakeDeclaredNamesUnique_TargettedRenamer) addDeclaredName(name strin
 }
 
 func (this *MakeDeclaredNamesUnique_TargettedRenamer) getReplacementName(oldName string) OptionalOf[string] {
-	return func() Optional {
+	return func() OptionalOf[string] {
 		if this.targets.contains(oldName) {
 			return this.delegate.getReplacementName(oldName)
 		}
-		return Optional_empty()
+		return Optional_empty[string]()
 	}()
 }
 

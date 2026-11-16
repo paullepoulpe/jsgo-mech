@@ -137,7 +137,7 @@ func (this *NodeModuleResolver) resolveJsModuleFile(scriptAddress string, module
 		if Map_containsKey_s(this.packageJsonMainEntries, canonicalizedCandidatePath) {
 			moduleAddressCandidate = str_(Map_get_s(this.packageJsonMainEntries, canonicalizedCandidatePath))
 			if ModuleLoader_JSC_BROWSER_SKIPLISTED_MARKER == moduleAddressCandidate {
-				return Optional_empty()
+				return Optional_empty[string]()
 			}
 		}
 		var loadAddress OptionalOf[string] = this.locate(scriptAddress, moduleAddressCandidate)
@@ -145,7 +145,7 @@ func (this *NodeModuleResolver) resolveJsModuleFile(scriptAddress string, module
 			return loadAddress
 		}
 	}
-	return Optional_empty()
+	return Optional_empty[string]()
 }
 
 func (this *NodeModuleResolver) resolveJsModuleNodeFileOrDirectory(scriptAddress string, moduleAddress string) OptionalOf[string] {
@@ -165,15 +165,15 @@ func (this *NodeModuleResolver) resolveJsModuleNodeDirectory(scriptAddress strin
 		var loadAddress OptionalOf[string] = this.locate(scriptAddress, (sstr_(moduleAddress) + sstr_(NodeModuleResolver_FILES_TO_SEARCH[i])))
 		if loadAddress.isPresent() {
 			if NodeModuleResolver_FILES_TO_SEARCH[i] == (sstr_(ModuleLoader_MODULE_SLASH) + "package.json") {
-				if Map_containsKey_s(this.packageJsonMainEntries, str_(loadAddress.get())) {
-					return this.resolveJsModuleFile(scriptAddress, str_(Map_get_s(this.packageJsonMainEntries, str_(loadAddress.get()))))
+				if Map_containsKey_s(this.packageJsonMainEntries, loadAddress.get()) {
+					return this.resolveJsModuleFile(scriptAddress, str_(Map_get_s(this.packageJsonMainEntries, loadAddress.get())))
 				}
 			} else {
 				return loadAddress
 			}
 		}
 	}
-	return Optional_empty()
+	return Optional_empty[string]()
 }
 
 func (this *NodeModuleResolver) resolveJsModuleFromRegistry(scriptAddress string, moduleAddress string) OptionalOf[string] {
@@ -198,7 +198,7 @@ func (this *NodeModuleResolver) resolveJsModuleFromRegistry(scriptAddress string
 			return loadAddress
 		}
 	}
-	return Optional_empty()
+	return Optional_empty[string]()
 }
 
 var NodeModuleResolver_NODE_MODULES_PATTERN *Pattern
@@ -255,21 +255,21 @@ func (this *NodeModuleResolver) getPackageJsonMainEntries() *TMap[string, string
 }
 
 // resolveJsModule: an object that is exactly a NodeModuleResolver calls its resolveJsModule_impl directly (post-flip); others dispatch.
-func (this *NodeModuleResolver) resolveJsModule(p0 string, p1 string, p2 Optional, p3 int32, p4 int32) Optional {
+func (this *NodeModuleResolver) resolveJsModule(p0 string, p1 string, p2 OptionalOf[string], p3 int32, p4 int32) OptionalOf[string] {
 	if this.self_ == any(this) {
 		return this.resolveJsModule_impl(p0, p1, p2, p3, p4)
 	}
 	return this.self_.(interface {
-		resolveJsModule_impl(string, string, Optional, int32, int32) Optional
+		resolveJsModule_impl(string, string, OptionalOf[string], int32, int32) OptionalOf[string]
 	}).resolveJsModule_impl(p0, p1, p2, p3, p4)
 }
 
 // resolveJsModuleSilently: an object that is exactly a NodeModuleResolver calls its resolveJsModuleSilently_impl directly (post-flip); others dispatch.
-func (this *NodeModuleResolver) resolveJsModuleSilently(p0 string, p1 string) Optional {
+func (this *NodeModuleResolver) resolveJsModuleSilently(p0 string, p1 string) OptionalOf[string] {
 	if this.self_ == any(this) {
 		return this.resolveJsModuleSilently_impl(p0, p1)
 	}
 	return this.self_.(interface {
-		resolveJsModuleSilently_impl(string, string) Optional
+		resolveJsModuleSilently_impl(string, string) OptionalOf[string]
 	}).resolveJsModuleSilently_impl(p0, p1)
 }

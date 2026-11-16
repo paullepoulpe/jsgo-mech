@@ -52,14 +52,14 @@ func (this *NonEsModuleProcessor_NonEsModule) resolveExport_impl(moduleRequestRe
 }
 
 func (this *NonEsModuleProcessor_NonEsModule) resolveExport_5_impl(moduleRequestResolver ModuleRequestResolver, moduleSpecifier OptionalOf[string], exportName OptionalOf[string], resolveSet SetOf[*ExportTrace], exportStarSet SetOf[*UnresolvedModule]) *ResolveExportResult {
-	var namespace OptionalOf[string] = Optional_empty()
-	if moduleSpecifier.isPresent() && GoogEsImports_isGoogImportSpecifier(str_(moduleSpecifier.get())) {
-		namespace = Optional_of(strobj_(GoogEsImports_getClosureIdFromGoogImportSpecifier(str_(moduleSpecifier.get()))))
+	var namespace OptionalOf[string] = Optional_empty[string]()
+	if moduleSpecifier.isPresent() && GoogEsImports_isGoogImportSpecifier(moduleSpecifier.get()) {
+		namespace = Optional_of[string](GoogEsImports_getClosureIdFromGoogImportSpecifier(moduleSpecifier.get()))
 	} else if this.metadataField.isGoogProvide() {
 		namespace = moduleSpecifier
 	}
 	if this.metadataField.isCommonJs() {
-		if !(str_(exportName.get()) == "default") {
+		if !(exportName.get() == "default") {
 			return ResolveExportResult_NOT_FOUND
 		}
 	}
@@ -71,9 +71,9 @@ func (this *NonEsModuleProcessor_NonEsModule) reset_impl() {
 }
 
 func (this *NonEsModuleProcessor_NonEsModule) resolve_2_impl(moduleRequestResolver ModuleRequestResolver, moduleSpecifier OptionalOf[string]) *Module {
-	var namespace OptionalOf[string] = Optional_empty()
-	if moduleSpecifier.isPresent() && GoogEsImports_isGoogImportSpecifier(str_(moduleSpecifier.get())) {
-		namespace = Optional_of(strobj_(GoogEsImports_getClosureIdFromGoogImportSpecifier(str_(moduleSpecifier.get()))))
+	var namespace OptionalOf[string] = Optional_empty[string]()
+	if moduleSpecifier.isPresent() && GoogEsImports_isGoogImportSpecifier(moduleSpecifier.get()) {
+		namespace = Optional_of[string](GoogEsImports_getClosureIdFromGoogImportSpecifier(moduleSpecifier.get()))
 	}
 	return Module_builder().path(this.path_).metadata(this.metadataField).namespace(ImmutableMap_of()).boundNames(ImmutableMap_of()).localNameToLocalExport(ImmutableMap_of()).closureNamespace(namespace).build()
 }
@@ -91,22 +91,22 @@ func (this *NonEsModuleProcessor_NonEsModule) getExportedNames_2_impl(moduleRequ
 }
 
 // resolveExport: an object that is exactly a NonEsModuleProcessor_NonEsModule calls its resolveExport_impl directly (post-flip); others dispatch.
-func (this *NonEsModuleProcessor_NonEsModule) resolveExport(p0 ModuleRequestResolver, p1 Optional) *ResolveExportResult {
+func (this *NonEsModuleProcessor_NonEsModule) resolveExport(p0 ModuleRequestResolver, p1 OptionalOf[string]) *ResolveExportResult {
 	if this.self_ == any(this) {
 		return this.resolveExport_impl(p0, p1)
 	}
 	return this.self_.(interface {
-		resolveExport_impl(ModuleRequestResolver, Optional) *ResolveExportResult
+		resolveExport_impl(ModuleRequestResolver, OptionalOf[string]) *ResolveExportResult
 	}).resolveExport_impl(p0, p1)
 }
 
 // resolveExport_5: an object that is exactly a NonEsModuleProcessor_NonEsModule calls its resolveExport_5_impl directly (post-flip); others dispatch.
-func (this *NonEsModuleProcessor_NonEsModule) resolveExport_5(p0 ModuleRequestResolver, p1 Optional, p2 Optional, p3 Set, p4 Set) *ResolveExportResult {
+func (this *NonEsModuleProcessor_NonEsModule) resolveExport_5(p0 ModuleRequestResolver, p1 OptionalOf[string], p2 OptionalOf[string], p3 Set, p4 Set) *ResolveExportResult {
 	if this.self_ == any(this) {
 		return this.resolveExport_5_impl(p0, p1, p2, p3, p4)
 	}
 	return this.self_.(interface {
-		resolveExport_5_impl(ModuleRequestResolver, Optional, Optional, Set, Set) *ResolveExportResult
+		resolveExport_5_impl(ModuleRequestResolver, OptionalOf[string], OptionalOf[string], Set, Set) *ResolveExportResult
 	}).resolveExport_5_impl(p0, p1, p2, p3, p4)
 }
 
@@ -120,12 +120,12 @@ func (this *NonEsModuleProcessor_NonEsModule) reset() {
 }
 
 // resolve_2: an object that is exactly a NonEsModuleProcessor_NonEsModule calls its resolve_2_impl directly (post-flip); others dispatch.
-func (this *NonEsModuleProcessor_NonEsModule) resolve_2(p0 ModuleRequestResolver, p1 Optional) *Module {
+func (this *NonEsModuleProcessor_NonEsModule) resolve_2(p0 ModuleRequestResolver, p1 OptionalOf[string]) *Module {
 	if this.self_ == any(this) {
 		return this.resolve_2_impl(p0, p1)
 	}
 	return this.self_.(interface {
-		resolve_2_impl(ModuleRequestResolver, Optional) *Module
+		resolve_2_impl(ModuleRequestResolver, OptionalOf[string]) *Module
 	}).resolve_2_impl(p0, p1)
 }
 

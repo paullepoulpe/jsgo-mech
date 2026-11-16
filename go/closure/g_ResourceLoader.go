@@ -20,7 +20,7 @@ func ResourceLoader_loadTextResource(name string) string {
 	if bytes.isEmpty() {
 		panic(new_RuntimeException_String(("No such resource: " + sstr_(name))).self())
 	}
-	return Io_utf8String(cast_[[]int8](bytes.get()))
+	return Io_utf8String(bytes.get())
 }
 
 func ResourceLoader_loadPropertiesMap(resourceName string) ImmutableMapOf[string, string] {

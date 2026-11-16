@@ -18,11 +18,11 @@ func new_ReplacedStringsDecoder(variableMap *VariableMap) *ReplacedStringsDecode
 
 func (this *ReplacedStringsDecoder) decode(encodedStr string) string {
 	var suppliedBits []string = ReplacedStringsDecoder_ARGUMENT_PLACE_HOLDER_PATTERN.split_String_int(encodedStr, -1)
-	var originalStr OptionalOf[string] = Optional_ofNullable(Map_get_s(this.originalToNewNameMap, suppliedBits[0]))
+	var originalStr OptionalOf[string] = Optional_ofNullable[string](str_(Map_get_s(this.originalToNewNameMap, suppliedBits[0])))
 	if originalStr.isEmpty() {
 		return encodedStr
 	}
-	var originalBits []string = ReplacedStringsDecoder_ARGUMENT_PLACE_HOLDER_PATTERN.split_String_int(str_(originalStr.get()), -1)
+	var originalBits []string = ReplacedStringsDecoder_ARGUMENT_PLACE_HOLDER_PATTERN.split_String_int(originalStr.get(), -1)
 	var sb *StringBuilder = new_StringBuilder_String(originalBits[0])
 	for i := int32(1); i < Math_max(int32(len(originalBits)), int32(len(suppliedBits))); i++ {
 		sb.append(func() string {

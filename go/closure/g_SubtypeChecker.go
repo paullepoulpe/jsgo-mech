@@ -477,7 +477,7 @@ func (this *SubtypeChecker) meetVarianceConstraint(variance *SubtypeChecker_Vari
 
 func SubtypeChecker_isBivariantType(type_ *JSType) bool {
 	var unwrapped *ObjectType = SubtypeChecker_getObjectTypeIfNative(type_)
-	return (((unwrapped != nil) && unwrapped.hasReferenceName()) && Collection_contains_s(SubtypeChecker_BIVARIANT_TYPES, str_(unwrapped.getReferenceName().orElseThrow())))
+	return (((unwrapped != nil) && unwrapped.hasReferenceName()) && Collection_contains_s(SubtypeChecker_BIVARIANT_TYPES, unwrapped.getReferenceName().orElseThrow()))
 }
 
 func SubtypeChecker_getTemplateKeyIfCovariantType(type_ *JSType) *TemplateType {
@@ -488,9 +488,9 @@ func SubtypeChecker_getTemplateKeyIfCovariantType(type_ *JSType) *TemplateType {
 		}
 	}
 	var unwrapped *ObjectType = SubtypeChecker_getObjectTypeIfNative(type_)
-	var unwrappedTypeName OptionalOf[string] = func() Optional {
+	var unwrappedTypeName OptionalOf[string] = func() OptionalOf[string] {
 		if unwrapped == nil {
-			return Optional_empty()
+			return Optional_empty[string]()
 		}
 		return unwrapped.getReferenceName()
 	}()
@@ -498,7 +498,7 @@ func SubtypeChecker_getTemplateKeyIfCovariantType(type_ *JSType) *TemplateType {
 		return nil
 	}
 	return func() *TemplateType {
-		switch str_(unwrappedTypeName.get()) {
+		switch unwrappedTypeName.get() {
 		case "ReadonlyArray":
 			return unwrapped.registry.getReadonlyArrayElementKey()
 		case "IteratorLike":

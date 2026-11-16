@@ -42,11 +42,11 @@ func IdMappingUtil_parseSectionOfBytes(idMappings []int8, sectionFilter string) 
 			if inSection {
 				break
 			}
-			if str_(mr.getSection().get()) == sectionFilter {
+			if mr.getSection().get() == sectionFilter {
 				inSection = true
 			}
 		} else if inSection {
-			mapBuilder.put(mr.getKey().get(), mr.getValue().get())
+			mapBuilder.put(strobj_(mr.getKey().get()), strobj_(mr.getValue().get()))
 		}
 	}
 	return mapBuilder.buildKeepingLast()
@@ -60,16 +60,16 @@ func IdMappingUtil_parseSerializedIdMappingsText(idMappings string) *TMap[string
 	for mr.next() {
 		if mr.isSection() {
 			var sectionName OptionalOf[string] = mr.getSection()
-			if !setAdd_(sectionNames, str_(sectionName.orElse(nil))) {
-				panic(new_IllegalArgumentException_String(String_format("Cannot parse id map: Duplicate section %s\n lineIndex: %d", []any{sectionName.orElse(strobj_("null")), any(int32(mr.getLineIndex()))})).self())
+			if !setAdd_(sectionNames, sectionName.orElse(nullstr_)) {
+				panic(new_IllegalArgumentException_String(String_format("Cannot parse id map: Duplicate section %s\n lineIndex: %d", []any{strobj_(sectionName.orElse("null")), any(int32(mr.getLineIndex()))})).self())
 			}
 			currentSectionMap = SimpleBiMap_create()
-			resultMap.put(str_(sectionName.orElse(nil)), currentSectionMap)
+			resultMap.put(sectionName.orElse(nullstr_), currentSectionMap)
 		} else {
 			if currentSectionMap == nil {
 				panic(new_IllegalArgumentException_String("Mapping entry outside of section").self())
 			}
-			currentSectionMap.put(mr.getKey().orElse(nil), mr.getValue().orElse(nil))
+			currentSectionMap.put(strobj_(mr.getKey().orElse(nullstr_)), strobj_(mr.getValue().orElse(nullstr_)))
 		}
 	}
 	return resultMap
@@ -95,9 +95,9 @@ type IdMappingUtil_MappingReader struct {
 
 func (this *IdMappingUtil_MappingReader) finit_IdMappingUtil_MappingReader() {
 	this.nextLine = 0
-	this.currentSection = Optional_empty()
-	this.currentKey = Optional_empty()
-	this.currentValue = Optional_empty()
+	this.currentSection = Optional_empty[string]()
+	this.currentKey = Optional_empty[string]()
+	this.currentValue = Optional_empty[string]()
 	this.lineIndex = 0
 }
 
@@ -125,15 +125,15 @@ func (this *IdMappingUtil_MappingReader) next() bool {
 			continue
 		}
 		if String_charAt(line, 0) == '[' {
-			this.currentSection = Optional_of(strobj_(String_substring(line, 1, (String_length(line) - 1))))
-			this.currentKey = Optional_empty()
-			this.currentValue = Optional_empty()
+			this.currentSection = Optional_of[string](String_substring(line, 1, (String_length(line) - 1)))
+			this.currentKey = Optional_empty[string]()
+			this.currentValue = Optional_empty[string]()
 			return true
 		} else {
 			var split int32 = String_indexOf(line, 58)
 			if split != -1 {
-				this.currentKey = Optional_of(strobj_(String_substring(line, 0, split)))
-				this.currentValue = Optional_of(strobj_(String_substring_int(line, (split + 1))))
+				this.currentKey = Optional_of[string](String_substring(line, 0, split))
+				this.currentValue = Optional_of[string](String_substring_int(line, (split + 1)))
 				return true
 			} else {
 				panic(new_IllegalArgumentException_String(String_format("Cannot parse id map.\n Line: %s, lineIndex: %d", []any{strobj_(line), any(int32(this.lineIndex))})).self())

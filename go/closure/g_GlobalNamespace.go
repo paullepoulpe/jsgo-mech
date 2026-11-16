@@ -520,7 +520,7 @@ func (this *GlobalNamespace_BuildGlobalNamespace) collect(scope *Scope, chunk *J
 			type_ = GlobalNamespace_NameProp_GET_SET
 		}
 	case Token_rhino_STRING_KEY:
-		name = Optional_empty()
+		name = Optional_empty[string]()
 		if parent.isObjectLit() {
 			var analysis *GlobalNamespace_ObjLitStringKeyAnalysis = this.createObjLitStringKeyAnalysis(n)
 			name = analysis.nameString()
@@ -589,11 +589,10 @@ func (this *GlobalNamespace_BuildGlobalNamespace) collect(scope *Scope, chunk *J
 		if !n.isQualifiedName() {
 			return
 		}
-		name = Optional_of(strobj_(n.getQualifiedName())).filter(&Predicate_fn{func(s_ any) bool {
-			var s string = str_(s_)
+		name = Optional_of[string](n.getQualifiedName()).filterFn_(func(s string) bool {
 			_ = s
 			return !String_isEmpty(s)
-		}})
+		})
 	case Token_rhino_CALL:
 		if (parent.isExprResult() && GlobalNamespace_GOOG_PROVIDE.matches(n.getFirstChild())) && n.getSecondChild().isStringLit() {
 			this.createNamesFromProvide(n.getSecondChild().getString())
@@ -606,7 +605,7 @@ func (this *GlobalNamespace_BuildGlobalNamespace) collect(scope *Scope, chunk *J
 	if name.isEmpty() {
 		return
 	}
-	var root Node = this.outer_.getRootNode_2(str_(name.get()), scope)
+	var root Node = this.outer_.getRootNode_2(name.get(), scope)
 	if !this.isTopLevelScopeRoot(root) {
 		return
 	}
@@ -619,19 +618,19 @@ func (this *GlobalNamespace_BuildGlobalNamespace) collect(scope *Scope, chunk *J
 	if isSet {
 		var hoistScope *Scope = cast_[*Scope](scope.getClosestHoistScope().self())
 		if hoistScope.isGlobal() || ((root != this.outer_.globalRoot) && (hoistScope.getRootNode() == this.curModuleRoot)) {
-			this.handleSetFromGlobal(chunk, scope, n, str_(name.get()), type_, nameMetadata)
+			this.handleSetFromGlobal(chunk, scope, n, name.get(), type_, nameMetadata)
 		} else {
-			this.handleSetFromLocal(chunk, scope, n, str_(name.get()), nameMetadata)
+			this.handleSetFromLocal(chunk, scope, n, name.get(), nameMetadata)
 		}
 	} else {
-		this.handleGet(chunk, scope, n, str_(name.get()), nameMetadata)
+		this.handleGet(chunk, scope, n, name.get(), nameMetadata)
 	}
 }
 
 func (this *GlobalNamespace_BuildGlobalNamespace) createObjLitStringKeyAnalysis(stringKeyNode Node) *GlobalNamespace_ObjLitStringKeyAnalysis {
 	var nameString OptionalOf[string] = NodeUtil_getBestLValueName(stringKeyNode)
 	if nameString.isPresent() {
-		return GlobalNamespace_ObjLitStringKeyAnalysis_forObjLitAssignment(str_(nameString.get()), this.getValueType(stringKeyNode.getOnlyChild()))
+		return GlobalNamespace_ObjLitStringKeyAnalysis_forObjLitAssignment(nameString.get(), this.getValueType(stringKeyNode.getOnlyChild()))
 	} else {
 		var objLitNode Node = stringKeyNode.getParent()
 		Preconditions_checkArgument_boolean_Object(objLitNode.isObjectLit(), objLitNode.box_())
@@ -640,8 +639,8 @@ func (this *GlobalNamespace_BuildGlobalNamespace) createObjLitStringKeyAnalysis(
 			var receiverNode Node = objLitParentNode.getSecondChild()
 			if receiverNode.isQualifiedName() {
 				Preconditions_checkState_boolean_Object((objLitNode == receiverNode.getNext()), objLitParentNode.box_())
-				nameString = Optional_of(strobj_((sstr_(receiverNode.getQualifiedName()) + "." + sstr_(stringKeyNode.getString()))))
-				return GlobalNamespace_ObjLitStringKeyAnalysis_forObjectDefineProperty(str_(nameString.orElseThrow()))
+				nameString = Optional_of[string]((sstr_(receiverNode.getQualifiedName()) + "." + sstr_(stringKeyNode.getString())))
+				return GlobalNamespace_ObjLitStringKeyAnalysis_forObjectDefineProperty(nameString.orElseThrow())
 			}
 		}
 		return GlobalNamespace_ObjLitStringKeyAnalysis_forNonReference()
@@ -686,11 +685,11 @@ func (this *GlobalNamespace_BuildGlobalNamespace) getNameForObjectPatternKey(str
 	if patternParent.isAssign() || patternParent.isDestructuringLhs() {
 		var rhs Node = patternParent.getSecondChild()
 		if (rhs == 0) || !rhs.isQualifiedName() {
-			return Optional_empty()
+			return Optional_empty[string]()
 		}
-		return Optional_of(strobj_((sstr_(rhs.getQualifiedName()) + "." + sstr_(stringKey.getString()))))
+		return Optional_of[string]((sstr_(rhs.getQualifiedName()) + "." + sstr_(stringKey.getString())))
 	} else {
-		return Optional_empty()
+		return Optional_empty[string]()
 	}
 	panic("unreachable")
 }
@@ -2183,18 +2182,18 @@ func new_GlobalNamespace_ObjLitStringKeyAnalysis(nameString OptionalOf[string], 
 }
 
 func GlobalNamespace_ObjLitStringKeyAnalysis_forObjectDefineProperty(nameString string) *GlobalNamespace_ObjLitStringKeyAnalysis {
-	return new_GlobalNamespace_ObjLitStringKeyAnalysis(Optional_of(strobj_(nameString)), GlobalNamespace_NameProp_GET_SET)
+	return new_GlobalNamespace_ObjLitStringKeyAnalysis(Optional_of[string](nameString), GlobalNamespace_NameProp_GET_SET)
 }
 
 func GlobalNamespace_ObjLitStringKeyAnalysis_forObjLitAssignment(nameString string, nameType *GlobalNamespace_NameProp) *GlobalNamespace_ObjLitStringKeyAnalysis {
-	return new_GlobalNamespace_ObjLitStringKeyAnalysis(Optional_of(strobj_(nameString)), nameType)
+	return new_GlobalNamespace_ObjLitStringKeyAnalysis(Optional_of[string](nameString), nameType)
 }
 
 func GlobalNamespace_ObjLitStringKeyAnalysis_forNonReference() *GlobalNamespace_ObjLitStringKeyAnalysis {
-	return new_GlobalNamespace_ObjLitStringKeyAnalysis(Optional_empty(), GlobalNamespace_NameProp_OTHER_OBJECT)
+	return new_GlobalNamespace_ObjLitStringKeyAnalysis(Optional_empty[string](), GlobalNamespace_NameProp_OTHER_OBJECT)
 }
 
-func (this *GlobalNamespace_ObjLitStringKeyAnalysis) nameString() Optional {
+func (this *GlobalNamespace_ObjLitStringKeyAnalysis) nameString() OptionalOf[string] {
 	return this.nameString_
 }
 
@@ -2207,18 +2206,18 @@ func (this *GlobalNamespace_ObjLitStringKeyAnalysis) equals(p0 any) bool {
 	if !ok || o == nil {
 		return false
 	}
-	return true && Objects_equals(obj_(this.nameString_), obj_(o.nameString_)) && Objects_equals(obj_(this.nameType_), obj_(o.nameType_))
+	return true && Objects_equals(obj_(optErase_(this.nameString_)), obj_(optErase_(o.nameString_))) && Objects_equals(obj_(this.nameType_), obj_(o.nameType_))
 }
 
 func (this *GlobalNamespace_ObjLitStringKeyAnalysis) hashCode() int32 {
 	var h int32
-	h = h*31 + Objects_hashCode(obj_(this.nameString_))
+	h = h*31 + Objects_hashCode(obj_(optErase_(this.nameString_)))
 	h = h*31 + Objects_hashCode(obj_(this.nameType_))
 	return h
 }
 
 func (this *GlobalNamespace_ObjLitStringKeyAnalysis) toString() string {
-	return "ObjLitStringKeyAnalysis[" + "nameString=" + objstr_(obj_(this.nameString_)) + ", nameType=" + objstr_(obj_(this.nameType_)) + "]"
+	return "ObjLitStringKeyAnalysis[" + "nameString=" + objstr_(obj_(optErase_(this.nameString_))) + ", nameType=" + objstr_(obj_(this.nameType_)) + "]"
 }
 
 // shouldTraverse: an object that is exactly a GlobalNamespace_BuildGlobalNamespace calls its shouldTraverse_impl directly (post-flip); others dispatch.

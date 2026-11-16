@@ -206,8 +206,8 @@ type DependencyInfo_Require_Builder struct {
 }
 
 func (this *DependencyInfo_Require_Builder) finit_DependencyInfo_Require_Builder() {
-	this.symbol_ = Optional_empty()
-	this.rawText = Optional_empty()
+	this.symbol_ = Optional_empty[string]()
+	this.rawText = Optional_empty[string]()
 }
 
 func (this *DependencyInfo_Require_Builder) init_DependencyInfo_Require_Builder_0() {
@@ -222,8 +222,8 @@ func new_DependencyInfo_Require_Builder_0() *DependencyInfo_Require_Builder {
 
 func (this *DependencyInfo_Require_Builder) init_DependencyInfo_Require_Builder_Require(source *DependencyInfo_Require) {
 	this.finit_DependencyInfo_Require_Builder()
-	this.symbol_ = Optional_of(strobj_(source.getSymbol()))
-	this.rawText = Optional_of(strobj_(source.getRawText()))
+	this.symbol_ = Optional_of[string](source.getSymbol())
+	this.rawText = Optional_of[string](source.getRawText())
 	this.type__ = source.getType()
 }
 
@@ -242,12 +242,12 @@ func (this *DependencyInfo_Require_Builder) setType(value *DependencyInfo_Requir
 }
 
 func (this *DependencyInfo_Require_Builder) setRawText(rawText string) *DependencyInfo_Require_Builder {
-	this.rawText = Optional_of(strobj_(rawText))
+	this.rawText = Optional_of[string](rawText)
 	return this
 }
 
 func (this *DependencyInfo_Require_Builder) setSymbol(value string) *DependencyInfo_Require_Builder {
-	this.symbol_ = Optional_of(strobj_(value))
+	this.symbol_ = Optional_of[string](value)
 	return this
 }
 
@@ -265,7 +265,7 @@ func (this *DependencyInfo_Require_Builder) build() *DependencyInfo_Require {
 		}
 		panic(new_IllegalStateException_String(("Missing required properties:" + objstr_(obj_(missing)))).self())
 	}
-	return new_DependencyInfo_Require(str_(this.symbol_.get()), str_(this.rawText.get()), this.type__)
+	return new_DependencyInfo_Require(this.symbol_.get(), this.rawText.get(), this.type__)
 }
 
 type DependencyInfo_Util struct {

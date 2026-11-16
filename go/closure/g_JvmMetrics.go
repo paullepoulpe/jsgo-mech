@@ -21,7 +21,7 @@ func JvmMetrics_maybeWriteJvmMetrics(out *Output, options OptionalOf[string]) {
 	}
 	var verboseMode bool = false
 	var prettyMode bool = false
-	var st *StringTokenizer = new_StringTokenizer(str_(options.get()), ":")
+	var st *StringTokenizer = new_StringTokenizer(options.get(), ":")
 	if st.hasMoreTokens() {
 		var mode string = st.nextToken()
 		if String_equalsIgnoreCase(mode, "verbose") {
@@ -94,9 +94,9 @@ func JvmMetrics_writePoolMemoryUsage(out *Output, usage *MemoryUsage, peakUsage 
 		out.print(String_format("\t\tpeak              : %s\n", []any{strobj_(JvmMetrics_formatBytes(peakUsage.getUsed()))}))
 		out.print(String_format("\t\tcurrent           : %s\n", []any{strobj_(JvmMetrics_formatBytes(usage.getUsed()))}))
 	} else {
-		out.println(JvmMetrics_normalizeTabularColonPos(String_format("%s-available-bytes : %d", []any{prefix.orElse(strobj_("null")), any(int64(usage.getMax()))})))
-		out.println(JvmMetrics_normalizeTabularColonPos(String_format("%s-peak-bytes : %d", []any{prefix.orElse(strobj_("null")), any(int64(peakUsage.getUsed()))})))
-		out.println(JvmMetrics_normalizeTabularColonPos(String_format("%s-current-bytes : %d", []any{prefix.orElse(strobj_("null")), any(int64(usage.getUsed()))})))
+		out.println(JvmMetrics_normalizeTabularColonPos(String_format("%s-available-bytes : %d", []any{strobj_(prefix.orElse("null")), any(int64(usage.getMax()))})))
+		out.println(JvmMetrics_normalizeTabularColonPos(String_format("%s-peak-bytes : %d", []any{strobj_(prefix.orElse("null")), any(int64(peakUsage.getUsed()))})))
+		out.println(JvmMetrics_normalizeTabularColonPos(String_format("%s-current-bytes : %d", []any{strobj_(prefix.orElse("null")), any(int64(usage.getUsed()))})))
 	}
 }
 
@@ -120,9 +120,9 @@ func JvmMetrics_writeMemoryMetrics(out *Output, verbose bool, pretty bool) {
 			var peakUsage *MemoryUsage = mpBean.getPeakUsage()
 			if pretty {
 				out.println(("\tPool " + sstr_(mpBean.getName())))
-				JvmMetrics_writePoolMemoryUsage(out, currentUsage, peakUsage, Optional_empty(), true)
+				JvmMetrics_writePoolMemoryUsage(out, currentUsage, peakUsage, Optional_empty[string](), true)
 			} else {
-				JvmMetrics_writePoolMemoryUsage(out, currentUsage, peakUsage, Optional_of(strobj_(("mem-pool-" + sstr_(JvmMetrics_normalizeName(mpBean.getName()))))), false)
+				JvmMetrics_writePoolMemoryUsage(out, currentUsage, peakUsage, Optional_of[string](("mem-pool-" + sstr_(JvmMetrics_normalizeName(mpBean.getName())))), false)
 			}
 		}
 	} else {
@@ -143,9 +143,9 @@ func JvmMetrics_writeMemoryMetrics(out *Output, verbose bool, pretty bool) {
 		var summaryPeakUsage *MemoryUsage = new_MemoryUsage(0, peak, peak, peak)
 		if pretty {
 			out.print(String_format("\tAggregate of %d memory pools\n", []any{any(int32(mpBeans.size()))}))
-			JvmMetrics_writePoolMemoryUsage(out, summaryUsage, summaryPeakUsage, Optional_empty(), true)
+			JvmMetrics_writePoolMemoryUsage(out, summaryUsage, summaryPeakUsage, Optional_empty[string](), true)
 		} else {
-			JvmMetrics_writePoolMemoryUsage(out, summaryUsage, summaryPeakUsage, Optional_of(strobj_("mem")), false)
+			JvmMetrics_writePoolMemoryUsage(out, summaryUsage, summaryPeakUsage, Optional_of[string]("mem"), false)
 		}
 	}
 }

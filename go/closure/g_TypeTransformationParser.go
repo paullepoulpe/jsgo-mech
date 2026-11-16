@@ -35,7 +35,7 @@ func (this *TypeTransformationParser) getTypeTransformationAst() Node {
 }
 
 func (this *TypeTransformationParser) addNewWarning(messageId *Msg, messageArg string) {
-	this.errorReporter.warning(("Bad type annotation. " + sstr_(messageId.format_1([]any{strobj_(messageArg)}))), Optional_of(strobj_(this.sourceFile.getName())), this.templateLineno, this.templateCharno)
+	this.errorReporter.warning(("Bad type annotation. " + sstr_(messageId.format_1([]any{strobj_(messageArg)}))), Optional_of[string](this.sourceFile.getName()), this.templateLineno, this.templateCharno)
 }
 
 func (this *TypeTransformationParser) nameToKeyword(s string) *TypeTransformationParser_Keywords {

@@ -48,7 +48,7 @@ func (this *JSTypeColorIdHasher) hashObjectType(type_ *ObjectType) *ColorId {
 }
 
 func (this *JSTypeColorIdHasher) putReferenceNameType(hasher Hasher, type_ *ObjectType) {
-	JSTypeColorIdHasher_putUtf8(hasher, str_(type_.getReferenceName().get()))
+	JSTypeColorIdHasher_putUtf8(hasher, type_.getReferenceName().get())
 	var sourceRef JSType_WithSourceRef = JSTypeColorIdHasher_sourceRefFor(type_)
 	if sourceRef == nil {
 		hasher.putInt(JSTypeColorIdHasher_Marker_UNKNOWN_SOURCEREF)

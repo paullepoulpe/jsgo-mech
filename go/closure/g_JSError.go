@@ -101,10 +101,10 @@ func JSError_builder(type_ *DiagnosticType, arguments []string) *JSError_Builder
 
 func (this *JSError) toString() string {
 	var sourceName string = func() string {
-		if String_isEmpty(str_(this.sourceName().orElse(strobj_("")))) {
+		if String_isEmpty(this.sourceName().orElse("")) {
 			return "(unknown source)"
 		}
-		return str_(this.sourceName().get())
+		return this.sourceName().get()
 	}()
 	var lineno string = func() string {
 		if this.lineno() != JSError_DEFAULT_LINENO {
@@ -122,14 +122,14 @@ func (this *JSError) toString() string {
 }
 
 func (this *JSError) format(level *CheckLevel, formatter MessageFormatter) OptionalOf[string] {
-	return func() Optional {
+	return func() OptionalOf[string] {
 		switch level {
 		case CheckLevel_ERROR:
-			return Optional_of(strobj_(formatter.formatError(this)))
+			return Optional_of[string](formatter.formatError(this))
 		case CheckLevel_WARNING:
-			return Optional_of(strobj_(formatter.formatWarning(this)))
+			return Optional_of[string](formatter.formatWarning(this))
 		default:
-			return Optional_empty()
+			return Optional_empty[string]()
 		}
 		panic("unreachable")
 	}()
@@ -156,7 +156,7 @@ func (this *JSError) description() string {
 	return this.description_
 }
 
-func (this *JSError) sourceName() Optional {
+func (this *JSError) sourceName() OptionalOf[string] {
 	return this.sourceName_
 }
 
@@ -189,14 +189,14 @@ func (this *JSError) equals(p0 any) bool {
 	if !ok || o == nil {
 		return false
 	}
-	return true && Objects_equals(obj_(this.type__), obj_(o.type__)) && this.description_ == o.description_ && Objects_equals(obj_(this.sourceName_), obj_(o.sourceName_)) && this.lineno_ == o.lineno_ && this.charno_ == o.charno_ && this.length_ == o.length_ && Objects_equals(this.node_.box_(), o.node_.box_()) && Objects_equals(obj_(this.defaultLevel_), obj_(o.defaultLevel_)) && Objects_equals(obj_(this.requirement_), obj_(o.requirement_))
+	return true && Objects_equals(obj_(this.type__), obj_(o.type__)) && this.description_ == o.description_ && Objects_equals(obj_(optErase_(this.sourceName_)), obj_(optErase_(o.sourceName_))) && this.lineno_ == o.lineno_ && this.charno_ == o.charno_ && this.length_ == o.length_ && Objects_equals(this.node_.box_(), o.node_.box_()) && Objects_equals(obj_(this.defaultLevel_), obj_(o.defaultLevel_)) && Objects_equals(obj_(this.requirement_), obj_(o.requirement_))
 }
 
 func (this *JSError) hashCode() int32 {
 	var h int32
 	h = h*31 + Objects_hashCode(obj_(this.type__))
 	h = h*31 + Objects_hashCode(strobj_(this.description_))
-	h = h*31 + Objects_hashCode(obj_(this.sourceName_))
+	h = h*31 + Objects_hashCode(obj_(optErase_(this.sourceName_)))
 	h = h*31 + Objects_hashCode(any(int32(this.lineno_)))
 	h = h*31 + Objects_hashCode(any(int32(this.charno_)))
 	h = h*31 + Objects_hashCode(any(int32(this.length_)))
@@ -210,7 +210,7 @@ const JSError_DEFAULT_LINENO int32 = -1
 const JSError_DEFAULT_CHARNO int32 = -1
 const JSError_DEFAULT_LENGTH int32 = 0
 
-var JSError_DEFAULT_SOURCENAME Optional
+var JSError_DEFAULT_SOURCENAME Optional[any]
 var JSError_DEFAULT_NODE Node
 var JSError_DEFAULT_REQUIREMENT *Requirement
 
@@ -221,7 +221,7 @@ func JSError_clinit() {
 		return
 	}
 	JSError_clinit_done = true
-	JSError_DEFAULT_SOURCENAME = Optional_empty()
+	JSError_DEFAULT_SOURCENAME = Optional_empty[any]()
 	JSError_DEFAULT_NODE = 0
 	JSError_DEFAULT_REQUIREMENT = nil
 
@@ -241,7 +241,7 @@ type JSError_Builder struct {
 
 func (this *JSError_Builder) finit_JSError_Builder() {
 	this.n = JSError_DEFAULT_NODE
-	this.sourceName_ = JSError_DEFAULT_SOURCENAME
+	this.sourceName_ = optConv_(JSError_DEFAULT_SOURCENAME, func(v any) string { return str_(v) })
 	this.lineno_ = JSError_DEFAULT_LINENO
 	this.charno_ = JSError_DEFAULT_CHARNO
 	this.length_ = JSError_DEFAULT_LENGTH
@@ -262,13 +262,12 @@ func new_JSError_Builder(type_ *DiagnosticType, args []string) *JSError_Builder 
 }
 
 func (this *JSError_Builder) setNode(n Node) *JSError_Builder {
-	Preconditions_checkState_boolean_Object(Object_equals(obj_(JSError_DEFAULT_SOURCENAME), obj_(this.sourceName_)), strobj_("Cannot provide a Node when there's already a source name"))
+	Preconditions_checkState_boolean_Object(Object_equals(obj_(JSError_DEFAULT_SOURCENAME), obj_(optErase_(this.sourceName_))), strobj_("Cannot provide a Node when there's already a source name"))
 	this.n = n
-	this.sourceName_ = Optional_of(strobj_(n.getSourceFileName())).filter(&Predicate_fn{func(s_ any) bool {
-		var s string = str_(s_)
+	this.sourceName_ = Optional_of[string](n.getSourceFileName()).filterFn_(func(s string) bool {
 		_ = s
 		return !String_isEmpty(s)
-	}})
+	})
 	this.lineno_ = n.getLineno()
 	this.charno_ = n.getCharno()
 	this.length_ = n.getLength()
@@ -276,13 +275,12 @@ func (this *JSError_Builder) setNode(n Node) *JSError_Builder {
 }
 
 func (this *JSError_Builder) setNodeRange(start Node, end Node) *JSError_Builder {
-	Preconditions_checkState_boolean_Object(Object_equals(obj_(JSError_DEFAULT_SOURCENAME), obj_(this.sourceName_)), strobj_("Cannot provide a Node when there's already a source name"))
+	Preconditions_checkState_boolean_Object(Object_equals(obj_(JSError_DEFAULT_SOURCENAME), obj_(optErase_(this.sourceName_))), strobj_("Cannot provide a Node when there's already a source name"))
 	this.n = start
-	this.sourceName_ = Optional_of(strobj_(this.n.getSourceFileName())).filter(&Predicate_fn{func(s_ any) bool {
-		var s string = str_(s_)
+	this.sourceName_ = Optional_of[string](this.n.getSourceFileName()).filterFn_(func(s string) bool {
 		_ = s
 		return !String_isEmpty(s)
-	}})
+	})
 	this.lineno_ = this.n.getLineno()
 	this.charno_ = this.n.getCharno()
 	var endOffset int32 = end.getSourceOffset()

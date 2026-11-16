@@ -99,6 +99,6 @@ func (this *ClosureUnawareOptions) copyDebugOptions() {
 	this.shadowOptions.setDebugLogFilter(this.original_.getDebugLogFilter())
 	var debugLogDirectory OptionalOf[string] = this.original_.getDebugLogDirectory()
 	if debugLogDirectory.isPresent() {
-		this.shadowOptions.setDebugLogDirectory(Optional_of(strobj_(FilePaths_resolve(str_(debugLogDirectory.get()), "./TranspileAndOptimizeClosureUnaware"))))
+		this.shadowOptions.setDebugLogDirectory(Optional_of[string](FilePaths_resolve(debugLogDirectory.get(), "./TranspileAndOptimizeClosureUnaware")))
 	}
 }

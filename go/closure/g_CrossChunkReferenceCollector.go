@@ -91,7 +91,7 @@ func (this *CrossChunkReferenceCollector) initializeDraftStatement(chunk *JSChun
 			var valueNode Node = 0
 			var relationship *CodingConvention_SubclassRelationship = this.compiler_.getCodingConvention().getClassesDefinedByCall(expr)
 			if relationship != nil {
-				var declaredName string = str_(relationship.subclassName.orElseThrow())
+				var declaredName string = relationship.subclassName.orElseThrow()
 				{
 					var callArg Node = expr.getSecondChild()
 					for ; callArg != 0; callArg = callArg.getNext() {
@@ -232,8 +232,8 @@ func (this *CrossChunkReferenceCollector) canMoveValue(scope *Scope, valueNode N
 	case Token_rhino_GETPROP:
 		var child Node = valueNode.getFirstChild()
 		if (child != 0) && child.isName() {
-			var symbol OptionalOf[string] = Optional_of(strobj_(child.getString()))
-			if symbol.isPresent() && (str_(symbol.get()) == "Symbol") {
+			var symbol OptionalOf[string] = Optional_of[string](child.getString())
+			if symbol.isPresent() && (symbol.get() == "Symbol") {
 				return true
 			}
 		}

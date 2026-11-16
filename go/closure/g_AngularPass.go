@@ -98,36 +98,34 @@ func (this *AngularPass) visit_impl(unused *NodeTraversal, n Node, parent Node) 
 func (this *AngularPass) addNode(n Node) {
 	var injectAfter Node = 0
 	var fn Node = 0
-	var name OptionalOf[string] = Optional_empty()
+	var name OptionalOf[string] = Optional_empty[string]()
 	switch n.ns_().token {
 	case tokOrd1_ASSIGN:
 		if !n.getFirstChild().isQualifiedName() {
 			this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, AngularPass_INJECTED_FUNCTION_ON_NON_QNAME, []string{}))
 			return
 		}
-		name = Optional_of(strobj_(n.getFirstChild().getQualifiedName())).filter(&Predicate_fn{func(s_ any) bool {
-			var s string = str_(s_)
+		name = Optional_of[string](n.getFirstChild().getQualifiedName()).filterFn_(func(s string) bool {
 			_ = s
 			return !String_isEmpty(s)
-		}})
+		})
 		fn = n
 		for fn.isAssign() {
 			fn = fn.getLastChild()
 		}
 		injectAfter = n.getParent()
 	case tokOrd1_FUNCTION:
-		name = Optional_of(strobj_(NodeUtil_getName(n))).filter(&Predicate_fn{func(s_ any) bool {
-			var s string = str_(s_)
+		name = Optional_of[string](NodeUtil_getName(n)).filterFn_(func(s string) bool {
 			_ = s
 			return !String_isEmpty(s)
-		}})
+		})
 		fn = n
 		injectAfter = n
 		if n.getParent().isAssign() && n.getParent().getJSDocInfo().isNgInject() {
 			return
 		}
 	case tokOrd1_VAR, tokOrd1_LET, tokOrd1_CONST:
-		name = Optional_of(strobj_(n.getFirstChild().getString()))
+		name = Optional_of[string](n.getFirstChild().getString())
 		fn = AngularPass_getDeclarationRValue(n)
 		injectAfter = n
 	case tokOrd1_MEMBER_FUNCTION_DEF:
@@ -140,13 +138,12 @@ func (this *AngularPass) addNode(n Node) {
 				}
 				return ".prototype."
 			}()
-			name = Optional_of(strobj_((sstr_(NodeUtil_getName(classNode)) + sstr_(midPart) + sstr_(n.getString()))))
+			name = Optional_of[string]((sstr_(NodeUtil_getName(classNode)) + sstr_(midPart) + sstr_(n.getString())))
 			if NodeUtil_isEs6ConstructorMemberFunctionDef(n) {
-				name = Optional_of(strobj_(NodeUtil_getName(classNode))).filter(&Predicate_fn{func(s_ any) bool {
-					var s string = str_(s_)
+				name = Optional_of[string](NodeUtil_getName(classNode)).filterFn_(func(s string) bool {
 					_ = s
 					return !String_isEmpty(s)
-				}})
+				})
 			}
 			fn = n.getFirstChild()
 			injectAfter = NodeUtil_getEnclosingStatement(classNode)
@@ -165,7 +162,7 @@ func (this *AngularPass) addNode(n Node) {
 		return
 	}
 	Preconditions_checkState(name.isPresent())
-	this.injectables = append(this.injectables, new_AngularPass_NodeContext(str_(name.get()), n, fn, injectAfter))
+	this.injectables = append(this.injectables, new_AngularPass_NodeContext(name.get(), n, fn, injectAfter))
 }
 
 func AngularPass_getDeclarationRValue(n Node) Node {

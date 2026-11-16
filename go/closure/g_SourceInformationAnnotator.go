@@ -27,16 +27,16 @@ func new_SourceInformationAnnotator(sourceFileToCheck OptionalOf[string]) *Sourc
 }
 
 func SourceInformationAnnotator_create() *SourceInformationAnnotator {
-	return new_SourceInformationAnnotator(Optional_empty())
+	return new_SourceInformationAnnotator(Optional_empty[string]())
 }
 
 func SourceInformationAnnotator_createWithAnnotationChecks(sourceFile string) *SourceInformationAnnotator {
-	return new_SourceInformationAnnotator(Optional_of(strobj_(sourceFile)))
+	return new_SourceInformationAnnotator(Optional_of[string](sourceFile))
 }
 
 func (this *SourceInformationAnnotator) visit_impl(t *NodeTraversal, n Node, parent Node) {
 	if this.sourceFileToCheck.isPresent() {
-		Preconditions_checkState((str_(this.sourceFileToCheck.get()) == n.getSourceFileName()))
+		Preconditions_checkState((this.sourceFileToCheck.get() == n.getSourceFileName()))
 	}
 	if SourceInformationAnnotator_isStringNodeRequiringOriginalName(n) {
 		SourceInformationAnnotator_setOriginalName(n, n)
@@ -45,7 +45,7 @@ func (this *SourceInformationAnnotator) visit_impl(t *NodeTraversal, n Node, par
 	if n.isFunction() {
 		var functionName OptionalOf[string] = NodeUtil_getNearestFunctionName(n)
 		if functionName.isPresent() {
-			SourceInformationAnnotator_setOriginalNameString(n, str_(functionName.get()))
+			SourceInformationAnnotator_setOriginalNameString(n, functionName.get())
 		}
 	}
 }

@@ -20,7 +20,7 @@ func TokenStream_isKeyword(name string) bool {
 	var s string = name
 complete_:
 	for range 1 {
-		var X OptionalOf[string] = Optional_empty()
+		var X OptionalOf[string] = Optional_empty[string]()
 		var c int32
 	partial_:
 		switch String_length(s) {
@@ -80,7 +80,7 @@ complete_:
 		case 4:
 			switch String_charAt(s, 0) {
 			case 'b':
-				X = Optional_of(strobj_("byte"))
+				X = Optional_of[string]("byte")
 				id = true
 				break partial_
 			case 'c':
@@ -112,15 +112,15 @@ complete_:
 				}
 				break partial_
 			case 'g':
-				X = Optional_of(strobj_("goto"))
+				X = Optional_of[string]("goto")
 				id = true
 				break partial_
 			case 'l':
-				X = Optional_of(strobj_("long"))
+				X = Optional_of[string]("long")
 				id = true
 				break partial_
 			case 'n':
-				X = Optional_of(strobj_("null"))
+				X = Optional_of[string]("null")
 				id = true
 				break partial_
 			case 't':
@@ -138,11 +138,11 @@ complete_:
 				}
 				break partial_
 			case 'v':
-				X = Optional_of(strobj_("void"))
+				X = Optional_of[string]("void")
 				id = true
 				break partial_
 			case 'w':
-				X = Optional_of(strobj_("with"))
+				X = Optional_of[string]("with")
 				id = true
 				break partial_
 			}
@@ -150,51 +150,51 @@ complete_:
 		case 5:
 			switch String_charAt(s, 2) {
 			case 'a':
-				X = Optional_of(strobj_("class"))
+				X = Optional_of[string]("class")
 				id = true
 				break partial_
 			case 'e':
-				X = Optional_of(strobj_("break"))
+				X = Optional_of[string]("break")
 				id = true
 				break partial_
 			case 'i':
-				X = Optional_of(strobj_("while"))
+				X = Optional_of[string]("while")
 				id = true
 				break partial_
 			case 'l':
-				X = Optional_of(strobj_("false"))
+				X = Optional_of[string]("false")
 				id = true
 				break partial_
 			case 'n':
 				c = int32(String_charAt(s, 0))
 				if c == 99 {
-					X = Optional_of(strobj_("const"))
+					X = Optional_of[string]("const")
 					id = true
 				} else if c == 102 {
-					X = Optional_of(strobj_("final"))
+					X = Optional_of[string]("final")
 					id = true
 				}
 				break partial_
 			case 'o':
 				c = int32(String_charAt(s, 0))
 				if c == 102 {
-					X = Optional_of(strobj_("float"))
+					X = Optional_of[string]("float")
 					id = true
 				} else if c == 115 {
-					X = Optional_of(strobj_("short"))
+					X = Optional_of[string]("short")
 					id = true
 				}
 				break partial_
 			case 'p':
-				X = Optional_of(strobj_("super"))
+				X = Optional_of[string]("super")
 				id = true
 				break partial_
 			case 'r':
-				X = Optional_of(strobj_("throw"))
+				X = Optional_of[string]("throw")
 				id = true
 				break partial_
 			case 't':
-				X = Optional_of(strobj_("catch"))
+				X = Optional_of[string]("catch")
 				id = true
 				break partial_
 			}
@@ -202,49 +202,49 @@ complete_:
 		case 6:
 			switch String_charAt(s, 1) {
 			case 'a':
-				X = Optional_of(strobj_("native"))
+				X = Optional_of[string]("native")
 				id = true
 				break partial_
 			case 'e':
 				c = int32(String_charAt(s, 0))
 				if c == 100 {
-					X = Optional_of(strobj_("delete"))
+					X = Optional_of[string]("delete")
 					id = true
 				} else if c == 114 {
-					X = Optional_of(strobj_("return"))
+					X = Optional_of[string]("return")
 					id = true
 				}
 				break partial_
 			case 'h':
-				X = Optional_of(strobj_("throws"))
+				X = Optional_of[string]("throws")
 				id = true
 				break partial_
 			case 'm':
-				X = Optional_of(strobj_("import"))
+				X = Optional_of[string]("import")
 				id = true
 				break partial_
 			case 'o':
-				X = Optional_of(strobj_("double"))
+				X = Optional_of[string]("double")
 				id = true
 				break partial_
 			case 't':
-				X = Optional_of(strobj_("static"))
+				X = Optional_of[string]("static")
 				id = true
 				break partial_
 			case 'u':
-				X = Optional_of(strobj_("public"))
+				X = Optional_of[string]("public")
 				id = true
 				break partial_
 			case 'w':
-				X = Optional_of(strobj_("switch"))
+				X = Optional_of[string]("switch")
 				id = true
 				break partial_
 			case 'x':
-				X = Optional_of(strobj_("export"))
+				X = Optional_of[string]("export")
 				id = true
 				break partial_
 			case 'y':
-				X = Optional_of(strobj_("typeof"))
+				X = Optional_of[string]("typeof")
 				id = true
 				break partial_
 			}
@@ -252,27 +252,27 @@ complete_:
 		case 7:
 			switch String_charAt(s, 1) {
 			case 'a':
-				X = Optional_of(strobj_("package"))
+				X = Optional_of[string]("package")
 				id = true
 				break partial_
 			case 'e':
-				X = Optional_of(strobj_("default"))
+				X = Optional_of[string]("default")
 				id = true
 				break partial_
 			case 'i':
-				X = Optional_of(strobj_("finally"))
+				X = Optional_of[string]("finally")
 				id = true
 				break partial_
 			case 'o':
-				X = Optional_of(strobj_("boolean"))
+				X = Optional_of[string]("boolean")
 				id = true
 				break partial_
 			case 'r':
-				X = Optional_of(strobj_("private"))
+				X = Optional_of[string]("private")
 				id = true
 				break partial_
 			case 'x':
-				X = Optional_of(strobj_("extends"))
+				X = Optional_of[string]("extends")
 				id = true
 				break partial_
 			}
@@ -280,23 +280,23 @@ complete_:
 		case 8:
 			switch String_charAt(s, 0) {
 			case 'a':
-				X = Optional_of(strobj_("abstract"))
+				X = Optional_of[string]("abstract")
 				id = true
 				break partial_
 			case 'c':
-				X = Optional_of(strobj_("continue"))
+				X = Optional_of[string]("continue")
 				id = true
 				break partial_
 			case 'd':
-				X = Optional_of(strobj_("debugger"))
+				X = Optional_of[string]("debugger")
 				id = true
 				break partial_
 			case 'f':
-				X = Optional_of(strobj_("function"))
+				X = Optional_of[string]("function")
 				id = true
 				break partial_
 			case 'v':
-				X = Optional_of(strobj_("volatile"))
+				X = Optional_of[string]("volatile")
 				id = true
 				break partial_
 			}
@@ -304,32 +304,32 @@ complete_:
 		case 9:
 			c = int32(String_charAt(s, 0))
 			if c == 105 {
-				X = Optional_of(strobj_("interface"))
+				X = Optional_of[string]("interface")
 				id = true
 			} else if c == 112 {
-				X = Optional_of(strobj_("protected"))
+				X = Optional_of[string]("protected")
 				id = true
 			} else if c == 116 {
-				X = Optional_of(strobj_("transient"))
+				X = Optional_of[string]("transient")
 				id = true
 			}
 			break partial_
 		case 10:
 			c = int32(String_charAt(s, 1))
 			if c == 109 {
-				X = Optional_of(strobj_("implements"))
+				X = Optional_of[string]("implements")
 				id = true
 			} else if c == 110 {
-				X = Optional_of(strobj_("instanceof"))
+				X = Optional_of[string]("instanceof")
 				id = true
 			}
 			break partial_
 		case 12:
-			X = Optional_of(strobj_("synchronized"))
+			X = Optional_of[string]("synchronized")
 			id = true
 			break partial_
 		}
-		if (X.isPresent() && (str_(X.get()) != s)) && !(str_(X.get()) == s) {
+		if (X.isPresent() && (X.get() != s)) && !(X.get() == s) {
 			return false
 		}
 	}

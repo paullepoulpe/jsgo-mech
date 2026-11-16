@@ -96,15 +96,15 @@ func (this *Compiler) finit_Compiler() {
 	this.options_ = nil
 	this.passes = nil
 	this.externs = new_ArrayList_0()
-	this.lastJsSource = Optional_empty()
+	this.lastJsSource = Optional_empty[string]()
 	this.inputsById = map[string]*CompilerInput{}
 	this.scriptNodeByFilename = icast_Map(obj_(new_ConcurrentHashMap()))
 	this.hoistedExternsByChunk = SimpleSetMultimap_createInsertionOrdered()
 	this.sourceMapOriginalSources = new_ConcurrentHashMap()
 	this.inputSourceMaps = new_ConcurrentHashMap()
 	this.commentsPerFile = icast_Map(obj_(new_ConcurrentHashMap()))
-	this.debugMessage = Optional_empty()
-	this.externExports = Optional_empty()
+	this.debugMessage = Optional_empty[string]()
+	this.externExports = Optional_empty[string]()
 	this.uniqueIdSupplier = new_UniqueIdSupplier()
 	this.uniqueNameId = 0
 	this.hasRegExpGlobalReferencesField = true
@@ -140,7 +140,7 @@ func (this *Compiler) finit_Compiler() {
 	this.propertyMap = nil
 	this.stringMap = nil
 	this.instrumentationMapping = nil
-	this.idGeneratorMap = Optional_empty()
+	this.idGeneratorMap = Optional_empty[string]()
 	this.transpiledFiles = false
 	this.exportedNames = new_LinkedHashSet()
 	this.defineNames = ImmutableSet_of()
@@ -432,7 +432,7 @@ func (this *Compiler) initRuntimeLibraryTypedAsts_impl(colorPoolBuilder Optional
 	if typedAsts.isEmpty() {
 		panic(new_IllegalArgumentException_String("Cannot read from TypedAST input stream").self())
 	}
-	var astData *TypedAstDeserializer_DeserializedAst = TypedAstDeserializer_deserializeRuntimeLibraries(this.up_AbstractCompiler(), this.SYNTHETIC_EXTERNS_FILE, colorPoolBuilder, cast_[[]int8](typedAsts.get()), this.getOptions().getResolveSourceMapAnnotations(), this.getOptions().getParseInlineSourceMaps())
+	var astData *TypedAstDeserializer_DeserializedAst = TypedAstDeserializer_deserializeRuntimeLibraries(this.up_AbstractCompiler(), this.SYNTHETIC_EXTERNS_FILE, colorPoolBuilder, typedAsts.get(), this.getOptions().getResolveSourceMapAnnotations(), this.getOptions().getParseInlineSourceMaps())
 	var runtimeLibraryTypedAsts *TMap[string, SupplierOf[Node]] = newTMap_(tc_string, tc_SupplierOf_Node_)
 	it_1 := foreach_(any(astData.getFilesystem().entrySet()))
 	for it_1.next() {
@@ -729,7 +729,7 @@ func (this *Compiler) performPostCompilationTasksInternal() {
 		if this.options_.getTracerOutput().isEmpty() {
 			this.tracker.outputTracerReport(this.outStream)
 		} else {
-			var out *Outcome_base = Output_open(str_(this.options_.getTracerOutput().get()), Charsets_UTF_8, false)
+			var out *Outcome_base = Output_open(this.options_.getTracerOutput().get(), Charsets_UTF_8, false)
 			if out.isErr() {
 				panic(new_RuntimeException_Throwable(out.error()).self())
 			}
@@ -899,7 +899,7 @@ func (this *Compiler) check() {
 }
 
 func (this *Compiler) setExternExports_impl(externExports string) {
-	this.externExports = Optional_of(strobj_(externExports))
+	this.externExports = Optional_of[string](externExports)
 }
 
 func (this *Compiler) process_impl(p CompilerPass) {
@@ -1001,7 +1001,7 @@ func (this *Compiler) getDebugLogFilterList_impl() *TList[string] {
 	if this.getOptions().getDebugLogFilter().isEmpty() {
 		return newTList_(tc_string)
 	}
-	return tlistImm_(tc_string, Splitter_on(',').omitEmptyStrings().splitToList(this.getOptions().getDebugLogFilter().get()))
+	return tlistImm_(tc_string, Splitter_on(',').omitEmptyStrings().splitToList(strobj_(this.getOptions().getDebugLogFilter().get())))
 }
 
 func (this *Compiler) createOrReopenLog_impl(owner ClassOf[any], firstNamePart string, restNameParts []string) *LogFile {
@@ -1010,7 +1010,7 @@ func (this *Compiler) createOrReopenLog_impl(owner ClassOf[any], firstNamePart s
 	}
 	var dir OptionalOf[string] = this.getOptions().getDebugLogDirectory()
 	var relativeParts string = FilePaths_join(firstNamePart, restNameParts)
-	var file string = FilePaths_resolve(FilePaths_resolve(str_(dir.get()), owner.getSimpleName()), relativeParts)
+	var file string = FilePaths_resolve(FilePaths_resolve(dir.get(), owner.getSimpleName()), relativeParts)
 	var filters *TList[string] = this.getDebugLogFilterList()
 	if filters.isEmpty() {
 		return LogFile_createOrReopen(file)
@@ -1042,7 +1042,7 @@ func (this *Compiler) maybePrintSourceAfterEachPass(passName string) {
 		return
 	}
 	var currentJsSource string = this.getCurrentJsSource()
-	if Object_equals(obj_(Optional_of(strobj_(currentJsSource))), obj_(this.lastJsSource)) {
+	if Object_equals(obj_(Optional_of(strobj_(currentJsSource))), obj_(optErase_(this.lastJsSource))) {
 		return
 	}
 	if this.isDebugLoggingEnabled() {
@@ -1055,14 +1055,14 @@ func (this *Compiler) maybePrintSourceAfterEachPass(passName string) {
 	} else {
 		Output_stderr().println("")
 		if this.debugMessage.isPresent() {
-			Output_stderr().println(("// DEBUG: " + sstr_(str_(this.debugMessage.get()))))
+			Output_stderr().println(("// DEBUG: " + sstr_(this.debugMessage.get())))
 		}
 		Output_stderr().println(("// " + sstr_(passName) + " yields:"))
 		Output_stderr().println("// ************************************")
 		Output_stderr().println(currentJsSource)
 		Output_stderr().println("// ************************************")
 	}
-	this.lastJsSource = Optional_of(strobj_(currentJsSource))
+	this.lastJsSource = Optional_of[string](currentJsSource)
 }
 
 func (this *Compiler) getCurrentJsSource() string {
@@ -1202,7 +1202,7 @@ func (this *Compiler) newTracer(passName string) *Tracer {
 	if this.options_.getTracerMode().isOn() && (this.tracker != nil) {
 		this.tracker.recordPassStart(passName, true)
 	}
-	return new_Tracer_Optional_Optional(Optional_of(strobj_("Compiler")), Optional_of(strobj_(comment)))
+	return new_Tracer_Optional_Optional(Optional_of[string]("Compiler"), Optional_of[string](comment))
 }
 
 func (this *Compiler) stopTracer(t *Tracer, passName string) {
@@ -1629,9 +1629,9 @@ func (this *Compiler) orderInputs() {
 		var resultRes *Outcome_base = this.chunkGraph.manageDependencies(this.up_AbstractCompiler(), this.options_.getDependencyOptions())
 		if resultRes.isErr() {
 			if is_[*SortedDependencies_MissingProvideException](resultRes.error().self()) {
-				this.report(JSError_make_DiagnosticType_StringArr(Compiler_MISSING_ENTRY_ERROR, []string{str_(resultRes.errorMessage().orElse(strobj_("null")))}))
+				this.report(JSError_make_DiagnosticType_StringArr(Compiler_MISSING_ENTRY_ERROR, []string{resultRes.errorMessage().orElse("null")}))
 			} else {
-				this.report(JSError_make_DiagnosticType_StringArr(Compiler_MISSING_CHUNK_ERROR, []string{str_(resultRes.errorMessage().orElse(strobj_("null")))}))
+				this.report(JSError_make_DiagnosticType_StringArr(Compiler_MISSING_CHUNK_ERROR, []string{resultRes.errorMessage().orElse("null")}))
 			}
 		} else {
 			var result *JSChunkGraph_DependencyManagementResult = cast_[*JSChunkGraph_DependencyManagementResult](resultRes.get())
@@ -2065,15 +2065,15 @@ func (this *Compiler) toSourceAndMappings(n Node, firstOutput bool, licenseTrack
 
 func Compiler_getLicenseForFile(compiler *AbstractCompiler, fileName OptionalOf[string]) OptionalOf[string] {
 	if fileName.isEmpty() {
-		return Optional_empty()
+		return Optional_empty[string]()
 	}
-	var licenseRoot Node = compiler.getScriptNode(str_(fileName.get()))
+	var licenseRoot Node = compiler.getScriptNode(fileName.get())
 	if licenseRoot == 0 {
-		return Optional_empty()
+		return Optional_empty[string]()
 	}
 	var docInfo *JSDocInfo = licenseRoot.getJSDocInfo()
 	if docInfo == nil {
-		return Optional_empty()
+		return Optional_empty[string]()
 	}
 	var license OptionalOf[string] = docInfo.getLicense()
 	return license
@@ -2369,17 +2369,17 @@ func (this *Compiler) hasErrors() bool {
 
 func (this *Compiler) getSourceFileByName_impl(sourceName OptionalOf[string]) *SourceFile_jscomp {
 	if sourceName.isPresent() {
-		var input *CompilerInput = this.inputsById[new_InputId(str_(sourceName.get())).id]
+		var input *CompilerInput = this.inputsById[new_InputId(sourceName.get()).id]
 		if input != nil {
 			return input.getSourceFile()
 		}
-		return cast_[*SourceFile_jscomp](Map_get_s(this.sourceMapOriginalSources, str_(sourceName.get())))
+		return cast_[*SourceFile_jscomp](Map_get_s(this.sourceMapOriginalSources, sourceName.get()))
 	}
 	return nil
 }
 
 func (this *Compiler) getSourceFileContentByName(sourceName string) any {
-	var file *SourceFile_jscomp = this.getSourceFileByName(Optional_of(strobj_(sourceName)))
+	var file *SourceFile_jscomp = this.getSourceFileByName(Optional_of[string](sourceName))
 	if file.isStubSourceFileForAlreadyProvidedInput() {
 		return nil
 	}
@@ -2399,18 +2399,18 @@ func (this *Compiler) addInputSourceMap_impl(sourceFileName string, inputSourceM
 }
 
 func (this *Compiler) getBase64SourceMapContents_impl(sourceFileName OptionalOf[string]) OptionalOf[string] {
-	var sourceMapInput *SourceMapInput = cast_[*SourceMapInput](Map_getOrDefault_s(this.inputSourceMaps, str_(sourceFileName.orElse(nil)), nil))
-	var sourceMappingURL OptionalOf[string] = func() Optional {
+	var sourceMapInput *SourceMapInput = cast_[*SourceMapInput](Map_getOrDefault_s(this.inputSourceMaps, sourceFileName.orElse(nullstr_), nil))
+	var sourceMappingURL OptionalOf[string] = func() OptionalOf[string] {
 		if sourceMapInput != nil {
-			return Optional_of(strobj_(sourceMapInput.getOriginalPath()))
+			return Optional_of[string](sourceMapInput.getOriginalPath())
 		}
-		return Optional_empty()
+		return Optional_empty[string]()
 	}()
-	if sourceMappingURL.isPresent() && String_endsWith(str_(sourceMappingURL.get()), ".inline.map") {
+	if sourceMappingURL.isPresent() && String_endsWith(sourceMappingURL.get(), ".inline.map") {
 		var unencoded OptionalOf[string] = sourceMapInput.getRawSourceMapContents()
-		return Optional_of(strobj_(Io_base64Encode(Io_utf8Bytes(str_(unencoded.get())))))
+		return Optional_of[string](Io_base64Encode(Io_utf8Bytes(unencoded.get())))
 	}
-	return Optional_empty()
+	return Optional_empty[string]()
 }
 
 func (this *Compiler) addSourceMapSourceFiles(inputSourceMap *SourceMapInput) {
@@ -2440,7 +2440,7 @@ func (this *Compiler) getSourceMapping_Optional_int_int_impl(sourceName Optional
 	if sourceName.isEmpty() {
 		return nil
 	}
-	var sourceMap *SourceMapInput = cast_[*SourceMapInput](Map_get_s(this.inputSourceMaps, str_(sourceName.get())))
+	var sourceMap *SourceMapInput = cast_[*SourceMapInput](Map_get_s(this.inputSourceMaps, sourceName.get()))
 	if sourceMap == nil {
 		return nil
 	}
@@ -2460,7 +2460,7 @@ func (this *Compiler) getSourceMapping_Optional_int_int_impl(sourceName Optional
 			relativePath = this.resolvedSourceMap.relativePath
 		} else {
 			relativePath = Compiler_resolveSibling(sourceMapOriginalPath, resultOriginalPath)
-			var source *SourceFile_jscomp = this.getSourceFileByName(Optional_of(strobj_(relativePath)))
+			var source *SourceFile_jscomp = this.getSourceFileByName(Optional_of[string](relativePath))
 			if (source == nil) && !Strings_isNullOrEmpty(resultOriginalPath) {
 				source = SourceMapResolver_getRelativePath(sourceMap.getOriginalPath(), result.getOriginalFile())
 				if source != nil {
@@ -2477,13 +2477,13 @@ func (this *Compiler) getSourceMapping_Optional_int_int_impl(sourceName Optional
 
 func (this *Compiler) getSourceLine_impl(sourceName OptionalOf[string], lineNumber int32) OptionalOf[string] {
 	if lineNumber < 1 {
-		return Optional_empty()
+		return Optional_empty[string]()
 	}
 	var input *SourceFile_jscomp = this.getSourceFileByName(sourceName)
 	if (input != nil) && !input.isStubSourceFileForAlreadyProvidedInput() {
 		return input.getLine(lineNumber)
 	}
-	return Optional_empty()
+	return Optional_empty[string]()
 }
 
 func (this *Compiler) getSourceLines_impl(sourceName OptionalOf[string], lineNumber int32, length int32) Region {
@@ -2556,7 +2556,7 @@ func (this *Compiler) setCssNames_impl(cssNames *TSet[string]) {
 }
 
 func (this *Compiler) setIdGeneratorMap_impl(serializedIdMappings string) {
-	this.idGeneratorMap = Optional_of(strobj_(serializedIdMappings))
+	this.idGeneratorMap = Optional_of[string](serializedIdMappings)
 }
 
 func (this *Compiler) getTranspiledFiles_impl() bool {
@@ -2813,7 +2813,7 @@ func (this *Compiler) getComments_impl(filename OptionalOf[string]) ListOf[*Comm
 	}
 	return func() List {
 		if filename.isPresent() {
-			return icast_List(Map_get_s(this.commentsPerFile, str_(filename.get())))
+			return icast_List(Map_get_s(this.commentsPerFile, filename.get()))
 		}
 		return nil
 	}()
@@ -2843,7 +2843,7 @@ func (this *Compiler) initWebpackMap(inputPathByWebpackId ImmutableMapOf[string,
 
 func (this *Compiler) setDebugMessage(debugMessage string) {
 	this.compilerExecutor.setDebugMessage(debugMessage)
-	this.debugMessage = Optional_of(strobj_(debugMessage))
+	this.debugMessage = Optional_of[string](debugMessage)
 }
 
 func (this *Compiler) createCompilerExecutor() *CompilerExecutor {
@@ -2974,7 +2974,7 @@ func (this *Compiler) getCompilerStateProtoBuilder() *JSCompilerStateProto_Build
 		builder.addAllCssNames(Iterable(this.cssNames.asSet()))
 	}
 	if this.idGeneratorMap.isPresent() {
-		builder.setIdGeneratorMap(str_(this.idGeneratorMap.get()))
+		builder.setIdGeneratorMap(this.idGeneratorMap.get())
 	}
 	builder.setTranspiledFiles(this.transpiledFiles).setIdGeneratorCurrentId(this.crossChunkIdGenerator.getCurrentId()).setRunJ2ClPasses(this.runJ2clPassesField)
 	it_9 := foreach_(this.externs.self())
@@ -3034,9 +3034,9 @@ func (this *Compiler) restoreFromState(compilerState *JSCompilerStateProto) {
 	this.variableMap = nil
 	this.propertyMap = nil
 	if compilerState.hasIdGeneratorMap() {
-		this.idGeneratorMap = Optional_ofNullable(strobj_(compilerState.getIdGeneratorMap()))
+		this.idGeneratorMap = Optional_ofNullable[string](compilerState.getIdGeneratorMap())
 	} else {
-		this.idGeneratorMap = Optional_empty()
+		this.idGeneratorMap = Optional_empty[string]()
 	}
 	this.transpiledFiles = compilerState.getTranspiledFiles()
 	this.crossChunkIdGenerator = new_IdGenerator()
@@ -3234,7 +3234,7 @@ func (this *Compiler) deserializeCompilerState(state []int8) {
 func (this *Compiler) getModuleTypeByName_impl(moduleName OptionalOf[string]) *CompilerInput_ModuleType {
 	return func() *CompilerInput_ModuleType {
 		if moduleName.isPresent() {
-			return this.moduleTypesByName[str_(moduleName.get())]
+			return this.moduleTypesByName[moduleName.get()]
 		}
 		return nil
 	}()
@@ -3474,14 +3474,14 @@ func (this *Compiler_SeenSetLicenseTracker) trackLicensesForNode(node Node) {
 	} else {
 		this.lastSeenFile = file
 	}
-	var license OptionalOf[string] = Compiler_getLicenseForFile(this.compiler_, Optional_of(strobj_(file)))
+	var license OptionalOf[string] = Compiler_getLicenseForFile(this.compiler_, Optional_of[string](file))
 	if license.isEmpty() {
 		return
 	}
-	if this.globallyUniqueLicenses.contains(str_(license.get())) {
+	if this.globallyUniqueLicenses.contains(license.get()) {
 		return
 	}
-	this.currentlySeenLicenses.add(str_(license.get()))
+	this.currentlySeenLicenses.add(license.get())
 }
 
 func (this *Compiler_SeenSetLicenseTracker) emitLicenses() ImmutableSetOf[string] {
@@ -3637,25 +3637,24 @@ func (this *Compiler_ChunkGraphAwareLicenseTracker) trackLicensesForNode(node No
 		}
 		this.haveInitializedCurrentChunkLicenses = true
 	}
-	var license OptionalOf[string] = Compiler_getLicenseForFile(this.compiler_, Optional_of(strobj_(node.getSourceFileName())).filter(&Predicate_fn{func(s_ any) bool {
-		var s string = str_(s_)
+	var license OptionalOf[string] = Compiler_getLicenseForFile(this.compiler_, Optional_of[string](node.getSourceFileName()).filterFn_(func(s string) bool {
 		_ = s
 		return !String_isEmpty(s)
-	}}))
+	}))
 	if license.isEmpty() {
 		return
 	}
-	if this.currentChunkLicencesInTDeps.contains(str_(license.get())) {
+	if this.currentChunkLicencesInTDeps.contains(license.get()) {
 		return
 	}
-	if Collection_contains_s(this.licensesNewInCurrentChunk, str_(license.get())) {
+	if Collection_contains_s(this.licensesNewInCurrentChunk, license.get()) {
 		return
 	}
-	var newlyAddedLicense bool = this.licensesNewInCurrentFile.add(str_(license.get()))
+	var newlyAddedLicense bool = this.licensesNewInCurrentFile.add(license.get())
 	if !newlyAddedLicense {
-		this.log_.log_2("Chunk %s already depends on license\n==================\n%s\n==================\n\n", []any{obj_(this.currentChunk), license.get()})
+		this.log_.log_2("Chunk %s already depends on license\n==================\n%s\n==================\n\n", []any{obj_(this.currentChunk), strobj_(license.get())})
 	} else {
-		this.log_.log_2("Chunk %s has new license:\n==================\n%s\n==================\n\n", []any{obj_(this.currentChunk), license.get()})
+		this.log_.log_2("Chunk %s has new license:\n==================\n%s\n==================\n\n", []any{obj_(this.currentChunk), strobj_(license.get())})
 	}
 }
 
@@ -4386,7 +4385,7 @@ func (this *Compiler) hasHaltingErrors() bool {
 }
 
 // getSourceFileByName: an object that is exactly a Compiler calls its getSourceFileByName_impl directly (post-flip); others dispatch.
-func (this *Compiler) getSourceFileByName(p0 Optional) *SourceFile_jscomp {
+func (this *Compiler) getSourceFileByName(p0 OptionalOf[string]) *SourceFile_jscomp {
 	if this.self_ == any(this) {
 		return this.getSourceFileByName_impl(p0)
 	}
@@ -4403,7 +4402,7 @@ func (this *Compiler) addInputSourceMap(p0 string, p1 *SourceMapInput) {
 }
 
 // getBase64SourceMapContents: an object that is exactly a Compiler calls its getBase64SourceMapContents_impl directly (post-flip); others dispatch.
-func (this *Compiler) getBase64SourceMapContents(p0 Optional) Optional {
+func (this *Compiler) getBase64SourceMapContents(p0 OptionalOf[string]) OptionalOf[string] {
 	if this.self_ == any(this) {
 		return this.getBase64SourceMapContents_impl(p0)
 	}
@@ -4411,7 +4410,7 @@ func (this *Compiler) getBase64SourceMapContents(p0 Optional) Optional {
 }
 
 // getSourceMapping_Optional_int_int: an object that is exactly a Compiler calls its getSourceMapping_Optional_int_int_impl directly (post-flip); others dispatch.
-func (this *Compiler) getSourceMapping_Optional_int_int(p0 Optional, p1 int32, p2 int32) *Mapping_OriginalMapping {
+func (this *Compiler) getSourceMapping_Optional_int_int(p0 OptionalOf[string], p1 int32, p2 int32) *Mapping_OriginalMapping {
 	if this.self_ == any(this) {
 		return this.getSourceMapping_Optional_int_int_impl(p0, p1, p2)
 	}
@@ -4419,7 +4418,7 @@ func (this *Compiler) getSourceMapping_Optional_int_int(p0 Optional, p1 int32, p
 }
 
 // getSourceLine: an object that is exactly a Compiler calls its getSourceLine_impl directly (post-flip); others dispatch.
-func (this *Compiler) getSourceLine(p0 Optional, p1 int32) Optional {
+func (this *Compiler) getSourceLine(p0 OptionalOf[string], p1 int32) OptionalOf[string] {
 	if this.self_ == any(this) {
 		return this.getSourceLine_impl(p0, p1)
 	}
@@ -4427,7 +4426,7 @@ func (this *Compiler) getSourceLine(p0 Optional, p1 int32) Optional {
 }
 
 // getSourceLines: an object that is exactly a Compiler calls its getSourceLines_impl directly (post-flip); others dispatch.
-func (this *Compiler) getSourceLines(p0 Optional, p1 int32, p2 int32) Region {
+func (this *Compiler) getSourceLines(p0 OptionalOf[string], p1 int32, p2 int32) Region {
 	if this.self_ == any(this) {
 		return this.getSourceLines_impl(p0, p1, p2)
 	}
@@ -4435,7 +4434,7 @@ func (this *Compiler) getSourceLines(p0 Optional, p1 int32, p2 int32) Region {
 }
 
 // getSourceRegion: an object that is exactly a Compiler calls its getSourceRegion_impl directly (post-flip); others dispatch.
-func (this *Compiler) getSourceRegion(p0 Optional, p1 int32) Region {
+func (this *Compiler) getSourceRegion(p0 OptionalOf[string], p1 int32) Region {
 	if this.self_ == any(this) {
 		return this.getSourceRegion_impl(p0, p1)
 	}
@@ -4732,7 +4731,7 @@ func (this *Compiler) addComments(p0 string, p1 List) {
 }
 
 // getComments: an object that is exactly a Compiler calls its getComments_impl directly (post-flip); others dispatch.
-func (this *Compiler) getComments(p0 Optional) List {
+func (this *Compiler) getComments(p0 OptionalOf[string]) List {
 	if this.self_ == any(this) {
 		return this.getComments_impl(p0)
 	}
@@ -4748,7 +4747,7 @@ func (this *Compiler) getModuleLoader() *ModuleLoader {
 }
 
 // getModuleTypeByName: an object that is exactly a Compiler calls its getModuleTypeByName_impl directly (post-flip); others dispatch.
-func (this *Compiler) getModuleTypeByName(p0 Optional) *CompilerInput_ModuleType {
+func (this *Compiler) getModuleTypeByName(p0 OptionalOf[string]) *CompilerInput_ModuleType {
 	if this.self_ == any(this) {
 		return this.getModuleTypeByName_impl(p0)
 	}

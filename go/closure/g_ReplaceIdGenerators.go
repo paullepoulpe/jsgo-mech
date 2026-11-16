@@ -194,7 +194,7 @@ func ReplaceIdGenerators_RenameStrategy_clinit() {
 }
 
 type ReplaceIdGenerators_NameSupplier interface {
-	getName(string, string) Optional
+	getName(string, string) OptionalOf[string]
 	getRenameStrategy() *ReplaceIdGenerators_RenameStrategy
 }
 
@@ -217,9 +217,9 @@ func new_ReplaceIdGenerators_ObfuscatedNameSupplier(renameStrategy *ReplaceIdGen
 }
 
 func (this *ReplaceIdGenerators_ObfuscatedNameSupplier) getName(id string, name string) OptionalOf[string] {
-	var newName OptionalOf[string] = Optional_ofNullable(strobj_(this.previousMappings.get(id)))
+	var newName OptionalOf[string] = Optional_ofNullable[string](this.previousMappings.get(id))
 	if newName.isEmpty() {
-		newName = Optional_of(strobj_(this.generator.generateNextName()))
+		newName = Optional_of[string](this.generator.generateNextName())
 	}
 	return newName
 }
@@ -252,9 +252,9 @@ func (this *ReplaceIdGenerators_PseudoNameSupplier) getName(id string, name stri
 	if this.renameStrategy == ReplaceIdGenerators_RenameStrategy_INCONSISTENT {
 		var result string = (sstr_(name) + "$" + istr_(int64(this.counter)))
 		this.counter++
-		return Optional_of(strobj_(result))
+		return Optional_of[string](result)
 	}
-	return Optional_of(strobj_((sstr_(name) + "$0")))
+	return Optional_of[string]((sstr_(name) + "$0"))
 }
 
 func (this *ReplaceIdGenerators_PseudoNameSupplier) getRenameStrategy() *ReplaceIdGenerators_RenameStrategy {
@@ -275,7 +275,7 @@ func new_ReplaceIdGenerators_StableNameSupplier() *ReplaceIdGenerators_StableNam
 }
 
 func (this *ReplaceIdGenerators_StableNameSupplier) getName(id string, name string) OptionalOf[string] {
-	return Optional_of(strobj_(Base64_base64EncodeInt(String_hashCode(name))))
+	return Optional_of[string](Base64_base64EncodeInt(String_hashCode(name)))
 }
 
 func (this *ReplaceIdGenerators_StableNameSupplier) getRenameStrategy() *ReplaceIdGenerators_RenameStrategy {
@@ -302,7 +302,7 @@ func new_ReplaceIdGenerators_XidNameSupplier(hashFunction Xid_HashFunction) *Rep
 }
 
 func (this *ReplaceIdGenerators_XidNameSupplier) getName(id string, name string) OptionalOf[string] {
-	return Optional_of(strobj_(this.xid.get(name)))
+	return Optional_of[string](this.xid.get(name))
 }
 
 func (this *ReplaceIdGenerators_XidNameSupplier) getRenameStrategy() *ReplaceIdGenerators_RenameStrategy {
@@ -360,57 +360,56 @@ func (this *ReplaceIdGenerators_GatherGenerators) visit_impl(unused *NodeTravers
 	if (doc == nil) || !doc.isAnyIdGenerator() {
 		return
 	}
-	var name OptionalOf[string] = Optional_empty()
+	var name OptionalOf[string] = Optional_empty[string]()
 	if n.isAssign() {
-		name = Optional_of(strobj_(n.getFirstChild().getQualifiedName())).filter(&Predicate_fn{func(s_ any) bool {
-			var s string = str_(s_)
+		name = Optional_of[string](n.getFirstChild().getQualifiedName()).filterFn_(func(s string) bool {
 			_ = s
 			return !String_isEmpty(s)
-		}})
+		})
 	} else if NodeUtil_isNameDeclaration(n) {
-		name = Optional_of(strobj_(n.getFirstChild().getString()))
+		name = Optional_of[string](n.getFirstChild().getString())
 	} else if n.isFunction() {
-		name = Optional_of(strobj_(n.getFirstChild().getString()))
-		if String_isEmpty(str_(name.get())) {
+		name = Optional_of[string](n.getFirstChild().getString())
+		if String_isEmpty(name.get()) {
 			return
 		}
 	}
-	if name.isPresent() && has_(this.outer_.nameGenerators, str_(name.get())) {
+	if name.isPresent() && has_(this.outer_.nameGenerators, name.get()) {
 		return
 	}
 	if doc.isConsistentIdGenerator() {
-		this.outer_.consistNameMap[str_(name.orElse(nil))] = icast_Map(obj_(new_LinkedHashMap()))
-		this.outer_.nameGenerators[str_(name.orElse(nil))] = this.outer_.createNameSupplier(ReplaceIdGenerators_RenameStrategy_CONSISTENT, func() *SimpleBiMap {
+		this.outer_.consistNameMap[name.orElse(nullstr_)] = icast_Map(obj_(new_LinkedHashMap()))
+		this.outer_.nameGenerators[name.orElse(nullstr_)] = this.outer_.createNameSupplier(ReplaceIdGenerators_RenameStrategy_CONSISTENT, func() *SimpleBiMap {
 			if name.isPresent() {
-				return this.outer_.previousMap.get(str_(name.get()))
+				return this.outer_.previousMap.get(name.get())
 			}
 			return nil
 		}())
 	} else if doc.isStableIdGenerator() {
-		this.outer_.nameGenerators[str_(name.orElse(nil))] = this.outer_.createNameSupplier(ReplaceIdGenerators_RenameStrategy_STABLE, func() *SimpleBiMap {
+		this.outer_.nameGenerators[name.orElse(nullstr_)] = this.outer_.createNameSupplier(ReplaceIdGenerators_RenameStrategy_STABLE, func() *SimpleBiMap {
 			if name.isPresent() {
-				return this.outer_.previousMap.get(str_(name.get()))
+				return this.outer_.previousMap.get(name.get())
 			}
 			return nil
 		}())
 	} else if doc.isXidGenerator() {
-		this.outer_.nameGenerators[str_(name.orElse(nil))] = this.outer_.createNameSupplier(ReplaceIdGenerators_RenameStrategy_XID, func() *SimpleBiMap {
+		this.outer_.nameGenerators[name.orElse(nullstr_)] = this.outer_.createNameSupplier(ReplaceIdGenerators_RenameStrategy_XID, func() *SimpleBiMap {
 			if name.isPresent() {
-				return this.outer_.previousMap.get(str_(name.get()))
+				return this.outer_.previousMap.get(name.get())
 			}
 			return nil
 		}())
 	} else if doc.isIdGenerator() {
-		this.outer_.nameGenerators[str_(name.orElse(nil))] = this.outer_.createNameSupplier(ReplaceIdGenerators_RenameStrategy_INCONSISTENT, func() *SimpleBiMap {
+		this.outer_.nameGenerators[name.orElse(nullstr_)] = this.outer_.createNameSupplier(ReplaceIdGenerators_RenameStrategy_INCONSISTENT, func() *SimpleBiMap {
 			if name.isPresent() {
-				return this.outer_.previousMap.get(str_(name.get()))
+				return this.outer_.previousMap.get(name.get())
 			}
 			return nil
 		}())
 	} else if doc.isMappedIdGenerator() {
 		var supplier ReplaceIdGenerators_NameSupplier = func() ReplaceIdGenerators_NameSupplier {
 			if name.isPresent() {
-				return this.outer_.nameGenerators[str_(name.get())]
+				return this.outer_.nameGenerators[name.get()]
 			}
 			return nil
 		}()
@@ -421,7 +420,7 @@ func (this *ReplaceIdGenerators_GatherGenerators) visit_impl(unused *NodeTravers
 	} else {
 		panic(new_IllegalStateException_String("unexpected").self())
 	}
-	this.outer_.idGeneratorMaps.put(str_(name.orElse(nil)), icast_Map(obj_(new_LinkedHashMap())))
+	this.outer_.idGeneratorMaps.put(name.orElse(nullstr_), icast_Map(obj_(new_LinkedHashMap())))
 }
 
 type ReplaceIdGenerators_ReplaceGenerators struct {
@@ -473,17 +472,15 @@ func (this *ReplaceIdGenerators_ReplaceGenerators) visit_impl(t *NodeTraversal, 
 		}
 	}
 	if n.isCall() {
-		this.maybeReplaceCall(t, n, Optional_of(strobj_(callName)).filter(&Predicate_fn{func(s_ any) bool {
-			var s string = str_(s_)
+		this.maybeReplaceCall(t, n, Optional_of[string](callName).filterFn_(func(s string) bool {
 			_ = s
 			return !String_isEmpty(s)
-		}}), nameGenerator)
+		}), nameGenerator)
 	} else {
-		this.maybeReplaceTaggedTemplateLit(t, n, Optional_of(strobj_(callName)).filter(&Predicate_fn{func(s_ any) bool {
-			var s string = str_(s_)
+		this.maybeReplaceTaggedTemplateLit(t, n, Optional_of[string](callName).filterFn_(func(s string) bool {
 			_ = s
 			return !String_isEmpty(s)
-		}}), nameGenerator)
+		}), nameGenerator)
 	}
 }
 
@@ -497,8 +494,8 @@ func (this *ReplaceIdGenerators_ReplaceGenerators) maybeReplaceTaggedTemplateLit
 			this.outer_.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, ReplaceIdGenerators_INVALID_TEMPLATE_LITERAL_PARAMETER, []string{}))
 			return
 		}
-		var rename OptionalOf[string] = this.getObfuscatedName(arg, callName, nameGenerator, str_(cooked.get()))
-		n.replaceWith(IR_string(str_(rename.get())))
+		var rename OptionalOf[string] = this.getObfuscatedName(arg, callName, nameGenerator, cooked.get())
+		n.replaceWith(IR_string(rename.get()))
 		t.reportCodeChange()
 	} else {
 		var newTemplateLit Node = IR_templateLiteral()
@@ -511,8 +508,8 @@ func (this *ReplaceIdGenerators_ReplaceGenerators) maybeReplaceTaggedTemplateLit
 						this.outer_.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, ReplaceIdGenerators_INVALID_TEMPLATE_LITERAL_PARAMETER, []string{}))
 						return
 					}
-					var rename OptionalOf[string] = this.getObfuscatedName(child, callName, nameGenerator, str_(cooked.get()))
-					newTemplateLit.addChildToBack(IR_templateLiteralString(rename, str_(rename.get())).srcrefIfMissing(child))
+					var rename OptionalOf[string] = this.getObfuscatedName(child, callName, nameGenerator, cooked.get())
+					newTemplateLit.addChildToBack(IR_templateLiteralString(rename, rename.get()).srcrefIfMissing(child))
 				} else {
 					newTemplateLit.addChildToBack(IR_templateLiteralSubstitution(child.removeFirstChild()).srcrefIfMissing(child))
 				}
@@ -529,15 +526,15 @@ func (this *ReplaceIdGenerators_ReplaceGenerators) maybeReplaceCall(t *NodeTrave
 		this.outer_.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, ReplaceIdGenerators_INVALID_GENERATOR_PARAMETER, []string{}))
 	} else if arg.isStringLit() {
 		var rename OptionalOf[string] = this.getObfuscatedName(arg, callName, nameGenerator, arg.getString())
-		n.replaceWith(IR_string(str_(rename.get())))
+		n.replaceWith(IR_string(rename.get()))
 		t.reportCodeChange()
 	} else if arg.isTemplateLit() && arg.hasOneChild() {
 		var cooked OptionalOf[string] = arg.getFirstChild().getCookedString()
 		if cooked.isEmpty() {
 			this.outer_.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, ReplaceIdGenerators_INVALID_GENERATOR_PARAMETER, []string{}))
 		} else {
-			var rename OptionalOf[string] = this.getObfuscatedName(arg, callName, nameGenerator, str_(cooked.get()))
-			n.replaceWith(IR_string(str_(rename.get())))
+			var rename OptionalOf[string] = this.getObfuscatedName(arg, callName, nameGenerator, cooked.get())
+			n.replaceWith(IR_string(rename.get()))
 			t.reportCodeChange()
 		}
 	} else if arg.isObjectLit() {
@@ -553,7 +550,7 @@ func (this *ReplaceIdGenerators_ReplaceGenerators) maybeReplaceCall(t *NodeTrave
 					return
 				}
 				var rename OptionalOf[string] = this.getObfuscatedName(key, callName, nameGenerator, key.getString())
-				key.setString(str_(rename.get()))
+				key.setString(rename.get())
 				key.putBooleanProp(Node_QUOTED_PROP, true)
 			}
 		}
@@ -574,7 +571,7 @@ func (this *ReplaceIdGenerators_ReplaceGenerators) maybeReplaceCall(t *NodeTrave
 		if paramsArrayLiteral.getChildCount() == 1 {
 			var originalName string = paramsArrayLiteral.getFirstChild().getString()
 			var rename OptionalOf[string] = this.getObfuscatedName(arg, callName, nameGenerator, originalName)
-			n.replaceWith(IR_string(str_(rename.get())))
+			n.replaceWith(IR_string(rename.get()))
 			t.reportCodeChange()
 			t.reportCodeChange_1(ttlVar)
 			ttlVar.detach()
@@ -584,7 +581,7 @@ func (this *ReplaceIdGenerators_ReplaceGenerators) maybeReplaceCall(t *NodeTrave
 				for ; param != 0; param = param.getNext() {
 					var originalName string = param.getString()
 					var rename OptionalOf[string] = this.getObfuscatedName(arg, callName, nameGenerator, originalName)
-					param.setString(str_(rename.get()))
+					param.setString(rename.get())
 				}
 			}
 			t.reportCodeChange_1(paramsArrayLiteral)
@@ -614,10 +611,10 @@ func (this *ReplaceIdGenerators_ReplaceGenerators) findTtlVar(t *NodeTraversal, 
 }
 
 func (this *ReplaceIdGenerators_ReplaceGenerators) getObfuscatedName(id Node, callName OptionalOf[string], nameGenerator ReplaceIdGenerators_NameSupplier, name string) OptionalOf[string] {
-	var rename OptionalOf[string] = Optional_empty()
+	var rename OptionalOf[string] = Optional_empty[string]()
 	var idGeneratorMap MapOf[string, string] = func() Map {
 		if callName.isPresent() {
-			return this.outer_.idGeneratorMaps.get(str_(callName.get()))
+			return this.outer_.idGeneratorMaps.get(callName.get())
 		}
 		return nil
 	}()
@@ -625,19 +622,19 @@ func (this *ReplaceIdGenerators_ReplaceGenerators) getObfuscatedName(id Node, ca
 	if nameGenerator.getRenameStrategy() == ReplaceIdGenerators_RenameStrategy_CONSISTENT {
 		var entry MapOf[string, string] = func() Map {
 			if callName.isPresent() {
-				return this.outer_.consistNameMap[str_(callName.get())]
+				return this.outer_.consistNameMap[callName.get()]
 			}
 			return nil
 		}()
-		rename = Optional_ofNullable(Map_get_s(entry, instanceId))
+		rename = Optional_ofNullable[string](str_(Map_get_s(entry, instanceId)))
 		if rename.isEmpty() {
 			rename = nameGenerator.getName(instanceId, name)
-			Map_put_s(entry, instanceId, rename.orElse(nil))
+			Map_put_s(entry, instanceId, strobj_(rename.orElse(nullstr_)))
 		}
 	} else {
 		rename = nameGenerator.getName(instanceId, name)
 	}
-	Map_put_s(idGeneratorMap, str_(rename.orElse(nil)), strobj_(instanceId))
+	Map_put_s(idGeneratorMap, rename.orElse(nullstr_), strobj_(instanceId))
 	return rename
 }
 

@@ -182,14 +182,14 @@ func JsFileFullParser_FileInfo_ModuleType_clinit() {
 }
 
 type JsFileFullParser_Reporter interface {
-	report(bool, string, Optional, int32, int32)
+	report(bool, string, Optional[any], int32, int32)
 }
 
 type JsFileFullParser_Reporter_fn struct {
-	f func(bool, string, Optional, int32, int32)
+	f func(bool, string, Optional[any], int32, int32)
 }
 
-func (this *JsFileFullParser_Reporter_fn) report(p0 bool, p1 string, p2 Optional, p3 int32, p4 int32) {
+func (this *JsFileFullParser_Reporter_fn) report(p0 bool, p1 string, p2 Optional[any], p3 int32, p4 int32) {
 	this.f(p0, p1, p2, p3, p4)
 }
 
@@ -214,12 +214,12 @@ func new_JsFileFullParser_DelegatingReporter(delegate JsFileFullParser_Reporter)
 }
 
 func (this *JsFileFullParser_DelegatingReporter) warning(message string, sourceName OptionalOf[string], line int32, lineOffset int32) {
-	this.delegate.report(false, message, sourceName, line, lineOffset)
+	this.delegate.report(false, message, optErase_(sourceName), line, lineOffset)
 }
 
 func (this *JsFileFullParser_DelegatingReporter) error(message string, sourceName OptionalOf[string], line int32, lineOffset int32) {
 	this.seenError = true
-	this.delegate.report(true, message, sourceName, line, lineOffset)
+	this.delegate.report(true, message, optErase_(sourceName), line, lineOffset)
 }
 
 type JsFileFullParser_1 struct {

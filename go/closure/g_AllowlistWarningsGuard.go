@@ -94,7 +94,7 @@ func (this *AllowlistWarningsGuard) formatWarning(error_ *JSError) string {
 
 func (this *AllowlistWarningsGuard) formatWarning_2(error_ *JSError, withMetaData bool) string {
 	var sb *StringBuilder = new_StringBuilder()
-	sb.append(str_(this.normalizeSourceName(error_.sourceName()).orElse(strobj_("null")))).append(":")
+	sb.append(this.normalizeSourceName(error_.sourceName()).orElse("null")).append(":")
 	if withMetaData {
 		sb.append_int(error_.getLineNumber())
 	}
@@ -111,7 +111,7 @@ func (this *AllowlistWarningsGuard) formatWarning_2(error_ *JSError, withMetaDat
 
 func (this *AllowlistWarningsGuard) normalizeSourceName(sourceName OptionalOf[string]) OptionalOf[string] {
 	if sourceName.isPresent() {
-		return Optional_ofNullable(strobj_(AllowlistWarningsGuard_BLAZE_OUT_DIR_PATTERN.matcher(sourceName.get()).replaceFirst("")))
+		return Optional_ofNullable[string](AllowlistWarningsGuard_BLAZE_OUT_DIR_PATTERN.matcher(strobj_(sourceName.get())).replaceFirst(""))
 	}
 	return sourceName
 }
@@ -151,9 +151,9 @@ type AllowlistWarningsGuard_AllowlistBuilder struct {
 
 func (this *AllowlistWarningsGuard_AllowlistBuilder) finit_AllowlistWarningsGuard_AllowlistBuilder() {
 	this.warnings_ = icast_Set(obj_(new_LinkedHashSet()))
-	this.productName = Optional_empty()
-	this.generatorTarget = Optional_empty()
-	this.headerNote = Optional_empty()
+	this.productName = Optional_empty[string]()
+	this.generatorTarget = Optional_empty[string]()
+	this.headerNote = Optional_empty[string]()
 }
 
 func (this *AllowlistWarningsGuard_AllowlistBuilder) init_AllowlistWarningsGuard_AllowlistBuilder() {
@@ -168,17 +168,17 @@ func new_AllowlistWarningsGuard_AllowlistBuilder(outer_ *AllowlistWarningsGuard)
 }
 
 func (this *AllowlistWarningsGuard_AllowlistBuilder) setProductName(name string) *AllowlistWarningsGuard_AllowlistBuilder {
-	this.productName = Optional_of(strobj_(name))
+	this.productName = Optional_of[string](name)
 	return this
 }
 
 func (this *AllowlistWarningsGuard_AllowlistBuilder) setGeneratorTarget(name string) *AllowlistWarningsGuard_AllowlistBuilder {
-	this.generatorTarget = Optional_of(strobj_(name))
+	this.generatorTarget = Optional_of[string](name)
 	return this
 }
 
 func (this *AllowlistWarningsGuard_AllowlistBuilder) setNote(note string) *AllowlistWarningsGuard_AllowlistBuilder {
-	this.headerNote = Optional_of(strobj_(note))
+	this.headerNote = Optional_of[string](note)
 	return this
 }
 
@@ -200,14 +200,14 @@ func (this *AllowlistWarningsGuard_AllowlistBuilder) writeAllowlist(out string) 
 
 func (this *AllowlistWarningsGuard_AllowlistBuilder) appendAllowlist(out *Output) {
 	out.append_CharSequence(strobj_("# This is a list of legacy warnings that have yet to be fixed.\n"))
-	if (this.productName.isPresent() && !String_isEmpty(str_(this.productName.get()))) && !this.warnings_.isEmpty() {
-		out.append_CharSequence(strobj_(("# Please find some time and fix at least one of them and it will be the happiest day for " + sstr_(str_(this.productName.get())) + ".\n")))
+	if (this.productName.isPresent() && !String_isEmpty(this.productName.get())) && !this.warnings_.isEmpty() {
+		out.append_CharSequence(strobj_(("# Please find some time and fix at least one of them and it will be the happiest day for " + sstr_(this.productName.get()) + ".\n")))
 	}
-	if this.generatorTarget.isPresent() && !String_isEmpty(str_(this.generatorTarget.get())) {
-		out.append_CharSequence(strobj_(("# When you fix any of these warnings, run " + sstr_(str_(this.generatorTarget.get())) + " task.\n")))
+	if this.generatorTarget.isPresent() && !String_isEmpty(this.generatorTarget.get()) {
+		out.append_CharSequence(strobj_(("# When you fix any of these warnings, run " + sstr_(this.generatorTarget.get()) + " task.\n")))
 	}
 	if this.headerNote.isPresent() {
-		out.append_CharSequence(strobj_(("#" + sstr_(Joiner_on("\n# ").join(Splitter_on('\n').split(this.headerNote.get()))) + "\n")))
+		out.append_CharSequence(strobj_(("#" + sstr_(Joiner_on("\n# ").join(Splitter_on('\n').split(strobj_(this.headerNote.get())))) + "\n")))
 	}
 	var warningsByType *SimpleSetMultimap = SimpleSetMultimap_createSorted()
 	it_1 := foreach_(any(this.warnings_))

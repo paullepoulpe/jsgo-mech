@@ -44,17 +44,17 @@ func (this *CheckExtraRequires) process_2(externs Node, root Node) {
 func (this *CheckExtraRequires) extractNamespace(call Node, primitiveNames []string) OptionalOf[string] {
 	var callee Node = call.getFirstChild()
 	if !callee.isGetProp() {
-		return Optional_empty()
+		return Optional_empty[string]()
 	}
 	for _, primitiveName := range primitiveNames {
 		if callee.matchesQualifiedName(primitiveName) {
 			var target Node = callee.getNext()
 			if (target != 0) && target.isStringLit() {
-				return Optional_of(strobj_(target.getString()))
+				return Optional_of[string](target.getString())
 			}
 		}
 	}
-	return Optional_empty()
+	return Optional_empty[string]()
 }
 
 func (this *CheckExtraRequires) extractNamespaceIfRequire(call Node) OptionalOf[string] {
@@ -165,12 +165,12 @@ func (this *CheckExtraRequires) visitGoogRequire(namespace string, googRequireCa
 func (this *CheckExtraRequires) visitCallNode(call Node, parent Node) {
 	var required OptionalOf[string] = this.extractNamespaceIfRequire(call)
 	if required.isPresent() {
-		this.visitGoogRequire(str_(required.get()), call, parent)
+		this.visitGoogRequire(required.get(), call, parent)
 		return
 	}
 	var declare OptionalOf[string] = this.extractNamespaceIfForwardDeclare(call)
 	if declare.isPresent() {
-		this.visitForwardDeclare(str_(declare.get()), call, parent)
+		this.visitForwardDeclare(declare.get(), call, parent)
 		return
 	}
 	var callee Node = call.getFirstChild()
@@ -180,10 +180,10 @@ func (this *CheckExtraRequires) visitCallNode(call Node, parent Node) {
 }
 
 func (this *CheckExtraRequires) addUsagesOfAllPrefixes(qualifiedName *QualifiedName) {
-	this.usages[str_(qualifiedName.join().orElse(nil))] = struct{}{}
+	this.usages[qualifiedName.join().orElse(nullstr_)] = struct{}{}
 	for !qualifiedName.isSimple() {
 		qualifiedName = qualifiedName.getOwner()
-		this.usages[str_(qualifiedName.join().orElse(nil))] = struct{}{}
+		this.usages[qualifiedName.join().orElse(nullstr_)] = struct{}{}
 	}
 }
 

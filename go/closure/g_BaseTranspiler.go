@@ -121,7 +121,7 @@ func (this *BaseTranspiler_CompilerSupplier) compile(path string, code string) *
 					panic(r_)
 				}
 			}()
-			result.sourceMap_.appendTo(icast_Appendable(obj_(sourceMap)), Optional_of(strobj_(path)))
+			result.sourceMap_.appendTo(icast_Appendable(obj_(sourceMap)), Optional_of[string](path))
 			return 0
 		}()
 	}
@@ -174,13 +174,13 @@ func (this *BaseTranspiler_CompilerSupplier) setOptions(options *CompilerOptions
 	options.setPathEscaper(ModuleLoader_PathEscaper_CANONICALIZE_ONLY)
 	options.setParseInlineSourceMaps(true)
 	options.setApplyInputSourceMaps(true)
-	options.setSourceMapOutputPath(Optional_of(strobj_("/dev/null")))
+	options.setSourceMapOutputPath(Optional_of[string]("/dev/null"))
 	options.setSourceMapIncludeSourcesContent(true)
-	options.setSourceMapLocationMappings(tlistImm_(tc_SourceMap_LocationMapping, ImmutableList_of_Object(any(&SourceMap_LocationMapping_fn{func(location Optional) Optional {
+	options.setSourceMapLocationMappings(tlistImm_(tc_SourceMap_LocationMapping, ImmutableList_of_Object(any(&SourceMap_LocationMapping_fn{func(location Optional[any]) Optional[any] {
 		if Uris_isValid(str_(location.get())) && Uris_hasScheme(str_(location.get())) {
 			return location
 		}
-		return new_SourceMap_PrefixLocationMapping("", "/").map_(location)
+		return optErase_(new_SourceMap_PrefixLocationMapping("", "/").map_(optConv_(location, func(v any) string { return str_(v) })))
 		panic("unreachable")
 	}}))))
 }

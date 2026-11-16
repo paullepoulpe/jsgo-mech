@@ -3,8 +3,8 @@
 package closure
 
 type ErrorReporter_rhino interface {
-	warning(string, Optional, int32, int32)
-	error(string, Optional, int32, int32)
+	warning(string, OptionalOf[string], int32, int32)
+	error(string, OptionalOf[string], int32, int32)
 }
 
 var ErrorReporter_rhino_NULL_INSTANCE ErrorReporter_rhino

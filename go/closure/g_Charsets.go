@@ -19,10 +19,10 @@ func Charsets_canonicalName(name string) OptionalOf[string] {
 	var lower string = Ascii_toLowerCase(name)
 	for i := int32(0); i < int32(len(Charsets_NAMES)); i += 2 {
 		if Charsets_NAMES[i] == lower {
-			return Optional_of(strobj_(Charsets_NAMES[(i + 1)]))
+			return Optional_of[string](Charsets_NAMES[(i + 1)])
 		}
 	}
-	return Optional_empty()
+	return Optional_empty[string]()
 }
 
 func Charsets_isSupported(name string) bool {
@@ -34,7 +34,7 @@ func Charsets_name(name string) string {
 	if canonical.isEmpty() {
 		panic(new_IllegalArgumentException_String(("Unsupported charset: " + sstr_(name))).self())
 	}
-	return str_(canonical.get())
+	return canonical.get()
 }
 
 func Charsets_decode(bytes []int8, charset string) string {
@@ -42,7 +42,7 @@ func Charsets_decode(bytes []int8, charset string) string {
 	if canonical == Charsets_UTF_8 {
 		return Io_utf8String(bytes)
 	}
-	return str_(Charsets_decodeOther(bytes, canonical, false).orElseThrow())
+	return Charsets_decodeOther(bytes, canonical, false).orElseThrow()
 }
 
 func Charsets_decodeStrict(bytes []int8, charset string) OptionalOf[string] {
@@ -69,11 +69,11 @@ func Charsets_decodeOther(bytes []int8, canonical string, strict bool) OptionalO
 			c = String_charAt(Charsets_WINDOWS_1252_HIGH, (b - 128))
 		}
 		if (c == Charsets_REPLACEMENT) && strict {
-			return Optional_empty()
+			return Optional_empty[string]()
 		}
 		text.append_char(c)
 	}
-	return Optional_of(strobj_(Object_toString(obj_(text))))
+	return Optional_of[string](Object_toString(obj_(text)))
 }
 
 func Charsets_decodeUtf16(bytes []int8, canonical string, strict bool) OptionalOf[string] {
@@ -116,9 +116,9 @@ func Charsets_decodeUtf16(bytes []int8, canonical string, strict bool) OptionalO
 		}
 	}
 	if strict && !valid {
-		return Optional_empty()
+		return Optional_empty[string]()
 	}
-	return Optional_of(strobj_(Object_toString(obj_(text))))
+	return Optional_of[string](Object_toString(obj_(text)))
 }
 
 func Charsets_encode(text string, charset string) []int8 {

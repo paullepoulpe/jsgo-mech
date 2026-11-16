@@ -17,7 +17,7 @@ func (this *Tracer) zero_Tracer() {
 
 func (this *Tracer) init_Tracer_Optional_Optional(type_ OptionalOf[string], comment OptionalOf[string]) {
 	this.type__ = type_
-	this.comment = str_(comment.orElse(strobj_("")))
+	this.comment = comment.orElse("")
 	this.startTimeMs = Tracer_clock.currentTimeMillis()
 	this.startThread = Thread_currentThread()
 	if !Tracer_extraTracingStatistics.isEmpty() {
@@ -54,7 +54,7 @@ func new_Tracer_Optional_Optional(type_ OptionalOf[string], comment OptionalOf[s
 }
 
 func (this *Tracer) init_Tracer_String(comment string) {
-	this.init_Tracer_Optional_Optional(Optional_empty(), Optional_of(strobj_(comment)))
+	this.init_Tracer_Optional_Optional(Optional_empty[string](), Optional_of[string](comment))
 }
 
 func new_Tracer_String(comment string) *Tracer {
@@ -144,7 +144,7 @@ func (this *Tracer) toString() string {
 	if this.type__.isEmpty() {
 		return this.comment
 	} else {
-		return ("[" + sstr_(str_(this.type__.get())) + "] " + sstr_(this.comment))
+		return ("[" + sstr_(this.type__.get()) + "] " + sstr_(this.comment))
 	}
 	panic("unreachable")
 }
@@ -470,21 +470,21 @@ func (this *Tracer_ThreadTrace) endEvent(t *Tracer, silenceThreshold int32) {
 		this.events.add(new_Tracer_Event(false, t))
 	}
 	if t.type__.isPresent() {
-		var stat *Tracer_Stat = this.stats.get(str_(t.type__.get()))
+		var stat *Tracer_Stat = this.stats.get(t.type__.get())
 		if stat == nil {
 			stat = new_Tracer_Stat()
 			if !Tracer_extraTracingStatistics.isEmpty() {
 				stat.extraInfo = make([]int32, Tracer_extraTracingStatistics.size())
 			}
-			this.stats.put(str_(t.type__.get()), stat)
+			this.stats.put(t.type__.get(), stat)
 		}
 		stat.count_++
 		if Tracer_typeToCountMap != nil {
-			Tracer_typeToCountMap.incrementBy(str_(t.type__.get()), 1)
+			Tracer_typeToCountMap.incrementBy(t.type__.get(), 1)
 		}
 		stat.clockTime = int32((int64(stat.clockTime) + elapsed))
 		if Tracer_typeToTimeMap != nil {
-			Tracer_typeToTimeMap.incrementBy(str_(t.type__.get()), elapsed)
+			Tracer_typeToTimeMap.incrementBy(t.type__.get(), elapsed)
 		}
 		if (stat.extraInfo != nil) && (t.extraTracingValues != nil) {
 			var overlapLength int32 = Math_min(int32(len(stat.extraInfo)), int32(len(t.extraTracingValues)))
@@ -492,14 +492,14 @@ func (this *Tracer_ThreadTrace) endEvent(t *Tracer, silenceThreshold int32) {
 				stat.extraInfo[i] = int32((int64(stat.extraInfo[i]) + t.extraTracingValues[i]))
 				var map_ *Tracer_AtomicTracerStatMap = icast_Tracer_TracingStatistic(Tracer_extraTracingStatistics.get(i)).getTracingStat()
 				if map_ != nil {
-					map_.incrementBy(str_(t.type__.get()), t.extraTracingValues[i])
+					map_.incrementBy(t.type__.get(), t.extraTracingValues[i])
 				}
 			}
 		}
 		if elapsed < int64(silenceThreshold) {
 			stat.silent++
 			if Tracer_typeToSilentMap != nil {
-				Tracer_typeToSilentMap.incrementBy(str_(t.type__.get()), 1)
+				Tracer_typeToSilentMap.incrementBy(t.type__.get(), 1)
 			}
 		}
 	}

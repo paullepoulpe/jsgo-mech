@@ -32,11 +32,11 @@ func (this *UnresolvedModule) init_UnresolvedModule() {
 }
 
 func (this *UnresolvedModule) resolve(moduleRequestResolver ModuleRequestResolver) *Module {
-	return this.resolve_2(moduleRequestResolver, Optional_empty())
+	return this.resolve_2(moduleRequestResolver, Optional_empty[string]())
 }
 
 func (this *UnresolvedModule) resolveExport_impl(moduleRequestResolver ModuleRequestResolver, exportName OptionalOf[string]) *ResolveExportResult {
-	return this.resolveExport_5(moduleRequestResolver, Optional_empty(), exportName, icast_Set(obj_(new_LinkedHashSet())), icast_Set(obj_(new_LinkedHashSet())))
+	return this.resolveExport_5(moduleRequestResolver, Optional_empty[string](), exportName, icast_Set(obj_(new_LinkedHashSet())), icast_Set(obj_(new_LinkedHashSet())))
 }
 
 func (this *UnresolvedModule) equals(other any) bool {
@@ -47,21 +47,21 @@ func (this *UnresolvedModule) hashCode() int32 {
 	return identityHash_(this.self())
 }
 
-func (this *UnresolvedModule) resolveExport(p0 ModuleRequestResolver, p1 Optional) *ResolveExportResult {
+func (this *UnresolvedModule) resolveExport(p0 ModuleRequestResolver, p1 OptionalOf[string]) *ResolveExportResult {
 	return this.self_.(interface {
-		resolveExport_impl(ModuleRequestResolver, Optional) *ResolveExportResult
+		resolveExport_impl(ModuleRequestResolver, OptionalOf[string]) *ResolveExportResult
 	}).resolveExport_impl(p0, p1)
 }
 
-func (this *UnresolvedModule) resolveExport_5(p0 ModuleRequestResolver, p1 Optional, p2 Optional, p3 Set, p4 Set) *ResolveExportResult {
+func (this *UnresolvedModule) resolveExport_5(p0 ModuleRequestResolver, p1 OptionalOf[string], p2 OptionalOf[string], p3 Set, p4 Set) *ResolveExportResult {
 	return this.self_.(interface {
-		resolveExport_5_impl(ModuleRequestResolver, Optional, Optional, Set, Set) *ResolveExportResult
+		resolveExport_5_impl(ModuleRequestResolver, OptionalOf[string], OptionalOf[string], Set, Set) *ResolveExportResult
 	}).resolveExport_5_impl(p0, p1, p2, p3, p4)
 }
 
-func (this *UnresolvedModule) resolve_2(p0 ModuleRequestResolver, p1 Optional) *Module {
+func (this *UnresolvedModule) resolve_2(p0 ModuleRequestResolver, p1 OptionalOf[string]) *Module {
 	return this.self_.(interface {
-		resolve_2_impl(ModuleRequestResolver, Optional) *Module
+		resolve_2_impl(ModuleRequestResolver, OptionalOf[string]) *Module
 	}).resolve_2_impl(p0, p1)
 }
 

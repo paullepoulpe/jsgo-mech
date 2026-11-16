@@ -98,10 +98,10 @@ func (this *CodeGenerator) printJsDocComment(node Node, jsDocInfo *JSDocInfo) {
 	if this.gentsMode {
 		jsdocAsString = jsDocInfo.getOriginalCommentString()
 	} else {
-		jsdocAsString = Optional_of(strobj_(this.jsDocInfoPrinter.print(jsDocInfo)))
+		jsdocAsString = Optional_of[string](this.jsDocInfoPrinter.print(jsDocInfo))
 	}
-	if jsdocAsString.isPresent() && !(str_(jsdocAsString.get()) == "/** */ ") {
-		this.add(str_(jsdocAsString.get()))
+	if jsdocAsString.isPresent() && !(jsdocAsString.get() == "/** */ ") {
+		this.add(jsdocAsString.get())
 		if !node.isCast() {
 			this.cc.endLine()
 		}
@@ -194,7 +194,7 @@ func (this *CodeGenerator) add_3(node Node, context *CodeGenerator_Context, prin
 	var first Node = node.getFirstChild()
 	var last Node = node.getLastChild()
 	if opstr.isPresent() && (first != last) {
-		Preconditions_checkState_boolean_String_Object_int((childCount == 2), "Bad binary operator \"%s\": expected 2 arguments but got %s", opstr.get(), childCount)
+		Preconditions_checkState_boolean_String_Object_int((childCount == 2), "Bad binary operator \"%s\": expected 2 arguments but got %s", strobj_(opstr.get()), childCount)
 		var p int32 = this.precedence(node)
 		var rhsContext *CodeGenerator_Context = CodeGenerator_getContextForNoInOperator(context)
 		var needsParens bool = (((context == CodeGenerator_Context_START_OF_EXPR) || context.atArrowFunctionBody()) && first.isObjectPattern())
@@ -203,10 +203,10 @@ func (this *CodeGenerator) add_3(node Node, context *CodeGenerator_Context, prin
 		}
 		if NodeUtil_isAssignmentOp(node) || (type_ == Token_rhino_EXPONENT) {
 			this.addExpr(first, (p + 1), context)
-			this.cc.addOp(str_(opstr.get()), true)
+			this.cc.addOp(opstr.get(), true)
 			this.addExpr(last, p, rhsContext)
 		} else {
-			this.unrollBinaryOperator(node, type_, str_(opstr.get()), context, rhsContext, p, (p + 1))
+			this.unrollBinaryOperator(node, type_, opstr.get(), context, rhsContext, p, (p + 1))
 		}
 		if node.isAssign() && needsParens {
 			this.add(")")

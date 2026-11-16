@@ -32,11 +32,11 @@ func Matchers_not(matcher Matcher) Matcher {
 }
 
 func Matchers_constructor_0() Matcher {
-	return Matchers_constructor_Optional(Optional_empty())
+	return Matchers_constructor_Optional(Optional_empty[string]())
 }
 
 func Matchers_constructor_Optional(name OptionalOf[string]) Matcher {
-	return icast_Matcher(obj_(new_Matchers_5(name)))
+	return icast_Matcher(obj_(new_Matchers_5(optErase_(name))))
 }
 
 func Matchers_newClass_0() Matcher {
@@ -48,11 +48,11 @@ func Matchers_newClass_String(className string) Matcher {
 }
 
 func Matchers_functionCall_0() Matcher {
-	return Matchers_functionCall_Optional(Optional_empty())
+	return Matchers_functionCall_Optional(Optional_empty[string]())
 }
 
 func Matchers_functionCall_Optional(name OptionalOf[string]) Matcher {
-	return icast_Matcher(obj_(new_Matchers_8(name)))
+	return icast_Matcher(obj_(new_Matchers_8(optErase_(name))))
 }
 
 func Matchers_functionCallWithNumArgs_int(numArgs int32) Matcher {
@@ -60,7 +60,7 @@ func Matchers_functionCallWithNumArgs_int(numArgs int32) Matcher {
 }
 
 func Matchers_functionCallWithNumArgs_String_int(name string, numArgs int32) Matcher {
-	return Matchers_allOf([]Matcher{Matchers_functionCallWithNumArgs_int(numArgs), Matchers_functionCall_Optional(Optional_of(strobj_(name)))})
+	return Matchers_allOf([]Matcher{Matchers_functionCallWithNumArgs_int(numArgs), Matchers_functionCall_Optional(Optional_of[string](name))})
 }
 
 func Matchers_googRequirelike_String(namespace string) Matcher {
@@ -74,31 +74,31 @@ func Matchers_googRequirelike_0() Matcher {
 }
 
 func Matchers_googRequire() Matcher {
-	return Matchers_functionCall_Optional(Optional_of(strobj_("goog.require")))
+	return Matchers_functionCall_Optional(Optional_of[string]("goog.require"))
 }
 
 func Matchers_googRequireType() Matcher {
-	return Matchers_functionCall_Optional(Optional_of(strobj_("goog.requireType")))
+	return Matchers_functionCall_Optional(Optional_of[string]("goog.requireType"))
 }
 
 func Matchers_googForwardDeclare() Matcher {
-	return Matchers_functionCall_Optional(Optional_of(strobj_("goog.forwardDeclare")))
+	return Matchers_functionCall_Optional(Optional_of[string]("goog.forwardDeclare"))
 }
 
 func Matchers_googModule() Matcher {
-	return Matchers_functionCall_Optional(Optional_of(strobj_("goog.module")))
+	return Matchers_functionCall_Optional(Optional_of[string]("goog.module"))
 }
 
 func Matchers_googModuleOrProvide() Matcher {
-	return Matchers_anyOf([]Matcher{Matchers_googModule(), Matchers_functionCall_Optional(Optional_of(strobj_("goog.provide")))})
+	return Matchers_anyOf([]Matcher{Matchers_googModule(), Matchers_functionCall_Optional(Optional_of[string]("goog.provide"))})
 }
 
 func Matchers_propertyAccess_0() Matcher {
-	return Matchers_propertyAccess_Optional(Optional_empty())
+	return Matchers_propertyAccess_Optional(Optional_empty[string]())
 }
 
 func Matchers_propertyAccess_Optional(name OptionalOf[string]) Matcher {
-	return icast_Matcher(obj_(new_Matchers_10(name)))
+	return icast_Matcher(obj_(new_Matchers_10(optErase_(name))))
 }
 
 func Matchers_enumDefinition() Matcher {
@@ -280,14 +280,14 @@ func (this *Matchers_4) matches(node Node, metadata *NodeMetadata) bool {
 }
 
 type Matchers_5 struct {
-	cap_name Optional
+	cap_name Optional[any]
 }
 
 func (this *Matchers_5) init_Matchers_5() {
 
 }
 
-func new_Matchers_5(cap_name Optional) *Matchers_5 {
+func new_Matchers_5(cap_name Optional[any]) *Matchers_5 {
 	this := &Matchers_5{}
 	this.cap_name = cap_name
 	this.init_Matchers_5()
@@ -357,14 +357,14 @@ func (this *Matchers_7) matches(node Node, metadata *NodeMetadata) bool {
 }
 
 type Matchers_8 struct {
-	cap_name Optional
+	cap_name Optional[any]
 }
 
 func (this *Matchers_8) init_Matchers_8() {
 
 }
 
-func new_Matchers_8(cap_name Optional) *Matchers_8 {
+func new_Matchers_8(cap_name Optional[any]) *Matchers_8 {
 	this := &Matchers_8{}
 	this.cap_name = cap_name
 	this.init_Matchers_8()
@@ -372,7 +372,7 @@ func new_Matchers_8(cap_name Optional) *Matchers_8 {
 }
 
 func (this *Matchers_8) matches(node Node, metadata *NodeMetadata) bool {
-	return (node.isCall() && Matchers_propertyAccess_Optional(this.cap_name).matches(node.getFirstChild(), metadata))
+	return (node.isCall() && Matchers_propertyAccess_Optional(optConv_(this.cap_name, func(v any) string { return str_(v) })).matches(node.getFirstChild(), metadata))
 }
 
 type Matchers_9 struct {
@@ -395,14 +395,14 @@ func (this *Matchers_9) matches(node Node, metadata *NodeMetadata) bool {
 }
 
 type Matchers_10 struct {
-	cap_name Optional
+	cap_name Optional[any]
 }
 
 func (this *Matchers_10) init_Matchers_10() {
 
 }
 
-func new_Matchers_10(cap_name Optional) *Matchers_10 {
+func new_Matchers_10(cap_name Optional[any]) *Matchers_10 {
 	this := &Matchers_10{}
 	this.cap_name = cap_name
 	this.init_Matchers_10()

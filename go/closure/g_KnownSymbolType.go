@@ -50,7 +50,7 @@ func (this *KnownSymbolType) getTypeClass_impl() *JSTypeClass {
 }
 
 func (this *KnownSymbolType) getDisplayName_impl() OptionalOf[string] {
-	return Optional_of(strobj_(this.name_))
+	return Optional_of[string](this.name_)
 }
 
 func (this *KnownSymbolType) isKnownSymbolValueType_impl() bool {
@@ -83,11 +83,11 @@ func (this *KnownSymbolType) getTypeClass() *JSTypeClass {
 }
 
 // getDisplayName: an object that is exactly a KnownSymbolType calls its getDisplayName_impl directly (post-flip); others dispatch.
-func (this *KnownSymbolType) getDisplayName() Optional {
+func (this *KnownSymbolType) getDisplayName() OptionalOf[string] {
 	if this.self_ == any(this) {
 		return this.getDisplayName_impl()
 	}
-	return this.self_.(interface{ getDisplayName_impl() Optional }).getDisplayName_impl()
+	return this.self_.(interface{ getDisplayName_impl() OptionalOf[string] }).getDisplayName_impl()
 }
 
 // isKnownSymbolValueType: an object that is exactly a KnownSymbolType calls its isKnownSymbolValueType_impl directly (post-flip); others dispatch.

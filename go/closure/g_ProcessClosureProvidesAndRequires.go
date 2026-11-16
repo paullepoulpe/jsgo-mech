@@ -195,39 +195,38 @@ func (this *ProcessClosureProvidesAndRequires) handleCandidateProvideDefinition(
 	if !t.inGlobalHoistScope() {
 		return
 	}
-	var name OptionalOf[string] = func() Optional {
+	var name OptionalOf[string] = func() OptionalOf[string] {
 		switch n.getParent().ns_().token {
 		case tokOrd1_LET, tokOrd1_CONST:
-			return func() Optional {
+			return func() OptionalOf[string] {
 				if t.inGlobalScope() {
-					return Optional_of(strobj_(n.getString()))
+					return Optional_of[string](n.getString())
 				}
-				return Optional_empty()
+				return Optional_empty[string]()
 			}()
 		case tokOrd1_VAR:
-			return Optional_of(strobj_(n.getString()))
+			return Optional_of[string](n.getString())
 		case tokOrd1_EXPR_RESULT:
-			return func() Optional {
+			return func() OptionalOf[string] {
 				if n.isAssign() {
-					return Optional_of(strobj_(n.getFirstChild().getQualifiedName())).filter(&Predicate_fn{func(s_ any) bool {
-						var s string = str_(s_)
+					return Optional_of[string](n.getFirstChild().getQualifiedName()).filterFn_(func(s string) bool {
 						_ = s
 						return !String_isEmpty(s)
-					}})
+					})
 				}
-				return Optional_empty()
+				return Optional_empty[string]()
 			}()
 		case tokOrd1_CLASS, tokOrd1_FUNCTION:
-			return Optional_empty()
+			return Optional_empty[string]()
 		default:
-			return Optional_empty()
+			return Optional_empty[string]()
 		}
 		panic("unreachable")
 	}()
 	if name.isEmpty() {
 		return
 	}
-	var pn *ProcessClosureProvidesAndRequires_ProvidedName = this.providedNames.get(str_(name.get()))
+	var pn *ProcessClosureProvidesAndRequires_ProvidedName = this.providedNames.get(name.get())
 	if pn != nil {
 		pn.addDefinition(parent, t.getChunk(), this.chunkGraph)
 	}

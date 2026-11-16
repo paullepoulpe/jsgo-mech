@@ -194,15 +194,13 @@ func (this *DefaultPassConfig) finit_DefaultPassConfig() {
 		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
 		_ = compiler
 		var convention CodingConvention = compiler.getCodingConvention()
-		var pass *GenerateExports = new_GenerateExports(compiler, this.options_.shouldExportLocalPropertyDefinitions(), Optional_of(strobj_(convention.getExportSymbolFunction())).filter(&Predicate_fn{func(s_ any) bool {
-			var s string = str_(s_)
+		var pass *GenerateExports = new_GenerateExports(compiler, this.options_.shouldExportLocalPropertyDefinitions(), Optional_of[string](convention.getExportSymbolFunction()).filterFn_(func(s string) bool {
 			_ = s
 			return !String_isEmpty(s)
-		}}), Optional_of(strobj_(convention.getExportPropertyFunction())).filter(&Predicate_fn{func(s_ any) bool {
-			var s string = str_(s_)
+		}), Optional_of[string](convention.getExportPropertyFunction()).filterFn_(func(s string) bool {
 			_ = s
 			return !String_isEmpty(s)
-		}}))
+		}))
 		return obj_(new_DefaultPassConfig_1(this, pass, compiler))
 		panic("unreachable")
 	}}).build()
@@ -248,7 +246,7 @@ func (this *DefaultPassConfig) finit_DefaultPassConfig() {
 	this.replaceMessagesForChrome = PassFactory_builder().setName(PassNames_REPLACE_MESSAGES).setInternalFactory(&Function_fn{func(compiler_ any) any {
 		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
 		_ = compiler
-		return obj_(new_ReplaceMessagesForChrome(compiler, icast_JsMessage_IdGenerator(obj_(new_GoogleJsMessageIdGenerator(Optional_of(strobj_(this.options_.getTcProjectId())))))))
+		return obj_(new_ReplaceMessagesForChrome(compiler, icast_JsMessage_IdGenerator(obj_(new_GoogleJsMessageIdGenerator(Optional_of[string](this.options_.getTcProjectId()))))))
 	}}).build()
 	this.closureGoogScopeAliasesForIjs = PassFactory_builder().setName("closureGoogScopeAliasesForIjs").setInternalFactory(&Function_fn{func(compiler_ any) any {
 		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
@@ -300,7 +298,7 @@ func (this *DefaultPassConfig) finit_DefaultPassConfig() {
 	this.createSyntheticBlocks = PassFactory_builder().setName("createSyntheticBlocks").setInternalFactory(&Function_fn{func(compiler_ any) any {
 		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
 		_ = compiler
-		return obj_(new_CreateSyntheticBlocks(compiler, str_(this.options_.getSyntheticBlockStartMarker().orElse(nil)), str_(this.options_.getSyntheticBlockEndMarker().orElse(nil))))
+		return obj_(new_CreateSyntheticBlocks(compiler, this.options_.getSyntheticBlockStartMarker().orElse(nullstr_), this.options_.getSyntheticBlockEndMarker().orElse(nullstr_)))
 	}}).build()
 	this.earlyPeepholeOptimizations = PassFactory_builder().setName("earlyPeepholeOptimizations").setInternalFactory(&Function_fn{func(compiler_ any) any {
 		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
@@ -491,7 +489,7 @@ func (this *DefaultPassConfig) finit_DefaultPassConfig() {
 	this.rescopeGlobalSymbols = PassFactory_builder().setName("rescopeGlobalSymbols").setInternalFactory(&Function_fn{func(compiler_ any) any {
 		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
 		_ = compiler
-		return obj_(new_RescopeGlobalSymbols_AbstractCompiler_String_boolean_OptimizeLocalAccess(compiler, str_(this.options_.getRenamePrefixNamespace().orElse(nil)), this.options_.assumeCrossChunkNamesForRenamePrefixNamespace(), this.options_.getOptimizeLocalAccessForGlobalSymbolNamespace()))
+		return obj_(new_RescopeGlobalSymbols_AbstractCompiler_String_boolean_OptimizeLocalAccess(compiler, this.options_.getRenamePrefixNamespace().orElse(nullstr_), this.options_.assumeCrossChunkNamesForRenamePrefixNamespace(), this.options_.getOptimizeLocalAccessForGlobalSymbolNamespace()))
 	}}).build()
 	this.convertChunksToESModules = PassFactory_builder().setName("convertChunksToESModules").setInternalFactory(&Function_fn{func(p0 any) any { return obj_(new_ConvertChunksToESModules(to_AbstractCompiler(p0))) }}).build()
 	this.inlineAndCollapseProperties = PassFactory_builder().setName("inlineAndCollapseProperties").setInternalFactory(&Function_fn{func(compiler_ any) any {
@@ -501,7 +499,7 @@ func (this *DefaultPassConfig) finit_DefaultPassConfig() {
 	}}).setPreconditionCheck(&Function_fn{func(options_ any) any {
 		var options *CompilerOptions = cast_[*CompilerOptions](options_)
 		_ = options
-		return obj_(new_PassFactory_PreconditionResult(((options.getPropertyCollapseLevel() == CompilerOptions_PropertyCollapseLevel_NONE) || options.getAssumePropertiesAreStaticallyAnalyzable()), Optional_of(strobj_("requires assumePropertiesAreStaticallyAnalyzable to be enabled"))))
+		return obj_(new_PassFactory_PreconditionResult(((options.getPropertyCollapseLevel() == CompilerOptions_PropertyCollapseLevel_NONE) || options.getAssumePropertiesAreStaticallyAnalyzable()), Optional_of[string]("requires assumePropertiesAreStaticallyAnalyzable to be enabled")))
 	}}).build()
 	this.collapseObjectLiterals = PassFactory_builder().setName(PassNames_COLLAPSE_OBJECT_LITERALS).setRunInFixedPointLoop(true).setInternalFactory(&Function_fn{func(compiler_ any) any {
 		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
@@ -725,7 +723,7 @@ func (this *DefaultPassConfig) finit_DefaultPassConfig() {
 	this.serializeTypedAst = PassFactory_builder().setName("serializeTypedAst").setInternalFactory(&Function_fn{func(compiler_ any) any {
 		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
 		_ = compiler
-		return obj_(SerializeTypedAstPass_createFromPath(compiler, str_(this.options_.getTypedAstOutputFile().orElse(nil)), SerializationOptions_builder().setIncludeDebugInfo(compiler.getOptions().shouldSerializeExtraDebugInfo()).setRuntimeLibraries(compiler.getRuntimeJsLibManager().getInjectedLibraries()).build()))
+		return obj_(SerializeTypedAstPass_createFromPath(compiler, this.options_.getTypedAstOutputFile().orElse(nullstr_), SerializationOptions_builder().setIncludeDebugInfo(compiler.getOptions().shouldSerializeExtraDebugInfo()).setRuntimeLibraries(compiler.getRuntimeJsLibManager().getInjectedLibraries()).build()))
 	}}).build()
 	this.removeUnnecessarySyntheticExterns = PassFactory_builder().setName("removeUnnecessarySyntheticExterns").setInternalFactory(&Function_fn{func(p0 any) any { return obj_(new_RemoveUnnecessarySyntheticExterns(to_AbstractCompiler(p0))) }}).build()
 	this.optimizeToEs6 = PassFactory_builder().setName("optimizeToEs6").setInternalFactory(&Function_fn{func(p0 any) any { return obj_(new_SubstituteEs6Syntax(to_AbstractCompiler(p0))) }}).build()
@@ -1077,8 +1075,8 @@ func (this *DefaultPassConfig) getFinalizations_impl() *PassListBuilder {
 		}
 		passes.maybeAdd(this.renameProperties)
 		if this.options_.getRenamePrefixNamespace().isPresent() && (this.options_.getChunkOutputType() == CompilerOptions_ChunkOutputType_GLOBAL_NAMESPACE) {
-			if !DefaultPassConfig_GLOBAL_SYMBOL_NAMESPACE_PATTERN.matcher(this.options_.getRenamePrefixNamespace().get()).matches() {
-				panic(new_IllegalArgumentException_String(("Illegal character in renamePrefixNamespace name: " + sstr_(str_(this.options_.getRenamePrefixNamespace().get())))).self())
+			if !DefaultPassConfig_GLOBAL_SYMBOL_NAMESPACE_PATTERN.matcher(strobj_(this.options_.getRenamePrefixNamespace().get())).matches() {
+				panic(new_IllegalArgumentException_String(("Illegal character in renamePrefixNamespace name: " + sstr_(this.options_.getRenamePrefixNamespace().get()))).self())
 			}
 			passes.maybeAdd(this.rescopeGlobalSymbols)
 		}
@@ -1176,8 +1174,8 @@ func (this *DefaultPassConfig) getFinalizations_impl() *PassListBuilder {
 		passes.maybeAdd(this.stripSideEffectProtection)
 	}
 	if this.options_.getRenamePrefixNamespace().isPresent() && (this.options_.getChunkOutputType() == CompilerOptions_ChunkOutputType_GLOBAL_NAMESPACE) {
-		if !DefaultPassConfig_GLOBAL_SYMBOL_NAMESPACE_PATTERN.matcher(this.options_.getRenamePrefixNamespace().get()).matches() {
-			panic(new_IllegalArgumentException_String(("Illegal character in renamePrefixNamespace name: " + sstr_(str_(this.options_.getRenamePrefixNamespace().get())))).self())
+		if !DefaultPassConfig_GLOBAL_SYMBOL_NAMESPACE_PATTERN.matcher(strobj_(this.options_.getRenamePrefixNamespace().get())).matches() {
+			panic(new_IllegalArgumentException_String(("Illegal character in renamePrefixNamespace name: " + sstr_(this.options_.getRenamePrefixNamespace().get()))).self())
 		}
 		passes.maybeAdd(this.rescopeGlobalSymbols)
 	}
@@ -1513,7 +1511,7 @@ func (this *DefaultPassConfig) runVariableRenaming(compiler *AbstractCompiler, p
 	var reservedChars SetOf[BoxedOf[uint16]] = icast_Set(obj_(ImmutableSet_of()))
 	var reservedNames *TSet[string] = newTSet_(tc_string)
 	if this.options_.getRenamePrefixNamespace().isPresent() {
-		reservedNames.add(str_(this.options_.getRenamePrefixNamespace().get()))
+		reservedNames.add(this.options_.getRenamePrefixNamespace().get())
 	}
 	reservedNames.asSet().addAll(Collection(compiler.getExportedNames()))
 	reservedNames.asSet().addAll(icast_Collection(obj_(ParserRunner_getReservedVars())))
@@ -1548,13 +1546,13 @@ func DefaultPassConfig_getAdditionalReplacements(options *CompilerOptions) *TMap
 		additionalReplacements.put(DefaultPassConfig_COMPILED_CONSTANT_NAME, IR_trueNode())
 	}
 	if (options.getClosurePass() && options.getLocale().isPresent()) && !options.doLateLocalization() {
-		additionalReplacements.put(DefaultPassConfig_CLOSURE_LOCALE_CONSTANT_NAME, IR_string(str_(options.getLocale().get())))
+		additionalReplacements.put(DefaultPassConfig_CLOSURE_LOCALE_CONSTANT_NAME, IR_string(options.getLocale().get()))
 	}
 	return additionalReplacements
 }
 
 func DefaultPassConfig_requirePropertiesAreStaticallyAnalyzable(options *CompilerOptions) *PassFactory_PreconditionResult {
-	return new_PassFactory_PreconditionResult(options.getAssumePropertiesAreStaticallyAnalyzable(), Optional_of(strobj_("requires assumePropertiesAreStaticallyAnalyzable to be enabled")))
+	return new_PassFactory_PreconditionResult(options.getAssumePropertiesAreStaticallyAnalyzable(), Optional_of[string]("requires assumePropertiesAreStaticallyAnalyzable to be enabled"))
 }
 
 const DefaultPassConfig_COMPILED_CONSTANT_NAME string = "COMPILED"
@@ -1649,11 +1647,11 @@ func new_DefaultPassConfig_3(outer_ *DefaultPassConfig, cap_compiler *AbstractCo
 }
 
 func (this *DefaultPassConfig_3) process_2(externs Node, jsRoot Node) {
-	var cssNames OptionalOf[ImmutableSet_BuilderOf[string]] = func() Optional {
+	var cssNames OptionalOf[ImmutableSet_BuilderOf[string]] = func() OptionalOf[ImmutableSet_BuilderOf[string]] {
 		if this.outer_.options_.shouldGatherCssNames() {
-			return Optional_of(obj_(ImmutableSet_builder()))
+			return Optional_of[ImmutableSet_BuilderOf[string]](ImmutableSet_builder())
 		}
-		return Optional_empty()
+		return Optional_empty[ImmutableSet_BuilderOf[string]]()
 	}()
 	var pass *ReplaceCssNames = new_ReplaceCssNames(this.cap_compiler, this.outer_.options_.getCssRenamingMap(), &ReplaceCssNames_CssNameCollector_fn{func(cssName string) {
 		cssNames.ifPresent(&Consumer_fn{func(builder_ any) {
@@ -1665,7 +1663,7 @@ func (this *DefaultPassConfig_3) process_2(externs Node, jsRoot Node) {
 	pass.process_2(externs, jsRoot)
 	this.cap_compiler.setCssNames(func() *TSet[string] {
 		if cssNames.isPresent() {
-			return tsetFrom_(tc_string, cast_[*ImmutableSet_Builder](cssNames.get()).build(), true)
+			return tsetFrom_(tc_string, cast_[*ImmutableSet_Builder](any(cssNames.get())).build(), true)
 		}
 		return nil
 	}())

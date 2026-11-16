@@ -54,7 +54,7 @@ func PotentialDeclaration_fromMemberFieldDef(fieldNode Node) *PotentialDeclarati
 	Preconditions_checkArgument(fieldNode.isMemberFieldDef())
 	var rhs Node = NodeUtil_getRValueOfLValue(fieldNode)
 	var name string = ClassUtil_getFullyQualifiedNameOfMemberFieldDef(fieldNode)
-	return new_PotentialDeclaration_MemberFieldDeclaration(Optional_of(strobj_(name)), fieldNode, rhs).up_PotentialDeclaration()
+	return new_PotentialDeclaration_MemberFieldDeclaration(Optional_of[string](name), fieldNode, rhs).up_PotentialDeclaration()
 }
 
 func PotentialDeclaration_fromMethod(functionNode Node) *PotentialDeclaration {
@@ -598,7 +598,7 @@ func (this *PotentialDeclaration_MemberFieldDeclaration) zero_PotentialDeclarati
 }
 
 func (this *PotentialDeclaration_MemberFieldDeclaration) init_PotentialDeclaration_MemberFieldDeclaration(name OptionalOf[string], lhs Node, rhs Node) {
-	this.PotentialDeclaration.init_PotentialDeclaration(str_(name.orElseThrow()), lhs, rhs)
+	this.PotentialDeclaration.init_PotentialDeclaration(name.orElseThrow(), lhs, rhs)
 }
 
 func new_PotentialDeclaration_MemberFieldDeclaration(name OptionalOf[string], lhs Node, rhs Node) *PotentialDeclaration_MemberFieldDeclaration {

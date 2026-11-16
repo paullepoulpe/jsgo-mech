@@ -96,7 +96,7 @@ func (this *InferJSDocInfo) inferJSDocForName(n Node, parent Node) {
 	}
 	var objType *ObjectType = InferJSDocInfo_dereferenced(inferredType)
 	if InferJSDocInfo_shouldAttachJSDocToNominalTypeOrShape(objType, aliasedType) {
-		InferJSDocInfo_attachJSDocInfoToNominalTypeOrShape(objType, typeDoc, Optional_of(strobj_(n.getString())))
+		InferJSDocInfo_attachJSDocInfoToNominalTypeOrShape(objType, typeDoc, Optional_of[string](n.getString()))
 	}
 }
 
@@ -170,11 +170,10 @@ func (this *InferJSDocInfo) inferJSDocForProperty(n Node, parent Node) {
 	}
 	var propType *ObjectType = InferJSDocInfo_dereferenced(lhsType.getPropertyType(propName))
 	if InferJSDocInfo_shouldAttachJSDocToNominalTypeOrShape(propType, aliasedType) {
-		InferJSDocInfo_attachJSDocInfoToNominalTypeOrShape(propType, typeDoc, Optional_of(strobj_(n.getQualifiedName())).filter(&Predicate_fn{func(s_ any) bool {
-			var s string = str_(s_)
+		InferJSDocInfo_attachJSDocInfoToNominalTypeOrShape(propType, typeDoc, Optional_of[string](n.getQualifiedName()).filterFn_(func(s string) bool {
 			_ = s
 			return !String_isEmpty(s)
-		}}))
+		}))
 	}
 }
 
@@ -211,7 +210,7 @@ func InferJSDocInfo_attachJSDocInfoToNominalTypeOrShape(objType *ObjectType, doc
 }
 
 func InferJSDocInfo_isReferenceNameOf(type_ *ObjectType, name OptionalOf[string]) bool {
-	return (type_.hasReferenceName() && Object_equals(obj_(type_.getReferenceName()), obj_(name)))
+	return (type_.hasReferenceName() && Object_equals(obj_(optErase_(type_.getReferenceName())), obj_(optErase_(name))))
 }
 
 // visit: an object that is exactly a InferJSDocInfo calls its visit_impl directly (post-flip); others dispatch.
