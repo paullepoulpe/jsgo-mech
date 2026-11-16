@@ -254,7 +254,7 @@ func (this *InlineFunctions) minimizeCost(functionState *InlineFunctions_Functio
 }
 
 func (this *InlineFunctions) inliningLowersCost(functionState *InlineFunctions_FunctionState) bool {
-	return ((functionState.requireInlining() || functionState.encourageInlining()) || this.injector.inliningLowersCost(functionState.getChunk(), functionState.getFn().getFunctionNode(), functionState.getReferences(), tsetFrom_(tc_string, functionState.getNamesToAlias(), true), functionState.canRemove(), functionState.getReferencesThis()))
+	return ((functionState.requireInlining() || functionState.encourageInlining()) || this.injector.inliningLowersCost(functionState.getChunk(), functionState.getFn().getFunctionNode(), functionState.getReferences(), setImm_(tc_string, functionState.getNamesToAlias()), functionState.canRemove(), functionState.getReferencesThis()))
 }
 
 func (this *InlineFunctions) resolveInlineConflicts() {

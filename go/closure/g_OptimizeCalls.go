@@ -43,12 +43,12 @@ func (this *OptimizeCalls) eliminateAccessorsFrom(references *OptimizeCalls_Refe
 	references.props.asMap().keySet().removeAll(Collection(this.compiler_.getAccessorSummary().getAccessors().keySet()))
 }
 
-func OptimizeCalls_safeSet(set *TSet[string]) *TSet[string] {
-	return func() *TSet[string] {
+func OptimizeCalls_safeSet(set *TSet[string]) map[string]struct{} {
+	return func() map[string]struct{} {
 		if set != nil {
-			return tsetFrom_(tc_string, ImmutableSet_copyOf(Collection(set.asSet())), true)
+			return setImm_(tc_string, ImmutableSet_copyOf(Collection(set.asSet())))
 		}
-		return tsetFrom_(tc_string, ImmutableSet_of(), true)
+		return setImm_(tc_string, ImmutableSet_of())
 	}()
 }
 
@@ -343,7 +343,7 @@ func OptimizeCalls_ReferenceMap_isSimpleAssignmentTarget(n Node) bool {
 
 type OptimizeCalls_ReferenceMapBuildingCallback struct {
 	outer_      *OptimizeCalls
-	externProps *TSet[string]
+	externProps map[string]struct{}
 	references  *OptimizeCalls_ReferenceMap
 	globalScope *Scope
 }
@@ -407,7 +407,7 @@ func (this *OptimizeCalls_ReferenceMapBuildingCallback) maybeAddNameReference(na
 }
 
 func (this *OptimizeCalls_ReferenceMapBuildingCallback) maybeAddPropReference(name string, n Node) {
-	if this.outer_.considerExterns || !this.externProps.contains(name) {
+	if this.outer_.considerExterns || !has_(this.externProps, name) {
 		this.references.addPropReference(name, n)
 	}
 }

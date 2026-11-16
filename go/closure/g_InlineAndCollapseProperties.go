@@ -888,8 +888,8 @@ func (this *InlineAndCollapseProperties_CollapseProperties) process_2(externs No
 	it_1 := globalNames.each()
 	for it_1.next() {
 		var name *GlobalNamespace_Name = it_1.v
-		this.flattenReferencesToCollapsibleDescendantNames(name, name.getBaseName(), tsetFrom_(tc_p_GlobalNamespace_Name, escaped, true))
-		this.collapseDeclarationOfNameAndDescendants(name, name.getBaseName(), tsetFrom_(tc_p_GlobalNamespace_Name, escaped, true))
+		this.flattenReferencesToCollapsibleDescendantNames(name, name.getBaseName(), setImm_(tc_p_GlobalNamespace_Name, escaped))
+		this.collapseDeclarationOfNameAndDescendants(name, name.getBaseName(), setImm_(tc_p_GlobalNamespace_Name, escaped))
 	}
 }
 
@@ -938,7 +938,7 @@ func (this *InlineAndCollapseProperties_CollapseProperties) canEliminate(name *G
 
 func (this *InlineAndCollapseProperties_CollapseProperties) checkNamespaces() ImmutableSetOf[*GlobalNamespace_Name] {
 	var escaped ImmutableSet_BuilderOf[*GlobalNamespace_Name] = ImmutableSet_builder()
-	var dynamicallyImportedModuleRefs *TSet[string] = tsetFrom_(tc_string, icast_Collection(obj_(this.dynamicallyImportedModules)), false)
+	var dynamicallyImportedModuleRefs map[string]struct{} = setFrom_(tc_string, icast_Collection(obj_(this.dynamicallyImportedModules)))
 	if !this.dynamicallyImportedModules.isEmpty() {
 		it_1 := this.nameMap.each()
 		for it_1.next() {
@@ -960,7 +960,7 @@ func (this *InlineAndCollapseProperties_CollapseProperties) checkNamespaces() Im
 						var rValue Node = NodeUtil_getRValueOfLValue(propDeclaration.getNode())
 						if rValue.isName() {
 							this.logDecisionForName(name, "escapes - dynamically imported module namespace property alias")
-							dynamicallyImportedModuleRefs.add(rValue.getQualifiedName())
+							dynamicallyImportedModuleRefs[rValue.getQualifiedName()] = struct{}{}
 						}
 					}
 				}
@@ -970,7 +970,7 @@ func (this *InlineAndCollapseProperties_CollapseProperties) checkNamespaces() Im
 	it_5 := this.nameMap.each()
 	for it_5.next() {
 		var name *GlobalNamespace_Name = it_5.v
-		if !dynamicallyImportedModuleRefs.isEmpty() && dynamicallyImportedModuleRefs.contains(name.getFullName()) {
+		if len(dynamicallyImportedModuleRefs) != 0 && has_(dynamicallyImportedModuleRefs, name.getFullName()) {
 			escaped.add(obj_(name))
 		}
 		if !name.isNamespaceObjectLit() {
@@ -1011,7 +1011,7 @@ func (this *InlineAndCollapseProperties_CollapseProperties) warnAboutNamespaceRe
 	this.outer_.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(ref.getNode(), InlineAndCollapseProperties_NAMESPACE_REDEFINED_WARNING, []string{nameObj.getFullName()}))
 }
 
-func (this *InlineAndCollapseProperties_CollapseProperties) flattenReferencesToCollapsibleDescendantNames(n *GlobalNamespace_Name, alias string, escaped *TSet[*GlobalNamespace_Name]) {
+func (this *InlineAndCollapseProperties_CollapseProperties) flattenReferencesToCollapsibleDescendantNames(n *GlobalNamespace_Name, alias string, escaped map[*GlobalNamespace_Name]struct{}) {
 	if n.props == nil {
 		return
 	}
@@ -1019,7 +1019,7 @@ func (this *InlineAndCollapseProperties_CollapseProperties) flattenReferencesToC
 		this.logDecisionForName(n, "@nocollapse: will not flatten descendant name references")
 		return
 	}
-	if escaped.contains(n) {
+	if has_(escaped, n) {
 		this.logDecisionForName(n, "escapes: will not flatten descendant name references")
 		return
 	}
@@ -1165,7 +1165,7 @@ func (this *InlineAndCollapseProperties_CollapseProperties) flattenNameRef(alias
 	this.outer_.compiler_.reportChangeToEnclosingScope(ref)
 }
 
-func (this *InlineAndCollapseProperties_CollapseProperties) collapseDeclarationOfNameAndDescendants(n *GlobalNamespace_Name, alias string, escaped *TSet[*GlobalNamespace_Name]) {
+func (this *InlineAndCollapseProperties_CollapseProperties) collapseDeclarationOfNameAndDescendants(n *GlobalNamespace_Name, alias string, escaped map[*GlobalNamespace_Name]struct{}) {
 	var childNameInlinability *GlobalNamespace_Inlinability = n.canCollapseOrInlineChildNames()
 	var canCollapseChildNames bool
 	if !childNameInlinability.canCollapse() {
@@ -1173,7 +1173,7 @@ func (this *InlineAndCollapseProperties_CollapseProperties) collapseDeclarationO
 			return strobj_(String_format("child name inlinability: %s: will not collapse child names", []any{obj_(childNameInlinability)}))
 		}})
 		canCollapseChildNames = false
-	} else if escaped.contains(n) {
+	} else if has_(escaped, n) {
 		this.logDecisionForName(n, "escapes: will not collapse child names")
 		canCollapseChildNames = false
 	} else {
@@ -1183,7 +1183,7 @@ func (this *InlineAndCollapseProperties_CollapseProperties) collapseDeclarationO
 		this.logDecisionForName(n, "collapsing")
 		this.updateGlobalNameDeclaration(n, alias, canCollapseChildNames)
 	}
-	if (n.props == nil) || escaped.contains(n) {
+	if (n.props == nil) || has_(escaped, n) {
 		return
 	}
 	this.logDecisionForName(n, "collapsing descendants")

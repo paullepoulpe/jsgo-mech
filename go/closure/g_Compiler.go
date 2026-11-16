@@ -1678,19 +1678,19 @@ func (this *Compiler) findModulesFromEntryPoints(supportEs6Modules bool, support
 			entryPoints = append(entryPoints, input)
 		}
 	}
-	var workingInputSet *TSet[*CompilerInput] = newTSet_(tc_p_CompilerInput)
+	var workingInputSet map[*CompilerInput]struct{} = map[*CompilerInput]struct{}{}
 	it_7 := foreach_(any(this.chunkGraph.getAllInputs()))
 	for it_7.next() {
 		var input *CompilerInput = cast_[*CompilerInput](it_7.v)
-		workingInputSet.add(input)
+		workingInputSet[input] = struct{}{}
 	}
 	for _, entryPoint := range entryPoints {
 		this.findModulesFromInput(entryPoint, false, workingInputSet, inputsByIdentifier, inputsByProvide, supportEs6Modules, supportCommonJSModules)
 	}
 }
 
-func (this *Compiler) findModulesFromInput(input *CompilerInput, wasImportedByModule bool, inputs *TSet[*CompilerInput], inputsByIdentifier map[string]*CompilerInput, inputsByProvide map[string]*CompilerInput, supportEs6Modules bool, supportCommonJSModules bool) {
-	if !inputs.remove(input) {
+func (this *Compiler) findModulesFromInput(input *CompilerInput, wasImportedByModule bool, inputs map[*CompilerInput]struct{}, inputsByIdentifier map[string]*CompilerInput, inputsByProvide map[string]*CompilerInput, supportEs6Modules bool, supportCommonJSModules bool) {
+	if !setRemove_(inputs, input) {
 		if wasImportedByModule && (input.getJsModuleType() == CompilerInput_ModuleType_NONE) {
 			input.setJsModuleType(CompilerInput_ModuleType_IMPORTED_SCRIPT)
 		}
@@ -3547,7 +3547,7 @@ type Compiler_ChunkGraphAwareLicenseTracker struct {
 	compiler_                           *AbstractCompiler
 	licensesFromChunks                  map[*JSChunk]SetOf[string]
 	haveInitializedCurrentChunkLicenses bool
-	currentChunkLicencesInTDeps         *TSet[string]
+	currentChunkLicencesInTDeps         map[string]struct{}
 	lastSeenFile                        string
 	licensesNewInCurrentFile            *TSet[string]
 	licensesNewInCurrentChunk           SetOf[string]
@@ -3562,7 +3562,7 @@ func (this *Compiler_ChunkGraphAwareLicenseTracker) zero_Compiler_ChunkGraphAwar
 func (this *Compiler_ChunkGraphAwareLicenseTracker) finit_Compiler_ChunkGraphAwareLicenseTracker() {
 	this.licensesFromChunks = map[*JSChunk]SetOf[string]{}
 	this.haveInitializedCurrentChunkLicenses = false
-	this.currentChunkLicencesInTDeps = newTSet_(tc_string)
+	this.currentChunkLicencesInTDeps = map[string]struct{}{}
 	this.lastSeenFile = ""
 	this.licensesNewInCurrentFile = newTSet_(tc_string)
 	this.licensesNewInCurrentChunk = icast_Set(obj_(new_LinkedHashSet()))
@@ -3588,7 +3588,7 @@ func (this *Compiler_ChunkGraphAwareLicenseTracker) setLogFile(file *LogFile) {
 func (this *Compiler_ChunkGraphAwareLicenseTracker) setCurrentChunkContext(chunk *JSChunk) {
 	this.log_.log_2("Initializing licenses from deps for chunk %s", []any{obj_(chunk)})
 	this.currentChunk = chunk
-	this.currentChunkLicencesInTDeps.clear()
+	clear(this.currentChunkLicencesInTDeps)
 	this.licensesNewInCurrentFile.clear()
 	this.haveInitializedCurrentChunkLicenses = false
 	if has_(this.licensesFromChunks, chunk) {
@@ -3619,7 +3619,7 @@ func (this *Compiler_ChunkGraphAwareLicenseTracker) trackLicensesForNode(node No
 			if !has_(this.licensesFromChunks, depChunk) {
 				panic(new_IllegalStateException_String("Chunk aware license analysis error - analysis out of order.").self())
 			}
-			this.currentChunkLicencesInTDeps.asSet().addAll(icast_Collection(any(this.licensesFromChunks[depChunk])))
+			setAddAllFrom_(tc_string, this.currentChunkLicencesInTDeps, icast_Collection(any(this.licensesFromChunks[depChunk])))
 		}
 		this.haveInitializedCurrentChunkLicenses = true
 	}
@@ -3631,7 +3631,7 @@ func (this *Compiler_ChunkGraphAwareLicenseTracker) trackLicensesForNode(node No
 	if license.isEmpty() {
 		return
 	}
-	if this.currentChunkLicencesInTDeps.contains(str_(license.get())) {
+	if has_(this.currentChunkLicencesInTDeps, str_(license.get())) {
 		return
 	}
 	if Collection_contains_s(this.licensesNewInCurrentChunk, str_(license.get())) {

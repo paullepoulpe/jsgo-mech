@@ -409,7 +409,7 @@ func (this *JsMessageVisitor) extractJsMessageDefinition(msgNode Node, jsDocInfo
 	if requiredKeysChecked.isErr() {
 		return Outcome_base_err(requiredKeysChecked.error())
 	}
-	var unexpectedKeysChecked *Outcome_base = placeholderObjectLiteralMap.checkForUnexpectedKeys(tsetFrom_(tc_string, placeholderNamesFromText, true), &Function_fn{func(placeholderName_ any) any {
+	var unexpectedKeysChecked *Outcome_base = placeholderObjectLiteralMap.checkForUnexpectedKeys(setImm_(tc_string, placeholderNamesFromText), &Function_fn{func(placeholderName_ any) any {
 		var placeholderName string = str_(placeholderName_)
 		_ = placeholderName
 		return strobj_(("Unused message placeholder: " + sstr_(placeholderName)))
@@ -423,7 +423,7 @@ func (this *JsMessageVisitor) extractJsMessageDefinition(msgNode Node, jsDocInfo
 		return Outcome_base_err(jsMessageOptionsOutcome.error())
 	}
 	var jsMessageOptions JsMessageVisitor_JsMessageOptions = icast_JsMessageVisitor_JsMessageOptions(jsMessageOptionsOutcome.get())
-	var unknownPlaceholdersChecked *Outcome_base = jsMessageOptions.checkForUnknownPlaceholders(tsetFrom_(tc_string, placeholderNamesFromText, true))
+	var unknownPlaceholdersChecked *Outcome_base = jsMessageOptions.checkForUnknownPlaceholders(setImm_(tc_string, placeholderNamesFromText))
 	if unknownPlaceholdersChecked.isErr() {
 		return Outcome_base_err(unknownPlaceholdersChecked.error())
 	}
@@ -463,7 +463,7 @@ func (this *JsMessageVisitor) extractIcuTemplateDefinition(msgNode Node, jsDocIn
 	}
 	var icuTemplateOptions JsMessageVisitor_IcuTemplateOptions = icast_JsMessageVisitor_IcuTemplateOptions(icuTemplateOptionsOutcome.get())
 	var extractedIcuTemplateParts *JsMessageVisitor_ExtractedIcuTemplateParts = icuMessageTemplateString.extractParts(tsetFrom_(tc_string, icuTemplateOptions.getPlaceholderNames(), true))
-	var unknownPlaceholdersChecked *Outcome_base = icuTemplateOptions.checkForUnknownPlaceholders(tsetFrom_(tc_string, extractedIcuTemplateParts.extractedPlaceholderNames, true))
+	var unknownPlaceholdersChecked *Outcome_base = icuTemplateOptions.checkForUnknownPlaceholders(setImm_(tc_string, extractedIcuTemplateParts.extractedPlaceholderNames))
 	if unknownPlaceholdersChecked.isErr() {
 		return Outcome_base_err(unknownPlaceholdersChecked.error())
 	}
@@ -491,7 +491,7 @@ func (this *JsMessageVisitor) extractJsMessageOptions(optionsBag Node) *Outcome_
 		return Outcome_base_err(objectLiteralMapOutcome.error())
 	}
 	var objectLiteralMap JsMessageVisitor_ObjectLiteralMap = icast_JsMessageVisitor_ObjectLiteralMap(objectLiteralMapOutcome.get())
-	var unexpectedKeysChecked *Outcome_base = objectLiteralMap.checkForUnexpectedKeys(tsetFrom_(tc_string, JsMessageVisitor_MESSAGE_OPTION_NAMES, true), &Function_fn{func(optionName_ any) any {
+	var unexpectedKeysChecked *Outcome_base = objectLiteralMap.checkForUnexpectedKeys(setImm_(tc_string, JsMessageVisitor_MESSAGE_OPTION_NAMES), &Function_fn{func(optionName_ any) any {
 		var optionName string = str_(optionName_)
 		_ = optionName
 		return strobj_(("Unknown option: " + sstr_(optionName)))
@@ -541,7 +541,7 @@ func (this *JsMessageVisitor) extractIcuTemplateOptions(optionsBag Node) *Outcom
 		return Outcome_base_err(objectLiteralMapOutcome.error())
 	}
 	var objectLiteralMap JsMessageVisitor_ObjectLiteralMap = icast_JsMessageVisitor_ObjectLiteralMap(objectLiteralMapOutcome.get())
-	var unexpectedKeysChecked *Outcome_base = objectLiteralMap.checkForUnexpectedKeys(tsetFrom_(tc_string, JsMessageVisitor_ICU_TEMPLATE_OPTION_NAMES, true), &Function_fn{func(optionName_ any) any {
+	var unexpectedKeysChecked *Outcome_base = objectLiteralMap.checkForUnexpectedKeys(setImm_(tc_string, JsMessageVisitor_ICU_TEMPLATE_OPTION_NAMES), &Function_fn{func(optionName_ any) any {
 		var optionName string = str_(optionName_)
 		_ = optionName
 		return strobj_(("Unknown option: " + sstr_(optionName)))
@@ -914,7 +914,7 @@ type JsMessageVisitor_JsMessageOptions interface {
 	isUnescapeHtmlEntities() bool
 	getPlaceholderExampleMap() *ImmutableMap
 	getPlaceholderOriginalCodeMap() *ImmutableMap
-	checkForUnknownPlaceholders(*TSet[string]) *Outcome_base
+	checkForUnknownPlaceholders(map[string]struct{}) *Outcome_base
 }
 
 type JsMessageVisitor_IcuTemplateOptions interface {
@@ -923,7 +923,7 @@ type JsMessageVisitor_IcuTemplateOptions interface {
 	getAlternateMessageId() Optional
 	getPlaceholderExampleMap() *ImmutableMap
 	getPlaceholderOriginalCodeMap() *ImmutableMap
-	checkForUnknownPlaceholders(*TSet[string]) *Outcome_base
+	checkForUnknownPlaceholders(map[string]struct{}) *Outcome_base
 	getPlaceholderNames() *ImmutableSet
 }
 
@@ -932,7 +932,7 @@ type JsMessageVisitor_ObjectLiteralMap interface {
 	extractAsValueMap() *ImmutableMap
 	extractAsStringToStringMap() *Outcome_base
 	getValueNode(string) Node
-	checkForUnexpectedKeys(*TSet[string], Function) *Outcome_base
+	checkForUnexpectedKeys(map[string]struct{}, Function) *Outcome_base
 	checkForRequiredKeys(*TSet[string], Function) *Outcome_base
 }
 
@@ -1003,11 +1003,11 @@ func (this *JsMessageVisitor_ObjectLiteralMapImpl) extractAsStringToStringMap() 
 	return Outcome_base_ok_Object(obj_(this.stringMap))
 }
 
-func (this *JsMessageVisitor_ObjectLiteralMapImpl) checkForUnexpectedKeys(expectedKeys *TSet[string], createErrorMessage FunctionOf[string, string]) *Outcome_base {
+func (this *JsMessageVisitor_ObjectLiteralMapImpl) checkForUnexpectedKeys(expectedKeys map[string]struct{}, createErrorMessage FunctionOf[string, string]) *Outcome_base {
 	it_1 := this.stringToStringKeyMap.each()
 	for it_1.next() {
 		var key string = it_1.k
-		if !expectedKeys.contains(key) {
+		if !has_(expectedKeys, key) {
 			return Outcome_base_err(new_JsMessageVisitor_MalformedException(str_(createErrorMessage.apply(strobj_(key))), this.stringToStringKeyMap.get(key)).up_Throwable())
 		}
 	}
@@ -1334,7 +1334,7 @@ func (this *JsMessageVisitor_5) getPlaceholderOriginalCodeMap() ImmutableMapOf[s
 	return this.cap_placeholderOriginalCodeMap
 }
 
-func (this *JsMessageVisitor_5) checkForUnknownPlaceholders(knownPlaceholders *TSet[string]) *Outcome_base {
+func (this *JsMessageVisitor_5) checkForUnknownPlaceholders(knownPlaceholders map[string]struct{}) *Outcome_base {
 	var exampleChecked *Outcome_base = this.cap_exampleObjectLiteralMap.checkForUnexpectedKeys(knownPlaceholders, &Function_fn{func(unknownName_ any) any {
 		var unknownName string = str_(unknownName_)
 		_ = unknownName
@@ -1405,7 +1405,7 @@ func (this *JsMessageVisitor_6) getPlaceholderNames() ImmutableSetOf[string] {
 	return this.cap_placeholderNames
 }
 
-func (this *JsMessageVisitor_6) checkForUnknownPlaceholders(knownPlaceholders *TSet[string]) *Outcome_base {
+func (this *JsMessageVisitor_6) checkForUnknownPlaceholders(knownPlaceholders map[string]struct{}) *Outcome_base {
 	var exampleChecked *Outcome_base = this.cap_exampleObjectLiteralMap.checkForUnexpectedKeys(knownPlaceholders, &Function_fn{func(unknownName_ any) any {
 		var unknownName string = str_(unknownName_)
 		_ = unknownName

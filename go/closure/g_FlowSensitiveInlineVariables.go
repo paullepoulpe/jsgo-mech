@@ -173,7 +173,7 @@ func FlowSensitiveInlineVariables_checkPreExpressions(n Node, expressionRoot Nod
 
 type FlowSensitiveInlineVariables_SideEffectPredicate struct {
 	outer_       *FlowSensitiveInlineVariables
-	namesToCheck *TSet[string]
+	namesToCheck map[string]struct{}
 }
 
 func (this *FlowSensitiveInlineVariables_SideEffectPredicate) init_FlowSensitiveInlineVariables_SideEffectPredicate_0() {
@@ -187,11 +187,11 @@ func new_FlowSensitiveInlineVariables_SideEffectPredicate_0(outer_ *FlowSensitiv
 	return this
 }
 
-func (this *FlowSensitiveInlineVariables_SideEffectPredicate) init_FlowSensitiveInlineVariables_SideEffectPredicate_Set(names *TSet[string]) {
+func (this *FlowSensitiveInlineVariables_SideEffectPredicate) init_FlowSensitiveInlineVariables_SideEffectPredicate_Set(names map[string]struct{}) {
 	this.namesToCheck = names
 }
 
-func new_FlowSensitiveInlineVariables_SideEffectPredicate_Set(outer_ *FlowSensitiveInlineVariables, names *TSet[string]) *FlowSensitiveInlineVariables_SideEffectPredicate {
+func new_FlowSensitiveInlineVariables_SideEffectPredicate_Set(outer_ *FlowSensitiveInlineVariables, names map[string]struct{}) *FlowSensitiveInlineVariables_SideEffectPredicate {
 	this := &FlowSensitiveInlineVariables_SideEffectPredicate{}
 	this.outer_ = outer_
 	this.init_FlowSensitiveInlineVariables_SideEffectPredicate_Set(names)
@@ -204,7 +204,7 @@ func (this *FlowSensitiveInlineVariables_SideEffectPredicate) apply(n_ any) bool
 	if n == 0 {
 		return false
 	}
-	if (((this.namesToCheck != nil) && n.isName()) && this.namesToCheck.contains(n.getString())) && NodeUtil_isLValue(n) {
+	if (((this.namesToCheck != nil) && n.isName()) && has_(this.namesToCheck, n.getString())) && NodeUtil_isLValue(n) {
 		return !FlowSensitiveInlineVariables_isTopLevelAssignTarget(n)
 	}
 	var astAnalyzer *AstAnalyzer = this.outer_.compiler_.getAstAnalyzer()
@@ -374,12 +374,12 @@ func (this *FlowSensitiveInlineVariables_Candidate) canInline(scope *Scope) bool
 	if this.def.isAssign() && !NodeUtil_isExprAssign(this.def.getParent()) {
 		return false
 	}
-	var namesToCheck *TSet[string] = newTSet_(tc_string)
+	var namesToCheck map[string]struct{} = map[string]struct{}{}
 	if this.defMetadata.depends != nil {
 		it_1 := foreach_(any(this.defMetadata.depends))
 		for it_1.next() {
 			var var_ *Var = cast_[*Var](it_1.v)
-			namesToCheck.add(var_.getName())
+			namesToCheck[var_.getName()] = struct{}{}
 		}
 	}
 	var sideEffectPredicateWithNames *FlowSensitiveInlineVariables_SideEffectPredicate = new_FlowSensitiveInlineVariables_SideEffectPredicate_Set(this.outer_, namesToCheck)

@@ -592,7 +592,7 @@ func (this *ExpressionDecomposer) isExpressionTreeUnsafe(tree Node, followingSid
 		if this.enabledWorkarounds.contains(obj_(ExpressionDecomposer_Workaround_BROKEN_IE11_LOCATION_ASSIGN)) && ExpressionDecomposer_WINDOW_LOCATION_ASSIGN.matches(tree) {
 			return false
 		}
-		return NodeUtil_canBeSideEffected_Node_Set_Scope(tree, tsetFrom_(tc_string, this.knownConstantFunctions, true), this.scope_)
+		return NodeUtil_canBeSideEffected_Node_Set_Scope(tree, setImm_(tc_string, this.knownConstantFunctions), this.scope_)
 	} else {
 		return this.astAnalyzer.mayHaveSideEffects(tree)
 	}

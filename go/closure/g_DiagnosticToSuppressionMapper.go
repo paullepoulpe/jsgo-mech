@@ -28,15 +28,15 @@ func (this *DiagnosticToSuppressionMapper) printSuppressions(output *DiagnosticT
 }
 
 func (this *DiagnosticToSuppressionMapper) createSuppressionMap() ImmutableSortedMapOf[string, string] {
-	var validSuppressions *TSet[string] = tsetFrom_(tc_string, Collection(this.validSuppressions.asSet()), false)
-	validSuppressions.remove("accessControls")
-	validSuppressions.remove("missingSourcesWarnings")
+	var validSuppressions map[string]struct{} = setFrom_(tc_string, Collection(this.validSuppressions.asSet()))
+	delete(validSuppressions, "accessControls")
+	delete(validSuppressions, "missingSourcesWarnings")
 	var diagnosticToSuppression LinkedHashMapOf[*DiagnosticType, string] = new_LinkedHashMap()
 	it_1 := foreach_(obj_(cast_[*ImmutableSet](this.diagnosticGroups.entrySet())))
 	for it_1.next() {
 		var entry Map_Entry = icast_Map_Entry(it_1.v)
 		var suppression string = str_(entry.getKey())
-		if !validSuppressions.contains(suppression) {
+		if !has_(validSuppressions, suppression) {
 			continue
 		}
 		var group *DiagnosticGroup = cast_[*DiagnosticGroup](entry.getValue())

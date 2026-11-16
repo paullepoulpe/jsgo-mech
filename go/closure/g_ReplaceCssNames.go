@@ -9,10 +9,10 @@ type ReplaceCssNames struct {
 	cssNamesBySymbol             map[string]string
 	classesObjectsQualifiedNames map[string]struct{}
 	symbolMap                    CssRenamingMap
-	skiplist                     *TSet[string]
+	skiplist                     map[string]struct{}
 }
 
-func (this *ReplaceCssNames) init_ReplaceCssNames(compiler *AbstractCompiler, symbolMap CssRenamingMap, cssNameCollector ReplaceCssNames_CssNameCollector, skiplist *TSet[string]) {
+func (this *ReplaceCssNames) init_ReplaceCssNames(compiler *AbstractCompiler, symbolMap CssRenamingMap, cssNameCollector ReplaceCssNames_CssNameCollector, skiplist map[string]struct{}) {
 	this.compiler_ = compiler
 	this.astFactory_ = compiler.createAstFactory()
 	this.symbolMap = symbolMap
@@ -22,7 +22,7 @@ func (this *ReplaceCssNames) init_ReplaceCssNames(compiler *AbstractCompiler, sy
 	this.classesObjectsQualifiedNames = map[string]struct{}{}
 }
 
-func new_ReplaceCssNames(compiler *AbstractCompiler, symbolMap CssRenamingMap, cssNameCollector ReplaceCssNames_CssNameCollector, skiplist *TSet[string]) *ReplaceCssNames {
+func new_ReplaceCssNames(compiler *AbstractCompiler, symbolMap CssRenamingMap, cssNameCollector ReplaceCssNames_CssNameCollector, skiplist map[string]struct{}) *ReplaceCssNames {
 	this := &ReplaceCssNames{}
 	this.init_ReplaceCssNames(compiler, symbolMap, cssNameCollector, skiplist)
 	return this
@@ -106,7 +106,7 @@ func (this *ReplaceCssNames) validateTwoArgGetCssNameCall(callNode Node) *JSErro
 
 func (this *ReplaceCssNames) processStringNode(n Node) {
 	var name string = n.getString()
-	if (this.skiplist != nil) && this.skiplist.contains(name) {
+	if (this.skiplist != nil) && has_(this.skiplist, name) {
 		return
 	}
 	var parts []string = ReplaceCssNames_DASH_PATTERN.split(name)

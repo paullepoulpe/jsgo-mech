@@ -91,10 +91,10 @@ func (this *StrictModeCheck) checkDelete(t *NodeTraversal, n Node) {
 }
 
 func (this *StrictModeCheck) checkObjectLiteralOrClass(n Node) {
-	var getters *TSet[string] = newTSet_(tc_string)
-	var setters *TSet[string] = newTSet_(tc_string)
-	var staticGetters *TSet[string] = newTSet_(tc_string)
-	var staticSetters *TSet[string] = newTSet_(tc_string)
+	var getters map[string]struct{} = map[string]struct{}{}
+	var setters map[string]struct{} = map[string]struct{}{}
+	var staticGetters map[string]struct{} = map[string]struct{}{}
+	var staticSetters map[string]struct{} = map[string]struct{}{}
 	{
 		var key Node = n.getLastChild()
 		for ; key != 0; key = key.getPrevious() {
@@ -103,24 +103,24 @@ func (this *StrictModeCheck) checkObjectLiteralOrClass(n Node) {
 			}
 			var keyName string = key.getString()
 			if !key.isSetterDef() {
-				var set *TSet[string] = func() *TSet[string] {
+				var set map[string]struct{} = func() map[string]struct{} {
 					if key.isStaticMember() {
 						return staticGetters
 					}
 					return getters
 				}()
-				if !set.add(keyName) {
+				if !setAdd_(set, keyName) {
 					this.report(key, StrictModeCheck_DUPLICATE_MEMBER, []string{keyName})
 				}
 			}
 			if !key.isGetterDef() {
-				var set *TSet[string] = func() *TSet[string] {
+				var set map[string]struct{} = func() map[string]struct{} {
 					if key.isStaticMember() {
 						return staticSetters
 					}
 					return setters
 				}()
-				if !set.add(keyName) {
+				if !setAdd_(set, keyName) {
 					this.report(key, StrictModeCheck_DUPLICATE_MEMBER, []string{keyName})
 				}
 			}
