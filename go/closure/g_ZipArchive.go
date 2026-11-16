@@ -92,7 +92,7 @@ func (this *ZipArchive) read(name string) OptionalOf[[]int8] {
 
 func ZipArchive_slice(bytes []int8, start int32, length int32) []int8 {
 	var part []int8 = make([]int8, length)
-	System_arraycopy(any(bytes), start, any(part), 0, length)
+	arraycopy_(bytes, start, part, 0, length)
 	return part
 }
 

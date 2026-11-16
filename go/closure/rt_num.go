@@ -374,6 +374,12 @@ func System_arraycopy(src any, sp int32, dst any, dp int32, n int32) {
 	}
 }
 
+// arraycopy_ is System.arraycopy between two arrays of one type (tools/postflip/arraycopy):
+// the copy System_arraycopy makes, without boxing the arrays.
+func arraycopy_[T any](src []T, sp int32, dst []T, dp int32, n int32) {
+	copy(dst[dp:dp+n], src[sp:sp+n])
+}
+
 func Integer_parseInt_CharSequence_int_int_int(cs any, a int32, b int32, radix int32) int32 {
 	return Integer_parseInt(String_substring(csString_(cs), a, b), radix)
 }

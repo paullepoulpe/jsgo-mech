@@ -242,7 +242,7 @@ func (this *JsDocTokenStream) addToString(c int32) {
 	var n int32 = this.stringBufferTop
 	if n == int32(len(this.stringBuffer)) {
 		var tmp []uint16 = make([]uint16, (int32(len(this.stringBuffer)) * 2))
-		System_arraycopy(any(this.stringBuffer), 0, any(tmp), 0, n)
+		arraycopy_(this.stringBuffer, 0, tmp, 0, n)
 		this.stringBuffer = tmp
 	}
 	this.stringBuffer[n] = uint16(c)

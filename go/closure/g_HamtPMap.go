@@ -497,8 +497,8 @@ func HamtPMap_deleteRoot(mask int32, children []*HamtPMap) *HamtPMap {
 func HamtPMap_insertChild(children []*HamtPMap, index int32, child *HamtPMap) []*HamtPMap {
 	var newChildren []*HamtPMap = make([]*HamtPMap, (int32(len(children)) + 1))
 	newChildren[index] = child
-	System_arraycopy(any(children), 0, any(newChildren), 0, index)
-	System_arraycopy(any(children), index, any(newChildren), (index + 1), (int32(len(children)) - index))
+	arraycopy_(children, 0, newChildren, 0, index)
+	arraycopy_(children, index, newChildren, (index + 1), (int32(len(children)) - index))
 	return newChildren
 }
 
@@ -513,8 +513,8 @@ func HamtPMap_deleteChild(children []*HamtPMap, index int32) []*HamtPMap {
 		return HamtPMap_emptyChildren()
 	}
 	var newChildren []*HamtPMap = make([]*HamtPMap, (int32(len(children)) - 1))
-	System_arraycopy(any(children), 0, any(newChildren), 0, index)
-	System_arraycopy(any(children), (index + 1), any(newChildren), index, ((int32(len(children)) - index) - 1))
+	arraycopy_(children, 0, newChildren, 0, index)
+	arraycopy_(children, (index + 1), newChildren, index, ((int32(len(children)) - index) - 1))
 	return newChildren
 }
 
