@@ -336,11 +336,14 @@ func (this *LinkedDirectedGraph) getNodeDegree_impl(value any) int32 {
 }
 
 type LinkedDirectedGraph_LinkedDiGraphNode struct {
-	self_       any
-	inEdgeList  *TList[DiGraph_DiGraphEdge]
-	outEdgeList *TList[DiGraph_DiGraphEdge]
-	value_      any
-	priority    int32
+	self_ any
+	// The two edge lists are part of the node, not objects of their own (post-flip manual step:
+	// two allocations fewer per graph node; nothing replaces them, so a pointer to them is the
+	// list Java's fields hold).
+	inEdges_  TList[DiGraph_DiGraphEdge]
+	outEdges_ TList[DiGraph_DiGraphEdge]
+	value_    any
+	priority  int32
 }
 
 func (this *LinkedDirectedGraph_LinkedDiGraphNode) as_LinkedDirectedGraph_LinkedDiGraphNode() *LinkedDirectedGraph_LinkedDiGraphNode {
@@ -371,8 +374,8 @@ func (this *LinkedDirectedGraph_LinkedDiGraphNode) self() any {
 }
 
 func (this *LinkedDirectedGraph_LinkedDiGraphNode) finit_LinkedDirectedGraph_LinkedDiGraphNode() {
-	this.inEdgeList = newTListN_(tc_DiGraph_DiGraphEdge, 1)
-	this.outEdgeList = newTListN_(tc_DiGraph_DiGraphEdge, 1)
+	this.inEdges_ = TList[DiGraph_DiGraphEdge]{c: tc_DiGraph_DiGraphEdge}
+	this.outEdges_ = TList[DiGraph_DiGraphEdge]{c: tc_DiGraph_DiGraphEdge}
 	this.priority = -1
 }
 
@@ -417,11 +420,11 @@ func (this *LinkedDirectedGraph_LinkedDiGraphNode) toString() string {
 }
 
 func (this *LinkedDirectedGraph_LinkedDiGraphNode) getInEdges() *TList[DiGraph_DiGraphEdge] {
-	return this.inEdgeList
+	return &this.inEdges_
 }
 
 func (this *LinkedDirectedGraph_LinkedDiGraphNode) getOutEdges() *TList[DiGraph_DiGraphEdge] {
-	return this.outEdgeList
+	return &this.outEdges_
 }
 
 func (this *LinkedDirectedGraph_LinkedDiGraphNode) hasPriority() bool {
