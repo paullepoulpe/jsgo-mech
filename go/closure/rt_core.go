@@ -7,6 +7,8 @@ import (
 	"fmt"
 	"math"
 	"strconv"
+	"sync/atomic"
+	"unsafe"
 )
 
 // nullstr_ is the Go spelling of a null Java String. It is a string no program
@@ -49,8 +51,30 @@ func strobj_(s string) any {
 	if s == nullstr_ {
 		return nil
 	}
-	return s
+	if len(s) == 0 {
+		return s
+	}
+	// Boxing a string allocates; the compiler boxes the same (interned) strings over and over,
+	// so the box made last for the string at this address is handed out again. An interface
+	// holding a string compares by content, so sharing a box changes nothing.
+	p := unsafe.StringData(s)
+	e := &strBoxes_[(uintptr(unsafe.Pointer(p))>>3^uintptr(len(s)))&uintptr(len(strBoxes_)-1)]
+	if b := e.Load(); b != nil && len(b.s) == len(s) && unsafe.StringData(b.s) == p {
+		return b.box
+	}
+	b := &strBox_{s, s}
+	e.Store(b)
+	return b.box
 }
+
+// strBox_ is a string and its box; strBoxes_ is a direct-mapped cache of them (an entry is
+// replaced, never changed, so a reader sees a whole one).
+type strBox_ struct {
+	s   string
+	box any
+}
+
+var strBoxes_ [8192]atomic.Pointer[strBox_]
 
 func isstr_(v any) bool {
 	_, ok := v.(string)
