@@ -169,12 +169,12 @@ Seven groups were prototyped in parallel on `postflip4` (branches `postflip4-sw-
 on its own, then merged here in dependency order: runtime changes and tool sources cherry-picked,
 every tool re-run on the merged tree, each commit gated (runtime tests ok, four projects MATCH).
 
-Measured against pre-flip Java on one machine:
-- bundle, 3 interleaved rounds (medians): 29.94s -> 28.22s; 1.063x -> **1.002x** of Java
-  (best runs 27.85s against Java's 28.14s).
+Measured against pre-flip Java on one machine; ratios are Java time / Go time (above 1: Go is faster):
+- bundle, 3 interleaved rounds (medians): 29.94s -> 28.22s; Java/Go 0.941 -> **0.998**
+  (best runs 27.85s against Java's 28.14s: 1.010).
 - typed-full, 4 rounds alternating forward and backward order, so that each commit is compared
-  with its neighbour in the same round (means): 61.94s -> 59.34s; 1.143x -> **1.095x** of Java.
-  Pass time (tracer, 2 runs): 57.7s -> 53.7s against Java's 49.6s.
+  with its neighbour in the same round (means): 61.94s -> 59.34s; Java/Go 0.875 -> **0.913**.
+  Pass time (tracer, 2 runs): 57.7s -> 53.7s against Java's 49.6s (Java/Go 0.863 -> 0.924).
 - Objects allocated (exact): typed-full 257.8M -> 200.4M (-22%), bundle 114.4M -> 99.4M.
 
 | commit | kind | change | typed-full step (4 rounds) | typed-full objects |
@@ -213,12 +213,12 @@ Notes:
 
 Where typed-full still trails pre-flip Java (pass time, tracer):
 
-| pass | Java | postflip5 | ratio |
+| pass | Java | postflip5 | Java/Go |
 |---|---:|---:|---:|
-| inlineVariables | 2.37s | 3.61s | 1.52x |
-| removeUnusedCode | 5.00s | 5.98s | 1.20x |
-| flowSensitiveInlineVariables | 1.88s | 2.85s | 1.52x |
-| inferTypes | 6.11s | 6.95s | 1.14x |
-| collapseObjectLiterals | 1.62s | 2.30s | 1.42x |
-| checkTypes | 1.61s | 2.17s | 1.35x |
-| coalesceVariableNames | 1.01s | 1.36s | 1.34x |
+| inlineVariables | 2.37s | 3.61s | 0.66 |
+| removeUnusedCode | 5.00s | 5.98s | 0.84 |
+| flowSensitiveInlineVariables | 1.88s | 2.85s | 0.66 |
+| inferTypes | 6.11s | 6.95s | 0.88 |
+| collapseObjectLiterals | 1.62s | 2.30s | 0.70 |
+| checkTypes | 1.61s | 2.17s | 0.74 |
+| coalesceVariableNames | 1.01s | 1.36s | 0.74 |
