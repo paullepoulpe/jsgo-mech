@@ -2,15 +2,15 @@
 
 package closure
 
-type HamtPMap struct {
-	key_      any
+type HamtPMap[K, V comparable] struct {
+	key_      K
 	hashField int32
-	value_    any
+	value_    V
 	mask      int32
-	children_ []*HamtPMap
+	children_ []*HamtPMap[K, V]
 }
 
-func (this *HamtPMap) init_HamtPMap(key any, hash int32, value any, mask int32, children []*HamtPMap) {
+func (this *HamtPMap[K, V]) init_HamtPMap(key K, hash int32, value V, mask int32, children []*HamtPMap[K, V]) {
 	this.key_ = key
 	this.hashField = hash
 	this.value_ = value
@@ -19,28 +19,37 @@ func (this *HamtPMap) init_HamtPMap(key any, hash int32, value any, mask int32, 
 	this.checkInvariants()
 }
 
-func new_HamtPMap(key any, hash int32, value any, mask int32, children []*HamtPMap) *HamtPMap {
-	this := &HamtPMap{}
+func new_HamtPMap[K, V comparable](key K, hash int32, value V, mask int32, children []*HamtPMap[K, V]) *HamtPMap[K, V] {
+	this := &HamtPMap[K, V]{}
 	this.init_HamtPMap(key, hash, value, mask, children)
 	return this
 }
 
-func (this *HamtPMap) checkInvariants() {
+func (this *HamtPMap[K, V]) checkInvariants() {
 	Preconditions_checkState((Integer_bitCount(this.mask) == int32(len(this.children_))))
 	for _, child := range this.children_ {
 		Preconditions_checkNotNull(obj_(child))
 	}
 }
 
-func HamtPMap_empty() *HamtPMap {
-	return HamtPMap_EMPTY
+// HamtPMap_empty is the one empty map of each instantiation (Java has one for all; a map is
+// only ever compared with maps of its own type).
+func HamtPMap_empty[K, V comparable]() *HamtPMap[K, V] {
+	k := any((*HamtPMap[K, V])(nil))
+	if e, ok := HamtPMap_EMPTY[k]; ok {
+		return e.(*HamtPMap[K, V])
+	}
+	e := new_HamtPMap(null_[K](), 0, null_[V](), 0, HamtPMap_emptyChildren[K, V]())
+	HamtPMap_EMPTY[k] = e
+	return e
 }
 
-func HamtPMap_emptyChildren() []*HamtPMap {
-	return HamtPMap_EMPTY_CHILDREN
+// HamtPMap_emptyChildren is an empty array; every empty array is the same one (samearr_).
+func HamtPMap_emptyChildren[K, V comparable]() []*HamtPMap[K, V] {
+	return []*HamtPMap[K, V]{}
 }
 
-func (this *HamtPMap) toString() string {
+func (this *HamtPMap[K, V]) toString() string {
 	var sb *StringBuilder = new_StringBuilder().append("{")
 	if !this.isEmpty() {
 		this.appendTo(sb)
@@ -48,89 +57,83 @@ func (this *HamtPMap) toString() string {
 	return Object_toString(obj_(sb.append("}")))
 }
 
-func (this *HamtPMap) appendTo(sb *StringBuilder) {
+func (this *HamtPMap[K, V]) appendTo(sb *StringBuilder) {
 	if sb.length() > 1 {
 		sb.append(", ")
 	}
-	sb.append_Object(this.key_).append(": ").append_Object(this.value_)
+	sb.append_Object(boxNull_(this.key_)).append(": ").append_Object(boxNull_(this.value_))
 	for _, child := range this.children_ {
 		child.appendTo(sb)
 	}
 }
 
-func (this *HamtPMap) isEmpty() bool {
-	return (this.key_ == nil)
+func (this *HamtPMap[K, V]) isEmpty() bool {
+	return (this.key_ == null_[K]())
 }
 
-func (this *HamtPMap) values() IterableOf[any] {
+func (this *HamtPMap[K, V]) values() IterableOf[any] {
 	if this.isEmpty() {
 		return Iterable(Collections_emptyList())
 	}
 	return &Iterable_fn{func() Iterator {
-		return icast_Iterator(obj_(new_HamtPMap_Iter(this, lambda_HamtPMap_values_1_)))
+		return icast_Iterator(obj_(new_HamtPMap_Iter(this, &Function_base_fn{func(map__ any) any {
+			var map_ *HamtPMap[K, V] = cast_[*HamtPMap[K, V]](map__)
+			_ = map_
+			return boxNull_(map_.value_)
+		}})))
 	}}
 }
 
-// lambda_HamtPMap_values_1_ is a lambda of HamtPMap_values that captures nothing (post-flip step lambdas).
-var lambda_HamtPMap_values_1_ = &Function_base_fn{func(map__ any) any {
-	var map_ *HamtPMap = cast_[*HamtPMap](map__)
-	_ = map_
-	return map_.value_
-}}
-
-func (this *HamtPMap) keys() IterableOf[any] {
+func (this *HamtPMap[K, V]) keys() IterableOf[any] {
 	if this.isEmpty() {
 		return Iterable(Collections_emptyList())
 	}
 	return &Iterable_fn{func() Iterator {
-		return icast_Iterator(obj_(new_HamtPMap_Iter(this, lambda_HamtPMap_keys_1_)))
+		return icast_Iterator(obj_(new_HamtPMap_Iter(this, &Function_base_fn{func(map__ any) any {
+			var map_ *HamtPMap[K, V] = cast_[*HamtPMap[K, V]](map__)
+			_ = map_
+			return boxNull_(map_.key_)
+		}})))
 	}}
 }
 
-// lambda_HamtPMap_keys_1_ is a lambda of HamtPMap_keys that captures nothing (post-flip step lambdas).
-var lambda_HamtPMap_keys_1_ = &Function_base_fn{func(map__ any) any {
-	var map_ *HamtPMap = cast_[*HamtPMap](map__)
-	_ = map_
-	return map_.key_
-}}
-
-func (this *HamtPMap) get(key any) any {
-	return func() any {
+func (this *HamtPMap[K, V]) get(key K) V {
+	return func() V {
 		if !this.isEmpty() {
 			return this.get_2(key, HamtPMap_hash(key))
 		}
-		return nil
+		return null_[V]()
 	}()
 }
 
-func (this *HamtPMap) get_2(key any, hash int32) any {
-	if (hash == this.hashField) && Object_equals(key, this.key_) {
+func (this *HamtPMap[K, V]) get_2(key K, hash int32) V {
+	if (hash == this.hashField) && equalsT_(key, this.key_) {
 		return this.value_
 	}
 	var bucket int32 = HamtPMap_bucket(hash)
 	var bucketMask int32 = (int32(1) << (uint32(bucket) & 31))
-	return func() any {
+	return func() V {
 		if (this.mask & bucketMask) != 0 {
 			return this.children_[this.index(bucketMask)].get_2(key, HamtPMap_shift(hash))
 		}
-		return nil
+		return null_[V]()
 	}()
 }
 
-func (this *HamtPMap) plus(key any, value any) PMap {
-	Preconditions_checkNotNull(value)
-	return func() PMap {
+func (this *HamtPMap[K, V]) plus(key K, value V) PMap[K, V] {
+	Preconditions_checkNotNull(boxNull_(value))
+	return func() PMap[K, V] {
 		if !this.isEmpty() {
-			return icast_PMap(obj_(this.plus_3(key, HamtPMap_hash(key), value)))
+			return this.plus_3(key, HamtPMap_hash(key), value)
 		}
-		return icast_PMap(obj_(new_HamtPMap(key, HamtPMap_hash(key), value, 0, HamtPMap_emptyChildren())))
+		return new_HamtPMap(key, HamtPMap_hash(key), value, 0, HamtPMap_emptyChildren[K, V]())
 	}()
 }
 
-func (this *HamtPMap) plus_3(key any, hash int32, value any) *HamtPMap {
-	if (hash == this.hashField) && Object_equals(key, this.key_) {
-		return func() *HamtPMap {
-			if Object_equals(value, this.value_) {
+func (this *HamtPMap[K, V]) plus_3(key K, hash int32, value V) *HamtPMap[K, V] {
+	if (hash == this.hashField) && equalsT_(key, this.key_) {
+		return func() *HamtPMap[K, V] {
+			if equalsT_(value, this.value_) {
 				return this
 			}
 			return new_HamtPMap(key, hash, value, this.mask, this.children_)
@@ -144,56 +147,56 @@ func (this *HamtPMap) plus_3(key any, hash int32, value any) *HamtPMap {
 	var bucketMask int32 = (int32(1) << (uint32(bucket) & 31))
 	var index int32 = this.index(bucketMask)
 	if (this.mask & bucketMask) != 0 {
-		var child *HamtPMap = this.children_[index]
-		var newChild *HamtPMap = child.plus_3(key, hash, value)
-		return func() *HamtPMap {
+		var child *HamtPMap[K, V] = this.children_[index]
+		var newChild *HamtPMap[K, V] = child.plus_3(key, hash, value)
+		return func() *HamtPMap[K, V] {
 			if child == newChild {
 				return this
 			}
 			return this.withChildren(this.mask, HamtPMap_replaceChild(this.children_, index, newChild))
 		}()
 	} else {
-		var newChild *HamtPMap = new_HamtPMap(key, hash, value, 0, HamtPMap_emptyChildren())
+		var newChild *HamtPMap[K, V] = new_HamtPMap(key, hash, value, 0, HamtPMap_emptyChildren[K, V]())
 		return this.withChildren((this.mask | bucketMask), HamtPMap_insertChild(this.children_, index, newChild))
 	}
 	panic("unreachable")
 }
 
-func (this *HamtPMap) replaceRoot(key any, hash int32, value any) *HamtPMap {
+func (this *HamtPMap[K, V]) replaceRoot(key K, hash int32, value V) *HamtPMap[K, V] {
 	var bucket int32 = HamtPMap_bucket(this.hashField)
 	var leafHash int32 = HamtPMap_shift(this.hashField)
 	var bucketMask int32 = (int32(1) << (uint32(bucket) & 31))
 	var index int32 = this.index(bucketMask)
-	var newChildren []*HamtPMap
+	var newChildren []*HamtPMap[K, V]
 	if (this.mask & bucketMask) != 0 {
 		newChildren = HamtPMap_replaceChild(this.children_, index, this.children_[index].plus_3(this.key_, leafHash, this.value_))
 	} else {
-		var newChild *HamtPMap = new_HamtPMap(this.key_, leafHash, this.value_, 0, HamtPMap_emptyChildren())
+		var newChild *HamtPMap[K, V] = new_HamtPMap(this.key_, leafHash, this.value_, 0, HamtPMap_emptyChildren[K, V]())
 		newChildren = HamtPMap_insertChild(this.children_, index, newChild)
 	}
 	return new_HamtPMap(key, hash, value, (this.mask | bucketMask), newChildren)
 }
 
-func (this *HamtPMap) minus(key any) PMap {
-	return func() PMap {
+func (this *HamtPMap[K, V]) minus(key K) PMap[K, V] {
+	return func() PMap[K, V] {
 		if !this.isEmpty() {
-			return icast_PMap(obj_(this.minus_3(key, HamtPMap_hash(key), nil)))
+			return this.minus_3(key, HamtPMap_hash(key), nil)
 		}
-		return icast_PMap(any(this))
+		return this
 	}()
 }
 
-func (this *HamtPMap) minus_3(key any, hash int32, value []any) *HamtPMap {
-	if (hash == this.hashField) && Object_equals(key, this.key_) {
-		var result *HamtPMap = HamtPMap_deleteRoot(this.mask, this.children_)
+func (this *HamtPMap[K, V]) minus_3(key K, hash int32, value []V) *HamtPMap[K, V] {
+	if (hash == this.hashField) && equalsT_(key, this.key_) {
+		var result *HamtPMap[K, V] = HamtPMap_deleteRoot(this.mask, this.children_)
 		if value != nil {
 			value[0] = this.value_
 		}
-		return func() *HamtPMap {
+		return func() *HamtPMap[K, V] {
 			if result != nil {
 				return result
 			}
-			return HamtPMap_empty()
+			return HamtPMap_empty[K, V]()
 		}()
 	}
 	var bucket int32 = HamtPMap_bucket(hash)
@@ -203,11 +206,11 @@ func (this *HamtPMap) minus_3(key any, hash int32, value []any) *HamtPMap {
 	}
 	hash = HamtPMap_shift(hash)
 	var index int32 = this.index(bucketMask)
-	var child *HamtPMap = this.children_[index]
-	var newChild *HamtPMap = child.minus_3(key, hash, value)
+	var child *HamtPMap[K, V] = this.children_[index]
+	var newChild *HamtPMap[K, V] = child.minus_3(key, hash, value)
 	if newChild == child {
 		return this
-	} else if newChild == HamtPMap_EMPTY {
+	} else if newChild == HamtPMap_empty[K, V]() {
 		return this.withChildren((this.mask & (^bucketMask)), HamtPMap_deleteChild(this.children_, index))
 	} else {
 		return this.withChildren(this.mask, HamtPMap_replaceChild(this.children_, index, newChild))
@@ -215,51 +218,53 @@ func (this *HamtPMap) minus_3(key any, hash int32, value []any) *HamtPMap {
 	panic("unreachable")
 }
 
-func (this *HamtPMap) reconcile(that PMap, joiner PMap_Reconciler) PMap {
-	var result *HamtPMap = HamtPMap_reconcile(func() *HamtPMap {
+func (this *HamtPMap[K, V]) reconcile(that PMap[K, V], joiner PMap_Reconciler[K, V]) PMap[K, V] {
+	var result *HamtPMap[K, V] = HamtPMap_reconcile(func() *HamtPMap[K, V] {
 		if !this.isEmpty() {
 			return this
 		}
 		return nil
-	}(), func() *HamtPMap {
+	}(), func() *HamtPMap[K, V] {
 		if !that.isEmpty() {
-			return cast_[*HamtPMap](that)
+			return cast_[*HamtPMap[K, V]](that)
 		}
 		return nil
-	}(), func(k any, v1 any, v2 any) any {
-		return Preconditions_checkNotNull(joiner.merge(k, v1, v2))
+	}(), func(k K, v1 V, v2 V) V {
+		v := joiner.merge(k, v1, v2)
+		Preconditions_checkNotNull(boxNull_(v))
+		return v
 	})
-	return func() PMap {
+	return func() PMap[K, V] {
 		if result != nil {
-			return icast_PMap(obj_(result))
+			return result
 		}
-		return icast_PMap(obj_(HamtPMap_empty()))
+		return HamtPMap_empty[K, V]()
 	}()
 }
 
-func HamtPMap_reconcile(t1 *HamtPMap, t2 *HamtPMap, joiner func(any, any, any) any) *HamtPMap {
+func HamtPMap_reconcile[K, V comparable](t1 *HamtPMap[K, V], t2 *HamtPMap[K, V], joiner func(K, V, V) V) *HamtPMap[K, V] {
 	if t1 == t2 {
 		return t1
 	} else if t1 == nil {
-		var newValue any = joiner(t2.key_, nil, t2.value_)
-		var newChildren []*HamtPMap = arrmap_(Arrays_copyOf_ObjectArr_int(arrmap_(t2.children_, func(v_ *HamtPMap) any { return obj_(v_) }), int32(len(t2.children_))), func(v_ any) *HamtPMap { return cast_[*HamtPMap](v_) })
+		var newValue V = joiner(t2.key_, null_[V](), t2.value_)
+		var newChildren []*HamtPMap[K, V] = arrmap_(Arrays_copyOf_ObjectArr_int(arrmap_(t2.children_, func(v_ *HamtPMap[K, V]) any { return obj_(v_) }), int32(len(t2.children_))), func(v_ any) *HamtPMap[K, V] { return cast_[*HamtPMap[K, V]](v_) })
 		for i := int32(0); i < int32(len(newChildren)); i++ {
 			newChildren[i] = HamtPMap_reconcile(nil, newChildren[i], joiner)
 		}
-		return func() *HamtPMap {
-			if newValue != nil {
+		return func() *HamtPMap[K, V] {
+			if newValue != null_[V]() {
 				return new_HamtPMap(t2.key_, t2.hashField, newValue, t2.mask, newChildren)
 			}
 			return HamtPMap_deleteRoot(t2.mask, newChildren)
 		}()
 	} else if t2 == nil {
-		var newValue any = joiner(t1.key_, t1.value_, nil)
-		var newChildren []*HamtPMap = arrmap_(Arrays_copyOf_ObjectArr_int(arrmap_(t1.children_, func(v_ *HamtPMap) any { return obj_(v_) }), int32(len(t1.children_))), func(v_ any) *HamtPMap { return cast_[*HamtPMap](v_) })
+		var newValue V = joiner(t1.key_, t1.value_, null_[V]())
+		var newChildren []*HamtPMap[K, V] = arrmap_(Arrays_copyOf_ObjectArr_int(arrmap_(t1.children_, func(v_ *HamtPMap[K, V]) any { return obj_(v_) }), int32(len(t1.children_))), func(v_ any) *HamtPMap[K, V] { return cast_[*HamtPMap[K, V]](v_) })
 		for i := int32(0); i < int32(len(newChildren)); i++ {
 			newChildren[i] = HamtPMap_reconcile(newChildren[i], nil, joiner)
 		}
-		return func() *HamtPMap {
-			if newValue != nil {
+		return func() *HamtPMap[K, V] {
+			if newValue != null_[V]() {
 				return new_HamtPMap(t1.key_, t1.hashField, newValue, t1.mask, newChildren)
 			}
 			return HamtPMap_deleteRoot(t1.mask, newChildren)
@@ -268,7 +273,7 @@ func HamtPMap_reconcile(t1 *HamtPMap, t2 *HamtPMap, joiner func(any, any, any) a
 	var sameChildrenAs1 bool = true
 	var sameChildrenAs2 bool = true
 	var hashCmp int32 = HamtPMap_compareUnsigned(t1.hashField, t2.hashField)
-	var key any = t1.key_
+	var key K = t1.key_
 	var hash int32 = t1.hashField
 	if hashCmp < 0 {
 		t2 = t2.vacateRoot()
@@ -278,16 +283,16 @@ func HamtPMap_reconcile(t1 *HamtPMap, t2 *HamtPMap, joiner func(any, any, any) a
 		sameChildrenAs1 = false
 		key = t2.key_
 		hash = t2.hashField
-	} else if !Object_equals(t1.key_, t2.key_) {
+	} else if !equalsT_(t1.key_, t2.key_) {
 		t2 = t2.pivot(t1.key_, t1.hashField)
 		sameChildrenAs2 = false
 	}
-	var newValue any = func() any {
-		if Objects_equals(t1.value_, t2.value_) {
+	var newValue V = func() V {
+		if objectsEqualsT_(t1.value_, t2.value_) {
 			return t1.value_
 		}
-		return joiner(func() any {
-			if t1.key_ != nil {
+		return joiner(func() K {
+			if t1.key_ != null_[K]() {
 				return t1.key_
 			}
 			return t2.key_
@@ -296,19 +301,19 @@ func HamtPMap_reconcile(t1 *HamtPMap, t2 *HamtPMap, joiner func(any, any, any) a
 	var newMask int32 = (t1.mask | t2.mask)
 	sameChildrenAs1 = band_(sameChildrenAs1, (newMask == t1.mask))
 	sameChildrenAs2 = band_(sameChildrenAs2, (newMask == t2.mask))
-	var newChildren []*HamtPMap = func() []*HamtPMap {
+	var newChildren []*HamtPMap[K, V] = func() []*HamtPMap[K, V] {
 		if newMask != 0 {
-			return make([]*HamtPMap, Integer_bitCount(newMask))
+			return make([]*HamtPMap[K, V], Integer_bitCount(newMask))
 		}
-		return HamtPMap_emptyChildren()
+		return HamtPMap_emptyChildren[K, V]()
 	}()
 	var mask int32 = newMask
 	var index int32 = 0
 	for mask != 0 {
 		var childBit int32 = Integer_lowestOneBit(mask)
 		mask &= (^childBit)
-		var child1 *HamtPMap = t1.getChild(childBit)
-		var child2 *HamtPMap = t2.getChild(childBit)
+		var child1 *HamtPMap[K, V] = t1.getChild(childBit)
+		var child2 *HamtPMap[K, V] = t2.getChild(childBit)
 		newChildren[index] = HamtPMap_reconcile(child1, child2, joiner)
 		sameChildrenAs1 = band_(sameChildrenAs1, (newChildren[index] == child1))
 		sameChildrenAs2 = band_(sameChildrenAs2, (newChildren[index] == child2))
@@ -318,31 +323,31 @@ func HamtPMap_reconcile(t1 *HamtPMap, t2 *HamtPMap, joiner func(any, any, any) a
 			newMask &= (^childBit)
 		}
 	}
-	if sameChildrenAs1 && Object_equals(t1.value_, newValue) {
+	if sameChildrenAs1 && equalsT_(t1.value_, newValue) {
 		return t1
-	} else if sameChildrenAs2 && Object_equals(t2.value_, newValue) {
+	} else if sameChildrenAs2 && equalsT_(t2.value_, newValue) {
 		return t2
-	} else if newValue == nil {
+	} else if newValue == null_[V]() {
 		return HamtPMap_deleteRoot(newMask, newChildren)
 	}
 	return new_HamtPMap(key, hash, newValue, newMask, newChildren)
 }
 
-func (this *HamtPMap) equivalent(that PMap, equivalence BiPredicateOf[any, any]) bool {
-	return HamtPMap_equivalent(func() *HamtPMap {
+func (this *HamtPMap[K, V]) equivalent(that PMap[K, V], equivalence BiPredicateOf[any, any]) bool {
+	return HamtPMap_equivalent(func() *HamtPMap[K, V] {
 		if !this.isEmpty() {
 			return this
 		}
 		return nil
-	}(), func() *HamtPMap {
+	}(), func() *HamtPMap[K, V] {
 		if !that.isEmpty() {
-			return cast_[*HamtPMap](that)
+			return cast_[*HamtPMap[K, V]](that)
 		}
 		return nil
 	}(), equivalence)
 }
 
-func HamtPMap_equivalent(t1 *HamtPMap, t2 *HamtPMap, equivalence BiPredicateOf[any, any]) bool {
+func HamtPMap_equivalent[K, V comparable](t1 *HamtPMap[K, V], t2 *HamtPMap[K, V], equivalence BiPredicateOf[any, any]) bool {
 	if t1 == t2 {
 		return true
 	} else if (t1 == nil) || (t2 == nil) {
@@ -350,13 +355,13 @@ func HamtPMap_equivalent(t1 *HamtPMap, t2 *HamtPMap, equivalence BiPredicateOf[a
 	}
 	if t1.hashField != t2.hashField {
 		return false
-	} else if !Object_equals(t1.key_, t2.key_) {
+	} else if !equalsT_(t1.key_, t2.key_) {
 		t2 = t2.pivot(t1.key_, t1.hashField)
-		if t2.value_ == nil {
+		if t2.value_ == null_[V]() {
 			return false
 		}
 	}
-	if !equivalence.test(t1.value_, t2.value_) {
+	if !equivalence.test(boxNull_(t1.value_), boxNull_(t2.value_)) {
 		return false
 	}
 	var mask int32 = (t1.mask | t2.mask)
@@ -370,12 +375,12 @@ func HamtPMap_equivalent(t1 *HamtPMap, t2 *HamtPMap, equivalence BiPredicateOf[a
 	return true
 }
 
-func (this *HamtPMap) index(bit int32) int32 {
+func (this *HamtPMap[K, V]) index(bit int32) int32 {
 	return Integer_bitCount((this.mask & (bit - 1)))
 }
 
-func (this *HamtPMap) getChild(bit int32) *HamtPMap {
-	return func() *HamtPMap {
+func (this *HamtPMap[K, V]) getChild(bit int32) *HamtPMap[K, V] {
+	return func() *HamtPMap[K, V] {
 		if (this.mask & bit) != 0 {
 			return this.children_[this.index(bit)]
 		}
@@ -383,8 +388,8 @@ func (this *HamtPMap) getChild(bit int32) *HamtPMap {
 	}()
 }
 
-func HamtPMap_hash(key any) int32 {
-	return Integer_reverse(Object_hashCode(key))
+func HamtPMap_hash[K comparable](key K) int32 {
+	return Integer_reverse(hashT_(key))
 }
 
 func HamtPMap_bucket(hash int32) int32 {
@@ -409,14 +414,14 @@ func HamtPMap_compareUnsigned(left int32, right int32) int32 {
 	}()
 }
 
-func (this *HamtPMap) pivot(key any, hash int32) *HamtPMap {
-	return this.pivot_4(key, hash, nil, make([]any, 1))
+func (this *HamtPMap[K, V]) pivot(key K, hash int32) *HamtPMap[K, V] {
+	return this.pivot_4(key, hash, nil, []V{null_[V]()})
 }
 
-func (this *HamtPMap) pivot_4(key any, hash int32, parent *HamtPMap, result []any) *HamtPMap {
+func (this *HamtPMap[K, V]) pivot_4(key K, hash int32, parent *HamtPMap[K, V], result []V) *HamtPMap[K, V] {
 	var newMask int32 = this.mask
-	var newChildren []*HamtPMap = this.children_
-	if (hash == this.hashField) && Object_equals(key, this.key_) {
+	var newChildren []*HamtPMap[K, V] = this.children_
+	if (hash == this.hashField) && equalsT_(key, this.key_) {
 		result[0] = this.value_
 	} else {
 		var searchBucket int32 = HamtPMap_bucket(hash)
@@ -425,16 +430,16 @@ func (this *HamtPMap) pivot_4(key any, hash int32, parent *HamtPMap, result []an
 			var bucketMask int32 = (int32(1) << (uint32(searchBucket) & 31))
 			if (this.mask & bucketMask) != 0 {
 				var index int32 = this.index(bucketMask)
-				var child *HamtPMap = newChildren[index]
-				var newChild *HamtPMap = child.pivot_4(key, HamtPMap_shift(hash), this, result)
+				var child *HamtPMap[K, V] = newChildren[index]
+				var newChild *HamtPMap[K, V] = child.pivot_4(key, HamtPMap_shift(hash), this, result)
 				newChildren = HamtPMap_replaceChild(newChildren, index, newChild)
 			}
 		} else {
 			var searchMask int32 = (int32(1) << (uint32(searchBucket) & 31))
 			if (this.mask & searchMask) != 0 {
 				var index int32 = this.index(searchMask)
-				var child *HamtPMap = newChildren[index]
-				var newChild *HamtPMap = child.minus_3(key, HamtPMap_shift(hash), result)
+				var child *HamtPMap[K, V] = newChildren[index]
+				var newChild *HamtPMap[K, V] = child.minus_3(key, HamtPMap_shift(hash), result)
 				if !newChild.isEmpty() {
 					newChildren = HamtPMap_replaceChild(newChildren, index, newChild)
 				} else {
@@ -445,16 +450,16 @@ func (this *HamtPMap) pivot_4(key any, hash int32, parent *HamtPMap, result []an
 			var replacementMask int32 = (int32(1) << (uint32(replacementBucket) & 31))
 			var index int32 = Integer_bitCount((newMask & (replacementMask - 1)))
 			if (this.mask & replacementMask) != 0 {
-				var child *HamtPMap = newChildren[index]
-				var newChild *HamtPMap = child.plus_3(this.key_, HamtPMap_shift(this.hashField), this.value_)
+				var child *HamtPMap[K, V] = newChildren[index]
+				var newChild *HamtPMap[K, V] = child.plus_3(this.key_, HamtPMap_shift(this.hashField), this.value_)
 				newChildren = HamtPMap_replaceChild(newChildren, index, newChild)
 			} else {
-				newChildren = HamtPMap_insertChild(newChildren, index, new_HamtPMap(this.key_, HamtPMap_shift(this.hashField), this.value_, 0, HamtPMap_emptyChildren()))
+				newChildren = HamtPMap_insertChild(newChildren, index, new_HamtPMap(this.key_, HamtPMap_shift(this.hashField), this.value_, 0, HamtPMap_emptyChildren[K, V]()))
 				newMask |= replacementMask
 			}
 		}
 	}
-	return func() *HamtPMap {
+	return func() *HamtPMap[K, V] {
 		if parent != nil {
 			return new_HamtPMap(parent.key_, HamtPMap_shift(parent.hashField), parent.value_, newMask, newChildren)
 		}
@@ -462,20 +467,20 @@ func (this *HamtPMap) pivot_4(key any, hash int32, parent *HamtPMap, result []an
 	}()
 }
 
-func (this *HamtPMap) vacateRoot() *HamtPMap {
+func (this *HamtPMap[K, V]) vacateRoot() *HamtPMap[K, V] {
 	var bucket int32 = HamtPMap_bucket(this.hashField)
 	var bucketMask int32 = (int32(1) << (uint32(bucket) & 31))
 	var index int32 = this.index(bucketMask)
 	if (this.mask & bucketMask) != 0 {
-		var newChild *HamtPMap = this.children_[index].plus_3(this.key_, HamtPMap_shift(this.hashField), this.value_)
-		return new_HamtPMap(nil, 0, nil, this.mask, HamtPMap_replaceChild(this.children_, index, newChild))
+		var newChild *HamtPMap[K, V] = this.children_[index].plus_3(this.key_, HamtPMap_shift(this.hashField), this.value_)
+		return new_HamtPMap(null_[K](), 0, null_[V](), this.mask, HamtPMap_replaceChild(this.children_, index, newChild))
 	}
-	var newChild *HamtPMap = new_HamtPMap(this.key_, HamtPMap_shift(this.hashField), this.value_, 0, HamtPMap_emptyChildren())
-	return new_HamtPMap(nil, 0, nil, (this.mask | bucketMask), HamtPMap_insertChild(this.children_, index, newChild))
+	var newChild *HamtPMap[K, V] = new_HamtPMap(this.key_, HamtPMap_shift(this.hashField), this.value_, 0, HamtPMap_emptyChildren[K, V]())
+	return new_HamtPMap(null_[K](), 0, null_[V](), (this.mask | bucketMask), HamtPMap_insertChild(this.children_, index, newChild))
 }
 
-func (this *HamtPMap) withChildren(mask int32, children []*HamtPMap) *HamtPMap {
-	return func() *HamtPMap {
+func (this *HamtPMap[K, V]) withChildren(mask int32, children []*HamtPMap[K, V]) *HamtPMap[K, V] {
+	return func() *HamtPMap[K, V] {
 		if (mask == this.mask) && samearr_(children, this.children_) {
 			return this
 		}
@@ -483,14 +488,14 @@ func (this *HamtPMap) withChildren(mask int32, children []*HamtPMap) *HamtPMap {
 	}()
 }
 
-func HamtPMap_deleteRoot(mask int32, children []*HamtPMap) *HamtPMap {
+func HamtPMap_deleteRoot[K, V comparable](mask int32, children []*HamtPMap[K, V]) *HamtPMap[K, V] {
 	if mask == 0 {
 		return nil
 	}
-	var child *HamtPMap = children[0]
+	var child *HamtPMap[K, V] = children[0]
 	var hashBits int32 = Integer_numberOfTrailingZeros(mask)
 	var newHash int32 = HamtPMap_unshift(child.hashField, hashBits)
-	var newChild *HamtPMap = HamtPMap_deleteRoot(child.mask, child.children_)
+	var newChild *HamtPMap[K, V] = HamtPMap_deleteRoot(child.mask, child.children_)
 	if newChild == nil {
 		var newMask int32 = (mask & (^Integer_lowestOneBit(mask)))
 		return new_HamtPMap(child.key_, newHash, child.value_, newMask, HamtPMap_deleteChild(children, 0))
@@ -500,31 +505,31 @@ func HamtPMap_deleteRoot(mask int32, children []*HamtPMap) *HamtPMap {
 	panic("unreachable")
 }
 
-func HamtPMap_insertChild(children []*HamtPMap, index int32, child *HamtPMap) []*HamtPMap {
-	var newChildren []*HamtPMap = make([]*HamtPMap, (int32(len(children)) + 1))
+func HamtPMap_insertChild[K, V comparable](children []*HamtPMap[K, V], index int32, child *HamtPMap[K, V]) []*HamtPMap[K, V] {
+	var newChildren []*HamtPMap[K, V] = make([]*HamtPMap[K, V], (int32(len(children)) + 1))
 	newChildren[index] = child
 	arraycopy_(children, 0, newChildren, 0, index)
 	arraycopy_(children, index, newChildren, (index + 1), (int32(len(children)) - index))
 	return newChildren
 }
 
-func HamtPMap_replaceChild(children []*HamtPMap, index int32, child *HamtPMap) []*HamtPMap {
-	var newChildren []*HamtPMap = arrmap_(Arrays_copyOf_ObjectArr_int(arrmap_(children, func(v_ *HamtPMap) any { return obj_(v_) }), int32(len(children))), func(v_ any) *HamtPMap { return cast_[*HamtPMap](v_) })
+func HamtPMap_replaceChild[K, V comparable](children []*HamtPMap[K, V], index int32, child *HamtPMap[K, V]) []*HamtPMap[K, V] {
+	var newChildren []*HamtPMap[K, V] = arrmap_(Arrays_copyOf_ObjectArr_int(arrmap_(children, func(v_ *HamtPMap[K, V]) any { return obj_(v_) }), int32(len(children))), func(v_ any) *HamtPMap[K, V] { return cast_[*HamtPMap[K, V]](v_) })
 	newChildren[index] = child
 	return newChildren
 }
 
-func HamtPMap_deleteChild(children []*HamtPMap, index int32) []*HamtPMap {
+func HamtPMap_deleteChild[K, V comparable](children []*HamtPMap[K, V], index int32) []*HamtPMap[K, V] {
 	if int32(len(children)) == 1 {
-		return HamtPMap_emptyChildren()
+		return HamtPMap_emptyChildren[K, V]()
 	}
-	var newChildren []*HamtPMap = make([]*HamtPMap, (int32(len(children)) - 1))
+	var newChildren []*HamtPMap[K, V] = make([]*HamtPMap[K, V], (int32(len(children)) - 1))
 	arraycopy_(children, 0, newChildren, 0, index)
 	arraycopy_(children, (index + 1), newChildren, index, ((int32(len(children)) - index) - 1))
 	return newChildren
 }
 
-func (this *HamtPMap) assertCorrectStructure() *HamtPMap {
+func (this *HamtPMap[K, V]) assertCorrectStructure() *HamtPMap[K, V] {
 	if this.isEmpty() {
 		return this
 	}
@@ -532,7 +537,7 @@ func (this *HamtPMap) assertCorrectStructure() *HamtPMap {
 	for i := int32(0); i < int32(len(this.children_)); i++ {
 		var childHash int32 = HamtPMap_hash(this.children_[i].key_)
 		if HamtPMap_compareUnsigned(childHash, hash) < 0 {
-			panic(new_AssertionError_Object(strobj_(("Invalid map has decreasing hash " + objstr_(this.children_[i].key_) + "(" + sstr_(Integer_toHexString(childHash)) + ") beneath " + objstr_(this.key_) + "(" + sstr_(Integer_toHexString(hash)) + ": " + objstr_(any(this))))).self())
+			panic(new_AssertionError_Object(strobj_(("Invalid map has decreasing hash " + objstr_(boxNull_(this.children_[i].key_)) + "(" + sstr_(Integer_toHexString(childHash)) + ") beneath " + objstr_(boxNull_(this.key_)) + "(" + sstr_(Integer_toHexString(hash)) + ": " + objstr_(any(this))))).self())
 		}
 		this.children_[i].assertCorrectStructure()
 	}
@@ -542,8 +547,8 @@ func (this *HamtPMap) assertCorrectStructure() *HamtPMap {
 const HamtPMap_BITS int32 = 4
 const HamtPMap_BITS_SHIFT int32 = 28
 
-var HamtPMap_EMPTY_CHILDREN []*HamtPMap
-var HamtPMap_EMPTY *HamtPMap
+// HamtPMap_EMPTY holds the empty map of each instantiation, by its pointer type.
+var HamtPMap_EMPTY = map[any]any{}
 
 var HamtPMap_clinit_done bool
 
@@ -552,21 +557,19 @@ func HamtPMap_clinit() {
 		return
 	}
 	HamtPMap_clinit_done = true
-	HamtPMap_EMPTY_CHILDREN = make([]*HamtPMap, 0)
-	HamtPMap_EMPTY = new_HamtPMap(nil, 0, nil, 0, HamtPMap_emptyChildren())
 
 }
 
-type HamtPMap_Iter struct {
-	queue       []*HamtPMap
-	transformer Function_baseOf[*HamtPMap, any]
+type HamtPMap_Iter[K, V comparable] struct {
+	queue       []*HamtPMap[K, V]
+	transformer Function_baseOf[*HamtPMap[K, V], any]
 }
 
-func (this *HamtPMap_Iter) finit_HamtPMap_Iter() {
-	this.queue = []*HamtPMap{}
+func (this *HamtPMap_Iter[K, V]) finit_HamtPMap_Iter() {
+	this.queue = []*HamtPMap[K, V]{}
 }
 
-func (this *HamtPMap_Iter) init_HamtPMap_Iter(map_ *HamtPMap, transformer Function_baseOf[*HamtPMap, any]) {
+func (this *HamtPMap_Iter[K, V]) init_HamtPMap_Iter(map_ *HamtPMap[K, V], transformer Function_baseOf[*HamtPMap[K, V], any]) {
 	this.finit_HamtPMap_Iter()
 	this.transformer = transformer
 	if !map_.isEmpty() {
@@ -574,24 +577,24 @@ func (this *HamtPMap_Iter) init_HamtPMap_Iter(map_ *HamtPMap, transformer Functi
 	}
 }
 
-func new_HamtPMap_Iter(map_ *HamtPMap, transformer Function_baseOf[*HamtPMap, any]) *HamtPMap_Iter {
-	this := &HamtPMap_Iter{}
+func new_HamtPMap_Iter[K, V comparable](map_ *HamtPMap[K, V], transformer Function_baseOf[*HamtPMap[K, V], any]) *HamtPMap_Iter[K, V] {
+	this := &HamtPMap_Iter[K, V]{}
 	this.init_HamtPMap_Iter(map_, transformer)
 	return this
 }
 
-func (this *HamtPMap_Iter) hasNext() bool {
+func (this *HamtPMap_Iter[K, V]) hasNext() bool {
 	return len(this.queue) != 0
 }
 
-func (this *HamtPMap_Iter) next() any {
-	var top *HamtPMap = slicePopFirst_(tc_p_HamtPMap, &this.queue)
+func (this *HamtPMap_Iter[K, V]) next() any {
+	var top *HamtPMap[K, V] = slicePopFirst_[*HamtPMap[K, V]](nil, &this.queue)
 	for i := int32((int32(len(top.children_)) - 1)); i >= 0; i-- {
 		this.queue = append(this.queue, top.children_[i])
 	}
 	return this.transformer.apply(obj_(top))
 }
 
-func (this *HamtPMap_Iter) remove() {
+func (this *HamtPMap_Iter[K, V]) remove() {
 	panic(new_UnsupportedOperationException_0().self())
 }

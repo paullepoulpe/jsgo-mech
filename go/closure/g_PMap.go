@@ -2,25 +2,25 @@
 
 package closure
 
-type PMap interface {
+type PMap[K, V comparable] interface {
 	isEmpty() bool
 	values() Iterable
 	keys() Iterable
-	get(any) any
-	plus(any, any) PMap
-	minus(any) PMap
-	reconcile(PMap, PMap_Reconciler) PMap
-	equivalent(PMap, BiPredicate) bool
+	get(K) V
+	plus(K, V) PMap[K, V]
+	minus(K) PMap[K, V]
+	reconcile(PMap[K, V], PMap_Reconciler[K, V]) PMap[K, V]
+	equivalent(PMap[K, V], BiPredicate) bool
 }
 
-type PMap_Reconciler interface {
-	merge(any, any, any) any
+type PMap_Reconciler[K, V comparable] interface {
+	merge(K, V, V) V
 }
 
-type PMap_Reconciler_fn struct {
-	f func(any, any, any) any
+type PMap_Reconciler_fn[K, V comparable] struct {
+	f func(K, V, V) V
 }
 
-func (this *PMap_Reconciler_fn) merge(p0 any, p1 any, p2 any) any {
+func (this *PMap_Reconciler_fn[K, V]) merge(p0 K, p1 V, p2 V) V {
 	return this.f(p0, p1, p2)
 }

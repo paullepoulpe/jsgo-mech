@@ -197,11 +197,11 @@ func (this *MaybeReachingVariableUse) getUses(name string, defNode Node) Iterabl
 }
 
 type MaybeReachingVariableUse_ReachingUses struct {
-	mayUsePMap PMap
+	mayUsePMap PMap[*Var, PMap[Node, Node]]
 }
 
 func (this *MaybeReachingVariableUse_ReachingUses) finit_MaybeReachingVariableUse_ReachingUses() {
-	this.mayUsePMap = icast_PMap(obj_(HamtPMap_empty()))
+	this.mayUsePMap = HamtPMap_empty[*Var, PMap[Node, Node]]()
 }
 
 func (this *MaybeReachingVariableUse_ReachingUses) init_MaybeReachingVariableUse_ReachingUses_0() {
@@ -226,7 +226,7 @@ func new_MaybeReachingVariableUse_ReachingUses_ReachingUses(other *MaybeReaching
 }
 
 func (this *MaybeReachingVariableUse_ReachingUses) get(v *Var) IterableOf[Node] {
-	var uses PMap = icast_PMap(this.mayUsePMap.get(obj_(v)))
+	var uses PMap[Node, Node] = this.mayUsePMap.get(v)
 	return func() Iterable {
 		if uses != nil {
 			return uses.keys()
@@ -236,17 +236,17 @@ func (this *MaybeReachingVariableUse_ReachingUses) get(v *Var) IterableOf[Node] 
 }
 
 func (this *MaybeReachingVariableUse_ReachingUses) removeAll(v *Var) {
-	this.mayUsePMap = this.mayUsePMap.minus(obj_(v))
+	this.mayUsePMap = this.mayUsePMap.minus(v)
 }
 
 func (this *MaybeReachingVariableUse_ReachingUses) put(v *Var, n Node) {
-	var values PMap = icast_PMap(this.mayUsePMap.get(obj_(v)))
+	var values PMap[Node, Node] = this.mayUsePMap.get(v)
 	if values == nil {
-		values = icast_PMap(obj_(HamtPMap_empty()))
+		values = HamtPMap_empty[Node, Node]()
 	}
-	var newValues PMap = values.plus(n.box_(), n.box_())
+	var newValues PMap[Node, Node] = values.plus(n, n)
 	if newValues != values {
-		this.mayUsePMap = this.mayUsePMap.plus(obj_(v), any(newValues))
+		this.mayUsePMap = this.mayUsePMap.plus(v, newValues)
 	}
 }
 
@@ -255,32 +255,32 @@ func (this *MaybeReachingVariableUse_ReachingUses) join(other *MaybeReachingVari
 }
 
 // lambda_MaybeReachingVariableUse_ReachingUses_join_1_ is a lambda of MaybeReachingVariableUse_ReachingUses_join that captures nothing (post-flip step lambdas).
-var lambda_MaybeReachingVariableUse_ReachingUses_join_1_ = &PMap_Reconciler_fn{func(var__ any, thisVal_ any, thatVal_ any) any {
-	var var_ *Var = cast_[*Var](var__)
+var lambda_MaybeReachingVariableUse_ReachingUses_join_1_ = &PMap_Reconciler_fn[*Var, PMap[Node, Node]]{func(var__ *Var, thisVal_ PMap[Node, Node], thatVal_ PMap[Node, Node]) PMap[Node, Node] {
+	var var_ *Var = var__
 	_ = var_
-	var thisVal PMap = icast_PMap(thisVal_)
+	var thisVal PMap[Node, Node] = thisVal_
 	_ = thisVal
-	var thatVal PMap = icast_PMap(thatVal_)
+	var thatVal PMap[Node, Node] = thatVal_
 	_ = thatVal
 	if thisVal == nil {
-		return any(thatVal)
+		return thatVal
 	}
 	if thatVal == nil {
-		return any(thisVal)
+		return thisVal
 	}
-	return any(thisVal.reconcile(thatVal, lambda_MaybeReachingVariableUse_ReachingUses_join_2_))
+	return thisVal.reconcile(thatVal, lambda_MaybeReachingVariableUse_ReachingUses_join_2_)
 	panic("unreachable")
 }}
 
 // lambda_MaybeReachingVariableUse_ReachingUses_join_2_ is a lambda of MaybeReachingVariableUse_ReachingUses_join that captures nothing (post-flip step lambdas).
-var lambda_MaybeReachingVariableUse_ReachingUses_join_2_ = &PMap_Reconciler_fn{func(node_ any, unused1_ any, unused2_ any) any {
-	var node Node = Node_of_(node_)
+var lambda_MaybeReachingVariableUse_ReachingUses_join_2_ = &PMap_Reconciler_fn[Node, Node]{func(node_ Node, unused1_ Node, unused2_ Node) Node {
+	var node Node = node_
 	_ = node
-	var unused1 Node = Node_of_(unused1_)
+	var unused1 Node = unused1_
 	_ = unused1
-	var unused2 Node = Node_of_(unused2_)
+	var unused2 Node = unused2_
 	_ = unused2
-	return node.box_()
+	return node
 }}
 
 func (this *MaybeReachingVariableUse_ReachingUses) equals(other any) bool {
@@ -298,10 +298,10 @@ func (this *MaybeReachingVariableUse_ReachingUses) equals(other any) bool {
 
 // lambda_MaybeReachingVariableUse_ReachingUses_equals_1_ is a lambda of MaybeReachingVariableUse_ReachingUses_equals that captures nothing (post-flip step lambdas).
 var lambda_MaybeReachingVariableUse_ReachingUses_equals_1_ = &BiPredicate_fn{func(p0 any, p1 any) bool {
-	return MaybeReachingVariableUse_ReachingUses_equalMaps(icast_PMap(p0), icast_PMap(p1))
+	return MaybeReachingVariableUse_ReachingUses_equalMaps(cast_[PMap[Node, Node]](p0), cast_[PMap[Node, Node]](p1))
 }}
 
-func MaybeReachingVariableUse_ReachingUses_equalMaps(map1 PMap, map2 PMap) bool {
+func MaybeReachingVariableUse_ReachingUses_equalMaps(map1 PMap[Node, Node], map2 PMap[Node, Node]) bool {
 	return ((map1 == map2) || map1.equivalent(map2, lambda_MaybeReachingVariableUse_ReachingUses_equalMaps_1_))
 }
 

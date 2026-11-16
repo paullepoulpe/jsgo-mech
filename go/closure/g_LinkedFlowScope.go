@@ -4,41 +4,41 @@ package closure
 
 type LinkedFlowScope struct {
 	inputProvider  CompilerInputProvider
-	scopes         PMap
+	scopes         PMap[*TypedScope, *LinkedFlowScope_OverlayScope]
 	functionScope  *TypedScope
 	syntacticScope *TypedScope
 }
 
-func (this *LinkedFlowScope) init_LinkedFlowScope(inputProvider CompilerInputProvider, scopes PMap, syntacticScope *TypedScope, functionScope *TypedScope) {
+func (this *LinkedFlowScope) init_LinkedFlowScope(inputProvider CompilerInputProvider, scopes PMap[*TypedScope, *LinkedFlowScope_OverlayScope], syntacticScope *TypedScope, functionScope *TypedScope) {
 	this.inputProvider = inputProvider
 	this.scopes = scopes
 	this.syntacticScope = syntacticScope
 	this.functionScope = functionScope
 }
 
-func new_LinkedFlowScope(inputProvider CompilerInputProvider, scopes PMap, syntacticScope *TypedScope, functionScope *TypedScope) *LinkedFlowScope {
+func new_LinkedFlowScope(inputProvider CompilerInputProvider, scopes PMap[*TypedScope, *LinkedFlowScope_OverlayScope], syntacticScope *TypedScope, functionScope *TypedScope) *LinkedFlowScope {
 	this := &LinkedFlowScope{}
 	this.init_LinkedFlowScope(inputProvider, scopes, syntacticScope, functionScope)
 	return this
 }
 
-func (this *LinkedFlowScope) trimScopes(scope *TypedScope) PMap {
+func (this *LinkedFlowScope) trimScopes(scope *TypedScope) PMap[*TypedScope, *LinkedFlowScope_OverlayScope] {
 	var thisScope *TypedScope = this.syntacticScope
 	var thatScope *TypedScope = scope
 	var thisDepth int32 = thisScope.getDepth()
 	var thatDepth int32 = thatScope.getDepth()
-	var result PMap = this.scopes
+	var result PMap[*TypedScope, *LinkedFlowScope_OverlayScope] = this.scopes
 	for thatDepth > thisDepth {
 		thatScope = cast_[*TypedScope](thatScope.getParent().self())
 		thatDepth--
 	}
 	for thisDepth > thatDepth {
-		result = result.minus(obj_(thisScope))
+		result = result.minus(thisScope)
 		thisScope = cast_[*TypedScope](thisScope.getParent().self())
 		thisDepth--
 	}
 	for ((thisScope != thatScope) && (thisScope != nil)) && (thatScope != nil) {
-		result = result.minus(obj_(thisScope))
+		result = result.minus(thisScope)
 		thisScope = cast_[*TypedScope](thisScope.getParent().self())
 		thatScope = cast_[*TypedScope](thatScope.getParent().self())
 	}
@@ -50,17 +50,17 @@ func (this *LinkedFlowScope) flowsFromBottom() bool {
 }
 
 func LinkedFlowScope_createEntryLattice(inputProvider CompilerInputProvider, scope *TypedScope) *LinkedFlowScope {
-	return new_LinkedFlowScope(inputProvider, icast_PMap(obj_(HamtPMap_empty())), scope, scope)
+	return new_LinkedFlowScope(inputProvider, HamtPMap_empty[*TypedScope, *LinkedFlowScope_OverlayScope](), scope, scope)
 }
 
 func (this *LinkedFlowScope) inferSlotType(symbol string, type_ *JSType) FlowScope {
 	var scope *LinkedFlowScope_OverlayScope = this.getOverlayScopeForName(symbol, true)
 	var newScope *LinkedFlowScope_OverlayScope = scope.infer(symbol, type_)
-	var newScopes PMap = func() PMap {
+	var newScopes PMap[*TypedScope, *LinkedFlowScope_OverlayScope] = func() PMap[*TypedScope, *LinkedFlowScope_OverlayScope] {
 		if !newScope.slots.isEmpty() {
-			return this.scopes.plus(obj_(scope.scope_), obj_(newScope))
+			return this.scopes.plus(scope.scope_, newScope)
 		}
-		return this.scopes.minus(obj_(scope.scope_))
+		return this.scopes.minus(scope.scope_)
 	}()
 	return func() FlowScope {
 		if newScopes != this.scopes {
@@ -159,7 +159,7 @@ func (this *LinkedFlowScope) getOverlayScopeForName(name string, create bool) *L
 }
 
 func (this *LinkedFlowScope) getOverlayScopeForScope(scope *TypedScope, create bool) *LinkedFlowScope_OverlayScope {
-	var overlay *LinkedFlowScope_OverlayScope = cast_[*LinkedFlowScope_OverlayScope](this.scopes.get(obj_(scope)))
+	var overlay *LinkedFlowScope_OverlayScope = this.scopes.get(scope)
 	if (overlay == nil) && create {
 		overlay = new_LinkedFlowScope_OverlayScope_TypedScope(scope)
 	}
@@ -234,21 +234,21 @@ func (this *LinkedFlowScope) hashCode() int32 {
 	panic(new_UnsupportedOperationException_0().self())
 }
 
-func LinkedFlowScope_join(linkedA *LinkedFlowScope, linkedB *LinkedFlowScope, commonParent *TypedScope) PMap {
-	return linkedA.trimScopes(commonParent).reconcile(linkedB.trimScopes(commonParent), &PMap_Reconciler_fn{func(scopeKey_ any, scopeA_ any, scopeB_ any) any {
-		var scopeKey *TypedScope = cast_[*TypedScope](scopeKey_)
+func LinkedFlowScope_join(linkedA *LinkedFlowScope, linkedB *LinkedFlowScope, commonParent *TypedScope) PMap[*TypedScope, *LinkedFlowScope_OverlayScope] {
+	return linkedA.trimScopes(commonParent).reconcile(linkedB.trimScopes(commonParent), &PMap_Reconciler_fn[*TypedScope, *LinkedFlowScope_OverlayScope]{func(scopeKey_ *TypedScope, scopeA_ *LinkedFlowScope_OverlayScope, scopeB_ *LinkedFlowScope_OverlayScope) *LinkedFlowScope_OverlayScope {
+		var scopeKey *TypedScope = scopeKey_
 		_ = scopeKey
-		var scopeA *LinkedFlowScope_OverlayScope = cast_[*LinkedFlowScope_OverlayScope](scopeA_)
+		var scopeA *LinkedFlowScope_OverlayScope = scopeA_
 		_ = scopeA
-		var scopeB *LinkedFlowScope_OverlayScope = cast_[*LinkedFlowScope_OverlayScope](scopeB_)
+		var scopeB *LinkedFlowScope_OverlayScope = scopeB_
 		_ = scopeB
-		var slotsA PMap = func() PMap {
+		var slotsA PMap[string, *LinkedFlowScope_OverlaySlot] = func() PMap[string, *LinkedFlowScope_OverlaySlot] {
 			if scopeA != nil {
 				return scopeA.slots
 			}
 			return LinkedFlowScope_EMPTY_SLOTS
 		}()
-		var slotsB PMap = func() PMap {
+		var slotsB PMap[string, *LinkedFlowScope_OverlaySlot] = func() PMap[string, *LinkedFlowScope_OverlaySlot] {
 			if scopeB != nil {
 				return scopeB.slots
 			}
@@ -293,12 +293,12 @@ func LinkedFlowScope_join(linkedA *LinkedFlowScope, linkedB *LinkedFlowScope, co
 				return scopeB.scope_
 			}()
 		}()
-		return obj_(new_LinkedFlowScope_OverlayScope_TypedScope_PMap(bestScope, slotsA.reconcile(slotsB, &PMap_Reconciler_fn{func(slotKey_ any, slotA_ any, slotB_ any) any {
-			var slotKey string = str_(slotKey_)
+		return new_LinkedFlowScope_OverlayScope_TypedScope_PMap(bestScope, slotsA.reconcile(slotsB, &PMap_Reconciler_fn[string, *LinkedFlowScope_OverlaySlot]{func(slotKey_ string, slotA_ *LinkedFlowScope_OverlaySlot, slotB_ *LinkedFlowScope_OverlaySlot) *LinkedFlowScope_OverlaySlot {
+			var slotKey string = slotKey_
 			_ = slotKey
-			var slotA *LinkedFlowScope_OverlaySlot = cast_[*LinkedFlowScope_OverlaySlot](slotA_)
+			var slotA *LinkedFlowScope_OverlaySlot = slotA_
 			_ = slotA
-			var slotB *LinkedFlowScope_OverlaySlot = cast_[*LinkedFlowScope_OverlaySlot](slotB_)
+			var slotB *LinkedFlowScope_OverlaySlot = slotB_
 			_ = slotB
 			var name string = func() string {
 				if slotA != nil {
@@ -320,14 +320,14 @@ func LinkedFlowScope_join(linkedA *LinkedFlowScope, linkedB *LinkedFlowScope, co
 					return nil
 				}()
 				if (fnSlotType == nil) || JSCompObjects_identical(fnSlotType.self(), slotA.getType().self()) {
-					return obj_(slotA)
+					return slotA
 				} else {
 					var joinedType *JSType = slotA.getType().getLeastSupertype(fnSlotType)
-					return func() any {
+					return func() *LinkedFlowScope_OverlaySlot {
 						if JSCompObjects_identical(joinedType.self(), slotA.getType().self()) {
-							return obj_(slotA)
+							return slotA
 						}
-						return obj_(new_LinkedFlowScope_OverlaySlot(name, joinedType))
+						return new_LinkedFlowScope_OverlaySlot(name, joinedType)
 					}()
 				}
 			} else if (slotA == nil) || (slotA.getType() == nil) {
@@ -344,29 +344,29 @@ func LinkedFlowScope_join(linkedA *LinkedFlowScope, linkedB *LinkedFlowScope, co
 					return nil
 				}()
 				if (fnSlotType == nil) || JSCompObjects_identical(fnSlotType.self(), slotB.getType().self()) {
-					return obj_(slotB)
+					return slotB
 				} else {
 					var joinedType *JSType = slotB.getType().getLeastSupertype(fnSlotType)
-					return func() any {
+					return func() *LinkedFlowScope_OverlaySlot {
 						if JSCompObjects_identical(joinedType.self(), slotB.getType().self()) {
-							return obj_(slotB)
+							return slotB
 						}
-						return obj_(new_LinkedFlowScope_OverlaySlot(name, joinedType))
+						return new_LinkedFlowScope_OverlaySlot(name, joinedType)
 					}()
 				}
 			}
 			if JSCompObjects_identical(slotA.getType().self(), slotB.getType().self()) {
-				return obj_(slotA)
+				return slotA
 			}
 			var joinedType *JSType = slotA.getType().getLeastSupertype(slotB.getType())
-			return func() any {
+			return func() *LinkedFlowScope_OverlaySlot {
 				if JSCompObjects_identical(joinedType.self(), slotA.getType().self()) {
-					return obj_(slotA)
+					return slotA
 				}
-				return obj_(new_LinkedFlowScope_OverlaySlot(name, joinedType))
+				return new_LinkedFlowScope_OverlaySlot(name, joinedType)
 			}()
 			panic("unreachable")
-		}})))
+		}}))
 		panic("unreachable")
 	}})
 }
@@ -379,7 +379,7 @@ func (this *LinkedFlowScope) getTopmostScopeOfEventualDeclaration(p0 string) Sta
 	return StaticScope_getTopmostScopeOfEventualDeclaration_default(icast_StaticScope(any(this)), p0)
 }
 
-var LinkedFlowScope_EMPTY_SLOTS PMap
+var LinkedFlowScope_EMPTY_SLOTS PMap[string, *LinkedFlowScope_OverlaySlot]
 
 var LinkedFlowScope_clinit_done bool
 
@@ -388,7 +388,7 @@ func LinkedFlowScope_clinit() {
 		return
 	}
 	LinkedFlowScope_clinit_done = true
-	LinkedFlowScope_EMPTY_SLOTS = icast_PMap(obj_(HamtPMap_empty()))
+	LinkedFlowScope_EMPTY_SLOTS = HamtPMap_empty[string, *LinkedFlowScope_OverlaySlot]()
 
 }
 
@@ -437,7 +437,7 @@ func (this *LinkedFlowScope_FlowScopeJoinOp) finish() any {
 
 type LinkedFlowScope_OverlayScope struct {
 	scope_ *TypedScope
-	slots  PMap
+	slots  PMap[string, *LinkedFlowScope_OverlaySlot]
 }
 
 func (this *LinkedFlowScope_OverlayScope) init_LinkedFlowScope_OverlayScope_TypedScope(scope *TypedScope) {
@@ -451,27 +451,27 @@ func new_LinkedFlowScope_OverlayScope_TypedScope(scope *TypedScope) *LinkedFlowS
 	return this
 }
 
-func (this *LinkedFlowScope_OverlayScope) init_LinkedFlowScope_OverlayScope_TypedScope_PMap(scope *TypedScope, slots PMap) {
+func (this *LinkedFlowScope_OverlayScope) init_LinkedFlowScope_OverlayScope_TypedScope_PMap(scope *TypedScope, slots PMap[string, *LinkedFlowScope_OverlaySlot]) {
 	this.scope_ = cast_[*TypedScope](Preconditions_checkNotNull(obj_(scope)))
 	this.slots = slots
 }
 
-func new_LinkedFlowScope_OverlayScope_TypedScope_PMap(scope *TypedScope, slots PMap) *LinkedFlowScope_OverlayScope {
+func new_LinkedFlowScope_OverlayScope_TypedScope_PMap(scope *TypedScope, slots PMap[string, *LinkedFlowScope_OverlaySlot]) *LinkedFlowScope_OverlayScope {
 	this := &LinkedFlowScope_OverlayScope{}
 	this.init_LinkedFlowScope_OverlayScope_TypedScope_PMap(scope, slots)
 	return this
 }
 
 func (this *LinkedFlowScope_OverlayScope) infer(name string, type_ *JSType) *LinkedFlowScope_OverlayScope {
-	var slot *LinkedFlowScope_OverlaySlot = cast_[*LinkedFlowScope_OverlaySlot](this.slots.get(strobj_(name)))
+	var slot *LinkedFlowScope_OverlaySlot = this.slots.get(name)
 	if (slot != nil) && JSCompObjects_identical(type_.self(), slot.type__.self()) {
 		return this
 	}
-	return new_LinkedFlowScope_OverlayScope_TypedScope_PMap(this.scope_, this.slots.plus(strobj_(name), obj_(new_LinkedFlowScope_OverlaySlot(name, type_))))
+	return new_LinkedFlowScope_OverlayScope_TypedScope_PMap(this.scope_, this.slots.plus(name, new_LinkedFlowScope_OverlaySlot(name, type_)))
 }
 
 func (this *LinkedFlowScope_OverlayScope) getSlot(name string) StaticTypedSlot {
-	var slot *LinkedFlowScope_OverlaySlot = cast_[*LinkedFlowScope_OverlaySlot](this.slots.get(strobj_(name)))
+	var slot *LinkedFlowScope_OverlaySlot = this.slots.get(name)
 	return func() StaticTypedSlot {
 		if slot != nil {
 			return icast_StaticTypedSlot(obj_(slot))

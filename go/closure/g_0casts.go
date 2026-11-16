@@ -653,13 +653,6 @@ func icast_OptionalChainRewriter_TmpVarNameCreator(v any) OptionalChainRewriter_
 	return v.(OptionalChainRewriter_TmpVarNameCreator)
 }
 
-func icast_PMap(v any) PMap {
-	if v == nil {
-		return nil
-	}
-	return v.(PMap)
-}
-
 func icast_Predicate_base(v any) Predicate_base {
 	if v == nil {
 		return nil

@@ -1617,14 +1617,14 @@ func JSTypeRegistry_PropDefinitionKind_clinit() {
 
 type JSTypeRegistry_SyntheticTemplateScope struct {
 	delegate StaticTypedScope
-	types    PMap
+	types    PMap[string, *TemplateType]
 }
 
 func (this *JSTypeRegistry_SyntheticTemplateScope) init_JSTypeRegistry_SyntheticTemplateScope(delegate StaticTypedScope, templates IterableOf[*TemplateType]) {
 	this.delegate = delegate
 	var syntheticTemplateScope *JSTypeRegistry_SyntheticTemplateScope
 	_ = syntheticTemplateScope
-	var types PMap = func() PMap {
+	var types PMap[string, *TemplateType] = func() PMap[string, *TemplateType] {
 		if func() bool {
 			v_ := any(delegate)
 			if !is_[*JSTypeRegistry_SyntheticTemplateScope](v_) {
@@ -1635,12 +1635,12 @@ func (this *JSTypeRegistry_SyntheticTemplateScope) init_JSTypeRegistry_Synthetic
 		}() {
 			return syntheticTemplateScope.types
 		}
-		return icast_PMap(obj_(HamtPMap_empty()))
+		return HamtPMap_empty[string, *TemplateType]()
 	}()
 	it_1 := foreach_(any(templates))
 	for it_1.next() {
 		var key *TemplateType = cast_[*TemplateType](it_1.v)
-		types = types.plus(strobj_(key.getReferenceName().orElseThrow()), obj_(key))
+		types = types.plus(key.getReferenceName().orElseThrow(), key)
 	}
 	this.types = types
 }
@@ -1672,11 +1672,11 @@ func (this *JSTypeRegistry_SyntheticTemplateScope) getTypeOfThis() *JSType {
 }
 
 func (this *JSTypeRegistry_SyntheticTemplateScope) getTemplateType(name string) *TemplateType {
-	return cast_[*TemplateType](this.types.get(strobj_(name)))
+	return this.types.get(name)
 }
 
 func (this *JSTypeRegistry_SyntheticTemplateScope) getTopmostScopeOfEventualDeclaration(name string) StaticScope {
-	if cast_[*TemplateType](this.types.get(strobj_(name))) != nil {
+	if this.types.get(name) != nil {
 		return icast_StaticScope(any(this))
 	}
 	return this.delegate.getTopmostScopeOfEventualDeclaration(name)
