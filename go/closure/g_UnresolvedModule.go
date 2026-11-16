@@ -9,11 +9,11 @@ type UnresolvedModule struct {
 // UnresolvedModule_I holds the methods the dispatchers of UnresolvedModule's hierarchy call on the most derived
 // object (self_); every class of the hierarchy implements them (post-flip).
 type UnresolvedModule_I interface {
-	getExportedNames_2_impl(ModuleRequestResolver, *TSet[*UnresolvedModule]) *ImmutableSet
+	getExportedNames_2_impl(ModuleRequestResolver, map[*UnresolvedModule]struct{}) *ImmutableSet
 	getExportedNames_impl(ModuleRequestResolver) *ImmutableSet
 	metadata_impl() *ModuleMetadataMap_ModuleMetadata
 	reset_impl()
-	resolveExport_5_impl(ModuleRequestResolver, OptionalOf[string], OptionalOf[string], *TSet[*ExportTrace], *TSet[*UnresolvedModule]) *ResolveExportResult
+	resolveExport_5_impl(ModuleRequestResolver, OptionalOf[string], OptionalOf[string], *TSet[*ExportTrace], map[*UnresolvedModule]struct{}) *ResolveExportResult
 	resolveExport_impl(ModuleRequestResolver, OptionalOf[string]) *ResolveExportResult
 	resolve_2_impl(ModuleRequestResolver, OptionalOf[string]) *Module
 }
@@ -48,7 +48,7 @@ func (this *UnresolvedModule) resolve(moduleRequestResolver ModuleRequestResolve
 }
 
 func (this *UnresolvedModule) resolveExport_impl(moduleRequestResolver ModuleRequestResolver, exportName OptionalOf[string]) *ResolveExportResult {
-	return this.resolveExport_5(moduleRequestResolver, Optional_empty[string](), exportName, newTSet_(tch_p_ExportTrace), newTSet_(tc_p_UnresolvedModule))
+	return this.resolveExport_5(moduleRequestResolver, Optional_empty[string](), exportName, newTSet_(tch_p_ExportTrace), map[*UnresolvedModule]struct{}{})
 }
 
 func (this *UnresolvedModule) equals(other any) bool {
@@ -63,7 +63,7 @@ func (this *UnresolvedModule) resolveExport(p0 ModuleRequestResolver, p1 Optiona
 	return this.self_.resolveExport_impl(p0, p1)
 }
 
-func (this *UnresolvedModule) resolveExport_5(p0 ModuleRequestResolver, p1 OptionalOf[string], p2 OptionalOf[string], p3 *TSet[*ExportTrace], p4 *TSet[*UnresolvedModule]) *ResolveExportResult {
+func (this *UnresolvedModule) resolveExport_5(p0 ModuleRequestResolver, p1 OptionalOf[string], p2 OptionalOf[string], p3 *TSet[*ExportTrace], p4 map[*UnresolvedModule]struct{}) *ResolveExportResult {
 	return this.self_.resolveExport_5_impl(p0, p1, p2, p3, p4)
 }
 
@@ -79,7 +79,7 @@ func (this *UnresolvedModule) getExportedNames(p0 ModuleRequestResolver) *Immuta
 	return this.self_.getExportedNames_impl(p0)
 }
 
-func (this *UnresolvedModule) getExportedNames_2(p0 ModuleRequestResolver, p1 *TSet[*UnresolvedModule]) *ImmutableSet {
+func (this *UnresolvedModule) getExportedNames_2(p0 ModuleRequestResolver, p1 map[*UnresolvedModule]struct{}) *ImmutableSet {
 	return this.self_.getExportedNames_2_impl(p0, p1)
 }
 
