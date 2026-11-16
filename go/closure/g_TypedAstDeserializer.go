@@ -203,7 +203,7 @@ func TypedAstDeserializer_addInputSourceMap(deserializer *ScriptNodeDeserializer
 func TypedAstDeserializer_createStubWeakScriptNode(file *SourceFile_jscomp) SupplierOf[Node] {
 	return &Supplier_fn{func() any {
 		var stubScript Node = IR_script_0().setStaticSourceFile(icast_StaticSourceFile(obj_(file)))
-		stubScript.setFeatureSet(obj_(FeatureSet_BARE_MINIMUM))
+		stubScript.setFeatureSet(FeatureSet_BARE_MINIMUM)
 		return stubScript.box_()
 		panic("unreachable")
 	}}

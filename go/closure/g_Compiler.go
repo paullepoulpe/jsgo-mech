@@ -3104,7 +3104,7 @@ func (this *Compiler) restoreState(state []int8) *Outcome_base {
 	var restored *Outcome_base = cast_[*Outcome_base](this.runInCompilerThread(func() any {
 		var tracer *Tracer = this.newTracer(PassNames_DESERIALIZE_COMPILER_STATE)
 		Compiler_logger.fine("Deserializing the CompilerState")
-		var ret_1 any
+		var ret_1 *Outcome_base
 		code_1 := func() (code_ int) {
 			defer func() {
 				Compiler_logger.fine("Finished deserializing CompilerState")
@@ -3117,18 +3117,18 @@ func (this *Compiler) restoreState(state []int8) *Outcome_base {
 			} else {
 				var unzipped *Outcome_base = Io_gunzip(state)
 				if unzipped.isErr() {
-					ret_1 = obj_(Outcome_base_err(new_RuntimeException_Throwable(unzipped.error()).up_Throwable()))
+					ret_1 = Outcome_base_err(new_RuntimeException_Throwable(unzipped.error()).up_Throwable())
 					return 1
 				}
 				uncompressed = cast_[[]int8](unzipped.get())
 			}
 			this.deserializeCompilerState(uncompressed)
-			ret_1 = obj_(Outcome_base_ok_0())
+			ret_1 = Outcome_base_ok_0()
 			return 1
 			return 0
 		}()
 		if code_1 == 1 {
-			return ret_1
+			return obj_(ret_1)
 		}
 		panic("unreachable")
 	}))

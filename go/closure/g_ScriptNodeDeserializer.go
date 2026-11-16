@@ -419,7 +419,7 @@ func (this *ScriptNodeDeserializer_Runner) run() Node {
 		var contextStack ArrayListOf[*FeatureCollector_FeatureContext] = new_ArrayList_0()
 		SequencedCollection_addLast(icast_SequencedCollection(contextStack.self()), obj_(FeatureCollector_FeatureContext_NONE))
 		var scriptNode Node = this.visit(AstNode_parseFrom(astStream, ExtensionRegistry_getEmptyRegistry().up_ExtensionRegistryLite()), icast_List(contextStack.self()), this.owner().createSourceInfoTemplate(this.owner().sourceFile))
-		scriptNode.setFeatureSet(obj_(this.featureCollector.allFeatures()))
+		scriptNode.setFeatureSet(this.featureCollector.allFeatures())
 		ret_1 = scriptNode
 		return 1
 		return 0

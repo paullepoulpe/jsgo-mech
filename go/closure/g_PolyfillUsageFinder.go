@@ -556,7 +556,7 @@ func (this *PolyfillUsageFinder_Traverser) visitName(traversal *NodeTraversal, n
 	if polyfill == nil {
 		return
 	}
-	if this.outer_.isPolyfillVisibleInScope(traversal, name) && this.includeGuardedUsages.shouldInclude(this.isGuarded(strobj_(name))) {
+	if this.outer_.isPolyfillVisibleInScope(traversal, name) && this.includeGuardedUsages.shouldInclude(this.isGuarded(name)) {
 		this.polyfillConsumer.accept(obj_(PolyfillUsageFinder_PolyfillUsage_createNonExplicit(polyfill, nameNode, name)))
 	}
 }
@@ -564,13 +564,13 @@ func (this *PolyfillUsageFinder_Traverser) visitName(traversal *NodeTraversal, n
 func (this *PolyfillUsageFinder_Traverser) visitGetPropChain(traversal *NodeTraversal, getPropNode Node) {
 	var staticPolyfillUsage *PolyfillUsageFinder_PolyfillUsage = this.outer_.maybeCreateStaticPolyfillUsageForGetPropChain(traversal, getPropNode)
 	if staticPolyfillUsage != nil {
-		if this.includeGuardedUsages.shouldInclude(this.isGuarded(strobj_(staticPolyfillUsage.name()))) {
+		if this.includeGuardedUsages.shouldInclude(this.isGuarded(staticPolyfillUsage.name())) {
 			this.polyfillConsumer.accept(obj_(staticPolyfillUsage))
 		}
 	} else {
 		var propertyName string = getPropNode.getString()
 		var methodPolyfills ListOf[*PolyfillUsageFinder_Polyfill] = this.outer_.polyfills.methods.get_s(propertyName)
-		if !methodPolyfills.isEmpty() && this.includeGuardedUsages.shouldInclude(this.isGuarded(strobj_(("." + sstr_(propertyName))))) {
+		if !methodPolyfills.isEmpty() && this.includeGuardedUsages.shouldInclude(this.isGuarded(("." + sstr_(propertyName)))) {
 			it_1 := foreach_(any(methodPolyfills))
 			for it_1.next() {
 				var polyfill *PolyfillUsageFinder_Polyfill = cast_[*PolyfillUsageFinder_Polyfill](it_1.v)

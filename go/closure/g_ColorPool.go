@@ -278,7 +278,7 @@ func (this *ColorPool_Builder) reconcilationDebugStackProtos() []ImmutableMapOf[
 	it_1 := foreach_(obj_(this.reconcilationDebugStack))
 	for it_1.next() {
 		var stackId *ColorId = cast_[*ColorId](it_1.v)
-		result.add(obj_(ImmutableMap_copyOf(this.idToProto.row(obj_(stackId)))))
+		result.add(obj_(ImmutableMap_copyOf(this.idToProto.row(stackId))))
 	}
 	return sliceImm_(tc_ImmutableMapOf_p_ColorPool_ShardView__p_TypeProto_, result.build())
 }
@@ -298,7 +298,7 @@ func (this *ColorPool_Builder) lookupOrReconcileColor(id *ColorId) *Color {
 			ret_1 = existing
 			return 1
 		}
-		var viewToProto MapOf[*ColorPool_ShardView, *TypeProto] = this.idToProto.row(obj_(id))
+		var viewToProto MapOf[*ColorPool_ShardView, *TypeProto] = this.idToProto.row(id)
 		var sample *TypeProto = cast_[*TypeProto](Iterables_getFirst(Iterable(viewToProto.values()), nil))
 		if obj_(sample) == nil {
 			Preconditions_checkNotNull_Object_Object(nil, obj_(id))

@@ -87,8 +87,8 @@ func (this *GuardedCallback) promoteAbruptReturns(parent Node) {
 	}
 }
 
-func (this *GuardedCallback) isGuarded(resource any) bool {
-	if this.guarded.contains(resource) {
+func (this *GuardedCallback) isGuarded(resource string) bool {
+	if this.guarded.contains(strobj_(resource)) {
 		return true
 	}
 	var context *GuardedCallback_Context = cast_[*GuardedCallback_Context](this.contextStack.peek())
@@ -96,7 +96,7 @@ func (this *GuardedCallback) isGuarded(resource any) bool {
 		return false
 	}
 	for (context != nil) && (context.conditional != 0) {
-		this.registeredGuards.put(context.conditional.box_(), resource)
+		this.registeredGuards.put(context.conditional.box_(), strobj_(resource))
 		context = context.linked
 	}
 	return true

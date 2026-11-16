@@ -2180,14 +2180,14 @@ func (this *JSDocInfo_Builder) overwriteVisibility(visibility *JSDocInfo_Visibil
 }
 
 func (this *JSDocInfo_Builder) recordParameter(parameterName string, type_ *JSTypeExpression) bool {
-	return (!this.hasAnySingletonTypeTags() && this.populatePropEntry(JSDocInfo_PARAMETERS.up_JSDocInfo_Property(), strobj_(RhinoStringPool_addOrGet(parameterName)), obj_(type_)))
+	return (!this.hasAnySingletonTypeTags() && this.populatePropEntry(JSDocInfo_PARAMETERS.up_JSDocInfo_Property(), RhinoStringPool_addOrGet(parameterName), obj_(type_)))
 }
 
 func (this *JSDocInfo_Builder) recordParameterDescription(parameterName string, description string) bool {
 	if !this.shouldParseDocumentation() {
 		return true
 	}
-	return this.populatePropEntry(JSDocInfo_PARAMETER_DESCRIPTIONS, strobj_(RhinoStringPool_addOrGet(parameterName)), strobj_(description))
+	return this.populatePropEntry(JSDocInfo_PARAMETER_DESCRIPTIONS, RhinoStringPool_addOrGet(parameterName), strobj_(description))
 }
 
 func (this *JSDocInfo_Builder) recordTemplateTypeName(name string) bool {
@@ -2202,7 +2202,7 @@ func (this *JSDocInfo_Builder) recordTemplateTypeName_2(name string, bound *JSTy
 	if ((transformations != nil) && Map_containsKey_s(transformations, name)) || this.props.containsKey(obj_(JSDocInfo_TYPEDEF_TYPE)) {
 		return false
 	}
-	return this.populatePropEntry(JSDocInfo_TEMPLATE_TYPE_NAMES.up_JSDocInfo_Property(), strobj_(RhinoStringPool_addOrGet(name)), obj_(bound))
+	return this.populatePropEntry(JSDocInfo_TEMPLATE_TYPE_NAMES.up_JSDocInfo_Property(), RhinoStringPool_addOrGet(name), obj_(bound))
 }
 
 func (this *JSDocInfo_Builder) recordTypeTransformation(name string, expr Node) bool {
@@ -2210,7 +2210,7 @@ func (this *JSDocInfo_Builder) recordTypeTransformation(name string, expr Node) 
 	if (names != nil) && Map_containsKey_s(names, name) {
 		return false
 	}
-	return this.populatePropEntry(JSDocInfo_TYPE_TRANSFORMATIONS.up_JSDocInfo_Property(), strobj_(RhinoStringPool_addOrGet(name)), expr.box_())
+	return this.populatePropEntry(JSDocInfo_TYPE_TRANSFORMATIONS.up_JSDocInfo_Property(), RhinoStringPool_addOrGet(name), expr.box_())
 }
 
 func (this *JSDocInfo_Builder) recordThrowsAnnotation(annotation string) bool {
@@ -2783,8 +2783,8 @@ func (this *JSDocInfo_Builder) putPropEntry(prop *JSDocInfo_Property, key any, v
 // lambda_JSDocInfo_Builder_putPropEntry_1_ is a lambda of JSDocInfo_Builder_putPropEntry that captures nothing (post-flip step lambdas).
 var lambda_JSDocInfo_Builder_putPropEntry_1_ = &Supplier_fn{func() any { return obj_(new_LinkedHashMap()) }}
 
-func (this *JSDocInfo_Builder) populatePropEntry(prop *JSDocInfo_Property, key any, value any) bool {
-	if this.putPropEntry(prop, key, value) {
+func (this *JSDocInfo_Builder) populatePropEntry(prop *JSDocInfo_Property, key string, value any) bool {
+	if this.putPropEntry(prop, strobj_(key), value) {
 		this.populated = true
 		return true
 	}

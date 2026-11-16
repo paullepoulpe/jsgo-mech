@@ -299,7 +299,7 @@ func (this *Es6RewriteBlockScopedDeclaration_LoopClosureTransformer) shouldTrave
 		} else {
 			nodeToWrapInClosure = enclosingFunction
 		}
-		if this.nodesHandledForLoopObjectClosure.containsEntry(nodeToWrapInClosure.box_(), strobj_(name)) {
+		if this.nodesHandledForLoopObjectClosure.containsEntry(nodeToWrapInClosure.box_(), name) {
 			return true
 		}
 		this.nodesHandledForLoopObjectClosure.put(nodeToWrapInClosure.box_(), strobj_(name))

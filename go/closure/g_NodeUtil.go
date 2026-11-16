@@ -4309,7 +4309,7 @@ func NodeUtil_addFeatureToScript(scriptNode Node, feature *FeatureSet_Feature, c
 		}
 		return FeatureSet_BARE_MINIMUM.with(feature)
 	}()
-	scriptNode.setFeatureSet(obj_(newFeatures))
+	scriptNode.setFeatureSet(newFeatures)
 	if feature != FeatureSet_Feature_MODULES {
 		if !compiler.getAllowableFeatures().contains(feature) {
 			Preconditions_checkState_boolean_String_Object(false, "Cannot add feature: %s. It is not supported in the output language, and either 1) its corresponding transpilation pass has already run or 2) transpilation of this feature is unsupported entirely", obj_(feature))
@@ -4324,14 +4324,14 @@ func NodeUtil_removeFeatureFromScript(scriptNode Node, feature *FeatureSet_Featu
 	if currentFeatures != nil {
 		currentFeatures = currentFeatures.without_2(feature, []*FeatureSet_Feature{})
 	}
-	scriptNode.setFeatureSet(obj_(currentFeatures))
+	scriptNode.setFeatureSet(currentFeatures)
 }
 
 func NodeUtil_removeFeaturesFromScript(scriptNode Node, featureSet *FeatureSet) {
 	var currentFeatures *FeatureSet = NodeUtil_getFeatureSetOfScript(scriptNode)
 	if currentFeatures != nil {
 		currentFeatures = currentFeatures.without(featureSet)
-		scriptNode.setFeatureSet(obj_(currentFeatures))
+		scriptNode.setFeatureSet(currentFeatures)
 	}
 }
 
