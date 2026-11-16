@@ -114,17 +114,13 @@ func (this *ErrorToFixMapper) getFixForRedeclaration(error_ *JSError) *Suggested
 	}
 	if !(len(childrenOfAddedVarStatement) == 0) {
 		var var_ Node = new_Node_Token(parent.getToken())
-		it_2 := eachOf_(&childrenOfAddedVarStatement)
-		for it_2.next() {
-			var n Node = it_2.v
+		for _, n := range childrenOfAddedVarStatement {
 			var_.addChildToBack(n.cloneTree())
 		}
 		fix.insertBefore_4(parent, var_, this.compiler_, "1")
 	}
 	if name.getNext() != 0 {
-		it_4 := eachOf_(&childrenOfAddedVarStatement)
-		for it_4.next() {
-			var n Node = it_4.v
+		for _, n := range childrenOfAddedVarStatement {
 			fix.delete(n)
 		}
 		fix.delete(name)

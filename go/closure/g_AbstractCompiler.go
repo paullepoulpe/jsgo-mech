@@ -107,7 +107,7 @@ func (this *AbstractCompiler) isDebugLoggingEnabled() bool {
 	return this.self_.(*Compiler).isDebugLoggingEnabled_impl()
 }
 
-func (this *AbstractCompiler) getDebugLogFilterList() *TList[string] {
+func (this *AbstractCompiler) getDebugLogFilterList() []string {
 	return this.self_.(*Compiler).getDebugLogFilterList_impl()
 }
 

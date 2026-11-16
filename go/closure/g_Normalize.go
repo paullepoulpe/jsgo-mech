@@ -264,9 +264,7 @@ func (this *Normalize_NormalizeStatements) splitExportDeclaration(n Node) {
 				}
 			}
 		}
-		it_2 := eachOf_(&destructuringLhsNodes)
-		for it_2.next() {
-			var destructuringLhsNode Node = it_2.v
+		for _, destructuringLhsNode := range destructuringLhsNodes {
 			this.normalizeDestructuringLhs(destructuringLhsNode)
 		}
 		this.reportCodeChange("combined export and declaration", n.getParent())

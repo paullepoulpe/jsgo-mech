@@ -155,17 +155,17 @@ func (this *CheckJSDocStyle) checkParams(t *NodeTraversal, function Node, jsDoc 
 	if (jsDoc != nil) && (jsDoc.getType() != nil) {
 		return
 	}
-	var paramsFromJsDoc *TList[string] = func() *TList[string] {
+	var paramsFromJsDoc []string = func() []string {
 		if jsDoc == nil {
-			return tlistImm_(tc_string, ImmutableList_of())
+			return sliceImm_(tc_string, ImmutableList_of())
 		}
-		return tlistImm_(tc_string, ImmutableList_copyOf(Collection(jsDoc.getParameterNames().asSet())))
+		return sliceImm_(tc_string, ImmutableList_copyOf(Collection(jsDoc.getParameterNames().asSet())))
 	}()
-	if paramsFromJsDoc.isEmpty() {
+	if len(paramsFromJsDoc) == 0 {
 		this.checkInlineParams(t, function, jsDoc)
 	} else {
 		var paramList Node = NodeUtil_getFunctionParameters(function)
-		if !paramList.hasXChildren(paramsFromJsDoc.size()) {
+		if !paramList.hasXChildren(int32(len(paramsFromJsDoc))) {
 			this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(paramList, CheckJSDocStyle_WRONG_NUMBER_OF_PARAMS, []string{func() string {
 				if jsDoc.isOverride() {
 					return ""
@@ -175,9 +175,7 @@ func (this *CheckJSDocStyle) checkParams(t *NodeTraversal, function Node, jsDoc 
 			return
 		}
 		var param Node = paramList.getFirstChild()
-		it_1 := paramsFromJsDoc.each()
-		for it_1.next() {
-			var s string = it_1.v
+		for _, s := range paramsFromJsDoc {
 			if param.getJSDocInfo() != nil {
 				t.report(param, CheckJSDocStyle_MIXED_PARAM_JSDOC_STYLES, []string{})
 			}

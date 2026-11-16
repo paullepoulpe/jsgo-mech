@@ -93,11 +93,11 @@ func ReportDecoder_parseJsonStringList(json string) *Outcome_base {
 }
 
 func ReportDecoder_decodeReport(mapping MapOf[string, *InstrumentationPoint], frequencies MapOf[string, BoxedOf[int64]]) *ReportProfile {
-	var instrumentationPoints *TList[*InstrumentationPointStats] = newTList_(tc_p_InstrumentationPointStats)
+	var instrumentationPoints []*InstrumentationPointStats = []*InstrumentationPointStats{}
 	it_1 := foreach_(any(mapping.entrySet()))
 	for it_1.next() {
 		var entry Map_Entry = icast_Map_Entry(it_1.v)
-		instrumentationPoints.add(cast_[*InstrumentationPointStats](any(InstrumentationPointStats_newBuilder().setPoint(cast_[*InstrumentationPoint](entry.getValue())).setTimesExecuted(unbox_[int64](Map_getOrDefault_s(frequencies, str_(entry.getKey()), any(int64(0))))).build())))
+		instrumentationPoints = append(instrumentationPoints, cast_[*InstrumentationPointStats](any(InstrumentationPointStats_newBuilder().setPoint(cast_[*InstrumentationPoint](entry.getValue())).setTimesExecuted(unbox_[int64](Map_getOrDefault_s(frequencies, str_(entry.getKey()), any(int64(0))))).build())))
 	}
 	return ReportDecoder_createReportProfile(instrumentationPoints)
 }
@@ -108,11 +108,11 @@ func ReportDecoder_createProfileOfStaticallyUsedCode(mapping *TMap[string, *Inst
 	for matcher.find() {
 		encodedPoints[matcher.group(1)] = struct{}{}
 	}
-	var instrumentationPoints *TList[*InstrumentationPointStats] = newTList_(tc_p_InstrumentationPointStats)
+	var instrumentationPoints []*InstrumentationPointStats = []*InstrumentationPointStats{}
 	it_2 := foreach_(any(mapping.asMap().entrySet()))
 	for it_2.next() {
 		var entry Map_Entry = icast_Map_Entry(it_2.v)
-		instrumentationPoints.add(cast_[*InstrumentationPointStats](any(InstrumentationPointStats_newBuilder().setPoint(cast_[*InstrumentationPoint](entry.getValue())).setTimesExecuted(0).setPointPresence(func() *InstrumentationPointStats_Presence {
+		instrumentationPoints = append(instrumentationPoints, cast_[*InstrumentationPointStats](any(InstrumentationPointStats_newBuilder().setPoint(cast_[*InstrumentationPoint](entry.getValue())).setTimesExecuted(0).setPointPresence(func() *InstrumentationPointStats_Presence {
 			if has_(encodedPoints, str_(entry.getKey())) {
 				return InstrumentationPointStats_Presence_PRESENT
 			}
@@ -122,12 +122,10 @@ func ReportDecoder_createProfileOfStaticallyUsedCode(mapping *TMap[string, *Inst
 	return ReportDecoder_createReportProfile(instrumentationPoints)
 }
 
-func ReportDecoder_mergeProfiles(profiles *TList[*ReportProfile]) *ReportProfile {
+func ReportDecoder_mergeProfiles(profiles []*ReportProfile) *ReportProfile {
 	var frequencies MapOf[*InstrumentationPoint, BoxedOf[int64]] = icast_Map(obj_(new_LinkedHashMap()))
 	var presences MapOf[*InstrumentationPoint, *InstrumentationPointStats_Presence] = icast_Map(obj_(new_LinkedHashMap()))
-	it_1 := profiles.each()
-	for it_1.next() {
-		var profile *ReportProfile = it_1.v
+	for _, profile := range profiles {
 		it_3 := foreach_(any(profile.getFileProfileList()))
 		for it_3.next() {
 			var fileProfile *FileProfile = cast_[*FileProfile](it_3.v)
@@ -159,18 +157,18 @@ func ReportDecoder_mergeProfiles(profiles *TList[*ReportProfile]) *ReportProfile
 			}
 		}
 	}
-	var finalPoints *TList[*InstrumentationPointStats] = newTList_(tc_p_InstrumentationPointStats)
+	var finalPoints []*InstrumentationPointStats = []*InstrumentationPointStats{}
 	it_7 := foreach_(any(frequencies.entrySet()))
 	for it_7.next() {
 		var entry Map_Entry = icast_Map_Entry(it_7.v)
-		finalPoints.add(cast_[*InstrumentationPointStats](any(InstrumentationPointStats_newBuilder().setPoint(cast_[*InstrumentationPoint](entry.getKey())).setTimesExecuted(unbox_[int64](entry.getValue())).setPointPresence(cast_[*InstrumentationPointStats_Presence](presences.get(entry.getKey()))).build())))
+		finalPoints = append(finalPoints, cast_[*InstrumentationPointStats](any(InstrumentationPointStats_newBuilder().setPoint(cast_[*InstrumentationPoint](entry.getKey())).setTimesExecuted(unbox_[int64](entry.getValue())).setPointPresence(cast_[*InstrumentationPointStats_Presence](presences.get(entry.getKey()))).build())))
 	}
 	return ReportDecoder_createReportProfile(finalPoints)
 }
 
-func ReportDecoder_createReportProfile(instrumentationPoints *TList[*InstrumentationPointStats]) *ReportProfile {
-	var sortedPoints *TList[*InstrumentationPointStats] = tlistFrom_(tc_p_InstrumentationPointStats, Collection(instrumentationPoints.asList()))
-	List_sort(sortedPoints.asList(), Comparator_thenComparingInt(Comparator_comparing(&Function_fn{func(pointStats_ any) any {
+func ReportDecoder_createReportProfile(instrumentationPoints []*InstrumentationPointStats) *ReportProfile {
+	var sortedPoints []*InstrumentationPointStats = sliceFrom_(tc_p_InstrumentationPointStats, Collection(sliceView_(tc_p_InstrumentationPointStats, instrumentationPoints)))
+	List_sort(sliceView_(tc_p_InstrumentationPointStats, sortedPoints), Comparator_thenComparingInt(Comparator_comparing(&Function_fn{func(pointStats_ any) any {
 		var pointStats *InstrumentationPointStats = cast_[*InstrumentationPointStats](pointStats_)
 		_ = pointStats
 		return strobj_(pointStats.getPoint().getFileName())
@@ -180,9 +178,7 @@ func ReportDecoder_createReportProfile(instrumentationPoints *TList[*Instrumenta
 		return pointStats.getPoint().getLineNumber()
 	}}))
 	var pointsByFileName *TMap[string, ListOf[*InstrumentationPointStats]] = newTMap_(tc_string, tc_ListOf_p_InstrumentationPointStats_)
-	it_1 := sortedPoints.each()
-	for it_1.next() {
-		var pointStats *InstrumentationPointStats = it_1.v
+	for _, pointStats := range sortedPoints {
 		pointsByFileName.computeIfAbsent(pointStats.getPoint().getFileName(), &Function_fn{func(k_ any) any {
 			var k string = str_(k_)
 			_ = k

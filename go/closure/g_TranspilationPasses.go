@@ -249,16 +249,16 @@ func TranspilationPasses_clinit() {
 	TranspilationPasses_peepholeTranspilationsPasses = PassFactory_builder().setName("peepholeTranspilationsPasses").setInternalFactory(&Function_fn{func(compiler_ any) any {
 		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
 		_ = compiler
-		var peepholeTranspilations *TList[*AbstractPeepholeTranspilation] = newTList_(tc_p_AbstractPeepholeTranspilation)
-		peepholeTranspilations.add(to_AbstractPeepholeTranspilation(obj_(new_ReportUntranspilableFeatures(compiler, compiler.getOptions().getBrowserFeaturesetYearObject(), compiler.getOptions().getOutputFeatureSet()))))
+		var peepholeTranspilations []*AbstractPeepholeTranspilation = []*AbstractPeepholeTranspilation{}
+		peepholeTranspilations = append(peepholeTranspilations, to_AbstractPeepholeTranspilation(obj_(new_ReportUntranspilableFeatures(compiler, compiler.getOptions().getBrowserFeaturesetYearObject(), compiler.getOptions().getOutputFeatureSet()))))
 		if compiler.getOptions().needsTranspilationOf(FeatureSet_Feature_OPTIONAL_CATCH_BINDING) {
-			peepholeTranspilations.add(to_AbstractPeepholeTranspilation(obj_(new_RewriteCatchWithNoBinding(compiler))))
+			peepholeTranspilations = append(peepholeTranspilations, to_AbstractPeepholeTranspilation(obj_(new_RewriteCatchWithNoBinding(compiler))))
 		}
 		if compiler.getOptions().needsTranspilationOf(FeatureSet_Feature_SHORTHAND_OBJECT_PROPERTIES) {
-			peepholeTranspilations.add(to_AbstractPeepholeTranspilation(obj_(new_Es6NormalizeShorthandProperties(compiler))))
+			peepholeTranspilations = append(peepholeTranspilations, to_AbstractPeepholeTranspilation(obj_(new_Es6NormalizeShorthandProperties(compiler))))
 		}
 		if compiler.getOptions().needsTranspilationOf(FeatureSet_Feature_NEW_TARGET) {
-			peepholeTranspilations.add(to_AbstractPeepholeTranspilation(obj_(new_RewriteNewDotTarget(compiler))))
+			peepholeTranspilations = append(peepholeTranspilations, to_AbstractPeepholeTranspilation(obj_(new_RewriteNewDotTarget(compiler))))
 		}
 		return obj_(PeepholeTranspilationsPass_create(compiler, peepholeTranspilations))
 		panic("unreachable")

@@ -52,15 +52,15 @@ func (this *PruningAnalysis) calculateBottlenecks() ImmutableMapOf[string, Boxed
 			bottleneckBlame.put(node, any(int32(retainedCount)))
 		}
 	}
-	var sortedBlame *TList[Map_EntryOf[string, BoxedOf[int32]]] = tlistFrom_(tc_Map_EntryOf_string__BoxedOf_int32__, Collection(bottleneckBlame.asMap().entrySet()))
-	List_sort(sortedBlame.asList(), Comparator_reversed(Comparator_comparingInt(&ToIntFunction_fn{func(entry_ any) int32 {
+	var sortedBlame []Map_EntryOf[string, BoxedOf[int32]] = sliceFrom_(tc_Map_EntryOf_string__BoxedOf_int32__, Collection(bottleneckBlame.asMap().entrySet()))
+	List_sort(sliceView_(tc_Map_EntryOf_string__BoxedOf_int32__, sortedBlame), Comparator_reversed(Comparator_comparingInt(&ToIntFunction_fn{func(entry_ any) int32 {
 		var entry Map_Entry = icast_Map_Entry(entry_)
 		_ = entry
 		return unbox_[int32](entry.getValue())
 	}})))
 	var result ImmutableMap_BuilderOf[string, BoxedOf[int32]] = ImmutableMap_builder()
-	for i := int32(0); (i < sortedBlame.size()) && (i < PruningAnalysis_BOTTLENECK_THRESHOLD); i++ {
-		var entry Map_EntryOf[string, BoxedOf[int32]] = sortedBlame.get(i)
+	for i := int32(0); (i < int32(len(sortedBlame))) && (i < PruningAnalysis_BOTTLENECK_THRESHOLD); i++ {
+		var entry Map_EntryOf[string, BoxedOf[int32]] = sliceAt_(sortedBlame, i)
 		result.put(entry.getKey(), entry.getValue())
 	}
 	return result.buildOrThrow()

@@ -314,13 +314,13 @@ func (this *Es6RewriteModules) rewriteRequires(script Node) {
 func (this *Es6RewriteModules) inlineAliasedTypes(t *NodeTraversal, typeNode Node) {
 	if typeNode.isStringLit() {
 		var name string = typeNode.getString()
-		var split *TList[string] = tlistImm_(tc_string, Es6RewriteModules_DOT_SPLITTER.limit(2).splitToList(strobj_(name)))
-		if cast_[*Var](t.getScope().getVar(split.get(0)).self()) == nil {
-			var replacement *ModuleRenaming_GlobalizedModuleName = this.namesToInlineByAlias[split.get(0)]
+		var split []string = sliceImm_(tc_string, Es6RewriteModules_DOT_SPLITTER.limit(2).splitToList(strobj_(name)))
+		if cast_[*Var](t.getScope().getVar(sliceAt_(split, 0)).self()) == nil {
+			var replacement *ModuleRenaming_GlobalizedModuleName = this.namesToInlineByAlias[sliceAt_(split, 0)]
 			if replacement != nil {
 				var rest string = ""
-				if split.size() == 2 {
-					rest = ("." + sstr_(split.get(1)))
+				if int32(len(split)) == 2 {
+					rest = ("." + sstr_(sliceAt_(split, 1)))
 				}
 				typeNode.setOriginalName(name)
 				typeNode.setString((sstr_(str_(replacement.aliasName().join().orElse(strobj_("null")))) + sstr_(rest)))
@@ -722,10 +722,10 @@ func (this *Es6RewriteModules_RenameGlobalVars) fixTypeNode(t *NodeTraversal, ty
 	if typeNode.isStringLit() {
 		var thisModule *Module = this.outer_.moduleMap.getModule(t.getInput().getPath())
 		var name string = typeNode.getString()
-		var splitted *TList[string] = tlistImm_(tc_string, Es6RewriteModules_DOT_SPLITTER.splitToList(strobj_(name)))
-		var baseName string = splitted.get(0)
+		var splitted []string = sliceImm_(tc_string, Es6RewriteModules_DOT_SPLITTER.splitToList(strobj_(name)))
+		var baseName string = sliceAt_(splitted, 0)
 		var rest string = ""
-		if splitted.size() > 1 {
+		if int32(len(splitted)) > 1 {
 			rest = String_substring_int(name, String_length(baseName))
 		}
 		var var_ *Var = cast_[*Var](t.getScope().getVar(baseName).self())
@@ -733,7 +733,7 @@ func (this *Es6RewriteModules_RenameGlobalVars) fixTypeNode(t *NodeTraversal, ty
 			this.maybeSetNewName(t, typeNode, name, (sstr_(str_(ModuleRenaming_getGlobalNameOfEsModuleLocalVariable(thisModule.metadata(), Optional_of(strobj_(baseName))).join().orElse(strobj_("null")))) + sstr_(rest)))
 		} else if (var_ == nil) && Map_containsKey_s(thisModule.boundNames(), baseName) {
 			var binding *Binding = cast_[*Binding](Map_get_s(thisModule.boundNames(), baseName))
-			var globalName OptionalOf[string] = ModuleRenaming_getGlobalNameForJsDoc(this.outer_.moduleMap, binding, splitted.asList().subList(1, splitted.size()))
+			var globalName OptionalOf[string] = ModuleRenaming_getGlobalNameForJsDoc(this.outer_.moduleMap, binding, sliceView_(tc_string, splitted).subList(1, int32(len(splitted))))
 			this.maybeSetNewName(t, typeNode, name, str_(globalName.get()))
 			if this.outer_.preprocessorSymbolTable != nil {
 				var onlyBaseName Node = Node_newString_String(baseName).srcref(typeNode)

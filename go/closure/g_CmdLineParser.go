@@ -99,20 +99,20 @@ func (this *CmdLineParser) printOption(out *StringBuilder, option *CmdLineParser
 	var widthMetadata int32 = Math_min(len_, ((this.usageWidth - 4) / 2))
 	var widthUsage int32 = ((this.usageWidth - 4) - widthMetadata)
 	var defaultValuePart string = CmdLineParser_createDefaultValuePart(option)
-	var namesAndMetas *TList[string] = CmdLineParser_wrapLines(option.getNameAndMeta(), widthMetadata)
-	var usages *TList[string] = CmdLineParser_wrapLines((sstr_(option.usageField) + sstr_(defaultValuePart)), widthUsage)
-	for i := int32(0); i < Math_max(namesAndMetas.size(), usages.size()); i++ {
+	var namesAndMetas []string = CmdLineParser_wrapLines(option.getNameAndMeta(), widthMetadata)
+	var usages []string = CmdLineParser_wrapLines((sstr_(option.usageField) + sstr_(defaultValuePart)), widthUsage)
+	for i := int32(0); i < Math_max(int32(len(namesAndMetas)), int32(len(usages))); i++ {
 		var nameAndMeta string = func() string {
-			if i >= namesAndMetas.size() {
+			if i >= int32(len(namesAndMetas)) {
 				return ""
 			}
-			return namesAndMetas.get(i)
+			return sliceAt_(namesAndMetas, i)
 		}()
 		var usage string = func() string {
-			if i >= usages.size() {
+			if i >= int32(len(usages)) {
 				return ""
 			}
-			return usages.get(i)
+			return sliceAt_(usages, i)
 		}()
 		var separator string = func() string {
 			if (String_length(nameAndMeta) > 0) && (i == 0) {
@@ -134,8 +134,8 @@ func CmdLineParser_createDefaultValuePart(option *CmdLineParser_Option) string {
 	return ""
 }
 
-func CmdLineParser_wrapLines(line string, maxLength int32) *TList[string] {
-	var rv *TList[string] = newTList_(tc_string)
+func CmdLineParser_wrapLines(line string, maxLength int32) []string {
+	var rv []string = []string{}
 	for _, restOfLine := range CmdLineParser_NEWLINE_PATTERN.split(line) {
 		for String_length(restOfLine) > maxLength {
 			var lineLength int32
@@ -146,10 +146,10 @@ func CmdLineParser_wrapLines(line string, maxLength int32) *TList[string] {
 			} else {
 				lineLength = maxLength
 			}
-			rv.add(String_substring(restOfLine, 0, lineLength))
+			rv = append(rv, String_substring(restOfLine, 0, lineLength))
 			restOfLine = String_trim(String_substring_int(restOfLine, lineLength))
 		}
-		rv.add(restOfLine)
+		rv = append(rv, restOfLine)
 	}
 	return rv
 }
@@ -207,7 +207,7 @@ func (this *CmdLineParser) parseArgument(args []string) *Outcome_base {
 }
 
 func (this *CmdLineParser) expandAtFiles(args []string) *Outcome_base {
-	var result *TList[string] = newTList_(tc_string)
+	var result []string = []string{}
 	for _, arg := range args {
 		if String_startsWith(arg, "@") {
 			var file string = FilePaths_clean(String_substring_int(arg, 1))
@@ -218,12 +218,12 @@ func (this *CmdLineParser) expandAtFiles(args []string) *Outcome_base {
 			if text.isErr() {
 				return Outcome_base_err(new_CmdLineException_CmdLineParser_String_Throwable(this, ("Failed to parse " + sstr_(file)), text.error()).up_Throwable())
 			}
-			result.addAllT(TextFiles_splitLines(str_(text.get())))
+			result = append(result, TextFiles_splitLines(str_(text.get()))...)
 		} else {
-			result.add(arg)
+			result = append(result, arg)
 		}
 	}
-	return Outcome_base_ok_Object(any(arrmap_(result.asList().toArray(arrmap_(newstrarr_(0), func(v_ string) any { return strobj_(v_) })), func(v_ any) string { return str_(v_) })))
+	return Outcome_base_ok_Object(any(arrmap_(sliceView_(tc_string, result).toArray(arrmap_(newstrarr_(0), func(v_ string) any { return strobj_(v_) })), func(v_ any) string { return str_(v_) })))
 }
 
 func (this *CmdLineParser) findOptionOfKeyValuePair(name string) *CmdLineParser_Option {

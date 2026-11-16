@@ -397,15 +397,13 @@ func (this *PerformanceTracker) outputTracerReport(output *Output) {
 		return this.transitiveSummarySources
 	}()))), ("Type summary sources (post-pruning):   " + istr_(int64(this.transitiveSummarySources))), "", ("Dependency pruning analysis: " + sstr_(this.pruningAnalysisSummary))}))
 	output.println(JSCompStrings_lines([]string{"", "Summary:", "pass,runtime,allocMem,runs,changingRuns,astReduction,reduction,gzReduction"}))
-	var sortedPassSummary *TList[Map_EntryOf[string, *PerformanceTracker_Stats]] = tlistFrom_(tc_Map_EntryOf_string__p_PerformanceTracker_Stats_, Collection(this.passSummary.entrySet()))
-	List_sort(sortedPassSummary.asList(), Comparator_comparingLong(&ToLongFunction_fn{func(e_ any) int64 {
+	var sortedPassSummary []Map_EntryOf[string, *PerformanceTracker_Stats] = sliceFrom_(tc_Map_EntryOf_string__p_PerformanceTracker_Stats_, Collection(this.passSummary.entrySet()))
+	List_sort(sliceView_(tc_Map_EntryOf_string__p_PerformanceTracker_Stats_, sortedPassSummary), Comparator_comparingLong(&ToLongFunction_fn{func(e_ any) int64 {
 		var e Map_Entry = icast_Map_Entry(e_)
 		_ = e
 		return cast_[*PerformanceTracker_Stats](e.getValue()).runtime_
 	}}))
-	it_1 := sortedPassSummary.each()
-	for it_1.next() {
-		var entry Map_Entry = it_1.v
+	for _, entry := range sortedPassSummary {
 		var key string = str_(entry.getKey())
 		var stats *PerformanceTracker_Stats = cast_[*PerformanceTracker_Stats](entry.getValue())
 		output.println(String_format("%s,%d,%d,%d,%d,%d,%d,%d", []any{strobj_(key), any(int64(stats.runtime_)), any(int32(stats.allocMem)), any(int32(stats.runs)), any(int32(stats.changes)), any(int32(stats.astDiff)), any(int32(stats.diff)), any(int32(stats.gzDiff))}))
@@ -418,16 +416,14 @@ func (this *PerformanceTracker) outputTracerReport(output *Output) {
 	}
 	if this.astManifest != nil {
 		output.println(JSCompStrings_lines([]string{"", "Input AST Manifest:", "token,count"}))
-		var manifestLines *TList[string] = newTList_(tc_string)
+		var manifestLines []string = []string{}
 		it_5 := foreach_(any(this.astManifest.entrySet()))
 		for it_5.next() {
 			var e Map_Entry = icast_Map_Entry(it_5.v)
-			manifestLines.add(String_format("%s,%d", []any{e.getKey(), e.getValue()}))
+			manifestLines = append(manifestLines, String_format("%s,%d", []any{e.getKey(), e.getValue()}))
 		}
-		Collections_sort(manifestLines.asList())
-		it_7 := manifestLines.each()
-		for it_7.next() {
-			var line string = it_7.v
+		Collections_sort(sliceView_(tc_string, manifestLines))
+		for _, line := range manifestLines {
 			output.println(line)
 		}
 	}

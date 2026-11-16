@@ -162,7 +162,7 @@ func (this *AbstractCommandLineRunner) setRunOptions(options *CompilerOptions) *
 	if !this.config.hideWarningsFor.isEmpty() {
 		options.addWarningsGuard(new_ShowByPathWarningsGuard_StringArr_ShowType(arrmap_(this.config.hideWarningsFor.toArray(arrmap_([]string{}, func(v_ string) any { return strobj_(v_) })), func(v_ any) string { return str_(v_) }), ShowByPathWarningsGuard_ShowType_EXCLUDE).up_WarningsGuard())
 	}
-	var define *TList[string] = tlistFrom_(tc_string, Collection(this.config.define.asList()))
+	var define []string = sliceFrom_(tc_string, Collection(sliceView_(tc_string, this.config.define)))
 	if this.config.browserFeaturesetYear != 0 {
 		var yearRes *Outcome_base = CompilerOptions_BrowserFeaturesetYear_fromResult(this.config.browserFeaturesetYear)
 		if yearRes.isErr() {
@@ -216,7 +216,7 @@ func (this *AbstractCommandLineRunner) setRunOptions(options *CompilerOptions) *
 	}
 	options.setSourceMapDetailLevel(this.config.sourceMapDetailLevel)
 	options.setSourceMapFormat(this.config.sourceMapFormat)
-	options.setSourceMapLocationMappings(tlistImm_(tc_SourceMap_LocationMapping, this.config.sourceMapLocationMappings))
+	options.setSourceMapLocationMappings(sliceImm_(tc_SourceMap_LocationMapping, this.config.sourceMapLocationMappings))
 	options.setParseInlineSourceMaps(this.config.parseInlineSourceMaps_)
 	options.setApplyInputSourceMaps(this.config.applyInputSourceMaps)
 	var inputSourceMaps ImmutableMap_BuilderOf[string, *SourceMapInput] = new_ImmutableMap_Builder()
@@ -619,11 +619,11 @@ func (this *AbstractCommandLineRunner) createExternInputs(files *TList[string]) 
 	return Outcome_base_ok_Object(inputsRes.get())
 }
 
-func AbstractCommandLineRunner_createJsChunks(specs *TList[*AbstractCommandLineRunner_JsChunkSpec], inputs *TList[*CompilerInput]) *Outcome_base {
+func AbstractCommandLineRunner_createJsChunks(specs *TList[*AbstractCommandLineRunner_JsChunkSpec], inputs []*CompilerInput) *Outcome_base {
 	Preconditions_checkState((specs != nil))
 	Preconditions_checkState(!specs.isEmpty())
 	Preconditions_checkState((inputs != nil))
-	var chunkNames *TList[string] = newTListN_(tc_string, specs.size())
+	var chunkNames []string = make([]string, 0, specs.size())
 	var chunksByName *TMap[string, *JSChunk] = newTMap_(tc_string, tc_p_JSChunk)
 	var chunksFileCountMap map[string]BoxedOf[int32] = map[string]BoxedOf[int32]{}
 	var numJsFilesExpected int32 = 0
@@ -652,11 +652,11 @@ func AbstractCommandLineRunner_createJsChunks(specs *TList[*AbstractCommandLineR
 		if numJsFilesExpected >= 0 {
 			numJsFilesExpected += spec.numJsFiles
 		}
-		chunkNames.insert(0, spec.name_)
+		sliceInsert_(&chunkNames, 0, spec.name_)
 		chunksFileCountMap[spec.name_] = any(int32(spec.numJsFiles))
 		chunksByName.put(spec.name_, chunk)
 	}
-	var totalNumJsFiles int32 = inputs.size()
+	var totalNumJsFiles int32 = int32(len(inputs))
 	if (numJsFilesExpected >= 0) || (minJsFilesRequired > totalNumJsFiles) {
 		if minJsFilesRequired > totalNumJsFiles {
 			numJsFilesExpected = minJsFilesRequired
@@ -669,15 +669,13 @@ func AbstractCommandLineRunner_createJsChunks(specs *TList[*AbstractCommandLineR
 	}
 	var numJsFilesLeft int32 = totalNumJsFiles
 	var chunkIndex int32 = 0
-	it_5 := chunkNames.each()
-	for it_5.next() {
-		var chunkName string = it_5.v
+	for _, chunkName := range chunkNames {
 		var numJsFiles int32 = unbox_[int32](chunksFileCountMap[chunkName])
 		var chunk *JSChunk = chunksByName.get(chunkName)
-		if (chunkIndex == (chunkNames.size() - 1)) && (numJsFiles == -1) {
+		if (chunkIndex == (int32(len(chunkNames)) - 1)) && (numJsFiles == -1) {
 			numJsFiles = numJsFilesLeft
 		}
-		var chunkFiles ListOf[*CompilerInput] = inputs.asList().subList((numJsFilesLeft - numJsFiles), numJsFilesLeft)
+		var chunkFiles ListOf[*CompilerInput] = sliceView_(tc_p_CompilerInput, inputs).subList((numJsFilesLeft - numJsFiles), numJsFilesLeft)
 		it_7 := foreach_(any(chunkFiles))
 		for it_7.next() {
 			var input *CompilerInput = cast_[*CompilerInput](it_7.v)
@@ -914,13 +912,13 @@ func (this *AbstractCommandLineRunner) doRun() *Outcome_base {
 		outputFileNames = append(outputFileNames, this.config.jsOutputFile)
 	}
 	var createCommonJsModules bool = false
-	if options.getProcessCommonJSModules() && ((this.config.chunk_.size() == 1) && ("auto" == this.config.chunk_.get(0))) {
+	if options.getProcessCommonJSModules() && ((int32(len(this.config.chunk_)) == 1) && ("auto" == sliceAt_(this.config.chunk_, 0))) {
 		createCommonJsModules = true
-		this.config.chunk_.removeAt(0)
+		sliceRemoveAt_(&this.config.chunk_, 0)
 	}
 	var jsChunkSpecs *TList[*AbstractCommandLineRunner_JsChunkSpec] = newTList_(tc_p_AbstractCommandLineRunner_JsChunkSpec)
-	for i := int32(0); i < this.config.chunk_.size(); i++ {
-		var jsChunkSpec *Outcome_base = AbstractCommandLineRunner_JsChunkSpec_create(this.config.chunk_.get(i), (i == 0))
+	for i := int32(0); i < int32(len(this.config.chunk_)); i++ {
+		var jsChunkSpec *Outcome_base = AbstractCommandLineRunner_JsChunkSpec_create(sliceAt_(this.config.chunk_, i), (i == 0))
 		if jsChunkSpec.isErr() {
 			return Outcome_base_err(jsChunkSpec.error())
 		}
@@ -986,7 +984,7 @@ func (this *AbstractCommandLineRunner) doRun() *Outcome_base {
 				var source *SourceFile_jscomp = cast_[*SourceFile_jscomp](it_6.v)
 				inputs.add(obj_(new_CompilerInput_SourceFile_boolean(source, false)))
 			}
-			var chunksOutcome *Outcome_base = AbstractCommandLineRunner_createJsChunks(jsChunkSpecs, tlistImm_(tc_p_CompilerInput, inputs.build()))
+			var chunksOutcome *Outcome_base = AbstractCommandLineRunner_createJsChunks(jsChunkSpecs, sliceImm_(tc_p_CompilerInput, inputs.build()))
 			if chunksOutcome.isErr() {
 				return Outcome_base_err(chunksOutcome.error())
 			}
@@ -1060,9 +1058,7 @@ func (this *AbstractCommandLineRunner) doRun() *Outcome_base {
 			outputFileNames = append(outputFileNames, str_(chunkOutputFileName.get()))
 		}
 	}
-	it_13 := eachOf_(&outputFileNames)
-	for it_13.next() {
-		var outputFileName string = it_13.v
+	for _, outputFileName := range outputFileNames {
 		if this.compiler_.getSourceFileByName(Optional_of(strobj_(outputFileName))) != nil {
 			this.compiler_.report(JSError_make_DiagnosticType_StringArr(AbstractCommandLineRunner_OUTPUT_SAME_AS_INPUT_ERROR, []string{outputFileName}))
 			return Outcome_base_ok_Object(any(int32(1)))
@@ -1628,7 +1624,7 @@ func (this *AbstractCommandLineRunner) expandCommandLinePath(path string, forChu
 			return Outcome_base_err(subOutcome.error())
 		}
 		sub = str_(subOutcome.get())
-	} else if !this.config.chunk_.isEmpty() {
+	} else if len(this.config.chunk_) != 0 {
 		sub = this.config.chunkOutputPathPrefix
 	} else {
 		sub = this.config.jsOutputFile
@@ -1783,10 +1779,8 @@ func (this *AbstractCommandLineRunner) outputStringMap() *Outcome_base {
 	return Outcome_base_ok_0()
 }
 
-func AbstractCommandLineRunner_createDefineReplacements(definitions *TList[string], options *CompilerOptions) {
-	it_1 := definitions.each()
-	for it_1.next() {
-		var override string = it_1.v
+func AbstractCommandLineRunner_createDefineReplacements(definitions []string, options *CompilerOptions) {
+	for _, override := range definitions {
 		var assignment []string = AbstractCommandLineRunner_EQUALS_PATTERN.split_String_int(override, 2)
 		var defName string = assignment[0]
 		if String_length(defName) > 0 {
@@ -1824,7 +1818,7 @@ func AbstractCommandLineRunner_createDefineReplacements(definitions *TList[strin
 }
 
 func (this *AbstractCommandLineRunner) shouldGenerateOutputPerChunk(output OptionalOf[string]) bool {
-	return ((!this.config.chunk_.isEmpty() && output.isPresent()) && String_contains(str_(output.get()), strobj_("%outname%")))
+	return ((len(this.config.chunk_) != 0 && output.isPresent()) && String_contains(str_(output.get()), strobj_("%outname%")))
 }
 
 func (this *AbstractCommandLineRunner) outputManifest() *Outcome_base {
@@ -1922,7 +1916,7 @@ func (this *AbstractCommandLineRunner) outputManifestOrBundle(outputFiles *TList
 				defer func() {
 					outClosed = AbstractCommandLineRunner_closeOutput(out)
 				}()
-				if this.config.chunk_.isEmpty() {
+				if len(this.config.chunk_) == 0 {
 					var chunk *JSChunk = this.compiler_.getChunkGraph().getChunkByName(JSChunk_STRONG_CHUNK_NAME)
 					if isManifest {
 						this.printManifestTo(chunk, icast_Appendable(obj_(out)))
@@ -2078,9 +2072,7 @@ func (this *AbstractCommandLineRunner) printBundleTo(chunk *JSChunk, out Appenda
 
 func (this *AbstractCommandLineRunner) constructRootRelativePathsMap() *TMap[string, string] {
 	var rootRelativePathsMap *TMap[string, string] = newTMap_(tc_string, tc_string)
-	it_1 := this.config.manifestMaps.each()
-	for it_1.next() {
-		var mapString string = it_1.v
+	for _, mapString := range this.config.manifestMaps {
 		var colonIndex int32 = String_indexOf(mapString, 58)
 		Preconditions_checkState((colonIndex > 0))
 		var execPath string = String_substring(mapString, 0, colonIndex)
@@ -2176,7 +2168,7 @@ type AbstractCommandLineRunner_CommandLineConfig struct {
 	saveAfterCompilationStage        int32
 	typedAstListInputFilename        OptionalOf[string]
 	saveCompilationStateToFilename   OptionalOf[string]
-	chunk_                           *TList[string]
+	chunk_                           []string
 	sourceMapInputFiles              *TMap[string, string]
 	parseInlineSourceMaps_           bool
 	expectedDiagnostics              *TList[string]
@@ -2200,7 +2192,7 @@ type AbstractCommandLineRunner_CommandLineConfig struct {
 	sourceMapLocationMappings        ImmutableListOf[SourceMap_LocationMapping]
 	applyInputSourceMaps             bool
 	warningGuards                    *TList[*AbstractCommandLineRunner_FlagEntry]
-	define                           *TList[string]
+	define                           []string
 	browserFeaturesetYear            int32
 	tweakProcessing                  *CompilerOptions_TweakProcessing
 	charset                          string
@@ -2209,7 +2201,7 @@ type AbstractCommandLineRunner_CommandLineConfig struct {
 	outputChunkDependencies          OptionalOf[string]
 	outputBundles                    *TList[string]
 	skipNormalOutputs                bool
-	manifestMaps                     *TList[string]
+	manifestMaps                     []string
 	processCommonJSModules           bool
 	moduleRoots                      ListOf[string]
 	warningsAllowFile                string
@@ -2253,7 +2245,7 @@ func (this *AbstractCommandLineRunner_CommandLineConfig) finit_AbstractCommandLi
 	this.saveAfterCompilationStage = -1
 	this.typedAstListInputFilename = Optional_empty()
 	this.saveCompilationStateToFilename = Optional_empty()
-	this.chunk_ = newTList_(tc_string)
+	this.chunk_ = []string{}
 	this.sourceMapInputFiles = newTMap_(tc_string, tc_string)
 	this.parseInlineSourceMaps_ = false
 	this.expectedDiagnostics = newTList_(tc_string)
@@ -2277,7 +2269,7 @@ func (this *AbstractCommandLineRunner_CommandLineConfig) finit_AbstractCommandLi
 	this.sourceMapLocationMappings = ImmutableList_of()
 	this.applyInputSourceMaps = false
 	this.warningGuards = newTList_(tc_p_AbstractCommandLineRunner_FlagEntry)
-	this.define = newTList_(tc_string)
+	this.define = []string{}
 	this.browserFeaturesetYear = 0
 	this.tweakProcessing = CompilerOptions_TweakProcessing_OFF
 	this.charset = ""
@@ -2286,7 +2278,7 @@ func (this *AbstractCommandLineRunner_CommandLineConfig) finit_AbstractCommandLi
 	this.outputChunkDependencies = Optional_empty()
 	this.outputBundles = tlistImm_(tc_string, ImmutableList_of())
 	this.skipNormalOutputs = false
-	this.manifestMaps = tlistImm_(tc_string, ImmutableList_of())
+	this.manifestMaps = sliceImm_(tc_string, ImmutableList_of())
 	this.processCommonJSModules = false
 	this.moduleRoots = icast_List(obj_(ImmutableList_of_Object(strobj_(ModuleLoader_DEFAULT_FILENAME_PREFIX))))
 	this.warningsAllowFile = ""
@@ -2445,8 +2437,8 @@ func (this *AbstractCommandLineRunner_CommandLineConfig) getSaveCompilationState
 }
 
 func (this *AbstractCommandLineRunner_CommandLineConfig) setChunk(chunk ListOf[string]) *AbstractCommandLineRunner_CommandLineConfig {
-	this.chunk_.clear()
-	this.chunk_.asList().addAll(Collection(chunk))
+	sliceClear_(&this.chunk_)
+	sliceAddAll_(tc_string, &this.chunk_, Collection(chunk))
 	return this
 }
 
@@ -2571,8 +2563,8 @@ func (this *AbstractCommandLineRunner_CommandLineConfig) setWarningGuards(warnin
 }
 
 func (this *AbstractCommandLineRunner_CommandLineConfig) setDefine(define ListOf[string]) *AbstractCommandLineRunner_CommandLineConfig {
-	this.define.clear()
-	this.define.asList().addAll(Collection(define))
+	sliceClear_(&this.define)
+	sliceAddAll_(tc_string, &this.define, Collection(define))
 	return this
 }
 
@@ -2596,11 +2588,9 @@ func (this *AbstractCommandLineRunner_CommandLineConfig) setDependencyOptions(de
 	return this
 }
 
-func (this *AbstractCommandLineRunner_CommandLineConfig) setOutputManifest(outputManifests *TList[string]) *AbstractCommandLineRunner_CommandLineConfig {
+func (this *AbstractCommandLineRunner_CommandLineConfig) setOutputManifest(outputManifests []string) *AbstractCommandLineRunner_CommandLineConfig {
 	this.outputManifests = newTList_(tc_string)
-	it_1 := outputManifests.each()
-	for it_1.next() {
-		var manifestName string = it_1.v
+	for _, manifestName := range outputManifests {
 		if !String_isEmpty(manifestName) {
 			this.outputManifests.add(manifestName)
 		}
@@ -2624,7 +2614,7 @@ func (this *AbstractCommandLineRunner_CommandLineConfig) setSkipNormalOutputs(sk
 	return this
 }
 
-func (this *AbstractCommandLineRunner_CommandLineConfig) setManifestMaps(manifestMaps *TList[string]) *AbstractCommandLineRunner_CommandLineConfig {
+func (this *AbstractCommandLineRunner_CommandLineConfig) setManifestMaps(manifestMaps []string) *AbstractCommandLineRunner_CommandLineConfig {
 	this.manifestMaps = manifestMaps
 	return this
 }

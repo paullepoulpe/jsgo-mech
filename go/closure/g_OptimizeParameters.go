@@ -61,20 +61,14 @@ func (this *OptimizeParameters) process_3(externs Node, root Node, refMap *Optim
 				toOptimize = append(toOptimize, refs)
 			}
 		}
-		it_6 := eachOf_(&toOptimize)
-		for it_6.next() {
-			var refs *ArrayList = it_6.v
+		for _, refs := range toOptimize {
 			this.tryEliminateOptionalArgs(refs)
 		}
-		it_8 := eachOf_(&toOptimize)
-		for it_8.next() {
-			var refs *ArrayList = it_8.v
+		for _, refs := range toOptimize {
 			this.tryEliminateConstantArgs(refs)
 		}
 		var optimizer *OptimizeParameters_UnusedParameterOptimizer = new_OptimizeParameters_UnusedParameterOptimizer(this)
-		it_10 := eachOf_(&toOptimize)
-		for it_10.next() {
-			var refs *ArrayList = it_10.v
+		for _, refs := range toOptimize {
 			optimizer.tryEliminateUnusedArgs(refs)
 		}
 		optimizer.applyChanges()

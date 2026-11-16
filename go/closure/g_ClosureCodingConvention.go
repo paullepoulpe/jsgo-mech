@@ -141,12 +141,12 @@ func (this *ClosureCodingConvention) getExportSymbolFunction_impl() string {
 	return "goog.exportSymbol"
 }
 
-func (this *ClosureCodingConvention) identifyTypeDeclarationCall_impl(n Node) *TList[string] {
+func (this *ClosureCodingConvention) identifyTypeDeclarationCall_impl(n Node) []string {
 	var callName Node = n.getFirstChild()
 	if ClosureCodingConvention_GOOG_FORWARDDECLARE.matches(callName) && n.hasTwoChildren() {
 		var typeDeclaration Node = n.getSecondChild()
 		if typeDeclaration.isStringLit() {
-			return tlistImm_(tc_string, ImmutableList_of_Object(strobj_(typeDeclaration.getString())))
+			return sliceImm_(tc_string, ImmutableList_of_Object(strobj_(typeDeclaration.getString())))
 		}
 	}
 	return this.CodingConventions_Proxy.identifyTypeDeclarationCall_impl(n)
@@ -394,11 +394,11 @@ func (this *ClosureCodingConvention) getExportSymbolFunction() string {
 }
 
 // identifyTypeDeclarationCall: an object that is exactly a ClosureCodingConvention calls its identifyTypeDeclarationCall_impl directly (post-flip); others dispatch.
-func (this *ClosureCodingConvention) identifyTypeDeclarationCall(p0 Node) *TList[string] {
+func (this *ClosureCodingConvention) identifyTypeDeclarationCall(p0 Node) []string {
 	if this.self_ == any(this) {
 		return this.identifyTypeDeclarationCall_impl(p0)
 	}
-	return this.self_.(interface{ identifyTypeDeclarationCall_impl(Node) *TList[string] }).identifyTypeDeclarationCall_impl(p0)
+	return this.self_.(interface{ identifyTypeDeclarationCall_impl(Node) []string }).identifyTypeDeclarationCall_impl(p0)
 }
 
 // getAbstractMethodName: an object that is exactly a ClosureCodingConvention calls its getAbstractMethodName_impl directly (post-flip); others dispatch.

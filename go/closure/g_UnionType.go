@@ -47,7 +47,7 @@ func (this *UnionType) getAlternates() ImmutableListOf[*JSType] {
 		var resolvedAlternates int32 = this.countResolvedAlternates()
 		if resolvedAlternates != this.resolvedAlternatesAtLastBuild {
 			this.resolvedAlternatesAtLastBuild = resolvedAlternates
-			var b *UnionType_Builder = new_UnionType_Builder(this, this.registry).addAlternates(tlistImm_(tc_p_JSType, this.alternates))
+			var b *UnionType_Builder = new_UnionType_Builder(this, this.registry).addAlternates(sliceImm_(tc_p_JSType, this.alternates))
 			if !this.isResolved() && !this.alternatesResolvedBeforeBuild {
 				b.build()
 				this.resolvedAlternatesAtLastBuild = this.countResolvedAlternates()
@@ -373,7 +373,7 @@ func (this *UnionType) resolveInternal_impl(reporter ErrorReporter_rhino) *JSTyp
 	for i := int32(0); i < this.alternates.size(); i++ {
 		to_JSType(this.alternates.get(i)).resolve(reporter)
 	}
-	return new_UnionType_Builder(this, this.registry).addAlternates(tlistImm_(tc_p_JSType, this.alternates)).build()
+	return new_UnionType_Builder(this, this.registry).addAlternates(sliceImm_(tc_p_JSType, this.alternates)).build()
 }
 
 func (this *UnionType) collapseUnion_impl() *JSType {
@@ -431,7 +431,7 @@ func UnionType_clinit() {
 type UnionType_Builder struct {
 	rebuildTarget                 *UnionType
 	registry                      *JSTypeRegistry
-	alternates                    *TList[*JSType]
+	alternates                    []*JSType
 	finalAlternates               ImmutableListOf[*JSType]
 	containsVoidType              bool
 	isAllType_                    bool
@@ -442,7 +442,7 @@ type UnionType_Builder struct {
 }
 
 func (this *UnionType_Builder) finit_UnionType_Builder() {
-	this.alternates = newTList_(tc_p_JSType)
+	this.alternates = []*JSType{}
 	this.finalAlternates = nil
 	this.containsVoidType = false
 	this.isAllType_ = false
@@ -477,9 +477,9 @@ func (this *UnionType_Builder) addAlternatesCollection(c CollectionOf[*JSType]) 
 	return this
 }
 
-func (this *UnionType_Builder) addAlternates(list *TList[*JSType]) *UnionType_Builder {
-	for i := int32(0); i < list.size(); i++ {
-		this.addAlternate(list.get(i))
+func (this *UnionType_Builder) addAlternates(list []*JSType) *UnionType_Builder {
+	for i := int32(0); i < int32(len(list)); i++ {
+		this.addAlternate(sliceAt_(list, i))
 	}
 	return this
 }
@@ -487,22 +487,22 @@ func (this *UnionType_Builder) addAlternates(list *TList[*JSType]) *UnionType_Bu
 func (this *UnionType_Builder) addAlternate(alternate *JSType) *UnionType_Builder {
 	this.checkHasNotBuilt()
 	if alternate.isUnionType() {
-		this.addAlternates(tlistImm_(tc_p_JSType, alternate.toMaybeUnionType().getAlternates()))
+		this.addAlternates(sliceImm_(tc_p_JSType, alternate.toMaybeUnionType().getAlternates()))
 		return this
 	}
-	if this.alternates.size() > UnionType_MAX_UNION_SIZE {
+	if int32(len(this.alternates)) > UnionType_MAX_UNION_SIZE {
 		return this
 	}
 	if !alternate.isResolved() {
 		this.alternatesResolvedBeforeBuild = false
-		it_1 := this.alternates.each()
+		it_1 := eachOf_(&this.alternates)
 		for it_1.next() {
 			var current *JSType = it_1.v
 			if JSCompObjects_identical(current.self(), alternate.self()) {
 				return this
 			}
 		}
-		this.alternates.add(alternate)
+		this.alternates = append(this.alternates, alternate)
 		return this
 	}
 	if alternate.isNoType() {
@@ -519,14 +519,14 @@ func (this *UnionType_Builder) addAlternate(alternate *JSType) *UnionType_Builde
 		return this
 	}
 	if alternate.isFunctionType() && (this.functionTypePosition != -1) {
-		var other *FunctionType = this.alternates.get(this.functionTypePosition).toMaybeFunctionType()
+		var other *FunctionType = sliceAt_(this.alternates, this.functionTypePosition).toMaybeFunctionType()
 		var supremum *FunctionType = alternate.toMaybeFunctionType().supAndInfHelper(other, true)
-		this.alternates.set(this.functionTypePosition, to_JSType(supremum.self()))
+		this.alternates[this.functionTypePosition] = to_JSType(supremum.self())
 		return this
 	}
-	for index := int32(0); index < this.alternates.size(); index++ {
+	for index := int32(0); index < int32(len(this.alternates)); index++ {
 		var removeCurrent bool = false
-		var current *JSType = this.alternates.get(index)
+		var current *JSType = sliceAt_(this.alternates, index)
 		if !current.isResolved() {
 			continue
 		}
@@ -565,7 +565,7 @@ func (this *UnionType_Builder) addAlternate(alternate *JSType) *UnionType_Builde
 			removeCurrent = true
 		}
 		if removeCurrent {
-			this.alternates.removeAt(index)
+			sliceRemoveAt_(&this.alternates, index)
 			if index == this.functionTypePosition {
 				this.functionTypePosition = -1
 			} else if index < this.functionTypePosition {
@@ -576,9 +576,9 @@ func (this *UnionType_Builder) addAlternate(alternate *JSType) *UnionType_Builde
 	}
 	if alternate.isFunctionType() {
 		Preconditions_checkState((this.functionTypePosition == -1))
-		this.functionTypePosition = this.alternates.size()
+		this.functionTypePosition = int32(len(this.alternates))
 	}
-	this.alternates.add(alternate)
+	this.alternates = append(this.alternates, alternate)
 	return this
 }
 
@@ -612,12 +612,12 @@ func (this *UnionType_Builder) buildInternal() *UnionType_Builder {
 		} else {
 			this.finalAlternates = ImmutableList_of_Object(wildcard.self())
 		}
-	} else if this.alternates.isEmpty() {
+	} else if len(this.alternates) == 0 {
 		this.finalAlternates = ImmutableList_of_Object(this.registry.getNativeType(JSTypeNative_NO_TYPE).self())
-	} else if this.alternates.size() > UnionType_MAX_UNION_SIZE {
+	} else if int32(len(this.alternates)) > UnionType_MAX_UNION_SIZE {
 		this.finalAlternates = ImmutableList_of_Object(this.registry.getNativeType(JSTypeNative_UNKNOWN_TYPE).self())
 	} else {
-		this.finalAlternates = ImmutableList_copyOf(Collection(this.alternates.asList()))
+		this.finalAlternates = ImmutableList_copyOf(Collection(sliceView_(tc_p_JSType, this.alternates)))
 	}
 	Preconditions_checkNotNull(obj_(this.finalAlternates))
 	return this

@@ -41,9 +41,7 @@ func DominatorTree_compute(graph *DiGraph, entry any) *DominatorTree {
 			}
 			var nodeIdx int32 = unbox_[int32](postOrderIndex.get(node))
 			var newIdomIdx int32 = -1
-			it_4 := graph.getDirectedPredNodes(node).each()
-			for it_4.next() {
-				var pred DiGraph_DiGraphNode = it_4.v
+			for _, pred := range graph.getDirectedPredNodes(node) {
 				var predValue any = pred.getValue()
 				var predIdx any = postOrderIndex.get(predValue)
 				if (predIdx != nil) && (idomIndexes[unbox_[int32](predIdx)] != -1) {
@@ -52,9 +50,7 @@ func DominatorTree_compute(graph *DiGraph, entry any) *DominatorTree {
 				}
 			}
 			if newIdomIdx != -1 {
-				it_6 := graph.getDirectedPredNodes(node).each()
-				for it_6.next() {
-					var pred DiGraph_DiGraphNode = it_6.v
+				for _, pred := range graph.getDirectedPredNodes(node) {
 					var predValue any = pred.getValue()
 					var predIdx any = postOrderIndex.get(predValue)
 					if (predIdx != nil) && (idomIndexes[unbox_[int32](predIdx)] != -1) {
@@ -100,9 +96,7 @@ func DominatorTree_intersect(idomIndexes []int32, i int32, j int32) int32 {
 
 func DominatorTree_buildPostOrder(graph *DiGraph, node any, postOrder ListOf[any], visited MapOf[any, BoxedOf[bool]]) {
 	visited.put(node, any(bool(true)))
-	it_1 := graph.getDirectedSuccNodes(node).each()
-	for it_1.next() {
-		var succ DiGraph_DiGraphNode = it_1.v
+	for _, succ := range graph.getDirectedSuccNodes(node) {
 		var succValue any = succ.getValue()
 		if !visited.containsKey(succValue) {
 			DominatorTree_buildPostOrder(graph, succValue, postOrder, visited)

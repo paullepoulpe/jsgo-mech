@@ -42,7 +42,7 @@ func (this *UndiGraph) createUndirectedGraphNode(p0 any) UndiGraph_UndiGraphNode
 	return this.self_.(*LinkedUndirectedGraph).createUndirectedGraphNode_impl(p0)
 }
 
-func (this *UndiGraph) getUndirectedGraphEdges(p0 any, p1 any) *TList[UndiGraph_UndiGraphEdge] {
+func (this *UndiGraph) getUndirectedGraphEdges(p0 any, p1 any) []UndiGraph_UndiGraphEdge {
 	return this.self_.(*LinkedUndirectedGraph).getUndirectedGraphEdges_impl(p0, p1)
 }
 

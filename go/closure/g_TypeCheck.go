@@ -1373,13 +1373,13 @@ func (this *TypeCheck) checkInterface(n Node, functionType *FunctionType) {
 	}
 	var loopPath *TList[*FunctionType] = functionType.checkExtendsLoop()
 	if loopPath != nil {
-		var displayNames *TList[string] = newTList_(tc_string)
+		var displayNames []string = []string{}
 		it_5 := loopPath.each()
 		for it_5.next() {
 			var loopType *FunctionType = it_5.v
-			displayNames.add(str_(loopType.getDisplayName().orElse(nil)))
+			displayNames = append(displayNames, str_(loopType.getDisplayName().orElse(nil)))
 		}
-		var strPath string = String_join(strobj_(" -> "), Iterable(displayNames.asList()))
+		var strPath string = String_join(strobj_(" -> "), Iterable(sliceView_(tc_string, displayNames)))
 		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, TypeCheck_INTERFACE_EXTENDS_LOOP, []string{str_(loopPath.get(0).getDisplayName().orElse(strobj_("null"))), strPath}))
 	}
 	this.validator.expectAllInterfaceProperties(n, functionType)

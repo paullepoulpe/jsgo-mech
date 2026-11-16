@@ -4,7 +4,7 @@ package closure
 
 type ExternExportsPass struct {
 	NodeTraversal_AbstractPostOrderCallback
-	exports                     *TList[*ExternExportsPass_Export]
+	exports                     []*ExternExportsPass_Export
 	definitionMap               map[string]Node
 	compiler_                   *AbstractCompiler
 	externsRoot                 Node
@@ -23,7 +23,7 @@ func (this *ExternExportsPass) up_NodeTraversal_AbstractPostOrderCallback() *Nod
 
 func (this *ExternExportsPass) init_ExternExportsPass(compiler *AbstractCompiler) {
 	this.NodeTraversal_AbstractPostOrderCallback.init_NodeTraversal_AbstractPostOrderCallback()
-	this.exports = newTList_(tc_p_ExternExportsPass_Export)
+	this.exports = []*ExternExportsPass_Export{}
 	this.compiler_ = compiler
 	this.definitionMap = map[string]Node{}
 	this.externsRoot = IR_script_0()
@@ -40,12 +40,12 @@ func new_ExternExportsPass(compiler *AbstractCompiler) *ExternExportsPass {
 }
 
 func ExternExportsPass_computePathPrefixes(path string) ImmutableListOf[string] {
-	var pieces *TList[string] = tlistImm_(tc_string, ExternExportsPass_Q_NAME_SPLITTER.splitToList(strobj_(path)))
+	var pieces []string = sliceImm_(tc_string, ExternExportsPass_Q_NAME_SPLITTER.splitToList(strobj_(path)))
 	var pathPrefixes ImmutableList_BuilderOf[string] = ImmutableList_builder()
-	var partial string = pieces.get(0)
+	var partial string = sliceAt_(pieces, 0)
 	pathPrefixes.add(strobj_(partial))
-	for i := int32(1); i < pieces.size(); i++ {
-		partial = ExternExportsPass_Q_NAME_JOINER.join_Object_Object_ObjectArr(strobj_(partial), strobj_(pieces.get(i)), []any{})
+	for i := int32(1); i < int32(len(pieces)); i++ {
+		partial = ExternExportsPass_Q_NAME_JOINER.join_Object_Object_ObjectArr(strobj_(partial), strobj_(sliceAt_(pieces, i)), []any{})
 		pathPrefixes.add(strobj_(partial))
 	}
 	return cast_[*ImmutableList](obj_(pathPrefixes.build()))
@@ -60,7 +60,7 @@ func (this *ExternExportsPass) initExportMethods() {
 func (this *ExternExportsPass) process_2(externs Node, root Node) {
 	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(obj_(this)))
 	var sorted SetOf[*ExternExportsPass_Export] = icast_Set(obj_(new_TreeSet_Comparator(Comparator_comparing(&Function_fn{func(p0 any) any { return strobj_(to_ExternExportsPass_Export(p0).getExportedPath()) }}))))
-	sorted.addAll(Collection(this.exports.asList()))
+	sorted.addAll(Collection(sliceView_(tc_p_ExternExportsPass_Export, this.exports)))
 	it_1 := foreach_(any(sorted))
 	for it_1.next() {
 		var export *ExternExportsPass_Export = to_ExternExportsPass_Export(it_1.v)
@@ -124,7 +124,7 @@ func (this *ExternExportsPass) lookForSymbolExportCall(n Node) {
 	if !nameArg.isStringLit() {
 		return
 	}
-	this.exports.add(to_ExternExportsPass_Export(obj_(new_ExternExportsPass_SymbolExport(this, nameArg.getString(), valueArg))))
+	this.exports = append(this.exports, to_ExternExportsPass_Export(obj_(new_ExternExportsPass_SymbolExport(this, nameArg.getString(), valueArg))))
 }
 
 func (this *ExternExportsPass) lookForPropertyExportCall(n Node) {
@@ -144,7 +144,7 @@ func (this *ExternExportsPass) lookForPropertyExportCall(n Node) {
 	if !nameArg.isStringLit() {
 		return
 	}
-	this.exports.add(to_ExternExportsPass_Export(obj_(new_ExternExportsPass_PropertyExport(this, objectArg.getQualifiedName(), nameArg.getString(), valueArg))))
+	this.exports = append(this.exports, to_ExternExportsPass_Export(obj_(new_ExternExportsPass_PropertyExport(this, objectArg.getQualifiedName(), nameArg.getString(), valueArg))))
 }
 
 func (this *ExternExportsPass) isCallToOneOf(n Node, functionQnames ImmutableSetOf[string]) bool {
@@ -179,7 +179,7 @@ func (this *ExternExportsPass) lookForAtExportOnThisDotProperty(t *NodeTraversal
 	var propertyName string = thisDotPropName.getString()
 	var prototypeName string = (sstr_(className) + ".prototype")
 	var propertyNameNode Node = NodeUtil_newQName_AbstractCompiler_String(this.compiler_, ("this." + sstr_(propertyName)))
-	this.exports.add(to_ExternExportsPass_Export(obj_(new_ExternExportsPass_PropertyExport(this, prototypeName, propertyName, propertyNameNode))))
+	this.exports = append(this.exports, to_ExternExportsPass_Export(obj_(new_ExternExportsPass_PropertyExport(this, prototypeName, propertyName, propertyNameNode))))
 }
 
 var ExternExportsPass_Q_NAME_JOINER *Joiner

@@ -65,8 +65,8 @@ func DependencyOptions_pruneForEntryPoints(entryPoints IterableOf[*ModuleIdentif
 	return new_DependencyOptions(DependencyOptions_DependencyMode_PRUNE, ImmutableList_copyOf_Iterable(entryPoints))
 }
 
-func DependencyOptions_fromFlags(dependencyModeFlag *DependencyOptions_DependencyMode, entryPointFlag ListOf[string], closureEntryPointFlag *TList[string], commonJsEntryModuleFlag OptionalOf[string], manageClosureDependenciesFlag bool, onlyClosureDependenciesFlag bool) *Outcome_base {
-	var hasEntryPoint bool = ((commonJsEntryModuleFlag.isPresent() || !entryPointFlag.isEmpty()) || !closureEntryPointFlag.isEmpty())
+func DependencyOptions_fromFlags(dependencyModeFlag *DependencyOptions_DependencyMode, entryPointFlag ListOf[string], closureEntryPointFlag []string, commonJsEntryModuleFlag OptionalOf[string], manageClosureDependenciesFlag bool, onlyClosureDependenciesFlag bool) *Outcome_base {
+	var hasEntryPoint bool = ((commonJsEntryModuleFlag.isPresent() || !entryPointFlag.isEmpty()) || len(closureEntryPointFlag) != 0)
 	if !hasEntryPoint && onlyClosureDependenciesFlag {
 		return Outcome_base_err(new_FlagUsageException("--only_closure_dependencies requires --entry_point.").up_Throwable())
 	}
@@ -76,10 +76,10 @@ func DependencyOptions_fromFlags(dependencyModeFlag *DependencyOptions_Dependenc
 	if hasEntryPoint && ((dependencyModeFlag == DependencyOptions_DependencyMode_NONE) || (dependencyModeFlag == DependencyOptions_DependencyMode_SORT_ONLY)) {
 		return Outcome_base_err(new_FlagUsageException(("--dependency_mode=" + objstr_(obj_(dependencyModeFlag)) + " cannot be used with --entry_point, --closure_entry_point or --common_js_entry_module.")).up_Throwable())
 	}
-	if !entryPointFlag.isEmpty() && !closureEntryPointFlag.isEmpty() {
+	if !entryPointFlag.isEmpty() && len(closureEntryPointFlag) != 0 {
 		return Outcome_base_err(new_FlagUsageException("--closure_entry_point cannot be used with --entry_point.").up_Throwable())
 	}
-	if commonJsEntryModuleFlag.isPresent() && (!entryPointFlag.isEmpty() || !closureEntryPointFlag.isEmpty()) {
+	if commonJsEntryModuleFlag.isPresent() && (!entryPointFlag.isEmpty() || len(closureEntryPointFlag) != 0) {
 		return Outcome_base_err(new_FlagUsageException("--common_js_entry_module cannot be used with either --entry_point or --closure_entry_point.").up_Throwable())
 	}
 	if manageClosureDependenciesFlag && onlyClosureDependenciesFlag {
@@ -112,9 +112,7 @@ func DependencyOptions_fromFlags(dependencyModeFlag *DependencyOptions_Dependenc
 		var entryPoint string = str_(it_1.v)
 		entryPointsBuilder.add(obj_(ModuleIdentifier_forFlagValue(entryPoint)))
 	}
-	it_3 := closureEntryPointFlag.each()
-	for it_3.next() {
-		var closureEntryPoint string = it_3.v
+	for _, closureEntryPoint := range closureEntryPointFlag {
 		entryPointsBuilder.add(obj_(ModuleIdentifier_forClosure(closureEntryPoint)))
 	}
 	var result *DependencyOptions = func() *DependencyOptions {

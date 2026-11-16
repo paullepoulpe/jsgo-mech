@@ -187,7 +187,7 @@ func (this *ReplaceMessages) createHookExpressionForGenderedMsg(type_ AstFactory
 			continue
 		}
 		var condition Node = this.createConditionForGrammaticalGender(type_, grammaticalGender, nodeToReplace)
-		var genderedMessageNode *Outcome_base = this.buildMessageNode(tlistImm_(tc_JsMessage_Part, msg.getGenderedMessageParts(grammaticalGender)), options, nodeToReplace, placeholderNodeProvider, true)
+		var genderedMessageNode *Outcome_base = this.buildMessageNode(sliceImm_(tc_JsMessage_Part, msg.getGenderedMessageParts(grammaticalGender)), options, nodeToReplace, placeholderNodeProvider, true)
 		if genderedMessageNode.isErr() {
 			return Outcome_base_err(genderedMessageNode.error())
 		}
@@ -202,7 +202,7 @@ func (this *ReplaceMessages) createHookExpressionForGenderedMsg(type_ AstFactory
 			placeholderHook = currentHook.getLastChild()
 		}
 	}
-	var otherMessageNode *Outcome_base = this.buildMessageNode(tlistImm_(tc_JsMessage_Part, msg.getGenderedMessageParts(JsMessage_GrammaticalGenderCase_OTHER)), options, nodeToReplace, placeholderNodeProvider, true)
+	var otherMessageNode *Outcome_base = this.buildMessageNode(sliceImm_(tc_JsMessage_Part, msg.getGenderedMessageParts(JsMessage_GrammaticalGenderCase_OTHER)), options, nodeToReplace, placeholderNodeProvider, true)
 	if otherMessageNode.isErr() {
 		return Outcome_base_err(otherMessageNode.error())
 	}
@@ -210,7 +210,7 @@ func (this *ReplaceMessages) createHookExpressionForGenderedMsg(type_ AstFactory
 	return Outcome_base_ok_Object(hookHead.box_())
 }
 
-func (this *ReplaceMessages) buildMessageNode(msgParts *TList[JsMessage_Part], options *ReplaceMessages_MsgOptions, nodeToReplace Node, placeholderNodeProvider ReplaceMessages_PlaceholderNodeProvider, isGenderedMsg bool) *Outcome_base {
+func (this *ReplaceMessages) buildMessageNode(msgParts []JsMessage_Part, options *ReplaceMessages_MsgOptions, nodeToReplace Node, placeholderNodeProvider ReplaceMessages_PlaceholderNodeProvider, isGenderedMsg bool) *Outcome_base {
 	var parts *TList[JsMessage_Part] = ReplaceMessages_mergeStringParts(msgParts)
 	if parts.isEmpty() {
 		return Outcome_base_ok_Object(this.astFactory_.createString("").box_())
@@ -270,7 +270,7 @@ func (this *ReplaceMessages) constructNonGenderedMsgNode(message *JsMessage, pla
 			}
 		}
 	}
-	return this.buildMessageNode(tlistImm_(tc_JsMessage_Part, message.getParts()), options, nodeToReplace, &ReplaceMessages_PlaceholderNodeProvider_fn{func(p0 string) Node { return placeholderMap.get(p0) }}, false)
+	return this.buildMessageNode(sliceImm_(tc_JsMessage_Part, message.getParts()), options, nodeToReplace, &ReplaceMessages_PlaceholderNodeProvider_fn{func(p0 string) Node { return placeholderMap.get(p0) }}, false)
 }
 
 func (this *ReplaceMessages) createNodeForMsgString(options *ReplaceMessages_MsgOptions, s string) Node {
@@ -283,11 +283,9 @@ func (this *ReplaceMessages) createNodeForMsgString(options *ReplaceMessages_Msg
 	return this.astFactory_.createString(s)
 }
 
-func ReplaceMessages_mergeStringParts(parts *TList[JsMessage_Part]) *TList[JsMessage_Part] {
+func ReplaceMessages_mergeStringParts(parts []JsMessage_Part) *TList[JsMessage_Part] {
 	var result *TList[JsMessage_Part] = newTList_(tc_JsMessage_Part)
-	it_1 := parts.each()
-	for it_1.next() {
-		var part JsMessage_Part = it_1.v
+	for _, part := range parts {
 		if part.isPlaceholder() {
 			result.add(part)
 		} else {

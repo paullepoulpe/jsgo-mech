@@ -182,18 +182,16 @@ func (this *DepsGenerator) addToProvideMap(depInfos IterableOf[DependencyInfo], 
 	it_1 := foreach_(any(depInfos))
 	for it_1.next() {
 		var depInfo DependencyInfo = icast_DependencyInfo(it_1.v)
-		var provides *TList[string] = tlistFrom_(tc_string, icast_Collection(obj_(depInfo.getProvides())))
+		var provides []string = sliceFrom_(tc_string, icast_Collection(obj_(depInfo.getProvides())))
 		if isFromDepsFile {
-			provides.add(this.loader.resolve(PathUtil_makeAbsolute_String_String(depInfo.getPathRelativeToClosureBase(), this.closurePathAbs)).toModuleName())
+			provides = append(provides, this.loader.resolve(PathUtil_makeAbsolute_String_String(depInfo.getPathRelativeToClosureBase(), this.closurePathAbs)).toModuleName())
 		} else {
 			if !depInfo.isEs6Module() {
-				provides.add(this.loader.resolve(depInfo.getName()).toModuleName())
+				provides = append(provides, this.loader.resolve(depInfo.getName()).toModuleName())
 			}
 		}
-		provides.add(depInfo.getPathRelativeToClosureBase())
-		it_3 := provides.each()
-		for it_3.next() {
-			var provide string = it_3.v
+		provides = append(provides, depInfo.getPathRelativeToClosureBase())
+		for _, provide := range provides {
 			var prevValue DependencyInfo = providesMap.put(provide, depInfo)
 			if prevValue != nil {
 				this.reportDuplicateProvide(provide, prevValue, depInfo)
@@ -342,17 +340,17 @@ func DepsGenerator_writeDepInfos(out *StringBuilder, depInfos CollectionOf[Depen
 	}
 }
 
-func DepsGenerator_createSourceFilesFromPaths(paths CollectionOf[string]) *TList[*SourceFile_jscomp] {
-	var files *TList[*SourceFile_jscomp] = newTList_(tc_p_SourceFile_jscomp)
+func DepsGenerator_createSourceFilesFromPaths(paths CollectionOf[string]) []*SourceFile_jscomp {
+	var files []*SourceFile_jscomp = []*SourceFile_jscomp{}
 	it_1 := foreach_(any(paths))
 	for it_1.next() {
 		var path string = str_(it_1.v)
-		files.add(SourceFile_jscomp_fromFile_String(path))
+		files = append(files, SourceFile_jscomp_fromFile_String(path))
 	}
 	return files
 }
 
-func DepsGenerator_createSourceFilesFromPathsStringVarargs(paths []string) *TList[*SourceFile_jscomp] {
+func DepsGenerator_createSourceFilesFromPathsStringVarargs(paths []string) []*SourceFile_jscomp {
 	return DepsGenerator_createSourceFilesFromPaths(Collection(Arrays_asList(arrmap_(paths, func(v_ string) any { return strobj_(v_) }))))
 }
 

@@ -810,9 +810,7 @@ func (this *JsDocInfoParser) parseAnnotation(token *JsDocToken, extendedTypes *T
 					this.addTypeWarning_3(Msg_JSDOC_TEMPLATE_NAME_REDECLARATION, lineno, charno)
 				}
 			} else {
-				it_5 := eachOf_(&templateNames)
-				for it_5.next() {
-					var templateName string = it_5.v
+				for _, templateName := range templateNames {
 					if !this.jsdocBuilder.recordTemplateTypeName(templateName) {
 						this.addTypeWarning_3(Msg_JSDOC_TEMPLATE_NAME_REDECLARATION, lineno, charno)
 					}

@@ -144,7 +144,7 @@ func (this *CodingConventions_Proxy) getExportSymbolFunction_impl() string {
 	return this.nextConvention.getExportSymbolFunction()
 }
 
-func (this *CodingConventions_Proxy) identifyTypeDeclarationCall_impl(n Node) *TList[string] {
+func (this *CodingConventions_Proxy) identifyTypeDeclarationCall_impl(n Node) []string {
 	return this.nextConvention.identifyTypeDeclarationCall(n)
 }
 
@@ -238,8 +238,8 @@ func (this *CodingConventions_Proxy) getExportSymbolFunction() string {
 	return this.self_.(interface{ getExportSymbolFunction_impl() string }).getExportSymbolFunction_impl()
 }
 
-func (this *CodingConventions_Proxy) identifyTypeDeclarationCall(p0 Node) *TList[string] {
-	return this.self_.(interface{ identifyTypeDeclarationCall_impl(Node) *TList[string] }).identifyTypeDeclarationCall_impl(p0)
+func (this *CodingConventions_Proxy) identifyTypeDeclarationCall(p0 Node) []string {
+	return this.self_.(interface{ identifyTypeDeclarationCall_impl(Node) []string }).identifyTypeDeclarationCall_impl(p0)
 }
 
 func (this *CodingConventions_Proxy) getAbstractMethodName() string {
@@ -421,8 +421,8 @@ func (this *CodingConventions_DefaultCodingConvention) getExportSymbolFunction()
 	return ""
 }
 
-func (this *CodingConventions_DefaultCodingConvention) identifyTypeDeclarationCall(n Node) *TList[string] {
-	return tlistImm_(tc_string, ImmutableList_of())
+func (this *CodingConventions_DefaultCodingConvention) identifyTypeDeclarationCall(n Node) []string {
+	return sliceImm_(tc_string, ImmutableList_of())
 }
 
 func (this *CodingConventions_DefaultCodingConvention) applySubclassRelationship(parent *NominalTypeBuilder, child *NominalTypeBuilder, type_ *CodingConvention_SubclassType) {

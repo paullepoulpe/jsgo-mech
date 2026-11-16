@@ -41,12 +41,12 @@ type RhinoStringPool_LazyInternedStringList struct {
 	isInterned *RhinoStringPool_WriteOnlyBitset
 }
 
-func (this *RhinoStringPool_LazyInternedStringList) init_RhinoStringPool_LazyInternedStringList(pool *TList[string]) {
-	this.pool = new_ArrayList_Collection(Collection(pool.asList()))
-	this.isInterned = new_RhinoStringPool_WriteOnlyBitset(pool.size())
+func (this *RhinoStringPool_LazyInternedStringList) init_RhinoStringPool_LazyInternedStringList(pool []string) {
+	this.pool = new_ArrayList_Collection(Collection(sliceView_(tc_string, pool)))
+	this.isInterned = new_RhinoStringPool_WriteOnlyBitset(int32(len(pool)))
 }
 
-func new_RhinoStringPool_LazyInternedStringList(pool *TList[string]) *RhinoStringPool_LazyInternedStringList {
+func new_RhinoStringPool_LazyInternedStringList(pool []string) *RhinoStringPool_LazyInternedStringList {
 	this := &RhinoStringPool_LazyInternedStringList{}
 	this.init_RhinoStringPool_LazyInternedStringList(pool)
 	return this

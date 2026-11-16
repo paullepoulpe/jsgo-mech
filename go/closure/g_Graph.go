@@ -131,9 +131,9 @@ func (this *Graph) getEdges() *TList[Graph_GraphEdge] {
 	}).getEdges_impl()
 }
 
-func (this *Graph) getEdges_2(p0 any, p1 any) *TList[UndiGraph_UndiGraphEdge] {
+func (this *Graph) getEdges_2(p0 any, p1 any) []UndiGraph_UndiGraphEdge {
 	return this.self_.(interface {
-		getEdges_2_impl(any, any) *TList[UndiGraph_UndiGraphEdge]
+		getEdges_2_impl(any, any) []UndiGraph_UndiGraphEdge
 	}).getEdges_2_impl(p0, p1)
 }
 
@@ -167,8 +167,8 @@ func (this *Graph) getNodeCount() int32 {
 	return this.self_.(interface{ getNodeCount_impl() int32 }).getNodeCount_impl()
 }
 
-func (this *Graph) getNeighborNodes(p0 any) *TList[GraphNode] {
-	return this.self_.(interface{ getNeighborNodes_impl(any) *TList[GraphNode] }).getNeighborNodes_impl(p0)
+func (this *Graph) getNeighborNodes(p0 any) []GraphNode {
+	return this.self_.(interface{ getNeighborNodes_impl(any) []GraphNode }).getNeighborNodes_impl(p0)
 }
 
 func (this *Graph) getNodeDegree(p0 any) int32 {
@@ -247,7 +247,7 @@ func (this *Graph_SimpleSubGraph) isIndependentOf(value any) bool {
 	it_1 := eachOf_(&this.nodes_)
 	for it_1.next() {
 		var n GraphNode = it_1.v
-		if this.graph.getNeighborNodes(n.getValue()).asList().contains(any(node)) {
+		if sliceView_(tc_GraphNode, this.graph.getNeighborNodes(n.getValue())).contains(any(node)) {
 			return false
 		}
 	}

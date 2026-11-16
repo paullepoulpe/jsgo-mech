@@ -505,7 +505,7 @@ func (this *Compiler) initBasedOnOptions() {
 	this.inputSourceMaps.putAll(icast_Map(obj_(this.options_.getInputSourceMaps())))
 	if this.options_.shouldGatherSourceMapInfo() {
 		this.sourceMap_ = this.options_.getSourceMapFormat().getInstance()
-		this.sourceMap_.setPrefixMappings(tlistImm_(tc_SourceMap_LocationMapping, this.options_.getSourceMapLocationMappings()))
+		this.sourceMap_.setPrefixMappings(sliceImm_(tc_SourceMap_LocationMapping, this.options_.getSourceMapLocationMappings()))
 		if this.options_.getApplyInputSourceMaps() {
 			this.sourceMap_.setSourceFileMapping(icast_SourceFileMapping(obj_(this)))
 			if this.options_.getSourceMapIncludeSourcesContent() {
@@ -889,7 +889,7 @@ func (this *Compiler) createPhaseOptimizer() *PhaseOptimizer {
 func (this *Compiler) check() {
 	this.runCustomPasses(CustomPassExecutionTime_BEFORE_CHECKS)
 	this.phaseOptimizer = this.createPhaseOptimizer()
-	this.phaseOptimizer.consume(tlistImm_(tc_p_PassFactory, this.getPassConfig().getChecks().build()))
+	this.phaseOptimizer.consume(sliceImm_(tc_p_PassFactory, this.getPassConfig().getChecks().build()))
 	this.phaseOptimizer.process_2(this.externsRoot, this.jsRoot)
 	if this.hasErrors() {
 		return
@@ -997,11 +997,11 @@ func (this *Compiler) isDebugLoggingEnabled_impl() bool {
 	return this.getOptions().getDebugLogDirectory().isPresent()
 }
 
-func (this *Compiler) getDebugLogFilterList_impl() *TList[string] {
+func (this *Compiler) getDebugLogFilterList_impl() []string {
 	if this.getOptions().getDebugLogFilter().isEmpty() {
-		return newTList_(tc_string)
+		return []string{}
 	}
-	return tlistImm_(tc_string, Splitter_on(',').omitEmptyStrings().splitToList(this.getOptions().getDebugLogFilter().get()))
+	return sliceImm_(tc_string, Splitter_on(',').omitEmptyStrings().splitToList(this.getOptions().getDebugLogFilter().get()))
 }
 
 func (this *Compiler) createOrReopenLog_impl(owner ClassOf[any], firstNamePart string, restNameParts []string) *LogFile {
@@ -1011,13 +1011,11 @@ func (this *Compiler) createOrReopenLog_impl(owner ClassOf[any], firstNamePart s
 	var dir OptionalOf[string] = this.getOptions().getDebugLogDirectory()
 	var relativeParts string = FilePaths_join(firstNamePart, restNameParts)
 	var file string = FilePaths_resolve(FilePaths_resolve(str_(dir.get()), owner.getSimpleName()), relativeParts)
-	var filters *TList[string] = this.getDebugLogFilterList()
-	if filters.isEmpty() {
+	var filters []string = this.getDebugLogFilterList()
+	if len(filters) == 0 {
 		return LogFile_createOrReopen(file)
 	}
-	it_1 := filters.each()
-	for it_1.next() {
-		var filter string = it_1.v
+	for _, filter := range filters {
 		if String_contains(file, strobj_(filter)) {
 			return LogFile_createOrReopen(file)
 		}
@@ -1122,9 +1120,7 @@ func (this *Compiler) getCurrentJsSource() string {
 		}
 		if builder.length() == 0 {
 			builder.append("// No chunks were matched:\n")
-			it_10 := eachOf_(&unmatchedChunkNames)
-			for it_10.next() {
-				var chunkName string = it_10.v
+			for _, chunkName := range unmatchedChunkNames {
 				builder.append("// ").append(chunkName).append("\n")
 			}
 		}
@@ -1688,9 +1684,7 @@ func (this *Compiler) findModulesFromEntryPoints(supportEs6Modules bool, support
 		var input *CompilerInput = cast_[*CompilerInput](it_7.v)
 		workingInputSet.add(input)
 	}
-	it_9 := eachOf_(&entryPoints)
-	for it_9.next() {
-		var entryPoint *CompilerInput = it_9.v
+	for _, entryPoint := range entryPoints {
 		this.findModulesFromInput(entryPoint, false, workingInputSet, inputsByIdentifier, inputsByProvide, supportEs6Modules, supportCommonJSModules)
 	}
 }
@@ -1874,9 +1868,9 @@ func (this *Compiler) parseTestCode_impl(js string) Node {
 func (this *Compiler) parseTestCodeImmutableList_impl(code ImmutableListOf[string]) Node {
 	this.initCompilerOptionsIfTesting()
 	this.initBasedOnOptions()
-	var sources *TList[*SourceFile_jscomp] = newTList_(tc_p_SourceFile_jscomp)
+	var sources []*SourceFile_jscomp = []*SourceFile_jscomp{}
 	for index := int32(0); index < code.size(); index++ {
-		sources.add(SourceFile_jscomp_fromCode_String_String(("testcode" + istr_(int64(index))), str_(code.get(index))))
+		sources = append(sources, SourceFile_jscomp_fromCode_String_String(("testcode"+istr_(int64(index))), str_(code.get(index))))
 	}
 	return this.parseCodeHelperList(sources)
 }
@@ -1889,11 +1883,9 @@ func (this *Compiler) parseCodeHelper(src *SourceFile_jscomp) Node {
 	return Node_of_(Preconditions_checkNotNull(root.box_()))
 }
 
-func (this *Compiler) parseCodeHelperList(srcs *TList[*SourceFile_jscomp]) Node {
+func (this *Compiler) parseCodeHelperList(srcs []*SourceFile_jscomp) Node {
 	var root Node = IR_root([]Node{})
-	it_1 := srcs.each()
-	for it_1.next() {
-		var src *SourceFile_jscomp = it_1.v
+	for _, src := range srcs {
 		root.addChildToBack(this.parseCodeHelper(src))
 	}
 	return root
@@ -2029,9 +2021,7 @@ func (this *Compiler) toSource_4(cb *Compiler_CodeBuilder, licenseTracker CodePr
 			cb.append(";")
 		}
 		if this.options_.shouldGatherSourceMapInfo() {
-			it_3 := sourceAndMappings.mappings.each()
-			for it_3.next() {
-				var mapping *SourceMap_Mapping = it_3.v
+			for _, mapping := range sourceAndMappings.mappings {
 				this.sourceMap_.addMapping(mapping)
 			}
 		}
@@ -2108,7 +2098,7 @@ func (this *Compiler) performTranspilationAndOptimizations(segmentOfCompilationT
 	if allOptimizationPassesToRun.isEmpty() {
 		return
 	}
-	var optimizationPassesToRunInCurrentSegment *TList[*PassFactory] = this.getOptimizationPassesToRunInCurrentSegment(segmentOfCompilationToRun, tlistImm_(tc_p_PassFactory, allOptimizationPassesToRun))
+	var optimizationPassesToRunInCurrentSegment []*PassFactory = this.getOptimizationPassesToRunInCurrentSegment(segmentOfCompilationToRun, sliceImm_(tc_p_PassFactory, allOptimizationPassesToRun))
 	this.markTranspiledFiles()
 	this.phaseOptimizer = this.createPhaseOptimizer()
 	this.phaseOptimizer.consume(optimizationPassesToRunInCurrentSegment)
@@ -2122,7 +2112,7 @@ func (this *Compiler) performFinalizations() {
 		return
 	}
 	this.phaseOptimizer = this.createPhaseOptimizer()
-	this.phaseOptimizer.consume(tlistImm_(tc_p_PassFactory, finalizations))
+	this.phaseOptimizer.consume(sliceImm_(tc_p_PassFactory, finalizations))
 	this.phaseOptimizer.process_2(this.externsRoot, this.jsRoot)
 	this.phaseOptimizer = nil
 }
@@ -2135,8 +2125,8 @@ func (this *Compiler) computeCFG() *ControlFlowGraph {
 	return cfg
 }
 
-func (this *Compiler) getOptimizationPassesToRunInCurrentSegment(segmentOfCompilationToRun *CompilerOptions_SegmentOfCompilationToRun, allOptimizationPassesToRun *TList[*PassFactory]) *TList[*PassFactory] {
-	return func() *TList[*PassFactory] {
+func (this *Compiler) getOptimizationPassesToRunInCurrentSegment(segmentOfCompilationToRun *CompilerOptions_SegmentOfCompilationToRun, allOptimizationPassesToRun []*PassFactory) []*PassFactory {
+	return func() []*PassFactory {
 		switch segmentOfCompilationToRun {
 		case CompilerOptions_SegmentOfCompilationToRun_OPTIMIZATIONS:
 			return allOptimizationPassesToRun
@@ -2151,29 +2141,25 @@ func (this *Compiler) getOptimizationPassesToRunInCurrentSegment(segmentOfCompil
 	}()
 }
 
-func (this *Compiler) passListUntil(passes *TList[*PassFactory], passName string) *TList[*PassFactory] {
-	var passList *TList[*PassFactory] = newTList_(tc_p_PassFactory)
-	it_1 := passes.each()
-	for it_1.next() {
-		var pass *PassFactory = it_1.v
+func (this *Compiler) passListUntil(passes []*PassFactory, passName string) []*PassFactory {
+	var passList []*PassFactory = []*PassFactory{}
+	for _, pass := range passes {
 		if pass.getName() == passName {
 			return passList
 		}
-		passList.add(pass)
+		passList = append(passList, pass)
 	}
 	return passList
 }
 
-func (this *Compiler) passListAfter(passes *TList[*PassFactory], passName string) *TList[*PassFactory] {
-	var passList *TList[*PassFactory] = newTList_(tc_p_PassFactory)
-	it_1 := passes.each()
-	for it_1.next() {
-		var pass *PassFactory = it_1.v
+func (this *Compiler) passListAfter(passes []*PassFactory, passName string) []*PassFactory {
+	var passList []*PassFactory = []*PassFactory{}
+	for _, pass := range passes {
 		if pass.getName() == passName {
-			passList.clear()
+			sliceClear_(&passList)
 			continue
 		}
-		passList.add(pass)
+		passList = append(passList, pass)
 	}
 	return passList
 }
@@ -2645,10 +2631,10 @@ func (this *Compiler) getExternsInOrder() ListOf[*CompilerInput] {
 	return Collections_unmodifiableList(icast_List(this.externs.self()))
 }
 
-func (this *Compiler) getInputsForTesting() *TList[*CompilerInput] {
-	return func() *TList[*CompilerInput] {
+func (this *Compiler) getInputsForTesting() []*CompilerInput {
+	return func() []*CompilerInput {
 		if this.chunkGraph != nil {
-			return tlistImm_(tc_p_CompilerInput, ImmutableList_copyOf_Iterable(this.chunkGraph.getAllInputs()))
+			return sliceImm_(tc_p_CompilerInput, ImmutableList_copyOf_Iterable(this.chunkGraph.getAllInputs()))
 		}
 		return nil
 	}()
@@ -3260,23 +3246,23 @@ func Compiler_resolveSibling(fromPath string, toPath string) string {
 	if String_startsWith(toPath, "/") {
 		return toPath
 	}
-	var fromPathParts *TList[string] = tlistFrom_(tc_string, Collection(Arrays_asList(arrmap_(Compiler_SLASH_PATTERN.split(fromPath), func(v_ string) any { return strobj_(v_) }))))
-	var toPathParts *TList[string] = tlistFrom_(tc_string, Collection(Arrays_asList(arrmap_(Compiler_SLASH_PATTERN.split(toPath), func(v_ string) any { return strobj_(v_) }))))
-	if !fromPathParts.isEmpty() {
-		fromPathParts.removeAt((fromPathParts.size() - 1))
+	var fromPathParts []string = sliceFrom_(tc_string, Collection(Arrays_asList(arrmap_(Compiler_SLASH_PATTERN.split(fromPath), func(v_ string) any { return strobj_(v_) }))))
+	var toPathParts []string = sliceFrom_(tc_string, Collection(Arrays_asList(arrmap_(Compiler_SLASH_PATTERN.split(toPath), func(v_ string) any { return strobj_(v_) }))))
+	if len(fromPathParts) != 0 {
+		sliceRemoveAt_(&fromPathParts, (int32(len(fromPathParts)) - 1))
 	}
-	for !fromPathParts.isEmpty() && !toPathParts.isEmpty() {
-		if toPathParts.get(0) == "." {
-			toPathParts.removeAt(0)
-		} else if toPathParts.get(0) == ".." {
-			toPathParts.removeAt(0)
-			fromPathParts.removeAt((fromPathParts.size() - 1))
+	for len(fromPathParts) != 0 && len(toPathParts) != 0 {
+		if sliceAt_(toPathParts, 0) == "." {
+			sliceRemoveAt_(&toPathParts, 0)
+		} else if sliceAt_(toPathParts, 0) == ".." {
+			sliceRemoveAt_(&toPathParts, 0)
+			sliceRemoveAt_(&fromPathParts, (int32(len(fromPathParts)) - 1))
 		} else {
 			break
 		}
 	}
-	fromPathParts.addAllT(toPathParts)
-	return String_join(strobj_("/"), Iterable(fromPathParts.asList()))
+	fromPathParts = append(fromPathParts, toPathParts...)
+	return String_join(strobj_("/"), Iterable(sliceView_(tc_string, fromPathParts)))
 }
 
 func (this *Compiler) resetAndIntitializeSourceMap() {
@@ -3937,7 +3923,7 @@ func (this *Compiler) isDebugLoggingEnabled() bool {
 }
 
 // getDebugLogFilterList: an object that is exactly a Compiler calls its getDebugLogFilterList_impl directly (post-flip); others dispatch.
-func (this *Compiler) getDebugLogFilterList() *TList[string] {
+func (this *Compiler) getDebugLogFilterList() []string {
 	if this.self_ == any(this) {
 		return this.getDebugLogFilterList_impl()
 	}

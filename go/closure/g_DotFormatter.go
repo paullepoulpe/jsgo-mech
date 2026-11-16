@@ -74,10 +74,10 @@ func DotFormatter_toDot_GraphvizGraph(graph GraphvizGraph) string {
 		}
 		return DotFormatter_LINE
 	}()
-	var nodes *TList[GraphvizGraph_GraphvizNode] = graph.getGraphvizNodes()
-	var nodeNames []string = newstrarr_(nodes.size())
+	var nodes []GraphvizGraph_GraphvizNode = graph.getGraphvizNodes()
+	var nodeNames []string = newstrarr_(int32(len(nodes)))
 	for i := int32(0); i < int32(len(nodeNames)); i++ {
-		var gNode GraphvizGraph_GraphvizNode = nodes.get(i)
+		var gNode GraphvizGraph_GraphvizNode = sliceAt_(nodes, i)
 		nodeNames[i] = (sstr_(gNode.getId()) + " [label=\"" + sstr_(gNode.getLabel()) + "\" color=\"" + sstr_(gNode.getColor()) + "\"]")
 	}
 	func() {
@@ -93,11 +93,9 @@ func DotFormatter_toDot_GraphvizGraph(graph GraphvizGraph) string {
 		builder.append(nodeName)
 		builder.append(";\n")
 	}
-	var edges *TList[GraphvizGraph_GraphvizEdge] = graph.getGraphvizEdges()
-	List_sort(edges.asList(), Comparator_thenComparing(Comparator_comparing(&Function_fn{func(p0 any) any { return strobj_(icast_GraphvizGraph_GraphvizEdge(p0).getNode1Id()) }}), &Function_fn{func(p0 any) any { return strobj_(icast_GraphvizGraph_GraphvizEdge(p0).getNode2Id()) }}))
-	it_5 := edges.each()
-	for it_5.next() {
-		var edge GraphvizGraph_GraphvizEdge = it_5.v
+	var edges []GraphvizGraph_GraphvizEdge = graph.getGraphvizEdges()
+	List_sort(sliceView_(tc_GraphvizGraph_GraphvizEdge, edges), Comparator_thenComparing(Comparator_comparing(&Function_fn{func(p0 any) any { return strobj_(icast_GraphvizGraph_GraphvizEdge(p0).getNode1Id()) }}), &Function_fn{func(p0 any) any { return strobj_(icast_GraphvizGraph_GraphvizEdge(p0).getNode2Id()) }}))
+	for _, edge := range edges {
 		builder.append(DotFormatter_INDENT)
 		builder.append(edge.getNode1Id())
 		builder.append(edgeSymbol)

@@ -4,13 +4,13 @@ package closure
 
 type SourceMap struct {
 	generator                SourceMapGenerator
-	prefixMappings           *TList[SourceMap_LocationMapping]
+	prefixMappings           []SourceMap_LocationMapping
 	sourceLocationFixupCache map[string]string
 	mapping                  SourceFileMapping
 }
 
 func (this *SourceMap) finit_SourceMap() {
-	this.prefixMappings = tlistImm_(tc_SourceMap_LocationMapping, ImmutableList_of())
+	this.prefixMappings = sliceImm_(tc_SourceMap_LocationMapping, ImmutableList_of())
 	this.sourceLocationFixupCache = map[string]string{}
 }
 
@@ -83,7 +83,7 @@ func SourceMap_getOriginalName(node Node) string {
 }
 
 func (this *SourceMap) fixupSourceLocation(sourceFile OptionalOf[string]) OptionalOf[string] {
-	if this.prefixMappings.isEmpty() {
+	if len(this.prefixMappings) == 0 {
 		return sourceFile
 	}
 	var fixed OptionalOf[string] = func() Optional {
@@ -95,9 +95,7 @@ func (this *SourceMap) fixupSourceLocation(sourceFile OptionalOf[string]) Option
 	if fixed.isPresent() {
 		return fixed
 	}
-	it_1 := this.prefixMappings.each()
-	for it_1.next() {
-		var mapping SourceMap_LocationMapping = it_1.v
+	for _, mapping := range this.prefixMappings {
 		fixed = mapping.map_(sourceFile)
 		if fixed.isPresent() {
 			break
@@ -131,7 +129,7 @@ func (this *SourceMap) validate(validate bool) {
 	this.generator.validate(validate)
 }
 
-func (this *SourceMap) setPrefixMappings(sourceMapLocationMappings *TList[SourceMap_LocationMapping]) {
+func (this *SourceMap) setPrefixMappings(sourceMapLocationMappings []SourceMap_LocationMapping) {
 	this.prefixMappings = sourceMapLocationMappings
 }
 
