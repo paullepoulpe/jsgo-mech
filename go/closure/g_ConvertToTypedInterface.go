@@ -395,7 +395,7 @@ func (this *ConvertToTypedInterface_SimplifyDeclarations) removeDuplicateDeclara
 		if String_startsWith(name, "this.") {
 			continue
 		}
-		var declList *TList[*PotentialDeclaration] = tlistFrom_(tc_p_PotentialDeclaration, Collection(this.currentFile.getDeclarations().get(strobj_(name))))
+		var declList *TList[*PotentialDeclaration] = tlistFrom_(tc_p_PotentialDeclaration, Collection(this.currentFile.getDeclarations().get_s(name)))
 		List_sort(declList.asList(), ConvertToTypedInterface_SimplifyDeclarations_DECLARATIONS_FIRST)
 		for declList.size() > 1 {
 			var decl *PotentialDeclaration = declList.removeAt(1)
@@ -409,7 +409,7 @@ func (this *ConvertToTypedInterface_SimplifyDeclarations) simplifyAll() {
 	this.removeDuplicateDeclarations()
 	var seenNames []string = sliceImm_(tc_string, ImmutableList_sortedCopyOf(ConvertToTypedInterface_SimplifyDeclarations_SHORT_TO_LONG, Iterable(this.currentFile.getDeclarations().keySet())))
 	for _, name := range seenNames {
-		it_3 := foreach_(any(this.currentFile.getDeclarations().get(strobj_(name))))
+		it_3 := foreach_(any(this.currentFile.getDeclarations().get_s(name)))
 		for it_3.next() {
 			var decl *PotentialDeclaration = to_PotentialDeclaration(it_3.v)
 			this.processDeclaration(name, decl)

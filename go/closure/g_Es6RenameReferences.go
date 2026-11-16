@@ -35,7 +35,7 @@ func (this *Es6RenameReferences) visit_impl(t *NodeTraversal, n Node, parent Nod
 func (this *Es6RenameReferences) renameReference(t *NodeTraversal, n Node, oldName string) {
 	var current *Scope = t.getScope()
 	for current != nil {
-		var newName OptionalOf[string] = Optional_ofNullable[string](str_(this.renameTable.get(current.getRootNode().box_(), strobj_(oldName))))
+		var newName OptionalOf[string] = Optional_ofNullable[string](str_(this.renameTable.get_s(current.getRootNode().box_(), oldName)))
 		if newName.isPresent() {
 			n.setString(newName.get())
 			t.reportCodeChange()

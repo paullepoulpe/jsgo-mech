@@ -349,11 +349,11 @@ func (this *CheckAccessControls) checkConstantProperty(propRef *CheckAccessContr
 func (this *CheckAccessControls) getConstPropertyInit(ref *CheckAccessControls_PropertyReference, type_ *ObjectType) *CheckAccessControls_ConstantDeclaration {
 	var name string = ref.name()
 	for type_ != nil {
-		var init_ *CheckAccessControls_ConstantDeclaration = cast_[*CheckAccessControls_ConstantDeclaration](this.constPropertyInits.get(type_.self(), strobj_(name)))
+		var init_ *CheckAccessControls_ConstantDeclaration = cast_[*CheckAccessControls_ConstantDeclaration](this.constPropertyInits.get_s(type_.self(), name))
 		if init_ != nil {
 			return init_
 		}
-		var canonicalInit *CheckAccessControls_ConstantDeclaration = cast_[*CheckAccessControls_ConstantDeclaration](this.constPropertyInits.get(CheckAccessControls_getCanonicalInstance(type_).self(), strobj_(name)))
+		var canonicalInit *CheckAccessControls_ConstantDeclaration = cast_[*CheckAccessControls_ConstantDeclaration](this.constPropertyInits.get_s(CheckAccessControls_getCanonicalInstance(type_).self(), name))
 		if canonicalInit != nil {
 			return canonicalInit
 		}
@@ -363,14 +363,14 @@ func (this *CheckAccessControls) getConstPropertyInit(ref *CheckAccessControls_P
 }
 
 func (this *CheckAccessControls) recordConstPropertyInit(ref *CheckAccessControls_PropertyReference, type_ *ObjectType, annotation *CheckAccessControls_Constancy) {
-	if !this.constPropertyInits.contains(type_.self(), strobj_(ref.name())) {
-		this.constPropertyInits.put(type_.self(), strobj_(ref.name()), obj_(new_CheckAccessControls_ConstantDeclaration(ref.sourceNode(), annotation)))
+	if !this.constPropertyInits.contains_s(type_.self(), ref.name()) {
+		this.constPropertyInits.put_s(type_.self(), ref.name(), obj_(new_CheckAccessControls_ConstantDeclaration(ref.sourceNode(), annotation)))
 	}
 	if type_.isInstanceType() {
 		var prototype *ObjectType = type_.getImplicitPrototype()
 		if (prototype != nil) && prototype.hasProperty(ref.name()) {
-			if !this.constPropertyInits.contains(prototype.self(), strobj_(ref.name())) {
-				this.constPropertyInits.put(prototype.self(), strobj_(ref.name()), obj_(new_CheckAccessControls_ConstantDeclaration(ref.sourceNode(), annotation)))
+			if !this.constPropertyInits.contains_s(prototype.self(), ref.name()) {
+				this.constPropertyInits.put_s(prototype.self(), ref.name(), obj_(new_CheckAccessControls_ConstantDeclaration(ref.sourceNode(), annotation)))
 			}
 		}
 	}

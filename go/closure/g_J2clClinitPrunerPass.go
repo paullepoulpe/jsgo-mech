@@ -96,7 +96,7 @@ func (this *J2clClinitPrunerPass) cleanEmptyClinitReferences(clinitReferences *S
 		var clinitReplacementEntry Map_Entry = icast_Map_Entry(it_1.v)
 		var clinitName string = str_(clinitReplacementEntry.getKey())
 		var replacement Node = Node_of_(clinitReplacementEntry.getValue())
-		var references CollectionOf[Node] = Collection(clinitReferences.removeAll(strobj_(clinitName)))
+		var references CollectionOf[Node] = Collection(clinitReferences.removeAll_s(clinitName))
 		it_3 := foreach_(any(references))
 		for it_3.next() {
 			var reference Node = Node_of_(it_3.v)
@@ -107,7 +107,7 @@ func (this *J2clClinitPrunerPass) cleanEmptyClinitReferences(clinitReferences *S
 				replacement = replacement.cloneTree()
 				reference.replaceWith(replacement)
 				this.compiler_.reportChangeToChangeScope(changedScope)
-				clinitReferences.put(strobj_(J2clClinitPrunerPass_getClinitMethodName(replacement).orElse(nullstr_)), replacement.box_())
+				clinitReferences.put_s(J2clClinitPrunerPass_getClinitMethodName(replacement).orElse(nullstr_), replacement.box_())
 			}
 			newChangedScopes.add(changedScope)
 		}
@@ -453,7 +453,7 @@ func new_J2clClinitPrunerPass_1(outer_ *J2clClinitPrunerPass, cap_clinitReferenc
 func (this *J2clClinitPrunerPass_1) visit_impl(t *NodeTraversal, node Node, parent Node) {
 	var clinitName OptionalOf[string] = J2clClinitPrunerPass_getClinitMethodName(node)
 	if clinitName.isPresent() {
-		this.cap_clinitReferences.put(strobj_(clinitName.get()), node.box_())
+		this.cap_clinitReferences.put_s(clinitName.get(), node.box_())
 	}
 }
 

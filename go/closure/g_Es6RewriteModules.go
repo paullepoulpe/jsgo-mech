@@ -363,7 +363,7 @@ func (this *Es6RewriteModules) visitGoogModuleGet(t *NodeTraversal, getCall Node
 
 func (this *Es6RewriteModules) getFallbackMetadataForNamespace(namespace string) *ModuleMetadataMap_ModuleMetadata {
 	var builder *ModuleMetadataMap_ModuleMetadata_Builder = ModuleMetadataMap_ModuleMetadata_builder().moduleType_1(ModuleMetadataMap_ModuleType_GOOG_PROVIDE).usesClosure(true).isTestOnly(false)
-	builder.googNamespacesBuilder().add(strobj_(namespace))
+	builder.googNamespacesBuilder().add_s(namespace)
 	return builder.build()
 }
 
@@ -588,7 +588,7 @@ func (this *Es6RewriteModules_RewriteRequiresForEs6Modules) visit_impl(t *NodeTr
 					for ; child != 0; child = child.getNext() {
 						Preconditions_checkState(child.isStringKey())
 						Preconditions_checkState(child.getFirstChild().isName())
-						this.renameTable.put(t.getScopeRoot().box_(), strobj_(child.getFirstChild().getString()), strobj_(ModuleRenaming_getGlobalName_ModuleMetadata_Optional(moduleMetadata, Optional_of[string](name)).getprop(child.getString()).join().orElse(nullstr_)))
+						this.renameTable.put_s(t.getScopeRoot().box_(), child.getFirstChild().getString(), strobj_(ModuleRenaming_getGlobalName_ModuleMetadata_Optional(moduleMetadata, Optional_of[string](name)).getprop(child.getString()).join().orElse(nullstr_)))
 					}
 				}
 			} else {
@@ -618,7 +618,7 @@ func (this *Es6RewriteModules_RewriteRequiresForEs6Modules) visit_impl(t *NodeTr
 					t.report(statementNode, diagnostic, []string{})
 					return
 				}
-				this.renameTable.put(t.getScopeRoot().box_(), strobj_(statementNode.getFirstChild().getString()), strobj_(ModuleRenaming_getGlobalName_ModuleMetadata_Optional(moduleMetadata, Optional_of[string](name)).join().orElse(nullstr_)))
+				this.renameTable.put_s(t.getScopeRoot().box_(), statementNode.getFirstChild().getString(), strobj_(ModuleRenaming_getGlobalName_ModuleMetadata_Optional(moduleMetadata, Optional_of[string](name)).join().orElse(nullstr_)))
 				statementNode.detach()
 				t.reportCodeChange()
 			} else {
@@ -628,7 +628,7 @@ func (this *Es6RewriteModules_RewriteRequiresForEs6Modules) visit_impl(t *NodeTr
 		}
 	} else {
 		if isForwardDeclare || isRequireType {
-			this.renameTable.put(t.getScopeRoot().box_(), strobj_(name), strobj_(ModuleRenaming_getGlobalName_ModuleMetadata_Optional(moduleMetadata, Optional_of[string](name)).join().orElse(nullstr_)))
+			this.renameTable.put_s(t.getScopeRoot().box_(), name, strobj_(ModuleRenaming_getGlobalName_ModuleMetadata_Optional(moduleMetadata, Optional_of[string](name)).join().orElse(nullstr_)))
 			statementNode.detach()
 		} else {
 			if statementNode.isExprResult() && (statementNode.getFirstChild() == n) {

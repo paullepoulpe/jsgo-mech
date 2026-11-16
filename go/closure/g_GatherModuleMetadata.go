@@ -234,13 +234,13 @@ func (this *GatherModuleMetadata_Finder) visitImportOrExport(t *NodeTraversal, i
 	Preconditions_checkNotNull(obj_(this.outer_.currentModule))
 	this.outer_.currentModule.moduleType(ModuleMetadataMap_ModuleType_ES6_MODULE, t, importOrExport)
 	if importOrExport.isImport() || (importOrExport.hasTwoChildren() && importOrExport.getLastChild().isStringLit()) {
-		this.outer_.currentModule.metadataBuilder.es6ImportSpecifiersBuilder().add(strobj_(importOrExport.getLastChild().getString()))
+		this.outer_.currentModule.metadataBuilder.es6ImportSpecifiersBuilder().add_s(importOrExport.getLastChild().getString())
 	}
 }
 
 func (this *GatherModuleMetadata_Finder) visitDynamicImport(dynamicImport Node) {
 	if dynamicImport.getFirstChild().isStringLit() {
-		this.outer_.currentModule.metadataBuilder.es6ImportSpecifiersBuilder().add(strobj_(dynamicImport.getFirstChild().getString()))
+		this.outer_.currentModule.metadataBuilder.es6ImportSpecifiersBuilder().add_s(dynamicImport.getFirstChild().getString())
 	}
 }
 
@@ -390,7 +390,7 @@ func (this *GatherModuleMetadata_Finder) visitGoogCall(t *NodeTraversal, n Node)
 	} else if getprop.matchesQualifiedNameNode(GatherModuleMetadata_GOOG_REQUIRE) {
 		if n.hasTwoChildren() && n.getLastChild().isStringLit() {
 			var namespace string = n.getLastChild().getString()
-			this.outer_.currentModule.metadataBuilder.stronglyRequiredGoogNamespacesBuilder().add(strobj_(namespace))
+			this.outer_.currentModule.metadataBuilder.stronglyRequiredGoogNamespacesBuilder().add_s(namespace)
 			if String_endsWith(namespace, "$2etoggles") {
 				var callParent Node = n.getParent()
 				var lhs Node = callParent.getFirstChild()
@@ -418,13 +418,13 @@ func (this *GatherModuleMetadata_Finder) visitGoogCall(t *NodeTraversal, n Node)
 		}
 	} else if getprop.matchesQualifiedNameNode(GatherModuleMetadata_GOOG_REQUIRE_TYPE) {
 		if n.hasTwoChildren() && n.getLastChild().isStringLit() {
-			this.outer_.currentModule.metadataBuilder.weaklyRequiredGoogNamespacesBuilder().add(strobj_(n.getLastChild().getString()))
+			this.outer_.currentModule.metadataBuilder.weaklyRequiredGoogNamespacesBuilder().add_s(n.getLastChild().getString())
 		} else {
 			t.report(n, GatherModuleMetadata_INVALID_REQUIRE_TYPE, []string{})
 		}
 	} else if getprop.matchesQualifiedNameNode(GatherModuleMetadata_GOOG_MAYBE_REQUIRE) {
 		if n.hasTwoChildren() && n.getLastChild().isStringLit() {
-			this.outer_.currentModule.metadataBuilder.maybeRequiredGoogNamespacesBuilder().add(strobj_(n.getLastChild().getString()))
+			this.outer_.currentModule.metadataBuilder.maybeRequiredGoogNamespacesBuilder().add_s(n.getLastChild().getString())
 		} else {
 			t.report(n, GatherModuleMetadata_INVALID_MAYBE_REQUIRE, []string{})
 		}
@@ -436,7 +436,7 @@ func (this *GatherModuleMetadata_Finder) visitGoogCall(t *NodeTraversal, n Node)
 		}
 	} else if getprop.matchesQualifiedNameNode(GatherModuleMetadata_GOOG_REQUIRE_DYNAMIC) {
 		if n.hasTwoChildren() && n.getLastChild().isStringLit() {
-			this.outer_.currentModule.metadataBuilder.dynamicallyRequiredGoogNamespacesBuilder().add(strobj_(n.getLastChild().getString()))
+			this.outer_.currentModule.metadataBuilder.dynamicallyRequiredGoogNamespacesBuilder().add_s(n.getLastChild().getString())
 		} else {
 			t.report(n, GatherModuleMetadata_INVALID_REQUIRE_DYNAMIC, []string{})
 		}
@@ -446,7 +446,7 @@ func (this *GatherModuleMetadata_Finder) visitGoogCall(t *NodeTraversal, n Node)
 func (this *GatherModuleMetadata_Finder) addToggle(t *NodeTraversal, n Node, name string) {
 	if String_startsWith(name, GatherModuleMetadata_TOGGLE_NAME_PREFIX) {
 		var toggleName string = String_substring_int(name, String_length(GatherModuleMetadata_TOGGLE_NAME_PREFIX))
-		this.outer_.currentModule.metadataBuilder.readTogglesBuilder().add(strobj_(toggleName))
+		this.outer_.currentModule.metadataBuilder.readTogglesBuilder().add_s(toggleName)
 	} else {
 		t.report(n, GatherModuleMetadata_INVALID_TOGGLE_USAGE, []string{"all toggle names must start with `TOGGLE_`"})
 	}
@@ -465,7 +465,7 @@ func (this *GatherModuleMetadata_Finder) addNamespace(module *GatherModuleMetada
 	}
 	var existingType *ModuleMetadataMap_ModuleType = nil
 	var existingFileSource OptionalOf[string] = Optional_empty[string]()
-	if module.googNamespaces_.contains(strobj_(namespace)) {
+	if module.googNamespaces_.contains_s(namespace) {
 		existingType = module.metadataBuilder.moduleType()
 		existingFileSource = t.getSourceName()
 	} else {
@@ -478,7 +478,7 @@ func (this *GatherModuleMetadata_Finder) addNamespace(module *GatherModuleMetada
 			})
 		}
 	}
-	this.outer_.currentModule.googNamespaces_.add(strobj_(namespace))
+	this.outer_.currentModule.googNamespaces_.add_s(namespace)
 	if existingType != nil {
 		switch existingType {
 		case ModuleMetadataMap_ModuleType_ES6_MODULE, ModuleMetadataMap_ModuleType_GOOG_MODULE, ModuleMetadataMap_ModuleType_LEGACY_GOOG_MODULE:

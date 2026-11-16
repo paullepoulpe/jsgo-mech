@@ -66,11 +66,11 @@ func (this *DepsFileRegexParser) parseFile_2(filePath string, fileContents strin
 func (this *DepsFileRegexParser) parseLine_impl(line string) *Outcome_base {
 	var hasDependencies bool = false
 	if String_contains_s(line, "addDependency") {
-		this.depMatcher.reset(strobj_(line))
+		this.depMatcher.reset_s(line)
 		if this.depMatcher.matches() {
 			hasDependencies = true
 			var addDependencyParams string = this.depMatcher.group(1)
-			this.depArgsMatch.reset(strobj_(addDependencyParams))
+			this.depArgsMatch.reset_s(addDependencyParams)
 			if !this.depArgsMatch.matches() {
 				return Outcome_base_err(new_JsFileLineParser_ParseException(("Invalid arguments to goog.addDependency(). Found: " + sstr_(addDependencyParams)), true).up_Throwable())
 			}

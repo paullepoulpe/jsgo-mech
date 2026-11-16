@@ -109,7 +109,7 @@ func ModuleRenaming_GlobalizedModuleName_create_QualifiedName_JSType(aliasName *
 }
 
 func ModuleRenaming_GlobalizedModuleName_create_ModuleMetadata_Optional_TypedScope(moduleMetadata *ModuleMetadataMap_ModuleMetadata, googNamespace OptionalOf[string], globalTypedScope *TypedScope) *ModuleRenaming_GlobalizedModuleName {
-	Preconditions_checkState((googNamespace.isEmpty() || moduleMetadata.googNamespaces().contains(strobj_(googNamespace.get()))))
+	Preconditions_checkState((googNamespace.isEmpty() || moduleMetadata.googNamespaces().contains_s(googNamespace.get())))
 	switch moduleMetadata.moduleType() {
 	case ModuleMetadataMap_ModuleType_GOOG_MODULE:
 		var moduleBody Node = moduleMetadata.rootNode().getFirstChild()

@@ -435,7 +435,7 @@ func (this *SymbolTable) addSymbolsFrom(otherSymbolTable StaticSymbolTable) {
 }
 
 func (this *SymbolTable) isAnySymbolDeclared(name string, declNode Node, scope *SymbolTable_SymbolScope) *SymbolTable_Symbol {
-	var sym *SymbolTable_Symbol = cast_[*SymbolTable_Symbol](this.symbols.get(declNode.box_(), strobj_(name)))
+	var sym *SymbolTable_Symbol = cast_[*SymbolTable_Symbol](this.symbols.get_s(declNode.box_(), name))
 	if sym == nil {
 		return scope.ownSymbols.get(name)
 	}
@@ -477,7 +477,7 @@ func SymbolTable_sanitizeSpecialChars(s string) string {
 func (this *SymbolTable) addSymbol(name string, type_ *JSType, inferred bool, scope *SymbolTable_SymbolScope, declNode Node) *SymbolTable_Symbol {
 	name = SymbolTable_sanitizeSpecialChars(name)
 	var symbol *SymbolTable_Symbol = new_SymbolTable_Symbol(name, type_, inferred, scope)
-	var replacedSymbol *SymbolTable_Symbol = cast_[*SymbolTable_Symbol](this.symbols.put(declNode.box_(), strobj_(name), obj_(symbol)))
+	var replacedSymbol *SymbolTable_Symbol = cast_[*SymbolTable_Symbol](this.symbols.put_s(declNode.box_(), name, obj_(symbol)))
 	if !(replacedSymbol == nil) {
 		Preconditions_checkState_boolean_String_Object_Object(false, "Found duplicate symbol %s in global index. Type %s", strobj_(name), type_.self())
 	}
@@ -750,11 +750,11 @@ func (this *SymbolTable) createPropertyScopeFor(s *SymbolTable_Symbol) {
 		if newProp.getDeclaration() == nil {
 			continue
 		}
-		var oldProp *SymbolTable_Symbol = cast_[*SymbolTable_Symbol](this.symbols.get(newProp.getDeclaration().getNode().box_(), strobj_((sstr_(s.getName()) + "." + sstr_(propName)))))
+		var oldProp *SymbolTable_Symbol = cast_[*SymbolTable_Symbol](this.symbols.get_s(newProp.getDeclaration().getNode().box_(), (sstr_(s.getName()) + "." + sstr_(propName))))
 		if (oldProp != nil) && (this.compiler_.getModuleMap().getClosureModule(oldProp.getName()) != nil) {
 			continue
 		}
-		if cast_[*SymbolTable_Symbol](this.symbols.get(newProp.getDeclaration().getNode().box_(), strobj_(newProp.getName()))) != nil {
+		if cast_[*SymbolTable_Symbol](this.symbols.get_s(newProp.getDeclaration().getNode().box_(), newProp.getName())) != nil {
 			if SymbolTable_logger.isLoggable(Level_FINE) {
 				SymbolTable_logger.fine(("Found duplicate symbol " + objstr_(any(newProp))))
 			}
@@ -1423,7 +1423,7 @@ func (this *SymbolTable_PropertyRefCollector) maybeDefineReference(n Node, propN
 	var owner *JSType = ownerSymbol.getType()
 	if (owner != nil) && owner.isObjectType() {
 		var propNode Node = owner.toObjectType().getPropertyNode(propName)
-		var propSymbol *SymbolTable_Symbol = cast_[*SymbolTable_Symbol](this.outer_.symbols.get(propNode.box_(), strobj_(propName)))
+		var propSymbol *SymbolTable_Symbol = cast_[*SymbolTable_Symbol](this.outer_.symbols.get_s(propNode.box_(), propName))
 		if propSymbol != nil {
 			propSymbol.defineReferenceAt(n)
 			return true
@@ -1789,7 +1789,7 @@ func (this *SymbolTable_VisibilityCollector) visit_impl(t *NodeTraversal, n Node
 }
 
 func (this *SymbolTable_VisibilityCollector) visitName(t *NodeTraversal, n Node) {
-	var symbol *SymbolTable_Symbol = cast_[*SymbolTable_Symbol](this.outer_.symbols.get(n.box_(), strobj_(n.getString())))
+	var symbol *SymbolTable_Symbol = cast_[*SymbolTable_Symbol](this.outer_.symbols.get_s(n.box_(), n.getString()))
 	if symbol == nil {
 		return
 	}
@@ -1809,7 +1809,7 @@ func (this *SymbolTable_VisibilityCollector) visitName(t *NodeTraversal, n Node)
 
 func (this *SymbolTable_VisibilityCollector) visitProperty(getprop Node, parent Node) {
 	var propertyName string = getprop.getString()
-	var symbol *SymbolTable_Symbol = cast_[*SymbolTable_Symbol](this.outer_.symbols.get(getprop.box_(), strobj_(propertyName)))
+	var symbol *SymbolTable_Symbol = cast_[*SymbolTable_Symbol](this.outer_.symbols.get_s(getprop.box_(), propertyName))
 	if symbol == nil {
 		return
 	}

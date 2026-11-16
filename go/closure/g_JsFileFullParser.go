@@ -32,7 +32,7 @@ func JsFileFullParser_parse(code string, filename string, reporter JsFileFullPar
 	parsed.ast.setInputId(new_InputId(filename))
 	var version string = parsed.features_.version()
 	if !(version == "es3") {
-		info.loadFlags_.put(strobj_("lang"), strobj_(version))
+		info.loadFlags_.put_s("lang", strobj_(version))
 	}
 	var gatherModuleMetadata *GatherModuleMetadata = new_GatherModuleMetadata(compiler.up_AbstractCompiler(), false, ModuleLoader_ResolutionMode_BROWSER)
 	gatherModuleMetadata.process_2(new_Node_Token(Token_rhino_ROOT), parsed.ast)
@@ -42,9 +42,9 @@ func JsFileFullParser_parse(code string, filename string, reporter JsFileFullPar
 	}
 	var module *ModuleMetadataMap_ModuleMetadata = cast_[*ModuleMetadataMap_ModuleMetadata](Iterables_getOnlyElement(Iterable(compiler.getModuleMetadataMap().getModulesByPath().values())))
 	if module.isEs6Module() {
-		info.loadFlags_.put(strobj_("module"), strobj_("es6"))
+		info.loadFlags_.put_s("module", strobj_("es6"))
 	} else if module.isGoogModule() {
-		info.loadFlags_.put(strobj_("module"), strobj_("goog"))
+		info.loadFlags_.put_s("module", strobj_("goog"))
 	}
 	switch module.moduleType() {
 	case ModuleMetadataMap_ModuleType_GOOG_PROVIDE:

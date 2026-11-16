@@ -200,7 +200,7 @@ func (this *CheckMissingRequires) visitMaybeDeclaration(t *NodeTraversal, n Node
 			return
 		}
 		var reference string = (sstr_(require.namespace()) + "." + sstr_(require.property().get()))
-		if !currentFile.googNamespaces().contains(strobj_(reference)) {
+		if !currentFile.googNamespaces().contains_s(reference) {
 			var alternateFile *ModuleMetadataMap_ModuleMetadata = cast_[*ModuleMetadataMap_ModuleMetadata](Map_get_s(this.moduleByNamespace, reference))
 			if (alternateFile != nil) && (alternateFile != requiredFile) {
 				var toReport *DiagnosticType = func() *DiagnosticType {
@@ -443,7 +443,7 @@ func (this *CheckMissingRequires) isAllowedNamespace(currentFile *ModuleMetadata
 	if namespace == "goog.module" {
 		return true
 	}
-	if currentFile.googNamespaces().contains(strobj_(namespace)) {
+	if currentFile.googNamespaces().contains_s(namespace) {
 		return true
 	}
 	return false

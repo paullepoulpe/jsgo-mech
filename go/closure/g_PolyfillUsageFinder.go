@@ -348,11 +348,11 @@ func PolyfillUsageFinder_Polyfills_fromTable(table string) *PolyfillUsageFinder_
 			return PolyfillUsageFinder_Polyfill_Kind_STATIC
 		}())
 		if isPrototypeMethod {
-			methods.put(strobj_(PolyfillUsageFinder_PROTOTYPE_PREFIX_PATTERN.matcher_s(symbol).replaceAll("")), obj_(polyfill))
+			methods.put_s(PolyfillUsageFinder_PROTOTYPE_PREFIX_PATTERN.matcher_s(symbol).replaceAll(""), obj_(polyfill))
 		} else {
 			statics.put(strobj_(symbol), obj_(polyfill))
 		}
-		byNativeVersion.put(strobj_(nativeVersionStr), obj_(polyfill))
+		byNativeVersion.put_s(nativeVersionStr, obj_(polyfill))
 	}
 	return new_PolyfillUsageFinder_Polyfills(methods.immutableCopy(), statics.buildOrThrow(), byNativeVersion.immutableCopy())
 }
@@ -365,7 +365,7 @@ func (this *PolyfillUsageFinder_Polyfills) getPolyfillsNewerThan(languageMode *C
 		var nativeVersionStr string = str_(it_1.v)
 		var polyfillNativeFeatureSet *FeatureSet = PolyfillUsageFinder_getPolyfillSupportedFeatureSet(nativeVersionStr)
 		if !featureSet.containsFeatureSet(polyfillNativeFeatureSet) {
-			result.addAll(Iterable(this.byNativeVersion.get(strobj_(nativeVersionStr))))
+			result.addAll(Iterable(this.byNativeVersion.get_s(nativeVersionStr)))
 		}
 	}
 	return sliceImm_(tc_p_PolyfillUsageFinder_Polyfill, result.build())

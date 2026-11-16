@@ -363,7 +363,7 @@ func (this *ModuleMetadataMap_ModuleMetadata_Builder) googNamespacesBuilder() *S
 }
 
 func (this *ModuleMetadataMap_ModuleMetadata_Builder) addGoogNamespace(namespace string) *ModuleMetadataMap_ModuleMetadata_Builder {
-	this.googNamespacesBuilder().add(strobj_(namespace))
+	this.googNamespacesBuilder().add_s(namespace)
 	return this
 }
 

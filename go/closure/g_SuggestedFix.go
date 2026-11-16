@@ -163,20 +163,20 @@ func (this *SuggestedFix_Builder) addAlternative(alternative *SuggestedFix) *Sug
 
 func (this *SuggestedFix_Builder) replaceText(node Node, length int32, newContent string) *SuggestedFix_Builder {
 	var startPosition int32 = node.getSourceOffset()
-	this.replacements.put(strobj_(node.getSourceFileName()), obj_(CodeReplacement_create_int_int_String(startPosition, length, newContent)))
+	this.replacements.put_s(node.getSourceFileName(), obj_(CodeReplacement_create_int_int_String(startPosition, length, newContent)))
 	return this
 }
 
 func (this *SuggestedFix_Builder) addChildToFront(parentNode Node, content string) *SuggestedFix_Builder {
 	Preconditions_checkState_boolean_Object(parentNode.isBlock(), strobj_("addChildToFront is only supported for BLOCK statements."))
 	var startPosition int32 = (parentNode.getSourceOffset() + 1)
-	this.replacements.put(strobj_(parentNode.getSourceFileName()), obj_(CodeReplacement_create_int_int_String(startPosition, 0, ("\n"+sstr_(content)))))
+	this.replacements.put_s(parentNode.getSourceFileName(), obj_(CodeReplacement_create_int_int_String(startPosition, 0, ("\n"+sstr_(content)))))
 	return this
 }
 
 func (this *SuggestedFix_Builder) insertAfter(node Node, text string) *SuggestedFix_Builder {
 	var position int32 = (node.getSourceOffset() + node.getLength())
-	this.replacements.put(strobj_(node.getSourceFileName()), obj_(CodeReplacement_create_int_int_String(position, 0, text)))
+	this.replacements.put_s(node.getSourceFileName(), obj_(CodeReplacement_create_int_int_String(position, 0, text)))
 	return this
 }
 
@@ -197,7 +197,7 @@ func (this *SuggestedFix_Builder) insertBeforeString(nodeToInsertBefore Node, co
 	if String_isEmpty(nodeToInsertBefore.getSourceFileName()) {
 		Preconditions_checkState_boolean_String_Object(false, "No source file name for node: %s", nodeToInsertBefore.box_())
 	}
-	this.replacements.put(strobj_(nodeToInsertBefore.getSourceFileName()), obj_(CodeReplacement_create_int_int_String_String(startPosition, 0, content, sortKey)))
+	this.replacements.put_s(nodeToInsertBefore.getSourceFileName(), obj_(CodeReplacement_create_int_int_String_String(startPosition, 0, content, sortKey)))
 	return this
 }
 
@@ -242,7 +242,7 @@ func (this *SuggestedFix_Builder) delete_2(n Node, deleteWhitespaceBefore bool) 
 			startPosition = previousSiblingEndPosition
 		}
 	}
-	this.replacements.put(strobj_(n.getSourceFileName()), obj_(CodeReplacement_create_int_int_String(startPosition, length, "")))
+	this.replacements.put_s(n.getSourceFileName(), obj_(CodeReplacement_create_int_int_String(startPosition, length, "")))
 	return this
 }
 
@@ -251,7 +251,7 @@ func (this *SuggestedFix_Builder) deleteWithoutRemovingWhitespaceBefore(n Node) 
 }
 
 func (this *SuggestedFix_Builder) deleteWithoutRemovingWhitespace(n Node) *SuggestedFix_Builder {
-	this.replacements.put(strobj_(n.getSourceFileName()), obj_(CodeReplacement_create_int_int_String(n.getSourceOffset(), n.getLength(), "")))
+	this.replacements.put_s(n.getSourceFileName(), obj_(CodeReplacement_create_int_int_String(n.getSourceOffset(), n.getLength(), "")))
 	return this
 }
 
@@ -281,7 +281,7 @@ func (this *SuggestedFix_Builder) rename_3(n Node, name string, replaceNameSubtr
 	default:
 		panic(new_UnsupportedOperationException_String(("Rename is not implemented for this node type: " + objstr_(n.box_()))).self())
 	}
-	this.replacements.put(strobj_(range_.getSourceFileName()), obj_(CodeReplacement_create_int_int_String(range_.getSourceOffset(), range_.getLength(), name)))
+	this.replacements.put_s(range_.getSourceFileName(), obj_(CodeReplacement_create_int_int_String(range_.getSourceOffset(), range_.getLength(), name)))
 	return this
 }
 
@@ -293,7 +293,7 @@ func (this *SuggestedFix_Builder) replaceRange(first Node, last Node, newContent
 	}
 	var end int32 = (last.getSourceOffset() + last.getLength())
 	var length int32 = (end - start)
-	this.replacements.put(strobj_(first.getSourceFileName()), obj_(CodeReplacement_create_int_int_String(start, length, newContent)))
+	this.replacements.put_s(first.getSourceFileName(), obj_(CodeReplacement_create_int_int_String(start, length, newContent)))
 	return this
 }
 
@@ -331,20 +331,20 @@ func (this *SuggestedFix_Builder) replace(original Node, newNode Node, compiler 
 	if original.isGetProp() {
 		range_ = SuggestedFix_Builder_subtreeRangeOfIdentifier(original)
 	}
-	this.replacements.put(strobj_(range_.getSourceFileName()), obj_(CodeReplacement_create_int_int_String(range_.getSourceOffset(), range_.getLength(), newCode)))
+	this.replacements.put_s(range_.getSourceFileName(), obj_(CodeReplacement_create_int_int_String(range_.getSourceOffset(), range_.getLength(), newCode)))
 	return this
 }
 
 func (this *SuggestedFix_Builder) addCast(n Node, compiler *AbstractCompiler, type_ string) *SuggestedFix_Builder {
-	this.replacements.put(strobj_(n.getSourceFileName()), obj_(CodeReplacement_create_int_int_String(n.getSourceOffset(), n.getLength(), ("/** @type {"+sstr_(type_)+"} */ ("+sstr_(this.generateCode(compiler, n))+")"))))
+	this.replacements.put_s(n.getSourceFileName(), obj_(CodeReplacement_create_int_int_String(n.getSourceOffset(), n.getLength(), ("/** @type {"+sstr_(type_)+"} */ ("+sstr_(this.generateCode(compiler, n))+")"))))
 	return this
 }
 
 func (this *SuggestedFix_Builder) removeCast(n Node, compiler *AbstractCompiler) *SuggestedFix_Builder {
 	Preconditions_checkArgument(n.isCast())
 	var jsDoc *JSDocInfo = n.getJSDocInfo()
-	this.replacements.put(strobj_(n.getSourceFileName()), obj_(CodeReplacement_create_int_int_String(jsDoc.getOriginalCommentPosition(), (n.getFirstChild().getSourceOffset()-jsDoc.getOriginalCommentPosition()), "")))
-	this.replacements.put(strobj_(n.getSourceFileName()), obj_(CodeReplacement_create_int_int_String(((n.getSourceOffset()+n.getLength())-1), 1, "")))
+	this.replacements.put_s(n.getSourceFileName(), obj_(CodeReplacement_create_int_int_String(jsDoc.getOriginalCommentPosition(), (n.getFirstChild().getSourceOffset()-jsDoc.getOriginalCommentPosition()), "")))
+	this.replacements.put_s(n.getSourceFileName(), obj_(CodeReplacement_create_int_int_String(((n.getSourceOffset()+n.getLength())-1), 1, "")))
 	return this
 }
 
@@ -359,7 +359,7 @@ func (this *SuggestedFix_Builder) addOrReplaceJsDoc(n Node, newJsDoc string) *Su
 		offset = jsDoc.getOriginalCommentPosition()
 		length = String_length(jsDoc.getOriginalCommentString().get())
 	}
-	this.replacements.put(strobj_(n.getSourceFileName()), obj_(CodeReplacement_create_int_int_String(offset, length, newJsDoc)))
+	this.replacements.put_s(n.getSourceFileName(), obj_(CodeReplacement_create_int_int_String(offset, length, newJsDoc)))
 	return this
 }
 
@@ -388,7 +388,7 @@ func (this *SuggestedFix_Builder) replaceTypePattern(n Node, type_ string, patte
 	if originalComment.isPresent() {
 		var m *Matcher_re2j = pattern.matcher_s(originalComment.get())
 		for m.find() {
-			this.replacements.put(strobj_(n.getSourceFileName()), obj_(CodeReplacement_create_int_int_String((originalPosition+m.start()), (m.end()-m.start()), ("@"+sstr_(m.group(1))+" {"+sstr_(type_)+"}"))))
+			this.replacements.put_s(n.getSourceFileName(), obj_(CodeReplacement_create_int_int_String((originalPosition+m.start()), (m.end()-m.start()), ("@"+sstr_(m.group(1))+" {"+sstr_(type_)+"}"))))
 		}
 	}
 }
@@ -414,7 +414,7 @@ func (this *SuggestedFix_Builder) insertArguments(n Node, position int32, args [
 	} else if i > 0 {
 		newContent = (", " + sstr_(newContent))
 	}
-	this.replacements.put(strobj_(n.getSourceFileName()), obj_(CodeReplacement_create_int_int_String(startPosition, 0, newContent)))
+	this.replacements.put_s(n.getSourceFileName(), obj_(CodeReplacement_create_int_int_String(startPosition, 0, newContent)))
 	return this
 }
 
@@ -445,7 +445,7 @@ func (this *SuggestedFix_Builder) deleteArgument(n Node, position int32) *Sugges
 		i++
 	}
 	var lengthOfArgumentToRemove int32 = (endOfArgumentToRemove - startOfArgumentToRemove)
-	this.replacements.put(strobj_(n.getSourceFileName()), obj_(CodeReplacement_create_int_int_String(startOfArgumentToRemove, lengthOfArgumentToRemove, "")))
+	this.replacements.put_s(n.getSourceFileName(), obj_(CodeReplacement_create_int_int_String(startOfArgumentToRemove, lengthOfArgumentToRemove, "")))
 	return this
 }
 
@@ -564,13 +564,13 @@ func (this *SuggestedFix_Builder) addImport(m *Match, namespace string, importTy
 				return lastModuleOrProvideNode
 			}()
 			var startPosition int32 = ((nodeToInsertAfter.getSourceOffset() + nodeToInsertAfter.getLength()) + 2)
-			this.replacements.put(strobj_(nodeToInsertAfter.getSourceFileName()), obj_(CodeReplacement_create_int_int_String_String(startPosition, 0, this.generateCode(m.getMetadata().getCompiler(), newImportNode), namespace)))
+			this.replacements.put_s(nodeToInsertAfter.getSourceFileName(), obj_(CodeReplacement_create_int_int_String_String(startPosition, 0, this.generateCode(m.getMetadata().getCompiler(), newImportNode), namespace)))
 			return this
 		} else {
 			if script.hasChildren() {
 				nodeToInsertBefore = script.getFirstChild()
 			} else {
-				this.replacements.put(strobj_(script.getSourceFileName()), obj_(CodeReplacement_create_int_int_String_String(0, 0, this.generateCode(m.getMetadata().getCompiler(), newImportNode), namespace)))
+				this.replacements.put_s(script.getSourceFileName(), obj_(CodeReplacement_create_int_int_String_String(0, 0, this.generateCode(m.getMetadata().getCompiler(), newImportNode), namespace)))
 				return this
 			}
 		}

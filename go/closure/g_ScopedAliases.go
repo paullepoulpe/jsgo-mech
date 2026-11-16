@@ -568,7 +568,7 @@ func (this *ScopedAliases_Traversal) findAliases(scope *Scope) {
 			}
 			var varDocInfo *JSDocInfo = v.getJSDocInfo()
 			var name string = n.getString()
-			this.outer_.scopedAliasNames.add(strobj_(name))
+			this.outer_.scopedAliasNames.add_s(name)
 			var uniqueId string = this.outer_.compiler_.getUniqueIdSupplier().getUniqueId(this.outer_.uniqueIdInput)
 			var globalName string = ("$jscomp$scope$" + sstr_(uniqueId) + "$" + sstr_(name))
 			if isFunctionDecl || NodeUtil_isClassDeclaration(parent) {
