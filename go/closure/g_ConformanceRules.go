@@ -1455,7 +1455,7 @@ func ConformanceRules_ConformanceUtil_validateParameterList(compiler *AbstractCo
 		}
 		argumentTypes.add(argType.self())
 	}
-	return functionType.acceptsArguments(tlistImm_(tc_p_JSType, argumentTypes.build()))
+	return functionType.acceptsArguments(sliceImm_(tc_p_JSType, argumentTypes.build()))
 }
 
 func ConformanceRules_ConformanceUtil_getPropertyFromDeclarationName(specName string) OptionalOf[string] {

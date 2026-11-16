@@ -4,14 +4,14 @@ package closure
 
 type JSTypeResolver struct {
 	registry        *JSTypeRegistry
-	captureStack    *TList[*JSType]
-	resolutionQueue *TList[*JSType]
+	captureStack    []*JSType
+	resolutionQueue []*JSType
 	state           *JSTypeResolver_State
 }
 
 func (this *JSTypeResolver) finit_JSTypeResolver() {
-	this.captureStack = newTList_(tc_p_JSType)
-	this.resolutionQueue = newTList_(tc_p_JSType)
+	this.captureStack = []*JSType{}
+	this.resolutionQueue = []*JSType{}
 	this.state = JSTypeResolver_State_CLOSED
 }
 
@@ -35,14 +35,14 @@ func JSTypeResolver_create(registry *JSTypeRegistry) *JSTypeResolver {
 
 func (this *JSTypeResolver) addUnresolved(captured *JSType) {
 	Preconditions_checkState(!captured.isResolved())
-	this.captureStack.push_(captured)
+	this.captureStack = append(this.captureStack, captured)
 }
 
 func (this *JSTypeResolver) resolveIfClosed(captured *JSType, caller *JSTypeClass) {
 	if !caller.isTypeOf(captured) {
 		return
 	}
-	var expected *JSType = this.captureStack.pop_()
+	var expected *JSType = slicePop_(tc_p_JSType, &this.captureStack)
 	if !JSCompObjects_identical(captured.self(), expected.self()) {
 		Preconditions_checkState_boolean_String_Object_Object(false, "Captured %s; Expected %s", captured.self(), expected.self())
 	}
@@ -50,25 +50,25 @@ func (this *JSTypeResolver) resolveIfClosed(captured *JSType, caller *JSTypeClas
 	case JSTypeResolver_State_CLOSED, JSTypeResolver_State_CLOSING:
 		this.doResolve(captured)
 	case JSTypeResolver_State_OPEN:
-		this.resolutionQueue.push_(captured)
+		this.resolutionQueue = append(this.resolutionQueue, captured)
 	}
 }
 
 func (this *JSTypeResolver) openForDefinition() *JSTypeResolver_Closer {
 	Preconditions_checkState(Object_equals(obj_(this.state), obj_(JSTypeResolver_State_CLOSED)))
-	Preconditions_checkState(this.captureStack.isEmpty())
+	Preconditions_checkState(len(this.captureStack) == 0)
 	this.state = JSTypeResolver_State_OPEN
 	return new_JSTypeResolver_Closer(this)
 }
 
 func (this *JSTypeResolver) resolveAll() {
 	Preconditions_checkState(Object_equals(obj_(this.state), obj_(JSTypeResolver_State_OPEN)))
-	Preconditions_checkState(this.captureStack.isEmpty())
+	Preconditions_checkState(len(this.captureStack) == 0)
 	this.state = JSTypeResolver_State_CLOSING
-	for !this.resolutionQueue.isEmpty() {
-		this.doResolve(this.resolutionQueue.popFirst_())
+	for len(this.resolutionQueue) != 0 {
+		this.doResolve(slicePopFirst_(tc_p_JSType, &this.resolutionQueue))
 	}
-	this.resolutionQueue = newTList_(tc_p_JSType)
+	this.resolutionQueue = []*JSType{}
 	this.state = JSTypeResolver_State_CLOSED
 	var globalThis *PrototypeObjectType = to_PrototypeObjectType(this.registry.getNativeType(JSTypeNative_GLOBAL_THIS).self())
 	var windowType *JSType = this.registry.getGlobalType("Window")

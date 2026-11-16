@@ -131,21 +131,21 @@ func (this *ExpressionDecomposer) exposeExpression_2(expressionRoot Node, subExp
 
 func (this *ExpressionDecomposer) rewriteAllContainingOptionalChains(subExpression Node) {
 	var optChainRewriterBuilder *OptionalChainRewriter_Builder = OptionalChainRewriter_builder(this.compiler_).setTmpVarNameCreator(&OptionalChainRewriter_TmpVarNameCreator_fn{func() string { return this.getTempConstantValueName() }}).setScope(this.scope_)
-	var rewriters *TList[*OptionalChainRewriter] = newTList_(tc_p_OptionalChainRewriter)
+	var rewriters []*OptionalChainRewriter = []*OptionalChainRewriter{}
 	{
 		var exprParent Node = subExpression.getParent()
 		for ; !NodeUtil_isStatement(exprParent); exprParent = exprParent.getParent() {
 			if NodeUtil_isEndOfFullOptChain(exprParent) {
-				rewriters.push_(optChainRewriterBuilder.build(exprParent))
+				rewriters = append(rewriters, optChainRewriterBuilder.build(exprParent))
 			} else if exprParent.isCall() {
 				var callee Node = exprParent.getFirstChild()
 				if NodeUtil_isOptChainGet(callee) {
-					rewriters.push_(optChainRewriterBuilder.build(callee))
+					rewriters = append(rewriters, optChainRewriterBuilder.build(callee))
 				}
 			}
 		}
 	}
-	it_2 := rewriters.eachRev()
+	it_2 := eachRevOf_(&rewriters)
 	for it_2.next() {
 		var rewriter *OptionalChainRewriter = it_2.v
 		rewriter.rewrite()

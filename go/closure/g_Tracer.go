@@ -577,9 +577,7 @@ func (this *Tracer_ThreadTrace) toString() string {
 func (this *Tracer_ThreadTrace) getMaxDigits() int32 {
 	var etime int64 = -1
 	var maxTime int64 = 0
-	it_1 := eachOf_(&this.events)
-	for it_1.next() {
-		var e *Tracer_Event = it_1.v
+	for _, e := range this.events {
 		if etime != -1 {
 			var time int64 = (e.eventTime() - etime)
 			maxTime = Math_max_long_long(maxTime, time)

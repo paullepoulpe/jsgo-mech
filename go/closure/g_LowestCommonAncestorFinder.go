@@ -5,12 +5,12 @@ package closure
 type LowestCommonAncestorFinder struct {
 	graph          *DiGraph
 	searchColoring *TMap[DiGraph_DiGraphNode, *LowestCommonAncestorFinder_Color]
-	searchQueue    *TList[DiGraph_DiGraphNode]
+	searchQueue    []DiGraph_DiGraphNode
 }
 
 func (this *LowestCommonAncestorFinder) finit_LowestCommonAncestorFinder() {
 	this.searchColoring = newTMap_(tc_DiGraph_DiGraphNode, tc_p_LowestCommonAncestorFinder_Color)
-	this.searchQueue = newTList_(tc_DiGraph_DiGraphNode)
+	this.searchQueue = []DiGraph_DiGraphNode{}
 }
 
 func (this *LowestCommonAncestorFinder) init_LowestCommonAncestorFinder(graph *DiGraph) {
@@ -61,7 +61,7 @@ func (this *LowestCommonAncestorFinder) findAll(roots SetOf[any]) ImmutableSetOf
 		}
 	})
 	this.searchColoring.clear()
-	this.searchQueue.clear()
+	sliceClear_(&this.searchQueue)
 	return cast_[*ImmutableSet](obj_(results.build()))
 }
 
@@ -71,10 +71,10 @@ var lambda_LowestCommonAncestorFinder_findAll_1_ = &BiFunction_fn{func(p0 any, p
 }}
 
 func (this *LowestCommonAncestorFinder) paintAncestors(root DiGraph_DiGraphNode, color *LowestCommonAncestorFinder_Color) {
-	Preconditions_checkState(this.searchQueue.isEmpty())
-	this.searchQueue.push_(root)
-	for !this.searchQueue.isEmpty() {
-		var curr DiGraph_DiGraphNode = this.searchQueue.popFirst_()
+	Preconditions_checkState(len(this.searchQueue) == 0)
+	this.searchQueue = append(this.searchQueue, root)
+	for len(this.searchQueue) != 0 {
+		var curr DiGraph_DiGraphNode = slicePopFirst_(tc_DiGraph_DiGraphNode, &this.searchQueue)
 		var parentEdges *TList[DiGraph_DiGraphEdge] = curr.getInEdges()
 		it_2 := parentEdges.each()
 		for it_2.next() {
@@ -85,7 +85,7 @@ func (this *LowestCommonAncestorFinder) paintAncestors(root DiGraph_DiGraphNode,
 			}
 			var oldColor *LowestCommonAncestorFinder_Color = cast_[*LowestCommonAncestorFinder_Color](Map_getOrDefault(this.searchColoring.asMap(), any(parent), obj_(LowestCommonAncestorFinder_Color_BLANK)))
 			if !oldColor.contains(color) {
-				this.searchQueue.push_(parent)
+				this.searchQueue = append(this.searchQueue, parent)
 				this.searchColoring.put(parent, oldColor.mix(color))
 			}
 		}

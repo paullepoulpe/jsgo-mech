@@ -6,8 +6,8 @@ type CoalesceVariableNames struct {
 	NodeTraversal_AbstractCfgCallback
 	compiler_                *AbstractCompiler
 	scopeCreator             *MemoizedScopeCreator
-	colorings                *TList[*GraphColoring]
-	liveAnalyses             *TList[*LiveVariablesAnalysis]
+	colorings                []*GraphColoring
+	liveAnalyses             []*LiveVariablesAnalysis
 	usePseudoNames           bool
 	astFactory_              *AstFactory
 	liveness                 *LiveVariablesAnalysis
@@ -36,8 +36,8 @@ func (this *CoalesceVariableNames) init_CoalesceVariableNames(compiler *Abstract
 	this.finit_CoalesceVariableNames()
 	Preconditions_checkState(compiler.getLifeCycleStage().isNormalized())
 	this.compiler_ = compiler
-	this.colorings = newTList_(tc_p_GraphColoring)
-	this.liveAnalyses = newTList_(tc_p_LiveVariablesAnalysis)
+	this.colorings = []*GraphColoring{}
+	this.liveAnalyses = []*LiveVariablesAnalysis{}
 	this.usePseudoNames = usePseudoNames
 	this.astFactory_ = compiler.createAstFactory()
 	this.scopeCreator = new_MemoizedScopeCreator(icast_ScopeCreator(obj_(new_SyntacticScopeCreator_AbstractCompiler(compiler))))
@@ -87,32 +87,32 @@ func (this *CoalesceVariableNames) enterScopeWithCfg_impl(t *NodeTraversal) {
 		}
 	}
 	this.liveness.analyze()
-	this.liveAnalyses.push_(this.liveness)
+	this.liveAnalyses = append(this.liveAnalyses, this.liveness)
 	var interferenceGraph *UndiGraph = this.computeVariableNamesInterferenceGraph(cfg, this.liveness.getEscapedLocals())
 	var coloring *GraphColoring = new_GraphColoring_GreedyGraphColoring_AdjacencyGraph_Comparator(icast_AdjacencyGraph(interferenceGraph.self()), this.coloringTieBreaker).up_GraphColoring()
 	coloring.color()
-	this.colorings.push_(coloring)
+	this.colorings = append(this.colorings, coloring)
 }
 
 func (this *CoalesceVariableNames) exitScopeWithCfg_impl(t *NodeTraversal) {
 	if !unbox_[bool](this.shouldOptimizeScopeStack.pop()) {
 		return
 	}
-	this.colorings.pop_()
-	this.liveAnalyses.pop_()
-	this.liveness = this.liveAnalyses.peekTop_()
+	slicePop_(tc_p_GraphColoring, &this.colorings)
+	slicePop_(tc_p_LiveVariablesAnalysis, &this.liveAnalyses)
+	this.liveness = slicePeekTop_(tc_p_LiveVariablesAnalysis, this.liveAnalyses)
 }
 
 func (this *CoalesceVariableNames) visit_impl(t *NodeTraversal, n Node, parent Node) {
-	if (this.colorings.isEmpty() || !n.isName()) || parent.isFunction() {
+	if (len(this.colorings) == 0 || !n.isName()) || parent.isFunction() {
 		return
 	}
 	var var_ *Var = this.liveness.getAllVariables().get(n.getString())
-	var vNode GraphNode = this.colorings.peekTop_().getGraph().getNode(obj_(var_))
+	var vNode GraphNode = slicePeekTop_(tc_p_GraphColoring, this.colorings).getGraph().getNode(obj_(var_))
 	if vNode == nil {
 		return
 	}
-	var coalescedVar *Var = cast_[*Var](this.colorings.peekTop_().getPartitionSuperNode(obj_(var_)))
+	var coalescedVar *Var = cast_[*Var](slicePeekTop_(tc_p_GraphColoring, this.colorings).getPartitionSuperNode(obj_(var_)))
 	if !this.usePseudoNames {
 		if cast_[*Var](vNode.getValue()).equals(obj_(coalescedVar)) {
 			return
@@ -125,7 +125,7 @@ func (this *CoalesceVariableNames) visit_impl(t *NodeTraversal, n Node, parent N
 		it_1 := this.liveness.getAllVariablesInOrder().each()
 		for it_1.next() {
 			var iVar *Var = it_1.v
-			if (this.colorings.peekTop_().getGraph().getNode(obj_(iVar)) != nil) && this.colorings.peekTop_().haveSameColor(obj_(iVar), obj_(coalescedVar)) {
+			if (slicePeekTop_(tc_p_GraphColoring, this.colorings).getGraph().getNode(obj_(iVar)) != nil) && slicePeekTop_(tc_p_GraphColoring, this.colorings).haveSameColor(obj_(iVar), obj_(coalescedVar)) {
 				Collection_add_s(allMergedNames, iVar.getName())
 			}
 		}
@@ -414,12 +414,8 @@ func (this *CoalesceVariableNames_LiveRangeChecker) visit(n Node, parent Node) {
 }
 
 func (this *CoalesceVariableNames_LiveRangeChecker) setCrossingVariables(interferenceBitSet []*BitSet) {
-	it_1 := eachOf_(&this.isAssignToList)
-	for it_1.next() {
-		var iWrittenVar any = it_1.v
-		it_3 := eachOf_(&this.isReadFromList)
-		for it_3.next() {
-			var iReadVar any = it_3.v
+	for _, iWrittenVar := range this.isAssignToList {
+		for _, iReadVar := range this.isReadFromList {
 			interferenceBitSet[unbox_[int32](iWrittenVar)].set(unbox_[int32](iReadVar))
 			interferenceBitSet[unbox_[int32](iReadVar)].set(unbox_[int32](iWrittenVar))
 		}

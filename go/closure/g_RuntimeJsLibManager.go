@@ -280,12 +280,12 @@ func RuntimeJsLibManager_FieldsTable_loadFields() ImmutableMapOf[string, string]
 	it_1 := foreach_(any(Splitter_on('\n').omitEmptyStrings().split(strobj_(transpilationLibsTxt))))
 	for it_1.next() {
 		var line string = str_(it_1.v)
-		var tokens *TList[string] = tlistImm_(tc_string, Splitter_on(',').limit(2).splitToList(strobj_(line)))
-		if !(tokens.size() == 2) {
-			Preconditions_checkState_boolean_Object(false, any(tokens.asList()))
+		var tokens []string = sliceImm_(tc_string, Splitter_on(',').limit(2).splitToList(strobj_(line)))
+		if !(int32(len(tokens)) == 2) {
+			Preconditions_checkState_boolean_Object(false, any(sliceView_(tc_string, tokens)))
 		}
-		var fieldName string = tokens.get(0)
-		var resourcePath string = tokens.get(1)
+		var fieldName string = sliceAt_(tokens, 0)
+		var resourcePath string = sliceAt_(tokens, 1)
 		allFields.put(strobj_(fieldName), strobj_(resourcePath))
 	}
 	return allFields.buildOrThrow()

@@ -1082,20 +1082,20 @@ func (this *PureFunctionIdentifier_AmbiguatedFunctionSummary) toString() string 
 }
 
 func (this *PureFunctionIdentifier_AmbiguatedFunctionSummary) sideEffectsToString() string {
-	var status *TList[string] = newTList_(tc_string)
+	var status []string = []string{}
 	if this.mutatesThis() {
-		status.add("this")
+		status = append(status, "this")
 	}
 	if this.mutatesGlobalState() {
-		status.add("global")
+		status = append(status, "global")
 	}
 	if this.mutatesArguments() {
-		status.add("args")
+		status = append(status, "args")
 	}
 	if this.functionThrows() {
-		status.add("throw")
+		status = append(status, "throw")
 	}
-	return Object_toString(any(status.asList()))
+	return Object_toString(any(sliceView_(tc_string, status)))
 }
 
 const PureFunctionIdentifier_AmbiguatedFunctionSummary_THROWS int32 = 1

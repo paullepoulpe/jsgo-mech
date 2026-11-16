@@ -97,9 +97,7 @@ func ChangeTracker_getEnclosingChangeScopeRoot(n Node) Node {
 }
 
 func (this *ChangeTracker) notifyChangeHandlers() {
-	it_1 := eachOf_(&this.codeChangeHandlers)
-	for it_1.next() {
-		var handler CodeChangeHandler = it_1.v
+	for _, handler := range this.codeChangeHandlers {
 		handler.reportChange()
 	}
 }

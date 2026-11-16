@@ -5,7 +5,7 @@ package closure
 type CheckRequiresSorted struct {
 	mode_              *CheckRequiresSorted_Mode
 	importsByNamespace *SimpleListMultimap
-	originalImports    *TList[*CheckRequiresSorted_ImportStatement]
+	originalImports    []*CheckRequiresSorted_ImportStatement
 	firstNode          Node
 	lastNode           Node
 	finished           bool
@@ -15,7 +15,7 @@ type CheckRequiresSorted struct {
 
 func (this *CheckRequiresSorted) finit_CheckRequiresSorted() {
 	this.importsByNamespace = SimpleListMultimap_create()
-	this.originalImports = newTList_(tc_p_CheckRequiresSorted_ImportStatement)
+	this.originalImports = []*CheckRequiresSorted_ImportStatement{}
 	this.firstNode = 0
 	this.lastNode = 0
 	this.finished = false
@@ -67,7 +67,7 @@ func (this *CheckRequiresSorted) visit(t *NodeTraversal, n Node, parent Node) {
 	}
 	if (callNode != 0) && CheckRequiresSorted_isValidImportCall(callNode) {
 		var stmt *CheckRequiresSorted_ImportStatement = CheckRequiresSorted_parseImport(callNode)
-		this.originalImports.add(stmt)
+		this.originalImports = append(this.originalImports, stmt)
 		this.importsByNamespace.put(strobj_(stmt.namespace()), obj_(stmt))
 		if this.firstNode == 0 {
 			this.lastNode = n
@@ -114,7 +114,7 @@ func CheckRequiresSorted_parseImport(callNode Node) *CheckRequiresSorted_ImportS
 
 func (this *CheckRequiresSorted) checkCanonical(t *NodeTraversal) {
 	var canonicalImports *TList[*CheckRequiresSorted_ImportStatement] = CheckRequiresSorted_canonicalizeImports(this.importsByNamespace)
-	if !Object_equals(any(this.originalImports.asList()), any(canonicalImports.asList())) {
+	if !Object_equals(any(sliceView_(tc_p_CheckRequiresSorted_ImportStatement, this.originalImports)), any(canonicalImports.asList())) {
 		this.needsFixField = true
 		this.replacement_ = Optional_of[string](String_join(strobj_("\n"), Iterables_transform(Iterable(canonicalImports.asList()), lambda_CheckRequiresSorted_checkCanonical_1_)))
 		if this.mode_ == CheckRequiresSorted_Mode_COLLECT_AND_REPORT {

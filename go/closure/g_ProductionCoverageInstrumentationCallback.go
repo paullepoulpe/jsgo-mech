@@ -6,7 +6,7 @@ type ProductionCoverageInstrumentationCallback struct {
 	instrumentationArrayName string
 	compiler_                *AbstractCompiler
 	parameterMapping         *ProductionCoverageInstrumentationCallback_ParameterMapping
-	functionNameStack        *TList[string]
+	functionNameStack        []string
 }
 
 func (this *ProductionCoverageInstrumentationCallback) zero_ProductionCoverageInstrumentationCallback() {
@@ -14,7 +14,7 @@ func (this *ProductionCoverageInstrumentationCallback) zero_ProductionCoverageIn
 }
 
 func (this *ProductionCoverageInstrumentationCallback) finit_ProductionCoverageInstrumentationCallback() {
-	this.functionNameStack = newTList_(tc_string)
+	this.functionNameStack = []string{}
 }
 
 func (this *ProductionCoverageInstrumentationCallback) init_ProductionCoverageInstrumentationCallback(compiler *AbstractCompiler, instrumentationArrayName string) {
@@ -43,10 +43,10 @@ func (this *ProductionCoverageInstrumentationCallback) shouldTraverse(t *NodeTra
 			}
 			return fnName
 		}()
-		this.functionNameStack.push_(fnName.orElse(nullstr_))
+		this.functionNameStack = append(this.functionNameStack, fnName.orElse(nullstr_))
 	}
-	if this.functionNameStack.isEmpty() {
-		this.functionNameStack.push_(ProductionCoverageInstrumentationCallback_ANONYMOUS_FUNCTION_NAME)
+	if len(this.functionNameStack) == 0 {
+		this.functionNameStack = append(this.functionNameStack, ProductionCoverageInstrumentationCallback_ANONYMOUS_FUNCTION_NAME)
 	}
 	return true
 }
@@ -54,10 +54,10 @@ func (this *ProductionCoverageInstrumentationCallback) shouldTraverse(t *NodeTra
 func (this *ProductionCoverageInstrumentationCallback) visit(traversal *NodeTraversal, node Node, parent Node) {
 	var fileName OptionalOf[string] = traversal.getSourceName()
 	var sourceFileName string = node.getSourceFileName()
-	var functionName string = this.functionNameStack.peekTop_()
+	var functionName string = slicePeekTop_(tc_string, this.functionNameStack)
 	switch node.ns_().token {
 	case tokOrd1_FUNCTION:
-		this.functionNameStack.pop_()
+		slicePop_(tc_string, &this.functionNameStack)
 		this.instrumentBlockNode(node.getLastChild(), fileName.orElse(nullstr_), functionName, ProductionCoverageInstrumentationCallback_Type_FUNCTION)
 	case tokOrd1_IF:
 		var ifTrueNode Node = node.getSecondChild()

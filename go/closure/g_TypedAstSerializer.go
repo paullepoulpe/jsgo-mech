@@ -8,14 +8,14 @@ type TypedAstSerializer struct {
 	stringPool         *StringPool_Builder
 	previousLine       int32
 	previousColumn     int32
-	subtreeSourceFiles *TList[*SourceFile_jscomp]
+	subtreeSourceFiles []*SourceFile_jscomp
 	sourceFilePointers *TMap[*SourceFile_jscomp, any]
 	typeSerializer     TypedAstSerializer_TypeSerializer
 }
 
 func (this *TypedAstSerializer) finit_TypedAstSerializer() {
 	this.stringPool = StringPool_builder()
-	this.subtreeSourceFiles = newTList_(tc_p_SourceFile_jscomp)
+	this.subtreeSourceFiles = []*SourceFile_jscomp{}
 	this.sourceFilePointers = newTMap_(tc_p_SourceFile_jscomp, tc_any)
 	this.typeSerializer = nil
 }
@@ -90,7 +90,7 @@ func (this *TypedAstSerializer) serializeScriptNode(script Node) *LazyAst {
 	this.previousLine = 0
 	var sourceFile int32 = this.getSourceFilePointer(script)
 	var scriptProto *AstNode = this.visit(script)
-	this.subtreeSourceFiles.clear()
+	sliceClear_(&this.subtreeSourceFiles)
 	var encodedSourceMap OptionalOf[string] = this.compiler_.getBase64SourceMapContents(Optional_of[string](script.getSourceFileName()).filterFn_(func(s string) bool {
 		_ = s
 		return !String_isEmpty(s)
@@ -135,7 +135,7 @@ func (this *TypedAstSerializer) visit(n Node) *AstNode {
 		builder.addChild(this.visit(shadowedCode.getFirstFirstChild().getFirstChild()))
 	}
 	if sourceFile != 0 {
-		this.subtreeSourceFiles.pop_()
+		slicePop_(tc_p_SourceFile_jscomp, &this.subtreeSourceFiles)
 	}
 	this.setOriginalName(builder, n)
 	return cast_[*AstNode](builder.build())
@@ -144,15 +144,15 @@ func (this *TypedAstSerializer) visit(n Node) *AstNode {
 func (this *TypedAstSerializer) getSourceFilePointer(n Node) int32 {
 	var sourceFile *SourceFile_jscomp = cast_[*SourceFile_jscomp](n.getStaticSourceFile())
 	if sourceFile == nil {
-		if ok_, a1_, a2_ := this.subtreeSourceFiles.peekTop_().isExtern(), n.toStringTree(), n.getParent(); !ok_ {
+		if ok_, a1_, a2_ := slicePeekTop_(tc_p_SourceFile_jscomp, this.subtreeSourceFiles).isExtern(), n.toStringTree(), n.getParent(); !ok_ {
 			Preconditions_checkState_boolean_String_Object_Object(false, "Unexpected null SourceFile for node %s with parent %s", strobj_(a1_), a2_.box_())
 		}
 		return 0
 	}
-	if Object_equals(obj_(sourceFile), obj_(this.subtreeSourceFiles.peekTop_())) {
+	if Object_equals(obj_(sourceFile), obj_(slicePeekTop_(tc_p_SourceFile_jscomp, this.subtreeSourceFiles))) {
 		return 0
 	}
-	this.subtreeSourceFiles.push_(sourceFile)
+	this.subtreeSourceFiles = append(this.subtreeSourceFiles, sourceFile)
 	return unbox_[int32](Map_computeIfAbsent_f(this.sourceFilePointers.asMap(), obj_(sourceFile), func(f_ any) any {
 		var f *SourceFile_jscomp = cast_[*SourceFile_jscomp](f_)
 		_ = f

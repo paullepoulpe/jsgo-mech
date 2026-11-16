@@ -1436,30 +1436,30 @@ func (this *JSTypeRegistry) parseTemplateArgs(nominalType *JSType, typeNode Node
 	if typeList == 0 {
 		return nil
 	}
-	var templateArgs *TList[*JSType] = newTList_(tc_p_JSType)
+	var templateArgs []*JSType = []*JSType{}
 	{
 		var templateNode Node = typeList.getFirstChild()
 		for ; templateNode != 0; templateNode = templateNode.getNext() {
-			templateArgs.add(this.createTypeFromCommentNode_3(templateNode, sourceName, scope))
+			templateArgs = append(templateArgs, this.createTypeFromCommentNode_3(templateNode, sourceName, scope))
 		}
 	}
 	var isObject bool = ((typeNode.getString() == "Object") || (typeNode.getString() == "window.Object"))
-	if isObject && (templateArgs.size() == 1) {
-		templateArgs.insert(0, this.getNativeType(JSTypeNative_UNKNOWN_TYPE))
+	if isObject && (int32(len(templateArgs)) == 1) {
+		sliceInsert_(&templateArgs, 0, this.getNativeType(JSTypeNative_UNKNOWN_TYPE))
 	}
 	if nominalType.isNamedType() && !nominalType.isResolved() {
-		return ImmutableList_copyOf(icast_Collection(any(templateArgs.asList())))
+		return ImmutableList_copyOf(icast_Collection(any(sliceView_(tc_p_JSType, templateArgs))))
 	}
 	var requiredTemplateArgCount int32 = nominalType.getTemplateParamCount()
-	if templateArgs.size() <= requiredTemplateArgCount {
-		return ImmutableList_copyOf(icast_Collection(any(templateArgs.asList())))
+	if int32(len(templateArgs)) <= requiredTemplateArgCount {
+		return ImmutableList_copyOf(icast_Collection(any(sliceView_(tc_p_JSType, templateArgs))))
 	}
 	if !nominalType.isUnknownType() && !this.isNonNullableName(StaticScope(scope), typeNode.getString()) {
 		var firstExtraTemplateParam Node = typeNode.getFirstChild().getChildAtIndex(requiredTemplateArgCount)
-		var message string = ("Too many template parameters\nFound " + istr_(int64(templateArgs.size())) + ", required at most " + istr_(int64(requiredTemplateArgCount)))
+		var message string = ("Too many template parameters\nFound " + istr_(int64(int32(len(templateArgs)))) + ", required at most " + istr_(int64(requiredTemplateArgCount)))
 		this.reporter.warning(message, sourceName, firstExtraTemplateParam.getLineno(), firstExtraTemplateParam.getCharno())
 	}
-	return ImmutableList_copyOf(Collection(templateArgs.asList().subList(0, requiredTemplateArgCount)))
+	return ImmutableList_copyOf(Collection(sliceView_(tc_p_JSType, templateArgs).subList(0, requiredTemplateArgCount)))
 }
 
 func (this *JSTypeRegistry) createRecordTypeFromNodes(n Node, sourceName OptionalOf[string], scope StaticTypedScope) *JSType {

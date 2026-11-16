@@ -10,12 +10,12 @@ type Es6RewriteDestructuring struct {
 	useJscompAssign              bool
 	featuresToTriggerRunningPass *FeatureSet
 	featuresToMarkAsRemoved      *FeatureSet
-	patternNestingStack          *TList[*Es6RewriteDestructuring_PatternNestingLevel]
+	patternNestingStack          []*Es6RewriteDestructuring_PatternNestingLevel
 	destructuringVarCounter      int32
 }
 
 func (this *Es6RewriteDestructuring) finit_Es6RewriteDestructuring() {
-	this.patternNestingStack = newTList_(tc_p_Es6RewriteDestructuring_PatternNestingLevel)
+	this.patternNestingStack = []*Es6RewriteDestructuring_PatternNestingLevel{}
 	this.destructuringVarCounter = 0
 }
 
@@ -45,10 +45,10 @@ func new_Es6RewriteDestructuring(builder *Es6RewriteDestructuring_Builder) *Es6R
 }
 
 func (this *Es6RewriteDestructuring) process_2(externs Node, root Node) {
-	Preconditions_checkState(this.patternNestingStack.isEmpty())
+	Preconditions_checkState(len(this.patternNestingStack) == 0)
 	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(any(this)))
 	TranspilationPasses_maybeMarkFeaturesAsTranspiledAway(this.compiler_, root, this.featuresToMarkAsRemoved)
-	Preconditions_checkState(this.patternNestingStack.isEmpty())
+	Preconditions_checkState(len(this.patternNestingStack) == 0)
 }
 
 func (this *Es6RewriteDestructuring) shouldTraverse(t *NodeTraversal, n Node, parent Node) bool {
@@ -61,18 +61,16 @@ func (this *Es6RewriteDestructuring) shouldTraverse(t *NodeTraversal, n Node, pa
 		this.pullDestructuringOutOfParams(n, parent)
 	case tokOrd1_ARRAY_PATTERN, tokOrd1_OBJECT_PATTERN:
 		var hasRest bool = ((n.isObjectPattern() && n.hasChildren()) && n.getLastChild().isRest())
-		if !this.patternNestingStack.isEmpty() && hasRest {
-			it_2 := this.patternNestingStack.each()
-			for it_2.next() {
-				var level *Es6RewriteDestructuring_PatternNestingLevel = it_2.v
+		if len(this.patternNestingStack) != 0 && hasRest {
+			for _, level := range this.patternNestingStack {
 				if level.hasNestedObjectRest {
 					break
 				}
 				level.hasNestedObjectRest = true
 			}
-			this.patternNestingStack.peekTop_().hasNestedObjectRest = true
+			slicePeekTop_(tc_p_Es6RewriteDestructuring_PatternNestingLevel, this.patternNestingStack).hasNestedObjectRest = true
 		}
-		this.patternNestingStack.push_(new_Es6RewriteDestructuring_PatternNestingLevel(n, hasRest))
+		this.patternNestingStack = append(this.patternNestingStack, new_Es6RewriteDestructuring_PatternNestingLevel(n, hasRest))
 	default:
 	}
 	return true
@@ -82,8 +80,8 @@ func (this *Es6RewriteDestructuring) visit(t *NodeTraversal, n Node, parent Node
 	switch n.ns_().token {
 	case tokOrd1_ARRAY_PATTERN, tokOrd1_OBJECT_PATTERN:
 		this.visitPattern(t, n)
-		if n == this.patternNestingStack.getTop_().pattern {
-			this.patternNestingStack.pop_()
+		if n == sliceTop_(tc_p_Es6RewriteDestructuring_PatternNestingLevel, this.patternNestingStack).pattern {
+			slicePop_(tc_p_Es6RewriteDestructuring_PatternNestingLevel, &this.patternNestingStack)
 		}
 	default:
 	}
@@ -273,7 +271,7 @@ func (this *Es6RewriteDestructuring) replaceObjectPattern(t *NodeTraversal, obje
 		propsToDeleteForRest = newTList_(tc_Node)
 		restTempVarName = Optional_of[string](this.getTempVariableName())
 	} else if this.rewriteMode == Es6RewriteDestructuring_ObjectDestructuringRewriteMode_REWRITE_OBJECT_REST {
-		if !this.patternNestingStack.peekTop_().hasNestedObjectRest {
+		if !slicePeekTop_(tc_p_Es6RewriteDestructuring_PatternNestingLevel, this.patternNestingStack).hasNestedObjectRest {
 			this.destructuringVarCounter--
 			return
 		}
@@ -431,7 +429,7 @@ func (this *Es6RewriteDestructuring) deletionNodeForRestProperty(restTempVarName
 
 func (this *Es6RewriteDestructuring) replaceArrayPattern(t *NodeTraversal, arrayPattern Node, rhs Node, parent Node, nodeToDetach Node) {
 	if this.rewriteMode == Es6RewriteDestructuring_ObjectDestructuringRewriteMode_REWRITE_OBJECT_REST {
-		if this.patternNestingStack.isEmpty() || !this.patternNestingStack.peekTop_().hasNestedObjectRest {
+		if len(this.patternNestingStack) == 0 || !slicePeekTop_(tc_p_Es6RewriteDestructuring_PatternNestingLevel, this.patternNestingStack).hasNestedObjectRest {
 			return
 		}
 	}

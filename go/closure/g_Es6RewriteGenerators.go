@@ -767,10 +767,10 @@ func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_YieldFinder) 
 type Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext struct {
 	outer_                  *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler
 	namedLabels             map[string]*Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_LabelCases
-	breakCases              *TList[*Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_Case]
-	continueCases           *TList[*Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_Case]
-	catchCases              *TList[*Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_CatchCase]
-	finallyCases            *TList[*Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_Case]
+	breakCases              []*Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_Case
+	continueCases           []*Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_Case
+	catchCases              []*Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_CatchCase
+	finallyCases            []*Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_Case
 	catchNames              map[string]struct{}
 	allCases                *TList[*Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_Case]
 	switchBreaks            []Node
@@ -784,10 +784,10 @@ type Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext
 
 func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext) finit_Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext() {
 	this.namedLabels = map[string]*Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_LabelCases{}
-	this.breakCases = newTList_(tc_p_Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_Case)
-	this.continueCases = newTList_(tc_p_Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_Case)
-	this.catchCases = newTList_(tc_p_Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_CatchCase)
-	this.finallyCases = newTList_(tc_p_Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_Case)
+	this.breakCases = []*Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_Case{}
+	this.continueCases = []*Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_Case{}
+	this.catchCases = []*Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_CatchCase{}
+	this.finallyCases = []*Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_Case{}
 	this.catchNames = map[string]struct{}{}
 	this.allCases = newTList_(tc_p_Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_Case)
 	this.switchBreaks = []Node{}
@@ -821,17 +821,17 @@ func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_Transpilation
 			for currentCase.jumpToField.jumpToField != nil {
 				currentCase.jumpToField = currentCase.jumpToField.jumpToField
 			}
-			if (currentCase.embedInto != 0) && (currentCase.references.size() == 1) {
+			if (currentCase.embedInto != 0) && (int32(len(currentCase.references)) == 1) {
 				currentCase.jumpToField.embedInto = currentCase.embedInto
 			}
 			currentCase.embedInto = 0
-			it_4 := currentCase.references.each()
+			it_4 := eachOf_(&currentCase.references)
 			for it_4.next() {
 				var reference Node = it_4.v
 				reference.setDouble(float64(currentCase.jumpToField.id))
 			}
-			currentCase.jumpToField.references.asList().addAll(icast_Collection(any(currentCase.references.asList())))
-			currentCase.references.clear()
+			sliceAddAll_(tc_Node, &currentCase.jumpToField.references, icast_Collection(any(sliceView_(tc_Node, currentCase.references))))
+			sliceClear_(&currentCase.references)
 		}
 	}
 	var it IteratorOf[*Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_Case] = this.allCases.asList().iterator()
@@ -839,7 +839,7 @@ func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_Transpilation
 	Preconditions_checkState((prevCase.id == 1))
 	for it.hasNext() {
 		var currentCase *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_Case = cast_[*Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_Case](it.next())
-		if currentCase.references.isEmpty() {
+		if len(currentCase.references) == 0 {
 			Preconditions_checkState((currentCase.embedInto == 0))
 			if prevCase.mayFallThrough {
 				prevCase.caseBlock.addChildrenToBack(currentCase.caseBlock.removeChildren())
@@ -850,7 +850,7 @@ func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_Transpilation
 		}
 		if currentCase.embedInto != 0 {
 			Preconditions_checkState((currentCase.jumpToField == nil))
-			if (currentCase.references.size() == 1) && !currentCase.mayFallThrough {
+			if (int32(len(currentCase.references)) == 1) && !currentCase.mayFallThrough {
 				currentCase.embedInto.replaceWith(currentCase.caseBlock)
 				Iterator_remove(it)
 				continue
@@ -862,13 +862,13 @@ func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_Transpilation
 			Preconditions_checkState((currentCase.jumpToField == nil))
 			prevCase.caseBlock.addChildrenToBack(currentCase.caseBlock.removeChildren())
 			prevCase.mayFallThrough = currentCase.mayFallThrough
-			it_7 := currentCase.references.each()
+			it_7 := eachOf_(&currentCase.references)
 			for it_7.next() {
 				var reference Node = it_7.v
 				reference.setDouble(float64(prevCase.id))
 			}
 			prevCase.jumpToField = currentCase.jumpToField
-			prevCase.references.asList().addAll(icast_Collection(any(currentCase.references.asList())))
+			sliceAddAll_(tc_Node, &prevCase.references, icast_Collection(any(sliceView_(tc_Node, currentCase.references))))
 			Iterator_remove(it)
 			continue
 		}
@@ -915,10 +915,10 @@ func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_Transpilation
 
 func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext) checkStateIsEmpty() {
 	Preconditions_checkState((len(this.namedLabels) == 0))
-	Preconditions_checkState(this.breakCases.isEmpty())
-	Preconditions_checkState(this.continueCases.isEmpty())
-	Preconditions_checkState(this.catchCases.isEmpty())
-	Preconditions_checkState(this.finallyCases.isEmpty())
+	Preconditions_checkState(len(this.breakCases) == 0)
+	Preconditions_checkState(len(this.continueCases) == 0)
+	Preconditions_checkState(len(this.catchCases) == 0)
+	Preconditions_checkState(len(this.finallyCases) == 0)
 	Preconditions_checkState((this.nestedFinallyBlockCount == 0))
 	Preconditions_checkState(this.allCases.isEmpty())
 }
@@ -1005,10 +1005,10 @@ func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_Transpilation
 	var jumpMethod string
 	if this.nestedFinallyBlockCount > 0 {
 		jumpMethod = "jumpThroughFinallyBlocks"
-	} else if this.finallyCases.isEmpty() || (this.finallyCases.getTop_().id < section.id) {
+	} else if len(this.finallyCases) == 0 || (sliceTop_(tc_p_Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_Case, this.finallyCases).id < section.id) {
 		jumpMethod = "jumpTo"
 	} else {
-		Preconditions_checkState((this.finallyCases.getTop_().id != section.id))
+		Preconditions_checkState((sliceTop_(tc_p_Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_Case, this.finallyCases).id != section.id))
 		jumpMethod = "jumpThroughFinallyBlocks"
 	}
 	if breakSuppressors == 0 {
@@ -1050,18 +1050,18 @@ func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_Transpilation
 
 func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext) addCatchFinallyCases(catchCase *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_Case, finallyCase *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_Case) {
 	if finallyCase != nil {
-		if !this.catchCases.isEmpty() {
-			this.catchCases.getTop_().finallyBlocks++
+		if len(this.catchCases) != 0 {
+			sliceTop_(tc_p_Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_CatchCase, this.catchCases).finallyBlocks++
 		}
-		this.finallyCases.push_(finallyCase)
+		this.finallyCases = append(this.finallyCases, finallyCase)
 	}
 	if catchCase != nil {
-		this.catchCases.push_(new_Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_CatchCase(catchCase))
+		this.catchCases = append(this.catchCases, new_Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_CatchCase(catchCase))
 	}
 }
 
 func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext) getNextCatchCase() *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_Case {
-	it_1 := this.catchCases.eachRev()
+	it_1 := eachRevOf_(&this.catchCases)
 	for it_1.next() {
 		var catchCase *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_CatchCase = it_1.v
 		if catchCase.finallyBlocks == 0 {
@@ -1074,27 +1074,27 @@ func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_Transpilation
 
 func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext) getNextFinallyCase() *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_Case {
 	return func() *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_Case {
-		if this.finallyCases.isEmpty() {
+		if len(this.finallyCases) == 0 {
 			return nil
 		}
-		return this.finallyCases.getTop_()
+		return sliceTop_(tc_p_Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_Case, this.finallyCases)
 	}()
 }
 
 func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext) removeCatchFinallyCases(catchCase *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_Case, finallyCase *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_Case) {
 	if catchCase != nil {
-		var lastCatch *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_CatchCase = this.catchCases.pop_()
+		var lastCatch *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_CatchCase = slicePop_(tc_p_Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_CatchCase, &this.catchCases)
 		Preconditions_checkState((lastCatch.finallyBlocks == 0))
 		Preconditions_checkState((lastCatch.catchCase == catchCase))
 	}
 	if finallyCase != nil {
-		if !this.catchCases.isEmpty() {
-			var firstCatch *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_CatchCase = this.catchCases.getTop_()
+		if len(this.catchCases) != 0 {
+			var firstCatch *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_CatchCase = sliceTop_(tc_p_Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_CatchCase, this.catchCases)
 			firstCatch.finallyBlocks--
 			var finallyBlocks int32 = firstCatch.finallyBlocks
 			Preconditions_checkState((finallyBlocks >= 0))
 		}
-		var lastFinally *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_Case = this.finallyCases.pop_()
+		var lastFinally *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_Case = slicePop_(tc_p_Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_Case, &this.finallyCases)
 		Preconditions_checkState((lastFinally == finallyCase))
 	}
 }
@@ -1221,35 +1221,35 @@ func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_Transpilation
 }
 
 func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext) pushBreakContext(breakCase *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_Case) {
-	this.breakCases.push_(breakCase)
+	this.breakCases = append(this.breakCases, breakCase)
 }
 
 func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext) pushBreakContinueContext(breakCase *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_Case, continueCase *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_Case) {
 	this.pushBreakContext(breakCase)
-	this.continueCases.push_(continueCase)
+	this.continueCases = append(this.continueCases, continueCase)
 }
 
 func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext) popBreakContext() {
-	this.breakCases.pop_()
+	slicePop_(tc_p_Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_Case, &this.breakCases)
 }
 
 func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext) popBreakContinueContext() {
 	this.popBreakContext()
-	this.continueCases.pop_()
+	slicePop_(tc_p_Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_Case, &this.continueCases)
 }
 
 type Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_Case struct {
 	outer_         *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext
 	id             int32
 	caseBlock      Node
-	references     *TList[Node]
+	references     []Node
 	jumpToField    *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_Case
 	embedInto      Node
 	mayFallThrough bool
 }
 
 func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_Case) finit_Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_Case() {
-	this.references = newTList_(tc_Node)
+	this.references = []Node{}
 	this.mayFallThrough = true
 }
 
@@ -1276,7 +1276,7 @@ func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_Transpilation
 		return this.jumpToField.getNumber(sourceNode)
 	}
 	var node Node = this.outer_.outer_.outer_.astFactory_.createNumber(float64(this.id)).srcref(sourceNode)
-	this.references.add(node)
+	this.references = append(this.references, node)
 	return node
 }
 
@@ -1386,10 +1386,10 @@ func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_Transpilation
 func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_UnmarkedNodeTranspiler) visitBreakContinue(n Node) {
 	var caseSection *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_Case = nil
 	if n.isBreak() && (this.breakSuppressors == 0) {
-		caseSection = this.outer_.breakCases.getTop_()
+		caseSection = sliceTop_(tc_p_Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_Case, this.outer_.breakCases)
 	}
 	if n.isContinue() && (this.continueSuppressors == 0) {
-		caseSection = this.outer_.continueCases.getTop_()
+		caseSection = sliceTop_(tc_p_Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_Case, this.outer_.continueCases)
 	}
 	if caseSection != nil {
 		this.outer_.outer_.context.replaceBreakContinueWithJump(n, caseSection, this.breakSuppressors)

@@ -546,9 +546,7 @@ func (this *UnionType_Builder) addAlternate(alternate *JSType) *UnionType_Builde
 	}
 	if !alternate.isResolved() {
 		this.alternatesResolvedBeforeBuild = false
-		it_1 := eachOf_(&this.alternates)
-		for it_1.next() {
-			var current *JSType = it_1.v
+		for _, current := range this.alternates {
 			if JSCompObjects_identical(current.self(), alternate.self()) {
 				return this
 			}

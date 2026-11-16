@@ -942,21 +942,21 @@ func (this *FunctionType) checkExtendsLoop_2(cache *TSet[*FunctionType], path *T
 	return nil
 }
 
-func (this *FunctionType) acceptsArguments(argumentTypes *TList[*JSType]) bool {
-	var arguments IteratorOf[*JSType] = argumentTypes.asList().iterator()
+func (this *FunctionType) acceptsArguments(argumentTypes []*JSType) bool {
+	var arguments int
 	var parameters IteratorOf[*FunctionType_Parameter] = this.getParameters().iterator()
 	var parameter *FunctionType_Parameter = nil
 	var argument *JSType = nil
-	for arguments.hasNext() && (parameters.hasNext() || ((parameter != nil) && parameter.isVariadic())) {
+	for (arguments < len(argumentTypes)) && (parameters.hasNext() || ((parameter != nil) && parameter.isVariadic())) {
 		if parameters.hasNext() {
 			parameter = cast_[*FunctionType_Parameter](parameters.next())
 		}
-		argument = to_JSType(arguments.next())
+		argument = sliceNext_(argumentTypes, &arguments)
 		if !argument.isSubtypeOf(parameter.getJSType()) {
 			return false
 		}
 	}
-	var numArgs int32 = argumentTypes.size()
+	var numArgs int32 = int32(len(argumentTypes))
 	return ((this.getMinArity() <= numArgs) && (numArgs <= this.getMaxArity()))
 }
 

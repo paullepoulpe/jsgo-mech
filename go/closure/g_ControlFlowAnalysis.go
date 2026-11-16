@@ -12,7 +12,7 @@ type ControlFlowAnalysis struct {
 	shouldTraverseFunctions bool
 	edgeAnnotations         bool
 	root                    Node
-	exceptionHandler        *TList[Node]
+	exceptionHandler        []Node
 	finallyMap              *SimpleSetMultimap
 }
 
@@ -22,7 +22,7 @@ func (this *ControlFlowAnalysis) finit_ControlFlowAnalysis() {
 		_ = digraphNode
 		return unbox_[int32](Preconditions_checkNotNull_Object_Object(this.astPosition.get(digraphNode.getValue()), digraphNode.getValue()))
 	}})
-	this.exceptionHandler = newTList_(tc_Node)
+	this.exceptionHandler = []Node{}
 	this.finallyMap = SimpleSetMultimap_createInsertionOrdered()
 }
 
@@ -115,12 +115,12 @@ func (this *ControlFlowAnalysis) shouldTraverseIntoChildren(n Node, parent Node)
 	switch n.ns_().token {
 	case tokOrd1_FUNCTION:
 		if this.shouldTraverseFunctions || (n == Node_of_(this.cfg.getEntry().getValue())) {
-			this.exceptionHandler.push_(n)
+			this.exceptionHandler = append(this.exceptionHandler, n)
 			return true
 		}
 		return false
 	case tokOrd1_TRY:
-		this.exceptionHandler.push_(n)
+		this.exceptionHandler = append(this.exceptionHandler, n)
 		return true
 	default:
 	}
@@ -145,8 +145,8 @@ func (this *ControlFlowAnalysis) shouldTraverseIntoChildren(n Node, parent Node)
 			return false
 		case tokOrd1_TRY:
 			if (!NodeUtil_hasFinally(parent) && (n == NodeUtil_getCatchBlock(parent))) || NodeUtil_isTryFinallyNode(parent, n) {
-				Preconditions_checkState((this.exceptionHandler.peekTop_() == parent))
-				this.exceptionHandler.pop_()
+				Preconditions_checkState((slicePeekTop_(tc_Node, this.exceptionHandler) == parent))
+				slicePop_(tc_Node, &this.exceptionHandler)
 			}
 		default:
 		}
@@ -338,8 +338,8 @@ func (this *ControlFlowAnalysis) handleFunction(node Node) {
 	Preconditions_checkState(node.isFunction())
 	Preconditions_checkState(node.hasXChildren(3))
 	this.createEdge(node, ControlFlowGraph_Branch_UNCOND, ControlFlowAnalysis_computeFallThrough(node.getLastChild()))
-	Preconditions_checkState((this.exceptionHandler.peekTop_() == node))
-	this.exceptionHandler.pop_()
+	Preconditions_checkState((slicePeekTop_(tc_Node, this.exceptionHandler) == node))
+	slicePop_(tc_Node, &this.exceptionHandler)
 }
 
 func (this *ControlFlowAnalysis) handleExpr(node Node) {
@@ -442,7 +442,7 @@ func (this *ControlFlowAnalysis) handleContinue(node Node) {
 
 func (this *ControlFlowAnalysis) handleReturn(node Node) {
 	var lastJump Node = 0
-	it_1 := this.exceptionHandler.eachRev()
+	it_1 := eachRevOf_(&this.exceptionHandler)
 	for it_1.next() {
 		var curHandler Node = it_1.v
 		if curHandler.isFunction() {
@@ -579,11 +579,11 @@ func (this *ControlFlowAnalysis) connectToPossibleExceptionHandler(cfgNode Node,
 }
 
 func (this *ControlFlowAnalysis) connectToPossibleExceptionHandlerUnconditionally(cfgNode Node) {
-	if this.exceptionHandler.isEmpty() {
+	if len(this.exceptionHandler) == 0 {
 		return
 	}
 	var lastJump Node = cfgNode
-	it_1 := this.exceptionHandler.eachRev()
+	it_1 := eachRevOf_(&this.exceptionHandler)
 	for it_1.next() {
 		var handler Node = it_1.v
 		if handler.isFunction() {

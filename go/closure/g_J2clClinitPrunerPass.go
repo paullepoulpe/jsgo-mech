@@ -156,12 +156,12 @@ func J2clClinitPrunerPass_getQualifiedNameOfFunction(function Node) OptionalOf[s
 type J2clClinitPrunerPass_RedundantClinitPruner struct {
 	outer_                *J2clClinitPrunerPass
 	roots                 ImmutableSetOf[Node]
-	stateStack            *TList[*J2clClinitPrunerPass_HierarchicalSet]
+	stateStack            []*J2clClinitPrunerPass_HierarchicalSet
 	clinitsCalledAtBranch *J2clClinitPrunerPass_HierarchicalSet
 }
 
 func (this *J2clClinitPrunerPass_RedundantClinitPruner) finit_J2clClinitPrunerPass_RedundantClinitPruner() {
-	this.stateStack = newTList_(tc_p_J2clClinitPrunerPass_HierarchicalSet)
+	this.stateStack = []*J2clClinitPrunerPass_HierarchicalSet{}
 	this.clinitsCalledAtBranch = new_J2clClinitPrunerPass_HierarchicalSet(nil)
 }
 
@@ -185,10 +185,10 @@ func new_J2clClinitPrunerPass_RedundantClinitPruner(outer_ *J2clClinitPrunerPass
 func (this *J2clClinitPrunerPass_RedundantClinitPruner) shouldTraverse(t *NodeTraversal, node Node, parent Node) bool {
 	if this.roots.contains(node.box_()) {
 		this.clinitsCalledAtBranch = new_J2clClinitPrunerPass_HierarchicalSet(nil)
-		this.stateStack.clear()
+		sliceClear_(&this.stateStack)
 	}
 	if NodeUtil_isFunctionDeclaration(node) || node.isScript() {
-		this.stateStack.push_(this.clinitsCalledAtBranch)
+		this.stateStack = append(this.stateStack, this.clinitsCalledAtBranch)
 		this.clinitsCalledAtBranch = new_J2clClinitPrunerPass_HierarchicalSet(nil)
 	}
 	if this.isNewControlBranch(parent) {
@@ -206,7 +206,7 @@ func (this *J2clClinitPrunerPass_RedundantClinitPruner) visit(t *NodeTraversal, 
 		this.clinitsCalledAtBranch = this.clinitsCalledAtBranch.parent
 	}
 	if NodeUtil_isFunctionDeclaration(node) || node.isScript() {
-		this.clinitsCalledAtBranch = this.stateStack.pop_()
+		this.clinitsCalledAtBranch = slicePop_(tc_p_J2clClinitPrunerPass_HierarchicalSet, &this.stateStack)
 	}
 }
 

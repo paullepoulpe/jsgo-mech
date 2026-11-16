@@ -157,9 +157,9 @@ type CompilerOptions struct {
 	preferSingleQuotes                           bool
 	trustedStrings                               bool
 	printSourceAfterEachPass                     bool
-	filesToPrintAfterEachPassRegexList           *TList[string]
-	chunksToPrintAfterEachPassRegexList          *TList[string]
-	qnameUsesToPrintAfterEachPassList            *TList[string]
+	filesToPrintAfterEachPassRegexList           []string
+	chunksToPrintAfterEachPassRegexList          []string
+	qnameUsesToPrintAfterEachPassList            []string
 	tracer                                       *CompilerOptions_TracerMode
 	tracerOutput                                 OptionalOf[string]
 	colorizeErrorOutput                          bool
@@ -261,9 +261,9 @@ func (this *CompilerOptions) finit_CompilerOptions() {
 	this.debugLogFilter = Optional_empty[string]()
 	this.stateCompressionWrapper = nil
 	this.stateDecompressionWrapper = nil
-	this.filesToPrintAfterEachPassRegexList = tlistImm_(tc_string, ImmutableList_of())
-	this.chunksToPrintAfterEachPassRegexList = tlistImm_(tc_string, ImmutableList_of())
-	this.qnameUsesToPrintAfterEachPassList = tlistImm_(tc_string, ImmutableList_of())
+	this.filesToPrintAfterEachPassRegexList = sliceImm_(tc_string, ImmutableList_of())
+	this.chunksToPrintAfterEachPassRegexList = sliceImm_(tc_string, ImmutableList_of())
+	this.qnameUsesToPrintAfterEachPassList = sliceImm_(tc_string, ImmutableList_of())
 	this.tracerOutput = Optional_empty[string]()
 	this.warningsGuard = ComposeWarningsGuard_createFromGuards([]*WarningsGuard{})
 	this.summaryDetailLevel = 1
@@ -630,27 +630,27 @@ func (this *CompilerOptions) shouldPrintSourceAfterEachPass() bool {
 	return this.printSourceAfterEachPass
 }
 
-func (this *CompilerOptions) setFilesToPrintAfterEachPassRegexList(filePathRegexList *TList[string]) {
+func (this *CompilerOptions) setFilesToPrintAfterEachPassRegexList(filePathRegexList []string) {
 	this.filesToPrintAfterEachPassRegexList = filePathRegexList
 }
 
-func (this *CompilerOptions) setChunksToPrintAfterEachPassRegexList(chunkPathRegexList *TList[string]) {
+func (this *CompilerOptions) setChunksToPrintAfterEachPassRegexList(chunkPathRegexList []string) {
 	this.chunksToPrintAfterEachPassRegexList = chunkPathRegexList
 }
 
-func (this *CompilerOptions) setQnameUsesToPrintAfterEachPassList(qnameRegexList *TList[string]) {
+func (this *CompilerOptions) setQnameUsesToPrintAfterEachPassList(qnameRegexList []string) {
 	this.qnameUsesToPrintAfterEachPassList = qnameRegexList
 }
 
-func (this *CompilerOptions) getFilesToPrintAfterEachPassRegexList() *TList[string] {
+func (this *CompilerOptions) getFilesToPrintAfterEachPassRegexList() []string {
 	return this.filesToPrintAfterEachPassRegexList
 }
 
-func (this *CompilerOptions) getChunksToPrintAfterEachPassRegexList() *TList[string] {
+func (this *CompilerOptions) getChunksToPrintAfterEachPassRegexList() []string {
 	return this.chunksToPrintAfterEachPassRegexList
 }
 
-func (this *CompilerOptions) getQnameUsesToPrintAfterEachPassList() *TList[string] {
+func (this *CompilerOptions) getQnameUsesToPrintAfterEachPassList() []string {
 	return this.qnameUsesToPrintAfterEachPassList
 }
 
@@ -2367,7 +2367,7 @@ func (this *CompilerOptions) getStrictMessageReplacement() bool {
 }
 
 func (this *CompilerOptions) toString() string {
-	return Object_toString(obj_(MoreObjects_toStringHelper(any(this)).omitNullValues().add("aliasStringsMode", obj_(this.getAliasStringsMode())).add_String_boolean("ambiguateProperties", this.ambiguateProperties).add_String_boolean("angularPass", this.angularPass).add_String_boolean("assumeGettersArePure", this.assumeGettersArePure_).add_String_boolean("assumePropertiesAreStaticallyAnalyzable", this.assumePropertiesAreStaticallyAnalyzable).add_String_boolean("assumeStrictThis", this.assumeStrictThis()).add("browserResolverPrefixReplacements", obj_(this.browserResolverPrefixReplacements)).add_String_boolean("checkDeterminism", this.getCheckDeterminism()).add_String_boolean("checkSuspiciousCode", this.checkSuspiciousCode).add_String_boolean("checkSymbols", this.checkSymbols).add_String_boolean("checkTypes", this.checkTypes).add_String_boolean("checksOnly", this.checksOnly).add("chunksToPrintAfterEachPassRegexList", any(this.chunksToPrintAfterEachPassRegexList.asList())).add_String_boolean("closurePass", this.closurePass).add_String_boolean("coalesceVariableNames", this.coalesceVariableNames).add("codingConvention", any(this.getCodingConvention())).add_String_boolean("collapseAnonymousFunctions", this.collapseAnonymousFunctions).add_String_boolean("collapseObjectLiterals", this.collapseObjectLiterals).add("collapseProperties", obj_(this.collapsePropertiesLevel)).add_String_boolean("collapseVariableDeclarations", this.collapseVariableDeclarations).add_String_boolean("colorizeErrorOutput", this.shouldColorizeErrorOutput()).add_String_boolean("computeFunctionSideEffects", this.computeFunctionSideEffects).add("conformanceConfigs", obj_(this.getConformanceConfigs())).add("conformanceRemoveRegexFromPath", obj_(this.conformanceRemoveRegexFromPath)).add("conformanceReportingMode", obj_(this.conformanceReportingMode)).add_String_boolean("continueAfterErrors", this.canContinueAfterErrors()).add_String_boolean("convertToDottedProperties", this.convertToDottedProperties).add_String_boolean("crossChunkCodeMotion", this.crossChunkCodeMotion).add_String_boolean("crossChunkCodeMotionNoStubMethods", this.crossChunkCodeMotionNoStubMethods).add_String_boolean("crossChunkMethodMotion", this.crossChunkMethodMotion).add("cssRenamingMap", any(this.cssRenamingMap)).add("cssRenamingSkiplist", obj_(this.cssRenamingSkiplist)).add("customPasses", obj_(this.customPasses)).add_String_boolean("deadAssignmentElimination", this.deadAssignmentElimination).add("debugLogDirectory", func() any {
+	return Object_toString(obj_(MoreObjects_toStringHelper(any(this)).omitNullValues().add("aliasStringsMode", obj_(this.getAliasStringsMode())).add_String_boolean("ambiguateProperties", this.ambiguateProperties).add_String_boolean("angularPass", this.angularPass).add_String_boolean("assumeGettersArePure", this.assumeGettersArePure_).add_String_boolean("assumePropertiesAreStaticallyAnalyzable", this.assumePropertiesAreStaticallyAnalyzable).add_String_boolean("assumeStrictThis", this.assumeStrictThis()).add("browserResolverPrefixReplacements", obj_(this.browserResolverPrefixReplacements)).add_String_boolean("checkDeterminism", this.getCheckDeterminism()).add_String_boolean("checkSuspiciousCode", this.checkSuspiciousCode).add_String_boolean("checkSymbols", this.checkSymbols).add_String_boolean("checkTypes", this.checkTypes).add_String_boolean("checksOnly", this.checksOnly).add("chunksToPrintAfterEachPassRegexList", any(sliceView_(tc_string, this.chunksToPrintAfterEachPassRegexList))).add_String_boolean("closurePass", this.closurePass).add_String_boolean("coalesceVariableNames", this.coalesceVariableNames).add("codingConvention", any(this.getCodingConvention())).add_String_boolean("collapseAnonymousFunctions", this.collapseAnonymousFunctions).add_String_boolean("collapseObjectLiterals", this.collapseObjectLiterals).add("collapseProperties", obj_(this.collapsePropertiesLevel)).add_String_boolean("collapseVariableDeclarations", this.collapseVariableDeclarations).add_String_boolean("colorizeErrorOutput", this.shouldColorizeErrorOutput()).add_String_boolean("computeFunctionSideEffects", this.computeFunctionSideEffects).add("conformanceConfigs", obj_(this.getConformanceConfigs())).add("conformanceRemoveRegexFromPath", obj_(this.conformanceRemoveRegexFromPath)).add("conformanceReportingMode", obj_(this.conformanceReportingMode)).add_String_boolean("continueAfterErrors", this.canContinueAfterErrors()).add_String_boolean("convertToDottedProperties", this.convertToDottedProperties).add_String_boolean("crossChunkCodeMotion", this.crossChunkCodeMotion).add_String_boolean("crossChunkCodeMotionNoStubMethods", this.crossChunkCodeMotionNoStubMethods).add_String_boolean("crossChunkMethodMotion", this.crossChunkMethodMotion).add("cssRenamingMap", any(this.cssRenamingMap)).add("cssRenamingSkiplist", obj_(this.cssRenamingSkiplist)).add("customPasses", obj_(this.customPasses)).add_String_boolean("deadAssignmentElimination", this.deadAssignmentElimination).add("debugLogDirectory", func() any {
 		if this.debugLogDirectory.isPresent() {
 			return strobj_(this.debugLogDirectory.get())
 		}
@@ -2377,7 +2377,7 @@ func (this *CompilerOptions) toString() string {
 			return strobj_(this.externExportsPath.get())
 		}
 		return nil
-	}()).add("extraAnnotationNames", obj_(this.extraAnnotationNames)).add("extractPrototypeMemberDeclarations", obj_(this.extractPrototypeMemberDeclarations)).add("filesToPrintAfterEachPassRegexList", any(this.filesToPrintAfterEachPassRegexList.asList())).add_String_boolean("flowSensitiveInlineVariables", this.flowSensitiveInlineVariables).add_String_boolean("foldConstants", this.foldConstants).add("forceLibraryInjection", obj_(this.forceLibraryInjection)).add_String_boolean("gatherCssNames", this.gatherCssNames).add_String_boolean("generateExports", this.generateExports).add_String_boolean("generatePseudoNames", this.generatePseudoNames).add_String_boolean("generateTypedExterns", this.shouldGenerateTypedExterns()).add("idGenerators", obj_(this.idGenerators)).add("idGeneratorsMapSerialized", strobj_(this.idGeneratorsMapSerialized)).add("incrementalCheckMode", obj_(this.incrementalCheckMode)).add_String_boolean("inferConsts", this.inferConsts).add_String_boolean("inferTypes", this.inferTypes).add_String_boolean("inlineConstantVars", this.inlineConstantVars).add("inlineFunctionsLevel", obj_(this.inlineFunctionsLevel)).add_String_boolean("inlineGetters", this.inlineGetters).add_String_boolean("inlineLocalVariables", this.inlineLocalVariables).add_String_boolean("inlineProperties", this.inlineProperties).add_String_boolean("inlineVariables", this.inlineVariables).add("inputDelimiter", strobj_(this.inputDelimiter)).add("inputPropertyMap", obj_(this.inputPropertyMap)).add("inputSourceMaps", obj_(this.inputSourceMaps)).add("inputVariableMap", obj_(this.inputVariableMap)).add_String_boolean("instrumentForCoverageOnly", this.instrumentForCoverageOnly).add("instrumentForCoverageOption", strobj_(Object_toString(obj_(this.instrumentForCoverageOption)))).add_String_boolean("isolatePolyfills", this.isolatePolyfills).add_String_boolean("j2clMinifierEnabled", this.j2clMinifierEnabled).add("j2clMinifierPruningManifest", func() any {
+	}()).add("extraAnnotationNames", obj_(this.extraAnnotationNames)).add("extractPrototypeMemberDeclarations", obj_(this.extractPrototypeMemberDeclarations)).add("filesToPrintAfterEachPassRegexList", any(sliceView_(tc_string, this.filesToPrintAfterEachPassRegexList))).add_String_boolean("flowSensitiveInlineVariables", this.flowSensitiveInlineVariables).add_String_boolean("foldConstants", this.foldConstants).add("forceLibraryInjection", obj_(this.forceLibraryInjection)).add_String_boolean("gatherCssNames", this.gatherCssNames).add_String_boolean("generateExports", this.generateExports).add_String_boolean("generatePseudoNames", this.generatePseudoNames).add_String_boolean("generateTypedExterns", this.shouldGenerateTypedExterns()).add("idGenerators", obj_(this.idGenerators)).add("idGeneratorsMapSerialized", strobj_(this.idGeneratorsMapSerialized)).add("incrementalCheckMode", obj_(this.incrementalCheckMode)).add_String_boolean("inferConsts", this.inferConsts).add_String_boolean("inferTypes", this.inferTypes).add_String_boolean("inlineConstantVars", this.inlineConstantVars).add("inlineFunctionsLevel", obj_(this.inlineFunctionsLevel)).add_String_boolean("inlineGetters", this.inlineGetters).add_String_boolean("inlineLocalVariables", this.inlineLocalVariables).add_String_boolean("inlineProperties", this.inlineProperties).add_String_boolean("inlineVariables", this.inlineVariables).add("inputDelimiter", strobj_(this.inputDelimiter)).add("inputPropertyMap", obj_(this.inputPropertyMap)).add("inputSourceMaps", obj_(this.inputSourceMaps)).add("inputVariableMap", obj_(this.inputVariableMap)).add_String_boolean("instrumentForCoverageOnly", this.instrumentForCoverageOnly).add("instrumentForCoverageOption", strobj_(Object_toString(obj_(this.instrumentForCoverageOption)))).add_String_boolean("isolatePolyfills", this.isolatePolyfills).add_String_boolean("j2clMinifierEnabled", this.j2clMinifierEnabled).add("j2clMinifierPruningManifest", func() any {
 		if this.j2clMinifierPruningManifest.isPresent() {
 			return strobj_(this.j2clMinifierPruningManifest.get())
 		}
@@ -2397,7 +2397,7 @@ func (this *CompilerOptions) toString() string {
 			return strobj_(this.outputCharset.get())
 		}
 		return nil
-	}()).add("outputFeatureSet", obj_(this.outputFeatureSet)).add("outputJs", obj_(this.outputJs)).add_String_boolean("outputJsStringUsage", this.outputJsStringUsage).add_String_boolean("parentChunkCanSeeSymbolsDeclaredInChildren", this.parentChunkCanSeeSymbolsDeclaredInChildren).add("parseJsDocDocumentation", obj_(this.isParseJsDocDocumentation())).add("pathEscaper", this.pathEscaper.self()).add_String_boolean("polymerPass", this.polymerPass).add_String_boolean("preferSingleQuotes", this.preferSingleQuotes).add_String_boolean("preferStableNames", this.preferStableNames).add_String_boolean("preserveDetailedSourceInfo", this.preservesDetailedSourceInfo()).add_String_boolean("preserveGoogProvidesAndRequires", this.preserveClosurePrimitives).add_String_boolean("preserveNonJSDocComments", this.getPreserveNonJSDocComments()).add_String_boolean("preserveTypeAnnotations", this.preserveTypeAnnotations).add_String_boolean("prettyPrint", this.prettyPrint).add_String_boolean("printConfig", this.printConfig_).add_String_boolean("printInputDelimiter", this.printInputDelimiter).add_String_boolean("printSourceAfterEachPass", this.printSourceAfterEachPass).add_String_boolean("processCommonJSModules", this.processCommonJSModules).add("productionInstrumentationArrayName", strobj_(this.productionInstrumentationArrayName)).add("propertiesThatMustDisambiguate", obj_(this.propertiesThatMustDisambiguate)).add("propertyRenaming", obj_(this.propertyRenaming)).add_String_boolean("propertyRenamingOnlyCompilationMode", this.propertyRenamingOnlyCompilationMode).add_String_boolean("protectHiddenSideEffects", this.protectHiddenSideEffects).add("qnameUsesToPrintAfterEachPassRegexList", any(this.qnameUsesToPrintAfterEachPassList.asList())).add_String_boolean("quoteKeywordProperties", this.quoteKeywordProperties).add_String_boolean("removeAbstractMethods", this.removeAbstractMethods).add_String_boolean("removeClosureAsserts", this.removeClosureAsserts).add_String_boolean("removeJ2clAsserts", this.removeJ2clAsserts).add_String_boolean("removeUnusedClassProperties", this.removeUnusedClassProperties).add_String_boolean("removeUnusedLocalVars", this.removeUnusedLocalVars).add_String_boolean("removeUnusedPrototypeProperties", this.removeUnusedPrototypeProperties_).add_String_boolean("removeUnusedVars", this.removeUnusedVars).add("renamePrefix", func() any {
+	}()).add("outputFeatureSet", obj_(this.outputFeatureSet)).add("outputJs", obj_(this.outputJs)).add_String_boolean("outputJsStringUsage", this.outputJsStringUsage).add_String_boolean("parentChunkCanSeeSymbolsDeclaredInChildren", this.parentChunkCanSeeSymbolsDeclaredInChildren).add("parseJsDocDocumentation", obj_(this.isParseJsDocDocumentation())).add("pathEscaper", this.pathEscaper.self()).add_String_boolean("polymerPass", this.polymerPass).add_String_boolean("preferSingleQuotes", this.preferSingleQuotes).add_String_boolean("preferStableNames", this.preferStableNames).add_String_boolean("preserveDetailedSourceInfo", this.preservesDetailedSourceInfo()).add_String_boolean("preserveGoogProvidesAndRequires", this.preserveClosurePrimitives).add_String_boolean("preserveNonJSDocComments", this.getPreserveNonJSDocComments()).add_String_boolean("preserveTypeAnnotations", this.preserveTypeAnnotations).add_String_boolean("prettyPrint", this.prettyPrint).add_String_boolean("printConfig", this.printConfig_).add_String_boolean("printInputDelimiter", this.printInputDelimiter).add_String_boolean("printSourceAfterEachPass", this.printSourceAfterEachPass).add_String_boolean("processCommonJSModules", this.processCommonJSModules).add("productionInstrumentationArrayName", strobj_(this.productionInstrumentationArrayName)).add("propertiesThatMustDisambiguate", obj_(this.propertiesThatMustDisambiguate)).add("propertyRenaming", obj_(this.propertyRenaming)).add_String_boolean("propertyRenamingOnlyCompilationMode", this.propertyRenamingOnlyCompilationMode).add_String_boolean("protectHiddenSideEffects", this.protectHiddenSideEffects).add("qnameUsesToPrintAfterEachPassRegexList", any(sliceView_(tc_string, this.qnameUsesToPrintAfterEachPassList))).add_String_boolean("quoteKeywordProperties", this.quoteKeywordProperties).add_String_boolean("removeAbstractMethods", this.removeAbstractMethods).add_String_boolean("removeClosureAsserts", this.removeClosureAsserts).add_String_boolean("removeJ2clAsserts", this.removeJ2clAsserts).add_String_boolean("removeUnusedClassProperties", this.removeUnusedClassProperties).add_String_boolean("removeUnusedLocalVars", this.removeUnusedLocalVars).add_String_boolean("removeUnusedPrototypeProperties", this.removeUnusedPrototypeProperties_).add_String_boolean("removeUnusedVars", this.removeUnusedVars).add("renamePrefix", func() any {
 		if this.renamePrefix.isPresent() {
 			return strobj_(this.renamePrefix.get())
 		}
@@ -3352,22 +3352,22 @@ func (this *CompilerOptions_LanguageMode) isDefaultStrict() bool {
 	}()
 }
 
-func CompilerOptions_LanguageMode_validCommandLineNames() *TList[string] {
-	var names *TList[string] = newTList_(tc_string)
+func CompilerOptions_LanguageMode_validCommandLineNames() []string {
+	var names []string = []string{}
 	it_1 := foreach_(obj_(EnumSet_allOf(classOf_("com.google.javascript.jscomp.CompilerOptions.LanguageMode"))))
 	for it_1.next() {
 		var mode *CompilerOptions_LanguageMode = cast_[*CompilerOptions_LanguageMode](it_1.v)
 		if mode != CompilerOptions_LanguageMode_UNSUPPORTED {
-			names.add(mode.name())
+			names = append(names, mode.name())
 			if String_startsWith(mode.name(), "ECMASCRIPT") {
-				names.add(CompilerOptions_ECMASCRIPT_PATTERN.matcher(strobj_(mode.name())).replaceFirst("ES"))
+				names = append(names, CompilerOptions_ECMASCRIPT_PATTERN.matcher(strobj_(mode.name())).replaceFirst("ES"))
 			}
 		}
 	}
-	names.add("ECMASCRIPT6")
-	names.add("ES6")
-	names.add("ECMASCRIPT6_STRICT")
-	names.add("ES6_STRICT")
+	names = append(names, "ECMASCRIPT6")
+	names = append(names, "ES6")
+	names = append(names, "ECMASCRIPT6_STRICT")
+	names = append(names, "ES6_STRICT")
 	return names
 }
 

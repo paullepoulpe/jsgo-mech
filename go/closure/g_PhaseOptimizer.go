@@ -346,9 +346,7 @@ func (this *PhaseOptimizer_Loop) process_2(externs Node, root Node) {
 	this.scopeHandler = new_PhaseOptimizer_ScopedChangeHandler(this.outer_)
 	this.outer_.changeTracker.addChangeHandler(icast_CodeChangeHandler(obj_(this.scopeHandler)))
 	this.outer_.lastRuns = map[*PhaseOptimizer_NamedPass]BoxedOf[int32]{}
-	it_1 := eachOf_(&this.myPasses)
-	for it_1.next() {
-		var pass *PhaseOptimizer_NamedPass = it_1.v
+	for _, pass := range this.myPasses {
 		this.outer_.lastRuns[pass] = any(int32(PhaseOptimizer_START_TIME))
 	}
 	var madeChanges map[*PhaseOptimizer_NamedPass]struct{} = map[*PhaseOptimizer_NamedPass]struct{}{}

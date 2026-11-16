@@ -12,11 +12,11 @@ type Es6NormalizeClasses struct {
 	doStaticInheritanceRewrites bool
 	doStaticSuperRewrites       bool
 	jscompPrivateMap            RuntimeJsLibManager_JsLibField
-	classStack                  *TList[*Es6NormalizeClasses_ClassRecord]
+	classStack                  []*Es6NormalizeClasses_ClassRecord
 }
 
 func (this *Es6NormalizeClasses) finit_Es6NormalizeClasses() {
-	this.classStack = newTList_(tc_p_Es6NormalizeClasses_ClassRecord)
+	this.classStack = []*Es6NormalizeClasses_ClassRecord{}
 }
 
 func (this *Es6NormalizeClasses) init_Es6NormalizeClasses(compiler *AbstractCompiler) {
@@ -113,36 +113,36 @@ func (this *Es6NormalizeClasses) shouldTraverse(t *NodeTraversal, n Node, parent
 				}
 			}
 		}
-		this.classStack.push_(record)
+		this.classStack = append(this.classStack, record)
 	case tokOrd1_COMPUTED_FIELD_DEF:
-		Preconditions_checkState(!this.classStack.isEmpty())
-		var classRecord *Es6NormalizeClasses_ClassRecord = this.classStack.peekTop_()
+		Preconditions_checkState(len(this.classStack) != 0)
+		var classRecord *Es6NormalizeClasses_ClassRecord = slicePeekTop_(tc_p_Es6NormalizeClasses_ClassRecord, this.classStack)
 		classRecord.maybeRecordComputedPropWithSideEffects(n)
 		classRecord.recordField(n)
 	case tokOrd1_MEMBER_FIELD_DEF:
-		Preconditions_checkState(!this.classStack.isEmpty())
-		var classRecord *Es6NormalizeClasses_ClassRecord = this.classStack.peekTop_()
+		Preconditions_checkState(len(this.classStack) != 0)
+		var classRecord *Es6NormalizeClasses_ClassRecord = slicePeekTop_(tc_p_Es6NormalizeClasses_ClassRecord, this.classStack)
 		if n.isPrivateIdentifier() {
 			classRecord.recordPrivateMember(n)
 		}
 		classRecord.recordField(n)
 	case tokOrd1_MEMBER_FUNCTION_DEF, tokOrd1_GETTER_DEF, tokOrd1_SETTER_DEF:
 		if n.isPrivateIdentifier() {
-			Preconditions_checkState(!this.classStack.isEmpty())
-			this.classStack.peekTop_().recordPrivateMember(n)
+			Preconditions_checkState(len(this.classStack) != 0)
+			slicePeekTop_(tc_p_Es6NormalizeClasses_ClassRecord, this.classStack).recordPrivateMember(n)
 		}
 	case tokOrd1_BLOCK:
 		if !NodeUtil_isClassStaticBlock(n) {
 			break
 		}
-		Preconditions_checkState(!this.classStack.isEmpty())
-		this.classStack.peekTop_().recordStaticBlock(n)
+		Preconditions_checkState(len(this.classStack) != 0)
+		slicePeekTop_(tc_p_Es6NormalizeClasses_ClassRecord, this.classStack).recordStaticBlock(n)
 	case tokOrd1_COMPUTED_PROP:
 		if !n.getParent().isClassMembers() {
 			break
 		}
-		Preconditions_checkState(!this.classStack.isEmpty())
-		this.classStack.peekTop_().maybeRecordComputedPropWithSideEffects(n)
+		Preconditions_checkState(len(this.classStack) != 0)
+		slicePeekTop_(tc_p_Es6NormalizeClasses_ClassRecord, this.classStack).maybeRecordComputedPropWithSideEffects(n)
 	default:
 	}
 	return true
@@ -254,7 +254,7 @@ func (this *Es6NormalizeClasses) getStatementDeclaringClass(classNode Node, clas
 func (this *Es6NormalizeClasses) enterScope(t *NodeTraversal) {
 	var scopeRoot Node = t.getScopeRoot()
 	if NodeUtil_isFunctionBlock(scopeRoot) && NodeUtil_isEs6Constructor(scopeRoot.getParent()) {
-		this.classStack.peekTop_().recordConstructorScope(t.getScope())
+		slicePeekTop_(tc_p_Es6NormalizeClasses_ClassRecord, this.classStack).recordConstructorScope(t.getScope())
 	}
 }
 
@@ -273,7 +273,7 @@ func (this *Es6NormalizeClasses) visit(t *NodeTraversal, n Node, parent Node) {
 			this.rewritePrivateGetProp(t, n)
 		}
 	case tokOrd1_CLASS:
-		var currClassRecord *Es6NormalizeClasses_ClassRecord = this.classStack.pop_()
+		var currClassRecord *Es6NormalizeClasses_ClassRecord = slicePop_(tc_p_Es6NormalizeClasses_ClassRecord, &this.classStack)
 		if !(currClassRecord.classNode == n) {
 			Preconditions_checkState_boolean_String_Object(false, "unexpected node: %s", n.box_())
 		}
@@ -382,7 +382,7 @@ func (this *Es6NormalizeClasses) insertPrivateDeclarations(t *NodeTraversal, rec
 }
 
 func (this *Es6NormalizeClasses) findPrivateMember(name string) *Es6NormalizeClasses_ResolvedPrivateMember {
-	it_1 := this.classStack.eachRev()
+	it_1 := eachRevOf_(&this.classStack)
 	for it_1.next() {
 		var record *Es6NormalizeClasses_ClassRecord = it_1.v
 		if record.hasPrivateMember(name) {
@@ -1181,7 +1181,7 @@ func (this *Es6NormalizeClasses) addStaticPrivateMembers(record *Es6NormalizeCla
 }
 
 func (this *Es6NormalizeClasses) maybeUpdateClassSelfRef(t *NodeTraversal, nameNode Node) {
-	it_1 := this.classStack.eachRev()
+	it_1 := eachRevOf_(&this.classStack)
 	for it_1.next() {
 		var klass *Es6NormalizeClasses_ClassRecord = it_1.v
 		if klass.bindingIdentifier.isEmpty() {
@@ -1204,7 +1204,7 @@ func (this *Es6NormalizeClasses) maybeUpdateClassSelfRef(t *NodeTraversal, nameN
 
 func (this *Es6NormalizeClasses) visitThisAndSuper(t *NodeTraversal, n Node) {
 	if Es6NormalizeClasses_isSuperCall(n.getParent()) {
-		var classRecord *Es6NormalizeClasses_ClassRecord = this.classStack.peekTop_()
+		var classRecord *Es6NormalizeClasses_ClassRecord = slicePeekTop_(tc_p_Es6NormalizeClasses_ClassRecord, this.classStack)
 		classRecord.superCalls = append(classRecord.superCalls, n.getParent())
 		return
 	}
@@ -1222,7 +1222,7 @@ func (this *Es6NormalizeClasses) visitThisAndSuper(t *NodeTraversal, n Node) {
 		return
 	}
 	var classNode Node = rootNode.getGrandparent()
-	var classRecord *Es6NormalizeClasses_ClassRecord = this.classStack.peekTop_()
+	var classRecord *Es6NormalizeClasses_ClassRecord = slicePeekTop_(tc_p_Es6NormalizeClasses_ClassRecord, this.classStack)
 	if ok_, a1_, a2_ := (classRecord.classNode == classNode), classRecord.classNode, classNode; !ok_ {
 		Preconditions_checkState_boolean_String_Object_Object(false, "wrong class node: %s != %s", a1_.box_(), a2_.box_())
 	}

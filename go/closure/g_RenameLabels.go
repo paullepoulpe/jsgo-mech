@@ -57,19 +57,19 @@ func (this *RenameLabels_DefaultNameSupplier) get() any {
 type RenameLabels_ProcessLabels struct {
 	outer_         *RenameLabels
 	markChanges    bool
-	namespaceStack *TList[*RenameLabels_LabelNamespace]
+	namespaceStack []*RenameLabels_LabelNamespace
 	names_         []string
 }
 
 func (this *RenameLabels_ProcessLabels) finit_RenameLabels_ProcessLabels() {
-	this.namespaceStack = newTList_(tc_p_RenameLabels_LabelNamespace)
+	this.namespaceStack = []*RenameLabels_LabelNamespace{}
 	this.names_ = []string{}
 }
 
 func (this *RenameLabels_ProcessLabels) init_RenameLabels_ProcessLabels(markChanges bool) {
 	this.finit_RenameLabels_ProcessLabels()
 	this.markChanges = markChanges
-	this.namespaceStack.push_(new_RenameLabels_LabelNamespace())
+	this.namespaceStack = append(this.namespaceStack, new_RenameLabels_LabelNamespace())
 }
 
 func new_RenameLabels_ProcessLabels(outer_ *RenameLabels, markChanges bool) *RenameLabels_ProcessLabels {
@@ -81,19 +81,19 @@ func new_RenameLabels_ProcessLabels(outer_ *RenameLabels, markChanges bool) *Ren
 
 func (this *RenameLabels_ProcessLabels) enterScope(nodeTraversal *NodeTraversal) {
 	if nodeTraversal.getScopeRoot().isFunction() {
-		this.namespaceStack.push_(new_RenameLabels_LabelNamespace())
+		this.namespaceStack = append(this.namespaceStack, new_RenameLabels_LabelNamespace())
 	}
 }
 
 func (this *RenameLabels_ProcessLabels) exitScope(nodeTraversal *NodeTraversal) {
 	if nodeTraversal.getScopeRoot().isFunction() {
-		this.namespaceStack.pop_()
+		slicePop_(tc_p_RenameLabels_LabelNamespace, &this.namespaceStack)
 	}
 }
 
 func (this *RenameLabels_ProcessLabels) shouldTraverse(nodeTraversal *NodeTraversal, node Node, parent Node) bool {
 	if node.isLabel() {
-		var current *RenameLabels_LabelNamespace = this.namespaceStack.peekTop_()
+		var current *RenameLabels_LabelNamespace = slicePeekTop_(tc_p_RenameLabels_LabelNamespace, this.namespaceStack)
 		var currentDepth int32 = (int32(len(current.renameMap)) + 1)
 		var name string = node.getFirstChild().getString()
 		var li *RenameLabels_LabelInfo = new_RenameLabels_LabelInfo(currentDepth)
@@ -159,7 +159,7 @@ func (this *RenameLabels_ProcessLabels) visitLabel(t *NodeTraversal, node Node) 
 			t.reportCodeChange()
 		}
 	}
-	delete(this.namespaceStack.peekTop_().renameMap, name)
+	delete(slicePeekTop_(tc_p_RenameLabels_LabelNamespace, this.namespaceStack).renameMap, name)
 }
 
 func (this *RenameLabels_ProcessLabels) getNameForId(id int32) string {
@@ -167,7 +167,7 @@ func (this *RenameLabels_ProcessLabels) getNameForId(id int32) string {
 }
 
 func (this *RenameLabels_ProcessLabels) getLabelInfo(name string) *RenameLabels_LabelInfo {
-	return this.namespaceStack.peekTop_().renameMap[name]
+	return slicePeekTop_(tc_p_RenameLabels_LabelNamespace, this.namespaceStack).renameMap[name]
 }
 
 type RenameLabels_LabelInfo struct {

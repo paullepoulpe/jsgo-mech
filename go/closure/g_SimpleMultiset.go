@@ -173,17 +173,17 @@ func (this *SimpleMultiset) hashCode() int32 {
 }
 
 func (this *SimpleMultiset) toString() string {
-	var parts *TList[string] = newTList_(tc_string)
+	var parts []string = []string{}
 	it_1 := foreach_(any(this.counts.entrySet()))
 	for it_1.next() {
 		var e Map_Entry = icast_Map_Entry(it_1.v)
 		var element string = String_valueOf_Object(e.getKey())
-		parts.add(str_(func() any {
+		parts = append(parts, str_(func() any {
 			if unbox_[int32](e.getValue()) == 1 {
 				return strobj_(element)
 			}
 			return strobj_((sstr_(element) + " x " + objstr_(e.getValue())))
 		}()))
 	}
-	return Object_toString(any(parts.asList()))
+	return Object_toString(any(sliceView_(tc_string, parts)))
 }

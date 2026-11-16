@@ -42,7 +42,7 @@ func CodePrinter_toSource(root Node, outputFormat *CodePrinter_Format, options *
 
 type CodePrinter_MappedCodePrinter struct {
 	CodeConsumer
-	mappings                    *TList[*SourceMap_Mapping]
+	mappings                    []*SourceMap_Mapping
 	allMappings                 []*SourceMap_Mapping
 	completeMappings            []*SourceMap_Mapping
 	firstCandidateMappingForCut int32
@@ -113,9 +113,9 @@ func (this *CodePrinter_MappedCodePrinter) init_CodePrinter_MappedCodePrinter(li
 	}()
 	this.createSrcMap = createSrcMap
 	this.sourceMapDetailLevel = sourceMapDetailLevel
-	this.mappings = func() *TList[*SourceMap_Mapping] {
+	this.mappings = func() []*SourceMap_Mapping {
 		if createSrcMap {
-			return newTList_(tc_p_SourceMap_Mapping)
+			return []*SourceMap_Mapping{}
 		}
 		return nil
 	}()
@@ -155,14 +155,14 @@ func (this *CodePrinter_MappedCodePrinter) startSourceMapping_impl(node Node) {
 		var mapping *SourceMap_Mapping = new_SourceMap_Mapping()
 		mapping.node_ = node
 		mapping.start_ = new_FilePosition(line, index)
-		this.mappings.push_(mapping)
+		this.mappings = append(this.mappings, mapping)
 		this.allMappings = append(this.allMappings, mapping)
 	}
 }
 
 func (this *CodePrinter_MappedCodePrinter) endSourceMapping_impl(node Node) {
-	if (this.createSrcMap && !this.mappings.isEmpty()) && (this.mappings.peekTop_().node_ == node) {
-		var mapping *SourceMap_Mapping = this.mappings.pop_()
+	if (this.createSrcMap && len(this.mappings) != 0) && (slicePeekTop_(tc_p_SourceMap_Mapping, this.mappings).node_ == node) {
+		var mapping *SourceMap_Mapping = slicePop_(tc_p_SourceMap_Mapping, &this.mappings)
 		var line int32 = this.getCurrentLineIndex()
 		var index int32 = this.getCurrentCharIndex()
 		Preconditions_checkState((line >= 0))
@@ -197,9 +197,7 @@ func (this *CodePrinter_MappedCodePrinter) reportLineCut(lineIndex int32, charIn
 			mapping.start_ = CodePrinter_MappedCodePrinter_convertPositionAfterLineCut(mapping.start_, lineIndex, charIndex)
 		}
 		this.firstCandidateMappingForCut = mappingCount
-		it_2 := eachOf_(&this.completeMappings)
-		for it_2.next() {
-			var mapping *SourceMap_Mapping = it_2.v
+		for _, mapping := range this.completeMappings {
 			mapping.end_ = CodePrinter_MappedCodePrinter_convertPositionAfterLineCut(mapping.end_, lineIndex, charIndex)
 		}
 		sliceClear_(&this.completeMappings)

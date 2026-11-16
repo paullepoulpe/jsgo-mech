@@ -57,9 +57,7 @@ func (this *PassListBuilder) addAllUpTo(other *PassListBuilder, passName string)
 }
 
 func (this *PassListBuilder) findByName(name string) *PassFactory {
-	it_1 := eachOf_(&this.passes)
-	for it_1.next() {
-		var pass *PassFactory = it_1.v
+	for _, pass := range this.passes {
 		if pass.getName() == name {
 			return pass
 		}
@@ -90,17 +88,13 @@ func (this *PassListBuilder) contains(factory *PassFactory) bool {
 }
 
 func (this *PassListBuilder) assertAllOneTimePasses() {
-	it_1 := eachOf_(&this.passes)
-	for it_1.next() {
-		var pass *PassFactory = it_1.v
+	for _, pass := range this.passes {
 		Preconditions_checkState(!pass.isRunInFixedPointLoop())
 	}
 }
 
 func (this *PassListBuilder) assertAllLoopablePasses() {
-	it_1 := eachOf_(&this.passes)
-	for it_1.next() {
-		var pass *PassFactory = it_1.v
+	for _, pass := range this.passes {
 		Preconditions_checkState(pass.isRunInFixedPointLoop())
 	}
 }

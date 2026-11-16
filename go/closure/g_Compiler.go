@@ -1081,14 +1081,14 @@ func (this *Compiler) maybePrintSourceAfterEachPass(passName string) {
 
 func (this *Compiler) getCurrentJsSource() string {
 	this.resetAndIntitializeSourceMap()
-	var fileNameRegexList *TList[string] = this.options_.getFilesToPrintAfterEachPassRegexList()
-	var chunkNameRegexList *TList[string] = this.options_.getChunksToPrintAfterEachPassRegexList()
-	var qnameSet *TSet[string] = tsetFrom_(tc_string, Collection(this.options_.getQnameUsesToPrintAfterEachPassList().asList()), false)
+	var fileNameRegexList []string = this.options_.getFilesToPrintAfterEachPassRegexList()
+	var chunkNameRegexList []string = this.options_.getChunksToPrintAfterEachPassRegexList()
+	var qnameSet *TSet[string] = tsetFrom_(tc_string, Collection(sliceView_(tc_string, this.options_.getQnameUsesToPrintAfterEachPassList())), false)
 	var builder *StringBuilder = new_StringBuilder()
-	if (fileNameRegexList.isEmpty() && chunkNameRegexList.isEmpty()) && qnameSet.isEmpty() {
+	if (len(fileNameRegexList) == 0 && len(chunkNameRegexList) == 0) && qnameSet.isEmpty() {
 		return this.toSource()
 	}
-	if !fileNameRegexList.isEmpty() {
+	if len(fileNameRegexList) != 0 {
 		Preconditions_checkNotNull(this.externsRoot.box_())
 		Preconditions_checkNotNull(this.jsRoot.box_())
 		it_1 := foreach_(obj_(ImmutableList_of_Object_Object(this.externsRoot.box_(), this.jsRoot.box_())))
@@ -1098,9 +1098,7 @@ func (this *Compiler) getCurrentJsSource() string {
 				var fileNode Node = r.getFirstChild()
 				for ; fileNode != 0; fileNode = fileNode.getNext() {
 					var fileName string = fileNode.getSourceFileName()
-					it_4 := fileNameRegexList.each()
-					for it_4.next() {
-						var regex string = it_4.v
+					for _, regex := range fileNameRegexList {
 						if Pattern_matches(regex, strobj_(fileName)) {
 							var source string = ("// " + sstr_(fileName) + "\n" + sstr_(this.toSource_1(fileNode)))
 							builder.append(source)
@@ -1111,10 +1109,10 @@ func (this *Compiler) getCurrentJsSource() string {
 			}
 		}
 		if builder.length() == 0 {
-			builder.append("// No files matched any of: ").append_Object(any(fileNameRegexList.asList()))
+			builder.append("// No files matched any of: ").append_Object(any(sliceView_(tc_string, fileNameRegexList)))
 		}
 	}
-	if !chunkNameRegexList.isEmpty() {
+	if len(chunkNameRegexList) != 0 {
 		var chunks IterableOf[*JSChunk] = icast_Iterable(Preconditions_checkNotNull(any(this.getChunks())))
 		var unmatchedChunkNames []string = []string{}
 		var lt *Compiler_ChunkGraphAwareLicenseTracker = new_Compiler_ChunkGraphAwareLicenseTracker(this.up_AbstractCompiler())
@@ -1123,9 +1121,7 @@ func (this *Compiler) getCurrentJsSource() string {
 			var jsChunk *JSChunk = cast_[*JSChunk](it_6.v)
 			var chunkName string = jsChunk.getName()
 			lt.setCurrentChunkContext(jsChunk)
-			it_8 := chunkNameRegexList.each()
-			for it_8.next() {
-				var regex string = it_8.v
+			for _, regex := range chunkNameRegexList {
 				if Pattern_matches(regex, strobj_(chunkName)) {
 					var source string = ("// module '" + sstr_(chunkName) + "'\n" + sstr_(this.toSource_2(icast_CodePrinter_LicenseTracker(obj_(lt)), jsChunk)))
 					builder.append(source)

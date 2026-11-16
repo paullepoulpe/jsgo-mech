@@ -136,23 +136,23 @@ func (this *IRFactory) getFeatures() *FeatureSet {
 }
 
 func (this *IRFactory) validateAll(n Node) {
-	var work *TList[Node] = newTList_(tc_Node)
+	var work []Node = []Node{}
 	for n != 0 {
 		this.validate(n)
 		var nextSibling Node = n.getNext()
 		var firstChild Node = n.getFirstChild()
 		if firstChild != 0 {
 			if nextSibling != 0 {
-				work.push_(nextSibling)
+				work = append(work, nextSibling)
 			}
 			n = firstChild
 		} else if nextSibling != 0 {
 			n = nextSibling
 		} else {
-			n = work.pollTop_()
+			n = slicePollTop_(tc_Node, &work)
 		}
 	}
-	Preconditions_checkState(work.isEmpty())
+	Preconditions_checkState(len(work) == 0)
 }
 
 func (this *IRFactory) validate(n Node) {
@@ -872,17 +872,17 @@ func (this *IRFactory) reportErrorIfYieldOrAwaitInDefaultValue(defaultValueNode 
 }
 
 func IRFactory_findNodeTypeInExpression(expressionNode Node, token *Token_rhino) Node {
-	var worklist *TList[Node] = newTList_(tc_Node)
-	worklist.push_(expressionNode)
-	for !worklist.isEmpty() {
-		var node Node = worklist.popFirst_()
+	var worklist []Node = []Node{}
+	worklist = append(worklist, expressionNode)
+	for len(worklist) != 0 {
+		var node Node = slicePopFirst_(tc_Node, &worklist)
 		if node.getToken() == token {
 			return node
 		} else if !node.isFunction() && !node.isClass() {
 			{
 				var child Node = node.getFirstChild()
 				for ; child != 0; child = child.getNext() {
-					worklist.push_(child)
+					worklist = append(worklist, child)
 				}
 			}
 		}
@@ -2994,10 +2994,10 @@ func (this *IRFactory_TransformDispatcher) validatePrivatePropertyUsage(privateP
 	if !classMembers.hasChildren() {
 		return
 	}
-	var visitStack *TList[Node] = newTList_(tc_Node)
-	visitStack.push_(classMembers.getFirstChild())
-	for !visitStack.isEmpty() {
-		var node Node = visitStack.pop_()
+	var visitStack []Node = []Node{}
+	visitStack = append(visitStack, classMembers.getFirstChild())
+	for len(visitStack) != 0 {
+		var node Node = slicePop_(tc_Node, &visitStack)
 		if (node.isPrivateIdentifier() && ((node.isGetProp() || node.isOptChainGetProp()) || ((node.isName() && node.hasParent()) && node.getParent().isIn()))) && !Collection_contains_s(privatePropNames, node.getString()) {
 			var propType string = func() string {
 				if node.getParent().isCall() {
@@ -3019,10 +3019,10 @@ func (this *IRFactory_TransformDispatcher) validatePrivatePropertyUsage(privateP
 			this.validatePrivatePropertyUsage(Collections_unmodifiableSet(innerClassPrivatePropNames), node)
 		} else {
 			if node.getNext() != 0 {
-				visitStack.push_(node.getNext())
+				visitStack = append(visitStack, node.getNext())
 			}
 			if node.hasChildren() {
-				visitStack.push_(node.getFirstChild())
+				visitStack = append(visitStack, node.getFirstChild())
 			}
 		}
 	}

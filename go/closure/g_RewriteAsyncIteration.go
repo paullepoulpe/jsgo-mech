@@ -10,7 +10,7 @@ type RewriteAsyncIteration struct {
 	actionEnumYieldStar   RuntimeJsLibManager_JsLibField
 	nextForAwaitId        int32
 	compiler_             *AbstractCompiler
-	contextStack          *TList[*RewriteAsyncIteration_LexicalContext]
+	contextStack          []*RewriteAsyncIteration_LexicalContext
 	astFactory_           *AstFactory
 	namespace_            StaticScope
 }
@@ -24,7 +24,7 @@ func (this *RewriteAsyncIteration) init_RewriteAsyncIteration(compiler *Abstract
 	this.compiler_ = to_AbstractCompiler(Preconditions_checkNotNull(compiler.self()))
 	this.astFactory_ = cast_[*AstFactory](Preconditions_checkNotNull(obj_(astFactory)))
 	this.namespace_ = icast_StaticScope(Preconditions_checkNotNull(any(namespace)))
-	this.contextStack = newTList_(tc_p_RewriteAsyncIteration_LexicalContext)
+	this.contextStack = []*RewriteAsyncIteration_LexicalContext{}
 	var runtimeLibManager *RuntimeJsLibManager = compiler.getRuntimeJsLibManager()
 	this.asyncGeneratorWrapper = runtimeLibManager.getJsLibField("$jscomp.AsyncGeneratorWrapper")
 	this.actionRecordName = runtimeLibManager.getJsLibField("$jscomp.AsyncGeneratorWrapper$ActionRecord")
@@ -46,39 +46,39 @@ func RewriteAsyncIteration_create(compiler *AbstractCompiler) *RewriteAsyncItera
 }
 
 func (this *RewriteAsyncIteration) process_2(externs Node, root Node) {
-	Preconditions_checkState(this.contextStack.isEmpty())
-	this.contextStack.push_(RewriteAsyncIteration_LexicalContext_newGlobalContext(root))
+	Preconditions_checkState(len(this.contextStack) == 0)
+	this.contextStack = append(this.contextStack, RewriteAsyncIteration_LexicalContext_newGlobalContext(root))
 	TranspilationPasses_processTranspile(this.compiler_, root, RewriteAsyncIteration_transpiledFeatures, []NodeTraversal_Callback{icast_NodeTraversal_Callback(any(this))})
 	TranspilationPasses_maybeMarkFeaturesAsTranspiledAway(this.compiler_, root, RewriteAsyncIteration_transpiledFeatures)
-	Preconditions_checkState((this.contextStack.getTop_().function == 0))
-	this.contextStack.pop_()
-	Preconditions_checkState(this.contextStack.isEmpty())
+	Preconditions_checkState((sliceTop_(tc_p_RewriteAsyncIteration_LexicalContext, this.contextStack).function == 0))
+	slicePop_(tc_p_RewriteAsyncIteration_LexicalContext, &this.contextStack)
+	Preconditions_checkState(len(this.contextStack) == 0)
 }
 
 func (this *RewriteAsyncIteration) shouldTraverse(nodeTraversal *NodeTraversal, n Node, parent Node) bool {
 	if n.isFunction() {
-		this.contextStack.push_(RewriteAsyncIteration_LexicalContext_newContextForFunction(this.contextStack.getTop_(), n, this.compiler_))
+		this.contextStack = append(this.contextStack, RewriteAsyncIteration_LexicalContext_newContextForFunction(sliceTop_(tc_p_RewriteAsyncIteration_LexicalContext, this.contextStack), n, this.compiler_))
 	} else if n.isParamList() {
-		this.contextStack.push_(RewriteAsyncIteration_LexicalContext_newContextForParamList(this.contextStack.getTop_(), n, this.compiler_))
+		this.contextStack = append(this.contextStack, RewriteAsyncIteration_LexicalContext_newContextForParamList(sliceTop_(tc_p_RewriteAsyncIteration_LexicalContext, this.contextStack), n, this.compiler_))
 	}
 	return true
 }
 
 func (this *RewriteAsyncIteration) visit(t *NodeTraversal, n Node, parent Node) {
-	var ctx *RewriteAsyncIteration_LexicalContext = this.contextStack.getTop_()
+	var ctx *RewriteAsyncIteration_LexicalContext = sliceTop_(tc_p_RewriteAsyncIteration_LexicalContext, this.contextStack)
 	switch n.ns_().token {
 	case tokOrd1_PARAM_LIST:
 		if !Object_equals(n.box_(), ctx.contextRoot.box_()) {
 			Preconditions_checkState_boolean_Object(false, n.box_())
 		}
-		this.contextStack.pop_()
+		slicePop_(tc_p_RewriteAsyncIteration_LexicalContext, &this.contextStack)
 	case tokOrd1_FUNCTION:
 		Preconditions_checkState(Object_equals(n.box_(), ctx.contextRoot.box_()))
 		if n.isAsyncGeneratorFunction() {
 			this.convertAsyncGenerator(n)
 			this.prependTempVarDeclarations(ctx, t)
 		}
-		this.contextStack.pop_()
+		slicePop_(tc_p_RewriteAsyncIteration_LexicalContext, &this.contextStack)
 	case tokOrd1_AWAIT:
 		Preconditions_checkNotNull(ctx.function.box_())
 		if ctx.function.isAsyncGeneratorFunction() {

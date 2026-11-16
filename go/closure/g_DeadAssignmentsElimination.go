@@ -6,7 +6,7 @@ type DeadAssignmentsElimination struct {
 	NodeTraversal_AbstractCfgCallback
 	compiler_     *AbstractCompiler
 	liveness      *LiveVariablesAnalysis
-	functionStack *TList[*DeadAssignmentsElimination_BailoutInformation]
+	functionStack []*DeadAssignmentsElimination_BailoutInformation
 }
 
 func (this *DeadAssignmentsElimination) up_NodeTraversal_AbstractCfgCallback() *NodeTraversal_AbstractCfgCallback {
@@ -19,7 +19,7 @@ func (this *DeadAssignmentsElimination) up_NodeTraversal_AbstractCfgCallback() *
 func (this *DeadAssignmentsElimination) init_DeadAssignmentsElimination(compiler *AbstractCompiler) {
 	this.NodeTraversal_AbstractCfgCallback.init_NodeTraversal_AbstractCfgCallback()
 	this.compiler_ = compiler
-	this.functionStack = newTList_(tc_p_DeadAssignmentsElimination_BailoutInformation)
+	this.functionStack = []*DeadAssignmentsElimination_BailoutInformation{}
 }
 
 func new_DeadAssignmentsElimination(compiler *AbstractCompiler) *DeadAssignmentsElimination {
@@ -37,36 +37,36 @@ func (this *DeadAssignmentsElimination) process_2(externs Node, root Node) {
 }
 
 func (this *DeadAssignmentsElimination) visit_impl(t *NodeTraversal, n Node, parent Node) {
-	if this.functionStack.isEmpty() {
+	if len(this.functionStack) == 0 {
 		return
 	}
 	if n.isFunction() {
-		this.functionStack.peekTop_().containsFunction = true
+		slicePeekTop_(tc_p_DeadAssignmentsElimination_BailoutInformation, this.functionStack).containsFunction = true
 	} else if this.isRemovableAssign(n) {
-		this.functionStack.peekTop_().containsRemovableAssign = true
+		slicePeekTop_(tc_p_DeadAssignmentsElimination_BailoutInformation, this.functionStack).containsRemovableAssign = true
 	}
 }
 
 func (this *DeadAssignmentsElimination) enterScopeWithCfg_impl(t *NodeTraversal) {
 	if t.inFunctionBlockScope() {
-		this.functionStack.push_(new_DeadAssignmentsElimination_BailoutInformation())
+		this.functionStack = append(this.functionStack, new_DeadAssignmentsElimination_BailoutInformation())
 	}
 }
 
 func (this *DeadAssignmentsElimination) exitScopeWithCfg_impl(t *NodeTraversal) {
 	if t.inFunctionBlockScope() {
 		this.eliminateDeadAssignments(t)
-		this.functionStack.pop_()
+		slicePop_(tc_p_DeadAssignmentsElimination_BailoutInformation, &this.functionStack)
 	}
 }
 
 func (this *DeadAssignmentsElimination) eliminateDeadAssignments(t *NodeTraversal) {
 	Preconditions_checkArgument(t.inFunctionBlockScope())
-	Preconditions_checkState(!this.functionStack.isEmpty())
+	Preconditions_checkState(len(this.functionStack) != 0)
 	if !this.compiler_.hasScopeChanged(t.getScopeRoot().getParent()) {
 		return
 	}
-	var currentFunction *DeadAssignmentsElimination_BailoutInformation = this.functionStack.peekTop_()
+	var currentFunction *DeadAssignmentsElimination_BailoutInformation = slicePeekTop_(tc_p_DeadAssignmentsElimination_BailoutInformation, this.functionStack)
 	if currentFunction.containsFunction {
 		return
 	}
