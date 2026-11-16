@@ -64,6 +64,7 @@ func (this *AbstractVar) init_AbstractVar(name string, nameNode Node, scope *Abs
 func new_AbstractVar(name string, nameNode Node, scope *AbstractScope, index int32, input *CompilerInput, implicitGoogNamespaceDefinition Node) *AbstractVar {
 	this := &AbstractVar{}
 	this.self_ = this
+	this.selfI_ = this
 	this.zero_AbstractVar()
 	this.init_AbstractVar(name, nameNode, scope, index, input, implicitGoogNamespaceDefinition)
 	return this
@@ -298,7 +299,7 @@ func (this *AbstractVar) getName() string {
 	if this.self_ == any(this) {
 		return this.getName_impl()
 	}
-	return this.self_.(interface{ getName_impl() string }).getName_impl()
+	return this.selfI_.getName_impl()
 }
 
 // getScopeRoot: an object that is exactly a AbstractVar calls its getScopeRoot_impl directly (post-flip); others dispatch.
@@ -306,5 +307,5 @@ func (this *AbstractVar) getScopeRoot() Node {
 	if this.self_ == any(this) {
 		return this.getScopeRoot_impl()
 	}
-	return this.self_.(interface{ getScopeRoot_impl() Node }).getScopeRoot_impl()
+	return this.selfI_.getScopeRoot_impl()
 }

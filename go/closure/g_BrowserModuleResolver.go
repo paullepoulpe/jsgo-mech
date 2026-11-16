@@ -20,6 +20,7 @@ func (this *BrowserModuleResolver) init_BrowserModuleResolver(modulePaths Immuta
 func new_BrowserModuleResolver(modulePaths ImmutableSetOf[string], moduleRootPaths ImmutableListOf[string], errorHandler ErrorHandler, pathEscaper *ModuleLoader_PathEscaper) *BrowserModuleResolver {
 	this := &BrowserModuleResolver{}
 	this.self_ = this
+	this.selfI_ = this
 	this.init_BrowserModuleResolver(modulePaths, moduleRootPaths, errorHandler, pathEscaper)
 	return this
 }
@@ -65,9 +66,7 @@ func (this *BrowserModuleResolver) resolveJsModule(p0 string, p1 string, p2 Opti
 	if this.self_ == any(this) {
 		return this.resolveJsModule_impl(p0, p1, p2, p3, p4)
 	}
-	return this.self_.(interface {
-		resolveJsModule_impl(string, string, Optional, int32, int32) Optional
-	}).resolveJsModule_impl(p0, p1, p2, p3, p4)
+	return this.selfI_.resolveJsModule_impl(p0, p1, p2, p3, p4)
 }
 
 // resolveJsModuleSilently: an object that is exactly a BrowserModuleResolver calls its resolveJsModuleSilently_impl directly (post-flip); others dispatch.
@@ -75,7 +74,5 @@ func (this *BrowserModuleResolver) resolveJsModuleSilently(p0 string, p1 string)
 	if this.self_ == any(this) {
 		return this.resolveJsModuleSilently_impl(p0, p1)
 	}
-	return this.self_.(interface {
-		resolveJsModuleSilently_impl(string, string) Optional
-	}).resolveJsModuleSilently_impl(p0, p1)
+	return this.selfI_.resolveJsModuleSilently_impl(p0, p1)
 }

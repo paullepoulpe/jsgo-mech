@@ -3,7 +3,16 @@
 package closure
 
 type WarningsGuard struct {
-	self_ any
+	self_  any
+	selfI_ WarningsGuard_I
+}
+
+// WarningsGuard_I holds the methods the dispatchers of WarningsGuard's hierarchy call on the most derived
+// object (selfI_, set with self_); every class of the hierarchy implements them (post-flip).
+type WarningsGuard_I interface {
+	getPriority_impl() int32
+	level_impl(*JSError) *CheckLevel
+	mustRunChecks_impl(*DiagnosticGroup) *Tri
 }
 
 func (this *WarningsGuard) as_WarningsGuard() *WarningsGuard { return this }
@@ -40,15 +49,15 @@ func (this *WarningsGuard) getPriority_impl() int32 {
 }
 
 func (this *WarningsGuard) level(p0 *JSError) *CheckLevel {
-	return this.self_.(interface{ level_impl(*JSError) *CheckLevel }).level_impl(p0)
+	return this.selfI_.level_impl(p0)
 }
 
 func (this *WarningsGuard) getPriority() int32 {
-	return this.self_.(interface{ getPriority_impl() int32 }).getPriority_impl()
+	return this.selfI_.getPriority_impl()
 }
 
 func (this *WarningsGuard) mustRunChecks(p0 *DiagnosticGroup) *Tri {
-	return this.self_.(interface{ mustRunChecks_impl(*DiagnosticGroup) *Tri }).mustRunChecks_impl(p0)
+	return this.selfI_.mustRunChecks_impl(p0)
 }
 
 type WarningsGuard_Priority struct {

@@ -192,6 +192,7 @@ func (this *InlineSimpleMethods_InlineTrivialAccessors) init_InlineSimpleMethods
 func new_InlineSimpleMethods_InlineTrivialAccessors(outer_ *InlineSimpleMethods) *InlineSimpleMethods_InlineTrivialAccessors {
 	this := &InlineSimpleMethods_InlineTrivialAccessors{}
 	this.self_ = this
+	this.selfI_ = this
 	this.outer_ = outer_
 	this.init_InlineSimpleMethods_InlineTrivialAccessors()
 	return this
@@ -247,6 +248,7 @@ func (this *InlineSimpleMethods_GatherSignatures) init_InlineSimpleMethods_Gathe
 func new_InlineSimpleMethods_GatherSignatures(outer_ *InlineSimpleMethods) *InlineSimpleMethods_GatherSignatures {
 	this := &InlineSimpleMethods_GatherSignatures{}
 	this.self_ = this
+	this.selfI_ = this
 	this.outer_ = outer_
 	this.init_InlineSimpleMethods_GatherSignatures()
 	return this
@@ -317,7 +319,5 @@ func (this *InlineSimpleMethods_GatherSignatures) visit(p0 *NodeTraversal, p1 No
 		this.visit_impl(p0, p1, p2)
 		return
 	}
-	this.self_.(interface {
-		visit_impl(*NodeTraversal, Node, Node)
-	}).visit_impl(p0, p1, p2)
+	this.selfI_.visit_impl(p0, p1, p2)
 }

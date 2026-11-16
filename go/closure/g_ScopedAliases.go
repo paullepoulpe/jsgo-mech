@@ -273,8 +273,15 @@ func (this *ScopedAliases_Builder) build() *ScopedAliases {
 
 type ScopedAliases_AliasUsage struct {
 	self_          any
+	selfI_         ScopedAliases_AliasUsage_I
 	aliasVar       *Var
 	aliasReference Node
+}
+
+// ScopedAliases_AliasUsage_I holds the methods the dispatchers of ScopedAliases_AliasUsage's hierarchy call on the most derived
+// object (selfI_, set with self_); every class of the hierarchy implements them (post-flip).
+type ScopedAliases_AliasUsage_I interface {
+	applyAlias_impl(*AbstractCompiler)
 }
 
 func (this *ScopedAliases_AliasUsage) as_ScopedAliases_AliasUsage() *ScopedAliases_AliasUsage {
@@ -324,7 +331,7 @@ func (this *ScopedAliases_AliasUsage) referencesOtherAlias(deletedAliasVars SetO
 }
 
 func (this *ScopedAliases_AliasUsage) applyAlias(p0 *AbstractCompiler) {
-	this.self_.(interface{ applyAlias_impl(*AbstractCompiler) }).applyAlias_impl(p0)
+	this.selfI_.applyAlias_impl(p0)
 }
 
 type ScopedAliases_AliasedNode struct {
@@ -345,6 +352,7 @@ func (this *ScopedAliases_AliasedNode) init_ScopedAliases_AliasedNode(aliasVar *
 func new_ScopedAliases_AliasedNode(aliasVar *Var, aliasReference Node) *ScopedAliases_AliasedNode {
 	this := &ScopedAliases_AliasedNode{}
 	this.self_ = this
+	this.selfI_ = this
 	this.init_ScopedAliases_AliasedNode(aliasVar, aliasReference)
 	return this
 }
@@ -378,6 +386,7 @@ func (this *ScopedAliases_AliasedTypeNode) init_ScopedAliases_AliasedTypeNode(al
 func new_ScopedAliases_AliasedTypeNode(aliasVar *Var, aliasReference Node) *ScopedAliases_AliasedTypeNode {
 	this := &ScopedAliases_AliasedTypeNode{}
 	this.self_ = this
+	this.selfI_ = this
 	this.init_ScopedAliases_AliasedTypeNode(aliasVar, aliasReference)
 	return this
 }
@@ -438,6 +447,7 @@ func (this *ScopedAliases_Traversal) init_ScopedAliases_Traversal() {
 func new_ScopedAliases_Traversal(outer_ *ScopedAliases) *ScopedAliases_Traversal {
 	this := &ScopedAliases_Traversal{}
 	this.self_ = this
+	this.selfI_ = this
 	this.outer_ = outer_
 	this.init_ScopedAliases_Traversal()
 	return this
@@ -801,6 +811,7 @@ func (this *ScopedAliases_Traversal_1) init_ScopedAliases_Traversal_1() {
 func new_ScopedAliases_Traversal_1(outer_ *ScopedAliases_Traversal, cap_name string, cap_fnName Node, cap_suffix string) *ScopedAliases_Traversal_1 {
 	this := &ScopedAliases_Traversal_1{}
 	this.self_ = this
+	this.selfI_ = this
 	this.outer_ = outer_
 	this.cap_name = cap_name
 	this.cap_fnName = cap_fnName
@@ -822,7 +833,7 @@ func (this *ScopedAliases_AliasedNode) applyAlias(p0 *AbstractCompiler) {
 		this.applyAlias_impl(p0)
 		return
 	}
-	this.self_.(interface{ applyAlias_impl(*AbstractCompiler) }).applyAlias_impl(p0)
+	this.selfI_.applyAlias_impl(p0)
 }
 
 // applyAlias: an object that is exactly a ScopedAliases_AliasedTypeNode calls its applyAlias_impl directly (post-flip); others dispatch.
@@ -831,7 +842,7 @@ func (this *ScopedAliases_AliasedTypeNode) applyAlias(p0 *AbstractCompiler) {
 		this.applyAlias_impl(p0)
 		return
 	}
-	this.self_.(interface{ applyAlias_impl(*AbstractCompiler) }).applyAlias_impl(p0)
+	this.selfI_.applyAlias_impl(p0)
 }
 
 // visit: an object that is exactly a ScopedAliases_Traversal calls its visit_impl directly (post-flip); others dispatch.
@@ -840,9 +851,7 @@ func (this *ScopedAliases_Traversal) visit(p0 *NodeTraversal, p1 Node, p2 Node) 
 		this.visit_impl(p0, p1, p2)
 		return
 	}
-	this.self_.(interface {
-		visit_impl(*NodeTraversal, Node, Node)
-	}).visit_impl(p0, p1, p2)
+	this.selfI_.visit_impl(p0, p1, p2)
 }
 
 // visit: an object that is exactly a ScopedAliases_Traversal_1 calls its visit_impl directly (post-flip); others dispatch.
@@ -851,7 +860,5 @@ func (this *ScopedAliases_Traversal_1) visit(p0 *NodeTraversal, p1 Node, p2 Node
 		this.visit_impl(p0, p1, p2)
 		return
 	}
-	this.self_.(interface {
-		visit_impl(*NodeTraversal, Node, Node)
-	}).visit_impl(p0, p1, p2)
+	this.selfI_.visit_impl(p0, p1, p2)
 }

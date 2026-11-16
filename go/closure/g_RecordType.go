@@ -58,6 +58,7 @@ func (this *RecordType) init_RecordType(registry *JSTypeRegistry, properties *TM
 func new_RecordType(registry *JSTypeRegistry, properties *TMap[string, *RecordTypeBuilder_RecordProperty], declared bool) *RecordType {
 	this := &RecordType{}
 	this.self_ = this
+	this.selfI_ = this
 	this.init_RecordType(registry, properties, declared)
 	return this
 }
@@ -160,7 +161,7 @@ func (this *RecordType) getTypeClass() *JSTypeClass {
 	if this.self_ == any(this) {
 		return this.getTypeClass_impl()
 	}
-	return this.self_.(interface{ getTypeClass_impl() *JSTypeClass }).getTypeClass_impl()
+	return this.selfI_.getTypeClass_impl()
 }
 
 // getImplicitPrototype: an object that is exactly a RecordType calls its getImplicitPrototype_impl directly (post-flip); others dispatch.
@@ -186,7 +187,7 @@ func (this *RecordType) toMaybeRecordType() *RecordType {
 	if this.self_ == any(this) {
 		return this.toMaybeRecordType_impl()
 	}
-	return this.self_.(interface{ toMaybeRecordType_impl() *RecordType }).toMaybeRecordType_impl()
+	return this.selfI_.toMaybeRecordType_impl()
 }
 
 // isStructuralType: an object that is exactly a RecordType calls its isStructuralType_impl directly (post-flip); others dispatch.
@@ -194,5 +195,5 @@ func (this *RecordType) isStructuralType() bool {
 	if this.self_ == any(this) {
 		return this.isStructuralType_impl()
 	}
-	return this.self_.(interface{ isStructuralType_impl() bool }).isStructuralType_impl()
+	return this.selfI_.isStructuralType_impl()
 }

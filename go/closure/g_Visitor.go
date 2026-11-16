@@ -25,7 +25,20 @@ type Visitor interface {
 }
 
 type Visitor_WithDefaultCase struct {
-	self_ any
+	self_  any
+	selfI_ Visitor_WithDefaultCase_I
+}
+
+// Visitor_WithDefaultCase_I holds the methods the dispatchers of Visitor_WithDefaultCase's hierarchy call on the most derived
+// object (selfI_, set with self_); every class of the hierarchy implements them (post-flip).
+type Visitor_WithDefaultCase_I interface {
+	caseDefault_impl(*JSType) any
+	caseEnumElementType_impl(*EnumElementType) any
+	caseFunctionType_impl(*FunctionType) any
+	caseNamedType_impl(*NamedType) any
+	caseTemplateType_impl(*TemplateType) any
+	caseTemplatizedType_impl(*TemplatizedType) any
+	caseUnionType_impl(*UnionType) any
 }
 
 func (this *Visitor_WithDefaultCase) as_Visitor_WithDefaultCase() *Visitor_WithDefaultCase {
@@ -136,29 +149,29 @@ func (this *Visitor_WithDefaultCase) caseTemplateType_impl(type_ *TemplateType) 
 }
 
 func (this *Visitor_WithDefaultCase) caseDefault(p0 *JSType) any {
-	return this.self_.(interface{ caseDefault_impl(*JSType) any }).caseDefault_impl(p0)
+	return this.selfI_.caseDefault_impl(p0)
 }
 
 func (this *Visitor_WithDefaultCase) caseEnumElementType(p0 *EnumElementType) any {
-	return this.self_.(interface{ caseEnumElementType_impl(*EnumElementType) any }).caseEnumElementType_impl(p0)
+	return this.selfI_.caseEnumElementType_impl(p0)
 }
 
 func (this *Visitor_WithDefaultCase) caseFunctionType(p0 *FunctionType) any {
-	return this.self_.(interface{ caseFunctionType_impl(*FunctionType) any }).caseFunctionType_impl(p0)
+	return this.selfI_.caseFunctionType_impl(p0)
 }
 
 func (this *Visitor_WithDefaultCase) caseNamedType(p0 *NamedType) any {
-	return this.self_.(interface{ caseNamedType_impl(*NamedType) any }).caseNamedType_impl(p0)
+	return this.selfI_.caseNamedType_impl(p0)
 }
 
 func (this *Visitor_WithDefaultCase) caseUnionType(p0 *UnionType) any {
-	return this.self_.(interface{ caseUnionType_impl(*UnionType) any }).caseUnionType_impl(p0)
+	return this.selfI_.caseUnionType_impl(p0)
 }
 
 func (this *Visitor_WithDefaultCase) caseTemplatizedType(p0 *TemplatizedType) any {
-	return this.self_.(interface{ caseTemplatizedType_impl(*TemplatizedType) any }).caseTemplatizedType_impl(p0)
+	return this.selfI_.caseTemplatizedType_impl(p0)
 }
 
 func (this *Visitor_WithDefaultCase) caseTemplateType(p0 *TemplateType) any {
-	return this.self_.(interface{ caseTemplateType_impl(*TemplateType) any }).caseTemplateType_impl(p0)
+	return this.selfI_.caseTemplateType_impl(p0)
 }

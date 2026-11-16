@@ -910,10 +910,19 @@ func JSDocInfo_clinit() {
 }
 
 type JSDocInfo_Property struct {
-	self_ any
-	name_ string
-	bit   int32
-	mask  int64
+	self_  any
+	selfI_ JSDocInfo_Property_I
+	name_  string
+	bit    int32
+	mask   int64
+}
+
+// JSDocInfo_Property_I holds the methods the dispatchers of JSDocInfo_Property's hierarchy call on the most derived
+// object (selfI_, set with self_); every class of the hierarchy implements them (post-flip).
+type JSDocInfo_Property_I interface {
+	clone_impl(any, JSDocInfo_TypeTransform) any
+	equalValues_impl(any, any) bool
+	getTypeExpressions_impl(any) Iterable
 }
 
 func (this *JSDocInfo_Property) as_JSDocInfo_Property() *JSDocInfo_Property { return this }
@@ -955,6 +964,7 @@ func (this *JSDocInfo_Property) init_JSDocInfo_Property(name string) {
 func new_JSDocInfo_Property(name string) *JSDocInfo_Property {
 	this := &JSDocInfo_Property{}
 	this.self_ = this
+	this.selfI_ = this
 	this.zero_JSDocInfo_Property()
 	this.init_JSDocInfo_Property(name)
 	return this
@@ -990,17 +1000,15 @@ func (this *JSDocInfo_Property) compareTo(that_ any) int32 {
 }
 
 func (this *JSDocInfo_Property) equalValues(p0 any, p1 any) bool {
-	return this.self_.(interface{ equalValues_impl(any, any) bool }).equalValues_impl(p0, p1)
+	return this.selfI_.equalValues_impl(p0, p1)
 }
 
 func (this *JSDocInfo_Property) clone(p0 any, p1 JSDocInfo_TypeTransform) any {
-	return this.self_.(interface {
-		clone_impl(any, JSDocInfo_TypeTransform) any
-	}).clone_impl(p0, p1)
+	return this.selfI_.clone_impl(p0, p1)
 }
 
 func (this *JSDocInfo_Property) getTypeExpressions(p0 any) Iterable {
-	return this.self_.(interface{ getTypeExpressions_impl(any) Iterable }).getTypeExpressions_impl(p0)
+	return this.selfI_.getTypeExpressions_impl(p0)
 }
 
 var JSDocInfo_Property_bitCounter int32
@@ -1040,6 +1048,7 @@ func (this *JSDocInfo_MarkerListProperty) init_JSDocInfo_MarkerListProperty(name
 func new_JSDocInfo_MarkerListProperty(name string) *JSDocInfo_MarkerListProperty {
 	this := &JSDocInfo_MarkerListProperty{}
 	this.self_ = this
+	this.selfI_ = this
 	this.zero_JSDocInfo_MarkerListProperty()
 	this.init_JSDocInfo_MarkerListProperty(name)
 	return this
@@ -1085,6 +1094,7 @@ func (this *JSDocInfo_TypeProperty) init_JSDocInfo_TypeProperty(name string) {
 func new_JSDocInfo_TypeProperty(name string) *JSDocInfo_TypeProperty {
 	this := &JSDocInfo_TypeProperty{}
 	this.self_ = this
+	this.selfI_ = this
 	this.zero_JSDocInfo_TypeProperty()
 	this.init_JSDocInfo_TypeProperty(name)
 	return this
@@ -1137,6 +1147,7 @@ func (this *JSDocInfo_TypeListProperty) init_JSDocInfo_TypeListProperty(name str
 func new_JSDocInfo_TypeListProperty(name string) *JSDocInfo_TypeListProperty {
 	this := &JSDocInfo_TypeListProperty{}
 	this.self_ = this
+	this.selfI_ = this
 	this.zero_JSDocInfo_TypeListProperty()
 	this.init_JSDocInfo_TypeListProperty(name)
 	return this
@@ -1215,6 +1226,7 @@ func (this *JSDocInfo_TypeMapProperty) init_JSDocInfo_TypeMapProperty(name strin
 func new_JSDocInfo_TypeMapProperty(name string) *JSDocInfo_TypeMapProperty {
 	this := &JSDocInfo_TypeMapProperty{}
 	this.self_ = this
+	this.selfI_ = this
 	this.zero_JSDocInfo_TypeMapProperty()
 	this.init_JSDocInfo_TypeMapProperty(name)
 	return this
@@ -1291,6 +1303,7 @@ func (this *JSDocInfo_NodeMapProperty) init_JSDocInfo_NodeMapProperty(name strin
 func new_JSDocInfo_NodeMapProperty(name string) *JSDocInfo_NodeMapProperty {
 	this := &JSDocInfo_NodeMapProperty{}
 	this.self_ = this
+	this.selfI_ = this
 	this.zero_JSDocInfo_NodeMapProperty()
 	this.init_JSDocInfo_NodeMapProperty(name)
 	return this
@@ -1702,9 +1715,7 @@ func (this *JSDocInfo_ComparableSourcePosition) init_JSDocInfo_ComparableSourceP
 }
 
 func (this *JSDocInfo_ComparableSourcePosition) isEquivalentTo(p0 *SourcePosition_rhino) bool {
-	return this.self_.(interface {
-		isEquivalentTo_impl(*SourcePosition_rhino) bool
-	}).isEquivalentTo_impl(p0)
+	return this.selfI_.isEquivalentTo_impl(p0)
 }
 
 type JSDocInfo_StringPosition struct {
@@ -1759,6 +1770,7 @@ func (this *JSDocInfo_StringPosition) init_JSDocInfo_StringPosition() {
 func new_JSDocInfo_StringPosition() *JSDocInfo_StringPosition {
 	this := &JSDocInfo_StringPosition{}
 	this.self_ = this
+	this.selfI_ = this
 	this.init_JSDocInfo_StringPosition()
 	return this
 }
@@ -1799,6 +1811,7 @@ func (this *JSDocInfo_TrimmedStringPosition) init_JSDocInfo_TrimmedStringPositio
 func new_JSDocInfo_TrimmedStringPosition() *JSDocInfo_TrimmedStringPosition {
 	this := &JSDocInfo_TrimmedStringPosition{}
 	this.self_ = this
+	this.selfI_ = this
 	this.init_JSDocInfo_TrimmedStringPosition()
 	return this
 }
@@ -1835,6 +1848,7 @@ func (this *JSDocInfo_NamePosition) init_JSDocInfo_NamePosition() {
 func new_JSDocInfo_NamePosition() *JSDocInfo_NamePosition {
 	this := &JSDocInfo_NamePosition{}
 	this.self_ = this
+	this.selfI_ = this
 	this.init_JSDocInfo_NamePosition()
 	return this
 }
@@ -1877,6 +1891,7 @@ func (this *JSDocInfo_TypePosition) init_JSDocInfo_TypePosition() {
 func new_JSDocInfo_TypePosition() *JSDocInfo_TypePosition {
 	this := &JSDocInfo_TypePosition{}
 	this.self_ = this
+	this.selfI_ = this
 	this.init_JSDocInfo_TypePosition()
 	return this
 }
@@ -2795,7 +2810,7 @@ func (this *JSDocInfo_MarkerListProperty) equalValues(p0 any, p1 any) bool {
 	if this.self_ == any(this) {
 		return this.equalValues_impl(p0, p1)
 	}
-	return this.self_.(interface{ equalValues_impl(any, any) bool }).equalValues_impl(p0, p1)
+	return this.selfI_.equalValues_impl(p0, p1)
 }
 
 // clone: an object that is exactly a JSDocInfo_TypeProperty calls its clone_impl directly (post-flip); others dispatch.
@@ -2803,9 +2818,7 @@ func (this *JSDocInfo_TypeProperty) clone(p0 any, p1 JSDocInfo_TypeTransform) an
 	if this.self_ == any(this) {
 		return this.clone_impl(p0, p1)
 	}
-	return this.self_.(interface {
-		clone_impl(any, JSDocInfo_TypeTransform) any
-	}).clone_impl(p0, p1)
+	return this.selfI_.clone_impl(p0, p1)
 }
 
 // equalValues: an object that is exactly a JSDocInfo_TypeProperty calls its equalValues_impl directly (post-flip); others dispatch.
@@ -2813,7 +2826,7 @@ func (this *JSDocInfo_TypeProperty) equalValues(p0 any, p1 any) bool {
 	if this.self_ == any(this) {
 		return this.equalValues_impl(p0, p1)
 	}
-	return this.self_.(interface{ equalValues_impl(any, any) bool }).equalValues_impl(p0, p1)
+	return this.selfI_.equalValues_impl(p0, p1)
 }
 
 // getTypeExpressions: an object that is exactly a JSDocInfo_TypeProperty calls its getTypeExpressions_impl directly (post-flip); others dispatch.
@@ -2821,7 +2834,7 @@ func (this *JSDocInfo_TypeProperty) getTypeExpressions(p0 any) Iterable {
 	if this.self_ == any(this) {
 		return this.getTypeExpressions_impl(p0)
 	}
-	return this.self_.(interface{ getTypeExpressions_impl(any) Iterable }).getTypeExpressions_impl(p0)
+	return this.selfI_.getTypeExpressions_impl(p0)
 }
 
 // clone: an object that is exactly a JSDocInfo_TypeListProperty calls its clone_impl directly (post-flip); others dispatch.
@@ -2829,9 +2842,7 @@ func (this *JSDocInfo_TypeListProperty) clone(p0 any, p1 JSDocInfo_TypeTransform
 	if this.self_ == any(this) {
 		return this.clone_impl(p0, p1)
 	}
-	return this.self_.(interface {
-		clone_impl(any, JSDocInfo_TypeTransform) any
-	}).clone_impl(p0, p1)
+	return this.selfI_.clone_impl(p0, p1)
 }
 
 // equalValues: an object that is exactly a JSDocInfo_TypeListProperty calls its equalValues_impl directly (post-flip); others dispatch.
@@ -2839,7 +2850,7 @@ func (this *JSDocInfo_TypeListProperty) equalValues(p0 any, p1 any) bool {
 	if this.self_ == any(this) {
 		return this.equalValues_impl(p0, p1)
 	}
-	return this.self_.(interface{ equalValues_impl(any, any) bool }).equalValues_impl(p0, p1)
+	return this.selfI_.equalValues_impl(p0, p1)
 }
 
 // getTypeExpressions: an object that is exactly a JSDocInfo_TypeListProperty calls its getTypeExpressions_impl directly (post-flip); others dispatch.
@@ -2847,7 +2858,7 @@ func (this *JSDocInfo_TypeListProperty) getTypeExpressions(p0 any) Iterable {
 	if this.self_ == any(this) {
 		return this.getTypeExpressions_impl(p0)
 	}
-	return this.self_.(interface{ getTypeExpressions_impl(any) Iterable }).getTypeExpressions_impl(p0)
+	return this.selfI_.getTypeExpressions_impl(p0)
 }
 
 // clone: an object that is exactly a JSDocInfo_TypeMapProperty calls its clone_impl directly (post-flip); others dispatch.
@@ -2855,9 +2866,7 @@ func (this *JSDocInfo_TypeMapProperty) clone(p0 any, p1 JSDocInfo_TypeTransform)
 	if this.self_ == any(this) {
 		return this.clone_impl(p0, p1)
 	}
-	return this.self_.(interface {
-		clone_impl(any, JSDocInfo_TypeTransform) any
-	}).clone_impl(p0, p1)
+	return this.selfI_.clone_impl(p0, p1)
 }
 
 // equalValues: an object that is exactly a JSDocInfo_TypeMapProperty calls its equalValues_impl directly (post-flip); others dispatch.
@@ -2865,7 +2874,7 @@ func (this *JSDocInfo_TypeMapProperty) equalValues(p0 any, p1 any) bool {
 	if this.self_ == any(this) {
 		return this.equalValues_impl(p0, p1)
 	}
-	return this.self_.(interface{ equalValues_impl(any, any) bool }).equalValues_impl(p0, p1)
+	return this.selfI_.equalValues_impl(p0, p1)
 }
 
 // getTypeExpressions: an object that is exactly a JSDocInfo_TypeMapProperty calls its getTypeExpressions_impl directly (post-flip); others dispatch.
@@ -2873,7 +2882,7 @@ func (this *JSDocInfo_TypeMapProperty) getTypeExpressions(p0 any) Iterable {
 	if this.self_ == any(this) {
 		return this.getTypeExpressions_impl(p0)
 	}
-	return this.self_.(interface{ getTypeExpressions_impl(any) Iterable }).getTypeExpressions_impl(p0)
+	return this.selfI_.getTypeExpressions_impl(p0)
 }
 
 // clone: an object that is exactly a JSDocInfo_NodeMapProperty calls its clone_impl directly (post-flip); others dispatch.
@@ -2881,9 +2890,7 @@ func (this *JSDocInfo_NodeMapProperty) clone(p0 any, p1 JSDocInfo_TypeTransform)
 	if this.self_ == any(this) {
 		return this.clone_impl(p0, p1)
 	}
-	return this.self_.(interface {
-		clone_impl(any, JSDocInfo_TypeTransform) any
-	}).clone_impl(p0, p1)
+	return this.selfI_.clone_impl(p0, p1)
 }
 
 // equalValues: an object that is exactly a JSDocInfo_NodeMapProperty calls its equalValues_impl directly (post-flip); others dispatch.
@@ -2891,7 +2898,7 @@ func (this *JSDocInfo_NodeMapProperty) equalValues(p0 any, p1 any) bool {
 	if this.self_ == any(this) {
 		return this.equalValues_impl(p0, p1)
 	}
-	return this.self_.(interface{ equalValues_impl(any, any) bool }).equalValues_impl(p0, p1)
+	return this.selfI_.equalValues_impl(p0, p1)
 }
 
 // isEquivalentTo: an object that is exactly a JSDocInfo_StringPosition calls its isEquivalentTo_impl directly (post-flip); others dispatch.
@@ -2899,9 +2906,7 @@ func (this *JSDocInfo_StringPosition) isEquivalentTo(p0 *SourcePosition_rhino) b
 	if this.self_ == any(this) {
 		return this.isEquivalentTo_impl(p0)
 	}
-	return this.self_.(interface {
-		isEquivalentTo_impl(*SourcePosition_rhino) bool
-	}).isEquivalentTo_impl(p0)
+	return this.selfI_.isEquivalentTo_impl(p0)
 }
 
 // setItem: an object that is exactly a JSDocInfo_TrimmedStringPosition calls its setItem_impl directly (post-flip); others dispatch.
@@ -2910,7 +2915,7 @@ func (this *JSDocInfo_TrimmedStringPosition) setItem(p0 any) {
 		this.setItem_impl(p0)
 		return
 	}
-	this.self_.(interface{ setItem_impl(any) }).setItem_impl(p0)
+	this.selfI_.setItem_impl(p0)
 }
 
 // isEquivalentTo: an object that is exactly a JSDocInfo_NamePosition calls its isEquivalentTo_impl directly (post-flip); others dispatch.
@@ -2918,9 +2923,7 @@ func (this *JSDocInfo_NamePosition) isEquivalentTo(p0 *SourcePosition_rhino) boo
 	if this.self_ == any(this) {
 		return this.isEquivalentTo_impl(p0)
 	}
-	return this.self_.(interface {
-		isEquivalentTo_impl(*SourcePosition_rhino) bool
-	}).isEquivalentTo_impl(p0)
+	return this.selfI_.isEquivalentTo_impl(p0)
 }
 
 // isEquivalentTo: an object that is exactly a JSDocInfo_TypePosition calls its isEquivalentTo_impl directly (post-flip); others dispatch.
@@ -2928,7 +2931,5 @@ func (this *JSDocInfo_TypePosition) isEquivalentTo(p0 *SourcePosition_rhino) boo
 	if this.self_ == any(this) {
 		return this.isEquivalentTo_impl(p0)
 	}
-	return this.self_.(interface {
-		isEquivalentTo_impl(*SourcePosition_rhino) bool
-	}).isEquivalentTo_impl(p0)
+	return this.selfI_.isEquivalentTo_impl(p0)
 }

@@ -20,6 +20,7 @@ func (this *Es6NormalizeShorthandProperties) init_Es6NormalizeShorthandPropertie
 func new_Es6NormalizeShorthandProperties(compiler *AbstractCompiler) *Es6NormalizeShorthandProperties {
 	this := &Es6NormalizeShorthandProperties{}
 	this.self_ = this
+	this.selfI_ = this
 	this.init_Es6NormalizeShorthandProperties(compiler)
 	return this
 }
@@ -40,7 +41,7 @@ func (this *Es6NormalizeShorthandProperties) transpileSubtree(p0 Node) Node {
 	if this.self_ == any(this) {
 		return this.transpileSubtree_impl(p0)
 	}
-	return this.self_.(interface{ transpileSubtree_impl(Node) Node }).transpileSubtree_impl(p0)
+	return this.selfI_.transpileSubtree_impl(p0)
 }
 
 // getTranspiledAwayFeatures: an object that is exactly a Es6NormalizeShorthandProperties calls its getTranspiledAwayFeatures_impl directly (post-flip); others dispatch.
@@ -48,5 +49,5 @@ func (this *Es6NormalizeShorthandProperties) getTranspiledAwayFeatures() *Featur
 	if this.self_ == any(this) {
 		return this.getTranspiledAwayFeatures_impl()
 	}
-	return this.self_.(interface{ getTranspiledAwayFeatures_impl() *FeatureSet }).getTranspiledAwayFeatures_impl()
+	return this.selfI_.getTranspiledAwayFeatures_impl()
 }

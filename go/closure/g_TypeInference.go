@@ -49,6 +49,7 @@ func (this *TypeInference) init_TypeInference(compiler *AbstractCompiler, cfg *C
 func new_TypeInference(compiler *AbstractCompiler, cfg *ControlFlowGraph, reverseInterpreter ReverseAbstractInterpreter, syntacticScope *TypedScope, scopeCreator *TypedScopeCreator, assertionFunctionLookup *CodingConvention_AssertionFunctionLookup) *TypeInference {
 	this := &TypeInference{}
 	this.self_ = this
+	this.selfI_ = this
 	this.init_TypeInference(compiler, cfg, reverseInterpreter, syntacticScope, scopeCreator, assertionFunctionLookup)
 	return this
 }
@@ -2204,7 +2205,7 @@ func (this *TypeInference) createInitialEstimateLattice() LatticeElement {
 	if this.self_ == any(this) {
 		return this.createInitialEstimateLattice_impl()
 	}
-	return this.self_.(interface{ createInitialEstimateLattice_impl() LatticeElement }).createInitialEstimateLattice_impl()
+	return this.selfI_.createInitialEstimateLattice_impl()
 }
 
 // createEntryLattice: an object that is exactly a TypeInference calls its createEntryLattice_impl directly (post-flip); others dispatch.
@@ -2212,7 +2213,7 @@ func (this *TypeInference) createEntryLattice() LatticeElement {
 	if this.self_ == any(this) {
 		return this.createEntryLattice_impl()
 	}
-	return this.self_.(interface{ createEntryLattice_impl() LatticeElement }).createEntryLattice_impl()
+	return this.selfI_.createEntryLattice_impl()
 }
 
 // flowThrough: an object that is exactly a TypeInference calls its flowThrough_impl directly (post-flip); others dispatch.
@@ -2220,9 +2221,7 @@ func (this *TypeInference) flowThrough(p0 any, p1 LatticeElement) LatticeElement
 	if this.self_ == any(this) {
 		return this.flowThrough_impl(p0, p1)
 	}
-	return this.self_.(interface {
-		flowThrough_impl(any, LatticeElement) LatticeElement
-	}).flowThrough_impl(p0, p1)
+	return this.selfI_.flowThrough_impl(p0, p1)
 }
 
 // isForward: an object that is exactly a TypeInference calls its isForward_impl directly (post-flip); others dispatch.
@@ -2230,7 +2229,7 @@ func (this *TypeInference) isForward() bool {
 	if this.self_ == any(this) {
 		return this.isForward_impl()
 	}
-	return this.self_.(interface{ isForward_impl() bool }).isForward_impl()
+	return this.selfI_.isForward_impl()
 }
 
 // isBranched: an object that is exactly a TypeInference calls its isBranched_impl directly (post-flip); others dispatch.
@@ -2238,7 +2237,7 @@ func (this *TypeInference) isBranched() bool {
 	if this.self_ == any(this) {
 		return this.isBranched_impl()
 	}
-	return this.self_.(interface{ isBranched_impl() bool }).isBranched_impl()
+	return this.selfI_.isBranched_impl()
 }
 
 // createFlowJoiner: an object that is exactly a TypeInference calls its createFlowJoiner_impl directly (post-flip); others dispatch.
@@ -2246,9 +2245,7 @@ func (this *TypeInference) createFlowJoiner() DataFlowAnalysis_FlowJoiner {
 	if this.self_ == any(this) {
 		return this.createFlowJoiner_impl()
 	}
-	return this.self_.(interface {
-		createFlowJoiner_impl() DataFlowAnalysis_FlowJoiner
-	}).createFlowJoiner_impl()
+	return this.selfI_.createFlowJoiner_impl()
 }
 
 // createFlowBrancher: an object that is exactly a TypeInference calls its createFlowBrancher_impl directly (post-flip); others dispatch.
@@ -2256,7 +2253,5 @@ func (this *TypeInference) createFlowBrancher(p0 any, p1 LatticeElement) DataFlo
 	if this.self_ == any(this) {
 		return this.createFlowBrancher_impl(p0, p1)
 	}
-	return this.self_.(interface {
-		createFlowBrancher_impl(any, LatticeElement) DataFlowAnalysis_FlowBrancher
-	}).createFlowBrancher_impl(p0, p1)
+	return this.selfI_.createFlowBrancher_impl(p0, p1)
 }

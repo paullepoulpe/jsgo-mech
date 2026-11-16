@@ -510,6 +510,7 @@ func (this *Es6RewriteModules_RewriteRequiresForEs6Modules) init_Es6RewriteModul
 func new_Es6RewriteModules_RewriteRequiresForEs6Modules(outer_ *Es6RewriteModules) *Es6RewriteModules_RewriteRequiresForEs6Modules {
 	this := &Es6RewriteModules_RewriteRequiresForEs6Modules{}
 	this.self_ = this
+	this.selfI_ = this
 	this.outer_ = outer_
 	this.init_Es6RewriteModules_RewriteRequiresForEs6Modules()
 	return this
@@ -647,6 +648,7 @@ func (this *Es6RewriteModules_RenameGlobalVars) init_Es6RewriteModules_RenameGlo
 func new_Es6RewriteModules_RenameGlobalVars(outer_ *Es6RewriteModules, thisModule *Module) *Es6RewriteModules_RenameGlobalVars {
 	this := &Es6RewriteModules_RenameGlobalVars{}
 	this.self_ = this
+	this.selfI_ = this
 	this.outer_ = outer_
 	this.init_Es6RewriteModules_RenameGlobalVars(thisModule)
 	return this
@@ -765,9 +767,7 @@ func (this *Es6RewriteModules_RewriteRequiresForEs6Modules) visit(p0 *NodeTraver
 		this.visit_impl(p0, p1, p2)
 		return
 	}
-	this.self_.(interface {
-		visit_impl(*NodeTraversal, Node, Node)
-	}).visit_impl(p0, p1, p2)
+	this.selfI_.visit_impl(p0, p1, p2)
 }
 
 // visit: an object that is exactly a Es6RewriteModules_RenameGlobalVars calls its visit_impl directly (post-flip); others dispatch.
@@ -776,7 +776,5 @@ func (this *Es6RewriteModules_RenameGlobalVars) visit(p0 *NodeTraversal, p1 Node
 		this.visit_impl(p0, p1, p2)
 		return
 	}
-	this.self_.(interface {
-		visit_impl(*NodeTraversal, Node, Node)
-	}).visit_impl(p0, p1, p2)
+	this.selfI_.visit_impl(p0, p1, p2)
 }

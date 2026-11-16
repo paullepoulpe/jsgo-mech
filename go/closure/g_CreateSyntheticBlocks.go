@@ -39,6 +39,7 @@ func (this *CreateSyntheticBlocks) init_CreateSyntheticBlocks(compiler *Abstract
 func new_CreateSyntheticBlocks(compiler *AbstractCompiler, startMarkerName string, endMarkerName string) *CreateSyntheticBlocks {
 	this := &CreateSyntheticBlocks{}
 	this.self_ = this
+	this.selfI_ = this
 	this.zero_CreateSyntheticBlocks()
 	this.init_CreateSyntheticBlocks(compiler, startMarkerName, endMarkerName)
 	return this
@@ -183,7 +184,5 @@ func (this *CreateSyntheticBlocks) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
 		this.visit_impl(p0, p1, p2)
 		return
 	}
-	this.self_.(interface {
-		visit_impl(*NodeTraversal, Node, Node)
-	}).visit_impl(p0, p1, p2)
+	this.selfI_.visit_impl(p0, p1, p2)
 }

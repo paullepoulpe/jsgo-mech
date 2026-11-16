@@ -37,6 +37,7 @@ func (this *LinkedUndirectedGraph) init_LinkedUndirectedGraph(useNodeAnnotations
 func new_LinkedUndirectedGraph(useNodeAnnotations bool, useEdgeAnnotations bool) *LinkedUndirectedGraph {
 	this := &LinkedUndirectedGraph{}
 	this.self_ = this
+	this.selfI_ = this
 	this.init_LinkedUndirectedGraph(useNodeAnnotations, useEdgeAnnotations)
 	return this
 }
@@ -239,8 +240,16 @@ func (this *LinkedUndirectedGraph) getNodeDegree_impl(value any) int32 {
 
 type LinkedUndirectedGraph_LinkedUndirectedGraphNode struct {
 	self_         any
+	selfI_        LinkedUndirectedGraph_LinkedUndirectedGraphNode_I
 	neighborEdges *TList[UndiGraph_UndiGraphEdge]
 	value_        any
+}
+
+// LinkedUndirectedGraph_LinkedUndirectedGraphNode_I holds the methods the dispatchers of LinkedUndirectedGraph_LinkedUndirectedGraphNode's hierarchy call on the most derived
+// object (selfI_, set with self_); every class of the hierarchy implements them (post-flip).
+type LinkedUndirectedGraph_LinkedUndirectedGraphNode_I interface {
+	getAnnotationUntyped_impl() Annotation_graph
+	setAnnotation_impl(Annotation_graph)
 }
 
 func (this *LinkedUndirectedGraph_LinkedUndirectedGraphNode) as_LinkedUndirectedGraph_LinkedUndirectedGraphNode() *LinkedUndirectedGraph_LinkedUndirectedGraphNode {
@@ -282,6 +291,7 @@ func (this *LinkedUndirectedGraph_LinkedUndirectedGraphNode) init_LinkedUndirect
 func new_LinkedUndirectedGraph_LinkedUndirectedGraphNode(nodeValue any) *LinkedUndirectedGraph_LinkedUndirectedGraphNode {
 	this := &LinkedUndirectedGraph_LinkedUndirectedGraphNode{}
 	this.self_ = this
+	this.selfI_ = this
 	this.init_LinkedUndirectedGraph_LinkedUndirectedGraphNode(nodeValue)
 	return this
 }
@@ -333,11 +343,11 @@ func (this *LinkedUndirectedGraph_LinkedUndirectedGraphNode) neighborList() *TLi
 }
 
 func (this *LinkedUndirectedGraph_LinkedUndirectedGraphNode) getAnnotationUntyped() Annotation_graph {
-	return this.self_.(interface{ getAnnotationUntyped_impl() Annotation_graph }).getAnnotationUntyped_impl()
+	return this.selfI_.getAnnotationUntyped_impl()
 }
 
 func (this *LinkedUndirectedGraph_LinkedUndirectedGraphNode) setAnnotation(p0 Annotation_graph) {
-	this.self_.(interface{ setAnnotation_impl(Annotation_graph) }).setAnnotation_impl(p0)
+	this.selfI_.setAnnotation_impl(p0)
 }
 
 type LinkedUndirectedGraph_AnnotatedLinkedUndirectedGraphNode struct {
@@ -359,6 +369,7 @@ func (this *LinkedUndirectedGraph_AnnotatedLinkedUndirectedGraphNode) init_Linke
 func new_LinkedUndirectedGraph_AnnotatedLinkedUndirectedGraphNode(nodeValue any) *LinkedUndirectedGraph_AnnotatedLinkedUndirectedGraphNode {
 	this := &LinkedUndirectedGraph_AnnotatedLinkedUndirectedGraphNode{}
 	this.self_ = this
+	this.selfI_ = this
 	this.init_LinkedUndirectedGraph_AnnotatedLinkedUndirectedGraphNode(nodeValue)
 	return this
 }
@@ -373,9 +384,17 @@ func (this *LinkedUndirectedGraph_AnnotatedLinkedUndirectedGraphNode) setAnnotat
 
 type LinkedUndirectedGraph_LinkedUndirectedGraphEdge struct {
 	self_  any
+	selfI_ LinkedUndirectedGraph_LinkedUndirectedGraphEdge_I
 	nodeA  UndiGraph_UndiGraphNode
 	nodeB  UndiGraph_UndiGraphNode
 	value_ any
+}
+
+// LinkedUndirectedGraph_LinkedUndirectedGraphEdge_I holds the methods the dispatchers of LinkedUndirectedGraph_LinkedUndirectedGraphEdge's hierarchy call on the most derived
+// object (selfI_, set with self_); every class of the hierarchy implements them (post-flip).
+type LinkedUndirectedGraph_LinkedUndirectedGraphEdge_I interface {
+	getAnnotationUntyped_impl() Annotation_graph
+	setAnnotation_impl(Annotation_graph)
 }
 
 func (this *LinkedUndirectedGraph_LinkedUndirectedGraphEdge) as_LinkedUndirectedGraph_LinkedUndirectedGraphEdge() *LinkedUndirectedGraph_LinkedUndirectedGraphEdge {
@@ -414,6 +433,7 @@ func (this *LinkedUndirectedGraph_LinkedUndirectedGraphEdge) init_LinkedUndirect
 func new_LinkedUndirectedGraph_LinkedUndirectedGraphEdge(nodeA UndiGraph_UndiGraphNode, edgeValue any, nodeB UndiGraph_UndiGraphNode) *LinkedUndirectedGraph_LinkedUndirectedGraphEdge {
 	this := &LinkedUndirectedGraph_LinkedUndirectedGraphEdge{}
 	this.self_ = this
+	this.selfI_ = this
 	this.init_LinkedUndirectedGraph_LinkedUndirectedGraphEdge(nodeA, edgeValue, nodeB)
 	return this
 }
@@ -459,11 +479,11 @@ func (this *LinkedUndirectedGraph_LinkedUndirectedGraphEdge) toString() string {
 }
 
 func (this *LinkedUndirectedGraph_LinkedUndirectedGraphEdge) getAnnotationUntyped() Annotation_graph {
-	return this.self_.(interface{ getAnnotationUntyped_impl() Annotation_graph }).getAnnotationUntyped_impl()
+	return this.selfI_.getAnnotationUntyped_impl()
 }
 
 func (this *LinkedUndirectedGraph_LinkedUndirectedGraphEdge) setAnnotation(p0 Annotation_graph) {
-	this.self_.(interface{ setAnnotation_impl(Annotation_graph) }).setAnnotation_impl(p0)
+	this.selfI_.setAnnotation_impl(p0)
 }
 
 type LinkedUndirectedGraph_AnnotatedLinkedUndirectedGraphEdge struct {
@@ -485,6 +505,7 @@ func (this *LinkedUndirectedGraph_AnnotatedLinkedUndirectedGraphEdge) init_Linke
 func new_LinkedUndirectedGraph_AnnotatedLinkedUndirectedGraphEdge(nodeA UndiGraph_UndiGraphNode, edgeValue any, nodeB UndiGraph_UndiGraphNode) *LinkedUndirectedGraph_AnnotatedLinkedUndirectedGraphEdge {
 	this := &LinkedUndirectedGraph_AnnotatedLinkedUndirectedGraphEdge{}
 	this.self_ = this
+	this.selfI_ = this
 	this.init_LinkedUndirectedGraph_AnnotatedLinkedUndirectedGraphEdge(nodeA, edgeValue, nodeB)
 	return this
 }
@@ -502,7 +523,7 @@ func (this *LinkedUndirectedGraph) newSubGraph() SubGraph {
 	if this.self_ == any(this) {
 		return this.newSubGraph_impl()
 	}
-	return this.self_.(interface{ newSubGraph_impl() SubGraph }).newSubGraph_impl()
+	return this.selfI_.newSubGraph_impl()
 }
 
 // connect: an object that is exactly a LinkedUndirectedGraph calls its connect_impl directly (post-flip); others dispatch.
@@ -511,7 +532,7 @@ func (this *LinkedUndirectedGraph) connect(p0 any, p1 any, p2 any) {
 		this.connect_impl(p0, p1, p2)
 		return
 	}
-	this.self_.(interface{ connect_impl(any, any, any) }).connect_impl(p0, p1, p2)
+	this.selfI_.connect_impl(p0, p1, p2)
 }
 
 // disconnect: an object that is exactly a LinkedUndirectedGraph calls its disconnect_impl directly (post-flip); others dispatch.
@@ -520,7 +541,7 @@ func (this *LinkedUndirectedGraph) disconnect(p0 any, p1 any) {
 		this.disconnect_impl(p0, p1)
 		return
 	}
-	this.self_.(interface{ disconnect_impl(any, any) }).disconnect_impl(p0, p1)
+	this.selfI_.disconnect_impl(p0, p1)
 }
 
 // createUndirectedGraphNode: an object that is exactly a LinkedUndirectedGraph calls its createUndirectedGraphNode_impl directly (post-flip); others dispatch.
@@ -536,7 +557,7 @@ func (this *LinkedUndirectedGraph) getNeighborNodes(p0 any) *TList[GraphNode] {
 	if this.self_ == any(this) {
 		return this.getNeighborNodes_impl(p0)
 	}
-	return this.self_.(interface{ getNeighborNodes_impl(any) *TList[GraphNode] }).getNeighborNodes_impl(p0)
+	return this.selfI_.getNeighborNodes_impl(p0)
 }
 
 // getUndirectedGraphEdges: an object that is exactly a LinkedUndirectedGraph calls its getUndirectedGraphEdges_impl directly (post-flip); others dispatch.
@@ -568,7 +589,7 @@ func (this *LinkedUndirectedGraph) createNode(p0 any) GraphNode {
 	if this.self_ == any(this) {
 		return this.createNode_impl(p0)
 	}
-	return this.self_.(interface{ createNode_impl(any) GraphNode }).createNode_impl(p0)
+	return this.selfI_.createNode_impl(p0)
 }
 
 // getEdges_2: an object that is exactly a LinkedUndirectedGraph calls its getEdges_2_impl directly (post-flip); others dispatch.
@@ -576,9 +597,7 @@ func (this *LinkedUndirectedGraph) getEdges_2(p0 any, p1 any) *TList[UndiGraph_U
 	if this.self_ == any(this) {
 		return this.getEdges_2_impl(p0, p1)
 	}
-	return this.self_.(interface {
-		getEdges_2_impl(any, any) *TList[UndiGraph_UndiGraphEdge]
-	}).getEdges_2_impl(p0, p1)
+	return this.selfI_.getEdges_2_impl(p0, p1)
 }
 
 // getEdges: an object that is exactly a LinkedUndirectedGraph calls its getEdges_impl directly (post-flip); others dispatch.
@@ -586,9 +605,7 @@ func (this *LinkedUndirectedGraph) getEdges() *TList[Graph_GraphEdge] {
 	if this.self_ == any(this) {
 		return this.getEdges_impl()
 	}
-	return this.self_.(interface {
-		getEdges_impl() *TList[Graph_GraphEdge]
-	}).getEdges_impl()
+	return this.selfI_.getEdges_impl()
 }
 
 // getFirstEdge: an object that is exactly a LinkedUndirectedGraph calls its getFirstEdge_impl directly (post-flip); others dispatch.
@@ -596,9 +613,7 @@ func (this *LinkedUndirectedGraph) getFirstEdge(p0 any, p1 any) Graph_GraphEdge 
 	if this.self_ == any(this) {
 		return this.getFirstEdge_impl(p0, p1)
 	}
-	return this.self_.(interface {
-		getFirstEdge_impl(any, any) Graph_GraphEdge
-	}).getFirstEdge_impl(p0, p1)
+	return this.selfI_.getFirstEdge_impl(p0, p1)
 }
 
 // getNode: an object that is exactly a LinkedUndirectedGraph calls its getNode_impl directly (post-flip); others dispatch.
@@ -606,7 +621,7 @@ func (this *LinkedUndirectedGraph) getNode(p0 any) GraphNode {
 	if this.self_ == any(this) {
 		return this.getNode_impl(p0)
 	}
-	return this.self_.(interface{ getNode_impl(any) GraphNode }).getNode_impl(p0)
+	return this.selfI_.getNode_impl(p0)
 }
 
 // isConnected: an object that is exactly a LinkedUndirectedGraph calls its isConnected_impl directly (post-flip); others dispatch.
@@ -614,7 +629,7 @@ func (this *LinkedUndirectedGraph) isConnected(p0 any, p1 any) bool {
 	if this.self_ == any(this) {
 		return this.isConnected_impl(p0, p1)
 	}
-	return this.self_.(interface{ isConnected_impl(any, any) bool }).isConnected_impl(p0, p1)
+	return this.selfI_.isConnected_impl(p0, p1)
 }
 
 // isConnected_3: an object that is exactly a LinkedUndirectedGraph calls its isConnected_3_impl directly (post-flip); others dispatch.
@@ -622,7 +637,7 @@ func (this *LinkedUndirectedGraph) isConnected_3(p0 any, p1 any, p2 any) bool {
 	if this.self_ == any(this) {
 		return this.isConnected_3_impl(p0, p1, p2)
 	}
-	return this.self_.(interface{ isConnected_3_impl(any, any, any) bool }).isConnected_3_impl(p0, p1, p2)
+	return this.selfI_.isConnected_3_impl(p0, p1, p2)
 }
 
 // getNodes: an object that is exactly a LinkedUndirectedGraph calls its getNodes_impl directly (post-flip); others dispatch.
@@ -630,7 +645,7 @@ func (this *LinkedUndirectedGraph) getNodes() Collection {
 	if this.self_ == any(this) {
 		return this.getNodes_impl()
 	}
-	return this.self_.(interface{ getNodes_impl() Collection }).getNodes_impl()
+	return this.selfI_.getNodes_impl()
 }
 
 // getNodeCount: an object that is exactly a LinkedUndirectedGraph calls its getNodeCount_impl directly (post-flip); others dispatch.
@@ -638,7 +653,7 @@ func (this *LinkedUndirectedGraph) getNodeCount() int32 {
 	if this.self_ == any(this) {
 		return this.getNodeCount_impl()
 	}
-	return this.self_.(interface{ getNodeCount_impl() int32 }).getNodeCount_impl()
+	return this.selfI_.getNodeCount_impl()
 }
 
 // getNodeDegree: an object that is exactly a LinkedUndirectedGraph calls its getNodeDegree_impl directly (post-flip); others dispatch.
@@ -646,7 +661,7 @@ func (this *LinkedUndirectedGraph) getNodeDegree(p0 any) int32 {
 	if this.self_ == any(this) {
 		return this.getNodeDegree_impl(p0)
 	}
-	return this.self_.(interface{ getNodeDegree_impl(any) int32 }).getNodeDegree_impl(p0)
+	return this.selfI_.getNodeDegree_impl(p0)
 }
 
 // getAnnotationUntyped: an object that is exactly a LinkedUndirectedGraph_AnnotatedLinkedUndirectedGraphNode calls its getAnnotationUntyped_impl directly (post-flip); others dispatch.
@@ -654,7 +669,7 @@ func (this *LinkedUndirectedGraph_AnnotatedLinkedUndirectedGraphNode) getAnnotat
 	if this.self_ == any(this) {
 		return this.getAnnotationUntyped_impl()
 	}
-	return this.self_.(interface{ getAnnotationUntyped_impl() Annotation_graph }).getAnnotationUntyped_impl()
+	return this.selfI_.getAnnotationUntyped_impl()
 }
 
 // setAnnotation: an object that is exactly a LinkedUndirectedGraph_AnnotatedLinkedUndirectedGraphNode calls its setAnnotation_impl directly (post-flip); others dispatch.
@@ -663,7 +678,7 @@ func (this *LinkedUndirectedGraph_AnnotatedLinkedUndirectedGraphNode) setAnnotat
 		this.setAnnotation_impl(p0)
 		return
 	}
-	this.self_.(interface{ setAnnotation_impl(Annotation_graph) }).setAnnotation_impl(p0)
+	this.selfI_.setAnnotation_impl(p0)
 }
 
 // getAnnotationUntyped: an object that is exactly a LinkedUndirectedGraph_AnnotatedLinkedUndirectedGraphEdge calls its getAnnotationUntyped_impl directly (post-flip); others dispatch.
@@ -671,7 +686,7 @@ func (this *LinkedUndirectedGraph_AnnotatedLinkedUndirectedGraphEdge) getAnnotat
 	if this.self_ == any(this) {
 		return this.getAnnotationUntyped_impl()
 	}
-	return this.self_.(interface{ getAnnotationUntyped_impl() Annotation_graph }).getAnnotationUntyped_impl()
+	return this.selfI_.getAnnotationUntyped_impl()
 }
 
 // setAnnotation: an object that is exactly a LinkedUndirectedGraph_AnnotatedLinkedUndirectedGraphEdge calls its setAnnotation_impl directly (post-flip); others dispatch.
@@ -680,5 +695,5 @@ func (this *LinkedUndirectedGraph_AnnotatedLinkedUndirectedGraphEdge) setAnnotat
 		this.setAnnotation_impl(p0)
 		return
 	}
-	this.self_.(interface{ setAnnotation_impl(Annotation_graph) }).setAnnotation_impl(p0)
+	this.selfI_.setAnnotation_impl(p0)
 }

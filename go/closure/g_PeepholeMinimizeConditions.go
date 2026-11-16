@@ -22,6 +22,7 @@ func (this *PeepholeMinimizeConditions) init_PeepholeMinimizeConditions(late boo
 func new_PeepholeMinimizeConditions(late bool) *PeepholeMinimizeConditions {
 	this := &PeepholeMinimizeConditions{}
 	this.self_ = this
+	this.selfI_ = this
 	this.init_PeepholeMinimizeConditions(late)
 	return this
 }
@@ -749,5 +750,5 @@ func (this *PeepholeMinimizeConditions) optimizeSubtree(p0 Node) Node {
 	if this.self_ == any(this) {
 		return this.optimizeSubtree_impl(p0)
 	}
-	return this.self_.(interface{ optimizeSubtree_impl(Node) Node }).optimizeSubtree_impl(p0)
+	return this.selfI_.optimizeSubtree_impl(p0)
 }

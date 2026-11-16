@@ -85,6 +85,7 @@ func (this *RescopeGlobalSymbols_RewriteGlobalClassFunctionDeclarationsToVarAssi
 func new_RescopeGlobalSymbols_RewriteGlobalClassFunctionDeclarationsToVarAssignmentsCallback(compiler *AbstractCompiler) *RescopeGlobalSymbols_RewriteGlobalClassFunctionDeclarationsToVarAssignmentsCallback {
 	this := &RescopeGlobalSymbols_RewriteGlobalClassFunctionDeclarationsToVarAssignmentsCallback{}
 	this.self_ = this
+	this.selfI_ = this
 	this.init_RescopeGlobalSymbols_RewriteGlobalClassFunctionDeclarationsToVarAssignmentsCallback(compiler)
 	return this
 }
@@ -157,6 +158,7 @@ func (this *RescopeGlobalSymbols_FindCrossChunkNamesCallback) init_RescopeGlobal
 func new_RescopeGlobalSymbols_FindCrossChunkNamesCallback(compiler *AbstractCompiler, assumeCrossChunkNames bool, trackLocalAccessSets bool, renameHelperBuilder *RescopeGlobalSymbolsRenameHelper_HelperBuilder) *RescopeGlobalSymbols_FindCrossChunkNamesCallback {
 	this := &RescopeGlobalSymbols_FindCrossChunkNamesCallback{}
 	this.self_ = this
+	this.selfI_ = this
 	this.init_RescopeGlobalSymbols_FindCrossChunkNamesCallback(compiler, assumeCrossChunkNames, trackLocalAccessSets, renameHelperBuilder)
 	return this
 }
@@ -260,6 +262,7 @@ func (this *RescopeGlobalSymbols_FindNamesReferencingThis) init_RescopeGlobalSym
 func new_RescopeGlobalSymbols_FindNamesReferencingThis() *RescopeGlobalSymbols_FindNamesReferencingThis {
 	this := &RescopeGlobalSymbols_FindNamesReferencingThis{}
 	this.self_ = this
+	this.selfI_ = this
 	this.init_RescopeGlobalSymbols_FindNamesReferencingThis()
 	return this
 }
@@ -317,6 +320,7 @@ func (this *RescopeGlobalSymbols_RemoveGlobalVarCallback) init_RescopeGlobalSymb
 func new_RescopeGlobalSymbols_RemoveGlobalVarCallback(compiler *AbstractCompiler, preserveLocalVarDeclarations bool) *RescopeGlobalSymbols_RemoveGlobalVarCallback {
 	this := &RescopeGlobalSymbols_RemoveGlobalVarCallback{}
 	this.self_ = this
+	this.selfI_ = this
 	this.init_RescopeGlobalSymbols_RemoveGlobalVarCallback(compiler, preserveLocalVarDeclarations)
 	return this
 }
@@ -402,9 +406,7 @@ func (this *RescopeGlobalSymbols_RewriteGlobalClassFunctionDeclarationsToVarAssi
 		this.visit_impl(p0, p1, p2)
 		return
 	}
-	this.self_.(interface {
-		visit_impl(*NodeTraversal, Node, Node)
-	}).visit_impl(p0, p1, p2)
+	this.selfI_.visit_impl(p0, p1, p2)
 }
 
 // visit: an object that is exactly a RescopeGlobalSymbols_FindCrossChunkNamesCallback calls its visit_impl directly (post-flip); others dispatch.
@@ -413,9 +415,7 @@ func (this *RescopeGlobalSymbols_FindCrossChunkNamesCallback) visit(p0 *NodeTrav
 		this.visit_impl(p0, p1, p2)
 		return
 	}
-	this.self_.(interface {
-		visit_impl(*NodeTraversal, Node, Node)
-	}).visit_impl(p0, p1, p2)
+	this.selfI_.visit_impl(p0, p1, p2)
 }
 
 // visit: an object that is exactly a RescopeGlobalSymbols_FindNamesReferencingThis calls its visit_impl directly (post-flip); others dispatch.
@@ -424,9 +424,7 @@ func (this *RescopeGlobalSymbols_FindNamesReferencingThis) visit(p0 *NodeTravers
 		this.visit_impl(p0, p1, p2)
 		return
 	}
-	this.self_.(interface {
-		visit_impl(*NodeTraversal, Node, Node)
-	}).visit_impl(p0, p1, p2)
+	this.selfI_.visit_impl(p0, p1, p2)
 }
 
 // visit: an object that is exactly a RescopeGlobalSymbols_RemoveGlobalVarCallback calls its visit_impl directly (post-flip); others dispatch.
@@ -435,7 +433,5 @@ func (this *RescopeGlobalSymbols_RemoveGlobalVarCallback) visit(p0 *NodeTraversa
 		this.visit_impl(p0, p1, p2)
 		return
 	}
-	this.self_.(interface {
-		visit_impl(*NodeTraversal, Node, Node)
-	}).visit_impl(p0, p1, p2)
+	this.selfI_.visit_impl(p0, p1, p2)
 }

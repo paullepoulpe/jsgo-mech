@@ -22,6 +22,7 @@ func (this *ImplicitNullabilityCheck) init_ImplicitNullabilityCheck(compiler *Ab
 func new_ImplicitNullabilityCheck(compiler *AbstractCompiler) *ImplicitNullabilityCheck {
 	this := &ImplicitNullabilityCheck{}
 	this.self_ = this
+	this.selfI_ = this
 	this.init_ImplicitNullabilityCheck(compiler)
 	return this
 }
@@ -229,7 +230,5 @@ func (this *ImplicitNullabilityCheck) visit(p0 *NodeTraversal, p1 Node, p2 Node)
 		this.visit_impl(p0, p1, p2)
 		return
 	}
-	this.self_.(interface {
-		visit_impl(*NodeTraversal, Node, Node)
-	}).visit_impl(p0, p1, p2)
+	this.selfI_.visit_impl(p0, p1, p2)
 }

@@ -131,7 +131,15 @@ func (this *FunctionRewriter_ReductionGatherer) visit(traversal *NodeTraversal, 
 }
 
 type FunctionRewriter_Reducer struct {
-	self_ any
+	self_  any
+	selfI_ FunctionRewriter_Reducer_I
+}
+
+// FunctionRewriter_Reducer_I holds the methods the dispatchers of FunctionRewriter_Reducer's hierarchy call on the most derived
+// object (selfI_, set with self_); every class of the hierarchy implements them (post-flip).
+type FunctionRewriter_Reducer_I interface {
+	getHelperSource_impl() string
+	reduce_impl(Node) Node
 }
 
 func (this *FunctionRewriter_Reducer) as_FunctionRewriter_Reducer() *FunctionRewriter_Reducer {
@@ -175,11 +183,11 @@ func (this *FunctionRewriter_Reducer) buildCallNode(methodName string, argumentN
 }
 
 func (this *FunctionRewriter_Reducer) getHelperSource() string {
-	return this.self_.(interface{ getHelperSource_impl() string }).getHelperSource_impl()
+	return this.selfI_.getHelperSource_impl()
 }
 
 func (this *FunctionRewriter_Reducer) reduce(p0 Node) Node {
-	return this.self_.(interface{ reduce_impl(Node) Node }).reduce_impl(p0)
+	return this.selfI_.reduce_impl(p0)
 }
 
 type FunctionRewriter_EmptyFunctionReducer struct {
@@ -200,6 +208,7 @@ func (this *FunctionRewriter_EmptyFunctionReducer) init_FunctionRewriter_EmptyFu
 func new_FunctionRewriter_EmptyFunctionReducer() *FunctionRewriter_EmptyFunctionReducer {
 	this := &FunctionRewriter_EmptyFunctionReducer{}
 	this.self_ = this
+	this.selfI_ = this
 	this.init_FunctionRewriter_EmptyFunctionReducer()
 	return this
 }
@@ -299,6 +308,7 @@ func (this *FunctionRewriter_IdentityReducer) init_FunctionRewriter_IdentityRedu
 func new_FunctionRewriter_IdentityReducer() *FunctionRewriter_IdentityReducer {
 	this := &FunctionRewriter_IdentityReducer{}
 	this.self_ = this
+	this.selfI_ = this
 	this.init_FunctionRewriter_IdentityReducer()
 	return this
 }
@@ -357,6 +367,7 @@ func (this *FunctionRewriter_ReturnConstantReducer) init_FunctionRewriter_Return
 func new_FunctionRewriter_ReturnConstantReducer() *FunctionRewriter_ReturnConstantReducer {
 	this := &FunctionRewriter_ReturnConstantReducer{}
 	this.self_ = this
+	this.selfI_ = this
 	this.init_FunctionRewriter_ReturnConstantReducer()
 	return this
 }
@@ -414,6 +425,7 @@ func (this *FunctionRewriter_GetterReducer) init_FunctionRewriter_GetterReducer(
 func new_FunctionRewriter_GetterReducer() *FunctionRewriter_GetterReducer {
 	this := &FunctionRewriter_GetterReducer{}
 	this.self_ = this
+	this.selfI_ = this
 	this.init_FunctionRewriter_GetterReducer()
 	return this
 }
@@ -468,6 +480,7 @@ func (this *FunctionRewriter_SetterReducer) init_FunctionRewriter_SetterReducer(
 func new_FunctionRewriter_SetterReducer() *FunctionRewriter_SetterReducer {
 	this := &FunctionRewriter_SetterReducer{}
 	this.self_ = this
+	this.selfI_ = this
 	this.init_FunctionRewriter_SetterReducer()
 	return this
 }
@@ -525,7 +538,7 @@ func (this *FunctionRewriter_EmptyFunctionReducer) getHelperSource() string {
 	if this.self_ == any(this) {
 		return this.getHelperSource_impl()
 	}
-	return this.self_.(interface{ getHelperSource_impl() string }).getHelperSource_impl()
+	return this.selfI_.getHelperSource_impl()
 }
 
 // reduce: an object that is exactly a FunctionRewriter_EmptyFunctionReducer calls its reduce_impl directly (post-flip); others dispatch.
@@ -533,7 +546,7 @@ func (this *FunctionRewriter_EmptyFunctionReducer) reduce(p0 Node) Node {
 	if this.self_ == any(this) {
 		return this.reduce_impl(p0)
 	}
-	return this.self_.(interface{ reduce_impl(Node) Node }).reduce_impl(p0)
+	return this.selfI_.reduce_impl(p0)
 }
 
 // getHelperSource: an object that is exactly a FunctionRewriter_IdentityReducer calls its getHelperSource_impl directly (post-flip); others dispatch.
@@ -541,7 +554,7 @@ func (this *FunctionRewriter_IdentityReducer) getHelperSource() string {
 	if this.self_ == any(this) {
 		return this.getHelperSource_impl()
 	}
-	return this.self_.(interface{ getHelperSource_impl() string }).getHelperSource_impl()
+	return this.selfI_.getHelperSource_impl()
 }
 
 // reduce: an object that is exactly a FunctionRewriter_IdentityReducer calls its reduce_impl directly (post-flip); others dispatch.
@@ -549,7 +562,7 @@ func (this *FunctionRewriter_IdentityReducer) reduce(p0 Node) Node {
 	if this.self_ == any(this) {
 		return this.reduce_impl(p0)
 	}
-	return this.self_.(interface{ reduce_impl(Node) Node }).reduce_impl(p0)
+	return this.selfI_.reduce_impl(p0)
 }
 
 // getHelperSource: an object that is exactly a FunctionRewriter_ReturnConstantReducer calls its getHelperSource_impl directly (post-flip); others dispatch.
@@ -557,7 +570,7 @@ func (this *FunctionRewriter_ReturnConstantReducer) getHelperSource() string {
 	if this.self_ == any(this) {
 		return this.getHelperSource_impl()
 	}
-	return this.self_.(interface{ getHelperSource_impl() string }).getHelperSource_impl()
+	return this.selfI_.getHelperSource_impl()
 }
 
 // reduce: an object that is exactly a FunctionRewriter_ReturnConstantReducer calls its reduce_impl directly (post-flip); others dispatch.
@@ -565,7 +578,7 @@ func (this *FunctionRewriter_ReturnConstantReducer) reduce(p0 Node) Node {
 	if this.self_ == any(this) {
 		return this.reduce_impl(p0)
 	}
-	return this.self_.(interface{ reduce_impl(Node) Node }).reduce_impl(p0)
+	return this.selfI_.reduce_impl(p0)
 }
 
 // getHelperSource: an object that is exactly a FunctionRewriter_GetterReducer calls its getHelperSource_impl directly (post-flip); others dispatch.
@@ -573,7 +586,7 @@ func (this *FunctionRewriter_GetterReducer) getHelperSource() string {
 	if this.self_ == any(this) {
 		return this.getHelperSource_impl()
 	}
-	return this.self_.(interface{ getHelperSource_impl() string }).getHelperSource_impl()
+	return this.selfI_.getHelperSource_impl()
 }
 
 // reduce: an object that is exactly a FunctionRewriter_GetterReducer calls its reduce_impl directly (post-flip); others dispatch.
@@ -581,7 +594,7 @@ func (this *FunctionRewriter_GetterReducer) reduce(p0 Node) Node {
 	if this.self_ == any(this) {
 		return this.reduce_impl(p0)
 	}
-	return this.self_.(interface{ reduce_impl(Node) Node }).reduce_impl(p0)
+	return this.selfI_.reduce_impl(p0)
 }
 
 // getHelperSource: an object that is exactly a FunctionRewriter_SetterReducer calls its getHelperSource_impl directly (post-flip); others dispatch.
@@ -589,7 +602,7 @@ func (this *FunctionRewriter_SetterReducer) getHelperSource() string {
 	if this.self_ == any(this) {
 		return this.getHelperSource_impl()
 	}
-	return this.self_.(interface{ getHelperSource_impl() string }).getHelperSource_impl()
+	return this.selfI_.getHelperSource_impl()
 }
 
 // reduce: an object that is exactly a FunctionRewriter_SetterReducer calls its reduce_impl directly (post-flip); others dispatch.
@@ -597,5 +610,5 @@ func (this *FunctionRewriter_SetterReducer) reduce(p0 Node) Node {
 	if this.self_ == any(this) {
 		return this.reduce_impl(p0)
 	}
-	return this.self_.(interface{ reduce_impl(Node) Node }).reduce_impl(p0)
+	return this.selfI_.reduce_impl(p0)
 }

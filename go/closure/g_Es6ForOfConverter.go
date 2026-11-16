@@ -28,6 +28,7 @@ func (this *Es6ForOfConverter) init_Es6ForOfConverter(compiler *AbstractCompiler
 func new_Es6ForOfConverter(compiler *AbstractCompiler) *Es6ForOfConverter {
 	this := &Es6ForOfConverter{}
 	this.self_ = this
+	this.selfI_ = this
 	this.init_Es6ForOfConverter(compiler)
 	return this
 }
@@ -128,7 +129,5 @@ func (this *Es6ForOfConverter) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
 		this.visit_impl(p0, p1, p2)
 		return
 	}
-	this.self_.(interface {
-		visit_impl(*NodeTraversal, Node, Node)
-	}).visit_impl(p0, p1, p2)
+	this.selfI_.visit_impl(p0, p1, p2)
 }

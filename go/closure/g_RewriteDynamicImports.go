@@ -38,6 +38,7 @@ func (this *RewriteDynamicImports) init_RewriteDynamicImports(compiler *Abstract
 func new_RewriteDynamicImports(compiler *AbstractCompiler, alias OptionalOf[string], chunkOutputType *CompilerOptions_ChunkOutputType) *RewriteDynamicImports {
 	this := &RewriteDynamicImports{}
 	this.self_ = this
+	this.selfI_ = this
 	this.init_RewriteDynamicImports(compiler, alias, chunkOutputType)
 	return this
 }
@@ -252,6 +253,7 @@ func (this *RewriteDynamicImports_AliasInjectingTraversal) init_RewriteDynamicIm
 func new_RewriteDynamicImports_AliasInjectingTraversal(outer_ *RewriteDynamicImports) *RewriteDynamicImports_AliasInjectingTraversal {
 	this := &RewriteDynamicImports_AliasInjectingTraversal{}
 	this.self_ = this
+	this.selfI_ = this
 	this.outer_ = outer_
 	this.init_RewriteDynamicImports_AliasInjectingTraversal()
 	return this
@@ -307,9 +309,7 @@ func (this *RewriteDynamicImports) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
 		this.visit_impl(p0, p1, p2)
 		return
 	}
-	this.self_.(interface {
-		visit_impl(*NodeTraversal, Node, Node)
-	}).visit_impl(p0, p1, p2)
+	this.selfI_.visit_impl(p0, p1, p2)
 }
 
 // shouldTraverse: an object that is exactly a RewriteDynamicImports_AliasInjectingTraversal calls its shouldTraverse_impl directly (post-flip); others dispatch.
@@ -317,7 +317,5 @@ func (this *RewriteDynamicImports_AliasInjectingTraversal) shouldTraverse(p0 *No
 	if this.self_ == any(this) {
 		return this.shouldTraverse_impl(p0, p1, p2)
 	}
-	return this.self_.(interface {
-		shouldTraverse_impl(*NodeTraversal, Node, Node) bool
-	}).shouldTraverse_impl(p0, p1, p2)
+	return this.selfI_.shouldTraverse_impl(p0, p1, p2)
 }

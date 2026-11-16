@@ -43,6 +43,7 @@ func (this *NonEsModuleProcessor_NonEsModule) init_NonEsModuleProcessor_NonEsMod
 func new_NonEsModuleProcessor_NonEsModule(metadata *ModuleMetadataMap_ModuleMetadata, path *ModuleLoader_ModulePath, scriptNode Node) *NonEsModuleProcessor_NonEsModule {
 	this := &NonEsModuleProcessor_NonEsModule{}
 	this.self_ = this
+	this.selfI_ = this
 	this.init_NonEsModuleProcessor_NonEsModule(metadata, path, scriptNode)
 	return this
 }
@@ -95,9 +96,7 @@ func (this *NonEsModuleProcessor_NonEsModule) resolveExport(p0 ModuleRequestReso
 	if this.self_ == any(this) {
 		return this.resolveExport_impl(p0, p1)
 	}
-	return this.self_.(interface {
-		resolveExport_impl(ModuleRequestResolver, Optional) *ResolveExportResult
-	}).resolveExport_impl(p0, p1)
+	return this.selfI_.resolveExport_impl(p0, p1)
 }
 
 // resolveExport_5: an object that is exactly a NonEsModuleProcessor_NonEsModule calls its resolveExport_5_impl directly (post-flip); others dispatch.
@@ -105,9 +104,7 @@ func (this *NonEsModuleProcessor_NonEsModule) resolveExport_5(p0 ModuleRequestRe
 	if this.self_ == any(this) {
 		return this.resolveExport_5_impl(p0, p1, p2, p3, p4)
 	}
-	return this.self_.(interface {
-		resolveExport_5_impl(ModuleRequestResolver, Optional, Optional, Set, Set) *ResolveExportResult
-	}).resolveExport_5_impl(p0, p1, p2, p3, p4)
+	return this.selfI_.resolveExport_5_impl(p0, p1, p2, p3, p4)
 }
 
 // reset: an object that is exactly a NonEsModuleProcessor_NonEsModule calls its reset_impl directly (post-flip); others dispatch.
@@ -116,7 +113,7 @@ func (this *NonEsModuleProcessor_NonEsModule) reset() {
 		this.reset_impl()
 		return
 	}
-	this.self_.(interface{ reset_impl() }).reset_impl()
+	this.selfI_.reset_impl()
 }
 
 // resolve_2: an object that is exactly a NonEsModuleProcessor_NonEsModule calls its resolve_2_impl directly (post-flip); others dispatch.
@@ -124,9 +121,7 @@ func (this *NonEsModuleProcessor_NonEsModule) resolve_2(p0 ModuleRequestResolver
 	if this.self_ == any(this) {
 		return this.resolve_2_impl(p0, p1)
 	}
-	return this.self_.(interface {
-		resolve_2_impl(ModuleRequestResolver, Optional) *Module
-	}).resolve_2_impl(p0, p1)
+	return this.selfI_.resolve_2_impl(p0, p1)
 }
 
 // metadata: an object that is exactly a NonEsModuleProcessor_NonEsModule calls its metadata_impl directly (post-flip); others dispatch.
@@ -134,9 +129,7 @@ func (this *NonEsModuleProcessor_NonEsModule) metadata() *ModuleMetadataMap_Modu
 	if this.self_ == any(this) {
 		return this.metadata_impl()
 	}
-	return this.self_.(interface {
-		metadata_impl() *ModuleMetadataMap_ModuleMetadata
-	}).metadata_impl()
+	return this.selfI_.metadata_impl()
 }
 
 // getExportedNames: an object that is exactly a NonEsModuleProcessor_NonEsModule calls its getExportedNames_impl directly (post-flip); others dispatch.
@@ -144,9 +137,7 @@ func (this *NonEsModuleProcessor_NonEsModule) getExportedNames(p0 ModuleRequestR
 	if this.self_ == any(this) {
 		return this.getExportedNames_impl(p0)
 	}
-	return this.self_.(interface {
-		getExportedNames_impl(ModuleRequestResolver) *ImmutableSet
-	}).getExportedNames_impl(p0)
+	return this.selfI_.getExportedNames_impl(p0)
 }
 
 // getExportedNames_2: an object that is exactly a NonEsModuleProcessor_NonEsModule calls its getExportedNames_2_impl directly (post-flip); others dispatch.
@@ -154,7 +145,5 @@ func (this *NonEsModuleProcessor_NonEsModule) getExportedNames_2(p0 ModuleReques
 	if this.self_ == any(this) {
 		return this.getExportedNames_2_impl(p0, p1)
 	}
-	return this.self_.(interface {
-		getExportedNames_2_impl(ModuleRequestResolver, Set) *ImmutableSet
-	}).getExportedNames_2_impl(p0, p1)
+	return this.selfI_.getExportedNames_2_impl(p0, p1)
 }

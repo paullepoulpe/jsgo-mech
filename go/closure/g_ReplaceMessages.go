@@ -426,6 +426,7 @@ func (this *ReplaceMessages_MsgProtectionPass) init_ReplaceMessages_MsgProtectio
 func new_ReplaceMessages_MsgProtectionPass(outer_ *ReplaceMessages) *ReplaceMessages_MsgProtectionPass {
 	this := &ReplaceMessages_MsgProtectionPass{}
 	this.self_ = this
+	this.selfI_ = this
 	this.outer_ = outer_
 	this.init_ReplaceMessages_MsgProtectionPass()
 	return this
@@ -727,6 +728,7 @@ func (this *ReplaceMessages_FullReplacementPass) init_ReplaceMessages_FullReplac
 func new_ReplaceMessages_FullReplacementPass(outer_ *ReplaceMessages) *ReplaceMessages_FullReplacementPass {
 	this := &ReplaceMessages_FullReplacementPass{}
 	this.self_ = this
+	this.selfI_ = this
 	this.outer_ = outer_
 	this.init_ReplaceMessages_FullReplacementPass()
 	return this
@@ -986,6 +988,7 @@ func (this *ReplaceMessages_ReplacementCompletionPass_1) init_ReplaceMessages_Re
 func new_ReplaceMessages_ReplacementCompletionPass_1(outer_ *ReplaceMessages_ReplacementCompletionPass) *ReplaceMessages_ReplacementCompletionPass_1 {
 	this := &ReplaceMessages_ReplacementCompletionPass_1{}
 	this.self_ = this
+	this.selfI_ = this
 	this.outer_ = outer_
 	this.init_ReplaceMessages_ReplacementCompletionPass_1()
 	return this
@@ -1076,7 +1079,5 @@ func (this *ReplaceMessages_ReplacementCompletionPass_1) visit(p0 *NodeTraversal
 		this.visit_impl(p0, p1, p2)
 		return
 	}
-	this.self_.(interface {
-		visit_impl(*NodeTraversal, Node, Node)
-	}).visit_impl(p0, p1, p2)
+	this.selfI_.visit_impl(p0, p1, p2)
 }

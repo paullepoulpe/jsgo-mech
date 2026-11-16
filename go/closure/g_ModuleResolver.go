@@ -4,10 +4,20 @@ package closure
 
 type ModuleResolver struct {
 	self_           any
+	selfI_          ModuleResolver_I
 	modulePaths     ImmutableSetOf[string]
 	moduleRootPaths ImmutableListOf[string]
 	errorHandler    ErrorHandler
 	pathEscaper     *ModuleLoader_PathEscaper
+}
+
+// ModuleResolver_I holds the methods the dispatchers of ModuleResolver's hierarchy call on the most derived
+// object (selfI_, set with self_); every class of the hierarchy implements them (post-flip).
+type ModuleResolver_I interface {
+	getPackageJsonMainEntries_impl() *TMap[string, string]
+	resolveJsModuleSilently_impl(string, string) Optional
+	resolveJsModule_impl(string, string, Optional, int32, int32) Optional
+	resolveModuleAsPath_impl(string, string) string
 }
 
 func (this *ModuleResolver) as_ModuleResolver() *ModuleResolver { return this }
@@ -90,21 +100,17 @@ func (this *ModuleResolver) setErrorHandler(errorHandler ErrorHandler) {
 }
 
 func (this *ModuleResolver) resolveJsModule(p0 string, p1 string, p2 Optional, p3 int32, p4 int32) Optional {
-	return this.self_.(interface {
-		resolveJsModule_impl(string, string, Optional, int32, int32) Optional
-	}).resolveJsModule_impl(p0, p1, p2, p3, p4)
+	return this.selfI_.resolveJsModule_impl(p0, p1, p2, p3, p4)
 }
 
 func (this *ModuleResolver) resolveJsModuleSilently(p0 string, p1 string) Optional {
-	return this.self_.(interface {
-		resolveJsModuleSilently_impl(string, string) Optional
-	}).resolveJsModuleSilently_impl(p0, p1)
+	return this.selfI_.resolveJsModuleSilently_impl(p0, p1)
 }
 
 func (this *ModuleResolver) resolveModuleAsPath(p0 string, p1 string) string {
-	return this.self_.(interface{ resolveModuleAsPath_impl(string, string) string }).resolveModuleAsPath_impl(p0, p1)
+	return this.selfI_.resolveModuleAsPath_impl(p0, p1)
 }
 
 func (this *ModuleResolver) getPackageJsonMainEntries() *TMap[string, string] {
-	return this.self_.(interface{ getPackageJsonMainEntries_impl() *TMap[string, string] }).getPackageJsonMainEntries_impl()
+	return this.selfI_.getPackageJsonMainEntries_impl()
 }

@@ -144,6 +144,7 @@ func (this *ClosureCodeRemoval_FindAbstractMethods) init_ClosureCodeRemoval_Find
 func new_ClosureCodeRemoval_FindAbstractMethods(outer_ *ClosureCodeRemoval) *ClosureCodeRemoval_FindAbstractMethods {
 	this := &ClosureCodeRemoval_FindAbstractMethods{}
 	this.self_ = this
+	this.selfI_ = this
 	this.outer_ = outer_
 	this.init_ClosureCodeRemoval_FindAbstractMethods()
 	return this
@@ -186,6 +187,7 @@ func (this *ClosureCodeRemoval_FindAssertionCalls) init_ClosureCodeRemoval_FindA
 func new_ClosureCodeRemoval_FindAssertionCalls(outer_ *ClosureCodeRemoval) *ClosureCodeRemoval_FindAssertionCalls {
 	this := &ClosureCodeRemoval_FindAssertionCalls{}
 	this.self_ = this
+	this.selfI_ = this
 	this.outer_ = outer_
 	this.init_ClosureCodeRemoval_FindAssertionCalls()
 	return this
@@ -207,9 +209,7 @@ func (this *ClosureCodeRemoval_FindAbstractMethods) visit(p0 *NodeTraversal, p1 
 		this.visit_impl(p0, p1, p2)
 		return
 	}
-	this.self_.(interface {
-		visit_impl(*NodeTraversal, Node, Node)
-	}).visit_impl(p0, p1, p2)
+	this.selfI_.visit_impl(p0, p1, p2)
 }
 
 // visit: an object that is exactly a ClosureCodeRemoval_FindAssertionCalls calls its visit_impl directly (post-flip); others dispatch.
@@ -218,7 +218,5 @@ func (this *ClosureCodeRemoval_FindAssertionCalls) visit(p0 *NodeTraversal, p1 N
 		this.visit_impl(p0, p1, p2)
 		return
 	}
-	this.self_.(interface {
-		visit_impl(*NodeTraversal, Node, Node)
-	}).visit_impl(p0, p1, p2)
+	this.selfI_.visit_impl(p0, p1, p2)
 }

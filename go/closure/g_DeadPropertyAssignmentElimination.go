@@ -51,6 +51,7 @@ func (this *DeadPropertyAssignmentElimination_FunctionVisitor) init_DeadProperty
 func new_DeadPropertyAssignmentElimination_FunctionVisitor(skiplistedPropNames SetOf[string]) *DeadPropertyAssignmentElimination_FunctionVisitor {
 	this := &DeadPropertyAssignmentElimination_FunctionVisitor{}
 	this.self_ = this
+	this.selfI_ = this
 	this.init_DeadPropertyAssignmentElimination_FunctionVisitor(skiplistedPropNames)
 	return this
 }

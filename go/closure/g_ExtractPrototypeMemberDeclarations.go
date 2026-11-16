@@ -216,6 +216,7 @@ func (this *ExtractPrototypeMemberDeclarations_GatherExtractionInfo) init_Extrac
 func new_ExtractPrototypeMemberDeclarations_GatherExtractionInfo(outer_ *ExtractPrototypeMemberDeclarations) *ExtractPrototypeMemberDeclarations_GatherExtractionInfo {
 	this := &ExtractPrototypeMemberDeclarations_GatherExtractionInfo{}
 	this.self_ = this
+	this.selfI_ = this
 	this.outer_ = outer_
 	this.init_ExtractPrototypeMemberDeclarations_GatherExtractionInfo()
 	return this
@@ -390,7 +391,5 @@ func (this *ExtractPrototypeMemberDeclarations_GatherExtractionInfo) visit(p0 *N
 		this.visit_impl(p0, p1, p2)
 		return
 	}
-	this.self_.(interface {
-		visit_impl(*NodeTraversal, Node, Node)
-	}).visit_impl(p0, p1, p2)
+	this.selfI_.visit_impl(p0, p1, p2)
 }

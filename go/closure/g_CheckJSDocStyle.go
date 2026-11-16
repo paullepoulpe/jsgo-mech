@@ -22,6 +22,7 @@ func (this *CheckJSDocStyle) init_CheckJSDocStyle(compiler *AbstractCompiler) {
 func new_CheckJSDocStyle(compiler *AbstractCompiler) *CheckJSDocStyle {
 	this := &CheckJSDocStyle{}
 	this.self_ = this
+	this.selfI_ = this
 	this.init_CheckJSDocStyle(compiler)
 	return this
 }
@@ -368,6 +369,7 @@ func (this *CheckJSDocStyle_FindNonTrivialReturn) init_CheckJSDocStyle_FindNonTr
 func new_CheckJSDocStyle_FindNonTrivialReturn() *CheckJSDocStyle_FindNonTrivialReturn {
 	this := &CheckJSDocStyle_FindNonTrivialReturn{}
 	this.self_ = this
+	this.selfI_ = this
 	this.init_CheckJSDocStyle_FindNonTrivialReturn()
 	return this
 }
@@ -418,9 +420,7 @@ func (this *CheckJSDocStyle) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
 		this.visit_impl(p0, p1, p2)
 		return
 	}
-	this.self_.(interface {
-		visit_impl(*NodeTraversal, Node, Node)
-	}).visit_impl(p0, p1, p2)
+	this.selfI_.visit_impl(p0, p1, p2)
 }
 
 // shouldTraverse: an object that is exactly a CheckJSDocStyle_FindNonTrivialReturn calls its shouldTraverse_impl directly (post-flip); others dispatch.
@@ -428,7 +428,5 @@ func (this *CheckJSDocStyle_FindNonTrivialReturn) shouldTraverse(p0 *NodeTravers
 	if this.self_ == any(this) {
 		return this.shouldTraverse_impl(p0, p1, p2)
 	}
-	return this.self_.(interface {
-		shouldTraverse_impl(*NodeTraversal, Node, Node) bool
-	}).shouldTraverse_impl(p0, p1, p2)
+	return this.selfI_.shouldTraverse_impl(p0, p1, p2)
 }

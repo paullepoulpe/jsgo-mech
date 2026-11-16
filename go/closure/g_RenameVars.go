@@ -322,6 +322,7 @@ func (this *RenameVars_ProcessVars) init_RenameVars_ProcessVars() {
 func new_RenameVars_ProcessVars(outer_ *RenameVars) *RenameVars_ProcessVars {
 	this := &RenameVars_ProcessVars{}
 	this.self_ = this
+	this.selfI_ = this
 	this.outer_ = outer_
 	this.init_RenameVars_ProcessVars()
 	return this
@@ -402,7 +403,5 @@ func (this *RenameVars_ProcessVars) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
 		this.visit_impl(p0, p1, p2)
 		return
 	}
-	this.self_.(interface {
-		visit_impl(*NodeTraversal, Node, Node)
-	}).visit_impl(p0, p1, p2)
+	this.selfI_.visit_impl(p0, p1, p2)
 }

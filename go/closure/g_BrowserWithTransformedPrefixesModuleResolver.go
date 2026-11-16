@@ -48,6 +48,7 @@ func (this *BrowserWithTransformedPrefixesModuleResolver) init_BrowserWithTransf
 func new_BrowserWithTransformedPrefixesModuleResolver(modulePaths ImmutableSetOf[string], moduleRootPaths ImmutableListOf[string], errorHandler ErrorHandler, pathEscaper *ModuleLoader_PathEscaper, prefixReplacements ImmutableMapOf[string, string]) *BrowserWithTransformedPrefixesModuleResolver {
 	this := &BrowserWithTransformedPrefixesModuleResolver{}
 	this.self_ = this
+	this.selfI_ = this
 	this.zero_BrowserWithTransformedPrefixesModuleResolver()
 	this.init_BrowserWithTransformedPrefixesModuleResolver(modulePaths, moduleRootPaths, errorHandler, pathEscaper, prefixReplacements)
 	return this
@@ -193,9 +194,7 @@ func (this *BrowserWithTransformedPrefixesModuleResolver) resolveJsModule(p0 str
 	if this.self_ == any(this) {
 		return this.resolveJsModule_impl(p0, p1, p2, p3, p4)
 	}
-	return this.self_.(interface {
-		resolveJsModule_impl(string, string, Optional, int32, int32) Optional
-	}).resolveJsModule_impl(p0, p1, p2, p3, p4)
+	return this.selfI_.resolveJsModule_impl(p0, p1, p2, p3, p4)
 }
 
 // resolveJsModuleSilently: an object that is exactly a BrowserWithTransformedPrefixesModuleResolver calls its resolveJsModuleSilently_impl directly (post-flip); others dispatch.
@@ -203,9 +202,7 @@ func (this *BrowserWithTransformedPrefixesModuleResolver) resolveJsModuleSilentl
 	if this.self_ == any(this) {
 		return this.resolveJsModuleSilently_impl(p0, p1)
 	}
-	return this.self_.(interface {
-		resolveJsModuleSilently_impl(string, string) Optional
-	}).resolveJsModuleSilently_impl(p0, p1)
+	return this.selfI_.resolveJsModuleSilently_impl(p0, p1)
 }
 
 // resolveModuleAsPath: an object that is exactly a BrowserWithTransformedPrefixesModuleResolver calls its resolveModuleAsPath_impl directly (post-flip); others dispatch.
@@ -213,5 +210,5 @@ func (this *BrowserWithTransformedPrefixesModuleResolver) resolveModuleAsPath(p0
 	if this.self_ == any(this) {
 		return this.resolveModuleAsPath_impl(p0, p1)
 	}
-	return this.self_.(interface{ resolveModuleAsPath_impl(string, string) string }).resolveModuleAsPath_impl(p0, p1)
+	return this.selfI_.resolveModuleAsPath_impl(p0, p1)
 }

@@ -20,6 +20,7 @@ func (this *VerboseMessageFormatter) init_VerboseMessageFormatter(source SourceE
 func new_VerboseMessageFormatter(source SourceExcerptProvider) *VerboseMessageFormatter {
 	this := &VerboseMessageFormatter{}
 	this.self_ = this
+	this.selfI_ = this
 	this.init_VerboseMessageFormatter(source)
 	return this
 }
@@ -64,7 +65,7 @@ func (this *VerboseMessageFormatter) formatError(p0 *JSError) string {
 	if this.self_ == any(this) {
 		return this.formatError_impl(p0)
 	}
-	return this.self_.(interface{ formatError_impl(*JSError) string }).formatError_impl(p0)
+	return this.selfI_.formatError_impl(p0)
 }
 
 // formatWarning: an object that is exactly a VerboseMessageFormatter calls its formatWarning_impl directly (post-flip); others dispatch.
@@ -72,5 +73,5 @@ func (this *VerboseMessageFormatter) formatWarning(p0 *JSError) string {
 	if this.self_ == any(this) {
 		return this.formatWarning_impl(p0)
 	}
-	return this.self_.(interface{ formatWarning_impl(*JSError) string }).formatWarning_impl(p0)
+	return this.selfI_.formatWarning_impl(p0)
 }

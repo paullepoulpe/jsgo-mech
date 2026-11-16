@@ -30,6 +30,7 @@ func (this *ProcessClosurePrimitives) init_ProcessClosurePrimitives(compiler *Ab
 func new_ProcessClosurePrimitives(compiler *AbstractCompiler) *ProcessClosurePrimitives {
 	this := &ProcessClosurePrimitives{}
 	this.self_ = this
+	this.selfI_ = this
 	this.init_ProcessClosurePrimitives(compiler)
 	return this
 }
@@ -568,7 +569,5 @@ func (this *ProcessClosurePrimitives) visit(p0 *NodeTraversal, p1 Node, p2 Node)
 		this.visit_impl(p0, p1, p2)
 		return
 	}
-	this.self_.(interface {
-		visit_impl(*NodeTraversal, Node, Node)
-	}).visit_impl(p0, p1, p2)
+	this.selfI_.visit_impl(p0, p1, p2)
 }

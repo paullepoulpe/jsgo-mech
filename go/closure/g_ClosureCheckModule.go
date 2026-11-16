@@ -26,6 +26,7 @@ func (this *ClosureCheckModule) init_ClosureCheckModule(compiler *AbstractCompil
 func new_ClosureCheckModule(compiler *AbstractCompiler, moduleMetadataMap *ModuleMetadataMap) *ClosureCheckModule {
 	this := &ClosureCheckModule{}
 	this.self_ = this
+	this.selfI_ = this
 	this.init_ClosureCheckModule(compiler, moduleMetadataMap)
 	return this
 }
@@ -492,9 +493,7 @@ func (this *ClosureCheckModule) enterModule(p0 *ModuleMetadataMap_ModuleMetadata
 		this.enterModule_impl(p0, p1)
 		return
 	}
-	this.self_.(interface {
-		enterModule_impl(*ModuleMetadataMap_ModuleMetadata, Node)
-	}).enterModule_impl(p0, p1)
+	this.selfI_.enterModule_impl(p0, p1)
 }
 
 // exitModule: an object that is exactly a ClosureCheckModule calls its exitModule_impl directly (post-flip); others dispatch.
@@ -503,9 +502,7 @@ func (this *ClosureCheckModule) exitModule(p0 *ModuleMetadataMap_ModuleMetadata,
 		this.exitModule_impl(p0, p1)
 		return
 	}
-	this.self_.(interface {
-		exitModule_impl(*ModuleMetadataMap_ModuleMetadata, Node)
-	}).exitModule_impl(p0, p1)
+	this.selfI_.exitModule_impl(p0, p1)
 }
 
 // visit_4: an object that is exactly a ClosureCheckModule calls its visit_4_impl directly (post-flip); others dispatch.
@@ -514,7 +511,5 @@ func (this *ClosureCheckModule) visit_4(p0 *NodeTraversal, p1 Node, p2 *ModuleMe
 		this.visit_4_impl(p0, p1, p2, p3)
 		return
 	}
-	this.self_.(interface {
-		visit_4_impl(*NodeTraversal, Node, *ModuleMetadataMap_ModuleMetadata, Node)
-	}).visit_4_impl(p0, p1, p2, p3)
+	this.selfI_.visit_4_impl(p0, p1, p2, p3)
 }

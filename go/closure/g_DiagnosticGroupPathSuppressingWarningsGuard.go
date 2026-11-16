@@ -28,6 +28,7 @@ func (this *DiagnosticGroupPathSuppressingWarningsGuard) init_DiagnosticGroupPat
 func new_DiagnosticGroupPathSuppressingWarningsGuard(group *DiagnosticGroup, part string) *DiagnosticGroupPathSuppressingWarningsGuard {
 	this := &DiagnosticGroupPathSuppressingWarningsGuard{}
 	this.self_ = this
+	this.selfI_ = this
 	this.zero_DiagnosticGroupPathSuppressingWarningsGuard()
 	this.init_DiagnosticGroupPathSuppressingWarningsGuard(group, part)
 	return this
@@ -54,5 +55,5 @@ func (this *DiagnosticGroupPathSuppressingWarningsGuard) level(p0 *JSError) *Che
 	if this.self_ == any(this) {
 		return this.level_impl(p0)
 	}
-	return this.self_.(interface{ level_impl(*JSError) *CheckLevel }).level_impl(p0)
+	return this.selfI_.level_impl(p0)
 }

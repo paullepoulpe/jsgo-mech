@@ -766,8 +766,15 @@ func FunctionTypeBuilder_clinit() {
 
 type FunctionTypeBuilder_ValidatorBase struct {
 	self_     any
+	selfI_    FunctionTypeBuilder_ValidatorBase_I
 	compiler_ *AbstractCompiler
 	errorRoot Node
+}
+
+// FunctionTypeBuilder_ValidatorBase_I holds the methods the dispatchers of FunctionTypeBuilder_ValidatorBase's hierarchy call on the most derived
+// object (selfI_, set with self_); every class of the hierarchy implements them (post-flip).
+type FunctionTypeBuilder_ValidatorBase_I interface {
+	apply_impl(any) bool
 }
 
 func (this *FunctionTypeBuilder_ValidatorBase) as_FunctionTypeBuilder_ValidatorBase() *FunctionTypeBuilder_ValidatorBase {
@@ -811,7 +818,7 @@ func (this *FunctionTypeBuilder_ValidatorBase) reportError(error_ *DiagnosticTyp
 }
 
 func (this *FunctionTypeBuilder_ValidatorBase) apply(p0 any) bool {
-	return this.self_.(interface{ apply_impl(any) bool }).apply_impl(p0)
+	return this.selfI_.apply_impl(p0)
 }
 
 func (this *FunctionTypeBuilder_ValidatorBase) test(p0 any) bool {
@@ -842,6 +849,7 @@ func (this *FunctionTypeBuilder_ExtendedTypeValidator) init_FunctionTypeBuilder_
 func new_FunctionTypeBuilder_ExtendedTypeValidator(errorRoot Node, compiler *AbstractCompiler, formattedFnName string) *FunctionTypeBuilder_ExtendedTypeValidator {
 	this := &FunctionTypeBuilder_ExtendedTypeValidator{}
 	this.self_ = this
+	this.selfI_ = this
 	this.zero_FunctionTypeBuilder_ExtendedTypeValidator()
 	this.init_FunctionTypeBuilder_ExtendedTypeValidator(errorRoot, compiler, formattedFnName)
 	return this
@@ -894,6 +902,7 @@ func (this *FunctionTypeBuilder_ImplementedTypeValidator) init_FunctionTypeBuild
 func new_FunctionTypeBuilder_ImplementedTypeValidator(errorRoot Node, compiler *AbstractCompiler, formattedFnName string) *FunctionTypeBuilder_ImplementedTypeValidator {
 	this := &FunctionTypeBuilder_ImplementedTypeValidator{}
 	this.self_ = this
+	this.selfI_ = this
 	this.zero_FunctionTypeBuilder_ImplementedTypeValidator()
 	this.init_FunctionTypeBuilder_ImplementedTypeValidator(errorRoot, compiler, formattedFnName)
 	return this
@@ -1021,7 +1030,7 @@ func (this *FunctionTypeBuilder_ExtendedTypeValidator) apply(p0 any) bool {
 	if this.self_ == any(this) {
 		return this.apply_impl(p0)
 	}
-	return this.self_.(interface{ apply_impl(any) bool }).apply_impl(p0)
+	return this.selfI_.apply_impl(p0)
 }
 
 // apply: an object that is exactly a FunctionTypeBuilder_ImplementedTypeValidator calls its apply_impl directly (post-flip); others dispatch.
@@ -1029,5 +1038,5 @@ func (this *FunctionTypeBuilder_ImplementedTypeValidator) apply(p0 any) bool {
 	if this.self_ == any(this) {
 		return this.apply_impl(p0)
 	}
-	return this.self_.(interface{ apply_impl(any) bool }).apply_impl(p0)
+	return this.selfI_.apply_impl(p0)
 }

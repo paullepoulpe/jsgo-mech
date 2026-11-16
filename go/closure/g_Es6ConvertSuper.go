@@ -26,6 +26,7 @@ func (this *Es6ConvertSuper) init_Es6ConvertSuper(compiler *AbstractCompiler) {
 func new_Es6ConvertSuper(compiler *AbstractCompiler) *Es6ConvertSuper {
 	this := &Es6ConvertSuper{}
 	this.self_ = this
+	this.selfI_ = this
 	this.init_Es6ConvertSuper(compiler)
 	return this
 }
@@ -213,7 +214,5 @@ func (this *Es6ConvertSuper) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
 		this.visit_impl(p0, p1, p2)
 		return
 	}
-	this.self_.(interface {
-		visit_impl(*NodeTraversal, Node, Node)
-	}).visit_impl(p0, p1, p2)
+	this.selfI_.visit_impl(p0, p1, p2)
 }

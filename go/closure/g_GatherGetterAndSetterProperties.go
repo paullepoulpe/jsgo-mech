@@ -61,6 +61,7 @@ func (this *GatherGetterAndSetterProperties_GatherCallback) init_GatherGetterAnd
 func new_GatherGetterAndSetterProperties_GatherCallback() *GatherGetterAndSetterProperties_GatherCallback {
 	this := &GatherGetterAndSetterProperties_GatherCallback{}
 	this.self_ = this
+	this.selfI_ = this
 	this.init_GatherGetterAndSetterProperties_GatherCallback()
 	return this
 }
@@ -147,7 +148,5 @@ func (this *GatherGetterAndSetterProperties_GatherCallback) visit(p0 *NodeTraver
 		this.visit_impl(p0, p1, p2)
 		return
 	}
-	this.self_.(interface {
-		visit_impl(*NodeTraversal, Node, Node)
-	}).visit_impl(p0, p1, p2)
+	this.selfI_.visit_impl(p0, p1, p2)
 }

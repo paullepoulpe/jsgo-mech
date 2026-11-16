@@ -84,6 +84,7 @@ func (this *PeepholeOptimizationsPass_PeepCallback) init_PeepholeOptimizationsPa
 func new_PeepholeOptimizationsPass_PeepCallback(outer_ *PeepholeOptimizationsPass) *PeepholeOptimizationsPass_PeepCallback {
 	this := &PeepholeOptimizationsPass_PeepCallback{}
 	this.self_ = this
+	this.selfI_ = this
 	this.outer_ = outer_
 	this.init_PeepholeOptimizationsPass_PeepCallback()
 	return this
@@ -123,9 +124,7 @@ func (this *PeepholeOptimizationsPass_PeepCallback) visit(p0 *NodeTraversal, p1 
 		this.visit_impl(p0, p1, p2)
 		return
 	}
-	this.self_.(interface {
-		visit_impl(*NodeTraversal, Node, Node)
-	}).visit_impl(p0, p1, p2)
+	this.selfI_.visit_impl(p0, p1, p2)
 }
 
 // enterScope: an object that is exactly a PeepholeOptimizationsPass_PeepCallback calls its enterScope_impl directly (post-flip); others dispatch.
@@ -134,7 +133,7 @@ func (this *PeepholeOptimizationsPass_PeepCallback) enterScope(p0 *NodeTraversal
 		this.enterScope_impl(p0)
 		return
 	}
-	this.self_.(interface{ enterScope_impl(*NodeTraversal) }).enterScope_impl(p0)
+	this.selfI_.enterScope_impl(p0)
 }
 
 // exitScope: an object that is exactly a PeepholeOptimizationsPass_PeepCallback calls its exitScope_impl directly (post-flip); others dispatch.
@@ -143,5 +142,5 @@ func (this *PeepholeOptimizationsPass_PeepCallback) exitScope(p0 *NodeTraversal)
 		this.exitScope_impl(p0)
 		return
 	}
-	this.self_.(interface{ exitScope_impl(*NodeTraversal) }).exitScope_impl(p0)
+	this.selfI_.exitScope_impl(p0)
 }

@@ -350,6 +350,7 @@ func (this *ReplaceIdGenerators_GatherGenerators) init_ReplaceIdGenerators_Gathe
 func new_ReplaceIdGenerators_GatherGenerators(outer_ *ReplaceIdGenerators) *ReplaceIdGenerators_GatherGenerators {
 	this := &ReplaceIdGenerators_GatherGenerators{}
 	this.self_ = this
+	this.selfI_ = this
 	this.outer_ = outer_
 	this.init_ReplaceIdGenerators_GatherGenerators()
 	return this
@@ -443,6 +444,7 @@ func (this *ReplaceIdGenerators_ReplaceGenerators) init_ReplaceIdGenerators_Repl
 func new_ReplaceIdGenerators_ReplaceGenerators(outer_ *ReplaceIdGenerators) *ReplaceIdGenerators_ReplaceGenerators {
 	this := &ReplaceIdGenerators_ReplaceGenerators{}
 	this.self_ = this
+	this.selfI_ = this
 	this.outer_ = outer_
 	this.init_ReplaceIdGenerators_ReplaceGenerators()
 	return this
@@ -647,9 +649,7 @@ func (this *ReplaceIdGenerators_GatherGenerators) visit(p0 *NodeTraversal, p1 No
 		this.visit_impl(p0, p1, p2)
 		return
 	}
-	this.self_.(interface {
-		visit_impl(*NodeTraversal, Node, Node)
-	}).visit_impl(p0, p1, p2)
+	this.selfI_.visit_impl(p0, p1, p2)
 }
 
 // visit: an object that is exactly a ReplaceIdGenerators_ReplaceGenerators calls its visit_impl directly (post-flip); others dispatch.
@@ -658,7 +658,5 @@ func (this *ReplaceIdGenerators_ReplaceGenerators) visit(p0 *NodeTraversal, p1 N
 		this.visit_impl(p0, p1, p2)
 		return
 	}
-	this.self_.(interface {
-		visit_impl(*NodeTraversal, Node, Node)
-	}).visit_impl(p0, p1, p2)
+	this.selfI_.visit_impl(p0, p1, p2)
 }

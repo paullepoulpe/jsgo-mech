@@ -22,6 +22,7 @@ func (this *ProcessCommonJSModules) init_ProcessCommonJSModules(compiler *Abstra
 func new_ProcessCommonJSModules(compiler *AbstractCompiler) *ProcessCommonJSModules {
 	this := &ProcessCommonJSModules{}
 	this.self_ = this
+	this.selfI_ = this
 	this.init_ProcessCommonJSModules(compiler)
 	return this
 }
@@ -906,6 +907,7 @@ func (this *ProcessCommonJSModules_RewriteModule) init_ProcessCommonJSModules_Re
 func new_ProcessCommonJSModules_RewriteModule(outer_ *ProcessCommonJSModules, allowFullRewrite bool, exports ImmutableCollectionOf[*ProcessCommonJSModules_ExportInfo], defaultExportIsConst bool) *ProcessCommonJSModules_RewriteModule {
 	this := &ProcessCommonJSModules_RewriteModule{}
 	this.self_ = this
+	this.selfI_ = this
 	this.outer_ = outer_
 	this.init_ProcessCommonJSModules_RewriteModule(allowFullRewrite, exports, defaultExportIsConst)
 	return this
@@ -1671,9 +1673,7 @@ func (this *ProcessCommonJSModules) shouldTraverse(p0 *NodeTraversal, p1 Node, p
 	if this.self_ == any(this) {
 		return this.shouldTraverse_impl(p0, p1, p2)
 	}
-	return this.self_.(interface {
-		shouldTraverse_impl(*NodeTraversal, Node, Node) bool
-	}).shouldTraverse_impl(p0, p1, p2)
+	return this.selfI_.shouldTraverse_impl(p0, p1, p2)
 }
 
 // visit: an object that is exactly a ProcessCommonJSModules_RewriteModule calls its visit_impl directly (post-flip); others dispatch.
@@ -1682,7 +1682,5 @@ func (this *ProcessCommonJSModules_RewriteModule) visit(p0 *NodeTraversal, p1 No
 		this.visit_impl(p0, p1, p2)
 		return
 	}
-	this.self_.(interface {
-		visit_impl(*NodeTraversal, Node, Node)
-	}).visit_impl(p0, p1, p2)
+	this.selfI_.visit_impl(p0, p1, p2)
 }

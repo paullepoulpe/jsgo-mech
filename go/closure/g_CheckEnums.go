@@ -22,6 +22,7 @@ func (this *CheckEnums) init_CheckEnums(compiler *AbstractCompiler) {
 func new_CheckEnums(compiler *AbstractCompiler) *CheckEnums {
 	this := &CheckEnums{}
 	this.self_ = this
+	this.selfI_ = this
 	this.init_CheckEnums(compiler)
 	return this
 }
@@ -142,7 +143,5 @@ func (this *CheckEnums) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
 		this.visit_impl(p0, p1, p2)
 		return
 	}
-	this.self_.(interface {
-		visit_impl(*NodeTraversal, Node, Node)
-	}).visit_impl(p0, p1, p2)
+	this.selfI_.visit_impl(p0, p1, p2)
 }

@@ -25,6 +25,7 @@ func (this *DeadAssignmentsElimination) init_DeadAssignmentsElimination(compiler
 func new_DeadAssignmentsElimination(compiler *AbstractCompiler) *DeadAssignmentsElimination {
 	this := &DeadAssignmentsElimination{}
 	this.self_ = this
+	this.selfI_ = this
 	this.init_DeadAssignmentsElimination(compiler)
 	return this
 }
@@ -417,9 +418,7 @@ func (this *DeadAssignmentsElimination) visit(p0 *NodeTraversal, p1 Node, p2 Nod
 		this.visit_impl(p0, p1, p2)
 		return
 	}
-	this.self_.(interface {
-		visit_impl(*NodeTraversal, Node, Node)
-	}).visit_impl(p0, p1, p2)
+	this.selfI_.visit_impl(p0, p1, p2)
 }
 
 // enterScopeWithCfg: an object that is exactly a DeadAssignmentsElimination calls its enterScopeWithCfg_impl directly (post-flip); others dispatch.
@@ -428,7 +427,7 @@ func (this *DeadAssignmentsElimination) enterScopeWithCfg(p0 *NodeTraversal) {
 		this.enterScopeWithCfg_impl(p0)
 		return
 	}
-	this.self_.(interface{ enterScopeWithCfg_impl(*NodeTraversal) }).enterScopeWithCfg_impl(p0)
+	this.selfI_.enterScopeWithCfg_impl(p0)
 }
 
 // exitScopeWithCfg: an object that is exactly a DeadAssignmentsElimination calls its exitScopeWithCfg_impl directly (post-flip); others dispatch.
@@ -437,5 +436,5 @@ func (this *DeadAssignmentsElimination) exitScopeWithCfg(p0 *NodeTraversal) {
 		this.exitScopeWithCfg_impl(p0)
 		return
 	}
-	this.self_.(interface{ exitScopeWithCfg_impl(*NodeTraversal) }).exitScopeWithCfg_impl(p0)
+	this.selfI_.exitScopeWithCfg_impl(p0)
 }

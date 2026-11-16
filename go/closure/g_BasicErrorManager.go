@@ -61,5 +61,5 @@ func (this *BasicErrorManager) generateReport() {
 		this.generateReport_impl()
 		return
 	}
-	this.self_.(interface{ generateReport_impl() }).generateReport_impl()
+	this.selfI_.generateReport_impl()
 }

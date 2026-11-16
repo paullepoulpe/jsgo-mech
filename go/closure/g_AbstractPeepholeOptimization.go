@@ -4,9 +4,17 @@ package closure
 
 type AbstractPeepholeOptimization struct {
 	self_       any
+	selfI_      AbstractPeepholeOptimization_I
 	compiler_   *AbstractCompiler
 	astAnalyzer *AstAnalyzer
 	newFeatures LinkedHashSetOf[*FeatureSet_Feature]
+}
+
+// AbstractPeepholeOptimization_I holds the methods the dispatchers of AbstractPeepholeOptimization's hierarchy call on the most derived
+// object (selfI_, set with self_); every class of the hierarchy implements them (post-flip).
+type AbstractPeepholeOptimization_I interface {
+	beginTraversal_impl(*AbstractCompiler)
+	optimizeSubtree_impl(Node) Node
 }
 
 func (this *AbstractPeepholeOptimization) as_AbstractPeepholeOptimization() *AbstractPeepholeOptimization {
@@ -162,9 +170,9 @@ func (this *AbstractPeepholeOptimization) clearNewFeatures() {
 }
 
 func (this *AbstractPeepholeOptimization) optimizeSubtree(p0 Node) Node {
-	return this.self_.(interface{ optimizeSubtree_impl(Node) Node }).optimizeSubtree_impl(p0)
+	return this.selfI_.optimizeSubtree_impl(p0)
 }
 
 func (this *AbstractPeepholeOptimization) beginTraversal(p0 *AbstractCompiler) {
-	this.self_.(interface{ beginTraversal_impl(*AbstractCompiler) }).beginTraversal_impl(p0)
+	this.selfI_.beginTraversal_impl(p0)
 }

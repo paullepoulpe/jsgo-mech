@@ -26,6 +26,7 @@ func (this *Transpiler_bundle) init_Transpiler_bundle(compilerSupplier *Compiler
 func new_Transpiler_bundle(compilerSupplier *CompilerBasedTransformer_CompilerSupplier, runtimeLibraryName string) *Transpiler_bundle {
 	this := &Transpiler_bundle{}
 	this.self_ = this
+	this.selfI_ = this
 	this.zero_Transpiler_bundle()
 	this.init_Transpiler_bundle(compilerSupplier, runtimeLibraryName)
 	return this
@@ -67,7 +68,7 @@ func (this *Transpiler_bundle) getRuntime() Optional {
 	if this.self_ == any(this) {
 		return this.getRuntime_impl()
 	}
-	return this.self_.(interface{ getRuntime_impl() Optional }).getRuntime_impl()
+	return this.selfI_.getRuntime_impl()
 }
 
 // getTranformationName: an object that is exactly a Transpiler_bundle calls its getTranformationName_impl directly (post-flip); others dispatch.
@@ -75,5 +76,5 @@ func (this *Transpiler_bundle) getTranformationName() string {
 	if this.self_ == any(this) {
 		return this.getTranformationName_impl()
 	}
-	return this.self_.(interface{ getTranformationName_impl() string }).getTranformationName_impl()
+	return this.selfI_.getTranformationName_impl()
 }

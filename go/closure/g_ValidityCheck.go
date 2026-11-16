@@ -105,6 +105,7 @@ func (this *ValidityCheck_VerifyConstants) init_ValidityCheck_VerifyConstants(co
 func new_ValidityCheck_VerifyConstants(compiler *AbstractCompiler, checkUserDeclarations bool) *ValidityCheck_VerifyConstants {
 	this := &ValidityCheck_VerifyConstants{}
 	this.self_ = this
+	this.selfI_ = this
 	this.init_ValidityCheck_VerifyConstants(compiler, checkUserDeclarations)
 	return this
 }
@@ -162,7 +163,5 @@ func (this *ValidityCheck_VerifyConstants) visit(p0 *NodeTraversal, p1 Node, p2 
 		this.visit_impl(p0, p1, p2)
 		return
 	}
-	this.self_.(interface {
-		visit_impl(*NodeTraversal, Node, Node)
-	}).visit_impl(p0, p1, p2)
+	this.selfI_.visit_impl(p0, p1, p2)
 }

@@ -30,6 +30,7 @@ func (this *CheckMissingRequires) init_CheckMissingRequires(compiler *AbstractCo
 func new_CheckMissingRequires(compiler *AbstractCompiler, moduleMetadataMap *ModuleMetadataMap) *CheckMissingRequires {
 	this := &CheckMissingRequires{}
 	this.self_ = this
+	this.selfI_ = this
 	this.init_CheckMissingRequires(compiler, moduleMetadataMap)
 	return this
 }
@@ -570,9 +571,7 @@ func (this *CheckMissingRequires) shouldTraverse_4(p0 *NodeTraversal, p1 Node, p
 	if this.self_ == any(this) {
 		return this.shouldTraverse_4_impl(p0, p1, p2, p3)
 	}
-	return this.self_.(interface {
-		shouldTraverse_4_impl(*NodeTraversal, Node, *ModuleMetadataMap_ModuleMetadata, Node) bool
-	}).shouldTraverse_4_impl(p0, p1, p2, p3)
+	return this.selfI_.shouldTraverse_4_impl(p0, p1, p2, p3)
 }
 
 // visit_4: an object that is exactly a CheckMissingRequires calls its visit_4_impl directly (post-flip); others dispatch.
@@ -581,7 +580,5 @@ func (this *CheckMissingRequires) visit_4(p0 *NodeTraversal, p1 Node, p2 *Module
 		this.visit_4_impl(p0, p1, p2, p3)
 		return
 	}
-	this.self_.(interface {
-		visit_4_impl(*NodeTraversal, Node, *ModuleMetadataMap_ModuleMetadata, Node)
-	}).visit_4_impl(p0, p1, p2, p3)
+	this.selfI_.visit_4_impl(p0, p1, p2, p3)
 }

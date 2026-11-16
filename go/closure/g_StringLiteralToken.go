@@ -33,6 +33,7 @@ func (this *StringLiteralToken) init_StringLiteralToken(value string, location *
 func new_StringLiteralToken(value string, location *SourceRange, hasUnescapedUnicodeLineOrParagraphSeparator bool) *StringLiteralToken {
 	this := &StringLiteralToken{}
 	this.self_ = this
+	this.selfI_ = this
 	this.zero_StringLiteralToken()
 	this.init_StringLiteralToken(value, location, hasUnescapedUnicodeLineOrParagraphSeparator)
 	return this

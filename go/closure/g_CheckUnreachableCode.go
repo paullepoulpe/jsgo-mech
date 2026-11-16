@@ -22,6 +22,7 @@ func (this *CheckUnreachableCode) init_CheckUnreachableCode(compiler *AbstractCo
 func new_CheckUnreachableCode(compiler *AbstractCompiler) *CheckUnreachableCode {
 	this := &CheckUnreachableCode{}
 	this.self_ = this
+	this.selfI_ = this
 	this.init_CheckUnreachableCode(compiler)
 	return this
 }
@@ -84,7 +85,7 @@ func (this *CheckUnreachableCode) enterScopeWithCfg(p0 *NodeTraversal) {
 		this.enterScopeWithCfg_impl(p0)
 		return
 	}
-	this.self_.(interface{ enterScopeWithCfg_impl(*NodeTraversal) }).enterScopeWithCfg_impl(p0)
+	this.selfI_.enterScopeWithCfg_impl(p0)
 }
 
 // shouldTraverse: an object that is exactly a CheckUnreachableCode calls its shouldTraverse_impl directly (post-flip); others dispatch.
@@ -92,7 +93,5 @@ func (this *CheckUnreachableCode) shouldTraverse(p0 *NodeTraversal, p1 Node, p2 
 	if this.self_ == any(this) {
 		return this.shouldTraverse_impl(p0, p1, p2)
 	}
-	return this.self_.(interface {
-		shouldTraverse_impl(*NodeTraversal, Node, Node) bool
-	}).shouldTraverse_impl(p0, p1, p2)
+	return this.selfI_.shouldTraverse_impl(p0, p1, p2)
 }

@@ -20,6 +20,7 @@ func (this *GoogleCodingConvention) init_GoogleCodingConvention_0() {
 func new_GoogleCodingConvention_0() *GoogleCodingConvention {
 	this := &GoogleCodingConvention{}
 	this.self_ = this
+	this.selfI_ = this
 	this.init_GoogleCodingConvention_0()
 	return this
 }
@@ -31,6 +32,7 @@ func (this *GoogleCodingConvention) init_GoogleCodingConvention_CodingConvention
 func new_GoogleCodingConvention_CodingConvention(convention CodingConvention) *GoogleCodingConvention {
 	this := &GoogleCodingConvention{}
 	this.self_ = this
+	this.selfI_ = this
 	this.init_GoogleCodingConvention_CodingConvention(convention)
 	return this
 }
@@ -133,7 +135,7 @@ func (this *GoogleCodingConvention) isConstant(p0 string) bool {
 	if this.self_ == any(this) {
 		return this.isConstant_impl(p0)
 	}
-	return this.self_.(interface{ isConstant_impl(string) bool }).isConstant_impl(p0)
+	return this.selfI_.isConstant_impl(p0)
 }
 
 // isConstantKey: an object that is exactly a GoogleCodingConvention calls its isConstantKey_impl directly (post-flip); others dispatch.
@@ -141,7 +143,7 @@ func (this *GoogleCodingConvention) isConstantKey(p0 string) bool {
 	if this.self_ == any(this) {
 		return this.isConstantKey_impl(p0)
 	}
-	return this.self_.(interface{ isConstantKey_impl(string) bool }).isConstantKey_impl(p0)
+	return this.selfI_.isConstantKey_impl(p0)
 }
 
 // isValidEnumKey: an object that is exactly a GoogleCodingConvention calls its isValidEnumKey_impl directly (post-flip); others dispatch.
@@ -149,7 +151,7 @@ func (this *GoogleCodingConvention) isValidEnumKey(p0 Optional) bool {
 	if this.self_ == any(this) {
 		return this.isValidEnumKey_impl(p0)
 	}
-	return this.self_.(interface{ isValidEnumKey_impl(Optional) bool }).isValidEnumKey_impl(p0)
+	return this.selfI_.isValidEnumKey_impl(p0)
 }
 
 // isOptionalParameter: an object that is exactly a GoogleCodingConvention calls its isOptionalParameter_impl directly (post-flip); others dispatch.
@@ -157,7 +159,7 @@ func (this *GoogleCodingConvention) isOptionalParameter(p0 Node) bool {
 	if this.self_ == any(this) {
 		return this.isOptionalParameter_impl(p0)
 	}
-	return this.self_.(interface{ isOptionalParameter_impl(Node) bool }).isOptionalParameter_impl(p0)
+	return this.selfI_.isOptionalParameter_impl(p0)
 }
 
 // isVarArgsParameter: an object that is exactly a GoogleCodingConvention calls its isVarArgsParameter_impl directly (post-flip); others dispatch.
@@ -165,7 +167,7 @@ func (this *GoogleCodingConvention) isVarArgsParameter(p0 Node) bool {
 	if this.self_ == any(this) {
 		return this.isVarArgsParameter_impl(p0)
 	}
-	return this.self_.(interface{ isVarArgsParameter_impl(Node) bool }).isVarArgsParameter_impl(p0)
+	return this.selfI_.isVarArgsParameter_impl(p0)
 }
 
 // isExported_2: an object that is exactly a GoogleCodingConvention calls its isExported_2_impl directly (post-flip); others dispatch.
@@ -173,7 +175,7 @@ func (this *GoogleCodingConvention) isExported_2(p0 string, p1 bool) bool {
 	if this.self_ == any(this) {
 		return this.isExported_2_impl(p0, p1)
 	}
-	return this.self_.(interface{ isExported_2_impl(string, bool) bool }).isExported_2_impl(p0, p1)
+	return this.selfI_.isExported_2_impl(p0, p1)
 }
 
 // isClassFactoryCall: an object that is exactly a GoogleCodingConvention calls its isClassFactoryCall_impl directly (post-flip); others dispatch.
@@ -181,7 +183,7 @@ func (this *GoogleCodingConvention) isClassFactoryCall(p0 Node) bool {
 	if this.self_ == any(this) {
 		return this.isClassFactoryCall_impl(p0)
 	}
-	return this.self_.(interface{ isClassFactoryCall_impl(Node) bool }).isClassFactoryCall_impl(p0)
+	return this.selfI_.isClassFactoryCall_impl(p0)
 }
 
 // getPackageName: an object that is exactly a GoogleCodingConvention calls its getPackageName_impl directly (post-flip); others dispatch.
@@ -189,7 +191,5 @@ func (this *GoogleCodingConvention) getPackageName(p0 StaticSourceFile) Optional
 	if this.self_ == any(this) {
 		return this.getPackageName_impl(p0)
 	}
-	return this.self_.(interface {
-		getPackageName_impl(StaticSourceFile) Optional
-	}).getPackageName_impl(p0)
+	return this.selfI_.getPackageName_impl(p0)
 }

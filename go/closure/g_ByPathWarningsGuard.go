@@ -35,6 +35,7 @@ func (this *ByPathWarningsGuard) init_ByPathWarningsGuard(paths *TList[string], 
 func new_ByPathWarningsGuard(paths *TList[string], include bool, level *CheckLevel) *ByPathWarningsGuard {
 	this := &ByPathWarningsGuard{}
 	this.self_ = this
+	this.selfI_ = this
 	this.init_ByPathWarningsGuard(paths, include, level)
 	return this
 }
@@ -75,7 +76,7 @@ func (this *ByPathWarningsGuard) level(p0 *JSError) *CheckLevel {
 	if this.self_ == any(this) {
 		return this.level_impl(p0)
 	}
-	return this.self_.(interface{ level_impl(*JSError) *CheckLevel }).level_impl(p0)
+	return this.selfI_.level_impl(p0)
 }
 
 // getPriority: an object that is exactly a ByPathWarningsGuard calls its getPriority_impl directly (post-flip); others dispatch.
@@ -83,5 +84,5 @@ func (this *ByPathWarningsGuard) getPriority() int32 {
 	if this.self_ == any(this) {
 		return this.getPriority_impl()
 	}
-	return this.self_.(interface{ getPriority_impl() int32 }).getPriority_impl()
+	return this.selfI_.getPriority_impl()
 }

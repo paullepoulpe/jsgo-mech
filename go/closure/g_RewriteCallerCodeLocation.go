@@ -67,6 +67,7 @@ func (this *RewriteCallerCodeLocation_FindCallerLocationFunctions) init_RewriteC
 func new_RewriteCallerCodeLocation_FindCallerLocationFunctions(outer_ *RewriteCallerCodeLocation) *RewriteCallerCodeLocation_FindCallerLocationFunctions {
 	this := &RewriteCallerCodeLocation_FindCallerLocationFunctions{}
 	this.self_ = this
+	this.selfI_ = this
 	this.outer_ = outer_
 	this.init_RewriteCallerCodeLocation_FindCallerLocationFunctions()
 	return this
@@ -150,6 +151,7 @@ func (this *RewriteCallerCodeLocation_RewriteCallerLocationFunctionCalls) init_R
 func new_RewriteCallerCodeLocation_RewriteCallerLocationFunctionCalls(outer_ *RewriteCallerCodeLocation) *RewriteCallerCodeLocation_RewriteCallerLocationFunctionCalls {
 	this := &RewriteCallerCodeLocation_RewriteCallerLocationFunctionCalls{}
 	this.self_ = this
+	this.selfI_ = this
 	this.outer_ = outer_
 	this.init_RewriteCallerCodeLocation_RewriteCallerLocationFunctionCalls()
 	return this
@@ -234,9 +236,7 @@ func (this *RewriteCallerCodeLocation_FindCallerLocationFunctions) visit(p0 *Nod
 		this.visit_impl(p0, p1, p2)
 		return
 	}
-	this.self_.(interface {
-		visit_impl(*NodeTraversal, Node, Node)
-	}).visit_impl(p0, p1, p2)
+	this.selfI_.visit_impl(p0, p1, p2)
 }
 
 // visit: an object that is exactly a RewriteCallerCodeLocation_RewriteCallerLocationFunctionCalls calls its visit_impl directly (post-flip); others dispatch.
@@ -245,7 +245,5 @@ func (this *RewriteCallerCodeLocation_RewriteCallerLocationFunctionCalls) visit(
 		this.visit_impl(p0, p1, p2)
 		return
 	}
-	this.self_.(interface {
-		visit_impl(*NodeTraversal, Node, Node)
-	}).visit_impl(p0, p1, p2)
+	this.selfI_.visit_impl(p0, p1, p2)
 }

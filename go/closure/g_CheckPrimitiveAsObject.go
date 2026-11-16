@@ -22,6 +22,7 @@ func (this *CheckPrimitiveAsObject) init_CheckPrimitiveAsObject(compiler *Abstra
 func new_CheckPrimitiveAsObject(compiler *AbstractCompiler) *CheckPrimitiveAsObject {
 	this := &CheckPrimitiveAsObject{}
 	this.self_ = this
+	this.selfI_ = this
 	this.init_CheckPrimitiveAsObject(compiler)
 	return this
 }
@@ -92,7 +93,5 @@ func (this *CheckPrimitiveAsObject) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
 		this.visit_impl(p0, p1, p2)
 		return
 	}
-	this.self_.(interface {
-		visit_impl(*NodeTraversal, Node, Node)
-	}).visit_impl(p0, p1, p2)
+	this.selfI_.visit_impl(p0, p1, p2)
 }

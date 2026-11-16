@@ -22,6 +22,7 @@ func (this *OptimizeLetAndConstPeephole) init_OptimizeLetAndConstPeephole(assume
 func new_OptimizeLetAndConstPeephole(assumeOutputIsWrapped bool) *OptimizeLetAndConstPeephole {
 	this := &OptimizeLetAndConstPeephole{}
 	this.self_ = this
+	this.selfI_ = this
 	this.init_OptimizeLetAndConstPeephole(assumeOutputIsWrapped)
 	return this
 }
@@ -90,5 +91,5 @@ func (this *OptimizeLetAndConstPeephole) optimizeSubtree(p0 Node) Node {
 	if this.self_ == any(this) {
 		return this.optimizeSubtree_impl(p0)
 	}
-	return this.self_.(interface{ optimizeSubtree_impl(Node) Node }).optimizeSubtree_impl(p0)
+	return this.selfI_.optimizeSubtree_impl(p0)
 }

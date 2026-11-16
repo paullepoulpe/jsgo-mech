@@ -30,6 +30,7 @@ func (this *ColorFindPropertyReferences) init_ColorFindPropertyReferences(colorG
 func new_ColorFindPropertyReferences(colorGraphNodeFactory *ColorGraphNodeFactory, isPropertyReflector ColorFindPropertyReferences_IsPropertyReflector) *ColorFindPropertyReferences {
 	this := &ColorFindPropertyReferences{}
 	this.self_ = this
+	this.selfI_ = this
 	this.init_ColorFindPropertyReferences(colorGraphNodeFactory, isPropertyReflector)
 	return this
 }
@@ -207,7 +208,5 @@ func (this *ColorFindPropertyReferences) visit(p0 *NodeTraversal, p1 Node, p2 No
 		this.visit_impl(p0, p1, p2)
 		return
 	}
-	this.self_.(interface {
-		visit_impl(*NodeTraversal, Node, Node)
-	}).visit_impl(p0, p1, p2)
+	this.selfI_.visit_impl(p0, p1, p2)
 }

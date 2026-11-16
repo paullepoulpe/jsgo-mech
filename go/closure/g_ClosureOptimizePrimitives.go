@@ -170,6 +170,7 @@ func (this *ClosureOptimizePrimitives_FindPrimitives) init_ClosureOptimizePrimit
 func new_ClosureOptimizePrimitives_FindPrimitives(outer_ *ClosureOptimizePrimitives) *ClosureOptimizePrimitives_FindPrimitives {
 	this := &ClosureOptimizePrimitives_FindPrimitives{}
 	this.self_ = this
+	this.selfI_ = this
 	this.outer_ = outer_
 	this.init_ClosureOptimizePrimitives_FindPrimitives()
 	return this
@@ -194,7 +195,5 @@ func (this *ClosureOptimizePrimitives_FindPrimitives) visit(p0 *NodeTraversal, p
 		this.visit_impl(p0, p1, p2)
 		return
 	}
-	this.self_.(interface {
-		visit_impl(*NodeTraversal, Node, Node)
-	}).visit_impl(p0, p1, p2)
+	this.selfI_.visit_impl(p0, p1, p2)
 }

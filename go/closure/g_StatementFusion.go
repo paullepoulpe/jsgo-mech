@@ -20,6 +20,7 @@ func (this *StatementFusion) init_StatementFusion() {
 func new_StatementFusion() *StatementFusion {
 	this := &StatementFusion{}
 	this.self_ = this
+	this.selfI_ = this
 	this.init_StatementFusion()
 	return this
 }
@@ -127,5 +128,5 @@ func (this *StatementFusion) optimizeSubtree(p0 Node) Node {
 	if this.self_ == any(this) {
 		return this.optimizeSubtree_impl(p0)
 	}
-	return this.self_.(interface{ optimizeSubtree_impl(Node) Node }).optimizeSubtree_impl(p0)
+	return this.selfI_.optimizeSubtree_impl(p0)
 }

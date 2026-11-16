@@ -4,12 +4,20 @@ package closure
 
 type JsFileLineParser struct {
 	self_          any
+	selfI_         JsFileLineParser_I
 	shortcutMode   bool
 	valueMatcher   *Matcher_re2j
 	filePath       OptionalOf[string]
 	lineNum        int32
 	errorManager   ErrorManager
 	parseSucceeded bool
+}
+
+// JsFileLineParser_I holds the methods the dispatchers of JsFileLineParser's hierarchy call on the most derived
+// object (selfI_, set with self_); every class of the hierarchy implements them (post-flip).
+type JsFileLineParser_I interface {
+	parseJsDocCommentLine_impl(string) bool
+	parseLine_impl(string) *Outcome_base
 }
 
 func (this *JsFileLineParser) as_JsFileLineParser() *JsFileLineParser { return this }
@@ -305,11 +313,11 @@ func JsFileLineParser_check(condition bool, message string) *Outcome_base {
 }
 
 func (this *JsFileLineParser) parseLine(p0 string) *Outcome_base {
-	return this.self_.(interface{ parseLine_impl(string) *Outcome_base }).parseLine_impl(p0)
+	return this.selfI_.parseLine_impl(p0)
 }
 
 func (this *JsFileLineParser) parseJsDocCommentLine(p0 string) bool {
-	return this.self_.(interface{ parseJsDocCommentLine_impl(string) bool }).parseJsDocCommentLine_impl(p0)
+	return this.selfI_.parseJsDocCommentLine_impl(p0)
 }
 
 var JsFileLineParser_PARSE_WARNING *DiagnosticType

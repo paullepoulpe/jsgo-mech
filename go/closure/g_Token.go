@@ -4,8 +4,15 @@ package closure
 
 type Token_parser struct {
 	self_     any
+	selfI_    Token_parser_I
 	location_ *SourceRange
 	type__    *TokenType
+}
+
+// Token_parser_I holds the methods the dispatchers of Token_parser's hierarchy call on the most derived
+// object (selfI_, set with self_); every class of the hierarchy implements them (post-flip).
+type Token_parser_I interface {
+	toString_impl() string
 }
 
 func (this *Token_parser) as_Token_parser() *Token_parser { return this }
@@ -37,6 +44,7 @@ func (this *Token_parser) init_Token_parser(type_ *TokenType, location *SourceRa
 func new_Token_parser(type_ *TokenType, location *SourceRange) *Token_parser {
 	this := &Token_parser{}
 	this.self_ = this
+	this.selfI_ = this
 	this.init_Token_parser(type_, location)
 	return this
 }
@@ -62,5 +70,5 @@ func (this *Token_parser) asTemplateLiteral() *TemplateLiteralToken {
 }
 
 func (this *Token_parser) toString() string {
-	return this.self_.(interface{ toString_impl() string }).toString_impl()
+	return this.selfI_.toString_impl()
 }

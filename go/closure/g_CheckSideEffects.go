@@ -36,6 +36,7 @@ func (this *CheckSideEffects) init_CheckSideEffects(compiler *AbstractCompiler, 
 func new_CheckSideEffects(compiler *AbstractCompiler, report bool, protectSideEffectFreeCode bool) *CheckSideEffects {
 	this := &CheckSideEffects{}
 	this.self_ = this
+	this.selfI_ = this
 	this.init_CheckSideEffects(compiler, report, protectSideEffectFreeCode)
 	return this
 }
@@ -161,6 +162,7 @@ func (this *CheckSideEffects_StripProtection) init_CheckSideEffects_StripProtect
 func new_CheckSideEffects_StripProtection(compiler *AbstractCompiler) *CheckSideEffects_StripProtection {
 	this := &CheckSideEffects_StripProtection{}
 	this.self_ = this
+	this.selfI_ = this
 	this.init_CheckSideEffects_StripProtection(compiler)
 	return this
 }
@@ -212,6 +214,7 @@ func (this *CheckSideEffects_GetNoSideEffectExterns) init_CheckSideEffects_GetNo
 func new_CheckSideEffects_GetNoSideEffectExterns(outer_ *CheckSideEffects) *CheckSideEffects_GetNoSideEffectExterns {
 	this := &CheckSideEffects_GetNoSideEffectExterns{}
 	this.self_ = this
+	this.selfI_ = this
 	this.outer_ = outer_
 	this.init_CheckSideEffects_GetNoSideEffectExterns()
 	return this
@@ -236,9 +239,7 @@ func (this *CheckSideEffects) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
 		this.visit_impl(p0, p1, p2)
 		return
 	}
-	this.self_.(interface {
-		visit_impl(*NodeTraversal, Node, Node)
-	}).visit_impl(p0, p1, p2)
+	this.selfI_.visit_impl(p0, p1, p2)
 }
 
 // visit: an object that is exactly a CheckSideEffects_StripProtection calls its visit_impl directly (post-flip); others dispatch.
@@ -247,9 +248,7 @@ func (this *CheckSideEffects_StripProtection) visit(p0 *NodeTraversal, p1 Node, 
 		this.visit_impl(p0, p1, p2)
 		return
 	}
-	this.self_.(interface {
-		visit_impl(*NodeTraversal, Node, Node)
-	}).visit_impl(p0, p1, p2)
+	this.selfI_.visit_impl(p0, p1, p2)
 }
 
 // visit: an object that is exactly a CheckSideEffects_GetNoSideEffectExterns calls its visit_impl directly (post-flip); others dispatch.
@@ -258,7 +257,5 @@ func (this *CheckSideEffects_GetNoSideEffectExterns) visit(p0 *NodeTraversal, p1
 		this.visit_impl(p0, p1, p2)
 		return
 	}
-	this.self_.(interface {
-		visit_impl(*NodeTraversal, Node, Node)
-	}).visit_impl(p0, p1, p2)
+	this.selfI_.visit_impl(p0, p1, p2)
 }

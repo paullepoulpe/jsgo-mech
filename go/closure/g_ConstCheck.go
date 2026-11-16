@@ -24,6 +24,7 @@ func (this *ConstCheck) init_ConstCheck(compiler *AbstractCompiler) {
 func new_ConstCheck(compiler *AbstractCompiler) *ConstCheck {
 	this := &ConstCheck{}
 	this.self_ = this
+	this.selfI_ = this
 	this.init_ConstCheck(compiler)
 	return this
 }
@@ -105,7 +106,5 @@ func (this *ConstCheck) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
 		this.visit_impl(p0, p1, p2)
 		return
 	}
-	this.self_.(interface {
-		visit_impl(*NodeTraversal, Node, Node)
-	}).visit_impl(p0, p1, p2)
+	this.selfI_.visit_impl(p0, p1, p2)
 }

@@ -464,6 +464,7 @@ func (this *GlobalNamespace_BuildGlobalNamespace) init_GlobalNamespace_BuildGlob
 func new_GlobalNamespace_BuildGlobalNamespace(outer_ *GlobalNamespace) *GlobalNamespace_BuildGlobalNamespace {
 	this := &GlobalNamespace_BuildGlobalNamespace{}
 	this.self_ = this
+	this.selfI_ = this
 	this.outer_ = outer_
 	this.init_GlobalNamespace_BuildGlobalNamespace()
 	return this
@@ -2226,7 +2227,5 @@ func (this *GlobalNamespace_BuildGlobalNamespace) shouldTraverse(p0 *NodeTravers
 	if this.self_ == any(this) {
 		return this.shouldTraverse_impl(p0, p1, p2)
 	}
-	return this.self_.(interface {
-		shouldTraverse_impl(*NodeTraversal, Node, Node) bool
-	}).shouldTraverse_impl(p0, p1, p2)
+	return this.selfI_.shouldTraverse_impl(p0, p1, p2)
 }

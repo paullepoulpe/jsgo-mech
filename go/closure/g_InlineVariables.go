@@ -105,7 +105,15 @@ func InlineVariables_Mode_clinit() {
 }
 
 type InlineVariables_VarExpert struct {
-	self_ any
+	self_  any
+	selfI_ InlineVariables_VarExpert_I
+}
+
+// InlineVariables_VarExpert_I holds the methods the dispatchers of InlineVariables_VarExpert's hierarchy call on the most derived
+// object (selfI_, set with self_); every class of the hierarchy implements them (post-flip).
+type InlineVariables_VarExpert_I interface {
+	analyze_impl() *InlineVariables_InlineVarAnalysis
+	reanalyzeAfterAliasedVar_impl(*Var, *InlineVariables_InlineVarAnalysis) *InlineVariables_InlineVarAnalysis
 }
 
 func (this *InlineVariables_VarExpert) as_InlineVariables_VarExpert() *InlineVariables_VarExpert {
@@ -144,19 +152,26 @@ func (this *InlineVariables_VarExpert) reanalyzeAfterAliasedVar_impl(aliasedVar 
 }
 
 func (this *InlineVariables_VarExpert) analyze() *InlineVariables_InlineVarAnalysis {
-	return this.self_.(interface {
-		analyze_impl() *InlineVariables_InlineVarAnalysis
-	}).analyze_impl()
+	return this.selfI_.analyze_impl()
 }
 
 func (this *InlineVariables_VarExpert) reanalyzeAfterAliasedVar(p0 *Var, p1 *InlineVariables_InlineVarAnalysis) *InlineVariables_InlineVarAnalysis {
-	return this.self_.(interface {
-		reanalyzeAfterAliasedVar_impl(*Var, *InlineVariables_InlineVarAnalysis) *InlineVariables_InlineVarAnalysis
-	}).reanalyzeAfterAliasedVar_impl(p0, p1)
+	return this.selfI_.reanalyzeAfterAliasedVar_impl(p0, p1)
 }
 
 type InlineVariables_InlineVarAnalysis struct {
-	self_ any
+	self_  any
+	selfI_ InlineVariables_InlineVarAnalysis_I
+}
+
+// InlineVariables_InlineVarAnalysis_I holds the methods the dispatchers of InlineVariables_InlineVarAnalysis's hierarchy call on the most derived
+// object (selfI_, set with self_); every class of the hierarchy implements them (post-flip).
+type InlineVariables_InlineVarAnalysis_I interface {
+	getAliasedVar_impl() *Var
+	isSafeToInlineAliases_impl() bool
+	performInline_impl()
+	shouldInline_impl() bool
+	shouldWaitForAliasedVar_impl() bool
 }
 
 func (this *InlineVariables_InlineVarAnalysis) as_InlineVariables_InlineVarAnalysis() *InlineVariables_InlineVarAnalysis {
@@ -211,23 +226,23 @@ func (this *InlineVariables_InlineVarAnalysis) performInline_impl() {
 }
 
 func (this *InlineVariables_InlineVarAnalysis) isSafeToInlineAliases() bool {
-	return this.self_.(interface{ isSafeToInlineAliases_impl() bool }).isSafeToInlineAliases_impl()
+	return this.selfI_.isSafeToInlineAliases_impl()
 }
 
 func (this *InlineVariables_InlineVarAnalysis) shouldInline() bool {
-	return this.self_.(interface{ shouldInline_impl() bool }).shouldInline_impl()
+	return this.selfI_.shouldInline_impl()
 }
 
 func (this *InlineVariables_InlineVarAnalysis) performInline() {
-	this.self_.(interface{ performInline_impl() }).performInline_impl()
+	this.selfI_.performInline_impl()
 }
 
 func (this *InlineVariables_InlineVarAnalysis) shouldWaitForAliasedVar() bool {
-	return this.self_.(interface{ shouldWaitForAliasedVar_impl() bool }).shouldWaitForAliasedVar_impl()
+	return this.selfI_.shouldWaitForAliasedVar_impl()
 }
 
 func (this *InlineVariables_InlineVarAnalysis) getAliasedVar() *Var {
-	return this.self_.(interface{ getAliasedVar_impl() *Var }).getAliasedVar_impl()
+	return this.selfI_.getAliasedVar_impl()
 }
 
 type InlineVariables_InliningBehavior struct {
@@ -586,6 +601,7 @@ func (this *InlineVariables_InliningBehavior_StandardVarExpert) init_InlineVaria
 func new_InlineVariables_InliningBehavior_StandardVarExpert(outer_ *InlineVariables_InliningBehavior, initData *InlineVariables_InliningBehavior_VarExpertInitData) *InlineVariables_InliningBehavior_StandardVarExpert {
 	this := &InlineVariables_InliningBehavior_StandardVarExpert{}
 	this.self_ = this
+	this.selfI_ = this
 	this.outer_ = outer_
 	this.init_InlineVariables_InliningBehavior_StandardVarExpert(initData)
 	return this
@@ -852,6 +868,7 @@ func (this *InlineVariables_InliningBehavior_PositiveInlineVarAnalysis) init_Inl
 func new_InlineVariables_InliningBehavior_PositiveInlineVarAnalysis(inliner Runnable) *InlineVariables_InliningBehavior_PositiveInlineVarAnalysis {
 	this := &InlineVariables_InliningBehavior_PositiveInlineVarAnalysis{}
 	this.self_ = this
+	this.selfI_ = this
 	this.init_InlineVariables_InliningBehavior_PositiveInlineVarAnalysis(inliner)
 	return this
 }
@@ -888,6 +905,7 @@ func (this *InlineVariables_InliningBehavior_VarIsAliasAnalysis) init_InlineVari
 func new_InlineVariables_InliningBehavior_VarIsAliasAnalysis(aliasedVar *Var) *InlineVariables_InliningBehavior_VarIsAliasAnalysis {
 	this := &InlineVariables_InliningBehavior_VarIsAliasAnalysis{}
 	this.self_ = this
+	this.selfI_ = this
 	this.init_InlineVariables_InliningBehavior_VarIsAliasAnalysis(aliasedVar)
 	return this
 }
@@ -987,6 +1005,7 @@ func (this *InlineVariables_1) init_InlineVariables_1() {
 func new_InlineVariables_1() *InlineVariables_1 {
 	this := &InlineVariables_1{}
 	this.self_ = this
+	this.selfI_ = this
 	this.init_InlineVariables_1()
 	return this
 }
@@ -1013,6 +1032,7 @@ func (this *InlineVariables_2) init_InlineVariables_2() {
 func new_InlineVariables_2() *InlineVariables_2 {
 	this := &InlineVariables_2{}
 	this.self_ = this
+	this.selfI_ = this
 	this.init_InlineVariables_2()
 	return this
 }
@@ -1039,6 +1059,7 @@ func (this *InlineVariables_3) init_InlineVariables_3() {
 func new_InlineVariables_3() *InlineVariables_3 {
 	this := &InlineVariables_3{}
 	this.self_ = this
+	this.selfI_ = this
 	this.init_InlineVariables_3()
 	return this
 }
@@ -1061,6 +1082,7 @@ func (this *InlineVariables_4) init_InlineVariables_4() {
 func new_InlineVariables_4() *InlineVariables_4 {
 	this := &InlineVariables_4{}
 	this.self_ = this
+	this.selfI_ = this
 	this.init_InlineVariables_4()
 	return this
 }
@@ -1088,6 +1110,7 @@ func (this *InlineVariables_InliningBehavior_StandardVarExpert_1) init_InlineVar
 func new_InlineVariables_InliningBehavior_StandardVarExpert_1(outer_ *InlineVariables_InliningBehavior_StandardVarExpert) *InlineVariables_InliningBehavior_StandardVarExpert_1 {
 	this := &InlineVariables_InliningBehavior_StandardVarExpert_1{}
 	this.self_ = this
+	this.selfI_ = this
 	this.outer_ = outer_
 	this.init_InlineVariables_InliningBehavior_StandardVarExpert_1()
 	return this
@@ -1102,9 +1125,7 @@ func (this *InlineVariables_InliningBehavior_StandardVarExpert) analyze() *Inlin
 	if this.self_ == any(this) {
 		return this.analyze_impl()
 	}
-	return this.self_.(interface {
-		analyze_impl() *InlineVariables_InlineVarAnalysis
-	}).analyze_impl()
+	return this.selfI_.analyze_impl()
 }
 
 // reanalyzeAfterAliasedVar: an object that is exactly a InlineVariables_InliningBehavior_StandardVarExpert calls its reanalyzeAfterAliasedVar_impl directly (post-flip); others dispatch.
@@ -1112,9 +1133,7 @@ func (this *InlineVariables_InliningBehavior_StandardVarExpert) reanalyzeAfterAl
 	if this.self_ == any(this) {
 		return this.reanalyzeAfterAliasedVar_impl(p0, p1)
 	}
-	return this.self_.(interface {
-		reanalyzeAfterAliasedVar_impl(*Var, *InlineVariables_InlineVarAnalysis) *InlineVariables_InlineVarAnalysis
-	}).reanalyzeAfterAliasedVar_impl(p0, p1)
+	return this.selfI_.reanalyzeAfterAliasedVar_impl(p0, p1)
 }
 
 // shouldInline: an object that is exactly a InlineVariables_InliningBehavior_PositiveInlineVarAnalysis calls its shouldInline_impl directly (post-flip); others dispatch.
@@ -1122,7 +1141,7 @@ func (this *InlineVariables_InliningBehavior_PositiveInlineVarAnalysis) shouldIn
 	if this.self_ == any(this) {
 		return this.shouldInline_impl()
 	}
-	return this.self_.(interface{ shouldInline_impl() bool }).shouldInline_impl()
+	return this.selfI_.shouldInline_impl()
 }
 
 // performInline: an object that is exactly a InlineVariables_InliningBehavior_PositiveInlineVarAnalysis calls its performInline_impl directly (post-flip); others dispatch.
@@ -1131,7 +1150,7 @@ func (this *InlineVariables_InliningBehavior_PositiveInlineVarAnalysis) performI
 		this.performInline_impl()
 		return
 	}
-	this.self_.(interface{ performInline_impl() }).performInline_impl()
+	this.selfI_.performInline_impl()
 }
 
 // isSafeToInlineAliases: an object that is exactly a InlineVariables_InliningBehavior_PositiveInlineVarAnalysis calls its isSafeToInlineAliases_impl directly (post-flip); others dispatch.
@@ -1139,7 +1158,7 @@ func (this *InlineVariables_InliningBehavior_PositiveInlineVarAnalysis) isSafeTo
 	if this.self_ == any(this) {
 		return this.isSafeToInlineAliases_impl()
 	}
-	return this.self_.(interface{ isSafeToInlineAliases_impl() bool }).isSafeToInlineAliases_impl()
+	return this.selfI_.isSafeToInlineAliases_impl()
 }
 
 // shouldWaitForAliasedVar: an object that is exactly a InlineVariables_InliningBehavior_VarIsAliasAnalysis calls its shouldWaitForAliasedVar_impl directly (post-flip); others dispatch.
@@ -1147,7 +1166,7 @@ func (this *InlineVariables_InliningBehavior_VarIsAliasAnalysis) shouldWaitForAl
 	if this.self_ == any(this) {
 		return this.shouldWaitForAliasedVar_impl()
 	}
-	return this.self_.(interface{ shouldWaitForAliasedVar_impl() bool }).shouldWaitForAliasedVar_impl()
+	return this.selfI_.shouldWaitForAliasedVar_impl()
 }
 
 // getAliasedVar: an object that is exactly a InlineVariables_InliningBehavior_VarIsAliasAnalysis calls its getAliasedVar_impl directly (post-flip); others dispatch.
@@ -1155,7 +1174,7 @@ func (this *InlineVariables_InliningBehavior_VarIsAliasAnalysis) getAliasedVar()
 	if this.self_ == any(this) {
 		return this.getAliasedVar_impl()
 	}
-	return this.self_.(interface{ getAliasedVar_impl() *Var }).getAliasedVar_impl()
+	return this.selfI_.getAliasedVar_impl()
 }
 
 // isSafeToInlineAliases: an object that is exactly a InlineVariables_InliningBehavior_VarIsAliasAnalysis calls its isSafeToInlineAliases_impl directly (post-flip); others dispatch.
@@ -1163,7 +1182,7 @@ func (this *InlineVariables_InliningBehavior_VarIsAliasAnalysis) isSafeToInlineA
 	if this.self_ == any(this) {
 		return this.isSafeToInlineAliases_impl()
 	}
-	return this.self_.(interface{ isSafeToInlineAliases_impl() bool }).isSafeToInlineAliases_impl()
+	return this.selfI_.isSafeToInlineAliases_impl()
 }
 
 // analyze: an object that is exactly a InlineVariables_1 calls its analyze_impl directly (post-flip); others dispatch.
@@ -1171,9 +1190,7 @@ func (this *InlineVariables_1) analyze() *InlineVariables_InlineVarAnalysis {
 	if this.self_ == any(this) {
 		return this.analyze_impl()
 	}
-	return this.self_.(interface {
-		analyze_impl() *InlineVariables_InlineVarAnalysis
-	}).analyze_impl()
+	return this.selfI_.analyze_impl()
 }
 
 // analyze: an object that is exactly a InlineVariables_2 calls its analyze_impl directly (post-flip); others dispatch.
@@ -1181,9 +1198,7 @@ func (this *InlineVariables_2) analyze() *InlineVariables_InlineVarAnalysis {
 	if this.self_ == any(this) {
 		return this.analyze_impl()
 	}
-	return this.self_.(interface {
-		analyze_impl() *InlineVariables_InlineVarAnalysis
-	}).analyze_impl()
+	return this.selfI_.analyze_impl()
 }
 
 // isSafeToInlineAliases: an object that is exactly a InlineVariables_4 calls its isSafeToInlineAliases_impl directly (post-flip); others dispatch.
@@ -1191,7 +1206,7 @@ func (this *InlineVariables_4) isSafeToInlineAliases() bool {
 	if this.self_ == any(this) {
 		return this.isSafeToInlineAliases_impl()
 	}
-	return this.self_.(interface{ isSafeToInlineAliases_impl() bool }).isSafeToInlineAliases_impl()
+	return this.selfI_.isSafeToInlineAliases_impl()
 }
 
 // isSafeToInlineAliases: an object that is exactly a InlineVariables_InliningBehavior_StandardVarExpert_1 calls its isSafeToInlineAliases_impl directly (post-flip); others dispatch.
@@ -1199,5 +1214,5 @@ func (this *InlineVariables_InliningBehavior_StandardVarExpert_1) isSafeToInline
 	if this.self_ == any(this) {
 		return this.isSafeToInlineAliases_impl()
 	}
-	return this.self_.(interface{ isSafeToInlineAliases_impl() bool }).isSafeToInlineAliases_impl()
+	return this.selfI_.isSafeToInlineAliases_impl()
 }

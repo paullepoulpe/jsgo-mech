@@ -4,7 +4,15 @@ package closure
 
 type CompilerBasedTransformer struct {
 	self_                 any
+	selfI_                CompilerBasedTransformer_I
 	compilerSupplierField *CompilerBasedTransformer_CompilerSupplier
+}
+
+// CompilerBasedTransformer_I holds the methods the dispatchers of CompilerBasedTransformer's hierarchy call on the most derived
+// object (selfI_, set with self_); every class of the hierarchy implements them (post-flip).
+type CompilerBasedTransformer_I interface {
+	getRuntime_impl() Optional
+	getTranformationName_impl() string
 }
 
 func (this *CompilerBasedTransformer) as_CompilerBasedTransformer() *CompilerBasedTransformer {
@@ -61,11 +69,11 @@ func (this *CompilerBasedTransformer) transform(input *Source) *Source {
 }
 
 func (this *CompilerBasedTransformer) getRuntime() Optional {
-	return this.self_.(interface{ getRuntime_impl() Optional }).getRuntime_impl()
+	return this.selfI_.getRuntime_impl()
 }
 
 func (this *CompilerBasedTransformer) getTranformationName() string {
-	return this.self_.(interface{ getTranformationName_impl() string }).getTranformationName_impl()
+	return this.selfI_.getTranformationName_impl()
 }
 
 func (this *CompilerBasedTransformer) asFunction() Function {
@@ -81,7 +89,15 @@ func (this *CompilerBasedTransformer) compose(p0 Source_Transformer) Source_Tran
 }
 
 type CompilerBasedTransformer_CompilerSupplier struct {
-	self_ any
+	self_  any
+	selfI_ CompilerBasedTransformer_CompilerSupplier_I
+}
+
+// CompilerBasedTransformer_CompilerSupplier_I holds the methods the dispatchers of CompilerBasedTransformer_CompilerSupplier's hierarchy call on the most derived
+// object (selfI_, set with self_); every class of the hierarchy implements them (post-flip).
+type CompilerBasedTransformer_CompilerSupplier_I interface {
+	setOptions_impl(*CompilerOptions)
+	transformed_impl(*Result) bool
 }
 
 func (this *CompilerBasedTransformer_CompilerSupplier) as_CompilerBasedTransformer_CompilerSupplier() *CompilerBasedTransformer_CompilerSupplier {
@@ -118,6 +134,7 @@ func (this *CompilerBasedTransformer_CompilerSupplier) init_CompilerBasedTransfo
 func new_CompilerBasedTransformer_CompilerSupplier() *CompilerBasedTransformer_CompilerSupplier {
 	this := &CompilerBasedTransformer_CompilerSupplier{}
 	this.self_ = this
+	this.selfI_ = this
 	this.init_CompilerBasedTransformer_CompilerSupplier()
 	return this
 }
@@ -189,11 +206,11 @@ func (this *CompilerBasedTransformer_CompilerSupplier) setOptions_impl(options *
 }
 
 func (this *CompilerBasedTransformer_CompilerSupplier) setOptions(p0 *CompilerOptions) {
-	this.self_.(interface{ setOptions_impl(*CompilerOptions) }).setOptions_impl(p0)
+	this.selfI_.setOptions_impl(p0)
 }
 
 func (this *CompilerBasedTransformer_CompilerSupplier) transformed(p0 *Result) bool {
-	return this.self_.(interface{ transformed_impl(*Result) bool }).transformed_impl(p0)
+	return this.selfI_.transformed_impl(p0)
 }
 
 var CompilerBasedTransformer_CompilerSupplier_EXTERNS *SourceFile_jscomp

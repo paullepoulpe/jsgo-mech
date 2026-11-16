@@ -260,6 +260,7 @@ func (this *FlowSensitiveInlineVariables_GatherCandidatesCfgNodeCallback) init_F
 func new_FlowSensitiveInlineVariables_GatherCandidatesCfgNodeCallback(outer_ *FlowSensitiveInlineVariables) *FlowSensitiveInlineVariables_GatherCandidatesCfgNodeCallback {
 	this := &FlowSensitiveInlineVariables_GatherCandidatesCfgNodeCallback{}
 	this.self_ = this
+	this.selfI_ = this
 	this.outer_ = outer_
 	this.init_FlowSensitiveInlineVariables_GatherCandidatesCfgNodeCallback()
 	return this
@@ -313,6 +314,7 @@ func (this *FlowSensitiveInlineVariables_GatherCandidates) init_FlowSensitiveInl
 func new_FlowSensitiveInlineVariables_GatherCandidates(outer_ *FlowSensitiveInlineVariables) *FlowSensitiveInlineVariables_GatherCandidates {
 	this := &FlowSensitiveInlineVariables_GatherCandidates{}
 	this.self_ = this
+	this.selfI_ = this
 	this.outer_ = outer_
 	this.init_FlowSensitiveInlineVariables_GatherCandidates()
 	return this
@@ -517,6 +519,7 @@ func (this *FlowSensitiveInlineVariables_Candidate_1) init_FlowSensitiveInlineVa
 func new_FlowSensitiveInlineVariables_Candidate_1(outer_ *FlowSensitiveInlineVariables_Candidate) *FlowSensitiveInlineVariables_Candidate_1 {
 	this := &FlowSensitiveInlineVariables_Candidate_1{}
 	this.self_ = this
+	this.selfI_ = this
 	this.outer_ = outer_
 	this.init_FlowSensitiveInlineVariables_Candidate_1()
 	return this
@@ -559,6 +562,7 @@ func (this *FlowSensitiveInlineVariables_Candidate_2) init_FlowSensitiveInlineVa
 func new_FlowSensitiveInlineVariables_Candidate_2(outer_ *FlowSensitiveInlineVariables_Candidate, cap_cfgNode Node) *FlowSensitiveInlineVariables_Candidate_2 {
 	this := &FlowSensitiveInlineVariables_Candidate_2{}
 	this.self_ = this
+	this.selfI_ = this
 	this.outer_ = outer_
 	this.cap_cfgNode = cap_cfgNode
 	this.init_FlowSensitiveInlineVariables_Candidate_2()
@@ -593,9 +597,7 @@ func (this *FlowSensitiveInlineVariables_GatherCandidatesCfgNodeCallback) visit(
 		this.visit_impl(p0, p1, p2)
 		return
 	}
-	this.self_.(interface {
-		visit_impl(*NodeTraversal, Node, Node)
-	}).visit_impl(p0, p1, p2)
+	this.selfI_.visit_impl(p0, p1, p2)
 }
 
 // visit: an object that is exactly a FlowSensitiveInlineVariables_GatherCandidates calls its visit_impl directly (post-flip); others dispatch.
@@ -604,9 +606,7 @@ func (this *FlowSensitiveInlineVariables_GatherCandidates) visit(p0 *NodeTravers
 		this.visit_impl(p0, p1, p2)
 		return
 	}
-	this.self_.(interface {
-		visit_impl(*NodeTraversal, Node, Node)
-	}).visit_impl(p0, p1, p2)
+	this.selfI_.visit_impl(p0, p1, p2)
 }
 
 // visit: an object that is exactly a FlowSensitiveInlineVariables_Candidate_1 calls its visit_impl directly (post-flip); others dispatch.
@@ -615,9 +615,7 @@ func (this *FlowSensitiveInlineVariables_Candidate_1) visit(p0 *NodeTraversal, p
 		this.visit_impl(p0, p1, p2)
 		return
 	}
-	this.self_.(interface {
-		visit_impl(*NodeTraversal, Node, Node)
-	}).visit_impl(p0, p1, p2)
+	this.selfI_.visit_impl(p0, p1, p2)
 }
 
 // visit: an object that is exactly a FlowSensitiveInlineVariables_Candidate_2 calls its visit_impl directly (post-flip); others dispatch.
@@ -626,7 +624,5 @@ func (this *FlowSensitiveInlineVariables_Candidate_2) visit(p0 *NodeTraversal, p
 		this.visit_impl(p0, p1, p2)
 		return
 	}
-	this.self_.(interface {
-		visit_impl(*NodeTraversal, Node, Node)
-	}).visit_impl(p0, p1, p2)
+	this.selfI_.visit_impl(p0, p1, p2)
 }

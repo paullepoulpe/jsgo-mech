@@ -28,6 +28,7 @@ func (this *ReportUntranspilableFeatures) init_ReportUntranspilableFeatures(comp
 func new_ReportUntranspilableFeatures(compiler *AbstractCompiler, browserFeatureSetYear *CompilerOptions_BrowserFeaturesetYear, outputFeatures *FeatureSet) *ReportUntranspilableFeatures {
 	this := &ReportUntranspilableFeatures{}
 	this.self_ = this
+	this.selfI_ = this
 	this.init_ReportUntranspilableFeatures(compiler, browserFeatureSetYear, outputFeatures)
 	return this
 }
@@ -247,7 +248,7 @@ func (this *ReportUntranspilableFeatures) getTranspiledAwayFeatures() *FeatureSe
 	if this.self_ == any(this) {
 		return this.getTranspiledAwayFeatures_impl()
 	}
-	return this.self_.(interface{ getTranspiledAwayFeatures_impl() *FeatureSet }).getTranspiledAwayFeatures_impl()
+	return this.selfI_.getTranspiledAwayFeatures_impl()
 }
 
 // getAdditionalFeaturesToRunOn: an object that is exactly a ReportUntranspilableFeatures calls its getAdditionalFeaturesToRunOn_impl directly (post-flip); others dispatch.
@@ -255,7 +256,7 @@ func (this *ReportUntranspilableFeatures) getAdditionalFeaturesToRunOn() *Featur
 	if this.self_ == any(this) {
 		return this.getAdditionalFeaturesToRunOn_impl()
 	}
-	return this.self_.(interface{ getAdditionalFeaturesToRunOn_impl() *FeatureSet }).getAdditionalFeaturesToRunOn_impl()
+	return this.selfI_.getAdditionalFeaturesToRunOn_impl()
 }
 
 // transpileSubtree: an object that is exactly a ReportUntranspilableFeatures calls its transpileSubtree_impl directly (post-flip); others dispatch.
@@ -263,5 +264,5 @@ func (this *ReportUntranspilableFeatures) transpileSubtree(p0 Node) Node {
 	if this.self_ == any(this) {
 		return this.transpileSubtree_impl(p0)
 	}
-	return this.self_.(interface{ transpileSubtree_impl(Node) Node }).transpileSubtree_impl(p0)
+	return this.selfI_.transpileSubtree_impl(p0)
 }

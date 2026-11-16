@@ -71,6 +71,7 @@ func (this *ConformanceAllowlister_1) init_ConformanceAllowlister_1(delegated Er
 func new_ConformanceAllowlister_1(cap_errors *ImmutableList_Builder, delegated ErrorManager) *ConformanceAllowlister_1 {
 	this := &ConformanceAllowlister_1{}
 	this.self_ = this
+	this.selfI_ = this
 	this.cap_errors = cap_errors
 	this.init_ConformanceAllowlister_1(delegated)
 	return this
@@ -86,7 +87,5 @@ func (this *ConformanceAllowlister_1) shouldReportConformanceViolation(p0 *Requi
 	if this.self_ == any(this) {
 		return this.shouldReportConformanceViolation_impl(p0, p1, p2, p3, p4)
 	}
-	return this.self_.(interface {
-		shouldReportConformanceViolation_impl(*Requirement, *Optional_base, *JSError, *ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior, bool) bool
-	}).shouldReportConformanceViolation_impl(p0, p1, p2, p3, p4)
+	return this.selfI_.shouldReportConformanceViolation_impl(p0, p1, p2, p3, p4)
 }

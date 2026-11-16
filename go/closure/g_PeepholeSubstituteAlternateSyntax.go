@@ -22,6 +22,7 @@ func (this *PeepholeSubstituteAlternateSyntax) init_PeepholeSubstituteAlternateS
 func new_PeepholeSubstituteAlternateSyntax(late bool) *PeepholeSubstituteAlternateSyntax {
 	this := &PeepholeSubstituteAlternateSyntax{}
 	this.self_ = this
+	this.selfI_ = this
 	this.init_PeepholeSubstituteAlternateSyntax(late)
 	return this
 }
@@ -580,5 +581,5 @@ func (this *PeepholeSubstituteAlternateSyntax) optimizeSubtree(p0 Node) Node {
 	if this.self_ == any(this) {
 		return this.optimizeSubtree_impl(p0)
 	}
-	return this.self_.(interface{ optimizeSubtree_impl(Node) Node }).optimizeSubtree_impl(p0)
+	return this.selfI_.optimizeSubtree_impl(p0)
 }

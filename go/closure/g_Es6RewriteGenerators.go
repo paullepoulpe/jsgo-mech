@@ -90,6 +90,7 @@ func (this *Es6RewriteGenerators_YieldExposer) init_Es6RewriteGenerators_YieldEx
 func new_Es6RewriteGenerators_YieldExposer(outer_ *Es6RewriteGenerators) *Es6RewriteGenerators_YieldExposer {
 	this := &Es6RewriteGenerators_YieldExposer{}
 	this.self_ = this
+	this.selfI_ = this
 	this.outer_ = outer_
 	this.init_Es6RewriteGenerators_YieldExposer()
 	return this
@@ -140,6 +141,7 @@ func (this *Es6RewriteGenerators_GeneratorFunctionsTranspiler) init_Es6RewriteGe
 func new_Es6RewriteGenerators_GeneratorFunctionsTranspiler(outer_ *Es6RewriteGenerators) *Es6RewriteGenerators_GeneratorFunctionsTranspiler {
 	this := &Es6RewriteGenerators_GeneratorFunctionsTranspiler{}
 	this.self_ = this
+	this.selfI_ = this
 	this.outer_ = outer_
 	this.init_Es6RewriteGenerators_GeneratorFunctionsTranspiler()
 	return this
@@ -735,6 +737,7 @@ func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_YieldFinder) 
 func new_Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_YieldFinder() *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_YieldFinder {
 	this := &Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_YieldFinder{}
 	this.self_ = this
+	this.selfI_ = this
 	this.init_Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_YieldFinder()
 	return this
 }
@@ -1540,9 +1543,7 @@ func (this *Es6RewriteGenerators_YieldExposer) shouldTraverse(p0 *NodeTraversal,
 	if this.self_ == any(this) {
 		return this.shouldTraverse_impl(p0, p1, p2)
 	}
-	return this.self_.(interface {
-		shouldTraverse_impl(*NodeTraversal, Node, Node) bool
-	}).shouldTraverse_impl(p0, p1, p2)
+	return this.selfI_.shouldTraverse_impl(p0, p1, p2)
 }
 
 // visit: an object that is exactly a Es6RewriteGenerators_GeneratorFunctionsTranspiler calls its visit_impl directly (post-flip); others dispatch.
@@ -1551,9 +1552,7 @@ func (this *Es6RewriteGenerators_GeneratorFunctionsTranspiler) visit(p0 *NodeTra
 		this.visit_impl(p0, p1, p2)
 		return
 	}
-	this.self_.(interface {
-		visit_impl(*NodeTraversal, Node, Node)
-	}).visit_impl(p0, p1, p2)
+	this.selfI_.visit_impl(p0, p1, p2)
 }
 
 // shouldTraverse: an object that is exactly a Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_YieldFinder calls its shouldTraverse_impl directly (post-flip); others dispatch.
@@ -1561,7 +1560,5 @@ func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_YieldFinder) 
 	if this.self_ == any(this) {
 		return this.shouldTraverse_impl(p0, p1, p2)
 	}
-	return this.self_.(interface {
-		shouldTraverse_impl(*NodeTraversal, Node, Node) bool
-	}).shouldTraverse_impl(p0, p1, p2)
+	return this.selfI_.shouldTraverse_impl(p0, p1, p2)
 }

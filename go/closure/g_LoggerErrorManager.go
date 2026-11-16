@@ -31,6 +31,7 @@ func (this *LoggerErrorManager) init_LoggerErrorManager_MessageFormatter_Logger(
 func new_LoggerErrorManager_MessageFormatter_Logger(formatter MessageFormatter, logger *Logger) *LoggerErrorManager {
 	this := &LoggerErrorManager{}
 	this.self_ = this
+	this.selfI_ = this
 	this.init_LoggerErrorManager_MessageFormatter_Logger(formatter, logger)
 	return this
 }
@@ -42,6 +43,7 @@ func (this *LoggerErrorManager) init_LoggerErrorManager_Logger(logger *Logger) {
 func new_LoggerErrorManager_Logger(logger *Logger) *LoggerErrorManager {
 	this := &LoggerErrorManager{}
 	this.self_ = this
+	this.selfI_ = this
 	this.init_LoggerErrorManager_Logger(logger)
 	return this
 }

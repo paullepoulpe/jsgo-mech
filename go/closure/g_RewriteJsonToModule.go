@@ -24,6 +24,7 @@ func (this *RewriteJsonToModule) init_RewriteJsonToModule(compiler *AbstractComp
 func new_RewriteJsonToModule(compiler *AbstractCompiler) *RewriteJsonToModule {
 	this := &RewriteJsonToModule{}
 	this.self_ = this
+	this.selfI_ = this
 	this.init_RewriteJsonToModule(compiler)
 	return this
 }
@@ -140,7 +141,5 @@ func (this *RewriteJsonToModule) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
 		this.visit_impl(p0, p1, p2)
 		return
 	}
-	this.self_.(interface {
-		visit_impl(*NodeTraversal, Node, Node)
-	}).visit_impl(p0, p1, p2)
+	this.selfI_.visit_impl(p0, p1, p2)
 }

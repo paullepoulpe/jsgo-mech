@@ -21,6 +21,7 @@ func (this *ShowByPathWarningsGuard) init_ShowByPathWarningsGuard_String(checkWa
 func new_ShowByPathWarningsGuard_String(checkWarningsOnlyForPath string) *ShowByPathWarningsGuard {
 	this := &ShowByPathWarningsGuard{}
 	this.self_ = this
+	this.selfI_ = this
 	this.init_ShowByPathWarningsGuard_String(checkWarningsOnlyForPath)
 	return this
 }
@@ -40,6 +41,7 @@ func (this *ShowByPathWarningsGuard) init_ShowByPathWarningsGuard_StringArr_Show
 func new_ShowByPathWarningsGuard_StringArr_ShowType(paths []string, showType *ShowByPathWarningsGuard_ShowType) *ShowByPathWarningsGuard {
 	this := &ShowByPathWarningsGuard{}
 	this.self_ = this
+	this.selfI_ = this
 	this.init_ShowByPathWarningsGuard_StringArr_ShowType(paths, showType)
 	return this
 }
@@ -120,7 +122,7 @@ func (this *ShowByPathWarningsGuard) level(p0 *JSError) *CheckLevel {
 	if this.self_ == any(this) {
 		return this.level_impl(p0)
 	}
-	return this.self_.(interface{ level_impl(*JSError) *CheckLevel }).level_impl(p0)
+	return this.selfI_.level_impl(p0)
 }
 
 // getPriority: an object that is exactly a ShowByPathWarningsGuard calls its getPriority_impl directly (post-flip); others dispatch.
@@ -128,5 +130,5 @@ func (this *ShowByPathWarningsGuard) getPriority() int32 {
 	if this.self_ == any(this) {
 		return this.getPriority_impl()
 	}
-	return this.self_.(interface{ getPriority_impl() int32 }).getPriority_impl()
+	return this.selfI_.getPriority_impl()
 }

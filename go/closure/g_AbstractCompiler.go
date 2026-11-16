@@ -3,7 +3,14 @@
 package closure
 
 type AbstractCompiler struct {
-	self_ any
+	self_  any
+	selfI_ AbstractCompiler_I
+}
+
+// AbstractCompiler_I holds the methods the dispatchers of AbstractCompiler's hierarchy call on the most derived
+// object (selfI_, set with self_); every class of the hierarchy implements them (post-flip).
+type AbstractCompiler_I interface {
+	initRuntimeLibraryTypedAsts_impl(*Optional_base)
 }
 
 func (this *AbstractCompiler) as_AbstractCompiler() *AbstractCompiler { return this }
@@ -52,7 +59,7 @@ func (this *AbstractCompiler) getTypedAstDeserializer(p0 *SourceFile_jscomp) Sup
 }
 
 func (this *AbstractCompiler) initRuntimeLibraryTypedAsts(p0 *Optional_base) {
-	this.self_.(interface{ initRuntimeLibraryTypedAsts_impl(*Optional_base) }).initRuntimeLibraryTypedAsts_impl(p0)
+	this.selfI_.initRuntimeLibraryTypedAsts_impl(p0)
 }
 
 func (this *AbstractCompiler) getRuntimeJsLibManager() *RuntimeJsLibManager {

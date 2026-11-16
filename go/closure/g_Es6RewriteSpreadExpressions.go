@@ -26,6 +26,7 @@ func (this *Es6RewriteSpreadExpressions) init_Es6RewriteSpreadExpressions(compil
 func new_Es6RewriteSpreadExpressions(compiler *AbstractCompiler) *Es6RewriteSpreadExpressions {
 	this := &Es6RewriteSpreadExpressions{}
 	this.self_ = this
+	this.selfI_ = this
 	this.init_Es6RewriteSpreadExpressions(compiler)
 	return this
 }
@@ -228,7 +229,5 @@ func (this *Es6RewriteSpreadExpressions) visit(p0 *NodeTraversal, p1 Node, p2 No
 		this.visit_impl(p0, p1, p2)
 		return
 	}
-	this.self_.(interface {
-		visit_impl(*NodeTraversal, Node, Node)
-	}).visit_impl(p0, p1, p2)
+	this.selfI_.visit_impl(p0, p1, p2)
 }

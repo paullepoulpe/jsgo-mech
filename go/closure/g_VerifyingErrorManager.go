@@ -29,6 +29,7 @@ func (this *VerifyingErrorManager) init_VerifyingErrorManager(delegate ErrorMana
 func new_VerifyingErrorManager(delegate ErrorManager, expectedDiagnostics *TList[string]) *VerifyingErrorManager {
 	this := &VerifyingErrorManager{}
 	this.self_ = this
+	this.selfI_ = this
 	this.init_VerifyingErrorManager(delegate, expectedDiagnostics)
 	return this
 }
@@ -86,7 +87,7 @@ func (this *VerifyingErrorManager) report_2(p0 *CheckLevel, p1 *JSError) {
 		this.report_2_impl(p0, p1)
 		return
 	}
-	this.self_.(interface{ report_2_impl(*CheckLevel, *JSError) }).report_2_impl(p0, p1)
+	this.selfI_.report_2_impl(p0, p1)
 }
 
 // generateReport: an object that is exactly a VerifyingErrorManager calls its generateReport_impl directly (post-flip); others dispatch.
@@ -95,5 +96,5 @@ func (this *VerifyingErrorManager) generateReport() {
 		this.generateReport_impl()
 		return
 	}
-	this.self_.(interface{ generateReport_impl() }).generateReport_impl()
+	this.selfI_.generateReport_impl()
 }

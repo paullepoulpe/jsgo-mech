@@ -35,6 +35,7 @@ func (this *ReplaceMessagesForChrome) init_ReplaceMessagesForChrome(compiler *Ab
 func new_ReplaceMessagesForChrome(compiler *AbstractCompiler, idGenerator JsMessage_IdGenerator) *ReplaceMessagesForChrome {
 	this := &ReplaceMessagesForChrome{}
 	this.self_ = this
+	this.selfI_ = this
 	this.init_ReplaceMessagesForChrome(compiler, idGenerator)
 	return this
 }

@@ -22,6 +22,7 @@ func (this *Es6RenameReferences) init_Es6RenameReferences(renameTable *SimpleTab
 func new_Es6RenameReferences(renameTable *SimpleTable) *Es6RenameReferences {
 	this := &Es6RenameReferences{}
 	this.self_ = this
+	this.selfI_ = this
 	this.init_Es6RenameReferences(renameTable)
 	return this
 }
@@ -54,7 +55,5 @@ func (this *Es6RenameReferences) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
 		this.visit_impl(p0, p1, p2)
 		return
 	}
-	this.self_.(interface {
-		visit_impl(*NodeTraversal, Node, Node)
-	}).visit_impl(p0, p1, p2)
+	this.selfI_.visit_impl(p0, p1, p2)
 }

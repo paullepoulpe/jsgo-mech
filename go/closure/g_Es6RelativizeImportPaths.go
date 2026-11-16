@@ -45,6 +45,7 @@ func (this *Es6RelativizeImportPaths_Rewriter) init_Es6RelativizeImportPaths_Rew
 func new_Es6RelativizeImportPaths_Rewriter() *Es6RelativizeImportPaths_Rewriter {
 	this := &Es6RelativizeImportPaths_Rewriter{}
 	this.self_ = this
+	this.selfI_ = this
 	this.init_Es6RelativizeImportPaths_Rewriter()
 	return this
 }
@@ -114,7 +115,5 @@ func (this *Es6RelativizeImportPaths_Rewriter) shouldTraverse(p0 *NodeTraversal,
 	if this.self_ == any(this) {
 		return this.shouldTraverse_impl(p0, p1, p2)
 	}
-	return this.self_.(interface {
-		shouldTraverse_impl(*NodeTraversal, Node, Node) bool
-	}).shouldTraverse_impl(p0, p1, p2)
+	return this.selfI_.shouldTraverse_impl(p0, p1, p2)
 }

@@ -4,11 +4,18 @@ package closure
 
 type ChainableReverseAbstractInterpreter struct {
 	self_                     any
+	selfI_                    ChainableReverseAbstractInterpreter_I
 	typeRegistry              *JSTypeRegistry
 	firstLink                 *ChainableReverseAbstractInterpreter
 	nextLink                  *ChainableReverseAbstractInterpreter
 	restrictToArrayVisitor    Visitor
 	restrictToNotArrayVisitor Visitor
+}
+
+// ChainableReverseAbstractInterpreter_I holds the methods the dispatchers of ChainableReverseAbstractInterpreter's hierarchy call on the most derived
+// object (selfI_, set with self_); every class of the hierarchy implements them (post-flip).
+type ChainableReverseAbstractInterpreter_I interface {
+	getPreciserScopeKnowingConditionOutcome_impl(Node, FlowScope, *Outcome_rhino) FlowScope
 }
 
 func (this *ChainableReverseAbstractInterpreter) as_ChainableReverseAbstractInterpreter() *ChainableReverseAbstractInterpreter {
@@ -179,14 +186,31 @@ func (this *ChainableReverseAbstractInterpreter) getNativeTypeForTypeOf(value st
 }
 
 func (this *ChainableReverseAbstractInterpreter) getPreciserScopeKnowingConditionOutcome(p0 Node, p1 FlowScope, p2 *Outcome_rhino) FlowScope {
-	return this.self_.(interface {
-		getPreciserScopeKnowingConditionOutcome_impl(Node, FlowScope, *Outcome_rhino) FlowScope
-	}).getPreciserScopeKnowingConditionOutcome_impl(p0, p1, p2)
+	return this.selfI_.getPreciserScopeKnowingConditionOutcome_impl(p0, p1, p2)
 }
 
 type ChainableReverseAbstractInterpreter_RestrictByTypeOfResultVisitor struct {
 	self_  any
+	selfI_ ChainableReverseAbstractInterpreter_RestrictByTypeOfResultVisitor_I
 	outer_ *ChainableReverseAbstractInterpreter
+}
+
+// ChainableReverseAbstractInterpreter_RestrictByTypeOfResultVisitor_I holds the methods the dispatchers of ChainableReverseAbstractInterpreter_RestrictByTypeOfResultVisitor's hierarchy call on the most derived
+// object (selfI_, set with self_); every class of the hierarchy implements them (post-flip).
+type ChainableReverseAbstractInterpreter_RestrictByTypeOfResultVisitor_I interface {
+	caseBigIntType_impl() any
+	caseBooleanType_impl() any
+	caseFunctionType_impl(*FunctionType) any
+	caseNoObjectType_impl() any
+	caseNullType_impl() any
+	caseNumberType_impl() any
+	caseObjectType_impl(*ObjectType) any
+	caseStringType_impl() any
+	caseSymbolType_impl(*SymbolType) any
+	caseTopType_impl(*JSType) *JSType
+	caseUnionType_impl(*UnionType) any
+	caseUnknownType_impl() any
+	caseVoidType_impl() any
 }
 
 func (this *ChainableReverseAbstractInterpreter_RestrictByTypeOfResultVisitor) as_ChainableReverseAbstractInterpreter_RestrictByTypeOfResultVisitor() *ChainableReverseAbstractInterpreter_RestrictByTypeOfResultVisitor {
@@ -276,55 +300,55 @@ func (this *ChainableReverseAbstractInterpreter_RestrictByTypeOfResultVisitor) c
 }
 
 func (this *ChainableReverseAbstractInterpreter_RestrictByTypeOfResultVisitor) caseNoObjectType() any {
-	return this.self_.(interface{ caseNoObjectType_impl() any }).caseNoObjectType_impl()
+	return this.selfI_.caseNoObjectType_impl()
 }
 
 func (this *ChainableReverseAbstractInterpreter_RestrictByTypeOfResultVisitor) caseBooleanType() any {
-	return this.self_.(interface{ caseBooleanType_impl() any }).caseBooleanType_impl()
+	return this.selfI_.caseBooleanType_impl()
 }
 
 func (this *ChainableReverseAbstractInterpreter_RestrictByTypeOfResultVisitor) caseFunctionType(p0 *FunctionType) any {
-	return this.self_.(interface{ caseFunctionType_impl(*FunctionType) any }).caseFunctionType_impl(p0)
+	return this.selfI_.caseFunctionType_impl(p0)
 }
 
 func (this *ChainableReverseAbstractInterpreter_RestrictByTypeOfResultVisitor) caseNullType() any {
-	return this.self_.(interface{ caseNullType_impl() any }).caseNullType_impl()
+	return this.selfI_.caseNullType_impl()
 }
 
 func (this *ChainableReverseAbstractInterpreter_RestrictByTypeOfResultVisitor) caseNumberType() any {
-	return this.self_.(interface{ caseNumberType_impl() any }).caseNumberType_impl()
+	return this.selfI_.caseNumberType_impl()
 }
 
 func (this *ChainableReverseAbstractInterpreter_RestrictByTypeOfResultVisitor) caseBigIntType() any {
-	return this.self_.(interface{ caseBigIntType_impl() any }).caseBigIntType_impl()
+	return this.selfI_.caseBigIntType_impl()
 }
 
 func (this *ChainableReverseAbstractInterpreter_RestrictByTypeOfResultVisitor) caseObjectType(p0 *ObjectType) any {
-	return this.self_.(interface{ caseObjectType_impl(*ObjectType) any }).caseObjectType_impl(p0)
+	return this.selfI_.caseObjectType_impl(p0)
 }
 
 func (this *ChainableReverseAbstractInterpreter_RestrictByTypeOfResultVisitor) caseStringType() any {
-	return this.self_.(interface{ caseStringType_impl() any }).caseStringType_impl()
+	return this.selfI_.caseStringType_impl()
 }
 
 func (this *ChainableReverseAbstractInterpreter_RestrictByTypeOfResultVisitor) caseSymbolType(p0 *SymbolType) any {
-	return this.self_.(interface{ caseSymbolType_impl(*SymbolType) any }).caseSymbolType_impl(p0)
+	return this.selfI_.caseSymbolType_impl(p0)
 }
 
 func (this *ChainableReverseAbstractInterpreter_RestrictByTypeOfResultVisitor) caseVoidType() any {
-	return this.self_.(interface{ caseVoidType_impl() any }).caseVoidType_impl()
+	return this.selfI_.caseVoidType_impl()
 }
 
 func (this *ChainableReverseAbstractInterpreter_RestrictByTypeOfResultVisitor) caseTopType(p0 *JSType) *JSType {
-	return this.self_.(interface{ caseTopType_impl(*JSType) *JSType }).caseTopType_impl(p0)
+	return this.selfI_.caseTopType_impl(p0)
 }
 
 func (this *ChainableReverseAbstractInterpreter_RestrictByTypeOfResultVisitor) caseUnknownType() any {
-	return this.self_.(interface{ caseUnknownType_impl() any }).caseUnknownType_impl()
+	return this.selfI_.caseUnknownType_impl()
 }
 
 func (this *ChainableReverseAbstractInterpreter_RestrictByTypeOfResultVisitor) caseUnionType(p0 *UnionType) any {
-	return this.self_.(interface{ caseUnionType_impl(*UnionType) any }).caseUnionType_impl(p0)
+	return this.selfI_.caseUnionType_impl(p0)
 }
 
 type ChainableReverseAbstractInterpreter_RestrictByTrueTypeOfResultVisitor struct {
@@ -527,6 +551,7 @@ func (this *ChainableReverseAbstractInterpreter_RestrictByOneTypeOfResultVisitor
 func new_ChainableReverseAbstractInterpreter_RestrictByOneTypeOfResultVisitor(outer_ *ChainableReverseAbstractInterpreter, value string, resultEqualsValue bool) *ChainableReverseAbstractInterpreter_RestrictByOneTypeOfResultVisitor {
 	this := &ChainableReverseAbstractInterpreter_RestrictByOneTypeOfResultVisitor{}
 	this.self_ = this
+	this.selfI_ = this
 	this.zero_ChainableReverseAbstractInterpreter_RestrictByOneTypeOfResultVisitor()
 	this.outer_ = outer_
 	this.init_ChainableReverseAbstractInterpreter_RestrictByOneTypeOfResultVisitor(value, resultEqualsValue)
@@ -678,6 +703,7 @@ func (this *ChainableReverseAbstractInterpreter_1) init_ChainableReverseAbstract
 func new_ChainableReverseAbstractInterpreter_1(outer_ *ChainableReverseAbstractInterpreter) *ChainableReverseAbstractInterpreter_1 {
 	this := &ChainableReverseAbstractInterpreter_1{}
 	this.self_ = this
+	this.selfI_ = this
 	this.outer_ = outer_
 	this.init_ChainableReverseAbstractInterpreter_1()
 	return this
@@ -729,6 +755,7 @@ func (this *ChainableReverseAbstractInterpreter_2) init_ChainableReverseAbstract
 func new_ChainableReverseAbstractInterpreter_2(outer_ *ChainableReverseAbstractInterpreter) *ChainableReverseAbstractInterpreter_2 {
 	this := &ChainableReverseAbstractInterpreter_2{}
 	this.self_ = this
+	this.selfI_ = this
 	this.outer_ = outer_
 	this.init_ChainableReverseAbstractInterpreter_2()
 	return this
@@ -748,7 +775,7 @@ func (this *ChainableReverseAbstractInterpreter_RestrictByTrueTypeOfResultVisito
 	if this.self_ == any(this) {
 		return this.caseNoObjectType_impl()
 	}
-	return this.self_.(interface{ caseNoObjectType_impl() any }).caseNoObjectType_impl()
+	return this.selfI_.caseNoObjectType_impl()
 }
 
 // caseBooleanType: an object that is exactly a ChainableReverseAbstractInterpreter_RestrictByTrueTypeOfResultVisitor calls its caseBooleanType_impl directly (post-flip); others dispatch.
@@ -756,7 +783,7 @@ func (this *ChainableReverseAbstractInterpreter_RestrictByTrueTypeOfResultVisito
 	if this.self_ == any(this) {
 		return this.caseBooleanType_impl()
 	}
-	return this.self_.(interface{ caseBooleanType_impl() any }).caseBooleanType_impl()
+	return this.selfI_.caseBooleanType_impl()
 }
 
 // caseFunctionType: an object that is exactly a ChainableReverseAbstractInterpreter_RestrictByTrueTypeOfResultVisitor calls its caseFunctionType_impl directly (post-flip); others dispatch.
@@ -764,7 +791,7 @@ func (this *ChainableReverseAbstractInterpreter_RestrictByTrueTypeOfResultVisito
 	if this.self_ == any(this) {
 		return this.caseFunctionType_impl(p0)
 	}
-	return this.self_.(interface{ caseFunctionType_impl(*FunctionType) any }).caseFunctionType_impl(p0)
+	return this.selfI_.caseFunctionType_impl(p0)
 }
 
 // caseNullType: an object that is exactly a ChainableReverseAbstractInterpreter_RestrictByTrueTypeOfResultVisitor calls its caseNullType_impl directly (post-flip); others dispatch.
@@ -772,7 +799,7 @@ func (this *ChainableReverseAbstractInterpreter_RestrictByTrueTypeOfResultVisito
 	if this.self_ == any(this) {
 		return this.caseNullType_impl()
 	}
-	return this.self_.(interface{ caseNullType_impl() any }).caseNullType_impl()
+	return this.selfI_.caseNullType_impl()
 }
 
 // caseNumberType: an object that is exactly a ChainableReverseAbstractInterpreter_RestrictByTrueTypeOfResultVisitor calls its caseNumberType_impl directly (post-flip); others dispatch.
@@ -780,7 +807,7 @@ func (this *ChainableReverseAbstractInterpreter_RestrictByTrueTypeOfResultVisito
 	if this.self_ == any(this) {
 		return this.caseNumberType_impl()
 	}
-	return this.self_.(interface{ caseNumberType_impl() any }).caseNumberType_impl()
+	return this.selfI_.caseNumberType_impl()
 }
 
 // caseBigIntType: an object that is exactly a ChainableReverseAbstractInterpreter_RestrictByTrueTypeOfResultVisitor calls its caseBigIntType_impl directly (post-flip); others dispatch.
@@ -788,7 +815,7 @@ func (this *ChainableReverseAbstractInterpreter_RestrictByTrueTypeOfResultVisito
 	if this.self_ == any(this) {
 		return this.caseBigIntType_impl()
 	}
-	return this.self_.(interface{ caseBigIntType_impl() any }).caseBigIntType_impl()
+	return this.selfI_.caseBigIntType_impl()
 }
 
 // caseObjectType: an object that is exactly a ChainableReverseAbstractInterpreter_RestrictByTrueTypeOfResultVisitor calls its caseObjectType_impl directly (post-flip); others dispatch.
@@ -796,7 +823,7 @@ func (this *ChainableReverseAbstractInterpreter_RestrictByTrueTypeOfResultVisito
 	if this.self_ == any(this) {
 		return this.caseObjectType_impl(p0)
 	}
-	return this.self_.(interface{ caseObjectType_impl(*ObjectType) any }).caseObjectType_impl(p0)
+	return this.selfI_.caseObjectType_impl(p0)
 }
 
 // caseStringType: an object that is exactly a ChainableReverseAbstractInterpreter_RestrictByTrueTypeOfResultVisitor calls its caseStringType_impl directly (post-flip); others dispatch.
@@ -804,7 +831,7 @@ func (this *ChainableReverseAbstractInterpreter_RestrictByTrueTypeOfResultVisito
 	if this.self_ == any(this) {
 		return this.caseStringType_impl()
 	}
-	return this.self_.(interface{ caseStringType_impl() any }).caseStringType_impl()
+	return this.selfI_.caseStringType_impl()
 }
 
 // caseSymbolType: an object that is exactly a ChainableReverseAbstractInterpreter_RestrictByTrueTypeOfResultVisitor calls its caseSymbolType_impl directly (post-flip); others dispatch.
@@ -812,7 +839,7 @@ func (this *ChainableReverseAbstractInterpreter_RestrictByTrueTypeOfResultVisito
 	if this.self_ == any(this) {
 		return this.caseSymbolType_impl(p0)
 	}
-	return this.self_.(interface{ caseSymbolType_impl(*SymbolType) any }).caseSymbolType_impl(p0)
+	return this.selfI_.caseSymbolType_impl(p0)
 }
 
 // caseVoidType: an object that is exactly a ChainableReverseAbstractInterpreter_RestrictByTrueTypeOfResultVisitor calls its caseVoidType_impl directly (post-flip); others dispatch.
@@ -820,7 +847,7 @@ func (this *ChainableReverseAbstractInterpreter_RestrictByTrueTypeOfResultVisito
 	if this.self_ == any(this) {
 		return this.caseVoidType_impl()
 	}
-	return this.self_.(interface{ caseVoidType_impl() any }).caseVoidType_impl()
+	return this.selfI_.caseVoidType_impl()
 }
 
 // caseTopType: an object that is exactly a ChainableReverseAbstractInterpreter_RestrictByFalseTypeOfResultVisitor calls its caseTopType_impl directly (post-flip); others dispatch.
@@ -828,7 +855,7 @@ func (this *ChainableReverseAbstractInterpreter_RestrictByFalseTypeOfResultVisit
 	if this.self_ == any(this) {
 		return this.caseTopType_impl(p0)
 	}
-	return this.self_.(interface{ caseTopType_impl(*JSType) *JSType }).caseTopType_impl(p0)
+	return this.selfI_.caseTopType_impl(p0)
 }
 
 // caseNoObjectType: an object that is exactly a ChainableReverseAbstractInterpreter_RestrictByFalseTypeOfResultVisitor calls its caseNoObjectType_impl directly (post-flip); others dispatch.
@@ -836,7 +863,7 @@ func (this *ChainableReverseAbstractInterpreter_RestrictByFalseTypeOfResultVisit
 	if this.self_ == any(this) {
 		return this.caseNoObjectType_impl()
 	}
-	return this.self_.(interface{ caseNoObjectType_impl() any }).caseNoObjectType_impl()
+	return this.selfI_.caseNoObjectType_impl()
 }
 
 // caseBooleanType: an object that is exactly a ChainableReverseAbstractInterpreter_RestrictByFalseTypeOfResultVisitor calls its caseBooleanType_impl directly (post-flip); others dispatch.
@@ -844,7 +871,7 @@ func (this *ChainableReverseAbstractInterpreter_RestrictByFalseTypeOfResultVisit
 	if this.self_ == any(this) {
 		return this.caseBooleanType_impl()
 	}
-	return this.self_.(interface{ caseBooleanType_impl() any }).caseBooleanType_impl()
+	return this.selfI_.caseBooleanType_impl()
 }
 
 // caseFunctionType: an object that is exactly a ChainableReverseAbstractInterpreter_RestrictByFalseTypeOfResultVisitor calls its caseFunctionType_impl directly (post-flip); others dispatch.
@@ -852,7 +879,7 @@ func (this *ChainableReverseAbstractInterpreter_RestrictByFalseTypeOfResultVisit
 	if this.self_ == any(this) {
 		return this.caseFunctionType_impl(p0)
 	}
-	return this.self_.(interface{ caseFunctionType_impl(*FunctionType) any }).caseFunctionType_impl(p0)
+	return this.selfI_.caseFunctionType_impl(p0)
 }
 
 // caseNullType: an object that is exactly a ChainableReverseAbstractInterpreter_RestrictByFalseTypeOfResultVisitor calls its caseNullType_impl directly (post-flip); others dispatch.
@@ -860,7 +887,7 @@ func (this *ChainableReverseAbstractInterpreter_RestrictByFalseTypeOfResultVisit
 	if this.self_ == any(this) {
 		return this.caseNullType_impl()
 	}
-	return this.self_.(interface{ caseNullType_impl() any }).caseNullType_impl()
+	return this.selfI_.caseNullType_impl()
 }
 
 // caseNumberType: an object that is exactly a ChainableReverseAbstractInterpreter_RestrictByFalseTypeOfResultVisitor calls its caseNumberType_impl directly (post-flip); others dispatch.
@@ -868,7 +895,7 @@ func (this *ChainableReverseAbstractInterpreter_RestrictByFalseTypeOfResultVisit
 	if this.self_ == any(this) {
 		return this.caseNumberType_impl()
 	}
-	return this.self_.(interface{ caseNumberType_impl() any }).caseNumberType_impl()
+	return this.selfI_.caseNumberType_impl()
 }
 
 // caseBigIntType: an object that is exactly a ChainableReverseAbstractInterpreter_RestrictByFalseTypeOfResultVisitor calls its caseBigIntType_impl directly (post-flip); others dispatch.
@@ -876,7 +903,7 @@ func (this *ChainableReverseAbstractInterpreter_RestrictByFalseTypeOfResultVisit
 	if this.self_ == any(this) {
 		return this.caseBigIntType_impl()
 	}
-	return this.self_.(interface{ caseBigIntType_impl() any }).caseBigIntType_impl()
+	return this.selfI_.caseBigIntType_impl()
 }
 
 // caseObjectType: an object that is exactly a ChainableReverseAbstractInterpreter_RestrictByFalseTypeOfResultVisitor calls its caseObjectType_impl directly (post-flip); others dispatch.
@@ -884,7 +911,7 @@ func (this *ChainableReverseAbstractInterpreter_RestrictByFalseTypeOfResultVisit
 	if this.self_ == any(this) {
 		return this.caseObjectType_impl(p0)
 	}
-	return this.self_.(interface{ caseObjectType_impl(*ObjectType) any }).caseObjectType_impl(p0)
+	return this.selfI_.caseObjectType_impl(p0)
 }
 
 // caseStringType: an object that is exactly a ChainableReverseAbstractInterpreter_RestrictByFalseTypeOfResultVisitor calls its caseStringType_impl directly (post-flip); others dispatch.
@@ -892,7 +919,7 @@ func (this *ChainableReverseAbstractInterpreter_RestrictByFalseTypeOfResultVisit
 	if this.self_ == any(this) {
 		return this.caseStringType_impl()
 	}
-	return this.self_.(interface{ caseStringType_impl() any }).caseStringType_impl()
+	return this.selfI_.caseStringType_impl()
 }
 
 // caseSymbolType: an object that is exactly a ChainableReverseAbstractInterpreter_RestrictByFalseTypeOfResultVisitor calls its caseSymbolType_impl directly (post-flip); others dispatch.
@@ -900,7 +927,7 @@ func (this *ChainableReverseAbstractInterpreter_RestrictByFalseTypeOfResultVisit
 	if this.self_ == any(this) {
 		return this.caseSymbolType_impl(p0)
 	}
-	return this.self_.(interface{ caseSymbolType_impl(*SymbolType) any }).caseSymbolType_impl(p0)
+	return this.selfI_.caseSymbolType_impl(p0)
 }
 
 // caseVoidType: an object that is exactly a ChainableReverseAbstractInterpreter_RestrictByFalseTypeOfResultVisitor calls its caseVoidType_impl directly (post-flip); others dispatch.
@@ -908,7 +935,7 @@ func (this *ChainableReverseAbstractInterpreter_RestrictByFalseTypeOfResultVisit
 	if this.self_ == any(this) {
 		return this.caseVoidType_impl()
 	}
-	return this.self_.(interface{ caseVoidType_impl() any }).caseVoidType_impl()
+	return this.selfI_.caseVoidType_impl()
 }
 
 // caseTopType: an object that is exactly a ChainableReverseAbstractInterpreter_RestrictByOneTypeOfResultVisitor calls its caseTopType_impl directly (post-flip); others dispatch.
@@ -916,7 +943,7 @@ func (this *ChainableReverseAbstractInterpreter_RestrictByOneTypeOfResultVisitor
 	if this.self_ == any(this) {
 		return this.caseTopType_impl(p0)
 	}
-	return this.self_.(interface{ caseTopType_impl(*JSType) *JSType }).caseTopType_impl(p0)
+	return this.selfI_.caseTopType_impl(p0)
 }
 
 // caseNoObjectType: an object that is exactly a ChainableReverseAbstractInterpreter_RestrictByOneTypeOfResultVisitor calls its caseNoObjectType_impl directly (post-flip); others dispatch.
@@ -924,7 +951,7 @@ func (this *ChainableReverseAbstractInterpreter_RestrictByOneTypeOfResultVisitor
 	if this.self_ == any(this) {
 		return this.caseNoObjectType_impl()
 	}
-	return this.self_.(interface{ caseNoObjectType_impl() any }).caseNoObjectType_impl()
+	return this.selfI_.caseNoObjectType_impl()
 }
 
 // caseBooleanType: an object that is exactly a ChainableReverseAbstractInterpreter_RestrictByOneTypeOfResultVisitor calls its caseBooleanType_impl directly (post-flip); others dispatch.
@@ -932,7 +959,7 @@ func (this *ChainableReverseAbstractInterpreter_RestrictByOneTypeOfResultVisitor
 	if this.self_ == any(this) {
 		return this.caseBooleanType_impl()
 	}
-	return this.self_.(interface{ caseBooleanType_impl() any }).caseBooleanType_impl()
+	return this.selfI_.caseBooleanType_impl()
 }
 
 // caseFunctionType: an object that is exactly a ChainableReverseAbstractInterpreter_RestrictByOneTypeOfResultVisitor calls its caseFunctionType_impl directly (post-flip); others dispatch.
@@ -940,7 +967,7 @@ func (this *ChainableReverseAbstractInterpreter_RestrictByOneTypeOfResultVisitor
 	if this.self_ == any(this) {
 		return this.caseFunctionType_impl(p0)
 	}
-	return this.self_.(interface{ caseFunctionType_impl(*FunctionType) any }).caseFunctionType_impl(p0)
+	return this.selfI_.caseFunctionType_impl(p0)
 }
 
 // caseNullType: an object that is exactly a ChainableReverseAbstractInterpreter_RestrictByOneTypeOfResultVisitor calls its caseNullType_impl directly (post-flip); others dispatch.
@@ -948,7 +975,7 @@ func (this *ChainableReverseAbstractInterpreter_RestrictByOneTypeOfResultVisitor
 	if this.self_ == any(this) {
 		return this.caseNullType_impl()
 	}
-	return this.self_.(interface{ caseNullType_impl() any }).caseNullType_impl()
+	return this.selfI_.caseNullType_impl()
 }
 
 // caseNumberType: an object that is exactly a ChainableReverseAbstractInterpreter_RestrictByOneTypeOfResultVisitor calls its caseNumberType_impl directly (post-flip); others dispatch.
@@ -956,7 +983,7 @@ func (this *ChainableReverseAbstractInterpreter_RestrictByOneTypeOfResultVisitor
 	if this.self_ == any(this) {
 		return this.caseNumberType_impl()
 	}
-	return this.self_.(interface{ caseNumberType_impl() any }).caseNumberType_impl()
+	return this.selfI_.caseNumberType_impl()
 }
 
 // caseBigIntType: an object that is exactly a ChainableReverseAbstractInterpreter_RestrictByOneTypeOfResultVisitor calls its caseBigIntType_impl directly (post-flip); others dispatch.
@@ -964,7 +991,7 @@ func (this *ChainableReverseAbstractInterpreter_RestrictByOneTypeOfResultVisitor
 	if this.self_ == any(this) {
 		return this.caseBigIntType_impl()
 	}
-	return this.self_.(interface{ caseBigIntType_impl() any }).caseBigIntType_impl()
+	return this.selfI_.caseBigIntType_impl()
 }
 
 // caseObjectType: an object that is exactly a ChainableReverseAbstractInterpreter_RestrictByOneTypeOfResultVisitor calls its caseObjectType_impl directly (post-flip); others dispatch.
@@ -972,7 +999,7 @@ func (this *ChainableReverseAbstractInterpreter_RestrictByOneTypeOfResultVisitor
 	if this.self_ == any(this) {
 		return this.caseObjectType_impl(p0)
 	}
-	return this.self_.(interface{ caseObjectType_impl(*ObjectType) any }).caseObjectType_impl(p0)
+	return this.selfI_.caseObjectType_impl(p0)
 }
 
 // caseStringType: an object that is exactly a ChainableReverseAbstractInterpreter_RestrictByOneTypeOfResultVisitor calls its caseStringType_impl directly (post-flip); others dispatch.
@@ -980,7 +1007,7 @@ func (this *ChainableReverseAbstractInterpreter_RestrictByOneTypeOfResultVisitor
 	if this.self_ == any(this) {
 		return this.caseStringType_impl()
 	}
-	return this.self_.(interface{ caseStringType_impl() any }).caseStringType_impl()
+	return this.selfI_.caseStringType_impl()
 }
 
 // caseSymbolType: an object that is exactly a ChainableReverseAbstractInterpreter_RestrictByOneTypeOfResultVisitor calls its caseSymbolType_impl directly (post-flip); others dispatch.
@@ -988,7 +1015,7 @@ func (this *ChainableReverseAbstractInterpreter_RestrictByOneTypeOfResultVisitor
 	if this.self_ == any(this) {
 		return this.caseSymbolType_impl(p0)
 	}
-	return this.self_.(interface{ caseSymbolType_impl(*SymbolType) any }).caseSymbolType_impl(p0)
+	return this.selfI_.caseSymbolType_impl(p0)
 }
 
 // caseVoidType: an object that is exactly a ChainableReverseAbstractInterpreter_RestrictByOneTypeOfResultVisitor calls its caseVoidType_impl directly (post-flip); others dispatch.
@@ -996,7 +1023,7 @@ func (this *ChainableReverseAbstractInterpreter_RestrictByOneTypeOfResultVisitor
 	if this.self_ == any(this) {
 		return this.caseVoidType_impl()
 	}
-	return this.self_.(interface{ caseVoidType_impl() any }).caseVoidType_impl()
+	return this.selfI_.caseVoidType_impl()
 }
 
 // caseTopType: an object that is exactly a ChainableReverseAbstractInterpreter_1 calls its caseTopType_impl directly (post-flip); others dispatch.
@@ -1004,7 +1031,7 @@ func (this *ChainableReverseAbstractInterpreter_1) caseTopType(p0 *JSType) *JSTy
 	if this.self_ == any(this) {
 		return this.caseTopType_impl(p0)
 	}
-	return this.self_.(interface{ caseTopType_impl(*JSType) *JSType }).caseTopType_impl(p0)
+	return this.selfI_.caseTopType_impl(p0)
 }
 
 // caseObjectType: an object that is exactly a ChainableReverseAbstractInterpreter_1 calls its caseObjectType_impl directly (post-flip); others dispatch.
@@ -1012,7 +1039,7 @@ func (this *ChainableReverseAbstractInterpreter_1) caseObjectType(p0 *ObjectType
 	if this.self_ == any(this) {
 		return this.caseObjectType_impl(p0)
 	}
-	return this.self_.(interface{ caseObjectType_impl(*ObjectType) any }).caseObjectType_impl(p0)
+	return this.selfI_.caseObjectType_impl(p0)
 }
 
 // caseObjectType: an object that is exactly a ChainableReverseAbstractInterpreter_2 calls its caseObjectType_impl directly (post-flip); others dispatch.
@@ -1020,5 +1047,5 @@ func (this *ChainableReverseAbstractInterpreter_2) caseObjectType(p0 *ObjectType
 	if this.self_ == any(this) {
 		return this.caseObjectType_impl(p0)
 	}
-	return this.self_.(interface{ caseObjectType_impl(*ObjectType) any }).caseObjectType_impl(p0)
+	return this.selfI_.caseObjectType_impl(p0)
 }

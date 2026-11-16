@@ -29,6 +29,7 @@ func (this *ConformancePassConfig) init_ConformancePassConfig(delegate *PassConf
 func new_ConformancePassConfig(delegate *PassConfig) *ConformancePassConfig {
 	this := &ConformancePassConfig{}
 	this.self_ = this
+	this.selfI_ = this
 	this.init_ConformancePassConfig(delegate)
 	return this
 }
@@ -49,7 +50,7 @@ func (this *ConformancePassConfig) getChecks() *PassListBuilder {
 	if this.self_ == any(this) {
 		return this.getChecks_impl()
 	}
-	return this.self_.(interface{ getChecks_impl() *PassListBuilder }).getChecks_impl()
+	return this.selfI_.getChecks_impl()
 }
 
 // getOptimizations: an object that is exactly a ConformancePassConfig calls its getOptimizations_impl directly (post-flip); others dispatch.
@@ -57,5 +58,5 @@ func (this *ConformancePassConfig) getOptimizations() *PassListBuilder {
 	if this.self_ == any(this) {
 		return this.getOptimizations_impl()
 	}
-	return this.self_.(interface{ getOptimizations_impl() *PassListBuilder }).getOptimizations_impl()
+	return this.selfI_.getOptimizations_impl()
 }

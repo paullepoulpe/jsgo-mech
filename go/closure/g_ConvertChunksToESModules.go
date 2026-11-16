@@ -364,6 +364,7 @@ func (this *ConvertChunksToESModules_FindCrossChunkReferences) init_ConvertChunk
 func new_ConvertChunksToESModules_FindCrossChunkReferences(outer_ *ConvertChunksToESModules) *ConvertChunksToESModules_FindCrossChunkReferences {
 	this := &ConvertChunksToESModules_FindCrossChunkReferences{}
 	this.self_ = this
+	this.selfI_ = this
 	this.outer_ = outer_
 	this.init_ConvertChunksToESModules_FindCrossChunkReferences()
 	return this
@@ -410,7 +411,5 @@ func (this *ConvertChunksToESModules_FindCrossChunkReferences) shouldTraverse(p0
 	if this.self_ == any(this) {
 		return this.shouldTraverse_impl(p0, p1, p2)
 	}
-	return this.self_.(interface {
-		shouldTraverse_impl(*NodeTraversal, Node, Node) bool
-	}).shouldTraverse_impl(p0, p1, p2)
+	return this.selfI_.shouldTraverse_impl(p0, p1, p2)
 }

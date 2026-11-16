@@ -30,6 +30,7 @@ func (this *UnknownType) init_UnknownType(registry *JSTypeRegistry, isChecked bo
 func new_UnknownType(registry *JSTypeRegistry, isChecked bool) *UnknownType {
 	this := &UnknownType{}
 	this.self_ = this
+	this.selfI_ = this
 	this.init_UnknownType(registry, isChecked)
 	return this
 }
@@ -136,7 +137,7 @@ func (this *UnknownType) getTypeClass() *JSTypeClass {
 	if this.self_ == any(this) {
 		return this.getTypeClass_impl()
 	}
-	return this.self_.(interface{ getTypeClass_impl() *JSTypeClass }).getTypeClass_impl()
+	return this.selfI_.getTypeClass_impl()
 }
 
 // isUnknownType: an object that is exactly a UnknownType calls its isUnknownType_impl directly (post-flip); others dispatch.
@@ -144,7 +145,7 @@ func (this *UnknownType) isUnknownType() bool {
 	if this.self_ == any(this) {
 		return this.isUnknownType_impl()
 	}
-	return this.self_.(interface{ isUnknownType_impl() bool }).isUnknownType_impl()
+	return this.selfI_.isUnknownType_impl()
 }
 
 // isCheckedUnknownType: an object that is exactly a UnknownType calls its isCheckedUnknownType_impl directly (post-flip); others dispatch.
@@ -152,7 +153,7 @@ func (this *UnknownType) isCheckedUnknownType() bool {
 	if this.self_ == any(this) {
 		return this.isCheckedUnknownType_impl()
 	}
-	return this.self_.(interface{ isCheckedUnknownType_impl() bool }).isCheckedUnknownType_impl()
+	return this.selfI_.isCheckedUnknownType_impl()
 }
 
 // canBeCalled: an object that is exactly a UnknownType calls its canBeCalled_impl directly (post-flip); others dispatch.
@@ -160,7 +161,7 @@ func (this *UnknownType) canBeCalled() bool {
 	if this.self_ == any(this) {
 		return this.canBeCalled_impl()
 	}
-	return this.self_.(interface{ canBeCalled_impl() bool }).canBeCalled_impl()
+	return this.selfI_.canBeCalled_impl()
 }
 
 // matchesNumberContext: an object that is exactly a UnknownType calls its matchesNumberContext_impl directly (post-flip); others dispatch.
@@ -168,7 +169,7 @@ func (this *UnknownType) matchesNumberContext() bool {
 	if this.self_ == any(this) {
 		return this.matchesNumberContext_impl()
 	}
-	return this.self_.(interface{ matchesNumberContext_impl() bool }).matchesNumberContext_impl()
+	return this.selfI_.matchesNumberContext_impl()
 }
 
 // matchesObjectContext: an object that is exactly a UnknownType calls its matchesObjectContext_impl directly (post-flip); others dispatch.
@@ -176,7 +177,7 @@ func (this *UnknownType) matchesObjectContext() bool {
 	if this.self_ == any(this) {
 		return this.matchesObjectContext_impl()
 	}
-	return this.self_.(interface{ matchesObjectContext_impl() bool }).matchesObjectContext_impl()
+	return this.selfI_.matchesObjectContext_impl()
 }
 
 // matchesStringContext: an object that is exactly a UnknownType calls its matchesStringContext_impl directly (post-flip); others dispatch.
@@ -184,7 +185,7 @@ func (this *UnknownType) matchesStringContext() bool {
 	if this.self_ == any(this) {
 		return this.matchesStringContext_impl()
 	}
-	return this.self_.(interface{ matchesStringContext_impl() bool }).matchesStringContext_impl()
+	return this.selfI_.matchesStringContext_impl()
 }
 
 // matchesSymbolContext: an object that is exactly a UnknownType calls its matchesSymbolContext_impl directly (post-flip); others dispatch.
@@ -192,7 +193,7 @@ func (this *UnknownType) matchesSymbolContext() bool {
 	if this.self_ == any(this) {
 		return this.matchesSymbolContext_impl()
 	}
-	return this.self_.(interface{ matchesSymbolContext_impl() bool }).matchesSymbolContext_impl()
+	return this.selfI_.matchesSymbolContext_impl()
 }
 
 // testForEquality: an object that is exactly a UnknownType calls its testForEquality_impl directly (post-flip); others dispatch.
@@ -200,7 +201,7 @@ func (this *UnknownType) testForEquality(p0 *JSType) *Tri {
 	if this.self_ == any(this) {
 		return this.testForEquality_impl(p0)
 	}
-	return this.self_.(interface{ testForEquality_impl(*JSType) *Tri }).testForEquality_impl(p0)
+	return this.selfI_.testForEquality_impl(p0)
 }
 
 // isNullable: an object that is exactly a UnknownType calls its isNullable_impl directly (post-flip); others dispatch.
@@ -208,7 +209,7 @@ func (this *UnknownType) isNullable() bool {
 	if this.self_ == any(this) {
 		return this.isNullable_impl()
 	}
-	return this.self_.(interface{ isNullable_impl() bool }).isNullable_impl()
+	return this.selfI_.isNullable_impl()
 }
 
 // isVoidable: an object that is exactly a UnknownType calls its isVoidable_impl directly (post-flip); others dispatch.
@@ -216,7 +217,7 @@ func (this *UnknownType) isVoidable() bool {
 	if this.self_ == any(this) {
 		return this.isVoidable_impl()
 	}
-	return this.self_.(interface{ isVoidable_impl() bool }).isVoidable_impl()
+	return this.selfI_.isVoidable_impl()
 }
 
 // visitUntyped: an object that is exactly a UnknownType calls its visitUntyped_impl directly (post-flip); others dispatch.
@@ -224,7 +225,7 @@ func (this *UnknownType) visitUntyped(p0 Visitor) any {
 	if this.self_ == any(this) {
 		return this.visitUntyped_impl(p0)
 	}
-	return this.self_.(interface{ visitUntyped_impl(Visitor) any }).visitUntyped_impl(p0)
+	return this.selfI_.visitUntyped_impl(p0)
 }
 
 // visitUntyped_2: an object that is exactly a UnknownType calls its visitUntyped_2_impl directly (post-flip); others dispatch.
@@ -232,9 +233,7 @@ func (this *UnknownType) visitUntyped_2(p0 RelationshipVisitor, p1 *JSType) any 
 	if this.self_ == any(this) {
 		return this.visitUntyped_2_impl(p0, p1)
 	}
-	return this.self_.(interface {
-		visitUntyped_2_impl(RelationshipVisitor, *JSType) any
-	}).visitUntyped_2_impl(p0, p1)
+	return this.selfI_.visitUntyped_2_impl(p0, p1)
 }
 
 // appendTo: an object that is exactly a UnknownType calls its appendTo_impl directly (post-flip); others dispatch.
@@ -243,7 +242,7 @@ func (this *UnknownType) appendTo(p0 *TypeStringBuilder) {
 		this.appendTo_impl(p0)
 		return
 	}
-	this.self_.(interface{ appendTo_impl(*TypeStringBuilder) }).appendTo_impl(p0)
+	this.selfI_.appendTo_impl(p0)
 }
 
 // defineProperty: an object that is exactly a UnknownType calls its defineProperty_impl directly (post-flip); others dispatch.
@@ -285,7 +284,7 @@ func (this *UnknownType) getDisplayName() Optional {
 	if this.self_ == any(this) {
 		return this.getDisplayName_impl()
 	}
-	return this.self_.(interface{ getDisplayName_impl() Optional }).getDisplayName_impl()
+	return this.selfI_.getDisplayName_impl()
 }
 
 // hasDisplayName: an object that is exactly a UnknownType calls its hasDisplayName_impl directly (post-flip); others dispatch.
@@ -293,7 +292,7 @@ func (this *UnknownType) hasDisplayName() bool {
 	if this.self_ == any(this) {
 		return this.hasDisplayName_impl()
 	}
-	return this.self_.(interface{ hasDisplayName_impl() bool }).hasDisplayName_impl()
+	return this.selfI_.hasDisplayName_impl()
 }
 
 // getPossibleToBooleanOutcomes: an object that is exactly a UnknownType calls its getPossibleToBooleanOutcomes_impl directly (post-flip); others dispatch.
@@ -301,7 +300,7 @@ func (this *UnknownType) getPossibleToBooleanOutcomes() *BooleanLiteralSet {
 	if this.self_ == any(this) {
 		return this.getPossibleToBooleanOutcomes_impl()
 	}
-	return this.self_.(interface{ getPossibleToBooleanOutcomes_impl() *BooleanLiteralSet }).getPossibleToBooleanOutcomes_impl()
+	return this.selfI_.getPossibleToBooleanOutcomes_impl()
 }
 
 // resolveInternal: an object that is exactly a UnknownType calls its resolveInternal_impl directly (post-flip); others dispatch.
@@ -309,9 +308,7 @@ func (this *UnknownType) resolveInternal(p0 ErrorReporter_rhino) *JSType {
 	if this.self_ == any(this) {
 		return this.resolveInternal_impl(p0)
 	}
-	return this.self_.(interface {
-		resolveInternal_impl(ErrorReporter_rhino) *JSType
-	}).resolveInternal_impl(p0)
+	return this.selfI_.resolveInternal_impl(p0)
 }
 
 // recursionUnsafeHashCode: an object that is exactly a UnknownType calls its recursionUnsafeHashCode_impl directly (post-flip); others dispatch.
@@ -319,5 +316,5 @@ func (this *UnknownType) recursionUnsafeHashCode() int32 {
 	if this.self_ == any(this) {
 		return this.recursionUnsafeHashCode_impl()
 	}
-	return this.self_.(interface{ recursionUnsafeHashCode_impl() int32 }).recursionUnsafeHashCode_impl()
+	return this.selfI_.recursionUnsafeHashCode_impl()
 }

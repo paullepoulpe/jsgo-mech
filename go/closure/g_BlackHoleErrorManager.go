@@ -20,6 +20,7 @@ func (this *BlackHoleErrorManager) init_BlackHoleErrorManager() {
 func new_BlackHoleErrorManager() *BlackHoleErrorManager {
 	this := &BlackHoleErrorManager{}
 	this.self_ = this
+	this.selfI_ = this
 	this.init_BlackHoleErrorManager()
 	return this
 }

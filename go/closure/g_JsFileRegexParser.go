@@ -48,6 +48,7 @@ func (this *JsFileRegexParser) init_JsFileRegexParser(errorManager ErrorManager)
 func new_JsFileRegexParser(errorManager ErrorManager) *JsFileRegexParser {
 	this := &JsFileRegexParser{}
 	this.self_ = this
+	this.selfI_ = this
 	this.zero_JsFileRegexParser()
 	this.init_JsFileRegexParser(errorManager)
 	return this
@@ -317,7 +318,7 @@ func (this *JsFileRegexParser) parseJsDocCommentLine(p0 string) bool {
 	if this.self_ == any(this) {
 		return this.parseJsDocCommentLine_impl(p0)
 	}
-	return this.self_.(interface{ parseJsDocCommentLine_impl(string) bool }).parseJsDocCommentLine_impl(p0)
+	return this.selfI_.parseJsDocCommentLine_impl(p0)
 }
 
 // parseLine: an object that is exactly a JsFileRegexParser calls its parseLine_impl directly (post-flip); others dispatch.
@@ -325,5 +326,5 @@ func (this *JsFileRegexParser) parseLine(p0 string) *Outcome_base {
 	if this.self_ == any(this) {
 		return this.parseLine_impl(p0)
 	}
-	return this.self_.(interface{ parseLine_impl(string) *Outcome_base }).parseLine_impl(p0)
+	return this.selfI_.parseLine_impl(p0)
 }
