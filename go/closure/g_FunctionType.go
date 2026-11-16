@@ -608,7 +608,7 @@ func (this *FunctionType) supAndInfHelper(that *FunctionType, leastSuper bool) *
 
 func (this *FunctionType) tryMergeFunctionPiecewise(other *FunctionType, leastSuper bool) *FunctionType {
 	var newParamsNode ImmutableListOf[*FunctionType_Parameter] = nil
-	if new_EqualityChecker().setEqMethod(EqualityChecker_EqMethod_IDENTITY).checkParameters(this.call, other.call) {
+	if equalityChecker_().setEqMethod(EqualityChecker_EqMethod_IDENTITY).checkParametersAndRelease_(this.call, other.call) {
 		newParamsNode = this.call.getParameterList()
 	} else {
 		return nil
@@ -663,7 +663,7 @@ func (this *FunctionType) recursionUnsafeHashCode_impl() int32 {
 }
 
 func (this *FunctionType) hasEqualCallType(that *FunctionType) bool {
-	return new_EqualityChecker().setEqMethod(EqualityChecker_EqMethod_IDENTITY).check(this.call.up_JSType(), that.call.up_JSType())
+	return equalityChecker_().setEqMethod(EqualityChecker_EqMethod_IDENTITY).checkAndRelease_(this.call.up_JSType(), that.call.up_JSType())
 }
 
 func (this *FunctionType) appendTo_impl(sb *TypeStringBuilder) {

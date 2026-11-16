@@ -498,11 +498,11 @@ func (this *JSType) equals(other any) bool {
 		}
 		jSType = to_JSType(v_)
 		return true
-	}() && new_EqualityChecker().setEqMethod(EqualityChecker_EqMethod_IDENTITY).check(this, jSType))
+	}() && equalityChecker_().setEqMethod(EqualityChecker_EqMethod_IDENTITY).checkAndRelease_(this, jSType))
 }
 
 func (this *JSType) differsFrom(that *JSType) bool {
-	return !new_EqualityChecker().setEqMethod(EqualityChecker_EqMethod_DATA_FLOW).check(this, that)
+	return !equalityChecker_().setEqMethod(EqualityChecker_EqMethod_DATA_FLOW).checkAndRelease_(this, that)
 }
 
 func JSType_areSimilar(first *JSType, second *JSType) bool {

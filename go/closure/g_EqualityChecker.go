@@ -35,6 +35,39 @@ func (this *EqualityChecker) checkHasNotRun() {
 	Preconditions_checkState(!this.hasRun)
 }
 
+// equalityCheckerFree_ holds checkers whose check is done, for the next check to reuse
+// (post-flip manual step: every type equality made a new checker). The program runs on one
+// goroutine; a check started during another check takes its own checker.
+var equalityCheckerFree_ []*EqualityChecker
+
+// equalityChecker_ is new EqualityChecker(): a checker from the free list, reset to the state
+// the constructor gives it, or a new one.
+func equalityChecker_() *EqualityChecker {
+	if n := len(equalityCheckerFree_); n > 0 {
+		c := equalityCheckerFree_[n-1]
+		equalityCheckerFree_ = equalityCheckerFree_[:n-1]
+		*c = EqualityChecker{}
+		c.init_EqualityChecker()
+		return c
+	}
+	return new_EqualityChecker()
+}
+
+// checkAndRelease_ is check, after which the checker goes back to the free list (nothing keeps
+// a checker after its check).
+func (this *EqualityChecker) checkAndRelease_(left *JSType, right *JSType) bool {
+	r := this.check(left, right)
+	equalityCheckerFree_ = append(equalityCheckerFree_, this)
+	return r
+}
+
+// checkParametersAndRelease_ is checkParameters, then the same.
+func (this *EqualityChecker) checkParametersAndRelease_(left *ArrowType, right *ArrowType) bool {
+	r := this.checkParameters(left, right)
+	equalityCheckerFree_ = append(equalityCheckerFree_, this)
+	return r
+}
+
 func (this *EqualityChecker) check(left *JSType, right *JSType) bool {
 	this.checkHasNotRun()
 	this.hasRun = true
