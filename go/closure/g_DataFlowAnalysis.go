@@ -327,12 +327,14 @@ func (this *DataFlowAnalysis_LinearFlowState) toString() string {
 }
 
 type DataFlowAnalysis_UniqueQueue struct {
-	seenSet map[any]struct{} // membership only, never iterated: a Go map (graph nodes compare by identity)
+	// membership only, never iterated: a Go map (graph nodes compare by identity), keyed by the
+	// node's LinkedDiGraphNode, the only DiGraphNode class (post-flip manual step).
+	seenSet map[*LinkedDirectedGraph_LinkedDiGraphNode]struct{}
 	queue   QueueOf[any]
 }
 
 func (this *DataFlowAnalysis_UniqueQueue) finit_DataFlowAnalysis_UniqueQueue() {
-	this.seenSet = map[any]struct{}{}
+	this.seenSet = map[*LinkedDirectedGraph_LinkedDiGraphNode]struct{}{}
 }
 
 func (this *DataFlowAnalysis_UniqueQueue) init_DataFlowAnalysis_UniqueQueue(priority ComparatorOf[any]) {
@@ -357,13 +359,14 @@ func (this *DataFlowAnalysis_UniqueQueue) isEmpty() bool {
 
 func (this *DataFlowAnalysis_UniqueQueue) removeFirst() any {
 	var t any = this.queue.poll()
-	delete(this.seenSet, t)
+	delete(this.seenSet, to_LinkedDirectedGraph_LinkedDiGraphNode(t))
 	return t
 }
 
 func (this *DataFlowAnalysis_UniqueQueue) add(t any) {
-	if _, seen := this.seenSet[t]; !seen {
-		this.seenSet[t] = struct{}{}
+	k := to_LinkedDirectedGraph_LinkedDiGraphNode(t)
+	if _, seen := this.seenSet[k]; !seen {
+		this.seenSet[k] = struct{}{}
 		this.queue.add(t)
 	}
 }
