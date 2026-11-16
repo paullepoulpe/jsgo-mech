@@ -1240,7 +1240,7 @@ func (this *TypeCheck) couldBeAConstructor(type_ *JSType) bool {
 	return ((type_.isConstructor() || type_.isEmptyType()) || type_.isUnknownType())
 }
 
-func (this *TypeCheck) checkInterfaceConflictProperties(n Node, functionName string, properties MapOf[Property_Key, *ObjectType], currentProperties MapOf[Property_Key, *ObjectType], interfaceType *ObjectType) {
+func (this *TypeCheck) checkInterfaceConflictProperties(n Node, functionName string, properties *TMap[Property_Key, *ObjectType], currentProperties *TMap[Property_Key, *ObjectType], interfaceType *ObjectType) {
 	var implicitProto *ObjectType = interfaceType.getImplicitPrototype()
 	var currentPropertyNames ImmutableSetOf[Property_Key]
 	if implicitProto == nil {
@@ -1251,8 +1251,8 @@ func (this *TypeCheck) checkInterfaceConflictProperties(n Node, functionName str
 	it_1 := foreach_(obj_(currentPropertyNames))
 	for it_1.next() {
 		var name Property_Key = icast_Property_Key(it_1.v)
-		var oType *ObjectType = to_ObjectType(properties.get(any(name)))
-		currentProperties.put(any(name), interfaceType.self())
+		var oType *ObjectType = properties.get(name)
+		currentProperties.put(name, interfaceType)
 		if oType != nil {
 			var thisPropType *JSType = interfaceType.getPropertyTypeKey(name)
 			var oPropType *JSType = oType.getPropertyTypeKey(name)
@@ -1379,14 +1379,14 @@ func (this *TypeCheck) checkInterface(n Node, functionType *FunctionType) {
 		}
 	}
 	if functionType.getExtendedInterfacesCount() > 1 {
-		var properties LinkedHashMapOf[Property_Key, *ObjectType] = new_LinkedHashMap()
-		var currentProperties LinkedHashMapOf[Property_Key, *ObjectType] = new_LinkedHashMap()
+		var properties *TMap[Property_Key, *ObjectType] = newTMap_(tch_Property_Key, tc_p_ObjectType)
+		var currentProperties *TMap[Property_Key, *ObjectType] = newTMap_(tch_Property_Key, tc_p_ObjectType)
 		it_3 := foreach_(obj_(functionType.getExtendedInterfaces()))
 		for it_3.next() {
 			var interfaceType *ObjectType = to_ObjectType(it_3.v)
 			currentProperties.clear()
-			this.checkInterfaceConflictProperties(n, this.getBestFunctionName(n), icast_Map(obj_(properties)), icast_Map(obj_(currentProperties)), interfaceType)
-			properties.putAll(icast_Map(obj_(currentProperties)))
+			this.checkInterfaceConflictProperties(n, this.getBestFunctionName(n), properties, currentProperties, interfaceType)
+			properties.asMap().putAll(currentProperties.asMap())
 		}
 	}
 	var loopPath *TList[*FunctionType] = functionType.checkExtendsLoop()

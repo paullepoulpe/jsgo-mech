@@ -141,12 +141,12 @@ func (this *CrossChunkCodeMotion) isInstanceofFor(expression Node, reference Nod
 
 type CrossChunkCodeMotion_GlobalSymbolCollector struct {
 	outer_             *CrossChunkCodeMotion
-	globalSymbolforVar MapOf[*Var, *CrossChunkCodeMotion_GlobalSymbol]
+	globalSymbolforVar *TMap[*Var, *CrossChunkCodeMotion_GlobalSymbol]
 	symbolStack        DequeOf[*CrossChunkCodeMotion_GlobalSymbol]
 }
 
 func (this *CrossChunkCodeMotion_GlobalSymbolCollector) finit_CrossChunkCodeMotion_GlobalSymbolCollector() {
-	this.globalSymbolforVar = icast_Map(obj_(new_LinkedHashMap()))
+	this.globalSymbolforVar = newTMap_(tch_p_Var, tc_p_CrossChunkCodeMotion_GlobalSymbol)
 	this.symbolStack = icast_Deque(obj_(new_ArrayDeque()))
 }
 
@@ -227,10 +227,10 @@ func (this *CrossChunkCodeMotion_GlobalSymbolCollector) processDeclarationStatem
 }
 
 func (this *CrossChunkCodeMotion_GlobalSymbolCollector) getGlobalSymbol(var_ *Var) *CrossChunkCodeMotion_GlobalSymbol {
-	var globalSymbol *CrossChunkCodeMotion_GlobalSymbol = cast_[*CrossChunkCodeMotion_GlobalSymbol](this.globalSymbolforVar.get(obj_(var_)))
+	var globalSymbol *CrossChunkCodeMotion_GlobalSymbol = this.globalSymbolforVar.get(var_)
 	if globalSymbol == nil {
 		globalSymbol = new_CrossChunkCodeMotion_GlobalSymbol(this.outer_, var_)
-		this.globalSymbolforVar.put(obj_(var_), obj_(globalSymbol))
+		this.globalSymbolforVar.put(var_, globalSymbol)
 		this.symbolStack.push(obj_(globalSymbol))
 	}
 	return globalSymbol

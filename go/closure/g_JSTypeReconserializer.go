@@ -12,14 +12,14 @@ type JSTypeReconserializer struct {
 	unknownRecord               *JSTypeReconserializer_SeenTypeRecord
 	topFunctionRecord           *JSTypeReconserializer_SeenTypeRecord
 	typeToRecordCache           *LinkedIdentityHashMap
-	seenTypeRecords             LinkedHashMapOf[*ColorId, *JSTypeReconserializer_SeenTypeRecord]
+	seenTypeRecords             *TMap[*ColorId, *JSTypeReconserializer_SeenTypeRecord]
 	disambiguateEdges           *SimpleSetMultimap
 	state                       *JSTypeReconserializer_State
 }
 
 func (this *JSTypeReconserializer) finit_JSTypeReconserializer() {
 	this.typeToRecordCache = new_LinkedIdentityHashMap()
-	this.seenTypeRecords = new_LinkedHashMap()
+	this.seenTypeRecords = newTMap_(tch_p_ColorId, tc_p_JSTypeReconserializer_SeenTypeRecord)
 	this.disambiguateEdges = SimpleSetMultimap_createInsertionOrdered()
 	this.state = JSTypeReconserializer_State_COLLECTING_TYPES
 }
@@ -33,8 +33,8 @@ func (this *JSTypeReconserializer) init_JSTypeReconserializer(registry *JSTypeRe
 	this.shouldPropagatePropertyName = shouldPropagatePropertyName
 	this.serializationMode = serializationMode
 	this.seedCachesWithAxiomaticTypes()
-	this.unknownRecord = cast_[*JSTypeReconserializer_SeenTypeRecord](this.seenTypeRecords.get(obj_(StandardColors_UNKNOWN.getId())))
-	this.topFunctionRecord = cast_[*JSTypeReconserializer_SeenTypeRecord](this.seenTypeRecords.get(obj_(StandardColors_TOP_FUNCTION.getId())))
+	this.unknownRecord = this.seenTypeRecords.get(StandardColors_UNKNOWN.getId())
+	this.topFunctionRecord = this.seenTypeRecords.get(StandardColors_TOP_FUNCTION.getId())
 }
 
 func new_JSTypeReconserializer(registry *JSTypeRegistry, invalidatingTypes *InvalidatingTypes, stringPoolBuilder *StringPool_Builder, shouldPropagatePropertyName PredicateOf[string], serializationMode *SerializationOptions) *JSTypeReconserializer {
@@ -160,7 +160,7 @@ func (this *JSTypeReconserializer) addSupertypeEdges(subtype *ObjectType, serial
 func (this *JSTypeReconserializer) getOrCreateRecord(id *ColorId, jstype *JSType) *JSTypeReconserializer_SeenTypeRecord {
 	Preconditions_checkNotNull(jstype.self())
 	Preconditions_checkState(((JSTypeReconserializer_State_COLLECTING_TYPES == this.state) || (JSTypeReconserializer_State_GENERATING_POOL == this.state)))
-	var record *JSTypeReconserializer_SeenTypeRecord = cast_[*JSTypeReconserializer_SeenTypeRecord](Map_computeIfAbsent_f(icast_Map(obj_(this.seenTypeRecords)), obj_(id), func(unused_ any) any {
+	var record *JSTypeReconserializer_SeenTypeRecord = cast_[*JSTypeReconserializer_SeenTypeRecord](Map_computeIfAbsent_f(this.seenTypeRecords.asMap(), obj_(id), func(unused_ any) any {
 		var unused *ColorId = cast_[*ColorId](unused_)
 		_ = unused
 		var pointer int32 = this.seenTypeRecords.size()
@@ -258,7 +258,7 @@ func (this *JSTypeReconserializer) seedCachesWithAxiomaticTypes() {
 		var axiomatic *Color = cast_[*Color](it_1.v)
 		var index int32 = this.seenTypeRecords.size()
 		var record *JSTypeReconserializer_SeenTypeRecord = new_JSTypeReconserializer_SeenTypeRecord(axiomatic.getId(), index)
-		this.seenTypeRecords.put(obj_(axiomatic.getId()), obj_(record))
+		this.seenTypeRecords.put(axiomatic.getId(), record)
 	}
 	Map_forEach_f(icast_Map(obj_(JSTypeReconserializer_JSTYPE_NATIVE_TO_AXIOMATIC_COLOR_MAP)), func(jstypeNative_ any, axiomatic_ any) {
 		var jstypeNative *JSTypeNative = cast_[*JSTypeNative](jstypeNative_)
@@ -275,9 +275,9 @@ func (this *JSTypeReconserializer) checkValidLinearTime() {
 		return
 	}
 	var totalTypeCount int32 = this.seenTypeRecords.size()
-	it_1 := foreach_(any(this.seenTypeRecords.values()))
+	it_1 := this.seenTypeRecords.each()
 	for it_1.next() {
-		var seen *JSTypeReconserializer_SeenTypeRecord = cast_[*JSTypeReconserializer_SeenTypeRecord](it_1.v)
+		var seen *JSTypeReconserializer_SeenTypeRecord = it_1.v
 		var offset int32 = seen.pointer
 		Preconditions_checkState((offset >= 0))
 		if !(offset <= totalTypeCount) {
@@ -301,9 +301,9 @@ func (this *JSTypeReconserializer) generateTypePool() *TypePool {
 		})
 	}
 	this.state = JSTypeReconserializer_State_GENERATING_POOL
-	it_1 := foreach_(any(this.seenTypeRecords.values()))
+	it_1 := this.seenTypeRecords.each()
 	for it_1.next() {
-		var seen *JSTypeReconserializer_SeenTypeRecord = cast_[*JSTypeReconserializer_SeenTypeRecord](it_1.v)
+		var seen *JSTypeReconserializer_SeenTypeRecord = it_1.v
 		if StandardColors_AXIOMATIC_COLORS.containsKey(obj_(seen.colorId)) {
 			if !TypePointers_isAxiomatic(seen.pointer) {
 				Preconditions_checkState_boolean_String_Object(false, "Missing .type for SeenTypeRecord %s", obj_(seen))

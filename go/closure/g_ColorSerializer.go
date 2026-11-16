@@ -6,12 +6,12 @@ type ColorSerializer struct {
 	serializationMode       *SerializationOptions
 	getStringPoolIndexFn    FunctionOf[string, BoxedOf[int32]]
 	propertyFilter          PredicateOf[string]
-	colorIdToTypePointer    LinkedHashMapOf[*ColorId, BoxedOf[int32]]
+	colorIdToTypePointer    *TMap[*ColorId, any]
 	colorsInSerializedOrder []*Color
 }
 
 func (this *ColorSerializer) finit_ColorSerializer() {
-	this.colorIdToTypePointer = new_LinkedHashMap()
+	this.colorIdToTypePointer = newTMap_(tch_p_ColorId, tc_any)
 	this.colorsInSerializedOrder = []*Color{}
 }
 
@@ -44,7 +44,7 @@ func (this *ColorSerializer) addColors(colors CollectionOf[*Color]) ImmutableLis
 }
 
 func (this *ColorSerializer) addColor(color *Color) int32 {
-	return unbox_[int32](Map_computeIfAbsent_f(icast_Map(obj_(this.colorIdToTypePointer)), obj_(color.getId()), func(unusedKey_ any) any {
+	return unbox_[int32](Map_computeIfAbsent_f(this.colorIdToTypePointer.asMap(), obj_(color.getId()), func(unusedKey_ any) any {
 		var unusedKey *ColorId = cast_[*ColorId](unusedKey_)
 		_ = unusedKey
 		var index int32 = int32(len(this.colorsInSerializedOrder))
@@ -58,7 +58,7 @@ func (this *ColorSerializer) generateTypePool(getDisambiguationSupertypesFn func
 	var typePoolBuilder *TypePool_Builder = TypePool_newBuilder()
 	for i := int32(TypePointers_untrimOffset(0)); i < int32(len(this.colorsInSerializedOrder)); i++ {
 		var color *Color = sliceAt_(this.colorsInSerializedOrder, i)
-		var typePointer any = this.colorIdToTypePointer.get(obj_(color.getId()))
+		var typePointer any = this.colorIdToTypePointer.get(color.getId())
 		typePoolBuilder.addType(this.generateTypeProto(color))
 		it_2 := foreach_(any(icast_Set(getDisambiguationSupertypesFn(obj_(color)))))
 		for it_2.next() {
@@ -73,7 +73,7 @@ func (this *ColorSerializer) generateTypePool(getDisambiguationSupertypesFn func
 		it_4 := eachOf_(&this.colorsInSerializedOrder)
 		for it_4.next() {
 			var color *Color = it_4.v
-			var typePointer any = this.colorIdToTypePointer.get(obj_(color.getId()))
+			var typePointer any = this.colorIdToTypePointer.get(color.getId())
 			it_6 := foreach_(any(icast_Set(getMismatchSourceRefsFn.apply(obj_(color)))))
 			for it_6.next() {
 				var srcRef string = str_(it_6.v)

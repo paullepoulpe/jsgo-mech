@@ -258,12 +258,12 @@ func (this *InlineVariables_InlineVarAnalysis) getAliasedVar() *Var {
 
 type InlineVariables_InliningBehavior struct {
 	outer_                            *InlineVariables
-	currentScopeHandledVarAnalysesMap LinkedHashMapOf[*Var, *InlineVariables_InlineVarAnalysis]
+	currentScopeHandledVarAnalysesMap *TMap[*Var, *InlineVariables_InlineVarAnalysis]
 	varToAliasRetryHandlersMap        *SimpleSetMultimap
 }
 
 func (this *InlineVariables_InliningBehavior) finit_InlineVariables_InliningBehavior() {
-	this.currentScopeHandledVarAnalysesMap = new_LinkedHashMap()
+	this.currentScopeHandledVarAnalysesMap = newTMap_(tch_p_Var, tc_p_InlineVariables_InlineVarAnalysis)
 	this.varToAliasRetryHandlersMap = SimpleSetMultimap_createInsertionOrdered()
 }
 
@@ -294,7 +294,7 @@ func (this *InlineVariables_InliningBehavior) doInlinesForScope(t *NodeTraversal
 		if analysis.shouldWaitForAliasedVar() {
 			var retryHandler *InlineVariables_InliningBehavior_AliasInlineRetryHandler = new_InlineVariables_InliningBehavior_AliasInlineRetryHandler(this, v, expert)
 			var aliasedVar *Var = analysis.getAliasedVar()
-			var aliasedVarAnalysis *InlineVariables_InlineVarAnalysis = to_InlineVariables_InlineVarAnalysis(this.currentScopeHandledVarAnalysesMap.get(obj_(aliasedVar)))
+			var aliasedVarAnalysis *InlineVariables_InlineVarAnalysis = this.currentScopeHandledVarAnalysesMap.get(aliasedVar)
 			if aliasedVarAnalysis != nil {
 				retryHandler.handleAliasedVarCompletion(aliasedVar, aliasedVarAnalysis)
 			} else {
@@ -304,7 +304,7 @@ func (this *InlineVariables_InliningBehavior) doInlinesForScope(t *NodeTraversal
 			if analysis.shouldInline() {
 				analysis.performInline()
 			}
-			this.currentScopeHandledVarAnalysesMap.put(obj_(v), analysis.self())
+			this.currentScopeHandledVarAnalysesMap.put(v, analysis)
 			this.retryAliases(v, analysis)
 		}
 	}
@@ -565,7 +565,7 @@ func (this *InlineVariables_InliningBehavior_AliasInlineRetryHandler) handleAlia
 	if newAnalysis.shouldInline() {
 		newAnalysis.performInline()
 	}
-	this.outer_.currentScopeHandledVarAnalysesMap.put(obj_(this.v), newAnalysis.self())
+	this.outer_.currentScopeHandledVarAnalysesMap.put(this.v, newAnalysis)
 	this.outer_.retryAliases(this.v, newAnalysis)
 }
 

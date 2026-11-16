@@ -11,7 +11,7 @@ type AmbiguateProperties struct {
 	externedNames              ImmutableSetOf[string]
 	quotedNames                *TSet[string]
 	colorRegistry              *ColorRegistry
-	renamingMap                MapOf[string, string]
+	renamingMap                *TMap[string, string]
 	graphNodeFactory           *ColorGraphNodeFactory
 }
 
@@ -41,12 +41,12 @@ func new_AmbiguateProperties(compiler *AbstractCompiler, reservedFirstCharacters
 
 func AmbiguateProperties_makePassForTesting(compiler *AbstractCompiler, reservedFirstCharacters SetOf[BoxedOf[uint16]], reservedNonFirstCharacters SetOf[BoxedOf[uint16]], externProperties *TSet[string]) *AmbiguateProperties {
 	var ap *AmbiguateProperties = new_AmbiguateProperties(compiler, reservedFirstCharacters, reservedNonFirstCharacters, externProperties)
-	ap.renamingMap = icast_Map(obj_(new_LinkedHashMap()))
+	ap.renamingMap = newTMap_(tc_string, tc_string)
 	return ap
 }
 
-func (this *AmbiguateProperties) getRenamingMap() MapOf[string, string] {
-	Preconditions_checkNotNull(any(this.renamingMap))
+func (this *AmbiguateProperties) getRenamingMap() *TMap[string, string] {
+	Preconditions_checkNotNull(any(this.renamingMap.asMap()))
 	return this.renamingMap
 }
 
@@ -111,7 +111,7 @@ func (this *AmbiguateProperties) process_2(externs Node, root Node) {
 		var node *AmbiguateProperties_PropertyGraphNode = cast_[*AmbiguateProperties_PropertyGraphNode](it_11.v)
 		cast_[*AmbiguateProperties_Property](node.getValue()).newName = Optional_of[string](colorMap[Object_hashCode(any(Annotatable_getAnnotation(icast_Annotatable(obj_(node)))))])
 		if this.renamingMap != nil {
-			Map_put_s(this.renamingMap, cast_[*AmbiguateProperties_Property](node.getValue()).oldName, strobj_(cast_[*AmbiguateProperties_Property](node.getValue()).newName.orElse(nullstr_)))
+			this.renamingMap.put(cast_[*AmbiguateProperties_Property](node.getValue()).oldName, cast_[*AmbiguateProperties_Property](node.getValue()).newName.orElse(nullstr_))
 		}
 	}
 	it_13 := eachOf_(&this.stringNodesToRename)

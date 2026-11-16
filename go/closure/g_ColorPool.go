@@ -3,25 +3,25 @@
 package closure
 
 type ColorPool struct {
-	idToColor     LinkedHashMapOf[*ColorId, *Color]
+	idToColor     *TMap[*ColorId, *Color]
 	colorRegistry *ColorRegistry
 	shardViews    []*ColorPool_ShardView
 }
 
-func (this *ColorPool) init_ColorPool(idToColor LinkedHashMapOf[*ColorId, *Color], colorRegistry *ColorRegistry, shardViews []*ColorPool_ShardView) {
+func (this *ColorPool) init_ColorPool(idToColor *TMap[*ColorId, *Color], colorRegistry *ColorRegistry, shardViews []*ColorPool_ShardView) {
 	this.idToColor = idToColor
 	this.colorRegistry = colorRegistry
 	this.shardViews = shardViews
 }
 
-func new_ColorPool(idToColor LinkedHashMapOf[*ColorId, *Color], colorRegistry *ColorRegistry, shardViews []*ColorPool_ShardView) *ColorPool {
+func new_ColorPool(idToColor *TMap[*ColorId, *Color], colorRegistry *ColorRegistry, shardViews []*ColorPool_ShardView) *ColorPool {
 	this := &ColorPool{}
 	this.init_ColorPool(idToColor, colorRegistry, shardViews)
 	return this
 }
 
 func (this *ColorPool) getColor(id *ColorId) *Color {
-	return cast_[*Color](this.idToColor.get(obj_(id)))
+	return this.idToColor.get(id)
 }
 
 func (this *ColorPool) getRegistry() *ColorRegistry {
@@ -149,7 +149,7 @@ func (this *ColorPool_ShardView) updateStateAfterColorPoolIsBuilt(colorPool *Col
 
 type ColorPool_Builder struct {
 	protoToShard            *LinkedIdentityHashMap
-	idToColor               LinkedHashMapOf[*ColorId, *Color]
+	idToColor               *TMap[*ColorId, *Color]
 	registry                *ColorRegistry_Builder
 	idToProto               *SimpleTable
 	forTestingField         bool
@@ -158,7 +158,7 @@ type ColorPool_Builder struct {
 
 func (this *ColorPool_Builder) finit_ColorPool_Builder() {
 	this.protoToShard = new_LinkedIdentityHashMap()
-	this.idToColor = new_LinkedHashMap()
+	this.idToColor = newTMap_(tch_p_ColorId, tc_p_Color)
 	this.registry = ColorRegistry_builder()
 	this.idToProto = SimpleTable_create()
 	this.forTestingField = false
@@ -167,7 +167,7 @@ func (this *ColorPool_Builder) finit_ColorPool_Builder() {
 
 func (this *ColorPool_Builder) init_ColorPool_Builder() {
 	this.finit_ColorPool_Builder()
-	this.idToColor.putAll(icast_Map(obj_(StandardColors_AXIOMATIC_COLORS)))
+	this.idToColor.asMap().putAll(icast_Map(obj_(StandardColors_AXIOMATIC_COLORS)))
 }
 
 func new_ColorPool_Builder() *ColorPool_Builder {
@@ -235,7 +235,7 @@ func (this *ColorPool_Builder) build() *ColorPool {
 	it_6 := foreach_(obj_(ColorRegistry_REQUIRED_IDS))
 	for it_6.next() {
 		var colorId *ColorId = cast_[*ColorId](it_6.v)
-		this.registry.setNativeColor(cast_[*Color](Map_computeIfAbsent_f(icast_Map(obj_(this.idToColor)), obj_(colorId), func(unused_ any) any {
+		this.registry.setNativeColor(cast_[*Color](Map_computeIfAbsent_f(this.idToColor.asMap(), obj_(colorId), func(unused_ any) any {
 			var unused *ColorId = cast_[*ColorId](unused_)
 			_ = unused
 			return obj_(Color_singleBuilder().setId(colorId).build())
@@ -247,7 +247,7 @@ func (this *ColorPool_Builder) build() *ColorPool {
 		it_8 := foreach_(any(shard.typePool.getDisambiguationEdgesList()))
 		for it_8.next() {
 			var edge *SubtypingEdge = cast_[*SubtypingEdge](it_8.v)
-			this.registry.addDisambiguationEdge(cast_[*Color](this.idToColor.get(obj_(shard.getId(ColorPool_validatePointer(edge.getSubtype(), shard))))), cast_[*Color](this.idToColor.get(obj_(shard.getId(ColorPool_validatePointer(edge.getSupertype(), shard))))))
+			this.registry.addDisambiguationEdge(this.idToColor.get(shard.getId(ColorPool_validatePointer(edge.getSubtype(), shard))), this.idToColor.get(shard.getId(ColorPool_validatePointer(edge.getSupertype(), shard))))
 		}
 	})
 	var shardViewsForTesting ImmutableList_BuilderOf[*ColorPool_ShardView] = ImmutableList_builder()
@@ -290,7 +290,7 @@ func (this *ColorPool_Builder) lookupOrReconcileColor(id *ColorId) *Color {
 		defer func() {
 			SequencedCollection_removeLast(icast_SequencedCollection(obj_(this.reconcilationDebugStack)))
 		}()
-		var existing *Color = cast_[*Color](Map_putIfAbsent(icast_Map(obj_(this.idToColor)), obj_(id), obj_(ColorPool_PENDING_COLOR)))
+		var existing *Color = cast_[*Color](Map_putIfAbsent(this.idToColor.asMap(), obj_(id), obj_(ColorPool_PENDING_COLOR)))
 		if existing != nil {
 			if JSCompObjects_identical(obj_(existing), obj_(ColorPool_PENDING_COLOR)) {
 				panic(obj_(new_MalformedTypedAstException_Object(strobj_(("Cyclic Color structure detected: " + objstr_(sliceView_(tc_ImmutableMapOf_p_ColorPool_ShardView__p_TypeProto_, this.reconcilationDebugStackProtos())))))))
@@ -317,7 +317,7 @@ func (this *ColorPool_Builder) lookupOrReconcileColor(id *ColorId) *Color {
 		if !(result != nil) {
 			Preconditions_checkState_boolean_Object(false, obj_(id))
 		}
-		this.idToColor.put(obj_(id), obj_(result))
+		this.idToColor.put(id, result)
 		ret_1 = result
 		return 1
 		return 0

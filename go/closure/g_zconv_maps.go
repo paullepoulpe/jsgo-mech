@@ -92,3 +92,47 @@ var tc_p_Tracer_Stat = &tconv_[*Tracer_Stat]{box: func(v *Tracer_Stat) any { ret
 var tc_p_TypedScope = &tconv_[*TypedScope]{box: func(v *TypedScope) any { return obj_(v) }, unbox: func(v any) *TypedScope { return cast_[*TypedScope](v) }}
 var tc_p_UnresolvedModule = &tconv_[*UnresolvedModule]{box: func(v *UnresolvedModule) any { return v.self() }, unbox: func(v any) *UnresolvedModule { return to_UnresolvedModule(v) }}
 var tc_p_AbstractVar = &tconv_[*AbstractVar]{box: func(v *AbstractVar) any { return v.self() }, unbox: func(v any) *AbstractVar { return to_AbstractVar(v) }}
+var tc_p_ClosureRewriteModule_ExportDefinition = &tconv_[*ClosureRewriteModule_ExportDefinition]{box: func(v *ClosureRewriteModule_ExportDefinition) any { return obj_(v) }, unbox: func(v any) *ClosureRewriteModule_ExportDefinition {
+	return cast_[*ClosureRewriteModule_ExportDefinition](v)
+}}
+var tc_p_InlineVariables_InlineVarAnalysis = &tconv_[*InlineVariables_InlineVarAnalysis]{box: func(v *InlineVariables_InlineVarAnalysis) any { return v.self() }, unbox: func(v any) *InlineVariables_InlineVarAnalysis { return to_InlineVariables_InlineVarAnalysis(v) }}
+var tc_p_InstrumentationPointStats_Presence = &tconv_[*InstrumentationPointStats_Presence]{box: func(v *InstrumentationPointStats_Presence) any { return obj_(v) }, unbox: func(v any) *InstrumentationPointStats_Presence { return cast_[*InstrumentationPointStats_Presence](v) }}
+var tc_p_JSTypeReconserializer_SeenTypeRecord = &tconv_[*JSTypeReconserializer_SeenTypeRecord]{box: func(v *JSTypeReconserializer_SeenTypeRecord) any { return obj_(v) }, unbox: func(v any) *JSTypeReconserializer_SeenTypeRecord {
+	return cast_[*JSTypeReconserializer_SeenTypeRecord](v)
+}}
+var tc_p_JSType_MatchStatus = &tconv_[*JSType_MatchStatus]{box: func(v *JSType_MatchStatus) any { return obj_(v) }, unbox: func(v any) *JSType_MatchStatus { return cast_[*JSType_MatchStatus](v) }}
+var tc_p_LowestCommonAncestorFinder_Color = &tconv_[*LowestCommonAncestorFinder_Color]{box: func(v *LowestCommonAncestorFinder_Color) any { return obj_(v) }, unbox: func(v any) *LowestCommonAncestorFinder_Color { return cast_[*LowestCommonAncestorFinder_Color](v) }}
+var tc_p_ProfilingReport_InstrumentationPointMetrics = &tconv_[*ProfilingReport_InstrumentationPointMetrics]{box: func(v *ProfilingReport_InstrumentationPointMetrics) any { return obj_(v) }, unbox: func(v any) *ProfilingReport_InstrumentationPointMetrics {
+	return cast_[*ProfilingReport_InstrumentationPointMetrics](v)
+}}
+var tc_p_Property = &tconv_[*Property]{box: func(v *Property) any { return obj_(v) }, unbox: func(v any) *Property { return cast_[*Property](v) }}
+var tch_Property_Key = &tconv_[Property_Key]{box: func(v Property_Key) any { return any(v) }, unbox: func(v any) Property_Key { return icast_Property_Key(v) },
+	hash: func(v Property_Key) int32 { return objhash_(any(v)) }, eq: func(a, b Property_Key) bool { return objequals_(any(a), any(b)) }}
+var tch_p_Color = &tconv_[*Color]{box: func(v *Color) any { return obj_(v) }, unbox: func(v any) *Color { return cast_[*Color](v) },
+	hash: func(v *Color) int32 { return objhash_(obj_(v)) }, eq: func(a, b *Color) bool { return objequals_(obj_(a), obj_(b)) }}
+var tch_p_ColorId = &tconv_[*ColorId]{box: func(v *ColorId) any { return obj_(v) }, unbox: func(v any) *ColorId { return cast_[*ColorId](v) },
+	hash: func(v *ColorId) int32 { return objhash_(obj_(v)) }, eq: func(a, b *ColorId) bool { return objequals_(obj_(a), obj_(b)) }}
+var tch_p_DiagnosticType = &tconv_[*DiagnosticType]{box: func(v *DiagnosticType) any { return obj_(v) }, unbox: func(v any) *DiagnosticType { return cast_[*DiagnosticType](v) },
+	hash: func(v *DiagnosticType) int32 { return objhash_(obj_(v)) }, eq: func(a, b *DiagnosticType) bool { return objequals_(obj_(a), obj_(b)) }}
+var tch_p_EqualityChecker_CacheKey = &tconv_[*EqualityChecker_CacheKey]{box: func(v *EqualityChecker_CacheKey) any { return obj_(v) }, unbox: func(v any) *EqualityChecker_CacheKey { return cast_[*EqualityChecker_CacheKey](v) },
+	hash: func(v *EqualityChecker_CacheKey) int32 { return objhash_(obj_(v)) }, eq: func(a, b *EqualityChecker_CacheKey) bool { return objequals_(obj_(a), obj_(b)) }}
+var tch_p_FileInstrumentationData_BranchIndexPair = &tconv_[*FileInstrumentationData_BranchIndexPair]{box: func(v *FileInstrumentationData_BranchIndexPair) any { return obj_(v) }, unbox: func(v any) *FileInstrumentationData_BranchIndexPair {
+	return cast_[*FileInstrumentationData_BranchIndexPair](v)
+},
+	hash: func(v *FileInstrumentationData_BranchIndexPair) int32 { return objhash_(obj_(v)) }, eq: func(a, b *FileInstrumentationData_BranchIndexPair) bool { return objequals_(obj_(a), obj_(b)) }}
+var tch_p_InstrumentationPoint = &tconv_[*InstrumentationPoint]{box: func(v *InstrumentationPoint) any { return obj_(v) }, unbox: func(v any) *InstrumentationPoint { return cast_[*InstrumentationPoint](v) },
+	hash: func(v *InstrumentationPoint) int32 { return objhash_(obj_(v)) }, eq: func(a, b *InstrumentationPoint) bool { return objequals_(obj_(a), obj_(b)) }}
+var tch_p_JSError = &tconv_[*JSError]{box: func(v *JSError) any { return obj_(v) }, unbox: func(v any) *JSError { return cast_[*JSError](v) },
+	hash: func(v *JSError) int32 { return objhash_(obj_(v)) }, eq: func(a, b *JSError) bool { return objequals_(obj_(a), obj_(b)) }}
+var tch_p_KnownSymbolType = &tconv_[*KnownSymbolType]{box: func(v *KnownSymbolType) any { return obj_(v) }, unbox: func(v any) *KnownSymbolType { return cast_[*KnownSymbolType](v) },
+	hash: func(v *KnownSymbolType) int32 { return objhash_(obj_(v)) }, eq: func(a, b *KnownSymbolType) bool { return objequals_(obj_(a), obj_(b)) }}
+var tch_p_Module = &tconv_[*Module]{box: func(v *Module) any { return obj_(v) }, unbox: func(v any) *Module { return cast_[*Module](v) },
+	hash: func(v *Module) int32 { return objhash_(obj_(v)) }, eq: func(a, b *Module) bool { return objequals_(obj_(a), obj_(b)) }}
+var tch_p_Requirement = &tconv_[*Requirement]{box: func(v *Requirement) any { return obj_(v) }, unbox: func(v any) *Requirement { return cast_[*Requirement](v) },
+	hash: func(v *Requirement) int32 { return objhash_(obj_(v)) }, eq: func(a, b *Requirement) bool { return objequals_(obj_(a), obj_(b)) }}
+var tch_p_SubtypeChecker_CacheKey = &tconv_[*SubtypeChecker_CacheKey]{box: func(v *SubtypeChecker_CacheKey) any { return obj_(v) }, unbox: func(v any) *SubtypeChecker_CacheKey { return cast_[*SubtypeChecker_CacheKey](v) },
+	hash: func(v *SubtypeChecker_CacheKey) int32 { return objhash_(obj_(v)) }, eq: func(a, b *SubtypeChecker_CacheKey) bool { return objequals_(obj_(a), obj_(b)) }}
+var tch_p_TemplateType = &tconv_[*TemplateType]{box: func(v *TemplateType) any { return obj_(v) }, unbox: func(v any) *TemplateType { return cast_[*TemplateType](v) },
+	hash: func(v *TemplateType) int32 { return objhash_(obj_(v)) }, eq: func(a, b *TemplateType) bool { return objequals_(obj_(a), obj_(b)) }}
+var tch_p_Var = &tconv_[*Var]{box: func(v *Var) any { return obj_(v) }, unbox: func(v any) *Var { return cast_[*Var](v) },
+	hash: func(v *Var) int32 { return objhash_(obj_(v)) }, eq: func(a, b *Var) bool { return objequals_(obj_(a), obj_(b)) }}

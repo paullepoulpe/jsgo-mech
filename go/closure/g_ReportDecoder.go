@@ -125,8 +125,8 @@ func ReportDecoder_createProfileOfStaticallyUsedCode(mapping *TMap[string, *Inst
 }
 
 func ReportDecoder_mergeProfiles(profiles []*ReportProfile) *ReportProfile {
-	var frequencies MapOf[*InstrumentationPoint, BoxedOf[int64]] = icast_Map(obj_(new_LinkedHashMap()))
-	var presences MapOf[*InstrumentationPoint, *InstrumentationPointStats_Presence] = icast_Map(obj_(new_LinkedHashMap()))
+	var frequencies *TMap[*InstrumentationPoint, any] = newTMap_(tch_p_InstrumentationPoint, tc_any)
+	var presences *TMap[*InstrumentationPoint, *InstrumentationPointStats_Presence] = newTMap_(tch_p_InstrumentationPoint, tc_p_InstrumentationPointStats_Presence)
 	for _, profile := range profiles {
 		it_3 := foreach_(any(profile.getFileProfileList()))
 		for it_3.next() {
@@ -134,7 +134,7 @@ func ReportDecoder_mergeProfiles(profiles []*ReportProfile) *ReportProfile {
 			it_5 := foreach_(any(fileProfile.getInstrumentationPointsStatsList()))
 			for it_5.next() {
 				var pointStats *InstrumentationPointStats = cast_[*InstrumentationPointStats](it_5.v)
-				Map_compute_f(frequencies, obj_(pointStats.getPoint()), func(p_ any, existing any) any {
+				Map_compute_f(frequencies.asMap(), obj_(pointStats.getPoint()), func(p_ any, existing any) any {
 					var p *InstrumentationPoint = cast_[*InstrumentationPoint](p_)
 					_ = p
 					return any(int64((func() int64 {
@@ -144,7 +144,7 @@ func ReportDecoder_mergeProfiles(profiles []*ReportProfile) *ReportProfile {
 						return unbox_[int64](existing)
 					}() + pointStats.getTimesExecuted())))
 				})
-				Map_compute_f(presences, obj_(pointStats.getPoint()), func(p_ any, existing_ any) any {
+				Map_compute_f(presences.asMap(), obj_(pointStats.getPoint()), func(p_ any, existing_ any) any {
 					var p *InstrumentationPoint = cast_[*InstrumentationPoint](p_)
 					_ = p
 					var existing *InstrumentationPointStats_Presence = cast_[*InstrumentationPointStats_Presence](existing_)
@@ -160,10 +160,10 @@ func ReportDecoder_mergeProfiles(profiles []*ReportProfile) *ReportProfile {
 		}
 	}
 	var finalPoints []*InstrumentationPointStats = []*InstrumentationPointStats{}
-	it_7 := foreach_(any(frequencies.entrySet()))
+	it_7 := foreach_(any(frequencies.asMap().entrySet()))
 	for it_7.next() {
 		var entry Map_Entry = icast_Map_Entry(it_7.v)
-		finalPoints = append(finalPoints, cast_[*InstrumentationPointStats](any(InstrumentationPointStats_newBuilder().setPoint(cast_[*InstrumentationPoint](entry.getKey())).setTimesExecuted(unbox_[int64](entry.getValue())).setPointPresence(cast_[*InstrumentationPointStats_Presence](presences.get(entry.getKey()))).build())))
+		finalPoints = append(finalPoints, cast_[*InstrumentationPointStats](any(InstrumentationPointStats_newBuilder().setPoint(cast_[*InstrumentationPoint](entry.getKey())).setTimesExecuted(unbox_[int64](entry.getValue())).setPointPresence(presences.get(cast_[*InstrumentationPoint](entry.getKey()))).build())))
 	}
 	return ReportDecoder_createReportProfile(finalPoints)
 }

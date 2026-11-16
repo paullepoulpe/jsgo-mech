@@ -8,7 +8,7 @@ type FileInstrumentationData struct {
 	fileName         string
 	branchPresent    *BitSet
 	branchesInLine   MapOf[BoxedOf[int32], BoxedOf[int32]]
-	branchNodes      MapOf[*FileInstrumentationData_BranchIndexPair, Node]
+	branchNodes      *TMap[*FileInstrumentationData_BranchIndexPair, Node]
 }
 
 func (this *FileInstrumentationData) zero_FileInstrumentationData() {
@@ -22,7 +22,7 @@ func (this *FileInstrumentationData) init_FileInstrumentationData(fileName strin
 	this.instrumentedBits = new_BitSet()
 	this.branchPresent = new_BitSet()
 	this.branchesInLine = icast_Map(obj_(new_LinkedHashMap()))
-	this.branchNodes = icast_Map(obj_(new_LinkedHashMap()))
+	this.branchNodes = newTMap_(tch_p_FileInstrumentationData_BranchIndexPair, tc_Node)
 }
 
 func new_FileInstrumentationData(fileName string, arrayName string) *FileInstrumentationData {
@@ -55,7 +55,7 @@ func (this *FileInstrumentationData) putBranchNode(lineNumber int32, branchNumbe
 	if !(branchNumber > 0) {
 		Preconditions_checkArgument_boolean_String_int(false, "Expected non-zero positive integer as branch number: %s", branchNumber)
 	}
-	this.branchNodes.put(obj_(FileInstrumentationData_BranchIndexPair_of((lineNumber-1), (branchNumber-1))), block.box_())
+	this.branchNodes.put(FileInstrumentationData_BranchIndexPair_of((lineNumber-1), (branchNumber-1)), block)
 }
 
 func (this *FileInstrumentationData) getBranchNode(lineNumber int32, branchNumber int32) Node {
@@ -65,7 +65,7 @@ func (this *FileInstrumentationData) getBranchNode(lineNumber int32, branchNumbe
 	if !(branchNumber > 0) {
 		Preconditions_checkArgument_boolean_String_int(false, "Expected non-zero positive integer as branch number: %s", branchNumber)
 	}
-	return Node_of_(this.branchNodes.get(obj_(FileInstrumentationData_BranchIndexPair_of((lineNumber - 1), (branchNumber - 1)))))
+	return this.branchNodes.get(FileInstrumentationData_BranchIndexPair_of((lineNumber - 1), (branchNumber - 1)))
 }
 
 func FileInstrumentationData_getHexString(bitSet *BitSet) string {

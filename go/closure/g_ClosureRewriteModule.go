@@ -310,7 +310,7 @@ func (this *ClosureRewriteModule) maybeRecordExportDeclaration(t *NodeTraversal,
 	this.currentScript.willCreateExportsObject = true
 	var defaultExport *ClosureRewriteModule_ExportDefinition = ClosureRewriteModule_ExportDefinition_newDefaultExport(t, exportRhs)
 	this.currentScript.defaultExport = defaultExport
-	if !this.currentScript.declareLegacyNamespace && defaultExport.hasInlinableName(this.currentScript.exportsToInline.keySet()) {
+	if !this.currentScript.declareLegacyNamespace && defaultExport.hasInlinableName(this.currentScript.exportsToInline.asMap().keySet()) {
 		var localName OptionalOf[string] = defaultExport.getLocalName()
 		this.currentScript.defaultExportLocalName = localName
 		this.recordExportToInline(defaultExport)
@@ -592,7 +592,7 @@ func (this *ClosureRewriteModule) recordExportsPropertyAssignment(t *NodeTravers
 		this.currentScript.namedExports[exportName] = struct{}{}
 		var exportRhs Node = getpropNode.getNext()
 		var namedExport *ClosureRewriteModule_ExportDefinition = ClosureRewriteModule_ExportDefinition_newNamedExport(t, Optional_of[string](exportName), exportRhs)
-		if (!this.currentScript.declareLegacyNamespace && (this.currentScript.defaultExport == nil)) && namedExport.hasInlinableName(this.currentScript.exportsToInline.keySet()) {
+		if (!this.currentScript.declareLegacyNamespace && (this.currentScript.defaultExport == nil)) && namedExport.hasInlinableName(this.currentScript.exportsToInline.asMap().keySet()) {
 			this.recordExportToInline(namedExport)
 			parent.getParent().detach()
 		}
@@ -768,9 +768,9 @@ func (this *ClosureRewriteModule) updateModuleBody(moduleBody Node) {
 	}
 	moduleBody.setToken(Token_rhino_BLOCK)
 	NodeUtil_tryMergeBlock(moduleBody, true)
-	it_1 := foreach_(any(this.currentScript.exportsToInline.values()))
+	it_1 := this.currentScript.exportsToInline.each()
 	for it_1.next() {
-		var export *ClosureRewriteModule_ExportDefinition = cast_[*ClosureRewriteModule_ExportDefinition](it_1.v)
+		var export *ClosureRewriteModule_ExportDefinition = it_1.v
 		var nameNode Node = export.nameDecl.getNameNode()
 		this.safeSetMaybeQualifiedString(nameNode, (sstr_(this.currentScript.getBinaryNamespace().orElse("null")) + sstr_(export.getExportPostfix())), false)
 	}
@@ -855,10 +855,10 @@ func ClosureRewriteModule_markConstAndCopyJsDoc(from Node, target Node) {
 }
 
 func (this *ClosureRewriteModule) recordExportToInline(exportDefinition *ClosureRewriteModule_ExportDefinition) {
-	if ok_, a1_, a2_ := exportDefinition.hasInlinableName(this.currentScript.exportsToInline.keySet()), exportDefinition, this.currentScript.exportsToInline.keySet(); !ok_ {
+	if ok_, a1_, a2_ := exportDefinition.hasInlinableName(this.currentScript.exportsToInline.asMap().keySet()), exportDefinition, this.currentScript.exportsToInline.asMap().keySet(); !ok_ {
 		Preconditions_checkState_boolean_String_Object_Object(false, "exportDefinition: %s\n\nexportsToInline keys: %s", obj_(a1_), any(a2_))
 	}
-	if ok_, a1_ := (cast_[*ClosureRewriteModule_ExportDefinition](this.currentScript.exportsToInline.put(obj_(exportDefinition.nameDecl), obj_(exportDefinition))) == nil), exportDefinition.nameDecl; !ok_ {
+	if ok_, a1_ := (this.currentScript.exportsToInline.put(exportDefinition.nameDecl, exportDefinition) == nil), exportDefinition.nameDecl; !ok_ {
 		Preconditions_checkState_boolean_String_Object(false, "Already found a mapping for inlining export: %s", obj_(a1_))
 	}
 	var localName OptionalOf[string] = exportDefinition.getLocalName()
@@ -1404,7 +1404,7 @@ type ClosureRewriteModule_ScriptDescription struct {
 	defaultExport           *ClosureRewriteModule_ExportDefinition
 	defaultExportLocalName  OptionalOf[string]
 	namedExports            map[string]struct{}
-	exportsToInline         MapOf[*Var, *ClosureRewriteModule_ExportDefinition]
+	exportsToInline         *TMap[*Var, *ClosureRewriteModule_ExportDefinition]
 	rootNode_               Node
 }
 
@@ -1419,7 +1419,7 @@ func (this *ClosureRewriteModule_ScriptDescription) finit_ClosureRewriteModule_S
 	this.namesToInlineByAlias = map[string]*ClosureRewriteModule_AliasName{}
 	this.defaultExportLocalName = Optional_empty[string]()
 	this.namedExports = map[string]struct{}{}
-	this.exportsToInline = icast_Map(obj_(new_LinkedHashMap()))
+	this.exportsToInline = newTMap_(tch_p_Var, tc_p_ClosureRewriteModule_ExportDefinition)
 }
 
 func (this *ClosureRewriteModule_ScriptDescription) init_ClosureRewriteModule_ScriptDescription() {

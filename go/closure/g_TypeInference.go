@@ -1409,9 +1409,9 @@ func (this *TypeInference) matchFunction(expectedType *FunctionType, currentType
 	return currentType
 }
 
-func (this *TypeInference) buildTypeVariables(inferredTypes MapOf[*TemplateType, *JSType]) *TMap[string, *JSType] {
+func (this *TypeInference) buildTypeVariables(inferredTypes *TMap[*TemplateType, *JSType]) *TMap[string, *JSType] {
 	var typeVars *TMap[string, *JSType] = newTMap_(tc_string, tc_p_JSType)
-	it_1 := foreach_(any(inferredTypes.entrySet()))
+	it_1 := foreach_(any(inferredTypes.asMap().entrySet()))
 	for it_1.next() {
 		var e Map_Entry = icast_Map_Entry(it_1.v)
 		if !cast_[*TemplateType](e.getKey()).isTypeTransformation() {
@@ -1421,9 +1421,9 @@ func (this *TypeInference) buildTypeVariables(inferredTypes MapOf[*TemplateType,
 	return typeVars
 }
 
-func (this *TypeInference) evaluateTypeTransformations(templateTypes ImmutableListOf[*TemplateType], inferredTypes MapOf[*TemplateType, *JSType], scope FlowScope) MapOf[*TemplateType, *JSType] {
+func (this *TypeInference) evaluateTypeTransformations(templateTypes ImmutableListOf[*TemplateType], inferredTypes *TMap[*TemplateType, *JSType], scope FlowScope) *TMap[*TemplateType, *JSType] {
 	var typeVars *TMap[string, *JSType] = nil
-	var result MapOf[*TemplateType, *JSType] = nil
+	var result *TMap[*TemplateType, *JSType] = nil
 	var ttlObj *TypeTransformation = nil
 	it_1 := foreach_(obj_(templateTypes))
 	for it_1.next() {
@@ -1432,10 +1432,10 @@ func (this *TypeInference) evaluateTypeTransformations(templateTypes ImmutableLi
 			if ttlObj == nil {
 				ttlObj = new_TypeTransformation(this.compiler_, scope.getDeclarationScope())
 				typeVars = this.buildTypeVariables(inferredTypes)
-				result = icast_Map(obj_(new_LinkedHashMap()))
+				result = newTMap_(tch_p_TemplateType, tc_p_JSType)
 			}
 			var transformedType *JSType = ttlObj.eval(type_.getTypeTransformation(), ImmutableMap_copyOf(typeVars.asMap()))
-			result.put(obj_(type_), transformedType.self())
+			result.put(type_, transformedType)
 			typeVars.put(type_.getReferenceName().orElse(nullstr_), transformedType)
 		}
 	}
@@ -1448,16 +1448,16 @@ func (this *TypeInference) inferTemplatedTypesForCall(n Node, fnType *FunctionTy
 		return false
 	}
 	var bindings ImmutableMapOf[*TemplateType, *JSType] = new_InvocationTemplateTypeMatcher(this.registry, fnType, scope.getTypeOfThis(), n).match()
-	var inferred MapOf[*TemplateType, *JSType] = icast_Map(obj_(new_LinkedHashMap()))
+	var inferred *TMap[*TemplateType, *JSType] = newTMap_(tch_p_TemplateType, tc_p_JSType)
 	it_1 := foreach_(obj_(keys))
 	for it_1.next() {
 		var key *TemplateType = cast_[*TemplateType](it_1.v)
-		inferred.put(obj_(key), Map_getOrDefault(icast_Map(obj_(bindings)), obj_(key), this.unknownType.self()))
+		inferred.put(key, to_JSType(Map_getOrDefault(icast_Map(obj_(bindings)), obj_(key), this.unknownType.self())))
 	}
-	Map_replaceAll(inferred, lambda_TypeInference_inferTemplatedTypesForCall_1_)
-	var typeTransformations MapOf[*TemplateType, *JSType] = this.evaluateTypeTransformations(keys, inferred, scope)
+	Map_replaceAll(inferred.asMap(), lambda_TypeInference_inferTemplatedTypesForCall_1_)
+	var typeTransformations *TMap[*TemplateType, *JSType] = this.evaluateTypeTransformations(keys, inferred, scope)
 	if typeTransformations != nil {
-		inferred.putAll(typeTransformations)
+		inferred.asMap().putAll(typeTransformations.asMap())
 	}
 	var replacer *TemplateTypeReplacer = TemplateTypeReplacer_forInference(this.registry, inferred)
 	var callTarget Node = n.getFirstChild()
@@ -1520,7 +1520,7 @@ func (this *TypeInference) traverseInstantiation(n Node, ctorType *JSType, scope
 			instantiatedType = instantiatedType.toMaybeTemplatizedType().getRawType()
 		}
 		var inferredTypes ImmutableMapOf[*TemplateType, *JSType] = new_InvocationTemplateTypeMatcher(this.registry, ctorFnType, scope.getTypeOfThis(), n).match()
-		instantiatedType = this.registry.createTemplatizedTypeMap(instantiatedType, icast_Map(obj_(inferredTypes))).toMaybeObjectType()
+		instantiatedType = this.registry.createTemplatizedTypeMap(instantiatedType, tmapFrom_(tch_p_TemplateType, tc_p_JSType, inferredTypes, true)).toMaybeObjectType()
 	}
 	n.setJSType(func() *JSType {
 		if instantiatedType != nil {

@@ -5,7 +5,7 @@ package closure
 type PropertyMap struct {
 	parentSource             *ObjectType
 	properties               MapOf[string, *Property]
-	knownSymbols             MapOf[*KnownSymbolType, *Property]
+	knownSymbols             *TMap[*KnownSymbolType, *Property]
 	cachedKeySet             ImmutableSortedSetOf[string]
 	cachedKnownSymbolsKeySet ImmutableSetOf[*KnownSymbolType]
 	cachedKeySetCounter      int32
@@ -28,13 +28,13 @@ func new_PropertyMap_0() *PropertyMap {
 	return this
 }
 
-func (this *PropertyMap) init_PropertyMap_Map_Map(underlyingMap MapOf[string, *Property], underlyingknownSymbols MapOf[*KnownSymbolType, *Property]) {
+func (this *PropertyMap) init_PropertyMap_Map_Map(underlyingMap MapOf[string, *Property], underlyingknownSymbols *TMap[*KnownSymbolType, *Property]) {
 	this.finit_PropertyMap()
 	this.properties = underlyingMap
 	this.knownSymbols = underlyingknownSymbols
 }
 
-func new_PropertyMap_Map_Map(underlyingMap MapOf[string, *Property], underlyingknownSymbols MapOf[*KnownSymbolType, *Property]) *PropertyMap {
+func new_PropertyMap_Map_Map(underlyingMap MapOf[string, *Property], underlyingknownSymbols *TMap[*KnownSymbolType, *Property]) *PropertyMap {
 	this := &PropertyMap{}
 	this.init_PropertyMap_Map_Map(underlyingMap, underlyingknownSymbols)
 	return this
@@ -125,7 +125,7 @@ func (this *PropertyMap) getOwnProperty(propertyName Property_Key) *Property {
 		case Property_KeyKind_SYMBOL:
 			return func() *Property {
 				if this.knownSymbols != nil {
-					return cast_[*Property](this.knownSymbols.get(obj_(propertyName.symbol())))
+					return this.knownSymbols.get(propertyName.symbol())
 				}
 				return nil
 			}()
@@ -149,7 +149,7 @@ func (this *PropertyMap) getOwnPropertyNames() SetOf[string] {
 func (this *PropertyMap) getOwnKnownSymbols() SetOf[*KnownSymbolType] {
 	return func() Set {
 		if this.knownSymbols != nil {
-			return this.knownSymbols.keySet()
+			return this.knownSymbols.asMap().keySet()
 		}
 		return icast_Set(obj_(ImmutableSet_of()))
 	}()
@@ -215,7 +215,7 @@ func (this *PropertyMap) putPropertyString(name string, newProp *Property) {
 func (this *PropertyMap) putPropertyKnownSymbolType(symbol *KnownSymbolType, newProp *Property) {
 	var oldProp *Property = func() *Property {
 		if this.knownSymbols != nil {
-			return cast_[*Property](this.knownSymbols.get(obj_(symbol)))
+			return this.knownSymbols.get(symbol)
 		}
 		return nil
 	}()
@@ -223,9 +223,9 @@ func (this *PropertyMap) putPropertyKnownSymbolType(symbol *KnownSymbolType, new
 		this.incrementCachedKeySetCounter()
 	}
 	if this.knownSymbols == nil {
-		this.knownSymbols = icast_Map(obj_(new_LinkedHashMap()))
+		this.knownSymbols = newTMap_(tch_p_KnownSymbolType, tc_p_Property)
 	}
-	this.knownSymbols.put(obj_(symbol), obj_(newProp))
+	this.knownSymbols.put(symbol, newProp)
 }
 
 func (this *PropertyMap) putProperty(name Property_Key, newProp *Property) {
@@ -246,7 +246,7 @@ func (this *PropertyMap) hashCode() int32 {
 		if this.knownSymbols == nil {
 			return Objects_hashCode(any(this.properties.keySet()))
 		}
-		return Objects_hash([]any{any(this.properties.keySet()), any(this.knownSymbols.keySet())})
+		return Objects_hash([]any{any(this.properties.keySet()), any(this.knownSymbols.asMap().keySet())})
 	}()
 }
 
@@ -265,7 +265,7 @@ func PropertyMap_clinit() {
 		return
 	}
 	PropertyMap_clinit_done = true
-	PropertyMap_EMPTY_MAP = new_PropertyMap_Map_Map(icast_Map(obj_(ImmutableMap_of())), icast_Map(obj_(ImmutableMap_of())))
+	PropertyMap_EMPTY_MAP = new_PropertyMap_Map_Map(icast_Map(obj_(ImmutableMap_of())), tmapFrom_(tch_p_KnownSymbolType, tc_p_Property, ImmutableMap_of(), true))
 
 }
 

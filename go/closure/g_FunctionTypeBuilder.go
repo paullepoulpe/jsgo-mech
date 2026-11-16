@@ -490,7 +490,7 @@ func (this *FunctionTypeBuilder) buildTemplateTypesFromJSDocInfo(info *JSDocInfo
 	}
 	this.templateScope = this.typeRegistry.createScopeWithTemplates(this.templateScope, Iterable(unboundedTemplates.asList()))
 	var templates ImmutableList_BuilderOf[*TemplateType] = ImmutableList_builder()
-	var templatesToBounds MapOf[*TemplateType, *JSType] = icast_Map(obj_(new_LinkedHashMap()))
+	var templatesToBounds *TMap[*TemplateType, *JSType] = newTMap_(tch_p_TemplateType, tc_p_JSType)
 	it_3 := foreach_(obj_(cast_[*ImmutableSet](infoTypeKeys.entrySet())))
 	for it_3.next() {
 		var entry Map_Entry = icast_Map_Entry(it_3.v)
@@ -501,12 +501,12 @@ func (this *FunctionTypeBuilder) buildTemplateTypesFromJSDocInfo(info *JSDocInfo
 		}
 		var template *TemplateType = this.typeRegistry.getType(StaticScope(this.templateScope), str_(entry.getKey())).toMaybeTemplateType()
 		if template != nil {
-			templatesToBounds.put(obj_(template), typeBound.self())
+			templatesToBounds.put(template, typeBound)
 		} else {
-			templatesToBounds.put(obj_(this.typeRegistry.createTemplateType_2(str_(entry.getKey()), typeBound)), typeBound.self())
+			templatesToBounds.put(this.typeRegistry.createTemplateType_2(str_(entry.getKey()), typeBound), typeBound)
 		}
 	}
-	it_5 := foreach_(any(templatesToBounds.entrySet()))
+	it_5 := foreach_(any(templatesToBounds.asMap().entrySet()))
 	for it_5.next() {
 		var entry Map_Entry = icast_Map_Entry(it_5.v)
 		var template *TemplateType = cast_[*TemplateType](entry.getKey())

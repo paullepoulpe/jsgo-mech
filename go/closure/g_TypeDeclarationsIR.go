@@ -73,17 +73,17 @@ func TypeDeclarationsIR_maybeAddType(node Node, type_ Node) Node {
 	return node
 }
 
-func TypeDeclarationsIR_functionType(returnType Node, requiredParams LinkedHashMapOf[string, Node], optionalParams LinkedHashMapOf[string, Node], restName OptionalOf[string], restType Node) Node {
+func TypeDeclarationsIR_functionType(returnType Node, requiredParams *TMap[string, Node], optionalParams *TMap[string, Node], restName OptionalOf[string], restType Node) Node {
 	var node Node = new_Node_Token_Node(Token_rhino_FUNCTION_TYPE, returnType)
-	Preconditions_checkNotNull(obj_(requiredParams))
-	Preconditions_checkNotNull(obj_(optionalParams))
-	it_1 := foreach_(any(requiredParams.entrySet()))
+	Preconditions_checkNotNull(any(requiredParams.asMap()))
+	Preconditions_checkNotNull(any(optionalParams.asMap()))
+	it_1 := foreach_(any(requiredParams.asMap().entrySet()))
 	for it_1.next() {
 		var param Map_Entry = icast_Map_Entry(it_1.v)
 		var name Node = IR_name(str_(param.getKey()))
 		node.addChildToBack(TypeDeclarationsIR_maybeAddType(name, Node_of_(param.getValue())))
 	}
-	it_3 := foreach_(any(optionalParams.entrySet()))
+	it_3 := foreach_(any(optionalParams.asMap().entrySet()))
 	for it_3.next() {
 		var param Map_Entry = icast_Map_Entry(it_3.v)
 		var name Node = IR_name(str_(param.getKey()))

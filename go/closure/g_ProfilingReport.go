@@ -26,7 +26,7 @@ func ProfilingReport_createTabSeparatedProfilingReport(instrumentationMapping Ma
 		var point *InstrumentationPoint = cast_[*InstrumentationPoint](it_3.v)
 		metricsBuilder.put(obj_(point), obj_(new_ProfilingReport_InstrumentationPointMetrics()))
 	}
-	var metrics MapOf[*InstrumentationPoint, *ProfilingReport_InstrumentationPointMetrics] = icast_Map(obj_(metricsBuilder.buildOrThrow()))
+	var metrics *TMap[*InstrumentationPoint, *ProfilingReport_InstrumentationPointMetrics] = tmapFrom_(tch_p_InstrumentationPoint, tc_p_ProfilingReport_InstrumentationPointMetrics, metricsBuilder.buildOrThrow(), true)
 	for _, profile := range profiles {
 		it_7 := foreach_(any(profile.getFileProfileList()))
 		for it_7.next() {
@@ -34,13 +34,13 @@ func ProfilingReport_createTabSeparatedProfilingReport(instrumentationMapping Ma
 			it_9 := foreach_(any(fileProfile.getInstrumentationPointsStatsList()))
 			for it_9.next() {
 				var pointStats *InstrumentationPointStats = cast_[*InstrumentationPointStats](it_9.v)
-				var metric *ProfilingReport_InstrumentationPointMetrics = cast_[*ProfilingReport_InstrumentationPointMetrics](metrics.get(obj_(pointStats.getPoint())))
+				var metric *ProfilingReport_InstrumentationPointMetrics = metrics.get(pointStats.getPoint())
 				metric.totalTimesExecuted += pointStats.getTimesExecuted()
 				metric.numberOfReports++
 			}
 		}
 	}
-	var result []Map_EntryOf[*InstrumentationPoint, *ProfilingReport_InstrumentationPointMetrics] = sliceFrom_(tc_Map_EntryOf_p_InstrumentationPoint__p_ProfilingReport_InstrumentationPointMetrics_, Collection(metrics.entrySet()))
+	var result []Map_EntryOf[*InstrumentationPoint, *ProfilingReport_InstrumentationPointMetrics] = sliceFrom_(tc_Map_EntryOf_p_InstrumentationPoint__p_ProfilingReport_InstrumentationPointMetrics_, Collection(metrics.asMap().entrySet()))
 	Collections_sort_List_Comparator(sliceView_(tc_Map_EntryOf_p_InstrumentationPoint__p_ProfilingReport_InstrumentationPointMetrics_, result), Comparator_thenComparingInt(Comparator_thenComparingInt(Comparator_thenComparingLong(Comparator_comparing(lambda_ProfilingReport_createTabSeparatedProfilingReport_1_), lambda_ProfilingReport_createTabSeparatedProfilingReport_2_), lambda_ProfilingReport_createTabSeparatedProfilingReport_3_), lambda_ProfilingReport_createTabSeparatedProfilingReport_4_))
 	var output []ListOf[string] = []ListOf[string]{}
 	output = append(output, icast_List(obj_(ImmutableList_of_Object_Object_Object_Object_Object_Object(strobj_("File"), strobj_("Function name"), strobj_("Line"), strobj_("Type"), strobj_("Total executed"), strobj_("Reports occurred")))))

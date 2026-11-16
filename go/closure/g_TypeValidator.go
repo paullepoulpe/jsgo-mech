@@ -522,7 +522,7 @@ func (this *TypeValidator) checkPropertyType(n Node, instance *JSType, parent *O
 
 func (this *TypeValidator) expectAbstractMethodsImplemented(n Node, ctorType *FunctionType) {
 	Preconditions_checkArgument(ctorType.isConstructor())
-	var abstractMethodSuperTypeMap MapOf[Property_Key, *ObjectType] = icast_Map(obj_(new_LinkedHashMap()))
+	var abstractMethodSuperTypeMap *TMap[Property_Key, *ObjectType] = newTMap_(tch_Property_Key, tc_p_ObjectType)
 	var currSuperCtor *FunctionType = ctorType.getSuperClassConstructor()
 	if (currSuperCtor == nil) || !currSuperCtor.isAbstract() {
 		return
@@ -533,14 +533,14 @@ func (this *TypeValidator) expectAbstractMethodsImplemented(n Node, ctorType *Fu
 		for it_2.next() {
 			var prop Property_Key = icast_Property_Key(it_2.v)
 			var maybeAbstractMethod *FunctionType = superType.findPropertyTypeKey(prop).toMaybeFunctionType()
-			if ((maybeAbstractMethod != nil) && maybeAbstractMethod.isAbstract()) && !abstractMethodSuperTypeMap.containsKey(any(prop)) {
-				abstractMethodSuperTypeMap.put(any(prop), superType.self())
+			if ((maybeAbstractMethod != nil) && maybeAbstractMethod.isAbstract()) && !abstractMethodSuperTypeMap.containsKey(prop) {
+				abstractMethodSuperTypeMap.put(prop, superType)
 			}
 		}
 		currSuperCtor = currSuperCtor.getSuperClassConstructor()
 	}
 	var instance *ObjectType = ctorType.getInstanceType()
-	it_4 := foreach_(any(abstractMethodSuperTypeMap.entrySet()))
+	it_4 := foreach_(any(abstractMethodSuperTypeMap.asMap().entrySet()))
 	for it_4.next() {
 		var entry Map_Entry = icast_Map_Entry(it_4.v)
 		var method Property_Key = icast_Property_Key(entry.getKey())

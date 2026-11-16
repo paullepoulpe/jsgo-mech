@@ -31,7 +31,7 @@ func (this *DiagnosticToSuppressionMapper) createSuppressionMap() ImmutableSorte
 	var validSuppressions map[string]struct{} = setFrom_(tc_string, Collection(this.validSuppressions.asSet()))
 	delete(validSuppressions, "accessControls")
 	delete(validSuppressions, "missingSourcesWarnings")
-	var diagnosticToSuppression LinkedHashMapOf[*DiagnosticType, string] = new_LinkedHashMap()
+	var diagnosticToSuppression *TMap[*DiagnosticType, string] = newTMap_(tch_p_DiagnosticType, tc_string)
 	it_1 := foreach_(obj_(cast_[*ImmutableSet](this.diagnosticGroups.entrySet())))
 	for it_1.next() {
 		var entry Map_Entry = icast_Map_Entry(it_1.v)
@@ -43,11 +43,11 @@ func (this *DiagnosticToSuppressionMapper) createSuppressionMap() ImmutableSorte
 		it_3 := foreach_(obj_(group.getTypes()))
 		for it_3.next() {
 			var diagnosticType *DiagnosticType = cast_[*DiagnosticType](it_3.v)
-			Map_merge_f(icast_Map(obj_(diagnosticToSuppression)), obj_(diagnosticType), strobj_(suppression), func(p0 any, p1 any) any { return strobj_(this.preferMoreTargetedGroup(str_(p0), str_(p1))) })
+			Map_merge_f(diagnosticToSuppression.asMap(), obj_(diagnosticType), strobj_(suppression), func(p0 any, p1 any) any { return strobj_(this.preferMoreTargetedGroup(str_(p0), str_(p1))) })
 		}
 	}
 	var result ImmutableSortedMap_BuilderOf[string, string] = ImmutableSortedMap_naturalOrder()
-	it_5 := foreach_(any(diagnosticToSuppression.entrySet()))
+	it_5 := foreach_(any(diagnosticToSuppression.asMap().entrySet()))
 	for it_5.next() {
 		var entrySet Map_Entry = icast_Map_Entry(it_5.v)
 		result.put(strobj_(cast_[*DiagnosticType](entrySet.getKey()).key_), entrySet.getValue())

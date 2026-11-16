@@ -4,12 +4,12 @@ package closure
 
 type LowestCommonAncestorFinder struct {
 	graph          *DiGraph
-	searchColoring LinkedHashMapOf[DiGraph_DiGraphNode, *LowestCommonAncestorFinder_Color]
+	searchColoring *TMap[DiGraph_DiGraphNode, *LowestCommonAncestorFinder_Color]
 	searchQueue    ArrayDequeOf[DiGraph_DiGraphNode]
 }
 
 func (this *LowestCommonAncestorFinder) finit_LowestCommonAncestorFinder() {
-	this.searchColoring = new_LinkedHashMap()
+	this.searchColoring = newTMap_(tc_DiGraph_DiGraphNode, tc_p_LowestCommonAncestorFinder_Color)
 	this.searchQueue = new_ArrayDeque()
 }
 
@@ -37,11 +37,11 @@ func (this *LowestCommonAncestorFinder) findAll(roots SetOf[any]) ImmutableSetOf
 			Preconditions_checkNotNull_Object_String_Object(nil, "Root not present in graph: %s", root)
 		}
 		var color *LowestCommonAncestorFinder_Color = LowestCommonAncestorFinder_Color_create(bitForRoot)
-		Map_merge_f(icast_Map(obj_(this.searchColoring)), any(rootNode), obj_(color), lambda_LowestCommonAncestorFinder_findAll_1_.f)
+		Map_merge_f(this.searchColoring.asMap(), any(rootNode), obj_(color), lambda_LowestCommonAncestorFinder_findAll_1_.f)
 		this.paintAncestors(rootNode, color)
 		bitForRoot = (bitForRoot << 1)
 	}
-	Map_forEach_f(icast_Map(obj_(this.searchColoring)), func(node_ any, color_ any) {
+	Map_forEach_f(this.searchColoring.asMap(), func(node_ any, color_ any) {
 		var node DiGraph_DiGraphNode = icast_DiGraph_DiGraphNode(node_)
 		_ = node
 		var color *LowestCommonAncestorFinder_Color = cast_[*LowestCommonAncestorFinder_Color](color_)
@@ -51,7 +51,7 @@ func (this *LowestCommonAncestorFinder) findAll(roots SetOf[any]) ImmutableSetOf
 		}
 	})
 	var results ImmutableSet_BuilderOf[any] = ImmutableSet_builder()
-	Map_forEach_f(icast_Map(obj_(this.searchColoring)), func(node_ any, color_ any) {
+	Map_forEach_f(this.searchColoring.asMap(), func(node_ any, color_ any) {
 		var node DiGraph_DiGraphNode = icast_DiGraph_DiGraphNode(node_)
 		_ = node
 		var color *LowestCommonAncestorFinder_Color = cast_[*LowestCommonAncestorFinder_Color](color_)
@@ -83,10 +83,10 @@ func (this *LowestCommonAncestorFinder) paintAncestors(root DiGraph_DiGraphNode,
 			if Object_equals(any(parent), any(root)) {
 				continue
 			}
-			var oldColor *LowestCommonAncestorFinder_Color = cast_[*LowestCommonAncestorFinder_Color](Map_getOrDefault(icast_Map(obj_(this.searchColoring)), any(parent), obj_(LowestCommonAncestorFinder_Color_BLANK)))
+			var oldColor *LowestCommonAncestorFinder_Color = cast_[*LowestCommonAncestorFinder_Color](Map_getOrDefault(this.searchColoring.asMap(), any(parent), obj_(LowestCommonAncestorFinder_Color_BLANK)))
 			if !oldColor.contains(color) {
 				SequencedCollection_addLast(icast_SequencedCollection(obj_(this.searchQueue)), any(parent))
-				this.searchColoring.put(any(parent), obj_(oldColor.mix(color)))
+				this.searchColoring.put(parent, oldColor.mix(color))
 			}
 		}
 	}

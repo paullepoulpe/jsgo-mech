@@ -9,7 +9,7 @@ type ColorRegistry struct {
 }
 
 func (this *ColorRegistry) init_ColorRegistry(builder *ColorRegistry_Builder) {
-	this.nativeColors = ImmutableMap_copyOf(icast_Map(obj_(builder.nativeColors)))
+	this.nativeColors = ImmutableMap_copyOf(builder.nativeColors.asMap())
 	this.colorToDisambiguationSupertypeGraph = builder.colorToDisambiguationSupertypeGraph.immutableCopy()
 	this.mismatchLocations = builder.mismatchLocations.immutableCopy()
 	Preconditions_checkState(Object_equals(obj_(cast_[*ImmutableSet](this.nativeColors.keySet())), obj_(ColorRegistry_REQUIRED_IDS)))
@@ -52,13 +52,13 @@ func ColorRegistry_clinit() {
 }
 
 type ColorRegistry_Builder struct {
-	nativeColors                        LinkedHashMapOf[*ColorId, *Color]
+	nativeColors                        *TMap[*ColorId, *Color]
 	colorToDisambiguationSupertypeGraph *SimpleSetMultimap
 	mismatchLocations                   *SimpleSetMultimap
 }
 
 func (this *ColorRegistry_Builder) finit_ColorRegistry_Builder() {
-	this.nativeColors = new_LinkedHashMap()
+	this.nativeColors = newTMap_(tch_p_ColorId, tc_p_Color)
 	this.colorToDisambiguationSupertypeGraph = SimpleSetMultimap_create()
 	this.mismatchLocations = SimpleSetMultimap_create()
 }
@@ -77,7 +77,7 @@ func (this *ColorRegistry_Builder) setNativeColor(x *Color) *ColorRegistry_Build
 	if !ColorRegistry_REQUIRED_IDS.contains(obj_(x.getId())) {
 		Preconditions_checkState_boolean_Object(false, obj_(x))
 	}
-	this.nativeColors.put(obj_(x.getId()), obj_(x))
+	this.nativeColors.put(x.getId(), x)
 	return this
 }
 

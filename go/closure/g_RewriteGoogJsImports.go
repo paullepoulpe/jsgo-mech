@@ -7,11 +7,11 @@ type RewriteGoogJsImports struct {
 	moduleMap          *ModuleMap
 	compiler_          *AbstractCompiler
 	googModule         *Module
-	moduleReplacements MapOf[*Module, *Module]
+	moduleReplacements *TMap[*Module, *Module]
 }
 
 func (this *RewriteGoogJsImports) finit_RewriteGoogJsImports() {
-	this.moduleReplacements = icast_Map(obj_(new_LinkedHashMap()))
+	this.moduleReplacements = newTMap_(tch_p_Module, tc_p_Module)
 }
 
 func (this *RewriteGoogJsImports) init_RewriteGoogJsImports(compiler *AbstractCompiler, mode *RewriteGoogJsImports_Mode, moduleMap *ModuleMap) {
@@ -34,13 +34,13 @@ func (this *RewriteGoogJsImports) changeModules() {
 	it_1 := foreach_(obj_(cast_[*ImmutableSet](this.moduleMap.getModulesByPath().entrySet())))
 	for it_1.next() {
 		var m Map_Entry = icast_Map_Entry(it_1.v)
-		var newModule *Module = cast_[*Module](Map_getOrDefault(this.moduleReplacements, m.getValue(), m.getValue()))
+		var newModule *Module = cast_[*Module](Map_getOrDefault(this.moduleReplacements.asMap(), m.getValue(), m.getValue()))
 		resolvedModules.put(m.getKey(), obj_(newModule))
 	}
 	it_3 := foreach_(obj_(cast_[*ImmutableSet](this.moduleMap.getModulesByClosureNamespace().entrySet())))
 	for it_3.next() {
 		var m Map_Entry = icast_Map_Entry(it_3.v)
-		var newModule *Module = cast_[*Module](Map_getOrDefault(this.moduleReplacements, m.getValue(), m.getValue()))
+		var newModule *Module = cast_[*Module](Map_getOrDefault(this.moduleReplacements.asMap(), m.getValue(), m.getValue()))
 		closureModules.put(m.getKey(), obj_(newModule))
 	}
 	this.compiler_.setModuleMap(new_ModuleMap(resolvedModules.buildOrThrow(), closureModules.buildOrThrow()))
@@ -270,7 +270,7 @@ func (this *RewriteGoogJsImports_ReferenceReplacer) init_RewriteGoogJsImports_Re
 			googImportNode.getSecondChild().replaceWith(IR_empty())
 		}
 		var newModule *Module = module.toBuilder().boundNames(ImmutableMap_copyOf(newBindings.asMap())).build()
-		this.outer_.moduleReplacements.put(obj_(module), obj_(newModule))
+		this.outer_.moduleReplacements.put(module, newModule)
 		this.outer_.compiler_.reportChangeToEnclosingScope(googImportNode)
 	}
 }

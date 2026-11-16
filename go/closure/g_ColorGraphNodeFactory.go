@@ -3,35 +3,35 @@
 package closure
 
 type ColorGraphNodeFactory struct {
-	typeIndex LinkedHashMapOf[*Color, *ColorGraphNode]
+	typeIndex *TMap[*Color, *ColorGraphNode]
 	registry  *ColorRegistry
 }
 
-func (this *ColorGraphNodeFactory) init_ColorGraphNodeFactory(initialTypeIndex LinkedHashMapOf[*Color, *ColorGraphNode], registry *ColorRegistry) {
+func (this *ColorGraphNodeFactory) init_ColorGraphNodeFactory(initialTypeIndex *TMap[*Color, *ColorGraphNode], registry *ColorRegistry) {
 	this.typeIndex = initialTypeIndex
 	this.registry = registry
 }
 
-func new_ColorGraphNodeFactory(initialTypeIndex LinkedHashMapOf[*Color, *ColorGraphNode], registry *ColorRegistry) *ColorGraphNodeFactory {
+func new_ColorGraphNodeFactory(initialTypeIndex *TMap[*Color, *ColorGraphNode], registry *ColorRegistry) *ColorGraphNodeFactory {
 	this := &ColorGraphNodeFactory{}
 	this.init_ColorGraphNodeFactory(initialTypeIndex, registry)
 	return this
 }
 
 func ColorGraphNodeFactory_createFactory(colorRegistry *ColorRegistry) *ColorGraphNodeFactory {
-	var typeIndex LinkedHashMapOf[*Color, *ColorGraphNode] = new_LinkedHashMap()
+	var typeIndex *TMap[*Color, *ColorGraphNode] = newTMap_(tch_p_Color, tc_p_ColorGraphNode)
 	var unknownColorNode *ColorGraphNode = ColorGraphNode_create(StandardColors_UNKNOWN, 0)
-	typeIndex.put(obj_(StandardColors_UNKNOWN), obj_(unknownColorNode))
+	typeIndex.put(StandardColors_UNKNOWN, unknownColorNode)
 	return new_ColorGraphNodeFactory(typeIndex, colorRegistry)
 }
 
 func (this *ColorGraphNodeFactory) createNode(color *Color) *ColorGraphNode {
 	var key *Color = this.simplifyColor(color)
-	return cast_[*ColorGraphNode](Map_computeIfAbsent_f(icast_Map(obj_(this.typeIndex)), obj_(key), func(p0 any) any { return obj_(this.newColorGraphNode(cast_[*Color](p0))) }))
+	return cast_[*ColorGraphNode](Map_computeIfAbsent_f(this.typeIndex.asMap(), obj_(key), func(p0 any) any { return obj_(this.newColorGraphNode(cast_[*Color](p0))) }))
 }
 
 func (this *ColorGraphNodeFactory) getAllKnownTypes() ImmutableSetOf[*ColorGraphNode] {
-	return ImmutableSet_copyOf(this.typeIndex.values())
+	return ImmutableSet_copyOf(this.typeIndex.asMap().values())
 }
 
 func (this *ColorGraphNodeFactory) newColorGraphNode(key *Color) *ColorGraphNode {

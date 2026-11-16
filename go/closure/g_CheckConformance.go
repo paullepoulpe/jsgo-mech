@@ -5,13 +5,13 @@ package closure
 type CheckConformance struct {
 	compiler_       *AbstractCompiler
 	categories      []*CheckConformance_Category
-	mergedBehaviors MapOf[*Requirement, *ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior]
-	ruleToBehavior  MapOf[CheckConformance_Rule, *ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior]
+	mergedBehaviors *TMap[*Requirement, *ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior]
+	ruleToBehavior  *TMap[CheckConformance_Rule, *ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior]
 }
 
 func (this *CheckConformance) finit_CheckConformance() {
-	this.mergedBehaviors = icast_Map(obj_(new_LinkedHashMap()))
-	this.ruleToBehavior = icast_Map(obj_(new_LinkedHashMap()))
+	this.mergedBehaviors = newTMap_(tch_p_Requirement, tc_p_ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior)
+	this.ruleToBehavior = newTMap_(tc_CheckConformance_Rule, tc_p_ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior)
 }
 
 func (this *CheckConformance) init_CheckConformance_AbstractCompiler(compiler *AbstractCompiler) {
@@ -56,7 +56,7 @@ func (this *CheckConformance) visit(t *NodeTraversal, n Node, parent Node) {
 		if category.precondition.shouldCheck(n) {
 			for r := int32((int32(len(category.rules)) - 1)); r >= 0; r-- {
 				var rule CheckConformance_Rule = sliceAt_(category.rules, r)
-				var behavior *ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior = cast_[*ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior](Preconditions_checkNotNull(Map_getOrDefault(this.ruleToBehavior, any(rule), obj_(ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior_UNSPECIFIED))))
+				var behavior *ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior = cast_[*ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior](Preconditions_checkNotNull(Map_getOrDefault(this.ruleToBehavior.asMap(), any(rule), obj_(ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior_UNSPECIFIED))))
 				rule.check(t, n, behavior)
 			}
 		}
@@ -77,11 +77,11 @@ func (this *CheckConformance) initRules(compiler *AbstractCompiler, configs Immu
 		var rule CheckConformance_Rule = CheckConformance_initRule(compiler, requirement)
 		if rule != nil {
 			builder.put(any(rule.getPrecondition()), any(rule))
-			if isLibraryLevelReportingMode && this.mergedBehaviors.containsKey(obj_(requirement)) {
-				behavior = cast_[*ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior](this.mergedBehaviors.get(obj_(requirement)))
+			if isLibraryLevelReportingMode && this.mergedBehaviors.containsKey(requirement) {
+				behavior = this.mergedBehaviors.get(requirement)
 				Preconditions_checkNotNull_Object_Object(obj_(behavior), strobj_("The mergeBehaviors method inserted a null behavior in the mergedBehaviors map"))
 			}
-			this.ruleToBehavior.put(any(rule), obj_(behavior))
+			this.ruleToBehavior.put(rule, behavior)
 		}
 	}
 	var result ImmutableList_BuilderOf[*CheckConformance_Category] = ImmutableList_builder()
@@ -195,7 +195,7 @@ func (this *CheckConformance) mergeRequirements(compiler *AbstractCompiler, conf
 		CheckConformance_removeDuplicates(builder)
 		var requirement *Requirement = cast_[*Requirement](builder.build())
 		if (isLibraryLevelConformanceReportingMode && (behavior != nil)) && (behavior != ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior_UNSPECIFIED) {
-			this.mergedBehaviors.put(obj_(requirement), obj_(behavior))
+			this.mergedBehaviors.put(requirement, behavior)
 		}
 		cleanedUpRootRequirements = append(cleanedUpRootRequirements, requirement)
 	}
