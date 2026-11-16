@@ -11,8 +11,6 @@ type Node_ns_ struct {
 	first  Node
 	parent Node
 	token  uint8
-	// propBits: the boolean properties Node_propBit_ places here, instead of the property list (post-flip).
-	propBits [3]uint8
 }
 
 var Node_ns_chunks_ [handleChunks_]*[handleChunkSize_]Node_ns_
@@ -398,7 +396,7 @@ func (this Node) getClosureUnawareShadow() Node {
 }
 
 func (this Node) setIsInClosureUnawareSubtree(value bool) {
-	if (((this.ps_().propListHead == nil) || (int32(this.ps_().propListHead.propType) != Node_Prop_SOURCE_FILE.ordinal())) || (this.ps_().propListHead.next_ != nil)) || this.hasPropBits_() {
+	if ((this.ps_().propListHead == nil) || (int32(this.ps_().propListHead.propType) != Node_Prop_SOURCE_FILE.ordinal())) || (this.ps_().propListHead.next_ != nil) {
 		panic(new_IllegalArgumentException_String(String_format("Cannot set IS_IN_CLOSURE_UNAWARE_SUBTREE property on a node which proplist is not a single SOURCE_FILE prop: %s %s", []any{this.box_(), strobj_(this.getPropListDebugString())})).self())
 	}
 	this.putBooleanProp(Node_Prop_IS_IN_CLOSURE_UNAWARE_SUBTREE, value)
@@ -663,80 +661,18 @@ func (this Node) lookupProperty(prop Node_Prop) *Node_PropListItem {
 	return x
 }
 
-// Node_propBit_ says, by Prop ordinal, where a boolean property is kept: bit m of
-// propBits[i] in the node's Node_ns_ record; m == 0: in the property list, as in Java. The
-// properties placed here are only ever put with putBooleanProp (or putIntProp with 1) and read
-// with getBooleanProp or getIntProp; a set bit stands for Java's IntPropListItem of value 1.
-var Node_propBit_ = [57]struct{ i, m uint8 }{
-	0:  {0, 1 << 0}, // IS_PARENTHESIZED
-	4:  {0, 1 << 1}, // INCRDECR
-	5:  {0, 1 << 2}, // QUOTED
-	6:  {0, 1 << 3}, // SYNTHETIC
-	7:  {0, 1 << 4}, // ADDED_BLOCK
-	9:  {0, 1 << 5}, // IS_CONSTANT_NAME
-	10: {0, 1 << 6}, // IS_NAMESPACE
-	11: {0, 1 << 7}, // USE_STRICT
-	13: {1, 1 << 0}, // FREE_CALL
-	18: {1, 1 << 1}, // STATIC_MEMBER
-	19: {1, 1 << 2}, // GENERATOR_FN
-	20: {1, 1 << 3}, // ARROW_FN
-	21: {1, 1 << 4}, // ASYNC_FN
-	22: {1, 1 << 5}, // YIELD_ALL
-	26: {1, 1 << 6}, // IS_GENERATOR_MARKER
-	27: {1, 1 << 7}, // IS_GENERATOR_SAFE
-	34: {2, 1 << 0}, // COLOR_FROM_CAST
-	40: {2, 1 << 1}, // NON_INDEXABLE
-	44: {2, 1 << 2}, // DELETED
-	46: {2, 1 << 3}, // IS_UNUSED_PARAMETER
-	47: {2, 1 << 4}, // MODULE_EXPORT
-	48: {2, 1 << 5}, // IS_SHORTHAND_PROPERTY
-	51: {2, 1 << 6}, // START_OF_OPT_CHAIN
-	52: {2, 1 << 7}, // TRAILING_COMMA
-}
-
-// Node_bitProps_: the ordinals Node_propBit_ places in propBits, in ordinal order.
-var Node_bitProps_ = [...]int8{0, 4, 5, 6, 7, 9, 10, 11, 13, 18, 19, 20, 21, 22, 26, 27, 34, 40, 44, 46, 47, 48, 51, 52}
-
-func (this Node) hasPropBits_() bool {
-	return this.ns_().propBits != [3]uint8{}
-}
-
-// hasPropBit_: whether the node has the property of ordinal ord, which Node_propBit_ places in propBits.
-func (this Node) hasPropBit_(ord int8) bool {
-	b := Node_propBit_[ord]
-	return this.ns_().propBits[b.i]&b.m != 0
-}
-
-// propItem_: the node's item for a property it has, as Java's list holds it.
-func (this Node) propItem_(prop Node_Prop) *Node_PropListItem {
-	if Node_propBit_[prop.ordinal()].m != 0 {
-		return new_Node_IntPropListItem(int8(prop.ordinal()), 1, nil).up_Node_PropListItem()
-	}
-	return this.lookupProperty(prop)
-}
-
 func (this Node) clonePropsFrom(other Node) Node {
-	Preconditions_checkState_boolean_Object(((this.ps_().propListHead == nil) && !this.hasPropBits_()), strobj_("Node has existing properties."))
+	Preconditions_checkState_boolean_Object((this.ps_().propListHead == nil), strobj_("Node has existing properties."))
 	this.ps_().propListHead = other.ps_().propListHead
-	this.ns_().propBits = other.ns_().propBits
 	return this
 }
 
 func (this Node) validateProperties(violationMessageConsumer func(any)) {
-	if (this.ps_().propListHead == nil) && !this.hasPropBits_() {
+	if this.ps_().propListHead == nil {
 		return
 	}
 	if this.ns_().token == tokOrd1_ROOT {
 		violationMessageConsumer(strobj_("ROOT has properties"))
-	}
-	if this.hasPropBits_() {
-		for _, ord := range Node_bitProps_ {
-			if this.hasPropBit_(ord) {
-				if m := this.propertyViolation_(Node_propValues[ord]); m != "" {
-					violationMessageConsumer(strobj_(m))
-				}
-			}
-		}
 	}
 	{
 		var propListItem *Node_PropListItem = this.ps_().propListHead
@@ -745,56 +681,48 @@ func (this Node) validateProperties(violationMessageConsumer func(any)) {
 			if !(prop.ordinal() == int32(propListItem.propType)) {
 				Preconditions_checkState_boolean_String_Object(false, "ordinal doesn't match: %s", obj_(prop))
 			}
-			if m := this.propertyViolation_(prop); m != "" {
-				violationMessageConsumer(strobj_(m))
+			switch prop {
+			case Node_Prop_IS_PARENTHESIZED:
+				if !IR_mayBeExpression(this) {
+					violationMessageConsumer(strobj_("non-expression is parenthesized"))
+				}
+			case Node_Prop_ARROW_FN:
+				if !this.isFunction() {
+					violationMessageConsumer(strobj_("invalid ARROW_FN prop"))
+				}
+			case Node_Prop_ASYNC_FN:
+				if !this.isFunction() {
+					violationMessageConsumer(strobj_("invalid ASYNC_FN prop"))
+				}
+			case Node_Prop_SYNTHETIC:
+				if !this.isBlock() {
+					violationMessageConsumer(strobj_("invalid SYNTHETIC prop"))
+				}
+			case Node_Prop_COLOR_FROM_CAST:
+				if this.getColor() == nil {
+					violationMessageConsumer(strobj_("COLOR_FROM_CAST with no Color"))
+				}
+			case Node_Prop_START_OF_OPT_CHAIN:
+				if !((this.isOptChainCall() || this.isOptChainGetElem()) || this.isOptChainGetProp()) {
+					violationMessageConsumer(strobj_("START_OF_OPT_CHAIN on non-optional Node"))
+				}
+			case Node_Prop_CONSTANT_VAR_FLAGS:
+				if !(this.isName() || this.isImportStar()) {
+					violationMessageConsumer(strobj_("invalid CONST_VAR_FLAGS"))
+				}
+			case Node_Prop_SYNTHESIZED_UNFULFILLED_NAME_DECLARATION:
+				if !this.isVar() {
+					violationMessageConsumer(strobj_("Expected all synthetic unfulfilled declarations to be `var <name>`"))
+				}
+			case Node_Prop_CLOSURE_UNAWARE_SHADOW:
+				var shadowProp *Node_PropListItem = this.lookupProperty(Node_Prop_CLOSURE_UNAWARE_SHADOW)
+				if !is_[*Node_ObjectPropListItem](shadowProp.self()) || !is_[Node](shadowProp.getObjectValue()) {
+					violationMessageConsumer(strobj_("CLOSURE_UNAWARE_SHADOW property must point to a Node"))
+				}
+			default:
 			}
 		}
 	}
-}
-
-// propertyViolation_: what validateProperties reports for the node's property prop; "" when it is valid.
-func (this Node) propertyViolation_(prop Node_Prop) string {
-	switch prop {
-	case Node_Prop_IS_PARENTHESIZED:
-		if !IR_mayBeExpression(this) {
-			return "non-expression is parenthesized"
-		}
-	case Node_Prop_ARROW_FN:
-		if !this.isFunction() {
-			return "invalid ARROW_FN prop"
-		}
-	case Node_Prop_ASYNC_FN:
-		if !this.isFunction() {
-			return "invalid ASYNC_FN prop"
-		}
-	case Node_Prop_SYNTHETIC:
-		if !this.isBlock() {
-			return "invalid SYNTHETIC prop"
-		}
-	case Node_Prop_COLOR_FROM_CAST:
-		if this.getColor() == nil {
-			return "COLOR_FROM_CAST with no Color"
-		}
-	case Node_Prop_START_OF_OPT_CHAIN:
-		if !((this.isOptChainCall() || this.isOptChainGetElem()) || this.isOptChainGetProp()) {
-			return "START_OF_OPT_CHAIN on non-optional Node"
-		}
-	case Node_Prop_CONSTANT_VAR_FLAGS:
-		if !(this.isName() || this.isImportStar()) {
-			return "invalid CONST_VAR_FLAGS"
-		}
-	case Node_Prop_SYNTHESIZED_UNFULFILLED_NAME_DECLARATION:
-		if !this.isVar() {
-			return "Expected all synthetic unfulfilled declarations to be `var <name>`"
-		}
-	case Node_Prop_CLOSURE_UNAWARE_SHADOW:
-		var shadowProp *Node_PropListItem = this.lookupProperty(Node_Prop_CLOSURE_UNAWARE_SHADOW)
-		if !is_[*Node_ObjectPropListItem](shadowProp.self()) || !is_[Node](shadowProp.getObjectValue()) {
-			return "CLOSURE_UNAWARE_SHADOW property must point to a Node"
-		}
-	default:
-	}
-	return ""
 }
 
 func Node_rebuildListWithoutProp(item *Node_PropListItem, prop Node_Prop) *Node_PropListItem {
@@ -817,29 +745,16 @@ func Node_rebuildListWithoutProp(item *Node_PropListItem, prop Node_Prop) *Node_
 func (this Node) getProp(propType Node_Prop) any {
 	var item *Node_PropListItem = this.lookupProperty(propType)
 	if item == nil {
-		if b := Node_propBit_[propType.ordinal()]; this.ns_().propBits[b.i]&b.m != 0 {
-			panic(new_UnsupportedOperationException_0().self()) // IntPropListItem.getObjectValue
-		}
 		return nil
 	}
 	return item.getObjectValue()
 }
 
 func (this Node) getBooleanProp(propType Node_Prop) bool {
-	if b := Node_propBit_[propType.ordinal()]; b.m != 0 {
-		return this.ns_().propBits[b.i]&b.m != 0
-	}
-	var item *Node_PropListItem = this.lookupProperty(propType)
-	return (item != nil) && (item.getIntValue() != 0)
+	return (this.getIntProp(propType) != 0)
 }
 
 func (this Node) getIntProp(propType Node_Prop) int32 {
-	if b := Node_propBit_[propType.ordinal()]; b.m != 0 {
-		if this.ns_().propBits[b.i]&b.m != 0 {
-			return 1
-		}
-		return 0
-	}
 	var item *Node_PropListItem = this.lookupProperty(propType)
 	if item == nil {
 		return 0
@@ -864,14 +779,6 @@ func (this Node) putBooleanProp(propType Node_Prop, value bool) {
 }
 
 func (this Node) putIntProp(prop Node_Prop, value int32) {
-	if b := Node_propBit_[prop.ordinal()]; b.m != 0 {
-		if value != 0 {
-			this.ns_().propBits[b.i] |= b.m
-		} else {
-			this.ns_().propBits[b.i] &^= b.m
-		}
-		return
-	}
 	this.ps_().propListHead = Node_rebuildListWithoutProp(this.ps_().propListHead, prop)
 	if value != 0 {
 		this.ps_().propListHead = new_Node_IntPropListItem(int8(prop.ordinal()), value, this.ps_().propListHead).up_Node_PropListItem()
@@ -879,10 +786,6 @@ func (this Node) putIntProp(prop Node_Prop, value int32) {
 }
 
 func (this Node) removeProp(prop Node_Prop) {
-	if b := Node_propBit_[prop.ordinal()]; b.m != 0 {
-		this.ns_().propBits[b.i] &^= b.m
-		return
-	}
 	this.ps_().propListHead = Node_rebuildListWithoutProp(this.ps_().propListHead, prop)
 }
 
@@ -908,16 +811,6 @@ func Node_hasBitSet(bitset int64, bit int32) bool {
 
 func (this Node) serializeProperties() int64 {
 	var propSet int64 = 0
-	if this.hasPropBits_() {
-		for _, ord := range Node_bitProps_ {
-			if this.hasPropBit_(ord) {
-				var nodeProperty *NodeProperty = PropTranslator_serialize(Node_propValues[ord])
-				if nodeProperty != nil {
-					propSet = Node_setNodePropertyBit(propSet, nodeProperty)
-				}
-			}
-		}
-	}
 	{
 		var propListItem *Node_PropListItem = this.ps_().propListHead
 		for ; propListItem != nil; propListItem = propListItem.next_ {
@@ -973,20 +866,13 @@ func (this Node) getPropListDebugString() string {
 		propListStrRepr.add(Node_Prop_values()[propListItem.propType].name())
 		propListItem = propListItem.next_
 	}
-	if this.hasPropBits_() {
-		for _, ord := range Node_bitProps_ {
-			if this.hasPropBit_(ord) {
-				propListStrRepr.add(Node_Prop_values()[ord].name())
-			}
-		}
-	}
 	var joiner *Joiner = Joiner_on("->")
 	return joiner.join(Iterable(propListStrRepr.asList()))
 }
 
 func (this Node) deserializeProperties(propSet int64, isInClosureUnawareSubtree bool) {
 	if this.isRoot() {
-		if ok_, a1_ := ((this.ps_().propListHead == nil) && !this.hasPropBits_()), this.ps_().propListHead; !ok_ {
+		if ok_, a1_ := (this.ps_().propListHead == nil), this.ps_().propListHead; !ok_ {
 			Preconditions_checkState_boolean_Object(false, a1_.self())
 		}
 	} else {
@@ -1017,10 +903,6 @@ func (this Node) deserializeProperties(propSet int64, isInClosureUnawareSubtree 
 			var prop Node_Prop = PropTranslator_deserialize(nodeProperty)
 			if prop == 0 {
 				panic(new_IllegalStateException_String(("Can not translate " + objstr_(obj_(nodeProperty)) + " to AST Prop")).self())
-			}
-			if b := Node_propBit_[prop.ordinal()]; b.m != 0 {
-				this.ns_().propBits[b.i] |= b.m
-				continue
 			}
 			this.ps_().propListHead = new_Node_IntPropListItem(int8(prop.ordinal()), 1, this.ps_().propListHead).up_Node_PropListItem()
 		}
@@ -1123,27 +1005,12 @@ func (this Node) getSortedPropTypes() []int8 {
 			count++
 		}
 	}
-	if this.hasPropBits_() {
-		for _, ord := range Node_bitProps_ {
-			if this.hasPropBit_(ord) {
-				count++
-			}
-		}
-	}
 	var keys []int8 = make([]int8, count)
 	{
 		var x *Node_PropListItem = this.ps_().propListHead
 		for ; x != nil; x = x.next_ {
 			count--
 			keys[count] = x.propType
-		}
-	}
-	if this.hasPropBits_() {
-		for _, ord := range Node_bitProps_ {
-			if this.hasPropBit_(ord) {
-				count--
-				keys[count] = ord
-			}
 		}
 	}
 	Arrays_sort_byteArr(keys)
@@ -1325,7 +1192,7 @@ func (this Node) toString_4(sb *StringBuilder, printSource bool, printAnnotation
 				sb.append(" [is_shadow_host]")
 				continue
 			}
-			var x *Node_PropListItem = this.propItem_(type_)
+			var x *Node_PropListItem = this.lookupProperty(type_)
 			sb.append(" [")
 			sb.append(Ascii_toLowerCase(String_valueOf_Object(obj_(type_))))
 			sb.append(": ")
@@ -1392,7 +1259,7 @@ func (this Node) toJson(sb Appendable) {
 		sb.append_CharSequence(strobj_("\"props\":{"))
 		for i := int32(0); i < int32(len(keys)); i++ {
 			var type_ Node_Prop = Node_propValues[keys[i]]
-			var x *Node_PropListItem = this.propItem_(type_)
+			var x *Node_PropListItem = this.lookupProperty(type_)
 			sb.append_CharSequence(strobj_(Node_createJsonPair(Ascii_toLowerCase(String_valueOf_Object(obj_(type_))), String_replace(String_replace(Object_toString(x.self()), strobj_("\n"), strobj_("\\n")), strobj_("\""), strobj_("\\\"")))))
 			if (i + 1) < int32(len(keys)) {
 				sb.append_char(',')
@@ -1482,7 +1349,7 @@ func Node_toJsonTreeHelper(n Node, sb Appendable) {
 }
 
 func (this Node) setStaticSourceFileFrom(other Node) {
-	if ((other.ps_().propListHead != nil) && !this.hasPropBits_()) && ((this.ps_().propListHead == nil) || ((int32(this.ps_().propListHead.propType) == Node_Prop_SOURCE_FILE.ordinal()) && (this.ps_().propListHead.next_ == nil))) {
+	if (other.ps_().propListHead != nil) && ((this.ps_().propListHead == nil) || ((int32(this.ps_().propListHead.propType) == Node_Prop_SOURCE_FILE.ordinal()) && (this.ps_().propListHead.next_ == nil))) {
 		var tail *Node_PropListItem = other.ps_().propListHead
 		for tail.next_ != nil {
 			tail = tail.next_
@@ -1903,13 +1770,6 @@ func (this Node) isEquivalentTo_5(node Node, recursion Node_RecursionMode, typeC
 			propSet.add(obj_(prop))
 		}
 	}
-	if this.hasPropBits_() || node.hasPropBits_() {
-		for _, ord := range Node_bitProps_ {
-			if this.hasPropBit_(ord) || node.hasPropBit_(ord) {
-				propSet.add(obj_(Node_propValues[ord]))
-			}
-		}
-	}
 	it_3 := foreach_(obj_(propSet))
 	for it_3.next() {
 		var prop Node_Prop = cast_[Node_Prop](it_3.v)
@@ -2250,7 +2110,6 @@ func Node_copyBaseNodeFields(source Node, dest Node, cloneTypeExprs bool) {
 	dest.ps_().jstypeOrColor = source.ps_().jstypeOrColor
 	dest.ps_().originalName = source.ps_().originalName
 	dest.ps_().propListHead = source.ps_().propListHead
-	dest.ns_().propBits = source.ns_().propBits
 	if cloneTypeExprs {
 		var info *JSDocInfo = source.getJSDocInfo()
 		if info != nil {
