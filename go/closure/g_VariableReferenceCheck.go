@@ -204,11 +204,11 @@ func VariableReferenceCheck_clinit() {
 
 type VariableReferenceCheck_ReferenceCheckingBehavior struct {
 	outer_             *VariableReferenceCheck
-	varsInFunctionBody *TSet[string]
+	varsInFunctionBody map[string]struct{}
 }
 
 func (this *VariableReferenceCheck_ReferenceCheckingBehavior) init_VariableReferenceCheck_ReferenceCheckingBehavior() {
-	this.varsInFunctionBody = newTSet_(tc_string)
+	this.varsInFunctionBody = map[string]struct{}{}
 }
 
 func new_VariableReferenceCheck_ReferenceCheckingBehavior(outer_ *VariableReferenceCheck) *VariableReferenceCheck_ReferenceCheckingBehavior {
@@ -221,11 +221,11 @@ func new_VariableReferenceCheck_ReferenceCheckingBehavior(outer_ *VariableRefere
 func (this *VariableReferenceCheck_ReferenceCheckingBehavior) afterExitScope(t *NodeTraversal, referenceMap ReferenceMap) {
 	var scope *Scope = t.getScope()
 	if scope.isFunctionBlockScope() {
-		this.varsInFunctionBody.clear()
+		clear(this.varsInFunctionBody)
 		it_1 := foreach_(any(scope.getVarIterable()))
 		for it_1.next() {
 			var v *Var = cast_[*Var](it_1.v)
-			this.varsInFunctionBody.add(v.getName())
+			this.varsInFunctionBody[v.getName()] = struct{}{}
 		}
 	}
 	it_3 := foreach_(any(scope.getVarIterable()))
@@ -247,7 +247,7 @@ func (this *VariableReferenceCheck_ReferenceCheckingBehavior) afterExitScope(t *
 	}
 }
 
-func (this *VariableReferenceCheck_ReferenceCheckingBehavior) checkDefaultParam(param *Var, scope *Scope, varsInFunctionBody *TSet[string]) {
+func (this *VariableReferenceCheck_ReferenceCheckingBehavior) checkDefaultParam(param *Var, scope *Scope, varsInFunctionBody map[string]struct{}) {
 	NodeTraversal_traverse(this.outer_.compiler_, param.getParentNode().getSecondChild(), icast_NodeTraversal_Callback(obj_(new_VariableReferenceCheck_ReferenceCheckingBehavior_1(this, varsInFunctionBody, scope))))
 }
 
@@ -349,7 +349,7 @@ func (this *VariableReferenceCheck_ReferenceCheckingBehavior) afterVisitNode(p0 
 type VariableReferenceCheck_ReferenceCheckingBehavior_1 struct {
 	NodeTraversal_AbstractShallowCallback
 	outer_                 *VariableReferenceCheck_ReferenceCheckingBehavior
-	cap_varsInFunctionBody *TSet[string]
+	cap_varsInFunctionBody map[string]struct{}
 	cap_scope              *Scope
 }
 
@@ -364,7 +364,7 @@ func (this *VariableReferenceCheck_ReferenceCheckingBehavior_1) init_VariableRef
 	this.NodeTraversal_AbstractShallowCallback.init_NodeTraversal_AbstractShallowCallback()
 }
 
-func new_VariableReferenceCheck_ReferenceCheckingBehavior_1(outer_ *VariableReferenceCheck_ReferenceCheckingBehavior, cap_varsInFunctionBody *TSet[string], cap_scope *Scope) *VariableReferenceCheck_ReferenceCheckingBehavior_1 {
+func new_VariableReferenceCheck_ReferenceCheckingBehavior_1(outer_ *VariableReferenceCheck_ReferenceCheckingBehavior, cap_varsInFunctionBody map[string]struct{}, cap_scope *Scope) *VariableReferenceCheck_ReferenceCheckingBehavior_1 {
 	this := &VariableReferenceCheck_ReferenceCheckingBehavior_1{}
 	this.self_ = this
 	this.outer_ = outer_
@@ -379,7 +379,7 @@ func (this *VariableReferenceCheck_ReferenceCheckingBehavior_1) visit_impl(t *No
 		return
 	}
 	var refName string = n.getString()
-	if this.cap_varsInFunctionBody.contains(refName) && !this.cap_scope.hasSlot(refName) {
+	if has_(this.cap_varsInFunctionBody, refName) && !this.cap_scope.hasSlot(refName) {
 		this.outer_.outer_.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, VariableReferenceCheck_EARLY_REFERENCE_ERROR, []string{refName}))
 	}
 }

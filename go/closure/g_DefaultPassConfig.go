@@ -1661,7 +1661,7 @@ func (this *DefaultPassConfig_3) process_2(externs Node, jsRoot Node) {
 			_ = builder
 			builder.add(strobj_(cssName))
 		}})
-	}}, tsetFrom_(tc_string, this.outer_.options_.getCssRenamingSkiplist(), true))
+	}}, setImm_(tc_string, this.outer_.options_.getCssRenamingSkiplist()))
 	pass.process_2(externs, jsRoot)
 	this.cap_compiler.setCssNames(func() *TSet[string] {
 		if cssNames.isPresent() {

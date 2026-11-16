@@ -5,7 +5,7 @@ package closure
 type ChromePass struct {
 	NodeTraversal_AbstractPostOrderCallback
 	compiler_      *AbstractCompiler
-	createdObjects *TSet[string]
+	createdObjects map[string]struct{}
 }
 
 func (this *ChromePass) up_NodeTraversal_AbstractPostOrderCallback() *NodeTraversal_AbstractPostOrderCallback {
@@ -18,7 +18,7 @@ func (this *ChromePass) up_NodeTraversal_AbstractPostOrderCallback() *NodeTraver
 func (this *ChromePass) init_ChromePass(compiler *AbstractCompiler) {
 	this.NodeTraversal_AbstractPostOrderCallback.init_NodeTraversal_AbstractPostOrderCallback()
 	this.compiler_ = compiler
-	this.createdObjects = tsetFrom_(tc_string, Collection(Arrays_asList([]any{strobj_("cr")})), false)
+	this.createdObjects = setFrom_(tc_string, Collection(Arrays_asList([]any{strobj_("cr")})))
 }
 
 func new_ChromePass(compiler *AbstractCompiler) *ChromePass {
@@ -182,10 +182,10 @@ func (this *ChromePass) createObjectsForQualifiedName(namespace string) *TList[N
 }
 
 func (this *ChromePass) createObjectIfNew(objects *TList[Node], name string, needVar bool) {
-	if this.createdObjects.contains(name) {
+	if has_(this.createdObjects, name) {
 		return
 	}
-	this.createdObjects.add(name)
+	this.createdObjects[name] = struct{}{}
 	var v Node = NodeUtil_newQName_AbstractCompiler_String(this.compiler_, name)
 	var lhs Node = IR_or(v.cloneTree(), IR_objectlit([]Node{}))
 	objects.add(Node_of_(func() any {

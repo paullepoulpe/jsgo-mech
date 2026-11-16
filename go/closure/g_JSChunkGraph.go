@@ -393,7 +393,7 @@ func (this *JSChunkGraph) manageDependencies(compiler *AbstractCompiler, depende
 		var transitiveClosure *TList[*CompilerInput]
 		if dependencyOptions.shouldSort() && dependencyOptions.shouldPrune() {
 			transitiveClosure = newTList_(tc_p_CompilerInput)
-			var inputsNotYetReached *TSet[*CompilerInput] = tsetFrom_(tc_p_CompilerInput, icast_Collection(obj_(originalInputs)), false)
+			var inputsNotYetReached map[*CompilerInput]struct{} = setFrom_(tc_p_CompilerInput, icast_Collection(obj_(originalInputs)))
 			it_18 := foreach_(any(entryPointInputsPerChunk.get(obj_(chunk))))
 			for it_18.next() {
 				var entryPoint *CompilerInput = cast_[*CompilerInput](it_18.v)
@@ -453,9 +453,9 @@ func (this *JSChunkGraph) manageDependencies(compiler *AbstractCompiler, depende
 	return Outcome_base_ok_Object(obj_(new_JSChunkGraph_DependencyManagementResult(ImmutableList_copyOf(Collection(orderedInputs)), sorter, ImmutableSet_copyOf(Collection(entryPointInputs)))))
 }
 
-func (this *JSChunkGraph) getDepthFirstDependenciesOf(rootInput *CompilerInput, unreachedInputs *TSet[*CompilerInput], inputsByProvide map[string]SetOf[*CompilerInput]) *TList[*CompilerInput] {
+func (this *JSChunkGraph) getDepthFirstDependenciesOf(rootInput *CompilerInput, unreachedInputs map[*CompilerInput]struct{}, inputsByProvide map[string]SetOf[*CompilerInput]) *TList[*CompilerInput] {
 	var orderedInputs *TList[*CompilerInput] = newTList_(tc_p_CompilerInput)
-	if !unreachedInputs.remove(rootInput) {
+	if !setRemove_(unreachedInputs, rootInput) {
 		return orderedInputs
 	}
 	it_1 := foreach_(obj_(rootInput.getRequiredSymbols()))
@@ -465,7 +465,7 @@ func (this *JSChunkGraph) getDepthFirstDependenciesOf(rootInput *CompilerInput, 
 			it_3 := foreach_(any(inputsByProvide[importedNamespace]))
 			for it_3.next() {
 				var input *CompilerInput = cast_[*CompilerInput](it_3.v)
-				if unreachedInputs.contains(input) {
+				if has_(unreachedInputs, input) {
 					orderedInputs.addAllT(this.getDepthFirstDependenciesOf(input, unreachedInputs, inputsByProvide))
 				}
 			}

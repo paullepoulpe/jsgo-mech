@@ -5,14 +5,14 @@ package closure
 type CheckClosureImports struct {
 	compiler_      *AbstractCompiler
 	checker        *CheckClosureImports_Checker
-	namespacesSeen *TSet[string]
+	namespacesSeen map[string]struct{}
 	chunkGraph     *JSChunkGraph
 }
 
 func (this *CheckClosureImports) init_CheckClosureImports(compiler *AbstractCompiler, moduleMetadataMap *ModuleMetadataMap) {
 	this.compiler_ = compiler
 	this.checker = new_CheckClosureImports_Checker(this, compiler, moduleMetadataMap)
-	this.namespacesSeen = newTSet_(tc_string)
+	this.namespacesSeen = map[string]struct{}{}
 	this.chunkGraph = compiler.getChunkGraph()
 }
 
@@ -28,7 +28,7 @@ func (this *CheckClosureImports) process_2(externs Node, root Node) {
 }
 
 func (this *CheckClosureImports) verifyRequireOrder(namespace string, call Node, t *NodeTraversal, requiredModule *ModuleMetadataMap_ModuleMetadata) {
-	if !this.namespacesSeen.contains(namespace) {
+	if !has_(this.namespacesSeen, namespace) {
 		t.report(call, CheckClosureImports_LATE_PROVIDE_ERROR, []string{namespace})
 		return
 	}
@@ -201,7 +201,7 @@ func new_CheckClosureImports_Checker(outer_ *CheckClosureImports, compiler *Abst
 }
 
 func (this *CheckClosureImports_Checker) enterModule_impl(currentModule *ModuleMetadataMap_ModuleMetadata, moduleScopeRoot Node) {
-	this.outer_.namespacesSeen.asSet().addAll(Collection(currentModule.googNamespaces().elementSet()))
+	setAddAllFrom_(tc_string, this.outer_.namespacesSeen, Collection(currentModule.googNamespaces().elementSet()))
 }
 
 func (this *CheckClosureImports_Checker) visit_4_impl(t *NodeTraversal, n Node, currentModule *ModuleMetadataMap_ModuleMetadata, moduleScopeRoot Node) {

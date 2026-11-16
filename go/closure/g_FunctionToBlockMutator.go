@@ -46,7 +46,7 @@ func (this *FunctionToBlockMutator) mutateInternal(fnName string, fnNode Node, c
 	var newBlock Node = NodeUtil_getFunctionBody(newFnNode)
 	newBlock.detach()
 	if hasArgs {
-		var inlineResult Node = this.aliasAndInlineArguments(newBlock, args, tsetFrom_(tc_string, allNamesToAlias, true))
+		var inlineResult Node = this.aliasAndInlineArguments(newBlock, args, setImm_(tc_string, allNamesToAlias))
 		Preconditions_checkState((newBlock == inlineResult))
 	}
 	if isCallInLoop {
@@ -180,8 +180,8 @@ func (this *FunctionToBlockMutator) getUniqueThisName() string {
 	return ("JSCompiler_inline_this_" + sstr_(str_(this.safeNameIdSupplier_.get())))
 }
 
-func (this *FunctionToBlockMutator) aliasAndInlineArguments(fnTemplateRoot Node, paramToArgMap ImmutableMapOf[string, *FunctionArgumentInjector_ParamArgPair], namesToAlias *TSet[string]) Node {
-	if (namesToAlias == nil) || namesToAlias.isEmpty() {
+func (this *FunctionToBlockMutator) aliasAndInlineArguments(fnTemplateRoot Node, paramToArgMap ImmutableMapOf[string, *FunctionArgumentInjector_ParamArgPair], namesToAlias map[string]struct{}) Node {
+	if (namesToAlias == nil) || len(namesToAlias) == 0 {
 		var replacements map[string]Node = map[string]Node{}
 		it_1 := foreach_(obj_(cast_[*ImmutableSet](paramToArgMap.entrySet())))
 		for it_1.next() {
@@ -199,7 +199,7 @@ func (this *FunctionToBlockMutator) aliasAndInlineArguments(fnTemplateRoot Node,
 			var entry Map_Entry = icast_Map_Entry(it_3.v)
 			var name string = str_(entry.getKey())
 			var arg *FunctionArgumentInjector_ParamArgPair = cast_[*FunctionArgumentInjector_ParamArgPair](entry.getValue())
-			if !namesToAlias.contains(name) {
+			if !has_(namesToAlias, name) {
 				paramReplacements[name] = arg.arg()
 				continue
 			}

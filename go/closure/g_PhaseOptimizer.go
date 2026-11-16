@@ -349,8 +349,8 @@ func (this *PhaseOptimizer_Loop) process_2(externs Node, root Node) {
 		var pass *PhaseOptimizer_NamedPass = it_1.v
 		this.outer_.lastRuns[pass] = any(int32(PhaseOptimizer_START_TIME))
 	}
-	var madeChanges *TSet[*PhaseOptimizer_NamedPass] = newTSet_(tc_p_PhaseOptimizer_NamedPass)
-	var runInPrevIter *TSet[*PhaseOptimizer_NamedPass] = newTSet_(tc_p_PhaseOptimizer_NamedPass)
+	var madeChanges map[*PhaseOptimizer_NamedPass]struct{} = map[*PhaseOptimizer_NamedPass]struct{}{}
+	var runInPrevIter map[*PhaseOptimizer_NamedPass]struct{} = map[*PhaseOptimizer_NamedPass]struct{}{}
 	var didNotMakeChanges map[*PhaseOptimizer_NamedPass]struct{} = map[*PhaseOptimizer_NamedPass]struct{}{}
 	var state *PhaseOptimizer_State = PhaseOptimizer_State_RUN_PASSES_NOT_RUN_IN_PREV_ITER
 	var lastIterMadeChanges bool
@@ -374,24 +374,24 @@ func (this *PhaseOptimizer_Loop) process_2(externs Node, root Node) {
 			it_5 := eachOf_(&this.myPasses)
 			for it_5.next() {
 				var pass *PhaseOptimizer_NamedPass = it_5.v
-				if (((state == PhaseOptimizer_State_RUN_PASSES_NOT_RUN_IN_PREV_ITER) && !runInPrevIter.contains(pass)) && !has_(didNotMakeChanges, pass)) || ((state == PhaseOptimizer_State_RUN_PASSES_THAT_CHANGED_STH_IN_PREV_ITER) && madeChanges.contains(pass)) {
+				if (((state == PhaseOptimizer_State_RUN_PASSES_NOT_RUN_IN_PREV_ITER) && !has_(runInPrevIter, pass)) && !has_(didNotMakeChanges, pass)) || ((state == PhaseOptimizer_State_RUN_PASSES_THAT_CHANGED_STH_IN_PREV_ITER) && has_(madeChanges, pass)) {
 					this.outer_.changeTracker.incrementChangeStamp()
 					this.outer_.currentPass = pass
 					pass.process_2(externs, root)
-					runInPrevIter.add(pass)
+					runInPrevIter[pass] = struct{}{}
 					this.outer_.lastRuns[pass] = any(int32(this.outer_.changeTracker.getChangeStamp()))
 					if this.outer_.hasHaltingErrors() {
 						return 1
 					} else if this.scopeHandler.hasCodeChangedSinceLastCall() {
-						madeChanges.add(pass)
+						madeChanges[pass] = struct{}{}
 						clear(didNotMakeChanges)
 						lastIterMadeChanges = true
 					} else {
-						madeChanges.remove(pass)
+						delete(madeChanges, pass)
 						didNotMakeChanges[pass] = struct{}{}
 					}
 				} else {
-					runInPrevIter.remove(pass)
+					delete(runInPrevIter, pass)
 				}
 			}
 			previousAstSize = astSize
