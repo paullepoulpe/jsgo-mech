@@ -49,7 +49,7 @@ func VariableMap_load(filename string) *Outcome_base {
 }
 
 func (this *VariableMap) toBytes() []int8 {
-	var writer *StringBuilder = new_StringBuilder()
+	var writer strBuilder_
 	it_1 := foreach_(obj_(ImmutableSortedSet_copyOf_Comparator_Collection(Map_Entry_comparingByKey(), Collection(this.map__.asMap().entrySet()))))
 	for it_1.next() {
 		var entry Map_Entry = icast_Map_Entry(it_1.v)
@@ -58,7 +58,7 @@ func (this *VariableMap) toBytes() []int8 {
 		writer.append(VariableMap_escape(str_(entry.getValue())))
 		writer.append_char('\n')
 	}
-	return Io_utf8Bytes(Object_toString(obj_(writer)))
+	return Io_utf8Bytes(writer.toString())
 }
 
 func VariableMap_fromBytes(bytes []int8) *Outcome_base {
@@ -140,7 +140,8 @@ func VariableMap_unescape(value string) string {
 	if slashIndex == -1 {
 		return value
 	}
-	var sb *StringBuilder = new_StringBuilder_int((String_length(value) - 1))
+	var sb strBuilder_
+	sb.grow((String_length(value) - 1))
 	sb.append_CharSequence_int_int(strobj_(value), 0, slashIndex)
 	var len_ int32 = String_length(value)
 	for i := int32(slashIndex); i < len_; i++ {
@@ -153,7 +154,7 @@ func VariableMap_unescape(value string) string {
 		}
 		sb.append_char(c)
 	}
-	return Object_toString(obj_(sb))
+	return sb.toString()
 }
 
 func VariableMap_fromMap(map_ *TMap[string, string]) *VariableMap {

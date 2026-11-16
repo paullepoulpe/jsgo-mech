@@ -586,7 +586,7 @@ func (this *IRFactory) parseTrailingNonJSDocCommentAt(tokenEnd *SourcePosition_u
 	if !this.nonJsdocTracker.hasPendingCommentBefore(possibleNextTokenStart) {
 		return nil
 	}
-	var result *StringBuilder = new_StringBuilder()
+	var result strBuilder_
 	var comment *Comment = this.nonJsdocTracker.current()
 	if tokenEnd.line_ != comment.location_.start_.line_ {
 		return nil
@@ -600,7 +600,7 @@ func (this *IRFactory) parseTrailingNonJSDocCommentAt(tokenEnd *SourcePosition_u
 	}
 	result.append(comment.value_)
 	this.nonJsdocTracker.advance()
-	var nonJSDocComment *NonJSDocComment = new_NonJSDocComment(comment.location_.start_, comment.location_.end_, Object_toString(obj_(result)))
+	var nonJSDocComment *NonJSDocComment = new_NonJSDocComment(comment.location_.start_, comment.location_.end_, result.toString())
 	nonJSDocComment.setEndsAsLineComment((comment.type__ == Comment_Type_LINE))
 	return nonJSDocComment
 }
@@ -897,7 +897,7 @@ func (this *IRFactory) normalizeRegex(token *LiteralToken) string {
 	if cur == -1 {
 		return String_substring(value, 1, lastSlash)
 	}
-	var result *StringBuilder = new_StringBuilder()
+	var result strBuilder_
 	var start int32 = 1
 	for cur != -1 {
 		result.append_CharSequence_int_int(strobj_(value), start, cur)
@@ -914,7 +914,7 @@ func (this *IRFactory) normalizeRegex(token *LiteralToken) string {
 		cur = String_indexOf_int_int(value, 92, start)
 	}
 	result.append_CharSequence_int_int(strobj_(value), start, lastSlash)
-	return Object_toString(obj_(result))
+	return result.toString()
 }
 
 func (this *IRFactory) normalizeString(token *LiteralToken, templateLiteral bool) string {
@@ -937,7 +937,7 @@ func (this *IRFactory) normalizeString(token *LiteralToken, templateLiteral bool
 			return String_substring(value, 1, (String_length(value) - 1))
 		}()
 	}
-	var result *StringBuilder = new_StringBuilder()
+	var result strBuilder_
 	for cur != -1 {
 		result.append_CharSequence_int_int(strobj_(value), start, cur)
 		cur += 1
@@ -1016,7 +1016,7 @@ func (this *IRFactory) normalizeString(token *LiteralToken, templateLiteral bool
 		}
 		return (String_length(value) - 1)
 	}())
-	return Object_toString(obj_(result))
+	return result.toString()
 }
 
 func (this *IRFactory) isSupportedForInputLanguageMode(feature *FeatureSet_Feature) bool {

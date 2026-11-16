@@ -1163,7 +1163,7 @@ func (this *CheckAccessControls_PropertyReference_Builder) setReadableTypeName(t
 
 func (this *CheckAccessControls_PropertyReference_Builder) build() *CheckAccessControls_PropertyReference {
 	if ((((int32(this.set0) != 7) || (this.sourceNode_ == 0)) || this.name_.isEmpty()) || (this.receiverType_ == nil)) || (this.readableTypeName_ == nil) {
-		var missing *StringBuilder = new_StringBuilder()
+		var missing strBuilder_
 		if this.sourceNode_ == 0 {
 			missing.append(" sourceNode")
 		}
@@ -1185,7 +1185,7 @@ func (this *CheckAccessControls_PropertyReference_Builder) build() *CheckAccessC
 		if this.readableTypeName_ == nil {
 			missing.append(" readableTypeName")
 		}
-		panic(new_IllegalStateException_String(("Missing required properties:" + objstr_(obj_(missing)))).self())
+		panic(new_IllegalStateException_String(("Missing required properties:" + missing.toString())).self())
 	}
 	return new_CheckAccessControls_PropertyReference(this.sourceNode_, this.name_.get(), this.receiverType_, this.mutation_, this.declaration_, this.override_, this.readableTypeName_)
 }

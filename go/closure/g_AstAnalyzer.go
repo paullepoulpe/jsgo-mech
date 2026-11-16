@@ -406,7 +406,7 @@ func (this *AstAnalyzer_Options_Builder) setAssumeKnownBuiltinsArePure(value boo
 
 func (this *AstAnalyzer_Options_Builder) build() *AstAnalyzer_Options {
 	if int32(this.set0) != 15 {
-		var missing *StringBuilder = new_StringBuilder()
+		var missing strBuilder_
 		if (int32(this.set0) & 1) == 0 {
 			missing.append(" useTypesForLocalOptimization")
 		}
@@ -419,7 +419,7 @@ func (this *AstAnalyzer_Options_Builder) build() *AstAnalyzer_Options {
 		if (int32(this.set0) & 8) == 0 {
 			missing.append(" assumeKnownBuiltinsArePure")
 		}
-		panic(new_IllegalStateException_String(("Missing required properties:" + objstr_(obj_(missing)))).self())
+		panic(new_IllegalStateException_String(("Missing required properties:" + missing.toString())).self())
 	}
 	return new_AstAnalyzer_Options(this.useTypesForLocalOptimization_, this.assumeGettersArePure_, this.hasRegexpGlobalReferences_, this.assumeKnownBuiltinsArePure_)
 }

@@ -76,7 +76,7 @@ func (this *JsMessage) asJsMessageString() string {
 	if !this.getGenderedMessagesMap().isEmpty() {
 		panic(new_UnsupportedOperationException_String("asJsMessageString() is not supported for messages with gendered variants. Please provide a grammatical gender case as an argument.").self())
 	}
-	var sb *StringBuilder = new_StringBuilder()
+	var sb strBuilder_
 	it_1 := foreach_(obj_(this.getParts()))
 	for it_1.next() {
 		var p JsMessage_Part = icast_JsMessage_Part(it_1.v)
@@ -86,14 +86,14 @@ func (this *JsMessage) asJsMessageString() string {
 			sb.append(p.getString())
 		}
 	}
-	return Object_toString(obj_(sb))
+	return sb.toString()
 }
 
 func (this *JsMessage) asJsMessageString_1(genderCase *JsMessage_GrammaticalGenderCase) string {
 	if !this.getGenderedMessagesMap().containsKey(obj_(genderCase)) {
 		panic(new_IllegalArgumentException_String(("No message for grammtical gender case: " + objstr_(obj_(genderCase)))).self())
 	}
-	var sb *StringBuilder = new_StringBuilder()
+	var sb strBuilder_
 	it_1 := foreach_(obj_(cast_[*ImmutableList](this.getGenderedMessagesMap().get(obj_(genderCase)))))
 	for it_1.next() {
 		var p JsMessage_Part = icast_JsMessage_Part(it_1.v)
@@ -103,7 +103,7 @@ func (this *JsMessage) asJsMessageString_1(genderCase *JsMessage_GrammaticalGend
 			sb.append(p.getString())
 		}
 	}
-	return Object_toString(obj_(sb))
+	return sb.toString()
 }
 
 func (this *JsMessage) asIcuMessageString() string {

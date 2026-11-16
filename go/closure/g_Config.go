@@ -489,7 +489,7 @@ func (this *Config_Builder) setExtraAnnotationNames(names IterableOf[string]) *C
 
 func (this *Config_Builder) build() *Config {
 	if (((((((int32(this.set0) != 1) || (this.languageMode_ == nil)) || (this.strictMode_ == nil)) || (this.jsDocParsingMode_ == nil)) || (this.runMode_ == nil)) || (this.annotations_ == nil)) || (this.suppressionNames_ == nil)) || (this.closurePrimitiveNames_ == nil) {
-		var missing *StringBuilder = new_StringBuilder()
+		var missing strBuilder_
 		if this.languageMode_ == nil {
 			missing.append(" languageMode")
 		}
@@ -514,7 +514,7 @@ func (this *Config_Builder) build() *Config {
 		if (int32(this.set0) & 1) == 0 {
 			missing.append(" parseInlineSourceMaps")
 		}
-		panic(new_IllegalStateException_String(("Missing required properties:" + objstr_(obj_(missing)))).self())
+		panic(new_IllegalStateException_String(("Missing required properties:" + missing.toString())).self())
 	}
 	return new_Config(this.languageMode_, this.strictMode_, this.jsDocParsingMode_, this.runMode_, this.annotations_, this.suppressionNames_, this.closurePrimitiveNames_, this.parseInlineSourceMaps_)
 }

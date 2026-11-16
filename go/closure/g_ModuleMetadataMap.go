@@ -340,7 +340,7 @@ func (this *ModuleMetadataMap_ModuleMetadata_Builder) build() *ModuleMetadataMap
 		this.readToggles_ = SimpleMultiset_of()
 	}
 	if (int32(this.set0) != 3) || (this.moduleTypeField == nil) {
-		var missing *StringBuilder = new_StringBuilder()
+		var missing strBuilder_
 		if this.moduleTypeField == nil {
 			missing.append(" moduleType")
 		}
@@ -350,7 +350,7 @@ func (this *ModuleMetadataMap_ModuleMetadata_Builder) build() *ModuleMetadataMap
 		if (int32(this.set0) & 2) == 0 {
 			missing.append(" isTestOnly")
 		}
-		panic(new_IllegalStateException_String(("Missing required properties:" + objstr_(obj_(missing)))).self())
+		panic(new_IllegalStateException_String(("Missing required properties:" + missing.toString())).self())
 	}
 	return new_ModuleMetadataMap_ModuleMetadata(this.moduleTypeField, this.rootNodeField, this.usesClosureField, this.isTestOnlyField, this.googNamespaces_, this.stronglyRequiredGoogNamespaces_, this.dynamicallyRequiredGoogNamespaces_, this.maybeRequiredGoogNamespaces_, this.weaklyRequiredGoogNamespaces_, this.es6ImportSpecifiers_, this.nestedModules_, this.readToggles_, this.pathField)
 }

@@ -3996,7 +3996,8 @@ func (this *Node_SideEffectFlags) setMutatesArguments() *Node_SideEffectFlags {
 }
 
 func (this *Node_SideEffectFlags) toString() string {
-	var builder *StringBuilder = new_StringBuilder_String("Side effects: ")
+	var builder strBuilder_
+	builder.append("Side effects: ")
 	if (this.value_ & Node_SideEffectFlags_MUTATES_THIS) != 0 {
 		builder.append("this ")
 	}
@@ -4009,7 +4010,7 @@ func (this *Node_SideEffectFlags) toString() string {
 	if (this.value_ & Node_SideEffectFlags_MUTATES_ARGUMENTS) != 0 {
 		builder.append("args ")
 	}
-	return Object_toString(obj_(builder))
+	return builder.toString()
 }
 
 const Node_SideEffectFlags_MUTATES_GLOBAL_STATE int32 = 1
