@@ -526,7 +526,7 @@ func (this *IRFactory) hasAnyPendingCommentBefore(pos *SourcePosition_util, with
 
 func (this *IRFactory) parseNonJSDocCommentAt(pos *SourcePosition_util, isInline bool) *NonJSDocComment {
 	var withinClosureUnawareCodeRange bool = this.withinClosureUnawareCodeRange(pos.line_, pos.column_)
-	var result *StringBuilder = new_StringBuilder()
+	var result *StringBuilder // made at the first comment (post-flip manual step: most calls find none)
 	var firstComment *Comment = nil
 	var lastComment *Comment = nil
 	for this.hasAnyPendingCommentBefore(pos, withinClosureUnawareCodeRange) {
@@ -545,6 +545,7 @@ func (this *IRFactory) parseNonJSDocCommentAt(pos *SourcePosition_util, isInline
 		}
 		if firstComment == nil {
 			firstComment = currentComment
+			result = new_StringBuilder()
 		}
 		if lastComment != nil {
 			for blankCount := int32((currentComment.location_.start_.line_ - lastComment.location_.end_.line_)); blankCount > 0; blankCount-- {
