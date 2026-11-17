@@ -398,7 +398,8 @@ func (this *RegExpTree_Empty) appendDebugInfo_impl(sb *strBuilder_) {
 }
 
 func (this *RegExpTree_Empty) equals_impl(o any) bool {
-	return is_[*RegExpTree_Empty](o)
+	_, ok := o.(*RegExpTree_Empty)
+	return ok
 }
 
 func (this *RegExpTree_Empty) hashCode_impl() int32 {

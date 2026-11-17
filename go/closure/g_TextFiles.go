@@ -36,7 +36,8 @@ func TextFiles_readStrict(path string, charset string) *Outcome_base {
 }
 
 func TextFiles_isDecodingError(error_ *Throwable) bool {
-	return is_[*TextFiles_DecodingException](error_.self())
+	_, ok := error_.self().(*TextFiles_DecodingException)
+	return ok
 }
 
 func TextFiles_write(path string, charset string, text string) *Outcome_base {
