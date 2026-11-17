@@ -132,7 +132,7 @@ func (this *FunctionTypeBuilder) inferFromOverriddenFunction(oldType *FunctionTy
 		}
 	} else {
 		var paramBuilder *FunctionParamBuilder = new_FunctionParamBuilder_JSTypeRegistry(this.typeRegistry)
-		var oldParams IteratorOf[*FunctionType_Parameter] = oldType.getParameters().iterator()
+		var oldParams *immCursor_ = immCursorOf_(oldType.getParameters())
 		var warnedAboutArgList bool = false
 		var oldParamsListHitOptArgs bool = false
 		{

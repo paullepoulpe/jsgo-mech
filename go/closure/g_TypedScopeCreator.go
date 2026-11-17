@@ -2308,7 +2308,7 @@ func (this *TypedScopeCreator_FunctionScopeBuilder) declareParameters(functionNo
 	}
 	var functionType *FunctionType = JSType_toMaybeFunctionType(functionNode.getJSType())
 	if functionType != nil {
-		var jsdocParameters IteratorOf[*FunctionType_Parameter] = functionType.getParameters().iterator()
+		var jsdocParameters *immCursor_ = immCursorOf_(functionType.getParameters())
 		var jsDocParameter *FunctionType_Parameter = func() *FunctionType_Parameter {
 			if jsdocParameters.hasNext() {
 				return cast_[*FunctionType_Parameter](jsdocParameters.next())

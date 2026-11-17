@@ -952,7 +952,7 @@ func (this *FunctionType) checkExtendsLoop_2(cache *TSet[*FunctionType], path *T
 
 func (this *FunctionType) acceptsArguments(argumentTypes []*JSType) bool {
 	var arguments int
-	var parameters IteratorOf[*FunctionType_Parameter] = this.getParameters().iterator()
+	var parameters *immCursor_ = immCursorOf_(this.getParameters())
 	var parameter *FunctionType_Parameter = nil
 	var argument *JSType = nil
 	for (arguments < len(argumentTypes)) && (parameters.hasNext() || ((parameter != nil) && parameter.isVariadic())) {

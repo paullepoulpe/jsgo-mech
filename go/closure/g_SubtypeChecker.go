@@ -370,8 +370,8 @@ func (this *SubtypeChecker) isArrowTypeSubtype(subtype *ArrowType, nonArrowSuper
 	if !this.isSubtypeCaching(subtype.getReturnType(), supertype.getReturnType()) {
 		return false
 	}
-	var subtypeParameters IteratorOf[*FunctionType_Parameter] = subtype.getParameterList().iterator()
-	var supertypeParameters IteratorOf[*FunctionType_Parameter] = supertype.getParameterList().iterator()
+	var subtypeParameters *immCursor_ = immCursorOf_(subtype.getParameterList())
+	var supertypeParameters *immCursor_ = immCursorOf_(supertype.getParameterList())
 	var subtypeParam *FunctionType_Parameter = func() *FunctionType_Parameter {
 		if subtypeParameters.hasNext() {
 			return cast_[*FunctionType_Parameter](subtypeParameters.next())
