@@ -151,6 +151,49 @@ to +11% depending on the task. The large gains the plan expects from a
 NodeStore do not appear with this translator; allocation of other objects
 (16%), the remaining marking (25%), boxed strings and hash lookups dominate.
 
+**Planned: a node store the collector never scans.** The handle rule above made the tree
+links 32-bit ids, but a `Node` still carries Go pointers: on postflip5 its columns are a
+16-byte traversal record (`next`, `first`, `parent`, `token`) and a 16-byte cold record
+(`previous`, `linenoCharno`, `length`), both pointer-free, plus a 48-byte record of
+`jstypeOrColor any`, `originalName string` and `payload any` (5 of its 6 words are pointers),
+an 8-byte property-list head and a 16-byte string payload: about 104 bytes and 7 pointer words
+per node that the collector marks on every cycle, and one heap object (Java's `PropListItem`,
+3-5 pointer words) per property. jsgo's `NodeStore` (`internal/rhino/node_store.go`) has a
+single 36-byte record with no pointers at all, in blocks the collector never scans. The target
+is the same: no Go pointer in any per-node column; what has pointers is per distinct value
+(interned strings, types, source files) or per rare property, in side tables. Each change is
+a j2go handle-class rule configured in `tools/j2go/handles.txt` (so `Node.java` and every pass
+read as before: `n.getString()`, `n.getJSType()`, `n.getBooleanProp(p)` are unchanged), with
+the tables in the handwritten runtime, gated byte-identical like every rule:
+
+1. **Strings as ids.** A `Node` field declared `String` or `Object`-holding-`String`
+   (`payload`'s string slot, `originalName`) becomes a `uint32` id into a process-wide
+   interning table (`handles.txt`: `string-id`). A read is one more load (the table entry);
+   interning costs a hash lookup when the parser or a pass sets the string, and makes equal
+   names share one string. Numbers in `payload` are inline (int31) or an index into a table of
+   doubles; BigInts and template literals (raw and cooked) go to their own tables.
+2. **Types as handles.** `jstypeOrColor` becomes a `uint32` handle into a table holding each
+   distinct `JSType` or `Color` once (`handles.txt`: `handle-table`); a flag bit says which.
+3. **Properties as bits.** The boolean and small-int properties of `Prop` become bits and
+   small fields of the node record; object-valued and rare properties (JSDocInfo, feature sets,
+   module data) go to a side table keyed by node id that only nodes having them occupy. This
+   one replaces `Node.java`'s property-list code, so it is handwritten runtime for those
+   methods, selected by a `handles.txt` entry; a Java prep step doing the same in `Node.java`
+   was tried for a narrower change (prep 04c, node properties) and slowed pre-flip Java by
+   1.7-1.9%, which the plan does not allow.
+4. **One record.** With 1-3 the traversal and cold records and the scalar fields above fit in
+   about 40 bytes (four links, token, flags, payload id, original-name id, type handle,
+   property bits, position, length); whether the cold split still pays is measured, not
+   assumed.
+5. **A check.** A runtime test asserts with reflection that no per-node column type contains
+   a pointer, so a later rule cannot bring one back unnoticed.
+
+What jsgo has and this plan leaves out: moving (pre-order) compaction, which jsgo measured at
++0.09s with four threads and +4.6s with one, and more RSS during the copy (jsgo keeps only a
+13-line pruning of dead side-table entries, which is taken); per-worker id ranges, which only
+a parallel parser needs. The typed AST view of jsgo (`docs/typed-ast.md`) is a separate,
+later post-flip phase: it changes how passes read the tree, not how it is stored.
+
 **Cheap performance items (branch `wip/perf1`).** A measurement study found that the
 translated compiler allocates 500 times more objects than a hand-written port, a third of them
 Java Strings boxed into `any` as lookup keys. Six cheap remedies are now in the translator and
