@@ -1158,12 +1158,12 @@ func (this Node) toString() string {
 }
 
 func (this Node) toString_3(printSource bool, printAnnotations bool, printType bool) string {
-	var sb *StringBuilder = new_StringBuilder()
-	this.toString_4(sb, printSource, printAnnotations, printType)
-	return Object_toString(obj_(sb))
+	var sb strBuilder_
+	this.toString_4(&sb, printSource, printAnnotations, printType)
+	return sb.toString()
 }
 
-func (this Node) toString_4(sb *StringBuilder, printSource bool, printAnnotations bool, printType bool) {
+func (this Node) toString_4(sb *strBuilder_, printSource bool, printAnnotations bool, printType bool) {
 	sb.append_Object(obj_(Token_rhino(this.ns_().token)))
 	if (*this.payload_s_()) != nullstr_ {
 		sb.append_char(' ')
@@ -1955,10 +1955,10 @@ func (this Node) appendGetPropNames_(b *strings.Builder) {
 	b.WriteString(this.getString())
 }
 
-func (this Node) getQualifiedNameForGetProp(reserve int32) *StringBuilder {
+func (this Node) getQualifiedNameForGetProp(reserve int32) *strBuilder_ {
 	var propName string = this.getString()
 	reserve += (1 + String_length(propName))
-	var builder *StringBuilder
+	var builder *strBuilder_
 	if this.ns_().first.isGetProp() {
 		builder = this.ns_().first.getQualifiedNameForGetProp(reserve)
 		if builder == nil {
@@ -1969,10 +1969,10 @@ func (this Node) getQualifiedNameForGetProp(reserve int32) *StringBuilder {
 		if String_isEmpty(left) {
 			return nil
 		}
-		builder = new_StringBuilder_int((String_length(left) + reserve))
+		builder = strBuilderCap_((String_length(left) + reserve))
 		builder.append(left)
 	}
-	cast_[*StringBuilder](builder.append_char('.')).append(propName)
+	builder.append_char('.').append(propName)
 	return builder
 }
 

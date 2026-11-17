@@ -140,7 +140,8 @@ func VariableMap_unescape(value string) string {
 	if slashIndex == -1 {
 		return value
 	}
-	var sb *StringBuilder = new_StringBuilder_int((String_length(value) - 1))
+	var sb strBuilder_
+	sb.grow((String_length(value) - 1))
 	sb.append_CharSequence_int_int_s(value, 0, slashIndex)
 	var len_ int32 = String_length(value)
 	for i := int32(slashIndex); i < len_; i++ {
@@ -153,7 +154,7 @@ func VariableMap_unescape(value string) string {
 		}
 		sb.append_char(c)
 	}
-	return Object_toString(obj_(sb))
+	return sb.toString()
 }
 
 func VariableMap_fromMap(map_ *TMap[string, string]) *VariableMap {

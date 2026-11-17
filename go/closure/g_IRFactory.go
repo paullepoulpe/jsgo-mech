@@ -532,7 +532,7 @@ func (this *IRFactory) hasAnyPendingCommentBefore(pos *SourcePosition_util, with
 
 func (this *IRFactory) parseNonJSDocCommentAt(pos *SourcePosition_util, isInline bool) *NonJSDocComment {
 	var withinClosureUnawareCodeRange bool = this.withinClosureUnawareCodeRange(pos.line_, pos.column_)
-	var result *StringBuilder // made at the first comment (post-flip manual step: most calls find none)
+	var result *strBuilder_ // made at the first comment (post-flip manual step: most calls find none)
 	var firstComment *Comment = nil
 	var lastComment *Comment = nil
 	for this.hasAnyPendingCommentBefore(pos, withinClosureUnawareCodeRange) {
@@ -551,7 +551,7 @@ func (this *IRFactory) parseNonJSDocCommentAt(pos *SourcePosition_util, isInline
 		}
 		if firstComment == nil {
 			firstComment = currentComment
-			result = new_StringBuilder()
+			result = &strBuilder_{}
 		}
 		if lastComment != nil {
 			for blankCount := int32((currentComment.location_.start_.line_ - lastComment.location_.end_.line_)); blankCount > 0; blankCount-- {
@@ -573,7 +573,7 @@ func (this *IRFactory) parseNonJSDocCommentAt(pos *SourcePosition_util, isInline
 	if this.config.jsDocParsingMode() != Config_JsDocParsing_INCLUDE_ALL_COMMENTS {
 		return nil
 	}
-	var nonJSDocComment *NonJSDocComment = new_NonJSDocComment(firstComment.location_.start_, lastComment.location_.end_, Object_toString(obj_(result)))
+	var nonJSDocComment *NonJSDocComment = new_NonJSDocComment(firstComment.location_.start_, lastComment.location_.end_, result.toString())
 	nonJSDocComment.setEndsAsLineComment((lastComment.type__ == Comment_Type_LINE))
 	nonJSDocComment.setIsInline(isInline)
 	return nonJSDocComment
@@ -897,7 +897,7 @@ func (this *IRFactory) normalizeRegex(token *LiteralToken) string {
 	if cur == -1 {
 		return String_substring(value, 1, lastSlash)
 	}
-	var result *StringBuilder = new_StringBuilder()
+	var result strBuilder_
 	var start int32 = 1
 	for cur != -1 {
 		result.append_CharSequence_int_int_s(value, start, cur)
@@ -914,7 +914,7 @@ func (this *IRFactory) normalizeRegex(token *LiteralToken) string {
 		cur = String_indexOf_int_int(value, 92, start)
 	}
 	result.append_CharSequence_int_int_s(value, start, lastSlash)
-	return Object_toString(obj_(result))
+	return result.toString()
 }
 
 func (this *IRFactory) normalizeString(token *LiteralToken, templateLiteral bool) string {
@@ -937,7 +937,7 @@ func (this *IRFactory) normalizeString(token *LiteralToken, templateLiteral bool
 			return String_substring(value, 1, (String_length(value) - 1))
 		}()
 	}
-	var result *StringBuilder = new_StringBuilder()
+	var result strBuilder_
 	for cur != -1 {
 		result.append_CharSequence_int_int_s(value, start, cur)
 		cur += 1
@@ -1016,7 +1016,7 @@ func (this *IRFactory) normalizeString(token *LiteralToken, templateLiteral bool
 		}
 		return (String_length(value) - 1)
 	}())
-	return Object_toString(obj_(result))
+	return result.toString()
 }
 
 func (this *IRFactory) isSupportedForInputLanguageMode(feature FeatureSet_Feature) bool {
@@ -2040,7 +2040,7 @@ func (this *IRFactory_TransformDispatcher) addExtraTrailingComment(node Node, la
 	if blankLines == 0 {
 		numWhiteSpace = ((lastComment.getStartPosition().column_ - currentComment.getEndPosition().column_) - 1)
 	}
-	var comment *StringBuilder = new_StringBuilder().append(currentComment.getCommentString())
+	var comment *strBuilder_ = (&strBuilder_{}).append(currentComment.getCommentString())
 	for i := int32(0); i < numWhiteSpace; i++ {
 		comment.append(" ")
 	}
@@ -2048,7 +2048,7 @@ func (this *IRFactory_TransformDispatcher) addExtraTrailingComment(node Node, la
 		comment.append("\n")
 	}
 	comment.append(lastComment.getCommentString())
-	var allComments *NonJSDocComment = new_NonJSDocComment(currentComment.getStartPosition(), lastComment.getEndPosition(), Object_toString(obj_(comment)))
+	var allComments *NonJSDocComment = new_NonJSDocComment(currentComment.getStartPosition(), lastComment.getEndPosition(), comment.toString())
 	allComments.setEndsAsLineComment(lastComment.isEndingAsLineComment())
 	allComments.setIsInline(true)
 	node.getLastChild().setTrailingNonJSDocComment(allComments)

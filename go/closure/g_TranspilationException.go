@@ -70,7 +70,7 @@ func (this *TranspilationException) warnings() ImmutableListOf[*JSError] {
 }
 
 func TranspilationException_format(source SourceExcerptProvider, errors ImmutableListOf[*JSError], warnings ImmutableListOf[*JSError]) string {
-	var sb *StringBuilder = new_StringBuilder().append("Transpilation failed:\n")
+	var sb *strBuilder_ = (&strBuilder_{}).append("Transpilation failed:\n")
 	var formatter MessageFormatter = func() MessageFormatter {
 		if source != nil {
 			return ErrorFormat_SINGLELINE.toFormatter(source, false)
@@ -87,7 +87,7 @@ func TranspilationException_format(source SourceExcerptProvider, errors Immutabl
 		var warning *JSError = cast_[*JSError](it_3.v)
 		sb.append("\n").append(formatter.formatError(warning))
 	}
-	return Object_toString(obj_(sb))
+	return sb.toString()
 }
 
 func TranspilationException_tryCastToTranspilationException(t *Throwable) *TranspilationException {

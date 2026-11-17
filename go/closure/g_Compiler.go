@@ -3689,13 +3689,13 @@ func (this *Compiler_ChunkGraphAwareLicenseTracker) emitLicenses() ImmutableSetO
 }
 
 type Compiler_CodeBuilder struct {
-	sb        *StringBuilder
+	sb        *strBuilder_
 	lineCount int32
 	colCount  int32
 }
 
 func (this *Compiler_CodeBuilder) finit_Compiler_CodeBuilder() {
-	this.sb = new_StringBuilder()
+	this.sb = &strBuilder_{}
 	this.lineCount = 0
 	this.colCount = 0
 }
@@ -3735,7 +3735,7 @@ func (this *Compiler_CodeBuilder) append(str string) *Compiler_CodeBuilder {
 }
 
 func (this *Compiler_CodeBuilder) toString() string {
-	return Object_toString(obj_(this.sb))
+	return this.sb.toString()
 }
 
 func (this *Compiler_CodeBuilder) getLength() int32 {

@@ -9,7 +9,7 @@ type QualifiedName struct {
 // QualifiedName_I holds the methods the dispatchers of QualifiedName's hierarchy call on the most derived
 // object (self_); every class of the hierarchy implements them (post-flip).
 type QualifiedName_I interface {
-	appendTo_impl(*StringBuilder, any)
+	appendTo_impl(*strBuilder_, any)
 	components_impl() Iterable
 	getComponentCount_impl() int32
 	getComponent_impl() string
@@ -97,9 +97,9 @@ func (this *QualifiedName) join_impl() OptionalOf[string] {
 }
 
 func (this *QualifiedName) join_1(separator any) string {
-	var sb *StringBuilder = new_StringBuilder()
-	this.appendTo(sb, separator)
-	return Object_toString(obj_(sb))
+	var sb strBuilder_
+	this.appendTo(&sb, separator)
+	return sb.toString()
 }
 
 func (this *QualifiedName) getprop(propertyName string) *QualifiedName {
@@ -118,7 +118,7 @@ func (this *QualifiedName) isSimple() bool {
 	return this.self_.isSimple_impl()
 }
 
-func (this *QualifiedName) appendTo(p0 *StringBuilder, p1 any) {
+func (this *QualifiedName) appendTo(p0 *strBuilder_, p1 any) {
 	this.self_.appendTo_impl(p0, p1)
 }
 
@@ -196,7 +196,7 @@ func (this *QualifiedName_StringListQname) isSimple_impl() bool {
 	return (this.size_ == 1)
 }
 
-func (this *QualifiedName_StringListQname) appendTo_impl(sb *StringBuilder, separator any) {
+func (this *QualifiedName_StringListQname) appendTo_impl(sb *strBuilder_, separator any) {
 	for i := int32(0); i < this.size_; i++ {
 		if i > 0 {
 			sb.append_Object(separator)
@@ -284,7 +284,7 @@ func (this *QualifiedName_GetpropQname) isSimple_impl() bool {
 	return false
 }
 
-func (this *QualifiedName_GetpropQname) appendTo_impl(sb *StringBuilder, separator any) {
+func (this *QualifiedName_GetpropQname) appendTo_impl(sb *strBuilder_, separator any) {
 	this.owner_.appendTo(sb, separator)
 	sb.append_Object(separator).append(this.prop)
 }
@@ -350,7 +350,7 @@ func (this *QualifiedName_NodeQname) isSimple_impl() bool {
 	return !this.node_.isGetProp()
 }
 
-func (this *QualifiedName_NodeQname) appendTo_impl(sb *StringBuilder, separator any) {
+func (this *QualifiedName_NodeQname) appendTo_impl(sb *strBuilder_, separator any) {
 	var components IteratorOf[string] = this.components().iterator()
 	sb.append(str_(components.next()))
 	for components.hasNext() {
@@ -404,7 +404,7 @@ func (this *QualifiedName_StringListQname) isSimple() bool {
 }
 
 // appendTo: an object that is exactly a QualifiedName_StringListQname calls its appendTo_impl directly (post-flip); others dispatch.
-func (this *QualifiedName_StringListQname) appendTo(p0 *StringBuilder, p1 any) {
+func (this *QualifiedName_StringListQname) appendTo(p0 *strBuilder_, p1 any) {
 	if p, _ := this.self_.(*QualifiedName_StringListQname); p == this {
 		this.appendTo_impl(p0, p1)
 		return
@@ -461,7 +461,7 @@ func (this *QualifiedName_GetpropQname) isSimple() bool {
 }
 
 // appendTo: an object that is exactly a QualifiedName_GetpropQname calls its appendTo_impl directly (post-flip); others dispatch.
-func (this *QualifiedName_GetpropQname) appendTo(p0 *StringBuilder, p1 any) {
+func (this *QualifiedName_GetpropQname) appendTo(p0 *strBuilder_, p1 any) {
 	if p, _ := this.self_.(*QualifiedName_GetpropQname); p == this {
 		this.appendTo_impl(p0, p1)
 		return
@@ -510,7 +510,7 @@ func (this *QualifiedName_NodeQname) isSimple() bool {
 }
 
 // appendTo: an object that is exactly a QualifiedName_NodeQname calls its appendTo_impl directly (post-flip); others dispatch.
-func (this *QualifiedName_NodeQname) appendTo(p0 *StringBuilder, p1 any) {
+func (this *QualifiedName_NodeQname) appendTo(p0 *strBuilder_, p1 any) {
 	if p, _ := this.self_.(*QualifiedName_NodeQname); p == this {
 		this.appendTo_impl(p0, p1)
 		return

@@ -98,36 +98,37 @@ func (this *TypedCodeGenerator) getFunctionAnnotation(fnNode Node) string {
 	if type_.equals(this.registry.getNativeType(JSTypeNative_FUNCTION_TYPE).self()) {
 		return "/** @type {!Function} */\n"
 	}
-	var sb *StringBuilder = new_StringBuilder_String("/**\n")
+	var sb strBuilder_
+	sb.append("/**\n")
 	var paramNode Node = 0
 	if (fnNode != 0) && fnNode.isFunction() {
 		paramNode = NodeUtil_getFunctionParameters(fnNode).getFirstChild()
 	}
-	this.appendFunctionParamAnnotations(sb, funType, paramNode)
+	this.appendFunctionParamAnnotations(&sb, funType, paramNode)
 	var retType *JSType = funType.getReturnType()
 	if (((retType != nil) && !retType.isEmptyType()) && !funType.isInterface()) && !(funType.isConstructor() && retType.isVoidType()) {
 		sb.append(" * ")
-		TypedCodeGenerator_appendAnnotation(sb, "return", retType.toAnnotationString(JSType_Nullability_EXPLICIT))
+		TypedCodeGenerator_appendAnnotation(&sb, "return", retType.toAnnotationString(JSType_Nullability_EXPLICIT))
 		sb.append("\n")
 	}
 	if funType.isConstructor() {
-		this.appendClassAnnotations(sb, funType)
+		this.appendClassAnnotations(&sb, funType)
 		sb.append(" * @constructor\n")
 	} else if funType.isInterface() {
-		this.appendInterfaceAnnotations(sb, funType)
+		this.appendInterfaceAnnotations(&sb, funType)
 	} else {
 		var thisType *JSType = funType.getTypeOfThis()
 		if ((thisType != nil) && !thisType.isUnknownType()) && !thisType.isVoidType() {
 			if (fnNode == 0) || !thisType.equals(this.findMethodOwner(fnNode).self()) {
 				sb.append(" * ")
-				TypedCodeGenerator_appendAnnotation(sb, "this", thisType.toAnnotationString(JSType_Nullability_EXPLICIT))
+				TypedCodeGenerator_appendAnnotation(&sb, "this", thisType.toAnnotationString(JSType_Nullability_EXPLICIT))
 				sb.append("\n")
 			}
 		}
 	}
-	this.appendTemplateAnnotations(sb, icast_Collection(obj_(funType.getTypeParameters())))
+	this.appendTemplateAnnotations(&sb, icast_Collection(obj_(funType.getTypeParameters())))
 	sb.append(" */\n")
-	return Object_toString(obj_(sb))
+	return sb.toString()
 }
 
 func (this *TypedCodeGenerator) getMemberFunctionAnnotation(fnNode Node) string {
@@ -139,25 +140,26 @@ func (this *TypedCodeGenerator) getMemberFunctionAnnotation(fnNode Node) string 
 		return ""
 	}
 	var funType *FunctionType = type_.toMaybeFunctionType()
-	var sb *StringBuilder = new_StringBuilder_String("/**\n")
+	var sb strBuilder_
+	sb.append("/**\n")
 	var paramNode Node = NodeUtil_getFunctionParameters(fnNode).getFirstChild()
-	this.appendFunctionParamAnnotations(sb, funType, paramNode)
+	this.appendFunctionParamAnnotations(&sb, funType, paramNode)
 	if NodeUtil_isEs6Constructor(fnNode) {
-		this.appendTemplateAnnotations(sb, icast_Collection(obj_(funType.getConstructorOnlyTemplateParameters())))
+		this.appendTemplateAnnotations(&sb, icast_Collection(obj_(funType.getConstructorOnlyTemplateParameters())))
 	} else {
-		this.appendTemplateAnnotations(sb, icast_Collection(obj_(funType.getTypeParameters())))
+		this.appendTemplateAnnotations(&sb, icast_Collection(obj_(funType.getTypeParameters())))
 		var retType *JSType = funType.getReturnType()
 		if (retType != nil) && !retType.isEmptyType() {
 			sb.append(" * ")
-			TypedCodeGenerator_appendAnnotation(sb, "return", retType.toAnnotationString(JSType_Nullability_EXPLICIT))
+			TypedCodeGenerator_appendAnnotation(&sb, "return", retType.toAnnotationString(JSType_Nullability_EXPLICIT))
 			sb.append("\n")
 		}
 	}
 	sb.append(" */\n")
-	return Object_toString(obj_(sb))
+	return sb.toString()
 }
 
-func (this *TypedCodeGenerator) appendFunctionParamAnnotations(sb *StringBuilder, funType *FunctionType, paramNode Node) {
+func (this *TypedCodeGenerator) appendFunctionParamAnnotations(sb *strBuilder_, funType *FunctionType, paramNode Node) {
 	var minArity int32 = funType.getMinArity()
 	var maxArity int32 = funType.getMaxArity()
 	var formals ImmutableListOf[*FunctionType_Parameter] = funType.getParameters()
@@ -180,17 +182,17 @@ func (this *TypedCodeGenerator) getClassAnnotation(classType *JSType) string {
 		Preconditions_checkState_boolean_Object(false, classType.self())
 	}
 	var funType *FunctionType = classType.toMaybeFunctionType()
-	var sb *StringBuilder = new_StringBuilder()
+	var sb strBuilder_
 	if funType.isInterface() {
-		this.appendInterfaceAnnotations(sb, funType)
+		this.appendInterfaceAnnotations(&sb, funType)
 	} else {
 		if !funType.isConstructor() {
 			Preconditions_checkState_boolean_Object(false, funType.self())
 		}
-		this.appendClassAnnotations(sb, funType)
+		this.appendClassAnnotations(&sb, funType)
 	}
-	this.appendTemplateAnnotations(sb, icast_Collection(obj_(funType.getTypeParameters())))
-	var jsdocContent string = Object_toString(obj_(sb))
+	this.appendTemplateAnnotations(&sb, icast_Collection(obj_(funType.getTypeParameters())))
+	var jsdocContent string = sb.toString()
 	if String_isEmpty(jsdocContent) {
 		return jsdocContent
 	} else {
@@ -199,7 +201,7 @@ func (this *TypedCodeGenerator) getClassAnnotation(classType *JSType) string {
 	panic("unreachable")
 }
 
-func (this *TypedCodeGenerator) appendTemplateAnnotations(sb *StringBuilder, typeParams CollectionOf[*JSType]) {
+func (this *TypedCodeGenerator) appendTemplateAnnotations(sb *strBuilder_, typeParams CollectionOf[*JSType]) {
 	if !typeParams.isEmpty() {
 		sb.append(" * @template ")
 		var formattedTypeParams []string = []string{}
@@ -248,7 +250,7 @@ func (this *TypedCodeGenerator) formatTypeVar(var_ *JSType) string {
 	return var_.toAnnotationString(JSType_Nullability_IMPLICIT)
 }
 
-func (this *TypedCodeGenerator) appendClassAnnotations(sb *StringBuilder, funType *FunctionType) {
+func (this *TypedCodeGenerator) appendClassAnnotations(sb *strBuilder_, funType *FunctionType) {
 	var superConstructor *FunctionType = funType.getInstanceType().getSuperClassConstructor()
 	if superConstructor != nil {
 		var superInstance *ObjectType = superConstructor.getInstanceType()
@@ -273,7 +275,7 @@ func (this *TypedCodeGenerator) appendClassAnnotations(sb *StringBuilder, funTyp
 	}
 }
 
-func (this *TypedCodeGenerator) appendInterfaceAnnotations(sb *StringBuilder, funType *FunctionType) {
+func (this *TypedCodeGenerator) appendInterfaceAnnotations(sb *strBuilder_, funType *FunctionType) {
 	var interfaces SetOf[string] = icast_Set(obj_(new_TreeSet()))
 	it_1 := foreach_(any(funType.getAncestorInterfaces()))
 	for it_1.next() {
@@ -322,7 +324,7 @@ func (this *TypedCodeGenerator) findMethodOwner(n Node) *ObjectType {
 	}()
 }
 
-func TypedCodeGenerator_appendAnnotation(sb *StringBuilder, name string, type_ string) {
+func TypedCodeGenerator_appendAnnotation(sb *strBuilder_, name string, type_ string) {
 	sb.append("@").append(name).append(" {").append(type_).append("}")
 }
 

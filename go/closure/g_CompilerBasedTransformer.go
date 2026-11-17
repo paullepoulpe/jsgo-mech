@@ -54,11 +54,11 @@ func (this *CompilerBasedTransformer) transform(input *Source) *Source {
 	var result *CompilerBasedTransformer_CompileResult = this.compilerSupplierField.compile(input.path(), input.code())
 	if len(result.errors_) != 0 {
 		var formatter MessageFormatter = ErrorFormat_SOURCELESS.toFormatter(nil, false)
-		var message *StringBuilder = new_StringBuilder().append(this.getTranformationName()).append(" failed.\n")
+		var message *strBuilder_ = (&strBuilder_{}).append(this.getTranformationName()).append(" failed.\n")
 		for _, error_ := range result.errors_ {
 			message.append(formatter.formatError(error_))
 		}
-		panic(new_IllegalStateException_String(Object_toString(obj_(message))).self())
+		panic(new_IllegalStateException_String(message.toString()).self())
 	}
 	if !result.transformed_ {
 		return input

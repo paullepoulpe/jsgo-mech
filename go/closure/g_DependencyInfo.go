@@ -301,7 +301,7 @@ func new_DependencyInfo_Util() *DependencyInfo_Util {
 	return this
 }
 
-func DependencyInfo_Util_writeAddDependency(out Appendable, info DependencyInfo) {
+func DependencyInfo_Util_writeAddDependency(out *strBuilder_, info DependencyInfo) {
 	out.append_CharSequence(strobj_("goog.addDependency('")).append_CharSequence(strobj_(info.getPathRelativeToClosureBase())).append_CharSequence(strobj_("', "))
 	DependencyInfo_Util_writeJsArray(out, icast_Collection(obj_(info.getProvides())))
 	out.append_CharSequence(strobj_(", "))
@@ -314,7 +314,7 @@ func DependencyInfo_Util_writeAddDependency(out Appendable, info DependencyInfo)
 	out.append_CharSequence(strobj_(");\n"))
 }
 
-func DependencyInfo_Util_writeJsObject(out Appendable, map_ *TMap[string, string]) {
+func DependencyInfo_Util_writeJsObject(out *strBuilder_, map_ *TMap[string, string]) {
 	var entries *TList[string] = newTList_(tc_string)
 	it_1 := foreach_(any(map_.asMap().entrySet()))
 	for it_1.next() {
@@ -328,7 +328,7 @@ func DependencyInfo_Util_writeJsObject(out Appendable, map_ *TMap[string, string
 	out.append_CharSequence(strobj_("}"))
 }
 
-func DependencyInfo_Util_writeJsArray(out Appendable, values CollectionOf[string]) {
+func DependencyInfo_Util_writeJsArray(out *strBuilder_, values CollectionOf[string]) {
 	var quoted IterableOf[string] = Iterables_transform(Iterable(values), lambda_DependencyInfo_Util_writeJsArray_1_)
 	out.append_CharSequence(strobj_("["))
 	out.append_CharSequence(strobj_(Joiner_on(", ").join(quoted)))

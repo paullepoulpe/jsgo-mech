@@ -1305,7 +1305,7 @@ func (this *JsDocInfoParser) extractBlockComment(token JsDocToken) *JsDocInfoPar
 }
 
 func (this *JsDocInfoParser) extractMultilineComment(token JsDocToken, option JsDocInfoParser_WhitespaceOption, isMarker bool, includeAnnotations bool) *JsDocInfoParser_ExtractionInfo {
-	var builder *StringBuilder = new_StringBuilder()
+	var builder strBuilder_
 	var startLineno int32 = -1
 	var startCharno int32 = -1
 	if isMarker {
@@ -1330,14 +1330,14 @@ L_1:
 				lineStartChar = (this.stream.getCharno() + 1)
 				ignoreStar = false
 			} else {
-				this.padLine(builder, lineStartChar, option)
+				this.padLine(&builder, lineStartChar, option)
 				lineStartChar = -1
 				builder.append_char('*')
 			}
 			token = this.next()
 			for token == JsDocToken_STAR {
 				if lineStartChar != -1 {
-					this.padLine(builder, lineStartChar, option)
+					this.padLine(&builder, lineStartChar, option)
 					lineStartChar = -1
 				}
 				builder.append_char('*')
@@ -1357,11 +1357,11 @@ L_1:
 			this.state = JsDocInfoParser_State_SEARCHING_ANNOTATION
 			var isEOC bool = (token == JsDocToken_EOC)
 			if !isEOC {
-				this.padLine(builder, lineStartChar, option)
+				this.padLine(&builder, lineStartChar, option)
 				lineStartChar = -1
 			}
 			if ((token == JsDocToken_EOC) || (token == JsDocToken_EOF)) || ((token == JsDocToken_ANNOTATION) && !includeAnnotations) {
-				var multilineText string = Object_toString(obj_(builder))
+				var multilineText string = builder.toString()
 				if option != JsDocInfoParser_WhitespaceOption_PRESERVE {
 					multilineText = String_trim(multilineText)
 				}
@@ -1384,7 +1384,7 @@ L_1:
 	panic("unreachable")
 }
 
-func (this *JsDocInfoParser) padLine(builder *StringBuilder, lineStartChar int32, option JsDocInfoParser_WhitespaceOption) {
+func (this *JsDocInfoParser) padLine(builder *strBuilder_, lineStartChar int32, option JsDocInfoParser_WhitespaceOption) {
 	if (lineStartChar != -1) && (option == JsDocInfoParser_WhitespaceOption_PRESERVE) {
 		var numSpaces int32 = (this.stream.getCharno() - lineStartChar)
 		for i := int32(0); i < numSpaces; i++ {

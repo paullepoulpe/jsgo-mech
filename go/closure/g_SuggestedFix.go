@@ -50,14 +50,14 @@ func (this *SuggestedFix) toString() string {
 	if this.isNoOp() {
 		return "<no-op SuggestedFix>"
 	}
-	var sb *StringBuilder = new_StringBuilder()
+	var sb strBuilder_
 	it_1 := foreach_(any(this.replacements.asMap().entrySet()))
 	for it_1.next() {
 		var entry Map_Entry = icast_Map_Entry(it_1.v)
 		sb.append("Replacements for file: ").append(str_(entry.getKey())).append("\n")
-		Joiner_on("\n\n").appendTo(sb, icast_Iterable(entry.getValue()))
+		Joiner_on("\n\n").appendToStr_(&sb, icast_Iterable(entry.getValue()))
 	}
-	return Object_toString(obj_(sb))
+	return sb.toString()
 }
 
 func SuggestedFix_getStartPositionForNodeConsideringComments(node Node) int32 {

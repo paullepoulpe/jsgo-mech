@@ -172,10 +172,10 @@ func (this *ChromePass) createObjectsForQualifiedName(namespace string) *TList[N
 	var parts []string = ChromePass_DOT_PATTERN.split(namespace)
 	this.createObjectIfNew(objects, parts[0], true)
 	if int32(len(parts)) >= 2 {
-		var currPrefix *StringBuilder = new_StringBuilder().append(parts[0])
+		var currPrefix *strBuilder_ = (&strBuilder_{}).append(parts[0])
 		for i := int32(1); i < int32(len(parts)); i++ {
 			currPrefix.append(".").append(parts[i])
-			this.createObjectIfNew(objects, Object_toString(obj_(currPrefix)), false)
+			this.createObjectIfNew(objects, currPrefix.toString(), false)
 		}
 	}
 	return objects

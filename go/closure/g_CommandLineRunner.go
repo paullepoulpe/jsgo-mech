@@ -120,7 +120,7 @@ func (this *CommandLineRunner) processFlagFile(flagFileString string) *Outcome_b
 	}
 	var flagFileText string = str_(buffer.get())
 	var flagFileIndex int32 = 0
-	var builder *StringBuilder = new_StringBuilder()
+	var builder strBuilder_
 	var tokens *TList[string] = newTList_(tc_string)
 	var quoted bool = false
 	var escaped bool = false
@@ -142,7 +142,7 @@ func (this *CommandLineRunner) processFlagFile(flagFileString string) *Outcome_b
 			if quoted {
 				builder.append_char(uint16(c))
 			} else if builder.length() != 0 {
-				tokens.add(Object_toString(obj_(builder)))
+				tokens.add(builder.toString())
 				builder.setLength(0)
 			}
 		} else if c == 34 {
@@ -161,7 +161,7 @@ func (this *CommandLineRunner) processFlagFile(flagFileString string) *Outcome_b
 		escaped = (c == 92)
 	}
 	if builder.length() != 0 {
-		tokens.add(Object_toString(obj_(builder)))
+		tokens.add(builder.toString())
 	}
 	this.flags.flagFiles = icast_List(new_ArrayList_0().self())
 	tokens = CommandLineRunner_processArgs(arrmap_(tokens.asList().toArray(arrmap_(newstrarr_(0), func(v_ string) any { return strobj_(v_) })), func(v_ any) string { return str_(v_) }))
@@ -1607,7 +1607,7 @@ func (this *CommandLineRunner_Flags) parse(args *TList[string]) *Outcome_base {
 }
 
 func (this *CommandLineRunner_Flags) printUsage(ps *Output) {
-	var outputStream *StringBuilder = new_StringBuilder()
+	var outputStream strBuilder_
 	var isFirst bool = true
 	it_1 := foreach_(any(CommandLineRunner_Flags_categories.asMap().entrySet()))
 	for it_1.next() {
@@ -1629,15 +1629,15 @@ func (this *CommandLineRunner_Flags) printUsage(ps *Output) {
 			this.maxLineLength = 5000
 			this.parser.setUsageWidth(this.maxLineLength)
 		}
-		this.printCategoryUsage(str_(entry.getKey()), icast_Collection(entry.getValue()), outputStream, Optional_of[string](prefix), Optional_of[string](suffix))
+		this.printCategoryUsage(str_(entry.getKey()), icast_Collection(entry.getValue()), &outputStream, Optional_of[string](prefix), Optional_of[string](suffix))
 	}
 	var encoded *Output = ps.encodedAs(Charsets_UTF_8)
-	encoded.print(Object_toString(obj_(outputStream)))
+	encoded.print(outputStream.toString())
 	encoded.flush()
 	ps.flush()
 }
 
-func (this *CommandLineRunner_Flags) printCategoryUsage(categoryName string, options CollectionOf[string], outputStream *StringBuilder, prefix OptionalOf[string], suffix OptionalOf[string]) {
+func (this *CommandLineRunner_Flags) printCategoryUsage(categoryName string, options CollectionOf[string], outputStream *strBuilder_, prefix OptionalOf[string], suffix OptionalOf[string]) {
 	if prefix.isPresent() {
 		this.printStringLineWrapped(prefix.get(), outputStream)
 	}
@@ -1646,13 +1646,13 @@ func (this *CommandLineRunner_Flags) printCategoryUsage(categoryName string, opt
 		it_1 := foreach_(any(options))
 		for it_1.next() {
 			var optionName string = str_(it_1.v)
-			var stringWriter *StringBuilder = new_StringBuilder()
-			this.parser.printUsage(stringWriter, func(option_ any) bool {
+			var stringWriter strBuilder_
+			this.parser.printUsage(&stringWriter, func(option_ any) bool {
 				var option *CmdLineParser_Option = cast_[*CmdLineParser_Option](option_)
 				_ = option
 				return (!option.hidden() && (optionName == CommandLineRunner_LEADING_DASHES_PATTERN.matcher_s(option.name()).replaceFirst("")))
 			})
-			var rawOptionUsage string = Object_toString(obj_(stringWriter))
+			var rawOptionUsage string = stringWriter.toString()
 			var delimiterIndex int32 = String_indexOf_String(rawOptionUsage, " : ")
 			if delimiterIndex > 0 {
 				outputStream.append(("\n**" + sstr_(String_trim(String_substring(rawOptionUsage, 0, delimiterIndex))) + "**  \n"))
@@ -1675,7 +1675,7 @@ func (this *CommandLineRunner_Flags) printCategoryUsage(categoryName string, opt
 	}
 }
 
-func (this *CommandLineRunner_Flags) printStringLineWrapped(input string, outputStream *StringBuilder) {
+func (this *CommandLineRunner_Flags) printStringLineWrapped(input string, outputStream *strBuilder_) {
 	if String_length(input) < this.maxLineLength {
 		outputStream.append(input)
 		return
