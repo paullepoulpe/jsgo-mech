@@ -852,6 +852,108 @@ func handle(e ast.Expr) {
 	}
 }
 
+// implicitConversions poisons the slots that receive a value of another type through Go's
+// implicit conversion to an interface (var s Set = new_TreeSet(), return &X{} as a Set, an
+// argument of an anonymous Set class): no list-valued expression shows them, and the typed
+// slot could not hold the value.
+func implicitConversions() {
+	other := func(e ast.Expr) bool {
+		t := typeOf(e)
+		if t == nil || isList(t) {
+			return false
+		}
+		if b, ok := t.(*types.Basic); ok && b.Kind() == types.UntypedNil {
+			return false
+		}
+		return true
+	}
+	why := func(e ast.Expr) string { return "implicitly converted from " + types.TypeString(typeOf(e), types.RelativeTo(rw.Pkg)) }
+	// An immutable collection is copied into the typed one, as through an explicit conversion.
+	into := func(dest int, r ast.Expr) {
+		if K.fromCode == nil || !isImmutable(typeOf(r)) {
+			poison(dest, why(r))
+			return
+		}
+		edit(dest, func(c *class) rw.Edit {
+			return rw.Edit{Node: r, Gen: func() string { return K.fromCode(c, rw.RenderChildren(r), true) }}
+		})
+	}
+	sigOf := func(n ast.Node) *types.Signature {
+		for p := rw.Parent[n]; p != nil; p = rw.Parent[p] {
+			switch f := p.(type) {
+			case *ast.FuncLit:
+				s, _ := typeOf(f).(*types.Signature)
+				return s
+			case *ast.FuncDecl:
+				if o, ok := rw.Info.Defs[f.Name].(*types.Func); ok {
+					return o.Type().(*types.Signature)
+				}
+				return nil
+			}
+		}
+		return nil
+	}
+	for _, f := range rw.Files {
+		if !generated(f.Pos()) {
+			continue
+		}
+		ast.Inspect(f, func(n ast.Node) bool {
+			if n == nil {
+				return false
+			}
+			curPos = n.Pos()
+			switch x := n.(type) {
+			case *ast.AssignStmt:
+				if len(x.Lhs) != len(x.Rhs) {
+					return true
+				}
+				for i, r := range x.Rhs {
+					if other(r) && isList(typeOf(x.Lhs[i])) {
+						if v := varOf(x.Lhs[i]); v != nil {
+							into(slotOfVar(v), r)
+						}
+					}
+				}
+			case *ast.ValueSpec:
+				if len(x.Values) != len(x.Names) {
+					return true
+				}
+				for i, r := range x.Values {
+					if v, ok := rw.Info.Defs[x.Names[i]].(*types.Var); ok && other(r) && isList(v.Type()) {
+						into(slotOfVar(v), r)
+					}
+				}
+			case *ast.ReturnStmt:
+				s := sigOf(x)
+				if s == nil || s.Results().Len() != len(x.Results) {
+					return true
+				}
+				for i, r := range x.Results {
+					if other(r) && isList(s.Results().At(i).Type()) {
+						into(resultKey(enclosingFunc(x), i), r)
+					}
+				}
+			case *ast.CallExpr:
+				for i, a := range x.Args {
+					if !other(a) {
+						continue
+					}
+					if k, ok := paramIndexKey(x, i); ok {
+						into(k, a)
+					}
+				}
+			case *ast.KeyValueExpr:
+				if id, ok := x.Key.(*ast.Ident); ok {
+					if fv, ok := rw.Info.Uses[id].(*types.Var); ok && isList(fv.Type()) && other(x.Value) {
+						into(slotOfVar(fv), x.Value)
+					}
+				}
+			}
+			return true
+		})
+	}
+}
+
 // iterate handles it := foreach_(any(l)) over a collection of class k: the loop walks the
 // typed collection; field is the cursor field holding the element and ci its conversion.
 func iterate(k int, e ast.Expr, fe *ast.CallExpr, field string, ci int) {
@@ -1425,6 +1527,7 @@ func main() {
 			return true
 		})
 	}
+	implicitConversions()
 	// Values: every list-valued expression in generated code.
 	for _, f := range rw.Files {
 		if !generated(f.Pos()) {
