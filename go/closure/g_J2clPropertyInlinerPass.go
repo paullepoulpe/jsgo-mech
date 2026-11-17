@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type J2clPropertyInlinerPass struct {
 	compiler_ *AbstractCompiler
 }
@@ -142,7 +144,7 @@ func (this *J2clPropertyInlinerPass_StaticFieldGetterSetterInliner) matchesJ2clS
 }
 
 func (this *J2clPropertyInlinerPass_StaticFieldGetterSetterInliner) looksLikeAJ2clGeneratedClassClinitName(className string, candidate string) bool {
-	if !String_startsWith(candidate, className) {
+	if !strings.HasPrefix(candidate, className) {
 		return false
 	}
 	var candidateAfterClassName string = String_substring_int(candidate, String_length(className))
@@ -150,11 +152,11 @@ func (this *J2clPropertyInlinerPass_StaticFieldGetterSetterInliner) looksLikeAJ2
 }
 
 func (this *J2clPropertyInlinerPass_StaticFieldGetterSetterInliner) looksLikeAJ2clGeneratedStaticPropertyName(className string, candidate string) bool {
-	if !String_startsWith(candidate, className) {
+	if !strings.HasPrefix(candidate, className) {
 		return false
 	}
 	var candidateAfterClassName string = String_substring_int(candidate, String_length(className))
-	return (String_startsWith(candidateAfterClassName, "$$0") || String_startsWith(candidateAfterClassName, ".$"))
+	return (strings.HasPrefix(candidateAfterClassName, "$$0") || strings.HasPrefix(candidateAfterClassName, ".$"))
 }
 
 type J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_J2clProperty struct {

@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type ChromePass struct {
 	NodeTraversal_AbstractPostOrderCallback
 	compiler_      *AbstractCompiler
@@ -55,7 +57,7 @@ func (this *ChromePass) visitPropertyDefinition(call Node, parent Node) {
 		return
 	}
 	var target string = call.getSecondChild().getQualifiedName()
-	if isCrDefinePropertyCall && !String_endsWith(target, ".prototype") {
+	if isCrDefinePropertyCall && !strings.HasSuffix(target, ".prototype") {
 		target += ".prototype"
 	}
 	var property Node = call.getChildAtIndex(2)

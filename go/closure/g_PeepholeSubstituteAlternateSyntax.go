@@ -532,7 +532,7 @@ func PeepholeSubstituteAlternateSyntax_clinit() {
 		return
 	}
 	PeepholeSubstituteAlternateSyntax_clinit_done = true
-	PeepholeSubstituteAlternateSyntax_STRING_SPLIT_OVERHEAD = String_length(".split('.')")
+	PeepholeSubstituteAlternateSyntax_STRING_SPLIT_OVERHEAD = int32(len(".split('.')"))
 	PeepholeSubstituteAlternateSyntax_BUILTIN_EXTERNS = ImmutableSet_of_Object_Object_Object_Object_Object(strobj_("Object"), strobj_("Array"), strobj_("Error"), strobj_("RegExp"), strobj_("Math"))
 	PeepholeSubstituteAlternateSyntax_STANDARD_OBJECT_CONSTRUCTORS = ImmutableSet_of_Object_Object_Object(strobj_("Object"), strobj_("Array"), strobj_("Error"))
 

@@ -41,7 +41,7 @@ func (this *RescopeGlobalSymbolsRewriteCallback) isCrossChunkName(name string) b
 }
 
 func (this *RescopeGlobalSymbolsRewriteCallback) isExternVar(varname string, t *NodeTraversal) bool {
-	if String_isEmpty(varname) {
+	if varname == "" {
 		return false
 	}
 	var v *Var = cast_[*Var](t.getScope().getVar(varname).self())
@@ -205,7 +205,7 @@ func (this *RescopeGlobalSymbolsRewriteCallback) containsNonLocalOrInitializedVa
 
 func (this *RescopeGlobalSymbolsRewriteCallback) visitName(t *NodeTraversal, n Node, parent Node) {
 	var name string = n.getString()
-	if parent.isFunction() && String_isEmpty(name) {
+	if parent.isFunction() && name == "" {
 		return
 	}
 	if this.isExternVar(name, t) {

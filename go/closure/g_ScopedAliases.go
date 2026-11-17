@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type ScopedAliases struct {
 	compiler_                *AbstractCompiler
 	preprocessorSymbolTable  *PreprocessorSymbolTable
@@ -128,7 +130,7 @@ func ScopedAliases_getAliasedNamespace(rhs Node) string {
 }
 
 func ScopedAliases_isScopedAliases(name string) bool {
-	return String_startsWith(name, ScopedAliases_SCOPED_ALIASES_PREFIX)
+	return strings.HasPrefix(name, ScopedAliases_SCOPED_ALIASES_PREFIX)
 }
 
 const ScopedAliases_SCOPING_METHOD_NAME string = "goog.scope"
@@ -343,12 +345,12 @@ func (this *ScopedAliases_AliasUsage) init_ScopedAliases_AliasUsage(aliasVar *Va
 func (this *ScopedAliases_AliasUsage) referencesOtherAlias(deletedAliasVars *TSet[*Var]) bool {
 	var aliasDefinition Node = this.aliasVar.getInitialValue()
 	var qname string = ScopedAliases_getAliasedNamespace(aliasDefinition)
-	var dotIndex int32 = String_indexOf(qname, 46)
+	var dotIndex int32 = int32(strings.IndexByte(qname, '.'))
 	var rootName string = func() string {
 		if dotIndex == -1 {
 			return qname
 		}
-		return String_substring(qname, 0, dotIndex)
+		return qname[:dotIndex]
 	}()
 	var otherAliasVar *Var = cast_[*Var](cast_[*Scope](this.aliasVar.getScope()).getOwnSlot(rootName))
 	return ((otherAliasVar != nil) && !deletedAliasVars.contains(otherAliasVar))
@@ -417,11 +419,11 @@ func (this *ScopedAliases_AliasedTypeNode) applyAlias_impl(compiler *AbstractCom
 	var aliasDefinition Node = this.aliasVar.getInitialValue()
 	var aliasName string = this.aliasVar.getName()
 	var typeName string = this.aliasReference.getString()
-	if String_startsWith(typeName, "$jscomp$scope$") {
+	if strings.HasPrefix(typeName, "$jscomp$scope$") {
 		return
 	}
 	var aliasExpanded string = ScopedAliases_getAliasedNamespace(aliasDefinition)
-	if !String_startsWith(typeName, aliasName) {
+	if !strings.HasPrefix(typeName, aliasName) {
 		panic(new_IllegalStateException_String(Strings_lenientFormat("%s must start with %s", []any{strobj_(typeName), strobj_(aliasName)})).self())
 	}
 	var replacement string = (sstr_(aliasExpanded) + sstr_(String_substring_int(typeName, String_length(aliasName))))
@@ -649,9 +651,9 @@ func (this *ScopedAliases_Traversal) recordAlias(aliasVar *Var) {
 	var name string = aliasVar.getName()
 	this.aliases_[name] = aliasVar
 	var qualifiedName string = ScopedAliases_getAliasedNamespace(initialValue)
-	var rootIndex int32 = String_indexOf(qualifiedName, 46)
+	var rootIndex int32 = int32(strings.IndexByte(qualifiedName, '.'))
 	if rootIndex != -1 {
-		var qNameRoot string = String_substring(qualifiedName, 0, rootIndex)
+		var qNameRoot string = qualifiedName[:rootIndex]
 		if !has_(this.aliases_, qNameRoot) {
 			this.forbiddenLocals.add(qNameRoot)
 		}
@@ -728,7 +730,7 @@ func (this *ScopedAliases_Traversal) validateScopeCall(t *NodeTraversal, n Node,
 		this.report(n, ScopedAliases_GOOG_SCOPE_HAS_BAD_PARAMETERS, []string{})
 	} else {
 		var anonymousFnNode Node = n.getSecondChild()
-		if (!anonymousFnNode.isFunction() || !String_isEmpty(NodeUtil_getName(anonymousFnNode))) || NodeUtil_getFunctionParameters(anonymousFnNode).hasChildren() {
+		if (!anonymousFnNode.isFunction() || NodeUtil_getName(anonymousFnNode) != "") || NodeUtil_getFunctionParameters(anonymousFnNode).hasChildren() {
 			this.report(anonymousFnNode, ScopedAliases_GOOG_SCOPE_HAS_BAD_PARAMETERS, []string{})
 		} else {
 			this.scopeCalls.add(n)

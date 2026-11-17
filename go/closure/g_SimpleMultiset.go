@@ -238,7 +238,7 @@ func (this *SimpleMultiset) toString() string {
 	it_1 := foreach_(any(this.counts.entrySet()))
 	for it_1.next() {
 		var e Map_Entry = icast_Map_Entry(it_1.v)
-		var element string = String_valueOf_Object(e.getKey())
+		var element string = objstr_(e.getKey())
 		parts = append(parts, str_(func() any {
 			if unbox_[int32](e.getValue()) == 1 {
 				return strobj_(element)

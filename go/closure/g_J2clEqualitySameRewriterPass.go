@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type J2clEqualitySameRewriterPass struct {
 	AbstractPeepholeOptimization
 	useTypes            bool
@@ -168,7 +170,7 @@ func J2clEqualitySameRewriterPass_hasName(fnName Node, className string, methodN
 		return false
 	}
 	var originalQname string = fnName.getOriginalQualifiedName()
-	return (String_endsWith(originalQname, methodName) && String_contains_s(originalQname, className))
+	return (strings.HasSuffix(originalQname, methodName) && strings.Contains(originalQname, csStr_(className)))
 }
 
 type J2clEqualitySameRewriterPass_NodeValue uint8

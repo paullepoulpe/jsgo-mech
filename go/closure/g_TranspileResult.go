@@ -43,7 +43,7 @@ func (this *TranspileResult) sourceMap() string {
 }
 
 func (this *TranspileResult) embedSourcemapUrl(url string) *TranspileResult {
-	if String_isEmpty(this.sourceMapField) {
+	if this.sourceMapField == "" {
 		return this
 	}
 	var embedded string = (sstr_(this.transpiledField) + "\n//# sourceMappingURL=" + sstr_(url) + "\n")
@@ -51,7 +51,7 @@ func (this *TranspileResult) embedSourcemapUrl(url string) *TranspileResult {
 }
 
 func (this *TranspileResult) embedSourcemap() *TranspileResult {
-	if String_isEmpty(this.sourceMapField) {
+	if this.sourceMapField == "" {
 		return this
 	}
 	var embedded string = (sstr_(this.transpiledField) + "\n//# sourceMappingURL=data:," + sstr_(TranspileResult_ESCAPER.escape(this.sourceMapField)) + "\n")
@@ -59,7 +59,7 @@ func (this *TranspileResult) embedSourcemap() *TranspileResult {
 }
 
 func (this *TranspileResult) embedSourcemapBase64() *TranspileResult {
-	if String_isEmpty(this.sourceMapField) {
+	if this.sourceMapField == "" {
 		return this
 	}
 	var embedded string = (sstr_(this.transpiledField) + "\n//# sourceMappingURL=data:application/json;base64," + sstr_(Io_base64Encode(Io_utf8Bytes(this.sourceMapField))) + "\n")
@@ -92,7 +92,7 @@ func (this *TranspileResult) hashCode() int32 {
 }
 
 func (this *TranspileResult) toString() string {
-	return String_format("TranspileResut{path=%s, original=%s, transpiled=%s, sourceMapURL=%s}", []any{strobj_(this.pathField), strobj_(this.originalField), strobj_(this.transpiledField), strobj_(this.sourceMapField)})
+	return ("TranspileResut{path=" + sstr_(this.pathField) + ", original=" + sstr_(this.originalField) + ", transpiled=" + sstr_(this.transpiledField) + ", sourceMapURL=" + sstr_(this.sourceMapField) + "}")
 }
 
 var TranspileResult_ESCAPER *Escaper

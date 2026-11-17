@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type ExpressionDecomposer struct {
 	compiler_              *AbstractCompiler
 	astAnalyzer            *AstAnalyzer
@@ -435,7 +437,7 @@ func (this *ExpressionDecomposer) getTempConstantValueName() string {
 }
 
 func (this *ExpressionDecomposer) isTempConstantValueName(name Node) bool {
-	return (name.isName() && String_startsWith(name.getString(), (sstr_(this.tempNamePrefix)+"_const"+sstr_(MakeDeclaredNamesUnique_ContextualRenamer_UNIQUE_ID_SEPARATOR))))
+	return (name.isName() && strings.HasPrefix(name.getString(), (sstr_(this.tempNamePrefix)+"_const"+sstr_(MakeDeclaredNamesUnique_ContextualRenamer_UNIQUE_ID_SEPARATOR))))
 }
 
 func ExpressionDecomposer_findInjectionPoint(subExpression Node) Node {

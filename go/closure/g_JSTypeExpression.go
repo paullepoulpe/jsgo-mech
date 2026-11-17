@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type JSTypeExpression struct {
 	root        Node
 	sourceName_ string
@@ -61,12 +63,12 @@ func JSTypeExpression_replaceNames(n Node, names map[string]struct{}) Node {
 }
 
 func JSTypeExpression_baseName(name string) string {
-	var dotIndex int32 = String_indexOf(name, 46)
+	var dotIndex int32 = int32(strings.IndexByte(name, '.'))
 	return func() string {
 		if dotIndex == -1 {
 			return name
 		}
-		return String_substring(name, 0, dotIndex)
+		return name[:dotIndex]
 	}()
 }
 
@@ -134,7 +136,7 @@ func (this *JSTypeExpression) isVarArgs() bool {
 func (this *JSTypeExpression) evaluate(scope StaticTypedScope, registry *JSTypeRegistry) *JSType {
 	var type_ *JSType = registry.createTypeFromCommentNode_3(this.root, Optional_of[string](this.sourceName_).filterFn_(func(s string) bool {
 		_ = s
-		return !String_isEmpty(s)
+		return s != ""
 	}), scope)
 	this.root.setJSType(type_)
 	return type_

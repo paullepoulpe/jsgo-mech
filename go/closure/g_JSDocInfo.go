@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type JSDocInfo struct {
 	propertyBits       int64
 	propertyKeysBitset int64
@@ -305,7 +307,7 @@ func (this *JSDocInfo) isAtSignCodePresent() bool {
 		if entireComment.isEmpty() {
 			return false
 		}
-		return String_contains_s(entireComment.get(), "@code")
+		return strings.Contains(entireComment.get(), "@code")
 	}()
 }
 

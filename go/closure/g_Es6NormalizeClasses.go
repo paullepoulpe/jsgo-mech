@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type Es6NormalizeClasses struct {
 	compiler_                   *AbstractCompiler
 	astFactory_                 *AstFactory
@@ -1098,7 +1100,7 @@ func (this *Es6NormalizeClasses) rewriteStaticMembers(t *NodeTraversal, record *
 				case tokOrd1_COMPUTED_FIELD_DEF:
 					return this.convCompFieldToGetElem(nameToUse, staticMember, true)
 				default:
-					panic(new_IllegalStateException_String(String_valueOf_Object(staticMember.box_())).self())
+					panic(new_IllegalStateException_String(objstr_(staticMember.box_())).self())
 				}
 				panic("unreachable")
 			}()
@@ -1259,7 +1261,7 @@ func (this *Es6NormalizeClasses) visitThisAndSuper(t *NodeTraversal, n Node) {
 	}
 	if newNameNode != 0 {
 		var originalName string = n.getQualifiedName()
-		if String_isEmpty(originalName) {
+		if originalName == "" {
 			panic(new_IllegalStateException_0().self())
 		}
 		newNameNode.srcrefTree(n).setOriginalName(originalName)
@@ -1468,7 +1470,7 @@ func (this *Es6NormalizeClasses_ClassRecord) recordPrivateMember(n Node) {
 		panic(new_IllegalArgumentException_0().self())
 	}
 	var name string = n.getString()
-	if !String_startsWith(name, "#") {
+	if !strings.HasPrefix(name, "#") {
 		panic(new_IllegalArgumentException_String(sstr_(name)).self())
 	}
 	var isStatic bool = n.isStaticMember()
@@ -1716,7 +1718,7 @@ func new_Es6NormalizeClasses_ClassRecord_PrivateMember(name string, kind Es6Norm
 
 func (this *Es6NormalizeClasses_ClassRecord_PrivateMember) propertyName() string {
 	return func() string {
-		if String_startsWith(this.name_, "#") {
+		if strings.HasPrefix(this.name_, "#") {
 			return String_substring_int(this.name_, 1)
 		}
 		return this.name_

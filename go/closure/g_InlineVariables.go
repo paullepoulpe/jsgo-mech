@@ -500,7 +500,7 @@ func (this *InlineVariables_InliningBehavior) canInline(declaration *Reference, 
 			if relationship != nil {
 				return false
 			}
-			if !String_isEmpty(convention.getSingletonGetterClassName(callNode)) {
+			if convention.getSingletonGetterClassName(callNode) != "" {
 				return false
 			}
 		}

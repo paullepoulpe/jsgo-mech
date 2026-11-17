@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type RescopeGlobalSymbolsRenameHelper struct {
 	compiler_                          *AbstractCompiler
 	globalSymbolNamespace_             string
@@ -26,7 +28,7 @@ func new_RescopeGlobalSymbolsRenameHelper(compiler *AbstractCompiler, globalSymb
 }
 
 func RescopeGlobalSymbolsRenameHelper_conflictsWithGlobalSymbolNamespace(name string, globalSymbolNamespace string) bool {
-	return ((name == globalSymbolNamespace) || String_startsWith(name, (sstr_(globalSymbolNamespace)+sstr_(RescopeGlobalSymbolsRenameHelper_DISAMBIGUATION_SUFFIX))))
+	return ((name == globalSymbolNamespace) || strings.HasPrefix(name, (sstr_(globalSymbolNamespace)+sstr_(RescopeGlobalSymbolsRenameHelper_DISAMBIGUATION_SUFFIX))))
 }
 
 func RescopeGlobalSymbolsRenameHelper_getDisambiguatedLocalName(name string) string {
@@ -121,12 +123,12 @@ func (this *RescopeGlobalSymbolsRenameHelper_HelperBuilder) recordExistingName(n
 	if !this.optimizeLocalAccess.shouldKeepLocalAliasForWrappedReassignables() {
 		return
 	}
-	if String_startsWith(name, RescopeGlobalSymbolsRenameHelper_UNWRAPPED_LOCAL_NAME_PREFIX) {
+	if strings.HasPrefix(name, RescopeGlobalSymbolsRenameHelper_UNWRAPPED_LOCAL_NAME_PREFIX) {
 		this.namesStartingWithUnderscore.add(name)
 	}
 	if RescopeGlobalSymbolsRenameHelper_conflictsWithGlobalSymbolNamespace(name, this.globalSymbolNamespace_) {
 		var disambiguatedName string = RescopeGlobalSymbolsRenameHelper_getDisambiguatedLocalName(name)
-		if String_startsWith(disambiguatedName, RescopeGlobalSymbolsRenameHelper_UNWRAPPED_LOCAL_NAME_PREFIX) {
+		if strings.HasPrefix(disambiguatedName, RescopeGlobalSymbolsRenameHelper_UNWRAPPED_LOCAL_NAME_PREFIX) {
 			this.namesStartingWithUnderscore.add(disambiguatedName)
 		}
 	}

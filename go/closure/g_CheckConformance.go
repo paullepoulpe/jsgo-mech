@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type CheckConformance struct {
 	compiler_       *AbstractCompiler
 	categories      []*CheckConformance_Category
@@ -43,7 +45,7 @@ func (this *CheckConformance) process_2(externs Node, root Node) {
 }
 
 func (this *CheckConformance) shouldTraverse(t *NodeTraversal, n Node, parent Node) bool {
-	return (!n.isScript() || (this.isScriptOfInterest(t.getInput().getSourceFile()) && !String_endsWith(t.getSourceName().get(), "tsmes.closure.js")))
+	return (!n.isScript() || (this.isScriptOfInterest(t.getInput().getSourceFile()) && !strings.HasSuffix(t.getSourceName().get(), "tsmes.closure.js")))
 }
 
 func (this *CheckConformance) isScriptOfInterest(sf *SourceFile_jscomp) bool {
@@ -223,7 +225,7 @@ func CheckConformance_validateExtendableRequirement(compiler *AbstractCompiler, 
 	if !requirement.hasRuleId() {
 		panic(new_IllegalStateException_String("Extendable requirement must have a rule_id").self())
 	}
-	if String_isEmpty(requirement.getRuleId()) {
+	if requirement.getRuleId() == "" {
 		CheckConformance_reportInvalidRequirement(compiler, requirement, "empty rule_id")
 		return false
 	}

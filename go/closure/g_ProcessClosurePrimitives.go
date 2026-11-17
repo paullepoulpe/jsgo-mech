@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type ProcessClosurePrimitives struct {
 	NodeTraversal_AbstractPostOrderCallback
 	compiler_              *AbstractCompiler
@@ -74,7 +76,7 @@ func (this *ProcessClosurePrimitives) visit_impl(t *NodeTraversal, n Node, paren
 		var lhs string = n.getFirstFirstChild().getQualifiedName()
 		this.checkPossibleGoogProvideInit(Optional_of[string](lhs).filterFn_(func(s string) bool {
 			_ = s
-			return !String_isEmpty(s)
+			return s != ""
 		}), n.getFirstChild().getJSDocInfo(), n)
 	case tokOrd1_VAR, tokOrd1_CONST, tokOrd1_LET:
 		if !n.getFirstChild().isName() {
@@ -186,7 +188,7 @@ func (this *ProcessClosurePrimitives) maybeProcessClassBaseCall(n Node) {
 		if has_(this.knownClosureSubclasses, baseContainer) {
 			this.reportBadBaseMethodUse(n, Optional_of[string](baseContainer).filterFn_(func(s string) bool {
 				_ = s
-				return !String_isEmpty(s)
+				return s != ""
 			}), "Could not find enclosing method.")
 		} else if ProcessClosurePrimitives_baseUsedInClass(n) {
 			var clazz Node = NodeUtil_getEnclosingClass(n)
@@ -203,18 +205,18 @@ func (this *ProcessClosurePrimitives) maybeProcessClassBaseCall(n Node) {
 		return
 	}
 	var enclosingQname string = enclosingFnNameNode.getQualifiedName()
-	if !String_contains_s(enclosingQname, ".prototype.") {
+	if !strings.Contains(enclosingQname, ".prototype.") {
 		this.rewriteBaseCallInConstructor(enclosingQname, Optional_of[string](baseContainer).filterFn_(func(s string) bool {
 			_ = s
-			return !String_isEmpty(s)
+			return s != ""
 		}), n, enclosingFnNameNode)
 	} else {
 		this.rewriteBaseCallInMethod(Optional_of[string](enclosingQname).filterFn_(func(s string) bool {
 			_ = s
-			return !String_isEmpty(s)
+			return s != ""
 		}), Optional_of[string](baseContainer).filterFn_(func(s string) bool {
 			_ = s
-			return !String_isEmpty(s)
+			return s != ""
 		}), n, enclosingFnNameNode)
 	}
 }
@@ -275,7 +277,7 @@ func (this *ProcessClosurePrimitives) rewriteBaseCallInMethod(enclosingQname Opt
 	}
 	var methodName string = methodNameNode.getString()
 	var ending string = (".prototype." + sstr_(methodName))
-	if enclosingQname.isEmpty() || !String_endsWith(enclosingQname.get(), ending) {
+	if enclosingQname.isEmpty() || !strings.HasSuffix(enclosingQname.get(), ending) {
 		this.reportBadBaseMethodUse(n, baseContainer, ("Enclosing method does not match " + sstr_(methodName)))
 		return
 	}
@@ -379,7 +381,7 @@ func ProcessClosurePrimitives_processSetCssNameMapping(compiler *AbstractCompile
 		it_3 := cssNames.each()
 		for it_3.next() {
 			var key string = it_3.k
-			if String_contains_s(key, "-") && !String_startsWith(key, "--") {
+			if strings.Contains(key, "-") && !strings.HasPrefix(key, "--") {
 				errors = append(errors, key)
 			}
 		}
@@ -478,7 +480,7 @@ func (this *ProcessClosurePrimitives) checkPropertyRenameCall(call Node) {
 	var propName Node = callee.getNext()
 	if (propName == 0) || !propName.isStringLit() {
 		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(call, ProcessClosurePrimitives_INVALID_RENAME_FUNCTION, []string{calleeName, "The first argument must be a string literal."}))
-	} else if String_contains_s(propName.getString(), ".") {
+	} else if strings.Contains(propName.getString(), ".") {
 		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(call, ProcessClosurePrimitives_INVALID_RENAME_FUNCTION, []string{calleeName, "The first argument must not be a property path."}))
 	}
 }

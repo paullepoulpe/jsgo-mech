@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type ReportUntranspilableFeatures struct {
 	AbstractPeepholeTranspilation
 	compiler_                      *AbstractCompiler
@@ -143,7 +145,7 @@ func (this *ReportUntranspilableFeatures) checkForRegExpSFlag(regexpNode Node) {
 		}
 		return ""
 	}()
-	if String_contains_s(flags, "s") {
+	if strings.Contains(flags, "s") {
 		this.reportUntranspilable(FeatureSet_Feature_REGEXP_FLAG_S, regexpNode)
 	}
 }
@@ -206,7 +208,7 @@ func (this *ReportUntranspilableFeatures) checkForRegExpDFlag(regexpNode Node) {
 		}
 		return ""
 	}()
-	if String_contains_s(flags, "d") {
+	if strings.Contains(flags, "d") {
 		this.reportUntranspilable(FeatureSet_Feature_REGEXP_FLAG_D, regexpNode)
 	}
 }

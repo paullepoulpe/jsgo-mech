@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type IRFactory struct {
 	sourceFile                 StaticSourceFile
 	sourceName_                OptionalOf[string]
@@ -303,7 +305,7 @@ func (this *IRFactory) validateBreakContinue(n Node) {
 		var parent Node = n.getParent()
 		for !parent.isLabel() || !IRFactory_labelsMatch(parent, labelName) {
 			if (parent.isFunction() || parent.isScript()) || parent.isClassMembers() {
-				this.errorReporter.error(String_format(IRFactory_UNDEFINED_LABEL, []any{strobj_(labelName.getString())}), this.sourceName_, n.getLineno(), n.getCharno())
+				this.errorReporter.error(("undefined label \"" + sstr_(labelName.getString()) + "\""), this.sourceName_, n.getLineno(), n.getCharno())
 				break
 			}
 			parent = parent.getParent()
@@ -371,7 +373,7 @@ func (this *IRFactory) validateLabel(n Node) {
 		var parent Node = n.getParent()
 		for ; (parent != 0) && !parent.isFunction(); parent = parent.getParent() {
 			if parent.isLabel() && IRFactory_labelsMatch(parent, labelName) {
-				this.errorReporter.error(String_format(IRFactory_DUPLICATE_LABEL, []any{strobj_(labelName.getString())}), this.sourceName_, n.getLineno(), n.getCharno())
+				this.errorReporter.error(("Duplicate label \"" + sstr_(labelName.getString()) + "\""), this.sourceName_, n.getLineno(), n.getCharno())
 				break
 			}
 		}
@@ -391,7 +393,7 @@ func (this *IRFactory) validateParameters(n Node) {
 				_ = param
 				var paramName string = param.getString()
 				if !setAdd_(seenNames, paramName) {
-					this.errorReporter.warning(String_format(IRFactory_DUPLICATE_PARAMETER, []any{strobj_(paramName)}), this.sourceName_, param.getLineno(), param.getCharno())
+					this.errorReporter.warning(("Duplicate parameter name \"" + sstr_(paramName) + "\""), this.sourceName_, param.getLineno(), param.getCharno())
 				}
 			})
 		}
@@ -521,7 +523,7 @@ func (this *IRFactory) parseInlineJSDocAt(pos *SourcePosition_util) *JSDocInfo {
 	}
 	var comment *Comment = this.getJSDocCommentAt(pos)
 	return func() *JSDocInfo {
-		if (comment != nil) && !String_contains_s(comment.value_, "@") {
+		if (comment != nil) && !strings.Contains(comment.value_, "@") {
 			return this.parseInlineTypeDoc(comment)
 		}
 		return this.parseJSDocInfoFrom(comment)
@@ -543,7 +545,7 @@ func (this *IRFactory) parseNonJSDocCommentAt(pos *SourcePosition_util, isInline
 		if withinClosureUnawareCodeRange {
 			var currentJsDocComment *Comment = this.jsdocTracker.current()
 			if (currentComment == nil) || ((currentJsDocComment != nil) && (IRFactory_COMMENT_START_POSITION_COMPARATOR.compare(obj_(currentComment), obj_(currentJsDocComment)) > 0)) {
-				if String_contains_s(currentJsDocComment.value_, "@license") {
+				if strings.Contains(currentJsDocComment.value_, "@license") {
 					this.jsdocTracker.advance()
 					continue
 				}
@@ -597,7 +599,7 @@ func (this *IRFactory) parseTrailingNonJSDocCommentAt(tokenEnd *SourcePosition_u
 		return nil
 	}
 	var preCommentText string = String_substring(this.fileWithContent.contents, (tokenEnd.offset + 1), comment.location_.start_.offset)
-	if !String_isEmpty(String_trim(preCommentText)) {
+	if String_trim(preCommentText) != "" {
 		return nil
 	}
 	result.append(comment.value_)
@@ -831,7 +833,7 @@ func (this *IRFactory) createJsDocInfoParser_2(node *Comment, useLicensesOnlyCon
 	var numOpeningChars int32 = 3
 	var jsdocParser *JsDocInfoParser = new_JsDocInfoParser(new_JsDocTokenStream_String_int_int(String_substring_int(comment, numOpeningChars), lineno, (charno+numOpeningChars)), Optional_of[string](comment), position, this.templateNode, config, this.jsDocSourceKind, this.errorReporter)
 	jsdocParser.setFileOverviewJSDocInfo(this.firstFileoverview)
-	if (node.type__ == Comment_Type_IMPORTANT) && (String_length(node.value_) > 0) {
+	if (node.type__ == Comment_Type_IMPORTANT) && (len(node.value_) != 0) {
 		jsdocParser.parseImportantComment()
 	} else {
 		jsdocParser.parse()
@@ -861,14 +863,14 @@ func (this *IRFactory) reportErrorIfYieldOrAwaitInDefaultValue(defaultValueNode 
 	if yieldNode != 0 {
 		this.errorReporter.error("`yield` is illegal in parameter default value.", Optional_of[string](yieldNode.getSourceFileName()).filterFn_(func(s string) bool {
 			_ = s
-			return !String_isEmpty(s)
+			return s != ""
 		}), yieldNode.getLineno(), yieldNode.getCharno())
 	}
 	var awaitNode Node = IRFactory_findNodeTypeInExpression(defaultValueNode, Token_rhino_AWAIT)
 	if awaitNode != 0 {
 		this.errorReporter.error("`await` is illegal in parameter default value.", Optional_of[string](awaitNode.getSourceFileName()).filterFn_(func(s string) bool {
 			_ = s
-			return !String_isEmpty(s)
+			return s != ""
 		}), awaitNode.getLineno(), awaitNode.getCharno())
 	}
 }
@@ -921,7 +923,7 @@ func (this *IRFactory) normalizeRegex(token *LiteralToken) string {
 
 func (this *IRFactory) normalizeString(token *LiteralToken, templateLiteral bool) string {
 	var value string = token.value_
-	if String_indexOf(value, 13) >= 0 {
+	if strings.Contains(value, "\r") {
 		value = IRFactory_CR_OR_CRLF_PATTERN.matcher_s(value).replaceAll("\n")
 	}
 	var start int32 = func() int32 {
@@ -1031,7 +1033,7 @@ func (this *IRFactory) inStrictContext() bool {
 
 func (this *IRFactory) normalizeNumber(token *LiteralToken) float64 {
 	var value string = token.value_
-	if String_contains_s(value, "_") {
+	if strings.Contains(value, "_") {
 		value = this.removeNumericSeparators(value, token)
 	}
 	var location *SourceRange = token.location_
@@ -1123,7 +1125,7 @@ func (this *IRFactory) normalizeNumber(token *LiteralToken) float64 {
 func (this *IRFactory) normalizeBigInt(token *LiteralToken) *BigInteger {
 	var value string = token.value_
 	value = String_substring(value, 0, String_indexOf(value, 110))
-	if String_contains_s(value, "_") {
+	if strings.Contains(value, "_") {
 		value = this.removeNumericSeparators(value, token)
 	}
 	var length int32 = String_length(value)
@@ -1159,7 +1161,7 @@ func (this *IRFactory) normalizeBigInt(token *LiteralToken) *BigInteger {
 
 func (this *IRFactory) removeNumericSeparators(value string, token *LiteralToken) string {
 	this.maybeWarnForFeatureToken(token.up_Token_parser(), FeatureSet_Feature_NUMERIC_SEPARATOR)
-	return String_replace_s(value, "_", "")
+	return strings.ReplaceAll(value, "_", "")
 }
 
 func IRFactory_roundLargeRadixLiteral(v float64, digits string, radix int32) float64 {
@@ -1239,7 +1241,7 @@ func IRFactory_transformBooleanTokenType(token TokenType) Token_rhino {
 		case TokenType_FALSE:
 			return Token_rhino_FALSE
 		default:
-			panic(new_IllegalStateException_String(String_valueOf_Object(obj_(token))).self())
+			panic(new_IllegalStateException_String(objstr_(obj_(token))).self())
 		}
 		panic("unreachable")
 	}()
@@ -1253,7 +1255,7 @@ func IRFactory_transformUpdateTokenType(token TokenType) Token_rhino {
 		case TokenType_MINUS_MINUS:
 			return Token_rhino_DEC
 		default:
-			panic(new_IllegalStateException_String(String_valueOf_Object(obj_(token))).self())
+			panic(new_IllegalStateException_String(objstr_(obj_(token))).self())
 		}
 		panic("unreachable")
 	}()
@@ -1277,7 +1279,7 @@ func IRFactory_transformUnaryTokenType(token TokenType) Token_rhino {
 		case TokenType_VOID:
 			return Token_rhino_VOID
 		default:
-			panic(new_IllegalStateException_String(String_valueOf_Object(obj_(token))).self())
+			panic(new_IllegalStateException_String(objstr_(obj_(token))).self())
 		}
 		panic("unreachable")
 	}()
@@ -1371,7 +1373,7 @@ func IRFactory_transformBinaryTokenType(token TokenType) Token_rhino {
 		case TokenType_QUESTION_QUESTION_EQUAL:
 			return Token_rhino_ASSIGN_COALESCE
 		default:
-			panic(new_IllegalStateException_String(String_valueOf_Object(obj_(token))).self())
+			panic(new_IllegalStateException_String(objstr_(obj_(token))).self())
 		}
 		panic("unreachable")
 	}()
@@ -1424,7 +1426,7 @@ func (this *IRFactory) newBigIntNode(value *BigInteger) Node {
 func (this *IRFactory) error(rhinoNode Node, message string) {
 	this.errorReporter.error(message, Optional_of[string](rhinoNode.getSourceFileName()).filterFn_(func(s string) bool {
 		_ = s
-		return !String_isEmpty(s)
+		return s != ""
 	}), rhinoNode.getLineno(), rhinoNode.getCharno())
 }
 
@@ -2662,7 +2664,7 @@ func (this *IRFactory_TransformDispatcher) processRegExpLiteral(literalTree *Lit
 		flags = String_substring_int(rawRegex, (lastSlash + 1))
 	}
 	this.validateRegExpFlags(literalTree, flags)
-	if !String_isEmpty(flags) {
+	if flags != "" {
 		var flagsNode Node = this.outer_.newStringNode(flags)
 		this.outer_.setSourceInfoToken(flagsNode, token.up_Token_parser())
 		node.addChildToBack(flagsNode)

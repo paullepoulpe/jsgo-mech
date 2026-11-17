@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type LinkedFlowScope struct {
 	inputProvider  CompilerInputProvider
 	scopes         PMap[*TypedScope, *LinkedFlowScope_OverlayScope]
@@ -132,12 +134,12 @@ func (this *LinkedFlowScope) getSlot(name string) StaticSlot {
 }
 
 func LinkedFlowScope_getRootOfQualifiedName(name string) string {
-	var index int32 = String_indexOf(name, 46)
+	var index int32 = int32(strings.IndexByte(name, '.'))
 	return func() string {
 		if index < 0 {
 			return name
 		}
-		return String_substring(name, 0, index)
+		return name[:index]
 	}()
 }
 

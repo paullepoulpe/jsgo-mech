@@ -121,7 +121,7 @@ func (this *CodeGenerator) printJsDocComment(node Node, jsDocInfo *JSDocInfo) {
 
 func (this *CodeGenerator) printNonJsDocComment(node Node, nonJsDocComment *NonJSDocComment) {
 	var nonJsDocCommentString string = nonJsDocComment.getCommentString()
-	if !String_isEmpty(nonJsDocCommentString) {
+	if nonJsDocCommentString != "" {
 		this.addNonJsDocNonTrailing(node, nonJsDocComment)
 	}
 }
@@ -155,7 +155,7 @@ func (this *CodeGenerator) hasTrailingCommentOnSameLine(node Node) bool {
 	if !this.printNonJsDocComments {
 		return false
 	}
-	return !String_isEmpty(node.getTrailingNonJSDocCommentString())
+	return node.getTrailingNonJSDocCommentString() != ""
 }
 
 func (this *CodeGenerator) printTrailingComment(node Node) {
@@ -165,7 +165,7 @@ func (this *CodeGenerator) printTrailingComment(node Node) {
 	var nonJsDocComment *NonJSDocComment = node.getTrailingNonJSDocComment()
 	if nonJsDocComment != nil {
 		var nonJsDocCommentString string = node.getTrailingNonJSDocCommentString()
-		if !String_isEmpty(nonJsDocCommentString) {
+		if nonJsDocCommentString != "" {
 			this.addNonJsDoctrailing(nonJsDocComment, this.hasTrailingCommentOnSameLine(node))
 		}
 	}
@@ -305,7 +305,7 @@ func (this *CodeGenerator) add_3(node Node, context CodeGenerator_Context, print
 			this.cc.endStatement(this.hasTrailingCommentOnSameLine(node))
 		}
 	case Token_rhino_LABEL_NAME:
-		if String_isEmpty(node.getString()) {
+		if node.getString() == "" {
 			panic(new_IllegalStateException_String(objstr_(node.box_())).self())
 		}
 		this.addIdentifier(node.getString())
@@ -319,7 +319,7 @@ func (this *CodeGenerator) add_3(node Node, context CodeGenerator_Context, print
 			this.addExpr(last, NodeUtil_precedence(Token_rhino_ASSIGN), CodeGenerator_getContextForNoInOperator(context))
 		}
 	case Token_rhino_NAME:
-		if this.useOriginalName && !String_isEmpty(node.getOriginalName()) {
+		if this.useOriginalName && node.getOriginalName() != "" {
 			this.addIdentifier(node.getOriginalName())
 		} else {
 			this.addIdentifier(node.getString())
@@ -592,7 +592,7 @@ func (this *CodeGenerator) add_3(node Node, context CodeGenerator_Context, print
 			if !first.isFunction() {
 				panic(new_IllegalStateException_String(objstr_(first.box_())).self())
 			}
-			if !String_isEmpty(first.getFirstChild().getString()) {
+			if first.getFirstChild().getString() != "" {
 				panic(new_IllegalStateException_String(objstr_(first.box_())).self())
 			}
 			var fn Node = first
@@ -772,7 +772,7 @@ func (this *CodeGenerator) add_3(node Node, context CodeGenerator_Context, print
 		}())
 		this.addGetpropIdentifier(node)
 	case Token_rhino_GETPROP:
-		if this.useOriginalName && !String_isEmpty(node.getOriginalName()) {
+		if this.useOriginalName && node.getOriginalName() != "" {
 			if CodeGenerator_JSCOMP_SCOPE.matches(node.getFirstChild()) && node.getParent().isAssign() {
 				this.add("var ")
 			}
@@ -1321,7 +1321,7 @@ func (this *CodeGenerator) arrowFunctionNeedsParens(n Node) bool {
 }
 
 func (this *CodeGenerator) addArrowFunction(n Node, first Node, last Node, context CodeGenerator_Context) {
-	if !String_isEmpty(first.getString()) {
+	if first.getString() != "" {
 		panic(new_IllegalStateException_String(objstr_(first.box_())).self())
 	}
 	var funcNeedsParens bool = this.arrowFunctionNeedsParens(n)
@@ -1359,7 +1359,7 @@ func (this *CodeGenerator) addFunction(n Node, first Node, last Node, context Co
 	}())
 	if n.isGeneratorFunction() {
 		this.add("*")
-		if !String_isEmpty(first.getString()) {
+		if first.getString() != "" {
 			this.cc.maybeInsertSpace()
 		}
 	}
@@ -1854,7 +1854,7 @@ func (this *CodeGenerator) appendEscapedLt(sb *StringBuilder, s string, index in
 	var endScript string = "/script"
 	var endStyle string = "/style"
 	var startComment string = "!--"
-	if (String_regionMatches(s, true, (index+1), endScript, 0, String_length(endScript)) || String_regionMatches(s, true, (index+1), endStyle, 0, String_length(endStyle))) || String_regionMatches(s, false, (index+1), startComment, 0, String_length(startComment)) {
+	if (String_regionMatches(s, true, (index+1), endScript, 0, int32(len(endScript))) || String_regionMatches(s, true, (index+1), endStyle, 0, int32(len(endStyle)))) || String_regionMatches(s, false, (index+1), startComment, 0, int32(len(startComment))) {
 		sb.append(CodeGenerator_LT_ESCAPED)
 	} else {
 		sb.append_char('<')

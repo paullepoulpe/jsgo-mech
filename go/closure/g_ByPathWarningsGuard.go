@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type ByPathWarningsGuard struct {
 	WarningsGuard
 	paths      []string
@@ -57,7 +59,7 @@ func (this *ByPathWarningsGuard) level_impl(error_ *JSError) CheckLevel {
 	if (defaultLevel != CheckLevel_ERROR) && errorPath.isPresent() {
 		var inPath bool = false
 		for _, path := range this.paths {
-			inPath = bor_(inPath, String_contains_s(errorPath.get(), path))
+			inPath = bor_(inPath, strings.Contains(errorPath.get(), csStr_(path)))
 		}
 		if inPath == this.include {
 			return this.levelField

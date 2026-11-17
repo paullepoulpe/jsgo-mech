@@ -135,7 +135,7 @@ func (this *GenerateExports) addExportForEs6Method(memberFunction Node, ownerNam
 	if !memberFunction.isMemberFunctionDef() {
 		panic(new_IllegalArgumentException_String(objstr_(memberFunction.box_())).self())
 	}
-	if String_isEmpty(ownerName) {
+	if ownerName == "" {
 		panic(new_IllegalArgumentException_String(sstr_(ownerName)).self())
 	}
 	var fullExport string = (sstr_(ownerName) + "." + sstr_(memberFunction.getString()))
@@ -159,7 +159,7 @@ func (this *GenerateExports) addExportMethod(exports *TMap[string, Node], export
 	var useExportSymbol bool = true
 	if isEs5StylePrototypeAssignment {
 		useExportSymbol = false
-	} else if !String_isEmpty(methodOwnerName) && exports.containsKey(methodOwnerName) {
+	} else if methodOwnerName != "" && exports.containsKey(methodOwnerName) {
 		useExportSymbol = false
 	}
 	if useExportSymbol {

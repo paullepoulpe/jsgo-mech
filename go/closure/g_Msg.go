@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type Msg uint8
 
 // Msg_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
@@ -163,7 +165,7 @@ func (this Msg) format_1(args []any) string {
 	var s string = Msg_text_[this-1]
 	for i := int32(0); i < int32(len(args)); i++ {
 		var toReplace string = ("{" + istr_(int64(i)) + "}")
-		s = String_replace_s(s, toReplace, String_valueOf_Object(args[i]))
+		s = strings.ReplaceAll(s, csStr_(toReplace), csStr_(objstr_(args[i])))
 	}
 	return s
 }

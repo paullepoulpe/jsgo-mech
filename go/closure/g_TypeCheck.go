@@ -2,6 +2,11 @@
 
 package closure
 
+import (
+	"strconv"
+	"strings"
+)
+
 type TypeCheck struct {
 	compiler_                    *AbstractCompiler
 	validator                    *TypeValidator
@@ -946,7 +951,7 @@ func (this *TypeCheck) visitInterfacePropertyAssignment(object Node, lvalue Node
 func (this *TypeCheck) reportInvalidInterfaceMemberDeclaration(interfaceNode Node) {
 	var abstractMethodName string = this.compiler_.getCodingConvention().getAbstractMethodName()
 	var abstractMethodMessage string = func() string {
-		if !String_isEmpty(abstractMethodName) {
+		if abstractMethodName != "" {
 			return (", or " + sstr_(abstractMethodName))
 		}
 		return ""
@@ -956,7 +961,7 @@ func (this *TypeCheck) reportInvalidInterfaceMemberDeclaration(interfaceNode Nod
 
 func (this *TypeCheck) visitName(t *NodeTraversal, n Node, parent Node) bool {
 	var isFunctionName bool = (n.getParent().isFunction() && n.isFirstChildOf(parent))
-	if isFunctionName && String_isEmpty(n.getString()) {
+	if isFunctionName && n.getString() == "" {
 		return false
 	}
 	var reportIfMissingType bool = true
@@ -1525,7 +1530,7 @@ func (this *TypeCheck) checkArgumentsMatchParameters(call Node, functionType *Fu
 	var maxArity int32 = functionType.getMaxArity()
 	if spreadArgumentCount > 0 {
 		if normalArgumentCount > maxArity {
-			this.report(call, TypeCheck_WRONG_ARGUMENT_COUNT, []string{this.typeRegistry.getReadableTypeNameNoDeref(call.getFirstChild()).orElse("null"), ("at least " + istr_(int64(normalArgumentCount))), String_valueOf(minArity), func() string {
+			this.report(call, TypeCheck_WRONG_ARGUMENT_COUNT, []string{this.typeRegistry.getReadableTypeNameNoDeref(call.getFirstChild()).orElse("null"), ("at least " + istr_(int64(normalArgumentCount))), strconv.Itoa(int(minArity)), func() string {
 				if maxArity == int32(2147483647) {
 					return ""
 				}
@@ -1534,7 +1539,7 @@ func (this *TypeCheck) checkArgumentsMatchParameters(call Node, functionType *Fu
 		}
 	} else {
 		if (minArity > normalArgumentCount) || (maxArity < normalArgumentCount) {
-			this.report(call, TypeCheck_WRONG_ARGUMENT_COUNT, []string{this.typeRegistry.getReadableTypeNameNoDeref(call.getFirstChild()).orElse("null"), String_valueOf(normalArgumentCount), String_valueOf(minArity), func() string {
+			this.report(call, TypeCheck_WRONG_ARGUMENT_COUNT, []string{this.typeRegistry.getReadableTypeNameNoDeref(call.getFirstChild()).orElse("null"), strconv.Itoa(int(normalArgumentCount)), strconv.Itoa(int(minArity)), func() string {
 				if maxArity == int32(2147483647) {
 					return ""
 				}
@@ -1642,7 +1647,7 @@ func (this *TypeCheck) visitTaggedTemplateLit(n Node) {
 	var tagFnType *FunctionType = tagType.toMaybeFunctionType()
 	var parameters IteratorOf[*FunctionType_Parameter] = tagFnType.getParameters().iterator()
 	if !parameters.hasNext() {
-		this.report(n, TypeCheck_WRONG_ARGUMENT_COUNT, []string{this.typeRegistry.getReadableTypeNameNoDeref(tag).orElse("null"), String_valueOf(NodeUtil_getInvocationArgsCount(n)), "0", " and no more than 0 argument(s)"})
+		this.report(n, TypeCheck_WRONG_ARGUMENT_COUNT, []string{this.typeRegistry.getReadableTypeNameNoDeref(tag).orElse("null"), strconv.Itoa(int(NodeUtil_getInvocationArgsCount(n))), "0", " and no more than 0 argument(s)"})
 		return
 	}
 	var firstParameter *FunctionType_Parameter = cast_[*FunctionType_Parameter](parameters.next())
@@ -2058,7 +2063,7 @@ func TypeCheck_clinit() {
 	TypeCheck_DETERMINISTIC_TEST = DiagnosticType_warning("JSC_DETERMINISTIC_TEST", "condition always evaluates to {2}\nleft : {0}\nright: {1}")
 	TypeCheck_INEXISTENT_ENUM_ELEMENT = DiagnosticType_warning("JSC_INEXISTENT_ENUM_ELEMENT", "element {0} does not exist on this enum")
 	TypeCheck_INEXISTENT_PROPERTY = DiagnosticType_warning("JSC_INEXISTENT_PROPERTY", "Property {0} never defined on {1}")
-	TypeCheck_POSSIBLE_INEXISTENT_PROPERTY = DiagnosticType_disabled("JSC_POSSIBLE_INEXISTENT_PROPERTY", ("Property {0} never defined on {1}" + sstr_(String_replace_s(TypeCheck_POSSIBLE_INEXISTENT_PROPERTY_EXPLANATION, "'", "''"))))
+	TypeCheck_POSSIBLE_INEXISTENT_PROPERTY = DiagnosticType_disabled("JSC_POSSIBLE_INEXISTENT_PROPERTY", ("Property {0} never defined on {1}" + sstr_(strings.ReplaceAll(TypeCheck_POSSIBLE_INEXISTENT_PROPERTY_EXPLANATION, "'", "''"))))
 	TypeCheck_INEXISTENT_PROPERTY_WITH_SUGGESTION = DiagnosticType_warning("JSC_INEXISTENT_PROPERTY_WITH_SUGGESTION", "Property {0} never defined on {1}. Did you mean {2}?")
 	TypeCheck_STRICT_INEXISTENT_PROPERTY = DiagnosticType_disabled("JSC_STRICT_INEXISTENT_PROPERTY", "Property {0} never defined on {1}")
 	TypeCheck_STRICT_INEXISTENT_UNION_PROPERTY = DiagnosticType_disabled("JSC_STRICT_INEXISTENT_UNION_PROPERTY", "Property {0} not defined on all member types of {1}")

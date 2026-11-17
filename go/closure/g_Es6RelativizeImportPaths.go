@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type Es6RelativizeImportPaths struct {
 	compiler_ *AbstractCompiler
 }
@@ -86,7 +88,7 @@ func (this *Es6RelativizeImportPaths_Rewriter) visitImport(t *NodeTraversal, imp
 	}
 	scriptPath = Optional_of[string](Uris_path(scriptPath.get()))
 	var newSpecifier string = t.getInput().getPath().resolveModuleAsPath(specifier).toString()
-	if !String_startsWith(newSpecifier, "/") {
+	if !strings.HasPrefix(newSpecifier, "/") {
 		newSpecifier = ("/" + sstr_(newSpecifier))
 	}
 	var relativeSpecifier OptionalOf[string] = FilePaths_relativize(FilePaths_parent(scriptPath.get()).get(), newSpecifier)

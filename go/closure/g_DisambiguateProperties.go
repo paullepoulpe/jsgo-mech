@@ -300,7 +300,7 @@ func (this *DisambiguateProperties_TrackerSummaryGenerator) addRenameUsesResult(
 }
 
 func (this *DisambiguateProperties_TrackerSummaryGenerator) buildSummaryString() string {
-	return String_format("%d property names, %d disambiguated, %d invalidated, %d had a single cluster", []any{any(int32(this.total)), any(int32(this.numDisambiguated)), any(int32(this.numInvalidated)), any(int32(this.numOnlyOneCluster))})
+	return (istr_(int64(int32(this.total))) + " property names, " + istr_(int64(int32(this.numDisambiguated))) + " disambiguated, " + istr_(int64(int32(this.numInvalidated))) + " invalidated, " + istr_(int64(int32(this.numOnlyOneCluster))) + " had a single cluster")
 }
 
 type DisambiguateProperties_PropertyReferenceIndexJson struct {

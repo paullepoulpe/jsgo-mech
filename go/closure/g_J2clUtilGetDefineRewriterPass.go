@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type J2clUtilGetDefineRewriterPass struct {
 	NodeTraversal_AbstractPostOrderCallback
 	compiler_ *AbstractCompiler
@@ -73,12 +75,12 @@ func (this *J2clUtilGetDefineRewriterPass) getDefineReplacement(firstExpr Node, 
 func J2clUtilGetDefineRewriterPass_isUtilGetDefineCall(n Node) bool {
 	return (n.isCall() && J2clUtilGetDefineRewriterPass_isUtilGetDefineMethodName(Optional_of[string](n.getFirstChild().getQualifiedName()).filterFn_(func(s string) bool {
 		_ = s
-		return !String_isEmpty(s)
+		return s != ""
 	})))
 }
 
 func J2clUtilGetDefineRewriterPass_isUtilGetDefineMethodName(fnName OptionalOf[string]) bool {
-	return ((fnName.isPresent() && String_endsWith(fnName.get(), ".$getDefine")) && String_contains_s(fnName.get(), "Util"))
+	return ((fnName.isPresent() && strings.HasSuffix(fnName.get(), ".$getDefine")) && strings.Contains(fnName.get(), "Util"))
 }
 
 var J2clUtilGetDefineRewriterPass_J2CL_SYSTEM_GET_PROPERTY_CONSTANT_NAME *DiagnosticType
@@ -179,7 +181,7 @@ func J2clUtilGetDefineRewriterPass_CheckGetDefineCalls_getDefineNameParameter(ca
 }
 
 func J2clUtilGetDefineRewriterPass_CheckGetDefineCalls_isAddSystemPropertyFromGoogDefine(n Node) bool {
-	return ((n.isCall() && !String_isEmpty(n.getFirstChild().getQualifiedName())) && String_endsWith(n.getFirstChild().getQualifiedName(), "addSystemPropertyFromGoogDefine"))
+	return ((n.isCall() && n.getFirstChild().getQualifiedName() != "") && strings.HasSuffix(n.getFirstChild().getQualifiedName(), "addSystemPropertyFromGoogDefine"))
 }
 
 // visit: an object that is exactly a J2clUtilGetDefineRewriterPass calls its visit_impl directly (post-flip); others dispatch.

@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type PolymerClassDefinition struct {
 	defType           PolymerClassDefinition_DefinitionType
 	definition        Node
@@ -79,7 +81,7 @@ func PolymerClassDefinition_extractFromCallNode(callNode Node, compiler *Abstrac
 	} else {
 		var elNameStringBase string = func() string {
 			if elName.isQualifiedName() {
-				return String_replace_char_char(elName.getQualifiedName(), '.', '$')
+				return strings.ReplaceAll(elName.getQualifiedName(), ".", "$")
 			}
 			return elName.getString()
 		}()
@@ -307,7 +309,7 @@ func (this *PolymerClassDefinition) toString() string {
 
 func (this *PolymerClassDefinition) getInterfaceName(uniqueIdSupplier *UniqueIdSupplier) OptionalOf[string] {
 	if this.interfaceName.isEmpty() {
-		this.interfaceName = Optional_of[string](("Polymer" + sstr_(String_replace_char_char(this.target.getQualifiedName(), '.', '_')) + "Interface$" + sstr_(uniqueIdSupplier.getUniqueId(this.input))))
+		this.interfaceName = Optional_of[string](("Polymer" + sstr_(strings.ReplaceAll(this.target.getQualifiedName(), ".", "_")) + "Interface$" + sstr_(uniqueIdSupplier.getUniqueId(this.input))))
 	}
 	return this.interfaceName
 }

@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type ModuleIdentifier struct {
 	name_             string
 	closureNamespace_ string
@@ -48,8 +50,8 @@ func (this *ModuleIdentifier) toString() string {
 
 func ModuleIdentifier_forClosure(name string) *ModuleIdentifier {
 	var normalizedName string = name
-	if String_startsWith(normalizedName, "goog:") {
-		normalizedName = String_substring_int(normalizedName, String_length("goog:"))
+	if strings.HasPrefix(normalizedName, "goog:") {
+		normalizedName = String_substring_int(normalizedName, int32(len("goog:")))
 	}
 	var namespace string = normalizedName
 	var moduleName string = normalizedName
@@ -67,7 +69,7 @@ func ModuleIdentifier_forFile(filepath string) *ModuleIdentifier {
 }
 
 func ModuleIdentifier_forFlagValue(flagValue string) *ModuleIdentifier {
-	if String_startsWith(flagValue, "goog:") {
+	if strings.HasPrefix(flagValue, "goog:") {
 		return ModuleIdentifier_forClosure(flagValue)
 	} else {
 		return ModuleIdentifier_forFile(flagValue)

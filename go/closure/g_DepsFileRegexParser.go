@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type DepsFileRegexParser struct {
 	JsFileLineParser
 	depMatcher     *Matcher_re2j
@@ -65,7 +67,7 @@ func (this *DepsFileRegexParser) parseFile_2(filePath string, fileContents strin
 
 func (this *DepsFileRegexParser) parseLine_impl(line string) *Outcome_base {
 	var hasDependencies bool = false
-	if String_contains_s(line, "addDependency") {
+	if strings.Contains(line, "addDependency") {
 		this.depMatcher.reset_s(line)
 		if this.depMatcher.matches() {
 			hasDependencies = true

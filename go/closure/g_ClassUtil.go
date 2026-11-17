@@ -16,7 +16,7 @@ func new_ClassUtil() *ClassUtil {
 }
 
 func ClassUtil_isThisPropInsideClassWithName(maybeGetProp Node) bool {
-	return !String_isEmpty(ClassUtil_getClassNameOfThisProp(maybeGetProp))
+	return ClassUtil_getClassNameOfThisProp(maybeGetProp) != ""
 }
 
 func ClassUtil_getFullyQualifiedNameOfThisProp(getProp Node) string {
@@ -39,14 +39,14 @@ func ClassUtil_getClassNameOfThisProp(getprop Node) string {
 		return ""
 	}
 	var className string = ClassUtil_getMemberFunctionClassName(function)
-	if String_isEmpty(className) {
+	if className == "" {
 		return ""
 	}
 	return className
 }
 
 func ClassUtil_isMemberFieldDefInsideClassWithName(fieldNode Node) bool {
-	return !String_isEmpty(ClassUtil_getMemberFieldDefClassName(fieldNode))
+	return ClassUtil_getMemberFieldDefClassName(fieldNode) != ""
 }
 
 func ClassUtil_isComputedMemberInsideClassWithName(fieldNode Node) bool {
@@ -82,7 +82,7 @@ func ClassUtil_getFullyQualifiedNameOfMethod(function Node) string {
 		panic(new_IllegalArgumentException_0().self())
 	}
 	var className string = ClassUtil_getMemberFunctionClassName(function)
-	if String_isEmpty(className) || String_isEmpty(className) {
+	if className == "" || className == "" {
 		panic(new_IllegalStateException_0().self())
 	}
 	var memberFunctionDef Node = function.getParent()
@@ -107,7 +107,7 @@ func ClassUtil_hasNamedClass(functionNode Node) bool {
 	if !functionNode.isFunction() {
 		panic(new_IllegalArgumentException_0().self())
 	}
-	return !String_isEmpty(ClassUtil_getMemberFunctionClassName(functionNode))
+	return ClassUtil_getMemberFunctionClassName(functionNode) != ""
 }
 
 func ClassUtil_getMemberFunctionClassName(functionNode Node) string {

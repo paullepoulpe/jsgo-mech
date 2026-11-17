@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type ConvertToTypedInterface struct {
 	compiler_ *AbstractCompiler
 }
@@ -18,7 +20,7 @@ func new_ConvertToTypedInterface(compiler *AbstractCompiler) *ConvertToTypedInte
 
 func ConvertToTypedInterface_maybeReport(compiler *AbstractCompiler, node Node, diagnostic *DiagnosticType, fillers []string) {
 	var sourceName string = NodeUtil_getSourceName(node)
-	if (String_endsWith(sourceName, "_test.js") || String_endsWith(sourceName, "_test.closure.js")) || String_endsWith(sourceName, "_test.tsx.cl.js") {
+	if (strings.HasSuffix(sourceName, "_test.js") || strings.HasSuffix(sourceName, "_test.closure.js")) || strings.HasSuffix(sourceName, "_test.tsx.cl.js") {
 		return
 	}
 	compiler.report(JSError_make_Node_DiagnosticType_StringArr(node, diagnostic, fillers))
@@ -398,7 +400,7 @@ func (this *ConvertToTypedInterface_SimplifyDeclarations) removeDuplicateDeclara
 	it_1 := foreach_(any(this.currentFile.getDeclarations().keySet()))
 	for it_1.next() {
 		var name string = str_(it_1.v)
-		if String_startsWith(name, "this.") {
+		if strings.HasPrefix(name, "this.") {
 			continue
 		}
 		var declList *TList[*PotentialDeclaration] = tlistFrom_(tc_p_PotentialDeclaration, Collection(this.currentFile.getDeclarations().get_s(name)))
@@ -499,24 +501,24 @@ func ConvertToTypedInterface_SimplifyDeclarations_isClass(n Node) bool {
 }
 
 func ConvertToTypedInterface_SimplifyDeclarations_rootName(qualifiedName string) string {
-	var dotIndex int32 = String_indexOf(qualifiedName, 46)
+	var dotIndex int32 = int32(strings.IndexByte(qualifiedName, '.'))
 	if dotIndex == -1 {
 		return qualifiedName
 	}
-	return String_substring(qualifiedName, 0, dotIndex)
+	return qualifiedName[:dotIndex]
 }
 
 func (this *ConvertToTypedInterface_SimplifyDeclarations) shouldRemove(name string, decl *PotentialDeclaration) bool {
 	if decl.isDetached() {
 		return true
 	}
-	if String_startsWith(ConvertToTypedInterface_SimplifyDeclarations_rootName(name), "$jscomp") {
+	if strings.HasPrefix(ConvertToTypedInterface_SimplifyDeclarations_rootName(name), "$jscomp") {
 		if ((decl.getRhs() != 0) && decl.getRhs().isClass()) || ((decl.getJsDoc() != nil) && decl.getJsDoc().containsTypeDefinition()) {
 			ConvertToTypedInterface_maybeReport(this.compiler_, decl.getLhs(), ConvertToTypedInterface_GOOG_SCOPE_HIDDEN_TYPE, []string{})
 		}
 		return true
 	}
-	return ((((!String_startsWith(name, "this.") && !decl.isDefiniteDeclaration(this.compiler_)) && !decl.getLhs().isMemberFieldDef()) && !this.currentFile.isPrefixProvided(name)) && !this.currentFile.isStrictPrefixDeclared(name))
+	return ((((!strings.HasPrefix(name, "this.") && !decl.isDefiniteDeclaration(this.compiler_)) && !decl.getLhs().isMemberFieldDef()) && !this.currentFile.isPrefixProvided(name)) && !this.currentFile.isStrictPrefixDeclared(name))
 }
 
 func (this *ConvertToTypedInterface_SimplifyDeclarations) setUndeclaredToUnusableType(decl *PotentialDeclaration) {

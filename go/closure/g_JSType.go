@@ -254,7 +254,7 @@ func (this *JSType) getDisplayName_impl() OptionalOf[string] {
 
 func (this *JSType) hasDisplayName_impl() bool {
 	var displayName OptionalOf[string] = this.getDisplayName()
-	return (displayName.isPresent() && !String_isEmpty(displayName.get()))
+	return (displayName.isPresent() && displayName.get() != "")
 }
 
 func (this *JSType) getPropertyKindKey(pname Property_Key) JSType_HasPropertyKind {

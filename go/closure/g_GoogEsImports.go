@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type GoogEsImports struct {
 }
 
@@ -16,11 +18,11 @@ func new_GoogEsImports() *GoogEsImports {
 }
 
 func GoogEsImports_isGoogImportSpecifier(moduleSpecifier string) bool {
-	return String_startsWith(moduleSpecifier, GoogEsImports_GOOG_IMPORT_PREFIX)
+	return strings.HasPrefix(moduleSpecifier, GoogEsImports_GOOG_IMPORT_PREFIX)
 }
 
 func GoogEsImports_getClosureIdFromGoogImportSpecifier(moduleSpecifier string) string {
-	return String_substring_int(moduleSpecifier, String_length(GoogEsImports_GOOG_IMPORT_PREFIX))
+	return String_substring_int(moduleSpecifier, int32(len(GoogEsImports_GOOG_IMPORT_PREFIX)))
 }
 
 const GoogEsImports_GOOG_IMPORT_PREFIX string = "goog:"

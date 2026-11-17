@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type ConformanceRules struct {
 }
 
@@ -282,19 +284,19 @@ func ConformanceRules_AllowList_createFromEntry(allowlistEntry *RequirementScope
 
 func (this *ConformanceRules_AllowList) matches(path string) bool {
 	var tsPath OptionalOf[string] = func() OptionalOf[string] {
-		if String_endsWith(path, ".closure.js") {
-			return Optional_of[string]((sstr_(String_substring(path, 0, (String_length(path)-String_length(".closure.js")))) + ".ts"))
+		if strings.HasSuffix(path, ".closure.js") {
+			return Optional_of[string]((sstr_(String_substring(path, 0, (String_length(path)-int32(len(".closure.js"))))) + ".ts"))
 		}
 		return func() OptionalOf[string] {
-			if String_endsWith(path, ".tsx.cl.js") {
-				return Optional_of[string](String_substring(path, 0, (String_length(path) - String_length(".cl.js"))))
+			if strings.HasSuffix(path, ".tsx.cl.js") {
+				return Optional_of[string](String_substring(path, 0, (String_length(path) - int32(len(".cl.js")))))
 			}
 			return Optional_empty[string]()
 		}()
 	}()
 	if this.prefixes != nil {
 		for _, prefix := range this.prefixes {
-			if !String_isEmpty(path) && (String_startsWith(path, prefix) || (tsPath.isPresent() && String_startsWith(tsPath.get(), prefix))) {
+			if path != "" && (strings.HasPrefix(path, prefix) || (tsPath.isPresent() && strings.HasPrefix(tsPath.get(), prefix))) {
 				return true
 			}
 		}
@@ -478,7 +480,7 @@ func (this *ConformanceRules_AbstractRule) report_3(n Node, result *ConformanceR
 		}
 	}
 	var separator string = func() string {
-		if String_isEmpty(result.note) {
+		if result.note == "" {
 			return ""
 		}
 		return "\n"
@@ -486,7 +488,7 @@ func (this *ConformanceRules_AbstractRule) report_3(n Node, result *ConformanceR
 	var err *JSError = JSError_make_Requirement_Node_DiagnosticType_StringArr(this.requirement_, n, msg, []string{this.message_, separator, result.note})
 	var path string = NodeUtil_getSourceName(n)
 	var allowlist *ConformanceRules_AllowList = func() *ConformanceRules_AllowList {
-		if !String_isEmpty(path) {
+		if path != "" {
 			return this.findAllowListForPath(path)
 		}
 		return nil
@@ -832,7 +834,7 @@ func (this *ConformanceRules_BannedDependency) checkConformance_impl(t *NodeTrav
 		var srcFile string = n.getSourceFileName()
 		for i := int32(0); i < this.paths.size(); i++ {
 			var path string = str_(this.paths.get(i))
-			if String_startsWith(srcFile, path) {
+			if strings.HasPrefix(srcFile, path) {
 				return ConformanceRules_ConformanceResult_VIOLATION
 			}
 		}
@@ -1014,7 +1016,7 @@ var lambda_ConformanceRules_BannedName_clinit_1_ = &CheckConformance_Preconditio
 		case tokOrd1_GETPROP:
 			return n.getFirstChild().isQualifiedName()
 		case tokOrd1_NAME:
-			return !String_isEmpty(n.getString())
+			return n.getString() != ""
 		default:
 			return false
 		}
@@ -1370,7 +1372,7 @@ func (this *ConformanceRules_BannedStringRegex) initBannedStringRegex(compiler *
 	it_1 := foreach_(any(icast_ProtocolStringList(requirement.getValueList())))
 	for it_1.next() {
 		var value string = str_(it_1.v)
-		if String_isEmpty(String_trim(value)) {
+		if String_trim(value) == "" {
 			return Outcome_base_err(new_CheckConformance_InvalidRequirementSpec_String("empty strings or whitespace are not allowed").up_Throwable())
 		}
 		builder.add(strobj_(value))
@@ -1600,7 +1602,7 @@ func ConformanceRules_ConformanceUtil_isXid(type_ *JSType) bool {
 }
 
 func ConformanceRules_ConformanceUtil_isEventHandlerAttrName(attr string) bool {
-	return (!(attr == "on") && String_startsWith(attr, "on"))
+	return (!(attr == "on") && strings.HasPrefix(attr, "on"))
 }
 
 type ConformanceRules_RestrictedNameCall struct {
@@ -3029,7 +3031,7 @@ func (this *ConformanceRules_BanGlobalVars) isAllowlistedName(name string) bool 
 	if Collection_contains_s(this.allowlistedNames, name) {
 		return true
 	}
-	return (((((name == "$jscomp") || String_startsWith(name, "$jscomp$compprop")) || ClosureRewriteModule_isModuleContent(name)) || ClosureRewriteModule_isModuleExport(name)) || ScopedAliases_isScopedAliases(name))
+	return (((((name == "$jscomp") || strings.HasPrefix(name, "$jscomp$compprop")) || ClosureRewriteModule_isModuleContent(name)) || ClosureRewriteModule_isModuleExport(name)) || ScopedAliases_isScopedAliases(name))
 }
 
 type ConformanceRules_BannedEnhance struct {
@@ -3320,7 +3322,7 @@ func (this *ConformanceRules_BanCreateDom) initBanCreateDom(compiler *AbstractCo
 	for it_1.next() {
 		var value string = str_(it_1.v)
 		var tagAttr []string = sliceImm_(tc_string, ConformanceRules_ON_DOT.splitToList_s(value))
-		if ((int32(len(tagAttr)) != 2) || String_isEmpty(sliceAt_(tagAttr, 0))) || String_isEmpty(sliceAt_(tagAttr, 1)) {
+		if ((int32(len(tagAttr)) != 2) || sliceAt_(tagAttr, 0) == "") || sliceAt_(tagAttr, 1) == "" {
 			return Outcome_base_err(new_CheckConformance_InvalidRequirementSpec_String("Values must be in the format tagname.attribute.").up_Throwable())
 		}
 		var lowercasedTag string = String_toLowerCase(sliceAt_(tagAttr, 0), Locale_ROOT)

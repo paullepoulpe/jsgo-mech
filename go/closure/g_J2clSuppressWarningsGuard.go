@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type J2clSuppressWarningsGuard struct {
 	WarningsGuard
 }
@@ -28,7 +30,7 @@ func (this *J2clSuppressWarningsGuard) level_impl(error_ *JSError) CheckLevel {
 	if !J2clSourceUtils_isJ2clSourceString(error_.sourceName()) {
 		return 0
 	}
-	if DiagnosticGroups_DEPRECATED.matches(error_) && String_contains_s(error_.description(), "forwardDeclare") {
+	if DiagnosticGroups_DEPRECATED.matches(error_) && strings.Contains(error_.description(), "forwardDeclare") {
 		return CheckLevel_OFF
 	}
 	return func() CheckLevel {

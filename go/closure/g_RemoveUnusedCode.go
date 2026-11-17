@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type RemoveUnusedCode struct {
 	compiler_                                      *AbstractCompiler
 	astAnalyzer                                    *AstAnalyzer
@@ -202,7 +204,7 @@ func (this *RemoveUnusedCode) traverseNode(n Node, scope *Scope) {
 					return noReason_
 				}
 				return &Supplier_fn{func() any {
-					return strobj_(String_format("reference found: %s", []any{strobj_(n.getLocation())}))
+					return strobj_(("reference found: " + sstr_(n.getLocation())))
 				}}
 			}())
 		}
@@ -360,7 +362,7 @@ func (this *RemoveUnusedCode) traverseCall(callNode Node, scope *Scope) {
 	} else if this.removeUnusedPolyfills_ && RemoveUnusedCode_isJscompPolyfill(callee) {
 		var firstArg Node = callee.getNext()
 		var polyfillName string = firstArg.getString()
-		if String_endsWith(callee.getString(), "polyfillTypedArrayMethod") {
+		if strings.HasSuffix(callee.getString(), "polyfillTypedArrayMethod") {
 			polyfillName = ("TypedArray.prototype." + sstr_(polyfillName))
 		}
 		var info *RemoveUnusedCode_PolyfillInfo = this.createPolyfillInfo(callNode, scope, polyfillName)
@@ -383,7 +385,7 @@ func (this *RemoveUnusedCode) traverseCall(callNode Node, scope *Scope) {
 			} else {
 				classVarName = Optional_of[string](this.codingConvention.getSingletonGetterClassName(callNode)).filterFn_(func(s string) bool {
 					_ = s
-					return !String_isEmpty(s)
+					return s != ""
 				})
 			}
 		}
@@ -985,7 +987,7 @@ func (this *RemoveUnusedCode) traverseFunction(function Node, parentScope *Scope
 	var fparamScope *Scope = this.scopeCreator.createScope(function, parentScope)
 	var fbodyScope *Scope = this.scopeCreator.createScope(body, fparamScope)
 	var nameNode Node = function.getFirstChild()
-	if !String_isEmpty(nameNode.getString()) {
+	if nameNode.getString() != "" {
 		var varInfo RemoveUnusedCode_VarInfo = this.traverseNameNode(nameNode, fparamScope)
 		if NodeUtil_isExpressionResultUsed(function) {
 			varInfo.setHasNonLocalOrNonLiteralValue()
@@ -1196,12 +1198,12 @@ func (this *RemoveUnusedCode) getVarInfo(var_ *Var) RemoveUnusedCode_VarInfo {
 	var isGlobal bool = var_.isGlobal()
 	if var_.isExtern() {
 		this.unremovableLog.log(func() any {
-			return strobj_(String_format("%s: extern", []any{strobj_(var_.getName())}))
+			return strobj_((sstr_(var_.getName()) + ": extern"))
 		})
 		return this.canonicalUnremovableVarInfo
 	} else if this.codingConvention.isExported_2(var_.getName(), !isGlobal) {
 		this.unremovableLog.log(func() any {
-			return strobj_(String_format("%s: exported by convention", []any{strobj_(var_.getName())}))
+			return strobj_((sstr_(var_.getName()) + ": exported by convention"))
 		})
 		return this.canonicalUnremovableVarInfo
 	} else if var_.isArguments() {
@@ -1337,14 +1339,14 @@ func (this *RemoveUnusedCode) createPolyfillInfo(call Node, scope *Scope, name s
 		}
 	}
 	var removable *RemoveUnusedCode_Polyfill = builder.buildPolyfill(call.getParent())
-	var lastDot int32 = String_lastIndexOf_String(name, ".")
+	var lastDot int32 = int32(strings.LastIndex(name, "."))
 	if lastDot < 0 {
 		return new_RemoveUnusedCode_GlobalPolyfillInfo(this, removable, name).up_RemoveUnusedCode_PolyfillInfo()
 	}
-	var owner string = String_substring(name, 0, lastDot)
-	var prop string = String_substring_int(name, (lastDot + 1))
-	if String_endsWith(owner, RemoveUnusedCode_DOT_PROTOTYPE) {
-		owner = String_substring(owner, 0, (String_length(owner) - String_length(RemoveUnusedCode_DOT_PROTOTYPE)))
+	var owner string = name[:lastDot]
+	var prop string = name[lastDot+1:]
+	if strings.HasSuffix(owner, RemoveUnusedCode_DOT_PROTOTYPE) {
+		owner = String_substring(owner, 0, (String_length(owner) - int32(len(RemoveUnusedCode_DOT_PROTOTYPE))))
 		return new_RemoveUnusedCode_PrototypePropertyPolyfillInfo(this, removable, prop, owner).up_RemoveUnusedCode_PolyfillInfo()
 	}
 	return new_RemoveUnusedCode_StaticPropertyPolyfillInfo(this, removable, prop, owner).up_RemoveUnusedCode_PolyfillInfo()
@@ -2242,7 +2244,7 @@ func (this *RemoveUnusedCode_Polyfill) init_RemoveUnusedCode_Polyfill(builder *R
 	this.RemoveUnusedCode_Removable.outer_ = this.outer_
 	this.RemoveUnusedCode_Removable.init_RemoveUnusedCode_Removable(0, builder)
 	this.polyfillNode = polyfillNode
-	this.isPatch = String_contains_s(polyfillNode.getFirstFirstChild().getString(), "patch")
+	this.isPatch = strings.Contains(polyfillNode.getFirstFirstChild().getString(), "patch")
 }
 
 func new_RemoveUnusedCode_Polyfill(outer_ *RemoveUnusedCode, builder *RemoveUnusedCode_RemovableBuilder, polyfillNode Node) *RemoveUnusedCode_Polyfill {

@@ -119,7 +119,7 @@ func (this *SyntacticScopeCreator_ScopeScanner) populate() {
 		}
 		this.declareLHS(this.scope_, args)
 		var fnName string = fnNameNode.getString()
-		if !String_isEmpty(fnName) && NodeUtil_isFunctionExpression(n) {
+		if fnName != "" && NodeUtil_isFunctionExpression(n) {
 			this.declareVar(this.scope_, fnNameNode)
 		}
 		return
@@ -190,7 +190,7 @@ func (this *SyntacticScopeCreator_ScopeScanner) scanVars(n Node, hoistScope *Sco
 			return
 		}
 		var fnName string = n.getFirstChild().getString()
-		if String_isEmpty(fnName) {
+		if fnName == "" {
 			return
 		}
 		this.declareVar(blockScope, n.getFirstChild())
@@ -200,7 +200,7 @@ func (this *SyntacticScopeCreator_ScopeScanner) scanVars(n Node, hoistScope *Sco
 			return
 		}
 		var className string = n.getFirstChild().getString()
-		if String_isEmpty(className) {
+		if className == "" {
 			return
 		}
 		this.declareVar(blockScope, n.getFirstChild())
@@ -294,7 +294,7 @@ func (this *SyntacticScopeCreator_ScopeScanner) declareImplicitGoogNamespaceFrom
 	}
 	var namespace string = namespaceNode.getString()
 	var root string = NodeUtil_getRootOfQualifiedNameString(namespace)
-	if String_isEmpty(root) {
+	if root == "" {
 		return
 	}
 	if this.treatProvidesAsRedeclarations {

@@ -1330,7 +1330,7 @@ func (this *TypeInference) tightenTypesAfterAssertions(scope FlowScope, callNode
 			narrowed = type_.getGreatestSubtype(assertedType)
 		}
 		callNode.setJSType(narrowed)
-		if !String_isEmpty(assertedNodeName) && type_.differsFrom(narrowed) {
+		if assertedNodeName != "" && type_.differsFrom(narrowed) {
 			scope = this.narrowScope(scope, assertedNode, narrowed)
 		}
 	}
@@ -1788,7 +1788,7 @@ func (this *TypeInference) getPropertyType(objType *JSType, propName string, n N
 	var isLocallyInferred bool = false
 	var qualifiedName string = n.getQualifiedName()
 	var var_ StaticTypedSlot = func() StaticTypedSlot {
-		if !String_isEmpty(qualifiedName) {
+		if qualifiedName != "" {
 			return icast_StaticTypedSlot(scope.getSlot(qualifiedName))
 		}
 		return nil
@@ -1809,7 +1809,7 @@ func (this *TypeInference) getPropertyType(objType *JSType, propName string, n N
 			propertyType = foundType
 		}
 	}
-	if ((propertyType == nil) || propertyType.isUnknownType()) && !String_isEmpty(qualifiedName) {
+	if ((propertyType == nil) || propertyType.isUnknownType()) && qualifiedName != "" {
 		var regType *ObjectType = ObjectType_cast(this.registry.getType(StaticScope(scope.getDeclarationScope()), qualifiedName))
 		if regType != nil {
 			propertyType = regType.getConstructor().up_JSType()
@@ -1908,7 +1908,7 @@ func (this *TypeInference) traverseDynamicImport(dynamicImport Node, scope FlowS
 	if (importSpecifier.isStringLit() && (moduleMap != nil)) && (input != nil) {
 		var targetPath *ModuleLoader_ModulePath = input.getPath().resolveJsModule(importSpecifier.getString(), Optional_of[string](importSpecifier.getSourceFileName()).filterFn_(func(s string) bool {
 			_ = s
-			return !String_isEmpty(s)
+			return s != ""
 		}), importSpecifier.getLineno(), importSpecifier.getCharno())
 		var targetModule *Module = func() *Module {
 			if targetPath != nil {

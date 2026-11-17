@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type SortedDependencies struct {
 	userOrderedInputs             *TList[*CompilerInput]
 	importOrderedInputs           *TList[*CompilerInput]
@@ -146,7 +148,7 @@ func (this *SortedDependencies) processInputs() {
 		var userOrderedInput DependencyInfo = icast_DependencyInfo(obj_(it_1.v))
 		var provides ImmutableListOf[string] = userOrderedInput.getProvides()
 		var firstProvide OptionalOf[string] = Optional_ofNullable[string](str_(Iterables_getFirst(icast_Iterable(obj_(provides)), nil)))
-		if firstProvide.isEmpty() || (((provides.size() == 1) && String_startsWith(firstProvide.get(), "module$")) && !userOrderedInput.isEs6Module()) {
+		if firstProvide.isEmpty() || (((provides.size() == 1) && strings.HasPrefix(firstProvide.get(), "module$")) && !userOrderedInput.isEs6Module()) {
 			this.nonExportingInputs.put(ModuleNames_fileToModuleName(userOrderedInput.getName()), any(userOrderedInput))
 		}
 		it_3 := foreach_(obj_(userOrderedInput.getProvides()))

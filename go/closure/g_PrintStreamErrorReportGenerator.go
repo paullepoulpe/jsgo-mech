@@ -38,7 +38,7 @@ func (this *PrintStreamErrorReportGenerator) printSummary(manager ErrorManager) 
 		if manager.getTypedPercent() > 0.0 {
 			this.stream.print(String_format("%d error(s), %d warning(s), %.1f%% typed\n", []any{any(int32(manager.getErrorCount())), any(int32(manager.getWarningCount())), any(float64(manager.getTypedPercent()))}))
 		} else {
-			this.stream.print(String_format("%d error(s), %d warning(s)\n", []any{any(int32(manager.getErrorCount())), any(int32(manager.getWarningCount()))}))
+			this.stream.print((istr_(int64(int32(manager.getErrorCount()))) + " error(s), " + istr_(int64(int32(manager.getWarningCount()))) + " warning(s)\n"))
 		}
 	}
 }

@@ -82,7 +82,7 @@ func CheckInterfaces_checkClassMethods(t *NodeTraversal, classNode Node, ctorDef
 			if memberFuncDef.isStaticMember() {
 				var className OptionalOf[string] = Optional_of[string](NodeUtil_getName(classNode)).filterFn_(func(s string) bool {
 					_ = s
-					return !String_isEmpty(s)
+					return s != ""
 				})
 				if className.isEmpty() {
 					className = Optional_of[string](CheckInterfaces_ANONYMOUS_CLASSNAME)

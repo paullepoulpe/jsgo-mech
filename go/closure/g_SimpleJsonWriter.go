@@ -180,7 +180,7 @@ func (this *SimpleJsonWriter) beforeValue() {
 		this.string(this.deferredName.get())
 		this.deferredName = Optional_empty[string]()
 		this.out.append(func() string {
-			if String_isEmpty(this.indent_) {
+			if this.indent_ == "" {
 				return ":"
 			}
 			return ": "
@@ -198,7 +198,7 @@ func (this *SimpleJsonWriter) beforeValue() {
 }
 
 func (this *SimpleJsonWriter) newline() {
-	if String_isEmpty(this.indent_) {
+	if this.indent_ == "" {
 		return
 	}
 	this.out.append_char('\n')

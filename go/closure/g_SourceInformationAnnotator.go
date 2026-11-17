@@ -67,13 +67,13 @@ func SourceInformationAnnotator_isStringNodeRequiringOriginalName(node Node) boo
 }
 
 func SourceInformationAnnotator_setOriginalNameString(n Node, name string) {
-	if !String_isEmpty(name) && String_isEmpty(n.getOriginalName()) {
+	if name != "" && n.getOriginalName() == "" {
 		n.setOriginalName(name)
 	}
 }
 
 func SourceInformationAnnotator_setOriginalName(n Node, name Node) {
-	if !String_isEmpty(name.getString()) && String_isEmpty(n.getOriginalName()) {
+	if name.getString() != "" && n.getOriginalName() == "" {
 		n.setOriginalNameFromName(name)
 	}
 }

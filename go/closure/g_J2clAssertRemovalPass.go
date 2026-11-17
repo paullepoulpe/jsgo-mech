@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type J2clAssertRemovalPass struct {
 	NodeTraversal_AbstractPostOrderCallback
 	compiler_ *AbstractCompiler
@@ -48,7 +50,7 @@ func J2clAssertRemovalPass_isAssertionMethodName(fnName Node) bool {
 		return false
 	}
 	var originalQname string = fnName.getOriginalQualifiedName()
-	return (String_contains_s(originalQname, "Asserts") && String_contains_s(originalQname, ".$assert"))
+	return (strings.Contains(originalQname, "Asserts") && strings.Contains(originalQname, ".$assert"))
 }
 
 // visit: an object that is exactly a J2clAssertRemovalPass calls its visit_impl directly (post-flip); others dispatch.

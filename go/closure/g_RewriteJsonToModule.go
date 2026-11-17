@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type RewriteJsonToModule struct {
 	NodeTraversal_AbstractPostOrderCallback
 	packageJsonMainEntries *TMap[string, string]
@@ -81,12 +83,12 @@ func (this *RewriteJsonToModule) visitScript(t *NodeTraversal, n Node) {
 	n.addChildToFront(IR_var_Node_Node(IR_name(moduleName).srcref(jsonObject), jsonObject).srcref(jsonObject))
 	n.addChildToFront(IR_exprResult(IR_call(IR_getprop_Node_String(IR_name("goog"), "provide"), []Node{IR_string(moduleName)})).srcrefTreeIfMissing(n))
 	var inputPath string = t.getInput().getSourceFile().getName()
-	if String_endsWith(inputPath, "/package.json") && jsonObject.isObjectLit() {
+	if strings.HasSuffix(inputPath, "/package.json") && jsonObject.isObjectLit() {
 		var possibleMainEntries []string = this.compiler_.getOptions().getPackageJsonEntryNames()
 		for _, entryName := range possibleMainEntries {
 			var entry Node = NodeUtil_getFirstPropMatchingKey(jsonObject, entryName)
 			if (entry != 0) && (entry.isStringLit() || entry.isObjectLit()) {
-				var dirName string = String_substring(inputPath, 0, (String_length(inputPath) - String_length("package.json")))
+				var dirName string = String_substring(inputPath, 0, (String_length(inputPath) - int32(len("package.json"))))
 				if entry.isStringLit() {
 					this.packageJsonMainEntries.put(inputPath, (sstr_(dirName) + sstr_(entry.getString())))
 					break
@@ -111,8 +113,8 @@ func (this *RewriteJsonToModule) processBrowserFieldAdvancedUsage(dirName string
 				panic(new_IllegalStateException_0().self())
 			}
 			var path string = child.getString()
-			if String_startsWith(path, ModuleLoader_DEFAULT_FILENAME_PREFIX) {
-				path = String_substring_int(path, String_length(ModuleLoader_DEFAULT_FILENAME_PREFIX))
+			if strings.HasPrefix(path, ModuleLoader_DEFAULT_FILENAME_PREFIX) {
+				path = String_substring_int(path, int32(len(ModuleLoader_DEFAULT_FILENAME_PREFIX)))
 			}
 			var replacement string = func() string {
 				if value.isStringLit() {

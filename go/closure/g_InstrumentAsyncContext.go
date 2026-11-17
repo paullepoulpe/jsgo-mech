@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type InstrumentAsyncContext struct {
 	start_                RuntimeJsLibManager_JsLibField
 	compiler_             *AbstractCompiler
@@ -60,7 +62,7 @@ func (this *InstrumentAsyncContext) isReentrance(n Node) bool {
 }
 
 func (this *InstrumentAsyncContext) visit(t *NodeTraversal, n Node, parent Node) {
-	if n.isName() && String_startsWith(n.getString(), InstrumentAsyncContext_FACTORY) {
+	if n.isName() && strings.HasPrefix(n.getString(), InstrumentAsyncContext_FACTORY) {
 		this.alreadyInstrumented[t.getEnclosingFunction()] = struct{}{}
 	} else if n.isSuper() {
 		this.hasSuper[t.getEnclosingFunction()] = struct{}{}

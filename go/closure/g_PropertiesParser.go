@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type PropertiesParser struct {
 }
 
@@ -20,7 +22,7 @@ func PropertiesParser_parse(source string) ImmutableMapOf[string, string] {
 	var lines []string = PropertiesParser_LINE_BREAK_PATTERN.split(source)
 	for i := int32(0); i < int32(len(lines)); i++ {
 		var line string = lines[i]
-		if (String_isEmpty(line) || String_startsWith(line, "#")) || String_startsWith(line, "!") {
+		if (line == "" || strings.HasPrefix(line, "#")) || strings.HasPrefix(line, "!") {
 			continue
 		}
 		var delimeterIndex int32 = PropertiesParser_findDelimiter(line)
@@ -31,7 +33,7 @@ func PropertiesParser_parse(source string) ImmutableMapOf[string, string] {
 		var key string = String_trim(String_substring(line, 0, delimeterIndex))
 		line = PropertiesParser_trimLeft(String_substring_int(line, (delimeterIndex + 1)))
 		for {
-			if String_endsWith(line, "\\") {
+			if strings.HasSuffix(line, "\\") {
 				data += sstr_(String_substring(line, 0, (String_length(line) - 1)))
 				if (i + 1) == int32(len(lines)) {
 					break
