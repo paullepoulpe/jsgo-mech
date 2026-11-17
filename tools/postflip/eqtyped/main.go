@@ -13,7 +13,7 @@
 // { return false }; x = p[.as_C()]; return true }()`, or `if x, ok := o.(*C); ok {`, with T *C
 // or C_as), the step writes
 //
-//	func (this *C) equals(o any) bool { p, ok := o.(T); return ok && this.equals_C(p[.as_C()]) }
+//	func (this *C) equals(o any) bool { [the identity test;] p, ok := o.(T); return ok && this.equals_C(p[.as_C()]) }
 //	func (this *C) equals_C(x *C) bool { <the body: the test is x != nil, x == this the identity test> }
 //
 // x != nil is the test of the dynamic class: the value an Object parameter holds is a C exactly
@@ -215,6 +215,7 @@ func method(fd *ast.FuncDecl) string {
 		}
 	}
 	edits := map[ast.Node]string{}
+	ident := "" // the identity test, kept first in equals(any)
 	var xDecls []ast.Stmt
 	// Every use of the parameter.
 	for _, id := range rw.UsesOf[po] {
@@ -230,6 +231,9 @@ func method(fd *ast.FuncDecl) string {
 				continue
 			}
 			edits[u] = "IDENT"
+			if ident == "" {
+				ident = rw.Text(u)
+			}
 		case *ast.AssignStmt: // v_ := o of the binding function literal
 			lit, x0, t, as, ok := bindingLit(u)
 			if !ok || !bind(x0, t, as) {
@@ -353,7 +357,11 @@ func method(fd *ast.FuncDecl) string {
 			conv = "p.as_" + cname + "()"
 		}
 		rw.Rewrite[fd] = func() string {
-			return "func (this *" + cname + ") equals(" + pname + " any) bool {\n" +
+			first := ""
+			if ident != "" { // the cheap identity test first, as before (collections call equals(any))
+				first = "if " + ident + " {\nreturn true\n}\n"
+			}
+			return "func (this *" + cname + ") equals(" + pname + " any) bool {\n" + first +
 				"p, ok := " + pname + ".(" + assertT + ")\n" +
 				"return ok && this.equals_" + cname + "(" + conv + ")\n}\n\n" +
 				"// equals_" + cname + " is equals of a " + cname + " (post-flip step eqtyped).\n" +
