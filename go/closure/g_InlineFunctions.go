@@ -1151,7 +1151,10 @@ func (this InlineFunctions_ShouldWarnWhenRequireInliningCannotInline) name() str
 }
 
 func (this InlineFunctions_ShouldWarnWhenRequireInliningCannotInline) ordinal() int32 {
-	return this.enum_().ordinal_
+	if this == 0 {
+		return this.enum_().ordinal_ // null: dereferences nil, as a null enum object did
+	}
+	return int32(this) - 1 // constants are ordinal+1
 }
 
 func (this InlineFunctions_ShouldWarnWhenRequireInliningCannotInline) toString() string {
@@ -1221,7 +1224,10 @@ func (this InlineFunctions_CannotRemoveReason) name() string {
 }
 
 func (this InlineFunctions_CannotRemoveReason) ordinal() int32 {
-	return this.enum_().ordinal_
+	if this == 0 {
+		return this.enum_().ordinal_ // null: dereferences nil, as a null enum object did
+	}
+	return int32(this) - 1 // constants are ordinal+1
 }
 
 func (this InlineFunctions_CannotRemoveReason) toString() string {
@@ -1300,7 +1306,10 @@ func (this InlineFunctions_DisallowInliningReason) name() string {
 }
 
 func (this InlineFunctions_DisallowInliningReason) ordinal() int32 {
-	return this.enum_().ordinal_
+	if this == 0 {
+		return this.enum_().ordinal_ // null: dereferences nil, as a null enum object did
+	}
+	return int32(this) - 1 // constants are ordinal+1
 }
 
 func (this InlineFunctions_DisallowInliningReason) toString() string {

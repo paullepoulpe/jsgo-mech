@@ -260,7 +260,10 @@ func (this PolyfillUsageFinder_Polyfill_Kind) name() string {
 }
 
 func (this PolyfillUsageFinder_Polyfill_Kind) ordinal() int32 {
-	return this.enum_().ordinal_
+	if this == 0 {
+		return this.enum_().ordinal_ // null: dereferences nil, as a null enum object did
+	}
+	return int32(this) - 1 // constants are ordinal+1
 }
 
 func (this PolyfillUsageFinder_Polyfill_Kind) toString() string {
@@ -479,7 +482,10 @@ func (this PolyfillUsageFinder_Guard) name() string {
 }
 
 func (this PolyfillUsageFinder_Guard) ordinal() int32 {
-	return this.enum_().ordinal_
+	if this == 0 {
+		return this.enum_().ordinal_ // null: dereferences nil, as a null enum object did
+	}
+	return int32(this) - 1 // constants are ordinal+1
 }
 
 func (this PolyfillUsageFinder_Guard) toString() string {

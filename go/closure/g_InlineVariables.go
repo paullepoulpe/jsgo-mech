@@ -67,7 +67,12 @@ func (this InlineVariables_Mode) enum_() *Enum {
 
 func (this InlineVariables_Mode) name() string { return this.enum_().name_ }
 
-func (this InlineVariables_Mode) ordinal() int32 { return this.enum_().ordinal_ }
+func (this InlineVariables_Mode) ordinal() int32 {
+	if this == 0 {
+		return this.enum_().ordinal_ // null: dereferences nil, as a null enum object did
+	}
+	return int32(this) - 1 // constants are ordinal+1
+}
 
 func (this InlineVariables_Mode) toString() string { return this.enum_().name_ }
 

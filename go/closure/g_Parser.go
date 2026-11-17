@@ -2756,7 +2756,10 @@ func (this Parser_FunctionFlavor) enum_() *Enum {
 func (this Parser_FunctionFlavor) name() string { return this.enum_().name_ }
 
 func (this Parser_FunctionFlavor) ordinal() int32 {
-	return this.enum_().ordinal_
+	if this == 0 {
+		return this.enum_().ordinal_ // null: dereferences nil, as a null enum object did
+	}
+	return int32(this) - 1 // constants are ordinal+1
 }
 
 func (this Parser_FunctionFlavor) toString() string { return this.enum_().name_ }
@@ -2861,7 +2864,12 @@ func (this Parser_Config_Mode) enum_() *Enum {
 
 func (this Parser_Config_Mode) name() string { return this.enum_().name_ }
 
-func (this Parser_Config_Mode) ordinal() int32 { return this.enum_().ordinal_ }
+func (this Parser_Config_Mode) ordinal() int32 {
+	if this == 0 {
+		return this.enum_().ordinal_ // null: dereferences nil, as a null enum object did
+	}
+	return int32(this) - 1 // constants are ordinal+1
+}
 
 func (this Parser_Config_Mode) toString() string { return this.enum_().name_ }
 
@@ -2961,7 +2969,12 @@ func (this Parser_Expression) enum_() *Enum {
 
 func (this Parser_Expression) name() string { return this.enum_().name_ }
 
-func (this Parser_Expression) ordinal() int32 { return this.enum_().ordinal_ }
+func (this Parser_Expression) ordinal() int32 {
+	if this == 0 {
+		return this.enum_().ordinal_ // null: dereferences nil, as a null enum object did
+	}
+	return int32(this) - 1 // constants are ordinal+1
+}
 
 func (this Parser_Expression) toString() string { return this.enum_().name_ }
 
@@ -3023,7 +3036,12 @@ func (this Parser_PatternKind) enum_() *Enum {
 
 func (this Parser_PatternKind) name() string { return this.enum_().name_ }
 
-func (this Parser_PatternKind) ordinal() int32 { return this.enum_().ordinal_ }
+func (this Parser_PatternKind) ordinal() int32 {
+	if this == 0 {
+		return this.enum_().ordinal_ // null: dereferences nil, as a null enum object did
+	}
+	return int32(this) - 1 // constants are ordinal+1
+}
 
 func (this Parser_PatternKind) toString() string { return this.enum_().name_ }
 

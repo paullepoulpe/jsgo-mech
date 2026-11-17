@@ -831,7 +831,10 @@ func (this CheckAccessControls_Constancy) name() string {
 }
 
 func (this CheckAccessControls_Constancy) ordinal() int32 {
-	return this.enum_().ordinal_
+	if this == 0 {
+		return this.enum_().ordinal_ // null: dereferences nil, as a null enum object did
+	}
+	return int32(this) - 1 // constants are ordinal+1
 }
 
 func (this CheckAccessControls_Constancy) toString() string {
@@ -919,7 +922,10 @@ func (this CheckAccessControls_IdentifierBehaviour) name() string {
 }
 
 func (this CheckAccessControls_IdentifierBehaviour) ordinal() int32 {
-	return this.enum_().ordinal_
+	if this == 0 {
+		return this.enum_().ordinal_ // null: dereferences nil, as a null enum object did
+	}
+	return int32(this) - 1 // constants are ordinal+1
 }
 
 func (this CheckAccessControls_IdentifierBehaviour) toString() string {

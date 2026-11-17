@@ -710,7 +710,12 @@ func (this CodePrinter_Format) enum_() *Enum {
 
 func (this CodePrinter_Format) name() string { return this.enum_().name_ }
 
-func (this CodePrinter_Format) ordinal() int32 { return this.enum_().ordinal_ }
+func (this CodePrinter_Format) ordinal() int32 {
+	if this == 0 {
+		return this.enum_().ordinal_ // null: dereferences nil, as a null enum object did
+	}
+	return int32(this) - 1 // constants are ordinal+1
+}
 
 func (this CodePrinter_Format) toString() string { return this.enum_().name_ }
 

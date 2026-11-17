@@ -242,7 +242,10 @@ func (this CheckRequiresSorted_Mode) name() string {
 }
 
 func (this CheckRequiresSorted_Mode) ordinal() int32 {
-	return this.enum_().ordinal_
+	if this == 0 {
+		return this.enum_().ordinal_ // null: dereferences nil, as a null enum object did
+	}
+	return int32(this) - 1 // constants are ordinal+1
 }
 
 func (this CheckRequiresSorted_Mode) toString() string {
@@ -313,7 +316,10 @@ func (this CheckRequiresSorted_ImportPrimitive) name() string {
 }
 
 func (this CheckRequiresSorted_ImportPrimitive) ordinal() int32 {
-	return this.enum_().ordinal_
+	if this == 0 {
+		return this.enum_().ordinal_ // null: dereferences nil, as a null enum object did
+	}
+	return int32(this) - 1 // constants are ordinal+1
 }
 
 func (this CheckRequiresSorted_ImportPrimitive) compareTo(o any) int32 {
