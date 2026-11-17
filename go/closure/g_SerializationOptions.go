@@ -44,14 +44,14 @@ func (this *SerializationOptions) equals(p0 any) bool {
 	if !ok || o == nil {
 		return false
 	}
-	return true && this.includeDebugInfo_ == o.includeDebugInfo_ && this.runValidation_ == o.runValidation_ && objequalsBy_(this.runtimeLibraries_.asImm(), obj_(o.runtimeLibraries_.asImm()), (ImmutableListOf[string]).equals)
+	return true && this.includeDebugInfo_ == o.includeDebugInfo_ && this.runValidation_ == o.runValidation_ && tlistEq_(this.runtimeLibraries_, o.runtimeLibraries_, true)
 }
 
 func (this *SerializationOptions) hashCode() int32 {
 	var h int32
 	h = h*31 + Boolean_hashCode(bool(this.includeDebugInfo_))
 	h = h*31 + Boolean_hashCode(bool(this.runValidation_))
-	h = h*31 + objhashBy_(this.runtimeLibraries_.asImm(), (ImmutableListOf[string]).hashCode)
+	h = h*31 + tlistHash_(this.runtimeLibraries_, true)
 	return h
 }
 

@@ -278,7 +278,7 @@ func (this *JSDocInfoPrinter) print(info *JSDocInfo) string {
 	if info.isLegacyNamedTsExport() {
 		parts.add("@legacyNamedTsExport")
 	}
-	for el3 := range info.getTsTypes().All() {
+	for _, el3 := range info.getTsTypes().items {
 		tsType := el3
 		parts.add(("@tsType " + sstr_(tsType)))
 	}

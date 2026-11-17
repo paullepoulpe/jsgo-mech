@@ -101,7 +101,7 @@ func (this *FixingErrorManager) getFixesForJsError(error_ *JSError) ListOf[*Sugg
 func (this *FixingErrorManager) getFixes(fixTypes FixingErrorManager_FixTypes) CollectionOf[*SuggestedFix] {
 	var containsFixableShorthandModuleWarning bool = this.containsFixableShorthandModuleWarning()
 	var fixes CollectionOf[*SuggestedFix] = new_ArrayList_0()
-	for el := range this.getErrors().All() {
+	for _, el := range this.getErrors().items {
 		error_ := el
 		if containsFixableShorthandModuleWarning && error_.type_().equals_DiagnosticType(CheckExtraRequires_EXTRA_REQUIRE_WARNING) {
 		} else {
@@ -112,7 +112,7 @@ func (this *FixingErrorManager) getFixes(fixTypes FixingErrorManager_FixTypes) C
 			}
 		}
 	}
-	for el2 := range this.getWarnings().All() {
+	for _, el2 := range this.getWarnings().items {
 		warning := el2
 		if warning.type_().equals_DiagnosticType(CheckExtraRequires_EXTRA_REQUIRE_WARNING) && containsFixableShorthandModuleWarning {
 		} else {

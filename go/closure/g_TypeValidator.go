@@ -82,7 +82,7 @@ func (this *TypeValidator) expectAnyObject(n Node, type_ *JSType, msg string) {
 
 func (this *TypeValidator) expectAutoboxesToIterable(n Node, type_ *JSType, msg string) bool {
 	if type_.isUnionType() {
-		for el_1 := range type_.toMaybeUnionType().getAlternates().All() {
+		for _, el_1 := range type_.toMaybeUnionType().getAlternates().items {
 			var alt *JSType = el_1
 			alt = func() *JSType {
 				if alt.isBoxableScalar() {
@@ -238,7 +238,7 @@ func (this *TypeValidator) expectNotNullOrUndefined(t *NodeTraversal, n Node, ty
 
 func TypeValidator_containsForwardDeclaredUnresolvedName(type_ *JSType) bool {
 	if type_.isUnionType() {
-		for el_1 := range type_.toMaybeUnionType().getAlternates().All() {
+		for _, el_1 := range type_.toMaybeUnionType().getAlternates().items {
 			var alt *JSType = el_1
 			if TypeValidator_containsForwardDeclaredUnresolvedName(alt) {
 				return true
@@ -448,19 +448,19 @@ func (this *TypeValidator) expectAllInterfaceProperties(n Node, type_ *FunctionT
 	for implemented := range elemsBy_(type_.getAllImplementedInterfaces(), to_ObjectType) {
 		this.expectInterfaceProperties(n, instance, implemented)
 	}
-	for el := range type_.getExtendedInterfaces().All() {
+	for _, el := range type_.getExtendedInterfaces().items {
 		extended := el
 		this.expectInterfaceProperties(n, instance, extended)
 	}
 }
 
 func (this *TypeValidator) expectInterfaceProperties(n Node, instance *ObjectType, ancestorInterface *ObjectType) {
-	for el := range ancestorInterface.getOwnPropertyKeys().All() {
+	for _, el := range ancestorInterface.getOwnPropertyKeys().keys {
 		prop := el
 		this.expectInterfaceProperty(n, instance, ancestorInterface, prop)
 	}
 	if ancestorInterface.getImplicitPrototype() != nil {
-		for el2 := range ancestorInterface.getImplicitPrototype().getOwnPropertyKeys().All() {
+		for _, el2 := range ancestorInterface.getImplicitPrototype().getOwnPropertyKeys().keys {
 			prop := el2
 			this.expectInterfaceProperty(n, instance, ancestorInterface, prop)
 		}
@@ -528,7 +528,7 @@ func (this *TypeValidator) expectAbstractMethodsImplemented(n Node, ctorType *Fu
 	}
 	for (currSuperCtor != nil) && currSuperCtor.isAbstract() {
 		var superType *ObjectType = currSuperCtor.getInstanceType()
-		for el := range currSuperCtor.getPrototype().getOwnPropertyKeys().All() {
+		for _, el := range currSuperCtor.getPrototype().getOwnPropertyKeys().keys {
 			prop := el
 			var maybeAbstractMethod *FunctionType = superType.findPropertyTypeKey(prop).toMaybeFunctionType()
 			if ((maybeAbstractMethod != nil) && maybeAbstractMethod.isAbstract()) && !abstractMethodSuperTypeMap.containsKey(prop) {
@@ -737,7 +737,7 @@ func (this *TypeValidator_WellFormedTemplatizedTypeVerifier) caseEnumElementType
 }
 
 func (this *TypeValidator_WellFormedTemplatizedTypeVerifier) caseFunctionType_impl(type_ *FunctionType) any {
-	for el_1 := range type_.getParameters().All() {
+	for _, el_1 := range type_.getParameters().items {
 		var param *FunctionType_Parameter = el_1
 		if !unbox_[bool](param.getJSType().visit(this)) {
 			return any(bool(false))

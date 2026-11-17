@@ -202,7 +202,7 @@ func (this *JsMessageVisitor) buildJsMessage(input JsMessageVisitor_InputForBuil
 			if this.idGenerator_ == nil {
 				return meaningForIdGeneration
 			}
-			return Optional_of[string](this.idGenerator_.generateId(meaningForIdGeneration, tlistImm_(tc_JsMessage_Part, messageParts.asImm())))
+			return Optional_of[string](this.idGenerator_.generateId(meaningForIdGeneration, messageParts))
 		}()
 	}
 	return new_JsMessage_Builder().appendParts(icast_List(obj_(messageParts.asImm()))).setPlaceholderNameToExampleMap(input.getPlaceholderExampleMap()).setPlaceholderNameToOriginalCodeMap(input.getPlaceholderOriginalCodeMap()).setIsAnonymous(isAnonymous).setIsExternalMsg(isExternal).setKey(messageKeyFinal).setSourceName(input.getSourceName()).setDesc(input.getDescription()).setMeaning(input.getMeaning()).setAlternateId(input.getAlternateMessageId()).setId(messageId).build()
@@ -392,7 +392,7 @@ func (this *JsMessageVisitor) extractJsMessageDefinition(msgNode Node, jsDocInfo
 	}
 	var placeholderObjectLiteralMap JsMessageVisitor_ObjectLiteralMap = icast_JsMessageVisitor_ObjectLiteralMap(placeholderObjectLiteralMapOutcome.get())
 	var placeholderNamesFromText *ImmutableSet[string] = googGetMsgParsedText.getPlaceholderNames()
-	var requiredKeysChecked *Outcome_base[any] = placeholderObjectLiteralMap.checkForRequiredKeys(tsetFrom_(tc_string, placeholderNamesFromText.asImm(), true), func(placeholderName_ any) any {
+	var requiredKeysChecked *Outcome_base[any] = placeholderObjectLiteralMap.checkForRequiredKeys(placeholderNamesFromText, func(placeholderName_ any) any {
 		var placeholderName string = str_(placeholderName_)
 		_ = placeholderName
 		return obj_(new_JsMessageVisitor_MalformedException(("Unrecognized message placeholder referenced: " + sstr_(placeholderName)), msgTextNode))
@@ -456,7 +456,7 @@ func (this *JsMessageVisitor) extractIcuTemplateDefinition(msgNode Node, jsDocIn
 		return Outcome_base_err[IcuTemplateDefinition](icuTemplateOptionsOutcome.error())
 	}
 	var icuTemplateOptions JsMessageVisitor_IcuTemplateOptions = icuTemplateOptionsOutcome.get()
-	var extractedIcuTemplateParts *JsMessageVisitor_ExtractedIcuTemplateParts = icuMessageTemplateString.extractParts(tsetFrom_(tc_string, icuTemplateOptions.getPlaceholderNames().asImm(), true))
+	var extractedIcuTemplateParts *JsMessageVisitor_ExtractedIcuTemplateParts = icuMessageTemplateString.extractParts(icuTemplateOptions.getPlaceholderNames())
 	var unknownPlaceholdersChecked *Outcome_base[any] = icuTemplateOptions.checkForUnknownPlaceholders(setImm_(tc_string, extractedIcuTemplateParts.extractedPlaceholderNames.asImm()))
 	if unknownPlaceholdersChecked.isErr() {
 		return Outcome_base_err[IcuTemplateDefinition](unknownPlaceholdersChecked.error())
@@ -596,7 +596,7 @@ func (this *JsMessageVisitor) extractIcuTemplateOptions(optionsBag Node) *Outcom
 	}
 	var placeholderOriginalCodeMap *ImmutableMap[string, string] = tmapFrom_(tc_string, tc_string, placeholderOriginalCodeMapOutcome.get(), true)
 	var placeholderNames *ImmutableSet[string] = immutableSetBuilder_(tc_string).addAll(Iterable(placeholderExamplesMap.asImm().keySet())).addAll(Iterable(placeholderOriginalCodeMap.asImm().keySet())).build()
-	for el_1 := range placeholderNames.All() {
+	for _, el_1 := range placeholderNames.keys {
 		var placeholderName string = el_1
 		if !JsMessage_isCanonicalPlaceholderNameFormat(placeholderName) {
 			return Outcome_base_err[JsMessageVisitor_IcuTemplateOptions](new_JsMessageVisitor_MalformedException(("Placeholder not in UPPER_SNAKE_CASE: " + sstr_(placeholderName)), optionsBag).up_Throwable())
@@ -1121,11 +1121,11 @@ func (this *JsMessageVisitor_1) getMessageParts() *ImmutableList[JsMessage_Part]
 }
 
 func (this *JsMessageVisitor_1) getPlaceholderExampleMap() *TMap[string, string] {
-	return tmapFrom_(tc_string, tc_string, this.cap_jsMessageOptions.getPlaceholderExampleMap().asImm(), true)
+	return this.cap_jsMessageOptions.getPlaceholderExampleMap()
 }
 
 func (this *JsMessageVisitor_1) getPlaceholderOriginalCodeMap() *TMap[string, string] {
-	return tmapFrom_(tc_string, tc_string, this.cap_jsMessageOptions.getPlaceholderOriginalCodeMap().asImm(), true)
+	return this.cap_jsMessageOptions.getPlaceholderOriginalCodeMap()
 }
 
 func (this *JsMessageVisitor_1) getDescription() OptionalOf[string] {
@@ -1237,11 +1237,11 @@ func (this *JsMessageVisitor_3) getMessageParts() *ImmutableList[JsMessage_Part]
 }
 
 func (this *JsMessageVisitor_3) getPlaceholderExampleMap() *TMap[string, string] {
-	return tmapFrom_(tc_string, tc_string, this.cap_icuTemplateOptions.getPlaceholderExampleMap().asImm(), true)
+	return this.cap_icuTemplateOptions.getPlaceholderExampleMap()
 }
 
 func (this *JsMessageVisitor_3) getPlaceholderOriginalCodeMap() *TMap[string, string] {
-	return tmapFrom_(tc_string, tc_string, this.cap_icuTemplateOptions.getPlaceholderOriginalCodeMap().asImm(), true)
+	return this.cap_icuTemplateOptions.getPlaceholderOriginalCodeMap()
 }
 
 func (this *JsMessageVisitor_3) getDescription() OptionalOf[string] {

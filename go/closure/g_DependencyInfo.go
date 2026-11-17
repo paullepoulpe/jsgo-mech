@@ -309,7 +309,7 @@ func DependencyInfo_Util_writeAddDependency(out *strBuilder_, info DependencyInf
 	var loadFlags *ImmutableMap[string, string] = info.getLoadFlags()
 	if !loadFlags.isEmpty() {
 		out.append_CharSequence_s(", ")
-		DependencyInfo_Util_writeJsObject(out, tmapFrom_(tc_string, tc_string, loadFlags.asImm(), true))
+		DependencyInfo_Util_writeJsObject(out, loadFlags)
 	}
 	out.append_CharSequence_s(");\n")
 }

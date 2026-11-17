@@ -926,7 +926,7 @@ func (this *CompilerOptions) setIdGeneratorsRenamingMaps(idGenerators *TMap[stri
 }
 
 func (this *CompilerOptions) getIdGenerators() *TMap[string, RenamingMap] {
-	return tmapFrom_(tc_string, tc_RenamingMap, this.idGenerators.asImm(), true)
+	return this.idGenerators
 }
 
 func (this *CompilerOptions) setIdGeneratorsMap(previousMappings string) {

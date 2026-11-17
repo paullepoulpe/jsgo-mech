@@ -228,7 +228,7 @@ func RegExpTree_clinit() {
 	RegExpTree_SPACE_CHARS = CharRanges_withMembers([]int32{9, 10, 11, 12, 13, 32, 160, 5760, 6158, 8192, 8193, 8194, 8195, 8196, 8197, 8198, 8199, 8200, 8201, 8202, 8232, 8233, 8239, 8287, 12288, 65279})
 	RegExpTree_IE_SPACE_CHARS = CharRanges_withMembers([]int32{9, 10, 11, 12, 13, 32})
 	RegExpTree_IE_SPEC_ERRORS = RegExpTree_SPACE_CHARS.difference(RegExpTree_IE_SPACE_CHARS)
-	RegExpTree_NAMED_CHAR_GROUPS = immutableMapBuilder_(tc_uint16, tc_p_CharRanges).put(uint16('d'), RegExpTree_DIGITS).put(uint16('D'), CharRanges_ALL_CODE_UNITS.difference(RegExpTree_DIGITS)).put(uint16('s'), RegExpTree_SPACE_CHARS).put(uint16('S'), CharRanges_ALL_CODE_UNITS.difference(RegExpTree_SPACE_CHARS)).put(uint16('w'), RegExpTree_WORD_CHARS).put(uint16('W'), RegExpTree_INVERSE_WORD_CHARS).buildOrThrow().asImm()
+	RegExpTree_NAMED_CHAR_GROUPS = immutableMapBuilder_(tc_uint16, tc_p_CharRanges).put(uint16('d'), RegExpTree_DIGITS).put(uint16('D'), CharRanges_ALL_CODE_UNITS.difference(RegExpTree_DIGITS)).put(uint16('s'), RegExpTree_SPACE_CHARS).put(uint16('S'), CharRanges_ALL_CODE_UNITS.difference(RegExpTree_SPACE_CHARS)).put(uint16('w'), RegExpTree_WORD_CHARS).put(uint16('W'), RegExpTree_INVERSE_WORD_CHARS).buildOrThrowErased()
 	RegExpTree_DOT_CHARSET = new_RegExpTree_Charset(CharRanges_ALL_CODE_UNITS.difference(CharRanges_withMembers([]int32{10, 13, 8232, 8233})), CharRanges_EMPTY)
 
 }
@@ -1055,7 +1055,7 @@ func new_RegExpTree_Alternation(alternatives *TList[*RegExpTree]) *RegExpTree_Al
 
 func (this *RegExpTree_Alternation) simplify_impl(flags string) *RegExpTree {
 	var alternatives *TList[*RegExpTree] = newTList_(tc_p_RegExpTree)
-	for el := range this.alternatives.All() {
+	for _, el := range this.alternatives.items {
 		alternative := el
 		alternative = alternative.simplify(flags)
 		var alternation *RegExpTree_Alternation
@@ -1069,7 +1069,7 @@ func (this *RegExpTree_Alternation) simplify_impl(flags string) *RegExpTree {
 			alternation = p
 			return true
 		}() {
-			alternatives.asList().addAll(icast_Collection(obj_(alternation.alternatives.asImm())))
+			alternatives.addAllT(alternation.alternatives)
 		} else {
 			alternatives.add(alternative)
 		}
@@ -1198,7 +1198,7 @@ func (this *RegExpTree_Alternation) simplify_impl(flags string) *RegExpTree {
 }
 
 func (this *RegExpTree_Alternation) isCaseSensitive_impl() bool {
-	for el_1 := range this.alternatives.All() {
+	for _, el_1 := range this.alternatives.items {
 		var alternative *RegExpTree = el_1
 		if alternative.isCaseSensitive() {
 			return true
@@ -1208,7 +1208,7 @@ func (this *RegExpTree_Alternation) isCaseSensitive_impl() bool {
 }
 
 func (this *RegExpTree_Alternation) containsAnchor_impl() bool {
-	for el_1 := range this.alternatives.All() {
+	for _, el_1 := range this.alternatives.items {
 		var alternative *RegExpTree = el_1
 		if alternative.containsAnchor() {
 			return true
@@ -1219,7 +1219,7 @@ func (this *RegExpTree_Alternation) containsAnchor_impl() bool {
 
 func (this *RegExpTree_Alternation) numCapturingGroups_impl() int32 {
 	var n int32 = 0
-	for el := range this.alternatives.All() {
+	for _, el := range this.alternatives.items {
 		alternative := el
 		n += alternative.numCapturingGroups()
 	}
@@ -1258,11 +1258,11 @@ func (this *RegExpTree_Alternation) equals_impl(o any) bool {
 		}
 		alternation = p
 		return true
-	}() && equalsBy_(this.alternatives.asImm(), obj_(alternation.alternatives.asImm()), (ImmutableListOf[*RegExpTree]).equals)))
+	}() && tlistEq_(this.alternatives, alternation.alternatives, false)))
 }
 
 func (this *RegExpTree_Alternation) hashCode_impl() int32 {
-	return (1370848465 ^ hashBy_(this.alternatives.asImm(), (ImmutableListOf[*RegExpTree]).hashCode))
+	return (1370848465 ^ tlistHash_(this.alternatives, false))
 }
 
 type RegExpTree_LookaheadAssertion struct {
@@ -2078,7 +2078,7 @@ func new_RegExpTree_Concatenation_List(elements *TList[*RegExpTree]) *RegExpTree
 
 func (this *RegExpTree_Concatenation) simplify_impl(flags string) *RegExpTree {
 	var s *RegExpTree_Concatenation_1Simplifier = new_RegExpTree_Concatenation_1Simplifier(this, flags)
-	for el := range this.elements_.All() {
+	for _, el := range this.elements_.items {
 		element := el
 		s.simplify(element.simplify(flags))
 	}
@@ -2095,7 +2095,7 @@ func (this *RegExpTree_Concatenation) simplify_impl(flags string) *RegExpTree {
 }
 
 func (this *RegExpTree_Concatenation) isCaseSensitive_impl() bool {
-	for el_1 := range this.elements_.All() {
+	for _, el_1 := range this.elements_.items {
 		var element *RegExpTree = el_1
 		if element.isCaseSensitive() {
 			return true
@@ -2105,7 +2105,7 @@ func (this *RegExpTree_Concatenation) isCaseSensitive_impl() bool {
 }
 
 func (this *RegExpTree_Concatenation) containsAnchor_impl() bool {
-	for el_1 := range this.elements_.All() {
+	for _, el_1 := range this.elements_.items {
 		var element *RegExpTree = el_1
 		if element.containsAnchor() {
 			return true
@@ -2116,7 +2116,7 @@ func (this *RegExpTree_Concatenation) containsAnchor_impl() bool {
 
 func (this *RegExpTree_Concatenation) numCapturingGroups_impl() int32 {
 	var n int32 = 0
-	for el := range this.elements_.All() {
+	for _, el := range this.elements_.items {
 		element := el
 		n += element.numCapturingGroups()
 	}
@@ -2129,7 +2129,7 @@ func (this *RegExpTree_Concatenation) children_impl() List {
 
 func (this *RegExpTree_Concatenation) appendSourceCode_impl(sb *strBuilder_) {
 	var digitsMightBleed bool = false
-	for el := range this.elements_.All() {
+	for _, el := range this.elements_.items {
 		element := el
 		var parenthesize bool = false
 		if is_[*RegExpTree_Alternation](element.self()) || is_[*RegExpTree_Concatenation](element.self()) {
@@ -2192,11 +2192,11 @@ func (this *RegExpTree_Concatenation) equals_impl(o any) bool {
 		}
 		concatenation = p
 		return true
-	}() && equalsBy_(this.elements_.asImm(), obj_(concatenation.elements_.asImm()), (ImmutableListOf[*RegExpTree]).equals))
+	}() && tlistEq_(this.elements_, concatenation.elements_, false))
 }
 
 func (this *RegExpTree_Concatenation) hashCode_impl() int32 {
-	return (546930238 ^ hashBy_(this.elements_.asImm(), (ImmutableListOf[*RegExpTree]).hashCode))
+	return (546930238 ^ tlistHash_(this.elements_, false))
 }
 
 type RegExpTree_1Parser struct {
@@ -2783,7 +2783,7 @@ func (this *RegExpTree_Concatenation_1Simplifier) simplify(t *RegExpTree) {
 		concatenation = p
 		return true
 	}() {
-		for el := range concatenation.elements_.All() {
+		for _, el := range concatenation.elements_.items {
 			child := el
 			this.simplify(child)
 		}

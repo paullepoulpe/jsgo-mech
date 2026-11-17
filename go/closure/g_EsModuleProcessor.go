@@ -479,7 +479,7 @@ func (this *EsModuleProcessor_UnresolvedEsModule) getExportedNames_2_impl(module
 		var requested *UnresolvedModule = moduleRequestResolver.resolve(e)
 		if requested != nil {
 			if requested.metadata().isEs6Module() {
-				for el := range requested.getExportedNames_2(moduleRequestResolver, visited).All() {
+				for _, el := range requested.getExportedNames_2(moduleRequestResolver, visited).keys {
 					n := el
 					if !(Export_DEFAULT == n) && !exportedNames.contains(n) {
 						exportedNames.add(n)
@@ -495,7 +495,7 @@ func (this *EsModuleProcessor_UnresolvedEsModule) getExportedNames_2_impl(module
 
 func (this *EsModuleProcessor_UnresolvedEsModule) getAllResolvedExports(moduleRequestResolver ModuleRequestResolver) *TMap[string, *Binding] {
 	var exports *TMap[string, *Binding] = newTMap_(tc_string, tc_p_Binding)
-	for el := range this.getExportedNames(moduleRequestResolver).All() {
+	for _, el := range this.getExportedNames(moduleRequestResolver).keys {
 		name := el
 		var b *ResolveExportResult = this.resolveExport(moduleRequestResolver, Optional_of[string](name))
 		if !b.found() {

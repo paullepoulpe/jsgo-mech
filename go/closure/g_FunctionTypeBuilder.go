@@ -432,7 +432,7 @@ func (this *FunctionTypeBuilder) registerTemplates(templates IterableOf[*Templat
 
 func (this *FunctionTypeBuilder) inferConstructorParameters(argsParent Node, info *JSDocInfo) *FunctionTypeBuilder {
 	if info != nil {
-		this.setConstructorTemplateTypeNames(tlistImm_(tc_p_TemplateType, this.buildTemplateTypesFromJSDocInfo(info, true).asImm()), argsParent.getParent())
+		this.setConstructorTemplateTypeNames(this.buildTemplateTypesFromJSDocInfo(info, true), argsParent.getParent())
 	}
 	this.inferParameterTypes_2(argsParent, info)
 	return this
@@ -457,7 +457,7 @@ func (this *FunctionTypeBuilder) setConstructorTemplateTypeNames(templates *TLis
 			if this.templateTypeNames.isEmpty() {
 				return immutableListCopyOf_(tc_p_TemplateType, Collection(templates.asList()))
 			}
-			return immutableListBuilder_(tc_p_TemplateType).addAll(icast_Iterable(obj_(this.templateTypeNames.asImm()))).addAll(icast_Iterable(obj_(this.constructorTemplateTypeNames.asImm()))).build()
+			return immutableListBuilder_(tc_p_TemplateType).addAllT(this.templateTypeNames).addAllT(this.constructorTemplateTypeNames).build()
 		}()
 		this.registerTemplates(Iterable(templates.asList()), ctor)
 	}
@@ -520,7 +520,7 @@ func (this *FunctionTypeBuilder) buildTemplateTypesFromJSDocInfo(info *JSDocInfo
 		}
 	}
 	var builtTemplates *ImmutableList[*TemplateType] = templates.build()
-	for el4 := range builtTemplates.All() {
+	for _, el4 := range builtTemplates.items {
 		template := el4
 		if template.containsCycle() {
 			this.reportError(RhinoErrorReporter_CYCLIC_INHERITANCE_ERROR, []string{("Cycle detected in inheritance chain of type " + sstr_(template.getReferenceName().orElse("null")))})
@@ -612,7 +612,7 @@ func (this *FunctionTypeBuilder) buildAndRegister() *FunctionType {
 	} else if this.isInterface_ {
 		fnType = this.getOrCreateInterface()
 	} else {
-		fnType = to_FunctionType(this.createDefaultBuilder().withParameters_1(tlistImm_(tc_p_FunctionType_Parameter, this.parameters.asImm())).withReturnType_2(this.returnType, this.returnTypeInferred).withTypeOfThis(this.thisType).withIsAbstract(this.isAbstract_).withClosurePrimitiveId(this.closurePrimitiveId).build().self())
+		fnType = to_FunctionType(this.createDefaultBuilder().withParameters_1(this.parameters).withReturnType_2(this.returnType, this.returnTypeInferred).withTypeOfThis(this.thisType).withIsAbstract(this.isAbstract_).withClosurePrimitiveId(this.closurePrimitiveId).build().self())
 		this.maybeSetBaseType(fnType)
 	}
 	if (this.implementedInterfaces != nil) && fnType.isConstructor() {
@@ -640,7 +640,7 @@ func (this *FunctionTypeBuilder) createDefaultBuilder() *FunctionType_Builder {
 }
 
 func (this *FunctionTypeBuilder) getOrCreateConstructor() *FunctionType {
-	var fnType *FunctionType = to_FunctionType(this.createDefaultBuilder().forConstructor().withParameters_1(tlistImm_(tc_p_FunctionType_Parameter, this.parameters.asImm())).withReturnType(this.returnType).withConstructorTemplateKeys(icast_Iterable(obj_(this.constructorTemplateTypeNames.asImm()))).withIsAbstract(this.isAbstract_).build().self())
+	var fnType *FunctionType = to_FunctionType(this.createDefaultBuilder().forConstructor().withParameters_1(this.parameters).withReturnType(this.returnType).withConstructorTemplateKeys(icast_Iterable(obj_(this.constructorTemplateTypeNames.asImm()))).withIsAbstract(this.isAbstract_).build().self())
 	if this.makesStructs_ {
 		fnType.setStruct()
 	} else if this.makesDicts_ {
@@ -716,7 +716,7 @@ func FunctionTypeBuilder_hasMoreTagsToResolve(objectType *ObjectType) bool {
 	}
 	var ctor *FunctionType = objectType.getConstructor()
 	if ctor != nil {
-		for el_1 := range ctor.getExtendedInterfaces().All() {
+		for _, el_1 := range ctor.getExtendedInterfaces().items {
 			var interfaceType *ObjectType = el_1
 			if !interfaceType.isResolved() {
 				return true

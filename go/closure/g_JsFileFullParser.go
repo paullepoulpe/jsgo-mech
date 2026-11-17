@@ -75,7 +75,7 @@ func JsFileFullParser_recordModuleMetadata(info *JsFileFullParser_FileInfo, modu
 		info.typeRequires.addAll(icast_Iterable(obj_(module.weaklyRequiredGoogNamespaces())))
 		info.testonly = module.isTestOnly()
 	}
-	for el := range module.nestedModules().All() {
+	for _, el := range module.nestedModules().items {
 		nested := el
 		JsFileFullParser_recordModuleMetadata(info, nested)
 	}

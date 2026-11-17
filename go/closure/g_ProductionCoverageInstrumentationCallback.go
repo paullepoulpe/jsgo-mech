@@ -283,7 +283,7 @@ func (this *ProductionCoverageInstrumentationCallback_ParameterMapping) getParam
 	this.paramValueEncodings.put(ProductionCoverageInstrumentationCallback_ParameterMapping_toJsonArray(this.typeToIndex.asMap().keySet()), " Types")
 	var preInversedMap *VariableMap = new_VariableMap(this.paramValueEncodings)
 	var inversedMap *ImmutableMap[string, string] = preInversedMap.getNewNameToOriginalNameMap()
-	return new_VariableMap(tmapFrom_(tc_string, tc_string, inversedMap.asImm(), true))
+	return new_VariableMap(inversedMap)
 }
 
 func ProductionCoverageInstrumentationCallback_ParameterMapping_toJsonArray(strings SetOf[string]) string {

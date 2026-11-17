@@ -26,7 +26,7 @@ func new_InlineProperties(compiler *AbstractCompiler) *InlineProperties {
 }
 
 func (this *InlineProperties) invalidateExternProperties() {
-	for el := range this.compiler_.getExternProperties().All() {
+	for _, el := range this.compiler_.getExternProperties().keys {
 		name := el
 		this.props[name] = InlineProperties_INVALIDATED
 	}
@@ -159,7 +159,7 @@ func (this *InlineProperties_GatherCandidates) maybeRecordCandidateClassFieldDef
 			if possibleInstances.isEmpty() {
 				return StandardColors_UNKNOWN
 			}
-			return Color_createUnion(tsetFrom_(tch_p_Color, possibleInstances.asImm(), true))
+			return Color_createUnion(possibleInstances)
 		}()
 	}
 	return this.maybeStoreCandidateValue(c, propName, value)

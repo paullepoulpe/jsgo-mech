@@ -28,7 +28,7 @@ func (this *InjectClosureUnawareRuntimeLibraries) process_2(externs Node, root N
 func (this *InjectClosureUnawareRuntimeLibraries) injectLibrariesIntoMainAst() {
 	var mainManager *RuntimeJsLibManager = this.mainCompiler.getRuntimeJsLibManager()
 	var shadowManager *RuntimeJsLibManager = this.shadowCompiler.getRuntimeJsLibManager()
-	for el := range shadowManager.getInjectedLibraries().All() {
+	for _, el := range shadowManager.getInjectedLibraries().items {
 		runtimeLib := el
 		mainManager.ensureLibraryInjected(runtimeLib, false)
 	}

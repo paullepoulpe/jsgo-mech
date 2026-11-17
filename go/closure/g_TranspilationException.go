@@ -77,11 +77,11 @@ func TranspilationException_format(source SourceExcerptProvider, errors *Immutab
 		}
 		return ErrorFormat_SOURCELESS.toFormatter(source, false)
 	}()
-	for el := range errors.All() {
+	for _, el := range errors.items {
 		error_ := el
 		sb.append("\n").append(formatter.formatError(error_))
 	}
-	for el2 := range warnings.All() {
+	for _, el2 := range warnings.items {
 		warning := el2
 		sb.append("\n").append(formatter.formatError(warning))
 	}

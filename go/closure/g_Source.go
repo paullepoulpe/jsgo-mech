@@ -110,7 +110,7 @@ func (this *Source) equals(p0 any) bool {
 	if !ok || o == nil {
 		return false
 	}
-	return true && this.path_ == o.path_ && this.sourceMap_ == o.sourceMap_ && this.sourceUrl_ == o.sourceUrl_ && this.sourceMappingUrl_ == o.sourceMappingUrl_ && objequalsBy_(this.runtimes_.asImm(), obj_(o.runtimes_.asImm()), (ImmutableSetOf[string]).equals) && objequalsBy_(this.loadFlags_.asImm(), obj_(o.loadFlags_.asImm()), (ImmutableMapOf[string, string]).equals) && this.estimatedSize_ == o.estimatedSize_ && objequalsBy_(this.codeSupplier_, o.codeSupplier_.self(), (*Source_Lazy).equals) && objequalsBy_(this.originalCodeSupplier_, o.originalCodeSupplier_.self(), (*Source_Lazy).equals)
+	return true && this.path_ == o.path_ && this.sourceMap_ == o.sourceMap_ && this.sourceUrl_ == o.sourceUrl_ && this.sourceMappingUrl_ == o.sourceMappingUrl_ && tsetEq_(this.runtimes_, o.runtimes_, true) && tmapEq_(this.loadFlags_, o.loadFlags_, true) && this.estimatedSize_ == o.estimatedSize_ && objequalsBy_(this.codeSupplier_, o.codeSupplier_.self(), (*Source_Lazy).equals) && objequalsBy_(this.originalCodeSupplier_, o.originalCodeSupplier_.self(), (*Source_Lazy).equals)
 }
 
 func (this *Source) hashCode() int32 {
@@ -119,8 +119,8 @@ func (this *Source) hashCode() int32 {
 	h = h*31 + objhashStr_(this.sourceMap_)
 	h = h*31 + objhashStr_(this.sourceUrl_)
 	h = h*31 + objhashStr_(this.sourceMappingUrl_)
-	h = h*31 + objhashBy_(this.runtimes_.asImm(), (ImmutableSetOf[string]).hashCode)
-	h = h*31 + objhashBy_(this.loadFlags_.asImm(), (ImmutableMapOf[string, string]).hashCode)
+	h = h*31 + tsetHash_(this.runtimes_, true)
+	h = h*31 + tmapHash_(this.loadFlags_, true)
 	h = h*31 + int32(this.estimatedSize_)
 	h = h*31 + objhashBy_(this.codeSupplier_, (*Source_Lazy).hashCode)
 	h = h*31 + objhashBy_(this.originalCodeSupplier_, (*Source_Lazy).hashCode)

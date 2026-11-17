@@ -44,7 +44,7 @@ func new_TypedAstDeserializer(syntheticExterns *SourceFile_jscomp, existingColor
 
 func TypedAstDeserializer_deserializeFullAst(compiler *AbstractCompiler, syntheticExterns *SourceFile_jscomp, requiredInputFiles *ImmutableSet[*SourceFile_jscomp], typedAstsStream []int8, includeTypeInformation bool, resolveSourceMapAnnotations bool, parseInlineSourceMaps bool) *TypedAstDeserializer_DeserializedAst {
 	var sourceFilesByNameBuilder *ImmutableMap_Builder[string, *SourceFile_jscomp] = immutableMapBuilder_(tc_string, tc_p_SourceFile_jscomp)
-	for el := range requiredInputFiles.All() {
+	for _, el := range requiredInputFiles.keys {
 		file := el
 		sourceFilesByNameBuilder.put(file.getName(), file)
 	}
@@ -387,14 +387,14 @@ func (this *TypedAstDeserializer_DeserializedAst) equals(p0 any) bool {
 	if !ok || o == nil {
 		return false
 	}
-	return true && objequalsDyn_(this.getFilesystem_, o.getFilesystem_) && objequalsBy_(this.getColorRegistry_, obj_(o.getColorRegistry_), (Optional_baseOf[*ColorRegistry]).equals) && objequalsBy_(this.getExternProperties_.asImm(), obj_(o.getExternProperties_.asImm()), (ImmutableSetOf[string]).equals) && objequalsBy_(this.getRuntimeLibraries_.asImm(), obj_(o.getRuntimeLibraries_.asImm()), (ImmutableSetOf[string]).equals)
+	return true && objequalsDyn_(this.getFilesystem_, o.getFilesystem_) && objequalsBy_(this.getColorRegistry_, obj_(o.getColorRegistry_), (Optional_baseOf[*ColorRegistry]).equals) && tsetEq_(this.getExternProperties_, o.getExternProperties_, true) && tsetEq_(this.getRuntimeLibraries_, o.getRuntimeLibraries_, true)
 }
 
 func (this *TypedAstDeserializer_DeserializedAst) hashCode() int32 {
 	var h int32
 	h = h*31 + objhashDyn_(this.getFilesystem_)
 	h = h*31 + objhashBy_(this.getColorRegistry_, (Optional_baseOf[*ColorRegistry]).hashCode)
-	h = h*31 + objhashBy_(this.getExternProperties_.asImm(), (ImmutableSetOf[string]).hashCode)
-	h = h*31 + objhashBy_(this.getRuntimeLibraries_.asImm(), (ImmutableSetOf[string]).hashCode)
+	h = h*31 + tsetHash_(this.getExternProperties_, true)
+	h = h*31 + tsetHash_(this.getRuntimeLibraries_, true)
 	return h
 }

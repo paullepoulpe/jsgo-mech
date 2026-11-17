@@ -375,7 +375,7 @@ func (this *DefaultPassConfig) finit_DefaultPassConfig() {
 		if this.options_.shouldOptimizeLetAndConst() {
 			optimizations.add(to_AbstractPeepholeOptimization(obj_(new_OptimizeLetAndConstPeephole(this.options_.shouldTreatGlobalScopeAsIsolated()))))
 		}
-		return new_PeepholeOptimizationsPass(compiler, PassNames_POST_NORMALIZE_PEEPHOLE, icast_List(obj_(optimizations.build().asImm())))
+		return new_PeepholeOptimizationsPass(compiler, PassNames_POST_NORMALIZE_PEEPHOLE, icast_List(obj_(optimizations.buildErased())))
 	})).build()
 	this.collapseVariableDeclarations = PassFactory_builder().setName(PassNames_COLLAPSE_VARIABLE_DECLARATIONS).setInternalFactory(lambda_DefaultPassConfig_finit_DefaultPassConfig_56_).build()
 	this.extractPrototypeMemberDeclarations = PassFactory_builder().setName(PassNames_EXTRACT_PROTOTYPE_MEMBER_DECLARATIONS).setInternalFactory(newFuncObj_(func(compiler *AbstractCompiler) CompilerPass {
@@ -400,7 +400,7 @@ func (this *DefaultPassConfig) finit_DefaultPassConfig() {
 		return new_AliasStrings(compiler, compiler.getChunkGraph(), this.options_.shouldOutputJsStringUsage(), this.options_.getAliasStringsMode())
 	})).build()
 	this.ambiguateProperties = PassFactory_builder().setName(PassNames_AMBIGUATE_PROPERTIES).setInternalFactory(newFuncObj_(func(compiler *AbstractCompiler) CompilerPass {
-		return new_AmbiguateProperties(compiler, icast_Set(obj_(this.options_.getPropertyReservedNamingFirstChars())), icast_Set(obj_(this.options_.getPropertyReservedNamingNonFirstChars().asImm())), tsetFrom_(tc_string, compiler.getExternProperties().asImm(), true))
+		return new_AmbiguateProperties(compiler, icast_Set(obj_(this.options_.getPropertyReservedNamingFirstChars())), icast_Set(obj_(this.options_.getPropertyReservedNamingNonFirstChars().asImm())), compiler.getExternProperties())
 	})).setPreconditionCheck(lambda_DefaultPassConfig_finit_DefaultPassConfig_61_).build()
 	this.markUnnormalized = PassFactory_builder().setName("markUnnormalized").setInternalFactory(newFuncObj_(func(compiler *AbstractCompiler) CompilerPass {
 		return new_DefaultPassConfig_10(this, compiler)
@@ -1603,7 +1603,7 @@ func DefaultPassConfig_combineChecks(compiler *AbstractCompiler, callbacks []Nod
 
 func (this *DefaultPassConfig) createProcessDefines(mode ProcessDefines_Mode) *PassFactory {
 	return PassFactory_builder().setName(("processDefines_" + sstr_(mode.name()))).setInternalFactory(newFuncObj_(func(compiler *AbstractCompiler) CompilerPass {
-		return icast_CompilerPass(obj_(new_ProcessDefines_Builder(compiler).putReplacements(DefaultPassConfig_getAdditionalReplacements(this.options_)).putReplacements(tmapFrom_(tc_string, tc_Node, this.options_.getDefineReplacements().asImm(), true)).setMode(mode).setRecognizeClosureDefines(compiler.getOptions().getClosurePass()).setEnableZonesDefineName(this.options_.getEnableZonesDefineName()).setZoneInputPattern(this.options_.getZoneInputPattern()).setUnknownDefinesToIgnore(this.options_.getUnknownDefinesToIgnore()).build()))
+		return icast_CompilerPass(obj_(new_ProcessDefines_Builder(compiler).putReplacements(DefaultPassConfig_getAdditionalReplacements(this.options_)).putReplacements(this.options_.getDefineReplacements()).setMode(mode).setRecognizeClosureDefines(compiler.getOptions().getClosurePass()).setEnableZonesDefineName(this.options_.getEnableZonesDefineName()).setZoneInputPattern(this.options_.getZoneInputPattern()).setUnknownDefinesToIgnore(this.options_.getUnknownDefinesToIgnore()).build()))
 	})).build()
 }
 
@@ -1902,7 +1902,7 @@ func new_DefaultPassConfig_9(outer_ *DefaultPassConfig, cap_compiler *AbstractCo
 }
 
 func (this *DefaultPassConfig_9) process_2(externs Node, root Node) {
-	var pass *ReplaceStrings = new_ReplaceStrings(this.cap_compiler, this.outer_.options_.getReplaceStringsPlaceholderToken(), sliceImm_(tc_string, this.outer_.options_.getReplaceStringsFunctionDescriptions().asImm()))
+	var pass *ReplaceStrings = new_ReplaceStrings(this.cap_compiler, this.outer_.options_.getReplaceStringsPlaceholderToken(), immItems_(this.outer_.options_.getReplaceStringsFunctionDescriptions()))
 	pass.process_2(externs, root)
 	this.cap_compiler.setStringMap(pass.getStringMap())
 }

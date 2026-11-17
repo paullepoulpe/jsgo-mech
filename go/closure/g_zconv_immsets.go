@@ -4,7 +4,6 @@ package closure
 
 // Element conversions of the typed immsets.
 
-var tc_FeatureSet_Feature = &tconv_[FeatureSet_Feature]{box: func(v FeatureSet_Feature) any { return v.self() }, unbox: func(v any) FeatureSet_Feature { return cast_[FeatureSet_Feature](v) }}
 var tc_Token_rhino = &tconv_[Token_rhino]{box: func(v Token_rhino) any { return v.self() }, unbox: func(v any) Token_rhino { return cast_[Token_rhino](v) }}
 var tc_uint16 = &tconv_[uint16]{box: func(v uint16) any { return any(v) }, unbox: func(v any) uint16 { return unbox_[uint16](v) }}
 var tch_p_BrowserWithTransformedPrefixesModuleResolver_PrefixReplacement = &tconv_[*BrowserWithTransformedPrefixesModuleResolver_PrefixReplacement]{box: func(v *BrowserWithTransformedPrefixesModuleResolver_PrefixReplacement) any { return obj_(v) }, unbox: func(v any) *BrowserWithTransformedPrefixesModuleResolver_PrefixReplacement {

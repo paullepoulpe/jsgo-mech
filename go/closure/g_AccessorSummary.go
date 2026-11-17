@@ -19,7 +19,7 @@ func new_AccessorSummary(accessors *ImmutableMap[string, AccessorSummary_Propert
 }
 
 func AccessorSummary_create(accessors *TMap[string, AccessorSummary_PropertyAccessKind]) *AccessorSummary {
-	return new_AccessorSummary(immutableMapCopyOf_(tc_string, tc_AccessorSummary_PropertyAccessKind, accessors.asMap()), false)
+	return new_AccessorSummary(immutableMapCopyOf_(tc_string, tc_p_AccessorSummary_PropertyAccessKind, accessors.asMap()), false)
 }
 
 func (this *AccessorSummary) getAccessors() *ImmutableMap[string, AccessorSummary_PropertyAccessKind] {
@@ -34,7 +34,7 @@ func (this *AccessorSummary) getKind(name string) AccessorSummary_PropertyAccess
 }
 
 func AccessorSummary_createAssumingAlwaysGetterAndSetter() *AccessorSummary {
-	return new_AccessorSummary(immutableMapOf_(tc_string, tc_AccessorSummary_PropertyAccessKind, []string{}, []AccessorSummary_PropertyAccessKind{}), true)
+	return new_AccessorSummary(immutableMapOf_(tc_string, tc_p_AccessorSummary_PropertyAccessKind, []string{}, []AccessorSummary_PropertyAccessKind{}), true)
 }
 
 func (this *AccessorSummary) toProto() *AccessorSummaryProto {
@@ -72,7 +72,7 @@ func AccessorSummary_fromProto(proto *AccessorSummaryProto) *AccessorSummary {
 	if proto.getAssumeAlwaysGetterAndSetter() {
 		return AccessorSummary_createAssumingAlwaysGetterAndSetter()
 	}
-	var builder *ImmutableMap_Builder[string, AccessorSummary_PropertyAccessKind] = immutableMapBuilder_(tc_string, tc_AccessorSummary_PropertyAccessKind)
+	var builder *ImmutableMap_Builder[string, AccessorSummary_PropertyAccessKind] = immutableMapBuilder_(tc_string, tc_p_AccessorSummary_PropertyAccessKind)
 	for entry := range elemsAs_[*AccessorSummaryEntryProto](proto.getAccessorsList()) {
 		builder.put(entry.getName(), AccessorSummary_fromProtoPropertyAccessKindProto(entry.getKind()))
 	}

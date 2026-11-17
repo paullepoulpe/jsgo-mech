@@ -107,7 +107,7 @@ func IRFactory_transformTree(tree *ProgramTree, sourceFile StaticSourceFile, con
 	var n Node = irFactory.transformDispatcher.process(tree.up_ParseTree())
 	irFactory.setSourceInfo(n, tree.up_ParseTree())
 	if tree.sourceComments != nil {
-		for el := range tree.sourceComments.All() {
+		for _, el := range tree.sourceComments.items {
 			comment := el
 			if ((comment.type__ == Comment_Type_JSDOC) || (comment.type__ == Comment_Type_IMPORTANT)) && !has_(irFactory.parsedComments, comment) {
 				var useLicensesOnlyConfig bool = irFactory.withinClosureUnawareCodeRange(comment.location_.start_.line_, comment.location_.start_.column_)
@@ -1943,7 +1943,7 @@ func (this *IRFactory_TransformDispatcher) processFunctionCall(callNode *CallExp
 	var argumentsTree *ArgumentListTree = callNode.arguments
 	var zones []*SourcePosition_util = this.getEndOfArgCommentZones(argumentsTree.arguments, argumentsTree.commaPositions, argumentsTree.location_.end_)
 	var argCount int32 = 0
-	for el := range callNode.arguments.arguments.All() {
+	for _, el := range callNode.arguments.arguments.items {
 		child := el
 		var childNode Node = this.outer_.transform(child)
 		node.addChildToBack(childNode)
@@ -1979,7 +1979,7 @@ func (this *IRFactory_TransformDispatcher) isNormalOrOptChainGet(n Node) bool {
 func (this *IRFactory_TransformDispatcher) getEndOfArgCommentZones(args *ImmutableList[*ParseTree], commaPositions *ImmutableList[*SourcePosition_util], argListEndPosition *SourcePosition_util) []*SourcePosition_util {
 	var zones []*SourcePosition_util
 	var commaCount int32 = 0
-	for el := range args.All() {
+	for _, el := range args.items {
 		arg := el
 		if args.size() > (commaCount + 1) {
 			var nextParam *ParseTree = args.get((commaCount + 1))
@@ -2054,7 +2054,7 @@ func (this *IRFactory_TransformDispatcher) processOptChainFunctionCall(callNode 
 	this.outer_.maybeWarnForFeature(callNode.up_ParseTree(), FeatureSet_Feature_OPTIONAL_CHAINING)
 	var node Node = this.outer_.newNode_2(Token_rhino_OPTCHAIN_CALL, this.outer_.transform(callNode.operand))
 	node.setTrailingComma(callNode.hasTrailingComma_)
-	for el := range callNode.arguments.arguments.All() {
+	for _, el := range callNode.arguments.arguments.items {
 		child := el
 		node.addChildToBack(this.outer_.transform(child))
 	}
@@ -2176,7 +2176,7 @@ func (this *IRFactory_TransformDispatcher) processFormalParameterList(tree *Form
 	var parameters *ImmutableList[*ParseTree] = tree.parameters
 	var zones []*SourcePosition_util = this.getEndOfArgCommentZones(parameters, tree.commaPositions, tree.location_.end_)
 	var argCount int32 = 0
-	for el := range tree.parameters.All() {
+	for _, el := range tree.parameters.items {
 		param := el
 		var paramNode Node
 		switch param.type__ {
@@ -2431,7 +2431,7 @@ func (this *IRFactory_TransformDispatcher) processNewExpression(exprNode *NewExp
 	var node Node = this.outer_.newNode_2(Token_rhino_NEW, this.outer_.transform(exprNode.operand))
 	node.setTrailingComma(exprNode.hasTrailingComma_)
 	if exprNode.arguments != nil {
-		for el := range exprNode.arguments.arguments.All() {
+		for _, el := range exprNode.arguments.arguments.items {
 			arg := el
 			node.addChildToBack(this.outer_.transform(arg))
 		}

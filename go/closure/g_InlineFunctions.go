@@ -139,7 +139,7 @@ func (this *InlineFunctions) updateFunctionStateForInlining(fn InlineFunctions_F
 		}
 		if functionState.canInline() {
 			functionState.setChunk(chunk)
-			var namesToAlias *TSet[string] = tsetFrom_(tc_string, this.functionArgumentInjector_.findModifiedParameters(fnNode).asImm(), true)
+			var namesToAlias *TSet[string] = this.functionArgumentInjector_.findModifiedParameters(fnNode)
 			if !namesToAlias.isEmpty() {
 				functionState.inlineDirectly(false)
 				functionState.setNamesToAlias(namesToAlias)

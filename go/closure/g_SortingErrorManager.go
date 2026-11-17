@@ -119,7 +119,7 @@ func (this *SortingErrorManager) filterToListOf(level CheckLevel) *ImmutableList
 }
 
 func (this *SortingErrorManager) generateReport_impl() {
-	for el := range this.errorReportGenerators.All() {
+	for _, el := range this.errorReportGenerators.keys {
 		generator := el
 		generator.generateReport(this)
 	}

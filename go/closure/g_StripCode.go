@@ -23,7 +23,7 @@ func (this *StripCode) init_StripCode(compiler *AbstractCompiler, stripTypes *Im
 	this.finit_StripCode()
 	this.compiler_ = compiler
 	var stripNameSuffixesBuilder *ImmutableSet_Builder[string] = immutableSetBuilder_(tc_string)
-	for el := range stripNameSuffixes.All() {
+	for _, el := range stripNameSuffixes.keys {
 		s := el
 		for _, form := range StripCode_toListWithCollapsedVersions(s) {
 			stripNameSuffixesBuilder.add(form)
@@ -31,7 +31,7 @@ func (this *StripCode) init_StripCode(compiler *AbstractCompiler, stripTypes *Im
 	}
 	this.stripNameSuffixes = stripNameSuffixesBuilder.build()
 	var stripNamePrefixesBuilder *ImmutableSet_Builder[string] = immutableSetBuilder_(tc_string)
-	for el2 := range stripNamePrefixes.All() {
+	for _, el2 := range stripNamePrefixes.keys {
 		s := el2
 		for _, form := range StripCode_toListWithCollapsedVersions(s) {
 			stripNamePrefixesBuilder.add(form)
@@ -51,20 +51,20 @@ func (this *StripCode) init_StripCode(compiler *AbstractCompiler, stripTypes *Im
 	var stripTypesAdjusted *ImmutableSet[string] = stripTypesAdjustedBuilder.build()
 	this.stripTypesList = arrmap_(stripTypesAdjusted.asImm().toArray(arrmap_(newstrarr_(0), func(v_ string) any { return strobj_(v_) })), func(v_ any) string { return str_(v_) })
 	var stripTypePrefixes []string = []string{}
-	for el3 := range stripTypesAdjusted.All() {
+	for _, el3 := range stripTypesAdjusted.keys {
 		s := el3
 		stripTypePrefixes = append(stripTypePrefixes, (sstr_(s) + "."))
 		stripTypePrefixes = append(stripTypePrefixes, (sstr_(s) + "$"))
 	}
 	this.stripTypePrefixesList = arrmap_(sliceView_(tc_string, stripTypePrefixes).toArray(arrmap_(newstrarr_(0), func(v_ string) any { return strobj_(v_) })), func(v_ any) string { return str_(v_) })
 	var stripNamePrefixesLowerCase []string = []string{}
-	for el4 := range this.stripNamePrefixes.All() {
+	for _, el4 := range this.stripNamePrefixes.keys {
 		s := el4
 		stripNamePrefixesLowerCase = append(stripNamePrefixesLowerCase, strings.ToLower(s))
 	}
 	this.stripNamePrefixesLowerCaseList = arrmap_(sliceView_(tc_string, stripNamePrefixesLowerCase).toArray(arrmap_(newstrarr_(0), func(v_ string) any { return strobj_(v_) })), func(v_ any) string { return str_(v_) })
 	var stripNameSuffixesLowerCase []string = []string{}
-	for el5 := range this.stripNameSuffixes.All() {
+	for _, el5 := range this.stripNameSuffixes.keys {
 		s := el5
 		stripNameSuffixesLowerCase = append(stripNameSuffixesLowerCase, strings.ToLower(s))
 	}
@@ -137,13 +137,13 @@ func new_StripCode_StripCodeConfigRecord(outer_ *StripCode) *StripCode_StripCode
 func (this *StripCode_StripCodeConfigRecord) get() any {
 	var builder strBuilder_
 	builder.append("=== stripNameSuffixes ===\n")
-	for el := range this.outer_.stripNameSuffixes.All() {
+	for _, el := range this.outer_.stripNameSuffixes.keys {
 		stripNameSuffix := el
 		builder.append(stripNameSuffix).append("\n")
 	}
 	builder.append("\n")
 	builder.append("=== stripNamePrefixes ===\n")
-	for el2 := range this.outer_.stripNamePrefixes.All() {
+	for _, el2 := range this.outer_.stripNamePrefixes.keys {
 		stripNamePrefix := el2
 		builder.append(stripNamePrefix).append("\n")
 	}

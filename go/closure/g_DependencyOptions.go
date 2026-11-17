@@ -126,11 +126,11 @@ func DependencyOptions_fromFlags(dependencyModeFlag DependencyOptions_Dependency
 		case DependencyOptions_DependencyMode_SORT_ONLY:
 			return DependencyOptions_sortOnly()
 		case DependencyOptions_DependencyMode_PRUNE_LEGACY:
-			return DependencyOptions_pruneLegacyForEntryPoints(icast_Iterable(obj_(entryPointsBuilder.build().asImm())))
+			return DependencyOptions_pruneLegacyForEntryPoints(icast_Iterable(obj_(entryPointsBuilder.buildErased())))
 		case DependencyOptions_DependencyMode_PRUNE_ALLOW_NO_ENTRY_POINTS:
-			return DependencyOptions_pruneAllowNoEntryPoints(icast_Iterable(obj_(entryPointsBuilder.build().asImm())))
+			return DependencyOptions_pruneAllowNoEntryPoints(icast_Iterable(obj_(entryPointsBuilder.buildErased())))
 		case DependencyOptions_DependencyMode_PRUNE:
-			return DependencyOptions_pruneForEntryPoints(icast_Iterable(obj_(entryPointsBuilder.build().asImm())))
+			return DependencyOptions_pruneForEntryPoints(icast_Iterable(obj_(entryPointsBuilder.buildErased())))
 		}
 		panic("unreachable")
 	}()
@@ -150,13 +150,13 @@ func (this *DependencyOptions) equals(p0 any) bool {
 	if !ok || o == nil {
 		return false
 	}
-	return true && this.mode_ == o.mode_ && objequalsBy_(this.entryPoints_.asImm(), obj_(o.entryPoints_.asImm()), (ImmutableListOf[*ModuleIdentifier]).equals)
+	return true && this.mode_ == o.mode_ && tlistEq_(this.entryPoints_, o.entryPoints_, true)
 }
 
 func (this *DependencyOptions) hashCode() int32 {
 	var h int32
 	h = h*31 + objhashId_(this.mode_)
-	h = h*31 + objhashBy_(this.entryPoints_.asImm(), (ImmutableListOf[*ModuleIdentifier]).hashCode)
+	h = h*31 + tlistHash_(this.entryPoints_, true)
 	return h
 }
 

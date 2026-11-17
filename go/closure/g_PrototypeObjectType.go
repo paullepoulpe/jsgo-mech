@@ -323,7 +323,7 @@ func (this *PrototypeObjectType) matchConstraint_impl(constraint *JSType) {
 	if constraint.isRecordType() {
 		this.matchRecordTypeConstraint(constraint.toObjectType())
 	} else if constraint.isUnionType() {
-		for el := range constraint.toMaybeUnionType().getAlternates().All() {
+		for _, el := range constraint.toMaybeUnionType().getAlternates().items {
 			alt := el
 			if alt.isRecordType() {
 				this.matchRecordTypeConstraint(alt.toObjectType())

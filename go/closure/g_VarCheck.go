@@ -155,7 +155,7 @@ func (this *VarCheck) enterScope(t *NodeTraversal) {
 func (this *VarCheck) exitScope(t *NodeTraversal) {
 	if !this.validityCheck && t.inGlobalScope() {
 		var scope *Scope = t.getScope()
-		for el := range VarCheck_REQUIRED_SYMBOLS.All() {
+		for _, el := range VarCheck_REQUIRED_SYMBOLS.keys {
 			requiredSymbol := el
 			var var_ *Var = cast_[*Var](scope.getVar(requiredSymbol).self())
 			if var_ == nil {

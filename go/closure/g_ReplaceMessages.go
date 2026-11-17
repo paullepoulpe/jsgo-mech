@@ -39,7 +39,7 @@ func (this *ReplaceMessages) createMsgPropertiesNode(message *JsMessage, msgOpti
 	msgPropsBuilder.addString("key", message.getKey())
 	if msgOptions.isIcuTemplate() && !message.canonicalPlaceholderNames().isEmpty() {
 		var namesArrayLit Node = this.astFactory_.createArraylit([]Node{})
-		for el := range message.canonicalPlaceholderNames().All() {
+		for _, el := range message.canonicalPlaceholderNames().keys {
 			name := el
 			namesArrayLit.addChildToBack(this.astFactory_.createString(name))
 		}
@@ -93,7 +93,7 @@ func (this *ReplaceMessages) lookupMessage(callNode Node, bundle MessageBundle, 
 	if alternateMessage != nil {
 		var jsCodePlaceholderNames *ImmutableSet[string] = message.jsPlaceholderNames()
 		var alternateMsgPlaceholderNames *ImmutableSet[string] = alternateMessage.jsPlaceholderNames()
-		if !objequalsBy_(jsCodePlaceholderNames.asImm(), obj_(alternateMsgPlaceholderNames.asImm()), (ImmutableSetOf[string]).equals) {
+		if !tsetEq_(jsCodePlaceholderNames, alternateMsgPlaceholderNames, true) {
 			if jsCodePlaceholderNames.isEmpty() && ReplaceMessages_isStartOfIcuMessage(message.asIcuMessageString()) {
 				return alternateMessage
 			} else {
@@ -260,7 +260,7 @@ func (this *ReplaceMessages) constructNonGenderedMsgNode(message *JsMessage, pla
 			}
 		}
 	}
-	return this.buildMessageNode(sliceImm_(tc_JsMessage_Part, message.getParts().asImm()), options, nodeToReplace, func(p0 string) Node { return placeholderMap.get(p0) }, false)
+	return this.buildMessageNode(immItems_(message.getParts()), options, nodeToReplace, func(p0 string) Node { return placeholderMap.get(p0) }, false)
 }
 
 func (this *ReplaceMessages) createNodeForMsgString(options *ReplaceMessages_MsgOptions, s string) Node {
@@ -574,7 +574,7 @@ func (this *ReplaceMessages_ReplacementCompletionPass) visitMsgDefinition(protec
 		msgToUse = originalMsg
 	}
 	var msgOptions *ReplaceMessages_MsgOptions = protectedJsMessage.getMsgOptions()
-	var placeholderMap *TMap[string, Node] = tmapFrom_(tc_string, tc_Node, ReplaceMessages_extractPlaceholderValuesMapOrThrow(protectedJsMessage.substitutionsNode).asImm(), true)
+	var placeholderMap *TMap[string, Node] = ReplaceMessages_extractPlaceholderValuesMapOrThrow(protectedJsMessage.substitutionsNode)
 	var finalMsgConstructionExpressionOutcome *Outcome_base[Node] = this.outer_.constructStringExprNode(msgToUse, placeholderMap, msgOptions, nodeToReplace)
 	if finalMsgConstructionExpressionOutcome.isErr() {
 		var e *JsMessageVisitor_MalformedException = cast_[*JsMessageVisitor_MalformedException](finalMsgConstructionExpressionOutcome.error().self())
@@ -690,7 +690,7 @@ func (this *ReplaceMessages_FullReplacementMsgData) equals(p0 any) bool {
 	if !ok || o == nil {
 		return false
 	}
-	return true && objequalsBy_(this.message_, obj_(o.message_), (*JsMessage).equals) && this.messageNode_ == o.messageNode_ && objequalsBy_(this.messageOptions_, obj_(o.messageOptions_), (*ReplaceMessages_MsgOptions).equals) && objequalsBy_(this.placeholderValueMap_.asImm(), obj_(o.placeholderValueMap_.asImm()), (ImmutableMapOf[string, Node]).equals)
+	return true && objequalsBy_(this.message_, obj_(o.message_), (*JsMessage).equals) && this.messageNode_ == o.messageNode_ && objequalsBy_(this.messageOptions_, obj_(o.messageOptions_), (*ReplaceMessages_MsgOptions).equals) && tmapEq_(this.placeholderValueMap_, o.placeholderValueMap_, true)
 }
 
 func (this *ReplaceMessages_FullReplacementMsgData) hashCode() int32 {
@@ -698,7 +698,7 @@ func (this *ReplaceMessages_FullReplacementMsgData) hashCode() int32 {
 	h = h*31 + objhashBy_(this.message_, (*JsMessage).hashCode)
 	h = h*31 + objhashId_(this.messageNode_)
 	h = h*31 + objhashBy_(this.messageOptions_, (*ReplaceMessages_MsgOptions).hashCode)
-	h = h*31 + objhashBy_(this.placeholderValueMap_.asImm(), (ImmutableMapOf[string, Node]).hashCode)
+	h = h*31 + tmapHash_(this.placeholderValueMap_, true)
 	return h
 }
 
@@ -776,7 +776,7 @@ func (this *ReplaceMessages_FullReplacementPass) processFullReplacement(fullRepl
 		}
 	}
 	var newValue Node
-	var newValueOutcome *Outcome_base[Node] = this.outer_.constructStringExprNode(replacement, tmapFrom_(tc_string, tc_Node, placeholderValueMap.asImm(), true), options, msgNode)
+	var newValueOutcome *Outcome_base[Node] = this.outer_.constructStringExprNode(replacement, placeholderValueMap, options, msgNode)
 	if newValueOutcome.isErr() {
 		var e *JsMessageVisitor_MalformedException = cast_[*JsMessageVisitor_MalformedException](newValueOutcome.error().self())
 		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(e.getNode(), JsMessageVisitor_MESSAGE_TREE_MALFORMED, []string{e.getMessage()}))

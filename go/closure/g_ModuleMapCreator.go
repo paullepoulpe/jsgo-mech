@@ -31,7 +31,7 @@ func new_ModuleMapCreator(compiler *AbstractCompiler, moduleMetadataMap *ModuleM
 func (this *ModuleMapCreator) create() *ModuleMap {
 	this.unresolvedModules.clear()
 	this.unresolvedModulesByClosureNamespace.clear()
-	for el := range this.moduleMetadataMap.getAllModuleMetadata().All() {
+	for _, el := range this.moduleMetadataMap.getAllModuleMetadata().keys {
 		moduleMetadata := el
 		this.process(moduleMetadata)
 	}
@@ -44,7 +44,7 @@ func (this *ModuleMapCreator) resolve() *ModuleMap {
 	var resolvedClosureModules *TMap[string, *Module] = newTMap_(tc_string, tc_p_Module)
 	for do_2 := true; do_2; do_2 = !resolvedModules.asMap().keySet().containsAll(Collection(this.unresolvedModules.asMap().keySet())) {
 		var toResolve *ImmutableSet[string] = tsetFrom_(tc_string, Sets_difference(this.unresolvedModules.asMap().keySet(), resolvedModules.asMap().keySet()).immutableCopy(), true)
-		for el := range toResolve.All() {
+		for _, el := range toResolve.keys {
 			key := el
 			var resolved *Module = this.unresolvedModules.get(key).resolve(requestResolver)
 			resolvedModules.put(key, resolved)
@@ -55,7 +55,7 @@ func (this *ModuleMapCreator) resolve() *ModuleMap {
 	}
 	for do_8 := true; do_8; do_8 = !resolvedClosureModules.asMap().keySet().containsAll(Collection(this.unresolvedModulesByClosureNamespace.asMap().keySet())) {
 		var toResolve *ImmutableSet[string] = tsetFrom_(tc_string, Sets_difference(this.unresolvedModulesByClosureNamespace.asMap().keySet(), resolvedClosureModules.asMap().keySet()).immutableCopy(), true)
-		for el2 := range toResolve.All() {
+		for _, el2 := range toResolve.keys {
 			namespace := el2
 			resolvedClosureModules.put(namespace, this.unresolvedModulesByClosureNamespace.get(namespace).resolve(requestResolver))
 		}

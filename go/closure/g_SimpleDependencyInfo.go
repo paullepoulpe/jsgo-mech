@@ -105,17 +105,17 @@ func (this *SimpleDependencyInfo) equals(p0 any) bool {
 	if !ok || o == nil {
 		return false
 	}
-	return true && this.getName_ == o.getName_ && this.getPathRelativeToClosureBase_ == o.getPathRelativeToClosureBase_ && objequalsBy_(this.getProvides_.asImm(), obj_(o.getProvides_.asImm()), (ImmutableListOf[string]).equals) && objequalsBy_(this.getRequires_.asImm(), obj_(o.getRequires_.asImm()), (ImmutableListOf[*DependencyInfo_Require]).equals) && objequalsBy_(this.getTypeRequires_.asImm(), obj_(o.getTypeRequires_.asImm()), (ImmutableListOf[string]).equals) && objequalsBy_(this.getLoadFlags_.asImm(), obj_(o.getLoadFlags_.asImm()), (ImmutableMapOf[string, string]).equals) && this.getHasExternsAnnotation_ == o.getHasExternsAnnotation_ && this.getHasNoCompileAnnotation_ == o.getHasNoCompileAnnotation_
+	return true && this.getName_ == o.getName_ && this.getPathRelativeToClosureBase_ == o.getPathRelativeToClosureBase_ && tlistEq_(this.getProvides_, o.getProvides_, true) && tlistEq_(this.getRequires_, o.getRequires_, true) && tlistEq_(this.getTypeRequires_, o.getTypeRequires_, true) && tmapEq_(this.getLoadFlags_, o.getLoadFlags_, true) && this.getHasExternsAnnotation_ == o.getHasExternsAnnotation_ && this.getHasNoCompileAnnotation_ == o.getHasNoCompileAnnotation_
 }
 
 func (this *SimpleDependencyInfo) hashCode() int32 {
 	var h int32
 	h = h*31 + objhashStr_(this.getName_)
 	h = h*31 + objhashStr_(this.getPathRelativeToClosureBase_)
-	h = h*31 + objhashBy_(this.getProvides_.asImm(), (ImmutableListOf[string]).hashCode)
-	h = h*31 + objhashBy_(this.getRequires_.asImm(), (ImmutableListOf[*DependencyInfo_Require]).hashCode)
-	h = h*31 + objhashBy_(this.getTypeRequires_.asImm(), (ImmutableListOf[string]).hashCode)
-	h = h*31 + objhashBy_(this.getLoadFlags_.asImm(), (ImmutableMapOf[string, string]).hashCode)
+	h = h*31 + tlistHash_(this.getProvides_, true)
+	h = h*31 + tlistHash_(this.getRequires_, true)
+	h = h*31 + tlistHash_(this.getTypeRequires_, true)
+	h = h*31 + tmapHash_(this.getLoadFlags_, true)
 	h = h*31 + Boolean_hashCode(bool(this.getHasExternsAnnotation_))
 	h = h*31 + Boolean_hashCode(bool(this.getHasNoCompileAnnotation_))
 	return h

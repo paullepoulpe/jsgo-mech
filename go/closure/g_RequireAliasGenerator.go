@@ -21,7 +21,7 @@ func new_RequireAliasGenerator(namespace string) *RequireAliasGenerator {
 func RequireAliasGenerator_createSkiplistedAliases() *ImmutableSet[string] {
 	var seeds *ImmutableSet[string] = immutableSetOf_(tc_string, "", "array", "event", "map", "math", "object", "promise", "set", "string", "thenable")
 	var builder *ImmutableSet_Builder[string] = immutableSetBuilder_(tc_string)
-	for el := range seeds.All() {
+	for _, el := range seeds.keys {
 		seed := el
 		builder.add(RequireAliasGenerator_captializeFirstChar(seed))
 		builder.add(Ascii_toLowerCase(seed))

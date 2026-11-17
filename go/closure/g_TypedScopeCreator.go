@@ -268,7 +268,7 @@ func (this *TypedScopeCreator) createInitialScope(root Node) *TypedScope {
 }
 
 func (this *TypedScopeCreator) addWellKnownSymbols(scope *TypedScope) {
-	for el := range TypedScopeCreator_WELL_KNOWN_SYMBOLS.All() {
+	for _, el := range TypedScopeCreator_WELL_KNOWN_SYMBOLS.keys {
 		symbol := el
 		var type_ *JSType = new_KnownSymbolType(this.typeRegistry, symbol).up_JSType()
 		TypedScopeCreator_declareNativeType(scope, symbol, type_)
@@ -1967,7 +1967,7 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) getObjectSlot(slotName strin
 func (this *TypedScopeCreator_AbstractScopeBuilder) getInheritedInterfacePropertyType(obj *ObjectType, propName string) *JSType {
 	if (obj != nil) && obj.isFunctionPrototypeType() {
 		var f *FunctionType = obj.getOwnerFunction()
-		for el_1 := range f.getImplementedInterfaces().All() {
+		for _, el_1 := range f.getImplementedInterfaces().items {
 			var i *ObjectType = el_1
 			if i.hasProperty(propName) {
 				return i.getPropertyType(propName)
@@ -2357,7 +2357,7 @@ func (this *TypedScopeCreator_FunctionScopeBuilder) declareTemplatesInFunctionBo
 	var isPossiblePrototypeMethod bool = (!functionType.hasInstanceType() && ((info == nil) || !info.hasThisType()))
 	if isPossiblePrototypeMethod {
 		var ownerNode Node = NodeUtil_getBestLValue(functionNode)
-		for el := range this.findOwnerTypeKeys(ownerNode).All() {
+		for _, el := range this.findOwnerTypeKeys(ownerNode).items {
 			templateKey := el
 			templateNames.add(templateKey.getReferenceName().orElseThrow())
 		}

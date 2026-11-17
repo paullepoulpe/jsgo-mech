@@ -4270,7 +4270,7 @@ func NodeUtil_getInvocationArgsAsIterable(invocation Node) IterableOf[Node] {
 			list.add(arg)
 		}
 	}
-	return icast_Iterable(obj_(list.build().asImm()))
+	return icast_Iterable(obj_(list.buildErased()))
 }
 
 func NodeUtil_getInvocationArgsCount(invocation Node) int32 {
@@ -4410,7 +4410,7 @@ func NodeUtil_addFeaturesToScript(scriptNode Node, features *FeatureSet, compile
 	if !scriptNode.isScript() {
 		panic(new_IllegalStateException_String(tostr_(scriptNode)).self())
 	}
-	for el := range features.getFeatures().All() {
+	for _, el := range features.getFeatures().keys {
 		feature := el
 		NodeUtil_addFeatureToScript(scriptNode, feature, compiler)
 	}

@@ -367,7 +367,7 @@ type OptimizeCalls_ReferenceMapBuildingCallback struct {
 }
 
 func (this *OptimizeCalls_ReferenceMapBuildingCallback) init_OptimizeCalls_ReferenceMapBuildingCallback(references *OptimizeCalls_ReferenceMap) {
-	this.externProps = OptimizeCalls_safeSet(tsetFrom_(tc_string, this.outer_.compiler_.getExternProperties().asImm(), true))
+	this.externProps = OptimizeCalls_safeSet(this.outer_.compiler_.getExternProperties())
 	this.references = references
 }
 

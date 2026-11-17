@@ -57,7 +57,7 @@ func (this *ProductionInstrumentationReporter) getAllExecutionResults(folder str
 		}
 		result.add(icast_Map(executedInstrumentationData.get()))
 	}
-	return Outcome_base_ok_Object[*ErasedImmutableList](result.build().asImm())
+	return Outcome_base_ok_Object[*ErasedImmutableList](result.buildErased())
 }
 
 func ProductionInstrumentationReporter_parseJsonStringToLongMap(json string) *Outcome_base[Map] {

@@ -213,7 +213,7 @@ func (this *CompilerBasedTransformer_CompileResult) init_CompilerBasedTransforme
 	if errors == nil {
 		panic(new_NullPointerException_0().self())
 	}
-	this.errors_ = sliceImm_(tc_p_JSError, errors.asImm())
+	this.errors_ = immItems_(errors)
 	this.transformed_ = transformed
 	this.sourceMap_ = sourceMap
 }

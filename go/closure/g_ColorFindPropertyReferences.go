@@ -95,7 +95,7 @@ func (this *ColorFindPropertyReferences) handleClass(t *NodeTraversal, classNode
 				if classInstanceType.isEmpty() {
 					return obj_(StandardColors_UNKNOWN)
 				}
-				return obj_(Color_createUnion(tsetFrom_(tch_p_Color, classInstanceType.asImm(), true)))
+				return obj_(Color_createUnion(classInstanceType))
 			}()
 		} else {
 			if !((m.isMemberFunctionDef() || m.isGetterDef()) || m.isSetterDef()) {
@@ -106,7 +106,7 @@ func (this *ColorFindPropertyReferences) handleClass(t *NodeTraversal, classNode
 				if classPrototypeType.isEmpty() {
 					return obj_(StandardColors_UNKNOWN)
 				}
-				return obj_(Color_createUnion(tsetFrom_(tch_p_Color, classPrototypeType.asImm(), true)))
+				return obj_(Color_createUnion(classPrototypeType))
 			}()
 		}
 	})

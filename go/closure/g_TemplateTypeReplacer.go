@@ -40,7 +40,7 @@ func new_TemplateTypeReplacer(registry *JSTypeRegistry, bindings *TemplateTypeMa
 func TemplateTypeReplacer_forInference(registry *JSTypeRegistry, bindings *TMap[*TemplateType, *JSType]) *TemplateTypeReplacer {
 	var keys *ImmutableList[*TemplateType] = immutableListCopyOf_(tc_p_TemplateType, Collection(bindings.asMap().keySet()))
 	var values []*JSType
-	for el := range keys.All() {
+	for _, el := range keys.items {
 		key := el
 		var value *JSType = bindings.get(key)
 		values = immAddObj_(tc_p_JSType, values, func() any {
@@ -143,9 +143,9 @@ func (this *TemplateTypeReplacer) caseFunctionTypeUnguarded(type_ *FunctionType)
 	if changed {
 		return type_.toBuilder().withParameters_1(func() *TList[*FunctionType_Parameter] {
 			if paramsChanged {
-				return tlistImm_(tc_p_FunctionType_Parameter, paramBuilder.build().asImm())
+				return paramBuilder.build()
 			}
-			return tlistImm_(tc_p_FunctionType_Parameter, type_.getParameters().asImm())
+			return type_.getParameters()
 		}()).withReturnType(afterReturn).withTypeOfThis(afterThis).withIsAbstract(false).build().up_JSType()
 	}
 	return type_.up_JSType()
@@ -205,7 +205,7 @@ func (this *TemplateTypeReplacer) caseTemplatizedTypeUnguarded(type_ *Templatize
 		changed = true
 	}
 	var builder *ImmutableList_Builder[*JSType] = immutableListBuilder_(tc_p_JSType)
-	for el := range type_.getTemplateTypes().All() {
+	for _, el := range type_.getTemplateTypes().items {
 		beforeTemplateType := el
 		var afterTemplateType *JSType = to_JSType(beforeTemplateType.visit(this))
 		if !JSCompObjects_identical(beforeTemplateType.self(), afterTemplateType.self()) {

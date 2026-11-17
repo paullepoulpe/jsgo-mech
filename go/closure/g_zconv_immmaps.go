@@ -4,7 +4,6 @@ package closure
 
 // Element conversions of the typed immmaps.
 
-var tc_AccessorSummary_PropertyAccessKind = &tconv_[AccessorSummary_PropertyAccessKind]{box: func(v AccessorSummary_PropertyAccessKind) any { return v.self() }, unbox: func(v any) AccessorSummary_PropertyAccessKind { return cast_[AccessorSummary_PropertyAccessKind](v) }}
 var tc_Annotation_parsing = &tconv_[Annotation_parsing]{box: func(v Annotation_parsing) any { return v.self() }, unbox: func(v any) Annotation_parsing { return cast_[Annotation_parsing](v) }}
 var tc_Binding_CreatedBy = &tconv_[Binding_CreatedBy]{box: func(v Binding_CreatedBy) any { return v.self() }, unbox: func(v any) Binding_CreatedBy { return cast_[Binding_CreatedBy](v) }}
 var tc_CheckNestedNames_DeclarationKind = &tconv_[CheckNestedNames_DeclarationKind]{box: func(v CheckNestedNames_DeclarationKind) any { return v.self() }, unbox: func(v any) CheckNestedNames_DeclarationKind { return cast_[CheckNestedNames_DeclarationKind](v) }}

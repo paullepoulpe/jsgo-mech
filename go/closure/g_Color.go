@@ -68,12 +68,12 @@ func (this *Color) equals_Color(that *Color) bool {
 		return true
 	}
 	if that != nil {
-		return (((((((((this.id.equals_ColorId(that.getId()) && equalsBy_(this.prototypes.asImm(), obj_(that.getPrototypes().asImm()), (ImmutableSetOf[*Color]).equals)) && equalsBy_(this.instanceColors.asImm(), obj_(that.getInstanceColors().asImm()), (ImmutableSetOf[*Color]).equals)) && (this.invalidating == that.isInvalidating())) && (this.propertiesKeepOriginalName == that.getPropertiesKeepOriginalName())) && (this.constructor_ == that.isConstructor())) && equalsBy_(this.ownProperties.asImm(), obj_(that.getOwnProperties().asImm()), (ImmutableSetOf[string]).equals)) && func() bool {
+		return (((((((((this.id.equals_ColorId(that.getId()) && tsetEq_(this.prototypes, that.getPrototypes(), false)) && tsetEq_(this.instanceColors, that.getInstanceColors(), false)) && (this.invalidating == that.isInvalidating())) && (this.propertiesKeepOriginalName == that.getPropertiesKeepOriginalName())) && (this.constructor_ == that.isConstructor())) && tsetEq_(this.ownProperties, that.getOwnProperties(), false)) && func() bool {
 			if this.boxId == nil {
 				return (that.getBoxId() == nil)
 			}
 			return this.boxId.equals_ColorId(that.getBoxId())
-		}()) && (this.closureAssert == that.isClosureAssert())) && equalsBy_(this.unionElements.asImm(), obj_(that.getUnionElements().asImm()), (ImmutableSetOf[*Color]).equals))
+		}()) && (this.closureAssert == that.isClosureAssert())) && tsetEq_(this.unionElements, that.getUnionElements(), false))
 	}
 	return false
 }
@@ -83,9 +83,9 @@ func (this *Color) hashCode() int32 {
 	h *= 1000003
 	h ^= this.id.hashCode()
 	h *= 1000003
-	h ^= hashBy_(this.prototypes.asImm(), (ImmutableSetOf[*Color]).hashCode)
+	h ^= tsetHash_(this.prototypes, false)
 	h *= 1000003
-	h ^= hashBy_(this.instanceColors.asImm(), (ImmutableSetOf[*Color]).hashCode)
+	h ^= tsetHash_(this.instanceColors, false)
 	h *= 1000003
 	h ^= func() int32 {
 		if this.invalidating {
@@ -108,7 +108,7 @@ func (this *Color) hashCode() int32 {
 		return 1237
 	}()
 	h *= 1000003
-	h ^= hashBy_(this.ownProperties.asImm(), (ImmutableSetOf[string]).hashCode)
+	h ^= tsetHash_(this.ownProperties, false)
 	h *= 1000003
 	h ^= func() int32 {
 		if this.boxId == nil {
@@ -124,7 +124,7 @@ func (this *Color) hashCode() int32 {
 		return 1237
 	}()
 	h *= 1000003
-	h ^= hashBy_(this.unionElements.asImm(), (ImmutableSetOf[*Color]).hashCode)
+	h ^= tsetHash_(this.unionElements, false)
 	return h
 }
 
@@ -191,7 +191,7 @@ func Color_createUnion(elements *TSet[*Color]) *Color {
 	var propertiesKeepOriginalName bool = false
 	for element := range elements.All() {
 		if element.isUnion() {
-			for el := range element.getUnionElements().All() {
+			for _, el := range element.getUnionElements().keys {
 				nestedElement := el
 				newElements.add(nestedElement)
 				ids.add(nestedElement.getId())
@@ -240,7 +240,7 @@ func (this *Color) subtractNullOrVoidUncached() *Color {
 	if !this.getUnionElements().contains(StandardColors_NULL_OR_VOID) {
 		return this
 	}
-	var elements *TSet[*Color] = tsetFrom_(tch_p_Color, icast_Collection(obj_(this.getUnionElements().asImm())), false)
+	var elements *TSet[*Color] = tsetCopyT_(tch_p_Color, this.getUnionElements())
 	elements.remove(StandardColors_NULL_OR_VOID)
 	return Color_createUnion(elements)
 }

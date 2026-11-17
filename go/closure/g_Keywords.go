@@ -295,7 +295,7 @@ func Keywords_clinit() {
 			keywordsByName.put(Keywords_value__[kw-1], kw)
 			keywordsByType.put(obj_(Keywords_type___[kw-1]), obj_(kw))
 		}
-		Keywords_KEYWORDS_BY_NAME = keywordsByName.buildOrThrow().asImm()
+		Keywords_KEYWORDS_BY_NAME = keywordsByName.buildOrThrowErased()
 		Keywords_KEYWORDS_BY_TYPE = Maps_immutableEnumMap(keywordsByType)
 	}
 

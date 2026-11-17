@@ -177,7 +177,7 @@ func (this *PropertyMap) getAllKeys() *PropertyMap_AllKeys {
 		this.cachedKeySet = ImmutableSortedSet_copyOfSorted(keys.asSet())
 		this.cachedKnownSymbolsKeySet = immutableSetCopyOf_(tch_p_KnownSymbolType, Collection(knownSymbolsKeys.asSet()))
 	}
-	return new_PropertyMap_AllKeys(this.cachedKeySet, tsetFrom_(tch_p_KnownSymbolType, this.cachedKnownSymbolsKeySet.asImm(), true))
+	return new_PropertyMap_AllKeys(this.cachedKeySet, this.cachedKnownSymbolsKeySet)
 }
 
 func (this *PropertyMap) collectAllAncestors(ancestors *TSet[*PropertyMap]) {

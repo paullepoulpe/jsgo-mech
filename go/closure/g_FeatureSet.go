@@ -7,7 +7,7 @@ type FeatureSet struct {
 }
 
 func (this *FeatureSet) init_FeatureSet(features EnumSetOf[FeatureSet_Feature]) {
-	this.features_ = immutableSetCopyOf_(tc_FeatureSet_Feature, icast_Collection(obj_(features)))
+	this.features_ = immutableSetCopyOf_(tc_p_FeatureSet_Feature, icast_Collection(obj_(features)))
 }
 
 func new_FeatureSet(features EnumSetOf[FeatureSet_Feature]) *FeatureSet {
@@ -67,23 +67,23 @@ func (this *FeatureSet) versionForDebugging() string {
 }
 
 func (this *FeatureSet) without_2(featureToRemove FeatureSet_Feature, moreFeaturesToRemove []FeatureSet_Feature) *FeatureSet {
-	return new_FeatureSet(FeatureSet_difference(tsetFrom_(tc_p_FeatureSet_Feature, this.features_.asImm(), true), EnumSet_of_Enum_EnumArr(featureToRemove.enum_(), arrmap_(moreFeaturesToRemove, func(v_ FeatureSet_Feature) *Enum { return v_.enum_() }))))
+	return new_FeatureSet(FeatureSet_difference(this.features_, EnumSet_of_Enum_EnumArr(featureToRemove.enum_(), arrmap_(moreFeaturesToRemove, func(v_ FeatureSet_Feature) *Enum { return v_.enum_() }))))
 }
 
 func (this *FeatureSet) without(other *FeatureSet) *FeatureSet {
-	return new_FeatureSet(FeatureSet_difference(tsetFrom_(tc_p_FeatureSet_Feature, this.features_.asImm(), true), icast_Set(obj_(other.features_.asImm()))))
+	return new_FeatureSet(FeatureSet_difference(this.features_, icast_Set(obj_(other.features_.asImm()))))
 }
 
 func (this *FeatureSet) withoutTypes() *FeatureSet {
-	return new_FeatureSet(FeatureSet_difference(tsetFrom_(tc_p_FeatureSet_Feature, this.features_.asImm(), true), icast_Set(obj_(FeatureSet_LangVersion_TYPESCRIPT.features()))))
+	return new_FeatureSet(FeatureSet_difference(this.features_, icast_Set(obj_(FeatureSet_LangVersion_TYPESCRIPT.features()))))
 }
 
 func (this *FeatureSet) union(other *FeatureSet) *FeatureSet {
-	return new_FeatureSet(FeatureSet_union(tsetFrom_(tc_p_FeatureSet_Feature, this.features_.asImm(), true), icast_Set(obj_(other.features_.asImm()))))
+	return new_FeatureSet(FeatureSet_union(this.features_, icast_Set(obj_(other.features_.asImm()))))
 }
 
 func (this *FeatureSet) containsAtLeastOneOf(other *FeatureSet) bool {
-	for el_1 := range other.features_.All() {
+	for _, el_1 := range other.features_.keys {
 		var otherFeature FeatureSet_Feature = el_1
 		if this.features_.contains(otherFeature) {
 			return true
@@ -135,19 +135,19 @@ func (this *FeatureSet) with(feature FeatureSet_Feature) *FeatureSet {
 	if this.features_.contains(feature) {
 		return this
 	}
-	return new_FeatureSet(FeatureSet_add(tsetFrom_(tc_p_FeatureSet_Feature, this.features_.asImm(), true), feature))
+	return new_FeatureSet(FeatureSet_add(this.features_, feature))
 }
 
 func (this *FeatureSet) withFeatureVarargs(newFeatures []FeatureSet_Feature) *FeatureSet {
-	return new_FeatureSet(FeatureSet_union(tsetFrom_(tc_p_FeatureSet_Feature, this.features_.asImm(), true), ImmutableSet_copyOf_ObjectArr(arrmap_(newFeatures, func(v_ FeatureSet_Feature) any { return obj_(v_) }))))
+	return new_FeatureSet(FeatureSet_union(this.features_, ImmutableSet_copyOf_ObjectArr(arrmap_(newFeatures, func(v_ FeatureSet_Feature) any { return obj_(v_) }))))
 }
 
 func (this *FeatureSet) withSet(newFeatures SetOf[FeatureSet_Feature]) *FeatureSet {
-	return new_FeatureSet(FeatureSet_union(tsetFrom_(tc_p_FeatureSet_Feature, this.features_.asImm(), true), newFeatures))
+	return new_FeatureSet(FeatureSet_union(this.features_, newFeatures))
 }
 
 func (this *FeatureSet) withFeatureSet(newFeatures *FeatureSet) *FeatureSet {
-	return new_FeatureSet(FeatureSet_union(tsetFrom_(tc_p_FeatureSet_Feature, this.features_.asImm(), true), icast_Set(obj_(newFeatures.features_.asImm()))))
+	return new_FeatureSet(FeatureSet_union(this.features_, icast_Set(obj_(newFeatures.features_.asImm()))))
 }
 
 func (this *FeatureSet) has(feature FeatureSet_Feature) bool {
@@ -165,11 +165,11 @@ func (this *FeatureSet) equals(other any) bool {
 
 // equals_FeatureSet is equals of a FeatureSet (post-flip step eqtyped).
 func (this *FeatureSet) equals_FeatureSet(featureSet *FeatureSet) bool {
-	return ((featureSet != nil) && equalsBy_(featureSet.features_.asImm(), obj_(this.features_.asImm()), (ImmutableSetOf[FeatureSet_Feature]).equals))
+	return ((featureSet != nil) && tsetEq_(featureSet.features_, this.features_, false))
 }
 
 func (this *FeatureSet) hashCode() int32 {
-	return hashBy_(this.features_.asImm(), (ImmutableSetOf[FeatureSet_Feature]).hashCode)
+	return tsetHash_(this.features_, false)
 }
 
 func (this *FeatureSet) toString() string {

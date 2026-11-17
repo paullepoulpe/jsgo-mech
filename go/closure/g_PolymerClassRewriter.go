@@ -480,7 +480,7 @@ func (this *PolymerClassRewriter) appendPropertiesToBlock(props *TList[*PolymerP
 }
 
 func (this *PolymerClassRewriter) createVarsInExternsBlock(block Node, propertyNames *ImmutableSet[string], propType *JSTypeExpression, prop *PolymerPass_MemberDefinition) {
-	for el := range propertyNames.All() {
+	for _, el := range propertyNames.keys {
 		propName := el
 		var varName string = ("PolymerDummyVar" + sstr_(str_(this.compiler_.getUniqueNameIdSupplier().get())))
 		var n Node = Node_newString_Token_String(Token_rhino_NAME, varName)

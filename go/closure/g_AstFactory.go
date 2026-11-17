@@ -580,7 +580,7 @@ func (this *AstFactory) createPrototypeAccess(receiver Node) Node {
 			if possiblePrototypes.isEmpty() {
 				return StandardColors_UNKNOWN
 			}
-			return Color_createUnion(tsetFrom_(tch_p_Color, possiblePrototypes.asImm(), true))
+			return Color_createUnion(possiblePrototypes)
 		}())
 	case AstFactory_TypeMode_NONE:
 	}
@@ -874,7 +874,7 @@ func (this *AstFactory) getInstanceOfColor(color *Color) *Color {
 		if possibleInstanceColors.isEmpty() {
 			return StandardColors_UNKNOWN
 		}
-		return Color_createUnion(tsetFrom_(tch_p_Color, possibleInstanceColors.asImm(), true))
+		return Color_createUnion(possibleInstanceColors)
 	}()
 }
 

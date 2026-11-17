@@ -56,7 +56,7 @@ func (this *DiagnosticGroupWarningsGuard) mustRunChecks_impl(otherGroup *Diagnos
 }
 
 func (this *DiagnosticGroupWarningsGuard) groupMatchesAny(types *ImmutableSet[*DiagnosticType]) bool {
-	for el_1 := range types.All() {
+	for _, el_1 := range types.keys {
 		var type_ *DiagnosticType = el_1
 		if this.group.matchesDiagnosticType(type_) {
 			return true
@@ -66,7 +66,7 @@ func (this *DiagnosticGroupWarningsGuard) groupMatchesAny(types *ImmutableSet[*D
 }
 
 func (this *DiagnosticGroupWarningsGuard) groupMatchesAll(types *ImmutableSet[*DiagnosticType]) bool {
-	for el_1 := range types.All() {
+	for _, el_1 := range types.keys {
 		var type_ *DiagnosticType = el_1
 		if !this.group.matchesDiagnosticType(type_) {
 			return false

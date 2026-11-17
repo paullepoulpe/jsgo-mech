@@ -143,7 +143,7 @@ func CheckRequiresSorted_canonicalizeImports(importsByNamespace *SimpleListMulti
 		var destructuringNodesBuilder *ImmutableList_Builder[Node] = immutableListBuilder_(tc_Node)
 		for i := range elemsAs_[*CheckRequiresSorted_ImportStatement](allImports) {
 			if i.isDestructuring() {
-				for el := range i.nodes().All() {
+				for _, el := range i.nodes().items {
 					node := el
 					destructuringNodesBuilder.add(node)
 				}
@@ -153,7 +153,7 @@ func CheckRequiresSorted_canonicalizeImports(importsByNamespace *SimpleListMulti
 		var sortedDestructures []*CheckRequiresSorted_DestructuringBinding = []*CheckRequiresSorted_DestructuringBinding{}
 		for i := range elemsAs_[*CheckRequiresSorted_ImportStatement](allImports) {
 			if i.isDestructuring() {
-				for el2 := range i.destructures().All() {
+				for _, el2 := range i.destructures().items {
 					binding := el2
 					sortedDestructures = append(sortedDestructures, binding.canonicalizeShorthandProperties())
 				}
@@ -169,7 +169,7 @@ func CheckRequiresSorted_canonicalizeImports(importsByNamespace *SimpleListMulti
 			var standaloneNodesBuilder *ImmutableList_Builder[Node] = immutableListBuilder_(tc_Node)
 			for i := range elemsAs_[*CheckRequiresSorted_ImportStatement](allImports) {
 				if i.isStandalone() {
-					for el3 := range i.nodes().All() {
+					for _, el3 := range i.nodes().items {
 						node := el3
 						standaloneNodesBuilder.add(node)
 					}
@@ -539,7 +539,7 @@ func (this *CheckRequiresSorted_ImportStatement) formatWithoutDoc() string {
 	if this.destructures() != nil {
 		sb.append("{")
 		var first bool = true
-		for el := range this.destructures().All() {
+		for _, el := range this.destructures().items {
 			binding := el
 			var exportedName string = binding.exportedName()
 			var localName string = binding.localName()
@@ -568,7 +568,7 @@ func (this *CheckRequiresSorted_ImportStatement) formatWithoutDoc() string {
 
 func (this *CheckRequiresSorted_ImportStatement) format() string {
 	var sb strBuilder_
-	for el := range this.nodes().All() {
+	for _, el := range this.nodes().items {
 		node := el
 		var comment string = node.getNonJSDocCommentString()
 		if comment != "" {
@@ -614,16 +614,16 @@ func (this *CheckRequiresSorted_ImportStatement) equals(p0 any) bool {
 	if !ok || o == nil {
 		return false
 	}
-	return true && objequalsBy_(this.nodes_.asImm(), obj_(o.nodes_.asImm()), (ImmutableListOf[Node]).equals) && this.primitive_ == o.primitive_ && this.namespace_ == o.namespace_ && optequals_(this.alias_, o.alias_) && objequalsBy_(this.destructures_.asImm(), obj_(o.destructures_.asImm()), (ImmutableListOf[*CheckRequiresSorted_DestructuringBinding]).equals)
+	return true && tlistEq_(this.nodes_, o.nodes_, true) && this.primitive_ == o.primitive_ && this.namespace_ == o.namespace_ && optequals_(this.alias_, o.alias_) && tlistEq_(this.destructures_, o.destructures_, true)
 }
 
 func (this *CheckRequiresSorted_ImportStatement) hashCode() int32 {
 	var h int32
-	h = h*31 + objhashBy_(this.nodes_.asImm(), (ImmutableListOf[Node]).hashCode)
+	h = h*31 + tlistHash_(this.nodes_, true)
 	h = h*31 + objhashId_(this.primitive_)
 	h = h*31 + objhashStr_(this.namespace_)
 	h = h*31 + objhashBy_(this.alias_, (OptionalOf[string]).hashCode)
-	h = h*31 + objhashBy_(this.destructures_.asImm(), (ImmutableListOf[*CheckRequiresSorted_DestructuringBinding]).hashCode)
+	h = h*31 + tlistHash_(this.destructures_, true)
 	return h
 }
 

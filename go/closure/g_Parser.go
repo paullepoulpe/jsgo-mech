@@ -38,7 +38,7 @@ func new_Parser(config *Parser_Config, errorReporter *ErrorReporter_util, source
 }
 
 func (this *Parser) getComments() *TList[*Comment] {
-	return tlistImm_(tc_p_Comment, this.commentRecorder.getComments().asImm())
+	return this.commentRecorder.getComments()
 }
 
 func (this *Parser) getFeatures() *FeatureSet {

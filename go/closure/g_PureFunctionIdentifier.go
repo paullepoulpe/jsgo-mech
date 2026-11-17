@@ -197,7 +197,7 @@ func (this *PureFunctionIdentifier) getSummariesForCallee(invocation Node) []*Pu
 		panic(new_IllegalStateException_String("Unexpected empty callees for valid result").self())
 	}
 	var results []*PureFunctionIdentifier_AmbiguatedFunctionSummary
-	for el := range callees.All() {
+	for _, el := range callees.items {
 		callee := el
 		if callee.isFunction() {
 			if !callee.isFunction() {
@@ -262,7 +262,7 @@ func (this *PureFunctionIdentifier) populateFunctionDefinitions(name string, ref
 					break
 				}
 				if this.validateArtificialPurityField && !reference.isFromExterns() {
-					for el := range callables.All() {
+					for _, el := range callables.items {
 						callable := el
 						var jsdoc *JSDocInfo = NodeUtil_getBestJSDocInfo(callable)
 						var isArtificiallyPure bool = ((jsdoc != nil) && jsdoc.isNoSideEffects())

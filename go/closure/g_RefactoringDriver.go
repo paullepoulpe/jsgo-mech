@@ -135,7 +135,7 @@ func (this *RefactoringDriver_Builder) withCompilerOptions(compilerOptions *Comp
 }
 
 func (this *RefactoringDriver_Builder) build() *RefactoringDriver {
-	return new_RefactoringDriver(icast_List(obj_(this.inputs.build().asImm())), icast_List(obj_(this.externs.build().asImm())), this.compilerOptions)
+	return new_RefactoringDriver(icast_List(obj_(this.inputs.buildErased())), icast_List(obj_(this.externs.buildErased())), this.compilerOptions)
 }
 
 var RefactoringDriver_Builder_TO_SOURCE_FILE_FN Function_base

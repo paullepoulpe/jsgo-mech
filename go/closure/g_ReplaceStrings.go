@@ -90,7 +90,7 @@ func (this *ReplaceStrings) findMatching(name string, callsiteSourceFileName str
 		config = this.functions[name]
 	}
 	if config != nil {
-		for el_1 := range config.excludedFilenameSuffixes.All() {
+		for _, el_1 := range config.excludedFilenameSuffixes.keys {
 			var excludedSuffix string = el_1
 			if strings.HasSuffix(callsiteSourceFileName, excludedSuffix) {
 				return nil

@@ -115,7 +115,7 @@ func (this *Config) equals(p0 any) bool {
 	if !ok || o == nil {
 		return false
 	}
-	return true && this.languageMode_ == o.languageMode_ && this.strictMode_ == o.strictMode_ && this.jsDocParsingMode_ == o.jsDocParsingMode_ && this.runMode_ == o.runMode_ && objequalsBy_(this.annotations_.asImm(), obj_(o.annotations_.asImm()), (ImmutableMapOf[string, Annotation_parsing]).equals) && objequalsBy_(this.suppressionNames_.asImm(), obj_(o.suppressionNames_.asImm()), (ImmutableSetOf[string]).equals) && objequalsBy_(this.closurePrimitiveNames_.asImm(), obj_(o.closurePrimitiveNames_.asImm()), (ImmutableSetOf[string]).equals) && this.parseInlineSourceMaps_ == o.parseInlineSourceMaps_
+	return true && this.languageMode_ == o.languageMode_ && this.strictMode_ == o.strictMode_ && this.jsDocParsingMode_ == o.jsDocParsingMode_ && this.runMode_ == o.runMode_ && tmapEq_(this.annotations_, o.annotations_, true) && tsetEq_(this.suppressionNames_, o.suppressionNames_, true) && tsetEq_(this.closurePrimitiveNames_, o.closurePrimitiveNames_, true) && this.parseInlineSourceMaps_ == o.parseInlineSourceMaps_
 }
 
 func (this *Config) hashCode() int32 {
@@ -124,9 +124,9 @@ func (this *Config) hashCode() int32 {
 	h = h*31 + objhashId_(this.strictMode_)
 	h = h*31 + objhashId_(this.jsDocParsingMode_)
 	h = h*31 + objhashId_(this.runMode_)
-	h = h*31 + objhashBy_(this.annotations_.asImm(), (ImmutableMapOf[string, Annotation_parsing]).hashCode)
-	h = h*31 + objhashBy_(this.suppressionNames_.asImm(), (ImmutableSetOf[string]).hashCode)
-	h = h*31 + objhashBy_(this.closurePrimitiveNames_.asImm(), (ImmutableSetOf[string]).hashCode)
+	h = h*31 + tmapHash_(this.annotations_, true)
+	h = h*31 + tsetHash_(this.suppressionNames_, true)
+	h = h*31 + tsetHash_(this.closurePrimitiveNames_, true)
 	h = h*31 + Boolean_hashCode(bool(this.parseInlineSourceMaps_))
 	return h
 }

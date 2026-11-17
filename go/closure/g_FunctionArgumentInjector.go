@@ -182,7 +182,7 @@ func (this *FunctionArgumentInjector) gatherCallArgumentsNeedingTemps(compiler *
 	if argMap.isEmpty() {
 		return modifiedParameters
 	}
-	var namesNeedingTemps *TSet[string] = tsetFrom_(tc_string, icast_Collection(obj_(modifiedParameters.asImm())), false)
+	var namesNeedingTemps *TSet[string] = tsetCopyT_(tc_string, modifiedParameters)
 	var block Node = fnNode.getLastChild()
 	var requiresTempsUpToThisParameterName string = ""
 	var argCount int32 = argMap.size()
@@ -274,7 +274,7 @@ func (this *FunctionArgumentInjector) mayHaveConditionalCode(n Node) bool {
 }
 
 func (this *FunctionArgumentInjector) findParametersReferencedAfterSideEffect(parameters *ImmutableSet[string], root Node) *FunctionArgumentInjector_SetContainer {
-	var locals *TSet[string] = tsetFrom_(tc_string, icast_Collection(obj_(parameters.asImm())), false)
+	var locals *TSet[string] = tsetCopyT_(tc_string, parameters)
 	FunctionArgumentInjector_gatherLocalNames(root, locals)
 	var collector *FunctionArgumentInjector_ReferencedAfterSideEffect = new_FunctionArgumentInjector_ReferencedAfterSideEffect(this, parameters, immutableSetCopyOf_(tc_string, Collection(locals.asSet())))
 	NodeUtil_visitPostOrder_Node_Visitor_Predicate(root, collector.visit, collector)
@@ -365,13 +365,13 @@ func (this *FunctionArgumentInjector_SetContainer) equals(p0 any) bool {
 	if !ok || o == nil {
 		return false
 	}
-	return true && objequalsBy_(this.parametersReferencedAfterSideEffect_.asImm(), obj_(o.parametersReferencedAfterSideEffect_.asImm()), (ImmutableSetOf[string]).equals) && objequalsBy_(this.parametersWithNamesReferencedBeforeParameter_.asImm(), obj_(o.parametersWithNamesReferencedBeforeParameter_.asImm()), (ImmutableSetOf[string]).equals)
+	return true && tsetEq_(this.parametersReferencedAfterSideEffect_, o.parametersReferencedAfterSideEffect_, true) && tsetEq_(this.parametersWithNamesReferencedBeforeParameter_, o.parametersWithNamesReferencedBeforeParameter_, true)
 }
 
 func (this *FunctionArgumentInjector_SetContainer) hashCode() int32 {
 	var h int32
-	h = h*31 + objhashBy_(this.parametersReferencedAfterSideEffect_.asImm(), (ImmutableSetOf[string]).hashCode)
-	h = h*31 + objhashBy_(this.parametersWithNamesReferencedBeforeParameter_.asImm(), (ImmutableSetOf[string]).hashCode)
+	h = h*31 + tsetHash_(this.parametersReferencedAfterSideEffect_, true)
+	h = h*31 + tsetHash_(this.parametersWithNamesReferencedBeforeParameter_, true)
 	return h
 }
 

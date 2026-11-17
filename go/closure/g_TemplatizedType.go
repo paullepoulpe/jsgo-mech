@@ -34,7 +34,7 @@ func (this *TemplatizedType) init_TemplatizedType(registry *JSTypeRegistry, obje
 	this.ProxyObjectType.init_ProxyObjectType_JSTypeRegistry_JSType_TemplateTypeMap(registry, objectType.up_JSType(), objectType.getTemplateTypeMap().copyFilledWithValues(templateTypes))
 	var builder *ImmutableList_Builder[*JSType] = immutableListBuilder_(tc_p_JSType)
 	var maybeIsSpecializedOnlyWithUnknown bool = true
-	for el := range objectType.getTypeParameters().All() {
+	for _, el := range objectType.getTypeParameters().items {
 		newlyFilledTemplateKey := el
 		var resolvedType *JSType = this.getTemplateTypeMap().getResolvedTemplateType(newlyFilledTemplateKey)
 		builder.add(resolvedType)
@@ -87,7 +87,7 @@ func (this *TemplatizedType) recursionUnsafeHashCode_impl() int32 {
 	if this.isSpecializedOnlyWithUnknown {
 		return baseHash
 	}
-	return hashOf_(objhashBy_(this.templateTypes.asImm(), (ImmutableListOf[*JSType]).hashCode), int32(baseHash))
+	return hashOf_(tlistHash_(this.templateTypes, true), int32(baseHash))
 }
 
 func (this *TemplatizedType) visitUntyped_impl(visitor Visitor) any {
@@ -162,7 +162,7 @@ func (this *TemplatizedType) resolveInternal_impl(reporter ErrorReporter_rhino) 
 	this.ProxyObjectType.resolveInternal_impl(reporter)
 	var rebuild bool = (baseTypeBefore != this.getReferencedType().up_JSType())
 	var builder *ImmutableList_Builder[*JSType] = immutableListBuilder_(tc_p_JSType)
-	for el := range this.templateTypes.All() {
+	for _, el := range this.templateTypes.items {
 		type_ := el
 		var resolved *JSType = type_.resolve(reporter)
 		rebuild = bor_(rebuild, !JSCompObjects_identical(resolved.self(), type_.self()))

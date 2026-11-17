@@ -47,7 +47,7 @@ func (this *DisambiguateProperties) process_2(externs Node, root Node) {
 	this.logForDiagnosticsStreamedJsonProducer("prop_refs", new_DisambiguateProperties_1(this, propIndex).writeJson)
 	graphBuilder.addAll(icast_Collection(obj_(flattener.getAllKnownTypes().asImm())))
 	var graph *DiGraph = graphBuilder.build().up_DiGraph()
-	for el := range flattener.getAllKnownTypes().All() {
+	for _, el := range flattener.getAllKnownTypes().keys {
 		colorGraphNode := el
 		if graph.getOutEdges(obj_(colorGraphNode)).isEmpty() {
 			continue
@@ -130,7 +130,7 @@ func lambda_DisambiguateProperties_invalidateWellKnownProperties_1_(p0 any) any 
 }
 
 func (this *DisambiguateProperties) invalidateBasedOnType(flattener *ColorGraphNodeFactory) {
-	for el := range flattener.getAllKnownTypes().All() {
+	for _, el := range flattener.getAllKnownTypes().keys {
 		type_ := el
 		if type_.getColor().isInvalidating() {
 			for prop := range type_.getAssociatedProps().Keys() {
@@ -168,7 +168,7 @@ func (this *DisambiguateProperties) mayHaveProperty(color *Color, propertyName s
 			return 1
 		}
 		if color.isUnion() {
-			for el_2 := range color.getUnionElements().All() {
+			for _, el_2 := range color.getUnionElements().keys {
 				var element *Color = el_2
 				if this.mayHaveProperty(element, propertyName) {
 					ret_1 = true
@@ -203,7 +203,7 @@ func (this *DisambiguateProperties) registerOwnDeclaredProperties(colorGraphNode
 	if colorGraphNode.getColor().isUnion() {
 		panic(new_IllegalArgumentException_0().self())
 	}
-	for el := range colorGraphNode.getColor().getOwnProperties().All() {
+	for _, el := range colorGraphNode.getColor().getOwnProperties().keys {
 		propName := el
 		var prop *PropertyClustering = propIndex.get(propName)
 		if prop == nil {

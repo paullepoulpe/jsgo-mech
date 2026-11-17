@@ -90,7 +90,7 @@ func (this *TypeTransformation) createUnionType(variants []*JSType) *JSType {
 }
 
 func (this *TypeTransformation) createRecordType(props *ImmutableMap[string, *JSType]) *JSType {
-	return this.registry.createRecordType(tmapFrom_(tc_string, tc_p_JSType, props.asImm(), true))
+	return this.registry.createRecordType(props)
 }
 
 func (this *TypeTransformation) reportWarning(n Node, msg *DiagnosticType, param []string) {

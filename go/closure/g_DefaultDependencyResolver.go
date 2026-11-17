@@ -49,7 +49,7 @@ func (this *DefaultDependencyResolver) addDependency(symbol string, seen *TSet[s
 		}
 	} else if !seen.asSet().containsAll(icast_Collection(obj_(dependency.getProvides().asImm()))) {
 		seen.asSet().addAll(icast_Collection(obj_(dependency.getProvides().asImm())))
-		for el := range dependency.getRequiredSymbols().All() {
+		for _, el := range dependency.getRequiredSymbols().items {
 			require := el
 			this.addDependency(require, seen, list)
 		}
@@ -65,7 +65,7 @@ func DefaultDependencyResolver_parseRequires(code string, addClosureBase bool) C
 	if addClosureBase {
 		requires.add(DefaultDependencyResolver_CLOSURE_BASE_PROVIDE)
 	}
-	requires.asList().addAll(icast_Collection(obj_(deps.getRequiredSymbols().asImm())))
+	requires.addAllT(deps.getRequiredSymbols())
 	errorManager.generateReport()
 	return Collection(requires.asList())
 }

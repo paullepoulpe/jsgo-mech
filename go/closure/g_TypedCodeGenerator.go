@@ -168,7 +168,7 @@ func (this *TypedCodeGenerator) appendFunctionParamAnnotations(sb *strBuilder_, 
 	var formals *ImmutableList[*FunctionType_Parameter] = funType.getParameters()
 	for i := int32(0); i < formals.size(); i++ {
 		sb.append(" * ")
-		TypedCodeGenerator_appendAnnotation(sb, "param", this.getParameterJSDocType(sliceImm_(tc_p_FunctionType_Parameter, formals.asImm()), i, minArity, maxArity))
+		TypedCodeGenerator_appendAnnotation(sb, "param", this.getParameterJSDocType(immItems_(formals), i, minArity, maxArity))
 		var parameterName string = this.getParameterJSDocName(paramNode, i)
 		sb.append(" ").append(parameterName).append("\n")
 		if paramNode != 0 {

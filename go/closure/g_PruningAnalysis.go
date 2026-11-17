@@ -30,7 +30,7 @@ func (this *PruningAnalysis) analyze() *PruningAnalysis_Result {
 
 func (this *PruningAnalysis) calculateTotalBlame() *ImmutableMap[string, any] {
 	var reachabilityPerEntryPoint ImmutableMap_BuilderOf[string, BoxedOf[int32]] = ImmutableMap_builder()
-	for el := range this.entryPoints_.All() {
+	for _, el := range this.entryPoints_.keys {
 		provider := el
 		var transitiveClosure *ImmutableSet[*CompilerInput] = immutableSetBuilder_(tc_p_CompilerInput).addAll(icast_Iterable(obj_(this.sorter_.getStrongDependenciesOf(ImmutableList_of_Object(obj_(provider)), false)))).addAll(icast_Iterable(obj_(this.sorter_.getSortedWeakDependenciesOf(ImmutableList_of_Object(obj_(provider)))))).build()
 		reachabilityPerEntryPoint.put(strobj_(provider.getName()), any(int32(transitiveClosure.size())))
@@ -73,14 +73,14 @@ func (this *PruningAnalysis) buildGraph() *DiGraph {
 	for input := range this.sorter_.getSortedList().All() {
 		graph.createNode(strobj_(input.getName()))
 	}
-	for el := range this.entryPoints_.All() {
+	for _, el := range this.entryPoints_.keys {
 		input := el
 		graph.connect(strobj_(PruningAnalysis_VIRTUAL_ROOT), nil, strobj_(input.getName()))
 	}
 	for input := range this.sorter_.getSortedList().All() {
 		var name string = input.getName()
 		var depSymbols *TSet[string] = newTSet_(tc_string)
-		for el2 := range input.getRequires().All() {
+		for _, el2 := range input.getRequires().items {
 			req := el2
 			depSymbols.add(req.getSymbol())
 		}
@@ -131,13 +131,13 @@ func (this *PruningAnalysis_Result) equals(p0 any) bool {
 	if !ok || o == nil {
 		return false
 	}
-	return true && objequalsBy_(this.entryPointDependencyCount_.asImm(), obj_(o.entryPointDependencyCount_.asImm()), (ImmutableMapOf[string, BoxedOf[int32]]).equals) && objequalsBy_(this.bottleneckBlame_.asImm(), obj_(o.bottleneckBlame_.asImm()), (ImmutableMapOf[string, BoxedOf[int32]]).equals)
+	return true && tmapEq_(this.entryPointDependencyCount_, o.entryPointDependencyCount_, true) && tmapEq_(this.bottleneckBlame_, o.bottleneckBlame_, true)
 }
 
 func (this *PruningAnalysis_Result) hashCode() int32 {
 	var h int32
-	h = h*31 + objhashBy_(this.entryPointDependencyCount_.asImm(), (ImmutableMapOf[string, BoxedOf[int32]]).hashCode)
-	h = h*31 + objhashBy_(this.bottleneckBlame_.asImm(), (ImmutableMapOf[string, BoxedOf[int32]]).hashCode)
+	h = h*31 + tmapHash_(this.entryPointDependencyCount_, true)
+	h = h*31 + tmapHash_(this.bottleneckBlame_, true)
 	return h
 }
 

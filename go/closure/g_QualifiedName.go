@@ -62,7 +62,7 @@ func (this *QualifiedName) getRoot() string {
 func (this *QualifiedName) components_impl() IterableOf[string] {
 	var components *ImmutableList_Builder[string] = immutableListBuilder_(tc_string)
 	this.buildComponents(components)
-	return icast_Iterable(obj_(components.build().asImm()))
+	return icast_Iterable(obj_(components.buildErased()))
 }
 
 func (this *QualifiedName) buildComponents(builder *ImmutableList_Builder[string]) {

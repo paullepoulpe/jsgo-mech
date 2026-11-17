@@ -73,7 +73,7 @@ func (this *ProcessCommonJSModules) shouldTraverse_impl(t *NodeTraversal, n Node
 		}
 		finder.reportModuleErrors()
 		this.compiler_.getModuleLoader().setErrorHandler(moduleLoaderErrorHandler)
-		NodeTraversal_traverse(this.compiler_, n, new_ProcessCommonJSModules_RewriteModule(this, (isCommonJsModule || forceModuleDetection), exports.build().asImm(), defaultExportIsConst))
+		NodeTraversal_traverse(this.compiler_, n, new_ProcessCommonJSModules_RewriteModule(this, (isCommonJsModule || forceModuleDetection), exports.buildErased(), defaultExportIsConst))
 	}
 	return false
 }

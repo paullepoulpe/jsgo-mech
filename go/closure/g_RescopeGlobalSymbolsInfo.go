@@ -108,21 +108,21 @@ func (this *RescopeGlobalSymbolsInfo) equals(p0 any) bool {
 	if !ok || o == nil {
 		return false
 	}
-	return true && this.globalSymbolNamespace_ == o.globalSymbolNamespace_ && objequalsBy_(this.externNames_.asImm(), obj_(o.externNames_.asImm()), (ImmutableSetOf[string]).equals) && objequalsBy_(this.crossChunkNames_.asImm(), obj_(o.crossChunkNames_.asImm()), (ImmutableSetOf[string]).equals) && objequalsBy_(this.crossChunkNamesWithWriteFromOtherChunk_.asImm(), obj_(o.crossChunkNamesWithWriteFromOtherChunk_.asImm()), (ImmutableSetOf[string]).equals) && objequalsBy_(this.crossChunkNamesUsedInNonDependentChunk_.asImm(), obj_(o.crossChunkNamesUsedInNonDependentChunk_.asImm()), (ImmutableSetOf[string]).equals) && objequalsBy_(this.globalNamesWithReadInDefiningChunk_.asImm(), obj_(o.globalNamesWithReadInDefiningChunk_.asImm()), (ImmutableSetOf[string]).equals) && objequalsBy_(this.globalNamesWithInnerScopeWriteInDefiningChunk_.asImm(), obj_(o.globalNamesWithInnerScopeWriteInDefiningChunk_.asImm()), (ImmutableSetOf[string]).equals) && objequalsBy_(this.globalNamesWithUnsafeWriteForLocalAliasInDefiningChunk_.asImm(), obj_(o.globalNamesWithUnsafeWriteForLocalAliasInDefiningChunk_.asImm()), (ImmutableSetOf[string]).equals) && objequalsBy_(this.maybeReferencesThis_.asImm(), obj_(o.maybeReferencesThis_.asImm()), (ImmutableSetOf[string]).equals) && objequalsBy_(this.wrappedCrossChunkNames_.asImm(), obj_(o.wrappedCrossChunkNames_.asImm()), (ImmutableSetOf[string]).equals)
+	return true && this.globalSymbolNamespace_ == o.globalSymbolNamespace_ && tsetEq_(this.externNames_, o.externNames_, true) && tsetEq_(this.crossChunkNames_, o.crossChunkNames_, true) && tsetEq_(this.crossChunkNamesWithWriteFromOtherChunk_, o.crossChunkNamesWithWriteFromOtherChunk_, true) && tsetEq_(this.crossChunkNamesUsedInNonDependentChunk_, o.crossChunkNamesUsedInNonDependentChunk_, true) && tsetEq_(this.globalNamesWithReadInDefiningChunk_, o.globalNamesWithReadInDefiningChunk_, true) && tsetEq_(this.globalNamesWithInnerScopeWriteInDefiningChunk_, o.globalNamesWithInnerScopeWriteInDefiningChunk_, true) && tsetEq_(this.globalNamesWithUnsafeWriteForLocalAliasInDefiningChunk_, o.globalNamesWithUnsafeWriteForLocalAliasInDefiningChunk_, true) && tsetEq_(this.maybeReferencesThis_, o.maybeReferencesThis_, true) && tsetEq_(this.wrappedCrossChunkNames_, o.wrappedCrossChunkNames_, true)
 }
 
 func (this *RescopeGlobalSymbolsInfo) hashCode() int32 {
 	var h int32
 	h = h*31 + objhashStr_(this.globalSymbolNamespace_)
-	h = h*31 + objhashBy_(this.externNames_.asImm(), (ImmutableSetOf[string]).hashCode)
-	h = h*31 + objhashBy_(this.crossChunkNames_.asImm(), (ImmutableSetOf[string]).hashCode)
-	h = h*31 + objhashBy_(this.crossChunkNamesWithWriteFromOtherChunk_.asImm(), (ImmutableSetOf[string]).hashCode)
-	h = h*31 + objhashBy_(this.crossChunkNamesUsedInNonDependentChunk_.asImm(), (ImmutableSetOf[string]).hashCode)
-	h = h*31 + objhashBy_(this.globalNamesWithReadInDefiningChunk_.asImm(), (ImmutableSetOf[string]).hashCode)
-	h = h*31 + objhashBy_(this.globalNamesWithInnerScopeWriteInDefiningChunk_.asImm(), (ImmutableSetOf[string]).hashCode)
-	h = h*31 + objhashBy_(this.globalNamesWithUnsafeWriteForLocalAliasInDefiningChunk_.asImm(), (ImmutableSetOf[string]).hashCode)
-	h = h*31 + objhashBy_(this.maybeReferencesThis_.asImm(), (ImmutableSetOf[string]).hashCode)
-	h = h*31 + objhashBy_(this.wrappedCrossChunkNames_.asImm(), (ImmutableSetOf[string]).hashCode)
+	h = h*31 + tsetHash_(this.externNames_, true)
+	h = h*31 + tsetHash_(this.crossChunkNames_, true)
+	h = h*31 + tsetHash_(this.crossChunkNamesWithWriteFromOtherChunk_, true)
+	h = h*31 + tsetHash_(this.crossChunkNamesUsedInNonDependentChunk_, true)
+	h = h*31 + tsetHash_(this.globalNamesWithReadInDefiningChunk_, true)
+	h = h*31 + tsetHash_(this.globalNamesWithInnerScopeWriteInDefiningChunk_, true)
+	h = h*31 + tsetHash_(this.globalNamesWithUnsafeWriteForLocalAliasInDefiningChunk_, true)
+	h = h*31 + tsetHash_(this.maybeReferencesThis_, true)
+	h = h*31 + tsetHash_(this.wrappedCrossChunkNames_, true)
 	return h
 }
 

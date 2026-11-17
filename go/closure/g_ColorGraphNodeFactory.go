@@ -41,7 +41,7 @@ func (this *ColorGraphNodeFactory) newColorGraphNode(key *Color) *ColorGraphNode
 
 func (this *ColorGraphNodeFactory) simplifyColors(types *ImmutableSet[*Color]) *ImmutableSet[*Color] {
 	var result *ImmutableSet_Builder[*Color] = immutableSetBuilder_(tc_p_Color)
-	for el := range types.All() {
+	for _, el := range types.keys {
 		type_ := el
 		result.add(this.simplifyColor(type_))
 	}
@@ -56,7 +56,7 @@ func (this *ColorGraphNodeFactory) simplifyColor(type_ *Color) *Color {
 		type_ = type_.subtractNullOrVoid()
 		return func() *Color {
 			if type_.isUnion() {
-				return Color_createUnion(tsetFrom_(tch_p_Color, this.simplifyColors(type_.getUnionElements()).asImm(), true))
+				return Color_createUnion(this.simplifyColors(type_.getUnionElements()))
 			}
 			return this.simplifyColor(type_)
 		}()

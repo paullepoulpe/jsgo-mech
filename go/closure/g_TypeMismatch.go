@@ -119,7 +119,7 @@ func (this *TypeMismatch_Accumulator) registerMismatch(location Node, found *JST
 		return
 	}
 	if required.isUnionType() {
-		for el_1 := range required.toMaybeUnionType().getAlternates().All() {
+		for _, el_1 := range required.toMaybeUnionType().getAlternates().items {
 			var requiredAltType *JSType = el_1
 			if requiredAltType.isSubtypeOf(found) {
 				return

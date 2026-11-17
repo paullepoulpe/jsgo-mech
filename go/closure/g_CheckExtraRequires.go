@@ -198,7 +198,7 @@ func (this *CheckExtraRequires) maybeAddJsDocUsages(n Node) {
 		return
 	}
 	for e := range elemsAs_[*JSTypeExpression](info.getTypeExpressions()) {
-		for el := range e.getAllTypeNames().All() {
+		for _, el := range e.getAllTypeNames().keys {
 			typeName := el
 			this.addUsagesOfAllPrefixes(QualifiedName_of(typeName))
 		}

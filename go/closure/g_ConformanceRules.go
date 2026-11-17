@@ -3059,7 +3059,7 @@ func (this *ConformanceRules_BannedEnhance) checkConformance_impl(t *NodeTravers
 	if (docInfo == nil) || !docInfo.hasEnhance() {
 		return ConformanceRules_ConformanceResult_CONFORMANCE
 	}
-	for el_1 := range this.bannedEnhancedNamespaces.All() {
+	for _, el_1 := range this.bannedEnhancedNamespaces.keys {
 		var banned string = el_1
 		if docInfo.getEnhance() == banned {
 			return new_ConformanceRules_ConformanceResult_ConformanceLevel_String(ConformanceRules_ConformanceLevel_VIOLATION, ("The enhanced namespace \"" + sstr_(banned) + "\""))
@@ -3686,7 +3686,7 @@ func (this *ConformanceRules_BanElementSetAttribute) checkConformanceOnGetElemen
 		if keyType.isString() {
 			return ConformanceRules_ConformanceResult_VIOLATION
 		} else if keyType.isUnionType() {
-			for el_1 := range keyType.toMaybeUnionType().getAlternates().All() {
+			for _, el_1 := range keyType.toMaybeUnionType().getAlternates().items {
 				var alternate *JSType = el_1
 				if alternate.isString() {
 					return ConformanceRules_ConformanceResult_VIOLATION

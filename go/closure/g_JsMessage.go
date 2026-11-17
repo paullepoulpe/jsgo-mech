@@ -87,7 +87,7 @@ func (this *JsMessage) asJsMessageString() string {
 		panic(new_UnsupportedOperationException_String("asJsMessageString() is not supported for messages with gendered variants. Please provide a grammatical gender case as an argument.").self())
 	}
 	var sb strBuilder_
-	for el := range this.getParts().All() {
+	for _, el := range this.getParts().items {
 		p := el
 		if p.isPlaceholder() {
 			sb.append(JsMessage_PH_JS_PREFIX).append(p.getJsPlaceholderName()).append(JsMessage_PH_JS_SUFFIX)
@@ -119,7 +119,7 @@ func (this *JsMessage) asIcuMessageString() string {
 		panic(new_UnsupportedOperationException_String("asIcuMessageString() is not supported for messages with gendered variants. Please provide a grammatical gender case as an argument.").self())
 	}
 	var sb strBuilder_
-	for el := range this.getParts().All() {
+	for _, el := range this.getParts().items {
 		p := el
 		if p.isPlaceholder() {
 			sb.append_char('{').append(p.getCanonicalPlaceholderName()).append_char('}')
@@ -148,7 +148,7 @@ func (this *JsMessage) asIcuMessageString_1(genderCase JsMessage_GrammaticalGend
 
 func (this *JsMessage) isEmpty() bool {
 	if this.getGenderedMessagesMap().isEmpty() {
-		for el_1 := range this.getParts().All() {
+		for _, el_1 := range this.getParts().items {
 			var part JsMessage_Part = el_1
 			if part.isPlaceholder() || (len(part.getString()) != 0) {
 				return false
@@ -263,7 +263,7 @@ func (this *JsMessage) equals(p0 any) bool {
 	if !ok || o == nil {
 		return false
 	}
-	return true && optequals_(this.getSourceName_, o.getSourceName_) && this.getKey_ == o.getKey_ && this.isAnonymous_ == o.isAnonymous_ && this.isExternal_ == o.isExternal_ && this.getId_ == o.getId_ && objequalsBy_(this.getParts_.asImm(), obj_(o.getParts_.asImm()), (ImmutableListOf[JsMessage_Part]).equals) && objequalsBy_(this.getGenderedMessagesMap_, obj_(o.getGenderedMessagesMap_), (ImmutableMapOf[JsMessage_GrammaticalGenderCase, ImmutableListOf[JsMessage_Part]]).equals) && optequals_(this.getAlternateId_, o.getAlternateId_) && optequals_(this.getDesc_, o.getDesc_) && optequals_(this.getMeaning_, o.getMeaning_) && objequalsBy_(this.getPlaceholderNameToExampleMap_.asImm(), obj_(o.getPlaceholderNameToExampleMap_.asImm()), (ImmutableMapOf[string, string]).equals) && objequalsBy_(this.getPlaceholderNameToOriginalCodeMap_.asImm(), obj_(o.getPlaceholderNameToOriginalCodeMap_.asImm()), (ImmutableMapOf[string, string]).equals) && objequalsBy_(this.jsPlaceholderNames_.asImm(), obj_(o.jsPlaceholderNames_.asImm()), (ImmutableSetOf[string]).equals) && objequalsBy_(this.canonicalPlaceholderNames_.asImm(), obj_(o.canonicalPlaceholderNames_.asImm()), (ImmutableSetOf[string]).equals)
+	return true && optequals_(this.getSourceName_, o.getSourceName_) && this.getKey_ == o.getKey_ && this.isAnonymous_ == o.isAnonymous_ && this.isExternal_ == o.isExternal_ && this.getId_ == o.getId_ && tlistEq_(this.getParts_, o.getParts_, true) && objequalsBy_(this.getGenderedMessagesMap_, obj_(o.getGenderedMessagesMap_), (ImmutableMapOf[JsMessage_GrammaticalGenderCase, ImmutableListOf[JsMessage_Part]]).equals) && optequals_(this.getAlternateId_, o.getAlternateId_) && optequals_(this.getDesc_, o.getDesc_) && optequals_(this.getMeaning_, o.getMeaning_) && tmapEq_(this.getPlaceholderNameToExampleMap_, o.getPlaceholderNameToExampleMap_, true) && tmapEq_(this.getPlaceholderNameToOriginalCodeMap_, o.getPlaceholderNameToOriginalCodeMap_, true) && tsetEq_(this.jsPlaceholderNames_, o.jsPlaceholderNames_, true) && tsetEq_(this.canonicalPlaceholderNames_, o.canonicalPlaceholderNames_, true)
 }
 
 func (this *JsMessage) hashCode() int32 {
@@ -273,15 +273,15 @@ func (this *JsMessage) hashCode() int32 {
 	h = h*31 + Boolean_hashCode(bool(this.isAnonymous_))
 	h = h*31 + Boolean_hashCode(bool(this.isExternal_))
 	h = h*31 + objhashStr_(this.getId_)
-	h = h*31 + objhashBy_(this.getParts_.asImm(), (ImmutableListOf[JsMessage_Part]).hashCode)
+	h = h*31 + tlistHash_(this.getParts_, true)
 	h = h*31 + objhashBy_(this.getGenderedMessagesMap_, (ImmutableMapOf[JsMessage_GrammaticalGenderCase, ImmutableListOf[JsMessage_Part]]).hashCode)
 	h = h*31 + objhashBy_(this.getAlternateId_, (OptionalOf[string]).hashCode)
 	h = h*31 + objhashBy_(this.getDesc_, (OptionalOf[string]).hashCode)
 	h = h*31 + objhashBy_(this.getMeaning_, (OptionalOf[string]).hashCode)
-	h = h*31 + objhashBy_(this.getPlaceholderNameToExampleMap_.asImm(), (ImmutableMapOf[string, string]).hashCode)
-	h = h*31 + objhashBy_(this.getPlaceholderNameToOriginalCodeMap_.asImm(), (ImmutableMapOf[string, string]).hashCode)
-	h = h*31 + objhashBy_(this.jsPlaceholderNames_.asImm(), (ImmutableSetOf[string]).hashCode)
-	h = h*31 + objhashBy_(this.canonicalPlaceholderNames_.asImm(), (ImmutableSetOf[string]).hashCode)
+	h = h*31 + tmapHash_(this.getPlaceholderNameToExampleMap_, true)
+	h = h*31 + tmapHash_(this.getPlaceholderNameToOriginalCodeMap_, true)
+	h = h*31 + tsetHash_(this.jsPlaceholderNames_, true)
+	h = h*31 + tsetHash_(this.canonicalPlaceholderNames_, true)
 	return h
 }
 

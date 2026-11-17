@@ -66,7 +66,7 @@ func (this *AmbiguateProperties) process_2(externs Node, root Node) {
 		chunkGraphLog.logString(DotFormatter_toDot_GraphvizGraph(icast_GraphvizGraph(colorGraph.self())))
 		return 0
 	}()
-	for el := range this.graphNodeFactory.getAllKnownTypes().All() {
+	for _, el := range this.graphNodeFactory.getAllKnownTypes().keys {
 		node := el
 		node.getSubtypeIndices().set(node.getIndex())
 	}
@@ -428,7 +428,7 @@ func (this *AmbiguateProperties_ProcessPropertiesAndConstructors) processClass(c
 		if possiblePrototypes.isEmpty() {
 			return StandardColors_UNKNOWN
 		}
-		return Color_createUnion(tsetFrom_(tch_p_Color, possiblePrototypes.asImm(), true))
+		return Color_createUnion(possiblePrototypes)
 	}()
 	{
 		var member Node = NodeUtil_getClassMembers(classNode).getFirstChild()
@@ -455,7 +455,7 @@ func (this *AmbiguateProperties_ProcessPropertiesAndConstructors) processClass(c
 					if possibleInstances.isEmpty() {
 						return StandardColors_UNKNOWN
 					}
-					return Color_createUnion(tsetFrom_(tch_p_Color, possibleInstances.asImm(), true))
+					return Color_createUnion(possibleInstances)
 				}()
 			} else {
 				if !((member.isMemberFunctionDef() || member.isGetterDef()) || member.isSetterDef()) {

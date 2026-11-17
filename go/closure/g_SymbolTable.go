@@ -208,7 +208,7 @@ func (this *SymbolTable) getAllSymbolsForType(type_ *JSType) *TList[*SymbolTable
 	}
 	if type_.isUnionType() {
 		var result *ImmutableList_Builder[*SymbolTable_Symbol] = immutableListBuilder_(tc_p_SymbolTable_Symbol)
-		for el := range type_.toMaybeUnionType().getAlternates().All() {
+		for _, el := range type_.toMaybeUnionType().getAlternates().items {
 			alt := el
 			var altSym *SymbolTable_Symbol = this.getSymbolForTypeHelper(alt, true)
 			if altSym != nil {

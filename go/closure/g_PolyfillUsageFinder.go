@@ -96,7 +96,7 @@ func (this *PolyfillUsageFinder) isPolyfillVisibleInScope(t *NodeTraversal, glob
 }
 
 func PolyfillUsageFinder_findGlobalPrefix(qualifiedName string) OptionalOf[string] {
-	for el_1 := range PolyfillUsageFinder_GLOBAL_NAMES.All() {
+	for _, el_1 := range PolyfillUsageFinder_GLOBAL_NAMES.keys {
 		var global string = el_1
 		if strings.HasPrefix(qualifiedName, global) {
 			return Optional_of[string](global)
@@ -136,7 +136,7 @@ func (this *PolyfillUsageFinder) isDisjointFromIterator(receiver *Color) bool {
 		return false
 	}
 	if receiver.isUnion() {
-		for el_1 := range receiver.getUnionElements().All() {
+		for _, el_1 := range receiver.getUnionElements().keys {
 			var alt *Color = el_1
 			if !this.isDisjointFromIterator(alt) {
 				return false
@@ -170,7 +170,7 @@ func (this *PolyfillUsageFinder) hasInSupertypesList(subCtor *Color, superCtor *
 		for it_2.next() {
 			var immediateSupertype *Color = cast_[*Color](it_2.v)
 			if immediateSupertype.isUnion() {
-				for el_4 := range immediateSupertype.getUnionElements().All() {
+				for _, el_4 := range immediateSupertype.getUnionElements().keys {
 					var alt *Color = el_4
 					if this.hasInSupertypesList(alt, superCtor) {
 						ret_1 = true

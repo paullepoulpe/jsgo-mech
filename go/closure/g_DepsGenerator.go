@@ -78,7 +78,7 @@ func (this *DepsGenerator) removeMungedSymbols(depFiles MapOf[string, Dependency
 	this.addToProvideMap(Iterable(jsFiles.values()), providesMap, false)
 	for dependencyInfo := range elemsBy_(jsFiles.values(), icast_DependencyInfo) {
 		var newRequires *TList[*DependencyInfo_Require] = newTList_(tc_p_DependencyInfo_Require)
-		for el := range dependencyInfo.getRequires().All() {
+		for _, el := range dependencyInfo.getRequires().items {
 			require := el
 			if require.getType() == DependencyInfo_Require_Type_ES6_IMPORT {
 				var provider DependencyInfo = providesMap[require.getSymbol()]
@@ -95,7 +95,7 @@ func (this *DepsGenerator) removeMungedSymbols(depFiles MapOf[string, Dependency
 		if dependencyInfo.isEs6Module() {
 			var mungedProvide string = this.loader.resolve(dependencyInfo.getName()).toModuleName()
 			var builder *ImmutableList_Builder[string] = immutableListBuilder_(tc_string)
-			for el2 := range provides.All() {
+			for _, el2 := range provides.items {
 				provide := el2
 				if !(provide == mungedProvide) && !(provide == dependencyInfo.getPathRelativeToClosureBase()) {
 					builder.add(provide)
@@ -113,7 +113,7 @@ func (this *DepsGenerator) validateDependencies(preparsedFileDependencies Iterab
 	this.addToProvideMap(preparsedFileDependencies, providesMap, true)
 	this.addToProvideMap(parsedFileDependencies, providesMap, false)
 	for depInfo := range elemsBy_(parsedFileDependencies, icast_DependencyInfo) {
-		for el := range depInfo.getRequires().All() {
+		for _, el := range depInfo.getRequires().items {
 			require := el
 			var namespace string = require.getSymbol()
 			var provider DependencyInfo = providesMap[namespace]
@@ -253,7 +253,7 @@ func (this *DepsGenerator) removeRelativePathProvide(info DependencyInfo) Depend
 
 func DepsGenerator_providesWithoutRelativePath(info DependencyInfo) *TList[string] {
 	var result *TList[string] = newTList_(tc_string)
-	for el := range info.getProvides().All() {
+	for _, el := range info.getProvides().items {
 		p := el
 		if !(p == info.getPathRelativeToClosureBase()) {
 			result.add(p)

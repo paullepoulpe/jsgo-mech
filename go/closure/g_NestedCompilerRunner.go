@@ -57,7 +57,7 @@ func (this *NestedCompilerRunner) compile() {
 
 func (this *NestedCompilerRunner) initializeCompiler() {
 	var externNames *ImmutableSet[string] = NodeUtil_collectExternVariableNames(this.original_, this.original_.getRoot().getFirstChild())
-	this.shadowCompiler.addExportedNames(tsetFrom_(tc_string, externNames.asImm(), true))
+	this.shadowCompiler.addExportedNames(externNames)
 	this.shadowCompiler.setExternProperties(this.original_.getExternProperties())
 	this.shadowCompiler.setDebugMessage("<shadow AST compilation>")
 	var chunks *ImmutableList[*JSChunk] = this.createChunks()
@@ -100,11 +100,11 @@ func (this *NestedCompilerRunner) runCompilation() {
 }
 
 func (this *NestedCompilerRunner) delegateDiagnosticsToOriginal() {
-	for el := range this.shadowCompiler.getErrors().All() {
+	for _, el := range this.shadowCompiler.getErrors().items {
 		error_ := el
 		this.original_.report(error_)
 	}
-	for el2 := range this.shadowCompiler.getWarnings().All() {
+	for _, el2 := range this.shadowCompiler.getWarnings().items {
 		error_ := el2
 		this.original_.report(error_)
 	}

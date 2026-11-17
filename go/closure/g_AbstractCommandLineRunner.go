@@ -131,7 +131,7 @@ func AbstractCommandLineRunner_setWarningGuardOptions(options *CompilerOptions, 
 		for i_1 := 0; i_1 < len(warningGuards.items); i_1++ {
 			var entry *AbstractCommandLineRunner_FlagEntry[any] = warningGuards.items[i_1]
 			if "*" == entry.value_ {
-				for el := range groupNames.All() {
+				for _, el := range groupNames.keys {
 					groupName := el
 					if !DiagnosticGroups_wildcardExcludedGroups.contains(groupName) {
 						diagnosticGroups.setWarningLevel(options, groupName, cast_[CheckLevel](entry.flag_))
@@ -553,7 +553,7 @@ func (this *AbstractCommandLineRunner) deduplicateIjsFiles(files *TList[*Abstrac
 			}
 		}
 	}
-	return Outcome_base_ok_Object[*ErasedImmutableList](errors.build().asImm())
+	return Outcome_base_ok_Object[*ErasedImmutableList](errors.buildErased())
 }
 
 func (this *AbstractCommandLineRunner) getModuleRootRelativeName(filename string, moduleRoots ListOf[string]) string {
@@ -736,7 +736,7 @@ func AbstractCommandLineRunner_parseChunkOutputFiles(specs *TList[string]) *Outc
 		var filename string = spec[pos+1:]
 		outputFilesBuilder.put(name, filename)
 	}
-	return Outcome_base_ok_Object[*ErasedImmutableMap](outputFilesBuilder.buildOrThrow().asImm())
+	return Outcome_base_ok_Object[*ErasedImmutableMap](outputFilesBuilder.buildOrThrowErased())
 }
 
 func (this *AbstractCommandLineRunner) getChunkOutputFileName(m *JSChunk) *Outcome_base[string] {
@@ -1999,7 +1999,7 @@ func (this *AbstractCommandLineRunner) printChunkGraphManifestOrBundleTo(graph *
 }
 
 func (this *AbstractCommandLineRunner) printManifestTo(chunk *JSChunk, out Appendable) {
-	for el := range chunk.getInputs().All() {
+	for _, el := range chunk.getInputs().items {
 		input := el
 		var name string = input.getName()
 		if AbstractCompiler_isFillFileName(name) {
@@ -2019,7 +2019,7 @@ func (this *AbstractCommandLineRunner) printBundleTo(chunk *JSChunk, out Appenda
 		new_PrebuildAst(this.compiler_.up_AbstractCompiler(), this.compiler_.getOptions().getNumParallelThreads()).prebuild(icast_Iterable(obj_(inputs.asImm())))
 	}
 	if options.getRuntimeLibraryMode() == RuntimeJsLibManager_RuntimeLibraryMode_INJECT {
-		for el_1 := range inputs.All() {
+		for _, el_1 := range inputs.items {
 			var input *CompilerInput = el_1
 			if input.isEs6Module() {
 				var appendRuntimeToOutcome *Outcome_base[any] = this.appendRuntimeTo(out)
@@ -2030,7 +2030,7 @@ func (this *AbstractCommandLineRunner) printBundleTo(chunk *JSChunk, out Appenda
 			}
 		}
 	}
-	for el_3 := range inputs.All() {
+	for _, el_3 := range inputs.items {
 		var input *CompilerInput = el_3
 		var name string = input.getName()
 		var codeRes *Outcome_base[string] = input.getSourceFile().readCode()

@@ -47,7 +47,7 @@ func (this *ArrowType) getTypeClass_impl() JSTypeClass {
 
 func (this *ArrowType) recursionUnsafeHashCode_impl() int32 {
 	var hashCode int32 = objhashBy_(this.returnType, (*JSType).hashCode)
-	for el := range this.parameterList.All() {
+	for _, el := range this.parameterList.items {
 		param := el
 		hashCode = ((hashCode * 31) + objhashBy_(param.getJSType(), (*JSType).hashCode))
 	}
@@ -88,7 +88,7 @@ func (this *ArrowType) getPossibleToBooleanOutcomes_impl() BooleanLiteralSet {
 
 func (this *ArrowType) resolveInternal_impl(reporter ErrorReporter_rhino) *JSType {
 	this.returnType = JSType_safeResolve(this.returnType, reporter)
-	for el := range this.parameterList.All() {
+	for _, el := range this.parameterList.items {
 		param := el
 		param.getJSType().resolve(reporter)
 	}
@@ -96,7 +96,7 @@ func (this *ArrowType) resolveInternal_impl(reporter ErrorReporter_rhino) *JSTyp
 }
 
 func (this *ArrowType) hasUnknownParamsOrReturn() bool {
-	for el_1 := range this.parameterList.All() {
+	for _, el_1 := range this.parameterList.items {
 		var param *FunctionType_Parameter = el_1
 		var type_ *JSType = param.getJSType()
 		if type_.isUnknownType() {
@@ -115,7 +115,7 @@ func (this *ArrowType) hasAnyTemplateTypesInternal_impl() bool {
 }
 
 func (this *ArrowType) hasTemplatedParameterType() bool {
-	for el_1 := range this.parameterList.All() {
+	for _, el_1 := range this.parameterList.items {
 		var param *FunctionType_Parameter = el_1
 		var type_ *JSType = param.getJSType()
 		if type_.hasAnyTemplateTypes() {

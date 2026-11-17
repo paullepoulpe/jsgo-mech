@@ -612,7 +612,7 @@ func (this *JSDocInfo) getModifies() *TSet[string] {
 	var modifies *ImmutableSet[string] = tsetFrom_(tc_string, cast_[*ErasedImmutableSet](JSDocInfo_MODIFIES.get(this)), true)
 	return func() *TSet[string] {
 		if modifies != nil {
-			return tsetFrom_(tc_string, modifies.asImm(), true)
+			return modifies
 		}
 		return immutableSetOf_(tc_string)
 	}()
@@ -729,7 +729,7 @@ func (this *JSDocInfo) getTypeExpressions() CollectionOf[*JSTypeExpression] {
 			}
 		}
 	}
-	return icast_Collection(obj_(builder.build().asImm()))
+	return icast_Collection(obj_(builder.buildErased()))
 }
 
 func (this *JSDocInfo) getTypeNodes() CollectionOf[Node] {

@@ -50,7 +50,7 @@ func (this *JsMessageExtractor) extractMessagesIterable(inputs IterableOf[*Sourc
 		var msg strBuilder_
 		msg.append("JSCompiler errors\n")
 		var formatter MessageFormatter = new_LightweightMessageFormatter_SourceExcerptProvider(compiler)
-		for el := range errors.All() {
+		for _, el := range errors.items {
 			e := el
 			msg.append(formatter.formatError(e))
 		}

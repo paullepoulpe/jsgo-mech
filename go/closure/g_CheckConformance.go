@@ -77,7 +77,7 @@ func (this *CheckConformance) initRules(compiler *AbstractCompiler, configs *Imm
 			return []*CheckConformance_Category{}
 		}
 	}
-	var mergedRequirements []*Requirement = this.mergeRequirements(compiler, sliceImm_(tc_p_ConformanceConfig, configs.asImm()), isLibraryLevelReportingMode)
+	var mergedRequirements []*Requirement = this.mergeRequirements(compiler, immItems_(configs), isLibraryLevelReportingMode)
 	for _, requirement := range mergedRequirements {
 		var behavior ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior = ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior_UNSPECIFIED
 		var rule CheckConformance_Rule = CheckConformance_initRule(compiler, requirement)
@@ -104,7 +104,7 @@ func CheckConformance_validateBehaviorSettingOfConfigs(compiler *AbstractCompile
 		panic(new_IllegalStateException_0().self())
 	}
 	var baseRequirementBehaviors map[string]ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior = map[string]ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior{}
-	for el := range configs.All() {
+	for _, el := range configs.items {
 		config := el
 		if !config.hasLibraryLevelNonAllowlistedConformanceViolationsBehavior() {
 			continue
@@ -116,7 +116,7 @@ func CheckConformance_validateBehaviorSettingOfConfigs(compiler *AbstractCompile
 			}
 		}
 	}
-	for el_5 := range configs.All() {
+	for _, el_5 := range configs.items {
 		var config *ConformanceConfig = el_5
 		if !config.hasLibraryLevelNonAllowlistedConformanceViolationsBehavior() {
 			continue

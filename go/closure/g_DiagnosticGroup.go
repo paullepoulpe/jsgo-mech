@@ -41,7 +41,7 @@ func DiagnosticGroup_createFromGroups_Optional_DiagnosticGroupArr(name OptionalO
 	for _, group := range groups {
 		set.addAll(icast_Iterable(obj_(group.types.asImm())))
 	}
-	return new_DiagnosticGroup_Optional_DiagnosticTypeArr(name, arrmap_(set.build().asImm().toArray(arrmap_(make([]*DiagnosticType, 0), func(v_ *DiagnosticType) any { return obj_(v_) })), func(v_ any) *DiagnosticType { return cast_[*DiagnosticType](v_) }))
+	return new_DiagnosticGroup_Optional_DiagnosticTypeArr(name, arrmap_(set.buildErased().toArray(arrmap_(make([]*DiagnosticType, 0), func(v_ *DiagnosticType) any { return obj_(v_) })), func(v_ any) *DiagnosticType { return cast_[*DiagnosticType](v_) }))
 }
 
 func DiagnosticGroup_forType(type_ *DiagnosticType) *DiagnosticGroup {

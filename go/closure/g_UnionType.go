@@ -47,7 +47,7 @@ func (this *UnionType) getAlternates() *ImmutableList[*JSType] {
 		var resolvedAlternates int32 = this.countResolvedAlternates()
 		if resolvedAlternates != this.resolvedAlternatesAtLastBuild {
 			this.resolvedAlternatesAtLastBuild = resolvedAlternates
-			var b *UnionType_Builder = new_UnionType_Builder(this, this.registry).addAlternates(sliceImm_(tc_p_JSType, this.alternates.asImm()))
+			var b *UnionType_Builder = new_UnionType_Builder(this, this.registry).addAlternates(immItems_(this.alternates))
 			if !this.isResolved() && !this.alternatesResolvedBeforeBuild {
 				b.build()
 				this.resolvedAlternatesAtLastBuild = this.countResolvedAlternates()
@@ -116,7 +116,7 @@ func lambda_UnionType_matchesObjectContext_impl_1_(p0 any) bool {
 
 func (this *UnionType) findPropertyTypeWithoutConsideringTemplateTypes_impl(propertyName Property_Key) *JSType {
 	var propertyType *JSType = nil
-	for el := range this.alternates.All() {
+	for _, el := range this.alternates.items {
 		alternate := el
 		if alternate.isNullType() || alternate.isVoidType() {
 			continue
@@ -346,7 +346,7 @@ func (this *UnionType) getRestrictedUnion(type_ *JSType) *JSType {
 func (this *UnionType) appendTo_impl(sb *TypeStringBuilder) {
 	sb.append("(")
 	var names *TList[string] = newTList_(tc_string)
-	for el := range this.alternates.All() {
+	for _, el := range this.alternates.items {
 		alt := el
 		names.add(sb.cloneWithConfig().appendJSType(alt).build())
 	}
@@ -438,7 +438,7 @@ func (this *UnionType) resolveInternal_impl(reporter ErrorReporter_rhino) *JSTyp
 	for i := int32(0); i < this.alternates.size(); i++ {
 		this.alternates.get(i).resolve(reporter)
 	}
-	return new_UnionType_Builder(this, this.registry).addAlternates(sliceImm_(tc_p_JSType, this.alternates.asImm())).build()
+	return new_UnionType_Builder(this, this.registry).addAlternates(immItems_(this.alternates)).build()
 }
 
 func (this *UnionType) collapseUnion_impl() *JSType {
@@ -555,7 +555,7 @@ func (this *UnionType_Builder) addAlternates(list []*JSType) *UnionType_Builder 
 func (this *UnionType_Builder) addAlternate(alternate *JSType) *UnionType_Builder {
 	this.checkHasNotBuilt()
 	if alternate.isUnionType() {
-		this.addAlternates(sliceImm_(tc_p_JSType, alternate.toMaybeUnionType().getAlternates().asImm()))
+		this.addAlternates(immItems_(alternate.toMaybeUnionType().getAlternates()))
 		return this
 	}
 	if int32(len(this.alternates)) > UnionType_MAX_UNION_SIZE {

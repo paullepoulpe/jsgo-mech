@@ -95,7 +95,7 @@ func (this *JSTypeReconserializer) recordUnionType(type_ *UnionType) *JSTypeReco
 		panic(new_NullPointerException_0().self())
 	}
 	var altRecords *TSet[*JSTypeReconserializer_SeenTypeRecord] = newTSet_(tc_p_JSTypeReconserializer_SeenTypeRecord)
-	for el := range type_.getAlternates().All() {
+	for _, el := range type_.getAlternates().items {
 		altType := el
 		var alt *JSTypeReconserializer_SeenTypeRecord = this.recordType(altType)
 		if alt.unionMembers == nil {
@@ -250,7 +250,7 @@ func (this *JSTypeReconserializer) seedCachesWithAxiomaticTypes() {
 	if !this.seenTypeRecords.isEmpty() {
 		panic(new_IllegalStateException_0().self())
 	}
-	for el := range TypePointers_OFFSET_TO_AXIOMATIC_COLOR.All() {
+	for _, el := range TypePointers_OFFSET_TO_AXIOMATIC_COLOR.items {
 		axiomatic := el
 		var index int32 = this.seenTypeRecords.size()
 		var record *JSTypeReconserializer_SeenTypeRecord = new_JSTypeReconserializer_SeenTypeRecord(axiomatic.getId(), index)
@@ -366,7 +366,7 @@ func JSTypeReconserializer_clinit() {
 		return
 	}
 	JSTypeReconserializer_clinit_done = true
-	JSTypeReconserializer_JSTYPE_NATIVE_TO_AXIOMATIC_COLOR_MAP = immutableMapBuilder_(tc_JSTypeNative, tc_p_Color).put(JSTypeNative_ALL_TYPE, StandardColors_UNKNOWN).put(JSTypeNative_CHECKED_UNKNOWN_TYPE, StandardColors_UNKNOWN).put(JSTypeNative_NO_OBJECT_TYPE, StandardColors_UNKNOWN).put(JSTypeNative_NO_TYPE, StandardColors_UNKNOWN).put(JSTypeNative_UNKNOWN_TYPE, StandardColors_UNKNOWN).put(JSTypeNative_BIGINT_TYPE, StandardColors_BIGINT).put(JSTypeNative_BOOLEAN_TYPE, StandardColors_BOOLEAN).put(JSTypeNative_GBIGINT_TYPE, StandardColors_GBIGINT).put(JSTypeNative_NULL_TYPE, StandardColors_NULL_OR_VOID).put(JSTypeNative_NUMBER_TYPE, StandardColors_NUMBER).put(JSTypeNative_STRING_TYPE, StandardColors_STRING).put(JSTypeNative_SYMBOL_TYPE, StandardColors_SYMBOL).put(JSTypeNative_VOID_TYPE, StandardColors_NULL_OR_VOID).put(JSTypeNative_FUNCTION_FUNCTION_TYPE, StandardColors_TOP_FUNCTION).put(JSTypeNative_FUNCTION_TYPE, StandardColors_TOP_FUNCTION).put(JSTypeNative_FUNCTION_PROTOTYPE, StandardColors_TOP_OBJECT).put(JSTypeNative_FUNCTION_INSTANCE_PROTOTYPE, StandardColors_TOP_OBJECT).put(JSTypeNative_OBJECT_FUNCTION_TYPE, StandardColors_TOP_OBJECT).put(JSTypeNative_OBJECT_PROTOTYPE, StandardColors_TOP_OBJECT).put(JSTypeNative_OBJECT_TYPE, StandardColors_TOP_OBJECT).buildOrThrow().asImm()
+	JSTypeReconserializer_JSTYPE_NATIVE_TO_AXIOMATIC_COLOR_MAP = immutableMapBuilder_(tc_JSTypeNative, tc_p_Color).put(JSTypeNative_ALL_TYPE, StandardColors_UNKNOWN).put(JSTypeNative_CHECKED_UNKNOWN_TYPE, StandardColors_UNKNOWN).put(JSTypeNative_NO_OBJECT_TYPE, StandardColors_UNKNOWN).put(JSTypeNative_NO_TYPE, StandardColors_UNKNOWN).put(JSTypeNative_UNKNOWN_TYPE, StandardColors_UNKNOWN).put(JSTypeNative_BIGINT_TYPE, StandardColors_BIGINT).put(JSTypeNative_BOOLEAN_TYPE, StandardColors_BOOLEAN).put(JSTypeNative_GBIGINT_TYPE, StandardColors_GBIGINT).put(JSTypeNative_NULL_TYPE, StandardColors_NULL_OR_VOID).put(JSTypeNative_NUMBER_TYPE, StandardColors_NUMBER).put(JSTypeNative_STRING_TYPE, StandardColors_STRING).put(JSTypeNative_SYMBOL_TYPE, StandardColors_SYMBOL).put(JSTypeNative_VOID_TYPE, StandardColors_NULL_OR_VOID).put(JSTypeNative_FUNCTION_FUNCTION_TYPE, StandardColors_TOP_FUNCTION).put(JSTypeNative_FUNCTION_TYPE, StandardColors_TOP_FUNCTION).put(JSTypeNative_FUNCTION_PROTOTYPE, StandardColors_TOP_OBJECT).put(JSTypeNative_FUNCTION_INSTANCE_PROTOTYPE, StandardColors_TOP_OBJECT).put(JSTypeNative_OBJECT_FUNCTION_TYPE, StandardColors_TOP_OBJECT).put(JSTypeNative_OBJECT_PROTOTYPE, StandardColors_TOP_OBJECT).put(JSTypeNative_OBJECT_TYPE, StandardColors_TOP_OBJECT).buildOrThrowErased()
 
 }
 

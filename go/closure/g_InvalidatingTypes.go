@@ -101,7 +101,7 @@ func new_InvalidatingTypes_Builder(registry *JSTypeRegistry) *InvalidatingTypes_
 }
 
 func (this *InvalidatingTypes_Builder) build() *InvalidatingTypes {
-	for el := range InvalidatingTypes_ALWAYS_INVALIDATING_TYPES.All() {
+	for _, el := range InvalidatingTypes_ALWAYS_INVALIDATING_TYPES.items {
 		t := el
 		this.typeToLocation.put(this.registry.getNativeType(t).self(), InvalidatingTypes_ALWAYS_INVALIDATING_LOCATION)
 	}

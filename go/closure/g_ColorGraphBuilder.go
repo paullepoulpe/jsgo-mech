@@ -52,7 +52,7 @@ func (this *ColorGraphBuilder) connectUnionWithAncestors(unionNode *LinkedDirect
 		panic(new_IllegalStateException_0().self())
 	}
 	var graphNodesBuilder *ImmutableSet_Builder[*ColorGraphNode] = immutableSetBuilder_(tc_p_ColorGraphNode)
-	for el := range flatUnion.getColor().getUnionElements().All() {
+	for _, el := range flatUnion.getColor().getUnionElements().keys {
 		element := el
 		graphNodesBuilder.add(this.nodeFactory.createNode(element))
 	}
@@ -78,7 +78,7 @@ func (this *ColorGraphBuilder) addInternalColorGraphNode(node *ColorGraphNode) *
 	}
 	flatNode = to_LinkedDirectedGraph_LinkedDiGraphNode(this.colorHoldsInstanceGraph.createNode(obj_(node)))
 	if node.getColor().isUnion() {
-		for el := range node.getColor().getUnionElements().All() {
+		for _, el := range node.getColor().getUnionElements().keys {
 			alt := el
 			this.connectSourceToDest(flatNode, ColorGraphBuilder_EdgeReason_ALGEBRAIC, this.addInternal(alt))
 		}
@@ -93,11 +93,11 @@ func (this *ColorGraphBuilder) addInternalColorGraphNode(node *ColorGraphNode) *
 			this.connectSourceToDest(this.addInternal(supertype), ColorGraphBuilder_EdgeReason_CAN_HOLD, flatNode)
 		}
 	}
-	for el2 := range color.getPrototypes().All() {
+	for _, el2 := range color.getPrototypes().keys {
 		prototype := el2
 		this.addInternal(prototype)
 	}
-	for el3 := range color.getInstanceColors().All() {
+	for _, el3 := range color.getInstanceColors().keys {
 		instanceColor := el3
 		this.addInternal(instanceColor)
 	}

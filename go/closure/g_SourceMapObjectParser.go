@@ -223,7 +223,7 @@ func SourceMapObjectParser_buildSections(sections *SimpleJsonValue) *Outcome_bas
 		}
 		listBuilder.add(section.get())
 	}
-	return Outcome_base_ok_Object[List](icast_List(obj_(listBuilder.build().asImm())))
+	return Outcome_base_ok_Object[List](icast_List(obj_(listBuilder.buildErased())))
 }
 
 func SourceMapObjectParser_buildSection(section *SimpleJsonValue) *Outcome_base[*SourceMapSection] {
