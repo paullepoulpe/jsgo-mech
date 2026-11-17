@@ -213,7 +213,10 @@ func (this *ErrorToFixMapper) getFixForMissingSuper(error_ *JSError) *SuggestedF
 func (this *ErrorToFixMapper) getFixForInvalidSuper(error_ *JSError) *SuggestedFix {
 	var m *Matcher_re2j = ErrorToFixMapper_DID_YOU_MEAN.matcher_s(error_.description())
 	if m.matches() {
-		var superDotSuggestion string = str_(Optional_ofNullable(strobj_(m.group(1))).orElseThrow())
+		var superDotSuggestion string = m.group(1)
+		if superDotSuggestion == nullstr_ {
+			panic(new_NoSuchElementException_String("No value present").self())
+		}
 		return new_SuggestedFix_Builder().attachMatchedNodeInfo(error_.node(), this.compiler_).setDescription(("Call '" + sstr_(superDotSuggestion) + "' instead")).replace(error_.node(), NodeUtil_newQName_AbstractCompiler_String(this.compiler_, superDotSuggestion), this.compiler_).build()
 	}
 	return nil

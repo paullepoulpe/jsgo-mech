@@ -466,7 +466,7 @@ func (this *JSDocInfo) getClosurePrimitiveId() OptionalOf[string] {
 }
 
 func (this *JSDocInfo) hasClosurePrimitiveId() bool {
-	return Optional_ofNullable(JSDocInfo_CLOSURE_PRIMITIVE_ID.get(this)).isPresent()
+	return !isnull_(JSDocInfo_CLOSURE_PRIMITIVE_ID.get(this))
 }
 
 func (this *JSDocInfo) isNgInject() bool {
@@ -665,7 +665,7 @@ func (this *JSDocInfo) getEnhance() string {
 }
 
 func (this *JSDocInfo) hasMods() bool {
-	return Optional_ofNullable(JSDocInfo_MODS.get(this)).isPresent()
+	return !isnull_(JSDocInfo_MODS.get(this))
 }
 
 func (this *JSDocInfo) getMods() string {
@@ -2391,7 +2391,7 @@ func (this *JSDocInfo_Builder) recordDeprecationReason(reason string) bool {
 }
 
 func (this *JSDocInfo_Builder) isDeprecationReasonRecorded() bool {
-	return Optional_ofNullable(this.getProp(JSDocInfo_DEPRECATION_REASON)).isPresent()
+	return !isnull_(this.getProp(JSDocInfo_DEPRECATION_REASON))
 }
 
 func (this *JSDocInfo_Builder) recordSuppressions_2(suppressions ImmutableSetOf[string], description string) {
