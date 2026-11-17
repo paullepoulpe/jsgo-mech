@@ -130,6 +130,12 @@ field in an array of its own, one element per object, instead of a record: most 
 layout changes; reads and writes of the field are the same. A class whose fields are all
 pointer-free has no `C_ps_` record.
 
+Every per-object array of a handle class (its records and columns) is registered with its
+element type in `handleColumns_` (`rt_handles.go`). `Node`'s are a 16-byte `Node_ns_`, a
+40-byte `Node_cs_` and the 4-byte `payload` column: 60 bytes per node and no Go pointer, which
+`TestNodeColumnsHoldNoPointers` (`rt_handles_test.go`) asserts by reflection over the
+registered types, so that a later rule cannot bring a pointer back unnoticed.
+
 **Type arguments in declarations.** Generics are erased, but the declared type
 of a field, local or parameter whose Java type is a parameterized library type
 is written through a generic alias: `List<Reference>` becomes
