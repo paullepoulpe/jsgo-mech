@@ -1710,8 +1710,8 @@ func (this *CodeGenerator) addJsString(n Node) {
 func (this *CodeGenerator) jsString(s string) string {
 	var singleq int32 = 0
 	var doubleq int32 = 0
-	for i := int32(0); i < String_length(s); i++ {
-		switch String_charAt(s, i) {
+	for _, u_ := range stringUnits_(s) {
+		switch u_ {
 		case '"':
 			doubleq++
 		case '\'':
@@ -1745,8 +1745,7 @@ func (this *CodeGenerator) regexpEscape(s string) string {
 
 func (this *CodeGenerator) strEscape(s string, doublequoteEscape string, singlequoteEscape string, backtickEscape string, backslashEscape string, dollarEscape string, isRegexp bool) string {
 	var sb *StringBuilder = new_StringBuilder_int((String_length(s) + 2))
-	for i := int32(0); i < String_length(s); i++ {
-		var c uint16 = String_charAt(s, i)
+	for i, c := range stringUnits_(s) {
 		switch c {
 		case 0x0000:
 			sb.append("\\x00")
@@ -1851,8 +1850,7 @@ func (this *CodeGenerator) appendEscapedLt(sb *StringBuilder, s string, index in
 func (this *CodeGenerator) escapeUnrecognizedCharacters(s string) string {
 	var sb *StringBuilder = new_StringBuilder()
 	var escapeStart int32 = -1
-	for i := int32(0); i < String_length(s); i++ {
-		var c uint16 = String_charAt(s, i)
+	for i, c := range stringUnits_(s) {
 		var start int32 = sb.length()
 		switch c {
 		case 0x0008, 0x000C, '\n', '\r', '\t', '\\', '"', '\'', '$', '`', 0x2028, 0x2029:
@@ -1889,8 +1887,7 @@ func CodeGenerator_identifierEscape(s string) string {
 		return s
 	}
 	var sb *StringBuilder = new_StringBuilder()
-	for i := int32(0); i < String_length(s); i++ {
-		var c uint16 = String_charAt(s, i)
+	for _, c := range stringUnits_(s) {
 		if (int32(c) > 31) && (int32(c) < 127) {
 			sb.append_char(c)
 		} else {

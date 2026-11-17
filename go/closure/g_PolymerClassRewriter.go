@@ -776,12 +776,12 @@ func (this *PolymerClassRewriter) validateReflectedString(methodSignature Node) 
 
 func (this *PolymerClassRewriter) parseMethodParams(methodParameters string, methodSignature Node) {
 	var nextDelimeter uint16 = ','
-	for i := int32(0); i < String_length(methodParameters); i++ {
-		if String_charAt(methodParameters, i) == nextDelimeter {
+	for _, u_ := range stringUnits_(methodParameters) {
+		if u_ == nextDelimeter {
 			nextDelimeter = ','
 		} else {
-			if (String_charAt(methodParameters, i) == '"') || (String_charAt(methodParameters, i) == '\'') {
-				nextDelimeter = String_charAt(methodParameters, i)
+			if (u_ == '"') || (u_ == '\'') {
+				nextDelimeter = u_
 			}
 		}
 	}
