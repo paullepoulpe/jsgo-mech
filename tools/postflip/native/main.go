@@ -68,6 +68,12 @@
 // cursor() did; a list expression that may name another list later is copied to a local at
 // the declaration); one kept or passed on is slicePtrIter_, which reads *p anew too. A field
 // declared TList[T] (a manual step's in-node edge list, used only as &x.f) holds the slice.
+// A view passed to a function of the package whose parameter is only read during the call
+// (readParams: reading methods, iteration in place, runtime readers, nil tests, or such a
+// parameter of another function; never kept, compared, assigned or captured), or to a runtime
+// function that changes the list through it without keeping it (changers), is a live view of
+// the pointer (slicePtrView_, reading the slice at every operation as the typed list's view);
+// such a class becomes pointers to slices.
 //
 // -kind map, -kind set: *TMap[K, V] to map[K]V and *TSet[K] to map[K]struct{}, when keys
 // compare in Go as in Java (rw.KeyMode; a typed map whose keys compare by hashCode/equals
@@ -1326,10 +1332,14 @@ var readers = map[string]bool{
 	"ImmutableList_copyOf": true, "ImmutableList_copyOf_Iterable": true, "ImmutableSet_copyOf": true, "ImmutableSet_copyOf_Iterable": true,
 	"Iterables_getOnlyElement": true, "Iterables_getFirst": true, "Iterables_getLast": true, "Iterables_size": true,
 	"Collection_contains_s": true, "String_join": true, "new_ArrayList_Collection": true, "new_LinkedHashSet_Collection": true,
-	"new_ArrayDeque_Collection": true, "tlistFrom_": true, "sliceFrom_": true, "tsetFrom_": true,
+	"new_ArrayDeque_Collection": true, "tlistFrom_": true, "sliceFrom_": true, "tsetFrom_": true, "tlistFromRev_": true,
 	"ImmutableList_copyOf_Collection": true, "ImmutableSet_copyOf_Collection": true,
 	"immCopyOf_": true, "objstr_": true, "Object_toString": true,
+	"SequencedCollection_getFirst": true, "SequencedCollection_getLast": true,
 }
+
+// changers change the list given first through its List methods and do not keep it.
+var changers = map[string]bool{"SequencedCollection_removeLast": true, "SequencedCollection_removeFirst": true, "Collections_fill": true}
 
 // sorters change the list in place, keeping its length.
 var sorters = map[string]bool{"List_sort": true, "Collections_sort": true, "Collections_sort_List_Comparator": true, "Collections_reverse": true}
@@ -1338,7 +1348,7 @@ var sorters = map[string]bool{"List_sort": true, "Collections_sort": true, "Coll
 // takes the view as an argument.
 var readMethods = map[string]bool{"toArray": true, "toArray_0": true, "contains": true, "containsAll": true, "indexOf": true,
 	"lastIndexOf": true, "subList": true, "get": true, "size": true, "isEmpty": true, "toString": true, "hashCode": true, "equals": true}
-var readerMethods = map[string]bool{"addAll": true, "containsAll": true, "removeAll": true, "retainAll": true}
+var readerMethods = map[string]bool{"addAll": true, "containsAll": true, "removeAll": true, "retainAll": true, "join": true}
 
 func tcName(t types.Type) string {
 	text := types.TypeString(t, func(*types.Package) string { return "" })
@@ -1515,6 +1525,17 @@ func view(n *node, recv ast.Expr, call *ast.CallExpr) {
 				return
 			}
 		}
+		if changers[nm] && len(p.Args) >= 1 && rw.Unparen(p.Args[0]) == top {
+			// A runtime function that changes the list through the view and does not keep
+			// it: a live view of the pointer (slicePtrView_), which stores the change back.
+			if n.mutated == "" {
+				n.mutated = nm
+			}
+			mutSites[p] = n
+			share(n, "changed through a view by the runtime")
+			edit(n, call, func() string { return "slicePtrView_(" + tc + ", " + R() + ")" })
+			return
+		}
 		if readers[nm] || sorters[nm] {
 			if sorters[nm] && n.mutated == "" {
 				n.mutated = nm
@@ -1532,6 +1553,15 @@ func view(n *node, recv ast.Expr, call *ast.CallExpr) {
 		if nm == "" {
 			if s, ok := p.Fun.(*ast.SelectorExpr); ok {
 				nm = "." + s.Sel.Name
+			}
+		}
+		if f := calleeFunc(p); f != nil && generated(f.Pos()) && kind == "list" {
+			// A function of the package: decided once its parameters are known (readCalls).
+			for i, a := range p.Args {
+				if rw.Unparen(a) == top {
+					readCalls = append(readCalls, readCall{n: n, call: call, recv: recv, tc: tc, group: groupOf(f), i: i, what: "a view passed to " + nm})
+					return
+				}
 			}
 		}
 		poison(n, "a view passed to "+nm)
@@ -2142,6 +2172,7 @@ func main() {
 			return true
 		})
 	}
+	decideReadCalls()
 
 	if kind == "imm" {
 		decideImm()
@@ -2313,7 +2344,7 @@ func main() {
 		return reasons[rs[i]] > reasons[rs[j]] || reasons[rs[i]] == reasons[rs[j]] && rs[i] < rs[j]
 	})
 	for i, r := range rs {
-		if i >= 30 {
+		if i >= 30 && os.Getenv("NATIVE_ALL") == "" {
 			break
 		}
 		fmt.Fprintf(os.Stderr, "  stays (%d declarations): %s  [%s]\n", reasons[r], r, poisonAt[r])
@@ -3977,5 +4008,210 @@ func byValueField(k *node, te ast.Expr) {
 			}
 		}
 		poison(k, "a typed list held by value, used otherwise")
+	}
+}
+
+// ---- views read by functions of the package
+
+// readCall is a view of slot n's list (call, recv.asList()) passed as argument i of a call of
+// group's functions. If each of them only reads that parameter during the call (readParams)
+// the list becomes a pointer to a slice and the argument a live view of it (slicePtrView_,
+// which reads the slice at every operation as the typed list's view did); the view is made
+// for the call, so its identity is not seen: the parameter is not kept, compared or returned.
+type readCall struct {
+	n     *node
+	call  *ast.CallExpr
+	recv  ast.Expr
+	tc    string
+	group string
+	i     int
+	what  string
+}
+
+var readCalls []readCall
+
+// erasedColl reports whether t is the package's List, Collection, Iterable or
+// SequencedCollection interface (or an alias of one).
+func erasedColl(t types.Type) bool {
+	nt, ok := types.Unalias(t).(*types.Named)
+	if !ok || nt.Obj().Pkg() != rw.Pkg {
+		return false
+	}
+	switch nt.Obj().Name() {
+	case "List", "Collection", "Iterable", "SequencedCollection":
+		return true
+	}
+	return false
+}
+
+// viewReadMethods are the methods of an erased collection that read it during the call.
+var viewReadMethods = map[string]bool{"size": true, "isEmpty": true, "get": true, "contains": true, "containsAll": true,
+	"indexOf": true, "lastIndexOf": true, "toArray": true, "toArray_0": true, "equals": true, "hashCode": true, "toString": true}
+
+// iterFns iterate a collection in place when their result is the range expression (or, for
+// foreach_, a cursor of the function).
+var iterFns = map[string]bool{"elems_": true, "elemsBy_": true, "foreach_": true}
+
+// readParams returns the parameters ("group:i") of erased collection type that every function
+// of the group only reads during the call: each use is a reading method, an iteration in
+// place, a runtime reader, a nil test, or an argument for such a parameter (a fixpoint), never
+// in a function literal, never assigned.
+func readParams() map[string]bool {
+	type param struct {
+		key string
+		v   *types.Var
+		fn  *ast.FuncDecl
+	}
+	var ps []param
+	bad := map[string]bool{}
+	for _, f := range rw.Files {
+		for _, d := range f.Decls {
+			fd, ok := d.(*ast.FuncDecl)
+			if !ok || fd.Body == nil {
+				continue
+			}
+			o, ok := rw.Info.Defs[fd.Name].(*types.Func)
+			if !ok {
+				continue
+			}
+			g := groupOf(o)
+			sig := o.Type().(*types.Signature)
+			for i := 0; i < sig.Params().Len(); i++ {
+				v := sig.Params().At(i)
+				if !erasedColl(v.Type()) {
+					continue
+				}
+				k := fmt.Sprintf("%s:%d", g, i)
+				if !generated(fd.Pos()) || sig.Variadic() && i == sig.Params().Len()-1 {
+					bad[k] = true
+					continue
+				}
+				ps = append(ps, param{k, v, fd})
+			}
+		}
+	}
+	// Methods and functions used as values may be called from anywhere, but that does not
+	// change what they do with the parameter: only the bodies matter.
+	ok := func(p param, cur map[string]bool) bool {
+		for _, u := range rw.UsesOf[p.v] {
+			if enclosingFn(u) != p.fn {
+				return false // in a function literal
+			}
+			top := ast.Expr(u)
+			for {
+				c, ok := rw.Up(top).(*ast.CallExpr)
+				if !ok || len(c.Args) != 1 || rw.Unparen(c.Args[0]) != top {
+					break
+				}
+				nm, _ := rw.CallName(c)
+				if nm != "Collection" && nm != "Iterable" && nm != "List" && nm != "SequencedCollection" && nm != "icast_Collection" && nm != "icast_Iterable" && nm != "icast_List" {
+					break
+				}
+				top = c
+			}
+			switch x := rw.Up(top).(type) {
+			case *ast.SelectorExpr:
+				c, isCall := rw.Up(x).(*ast.CallExpr)
+				if !isCall || c.Fun != x || !viewReadMethods[x.Sel.Name] {
+					return false
+				}
+			case *ast.BinaryExpr:
+				other := x.X
+				if other == top {
+					other = x.Y
+				}
+				if id, ok := rw.Unparen(other).(*ast.Ident); !ok || id.Name != "nil" || x.Op != token.EQL && x.Op != token.NEQ {
+					return false
+				}
+			case *ast.CallExpr:
+				idx := -1
+				for i, a := range x.Args {
+					if rw.Unparen(a) == top {
+						idx = i
+					}
+				}
+				if idx < 0 {
+					return false
+				}
+				nm, _ := rw.CallName(x)
+				base := nm
+				if j := strings.IndexByte(base, '['); j >= 0 {
+					base = base[:j]
+				}
+				switch {
+				case iterFns[base] && idx == 0:
+					switch y := rw.Up(x).(type) {
+					case *ast.RangeStmt:
+						if y.X != x {
+							return false
+						}
+					case *ast.AssignStmt:
+						if base != "foreach_" || y.Tok != token.DEFINE || len(y.Lhs) != 1 {
+							return false
+						}
+						cv, _ := rw.Info.Defs[y.Lhs[0].(*ast.Ident)].(*types.Var)
+						for _, cu := range rw.UsesOf[cv] {
+							if enclosingFn(cu) != p.fn {
+								return false
+							}
+						}
+					default:
+						return false
+					}
+				case readers[nm], nm == "isNil_" && idx == 0:
+				default:
+					if s, ok := rw.Unparen(x.Fun).(*ast.SelectorExpr); ok && readerMethods[s.Sel.Name] && erasedRuntime(typeOf(s.X)) {
+						break
+					}
+					f := calleeFunc(x)
+					if f == nil || !generated(f.Pos()) {
+						return false
+					}
+					if sig := f.Type().(*types.Signature); sig.Variadic() && idx >= sig.Params().Len()-1 {
+						return false
+					}
+					if !cur[fmt.Sprintf("%s:%d", groupOf(f), idx)] {
+						return false
+					}
+				}
+			default:
+				return false
+			}
+		}
+		return true
+	}
+	cur := map[string]bool{}
+	for _, p := range ps {
+		if !bad[p.key] {
+			cur[p.key] = true
+		}
+	}
+	for changed := true; changed; {
+		changed = false
+		for _, p := range ps {
+			if cur[p.key] && !ok(p, cur) {
+				cur[p.key] = false
+				changed = true
+			}
+		}
+	}
+	return cur
+}
+
+// decideReadCalls makes each pending readCall a live view or poisons its class.
+func decideReadCalls() {
+	if len(readCalls) == 0 {
+		return
+	}
+	rp := readParams()
+	for _, rc := range readCalls {
+		curPos = rc.call.Pos()
+		if !rp[fmt.Sprintf("%s:%d", rc.group, rc.i)] {
+			poison(rc.n, rc.what)
+			continue
+		}
+		rc := rc
+		share(rc.n, "read through a view by a call")
+		edit(rc.n, rc.call, func() string { return "slicePtrView_(" + rc.tc + ", " + rw.Render(rc.recv) + ")" })
 	}
 }
