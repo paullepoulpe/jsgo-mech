@@ -1,4 +1,5 @@
-// Command iters is a post-flip step: an explicit Iterator over an immutable collection becomes
+// Command iters is a post-flip step: an explicit Iterator over an immutable collection (or over
+// a typed list's or set's view, below) becomes
 // a cursor of the runtime's own type, *immCursor_ (rt_iter.go), instead of an Iterator
 // interface value holding a heap-allocated iterator object:
 //
@@ -28,6 +29,16 @@
 // passing it to a helper that advances it shares the position as the iterator object did; it
 // is small and does not escape a function that only calls it, so it stays on the stack.
 //
+// Iterators of typed collections' views, which the code uses to remove elements while it
+// walks them, become the views' own iterator types without the views: X.asList().iterator()
+// of a *TList[T] is X.cursor(), a *tlistIter_[T]; X.asSet().iterator() of a *TSet[K] is
+// X.cursor(), a *tmapIter_[K, struct{}]. A class takes one kind of source (and one element
+// type). next() that the code unboxes to the element type (the type's own unboxing: str_,
+// Node_of_, cast_/to_X, icast_X) is nextT() / nextKey(), the element without boxing it; any
+// other next() still returns it boxed. Iterator_remove(it) of a converted cursor is
+// it.remove(), which is what Iterator_remove called on these iterators. Removal, order and
+// exceptions are the iterators' own (the same types as before; the runtime commit).
+//
 // Deterministic; a second run changes nothing. usage: iters [-n] <dir of package closure>
 package main
 
@@ -50,7 +61,8 @@ type slot struct {
 	parent *slot
 	poison string
 	srcs   []ast.Expr // C.iterator() calls entering the slot
-	n      int        // uses
+	nexts  []*ast.CallExpr
+	n      int // uses
 }
 
 var (
@@ -59,6 +71,7 @@ var (
 	immType types.Type
 	inGen   = map[*ast.File]bool{}
 	left    = map[string]int{}
+	removes []*ast.CallExpr // Iterator_remove(it) of a slot
 )
 
 func find(s *slot) *slot {
@@ -82,6 +95,7 @@ func union(a, b *slot) {
 		a.poison = b.poison
 	}
 	a.srcs = append(a.srcs, b.srcs...)
+	a.nexts = append(a.nexts, b.nexts...)
 }
 
 func poison(s *slot, why string) {
@@ -114,18 +128,62 @@ func slotOf(e ast.Expr) *slot {
 	return slots[o]
 }
 
-// immIterator returns C when e is C.iterator() with C an immutable collection.
-func immIterator(e ast.Expr) ast.Expr {
+// source is an iterator entering a class: C.iterator() of an immutable collection (kind imm),
+// of a typed list's view X.asList() (tlist) or of a typed set's view X.asSet() (tset).
+type source struct {
+	kind string
+	x    ast.Expr   // C for imm, X for tlist and tset
+	elem types.Type // tlist, tset: the element type
+}
+
+func sourceOf(e ast.Expr) *source {
 	c, ok := rw.Unparen(e).(*ast.CallExpr)
 	if !ok || len(c.Args) != 0 {
 		return nil
 	}
 	s, ok := c.Fun.(*ast.SelectorExpr)
-	if !ok || s.Sel.Name != "iterator" || !isImm(rw.Info.Types[s.X].Type) {
+	if !ok || s.Sel.Name != "iterator" {
 		return nil
 	}
-	return s.X
+	if isImm(rw.Info.Types[s.X].Type) {
+		return &source{kind: "imm", x: s.X}
+	}
+	v, ok := rw.Unparen(s.X).(*ast.CallExpr)
+	if !ok || len(v.Args) != 0 {
+		return nil
+	}
+	vs, ok := v.Fun.(*ast.SelectorExpr)
+	if !ok {
+		return nil
+	}
+	t := rw.Info.Types[vs.X].Type
+	switch name, args := typed(t); {
+	case vs.Sel.Name == "asList" && name == "TList":
+		return &source{kind: "tlist", x: vs.X, elem: args[0]}
+	case vs.Sel.Name == "asSet" && name == "TSet":
+		return &source{kind: "tset", x: vs.X, elem: args[0]}
+	}
+	return nil
 }
+
+// typed returns the name and type arguments of *N[...] for a generic type N of the package.
+func typed(t types.Type) (string, []types.Type) {
+	p, ok := types.Unalias(t).(*types.Pointer)
+	if !ok {
+		return "", nil
+	}
+	n, ok := types.Unalias(p.Elem()).(*types.Named)
+	if !ok || n.Obj().Parent() != rw.Pkg.Scope() || n.TypeArgs().Len() == 0 {
+		return "", nil
+	}
+	var args []types.Type
+	for i := 0; i < n.TypeArgs().Len(); i++ {
+		args = append(args, n.TypeArgs().At(i))
+	}
+	return n.Origin().Obj().Name(), args
+}
+
+func tstr(t types.Type) string { return types.TypeString(t, types.RelativeTo(rw.Pkg)) }
 
 // enter records value e flowing into slot s.
 func enter(s *slot, e ast.Expr) {
@@ -137,7 +195,7 @@ func enter(s *slot, e ast.Expr) {
 		union(s, o)
 		return
 	}
-	if immIterator(e) != nil {
+	if sourceOf(e) != nil {
 		r := find(s)
 		r.srcs = append(r.srcs, e)
 		return
@@ -291,6 +349,8 @@ func main() {
 					}
 					if ps := slots[p]; ps != nil {
 						enter(ps, a)
+					} else if name, _ := rw.CallName(x); name == "Iterator_remove" && len(x.Args) == 1 && slotOf(a) != nil {
+						removes = append(removes, x)
 					} else if s := slotOf(a); s != nil {
 						poison(s, "passed to code that wants an Iterator")
 					}
@@ -329,6 +389,9 @@ func main() {
 				switch p := rw.Parent[x].(type) {
 				case *ast.SelectorExpr:
 					if c, ok := rw.Parent[p].(*ast.CallExpr); ok && c.Fun == p && len(c.Args) == 0 && (p.Sel.Name == "hasNext" || p.Sel.Name == "next" || p.Sel.Name == "remove") {
+						if p.Sel.Name == "next" {
+							find(s).nexts = append(find(s).nexts, c)
+						}
 						return true
 					}
 					poison(s, "a method other than hasNext, next, remove")
@@ -372,28 +435,84 @@ func main() {
 		rs = append(rs, r)
 	}
 	sort.Slice(rs, func(i, j int) bool { return rs[i].v.Pos() < rs[j].v.Pos() })
-	nslots, nsrc := 0, 0
+	nslots, nsrc, nnext := 0, 0, 0
+	converted := map[*slot]bool{}
+	byKind := map[string]int{}
 	for _, r := range rs {
 		if r.poison == "" && len(r.srcs) == 0 {
 			r.poison = "no iterator enters it"
+		}
+		// One kind of source, and one element type for the typed ones.
+		var src0 *source
+		for _, e := range r.srcs {
+			src := sourceOf(e)
+			if src0 == nil {
+				src0 = src
+			} else if r.poison == "" && (src.kind != src0.kind || src.elem != nil && !types.Identical(src.elem, src0.elem)) {
+				r.poison = "iterators of different kinds of collection enter it"
+			}
 		}
 		if r.poison != "" {
 			left[r.poison] += len(roots[r])
 			continue
 		}
+		var typ, nextT string
+		var cv rw.Conv
+		switch src0.kind {
+		case "imm":
+			typ = "*immCursor_"
+		case "tlist":
+			typ, nextT = "*tlistIter_["+tstr(src0.elem)+"]", "nextT"
+		case "tset":
+			typ, nextT = "*tmapIter_["+tstr(src0.elem)+", struct{}]", "nextKey"
+		}
+		if src0.elem != nil {
+			cv = rw.ConvFor(src0.elem)
+		}
+		converted[r] = true
+		byKind[src0.kind] += len(r.srcs)
 		for _, s := range roots[r] {
 			if s.typ != nil {
-				rw.Rewrite[s.typ] = func() string { return "*immCursor_" }
+				rw.Rewrite[s.typ] = func() string { return typ }
 			}
 			nslots++
 		}
-		for _, src := range r.srcs {
-			c := immIterator(src)
-			rw.Rewrite[rw.Unparen(src)] = func() string { return "immCursorOf_(" + rw.Render(c) + ")" }
+		for _, e := range r.srcs {
+			src := sourceOf(e)
+			if src.kind == "imm" {
+				rw.Rewrite[rw.Unparen(e)] = func() string { return "immCursorOf_(" + rw.Render(src.x) + ")" }
+			} else {
+				rw.Rewrite[rw.Unparen(e)] = func() string { return rw.Render(src.x) + ".cursor()" }
+			}
 			nsrc++
 		}
+		// next() that the code unboxes to the element type: the element itself.
+		for _, c := range r.nexts {
+			if nextT == "" || !cv.OK {
+				break
+			}
+			p, ok := rw.Up(c).(*ast.CallExpr)
+			if !ok || len(p.Args) != 1 || rw.Unparen(p.Args[0]) != c {
+				continue
+			}
+			if name, _ := rw.CallName(p); name == "" || !cv.IsUnbox(name) || !types.Identical(rw.Info.Types[p].Type, src0.elem) {
+				continue
+			}
+			recv := c.Fun.(*ast.SelectorExpr).X
+			rw.Rewrite[p] = func() string { return rw.Render(recv) + "." + nextT + "()" }
+			nnext++
+		}
 	}
-	fmt.Printf("iters: %d variables and parameters become *immCursor_, %d iterators of immutable collections\n", nslots, nsrc)
+	nrem := 0
+	for _, x := range removes {
+		if converted[find(slotOf(x.Args[0]))] {
+			a := x.Args[0]
+			rw.Rewrite[x] = func() string { return rw.Render(a) + ".remove()" }
+			nrem++
+		}
+	}
+	fmt.Printf("iters: %d variables and parameters become typed cursors, %d iterators (%d of immutable collections, %d of typed lists, %d of typed sets), %d elements read unboxed, %d removals\n",
+		nslots, nsrc, byKind["imm"], byKind["tlist"], byKind["tset"], nnext, nrem)
 	var ks []string
 	for k := range left {
 		ks = append(ks, k)
