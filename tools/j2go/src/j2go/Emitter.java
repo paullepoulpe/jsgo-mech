@@ -50,6 +50,7 @@ final class Emitter extends StmtEmitter {
     if (te == null || !cx.isSource(te)) return false;
     for (Element e : te.getEnclosedElements()) {
       if (e.getKind() == ElementKind.FIELD && !e.getModifiers().contains(Modifier.STATIC) && cx.kind(e.asType()) == Ctx.K.STR) return true;
+      if (e.getKind() == ElementKind.FIELD && !e.getModifiers().contains(Modifier.STATIC) && cx.kind(e.asType()) == Ctx.K.TVAR) return true;
       if (e.getKind() == ElementKind.FIELD && cx.strSlot((VariableElement) e)) return true;
     }
     return needsZero(cx.superclass(te));
@@ -177,7 +178,8 @@ final class Emitter extends StmtEmitter {
     String n = cx.className(te);
     TypeElement sup = cx.superclass(te);
     boolean handle = cx.isHandle(te);
-    StringBuilder sb = new StringBuilder(handle ? "" : "type " + n + " struct {\n");
+    String tps = cx.typedClasses.contains(te) ? cx.typeParamsDecl(te.getTypeParameters()) : "";
+    StringBuilder sb = new StringBuilder(handle ? "" : "type " + n + tps + " struct {\n");
     if (sup != null) sb.append("\t").append(cx.className(sup)).append("\n");
     if (cx.declaresSelf(te)) sb.append("\tself_ any\n");
     ClassCtx c = cc();
@@ -227,6 +229,10 @@ final class Emitter extends StmtEmitter {
         if (e.getKind() == ElementKind.FIELD && !e.getModifiers().contains(Modifier.STATIC) && cx.kind(e.asType()) == Ctx.K.STR) {
           sb.append("\t").append(cx.fieldLoc("this", (VariableElement) e)).append(" = nullstr_\n");
         }
+        if (e.getKind() == ElementKind.FIELD && !e.getModifiers().contains(Modifier.STATIC) && cx.kind(e.asType()) == Ctx.K.TVAR) {
+          // Java's null for a field of a type parameter (the null string for a String)
+          sb.append("\t").append(cx.fieldLoc("this", (VariableElement) e)).append(" = ").append(cx.nil(e.asType())).append("\n");
+        }
         if (e.getKind() == ElementKind.FIELD && cx.strSlot((VariableElement) e)) {
           sb.append("\t").append(cx.strSlotLoc("this", (VariableElement) e)).append(" = nullstr_\n");
         }
@@ -255,6 +261,11 @@ final class Emitter extends StmtEmitter {
     guarded("args4j table of " + n, () -> args4jTable(te));
     if (te.getKind() == ElementKind.RECORD) recordMembers(te);
     statics(ct, te, enumConsts);
+  }
+
+  /** The type parameter list of the constructors of te: "[K any, V any]" for a typed class, else "". */
+  String tparams(TypeElement te) {
+    return cx.typedClasses.contains(te) ? cx.typeParamsDecl(te.getTypeParameters()) : "";
   }
 
   /** Receiver clause of an instance method of class te. */
@@ -435,7 +446,8 @@ final class Emitter extends StmtEmitter {
         if (cx.hasClinit(c) && c.getKind() != ElementKind.ENUM && !enumLike(c)) b.append(cx.className(c)).append("_clinit()\n");
       }
     }
-    b.append(cx.isHandle(te) ? "this := " + n + "_alloc_()\n" : "this := &" + n + "{}\n");
+    String targs = cx.typedClasses.contains(te) ? cx.typeParamsUse(te.getTypeParameters()) : "";
+    b.append(cx.isHandle(te) ? "this := " + n + "_alloc_()\n" : "this := &" + n + targs + "{}\n");
     if (cx.hasSelf(te)) b.append("this.self_ = this\n");
     if (needsZero(te)) b.append("this.zero_").append(n).append("()\n");
     return b.toString();
@@ -456,7 +468,7 @@ final class Emitter extends StmtEmitter {
     if (hasFinit) b.append("this.finit_").append(n).append("()\n");
     file.append(recv(te)).append("init_").append(n).append("(").append(enumDecl).append(") {\n").append(indent(b.toString(), "\t")).append("}\n\n");
     if (!te.getModifiers().contains(Modifier.ABSTRACT)) {
-      file.append("func new_").append(n).append("(").append(join(extras[0], enumDecl)).append(") ").append(cx.ref(te)).append(" {\n")
+      file.append("func new_").append(n).append(tparams(te)).append("(").append(join(extras[0], enumDecl)).append(") ").append(cx.ref(te)).append(" {\n")
           .append(indent(newPrologue(te, n) + extras[1] + "this.init_" + n + "(" + enumArgs + ")\nreturn this\n", "\t")).append("}\n\n");
     }
   }
@@ -516,7 +528,7 @@ final class Emitter extends StmtEmitter {
         .append(indent(guards() + finish(b.toString()), "\t")).append("\n}\n\n");
     if (!te.getModifiers().contains(Modifier.ABSTRACT)) {
       String[] extras = creationExtras(te);
-      file.append("func ").append(cx.ctorName(e, "new_")).append("(").append(join(extras[0], enumDecl, p.decl)).append(") ").append(cx.ref(te)).append(" {\n")
+      file.append("func ").append(cx.ctorName(e, "new_")).append(tparams(te)).append("(").append(join(extras[0], enumDecl, p.decl)).append(") ").append(cx.ref(te)).append(" {\n")
           .append(indent(newPrologue(te, n) + extras[1] + "this." + init + "(" + join(enumArgs, p.names) + ")\nreturn this\n", "\t")).append("}\n\n");
     }
     mc = null;
@@ -569,7 +581,8 @@ final class Emitter extends StmtEmitter {
     if (isStatic) {
       ret = cx.erase(e.getReturnType());
       p = params(mt.getParameters(), null);
-      head = "func " + cx.staticMethodName(e) + "(" + p.decl + ")";
+      String mtps = cx.typedClasses.contains(te) ? cx.typeParamsDecl(e.getTypeParameters()) : "";
+      head = "func " + cx.staticMethodName(e) + mtps + "(" + p.decl + ")";
     } else if (iface) {
       boolean priv = e.getModifiers().contains(Modifier.PRIVATE);
       ret = priv ? cx.erase(e.getReturnType()) : cx.groupReturn(e);

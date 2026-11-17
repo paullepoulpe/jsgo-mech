@@ -93,8 +93,9 @@ final class GenScan {
                 else if (a.getKind() == TypeKind.TYPEVAR) {
                   Element owner = ((TypeVariable) a).asElement().getEnclosingElement();
                   // its own type variables in its body, and those of its static generic factories
-                  boolean factory = owner instanceof ExecutableElement m && m.getEnclosingElement() == in;
-                  if (owner != in && !factory) why.put(te, "used with a type variable other than its own: " + a + " in " + owner);
+                  boolean factory = owner instanceof ExecutableElement m && m.getModifiers().contains(Modifier.STATIC) && m.getEnclosingElement() == te;
+                  // another declaration's type variable: fine if that declaration is typed too
+                  if (owner != te && !factory) deps.computeIfAbsent(te, k -> new LinkedHashSet<>()).add(owner);
                 } else if (a.getKind() == TypeKind.INTERSECTION || a.getKind() == TypeKind.UNION) why.put(te, "used with an intersection type");
               }
             }
@@ -150,7 +151,28 @@ final class GenScan {
     }.scan(cu, null);
   }
 
+  /** Class -> the declarations whose type variables its uses name as type arguments. */
+  final Map<TypeElement, Set<Element>> deps = new LinkedHashMap<>();
+
+  boolean isTyped(Element owner) {
+    if (owner instanceof TypeElement t) return why.containsKey(t) && why.get(t) == null;
+    return owner instanceof ExecutableElement m && m.getModifiers().contains(Modifier.STATIC) && isTyped(m.getEnclosingElement());
+  }
+
   Set<TypeElement> typed() {
+    for (boolean changed = true; changed; ) {
+      changed = false;
+      for (var d : deps.entrySet()) {
+        if (why.get(d.getKey()) != null) continue;
+        for (Element o : d.getValue()) {
+          if (!isTyped(o)) {
+            why.put(d.getKey(), "used with a type variable of " + o + ", which stays erased");
+            changed = true;
+            break;
+          }
+        }
+      }
+    }
     Set<TypeElement> out = new LinkedHashSet<>();
     why.forEach((te, w) -> {
       if (w == null) out.add(te);
@@ -159,6 +181,7 @@ final class GenScan {
   }
 
   void report() {
+    typed();
     why.forEach((te, w) -> System.err.println("generic class " + te.getQualifiedName() + ": " + (w == null ? "TYPED" : w)));
   }
 }

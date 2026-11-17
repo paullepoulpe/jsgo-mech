@@ -21,7 +21,75 @@ final class Ctx {
   /** External (library) members and types the translation refers to: Go spelling -> description. */
   final TreeMap<String, String> externals = new TreeMap<>();
 
-  enum K { PRIM, STR, CLS, IFACE, ANY, ARR, NULL, VOID }
+  enum K { PRIM, STR, CLS, IFACE, ANY, ARR, NULL, VOID, TVAR }
+
+  // ---------------------------------------------------------------- typed generic classes
+
+  /**
+   * Generic classes of the program that are Go generic types (GenScan): C<X> is *C[X], and their
+   * type variables (and those of their static generic methods) are Go type parameters.
+   */
+  final Set<TypeElement> typedClasses = new HashSet<>();
+
+  /** A type variable of a typed class, or of a static generic method of one. */
+  boolean typedVar(TypeMirror t) {
+    if (t == null || t.getKind() != TypeKind.TYPEVAR) return false;
+    Element o = ((TypeVariable) t).asElement().getEnclosingElement();
+    if (o instanceof TypeElement te) return typedClasses.contains(te);
+    return o instanceof ExecutableElement m && m.getModifiers().contains(Modifier.STATIC) && typedClasses.contains((TypeElement) m.getEnclosingElement());
+  }
+
+  /** A parameterized type of a typed class. */
+  boolean typedDecl(TypeMirror t) {
+    return t != null && t.getKind() == TypeKind.DECLARED && typedClasses.contains(typeElement(t)) && !((DeclaredType) t).getTypeArguments().isEmpty();
+  }
+
+  /** The Go name of a type parameter: its Java name, unless a Go type of the package has it. */
+  String tvName(TypeParameterElement tp) {
+    String n = tp.getSimpleName().toString();
+    return classByName.containsKey(n) ? n + "_" : n;
+  }
+
+  String tvName(TypeMirror t) {
+    return tvName((TypeParameterElement) ((TypeVariable) t).asElement());
+  }
+
+  /** The Go type parameter list for tps: "[K any, V any]", or "". */
+  String typeParamsDecl(List<? extends TypeParameterElement> tps) {
+    if (tps.isEmpty()) return "";
+    StringBuilder sb = new StringBuilder("[");
+    for (int i = 0; i < tps.size(); i++) sb.append(i > 0 ? ", " : "").append(tvName(tps.get(i))).append(" any");
+    return sb.append("]").toString();
+  }
+
+  /** The Go type arguments naming tps themselves: "[K, V]", or "". */
+  String typeParamsUse(List<? extends TypeParameterElement> tps) {
+    if (tps.isEmpty()) return "";
+    StringBuilder sb = new StringBuilder("[");
+    for (int i = 0; i < tps.size(); i++) sb.append(i > 0 ? ", " : "").append(tvName(tps.get(i)));
+    return sb.append("]").toString();
+  }
+
+  /** The Go type argument for Java type argument a: boxed primitives, Object and other erased types are any. */
+  String goTypeArg(TypeMirror a) {
+    if (a == null) return "any";
+    if (typedVar(a)) return tvName(a);
+    switch (a.getKind()) {
+      case TYPEVAR, WILDCARD, INTERSECTION, UNION: return "any";
+      default: break;
+    }
+    K k = kind(a);
+    if (k == K.ANY || k == K.NULL || k == K.VOID) return "any";
+    return goType(a);
+  }
+
+  /** "[X, Y]" for the type arguments of typed type t. */
+  String typeArgsOf(TypeMirror t) {
+    StringBuilder sb = new StringBuilder("[");
+    List<? extends TypeMirror> as = ((DeclaredType) t).getTypeArguments();
+    for (int i = 0; i < as.size(); i++) sb.append(i > 0 ? ", " : "").append(goTypeArg(as.get(i)));
+    return sb.append("]").toString();
+  }
 
   /** Library types that are represented as Go `any`. */
   static final Set<String> ANY_TYPES = Set.of(
@@ -78,12 +146,14 @@ final class Ctx {
 
   /** The Go type of a reference to class te: a pointer to its struct, or the handle type itself. */
   String ref(TypeElement te) {
+    if (typedClasses.contains(te)) return "*" + className(te) + typeParamsUse(te.getTypeParameters());
     return isHandle(te) ? className(te) : "*" + className(te);
   }
 
   /** Go spelling of Java null at type t. */
   String nil(TypeMirror t) {
     if (kind(t) == K.STR) return "nullstr_";
+    if (kind(t) == K.TVAR) return "null_[" + goType(t) + "]()";
     return isHandleType(t) ? "0" : "nil";
   }
 
@@ -407,6 +477,8 @@ final class Ctx {
       case NULL, VOID, NONE, ERROR, PACKAGE, EXECUTABLE, OTHER, MODULE:
         return t;
       default:
+        // the types the Go code keeps: type variables of typed classes, their parameterized types
+        if (typedVar(t) || typedDecl(t)) return t;
         return types.erasure(t);
     }
   }
@@ -421,6 +493,8 @@ final class Ctx {
         return K.ARR;
       case NULL:
         return K.NULL;
+      case TYPEVAR:
+        return typedVar(t) ? K.TVAR : K.ANY;
       case VOID, NONE:
         return K.VOID;
       case DECLARED: {
@@ -456,8 +530,9 @@ final class Ctx {
       case PRIM: return primName(t.getKind());
       case STR: return "string";
       case ARR: return "[]" + goType(((ArrayType) t).getComponentType());
-      case CLS: return ref(typeElement(t));
+      case CLS: return typedDecl(t) ? "*" + className(typeElement(t)) + typeArgsOf(t) : ref(typeElement(t));
       case IFACE: return className(typeElement(t));
+      case TVAR: return tvName(t);
       case VOID: return "";
       default: return "any";
     }
@@ -493,6 +568,7 @@ final class Ctx {
       TypeMirror b = ((WildcardType) a).getExtendsBound();
       return b == null ? "any" : typeArg(b);
     }
+    if (typedVar(a)) return tvName(a);
     if (a.getKind() == TypeKind.TYPEVAR) return "any";
     TypeMirror u = unboxed(a);
     if (u != null && !a.getKind().isPrimitive()) {
@@ -535,6 +611,10 @@ final class Ctx {
     if (kf == K.VOID) return code;
     String gf = goType(from), gt = goType(to);
     if (gf.equals(gt)) return code;
+    // A value of a type parameter meets another type through its box, as in the erased code.
+    TypeMirror object = elems.getTypeElement("java.lang.Object").asType();
+    if (kf == K.TVAR) return kt == K.ANY ? "boxT_(" + code + ")" : coerce("boxT_(" + code + ")", object, to);
+    if (kt == K.TVAR) return "unboxT_[" + gt + "](" + coerce(code, from, object) + ")";
     switch (kt) {
       case ANY:
         switch (kf) {

@@ -451,10 +451,34 @@ abstract class ExprEmitter extends Base {
         } else {
           recv = expr(q);
         }
-        return cx.coerce(cx.fieldGet(recv, f), f.asType(), typeOf(t));
+        return cx.coerce(cx.fieldGet(recv, f), memberType(typeOf(q), f), typeOf(t));
       }
       default:
         throw unsupported(t, "member of kind " + e.getKind());
+    }
+  }
+
+  /** The type of field f read through a value of type recv: a field of a typed class at the receiver's type arguments. */
+  TypeMirror memberType(TypeMirror recv, VariableElement f) {
+    if (recv != null && !f.getModifiers().contains(Modifier.STATIC) && cx.typedDecl(recv) && cx.typedClasses.contains(cx.ownerOf(f))) {
+      return cx.types.asMemberOf((DeclaredType) recv, f);
+    }
+    return f.asType();
+  }
+
+  /** The instantiated type of the method invocation being translated (javac's, after inference), or null. */
+  ExecutableType curInst;
+
+  /** Binds the type variables in generic type g to the parts of a that stand where they stand. */
+  static void unify(TypeMirror g, TypeMirror a, Map<Element, TypeMirror> m) {
+    if (g == null || a == null) return;
+    if (g.getKind() == TypeKind.TYPEVAR) {
+      m.putIfAbsent(((TypeVariable) g).asElement(), a);
+    } else if (g.getKind() == TypeKind.DECLARED && a.getKind() == TypeKind.DECLARED) {
+      List<? extends TypeMirror> ga = ((DeclaredType) g).getTypeArguments(), aa = ((DeclaredType) a).getTypeArguments();
+      if (ga.size() == aa.size()) for (int i = 0; i < ga.size(); i++) unify(ga.get(i), aa.get(i), m);
+    } else if (g.getKind() == TypeKind.ARRAY && a.getKind() == TypeKind.ARRAY) {
+      unify(((ArrayType) g).getComponentType(), ((ArrayType) a).getComponentType(), m);
     }
   }
 
@@ -493,7 +517,7 @@ abstract class ExprEmitter extends Base {
     }
     if (t instanceof MemberSelectTree ms) {
       VariableElement f = (VariableElement) e;
-      lv.type = cx.erase(f.asType());
+      lv.type = cx.erase(memberType(typeOf(ms.getExpression()), f));
       if (f.getModifiers().contains(Modifier.STATIC)) {
         lv.code = staticField(f);
       } else {
@@ -666,7 +690,12 @@ abstract class ExprEmitter extends Base {
       ExpressionTree x = kl == Ctx.K.NULL ? r : l;
       Ctx.K kx = kl == Ctx.K.NULL ? kr : kl;
       if (kx == Ctx.K.NULL) return op.equals("==") ? "true" : "false";
+      if (kx == Ctx.K.TVAR) return (op.equals("==") ? "" : "!") + "isnull_(" + expr(x) + ")";
       return "(" + expr(x) + " " + op + " " + cx.nil(kl == Ctx.K.NULL ? tr : tl) + ")";
+    }
+    if (kl == Ctx.K.TVAR || kr == Ctx.K.TVAR) {
+      // a type parameter is not comparable in Go: the boxes are, as in the erased code
+      return "(" + asAny(l) + " " + op + " " + asAny(r) + ")";
     }
     if (kl == Ctx.K.PRIM || kr == Ctx.K.PRIM) {
       TypeMirror p = promote(tl, tr);
@@ -899,6 +928,21 @@ abstract class ExprEmitter extends Base {
       TypeMirror ret = cx.erase(e.getReturnType());
       String name = cx.staticMethodName(e);
       if (!src) noteMethod("func " + name, e, params, ret, "static");
+      if (src && cx.typedClasses.contains(owner) && !e.getTypeParameters().isEmpty()) {
+        // A generic function: instantiated with javac's inferred type arguments.
+        ExecutableType inst = curInst;
+        curInst = null;
+        if (inst == null || inst.getParameterTypes().size() != params.size()) throw new IllegalStateException("no instantiated type for a call of " + e);
+        Map<Element, TypeMirror> m = new HashMap<>();
+        unify(e.getReturnType(), inst.getReturnType(), m);
+        for (int i = 0; i < params.size(); i++) unify(e.getParameters().get(i).asType(), inst.getParameterTypes().get(i), m);
+        StringBuilder ta = new StringBuilder("[");
+        for (TypeParameterElement tp : e.getTypeParameters()) ta.append(ta.length() > 1 ? ", " : "").append(cx.goTypeArg(m.get(tp)));
+        params = new ArrayList<>();
+        for (TypeMirror pt : inst.getParameterTypes()) params.add(cx.erase(pt));
+        ret = cx.erase(inst.getReturnType());
+        return new CallResult(name + ta + "]" + "(" + argList(e, params, args) + ")", ret);
+      }
       return new CallResult(name + "(" + argList(e, params, args) + ")", ret);
     }
     if (recv == null) recv = implicitRecv(owner);
@@ -957,6 +1001,13 @@ abstract class ExprEmitter extends Base {
     }
     List<TypeMirror> params = cx.groupParams(e);
     TypeMirror ret = cx.groupReturn(e);
+    if (src && cx.typedClasses.contains(cx.ownerOf(cx.root(e))) && recv != null && cx.typedDecl(recv.type)) {
+      // A method of a typed class: its parameters and result at the receiver's type arguments.
+      ExecutableType mt = (ExecutableType) cx.types.asMemberOf((DeclaredType) recv.type, e);
+      params = new ArrayList<>();
+      for (TypeMirror pt : mt.getParameterTypes()) params.add(cx.erase(pt));
+      ret = cx.erase(mt.getReturnType());
+    }
     String name = cx.methodName(e);
     if (!src) noteMethod("method " + cx.className(cx.ownerOf(cx.root(e))) + "." + name, cx.root(e), params, ret, "method");
     String target;
@@ -1023,6 +1074,7 @@ abstract class ExprEmitter extends Base {
     if (!(el instanceof ExecutableElement)) el = elemOf(sel);
     if (!(el instanceof ExecutableElement e)) throw unsupported(t, "unresolved call " + sel);
     List<Arg> as = args(t.getArguments());
+    curInst = typeOf(sel) instanceof ExecutableType et ? et : null;
     if (sel instanceof MemberSelectTree ms) {
       ExpressionTree q = ms.getExpression();
       if (e.getModifiers().contains(Modifier.STATIC)) return special(e, null, as);
@@ -1097,6 +1149,13 @@ abstract class ExprEmitter extends Base {
     List<TypeMirror> params = ownParams(ctor);
     String name = cx.ctorName(ctor, "new_");
     if (!cx.isSource(te)) noteMethod("func " + name, ctor, params, ty, "constructor");
+    if (cx.typedDecl(ty)) {
+      // new C<X>(...): new_C[X], its parameters at those type arguments
+      ExecutableType mt = (ExecutableType) cx.types.asMemberOf((DeclaredType) ty, ctor);
+      params = new ArrayList<>();
+      for (TypeMirror pt : mt.getParameterTypes()) params.add(cx.erase(pt));
+      name += cx.typeArgsOf(ty);
+    }
     String al = argList(ctor, params, args(t.getArguments()));
     if (!al.isEmpty()) pre.add(al);
     return name + "(" + String.join(", ", pre) + ")";
