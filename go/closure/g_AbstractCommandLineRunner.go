@@ -318,7 +318,7 @@ func AbstractCommandLineRunner_getBuiltinExterns(env CompilerOptions_Environment
 		}
 		mapFromExternsZip.put(filename, SourceFile_jscomp_builder().withPath(("externs.zip//" + sstr_(filename))).withContent(Io_utf8String(data.get())).build())
 	}
-	return Outcome_base_ok_Object(DefaultExterns_prepareExterns(env, mapFromExternsZip))
+	return Outcome_base_ok_Object(DefaultExterns_prepareExterns(env, mapFromExternsZip).asList())
 }
 
 func AbstractCommandLineRunner_getExternsInput() *Outcome_base {
@@ -402,7 +402,7 @@ func (this *AbstractCommandLineRunner) readStdin() *Outcome_base {
 }
 
 func (this *AbstractCommandLineRunner) parseJsonFilesFromInputStream() *Outcome_base {
-	var jsonFiles ListOf[*AbstractCommandLineRunner_JsonFileSpec] = new_ArrayList_0()
+	var jsonFiles *TList[*AbstractCommandLineRunner_JsonFileSpec] = newTList_(tc_p_AbstractCommandLineRunner_JsonFileSpec)
 	var json *Outcome_base = this.readStdin()
 	if json.isErr() {
 		return Outcome_base_err(json.error())
@@ -421,9 +421,9 @@ func (this *AbstractCommandLineRunner) parseJsonFilesFromInputStream() *Outcome_
 		if jsonFile.isErr() {
 			return Outcome_base_err(jsonFile.error())
 		}
-		jsonFiles.add(jsonFile.get())
+		jsonFiles.add(cast_[*AbstractCommandLineRunner_JsonFileSpec](jsonFile.get()))
 	}
-	return Outcome_base_ok_Object(jsonFiles)
+	return Outcome_base_ok_Object(jsonFiles.asList())
 }
 
 func (this *AbstractCommandLineRunner) createInputs(files *TList[*AbstractCommandLineRunner_FlagEntry], allowStdIn bool, jsChunkSpecs *TList[*AbstractCommandLineRunner_JsChunkSpec]) *Outcome_base {
@@ -435,7 +435,7 @@ func (this *AbstractCommandLineRunner) createInputsList(files *TList[*AbstractCo
 }
 
 func (this *AbstractCommandLineRunner) createInputs_4(files *TList[*AbstractCommandLineRunner_FlagEntry], jsonFiles ListOf[*AbstractCommandLineRunner_JsonFileSpec], allowStdIn bool, jsChunkSpecs *TList[*AbstractCommandLineRunner_JsChunkSpec]) *Outcome_base {
-	var inputs ListOf[*SourceFile_jscomp] = new_ArrayList_int(files.size())
+	var inputs *TList[*SourceFile_jscomp] = newTListN_(tc_p_SourceFile_jscomp, files.size())
 	var usingStdin bool = false
 	var jsChunkIndex int32 = 0
 	var jsChunkSpec *AbstractCommandLineRunner_JsChunkSpec = cast_[*AbstractCommandLineRunner_JsChunkSpec](Iterables_getFirst(Iterable(jsChunkSpecs.asList()), nil))
@@ -469,7 +469,7 @@ func (this *AbstractCommandLineRunner) createInputs_4(files *TList[*AbstractComm
 						this.rootRelativePathsMap[zipEntryName] = zipmap
 					}
 				}
-				inputs.addAll(Collection(newFiles))
+				inputs.asList().addAll(Collection(newFiles))
 				if jsChunkSpec != nil {
 					jsChunkSpec.numJsFiles += (newFiles.size() - 1)
 				}
@@ -482,7 +482,7 @@ func (this *AbstractCommandLineRunner) createInputs_4(files *TList[*AbstractComm
 				return StaticSourceFile_SourceKind_STRONG
 			}()
 			var newFile *SourceFile_jscomp = SourceFile_jscomp_builder().withPath(filename).withCharset(this.inputCharset).withKind(kind).build()
-			inputs.add(obj_(newFile))
+			inputs.add(newFile)
 		} else {
 			if this.config.typedAstListInputFilename.isPresent() {
 				return Outcome_base_err(new_FlagUsageException("Can't use TypedASTs with stdin.").up_Throwable())
@@ -504,7 +504,7 @@ func (this *AbstractCommandLineRunner) createInputs_4(files *TList[*AbstractComm
 			if stdinCode.isErr() {
 				panic(new_RuntimeException_Throwable(stdinCode.error()).self())
 			}
-			inputs.add(obj_(SourceFile_jscomp_builder().withPath("stdin").withContent(str_(stdinCode.get())).withCharset(this.inputCharset).build()))
+			inputs.add(SourceFile_jscomp_builder().withPath("stdin").withContent(str_(stdinCode.get())).withCharset(this.inputCharset).build())
 			usingStdin = true
 		}
 		if i >= (cumulatedInputFilesExpected - 1) {
@@ -517,10 +517,10 @@ func (this *AbstractCommandLineRunner) createInputs_4(files *TList[*AbstractComm
 	}
 	if jsonFiles != nil {
 		for jsonFile := range elemsAs_[*AbstractCommandLineRunner_JsonFileSpec](jsonFiles) {
-			inputs.add(obj_(SourceFile_jscomp_fromCode_String_String(jsonFile.getPath().get(), jsonFile.getSrc().orElseThrow())))
+			inputs.add(SourceFile_jscomp_fromCode_String_String(jsonFile.getPath().get(), jsonFile.getSrc().orElseThrow()))
 		}
 	}
-	return Outcome_base_ok_Object(inputs)
+	return Outcome_base_ok_Object(inputs.asList())
 }
 
 func (this *AbstractCommandLineRunner) deduplicateIjsFiles(files *TList[*AbstractCommandLineRunner_FlagEntry], moduleRoots ListOf[string], hasChunkSpecs bool) *Outcome_base {
@@ -697,9 +697,9 @@ func AbstractCommandLineRunner_parseChunkWrappers(specs *TList[string], chunks I
 	if specs == nil {
 		panic(new_IllegalStateException_0().self())
 	}
-	var wrappers MapOf[string, string] = new_LinkedHashMap()
+	var wrappers *TMap[string, string] = newTMap_(tc_string, tc_string)
 	for c := range elemsAs_[*JSChunk](chunks) {
-		Map_put_s(wrappers, c.getName(), strobj_(""))
+		wrappers.put(c.getName(), "")
 	}
 	it_3 := specs.each()
 	for it_3.next() {
@@ -709,7 +709,7 @@ func AbstractCommandLineRunner_parseChunkWrappers(specs *TList[string], chunks I
 			return Outcome_base_err(new_FlagUsageException(("Expected chunk wrapper to have <name>:<wrapper> format: " + sstr_(spec))).up_Throwable())
 		}
 		var name string = spec[:pos]
-		if !Map_containsKey_s(wrappers, name) {
+		if !wrappers.containsKey(name) {
 			return Outcome_base_err(new_FlagUsageException(("Unknown chunk: '" + sstr_(name) + "'")).up_Throwable())
 		}
 		var wrapper string = spec[pos+1:]
@@ -717,9 +717,9 @@ func AbstractCommandLineRunner_parseChunkWrappers(specs *TList[string], chunks I
 		if !strings.Contains(wrapper, "%s") {
 			return Outcome_base_err(new_FlagUsageException(("No %s placeholder in chunk wrapper: '" + sstr_(wrapper) + "'")).up_Throwable())
 		}
-		Map_put_s(wrappers, name, strobj_(wrapper))
+		wrappers.put(name, wrapper)
 	}
-	return Outcome_base_ok_Object(wrappers)
+	return Outcome_base_ok_Object(wrappers.asMap())
 }
 
 func AbstractCommandLineRunner_parseChunkOutputFiles(specs *TList[string]) *Outcome_base {

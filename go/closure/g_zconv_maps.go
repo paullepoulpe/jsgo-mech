@@ -136,3 +136,6 @@ var tch_p_TemplateType = &tconv_[*TemplateType]{box: func(v *TemplateType) any {
 	hash: func(v *TemplateType) int32 { return objhashVia_(v) }, eq: func(a, b *TemplateType) bool { return objequalsVia_(a, obj_(b)) }}
 var tch_p_Var = &tconv_[*Var]{box: func(v *Var) any { return obj_(v) }, unbox: func(v any) *Var { return cast_[*Var](v) },
 	hash: func(v *Var) int32 { return objhashVia_(v) }, eq: func(a, b *Var) bool { return objequalsVia_(a, obj_(b)) }}
+var tc_p_Es6RewriteClass_ClassProperty = &tconv_[*Es6RewriteClass_ClassProperty]{box: func(v *Es6RewriteClass_ClassProperty) any { return obj_(v) }, unbox: func(v any) *Es6RewriteClass_ClassProperty { return cast_[*Es6RewriteClass_ClassProperty](v) }}
+var tc_p_InstrumentationPoint = &tconv_[*InstrumentationPoint]{box: func(v *InstrumentationPoint) any { return obj_(v) }, unbox: func(v any) *InstrumentationPoint { return cast_[*InstrumentationPoint](v) }}
+var tc_p_ZipArchive_Opened = &tconv_[*ZipArchive_Opened]{box: func(v *ZipArchive_Opened) any { return obj_(v) }, unbox: func(v any) *ZipArchive_Opened { return cast_[*ZipArchive_Opened](v) }}

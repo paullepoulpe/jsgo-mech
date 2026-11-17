@@ -93,7 +93,7 @@ func (this *ConvertTypesToColors_RemoveTypes) visit_impl(t *NodeTraversal, n Nod
 type ConvertTypesToColors_RemoveTypesAndApplyColors struct {
 	ConvertTypesToColors_RemoveTypes
 	colorPoolShard       *ColorPool_ShardView
-	typePointersByJstype *LinkedIdentityHashMap
+	typePointersByJstype *TMap[*JSType, any]
 }
 
 func (this *ConvertTypesToColors_RemoveTypesAndApplyColors) up_ConvertTypesToColors_RemoveTypes() *ConvertTypesToColors_RemoveTypes {
@@ -110,13 +110,13 @@ func (this *ConvertTypesToColors_RemoveTypesAndApplyColors) up_NodeTraversal_Abs
 	return &this.NodeTraversal_AbstractPostOrderCallback
 }
 
-func (this *ConvertTypesToColors_RemoveTypesAndApplyColors) init_ConvertTypesToColors_RemoveTypesAndApplyColors(colorPoolShard *ColorPool_ShardView, typePointersByJstype *LinkedIdentityHashMap) {
+func (this *ConvertTypesToColors_RemoveTypesAndApplyColors) init_ConvertTypesToColors_RemoveTypesAndApplyColors(colorPoolShard *ColorPool_ShardView, typePointersByJstype *TMap[*JSType, any]) {
 	this.ConvertTypesToColors_RemoveTypes.init_ConvertTypesToColors_RemoveTypes()
 	this.colorPoolShard = colorPoolShard
 	this.typePointersByJstype = typePointersByJstype
 }
 
-func new_ConvertTypesToColors_RemoveTypesAndApplyColors(colorPoolShard *ColorPool_ShardView, typePointersByJstype *LinkedIdentityHashMap) *ConvertTypesToColors_RemoveTypesAndApplyColors {
+func new_ConvertTypesToColors_RemoveTypesAndApplyColors(colorPoolShard *ColorPool_ShardView, typePointersByJstype *TMap[*JSType, any]) *ConvertTypesToColors_RemoveTypesAndApplyColors {
 	this := &ConvertTypesToColors_RemoveTypesAndApplyColors{}
 	this.self_ = this
 	this.init_ConvertTypesToColors_RemoveTypesAndApplyColors(colorPoolShard, typePointersByJstype)
@@ -128,7 +128,7 @@ func (this *ConvertTypesToColors_RemoveTypesAndApplyColors) visit_impl(t *NodeTr
 	var oldTypeBeforeCast *JSType = n.getJSTypeBeforeCast()
 	this.ConvertTypesToColors_RemoveTypes.visit_impl(t, n, parent)
 	if oldType != nil {
-		var pointer any = this.typePointersByJstype.get(oldType.self())
+		var pointer any = this.typePointersByJstype.get(oldType)
 		if pointer != nil {
 			n.setColor(this.colorPoolShard.getColor(unbox_[int32](pointer)))
 		}

@@ -24,28 +24,28 @@ func DiagnosticGroups_registerUnsuppressibleGroup(types []*DiagnosticType) *Diag
 }
 
 func DiagnosticGroups_registerGroupDiagnosticGroup(name string, group *DiagnosticGroup) *DiagnosticGroup {
-	Map_put_s(DiagnosticGroups_groupsByName, name, obj_(group))
+	DiagnosticGroups_groupsByName.put(name, group)
 	return group
 }
 
 func DiagnosticGroups_registerGroup(name string, types []*DiagnosticType) *DiagnosticGroup {
 	var group *DiagnosticGroup = new_DiagnosticGroup_Optional_DiagnosticTypeArr(Optional_of[string](name), types)
-	Map_put_s(DiagnosticGroups_groupsByName, name, obj_(group))
+	DiagnosticGroups_groupsByName.put(name, group)
 	return group
 }
 
 func DiagnosticGroups_registerGroupDiagnosticGroupVarargs(name string, groups []*DiagnosticGroup) *DiagnosticGroup {
 	var group *DiagnosticGroup = DiagnosticGroup_createFromGroups_Optional_DiagnosticGroupArr(Optional_of[string](name), groups)
-	Map_put_s(DiagnosticGroups_groupsByName, name, obj_(group))
+	DiagnosticGroups_groupsByName.put(name, group)
 	return group
 }
 
 func DiagnosticGroups_getRegisteredGroups() ImmutableMapOf[string, *DiagnosticGroup] {
-	return ImmutableMap_copyOf(DiagnosticGroups_groupsByName)
+	return ImmutableMap_copyOf(DiagnosticGroups_groupsByName.asMap())
 }
 
 func DiagnosticGroups_forName(name string) *DiagnosticGroup {
-	return cast_[*DiagnosticGroup](Map_get_s(DiagnosticGroups_groupsByName, name))
+	return DiagnosticGroups_groupsByName.get(name)
 }
 
 func (this *DiagnosticGroups) setWarningLevel(options *CompilerOptions, name string, level CheckLevel) {
@@ -58,7 +58,7 @@ func (this *DiagnosticGroups) setWarningLevel(options *CompilerOptions, name str
 
 var DiagnosticGroups_UNUSED *DiagnosticType
 var DiagnosticGroups_wildcardExcludedGroups *ImmutableSet
-var DiagnosticGroups_groupsByName Map
+var DiagnosticGroups_groupsByName *TMap[string, *DiagnosticGroup]
 
 const DiagnosticGroups_DIAGNOSTIC_GROUP_NAMES string = "accessControls, checkPrototypalTypes, checkRegExp, checkTypes, checkVars, conformanceViolations, const, constantProperty, deprecated, deprecatedAnnotations, defineWithoutGoogDefine, duplicateMessage, es5Strict, externsValidation, functionParams, globalThis, invalidCasts, lintVarDeclarations, misplacedTypeAnnotation, missingCallToSuper, missingOverride, missingPolyfill, missingProperties, missingProvide, missingRequire, missingReturn, missingSourcesWarnings, moduleLoad, moduleImport, msgDescriptions, nonStandardJsDocs, partialAlias, polymer, reportUnknownTypes, strictCheckTypes, strictMissingProperties, strictModuleDepCheck, strictPrimitiveOperators, suspiciousCode, typeInvalidation, undefinedVars, underscore, unknownDefines, unusedLocalVariables, uselessCode, untranspilableFeatures,visibility, weakModuleGet"
 
@@ -152,7 +152,7 @@ func DiagnosticGroups_clinit() {
 	DiagnosticGroups_clinit_done = true
 	DiagnosticGroups_UNUSED = DiagnosticType_warning("JSC_UNUSED", "{0}")
 	DiagnosticGroups_wildcardExcludedGroups = ImmutableSet_of_Object_Object_Object_Object(strobj_("reportUnknownTypes"), strobj_("analyzerChecks"), strobj_("missingSourcesWarnings"), strobj_("closureUnawareCodeAnnotationPresent"))
-	DiagnosticGroups_groupsByName = new_LinkedHashMap()
+	DiagnosticGroups_groupsByName = newTMap_(tc_string, tc_p_DiagnosticGroup)
 	DiagnosticGroups_UNTRANSPILABLE_FEATURES = DiagnosticGroups_registerGroup("untranspilableFeatures", []*DiagnosticType{ReportUntranspilableFeatures_UNTRANSPILABLE_FEATURE_PRESENT})
 	DiagnosticGroups_MODULE_LOAD = DiagnosticGroups_registerGroup("moduleLoad", []*DiagnosticType{ModuleLoader_LOAD_WARNING, ProcessCommonJSModules_SUSPICIOUS_EXPORTS_ASSIGNMENT, ProcessCommonJSModules_UNKNOWN_REQUIRE_ENSURE})
 	DiagnosticGroups_MODULE_IMPORT = DiagnosticGroups_registerGroup("moduleImport", []*DiagnosticType{ModuleMapCreator_DOES_NOT_HAVE_EXPORT, ModuleMapCreator_DOES_NOT_HAVE_EXPORT_WITH_DETAILS})

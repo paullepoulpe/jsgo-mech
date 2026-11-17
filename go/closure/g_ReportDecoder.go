@@ -26,7 +26,7 @@ func ReportDecoder_parseMappingFromFile(mappingFilePath string) *Outcome_base {
 }
 
 func ReportDecoder_parseMapping(mappingFileContent string) *Outcome_base {
-	var mapping MapOf[string, *InstrumentationPoint] = new_LinkedHashMap()
+	var mapping *TMap[string, *InstrumentationPoint] = newTMap_(tc_string, tc_p_InstrumentationPoint)
 	var linesOfFile []string = sliceImm_(tc_string, Splitter_on('\n').omitEmptyStrings().splitToList_s(mappingFileContent))
 	if int32(len(linesOfFile)) < 3 {
 		panic(new_IllegalStateException_String(Strings_lenientFormat("Malformed report %s", []any{sliceView_(tc_string, linesOfFile)})).self())
@@ -70,9 +70,9 @@ func ReportDecoder_parseMapping(mappingFileContent string) *Outcome_base {
 		var encodedDetails string = String_substring_int(lineItem, (String_indexOf(lineItem, 58) + 1))
 		var encodedDetailsAsCharIt *ReportDecoder_StringCharIterator = new_ReportDecoder_StringCharIterator(encodedDetails)
 		var temp *InstrumentationPoint = cast_[*InstrumentationPoint](InstrumentationPoint_newBuilder().setFileName(str_(localFileNames.get(Base64VLQ_decode(encodedDetailsAsCharIt)))).setFunctionName(str_(functionNames.get(Base64VLQ_decode(encodedDetailsAsCharIt)))).setType(types[Base64VLQ_decode(encodedDetailsAsCharIt)]).setLineNumber(Base64VLQ_decode(encodedDetailsAsCharIt)).setColumnNumber(Base64VLQ_decode(encodedDetailsAsCharIt)).build())
-		Map_putIfAbsent_s(mapping, id, obj_(temp))
+		mapping.putIfAbsent(id, temp)
 	}
-	return Outcome_base_ok_Object(mapping)
+	return Outcome_base_ok_Object(mapping.asMap())
 }
 
 func ReportDecoder_parseJsonStringList(json string) *Outcome_base {
@@ -83,21 +83,21 @@ func ReportDecoder_parseJsonStringList(json string) *Outcome_base {
 	if cast_[*SimpleJsonValue](parsed.get()).kind() != SimpleJsonValue_Kind_ARRAY {
 		return Outcome_base_err(new_SimpleJsonException("Malformed mapping: expected a JSON array").up_Throwable())
 	}
-	var list ListOf[string] = new_ArrayList_0()
+	var list *TList[string] = newTList_(tc_string)
 	it_1 := foreach_(cast_[*SimpleJsonValue](parsed.get()).elements())
 	for it_1.next() {
 		var element *SimpleJsonValue = cast_[*SimpleJsonValue](it_1.v)
 		if element.kind() == SimpleJsonValue_Kind_NULL {
-			list.add(nil)
+			list.add(str_(nil))
 			continue
 		}
 		var string_ *Outcome_base = element.asString()
 		if string_.isErr() {
 			return Outcome_base_err(string_.error())
 		}
-		list.add(string_.get())
+		list.add(str_(string_.get()))
 	}
-	return Outcome_base_ok_Object(list)
+	return Outcome_base_ok_Object(list.asList())
 }
 
 func ReportDecoder_decodeReport(mapping MapOf[string, *InstrumentationPoint], frequencies MapOf[string, BoxedOf[int64]]) *ReportProfile {

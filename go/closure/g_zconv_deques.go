@@ -57,3 +57,6 @@ var tc_p_ThisAndArgumentsReferenceUpdater_ThisAndArgumentsContext = &tconv_[*Thi
 	return cast_[*ThisAndArgumentsReferenceUpdater_ThisAndArgumentsContext](v)
 }}
 var tc_p_TypeInference_OptChainInfo = &tconv_[*TypeInference_OptChainInfo]{box: func(v *TypeInference_OptChainInfo) any { return obj_(v) }, unbox: func(v any) *TypeInference_OptChainInfo { return cast_[*TypeInference_OptChainInfo](v) }}
+var tc_p_PureFunctionIdentifier_FunctionBodyAnalyzer_FunctionStackEntry = &tconv_[*PureFunctionIdentifier_FunctionBodyAnalyzer_FunctionStackEntry]{box: func(v *PureFunctionIdentifier_FunctionBodyAnalyzer_FunctionStackEntry) any { return obj_(v) }, unbox: func(v any) *PureFunctionIdentifier_FunctionBodyAnalyzer_FunctionStackEntry {
+	return cast_[*PureFunctionIdentifier_FunctionBodyAnalyzer_FunctionStackEntry](v)
+}}

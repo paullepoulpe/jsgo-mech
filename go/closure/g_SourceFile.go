@@ -367,14 +367,14 @@ func SourceFile_jscomp_fromZipInput(zipName string, zipBytes []int8, inputCharse
 
 func SourceFile_jscomp_fromZipEntryNames(zipName string, entryNames *TList[string], inputCharset string) *Outcome_base {
 	var absoluteZipPath string = FilePaths_toAbsolute(zipName)
-	var sourceFiles ListOf[*SourceFile_jscomp] = new_ArrayList_0()
+	var sourceFiles *TList[*SourceFile_jscomp] = newTList_(tc_p_SourceFile_jscomp)
 	for entryName := range entryNames.All() {
 		if !strings.HasSuffix(entryName, ".js") {
 			continue
 		}
-		sourceFiles.add(obj_(SourceFile_jscomp_builder().withCharset(inputCharset).withOriginalPath((sstr_(zipName) + sstr_(SourceFile_jscomp_BANG_SLASH) + sstr_(entryName))).withZipEntryPath(absoluteZipPath, entryName).build()))
+		sourceFiles.add(SourceFile_jscomp_builder().withCharset(inputCharset).withOriginalPath((sstr_(zipName) + sstr_(SourceFile_jscomp_BANG_SLASH) + sstr_(entryName))).withZipEntryPath(absoluteZipPath, entryName).build())
 	}
-	return Outcome_base_ok_Object(sourceFiles)
+	return Outcome_base_ok_Object(sourceFiles.asList())
 }
 
 func SourceFile_jscomp_fromFile_String_String(fileName string, charset string) *SourceFile_jscomp {

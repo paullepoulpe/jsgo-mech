@@ -127,16 +127,16 @@ func (this *CoalesceVariableNames) visit_impl(t *NodeTraversal, n Node, parent N
 		this.compiler_.reportChangeToEnclosingScope(n)
 		this.updateDeclarationsPostCoalescing(n, coalescedVar, var_, parent)
 	} else {
-		var allMergedNames SetOf[string] = new_TreeSet()
+		var allMergedNames *TTreeSet[string] = newTTreeSet_(tc_string)
 		for iVar := range this.liveness.getAllVariablesInOrder().All() {
 			if (slicePeekTop_(tc_p_GraphColoring, this.colorings).getGraph().getNode(obj_(iVar)) != nil) && slicePeekTop_(tc_p_GraphColoring, this.colorings).haveSameColor(obj_(iVar), obj_(coalescedVar)) {
-				Collection_add_s(allMergedNames, iVar.getName())
+				allMergedNames.add(iVar.getName())
 			}
 		}
 		if allMergedNames.size() == 1 {
 			return
 		}
-		var pseudoName string = Joiner_on("_").join(Iterable(allMergedNames))
+		var pseudoName string = Joiner_on("_").join(Iterable(allMergedNames.asSet()))
 		for t.getScope().hasSlot(pseudoName) {
 			pseudoName += "$"
 		}

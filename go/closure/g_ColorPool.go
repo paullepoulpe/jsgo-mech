@@ -147,7 +147,7 @@ func (this *ColorPool_ShardView) updateStateAfterColorPoolIsBuilt(colorPool *Col
 }
 
 type ColorPool_Builder struct {
-	protoToShard            *LinkedIdentityHashMap
+	protoToShard            *TMap[*TypePool, *ColorPool_ShardView]
 	idToColor               *TMap[*ColorId, *Color]
 	registry                *ColorRegistry_Builder
 	idToProto               *SimpleTable
@@ -156,7 +156,7 @@ type ColorPool_Builder struct {
 }
 
 func (this *ColorPool_Builder) finit_ColorPool_Builder() {
-	this.protoToShard = new_LinkedIdentityHashMap()
+	this.protoToShard = newTMap_(tc_p_TypePool, tc_p_ColorPool_ShardView)
 	this.idToColor = newTMap_(tch_p_ColorId, tc_p_Color)
 	this.registry = ColorRegistry_builder()
 	this.idToProto = SimpleTable_create()
@@ -189,7 +189,7 @@ func (this *ColorPool_Builder) addShard(typePool *TypePool, stringPool *StringPo
 	if !this.idToProto.isEmpty() {
 		panic(new_IllegalStateException_String("build has already been called").self())
 	}
-	var existing *ColorPool_ShardView = cast_[*ColorPool_ShardView](this.protoToShard.get(obj_(typePool)))
+	var existing *ColorPool_ShardView = this.protoToShard.get(typePool)
 	if existing != nil {
 		if !JSCompObjects_identical(obj_(typePool), obj_(TypePool_getDefaultInstance())) {
 			panic(new_IllegalStateException_String(objstr_(obj_(typePool))).self())
@@ -198,7 +198,7 @@ func (this *ColorPool_Builder) addShard(typePool *TypePool, stringPool *StringPo
 	}
 	var trimmedOffsetToId []*ColorId = ColorPool_createTrimmedOffsetToId(typePool)
 	var shard *ColorPool_ShardView = new_ColorPool_ShardView(typePool, stringPool, trimmedOffsetToId)
-	this.protoToShard.put(obj_(typePool), obj_(shard))
+	this.protoToShard.put(typePool, shard)
 	if typePool.hasDebugInfo() {
 		for m := range elemsAs_[*TypePool_DebugInfo_Mismatch](typePool.getDebugInfo().getMismatchList()) {
 			for pointer := range elems_(m.getInvolvedColorList()) {
@@ -255,7 +255,7 @@ func (this *ColorPool_Builder) build() *ColorPool {
 }
 
 func (this *ColorPool_Builder) forEachShard(fn func(any)) {
-	this.protoToShard.forEach(func(unused_ any, shard_ any) {
+	lihmForEach_(this.protoToShard, func(unused_ any, shard_ any) {
 		var unused *TypePool = cast_[*TypePool](unused_)
 		_ = unused
 		var shard *ColorPool_ShardView = cast_[*ColorPool_ShardView](shard_)

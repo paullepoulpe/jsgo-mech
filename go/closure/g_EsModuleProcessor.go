@@ -467,20 +467,20 @@ func (this *EsModuleProcessor_UnresolvedEsModule) getExportedNames_2_impl(module
 		return ImmutableSet_of()
 	}
 	visited[this.as_UnresolvedModule()] = struct{}{}
-	var exportedNames SetOf[string] = new_TreeSet()
+	var exportedNames *TTreeSet[string] = newTTreeSet_(tc_string)
 	for _, e := range this.localExports {
-		Collection_add_s(exportedNames, e.exportName().orElse(nullstr_))
+		exportedNames.add(e.exportName().orElse(nullstr_))
 	}
 	for _, e := range this.indirectExports {
-		Collection_add_s(exportedNames, e.exportName().orElse(nullstr_))
+		exportedNames.add(e.exportName().orElse(nullstr_))
 	}
 	for _, e := range this.starExports {
 		var requested *UnresolvedModule = moduleRequestResolver.resolve(e)
 		if requested != nil {
 			if requested.metadata().isEs6Module() {
 				for n := range elemsBy_(obj_(requested.getExportedNames_2(moduleRequestResolver, visited)), str_) {
-					if !(Export_DEFAULT == n) && !Collection_contains_s(exportedNames, n) {
-						Collection_add_s(exportedNames, n)
+					if !(Export_DEFAULT == n) && !exportedNames.contains(n) {
+						exportedNames.add(n)
 					}
 				}
 			} else {
@@ -488,7 +488,7 @@ func (this *EsModuleProcessor_UnresolvedEsModule) getExportedNames_2_impl(module
 			}
 		}
 	}
-	return ImmutableSet_copyOf(Collection(exportedNames))
+	return ImmutableSet_copyOf(Collection(exportedNames.asSet()))
 }
 
 func (this *EsModuleProcessor_UnresolvedEsModule) getAllResolvedExports(moduleRequestResolver ModuleRequestResolver) *TMap[string, *Binding] {

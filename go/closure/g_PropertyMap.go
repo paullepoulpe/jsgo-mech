@@ -165,16 +165,16 @@ func (this *PropertyMap) getAllKeys() *PropertyMap_AllKeys {
 		}
 	}
 	if (maxAncestorCounter != this.cachedKeySetCounter) || (this.cachedKeySet == nil) {
-		var keys TreeSetOf[string] = new_TreeSet()
+		var keys *TTreeSet[string] = newTTreeSet_(tc_string)
 		var knownSymbolsKeys *TSet[*KnownSymbolType] = newTSet_(tch_p_KnownSymbolType)
 		for ancestor := range ancestors.All() {
 			ancestor.cachedKeySetCounter = maxAncestorCounter
 			ancestor.cachedKeySet = nil
 			ancestor.cachedKnownSymbolsKeySet = nil
-			keys.addAll(Collection(ancestor.getOwnPropertyNames()))
+			keys.asSet().addAll(Collection(ancestor.getOwnPropertyNames()))
 			knownSymbolsKeys.asSet().addAll(Collection(ancestor.getOwnKnownSymbols()))
 		}
-		this.cachedKeySet = ImmutableSortedSet_copyOfSorted(keys)
+		this.cachedKeySet = ImmutableSortedSet_copyOfSorted(keys.asSet())
 		this.cachedKnownSymbolsKeySet = ImmutableSet_copyOf(Collection(knownSymbolsKeys.asSet()))
 	}
 	return new_PropertyMap_AllKeys(this.cachedKeySet, tsetFrom_(tch_p_KnownSymbolType, this.cachedKnownSymbolsKeySet, true))

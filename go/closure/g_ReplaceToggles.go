@@ -87,7 +87,7 @@ func (this *ReplaceToggles_Traversal) visit_impl(t *NodeTraversal, n Node, paren
 			return
 		}
 		var mapping *TMap[string, any] = newTMap_(tc_string, tc_any)
-		var ordinals SetOf[BoxedOf[int32]] = new_LinkedHashSet()
+		var ordinals *TSet[int32] = newTSet_(tc_int32)
 		{
 			var c Node = rhs.getFirstChild()
 			for ; c != 0; c = c.getNext() {
@@ -118,12 +118,12 @@ func (this *ReplaceToggles_Traversal) visit_impl(t *NodeTraversal, n Node, paren
 				} else if (!child.isNumber() || (intValue < 0)) || (float64(intValue) != unbox_[float64](doubleValue)) {
 					this.outer_.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(c, ReplaceToggles_INVALID_ORDINAL_MAPPING, []string{"value not a boolean or whole number literal"}))
 					return
-				} else if ordinals.contains(any(int32(intValue))) {
+				} else if ordinals.contains(int32(intValue)) {
 					this.outer_.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(c, ReplaceToggles_INVALID_ORDINAL_MAPPING, []string{("duplicate ordinal: " + istr_(int64(intValue)))}))
 					return
 				}
 				mapping.put(key, any(int32(intValue)))
-				ordinals.add(any(int32(intValue)))
+				ordinals.add(int32(intValue))
 			}
 		}
 		this.outer_.ordinalMapping = ImmutableMap_copyOf(mapping.asMap())

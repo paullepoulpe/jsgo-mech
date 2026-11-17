@@ -7,11 +7,11 @@ type JSChunkGraph struct {
 	selfPlusTransitiveDeps []*BitSet
 	subtreeSize            []int32
 	chunksByDepth          ListOf[ListOf[*JSChunk]]
-	dependencyMap          *LinkedIdentityHashMap
+	dependencyMap          *TMap[*JSChunk, any]
 }
 
 func (this *JSChunkGraph) finit_JSChunkGraph() {
-	this.dependencyMap = new_LinkedIdentityHashMap()
+	this.dependencyMap = newTMap_(tc_p_JSChunk, tc_any)
 }
 
 func (this *JSChunkGraph) init_JSChunkGraph(chunks []*JSChunk, chunksByDepth ListOf[ListOf[*JSChunk]]) {
@@ -55,7 +55,7 @@ func JSChunkGraph_create(chunksInDepOrder ListOf[*JSChunk]) *Outcome_base {
 }
 
 func JSChunkGraph_initChunksByDepth(chunks []*JSChunk) *Outcome_base {
-	var tmpChunksByDepth ListOf[ListOf[*JSChunk]] = new_ArrayList_0()
+	var tmpChunksByDepth *TList[ListOf[*JSChunk]] = newTList_(tc_ListOf_p_JSChunk_)
 	for chunkIndex := int32(0); chunkIndex < int32(len(chunks)); chunkIndex++ {
 		var chunk *JSChunk = chunks[chunkIndex]
 		if chunk.getDepth() != -1 {
@@ -71,11 +71,11 @@ func JSChunkGraph_initChunksByDepth(chunks []*JSChunk) *Outcome_base {
 		}
 		chunk.setDepth(depth)
 		if depth == tmpChunksByDepth.size() {
-			tmpChunksByDepth.add(new_ArrayList_0().self())
+			tmpChunksByDepth.add(icast_List(new_ArrayList_0().self()))
 		}
-		icast_List(tmpChunksByDepth.get(depth)).add(obj_(chunk))
+		tmpChunksByDepth.get(depth).add(obj_(chunk))
 	}
-	return Outcome_base_ok_Object(tmpChunksByDepth)
+	return Outcome_base_ok_Object(tmpChunksByDepth.asList())
 }
 
 func JSChunkGraph_makeWeakChunk(chunksInDepOrder ListOf[*JSChunk]) ListOf[*JSChunk] {
@@ -85,7 +85,7 @@ func JSChunkGraph_makeWeakChunk(chunksInDepOrder ListOf[*JSChunk]) ListOf[*JSChu
 			hasWeakChunk = true
 			var allOtherChunks *TSet[*JSChunk] = tsetFrom_(tc_p_JSChunk, Collection(chunksInDepOrder), false)
 			allOtherChunks.remove(chunk)
-			if !chunk.getAllDependencies().containsAll(Collection(allOtherChunks.asSet())) {
+			if !chunk.getAllDependencies().asSet().containsAll(Collection(allOtherChunks.asSet())) {
 				panic(new_IllegalStateException_String("A weak chunk already exists but it does not depend on every other chunk.").self())
 			}
 			if chunk.getAllDependencies().size() != allOtherChunks.size() {
@@ -297,7 +297,7 @@ func (this *JSChunkGraph) getTransitiveDepsDeepestFirst(m *JSChunk) ListOf[*JSCh
 }
 
 func (this *JSChunkGraph) getTransitiveDeps(m *JSChunk) SetOf[*JSChunk] {
-	return icast_Set(this.dependencyMap.computeIfAbsent(obj_(m), lambda_JSChunkGraph_getTransitiveDeps_1_))
+	return icast_Set(lihmComputeIfAbsent_(this.dependencyMap, m, lambda_JSChunkGraph_getTransitiveDeps_1_))
 }
 
 // lambda_JSChunkGraph_getTransitiveDeps_1_ is a lambda of JSChunkGraph_getTransitiveDeps that captures nothing (post-flip step lambdas).
@@ -461,12 +461,12 @@ func (this *JSChunkGraph) getDepthFirstDependenciesOf(rootInput *CompilerInput, 
 }
 
 func (this *JSChunkGraph) createEntryPointInputs(compiler *AbstractCompiler, dependencyOptions *DependencyOptions, inputs IterableOf[*CompilerInput], sorter *SortedDependencies) *Outcome_base {
-	var entryPointInputs SetOf[*CompilerInput] = new_LinkedHashSet()
+	var entryPointInputs *TSet[*CompilerInput] = newTSet_(tc_p_CompilerInput)
 	var chunksByName map[string]*JSChunk = this.getChunksByName()
 	if dependencyOptions.shouldPrune() {
 		var baseJs *CompilerInput = cast_[*CompilerInput](sorter.maybeGetInputProviding("goog"))
 		if baseJs != nil {
-			entryPointInputs.add(obj_(baseJs))
+			entryPointInputs.add(baseJs)
 		}
 		if !dependencyOptions.shouldDropMoochers() {
 			for _, it_1 := range sorter.getInputsWithoutProvides() {
@@ -474,7 +474,7 @@ func (this *JSChunkGraph) createEntryPointInputs(compiler *AbstractCompiler, dep
 				if entryPointInput.getSourceFile().isWeak() {
 					compiler.report(JSError_make_DiagnosticType_StringArr(JSChunkGraph_IMPLICIT_WEAK_ENTRY_POINT_ERROR, []string{entryPointInput.getSourceFile().getName()}))
 				} else {
-					entryPointInputs.add(obj_(entryPointInput))
+					entryPointInputs.add(entryPointInput)
 				}
 			}
 		}
@@ -507,13 +507,13 @@ func (this *JSChunkGraph) createEntryPointInputs(compiler *AbstractCompiler, dep
 			if entryPointInput.getSourceFile().isWeak() {
 				compiler.report(JSError_make_DiagnosticType_StringArr(JSChunkGraph_EXPLICIT_WEAK_ENTRY_POINT_ERROR, []string{entryPointInput.getSourceFile().getName()}))
 			} else {
-				entryPointInputs.add(obj_(entryPointInput))
+				entryPointInputs.add(entryPointInput)
 			}
 		}
 	} else {
-		Iterables_addAll(Collection(entryPointInputs), inputs)
+		Iterables_addAll(Collection(entryPointInputs.asSet()), inputs)
 	}
-	return Outcome_base_ok_Object(entryPointInputs)
+	return Outcome_base_ok_Object(entryPointInputs.asSet())
 }
 
 func (this *JSChunkGraph) toGraphvizGraph() *LinkedDirectedGraph {

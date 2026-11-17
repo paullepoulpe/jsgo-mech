@@ -203,7 +203,7 @@ func (this *JsFileLineParser) parseJsString(jsStringLiteral string) *Outcome_bas
 }
 
 func (this *JsFileLineParser) parseJsStringArray(input string) *Outcome_base {
-	var results ListOf[string] = new_ArrayList_0()
+	var results *TList[string] = newTList_(tc_string)
 	var indexStart int32 = String_indexOf(input, 91)
 	var indexEnd int32 = String_lastIndexOf(input, 93)
 	if (indexStart == -1) || (indexEnd == -1) {
@@ -216,12 +216,12 @@ func (this *JsFileLineParser) parseJsStringArray(input string) *Outcome_base {
 			if !this.valueMatcher.lookingAt() {
 				return Outcome_base_err(new_JsFileLineParser_ParseException("Syntax error in JS String literal", true).up_Throwable())
 			}
-			results.add(func() any {
+			results.add(str_(func() any {
 				if Optional_ofNullable(strobj_(this.valueMatcher.group(1))).isPresent() {
 					return strobj_(this.valueMatcher.group(1))
 				}
 				return strobj_(this.valueMatcher.group(2))
-			}())
+			}()))
 			if this.valueMatcher.end() == String_length(innerValues) {
 				break
 			}
@@ -232,7 +232,7 @@ func (this *JsFileLineParser) parseJsStringArray(input string) *Outcome_base {
 			this.valueMatcher.reset_s(innerValues)
 		}
 	}
-	return Outcome_base_ok_Object(results)
+	return Outcome_base_ok_Object(results.asList())
 }
 
 func (this *JsFileLineParser) parseJsStringMap(input string) *Outcome_base {
@@ -243,7 +243,7 @@ func (this *JsFileLineParser) parseJsStringMap(input string) *Outcome_base {
 		return Outcome_base_err(checked.error())
 	}
 	input = String_trim(String_substring(input, 1, (String_length(input) - 1)))
-	var results MapOf[string, string] = new_LinkedHashMap()
+	var results *TMap[string, string] = newTMap_(tc_string, tc_string)
 	var done bool = input == ""
 	this.valueMatcher.reset_s(input)
 	for !done {
@@ -277,7 +277,7 @@ func (this *JsFileLineParser) parseJsStringMap(input string) *Outcome_base {
 			}
 			return this.valueMatcher.group(2)
 		}()
-		Map_put_s(results, key, strobj_(val))
+		results.put(key, val)
 		if this.valueMatcher.end() != String_length(input) {
 			checked = JsFileLineParser_check((String_charAt(input, this.valueMatcher.end()) == ','), "Missing comma in JS object literal")
 			if checked.isErr() {
@@ -289,7 +289,7 @@ func (this *JsFileLineParser) parseJsStringMap(input string) *Outcome_base {
 			done = true
 		}
 	}
-	return Outcome_base_ok_Object(results)
+	return Outcome_base_ok_Object(results.asMap())
 }
 
 func JsFileLineParser_check(condition bool, message string) *Outcome_base {

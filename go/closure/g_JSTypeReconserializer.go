@@ -11,14 +11,14 @@ type JSTypeReconserializer struct {
 	shouldPropagatePropertyName func(any) bool
 	unknownRecord               *JSTypeReconserializer_SeenTypeRecord
 	topFunctionRecord           *JSTypeReconserializer_SeenTypeRecord
-	typeToRecordCache           *LinkedIdentityHashMap
+	typeToRecordCache           *TMap[*JSType, *JSTypeReconserializer_SeenTypeRecord]
 	seenTypeRecords             *TMap[*ColorId, *JSTypeReconserializer_SeenTypeRecord]
 	disambiguateEdges           *SimpleSetMultimap
 	state                       JSTypeReconserializer_State
 }
 
 func (this *JSTypeReconserializer) finit_JSTypeReconserializer() {
-	this.typeToRecordCache = new_LinkedIdentityHashMap()
+	this.typeToRecordCache = newTMap_(tc_p_JSType, tc_p_JSTypeReconserializer_SeenTypeRecord)
 	this.seenTypeRecords = newTMap_(tch_p_ColorId, tc_p_JSTypeReconserializer_SeenTypeRecord)
 	this.disambiguateEdges = SimpleSetMultimap_createInsertionOrdered()
 	this.state = JSTypeReconserializer_State_COLLECTING_TYPES
@@ -78,7 +78,7 @@ func (this *JSTypeReconserializer) recordType(type_ *JSType) *JSTypeReconseriali
 	if (type_.isFunctionType() && !type_.toMaybeFunctionType().hasInstanceType()) && (type_.toMaybeFunctionType().getClosurePrimitive() == 0) {
 		return this.topFunctionRecord
 	}
-	var jstypeRecord *JSTypeReconserializer_SeenTypeRecord = cast_[*JSTypeReconserializer_SeenTypeRecord](this.typeToRecordCache.get(type_.self()))
+	var jstypeRecord *JSTypeReconserializer_SeenTypeRecord = this.typeToRecordCache.get(type_)
 	if jstypeRecord != nil {
 		return jstypeRecord
 	}
@@ -168,7 +168,7 @@ func (this *JSTypeReconserializer) getOrCreateRecord(id *ColorId, jstype *JSType
 		var pointer int32 = this.seenTypeRecords.size()
 		return obj_(new_JSTypeReconserializer_SeenTypeRecord(id, pointer))
 	}))
-	this.typeToRecordCache.put(jstype.self(), obj_(record))
+	this.typeToRecordCache.put(jstype, record)
 	record.jstypes = append(record.jstypes, jstype)
 	return record
 }
@@ -322,7 +322,7 @@ func (this *JSTypeReconserializer) generateTypePool() *TypePool {
 
 func (this *JSTypeReconserializer) getColorIdToJSTypeMapForDebugging() *SimpleListMultimap {
 	var unordered *SimpleListMultimap = SimpleListMultimap_create()
-	this.typeToRecordCache.forEach(func(jstype_ any, record_ any) {
+	lihmForEach_(this.typeToRecordCache, func(jstype_ any, record_ any) {
 		var jstype *JSType = to_JSType(jstype_)
 		_ = jstype
 		var record *JSTypeReconserializer_SeenTypeRecord = cast_[*JSTypeReconserializer_SeenTypeRecord](record_)

@@ -6,12 +6,12 @@ type SerializeTypesToPointers struct {
 	compiler_                 *AbstractCompiler
 	jstypeReconserializer     *JSTypeReconserializer
 	propertiesReferencedInAst map[string]struct{}
-	typePointersByJstype      *LinkedIdentityHashMap
+	typePointersByJstype      *TMap[*JSType, any]
 	typePool                  *TypePool
 }
 
 func (this *SerializeTypesToPointers) finit_SerializeTypesToPointers() {
-	this.typePointersByJstype = new_LinkedIdentityHashMap()
+	this.typePointersByJstype = newTMap_(tc_p_JSType, tc_any)
 	this.typePool = nil
 }
 
@@ -49,7 +49,7 @@ func (this *SerializeTypesToPointers) gatherTypesOnAst(root Node) {
 	this.logSerializationDebugInfo(this.jstypeReconserializer, this.typePool)
 }
 
-func (this *SerializeTypesToPointers) getTypePointersByJstype() *LinkedIdentityHashMap {
+func (this *SerializeTypesToPointers) getTypePointersByJstype() *TMap[*JSType, any] {
 	return this.typePointersByJstype
 }
 
@@ -153,7 +153,7 @@ func (this *SerializeTypesToPointers_TypeSearchCallback) visit(t *NodeTraversal,
 	}
 	var type_ *JSType = n.getJSType()
 	if type_ != nil {
-		this.outer_.typePointersByJstype.computeIfAbsent(type_.self(), func(p0 any) any { return any(int32(this.outer_.jstypeReconserializer.serializeType(to_JSType(p0)))) })
+		lihmComputeIfAbsent_(this.outer_.typePointersByJstype, type_, func(p0 any) any { return any(int32(this.outer_.jstypeReconserializer.serializeType(to_JSType(p0)))) })
 	}
 	var shadow Node = n.getClosureUnawareShadow()
 	if shadow != 0 {
