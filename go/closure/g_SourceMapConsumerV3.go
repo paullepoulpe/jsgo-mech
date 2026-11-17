@@ -74,21 +74,10 @@ func (this *SourceMapConsumerV3) parse_2(sourceMapObject *SourceMapObject, secti
 	return Outcome_base_ok_0()
 }
 
-func (this *SourceMapConsumerV3) parseMetaMap(sourceMapObject *SourceMapObject, sectionSupplier SourceMapSupplier) (ret_1 *Outcome_base[any]) {
+func (this *SourceMapConsumerV3) parseMetaMap(sourceMapObject *SourceMapObject, sectionSupplier SourceMapSupplier) *Outcome_base[any] {
 	if sectionSupplier == nil {
 		sectionSupplier = new_SourceMapConsumerV3_DefaultSourceMapSupplier()
 	}
-	defer func() {
-		if r_ := recover(); r_ != nil {
-			ex_ := catch_(r_)
-			if p, ok := ex_.(IOException_as); ok {
-				var ex *IOException = p.as_IOException()
-				ret_1 = Outcome_base_err[any](new_SourceMapParseException(("IO exception: " + objstr_(ex.self()))).up_Throwable())
-				return
-			}
-			panic(r_)
-		}
-	}()
 	if (((sourceMapObject.getLineCount() >= 0) || sourceMapObject.getMappings().isPresent()) || ((sourceMapObject.getSources() != nil) && (int32(len(sourceMapObject.getSources())) > 0))) || (sourceMapObject.getNames() != nil) {
 		return Outcome_base_err[any](new_SourceMapParseException("Invalid map format").up_Throwable())
 	}
