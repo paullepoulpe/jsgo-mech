@@ -310,6 +310,14 @@ func arrmap_[S any, T any](src []S, f func(S) T) []T {
 	return out
 }
 
+// arrcopyOf_ is Arrays.copyOf(a, n) of a typed array (post-flip step arraycopy): a new array of
+// length n holding a's first elements, the rest zero.
+func arrcopyOf_[T any](a []T, n int32) []T {
+	out := make([]T, n)
+	copy(out, a)
+	return out
+}
+
 func samearr_[T any](a, b []T) bool {
 	if len(a) != len(b) {
 		return false
