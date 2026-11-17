@@ -51,6 +51,11 @@
 // (rw.ReadOnlySink: equals, toString, a Preconditions message...) gets a view for it. The
 // stack and queue methods of a deque's typed list (colls -kind deque) are slice helpers.
 //
+// A nil []T reads as an empty list (len 0, a range of no step), where Java's null list throws
+// NullPointerException: a class whose lists may be null (nil enters a slot, a variable starts
+// as its zero value, or a slot is a field or package variable) is never a plain slice; it
+// becomes pointers to slices, whose nil pointer throws on every operation as the typed list.
+//
 // Shared lists: a class whose only obstacles are that a list may be held by two places while
 // one of them changes it (the flows above), that it is changed through an expression that is
 // not a variable, compared by identity, walked by a cursor or a kept Iterator, or held by
@@ -120,6 +125,7 @@ type node struct {
 	key     string
 	v       *types.Var // a variable or field; nil for a group's parameter or result
 	byValue bool       // a field holding a TList[T] itself (kind list): its address is the list
+	null    bool       // may hold Java's null: nil enters it, or it starts as its zero value
 	local   bool       // a local variable or parameter
 	fn      ast.Node   // the function declaring a local
 	mutated string     // the first operation through it that changes the list, if any
@@ -224,6 +230,18 @@ func share(n *node, why string) {
 		p := rw.Fset.Position(curPos)
 		poisonAt[why] = fmt.Sprintf("%s:%d", filepath.Base(p.Filename), p.Line)
 	}
+}
+
+// mayBeNull reports whether a list of the class may be Java's null: nil enters a slot of it,
+// a variable starts as its zero value, or it has a field or package variable (which hold null
+// until assigned).
+func (c *class) mayBeNull() bool {
+	for _, m := range c.nodes {
+		if m.null || m.v != nil && (m.v.IsField() || m.v.Parent() == rw.Pkg.Scope()) {
+			return true
+		}
+	}
+	return false
 }
 
 // mutSites are the calls that change a list (kind list), with the slot of the list: what a
@@ -796,6 +814,7 @@ func flow(dest *node, src ast.Expr, inReturn bool) {
 	v := valueOf(src)
 	switch v.kind {
 	case vNil:
+		dest.null = true
 	case vForeign:
 		poison(dest, v.why)
 	case vNew:
@@ -2067,6 +2086,9 @@ func main() {
 							if generated(x.Pos()) {
 								declareType(k, x.Type)
 							}
+							if len(x.Values) == 0 {
+								k.null = true // var x T: null until assigned
+							}
 						}
 					}
 				}
@@ -2278,6 +2300,12 @@ func main() {
 					break
 				}
 			}
+		}
+		if kind == "list" && len(c.poison) == 0 && len(c.alias) == 0 && c.mayBeNull() {
+			// A nil slice reads as an empty list (len 0, a range that runs no step), where
+			// Java's null list throws NullPointerException: a list that may be null is a
+			// pointer to a slice, whose nil throws on every operation as the typed list did.
+			c.alias = append(c.alias, "may hold null")
 		}
 		if len(c.poison) == 0 && len(c.alias) > 0 {
 			// Shared lists: pointers to slices, unless an ImmutableList (which throws when
