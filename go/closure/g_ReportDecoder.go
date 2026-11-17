@@ -166,7 +166,7 @@ func ReportDecoder_mergeProfiles(profiles []*ReportProfile) *ReportProfile {
 
 func ReportDecoder_createReportProfile(instrumentationPoints []*InstrumentationPointStats) *ReportProfile {
 	var sortedPoints []*InstrumentationPointStats = sliceFrom_(tc_p_InstrumentationPointStats, Collection(sliceView_(tc_p_InstrumentationPointStats, instrumentationPoints)))
-	List_sort(sliceView_(tc_p_InstrumentationPointStats, sortedPoints), Comparator_thenComparingInt(Comparator_comparing(lambda_ReportDecoder_createReportProfile_1_), lambda_ReportDecoder_createReportProfile_2_))
+	List_sort(sliceView_(tc_p_InstrumentationPointStats, sortedPoints), Comparator_thenComparingInt_f(Comparator_comparing(lambda_ReportDecoder_createReportProfile_1_), lambda_ReportDecoder_createReportProfile_2_))
 	var pointsByFileName *TMap[string, ListOf[*InstrumentationPointStats]] = newTMap_(tc_string, tc_ListOf_p_InstrumentationPointStats_)
 	for _, pointStats := range sortedPoints {
 		pointsByFileName.computeIfAbsent_f(pointStats.getPoint().getFileName(), lambda_ReportDecoder_createReportProfile_3_).add(obj_(pointStats))
@@ -187,11 +187,11 @@ var lambda_ReportDecoder_createReportProfile_1_ = &Function_fn{func(pointStats_ 
 }}
 
 // lambda_ReportDecoder_createReportProfile_2_ is a lambda of ReportDecoder_createReportProfile that captures nothing (post-flip step lambdas).
-var lambda_ReportDecoder_createReportProfile_2_ = &ToIntFunction_fn{func(pointStats_ any) int32 {
+func lambda_ReportDecoder_createReportProfile_2_(pointStats_ any) int32 {
 	var pointStats *InstrumentationPointStats = cast_[*InstrumentationPointStats](pointStats_)
 	_ = pointStats
 	return pointStats.getPoint().getLineNumber()
-}}
+}
 
 // lambda_ReportDecoder_createReportProfile_3_ is a lambda of ReportDecoder_createReportProfile that captures nothing (post-flip step lambdas).
 func lambda_ReportDecoder_createReportProfile_3_(k_ any) any {

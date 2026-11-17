@@ -1472,7 +1472,7 @@ func (this *TypeInference) inferTemplatedTypesForCall(n Node, fnType *FunctionTy
 		key := cast_[*TemplateType](el)
 		inferred.put(key, to_JSType(Map_getOrDefault(icast_Map(obj_(bindings)), obj_(key), this.unknownType.self())))
 	}
-	Map_replaceAll(inferred.asMap(), lambda_TypeInference_inferTemplatedTypesForCall_1_)
+	Map_replaceAll_f(inferred.asMap(), lambda_TypeInference_inferTemplatedTypesForCall_1_)
 	var typeTransformations *TMap[*TemplateType, *JSType] = this.evaluateTypeTransformations(keys, inferred, scope)
 	if typeTransformations != nil {
 		inferred.asMap().putAll(typeTransformations.asMap())
@@ -1489,7 +1489,7 @@ func (this *TypeInference) inferTemplatedTypesForCall(n Node, fnType *FunctionTy
 }
 
 // lambda_TypeInference_inferTemplatedTypesForCall_1_ is a lambda of TypeInference_inferTemplatedTypesForCall that captures nothing (post-flip step lambdas).
-var lambda_TypeInference_inferTemplatedTypesForCall_1_ = &BiFunction_fn{func(k_ any, v_ any) any {
+func lambda_TypeInference_inferTemplatedTypesForCall_1_(k_ any, v_ any) any {
 	var k *TemplateType = cast_[*TemplateType](k_)
 	_ = k
 	var v *JSType = to_JSType(v_)
@@ -1500,7 +1500,7 @@ var lambda_TypeInference_inferTemplatedTypesForCall_1_ = &BiFunction_fn{func(k_ 
 		}
 		return k.getBound().self()
 	}()
-}}
+}
 
 func (this *TypeInference) traverseNew(n Node, scope FlowScope) FlowScope {
 	scope = this.traverseChildren(n, scope)

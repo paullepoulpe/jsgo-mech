@@ -431,7 +431,7 @@ func PureFunctionIdentifier_clinit() {
 	PureFunctionIdentifier_clinit_done = true
 	PureFunctionIdentifier_IMPLICIT_PURE_FN = IR_function(IR_name(""), IR_paramList([]Node{}), IR_block_0())
 	PureFunctionIdentifier_UNUSED_ARTIFICIAL_PURE_ANNOTATION = DiagnosticType_disabled("JSC_UNUSED_ARTIFICIAL_PURE_ANNOTATION", "Artificial @nosideeffects annotation cannot be enforced: found ambiguous definitions of {0}.\n\nSide-effectful definitions:\n  {1}")
-	PureFunctionIdentifier_SOURCE_LOCATION_COMPARATOR = Comparator_thenComparingInt(Comparator_thenComparingInt(Comparator_comparing(lambda_PureFunctionIdentifier_clinit_1_), lambda_PureFunctionIdentifier_clinit_2_), lambda_PureFunctionIdentifier_clinit_3_)
+	PureFunctionIdentifier_SOURCE_LOCATION_COMPARATOR = Comparator_thenComparingInt_f(Comparator_thenComparingInt_f(Comparator_comparing(lambda_PureFunctionIdentifier_clinit_1_), lambda_PureFunctionIdentifier_clinit_2_), lambda_PureFunctionIdentifier_clinit_3_)
 	PureFunctionIdentifier_RHS_IS_ALWAYS_LOCAL = lambda_PureFunctionIdentifier_clinit_4_
 	PureFunctionIdentifier_RHS_IS_NEVER_LOCAL = lambda_PureFunctionIdentifier_clinit_5_
 	PureFunctionIdentifier_FIND_RHS_AND_CHECK_FOR_LOCAL_VALUE = lambda_PureFunctionIdentifier_clinit_6_
@@ -442,10 +442,10 @@ func PureFunctionIdentifier_clinit() {
 var lambda_PureFunctionIdentifier_clinit_1_ = &Function_fn{func(p0 any) any { return strobj_(Node_of_(p0).getSourceFileName()) }}
 
 // lambda_PureFunctionIdentifier_clinit_2_ is a lambda of PureFunctionIdentifier_clinit that captures nothing (post-flip step lambdas).
-var lambda_PureFunctionIdentifier_clinit_2_ = &ToIntFunction_fn{func(p0 any) int32 { return Node_of_(p0).getLineno() }}
+func lambda_PureFunctionIdentifier_clinit_2_(p0 any) int32 { return Node_of_(p0).getLineno() }
 
 // lambda_PureFunctionIdentifier_clinit_3_ is a lambda of PureFunctionIdentifier_clinit that captures nothing (post-flip step lambdas).
-var lambda_PureFunctionIdentifier_clinit_3_ = &ToIntFunction_fn{func(p0 any) int32 { return Node_of_(p0).getCharno() }}
+func lambda_PureFunctionIdentifier_clinit_3_(p0 any) int32 { return Node_of_(p0).getCharno() }
 
 // lambda_PureFunctionIdentifier_clinit_4_ is a lambda of PureFunctionIdentifier_clinit that captures nothing (post-flip step lambdas).
 var lambda_PureFunctionIdentifier_clinit_4_ = &Predicate_fn{func(lhs_ any) bool {

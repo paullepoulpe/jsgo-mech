@@ -406,7 +406,7 @@ func (this *PerformanceTracker) outputTracerReport(output *Output) {
 	}()))), ("Type summary sources (post-pruning):   " + istr_(int64(this.transitiveSummarySources))), "", ("Dependency pruning analysis: " + sstr_(this.pruningAnalysisSummary))}))
 	output.println(JSCompStrings_lines([]string{"", "Summary:", "pass,runtime,allocMem,runs,changingRuns,astReduction,reduction,gzReduction"}))
 	var sortedPassSummary []Map_EntryOf[string, *PerformanceTracker_Stats] = sliceFrom_(tc_Map_EntryOf_string__p_PerformanceTracker_Stats_, Collection(this.passSummary.entrySet()))
-	List_sort(sliceView_(tc_Map_EntryOf_string__p_PerformanceTracker_Stats_, sortedPassSummary), Comparator_comparingLong(lambda_PerformanceTracker_outputTracerReport_1_))
+	List_sort(sliceView_(tc_Map_EntryOf_string__p_PerformanceTracker_Stats_, sortedPassSummary), Comparator_comparingLong_f(lambda_PerformanceTracker_outputTracerReport_1_))
 	for _, entry := range sortedPassSummary {
 		var key string = str_(entry.getKey())
 		var stats *PerformanceTracker_Stats = cast_[*PerformanceTracker_Stats](entry.getValue())
@@ -432,11 +432,11 @@ func (this *PerformanceTracker) outputTracerReport(output *Output) {
 }
 
 // lambda_PerformanceTracker_outputTracerReport_1_ is a lambda of PerformanceTracker_outputTracerReport that captures nothing (post-flip step lambdas).
-var lambda_PerformanceTracker_outputTracerReport_1_ = &ToLongFunction_fn{func(e_ any) int64 {
+func lambda_PerformanceTracker_outputTracerReport_1_(e_ any) int64 {
 	var e Map_Entry = icast_Map_Entry(e_)
 	_ = e
 	return cast_[*PerformanceTracker_Stats](e.getValue()).runtime_
-}}
+}
 
 const PerformanceTracker_DEFAULT_WHEN_SIZE_UNTRACKED int32 = -1
 

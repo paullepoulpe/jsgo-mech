@@ -1457,7 +1457,7 @@ func IRFactory_clinit() {
 	IRFactory_CR_OR_CRLF_PATTERN = Pattern_compile("\r\n?")
 	IRFactory_ES5_RESERVED_KEYWORDS = ImmutableSet_of_Object_Object_Object_Object_Object_Object_ObjectArr(strobj_("class"), strobj_("const"), strobj_("enum"), strobj_("export"), strobj_("extends"), strobj_("import"), []any{strobj_("super")})
 	IRFactory_ES5_STRICT_RESERVED_KEYWORDS = ImmutableSet_of_Object_Object_Object_Object_Object_Object_ObjectArr(strobj_("class"), strobj_("const"), strobj_("enum"), strobj_("export"), strobj_("extends"), strobj_("import"), []any{strobj_("super"), strobj_("implements"), strobj_("interface"), strobj_("let"), strobj_("package"), strobj_("private"), strobj_("protected"), strobj_("public"), strobj_("static"), strobj_("yield")})
-	IRFactory_COMMENT_START_POSITION_COMPARATOR = Comparator_thenComparingInt(Comparator_comparingInt_f(lambda_IRFactory_clinit_1_), lambda_IRFactory_clinit_2_)
+	IRFactory_COMMENT_START_POSITION_COMPARATOR = Comparator_thenComparingInt_f(Comparator_comparingInt_f(lambda_IRFactory_clinit_1_), lambda_IRFactory_clinit_2_)
 	IRFactory_GOOG_MODULE = QualifiedName_of("goog.module")
 
 }
@@ -1470,11 +1470,11 @@ func lambda_IRFactory_clinit_1_(x_ any) int32 {
 }
 
 // lambda_IRFactory_clinit_2_ is a lambda of IRFactory_clinit that captures nothing (post-flip step lambdas).
-var lambda_IRFactory_clinit_2_ = &ToIntFunction_fn{func(x_ any) int32 {
+func lambda_IRFactory_clinit_2_(x_ any) int32 {
 	var x *Comment = cast_[*Comment](x_)
 	_ = x
 	return x.location_.start_.column_
-}}
+}
 
 type IRFactory_LineAndColumn struct {
 	lineNo_ int32
@@ -1499,7 +1499,7 @@ func IRFactory_LineAndColumn_fromSourcePosition(pos *SourcePosition_util) *IRFac
 func (this *IRFactory_LineAndColumn) compareTo(o_ any) int32 {
 	var o *IRFactory_LineAndColumn = cast_[*IRFactory_LineAndColumn](o_)
 	_ = o
-	return Comparator_thenComparingInt(Comparator_comparingInt_f(lambda_IRFactory_LineAndColumn_compareTo_1_), lambda_IRFactory_LineAndColumn_compareTo_2_).compare(any(this), obj_(o))
+	return Comparator_thenComparingInt_f(Comparator_comparingInt_f(lambda_IRFactory_LineAndColumn_compareTo_1_), lambda_IRFactory_LineAndColumn_compareTo_2_).compare(any(this), obj_(o))
 }
 
 // lambda_IRFactory_LineAndColumn_compareTo_1_ is a lambda of IRFactory_LineAndColumn_compareTo that captures nothing (post-flip step lambdas).
@@ -1508,7 +1508,9 @@ func lambda_IRFactory_LineAndColumn_compareTo_1_(p0 any) int32 {
 }
 
 // lambda_IRFactory_LineAndColumn_compareTo_2_ is a lambda of IRFactory_LineAndColumn_compareTo that captures nothing (post-flip step lambdas).
-var lambda_IRFactory_LineAndColumn_compareTo_2_ = &ToIntFunction_fn{func(p0 any) int32 { return cast_[*IRFactory_LineAndColumn](p0).column() }}
+func lambda_IRFactory_LineAndColumn_compareTo_2_(p0 any) int32 {
+	return cast_[*IRFactory_LineAndColumn](p0).column()
+}
 
 func (this *IRFactory_LineAndColumn) lineNo() int32 {
 	return this.lineNo_
