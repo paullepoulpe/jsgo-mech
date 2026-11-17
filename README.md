@@ -161,7 +161,6 @@ not comparable, only the two sides of one row):
 
 | change | mallocs | wall | CPU |
 |---|---:|---:|---:|
-| profile-guided optimization (`default.pgo`) | 331.8M -> 313.3M | 56.0s -> 53.9s | 67.0s -> 64.3s |
 | String keys reach maps and sets unboxed | 313.3M -> 236.7M | 51.8s -> 50.5s | 61.9s -> 59.4s |
 | hash-table entries by value, sets without values | 236.9M -> 225.3M | 45.5s -> 44.9s | 53.4s -> 52.9s |
 | tables of up to 8 entries searched linearly | 225.3M -> 216.1M | 45.3s -> 41.8s | 52.9s -> 48.8s |
@@ -169,6 +168,11 @@ not comparable, only the two sides of one row):
 | for-each on a stack cursor, no iterator object | 215.3M -> 195.3M | 37.4s -> 37.5s | 44.1s -> 43.7s |
 | table capacity 4 at first insert, hash chains in a slice | 195.3M -> 181.5M | 44.1s -> 42.6s | 52.2s -> 49.9s |
 | all together | 331.8M -> 181.5M | 54.6s -> 43.6s | 65.4s -> 51.1s |
+
+The "all together" row and the nine tasks below were measured with a profile-guided build
+(`go/cmd/mech/default.pgo`, then in the tree; PGO alone: 331.8M -> 313.3M mallocs, 56.0s ->
+53.9s). The plan uses no PGO, and the profile has since been removed; later measurements
+(POSTFLIP.md on the post-flip branches) are without it.
 
 Nine benchmark tasks with the final build, all byte-identical with Java (3 cold runs,
 medians, same harness and machine as above):
