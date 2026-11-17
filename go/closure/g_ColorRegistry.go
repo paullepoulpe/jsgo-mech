@@ -3,16 +3,16 @@
 package closure
 
 type ColorRegistry struct {
-	nativeColors                        ImmutableMapOf[*ColorId, *Color]
+	nativeColors                        *ImmutableMap[*ColorId, *Color]
 	colorToDisambiguationSupertypeGraph *SimpleSetMultimap[*Color, *Color]
 	mismatchLocations                   *SimpleSetMultimap[any, any]
 }
 
 func (this *ColorRegistry) init_ColorRegistry(builder *ColorRegistry_Builder) {
-	this.nativeColors = ImmutableMap_copyOf(builder.nativeColors.asMap())
+	this.nativeColors = immutableMapCopyOf_(tch_p_ColorId, tc_p_Color, builder.nativeColors.asMap())
 	this.colorToDisambiguationSupertypeGraph = builder.colorToDisambiguationSupertypeGraph.immutableCopy()
 	this.mismatchLocations = builder.mismatchLocations.immutableCopy()
-	if !equalsBy_(cast_[*ErasedImmutableSet](this.nativeColors.keySet()), obj_(ColorRegistry_REQUIRED_IDS), (*ErasedImmutableSet).equals) {
+	if !equalsBy_(cast_[*ErasedImmutableSet](this.nativeColors.asImm().keySet()), obj_(ColorRegistry_REQUIRED_IDS), (*ErasedImmutableSet).equals) {
 		panic(new_IllegalStateException_0().self())
 	}
 }
@@ -27,7 +27,7 @@ func (this *ColorRegistry) get(id *ColorId) *Color {
 	if id == nil {
 		panic(new_NullPointerException_0().self())
 	}
-	nn_ := this.nativeColors.get(obj_(id))
+	nn_ := obj_(this.nativeColors.get(id))
 	if nn_ == nil {
 		panic(new_NullPointerException_String(Strings_lenientFormat("Missing Color for %s", []any{obj_(id)})).self())
 	}

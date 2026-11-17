@@ -43,7 +43,7 @@ func ProductionInstrumentationReporter_readFile(filePath string) *Outcome_base[s
 }
 
 func (this *ProductionInstrumentationReporter) getAllExecutionResults(folder string) *Outcome_base[*ErasedImmutableList] {
-	var result ImmutableList_BuilderOf[MapOf[string, BoxedOf[int64]]] = ImmutableList_builder()
+	var result *ImmutableList_Builder[MapOf[string, BoxedOf[int64]]] = immutableListBuilder_(tc_MapOf_string__BoxedOf_int64__)
 	it_1 := foreach_(Io_listFiles(folder))
 	for it_1.next() {
 		var fileEntry string = str_(it_1.v)
@@ -55,9 +55,9 @@ func (this *ProductionInstrumentationReporter) getAllExecutionResults(folder str
 		if executedInstrumentationData.isErr() {
 			return Outcome_base_err[*ErasedImmutableList](executedInstrumentationData.error())
 		}
-		result.add(executedInstrumentationData.get())
+		result.add(icast_Map(executedInstrumentationData.get()))
 	}
-	return Outcome_base_ok_Object[*ErasedImmutableList](result.build())
+	return Outcome_base_ok_Object[*ErasedImmutableList](result.build().asImm())
 }
 
 func ProductionInstrumentationReporter_parseJsonStringToLongMap(json string) *Outcome_base[Map] {

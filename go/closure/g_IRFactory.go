@@ -11,7 +11,7 @@ type IRFactory struct {
 	config                     *Config
 	errorReporter              ErrorReporter_rhino
 	transformDispatcher        *IRFactory_TransformDispatcher
-	reservedKeywords           ImmutableSetOf[string]
+	reservedKeywords           *ImmutableSet[string]
 	parsedComments             map[*Comment]struct{}
 	licenseBuilder             *TSet[string]
 	firstFileoverview          *JSDocInfo
@@ -36,7 +36,7 @@ func (this *IRFactory) finit_IRFactory() {
 	this.closureUnawareCodeRanges = TreeRangeSet_create()
 }
 
-func (this *IRFactory) init_IRFactory(sourceFile StaticSourceFile, config *Config, errorReporter ErrorReporter_rhino, comments ImmutableListOf[*Comment], fileWithContent *SourceFile_parser, jsDocSourceKind JsDocInfoParser_JsDocSourceKind) {
+func (this *IRFactory) init_IRFactory(sourceFile StaticSourceFile, config *Config, errorReporter ErrorReporter_rhino, comments *ImmutableList[*Comment], fileWithContent *SourceFile_parser, jsDocSourceKind JsDocInfoParser_JsDocSourceKind) {
 	this.finit_IRFactory()
 	this.jsdocTracker = new_IRFactory_CommentTracker(comments, lambda_IRFactory_init_IRFactory_1_)
 	this.nonJsdocTracker = new_IRFactory_CommentTracker(comments, lambda_IRFactory_init_IRFactory_2_)
@@ -78,7 +78,7 @@ func lambda_IRFactory_init_IRFactory_2_(c_ any) bool {
 	return (c.type__ != Comment_Type_JSDOC)
 }
 
-func new_IRFactory(sourceFile StaticSourceFile, config *Config, errorReporter ErrorReporter_rhino, comments ImmutableListOf[*Comment], fileWithContent *SourceFile_parser, jsDocSourceKind JsDocInfoParser_JsDocSourceKind) *IRFactory {
+func new_IRFactory(sourceFile StaticSourceFile, config *Config, errorReporter ErrorReporter_rhino, comments *ImmutableList[*Comment], fileWithContent *SourceFile_parser, jsDocSourceKind JsDocInfoParser_JsDocSourceKind) *IRFactory {
 	this := &IRFactory{}
 	this.init_IRFactory(sourceFile, config, errorReporter, comments, fileWithContent, jsDocSourceKind)
 	return this
@@ -107,8 +107,8 @@ func IRFactory_transformTree(tree *ProgramTree, sourceFile StaticSourceFile, con
 	var n Node = irFactory.transformDispatcher.process(tree.up_ParseTree())
 	irFactory.setSourceInfo(n, tree.up_ParseTree())
 	if tree.sourceComments != nil {
-		for _, el := range immElems_(tree.sourceComments) {
-			comment := cast_[*Comment](el)
+		for el := range tree.sourceComments.All() {
+			comment := el
 			if ((comment.type__ == Comment_Type_JSDOC) || (comment.type__ == Comment_Type_IMPORTANT)) && !has_(irFactory.parsedComments, comment) {
 				var useLicensesOnlyConfig bool = irFactory.withinClosureUnawareCodeRange(comment.location_.start_.line_, comment.location_.start_.column_)
 				irFactory.handlePossibleFileOverviewJsDoc_2(comment, useLicensesOnlyConfig)
@@ -1438,8 +1438,8 @@ const IRFactory_UNEXPECTED_NEW_DOT_TARGET string = "new.target must be inside a 
 const IRFactory_NEW_DOT_TARGET_IN_CLASS_FIELD_OR_STATIC_BLOCK string = "new.target is not supported in class field initializers or static blocks"
 const IRFactory_UNDEFINED_LABEL string = "undefined label \"%s\""
 
-var IRFactory_ES5_RESERVED_KEYWORDS *ErasedImmutableSet
-var IRFactory_ES5_STRICT_RESERVED_KEYWORDS *ErasedImmutableSet
+var IRFactory_ES5_RESERVED_KEYWORDS *ImmutableSet[string]
+var IRFactory_ES5_STRICT_RESERVED_KEYWORDS *ImmutableSet[string]
 var IRFactory_COMMENT_START_POSITION_COMPARATOR Comparator
 
 const IRFactory_JSCOMP_CLOSURE_UNAWARE_CODE_SHADOW_HOST_NAME string = "$jscomp_wrap_closure_unaware_code"
@@ -1455,8 +1455,8 @@ func IRFactory_clinit() {
 	}
 	IRFactory_clinit_done = true
 	IRFactory_CR_OR_CRLF_PATTERN = Pattern_compile("\r\n?")
-	IRFactory_ES5_RESERVED_KEYWORDS = ImmutableSet_of_Object_Object_Object_Object_Object_Object_ObjectArr(strobj_("class"), strobj_("const"), strobj_("enum"), strobj_("export"), strobj_("extends"), strobj_("import"), []any{strobj_("super")})
-	IRFactory_ES5_STRICT_RESERVED_KEYWORDS = ImmutableSet_of_Object_Object_Object_Object_Object_Object_ObjectArr(strobj_("class"), strobj_("const"), strobj_("enum"), strobj_("export"), strobj_("extends"), strobj_("import"), []any{strobj_("super"), strobj_("implements"), strobj_("interface"), strobj_("let"), strobj_("package"), strobj_("private"), strobj_("protected"), strobj_("public"), strobj_("static"), strobj_("yield")})
+	IRFactory_ES5_RESERVED_KEYWORDS = immutableSetOf_(tc_string, "class", "const", "enum", "export", "extends", "import", "super")
+	IRFactory_ES5_STRICT_RESERVED_KEYWORDS = immutableSetOf_(tc_string, "class", "const", "enum", "export", "extends", "import", "super", "implements", "interface", "let", "package", "private", "protected", "public", "static", "yield")
 	IRFactory_COMMENT_START_POSITION_COMPARATOR = Comparator_thenComparingInt(Comparator_comparingInt_f(lambda_IRFactory_clinit_1_), lambda_IRFactory_clinit_2_)
 	IRFactory_GOOG_MODULE = QualifiedName_of("goog.module")
 
@@ -1538,7 +1538,7 @@ func (this *IRFactory_LineAndColumn) toString() string {
 }
 
 type IRFactory_CommentTracker struct {
-	source        ImmutableListOf[*Comment]
+	source        *ImmutableList[*Comment]
 	filter        func(any) bool
 	index_        int32
 	previousIndex int32
@@ -1549,14 +1549,14 @@ func (this *IRFactory_CommentTracker) finit_IRFactory_CommentTracker() {
 	this.previousIndex = -1
 }
 
-func (this *IRFactory_CommentTracker) init_IRFactory_CommentTracker(source ImmutableListOf[*Comment], filter func(any) bool) {
+func (this *IRFactory_CommentTracker) init_IRFactory_CommentTracker(source *ImmutableList[*Comment], filter func(any) bool) {
 	this.finit_IRFactory_CommentTracker()
 	this.source = source
 	this.filter = filter
 	this.advance()
 }
 
-func new_IRFactory_CommentTracker(source ImmutableListOf[*Comment], filter func(any) bool) *IRFactory_CommentTracker {
+func new_IRFactory_CommentTracker(source *ImmutableList[*Comment], filter func(any) bool) *IRFactory_CommentTracker {
 	this := &IRFactory_CommentTracker{}
 	this.init_IRFactory_CommentTracker(source, filter)
 	return this
@@ -1567,7 +1567,7 @@ func (this *IRFactory_CommentTracker) current() *Comment {
 		if this.index_ >= this.source.size() {
 			return nil
 		}
-		return cast_[*Comment](this.source.get(this.index_))
+		return this.source.get(this.index_)
 	}()
 }
 
@@ -1943,8 +1943,8 @@ func (this *IRFactory_TransformDispatcher) processFunctionCall(callNode *CallExp
 	var argumentsTree *ArgumentListTree = callNode.arguments
 	var zones []*SourcePosition_util = this.getEndOfArgCommentZones(argumentsTree.arguments, argumentsTree.commaPositions, argumentsTree.location_.end_)
 	var argCount int32 = 0
-	for _, el := range immElems_(callNode.arguments.arguments) {
-		child := to_ParseTree(el)
+	for el := range callNode.arguments.arguments.All() {
+		child := el
 		var childNode Node = this.outer_.transform(child)
 		node.addChildToBack(childNode)
 		this.attachPossibleTrailingCommentsForArg(childNode, sliceAt_(zones, argCount))
@@ -1976,18 +1976,18 @@ func (this *IRFactory_TransformDispatcher) isNormalOrOptChainGet(n Node) bool {
 	return (((n.isGetProp() || n.isGetElem()) || n.isOptChainGetProp()) || n.isOptChainGetElem())
 }
 
-func (this *IRFactory_TransformDispatcher) getEndOfArgCommentZones(args ImmutableListOf[*ParseTree], commaPositions ImmutableListOf[*SourcePosition_util], argListEndPosition *SourcePosition_util) []*SourcePosition_util {
+func (this *IRFactory_TransformDispatcher) getEndOfArgCommentZones(args *ImmutableList[*ParseTree], commaPositions *ImmutableList[*SourcePosition_util], argListEndPosition *SourcePosition_util) []*SourcePosition_util {
 	var zones []*SourcePosition_util
 	var commaCount int32 = 0
-	for _, el := range immElems_(args) {
-		arg := to_ParseTree(el)
+	for el := range args.All() {
+		arg := el
 		if args.size() > (commaCount + 1) {
-			var nextParam *ParseTree = to_ParseTree(args.get((commaCount + 1)))
+			var nextParam *ParseTree = args.get((commaCount + 1))
 			if nextParam.location_.start_.line_ > arg.location_.end_.line_ {
 				var tempSourcePos *SourcePosition_util = new_SourcePosition_util(nil, int32(2147483647), arg.location_.end_.line_, int32(2147483647))
 				zones = immAdd_(tc_p_SourcePosition_util, zones, tempSourcePos)
 			} else {
-				var commaPosition *SourcePosition_util = cast_[*SourcePosition_util](commaPositions.get(commaCount))
+				var commaPosition *SourcePosition_util = commaPositions.get(commaCount)
 				zones = immAdd_(tc_p_SourcePosition_util, zones, commaPosition)
 			}
 		} else {
@@ -2054,8 +2054,8 @@ func (this *IRFactory_TransformDispatcher) processOptChainFunctionCall(callNode 
 	this.outer_.maybeWarnForFeature(callNode.up_ParseTree(), FeatureSet_Feature_OPTIONAL_CHAINING)
 	var node Node = this.outer_.newNode_2(Token_rhino_OPTCHAIN_CALL, this.outer_.transform(callNode.operand))
 	node.setTrailingComma(callNode.hasTrailingComma_)
-	for _, el := range immElems_(callNode.arguments.arguments) {
-		child := to_ParseTree(el)
+	for el := range callNode.arguments.arguments.All() {
+		child := el
 		node.addChildToBack(this.outer_.transform(child))
 	}
 	node.setIsOptionalChainStart(callNode.isStartOfOptionalChain)
@@ -2173,11 +2173,11 @@ func (this *IRFactory_TransformDispatcher) processFormalParameterList(tree *Form
 	if !this.checkParameters(tree) {
 		return params
 	}
-	var parameters ImmutableListOf[*ParseTree] = tree.parameters
+	var parameters *ImmutableList[*ParseTree] = tree.parameters
 	var zones []*SourcePosition_util = this.getEndOfArgCommentZones(parameters, tree.commaPositions, tree.location_.end_)
 	var argCount int32 = 0
-	for _, el := range immElems_(tree.parameters) {
-		param := to_ParseTree(el)
+	for el := range tree.parameters.All() {
+		param := el
 		var paramNode Node
 		switch param.type__ {
 		case ParseTreeType_DEFAULT_PARAMETER:
@@ -2418,7 +2418,7 @@ func (this *IRFactory_TransformDispatcher) maybeWarnReservedKeyword(token *Ident
 		this.outer_.features_ = this.outer_.features_.with(FeatureSet_Feature_ES3_KEYWORDS_AS_IDENTIFIERS)
 		isIdentifier = (this.outer_.config.languageMode() == Config_LanguageMode_ECMASCRIPT3)
 	}
-	if (this.outer_.reservedKeywords != nil) && Collection_contains_s(this.outer_.reservedKeywords, identifier) {
+	if (this.outer_.reservedKeywords != nil) && this.outer_.reservedKeywords.contains(identifier) {
 		this.outer_.features_ = this.outer_.features_.with(FeatureSet_Feature_KEYWORDS_AS_PROPERTIES)
 		isIdentifier = (this.outer_.config.languageMode() == Config_LanguageMode_ECMASCRIPT3)
 	}
@@ -2431,8 +2431,8 @@ func (this *IRFactory_TransformDispatcher) processNewExpression(exprNode *NewExp
 	var node Node = this.outer_.newNode_2(Token_rhino_NEW, this.outer_.transform(exprNode.operand))
 	node.setTrailingComma(exprNode.hasTrailingComma_)
 	if exprNode.arguments != nil {
-		for _, el := range immElems_(exprNode.arguments.arguments) {
-			arg := to_ParseTree(el)
+		for el := range exprNode.arguments.arguments.All() {
+			arg := el
 			node.addChildToBack(this.outer_.transform(arg))
 		}
 	}
@@ -3257,10 +3257,10 @@ func (this *IRFactory_TransformDispatcher) processImportMeta(tree *ImportMetaExp
 }
 
 func (this *IRFactory_TransformDispatcher) checkParameters(tree *FormalParameterListTree) bool {
-	var params ImmutableListOf[*ParseTree] = tree.parameters
+	var params *ImmutableList[*ParseTree] = tree.parameters
 	var good bool = true
 	for i := int32(0); i < params.size(); i++ {
-		var param *ParseTree = to_ParseTree(params.get(i))
+		var param *ParseTree = params.get(i)
 		if param.type__ == ParseTreeType_ITER_REST {
 			if i != (params.size() - 1) {
 				this.outer_.errorReporter.error("A rest parameter must be last in a parameter list.", this.outer_.sourceName_, IRFactory_lineno(param), IRFactory_charnoParseTree(param))

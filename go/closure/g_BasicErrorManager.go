@@ -23,7 +23,7 @@ func (this *BasicErrorManager) up_SortingErrorManager() *SortingErrorManager {
 }
 
 func (this *BasicErrorManager) init_BasicErrorManager() {
-	this.SortingErrorManager.init_SortingErrorManager(tsetFrom_(tc_SortingErrorManager_ErrorReportGenerator, ImmutableSet_of(), true))
+	this.SortingErrorManager.init_SortingErrorManager(immutableSetOf_(tc_SortingErrorManager_ErrorReportGenerator))
 }
 
 func (this *BasicErrorManager) generateReport_impl() {

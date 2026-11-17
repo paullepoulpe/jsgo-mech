@@ -68,8 +68,8 @@ func BaseTranspiler_clinit() {
 
 type BaseTranspiler_CompilerSupplier struct {
 	moduleResolution   ModuleLoader_ResolutionMode
-	moduleRoots        ImmutableListOf[string]
-	prefixReplacements ImmutableMapOf[string, string]
+	moduleRoots        *ImmutableList[string]
+	prefixReplacements *ImmutableMap[string, string]
 	outputFeatureSet   *FeatureSet
 }
 
@@ -84,7 +84,7 @@ func new_BaseTranspiler_CompilerSupplier_0() *BaseTranspiler_CompilerSupplier {
 }
 
 func (this *BaseTranspiler_CompilerSupplier) init_BaseTranspiler_CompilerSupplier_FeatureSet(outputFeatureSet *FeatureSet) {
-	this.init_BaseTranspiler_CompilerSupplier_FeatureSet_ResolutionMode_ImmutableList_ImmutableMap(outputFeatureSet, new_CompilerOptions().getModuleResolutionMode(), ImmutableList_of(), ImmutableMap_of())
+	this.init_BaseTranspiler_CompilerSupplier_FeatureSet_ResolutionMode_ImmutableList_ImmutableMap(outputFeatureSet, new_CompilerOptions().getModuleResolutionMode(), immutableListOf_(tc_string), immutableMapOf_(tc_string, tc_string, []string{}, []string{}))
 }
 
 func new_BaseTranspiler_CompilerSupplier_FeatureSet(outputFeatureSet *FeatureSet) *BaseTranspiler_CompilerSupplier {
@@ -93,14 +93,14 @@ func new_BaseTranspiler_CompilerSupplier_FeatureSet(outputFeatureSet *FeatureSet
 	return this
 }
 
-func (this *BaseTranspiler_CompilerSupplier) init_BaseTranspiler_CompilerSupplier_FeatureSet_ResolutionMode_ImmutableList_ImmutableMap(outputFeatureSet *FeatureSet, moduleResolution ModuleLoader_ResolutionMode, moduleRoots ImmutableListOf[string], prefixReplacements ImmutableMapOf[string, string]) {
+func (this *BaseTranspiler_CompilerSupplier) init_BaseTranspiler_CompilerSupplier_FeatureSet_ResolutionMode_ImmutableList_ImmutableMap(outputFeatureSet *FeatureSet, moduleResolution ModuleLoader_ResolutionMode, moduleRoots *ImmutableList[string], prefixReplacements *ImmutableMap[string, string]) {
 	this.outputFeatureSet = outputFeatureSet
 	this.moduleResolution = moduleResolution
 	this.moduleRoots = moduleRoots
 	this.prefixReplacements = prefixReplacements
 }
 
-func new_BaseTranspiler_CompilerSupplier_FeatureSet_ResolutionMode_ImmutableList_ImmutableMap(outputFeatureSet *FeatureSet, moduleResolution ModuleLoader_ResolutionMode, moduleRoots ImmutableListOf[string], prefixReplacements ImmutableMapOf[string, string]) *BaseTranspiler_CompilerSupplier {
+func new_BaseTranspiler_CompilerSupplier_FeatureSet_ResolutionMode_ImmutableList_ImmutableMap(outputFeatureSet *FeatureSet, moduleResolution ModuleLoader_ResolutionMode, moduleRoots *ImmutableList[string], prefixReplacements *ImmutableMap[string, string]) *BaseTranspiler_CompilerSupplier {
 	this := &BaseTranspiler_CompilerSupplier{}
 	this.init_BaseTranspiler_CompilerSupplier_FeatureSet_ResolutionMode_ImmutableList_ImmutableMap(outputFeatureSet, moduleResolution, moduleRoots, prefixReplacements)
 	return this
@@ -171,7 +171,7 @@ func (this *BaseTranspiler_CompilerSupplier) setOptions(options *CompilerOptions
 	options.setWarningLevel(DiagnosticGroups_NON_STANDARD_JSDOC, CheckLevel_OFF)
 	options.setEs6ModuleTranspilation(CompilerOptions_Es6ModuleTranspilation_TO_COMMON_JS_LIKE_MODULES)
 	options.setModuleResolutionMode(this.moduleResolution)
-	options.setModuleRoots(icast_List(obj_(this.moduleRoots)))
+	options.setModuleRoots(icast_List(obj_(this.moduleRoots.asImm())))
 	options.setBrowserResolverPrefixReplacements(this.prefixReplacements)
 	options.setWarningLevel(DiagnosticGroups_MODULE_LOAD, CheckLevel_OFF)
 	options.setPathEscaper(ModuleLoader_PathEscaper_CANONICALIZE_ONLY)

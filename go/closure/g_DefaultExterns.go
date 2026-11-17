@@ -17,16 +17,16 @@ func new_DefaultExterns() *DefaultExterns {
 
 func DefaultExterns_prepareExterns(env CompilerOptions_Environment, externs *TMap[string, *SourceFile_jscomp]) *TList[*SourceFile_jscomp] {
 	var out *TList[*SourceFile_jscomp] = newTList_(tc_p_SourceFile_jscomp)
-	for _, el := range immElems_(DefaultExterns_BUILTIN_LANG_EXTERNS) {
-		key := str_(el)
+	for el := range DefaultExterns_BUILTIN_LANG_EXTERNS.All() {
+		key := el
 		if !externs.containsKey(key) {
 			panic(new_IllegalStateException_String(Strings_lenientFormat("Externs must contain builtin: %s", []any{strobj_(key)})).self())
 		}
 		out.add(externs.remove(key))
 	}
 	if env == CompilerOptions_Environment_BROWSER {
-		for _, el2 := range immElems_(DefaultExterns_BROWSER_EXTERN_DEP_ORDER) {
-			key := str_(el2)
+		for el2 := range DefaultExterns_BROWSER_EXTERN_DEP_ORDER.All() {
+			key := el2
 			if !externs.containsKey(key) {
 				panic(new_IllegalStateException_String(Strings_lenientFormat("Externs must contain builtin for env %s: %s", []any{obj_(env), strobj_(key)})).self())
 			}
@@ -37,8 +37,8 @@ func DefaultExterns_prepareExterns(env CompilerOptions_Environment, externs *TMa
 	return out
 }
 
-var DefaultExterns_BUILTIN_LANG_EXTERNS *ErasedImmutableList
-var DefaultExterns_BROWSER_EXTERN_DEP_ORDER *ErasedImmutableList
+var DefaultExterns_BUILTIN_LANG_EXTERNS *ImmutableList[string]
+var DefaultExterns_BROWSER_EXTERN_DEP_ORDER *ImmutableList[string]
 
 var DefaultExterns_clinit_done bool
 
@@ -47,7 +47,7 @@ func DefaultExterns_clinit() {
 		return
 	}
 	DefaultExterns_clinit_done = true
-	DefaultExterns_BUILTIN_LANG_EXTERNS = ImmutableList_of_Object_Object_Object_Object_Object(strobj_("es3.js"), strobj_("es5.js"), strobj_("es6.js"), strobj_("es6_typed_array.js"), strobj_("es6_collections.js"))
-	DefaultExterns_BROWSER_EXTERN_DEP_ORDER = ImmutableList_of_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_ObjectArr(strobj_("intl.js"), strobj_("w3c_event.js"), strobj_("w3c_event3.js"), strobj_("gecko_event.js"), strobj_("ie_event.js"), strobj_("webkit_event.js"), strobj_("w3c_device_sensor_event.js"), strobj_("w3c_dom1.js"), strobj_("w3c_dom2.js"), strobj_("w3c_dom3.js"), strobj_("w3c_dom4.js"), strobj_("gecko_dom.js"), []any{strobj_("ie_dom.js"), strobj_("webkit_dom.js"), strobj_("w3c_css.js"), strobj_("gecko_css.js"), strobj_("ie_css.js"), strobj_("webkit_css.js"), strobj_("w3c_touch_event.js"), strobj_("webstorage.js"), strobj_("whatwg_console.js"), strobj_("nonstandard_console.js"), strobj_("w3c_rtc.js")})
+	DefaultExterns_BUILTIN_LANG_EXTERNS = immutableListOf_(tc_string, "es3.js", "es5.js", "es6.js", "es6_typed_array.js", "es6_collections.js")
+	DefaultExterns_BROWSER_EXTERN_DEP_ORDER = immutableListOf_(tc_string, "intl.js", "w3c_event.js", "w3c_event3.js", "gecko_event.js", "ie_event.js", "webkit_event.js", "w3c_device_sensor_event.js", "w3c_dom1.js", "w3c_dom2.js", "w3c_dom3.js", "w3c_dom4.js", "gecko_dom.js", "ie_dom.js", "webkit_dom.js", "w3c_css.js", "gecko_css.js", "ie_css.js", "webkit_css.js", "w3c_touch_event.js", "webstorage.js", "whatwg_console.js", "nonstandard_console.js", "w3c_rtc.js")
 
 }

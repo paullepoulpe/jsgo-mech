@@ -55,9 +55,9 @@ func (this *DiagnosticGroupWarningsGuard) mustRunChecks_impl(otherGroup *Diagnos
 	}
 }
 
-func (this *DiagnosticGroupWarningsGuard) groupMatchesAny(types ImmutableSetOf[*DiagnosticType]) bool {
-	for _, el_1 := range immElems_(types) {
-		var type_ *DiagnosticType = cast_[*DiagnosticType](el_1)
+func (this *DiagnosticGroupWarningsGuard) groupMatchesAny(types *ImmutableSet[*DiagnosticType]) bool {
+	for el_1 := range types.All() {
+		var type_ *DiagnosticType = el_1
 		if this.group.matchesDiagnosticType(type_) {
 			return true
 		}
@@ -65,9 +65,9 @@ func (this *DiagnosticGroupWarningsGuard) groupMatchesAny(types ImmutableSetOf[*
 	return false
 }
 
-func (this *DiagnosticGroupWarningsGuard) groupMatchesAll(types ImmutableSetOf[*DiagnosticType]) bool {
-	for _, el_1 := range immElems_(types) {
-		var type_ *DiagnosticType = cast_[*DiagnosticType](el_1)
+func (this *DiagnosticGroupWarningsGuard) groupMatchesAll(types *ImmutableSet[*DiagnosticType]) bool {
+	for el_1 := range types.All() {
+		var type_ *DiagnosticType = el_1
 		if !this.group.matchesDiagnosticType(type_) {
 			return false
 		}

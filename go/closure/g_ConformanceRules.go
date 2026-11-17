@@ -868,7 +868,7 @@ type ConformanceRules_BannedName struct {
 	ConformanceRules_AbstractRule
 	requirementType Requirement_Type
 	qualifiedNames  []Node
-	shortNames      ImmutableSetOf[string]
+	shortNames      *ImmutableSet[string]
 }
 
 func (this *ConformanceRules_BannedName) up_ConformanceRules_AbstractRule() *ConformanceRules_AbstractRule {
@@ -913,11 +913,11 @@ func (this *ConformanceRules_BannedName) initBannedName(compiler *AbstractCompil
 	}
 	this.requirementType = requirement.getType()
 	var qualifiedBuilder []Node
-	var shortBuilder ImmutableSet_BuilderOf[string] = ImmutableSet_builder()
+	var shortBuilder *ImmutableSet_Builder[string] = immutableSetBuilder_(tc_string)
 	for name := range elemsBy_(ProtocolStringList(requirement.getValueList()), str_) {
 		var qualifiedName Node = NodeUtil_newQName_AbstractCompiler_String(compiler, name)
 		qualifiedBuilder = immAdd_(tc_Node, qualifiedBuilder, qualifiedName)
-		shortBuilder.add(strobj_(qualifiedName.getString()))
+		shortBuilder.add(qualifiedName.getString())
 	}
 	this.qualifiedNames = immBuilt_(qualifiedBuilder)
 	this.shortNames = shortBuilder.build()
@@ -932,7 +932,7 @@ func (this *ConformanceRules_BannedName) checkConformance_impl(t *NodeTraversal,
 	if (this.requirementType == Requirement_Type_BANNED_NAME_CALL) && !ConformanceRules_ConformanceUtil_isCallTarget(n) {
 		return ConformanceRules_ConformanceResult_CONFORMANCE
 	}
-	if !Collection_contains_s(this.shortNames, n.getString()) {
+	if !this.shortNames.contains(n.getString()) {
 		return ConformanceRules_ConformanceResult_CONFORMANCE
 	}
 	if NodeUtil_isInSyntheticScript(n) || !ConformanceRules_BannedName_isRootOfQualifiedNameGlobal(t, n) {
@@ -1340,20 +1340,20 @@ func (this *ConformanceRules_BannedStringRegex) initBannedStringRegex(compiler *
 	if requirement.getValueCount() == 0 {
 		return Outcome_base_err[any](new_CheckConformance_InvalidRequirementSpec_String("missing value").up_Throwable())
 	}
-	var builder ImmutableList_BuilderOf[string] = ImmutableList_builder()
+	var builder *ImmutableList_Builder[string] = immutableListBuilder_(tc_string)
 	it_1 := foreach_(ProtocolStringList(requirement.getValueList()))
 	for it_1.next() {
 		var value string = str_(it_1.v)
 		if strings.Trim(value, javaSpace_) == "" {
 			return Outcome_base_err[any](new_CheckConformance_InvalidRequirementSpec_String("empty strings or whitespace are not allowed").up_Throwable())
 		}
-		builder.add(strobj_(value))
+		builder.add(value)
 	}
-	var values ImmutableListOf[string] = builder.build()
+	var values *ImmutableList[string] = builder.build()
 	if values.isEmpty() {
 		return Outcome_base_err[any](new_CheckConformance_InvalidRequirementSpec_String("missing value").up_Throwable())
 	}
-	var stringRegexOutcome *Outcome_base[*Pattern] = ConformanceRules_buildPattern(icast_List(obj_(values)))
+	var stringRegexOutcome *Outcome_base[*Pattern] = ConformanceRules_buildPattern(icast_List(obj_(values.asImm())))
 	if stringRegexOutcome.isErr() {
 		return Outcome_base_err[any](stringRegexOutcome.error())
 	}
@@ -2087,16 +2087,16 @@ func (this *ConformanceRules_CustomRuleProxy) check(t *NodeTraversal, n Node, be
 }
 
 func (this *ConformanceRules_CustomRuleProxy) createRule(compiler *AbstractCompiler, requirement *Requirement) *Outcome_base[CheckConformance_Rule] {
-	var factory ConformanceRules_CustomRuleProxy_CustomRuleFactory = icast_ConformanceRules_CustomRuleProxy_CustomRuleFactory(Map_get_s(ConformanceRules_CustomRuleProxy_CUSTOM_RULE_REGISTRY, requirement.getJavaClass()))
+	var factory ConformanceRules_CustomRuleProxy_CustomRuleFactory = ConformanceRules_CustomRuleProxy_CUSTOM_RULE_REGISTRY.get(requirement.getJavaClass())
 	if factory == nil {
 		return Outcome_base_err[CheckConformance_Rule](new_CheckConformance_InvalidRequirementSpec_String(("Unknown conformance rule: " + sstr_(requirement.getJavaClass()))).up_Throwable())
 	}
 	return factory.create(compiler, requirement)
 }
 
-func ConformanceRules_CustomRuleProxy_createCustomRuleRegistry() ImmutableMapOf[string, ConformanceRules_CustomRuleProxy_CustomRuleFactory] {
+func ConformanceRules_CustomRuleProxy_createCustomRuleRegistry() *ImmutableMap[string, ConformanceRules_CustomRuleProxy_CustomRuleFactory] {
 	var builder ImmutableMap_BuilderOf[string, ConformanceRules_CustomRuleProxy_CustomRuleFactory] = ImmutableMap_builder().put(strobj_("com.google.javascript.jscomp.ConformanceRules$NoOp"), any(lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_1_)).put(strobj_("com.google.javascript.jscomp.ConformanceRules$InferredConstCheck"), any(lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_2_)).put(strobj_("com.google.javascript.jscomp.ConformanceRules$BannedDependency"), any(lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_3_)).put(strobj_("com.google.javascript.jscomp.ConformanceRules$BannedDependencyRegex"), any(lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_4_)).put(strobj_("com.google.javascript.jscomp.ConformanceRules$BannedName"), any(lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_5_)).put(strobj_("com.google.javascript.jscomp.ConformanceRules$BannedProperty"), any(lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_6_)).put(strobj_("com.google.javascript.jscomp.ConformanceRules$BannedStringRegex"), any(lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_7_)).put(strobj_("com.google.javascript.jscomp.ConformanceRules$RestrictedNameCall"), any(lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_8_)).put(strobj_("com.google.javascript.jscomp.ConformanceRules$RestrictedMethodCall"), any(lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_9_)).put(strobj_("com.google.javascript.jscomp.ConformanceRules$RestrictedPropertyWrite"), any(lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_10_)).put(strobj_("com.google.javascript.jscomp.ConformanceRules$BannedCodePattern"), any(lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_11_)).put(strobj_("com.google.javascript.jscomp.ConformanceRules$BanForOf"), any(lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_12_)).put(strobj_("com.google.javascript.jscomp.ConformanceRules$RequireUseStrict"), any(lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_13_)).put(strobj_("com.google.javascript.jscomp.ConformanceRules$BanThrowOfNonErrorTypes"), any(lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_14_)).put(strobj_("com.google.javascript.jscomp.ConformanceRules$BanNullDeref"), any(lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_15_)).put(strobj_("com.google.javascript.jscomp.ConformanceRules$BanUnknownThis"), any(lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_16_)).put(strobj_("com.google.javascript.jscomp.ConformanceRules$BanUnknownDirectThisPropsReferences"), any(lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_17_)).put(strobj_("com.google.javascript.jscomp.ConformanceRules$BanUnknownTypedClassPropsReferences"), any(lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_18_)).put(strobj_("com.google.javascript.jscomp.ConformanceRules$BanUnresolvedType"), any(lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_19_)).put(strobj_("com.google.javascript.jscomp.ConformanceRules$StrictBanUnresolvedType"), any(lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_20_)).put(strobj_("com.google.javascript.jscomp.ConformanceRules$BanGlobalVars"), any(lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_21_)).put(strobj_("com.google.javascript.jscomp.ConformanceRules$BannedEnhance"), any(lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_22_)).put(strobj_("com.google.javascript.jscomp.ConformanceRules$BannedModsRegex"), any(lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_23_)).put(strobj_("com.google.javascript.jscomp.ConformanceRules$BanCreateElement"), any(lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_24_)).put(strobj_("com.google.javascript.jscomp.ConformanceRules$BanCreateDom"), any(lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_25_)).put(strobj_("com.google.javascript.jscomp.ConformanceRules$BanElementSetAttribute"), any(lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_26_)).put(strobj_("com.google.javascript.jscomp.ConformanceRules$BanSettingAttributes"), any(lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_27_)).put(strobj_("com.google.javascript.jscomp.ConformanceRules$BanExecCommand"), any(lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_28_)).put(strobj_("com.google.javascript.jscomp.ConformanceRules$BanStaticThis"), any(lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_29_))
-	return builder.buildOrThrow()
+	return tmapFrom_(tc_string, tc_ConformanceRules_CustomRuleProxy_CustomRuleFactory, builder.buildOrThrow(), true)
 }
 
 // lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_1_ is a lambda of ConformanceRules_CustomRuleProxy_createCustomRuleRegistry that captures nothing (post-flip step lambdas).
@@ -2244,7 +2244,7 @@ var lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_29_ = &Conf
 	return ConformanceRules_BanStaticThis_create(p0, p1)
 }}
 
-var ConformanceRules_CustomRuleProxy_CUSTOM_RULE_REGISTRY *ErasedImmutableMap
+var ConformanceRules_CustomRuleProxy_CUSTOM_RULE_REGISTRY *ImmutableMap[string, ConformanceRules_CustomRuleProxy_CustomRuleFactory]
 
 var ConformanceRules_CustomRuleProxy_clinit_done bool
 
@@ -2922,7 +2922,7 @@ func (this *ConformanceRules_StrictBanUnresolvedType) checkConformance_impl(t *N
 
 type ConformanceRules_BanGlobalVars struct {
 	ConformanceRules_AbstractRule
-	allowlistedNames ImmutableSetOf[string]
+	allowlistedNames *ImmutableSet[string]
 }
 
 func (this *ConformanceRules_BanGlobalVars) up_ConformanceRules_AbstractRule() *ConformanceRules_AbstractRule {
@@ -2962,7 +2962,7 @@ func (this *ConformanceRules_BanGlobalVars) initBanGlobalVars(compiler *Abstract
 	if superInited.isErr() {
 		return Outcome_base_err[any](superInited.error())
 	}
-	this.allowlistedNames = ImmutableSet_copyOf(Collection(requirement.getValueList()))
+	this.allowlistedNames = immutableSetCopyOf_(tc_string, Collection(requirement.getValueList()))
 	return Outcome_base_ok_0()
 }
 
@@ -2999,7 +2999,7 @@ func (this *ConformanceRules_BanGlobalVars) isAllowlisted(n Node) bool {
 }
 
 func (this *ConformanceRules_BanGlobalVars) isAllowlistedName(name string) bool {
-	if Collection_contains_s(this.allowlistedNames, name) {
+	if this.allowlistedNames.contains(name) {
 		return true
 	}
 	return (((((name == "$jscomp") || strings.HasPrefix(name, "$jscomp$compprop")) || ClosureRewriteModule_isModuleContent(name)) || ClosureRewriteModule_isModuleExport(name)) || ScopedAliases_isScopedAliases(name))
@@ -3007,7 +3007,7 @@ func (this *ConformanceRules_BanGlobalVars) isAllowlistedName(name string) bool 
 
 type ConformanceRules_BannedEnhance struct {
 	ConformanceRules_AbstractRule
-	bannedEnhancedNamespaces ImmutableSetOf[string]
+	bannedEnhancedNamespaces *ImmutableSet[string]
 }
 
 func (this *ConformanceRules_BannedEnhance) up_ConformanceRules_AbstractRule() *ConformanceRules_AbstractRule {
@@ -3050,7 +3050,7 @@ func (this *ConformanceRules_BannedEnhance) initBannedEnhance(compiler *Abstract
 	if requirement.getValueCount() == 0 {
 		return Outcome_base_err[any](new_CheckConformance_InvalidRequirementSpec_String("missing value").up_Throwable())
 	}
-	this.bannedEnhancedNamespaces = ImmutableSet_copyOf(Collection(requirement.getValueList()))
+	this.bannedEnhancedNamespaces = immutableSetCopyOf_(tc_string, Collection(requirement.getValueList()))
 	return Outcome_base_ok_0()
 }
 
@@ -3059,8 +3059,8 @@ func (this *ConformanceRules_BannedEnhance) checkConformance_impl(t *NodeTravers
 	if (docInfo == nil) || !docInfo.hasEnhance() {
 		return ConformanceRules_ConformanceResult_CONFORMANCE
 	}
-	for _, el_1 := range immElems_(this.bannedEnhancedNamespaces) {
-		var banned string = str_(el_1)
+	for el_1 := range this.bannedEnhancedNamespaces.All() {
+		var banned string = el_1
 		if docInfo.getEnhance() == banned {
 			return new_ConformanceRules_ConformanceResult_ConformanceLevel_String(ConformanceRules_ConformanceLevel_VIOLATION, ("The enhanced namespace \"" + sstr_(banned) + "\""))
 		}
@@ -3388,7 +3388,7 @@ func (this *ConformanceRules_BanCreateDom) getTagNames(tag Node) CollectionOf[st
 	}
 	var typeAsObj *ObjectType = type_.toMaybeObjectType()
 	if typeAsObj.getRawType().getDisplayName().get() == "goog.dom.TagName" {
-		var tagType *JSType = to_JSType(Iterables_getOnlyElement(icast_Iterable(obj_(typeAsObj.getTemplateTypes()))))
+		var tagType *JSType = to_JSType(Iterables_getOnlyElement(icast_Iterable(obj_(typeAsObj.getTemplateTypes().asImm()))))
 		return Collection(ConformanceRules_BanCreateDom_ELEMENT_TAG_NAMES.get_s(tagType.getDisplayName().orElse(nullstr_)))
 	}
 	return nil
@@ -3433,12 +3433,12 @@ func ConformanceRules_BanCreateDom_clinit() {
 }
 
 type ConformanceRules_SecuritySensitiveAttributes struct {
-	bannedAtrrs             ImmutableSetOf[string]
+	bannedAtrrs             *ImmutableSet[string]
 	globalNamespaceSupplier func() any
 }
 
 func (this *ConformanceRules_SecuritySensitiveAttributes) init_ConformanceRules_SecuritySensitiveAttributes_0() {
-	this.init_ConformanceRules_SecuritySensitiveAttributes_Collection_Supplier(icast_Collection(obj_(ConformanceRules_SecuritySensitiveAttributes_ALL_BANNED_ATTRS)), lambda_ConformanceRules_SecuritySensitiveAttributes_init_ConformanceRules_SecuritySensitiveAttributes_0_1_)
+	this.init_ConformanceRules_SecuritySensitiveAttributes_Collection_Supplier(icast_Collection(obj_(ConformanceRules_SecuritySensitiveAttributes_ALL_BANNED_ATTRS.asImm())), lambda_ConformanceRules_SecuritySensitiveAttributes_init_ConformanceRules_SecuritySensitiveAttributes_0_1_)
 }
 
 // lambda_ConformanceRules_SecuritySensitiveAttributes_init_ConformanceRules_SecuritySensitiveAttributes_0_1_ is a lambda of ConformanceRules_SecuritySensitiveAttributes_init_ConformanceRules_SecuritySensitiveAttributes_0 that captures nothing (post-flip step lambdas).
@@ -3453,7 +3453,7 @@ func new_ConformanceRules_SecuritySensitiveAttributes_0() *ConformanceRules_Secu
 }
 
 func (this *ConformanceRules_SecuritySensitiveAttributes) init_ConformanceRules_SecuritySensitiveAttributes_Supplier(globalNamespaceSupplier func() any) {
-	this.init_ConformanceRules_SecuritySensitiveAttributes_Collection_Supplier(icast_Collection(obj_(ConformanceRules_SecuritySensitiveAttributes_ALL_BANNED_ATTRS)), globalNamespaceSupplier)
+	this.init_ConformanceRules_SecuritySensitiveAttributes_Collection_Supplier(icast_Collection(obj_(ConformanceRules_SecuritySensitiveAttributes_ALL_BANNED_ATTRS.asImm())), globalNamespaceSupplier)
 }
 
 func new_ConformanceRules_SecuritySensitiveAttributes_Supplier(globalNamespaceSupplier func() any) *ConformanceRules_SecuritySensitiveAttributes {
@@ -3463,9 +3463,9 @@ func new_ConformanceRules_SecuritySensitiveAttributes_Supplier(globalNamespaceSu
 }
 
 func (this *ConformanceRules_SecuritySensitiveAttributes) init_ConformanceRules_SecuritySensitiveAttributes_Collection_Supplier(bannedAtrrs CollectionOf[string], globalNamespaceSupplier func() any) {
-	var bannedAtrrsBuilder ImmutableSet_BuilderOf[string] = ImmutableSet_builder()
+	var bannedAtrrsBuilder *ImmutableSet_Builder[string] = immutableSetBuilder_(tc_string)
 	for s := range elemsBy_(bannedAtrrs, str_) {
-		bannedAtrrsBuilder.add(strobj_(strings.ToLower(s)))
+		bannedAtrrsBuilder.add(strings.ToLower(s))
 	}
 	this.bannedAtrrs = bannedAtrrsBuilder.build()
 	this.globalNamespaceSupplier = globalNamespaceSupplier
@@ -3487,7 +3487,7 @@ func lambda_ConformanceRules_SecuritySensitiveAttributes_createFromBannedAttrs_1
 }
 
 func (this *ConformanceRules_SecuritySensitiveAttributes) contains(attributeName string) bool {
-	return Collection_contains_s(this.bannedAtrrs, attributeName)
+	return this.bannedAtrrs.contains(attributeName)
 }
 
 func (this *ConformanceRules_SecuritySensitiveAttributes) checkConformanceForAttributeName(traversal *NodeTraversal, attrName Node) *ConformanceRules_ConformanceResult {
@@ -3501,7 +3501,7 @@ func (this *ConformanceRules_SecuritySensitiveAttributes) checkConformanceForAtt
 		}()
 	}
 	literalName = Optional_of[string](strings.ToLower(literalName.get()))
-	if Collection_contains_s(this.bannedAtrrs, literalName.get()) || ConformanceRules_ConformanceUtil_isEventHandlerAttrName(literalName.get()) {
+	if this.bannedAtrrs.contains(literalName.get()) || ConformanceRules_ConformanceUtil_isEventHandlerAttrName(literalName.get()) {
 		return ConformanceRules_ConformanceResult_VIOLATION
 	}
 	return ConformanceRules_ConformanceResult_CONFORMANCE
@@ -3520,7 +3520,7 @@ func (this *ConformanceRules_SecuritySensitiveAttributes) checkConformanceForAtt
 	}()
 }
 
-var ConformanceRules_SecuritySensitiveAttributes_ALL_BANNED_ATTRS *ErasedImmutableSet
+var ConformanceRules_SecuritySensitiveAttributes_ALL_BANNED_ATTRS *ImmutableSet[string]
 
 var ConformanceRules_SecuritySensitiveAttributes_clinit_done bool
 
@@ -3529,7 +3529,7 @@ func ConformanceRules_SecuritySensitiveAttributes_clinit() {
 		return
 	}
 	ConformanceRules_SecuritySensitiveAttributes_clinit_done = true
-	ConformanceRules_SecuritySensitiveAttributes_ALL_BANNED_ATTRS = ImmutableSet_of_Object_Object_Object_Object_Object_Object_ObjectArr(strobj_("href"), strobj_("rel"), strobj_("src"), strobj_("srcdoc"), strobj_("action"), strobj_("formaction"), []any{strobj_("sandbox"), strobj_("icon"), strobj_("codebase"), strobj_("data")})
+	ConformanceRules_SecuritySensitiveAttributes_ALL_BANNED_ATTRS = immutableSetOf_(tc_string, "href", "rel", "src", "srcdoc", "action", "formaction", "sandbox", "icon", "codebase", "data")
 
 }
 
@@ -3651,7 +3651,7 @@ func (this *ConformanceRules_BanElementSetAttribute) getBannedPropertyName(callN
 		return Optional_base_absent()
 	}
 	var propertyName string = target.getString()
-	if !Collection_contains_s(ConformanceRules_BanElementSetAttribute_BANNED_PROPERTIES, propertyName) {
+	if !ConformanceRules_BanElementSetAttribute_BANNED_PROPERTIES.contains(propertyName) {
 		return Optional_base_absent()
 	}
 	var type_ *JSType = target.getFirstChild().getJSType()
@@ -3686,8 +3686,8 @@ func (this *ConformanceRules_BanElementSetAttribute) checkConformanceOnGetElemen
 		if keyType.isString() {
 			return ConformanceRules_ConformanceResult_VIOLATION
 		} else if keyType.isUnionType() {
-			for _, el_1 := range immElems_(keyType.toMaybeUnionType().getAlternates()) {
-				var alternate *JSType = to_JSType(el_1)
+			for el_1 := range keyType.toMaybeUnionType().getAlternates().All() {
+				var alternate *JSType = el_1
 				if alternate.isString() {
 					return ConformanceRules_ConformanceResult_VIOLATION
 				}
@@ -3715,7 +3715,7 @@ const ConformanceRules_BanElementSetAttribute_SET_ATTRIBUTE_NS string = "setAttr
 const ConformanceRules_BanElementSetAttribute_SET_ATTRIBUTE_NODE string = "setAttributeNode"
 const ConformanceRules_BanElementSetAttribute_SET_ATTRIBUTE_NODE_NS string = "setAttributeNodeNS"
 
-var ConformanceRules_BanElementSetAttribute_BANNED_PROPERTIES *ErasedImmutableSet
+var ConformanceRules_BanElementSetAttribute_BANNED_PROPERTIES *ImmutableSet[string]
 
 const ConformanceRules_BanElementSetAttribute_GLOBAL_NAMESPACE_ANALYSIS_LIMIT int32 = 10000
 
@@ -3726,7 +3726,7 @@ func ConformanceRules_BanElementSetAttribute_clinit() {
 		return
 	}
 	ConformanceRules_BanElementSetAttribute_clinit_done = true
-	ConformanceRules_BanElementSetAttribute_BANNED_PROPERTIES = ImmutableSet_of_Object_Object_Object_Object(strobj_(ConformanceRules_BanElementSetAttribute_SET_ATTRIBUTE), strobj_(ConformanceRules_BanElementSetAttribute_SET_ATTRIBUTE_NS), strobj_(ConformanceRules_BanElementSetAttribute_SET_ATTRIBUTE_NODE), strobj_(ConformanceRules_BanElementSetAttribute_SET_ATTRIBUTE_NODE_NS))
+	ConformanceRules_BanElementSetAttribute_BANNED_PROPERTIES = immutableSetOf_(tc_string, ConformanceRules_BanElementSetAttribute_SET_ATTRIBUTE, ConformanceRules_BanElementSetAttribute_SET_ATTRIBUTE_NS, ConformanceRules_BanElementSetAttribute_SET_ATTRIBUTE_NODE, ConformanceRules_BanElementSetAttribute_SET_ATTRIBUTE_NODE_NS)
 
 }
 

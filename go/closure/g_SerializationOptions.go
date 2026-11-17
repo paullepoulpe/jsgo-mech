@@ -5,10 +5,10 @@ package closure
 type SerializationOptions struct {
 	includeDebugInfo_ bool
 	runValidation_    bool
-	runtimeLibraries_ ImmutableListOf[string]
+	runtimeLibraries_ *ImmutableList[string]
 }
 
-func (this *SerializationOptions) init_SerializationOptions(includeDebugInfo bool, runValidation bool, runtimeLibraries ImmutableListOf[string]) {
+func (this *SerializationOptions) init_SerializationOptions(includeDebugInfo bool, runValidation bool, runtimeLibraries *ImmutableList[string]) {
 	if runtimeLibraries == nil {
 		panic(new_NullPointerException_String("runtimeLibraries").self())
 	}
@@ -17,14 +17,14 @@ func (this *SerializationOptions) init_SerializationOptions(includeDebugInfo boo
 	this.runtimeLibraries_ = runtimeLibraries
 }
 
-func new_SerializationOptions(includeDebugInfo bool, runValidation bool, runtimeLibraries ImmutableListOf[string]) *SerializationOptions {
+func new_SerializationOptions(includeDebugInfo bool, runValidation bool, runtimeLibraries *ImmutableList[string]) *SerializationOptions {
 	this := &SerializationOptions{}
 	this.init_SerializationOptions(includeDebugInfo, runValidation, runtimeLibraries)
 	return this
 }
 
 func SerializationOptions_builder() *SerializationOptions_Builder {
-	return new_SerializationOptions_Builder().setRunValidation(false).setIncludeDebugInfo(false).setRuntimeLibraries(ImmutableList_of())
+	return new_SerializationOptions_Builder().setRunValidation(false).setIncludeDebugInfo(false).setRuntimeLibraries(immutableListOf_(tc_string))
 }
 
 func (this *SerializationOptions) includeDebugInfo() bool {
@@ -35,7 +35,7 @@ func (this *SerializationOptions) runValidation() bool {
 	return this.runValidation_
 }
 
-func (this *SerializationOptions) runtimeLibraries() *ErasedImmutableList {
+func (this *SerializationOptions) runtimeLibraries() *ImmutableList[string] {
 	return this.runtimeLibraries_
 }
 
@@ -44,25 +44,25 @@ func (this *SerializationOptions) equals(p0 any) bool {
 	if !ok || o == nil {
 		return false
 	}
-	return true && this.includeDebugInfo_ == o.includeDebugInfo_ && this.runValidation_ == o.runValidation_ && objequalsBy_(this.runtimeLibraries_, obj_(o.runtimeLibraries_), (ImmutableListOf[string]).equals)
+	return true && this.includeDebugInfo_ == o.includeDebugInfo_ && this.runValidation_ == o.runValidation_ && objequalsBy_(this.runtimeLibraries_.asImm(), obj_(o.runtimeLibraries_.asImm()), (ImmutableListOf[string]).equals)
 }
 
 func (this *SerializationOptions) hashCode() int32 {
 	var h int32
 	h = h*31 + Boolean_hashCode(bool(this.includeDebugInfo_))
 	h = h*31 + Boolean_hashCode(bool(this.runValidation_))
-	h = h*31 + objhashBy_(this.runtimeLibraries_, (ImmutableListOf[string]).hashCode)
+	h = h*31 + objhashBy_(this.runtimeLibraries_.asImm(), (ImmutableListOf[string]).hashCode)
 	return h
 }
 
 func (this *SerializationOptions) toString() string {
-	return "SerializationOptions[" + "includeDebugInfo=" + boolstr_(bool(this.includeDebugInfo_)) + ", runValidation=" + boolstr_(bool(this.runValidation_)) + ", runtimeLibraries=" + tostr_(this.runtimeLibraries_) + "]"
+	return "SerializationOptions[" + "includeDebugInfo=" + boolstr_(bool(this.includeDebugInfo_)) + ", runValidation=" + boolstr_(bool(this.runValidation_)) + ", runtimeLibraries=" + tostr_(this.runtimeLibraries_.asImm()) + "]"
 }
 
 type SerializationOptions_Builder struct {
 	includeDebugInfo_ bool
 	runValidation_    bool
-	runtimeLibraries_ ImmutableListOf[string]
+	runtimeLibraries_ *ImmutableList[string]
 	set0              int8
 }
 
@@ -88,7 +88,7 @@ func (this *SerializationOptions_Builder) setRunValidation(runValidation bool) *
 	return this
 }
 
-func (this *SerializationOptions_Builder) setRuntimeLibraries(runtimeLibraries ImmutableListOf[string]) *SerializationOptions_Builder {
+func (this *SerializationOptions_Builder) setRuntimeLibraries(runtimeLibraries *ImmutableList[string]) *SerializationOptions_Builder {
 	if runtimeLibraries == nil {
 		panic(new_NullPointerException_String("Null runtimeLibraries").self())
 	}

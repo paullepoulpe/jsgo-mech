@@ -6,7 +6,7 @@ type LazyParsedDependencyInfo struct {
 	delegate   DependencyInfo
 	ast        *CompilerInput
 	compiler_  *AbstractCompiler
-	loadFlags_ ImmutableMapOf[string, string]
+	loadFlags_ *ImmutableMap[string, string]
 }
 
 func (this *LazyParsedDependencyInfo) init_LazyParsedDependencyInfo(delegate DependencyInfo, ast *CompilerInput, compiler *AbstractCompiler) {
@@ -38,11 +38,11 @@ func (this *LazyParsedDependencyInfo) isGoogModule() bool {
 	return this.delegate.isGoogModule()
 }
 
-func (this *LazyParsedDependencyInfo) getLoadFlags() ImmutableMapOf[string, string] {
+func (this *LazyParsedDependencyInfo) getLoadFlags() *ImmutableMap[string, string] {
 	if this.loadFlags_ == nil {
 		var loadFlagsBuilder *TTreeMap[string, string] = newTTreeMap_(tc_string, tc_string)
 		var hadSourceInMemory bool = this.ast.getSourceFile().hasSourceInMemory()
-		loadFlagsBuilder.asMap().putAll(icast_Map(obj_(this.delegate.getLoadFlags())))
+		loadFlagsBuilder.asMap().putAll(icast_Map(obj_(this.delegate.getLoadFlags().asImm())))
 		var features *FeatureSet = this.ast.getFeatures(this.compiler_)
 		if features.has(FeatureSet_Feature_MODULES) {
 			var previousModule OptionalOf[string] = Optional_ofNullable[string](loadFlagsBuilder.get("module"))
@@ -55,7 +55,7 @@ func (this *LazyParsedDependencyInfo) getLoadFlags() ImmutableMapOf[string, stri
 		if !(version == "es3") {
 			loadFlagsBuilder.put("lang", version)
 		}
-		this.loadFlags_ = ImmutableMap_copyOf(loadFlagsBuilder.asMap())
+		this.loadFlags_ = immutableMapCopyOf_(tc_string, tc_string, loadFlagsBuilder.asMap())
 		if !hadSourceInMemory {
 			this.ast.getSourceFile().clearCachedSource()
 		}
@@ -72,15 +72,15 @@ func (this *LazyParsedDependencyInfo) getPathRelativeToClosureBase() string {
 	return this.delegate.getPathRelativeToClosureBase()
 }
 
-func (this *LazyParsedDependencyInfo) getRequires() ImmutableListOf[*DependencyInfo_Require] {
+func (this *LazyParsedDependencyInfo) getRequires() *ImmutableList[*DependencyInfo_Require] {
 	return this.delegate.getRequires()
 }
 
-func (this *LazyParsedDependencyInfo) getTypeRequires() ImmutableListOf[string] {
+func (this *LazyParsedDependencyInfo) getTypeRequires() *ImmutableList[string] {
 	return this.delegate.getTypeRequires()
 }
 
-func (this *LazyParsedDependencyInfo) getProvides() ImmutableListOf[string] {
+func (this *LazyParsedDependencyInfo) getProvides() *ImmutableList[string] {
 	return this.delegate.getProvides()
 }
 
@@ -92,6 +92,6 @@ func (this *LazyParsedDependencyInfo) getHasNoCompileAnnotation() bool {
 	return this.delegate.getHasNoCompileAnnotation()
 }
 
-func (this *LazyParsedDependencyInfo) getRequiredSymbols() *ErasedImmutableList {
+func (this *LazyParsedDependencyInfo) getRequiredSymbols() *ImmutableList[string] {
 	return DependencyInfo_getRequiredSymbols_default(this)
 }

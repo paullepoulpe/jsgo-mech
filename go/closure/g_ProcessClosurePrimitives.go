@@ -8,7 +8,7 @@ type ProcessClosurePrimitives struct {
 	NodeTraversal_AbstractPostOrderCallback
 	compiler_              *AbstractCompiler
 	knownClosureSubclasses map[string]struct{}
-	closureModules         ImmutableMapOf[string, *ModuleMetadataMap_ModuleMetadata]
+	closureModules         *ImmutableMap[string, *ModuleMetadataMap_ModuleMetadata]
 }
 
 func (this *ProcessClosurePrimitives) up_NodeTraversal_AbstractPostOrderCallback() *NodeTraversal_AbstractPostOrderCallback {
@@ -60,7 +60,7 @@ func (this *ProcessClosurePrimitives) visit_impl(t *NodeTraversal, n Node, paren
 			return
 		}
 		var name string = n.getFirstChild().getString()
-		var pn *ModuleMetadataMap_ModuleMetadata = cast_[*ModuleMetadataMap_ModuleMetadata](Map_get_s(this.closureModules, name))
+		var pn *ModuleMetadataMap_ModuleMetadata = this.closureModules.get(name)
 		if (pn != nil) && pn.isGoogProvide() {
 			this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, func() *DiagnosticType {
 				if n.isClass() {
@@ -93,7 +93,7 @@ func (this *ProcessClosurePrimitives) checkPossibleGoogProvideInit(namespace Opt
 	}
 	var metadata *ModuleMetadataMap_ModuleMetadata = func() *ModuleMetadataMap_ModuleMetadata {
 		if namespace.isPresent() {
-			return cast_[*ModuleMetadataMap_ModuleMetadata](Map_get_s(this.closureModules, namespace.get()))
+			return this.closureModules.get(namespace.get())
 		}
 		return nil
 	}()

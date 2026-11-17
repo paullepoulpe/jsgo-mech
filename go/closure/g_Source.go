@@ -7,8 +7,8 @@ type Source struct {
 	sourceMap_            string
 	sourceUrl_            string
 	sourceMappingUrl_     string
-	runtimes_             ImmutableSetOf[string]
-	loadFlags_            ImmutableMapOf[string, string]
+	runtimes_             *ImmutableSet[string]
+	loadFlags_            *ImmutableMap[string, string]
 	estimatedSize_        int32
 	codeSupplier_         *Source_Lazy
 	originalCodeSupplier_ *Source_Lazy
@@ -21,7 +21,7 @@ func (this *Source) zero_Source() {
 	this.sourceMappingUrl_ = nullstr_
 }
 
-func (this *Source) init_Source(path string, sourceMap string, sourceUrl string, sourceMappingUrl string, runtimes ImmutableSetOf[string], loadFlags ImmutableMapOf[string, string], estimatedSize int32, codeSupplier *Source_Lazy, originalCodeSupplier *Source_Lazy) {
+func (this *Source) init_Source(path string, sourceMap string, sourceUrl string, sourceMappingUrl string, runtimes *ImmutableSet[string], loadFlags *ImmutableMap[string, string], estimatedSize int32, codeSupplier *Source_Lazy, originalCodeSupplier *Source_Lazy) {
 	if runtimes == nil {
 		panic(new_NullPointerException_String("runtimes").self())
 	}
@@ -42,7 +42,7 @@ func (this *Source) init_Source(path string, sourceMap string, sourceUrl string,
 	this.originalCodeSupplier_ = originalCodeSupplier
 }
 
-func new_Source(path string, sourceMap string, sourceUrl string, sourceMappingUrl string, runtimes ImmutableSetOf[string], loadFlags ImmutableMapOf[string, string], estimatedSize int32, codeSupplier *Source_Lazy, originalCodeSupplier *Source_Lazy) *Source {
+func new_Source(path string, sourceMap string, sourceUrl string, sourceMappingUrl string, runtimes *ImmutableSet[string], loadFlags *ImmutableMap[string, string], estimatedSize int32, codeSupplier *Source_Lazy, originalCodeSupplier *Source_Lazy) *Source {
 	this := &Source{}
 	this.zero_Source()
 	this.init_Source(path, sourceMap, sourceUrl, sourceMappingUrl, runtimes, loadFlags, estimatedSize, codeSupplier, originalCodeSupplier)
@@ -50,7 +50,7 @@ func new_Source(path string, sourceMap string, sourceUrl string, sourceMappingUr
 }
 
 func (this *Source) toString() string {
-	return ("Source{path=" + sstr_(this.path_) + ", sourceMap=" + sstr_(this.sourceMap_) + ", sourceUrl=" + sstr_(this.sourceUrl_) + ", sourceMappingUrl=" + sstr_(this.sourceMappingUrl_) + ", runtimes=" + tostr_(this.runtimes_) + ", loadFlags=" + tostr_(this.loadFlags_) + ", estimatedSize=" + istr_(int64(this.estimatedSize_)) + ", codeSupplier=" + objstr_(this.codeSupplier_.self()) + ", originalCodeSupplier=" + objstr_(this.originalCodeSupplier_.self()) + "}")
+	return ("Source{path=" + sstr_(this.path_) + ", sourceMap=" + sstr_(this.sourceMap_) + ", sourceUrl=" + sstr_(this.sourceUrl_) + ", sourceMappingUrl=" + sstr_(this.sourceMappingUrl_) + ", runtimes=" + tostr_(this.runtimes_.asImm()) + ", loadFlags=" + tostr_(this.loadFlags_.asImm()) + ", estimatedSize=" + istr_(int64(this.estimatedSize_)) + ", codeSupplier=" + objstr_(this.codeSupplier_.self()) + ", originalCodeSupplier=" + objstr_(this.originalCodeSupplier_.self()) + "}")
 }
 
 func (this *Source) code() string {
@@ -66,7 +66,7 @@ func (this *Source) toBuilder() *Source_Builder {
 }
 
 func Source_builder() *Source_Builder {
-	return new_Source_Builder_0().setPath(Source_DEV_NULL).setCode("").setOriginalCodeSupplier(nil).setSourceMap("").setSourceUrl("").setSourceMappingUrl("").setRuntimes(ImmutableSet_of()).setLoadFlags(ImmutableMap_of()).setEstimatedSize(0)
+	return new_Source_Builder_0().setPath(Source_DEV_NULL).setCode("").setOriginalCodeSupplier(nil).setSourceMap("").setSourceUrl("").setSourceMappingUrl("").setRuntimes(immutableSetOf_(tc_string)).setLoadFlags(immutableMapOf_(tc_string, tc_string, []string{}, []string{})).setEstimatedSize(0)
 }
 
 func (this *Source) path() string {
@@ -85,11 +85,11 @@ func (this *Source) sourceMappingUrl() string {
 	return this.sourceMappingUrl_
 }
 
-func (this *Source) runtimes() *ErasedImmutableSet {
+func (this *Source) runtimes() *ImmutableSet[string] {
 	return this.runtimes_
 }
 
-func (this *Source) loadFlags() *ErasedImmutableMap {
+func (this *Source) loadFlags() *ImmutableMap[string, string] {
 	return this.loadFlags_
 }
 
@@ -110,7 +110,7 @@ func (this *Source) equals(p0 any) bool {
 	if !ok || o == nil {
 		return false
 	}
-	return true && this.path_ == o.path_ && this.sourceMap_ == o.sourceMap_ && this.sourceUrl_ == o.sourceUrl_ && this.sourceMappingUrl_ == o.sourceMappingUrl_ && objequalsBy_(this.runtimes_, obj_(o.runtimes_), (ImmutableSetOf[string]).equals) && objequalsBy_(this.loadFlags_, obj_(o.loadFlags_), (ImmutableMapOf[string, string]).equals) && this.estimatedSize_ == o.estimatedSize_ && objequalsBy_(this.codeSupplier_, o.codeSupplier_.self(), (*Source_Lazy).equals) && objequalsBy_(this.originalCodeSupplier_, o.originalCodeSupplier_.self(), (*Source_Lazy).equals)
+	return true && this.path_ == o.path_ && this.sourceMap_ == o.sourceMap_ && this.sourceUrl_ == o.sourceUrl_ && this.sourceMappingUrl_ == o.sourceMappingUrl_ && objequalsBy_(this.runtimes_.asImm(), obj_(o.runtimes_.asImm()), (ImmutableSetOf[string]).equals) && objequalsBy_(this.loadFlags_.asImm(), obj_(o.loadFlags_.asImm()), (ImmutableMapOf[string, string]).equals) && this.estimatedSize_ == o.estimatedSize_ && objequalsBy_(this.codeSupplier_, o.codeSupplier_.self(), (*Source_Lazy).equals) && objequalsBy_(this.originalCodeSupplier_, o.originalCodeSupplier_.self(), (*Source_Lazy).equals)
 }
 
 func (this *Source) hashCode() int32 {
@@ -119,8 +119,8 @@ func (this *Source) hashCode() int32 {
 	h = h*31 + objhashStr_(this.sourceMap_)
 	h = h*31 + objhashStr_(this.sourceUrl_)
 	h = h*31 + objhashStr_(this.sourceMappingUrl_)
-	h = h*31 + objhashBy_(this.runtimes_, (ImmutableSetOf[string]).hashCode)
-	h = h*31 + objhashBy_(this.loadFlags_, (ImmutableMapOf[string, string]).hashCode)
+	h = h*31 + objhashBy_(this.runtimes_.asImm(), (ImmutableSetOf[string]).hashCode)
+	h = h*31 + objhashBy_(this.loadFlags_.asImm(), (ImmutableMapOf[string, string]).hashCode)
 	h = h*31 + int32(this.estimatedSize_)
 	h = h*31 + objhashBy_(this.codeSupplier_, (*Source_Lazy).hashCode)
 	h = h*31 + objhashBy_(this.originalCodeSupplier_, (*Source_Lazy).hashCode)
@@ -134,8 +134,8 @@ type Source_Builder struct {
 	sourceMap_                OptionalOf[string]
 	sourceUrl_                OptionalOf[string]
 	sourceMappingUrl_         OptionalOf[string]
-	runtimesField             ImmutableSetOf[string]
-	loadFlags_                ImmutableMapOf[string, string]
+	runtimesField             *ImmutableSet[string]
+	loadFlags_                *ImmutableMap[string, string]
 	estimatedSize_            int32
 	codeSupplierField         *Source_Lazy
 	originalCodeSupplierField *Source_Lazy
@@ -199,7 +199,7 @@ func (this *Source_Builder) setSourceMappingUrl(sourceMappingUrl string) *Source
 	return this
 }
 
-func (this *Source_Builder) setRuntimes(runtimes ImmutableSetOf[string]) *Source_Builder {
+func (this *Source_Builder) setRuntimes(runtimes *ImmutableSet[string]) *Source_Builder {
 	if runtimes == nil {
 		panic(new_NullPointerException_String("Null runtimes").self())
 	}
@@ -207,7 +207,7 @@ func (this *Source_Builder) setRuntimes(runtimes ImmutableSetOf[string]) *Source
 	return this
 }
 
-func (this *Source_Builder) setLoadFlags(flags ImmutableMapOf[string, string]) *Source_Builder {
+func (this *Source_Builder) setLoadFlags(flags *ImmutableMap[string, string]) *Source_Builder {
 	if flags == nil {
 		panic(new_NullPointerException_String("Null loadFlags").self())
 	}
@@ -234,7 +234,7 @@ func (this *Source_Builder) setOriginalCode(code string) *Source_Builder {
 }
 
 func (this *Source_Builder) addRuntime(runtimes []string) *Source_Builder {
-	return this.setRuntimes(ImmutableSet_builder().addAll(icast_Iterable(obj_(this.runtimes()))).add_ObjectArr(arrmap_(runtimes, func(v_ string) any { return strobj_(v_) })).build())
+	return this.setRuntimes(tsetFrom_(tc_string, ImmutableSet_builder().addAll(icast_Iterable(obj_(this.runtimes().asImm()))).add_ObjectArr(arrmap_(runtimes, func(v_ string) any { return strobj_(v_) })).build(), true))
 }
 
 func (this *Source_Builder) setDependencyInfo(info DependencyInfo) *Source_Builder {
@@ -261,7 +261,7 @@ func (this *Source_Builder) setOriginalCodeSupplier(code *Source_Lazy) *Source_B
 	return this
 }
 
-func (this *Source_Builder) runtimes() ImmutableSetOf[string] {
+func (this *Source_Builder) runtimes() *ImmutableSet[string] {
 	if this.runtimesField == nil {
 		panic(new_IllegalStateException_String("Property \"runtimes\" has not been set").self())
 	}

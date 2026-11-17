@@ -25,10 +25,10 @@ func (this *J2clPass) process_2(externs Node, root Node) {
 		return
 	}
 	var inlinings []*J2clPass_InlineSpec = []*J2clPass_InlineSpec{}
-	inlinings = append(inlinings, new_J2clPass_InlineSpec("Arrays.impl.java.js", tsetFrom_(tc_string, ImmutableSet_of_Object_Object_Object_Object_Object_Object_ObjectArr(strobj_("$create"), strobj_("$createWithInitializer"), strobj_("$init"), strobj_("$instanceIsOfType"), strobj_("$castTo"), strobj_("$stampType"), []any{}), true), FunctionInjector_InliningMode_DIRECT))
-	inlinings = append(inlinings, new_J2clPass_InlineSpec("Casts.impl.java.js", tsetFrom_(tc_string, ImmutableSet_of_Object(strobj_("$to")), true), FunctionInjector_InliningMode_DIRECT))
-	inlinings = append(inlinings, new_J2clPass_InlineSpec(J2clPass_ALL_CLASS_FILE_NAMES, tsetFrom_(tc_string, ImmutableSet_of_Object(strobj_("$markImplementor")), true), FunctionInjector_InliningMode_BLOCK))
-	inlinings = append(inlinings, new_J2clPass_InlineSpec("Util.impl.java.js", tsetFrom_(tc_string, ImmutableSet_of_Object_Object_Object_Object(strobj_("$setClassMetadata"), strobj_("$setClassMetadataForInterface"), strobj_("$setClassMetadataForEnum"), strobj_("$setClassMetadataForPrimitive")), true), FunctionInjector_InliningMode_BLOCK))
+	inlinings = append(inlinings, new_J2clPass_InlineSpec("Arrays.impl.java.js", immutableSetOf_(tc_string, "$create", "$createWithInitializer", "$init", "$instanceIsOfType", "$castTo", "$stampType"), FunctionInjector_InliningMode_DIRECT))
+	inlinings = append(inlinings, new_J2clPass_InlineSpec("Casts.impl.java.js", immutableSetOf_(tc_string, "$to"), FunctionInjector_InliningMode_DIRECT))
+	inlinings = append(inlinings, new_J2clPass_InlineSpec(J2clPass_ALL_CLASS_FILE_NAMES, immutableSetOf_(tc_string, "$markImplementor"), FunctionInjector_InliningMode_BLOCK))
+	inlinings = append(inlinings, new_J2clPass_InlineSpec("Util.impl.java.js", immutableSetOf_(tc_string, "$setClassMetadata", "$setClassMetadataForInterface", "$setClassMetadataForEnum", "$setClassMetadataForPrimitive"), FunctionInjector_InliningMode_BLOCK))
 	new_J2clPass_ClassStaticFunctionsInliner(this, root, inlinings).run()
 }
 
@@ -106,13 +106,13 @@ func (this *J2clPass_ClassStaticFunctionsInliner) init_J2clPass_ClassStaticFunct
 	this.root = root
 	this.inlineSpecs = inlineSpecs
 	this.injector = new_FunctionInjector_Builder(this.outer_.compiler_).safeNameIdSupplier(this.outer_.safeNameIdSupplier_).assumeStrictThis(true).build()
-	var fnNamesToInlineBuilder ImmutableSet_BuilderOf[string] = ImmutableSet_builder()
+	var fnNamesToInlineBuilder *ImmutableSet_Builder[string] = immutableSetBuilder_(tc_string)
 	for _, b := range inlineSpecs {
 		for fnName := range b.fnNamesToInline_.All() {
-			fnNamesToInlineBuilder.add(strobj_(fnName))
+			fnNamesToInlineBuilder.add(fnName)
 		}
 	}
-	var fnNamesToInline ImmutableSetOf[string] = fnNamesToInlineBuilder.build()
+	var fnNamesToInline *ImmutableSet[string] = fnNamesToInlineBuilder.build()
 	this.injector.setKnownConstantFunctions(fnNamesToInline)
 }
 

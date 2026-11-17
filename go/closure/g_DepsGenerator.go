@@ -78,8 +78,8 @@ func (this *DepsGenerator) removeMungedSymbols(depFiles MapOf[string, Dependency
 	this.addToProvideMap(Iterable(jsFiles.values()), providesMap, false)
 	for dependencyInfo := range elemsBy_(jsFiles.values(), icast_DependencyInfo) {
 		var newRequires *TList[*DependencyInfo_Require] = newTList_(tc_p_DependencyInfo_Require)
-		for _, el := range immElems_(dependencyInfo.getRequires()) {
-			require := cast_[*DependencyInfo_Require](el)
+		for el := range dependencyInfo.getRequires().All() {
+			require := el
 			if require.getType() == DependencyInfo_Require_Type_ES6_IMPORT {
 				var provider DependencyInfo = providesMap[require.getSymbol()]
 				if provider == nil {
@@ -91,19 +91,19 @@ func (this *DepsGenerator) removeMungedSymbols(depFiles MapOf[string, Dependency
 				newRequires.add(require)
 			}
 		}
-		var provides ImmutableListOf[string] = dependencyInfo.getProvides()
+		var provides *ImmutableList[string] = dependencyInfo.getProvides()
 		if dependencyInfo.isEs6Module() {
 			var mungedProvide string = this.loader.resolve(dependencyInfo.getName()).toModuleName()
-			var builder ImmutableList_BuilderOf[string] = ImmutableList_builder()
-			for _, el2 := range immElems_(provides) {
-				provide := str_(el2)
+			var builder *ImmutableList_Builder[string] = immutableListBuilder_(tc_string)
+			for el2 := range provides.All() {
+				provide := el2
 				if !(provide == mungedProvide) && !(provide == dependencyInfo.getPathRelativeToClosureBase()) {
-					builder.add(strobj_(provide))
+					builder.add(provide)
 				}
 			}
 			provides = builder.build()
 		}
-		Map_put_s(newJsFiles, dependencyInfo.getPathRelativeToClosureBase(), obj_(SimpleDependencyInfo_builder(dependencyInfo.getPathRelativeToClosureBase(), Optional_of[string](dependencyInfo.getName())).setProvides(icast_Collection(obj_(provides))).setRequires(newRequires.asList()).setLoadFlags(icast_Map(obj_(dependencyInfo.getLoadFlags()))).build()))
+		Map_put_s(newJsFiles, dependencyInfo.getPathRelativeToClosureBase(), obj_(SimpleDependencyInfo_builder(dependencyInfo.getPathRelativeToClosureBase(), Optional_of[string](dependencyInfo.getName())).setProvides(icast_Collection(obj_(provides.asImm()))).setRequires(newRequires.asList()).setLoadFlags(icast_Map(obj_(dependencyInfo.getLoadFlags().asImm()))).build()))
 	}
 	return newJsFiles
 }
@@ -113,8 +113,8 @@ func (this *DepsGenerator) validateDependencies(preparsedFileDependencies Iterab
 	this.addToProvideMap(preparsedFileDependencies, providesMap, true)
 	this.addToProvideMap(parsedFileDependencies, providesMap, false)
 	for depInfo := range elemsBy_(parsedFileDependencies, icast_DependencyInfo) {
-		for _, el := range immElems_(depInfo.getRequires()) {
-			require := cast_[*DependencyInfo_Require](el)
+		for el := range depInfo.getRequires().All() {
+			require := el
 			var namespace string = require.getSymbol()
 			var provider DependencyInfo = providesMap[namespace]
 			if provider == nil {
@@ -169,7 +169,7 @@ func (this *DepsGenerator) reportNoDepsInDepsFile(filePath string) {
 
 func (this *DepsGenerator) addToProvideMap(depInfos IterableOf[DependencyInfo], providesMap map[string]DependencyInfo, isFromDepsFile bool) {
 	for depInfo := range elemsBy_(depInfos, icast_DependencyInfo) {
-		var provides []string = sliceFrom_(tc_string, icast_Collection(obj_(depInfo.getProvides())))
+		var provides []string = sliceFrom_(tc_string, icast_Collection(obj_(depInfo.getProvides().asImm())))
 		if isFromDepsFile {
 			provides = append(provides, this.loader.resolve(PathUtil_makeAbsolute_String_String(depInfo.getPathRelativeToClosureBase(), this.closurePathAbs)).toModuleName())
 		} else {
@@ -253,8 +253,8 @@ func (this *DepsGenerator) removeRelativePathProvide(info DependencyInfo) Depend
 
 func DepsGenerator_providesWithoutRelativePath(info DependencyInfo) *TList[string] {
 	var result *TList[string] = newTList_(tc_string)
-	for _, el := range immElems_(info.getProvides()) {
-		p := str_(el)
+	for el := range info.getProvides().All() {
+		p := el
 		if !(p == info.getPathRelativeToClosureBase()) {
 			result.add(p)
 		}

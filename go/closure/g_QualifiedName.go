@@ -35,7 +35,7 @@ func (this *QualifiedName) init_QualifiedName() {
 func QualifiedName_of(string_ string) *QualifiedName {
 	var lastIndex int32 = 0
 	var index int32
-	var builder ImmutableList_BuilderOf[string] = ImmutableList_builder()
+	var builder *ImmutableList_Builder[string] = immutableListBuilder_(tc_string)
 	for do_2 := true; do_2; do_2 = (index >= 0) {
 		index = String_indexOf_int_int(string_, 46, lastIndex)
 		var term string = String_substring(string_, lastIndex, func() int32 {
@@ -44,10 +44,10 @@ func QualifiedName_of(string_ string) *QualifiedName {
 			}
 			return index
 		}())
-		builder.add(strobj_(RhinoStringPool_addOrGet(term)))
+		builder.add(RhinoStringPool_addOrGet(term))
 		lastIndex = (index + 1)
 	}
-	var terms ImmutableListOf[string] = builder.build()
+	var terms *ImmutableList[string] = builder.build()
 	return new_QualifiedName_StringListQname(terms, terms.size()).up_QualifiedName()
 }
 
@@ -60,17 +60,17 @@ func (this *QualifiedName) getRoot() string {
 }
 
 func (this *QualifiedName) components_impl() IterableOf[string] {
-	var components ImmutableList_BuilderOf[string] = ImmutableList_builder()
+	var components *ImmutableList_Builder[string] = immutableListBuilder_(tc_string)
 	this.buildComponents(components)
-	return icast_Iterable(obj_(components.build()))
+	return icast_Iterable(obj_(components.build().asImm()))
 }
 
-func (this *QualifiedName) buildComponents(builder ImmutableList_BuilderOf[string]) {
+func (this *QualifiedName) buildComponents(builder *ImmutableList_Builder[string]) {
 	var owner *QualifiedName = this.getOwner()
 	if owner != nil {
 		owner.buildComponents(builder)
 	}
-	builder.add(strobj_(this.getComponent()))
+	builder.add(this.getComponent())
 }
 
 func (this *QualifiedName) join_impl() OptionalOf[string] {
@@ -136,7 +136,7 @@ func QualifiedName_clinit() {
 
 type QualifiedName_StringListQname struct {
 	QualifiedName
-	terms ImmutableListOf[string]
+	terms *ImmutableList[string]
 	size_ int32
 }
 
@@ -147,13 +147,13 @@ func (this *QualifiedName_StringListQname) up_QualifiedName() *QualifiedName {
 	return &this.QualifiedName
 }
 
-func (this *QualifiedName_StringListQname) init_QualifiedName_StringListQname(terms ImmutableListOf[string], size int32) {
+func (this *QualifiedName_StringListQname) init_QualifiedName_StringListQname(terms *ImmutableList[string], size int32) {
 	this.QualifiedName.init_QualifiedName()
 	this.terms = terms
 	this.size_ = size
 }
 
-func new_QualifiedName_StringListQname(terms ImmutableListOf[string], size int32) *QualifiedName_StringListQname {
+func new_QualifiedName_StringListQname(terms *ImmutableList[string], size int32) *QualifiedName_StringListQname {
 	this := &QualifiedName_StringListQname{}
 	this.self_ = this
 	this.init_QualifiedName_StringListQname(terms, size)
@@ -170,7 +170,7 @@ func (this *QualifiedName_StringListQname) getOwner_impl() *QualifiedName {
 }
 
 func (this *QualifiedName_StringListQname) getComponent_impl() string {
-	return str_(this.terms.get((this.size_ - 1)))
+	return this.terms.get((this.size_ - 1))
 }
 
 func (this *QualifiedName_StringListQname) isSimple_impl() bool {
@@ -182,12 +182,12 @@ func (this *QualifiedName_StringListQname) appendTo_impl(sb *strBuilder_, separa
 		if i > 0 {
 			sb.append_Object(separator)
 		}
-		sb.append(str_(this.terms.get(i)))
+		sb.append(this.terms.get(i))
 	}
 }
 
 func (this *QualifiedName_StringListQname) components_impl() IterableOf[string] {
-	return Iterable(this.terms.subList(0, this.size_))
+	return Iterable(this.terms.asImm().subList(0, this.size_))
 }
 
 func (this *QualifiedName_StringListQname) getComponentCount_impl() int32 {
@@ -197,7 +197,7 @@ func (this *QualifiedName_StringListQname) getComponentCount_impl() int32 {
 func (this *QualifiedName_StringListQname) matches_impl(n Node) bool {
 	var pos int32 = (this.size_ - 1)
 	for (pos > 0) && n.isGetProp() {
-		if !RhinoStringPool_uncheckedEquals(n.getString(), str_(this.terms.get(pos))) {
+		if !RhinoStringPool_uncheckedEquals(n.getString(), this.terms.get(pos)) {
 			return false
 		}
 		pos--
@@ -206,7 +206,7 @@ func (this *QualifiedName_StringListQname) matches_impl(n Node) bool {
 	if pos > 0 {
 		return false
 	}
-	var term string = str_(this.terms.get(0))
+	var term string = this.terms.get(0)
 	return func() bool {
 		switch n.ns_().token {
 		case tokOrd1_NAME, tokOrd1_MEMBER_FUNCTION_DEF:

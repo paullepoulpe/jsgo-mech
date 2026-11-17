@@ -89,10 +89,10 @@ func CheckProvidesSorted_formatProvide(namespace string) string {
 func (this *CheckProvidesSorted) checkCanonical(t *NodeTraversal) {
 	var sortedProvides []string = sliceFrom_(tc_string, Collection(sliceView_(tc_string, this.originalProvides)))
 	Collections_sort(sliceView_(tc_string, sortedProvides))
-	var canonicalProvides ImmutableListOf[string] = ImmutableList_copyOf(new_LinkedHashSet_Collection(Collection(sliceView_(tc_string, sortedProvides))))
-	if !equalsVia_(sliceView_(tc_string, this.originalProvides), obj_(canonicalProvides)) {
+	var canonicalProvides *ImmutableList[string] = immutableListCopyOf_(tc_string, new_LinkedHashSet_Collection(Collection(sliceView_(tc_string, sortedProvides))))
+	if !equalsVia_(sliceView_(tc_string, this.originalProvides), obj_(canonicalProvides.asImm())) {
 		this.needsFixField = true
-		this.replacement_ = Optional_of[string](String_join_s("\n", Iterables_transform(icast_Iterable(obj_(canonicalProvides)), lambda_CheckProvidesSorted_checkCanonical_1_)))
+		this.replacement_ = Optional_of[string](String_join_s("\n", Iterables_transform(icast_Iterable(obj_(canonicalProvides.asImm())), lambda_CheckProvidesSorted_checkCanonical_1_)))
 		if this.mode_ == CheckProvidesSorted_Mode_COLLECT_AND_REPORT {
 			t.report(this.firstNode, CheckProvidesSorted_PROVIDES_NOT_SORTED, []string{this.replacement_.orElse("null")})
 		}

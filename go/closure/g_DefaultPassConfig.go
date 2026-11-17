@@ -368,14 +368,14 @@ func (this *DefaultPassConfig) finit_DefaultPassConfig() {
 		return new_CoalesceVariableNames(compiler, this.options_.shouldGeneratePseudoNames())
 	})).build()
 	this.postNormalizePeephole = PassFactory_builder().setName(PassNames_POST_NORMALIZE_PEEPHOLE).setInternalFactory(newFuncObj_(func(compiler *AbstractCompiler) CompilerPass {
-		var optimizations ImmutableList_BuilderOf[*AbstractPeepholeOptimization] = ImmutableList_builder()
+		var optimizations *ImmutableList_Builder[*AbstractPeepholeOptimization] = immutableListBuilder_(tc_p_AbstractPeepholeOptimization)
 		if this.options_.shouldCollapseVariableDeclarations() {
-			optimizations.add(obj_(new_ExploitAssigns()))
+			optimizations.add(to_AbstractPeepholeOptimization(obj_(new_ExploitAssigns())))
 		}
 		if this.options_.shouldOptimizeLetAndConst() {
-			optimizations.add(obj_(new_OptimizeLetAndConstPeephole(this.options_.shouldTreatGlobalScopeAsIsolated())))
+			optimizations.add(to_AbstractPeepholeOptimization(obj_(new_OptimizeLetAndConstPeephole(this.options_.shouldTreatGlobalScopeAsIsolated()))))
 		}
-		return new_PeepholeOptimizationsPass(compiler, PassNames_POST_NORMALIZE_PEEPHOLE, icast_List(obj_(optimizations.build())))
+		return new_PeepholeOptimizationsPass(compiler, PassNames_POST_NORMALIZE_PEEPHOLE, icast_List(obj_(optimizations.build().asImm())))
 	})).build()
 	this.collapseVariableDeclarations = PassFactory_builder().setName(PassNames_COLLAPSE_VARIABLE_DECLARATIONS).setInternalFactory(lambda_DefaultPassConfig_finit_DefaultPassConfig_56_).build()
 	this.extractPrototypeMemberDeclarations = PassFactory_builder().setName(PassNames_EXTRACT_PROTOTYPE_MEMBER_DECLARATIONS).setInternalFactory(newFuncObj_(func(compiler *AbstractCompiler) CompilerPass {
@@ -400,7 +400,7 @@ func (this *DefaultPassConfig) finit_DefaultPassConfig() {
 		return new_AliasStrings(compiler, compiler.getChunkGraph(), this.options_.shouldOutputJsStringUsage(), this.options_.getAliasStringsMode())
 	})).build()
 	this.ambiguateProperties = PassFactory_builder().setName(PassNames_AMBIGUATE_PROPERTIES).setInternalFactory(newFuncObj_(func(compiler *AbstractCompiler) CompilerPass {
-		return new_AmbiguateProperties(compiler, icast_Set(obj_(this.options_.getPropertyReservedNamingFirstChars())), icast_Set(obj_(this.options_.getPropertyReservedNamingNonFirstChars())), tsetFrom_(tc_string, compiler.getExternProperties(), true))
+		return new_AmbiguateProperties(compiler, icast_Set(obj_(this.options_.getPropertyReservedNamingFirstChars())), icast_Set(obj_(this.options_.getPropertyReservedNamingNonFirstChars().asImm())), tsetFrom_(tc_string, compiler.getExternProperties().asImm(), true))
 	})).setPreconditionCheck(lambda_DefaultPassConfig_finit_DefaultPassConfig_61_).build()
 	this.markUnnormalized = PassFactory_builder().setName("markUnnormalized").setInternalFactory(newFuncObj_(func(compiler *AbstractCompiler) CompilerPass {
 		return new_DefaultPassConfig_10(this, compiler)
@@ -511,7 +511,7 @@ var lambda_DefaultPassConfig_finit_DefaultPassConfig_8_ = newFuncObj_(func(compi
 
 // lambda_DefaultPassConfig_finit_DefaultPassConfig_9_ is a lambda of DefaultPassConfig_finit_DefaultPassConfig that captures nothing (post-flip step lambdas).
 var lambda_DefaultPassConfig_finit_DefaultPassConfig_9_ = newFuncObj_(func(compiler *AbstractCompiler) CompilerPass {
-	return new_InjectRuntimeLibraries(compiler, ImmutableSet_copyOf(icast_Collection(obj_(compiler.getOptions().getForceLibraryInjectionList()))))
+	return new_InjectRuntimeLibraries(compiler, immutableSetCopyOf_(tc_string, icast_Collection(obj_(compiler.getOptions().getForceLibraryInjectionList().asImm()))))
 })
 
 // lambda_DefaultPassConfig_finit_DefaultPassConfig_10_ is a lambda of DefaultPassConfig_finit_DefaultPassConfig that captures nothing (post-flip step lambdas).
@@ -1603,7 +1603,7 @@ func DefaultPassConfig_combineChecks(compiler *AbstractCompiler, callbacks []Nod
 
 func (this *DefaultPassConfig) createProcessDefines(mode ProcessDefines_Mode) *PassFactory {
 	return PassFactory_builder().setName(("processDefines_" + sstr_(mode.name()))).setInternalFactory(newFuncObj_(func(compiler *AbstractCompiler) CompilerPass {
-		return icast_CompilerPass(obj_(new_ProcessDefines_Builder(compiler).putReplacements(DefaultPassConfig_getAdditionalReplacements(this.options_)).putReplacements(tmapFrom_(tc_string, tc_Node, this.options_.getDefineReplacements(), true)).setMode(mode).setRecognizeClosureDefines(compiler.getOptions().getClosurePass()).setEnableZonesDefineName(this.options_.getEnableZonesDefineName()).setZoneInputPattern(this.options_.getZoneInputPattern()).setUnknownDefinesToIgnore(this.options_.getUnknownDefinesToIgnore()).build()))
+		return icast_CompilerPass(obj_(new_ProcessDefines_Builder(compiler).putReplacements(DefaultPassConfig_getAdditionalReplacements(this.options_)).putReplacements(tmapFrom_(tc_string, tc_Node, this.options_.getDefineReplacements().asImm(), true)).setMode(mode).setRecognizeClosureDefines(compiler.getOptions().getClosurePass()).setEnableZonesDefineName(this.options_.getEnableZonesDefineName()).setZoneInputPattern(this.options_.getZoneInputPattern()).setUnknownDefinesToIgnore(this.options_.getUnknownDefinesToIgnore()).build()))
 	})).build()
 }
 
@@ -1614,7 +1614,7 @@ func (this *DefaultPassConfig) runVariableRenaming(compiler *AbstractCompiler, p
 		reservedNames.add(this.options_.getRenamePrefixNamespace().get())
 	}
 	reservedNames.asSet().addAll(Collection(compiler.getExportedNames().asSet()))
-	reservedNames.asSet().addAll(icast_Collection(obj_(ParserRunner_getReservedVars())))
+	reservedNames.asSet().addAll(icast_Collection(obj_(ParserRunner_getReservedVars().asImm())))
 	var rn *RenameVars = new_RenameVars(compiler, this.options_.getRenamePrefix(), (this.options_.getVariableRenaming() == VariableRenamingPolicy_LOCAL), this.options_.shouldGeneratePseudoNames(), this.options_.shouldPreferStableNames(), prevVariableMap, reservedChars, reservedNames, this.options_.getNameGenerator())
 	rn.process_2(externs, root)
 	return rn.getVariableMap()
@@ -1628,7 +1628,7 @@ func (this *DefaultPassConfig) createGatherExternProperties(mode GatherExternPro
 
 func (this *DefaultPassConfig) getCustomPasses(executionTime CustomPassExecutionTime) *PassFactory {
 	return PassFactory_builder().setName("runCustomPasses").setInternalFactory(newFuncObj_(func(compiler *AbstractCompiler) CompilerPass {
-		return DefaultPassConfig_runInSerial(icast_Collection(obj_(this.options_.getCustomPassesAt(executionTime))))
+		return DefaultPassConfig_runInSerial(icast_Collection(obj_(this.options_.getCustomPassesAt(executionTime).asImm())))
 	})).build()
 }
 
@@ -1759,7 +1759,7 @@ func (this *DefaultPassConfig_3) process_2(externs Node, jsRoot Node) {
 			_ = builder
 			builder.add(strobj_(cssName))
 		}})
-	}, setImm_(tc_string, this.outer_.options_.getCssRenamingSkiplist()))
+	}, setImm_(tc_string, this.outer_.options_.getCssRenamingSkiplist().asImm()))
 	pass.process_2(externs, jsRoot)
 	this.cap_compiler.setCssNames(func() *TSet[string] {
 		if cssNames.isPresent() {
@@ -1902,7 +1902,7 @@ func new_DefaultPassConfig_9(outer_ *DefaultPassConfig, cap_compiler *AbstractCo
 }
 
 func (this *DefaultPassConfig_9) process_2(externs Node, root Node) {
-	var pass *ReplaceStrings = new_ReplaceStrings(this.cap_compiler, this.outer_.options_.getReplaceStringsPlaceholderToken(), sliceImm_(tc_string, this.outer_.options_.getReplaceStringsFunctionDescriptions()))
+	var pass *ReplaceStrings = new_ReplaceStrings(this.cap_compiler, this.outer_.options_.getReplaceStringsPlaceholderToken(), sliceImm_(tc_string, this.outer_.options_.getReplaceStringsFunctionDescriptions().asImm()))
 	pass.process_2(externs, root)
 	this.cap_compiler.setStringMap(pass.getStringMap())
 }
@@ -1948,7 +1948,7 @@ func new_DefaultPassConfig_11(outer_ *DefaultPassConfig, cap_compiler *AbstractC
 }
 
 func (this *DefaultPassConfig_11) process_2(externs Node, root Node) {
-	var rprop *RenameProperties = new_RenameProperties_AbstractCompiler_boolean_VariableMap_Set_Set_NameGenerator(this.cap_compiler, this.outer_.options_.shouldGeneratePseudoNames(), this.cap_prevPropertyMap, icast_Set(obj_(this.outer_.options_.getPropertyReservedNamingFirstChars())), icast_Set(obj_(this.outer_.options_.getPropertyReservedNamingNonFirstChars())), this.outer_.options_.getNameGenerator())
+	var rprop *RenameProperties = new_RenameProperties_AbstractCompiler_boolean_VariableMap_Set_Set_NameGenerator(this.cap_compiler, this.outer_.options_.shouldGeneratePseudoNames(), this.cap_prevPropertyMap, icast_Set(obj_(this.outer_.options_.getPropertyReservedNamingFirstChars())), icast_Set(obj_(this.outer_.options_.getPropertyReservedNamingNonFirstChars().asImm())), this.outer_.options_.getNameGenerator())
 	rprop.process_2(externs, root)
 	this.cap_compiler.setPropertyMap(rprop.getPropertyMap())
 }

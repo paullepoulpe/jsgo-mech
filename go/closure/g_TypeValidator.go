@@ -82,8 +82,8 @@ func (this *TypeValidator) expectAnyObject(n Node, type_ *JSType, msg string) {
 
 func (this *TypeValidator) expectAutoboxesToIterable(n Node, type_ *JSType, msg string) bool {
 	if type_.isUnionType() {
-		for _, el_1 := range immElems_(type_.toMaybeUnionType().getAlternates()) {
-			var alt *JSType = to_JSType(el_1)
+		for el_1 := range type_.toMaybeUnionType().getAlternates().All() {
+			var alt *JSType = el_1
 			alt = func() *JSType {
 				if alt.isBoxableScalar() {
 					return alt.autoboxesTo()
@@ -238,8 +238,8 @@ func (this *TypeValidator) expectNotNullOrUndefined(t *NodeTraversal, n Node, ty
 
 func TypeValidator_containsForwardDeclaredUnresolvedName(type_ *JSType) bool {
 	if type_.isUnionType() {
-		for _, el_1 := range immElems_(type_.toMaybeUnionType().getAlternates()) {
-			var alt *JSType = to_JSType(el_1)
+		for el_1 := range type_.toMaybeUnionType().getAlternates().All() {
+			var alt *JSType = el_1
 			if TypeValidator_containsForwardDeclaredUnresolvedName(alt) {
 				return true
 			}
@@ -448,20 +448,20 @@ func (this *TypeValidator) expectAllInterfaceProperties(n Node, type_ *FunctionT
 	for implemented := range elemsBy_(type_.getAllImplementedInterfaces(), to_ObjectType) {
 		this.expectInterfaceProperties(n, instance, implemented)
 	}
-	for _, el := range immElems_(type_.getExtendedInterfaces()) {
-		extended := to_ObjectType(el)
+	for el := range type_.getExtendedInterfaces().All() {
+		extended := el
 		this.expectInterfaceProperties(n, instance, extended)
 	}
 }
 
 func (this *TypeValidator) expectInterfaceProperties(n Node, instance *ObjectType, ancestorInterface *ObjectType) {
-	for _, el := range immElems_(ancestorInterface.getOwnPropertyKeys()) {
-		prop := icast_Property_Key(el)
+	for el := range ancestorInterface.getOwnPropertyKeys().All() {
+		prop := el
 		this.expectInterfaceProperty(n, instance, ancestorInterface, prop)
 	}
 	if ancestorInterface.getImplicitPrototype() != nil {
-		for _, el2 := range immElems_(ancestorInterface.getImplicitPrototype().getOwnPropertyKeys()) {
-			prop := icast_Property_Key(el2)
+		for el2 := range ancestorInterface.getImplicitPrototype().getOwnPropertyKeys().All() {
+			prop := el2
 			this.expectInterfaceProperty(n, instance, ancestorInterface, prop)
 		}
 	}
@@ -528,8 +528,8 @@ func (this *TypeValidator) expectAbstractMethodsImplemented(n Node, ctorType *Fu
 	}
 	for (currSuperCtor != nil) && currSuperCtor.isAbstract() {
 		var superType *ObjectType = currSuperCtor.getInstanceType()
-		for _, el := range immElems_(currSuperCtor.getPrototype().getOwnPropertyKeys()) {
-			prop := icast_Property_Key(el)
+		for el := range currSuperCtor.getPrototype().getOwnPropertyKeys().All() {
+			prop := el
 			var maybeAbstractMethod *FunctionType = superType.findPropertyTypeKey(prop).toMaybeFunctionType()
 			if ((maybeAbstractMethod != nil) && maybeAbstractMethod.isAbstract()) && !abstractMethodSuperTypeMap.containsKey(prop) {
 				abstractMethodSuperTypeMap.put(prop, superType)
@@ -737,8 +737,8 @@ func (this *TypeValidator_WellFormedTemplatizedTypeVerifier) caseEnumElementType
 }
 
 func (this *TypeValidator_WellFormedTemplatizedTypeVerifier) caseFunctionType_impl(type_ *FunctionType) any {
-	for _, el_1 := range immElems_(type_.getParameters()) {
-		var param *FunctionType_Parameter = cast_[*FunctionType_Parameter](el_1)
+	for el_1 := range type_.getParameters().All() {
+		var param *FunctionType_Parameter = el_1
 		if !unbox_[bool](param.getJSType().visit(this)) {
 			return any(bool(false))
 		}
@@ -751,10 +751,10 @@ func (this *TypeValidator_WellFormedTemplatizedTypeVerifier) caseNamedType_impl(
 }
 
 func (this *TypeValidator_WellFormedTemplatizedTypeVerifier) caseUnionType_impl(type_ *UnionType) any {
-	var alternates ImmutableListOf[*JSType] = type_.getAlternates()
+	var alternates *ImmutableList[*JSType] = type_.getAlternates()
 	var alternateCount int32 = alternates.size()
 	for i := int32(0); i < alternateCount; i++ {
-		var alternative *JSType = to_JSType(alternates.get(i))
+		var alternative *JSType = alternates.get(i)
 		if !unbox_[bool](alternative.visit(this)) {
 			return any(bool(false))
 		}
@@ -763,11 +763,11 @@ func (this *TypeValidator_WellFormedTemplatizedTypeVerifier) caseUnionType_impl(
 }
 
 func (this *TypeValidator_WellFormedTemplatizedTypeVerifier) caseTemplatizedType_impl(type_ *TemplatizedType) any {
-	var referencedTemplates ImmutableListOf[*TemplateType] = type_.getReferencedType().getTemplateTypeMap().getTemplateKeys()
+	var referencedTemplates *ImmutableList[*TemplateType] = type_.getReferencedType().getTemplateTypeMap().getTemplateKeys()
 	for i := int32(0); i < type_.getTemplateTypes().size(); i++ {
-		var assignedType *JSType = to_JSType(type_.getTemplateTypes().get(i))
+		var assignedType *JSType = type_.getTemplateTypes().get(i)
 		if i < referencedTemplates.size() {
-			var templateType *TemplateType = cast_[*TemplateType](referencedTemplates.get(i))
+			var templateType *TemplateType = referencedTemplates.get(i)
 			if !assignedType.isSubtype(templateType.getBound()) {
 				this.outer_.registerMismatchAndReport(assignedType, templateType.getBound(), JSError_make_Node_DiagnosticType_StringArr(this.node_, RhinoErrorReporter_BOUNDED_GENERIC_TYPE_ERROR, []string{assignedType.toString(), templateType.getReferenceName().orElse("null"), templateType.getBound().toString()}))
 				return any(bool(false))

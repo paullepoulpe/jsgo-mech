@@ -194,7 +194,7 @@ func (this *SymbolTable) getSymbolForName(source Node, name OptionalOf[string]) 
 		return nil
 	}
 	if scope.isModuleScope() {
-		var moduleNameWithDot string = (sstr_(str_(Iterables_getFirst(icast_Iterable(obj_(cast_[*ModuleMetadataMap_ModuleMetadata](Map_get_s(this.compiler_.getModuleMetadataMap().getModulesByPath(), scope.getRootNode().getSourceFileName())).googNamespaces())), nil))) + ".")
+		var moduleNameWithDot string = (sstr_(str_(Iterables_getFirst(icast_Iterable(obj_(this.compiler_.getModuleMetadataMap().getModulesByPath().get(scope.getRootNode().getSourceFileName()).googNamespaces())), nil))) + ".")
 		if strings.HasPrefix(name.get(), moduleNameWithDot) {
 			name = Optional_of[string](String_substring_int(name.get(), String_length(moduleNameWithDot)))
 		}
@@ -204,25 +204,25 @@ func (this *SymbolTable) getSymbolForName(source Node, name OptionalOf[string]) 
 
 func (this *SymbolTable) getAllSymbolsForType(type_ *JSType) *TList[*SymbolTable_Symbol] {
 	if type_ == nil {
-		return tlistImm_(tc_p_SymbolTable_Symbol, ImmutableList_of())
+		return immutableListOf_(tc_p_SymbolTable_Symbol)
 	}
 	if type_.isUnionType() {
-		var result ImmutableList_BuilderOf[*SymbolTable_Symbol] = ImmutableList_builder()
-		for _, el := range immElems_(type_.toMaybeUnionType().getAlternates()) {
-			alt := to_JSType(el)
+		var result *ImmutableList_Builder[*SymbolTable_Symbol] = immutableListBuilder_(tc_p_SymbolTable_Symbol)
+		for el := range type_.toMaybeUnionType().getAlternates().All() {
+			alt := el
 			var altSym *SymbolTable_Symbol = this.getSymbolForTypeHelper(alt, true)
 			if altSym != nil {
-				result.add(obj_(altSym))
+				result.add(altSym)
 			}
 		}
-		return tlistImm_(tc_p_SymbolTable_Symbol, result.build())
+		return result.build()
 	}
 	var result *SymbolTable_Symbol = this.getSymbolForTypeHelper(type_, true)
 	return func() *TList[*SymbolTable_Symbol] {
 		if result == nil {
-			return tlistImm_(tc_p_SymbolTable_Symbol, ImmutableList_of())
+			return immutableListOf_(tc_p_SymbolTable_Symbol)
 		}
-		return tlistImm_(tc_p_SymbolTable_Symbol, ImmutableList_of_Object(obj_(result)))
+		return immutableListOf_(tc_p_SymbolTable_Symbol, result)
 	}()
 }
 
@@ -687,7 +687,7 @@ func (this *SymbolTable) fillJSDocInfo(externs Node, root Node) {
 func (this *SymbolTable) fillSymbolVisibility(externs Node, root Node) {
 	var collectPass *CollectFileOverviewVisibility = new_CollectFileOverviewVisibility(this.compiler_)
 	collectPass.process_2(externs, root)
-	var visibilityMap ImmutableMapOf[StaticSourceFile, JSDocInfo_Visibility] = collectPass.getFileOverviewVisibilityMap()
+	var visibilityMap *ImmutableMap[StaticSourceFile, JSDocInfo_Visibility] = collectPass.getFileOverviewVisibilityMap()
 	NodeTraversal_traverseRoots(this.compiler_, new_SymbolTable_VisibilityCollector(this, visibilityMap), externs, root)
 }
 
@@ -1674,8 +1674,8 @@ func (this *SymbolTable_JSDocInfoCollector) isNativeSourcelessType(name string) 
 	}()
 }
 
-func (this *SymbolTable_JSDocInfoCollector) visitTypeNode(templateTypeNames ImmutableMapOf[string, *JSTypeExpression], scope *SymbolTable_SymbolScope, n Node) {
-	if (n.isStringLit() && !this.isNativeSourcelessType(n.getString())) && !Map_containsKey_s(templateTypeNames, n.getString()) {
+func (this *SymbolTable_JSDocInfoCollector) visitTypeNode(templateTypeNames *ImmutableMap[string, *JSTypeExpression], scope *SymbolTable_SymbolScope, n Node) {
+	if (n.isStringLit() && !this.isNativeSourcelessType(n.getString())) && !templateTypeNames.containsKey(n.getString()) {
 		var symbol *SymbolTable_Symbol = this.lookupPossiblyDottedName(scope, n.getString())
 		if symbol != nil {
 			var ref Node = n
@@ -1726,7 +1726,7 @@ func (this *SymbolTable_JSDocInfoCollector) lookupPossiblyDottedName(scope *Symb
 type SymbolTable_VisibilityCollector struct {
 	NodeTraversal_AbstractPostOrderCallback
 	outer_            *SymbolTable
-	fileVisibilityMap ImmutableMapOf[StaticSourceFile, JSDocInfo_Visibility]
+	fileVisibilityMap *ImmutableMap[StaticSourceFile, JSDocInfo_Visibility]
 }
 
 func (this *SymbolTable_VisibilityCollector) up_NodeTraversal_AbstractPostOrderCallback() *NodeTraversal_AbstractPostOrderCallback {
@@ -1736,12 +1736,12 @@ func (this *SymbolTable_VisibilityCollector) up_NodeTraversal_AbstractPostOrderC
 	return &this.NodeTraversal_AbstractPostOrderCallback
 }
 
-func (this *SymbolTable_VisibilityCollector) init_SymbolTable_VisibilityCollector(fileVisibilityMap ImmutableMapOf[StaticSourceFile, JSDocInfo_Visibility]) {
+func (this *SymbolTable_VisibilityCollector) init_SymbolTable_VisibilityCollector(fileVisibilityMap *ImmutableMap[StaticSourceFile, JSDocInfo_Visibility]) {
 	this.NodeTraversal_AbstractPostOrderCallback.init_NodeTraversal_AbstractPostOrderCallback()
 	this.fileVisibilityMap = fileVisibilityMap
 }
 
-func new_SymbolTable_VisibilityCollector(outer_ *SymbolTable, fileVisibilityMap ImmutableMapOf[StaticSourceFile, JSDocInfo_Visibility]) *SymbolTable_VisibilityCollector {
+func new_SymbolTable_VisibilityCollector(outer_ *SymbolTable, fileVisibilityMap *ImmutableMap[StaticSourceFile, JSDocInfo_Visibility]) *SymbolTable_VisibilityCollector {
 	this := &SymbolTable_VisibilityCollector{}
 	this.self_ = this
 	this.outer_ = outer_

@@ -99,8 +99,8 @@ func JSChunkGraph_makeWeakChunk(chunksInDepOrder ListOf[*JSChunk]) ListOf[*JSChu
 		var misplacedStrongFiles *TList[string] = newTList_(tc_string)
 		for chunk := range elemsAs_[*JSChunk](chunksInDepOrder) {
 			var isWeakChunk bool = (chunk.getName() == JSChunk_WEAK_CHUNK_NAME)
-			for _, el := range immElems_(chunk.getInputs()) {
-				input := cast_[*CompilerInput](el)
+			for el := range chunk.getInputs().All() {
+				input := el
 				if isWeakChunk && !input.getSourceFile().isWeak() {
 					misplacedStrongFiles.add(input.getSourceFile().getName())
 				} else if !isWeakChunk && input.getSourceFile().isWeak() {
@@ -160,7 +160,7 @@ func (this *JSChunkGraph) getAllInputs() IterableOf[*CompilerInput] {
 }
 
 // lambda_JSChunkGraph_getAllInputs_1_ is a lambda of JSChunkGraph_getAllInputs that captures nothing (post-flip step lambdas).
-var lambda_JSChunkGraph_getAllInputs_1_ = &Function_base_fn{func(p0 any) any { return obj_(cast_[*JSChunk](p0).getInputs()) }}
+var lambda_JSChunkGraph_getAllInputs_1_ = &Function_base_fn{func(p0 any) any { return obj_(cast_[*JSChunk](p0).getInputs().asImm()) }}
 
 func (this *JSChunkGraph) getInputCount() int32 {
 	var count int32 = 0
@@ -220,8 +220,8 @@ func (this *JSChunkGraph) toJson() *SimpleJsonValue {
 		}
 		var inputs *SimpleJsonValue = SimpleJsonValue_newArray()
 		Map_put_s(node.members(), "inputs", obj_(inputs))
-		for _, el := range immElems_(chunk.getInputs()) {
-			input := cast_[*CompilerInput](el)
+		for el := range chunk.getInputs().All() {
+			input := el
 			inputs.elements().add(obj_(SimpleJsonValue_ofString(input.getSourceFile().getName())))
 		}
 		chunks.elements().add(obj_(node))
@@ -327,16 +327,16 @@ func JSChunkGraph_moveMarkedWeakSources(weakChunk *JSChunk, inputs IterableOf[*C
 }
 
 func (this *JSChunkGraph) manageDependencies(compiler *AbstractCompiler, dependencyOptions *DependencyOptions) *Outcome_base[*JSChunkGraph_DependencyManagementResult] {
-	var originalInputs ImmutableListOf[*CompilerInput] = ImmutableList_copyOf_Iterable(this.getAllInputs())
-	var sorter *SortedDependencies = new_SortedDependencies(icast_List(obj_(originalInputs)))
+	var originalInputs *ImmutableList[*CompilerInput] = immutableListCopyOf_(tc_p_CompilerInput, this.getAllInputs())
+	var sorter *SortedDependencies = new_SortedDependencies(icast_List(obj_(originalInputs.asImm())))
 	var entryPointInputsRes *Outcome_base[Set] = this.createEntryPointInputs(compiler, dependencyOptions, this.getAllInputs(), sorter)
 	if entryPointInputsRes.isErr() {
 		return Outcome_base_err[*JSChunkGraph_DependencyManagementResult](entryPointInputsRes.error())
 	}
 	var entryPointInputs SetOf[*CompilerInput] = entryPointInputsRes.get()
 	var inputsByProvide map[string]SetOf[*CompilerInput] = map[string]SetOf[*CompilerInput]{}
-	for _, el := range immElems_(originalInputs) {
-		input := cast_[*CompilerInput](el)
+	for el := range originalInputs.All() {
+		input := el
 		for _, el2 := range immElems_(input.getKnownProvides()) {
 			provide := str_(el2)
 			mapComputeIfAbsent_f(tc_string, tc_SetOf_p_CompilerInput_, inputsByProvide, provide, lambda_JSChunkGraph_manageDependencies_1_)
@@ -346,24 +346,24 @@ func (this *JSChunkGraph) manageDependencies(compiler *AbstractCompiler, depende
 		mapComputeIfAbsent_f(tc_string, tc_SetOf_p_CompilerInput_, inputsByProvide, chunkName, lambda_JSChunkGraph_manageDependencies_2_)
 		inputsByProvide[chunkName].add(obj_(input))
 	}
-	for _, el3 := range immElems_(originalInputs) {
-		input := cast_[*CompilerInput](el3)
-		for _, el4 := range immElems_(input.getDynamicRequires()) {
-			require := str_(el4)
+	for el3 := range originalInputs.All() {
+		input := el3
+		for el4 := range input.getDynamicRequires().All() {
+			require := el4
 			if has_(inputsByProvide, require) {
 				entryPointInputs.addAll(inputsByProvide[require])
 			}
 		}
 	}
-	for _, el5 := range immElems_(originalInputs) {
-		input := cast_[*CompilerInput](el5)
+	for el5 := range originalInputs.All() {
+		input := el5
 		for _, require := range input.getRequireDynamicImports() {
 			if has_(inputsByProvide, require) {
 				entryPointInputs.addAll(inputsByProvide[require])
 			}
 		}
 	}
-	var absoluteOrder ImmutableListOf[*CompilerInput] = sorter.getStrongDependenciesOf(icast_List(obj_(originalInputs)), dependencyOptions.shouldSort())
+	var absoluteOrder *ImmutableList[*CompilerInput] = tlistImm_(tc_p_CompilerInput, sorter.getStrongDependenciesOf(icast_List(obj_(originalInputs.asImm())), dependencyOptions.shouldSort()))
 	var entryPointInputsPerChunk *SimpleListMultimap[*JSChunk, *CompilerInput] = SimpleListMultimap_create[*JSChunk, *CompilerInput]()
 	for input := range elemsAs_[*CompilerInput](entryPointInputs) {
 		var chunk *JSChunk = input.getChunk()
@@ -381,7 +381,7 @@ func (this *JSChunkGraph) manageDependencies(compiler *AbstractCompiler, depende
 		var transitiveClosure *TList[*CompilerInput]
 		if dependencyOptions.shouldSort() && dependencyOptions.shouldPrune() {
 			transitiveClosure = newTList_(tc_p_CompilerInput)
-			var inputsNotYetReached map[*CompilerInput]struct{} = setFrom_(tc_p_CompilerInput, icast_Collection(obj_(originalInputs)))
+			var inputsNotYetReached map[*CompilerInput]struct{} = setFrom_(tc_p_CompilerInput, icast_Collection(obj_(originalInputs.asImm())))
 			for entryPoint := range elemsAs_[*CompilerInput](entryPointInputsPerChunk.get(obj_(chunk))) {
 				transitiveClosure.addAllT(this.getDepthFirstDependenciesOf(entryPoint, inputsNotYetReached, inputsByProvide))
 			}
@@ -407,16 +407,16 @@ func (this *JSChunkGraph) manageDependencies(compiler *AbstractCompiler, depende
 		}
 	}
 	if !(dependencyOptions.shouldSort() && dependencyOptions.shouldPrune()) || entryPointInputsPerChunk.isEmpty() {
-		orderedInputs = icast_List(obj_(absoluteOrder))
+		orderedInputs = icast_List(obj_(absoluteOrder.asImm()))
 	}
 	var weakChunk *JSChunk = this.getChunkByName(JSChunk_WEAK_CHUNK_NAME)
 	if weakChunk == nil {
 		panic(new_NullPointerException_0().self())
 	}
 	if dependencyOptions.shouldPrune() {
-		var weakInputs ImmutableListOf[*CompilerInput] = sorter.getSortedWeakDependenciesOf(orderedInputs)
-		for _, el6 := range immElems_(weakInputs) {
-			i := cast_[*CompilerInput](el6)
+		var weakInputs *ImmutableList[*CompilerInput] = tlistImm_(tc_p_CompilerInput, sorter.getSortedWeakDependenciesOf(orderedInputs))
+		for el6 := range weakInputs.All() {
+			i := el6
 			if i.getChunk() != nil {
 				panic(new_IllegalStateException_0().self())
 			}
@@ -425,7 +425,7 @@ func (this *JSChunkGraph) manageDependencies(compiler *AbstractCompiler, depende
 			weakChunk.addCompilerInput(i)
 		}
 	} else {
-		JSChunkGraph_moveMarkedWeakSources(weakChunk, icast_Iterable(obj_(originalInputs)))
+		JSChunkGraph_moveMarkedWeakSources(weakChunk, icast_Iterable(obj_(originalInputs.asImm())))
 	}
 	for input := range elemsAs_[*CompilerInput](orderedInputs) {
 		var chunk *JSChunk = input.getChunk()
@@ -433,7 +433,7 @@ func (this *JSChunkGraph) manageDependencies(compiler *AbstractCompiler, depende
 			chunk.addCompilerInput(input)
 		}
 	}
-	return Outcome_base_ok_Object[*JSChunkGraph_DependencyManagementResult](new_JSChunkGraph_DependencyManagementResult(ImmutableList_copyOf(Collection(orderedInputs)), sorter, ImmutableSet_copyOf(Collection(entryPointInputs))))
+	return Outcome_base_ok_Object[*JSChunkGraph_DependencyManagementResult](new_JSChunkGraph_DependencyManagementResult(immutableListCopyOf_(tc_p_CompilerInput, Collection(orderedInputs)), sorter, immutableSetCopyOf_(tc_p_CompilerInput, Collection(entryPointInputs))))
 }
 
 // lambda_JSChunkGraph_manageDependencies_1_ is a lambda of JSChunkGraph_manageDependencies that captures nothing (post-flip step lambdas).
@@ -455,8 +455,8 @@ func (this *JSChunkGraph) getDepthFirstDependenciesOf(rootInput *CompilerInput, 
 	if !setRemove_(unreachedInputs, rootInput) {
 		return orderedInputs
 	}
-	for _, el := range immElems_(rootInput.getRequiredSymbols()) {
-		importedNamespace := str_(el)
+	for el := range rootInput.getRequiredSymbols().All() {
+		importedNamespace := el
 		if has_(inputsByProvide, importedNamespace) {
 			for input := range elemsAs_[*CompilerInput](inputsByProvide[importedNamespace]) {
 				if has_(unreachedInputs, input) {
@@ -487,8 +487,8 @@ func (this *JSChunkGraph) createEntryPointInputs(compiler *AbstractCompiler, dep
 				}
 			}
 		}
-		for _, el_3 := range immElems_(dependencyOptions.entryPoints()) {
-			var entryPoint *ModuleIdentifier = cast_[*ModuleIdentifier](el_3)
+		for el_3 := range dependencyOptions.entryPoints().All() {
+			var entryPoint *ModuleIdentifier = el_3
 			var entryPointInput *CompilerInput = nil
 			if entryPoint.closureNamespace() == entryPoint.moduleName() {
 				entryPointInput = cast_[*CompilerInput](sorter.maybeGetInputProviding(entryPoint.closureNamespace()))
@@ -573,24 +573,24 @@ func JSChunkGraph_clinit() {
 }
 
 type JSChunkGraph_DependencyManagementResult struct {
-	orderedInputs_    ImmutableListOf[*CompilerInput]
+	orderedInputs_    *ImmutableList[*CompilerInput]
 	sorter_           *SortedDependencies
-	entryPointInputs_ ImmutableSetOf[*CompilerInput]
+	entryPointInputs_ *ImmutableSet[*CompilerInput]
 }
 
-func (this *JSChunkGraph_DependencyManagementResult) init_JSChunkGraph_DependencyManagementResult(orderedInputs ImmutableListOf[*CompilerInput], sorter *SortedDependencies, entryPointInputs ImmutableSetOf[*CompilerInput]) {
+func (this *JSChunkGraph_DependencyManagementResult) init_JSChunkGraph_DependencyManagementResult(orderedInputs *ImmutableList[*CompilerInput], sorter *SortedDependencies, entryPointInputs *ImmutableSet[*CompilerInput]) {
 	this.orderedInputs_ = orderedInputs
 	this.sorter_ = sorter
 	this.entryPointInputs_ = entryPointInputs
 }
 
-func new_JSChunkGraph_DependencyManagementResult(orderedInputs ImmutableListOf[*CompilerInput], sorter *SortedDependencies, entryPointInputs ImmutableSetOf[*CompilerInput]) *JSChunkGraph_DependencyManagementResult {
+func new_JSChunkGraph_DependencyManagementResult(orderedInputs *ImmutableList[*CompilerInput], sorter *SortedDependencies, entryPointInputs *ImmutableSet[*CompilerInput]) *JSChunkGraph_DependencyManagementResult {
 	this := &JSChunkGraph_DependencyManagementResult{}
 	this.init_JSChunkGraph_DependencyManagementResult(orderedInputs, sorter, entryPointInputs)
 	return this
 }
 
-func (this *JSChunkGraph_DependencyManagementResult) orderedInputs() *ErasedImmutableList {
+func (this *JSChunkGraph_DependencyManagementResult) orderedInputs() *ImmutableList[*CompilerInput] {
 	return this.orderedInputs_
 }
 
@@ -598,7 +598,7 @@ func (this *JSChunkGraph_DependencyManagementResult) sorter() *SortedDependencie
 	return this.sorter_
 }
 
-func (this *JSChunkGraph_DependencyManagementResult) entryPointInputs() *ErasedImmutableSet {
+func (this *JSChunkGraph_DependencyManagementResult) entryPointInputs() *ImmutableSet[*CompilerInput] {
 	return this.entryPointInputs_
 }
 
@@ -607,19 +607,19 @@ func (this *JSChunkGraph_DependencyManagementResult) equals(p0 any) bool {
 	if !ok || o == nil {
 		return false
 	}
-	return true && objequalsBy_(this.orderedInputs_, obj_(o.orderedInputs_), (ImmutableListOf[*CompilerInput]).equals) && this.sorter_ == o.sorter_ && objequalsBy_(this.entryPointInputs_, obj_(o.entryPointInputs_), (ImmutableSetOf[*CompilerInput]).equals)
+	return true && objequalsBy_(this.orderedInputs_.asImm(), obj_(o.orderedInputs_.asImm()), (ImmutableListOf[*CompilerInput]).equals) && this.sorter_ == o.sorter_ && objequalsBy_(this.entryPointInputs_.asImm(), obj_(o.entryPointInputs_.asImm()), (ImmutableSetOf[*CompilerInput]).equals)
 }
 
 func (this *JSChunkGraph_DependencyManagementResult) hashCode() int32 {
 	var h int32
-	h = h*31 + objhashBy_(this.orderedInputs_, (ImmutableListOf[*CompilerInput]).hashCode)
+	h = h*31 + objhashBy_(this.orderedInputs_.asImm(), (ImmutableListOf[*CompilerInput]).hashCode)
 	h = h*31 + objhashId_(this.sorter_)
-	h = h*31 + objhashBy_(this.entryPointInputs_, (ImmutableSetOf[*CompilerInput]).hashCode)
+	h = h*31 + objhashBy_(this.entryPointInputs_.asImm(), (ImmutableSetOf[*CompilerInput]).hashCode)
 	return h
 }
 
 func (this *JSChunkGraph_DependencyManagementResult) toString() string {
-	return "DependencyManagementResult[" + "orderedInputs=" + tostr_(this.orderedInputs_) + ", sorter=" + objstr_(obj_(this.sorter_)) + ", entryPointInputs=" + tostr_(this.entryPointInputs_) + "]"
+	return "DependencyManagementResult[" + "orderedInputs=" + tostr_(this.orderedInputs_.asImm()) + ", sorter=" + objstr_(obj_(this.sorter_)) + ", entryPointInputs=" + tostr_(this.entryPointInputs_.asImm()) + "]"
 }
 
 type JSChunkGraph_InverseDepthComparator struct {

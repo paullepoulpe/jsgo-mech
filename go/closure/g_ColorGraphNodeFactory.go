@@ -30,8 +30,8 @@ func (this *ColorGraphNodeFactory) createNode(color *Color) *ColorGraphNode {
 	return cast_[*ColorGraphNode](Map_computeIfAbsent_f(this.typeIndex.asMap(), obj_(key), func(p0 any) any { return obj_(this.newColorGraphNode(cast_[*Color](p0))) }))
 }
 
-func (this *ColorGraphNodeFactory) getAllKnownTypes() ImmutableSetOf[*ColorGraphNode] {
-	return ImmutableSet_copyOf(this.typeIndex.asMap().values())
+func (this *ColorGraphNodeFactory) getAllKnownTypes() *ImmutableSet[*ColorGraphNode] {
+	return immutableSetCopyOf_(tc_p_ColorGraphNode, this.typeIndex.asMap().values())
 }
 
 func (this *ColorGraphNodeFactory) newColorGraphNode(key *Color) *ColorGraphNode {
@@ -39,11 +39,11 @@ func (this *ColorGraphNodeFactory) newColorGraphNode(key *Color) *ColorGraphNode
 	return ColorGraphNode_create(key, id)
 }
 
-func (this *ColorGraphNodeFactory) simplifyColors(types ImmutableSetOf[*Color]) ImmutableSetOf[*Color] {
-	var result ImmutableSet_BuilderOf[*Color] = ImmutableSet_builder()
-	for _, el := range immElems_(types) {
-		type_ := cast_[*Color](el)
-		result.add(obj_(this.simplifyColor(type_)))
+func (this *ColorGraphNodeFactory) simplifyColors(types *ImmutableSet[*Color]) *ImmutableSet[*Color] {
+	var result *ImmutableSet_Builder[*Color] = immutableSetBuilder_(tc_p_Color)
+	for el := range types.All() {
+		type_ := el
+		result.add(this.simplifyColor(type_))
 	}
 	return result.build()
 }
@@ -56,7 +56,7 @@ func (this *ColorGraphNodeFactory) simplifyColor(type_ *Color) *Color {
 		type_ = type_.subtractNullOrVoid()
 		return func() *Color {
 			if type_.isUnion() {
-				return Color_createUnion(tsetFrom_(tch_p_Color, this.simplifyColors(type_.getUnionElements()), true))
+				return Color_createUnion(tsetFrom_(tch_p_Color, this.simplifyColors(type_.getUnionElements()).asImm(), true))
 			}
 			return this.simplifyColor(type_)
 		}()

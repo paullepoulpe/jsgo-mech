@@ -51,7 +51,7 @@ func (this *ProcessCommonJSModules) shouldTraverse_impl(t *NodeTraversal, n Node
 		var forceModuleDetection bool = (moduleType == CompilerInput_ModuleType_IMPORTED_SCRIPT)
 		var defaultExportIsConst bool = true
 		var isCommonJsModule bool = finder.isCommonJsModule()
-		var exports ImmutableList_BuilderOf[*ProcessCommonJSModules_ExportInfo] = ImmutableList_builder()
+		var exports *ImmutableList_Builder[*ProcessCommonJSModules_ExportInfo] = immutableListBuilder_(tc_p_ProcessCommonJSModules_ExportInfo)
 		if isCommonJsModule || forceModuleDetection {
 			if !finder.umdPatterns.isEmpty() {
 				var needsRetraverse bool = false
@@ -73,7 +73,7 @@ func (this *ProcessCommonJSModules) shouldTraverse_impl(t *NodeTraversal, n Node
 		}
 		finder.reportModuleErrors()
 		this.compiler_.getModuleLoader().setErrorHandler(moduleLoaderErrorHandler)
-		NodeTraversal_traverse(this.compiler_, n, new_ProcessCommonJSModules_RewriteModule(this, (isCommonJsModule || forceModuleDetection), exports.build(), defaultExportIsConst))
+		NodeTraversal_traverse(this.compiler_, n, new_ProcessCommonJSModules_RewriteModule(this, (isCommonJsModule || forceModuleDetection), exports.build().asImm(), defaultExportIsConst))
 	}
 	return false
 }

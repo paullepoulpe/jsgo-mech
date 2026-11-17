@@ -235,16 +235,16 @@ func SerializeTypesToPointers_TypeMismatchJson_create(x *TypeMismatch, serialize
 
 func SerializeTypesToPointers_TypeMismatchJson_typePointerToId(poolOffset int32, typePool *TypePool) *ColorId {
 	if TypePointers_isAxiomatic(poolOffset) {
-		return cast_[*Color](TypePointers_OFFSET_TO_AXIOMATIC_COLOR.get(poolOffset)).getId()
+		return TypePointers_OFFSET_TO_AXIOMATIC_COLOR.get(poolOffset).getId()
 	}
 	var typeProto *TypeProto = cast_[*TypeProto](typePool.getTypeList().get(TypePointers_trimOffset(poolOffset)))
 	switch typeProto.getKindCase() {
 	case TypeProto_KindCase_UNION:
-		var memberIds ImmutableSet_BuilderOf[*ColorId] = ImmutableSet_builder()
+		var memberIds *ImmutableSet_Builder[*ColorId] = immutableSetBuilder_(tc_p_ColorId)
 		for pointer := range elems_(typeProto.getUnion().getUnionMemberList()) {
-			memberIds.add(obj_(SerializeTypesToPointers_TypeMismatchJson_typePointerToId(unbox_[int32](pointer), typePool)))
+			memberIds.add(SerializeTypesToPointers_TypeMismatchJson_typePointerToId(unbox_[int32](pointer), typePool))
 		}
-		return ColorId_union(tsetFrom_(tch_p_ColorId, memberIds.build(), true))
+		return ColorId_union(memberIds.build())
 	case TypeProto_KindCase_OBJECT:
 		return ColorId_fromBytesByteString(typeProto.getObject().getUuid())
 	case TypeProto_KindCase_KIND_NOT_SET:

@@ -4,8 +4,8 @@ package closure
 
 type Result struct {
 	success_                bool
-	errors_                 ImmutableListOf[*JSError]
-	warnings_               ImmutableListOf[*JSError]
+	errors_                 *ImmutableList[*JSError]
+	warnings_               *ImmutableList[*JSError]
 	variableMap             *VariableMap
 	propertyMap             *VariableMap
 	namedAnonFunctionMap    *VariableMap
@@ -18,7 +18,7 @@ type Result struct {
 	transpiledFiles         bool
 }
 
-func (this *Result) init_Result_ImmutableList_ImmutableList_VariableMap_VariableMap_VariableMap_VariableMap_VariableMap_SourceMap_Optional_Set_Optional_boolean(errors ImmutableListOf[*JSError], warnings ImmutableListOf[*JSError], variableMap *VariableMap, propertyMap *VariableMap, namedAnonFunctionMap *VariableMap, stringMap *VariableMap, instrumentationMappings *VariableMap, sourceMap *SourceMap, externExport OptionalOf[string], cssNames *TSet[string], idGeneratorMap OptionalOf[string], transpiledFiles bool) {
+func (this *Result) init_Result_ImmutableList_ImmutableList_VariableMap_VariableMap_VariableMap_VariableMap_VariableMap_SourceMap_Optional_Set_Optional_boolean(errors *ImmutableList[*JSError], warnings *ImmutableList[*JSError], variableMap *VariableMap, propertyMap *VariableMap, namedAnonFunctionMap *VariableMap, stringMap *VariableMap, instrumentationMappings *VariableMap, sourceMap *SourceMap, externExport OptionalOf[string], cssNames *TSet[string], idGeneratorMap OptionalOf[string], transpiledFiles bool) {
 	this.success_ = errors.isEmpty()
 	this.errors_ = errors
 	this.warnings_ = warnings
@@ -34,23 +34,23 @@ func (this *Result) init_Result_ImmutableList_ImmutableList_VariableMap_Variable
 	this.transpiledFiles = transpiledFiles
 }
 
-func new_Result_ImmutableList_ImmutableList_VariableMap_VariableMap_VariableMap_VariableMap_VariableMap_SourceMap_Optional_Set_Optional_boolean(errors ImmutableListOf[*JSError], warnings ImmutableListOf[*JSError], variableMap *VariableMap, propertyMap *VariableMap, namedAnonFunctionMap *VariableMap, stringMap *VariableMap, instrumentationMappings *VariableMap, sourceMap *SourceMap, externExport OptionalOf[string], cssNames *TSet[string], idGeneratorMap OptionalOf[string], transpiledFiles bool) *Result {
+func new_Result_ImmutableList_ImmutableList_VariableMap_VariableMap_VariableMap_VariableMap_VariableMap_SourceMap_Optional_Set_Optional_boolean(errors *ImmutableList[*JSError], warnings *ImmutableList[*JSError], variableMap *VariableMap, propertyMap *VariableMap, namedAnonFunctionMap *VariableMap, stringMap *VariableMap, instrumentationMappings *VariableMap, sourceMap *SourceMap, externExport OptionalOf[string], cssNames *TSet[string], idGeneratorMap OptionalOf[string], transpiledFiles bool) *Result {
 	this := &Result{}
 	this.init_Result_ImmutableList_ImmutableList_VariableMap_VariableMap_VariableMap_VariableMap_VariableMap_SourceMap_Optional_Set_Optional_boolean(errors, warnings, variableMap, propertyMap, namedAnonFunctionMap, stringMap, instrumentationMappings, sourceMap, externExport, cssNames, idGeneratorMap, transpiledFiles)
 	return this
 }
 
-func (this *Result) init_Result_ImmutableList_ImmutableList_VariableMap_VariableMap_VariableMap_SourceMap_String(errors ImmutableListOf[*JSError], warnings ImmutableListOf[*JSError], variableMap *VariableMap, propertyMap *VariableMap, namedAnonFunctionMap *VariableMap, sourceMap *SourceMap, externExport string) {
+func (this *Result) init_Result_ImmutableList_ImmutableList_VariableMap_VariableMap_VariableMap_SourceMap_String(errors *ImmutableList[*JSError], warnings *ImmutableList[*JSError], variableMap *VariableMap, propertyMap *VariableMap, namedAnonFunctionMap *VariableMap, sourceMap *SourceMap, externExport string) {
 	this.init_Result_ImmutableList_ImmutableList_VariableMap_VariableMap_VariableMap_VariableMap_VariableMap_SourceMap_Optional_Set_Optional_boolean(errors, warnings, variableMap, propertyMap, namedAnonFunctionMap, nil, nil, sourceMap, Optional_of[string](externExport), nil, Optional_empty[string](), false)
 }
 
-func new_Result_ImmutableList_ImmutableList_VariableMap_VariableMap_VariableMap_SourceMap_String(errors ImmutableListOf[*JSError], warnings ImmutableListOf[*JSError], variableMap *VariableMap, propertyMap *VariableMap, namedAnonFunctionMap *VariableMap, sourceMap *SourceMap, externExport string) *Result {
+func new_Result_ImmutableList_ImmutableList_VariableMap_VariableMap_VariableMap_SourceMap_String(errors *ImmutableList[*JSError], warnings *ImmutableList[*JSError], variableMap *VariableMap, propertyMap *VariableMap, namedAnonFunctionMap *VariableMap, sourceMap *SourceMap, externExport string) *Result {
 	this := &Result{}
 	this.init_Result_ImmutableList_ImmutableList_VariableMap_VariableMap_VariableMap_SourceMap_String(errors, warnings, variableMap, propertyMap, namedAnonFunctionMap, sourceMap, externExport)
 	return this
 }
 
 func Result_pruneResultForPartialCompilation(result *Result) *Result {
-	var emptyVariableMap *VariableMap = new_VariableMap(tmapFrom_(tc_string, tc_string, ImmutableMap_of(), true))
+	var emptyVariableMap *VariableMap = new_VariableMap(immutableMapOf_(tc_string, tc_string, []string{}, []string{}))
 	return new_Result_ImmutableList_ImmutableList_VariableMap_VariableMap_VariableMap_VariableMap_VariableMap_SourceMap_Optional_Set_Optional_boolean(result.errors_, result.warnings_, emptyVariableMap, emptyVariableMap, emptyVariableMap, nil, emptyVariableMap, nil, Optional_of[string](""), nil, Optional_empty[string](), false)
 }

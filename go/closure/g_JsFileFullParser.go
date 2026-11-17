@@ -22,7 +22,7 @@ func JsFileFullParser_parse(code string, filename string, reporter func(bool, st
 	var options *CompilerOptions = new_CompilerOptions()
 	options.setChecksOnly(true)
 	compiler.init(ImmutableList_of(), ImmutableList_of_Object(obj_(source)), options)
-	var config *Config = ParserRunner_createConfig_LanguageMode_JsDocParsing_RunMode_Set_boolean_StrictMode(Config_LanguageMode_ES_NEXT, Config_JsDocParsing_INCLUDE_DESCRIPTIONS_NO_WHITESPACE, Config_RunMode_STOP_AFTER_ERROR, tsetFrom_(tc_string, ImmutableSet_of(), true), true, Config_StrictMode_SLOPPY)
+	var config *Config = ParserRunner_createConfig_LanguageMode_JsDocParsing_RunMode_Set_boolean_StrictMode(Config_LanguageMode_ES_NEXT, Config_JsDocParsing_INCLUDE_DESCRIPTIONS_NO_WHITESPACE, Config_RunMode_STOP_AFTER_ERROR, immutableSetOf_(tc_string), true, Config_StrictMode_SLOPPY)
 	var info *JsFileFullParser_FileInfo = new_JsFileFullParser_FileInfo()
 	var parsed *ParserRunner_ParseResult = ParserRunner_parse(icast_StaticSourceFile(obj_(source)), code, config, errorReporter)
 	if errorReporter.seenError {
@@ -40,7 +40,7 @@ func JsFileFullParser_parse(code string, filename string, reporter func(bool, st
 	if compiler.getModuleMetadataMap().getModulesByPath().size() != 1 {
 		return info
 	}
-	var module *ModuleMetadataMap_ModuleMetadata = cast_[*ModuleMetadataMap_ModuleMetadata](Iterables_getOnlyElement(Iterable(compiler.getModuleMetadataMap().getModulesByPath().values())))
+	var module *ModuleMetadataMap_ModuleMetadata = cast_[*ModuleMetadataMap_ModuleMetadata](Iterables_getOnlyElement(Iterable(compiler.getModuleMetadataMap().getModulesByPath().asImm().values())))
 	if module.isEs6Module() {
 		info.loadFlags_.put_s("module", "es6")
 	} else if module.isGoogModule() {
@@ -75,8 +75,8 @@ func JsFileFullParser_recordModuleMetadata(info *JsFileFullParser_FileInfo, modu
 		info.typeRequires.addAll(icast_Iterable(obj_(module.weaklyRequiredGoogNamespaces())))
 		info.testonly = module.isTestOnly()
 	}
-	for _, el := range immElems_(module.nestedModules()) {
-		nested := cast_[*ModuleMetadataMap_ModuleMetadata](el)
+	for el := range module.nestedModules().All() {
+		nested := el
 		JsFileFullParser_recordModuleMetadata(info, nested)
 	}
 }

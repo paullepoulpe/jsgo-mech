@@ -8,7 +8,7 @@ type AmbiguateProperties struct {
 	reservedFirstCharacters    SetOf[BoxedOf[uint16]]
 	reservedNonFirstCharacters SetOf[BoxedOf[uint16]]
 	propertyMap                *TMap[string, *AmbiguateProperties_Property]
-	externedNames              ImmutableSetOf[string]
+	externedNames              *ImmutableSet[string]
 	quotedNames                *TSet[string]
 	colorRegistry              *ColorRegistry
 	renamingMap                *TMap[string, string]
@@ -31,7 +31,7 @@ func (this *AmbiguateProperties) init_AmbiguateProperties(compiler *AbstractComp
 	this.compiler_ = compiler
 	this.reservedFirstCharacters = reservedFirstCharacters
 	this.reservedNonFirstCharacters = reservedNonFirstCharacters
-	this.externedNames = ImmutableSet_builder().add(strobj_("prototype")).addAll(Iterable(externProperties.asSet())).build()
+	this.externedNames = immutableSetBuilder_(tc_string).add("prototype").addAll(Iterable(externProperties.asSet())).build()
 	this.colorRegistry = compiler.getColorRegistry()
 }
 
@@ -58,7 +58,7 @@ func (this *AmbiguateProperties) process_2(externs Node, root Node) {
 	this.graphNodeFactory = ColorGraphNodeFactory_createFactory(this.colorRegistry)
 	NodeTraversal_traverse(this.compiler_, root, new_AmbiguateProperties_ProcessPropertiesAndConstructors(this))
 	var graphBuilder *ColorGraphBuilder = new_ColorGraphBuilder(this.graphNodeFactory, lambda_AmbiguateProperties_process_2_1_, this.colorRegistry)
-	graphBuilder.addAll(icast_Collection(obj_(this.graphNodeFactory.getAllKnownTypes())))
+	graphBuilder.addAll(icast_Collection(obj_(this.graphNodeFactory.getAllKnownTypes().asImm())))
 	var colorGraph *LinkedDirectedGraph = graphBuilder.build()
 	_ = func() (code_ int) {
 		var chunkGraphLog *LogFile = this.compiler_.createOrReopenLog(Object_getClass(any(this)), "color_graph.dot", []string{})
@@ -66,8 +66,8 @@ func (this *AmbiguateProperties) process_2(externs Node, root Node) {
 		chunkGraphLog.logString(DotFormatter_toDot_GraphvizGraph(icast_GraphvizGraph(colorGraph.self())))
 		return 0
 	}()
-	for _, el := range immElems_(this.graphNodeFactory.getAllKnownTypes()) {
-		node := cast_[*ColorGraphNode](el)
+	for el := range this.graphNodeFactory.getAllKnownTypes().All() {
+		node := el
 		node.getSubtypeIndices().set(node.getIndex())
 	}
 	FixedPointGraphTraversal_newReverseTraversal[any, any](lambda_AmbiguateProperties_process_2_2_).computeFixedPoint(colorGraph.up_DiGraph())
@@ -80,7 +80,7 @@ func (this *AmbiguateProperties) process_2(externs Node, root Node) {
 		}
 		prop.relatedColorsSeeds = nil
 	}
-	var reservedNames ImmutableSet_BuilderOf[string] = ImmutableSet_builder().addAll(icast_Iterable(obj_(this.externedNames))).addAll(Iterable(this.quotedNames.asSet()))
+	var reservedNames ImmutableSet_BuilderOf[string] = ImmutableSet_builder().addAll(icast_Iterable(obj_(this.externedNames.asImm()))).addAll(Iterable(this.quotedNames.asSet()))
 	var numRenamedPropertyNames int32 = 0
 	var numSkippedPropertyNames int32 = 0
 	var nodes *TList[*AmbiguateProperties_PropertyGraphNode] = newTListN_(tc_p_AmbiguateProperties_PropertyGraphNode, this.propertyMap.size())
@@ -423,12 +423,12 @@ func (this *AmbiguateProperties_ProcessPropertiesAndConstructors) processGetElem
 func (this *AmbiguateProperties_ProcessPropertiesAndConstructors) processClass(classNode Node) {
 	var classConstructorType *Color = this.outer_.getColor(classNode)
 	this.outer_.graphNodeFactory.createNode(classConstructorType)
-	var possiblePrototypes ImmutableSetOf[*Color] = classConstructorType.getPrototypes()
+	var possiblePrototypes *ImmutableSet[*Color] = classConstructorType.getPrototypes()
 	var classPrototype *Color = func() *Color {
 		if possiblePrototypes.isEmpty() {
 			return StandardColors_UNKNOWN
 		}
-		return Color_createUnion(tsetFrom_(tch_p_Color, possiblePrototypes, true))
+		return Color_createUnion(tsetFrom_(tch_p_Color, possiblePrototypes.asImm(), true))
 	}()
 	{
 		var member Node = NodeUtil_getClassMembers(classNode).getFirstChild()
@@ -450,12 +450,12 @@ func (this *AmbiguateProperties_ProcessPropertiesAndConstructors) processClass(c
 			if member.isStaticMember() {
 				memberOwnerColor = classConstructorType
 			} else if member.isMemberFieldDef() {
-				var possibleInstances ImmutableSetOf[*Color] = classConstructorType.getInstanceColors()
+				var possibleInstances *ImmutableSet[*Color] = classConstructorType.getInstanceColors()
 				memberOwnerColor = func() *Color {
 					if possibleInstances.isEmpty() {
 						return StandardColors_UNKNOWN
 					}
-					return Color_createUnion(tsetFrom_(tch_p_Color, possibleInstances, true))
+					return Color_createUnion(tsetFrom_(tch_p_Color, possibleInstances.asImm(), true))
 				}()
 			} else {
 				if !((member.isMemberFunctionDef() || member.isGetterDef()) || member.isSetterDef()) {
@@ -470,7 +470,7 @@ func (this *AmbiguateProperties_ProcessPropertiesAndConstructors) processClass(c
 
 func (this *AmbiguateProperties_ProcessPropertiesAndConstructors) maybeMarkCandidate(n Node, type_ *Color) {
 	var name string = n.getString()
-	if !Collection_contains_s(this.outer_.externedNames, name) {
+	if !this.outer_.externedNames.contains(name) {
 		this.outer_.stringNodesToRename = append(this.outer_.stringNodesToRename, n)
 		this.recordProperty(name, type_)
 	}

@@ -65,22 +65,22 @@ func (this *TypedAstSerializer) serializeRoots(externsRoot Node, jsRoot Node) *T
 			builder.addCodeAst(this.serializeScriptNode(script))
 		}
 	}
-	var sourceFiles *SourceFilePool = cast_[*SourceFilePool](SourceFilePool_newBuilder().addAllSourceFile(icast_Iterable(obj_(this.sourceFileProtos()))).build())
+	var sourceFiles *SourceFilePool = cast_[*SourceFilePool](SourceFilePool_newBuilder().addAllSourceFile(icast_Iterable(obj_(this.sourceFileProtos().asImm()))).build())
 	if this.compiler_.getExternProperties() != nil {
 		var externsSummary *ExternsSummary_Builder = ExternsSummary_newBuilder()
-		for _, el := range immElems_(this.compiler_.getExternProperties()) {
-			prop := str_(el)
+		for el := range this.compiler_.getExternProperties().All() {
+			prop := el
 			externsSummary.addPropNamePtr(this.stringPool.put(prop))
 		}
 		builder.setExternsSummary(externsSummary)
 	}
-	return cast_[*TypedAst](builder.addAllRuntimeLibraryToInject(icast_Iterable(obj_(this.serializationMode.runtimeLibraries()))).setTypePool(this.typeSerializer.generateTypePool()).setStringPool(this.stringPool.build().toProto()).setSourceFilePool(sourceFiles).build())
+	return cast_[*TypedAst](builder.addAllRuntimeLibraryToInject(icast_Iterable(obj_(this.serializationMode.runtimeLibraries().asImm()))).setTypePool(this.typeSerializer.generateTypePool()).setStringPool(this.stringPool.build().toProto()).setSourceFilePool(sourceFiles).build())
 }
 
-func (this *TypedAstSerializer) sourceFileProtos() ImmutableListOf[*SourceFileProto] {
-	var result ImmutableList_BuilderOf[*SourceFileProto] = ImmutableList_builder()
+func (this *TypedAstSerializer) sourceFileProtos() *ImmutableList[*SourceFileProto] {
+	var result *ImmutableList_Builder[*SourceFileProto] = immutableListBuilder_(tc_p_SourceFileProto)
 	for sourceFile := range this.sourceFilePointers.Keys() {
-		result.add(obj_(sourceFile.getProto()))
+		result.add(sourceFile.getProto())
 	}
 	return result.build()
 }
@@ -511,13 +511,13 @@ func TypedAstSerializer_createJSTypeSerializer(compiler *AbstractCompiler, seria
 }
 
 func (this *TypedAstSerializer) createColorTypeSerializer(compiler *AbstractCompiler, serializationMode *SerializationOptions, stringPoolBuilder *StringPool_Builder) *TypedAstSerializer_ColorTypeSerializer {
-	var usedPropertyNames ImmutableSetOf[string] = TypedAstSerializer_collectUsedPropertyNames(compiler)
-	var colorSerializer *ColorSerializer = new_ColorSerializer(serializationMode, func(p0 any) any { return any(int32(stringPoolBuilder.put(str_(p0)))) }, func(p0 any) bool { return Collection_contains_s(usedPropertyNames, str_(p0)) })
+	var usedPropertyNames *ImmutableSet[string] = TypedAstSerializer_collectUsedPropertyNames(compiler)
+	var colorSerializer *ColorSerializer = new_ColorSerializer(serializationMode, func(p0 any) any { return any(int32(stringPoolBuilder.put(str_(p0)))) }, func(p0 any) bool { return usedPropertyNames.contains(str_(p0)) })
 	return new_TypedAstSerializer_ColorTypeSerializer(colorSerializer, compiler.getColorRegistry())
 }
 
-func TypedAstSerializer_collectUsedPropertyNames(compiler *AbstractCompiler) ImmutableSetOf[string] {
-	var propertyNamesBuilder ImmutableSet_BuilderOf[string] = ImmutableSet_builder()
+func TypedAstSerializer_collectUsedPropertyNames(compiler *AbstractCompiler) *ImmutableSet[string] {
+	var propertyNamesBuilder *ImmutableSet_Builder[string] = immutableSetBuilder_(tc_string)
 	NodeTraversal_traverse(compiler, compiler.getRoot(), new_TypedAstSerializer_1(propertyNamesBuilder))
 	return propertyNamesBuilder.build()
 }
@@ -612,14 +612,14 @@ func (this *TypedAstSerializer_ColorTypeSerializer) generateTypePool() *TypePool
 }
 
 type TypedAstSerializer_1 struct {
-	cap_propertyNamesBuilder *ErasedImmutableSet_Builder
+	cap_propertyNamesBuilder *ImmutableSet_Builder[string]
 }
 
 func (this *TypedAstSerializer_1) init_TypedAstSerializer_1() {
 
 }
 
-func new_TypedAstSerializer_1(cap_propertyNamesBuilder *ErasedImmutableSet_Builder) *TypedAstSerializer_1 {
+func new_TypedAstSerializer_1(cap_propertyNamesBuilder *ImmutableSet_Builder[string]) *TypedAstSerializer_1 {
 	this := &TypedAstSerializer_1{}
 	this.cap_propertyNamesBuilder = cap_propertyNamesBuilder
 	this.init_TypedAstSerializer_1()
@@ -633,10 +633,10 @@ func (this *TypedAstSerializer_1) shouldTraverse(t *NodeTraversal, n Node, paren
 func (this *TypedAstSerializer_1) visit(t *NodeTraversal, n Node, parent Node) {
 	switch n.ns_().token {
 	case tokOrd1_GETPROP, tokOrd1_OPTCHAIN_GETPROP:
-		this.cap_propertyNamesBuilder.add(strobj_(n.getString()))
+		this.cap_propertyNamesBuilder.add(n.getString())
 	case tokOrd1_STRING_KEY, tokOrd1_MEMBER_FUNCTION_DEF, tokOrd1_MEMBER_FIELD_DEF, tokOrd1_GETTER_DEF, tokOrd1_SETTER_DEF:
 		if !n.isQuotedStringKey() {
-			this.cap_propertyNamesBuilder.add(strobj_(n.getString()))
+			this.cap_propertyNamesBuilder.add(n.getString())
 		}
 	default:
 	}

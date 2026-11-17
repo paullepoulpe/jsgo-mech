@@ -44,7 +44,7 @@ func ClosurePrimitive_fromStringId(id OptionalOf[string]) ClosurePrimitive {
 	if id.isEmpty() {
 		return 0
 	}
-	var primitive ClosurePrimitive = cast_[ClosurePrimitive](Map_get_s(ClosurePrimitive_ID_TO_ENUM, id.get()))
+	var primitive ClosurePrimitive = ClosurePrimitive_ID_TO_ENUM.get(id.get())
 	if primitive == 0 {
 		panic(new_IllegalArgumentException_String(("String id " + sstr_(id.get()) + " does not match any ClosurePrimitive")).self())
 	}
@@ -69,7 +69,7 @@ const ClosurePrimitive_ASSERTS_MATCHES_RETURN ClosurePrimitive = 2
 const ClosurePrimitive_ASSERTS_TRUTHY ClosurePrimitive = 3
 
 var ClosurePrimitive_values_ []ClosurePrimitive
-var ClosurePrimitive_ID_TO_ENUM *ErasedImmutableMap
+var ClosurePrimitive_ID_TO_ENUM *ImmutableMap[string, ClosurePrimitive]
 
 var ClosurePrimitive_clinit_done bool
 
@@ -80,6 +80,6 @@ func ClosurePrimitive_clinit() {
 	ClosurePrimitive_clinit_done = true
 	ClosurePrimitive_values_ = []ClosurePrimitive{ClosurePrimitive_ASSERTS_FAIL, ClosurePrimitive_ASSERTS_MATCHES_RETURN, ClosurePrimitive_ASSERTS_TRUTHY}
 	registerEnum_("com.google.javascript.rhino.ClosurePrimitive", enumValues_(ClosurePrimitive_values_))
-	ClosurePrimitive_ID_TO_ENUM = ImmutableMap_of_Object_Object_Object_Object_Object_Object(strobj_("asserts.fail"), obj_(ClosurePrimitive_ASSERTS_FAIL), strobj_("asserts.truthy"), obj_(ClosurePrimitive_ASSERTS_TRUTHY), strobj_("asserts.matchesReturn"), obj_(ClosurePrimitive_ASSERTS_MATCHES_RETURN))
+	ClosurePrimitive_ID_TO_ENUM = immutableMapOf_(tc_string, tc_ClosurePrimitive, []string{"asserts.fail", "asserts.truthy", "asserts.matchesReturn"}, []ClosurePrimitive{ClosurePrimitive_ASSERTS_FAIL, ClosurePrimitive_ASSERTS_TRUTHY, ClosurePrimitive_ASSERTS_MATCHES_RETURN})
 
 }

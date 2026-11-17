@@ -345,9 +345,9 @@ func (this *JSDocInfo) getParameterNames() *TSet[string] {
 	var params LinkedHashMapOf[string, *JSTypeExpression] = cast_[*LinkedHashMap](JSDocInfo_PARAMETERS.get(this))
 	return func() *TSet[string] {
 		if params != nil {
-			return tsetFrom_(tc_string, ImmutableSet_copyOf(Collection(params.keySet())), true)
+			return immutableSetCopyOf_(tc_string, Collection(params.keySet()))
 		}
-		return tsetFrom_(tc_string, ImmutableSet_of(), true)
+		return immutableSetOf_(tc_string)
 	}()
 }
 
@@ -435,13 +435,13 @@ func (this *JSDocInfo) getDescription() OptionalOf[string] {
 	return Optional_ofNullable[string](str_(JSDocInfo_DESCRIPTION.get(this)))
 }
 
-func (this *JSDocInfo) getTsTypes() ImmutableListOf[string] {
+func (this *JSDocInfo) getTsTypes() *ImmutableList[string] {
 	var types ListOf[string] = icast_List(JSDocInfo_TS_TYPES.get(this))
-	return func() *ErasedImmutableList {
+	return func() *ImmutableList[string] {
 		if types != nil {
-			return ImmutableList_copyOf(Collection(types))
+			return immutableListCopyOf_(tc_string, Collection(types))
 		}
-		return ImmutableList_of()
+		return immutableListOf_(tc_string)
 	}()
 }
 
@@ -609,12 +609,12 @@ func (this *JSDocInfo) getSuppressionsAndTheirDescription() ImmutableMapOf[Immut
 }
 
 func (this *JSDocInfo) getModifies() *TSet[string] {
-	var modifies ImmutableSetOf[string] = cast_[*ErasedImmutableSet](JSDocInfo_MODIFIES.get(this))
+	var modifies *ImmutableSet[string] = tsetFrom_(tc_string, cast_[*ErasedImmutableSet](JSDocInfo_MODIFIES.get(this)), true)
 	return func() *TSet[string] {
 		if modifies != nil {
-			return tsetFrom_(tc_string, modifies, true)
+			return tsetFrom_(tc_string, modifies.asImm(), true)
 		}
-		return tsetFrom_(tc_string, ImmutableSet_of(), true)
+		return immutableSetOf_(tc_string)
 	}()
 }
 
@@ -683,38 +683,38 @@ func (this *JSDocInfo) getMarkers() CollectionOf[*JSDocInfo_Marker] {
 	}()
 }
 
-func (this *JSDocInfo) getTemplateTypeNames() ImmutableListOf[string] {
+func (this *JSDocInfo) getTemplateTypeNames() *ImmutableList[string] {
 	var map_ LinkedHashMapOf[string, *JSTypeExpression] = cast_[*LinkedHashMap](JSDocInfo_TEMPLATE_TYPE_NAMES.get(this))
-	return func() *ErasedImmutableList {
+	return func() *ImmutableList[string] {
 		if map_ != nil {
-			return ImmutableList_copyOf(Collection(map_.keySet()))
+			return immutableListCopyOf_(tc_string, Collection(map_.keySet()))
 		}
-		return ImmutableList_of()
+		return immutableListOf_(tc_string)
 	}()
 }
 
-func (this *JSDocInfo) getTemplateTypes() ImmutableMapOf[string, *JSTypeExpression] {
+func (this *JSDocInfo) getTemplateTypes() *ImmutableMap[string, *JSTypeExpression] {
 	var map_ LinkedHashMapOf[string, *JSTypeExpression] = cast_[*LinkedHashMap](JSDocInfo_TEMPLATE_TYPE_NAMES.get(this))
-	return func() *ErasedImmutableMap {
+	return func() *ImmutableMap[string, *JSTypeExpression] {
 		if map_ != nil {
-			return ImmutableMap_copyOf(icast_Map(obj_(map_)))
+			return immutableMapCopyOf_(tc_string, tc_p_JSTypeExpression, icast_Map(obj_(map_)))
 		}
-		return ImmutableMap_of()
+		return immutableMapOf_(tc_string, tc_p_JSTypeExpression, []string{}, []*JSTypeExpression{})
 	}()
 }
 
-func (this *JSDocInfo) getTypeTransformations() ImmutableMapOf[string, Node] {
+func (this *JSDocInfo) getTypeTransformations() *ImmutableMap[string, Node] {
 	var map_ LinkedHashMapOf[string, Node] = cast_[*LinkedHashMap](JSDocInfo_TYPE_TRANSFORMATIONS.get(this))
-	return func() *ErasedImmutableMap {
+	return func() *ImmutableMap[string, Node] {
 		if map_ != nil {
-			return ImmutableMap_copyOf(icast_Map(obj_(map_)))
+			return immutableMapCopyOf_(tc_string, tc_Node, icast_Map(obj_(map_)))
 		}
-		return ImmutableMap_of()
+		return immutableMapOf_(tc_string, tc_Node, []string{}, []Node{})
 	}()
 }
 
 func (this *JSDocInfo) getTypeExpressions() CollectionOf[*JSTypeExpression] {
-	var builder ImmutableList_BuilderOf[*JSTypeExpression] = ImmutableList_builder()
+	var builder *ImmutableList_Builder[*JSTypeExpression] = immutableListBuilder_(tc_p_JSTypeExpression)
 	var bits int64 = this.propertyKeysBitset
 	var index int32 = 0
 	for bits > 0 {
@@ -725,11 +725,11 @@ func (this *JSDocInfo) getTypeExpressions() CollectionOf[*JSTypeExpression] {
 		index++
 		for type_ := range elemsAs_[*JSTypeExpression](prop.getTypeExpressions(propValue)) {
 			if type_ != nil {
-				builder.add(obj_(type_))
+				builder.add(type_)
 			}
 		}
 	}
-	return icast_Collection(obj_(builder.build()))
+	return icast_Collection(obj_(builder.build().asImm()))
 }
 
 func (this *JSDocInfo) getTypeNodes() CollectionOf[Node] {
@@ -808,10 +808,10 @@ func JSDocInfo_packPropertyValues(values ListOf[any]) any {
 	}()
 }
 
-func JSDocInfo_internSet(strings SetOf[string]) ImmutableSetOf[string] {
-	var interned ImmutableSet_BuilderOf[string] = ImmutableSet_builderWithExpectedSize(strings.size())
+func JSDocInfo_internSet(strings SetOf[string]) *ImmutableSet[string] {
+	var interned *ImmutableSet_Builder[string] = immutableSetBuilderN_(tc_string, strings.size())
 	for s := range elemsBy_(strings, str_) {
-		interned.add(strobj_(RhinoStringPool_addOrGet(s)))
+		interned.add(RhinoStringPool_addOrGet(s))
 	}
 	return interned.build()
 }
@@ -2395,31 +2395,31 @@ func (this *JSDocInfo_Builder) isDeprecationReasonRecorded() bool {
 	return !isnull_(this.getProp(JSDocInfo_DEPRECATION_REASON))
 }
 
-func (this *JSDocInfo_Builder) recordSuppressions_2(suppressions ImmutableSetOf[string], description string) {
+func (this *JSDocInfo_Builder) recordSuppressions_2(suppressions *ImmutableSet[string], description string) {
 	this.populated = true
 	var mapBuilder ImmutableMap_BuilderOf[ImmutableSetOf[string], string] = ImmutableMap_builder()
 	var current ImmutableMapOf[ImmutableSetOf[string], string] = cast_[*ErasedImmutableMap](this.getProp(JSDocInfo_SUPPRESSIONS))
 	if current != nil {
-		if current.containsKey(obj_(suppressions)) {
+		if current.containsKey(obj_(suppressions.asImm())) {
 			return
 		}
 		mapBuilder.putAll(icast_Map(obj_(current)))
 	}
-	mapBuilder.put(obj_(JSDocInfo_internSet(icast_Set(obj_(suppressions)))), strobj_(description))
+	mapBuilder.put(obj_(JSDocInfo_internSet(icast_Set(obj_(suppressions.asImm()))).asImm()), strobj_(description))
 	var suppressionsMap ImmutableMapOf[ImmutableSetOf[string], string] = mapBuilder.buildOrThrow()
 	this.setProp(JSDocInfo_SUPPRESSIONS, obj_(suppressionsMap))
 }
 
 func (this *JSDocInfo_Builder) recordSuppressions(suppressions SetOf[string]) {
-	this.recordSuppressions_2(ImmutableSet_copyOf(Collection(suppressions)), "")
+	this.recordSuppressions_2(immutableSetCopyOf_(tc_string, Collection(suppressions)), "")
 }
 
 func (this *JSDocInfo_Builder) recordSuppression(suppression string) {
-	this.recordSuppressions_2(ImmutableSet_of_Object(strobj_(suppression)), "")
+	this.recordSuppressions_2(immutableSetOf_(tc_string, suppression), "")
 }
 
 func (this *JSDocInfo_Builder) recordModifies(modifies SetOf[string]) bool {
-	return (!this.hasAnySingletonSideEffectTags() && this.populateProp(JSDocInfo_MODIFIES, obj_(JSDocInfo_internSet(modifies))))
+	return (!this.hasAnySingletonSideEffectTags() && this.populateProp(JSDocInfo_MODIFIES, obj_(JSDocInfo_internSet(modifies).asImm())))
 }
 
 func (this *JSDocInfo_Builder) recordType(type_ *JSTypeExpression) bool {

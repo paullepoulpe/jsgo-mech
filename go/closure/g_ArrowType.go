@@ -4,7 +4,7 @@ package closure
 
 type ArrowType struct {
 	JSType
-	parameterList      ImmutableListOf[*FunctionType_Parameter]
+	parameterList      *ImmutableList[*FunctionType_Parameter]
 	returnType         *JSType
 	returnTypeInferred bool
 }
@@ -18,11 +18,11 @@ func (this *ArrowType) up_JSType() *JSType {
 
 func (this *ArrowType) init_ArrowType(registry *JSTypeRegistry, parameters *TList[*FunctionType_Parameter], returnType *JSType, returnTypeInferred bool) {
 	this.JSType.init_JSType_JSTypeRegistry(registry)
-	this.parameterList = func() *ErasedImmutableList {
+	this.parameterList = func() *ImmutableList[*FunctionType_Parameter] {
 		if parameters == nil {
 			return registry.createParametersWithVarArgs([]*JSType{this.getNativeType(JSTypeNative_UNKNOWN_TYPE)})
 		}
-		return ImmutableList_copyOf(Collection(parameters.asList()))
+		return immutableListCopyOf_(tc_p_FunctionType_Parameter, Collection(parameters.asList()))
 	}()
 	this.returnType = func() *JSType {
 		if returnType == nil {
@@ -47,8 +47,8 @@ func (this *ArrowType) getTypeClass_impl() JSTypeClass {
 
 func (this *ArrowType) recursionUnsafeHashCode_impl() int32 {
 	var hashCode int32 = objhashBy_(this.returnType, (*JSType).hashCode)
-	for _, el := range immElems_(this.parameterList) {
-		param := cast_[*FunctionType_Parameter](el)
+	for el := range this.parameterList.All() {
+		param := el
 		hashCode = ((hashCode * 31) + objhashBy_(param.getJSType(), (*JSType).hashCode))
 	}
 	return hashCode
@@ -58,7 +58,7 @@ func (this *ArrowType) getReturnType() *JSType {
 	return this.returnType
 }
 
-func (this *ArrowType) getParameterList() ImmutableListOf[*FunctionType_Parameter] {
+func (this *ArrowType) getParameterList() *ImmutableList[*FunctionType_Parameter] {
 	return this.parameterList
 }
 
@@ -88,16 +88,16 @@ func (this *ArrowType) getPossibleToBooleanOutcomes_impl() BooleanLiteralSet {
 
 func (this *ArrowType) resolveInternal_impl(reporter ErrorReporter_rhino) *JSType {
 	this.returnType = JSType_safeResolve(this.returnType, reporter)
-	for _, el := range immElems_(this.parameterList) {
-		param := cast_[*FunctionType_Parameter](el)
+	for el := range this.parameterList.All() {
+		param := el
 		param.getJSType().resolve(reporter)
 	}
 	return this.up_JSType()
 }
 
 func (this *ArrowType) hasUnknownParamsOrReturn() bool {
-	for _, el_1 := range immElems_(this.parameterList) {
-		var param *FunctionType_Parameter = cast_[*FunctionType_Parameter](el_1)
+	for el_1 := range this.parameterList.All() {
+		var param *FunctionType_Parameter = el_1
 		var type_ *JSType = param.getJSType()
 		if type_.isUnknownType() {
 			return true
@@ -115,8 +115,8 @@ func (this *ArrowType) hasAnyTemplateTypesInternal_impl() bool {
 }
 
 func (this *ArrowType) hasTemplatedParameterType() bool {
-	for _, el_1 := range immElems_(this.parameterList) {
-		var param *FunctionType_Parameter = cast_[*FunctionType_Parameter](el_1)
+	for el_1 := range this.parameterList.All() {
+		var param *FunctionType_Parameter = el_1
 		var type_ *JSType = param.getJSType()
 		if type_.hasAnyTemplateTypes() {
 			return true
@@ -128,7 +128,7 @@ func (this *ArrowType) hasTemplatedParameterType() bool {
 func (this *ArrowType) toString_impl() string {
 	var typeStringBuilder *TypeStringBuilder = new_TypeStringBuilder(false)
 	typeStringBuilder.append("(")
-	typeStringBuilder.appendAll(icast_Iterable(obj_(this.parameterList)), ",")
+	typeStringBuilder.appendAll(icast_Iterable(obj_(this.parameterList.asImm())), ",")
 	typeStringBuilder.append(") -> ")
 	typeStringBuilder.appendJSType(this.returnType)
 	return typeStringBuilder.build()

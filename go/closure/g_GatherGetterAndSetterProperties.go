@@ -26,17 +26,17 @@ func GatherGetterAndSetterProperties_update(compiler *AbstractCompiler, externs 
 	}
 	var accessorSummary *AccessorSummary
 	if compiler.getOptions().getAssumePropertiesAreStaticallyAnalyzable() {
-		accessorSummary = AccessorSummary_create(tmapFrom_(tc_string, tc_p_AccessorSummary_PropertyAccessKind, GatherGetterAndSetterProperties_gather(compiler, externs.getParent()), true))
+		accessorSummary = AccessorSummary_create(tmapFrom_(tc_string, tc_p_AccessorSummary_PropertyAccessKind, GatherGetterAndSetterProperties_gather(compiler, externs.getParent()).asImm(), true))
 	} else {
 		accessorSummary = AccessorSummary_createAssumingAlwaysGetterAndSetter()
 	}
 	compiler.setAccessorSummary(accessorSummary)
 }
 
-func GatherGetterAndSetterProperties_gather(compiler *AbstractCompiler, root Node) ImmutableMapOf[string, AccessorSummary_PropertyAccessKind] {
+func GatherGetterAndSetterProperties_gather(compiler *AbstractCompiler, root Node) *ImmutableMap[string, AccessorSummary_PropertyAccessKind] {
 	var gatherCallback *GatherGetterAndSetterProperties_GatherCallback = new_GatherGetterAndSetterProperties_GatherCallback()
 	NodeTraversal_traverse(compiler, root, gatherCallback)
-	return ImmutableMap_copyOf(gatherCallback.properties.asMap())
+	return immutableMapCopyOf_(tc_string, tc_AccessorSummary_PropertyAccessKind, gatherCallback.properties.asMap())
 }
 
 type GatherGetterAndSetterProperties_GatherCallback struct {

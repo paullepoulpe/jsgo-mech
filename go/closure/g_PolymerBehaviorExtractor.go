@@ -176,7 +176,7 @@ func (this *PolymerBehaviorExtractor) resolveReferenceToLegacyGoogModule(name st
 	var dot int32 = String_length(name)
 	for dot >= 0 {
 		var subNamespace string = String_substring(name, 0, dot)
-		var metadata *ModuleMetadataMap_ModuleMetadata = cast_[*ModuleMetadataMap_ModuleMetadata](Map_get_s(this.moduleMetadataMap.getModulesByGoogNamespace(), subNamespace))
+		var metadata *ModuleMetadataMap_ModuleMetadata = this.moduleMetadataMap.getModulesByGoogNamespace().get(subNamespace)
 		if (metadata == nil) || !metadata.isLegacyGoogModule() {
 			dot = String_lastIndexOf_int_int(name, 46, (dot - 1))
 			continue
@@ -206,7 +206,7 @@ func PolymerBehaviorExtractor_isGoogModuleGetCall(callNode Node) bool {
 }
 
 func (this *PolymerBehaviorExtractor) resolveGoogModuleGet(moduleNamespace string) *PolymerBehaviorExtractor_ResolveBehaviorNameResult {
-	var closureModule *ModuleMetadataMap_ModuleMetadata = cast_[*ModuleMetadataMap_ModuleMetadata](Map_get_s(this.moduleMetadataMap.getModulesByGoogNamespace(), moduleNamespace))
+	var closureModule *ModuleMetadataMap_ModuleMetadata = this.moduleMetadataMap.getModulesByGoogNamespace().get(moduleNamespace)
 	if closureModule == nil {
 		return PolymerBehaviorExtractor_FAILED_RESOLVE_RESULT
 	} else if closureModule.isGoogProvide() {
@@ -238,7 +238,7 @@ func (this *PolymerBehaviorExtractor) getNameIfModuleImport(name string, metadat
 		}
 		return name[:dot]
 	}()
-	var b *Binding = cast_[*Binding](Map_get_s(module.boundNames(), root))
+	var b *Binding = module.boundNames().get(root)
 	if (b == nil) || !b.isSomeImport() {
 		return nil
 	}
@@ -287,7 +287,7 @@ func (this *PolymerBehaviorExtractor) resolveModuleNamespaceBinding(b *Binding, 
 		return String_substring(rest, 0, dot)
 	}()
 	var originalModule *Module = this.moduleMap.getModule(b.metadata().path())
-	var exportBinding *Binding = cast_[*Binding](Map_get_s(originalModule.namespace(), exportedName))
+	var exportBinding *Binding = originalModule.namespace().get(exportedName)
 	if (exportBinding == nil) || !exportBinding.isCreatedByEsExport() {
 		return PolymerBehaviorExtractor_FAILED_RESOLVE_RESULT
 	}
@@ -309,7 +309,7 @@ func PolymerBehaviorExtractor_getBehaviorFunctionsToCopy(behaviorObjLit Node) []
 		var keyNode Node = behaviorObjLit.getFirstChild()
 		for ; keyNode != 0; keyNode = keyNode.getNext() {
 			var isFunctionDefinition bool = ((keyNode.isStringKey() && keyNode.getFirstChild().isFunction()) || keyNode.isMemberFunctionDef())
-			if isFunctionDefinition && !Collection_contains_s(PolymerBehaviorExtractor_BEHAVIOR_NAMES_NOT_TO_COPY, keyNode.getString()) {
+			if isFunctionDefinition && !PolymerBehaviorExtractor_BEHAVIOR_NAMES_NOT_TO_COPY.contains(keyNode.getString()) {
 				functionsToCopy = immAdd_(tc_p_PolymerPass_MemberDefinition, functionsToCopy, new_PolymerPass_MemberDefinition(NodeUtil_getBestJSDocInfo(keyNode), keyNode, keyNode.getFirstChild(), enclosingModule))
 			}
 		}
@@ -349,7 +349,7 @@ func PolymerBehaviorExtractor_getNonPropertyMembersToCopy(behaviorObjLit Node) [
 		var keyNode Node = behaviorObjLit.getFirstChild()
 		for ; keyNode != 0; keyNode = keyNode.getNext() {
 			var isNonFunctionMember bool = (keyNode.isGetterDef() || (keyNode.isStringKey() && !keyNode.getFirstChild().isFunction()))
-			if isNonFunctionMember && !Collection_contains_s(PolymerBehaviorExtractor_BEHAVIOR_NAMES_NOT_TO_COPY, keyNode.getString()) {
+			if isNonFunctionMember && !PolymerBehaviorExtractor_BEHAVIOR_NAMES_NOT_TO_COPY.contains(keyNode.getString()) {
 				membersToCopy = immAdd_(tc_p_PolymerPass_MemberDefinition, membersToCopy, new_PolymerPass_MemberDefinition(NodeUtil_getBestJSDocInfo(keyNode), keyNode, keyNode.getFirstChild(), enclosingModule))
 			}
 		}
@@ -357,7 +357,7 @@ func PolymerBehaviorExtractor_getNonPropertyMembersToCopy(behaviorObjLit Node) [
 	return immBuilt_(membersToCopy)
 }
 
-var PolymerBehaviorExtractor_BEHAVIOR_NAMES_NOT_TO_COPY *ErasedImmutableSet
+var PolymerBehaviorExtractor_BEHAVIOR_NAMES_NOT_TO_COPY *ImmutableSet[string]
 
 const PolymerBehaviorExtractor_GOOG_MODULE_EXPORTS string = "exports"
 
@@ -371,7 +371,7 @@ func PolymerBehaviorExtractor_clinit() {
 		return
 	}
 	PolymerBehaviorExtractor_clinit_done = true
-	PolymerBehaviorExtractor_BEHAVIOR_NAMES_NOT_TO_COPY = ImmutableSet_of_Object_Object_Object_Object_Object_Object_ObjectArr(strobj_("created"), strobj_("attached"), strobj_("detached"), strobj_("attributeChanged"), strobj_("configure"), strobj_("ready"), []any{strobj_("properties"), strobj_("listeners"), strobj_("observers"), strobj_("hostAttributes")})
+	PolymerBehaviorExtractor_BEHAVIOR_NAMES_NOT_TO_COPY = immutableSetOf_(tc_string, "created", "attached", "detached", "attributeChanged", "configure", "ready", "properties", "listeners", "observers", "hostAttributes")
 	PolymerBehaviorExtractor_FAILED_RESOLVE_RESULT = new_PolymerBehaviorExtractor_ResolveBehaviorNameResult(0, false, nil)
 	PolymerBehaviorExtractor_GOOG_MODULE_GET = QualifiedName_of("goog.module.get")
 

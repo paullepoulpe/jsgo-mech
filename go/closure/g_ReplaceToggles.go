@@ -5,7 +5,7 @@ package closure
 type ReplaceToggles struct {
 	compiler_      *AbstractCompiler
 	astFactory_    *AstFactory
-	ordinalMapping ImmutableMapOf[string, BoxedOf[int32]]
+	ordinalMapping *ImmutableMap[string, any]
 }
 
 func (this *ReplaceToggles) finit_ReplaceToggles() {
@@ -126,7 +126,7 @@ func (this *ReplaceToggles_Traversal) visit_impl(t *NodeTraversal, n Node, paren
 				ordinals.add(int32(intValue))
 			}
 		}
-		this.outer_.ordinalMapping = ImmutableMap_copyOf(mapping.asMap())
+		this.outer_.ordinalMapping = immutableMapCopyOf_(tc_string, tc_any, mapping.asMap())
 		return
 	}
 	if !n.isCall() {
@@ -143,7 +143,7 @@ func (this *ReplaceToggles_Traversal) visit_impl(t *NodeTraversal, n Node, paren
 	}
 	var ordinal any = func() any {
 		if this.outer_.ordinalMapping != nil {
-			return Map_get_s(this.outer_.ordinalMapping, arg.getString())
+			return this.outer_.ordinalMapping.get(arg.getString())
 		}
 		return nil
 	}()

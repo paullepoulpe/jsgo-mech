@@ -34,7 +34,7 @@ type RemoveUnusedCode struct {
 
 func (this *RemoveUnusedCode) finit_RemoveUnusedCode() {
 	this.worklist = []*RemoveUnusedCode_Continuation{}
-	this.pinnedPropertyNames = setFrom_(tc_string, icast_Collection(obj_(RemoveUnusedCode_IMPLICITLY_USED_PROPERTIES)))
+	this.pinnedPropertyNames = setFrom_(tc_string, icast_Collection(obj_(RemoveUnusedCode_IMPLICITLY_USED_PROPERTIES.asImm())))
 	this.removablesForPropertyNames = SimpleSetMultimap_createInsertionOrdered[any, *RemoveUnusedCode_Removable]()
 	this.allFunctionParamScopes = []*Scope{}
 	this.polyfills = SimpleSetMultimap_createInsertionOrdered[any, *RemoveUnusedCode_PolyfillInfo]()
@@ -71,7 +71,7 @@ func (this *RemoveUnusedCode) process_2(externs Node, root Node) {
 	if !this.compiler_.getLifeCycleStage().isNormalized() {
 		panic(new_IllegalStateException_0().self())
 	}
-	setAddAllFrom_(tc_string, this.pinnedPropertyNames, icast_Collection(obj_(this.compiler_.getExternProperties())))
+	setAddAllFrom_(tc_string, this.pinnedPropertyNames, icast_Collection(obj_(this.compiler_.getExternProperties().asImm())))
 	_ = func() (code_ int) {
 		defer func() {
 			this.removalLog = nil
@@ -1359,7 +1359,7 @@ func (this *RemoveUnusedCode) replaceNodeWith(n Node, replacement Node) {
 	NodeUtil_markFunctionsDeleted(n, this.compiler_)
 }
 
-var RemoveUnusedCode_IMPLICITLY_USED_PROPERTIES *ErasedImmutableSet
+var RemoveUnusedCode_IMPLICITLY_USED_PROPERTIES *ImmutableSet[string]
 
 const RemoveUnusedCode_DOT_PROTOTYPE string = ".prototype"
 
@@ -1370,7 +1370,7 @@ func RemoveUnusedCode_clinit() {
 		return
 	}
 	RemoveUnusedCode_clinit_done = true
-	RemoveUnusedCode_IMPLICITLY_USED_PROPERTIES = ImmutableSet_of_Object_Object_Object_Object_Object(strobj_("length"), strobj_("toString"), strobj_("valueOf"), strobj_("constructor"), strobj_("prototype"))
+	RemoveUnusedCode_IMPLICITLY_USED_PROPERTIES = immutableSetOf_(tc_string, "length", "toString", "valueOf", "constructor", "prototype")
 
 }
 

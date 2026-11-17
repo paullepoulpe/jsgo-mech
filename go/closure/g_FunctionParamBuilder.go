@@ -87,6 +87,6 @@ func (this *FunctionParamBuilder) hasVarArgs() bool {
 	return (len(this.parameters) != 0 && cast_[*FunctionType_Parameter](Iterables_getLast(sliceView_(tc_p_FunctionType_Parameter, this.parameters))).isVariadic())
 }
 
-func (this *FunctionParamBuilder) build() ImmutableListOf[*FunctionType_Parameter] {
-	return ImmutableList_copyOf(sliceView_(tc_p_FunctionType_Parameter, this.parameters))
+func (this *FunctionParamBuilder) build() *ImmutableList[*FunctionType_Parameter] {
+	return immutableListCopyOf_(tc_p_FunctionType_Parameter, sliceView_(tc_p_FunctionType_Parameter, this.parameters))
 }

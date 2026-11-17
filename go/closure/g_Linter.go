@@ -33,10 +33,10 @@ func (this *Linter) lint_2(path string, compiler *Compiler) {
 }
 
 func (this *Linter) fixRepeatedly(filename string) *Outcome_base[any] {
-	return this.fixRepeatedly_2(filename, ImmutableSet_of())
+	return this.fixRepeatedly_2(filename, immutableSetOf_(tch_p_DiagnosticType))
 }
 
-func (this *Linter) fixRepeatedly_2(filename string, unfixableErrors ImmutableSetOf[*DiagnosticType]) *Outcome_base[any] {
+func (this *Linter) fixRepeatedly_2(filename string, unfixableErrors *ImmutableSet[*DiagnosticType]) *Outcome_base[any] {
 	for i := int32(0); i < Linter_MAX_FIXES; i++ {
 		var fixed *Outcome_base[any] = this.fix(filename, unfixableErrors)
 		if fixed.isErr() {
@@ -49,7 +49,7 @@ func (this *Linter) fixRepeatedly_2(filename string, unfixableErrors ImmutableSe
 	return Outcome_base_ok_0()
 }
 
-func (this *Linter) fix(filename string, unfixableErrors ImmutableSetOf[*DiagnosticType]) *Outcome_base[any] {
+func (this *Linter) fix(filename string, unfixableErrors *ImmutableSet[*DiagnosticType]) *Outcome_base[any] {
 	var compiler *Compiler = new_Compiler_Output(Output_stdout())
 	var errorManager *FixingErrorManager = new_FixingErrorManager_ImmutableSet(unfixableErrors)
 	compiler.setErrorManager(errorManager)
@@ -107,7 +107,7 @@ func (this *Linter_Builder) withModuleResolutionMode(moduleResolutionMode Module
 	return this
 }
 
-func (this *Linter_Builder) withBrowserResolverPrefixReplacements(replacements ImmutableMapOf[string, string]) *Linter_Builder {
+func (this *Linter_Builder) withBrowserResolverPrefixReplacements(replacements *ImmutableMap[string, string]) *Linter_Builder {
 	this.options_.setBrowserResolverPrefixReplacements(replacements)
 	return this
 }

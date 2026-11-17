@@ -29,8 +29,8 @@ func IdMappingUtil_generateSerializedIdMappings(idGeneratorMaps *TMap[string, Ma
 	return sb.toString()
 }
 
-func IdMappingUtil_parseSectionOfBytes(idMappings []int8, sectionFilter string) ImmutableMapOf[string, string] {
-	var mapBuilder ImmutableMap_BuilderOf[string, string] = ImmutableMap_builder()
+func IdMappingUtil_parseSectionOfBytes(idMappings []int8, sectionFilter string) *ImmutableMap[string, string] {
+	var mapBuilder *ImmutableMap_Builder[string, string] = immutableMapBuilder_(tc_string, tc_string)
 	var mr *IdMappingUtil_MappingReader = new_IdMappingUtil_MappingReader(Io_utf8String(idMappings))
 	var inSection bool = false
 	for mr.next() {
@@ -42,7 +42,7 @@ func IdMappingUtil_parseSectionOfBytes(idMappings []int8, sectionFilter string) 
 				inSection = true
 			}
 		} else if inSection {
-			mapBuilder.put(strobj_(mr.getKey().get()), strobj_(mr.getValue().get()))
+			mapBuilder.put(mr.getKey().get(), mr.getValue().get())
 		}
 	}
 	return mapBuilder.buildKeepingLast()
@@ -73,7 +73,7 @@ func IdMappingUtil_parseSerializedIdMappingsText(idMappings string) *TMap[string
 
 func IdMappingUtil_parseSerializedIdMappings(idMappings string) *TMap[string, *SimpleBiMap[string, string]] {
 	if Strings_isNullOrEmpty(idMappings) {
-		return tmapFrom_(tc_string, tc_p_SimpleBiMap, ImmutableMap_of(), true)
+		return immutableMapOf_(tc_string, tc_p_SimpleBiMap, []string{}, []*SimpleBiMap[string, string]{})
 	}
 	return IdMappingUtil_parseSerializedIdMappingsText(idMappings)
 }

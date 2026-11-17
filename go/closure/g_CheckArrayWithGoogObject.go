@@ -34,7 +34,7 @@ func (this *CheckArrayWithGoogObject) isGoogObjectIterationOverArray(n Node) boo
 		return false
 	}
 	var name string = n.getFirstChild().getQualifiedName()
-	if !Collection_contains_s(CheckArrayWithGoogObject_GOOG_OBJECT_METHODS, name) {
+	if !CheckArrayWithGoogObject_GOOG_OBJECT_METHODS.contains(name) {
 		return false
 	}
 	var firstArg Node = n.getSecondChild()
@@ -55,8 +55,8 @@ func (this *CheckArrayWithGoogObject) containsArray(type_ *JSType) bool {
 	}
 	if type_.isUnionType() {
 		var arrayType *JSType = this.compiler_.getTypeRegistry().getNativeType(JSTypeNative_ARRAY_TYPE)
-		for _, el_1 := range immElems_(type_.toMaybeUnionType().getAlternates()) {
-			var alternate *JSType = to_JSType(el_1)
+		for el_1 := range type_.toMaybeUnionType().getAlternates().All() {
+			var alternate *JSType = el_1
 			if alternate.isSubtypeOf(arrayType) {
 				return true
 			}
@@ -75,7 +75,7 @@ func (this *CheckArrayWithGoogObject) process_2(externs Node, root Node) {
 	NodeTraversal_traverse(this.compiler_, root, this)
 }
 
-var CheckArrayWithGoogObject_GOOG_OBJECT_METHODS *ErasedImmutableSet
+var CheckArrayWithGoogObject_GOOG_OBJECT_METHODS *ImmutableSet[string]
 var CheckArrayWithGoogObject_ARRAY_PASSED_TO_GOOG_OBJECT *DiagnosticType
 
 var CheckArrayWithGoogObject_clinit_done bool
@@ -85,7 +85,7 @@ func CheckArrayWithGoogObject_clinit() {
 		return
 	}
 	CheckArrayWithGoogObject_clinit_done = true
-	CheckArrayWithGoogObject_GOOG_OBJECT_METHODS = ImmutableSet_of_Object_Object_Object_Object_Object_Object_ObjectArr(strobj_("goog.object.forEach"), strobj_("goog.object.filter"), strobj_("goog.object.map"), strobj_("goog.object.some"), strobj_("goog.object.every"), strobj_("goog.object.getCount"), []any{strobj_("goog.object.getAnyKey"), strobj_("goog.object.getAnyValue"), strobj_("goog.object.contains"), strobj_("goog.object.getValues"), strobj_("goog.object.getKeys"), strobj_("goog.object.findKey"), strobj_("goog.object.findValue"), strobj_("goog.object.isEmpty"), strobj_("goog.object.clear"), strobj_("goog.object.remove"), strobj_("goog.object.equals"), strobj_("goog.object.clone"), strobj_("goog.object.transpose")})
+	CheckArrayWithGoogObject_GOOG_OBJECT_METHODS = immutableSetOf_(tc_string, "goog.object.forEach", "goog.object.filter", "goog.object.map", "goog.object.some", "goog.object.every", "goog.object.getCount", "goog.object.getAnyKey", "goog.object.getAnyValue", "goog.object.contains", "goog.object.getValues", "goog.object.getKeys", "goog.object.findKey", "goog.object.findValue", "goog.object.isEmpty", "goog.object.clear", "goog.object.remove", "goog.object.equals", "goog.object.clone", "goog.object.transpose")
 	CheckArrayWithGoogObject_ARRAY_PASSED_TO_GOOG_OBJECT = DiagnosticType_warning("JSC_ARRAY_PASSED_TO_GOOG_OBJECT", "{0} expects an object, not an array. Did you mean to use goog.array?")
 
 }

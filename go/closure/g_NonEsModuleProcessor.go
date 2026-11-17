@@ -75,18 +75,18 @@ func (this *NonEsModuleProcessor_NonEsModule) resolve_2_impl(moduleRequestResolv
 	if moduleSpecifier.isPresent() && GoogEsImports_isGoogImportSpecifier(moduleSpecifier.get()) {
 		namespace = Optional_of[string](GoogEsImports_getClosureIdFromGoogImportSpecifier(moduleSpecifier.get()))
 	}
-	return Module_builder().path(this.path_).metadata(this.metadataField).namespace(ImmutableMap_of()).boundNames(ImmutableMap_of()).localNameToLocalExport(ImmutableMap_of()).closureNamespace(namespace).build()
+	return Module_builder().path(this.path_).metadata(this.metadataField).namespace(immutableMapOf_(tc_string, tc_p_Binding, []string{}, []*Binding{})).boundNames(immutableMapOf_(tc_string, tc_p_Binding, []string{}, []*Binding{})).localNameToLocalExport(immutableMapOf_(tc_string, tc_p_Export, []string{}, []*Export{})).closureNamespace(namespace).build()
 }
 
 func (this *NonEsModuleProcessor_NonEsModule) metadata_impl() *ModuleMetadataMap_ModuleMetadata {
 	return this.metadataField
 }
 
-func (this *NonEsModuleProcessor_NonEsModule) getExportedNames_impl(moduleRequestResolver ModuleRequestResolver) ImmutableSetOf[string] {
+func (this *NonEsModuleProcessor_NonEsModule) getExportedNames_impl(moduleRequestResolver ModuleRequestResolver) *ImmutableSet[string] {
 	panic(new_UnsupportedOperationException_0().self())
 }
 
-func (this *NonEsModuleProcessor_NonEsModule) getExportedNames_2_impl(moduleRequestResolver ModuleRequestResolver, visited map[*UnresolvedModule]struct{}) ImmutableSetOf[string] {
+func (this *NonEsModuleProcessor_NonEsModule) getExportedNames_2_impl(moduleRequestResolver ModuleRequestResolver, visited map[*UnresolvedModule]struct{}) *ImmutableSet[string] {
 	panic(new_UnsupportedOperationException_0().self())
 }
 
@@ -132,7 +132,7 @@ func (this *NonEsModuleProcessor_NonEsModule) metadata() *ModuleMetadataMap_Modu
 }
 
 // getExportedNames: an object that is exactly a NonEsModuleProcessor_NonEsModule calls its getExportedNames_impl directly (post-flip); others dispatch.
-func (this *NonEsModuleProcessor_NonEsModule) getExportedNames(p0 ModuleRequestResolver) *ErasedImmutableSet {
+func (this *NonEsModuleProcessor_NonEsModule) getExportedNames(p0 ModuleRequestResolver) *ImmutableSet[string] {
 	if p, _ := this.self_.(*NonEsModuleProcessor_NonEsModule); p == this {
 		return this.getExportedNames_impl(p0)
 	}
@@ -140,7 +140,7 @@ func (this *NonEsModuleProcessor_NonEsModule) getExportedNames(p0 ModuleRequestR
 }
 
 // getExportedNames_2: an object that is exactly a NonEsModuleProcessor_NonEsModule calls its getExportedNames_2_impl directly (post-flip); others dispatch.
-func (this *NonEsModuleProcessor_NonEsModule) getExportedNames_2(p0 ModuleRequestResolver, p1 map[*UnresolvedModule]struct{}) *ErasedImmutableSet {
+func (this *NonEsModuleProcessor_NonEsModule) getExportedNames_2(p0 ModuleRequestResolver, p1 map[*UnresolvedModule]struct{}) *ImmutableSet[string] {
 	if p, _ := this.self_.(*NonEsModuleProcessor_NonEsModule); p == this {
 		return this.getExportedNames_2_impl(p0, p1)
 	}

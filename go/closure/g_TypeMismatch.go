@@ -119,8 +119,8 @@ func (this *TypeMismatch_Accumulator) registerMismatch(location Node, found *JST
 		return
 	}
 	if required.isUnionType() {
-		for _, el_1 := range immElems_(required.toMaybeUnionType().getAlternates()) {
-			var requiredAltType *JSType = to_JSType(el_1)
+		for el_1 := range required.toMaybeUnionType().getAlternates().All() {
+			var requiredAltType *JSType = el_1
 			if requiredAltType.isSubtypeOf(found) {
 				return
 			}
@@ -132,8 +132,8 @@ func (this *TypeMismatch_Accumulator) registerMismatch(location Node, found *JST
 	if found.isFunctionType() && required.isFunctionType() {
 		var fnTypeA *FunctionType = found.toMaybeFunctionType()
 		var fnTypeB *FunctionType = required.toMaybeFunctionType()
-		var paramItA *immCursor_ = immCursorOf_(fnTypeA.getParameters())
-		var paramItB *immCursor_ = immCursorOf_(fnTypeB.getParameters())
+		var paramItA *immCursor_ = immCursorOf_(fnTypeA.getParameters().asImm())
+		var paramItB *immCursor_ = immCursorOf_(fnTypeB.getParameters().asImm())
 		for paramItA.hasNext() && paramItB.hasNext() {
 			this.registerIfMismatch(location, cast_[*FunctionType_Parameter](paramItA.next()).getJSType(), cast_[*FunctionType_Parameter](paramItB.next()).getJSType())
 		}

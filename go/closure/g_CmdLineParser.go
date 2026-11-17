@@ -255,8 +255,8 @@ func (this *CmdLineParser) findOptionByName(name string) *CmdLineParser_Option {
 }
 
 var CmdLineParser_NEWLINE_PATTERN *Pattern
-var CmdLineParser_TRUES *ErasedImmutableSet
-var CmdLineParser_FALSES *ErasedImmutableSet
+var CmdLineParser_TRUES *ImmutableSet[string]
+var CmdLineParser_FALSES *ImmutableSet[string]
 
 var CmdLineParser_clinit_done bool
 
@@ -266,8 +266,8 @@ func CmdLineParser_clinit() {
 	}
 	CmdLineParser_clinit_done = true
 	CmdLineParser_NEWLINE_PATTERN = Pattern_compile("\\n")
-	CmdLineParser_TRUES = ImmutableSet_of_Object_Object_Object_Object(strobj_("true"), strobj_("on"), strobj_("yes"), strobj_("1"))
-	CmdLineParser_FALSES = ImmutableSet_of_Object_Object_Object_Object(strobj_("false"), strobj_("off"), strobj_("no"), strobj_("0"))
+	CmdLineParser_TRUES = immutableSetOf_(tc_string, "true", "on", "yes", "1")
+	CmdLineParser_FALSES = immutableSetOf_(tc_string, "false", "off", "no", "0")
 
 }
 
@@ -452,9 +452,9 @@ func (this *CmdLineParser_Option) bool(get func() any, set func(any)) {
 			return Outcome_base_ok_Object(any(int32(0)))
 		} else {
 			var lowerParam string = Ascii_toLowerCase(param.get())
-			if Collection_contains_s(CmdLineParser_TRUES, lowerParam) {
+			if CmdLineParser_TRUES.contains(lowerParam) {
 				set(any(bool(true)))
-			} else if Collection_contains_s(CmdLineParser_FALSES, lowerParam) {
+			} else if CmdLineParser_FALSES.contains(lowerParam) {
 				set(any(bool(false)))
 			} else {
 				set(any(bool(true)))

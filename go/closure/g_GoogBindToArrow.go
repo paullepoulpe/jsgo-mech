@@ -59,7 +59,7 @@ func (this *GoogBindToArrow) processMatch_impl(match *Match) *TList[*SuggestedFi
 	}
 	var fix *SuggestedFix_Builder = new_SuggestedFix_Builder()
 	fix.replace(googBindCall, arrowFunction, compiler)
-	return tlistImm_(tc_p_SuggestedFix, ImmutableList_of_Object(obj_(fix.build())))
+	return immutableListOf_(tc_p_SuggestedFix, fix.build())
 }
 
 var GoogBindToArrow_GOOG_BIND_NAME *QualifiedName

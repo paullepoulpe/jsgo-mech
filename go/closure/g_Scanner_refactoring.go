@@ -26,11 +26,11 @@ func (this *Scanner_refactoring) init_Scanner_refactoring() {
 }
 
 func (this *Scanner_refactoring) processMatch_impl(match *Match) *TList[*SuggestedFix] {
-	return tlistImm_(tc_p_SuggestedFix, ImmutableList_of())
+	return immutableListOf_(tc_p_SuggestedFix)
 }
 
 func (this *Scanner_refactoring) processAllMatches(matches CollectionOf[*Match]) *TList[*SuggestedFix] {
-	return tlistImm_(tc_p_SuggestedFix, ImmutableList_of())
+	return immutableListOf_(tc_p_SuggestedFix)
 }
 
 func (this *Scanner_refactoring) matches(p0 Node, p1 *NodeMetadata) bool {

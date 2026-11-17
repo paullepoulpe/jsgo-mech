@@ -4,7 +4,7 @@ package closure
 
 type UnionType struct {
 	JSType
-	alternates                    ImmutableListOf[*JSType]
+	alternates                    *ImmutableList[*JSType]
 	alternatesResolvedBeforeBuild bool
 	resolvedAlternatesAtLastBuild int32
 }
@@ -42,12 +42,12 @@ func UnionType_builder(registry *JSTypeRegistry) *UnionType_Builder {
 	return new_UnionType_Builder(nil, registry)
 }
 
-func (this *UnionType) getAlternates() ImmutableListOf[*JSType] {
+func (this *UnionType) getAlternates() *ImmutableList[*JSType] {
 	if !this.isResolved() && !this.alternatesResolvedBeforeBuild {
 		var resolvedAlternates int32 = this.countResolvedAlternates()
 		if resolvedAlternates != this.resolvedAlternatesAtLastBuild {
 			this.resolvedAlternatesAtLastBuild = resolvedAlternates
-			var b *UnionType_Builder = new_UnionType_Builder(this, this.registry).addAlternates(sliceImm_(tc_p_JSType, this.alternates))
+			var b *UnionType_Builder = new_UnionType_Builder(this, this.registry).addAlternates(sliceImm_(tc_p_JSType, this.alternates.asImm()))
 			if !this.isResolved() && !this.alternatesResolvedBeforeBuild {
 				b.build()
 				this.resolvedAlternatesAtLastBuild = this.countResolvedAlternates()
@@ -60,7 +60,7 @@ func (this *UnionType) getAlternates() ImmutableListOf[*JSType] {
 func (this *UnionType) countResolvedAlternates() int32 {
 	var count int32 = 0
 	for i := int32(0); i < this.alternates.size(); i++ {
-		if to_JSType(this.alternates.get(i)).isResolved() {
+		if this.alternates.get(i).isResolved() {
 			count++
 		}
 	}
@@ -116,8 +116,8 @@ func lambda_UnionType_matchesObjectContext_impl_1_(p0 any) bool {
 
 func (this *UnionType) findPropertyTypeWithoutConsideringTemplateTypes_impl(propertyName Property_Key) *JSType {
 	var propertyType *JSType = nil
-	for _, el := range immElems_(this.alternates) {
-		alternate := to_JSType(el)
+	for el := range this.alternates.All() {
+		alternate := el
 		if alternate.isNullType() || alternate.isVoidType() {
 			continue
 		}
@@ -178,7 +178,7 @@ func lambda_UnionType_restrictByNotNull_impl_1_(p0 any) any {
 func (this *UnionType) testForEquality_impl(that *JSType) Tri {
 	var result Tri = 0
 	for i := int32(0); i < this.alternates.size(); i++ {
-		var t *JSType = to_JSType(this.alternates.get(i))
+		var t *JSType = this.alternates.get(i)
 		var test Tri = t.testForEquality(that)
 		if result == 0 {
 			result = test
@@ -236,7 +236,7 @@ func lambda_UnionType_isDict_impl_1_(p0 any) bool { return to_JSType(p0).isDict(
 func (this *UnionType) getLeastSupertype_impl(that *JSType) *JSType {
 	if !that.isUnknownType() && !that.isUnionType() {
 		for i := int32(0); i < this.alternates.size(); i++ {
-			var alternate *JSType = to_JSType(this.alternates.get(i))
+			var alternate *JSType = this.alternates.get(i)
 			if !alternate.isUnknownType() && that.isSubtypeOf(alternate) {
 				return this.up_JSType()
 			}
@@ -249,15 +249,15 @@ func UnionType_getGreatestSubtypeUnionType(union *UnionType, that *JSType) *JSTy
 	var registry *JSTypeRegistry = union.registry
 	var builder *UnionType_Builder = UnionType_builder(registry)
 	for i := int32(0); i < union.alternates.size(); i++ {
-		var alternate *JSType = to_JSType(union.alternates.get(i))
+		var alternate *JSType = union.alternates.get(i)
 		if alternate.isSubtypeOf(that) {
 			builder.addAlternate(alternate)
 		}
 	}
 	if that.isUnionType() {
-		var thoseAlternates ImmutableListOf[*JSType] = that.toMaybeUnionType().getAlternates()
+		var thoseAlternates *ImmutableList[*JSType] = that.toMaybeUnionType().getAlternates()
 		for i := int32(0); i < thoseAlternates.size(); i++ {
-			var otherAlternate *JSType = to_JSType(thoseAlternates.get(i))
+			var otherAlternate *JSType = thoseAlternates.get(i)
 			if otherAlternate.isSubtypeOf(union.up_JSType()) {
 				builder.addAlternate(otherAlternate)
 			}
@@ -279,7 +279,7 @@ func (this *UnionType) getPropertyKind_2_impl(pname Property_Key, autobox bool) 
 	var found bool = false
 	var always bool = true
 	for i := int32(0); i < this.alternates.size(); i++ {
-		var alternate *JSType = to_JSType(this.alternates.get(i))
+		var alternate *JSType = this.alternates.get(i)
 		if alternate.isNullType() || alternate.isVoidType() {
 			continue
 		}
@@ -312,7 +312,7 @@ func (this *UnionType) getPropertyKind_2_impl(pname Property_Key, autobox bool) 
 func (this *UnionType) recursionUnsafeHashCode_impl() int32 {
 	var hashCode int32 = this.alternates.size()
 	for i := int32(0); i < this.alternates.size(); i++ {
-		hashCode *= to_JSType(this.alternates.get(i)).hashCode()
+		hashCode *= this.alternates.get(i).hashCode()
 	}
 	return hashCode
 }
@@ -335,7 +335,7 @@ func (this *UnionType) contains(type_ *JSType) bool {
 func (this *UnionType) getRestrictedUnion(type_ *JSType) *JSType {
 	var restricted *UnionType_Builder = UnionType_builder(this.registry)
 	for i := int32(0); i < this.alternates.size(); i++ {
-		var t *JSType = to_JSType(this.alternates.get(i))
+		var t *JSType = this.alternates.get(i)
 		if t.isUnknownType() || !t.isSubtypeOf(type_) {
 			restricted.addAlternate(t)
 		}
@@ -346,8 +346,8 @@ func (this *UnionType) getRestrictedUnion(type_ *JSType) *JSType {
 func (this *UnionType) appendTo_impl(sb *TypeStringBuilder) {
 	sb.append("(")
 	var names *TList[string] = newTList_(tc_string)
-	for _, el := range immElems_(this.alternates) {
-		alt := to_JSType(el)
+	for el := range this.alternates.All() {
+		alt := el
 		names.add(sb.cloneWithConfig().appendJSType(alt).build())
 	}
 	Collections_sort(names.asList())
@@ -366,7 +366,7 @@ func (this *UnionType) getRestrictedTypeGivenOutcome_impl(outcome Outcome_rhino)
 func (this *UnionType) getPossibleToBooleanOutcomes_impl() BooleanLiteralSet {
 	var literals BooleanLiteralSet = BooleanLiteralSet_EMPTY
 	for i := int32(0); i < this.alternates.size(); i++ {
-		var element *JSType = to_JSType(this.alternates.get(i))
+		var element *JSType = this.alternates.get(i)
 		literals = literals.union(element.getPossibleToBooleanOutcomes())
 		if literals == BooleanLiteralSet_BOTH {
 			break
@@ -379,7 +379,7 @@ func (this *UnionType) getTypesUnderEquality_impl(that *JSType) *JSType_TypePair
 	var thisRestricted *UnionType_Builder = UnionType_builder(this.registry)
 	var thatRestricted *UnionType_Builder = UnionType_builder(this.registry)
 	for i := int32(0); i < this.alternates.size(); i++ {
-		var element *JSType = to_JSType(this.alternates.get(i))
+		var element *JSType = this.alternates.get(i)
 		var p *JSType_TypePair = element.getTypesUnderEquality(that)
 		if p.typeA != nil {
 			thisRestricted.addAlternate(p.typeA)
@@ -395,7 +395,7 @@ func (this *UnionType) getTypesUnderInequality_impl(that *JSType) *JSType_TypePa
 	var thisRestricted *UnionType_Builder = UnionType_builder(this.registry)
 	var thatRestricted *UnionType_Builder = UnionType_builder(this.registry)
 	for i := int32(0); i < this.alternates.size(); i++ {
-		var element *JSType = to_JSType(this.alternates.get(i))
+		var element *JSType = this.alternates.get(i)
 		var p *JSType_TypePair = element.getTypesUnderInequality(that)
 		if p.typeA != nil {
 			thisRestricted.addAlternate(p.typeA)
@@ -411,7 +411,7 @@ func (this *UnionType) getTypesUnderShallowInequality_impl(that *JSType) *JSType
 	var thisRestricted *UnionType_Builder = UnionType_builder(this.registry)
 	var thatRestricted *UnionType_Builder = UnionType_builder(this.registry)
 	for i := int32(0); i < this.alternates.size(); i++ {
-		var element *JSType = to_JSType(this.alternates.get(i))
+		var element *JSType = this.alternates.get(i)
 		var p *JSType_TypePair = element.getTypesUnderShallowInequality(that)
 		if p.typeA != nil {
 			thisRestricted.addAlternate(p.typeA)
@@ -436,16 +436,16 @@ func (this *UnionType) resolveInternal_impl(reporter ErrorReporter_rhino) *JSTyp
 		return this.up_JSType()
 	}
 	for i := int32(0); i < this.alternates.size(); i++ {
-		to_JSType(this.alternates.get(i)).resolve(reporter)
+		this.alternates.get(i).resolve(reporter)
 	}
-	return new_UnionType_Builder(this, this.registry).addAlternates(sliceImm_(tc_p_JSType, this.alternates)).build()
+	return new_UnionType_Builder(this, this.registry).addAlternates(sliceImm_(tc_p_JSType, this.alternates.asImm())).build()
 }
 
 func (this *UnionType) collapseUnion_impl() *JSType {
 	var currentValue *JSType = nil
 	var currentCommonSuper *ObjectType = nil
 	for i := int32(0); i < this.alternates.size(); i++ {
-		var a *JSType = to_JSType(this.alternates.get(i))
+		var a *JSType = this.alternates.get(i)
 		if a.isUnknownType() {
 			return this.getNativeType(JSTypeNative_UNKNOWN_TYPE)
 		}
@@ -469,7 +469,7 @@ func (this *UnionType) collapseUnion_impl() *JSType {
 
 func (this *UnionType) matchConstraint_impl(constraint *JSType) {
 	for i := int32(0); i < this.alternates.size(); i++ {
-		var alternate *JSType = to_JSType(this.alternates.get(i))
+		var alternate *JSType = this.alternates.get(i)
 		alternate.matchConstraint(constraint)
 	}
 }
@@ -502,7 +502,7 @@ type UnionType_Builder struct {
 	rebuildTarget                 *UnionType
 	registry                      *JSTypeRegistry
 	alternates                    []*JSType
-	finalAlternates               ImmutableListOf[*JSType]
+	finalAlternates               *ImmutableList[*JSType]
 	containsVoidType              bool
 	isAllType_                    bool
 	isNativeUnknownType           bool
@@ -555,7 +555,7 @@ func (this *UnionType_Builder) addAlternates(list []*JSType) *UnionType_Builder 
 func (this *UnionType_Builder) addAlternate(alternate *JSType) *UnionType_Builder {
 	this.checkHasNotBuilt()
 	if alternate.isUnionType() {
-		this.addAlternates(sliceImm_(tc_p_JSType, alternate.toMaybeUnionType().getAlternates()))
+		this.addAlternates(sliceImm_(tc_p_JSType, alternate.toMaybeUnionType().getAlternates().asImm()))
 		return this
 	}
 	if int32(len(this.alternates)) > UnionType_MAX_UNION_SIZE {
@@ -620,7 +620,7 @@ func (this *UnionType_Builder) addAlternate(alternate *JSType) *UnionType_Builde
 						return this
 					} else if !templatizedCurrent.getReferencedType().isReadonlyArrayType() {
 						var rawType *ObjectType = templatizedCurrent.getReferencedObjTypeInternal()
-						alternate = this.registry.createTemplatizedTypeImmutableList(rawType, ImmutableList_of()).up_JSType()
+						alternate = this.registry.createTemplatizedTypeImmutableList(rawType, immutableListOf_(tc_p_JSType)).up_JSType()
 						removeCurrent = true
 					}
 				}
@@ -664,7 +664,7 @@ func (this *UnionType_Builder) build() *JSType {
 		this.rebuildTarget.fillFromBuilder(this)
 	}
 	if this.finalAlternates.size() == 1 {
-		return to_JSType(this.finalAlternates.get(0))
+		return this.finalAlternates.get(0)
 	} else if this.rebuildTarget != nil {
 		return this.rebuildTarget.up_JSType()
 	} else {
@@ -677,16 +677,16 @@ func (this *UnionType_Builder) buildInternal() *UnionType_Builder {
 	var wildcard *JSType = this.getNativeWildcardType()
 	if wildcard != nil {
 		if this.containsVoidType {
-			this.finalAlternates = ImmutableList_of_Object_Object(wildcard.self(), this.registry.getNativeType(JSTypeNative_VOID_TYPE).self())
+			this.finalAlternates = immutableListOf_(tc_p_JSType, wildcard, this.registry.getNativeType(JSTypeNative_VOID_TYPE))
 		} else {
-			this.finalAlternates = ImmutableList_of_Object(wildcard.self())
+			this.finalAlternates = immutableListOf_(tc_p_JSType, wildcard)
 		}
 	} else if len(this.alternates) == 0 {
-		this.finalAlternates = ImmutableList_of_Object(this.registry.getNativeType(JSTypeNative_NO_TYPE).self())
+		this.finalAlternates = immutableListOf_(tc_p_JSType, this.registry.getNativeType(JSTypeNative_NO_TYPE))
 	} else if int32(len(this.alternates)) > UnionType_MAX_UNION_SIZE {
-		this.finalAlternates = ImmutableList_of_Object(this.registry.getNativeType(JSTypeNative_UNKNOWN_TYPE).self())
+		this.finalAlternates = immutableListOf_(tc_p_JSType, this.registry.getNativeType(JSTypeNative_UNKNOWN_TYPE))
 	} else {
-		this.finalAlternates = ImmutableList_copyOf(Collection(sliceView_(tc_p_JSType, this.alternates)))
+		this.finalAlternates = immutableListCopyOf_(tc_p_JSType, Collection(sliceView_(tc_p_JSType, this.alternates)))
 	}
 	if this.finalAlternates == nil {
 		panic(new_NullPointerException_0().self())

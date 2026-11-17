@@ -9,7 +9,7 @@ type ExpressionDecomposer struct {
 	astAnalyzer            *AstAnalyzer
 	astFactory_            *AstFactory
 	safeNameIdSupplier_    SupplierOf[string]
-	knownConstantFunctions ImmutableSetOf[string]
+	knownConstantFunctions *ImmutableSet[string]
 	scope_                 *Scope
 	enabledWorkarounds     EnumSetOf[ExpressionDecomposer_Workaround]
 	unknownType            *JSType
@@ -27,7 +27,7 @@ func (this *ExpressionDecomposer) finit_ExpressionDecomposer() {
 	this.resultNamePrefix = "JSCompiler_inline_result"
 }
 
-func (this *ExpressionDecomposer) init_ExpressionDecomposer(compiler *AbstractCompiler, safeNameIdSupplier SupplierOf[string], constFunctionNames ImmutableSetOf[string], scope *Scope, enabledWorkarounds EnumSetOf[ExpressionDecomposer_Workaround]) {
+func (this *ExpressionDecomposer) init_ExpressionDecomposer(compiler *AbstractCompiler, safeNameIdSupplier SupplierOf[string], constFunctionNames *ImmutableSet[string], scope *Scope, enabledWorkarounds EnumSetOf[ExpressionDecomposer_Workaround]) {
 	this.finit_ExpressionDecomposer()
 	if compiler == nil {
 		panic(new_NullPointerException_0().self())
@@ -53,7 +53,7 @@ func (this *ExpressionDecomposer) init_ExpressionDecomposer(compiler *AbstractCo
 	}()
 }
 
-func new_ExpressionDecomposer(compiler *AbstractCompiler, safeNameIdSupplier SupplierOf[string], constFunctionNames ImmutableSetOf[string], scope *Scope, enabledWorkarounds EnumSetOf[ExpressionDecomposer_Workaround]) *ExpressionDecomposer {
+func new_ExpressionDecomposer(compiler *AbstractCompiler, safeNameIdSupplier SupplierOf[string], constFunctionNames *ImmutableSet[string], scope *Scope, enabledWorkarounds EnumSetOf[ExpressionDecomposer_Workaround]) *ExpressionDecomposer {
 	this := &ExpressionDecomposer{}
 	this.zero_ExpressionDecomposer()
 	this.init_ExpressionDecomposer(compiler, safeNameIdSupplier, constFunctionNames, scope, enabledWorkarounds)
@@ -294,7 +294,7 @@ func ExpressionDecomposer_buildResultExpression(expr Node, needResult bool, temp
 }
 
 func (this *ExpressionDecomposer) isConstantNameNode(n Node) bool {
-	return (n.isName() && (NodeUtil_isConstantVar(n, this.scope_) || Collection_contains_s(this.knownConstantFunctions, n.getString())))
+	return (n.isName() && (NodeUtil_isConstantVar(n, this.scope_) || this.knownConstantFunctions.contains(n.getString())))
 }
 
 func (this *ExpressionDecomposer) extractExpression(expr Node, injectionPoint Node) Node {
@@ -619,14 +619,14 @@ func (this *ExpressionDecomposer) isExpressionTreeUnsafe(tree Node, followingSid
 				}
 				return tree
 			}()
-			if tree.isFirstChildOf(parent) && (this.isTempConstantValueName(callee) || Collection_contains_s(this.knownConstantFunctions, callee.getQualifiedName())) {
+			if tree.isFirstChildOf(parent) && (this.isTempConstantValueName(callee) || this.knownConstantFunctions.contains(callee.getQualifiedName())) {
 				return false
 			}
 		}
 		if this.enabledWorkarounds.contains(obj_(ExpressionDecomposer_Workaround_BROKEN_IE11_LOCATION_ASSIGN)) && ExpressionDecomposer_WINDOW_LOCATION_ASSIGN.matches(tree) {
 			return false
 		}
-		return NodeUtil_canBeSideEffected_Node_Set_Scope(tree, setImm_(tc_string, this.knownConstantFunctions), this.scope_)
+		return NodeUtil_canBeSideEffected_Node_Set_Scope(tree, setImm_(tc_string, this.knownConstantFunctions.asImm()), this.scope_)
 	} else {
 		return this.astAnalyzer.mayHaveSideEffects(tree)
 	}

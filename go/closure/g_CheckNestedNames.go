@@ -42,8 +42,8 @@ func (this *CheckNestedNames) visit(t *NodeTraversal, n Node, parent Node) {
 		}
 		var ownerName string = owner.getString()
 		var declarationKind CheckNestedNames_DeclarationKind = this.getNestedDeclarationKind(n, parent)
-		if CheckNestedNames_NESTED_KIND_TO_REPORT.containsKey(obj_(declarationKind)) {
-			var nestedKind string = str_(CheckNestedNames_NESTED_KIND_TO_REPORT.get(obj_(declarationKind)))
+		if CheckNestedNames_NESTED_KIND_TO_REPORT.containsKey(declarationKind) {
+			var nestedKind string = CheckNestedNames_NESTED_KIND_TO_REPORT.get(declarationKind)
 			t.report(targetGetProp, CheckNestedNames_NESTED_NAME_IN_GOOG_MODULE, []string{nestedKind, ownerName})
 		}
 	}
@@ -84,7 +84,7 @@ func (this *CheckNestedNames) getNestedDeclarationKind(lhs Node, parent Node) Ch
 }
 
 var CheckNestedNames_NESTED_NAME_IN_GOOG_MODULE *DiagnosticType
-var CheckNestedNames_NESTED_KIND_TO_REPORT *ErasedImmutableMap
+var CheckNestedNames_NESTED_KIND_TO_REPORT *ImmutableMap[CheckNestedNames_DeclarationKind, string]
 
 var CheckNestedNames_clinit_done bool
 
@@ -94,7 +94,7 @@ func CheckNestedNames_clinit() {
 	}
 	CheckNestedNames_clinit_done = true
 	CheckNestedNames_NESTED_NAME_IN_GOOG_MODULE = DiagnosticType_disabled("JSC_NESTED_NAME_IN_GOOG_MODULE", "A nested {0} is created on the name `{1}`. Fix this linter finding by converting the module-level static property assignment on `{1}` into a module-level flat name (i.e. change `{1}.prop = ...` into `{1}_prop = ...`. You can (if required) export this flat name using named exports (`exports.{1}_prop = {1}_prop`).")
-	CheckNestedNames_NESTED_KIND_TO_REPORT = ImmutableMap_of_Object_Object_Object_Object_Object_Object_Object_Object(obj_(CheckNestedNames_DeclarationKind_CLASS), strobj_("class"), obj_(CheckNestedNames_DeclarationKind_ENUM), strobj_("enum"), obj_(CheckNestedNames_DeclarationKind_INTERFACE), strobj_("interface"), obj_(CheckNestedNames_DeclarationKind_TYPEDEF), strobj_("typedef"))
+	CheckNestedNames_NESTED_KIND_TO_REPORT = immutableMapOf_(tc_CheckNestedNames_DeclarationKind, tc_string, []CheckNestedNames_DeclarationKind{CheckNestedNames_DeclarationKind_CLASS, CheckNestedNames_DeclarationKind_ENUM, CheckNestedNames_DeclarationKind_INTERFACE, CheckNestedNames_DeclarationKind_TYPEDEF}, []string{"class", "enum", "interface", "typedef"})
 
 }
 

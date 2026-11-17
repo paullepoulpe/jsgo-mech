@@ -151,7 +151,7 @@ func J2clClinitPrunerPass_getQualifiedNameOfFunction(function Node) OptionalOf[s
 
 type J2clClinitPrunerPass_RedundantClinitPruner struct {
 	outer_                *J2clClinitPrunerPass
-	roots                 ImmutableSetOf[Node]
+	roots                 *ImmutableSet[Node]
 	stateStack            []*J2clClinitPrunerPass_HierarchicalSet[string]
 	clinitsCalledAtBranch *J2clClinitPrunerPass_HierarchicalSet[string]
 }
@@ -163,11 +163,11 @@ func (this *J2clClinitPrunerPass_RedundantClinitPruner) finit_J2clClinitPrunerPa
 
 func (this *J2clClinitPrunerPass_RedundantClinitPruner) init_J2clClinitPrunerPass_RedundantClinitPruner(roots IterableOf[Node]) {
 	this.finit_J2clClinitPrunerPass_RedundantClinitPruner()
-	this.roots = func() *ErasedImmutableSet {
+	this.roots = func() *ImmutableSet[Node] {
 		if roots == nil {
-			return ImmutableSet_of()
+			return immutableSetOf_(tc_Node)
 		}
-		return ImmutableSet_copyOf_Iterable(roots)
+		return immutableSetCopyOf_(tc_Node, roots)
 	}()
 }
 
@@ -179,7 +179,7 @@ func new_J2clClinitPrunerPass_RedundantClinitPruner(outer_ *J2clClinitPrunerPass
 }
 
 func (this *J2clClinitPrunerPass_RedundantClinitPruner) shouldTraverse(t *NodeTraversal, node Node, parent Node) bool {
-	if this.roots.contains(node.box_()) {
+	if this.roots.contains(node) {
 		this.clinitsCalledAtBranch = new_J2clClinitPrunerPass_HierarchicalSet[string](nil)
 		sliceClear_(&this.stateStack)
 	}

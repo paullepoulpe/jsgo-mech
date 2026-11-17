@@ -26,8 +26,8 @@ func new_InlineProperties(compiler *AbstractCompiler) *InlineProperties {
 }
 
 func (this *InlineProperties) invalidateExternProperties() {
-	for _, el := range immElems_(this.compiler_.getExternProperties()) {
-		name := str_(el)
+	for el := range this.compiler_.getExternProperties().All() {
+		name := el
 		this.props[name] = InlineProperties_INVALIDATED
 	}
 }
@@ -154,12 +154,12 @@ func (this *InlineProperties_GatherCandidates) maybeRecordCandidateClassFieldDef
 	if n.isStaticMember() {
 		c = this.outer_.getColor(classNode)
 	} else {
-		var possibleInstances ImmutableSetOf[*Color] = this.outer_.getColor(classNode).getInstanceColors()
+		var possibleInstances *ImmutableSet[*Color] = this.outer_.getColor(classNode).getInstanceColors()
 		c = func() *Color {
 			if possibleInstances.isEmpty() {
 				return StandardColors_UNKNOWN
 			}
-			return Color_createUnion(tsetFrom_(tch_p_Color, possibleInstances, true))
+			return Color_createUnion(tsetFrom_(tch_p_Color, possibleInstances.asImm(), true))
 		}()
 	}
 	return this.maybeStoreCandidateValue(c, propName, value)

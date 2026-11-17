@@ -53,7 +53,7 @@ func (this *CheckRegExp) visit_impl(t *NodeTraversal, n Node, parent Node) {
 		if (name == "RegExp") && (cast_[*Var](t.getScope().getVar(name).self()) == nil) {
 			var parentType Token_rhino = parent.getToken()
 			var first bool = (n == parent.getFirstChild())
-			if !((((((((((parentType == Token_rhino_NEW) && first) || ((parentType == Token_rhino_CALL) && first)) || ((parentType == Token_rhino_INSTANCEOF) && !first)) || (parentType == Token_rhino_EQ)) || (parentType == Token_rhino_NE)) || (parentType == Token_rhino_SHEQ)) || (parentType == Token_rhino_SHNE)) || (parentType == Token_rhino_CASE)) || (((parentType == Token_rhino_GETPROP) && first) && !Collection_contains_s(CheckRegExp_REGEXP_PROPERTY_SKIPLIST, parent.getString()))) {
+			if !((((((((((parentType == Token_rhino_NEW) && first) || ((parentType == Token_rhino_CALL) && first)) || ((parentType == Token_rhino_INSTANCEOF) && !first)) || (parentType == Token_rhino_EQ)) || (parentType == Token_rhino_NE)) || (parentType == Token_rhino_SHEQ)) || (parentType == Token_rhino_SHNE)) || (parentType == Token_rhino_CASE)) || (((parentType == Token_rhino_GETPROP) && first) && !CheckRegExp_REGEXP_PROPERTY_SKIPLIST.contains(parent.getString()))) {
 				if this.reportErrors {
 					t.report(n, CheckRegExp_REGEXP_REFERENCE, []string{})
 				}
@@ -88,7 +88,7 @@ func (this *CheckRegExp) visit_impl(t *NodeTraversal, n Node, parent Node) {
 
 var CheckRegExp_REGEXP_REFERENCE *DiagnosticType
 var CheckRegExp_MALFORMED_REGEXP *DiagnosticType
-var CheckRegExp_REGEXP_PROPERTY_SKIPLIST *ErasedImmutableSet
+var CheckRegExp_REGEXP_PROPERTY_SKIPLIST *ImmutableSet[string]
 
 var CheckRegExp_clinit_done bool
 
@@ -99,7 +99,7 @@ func CheckRegExp_clinit() {
 	CheckRegExp_clinit_done = true
 	CheckRegExp_REGEXP_REFERENCE = DiagnosticType_warning("JSC_REGEXP_REFERENCE", "References to the global RegExp object prevents optimization of regular expressions.")
 	CheckRegExp_MALFORMED_REGEXP = DiagnosticType_warning("JSC_MALFORMED_REGEXP", "Malformed Regular Expression: {0}")
-	CheckRegExp_REGEXP_PROPERTY_SKIPLIST = ImmutableSet_of_Object_Object_Object_Object_Object_Object_ObjectArr(strobj_("$1"), strobj_("$2"), strobj_("$3"), strobj_("$4"), strobj_("$5"), strobj_("$6"), []any{strobj_("$7"), strobj_("$8"), strobj_("$9"), strobj_("$_"), strobj_("$input"), strobj_("input"), strobj_("lastMatch"), strobj_("lastParen"), strobj_("leftContext"), strobj_("rightContext"), strobj_("global"), strobj_("ignoreCase"), strobj_("lastIndex"), strobj_("multiline"), strobj_("source")})
+	CheckRegExp_REGEXP_PROPERTY_SKIPLIST = immutableSetOf_(tc_string, "$1", "$2", "$3", "$4", "$5", "$6", "$7", "$8", "$9", "$_", "$input", "input", "lastMatch", "lastParen", "leftContext", "rightContext", "global", "ignoreCase", "lastIndex", "multiline", "source")
 
 }
 

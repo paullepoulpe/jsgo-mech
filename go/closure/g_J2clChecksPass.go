@@ -29,9 +29,9 @@ func new_J2clChecksPass(compiler *AbstractCompiler) *J2clChecksPass {
 }
 
 func (this *J2clChecksPass) visit_impl(unused *NodeTraversal, n Node, parent Node) {
-	for _, el := range immElems_(cast_[*ErasedImmutableSet](J2clChecksPass_REFERENCE_EQUALITY_TYPE_PATTERNS.keySet())) {
+	for _, el := range immElems_(cast_[*ErasedImmutableSet](J2clChecksPass_REFERENCE_EQUALITY_TYPE_PATTERNS.asImm().keySet())) {
 		typeName := str_(el)
-		this.checkReferenceEquality(n, typeName, str_(Map_get_s(J2clChecksPass_REFERENCE_EQUALITY_TYPE_PATTERNS, typeName)))
+		this.checkReferenceEquality(n, typeName, J2clChecksPass_REFERENCE_EQUALITY_TYPE_PATTERNS.get(typeName))
 	}
 }
 
@@ -82,7 +82,7 @@ func (this *J2clChecksPass) process_2(externs Node, root Node) {
 }
 
 var J2clChecksPass_J2CL_REFERENCE_EQUALITY *DiagnosticType
-var J2clChecksPass_REFERENCE_EQUALITY_TYPE_PATTERNS *ErasedImmutableMap
+var J2clChecksPass_REFERENCE_EQUALITY_TYPE_PATTERNS *ImmutableMap[string, string]
 
 var J2clChecksPass_clinit_done bool
 
@@ -92,7 +92,7 @@ func J2clChecksPass_clinit() {
 	}
 	J2clChecksPass_clinit_done = true
 	J2clChecksPass_J2CL_REFERENCE_EQUALITY = DiagnosticType_warning("JSC_J2CL_REFERENCE_EQUALITY", "Reference equality may not be used with the specified type: {0}")
-	J2clChecksPass_REFERENCE_EQUALITY_TYPE_PATTERNS = ImmutableMap_of_Object_Object_Object_Object_Object_Object(strobj_("java.lang.Integer"), strobj_("java/lang/Integer.impl.java.js"), strobj_("java.lang.Float"), strobj_("java/lang/Float.impl.java.js"), strobj_("goog.math.Long"), strobj_("javascript/closure/math/long.js"))
+	J2clChecksPass_REFERENCE_EQUALITY_TYPE_PATTERNS = immutableMapOf_(tc_string, tc_string, []string{"java.lang.Integer", "java.lang.Float", "goog.math.Long"}, []string{"java/lang/Integer.impl.java.js", "java/lang/Float.impl.java.js", "javascript/closure/math/long.js"})
 
 }
 

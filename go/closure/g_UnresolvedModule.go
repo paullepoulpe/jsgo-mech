@@ -9,8 +9,8 @@ type UnresolvedModule struct {
 // UnresolvedModule_I holds the methods the dispatchers of UnresolvedModule's hierarchy call on the most derived
 // object (self_); every class of the hierarchy implements them (post-flip).
 type UnresolvedModule_I interface {
-	getExportedNames_2_impl(ModuleRequestResolver, map[*UnresolvedModule]struct{}) *ErasedImmutableSet
-	getExportedNames_impl(ModuleRequestResolver) *ErasedImmutableSet
+	getExportedNames_2_impl(ModuleRequestResolver, map[*UnresolvedModule]struct{}) *ImmutableSet[string]
+	getExportedNames_impl(ModuleRequestResolver) *ImmutableSet[string]
 	metadata_impl() *ModuleMetadataMap_ModuleMetadata
 	reset_impl()
 	resolveExport_5_impl(ModuleRequestResolver, OptionalOf[string], OptionalOf[string], *TSet[*ExportTrace], map[*UnresolvedModule]struct{}) *ResolveExportResult
@@ -76,11 +76,11 @@ func (this *UnresolvedModule) metadata() *ModuleMetadataMap_ModuleMetadata {
 	return this.self_.metadata_impl()
 }
 
-func (this *UnresolvedModule) getExportedNames(p0 ModuleRequestResolver) *ErasedImmutableSet {
+func (this *UnresolvedModule) getExportedNames(p0 ModuleRequestResolver) *ImmutableSet[string] {
 	return this.self_.getExportedNames_impl(p0)
 }
 
-func (this *UnresolvedModule) getExportedNames_2(p0 ModuleRequestResolver, p1 map[*UnresolvedModule]struct{}) *ErasedImmutableSet {
+func (this *UnresolvedModule) getExportedNames_2(p0 ModuleRequestResolver, p1 map[*UnresolvedModule]struct{}) *ImmutableSet[string] {
 	return this.self_.getExportedNames_2_impl(p0, p1)
 }
 

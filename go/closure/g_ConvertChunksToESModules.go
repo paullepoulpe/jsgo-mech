@@ -46,8 +46,8 @@ func (this *ConvertChunksToESModules) convertChunkSourcesToModules() {
 			continue
 		}
 		var firstInput *CompilerInput = nil
-		for _, el := range immElems_(chunk.getInputs()) {
-			input := cast_[*CompilerInput](el)
+		for el := range chunk.getInputs().All() {
+			input := el
 			var astRoot Node = input.getAstRoot(this.compiler_)
 			var scriptFeatures *FeatureSet = NodeUtil_getFeatureSetOfScript(astRoot)
 			if scriptFeatures.containsFeatureSet(FeatureSet_ES2015_MODULES) {

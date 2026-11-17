@@ -327,7 +327,7 @@ func (this *CheckClosureImports_Checker) checkGoogModuleGet(t *NodeTraversal, ca
 		return
 	}
 	var namespace string = call.getSecondChild().getString()
-	var requiredModule *ModuleMetadataMap_ModuleMetadata = cast_[*ModuleMetadataMap_ModuleMetadata](Map_get_s(this.moduleMetadataMapField.getModulesByGoogNamespace(), namespace))
+	var requiredModule *ModuleMetadataMap_ModuleMetadata = this.moduleMetadataMapField.getModulesByGoogNamespace().get(namespace)
 	if requiredModule == nil {
 		t.report(call, ClosurePrimitiveErrors_MISSING_MODULE_OR_PROVIDE, []string{namespace})
 		return
@@ -434,7 +434,7 @@ func (this *CheckClosureImports_Checker) checkImport(t *NodeTraversal, call Node
 		}
 	}
 	var namespace string = call.getSecondChild().getString()
-	var requiredModule *ModuleMetadataMap_ModuleMetadata = cast_[*ModuleMetadataMap_ModuleMetadata](Map_get_s(this.moduleMetadataMapField.getModulesByGoogNamespace(), namespace))
+	var requiredModule *ModuleMetadataMap_ModuleMetadata = this.moduleMetadataMapField.getModulesByGoogNamespace().get(namespace)
 	if requiredModule == nil {
 		if importType == CheckClosureImports_ClosureImport_FORWARD_DECLARE {
 			if isAliased && isModule {

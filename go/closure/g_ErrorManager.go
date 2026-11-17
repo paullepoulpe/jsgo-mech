@@ -8,8 +8,8 @@ type ErrorManager interface {
 	generateReport()
 	getErrorCount() int32
 	getWarningCount() int32
-	getErrors() *ErasedImmutableList
-	getWarnings() *ErasedImmutableList
+	getErrors() *ImmutableList[*JSError]
+	getWarnings() *ImmutableList[*JSError]
 	setTypedPercent(float64)
 	getTypedPercent() float64
 	hasHaltingErrors() bool
@@ -20,8 +20,8 @@ func ErrorManager_hasHaltingErrors_default(this ErrorManager) bool {
 	if this.getErrorCount() == 0 {
 		return false
 	}
-	for _, el_1 := range immElems_(this.getErrors()) {
-		var error_ *JSError = cast_[*JSError](el_1)
+	for el_1 := range this.getErrors().All() {
+		var error_ *JSError = el_1
 		if error_.type_().level_ == CheckLevel_ERROR {
 			return true
 		}

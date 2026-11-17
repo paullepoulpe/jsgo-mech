@@ -208,17 +208,17 @@ func (this *CompilerBasedTransformer_CompileResult) zero_CompilerBasedTransforme
 	this.sourceMap_ = nullstr_
 }
 
-func (this *CompilerBasedTransformer_CompileResult) init_CompilerBasedTransformer_CompileResult(source string, errors ImmutableListOf[*JSError], transformed bool, sourceMap string) {
+func (this *CompilerBasedTransformer_CompileResult) init_CompilerBasedTransformer_CompileResult(source string, errors *ImmutableList[*JSError], transformed bool, sourceMap string) {
 	this.source = source
 	if errors == nil {
 		panic(new_NullPointerException_0().self())
 	}
-	this.errors_ = sliceImm_(tc_p_JSError, errors)
+	this.errors_ = sliceImm_(tc_p_JSError, errors.asImm())
 	this.transformed_ = transformed
 	this.sourceMap_ = sourceMap
 }
 
-func new_CompilerBasedTransformer_CompileResult(source string, errors ImmutableListOf[*JSError], transformed bool, sourceMap string) *CompilerBasedTransformer_CompileResult {
+func new_CompilerBasedTransformer_CompileResult(source string, errors *ImmutableList[*JSError], transformed bool, sourceMap string) *CompilerBasedTransformer_CompileResult {
 	this := &CompilerBasedTransformer_CompileResult{}
 	this.zero_CompilerBasedTransformer_CompileResult()
 	this.init_CompilerBasedTransformer_CompileResult(source, errors, transformed, sourceMap)

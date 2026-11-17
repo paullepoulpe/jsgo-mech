@@ -926,10 +926,10 @@ func (this *InlineAndCollapseProperties_CollapseProperties) process_2(externs No
 	}
 	this.nameMap = this.outer_.namespace_.getNameIndex()
 	var globalNames *TList[*GlobalNamespace_Name] = this.outer_.namespace_.getNameForest()
-	var escaped ImmutableSetOf[*GlobalNamespace_Name] = this.checkNamespaces()
+	var escaped *ImmutableSet[*GlobalNamespace_Name] = this.checkNamespaces()
 	for name := range globalNames.All() {
-		this.flattenReferencesToCollapsibleDescendantNames(name, name.getBaseName(), setImm_(tc_p_GlobalNamespace_Name, escaped))
-		this.collapseDeclarationOfNameAndDescendants(name, name.getBaseName(), setImm_(tc_p_GlobalNamespace_Name, escaped))
+		this.flattenReferencesToCollapsibleDescendantNames(name, name.getBaseName(), setImm_(tc_p_GlobalNamespace_Name, escaped.asImm()))
+		this.collapseDeclarationOfNameAndDescendants(name, name.getBaseName(), setImm_(tc_p_GlobalNamespace_Name, escaped.asImm()))
 	}
 }
 
@@ -976,14 +976,14 @@ func (this *InlineAndCollapseProperties_CollapseProperties) canEliminate(name *G
 	return false
 }
 
-func (this *InlineAndCollapseProperties_CollapseProperties) checkNamespaces() ImmutableSetOf[*GlobalNamespace_Name] {
-	var escaped ImmutableSet_BuilderOf[*GlobalNamespace_Name] = ImmutableSet_builder()
+func (this *InlineAndCollapseProperties_CollapseProperties) checkNamespaces() *ImmutableSet[*GlobalNamespace_Name] {
+	var escaped *ImmutableSet_Builder[*GlobalNamespace_Name] = immutableSetBuilder_(tc_p_GlobalNamespace_Name)
 	var dynamicallyImportedModuleRefs map[string]struct{} = setFrom_(tc_string, Collection(this.dynamicallyImportedModules.asSet()))
 	if !this.dynamicallyImportedModules.isEmpty() {
 		for name := range this.nameMap.Values() {
 			if this.dynamicallyImportedModules.contains(name.getFullName()) {
 				this.logDecisionForName(name, "escapes - dynamically imported module namespace")
-				escaped.add(obj_(name))
+				escaped.add(name)
 				if name.props == nil {
 					continue
 				}
@@ -1005,7 +1005,7 @@ func (this *InlineAndCollapseProperties_CollapseProperties) checkNamespaces() Im
 	}
 	for name := range this.nameMap.Values() {
 		if len(dynamicallyImportedModuleRefs) != 0 && has_(dynamicallyImportedModuleRefs, name.getFullName()) {
-			escaped.add(obj_(name))
+			escaped.add(name)
 		}
 		if !name.isNamespaceObjectLit() {
 			continue
@@ -1027,7 +1027,7 @@ func (this *InlineAndCollapseProperties_CollapseProperties) checkNamespaces() Im
 			} else if ref.isAliasingGet() {
 				this.warnAboutNamespaceAliasing(name, ref)
 				this.logDecisionForName(name, "escapes")
-				escaped.add(obj_(name))
+				escaped.add(name)
 				break
 			}
 		}
@@ -1301,7 +1301,7 @@ func (this *InlineAndCollapseProperties_CollapseProperties) moveDeclarationIntoH
 	if !varNode.isVar() {
 		panic(new_IllegalStateException_String(Strings_lenientFormat("Unexpected declaration %s", []any{varNode.box_()})).self())
 	}
-	var newRoot Node = cast_[*CompilerInput](commonAncestor.getInputs().get(0)).getAstRoot(this.outer_.compiler_)
+	var newRoot Node = commonAncestor.getInputs().get(0).getAstRoot(this.outer_.compiler_)
 	if initializer == 0 {
 		newRoot.addChildToFront(varNode.detach())
 	} else {

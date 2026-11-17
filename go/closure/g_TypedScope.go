@@ -28,7 +28,7 @@ func (this *TypedScope) init_TypedScope_TypedScope_Node_Set_Module(parent *Typed
 	this.isBottomField = false
 	this.reservedNames = func() *TSet[string] {
 		if reservedNames.isEmpty() {
-			return tsetFrom_(tc_string, ImmutableSet_of(), true)
+			return immutableSetOf_(tc_string)
 		}
 		return tsetFrom_(tc_string, Collection(reservedNames.asSet()), false)
 	}()
@@ -48,7 +48,7 @@ func (this *TypedScope) init_TypedScope_Node_boolean(rootNode Node, isBottom boo
 	this.parent = nil
 	this.depth = 0
 	this.isBottomField = isBottom
-	this.reservedNames = tsetFrom_(tc_string, ImmutableSet_of(), true)
+	this.reservedNames = immutableSetOf_(tc_string)
 	this.module_ = nil
 }
 
@@ -79,7 +79,7 @@ func (this *TypedScope) validateCompletelyBuilt() {
 	if !this.reservedNames.isEmpty() {
 		panic(new_IllegalStateException_String(Strings_lenientFormat("Expected %s to have no reserved names, found: %s. This probably indicates a bug in TypedScopeCreator where it is failing to declare a variable.", []any{obj_(this), this.reservedNames.asSet()})).self())
 	}
-	this.reservedNames = tsetFrom_(tc_string, ImmutableSet_of(), true)
+	this.reservedNames = immutableSetOf_(tc_string)
 }
 
 func (this *TypedScope) isBottom() bool {

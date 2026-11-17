@@ -273,7 +273,7 @@ func (this *GatherModuleMetadata_Finder) leaveModule() {
 		this.outer_.modulesByGoogNamespace.put(namespace, module)
 	}
 	if this.outer_.parentModule != nil {
-		this.outer_.parentModule.metadataBuilder.nestedModulesBuilder().add(obj_(module))
+		this.outer_.parentModule.metadataBuilder.nestedModulesBuilder().add(module)
 	}
 	this.outer_.currentModule = this.outer_.parentModule
 	this.outer_.parentModule = nil

@@ -61,14 +61,14 @@ func RefactoringDriver_getCompilerOptions() *CompilerOptions {
 }
 
 type RefactoringDriver_Builder struct {
-	inputs          ImmutableList_BuilderOf[*SourceFile_jscomp]
-	externs         ImmutableList_BuilderOf[*SourceFile_jscomp]
+	inputs          *ImmutableList_Builder[*SourceFile_jscomp]
+	externs         *ImmutableList_Builder[*SourceFile_jscomp]
 	compilerOptions *CompilerOptions
 }
 
 func (this *RefactoringDriver_Builder) finit_RefactoringDriver_Builder() {
-	this.inputs = ImmutableList_builder()
-	this.externs = ImmutableList_builder()
+	this.inputs = immutableListBuilder_(tc_p_SourceFile_jscomp)
+	this.externs = immutableListBuilder_(tc_p_SourceFile_jscomp)
 	this.compilerOptions = RefactoringDriver_getCompilerOptions()
 }
 
@@ -83,7 +83,7 @@ func new_RefactoringDriver_Builder() *RefactoringDriver_Builder {
 }
 
 func (this *RefactoringDriver_Builder) addExternsFromFileString(filename string) *RefactoringDriver_Builder {
-	this.externs.add(obj_(SourceFile_jscomp_fromFile_String(filename)))
+	this.externs.add(SourceFile_jscomp_fromFile_String(filename))
 	return this
 }
 
@@ -93,7 +93,7 @@ func (this *RefactoringDriver_Builder) addExternsFromFile(externs IterableOf[str
 }
 
 func (this *RefactoringDriver_Builder) addExternsFromCode(code string) *RefactoringDriver_Builder {
-	this.externs.add(obj_(SourceFile_jscomp_fromCode_String_String("externs", code)))
+	this.externs.add(SourceFile_jscomp_fromCode_String_String("externs", code))
 	return this
 }
 
@@ -103,7 +103,7 @@ func (this *RefactoringDriver_Builder) addExterns(externs IterableOf[*SourceFile
 }
 
 func (this *RefactoringDriver_Builder) addInputsFromFileString(filename string) *RefactoringDriver_Builder {
-	this.inputs.add(obj_(SourceFile_jscomp_fromFile_String(filename)))
+	this.inputs.add(SourceFile_jscomp_fromFile_String(filename))
 	return this
 }
 
@@ -117,7 +117,7 @@ func (this *RefactoringDriver_Builder) addInputsFromCode(code string) *Refactori
 }
 
 func (this *RefactoringDriver_Builder) addInputsFromCode_2(code string, filename string) *RefactoringDriver_Builder {
-	this.inputs.add(obj_(SourceFile_jscomp_fromCode_String_String(filename, code)))
+	this.inputs.add(SourceFile_jscomp_fromCode_String_String(filename, code))
 	return this
 }
 
@@ -135,7 +135,7 @@ func (this *RefactoringDriver_Builder) withCompilerOptions(compilerOptions *Comp
 }
 
 func (this *RefactoringDriver_Builder) build() *RefactoringDriver {
-	return new_RefactoringDriver(icast_List(obj_(this.inputs.build())), icast_List(obj_(this.externs.build())), this.compilerOptions)
+	return new_RefactoringDriver(icast_List(obj_(this.inputs.build().asImm())), icast_List(obj_(this.externs.build().asImm())), this.compilerOptions)
 }
 
 var RefactoringDriver_Builder_TO_SOURCE_FILE_FN Function_base

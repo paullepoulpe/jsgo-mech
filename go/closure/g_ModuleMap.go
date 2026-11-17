@@ -3,41 +3,41 @@
 package closure
 
 type ModuleMap struct {
-	resolvedModules        ImmutableMapOf[string, *Module]
-	resolvedClosureModules ImmutableMapOf[string, *Module]
+	resolvedModules        *ImmutableMap[string, *Module]
+	resolvedClosureModules *ImmutableMap[string, *Module]
 }
 
-func (this *ModuleMap) init_ModuleMap(resolvedModules ImmutableMapOf[string, *Module], resolvedClosureModules ImmutableMapOf[string, *Module]) {
+func (this *ModuleMap) init_ModuleMap(resolvedModules *ImmutableMap[string, *Module], resolvedClosureModules *ImmutableMap[string, *Module]) {
 	this.resolvedModules = resolvedModules
 	this.resolvedClosureModules = resolvedClosureModules
 }
 
-func new_ModuleMap(resolvedModules ImmutableMapOf[string, *Module], resolvedClosureModules ImmutableMapOf[string, *Module]) *ModuleMap {
+func new_ModuleMap(resolvedModules *ImmutableMap[string, *Module], resolvedClosureModules *ImmutableMap[string, *Module]) *ModuleMap {
 	this := &ModuleMap{}
 	this.init_ModuleMap(resolvedModules, resolvedClosureModules)
 	return this
 }
 
 func (this *ModuleMap) getModuleString(moduleName string) *Module {
-	return cast_[*Module](Map_get_s(this.resolvedModules, moduleName))
+	return this.resolvedModules.get(moduleName)
 }
 
 func (this *ModuleMap) getModule(path *ModuleLoader_ModulePath) *Module {
 	return this.getModuleString(path.toModuleName())
 }
 
-func (this *ModuleMap) getModulesByPath() ImmutableMapOf[string, *Module] {
+func (this *ModuleMap) getModulesByPath() *ImmutableMap[string, *Module] {
 	return this.resolvedModules
 }
 
-func (this *ModuleMap) getModulesByClosureNamespace() ImmutableMapOf[string, *Module] {
+func (this *ModuleMap) getModulesByClosureNamespace() *ImmutableMap[string, *Module] {
 	return this.resolvedClosureModules
 }
 
 func (this *ModuleMap) getClosureModule(namespace string) *Module {
-	return cast_[*Module](Map_get_s(this.resolvedClosureModules, namespace))
+	return this.resolvedClosureModules.get(namespace)
 }
 
 func ModuleMap_emptyForTesting() *ModuleMap {
-	return new_ModuleMap(ImmutableMap_of(), ImmutableMap_of())
+	return new_ModuleMap(immutableMapOf_(tc_string, tc_p_Module, []string{}, []*Module{}), immutableMapOf_(tc_string, tc_p_Module, []string{}, []*Module{}))
 }

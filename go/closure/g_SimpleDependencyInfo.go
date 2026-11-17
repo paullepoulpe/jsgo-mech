@@ -5,10 +5,10 @@ package closure
 type SimpleDependencyInfo struct {
 	getName_                      string
 	getPathRelativeToClosureBase_ string
-	getProvides_                  ImmutableListOf[string]
-	getRequires_                  ImmutableListOf[*DependencyInfo_Require]
-	getTypeRequires_              ImmutableListOf[string]
-	getLoadFlags_                 ImmutableMapOf[string, string]
+	getProvides_                  *ImmutableList[string]
+	getRequires_                  *ImmutableList[*DependencyInfo_Require]
+	getTypeRequires_              *ImmutableList[string]
+	getLoadFlags_                 *ImmutableMap[string, string]
 	getHasExternsAnnotation_      bool
 	getHasNoCompileAnnotation_    bool
 }
@@ -18,7 +18,7 @@ func (this *SimpleDependencyInfo) zero_SimpleDependencyInfo() {
 	this.getPathRelativeToClosureBase_ = nullstr_
 }
 
-func (this *SimpleDependencyInfo) init_SimpleDependencyInfo(getName string, getPathRelativeToClosureBase string, getProvides ImmutableListOf[string], getRequires ImmutableListOf[*DependencyInfo_Require], getTypeRequires ImmutableListOf[string], getLoadFlags ImmutableMapOf[string, string], getHasExternsAnnotation bool, getHasNoCompileAnnotation bool) {
+func (this *SimpleDependencyInfo) init_SimpleDependencyInfo(getName string, getPathRelativeToClosureBase string, getProvides *ImmutableList[string], getRequires *ImmutableList[*DependencyInfo_Require], getTypeRequires *ImmutableList[string], getLoadFlags *ImmutableMap[string, string], getHasExternsAnnotation bool, getHasNoCompileAnnotation bool) {
 	if getProvides == nil {
 		panic(new_NullPointerException_String("getProvides").self())
 	}
@@ -41,7 +41,7 @@ func (this *SimpleDependencyInfo) init_SimpleDependencyInfo(getName string, getP
 	this.getHasNoCompileAnnotation_ = getHasNoCompileAnnotation
 }
 
-func new_SimpleDependencyInfo(getName string, getPathRelativeToClosureBase string, getProvides ImmutableListOf[string], getRequires ImmutableListOf[*DependencyInfo_Require], getTypeRequires ImmutableListOf[string], getLoadFlags ImmutableMapOf[string, string], getHasExternsAnnotation bool, getHasNoCompileAnnotation bool) *SimpleDependencyInfo {
+func new_SimpleDependencyInfo(getName string, getPathRelativeToClosureBase string, getProvides *ImmutableList[string], getRequires *ImmutableList[*DependencyInfo_Require], getTypeRequires *ImmutableList[string], getLoadFlags *ImmutableMap[string, string], getHasExternsAnnotation bool, getHasNoCompileAnnotation bool) *SimpleDependencyInfo {
 	this := &SimpleDependencyInfo{}
 	this.zero_SimpleDependencyInfo()
 	this.init_SimpleDependencyInfo(getName, getPathRelativeToClosureBase, getProvides, getRequires, getTypeRequires, getLoadFlags, getHasExternsAnnotation, getHasNoCompileAnnotation)
@@ -49,14 +49,14 @@ func new_SimpleDependencyInfo(getName string, getPathRelativeToClosureBase strin
 }
 
 func (this *SimpleDependencyInfo) toString() string {
-	return ("SimpleDependencyInfo{name=" + sstr_(this.getName_) + ", pathRelativeToClosureBase=" + sstr_(this.getPathRelativeToClosureBase_) + ", provides=" + tostr_(this.getProvides_) + ", requires=" + tostr_(this.getRequires_) + ", typeRequires=" + tostr_(this.getTypeRequires_) + ", loadFlags=" + tostr_(this.getLoadFlags_) + ", hasExternsAnnotation=" + boolstr_(this.getHasExternsAnnotation_) + ", hasNoCompileAnnotation=" + boolstr_(this.getHasNoCompileAnnotation_) + "}")
+	return ("SimpleDependencyInfo{name=" + sstr_(this.getName_) + ", pathRelativeToClosureBase=" + sstr_(this.getPathRelativeToClosureBase_) + ", provides=" + tostr_(this.getProvides_.asImm()) + ", requires=" + tostr_(this.getRequires_.asImm()) + ", typeRequires=" + tostr_(this.getTypeRequires_.asImm()) + ", loadFlags=" + tostr_(this.getLoadFlags_.asImm()) + ", hasExternsAnnotation=" + boolstr_(this.getHasExternsAnnotation_) + ", hasNoCompileAnnotation=" + boolstr_(this.getHasNoCompileAnnotation_) + "}")
 }
 
 func SimpleDependencyInfo_builder(srcPathRelativeToClosure string, pathOfDefiningFile OptionalOf[string]) *SimpleDependencyInfo_Builder {
 	return new_SimpleDependencyInfo_Builder().setName(pathOfDefiningFile).setPathRelativeToClosureBase(srcPathRelativeToClosure).setProvides(ImmutableList_of()).setRequires(ImmutableList_of()).setTypeRequires(ImmutableList_of()).setLoadFlags(ImmutableMap_of()).setHasExternsAnnotation(false).setHasNoCompileAnnotation(false)
 }
 
-func (this *SimpleDependencyInfo) getRequiredSymbols() *ErasedImmutableList {
+func (this *SimpleDependencyInfo) getRequiredSymbols() *ImmutableList[string] {
 	return DependencyInfo_getRequiredSymbols_default(this)
 }
 
@@ -76,19 +76,19 @@ func (this *SimpleDependencyInfo) getPathRelativeToClosureBase() string {
 	return this.getPathRelativeToClosureBase_
 }
 
-func (this *SimpleDependencyInfo) getProvides() *ErasedImmutableList {
+func (this *SimpleDependencyInfo) getProvides() *ImmutableList[string] {
 	return this.getProvides_
 }
 
-func (this *SimpleDependencyInfo) getRequires() *ErasedImmutableList {
+func (this *SimpleDependencyInfo) getRequires() *ImmutableList[*DependencyInfo_Require] {
 	return this.getRequires_
 }
 
-func (this *SimpleDependencyInfo) getTypeRequires() *ErasedImmutableList {
+func (this *SimpleDependencyInfo) getTypeRequires() *ImmutableList[string] {
 	return this.getTypeRequires_
 }
 
-func (this *SimpleDependencyInfo) getLoadFlags() *ErasedImmutableMap {
+func (this *SimpleDependencyInfo) getLoadFlags() *ImmutableMap[string, string] {
 	return this.getLoadFlags_
 }
 
@@ -105,17 +105,17 @@ func (this *SimpleDependencyInfo) equals(p0 any) bool {
 	if !ok || o == nil {
 		return false
 	}
-	return true && this.getName_ == o.getName_ && this.getPathRelativeToClosureBase_ == o.getPathRelativeToClosureBase_ && objequalsBy_(this.getProvides_, obj_(o.getProvides_), (ImmutableListOf[string]).equals) && objequalsBy_(this.getRequires_, obj_(o.getRequires_), (ImmutableListOf[*DependencyInfo_Require]).equals) && objequalsBy_(this.getTypeRequires_, obj_(o.getTypeRequires_), (ImmutableListOf[string]).equals) && objequalsBy_(this.getLoadFlags_, obj_(o.getLoadFlags_), (ImmutableMapOf[string, string]).equals) && this.getHasExternsAnnotation_ == o.getHasExternsAnnotation_ && this.getHasNoCompileAnnotation_ == o.getHasNoCompileAnnotation_
+	return true && this.getName_ == o.getName_ && this.getPathRelativeToClosureBase_ == o.getPathRelativeToClosureBase_ && objequalsBy_(this.getProvides_.asImm(), obj_(o.getProvides_.asImm()), (ImmutableListOf[string]).equals) && objequalsBy_(this.getRequires_.asImm(), obj_(o.getRequires_.asImm()), (ImmutableListOf[*DependencyInfo_Require]).equals) && objequalsBy_(this.getTypeRequires_.asImm(), obj_(o.getTypeRequires_.asImm()), (ImmutableListOf[string]).equals) && objequalsBy_(this.getLoadFlags_.asImm(), obj_(o.getLoadFlags_.asImm()), (ImmutableMapOf[string, string]).equals) && this.getHasExternsAnnotation_ == o.getHasExternsAnnotation_ && this.getHasNoCompileAnnotation_ == o.getHasNoCompileAnnotation_
 }
 
 func (this *SimpleDependencyInfo) hashCode() int32 {
 	var h int32
 	h = h*31 + objhashStr_(this.getName_)
 	h = h*31 + objhashStr_(this.getPathRelativeToClosureBase_)
-	h = h*31 + objhashBy_(this.getProvides_, (ImmutableListOf[string]).hashCode)
-	h = h*31 + objhashBy_(this.getRequires_, (ImmutableListOf[*DependencyInfo_Require]).hashCode)
-	h = h*31 + objhashBy_(this.getTypeRequires_, (ImmutableListOf[string]).hashCode)
-	h = h*31 + objhashBy_(this.getLoadFlags_, (ImmutableMapOf[string, string]).hashCode)
+	h = h*31 + objhashBy_(this.getProvides_.asImm(), (ImmutableListOf[string]).hashCode)
+	h = h*31 + objhashBy_(this.getRequires_.asImm(), (ImmutableListOf[*DependencyInfo_Require]).hashCode)
+	h = h*31 + objhashBy_(this.getTypeRequires_.asImm(), (ImmutableListOf[string]).hashCode)
+	h = h*31 + objhashBy_(this.getLoadFlags_.asImm(), (ImmutableMapOf[string, string]).hashCode)
 	h = h*31 + Boolean_hashCode(bool(this.getHasExternsAnnotation_))
 	h = h*31 + Boolean_hashCode(bool(this.getHasNoCompileAnnotation_))
 	return h
@@ -137,10 +137,10 @@ func SimpleDependencyInfo_clinit() {
 type SimpleDependencyInfo_Builder struct {
 	name_                     OptionalOf[string]
 	pathRelativeToClosureBase OptionalOf[string]
-	provides                  ImmutableListOf[string]
-	requires                  ImmutableListOf[*DependencyInfo_Require]
-	typeRequires              ImmutableListOf[string]
-	loadFlags_                ImmutableMapOf[string, string]
+	provides                  *ImmutableList[string]
+	requires                  *ImmutableList[*DependencyInfo_Require]
+	typeRequires              *ImmutableList[string]
+	loadFlags_                *ImmutableMap[string, string]
 	hasExternsAnnotation      bool
 	hasNoCompileAnnotation    bool
 	set0                      int8
@@ -162,7 +162,7 @@ func new_SimpleDependencyInfo_Builder() *SimpleDependencyInfo_Builder {
 }
 
 func SimpleDependencyInfo_Builder_from(copy_ DependencyInfo) *SimpleDependencyInfo_Builder {
-	return new_SimpleDependencyInfo_Builder().setName(Optional_of[string](copy_.getName())).setPathRelativeToClosureBase(copy_.getPathRelativeToClosureBase()).setProvides(icast_Collection(obj_(copy_.getProvides()))).setRequires(icast_Collection(obj_(copy_.getRequires()))).setTypeRequires(icast_Collection(obj_(copy_.getTypeRequires()))).setLoadFlags(icast_Map(obj_(copy_.getLoadFlags()))).setHasExternsAnnotation(copy_.getHasExternsAnnotation()).setHasNoCompileAnnotation(copy_.getHasNoCompileAnnotation())
+	return new_SimpleDependencyInfo_Builder().setName(Optional_of[string](copy_.getName())).setPathRelativeToClosureBase(copy_.getPathRelativeToClosureBase()).setProvides(icast_Collection(obj_(copy_.getProvides().asImm()))).setRequires(icast_Collection(obj_(copy_.getRequires().asImm()))).setTypeRequires(icast_Collection(obj_(copy_.getTypeRequires().asImm()))).setLoadFlags(icast_Map(obj_(copy_.getLoadFlags().asImm()))).setHasExternsAnnotation(copy_.getHasExternsAnnotation()).setHasNoCompileAnnotation(copy_.getHasNoCompileAnnotation())
 }
 
 func (this *SimpleDependencyInfo_Builder) setName(name OptionalOf[string]) *SimpleDependencyInfo_Builder {
@@ -179,7 +179,7 @@ func (this *SimpleDependencyInfo_Builder) setPathRelativeToClosureBase(srcPathRe
 }
 
 func (this *SimpleDependencyInfo_Builder) setProvides(provides CollectionOf[string]) *SimpleDependencyInfo_Builder {
-	this.provides = ImmutableList_copyOf(provides)
+	this.provides = immutableListCopyOf_(tc_string, provides)
 	return this
 }
 
@@ -188,7 +188,7 @@ func (this *SimpleDependencyInfo_Builder) setProvidesStringVarargs(provides []st
 }
 
 func (this *SimpleDependencyInfo_Builder) setRequires(requires CollectionOf[*DependencyInfo_Require]) *SimpleDependencyInfo_Builder {
-	this.requires = ImmutableList_copyOf(requires)
+	this.requires = immutableListCopyOf_(tc_p_DependencyInfo_Require, requires)
 	return this
 }
 
@@ -197,7 +197,7 @@ func (this *SimpleDependencyInfo_Builder) setRequiresRequireVarargs(requires []*
 }
 
 func (this *SimpleDependencyInfo_Builder) setTypeRequires(typeRequires CollectionOf[string]) *SimpleDependencyInfo_Builder {
-	this.typeRequires = ImmutableList_copyOf(typeRequires)
+	this.typeRequires = immutableListCopyOf_(tc_string, typeRequires)
 	return this
 }
 
@@ -206,7 +206,7 @@ func (this *SimpleDependencyInfo_Builder) setTypeRequiresStringVarargs(typeRequi
 }
 
 func (this *SimpleDependencyInfo_Builder) setLoadFlags(loadFlags MapOf[string, string]) *SimpleDependencyInfo_Builder {
-	this.loadFlags_ = ImmutableMap_copyOf(loadFlags)
+	this.loadFlags_ = immutableMapCopyOf_(tc_string, tc_string, loadFlags)
 	return this
 }
 
@@ -225,7 +225,7 @@ func (this *SimpleDependencyInfo_Builder) setHasNoCompileAnnotation(hasNoCompile
 func (this *SimpleDependencyInfo_Builder) setGoogModule(isModule bool) *SimpleDependencyInfo_Builder {
 	return this.setLoadFlags(func() Map {
 		if isModule {
-			return icast_Map(obj_(SimpleDependencyInfo_Builder_GOOG_MODULE_FLAGS))
+			return icast_Map(obj_(SimpleDependencyInfo_Builder_GOOG_MODULE_FLAGS.asImm()))
 		}
 		return ImmutableMap_of()
 	}())
@@ -263,7 +263,7 @@ func (this *SimpleDependencyInfo_Builder) build() *SimpleDependencyInfo {
 	return new_SimpleDependencyInfo(this.name_.get(), this.pathRelativeToClosureBase.get(), this.provides, this.requires, this.typeRequires, this.loadFlags_, this.hasExternsAnnotation, this.hasNoCompileAnnotation)
 }
 
-var SimpleDependencyInfo_Builder_GOOG_MODULE_FLAGS *ErasedImmutableMap
+var SimpleDependencyInfo_Builder_GOOG_MODULE_FLAGS *ImmutableMap[string, string]
 
 var SimpleDependencyInfo_Builder_clinit_done bool
 
@@ -272,6 +272,6 @@ func SimpleDependencyInfo_Builder_clinit() {
 		return
 	}
 	SimpleDependencyInfo_Builder_clinit_done = true
-	SimpleDependencyInfo_Builder_GOOG_MODULE_FLAGS = ImmutableMap_of_Object_Object(strobj_("module"), strobj_("goog"))
+	SimpleDependencyInfo_Builder_GOOG_MODULE_FLAGS = immutableMapOf_(tc_string, tc_string, []string{"module"}, []string{"goog"})
 
 }

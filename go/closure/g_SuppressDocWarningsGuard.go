@@ -4,7 +4,7 @@ package closure
 
 type SuppressDocWarningsGuard struct {
 	WarningsGuard
-	suppressors ImmutableMapOf[string, *DiagnosticGroup]
+	suppressors *ImmutableMap[string, *DiagnosticGroup]
 	compiler_   *AbstractCompiler
 }
 
@@ -28,11 +28,11 @@ func new_SuppressDocWarningsGuard(compiler *AbstractCompiler, suppressors *TMap[
 	return this
 }
 
-func SuppressDocWarningsGuard_createSuppressors(suppressors *TMap[string, *DiagnosticGroup]) ImmutableMapOf[string, *DiagnosticGroup] {
+func SuppressDocWarningsGuard_createSuppressors(suppressors *TMap[string, *DiagnosticGroup]) *ImmutableMap[string, *DiagnosticGroup] {
 	var builder *TMap[string, *DiagnosticGroup] = tmapFrom_(tc_string, tc_p_DiagnosticGroup, suppressors.asMap(), false)
 	builder.put("missingProperties", DiagnosticGroup_createFromGroups_DiagnosticGroupArr([]*DiagnosticGroup{DiagnosticGroups_MISSING_PROPERTIES, DiagnosticGroups_STRICT_MISSING_PROPERTIES}))
 	builder.put("checkTypes", DiagnosticGroup_createFromGroups_DiagnosticGroupArr([]*DiagnosticGroup{DiagnosticGroups_CHECK_TYPES, DiagnosticGroups_STRICT_CHECK_TYPES}))
-	return ImmutableMap_copyOf(builder.asMap())
+	return immutableMapCopyOf_(tc_string, tc_p_DiagnosticGroup, builder.asMap())
 }
 
 func (this *SuppressDocWarningsGuard) level_impl(error_ *JSError) CheckLevel {
@@ -84,7 +84,7 @@ func (this *SuppressDocWarningsGuard) getCheckLevelFromInfo(error_ *JSError, inf
 	it_1 := foreach_(info.getSuppressions())
 	for it_1.next() {
 		var suppressor string = str_(it_1.v)
-		var group *DiagnosticGroup = cast_[*DiagnosticGroup](Map_get_s(this.suppressors, suppressor))
+		var group *DiagnosticGroup = this.suppressors.get(suppressor)
 		if group == nil {
 			continue
 		}

@@ -55,5 +55,5 @@ func (this *MapDiagnosticToSuppression) printSuppressions(args []string) {
 		MapDiagnosticToSuppression_printHelp()
 		return
 	}
-	new_DiagnosticToSuppressionMapper(tsetFrom_(tc_string, ParserRunner_getSuppressionNames(), true), DiagnosticGroups_getRegisteredGroups()).printSuppressions(this.output)
+	new_DiagnosticToSuppressionMapper(tsetFrom_(tc_string, ParserRunner_getSuppressionNames().asImm(), true), DiagnosticGroups_getRegisteredGroups()).printSuppressions(this.output)
 }

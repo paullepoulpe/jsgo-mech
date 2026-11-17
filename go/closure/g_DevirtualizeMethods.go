@@ -33,13 +33,13 @@ func (this *DevirtualizeMethods) processReferenceList(name string, sites ListOf[
 		return
 	}
 	var canonicalDefinitionSite Node = Node_of_(Iterables_get(Iterable(functionsBySite.keySet()), 0))
-	var callSitesBuilder ImmutableList_BuilderOf[Node] = ImmutableList_builder()
+	var callSitesBuilder *ImmutableList_Builder[Node] = immutableListBuilder_(tc_Node)
 	for s := range elemsBy_(sites, Node_of_) {
 		if !functionsBySite.containsKey(s.box_()) {
-			callSitesBuilder.add(s.box_())
+			callSitesBuilder.add(s)
 		}
 	}
-	var callSites ImmutableListOf[Node] = callSitesBuilder.build()
+	var callSites *ImmutableList[Node] = callSitesBuilder.build()
 	if callSites.isEmpty() {
 		return
 	}
@@ -47,7 +47,7 @@ func (this *DevirtualizeMethods) processReferenceList(name string, sites ListOf[
 		return
 	} else if !this.allEligibleDefinitionFunctions(functionsBySite.values()) {
 		return
-	} else if !this.allEligibleCallSites(icast_Collection(obj_(callSites)), canonicalDefinitionSite) {
+	} else if !this.allEligibleCallSites(icast_Collection(obj_(callSites.asImm())), canonicalDefinitionSite) {
 		return
 	} else if !this.allDefinitionsEquivalent(functionsBySite.values()) {
 		return
@@ -55,8 +55,8 @@ func (this *DevirtualizeMethods) processReferenceList(name string, sites ListOf[
 	var devirtualizedName string = DevirtualizeMethods_rewrittenMethodNameOf(name)
 	var bestJSDoc *JSDocInfo = NodeUtil_getBestJSDocInfo(canonicalDefinitionSite)
 	var isConstantName bool = ((bestJSDoc != nil) && bestJSDoc.isConstant())
-	for _, el := range immElems_(callSites) {
-		callSite := Node_of_(el)
+	for el := range callSites.All() {
+		callSite := el
 		this.rewriteCall(callSite, devirtualizedName, isConstantName)
 	}
 	this.rewriteDefinition(canonicalDefinitionSite, devirtualizedName, isConstantName)

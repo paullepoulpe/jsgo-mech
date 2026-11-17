@@ -138,31 +138,31 @@ func (this *CompilerInput) setCompiler(compiler *AbstractCompiler) {
 	this.compiler_ = compiler
 }
 
-func (this *CompilerInput) getRequires() ImmutableListOf[*DependencyInfo_Require] {
+func (this *CompilerInput) getRequires() *ImmutableList[*DependencyInfo_Require] {
 	if this.hasFullParseDependencyInfo {
-		return ImmutableList_copyOf(Collection(sliceView_(tc_p_DependencyInfo_Require, this.orderedRequires)))
+		return immutableListCopyOf_(tc_p_DependencyInfo_Require, Collection(sliceView_(tc_p_DependencyInfo_Require, this.orderedRequires)))
 	}
 	return this.getDependencyInfo().getRequires()
 }
 
-func (this *CompilerInput) getTypeRequires() ImmutableListOf[string] {
+func (this *CompilerInput) getTypeRequires() *ImmutableList[string] {
 	return this.getDependencyInfo().getTypeRequires()
 }
 
 func (this *CompilerInput) getKnownRequires() ImmutableCollectionOf[*DependencyInfo_Require] {
 	return CompilerInput_concat(func() Iterable {
 		if this.dependencyInfo != nil {
-			return icast_Iterable(obj_(this.dependencyInfo.getRequires()))
+			return icast_Iterable(obj_(this.dependencyInfo.getRequires().asImm()))
 		}
 		return ImmutableList_of()
 	}(), Iterable(this.extraRequires.asList())).up_ImmutableCollection()
 }
 
-func (this *CompilerInput) getKnownRequiredSymbols() ImmutableListOf[string] {
+func (this *CompilerInput) getKnownRequiredSymbols() *ImmutableList[string] {
 	return DependencyInfo_Require_asSymbolList(icast_Iterable(obj_(this.getKnownRequires())))
 }
 
-func (this *CompilerInput) getProvides() ImmutableListOf[string] {
+func (this *CompilerInput) getProvides() *ImmutableList[string] {
 	return this.getDependencyInfo().getProvides()
 }
 
@@ -177,7 +177,7 @@ func (this *CompilerInput) getHasNoCompileAnnotation() bool {
 func (this *CompilerInput) getKnownProvides() ImmutableCollectionOf[string] {
 	return CompilerInput_concat(func() Iterable {
 		if this.dependencyInfo != nil {
-			return icast_Iterable(obj_(this.dependencyInfo.getProvides()))
+			return icast_Iterable(obj_(this.dependencyInfo.getProvides().asImm()))
 		}
 		return ImmutableList_of()
 	}(), Iterable(this.extraProvides.asList())).up_ImmutableCollection()
@@ -195,8 +195,8 @@ func (this *CompilerInput) addOrderedRequire(require *DependencyInfo_Require) bo
 	return false
 }
 
-func (this *CompilerInput) getDynamicRequires() ImmutableListOf[string] {
-	return ImmutableList_copyOf(Collection(sliceView_(tc_string, this.dynamicRequires)))
+func (this *CompilerInput) getDynamicRequires() *ImmutableList[string] {
+	return immutableListCopyOf_(tc_string, Collection(sliceView_(tc_string, this.dynamicRequires)))
 }
 
 func (this *CompilerInput) addDynamicRequire(require string) bool {
@@ -238,7 +238,7 @@ func (this *CompilerInput) getDependencyInfo() DependencyInfo {
 		this.dependencyInfo = this.generateDependencyInfo()
 	}
 	if !this.extraRequires.isEmpty() || !this.extraProvides.isEmpty() {
-		this.dependencyInfo = icast_DependencyInfo(obj_(SimpleDependencyInfo_builder(this.getName(), Optional_of[string](this.getName())).setProvides(icast_Collection(obj_(CompilerInput_concat(icast_Iterable(obj_(this.dependencyInfo.getProvides())), Iterable(this.extraProvides.asList()))))).setRequires(icast_Collection(obj_(CompilerInput_concat(icast_Iterable(obj_(this.dependencyInfo.getRequires())), Iterable(this.extraRequires.asList()))))).setTypeRequires(icast_Collection(obj_(this.dependencyInfo.getTypeRequires()))).setLoadFlags(icast_Map(obj_(this.dependencyInfo.getLoadFlags()))).setHasExternsAnnotation(this.dependencyInfo.getHasExternsAnnotation()).setHasNoCompileAnnotation(this.dependencyInfo.getHasNoCompileAnnotation()).build()))
+		this.dependencyInfo = icast_DependencyInfo(obj_(SimpleDependencyInfo_builder(this.getName(), Optional_of[string](this.getName())).setProvides(icast_Collection(obj_(CompilerInput_concat(icast_Iterable(obj_(this.dependencyInfo.getProvides().asImm())), Iterable(this.extraProvides.asList()))))).setRequires(icast_Collection(obj_(CompilerInput_concat(icast_Iterable(obj_(this.dependencyInfo.getRequires().asImm())), Iterable(this.extraRequires.asList()))))).setTypeRequires(icast_Collection(obj_(this.dependencyInfo.getTypeRequires().asImm()))).setLoadFlags(icast_Map(obj_(this.dependencyInfo.getLoadFlags().asImm()))).setHasExternsAnnotation(this.dependencyInfo.getHasExternsAnnotation()).setHasNoCompileAnnotation(this.dependencyInfo.getHasNoCompileAnnotation()).build()))
 		this.extraRequires.clear()
 		this.extraProvides.clear()
 	}
@@ -315,7 +315,7 @@ func (this *CompilerInput) isGoogModule() bool {
 	return this.getDependencyInfo().isGoogModule()
 }
 
-func (this *CompilerInput) getLoadFlags() ImmutableMapOf[string, string] {
+func (this *CompilerInput) getLoadFlags() *ImmutableMap[string, string] {
 	return this.getDependencyInfo().getLoadFlags()
 }
 
@@ -337,7 +337,7 @@ func (this *CompilerInput) getFeatures(compiler *AbstractCompiler) *FeatureSet {
 	return this.ast.features_
 }
 
-func (this *CompilerInput) getRequiredSymbols() *ErasedImmutableList {
+func (this *CompilerInput) getRequiredSymbols() *ImmutableList[string] {
 	return DependencyInfo_getRequiredSymbols_default(this)
 }
 

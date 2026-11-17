@@ -165,10 +165,10 @@ func (this *JSDocInfoPrinter) print(info *JSDocInfo) string {
 		multiline = true
 		parts.add(("@throws " + sstr_(str_(info.getThrowsAnnotations().get(0)))))
 	}
-	var templates ImmutableMapOf[string, *JSTypeExpression] = info.getTemplateTypes()
+	var templates *ImmutableMap[string, *JSTypeExpression] = info.getTemplateTypes()
 	if !templates.isEmpty() {
 		multiline = true
-		Map_forEach_f(icast_Map(obj_(templates)), func(name_ any, boundExpr_ any) {
+		Map_forEach_f(icast_Map(obj_(templates.asImm())), func(name_ any, boundExpr_ any) {
 			var name string = str_(name_)
 			_ = name
 			var boundExpr *JSTypeExpression = cast_[*JSTypeExpression](boundExpr_)
@@ -181,10 +181,10 @@ func (this *JSDocInfoPrinter) print(info *JSDocInfo) string {
 			}
 		})
 	}
-	var typeTransformations ImmutableMapOf[string, Node] = info.getTypeTransformations()
+	var typeTransformations *ImmutableMap[string, Node] = info.getTypeTransformations()
 	if !typeTransformations.isEmpty() {
 		multiline = true
-		for _, el := range immElems_(cast_[*ErasedImmutableSet](typeTransformations.entrySet())) {
+		for _, el := range immElems_(cast_[*ErasedImmutableSet](typeTransformations.asImm().entrySet())) {
 			e := icast_Map_Entry(el)
 			var name string = str_(e.getKey())
 			var tranformationDefinition string = new_CodePrinter_Builder(Node_of_(e.getValue())).build()
@@ -278,8 +278,8 @@ func (this *JSDocInfoPrinter) print(info *JSDocInfo) string {
 	if info.isLegacyNamedTsExport() {
 		parts.add("@legacyNamedTsExport")
 	}
-	for _, el3 := range immElems_(info.getTsTypes()) {
-		tsType := str_(el3)
+	for el3 := range info.getTsTypes().All() {
+		tsType := el3
 		parts.add(("@tsType " + sstr_(tsType)))
 	}
 	if this.printDesc && info.getBlockDescription().isPresent() {

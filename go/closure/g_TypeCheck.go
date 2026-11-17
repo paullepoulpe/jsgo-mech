@@ -504,7 +504,7 @@ func (this *TypeCheck) checkGetterOrSetterType(child Node, classType *FunctionTy
 		if child.isGetterDef() {
 			return this.determineGetterType(methodType)
 		}
-		return cast_[*FunctionType_Parameter](Iterables_getOnlyElement(icast_Iterable(obj_(methodType.getParameters())))).getJSType()
+		return cast_[*FunctionType_Parameter](Iterables_getOnlyElement(icast_Iterable(obj_(methodType.getParameters().asImm())))).getJSType()
 	}()
 	var officialPropertyType *JSType = func() *JSType {
 		if child.isStaticMember() {
@@ -915,7 +915,7 @@ func TypeCheck_getObjectLitKeyTypeFromValueType(key Node, valueType *JSType) *JS
 		case tokOrd1_SETTER_DEF:
 			if valueType.isFunctionType() {
 				var fntype *FunctionType = valueType.toMaybeFunctionType()
-				var param *FunctionType_Parameter = cast_[*FunctionType_Parameter](fntype.getParameters().get(0))
+				var param *FunctionType_Parameter = fntype.getParameters().get(0)
 				valueType = param.getJSType()
 			} else {
 				return nil
@@ -1270,14 +1270,14 @@ func (this *TypeCheck) couldBeAConstructor(type_ *JSType) bool {
 
 func (this *TypeCheck) checkInterfaceConflictProperties(n Node, functionName string, properties *TMap[Property_Key, *ObjectType], currentProperties *TMap[Property_Key, *ObjectType], interfaceType *ObjectType) {
 	var implicitProto *ObjectType = interfaceType.getImplicitPrototype()
-	var currentPropertyNames ImmutableSetOf[Property_Key]
+	var currentPropertyNames *ImmutableSet[Property_Key]
 	if implicitProto == nil {
-		currentPropertyNames = ImmutableSet_of()
+		currentPropertyNames = immutableSetOf_(tch_Property_Key)
 	} else {
 		currentPropertyNames = implicitProto.getOwnPropertyKeys()
 	}
-	for _, el := range immElems_(currentPropertyNames) {
-		name := icast_Property_Key(el)
+	for el := range currentPropertyNames.All() {
+		name := el
 		var oType *ObjectType = properties.get(name)
 		currentProperties.put(name, interfaceType)
 		if oType != nil {
@@ -1352,8 +1352,8 @@ func (this *TypeCheck) checkConstructor(n Node, functionType *FunctionType) {
 			this.checkStructDictSubtyping(n, functionType, baseConstructor)
 		}
 		var alreadySeenInterfaces *TSet[*JSType] = newTSet_(tch_p_JSType)
-		for _, el := range immElems_(functionType.getOwnImplementedInterfaces()) {
-			baseInterface := to_JSType(el)
+		for el := range functionType.getOwnImplementedInterfaces().All() {
+			baseInterface := to_JSType(el.self())
 			var badImplementedType bool = false
 			var baseInterfaceObj *ObjectType = ObjectType_cast(baseInterface)
 			if baseInterfaceObj != nil {
@@ -1395,8 +1395,8 @@ func (this *TypeCheck) checkStructDictSubtyping(n Node, subtype *FunctionType, s
 }
 
 func (this *TypeCheck) checkInterface(n Node, functionType *FunctionType) {
-	for _, el := range immElems_(functionType.getExtendedInterfaces()) {
-		extInterface := to_ObjectType(el)
+	for el := range functionType.getExtendedInterfaces().All() {
+		extInterface := el
 		if (extInterface.getConstructor() != nil) && !extInterface.getConstructor().isInterface() {
 			this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, TypeCheck_CONFLICTING_EXTENDED_TYPE, []string{"interface", this.getBestFunctionName(n)}))
 		}
@@ -1404,8 +1404,8 @@ func (this *TypeCheck) checkInterface(n Node, functionType *FunctionType) {
 	if functionType.getExtendedInterfacesCount() > 1 {
 		var properties *TMap[Property_Key, *ObjectType] = newTMap_(tch_Property_Key, tc_p_ObjectType)
 		var currentProperties *TMap[Property_Key, *ObjectType] = newTMap_(tch_Property_Key, tc_p_ObjectType)
-		for _, el2 := range immElems_(functionType.getExtendedInterfaces()) {
-			interfaceType := to_ObjectType(el2)
+		for el2 := range functionType.getExtendedInterfaces().All() {
+			interfaceType := el2
 			currentProperties.clear()
 			this.checkInterfaceConflictProperties(n, this.getBestFunctionName(n), properties, currentProperties, interfaceType)
 			properties.asMap().putAll(currentProperties.asMap())
@@ -1482,7 +1482,7 @@ func (this *TypeCheck) visitCall(t *NodeTraversal, n Node) {
 }
 
 func (this *TypeCheck) visitArgumentList(call Node, functionType *FunctionType) {
-	var parameters *immCursor_ = immCursorOf_(functionType.getParameters())
+	var parameters *immCursor_ = immCursorOf_(functionType.getParameters().asImm())
 	var arguments IteratorOf[Node] = NodeUtil_getInvocationArgsAsIterable(call).iterator()
 	this.checkArgumentsMatchParameters(call, functionType, arguments, parameters, 0)
 }
@@ -1633,7 +1633,7 @@ func (this *TypeCheck) visitTaggedTemplateLit(n Node) {
 		return
 	}
 	var tagFnType *FunctionType = tagType.toMaybeFunctionType()
-	var parameters *immCursor_ = immCursorOf_(tagFnType.getParameters())
+	var parameters *immCursor_ = immCursorOf_(tagFnType.getParameters().asImm())
 	if !parameters.hasNext() {
 		this.report(n, TypeCheck_WRONG_ARGUMENT_COUNT, []string{this.typeRegistry.getReadableTypeNameNoDeref(tag).orElse("null"), strconv.Itoa(int(NodeUtil_getInvocationArgsCount(n))), "0", " and no more than 0 argument(s)"})
 		return
@@ -1831,7 +1831,7 @@ func (this *TypeCheck) isReasonableObjectPropertyKey(type_ *JSType) bool {
 	if type_.isTemplatizedType() {
 		var templatizedType *TemplatizedType = type_.toMaybeTemplatizedType()
 		if templatizedType.getReferencedType().isArrayType() {
-			return this.isReasonableObjectPropertyKey(to_JSType(templatizedType.getTemplateTypes().get(0)))
+			return this.isReasonableObjectPropertyKey(templatizedType.getTemplateTypes().get(0))
 		}
 	}
 	var namedType *NamedType
@@ -1848,8 +1848,8 @@ func (this *TypeCheck) isReasonableObjectPropertyKey(type_ *JSType) bool {
 		return this.isReasonableObjectPropertyKey(namedType.getReferencedType())
 	}
 	if type_.isUnionType() {
-		for _, el_1 := range immElems_(type_.toMaybeUnionType().getAlternates()) {
-			var alternateType *JSType = to_JSType(el_1)
+		for el_1 := range type_.toMaybeUnionType().getAlternates().All() {
+			var alternateType *JSType = el_1
 			if !this.isReasonableObjectPropertyKey(alternateType) {
 				return false
 			}
@@ -1890,8 +1890,8 @@ func (this *TypeCheck) findObjectWithNonStringifiableKey(type_ *JSType, alreadyC
 		return type_
 	}
 	if type_.isUnionType() {
-		for _, el_1 := range immElems_(type_.toMaybeUnionType().getAlternates()) {
-			var alternateType *JSType = to_JSType(el_1)
+		for el_1 := range type_.toMaybeUnionType().getAlternates().All() {
+			var alternateType *JSType = el_1
 			var result *JSType = this.findObjectWithNonStringifiableKey(alternateType, alreadyCheckedTypes)
 			if result != nil {
 				return result
@@ -1899,8 +1899,8 @@ func (this *TypeCheck) findObjectWithNonStringifiableKey(type_ *JSType, alreadyC
 		}
 	}
 	if type_.isTemplatizedType() {
-		for _, el_3 := range immElems_(type_.toMaybeTemplatizedType().getTemplateTypes()) {
-			var templateType *JSType = to_JSType(el_3)
+		for el_3 := range type_.toMaybeTemplatizedType().getTemplateTypes().All() {
+			var templateType *JSType = el_3
 			var result *JSType = this.findObjectWithNonStringifiableKey(templateType, alreadyCheckedTypes)
 			if result != nil {
 				return result
@@ -1909,8 +1909,8 @@ func (this *TypeCheck) findObjectWithNonStringifiableKey(type_ *JSType, alreadyC
 	}
 	if type_.isOrdinaryFunction() {
 		var function *FunctionType = type_.toMaybeFunctionType()
-		for _, el_5 := range immElems_(function.getParameters()) {
-			var parameter *FunctionType_Parameter = cast_[*FunctionType_Parameter](el_5)
+		for el_5 := range function.getParameters().All() {
+			var parameter *FunctionType_Parameter = el_5
 			var result *JSType = this.findObjectWithNonStringifiableKey(parameter.getJSType(), alreadyCheckedTypes)
 			if result != nil {
 				return result
@@ -1942,9 +1942,9 @@ func (this *TypeCheck) checkNotReadonlyPropertyAssignment(lhs Node) {
 		return
 	}
 	var roArray *JSType = this.getNativeType(JSTypeNative_READONLY_ARRAY_TYPE)
-	var alternates ImmutableListOf[*JSType] = TypeCheck_flattenUnion(lhsType)
+	var alternates *ImmutableList[*JSType] = TypeCheck_flattenUnion(lhsType)
 	for i := int32(0); i < alternates.size(); i++ {
-		var type_ *JSType = to_JSType(alternates.get(i))
+		var type_ *JSType = alternates.get(i)
 		if roArray.equals_JSType(type_) || roArray.equals_JSType(TypeCheck_maybeReferencedType(type_)) {
 			this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(lhs, TypeCheck_PROPERTY_ASSIGNMENT_TO_READONLY_VALUE, []string{type_.toString()}))
 			break
@@ -1962,11 +1962,11 @@ func TypeCheck_maybeReferencedType(type_ *JSType) *JSType {
 	}()
 }
 
-func TypeCheck_flattenUnion(maybeUnion *JSType) ImmutableListOf[*JSType] {
+func TypeCheck_flattenUnion(maybeUnion *JSType) *ImmutableList[*JSType] {
 	var union *UnionType = maybeUnion.toMaybeUnionType()
-	return func() *ErasedImmutableList {
+	return func() *ImmutableList[*JSType] {
 		if union == nil {
-			return ImmutableList_of_Object(maybeUnion.self())
+			return immutableListOf_(tc_p_JSType, maybeUnion)
 		}
 		return union.getAlternates()
 	}()

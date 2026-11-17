@@ -6,7 +6,7 @@ type RandomNameGenerator struct {
 	firstChars       ImmutableSetOf[BoxedOf[uint16]]
 	nonFirstChars    ImmutableSetOf[BoxedOf[uint16]]
 	random           *Random
-	reservedNames    ImmutableSetOf[string]
+	reservedNames    *ImmutableSet[string]
 	prefix_          string
 	nameCount        int32
 	shuffledFirst    string
@@ -59,7 +59,7 @@ func (this *RandomNameGenerator) reset(reservedNames SetOf[string], prefix strin
 }
 
 func (this *RandomNameGenerator) reset_4(reservedNames SetOf[string], prefix string, reservedFirstCharacters SetOf[BoxedOf[uint16]], reservedNonFirstCharacters SetOf[BoxedOf[uint16]]) {
-	this.reservedNames = ImmutableSet_copyOf(Collection(reservedNames))
+	this.reservedNames = immutableSetCopyOf_(tc_string, Collection(reservedNames))
 	this.prefix_ = prefix
 	this.nameCount = 0
 	this.firstChars = Sets_difference(icast_Set(obj_(RandomNameGenerator_FIRST_CHAR)), reservedFirstCharacters).immutableCopy()
@@ -156,7 +156,7 @@ func (this *RandomNameGenerator) generateNextName() string {
 	for {
 		var name string = (sstr_(this.prefix_) + sstr_(this.generateSuffix(String_length(this.prefix_), this.nameCount)))
 		this.nameCount++
-		if (TokenStream_isKeyword(name) || Collection_contains_s(this.reservedNames, name)) || DefaultNameGenerator_isBadName(name) {
+		if (TokenStream_isKeyword(name) || this.reservedNames.contains(name)) || DefaultNameGenerator_isBadName(name) {
 			continue
 		}
 		return name

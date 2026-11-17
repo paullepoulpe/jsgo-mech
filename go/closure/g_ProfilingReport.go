@@ -22,11 +22,11 @@ func ProfilingReport_createTabSeparatedProfilingReport(instrumentationMapping Ma
 	for _, report := range allInstrumentationReports {
 		profiles = append(profiles, ReportDecoder_decodeReport(instrumentationMapping, report))
 	}
-	var metricsBuilder ImmutableMap_BuilderOf[*InstrumentationPoint, *ProfilingReport_InstrumentationPointMetrics] = ImmutableMap_builder()
+	var metricsBuilder *ImmutableMap_Builder[*InstrumentationPoint, *ProfilingReport_InstrumentationPointMetrics] = immutableMapBuilder_(tc_p_InstrumentationPoint, tc_p_ProfilingReport_InstrumentationPointMetrics)
 	for point := range elemsAs_[*InstrumentationPoint](instrumentationMapping.values()) {
-		metricsBuilder.put(obj_(point), obj_(new_ProfilingReport_InstrumentationPointMetrics()))
+		metricsBuilder.put(point, new_ProfilingReport_InstrumentationPointMetrics())
 	}
-	var metrics *TMap[*InstrumentationPoint, *ProfilingReport_InstrumentationPointMetrics] = tmapFrom_(tch_p_InstrumentationPoint, tc_p_ProfilingReport_InstrumentationPointMetrics, metricsBuilder.buildOrThrow(), true)
+	var metrics *TMap[*InstrumentationPoint, *ProfilingReport_InstrumentationPointMetrics] = metricsBuilder.buildOrThrow()
 	for _, profile := range profiles {
 		for fileProfile := range elemsAs_[*FileProfile](profile.getFileProfileList()) {
 			for pointStats := range elemsAs_[*InstrumentationPointStats](fileProfile.getInstrumentationPointsStatsList()) {

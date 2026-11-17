@@ -7,7 +7,7 @@ import "strings"
 type J2clUtilGetDefineRewriterPass struct {
 	NodeTraversal_AbstractPostOrderCallback
 	compiler_ *AbstractCompiler
-	defines   ImmutableSetOf[string]
+	defines   *ImmutableSet[string]
 }
 
 func (this *J2clUtilGetDefineRewriterPass) up_NodeTraversal_AbstractPostOrderCallback() *NodeTraversal_AbstractPostOrderCallback {
@@ -62,7 +62,7 @@ func (this *J2clUtilGetDefineRewriterPass) rewriteUtilGetDefine(t *NodeTraversal
 
 func (this *J2clUtilGetDefineRewriterPass) getDefineReplacement(firstExpr Node, secondExpr Node) Node {
 	var defineName string = firstExpr.getString()
-	if Collection_contains_s(this.defines, defineName) {
+	if this.defines.contains(defineName) {
 		var define Node = NodeUtil_newQName_AbstractCompiler_String(this.compiler_, ProcessDefines_getGlobalDefineAlias(defineName))
 		var defineStringValue Node = NodeUtil_newCallNode(IR_name("String"), []Node{define})
 		return IR_comma(secondExpr, defineStringValue)
@@ -153,12 +153,12 @@ func (this *J2clUtilGetDefineRewriterPass_CheckGetDefineCalls) visit_impl(t *Nod
 
 func (this *J2clUtilGetDefineRewriterPass_CheckGetDefineCalls) validateRegisteredDefines() {
 	for entryKey, entryValue := range this.defineNameToAddSystemPropertyCall.All() {
-		if !Collection_contains_s(this.outer_.defines, entryKey) {
+		if !this.outer_.defines.contains(entryKey) {
 			this.outer_.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(entryValue, J2clUtilGetDefineRewriterPass_J2CL_ADD_SYSTEM_PROPERTY_UNKNOWN_DEFINE, []string{entryKey}))
 		}
 	}
 	for entryKey2, entryValue2 := range this.defineNameToGetDefineCall.All() {
-		if !Collection_contains_s(this.outer_.defines, entryKey2) {
+		if !this.outer_.defines.contains(entryKey2) {
 			continue
 		}
 		if !this.defineNameToAddSystemPropertyCall.containsKey(entryKey2) {

@@ -4,10 +4,10 @@ package closure
 
 type DependencyOptions struct {
 	mode_        DependencyOptions_DependencyMode
-	entryPoints_ ImmutableListOf[*ModuleIdentifier]
+	entryPoints_ *ImmutableList[*ModuleIdentifier]
 }
 
-func (this *DependencyOptions) init_DependencyOptions(mode DependencyOptions_DependencyMode, entryPoints ImmutableListOf[*ModuleIdentifier]) {
+func (this *DependencyOptions) init_DependencyOptions(mode DependencyOptions_DependencyMode, entryPoints *ImmutableList[*ModuleIdentifier]) {
 	if mode == 0 {
 		panic(new_NullPointerException_String("mode").self())
 	}
@@ -18,7 +18,7 @@ func (this *DependencyOptions) init_DependencyOptions(mode DependencyOptions_Dep
 	this.entryPoints_ = entryPoints
 }
 
-func new_DependencyOptions(mode DependencyOptions_DependencyMode, entryPoints ImmutableListOf[*ModuleIdentifier]) *DependencyOptions {
+func new_DependencyOptions(mode DependencyOptions_DependencyMode, entryPoints *ImmutableList[*ModuleIdentifier]) *DependencyOptions {
 	this := &DependencyOptions{}
 	this.init_DependencyOptions(mode, entryPoints)
 	return this
@@ -28,7 +28,7 @@ func (this *DependencyOptions) getMode() DependencyOptions_DependencyMode {
 	return this.mode()
 }
 
-func (this *DependencyOptions) getEntryPoints() ImmutableListOf[*ModuleIdentifier] {
+func (this *DependencyOptions) getEntryPoints() *ImmutableList[*ModuleIdentifier] {
 	return this.entryPoints()
 }
 
@@ -49,26 +49,26 @@ func (this *DependencyOptions) shouldDropMoochers() bool {
 }
 
 func DependencyOptions_none() *DependencyOptions {
-	return new_DependencyOptions(DependencyOptions_DependencyMode_NONE, ImmutableList_of())
+	return new_DependencyOptions(DependencyOptions_DependencyMode_NONE, immutableListOf_(tc_p_ModuleIdentifier))
 }
 
 func DependencyOptions_sortOnly() *DependencyOptions {
-	return new_DependencyOptions(DependencyOptions_DependencyMode_SORT_ONLY, ImmutableList_of())
+	return new_DependencyOptions(DependencyOptions_DependencyMode_SORT_ONLY, immutableListOf_(tc_p_ModuleIdentifier))
 }
 
 func DependencyOptions_pruneLegacyForEntryPoints(entryPoints IterableOf[*ModuleIdentifier]) *DependencyOptions {
-	return new_DependencyOptions(DependencyOptions_DependencyMode_PRUNE_LEGACY, ImmutableList_copyOf_Iterable(entryPoints))
+	return new_DependencyOptions(DependencyOptions_DependencyMode_PRUNE_LEGACY, immutableListCopyOf_(tc_p_ModuleIdentifier, entryPoints))
 }
 
 func DependencyOptions_pruneAllowNoEntryPoints(entryPoints IterableOf[*ModuleIdentifier]) *DependencyOptions {
-	return new_DependencyOptions(DependencyOptions_DependencyMode_PRUNE_ALLOW_NO_ENTRY_POINTS, ImmutableList_copyOf_Iterable(entryPoints))
+	return new_DependencyOptions(DependencyOptions_DependencyMode_PRUNE_ALLOW_NO_ENTRY_POINTS, immutableListCopyOf_(tc_p_ModuleIdentifier, entryPoints))
 }
 
 func DependencyOptions_pruneForEntryPoints(entryPoints IterableOf[*ModuleIdentifier]) *DependencyOptions {
 	if Iterables_isEmpty(entryPoints) {
 		panic(new_IllegalStateException_String("DependencyMode.PRUNE requires at least one entry point").self())
 	}
-	return new_DependencyOptions(DependencyOptions_DependencyMode_PRUNE, ImmutableList_copyOf_Iterable(entryPoints))
+	return new_DependencyOptions(DependencyOptions_DependencyMode_PRUNE, immutableListCopyOf_(tc_p_ModuleIdentifier, entryPoints))
 }
 
 func DependencyOptions_fromFlags(dependencyModeFlag DependencyOptions_DependencyMode, entryPointFlag ListOf[string], closureEntryPointFlag []string, commonJsEntryModuleFlag OptionalOf[string], manageClosureDependenciesFlag bool, onlyClosureDependenciesFlag bool) *Outcome_base[*DependencyOptions] {
@@ -109,15 +109,15 @@ func DependencyOptions_fromFlags(dependencyModeFlag DependencyOptions_Dependency
 	} else {
 		return Outcome_base_ok_Object[*DependencyOptions](nil)
 	}
-	var entryPointsBuilder ImmutableList_BuilderOf[*ModuleIdentifier] = ImmutableList_builder()
+	var entryPointsBuilder *ImmutableList_Builder[*ModuleIdentifier] = immutableListBuilder_(tc_p_ModuleIdentifier)
 	if commonJsEntryModuleFlag.isPresent() {
-		entryPointsBuilder.add(obj_(ModuleIdentifier_forFile(commonJsEntryModuleFlag.get())))
+		entryPointsBuilder.add(ModuleIdentifier_forFile(commonJsEntryModuleFlag.get()))
 	}
 	for entryPoint := range elemsBy_(entryPointFlag, str_) {
-		entryPointsBuilder.add(obj_(ModuleIdentifier_forFlagValue(entryPoint)))
+		entryPointsBuilder.add(ModuleIdentifier_forFlagValue(entryPoint))
 	}
 	for _, closureEntryPoint := range closureEntryPointFlag {
-		entryPointsBuilder.add(obj_(ModuleIdentifier_forClosure(closureEntryPoint)))
+		entryPointsBuilder.add(ModuleIdentifier_forClosure(closureEntryPoint))
 	}
 	var result *DependencyOptions = func() *DependencyOptions {
 		switch dependencyMode {
@@ -126,11 +126,11 @@ func DependencyOptions_fromFlags(dependencyModeFlag DependencyOptions_Dependency
 		case DependencyOptions_DependencyMode_SORT_ONLY:
 			return DependencyOptions_sortOnly()
 		case DependencyOptions_DependencyMode_PRUNE_LEGACY:
-			return DependencyOptions_pruneLegacyForEntryPoints(icast_Iterable(obj_(entryPointsBuilder.build())))
+			return DependencyOptions_pruneLegacyForEntryPoints(icast_Iterable(obj_(entryPointsBuilder.build().asImm())))
 		case DependencyOptions_DependencyMode_PRUNE_ALLOW_NO_ENTRY_POINTS:
-			return DependencyOptions_pruneAllowNoEntryPoints(icast_Iterable(obj_(entryPointsBuilder.build())))
+			return DependencyOptions_pruneAllowNoEntryPoints(icast_Iterable(obj_(entryPointsBuilder.build().asImm())))
 		case DependencyOptions_DependencyMode_PRUNE:
-			return DependencyOptions_pruneForEntryPoints(icast_Iterable(obj_(entryPointsBuilder.build())))
+			return DependencyOptions_pruneForEntryPoints(icast_Iterable(obj_(entryPointsBuilder.build().asImm())))
 		}
 		panic("unreachable")
 	}()
@@ -141,7 +141,7 @@ func (this *DependencyOptions) mode() DependencyOptions_DependencyMode {
 	return this.mode_
 }
 
-func (this *DependencyOptions) entryPoints() *ErasedImmutableList {
+func (this *DependencyOptions) entryPoints() *ImmutableList[*ModuleIdentifier] {
 	return this.entryPoints_
 }
 
@@ -150,18 +150,18 @@ func (this *DependencyOptions) equals(p0 any) bool {
 	if !ok || o == nil {
 		return false
 	}
-	return true && this.mode_ == o.mode_ && objequalsBy_(this.entryPoints_, obj_(o.entryPoints_), (ImmutableListOf[*ModuleIdentifier]).equals)
+	return true && this.mode_ == o.mode_ && objequalsBy_(this.entryPoints_.asImm(), obj_(o.entryPoints_.asImm()), (ImmutableListOf[*ModuleIdentifier]).equals)
 }
 
 func (this *DependencyOptions) hashCode() int32 {
 	var h int32
 	h = h*31 + objhashId_(this.mode_)
-	h = h*31 + objhashBy_(this.entryPoints_, (ImmutableListOf[*ModuleIdentifier]).hashCode)
+	h = h*31 + objhashBy_(this.entryPoints_.asImm(), (ImmutableListOf[*ModuleIdentifier]).hashCode)
 	return h
 }
 
 func (this *DependencyOptions) toString() string {
-	return "DependencyOptions[" + "mode=" + tostr_(this.mode_) + ", entryPoints=" + tostr_(this.entryPoints_) + "]"
+	return "DependencyOptions[" + "mode=" + tostr_(this.mode_) + ", entryPoints=" + tostr_(this.entryPoints_.asImm()) + "]"
 }
 
 type DependencyOptions_DependencyMode uint8

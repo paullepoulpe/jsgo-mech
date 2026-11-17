@@ -129,7 +129,7 @@ func (this *TypedCodeGenerator) getFunctionAnnotation(fnNode Node) string {
 			}
 		}
 	}
-	this.appendTemplateAnnotations(&sb, icast_Collection(obj_(funType.getTypeParameters())))
+	this.appendTemplateAnnotations(&sb, icast_Collection(obj_(funType.getTypeParameters().asImm())))
 	sb.append(" */\n")
 	return sb.toString()
 }
@@ -148,9 +148,9 @@ func (this *TypedCodeGenerator) getMemberFunctionAnnotation(fnNode Node) string 
 	var paramNode Node = NodeUtil_getFunctionParameters(fnNode).getFirstChild()
 	this.appendFunctionParamAnnotations(&sb, funType, paramNode)
 	if NodeUtil_isEs6Constructor(fnNode) {
-		this.appendTemplateAnnotations(&sb, icast_Collection(obj_(funType.getConstructorOnlyTemplateParameters())))
+		this.appendTemplateAnnotations(&sb, icast_Collection(obj_(funType.getConstructorOnlyTemplateParameters().asImm())))
 	} else {
-		this.appendTemplateAnnotations(&sb, icast_Collection(obj_(funType.getTypeParameters())))
+		this.appendTemplateAnnotations(&sb, icast_Collection(obj_(funType.getTypeParameters().asImm())))
 		var retType *JSType = funType.getReturnType()
 		if (retType != nil) && !retType.isEmptyType() {
 			sb.append(" * ")
@@ -165,10 +165,10 @@ func (this *TypedCodeGenerator) getMemberFunctionAnnotation(fnNode Node) string 
 func (this *TypedCodeGenerator) appendFunctionParamAnnotations(sb *strBuilder_, funType *FunctionType, paramNode Node) {
 	var minArity int32 = funType.getMinArity()
 	var maxArity int32 = funType.getMaxArity()
-	var formals ImmutableListOf[*FunctionType_Parameter] = funType.getParameters()
+	var formals *ImmutableList[*FunctionType_Parameter] = funType.getParameters()
 	for i := int32(0); i < formals.size(); i++ {
 		sb.append(" * ")
-		TypedCodeGenerator_appendAnnotation(sb, "param", this.getParameterJSDocType(sliceImm_(tc_p_FunctionType_Parameter, formals), i, minArity, maxArity))
+		TypedCodeGenerator_appendAnnotation(sb, "param", this.getParameterJSDocType(sliceImm_(tc_p_FunctionType_Parameter, formals.asImm()), i, minArity, maxArity))
 		var parameterName string = this.getParameterJSDocName(paramNode, i)
 		sb.append(" ").append(parameterName).append("\n")
 		if paramNode != 0 {
@@ -194,7 +194,7 @@ func (this *TypedCodeGenerator) getClassAnnotation(classType *JSType) string {
 		}
 		this.appendClassAnnotations(&sb, funType)
 	}
-	this.appendTemplateAnnotations(&sb, icast_Collection(obj_(funType.getTypeParameters())))
+	this.appendTemplateAnnotations(&sb, icast_Collection(obj_(funType.getTypeParameters().asImm())))
 	var jsdocContent string = sb.toString()
 	if jsdocContent == "" {
 		return jsdocContent

@@ -63,7 +63,7 @@ func (this *ClosureRewriteModule) rewriteJsdoc(info *JSDocInfo, scope *Scope) {
 }
 
 func (this *ClosureRewriteModule) isWeakNamespace(namespaceId string) bool {
-	var metadata *ModuleMetadataMap_ModuleMetadata = cast_[*ModuleMetadataMap_ModuleMetadata](Map_get_s(this.compiler_.getModuleMetadataMap().getModulesByGoogNamespace(), namespaceId))
+	var metadata *ModuleMetadataMap_ModuleMetadata = this.compiler_.getModuleMetadataMap().getModulesByGoogNamespace().get(namespaceId)
 	return ((metadata != nil) && metadata.rootNode().getStaticSourceFile().isWeak())
 }
 
@@ -71,7 +71,7 @@ func (this *ClosureRewriteModule) isUnrequiredWeakNamespace(call Node, namespace
 	if call.getStaticSourceFile().isWeak() || !this.isWeakNamespace(namespaceId) {
 		return false
 	}
-	var callerMetadata *ModuleMetadataMap_ModuleMetadata = cast_[*ModuleMetadataMap_ModuleMetadata](Map_get_s(this.compiler_.getModuleMetadataMap().getModulesByPath(), call.getSourceFileName()))
+	var callerMetadata *ModuleMetadataMap_ModuleMetadata = this.compiler_.getModuleMetadataMap().getModulesByPath().get(call.getSourceFileName())
 	return ((callerMetadata == nil) || !callerMetadata.stronglyRequiredGoogNamespaces().contains_s(namespaceId))
 }
 
@@ -106,18 +106,18 @@ func (this *ClosureRewriteModule) process_2(externs Node, root Node) {
 }
 
 func (this *ClosureRewriteModule) declareSyntheticExterns() {
-	var varsBuilder ImmutableList_BuilderOf[Node] = ImmutableList_builder()
+	var varsBuilder *ImmutableList_Builder[Node] = immutableListBuilder_(tc_Node)
 	for lhs := range this.syntheticExterns.Values() {
 		if !this.isNameInGlobalScope(lhs.getString()) {
-			varsBuilder.add(IR_var_Node(this.astFactory_.createNameWithUnknownType(lhs.getString())).srcrefTree(lhs).box_())
+			varsBuilder.add(IR_var_Node(this.astFactory_.createNameWithUnknownType(lhs.getString())).srcrefTree(lhs))
 		}
 	}
-	var vars ImmutableListOf[Node] = varsBuilder.build()
+	var vars *ImmutableList[Node] = varsBuilder.build()
 	if vars.isEmpty() {
 		return
 	}
 	var root Node = this.compiler_.getSynthesizedExternsInput().getAstRoot(this.compiler_)
-	Iterable_forEach_f(icast_Iterable(obj_(vars)), func(p0 any) { root.addChildToBack(Node_of_(p0)) })
+	Iterable_forEach_f(icast_Iterable(obj_(vars.asImm())), func(p0 any) { root.addChildToBack(Node_of_(p0)) })
 }
 
 func (this *ClosureRewriteModule) isNameInGlobalScope(name string) bool {

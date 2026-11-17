@@ -40,7 +40,7 @@ func (this *OptimizeCalls) process_2(externs Node, root Node) {
 }
 
 func (this *OptimizeCalls) eliminateAccessorsFrom(references *OptimizeCalls_ReferenceMap) {
-	references.props.asMap().keySet().removeAll(Collection(this.compiler_.getAccessorSummary().getAccessors().keySet()))
+	references.props.asMap().keySet().removeAll(Collection(this.compiler_.getAccessorSummary().getAccessors().asImm().keySet()))
 }
 
 func OptimizeCalls_safeSet(set *TSet[string]) map[string]struct{} {
@@ -110,12 +110,12 @@ func (this *OptimizeCalls_CallGraphCompilerPass_fn) process_3(p0 Node, p1 Node, 
 
 type OptimizeCalls_Builder struct {
 	compiler_       *AbstractCompiler
-	passes          ImmutableList_BuilderOf[OptimizeCalls_CallGraphCompilerPass]
+	passes          *ImmutableList_Builder[OptimizeCalls_CallGraphCompilerPass]
 	considerExterns any
 }
 
 func (this *OptimizeCalls_Builder) finit_OptimizeCalls_Builder() {
-	this.passes = ImmutableList_builder()
+	this.passes = immutableListBuilder_(tc_OptimizeCalls_CallGraphCompilerPass)
 }
 
 func (this *OptimizeCalls_Builder) init_OptimizeCalls_Builder() {
@@ -139,7 +139,7 @@ func (this *OptimizeCalls_Builder) setConsiderExterns(b bool) *OptimizeCalls_Bui
 }
 
 func (this *OptimizeCalls_Builder) addPass(pass OptimizeCalls_CallGraphCompilerPass) *OptimizeCalls_Builder {
-	this.passes.add(pass)
+	this.passes.add(icast_OptimizeCalls_CallGraphCompilerPass(pass))
 	return this
 }
 
@@ -150,7 +150,7 @@ func (this *OptimizeCalls_Builder) build() *OptimizeCalls {
 	if this.considerExterns == nil {
 		panic(new_NullPointerException_0().self())
 	}
-	return new_OptimizeCalls(this.compiler_, sliceImm_(tc_OptimizeCalls_CallGraphCompilerPass, this.passes.build()), unbox_[bool](this.considerExterns))
+	return new_OptimizeCalls(this.compiler_, this.passes.build().items, unbox_[bool](this.considerExterns))
 }
 
 type OptimizeCalls_ReferenceMap struct {
@@ -209,33 +209,33 @@ func (this *OptimizeCalls_ReferenceMap) getPropReferences() IterableOf[Map_Entry
 func OptimizeCalls_ReferenceMap_getFunctionNodes(definitionSites ListOf[Node]) *SimpleListMultimap[Node, any] {
 	var result *SimpleListMultimap[Node, any] = SimpleListMultimap_create[Node, any]()
 	for def := range elemsBy_(definitionSites, Node_of_) {
-		result.putAll(def, icast_Iterable(obj_(OptimizeCalls_ReferenceMap_definitionFunctionNodesFor(def))))
+		result.putAll(def, icast_Iterable(obj_(OptimizeCalls_ReferenceMap_definitionFunctionNodesFor(def).asImm())))
 	}
 	return result.immutableCopy()
 }
 
-func OptimizeCalls_ReferenceMap_definitionFunctionNodesFor(definitionSite Node) ImmutableListOf[Node] {
+func OptimizeCalls_ReferenceMap_definitionFunctionNodesFor(definitionSite Node) *ImmutableList[Node] {
 	if definitionSite.isGetterDef() || definitionSite.isSetterDef() {
-		return ImmutableList_of()
+		return immutableListOf_(tc_Node)
 	}
 	var parent Node = definitionSite.getParent()
 	if parent == 0 {
-		return ImmutableList_of()
+		return immutableListOf_(tc_Node)
 	}
-	var fns ImmutableList_BuilderOf[Node] = ImmutableList_builder()
+	var fns *ImmutableList_Builder[Node] = immutableListBuilder_(tc_Node)
 	switch parent.ns_().token {
 	case tokOrd1_CLASS:
 		if definitionSite.isFirstChildOf(parent) {
 			var constructorFnDef Node = NodeUtil_getEs6ClassConstructorMemberFunctionDef(parent)
 			if constructorFnDef != 0 {
-				fns.add(constructorFnDef.getOnlyChild().box_())
+				fns.add(constructorFnDef.getOnlyChild())
 			}
 		}
 	case tokOrd1_FUNCTION:
-		fns.add(parent.box_())
+		fns.add(parent)
 	case tokOrd1_CLASS_MEMBERS:
 		if definitionSite.isMemberFunctionDef() {
-			fns.add(definitionSite.getLastChild().box_())
+			fns.add(definitionSite.getLastChild())
 		} else {
 			if !definitionSite.isMemberFieldDef() {
 				panic(new_IllegalArgumentException_String(tostr_(definitionSite)).self())
@@ -265,17 +265,17 @@ func OptimizeCalls_ReferenceMap_definitionFunctionNodesFor(definitionSite Node) 
 	return fns.build()
 }
 
-func OptimizeCalls_ReferenceMap_addValueFunctionNodes(fns ImmutableList_BuilderOf[Node], n Node) {
+func OptimizeCalls_ReferenceMap_addValueFunctionNodes(fns *ImmutableList_Builder[Node], n Node) {
 	switch n.ns_().token {
 	case tokOrd1_CLASS:
 		{
 			var constructorFnDef Node = NodeUtil_getEs6ClassConstructorMemberFunctionDef(n)
 			if constructorFnDef != 0 {
-				fns.add(constructorFnDef.getOnlyChild().box_())
+				fns.add(constructorFnDef.getOnlyChild())
 			}
 		}
 	case tokOrd1_FUNCTION:
-		fns.add(n.box_())
+		fns.add(n)
 	case tokOrd1_HOOK:
 		OptimizeCalls_ReferenceMap_addValueFunctionNodes(fns, n.getSecondChild())
 		OptimizeCalls_ReferenceMap_addValueFunctionNodes(fns, n.getLastChild())
@@ -367,7 +367,7 @@ type OptimizeCalls_ReferenceMapBuildingCallback struct {
 }
 
 func (this *OptimizeCalls_ReferenceMapBuildingCallback) init_OptimizeCalls_ReferenceMapBuildingCallback(references *OptimizeCalls_ReferenceMap) {
-	this.externProps = OptimizeCalls_safeSet(tsetFrom_(tc_string, this.outer_.compiler_.getExternProperties(), true))
+	this.externProps = OptimizeCalls_safeSet(tsetFrom_(tc_string, this.outer_.compiler_.getExternProperties().asImm(), true))
 	this.references = references
 }
 

@@ -47,7 +47,7 @@ func ClosureRequireProcessor_getModuleDependencyTypeFromRhs(value Node) Binding_
 	if !owner.isName() || !(owner.getString() == "goog") {
 		return 0
 	}
-	return cast_[Binding_CreatedBy](Map_get_s(ClosureRequireProcessor_GOOG_DEPENDENCY_CALLS, callee.getString()))
+	return ClosureRequireProcessor_GOOG_DEPENDENCY_CALLS.get(callee.getString())
 }
 
 func (this *ClosureRequireProcessor) getAllRequiresInDeclaration() []*ClosureRequireProcessor_Require {
@@ -88,7 +88,7 @@ func (this *ClosureRequireProcessor) getAllRequiresFromDestructuring(objectPatte
 	return immBuilt_(requireBuilder)
 }
 
-var ClosureRequireProcessor_GOOG_DEPENDENCY_CALLS *ErasedImmutableMap
+var ClosureRequireProcessor_GOOG_DEPENDENCY_CALLS *ImmutableMap[string, Binding_CreatedBy]
 
 var ClosureRequireProcessor_clinit_done bool
 
@@ -97,7 +97,7 @@ func ClosureRequireProcessor_clinit() {
 		return
 	}
 	ClosureRequireProcessor_clinit_done = true
-	ClosureRequireProcessor_GOOG_DEPENDENCY_CALLS = ImmutableMap_of_Object_Object_Object_Object_Object_Object(strobj_("require"), obj_(Binding_CreatedBy_GOOG_REQUIRE), strobj_("requireType"), obj_(Binding_CreatedBy_GOOG_REQUIRE_TYPE), strobj_("forwardDeclare"), obj_(Binding_CreatedBy_GOOG_FORWARD_DECLARE))
+	ClosureRequireProcessor_GOOG_DEPENDENCY_CALLS = immutableMapOf_(tc_string, tc_Binding_CreatedBy, []string{"require", "requireType", "forwardDeclare"}, []Binding_CreatedBy{Binding_CreatedBy_GOOG_REQUIRE, Binding_CreatedBy_GOOG_REQUIRE_TYPE, Binding_CreatedBy_GOOG_FORWARD_DECLARE})
 
 }
 

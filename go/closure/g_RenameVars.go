@@ -10,7 +10,7 @@ type RenameVars struct {
 	localNameNodes                 []Node
 	originalNameByNode             map[Node]string
 	pseudoNameMap                  map[Node]string
-	externNames_                   ImmutableSetOf[string]
+	externNames_                   *ImmutableSet[string]
 	reservedNames                  SetOf[string]
 	renameMap                      *TMap[string, string]
 	prevUsedRenameMap              *VariableMap
@@ -79,7 +79,7 @@ func (this *RenameVars) process_2(externs Node, root Node) {
 	this.externNames_ = NodeUtil_collectExternVariableNames(this.compiler_, externs)
 	clear(this.originalNameByNode)
 	NodeTraversal_traverse(this.compiler_, root, new_RenameVars_ProcessVars(this))
-	this.reservedNames.addAll(icast_Collection(obj_(this.externNames_)))
+	this.reservedNames.addAll(icast_Collection(obj_(this.externNames_.asImm())))
 	var varsByFrequency SortedSetOf[*RenameVars_Assignment] = new_TreeSet_Comparator(lambda_RenameVars_process_2_1_)
 	varsByFrequency.addAll(this.assignments.asMap().values())
 	if this.prevUsedRenameMap != nil {
@@ -150,7 +150,7 @@ func (this *RenameVars) reusePreviouslyUsedVariableMap(varsToRename SortedSetOf[
 		if prevNewName.isEmpty() || Collection_contains_s(this.reservedNames, prevNewName.get()) {
 			continue
 		}
-		if a.isLocal_ || (!Collection_contains_s(this.externNames_, a.oldName) && strings.HasPrefix(prevNewName.get(), this.prefix_)) {
+		if a.isLocal_ || (!this.externNames_.contains(a.oldName) && strings.HasPrefix(prevNewName.get(), this.prefix_)) {
 			Collection_add_s(this.reservedNames, prevNewName.get())
 			this.finalizeNameAssignment(a, prevNewName.get())
 		}
@@ -172,7 +172,7 @@ func (this *RenameVars) assignNames(varsToRename SortedSetOf[*RenameVars_Assignm
 		if a.newName.isPresent() {
 			continue
 		}
-		if Collection_contains_s(this.externNames_, a.oldName) {
+		if this.externNames_.contains(a.oldName) {
 			continue
 		}
 		var newName string
@@ -206,7 +206,7 @@ func (this *RenameVars) finalizeNameAssignment(a *RenameVars_Assignment, newName
 }
 
 func (this *RenameVars) getVariableMap() *VariableMap {
-	return new_VariableMap(tmapFrom_(tc_string, tc_string, ImmutableMap_copyOf(this.renameMap.asMap()), true))
+	return new_VariableMap(immutableMapCopyOf_(tc_string, tc_string, this.renameMap.asMap()))
 }
 
 func (this *RenameVars) okToRenameVar(name string, isLocal bool) bool {

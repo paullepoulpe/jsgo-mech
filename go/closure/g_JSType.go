@@ -116,7 +116,7 @@ type JSType_I interface {
 	getReferenceName_impl() OptionalOf[string]
 	getSlot_impl(Property_Key) *Property
 	getSuperClassConstructor_impl() *FunctionType
-	getTemplateTypes_impl() *ErasedImmutableList
+	getTemplateTypes_impl() *ImmutableList[*JSType]
 	getTypeOfThis_impl() *JSType
 	hasCachedValues_impl() bool
 	setJSDocInfo_impl(*JSDocInfo)
@@ -174,7 +174,7 @@ func (this *JSType) getSlot_impl(Property_Key) *Property {
 func (this *JSType) getSuperClassConstructor_impl() *FunctionType {
 	panic("getSuperClassConstructor_impl called on a " + goTypeName_(this.self_))
 }
-func (this *JSType) getTemplateTypes_impl() *ErasedImmutableList {
+func (this *JSType) getTemplateTypes_impl() *ImmutableList[*JSType] {
 	panic("getTemplateTypes_impl called on a " + goTypeName_(this.self_))
 }
 func (this *JSType) getTypeOfThis_impl() *JSType {
@@ -603,9 +603,9 @@ func (this *JSType) getTemplateTypeMap_impl() *TemplateTypeMap {
 	return this.templateTypeMap
 }
 
-func (this *JSType) getTypeParameters() ImmutableListOf[*TemplateType] {
+func (this *JSType) getTypeParameters() *ImmutableList[*TemplateType] {
 	var map_ *TemplateTypeMap = this.getTemplateTypeMap()
-	return cast_[*ErasedImmutableList](map_.getTemplateKeys().subList((map_.size() - this.getTemplateParamCount()), map_.size()))
+	return tlistImm_(tc_p_TemplateType, cast_[*ErasedImmutableList](map_.getTemplateKeys().asImm().subList((map_.size()-this.getTemplateParamCount()), map_.size())))
 }
 
 func (this *JSType) getTemplateParamCount_impl() int32 {
@@ -615,7 +615,7 @@ func (this *JSType) getTemplateParamCount_impl() int32 {
 func (this *JSType) mergeSupertypeTemplateTypes(other *ObjectType) {
 	this.maybeLoosenTypecheckingDueToForwardReferencedSupertype(other.up_JSType())
 	if other.isRawTypeOfTemplatizedType() {
-		other = this.registry.createTemplatizedTypeImmutableList(other, ImmutableList_of()).up_ObjectType()
+		other = this.registry.createTemplatizedTypeImmutableList(other, immutableListOf_(tc_p_JSType)).up_ObjectType()
 	}
 	this.templateTypeMap = other.getTemplateTypeMap().copyWithExtension(this.getTemplateTypeMap())
 }
@@ -1037,7 +1037,7 @@ func (this *JSType) isNullTypeOrVoidType() bool {
 func (this *JSType) getUnionMembers() IterableOf[*JSType] {
 	return func() Iterable {
 		if this.isUnionType() {
-			return icast_Iterable(obj_(this.toMaybeUnionType().getAlternates()))
+			return icast_Iterable(obj_(this.toMaybeUnionType().getAlternates().asImm()))
 		}
 		return nil
 	}()

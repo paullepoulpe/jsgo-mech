@@ -4,11 +4,11 @@ package closure
 
 type PolymerPassFindExterns struct {
 	polymerElementExterns Node
-	polymerElementProps   ImmutableList_BuilderOf[Node]
+	polymerElementProps   *ImmutableList_Builder[Node]
 }
 
 func (this *PolymerPassFindExterns) init_PolymerPassFindExterns() {
-	this.polymerElementProps = ImmutableList_builder()
+	this.polymerElementProps = immutableListBuilder_(tc_Node)
 }
 
 func new_PolymerPassFindExterns() *PolymerPassFindExterns {
@@ -25,12 +25,12 @@ func (this *PolymerPassFindExterns) visit(t *NodeTraversal, n Node, parent Node)
 	if PolymerPassFindExterns_isPolymerElementExterns(n) {
 		this.polymerElementExterns = n
 	} else if PolymerPassFindExterns_isPolymerElementPropExpr(n) {
-		this.polymerElementProps.add(n.box_())
+		this.polymerElementProps.add(n)
 	}
 }
 
 func (this *PolymerPassFindExterns) getPolymerElementProps() []Node {
-	return sliceImm_(tc_Node, this.polymerElementProps.build())
+	return this.polymerElementProps.build().items
 }
 
 func (this *PolymerPassFindExterns) getPolymerElementExterns() Node {

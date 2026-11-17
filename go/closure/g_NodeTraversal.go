@@ -1343,7 +1343,7 @@ func (this *NodeTraversal_AbstractModuleCallback) exitModule_impl(oldModule *Mod
 func (this *NodeTraversal_AbstractModuleCallback) shouldTraverse(t *NodeTraversal, n Node, parent Node) bool {
 	switch n.ns_().token {
 	case tokOrd1_SCRIPT:
-		this.currentModule = cast_[*ModuleMetadataMap_ModuleMetadata](Map_get_s(this.moduleMetadataMap.getModulesByPath(), t.getInput().getPath().toString()))
+		this.currentModule = this.moduleMetadataMap.getModulesByPath().get(t.getInput().getPath().toString())
 		if this.currentModule == nil {
 			panic(new_NullPointerException_0().self())
 		}
@@ -1361,7 +1361,7 @@ func (this *NodeTraversal_AbstractModuleCallback) shouldTraverse(t *NodeTraversa
 		}
 	case tokOrd1_CALL:
 		if this.inLoadModule && NodeTraversal_AbstractModuleCallback_GOOG_MODULE.matches(n.getFirstChild()) {
-			var newModule *ModuleMetadataMap_ModuleMetadata = cast_[*ModuleMetadataMap_ModuleMetadata](Map_get_s(this.moduleMetadataMap.getModulesByGoogNamespace(), n.getLastChild().getString()))
+			var newModule *ModuleMetadataMap_ModuleMetadata = this.moduleMetadataMap.getModulesByGoogNamespace().get(n.getLastChild().getString())
 			if newModule == nil {
 				panic(new_NullPointerException_0().self())
 			}
@@ -1396,7 +1396,7 @@ func (this *NodeTraversal_AbstractModuleCallback) visit(t *NodeTraversal, n Node
 			this.exitModule(this.currentModule, this.scopeRoot)
 			this.scopeRoot = n.getGrandparent().getGrandparent()
 			this.inLoadModule = false
-			this.currentModule = cast_[*ModuleMetadataMap_ModuleMetadata](Map_get_s(this.moduleMetadataMap.getModulesByPath(), t.getInput().getPath().toString()))
+			this.currentModule = this.moduleMetadataMap.getModulesByPath().get(t.getInput().getPath().toString())
 			if this.currentModule == nil {
 				panic(new_NullPointerException_0().self())
 			}

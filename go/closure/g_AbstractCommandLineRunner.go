@@ -21,8 +21,8 @@ type AbstractCommandLineRunner struct {
 	exitCodeReceiver            Function_baseOf[BoxedOf[int32], any]
 	rootRelativePathsMap        map[string]string
 	parsedChunkWrappers         MapOf[string, string]
-	parsedChunkOutputFiles      ImmutableMapOf[string, string]
-	parsedChunkConformanceFiles ImmutableMapOf[string, string]
+	parsedChunkOutputFiles      *ImmutableMap[string, string]
+	parsedChunkConformanceFiles *ImmutableMap[string, string]
 	filesToStreamOut            []*AbstractCommandLineRunner_JsonFileSpec
 }
 
@@ -127,17 +127,17 @@ func (this *AbstractCommandLineRunner) getDiagnosticGroups() *DiagnosticGroups {
 
 func AbstractCommandLineRunner_setWarningGuardOptions(options *CompilerOptions, warningGuards *TList[*AbstractCommandLineRunner_FlagEntry[any]], diagnosticGroups *DiagnosticGroups) *Outcome_base[any] {
 	if warningGuards != nil {
-		var groupNames ImmutableSetOf[string] = cast_[*ErasedImmutableSet](DiagnosticGroups_getRegisteredGroups().keySet())
+		var groupNames *ImmutableSet[string] = tsetFrom_(tc_string, cast_[*ErasedImmutableSet](DiagnosticGroups_getRegisteredGroups().asImm().keySet()), true)
 		for i_1 := 0; i_1 < len(warningGuards.items); i_1++ {
 			var entry *AbstractCommandLineRunner_FlagEntry[any] = warningGuards.items[i_1]
 			if "*" == entry.value_ {
-				for _, el := range immElems_(groupNames) {
-					groupName := str_(el)
-					if !Collection_contains_s(DiagnosticGroups_wildcardExcludedGroups, groupName) {
+				for el := range groupNames.All() {
+					groupName := el
+					if !DiagnosticGroups_wildcardExcludedGroups.contains(groupName) {
 						diagnosticGroups.setWarningLevel(options, groupName, cast_[CheckLevel](entry.flag_))
 					}
 				}
-			} else if Collection_contains_s(groupNames, entry.value_) {
+			} else if groupNames.contains(entry.value_) {
 				diagnosticGroups.setWarningLevel(options, entry.value_, cast_[CheckLevel](entry.flag_))
 			} else {
 				return Outcome_base_err[any](new_FlagUsageException(("Unknown diagnostic group: '" + sstr_(entry.value_) + "'")).up_Throwable())
@@ -224,10 +224,10 @@ func (this *AbstractCommandLineRunner) setRunOptions(options *CompilerOptions) *
 	options.setSourceMapLocationMappings(this.config.sourceMapLocationMappings)
 	options.setParseInlineSourceMaps(this.config.parseInlineSourceMaps_)
 	options.setApplyInputSourceMaps(this.config.applyInputSourceMaps)
-	var inputSourceMaps ImmutableMap_BuilderOf[string, *SourceMapInput] = new_ImmutableMap_Builder()
+	var inputSourceMaps *ImmutableMap_Builder[string, *SourceMapInput] = immutableMapBuilder_(tc_string, tc_p_SourceMapInput)
 	for filesKey, filesValue := range this.config.sourceMapInputFiles.All() {
 		var sourceMap *SourceFile_jscomp = SourceFile_jscomp_builder().withKind(StaticSourceFile_SourceKind_NON_CODE).withPath(filesValue).build()
-		inputSourceMaps.put(strobj_(filesKey), obj_(new_SourceMapInput(sourceMap)))
+		inputSourceMaps.put(filesKey, new_SourceMapInput(sourceMap))
 	}
 	options.setInputSourceMaps(inputSourceMaps.buildOrThrow())
 	if this.config.variableMapInputFile != "" {
@@ -276,7 +276,7 @@ func (this *AbstractCommandLineRunner) setRunOptions(options *CompilerOptions) *
 	}
 	if this.config.errorFormat == AbstractCommandLineRunner_CommandLineConfig_ErrorFormatOption_JSON {
 		var errorGenerator *JsonErrorReportGenerator = new_JsonErrorReportGenerator(this.getErrorPrintStream(), icast_SourceExcerptProvider(obj_(this.compiler_)))
-		this.compiler_.setErrorManager(new_SortingErrorManager(tsetFrom_(tc_SortingErrorManager_ErrorReportGenerator, ImmutableSet_of_Object(obj_(errorGenerator)), true)))
+		this.compiler_.setErrorManager(new_SortingErrorManager(immutableSetOf_[SortingErrorManager_ErrorReportGenerator](tc_SortingErrorManager_ErrorReportGenerator, icast_SortingErrorManager_ErrorReportGenerator(obj_(errorGenerator)))))
 	}
 	if this.config.printTree || this.config.printTreeJson {
 		options.setParseJsDocDocumentation(Config_JsDocParsing_INCLUDE_ALL_COMMENTS)
@@ -524,7 +524,7 @@ func (this *AbstractCommandLineRunner) createInputs_4(files *TList[*AbstractComm
 }
 
 func (this *AbstractCommandLineRunner) deduplicateIjsFiles(files *TList[*AbstractCommandLineRunner_FlagEntry[any]], moduleRoots ListOf[string], hasChunkSpecs bool) *Outcome_base[*ErasedImmutableList] {
-	var errors ImmutableList_BuilderOf[*JSError] = ImmutableList_builder()
+	var errors *ImmutableList_Builder[*JSError] = immutableListBuilder_(tc_p_JSError)
 	var relativeToAbsoluteName map[string]string = map[string]string{}
 	for file := range files.All() {
 		if (cast_[AbstractCommandLineRunner_JsSourceType](file.flag_) == AbstractCommandLineRunner_JsSourceType_JS) || (cast_[AbstractCommandLineRunner_JsSourceType](file.flag_) == AbstractCommandLineRunner_JsSourceType_WEAKDEP) {
@@ -542,18 +542,18 @@ func (this *AbstractCommandLineRunner) deduplicateIjsFiles(files *TList[*Abstrac
 			}
 			var absoluteName string = file.value_
 			if !strings.HasSuffix(absoluteName, ".i.js") {
-				errors.add(obj_(JSError_make_DiagnosticType_StringArr(IjsErrors_BAD_IJS_FILE_NAME, []string{absoluteName})))
+				errors.add(JSError_make_DiagnosticType_StringArr(IjsErrors_BAD_IJS_FILE_NAME, []string{absoluteName}))
 				continue
 			}
 			var relativeName string = this.getModuleRootRelativeName(absoluteName, moduleRoots)
 			var relativeNonIjsName string = String_substring(relativeName, 0, (String_length(relativeName) - int32(len(".i.js"))))
 			if has_(relativeToAbsoluteName, relativeNonIjsName) {
-				errors.add(obj_(JSError_make_DiagnosticType_StringArr(IjsErrors_CONFLICTING_IJS_FILE, []string{mapStr_(relativeToAbsoluteName, relativeNonIjsName), absoluteName})))
+				errors.add(JSError_make_DiagnosticType_StringArr(IjsErrors_CONFLICTING_IJS_FILE, []string{mapStr_(relativeToAbsoluteName, relativeNonIjsName), absoluteName}))
 				iterator.remove()
 			}
 		}
 	}
-	return Outcome_base_ok_Object[*ErasedImmutableList](errors.build())
+	return Outcome_base_ok_Object[*ErasedImmutableList](errors.build().asImm())
 }
 
 func (this *AbstractCommandLineRunner) getModuleRootRelativeName(filename string, moduleRoots ListOf[string]) string {
@@ -577,7 +577,7 @@ func (this *AbstractCommandLineRunner) createSourceInputs(jsChunkSpecs *TList[*A
 		}()))
 	}
 	if (files.isEmpty() && (jsonFiles == nil)) && this.config.defaultToStdin {
-		files = tlistImm_(tc_p_AbstractCommandLineRunner_FlagEntry, ImmutableList_of_Object(obj_(new_AbstractCommandLineRunner_FlagEntry(obj_(AbstractCommandLineRunner_JsSourceType_JS), "-"))))
+		files = immutableListOf_(tc_p_AbstractCommandLineRunner_FlagEntry, new_AbstractCommandLineRunner_FlagEntry(obj_(AbstractCommandLineRunner_JsSourceType_JS), "-"))
 	}
 	var ijsErrors *Outcome_base[*ErasedImmutableList] = this.deduplicateIjsFiles(files, moduleRoots, !jsChunkSpecs.isEmpty())
 	if ijsErrors.isErr() {
@@ -725,7 +725,7 @@ func AbstractCommandLineRunner_parseChunkOutputFiles(specs *TList[string]) *Outc
 	if specs == nil {
 		panic(new_IllegalArgumentException_0().self())
 	}
-	var outputFilesBuilder ImmutableMap_BuilderOf[string, string] = ImmutableMap_builder()
+	var outputFilesBuilder *ImmutableMap_Builder[string, string] = immutableMapBuilder_(tc_string, tc_string)
 	for i_1 := 0; i_1 < len(specs.items); i_1++ {
 		var spec string = specs.items[i_1]
 		var pos int32 = int32(strings.IndexByte(spec, ':'))
@@ -734,9 +734,9 @@ func AbstractCommandLineRunner_parseChunkOutputFiles(specs *TList[string]) *Outc
 		}
 		var name string = spec[:pos]
 		var filename string = spec[pos+1:]
-		outputFilesBuilder.put(strobj_(name), strobj_(filename))
+		outputFilesBuilder.put(name, filename)
 	}
-	return Outcome_base_ok_Object[*ErasedImmutableMap](outputFilesBuilder.buildOrThrow())
+	return Outcome_base_ok_Object[*ErasedImmutableMap](outputFilesBuilder.buildOrThrow().asImm())
 }
 
 func (this *AbstractCommandLineRunner) getChunkOutputFileName(m *JSChunk) *Outcome_base[string] {
@@ -745,9 +745,9 @@ func (this *AbstractCommandLineRunner) getChunkOutputFileName(m *JSChunk) *Outco
 		if parsedChunkOutputFilesOutcome.isErr() {
 			return Outcome_base_err[string](parsedChunkOutputFilesOutcome.error())
 		}
-		this.parsedChunkOutputFiles = parsedChunkOutputFilesOutcome.get()
+		this.parsedChunkOutputFiles = tmapFrom_(tc_string, tc_string, parsedChunkOutputFilesOutcome.get(), true)
 	}
-	var outputFile OptionalOf[string] = Optional_ofNullable[string](str_(Map_get_s(this.parsedChunkOutputFiles, m.getName())))
+	var outputFile OptionalOf[string] = Optional_ofNullable[string](this.parsedChunkOutputFiles.get(m.getName()))
 	if outputFile.isPresent() {
 		return Outcome_base_ok_Object[string]((sstr_(this.config.chunkOutputPathPrefix) + sstr_(outputFile.get())))
 	}
@@ -760,9 +760,9 @@ func (this *AbstractCommandLineRunner) getChunkConformanceFileName(m *JSChunk) *
 		if parsedChunkConformanceFilesOutcome.isErr() {
 			return Outcome_base_err[any](parsedChunkConformanceFilesOutcome.error())
 		}
-		this.parsedChunkConformanceFiles = parsedChunkConformanceFilesOutcome.get()
+		this.parsedChunkConformanceFiles = tmapFrom_(tc_string, tc_string, parsedChunkConformanceFilesOutcome.get(), true)
 	}
-	return Outcome_base_ok_Object(Map_get_s(this.parsedChunkConformanceFiles, m.getName()))
+	return Outcome_base_ok_Object(strobj_(this.parsedChunkConformanceFiles.get(m.getName())))
 }
 
 func (this *AbstractCommandLineRunner) writeChunkOutput(fileName string, out Appendable, lt CodePrinter_LicenseTracker, m *JSChunk) *Outcome_base[any] {
@@ -932,27 +932,27 @@ func (this *AbstractCommandLineRunner) doRun() *Outcome_base[any] {
 			return Outcome_base_err[any](jsonFilesOutcome.error())
 		}
 		jsonFiles = jsonFilesOutcome.get()
-		var inputSourceMaps ImmutableMap_BuilderOf[string, *SourceMapInput] = new_ImmutableMap_Builder()
-		var inputPathByWebpackId ImmutableMap_BuilderOf[string, string] = new_ImmutableMap_Builder()
+		var inputSourceMaps *ImmutableMap_Builder[string, *SourceMapInput] = immutableMapBuilder_(tc_string, tc_p_SourceMapInput)
+		var inputPathByWebpackId *ImmutableMap_Builder[string, string] = immutableMapBuilder_(tc_string, tc_string)
 		var foundJsonInputSourceMap bool = false
 		for jsonFile := range elemsAs_[*AbstractCommandLineRunner_JsonFileSpec](jsonFiles) {
 			if jsonFile.getSourceMap().isPresent() && (len(jsonFile.getSourceMap().get()) != 0) {
 				var sourceMapPath string = (sstr_(jsonFile.getPath().orElse("null")) + ".map")
 				var sourceMap *SourceFile_jscomp = SourceFile_jscomp_fromCode_String_String(sourceMapPath, jsonFile.getSourceMap().get())
-				inputSourceMaps.put(strobj_(jsonFile.getPath().get()), obj_(new_SourceMapInput(sourceMap)))
+				inputSourceMaps.put(jsonFile.getPath().get(), new_SourceMapInput(sourceMap))
 				foundJsonInputSourceMap = true
 			}
 			if jsonFile.getWebpackId().isPresent() {
-				inputPathByWebpackId.put(strobj_(jsonFile.getWebpackId().get()), strobj_(jsonFile.getPath().get()))
+				inputPathByWebpackId.put(jsonFile.getWebpackId().get(), jsonFile.getPath().get())
 			}
 		}
 		if foundJsonInputSourceMap {
-			inputSourceMaps.putAll(icast_Map(obj_(options.getInputSourceMaps())))
+			inputSourceMaps.putAll(icast_Map(obj_(options.getInputSourceMaps().asImm())))
 			options.setInputSourceMaps(inputSourceMaps.buildOrThrow())
 		}
 		this.compiler_.initWebpackMap(inputPathByWebpackId.buildOrThrow())
 	} else {
-		var emptyMap ImmutableMapOf[string, string] = ImmutableMap_of()
+		var emptyMap *ImmutableMap[string, string] = immutableMapOf_(tc_string, tc_string, []string{}, []string{})
 		this.compiler_.initWebpackMap(emptyMap)
 	}
 	options.setDoLateLocalization(this.config.shouldDoLateLocalization())
@@ -1999,8 +1999,8 @@ func (this *AbstractCommandLineRunner) printChunkGraphManifestOrBundleTo(graph *
 }
 
 func (this *AbstractCommandLineRunner) printManifestTo(chunk *JSChunk, out Appendable) {
-	for _, el := range immElems_(chunk.getInputs()) {
-		input := cast_[*CompilerInput](el)
+	for el := range chunk.getInputs().All() {
+		input := el
 		var name string = input.getName()
 		if AbstractCompiler_isFillFileName(name) {
 			continue
@@ -2013,14 +2013,14 @@ func (this *AbstractCommandLineRunner) printManifestTo(chunk *JSChunk, out Appen
 }
 
 func (this *AbstractCommandLineRunner) printBundleTo(chunk *JSChunk, out Appendable) *Outcome_base[any] {
-	var inputs ImmutableListOf[*CompilerInput] = chunk.getInputs()
+	var inputs *ImmutableList[*CompilerInput] = chunk.getInputs()
 	var options *CompilerOptions = this.compiler_.getOptions()
 	if options.getNumParallelThreads() > 1 {
-		new_PrebuildAst(this.compiler_.up_AbstractCompiler(), this.compiler_.getOptions().getNumParallelThreads()).prebuild(icast_Iterable(obj_(inputs)))
+		new_PrebuildAst(this.compiler_.up_AbstractCompiler(), this.compiler_.getOptions().getNumParallelThreads()).prebuild(icast_Iterable(obj_(inputs.asImm())))
 	}
 	if options.getRuntimeLibraryMode() == RuntimeJsLibManager_RuntimeLibraryMode_INJECT {
-		for _, el_1 := range immElems_(inputs) {
-			var input *CompilerInput = cast_[*CompilerInput](el_1)
+		for el_1 := range inputs.All() {
+			var input *CompilerInput = el_1
 			if input.isEs6Module() {
 				var appendRuntimeToOutcome *Outcome_base[any] = this.appendRuntimeTo(out)
 				if appendRuntimeToOutcome.isErr() {
@@ -2030,8 +2030,8 @@ func (this *AbstractCommandLineRunner) printBundleTo(chunk *JSChunk, out Appenda
 			}
 		}
 	}
-	for _, el_3 := range immElems_(inputs) {
-		var input *CompilerInput = cast_[*CompilerInput](el_3)
+	for el_3 := range inputs.All() {
+		var input *CompilerInput = el_3
 		var name string = input.getName()
 		var codeRes *Outcome_base[string] = input.getSourceFile().readCode()
 		if codeRes.isErr() {
@@ -2266,9 +2266,9 @@ func (this *AbstractCommandLineRunner_CommandLineConfig) finit_AbstractCommandLi
 	this.tweakProcessing = CompilerOptions_TweakProcessing_OFF
 	this.charset = ""
 	this.dependencyOptions = nil
-	this.outputManifests = tlistImm_(tc_string, ImmutableList_of())
+	this.outputManifests = immutableListOf_(tc_string)
 	this.outputChunkDependencies = Optional_empty[string]()
-	this.outputBundles = tlistImm_(tc_string, ImmutableList_of())
+	this.outputBundles = immutableListOf_(tc_string)
 	this.skipNormalOutputs = false
 	this.manifestMaps = []string{}
 	this.processCommonJSModules = false
@@ -2594,7 +2594,7 @@ func (this *AbstractCommandLineRunner_CommandLineConfig) setOutputManifest(outpu
 			this.outputManifests.add(manifestName)
 		}
 	}
-	this.outputManifests = tlistImm_(tc_string, ImmutableList_copyOf(Collection(this.outputManifests.asList())))
+	this.outputManifests = immutableListCopyOf_(tc_string, Collection(this.outputManifests.asList()))
 	return this
 }
 

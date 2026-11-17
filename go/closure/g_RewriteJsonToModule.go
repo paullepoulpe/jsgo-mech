@@ -30,8 +30,8 @@ func new_RewriteJsonToModule(compiler *AbstractCompiler) *RewriteJsonToModule {
 	return this
 }
 
-func (this *RewriteJsonToModule) getPackageJsonMainEntries() ImmutableMapOf[string, string] {
-	return ImmutableMap_copyOf(this.packageJsonMainEntries.asMap())
+func (this *RewriteJsonToModule) getPackageJsonMainEntries() *ImmutableMap[string, string] {
+	return immutableMapCopyOf_(tc_string, tc_string, this.packageJsonMainEntries.asMap())
 }
 
 func (this *RewriteJsonToModule) process_2(externs Node, root Node) {

@@ -35,7 +35,7 @@ func SourceMapResolver_extractBase64String(url string) OptionalOf[string] {
 	if strings.HasPrefix(url, SourceMapResolver_BASE64_URL_PREFIX) && strings.Contains(url, SourceMapResolver_BASE64_START) {
 		var base64StartIndex int32 = String_indexOf_String(url, SourceMapResolver_BASE64_START)
 		var mediaType string = String_substring(url, int32(len(SourceMapResolver_BASE64_URL_PREFIX)), base64StartIndex)
-		if Collection_contains_s(SourceMapResolver_ACCEPTED_MEDIA_TYPES, mediaType) {
+		if SourceMapResolver_ACCEPTED_MEDIA_TYPES.contains(mediaType) {
 			var data []int8 = Io_base64Decode(String_substring_int(url, (base64StartIndex + int32(len(SourceMapResolver_BASE64_START)))))
 			return Optional_of[string](Io_utf8String(data))
 		}
@@ -71,7 +71,7 @@ func SourceMapResolver_addBase64PrefixToEncodedSourceMap(encoded string) string 
 const SourceMapResolver_BASE64_URL_PREFIX string = "data:"
 const SourceMapResolver_BASE64_START string = "base64,"
 
-var SourceMapResolver_ACCEPTED_MEDIA_TYPES *ErasedImmutableSet
+var SourceMapResolver_ACCEPTED_MEDIA_TYPES *ImmutableSet[string]
 
 var SourceMapResolver_clinit_done bool
 
@@ -80,6 +80,6 @@ func SourceMapResolver_clinit() {
 		return
 	}
 	SourceMapResolver_clinit_done = true
-	SourceMapResolver_ACCEPTED_MEDIA_TYPES = ImmutableSet_of_Object_Object(strobj_("application/json;charset=utf-8;"), strobj_("application/json;"))
+	SourceMapResolver_ACCEPTED_MEDIA_TYPES = immutableSetOf_(tc_string, "application/json;charset=utf-8;", "application/json;")
 
 }

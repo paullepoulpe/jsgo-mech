@@ -6,7 +6,7 @@ import "strings"
 
 type AllowlistWarningsGuard struct {
 	WarningsGuard
-	allowlist ImmutableSetOf[string]
+	allowlist *ImmutableSet[string]
 }
 
 func (this *AllowlistWarningsGuard) up_WarningsGuard() *WarningsGuard {
@@ -17,7 +17,7 @@ func (this *AllowlistWarningsGuard) up_WarningsGuard() *WarningsGuard {
 }
 
 func (this *AllowlistWarningsGuard) init_AllowlistWarningsGuard_0() {
-	this.init_AllowlistWarningsGuard_Set(tsetFrom_(tc_string, ImmutableSet_of(), true))
+	this.init_AllowlistWarningsGuard_Set(immutableSetOf_(tc_string))
 }
 
 func new_AllowlistWarningsGuard_0() *AllowlistWarningsGuard {
@@ -42,7 +42,7 @@ func new_AllowlistWarningsGuard_Set(allowlist *TSet[string]) *AllowlistWarningsG
 	return this
 }
 
-func AllowlistWarningsGuard_normalizeAllowlist(allowlist *TSet[string]) ImmutableSetOf[string] {
+func AllowlistWarningsGuard_normalizeAllowlist(allowlist *TSet[string]) *ImmutableSet[string] {
 	var result *TSet[string] = newTSet_(tc_string)
 	for line := range allowlist.All() {
 		var trimmed string = strings.Trim(line, javaSpace_)
@@ -51,7 +51,7 @@ func AllowlistWarningsGuard_normalizeAllowlist(allowlist *TSet[string]) Immutabl
 		}
 		result.add(AllowlistWarningsGuard_LINE_NUMBER.matcher_s(trimmed).replaceFirst(":"))
 	}
-	return ImmutableSet_copyOf(Collection(result.asSet()))
+	return immutableSetCopyOf_(tc_string, Collection(result.asSet()))
 }
 
 func (this *AllowlistWarningsGuard) level_impl(error_ *JSError) CheckLevel {
@@ -65,7 +65,7 @@ func (this *AllowlistWarningsGuard) level_impl(error_ *JSError) CheckLevel {
 }
 
 func (this *AllowlistWarningsGuard) containWarning(formattedWarning string) bool {
-	return Collection_contains_s(this.allowlist, formattedWarning)
+	return this.allowlist.contains(formattedWarning)
 }
 
 func (this *AllowlistWarningsGuard) getPriority_impl() int32 {

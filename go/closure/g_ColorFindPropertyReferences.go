@@ -90,23 +90,23 @@ func (this *ColorFindPropertyReferences) handleClass(t *NodeTraversal, classNode
 		if m.isStaticMember() {
 			return obj_(classType)
 		} else if m.isMemberFieldDef() {
-			var classInstanceType ImmutableSetOf[*Color] = classType.getInstanceColors()
+			var classInstanceType *ImmutableSet[*Color] = classType.getInstanceColors()
 			return func() any {
 				if classInstanceType.isEmpty() {
 					return obj_(StandardColors_UNKNOWN)
 				}
-				return obj_(Color_createUnion(tsetFrom_(tch_p_Color, classInstanceType, true)))
+				return obj_(Color_createUnion(tsetFrom_(tch_p_Color, classInstanceType.asImm(), true)))
 			}()
 		} else {
 			if !((m.isMemberFunctionDef() || m.isGetterDef()) || m.isSetterDef()) {
 				panic(new_IllegalStateException_String(tostr_(m)).self())
 			}
-			var classPrototypeType ImmutableSetOf[*Color] = classType.getPrototypes()
+			var classPrototypeType *ImmutableSet[*Color] = classType.getPrototypes()
 			return func() any {
 				if classPrototypeType.isEmpty() {
 					return obj_(StandardColors_UNKNOWN)
 				}
-				return obj_(Color_createUnion(tsetFrom_(tch_p_Color, classPrototypeType, true)))
+				return obj_(Color_createUnion(tsetFrom_(tch_p_Color, classPrototypeType.asImm(), true)))
 			}()
 		}
 	})

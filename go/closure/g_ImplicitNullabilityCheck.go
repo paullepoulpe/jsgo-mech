@@ -34,11 +34,11 @@ func ImplicitNullabilityCheck_findImplicitNullabilityResults(info *JSDocInfo, t 
 	if info == nil {
 		return []*ImplicitNullabilityCheck_Result{}
 	}
-	var builder ImmutableList_BuilderOf[*ImplicitNullabilityCheck_Result] = ImmutableList_builder()
+	var builder *ImmutableList_Builder[*ImplicitNullabilityCheck_Result] = immutableListBuilder_(tc_p_ImplicitNullabilityCheck_Result)
 	for typeRoot := range elemsBy_(info.getTypeNodes(), Node_of_) {
 		NodeUtil_visitPreOrder_Node_Visitor_Predicate(typeRoot, new_ImplicitNullabilityCheck_1(t, builder), Predicates_alwaysTrue())
 	}
-	return sliceImm_(tc_p_ImplicitNullabilityCheck_Result, builder.build())
+	return builder.build().items
 }
 
 func (this *ImplicitNullabilityCheck) visit_impl(t *NodeTraversal, n Node, p Node) {
@@ -57,7 +57,7 @@ func (this *ImplicitNullabilityCheck) visit_impl(t *NodeTraversal, n Node, p Nod
 
 var ImplicitNullabilityCheck_IMPLICITLY_NULLABLE_JSDOC *DiagnosticType
 var ImplicitNullabilityCheck_IMPLICITLY_NONNULL_JSDOC *DiagnosticType
-var ImplicitNullabilityCheck_NULLABILITY_OMITTED_TYPES *ErasedImmutableSet
+var ImplicitNullabilityCheck_NULLABILITY_OMITTED_TYPES *ImmutableSet[string]
 
 var ImplicitNullabilityCheck_clinit_done bool
 
@@ -68,7 +68,7 @@ func ImplicitNullabilityCheck_clinit() {
 	ImplicitNullabilityCheck_clinit_done = true
 	ImplicitNullabilityCheck_IMPLICITLY_NULLABLE_JSDOC = DiagnosticType_disabled("JSC_IMPLICITLY_NULLABLE_JSDOC", "Name {0} in JSDoc is implicitly nullable, and is discouraged by the style guide.\nPlease add a '!' to make it non-nullable, or a '?' to make it explicitly nullable.")
 	ImplicitNullabilityCheck_IMPLICITLY_NONNULL_JSDOC = DiagnosticType_disabled("JSC_IMPLICITLY_NONNULL_JSDOC", "Name {0} in JSDoc is implicitly non-null, and is discouraged by the style guide.\nPlease add a '!' to make it explicit.")
-	ImplicitNullabilityCheck_NULLABILITY_OMITTED_TYPES = ImmutableSet_of_Object_Object_Object_Object_Object_Object_ObjectArr(strobj_("*"), strobj_("?"), strobj_("bigint"), strobj_("boolean"), strobj_("null"), strobj_("number"), []any{strobj_("string"), strobj_("symbol"), strobj_("undefined"), strobj_("void")})
+	ImplicitNullabilityCheck_NULLABILITY_OMITTED_TYPES = immutableSetOf_(tc_string, "*", "?", "bigint", "boolean", "null", "number", "string", "symbol", "undefined", "void")
 
 }
 
@@ -180,14 +180,14 @@ func (this *ImplicitNullabilityCheck_Result) getNode() Node {
 
 type ImplicitNullabilityCheck_1 struct {
 	cap_t       *NodeTraversal
-	cap_builder *ErasedImmutableList_Builder
+	cap_builder *ImmutableList_Builder[*ImplicitNullabilityCheck_Result]
 }
 
 func (this *ImplicitNullabilityCheck_1) init_ImplicitNullabilityCheck_1() {
 
 }
 
-func new_ImplicitNullabilityCheck_1(cap_t *NodeTraversal, cap_builder *ErasedImmutableList_Builder) *ImplicitNullabilityCheck_1 {
+func new_ImplicitNullabilityCheck_1(cap_t *NodeTraversal, cap_builder *ImmutableList_Builder[*ImplicitNullabilityCheck_Result]) *ImplicitNullabilityCheck_1 {
 	this := &ImplicitNullabilityCheck_1{}
 	this.cap_t = cap_t
 	this.cap_builder = cap_builder
@@ -221,7 +221,7 @@ func (this *ImplicitNullabilityCheck_1) visit(node Node) {
 		}
 	}
 	var typeName string = node.getString()
-	if Collection_contains_s(ImplicitNullabilityCheck_NULLABILITY_OMITTED_TYPES, typeName) {
+	if ImplicitNullabilityCheck_NULLABILITY_OMITTED_TYPES.contains(typeName) {
 		return
 	}
 	var registry *JSTypeRegistry = this.cap_t.getCompiler().getTypeRegistry()
@@ -236,7 +236,7 @@ func (this *ImplicitNullabilityCheck_1) visit(node Node) {
 		}
 		return ImplicitNullabilityCheck_Nullability_NULLABLE
 	}()
-	this.cap_builder.add(obj_(ImplicitNullabilityCheck_Result_create(node, nullability)))
+	this.cap_builder.add(ImplicitNullabilityCheck_Result_create(node, nullability))
 }
 
 // visit: an object that is exactly a ImplicitNullabilityCheck calls its visit_impl directly (post-flip); others dispatch.

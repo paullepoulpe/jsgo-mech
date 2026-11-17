@@ -27,16 +27,16 @@ func (this *UseSiteRenamer) renameUses(prop *PropertyClustering) UseSiteRenamer_
 		this.renamingIndex.put_s(prop.getName(), UseSiteRenamer_INVALIDATED_NAME_VALUE)
 		return UseSiteRenamer_RenameUsesResult_INVALIDATED
 	}
-	var clusterNames ImmutableMapOf[*ColorGraphNode, string] = UseSiteRenamer_createAllClusterNames(prop)
+	var clusterNames *ImmutableMap[*ColorGraphNode, string] = UseSiteRenamer_createAllClusterNames(prop)
 	if clusterNames.size() <= 1 {
 		this.renamingIndex.put_s(prop.getName(), prop.getName())
 		return UseSiteRenamer_RenameUsesResult_ONLY_ONE_CLUSTER
 	}
-	this.renamingIndex.putAll_2(prop.getName(), Iterable(clusterNames.values()))
+	this.renamingIndex.putAll_2(prop.getName(), Iterable(clusterNames.asImm().values()))
 	for usageKey, usageValue := range prop.getUseSites().All() {
 		var site Node = usageKey
 		var flatRep *ColorGraphNode = cast_[*ColorGraphNode](prop.getClusters().find(obj_(usageValue)))
-		var newName string = str_(clusterNames.get(obj_(flatRep)))
+		var newName string = clusterNames.get(flatRep)
 		if !(site.getString() == newName) {
 			site.setString(newName)
 			this.mutationCb(site.box_())
@@ -49,11 +49,11 @@ func (this *UseSiteRenamer) getRenamingIndex() *SimpleSetMultimap[string, string
 	return this.renamingIndex.immutableCopy()
 }
 
-func UseSiteRenamer_createAllClusterNames(prop *PropertyClustering) ImmutableMapOf[*ColorGraphNode, string] {
-	var result ImmutableMap_BuilderOf[*ColorGraphNode, string] = ImmutableMap_builder()
+func UseSiteRenamer_createAllClusterNames(prop *PropertyClustering) *ImmutableMap[*ColorGraphNode, string] {
+	var result *ImmutableMap_Builder[*ColorGraphNode, string] = immutableMapBuilder_(tc_p_ColorGraphNode, tc_string)
 	for _, el := range immElems_(prop.getClusters().allRepresentatives()) {
 		r := cast_[*ColorGraphNode](el)
-		result.put(obj_(r), strobj_(UseSiteRenamer_createClusterName(prop, r)))
+		result.put(r, UseSiteRenamer_createClusterName(prop, r))
 	}
 	return result.buildOrThrow()
 }

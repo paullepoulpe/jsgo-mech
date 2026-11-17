@@ -63,11 +63,11 @@ func (this *ReplaceMessagesForChrome) getNewValueNode(message *JsMessage, defini
 	var newValueNode Node = this.getChromeI18nGetMessageNode(message.getId())
 	var isHtml bool = definition.shouldEscapeLessThan()
 	if !message.jsPlaceholderNames().isEmpty() || isHtml {
-		var placeholderNames ListOf[string] = Ordering_natural().sortedCopy(icast_Iterable(obj_(message.jsPlaceholderNames())))
+		var placeholderNames ListOf[string] = Ordering_natural().sortedCopy(icast_Iterable(obj_(message.jsPlaceholderNames().asImm())))
 		var placeholderValueArray Node = this.astFactory_.createArraylit([]Node{})
-		var placeholderValueMap ImmutableMapOf[string, Node] = definition.getPlaceholderValueMap()
+		var placeholderValueMap *ImmutableMap[string, Node] = definition.getPlaceholderValueMap()
 		for name := range elemsBy_(placeholderNames, str_) {
-			nn_ := Map_get_s(placeholderValueMap, name)
+			nn_ := placeholderValueMap.get(name).box_()
 			if nn_ == nil {
 				panic(new_NullPointerException_0().self())
 			}

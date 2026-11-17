@@ -7,7 +7,7 @@ type PropertyMap struct {
 	properties               MapOf[string, *Property]
 	knownSymbols             *TMap[*KnownSymbolType, *Property]
 	cachedKeySet             ImmutableSortedSetOf[string]
-	cachedKnownSymbolsKeySet ImmutableSetOf[*KnownSymbolType]
+	cachedKnownSymbolsKeySet *ImmutableSet[*KnownSymbolType]
 	cachedKeySetCounter      int32
 }
 
@@ -75,7 +75,7 @@ func (this *PropertyMap) getSecondaryParentObjects() IterableOf[*ObjectType] {
 		return ImmutableList_of()
 	}
 	if (this.parentSource.getConstructor() != nil) && this.parentSource.getConstructor().isAbstract() {
-		return icast_Iterable(obj_(this.parentSource.getConstructor().getOwnImplementedInterfaces()))
+		return icast_Iterable(obj_(this.parentSource.getConstructor().getOwnImplementedInterfaces().asImm()))
 	}
 	return this.parentSource.getCtorExtendedInterfaces()
 }
@@ -175,9 +175,9 @@ func (this *PropertyMap) getAllKeys() *PropertyMap_AllKeys {
 			knownSymbolsKeys.asSet().addAll(Collection(ancestor.getOwnKnownSymbols()))
 		}
 		this.cachedKeySet = ImmutableSortedSet_copyOfSorted(keys.asSet())
-		this.cachedKnownSymbolsKeySet = ImmutableSet_copyOf(Collection(knownSymbolsKeys.asSet()))
+		this.cachedKnownSymbolsKeySet = immutableSetCopyOf_(tch_p_KnownSymbolType, Collection(knownSymbolsKeys.asSet()))
 	}
-	return new_PropertyMap_AllKeys(this.cachedKeySet, tsetFrom_(tch_p_KnownSymbolType, this.cachedKnownSymbolsKeySet, true))
+	return new_PropertyMap_AllKeys(this.cachedKeySet, tsetFrom_(tch_p_KnownSymbolType, this.cachedKnownSymbolsKeySet.asImm(), true))
 }
 
 func (this *PropertyMap) collectAllAncestors(ancestors *TSet[*PropertyMap]) {
@@ -261,7 +261,7 @@ func PropertyMap_clinit() {
 		return
 	}
 	PropertyMap_clinit_done = true
-	PropertyMap_EMPTY_MAP = new_PropertyMap_Map_Map(ImmutableMap_of(), tmapFrom_(tch_p_KnownSymbolType, tc_p_Property, ImmutableMap_of(), true))
+	PropertyMap_EMPTY_MAP = new_PropertyMap_Map_Map(ImmutableMap_of(), immutableMapOf_(tch_p_KnownSymbolType, tc_p_Property, []*KnownSymbolType{}, []*Property{}))
 
 }
 

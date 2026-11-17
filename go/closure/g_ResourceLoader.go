@@ -23,7 +23,7 @@ func ResourceLoader_loadTextResource(name string) string {
 	return Io_utf8String(bytes.get())
 }
 
-func ResourceLoader_loadPropertiesMap(resourceName string) ImmutableMapOf[string, string] {
+func ResourceLoader_loadPropertiesMap(resourceName string) *ImmutableMap[string, string] {
 	return PropertiesParser_parse(ResourceLoader_loadTextResource(resourceName))
 }
 

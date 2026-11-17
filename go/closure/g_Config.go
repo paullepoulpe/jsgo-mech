@@ -7,13 +7,13 @@ type Config struct {
 	strictMode_            Config_StrictMode
 	jsDocParsingMode_      Config_JsDocParsing
 	runMode_               Config_RunMode
-	annotations_           ImmutableMapOf[string, Annotation_parsing]
-	suppressionNames_      ImmutableSetOf[string]
-	closurePrimitiveNames_ ImmutableSetOf[string]
+	annotations_           *ImmutableMap[string, Annotation_parsing]
+	suppressionNames_      *ImmutableSet[string]
+	closurePrimitiveNames_ *ImmutableSet[string]
 	parseInlineSourceMaps_ bool
 }
 
-func (this *Config) init_Config(languageMode Config_LanguageMode, strictMode Config_StrictMode, jsDocParsingMode Config_JsDocParsing, runMode Config_RunMode, annotations ImmutableMapOf[string, Annotation_parsing], suppressionNames ImmutableSetOf[string], closurePrimitiveNames ImmutableSetOf[string], parseInlineSourceMaps bool) {
+func (this *Config) init_Config(languageMode Config_LanguageMode, strictMode Config_StrictMode, jsDocParsingMode Config_JsDocParsing, runMode Config_RunMode, annotations *ImmutableMap[string, Annotation_parsing], suppressionNames *ImmutableSet[string], closurePrimitiveNames *ImmutableSet[string], parseInlineSourceMaps bool) {
 	if languageMode == 0 {
 		panic(new_NullPointerException_String("languageMode").self())
 	}
@@ -45,18 +45,18 @@ func (this *Config) init_Config(languageMode Config_LanguageMode, strictMode Con
 	this.parseInlineSourceMaps_ = parseInlineSourceMaps
 }
 
-func new_Config(languageMode Config_LanguageMode, strictMode Config_StrictMode, jsDocParsingMode Config_JsDocParsing, runMode Config_RunMode, annotations ImmutableMapOf[string, Annotation_parsing], suppressionNames ImmutableSetOf[string], closurePrimitiveNames ImmutableSetOf[string], parseInlineSourceMaps bool) *Config {
+func new_Config(languageMode Config_LanguageMode, strictMode Config_StrictMode, jsDocParsingMode Config_JsDocParsing, runMode Config_RunMode, annotations *ImmutableMap[string, Annotation_parsing], suppressionNames *ImmutableSet[string], closurePrimitiveNames *ImmutableSet[string], parseInlineSourceMaps bool) *Config {
 	this := &Config{}
 	this.init_Config(languageMode, strictMode, jsDocParsingMode, runMode, annotations, suppressionNames, closurePrimitiveNames, parseInlineSourceMaps)
 	return this
 }
 
 func (this *Config) toString() string {
-	return ("Config{languageMode=" + tostr_(this.languageMode_) + ", strictMode=" + tostr_(this.strictMode_) + ", jsDocParsingMode=" + tostr_(this.jsDocParsingMode_) + ", runMode=" + tostr_(this.runMode_) + ", annotations=" + tostr_(this.annotations_) + ", suppressionNames=" + tostr_(this.suppressionNames_) + ", closurePrimitiveNames=" + tostr_(this.closurePrimitiveNames_) + ", parseInlineSourceMaps=" + boolstr_(this.parseInlineSourceMaps_) + "}")
+	return ("Config{languageMode=" + tostr_(this.languageMode_) + ", strictMode=" + tostr_(this.strictMode_) + ", jsDocParsingMode=" + tostr_(this.jsDocParsingMode_) + ", runMode=" + tostr_(this.runMode_) + ", annotations=" + tostr_(this.annotations_.asImm()) + ", suppressionNames=" + tostr_(this.suppressionNames_.asImm()) + ", closurePrimitiveNames=" + tostr_(this.closurePrimitiveNames_.asImm()) + ", parseInlineSourceMaps=" + boolstr_(this.parseInlineSourceMaps_) + "}")
 }
 
-func (this *Config) annotationNames() ImmutableSetOf[string] {
-	return cast_[*ErasedImmutableSet](this.annotations().keySet())
+func (this *Config) annotationNames() *ImmutableSet[string] {
+	return tsetFrom_(tc_string, cast_[*ErasedImmutableSet](this.annotations().asImm().keySet()), true)
 }
 
 func (this *Config) toBuilder() *Config_Builder {
@@ -67,12 +67,12 @@ func Config_builder() *Config_Builder {
 	return new_Config_Builder_0().setLanguageMode(Config_LanguageMode_UNSUPPORTED).setStrictMode(Config_StrictMode_STRICT).setJsDocParsingMode(Config_JsDocParsing_TYPES_ONLY).setRunMode(Config_RunMode_STOP_AFTER_ERROR).setExtraAnnotationNames(ImmutableSet_of()).setSuppressionNames(ImmutableSet_of()).setClosurePrimitiveNames(ImmutableSet_of()).setParseInlineSourceMaps(false)
 }
 
-func Config_buildAnnotations(allowlist IterableOf[string]) ImmutableMapOf[string, Annotation_parsing] {
-	var annotationsBuilder ImmutableMap_BuilderOf[string, Annotation_parsing] = ImmutableMap_builder()
+func Config_buildAnnotations(allowlist IterableOf[string]) *ImmutableMap[string, Annotation_parsing] {
+	var annotationsBuilder *ImmutableMap_Builder[string, Annotation_parsing] = immutableMapBuilder_(tc_string, tc_Annotation_parsing)
 	annotationsBuilder.putAll(icast_Map(obj_(Annotation_parsing_recognizedAnnotations)))
 	for unrecognizedAnnotation := range elemsBy_(allowlist, str_) {
 		if unrecognizedAnnotation != "" && !Map_containsKey_s(Annotation_parsing_recognizedAnnotations, unrecognizedAnnotation) {
-			annotationsBuilder.put(strobj_(unrecognizedAnnotation), obj_(Annotation_parsing_NOT_IMPLEMENTED))
+			annotationsBuilder.put(unrecognizedAnnotation, Annotation_parsing_NOT_IMPLEMENTED)
 		}
 	}
 	return annotationsBuilder.buildOrThrow()
@@ -94,15 +94,15 @@ func (this *Config) runMode() Config_RunMode {
 	return this.runMode_
 }
 
-func (this *Config) annotations() *ErasedImmutableMap {
+func (this *Config) annotations() *ImmutableMap[string, Annotation_parsing] {
 	return this.annotations_
 }
 
-func (this *Config) suppressionNames() *ErasedImmutableSet {
+func (this *Config) suppressionNames() *ImmutableSet[string] {
 	return this.suppressionNames_
 }
 
-func (this *Config) closurePrimitiveNames() *ErasedImmutableSet {
+func (this *Config) closurePrimitiveNames() *ImmutableSet[string] {
 	return this.closurePrimitiveNames_
 }
 
@@ -115,7 +115,7 @@ func (this *Config) equals(p0 any) bool {
 	if !ok || o == nil {
 		return false
 	}
-	return true && this.languageMode_ == o.languageMode_ && this.strictMode_ == o.strictMode_ && this.jsDocParsingMode_ == o.jsDocParsingMode_ && this.runMode_ == o.runMode_ && objequalsBy_(this.annotations_, obj_(o.annotations_), (ImmutableMapOf[string, Annotation_parsing]).equals) && objequalsBy_(this.suppressionNames_, obj_(o.suppressionNames_), (ImmutableSetOf[string]).equals) && objequalsBy_(this.closurePrimitiveNames_, obj_(o.closurePrimitiveNames_), (ImmutableSetOf[string]).equals) && this.parseInlineSourceMaps_ == o.parseInlineSourceMaps_
+	return true && this.languageMode_ == o.languageMode_ && this.strictMode_ == o.strictMode_ && this.jsDocParsingMode_ == o.jsDocParsingMode_ && this.runMode_ == o.runMode_ && objequalsBy_(this.annotations_.asImm(), obj_(o.annotations_.asImm()), (ImmutableMapOf[string, Annotation_parsing]).equals) && objequalsBy_(this.suppressionNames_.asImm(), obj_(o.suppressionNames_.asImm()), (ImmutableSetOf[string]).equals) && objequalsBy_(this.closurePrimitiveNames_.asImm(), obj_(o.closurePrimitiveNames_.asImm()), (ImmutableSetOf[string]).equals) && this.parseInlineSourceMaps_ == o.parseInlineSourceMaps_
 }
 
 func (this *Config) hashCode() int32 {
@@ -124,9 +124,9 @@ func (this *Config) hashCode() int32 {
 	h = h*31 + objhashId_(this.strictMode_)
 	h = h*31 + objhashId_(this.jsDocParsingMode_)
 	h = h*31 + objhashId_(this.runMode_)
-	h = h*31 + objhashBy_(this.annotations_, (ImmutableMapOf[string, Annotation_parsing]).hashCode)
-	h = h*31 + objhashBy_(this.suppressionNames_, (ImmutableSetOf[string]).hashCode)
-	h = h*31 + objhashBy_(this.closurePrimitiveNames_, (ImmutableSetOf[string]).hashCode)
+	h = h*31 + objhashBy_(this.annotations_.asImm(), (ImmutableMapOf[string, Annotation_parsing]).hashCode)
+	h = h*31 + objhashBy_(this.suppressionNames_.asImm(), (ImmutableSetOf[string]).hashCode)
+	h = h*31 + objhashBy_(this.closurePrimitiveNames_.asImm(), (ImmutableSetOf[string]).hashCode)
 	h = h*31 + Boolean_hashCode(bool(this.parseInlineSourceMaps_))
 	return h
 }
@@ -483,9 +483,9 @@ type Config_Builder struct {
 	strictMode_            Config_StrictMode
 	jsDocParsingMode_      Config_JsDocParsing
 	runMode_               Config_RunMode
-	annotations_           ImmutableMapOf[string, Annotation_parsing]
-	suppressionNames_      ImmutableSetOf[string]
-	closurePrimitiveNames_ ImmutableSetOf[string]
+	annotations_           *ImmutableMap[string, Annotation_parsing]
+	suppressionNames_      *ImmutableSet[string]
+	closurePrimitiveNames_ *ImmutableSet[string]
 	parseInlineSourceMaps_ bool
 	set0                   int8
 }
@@ -557,12 +557,12 @@ func (this *Config_Builder) setParseInlineSourceMaps(parseInlineSourceMaps bool)
 }
 
 func (this *Config_Builder) setSuppressionNames(names IterableOf[string]) *Config_Builder {
-	this.suppressionNames_ = ImmutableSet_copyOf_Iterable(names)
+	this.suppressionNames_ = immutableSetCopyOf_(tc_string, names)
 	return this
 }
 
 func (this *Config_Builder) setClosurePrimitiveNames(names IterableOf[string]) *Config_Builder {
-	this.closurePrimitiveNames_ = ImmutableSet_copyOf_Iterable(names)
+	this.closurePrimitiveNames_ = immutableSetCopyOf_(tc_string, names)
 	return this
 }
 
@@ -602,7 +602,7 @@ func (this *Config_Builder) build() *Config {
 	return new_Config(this.languageMode_, this.strictMode_, this.jsDocParsingMode_, this.runMode_, this.annotations_, this.suppressionNames_, this.closurePrimitiveNames_, this.parseInlineSourceMaps_)
 }
 
-func (this *Config_Builder) setAnnotations(names ImmutableMapOf[string, Annotation_parsing]) *Config_Builder {
+func (this *Config_Builder) setAnnotations(names *ImmutableMap[string, Annotation_parsing]) *Config_Builder {
 	if names == nil {
 		panic(new_NullPointerException_String("Null annotations").self())
 	}

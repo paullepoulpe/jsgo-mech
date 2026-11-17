@@ -4,12 +4,12 @@ package closure
 
 type PruningAnalysis struct {
 	sorter_      *SortedDependencies
-	entryPoints_ ImmutableSetOf[*CompilerInput]
+	entryPoints_ *ImmutableSet[*CompilerInput]
 }
 
 func (this *PruningAnalysis) init_PruningAnalysis(sorter *SortedDependencies, entryPoints CollectionOf[*CompilerInput]) {
 	this.sorter_ = sorter
-	this.entryPoints_ = ImmutableSet_copyOf(entryPoints)
+	this.entryPoints_ = immutableSetCopyOf_(tc_p_CompilerInput, entryPoints)
 }
 
 func new_PruningAnalysis(sorter *SortedDependencies, entryPoints CollectionOf[*CompilerInput]) *PruningAnalysis {
@@ -23,22 +23,22 @@ func PruningAnalysis_create(sorter *SortedDependencies, entryPoints CollectionOf
 }
 
 func (this *PruningAnalysis) analyze() *PruningAnalysis_Result {
-	var total ImmutableMapOf[string, BoxedOf[int32]] = this.calculateTotalBlame()
-	var bottlenecks ImmutableMapOf[string, BoxedOf[int32]] = this.calculateBottlenecks()
+	var total *ImmutableMap[string, any] = this.calculateTotalBlame()
+	var bottlenecks *ImmutableMap[string, any] = this.calculateBottlenecks()
 	return new_PruningAnalysis_Result(total, bottlenecks)
 }
 
-func (this *PruningAnalysis) calculateTotalBlame() ImmutableMapOf[string, BoxedOf[int32]] {
+func (this *PruningAnalysis) calculateTotalBlame() *ImmutableMap[string, any] {
 	var reachabilityPerEntryPoint ImmutableMap_BuilderOf[string, BoxedOf[int32]] = ImmutableMap_builder()
-	for _, el := range immElems_(this.entryPoints_) {
-		provider := cast_[*CompilerInput](el)
-		var transitiveClosure ImmutableSetOf[*CompilerInput] = ImmutableSet_builder().addAll(icast_Iterable(obj_(this.sorter_.getStrongDependenciesOf(ImmutableList_of_Object(obj_(provider)), false)))).addAll(icast_Iterable(obj_(this.sorter_.getSortedWeakDependenciesOf(ImmutableList_of_Object(obj_(provider)))))).build()
+	for el := range this.entryPoints_.All() {
+		provider := el
+		var transitiveClosure *ImmutableSet[*CompilerInput] = immutableSetBuilder_(tc_p_CompilerInput).addAll(icast_Iterable(obj_(this.sorter_.getStrongDependenciesOf(ImmutableList_of_Object(obj_(provider)), false)))).addAll(icast_Iterable(obj_(this.sorter_.getSortedWeakDependenciesOf(ImmutableList_of_Object(obj_(provider)))))).build()
 		reachabilityPerEntryPoint.put(strobj_(provider.getName()), any(int32(transitiveClosure.size())))
 	}
-	return reachabilityPerEntryPoint.buildOrThrow()
+	return tmapFrom_(tc_string, tc_any, reachabilityPerEntryPoint.buildOrThrow(), true)
 }
 
-func (this *PruningAnalysis) calculateBottlenecks() ImmutableMapOf[string, BoxedOf[int32]] {
+func (this *PruningAnalysis) calculateBottlenecks() *ImmutableMap[string, any] {
 	var graph *DiGraph = this.buildGraph()
 	var dominatorTree *DominatorTree[string] = DominatorTree_compute[string](graph, PruningAnalysis_VIRTUAL_ROOT)
 	var bottleneckBlame *TMap[string, any] = newTMap_(tc_string, tc_any)
@@ -57,7 +57,7 @@ func (this *PruningAnalysis) calculateBottlenecks() ImmutableMapOf[string, Boxed
 		var entry Map_EntryOf[string, BoxedOf[int32]] = sliceAt_(sortedBlame, i)
 		result.put(entry.getKey(), entry.getValue())
 	}
-	return result.buildOrThrow()
+	return tmapFrom_(tc_string, tc_any, result.buildOrThrow(), true)
 }
 
 // lambda_PruningAnalysis_calculateBottlenecks_1_ is a lambda of PruningAnalysis_calculateBottlenecks that captures nothing (post-flip step lambdas).
@@ -73,18 +73,18 @@ func (this *PruningAnalysis) buildGraph() *DiGraph {
 	for input := range this.sorter_.getSortedList().All() {
 		graph.createNode(strobj_(input.getName()))
 	}
-	for _, el := range immElems_(this.entryPoints_) {
-		input := cast_[*CompilerInput](el)
+	for el := range this.entryPoints_.All() {
+		input := el
 		graph.connect(strobj_(PruningAnalysis_VIRTUAL_ROOT), nil, strobj_(input.getName()))
 	}
 	for input := range this.sorter_.getSortedList().All() {
 		var name string = input.getName()
 		var depSymbols *TSet[string] = newTSet_(tc_string)
-		for _, el2 := range immElems_(input.getRequires()) {
-			req := cast_[*DependencyInfo_Require](el2)
+		for el2 := range input.getRequires().All() {
+			req := el2
 			depSymbols.add(req.getSymbol())
 		}
-		depSymbols.asSet().addAll(icast_Collection(obj_(input.getTypeRequires())))
+		depSymbols.asSet().addAll(icast_Collection(obj_(input.getTypeRequires().asImm())))
 		for symbol := range depSymbols.All() {
 			var depRes *Outcome_base[any] = this.sorter_.getInputProviding(symbol)
 			if depRes.isErr() {
@@ -103,26 +103,26 @@ const PruningAnalysis_BOTTLENECK_THRESHOLD int32 = 25
 const PruningAnalysis_VIRTUAL_ROOT string = "ENTRY POINTS ROOT"
 
 type PruningAnalysis_Result struct {
-	entryPointDependencyCount_ ImmutableMapOf[string, BoxedOf[int32]]
-	bottleneckBlame_           ImmutableMapOf[string, BoxedOf[int32]]
+	entryPointDependencyCount_ *ImmutableMap[string, any]
+	bottleneckBlame_           *ImmutableMap[string, any]
 }
 
-func (this *PruningAnalysis_Result) init_PruningAnalysis_Result(entryPointDependencyCount ImmutableMapOf[string, BoxedOf[int32]], bottleneckBlame ImmutableMapOf[string, BoxedOf[int32]]) {
+func (this *PruningAnalysis_Result) init_PruningAnalysis_Result(entryPointDependencyCount *ImmutableMap[string, any], bottleneckBlame *ImmutableMap[string, any]) {
 	this.entryPointDependencyCount_ = entryPointDependencyCount
 	this.bottleneckBlame_ = bottleneckBlame
 }
 
-func new_PruningAnalysis_Result(entryPointDependencyCount ImmutableMapOf[string, BoxedOf[int32]], bottleneckBlame ImmutableMapOf[string, BoxedOf[int32]]) *PruningAnalysis_Result {
+func new_PruningAnalysis_Result(entryPointDependencyCount *ImmutableMap[string, any], bottleneckBlame *ImmutableMap[string, any]) *PruningAnalysis_Result {
 	this := &PruningAnalysis_Result{}
 	this.init_PruningAnalysis_Result(entryPointDependencyCount, bottleneckBlame)
 	return this
 }
 
-func (this *PruningAnalysis_Result) entryPointDependencyCount() *ErasedImmutableMap {
+func (this *PruningAnalysis_Result) entryPointDependencyCount() *ImmutableMap[string, any] {
 	return this.entryPointDependencyCount_
 }
 
-func (this *PruningAnalysis_Result) bottleneckBlame() *ErasedImmutableMap {
+func (this *PruningAnalysis_Result) bottleneckBlame() *ImmutableMap[string, any] {
 	return this.bottleneckBlame_
 }
 
@@ -131,16 +131,16 @@ func (this *PruningAnalysis_Result) equals(p0 any) bool {
 	if !ok || o == nil {
 		return false
 	}
-	return true && objequalsBy_(this.entryPointDependencyCount_, obj_(o.entryPointDependencyCount_), (ImmutableMapOf[string, BoxedOf[int32]]).equals) && objequalsBy_(this.bottleneckBlame_, obj_(o.bottleneckBlame_), (ImmutableMapOf[string, BoxedOf[int32]]).equals)
+	return true && objequalsBy_(this.entryPointDependencyCount_.asImm(), obj_(o.entryPointDependencyCount_.asImm()), (ImmutableMapOf[string, BoxedOf[int32]]).equals) && objequalsBy_(this.bottleneckBlame_.asImm(), obj_(o.bottleneckBlame_.asImm()), (ImmutableMapOf[string, BoxedOf[int32]]).equals)
 }
 
 func (this *PruningAnalysis_Result) hashCode() int32 {
 	var h int32
-	h = h*31 + objhashBy_(this.entryPointDependencyCount_, (ImmutableMapOf[string, BoxedOf[int32]]).hashCode)
-	h = h*31 + objhashBy_(this.bottleneckBlame_, (ImmutableMapOf[string, BoxedOf[int32]]).hashCode)
+	h = h*31 + objhashBy_(this.entryPointDependencyCount_.asImm(), (ImmutableMapOf[string, BoxedOf[int32]]).hashCode)
+	h = h*31 + objhashBy_(this.bottleneckBlame_.asImm(), (ImmutableMapOf[string, BoxedOf[int32]]).hashCode)
 	return h
 }
 
 func (this *PruningAnalysis_Result) toString() string {
-	return "Result[" + "entryPointDependencyCount=" + tostr_(this.entryPointDependencyCount_) + ", bottleneckBlame=" + tostr_(this.bottleneckBlame_) + "]"
+	return "Result[" + "entryPointDependencyCount=" + tostr_(this.entryPointDependencyCount_.asImm()) + ", bottleneckBlame=" + tostr_(this.bottleneckBlame_.asImm()) + "]"
 }

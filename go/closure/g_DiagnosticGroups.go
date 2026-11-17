@@ -40,8 +40,8 @@ func DiagnosticGroups_registerGroupDiagnosticGroupVarargs(name string, groups []
 	return group
 }
 
-func DiagnosticGroups_getRegisteredGroups() ImmutableMapOf[string, *DiagnosticGroup] {
-	return ImmutableMap_copyOf(DiagnosticGroups_groupsByName.asMap())
+func DiagnosticGroups_getRegisteredGroups() *ImmutableMap[string, *DiagnosticGroup] {
+	return immutableMapCopyOf_(tc_string, tc_p_DiagnosticGroup, DiagnosticGroups_groupsByName.asMap())
 }
 
 func DiagnosticGroups_forName(name string) *DiagnosticGroup {
@@ -57,7 +57,7 @@ func (this *DiagnosticGroups) setWarningLevel(options *CompilerOptions, name str
 }
 
 var DiagnosticGroups_UNUSED *DiagnosticType
-var DiagnosticGroups_wildcardExcludedGroups *ErasedImmutableSet
+var DiagnosticGroups_wildcardExcludedGroups *ImmutableSet[string]
 var DiagnosticGroups_groupsByName *TMap[string, *DiagnosticGroup]
 
 const DiagnosticGroups_DIAGNOSTIC_GROUP_NAMES string = "accessControls, checkPrototypalTypes, checkRegExp, checkTypes, checkVars, conformanceViolations, const, constantProperty, deprecated, deprecatedAnnotations, defineWithoutGoogDefine, duplicateMessage, es5Strict, externsValidation, functionParams, globalThis, invalidCasts, lintVarDeclarations, misplacedTypeAnnotation, missingCallToSuper, missingOverride, missingPolyfill, missingProperties, missingProvide, missingRequire, missingReturn, missingSourcesWarnings, moduleLoad, moduleImport, msgDescriptions, nonStandardJsDocs, partialAlias, polymer, reportUnknownTypes, strictCheckTypes, strictMissingProperties, strictModuleDepCheck, strictPrimitiveOperators, suspiciousCode, typeInvalidation, undefinedVars, underscore, unknownDefines, unusedLocalVariables, uselessCode, untranspilableFeatures,visibility, weakModuleGet"
@@ -151,7 +151,7 @@ func DiagnosticGroups_clinit() {
 	}
 	DiagnosticGroups_clinit_done = true
 	DiagnosticGroups_UNUSED = DiagnosticType_warning("JSC_UNUSED", "{0}")
-	DiagnosticGroups_wildcardExcludedGroups = ImmutableSet_of_Object_Object_Object_Object(strobj_("reportUnknownTypes"), strobj_("analyzerChecks"), strobj_("missingSourcesWarnings"), strobj_("closureUnawareCodeAnnotationPresent"))
+	DiagnosticGroups_wildcardExcludedGroups = immutableSetOf_(tc_string, "reportUnknownTypes", "analyzerChecks", "missingSourcesWarnings", "closureUnawareCodeAnnotationPresent")
 	DiagnosticGroups_groupsByName = newTMap_(tc_string, tc_p_DiagnosticGroup)
 	DiagnosticGroups_UNTRANSPILABLE_FEATURES = DiagnosticGroups_registerGroup("untranspilableFeatures", []*DiagnosticType{ReportUntranspilableFeatures_UNTRANSPILABLE_FEATURE_PRESENT})
 	DiagnosticGroups_MODULE_LOAD = DiagnosticGroups_registerGroup("moduleLoad", []*DiagnosticType{ModuleLoader_LOAD_WARNING, ProcessCommonJSModules_SUSPICIOUS_EXPORTS_ASSIGNMENT, ProcessCommonJSModules_UNKNOWN_REQUIRE_ENSURE})

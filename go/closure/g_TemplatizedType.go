@@ -4,7 +4,7 @@ package closure
 
 type TemplatizedType struct {
 	ProxyObjectType
-	templateTypes                ImmutableListOf[*JSType]
+	templateTypes                *ImmutableList[*JSType]
 	isSpecializedOnlyWithUnknown bool
 	replacer                     *TemplateTypeReplacer
 }
@@ -30,14 +30,14 @@ func (this *TemplatizedType) up_JSType() *JSType {
 	return &this.JSType
 }
 
-func (this *TemplatizedType) init_TemplatizedType(registry *JSTypeRegistry, objectType *ObjectType, templateTypes ImmutableListOf[*JSType]) {
+func (this *TemplatizedType) init_TemplatizedType(registry *JSTypeRegistry, objectType *ObjectType, templateTypes *ImmutableList[*JSType]) {
 	this.ProxyObjectType.init_ProxyObjectType_JSTypeRegistry_JSType_TemplateTypeMap(registry, objectType.up_JSType(), objectType.getTemplateTypeMap().copyFilledWithValues(templateTypes))
-	var builder ImmutableList_BuilderOf[*JSType] = ImmutableList_builder()
+	var builder *ImmutableList_Builder[*JSType] = immutableListBuilder_(tc_p_JSType)
 	var maybeIsSpecializedOnlyWithUnknown bool = true
-	for _, el := range immElems_(objectType.getTypeParameters()) {
-		newlyFilledTemplateKey := cast_[*TemplateType](el)
+	for el := range objectType.getTypeParameters().All() {
+		newlyFilledTemplateKey := el
 		var resolvedType *JSType = this.getTemplateTypeMap().getResolvedTemplateType(newlyFilledTemplateKey)
-		builder.add(resolvedType.self())
+		builder.add(resolvedType)
 		if maybeIsSpecializedOnlyWithUnknown {
 			maybeIsSpecializedOnlyWithUnknown = this.getNativeType(JSTypeNative_UNKNOWN_TYPE).equals_JSType(resolvedType)
 		}
@@ -48,7 +48,7 @@ func (this *TemplatizedType) init_TemplatizedType(registry *JSTypeRegistry, obje
 	registry.getResolver().resolveIfClosed(this.up_JSType(), TemplatizedType_TYPE_CLASS_FIELD)
 }
 
-func new_TemplatizedType(registry *JSTypeRegistry, objectType *ObjectType, templateTypes ImmutableListOf[*JSType]) *TemplatizedType {
+func new_TemplatizedType(registry *JSTypeRegistry, objectType *ObjectType, templateTypes *ImmutableList[*JSType]) *TemplatizedType {
 	this := &TemplatizedType{}
 	this.self_ = this
 	this.init_TemplatizedType(registry, objectType, templateTypes)
@@ -78,7 +78,7 @@ func (this *TemplatizedType) getCtorExtendedInterfaces_impl() IterableOf[*Object
 func (this *TemplatizedType) appendTo_impl(sb *TypeStringBuilder) {
 	this.ProxyObjectType.appendTo_impl(sb)
 	if !this.templateTypes.isEmpty() {
-		sb.append("<").appendAll(icast_Iterable(obj_(this.templateTypes)), ",").append(">")
+		sb.append("<").appendAll(icast_Iterable(obj_(this.templateTypes.asImm())), ",").append(">")
 	}
 }
 
@@ -87,7 +87,7 @@ func (this *TemplatizedType) recursionUnsafeHashCode_impl() int32 {
 	if this.isSpecializedOnlyWithUnknown {
 		return baseHash
 	}
-	return hashOf_(objhashBy_(this.templateTypes, (ImmutableListOf[*JSType]).hashCode), int32(baseHash))
+	return hashOf_(objhashBy_(this.templateTypes.asImm(), (ImmutableListOf[*JSType]).hashCode), int32(baseHash))
 }
 
 func (this *TemplatizedType) visitUntyped_impl(visitor Visitor) any {
@@ -102,7 +102,7 @@ func (this *TemplatizedType) toMaybeTemplatizedType_impl() *TemplatizedType {
 	return this
 }
 
-func (this *TemplatizedType) getTemplateTypes_impl() ImmutableListOf[*JSType] {
+func (this *TemplatizedType) getTemplateTypes_impl() *ImmutableList[*JSType] {
 	return this.templateTypes
 }
 
@@ -161,12 +161,12 @@ func (this *TemplatizedType) resolveInternal_impl(reporter ErrorReporter_rhino) 
 	var baseTypeBefore *JSType = this.getReferencedType().up_JSType()
 	this.ProxyObjectType.resolveInternal_impl(reporter)
 	var rebuild bool = (baseTypeBefore != this.getReferencedType().up_JSType())
-	var builder ImmutableList_BuilderOf[*JSType] = ImmutableList_builder()
-	for _, el := range immElems_(this.templateTypes) {
-		type_ := to_JSType(el)
+	var builder *ImmutableList_Builder[*JSType] = immutableListBuilder_(tc_p_JSType)
+	for el := range this.templateTypes.All() {
+		type_ := el
 		var resolved *JSType = type_.resolve(reporter)
 		rebuild = bor_(rebuild, !JSCompObjects_identical(resolved.self(), type_.self()))
-		builder.add(resolved.self())
+		builder.add(resolved)
 	}
 	if rebuild {
 		return new_TemplatizedType(this.registry, this.getReferencedType(), builder.build()).up_JSType()
@@ -254,7 +254,7 @@ func (this *TemplatizedType) toMaybeTemplatizedType() *TemplatizedType {
 }
 
 // getTemplateTypes: an object that is exactly a TemplatizedType calls its getTemplateTypes_impl directly (post-flip); others dispatch.
-func (this *TemplatizedType) getTemplateTypes() *ErasedImmutableList {
+func (this *TemplatizedType) getTemplateTypes() *ImmutableList[*JSType] {
 	if p, _ := this.self_.(*TemplatizedType); p == this {
 		return this.getTemplateTypes_impl()
 	}

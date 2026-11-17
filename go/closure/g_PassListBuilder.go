@@ -22,12 +22,12 @@ func new_PassListBuilder(options *CompilerOptions) *PassListBuilder {
 	return this
 }
 
-func (this *PassListBuilder) build() ImmutableListOf[*PassFactory] {
-	return ImmutableList_copyOf(Collection(sliceView_(tc_p_PassFactory, this.passes)))
+func (this *PassListBuilder) build() *ImmutableList[*PassFactory] {
+	return immutableListCopyOf_(tc_p_PassFactory, Collection(sliceView_(tc_p_PassFactory, this.passes)))
 }
 
 func (this *PassListBuilder) addAll(other *PassListBuilder) {
-	sliceAddAll_(tc_p_PassFactory, &this.passes, icast_Collection(obj_(other.build())))
+	sliceAddAll_(tc_p_PassFactory, &this.passes, icast_Collection(obj_(other.build().asImm())))
 }
 
 func (this *PassListBuilder) maybeAdd(factory *PassFactory) {
@@ -45,15 +45,15 @@ func (this *PassListBuilder) addAfter(factory *PassFactory, passName string) {
 }
 
 func (this *PassListBuilder) addAllUpTo(other *PassListBuilder, passName string) {
-	var otherPasses ImmutableListOf[*PassFactory] = other.build()
+	var otherPasses *ImmutableList[*PassFactory] = other.build()
 	var index int32 = -1
 	for i := int32(0); i < otherPasses.size(); i++ {
-		if passName == cast_[*PassFactory](otherPasses.get(i)).getName() {
+		if passName == otherPasses.get(i).getName() {
 			index = i
 			break
 		}
 	}
-	sliceAddAll_(tc_p_PassFactory, &this.passes, Collection(otherPasses.subList(0, (index+1))))
+	sliceAddAll_(tc_p_PassFactory, &this.passes, Collection(otherPasses.asImm().subList(0, (index+1))))
 }
 
 func (this *PassListBuilder) findByName(name string) *PassFactory {

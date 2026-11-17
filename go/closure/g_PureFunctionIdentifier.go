@@ -87,12 +87,12 @@ func PureFunctionIdentifier_formatSourceLocation(node Node) string {
 	return (sstr_(node.getSourceFileName()) + ":" + istr_(int64(int32(node.getLineno()))) + ":" + istr_(int64(int32(node.getCharno()))))
 }
 
-func PureFunctionIdentifier_collectCallableLeaves(expr Node, astAnalyzer *AstAnalyzer) ImmutableListOf[Node] {
+func PureFunctionIdentifier_collectCallableLeaves(expr Node, astAnalyzer *AstAnalyzer) *ImmutableList[Node] {
 	var callables *TList[Node] = newTList_(tc_Node)
 	var allLegal bool = PureFunctionIdentifier_collectCallableLeavesInternal(expr, callables, astAnalyzer)
-	return func() *ErasedImmutableList {
+	return func() *ImmutableList[Node] {
 		if allLegal {
-			return ImmutableList_copyOf(callables.asList())
+			return immutableListCopyOf_(tc_Node, callables.asList())
 		}
 		return nil
 	}()
@@ -166,15 +166,15 @@ func PureFunctionIdentifier_isDefinitelyRValue(rvalue Node) bool {
 	}()
 }
 
-func (this *PureFunctionIdentifier) getGoogCacheCallableExpression(cacheCall *CodingConvention_Cache) ImmutableListOf[Node] {
+func (this *PureFunctionIdentifier) getGoogCacheCallableExpression(cacheCall *CodingConvention_Cache) *ImmutableList[Node] {
 	if cacheCall == nil {
 		panic(new_NullPointerException_0().self())
 	}
-	var builder ImmutableList_BuilderOf[Node] = ImmutableList_builder().addAll(icast_Iterable(obj_(PureFunctionIdentifier_collectCallableLeaves(cacheCall.valueFn, this.astAnalyzer))))
+	var builder ImmutableList_BuilderOf[Node] = ImmutableList_builder().addAll(icast_Iterable(obj_(PureFunctionIdentifier_collectCallableLeaves(cacheCall.valueFn, this.astAnalyzer).asImm())))
 	if cacheCall.keyFn != 0 {
-		builder.addAll(icast_Iterable(obj_(PureFunctionIdentifier_collectCallableLeaves(cacheCall.keyFn, this.astAnalyzer))))
+		builder.addAll(icast_Iterable(obj_(PureFunctionIdentifier_collectCallableLeaves(cacheCall.keyFn, this.astAnalyzer).asImm())))
 	}
-	return builder.build()
+	return tlistImm_(tc_Node, builder.build())
 }
 
 func (this *PureFunctionIdentifier) getSummariesForCallee(invocation Node) []*PureFunctionIdentifier_AmbiguatedFunctionSummary {
@@ -182,11 +182,11 @@ func (this *PureFunctionIdentifier) getSummariesForCallee(invocation Node) []*Pu
 		panic(new_IllegalArgumentException_String(tostr_(invocation)).self())
 	}
 	var cacheCall *CodingConvention_Cache = this.compiler_.getCodingConvention().describeCachingCall(invocation)
-	var callees ImmutableListOf[Node]
+	var callees *ImmutableList[Node]
 	if cacheCall != nil {
 		callees = this.getGoogCacheCallableExpression(cacheCall)
 	} else if PureFunctionIdentifier_isInvocationViaCallOrApply(invocation) {
-		callees = ImmutableList_of_Object(invocation.getFirstFirstChild().box_())
+		callees = immutableListOf_(tc_Node, invocation.getFirstFirstChild())
 	} else {
 		callees = PureFunctionIdentifier_collectCallableLeaves(invocation.getFirstChild(), this.astAnalyzer)
 	}
@@ -197,8 +197,8 @@ func (this *PureFunctionIdentifier) getSummariesForCallee(invocation Node) []*Pu
 		panic(new_IllegalStateException_String("Unexpected empty callees for valid result").self())
 	}
 	var results []*PureFunctionIdentifier_AmbiguatedFunctionSummary
-	for _, el := range immElems_(callees) {
-		callee := Node_of_(el)
+	for el := range callees.All() {
+		callee := el
 		if callee.isFunction() {
 			if !callee.isFunction() {
 				panic(new_IllegalStateException_String(tostr_(callee)).self())
@@ -256,14 +256,14 @@ func (this *PureFunctionIdentifier) populateFunctionDefinitions(name string, ref
 				invalid = true
 				break
 			} else {
-				var callables ImmutableListOf[Node] = PureFunctionIdentifier_collectCallableLeaves(rvalue, this.astAnalyzer)
+				var callables *ImmutableList[Node] = PureFunctionIdentifier_collectCallableLeaves(rvalue, this.astAnalyzer)
 				if callables == nil {
 					invalid = true
 					break
 				}
 				if this.validateArtificialPurityField && !reference.isFromExterns() {
-					for _, el := range immElems_(callables) {
-						callable := Node_of_(el)
+					for el := range callables.All() {
+						callable := el
 						var jsdoc *JSDocInfo = NodeUtil_getBestJSDocInfo(callable)
 						var isArtificiallyPure bool = ((jsdoc != nil) && jsdoc.isNoSideEffects())
 						if isArtificiallyPure {
@@ -272,7 +272,7 @@ func (this *PureFunctionIdentifier) populateFunctionDefinitions(name string, ref
 						}
 					}
 				}
-				rvaluesAssignedToName.add(obj_(callables))
+				rvaluesAssignedToName.add(obj_(callables.asImm()))
 			}
 		}
 	}

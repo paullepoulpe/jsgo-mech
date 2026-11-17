@@ -76,7 +76,7 @@ func (this *DefaultNameGenerator) buildPriorityLookupMap() {
 }
 
 func DefaultNameGenerator_isBadName(name string) bool {
-	return Collection_contains_s(DefaultNameGenerator_BAD_NAMES, name)
+	return DefaultNameGenerator_BAD_NAMES.contains(name)
 }
 
 func (this *DefaultNameGenerator) reset(reservedNames SetOf[string], prefix string, reservedCharacters SetOf[BoxedOf[uint16]]) {
@@ -198,7 +198,7 @@ func (this *DefaultNameGenerator) generateNextName() string {
 
 var DefaultNameGenerator_FIRST_CHAR []uint16
 var DefaultNameGenerator_NONFIRST_CHAR []uint16
-var DefaultNameGenerator_BAD_NAMES *ErasedImmutableSet
+var DefaultNameGenerator_BAD_NAMES *ImmutableSet[string]
 
 var DefaultNameGenerator_clinit_done bool
 
@@ -209,7 +209,7 @@ func DefaultNameGenerator_clinit() {
 	DefaultNameGenerator_clinit_done = true
 	DefaultNameGenerator_FIRST_CHAR = String_toCharArray("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ$")
 	DefaultNameGenerator_NONFIRST_CHAR = String_toCharArray("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_0123456789$")
-	DefaultNameGenerator_BAD_NAMES = ImmutableSet_of_Object_Object_Object_Object(strobj_("let"), strobj_("yield"), strobj_("await"), strobj_("eval"))
+	DefaultNameGenerator_BAD_NAMES = immutableSetOf_(tc_string, "let", "yield", "await", "eval")
 
 }
 

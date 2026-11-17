@@ -4,7 +4,7 @@ package closure
 
 type DisambiguateProperties struct {
 	compiler_                      *AbstractCompiler
-	propertiesThatMustDisambiguate ImmutableSetOf[string]
+	propertiesThatMustDisambiguate *ImmutableSet[string]
 	registry                       *ColorRegistry
 	mayHavePropertySeenSet         *TSet[*Color]
 }
@@ -13,14 +13,14 @@ func (this *DisambiguateProperties) finit_DisambiguateProperties() {
 	this.mayHavePropertySeenSet = newTSet_(tch_p_Color)
 }
 
-func (this *DisambiguateProperties) init_DisambiguateProperties(compiler *AbstractCompiler, propertiesThatMustDisambiguate ImmutableSetOf[string]) {
+func (this *DisambiguateProperties) init_DisambiguateProperties(compiler *AbstractCompiler, propertiesThatMustDisambiguate *ImmutableSet[string]) {
 	this.finit_DisambiguateProperties()
 	this.compiler_ = compiler
 	this.propertiesThatMustDisambiguate = propertiesThatMustDisambiguate
 	this.registry = this.compiler_.getColorRegistry()
 }
 
-func new_DisambiguateProperties(compiler *AbstractCompiler, propertiesThatMustDisambiguate ImmutableSetOf[string]) *DisambiguateProperties {
+func new_DisambiguateProperties(compiler *AbstractCompiler, propertiesThatMustDisambiguate *ImmutableSet[string]) *DisambiguateProperties {
 	this := &DisambiguateProperties{}
 	this.init_DisambiguateProperties(compiler, propertiesThatMustDisambiguate)
 	return this
@@ -45,10 +45,10 @@ func (this *DisambiguateProperties) process_2(externs Node, root Node) {
 	var propIndex *TMap[string, *PropertyClustering] = findRefs.getPropertyIndex()
 	DisambiguateProperties_invalidateWellKnownProperties(propIndex)
 	this.logForDiagnosticsStreamedJsonProducer("prop_refs", new_DisambiguateProperties_1(this, propIndex).writeJson)
-	graphBuilder.addAll(icast_Collection(obj_(flattener.getAllKnownTypes())))
+	graphBuilder.addAll(icast_Collection(obj_(flattener.getAllKnownTypes().asImm())))
 	var graph *DiGraph = graphBuilder.build().up_DiGraph()
-	for _, el := range immElems_(flattener.getAllKnownTypes()) {
-		colorGraphNode := cast_[*ColorGraphNode](el)
+	for el := range flattener.getAllKnownTypes().All() {
+		colorGraphNode := el
 		if graph.getOutEdges(obj_(colorGraphNode)).isEmpty() {
 			continue
 		}
@@ -71,13 +71,13 @@ func (this *DisambiguateProperties) process_2(externs Node, root Node) {
 	for prop := range propIndex.Values() {
 		var renameUsesResult UseSiteRenamer_RenameUsesResult = renamer.renameUses(prop)
 		trackerSummaryGenerator.addRenameUsesResult(renameUsesResult)
-		if prop.isInvalidated() && Collection_contains_s(this.propertiesThatMustDisambiguate, prop.getName()) {
+		if prop.isInvalidated() && this.propertiesThatMustDisambiguate.contains(prop.getName()) {
 			this.compiler_.report(this.createInvalidationError(prop))
 		}
 	}
 	this.compiler_.reportDisambiguatePropertiesSummary(func() any { return strobj_(trackerSummaryGenerator.buildSummaryString()) })
 	this.logForDiagnostics("renaming_index", &Supplier_base_fn{func() any {
-		return obj_(DisambiguateProperties_buildRenamingIndex(propIndex, renamer))
+		return obj_(DisambiguateProperties_buildRenamingIndex(propIndex, renamer).asImm())
 	}})
 	this.logForDiagnostics("mismatches", func() *Supplier_base_fn {
 		recv_9 := this.registry.getMismatchLocationsForDebugging()
@@ -103,7 +103,7 @@ func (this *DisambiguateProperties) createInvalidationError(prop *PropertyCluste
 	return JSError_make_Optional_int_int_DiagnosticType_StringArr(Optional_empty[string](), -1, -1, DisambiguateProperties_PROPERTY_INVALIDATION, []string{prop.getName(), additionalContext})
 }
 
-func DisambiguateProperties_buildRenamingIndex(props *TMap[string, *PropertyClustering], renamer *UseSiteRenamer) ImmutableMapOf[string, any] {
+func DisambiguateProperties_buildRenamingIndex(props *TMap[string, *PropertyClustering], renamer *UseSiteRenamer) *ImmutableMap[string, any] {
 	var newNames *SimpleSetMultimap[string, string] = renamer.getRenamingIndex()
 	var result ImmutableSortedMap_BuilderOf[string, any] = ImmutableSortedMap_naturalOrder()
 	for prop := range props.Values() {
@@ -114,7 +114,7 @@ func DisambiguateProperties_buildRenamingIndex(props *TMap[string, *PropertyClus
 			return obj_(ImmutableSortedSet_copyOf(Collection(newNames.get_s(prop.getName()))))
 		}())
 	}
-	return result.buildOrThrow()
+	return tmapFrom_(tc_string, tc_any, result.buildOrThrow(), true)
 }
 
 func DisambiguateProperties_invalidateWellKnownProperties(propIndex *TMap[string, *PropertyClustering]) {
@@ -130,8 +130,8 @@ func lambda_DisambiguateProperties_invalidateWellKnownProperties_1_(p0 any) any 
 }
 
 func (this *DisambiguateProperties) invalidateBasedOnType(flattener *ColorGraphNodeFactory) {
-	for _, el := range immElems_(flattener.getAllKnownTypes()) {
-		type_ := cast_[*ColorGraphNode](el)
+	for el := range flattener.getAllKnownTypes().All() {
+		type_ := el
 		if type_.getColor().isInvalidating() {
 			for prop := range type_.getAssociatedProps().Keys() {
 				prop.invalidate(Invalidation_invalidatingType(type_.getIndex()))
@@ -168,8 +168,8 @@ func (this *DisambiguateProperties) mayHaveProperty(color *Color, propertyName s
 			return 1
 		}
 		if color.isUnion() {
-			for _, el_2 := range immElems_(color.getUnionElements()) {
-				var element *Color = cast_[*Color](el_2)
+			for el_2 := range color.getUnionElements().All() {
+				var element *Color = el_2
 				if this.mayHaveProperty(element, propertyName) {
 					ret_1 = true
 					return 1
@@ -178,7 +178,7 @@ func (this *DisambiguateProperties) mayHaveProperty(color *Color, propertyName s
 			ret_1 = false
 			return 1
 		}
-		if Collection_contains_s(color.getOwnProperties(), propertyName) {
+		if color.getOwnProperties().contains(propertyName) {
 			ret_1 = true
 			return 1
 		}
@@ -203,8 +203,8 @@ func (this *DisambiguateProperties) registerOwnDeclaredProperties(colorGraphNode
 	if colorGraphNode.getColor().isUnion() {
 		panic(new_IllegalArgumentException_0().self())
 	}
-	for _, el := range immElems_(colorGraphNode.getColor().getOwnProperties()) {
-		propName := str_(el)
+	for el := range colorGraphNode.getColor().getOwnProperties().All() {
+		propName := el
 		var prop *PropertyClustering = propIndex.get(propName)
 		if prop == nil {
 			continue

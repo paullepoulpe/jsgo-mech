@@ -575,12 +575,12 @@ func (this *AstFactory) createPrototypeAccess(receiver Node) Node {
 		if receiver.getColor() == nil {
 			panic(new_NullPointerException_String(Strings_lenientFormat("Missing color on %s", []any{receiver.box_()})).self())
 		}
-		var possiblePrototypes ImmutableSetOf[*Color] = receiver.getColor().getPrototypes()
+		var possiblePrototypes *ImmutableSet[*Color] = receiver.getColor().getPrototypes()
 		result.setColor(func() *Color {
 			if possiblePrototypes.isEmpty() {
 				return StandardColors_UNKNOWN
 			}
-			return Color_createUnion(tsetFrom_(tch_p_Color, possiblePrototypes, true))
+			return Color_createUnion(tsetFrom_(tch_p_Color, possiblePrototypes.asImm(), true))
 		}())
 	case AstFactory_TypeMode_NONE:
 	}
@@ -744,7 +744,7 @@ func (this *AstFactory) createAnd(left Node, right Node) Node {
 		if rightColor == nil {
 			nullFail_(tostr_(right))
 		}
-		result.setColor(Color_createUnion(tsetFrom_(tch_p_Color, ImmutableSet_of_Object_Object(obj_(leftColor), obj_(rightColor)), true)))
+		result.setColor(Color_createUnion(immutableSetOf_(tch_p_Color, leftColor, rightColor)))
 	case AstFactory_TypeMode_NONE:
 	}
 	return result
@@ -772,7 +772,7 @@ func (this *AstFactory) createOr(left Node, right Node) Node {
 		if rightColor == nil {
 			nullFail_(tostr_(right))
 		}
-		result.setColor(Color_createUnion(tsetFrom_(tch_p_Color, ImmutableSet_of_Object_Object(obj_(leftColor), obj_(rightColor)), true)))
+		result.setColor(Color_createUnion(immutableSetOf_(tch_p_Color, leftColor, rightColor)))
 	case AstFactory_TypeMode_NONE:
 	}
 	return result
@@ -869,12 +869,12 @@ func (this *AstFactory) createNewNode(target Node, args []Node) Node {
 }
 
 func (this *AstFactory) getInstanceOfColor(color *Color) *Color {
-	var possibleInstanceColors ImmutableSetOf[*Color] = color.getInstanceColors()
+	var possibleInstanceColors *ImmutableSet[*Color] = color.getInstanceColors()
 	return func() *Color {
 		if possibleInstanceColors.isEmpty() {
 			return StandardColors_UNKNOWN
 		}
-		return Color_createUnion(tsetFrom_(tch_p_Color, possibleInstanceColors, true))
+		return Color_createUnion(tsetFrom_(tch_p_Color, possibleInstanceColors.asImm(), true))
 	}()
 }
 
@@ -1037,7 +1037,7 @@ func (this *AstFactory) createHook(condition Node, expr1 Node, expr2 Node) Node 
 	case AstFactory_TypeMode_JSTYPE:
 		result.setJSType(this.registry.createUnionType([]*JSType{expr1.getJSType(), expr2.getJSType()}))
 	case AstFactory_TypeMode_COLOR:
-		result.setColor(Color_createUnion(tsetFrom_(tch_p_Color, ImmutableSet_of_Object_Object(obj_(expr1.getColor()), obj_(expr2.getColor())), true)))
+		result.setColor(Color_createUnion(immutableSetOf_(tch_p_Color, expr1.getColor(), expr2.getColor())))
 	case AstFactory_TypeMode_NONE:
 	}
 	return result
@@ -1170,7 +1170,7 @@ func (this *AstFactory) createEmptyAsyncGeneratorWrapperArgument(asyncGeneratorW
 		if asyncGeneratorWrapperType.isUnknownType() {
 			generatorType = AstFactory_typeJSType_JSType(this.registry.createFunctionType(this.replaceTemplate(this.getNativeType(JSTypeNative_GENERATOR_TYPE), sliceOf_(tc_p_JSType, this.unknownType)), []*JSType{}).up_JSType())
 		} else {
-			var innerFunctionReturnType *JSType = cast_[*FunctionType_Parameter](Iterables_getOnlyElement(icast_Iterable(obj_(asyncGeneratorWrapperType.toMaybeFunctionType().getParameters())))).getJSType()
+			var innerFunctionReturnType *JSType = cast_[*FunctionType_Parameter](Iterables_getOnlyElement(icast_Iterable(obj_(asyncGeneratorWrapperType.toMaybeFunctionType().getParameters().asImm())))).getJSType()
 			generatorType = AstFactory_typeJSType_JSType(this.registry.createFunctionType(innerFunctionReturnType, []*JSType{}).up_JSType())
 		}
 	} else if this.isAddingColors() {
@@ -1292,7 +1292,7 @@ func AstFactory_clinit() {
 
 // lambda_AstFactory_clinit_1_ is a lambda of AstFactory_clinit that captures nothing (post-flip step lambdas).
 var lambda_AstFactory_clinit_1_ = &Supplier_base_fn{func() any {
-	return obj_(Color_createUnion(tsetFrom_(tch_p_Color, ImmutableSet_of_Object_Object_Object(obj_(StandardColors_BIGINT), obj_(StandardColors_STRING), obj_(StandardColors_NUMBER)), true)))
+	return obj_(Color_createUnion(immutableSetOf_(tch_p_Color, StandardColors_BIGINT, StandardColors_STRING, StandardColors_NUMBER)))
 }}
 
 type AstFactory_TypeMode uint8

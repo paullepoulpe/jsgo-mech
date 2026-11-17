@@ -55,7 +55,7 @@ func (this *RenameProperties) init_RenameProperties_AbstractCompiler_boolean_Var
 	this.reservedNonFirstCharacters = reservedNonFirstCharacters
 	this.nameGenerator = nameGenerator
 	this.propertyRenameEligibilityFilter = propertyRenameEligibilityFilter
-	this.externedNames.asSet().addAll(icast_Collection(obj_(compiler.getExternProperties())))
+	this.externedNames.asSet().addAll(icast_Collection(obj_(compiler.getExternProperties().asImm())))
 }
 
 func new_RenameProperties_AbstractCompiler_boolean_VariableMap_Set_Set_NameGenerator_Predicate(compiler *AbstractCompiler, generatePseudoNames bool, prevUsedPropertyMap *VariableMap, reservedFirstCharacters SetOf[BoxedOf[uint16]], reservedNonFirstCharacters SetOf[BoxedOf[uint16]], nameGenerator NameGenerator, propertyRenameEligibilityFilter func(any) bool) *RenameProperties {
@@ -162,13 +162,13 @@ func (this *RenameProperties) generateNames(props SetOf[*RenameProperties_Proper
 }
 
 func (this *RenameProperties) getPropertyMap() *VariableMap {
-	var map_ ImmutableMap_BuilderOf[string, string] = ImmutableMap_builder()
+	var map_ *ImmutableMap_Builder[string, string] = immutableMapBuilder_(tc_string, tc_string)
 	for p := range this.propertyMap.Values() {
 		if p.newName.isPresent() {
-			map_.put(strobj_(p.oldName), strobj_(p.newName.get()))
+			map_.put(p.oldName, p.newName.get())
 		}
 	}
-	return new_VariableMap(tmapFrom_(tc_string, tc_string, map_.buildOrThrow(), true))
+	return new_VariableMap(map_.buildOrThrow())
 }
 
 var RenameProperties_DOT_SPLITTER *Splitter
