@@ -181,7 +181,7 @@ func (this *PrototypeObjectType) appendTo_impl(sb *TypeStringBuilder) {
 		return
 	}
 	this.prettyPrint = false
-	var properties *TTreeSet[*PrototypeObjectType_PropertyForPrettyPrinting] = newTTreeSetC_(tc_p_PrototypeObjectType_PropertyForPrettyPrinting, PrototypeObjectType_PROP_COMPARATOR)
+	var properties SetOf[*PrototypeObjectType_PropertyForPrettyPrinting] = new_TreeSet_Comparator(PrototypeObjectType_PROP_COMPARATOR)
 	{
 		var current *ObjectType = this.up_ObjectType()
 		for ; current != nil; current = current.getImplicitPrototype() {
@@ -190,11 +190,11 @@ func (this *PrototypeObjectType) appendTo_impl(sb *TypeStringBuilder) {
 			}
 			for stringKey := range elemsBy_(current.getOwnPropertyNames(), str_) {
 				var key *Property_StringKey = new_Property_StringKey(stringKey)
-				properties.add(new_PrototypeObjectType_PropertyForPrettyPrinting(key, current.getPropertyTypeKey(key)))
+				properties.add(obj_(new_PrototypeObjectType_PropertyForPrettyPrinting(key, current.getPropertyTypeKey(key))))
 			}
 			for symbolKey := range elemsAs_[*KnownSymbolType](current.getOwnPropertyKnownSymbols()) {
 				var key *Property_SymbolKey = new_Property_SymbolKey(symbolKey)
-				properties.add(new_PrototypeObjectType_PropertyForPrettyPrinting(key, current.getPropertyTypeKey(key)))
+				properties.add(obj_(new_PrototypeObjectType_PropertyForPrettyPrinting(key, current.getPropertyTypeKey(key))))
 			}
 		}
 	}
@@ -204,7 +204,7 @@ func (this *PrototypeObjectType) appendTo_impl(sb *TypeStringBuilder) {
 			sb.breakLineAndIndent()
 		}
 		var i int32 = 0
-		for property := range elemsAs_[*PrototypeObjectType_PropertyForPrettyPrinting](properties.asSet()) {
+		for property := range elemsAs_[*PrototypeObjectType_PropertyForPrettyPrinting](properties) {
 			i++
 			if !sb.isForAnnotations() && (i > PrototypeObjectType_MAX_PRETTY_PRINTED_PROPERTIES) {
 				sb.append("...")

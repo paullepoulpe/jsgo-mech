@@ -8,4 +8,3 @@ var tc_p_AliasStrings_StringInfo = &tconv_[*AliasStrings_StringInfo]{box: func(v
 var tc_p_Es6RewriteModulesToCommonJsModules_LocalQName = &tconv_[*Es6RewriteModulesToCommonJsModules_LocalQName]{box: func(v *Es6RewriteModulesToCommonJsModules_LocalQName) any { return obj_(v) }, unbox: func(v any) *Es6RewriteModulesToCommonJsModules_LocalQName {
 	return cast_[*Es6RewriteModulesToCommonJsModules_LocalQName](v)
 }}
-var tc_p_JSDocInfo_Property = &tconv_[*JSDocInfo_Property]{box: func(v *JSDocInfo_Property) any { return v.self() }, unbox: func(v any) *JSDocInfo_Property { return to_JSDocInfo_Property(v) }}
