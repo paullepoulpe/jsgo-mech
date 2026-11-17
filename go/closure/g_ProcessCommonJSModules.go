@@ -1198,7 +1198,7 @@ func (this *ProcessCommonJSModules_RewriteModule) updateNameReference(t *NodeTra
 		panic(new_NullPointerException_0())
 	}
 	var newNameIsQualified bool = (strings.Contains(newName, "."))
-	var newNameIsModuleExport bool = optequalsOn_(Optional_of(strobj_(newName)), optErase_(this.outer_.getBasePropertyImport(ProcessCommonJSModules_getModuleName(t.getInput()))))
+	var newNameIsModuleExport bool = optOfEquals_(strNonNull_(newName), this.outer_.getBasePropertyImport(ProcessCommonJSModules_getModuleName(t.getInput())))
 	var newNameDeclaration *Var = cast_[*Var](t.getScope().getVar(newName).self())
 	switch parent.ns_().token {
 	case tokOrd1_CLASS:
