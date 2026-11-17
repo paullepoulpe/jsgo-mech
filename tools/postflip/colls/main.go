@@ -95,6 +95,11 @@ type class struct {
 	inferBad [2]string // per type argument
 	viewAt   string
 	infText  []string
+	// An outer class (nested.go): the slots of its components; deep says why they stay erased.
+	targ map[int]int
+	deep string
+	// The element types of the typed collections that enter the class through their views.
+	typed [][]types.Type
 }
 
 // ---- kinds
@@ -291,6 +296,7 @@ func union(a, b int) {
 		da.elems[i] = append(da.elems[i], db.elems[i]...)
 	}
 	da.typeExpr = append(da.typeExpr, db.typeExpr...)
+	da.typed = append(da.typed, db.typed...)
 	da.edits = append(da.edits, db.edits...)
 	da.slots += db.slots
 	da.strKey = da.strKey || db.strKey
@@ -323,10 +329,49 @@ func union(a, b int) {
 	if da.anyAt == "" {
 		da.anyAt = db.anyAt
 	}
+	// Outer classes: their components are joined too.
+	var pend [][2]int
+	if da.targ == nil {
+		da.targ = db.targ
+	} else {
+		for i, t := range db.targ {
+			if s, ok := da.targ[i]; ok {
+				pend = append(pend, [2]int{s, t})
+			} else {
+				da.targ[i] = t
+			}
+		}
+	}
+	deep := da.deep
+	if deep == "" {
+		deep = db.deep
+	}
+	push := deep != "" && (da.deep == "" || db.deep == "")
+	da.deep = deep
 	delete(data, b)
+	for _, p := range pend {
+		union(p[0], p[1])
+	}
+	if push {
+		for _, t := range cls(a).targ {
+			poisonDeep(t, deep)
+		}
+	}
 }
 
 func cls(k int) *class { return data[find(k)] }
+
+// pos is where the class's first declaration is (classes are applied and listed in that order).
+func (c *class) pos() token.Pos {
+	if len(c.typeExpr) == 0 {
+		return token.NoPos
+	}
+	p := c.typeExpr[0].Pos()
+	for _, te := range c.typeExpr {
+		p = min(p, te.Pos())
+	}
+	return p
+}
 
 var poisonAt = map[string]string{}
 
@@ -414,6 +459,9 @@ func (c *class) primOK(i int, prim []ast.Expr) string {
 		return c.inferBad[i]
 	case c.viewAt != "":
 		return "erased code sees it (" + c.viewAt + ")"
+	}
+	if c.inferred == nil {
+		return ""
 	}
 	for _, s := range c.inferred[i] {
 		if !types.Identical(s, t) {
@@ -511,6 +559,14 @@ func declare(g string, ft *ast.FuncType, fixed bool, what string) {
 							union(k, varKey(v))
 						}
 					}
+				} else if isOuter(typeOf(f.Type)) {
+					k := mk(g, i)
+					declareOuter(k, f.Type, typeOf(f.Type), fixed, what)
+					if j < len(f.Names) {
+						if v, ok := rw.Info.Defs[f.Names[j]].(*types.Var); ok {
+							union(k, varKey(v))
+						}
+					}
 				}
 				i++
 			}
@@ -545,6 +601,9 @@ const (
 	vForeign
 	vImm  // an immutable list from erased code: copied into an immutable TList
 	vCopy // new ArrayList(collection)
+	// The view of a collection an earlier run typed (x.asList() of an x that is a *TList[T]):
+	// the class holds the typed collection itself, if its element types are T.
+	vTyped
 )
 
 type value struct {
@@ -552,7 +611,31 @@ type value struct {
 	k    int
 	why  string
 	cap  ast.Expr // capacity of a new list
-	from ast.Expr // the erased collection of vImm and vCopy
+	from ast.Expr // the erased collection of vImm and vCopy; the typed collection of vTyped
+}
+
+// typedNames are the typed collection types of the kinds that have a view.
+var typedNames = map[string]string{"list": "TList", "map": "TMap", "set": "TSet", "treeset": "TTreeSet", "treemap": "TTreeMap"}
+
+// typedView: e is x.asList() (asMap, asSet) of an x whose type is the kind's typed collection.
+func typedView(e ast.Expr) (ast.Expr, bool) {
+	c, ok := e.(*ast.CallExpr)
+	if !ok || len(c.Args) != 0 || K.view == "" || typedNames[K.name] == "" {
+		return nil, false
+	}
+	s, ok := c.Fun.(*ast.SelectorExpr)
+	if !ok || s.Sel.Name != K.view {
+		return nil, false
+	}
+	p, ok := types.Unalias(typeOf(s.X)).(*types.Pointer)
+	if !ok {
+		return nil, false
+	}
+	n, ok := types.Unalias(p.Elem()).(*types.Named)
+	if !ok || n.Obj().Name() != typedNames[K.name] || n.TypeArgs().Len() != K.nargs {
+		return nil, false
+	}
+	return s.X, true
 }
 
 func isImmutable(t types.Type) bool {
@@ -571,6 +654,8 @@ func isImmutable(t types.Type) bool {
 var freshImmutable = map[string]bool{"splitToList": true}
 
 var transparent map[string]bool
+
+var unviewed = map[*ast.CallExpr]bool{}
 
 // unwrap strips the conversions that keep the same list object: it returns the innermost
 // list-valued expression of a chain of such conversions.
@@ -665,6 +750,19 @@ func valueOf(e ast.Expr) value {
 			if isImmutable(typeOf(in)) {
 				return value{kind: vImm, from: in}
 			}
+			// The Object result of Map.computeIfAbsent and the like on a typed map of the class's
+			// collections: the view, of which this is the typed collection.
+			if ic, ok := rw.Unparen(in).(*ast.CallExpr); ok {
+				if k, ok := boxedSrc[ic]; ok && nested[K.name][1] != "" {
+					if !unviewed[x] {
+						unviewed[x] = true
+						edit(k, func(c *class) rw.Edit {
+							return rw.Edit{Node: x, Gen: func() string { return nested[K.name][1] + c.typeArgs() + "(" + rw.Render(in) + ")" }}
+						})
+					}
+					return value{kind: vSlot, k: k}
+				}
+			}
 			return value{kind: vForeign, why: "converted from " + rw.Text(x.Args[0])[:min(40, len(rw.Text(x.Args[0])))]}
 		}
 		if a, ok := K.newFns[n]; ok && len(c.Args) == a {
@@ -678,6 +776,12 @@ func valueOf(e ast.Expr) value {
 		}
 		if fl, ok := rw.Unparen(x.Fun).(*ast.FuncLit); ok {
 			return value{kind: vSlot, k: resultKey(litGroup(fl), 0)}
+		}
+		if b := bind(x); b != nil && b.result != 0 {
+			return value{kind: vSlot, k: b.result}
+		}
+		if tx, ok := typedView(x); ok {
+			return value{kind: vTyped, from: tx}
 		}
 		if f := calleeFunc(x); f != nil && isList(f.Type().(*types.Signature).Results().At(0).Type()) {
 			if typeArgSlot(f, false, 0) {
@@ -697,6 +801,26 @@ func valueOf(e ast.Expr) value {
 			n = "a call"
 		}
 		return value{kind: vForeign, why: "result of " + n}
+	}
+	switch x := e.(type) {
+	case *ast.IndexExpr:
+		// An element of a Go map or slice.
+		switch types.Unalias(typeOf(x.X)).Underlying().(type) {
+		case *types.Map:
+			return value{kind: vSlot, k: targKey(outerSlot(x.X), 1)}
+		case *types.Slice:
+			return value{kind: vSlot, k: targKey(outerSlot(x.X), 0)}
+		}
+	case *ast.SelectorExpr:
+		// A field of a generic class declared as its type parameter (the v of a map cursor).
+		if s, ok := rw.Info.Selections[x]; ok && s.Kind() == types.FieldVal {
+			if fv, ok := s.Obj().(*types.Var); ok && hasTP(fv.Origin().Type()) {
+				if i, ok := fieldComp(x); ok {
+					return value{kind: vSlot, k: targKey(outerSlot(x.X), i)}
+				}
+				return value{kind: vForeign, why: "a field of a generic class"}
+			}
+		}
 	}
 	if v := varOf(e); v != nil {
 		return value{kind: vSlot, k: slotOfVar(v)}
@@ -771,7 +895,75 @@ func flow(dest int, src ast.Expr, top ast.Expr) {
 		if top != inner {
 			edit(dest, func(c *class) rw.Edit { return rw.Edit{Node: top, Gen: func() string { return rw.Render(inner) }} })
 		}
+	case vTyped:
+		c := cls(dest)
+		ts := comps(typeOf(v.from))
+		c.typed = append(c.typed, ts)
+		if c.inferred == nil {
+			c.inferred = make([][]types.Type, K.nargs)
+		}
+		for i := range ts {
+			c.inferred[i] = append(c.inferred[i], ts[i]) // for a class whose slots state no type
+		}
+		from := v.from
+		edit(dest, func(c *class) rw.Edit { return rw.Edit{Node: top, Gen: func() string { return rw.Render(from) }} })
 	}
+}
+
+// dequeReaders are functions that read a collection from first to last during the call and
+// keep no reference to it (they may keep its elements).
+var dequeReaders = map[string]bool{"String_join_s": true, "sliceFrom_": true, "new_ArrayDeque_Collection": true,
+	"new_ArrayList_Collection": true, "new_LinkedHashSet_Collection": true, "ImmutableList_copyOf": true,
+	"ImmutableList_copyOf_Iterable": true, "ImmutableList_copyOf_Collection": true, "ImmutableSet_copyOf": true,
+	"ImmutableSet_copyOf_Iterable": true, "ImmutableSet_copyOf_Collection": true, "elems_": true, "elemsBy_": true,
+	"tlistFrom_": true, "tlistFromRev_": true, "tsetFrom_": true, "setFrom_": true}
+
+// dequeReader reports whether the deque at top goes, as a Collection or Iterable, to a call
+// that only reads it in order: one of dequeReaders, elemsAs_ (a range loop), or the argument
+// of an addAll or of a Joiner's join.
+func dequeReader(top ast.Expr) bool {
+	e := top
+	for {
+		c, ok := rw.Parent[e].(*ast.CallExpr)
+		if !ok {
+			return false
+		}
+		if n, _ := rw.CallName(c); len(c.Args) == 1 && c.Args[0] == e && (n == "Collection" || n == "Iterable" || n == "icast_Collection" || n == "icast_Iterable") {
+			e = c
+			continue
+		}
+		arg := false
+		for _, a := range c.Args {
+			arg = arg || a == e
+		}
+		if !arg {
+			return false
+		}
+		n, _ := rw.CallName(c)
+		if dequeReaders[n] || strings.HasPrefix(n, "elemsAs_[") {
+			return true
+		}
+		if s, ok := c.Fun.(*ast.SelectorExpr); ok && len(c.Args) == 1 {
+			if s.Sel.Name == "addAll" {
+				return true
+			}
+			if s.Sel.Name == "join" && strings.HasSuffix(types.TypeString(typeOf(s.X), nil), "Joiner") {
+				return true
+			}
+		}
+		return false
+	}
+}
+
+// enclosingNode is the function literal or declaration around n.
+func enclosingNode(n ast.Node) ast.Node {
+	for p := rw.Parent[n]; p != nil; p = rw.Parent[p] {
+		switch p.(type) {
+		case *ast.FuncLit, *ast.FuncDecl:
+			return p
+		}
+	}
+	return nil
 }
 
 func enclosingFunc(n ast.Node) string {
@@ -850,6 +1042,21 @@ func handle(e ast.Expr) {
 		if !readsOnly(top) {
 			viewed(src, top)
 		}
+		if K.name == "deque" && dequeReader(top) {
+			// A call that reads the deque from head to tail and keeps none of it: a view of
+			// the typed list in the deque's order, made for the call.
+			inner := unwrap(e)
+			edit(src, func(c *class) rw.Edit {
+				return rw.Edit{Node: top, Gen: func() string {
+					r := rw.Render
+					if top == inner {
+						r = rw.RenderChildren
+					}
+					return fmt.Sprintf("tdequeView_(%s, %v)", r(inner), c.dqHead != "" && c.dqTail == "")
+				}}
+			})
+			return
+		}
 		if K.view == "" {
 			if os.Getenv("COLLS_ANY") != "" {
 				pp := rw.Fset.Position(top.Pos())
@@ -912,6 +1119,13 @@ func handle(e ast.Expr) {
 				boundary()
 				return
 			}
+			if ix, ok := rw.Unparen(x.Lhs[i]).(*ast.IndexExpr); ok {
+				// m[k] = l, s[i] = l: an element of a Go map or slice.
+				if lv := valueOf(ix); lv.kind == vSlot {
+					flow(lv.k, e, top)
+					return
+				}
+			}
 			dv := varOf(x.Lhs[i])
 			if dv == nil {
 				if src != 0 {
@@ -919,7 +1133,11 @@ func handle(e ast.Expr) {
 				}
 				return
 			}
-			flow(slotOfVar(dv), e, top)
+			if lv := valueOf(x.Lhs[i]); lv.kind == vSlot {
+				flow(lv.k, e, top)
+			} else {
+				poison(slotOfVar(dv), lv.why)
+			}
 			return
 		}
 		return // e is an assignment target
@@ -942,7 +1160,11 @@ func handle(e ast.Expr) {
 		g := enclosingFunc(x)
 		for i, r := range x.Results {
 			if r == top {
-				if !isList(typeOf(top)) {
+				if !isList(typeOf(top)) || !isList(enclosingResult(x, i)) {
+					if d, ok := lret[enclosingNode(x)]; ok && !isList(typeOf(top)) {
+						flowBoxed(d, e, top) // the value computed for a typed map of the collections
+						return
+					}
 					boundary() // returned as an Object
 					return
 				}
@@ -964,6 +1186,19 @@ func handle(e ast.Expr) {
 						seqUse(src, unwrap(e), m, c2)
 						return
 					}
+				}
+			}
+		}
+		// SequencedCollection_addFirst(d, v) and the like on the deque itself.
+		if n, _ := rw.CallName(x); K.name == "deque" && src != 0 && len(x.Args) >= 1 && x.Args[0] == top && top == unwrap(e) {
+			if m, ok := strings.CutPrefix(n, "SequencedCollection_"); ok {
+				want := 1
+				if strings.HasPrefix(m, "add") {
+					want = 2
+				}
+				if len(x.Args) == want {
+					seqUse(src, top, m, x)
+					return
 				}
 			}
 		}
@@ -999,6 +1234,20 @@ func handle(e ast.Expr) {
 			if k, ok := paramIndexKey(x, i); ok && isList(typeOf(top)) {
 				flow(k, e, top)
 				return
+			}
+			if d, ok := boxedArg[x][i]; ok {
+				flowBoxed(d, e, top)
+				return
+			}
+			if b := bind(x); b != nil && b.params[i] != 0 && isList(typeOf(top)) {
+				flow(b.params[i], e, top)
+				return
+			}
+			if id, ok := rw.Unparen(x.Fun).(*ast.Ident); ok && id.Name == "append" && i >= 1 && !x.Ellipsis.IsValid() && isList(typeOf(top)) {
+				if _, builtin := rw.Info.Uses[id].(*types.Builtin); builtin {
+					flow(targKey(outerSlot(x.Args[0]), 0), e, top)
+					return
+				}
 			}
 			boundary()
 			return
@@ -1127,8 +1376,9 @@ func implicitConversions() {
 				}
 				for i, r := range x.Rhs {
 					if other(r) && isList(typeOf(x.Lhs[i])) {
-						if v := varOf(x.Lhs[i]); v != nil {
-							into(slotOfVar(v), r)
+						// A variable, or an element of a container of the collections.
+						if lv := valueOf(x.Lhs[i]); lv.kind == vSlot {
+							into(lv.k, r)
 						}
 					}
 				}
@@ -1158,6 +1408,14 @@ func implicitConversions() {
 					}
 					if k, ok := paramIndexKey(x, i); ok {
 						into(k, a)
+					} else if b := bind(x); b != nil && b.params[i] != 0 {
+						into(b.params[i], a) // an argument for a type parameter that is the collection
+					} else if id, ok := rw.Unparen(x.Fun).(*ast.Ident); ok && id.Name == "append" && i >= 1 && !x.Ellipsis.IsValid() {
+						if _, builtin := rw.Info.Uses[id].(*types.Builtin); builtin {
+							if cs := comps(typeOf(x.Args[0])); len(cs) == 1 && isList(cs[0]) {
+								into(targKey(outerSlot(x.Args[0]), 0), a)
+							}
+						}
 					}
 				}
 			case *ast.KeyValueExpr:
@@ -1418,6 +1676,19 @@ func use(k int, recv ast.Expr, m string, call *ast.CallExpr) {
 			"peekLast": "peek", "pollLast": "poll", "getLast": "get"}
 		switch {
 		case (m == "size" || m == "isEmpty" || m == "clear") && n == 0:
+			return
+		case m == "addAll" && n == 1:
+			// addAll adds each element at the tail, in the argument's order: on a deque that
+			// keeps its own order (one used at its tail), the typed list's addAll.
+			c := cls(k)
+			if c.dqTail == "" {
+				c.dqTail = m
+			}
+			viewed(k, call)
+			sel := call.Fun.(*ast.SelectorExpr)
+			edit(k, func(c *class) rw.Edit {
+				return rw.Edit{Node: sel, Gen: func() string { return "tdequeView_(" + R() + ", false).addAll" }}
+			})
 			return
 		case head[m] != "" && n == map[bool]int{true: 1}[head[m] == "push"]:
 			dequeOp(k, call.Fun.(*ast.SelectorExpr).X, m, true, head[m], call, args)
@@ -1799,6 +2070,7 @@ func main() {
 		transparent[c] = true
 	}
 
+	scanGenerics()
 	// Slots: function signatures, interface methods, fields and variables.
 	for _, f := range rw.Files {
 		ast.Inspect(f, func(n ast.Node) bool {
@@ -1831,6 +2103,13 @@ func main() {
 							}
 						}
 					}
+				} else if inStruct && isOuter(typeOf(x.Type)) {
+					curPos = x.Pos()
+					for _, id := range x.Names {
+						if v, ok := rw.Info.Defs[id].(*types.Var); ok {
+							declareOuter(varKey(v), x.Type, typeOf(x.Type), !generated(x.Pos()), "variable of the runtime")
+						}
+					}
 				}
 			case *ast.RangeStmt:
 				// The keys and elements of a Go slice or map (left by an earlier step) are not slots.
@@ -1840,16 +2119,31 @@ func main() {
 						continue
 					}
 					if v := varOf(e); v != nil && isList(v.Type()) {
-						poison(slotOfVar(v), "element of a Go slice or map")
+						if !rangeVar(x, e, e == x.Key) {
+							poison(slotOfVar(v), "element of a Go slice or map")
+						}
+					} else if v != nil && isOuter(v.Type()) {
+						if !rangeVar(x, e, e == x.Key) {
+							poisonDeep(varKey(v), "element of a Go slice or map")
+						}
 					}
 				}
 			case *ast.AssignStmt:
 				// v, ok := m[k], a, b := f(): the values do not come from slots of the class.
 				if len(x.Lhs) != len(x.Rhs) {
 					curPos = x.Pos()
-					for _, e := range x.Lhs {
+					for i, e := range x.Lhs {
 						if v := varOf(e); v != nil && isList(v.Type()) {
+							// v, ok := m[k] of a Go map of the collections.
+							if ix, ok := rw.Unparen(x.Rhs[0]).(*ast.IndexExpr); ok && i == 0 && len(x.Rhs) == 1 {
+								if _, isMap := types.Unalias(typeOf(ix.X)).Underlying().(*types.Map); isMap {
+									union(slotOfVar(v), targKey(outerSlot(ix.X), 1))
+									continue
+								}
+							}
 							poison(slotOfVar(v), "assigned from a multi-value expression")
+						} else if v != nil && isOuter(v.Type()) {
+							poisonDeep(varKey(v), "assigned from a multi-value expression")
 						}
 					}
 				}
@@ -1871,6 +2165,13 @@ func main() {
 							}
 						}
 					}
+				} else if x.Type != nil && isOuter(typeOf(x.Type)) {
+					curPos = x.Pos()
+					for _, id := range x.Names {
+						if v, ok := rw.Info.Defs[id].(*types.Var); ok {
+							declareOuter(varKey(v), x.Type, typeOf(x.Type), !generated(x.Pos()), "variable of the runtime")
+						}
+					}
 				}
 			}
 			return true
@@ -1884,7 +2185,42 @@ func main() {
 					for _, k := range []string{":p", ":r"} {
 						for i := 0; i < 8; i++ {
 							if kk, ok := keys[fmt.Sprintf("%s%s%d", litGroup(fl), k, i)]; ok {
-								poison(kk, "function literal used as a value")
+								poisonDeep(kk, "function literal used as a value")
+							}
+						}
+					}
+				}
+			}
+			// A function of the generated code used as a function value (the typed function of
+			// a ComputeIfAbsent call): whoever calls it gets its results.
+			if id, ok := n.(*ast.Ident); ok {
+				if o, ok := rw.Info.Uses[id].(*types.Func); ok && o.Type().(*types.Signature).Recv() == nil {
+					var e ast.Expr = id
+					for {
+						switch p := rw.Parent[e].(type) {
+						case *ast.ParenExpr:
+							e = p
+							continue
+						case *ast.IndexExpr:
+							if p.X == e {
+								e = p
+								continue
+							}
+						case *ast.IndexListExpr:
+							if p.X == e {
+								e = p
+								continue
+							}
+						}
+						break
+					}
+					if c, ok := rw.Parent[e].(*ast.CallExpr); !ok || c.Fun != e {
+						g := groupOf(o)
+						for _, k := range []string{":p", ":r"} {
+							for i := 0; i < 8; i++ {
+								if kk, ok := keys[fmt.Sprintf("%s%s%d", g, k, i)]; ok {
+									poisonDeep(kk, "function used as a function value")
+								}
 							}
 						}
 					}
@@ -1898,7 +2234,7 @@ func main() {
 						for _, k := range []string{":p", ":r"} {
 							for i := 0; i < 8; i++ {
 								if kk, ok := keys[fmt.Sprintf("%s%s%d", g, k, i)]; ok {
-									poison(kk, "method used as a function value")
+									poisonDeep(kk, "method used as a function value")
 								}
 							}
 						}
@@ -1924,19 +2260,59 @@ func main() {
 			}
 			sig := fn.Type().(*types.Signature)
 			for i := 0; i < sig.Params().Len(); i++ {
-				if isList(sig.Params().At(i).Type()) {
-					poison(paramKey(groupOf(fn), i), "parameter used by the runtime")
+				if mentions(sig.Params().At(i).Type()) {
+					poisonDeep(paramKey(groupOf(fn), i), "parameter used by the runtime")
 				}
 			}
 			for i := 0; i < sig.Results().Len(); i++ {
-				if isList(sig.Results().At(i).Type()) {
-					poison(resultKey(groupOf(fn), i), "result used by the runtime")
+				if mentions(sig.Results().At(i).Type()) {
+					poisonDeep(resultKey(groupOf(fn), i), "result used by the runtime")
 				}
 			}
 			return true
 		})
 	}
 	implicitConversions()
+	// Containers of the collections (nested.go): generic calls first, so that the functions
+	// computing a map's values are known when their bodies are seen.
+	for _, f := range rw.Files {
+		if !generated(f.Pos()) {
+			continue
+		}
+		ast.Inspect(f, func(n ast.Node) bool {
+			if c, ok := n.(*ast.CallExpr); ok {
+				bind(c)
+			}
+			return true
+		})
+	}
+	for _, f := range rw.Files {
+		if !generated(f.Pos()) {
+			continue
+		}
+		ast.Inspect(f, func(n ast.Node) bool {
+			e, ok := n.(ast.Expr)
+			if !ok {
+				return true
+			}
+			switch e.(type) {
+			case *ast.Ident, *ast.SelectorExpr, *ast.CallExpr, *ast.IndexExpr, *ast.TypeAssertExpr, *ast.StarExpr, *ast.CompositeLit,
+				*ast.UnaryExpr, *ast.SliceExpr:
+			default:
+				return true
+			}
+			tv, ok := rw.Info.Types[e]
+			if !ok || tv.IsType() || !isOuter(tv.Type) {
+				return true
+			}
+			if s, ok := rw.Parent[e].(*ast.SelectorExpr); ok && s.Sel == e {
+				return true
+			}
+			curPos = e.Pos()
+			handleOuter(e)
+			return true
+		})
+	}
 	// Values: every list-valued expression in generated code.
 	for _, f := range rw.Files {
 		if !generated(f.Pos()) {
@@ -1970,6 +2346,7 @@ func main() {
 			return true
 		})
 	}
+	checkLambdas()
 	if os.Getenv("LISTS_GROUPS") != "" {
 		for g, fx := range groupFixed {
 			if groupGen[g] > 0 {
@@ -2034,6 +2411,15 @@ func main() {
 						why = "element type " + rw.Text(el) + " has no known boxing"
 					} else {
 						c.elem[i], c.elemText[i], c.cv[i] = et, rw.Text(el), cv
+					}
+				}
+			}
+			// Typed collections that enter through their views must have the class's element types
+			// (and, for a map or set, keys compared the same way: by the type).
+			for _, ts := range c.typed {
+				for i := 0; i < K.nargs && why == ""; i++ {
+					if !types.Identical(ts[i], c.elem[i]) {
+						why = "a typed collection of other element types enters it (" + types.TypeString(ts[i], types.RelativeTo(rw.Pkg)) + ")"
 					}
 				}
 			}
@@ -2148,17 +2534,17 @@ func main() {
 	}
 	if verbose {
 		for _, c := range good {
-			p := rw.Fset.Position(c.typeExpr[0].Pos())
+			p := rw.Fset.Position(c.pos())
 			fmt.Printf("class\t%d decls\t%s:%d\t%s\n", len(c.typeExpr), filepath.Base(p.Filename), p.Line, K.goType(c))
 		}
 	}
-	sort.Slice(good, func(i, j int) bool { return good[i].typeExpr[0].Pos() < good[j].typeExpr[0].Pos() })
+	sort.Slice(good, func(i, j int) bool { return good[i].pos() < good[j].pos() })
 	if r := os.Getenv("COLLS_RANGE"); r != "" { // bisection aid: apply only classes [a, b)
 		var a, b int
 		fmt.Sscanf(r, "%d,%d", &a, &b)
 		good = good[a:min(b, len(good))]
 		for _, c := range good {
-			p := rw.Fset.Position(c.typeExpr[0].Pos())
+			p := rw.Fset.Position(c.pos())
 			fmt.Fprintf(os.Stderr, "applying %s:%d %s\n", filepath.Base(p.Filename), p.Line, K.goType(c))
 		}
 	}
