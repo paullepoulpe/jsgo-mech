@@ -74,3 +74,24 @@ Java-ism (what is left is listed with its reason in the step's commit message):
 | Preconditions with message arguments | 889 boxed per call | boxed only on failure | `precond` |
 | exceptions, String_* UTF-16 helpers, reflect, unsafe | | | not translation artefacts: jsgo has the same (panic/defer, UTF-16 semantics over WTF-8); reflect/unsafe hits are names, not uses |
 
+
+## Round 6 (postflip5-r6-eqsb): equals/hashCode, StringBuilder, threads, defer
+
+| Java-ism | postflip5 | r6 | step(s) | left, by reason |
+|---|---:|---:|---|---|
+| equals/hashCode protocol | 633 | 153 | `eqhash` extended: enums, Optionals, interface values (decided over the package's implementing types), `self()` of classes whose equals is the class's, package-level key conversions, `Objects.hash`, `requireNonNull` as an inline nil check | 132 direct calls of a class's own `equals`/`hashCode` (jsgo keeps `Equals`/`HashCode` methods); 18 values of type `any` (erased type arguments); 3 values of a marker interface without methods |
+| StringBuilder | 283 | 24 | `sbuild` extended: classes of builders across parameters, fields, results and interface methods; Appendable helper functions get `*strBuilder_` variants (in place when only builders call them); `strBuilder_` has every method used (UTF-16 lengths and indexes, byte fast path) | 20: nine builders and two direct `new StringBuilder()` passed as an `Appendable` to methods Writers also take (SourceMap.appendTo, writeChunkOutput, Node.appendStringTree, DotFormatter, the SourceCodeEscapers escaper); 2 the class-name entry; 2 a comment and a message |
+| thread/executor emulation | 47 | 17 | manual: no thread kept by CompilerExecutor and Tracer (their same-thread checks always held); runtime: no executors, futures or thread starts; the stubs, casts, aliases and class names of those types | 15 the name of the class CompilerExecutor (it runs the callable directly); 2 the class-name entry of Thread (the runtime's main thread, for Thread.interrupted) |
+| `defer` | 91 | 91 | kept | see below |
+
+`defer` is kept everywhere, as jsgo does (PORTING.md 5: `finally` is `defer`, `catch` a recover):
+- 35 emulate `catch` (`defer func() { if r_ := recover() ...`): Java's catch by exception class needs
+  the recover; on the normal path an open-coded defer is a few instructions (no recover runs).
+- 35 emulate `finally`: they must also run when an exception passes through, and several restore
+  state of objects that outlive it (SubtypeChecker's recursion depth and subtyping mode,
+  TemplateTypeReplacer's and the disambiguation passes' seen sets, ColorPool's debug stack,
+  PhaseOptimizer's inLoop, the error manager swap of ConformanceAllowlister, the decision logs);
+  writing them as straight-line code would drop that on the exception path. The hot ones
+  (EqualityChecker/SubtypeChecker recursion depth, guardAgainstCycles, the seen sets) have no loop
+  around the defer, so Go open-codes them.
+- 21 are try-with-resources (`defer closeResource_(x)`): Java closes the resource on every exit.
