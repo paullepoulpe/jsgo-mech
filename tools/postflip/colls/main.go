@@ -16,7 +16,8 @@
 // code expecting an erased collection or Object, goes through a view (asList, asMap, asSet)
 // with the collection's identity.
 //
-// -kind deque: an ArrayDeque used only as a stack (push, pop, peek, poll, getFirst, size,
+// -kind deque (a new LinkedList held as a Deque too: the same operations, in the same order,
+// and a typed list holds null as a LinkedList does): an ArrayDeque used only as a stack (push, pop, peek, poll, getFirst, size,
 // isEmpty, clear; also addFirst, removeFirst...) becomes a *TList[T] whose end is the deque's
 // head (its order reversed: a for-each loop walks it from the end, eachRev), or a deque used
 // at its tail (add, removeLast, getLast..., and a queue: add, poll) a *TList[T] in its own
@@ -149,7 +150,7 @@ func kinds() map[string]*kindDef {
 			// An ArrayDeque used only as a stack: *TList[T] whose end is the deque's head.
 			name: "deque", held: []types.Type{look("Deque"), ptr("ArrayDeque")}, aliases: []string{"DequeOf", "ArrayDequeOf"}, nargs: 1,
 			conv:      []string{"icast_Deque", "to_ArrayDeque", "cast_[*ArrayDeque]", "Deque"},
-			newFns:    map[string]int{"new_ArrayDeque": 0, "new_ArrayDeque_int": 1},
+			newFns:    map[string]int{"new_ArrayDeque": 0, "new_ArrayDeque_int": 1, "new_LinkedList": 0},
 			copyFns:   map[string]bool{"new_ArrayDeque_Collection": true},
 			immutable: map[string]bool{},
 			goType:    func(c *class) string { return "*TList[" + c.elemText[0] + "]" },
@@ -1057,6 +1058,14 @@ func implicitConversions() {
 	}
 	// An immutable collection is copied into the typed one, as through an explicit conversion.
 	into := func(dest int, r ast.Expr) {
+		// A new collection of the kind whose own type the kind does not hold (new_LinkedList()
+		// into a Deque slot) is a new collection like any other.
+		if n, c := rw.CallName(r); c != nil {
+			if a, ok := K.newFns[n]; ok && len(c.Args) == a {
+				flow(dest, r, r)
+				return
+			}
+		}
 		if K.fromCode == nil || !isImmutable(typeOf(r)) {
 			poison(dest, why(r))
 			return
