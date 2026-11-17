@@ -86,7 +86,10 @@
 // map, so no flow analysis is needed; but its order is not the insertion order, so a class
 // converts only when nothing iterates it, nothing sees it as an erased Map or Set (except
 // Map.computeIfAbsent and getOrDefault through the view, and Set.addAll, which do not depend
-// on order), and no slot an immutable map may reach is changed (it would throw). A map or set
+// on order), and no slot an immutable map may reach is changed (it would throw). Keys of a
+// class whose equals compares a few fields fixed at construction (valueKeys: Var by name and
+// scope root, ExportTrace by module identity and name) key the Go map by those fields
+// (vkey_, etkey_), when only lookups, puts and removals use the key. A map or set
 // that stays typed is the ordered map of rt_tmap.go: its order is observable, or its keys
 // compare by equals.
 //
@@ -397,10 +400,15 @@ func tstr(t types.Type) string { return types.TypeString(t, func(*types.Package)
 func goType(t types.Type) string {
 	as := typeArgs(t)
 	switch kind {
-	case "map":
-		return "map[" + tstr(as[0]) + "]" + tstr(as[1])
-	case "set":
-		return "map[" + tstr(as[0]) + "]struct{}"
+	case "map", "set":
+		k := tstr(as[0])
+		if kt, _, ok := valueKey(as[0]); ok {
+			k = kt
+		}
+		if kind == "set" {
+			return "map[" + k + "]struct{}"
+		}
+		return "map[" + k + "]" + tstr(as[1])
 	}
 	return "[]" + tstr(as[0])
 }
@@ -864,6 +872,10 @@ func newValue(n *node, call *ast.CallExpr) {
 	et := elemText(typeOf(call))
 	A := func(i int) string { return rw.Render(call.Args[i]) }
 	gt := goType(typeOf(call))
+	if as := typeArgs(typeOf(call)); (kind == "map" || kind == "set") && as != nil && isVarKey(as[0]) && name != "newTMap_" && name != "newTSet_" {
+		poison(n, "keyed by equals of a few fields, and copied from an erased collection")
+		return
+	}
 	switch name {
 	case "newTMap_", "newTSet_":
 		edit(n, call, func() string { return gt + "{}" })
@@ -2295,7 +2307,7 @@ func main() {
 			// Keys of a class with its own equals and hashCode stay in the typed map, which
 			// compares them as Java does; a Go map would compare them by ==.
 			for _, te := range c.typeExpr {
-				if as := typeArgs(typeOf(te)); as != nil && rw.KeyMode(as[0]) != rw.KeyEq {
+				if as := typeArgs(typeOf(te)); as != nil && rw.KeyMode(as[0]) != rw.KeyEq && !isVarKey(as[0]) {
 					c.poison = append([]string{"keys compared by equals"}, c.poison...)
 					break
 				}
@@ -2663,6 +2675,24 @@ func mapUse(n *node, recv ast.Expr, m string, call *ast.CallExpr) {
 			n.mutated = m
 		}
 	}
+	// A Var key: a Go map keyed by what Var.equals compares (vkey_: the name and the scope
+	// root, never changing); the operations that hand the key back need the Var itself.
+	vk := isVarKey(as[0])
+	if vk {
+		A = func(i int) string {
+			if i == 0 && m != "addAllT" {
+				_, kf, _ := valueKey(as[0])
+				return kf + "(" + rw.Render(args[0]) + ")"
+			}
+			return rw.Render(args[i])
+		}
+		switch m {
+		case "size", "isEmpty", "clear", "get", "containsKey", "contains", "put", "remove", "getOrDefault", "putIfAbsent", "add", "addAllT":
+		default:
+			poison(n, "keyed by equals of a few fields, and method "+m)
+			return
+		}
+	}
 	strVal := !set && isString(as[1])
 	switch {
 	case m == "size" && len(args) == 0:
@@ -2758,6 +2788,32 @@ func mapUse(n *node, recv ast.Expr, m string, call *ast.CallExpr) {
 		poison(n, "method "+m)
 	}
 }
+
+// valueKeys are the key classes whose equals and hashCode compare a few fields that never
+// change after construction, with the comparable Go key of those fields (rt_varmap.go): a Go
+// map keyed by it finds what a HashMap finds. Var (ScopedName's equals): the name and the
+// scope root. ExportTrace (an AutoValue): the module (identity) and the export name.
+var valueKeys = map[string][2]string{
+	"Var":         {"varKey_", "vkey_"},
+	"ExportTrace": {"exportTraceKey_", "etkey_"},
+}
+
+// valueKey is the Go key type and key function of key type t, if t is a pointer to one of
+// valueKeys.
+func valueKey(t types.Type) (string, string, bool) {
+	p, ok := types.Unalias(t).(*types.Pointer)
+	if !ok {
+		return "", "", false
+	}
+	nt, ok := types.Unalias(p.Elem()).(*types.Named)
+	if !ok || nt.Obj().Pkg() != rw.Pkg {
+		return "", "", false
+	}
+	k, ok := valueKeys[nt.Obj().Name()]
+	return k[0], k[1], ok
+}
+
+func isVarKey(t types.Type) bool { _, _, ok := valueKey(t); return ok }
 
 func isString(t types.Type) bool {
 	b, ok := types.Unalias(t).(*types.Basic)
