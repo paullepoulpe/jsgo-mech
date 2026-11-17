@@ -57,7 +57,7 @@ func (this *ReplaceStrings) getResult() []*ReplaceStrings_Result {
 
 func (this *ReplaceStrings) getStringMap() *VariableMap {
 	var map_ ImmutableMap_BuilderOf[string, string] = ImmutableMap_builder()
-	it_1 := foreach_(any(Iterables_filter_f(Iterable(this.results.asMap().values()), ReplaceStrings_USED_RESULTS)))
+	it_1 := foreach_(Iterables_filter_f(Iterable(this.results.asMap().values()), ReplaceStrings_USED_RESULTS))
 	for it_1.next() {
 		var result *ReplaceStrings_Result = cast_[*ReplaceStrings_Result](it_1.v)
 		map_.put(strobj_(result.replacement_), strobj_(result.original_))
@@ -112,7 +112,7 @@ func (this *ReplaceStrings) doSubstitutions(t *NodeTraversal, config *ReplaceStr
 		panic(new_IllegalStateException_0().self())
 	}
 	if !config.isReplaceAll() {
-		it_1 := foreach_(any(config.parameters))
+		it_1 := foreach_(config.parameters)
 		for it_1.next() {
 			var parameter int32 = unbox_[int32](it_1.v)
 			var arg Node = n.getChildAtIndex(parameter)

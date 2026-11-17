@@ -68,7 +68,7 @@ func (this *ComposeWarningsGuard) addGuard(guard *WarningsGuard) {
 }
 
 func (this *ComposeWarningsGuard) addGuards(guards IterableOf[*WarningsGuard]) {
-	it_1 := foreach_(any(guards))
+	it_1 := foreach_(guards)
 	for it_1.next() {
 		var guard *WarningsGuard = to_WarningsGuard(it_1.v)
 		this.addGuard(guard)

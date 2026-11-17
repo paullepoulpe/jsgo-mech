@@ -163,7 +163,7 @@ func (this *SimpleJsonValue) writeTo(writer *SimpleJsonWriter) {
 	switch this.tag {
 	case SimpleJsonValue_Kind_OBJECT:
 		writer.beginObject()
-		it_2 := foreach_(any(this.named.entrySet()))
+		it_2 := foreach_(this.named.entrySet())
 		for it_2.next() {
 			var member Map_Entry = icast_Map_Entry(it_2.v)
 			writer.name(str_(member.getKey()))

@@ -974,7 +974,7 @@ func (this *JsMessageVisitor_ObjectLiteralMapImpl) getBooleanValueOrFalse(key st
 func (this *JsMessageVisitor_ObjectLiteralMapImpl) extractAsValueMap() ImmutableMapOf[string, Node] {
 	if this.valueMap == nil {
 		var builder ImmutableMap_BuilderOf[string, Node] = ImmutableMap_builder()
-		it_1 := foreach_(any(this.stringToStringKeyMap.asMap().entrySet()))
+		it_1 := foreach_(this.stringToStringKeyMap.asMap().entrySet())
 		for it_1.next() {
 			var entry Map_Entry = icast_Map_Entry(it_1.v)
 			builder.put(entry.getKey(), Node_of_(entry.getValue()).getOnlyChild().box_())
@@ -987,7 +987,7 @@ func (this *JsMessageVisitor_ObjectLiteralMapImpl) extractAsValueMap() Immutable
 func (this *JsMessageVisitor_ObjectLiteralMapImpl) extractAsStringToStringMap() *Outcome_base {
 	if this.stringMap == nil {
 		var builder ImmutableMap_BuilderOf[string, string] = ImmutableMap_builder()
-		it_1 := foreach_(any(this.stringToStringKeyMap.asMap().entrySet()))
+		it_1 := foreach_(this.stringToStringKeyMap.asMap().entrySet())
 		for it_1.next() {
 			var entry Map_Entry = icast_Map_Entry(it_1.v)
 			var value *Outcome_base = JsMessageVisitor_extractStringFromStringExprNode(Node_of_(entry.getValue()).getOnlyChild())

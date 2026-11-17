@@ -35,7 +35,7 @@ func new_ColorSerializer(serializationMode *SerializationOptions, stringPoolInde
 
 func (this *ColorSerializer) addColors(colors CollectionOf[*Color]) ImmutableListOf[BoxedOf[int32]] {
 	var builder ImmutableList_BuilderOf[BoxedOf[int32]] = ImmutableList_builder()
-	it_1 := foreach_(any(colors))
+	it_1 := foreach_(colors)
 	for it_1.next() {
 		var color *Color = cast_[*Color](it_1.v)
 		builder.add(any(int32(this.addColor(color))))
@@ -59,7 +59,7 @@ func (this *ColorSerializer) generateTypePool(getDisambiguationSupertypesFn func
 		var color *Color = sliceAt_(this.colorsInSerializedOrder, i)
 		var typePointer any = this.colorIdToTypePointer.get(color.getId())
 		typePoolBuilder.addType(this.generateTypeProto(color))
-		it_2 := foreach_(any(icast_Set(getDisambiguationSupertypesFn(obj_(color)))))
+		it_2 := foreach_(icast_Set(getDisambiguationSupertypesFn(obj_(color))))
 		for it_2.next() {
 			var supertype *Color = cast_[*Color](it_2.v)
 			typePoolBuilder.addDisambiguationEdgesBuilder().setSubtype(unbox_[int32](typePointer)).setSupertype(this.addColor(supertype))
@@ -75,14 +75,14 @@ func (this *ColorSerializer) generateTypePool(getDisambiguationSupertypesFn func
 		for it_4.next() {
 			var color *Color = it_4.v
 			var typePointer any = this.colorIdToTypePointer.get(color.getId())
-			it_6 := foreach_(any(icast_Set(getMismatchSourceRefsFn.apply(obj_(color)))))
+			it_6 := foreach_(icast_Set(getMismatchSourceRefsFn.apply(obj_(color))))
 			for it_6.next() {
 				var srcRef string = str_(it_6.v)
 				var typePointerList ArrayListOf[BoxedOf[int32]] = srcRefToTypePointerList.computeIfAbsent_f(srcRef, lambda_ColorSerializer_generateTypePool_1_)
 				typePointerList.add(typePointer)
 			}
 		}
-		it_8 := foreach_(any(srcRefToTypePointerList.asMap().entrySet()))
+		it_8 := foreach_(srcRefToTypePointerList.asMap().entrySet())
 		for it_8.next() {
 			var entry Map_Entry = icast_Map_Entry(it_8.v)
 			debugInfoBuilder.addMismatchBuilder().setSourceRef(str_(entry.getKey())).addAllInvolvedColor(icast_Iterable(entry.getValue()))

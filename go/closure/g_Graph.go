@@ -112,7 +112,7 @@ func (this *Graph) getNodeOrFail(val any) GraphNode {
 }
 
 func (this *Graph) clearNodeAnnotations() {
-	it_1 := foreach_(any(this.getNodes()))
+	it_1 := foreach_(this.getNodes())
 	for it_1.next() {
 		var n GraphNode = icast_GraphNode(it_1.v)
 		n.setAnnotation(nil)
@@ -157,7 +157,7 @@ func (this *Graph) popEdgeAnnotations() {
 
 func Graph_pushAnnotations(stack *TList[*Graph_GraphAnnotationState], haveAnnotations CollectionOf[Annotatable]) {
 	stack.push_(new_Graph_GraphAnnotationState(haveAnnotations.size()))
-	it_1 := foreach_(any(haveAnnotations))
+	it_1 := foreach_(haveAnnotations)
 	for it_1.next() {
 		var h Annotatable = icast_Annotatable(it_1.v)
 		stack.peekTop_().add(obj_(new_Graph_AnnotationState(h, Annotatable_getAnnotation(h))))

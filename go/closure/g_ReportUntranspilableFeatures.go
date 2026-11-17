@@ -228,7 +228,7 @@ func ReportUntranspilableFeatures_anySubtreeMeetsPredicate(tree *RegExpTree, p f
 	if p(tree.self()) {
 		return true
 	}
-	it_1 := foreach_(any(tree.children()))
+	it_1 := foreach_(tree.children())
 	for it_1.next() {
 		var subTree *RegExpTree = to_RegExpTree(it_1.v)
 		if ReportUntranspilableFeatures_anySubtreeMeetsPredicate(subTree, p) {

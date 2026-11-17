@@ -386,13 +386,13 @@ func ProcessClosurePrimitives_processSetCssNameMapping(compiler *AbstractCompile
 		}
 	} else if style == CssRenamingMap_Style_BY_WHOLE {
 		var errors []string = []string{}
-		it_5 := foreach_(any(cssNames.asMap().entrySet()))
+		it_5 := foreach_(cssNames.asMap().entrySet())
 		for it_5.next() {
 			var b Map_Entry = icast_Map_Entry(it_5.v)
 			if String_length(str_(b.getKey())) > 10 {
 				continue
 			}
-			it_7 := foreach_(any(cssNames.asMap().entrySet()))
+			it_7 := foreach_(cssNames.asMap().entrySet())
 			for it_7.next() {
 				var a Map_Entry = icast_Map_Entry(it_7.v)
 				var combined OptionalOf[string] = Optional_ofNullable[string](cssNames.get((sstr_(str_(a.getKey())) + "-" + sstr_(str_(b.getKey())))))

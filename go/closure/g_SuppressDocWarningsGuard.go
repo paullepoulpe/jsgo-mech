@@ -81,7 +81,7 @@ func (this *SuppressDocWarningsGuard) getCheckLevelFromAncestors(error_ *JSError
 }
 
 func (this *SuppressDocWarningsGuard) getCheckLevelFromInfo(error_ *JSError, info *JSDocInfo) CheckLevel {
-	it_1 := foreach_(any(info.getSuppressions()))
+	it_1 := foreach_(info.getSuppressions())
 	for it_1.next() {
 		var suppressor string = str_(it_1.v)
 		var group *DiagnosticGroup = cast_[*DiagnosticGroup](Map_get_s(this.suppressors, suppressor))

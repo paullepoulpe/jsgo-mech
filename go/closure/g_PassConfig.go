@@ -43,7 +43,7 @@ func (this *PassConfig) getPassGraph() GraphvizGraph {
 	var allPasses IterableOf[*PassFactory] = Iterables_concat(icast_Iterable(obj_(this.getChecks().build())), icast_Iterable(obj_(this.getOptimizations().build())))
 	var lastPass OptionalOf[string] = Optional_empty[string]()
 	var loopStart OptionalOf[string] = Optional_empty[string]()
-	it_1 := foreach_(any(allPasses))
+	it_1 := foreach_(allPasses)
 	for it_1.next() {
 		var pass *PassFactory = cast_[*PassFactory](it_1.v)
 		var passName string = pass.getName()

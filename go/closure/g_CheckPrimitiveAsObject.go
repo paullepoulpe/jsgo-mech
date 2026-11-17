@@ -38,7 +38,7 @@ func (this *CheckPrimitiveAsObject) visit_impl(t *NodeTraversal, n Node, parent 
 func (this *CheckPrimitiveAsObject) checkForPrimitiveObjectDeclaration(t *NodeTraversal, n Node) {
 	var jsDocInfo *JSDocInfo = n.getJSDocInfo()
 	if jsDocInfo != nil {
-		it_1 := foreach_(any(jsDocInfo.getTypeNodes()))
+		it_1 := foreach_(jsDocInfo.getTypeNodes())
 		for it_1.next() {
 			var typeRoot Node = Node_of_(it_1.v)
 			this.checkTypeNodeForPrimitiveObjectDeclaration(t, typeRoot)

@@ -114,7 +114,7 @@ func CheckRequiresSorted_parseImport(callNode Node) *CheckRequiresSorted_ImportS
 
 func (this *CheckRequiresSorted) checkCanonical(t *NodeTraversal) {
 	var canonicalImports *TList[*CheckRequiresSorted_ImportStatement] = CheckRequiresSorted_canonicalizeImports(this.importsByNamespace)
-	if !equalsVia_(sliceView_(tc_p_CheckRequiresSorted_ImportStatement, this.originalImports), any(canonicalImports.asList())) {
+	if !equalsVia_(sliceView_(tc_p_CheckRequiresSorted_ImportStatement, this.originalImports), canonicalImports.asList()) {
 		this.needsFixField = true
 		this.replacement_ = Optional_of[string](String_join_s("\n", Iterables_transform(Iterable(canonicalImports.asList()), lambda_CheckRequiresSorted_checkCanonical_1_)))
 		if this.mode_ == CheckRequiresSorted_Mode_COLLECT_AND_REPORT {
@@ -128,18 +128,18 @@ var lambda_CheckRequiresSorted_checkCanonical_1_ = &Function_base_fn{func(p0 any
 
 func CheckRequiresSorted_canonicalizeImports(importsByNamespace *SimpleListMultimap) *TList[*CheckRequiresSorted_ImportStatement] {
 	var canonicalImports *TList[*CheckRequiresSorted_ImportStatement] = newTList_(tc_p_CheckRequiresSorted_ImportStatement)
-	it_1 := foreach_(any(importsByNamespace.keySet()))
+	it_1 := foreach_(importsByNamespace.keySet())
 	for it_1.next() {
 		var namespace string = str_(it_1.v)
 		var allImports CollectionOf[*CheckRequiresSorted_ImportStatement] = Collection(importsByNamespace.get_s(namespace))
 		var strongestPrimitive CheckRequiresSorted_ImportPrimitive = CheckRequiresSorted_ImportPrimitive_WEAKEST
-		it_3 := foreach_(any(allImports))
+		it_3 := foreach_(allImports)
 		for it_3.next() {
 			var i *CheckRequiresSorted_ImportStatement = cast_[*CheckRequiresSorted_ImportStatement](it_3.v)
 			strongestPrimitive = CheckRequiresSorted_ImportPrimitive_stronger(strongestPrimitive, i.primitive())
 		}
 		var hasAliasing bool = false
-		it_5 := foreach_(any(Iterables_filter_f(Iterable(allImports), lambda_CheckRequiresSorted_canonicalizeImports_1_)))
+		it_5 := foreach_(Iterables_filter_f(Iterable(allImports), lambda_CheckRequiresSorted_canonicalizeImports_1_))
 		for it_5.next() {
 			var stmt *CheckRequiresSorted_ImportStatement = cast_[*CheckRequiresSorted_ImportStatement](it_5.v)
 			canonicalImports.add(stmt.upgrade(strongestPrimitive))
@@ -147,7 +147,7 @@ func CheckRequiresSorted_canonicalizeImports(importsByNamespace *SimpleListMulti
 		}
 		var hasDestructuring bool = false
 		var destructuringNodesBuilder ImmutableList_BuilderOf[Node] = ImmutableList_builder()
-		it_7 := foreach_(any(allImports))
+		it_7 := foreach_(allImports)
 		for it_7.next() {
 			var i *CheckRequiresSorted_ImportStatement = cast_[*CheckRequiresSorted_ImportStatement](it_7.v)
 			if i.isDestructuring() {
@@ -160,7 +160,7 @@ func CheckRequiresSorted_canonicalizeImports(importsByNamespace *SimpleListMulti
 		}
 		var destructuringNodes ImmutableListOf[Node] = destructuringNodesBuilder.build()
 		var sortedDestructures []*CheckRequiresSorted_DestructuringBinding = []*CheckRequiresSorted_DestructuringBinding{}
-		it_11 := foreach_(any(allImports))
+		it_11 := foreach_(allImports)
 		for it_11.next() {
 			var i *CheckRequiresSorted_ImportStatement = cast_[*CheckRequiresSorted_ImportStatement](it_11.v)
 			if i.isDestructuring() {
@@ -179,7 +179,7 @@ func CheckRequiresSorted_canonicalizeImports(importsByNamespace *SimpleListMulti
 		}
 		if !hasAliasing && !hasDestructuring {
 			var standaloneNodesBuilder ImmutableList_BuilderOf[Node] = ImmutableList_builder()
-			it_15 := foreach_(any(allImports))
+			it_15 := foreach_(allImports)
 			for it_15.next() {
 				var i *CheckRequiresSorted_ImportStatement = cast_[*CheckRequiresSorted_ImportStatement](it_15.v)
 				if i.isStandalone() {

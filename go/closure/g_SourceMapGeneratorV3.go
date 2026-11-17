@@ -145,7 +145,7 @@ func (this *SourceMapGeneratorV3) mergeMapSection_4(line int32, column int32, ma
 		return Outcome_base_err(parsed.error())
 	}
 	section.visitMappings(new_SourceMapGeneratorV3_ConsumerEntryVisitor(this).visit)
-	it_1 := foreach_(any(section.getExtensions().asMap().entrySet()))
+	it_1 := foreach_(section.getExtensions().asMap().entrySet())
 	for it_1.next() {
 		var entry Map_Entry = icast_Map_Entry(it_1.v)
 		var extensionKey string = str_(entry.getKey())
@@ -242,7 +242,7 @@ func (this *SourceMapGeneratorV3) addSourcesContentMap(out Appendable) {
 	var size int32 = this.sourceFileMap.size()
 	var contents []string = make([]string, 0, size)
 	sliceAddAll_(tc_string, &contents, Collection(Collections_nCopies(size, strobj_(""))))
-	it_1 := foreach_(any(this.sourceFileMap.asMap().entrySet()))
+	it_1 := foreach_(this.sourceFileMap.asMap().entrySet())
 	for it_1.next() {
 		var entry Map_Entry = icast_Map_Entry(it_1.v)
 		var index any = entry.getValue()
@@ -277,7 +277,7 @@ func (this *SourceMapGeneratorV3) addSymbolNameMap(out Appendable) {
 
 func SourceMapGeneratorV3_addNameMap(out Appendable, map_ *TMap[string, any]) {
 	var i int32 = 0
-	it_1 := foreach_(any(map_.asMap().entrySet()))
+	it_1 := foreach_(map_.asMap().entrySet())
 	for it_1.next() {
 		var entry Map_Entry = icast_Map_Entry(it_1.v)
 		var key string = str_(entry.getKey())

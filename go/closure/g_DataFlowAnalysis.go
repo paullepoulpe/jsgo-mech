@@ -76,14 +76,14 @@ func (this *DataFlowAnalysis) analyze() {
 			lNode := to_LinkedDirectedGraph_LinkedDiGraphNode(curNode)
 			if this.isForward() {
 				for _, e := range lNode.getOutEdges().items {
-					var nextNode DiGraph_DiGraphNode = to_LinkedDirectedGraph_LinkedDiGraphEdge(any(e)).getDestination()
+					var nextNode DiGraph_DiGraphNode = to_LinkedDirectedGraph_LinkedDiGraphEdge(e).getDestination()
 					if nextNode != this.cfg.getImplicitReturn() {
 						this.workQueue.add(nextNode)
 					}
 				}
 			} else {
 				for _, e := range lNode.getInEdges().items {
-					var nextNode DiGraph_DiGraphNode = to_LinkedDirectedGraph_LinkedDiGraphEdge(any(e)).getSource()
+					var nextNode DiGraph_DiGraphNode = to_LinkedDirectedGraph_LinkedDiGraphEdge(e).getSource()
 					if nextNode != this.cfg.getImplicitReturn() {
 						this.workQueue.add(nextNode)
 					}
@@ -98,7 +98,7 @@ func (this *DataFlowAnalysis) analyze() {
 
 func (this *DataFlowAnalysis) initialize() {
 	this.workQueue.clear()
-	it_1 := foreach_(any(this.cfg.getNodes()))
+	it_1 := foreach_(this.cfg.getNodes())
 	for it_1.next() {
 		var node DiGraph_DiGraphNode = icast_DiGraph_DiGraphNode(it_1.v)
 		node.setAnnotation(new_DataFlowAnalysis_LinearFlowState(this.createInitialEstimateLattice(), this.createInitialEstimateLattice()))
@@ -109,7 +109,7 @@ func (this *DataFlowAnalysis) initialize() {
 	if this.isBranched() {
 		it_3 := this.cfg.getEdges().each()
 		for it_3.next() {
-			var edge DiGraph_DiGraphEdge = icast_DiGraph_DiGraphEdge(any(it_3.v))
+			var edge DiGraph_DiGraphEdge = icast_DiGraph_DiGraphEdge(it_3.v)
 			edge.setAnnotation(Annotation_graph(this.createInitialEstimateLattice()))
 		}
 	}
@@ -120,7 +120,7 @@ func (this *DataFlowAnalysis) flow(node DiGraph_DiGraphNode) bool {
 	if this.isForward() {
 		var outBefore LatticeElement = icast_LatticeElement(state.getOut())
 		state.setOut(this.flowThrough(node.getValue(), icast_LatticeElement(state.getIn())))
-		var changed bool = !Object_equals(any(outBefore), state.getOut())
+		var changed bool = !Object_equals(outBefore, state.getOut())
 		if this.isBranched() {
 			var brancher DataFlowAnalysis_FlowBrancher = this.createFlowBrancher(node.getValue(), icast_LatticeElement(state.getOut()))
 			it_1 := node.getOutEdges().each()
@@ -129,7 +129,7 @@ func (this *DataFlowAnalysis) flow(node DiGraph_DiGraphNode) bool {
 				var outBranchBefore LatticeElement = icast_LatticeElement(Annotatable_getAnnotation(Annotatable(outEdge)))
 				outEdge.setAnnotation(icast_Annotation_graph(brancher.branchFlow(cast_[ControlFlowGraph_Branch](outEdge.getValue()))))
 				if !changed {
-					changed = !Object_equals(any(outBranchBefore), any(Annotatable_getAnnotation(Annotatable(outEdge))))
+					changed = !Object_equals(outBranchBefore, Annotatable_getAnnotation(Annotatable(outEdge)))
 				}
 			}
 		}
@@ -137,7 +137,7 @@ func (this *DataFlowAnalysis) flow(node DiGraph_DiGraphNode) bool {
 	} else {
 		var inBefore LatticeElement = icast_LatticeElement(state.getIn())
 		state.setIn(this.flowThrough(node.getValue(), icast_LatticeElement(state.getOut())))
-		return !Object_equals(any(inBefore), state.getIn())
+		return !Object_equals(inBefore, state.getIn())
 	}
 }
 

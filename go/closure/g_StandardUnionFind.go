@@ -22,7 +22,7 @@ func new_StandardUnionFind_0() *StandardUnionFind {
 
 func (this *StandardUnionFind) init_StandardUnionFind_UnionFind(other UnionFind) {
 	this.finit_StandardUnionFind()
-	it_1 := foreach_(any(other.elements()))
+	it_1 := foreach_(other.elements())
 	for it_1.next() {
 		var elem any = it_1.v
 		this.union(other.find(elem), elem)
@@ -40,7 +40,7 @@ func (this *StandardUnionFind) add(e any) {
 }
 
 func (this *StandardUnionFind) addAll(es IterableOf[any]) {
-	it_1 := foreach_(any(es))
+	it_1 := foreach_(es)
 	for it_1.next() {
 		var e any = it_1.v
 		this.add(e)
@@ -88,13 +88,13 @@ func (this *StandardUnionFind) elements() SetOf[any] {
 
 func (this *StandardUnionFind) allEquivalenceClasses() ImmutableListOf[ImmutableSetOf[any]] {
 	var groupsTmp *SimpleSetMultimap = SimpleSetMultimap_create()
-	it_1 := foreach_(any(this.elmap.values()))
+	it_1 := foreach_(this.elmap.values())
 	for it_1.next() {
 		var elem *StandardUnionFind_Node = cast_[*StandardUnionFind_Node](it_1.v)
 		groupsTmp.put(obj_(this.findRoot(elem)), elem.element)
 	}
 	var result ImmutableList_BuilderOf[ImmutableSetOf[any]] = ImmutableList_builder()
-	it_3 := foreach_(any(groupsTmp.asMap().values()))
+	it_3 := foreach_(groupsTmp.asMap().values())
 	for it_3.next() {
 		var group Set = icast_Set(it_3.v)
 		result.add(obj_(ImmutableSet_copyOf(Collection(group))))
@@ -104,7 +104,7 @@ func (this *StandardUnionFind) allEquivalenceClasses() ImmutableListOf[Immutable
 
 func (this *StandardUnionFind) allRepresentatives() ImmutableSetOf[any] {
 	var result ImmutableSet_BuilderOf[any] = ImmutableSet_builder()
-	it_1 := foreach_(any(this.elmap.values()))
+	it_1 := foreach_(this.elmap.values())
 	for it_1.next() {
 		var n *StandardUnionFind_Node = cast_[*StandardUnionFind_Node](it_1.v)
 		if n == n.parent {

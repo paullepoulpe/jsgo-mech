@@ -128,7 +128,7 @@ func (this *JSTypeReconserializer) recordUnionType(type_ *UnionType) *JSTypeReco
 
 func JSTypeReconserializer_colorIdsOf(records CollectionOf[*JSTypeReconserializer_SeenTypeRecord]) ImmutableSetOf[*ColorId] {
 	var result ImmutableSet_BuilderOf[*ColorId] = ImmutableSet_builder()
-	it_1 := foreach_(any(records))
+	it_1 := foreach_(records)
 	for it_1.next() {
 		var r *JSTypeReconserializer_SeenTypeRecord = cast_[*JSTypeReconserializer_SeenTypeRecord](it_1.v)
 		result.add(obj_(r.colorId))
@@ -185,7 +185,7 @@ func (this *JSTypeReconserializer) reconcileUnionTypes(seen *JSTypeReconserializ
 
 func JSTypeReconserializer_sortedPointersOf(records CollectionOf[*JSTypeReconserializer_SeenTypeRecord]) ImmutableListOf[BoxedOf[int32]] {
 	var result ListOf[BoxedOf[int32]] = new_ArrayList_0()
-	it_1 := foreach_(any(records))
+	it_1 := foreach_(records)
 	for it_1.next() {
 		var r *JSTypeReconserializer_SeenTypeRecord = cast_[*JSTypeReconserializer_SeenTypeRecord](it_1.v)
 		result.add(any(int32(r.pointer)))
@@ -196,7 +196,7 @@ func JSTypeReconserializer_sortedPointersOf(records CollectionOf[*JSTypeReconser
 
 func (this *JSTypeReconserializer) serializeInvolvedTypes(types CollectionOf[*JSType]) ImmutableListOf[BoxedOf[int32]] {
 	var distinctPointers LinkedHashSetOf[BoxedOf[int32]] = new_LinkedHashSet()
-	it_1 := foreach_(any(types))
+	it_1 := foreach_(types)
 	for it_1.next() {
 		var t *JSType = to_JSType(it_1.v)
 		if t.isUnionType() {
@@ -230,7 +230,7 @@ func (this *JSTypeReconserializer) reconcileObjectTypes(seen *JSTypeReconseriali
 			}
 			isClosureAssert = bor_(isClosureAssert, JSTypeReconserializer_isClosureAssert(fnType.getClosurePrimitive()))
 		}
-		it_3 := foreach_(any(objType.getOwnPropertyNames()))
+		it_3 := foreach_(objType.getOwnPropertyNames())
 		for it_3.next() {
 			var ownProperty string = str_(it_3.v)
 			if this.shouldPropagatePropertyName(strobj_(ownProperty)) {
@@ -250,7 +250,7 @@ func (this *JSTypeReconserializer) ownAncestorInterfacesOf(type_ *ObjectType) Im
 		return ImmutableList_of()
 	}
 	var ancestors ImmutableList_BuilderOf[BoxedOf[int32]] = ImmutableList_builder()
-	it_1 := foreach_(any(Iterables_concat(icast_Iterable(obj_(ctorType.getExtendedInterfaces())), icast_Iterable(obj_(ctorType.getOwnImplementedInterfaces())))))
+	it_1 := foreach_(Iterables_concat(icast_Iterable(obj_(ctorType.getExtendedInterfaces())), icast_Iterable(obj_(ctorType.getOwnImplementedInterfaces()))))
 	for it_1.next() {
 		var ancestor *JSType = to_JSType(it_1.v)
 		ancestors.add(any(int32(this.serializeType(ancestor))))
@@ -332,10 +332,10 @@ func (this *JSTypeReconserializer) generateTypePool() *TypePool {
 			return this.reconcileObjectTypes(seen)
 		}())
 	}
-	it_3 := foreach_(any(this.disambiguateEdges.keySet()))
+	it_3 := foreach_(this.disambiguateEdges.keySet())
 	for it_3.next() {
 		var subtype any = it_3.v
-		it_5 := foreach_(any(this.disambiguateEdges.get(subtype)))
+		it_5 := foreach_(this.disambiguateEdges.get(subtype))
 		for it_5.next() {
 			var supertype any = it_5.v
 			builder.addDisambiguationEdges(SubtypingEdge_newBuilder().setSubtype(unbox_[int32](subtype)).setSupertype(unbox_[int32](supertype)))

@@ -14,7 +14,7 @@ var tc_p_PhaseOptimizer_NamedPass = &tconv_[*PhaseOptimizer_NamedPass]{box: func
 var tc_p_PropertyMap = &tconv_[*PropertyMap]{box: func(v *PropertyMap) any { return obj_(v) }, unbox: func(v any) *PropertyMap { return cast_[*PropertyMap](v) }}
 var tc_p_Tracer = &tconv_[*Tracer]{box: func(v *Tracer) any { return obj_(v) }, unbox: func(v any) *Tracer { return cast_[*Tracer](v) }}
 var tch_GlobalNamespace_AstChange = &tconv_[GlobalNamespace_AstChange]{box: func(v GlobalNamespace_AstChange) any { return v }, unbox: func(v any) GlobalNamespace_AstChange { return icast_GlobalNamespace_AstChange(v) },
-	hash: func(v GlobalNamespace_AstChange) int32 { return objhashVia_(v) }, eq: func(a, b GlobalNamespace_AstChange) bool { return objequalsVia_(a, any(b)) }}
+	hash: func(v GlobalNamespace_AstChange) int32 { return objhashVia_(v) }, eq: func(a, b GlobalNamespace_AstChange) bool { return objequalsVia_(a, b) }}
 var tch_p_CharRanges = &tconv_[*CharRanges]{box: func(v *CharRanges) any { return obj_(v) }, unbox: func(v any) *CharRanges { return cast_[*CharRanges](v) },
 	hash: func(v *CharRanges) int32 { return objhashVia_(v) }, eq: func(a, b *CharRanges) bool { return objequalsVia_(a, obj_(b)) }}
 var tch_p_Es6RewriteModulesToCommonJsModules_ModuleRequest = &tconv_[*Es6RewriteModulesToCommonJsModules_ModuleRequest]{box: func(v *Es6RewriteModulesToCommonJsModules_ModuleRequest) any { return obj_(v) }, unbox: func(v any) *Es6RewriteModulesToCommonJsModules_ModuleRequest {

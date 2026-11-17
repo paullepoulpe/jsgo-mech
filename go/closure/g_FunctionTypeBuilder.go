@@ -240,7 +240,7 @@ func (this *FunctionTypeBuilder) inferInheritance(info *JSDocInfo, classExtendsT
 	if (info != nil) && (info.getImplementedInterfaceCount() > 0) {
 		if this.isConstructor_ {
 			this.implementedInterfaces = newTList_(tc_p_ObjectType)
-			it_1 := foreach_(any(info.getImplementedInterfaces()))
+			it_1 := foreach_(info.getImplementedInterfaces())
 			for it_1.next() {
 				var t *JSTypeExpression = cast_[*JSTypeExpression](it_1.v)
 				var maybeInterType *JSType = t.evaluate(this.templateScope, this.typeRegistry)
@@ -257,7 +257,7 @@ func (this *FunctionTypeBuilder) inferInheritance(info *JSDocInfo, classExtendsT
 	if this.isInterface_ {
 		this.extendedInterfaces = newTList_(tc_p_ObjectType)
 		if info != nil {
-			it_3 := foreach_(any(info.getExtendedInterfaces()))
+			it_3 := foreach_(info.getExtendedInterfaces())
 			for it_3.next() {
 				var t *JSTypeExpression = cast_[*JSTypeExpression](it_3.v)
 				var maybeInterfaceType *JSType = t.evaluate(this.templateScope, this.typeRegistry)
@@ -515,7 +515,7 @@ func (this *FunctionTypeBuilder) buildTemplateTypesFromJSDocInfo(info *JSDocInfo
 			templatesToBounds.put(this.typeRegistry.createTemplateType_2(str_(entry.getKey()), typeBound), typeBound)
 		}
 	}
-	it_5 := foreach_(any(templatesToBounds.asMap().entrySet()))
+	it_5 := foreach_(templatesToBounds.asMap().entrySet())
 	for it_5.next() {
 		var entry Map_Entry = icast_Map_Entry(it_5.v)
 		var template *TemplateType = cast_[*TemplateType](entry.getKey())

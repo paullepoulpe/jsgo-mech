@@ -79,7 +79,7 @@ func SourceMapObjectParser_parse(contents string) *Outcome_base {
 	}
 	builder.setNames(cast_[[]string](names.get()))
 	var extensions *TMap[string, any] = newTMap_(tc_string, tc_any)
-	it_1 := foreach_(any(sourceMapRoot.members().entrySet()))
+	it_1 := foreach_(sourceMapRoot.members().entrySet())
 	for it_1.next() {
 		var entry Map_Entry = icast_Map_Entry(it_1.v)
 		if strings.HasPrefix(str_(entry.getKey()), "x_") {
@@ -216,7 +216,7 @@ func SourceMapObjectParser_buildSections(sections *SimpleJsonValue) *Outcome_bas
 		return Outcome_base_err(SourceMapObjectParser_invalidMember("sections").up_Throwable())
 	}
 	var listBuilder ImmutableList_BuilderOf[*SourceMapSection] = ImmutableList_builder()
-	it_1 := foreach_(any(sections.elements()))
+	it_1 := foreach_(sections.elements())
 	for it_1.next() {
 		var each *SimpleJsonValue = cast_[*SimpleJsonValue](it_1.v)
 		var section *Outcome_base = SourceMapObjectParser_buildSection(each)

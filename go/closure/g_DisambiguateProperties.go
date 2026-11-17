@@ -60,7 +60,7 @@ func (this *DisambiguateProperties) process_2(externs Node, root Node) {
 	}
 	this.logForDiagnostics("graph", &Supplier_base_fn{func() any {
 		var result []*DisambiguateProperties_TypeNodeJson = []*DisambiguateProperties_TypeNodeJson{}
-		it_5 := foreach_(any(graph.getNodes()))
+		it_5 := foreach_(graph.getNodes())
 		for it_5.next() {
 			var n DiGraph_DiGraphNode = icast_DiGraph_DiGraphNode(it_5.v)
 			result = append(result, new_DisambiguateProperties_TypeNodeJson(n))
@@ -195,7 +195,7 @@ func (this *DisambiguateProperties) mayHaveProperty(color *Color, propertyName s
 			ret_1 = true
 			return 1
 		}
-		it_4 := foreach_(any(this.registry.getDisambiguationSupertypes(color)))
+		it_4 := foreach_(this.registry.getDisambiguationSupertypes(color))
 		for it_4.next() {
 			var element *Color = cast_[*Color](it_4.v)
 			if this.mayHaveProperty(element, propertyName) {
@@ -316,7 +316,7 @@ func (this *DisambiguateProperties_PropertyReferenceIndexJson) init_Disambiguate
 		this.refs = ImmutableSortedSet_of()
 	} else {
 		var refsBuilder ImmutableSortedSet_BuilderOf[*DisambiguateProperties_PropertyReferenceJson] = ImmutableSortedSet_naturalOrder()
-		it_1 := foreach_(any(prop.getUseSites().asMap().entrySet()))
+		it_1 := foreach_(prop.getUseSites().asMap().entrySet())
 		for it_1.next() {
 			var e Map_Entry = icast_Map_Entry(it_1.v)
 			refsBuilder.add(obj_(new_DisambiguateProperties_PropertyReferenceJson(Node_of_(e.getKey()), cast_[*ColorGraphNode](e.getValue()))))
@@ -417,7 +417,7 @@ func (this *DisambiguateProperties_TypeNodeJson) init_DisambiguateProperties_Typ
 	}
 	this.edges = edgesBuilder.build()
 	var propsBuilder ImmutableSortedMap_BuilderOf[string, ColorGraphNode_PropAssociation] = ImmutableSortedMap_naturalOrder()
-	it_3 := foreach_(any(t.getAssociatedProps().asMap().entrySet()))
+	it_3 := foreach_(t.getAssociatedProps().asMap().entrySet())
 	for it_3.next() {
 		var e Map_Entry = icast_Map_Entry(it_3.v)
 		propsBuilder.put(strobj_(cast_[*PropertyClustering](e.getKey()).getName()), e.getValue())

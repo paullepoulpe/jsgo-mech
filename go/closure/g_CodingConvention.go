@@ -454,7 +454,7 @@ func new_CodingConvention_AssertionFunctionLookup(internal ImmutableMapOf[any, *
 
 func CodingConvention_AssertionFunctionLookup_of(specs CollectionOf[*CodingConvention_AssertionFunctionSpec]) *CodingConvention_AssertionFunctionLookup {
 	var idToSpecMapBuilder ImmutableMap_BuilderOf[any, *CodingConvention_AssertionFunctionSpec] = ImmutableMap_builder()
-	it_1 := foreach_(any(specs))
+	it_1 := foreach_(specs)
 	for it_1.next() {
 		var spec *CodingConvention_AssertionFunctionSpec = cast_[*CodingConvention_AssertionFunctionSpec](it_1.v)
 		idToSpecMapBuilder.put(spec.getId(), obj_(spec))

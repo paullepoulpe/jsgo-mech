@@ -53,7 +53,7 @@ func new_DefaultNameGenerator_Set_String_Set_Set(reservedNames SetOf[string], pr
 
 func (this *DefaultNameGenerator) init_DefaultNameGenerator_Set_String_Set_Set_Map(reservedNames SetOf[string], prefix string, reservedFirstCharacters SetOf[BoxedOf[uint16]], reservedNonFirstCharacters SetOf[BoxedOf[uint16]], priorityLookupMap MapOf[BoxedOf[uint16], *DefaultNameGenerator_CharPriority]) {
 	this.priorityLookupMap = Maps_newLinkedHashMapWithExpectedSize(int32(len(DefaultNameGenerator_NONFIRST_CHAR)))
-	it_1 := foreach_(any(priorityLookupMap.entrySet()))
+	it_1 := foreach_(priorityLookupMap.entrySet())
 	for it_1.next() {
 		var entry Map_Entry = icast_Map_Entry(it_1.v)
 		this.priorityLookupMap.put(entry.getKey(), cast_[*DefaultNameGenerator_CharPriority](entry.getValue()).clone())
@@ -135,7 +135,7 @@ func (this *DefaultNameGenerator) reserveCharacters(chars []uint16, reservedChar
 	charSet.removeAll(Collection(reservedCharacterSet))
 	var result []*DefaultNameGenerator_CharPriority = make([]*DefaultNameGenerator_CharPriority, charSet.size())
 	var index int32 = 0
-	it_2 := foreach_(any(charSet))
+	it_2 := foreach_(charSet)
 	for it_2.next() {
 		var c uint16 = unbox_[uint16](it_2.v)
 		result[index] = cast_[*DefaultNameGenerator_CharPriority](this.priorityLookupMap.get(any(uint16(c))))

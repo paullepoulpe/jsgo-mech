@@ -648,7 +648,7 @@ func (this *JsMessage_Builder) appendPart(part JsMessage_Part) *JsMessage_Builde
 }
 
 func (this *JsMessage_Builder) appendParts(parts ListOf[JsMessage_Part]) *JsMessage_Builder {
-	it_1 := foreach_(any(parts))
+	it_1 := foreach_(parts)
 	for it_1.next() {
 		var part JsMessage_Part = icast_JsMessage_Part(it_1.v)
 		this.appendPart(part)
@@ -772,7 +772,7 @@ func (this *JsMessage_Builder) build() *JsMessage {
 		this.alternateId = Optional_empty[string]()
 	}
 	var immutableGenderedPartsBuilder ImmutableMap_BuilderOf[JsMessage_GrammaticalGenderCase, ImmutableListOf[JsMessage_Part]] = ImmutableMap_builder()
-	it_1 := foreach_(any(this.genderedMessageMap.asMap().entrySet()))
+	it_1 := foreach_(this.genderedMessageMap.asMap().entrySet())
 	for it_1.next() {
 		var entry Map_Entry = icast_Map_Entry(it_1.v)
 		immutableGenderedPartsBuilder.put(entry.getKey(), obj_(ImmutableList_copyOf(icast_Collection(entry.getValue()))))

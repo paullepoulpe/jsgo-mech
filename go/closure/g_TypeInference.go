@@ -34,7 +34,7 @@ func (this *TypeInference) init_TypeInference(compiler *AbstractCompiler, cfg *C
 	this.DataFlowAnalysis.init_DataFlowAnalysis(cfg)
 	this.finit_TypeInference()
 	if ok_, a1_, a2_ := (syntacticScope.getRootNode() == Node_of_(cfg.getEntry().getValue())), cfg.getEntry(), syntacticScope.getRootNode(); !ok_ {
-		panic(new_IllegalArgumentException_String(Strings_lenientFormat("Expected syntactic scope to be rooted at CFG root node of %s, but instead got syntactic scope root node of %s", []any{any(a1_), a2_.box_()})).self())
+		panic(new_IllegalArgumentException_String(Strings_lenientFormat("Expected syntactic scope to be rooted at CFG root node of %s, but instead got syntactic scope root node of %s", []any{a1_, a2_.box_()})).self())
 	}
 	this.compiler_ = Preconditions_checkNotNullT(compiler)
 	this.registry = Preconditions_checkNotNullT(compiler.getTypeRegistry())
@@ -60,7 +60,7 @@ func (this *TypeInference) inferDeclarativelyUnboundVarsWithoutTypes(flow FlowSc
 	if !setAdd_(this.inferredUnboundVars, scope) {
 		return flow
 	}
-	it_1 := foreach_(any(scope.getDeclarativelyUnboundVarsWithoutTypes()))
+	it_1 := foreach_(scope.getDeclarativelyUnboundVarsWithoutTypes())
 	for it_1.next() {
 		var var_ *TypedVar = cast_[*TypedVar](it_1.v)
 		if this.isUnflowable(var_) {
@@ -1423,7 +1423,7 @@ func (this *TypeInference) matchFunction(expectedType *FunctionType, currentType
 
 func (this *TypeInference) buildTypeVariables(inferredTypes *TMap[*TemplateType, *JSType]) *TMap[string, *JSType] {
 	var typeVars *TMap[string, *JSType] = newTMap_(tc_string, tc_p_JSType)
-	it_1 := foreach_(any(inferredTypes.asMap().entrySet()))
+	it_1 := foreach_(inferredTypes.asMap().entrySet())
 	for it_1.next() {
 		var e Map_Entry = icast_Map_Entry(it_1.v)
 		if !cast_[*TemplateType](e.getKey()).isTypeTransformation() {
@@ -1605,7 +1605,7 @@ func (this *TypeInference) dereferenceKnownSymbolProp(obj *JSType, indexSymbol *
 		return ImmutableList_of_Object(obj.self())
 	}()
 	var key Property_Key = new_Property_SymbolKey(indexSymbol)
-	it_1 := foreach_(any(alternates))
+	it_1 := foreach_(alternates)
 	for it_1.next() {
 		var option *JSType = to_JSType(it_1.v)
 		if option.toMaybeObjectType() == nil {
@@ -1635,7 +1635,7 @@ func (this *TypeInference) dereferenceIndexSignature(obj *JSType) *JSType {
 		}
 		return ImmutableList_of_Object(obj.self())
 	}()
-	it_1 := foreach_(any(alternates))
+	it_1 := foreach_(alternates)
 	for it_1.next() {
 		var option *JSType = to_JSType(it_1.v)
 		var typeMap *TemplateTypeMap = option.getTemplateTypeMap()

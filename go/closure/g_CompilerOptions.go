@@ -578,7 +578,7 @@ func (this *CompilerOptions) getNameGenerator() NameGenerator {
 }
 
 func (this *CompilerOptions) setReplaceMessagesWithChromeI18n(replaceMessagesWithChromeI18n bool, tcProjectId string) {
-	if (replaceMessagesWithChromeI18n && (this.messageBundle != nil)) && !is_[*EmptyMessageBundle](any(this.messageBundle)) {
+	if (replaceMessagesWithChromeI18n && (this.messageBundle != nil)) && !is_[*EmptyMessageBundle](this.messageBundle) {
 		panic(new_RuntimeException_String("When replacing messages with chrome.i18n.getMessage, a message bundle should not be specified.").self())
 	}
 	this.replaceMessagesWithChromeI18n = replaceMessagesWithChromeI18n
@@ -591,7 +591,7 @@ func (this *CompilerOptions) getTcProjectId() string {
 
 func (this *CompilerOptions) shouldRunReplaceMessagesForChrome() bool {
 	if this.replaceMessagesWithChromeI18n {
-		if this.messageBundle != nil && !is_[*EmptyMessageBundle](any(this.messageBundle)) {
+		if this.messageBundle != nil && !is_[*EmptyMessageBundle](this.messageBundle) {
 			panic(new_IllegalStateException_String("When replacing messages with chrome.i18n.getMessage, a message bundle should not be specified.").self())
 		}
 		if this.doLateLocalizationField {
@@ -797,7 +797,7 @@ func (this *CompilerOptions) setRemoveUnusedClassProperties(removeUnusedClassPro
 
 func (this *CompilerOptions) getDefineReplacements() ImmutableMapOf[string, Node] {
 	var map_ ImmutableMap_BuilderOf[string, Node] = ImmutableMap_builder()
-	it_1 := foreach_(any(this.defineReplacements.asMap().entrySet()))
+	it_1 := foreach_(this.defineReplacements.asMap().entrySet())
 	for it_1.next() {
 		var entry Map_Entry = icast_Map_Entry(it_1.v)
 		var name string = str_(entry.getKey())

@@ -28,7 +28,7 @@ func SimpleListMultimap_create() *SimpleListMultimap {
 
 func (this *SimpleListMultimap) immutableCopy() *SimpleListMultimap {
 	var copy_ *SimpleListMultimap = new_SimpleListMultimap()
-	it_1 := foreach_(any(this.map__.entrySet()))
+	it_1 := foreach_(this.map__.entrySet())
 	for it_1.next() {
 		var e Map_Entry = icast_Map_Entry(it_1.v)
 		copy_.map__.put(e.getKey(), new_ArrayList_Collection(icast_Collection(e.getValue())).self())
@@ -65,7 +65,7 @@ func (this *SimpleListMultimap) put_s(key string, value any) *SimpleListMultimap
 }
 
 func (this *SimpleListMultimap) putAll(key any, values IterableOf[any]) *SimpleListMultimap {
-	it_1 := foreach_(any(values))
+	it_1 := foreach_(values)
 	for it_1.next() {
 		var value any = it_1.v
 		this.put(key, value)
@@ -75,7 +75,7 @@ func (this *SimpleListMultimap) putAll(key any, values IterableOf[any]) *SimpleL
 
 // putAll_s is putAll for a string key that is not boxed (post-flip manual step).
 func (this *SimpleListMultimap) putAll_s(key string, values IterableOf[any]) *SimpleListMultimap {
-	it_1 := foreach_(any(values))
+	it_1 := foreach_(values)
 	for it_1.next() {
 		var value any = it_1.v
 		this.put_s(key, value)
@@ -165,7 +165,7 @@ func (this *SimpleListMultimap) asMap() MapOf[any, ListOf[any]] {
 
 func (this *SimpleListMultimap) size() int32 {
 	var size int32 = 0
-	it_1 := foreach_(any(this.map__.values()))
+	it_1 := foreach_(this.map__.values())
 	for it_1.next() {
 		var values List = icast_List(it_1.v)
 		size += values.size()

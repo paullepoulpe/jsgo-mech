@@ -149,7 +149,7 @@ func (this *RenameVars) reusePreviouslyUsedVariableMap(varsToRename SortedSetOf[
 	if this.prevUsedRenameMap.getNewNameToOriginalNameMap() == nil {
 		panic(new_NullPointerException_0().self())
 	}
-	it_1 := foreach_(any(varsToRename))
+	it_1 := foreach_(varsToRename)
 	for it_1.next() {
 		var a *RenameVars_Assignment = cast_[*RenameVars_Assignment](it_1.v)
 		var prevNewName OptionalOf[string] = this.prevUsedRenameMap.lookupNewName(a.oldName)
@@ -174,7 +174,7 @@ func (this *RenameVars) assignNames(varsToRename SortedSetOf[*RenameVars_Assignm
 	}()
 	var pendingAssignments []*RenameVars_Assignment = []*RenameVars_Assignment{}
 	var generatedNamesForAssignments []string = []string{}
-	it_1 := foreach_(any(varsToRename))
+	it_1 := foreach_(varsToRename)
 	for it_1.next() {
 		var a *RenameVars_Assignment = cast_[*RenameVars_Assignment](it_1.v)
 		if a.newName.isPresent() {
@@ -201,7 +201,7 @@ func (this *RenameVars) assignNames(varsToRename SortedSetOf[*RenameVars_Assignm
 		for j := int32(i); (j < numPendingAssignments) && (String_length(generatedNamesForAssignments[j]) == len_); j++ {
 			varsByOrderOfOccurrence.add(obj_(pendingAssignments[j]))
 		}
-		it_5 := foreach_(any(varsByOrderOfOccurrence))
+		it_5 := foreach_(varsByOrderOfOccurrence)
 		for it_5.next() {
 			var a *RenameVars_Assignment = cast_[*RenameVars_Assignment](it_5.v)
 			this.finalizeNameAssignment(a, generatedNamesForAssignments[i])
@@ -343,7 +343,7 @@ func (this *RenameVars_ProcessVars) enterScope(t *NodeTraversal) {
 		return
 	}
 	var scope *Scope = t.getScope()
-	it_1 := foreach_(any(scope.getVarIterable()))
+	it_1 := foreach_(scope.getVarIterable())
 	for it_1.next() {
 		var current *Var = cast_[*Var](it_1.v)
 		if current.isBleedingFunction() {

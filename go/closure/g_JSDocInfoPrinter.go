@@ -47,7 +47,7 @@ func (this *JSDocInfoPrinter) print(info *JSDocInfo) string {
 	}
 	if info.getAuthors() != nil {
 		multiline = true
-		it_1 := foreach_(any(info.getAuthors()))
+		it_1 := foreach_(info.getAuthors())
 		for it_1.next() {
 			var name string = str_(it_1.v)
 			parts.add(("@author " + sstr_(name)))
@@ -72,7 +72,7 @@ func (this *JSDocInfoPrinter) print(info *JSDocInfo) string {
 	}
 	if info.getReferences() != nil {
 		multiline = true
-		it_3 := foreach_(any(info.getReferences()))
+		it_3 := foreach_(info.getReferences())
 		for it_3.next() {
 			var desc string = str_(it_3.v)
 			parts.add(("@see " + sstr_(desc)))
@@ -140,14 +140,14 @@ func (this *JSDocInfoPrinter) print(info *JSDocInfo) string {
 		var typeNode Node = this.stripBang(info.getBaseType().getRoot())
 		parts.add(this.buildAnnotationWithType("extends", typeNode))
 	}
-	it_5 := foreach_(any(info.getExtendedInterfaces()))
+	it_5 := foreach_(info.getExtendedInterfaces())
 	for it_5.next() {
 		var type_ *JSTypeExpression = cast_[*JSTypeExpression](it_5.v)
 		multiline = true
 		var typeNode Node = this.stripBang(type_.getRoot())
 		parts.add(this.buildAnnotationWithType("extends", typeNode))
 	}
-	it_7 := foreach_(any(info.getImplementedInterfaces()))
+	it_7 := foreach_(info.getImplementedInterfaces())
 	for it_7.next() {
 		var type_ *JSTypeExpression = cast_[*JSTypeExpression](it_7.v)
 		multiline = true

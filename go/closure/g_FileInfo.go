@@ -73,7 +73,7 @@ func (this *FileInfo) isNameDeclared(fullyQualifiedName string) bool {
 }
 
 func FileInfo_containsPrefix(fullyQualifiedName string, prefixNamespaces IterableOf[string]) bool {
-	it_1 := foreach_(any(prefixNamespaces))
+	it_1 := foreach_(prefixNamespaces)
 	for it_1.next() {
 		var prefix string = str_(it_1.v)
 		if (fullyQualifiedName == prefix) || strings.HasPrefix(fullyQualifiedName, (sstr_(prefix)+".")) {
@@ -92,7 +92,7 @@ func (this *FileInfo) isPrefixRequired(fullyQualifiedName string) bool {
 }
 
 func (this *FileInfo) isStrictPrefixDeclared(fullyQualifiedName string) bool {
-	it_1 := foreach_(any(this.declarations.keySet()))
+	it_1 := foreach_(this.declarations.keySet())
 	for it_1.next() {
 		var prefix string = str_(it_1.v)
 		if strings.HasPrefix(fullyQualifiedName, (sstr_(prefix) + ".")) {

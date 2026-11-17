@@ -70,7 +70,7 @@ func Config_builder() *Config_Builder {
 func Config_buildAnnotations(allowlist IterableOf[string]) ImmutableMapOf[string, Annotation_parsing] {
 	var annotationsBuilder ImmutableMap_BuilderOf[string, Annotation_parsing] = ImmutableMap_builder()
 	annotationsBuilder.putAll(icast_Map(obj_(Annotation_parsing_recognizedAnnotations)))
-	it_1 := foreach_(any(allowlist))
+	it_1 := foreach_(allowlist)
 	for it_1.next() {
 		var unrecognizedAnnotation string = str_(it_1.v)
 		if unrecognizedAnnotation != "" && !Map_containsKey_s(Annotation_parsing_recognizedAnnotations, unrecognizedAnnotation) {

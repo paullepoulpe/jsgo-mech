@@ -53,7 +53,7 @@ func (this *TypeInferencePass) inferAllScopes(inferenceRoot Node) *TypedScope {
 	this.scopeCreator.finishAndFreeze()
 	NodeTraversal_builder().setCompiler(this.compiler_).setCallback(new_TypeInferencePass_SecondScopeBuildingCallback(this)).setScopeCreator(icast_ScopeCreator(obj_(this.scopeCreator))).traverseWithScope(inferenceRoot, this.topScope.up_AbstractScope())
 	var unknownType *JSType = this.registry.getNativeType(JSTypeNative_UNKNOWN_TYPE)
-	it_2 := foreach_(any(this.scopeCreator.getAllSymbols()))
+	it_2 := foreach_(this.scopeCreator.getAllSymbols())
 	for it_2.next() {
 		var var_ *TypedVar = cast_[*TypedVar](it_2.v)
 		if var_.getType() == nil {
@@ -68,7 +68,7 @@ func (this *TypeInferencePass) inferAllScopes(inferenceRoot Node) *TypedScope {
 			var totals []int32 = []int32{0, 0}
 			var stepCounts ListOf[BoxedOf[int32]] = icast_List(new_ArrayList_Collection(Collection(this.stepCountHistogram.keySet())).self())
 			List_sort(stepCounts, Comparator_reversed(Comparator_naturalOrder()))
-			it_5 := foreach_(any(stepCounts))
+			it_5 := foreach_(stepCounts)
 			for it_5.next() {
 				var stepCount any = it_5.v
 				var entries []Map_EntryOf[Token_rhino, BoxedOf[int32]] = sliceFrom_(tc_Map_EntryOf_p_Token_rhino__BoxedOf_int32__, Collection(cast_[*SimpleMultiset](this.stepCountHistogram.get(stepCount)).entrySet()))
@@ -96,7 +96,7 @@ func (this *TypeInferencePass) inferScope(n Node, scope *TypedScope) {
 	var typeInference *TypeInference = new_TypeInference(this.compiler_, cfg, this.reverseInterpreter, scope, this.scopeCreator, this.assertionFunctionLookup)
 	typeInference.analyze()
 	if this.stepCountHistogram != nil {
-		it_1 := foreach_(any(cfg.getNodes()))
+		it_1 := foreach_(cfg.getNodes())
 		for it_1.next() {
 			var node DiGraph_DiGraphNode = icast_DiGraph_DiGraphNode(it_1.v)
 			if node == cfg.getImplicitReturn() {

@@ -278,7 +278,7 @@ func (this *SymbolTable) getSymbolForTypeHelper(type_ *JSType, linkToCtor bool) 
 
 func (this *SymbolTable) toDebugStringTree() string {
 	var childrenScopesBuilder *SimpleListMultimap = SimpleListMultimap_create()
-	it_1 := foreach_(any(this.getAllScopes()))
+	it_1 := foreach_(this.getAllScopes())
 	for it_1.next() {
 		var scope *SymbolTable_SymbolScope = cast_[*SymbolTable_SymbolScope](it_1.v)
 		if scope.getParentScope() != nil {
@@ -287,7 +287,7 @@ func (this *SymbolTable) toDebugStringTree() string {
 	}
 	var childrenScopes *SimpleListMultimap = childrenScopesBuilder.immutableCopy()
 	var builder *StringBuilder = new_StringBuilder()
-	it_3 := foreach_(any(this.getAllScopes()))
+	it_3 := foreach_(this.getAllScopes())
 	for it_3.next() {
 		var scope *SymbolTable_SymbolScope = cast_[*SymbolTable_SymbolScope](it_3.v)
 		if scope.getParentScope() == nil {
@@ -321,7 +321,7 @@ func (this *SymbolTable) toDebugStringTree_4(builder *StringBuilder, prefix stri
 	if childrenScopes.containsKey(obj_(scope)) {
 		printedSomething = true
 		cast_[*StringBuilder](builder.append_char('\n')).append(prefix).append("  Scopes:\n")
-		it_3 := foreach_(any(childrenScopes.get(obj_(scope))))
+		it_3 := foreach_(childrenScopes.get(obj_(scope)))
 		for it_3.next() {
 			var childScope *SymbolTable_SymbolScope = cast_[*SymbolTable_SymbolScope](it_3.v)
 			this.toDebugStringTree_4(builder, childrenPrefix, childScope, childrenScopes)
@@ -348,7 +348,7 @@ func (this *SymbolTable) toDebugString_4(builder *StringBuilder, prefix string, 
 	}
 	builder.append_char('\n')
 	var refCount int32 = 0
-	it_1 := foreach_(any(this.getReferences(symbol)))
+	it_1 := foreach_(this.getReferences(symbol))
 	for it_1.next() {
 		var ref *SymbolTable_Reference = cast_[*SymbolTable_Reference](it_1.v)
 		var node Node = ref.getNode()
@@ -363,7 +363,7 @@ func (this *SymbolTable) toDebugString_4(builder *StringBuilder, prefix string, 
 }
 
 func (this *SymbolTable) addScopes(scopes CollectionOf[any]) {
-	it_1 := foreach_(any(scopes))
+	it_1 := foreach_(scopes)
 	for it_1.next() {
 		var scope StaticScope = icast_StaticScope(it_1.v)
 		this.createScopeFrom(scope)
@@ -380,7 +380,7 @@ func (this *SymbolTable) getAllScopes() CollectionOf[*SymbolTable_SymbolScope] {
 
 func (this *SymbolTable) addAnonymousFunctions() {
 	var scopes TreeSetOf[*SymbolTable_SymbolScope] = new_TreeSet_Comparator(icast_Comparator(this.lexicalScopeOrdering.self()))
-	it_1 := foreach_(any(this.getAllScopes()))
+	it_1 := foreach_(this.getAllScopes())
 	for it_1.next() {
 		var scope *SymbolTable_SymbolScope = cast_[*SymbolTable_SymbolScope](it_1.v)
 		if scope.isLexicalScope() {
@@ -412,7 +412,7 @@ func (this *SymbolTable) addAnonymousFunctionsInScope(scope *SymbolTable_SymbolS
 }
 
 func (this *SymbolTable) addSymbolsFrom(otherSymbolTable StaticSymbolTable) {
-	it_1 := foreach_(any(otherSymbolTable.getAllSymbols()))
+	it_1 := foreach_(otherSymbolTable.getAllSymbols())
 	for it_1.next() {
 		var otherSymbol StaticSlot = icast_StaticSlot(it_1.v)
 		var name string = otherSymbol.getName()
@@ -429,7 +429,7 @@ func (this *SymbolTable) addSymbolsFrom(otherSymbolTable StaticSymbolTable) {
 			mySymbol = myScope.getOwnSlot(name)
 		}
 		if mySymbol != nil {
-			it_3 := foreach_(any(otherSymbolTable.getReferences_StaticSlot(otherSymbol)))
+			it_3 := foreach_(otherSymbolTable.getReferences_StaticSlot(otherSymbol))
 			for it_3.next() {
 				var otherRef StaticRef = icast_StaticRef(it_3.v)
 				if this.isGoodRefToAdd(otherRef) {
@@ -453,7 +453,7 @@ func (this *SymbolTable) findBestDeclToAdd(otherSymbolTable StaticSymbolTable, s
 	if this.isGoodRefToAdd(decl) {
 		return decl
 	}
-	it_1 := foreach_(any(otherSymbolTable.getReferences_StaticSlot(slot)))
+	it_1 := foreach_(otherSymbolTable.getReferences_StaticSlot(slot))
 	for it_1.next() {
 		var ref StaticRef = icast_StaticRef(it_1.v)
 		if this.isGoodRefToAdd(ref) {
@@ -554,7 +554,7 @@ func (this *SymbolTable) fillNamespaceReferences() {
 		if root == nil {
 			continue
 		}
-		it_3 := foreach_(any(this.getReferences(symbol)))
+		it_3 := foreach_(this.getReferences(symbol))
 		for it_3.next() {
 			var ref *SymbolTable_Reference = cast_[*SymbolTable_Reference](it_3.v)
 			var currentNode Node = ref.getNode()
@@ -604,7 +604,7 @@ func (this *SymbolTable) fillPropertyScopes() {
 	}
 	Collections_sort_List_Comparator(types.asList(), icast_Comparator(this.getNaturalSymbolOrdering().reverse().self()))
 	var allTypes IterableOf[*SymbolTable_Symbol] = Iterables_concat(Iterable(types.asList()), Iterable(exports.asList()))
-	it_3 := foreach_(any(allTypes))
+	it_3 := foreach_(allTypes)
 	for it_3.next() {
 		var s *SymbolTable_Symbol = cast_[*SymbolTable_Symbol](it_3.v)
 		var type_ *JSType = this.getType(icast_StaticSlot(obj_(s)))
@@ -614,7 +614,7 @@ func (this *SymbolTable) fillPropertyScopes() {
 		}
 		this.symbolThatDeclaresType.put(type_.self(), obj_(s))
 	}
-	it_5 := foreach_(any(allTypes))
+	it_5 := foreach_(allTypes)
 	for it_5.next() {
 		var s *SymbolTable_Symbol = cast_[*SymbolTable_Symbol](it_5.v)
 		var type_ *JSType = this.getType(icast_StaticSlot(obj_(s)))
@@ -622,7 +622,7 @@ func (this *SymbolTable) fillPropertyScopes() {
 			this.createPropertyScopeFor(s)
 		}
 	}
-	it_7 := foreach_(any(allTypes))
+	it_7 := foreach_(allTypes)
 	for it_7.next() {
 		var s *SymbolTable_Symbol = cast_[*SymbolTable_Symbol](it_7.v)
 		var type_ *JSType = this.getType(icast_StaticSlot(obj_(s)))
@@ -688,7 +688,7 @@ func (this *SymbolTable) fillJSDocInfo(externs Node, root Node) {
 		if info == nil {
 			continue
 		}
-		it_3 := foreach_(any(info.getMarkers()))
+		it_3 := foreach_(info.getMarkers())
 		for it_3.next() {
 			var marker *JSDocInfo_Marker = cast_[*JSDocInfo_Marker](it_3.v)
 			var pos *SourcePosition_rhino = marker.getNameNode().up_SourcePosition_rhino()
@@ -753,7 +753,7 @@ func (this *SymbolTable) createPropertyScopeFor(s *SymbolTable_Symbol) {
 			propNames = Iterables_concat(propNames, Iterable(instanceType.getOwnPropertyNames()))
 		}
 	}
-	it_1 := foreach_(any(propNames))
+	it_1 := foreach_(propNames)
 	for it_1.next() {
 		var propName string = str_(it_1.v)
 		var newProp StaticSlot = icast_StaticSlot(obj_(instanceType.getSlotString(propName)))
@@ -852,7 +852,7 @@ func (this *SymbolTable) addRefsInGoogRequireStatement(n Node, googModuleScopes 
 		if !n.getFirstChild().isObjectPattern() {
 			panic(new_IllegalStateException_0().self())
 		}
-		it_2 := foreach_(any(n.getFirstChild().children()))
+		it_2 := foreach_(n.getFirstChild().children())
 		for it_2.next() {
 			var stringKey Node = Node_of_(it_2.v)
 			if !stringKey.isStringKey() {
@@ -900,7 +900,7 @@ func lambda_SymbolTable_fillGoogProvideModuleRequires_1_(n_ any) bool {
 }
 
 func (this *SymbolTable) flattenGoogModuleExports() {
-	it_1 := foreach_(any(this.getAllScopes()))
+	it_1 := foreach_(this.getAllScopes())
 	for it_1.next() {
 		var moduleScope *SymbolTable_SymbolScope = cast_[*SymbolTable_SymbolScope](it_1.v)
 		if !moduleScope.isModuleScope() {
@@ -1703,7 +1703,7 @@ func (this *SymbolTable_JSDocInfoCollector) visit_impl(t *NodeTraversal, n Node,
 		return
 	}
 	this.outer_.docInfos.add(n)
-	it_1 := foreach_(any(info.getTypeNodes()))
+	it_1 := foreach_(info.getTypeNodes())
 	for it_1.next() {
 		var typeAst Node = Node_of_(it_1.v)
 		var scope *SymbolTable_SymbolScope = this.outer_.scopes.get(t.getScopeRoot())

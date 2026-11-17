@@ -47,7 +47,7 @@ func new_InlineObjectLiterals_InliningBehavior(outer_ *InlineObjectLiterals) *In
 }
 
 func (this *InlineObjectLiterals_InliningBehavior) afterExitScope(t *NodeTraversal, referenceMap ReferenceMap) {
-	it_1 := foreach_(any(t.getScope().getVarIterable()))
+	it_1 := foreach_(t.getScope().getVarIterable())
 	for it_1.next() {
 		var v *Var = cast_[*Var](it_1.v)
 		if this.isVarInlineForbidden(v) {
@@ -288,7 +288,7 @@ func (this *InlineObjectLiterals_InliningBehavior) splitObject(v *Var, init_ *Re
 			NodeUtil_addFeatureToScript(script, FeatureSet_Feature_LET_DECLARATIONS, this.outer_.compiler_)
 		}
 	}
-	it_1 := foreach_(any(varmap.asMap().entrySet()))
+	it_1 := foreach_(varmap.asMap().entrySet())
 	for it_1.next() {
 		var entry Map_Entry = icast_Map_Entry(it_1.v)
 		var val Node = initvals[str_(entry.getKey())]

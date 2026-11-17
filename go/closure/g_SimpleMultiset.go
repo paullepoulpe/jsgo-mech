@@ -94,7 +94,7 @@ func (this *SimpleMultiset) add_2_s(element string, occurrences int32) int32 {
 }
 
 func (this *SimpleMultiset) addAll(elements IterableOf[any]) {
-	it_1 := foreach_(any(elements))
+	it_1 := foreach_(elements)
 	for it_1.next() {
 		var element any = it_1.v
 		this.add_2(element, 1)
@@ -146,7 +146,7 @@ func (this *SimpleMultiset) remove(element any) bool {
 
 func (this *SimpleMultiset) removeAll(elements IterableOf[any]) bool {
 	var changed bool = false
-	it_1 := foreach_(any(elements))
+	it_1 := foreach_(elements)
 	for it_1.next() {
 		var element any = it_1.v
 		var oldCount int32 = this.count(element)
@@ -202,7 +202,7 @@ func (this *SimpleMultiset) isEmpty() bool {
 
 func (this *SimpleMultiset) asList() ImmutableListOf[any] {
 	var list ImmutableList_BuilderOf[any] = ImmutableList_builder()
-	it_1 := foreach_(any(this.counts.entrySet()))
+	it_1 := foreach_(this.counts.entrySet())
 	for it_1.next() {
 		var e Map_Entry = icast_Map_Entry(it_1.v)
 		for i := int32(0); i < unbox_[int32](e.getValue()); i++ {
@@ -227,7 +227,7 @@ func (this *SimpleMultiset) equals(o any) bool {
 		}
 		that = p
 		return true
-	}() && equalsDyn_(this.counts, any(that.counts)))
+	}() && equalsDyn_(this.counts, that.counts))
 }
 
 func (this *SimpleMultiset) hashCode() int32 {
@@ -236,7 +236,7 @@ func (this *SimpleMultiset) hashCode() int32 {
 
 func (this *SimpleMultiset) toString() string {
 	var parts []string = []string{}
-	it_1 := foreach_(any(this.counts.entrySet()))
+	it_1 := foreach_(this.counts.entrySet())
 	for it_1.next() {
 		var e Map_Entry = icast_Map_Entry(it_1.v)
 		var element string = objstr_(e.getKey())

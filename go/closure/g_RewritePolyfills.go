@@ -72,7 +72,7 @@ func (this *RewritePolyfills) process_2(externs Node, root Node) {
 
 func (this *RewritePolyfills) injectAll(librariesToInject IterableOf[string], forceInjection bool) {
 	var lastNode Node = 0
-	it_1 := foreach_(any(librariesToInject))
+	it_1 := foreach_(librariesToInject)
 	for it_1.next() {
 		var library string = str_(it_1.v)
 		if library == "" {

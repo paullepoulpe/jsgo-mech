@@ -68,7 +68,7 @@ func (this *DepsGenerator) cleanUpDuplicatedFiles(depsFiles MapOf[string, Depend
 			Map_remove_s(jsFiles, path)
 		}
 	}
-	it_3 := foreach_(any(jsFiles.keySet()))
+	it_3 := foreach_(jsFiles.keySet())
 	for it_3.next() {
 		var path string = str_(it_3.v)
 		Map_remove_s(depsFiles, path)
@@ -80,7 +80,7 @@ func (this *DepsGenerator) removeMungedSymbols(depFiles MapOf[string, Dependency
 	var providesMap map[string]DependencyInfo = map[string]DependencyInfo{}
 	this.addToProvideMap(Iterable(depFiles.values()), providesMap, true)
 	this.addToProvideMap(Iterable(jsFiles.values()), providesMap, false)
-	it_1 := foreach_(any(jsFiles.values()))
+	it_1 := foreach_(jsFiles.values())
 	for it_1.next() {
 		var dependencyInfo DependencyInfo = icast_DependencyInfo(it_1.v)
 		var newRequires *TList[*DependencyInfo_Require] = newTList_(tc_p_DependencyInfo_Require)
@@ -120,7 +120,7 @@ func (this *DepsGenerator) validateDependencies(preparsedFileDependencies Iterab
 	var providesMap map[string]DependencyInfo = map[string]DependencyInfo{}
 	this.addToProvideMap(preparsedFileDependencies, providesMap, true)
 	this.addToProvideMap(parsedFileDependencies, providesMap, false)
-	it_1 := foreach_(any(parsedFileDependencies))
+	it_1 := foreach_(parsedFileDependencies)
 	for it_1.next() {
 		var depInfo DependencyInfo = icast_DependencyInfo(it_1.v)
 		it_3 := foreach_(obj_(depInfo.getRequires()))
@@ -179,7 +179,7 @@ func (this *DepsGenerator) reportNoDepsInDepsFile(filePath string) {
 }
 
 func (this *DepsGenerator) addToProvideMap(depInfos IterableOf[DependencyInfo], providesMap map[string]DependencyInfo, isFromDepsFile bool) {
-	it_1 := foreach_(any(depInfos))
+	it_1 := foreach_(depInfos)
 	for it_1.next() {
 		var depInfo DependencyInfo = icast_DependencyInfo(it_1.v)
 		var provides []string = sliceFrom_(tc_string, icast_Collection(obj_(depInfo.getProvides())))
@@ -213,7 +213,7 @@ func (this *DepsGenerator) shouldSkipDepsFile(file *SourceFile_jscomp) bool {
 func (this *DepsGenerator) parseDepsFiles() *Outcome_base {
 	var depsParser *DepsFileRegexParser = this.createDepsFileParser()
 	var depsFiles MapOf[string, DependencyInfo] = new_LinkedHashMap()
-	it_1 := foreach_(any(this.deps))
+	it_1 := foreach_(this.deps)
 	for it_1.next() {
 		var file *SourceFile_jscomp = cast_[*SourceFile_jscomp](it_1.v)
 		if !this.shouldSkipDepsFile(file) {
@@ -225,7 +225,7 @@ func (this *DepsGenerator) parseDepsFiles() *Outcome_base {
 			if depInfos.isEmpty() {
 				this.reportNoDepsInDepsFile(file.getName())
 			} else {
-				it_3 := foreach_(any(depInfos))
+				it_3 := foreach_(depInfos)
 				for it_3.next() {
 					var info DependencyInfo = icast_DependencyInfo(it_3.v)
 					Map_put_s(depsFiles, info.getPathRelativeToClosureBase(), this.removeRelativePathProvide(info))
@@ -233,7 +233,7 @@ func (this *DepsGenerator) parseDepsFiles() *Outcome_base {
 			}
 		}
 	}
-	it_5 := foreach_(any(this.srcs))
+	it_5 := foreach_(this.srcs)
 	for it_5.next() {
 		var src *SourceFile_jscomp = cast_[*SourceFile_jscomp](it_5.v)
 		if !this.shouldSkipDepsFile(src) {
@@ -242,7 +242,7 @@ func (this *DepsGenerator) parseDepsFiles() *Outcome_base {
 				return Outcome_base_err(srcInfosRes.error())
 			}
 			var srcInfos ListOf[DependencyInfo] = icast_List(srcInfosRes.get())
-			it_7 := foreach_(any(srcInfos))
+			it_7 := foreach_(srcInfos)
 			for it_7.next() {
 				var info DependencyInfo = icast_DependencyInfo(it_7.v)
 				Map_put_s(depsFiles, info.getPathRelativeToClosureBase(), this.removeRelativePathProvide(info))
@@ -285,7 +285,7 @@ func (this *DepsGenerator) parseSources(preparsedFiles SetOf[string]) *Outcome_b
 	var jsParser *JsFileRegexParser = new_JsFileRegexParser(this.errorManager).setModuleLoader(this.loader)
 	var compiler *Compiler = new_Compiler_0()
 	compiler.init(ImmutableList_of(), ImmutableList_of(), new_CompilerOptions())
-	it_1 := foreach_(any(this.srcs))
+	it_1 := foreach_(this.srcs)
 	for it_1.next() {
 		var file *SourceFile_jscomp = cast_[*SourceFile_jscomp](it_1.v)
 		var closureRelativePath string = PathUtil_makeRelative(this.closurePathAbs, PathUtil_makeAbsolute_String(file.getName()))
@@ -313,12 +313,12 @@ func (this *DepsGenerator) writeDepsContent(depsFiles MapOf[string, DependencyIn
 	DepsGenerator_writeDepInfos(out, jsFiles.values())
 	if this.mergeStrategy == DepsGenerator_InclusionStrategy_ALWAYS {
 		var infosIndex *SimpleListMultimap = SimpleListMultimap_create()
-		it_1 := foreach_(any(depsFiles.values()))
+		it_1 := foreach_(depsFiles.values())
 		for it_1.next() {
 			var info DependencyInfo = icast_DependencyInfo(it_1.v)
 			infosIndex.put_s(info.getName(), info)
 		}
-		it_3 := foreach_(any(infosIndex.keySet()))
+		it_3 := foreach_(infosIndex.keySet())
 		for it_3.next() {
 			var depsPath string = str_(it_3.v)
 			var path string = this.formatPathToDepsFile(depsPath)
@@ -333,7 +333,7 @@ func (this *DepsGenerator) formatPathToDepsFile(path string) string {
 }
 
 func DepsGenerator_writeDepInfos(out *StringBuilder, depInfos CollectionOf[DependencyInfo]) {
-	it_1 := foreach_(any(depInfos))
+	it_1 := foreach_(depInfos)
 	for it_1.next() {
 		var depInfo DependencyInfo = icast_DependencyInfo(it_1.v)
 		DependencyInfo_Util_writeAddDependency(icast_Appendable(obj_(out)), depInfo)
@@ -342,7 +342,7 @@ func DepsGenerator_writeDepInfos(out *StringBuilder, depInfos CollectionOf[Depen
 
 func DepsGenerator_createSourceFilesFromPaths(paths CollectionOf[string]) []*SourceFile_jscomp {
 	var files []*SourceFile_jscomp = []*SourceFile_jscomp{}
-	it_1 := foreach_(any(paths))
+	it_1 := foreach_(paths)
 	for it_1.next() {
 		var path string = str_(it_1.v)
 		files = append(files, SourceFile_jscomp_fromFile_String(path))
@@ -356,7 +356,7 @@ func DepsGenerator_createSourceFilesFromPathsStringVarargs(paths []string) []*So
 
 func DepsGenerator_createSourceFilesFromZipPaths(paths CollectionOf[string]) *Outcome_base {
 	var zipSourceFiles ListOf[*SourceFile_jscomp] = new_ArrayList_0()
-	it_1 := foreach_(any(paths))
+	it_1 := foreach_(paths)
 	for it_1.next() {
 		var path string = str_(it_1.v)
 		var zipFiles *Outcome_base = SourceFile_jscomp_fromZipFile(path, Charsets_UTF_8)

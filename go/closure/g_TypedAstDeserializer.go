@@ -89,7 +89,7 @@ func (this *TypedAstDeserializer) deserializeTypedAst(typedAstProto *TypedAst, c
 	var fileShard []*SourceFile_jscomp = this.toFileShard(typedAstProto)
 	if equalsId_(this.mode_, TypedAstDeserializer_Mode_FULL_AST) {
 		var containsRequiredInput bool = false
-		it_1 := foreach_(any(Iterables_concat(Iterable(typedAstProto.getExternAstList()), Iterable(typedAstProto.getCodeAstList()))))
+		it_1 := foreach_(Iterables_concat(Iterable(typedAstProto.getExternAstList()), Iterable(typedAstProto.getCodeAstList())))
 		for it_1.next() {
 			var lazyAst *LazyAst = cast_[*LazyAst](it_1.v)
 			var file *SourceFile_jscomp = sliceAt_(fileShard, (lazyAst.getSourceFile() - 1))
@@ -112,12 +112,12 @@ func (this *TypedAstDeserializer) deserializeTypedAst(typedAstProto *TypedAst, c
 		_ = builder
 		return obj_(builder.addShard(typedAstProto.getTypePool(), stringShard))
 	}})
-	it_4 := foreach_(any(typedAstProto.getExternsSummary().getPropNamePtrList()))
+	it_4 := foreach_(typedAstProto.getExternsSummary().getPropNamePtrList())
 	for it_4.next() {
 		var x int32 = unbox_[int32](it_4.v)
 		this.externProperties.add(strobj_(stringShard.get(x)))
 	}
-	it_6 := foreach_(any(Iterables_concat(Iterable(typedAstProto.getExternAstList()), Iterable(typedAstProto.getCodeAstList()))))
+	it_6 := foreach_(Iterables_concat(Iterable(typedAstProto.getExternAstList()), Iterable(typedAstProto.getCodeAstList())))
 	for it_6.next() {
 		var lazyAst *LazyAst = cast_[*LazyAst](it_6.v)
 		this.initLazyAstDeserializer(lazyAst, fileShard, colorShard, stringShard, compiler, resolveSourceMapAnnotations, parseInlineSourceMaps)
@@ -395,7 +395,7 @@ func (this *TypedAstDeserializer_DeserializedAst) equals(p0 any) bool {
 	if !ok || o == nil {
 		return false
 	}
-	return true && objequalsDyn_(this.getFilesystem_, any(o.getFilesystem_)) && objequalsBy_(this.getColorRegistry_, obj_(o.getColorRegistry_), (Optional_baseOf[*ColorRegistry]).equals) && objequalsBy_(this.getExternProperties_, obj_(o.getExternProperties_), (ImmutableSetOf[string]).equals) && objequalsBy_(this.getRuntimeLibraries_, obj_(o.getRuntimeLibraries_), (ImmutableSetOf[string]).equals)
+	return true && objequalsDyn_(this.getFilesystem_, o.getFilesystem_) && objequalsBy_(this.getColorRegistry_, obj_(o.getColorRegistry_), (Optional_baseOf[*ColorRegistry]).equals) && objequalsBy_(this.getExternProperties_, obj_(o.getExternProperties_), (ImmutableSetOf[string]).equals) && objequalsBy_(this.getRuntimeLibraries_, obj_(o.getRuntimeLibraries_), (ImmutableSetOf[string]).equals)
 }
 
 func (this *TypedAstDeserializer_DeserializedAst) hashCode() int32 {

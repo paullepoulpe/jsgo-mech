@@ -23,7 +23,7 @@ func PathUtil_collapseDots(path string) string {
 		return path
 	}
 	var dstFragments *TList[string] = newTList_(tc_string)
-	it_1 := foreach_(any(Splitter_on('/').split_s(path)))
+	it_1 := foreach_(Splitter_on('/').split_s(path))
 	for it_1.next() {
 		var fragment string = str_(it_1.v)
 		if fragment == ".." {

@@ -50,7 +50,7 @@ func SimpleSetMultimap_createSorted() *SimpleSetMultimap {
 
 func (this *SimpleSetMultimap) immutableCopy() *SimpleSetMultimap {
 	var copy_ *SimpleSetMultimap = new_SimpleSetMultimap(false, false)
-	it_1 := foreach_(any(this.map__.entrySet()))
+	it_1 := foreach_(this.map__.entrySet())
 	for it_1.next() {
 		var e Map_Entry = icast_Map_Entry(it_1.v)
 		copy_.map__.put(e.getKey(), obj_(new_LinkedHashSet_Collection(icast_Collection(e.getValue()))))
@@ -61,10 +61,10 @@ func (this *SimpleSetMultimap) immutableCopy() *SimpleSetMultimap {
 
 func (this *SimpleSetMultimap) inverse() *SimpleSetMultimap {
 	var inverse *SimpleSetMultimap = new_SimpleSetMultimap(false, false)
-	it_1 := foreach_(any(this.map__.entrySet()))
+	it_1 := foreach_(this.map__.entrySet())
 	for it_1.next() {
 		var e Map_Entry = icast_Map_Entry(it_1.v)
-		it_3 := foreach_(any(icast_Set(e.getValue())))
+		it_3 := foreach_(icast_Set(e.getValue()))
 		for it_3.next() {
 			var value any = it_3.v
 			inverse.put(value, e.getKey())
@@ -124,7 +124,7 @@ func (this *SimpleSetMultimap) put_s(key string, value any) bool {
 }
 
 func (this *SimpleSetMultimap) putAll_2(key any, values IterableOf[any]) {
-	it_1 := foreach_(any(values))
+	it_1 := foreach_(values)
 	for it_1.next() {
 		var value any = it_1.v
 		this.put(key, value)
@@ -139,7 +139,7 @@ func (this *SimpleSetMultimap) putAll(other *SimpleSetMultimap) {
 			this.put(e.key(), e.value())
 		}
 	} else {
-		it_3 := foreach_(any(other.map__.entrySet()))
+		it_3 := foreach_(other.map__.entrySet())
 		for it_3.next() {
 			var e Map_Entry = icast_Map_Entry(it_3.v)
 			this.putAll_2(e.getKey(), icast_Iterable(e.getValue()))
@@ -189,7 +189,7 @@ func (this *SimpleSetMultimap) removeAll(key any) SetOf[any] {
 		return ImmutableSet_of()
 	}
 	if this.entryOrder != nil {
-		it_1 := foreach_(any(values))
+		it_1 := foreach_(values)
 		for it_1.next() {
 			var value any = it_1.v
 			this.entryOrder.remove(new_SimpleSetMultimap_Entry(key, value))
@@ -209,7 +209,7 @@ func (this *SimpleSetMultimap) removeAll_s(key string) SetOf[any] {
 	}
 	if this.entryOrder != nil {
 		k := strobj_(key)
-		it_1 := foreach_(any(values))
+		it_1 := foreach_(values)
 		for it_1.next() {
 			var value any = it_1.v
 			this.entryOrder.remove(new_SimpleSetMultimap_Entry(k, value))
@@ -242,7 +242,7 @@ func (this *SimpleSetMultimap) asMap() MapOf[any, SetOf[any]] {
 
 func (this *SimpleSetMultimap) size() int32 {
 	var size int32 = 0
-	it_1 := foreach_(any(this.map__.values()))
+	it_1 := foreach_(this.map__.values())
 	for it_1.next() {
 		var values Set = icast_Set(it_1.v)
 		size += values.size()
@@ -265,7 +265,7 @@ func (this *SimpleSetMultimap) equals(o any) bool {
 		}
 		that = p
 		return true
-	}() && equalsDyn_(this.map__, any(that.map__)))
+	}() && equalsDyn_(this.map__, that.map__))
 }
 
 func (this *SimpleSetMultimap) hashCode() int32 {

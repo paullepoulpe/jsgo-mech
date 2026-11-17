@@ -63,7 +63,7 @@ func (this *ExternExportsPass) process_2(externs Node, root Node) {
 	NodeTraversal_traverse(this.compiler_, root, this)
 	var sorted SetOf[*ExternExportsPass_Export] = new_TreeSet_Comparator(Comparator_comparing(lambda_ExternExportsPass_process_2_1_))
 	sorted.addAll(Collection(sliceView_(tc_p_ExternExportsPass_Export, this.exports)))
-	it_1 := foreach_(any(sorted))
+	it_1 := foreach_(sorted)
 	for it_1.next() {
 		var export *ExternExportsPass_Export = to_ExternExportsPass_Export(it_1.v)
 		export.generateExterns()
@@ -359,7 +359,7 @@ func (this *ExternExportsPass_Export) createExternsParamListFromFunctionType(fun
 func (this *ExternExportsPass_Export) createExternsParamListFromOriginalParamList(originalParamNames ListOf[string]) Node {
 	var paramList Node = IR_paramList([]Node{})
 	var nameGenerator NameGenerator = new_DefaultNameGenerator_Set_String_Set(icast_Set(obj_(ImmutableSet_copyOf(Collection(originalParamNames)))), "", ImmutableSet_of())
-	it_1 := foreach_(any(originalParamNames))
+	it_1 := foreach_(originalParamNames)
 	for it_1.next() {
 		var originalParamName string = str_(it_1.v)
 		var externParamName string = func() string {
@@ -530,7 +530,7 @@ func new_ExternExportsPass_PropertyExport(outer_ *ExternExportsPass, exportPath 
 }
 
 func (this *ExternExportsPass_PropertyExport) getExportedPath_impl() string {
-	it_1 := foreach_(any(Lists_reverse(icast_List(obj_(ExternExportsPass_computePathPrefixes(this.exportPath))))))
+	it_1 := foreach_(Lists_reverse(icast_List(obj_(ExternExportsPass_computePathPrefixes(this.exportPath)))))
 	for it_1.next() {
 		var currentPath string = str_(it_1.v)
 		if len(currentPath) == 0 {

@@ -200,10 +200,10 @@ func (this *ColorPool_Builder) addShard(typePool *TypePool, stringPool *StringPo
 	var shard *ColorPool_ShardView = new_ColorPool_ShardView(typePool, stringPool, trimmedOffsetToId)
 	this.protoToShard.put(obj_(typePool), obj_(shard))
 	if typePool.hasDebugInfo() {
-		it_1 := foreach_(any(typePool.getDebugInfo().getMismatchList()))
+		it_1 := foreach_(typePool.getDebugInfo().getMismatchList())
 		for it_1.next() {
 			var m *TypePool_DebugInfo_Mismatch = cast_[*TypePool_DebugInfo_Mismatch](it_1.v)
-			it_3 := foreach_(any(m.getInvolvedColorList()))
+			it_3 := foreach_(m.getInvolvedColorList())
 			for it_3.next() {
 				var pointer any = it_3.v
 				this.registry.addMismatchLocation(shard.getId(unbox_[int32](pointer)), m.getSourceRef())
@@ -230,7 +230,7 @@ func (this *ColorPool_Builder) build() *ColorPool {
 		var id *ColorId = cast_[*ColorId](it_2.v)
 		MalformedTypedAstException_checkWellFormed_boolean_String_Object(!this.idToProto.containsRow(obj_(id)), "Found serialized definiton for axiomatic color", obj_(id))
 	}
-	it_4 := foreach_(any(this.idToProto.rowKeySet()))
+	it_4 := foreach_(this.idToProto.rowKeySet())
 	for it_4.next() {
 		var id *ColorId = cast_[*ColorId](it_4.v)
 		this.lookupOrReconcileColor(id)
@@ -247,7 +247,7 @@ func (this *ColorPool_Builder) build() *ColorPool {
 	this.forEachShard(func(shard_ any) {
 		var shard *ColorPool_ShardView = cast_[*ColorPool_ShardView](shard_)
 		_ = shard
-		it_8 := foreach_(any(shard.typePool.getDisambiguationEdgesList()))
+		it_8 := foreach_(shard.typePool.getDisambiguationEdgesList())
 		for it_8.next() {
 			var edge *SubtypingEdge = cast_[*SubtypingEdge](it_8.v)
 			this.registry.addDisambiguationEdge(this.idToColor.get(shard.getId(ColorPool_validatePointer(edge.getSubtype(), shard))), this.idToColor.get(shard.getId(ColorPool_validatePointer(edge.getSupertype(), shard))))
@@ -337,7 +337,7 @@ func (this *ColorPool_Builder) reconcileObjectProtos(id *ColorId, viewToProto Ma
 	var isConstructor bool = false
 	var isInvalidating bool = false
 	var propertiesKeepOriginalName bool = false
-	it_1 := foreach_(any(viewToProto.entrySet()))
+	it_1 := foreach_(viewToProto.entrySet())
 	for it_1.next() {
 		var entry Map_Entry = icast_Map_Entry(it_1.v)
 		var shard *ColorPool_ShardView = cast_[*ColorPool_ShardView](entry.getKey())

@@ -111,7 +111,7 @@ func DominatorTree_computeSubtreeSizes(node any, children *SimpleListMultimap, s
 	var size int32 = 1
 	var nodeChildren ListOf[any] = children.get(node)
 	if nodeChildren != nil {
-		it_1 := foreach_(any(nodeChildren))
+		it_1 := foreach_(nodeChildren)
 		for it_1.next() {
 			var child any = it_1.v
 			size += DominatorTree_computeSubtreeSizes(child, children, sizes)

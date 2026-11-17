@@ -17,7 +17,7 @@ func new_ApplySuggestedFixes() *ApplySuggestedFixes {
 
 func ApplySuggestedFixes_applySuggestedFixesToFiles(fixes IterableOf[*SuggestedFix]) *Outcome_base {
 	var filenames *TSet[string] = newTSet_(tc_string)
-	it_1 := foreach_(any(fixes))
+	it_1 := foreach_(fixes)
 	for it_1.next() {
 		var fix *SuggestedFix = cast_[*SuggestedFix](it_1.v)
 		filenames.asSet().addAll(Collection(fix.getReplacements().keySet()))
@@ -60,7 +60,7 @@ func ApplySuggestedFixes_applyAllSuggestedFixChoicesToCode(fixChoices IterableOf
 }
 
 func ApplySuggestedFixes_allHaveAlternativeCount(fixChoices IterableOf[*SuggestedFix], alternativeCount int32) bool {
-	it_1 := foreach_(any(fixChoices))
+	it_1 := foreach_(fixChoices)
 	for it_1.next() {
 		var f *SuggestedFix = cast_[*SuggestedFix](it_1.v)
 		if f.getAlternatives().size() != alternativeCount {
@@ -72,7 +72,7 @@ func ApplySuggestedFixes_allHaveAlternativeCount(fixChoices IterableOf[*Suggeste
 
 func ApplySuggestedFixes_applySuggestedFixChoicesToCode(fixChoices IterableOf[*SuggestedFix], choiceIndex int32, fileNameToCodeMap map[string]string) ImmutableMapOf[string, string] {
 	var chosenFixesBuilder ImmutableList_BuilderOf[*SuggestedFix] = ImmutableList_builder()
-	it_1 := foreach_(any(fixChoices))
+	it_1 := foreach_(fixChoices)
 	for it_1.next() {
 		var choices *SuggestedFix = cast_[*SuggestedFix](it_1.v)
 		chosenFixesBuilder.add(choices.getAlternatives().get(choiceIndex))
@@ -83,13 +83,13 @@ func ApplySuggestedFixes_applySuggestedFixChoicesToCode(fixChoices IterableOf[*S
 
 func ApplySuggestedFixes_applySuggestedFixesToCode(fixes IterableOf[*SuggestedFix], filenameToCodeMap map[string]string) ImmutableMapOf[string, string] {
 	var map_ *ApplySuggestedFixes_ReplacementMap = new_ApplySuggestedFixes_ReplacementMap()
-	it_1 := foreach_(any(fixes))
+	it_1 := foreach_(fixes)
 	for it_1.next() {
 		var fix *SuggestedFix = cast_[*SuggestedFix](it_1.v)
 		map_.putIfNoOverlap(fix)
 	}
 	var newCodeMap ImmutableMap_BuilderOf[string, string] = ImmutableMap_builder()
-	it_3 := foreach_(any(map_.entrySet()))
+	it_3 := foreach_(map_.entrySet())
 	for it_3.next() {
 		var entry Map_Entry = icast_Map_Entry(it_3.v)
 		var filename string = str_(entry.getKey())
@@ -174,7 +174,7 @@ func (this *ApplySuggestedFixes_ReplacementMap) putIfNoOverlap(fix *SuggestedFix
 }
 
 func (this *ApplySuggestedFixes_ReplacementMap) canPut(fix *SuggestedFix) bool {
-	it_1 := foreach_(any(fix.getReplacements().keySet()))
+	it_1 := foreach_(fix.getReplacements().keySet())
 	for it_1.next() {
 		var filename string = str_(it_1.v)
 		var replacements ImmutableSortedSetOf[*CodeReplacement] = ImmutableSortedSet_naturalOrder().addAll(Iterable(this.map__.get_s(filename))).addAll(Iterable(fix.getReplacements().get_s(filename))).build()

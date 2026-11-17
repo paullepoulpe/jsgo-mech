@@ -399,12 +399,12 @@ func (this *ObjectType) getOwnPropertyKeys() ImmutableSetOf[Property_Key] {
 	var ownPropertyNames SetOf[string] = this.getOwnPropertyNames()
 	var ownSymbols SetOf[*KnownSymbolType] = this.getOwnPropertyKnownSymbols()
 	var ownPropertyKeys ImmutableSet_BuilderOf[Property_Key] = ImmutableSet_builder()
-	it_1 := foreach_(any(ownPropertyNames))
+	it_1 := foreach_(ownPropertyNames)
 	for it_1.next() {
 		var propertyName string = str_(it_1.v)
 		ownPropertyKeys.add(obj_(new_Property_StringKey(propertyName)))
 	}
-	it_3 := foreach_(any(ownSymbols))
+	it_3 := foreach_(ownSymbols)
 	for it_3.next() {
 		var symbol *KnownSymbolType = cast_[*KnownSymbolType](it_3.v)
 		ownPropertyKeys.add(obj_(new_Property_SymbolKey(symbol)))
@@ -522,7 +522,7 @@ func (this *ObjectType) isUnknownType_impl() bool {
 		var implicitProto *ObjectType = this.getImplicitPrototype()
 		if (implicitProto == nil) || implicitProto.isNativeObjectType() {
 			this.unknown = false
-			it_1 := foreach_(any(this.getCtorExtendedInterfaces()))
+			it_1 := foreach_(this.getCtorExtendedInterfaces())
 			for it_1.next() {
 				var interfaceType *ObjectType = to_ObjectType(it_1.v)
 				if interfaceType.isUnknownType() {

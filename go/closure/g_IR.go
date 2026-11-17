@@ -759,7 +759,7 @@ func IR_arraylit(exprs []Node) Node {
 
 func IR_arraylitIterable(exprs IterableOf[Node]) Node {
 	var arraylit Node = new_Node_Token(Token_rhino_ARRAYLIT)
-	it_1 := foreach_(any(exprs))
+	it_1 := foreach_(exprs)
 	for it_1.next() {
 		var expr Node = Node_of_(it_1.v)
 		if !IR_mayBeExpressionOrEmpty(expr) && !expr.isSpread() {

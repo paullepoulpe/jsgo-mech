@@ -66,7 +66,7 @@ func (this *ReplaceMessagesForChrome) getNewValueNode(message *JsMessage, defini
 		var placeholderNames ListOf[string] = Ordering_natural().sortedCopy(icast_Iterable(obj_(message.jsPlaceholderNames())))
 		var placeholderValueArray Node = this.astFactory_.createArraylit([]Node{})
 		var placeholderValueMap ImmutableMapOf[string, Node] = definition.getPlaceholderValueMap()
-		it_1 := foreach_(any(placeholderNames))
+		it_1 := foreach_(placeholderNames)
 		for it_1.next() {
 			var name string = str_(it_1.v)
 			nn_ := Map_get_s(placeholderValueMap, name)

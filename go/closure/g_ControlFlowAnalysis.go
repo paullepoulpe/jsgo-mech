@@ -68,7 +68,7 @@ func (this *ControlFlowAnalysis) computeCfg(root Node) {
 	var entry DiGraph_DiGraphNode = this.cfg.getEntry()
 	this.prioritizeFromEntryNode(entry)
 	if this.shouldTraverseFunctions {
-		it_1 := foreach_(any(this.cfg.getNodes()))
+		it_1 := foreach_(this.cfg.getNodes())
 		for it_1.next() {
 			var candidate DiGraph_DiGraphNode = icast_DiGraph_DiGraphNode(it_1.v)
 			var value Node = Node_of_(candidate.getValue())
@@ -78,7 +78,7 @@ func (this *ControlFlowAnalysis) computeCfg(root Node) {
 		}
 	}
 	this.astPosition = nil
-	it_3 := foreach_(any(this.cfg.getNodes()))
+	it_3 := foreach_(this.cfg.getNodes())
 	for it_3.next() {
 		var candidate DiGraph_DiGraphNode = icast_DiGraph_DiGraphNode(it_3.v)
 		if !candidate.hasPriority() {
@@ -103,7 +103,7 @@ func (this *ControlFlowAnalysis) prioritizeFromEntryNode(entry DiGraph_DiGraphNo
 		// worklist.addAll(successors of current), from its out-edges in order, without the list
 		// and its view (post-flip manual step).
 		for _, e := range to_LinkedDirectedGraph_LinkedDiGraphNode(current).getOutEdges().items {
-			worklist.add(to_LinkedDirectedGraph_LinkedDiGraphEdge(any(e)).getDestination())
+			worklist.add(to_LinkedDirectedGraph_LinkedDiGraphEdge(e).getDestination())
 		}
 	}
 }
@@ -537,7 +537,7 @@ func ControlFlowAnalysis_computeFollowNode_Node_Node_ControlFlowAnalysis(fromNod
 			}
 		} else if parent.getLastChild() == node {
 			if cfa != nil {
-				it_2 := foreach_(any(cfa.finallyMap.get(parent.box_())))
+				it_2 := foreach_(cfa.finallyMap.get(parent.box_()))
 				for it_2.next() {
 					var finallyNode Node = Node_of_(it_2.v)
 					cfa.createEdge(fromNode, ControlFlowGraph_Branch_ON_EX, finallyNode)

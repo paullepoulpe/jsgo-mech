@@ -101,7 +101,7 @@ func (this *CommandLineRunner) reportError(message string) {
 }
 
 func (this *CommandLineRunner) processFlagFiles() *Outcome_base {
-	it_1 := foreach_(any(this.flags.flagFiles))
+	it_1 := foreach_(this.flags.flagFiles)
 	for it_1.next() {
 		var flagFile string = str_(it_1.v)
 		var processed *Outcome_base = this.processFlagFile(flagFile)
@@ -382,7 +382,7 @@ func (this *CommandLineRunner) createOptions_impl() *Outcome_base {
 	options.setExportLocalPropertyDefinitions(this.flags.exportLocalPropertyDefinitions)
 	var wLevel WarningLevel = this.flags.warningLevel
 	wLevel.setOptionsForWarningLevel(options)
-	it_1 := foreach_(any(this.flags.formatting))
+	it_1 := foreach_(this.flags.formatting)
 	for it_1.next() {
 		var formattingOption CommandLineRunner_FormattingOption = cast_[CommandLineRunner_FormattingOption](it_1.v)
 		formattingOption.applyToOptions(options)
@@ -535,7 +535,7 @@ func (this *CommandLineRunner) createExterns_impl(options *CompilerOptions) *Out
 
 func CommandLineRunner_loadConformanceConfigs(configPaths ListOf[string]) []*ConformanceConfig {
 	var configs []*ConformanceConfig
-	it_1 := foreach_(any(configPaths))
+	it_1 := foreach_(configPaths)
 	for it_1.next() {
 		var configPath string = str_(it_1.v)
 		var config *Outcome_base = CommandLineRunner_loadConformanceConfig(configPath)
@@ -590,7 +590,7 @@ func CommandLineRunner_findJsFiles_Collection_boolean(patterns CollectionOf[stri
 		return new_LinkedHashMap()
 	}()
 	var excludes map[string]struct{} = map[string]struct{}{}
-	it_1 := foreach_(any(patterns))
+	it_1 := foreach_(patterns)
 	for it_1.next() {
 		var pattern string = str_(it_1.v)
 		if !strings.Contains(pattern, "*") && !strings.HasPrefix(pattern, "!") {
@@ -641,7 +641,7 @@ func CommandLineRunner_matchPaths(pattern string, allJsInputs MapOf[string, stri
 	}
 	var directory string = FilePaths_clean(prefix)
 	var glob string = (sstr_(prefix) + sstr_(separator) + sstr_(pattern))
-	it_2 := foreach_(any(Io_listFiles(directory)))
+	it_2 := foreach_(Io_listFiles(directory))
 	for it_2.next() {
 		var file string = str_(it_2.v)
 		var p string = FilePaths_resolve(directory, file)
@@ -1613,7 +1613,7 @@ func (this *CommandLineRunner_Flags) parse(args *TList[string]) *Outcome_base {
 func (this *CommandLineRunner_Flags) printUsage(ps *Output) {
 	var outputStream *StringBuilder = new_StringBuilder()
 	var isFirst bool = true
-	it_1 := foreach_(any(CommandLineRunner_Flags_categories.asMap().entrySet()))
+	it_1 := foreach_(CommandLineRunner_Flags_categories.asMap().entrySet())
 	for it_1.next() {
 		var entry Map_Entry = icast_Map_Entry(it_1.v)
 		var prefix string = "\n\n"
@@ -1647,7 +1647,7 @@ func (this *CommandLineRunner_Flags) printCategoryUsage(categoryName string, opt
 	}
 	if this.helpMarkdown {
 		outputStream.append(("# " + sstr_(categoryName) + "\n"))
-		it_1 := foreach_(any(options))
+		it_1 := foreach_(options)
 		for it_1.next() {
 			var optionName string = str_(it_1.v)
 			var stringWriter *StringBuilder = new_StringBuilder()
@@ -1721,7 +1721,7 @@ func (this *CommandLineRunner_Flags) getMixedJsSources() *Outcome_base {
 			if found.isErr() {
 				return Outcome_base_err(found.error())
 			}
-			it_3 := foreach_(any(icast_List(found.get())))
+			it_3 := foreach_(icast_List(found.get()))
 			for it_3.next() {
 				var filename string = str_(it_3.v)
 				excludes[filename] = struct{}{}
@@ -1732,7 +1732,7 @@ func (this *CommandLineRunner_Flags) getMixedJsSources() *Outcome_base {
 			if found.isErr() {
 				return Outcome_base_err(found.error())
 			}
-			it_5 := foreach_(any(icast_List(found.get())))
+			it_5 := foreach_(icast_List(found.get()))
 			for it_5.next() {
 				var filename string = str_(it_5.v)
 				if !has_(excludes, filename) {
@@ -1745,7 +1745,7 @@ func (this *CommandLineRunner_Flags) getMixedJsSources() *Outcome_base {
 	if fromArguments.isErr() {
 		return Outcome_base_err(fromArguments.error())
 	}
-	it_7 := foreach_(any(icast_List(fromArguments.get())))
+	it_7 := foreach_(icast_List(fromArguments.get()))
 	for it_7.next() {
 		var filename string = str_(it_7.v)
 		mixedSources.add(obj_(new_AbstractCommandLineRunner_FlagEntry(obj_(AbstractCommandLineRunner_JsSourceType_JS), filename)))
@@ -1778,7 +1778,7 @@ func (this *CommandLineRunner_Flags) getSourceMapInputs() *Outcome_base {
 func (this *CommandLineRunner_Flags) splitPipeParts(input IterableOf[string], flagName string) *Outcome_base {
 	var result ImmutableMap_BuilderOf[string, string] = new_ImmutableMap_Builder()
 	var splitter *Splitter = Splitter_on('|').limit(2)
-	it_1 := foreach_(any(input))
+	it_1 := foreach_(input)
 	for it_1.next() {
 		var inputSourceMap string = str_(it_1.v)
 		var parts []string = sliceImm_(tc_string, splitter.splitToList_s(inputSourceMap))

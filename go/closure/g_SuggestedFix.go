@@ -53,7 +53,7 @@ func (this *SuggestedFix) toString() string {
 		return "<no-op SuggestedFix>"
 	}
 	var sb *StringBuilder = new_StringBuilder()
-	it_1 := foreach_(any(this.replacements.asMap().entrySet()))
+	it_1 := foreach_(this.replacements.asMap().entrySet())
 	for it_1.next() {
 		var entry Map_Entry = icast_Map_Entry(it_1.v)
 		sb.append("Replacements for file: ").append(str_(entry.getKey())).append("\n")
@@ -512,7 +512,7 @@ func (this *SuggestedFix_Builder) addGoogRequireType(m *Match, namespace string,
 }
 
 func SuggestedFix_Builder_firstUnusedAlias(namespace string, scriptMetadata *ScriptMetadata) string {
-	it_1 := foreach_(any(RequireAliasGenerator_over(namespace)))
+	it_1 := foreach_(RequireAliasGenerator_over(namespace))
 	for it_1.next() {
 		var a string = str_(it_1.v)
 		if !scriptMetadata.usesName(a) {

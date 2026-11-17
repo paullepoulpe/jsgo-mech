@@ -97,7 +97,7 @@ func (this *SourceMapConsumerV3) parseMetaMap(sourceMapObject *SourceMapObject, 
 			return 1
 		}
 		var generator *SourceMapGeneratorV3 = new_SourceMapGeneratorV3()
-		it_2 := foreach_(any(sourceMapObject.getSections()))
+		it_2 := foreach_(sourceMapObject.getSections())
 		for it_2.next() {
 			var section *SourceMapSection = cast_[*SourceMapSection](it_2.v)
 			var mapSectionContents OptionalOf[string] = Optional_of[string](section.getSectionValue())

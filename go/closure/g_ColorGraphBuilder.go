@@ -65,7 +65,7 @@ func (this *ColorGraphBuilder) connectUnionWithAncestors(unionNode *LinkedDirect
 		if nn_ == nil {
 			panic(new_NullPointerException_0().self())
 		}
-		this.connectSourceToDest(to_LinkedDirectedGraph_LinkedDiGraphNode(any(nn_)), ColorGraphBuilder_EdgeReason_ALGEBRAIC, unionNode)
+		this.connectSourceToDest(to_LinkedDirectedGraph_LinkedDiGraphNode(nn_), ColorGraphBuilder_EdgeReason_ALGEBRAIC, unionNode)
 	}
 }
 
@@ -92,7 +92,7 @@ func (this *ColorGraphBuilder) addInternalColorGraphNode(node *ColorGraphNode) *
 	if supertypes.isEmpty() {
 		this.connectSourceToDest(this.topNode, ColorGraphBuilder_EdgeReason_ALGEBRAIC, flatNode)
 	} else {
-		it_3 := foreach_(any(supertypes))
+		it_3 := foreach_(supertypes)
 		for it_3.next() {
 			var supertype *Color = cast_[*Color](it_3.v)
 			this.connectSourceToDest(this.addInternal(supertype), ColorGraphBuilder_EdgeReason_CAN_HOLD, flatNode)

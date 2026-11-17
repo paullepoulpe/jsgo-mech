@@ -540,7 +540,7 @@ func (this *TypeTransformation) putNewPropInPropertyMap(props *TMap[string, *JST
 func (this *TypeTransformation) joinRecordTypes(recTypes []*ObjectType) *JSType {
 	var props *TMap[string, *JSType] = newTMap_(tc_string, tc_p_JSType)
 	for _, recType := range recTypes {
-		it_3 := foreach_(any(recType.getOwnPropertyNames()))
+		it_3 := foreach_(recType.getOwnPropertyNames())
 		for it_3.next() {
 			var newPropName string = str_(it_3.v)
 			var newPropValue *JSType = recType.getPropertyType(newPropName)
@@ -574,7 +574,7 @@ func (this *TypeTransformation) evalMaprecord(ttlAst Node, nameResolver *TypeTra
 	}
 	var mapFnBody Node = NodeUtil_getFunctionBody(mapFunction)
 	var newProps *TMap[string, *JSType] = newTMap_(tc_string, tc_p_JSType)
-	it_1 := foreach_(any(objtype.getOwnPropertyNames()))
+	it_1 := foreach_(objtype.getOwnPropertyNames())
 	for it_1.next() {
 		var propName string = str_(it_1.v)
 		var propValue *JSType = objtype.getPropertyType(propName)
@@ -591,7 +591,7 @@ func (this *TypeTransformation) evalMaprecord(ttlAst Node, nameResolver *TypeTra
 			return this.getUnknownType()
 		}
 		var bodyAsObj *ObjectType = body.toMaybeObjectType()
-		it_3 := foreach_(any(bodyAsObj.getOwnPropertyNames()))
+		it_3 := foreach_(bodyAsObj.getOwnPropertyNames())
 		for it_3.next() {
 			var newPropName string = str_(it_3.v)
 			var newPropValue *JSType = bodyAsObj.getPropertyType(newPropName)

@@ -47,7 +47,7 @@ func (this *DiagnosticToSuppressionMapper) createSuppressionMap() ImmutableSorte
 		}
 	}
 	var result ImmutableSortedMap_BuilderOf[string, string] = ImmutableSortedMap_naturalOrder()
-	it_5 := foreach_(any(diagnosticToSuppression.asMap().entrySet()))
+	it_5 := foreach_(diagnosticToSuppression.asMap().entrySet())
 	for it_5.next() {
 		var entrySet Map_Entry = icast_Map_Entry(it_5.v)
 		result.put(strobj_(cast_[*DiagnosticType](entrySet.getKey()).key_), entrySet.getValue())

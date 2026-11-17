@@ -22,7 +22,7 @@ func (this *Tracer) init_Tracer_Optional_Optional(type_ OptionalOf[string], comm
 		var size int32 = Tracer_extraTracingStatistics.size()
 		this.extraTracingValues = make([]int64, size)
 		var i int32 = 0
-		it_1 := foreach_(any(Tracer_extraTracingStatistics))
+		it_1 := foreach_(Tracer_extraTracingStatistics)
 		for it_1.next() {
 			var tracingStatistic Tracer_TracingStatistic = icast_Tracer_TracingStatistic(it_1.v)
 			this.extraTracingValues[i] = tracingStatistic.start()
@@ -559,7 +559,7 @@ func (this *Tracer_ThreadTrace) toString() string {
 			sb.append("  ").append_Object(obj_(t)).append(" (").append_long((now - t.startTimeMs)).append(" ms, started at ").append(Tracer_formatTime(t.startTimeMs)).append(")\n")
 		}
 	}
-	it_5 := foreach_(any(this.stats.asMap().entrySet()))
+	it_5 := foreach_(this.stats.asMap().entrySet())
 	for it_5.next() {
 		var statEntry Map_Entry = icast_Map_Entry(it_5.v)
 		var stat *Tracer_Stat = cast_[*Tracer_Stat](statEntry.getValue())

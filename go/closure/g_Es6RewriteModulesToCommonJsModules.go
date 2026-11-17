@@ -295,7 +295,7 @@ func (this *Es6RewriteModulesToCommonJsModules_Rewriter) registerAndLoadModule(t
 func (this *Es6RewriteModulesToCommonJsModules_Rewriter) addExportDef() {
 	if !this.exportedNameToLocalQName.isEmpty() {
 		var definePropertiesLit Node = IR_objectlit([]Node{})
-		it_1 := foreach_(any(this.exportedNameToLocalQName.entrySet()))
+		it_1 := foreach_(this.exportedNameToLocalQName.entrySet())
 		for it_1.next() {
 			var entry Map_Entry = icast_Map_Entry(it_1.v)
 			this.addExport(definePropertiesLit, str_(entry.getKey()), cast_[*Es6RewriteModulesToCommonJsModules_LocalQName](entry.getValue()))

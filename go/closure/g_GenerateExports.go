@@ -51,12 +51,12 @@ func (this *GenerateExports) process_2(externs Node, root Node) {
 			return
 		}
 	}
-	it_3 := foreach_(any(es6Exports.asMap().entrySet()))
+	it_3 := foreach_(es6Exports.asMap().entrySet())
 	for it_3.next() {
 		var entry Map_Entry = icast_Map_Entry(it_3.v)
 		this.addExportForEs6Method(Node_of_(entry.getKey()), str_(entry.getValue()))
 	}
-	it_5 := foreach_(any(exports.asMap().entrySet()))
+	it_5 := foreach_(exports.asMap().entrySet())
 	for it_5.next() {
 		var entry Map_Entry = icast_Map_Entry(it_5.v)
 		var export string = str_(entry.getKey())

@@ -28,7 +28,7 @@ func FixedPointGraphTraversal_newReverseTraversal(callback func(any, any, any) b
 
 func (this *FixedPointGraphTraversal) computeFixedPoint(graph *DiGraph) {
 	var nodes SetOf[any] = new_LinkedHashSet()
-	it_1 := foreach_(any(graph.getNodes()))
+	it_1 := foreach_(graph.getNodes())
 	for it_1.next() {
 		var node DiGraph_DiGraphNode = icast_DiGraph_DiGraphNode(it_1.v)
 		nodes.add(node.getValue())
@@ -47,10 +47,10 @@ func (this *FixedPointGraphTraversal) computeFixedPointSet(graph *DiGraph, entry
 	var nodeCount int64 = Math_min_long_long(int64(graph.getNodeCount()), FixedPointGraphTraversal_MAX_NODE_COUNT_FOR_ITERATION_LIMIT)
 	var maxIterations int64 = Math_max_long_long(((nodeCount * nodeCount) * nodeCount), 100)
 	var workSet *TSet[DiGraph_DiGraphNode] = newTSet_(tc_DiGraph_DiGraphNode)
-	it_1 := foreach_(any(entrySet))
+	it_1 := foreach_(entrySet)
 	for it_1.next() {
 		var n any = it_1.v
-		workSet.add(icast_DiGraph_DiGraphNode(any(graph.getNode(n))))
+		workSet.add(icast_DiGraph_DiGraphNode(graph.getNode(n)))
 	}
 	for ; !workSet.isEmpty() && (cycleCount < maxIterations); cycleCount++ {
 		this.visitNode(icast_DiGraph_DiGraphNode(SequencedCollection_getFirst(workSet.asSet())), workSet)

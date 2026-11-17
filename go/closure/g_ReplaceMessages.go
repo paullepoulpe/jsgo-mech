@@ -535,7 +535,7 @@ func (this *ReplaceMessages_QuotedKeyObjectLitBuilder) addNode(key string, node 
 
 func (this *ReplaceMessages_QuotedKeyObjectLitBuilder) build() Node {
 	var result Node = this.outer_.astFactory_.createObjectLit([]Node{})
-	it_1 := foreach_(any(this.keyToValueNodeMap.asMap().entrySet()))
+	it_1 := foreach_(this.keyToValueNodeMap.asMap().entrySet())
 	for it_1.next() {
 		var entry Map_Entry = icast_Map_Entry(it_1.v)
 		result.addChildToBack(this.outer_.astFactory_.createQuotedStringKey(str_(entry.getKey()), Node_of_(entry.getValue())))
@@ -925,7 +925,7 @@ func ReplaceMessages_ProtectedJsMessage_fromAstNode(node Node, idGenerator JsMes
 				if !valueNode.isArrayLit() {
 					panic(new_IllegalStateException_String("icu_placeholder_names must be an array").self())
 				}
-				it_2 := foreach_(any(valueNode.children()))
+				it_2 := foreach_(valueNode.children())
 				for it_2.next() {
 					var valueNodeChild Node = Node_of_(it_2.v)
 					icuPlaceholderNames.add(valueNodeChild.getString())

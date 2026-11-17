@@ -200,7 +200,7 @@ func (this *CoalesceVariableNames) computeVariableNamesInterferenceGraph(cfg *Co
 		interferenceGraph.createNode(obj_(v))
 		interferenceGraphNodes.set(vIndex)
 	}
-	it_4 := foreach_(any(cfg.getNodes()))
+	it_4 := foreach_(cfg.getNodes())
 	for it_4.next() {
 		var cfgNode DiGraph_DiGraphNode = icast_DiGraph_DiGraphNode(it_4.v)
 		if cfg.isImplicitReturn(cfgNode) {
@@ -364,11 +364,11 @@ func (this *CoalesceVariableNames) isUninitializedLetNameInLoopBodyAndLive(nameN
 	}
 	var letNode Node = nameNode.getParent()
 	var cfg *ControlFlowGraph = this.liveness.getCfg()
-	var cfgNode DiGraph_DiGraphNode = icast_DiGraph_DiGraphNode(any(cfg.getNode(letNode.box_())))
+	var cfgNode DiGraph_DiGraphNode = icast_DiGraph_DiGraphNode(cfg.getNode(letNode.box_()))
 	if cfgNode == nil {
 		panic(new_NullPointerException_0().self())
 	}
-	var state *DataFlowAnalysis_LinearFlowState = cast_[*DataFlowAnalysis_LinearFlowState](any(Annotatable_getAnnotation(Annotatable(cfgNode))))
+	var state *DataFlowAnalysis_LinearFlowState = cast_[*DataFlowAnalysis_LinearFlowState](Annotatable_getAnnotation(Annotatable(cfgNode)))
 	if state == nil {
 		panic(new_NullPointerException_0().self())
 	}

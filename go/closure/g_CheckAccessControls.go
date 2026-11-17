@@ -526,7 +526,7 @@ func (this *CheckAccessControls) checkPrivatePropertyVisibility(propRef *CheckAc
 
 func (this *CheckAccessControls) checkProtectedPropertyVisibility(propRef *CheckAccessControls_PropertyReference, ownerType *ObjectType) {
 	if ownerType != nil {
-		it_1 := foreach_(any(this.currentClassStack))
+		it_1 := foreach_(this.currentClassStack)
 		for it_1.next() {
 			var scopeType *JSType = to_JSType(it_1.v)
 			if scopeType == nil {
@@ -1107,7 +1107,7 @@ func (this *CheckAccessControls_PropertyReference) equals(p0 any) bool {
 	if !ok || o == nil {
 		return false
 	}
-	return true && this.sourceNode_ == o.sourceNode_ && this.name_ == o.name_ && objequalsBy_(this.receiverType_, o.receiverType_.self(), (*ObjectType).equals) && this.mutation_ == o.mutation_ && this.declaration_ == o.declaration_ && this.override_ == o.override_ && objequalsDyn_(this.readableTypeName_, any(o.readableTypeName_))
+	return true && this.sourceNode_ == o.sourceNode_ && this.name_ == o.name_ && objequalsBy_(this.receiverType_, o.receiverType_.self(), (*ObjectType).equals) && this.mutation_ == o.mutation_ && this.declaration_ == o.declaration_ && this.override_ == o.override_ && objequalsDyn_(this.readableTypeName_, o.readableTypeName_)
 }
 
 func (this *CheckAccessControls_PropertyReference) hashCode() int32 {

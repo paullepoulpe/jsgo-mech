@@ -113,11 +113,11 @@ func (this *RemoveUnusedCode) storePolyfill(polyfillUsage *PolyfillUsageFinder_P
 }
 
 func (this *RemoveUnusedCode) removeIndependentlyRemovableProperties() {
-	it_1 := foreach_(any(this.removablesForPropertyNames.keySet()))
+	it_1 := foreach_(this.removablesForPropertyNames.keySet())
 	for it_1.next() {
 		var propName string = str_(it_1.v)
 		this.removalLog.log(RemoveUnusedCode_RemovalLogRecord_forProperty(propName).get)
-		it_3 := foreach_(any(this.removablesForPropertyNames.get_s(propName)))
+		it_3 := foreach_(this.removablesForPropertyNames.get_s(propName))
 		for it_3.next() {
 			var removable *RemoveUnusedCode_Removable = to_RemoveUnusedCode_Removable(it_3.v)
 			removable.remove(this.compiler_)
@@ -243,7 +243,7 @@ func (this *RemoveUnusedCode) traverseNormalOrOptChainGetProp(getProp Node, scop
 	var objectNode Node = getProp.getFirstChild()
 	var propertyName string = getProp.getString()
 	if this.polyfills.containsKey_s(propertyName) {
-		it_1 := foreach_(any(this.polyfills.get_s(propertyName)))
+		it_1 := foreach_(this.polyfills.get_s(propertyName))
 		for it_1.next() {
 			var info *RemoveUnusedCode_PolyfillInfo = to_RemoveUnusedCode_PolyfillInfo(it_1.v)
 			if info.isRemovable_ {
@@ -338,7 +338,7 @@ func (this *RemoveUnusedCode) traverseCompoundAssign(compoundAssignNode Node, sc
 
 func (this *RemoveUnusedCode) traverseNameNode(n Node, scope *Scope) RemoveUnusedCode_VarInfo {
 	if this.polyfills.containsKey_s(n.getString()) {
-		it_1 := foreach_(any(this.polyfills.get_s(n.getString())))
+		it_1 := foreach_(this.polyfills.get_s(n.getString()))
 		for it_1.next() {
 			var info *RemoveUnusedCode_PolyfillInfo = to_RemoveUnusedCode_PolyfillInfo(it_1.v)
 			if info.isRemovable_ {
@@ -1023,7 +1023,7 @@ func (this *RemoveUnusedCode) removeUnreferencedFunctionArgs(fparamScope *Scope)
 
 func (this *RemoveUnusedCode) markPropertyNameAsPinned(propertyName string) {
 	if setAdd_(this.pinnedPropertyNames, propertyName) {
-		it_1 := foreach_(any(this.removablesForPropertyNames.removeAll_s(propertyName)))
+		it_1 := foreach_(this.removablesForPropertyNames.removeAll_s(propertyName))
 		for it_1.next() {
 			var removable *RemoveUnusedCode_Removable = to_RemoveUnusedCode_Removable(it_1.v)
 			removable.applyContinuations()

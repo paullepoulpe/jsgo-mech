@@ -303,7 +303,7 @@ func (this *Es6RewriteClass) visitMethod(member Node, metadata *Es6RewriteClass_
 }
 
 func (this *Es6RewriteClass) addTypeDeclarations(metadata *Es6RewriteClass_ClassDeclarationMetadata, insertionPoint Node) {
-	it_1 := foreach_(any(metadata.classMembersToDeclare().values()))
+	it_1 := foreach_(metadata.classMembersToDeclare().values())
 	for it_1.next() {
 		var property *Es6RewriteClass_ClassProperty = cast_[*Es6RewriteClass_ClassProperty](it_1.v)
 		var declaration Node = property.getDeclaration(this.astFactory_, metadata.fullClassNameNode().cloneTree())

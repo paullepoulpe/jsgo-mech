@@ -44,7 +44,7 @@ func ProductionInstrumentationReporter_readFile(filePath string) *Outcome_base {
 
 func (this *ProductionInstrumentationReporter) getAllExecutionResults(folder string) *Outcome_base {
 	var result ImmutableList_BuilderOf[MapOf[string, BoxedOf[int64]]] = ImmutableList_builder()
-	it_1 := foreach_(any(Io_listFiles(folder)))
+	it_1 := foreach_(Io_listFiles(folder))
 	for it_1.next() {
 		var fileEntry string = str_(it_1.v)
 		var executionResult *Outcome_base = ProductionInstrumentationReporter_readFile(FilePaths_toAbsolute(FilePaths_resolve(folder, fileEntry)))
@@ -68,7 +68,7 @@ func ProductionInstrumentationReporter_parseJsonStringToLongMap(json string) *Ou
 	var document *SimpleJsonValue = cast_[*SimpleJsonValue](parsed.get())
 	var map_ MapOf[string, BoxedOf[int64]] = new_LinkedHashMap()
 	if document.kind() == SimpleJsonValue_Kind_OBJECT {
-		it_1 := foreach_(any(document.members().entrySet()))
+		it_1 := foreach_(document.members().entrySet())
 		for it_1.next() {
 			var member Map_Entry = icast_Map_Entry(it_1.v)
 			var value *Outcome_base = ProductionInstrumentationReporter_readJsonLong(cast_[*SimpleJsonValue](member.getValue()))
@@ -81,7 +81,7 @@ func ProductionInstrumentationReporter_parseJsonStringToLongMap(json string) *Ou
 	} else if document.kind() != SimpleJsonValue_Kind_ARRAY {
 		return Outcome_base_err(new_SimpleJsonException("Malformed report: expected a JSON object").up_Throwable())
 	}
-	it_3 := foreach_(any(document.elements()))
+	it_3 := foreach_(document.elements())
 	for it_3.next() {
 		var pair *SimpleJsonValue = cast_[*SimpleJsonValue](it_3.v)
 		if (pair.kind() != SimpleJsonValue_Kind_ARRAY) || (pair.elements().size() != 2) {

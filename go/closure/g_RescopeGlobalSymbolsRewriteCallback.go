@@ -418,7 +418,7 @@ func (this *RescopeGlobalSymbolsRewriteCallback) declareLocalAliasesAndWrappers(
 	}
 	var cleanupHelperName string = this.getCleanupHelperPropertyName()
 	var needsCleanupHelper bool = false
-	it_3 := foreach_(any(chunkGraph.getAllChunks()))
+	it_3 := foreach_(chunkGraph.getAllChunks())
 	for it_3.next() {
 		var chunk *JSChunk = cast_[*JSChunk](it_3.v)
 		if this.declareLocalAliasesAndWrappersForChunk(chunk, wrapperAssignmentChunks, cleanupHelperName) {
@@ -498,7 +498,7 @@ func (this *RescopeGlobalSymbolsRewriteCallback) declareLocalAliasesAndWrappersF
 	if !Iterables_isEmpty(allLocalAliases) {
 		var aliasesToKeep *TList[string] = newTList_(tc_string)
 		var aliasesToDelete *TList[string] = newTList_(tc_string)
-		it_3 := foreach_(any(allLocalAliases))
+		it_3 := foreach_(allLocalAliases)
 		for it_3.next() {
 			var name string = str_(it_3.v)
 			if this.optimizeLocalAccess.shouldDeleteGlobalsOnLastAccess() && this.canDeleteFromGlobalNamespace(chunk, name) {
@@ -511,7 +511,7 @@ func (this *RescopeGlobalSymbolsRewriteCallback) declareLocalAliasesAndWrappersF
 		var outputFeatures *FeatureSet = this.compiler_.getOptions().getOutputFeatureSet()
 		if (outputFeatures.contains(FeatureSet_Feature_OBJECT_DESTRUCTURING) && outputFeatures.contains(FeatureSet_Feature_FOR_OF)) && outputFeatures.contains(FeatureSet_Feature_LET_DECLARATIONS) {
 			var objectPattern Node = IR_objectPattern([]Node{})
-			it_5 := foreach_(any(localAliases))
+			it_5 := foreach_(localAliases)
 			for it_5.next() {
 				var name string = str_(it_5.v)
 				var stringKey Node = IR_stringKey_String_Node(name, IR_name(name))
@@ -558,7 +558,7 @@ func (this *RescopeGlobalSymbolsRewriteCallback) canDeleteFromGlobalNamespace(cu
 		return false
 	}
 	var chunkGraph *JSChunkGraph = this.compiler_.getChunkGraph()
-	it_1 := foreach_(any(usingChunks))
+	it_1 := foreach_(usingChunks)
 	for it_1.next() {
 		var otherChunk *JSChunk = cast_[*JSChunk](it_1.v)
 		if !equalsId_(otherChunk, currentChunk) && !chunkGraph.dependsOn(currentChunk, otherChunk) {

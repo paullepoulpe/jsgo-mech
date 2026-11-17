@@ -24,7 +24,7 @@ func (this *ReplaceIdGenerators) init_ReplaceIdGenerators(compiler *AbstractComp
 	var previousMap *TMap[string, *SimpleBiMap] = IdMappingUtil_parseSerializedIdMappings(previousMapSerialized)
 	this.previousMap = previousMap
 	if idGens != nil {
-		it_1 := foreach_(any(idGens.asMap().entrySet()))
+		it_1 := foreach_(idGens.asMap().entrySet())
 	L_2:
 		for it_1.next() {
 			var gen Map_Entry = icast_Map_Entry(it_1.v)

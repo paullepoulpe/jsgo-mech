@@ -418,7 +418,7 @@ func (this *FunctionType) addRelatedInterfaces(instance *ObjectType, set *TSet[*
 		if !set.add(instance) {
 			return
 		}
-		it_1 := foreach_(any(instance.getCtorExtendedInterfaces()))
+		it_1 := foreach_(instance.getCtorExtendedInterfaces())
 		for it_1.next() {
 			var interfaceType *ObjectType = to_ObjectType(it_1.v)
 			this.addRelatedInterfaces(interfaceType, set)
@@ -904,7 +904,7 @@ func FunctionType_updatePropertyTypeMap(type_ *FunctionType, propTypeMap *TMap[s
 	var prototype *ObjectType = type_.getPrototype()
 	if prototype != nil {
 		var propNames SetOf[string] = prototype.getOwnPropertyNames()
-		it_1 := foreach_(any(propNames))
+		it_1 := foreach_(propNames)
 		for it_1.next() {
 			var name string = str_(it_1.v)
 			if !propTypeMap.containsKey(name) {

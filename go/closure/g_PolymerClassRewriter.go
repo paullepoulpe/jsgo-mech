@@ -438,7 +438,7 @@ func (this *PolymerClassRewriter) appendBehaviorPropertiesToBlock(cls *PolymerCl
 	if ((cls.behaviors == nil) || len(cls.behaviors) == 0) || (cls.behaviorProps == nil) {
 		return
 	}
-	it_1 := foreach_(any(cls.behaviorProps.asMap().entrySet()))
+	it_1 := foreach_(cls.behaviorProps.asMap().entrySet())
 	for it_1.next() {
 		var itr Map_Entry = icast_Map_Entry(it_1.v)
 		var behavior *PolymerBehaviorExtractor_BehaviorDefinition = cast_[*PolymerBehaviorExtractor_BehaviorDefinition](itr.getValue())

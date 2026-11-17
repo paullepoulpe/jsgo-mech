@@ -231,7 +231,7 @@ func (this *AbstractScope) getAllAccessibleVariables() IterableOf[any] {
 	var accessibleVars *TMap[string, any] = newTMap_(tc_string, tc_any)
 	var s *AbstractScope = this.thisScope()
 	for s != nil {
-		it_2 := foreach_(any(s.getVarIterable()))
+		it_2 := foreach_(s.getVarIterable())
 		for it_2.next() {
 			var v *AbstractVar = to_AbstractVar(it_2.v)
 			accessibleVars.putIfAbsent(v.getName(), v.self())

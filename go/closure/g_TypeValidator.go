@@ -447,7 +447,7 @@ func (this *TypeValidator) expectUndeclaredVariable(sourceName OptionalOf[string
 
 func (this *TypeValidator) expectAllInterfaceProperties(n Node, type_ *FunctionType) {
 	var instance *ObjectType = type_.getInstanceType()
-	it_1 := foreach_(any(type_.getAllImplementedInterfaces()))
+	it_1 := foreach_(type_.getAllImplementedInterfaces())
 	for it_1.next() {
 		var implemented *ObjectType = to_ObjectType(it_1.v)
 		this.expectInterfaceProperties(n, instance, implemented)
@@ -546,7 +546,7 @@ func (this *TypeValidator) expectAbstractMethodsImplemented(n Node, ctorType *Fu
 		currSuperCtor = currSuperCtor.getSuperClassConstructor()
 	}
 	var instance *ObjectType = ctorType.getInstanceType()
-	it_4 := foreach_(any(abstractMethodSuperTypeMap.asMap().entrySet()))
+	it_4 := foreach_(abstractMethodSuperTypeMap.asMap().entrySet())
 	for it_4.next() {
 		var entry Map_Entry = icast_Map_Entry(it_4.v)
 		var method Property_Key = icast_Property_Key(entry.getKey())

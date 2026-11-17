@@ -74,7 +74,7 @@ func (this *AbstractPeepholeOptimization) beginTraversal_impl(compiler *Abstract
 
 func (this *AbstractPeepholeOptimization) endTraversal() {
 	if ok_, a1_, a2_ := this.newFeatures.isEmpty(), this.newFeatures.asSet(), Object_getClass(this.self()).getName(); !ok_ {
-		panic(new_IllegalStateException_String(Strings_lenientFormat("Expected getNewFeatures() to be empty in endTraversal() but found %s for %s", []any{obj_(a1_), strobj_(a2_)})).self())
+		panic(new_IllegalStateException_String(Strings_lenientFormat("Expected getNewFeatures() to be empty in endTraversal() but found %s for %s", []any{a1_, strobj_(a2_)})).self())
 	}
 	this.compiler_ = nil
 	this.astAnalyzer = nil

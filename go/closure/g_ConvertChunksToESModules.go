@@ -28,7 +28,7 @@ func new_ConvertChunksToESModules(compiler *AbstractCompiler) *ConvertChunksToES
 
 func (this *ConvertChunksToESModules) process_2(externs Node, root Node) {
 	NodeTraversal_traverse(this.compiler_, root, new_ConvertChunksToESModules_FindCrossChunkReferences(this))
-	it_1 := foreach_(any(this.compiler_.getChunkGraph().getAllChunks()))
+	it_1 := foreach_(this.compiler_.getChunkGraph().getAllChunks())
 	for it_1.next() {
 		var chunk *JSChunk = cast_[*JSChunk](it_1.v)
 		if (!this.crossChunkExports.containsKey(chunk) && !this.crossChunkImports.containsKey(chunk)) && !chunk.getInputs().isEmpty() {
@@ -43,7 +43,7 @@ func (this *ConvertChunksToESModules) process_2(externs Node, root Node) {
 }
 
 func (this *ConvertChunksToESModules) convertChunkSourcesToModules() {
-	it_1 := foreach_(any(this.compiler_.getChunkGraph().getAllChunks()))
+	it_1 := foreach_(this.compiler_.getChunkGraph().getAllChunks())
 	for it_1.next() {
 		var chunk *JSChunk = cast_[*JSChunk](it_1.v)
 		if chunk.getInputs().isEmpty() {
@@ -85,7 +85,7 @@ func (this *ConvertChunksToESModules) convertChunkSourcesToModules() {
 }
 
 func (this *ConvertChunksToESModules) addExportStatements() {
-	it_1 := foreach_(any(this.crossChunkExports.asMap().entrySet()))
+	it_1 := foreach_(this.crossChunkExports.asMap().entrySet())
 	for it_1.next() {
 		var jsModuleExports Map_Entry = icast_Map_Entry(it_1.v)
 		var firstInput *CompilerInput = cast_[*JSChunk](jsModuleExports.getKey()).getFirst()
@@ -94,7 +94,7 @@ func (this *ConvertChunksToESModules) addExportStatements() {
 			panic(new_IllegalStateException_0().self())
 		}
 		var exportSpecs Node = new_Node_Token(Token_rhino_EXPORT_SPECS)
-		it_3 := foreach_(any(icast_Set(jsModuleExports.getValue())))
+		it_3 := foreach_(icast_Set(jsModuleExports.getValue()))
 		for it_3.next() {
 			var name string = str_(it_3.v)
 			var exportSpec Node = new_Node_Token(Token_rhino_EXPORT_SPEC)
@@ -117,7 +117,7 @@ func ConvertChunksToESModules_getChunkName(chunk *JSChunk) string {
 }
 
 func (this *ConvertChunksToESModules) addImportStatements() {
-	it_1 := foreach_(any(this.crossChunkImports.asMap().entrySet()))
+	it_1 := foreach_(this.crossChunkImports.asMap().entrySet())
 	for it_1.next() {
 		var chunkImportsEntry Map_Entry = icast_Map_Entry(it_1.v)
 		var importStatements []Node = []Node{}
@@ -127,11 +127,11 @@ func (this *ConvertChunksToESModules) addImportStatements() {
 		if moduleBody == 0 || !moduleBody.isModuleBody() {
 			panic(new_IllegalStateException_0().self())
 		}
-		it_3 := foreach_(any(icast_Map(chunkImportsEntry.getValue()).entrySet()))
+		it_3 := foreach_(icast_Map(chunkImportsEntry.getValue()).entrySet())
 		for it_3.next() {
 			var importsByChunk Map_Entry = icast_Map_Entry(it_3.v)
 			var importSpecs Node = new_Node_Token(Token_rhino_IMPORT_SPECS)
-			it_5 := foreach_(any(icast_Set(importsByChunk.getValue())))
+			it_5 := foreach_(icast_Set(importsByChunk.getValue()))
 			for it_5.next() {
 				var name string = str_(it_5.v)
 				var importSpec Node = new_Node_Token(Token_rhino_IMPORT_SPEC)

@@ -24,7 +24,7 @@ func new_PrebuildDependencyInfo(numParalleThreads int32) *PrebuildDependencyInfo
 // Futures.allAsList(...).get() reports it: an ExecutionException of it, in a RuntimeException.
 func (this *PrebuildDependencyInfo) prebuild(allInputs IterableOf[*CompilerInput]) {
 	var failed *Throwable
-	it_1 := foreach_(any(allInputs))
+	it_1 := foreach_(allInputs)
 	for it_1.next() {
 		var input *CompilerInput = cast_[*CompilerInput](it_1.v)
 		func() {

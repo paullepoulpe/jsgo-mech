@@ -362,7 +362,7 @@ func (this *Es6RewriteBlockScopedDeclaration_LoopClosureTransformer) updateNames
 
 func (this *Es6RewriteBlockScopedDeclaration_LoopClosureTransformer) createWrapperFunctions() *TSet[Node] {
 	var wrapperFunctions *TSet[Node] = newTSet_(tc_Node)
-	it_1 := foreach_(any(this.nodesRequiringLoopObjectsClosureMap.keySet()))
+	it_1 := foreach_(this.nodesRequiringLoopObjectsClosureMap.keySet())
 	for it_1.next() {
 		var functionOrObjectLit Node = Node_of_(it_1.v)
 		if functionOrObjectLit.isObjectLit() {
@@ -394,7 +394,7 @@ func (this *Es6RewriteBlockScopedDeclaration_LoopClosureTransformer) createWrapp
 		var parameterNames []Node = make([]Node, objects.size())
 		var objectNamesForCall []Node = make([]Node, objects.size())
 		var loopObjectIndex int32 = 0
-		it_4 := foreach_(any(objects))
+		it_4 := foreach_(objects)
 		for it_4.next() {
 			var object *Es6RewriteBlockScopedDeclaration_LoopClosureTransformer_LoopObject = cast_[*Es6RewriteBlockScopedDeclaration_LoopClosureTransformer_LoopObject](it_4.v)
 			parameterNames[loopObjectIndex] = this.createUniqueParameterNameToUseWithinLoop(functionOrObjectLit, object)
@@ -457,7 +457,7 @@ func (this *Es6RewriteBlockScopedDeclaration_LoopClosureTransformer) changeLoopL
 	for it_1.next() {
 		var var_ *Var = it_1.v
 		var newPropertyName string = this.getLoopObjPropName(var_)
-		it_3 := foreach_(any(this.referenceMap.get(obj_(var_))))
+		it_3 := foreach_(this.referenceMap.get(obj_(var_)))
 		for it_3.next() {
 			var reference Node = Node_of_(it_3.v)
 			if loopNode.isForOf() {

@@ -107,7 +107,7 @@ var tc_p_ProfilingReport_InstrumentationPointMetrics = &tconv_[*ProfilingReport_
 }}
 var tc_p_Property = &tconv_[*Property]{box: func(v *Property) any { return obj_(v) }, unbox: func(v any) *Property { return cast_[*Property](v) }}
 var tch_Property_Key = &tconv_[Property_Key]{box: func(v Property_Key) any { return v }, unbox: func(v any) Property_Key { return icast_Property_Key(v) },
-	hash: func(v Property_Key) int32 { return objhashVia_(v) }, eq: func(a, b Property_Key) bool { return objequalsVia_(a, any(b)) }}
+	hash: func(v Property_Key) int32 { return objhashVia_(v) }, eq: func(a, b Property_Key) bool { return objequalsVia_(a, b) }}
 var tch_p_Color = &tconv_[*Color]{box: func(v *Color) any { return obj_(v) }, unbox: func(v any) *Color { return cast_[*Color](v) },
 	hash: func(v *Color) int32 { return objhashVia_(v) }, eq: func(a, b *Color) bool { return objequalsVia_(a, obj_(b)) }}
 var tch_p_ColorId = &tconv_[*ColorId]{box: func(v *ColorId) any { return obj_(v) }, unbox: func(v any) *ColorId { return cast_[*ColorId](v) },

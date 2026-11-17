@@ -62,7 +62,7 @@ func (this *TemplatizedType) getTypeClass_impl() JSTypeClass {
 
 func (this *TemplatizedType) getCtorImplementedInterfaces_impl() IterableOf[*ObjectType] {
 	var resolvedImplementedInterfaces *TSet[*ObjectType] = newTSet_(tch_p_ObjectType)
-	it_1 := foreach_(any(this.getReferencedObjTypeInternal().getCtorImplementedInterfaces()))
+	it_1 := foreach_(this.getReferencedObjTypeInternal().getCtorImplementedInterfaces())
 	for it_1.next() {
 		var obj *ObjectType = to_ObjectType(it_1.v)
 		resolvedImplementedInterfaces.add(to_JSType(obj.visit(icast_Visitor(obj_(this.replacer)))).toObjectType())
@@ -72,7 +72,7 @@ func (this *TemplatizedType) getCtorImplementedInterfaces_impl() IterableOf[*Obj
 
 func (this *TemplatizedType) getCtorExtendedInterfaces_impl() IterableOf[*ObjectType] {
 	var resolvedExtendedInterfaces *TSet[*ObjectType] = newTSet_(tch_p_ObjectType)
-	it_1 := foreach_(any(this.getReferencedObjTypeInternal().getCtorExtendedInterfaces()))
+	it_1 := foreach_(this.getReferencedObjTypeInternal().getCtorExtendedInterfaces())
 	for it_1.next() {
 		var obj *ObjectType = to_ObjectType(it_1.v)
 		resolvedExtendedInterfaces.add(to_JSType(obj.visit(icast_Visitor(obj_(this.replacer)))).toObjectType())

@@ -77,7 +77,7 @@ func (this *FixingErrorManager) containsFixableShorthandModuleWarning() bool {
 			return true
 		}
 	}
-	it_3 := foreach_(any(this.multiFixes.keySet()))
+	it_3 := foreach_(this.multiFixes.keySet())
 	for it_3.next() {
 		var error_ *JSError = cast_[*JSError](it_3.v)
 		if error_.type_().equals(obj_(ClosureCheckModule_REFERENCE_TO_SHORT_IMPORT_BY_LONG_NAME_INCLUDING_SHORT_NAME)) {

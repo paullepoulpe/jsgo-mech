@@ -34,7 +34,7 @@ func (this *ExtractPrototypeMemberDeclarations) maybeDoExtraction(info *ExtractP
 		injectionPoint.addChildToFront(var_)
 		this.compiler_.reportChangeToEnclosingScope(var_)
 	}
-	it_1 := foreach_(any(info.instancesByChunk.asMap().entrySet()))
+	it_1 := foreach_(info.instancesByChunk.asMap().entrySet())
 	for it_1.next() {
 		var entry Map_Entry = icast_Map_Entry(it_1.v)
 		var alias string = ExtractPrototypeMemberDeclarations_PROTOTYPE_ALIAS

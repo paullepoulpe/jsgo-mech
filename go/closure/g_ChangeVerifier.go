@@ -246,7 +246,7 @@ func (this *ChangeVerifier_EqualsResult) equals(p0 any) bool {
 	if !ok || o == nil {
 		return false
 	}
-	return true && this.equals_ == o.equals_ && this.errorNode_ == o.errorNode_ && objequalsDyn_(this.errorMessage_, any(o.errorMessage_))
+	return true && this.equals_ == o.equals_ && this.errorNode_ == o.errorNode_ && objequalsDyn_(this.errorMessage_, o.errorMessage_)
 }
 
 func (this *ChangeVerifier_EqualsResult) hashCode() int32 {

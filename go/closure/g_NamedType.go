@@ -324,7 +324,7 @@ func (this *NamedType) localVariableShadowsGlobalNamespace(root string) bool {
 	var rootVar StaticSlot = this.resolutionScope.getSlot(root)
 	if rootVar != nil {
 		if rootVar.getScope() == nil {
-			panic(new_NullPointerException_String(objstr_(any(rootVar))).self())
+			panic(new_NullPointerException_String(objstr_(rootVar)).self())
 		}
 		var parent StaticScope = rootVar.getScope().getParentScope()
 		if parent != nil {

@@ -33,7 +33,7 @@ func (this *UseSiteRenamer) renameUses(prop *PropertyClustering) UseSiteRenamer_
 		return UseSiteRenamer_RenameUsesResult_ONLY_ONE_CLUSTER
 	}
 	this.renamingIndex.putAll_2(strobj_(prop.getName()), Iterable(clusterNames.values()))
-	it_1 := foreach_(any(prop.getUseSites().asMap().entrySet()))
+	it_1 := foreach_(prop.getUseSites().asMap().entrySet())
 	for it_1.next() {
 		var usage Map_Entry = icast_Map_Entry(it_1.v)
 		var site Node = Node_of_(usage.getKey())

@@ -297,12 +297,12 @@ func new_RuntimeJsLibManager_FieldsTable() *RuntimeJsLibManager_FieldsTable {
 func RuntimeJsLibManager_FieldsTable_loadFields() ImmutableMapOf[string, string] {
 	var transpilationLibsTxt string = ResourceLoader_loadTextResource((sstr_(ResourceLoader_JSCOMP) + "js/transpilation_libs.txt"))
 	var allFields ImmutableMap_BuilderOf[string, string] = ImmutableMap_builder()
-	it_1 := foreach_(any(Splitter_on('\n').omitEmptyStrings().split_s(transpilationLibsTxt)))
+	it_1 := foreach_(Splitter_on('\n').omitEmptyStrings().split_s(transpilationLibsTxt))
 	for it_1.next() {
 		var line string = str_(it_1.v)
 		var tokens []string = sliceImm_(tc_string, Splitter_on(',').limit(2).splitToList_s(line))
 		if int32(len(tokens)) != 2 {
-			panic(new_IllegalStateException_String(objstr_(any(sliceView_(tc_string, tokens)))).self())
+			panic(new_IllegalStateException_String(objstr_(sliceView_(tc_string, tokens))).self())
 		}
 		var fieldName string = sliceAt_(tokens, 0)
 		var resourcePath string = sliceAt_(tokens, 1)

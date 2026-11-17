@@ -98,7 +98,7 @@ func (this *SortedDependencies) getSortedWeakDependenciesOf(rootInputs ListOf[an
 		if !isStrong && !weakInputs.add(input) {
 			continue
 		}
-		it_2 := foreach_(any(edges))
+		it_2 := foreach_(edges)
 		for it_2.next() {
 			var symbolName string = str_(it_2.v)
 			var importedSymbolName DependencyInfo = icast_DependencyInfo(this.exportingInputBySymbolName[symbolName])
@@ -134,12 +134,12 @@ func (this *SortedDependencies) orderInput(input DependencyInfo) {
 		return
 	}
 	this.completedInputs.add(input)
-	it_1 := foreach_(any(this.importedInputByImportingInput.get(input)))
+	it_1 := foreach_(this.importedInputByImportingInput.get(input))
 	for it_1.next() {
 		var importedInput DependencyInfo = icast_DependencyInfo(it_1.v)
 		this.orderInput(importedInput)
 	}
-	this.importOrderedInputs.add(cast_[*CompilerInput](any(input)))
+	this.importOrderedInputs.add(cast_[*CompilerInput](input))
 }
 
 func (this *SortedDependencies) processInputs() {

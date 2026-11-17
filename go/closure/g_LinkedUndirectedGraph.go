@@ -125,7 +125,7 @@ func (this *LinkedUndirectedGraph) getEdges_2_impl(n1 any, n2 any) []UndiGraph_U
 
 func (this *LinkedUndirectedGraph) getEdges_impl() *TList[Graph_GraphEdge] {
 	var result *TList[Graph_GraphEdge] = newTList_(tc_Graph_GraphEdge)
-	it_1 := foreach_(any(this.nodes_.values()))
+	it_1 := foreach_(this.nodes_.values())
 	for it_1.next() {
 		var node *LinkedUndirectedGraph_LinkedUndirectedGraphNode = to_LinkedUndirectedGraph_LinkedUndirectedGraphNode(it_1.v)
 		it_3 := node.getNeighborEdges().each()
@@ -187,7 +187,7 @@ func (this *LinkedUndirectedGraph) isConnectedPredicate(n1 any, edgePredicate Pr
 
 func (this *LinkedUndirectedGraph) getGraphvizEdges() []GraphvizGraph_GraphvizEdge {
 	var edgeList []GraphvizGraph_GraphvizEdge = []GraphvizGraph_GraphvizEdge{}
-	it_1 := foreach_(any(this.nodes_.values()))
+	it_1 := foreach_(this.nodes_.values())
 	for it_1.next() {
 		var node *LinkedUndirectedGraph_LinkedUndirectedGraphNode = to_LinkedUndirectedGraph_LinkedUndirectedGraphNode(it_1.v)
 		it_3 := node.getNeighborEdges().each()
@@ -207,7 +207,7 @@ func (this *LinkedUndirectedGraph) getName() string {
 
 func (this *LinkedUndirectedGraph) getGraphvizNodes() []GraphvizGraph_GraphvizNode {
 	var nodeList []GraphvizGraph_GraphvizNode = make([]GraphvizGraph_GraphvizNode, 0, this.nodes_.size())
-	it_1 := foreach_(any(this.nodes_.values()))
+	it_1 := foreach_(this.nodes_.values())
 	for it_1.next() {
 		var node *LinkedUndirectedGraph_LinkedUndirectedGraphNode = to_LinkedUndirectedGraph_LinkedUndirectedGraphNode(it_1.v)
 		nodeList = append(nodeList, icast_GraphvizGraph_GraphvizNode(node.self()))
