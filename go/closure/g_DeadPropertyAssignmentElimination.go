@@ -83,7 +83,9 @@ func (this *DeadPropertyAssignmentElimination_FunctionVisitor) enterChangedScope
 					assignNode.replaceWith(rhs)
 					compiler.reportChangeToEnclosingScope(rhs)
 				} else {
-					Preconditions_checkState(NodeUtil_isAssignmentOp(assignNode))
+					if !NodeUtil_isAssignmentOp(assignNode) {
+						panic(new_IllegalStateException_0().self())
+					}
 					var opType Token_rhino = NodeUtil_getOpFromAssignmentOp(assignNode)
 					assignNode.setToken(opType)
 					compiler.reportChangeToEnclosingScope(assignNode)
@@ -149,7 +151,9 @@ func (this *DeadPropertyAssignmentElimination_Property) markChildrenRead() {
 }
 
 func (this *DeadPropertyAssignmentElimination_Property) addWrite(lhs Node) {
-	Preconditions_checkArgument(lhs.isQualifiedName())
+	if !lhs.isQualifiedName() {
+		panic(new_IllegalArgumentException_0().self())
+	}
 	SequencedCollection_addLast(SequencedCollection(this.writes), obj_(new_DeadPropertyAssignmentElimination_PropertyWrite(lhs)))
 }
 
@@ -169,7 +173,9 @@ func (this *DeadPropertyAssignmentElimination_PropertyWrite) finit_DeadPropertyA
 
 func (this *DeadPropertyAssignmentElimination_PropertyWrite) init_DeadPropertyAssignmentElimination_PropertyWrite(assignedAt Node) {
 	this.finit_DeadPropertyAssignmentElimination_PropertyWrite()
-	Preconditions_checkArgument(assignedAt.isQualifiedName())
+	if !assignedAt.isQualifiedName() {
+		panic(new_IllegalArgumentException_0().self())
+	}
 	this.assignedAt = assignedAt
 	this.qualifiedName_ = Optional_of[string](assignedAt.getQualifiedName()).filterFn_(func(s string) bool {
 		_ = s
@@ -256,7 +262,9 @@ func (this *DeadPropertyAssignmentElimination_FindCandidateAssignmentTraversal) 
 }
 
 func (this *DeadPropertyAssignmentElimination_FindCandidateAssignmentTraversal) visitBlock(blockNode Node) {
-	Preconditions_checkArgument(blockNode.isBlock())
+	if !blockNode.isBlock() {
+		panic(new_IllegalArgumentException_0().self())
+	}
 	if blockNode.hasChildren() {
 		this.markAllPropsRead()
 	}

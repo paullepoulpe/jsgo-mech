@@ -40,14 +40,14 @@ func (this *Es6ConvertSuperConstructorCalls) shouldTraverse(t *NodeTraversal, n 
 		this.constructorDataStack = append(this.constructorDataStack, new_Es6ConvertSuperConstructorCalls_ConstructorData(n))
 	} else if n.isSuper() {
 		if !n.isFirstChildOf(parent) {
-			Preconditions_checkState_boolean_Object(false, parent.box_())
+			panic(new_IllegalStateException_String(objstr_(parent.box_())).self())
 		}
 		if parent.isGetProp() {
 			t.report(n, TranspilationUtil_CANNOT_CONVERT_YET, []string{"super access with no extends clause"})
 			return false
 		}
 		if !parent.isCall() {
-			Preconditions_checkState_boolean_Object(false, parent.box_())
+			panic(new_IllegalStateException_String(objstr_(parent.box_())).self())
 		}
 		var constructorData *Es6ConvertSuperConstructorCalls_ConstructorData = Preconditions_checkNotNullT(slicePeekTop_(tc_p_Es6ConvertSuperConstructorCalls_ConstructorData, this.constructorDataStack))
 		constructorData.superCalls.add(parent)
@@ -104,7 +104,7 @@ func (this *Es6ConvertSuperConstructorCalls) replaceSuperCallsWithThis(superCall
 		var sideEffectArgs []Node = []Node{}
 		var callee Node = superCall.removeFirstChild()
 		if !callee.isSuper() {
-			Preconditions_checkState_boolean_Object(false, callee.box_())
+			panic(new_IllegalStateException_String(objstr_(callee.box_())).self())
 		}
 		for superCall.hasChildren() {
 			var arg Node = superCall.removeFirstChild()
@@ -129,13 +129,18 @@ func (this *Es6ConvertSuperConstructorCalls) replaceSuperCallsWithThis(superCall
 }
 
 func (this *Es6ConvertSuperConstructorCalls) rewriteSuperCallsToJsCompConstructCalls(constructor Node, superCalls *TList[Node], superClassNameNode Node, thisType AstFactory_Type, uniqueSuperThisName string) {
-	var constructorBody Node = Node_of_(Preconditions_checkNotNull(constructor.getChildAtIndex(2).box_()))
+	var constructorBody Node = constructor.getChildAtIndex(2)
+	if constructorBody == 0 {
+		panic(new_NullPointerException_0().self())
+	}
 	var firstStatement Node = constructorBody.getFirstChild()
-	Preconditions_checkNotNull_Object_Object(firstStatement.box_(), strobj_("Empty constructor body"))
+	if firstStatement == 0 {
+		panic(new_NullPointerException_String("Empty constructor body").self())
+	}
 	var firstSuperCall Node = superCalls.get(0)
 	if ((constructorBody.hasOneChild() && firstStatement.isExprResult()) && firstStatement.hasOneChild()) && (firstStatement.getFirstChild() == firstSuperCall) {
-		if !(superCalls.size() == 1) {
-			Preconditions_checkState_boolean_Object(false, constructor.box_())
+		if superCalls.size() != 1 {
+			panic(new_IllegalStateException_String(objstr_(constructor.box_())).self())
 		}
 		firstStatement.replaceWith(this.astFactory_.createReturn(this.createJSCompConstructorCall(superClassNameNode, firstSuperCall, thisType)))
 	} else {
@@ -187,12 +192,15 @@ func (this *Es6ConvertSuperConstructorCalls) rewriteSuperAndPreserveReturnedThis
 		this.rewriteSuperCallsToJsCompConstructCalls(constructor, superCalls, superClassNameNode, thisType, uniqueSuperThisName)
 		return
 	}
-	var constructorBody Node = Node_of_(Preconditions_checkNotNull(constructor.getChildAtIndex(2).box_()))
+	var constructorBody Node = constructor.getChildAtIndex(2)
+	if constructorBody == 0 {
+		panic(new_NullPointerException_0().self())
+	}
 	var firstStatement Node = constructorBody.getFirstChild()
 	var firstSuperCall Node = superCalls.get(0)
 	if ((constructorBody.hasOneChild() && firstStatement.isExprResult()) && firstStatement.hasOneChild()) && (firstStatement.getFirstChild() == firstSuperCall) {
-		if !(superCalls.size() == 1) {
-			Preconditions_checkState_boolean_Object(false, constructor.box_())
+		if superCalls.size() != 1 {
+			panic(new_IllegalStateException_String(objstr_(constructor.box_())).self())
 		}
 		var newReturn Node = this.astFactory_.createOr(this.createNewSuperCall(superClassNameNode, superCalls.get(0), AstFactory_type_Node(superCalls.get(0)), AstFactory_typeColor(StandardColors_UNKNOWN)), this.astFactory_.createThis(thisType))
 		firstStatement.replaceWith(IR_returnNode_Node(newReturn).srcrefTreeIfMissing(firstStatement))
@@ -248,14 +256,23 @@ func (this *Es6ConvertSuperConstructorCalls) isKnownToReturnOnlyUndefined(functi
 		declaredValue = declaration
 	} else if NodeUtil_isNameDeclaration(declaration) && declaredVarOrProp.isName() {
 		if declaredVarOrProp.hasChildren() {
-			declaredValue = Node_of_(Preconditions_checkNotNull(declaredVarOrProp.getFirstChild().box_()))
+			declaredValue = declaredVarOrProp.getFirstChild()
+			if declaredValue == 0 {
+				panic(new_NullPointerException_0().self())
+			}
 		} else {
 			return false
 		}
 	} else if declaration.isAssign() && (declaration.getFirstChild() == declaredVarOrProp) {
-		declaredValue = Node_of_(Preconditions_checkNotNull(declaration.getSecondChild().box_()))
+		declaredValue = declaration.getSecondChild()
+		if declaredValue == 0 {
+			panic(new_NullPointerException_0().self())
+		}
 	} else if declaration.isObjectLit() && declaredVarOrProp.hasOneChild() {
-		declaredValue = Node_of_(Preconditions_checkNotNull(declaredVarOrProp.getFirstChild().box_()))
+		declaredValue = declaredVarOrProp.getFirstChild()
+		if declaredValue == 0 {
+			panic(new_NullPointerException_0().self())
+		}
 	} else {
 		panic(new_IllegalStateException_String(("Unexpected declaration format:\n" + sstr_(declaration.toStringTree()))).self())
 	}
@@ -264,7 +281,10 @@ func (this *Es6ConvertSuperConstructorCalls) isKnownToReturnOnlyUndefined(functi
 
 func (this *Es6ConvertSuperConstructorCalls) isNodeKnownToOnlyReturnUndefined(node Node) bool {
 	if node.isFunction() {
-		var functionBody Node = Node_of_(Preconditions_checkNotNull(node.getChildAtIndex(2).box_()))
+		var functionBody Node = node.getChildAtIndex(2)
+		if functionBody == 0 {
+			panic(new_NullPointerException_0().self())
+		}
 		return !new_Es6ConvertSuperConstructorCalls_UndefinedReturnValueCheck(this).mayReturnDefinedValue(functionBody)
 	} else if node.isQualifiedName() {
 		return this.isKnownToReturnOnlyUndefined(node.getQualifiedName())
@@ -280,14 +300,14 @@ func (this *Es6ConvertSuperConstructorCalls) isNodeKnownToOnlyReturnUndefined(no
 
 func (this *Es6ConvertSuperConstructorCalls) createNewSuperCall(superClassQNameNode Node, superCall Node, thisType AstFactory_Type, resultType AstFactory_Type) Node {
 	if !superClassQNameNode.isQualifiedName() {
-		Preconditions_checkArgument_boolean_Object(false, superClassQNameNode.box_())
+		panic(new_IllegalArgumentException_String(objstr_(superClassQNameNode.box_())).self())
 	}
 	if !superCall.isCall() {
-		Preconditions_checkArgument_boolean_Object(false, superCall.box_())
+		panic(new_IllegalArgumentException_String(objstr_(superCall.box_())).self())
 	}
 	var callee Node = superCall.removeFirstChild()
 	if !callee.isSuper() {
-		Preconditions_checkState_boolean_Object(false, callee.box_())
+		panic(new_IllegalStateException_String(objstr_(callee.box_())).self())
 	}
 	var args *TList[Node] = newTList_(tc_Node)
 	var hasSpreadArg bool = false
@@ -324,14 +344,17 @@ func (this *Es6ConvertSuperConstructorCalls) createNewSuperCall(superClassQNameN
 
 func (this *Es6ConvertSuperConstructorCalls) createJSCompConstructorCall(superClassQNameNode Node, superCall Node, thisType AstFactory_Type) Node {
 	if !superClassQNameNode.isQualifiedName() {
-		Preconditions_checkArgument_boolean_Object(false, superClassQNameNode.box_())
+		panic(new_IllegalArgumentException_String(objstr_(superClassQNameNode.box_())).self())
 	}
 	if !superCall.isCall() {
-		Preconditions_checkArgument_boolean_Object(false, superCall.box_())
+		panic(new_IllegalArgumentException_String(objstr_(superCall.box_())).self())
 	}
-	var callee Node = Node_of_(Preconditions_checkNotNull_Object_Object(superCall.removeFirstChild().box_(), superCall.box_()))
+	var callee Node = superCall.removeFirstChild()
+	if callee == 0 {
+		panic(new_NullPointerException_String(objstr_(superCall.box_())).self())
+	}
 	if !callee.isSuper() {
-		Preconditions_checkState_boolean_Object(false, callee.box_())
+		panic(new_IllegalStateException_String(objstr_(callee.box_())).self())
 	}
 	var jscompDotConstruct Node = this.astFactory_.createQName(this.transpilationNamespace, this.jscompConstruct).srcrefTree(callee)
 	var superClassQName Node = superClassQNameNode.cloneTree()
@@ -361,7 +384,7 @@ func (this *Es6ConvertSuperConstructorCalls) replaceNativeErrorSuperCall(superCa
 	var superStatement Node = NodeUtil_getEnclosingStatement(superCall)
 	var body Node = superStatement.getParent()
 	if !body.isBlock() {
-		Preconditions_checkState_boolean_Object(false, body.box_())
+		panic(new_IllegalStateException_String(objstr_(body.box_())).self())
 	}
 	var thisType AstFactory_Type = AstFactory_type_Node(newSuperCall)
 	var tmpErrorName string = (sstr_(Es6ConvertSuperConstructorCalls_TMP_ERROR) + "$" + sstr_(this.uniqueIdSupplier.getUniqueId(compilerInput)))
@@ -415,7 +438,7 @@ func (this *Es6ConvertSuperConstructorCalls) updateThisToSuperThis(typeOfThis As
 
 func (this *Es6ConvertSuperConstructorCalls) getTypeOfThisForConstructor(constructor Node) AstFactory_Type {
 	if !constructor.isFunction() {
-		Preconditions_checkArgument_boolean_Object(false, constructor.box_())
+		panic(new_IllegalArgumentException_String(objstr_(constructor.box_())).self())
 	}
 	var constructorType *Color = constructor.getColor()
 	return func() AstFactory_Type {
@@ -428,7 +451,10 @@ func (this *Es6ConvertSuperConstructorCalls) getTypeOfThisForConstructor(constru
 
 func (this *Es6ConvertSuperConstructorCalls) getSuperClassQNameNode(constructor Node) Node {
 	var className string = NodeUtil_getNameNode(constructor).getQualifiedName()
-	var constructorStatement Node = Node_of_(Preconditions_checkNotNull(NodeUtil_getEnclosingStatement(constructor).box_()))
+	var constructorStatement Node = NodeUtil_getEnclosingStatement(constructor)
+	if constructorStatement == 0 {
+		panic(new_NullPointerException_0().self())
+	}
 	var superClassNameNode Node = 0
 	{
 		var statement Node = constructorStatement.getNext()
@@ -439,7 +465,10 @@ func (this *Es6ConvertSuperConstructorCalls) getSuperClassQNameNode(constructor 
 			}
 		}
 	}
-	return Node_of_(Preconditions_checkNotNull_Object_Object(superClassNameNode.box_(), strobj_("$jscomp.inherits() call not found.")))
+	if superClassNameNode == 0 {
+		panic(new_NullPointerException_String("$jscomp.inherits() call not found.").self())
+	}
+	return superClassNameNode
 }
 
 func (this *Es6ConvertSuperConstructorCalls) getSuperClassNameNodeIfIsInheritsStatement(statement Node, className string) Node {
@@ -454,9 +483,16 @@ func (this *Es6ConvertSuperConstructorCalls) getSuperClassNameNodeIfIsInheritsSt
 	if !this.jscompInherits.matches(jscompDotInherits) {
 		return 0
 	}
-	var classNameNode Node = Node_of_(Preconditions_checkNotNull(jscompDotInherits.getNext().box_()))
+	var classNameNode Node = jscompDotInherits.getNext()
+	if classNameNode == 0 {
+		panic(new_NullPointerException_0().self())
+	}
 	if classNameNode.matchesQualifiedName(className) {
-		return Node_of_(Preconditions_checkNotNull(classNameNode.getNext().box_()))
+		nn_ := classNameNode.getNext()
+		if nn_ == 0 {
+			panic(new_NullPointerException_0().self())
+		}
+		return nn_
 	} else {
 		return 0
 	}

@@ -48,7 +48,9 @@ func new_LightweightMessageFormatter_SourceExcerptProvider(source SourceExcerptP
 func (this *LightweightMessageFormatter) init_LightweightMessageFormatter_SourceExcerptProvider_SourceExcerpt(source SourceExcerptProvider, defaultFormat SourceExcerptProvider_SourceExcerpt) {
 	this.AbstractMessageFormatter.init_AbstractMessageFormatter(source)
 	this.finit_LightweightMessageFormatter()
-	Preconditions_checkNotNull(any(source))
+	if source == nil {
+		panic(new_NullPointerException_0().self())
+	}
 	this.defaultFormat = defaultFormat
 }
 

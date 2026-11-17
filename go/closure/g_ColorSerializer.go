@@ -67,7 +67,9 @@ func (this *ColorSerializer) generateTypePool(getDisambiguationSupertypesFn func
 		}
 	}
 	if this.serializationMode.includeDebugInfo() {
-		Preconditions_checkNotNull(any(getMismatchSourceRefsFn))
+		if getMismatchSourceRefsFn == nil {
+			panic(new_NullPointerException_0().self())
+		}
 		var debugInfoBuilder *TypePool_DebugInfo_Builder = typePoolBuilder.getDebugInfoBuilder()
 		var srcRefToTypePointerList *TMap[string, ArrayListOf[BoxedOf[int32]]] = newTMap_(tc_string, tc_ArrayListOf_BoxedOf_int32__)
 		it_4 := eachOf_(&this.colorsInSerializedOrder)

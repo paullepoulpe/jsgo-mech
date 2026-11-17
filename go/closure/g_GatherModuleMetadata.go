@@ -144,7 +144,9 @@ func new_GatherModuleMetadata_ModuleMetadataBuilder(outer_ *GatherModuleMetadata
 }
 
 func (this *GatherModuleMetadata_ModuleMetadataBuilder) moduleType(type_ ModuleMetadataMap_ModuleType, t *NodeTraversal, n Node) {
-	Preconditions_checkNotNull(obj_(type_))
+	if type_ == 0 {
+		panic(new_NullPointerException_0().self())
+	}
 	if this.metadataBuilder.moduleType() == type_ {
 		return
 	}
@@ -231,7 +233,9 @@ func (this *GatherModuleMetadata_Finder) shouldTraverse(t *NodeTraversal, n Node
 }
 
 func (this *GatherModuleMetadata_Finder) visitImportOrExport(t *NodeTraversal, importOrExport Node) {
-	Preconditions_checkNotNull(obj_(this.outer_.currentModule))
+	if this.outer_.currentModule == nil {
+		panic(new_NullPointerException_0().self())
+	}
 	this.outer_.currentModule.moduleType(ModuleMetadataMap_ModuleType_ES6_MODULE, t, importOrExport)
 	if importOrExport.isImport() || (importOrExport.hasTwoChildren() && importOrExport.getLastChild().isStringLit()) {
 		this.outer_.currentModule.metadataBuilder.es6ImportSpecifiersBuilder().add_s(importOrExport.getLastChild().getString())
@@ -256,7 +260,9 @@ func (this *GatherModuleMetadata_Finder) enterModule(t *NodeTraversal, n Node, p
 }
 
 func (this *GatherModuleMetadata_Finder) leaveModule() {
-	Preconditions_checkNotNull(obj_(this.outer_.currentModule))
+	if this.outer_.currentModule == nil {
+		panic(new_NullPointerException_0().self())
+	}
 	var module *ModuleMetadataMap_ModuleMetadata = this.outer_.currentModule.build()
 	if module.path() != nil {
 		this.outer_.modulesByPath.put(module.path().toString(), module)

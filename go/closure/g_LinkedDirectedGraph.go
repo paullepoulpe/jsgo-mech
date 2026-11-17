@@ -270,7 +270,9 @@ func (this *LinkedDirectedGraph) getDirectedPredNodes_impl(nodeValue any) []DiGr
 }
 
 func (this *LinkedDirectedGraph) getDirectedPredNodesDiGraphNode_impl(dNode DiGraph_DiGraphNode) []DiGraph_DiGraphNode {
-	Preconditions_checkNotNull(any(dNode))
+	if dNode == nil {
+		panic(new_NullPointerException_0().self())
+	}
 	var lNode *LinkedDirectedGraph_LinkedDiGraphNode = to_LinkedDirectedGraph_LinkedDiGraphNode(dNode)
 	var nodeList []DiGraph_DiGraphNode = make([]DiGraph_DiGraphNode, 0, lNode.getInEdges().size())
 	it_1 := lNode.getInEdges().each()
@@ -286,7 +288,9 @@ func (this *LinkedDirectedGraph) getDirectedSuccNodes_impl(nodeValue any) []DiGr
 }
 
 func (this *LinkedDirectedGraph) getDirectedSuccNodesDiGraphNode_impl(dNode DiGraph_DiGraphNode) []DiGraph_DiGraphNode {
-	Preconditions_checkNotNull(any(dNode))
+	if dNode == nil {
+		panic(new_NullPointerException_0().self())
+	}
 	var lNode *LinkedDirectedGraph_LinkedDiGraphNode = to_LinkedDirectedGraph_LinkedDiGraphNode(dNode)
 	var nodeList []DiGraph_DiGraphNode = make([]DiGraph_DiGraphNode, 0, lNode.getOutEdges().size())
 	it_1 := lNode.getOutEdges().each()
@@ -468,12 +472,16 @@ func (this *LinkedDirectedGraph_LinkedDiGraphNode) hasPriority() bool {
 }
 
 func (this *LinkedDirectedGraph_LinkedDiGraphNode) getPriority() int32 {
-	Preconditions_checkState_boolean_Object((this.priority >= 0), strobj_("priority not set"))
+	if this.priority < 0 {
+		panic(new_IllegalStateException_String("priority not set").self())
+	}
 	return this.priority
 }
 
 func (this *LinkedDirectedGraph_LinkedDiGraphNode) setPriority(priority int32) {
-	Preconditions_checkArgument_boolean_Object((priority >= 0), strobj_("priorities must be non-negative"))
+	if priority < 0 {
+		panic(new_IllegalArgumentException_String("priorities must be non-negative").self())
+	}
 	this.priority = priority
 }
 

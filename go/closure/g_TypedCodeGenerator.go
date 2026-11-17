@@ -17,7 +17,9 @@ func (this *TypedCodeGenerator) up_CodeGenerator() *CodeGenerator {
 
 func (this *TypedCodeGenerator) init_TypedCodeGenerator(consumer *CodeConsumer, options *CompilerOptions, registry *JSTypeRegistry) {
 	this.CodeGenerator.init_CodeGenerator_CodeConsumer_CompilerOptions(consumer, options)
-	Preconditions_checkNotNull(obj_(registry))
+	if registry == nil {
+		panic(new_NullPointerException_0().self())
+	}
 	this.registry = registry
 	this.jsDocInfoPrinterField = new_JSDocInfoPrinter_boolean(options.getUseOriginalNamesInOutput())
 }
@@ -90,7 +92,9 @@ func (this *TypedCodeGenerator) getTypeAnnotation(node Node) string {
 
 func (this *TypedCodeGenerator) getFunctionAnnotation(fnNode Node) string {
 	var type_ *JSType = fnNode.getJSType()
-	Preconditions_checkState((fnNode.isFunction() || type_.isFunctionType()))
+	if !fnNode.isFunction() && !type_.isFunctionType() {
+		panic(new_IllegalStateException_0().self())
+	}
 	if (type_ == nil) || type_.isUnknownType() {
 		return ""
 	}
@@ -131,8 +135,8 @@ func (this *TypedCodeGenerator) getFunctionAnnotation(fnNode Node) string {
 }
 
 func (this *TypedCodeGenerator) getMemberFunctionAnnotation(fnNode Node) string {
-	if !(fnNode.isFunction() && fnNode.getParent().isMemberFunctionDef()) {
-		Preconditions_checkState_boolean_Object(false, fnNode.box_())
+	if !fnNode.isFunction() || !fnNode.getParent().isMemberFunctionDef() {
+		panic(new_IllegalStateException_String(objstr_(fnNode.box_())).self())
 	}
 	var type_ *JSType = fnNode.getJSType()
 	if (type_ == nil) || type_.isUnknownType() {
@@ -177,7 +181,7 @@ func (this *TypedCodeGenerator) getClassAnnotation(classType *JSType) string {
 		return ""
 	}
 	if !classType.isFunctionType() {
-		Preconditions_checkState_boolean_Object(false, classType.self())
+		panic(new_IllegalStateException_String(objstr_(classType.self())).self())
 	}
 	var funType *FunctionType = classType.toMaybeFunctionType()
 	var sb *StringBuilder = new_StringBuilder()
@@ -185,7 +189,7 @@ func (this *TypedCodeGenerator) getClassAnnotation(classType *JSType) string {
 		this.appendInterfaceAnnotations(sb, funType)
 	} else {
 		if !funType.isConstructor() {
-			Preconditions_checkState_boolean_Object(false, funType.self())
+			panic(new_IllegalStateException_String(objstr_(funType.self())).self())
 		}
 		this.appendClassAnnotations(sb, funType)
 	}
@@ -217,7 +221,7 @@ func (this *TypedCodeGenerator) getParameterJSDocName(paramNode Node, paramIndex
 	var nameNode Node = 0
 	if paramNode != 0 {
 		if !paramNode.getParent().isParamList() {
-			Preconditions_checkArgument_boolean_Object(false, paramNode.box_())
+			panic(new_IllegalArgumentException_String(objstr_(paramNode.box_())).self())
 		}
 		if paramNode.isRest() {
 			paramNode = paramNode.getOnlyChild()
@@ -227,8 +231,8 @@ func (this *TypedCodeGenerator) getParameterJSDocName(paramNode Node, paramIndex
 		if paramNode.isName() {
 			nameNode = paramNode
 		} else {
-			if !(paramNode.isObjectPattern() || paramNode.isArrayPattern()) {
-				Preconditions_checkState_boolean_Object(false, paramNode.box_())
+			if !paramNode.isObjectPattern() && !paramNode.isArrayPattern() {
+				panic(new_IllegalStateException_String(objstr_(paramNode.box_())).self())
 			}
 			nameNode = 0
 		}
@@ -237,7 +241,7 @@ func (this *TypedCodeGenerator) getParameterJSDocName(paramNode Node, paramIndex
 		return ("p" + istr_(int64(paramIndex)))
 	} else {
 		if !nameNode.isName() {
-			Preconditions_checkState_boolean_Object(false, nameNode.box_())
+			panic(new_IllegalStateException_String(objstr_(nameNode.box_())).self())
 		}
 		return nameNode.getString()
 	}

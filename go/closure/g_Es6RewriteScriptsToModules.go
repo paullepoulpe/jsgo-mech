@@ -40,7 +40,9 @@ func (this *Es6RewriteScriptsToModules) process_2(externs Node, root Node) {
 	{
 		var file Node = root.getFirstChild()
 		for ; file != 0; file = file.getNext() {
-			Preconditions_checkArgument(file.isScript())
+			if !file.isScript() {
+				panic(new_IllegalArgumentException_0().self())
+			}
 			NodeTraversal_traverse(this.compiler_, file, this)
 		}
 	}

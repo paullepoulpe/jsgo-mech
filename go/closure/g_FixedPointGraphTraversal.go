@@ -55,7 +55,9 @@ func (this *FixedPointGraphTraversal) computeFixedPointSet(graph *DiGraph, entry
 	for ; !workSet.isEmpty() && (cycleCount < maxIterations); cycleCount++ {
 		this.visitNode(icast_DiGraph_DiGraphNode(SequencedCollection_getFirst(workSet.asSet())), workSet)
 	}
-	Preconditions_checkState_boolean_Object((cycleCount != maxIterations), strobj_(FixedPointGraphTraversal_NON_HALTING_ERROR_MSG))
+	if cycleCount == maxIterations {
+		panic(new_IllegalStateException_String(FixedPointGraphTraversal_NON_HALTING_ERROR_MSG).self())
+	}
 }
 
 func (this *FixedPointGraphTraversal) visitNode(node DiGraph_DiGraphNode, workSet *TSet[DiGraph_DiGraphNode]) {

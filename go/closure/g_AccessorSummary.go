@@ -40,7 +40,9 @@ func AccessorSummary_createAssumingAlwaysGetterAndSetter() *AccessorSummary {
 func (this *AccessorSummary) toProto() *AccessorSummaryProto {
 	var builder *AccessorSummaryProto_Builder = AccessorSummaryProto_newBuilder().setAssumeAlwaysGetterAndSetter(this.assumeAlwaysGetterAndSetter)
 	if this.assumeAlwaysGetterAndSetter {
-		Preconditions_checkState(this.accessors.isEmpty())
+		if !this.accessors.isEmpty() {
+			panic(new_IllegalStateException_0().self())
+		}
 	} else {
 		it_1 := foreach_(obj_(cast_[*ImmutableSet](this.accessors.entrySet())))
 		for it_1.next() {

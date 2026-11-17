@@ -49,7 +49,9 @@ func ApplySuggestedFixes_applyAllSuggestedFixChoicesToCode(fixChoices IterableOf
 		return sliceOf_(tc_ImmutableMapOf_string__string_, ImmutableMap_of())
 	}
 	var alternativeCount int32 = cast_[*SuggestedFix](Iterables_getFirst(fixChoices, nil)).getAlternatives().size()
-	Preconditions_checkArgument_boolean_Object(ApplySuggestedFixes_allHaveAlternativeCount(fixChoices, alternativeCount), strobj_("All SuggestedFixAlternatives must offer an equal number of choices for this utility to make sense"))
+	if !ApplySuggestedFixes_allHaveAlternativeCount(fixChoices, alternativeCount) {
+		panic(new_IllegalArgumentException_String("All SuggestedFixAlternatives must offer an equal number of choices for this utility to make sense").self())
+	}
 	var result []ImmutableMapOf[string, string]
 	for i := int32(0); i < alternativeCount; i++ {
 		result = immAdd_(tc_ImmutableMapOf_string__string_, result, ApplySuggestedFixes_applySuggestedFixChoicesToCode(fixChoices, i, fileNameToCodeMap))
@@ -104,7 +106,7 @@ func ApplySuggestedFixes_applySuggestedFixesToCode(fixes IterableOf[*SuggestedFi
 func ApplySuggestedFixes_applyCodeReplacements(replacements CollectionOf[*CodeReplacement], code string) string {
 	var sortedReplacements ImmutableSortedSetOf[*CodeReplacement] = ImmutableSortedSet_copyOf(replacements)
 	if ok_, a1_ := !ApplySuggestedFixes_containsOverlaps(sortedReplacements), ApplySuggestedFixes_DOUBLE_LINE_JOINER.join(icast_Iterable(obj_(sortedReplacements))); !ok_ {
-		Preconditions_checkArgument_boolean_String_Object(false, "Found overlap between code replacements:\n%s", strobj_(a1_))
+		panic(new_IllegalArgumentException_String(Strings_lenientFormat("Found overlap between code replacements:\n%s", []any{strobj_(a1_)})).self())
 	}
 	var sb *StringBuilder = new_StringBuilder()
 	var lastIndex int32 = 0

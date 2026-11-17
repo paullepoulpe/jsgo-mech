@@ -103,7 +103,9 @@ func (this *EsModuleProcessor) visitExportNameDeclaration(t *NodeTraversal, expo
 }
 
 func (this *EsModuleProcessor) addExportNameDeclaration(t *NodeTraversal, lhs Node, export Node) {
-	Preconditions_checkState(lhs.isName())
+	if !lhs.isName() {
+		panic(new_IllegalStateException_0().self())
+	}
 	var name string = lhs.getString()
 	if !this.currentModuleBuilder.add(Export_builder().exportName(Optional_of[string](name)).moduleRequest(Optional_empty[string]()).importName(Optional_empty[string]()).localName(Optional_of[string](name)).modulePath(t.getInput().getPath()).exportNode(export).nameNode(lhs).moduleMetadata(this.metadata_).build()) {
 		t.report(export, EsModuleProcessor_DUPLICATE_EXPORT, []string{name})
@@ -111,7 +113,9 @@ func (this *EsModuleProcessor) addExportNameDeclaration(t *NodeTraversal, lhs No
 }
 
 func (this *EsModuleProcessor) visitExportFunctionOrClass(t *NodeTraversal, export Node, declaration Node) {
-	Preconditions_checkState((declaration.isFunction() || declaration.isClass()))
+	if !declaration.isFunction() && !declaration.isClass() {
+		panic(new_IllegalStateException_0().self())
+	}
 	var nameNode Node = declaration.getFirstChild()
 	var name string = nameNode.getString()
 	if !this.currentModuleBuilder.add(Export_builder().exportName(Optional_of[string](name)).moduleRequest(Optional_empty[string]()).importName(Optional_empty[string]()).localName(Optional_of[string](name)).modulePath(t.getInput().getPath()).exportNode(export).nameNode(nameNode).moduleMetadata(this.metadata_).build()) {
@@ -375,7 +379,9 @@ func (this *EsModuleProcessor_UnresolvedEsModule) resolve_2_impl(moduleRequestRe
 			localNameToLocalExport.put(e.localName().orElse(nullstr_), e)
 			if !Object_equals(obj_(Optional_of(strobj_(Export_DEFAULT_EXPORT_NAME))), obj_(optErase_(e.localName()))) {
 				var b *ResolveExportResult = this.resolveExport(moduleRequestResolver, e.exportName())
-				Preconditions_checkState_boolean_Object(b.resolved(), strobj_("Cannot have invalid missing own export!"))
+				if !b.resolved() {
+					panic(new_IllegalStateException_String("Cannot have invalid missing own export!").self())
+				}
 				if !b.isAmbiguous() {
 					boundNames.put(e.localName().orElse(nullstr_), b.getBinding())
 				}
@@ -504,7 +510,9 @@ func (this *EsModuleProcessor_UnresolvedEsModule) getAllResolvedExports(moduleRe
 	for it_1.next() {
 		var name string = str_(it_1.v)
 		var b *ResolveExportResult = this.resolveExport(moduleRequestResolver, Optional_of[string](name))
-		Preconditions_checkState_boolean_Object(b.found(), strobj_("Cannot have invalid own export."))
+		if !b.found() {
+			panic(new_IllegalStateException_String("Cannot have invalid own export.").self())
+		}
 		if b.resolved() {
 			exports.put(name, b.getBinding())
 		} else if b.isAmbiguous() {
@@ -554,7 +562,9 @@ func (this *EsModuleProcessor_UnresolvedEsModule) resolveExport_4(moduleRequestR
 			}
 		}
 	}
-	Preconditions_checkState_boolean_Object(!Object_equals(obj_(Optional_of(strobj_(Export_DEFAULT))), obj_(optErase_(exportName))), strobj_("Default export cannot come from export *."))
+	if Object_equals(obj_(Optional_of(strobj_(Export_DEFAULT))), obj_(optErase_(exportName))) {
+		panic(new_IllegalStateException_String("Default export cannot come from export *.").self())
+	}
 	if has_(exportStarSet, this.as_UnresolvedModule()) {
 		this.outer_.compiler_.report(JSError_make_Optional_int_int_DiagnosticType_StringArr(Optional_of[string](this.path_.toString()), -1, -1, EsModuleProcessor_CYCLIC_EXPORT_DEFINITION, []string{exportName.orElse("null")}))
 		return ResolveExportResult_ERROR

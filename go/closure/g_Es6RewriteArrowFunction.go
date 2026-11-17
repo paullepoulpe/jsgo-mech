@@ -45,7 +45,10 @@ func (this *Es6RewriteArrowFunction) shouldTraverse(t *NodeTraversal, n Node, pa
 
 func (this *Es6RewriteArrowFunction) getEnclosingStatement(n Node, block Node) Node {
 	for Node_of_(Preconditions_checkNotNull(n.getParent().box_())) != block {
-		n = Node_of_(Preconditions_checkNotNull(NodeUtil_getEnclosingStatement(n.getParent()).box_()))
+		n = NodeUtil_getEnclosingStatement(n.getParent())
+		if n == 0 {
+			panic(new_NullPointerException_0().self())
+		}
 	}
 	return n
 }
@@ -63,7 +66,9 @@ func (this *Es6RewriteArrowFunction) visit(t *NodeTraversal, n Node, parent Node
 func (this *Es6RewriteArrowFunction) visitArrowFunction(t *NodeTraversal, n Node, context *ThisAndArgumentsReferenceUpdater_ThisAndArgumentsContext) {
 	n.setIsArrowFunction(false)
 	var body Node = n.getLastChild()
-	Preconditions_checkState_boolean_Object(body.isBlock(), strobj_("Arrow function body must be a block after normalization"))
+	if !body.isBlock() {
+		panic(new_IllegalStateException_String("Arrow function body must be a block after normalization").self())
+	}
 	var updater *ThisAndArgumentsReferenceUpdater = new_ThisAndArgumentsReferenceUpdater(this.compiler_, context, this.astFactory_)
 	NodeTraversal_traverse(this.compiler_, body, updater)
 	t.reportCodeChange()

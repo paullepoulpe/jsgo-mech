@@ -262,7 +262,9 @@ func new_JSError_Builder(type_ *DiagnosticType, args []string) *JSError_Builder 
 }
 
 func (this *JSError_Builder) setNode(n Node) *JSError_Builder {
-	Preconditions_checkState_boolean_Object(Object_equals(obj_(JSError_DEFAULT_SOURCENAME), obj_(optErase_(this.sourceName_))), strobj_("Cannot provide a Node when there's already a source name"))
+	if !Object_equals(obj_(JSError_DEFAULT_SOURCENAME), obj_(optErase_(this.sourceName_))) {
+		panic(new_IllegalStateException_String("Cannot provide a Node when there's already a source name").self())
+	}
 	this.n = n
 	this.sourceName_ = Optional_of[string](n.getSourceFileName()).filterFn_(func(s string) bool {
 		_ = s
@@ -275,7 +277,9 @@ func (this *JSError_Builder) setNode(n Node) *JSError_Builder {
 }
 
 func (this *JSError_Builder) setNodeRange(start Node, end Node) *JSError_Builder {
-	Preconditions_checkState_boolean_Object(Object_equals(obj_(JSError_DEFAULT_SOURCENAME), obj_(optErase_(this.sourceName_))), strobj_("Cannot provide a Node when there's already a source name"))
+	if !Object_equals(obj_(JSError_DEFAULT_SOURCENAME), obj_(optErase_(this.sourceName_))) {
+		panic(new_IllegalStateException_String("Cannot provide a Node when there's already a source name").self())
+	}
 	this.n = start
 	this.sourceName_ = Optional_of[string](this.n.getSourceFileName()).filterFn_(func(s string) bool {
 		_ = s
@@ -302,7 +306,9 @@ func (this *JSError_Builder) setRequirement(requirement *Requirement) *JSError_B
 }
 
 func (this *JSError_Builder) setSourceLocation(sourceName OptionalOf[string], lineno int32, charno int32) *JSError_Builder {
-	Preconditions_checkState_boolean_Object((this.n == JSError_DEFAULT_NODE), strobj_("Cannot provide a source location when there is already a Node"))
+	if this.n != JSError_DEFAULT_NODE {
+		panic(new_IllegalStateException_String("Cannot provide a source location when there is already a Node").self())
+	}
 	this.sourceName_ = sourceName
 	this.lineno_ = lineno
 	this.charno_ = charno

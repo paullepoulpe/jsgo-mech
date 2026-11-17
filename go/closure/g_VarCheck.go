@@ -76,7 +76,9 @@ func (this *VarCheck) visit(t *NodeTraversal, n Node, parent Node) {
 func (this *VarCheck) checkName(t *NodeTraversal, n Node, parent Node) {
 	var varName string = n.getString()
 	if String_isEmpty(varName) {
-		Preconditions_checkState((NodeUtil_isFunctionExpression(parent) || NodeUtil_isMethodDeclaration(parent)))
+		if !NodeUtil_isFunctionExpression(parent) && !NodeUtil_isMethodDeclaration(parent) {
+			panic(new_IllegalStateException_0().self())
+		}
 		return
 	}
 	var scope *Scope = t.getScope()
@@ -132,7 +134,9 @@ func VarCheck_strengthOf(n Node) StaticSourceFile_SourceKind {
 }
 
 func (this *VarCheck) handleUndeclaredVariableRef(t *NodeTraversal, n Node) {
-	Preconditions_checkState(n.isName())
+	if !n.isName() {
+		panic(new_IllegalStateException_0().self())
+	}
 	var varName string = n.getString()
 	if n.getParent().isTypeOf() {
 	} else if varName == VarCheck_JSCOMP_CLOSURE_UNAWARE_CODE_SHADOW_HOST_NAME {

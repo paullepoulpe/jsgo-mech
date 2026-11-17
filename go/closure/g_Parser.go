@@ -374,7 +374,9 @@ func (this *Parser) parseFieldDefinition(elementInfo *ClassOrObjectElementInfo) 
 	if elementInfo.hasName() {
 		return new_FieldDeclarationTree(this.getTreeLocation(elementInfo.start_), elementInfo.getName(), elementInfo.isStatic, initializer).up_ParseTree()
 	} else {
-		Preconditions_checkState(elementInfo.hasNameExpr())
+		if !elementInfo.hasNameExpr() {
+			panic(new_IllegalStateException_0().self())
+		}
 		return new_ComputedPropertyFieldTree(this.getTreeLocation(elementInfo.start_), elementInfo.getNameExpr(), elementInfo.isStatic, initializer).up_ParseTree()
 	}
 	panic("unreachable")
@@ -401,7 +403,9 @@ func (this *Parser) parseMethodDefinition(elementInfo *ClassOrObjectElementInfo,
 	if kind == FunctionDeclarationTree_Kind_MEMBER {
 		return function
 	} else {
-		Preconditions_checkState(elementInfo.hasNameExpr())
+		if !elementInfo.hasNameExpr() {
+			panic(new_IllegalStateException_0().self())
+		}
 		return new_ComputedPropertyMethodTree(this.getTreeLocation(elementInfo.start_), elementInfo.getNameExpr(), function).up_ParseTree()
 	}
 	panic("unreachable")

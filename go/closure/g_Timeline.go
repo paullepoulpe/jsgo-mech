@@ -88,7 +88,9 @@ type Timeline_Event struct {
 }
 
 func (this *Timeline_Event) init_Timeline_Event(value any) {
-	Preconditions_checkNotNull(value)
+	if value == nil {
+		panic(new_NullPointerException_0().self())
+	}
 	this.value_ = value
 }
 

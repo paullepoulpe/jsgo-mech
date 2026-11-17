@@ -48,7 +48,9 @@ func (this *MakeDeclaredNamesUnique) enterScope_impl(t *NodeTraversal) {
 	var declarationRoot Node = t.getScopeRoot()
 	var renamer MakeDeclaredNamesUnique_Renamer
 	if len(this.renamerStack) == 0 {
-		Preconditions_checkState((!declarationRoot.isFunction() || !is_MakeDeclaredNamesUnique_ContextualRenamer(any(this.rootRenamer))))
+		if declarationRoot.isFunction() && is_MakeDeclaredNamesUnique_ContextualRenamer(any(this.rootRenamer)) {
+			panic(new_IllegalStateException_0().self())
+		}
 		renamer = this.rootRenamer
 	} else {
 		var hoist bool = (!declarationRoot.isFunction() && !NodeUtil_createsBlockScope(declarationRoot))
@@ -115,8 +117,8 @@ func (this *MakeDeclaredNamesUnique) getReplacementName(oldName string) Optional
 }
 
 func (this *MakeDeclaredNamesUnique) findDeclaredNames(t *NodeTraversal, n Node) {
-	if !(NodeUtil_createsScope(n) || n.isScript()) {
-		Preconditions_checkState_boolean_Object(false, n.box_())
+	if !NodeUtil_createsScope(n) && !n.isScript() {
+		panic(new_IllegalStateException_String(objstr_(n.box_())).self())
 	}
 	it_1 := foreach_(any(t.getScope().getVarIterable()))
 	for it_1.next() {
@@ -259,8 +261,8 @@ func (this *MakeDeclaredNamesUnique_ContextualRenameInverter) exitScope(t *NodeT
 	for _, declaredVariableInfo := range scopeContext.declared_ {
 		var variableName string = declaredVariableInfo.getName()
 		var oldStackTop MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo = this.variablesStackedByName.popVariableInfo(variableName)
-		if !(oldStackTop == obj_(declaredVariableInfo)) {
-			Preconditions_checkState_boolean_String_Object(false, "Declared variable \"%s\" was not the top of the name stack", strobj_(variableName))
+		if oldStackTop != obj_(declaredVariableInfo) {
+			panic(new_IllegalStateException_String(Strings_lenientFormat("Declared variable \"%s\" was not the top of the name stack", []any{strobj_(variableName)})).self())
 		}
 		declaredVariableInfo.tryToInvertName()
 	}
@@ -520,8 +522,8 @@ func (this *MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfoStackMa
 
 func (this *MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfoStackMap) popVariableInfo(name string) MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo {
 	var variableInfos DequeOf[MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo] = this.mapOfStacks[name]
-	if any(variableInfos) == nil {
-		Preconditions_checkNotNull_Object_String_Object(nil, "Nonexistent variable info requested: '%s'", strobj_(name))
+	if variableInfos == nil {
+		panic(new_NullPointerException_String(Strings_lenientFormat("Nonexistent variable info requested: '%s'", []any{strobj_(name)})).self())
 	}
 	var info MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo = icast_MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo(variableInfos.pop())
 	if variableInfos.isEmpty() {
@@ -635,11 +637,11 @@ func new_MakeDeclaredNamesUnique_ContextualRenamer_0() *MakeDeclaredNamesUnique_
 func (this *MakeDeclaredNamesUnique_ContextualRenamer) init_MakeDeclaredNamesUnique_ContextualRenamer_Node_SimpleMultiset_boolean_Renamer(scopeRoot Node, nameUsage *SimpleMultiset, hoistingTargetScope bool, parent MakeDeclaredNamesUnique_Renamer) {
 	this.finit_MakeDeclaredNamesUnique_ContextualRenamer()
 	if !NodeUtil_createsScope(scopeRoot) {
-		Preconditions_checkState_boolean_Object(false, scopeRoot.box_())
+		panic(new_IllegalStateException_String(objstr_(scopeRoot.box_())).self())
 	}
 	if scopeRoot.isFunction() {
 		if hoistingTargetScope {
-			Preconditions_checkState_boolean_Object(false, scopeRoot.box_())
+			panic(new_IllegalStateException_String(objstr_(scopeRoot.box_())).self())
 		}
 	}
 	this.scopeRoot = scopeRoot
@@ -647,12 +649,12 @@ func (this *MakeDeclaredNamesUnique_ContextualRenamer) init_MakeDeclaredNamesUni
 	this.nameUsage = nameUsage
 	if hoistingTargetScope {
 		if NodeUtil_createsBlockScope(scopeRoot) {
-			Preconditions_checkState_boolean_Object(false, scopeRoot.box_())
+			panic(new_IllegalStateException_String(objstr_(scopeRoot.box_())).self())
 		}
 		this.hoistRenamer = icast_MakeDeclaredNamesUnique_Renamer(this.self())
 	} else {
-		if !(NodeUtil_createsBlockScope(scopeRoot) || scopeRoot.isFunction()) {
-			Preconditions_checkState_boolean_Object(false, scopeRoot.box_())
+		if !NodeUtil_createsBlockScope(scopeRoot) && !scopeRoot.isFunction() {
+			panic(new_IllegalStateException_String(objstr_(scopeRoot.box_())).self())
 		}
 		this.hoistRenamer = parent.getHoistRenamer()
 	}
@@ -750,7 +752,9 @@ func (this *MakeDeclaredNamesUnique_InlineRenamer) init_MakeDeclaredNamesUnique_
 	this.finit_MakeDeclaredNamesUnique_InlineRenamer()
 	this.convention = convention
 	this.uniqueIdSupplier = uniqueIdSupplier
-	Preconditions_checkArgument(!String_isEmpty(idPrefix))
+	if String_isEmpty(idPrefix) {
+		panic(new_IllegalArgumentException_0().self())
+	}
 	this.idPrefix = idPrefix
 	this.removeConstness = removeConstness
 	if hoistingTargetScope {
@@ -768,7 +772,9 @@ func new_MakeDeclaredNamesUnique_InlineRenamer(convention CodingConvention, uniq
 }
 
 func (this *MakeDeclaredNamesUnique_InlineRenamer) addDeclaredName(name string, hoisted bool) {
-	Preconditions_checkState(!(name == MakeDeclaredNamesUnique_ARGUMENTS))
+	if name == MakeDeclaredNamesUnique_ARGUMENTS {
+		panic(new_IllegalStateException_0().self())
+	}
 	if hoisted && (this.hoistRenamer != any(this)) {
 		this.hoistRenamer.addDeclaredName(name, hoisted)
 	} else {

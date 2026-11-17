@@ -18,7 +18,9 @@ func (this *JSDocInfo) init_JSDocInfo(bits int64, props TreeMapOf[*JSDocInfo_Pro
 		var value any = entry.getValue()
 		if !prop.isDefault(value) {
 			keys |= prop.mask
-			Preconditions_checkState((!is_[[]any](value) && (value != nil)))
+			if is_[[]any](value) || value == nil {
+				panic(new_IllegalStateException_0().self())
+			}
 			values.add(value)
 		}
 	}
@@ -1934,7 +1936,9 @@ func new_JSDocInfo_TrimmedStringPosition() *JSDocInfo_TrimmedStringPosition {
 func (this *JSDocInfo_TrimmedStringPosition) setItem_impl(item_ any) {
 	var item string = str_(item_)
 	_ = item
-	Preconditions_checkArgument_boolean_Object(((String_charAt(item, 0) != ' ') && (String_charAt(item, (String_length(item)-1)) != ' ')), strobj_("String has leading or trailing whitespace"))
+	if String_charAt(item, 0) == ' ' || String_charAt(item, (String_length(item)-1)) == ' ' {
+		panic(new_IllegalArgumentException_String("String has leading or trailing whitespace").self())
+	}
 	this.JSDocInfo_StringPosition.setItem_impl(strobj_(item))
 }
 

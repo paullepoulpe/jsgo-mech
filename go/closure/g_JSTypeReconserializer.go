@@ -91,7 +91,9 @@ func (this *JSTypeReconserializer) recordType(type_ *JSType) *JSTypeReconseriali
 }
 
 func (this *JSTypeReconserializer) recordUnionType(type_ *UnionType) *JSTypeReconserializer_SeenTypeRecord {
-	Preconditions_checkNotNull(obj_(type_))
+	if type_ == nil {
+		panic(new_NullPointerException_0().self())
+	}
 	var altRecords *TSet[*JSTypeReconserializer_SeenTypeRecord] = newTSet_(tc_p_JSTypeReconserializer_SeenTypeRecord)
 	it_1 := foreach_(obj_(type_.getAlternates()))
 	for it_1.next() {
@@ -118,7 +120,7 @@ func (this *JSTypeReconserializer) recordUnionType(type_ *UnionType) *JSTypeReco
 		record.unionMembers = ImmutableSet_copyOf(altRecords.asSet())
 	} else if this.serializationMode.runValidation() {
 		if ok_, a1_, a2_, a3_ := Object_equals(any(altRecords.asSet()), obj_(record.unionMembers)), unionId, JSTypeReconserializer_colorIdsOf(altRecords.asSet()), JSTypeReconserializer_colorIdsOf(icast_Collection(obj_(record.unionMembers))); !ok_ {
-			Preconditions_checkState_boolean_String_Object_Object_Object(false, "Unions with same ID must have same members: %s => %s == %s", obj_(a1_), obj_(a2_), obj_(a3_))
+			panic(new_IllegalStateException_String(Strings_lenientFormat("Unions with same ID must have same members: %s => %s == %s", []any{obj_(a1_), obj_(a2_), obj_(a3_)})).self())
 		}
 	}
 	return record
@@ -135,7 +137,9 @@ func JSTypeReconserializer_colorIdsOf(records CollectionOf[*JSTypeReconserialize
 }
 
 func (this *JSTypeReconserializer) recordObjectType(type_ *ObjectType) *JSTypeReconserializer_SeenTypeRecord {
-	Preconditions_checkNotNull(type_.self())
+	if type_ == nil {
+		panic(new_NullPointerException_0().self())
+	}
 	var id *ColorId = this.hasher.hashObjectType(type_)
 	var record *JSTypeReconserializer_SeenTypeRecord = this.getOrCreateRecord(id, type_.up_JSType())
 	this.addSupertypeEdges(type_, any(int32(record.pointer)))
@@ -158,8 +162,12 @@ func (this *JSTypeReconserializer) addSupertypeEdges(subtype *ObjectType, serial
 }
 
 func (this *JSTypeReconserializer) getOrCreateRecord(id *ColorId, jstype *JSType) *JSTypeReconserializer_SeenTypeRecord {
-	Preconditions_checkNotNull(jstype.self())
-	Preconditions_checkState(((JSTypeReconserializer_State_COLLECTING_TYPES == this.state) || (JSTypeReconserializer_State_GENERATING_POOL == this.state)))
+	if jstype == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	if JSTypeReconserializer_State_COLLECTING_TYPES != this.state && JSTypeReconserializer_State_GENERATING_POOL != this.state {
+		panic(new_IllegalStateException_0().self())
+	}
 	var record *JSTypeReconserializer_SeenTypeRecord = cast_[*JSTypeReconserializer_SeenTypeRecord](Map_computeIfAbsent_f(this.seenTypeRecords.asMap(), obj_(id), func(unused_ any) any {
 		var unused *ColorId = cast_[*ColorId](unused_)
 		_ = unused
@@ -193,7 +201,7 @@ func (this *JSTypeReconserializer) serializeInvolvedTypes(types CollectionOf[*JS
 	for it_1.next() {
 		var t *JSType = to_JSType(it_1.v)
 		if t.isUnionType() {
-			Preconditions_checkState_boolean_Object(false, t.self())
+			panic(new_IllegalStateException_String(objstr_(t.self())).self())
 		}
 		distinctPointers.add(any(int32(this.serializeType(t))))
 	}
@@ -252,7 +260,9 @@ func (this *JSTypeReconserializer) ownAncestorInterfacesOf(type_ *ObjectType) Im
 }
 
 func (this *JSTypeReconserializer) seedCachesWithAxiomaticTypes() {
-	Preconditions_checkState(this.seenTypeRecords.isEmpty())
+	if !this.seenTypeRecords.isEmpty() {
+		panic(new_IllegalStateException_0().self())
+	}
 	it_1 := foreach_(obj_(TypePointers_OFFSET_TO_AXIOMATIC_COLOR))
 	for it_1.next() {
 		var axiomatic *Color = cast_[*Color](it_1.v)
@@ -267,7 +277,9 @@ func (this *JSTypeReconserializer) seedCachesWithAxiomaticTypes() {
 		_ = axiomatic
 		this.getOrCreateRecord(axiomatic.getId(), this.registry.getNativeType(jstypeNative))
 	})
-	Preconditions_checkState((this.seenTypeRecords.size() == TypePointers_OFFSET_TO_AXIOMATIC_COLOR.size()))
+	if this.seenTypeRecords.size() != TypePointers_OFFSET_TO_AXIOMATIC_COLOR.size() {
+		panic(new_IllegalStateException_0().self())
+	}
 }
 
 func (this *JSTypeReconserializer) checkValidLinearTime() {
@@ -279,15 +291,19 @@ func (this *JSTypeReconserializer) checkValidLinearTime() {
 	for it_1.next() {
 		var seen *JSTypeReconserializer_SeenTypeRecord = it_1.v
 		var offset int32 = seen.pointer
-		Preconditions_checkState((offset >= 0))
-		if !(offset <= totalTypeCount) {
-			Preconditions_checkState_boolean_String_int_int(false, "Found invalid pointer %s, out of a total of %s user-defined types", offset, totalTypeCount)
+		if offset < 0 {
+			panic(new_IllegalStateException_0().self())
+		}
+		if offset > totalTypeCount {
+			panic(new_IllegalStateException_String(Strings_lenientFormat("Found invalid pointer %s, out of a total of %s user-defined types", []any{offset, totalTypeCount})).self())
 		}
 	}
 }
 
 func (this *JSTypeReconserializer) generateTypePool() *TypePool {
-	Preconditions_checkState((this.state == JSTypeReconserializer_State_COLLECTING_TYPES))
+	if this.state != JSTypeReconserializer_State_COLLECTING_TYPES {
+		panic(new_IllegalStateException_0().self())
+	}
 	this.checkValidLinearTime()
 	var builder *TypePool_Builder = TypePool_newBuilder()
 	if this.serializationMode.includeDebugInfo() {
@@ -306,7 +322,7 @@ func (this *JSTypeReconserializer) generateTypePool() *TypePool {
 		var seen *JSTypeReconserializer_SeenTypeRecord = it_1.v
 		if StandardColors_AXIOMATIC_COLORS.containsKey(obj_(seen.colorId)) {
 			if !TypePointers_isAxiomatic(seen.pointer) {
-				Preconditions_checkState_boolean_String_Object(false, "Missing .type for SeenTypeRecord %s", obj_(seen))
+				panic(new_IllegalStateException_String(Strings_lenientFormat("Missing .type for SeenTypeRecord %s", []any{obj_(seen)})).self())
 			}
 			continue
 		}

@@ -99,7 +99,7 @@ func (this *ColorFindPropertyReferences) handleClass(t *NodeTraversal, classNode
 			}()
 		} else {
 			if !((m.isMemberFunctionDef() || m.isGetterDef()) || m.isSetterDef()) {
-				Preconditions_checkState_boolean_Object(false, m.box_())
+				panic(new_IllegalStateException_String(objstr_(m.box_())).self())
 			}
 			var classPrototypeType ImmutableSetOf[*Color] = classType.getPrototypes()
 			return func() any {
@@ -160,7 +160,9 @@ func (this *ColorFindPropertyReferences) handleObjectDefineProperties(t *NodeTra
 }
 
 func (this *ColorFindPropertyReferences) traverseObjectlitLike(t *NodeTraversal, n Node, memberOwnerFn func(any) any) {
-	Preconditions_checkState(((n.isObjectLit() || n.isObjectPattern()) || n.isClassMembers()))
+	if !((n.isObjectLit() || n.isObjectPattern()) || n.isClassMembers()) {
+		panic(new_IllegalStateException_0().self())
+	}
 	{
 		var child Node = n.getFirstChild()
 	L_1:

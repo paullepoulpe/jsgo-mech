@@ -106,7 +106,9 @@ func (this *ReplaceStrings) doSubstitutions(t *NodeTraversal, config *ReplaceStr
 		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, ReplaceStrings_STRING_REPLACEMENT_TAGGED_TEMPLATE, []string{}))
 		return
 	}
-	Preconditions_checkState((n.isNew() || n.isCall()))
+	if !n.isNew() && !n.isCall() {
+		panic(new_IllegalStateException_0().self())
+	}
 	if !config.isReplaceAll() {
 		it_1 := foreach_(any(config.parameters))
 		for it_1.next() {
@@ -149,7 +151,9 @@ func (this *ReplaceStrings) replaceExpression(t *NodeTraversal, expr Node) Node 
 	default:
 		return expr
 	}
-	Preconditions_checkState(key.isPresent())
+	if !key.isPresent() {
+		panic(new_IllegalStateException_0().self())
+	}
 	this.recordReplacement(key.get())
 	replacement.srcrefTreeIfMissing(expr)
 	expr.replaceWith(replacement)
@@ -170,7 +174,9 @@ func (this *ReplaceStrings) getReplacement(key string) string {
 
 func (this *ReplaceStrings) recordReplacement(key string) {
 	var result *ReplaceStrings_Result = this.results.get(key)
-	Preconditions_checkState((result != nil))
+	if result == nil {
+		panic(new_IllegalStateException_0().self())
+	}
 	result.didReplacement = true
 }
 
@@ -235,7 +241,9 @@ func (this *ReplaceStrings) parseConfiguration(function string) *ReplaceStrings_
 	var first int32 = String_indexOf(function, 40)
 	var last int32 = String_indexOf(function, 41)
 	var colon int32 = String_indexOf_String(function, ReplaceStrings_EXCLUSION_PREFIX)
-	Preconditions_checkState(((first != -1) && (last != -1)))
+	if first == -1 || last == -1 {
+		panic(new_IllegalStateException_0().self())
+	}
 	if String_contains_s(function, ".prototype.") {
 		this.compiler_.report(JSError_make_DiagnosticType_StringArr(ReplaceStrings_BAD_REPLACEMENT_CONFIGURATION, []string{function, "Cannot replace strings passed to prototype methods."}))
 		return nil
@@ -248,18 +256,24 @@ func (this *ReplaceStrings) parseConfiguration(function string) *ReplaceStrings_
 	for _, param := range parts {
 		paramCount++
 		if param == ReplaceStrings_REPLACE_ALL_MARKER {
-			Preconditions_checkState(((paramCount == 1) && (int32(len(parts)) == 1)))
+			if paramCount != 1 || int32(len(parts)) != 1 {
+				panic(new_IllegalStateException_0().self())
+			}
 			replacementParameters.add(any(int32(ReplaceStrings_Config_REPLACE_ALL_VALUE)))
 		} else if param == ReplaceStrings_REPLACE_ONE_MARKER {
-			Preconditions_checkState(!replacementParameters.contains(any(int32(ReplaceStrings_Config_REPLACE_ALL_VALUE))))
+			if replacementParameters.contains(any(int32(ReplaceStrings_Config_REPLACE_ALL_VALUE))) {
+				panic(new_IllegalStateException_0().self())
+			}
 			replacementParameters.add(any(int32(paramCount)))
 		} else {
 			if !String_isEmpty(param) {
-				Preconditions_checkState_boolean_String_Object(false, "Unknown marker (%s)", strobj_(param))
+				panic(new_IllegalStateException_String(Strings_lenientFormat("Unknown marker (%s)", []any{strobj_(param)})).self())
 			}
 		}
 	}
-	Preconditions_checkState(!replacementParameters.isEmpty())
+	if replacementParameters.isEmpty() {
+		panic(new_IllegalStateException_0().self())
+	}
 	return new_ReplaceStrings_Config(name, replacementParameters, func() *ImmutableSet {
 		if colon == -1 {
 			return ImmutableSet_of()

@@ -145,7 +145,9 @@ func (this *RenameVars) recordPseudoName(n Node) {
 }
 
 func (this *RenameVars) reusePreviouslyUsedVariableMap(varsToRename SortedSetOf[*RenameVars_Assignment]) {
-	Preconditions_checkNotNull(obj_(this.prevUsedRenameMap.getNewNameToOriginalNameMap()))
+	if this.prevUsedRenameMap.getNewNameToOriginalNameMap() == nil {
+		panic(new_NullPointerException_0().self())
+	}
 	it_1 := foreach_(any(varsToRename))
 	for it_1.next() {
 		var a *RenameVars_Assignment = cast_[*RenameVars_Assignment](it_1.v)
@@ -305,7 +307,9 @@ func new_RenameVars_Assignment(outer_ *RenameVars, name string) *RenameVars_Assi
 }
 
 func (this *RenameVars_Assignment) setNewName(newName string) {
-	Preconditions_checkState(this.newName.isEmpty())
+	if !this.newName.isEmpty() {
+		panic(new_IllegalStateException_0().self())
+	}
 	this.newName = Optional_of[string](newName)
 }
 

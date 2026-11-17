@@ -36,9 +36,15 @@ func (this *TypeInferencePass) inferAllScopes(inferenceRoot Node) *TypedScope {
 	_ = func() (code_ int) {
 		var closer *JSTypeResolver_Closer = this.registry.getResolver().openForDefinition()
 		defer closeResource_(obj_(closer))
-		Preconditions_checkState(inferenceRoot.isRoot())
-		Preconditions_checkState((inferenceRoot.getParent() == 0))
-		Preconditions_checkState((this.topScope == nil))
+		if !inferenceRoot.isRoot() {
+			panic(new_IllegalStateException_0().self())
+		}
+		if inferenceRoot.getParent() != 0 {
+			panic(new_IllegalStateException_0().self())
+		}
+		if this.topScope != nil {
+			panic(new_IllegalStateException_0().self())
+		}
 		this.topScope = cast_[*TypedScope](this.scopeCreator.createScopeAbstractScope(inferenceRoot, nil).self())
 		NodeTraversal_builder().setCompiler(this.compiler_).setCallback(new_TypeInferencePass_FirstScopeBuildingCallback()).setScopeCreator(icast_ScopeCreator(obj_(this.scopeCreator))).traverseWithScope(inferenceRoot, this.topScope.up_AbstractScope())
 		this.scopeCreator.resolveWeakImportsPreResolution()

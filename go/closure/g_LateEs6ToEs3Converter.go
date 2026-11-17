@@ -54,11 +54,11 @@ func (this *LateEs6ToEs3Converter) visit(t *NodeTraversal, n Node, parent Node) 
 		if (lhs.isGetProp() && rhs.isFunction()) && lhs.getFirstChild().isName() {
 			var qName *QualifiedName = QualifiedName_of("$jscomp.createTemplateTagFirstArgWithRaw")
 			if qName.matches(lhs) {
-				if n.getParent().box_() == nil {
-					Preconditions_checkNotNull_Object_Object(nil, n.box_())
+				if n.getParent() == 0 {
+					panic(new_NullPointerException_String(objstr_(n.box_())).self())
 				}
 				if !n.getParent().isExprResult() {
-					Preconditions_checkState_boolean_Object(false, n.box_())
+					panic(new_IllegalStateException_String(objstr_(n.box_())).self())
 				}
 				this.templateLitInsertionPoint = n.getParent().getNext()
 			}
@@ -102,7 +102,9 @@ func (this *LateEs6ToEs3Converter) visitObject(t *NodeTraversal, obj Node) {
 }
 
 func (this *LateEs6ToEs3Converter) visitObjectWithComputedProperty(t *NodeTraversal, obj Node) {
-	Preconditions_checkArgument(obj.isObjectLit())
+	if !obj.isObjectLit() {
+		panic(new_IllegalArgumentException_0().self())
+	}
 	var props ListOf[Node] = new_ArrayList_0()
 	var currElement Node = obj.getFirstChild()
 	var objectType AstFactory_Type = AstFactory_type_Node(obj)

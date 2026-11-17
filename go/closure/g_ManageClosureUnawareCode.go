@@ -58,22 +58,22 @@ func (this *ManageClosureUnawareCode_UnwrapConcealedClosureUnawareCode) tryUnwra
 	}
 	var shadowScript Node = shadowAstRoot.getOnlyChild()
 	if !shadowScript.isScript() {
-		Preconditions_checkState_boolean_Object(false, shadowScript.box_())
+		panic(new_IllegalStateException_String(objstr_(shadowScript.box_())).self())
 	}
 	if !shadowScript.hasOneChild() {
-		Preconditions_checkState_boolean_Object(false, shadowScript.box_())
+		panic(new_IllegalStateException_String(objstr_(shadowScript.box_())).self())
 	}
 	var exprResult Node = shadowScript.getOnlyChild()
 	if !exprResult.isExprResult() {
-		Preconditions_checkState_boolean_Object(false, exprResult.box_())
+		panic(new_IllegalStateException_String(objstr_(exprResult.box_())).self())
 	}
 	var callNode Node = exprResult.getOnlyChild()
 	if !callNode.isCall() {
-		Preconditions_checkState_boolean_Object(false, callNode.box_())
+		panic(new_IllegalStateException_String(objstr_(callNode.box_())).self())
 	}
 	var originalCodeFunction Node = callNode.getLastChild()
 	if !originalCodeFunction.isFunction() {
-		Preconditions_checkState_boolean_Object(false, originalCodeFunction.box_())
+		panic(new_IllegalStateException_String(objstr_(originalCodeFunction.box_())).self())
 	}
 	originalCodeFunction.detach()
 	n.replaceWith(originalCodeFunction)

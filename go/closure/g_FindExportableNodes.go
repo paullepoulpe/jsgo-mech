@@ -134,12 +134,20 @@ func (this *FindExportableNodes) visit_impl(t *NodeTraversal, n Node, parent Nod
 	}
 	if export.isPresent() {
 		if mode == FindExportableNodes_Mode_EXPORT {
-			Preconditions_checkNotNull(context.box_())
+			if context == 0 {
+				panic(new_NullPointerException_0().self())
+			}
 			this.exports.put(export.get(), context)
 		} else {
-			Preconditions_checkState((context == 0))
-			Preconditions_checkState((mode == FindExportableNodes_Mode_EXTERN))
-			Preconditions_checkState(!String_isEmpty(export.get()))
+			if context != 0 {
+				panic(new_IllegalStateException_0().self())
+			}
+			if mode != FindExportableNodes_Mode_EXTERN {
+				panic(new_IllegalStateException_0().self())
+			}
+			if String_isEmpty(export.get()) {
+				panic(new_IllegalStateException_0().self())
+			}
 			this.localExports.add(export.get())
 		}
 	} else if !(n.isGetProp() && parent.isExprResult()) {

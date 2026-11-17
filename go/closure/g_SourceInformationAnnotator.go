@@ -36,7 +36,9 @@ func SourceInformationAnnotator_createWithAnnotationChecks(sourceFile string) *S
 
 func (this *SourceInformationAnnotator) visit_impl(t *NodeTraversal, n Node, parent Node) {
 	if this.sourceFileToCheck.isPresent() {
-		Preconditions_checkState((this.sourceFileToCheck.get() == n.getSourceFileName()))
+		if this.sourceFileToCheck.get() != n.getSourceFileName() {
+			panic(new_IllegalStateException_0().self())
+		}
 	}
 	if SourceInformationAnnotator_isStringNodeRequiringOriginalName(n) {
 		SourceInformationAnnotator_setOriginalName(n, n)

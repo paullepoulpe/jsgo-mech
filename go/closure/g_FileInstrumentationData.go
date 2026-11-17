@@ -49,21 +49,21 @@ func (this *FileInstrumentationData) maxBranchPresentLine() int32 {
 }
 
 func (this *FileInstrumentationData) putBranchNode(lineNumber int32, branchNumber int32, block Node) {
-	if !(lineNumber > 0) {
-		Preconditions_checkArgument_boolean_String_int(false, "Expected non-zero positive integer as line number: %s", lineNumber)
+	if lineNumber <= 0 {
+		panic(new_IllegalArgumentException_String(Strings_lenientFormat("Expected non-zero positive integer as line number: %s", []any{lineNumber})).self())
 	}
-	if !(branchNumber > 0) {
-		Preconditions_checkArgument_boolean_String_int(false, "Expected non-zero positive integer as branch number: %s", branchNumber)
+	if branchNumber <= 0 {
+		panic(new_IllegalArgumentException_String(Strings_lenientFormat("Expected non-zero positive integer as branch number: %s", []any{branchNumber})).self())
 	}
 	this.branchNodes.put(FileInstrumentationData_BranchIndexPair_of((lineNumber-1), (branchNumber-1)), block)
 }
 
 func (this *FileInstrumentationData) getBranchNode(lineNumber int32, branchNumber int32) Node {
-	if !(lineNumber > 0) {
-		Preconditions_checkArgument_boolean_String_int(false, "Expected non-zero positive integer as line number: %s", lineNumber)
+	if lineNumber <= 0 {
+		panic(new_IllegalArgumentException_String(Strings_lenientFormat("Expected non-zero positive integer as line number: %s", []any{lineNumber})).self())
 	}
-	if !(branchNumber > 0) {
-		Preconditions_checkArgument_boolean_String_int(false, "Expected non-zero positive integer as branch number: %s", branchNumber)
+	if branchNumber <= 0 {
+		panic(new_IllegalArgumentException_String(Strings_lenientFormat("Expected non-zero positive integer as branch number: %s", []any{branchNumber})).self())
 	}
 	return this.branchNodes.get(FileInstrumentationData_BranchIndexPair_of((lineNumber - 1), (branchNumber - 1)))
 }
@@ -88,15 +88,15 @@ func (this *FileInstrumentationData) getBranchPresentAsHexString() string {
 }
 
 func (this *FileInstrumentationData) setLineAsInstrumented(lineNumber int32) {
-	if !(lineNumber > 0) {
-		Preconditions_checkArgument_boolean_String_int(false, "Expected non-zero positive integer as line number: %s", lineNumber)
+	if lineNumber <= 0 {
+		panic(new_IllegalArgumentException_String(Strings_lenientFormat("Expected non-zero positive integer as line number: %s", []any{lineNumber})).self())
 	}
 	this.instrumentedBits.set((lineNumber - 1))
 }
 
 func (this *FileInstrumentationData) setBranchPresent(lineNumber int32) {
-	if !(lineNumber > 0) {
-		Preconditions_checkArgument_boolean_String_int(false, "Expected non-zero positive integer as line number: %s", lineNumber)
+	if lineNumber <= 0 {
+		panic(new_IllegalArgumentException_String(Strings_lenientFormat("Expected non-zero positive integer as line number: %s", []any{lineNumber})).self())
 	}
 	this.branchPresent.set((lineNumber - 1))
 }

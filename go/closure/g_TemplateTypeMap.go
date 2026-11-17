@@ -11,10 +11,18 @@ type TemplateTypeMap struct {
 }
 
 func (this *TemplateTypeMap) init_TemplateTypeMap(registry *JSTypeRegistry, templateKeys ImmutableListOf[*TemplateType], templateValues []*JSType, subMapStarts *BitSet) {
-	Preconditions_checkNotNull(obj_(templateKeys))
-	Preconditions_checkNotNull(sliceObj_(templateValues))
-	Preconditions_checkArgument((int32(len(templateValues)) <= templateKeys.size()))
-	Preconditions_checkArgument((templateKeys.size() <= subMapStarts.size()))
+	if templateKeys == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	if sliceObj_(templateValues) == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	if int32(len(templateValues)) > templateKeys.size() {
+		panic(new_IllegalArgumentException_0().self())
+	}
+	if templateKeys.size() > subMapStarts.size() {
+		panic(new_IllegalArgumentException_0().self())
+	}
 	this.registry = registry
 	this.templateKeys = templateKeys
 	this.templateValues = templateValues
@@ -44,7 +52,9 @@ func new_TemplateTypeMap(registry *JSTypeRegistry, templateKeys ImmutableListOf[
 }
 
 func TemplateTypeMap_createEmpty(registry *JSTypeRegistry) *TemplateTypeMap {
-	Preconditions_checkArgument((registry.getEmptyTemplateTypeMap() == nil))
+	if registry.getEmptyTemplateTypeMap() != nil {
+		panic(new_IllegalArgumentException_0().self())
+	}
 	return new_TemplateTypeMap(registry, ImmutableList_of(), []*JSType{}, new_BitSet())
 }
 
@@ -57,8 +67,8 @@ func (this *TemplateTypeMap) nextSubMapStart(index int32) int32 {
 
 func (this *TemplateTypeMap) copyFilledWithValues(values ImmutableListOf[*JSType]) *TemplateTypeMap {
 	var requiredUnknownCount int32 = (this.numUnfilledTemplateKeys() - values.size())
-	if !(requiredUnknownCount >= 0) {
-		Preconditions_checkArgument_boolean_Object(false, any(int32(requiredUnknownCount)))
+	if requiredUnknownCount < 0 {
+		panic(new_IllegalArgumentException_String(objstr_(any(int32(requiredUnknownCount)))).self())
 	}
 	if this.numUnfilledTemplateKeys() == 0 {
 		return this
@@ -85,8 +95,8 @@ func (this *TemplateTypeMap) copyWithExtension_2(keys ImmutableListOf[*TemplateT
 
 func (this *TemplateTypeMap) copyWithExtension_3(keys ImmutableListOf[*TemplateType], values []*JSType, newsubMapStarts *BitSet) *TemplateTypeMap {
 	var extendedUnfilledCount int32 = (keys.size() - int32(len(values)))
-	if !(extendedUnfilledCount >= 0) {
-		Preconditions_checkArgument_boolean_Object(false, any(int32(extendedUnfilledCount)))
+	if extendedUnfilledCount < 0 {
+		panic(new_IllegalArgumentException_String(objstr_(any(int32(extendedUnfilledCount)))).self())
 	}
 	if (this.numUnfilledTemplateKeys() == 0) && keys.isEmpty() {
 		return this
@@ -261,7 +271,9 @@ func (this *TemplateTypeMap) toString() string {
 }
 
 func (this *TemplateTypeMap) padToSameLength(keys ImmutableListOf[*TemplateType], builder *TList[*JSType]) {
-	Preconditions_checkArgument((builder.size() <= keys.size()))
+	if builder.size() > keys.size() {
+		panic(new_IllegalArgumentException_0().self())
+	}
 	for i := int32(builder.size()); i < keys.size(); i++ {
 		builder.add(this.defaultValueType(cast_[*TemplateType](keys.get(i))))
 	}

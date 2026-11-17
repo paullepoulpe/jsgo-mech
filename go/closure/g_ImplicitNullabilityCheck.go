@@ -155,7 +155,9 @@ type ImplicitNullabilityCheck_Result struct {
 }
 
 func (this *ImplicitNullabilityCheck_Result) init_ImplicitNullabilityCheck_Result(node Node, nullability ImplicitNullabilityCheck_Nullability) {
-	Preconditions_checkArgument(node.isStringLit())
+	if !node.isStringLit() {
+		panic(new_IllegalArgumentException_0().self())
+	}
 	this.node_ = node
 	this.nullability = nullability
 }

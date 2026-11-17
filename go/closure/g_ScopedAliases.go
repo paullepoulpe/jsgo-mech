@@ -114,10 +114,10 @@ func ScopedAliases_getAliasedNamespace(rhs Node) string {
 			return rhs.getString()
 		case tokOrd1_CALL:
 			if !NodeUtil_isCallToQualifiedName(rhs, ScopedAliases_GOOG_MODULE_GET) {
-				Preconditions_checkState_boolean_Object(false, rhs.box_())
+				panic(new_IllegalStateException_String(objstr_(rhs.box_())).self())
 			}
 			if !rhs.hasTwoChildren() {
-				Preconditions_checkState_boolean_Object(false, rhs.box_())
+				panic(new_IllegalStateException_String(objstr_(rhs.box_())).self())
 			}
 			return rhs.getLastChild().getString()
 		default:
@@ -419,7 +419,7 @@ func (this *ScopedAliases_AliasedTypeNode) applyAlias_impl(compiler *AbstractCom
 	}
 	var aliasExpanded string = ScopedAliases_getAliasedNamespace(aliasDefinition)
 	if !String_startsWith(typeName, aliasName) {
-		Preconditions_checkState_boolean_String_Object_Object(false, "%s must start with %s", strobj_(typeName), strobj_(aliasName))
+		panic(new_IllegalStateException_String(Strings_lenientFormat("%s must start with %s", []any{strobj_(typeName), strobj_(aliasName)})).self())
 	}
 	var replacement string = (sstr_(aliasExpanded) + sstr_(String_substring_int(typeName, String_length(aliasName))))
 	this.aliasReference.setString(replacement)
@@ -689,7 +689,7 @@ func (this *ScopedAliases_Traversal) findNamespaceShadows(t *NodeTraversal) {
 
 func (this *ScopedAliases_Traversal) renameNamespaceShadows(t *NodeTraversal) {
 	if ok_, a1_ := NodeUtil_isFunctionBlock(t.getScopeRoot()), t.getScopeRoot(); !ok_ {
-		Preconditions_checkState_boolean_Object(false, a1_.box_())
+		panic(new_IllegalStateException_String(objstr_(a1_.box_())).self())
 	}
 	if this.hasNamespaceShadows {
 		var renamer MakeDeclaredNamesUnique_Renamer = new_MakeDeclaredNamesUnique_TargettedRenamer(new_MakeDeclaredNamesUnique_ContextualRenamer_0(), this.forbiddenLocals)

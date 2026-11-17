@@ -106,7 +106,9 @@ func (this *ProxyObjectType) getReferencedObjTypeInternal() *ObjectType {
 }
 
 func (this *ProxyObjectType) setReferencedType(referencedType *JSType) {
-	Preconditions_checkNotNull(referencedType.self())
+	if referencedType == nil {
+		panic(new_NullPointerException_0().self())
+	}
 	this.referencedType = referencedType
 	var objectType *ObjectType
 	_ = objectType

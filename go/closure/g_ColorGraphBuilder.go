@@ -48,7 +48,9 @@ func (this *ColorGraphBuilder) connectUnionWithAncestors(unionNode *LinkedDirect
 	if !flatUnion.getColor().isUnion() {
 		return
 	}
-	Preconditions_checkState(!unionNode.getOutEdges().isEmpty())
+	if unionNode.getOutEdges().isEmpty() {
+		panic(new_IllegalStateException_0().self())
+	}
 	var graphNodesBuilder ImmutableSet_BuilderOf[*ColorGraphNode] = ImmutableSet_builder()
 	it_1 := foreach_(obj_(flatUnion.getColor().getUnionElements()))
 	for it_1.next() {
@@ -59,7 +61,11 @@ func (this *ColorGraphBuilder) connectUnionWithAncestors(unionNode *LinkedDirect
 	it_3 := foreach_(obj_(this.lcaFinder.findAll(icast_Set(obj_(graphNodes)))))
 	for it_3.next() {
 		var lca *ColorGraphNode = cast_[*ColorGraphNode](it_3.v)
-		this.connectSourceToDest(to_LinkedDirectedGraph_LinkedDiGraphNode(Preconditions_checkNotNull(any(this.colorHoldsInstanceGraph.getNode(obj_(lca))))), ColorGraphBuilder_EdgeReason_ALGEBRAIC, unionNode)
+		nn_ := this.colorHoldsInstanceGraph.getNode(obj_(lca))
+		if nn_ == nil {
+			panic(new_NullPointerException_0().self())
+		}
+		this.connectSourceToDest(to_LinkedDirectedGraph_LinkedDiGraphNode(any(nn_)), ColorGraphBuilder_EdgeReason_ALGEBRAIC, unionNode)
 	}
 }
 

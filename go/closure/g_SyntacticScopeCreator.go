@@ -95,7 +95,9 @@ func (this *SyntacticScopeCreator_ScopeScanner) init_SyntacticScopeCreator_Scope
 	this.redeclarationHandler = redeclarationHandler
 	this.scope_ = scope
 	this.changeRootSet = changeRootSet
-	Preconditions_checkState(((changeRootSet == nil) || scope.isGlobal()))
+	if changeRootSet != nil && !scope.isGlobal() {
+		panic(new_IllegalStateException_0().self())
+	}
 	this.treatProvidesAsRedeclarations = treatProvidesAsRedeclarations
 }
 
@@ -112,7 +114,9 @@ func (this *SyntacticScopeCreator_ScopeScanner) populate() {
 	case tokOrd1_FUNCTION:
 		var fnNameNode Node = n.getFirstChild()
 		var args Node = fnNameNode.getNext()
-		Preconditions_checkState(args.isParamList())
+		if !args.isParamList() {
+			panic(new_IllegalStateException_0().self())
+		}
 		this.declareLHS(this.scope_, args)
 		var fnName string = fnNameNode.getString()
 		if !String_isEmpty(fnName) && NodeUtil_isFunctionExpression(n) {
@@ -127,7 +131,7 @@ func (this *SyntacticScopeCreator_ScopeScanner) populate() {
 		return
 	case tokOrd1_ROOT, tokOrd1_SCRIPT:
 		if !this.scope_.isGlobal() {
-			Preconditions_checkState_boolean_Object(false, obj_(this.scope_))
+			panic(new_IllegalStateException_String(objstr_(obj_(this.scope_))).self())
 		}
 		this.scanVars(n, this.scope_, this.scope_)
 		return
@@ -157,7 +161,7 @@ func (this *SyntacticScopeCreator_ScopeScanner) declareLHS(s *Scope, n Node) {
 	} else {
 		// NodeUtil.visitLhsNodesInNode, through the function-value walker (post-flip manual step).
 		if !(((((((NodeUtil_isNameDeclaration(n) || n.isParamList()) || NodeUtil_isAssignmentOp(n)) || n.isCatch()) || n.isDestructuringLhs()) || n.isDefaultValue()) || n.isImport()) || NodeUtil_isEnhancedFor(n)) {
-			Preconditions_checkArgument_boolean_Object(false, n.box_())
+			panic(new_IllegalArgumentException_String(objstr_(n.box_())).self())
 		}
 		nodeUtilLhsNodes_(n, func(lhs Node) { this.declareVar(s, lhs) })
 	}
@@ -203,7 +207,7 @@ func (this *SyntacticScopeCreator_ScopeScanner) scanVars(n Node, hoistScope *Sco
 		return
 	case tokOrd1_CATCH:
 		if !n.hasTwoChildren() {
-			Preconditions_checkState_boolean_Object(false, n.box_())
+			panic(new_IllegalStateException_String(objstr_(n.box_())).self())
 		}
 		if blockScope != nil {
 			this.declareLHS(blockScope, n)
@@ -262,8 +266,8 @@ func (this *SyntacticScopeCreator_ScopeScanner) scanVars(n Node, hoistScope *Sco
 }
 
 func (this *SyntacticScopeCreator_ScopeScanner) declareVar(s *Scope, n Node) {
-	if !(n.isName() || n.isImportStar()) {
-		Preconditions_checkState_boolean_String_Object(false, "Invalid node for declareVar: %s", n.box_())
+	if !n.isName() && !n.isImportStar() {
+		panic(new_IllegalStateException_String(Strings_lenientFormat("Invalid node for declareVar: %s", []any{n.box_()})).self())
 	}
 	var name string = n.getString()
 	var v *Var = cast_[*Var](s.getOwnSlot(name))

@@ -161,7 +161,10 @@ func (this *PolymerPass) appendPolymerElementExterns(def *PolymerClassDefinition
 }
 
 func PolymerPass_exportTsickleProps(classNode Node, classQualifiedName string) {
-	var classStmt Node = Node_of_(Preconditions_checkNotNull(NodeUtil_getEnclosingStatement(classNode).box_()))
+	var classStmt Node = NodeUtil_getEnclosingStatement(classNode)
+	if classStmt == 0 {
+		panic(new_NullPointerException_0().self())
+	}
 	{
 		var sibling Node = classStmt.getNext()
 		for ; sibling != 0; sibling = sibling.getNext() {
@@ -199,8 +202,8 @@ func PolymerPass_maybeGetTsicklePropTypesIfBlock(node Node) Node {
 		return 0
 	}
 	var block Node = condition.getNext()
-	if !((block != 0) && block.isBlock()) {
-		Preconditions_checkState_boolean_String_Object(false, "Expected block but got %s", block.box_())
+	if block == 0 || !block.isBlock() {
+		panic(new_IllegalStateException_String(Strings_lenientFormat("Expected block but got %s", []any{block.box_()})).self())
 	}
 	return block
 }

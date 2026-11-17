@@ -79,7 +79,9 @@ func (this *J2clEqualitySameRewriterPass) trySubstituteEqualitySame(callNode Nod
 	if (firstExprValue == J2clEqualitySameRewriterPass_NodeValue_NON_NULL) || (secondExprValue == J2clEqualitySameRewriterPass_NodeValue_NON_NULL) {
 		return this.rewriteAsStrictEq(firstExpr, secondExpr)
 	}
-	Preconditions_checkState(((firstExprValue == J2clEqualitySameRewriterPass_NodeValue_NUMBER) || (secondExprValue == J2clEqualitySameRewriterPass_NodeValue_NUMBER)))
+	if firstExprValue != J2clEqualitySameRewriterPass_NodeValue_NUMBER && secondExprValue != J2clEqualitySameRewriterPass_NodeValue_NUMBER {
+		panic(new_IllegalStateException_0().self())
+	}
 	return this.rewriteNumberCheck(firstExpr, secondExpr)
 }
 

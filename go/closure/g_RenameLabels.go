@@ -97,7 +97,9 @@ func (this *RenameLabels_ProcessLabels) shouldTraverse(nodeTraversal *NodeTraver
 		var currentDepth int32 = (int32(len(current.renameMap)) + 1)
 		var name string = node.getFirstChild().getString()
 		var li *RenameLabels_LabelInfo = new_RenameLabels_LabelInfo(currentDepth)
-		Preconditions_checkState(!has_(current.renameMap, name))
+		if has_(current.renameMap, name) {
+			panic(new_IllegalStateException_0().self())
+		}
 		current.renameMap[name] = li
 		if int32(len(this.names_)) < currentDepth {
 			this.names_ = append(this.names_, str_(this.outer_.nameSupplier()))
@@ -120,7 +122,9 @@ func (this *RenameLabels_ProcessLabels) visitBreakOrContinue(t *NodeTraversal, n
 	var nameNode Node = node.getFirstChild()
 	if nameNode != 0 {
 		var name string = nameNode.getString()
-		Preconditions_checkState(!String_isEmpty(name))
+		if String_isEmpty(name) {
+			panic(new_IllegalStateException_0().self())
+		}
 		var li *RenameLabels_LabelInfo = this.getLabelInfo(name)
 		if li != nil {
 			var newName string = this.getNameForId(li.id)
@@ -137,7 +141,9 @@ func (this *RenameLabels_ProcessLabels) visitBreakOrContinue(t *NodeTraversal, n
 
 func (this *RenameLabels_ProcessLabels) visitLabel(t *NodeTraversal, node Node) {
 	var nameNode Node = node.getFirstChild()
-	Preconditions_checkState((nameNode != 0))
+	if nameNode == 0 {
+		panic(new_IllegalStateException_0().self())
+	}
 	var name string = nameNode.getString()
 	var li *RenameLabels_LabelInfo = this.getLabelInfo(name)
 	if li.referenced || !this.outer_.removeUnused {

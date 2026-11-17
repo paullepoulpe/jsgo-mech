@@ -114,7 +114,7 @@ func (this *MustBeReachingVariableDef) computeMustDef(n Node, cfgNode Node, outp
 						}(), c.getFirstChild(), output)
 					} else {
 						if !c.isDestructuringLhs() {
-							Preconditions_checkState_boolean_Object(false, c.box_())
+							panic(new_IllegalStateException_String(objstr_(c.box_())).self())
 						}
 						this.computeMustDef(c.getSecondChild(), cfgNode, output, conditional)
 						this.computeMustDef(c.getFirstChild(), cfgNode, output, conditional)
@@ -255,7 +255,9 @@ func (this *MustBeReachingVariableDef) computeDependence(def *MustBeReachingVari
 }
 
 func (this *MustBeReachingVariableDef) getDef(name string, useNode Node) *MustBeReachingVariableDef_Definition {
-	Preconditions_checkArgument(this.getCfg().hasNode(useNode.box_()))
+	if !this.getCfg().hasNode(useNode.box_()) {
+		panic(new_IllegalArgumentException_0().self())
+	}
 	var n GraphNode = this.getCfg().getNode(useNode.box_())
 	var state *DataFlowAnalysis_LinearFlowState = cast_[*DataFlowAnalysis_LinearFlowState](Annotatable_getAnnotation(Annotatable(n)))
 	return func() *MustBeReachingVariableDef_Definition {

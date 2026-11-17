@@ -33,7 +33,9 @@ func (this *DataFlowAnalysis) init_DataFlowAnalysis(cfg *ControlFlowGraph) {
 	this.cfg = cfg
 	this.workQueue = new_DataFlowAnalysis_UniqueQueue(cfg.getOptionalNodeComparator(this.isForward()))
 	if this.isBranched() {
-		Preconditions_checkState(this.isForward())
+		if !this.isForward() {
+			panic(new_IllegalStateException_0().self())
+		}
 	}
 }
 
@@ -192,7 +194,9 @@ func (this *DataFlowAnalysis) getInputFromEdge(edge DiGraph_DiGraphEdge) Lattice
 }
 
 func DataFlowAnalysis_computeEscaped(jsScope *Scope, escaped *TSet[*Var], compiler *AbstractCompiler, scopeCreator ScopeCreator, allVarsInFn *TMap[string, *Var]) {
-	Preconditions_checkArgument(jsScope.isFunctionScope())
+	if !jsScope.isFunctionScope() {
+		panic(new_IllegalArgumentException_0().self())
+	}
 	var finder *NodeTraversal_AbstractPostOrderCallback = new_DataFlowAnalysis_1(jsScope, escaped).up_NodeTraversal_AbstractPostOrderCallback()
 	NodeTraversal_builder().setCompiler(compiler).setCallback(icast_NodeTraversal_Callback(finder.self())).setScopeCreator(scopeCreator).traverseAtScope(jsScope.up_AbstractScope())
 	it_1 := allVarsInFn.each()
@@ -276,8 +280,12 @@ func (this *DataFlowAnalysis_LinearFlowState) finit_DataFlowAnalysis_LinearFlowS
 
 func (this *DataFlowAnalysis_LinearFlowState) init_DataFlowAnalysis_LinearFlowState(in any, out any) {
 	this.finit_DataFlowAnalysis_LinearFlowState()
-	Preconditions_checkNotNull(in)
-	Preconditions_checkNotNull(out)
+	if in == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	if out == nil {
+		panic(new_NullPointerException_0().self())
+	}
 	this.in = in
 	this.out = out
 }
@@ -297,7 +305,9 @@ func (this *DataFlowAnalysis_LinearFlowState) getIn() any {
 }
 
 func (this *DataFlowAnalysis_LinearFlowState) setIn(in LatticeElement) {
-	Preconditions_checkNotNull(any(in))
+	if in == nil {
+		panic(new_NullPointerException_0().self())
+	}
 	this.in = in
 }
 
@@ -306,7 +316,9 @@ func (this *DataFlowAnalysis_LinearFlowState) getOut() any {
 }
 
 func (this *DataFlowAnalysis_LinearFlowState) setOut(out any) {
-	Preconditions_checkNotNull(out)
+	if out == nil {
+		panic(new_NullPointerException_0().self())
+	}
 	this.out = out
 }
 

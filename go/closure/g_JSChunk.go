@@ -87,15 +87,17 @@ func (this *JSChunk) addCompilerInput(input *CompilerInput) {
 	var inputName string = input.getName()
 	var previous *CompilerInput = this.inputs.put(inputName, input)
 	if ok_, a1_, a2_ := (previous == nil), inputName, this.getName(); !ok_ {
-		Preconditions_checkState_boolean_String_Object_Object(false, "%s already exist in chunk %s", strobj_(a1_), strobj_(a2_))
+		panic(new_IllegalStateException_String(Strings_lenientFormat("%s already exist in chunk %s", []any{strobj_(a1_), strobj_(a2_)})).self())
 	}
 	input.setChunk(this)
 }
 
 func (this *JSChunk) addDependency(dep *JSChunk) {
-	Preconditions_checkNotNull(obj_(dep))
-	if !(dep != this) {
-		Preconditions_checkState_boolean_String_Object(false, "Cannot add dependency on self (%s)", any(this))
+	if dep == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	if dep == this {
+		panic(new_IllegalStateException_String(Strings_lenientFormat("Cannot add dependency on self (%s)", []any{any(this)})).self())
 	}
 	this.deps.add(dep)
 }
@@ -204,8 +206,8 @@ func (this *JSChunk) sortInputsByDeps(compiler *AbstractCompiler) {
 }
 
 func (this *JSChunk) setDepth(dep int32) {
-	if !(dep >= 0) {
-		Preconditions_checkArgument_boolean_String_int(false, "invalid depth: %s", dep)
+	if dep < 0 {
+		panic(new_IllegalArgumentException_String(Strings_lenientFormat("invalid depth: %s", []any{dep})).self())
 	}
 	this.depth = dep
 }
@@ -215,8 +217,8 @@ func (this *JSChunk) getDepth() int32 {
 }
 
 func (this *JSChunk) setIndex(index int32) {
-	if !(index >= 0) {
-		Preconditions_checkArgument_boolean_String_int(false, "Invalid chunk index: %s", index)
+	if index < 0 {
+		panic(new_IllegalArgumentException_String(Strings_lenientFormat("Invalid chunk index: %s", []any{index})).self())
 	}
 	this.index_ = index
 }

@@ -91,7 +91,9 @@ func (this *ChangeVerifier) verifyNewNode(passNameMsg string, n Node) {
 }
 
 func (this *ChangeVerifier) verifyRoot(root Node) {
-	Preconditions_checkState(root.isRoot())
+	if !root.isRoot() {
+		panic(new_IllegalStateException_0().self())
+	}
 	if root.getChangeTime() != 0 {
 		panic(new_IllegalStateException_String("Root nodes should never be marked as changed.").self())
 	}
@@ -152,8 +154,12 @@ func (this *ChangeVerifier) path(ancestor Node, child Node) string {
 }
 
 func ChangeVerifier_getInequivalenceReasonExcludingFunctions(thisNode Node, thatNode Node) *ChangeVerifier_EqualsResult {
-	Preconditions_checkNotNull(thisNode.box_())
-	Preconditions_checkNotNull(thatNode.box_())
+	if thisNode == 0 {
+		panic(new_NullPointerException_0().self())
+	}
+	if thatNode == 0 {
+		panic(new_NullPointerException_0().self())
+	}
 	if thisNode.getChildCount() != thatNode.getChildCount() {
 		return ChangeVerifier_EqualsResult_notEqual(thisNode, "differing child count", strobj_((tostr_(thisNode) + ": " + istr_(int64(thisNode.getChildCount())))), strobj_((tostr_(thatNode) + ": " + istr_(int64(thatNode.getChildCount())))))
 	}

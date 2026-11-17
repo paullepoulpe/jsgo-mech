@@ -25,7 +25,9 @@ func (this *NodeIterators_FunctionlessLocalScope) finit_NodeIterators_Functionle
 
 func (this *NodeIterators_FunctionlessLocalScope) init_NodeIterators_FunctionlessLocalScope(ancestors []Node) {
 	this.finit_NodeIterators_FunctionlessLocalScope()
-	Preconditions_checkArgument((int32(len(ancestors)) > 0))
+	if int32(len(ancestors)) <= 0 {
+		panic(new_IllegalArgumentException_0().self())
+	}
 	for _, n := range ancestors {
 		if n.isFunction() {
 			break
@@ -104,7 +106,9 @@ func (this *NodeIterators_LocalVarMotion) zero_NodeIterators_LocalVarMotion() {
 }
 
 func (this *NodeIterators_LocalVarMotion) init_NodeIterators_LocalVarMotion(compiler *AbstractCompiler, nameNode Node, iterator *NodeIterators_FunctionlessLocalScope) {
-	Preconditions_checkArgument(nameNode.isName())
+	if !nameNode.isName() {
+		panic(new_IllegalArgumentException_0().self())
+	}
 	var valueNode Node = NodeUtil_getAssignedValue(nameNode)
 	this.compiler_ = Preconditions_checkNotNullT(compiler)
 	this.varName_ = nameNode.getString()
@@ -121,14 +125,22 @@ func new_NodeIterators_LocalVarMotion(compiler *AbstractCompiler, nameNode Node,
 }
 
 func NodeIterators_LocalVarMotion_forVar(compiler *AbstractCompiler, name Node, var_ Node, block Node) *NodeIterators_LocalVarMotion {
-	Preconditions_checkArgument(NodeUtil_isNameDeclaration(var_))
-	Preconditions_checkArgument(NodeUtil_isStatement(var_))
+	if !NodeUtil_isNameDeclaration(var_) {
+		panic(new_IllegalArgumentException_0().self())
+	}
+	if !NodeUtil_isStatement(var_) {
+		panic(new_IllegalArgumentException_0().self())
+	}
 	return new_NodeIterators_LocalVarMotion(compiler, name, new_NodeIterators_FunctionlessLocalScope([]Node{name, var_, block}))
 }
 
 func NodeIterators_LocalVarMotion_forAssign(compiler *AbstractCompiler, name Node, assign Node, expr Node, block Node) *NodeIterators_LocalVarMotion {
-	Preconditions_checkArgument(assign.isAssign())
-	Preconditions_checkArgument(expr.isExprResult())
+	if !assign.isAssign() {
+		panic(new_IllegalArgumentException_0().self())
+	}
+	if !expr.isExprResult() {
+		panic(new_IllegalArgumentException_0().self())
+	}
 	return new_NodeIterators_LocalVarMotion(compiler, name, new_NodeIterators_FunctionlessLocalScope([]Node{assign, expr, block}))
 }
 

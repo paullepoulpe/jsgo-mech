@@ -16,15 +16,15 @@ func new_TypePointers() *TypePointers {
 }
 
 func TypePointers_trimOffset(x int32) int32 {
-	if !(x >= TypePointers_AXIOMATIC_COLOR_COUNT) {
-		Preconditions_checkState_boolean_Object(false, any(int32(x)))
+	if x < TypePointers_AXIOMATIC_COLOR_COUNT {
+		panic(new_IllegalStateException_String(objstr_(any(int32(x)))).self())
 	}
 	return (x - TypePointers_AXIOMATIC_COLOR_COUNT)
 }
 
 func TypePointers_untrimOffset(x int32) int32 {
-	if !(x >= 0) {
-		Preconditions_checkState_boolean_Object(false, any(int32(x)))
+	if x < 0 {
+		panic(new_IllegalStateException_String(objstr_(any(int32(x)))).self())
 	}
 	return (x + TypePointers_AXIOMATIC_COLOR_COUNT)
 }

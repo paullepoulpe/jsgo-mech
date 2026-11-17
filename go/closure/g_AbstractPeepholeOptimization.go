@@ -54,12 +54,16 @@ func (this *AbstractPeepholeOptimization) report(diagnostic *DiagnosticType, n N
 }
 
 func (this *AbstractPeepholeOptimization) areNodesEqualForInlining(n1 Node, n2 Node) bool {
-	Preconditions_checkNotNull(this.compiler_.self())
+	if this.compiler_ == nil {
+		panic(new_NullPointerException_0().self())
+	}
 	return this.compiler_.areNodesEqualForInlining(n1, n2)
 }
 
 func (this *AbstractPeepholeOptimization) isASTNormalized() bool {
-	Preconditions_checkNotNull(this.compiler_.self())
+	if this.compiler_ == nil {
+		panic(new_NullPointerException_0().self())
+	}
 	return this.compiler_.getLifeCycleStage().isNormalized()
 }
 
@@ -70,7 +74,7 @@ func (this *AbstractPeepholeOptimization) beginTraversal_impl(compiler *Abstract
 
 func (this *AbstractPeepholeOptimization) endTraversal() {
 	if ok_, a1_, a2_ := this.newFeatures.isEmpty(), this.newFeatures.asSet(), Object_getClass(this.self()).getName(); !ok_ {
-		Preconditions_checkState_boolean_String_Object_Object(false, "Expected getNewFeatures() to be empty in endTraversal() but found %s for %s", obj_(a1_), strobj_(a2_))
+		panic(new_IllegalStateException_String(Strings_lenientFormat("Expected getNewFeatures() to be empty in endTraversal() but found %s for %s", []any{obj_(a1_), strobj_(a2_)})).self())
 	}
 	this.compiler_ = nil
 	this.astAnalyzer = nil
@@ -141,17 +145,23 @@ func (this *AbstractPeepholeOptimization) reportChangeToEnclosingScope(n Node) {
 }
 
 func (this *AbstractPeepholeOptimization) deleteNode(property Node) {
-	Preconditions_checkNotNull(this.compiler_.self())
+	if this.compiler_ == nil {
+		panic(new_NullPointerException_0().self())
+	}
 	NodeUtil_deleteNode(property, this.compiler_)
 }
 
 func (this *AbstractPeepholeOptimization) markFunctionsDeleted(function Node) {
-	Preconditions_checkNotNull(this.compiler_.self())
+	if this.compiler_ == nil {
+		panic(new_NullPointerException_0().self())
+	}
 	NodeUtil_markFunctionsDeleted(function, this.compiler_)
 }
 
 func (this *AbstractPeepholeOptimization) markNewScopesChanged(n Node) {
-	Preconditions_checkNotNull(this.compiler_.self())
+	if this.compiler_ == nil {
+		panic(new_NullPointerException_0().self())
+	}
 	NodeUtil_markNewScopesChanged(n, this.compiler_)
 }
 

@@ -83,7 +83,9 @@ func (this *InlineObjectLiterals_InliningBehavior) isInlinableObject(refs *TList
 		var parent Node = ref.getParent()
 		var grandparent Node = ref.getGrandparent()
 		if NodeUtil_isNormalOrOptChainGetProp(parent) {
-			Preconditions_checkState((parent.getFirstChild() == name))
+			if parent.getFirstChild() != name {
+				panic(new_IllegalStateException_0().self())
+			}
 			if NodeUtil_isInvocationTarget(parent) {
 				return false
 			}
@@ -157,7 +159,7 @@ func (this *InlineObjectLiterals_InliningBehavior) computeVarList(referenceInfo 
 			var val Node = ref.getAssignedValue()
 			if val != 0 {
 				if !val.isObjectLit() {
-					Preconditions_checkState_boolean_Object(false, val.box_())
+					panic(new_IllegalStateException_String(objstr_(val.box_())).self())
 				}
 				{
 					var child Node = val.getFirstChild()
@@ -179,7 +181,7 @@ func (this *InlineObjectLiterals_InliningBehavior) computeVarList(referenceInfo 
 		} else {
 			var getprop Node = ref.getParent()
 			if !NodeUtil_isNormalOrOptChainGetProp(getprop) {
-				Preconditions_checkState_boolean_Object(false, getprop.box_())
+				panic(new_IllegalStateException_String(objstr_(getprop.box_())).self())
 			}
 			var varname string = getprop.getString()
 			if varmap.containsKey(varname) {
@@ -195,7 +197,7 @@ func (this *InlineObjectLiterals_InliningBehavior) computeVarList(referenceInfo 
 func (this *InlineObjectLiterals_InliningBehavior) fillInitialValues(init_ *Reference, initvals map[string]Node) {
 	var object Node = init_.getAssignedValue()
 	if !object.isObjectLit() {
-		Preconditions_checkState_boolean_Object(false, object.box_())
+		panic(new_IllegalStateException_String(objstr_(object.box_())).self())
 	}
 	{
 		var key Node = object.getFirstChild()
@@ -210,7 +212,7 @@ func (this *InlineObjectLiterals_InliningBehavior) replaceAssignmentExpression(v
 	var val Node = ref.getAssignedValue()
 	this.recordStaleVarReferencesInTree(val, cast_[*Scope](v.getScope()))
 	if !val.isObjectLit() {
-		Preconditions_checkState_boolean_Object(false, val.box_())
+		panic(new_IllegalStateException_String(objstr_(val.box_())).self())
 	}
 	var all *TSet[string] = tsetFrom_(tc_string, Collection(varmap.asMap().keySet()), false)
 	{
@@ -278,7 +280,7 @@ func (this *InlineObjectLiterals_InliningBehavior) splitObject(v *Var, init_ *Re
 		vnode = cast_[*Scope](cast_[*Scope](v.getScope()).getClosestHoistScope().self()).getRootNode().getFirstChild()
 	}
 	if !NodeUtil_isStatement(vnode) {
-		Preconditions_checkState_boolean_Object(false, vnode.box_())
+		panic(new_IllegalStateException_String(objstr_(vnode.box_())).self())
 	}
 	if isBlockScoped && !varmap.isEmpty() {
 		var script Node = NodeUtil_getEnclosingScript(vnode)
@@ -325,10 +327,12 @@ func (this *InlineObjectLiterals_InliningBehavior) splitObject(v *Var, init_ *Re
 		} else {
 			var getprop Node = ref.getParent()
 			if !NodeUtil_isNormalOrOptChainGetProp(getprop) {
-				Preconditions_checkState_boolean_Object(false, getprop.box_())
+				panic(new_IllegalStateException_String(objstr_(getprop.box_())).self())
 			}
 			var var_ string = getprop.getString()
-			Preconditions_checkState(varmap.containsKey(var_))
+			if !varmap.containsKey(var_) {
+				panic(new_IllegalStateException_0().self())
+			}
 			var replacement Node = IR_name(varmap.get(var_))
 			replacement.srcrefIfMissing(getprop)
 			ref.getParent().replaceWith(replacement)

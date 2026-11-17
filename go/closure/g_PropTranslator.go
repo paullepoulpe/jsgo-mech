@@ -28,7 +28,7 @@ func PropTranslator_setProps() {
 		var protoProp NodeProperty = PropTranslator_serializeProp(rhinoProp)
 		if protoProp != 0 {
 			if ok_, a1_, a2_ := (protoProp.getNumber() < 63), protoProp, protoProp.getNumber(); !ok_ {
-				Preconditions_checkState_boolean_String_Object_int(false, "enum %s value %s", obj_(a1_), a2_)
+				panic(new_IllegalStateException_String(Strings_lenientFormat("enum %s value %s", []any{obj_(a1_), a2_})).self())
 			}
 			PropTranslator_protoToRhinoProp[protoProp.ordinal()] = rhinoProp
 			PropTranslator_rhinoToProtoProp[rhinoProp.ordinal()] = protoProp
@@ -125,8 +125,8 @@ func PropTranslator_checkUnexpectedNullProtoProps() {
 		case NodeProperty_MUTATES_GLOBAL_STATE, NodeProperty_MUTATES_THIS, NodeProperty_MUTATES_ARGUMENTS, NodeProperty_THROWS:
 		case NodeProperty_CLOSURE_UNAWARE_SHADOW:
 		default:
-			if !(PropTranslator_protoToRhinoProp[protoProp.ordinal()] != 0) {
-				Preconditions_checkState_boolean_String_Object(false, "Hit unhandled node property: %s", obj_(protoProp))
+			if PropTranslator_protoToRhinoProp[protoProp.ordinal()] == 0 {
+				panic(new_IllegalStateException_String(Strings_lenientFormat("Hit unhandled node property: %s", []any{obj_(protoProp)})).self())
 			}
 		}
 	}

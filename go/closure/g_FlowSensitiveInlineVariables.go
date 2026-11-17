@@ -343,7 +343,9 @@ func (this *FlowSensitiveInlineVariables_Candidate) zero_FlowSensitiveInlineVari
 }
 
 func (this *FlowSensitiveInlineVariables_Candidate) init_FlowSensitiveInlineVariables_Candidate(varName string, defMetadata *MustBeReachingVariableDef_Definition, use Node, useCfgNode Node) {
-	Preconditions_checkArgument(use.isName())
+	if !use.isName() {
+		panic(new_IllegalArgumentException_0().self())
+	}
 	this.varName_ = varName
 	this.defMetadata = defMetadata
 	this.use = use
@@ -430,7 +432,9 @@ func (this *FlowSensitiveInlineVariables_Candidate) inlineVariable() {
 	if this.def.isAssign() {
 		var rhs Node = this.def.getLastChild()
 		rhs.detach()
-		Preconditions_checkState(defParent.isExprResult())
+		if !defParent.isExprResult() {
+			panic(new_IllegalStateException_0().self())
+		}
 		for defParent.getParent().isLabel() {
 			defParent = defParent.getParent()
 		}

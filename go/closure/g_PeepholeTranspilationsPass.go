@@ -27,7 +27,7 @@ func PeepholeTranspilationsPass_create(compiler *AbstractCompiler, transpilation
 	var featureSetToMarkAsTranspiledAway *FeatureSet = FeatureSet_BARE_MINIMUM
 	for _, transpilation := range transpilations {
 		if ok_, a1_ := !transpilation.getAdditionalFeaturesToRunOn().containsAtLeastOneOf(transpilation.getTranspiledAwayFeatures()), Object_getClass(transpilation.self()).getSimpleName(); !ok_ {
-			Preconditions_checkState_boolean_String_Object(false, "Transpilation pass %s has getAdditionalFeaturesToRunOn() that contains features that it transpiles away.", strobj_(a1_))
+			panic(new_IllegalStateException_String(Strings_lenientFormat("Transpilation pass %s has getAdditionalFeaturesToRunOn() that contains features that it transpiles away.", []any{strobj_(a1_)})).self())
 		}
 		featureSetToRunOn = featureSetToRunOn.withFeatureSet(transpilation.getTranspiledAwayFeatures())
 		featureSetToRunOn = featureSetToRunOn.withFeatureSet(transpilation.getAdditionalFeaturesToRunOn())

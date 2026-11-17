@@ -38,7 +38,7 @@ func new_InstrumentAsyncContext(compiler *AbstractCompiler, shouldInstrumentAwai
 
 func (this *InstrumentAsyncContext) process_2(externs Node, root Node) {
 	if ok_, a1_ := this.compiler_.getLifeCycleStage().isNormalized(), this.compiler_.getLifeCycleStage(); !ok_ {
-		Preconditions_checkState_boolean_Object(false, obj_(a1_))
+		panic(new_IllegalStateException_String(objstr_(obj_(a1_))).self())
 	}
 	NodeTraversal_traverse(this.compiler_, root, this)
 }
@@ -89,7 +89,9 @@ func (this *InstrumentAsyncContext) visit(t *NodeTraversal, n Node, parent Node)
 		} else if n.isGeneratorFunction() {
 			this.instrumentGeneratorFunction(t, n, context)
 		} else {
-			Preconditions_checkState(n.isAsyncFunction())
+			if !n.isAsyncFunction() {
+				panic(new_IllegalStateException_0().self())
+			}
 			this.instrumentAsyncFunction(n, t.getInput(), context)
 		}
 	}
@@ -140,7 +142,9 @@ func (this *InstrumentAsyncContext) instrumentForAwaitOf(t *NodeTraversal, n Nod
 	arg.replaceWith(placeholder)
 	placeholder.replaceWith(functionContext.suspend_1(arg).srcrefTreeIfMissing(arg))
 	var body Node = n.getLastChild()
-	Preconditions_checkState(body.isBlock())
+	if !body.isBlock() {
+		panic(new_IllegalStateException_0().self())
+	}
 	body.replaceWith(placeholder)
 	placeholder.replaceWith(IR_blockNodeVarargs([]Node{IR_exprResult(functionContext.resume().srcrefTreeIfMissing(arg)), IR_tryFinally(body, IR_block_Node(IR_exprResult(functionContext.suspend().srcrefTreeIfMissing(arg))))}))
 	if !parent.isBlock() {
@@ -159,7 +163,9 @@ func (this *InstrumentAsyncContext) instrumentTry(n Node, functionContext *Instr
 	} else {
 		block = block.getNext()
 	}
-	Preconditions_checkState(block.isBlock())
+	if !block.isBlock() {
+		panic(new_IllegalStateException_0().self())
+	}
 	block.addChildToFront(IR_exprResult(functionContext.resume().srcrefTreeIfMissing(block)))
 }
 

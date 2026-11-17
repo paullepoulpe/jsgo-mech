@@ -93,8 +93,8 @@ func (this *ComposeWarningsGuard) level_impl(error_ *JSError) CheckLevel {
 func (this *ComposeWarningsGuard) mustRunChecks_impl(group *DiagnosticGroup) Tri {
 	var enable bool = this.enables(group)
 	var disable bool = this.disables(group)
-	if !(!enable || !disable) {
-		Preconditions_checkState_boolean_String_Object_Object(false, "%s applied to %s", obj_(this), obj_(group))
+	if enable && disable {
+		panic(new_IllegalStateException_String(Strings_lenientFormat("%s applied to %s", []any{obj_(this), obj_(group)})).self())
 	}
 	if enable {
 		return Tri_TRUE

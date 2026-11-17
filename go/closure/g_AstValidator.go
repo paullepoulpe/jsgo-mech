@@ -205,7 +205,9 @@ func (this *AstValidator) validateStatement_2(n Node, isAmbient bool) {
 		this.violation(("Expected statement but was " + tostr_(n.getToken()) + "."), n)
 	default:
 		if n.isModuleBody() && this.compiler_.getOptions().getSkipNonTranspilationPasses() {
-			Preconditions_checkState_boolean_Object(!this.compiler_.getOptions().shouldWrapGoogModulesForWhitespaceOnly(), strobj_("Modules can exist in transpiler only if setWrapGoogModulesForWhitespaceOnly is false"))
+			if this.compiler_.getOptions().shouldWrapGoogModulesForWhitespaceOnly() {
+				panic(new_IllegalStateException_String("Modules can exist in transpiler only if setWrapGoogModulesForWhitespaceOnly is false").self())
+			}
 			this.validateModuleContents(n)
 			return
 		}
@@ -310,13 +312,13 @@ func (this *AstValidator) validatePseudoExpression(n Node, allowedPseudoexpressi
 	switch n.ns_().token {
 	case tokOrd1_EMPTY:
 		if !allowedTokensSet.contains(obj_(Token_rhino_EMPTY)) {
-			Preconditions_checkArgument_boolean_String_Object(false, "Unexpected pseudoexpression %s", n.box_())
+			panic(new_IllegalArgumentException_String(Strings_lenientFormat("Unexpected pseudoexpression %s", []any{n.box_()})).self())
 		}
 		this.validateProperties(n)
 		this.validateChildless(n)
 	case tokOrd1_ITER_SPREAD:
 		if !allowedTokensSet.contains(obj_(Token_rhino_ITER_SPREAD)) {
-			Preconditions_checkArgument_boolean_String_Object(false, "Unexpected pseudoexpression %s", n.box_())
+			panic(new_IllegalArgumentException_String(Strings_lenientFormat("Unexpected pseudoexpression %s", []any{n.box_()})).self())
 		}
 		this.validateProperties(n)
 		this.validateChildCount(n)
@@ -365,7 +367,7 @@ func (this *AstValidator) validateCallType(callNode Node) {
 	case AstValidator_TypeInfoValidation_COLOR:
 		var callee Node = callNode.getFirstChild()
 		if v_, a1_ := callee.getColor(), callNode.toStringTree(); v_ == nil {
-			Preconditions_checkNotNull_Object_String_Object(nil, "Callee of\n\n%s\nhas no color.", strobj_(a1_))
+			panic(new_NullPointerException_String(Strings_lenientFormat("Callee of\n\n%s\nhas no color.", []any{strobj_(a1_)})).self())
 		}
 	case AstValidator_TypeInfoValidation_NONE:
 		panic(new_AssertionError_0().self())
@@ -448,12 +450,15 @@ func (this *AstValidator) validateAwaitWithinAsyncFunction(n Node) {
 }
 
 func (this *AstValidator) isInParameterListOfFunction(child Node, functionNode Node) bool {
-	var paramList Node = Node_of_(Preconditions_checkNotNull_Object_Object(functionNode.getSecondChild().box_(), functionNode.box_()))
+	var paramList Node = functionNode.getSecondChild()
+	if paramList == 0 {
+		panic(new_NullPointerException_String(objstr_(functionNode.box_())).self())
+	}
 	{
 		var parent Node = child.getParent()
 		for ; parent != functionNode; parent = parent.getParent() {
-			if parent.box_() == nil {
-				Preconditions_checkNotNull_Object_String_Object_Object(nil, "%s not contained in function %s", child.box_(), functionNode.box_())
+			if parent == 0 {
+				panic(new_NullPointerException_String(Strings_lenientFormat("%s not contained in function %s", []any{child.box_(), functionNode.box_()})).self())
 			}
 			if parent == paramList {
 				return true
@@ -1547,7 +1552,7 @@ func (this *AstValidator) validateAssignmentOpTarget(lhs Node, contextType Token
 
 func (this *AstValidator) validateGetElem(n Node) {
 	if !n.isGetElem() {
-		Preconditions_checkArgument_boolean_Object(false, n.box_())
+		panic(new_IllegalArgumentException_String(objstr_(n.box_())).self())
 	}
 	this.validateProperties(n)
 	this.validateChildCount_2(n, 2)
@@ -1558,7 +1563,7 @@ func (this *AstValidator) validateGetElem(n Node) {
 func (this *AstValidator) validateOptChainGetElem(node Node) {
 	this.validateFeature(FeatureSet_Feature_OPTIONAL_CHAINING, node)
 	if !node.isOptChainGetElem() {
-		Preconditions_checkArgument_boolean_Object(false, node.box_())
+		panic(new_IllegalArgumentException_String(objstr_(node.box_())).self())
 	}
 	this.validateProperties(node)
 	this.validateChildCount_2(node, 2)

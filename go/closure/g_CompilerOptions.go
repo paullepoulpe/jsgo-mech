@@ -589,8 +589,12 @@ func (this *CompilerOptions) getTcProjectId() string {
 
 func (this *CompilerOptions) shouldRunReplaceMessagesForChrome() bool {
 	if this.replaceMessagesWithChromeI18n {
-		Preconditions_checkState_boolean_Object(((this.messageBundle == nil) || is_[*EmptyMessageBundle](any(this.messageBundle))), strobj_("When replacing messages with chrome.i18n.getMessage, a message bundle should not be specified."))
-		Preconditions_checkState_boolean_Object(!this.doLateLocalizationField, strobj_("Late localization is not supported for chrome.i18n.getMessage"))
+		if this.messageBundle != nil && !is_[*EmptyMessageBundle](any(this.messageBundle)) {
+			panic(new_IllegalStateException_String("When replacing messages with chrome.i18n.getMessage, a message bundle should not be specified.").self())
+		}
+		if this.doLateLocalizationField {
+			panic(new_IllegalStateException_String("Late localization is not supported for chrome.i18n.getMessage").self())
+		}
 		return true
 	} else {
 		return false
@@ -961,7 +965,9 @@ func (this *CompilerOptions) getInlineFunctionsLevel() CompilerOptions_Reach {
 }
 
 func (this *CompilerOptions) setMaxFunctionSizeAfterInlining(funAstSize int32) {
-	Preconditions_checkArgument((funAstSize > 0))
+	if funAstSize <= 0 {
+		panic(new_IllegalArgumentException_0().self())
+	}
 	this.maxFunctionSizeAfterInlining = funAstSize
 }
 
@@ -1100,7 +1106,7 @@ func (this *CompilerOptions) getAngularPass() bool {
 
 func (this *CompilerOptions) setPolymerVersion(polymerVersion any) {
 	if !(((polymerVersion == nil) || (unbox_[int32](polymerVersion) == 1)) || (unbox_[int32](polymerVersion) == 2)) {
-		Preconditions_checkArgument_boolean_String_Object(false, "Invalid Polymer version: (%s)", polymerVersion)
+		panic(new_IllegalArgumentException_String(Strings_lenientFormat("Invalid Polymer version: (%s)", []any{polymerVersion})).self())
 	}
 	this.polymerPass = (polymerVersion != nil)
 }
@@ -1190,13 +1196,17 @@ func (this *CompilerOptions) getTweakProcessing() CompilerOptions_TweakProcessin
 }
 
 func (this *CompilerOptions) setLanguage(language CompilerOptions_LanguageMode) {
-	Preconditions_checkState((language != CompilerOptions_LanguageMode_NO_TRANSPILE))
+	if language == CompilerOptions_LanguageMode_NO_TRANSPILE {
+		panic(new_IllegalStateException_0().self())
+	}
 	this.setLanguageIn(language)
 	this.setLanguageOut(language)
 }
 
 func (this *CompilerOptions) setLanguageIn(languageIn CompilerOptions_LanguageMode) {
-	Preconditions_checkState((languageIn != CompilerOptions_LanguageMode_NO_TRANSPILE))
+	if languageIn == CompilerOptions_LanguageMode_NO_TRANSPILE {
+		panic(new_IllegalStateException_0().self())
+	}
 	this.languageIn = func() CompilerOptions_LanguageMode {
 		if languageIn == CompilerOptions_LanguageMode_STABLE {
 			return CompilerOptions_LanguageMode_STABLE_IN

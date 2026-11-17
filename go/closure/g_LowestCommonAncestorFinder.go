@@ -25,16 +25,20 @@ func new_LowestCommonAncestorFinder(graph *DiGraph) *LowestCommonAncestorFinder 
 }
 
 func (this *LowestCommonAncestorFinder) findAll(roots SetOf[any]) ImmutableSetOf[any] {
-	Preconditions_checkArgument_boolean_Object((roots.size() <= 31), strobj_("Too many roots."))
-	Preconditions_checkState(this.searchColoring.isEmpty())
+	if roots.size() > 31 {
+		panic(new_IllegalArgumentException_String("Too many roots.").self())
+	}
+	if !this.searchColoring.isEmpty() {
+		panic(new_IllegalStateException_0().self())
+	}
 	var allColor *LowestCommonAncestorFinder_Color = LowestCommonAncestorFinder_Color_create(((int32(1) << (uint32(roots.size()) & 31)) - 1))
 	var bitForRoot int32 = 1
 	it_1 := foreach_(any(roots))
 	for it_1.next() {
 		var root any = it_1.v
 		var rootNode DiGraph_DiGraphNode = icast_DiGraph_DiGraphNode(this.graph.getNode(root))
-		if any(rootNode) == nil {
-			Preconditions_checkNotNull_Object_String_Object(nil, "Root not present in graph: %s", root)
+		if rootNode == nil {
+			panic(new_NullPointerException_String(Strings_lenientFormat("Root not present in graph: %s", []any{root})).self())
 		}
 		var color *LowestCommonAncestorFinder_Color = LowestCommonAncestorFinder_Color_create(bitForRoot)
 		Map_merge_f(this.searchColoring.asMap(), rootNode, obj_(color), lambda_LowestCommonAncestorFinder_findAll_1_)
@@ -71,7 +75,9 @@ func lambda_LowestCommonAncestorFinder_findAll_1_(p0 any, p1 any) any {
 }
 
 func (this *LowestCommonAncestorFinder) paintAncestors(root DiGraph_DiGraphNode, color *LowestCommonAncestorFinder_Color) {
-	Preconditions_checkState(len(this.searchQueue) == 0)
+	if len(this.searchQueue) != 0 {
+		panic(new_IllegalStateException_0().self())
+	}
 	this.searchQueue = append(this.searchQueue, root)
 	for len(this.searchQueue) != 0 {
 		var curr DiGraph_DiGraphNode = slicePopFirst_(tc_DiGraph_DiGraphNode, &this.searchQueue)
@@ -120,7 +126,9 @@ func new_LowestCommonAncestorFinder_Color(bitset int32) *LowestCommonAncestorFin
 
 func LowestCommonAncestorFinder_Color_create(bitset int32) *LowestCommonAncestorFinder_Color {
 	if bitset < 0 {
-		Preconditions_checkArgument((bitset == -1))
+		if bitset != -1 {
+			panic(new_IllegalArgumentException_0().self())
+		}
 		return LowestCommonAncestorFinder_Color_NOT_LOWEST
 	} else if bitset < int32(len(LowestCommonAncestorFinder_Color_COMMON_COLOR_CACHE)) {
 		return LowestCommonAncestorFinder_Color_COMMON_COLOR_CACHE[bitset]

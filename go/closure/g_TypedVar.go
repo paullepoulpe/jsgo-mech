@@ -38,7 +38,7 @@ func (this *TypedVar) init_TypedVar(inferred bool, name string, nameNode Node, t
 	this.finit_TypedVar()
 	if nameNode != 0 {
 		if ok_, a1_ := TypedVar_NAME_NODE_TYPES.contains(obj_(nameNode.getToken())), nameNode.getToken(); !ok_ {
-			Preconditions_checkArgument_boolean_String_Object(false, "Invalid name node token %s", obj_(a1_))
+			panic(new_IllegalArgumentException_String(Strings_lenientFormat("Invalid name node token %s", []any{obj_(a1_)})).self())
 		}
 	}
 	this.type__ = type_

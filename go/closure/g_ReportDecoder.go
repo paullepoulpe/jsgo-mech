@@ -26,15 +26,21 @@ func ReportDecoder_parseMappingFromFile(mappingFilePath string) *Outcome_base {
 func ReportDecoder_parseMapping(mappingFileContent string) *Outcome_base {
 	var mapping MapOf[string, *InstrumentationPoint] = new_LinkedHashMap()
 	var linesOfFile []string = sliceImm_(tc_string, Splitter_on('\n').omitEmptyStrings().splitToList_s(mappingFileContent))
-	if !(int32(len(linesOfFile)) >= 3) {
-		Preconditions_checkState_boolean_String_Object(false, "Malformed report %s", any(sliceView_(tc_string, linesOfFile)))
+	if int32(len(linesOfFile)) < 3 {
+		panic(new_IllegalStateException_String(Strings_lenientFormat("Malformed report %s", []any{any(sliceView_(tc_string, linesOfFile))})).self())
 	}
 	var fileNamesLine string = String_trim(sliceAt_(linesOfFile, 0))
 	var functionNamesLine string = String_trim(sliceAt_(linesOfFile, 1))
 	var typesLine string = String_trim(sliceAt_(linesOfFile, 2))
-	Preconditions_checkState(String_startsWith(fileNamesLine, "FileNames:"))
-	Preconditions_checkState(String_startsWith(functionNamesLine, "FunctionNames:"))
-	Preconditions_checkState(String_startsWith(typesLine, "Types:"))
+	if !String_startsWith(fileNamesLine, "FileNames:") {
+		panic(new_IllegalStateException_0().self())
+	}
+	if !String_startsWith(functionNamesLine, "FunctionNames:") {
+		panic(new_IllegalStateException_0().self())
+	}
+	if !String_startsWith(typesLine, "Types:") {
+		panic(new_IllegalStateException_0().self())
+	}
 	var fileNamesAsJsonArray string = String_substring_int(fileNamesLine, (String_indexOf_String(fileNamesLine, ":") + 1))
 	var functionNamesAsJsonArray string = String_substring_int(functionNamesLine, (String_indexOf_String(functionNamesLine, ":") + 1))
 	var typesAsJsonArray string = String_substring_int(typesLine, (String_indexOf_String(typesLine, ":") + 1))

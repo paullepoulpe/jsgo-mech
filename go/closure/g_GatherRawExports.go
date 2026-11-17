@@ -33,7 +33,9 @@ func new_GatherRawExports(compiler *AbstractCompiler) *GatherRawExports {
 }
 
 func (this *GatherRawExports) process_2(externs Node, root Node) {
-	Preconditions_checkState(this.compiler_.getLifeCycleStage().isNormalized())
+	if !this.compiler_.getLifeCycleStage().isNormalized() {
+		panic(new_IllegalStateException_0().self())
+	}
 	NodeTraversal_traverse(this.compiler_, root, this)
 }
 

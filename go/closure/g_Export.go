@@ -252,27 +252,61 @@ func (this *Export_Builder) build() *Export {
 }
 
 func (this *Export_Builder) validateEsModule(e *Export) {
-	Preconditions_checkState(e.closureNamespace().isEmpty())
-	Preconditions_checkState_boolean_Object((!("*" == e.importName().orElse("")) || ((e.moduleRequest().isPresent() && e.exportName().isEmpty()) && e.localName().isEmpty())), strobj_("Star exports should not have exported / local names."))
-	Preconditions_checkState_boolean_Object((e.localName().isEmpty() || e.moduleRequest().isEmpty()), strobj_("Local exports should not have module requests."))
-	Preconditions_checkState_boolean_Object((e.moduleRequest().isEmpty() || e.localName().isEmpty()), strobj_("Reexports should not have local names."))
-	Preconditions_checkState_boolean_Object((e.moduleRequest().isEmpty() || e.importName().isPresent()), strobj_("Reexports should have import names."))
-	Preconditions_checkState_boolean_Object((e.importName().isEmpty() || e.moduleRequest().isPresent()), strobj_("Exports with an import name should be a reexport."))
+	if !e.closureNamespace().isEmpty() {
+		panic(new_IllegalStateException_0().self())
+	}
+	if !(!("*" == e.importName().orElse("")) || ((e.moduleRequest().isPresent() && e.exportName().isEmpty()) && e.localName().isEmpty())) {
+		panic(new_IllegalStateException_String("Star exports should not have exported / local names.").self())
+	}
+	if !e.localName().isEmpty() && !e.moduleRequest().isEmpty() {
+		panic(new_IllegalStateException_String("Local exports should not have module requests.").self())
+	}
+	if !e.moduleRequest().isEmpty() && !e.localName().isEmpty() {
+		panic(new_IllegalStateException_String("Reexports should not have local names.").self())
+	}
+	if !e.moduleRequest().isEmpty() && !e.importName().isPresent() {
+		panic(new_IllegalStateException_String("Reexports should have import names.").self())
+	}
+	if !e.importName().isEmpty() && !e.moduleRequest().isPresent() {
+		panic(new_IllegalStateException_String("Exports with an import name should be a reexport.").self())
+	}
 }
 
 func Export_Builder_validateGoogModule(e *Export) {
-	Preconditions_checkState_boolean_Object(e.closureNamespace().isPresent(), strobj_("Exports should be associated with a namespace"))
-	Preconditions_checkState_boolean_Object(e.exportName().isPresent(), strobj_("Exports should be named"))
-	Preconditions_checkState_boolean_Object((e.exportNode() != 0), strobj_("Exports should have a node"))
-	Preconditions_checkState_boolean_Object(e.localName().isEmpty(), strobj_("goog.module Exports don't set a localName"))
-	Preconditions_checkState_boolean_Object(e.moduleRequest().isEmpty(), strobj_("goog modules cannot export from other modules"))
+	if !e.closureNamespace().isPresent() {
+		panic(new_IllegalStateException_String("Exports should be associated with a namespace").self())
+	}
+	if !e.exportName().isPresent() {
+		panic(new_IllegalStateException_String("Exports should be named").self())
+	}
+	if e.exportNode() == 0 {
+		panic(new_IllegalStateException_String("Exports should have a node").self())
+	}
+	if !e.localName().isEmpty() {
+		panic(new_IllegalStateException_String("goog.module Exports don't set a localName").self())
+	}
+	if !e.moduleRequest().isEmpty() {
+		panic(new_IllegalStateException_String("goog modules cannot export from other modules").self())
+	}
 }
 
 func Export_Builder_validateOtherModule(e *Export) {
-	Preconditions_checkState(e.exportName().isPresent())
-	Preconditions_checkState((e.exportNode() == 0))
-	Preconditions_checkState(e.localName().isEmpty())
-	Preconditions_checkState(e.moduleRequest().isEmpty())
-	Preconditions_checkState(e.importName().isEmpty())
-	Preconditions_checkState((e.nameNode() == 0))
+	if !e.exportName().isPresent() {
+		panic(new_IllegalStateException_0().self())
+	}
+	if e.exportNode() != 0 {
+		panic(new_IllegalStateException_0().self())
+	}
+	if !e.localName().isEmpty() {
+		panic(new_IllegalStateException_0().self())
+	}
+	if !e.moduleRequest().isEmpty() {
+		panic(new_IllegalStateException_0().self())
+	}
+	if !e.importName().isEmpty() {
+		panic(new_IllegalStateException_0().self())
+	}
+	if e.nameNode() != 0 {
+		panic(new_IllegalStateException_0().self())
+	}
 }

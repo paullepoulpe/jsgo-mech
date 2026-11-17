@@ -229,7 +229,9 @@ func (this *ObjectType) defineSynthesizedProperty(propertyName string, type_ *JS
 }
 
 func (this *ObjectType) defineInferredPropertyKey(propertyName Property_Key, type_ *JSType, propertyNode Node) bool {
-	Preconditions_checkArgument_boolean_Object(Object_equals(obj_(propertyName.kind()), obj_(Property_KeyKind_STRING)), strobj_("Symbol-based property keys are not supported for inferred properties."))
+	if !Object_equals(obj_(propertyName.kind()), obj_(Property_KeyKind_STRING)) {
+		panic(new_IllegalArgumentException_String("Symbol-based property keys are not supported for inferred properties.").self())
+	}
 	return this.defineInferredProperty(propertyName.string(), type_, propertyNode)
 }
 
