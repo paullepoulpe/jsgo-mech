@@ -55,52 +55,24 @@ type ThreadGroup struct{}
 
 type Thread struct {
 	self_        any
-	target_      Runnable
 	name_        string
 	daemon_      bool
 	started_     bool
 	done_        bool
 	interrupted_ bool
-	handler_     Thread_UncaughtExceptionHandler
 }
 
 func (this *Thread) as_Thread() *Thread { return this }
 
-var threadCount_ int32
-
 // mainThread_ is the thread of the process; threads_ are the threads whose
-// run() is executing, innermost last.
+// run() is executing, innermost last: only mainThread_, since nothing starts a
+// thread (the translated code runs on one goroutine).
 var mainThread_ = func() *Thread {
 	t := &Thread{name_: "main", started_: true}
 	t.self_ = t
 	return t
 }()
 var threads_ = []*Thread{mainThread_}
-
-func (this *Thread) init_Thread_ThreadGroup_Runnable_String_long(g *ThreadGroup, r Runnable, name string, stackSize int64) {
-	this.target_ = r
-	this.name_ = name
-}
-
-func new_Thread_ThreadGroup_Runnable_String_long(g *ThreadGroup, r Runnable, name string, stackSize int64) *Thread {
-	if name == nullstr_ {
-		panic(new_NullPointerException_String("name cannot be null").self())
-	}
-	this := &Thread{}
-	this.self_ = this
-	this.init_Thread_ThreadGroup_Runnable_String_long(g, r, name, stackSize)
-	return this
-}
-
-func nextThreadName_() string {
-	n := threadCount_
-	threadCount_++
-	return "Thread-" + istr_(int64(n))
-}
-
-func new_Thread_Runnable(r Runnable) *Thread {
-	return new_Thread_ThreadGroup_Runnable_String_long(nil, r, nextThreadName_(), 0)
-}
 
 func Thread_currentThread() *Thread { return threads_[len(threads_)-1] }
 
@@ -110,41 +82,6 @@ func Thread_interrupted() bool {
 	was := t.interrupted_
 	t.interrupted_ = false
 	return was
-}
-
-// run runs the thread's Runnable, if it has one.
-func (this *Thread) run() {
-	if this.target_ != nil {
-		this.target_.run()
-	}
-}
-
-// start runs the thread to completion. An exception that escapes run() ends
-// the thread, not the caller: it goes to the uncaught exception handler, or
-// is printed.
-func (this *Thread) start() {
-	if this.started_ {
-		panic(new_RuntimeException_String("java.lang.IllegalThreadStateException").self())
-	}
-	this.started_ = true
-	threads_ = append(threads_, this)
-	defer func() {
-		threads_ = threads_[:len(threads_)-1]
-		this.done_ = true
-		if r := recover(); r != nil {
-			ex := caught_(r)
-			if h, ok := this.handler_.(interface{ uncaughtException(*Thread, *Throwable) }); ok {
-				h.uncaughtException(this, to_Throwable(ex))
-				return
-			}
-			printErr_("Exception in thread \"" + this.name_ + "\" " + Io_stackTraceText(to_Throwable(ex)))
-		}
-	}()
-	if s, ok := this.self_.(interface{ run() }); ok {
-		s.run()
-	} else {
-		this.run()
-	}
 }
 
 func (this *Thread) setDaemon(on bool)   { this.daemon_ = on }
@@ -256,190 +193,6 @@ func (this TimeUnit) self() any {
 	}
 	return this
 }
-
-// ---- futures
-
-// future_ is a completed Future (also a Guava ListenableFuture).
-type future_ struct {
-	value_  any
-	failed_ *Throwable // what the task threw
-}
-
-func (this *future_) get() any {
-	if this.failed_ != nil {
-		panic(new_ExecutionException_Throwable(this.failed_).self())
-	}
-	return this.value_
-}
-
-func (this *future_) get_long_TimeUnit(timeout int64, unit TimeUnit) any { return this.get() }
-
-// runTask_ runs a task and returns its completed future.
-func runTask_(task func() any) *future_ {
-	f := &future_{}
-	func() {
-		defer func() {
-			if r := recover(); r != nil {
-				f.failed_ = to_Throwable(caught_(r))
-			}
-		}()
-		f.value_ = task()
-	}()
-	return f
-}
-
-// Futures_allAsList is a future of the list of all results, which fails if
-// any of the futures failed.
-func Futures_allAsList(futures Iterable) ListenableFuture {
-	out := &future_{}
-	results := []any{}
-	for it := futures.iterator(); it.hasNext(); {
-		f := it.next().(Future)
-		one := runTask_(f.get)
-		if one.failed_ != nil {
-			cause := one.failed_
-			if is_ExecutionException(cause.self_) && cause.cause_ != nil {
-				cause = cause.cause_
-			}
-			if out.failed_ == nil {
-				out.failed_ = cause
-			}
-			continue
-		}
-		results = append(results, one.value_)
-	}
-	if out.failed_ == nil {
-		out.value_ = listOf_(results)
-	}
-	return out
-}
-
-// ---- executors
-
-// AbstractExecutorService runs every task at once, on a thread from its
-// factory if it has one.
-type AbstractExecutorService struct {
-	factory_  ThreadFactory
-	shutdown_ bool
-}
-
-func rejected_() any {
-	// java.util.concurrent.RejectedExecutionException
-	return new_RuntimeException_String("Task rejected from executor that has been shut down").self()
-}
-
-func (this *AbstractExecutorService) execute(task Runnable) {
-	if task == nil {
-		panic(new_NullPointerException_0().self())
-	}
-	if this.shutdown_ {
-		panic(rejected_())
-	}
-	if this.factory_ != nil {
-		if t := this.factory_.newThread(task); t != nil {
-			t.start()
-			return
-		}
-	}
-	new_Thread_Runnable(task).start()
-}
-
-func (this *AbstractExecutorService) submit(task Callable) Future {
-	if task == nil {
-		panic(new_NullPointerException_0().self())
-	}
-	var f *future_
-	this.execute(&Runnable_fn{func() { f = runTask_(task.call) }})
-	return f
-}
-
-func (this *AbstractExecutorService) shutdown() { this.shutdown_ = true }
-
-func (this *AbstractExecutorService) close() { this.shutdown_ = true }
-
-type ThreadPoolExecutor struct {
-	AbstractExecutorService
-	self_ any
-}
-
-func (this *ThreadPoolExecutor) as_ThreadPoolExecutor() *ThreadPoolExecutor { return this }
-
-func (this *ThreadPoolExecutor) self() any {
-	if this == nil {
-		return nil
-	}
-	return this.self_
-}
-
-func (this *ThreadPoolExecutor) init_ThreadPoolExecutor_int_int_long_TimeUnit_BlockingQueue_ThreadFactory(core int32, max int32, keepAlive int64, unit TimeUnit, queue BlockingQueue, factory ThreadFactory) {
-	if core < 0 || max <= 0 || max < core || keepAlive < 0 {
-		panic(new_IllegalArgumentException_0().self())
-	}
-	if queue == nil || factory == nil {
-		panic(new_NullPointerException_0().self())
-	}
-	this.factory_ = factory
-}
-
-func new_ThreadPoolExecutor_int_int_long_TimeUnit_BlockingQueue_ThreadFactory(core int32, max int32, keepAlive int64, unit TimeUnit, queue BlockingQueue, factory ThreadFactory) *ThreadPoolExecutor {
-	this := &ThreadPoolExecutor{}
-	this.self_ = this
-	this.init_ThreadPoolExecutor_int_int_long_TimeUnit_BlockingQueue_ThreadFactory(core, max, keepAlive, unit, queue, factory)
-	return this
-}
-
-type Executors struct{}
-
-func newExecutor_(factory ThreadFactory) *ThreadPoolExecutor {
-	this := &ThreadPoolExecutor{}
-	this.self_ = this
-	this.factory_ = factory
-	return this
-}
-
-func Executors_newSingleThreadExecutor(factory ThreadFactory) ExecutorService {
-	if factory == nil {
-		panic(new_NullPointerException_0().self())
-	}
-	return newExecutor_(factory)
-}
-
-// ---- Guava: MoreExecutors
-
-type MoreExecutors struct{}
-
-type GwtFuturesCatchingSpecialization struct{}
-
-type Futures struct{}
-
-// listeningExecutor_ is MoreExecutors.listeningDecorator: the futures of the
-// executors here are ListenableFutures already.
-type listeningExecutor_ struct {
-	delegate_ ExecutorService
-}
-
-func (this *listeningExecutor_) submit(task Callable) Future { return this.delegate_.submit(task) }
-func (this *listeningExecutor_) shutdown()                   { this.delegate_.shutdown() }
-func (this *listeningExecutor_) execute(task Runnable) {
-	if e, ok := this.delegate_.(interface{ execute(Runnable) }); ok {
-		e.execute(task)
-	} else {
-		task.run()
-	}
-}
-
-func MoreExecutors_listeningDecorator(delegate ExecutorService) ListeningExecutorService {
-	if delegate == nil {
-		panic(new_NullPointerException_0().self())
-	}
-	if l, ok := delegate.(*listeningExecutor_); ok {
-		return l
-	}
-	return &listeningExecutor_{delegate}
-}
-
-// directExecutor_ runs each task in the calling thread.
-type directExecutor_ struct{}
 
 // ---- java.lang.management
 
