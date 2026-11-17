@@ -10,3 +10,6 @@ lang.Handles.Cell::note string-id
 lang.Handles.Cell::value string-id
 lang.Handles.Cell::kind handle-table lang.Handles.Named
 lang.Handles.Cell::label cold
+# A runtime field and method (see tools/j2go/handles.txt), implemented in selftest/rt_cell.go.
+lang.Handles.Cell::extra runtime Handles_Cell_extra_
+lang.Handles.Cell::getExtra runtime

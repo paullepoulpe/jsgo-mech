@@ -106,6 +106,19 @@ its handle (`htab_set_` and, for a copy from the same field of another object, `
 and is freed when the count returns to zero. An object of a handle class is never freed, so
 what its fields hold stays, as it does for every other field of such an object.
 
+A line `Class::field runtime GoType` (today `Node::propListHead`, `Node_props_`) gives a field
+a storage the handwritten runtime defines: the record holds a `GoType`, which must hold no Go
+pointer; a read of the field is `x.f_get_()`, a write `x.f_set_(v)`, `x.f == null` is
+`x.f_isnull_()`, a copy from the same field of another object `x.f_copy_(y)`, and `x.f_p_()`
+is the slot itself; all but the last are runtime methods that convert between `GoType` and
+the Java value. A line `Class::method runtime` names a method (all overloads of that name)
+that the runtime defines in place of the translation, with the Go name and signature the
+translation would give it, so that the code using the field most can work on `GoType`
+directly. For `Node` these are `getProp`, `getIntProp`, `getBooleanProp`, `putProp`,
+`putIntProp` and `removeProp` (`go/closure/rt_node_props.go`); every other method that reads
+the property list (debug strings, validation, serialization, equivalence) is translated and
+reads the list Java would hold, which `propListHead_get_` builds from the bits.
+
 A line `Class::field cold` names a pointer-free field of a handle class that
 traversals do not read (today `Node::previous`, `linenoCharno`, `length`). Cold
 fields, and the handle's own value that `box_` points at, go to a third record

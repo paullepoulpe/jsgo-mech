@@ -249,6 +249,8 @@ final class Emitter extends StmtEmitter {
     if (!anyCtor) defaultConstructor(te, hasFinit);
     for (Tree m : ct.getMembers()) {
       if (m instanceof MethodTree mt && !mt.getName().contentEquals("<init>")) {
+        // handles.txt "Class::method runtime": the handwritten runtime defines it.
+        if (handle && elemOf(mt) instanceof ExecutableElement me && cx.runtimeMethod(te, me)) continue;
         guarded("method " + n + "." + mt.getName(), () -> method(mt, te));
       }
     }
@@ -325,6 +327,12 @@ final class Emitter extends StmtEmitter {
     List<VariableElement> pf = new ArrayList<>(ns);
     pf.addAll(cs);
     for (VariableElement f : pf) {
+      if (cx.runtimeField(f) == null) continue;
+      // A runtime field: the runtime reads and writes its record slot through f_p_().
+      sb.append(recv(te)).append(cx.fieldName(f)).append("_p_() *").append(cx.runtimeField(f)).append(" {\n\treturn &").append(cx.fieldLoc("this", f))
+          .append("\n}\n\n");
+    }
+    for (VariableElement f : pf) {
       TypeMirror flag = cx.handleTable(f);
       if (flag == null) continue;
       // A handle-table field: a uint32 handle into a table of distinct values (rt_ids.go: htab_set_), bit 0
@@ -371,7 +379,7 @@ final class Emitter extends StmtEmitter {
     for (List<VariableElement> l : List.of(ns, cs, ps, vcs)) {
       for (VariableElement f : l) {
         String loc = cx.fieldLoc("h", f), gt = cx.storedType(f);
-        String unset = cx.strId(f) && !cx.valCode(f) ? loc + " <= 1" : cx.kind(f.asType()) == Ctx.K.STR ? loc + " == nullstr_ || " + loc + " == \"\""
+        String unset = cx.runtimeField(f) != null ? loc + " == *new(" + gt + ")" : cx.strId(f) && !cx.valCode(f) ? loc + " <= 1" : cx.kind(f.asType()) == Ctx.K.STR ? loc + " == nullstr_ || " + loc + " == \"\""
             : loc + " == " + (gt.equals("bool") ? "false" : cx.pointerFree(f) ? "0" : "nil");
         sb.append("\t\t\tif !(").append(unset).append(") {\n\t\t\t\tc[").append(i++).append("]++\n\t\t\t}\n");
         names.append(quote(f.getSimpleName() + " (" + gt + (l != ps ? ", pointer-free)" : ")"))).append(", ");
@@ -382,6 +390,7 @@ final class Emitter extends StmtEmitter {
   }
 
   int storedSize(VariableElement f) {
+    if (cx.runtimeField(f) != null) return 8; // a runtime type: widest first, it may hold 8-byte fields
     switch (cx.storedType(f)) {
       case "int64", "float64": return 8;
       case "int16", "uint16": return 2;

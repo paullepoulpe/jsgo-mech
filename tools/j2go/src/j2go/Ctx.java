@@ -103,12 +103,14 @@ final class Ctx {
 
   /** True if field f of a handle class holds no Go pointer: it lives in the record the collector never scans. */
   boolean pointerFree(VariableElement f) {
-    return kind(f.asType()) == K.PRIM || isHandleType(f.asType()) || storedEnum(f.asType()) != null || strId(f) || handleTable(f) != null;
+    return kind(f.asType()) == K.PRIM || isHandleType(f.asType()) || storedEnum(f.asType()) != null || strId(f) || handleTable(f) != null
+        || runtimeField(f) != null;
   }
 
   /** Go type of the stored form of handle-class field f. */
   String storedType(VariableElement f) {
     if (strId(f) || handleTable(f) != null) return "uint32";
+    if (runtimeField(f) != null) return runtimeField(f);
     TypeElement en = storedEnum(f.asType());
     if (en == null) return declType(f.asType());
     return enumConstants(en) < 256 ? "uint8" : "uint16";
@@ -171,6 +173,27 @@ final class Ctx {
     return handleTables.get(f);
   }
 
+  /**
+   * Fields of handle classes whose storage the handwritten runtime defines (handles.txt, "Class::field
+   * runtime GoType"): the record holds a value of GoType, which must be pointer-free; a read is
+   * recv.f_get_() and a write recv.f_set_(v), both runtime methods that convert between GoType and the
+   * field's Java value, `f == null` is recv.f_isnull_(), and a copy from the same field of another
+   * object is recv.f_copy_(other). Methods named "Class::method runtime" are not translated: the
+   * runtime defines them (with the Go names and signatures the translation would give them), so that
+   * the code that uses the field most can work on GoType directly.
+   */
+  final Map<VariableElement, String> runtimeFields = new HashMap<>();
+  /** Methods of handle classes the runtime defines (handles.txt, "Class::method runtime"), by class. */
+  final Map<TypeElement, Set<String>> runtimeMethods = new HashMap<>();
+
+  String runtimeField(VariableElement f) {
+    return runtimeFields.get(f);
+  }
+
+  boolean runtimeMethod(TypeElement te, ExecutableElement m) {
+    return runtimeMethods.getOrDefault(te, Set.of()).contains(m.getSimpleName().toString());
+  }
+
   /** The Go rvalue of the string slot of field f of recv: a column of its own, or decoded from a value code. */
   String strSlotLoc(String recv, VariableElement f) {
     if (valCode(f)) return recv + "." + fieldName(f) + "_s_()";
@@ -186,7 +209,7 @@ final class Ctx {
 
   /** Go expression reading instance field f of recv, at the Go type of f's Java type. */
   String fieldGet(String recv, VariableElement f) {
-    if (strSlot(f) || handleTable(f) != null) return recv + "." + fieldName(f) + "_get_()";
+    if (strSlot(f) || handleTable(f) != null || runtimeField(f) != null) return recv + "." + fieldName(f) + "_get_()";
     String loc = fieldLoc(recv, f);
     if (strId(f)) return "strid_str_(" + loc + ")";
     TypeElement en = isHandle(ownerOf(f)) ? storedEnum(f.asType()) : null;
@@ -195,7 +218,7 @@ final class Ctx {
 
   /** Go statement storing value (of the Go type of f's Java type) into instance field f of recv. */
   String fieldSet(String recv, VariableElement f, String value) {
-    if (strSlot(f) || handleTable(f) != null) return recv + "." + fieldName(f) + "_set_(" + value + ")";
+    if (strSlot(f) || handleTable(f) != null || runtimeField(f) != null) return recv + "." + fieldName(f) + "_set_(" + value + ")";
     return fieldLoc(recv, f) + " = " + stored(f, value);
   }
 
@@ -242,19 +265,30 @@ final class Ctx {
     slots.sort(Comparator.comparingInt((String l) -> l.matches(".*\\scold\\s*") ? 1 : 0));
     TypeMirror object = elems.getTypeElement("java.lang.Object").asType();
     for (String line : slots) {
-      java.util.regex.Matcher m = java.util.regex.Pattern.compile("(\\S+)::(\\w+)\\s+(string-slot|string-id|handle-table|cold)(?:\\s+(\\S+))?").matcher(line);
+      java.util.regex.Matcher m = java.util.regex.Pattern.compile("(\\S+)::(\\w+)\\s+(string-slot|string-id|handle-table|cold|runtime)(?:\\s+(\\S+))?").matcher(line);
       TypeElement te = m.matches() ? elems.getTypeElement(m.group(1)) : null;
       VariableElement field = null;
       if (te != null && handles.contains(te)) {
         for (VariableElement f : instanceFields(te)) if (f.getSimpleName().contentEquals(m.group(2))) field = f;
+        if (field == null && m.group(3).equals("runtime") && m.group(4) == null) {
+          boolean found = false;
+          for (Element e : te.getEnclosedElements()) found |= e.getKind() == ElementKind.METHOD && e.getSimpleName().contentEquals(m.group(2));
+          if (found) runtimeMethods.computeIfAbsent(te, k -> new TreeSet<>()).add(m.group(2));
+          else handleErrors.add(line + ": no method " + m.group(2));
+          continue;
+        }
       }
       if (field == null) {
         handleErrors.add(line + ": not \"Class::field string-slot|string-id|handle-table [Flag]|cold\" naming a field of a handle class");
         continue;
       }
       boolean isObject = types.isSameType(field.asType(), object);
-      if (m.group(4) != null && !m.group(3).equals("handle-table")) handleErrors.add(line + ": only handle-table takes a type");
+      if (m.group(4) != null && !m.group(3).equals("handle-table") && !m.group(3).equals("runtime")) handleErrors.add(line + ": only handle-table and runtime take a type");
       switch (m.group(3)) {
+        case "runtime" -> {
+          if (m.group(4) == null) handleErrors.add(line + ": a runtime field needs its Go type");
+          else runtimeFields.put(field, m.group(4));
+        }
         case "cold" -> {
           if (!pointerFree(field)) handleErrors.add(line + ": a cold field must be pointer-free");
           else coldFields.add(field);

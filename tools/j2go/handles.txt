@@ -23,6 +23,21 @@ com.google.javascript.rhino.Node::originalName string-id
 # table (go/closure/rt_ids.go).
 com.google.javascript.rhino.Node::jstypeOrColor handle-table com.google.javascript.rhino.jstype.JSType
 #
+# Runtime fields: "Class::field runtime GoType" names a field of a handle class whose storage the
+# handwritten runtime defines: the record holds a GoType, which must hold no Go pointer, and reads,
+# writes, null tests and copies of the field call runtime methods that convert to and from the Java
+# value. "Class::method runtime" names a method the runtime defines instead of the translation (all
+# overloads of that name), so that the code using the field most can work on GoType directly
+# (tools/j2go/README.md, "Handle classes"). Node's property list is 16 bytes of bits and handles
+# (go/closure/rt_node_props.go).
+com.google.javascript.rhino.Node::propListHead runtime Node_props_
+com.google.javascript.rhino.Node::getProp runtime
+com.google.javascript.rhino.Node::getIntProp runtime
+com.google.javascript.rhino.Node::getBooleanProp runtime
+com.google.javascript.rhino.Node::putProp runtime
+com.google.javascript.rhino.Node::putIntProp runtime
+com.google.javascript.rhino.Node::removeProp runtime
+#
 # Cold fields: "Class::field cold" names a pointer-free field of a handle class that traversals do
 # not read. It goes to a second pointer-free record, so that the record a traversal reads stays
 # small (tools/j2go/README.md, "Handle classes").
@@ -31,3 +46,4 @@ com.google.javascript.rhino.Node::linenoCharno cold
 com.google.javascript.rhino.Node::length cold
 com.google.javascript.rhino.Node::originalName cold
 com.google.javascript.rhino.Node::jstypeOrColor cold
+com.google.javascript.rhino.Node::propListHead cold

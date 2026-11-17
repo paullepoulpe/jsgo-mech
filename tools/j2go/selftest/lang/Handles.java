@@ -206,6 +206,7 @@ public class Handles {
     String note;
     Object value;
     Object kind;
+    Object extra;
     Cell link;
 
     Cell(String label) {
@@ -225,6 +226,15 @@ public class Handles {
 
     Named named() {
       return kind instanceof Named n ? n : null;
+    }
+
+    /** extra is a runtime field and getExtra a runtime method (selftest/handles.txt, selftest/rt_cell.go). */
+    Object getExtra() {
+      return extra;
+    }
+
+    void setExtra(Object o) {
+      extra = o;
     }
   }
 
@@ -633,6 +643,15 @@ public class Handles {
     sb.append(a.kind).append(' ').append(b.kind == a.kind).append(' ').append(a.named() == null).append(' ');
     a.kind = null;
     sb.append(a.kind == null).append(' ').append(b.named() == null).append(' ').append(Objects.equals(a.kind, b.kind)).append('\n');
+    // a runtime field
+    sb.append(a.extra == null).append(' ').append(a.getExtra()).append(' ');
+    a.extra = "e1";
+    b.extra = a.extra;
+    sb.append(b.extra != null).append(' ').append(b.getExtra()).append(' ').append(a.extra == b.extra).append(' ');
+    a.setExtra(2.5);
+    sb.append(a.extra).append(' ').append(b.extra).append(' ');
+    a.extra = null;
+    sb.append(a.extra == null).append(' ').append(a.getExtra()).append('\n');
     return sb.toString();
   }
 

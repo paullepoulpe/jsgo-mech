@@ -666,6 +666,8 @@ abstract class ExprEmitter extends Base {
       ExpressionTree x = kl == Ctx.K.NULL ? r : l;
       Ctx.K kx = kl == Ctx.K.NULL ? kr : kl;
       if (kx == Ctx.K.NULL) return op.equals("==") ? "true" : "false";
+      Object[] rf = fieldRead(x, f -> cx.runtimeField(f) != null);
+      if (rf != null) return (op.equals("==") ? "" : "!") + rf[0] + "." + cx.fieldName((VariableElement) rf[1]) + "_isnull_()";
       Object[] idf = fieldRead(x, f -> (cx.strId(f) && !cx.valCode(f)) || cx.valCode(f) || cx.handleTable(f) != null);
       // Null is code 0 of a string id, value code or table handle.
       if (idf != null) return "(" + cx.fieldLoc((String) idf[0], (VariableElement) idf[1]) + " " + op + " 0)";
@@ -817,7 +819,7 @@ abstract class ExprEmitter extends Base {
 
   /** A string-id or handle-table field is assigned only as a whole (stmtExpr). */
   void storedWhole(Tree t, LValue lv) {
-    if (lv.field != null && (cx.strId(lv.field) || cx.handleTable(lv.field) != null)) throw unsupported(t, "compound assignment to a string-id or handle-table field");
+    if (lv.field != null && (cx.strId(lv.field) || cx.handleTable(lv.field) != null || cx.runtimeField(lv.field) != null)) throw unsupported(t, "compound assignment to a string-id or handle-table field");
   }
 
   String incDecStmt(UnaryTree t) {
@@ -1364,6 +1366,14 @@ abstract class ExprEmitter extends Base {
           if (rt != null && cx.kind(rt) == Ctx.K.STR) return fn + "_sets_(" + expr(a.getExpression()) + ")";
           if (cx.valCode((VariableElement) slot[1]) && rt != null && rt.getKind() == TypeKind.DOUBLE) return fn + "_setd_(" + expr(a.getExpression()) + ")";
           return fn + "_set_(" + asAny(a.getExpression()) + ")";
+        }
+        Object[] rtf = fieldRead(a.getVariable(), f -> cx.runtimeField(f) != null);
+        if (rtf != null) {
+          VariableElement f = (VariableElement) rtf[1];
+          Object[] from = fieldRead(a.getExpression(), g -> g == f);
+          String fn = rtf[0] + "." + cx.fieldName(f);
+          if (from != null) return fn + "_copy_(" + from[0] + ")";
+          return fn + "_set_(" + exprAs(a.getExpression(), cx.erase(f.asType())) + ")";
         }
         Object[] idf = fieldRead(a.getVariable(), f -> cx.strId(f) || cx.handleTable(f) != null);
         if (idf != null) {
