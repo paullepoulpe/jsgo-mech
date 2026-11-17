@@ -144,7 +144,7 @@ func (this *PolymerClassRewriter) rewritePolymerCall(cls *PolymerClassDefinition
 		return callParent.getParent()
 	}()
 	if ok_, a1_ := NodeUtil_isStatementParent(exprRoot.getParent()), exprRoot.getParent(); !ok_ {
-		panic(new_IllegalStateException_String(objstr_(a1_.box_())).self())
+		panic(new_IllegalStateException_String(tostr_(a1_)).self())
 	}
 	if cls.descriptor == 0 {
 		panic(new_NullPointerException_0().self())

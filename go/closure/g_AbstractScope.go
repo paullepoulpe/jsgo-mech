@@ -350,7 +350,7 @@ func (this *AbstractScope) checkChildScope(parent *AbstractScope) {
 		panic(new_NullPointerException_0().self())
 	}
 	if !NodeUtil_createsScope(this.rootNode_) {
-		panic(new_IllegalArgumentException_String(objstr_(this.rootNode_.box_())).self())
+		panic(new_IllegalArgumentException_String(tostr_(this.rootNode_)).self())
 	}
 	if this.rootNode_ == parent.getRootNode() {
 		panic(new_IllegalArgumentException_String(Strings_lenientFormat("rootNode should not be the parent's root node: %s", []any{this.rootNode_.box_()})).self())
@@ -359,7 +359,7 @@ func (this *AbstractScope) checkChildScope(parent *AbstractScope) {
 
 func (this *AbstractScope) checkRootScope() {
 	if !((NodeUtil_createsScope(this.rootNode_) || this.rootNode_.isScript()) || this.rootNode_.isRoot()) {
-		panic(new_IllegalArgumentException_String(objstr_(this.rootNode_.box_())).self())
+		panic(new_IllegalArgumentException_String(tostr_(this.rootNode_)).self())
 	}
 }
 

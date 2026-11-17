@@ -212,7 +212,7 @@ func (this *AstFactory) createNewTarget(newTargetType AstFactory_Type) Node {
 
 func (this *AstFactory) createThisForEs6Class(functionNode Node) Node {
 	if !functionNode.isClass() {
-		panic(new_IllegalStateException_String(objstr_(functionNode.box_())).self())
+		panic(new_IllegalStateException_String(tostr_(functionNode)).self())
 	}
 	var result Node = IR_thisNode()
 	this.setJSTypeOrColor(this.getTypeOfThisForEs6Class(functionNode), result)
@@ -252,7 +252,7 @@ func (this *AstFactory) getTypeOfThisForFunctionNode(functionNode Node) *JSType 
 
 func (this *AstFactory) getTypeOfThisForEs6Class(functionNode Node) AstFactory_Type {
 	if !functionNode.isClass() {
-		panic(new_IllegalArgumentException_String(objstr_(functionNode.box_())).self())
+		panic(new_IllegalArgumentException_String(tostr_(functionNode)).self())
 	}
 	return func() AstFactory_Type {
 		switch this.typeMode {
@@ -425,7 +425,7 @@ func (this *AstFactory) createNameWithUnknownType(name string) Node {
 
 func (this *AstFactory) createQNameUsingJSTypeInfo(globalTypedScope *TypedScope, qname string) Node {
 	if globalTypedScope != nil && !globalTypedScope.isGlobal() {
-		panic(new_IllegalArgumentException_String(objstr_(obj_(globalTypedScope))).self())
+		panic(new_IllegalArgumentException_String(tostr_(globalTypedScope)).self())
 	}
 	this.assertNotAddingColors()
 	var nameParts []string = sliceImm_(tc_string, AstFactory_DOT_SPLITTER.splitToList_s(qname))
@@ -441,7 +441,7 @@ func (this *AstFactory) createQNameUsingJSTypeInfo(globalTypedScope *TypedScope,
 		}
 		nn_1 := var_.getType()
 		if nn_1 == nil {
-			nullFail_(objstr_(obj_(var_)))
+			nullFail_(tostr_(var_))
 		}
 		receiver.setJSType(nn_1)
 	}
@@ -728,21 +728,21 @@ func (this *AstFactory) createAnd(left Node, right Node) Node {
 	case AstFactory_TypeMode_JSTYPE:
 		var leftType *JSType = left.getJSType()
 		if leftType == nil {
-			nullFail_(objstr_(left.box_()))
+			nullFail_(tostr_(left))
 		}
 		var rightType *JSType = right.getJSType()
 		if rightType == nil {
-			nullFail_(objstr_(right.box_()))
+			nullFail_(tostr_(right))
 		}
 		result.setJSType(this.registry.createUnionType([]*JSType{leftType, rightType}))
 	case AstFactory_TypeMode_COLOR:
 		var leftColor *Color = left.getColor()
 		if leftColor == nil {
-			nullFail_(objstr_(left.box_()))
+			nullFail_(tostr_(left))
 		}
 		var rightColor *Color = right.getColor()
 		if rightColor == nil {
-			nullFail_(objstr_(right.box_()))
+			nullFail_(tostr_(right))
 		}
 		result.setColor(Color_createUnion(tsetFrom_(tch_p_Color, ImmutableSet_of_Object_Object(obj_(leftColor), obj_(rightColor)), true)))
 	case AstFactory_TypeMode_NONE:
@@ -756,21 +756,21 @@ func (this *AstFactory) createOr(left Node, right Node) Node {
 	case AstFactory_TypeMode_JSTYPE:
 		var leftType *JSType = left.getJSType()
 		if leftType == nil {
-			nullFail_(objstr_(left.box_()))
+			nullFail_(tostr_(left))
 		}
 		var rightType *JSType = right.getJSType()
 		if rightType == nil {
-			nullFail_(objstr_(right.box_()))
+			nullFail_(tostr_(right))
 		}
 		result.setJSType(this.registry.createUnionType([]*JSType{leftType, rightType}))
 	case AstFactory_TypeMode_COLOR:
 		var leftColor *Color = left.getColor()
 		if leftColor == nil {
-			nullFail_(objstr_(left.box_()))
+			nullFail_(tostr_(left))
 		}
 		var rightColor *Color = right.getColor()
 		if rightColor == nil {
-			nullFail_(objstr_(right.box_()))
+			nullFail_(tostr_(right))
 		}
 		result.setColor(Color_createUnion(tsetFrom_(tch_p_Color, ImmutableSet_of_Object_Object(obj_(leftColor), obj_(rightColor)), true)))
 	case AstFactory_TypeMode_NONE:
@@ -1006,7 +1006,7 @@ func (this *AstFactory) createZeroArgArrowFunctionForExpression(expression Node)
 
 func (this *AstFactory) createMemberFunctionDef(name string, function Node) Node {
 	if function.getFirstChild().getString() != "" {
-		panic(new_IllegalArgumentException_String(objstr_(function.box_())).self())
+		panic(new_IllegalArgumentException_String(tostr_(function)).self())
 	}
 	var result Node = IR_memberFunctionDef(name, function)
 	this.setJSTypeOrColor(AstFactory_type_Node(function), result)

@@ -131,7 +131,7 @@ func (this *SyntacticScopeCreator_ScopeScanner) populate() {
 		return
 	case tokOrd1_ROOT, tokOrd1_SCRIPT:
 		if !this.scope_.isGlobal() {
-			panic(new_IllegalStateException_String(objstr_(obj_(this.scope_))).self())
+			panic(new_IllegalStateException_String(tostr_(this.scope_)).self())
 		}
 		this.scanVars(n, this.scope_, this.scope_)
 		return
@@ -161,7 +161,7 @@ func (this *SyntacticScopeCreator_ScopeScanner) declareLHS(s *Scope, n Node) {
 	} else {
 		// NodeUtil.visitLhsNodesInNode, through the function-value walker (post-flip manual step).
 		if !(((((((NodeUtil_isNameDeclaration(n) || n.isParamList()) || NodeUtil_isAssignmentOp(n)) || n.isCatch()) || n.isDestructuringLhs()) || n.isDefaultValue()) || n.isImport()) || NodeUtil_isEnhancedFor(n)) {
-			panic(new_IllegalArgumentException_String(objstr_(n.box_())).self())
+			panic(new_IllegalArgumentException_String(tostr_(n)).self())
 		}
 		nodeUtilLhsNodes_(n, func(lhs Node) { this.declareVar(s, lhs) })
 	}
@@ -207,7 +207,7 @@ func (this *SyntacticScopeCreator_ScopeScanner) scanVars(n Node, hoistScope *Sco
 		return
 	case tokOrd1_CATCH:
 		if !n.hasTwoChildren() {
-			panic(new_IllegalStateException_String(objstr_(n.box_())).self())
+			panic(new_IllegalStateException_String(tostr_(n)).self())
 		}
 		if blockScope != nil {
 			this.declareLHS(blockScope, n)

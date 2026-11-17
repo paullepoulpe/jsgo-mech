@@ -1572,7 +1572,7 @@ func (this *DefaultPassConfig) getReplaceProtectedMessagesPass() *PassFactory {
 
 func DefaultPassConfig_createPeepholeOptimizationsPass(compiler *AbstractCompiler, passName string, expectAstIsNormalized bool) CompilerPass {
 	if ok_, a1_ := (expectAstIsNormalized == compiler.getLifeCycleStage().isNormalized()), compiler.getLifeCycleStage(); !ok_ {
-		panic(new_IllegalArgumentException_String(objstr_(obj_(a1_))).self())
+		panic(new_IllegalArgumentException_String(tostr_(a1_)).self())
 	}
 	var late bool = false
 	var useTypesForOptimization bool = compiler.getOptions().shouldUseTypesForLocalOptimization()

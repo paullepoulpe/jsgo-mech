@@ -39,7 +39,7 @@ func (this *AstAnalyzer) mayHaveSideEffects(n Node) bool {
 
 func (this *AstAnalyzer) functionCallHasSideEffects(callNode Node) bool {
 	if !((callNode.isCall() || callNode.isTaggedTemplateLit()) || callNode.isOptChainCall()) {
-		panic(new_IllegalStateException_String(objstr_(callNode.box_())).self())
+		panic(new_IllegalStateException_String(tostr_(callNode)).self())
 	}
 	if callNode.isNoSideEffectsCall() {
 		return false

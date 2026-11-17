@@ -401,7 +401,7 @@ func (this *NodeTraversal) handleDestructuringOrDefaultValue(n Node, parent Node
 		var second Node = first.getNext()
 		if second != 0 {
 			if second.getNext() != 0 {
-				panic(new_IllegalStateException_String(objstr_(second.box_())).self())
+				panic(new_IllegalStateException_String(tostr_(second)).self())
 			}
 			this.traverseBranch(second, n)
 		}
@@ -829,7 +829,7 @@ func (this *NodeTraversal) reportCodeChange() {
 		panic(new_NullPointerException_0().self())
 	}
 	if !ChangeTracker_isChangeScopeRoot(changeScope) {
-		panic(new_IllegalStateException_String(objstr_(changeScope.box_())).self())
+		panic(new_IllegalStateException_String(tostr_(changeScope)).self())
 	}
 	this.compiler_.reportChangeToChangeScope(changeScope)
 }

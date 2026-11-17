@@ -54,7 +54,7 @@ func ColorId_fromAscii(str string) *ColorId {
 
 func ColorId_fromBytesAt(source any, length int32, byteAt func(any, int32) int8) *ColorId {
 	if length > 8 {
-		panic(new_IllegalStateException_String(objstr_(any(int32(length)))).self())
+		panic(new_IllegalStateException_String(istr_(int64(int32(length)))).self())
 	}
 	var rightAligned int64 = 0
 	for i := int32(0); i < length; i++ {
@@ -138,7 +138,7 @@ func lambda_ColorId_clinit_1_(s_ any, i int32) int8 {
 	_ = s
 	var c int32 = String_codePointAt(s, i)
 	if 0 > c || c >= 128 {
-		panic(new_IllegalStateException_String(objstr_(any(int32(c)))).self())
+		panic(new_IllegalStateException_String(istr_(int64(int32(c)))).self())
 	}
 	return int8(c)
 }

@@ -299,7 +299,7 @@ func (this *CodePrinter_PrettyCodePrinter) append_impl(str string) {
 
 func (this *CodePrinter_PrettyCodePrinter) addNumber_impl(x float64, n Node) {
 	if !JSCompDoubles_isPositive(x) {
-		panic(new_IllegalStateException_String(objstr_(any(float64(x)))).self())
+		panic(new_IllegalStateException_String(dstr_(float64(x))).self())
 	}
 	var numberFromSource OptionalOf[string] = CodePrinter_PrettyCodePrinter_getNumberFromSource(n)
 	if numberFromSource.isEmpty() {
@@ -418,7 +418,7 @@ func CodePrinter_PrettyCodePrinter_getTryForCatch(n Node) Node {
 
 func (this *CodePrinter_PrettyCodePrinter) breakAfterBlockFor_impl(n Node, isStatementContext bool) bool {
 	if !n.isBlock() {
-		panic(new_IllegalStateException_String(objstr_(n.box_())).self())
+		panic(new_IllegalStateException_String(tostr_(n)).self())
 	}
 	var parent Node = n.getParent()
 	var type_ Token_rhino = parent.getToken()

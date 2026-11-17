@@ -101,7 +101,7 @@ func (this *ExternExportsPass) lookForQnameDefinition(n Node) {
 	} else if n.isName() {
 		var parent Node = n.getParent()
 		if parent == 0 {
-			panic(new_NullPointerException_String(objstr_(n.box_())).self())
+			panic(new_NullPointerException_String(tostr_(n)).self())
 		}
 		if NodeUtil_isNameDeclaration(parent) {
 			var value Node = n.getFirstChild()
@@ -388,7 +388,7 @@ func (this *ExternExportsPass_Export) getOriginalNameForParam(paramNode Node) st
 		}()
 	} else {
 		if !nameOrPatternNode.isDestructuringPattern() {
-			panic(new_IllegalStateException_String(objstr_(nameOrPatternNode.box_())).self())
+			panic(new_IllegalStateException_String(tostr_(nameOrPatternNode)).self())
 		}
 		return ""
 	}

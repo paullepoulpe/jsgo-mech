@@ -95,7 +95,7 @@ func (this *CreateSyntheticBlocks) addBlocks(marker *CreateSyntheticBlocks_Marke
 	outerBlock.addChildToBack(outerBlock.getNext().detach())
 	this.rewriteFunctionDeclarationsInBlock(innerBlock)
 	if ok_, a1_ := (outerBlock.getParent().isBlock() || outerBlock.getParent().isScript()), outerBlock.getParent(); !ok_ {
-		panic(new_IllegalStateException_String(objstr_(a1_.box_())).self())
+		panic(new_IllegalStateException_String(tostr_(a1_)).self())
 	}
 	if !innerBlock.getParent().isBlock() {
 		panic(new_IllegalStateException_0().self())

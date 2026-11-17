@@ -122,10 +122,10 @@ func (this *CompilerInput) clearAst() {
 
 func (this *CompilerInput) initShadowAst(shadowScript Node) {
 	if !shadowScript.isScript() {
-		panic(new_IllegalArgumentException_String(objstr_(shadowScript.box_())).self())
+		panic(new_IllegalArgumentException_String(tostr_(shadowScript)).self())
 	}
 	if !shadowScript.getIsInClosureUnawareSubtree() {
-		panic(new_IllegalStateException_String(objstr_(shadowScript.box_())).self())
+		panic(new_IllegalStateException_String(tostr_(shadowScript)).self())
 	}
 	this.ast.root = shadowScript
 }

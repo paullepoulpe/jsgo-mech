@@ -80,7 +80,7 @@ func OptimizeCalls_isAllowedReference(n Node) bool {
 			return false
 		} else {
 			if !n.isSecondChildOf(parent) {
-				panic(new_IllegalStateException_String(objstr_(parent.box_())).self())
+				panic(new_IllegalStateException_String(tostr_(parent)).self())
 			}
 			if NodeUtil_getEs6ClassConstructorMemberFunctionDef(parent) == 0 {
 				return false
@@ -238,7 +238,7 @@ func OptimizeCalls_ReferenceMap_definitionFunctionNodesFor(definitionSite Node) 
 			fns.add(definitionSite.getLastChild().box_())
 		} else {
 			if !definitionSite.isMemberFieldDef() {
-				panic(new_IllegalArgumentException_String(objstr_(definitionSite.box_())).self())
+				panic(new_IllegalArgumentException_String(tostr_(definitionSite)).self())
 			}
 			var value Node = definitionSite.getFirstChild()
 			if value != 0 {
@@ -247,7 +247,7 @@ func OptimizeCalls_ReferenceMap_definitionFunctionNodesFor(definitionSite Node) 
 		}
 	case tokOrd1_OBJECTLIT:
 		if !definitionSite.isStringKey() && !definitionSite.isMemberFunctionDef() {
-			panic(new_IllegalArgumentException_String(objstr_(definitionSite.box_())).self())
+			panic(new_IllegalArgumentException_String(tostr_(definitionSite)).self())
 		}
 		OptimizeCalls_ReferenceMap_addValueFunctionNodes(fns, definitionSite.getLastChild())
 	case tokOrd1_ASSIGN:
@@ -326,10 +326,10 @@ func OptimizeCalls_ReferenceMap_getCallOrNewNodeForTarget(n Node) Node {
 		var child Node = maybeCall
 		maybeCall = child.getParent()
 		if !NodeUtil_isNormalOrOptChainGetProp(child) {
-			panic(new_IllegalStateException_String(objstr_(child.box_())).self())
+			panic(new_IllegalStateException_String(tostr_(child)).self())
 		}
 		if !NodeUtil_isNormalOrOptChainCall(maybeCall) {
-			panic(new_IllegalStateException_String(objstr_(maybeCall.box_())).self())
+			panic(new_IllegalStateException_String(tostr_(maybeCall)).self())
 		}
 		if !child.isFirstChildOf(maybeCall) {
 			panic(new_IllegalStateException_String(Strings_lenientFormat("%s\n\n%s", []any{maybeCall.box_(), child.box_()})).self())

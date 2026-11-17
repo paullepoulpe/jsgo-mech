@@ -213,7 +213,7 @@ func Color_createUnion(elements *TSet[*Color]) *Color {
 
 func (this *Color) isPrimitive() bool {
 	if this.isUnion() {
-		panic(new_IllegalStateException_String(objstr_(any(this))).self())
+		panic(new_IllegalStateException_String(this.toString()).self())
 	}
 	return StandardColors_PRIMITIVE_COLORS.containsKey(obj_(this.getId()))
 }
@@ -394,13 +394,13 @@ func (this *Color_Builder) buildInternal() *Color {
 func (this *Color_Builder) build() *Color {
 	var result *Color = this.buildInternal()
 	if !result.getUnionElements().isEmpty() {
-		panic(new_IllegalStateException_String(objstr_(obj_(result))).self())
+		panic(new_IllegalStateException_String(tostr_(result)).self())
 	}
 	if result.getBoxId() != nil {
-		panic(new_IllegalStateException_String(objstr_(obj_(result))).self())
+		panic(new_IllegalStateException_String(tostr_(result)).self())
 	}
 	if StandardColors_AXIOMATIC_COLORS.containsKey(obj_(result.getId())) {
-		panic(new_IllegalStateException_String(objstr_(obj_(result))).self())
+		panic(new_IllegalStateException_String(tostr_(result)).self())
 	}
 	return result
 }
@@ -408,10 +408,10 @@ func (this *Color_Builder) build() *Color {
 func (this *Color_Builder) buildUnion() *Color {
 	var result *Color = this.buildInternal()
 	if result.getUnionElements().size() <= 1 {
-		panic(new_IllegalStateException_String(objstr_(obj_(result))).self())
+		panic(new_IllegalStateException_String(tostr_(result)).self())
 	}
 	if result.getBoxId() != nil {
-		panic(new_IllegalStateException_String(objstr_(obj_(result))).self())
+		panic(new_IllegalStateException_String(tostr_(result)).self())
 	}
 	return result
 }
@@ -422,7 +422,7 @@ func (this *Color_Builder) buildAxiomatic() *Color {
 	}
 	var result *Color = this.buildInternal()
 	if !result.getUnionElements().isEmpty() {
-		panic(new_IllegalStateException_String(objstr_(obj_(result))).self())
+		panic(new_IllegalStateException_String(tostr_(result)).self())
 	}
 	return result
 }

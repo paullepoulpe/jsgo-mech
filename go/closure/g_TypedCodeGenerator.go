@@ -136,7 +136,7 @@ func (this *TypedCodeGenerator) getFunctionAnnotation(fnNode Node) string {
 
 func (this *TypedCodeGenerator) getMemberFunctionAnnotation(fnNode Node) string {
 	if !fnNode.isFunction() || !fnNode.getParent().isMemberFunctionDef() {
-		panic(new_IllegalStateException_String(objstr_(fnNode.box_())).self())
+		panic(new_IllegalStateException_String(tostr_(fnNode)).self())
 	}
 	var type_ *JSType = fnNode.getJSType()
 	if (type_ == nil) || type_.isUnknownType() {
@@ -219,7 +219,7 @@ func (this *TypedCodeGenerator) getParameterJSDocName(paramNode Node, paramIndex
 	var nameNode Node = 0
 	if paramNode != 0 {
 		if !paramNode.getParent().isParamList() {
-			panic(new_IllegalArgumentException_String(objstr_(paramNode.box_())).self())
+			panic(new_IllegalArgumentException_String(tostr_(paramNode)).self())
 		}
 		if paramNode.isRest() {
 			paramNode = paramNode.getOnlyChild()
@@ -230,7 +230,7 @@ func (this *TypedCodeGenerator) getParameterJSDocName(paramNode Node, paramIndex
 			nameNode = paramNode
 		} else {
 			if !paramNode.isObjectPattern() && !paramNode.isArrayPattern() {
-				panic(new_IllegalStateException_String(objstr_(paramNode.box_())).self())
+				panic(new_IllegalStateException_String(tostr_(paramNode)).self())
 			}
 			nameNode = 0
 		}
@@ -239,7 +239,7 @@ func (this *TypedCodeGenerator) getParameterJSDocName(paramNode Node, paramIndex
 		return ("p" + istr_(int64(paramIndex)))
 	} else {
 		if !nameNode.isName() {
-			panic(new_IllegalStateException_String(objstr_(nameNode.box_())).self())
+			panic(new_IllegalStateException_String(tostr_(nameNode)).self())
 		}
 		return nameNode.getString()
 	}

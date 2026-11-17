@@ -234,7 +234,7 @@ func (this *ConvertToTypedInterface_RemoveNonDeclarations) shouldTraverse(t *Nod
 		return true
 	default:
 		if ok_, a1_ := !NodeUtil_isStatement(n), n.getToken(); !ok_ {
-			panic(new_IllegalStateException_String(objstr_(obj_(a1_))).self())
+			panic(new_IllegalStateException_String(tostr_(a1_)).self())
 		}
 		return true
 	}
@@ -352,7 +352,7 @@ func new_ConvertToTypedInterface_PropagateConstJsdoc(currentFile *FileInfo) *Con
 
 func (this *ConvertToTypedInterface_PropagateConstJsdoc) processConstWithRhs_impl(t *NodeTraversal, nameNode Node) {
 	if !(((nameNode.isQualifiedName() || nameNode.isStringKey()) || nameNode.isDestructuringLhs()) || nameNode.isMemberFieldDef()) {
-		panic(new_IllegalArgumentException_String(objstr_(nameNode.box_())).self())
+		panic(new_IllegalArgumentException_String(tostr_(nameNode)).self())
 	}
 	var jsdocNode Node = NodeUtil_getBestJSDocInfoNode(nameNode)
 	var originalJsdoc *JSDocInfo = jsdocNode.getJSDocInfo()

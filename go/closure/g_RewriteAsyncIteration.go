@@ -84,7 +84,7 @@ func (this *RewriteAsyncIteration) visit(t *NodeTraversal, n Node, parent Node) 
 	switch n.ns_().token {
 	case tokOrd1_PARAM_LIST:
 		if !equalsId_(n, ctx.contextRoot) {
-			panic(new_IllegalStateException_String(objstr_(n.box_())).self())
+			panic(new_IllegalStateException_String(tostr_(n)).self())
 		}
 		slicePop_(tc_p_RewriteAsyncIteration_LexicalContext, &this.contextStack)
 	case tokOrd1_FUNCTION:
@@ -258,7 +258,7 @@ func (this *RewriteAsyncIteration) replaceForAwaitOf(ctx *RewriteAsyncIteration_
 	var replacementPoint Node
 	if forAwaitOfParent.isLabel() {
 		if !forAwaitOf.isSecondChildOf(forAwaitOfParent) {
-			panic(new_IllegalStateException_String(objstr_(forAwaitOfParent.box_())).self())
+			panic(new_IllegalStateException_String(tostr_(forAwaitOfParent)).self())
 		}
 		replacementPoint = forAwaitOfParent
 	} else {
@@ -282,7 +282,7 @@ func (this *RewriteAsyncIteration) replaceForAwaitOf(ctx *RewriteAsyncIteration_
 			declarationTarget.addChildToBack(this.astFactory_.createGetProp(this.astFactory_.createName(resultTempName, iterableResultType), "value", resultType))
 		} else {
 			if !declarationTarget.isDestructuringLhs() {
-				panic(new_IllegalStateException_String(objstr_(declarationTarget.box_())).self())
+				panic(new_IllegalStateException_String(tostr_(declarationTarget)).self())
 			}
 			var destructuringPattern Node = declarationTarget.getOnlyChild()
 			resultType = AstFactory_type_Node(destructuringPattern)
@@ -468,7 +468,7 @@ func (this *RewriteAsyncIteration) prependTempVarDeclarations(ctx *RewriteAsyncI
 	var function Node = ctx.function
 	var block Node = function.getLastChild()
 	if block == 0 {
-		panic(new_NullPointerException_String(objstr_(function.box_())).self())
+		panic(new_NullPointerException_String(tostr_(function)).self())
 	}
 	var prefixBlock Node = this.astFactory_.createBlock([]Node{})
 	if thisSuperArgsCtx.thisNodeToAdd != 0 {
@@ -552,13 +552,13 @@ func (this *RewriteAsyncIteration_LexicalContext) init_RewriteAsyncIteration_Lex
 		panic(new_NullPointerException_0().self())
 	}
 	if contextRoot != function && !contextRoot.isParamList() {
-		panic(new_IllegalArgumentException_String(objstr_(contextRoot.box_())).self())
+		panic(new_IllegalArgumentException_String(tostr_(contextRoot)).self())
 	}
 	if function == 0 {
 		panic(new_NullPointerException_0().self())
 	}
 	if !function.isFunction() {
-		panic(new_IllegalArgumentException_String(objstr_(function.box_())).self())
+		panic(new_IllegalArgumentException_String(tostr_(function)).self())
 	}
 	this.contextRoot = contextRoot
 	this.function = function

@@ -239,7 +239,7 @@ func (this *PeepholeMinimizeConditions) areMatchingExits(nodeThis Node, nodeThat
 
 func PeepholeMinimizeConditions_isExceptionPossible(n Node) bool {
 	if !n.isReturn() && !n.isThrow() {
-		panic(new_IllegalStateException_String(objstr_(n.box_())).self())
+		panic(new_IllegalStateException_String(tostr_(n)).self())
 	}
 	return (n.isThrow() || (n.hasChildren() && !NodeUtil_isLiteralValue(n.getLastChild(), true)))
 }
@@ -496,7 +496,7 @@ func (this *PeepholeMinimizeConditions) tryRemoveRepeatedStatements(n Node) {
 		return
 	}
 	if !n.isIf() {
-		panic(new_IllegalStateException_String(objstr_(n.box_())).self())
+		panic(new_IllegalStateException_String(tostr_(n)).self())
 	}
 	var parent Node = n.getParent()
 	if !NodeUtil_isStatementBlock(parent) {

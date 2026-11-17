@@ -39,7 +39,7 @@ func (this *GraphColoring) init_GraphColoring(graph AdjacencyGraph) {
 
 func (this *GraphColoring) getPartitionSuperNode(node any) any {
 	if this.colorToNodeMap == nil {
-		nullFail_(objstr_(strobj_("No coloring founded. color() should be called first.")))
+		nullFail_(sstr_("No coloring founded. color() should be called first."))
 	}
 	var color *GraphColoring_Color = cast_[*GraphColoring_Color](Annotatable_getAnnotation(Annotatable(this.graph.getNode(node))))
 	var headNode any = this.colorToNodeMap[color.value_]
@@ -53,7 +53,7 @@ func (this *GraphColoring) getPartitionSuperNode(node any) any {
 
 func (this *GraphColoring) haveSameColor(first any, second any) bool {
 	if this.colorToNodeMap == nil {
-		nullFail_(objstr_(strobj_("No coloring founded. color() should be called first.")))
+		nullFail_(sstr_("No coloring founded. color() should be called first."))
 	}
 	var colorFirst *GraphColoring_Color = cast_[*GraphColoring_Color](Annotatable_getAnnotation(Annotatable(this.graph.getNode(first))))
 	var colorSecond *GraphColoring_Color = cast_[*GraphColoring_Color](Annotatable_getAnnotation(Annotatable(this.graph.getNode(second))))

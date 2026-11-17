@@ -82,7 +82,7 @@ func (this *CoalesceVariableNames) enterScopeWithCfg_impl(t *NodeTraversal) {
 	this.shouldOptimizeScopeStack.push(any(bool(true)))
 	var scope *Scope = t.getScope()
 	if !scope.isFunctionScope() {
-		panic(new_IllegalStateException_String(objstr_(obj_(scope))).self())
+		panic(new_IllegalStateException_String(tostr_(scope)).self())
 	}
 	var cfg *ControlFlowGraph = this.getControlFlowGraph(this.compiler_)
 	this.liveness = new_LiveVariablesAnalysis(cfg, scope, nil, this.compiler_, icast_ScopeCreator(obj_(this.scopeCreator)), allVarsDeclaredInFunction)
@@ -284,7 +284,7 @@ func (this *CoalesceVariableNames) removeVarDeclaration(name Node, originalVar *
 		var_.replaceWith(name.detach())
 	} else {
 		if !var_.hasOneChild() || var_.getFirstChild() != name {
-			panic(new_IllegalStateException_String(objstr_(var_.box_())).self())
+			panic(new_IllegalStateException_String(tostr_(var_)).self())
 		}
 		if name.hasChildren() {
 			var value Node = name.removeFirstChild()
@@ -317,7 +317,7 @@ func (this *CoalesceVariableNames) makeDeclarationVar(coalescedName *Var) {
 	if coalescedName.isConst() || coalescedName.isLet() {
 		var nameNode Node = coalescedName.getNameNode()
 		if nameNode == 0 {
-			panic(new_NullPointerException_String(objstr_(obj_(coalescedName))).self())
+			panic(new_NullPointerException_String(tostr_(coalescedName)).self())
 		}
 		if CoalesceVariableNames_isUninitializedLetNameInLoopBody(nameNode) {
 			var undefinedValue Node = this.astFactory_.createUndefinedValue().srcrefTree(nameNode)
@@ -335,7 +335,7 @@ func lambda_CoalesceVariableNames_makeDeclarationVar_1_(p0 any) bool {
 
 func CoalesceVariableNames_isUninitializedLetNameInLoopBody(nameNode Node) bool {
 	if !nameNode.isName() {
-		panic(new_IllegalStateException_String(objstr_(nameNode.box_())).self())
+		panic(new_IllegalStateException_String(tostr_(nameNode)).self())
 	}
 	var letNode Node = nameNode.getParent()
 	if !letNode.isLet() {

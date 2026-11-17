@@ -102,7 +102,7 @@ func (this *RewriteCallerCodeLocation_FindCallerLocationFunctions) isGoogCallerL
 
 func (this *RewriteCallerCodeLocation_FindCallerLocationFunctions) visitParamListAndAddCallerLocationFunctionNames(n Node, t *NodeTraversal) {
 	if !n.isParamList() {
-		panic(new_IllegalStateException_String(objstr_(n.box_())).self())
+		panic(new_IllegalStateException_String(tostr_(n)).self())
 	}
 	var defaultValuesCount int32 = 0
 	var paramPosition int32 = 0

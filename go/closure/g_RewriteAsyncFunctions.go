@@ -189,11 +189,11 @@ func new_RewriteAsyncFunctions_SuperPropertyWrappers(outer_ *RewriteAsyncFunctio
 
 func (this *RewriteAsyncFunctions_SuperPropertyWrappers) getOrCreateSuperPropertyWrapperInfo(superDotPropertyNode Node) *RewriteAsyncFunctions_SuperPropertyWrapperInfo {
 	if !superDotPropertyNode.isGetProp() {
-		panic(new_IllegalArgumentException_String(objstr_(superDotPropertyNode.box_())).self())
+		panic(new_IllegalArgumentException_String(tostr_(superDotPropertyNode)).self())
 	}
 	var superNode Node = superDotPropertyNode.getFirstChild()
 	if !superNode.isSuper() {
-		panic(new_IllegalArgumentException_String(objstr_(superNode.box_())).self())
+		panic(new_IllegalArgumentException_String(tostr_(superNode)).self())
 	}
 	var propertyName string = superDotPropertyNode.getString()
 	var propertyType *Color = superDotPropertyNode.getColor()
@@ -213,7 +213,7 @@ func (this *RewriteAsyncFunctions_SuperPropertyWrappers) getOrCreateSuperPropert
 
 func (this *RewriteAsyncFunctions_SuperPropertyWrappers) createNewInfo(firstSuperDotPropertyNode Node) *RewriteAsyncFunctions_SuperPropertyWrapperInfo {
 	if !firstSuperDotPropertyNode.isGetProp() {
-		panic(new_IllegalArgumentException_String(objstr_(firstSuperDotPropertyNode.box_())).self())
+		panic(new_IllegalArgumentException_String(tostr_(firstSuperDotPropertyNode)).self())
 	}
 	var propertyName string = firstSuperDotPropertyNode.getString()
 	var wrapperFunctionName string = (sstr_(RewriteAsyncFunctions_ASYNC_SUPER_PROP_GETTER_PREFIX) + sstr_(this.outer_.compiler_.getUniqueIdSupplier().getUniqueId(this.outer_.compiler_.getInput(NodeUtil_getInputId(firstSuperDotPropertyNode)))) + "$" + sstr_(propertyName))
@@ -446,7 +446,7 @@ func (this *RewriteAsyncFunctions_FunctionContext) init_RewriteAsyncFunctions_Fu
 	this.RewriteAsyncFunctions_LexicalContext.init_RewriteAsyncFunctions_LexicalContext(contextRootNode, uniqueId)
 	this.finit_RewriteAsyncFunctions_FunctionContext()
 	if !contextRootNode.isFunction() {
-		panic(new_IllegalStateException_String(objstr_(contextRootNode.box_())).self())
+		panic(new_IllegalStateException_String(tostr_(contextRootNode)).self())
 	}
 	if contextRootNode.isAsyncFunction() {
 		if contextRootNode.isArrowFunction() {

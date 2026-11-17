@@ -159,7 +159,7 @@ func (this *AnalyzePrototypeProperties_ProcessProperties) enterScope(t *NodeTrav
 		this.symbolStack = append(this.symbolStack, new_AnalyzePrototypeProperties_NameContext(this.outer_.globalNode, scope))
 	} else {
 		if !(((NodeUtil_createsBlockScope(root) || root.isModuleBody()) || root.isComputedFieldDef()) || root.isMemberFieldDef()) {
-			panic(new_IllegalStateException_String(objstr_(obj_(scope))).self())
+			panic(new_IllegalStateException_String(tostr_(scope)).self())
 		}
 		this.symbolStack = append(this.symbolStack, new_AnalyzePrototypeProperties_NameContext(this.outer_.anonymousNode, scope))
 	}

@@ -97,7 +97,7 @@ func InlineAndCollapseProperties_maybeGetInnerNameNode(maybeFunctionOrClassNode 
 	if NodeUtil_isFunctionExpression(maybeFunctionOrClassNode) {
 		var nameNode Node = maybeFunctionOrClassNode.getFirstChild()
 		if !nameNode.isName() {
-			panic(new_IllegalStateException_String(objstr_(nameNode.box_())).self())
+			panic(new_IllegalStateException_String(tostr_(nameNode)).self())
 		}
 		return func() Node {
 			if nameNode.getString() == "" {
@@ -214,7 +214,7 @@ func InlineAndCollapseProperties_isUnsafelyReassigned(name *GlobalNamespace_Name
 func InlineAndCollapseProperties_getSubclassForEs6Superclass(superclass Node) Node {
 	var classNode Node = superclass.getParent()
 	if !classNode.isClass() {
-		panic(new_IllegalArgumentException_String(objstr_(classNode.box_())).self())
+		panic(new_IllegalArgumentException_String(tostr_(classNode)).self())
 	}
 	if NodeUtil_isNameDeclaration(classNode.getGrandparent()) {
 		return classNode.getParent()
@@ -389,11 +389,11 @@ func (this *InlineAndCollapseProperties_AggressiveInlineAliases) inlineAliasesFo
 func (this *InlineAndCollapseProperties_AggressiveInlineAliases) maybeInlineInnerName(globalName *GlobalNamespace_Name) {
 	var globalNameDeclaration *GlobalNamespace_Ref = cast_[*GlobalNamespace_Ref](globalName.getDeclaration())
 	if globalNameDeclaration == nil {
-		panic(new_NullPointerException_String(objstr_(obj_(globalName))).self())
+		panic(new_NullPointerException_String(tostr_(globalName)).self())
 	}
 	var globalDeclarationNode Node = globalNameDeclaration.getNode()
 	if globalDeclarationNode == 0 {
-		panic(new_NullPointerException_String(objstr_(obj_(globalNameDeclaration))).self())
+		panic(new_NullPointerException_String(tostr_(globalNameDeclaration)).self())
 	}
 	var valueNode Node = NodeUtil_getRValueOfLValue(globalDeclarationNode)
 	if valueNode == 0 {
@@ -592,7 +592,7 @@ func (this *InlineAndCollapseProperties_AggressiveInlineAliases) replaceAliasing
 	var assignment Node = aliasLhsNode.getParent()
 	if !NodeUtil_isNameDeclaration(assignment) && NodeUtil_isExpressionResultUsed(assignment) {
 		if !assignment.isAssign() {
-			panic(new_IllegalStateException_String(objstr_(assignment.box_())).self())
+			panic(new_IllegalStateException_String(tostr_(assignment)).self())
 		}
 		var assignmentParent Node = assignment.getParent()
 		var rhs Node = alias.getNode().detach()
@@ -612,7 +612,7 @@ func (this *InlineAndCollapseProperties_AggressiveInlineAliases) replaceAliasRef
 	var originalRefNode Node = alias.getNode()
 	var nodeToReplace Node = aliasRef.getNode()
 	if !nodeToReplace.isQualifiedName() {
-		panic(new_IllegalStateException_String(objstr_(nodeToReplace.box_())).self())
+		panic(new_IllegalStateException_String(tostr_(nodeToReplace)).self())
 	}
 	var newNode Node = func() Node {
 		if originalRefNode.isName() {
@@ -659,7 +659,7 @@ func (this *InlineAndCollapseProperties_AggressiveInlineAliases) inlineGlobalAli
 			var aliasInitialization *GlobalNamespace_Ref = aliasingName.getInitialization()
 			if aliasInitialization.isTwin() {
 				if !aliasParent.isAssign() {
-					panic(new_IllegalStateException_String(objstr_(aliasParent.box_())).self())
+					panic(new_IllegalStateException_String(tostr_(aliasParent)).self())
 				}
 				var aliasGrandparent Node = aliasParent.getParent()
 				aliasParent.replaceWith(alias.getNode().detach())
@@ -690,15 +690,15 @@ func (this *InlineAndCollapseProperties_AggressiveInlineAliases) rewriteAliasRef
 	for _, ref := range refs {
 		if ref.isSetFromGlobal() {
 			if !equalsId_(ref.getChunk(), initializationChunk) && !ref.isUninitializedDeclaration() {
-				panic(new_IllegalStateException_String(objstr_(obj_(ref))).self())
+				panic(new_IllegalStateException_String(tostr_(ref)).self())
 			}
 			continue
 		}
 		if !ref.isGet() {
-			panic(new_IllegalStateException_String(objstr_(obj_(ref))).self())
+			panic(new_IllegalStateException_String(tostr_(ref)).self())
 		}
 		if ref.isTwin() {
-			panic(new_IllegalStateException_String(objstr_(obj_(ref))).self())
+			panic(new_IllegalStateException_String(tostr_(ref)).self())
 		}
 		if ((aliasInlinability == GlobalNamespace_Inlinability_INLINE_UNLESS_INVALID_CROSS_CHUNK_DEPENDENCY) && (ref.getChunk() != initializationChunk)) && !this.outer_.compiler_.getChunkGraph().dependsOn(ref.getChunk(), initializationChunk) {
 			continue
@@ -922,7 +922,7 @@ func (this *InlineAndCollapseProperties_CollapseProperties) process_2(externs No
 		NodeTraversal_traverse(this.outer_.compiler_, root, new_InlineAndCollapseProperties_CollapseProperties_FindDynamicallyImportedModules(this, this.outer_.haveModulesBeenRewritten, this.outer_.moduleResolutionMode))
 	}
 	if this.outer_.namespace_ == nil {
-		nullFail_(objstr_(strobj_("namespace was not initialized")))
+		nullFail_(sstr_("namespace was not initialized"))
 	}
 	this.nameMap = this.outer_.namespace_.getNameIndex()
 	var globalNames *TList[*GlobalNamespace_Name] = this.outer_.namespace_.getNameForest()
@@ -1198,7 +1198,7 @@ func (this *InlineAndCollapseProperties_CollapseProperties) collapseDeclarationO
 	var canCollapseChildNames bool
 	if !childNameInlinability.canCollapse() {
 		this.logDecisionForNameSupplier(n, func() any {
-			return strobj_(("child name inlinability: " + objstr_(obj_(childNameInlinability)) + ": will not collapse child names"))
+			return strobj_(("child name inlinability: " + tostr_(childNameInlinability) + ": will not collapse child names"))
 		})
 		canCollapseChildNames = false
 	} else if has_(escaped, n) {
@@ -1222,7 +1222,7 @@ func (this *InlineAndCollapseProperties_CollapseProperties) collapseDeclarationO
 
 func (this *InlineAndCollapseProperties_CollapseProperties) updateTwinnedDeclaration(alias string, refName *GlobalNamespace_Name, ref *GlobalNamespace_Ref) {
 	if !ref.isTwin() {
-		panic(new_IllegalStateException_String(objstr_(obj_(ref))).self())
+		panic(new_IllegalStateException_String(tostr_(ref)).self())
 	}
 	if !ref.getNode().isGetProp() {
 		return
@@ -1426,7 +1426,7 @@ func (this *InlineAndCollapseProperties_CollapseProperties) updateGlobalNameDecl
 	var declaration *GlobalNamespace_Ref = cast_[*GlobalNamespace_Ref](n.getDeclaration())
 	var classNode Node = declaration.getNode().getGrandparent()
 	if !classNode.isClass() {
-		panic(new_IllegalStateException_String(objstr_(classNode.box_())).self())
+		panic(new_IllegalStateException_String(tostr_(classNode)).self())
 	}
 	var enclosingStatement Node = NodeUtil_getEnclosingStatement(classNode)
 	if canCollapseChildNames {
@@ -1520,10 +1520,10 @@ func (this *InlineAndCollapseProperties_CollapseProperties) declareVariablesForO
 
 func (this *InlineAndCollapseProperties_CollapseProperties) addStubsForUndeclaredProperties(n *GlobalNamespace_Name, alias string, parent Node, addAfter Node) {
 	if !n.canCollapseUnannotatedChildNames() {
-		panic(new_IllegalStateException_String(objstr_(obj_(n))).self())
+		panic(new_IllegalStateException_String(tostr_(n)).self())
 	}
 	if !NodeUtil_isStatementBlock(parent) {
-		panic(new_IllegalArgumentException_String(objstr_(parent.box_())).self())
+		panic(new_IllegalArgumentException_String(tostr_(parent)).self())
 	}
 	if addAfter == 0 {
 		panic(new_NullPointerException_0().self())

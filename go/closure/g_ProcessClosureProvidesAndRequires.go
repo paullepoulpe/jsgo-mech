@@ -436,7 +436,7 @@ func (this *ProcessClosureProvidesAndRequires_ProvidedName) init_ProcessClosureP
 	this.astFactory_ = astFactory
 	var node Node = builder.node_
 	if !(((node == 0) || NodeUtil_isExprCall(node)) || (!builder.explicit && ((NodeUtil_isExprAssign(node) || NodeUtil_isNameDeclaration(node)) || (node.isExprResult() && node.getFirstChild().isQualifiedName())))) {
-		panic(new_IllegalArgumentException_String(objstr_(node.box_())).self())
+		panic(new_IllegalArgumentException_String(tostr_(node)).self())
 	}
 	this.namespace_ = builder.namespace_
 	this.firstNode = builder.node_
@@ -459,7 +459,7 @@ func (this *ProcessClosureProvidesAndRequires_ProvidedName) addProvide(node Node
 			panic(new_IllegalStateException_0().self())
 		}
 		if !node.isExprResult() {
-			panic(new_IllegalArgumentException_String(objstr_(node.box_())).self())
+			panic(new_IllegalArgumentException_String(tostr_(node)).self())
 		}
 		this.explicitNode = node
 	}
@@ -556,10 +556,10 @@ func (this *ProcessClosureProvidesAndRequires_ProvidedName) replace(preserveGoog
 
 func (this *ProcessClosureProvidesAndRequires_ProvidedName) convertProvideAssignmentToVarDeclaration(assignNode Node, nameNode Node) {
 	if !assignNode.isAssign() {
-		panic(new_IllegalArgumentException_String(objstr_(assignNode.box_())).self())
+		panic(new_IllegalArgumentException_String(tostr_(assignNode)).self())
 	}
 	if !nameNode.isName() {
-		panic(new_IllegalArgumentException_String(objstr_(nameNode.box_())).self())
+		panic(new_IllegalArgumentException_String(tostr_(nameNode)).self())
 	}
 	var valueNode Node = nameNode.getNext()
 	nameNode.detach()
@@ -596,7 +596,7 @@ func (this *ProcessClosureProvidesAndRequires_ProvidedName) createNamespaceIniti
 
 func (this *ProcessClosureProvidesAndRequires_ProvidedName) createDeclarationNode(value Node) Node {
 	if !value.isObjectLit() && !value.isCast() {
-		panic(new_IllegalArgumentException_String(objstr_(value.box_())).self())
+		panic(new_IllegalArgumentException_String(tostr_(value)).self())
 	}
 	if !strings.Contains(this.namespace_, ".") {
 		return this.makeVarDeclNode(value)

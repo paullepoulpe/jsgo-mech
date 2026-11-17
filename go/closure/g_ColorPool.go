@@ -192,7 +192,7 @@ func (this *ColorPool_Builder) addShard(typePool *TypePool, stringPool *StringPo
 	var existing *ColorPool_ShardView = this.protoToShard.get(typePool)
 	if existing != nil {
 		if !JSCompObjects_identical(obj_(typePool), obj_(TypePool_getDefaultInstance())) {
-			panic(new_IllegalStateException_String(objstr_(obj_(typePool))).self())
+			panic(new_IllegalStateException_String(tostr_(typePool)).self())
 		}
 		return existing
 	}
@@ -292,7 +292,7 @@ func (this *ColorPool_Builder) lookupOrReconcileColor(id *ColorId) *Color {
 		var viewToProto MapOf[*ColorPool_ShardView, *TypeProto] = this.idToProto.row(id)
 		var sample *TypeProto = cast_[*TypeProto](Iterables_getFirst(Iterable(viewToProto.values()), nil))
 		if sample == nil {
-			panic(new_NullPointerException_String(objstr_(obj_(id))).self())
+			panic(new_NullPointerException_String(tostr_(id)).self())
 		}
 		var result *Color = func() *Color {
 			switch sample.getKindCase() {
@@ -305,7 +305,7 @@ func (this *ColorPool_Builder) lookupOrReconcileColor(id *ColorId) *Color {
 			}
 		}()
 		if result == nil {
-			panic(new_IllegalStateException_String(objstr_(obj_(id))).self())
+			panic(new_IllegalStateException_String(tostr_(id)).self())
 		}
 		this.idToColor.put(id, result)
 		ret_1 = result
@@ -363,7 +363,7 @@ func (this *ColorPool_Builder) reconcileUnionProtos(id *ColorId, viewToProto Map
 		var proto *TypeProto = cast_[*TypeProto](proto_)
 		_ = proto
 		if !proto.hasUnion() {
-			panic(new_IllegalStateException_String(objstr_(obj_(proto))).self())
+			panic(new_IllegalStateException_String(tostr_(proto)).self())
 		}
 		var unionMemberList ListOf[BoxedOf[int32]] = proto.getUnion().getUnionMemberList()
 		for i := int32(0); i < unionMemberList.size(); i++ {

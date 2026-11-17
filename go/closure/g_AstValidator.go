@@ -451,7 +451,7 @@ func (this *AstValidator) validateAwaitWithinAsyncFunction(n Node) {
 func (this *AstValidator) isInParameterListOfFunction(child Node, functionNode Node) bool {
 	var paramList Node = functionNode.getSecondChild()
 	if paramList == 0 {
-		panic(new_NullPointerException_String(objstr_(functionNode.box_())).self())
+		panic(new_NullPointerException_String(tostr_(functionNode)).self())
 	}
 	{
 		var parent Node = child.getParent()
@@ -1550,7 +1550,7 @@ func (this *AstValidator) validateAssignmentOpTarget(lhs Node, contextType Token
 
 func (this *AstValidator) validateGetElem(n Node) {
 	if !n.isGetElem() {
-		panic(new_IllegalArgumentException_String(objstr_(n.box_())).self())
+		panic(new_IllegalArgumentException_String(tostr_(n)).self())
 	}
 	this.validateProperties(n)
 	this.validateChildCount_2(n, 2)
@@ -1561,7 +1561,7 @@ func (this *AstValidator) validateGetElem(n Node) {
 func (this *AstValidator) validateOptChainGetElem(node Node) {
 	this.validateFeature(FeatureSet_Feature_OPTIONAL_CHAINING, node)
 	if !node.isOptChainGetElem() {
-		panic(new_IllegalArgumentException_String(objstr_(node.box_())).self())
+		panic(new_IllegalArgumentException_String(tostr_(node)).self())
 	}
 	this.validateProperties(node)
 	this.validateChildCount_2(node, 2)

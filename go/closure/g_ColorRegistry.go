@@ -83,7 +83,7 @@ func new_ColorRegistry_Builder() *ColorRegistry_Builder {
 
 func (this *ColorRegistry_Builder) setNativeColor(x *Color) *ColorRegistry_Builder {
 	if !ColorRegistry_REQUIRED_IDS.contains(obj_(x.getId())) {
-		panic(new_IllegalStateException_String(objstr_(obj_(x))).self())
+		panic(new_IllegalStateException_String(tostr_(x)).self())
 	}
 	this.nativeColors.put(x.getId(), x)
 	return this

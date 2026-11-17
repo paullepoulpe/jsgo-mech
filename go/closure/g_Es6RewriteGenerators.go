@@ -191,14 +191,14 @@ func new_Es6RewriteGenerators_SingleGeneratorFunctionTranspiler(outer_ *Es6Rewri
 
 func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler) hoistVarNode(node Node) {
 	if !node.isVar() {
-		panic(new_IllegalStateException_String(objstr_(node.box_())).self())
+		panic(new_IllegalStateException_String(tostr_(node)).self())
 	}
 	node.insertBefore(this.newGeneratorHoistBlock.getLastChild())
 }
 
 func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler) hoistFunctionDeclarationNode(node Node) {
 	if !node.isFunction() {
-		panic(new_IllegalStateException_String(objstr_(node.box_())).self())
+		panic(new_IllegalStateException_String(tostr_(node)).self())
 	}
 	this.newGeneratorHoistBlock.addChildToFront(node)
 }
@@ -232,15 +232,15 @@ func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler) transpile() 
 	if this.isTranspiledAsyncFunction(generatorFunction) {
 		var callTarget Node = generatorFunction.getPrevious()
 		if !callTarget.isGetProp() && !callTarget.isName() {
-			panic(new_IllegalStateException_String(objstr_(callTarget.box_())).self())
+			panic(new_IllegalStateException_String(tostr_(callTarget)).self())
 		}
 		this.newGeneratorHoistBlock = generatorFunction.getGrandparent().getParent()
 		if !this.newGeneratorHoistBlock.isBlock() {
-			panic(new_IllegalStateException_String(objstr_(this.newGeneratorHoistBlock.box_())).self())
+			panic(new_IllegalStateException_String(tostr_(this.newGeneratorHoistBlock)).self())
 		}
 		changeScopeNode = NodeUtil_getEnclosingFunction(this.newGeneratorHoistBlock)
 		if !changeScopeNode.isFunction() {
-			panic(new_IllegalStateException_String(objstr_(changeScopeNode.box_())).self())
+			panic(new_IllegalStateException_String(tostr_(changeScopeNode)).self())
 		}
 		callTarget.replaceWith(this.outer_.astFactory_.createQName(this.outer_.namespace_, this.outer_.jscompAsyncExecuteProgram).srcrefTree(callTarget))
 		program = this.originalGeneratorBody.getParent()
@@ -1533,7 +1533,7 @@ func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_Transpilation
 func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_UnmarkedNodeTranspiler) visitForInLoopVar(varDeclaration Node) {
 	var varName Node = varDeclaration.getOnlyChild()
 	if varName.hasChildren() {
-		panic(new_IllegalStateException_String(objstr_(varName.box_())).self())
+		panic(new_IllegalStateException_String(tostr_(varName)).self())
 	}
 	var clonedVarName Node = varName.cloneNode().setJSDocInfo(nil)
 	varDeclaration.replaceWith(clonedVarName)

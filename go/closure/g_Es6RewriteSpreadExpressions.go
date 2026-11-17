@@ -57,7 +57,7 @@ func (this *Es6RewriteSpreadExpressions) visitArrayLitOrCallWithSpread(t *NodeTr
 		this.visitCallContainingSpread(t, spreadParent)
 	} else {
 		if !spreadParent.isNew() {
-			panic(new_IllegalArgumentException_String(objstr_(spreadParent.box_())).self())
+			panic(new_IllegalArgumentException_String(tostr_(spreadParent)).self())
 		}
 		this.visitNewWithSpread(spreadParent)
 	}

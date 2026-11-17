@@ -50,7 +50,7 @@ func (this *ExportTestFunctions) exportTestFunctionAsSymbol(testFunctionName str
 
 func (this *ExportTestFunctions) exportTestFunctionAsProperty(fullyQualifiedFunctionName Node, node Node) {
 	if !fullyQualifiedFunctionName.isGetProp() {
-		panic(new_IllegalStateException_String(objstr_(fullyQualifiedFunctionName.box_())).self())
+		panic(new_IllegalStateException_String(tostr_(fullyQualifiedFunctionName)).self())
 	}
 	var testFunctionName string = NodeUtil_getPrototypePropertyName(node.getFirstChild())
 	if strings.HasPrefix(node.getFirstChild().getQualifiedName(), "window.") {

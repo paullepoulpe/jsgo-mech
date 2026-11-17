@@ -49,7 +49,7 @@ func new_Es6RewriteModules_AbstractCompiler_ModuleMetadataMap_ModuleMap_Preproce
 
 func Es6RewriteModules_isEs6ModuleRoot(scriptNode Node) bool {
 	if !scriptNode.isScript() {
-		panic(new_IllegalArgumentException_String(objstr_(scriptNode.box_())).self())
+		panic(new_IllegalArgumentException_String(tostr_(scriptNode)).self())
 	}
 	if scriptNode.getBooleanProp(Node_GOOG_MODULE) {
 		return false
@@ -59,10 +59,10 @@ func Es6RewriteModules_isEs6ModuleRoot(scriptNode Node) bool {
 
 func (this *Es6RewriteModules) process_2(externs Node, root Node) {
 	if !externs.isRoot() {
-		panic(new_IllegalArgumentException_String(objstr_(externs.box_())).self())
+		panic(new_IllegalArgumentException_String(tostr_(externs)).self())
 	}
 	if !root.isRoot() {
-		panic(new_IllegalArgumentException_String(objstr_(root.box_())).self())
+		panic(new_IllegalArgumentException_String(tostr_(root)).self())
 	}
 	NodeTraversal_traverseRoots(this.compiler_, this, externs, root)
 	NodeUtil_removeFeatureFromAllScripts(root, FeatureSet_Feature_MODULES, this.compiler_)
@@ -118,7 +118,7 @@ func (this *Es6RewriteModules) maybeWarnExternModule(t *NodeTraversal, n Node, p
 
 func (this *Es6RewriteModules) visitImport(t *NodeTraversal, importDecl Node, parent Node) {
 	if !parent.isModuleBody() {
-		panic(new_IllegalArgumentException_String(objstr_(parent.box_())).self())
+		panic(new_IllegalArgumentException_String(tostr_(parent)).self())
 	}
 	var importName string = importDecl.getLastChild().getString()
 	var isNamespaceImport bool = strings.HasPrefix(importName, "goog:")
@@ -166,7 +166,7 @@ func (this *Es6RewriteModules) visitImport(t *NodeTraversal, importDecl Node, pa
 
 func (this *Es6RewriteModules) visitExport(t *NodeTraversal, export Node, parent Node) {
 	if !parent.isModuleBody() {
-		panic(new_IllegalArgumentException_String(objstr_(parent.box_())).self())
+		panic(new_IllegalArgumentException_String(tostr_(parent)).self())
 	}
 	if export.getBooleanProp(Node_EXPORT_DEFAULT) {
 		var child Node = export.getFirstChild()
@@ -408,7 +408,7 @@ func (this *Es6RewriteModules) visitRequireOrGet(t *NodeTraversal, requireCall N
 					var child Node = parent.getFirstFirstChild()
 					for ; child != 0; child = child.getNext() {
 						if !child.isStringKey() || !child.getFirstChild().isName() {
-							panic(new_IllegalStateException_String(objstr_(child.box_())).self())
+							panic(new_IllegalStateException_String(tostr_(child)).self())
 						}
 						var rep *ModuleRenaming_GlobalizedModuleName = this.getGlobalNameAndType(m, Optional_of[string](namespace), isFromFallbackMetadata).getprop(child.getString())
 						this.namesToInlineByAlias[child.getFirstChild().getString()] = rep

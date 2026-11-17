@@ -40,14 +40,14 @@ func (this *Es6ConvertSuperConstructorCalls) shouldTraverse(t *NodeTraversal, n 
 		this.constructorDataStack = append(this.constructorDataStack, new_Es6ConvertSuperConstructorCalls_ConstructorData(n))
 	} else if n.isSuper() {
 		if !n.isFirstChildOf(parent) {
-			panic(new_IllegalStateException_String(objstr_(parent.box_())).self())
+			panic(new_IllegalStateException_String(tostr_(parent)).self())
 		}
 		if parent.isGetProp() {
 			t.report(n, TranspilationUtil_CANNOT_CONVERT_YET, []string{"super access with no extends clause"})
 			return false
 		}
 		if !parent.isCall() {
-			panic(new_IllegalStateException_String(objstr_(parent.box_())).self())
+			panic(new_IllegalStateException_String(tostr_(parent)).self())
 		}
 		var constructorData *Es6ConvertSuperConstructorCalls_ConstructorData = slicePeekTop_(tc_p_Es6ConvertSuperConstructorCalls_ConstructorData, this.constructorDataStack)
 		if constructorData == nil {
@@ -103,7 +103,7 @@ func (this *Es6ConvertSuperConstructorCalls) replaceSuperCallsWithThis(superCall
 		var sideEffectArgs []Node = []Node{}
 		var callee Node = superCall.removeFirstChild()
 		if !callee.isSuper() {
-			panic(new_IllegalStateException_String(objstr_(callee.box_())).self())
+			panic(new_IllegalStateException_String(tostr_(callee)).self())
 		}
 		for superCall.hasChildren() {
 			var arg Node = superCall.removeFirstChild()
@@ -139,7 +139,7 @@ func (this *Es6ConvertSuperConstructorCalls) rewriteSuperCallsToJsCompConstructC
 	var firstSuperCall Node = superCalls.get(0)
 	if ((constructorBody.hasOneChild() && firstStatement.isExprResult()) && firstStatement.hasOneChild()) && (firstStatement.getFirstChild() == firstSuperCall) {
 		if superCalls.size() != 1 {
-			panic(new_IllegalStateException_String(objstr_(constructor.box_())).self())
+			panic(new_IllegalStateException_String(tostr_(constructor)).self())
 		}
 		firstStatement.replaceWith(this.astFactory_.createReturn(this.createJSCompConstructorCall(superClassNameNode, firstSuperCall, thisType)))
 	} else {
@@ -193,7 +193,7 @@ func (this *Es6ConvertSuperConstructorCalls) rewriteSuperAndPreserveReturnedThis
 	var firstSuperCall Node = superCalls.get(0)
 	if ((constructorBody.hasOneChild() && firstStatement.isExprResult()) && firstStatement.hasOneChild()) && (firstStatement.getFirstChild() == firstSuperCall) {
 		if superCalls.size() != 1 {
-			panic(new_IllegalStateException_String(objstr_(constructor.box_())).self())
+			panic(new_IllegalStateException_String(tostr_(constructor)).self())
 		}
 		var newReturn Node = this.astFactory_.createOr(this.createNewSuperCall(superClassNameNode, superCalls.get(0), AstFactory_type_Node(superCalls.get(0)), AstFactory_typeColor(StandardColors_UNKNOWN)), this.astFactory_.createThis(thisType))
 		firstStatement.replaceWith(IR_returnNode_Node(newReturn).srcrefTreeIfMissing(firstStatement))
@@ -288,14 +288,14 @@ func (this *Es6ConvertSuperConstructorCalls) isNodeKnownToOnlyReturnUndefined(no
 
 func (this *Es6ConvertSuperConstructorCalls) createNewSuperCall(superClassQNameNode Node, superCall Node, thisType AstFactory_Type, resultType AstFactory_Type) Node {
 	if !superClassQNameNode.isQualifiedName() {
-		panic(new_IllegalArgumentException_String(objstr_(superClassQNameNode.box_())).self())
+		panic(new_IllegalArgumentException_String(tostr_(superClassQNameNode)).self())
 	}
 	if !superCall.isCall() {
-		panic(new_IllegalArgumentException_String(objstr_(superCall.box_())).self())
+		panic(new_IllegalArgumentException_String(tostr_(superCall)).self())
 	}
 	var callee Node = superCall.removeFirstChild()
 	if !callee.isSuper() {
-		panic(new_IllegalStateException_String(objstr_(callee.box_())).self())
+		panic(new_IllegalStateException_String(tostr_(callee)).self())
 	}
 	var args *TList[Node] = newTList_(tc_Node)
 	var hasSpreadArg bool = false
@@ -329,17 +329,17 @@ func (this *Es6ConvertSuperConstructorCalls) createNewSuperCall(superClassQNameN
 
 func (this *Es6ConvertSuperConstructorCalls) createJSCompConstructorCall(superClassQNameNode Node, superCall Node, thisType AstFactory_Type) Node {
 	if !superClassQNameNode.isQualifiedName() {
-		panic(new_IllegalArgumentException_String(objstr_(superClassQNameNode.box_())).self())
+		panic(new_IllegalArgumentException_String(tostr_(superClassQNameNode)).self())
 	}
 	if !superCall.isCall() {
-		panic(new_IllegalArgumentException_String(objstr_(superCall.box_())).self())
+		panic(new_IllegalArgumentException_String(tostr_(superCall)).self())
 	}
 	var callee Node = superCall.removeFirstChild()
 	if callee == 0 {
-		panic(new_NullPointerException_String(objstr_(superCall.box_())).self())
+		panic(new_NullPointerException_String(tostr_(superCall)).self())
 	}
 	if !callee.isSuper() {
-		panic(new_IllegalStateException_String(objstr_(callee.box_())).self())
+		panic(new_IllegalStateException_String(tostr_(callee)).self())
 	}
 	var jscompDotConstruct Node = this.astFactory_.createQName(this.transpilationNamespace, this.jscompConstruct).srcrefTree(callee)
 	var superClassQName Node = superClassQNameNode.cloneTree()
@@ -369,7 +369,7 @@ func (this *Es6ConvertSuperConstructorCalls) replaceNativeErrorSuperCall(superCa
 	var superStatement Node = NodeUtil_getEnclosingStatement(superCall)
 	var body Node = superStatement.getParent()
 	if !body.isBlock() {
-		panic(new_IllegalStateException_String(objstr_(body.box_())).self())
+		panic(new_IllegalStateException_String(tostr_(body)).self())
 	}
 	var thisType AstFactory_Type = AstFactory_type_Node(newSuperCall)
 	var tmpErrorName string = (sstr_(Es6ConvertSuperConstructorCalls_TMP_ERROR) + "$" + sstr_(this.uniqueIdSupplier.getUniqueId(compilerInput)))
@@ -421,7 +421,7 @@ func (this *Es6ConvertSuperConstructorCalls) updateThisToSuperThis(typeOfThis As
 
 func (this *Es6ConvertSuperConstructorCalls) getTypeOfThisForConstructor(constructor Node) AstFactory_Type {
 	if !constructor.isFunction() {
-		panic(new_IllegalArgumentException_String(objstr_(constructor.box_())).self())
+		panic(new_IllegalArgumentException_String(tostr_(constructor)).self())
 	}
 	var constructorType *Color = constructor.getColor()
 	return func() AstFactory_Type {

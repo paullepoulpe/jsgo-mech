@@ -397,7 +397,7 @@ func (this *ReplaceCssNames_GetCssNameInstance) replaceWithExpression() {
 func (this *ReplaceCssNames_GetCssNameInstance) replaceWithConvertedSingleArg() {
 	var stringLitArg Node = this.callNode_.getSecondChild()
 	if stringLitArg == 0 {
-		panic(new_NullPointerException_String(objstr_(this.callNode_.box_())).self())
+		panic(new_NullPointerException_String(tostr_(this.callNode_)).self())
 	}
 	if !stringLitArg.isStringLit() {
 		panic(new_IllegalStateException_String(Strings_lenientFormat("not a string literal: %s", []any{stringLitArg.box_()})).self())
@@ -411,11 +411,11 @@ func (this *ReplaceCssNames_GetCssNameInstance) replaceWithConvertedSingleArg() 
 func (this *ReplaceCssNames_GetCssNameInstance) replaceWithConcatenatedArgs() {
 	var firstArg Node = this.callNode_.getSecondChild()
 	if firstArg == 0 {
-		panic(new_NullPointerException_String(objstr_(this.callNode_.box_())).self())
+		panic(new_NullPointerException_String(tostr_(this.callNode_)).self())
 	}
 	var secondArg Node = firstArg.getNext()
 	if secondArg == 0 {
-		panic(new_NullPointerException_String(objstr_(firstArg.box_())).self())
+		panic(new_NullPointerException_String(tostr_(firstArg)).self())
 	}
 	firstArg.detach()
 	secondArg.detach()
@@ -449,7 +449,7 @@ func (this *ReplaceCssNames_GetCssNameInstance) getCssClosureClassesMemberName()
 			return Optional_of[string]((sstr_(this.cssClosureClassesQualifiedName.get()) + "." + sstr_(ancestor.getString())))
 		}
 	}
-	panic(new_IllegalStateException_String(("No css closure classes member name found: " + objstr_(this.callNode_.box_()))).self())
+	panic(new_IllegalStateException_String(("No css closure classes member name found: " + tostr_(this.callNode_))).self())
 }
 
 func (this *ReplaceCssNames_GetCssNameInstance) getCssClassName() OptionalOf[string] {
@@ -462,7 +462,7 @@ func (this *ReplaceCssNames_GetCssNameInstance) getCssClassName() OptionalOf[str
 	var childCount int32 = this.callNode_.getChildCount()
 	nn_ := this.callNode_.getSecondChild()
 	if nn_ == 0 {
-		panic(new_NullPointerException_String(objstr_(this.callNode_.box_())).self())
+		panic(new_NullPointerException_String(tostr_(this.callNode_)).self())
 	}
 	var firstArg Node = nn_
 	return func() OptionalOf[string] {
@@ -475,7 +475,7 @@ func (this *ReplaceCssNames_GetCssNameInstance) getCssClassName() OptionalOf[str
 		case 3:
 			var secondArg Node = firstArg.getNext()
 			if secondArg == 0 {
-				panic(new_NullPointerException_String(objstr_(firstArg.box_())).self())
+				panic(new_NullPointerException_String(tostr_(firstArg)).self())
 			}
 			if !secondArg.isStringLit() {
 				panic(new_IllegalStateException_String(Strings_lenientFormat("not a string literal: %s", []any{secondArg.box_()})).self())

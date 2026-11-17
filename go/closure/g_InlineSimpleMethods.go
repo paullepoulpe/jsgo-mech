@@ -29,7 +29,7 @@ func new_InlineSimpleMethods(compiler *AbstractCompiler) *InlineSimpleMethods {
 
 func (this *InlineSimpleMethods) process_2(externs Node, root Node) {
 	if ok_, a1_ := this.compiler_.getLifeCycleStage().isNormalized(), this.compiler_.getLifeCycleStage(); !ok_ {
-		panic(new_IllegalStateException_String(objstr_(obj_(a1_))).self())
+		panic(new_IllegalStateException_String(tostr_(a1_)).self())
 	}
 	if !this.methodDefinitions.isEmpty() {
 		panic(new_IllegalStateException_0().self())

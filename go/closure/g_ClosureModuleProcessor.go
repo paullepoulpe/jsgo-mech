@@ -19,7 +19,7 @@ func new_ClosureModuleProcessor(compiler *AbstractCompiler) *ClosureModuleProces
 func ClosureModuleProcessor_mayBeAccidentalDefaultExport(importName string, exports map[string]*Binding) bool {
 	var defaultExport Node = exports[Export_NAMESPACE].originatingExport().exportNode()
 	if !defaultExport.matchesName("exports") || !defaultExport.getParent().isAssign() {
-		panic(new_IllegalStateException_String(objstr_(defaultExport.box_())).self())
+		panic(new_IllegalStateException_String(tostr_(defaultExport)).self())
 	}
 	var exportedValue Node = defaultExport.getNext()
 	if !exportedValue.isObjectLit() {

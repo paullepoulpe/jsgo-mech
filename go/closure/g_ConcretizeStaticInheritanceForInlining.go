@@ -55,7 +55,7 @@ func (this *ConcretizeStaticInheritanceForInlining) processInherits(findStaticMe
 func (this *ConcretizeStaticInheritanceForInlining) copyStaticMembers(superClass *ConcretizeStaticInheritanceForInlining_JavascriptClass, subClass *ConcretizeStaticInheritanceForInlining_JavascriptClass, inheritsCall Node, findStaticMembers *ConcretizeStaticInheritanceForInlining_FindStaticMembers) {
 	for staticMember := range superClass.staticMembers.All() {
 		if !staticMember.isAssign() {
-			panic(new_IllegalStateException_String(objstr_(staticMember.box_())).self())
+			panic(new_IllegalStateException_String(tostr_(staticMember)).self())
 		}
 		var memberName string = staticMember.getFirstChild().getString()
 		if has_(superClass.definedProperties, memberName) {

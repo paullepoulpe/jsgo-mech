@@ -499,7 +499,7 @@ func (this Node) addChildrenToFront(children Node) {
 		return
 	}
 	if children.cs_().previous == 0 {
-		panic(new_NullPointerException_String(objstr_(children.box_())).self())
+		panic(new_NullPointerException_String(tostr_(children)).self())
 	}
 	{
 		var child Node = children
@@ -564,7 +564,7 @@ func (this Node) addChildrenAfter(children Node, node Node) {
 		panic(new_IllegalArgumentException_0().self())
 	}
 	if children.cs_().previous == 0 {
-		panic(new_NullPointerException_String(objstr_(children.box_())).self())
+		panic(new_NullPointerException_String(tostr_(children)).self())
 	}
 	if node == 0 {
 		this.addChildrenToFront(children)
@@ -1077,10 +1077,10 @@ func (this Node) getDouble() float64 {
 
 func (this Node) setDouble(x float64) {
 	if Double_isNaN(x) {
-		panic(new_IllegalStateException_String(objstr_(any(float64(x)))).self())
+		panic(new_IllegalStateException_String(dstr_(float64(x))).self())
 	}
 	if !JSCompDoubles_isPositive(x) {
-		panic(new_IllegalStateException_String(objstr_(any(float64(x)))).self())
+		panic(new_IllegalStateException_String(dstr_(float64(x))).self())
 	}
 	if _, ok := this.ps_().payload.(float64); !ok {
 		panic(this.payloadKindMismatch("number").self())
@@ -1110,7 +1110,7 @@ func (this Node) setBigInt(number *BigInteger) {
 		panic(new_NullPointerException_0().self())
 	}
 	if number.signum() < 0 {
-		panic(new_IllegalStateException_String(objstr_(obj_(number))).self())
+		panic(new_IllegalStateException_String(tostr_(number)).self())
 	}
 	if _, ok := this.ps_().payload.(*BigInteger); !ok {
 		panic(this.payloadKindMismatch("bigint").self())
@@ -2260,7 +2260,7 @@ func (this Node) getJSTypeRequired() *JSType {
 
 func (this Node) setJSType(x *JSType) Node {
 	if this.ps_().jstypeOrColor != nil && !is_[*JSType](this.ps_().jstypeOrColor) {
-		panic(new_IllegalStateException_String(objstr_(this.box_())).self())
+		panic(new_IllegalStateException_String(tostr_(this)).self())
 	}
 	if x == nil {
 		this.ps_().jstypeOrColor = nil
@@ -2291,7 +2291,7 @@ func (this Node) getColor() *Color {
 
 func (this Node) setColor(x *Color) Node {
 	if this.ps_().jstypeOrColor != nil && !is_[*Color](this.ps_().jstypeOrColor) {
-		panic(new_IllegalStateException_String(objstr_(this.box_())).self())
+		panic(new_IllegalStateException_String(tostr_(this)).self())
 	}
 	this.ps_().jstypeOrColor = obj_(x)
 	return this
@@ -2571,7 +2571,7 @@ func (this Node) isQuotedStringKey() bool {
 
 func (this Node) setQuotedStringKey() {
 	if (*this.payload_s_()) == nullstr_ {
-		panic(new_IllegalStateException_String(objstr_(this.box_())).self())
+		panic(new_IllegalStateException_String(tostr_(this)).self())
 	}
 	this.putBooleanProp(Node_Prop_QUOTED, true)
 }
@@ -2582,7 +2582,7 @@ func (this Node) isPrivateIdentifier() bool {
 
 func (this Node) setPrivateIdentifier() {
 	if (*this.payload_s_()) == nullstr_ {
-		panic(new_IllegalStateException_String(objstr_(this.box_())).self())
+		panic(new_IllegalStateException_String(tostr_(this)).self())
 	}
 	if !strings.HasPrefix(this.getString(), "#") {
 		panic(new_IllegalStateException_0().self())

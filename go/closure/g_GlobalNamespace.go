@@ -213,7 +213,7 @@ func (this *GlobalNamespace) getNameFromModule(moduleMetadata *ModuleMetadataMap
 
 func (this *GlobalNamespace) declarationHasFollowingObjectSpreadSibling(declaration Node) bool {
 	if !declaration.getParent().isObjectLit() {
-		panic(new_IllegalStateException_String(objstr_(declaration.box_())).self())
+		panic(new_IllegalStateException_String(tostr_(declaration)).self())
 	}
 	var cached any = this.spreadSiblingCache[declaration]
 	if cached != nil {
@@ -239,7 +239,7 @@ func (this *GlobalNamespace) createNameForTesting(name string) *GlobalNamespace_
 func (this *GlobalNamespace) getOutermostObjectLit(objLitKey Node) Node {
 	var outermostObjectLit Node = objLitKey.getParent()
 	if !outermostObjectLit.isObjectLit() {
-		panic(new_IllegalStateException_String(objstr_(outermostObjectLit.box_())).self())
+		panic(new_IllegalStateException_String(tostr_(outermostObjectLit)).self())
 	}
 	for {
 		var objLitGrandparent Node = outermostObjectLit.getGrandparent()
@@ -663,14 +663,14 @@ func (this *GlobalNamespace_BuildGlobalNamespace) createObjLitStringKeyAnalysis(
 	} else {
 		var objLitNode Node = stringKeyNode.getParent()
 		if !objLitNode.isObjectLit() {
-			panic(new_IllegalArgumentException_String(objstr_(objLitNode.box_())).self())
+			panic(new_IllegalArgumentException_String(tostr_(objLitNode)).self())
 		}
 		var objLitParentNode Node = objLitNode.getParent()
 		if NodeUtil_isObjectDefinePropertiesDefinition(objLitParentNode) {
 			var receiverNode Node = objLitParentNode.getSecondChild()
 			if receiverNode.isQualifiedName() {
 				if objLitNode != receiverNode.getNext() {
-					panic(new_IllegalStateException_String(objstr_(objLitParentNode.box_())).self())
+					panic(new_IllegalStateException_String(tostr_(objLitParentNode)).self())
 				}
 				nameString = Optional_of[string]((sstr_(receiverNode.getQualifiedName()) + "." + sstr_(stringKeyNode.getString())))
 				return GlobalNamespace_ObjLitStringKeyAnalysis_forObjectDefineProperty(nameString.orElseThrow())
@@ -908,7 +908,7 @@ func (this *GlobalNamespace_BuildGlobalNamespace) isClassDefiningCall(callNode N
 
 func (this *GlobalNamespace_BuildGlobalNamespace) isObjectHasOwnPropertyCall(callNode Node) bool {
 	if !callNode.isCall() && !callNode.isOptChainCall() {
-		panic(new_IllegalArgumentException_String(objstr_(callNode.box_())).self())
+		panic(new_IllegalArgumentException_String(tostr_(callNode)).self())
 	}
 	if !callNode.hasTwoChildren() {
 		return false
@@ -1492,7 +1492,7 @@ func (this *GlobalNamespace_Name) removeRefAndUpdateState(ref *GlobalNamespace_R
 func (this *GlobalNamespace_Name) removeRefFromNodeMap(ref *GlobalNamespace_Ref) {
 	var refNode Node = ref.getNode()
 	if refNode == 0 {
-		panic(new_NullPointerException_String(objstr_(obj_(ref))).self())
+		panic(new_NullPointerException_String(tostr_(ref)).self())
 	}
 	if this.refsForNode == nil {
 		panic(new_NullPointerException_String(Strings_lenientFormat("Missing ref when trying to remove it: %s", []any{obj_(ref)})).self())
@@ -1627,7 +1627,7 @@ L_2:
 		switch ref.type__ {
 		case GlobalNamespace_Ref_Type_SET_FROM_GLOBAL, GlobalNamespace_Ref_Type_GET_AND_SET_FROM_GLOBAL:
 			if !ref.isUninitializedDeclaration() && !equalsId_(ref.getChunk(), initialChunk) {
-				panic(new_IllegalStateException_String(objstr_(obj_(ref))).self())
+				panic(new_IllegalStateException_String(tostr_(ref)).self())
 			}
 			continue L_2
 		case GlobalNamespace_Ref_Type_SET_FROM_LOCAL, GlobalNamespace_Ref_Type_GET_AND_SET_FROM_LOCAL:
@@ -1759,7 +1759,7 @@ func (this *GlobalNamespace_Name) getUnsafeInlinabilityBasedOnDeclaredType() Glo
 	} else if this.getBooleanProperty(GlobalNamespace_NameProp_NOT_A_TYPE) {
 		return GlobalNamespace_Inlinability_DO_NOT_INLINE
 	}
-	panic(new_IllegalStateException_String(("name missing declaredType value: " + objstr_(any(this)))).self())
+	panic(new_IllegalStateException_String(("name missing declaredType value: " + this.toString())).self())
 }
 
 func (this *GlobalNamespace_Name) referencesSuperOrInnerClassName() bool {
@@ -1945,7 +1945,7 @@ func (this *GlobalNamespace_Name) setNameType(type_ GlobalNamespace_NameProp) {
 
 func (this *GlobalNamespace_Name) isDeclaredType() bool {
 	if (this.propertyBitSet & GlobalNamespace_NameProp_DECLARED_TYPE_KIND_MASK) == 0 {
-		panic(new_IllegalStateException_String(objstr_(any(int32(this.propertyBitSet)))).self())
+		panic(new_IllegalStateException_String(istr_(int64(int32(this.propertyBitSet)))).self())
 	}
 	return !this.getBooleanProperty(GlobalNamespace_NameProp_NOT_A_TYPE)
 }

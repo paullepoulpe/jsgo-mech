@@ -91,10 +91,10 @@ func lambda_Es6ConvertSuper_visitSuper_1_(n_ any) bool {
 
 func (this *Es6ConvertSuper) visitSuperCall(node Node, parent Node, enclosingMemberDef Node) {
 	if !parent.isCall() {
-		panic(new_IllegalStateException_String(objstr_(parent.box_())).self())
+		panic(new_IllegalStateException_String(tostr_(parent)).self())
 	}
 	if !node.isSuper() {
-		panic(new_IllegalStateException_String(objstr_(node.box_())).self())
+		panic(new_IllegalStateException_String(tostr_(node)).self())
 	}
 	var clazz Node = NodeUtil_getEnclosingClass(node)
 	var superName Node = clazz.getSecondChild()
@@ -116,10 +116,10 @@ func (this *Es6ConvertSuper) visitSuperCall(node Node, parent Node, enclosingMem
 
 func (this *Es6ConvertSuper) visitSuperPropertyCall(node Node, parent Node, enclosingMemberDef Node) {
 	if !parent.isGetProp() && !parent.isGetElem() {
-		panic(new_IllegalStateException_String(objstr_(parent.box_())).self())
+		panic(new_IllegalStateException_String(tostr_(parent)).self())
 	}
 	if !node.isSuper() {
-		panic(new_IllegalStateException_String(objstr_(node.box_())).self())
+		panic(new_IllegalStateException_String(tostr_(node)).self())
 	}
 	var grandparent Node = parent.getParent()
 	if !grandparent.isCall() {
@@ -159,10 +159,10 @@ func (this *Es6ConvertSuper) visitSuperPropertyCall(node Node, parent Node, encl
 
 func (this *Es6ConvertSuper) visitSuperPropertyAccess(node Node, parent Node, enclosingMemberDef Node) {
 	if !parent.isGetProp() && !parent.isGetElem() {
-		panic(new_IllegalStateException_String(objstr_(parent.box_())).self())
+		panic(new_IllegalStateException_String(tostr_(parent)).self())
 	}
 	if !node.isSuper() {
-		panic(new_IllegalStateException_String(objstr_(node.box_())).self())
+		panic(new_IllegalStateException_String(tostr_(node)).self())
 	}
 	var grandparent Node = parent.getParent()
 	if NodeUtil_isLValue(parent) {

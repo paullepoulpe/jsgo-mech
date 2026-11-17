@@ -1955,7 +1955,7 @@ func (this *IRFactory_TransformDispatcher) processFunctionCall(callNode *CallExp
 
 func (this *IRFactory_TransformDispatcher) annotateCalls(n Node) {
 	if !((n.isCall() || n.isOptChainCall()) || n.isTaggedTemplateLit()) {
-		panic(new_IllegalStateException_String(objstr_(n.box_())).self())
+		panic(new_IllegalStateException_String(tostr_(n)).self())
 	}
 	var callee Node = n.getFirstChild()
 	for callee.isCast() {

@@ -145,7 +145,7 @@ func (this *InlineProperties_GatherCandidates) visit_impl(t *NodeTraversal, n No
 
 func (this *InlineProperties_GatherCandidates) maybeRecordCandidateClassFieldDefinition(n Node) bool {
 	if !n.isMemberFieldDef() {
-		panic(new_IllegalStateException_String(objstr_(n.box_())).self())
+		panic(new_IllegalStateException_String(tostr_(n)).self())
 	}
 	var value Node = n.getFirstChild()
 	var propName string = n.getString()
@@ -167,7 +167,7 @@ func (this *InlineProperties_GatherCandidates) maybeRecordCandidateClassFieldDef
 
 func (this *InlineProperties_GatherCandidates) maybeRecordCandidateGetpropDefinition(t *NodeTraversal, n Node, parent Node) bool {
 	if !n.isGetProp() || !parent.isAssign() {
-		panic(new_IllegalStateException_String(objstr_(n.box_())).self())
+		panic(new_IllegalStateException_String(tostr_(n)).self())
 	}
 	var src Node = n.getFirstChild()
 	var propName string = n.getString()
