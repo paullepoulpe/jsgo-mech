@@ -39,7 +39,7 @@ func (this *CollectFileOverviewVisibility) visit(scriptNode Node) {
 	if v == 0 {
 		return
 	}
-	this.builder.put(any(scriptNode.getStaticSourceFile()), obj_(v))
+	this.builder.put(scriptNode.getStaticSourceFile(), obj_(v))
 }
 
 func (this *CollectFileOverviewVisibility) getFileOverviewVisibilityMap() ImmutableMapOf[StaticSourceFile, JSDocInfo_Visibility] {

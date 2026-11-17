@@ -253,7 +253,7 @@ func (this *ChangeVerifier_EqualsResult) hashCode() int32 {
 }
 
 func (this *ChangeVerifier_EqualsResult) toString() string {
-	return "EqualsResult[" + "equals=" + boolstr_(bool(this.equals_)) + ", errorNode=" + tostr_(this.errorNode_) + ", errorMessage=" + objstr_(any(this.errorMessage_)) + "]"
+	return "EqualsResult[" + "equals=" + boolstr_(bool(this.equals_)) + ", errorNode=" + tostr_(this.errorNode_) + ", errorMessage=" + objstr_(this.errorMessage_) + "]"
 }
 
 type ChangeVerifier_1 struct {

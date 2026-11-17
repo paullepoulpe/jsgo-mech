@@ -756,7 +756,7 @@ func (this *SymbolTable) createPropertyScopeFor(s *SymbolTable_Symbol) {
 		}
 		if cast_[*SymbolTable_Symbol](this.symbols.get_s(newProp.getDeclaration().getNode().box_(), newProp.getName())) != nil {
 			if SymbolTable_logger.isLoggable(Level_FINE) {
-				SymbolTable_logger.fine(("Found duplicate symbol " + objstr_(any(newProp))))
+				SymbolTable_logger.fine(("Found duplicate symbol " + objstr_(newProp)))
 			}
 			continue
 		}

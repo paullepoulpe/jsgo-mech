@@ -4,12 +4,12 @@ package closure
 
 // Element conversions of the ImmutableLists that are slices.
 
-var tc_CheckConformance_Rule = &tconv_[CheckConformance_Rule]{box: func(v CheckConformance_Rule) any { return any(v) }, unbox: func(v any) CheckConformance_Rule { return icast_CheckConformance_Rule(v) }}
+var tc_CheckConformance_Rule = &tconv_[CheckConformance_Rule]{box: func(v CheckConformance_Rule) any { return v }, unbox: func(v any) CheckConformance_Rule { return icast_CheckConformance_Rule(v) }}
 var tc_ImmutableMapOf_p_ColorPool_ShardView__p_TypeProto_ = &tconv_[ImmutableMapOf[*ColorPool_ShardView, *TypeProto]]{box: func(v ImmutableMapOf[*ColorPool_ShardView, *TypeProto]) any { return obj_(v) }, unbox: func(v any) ImmutableMapOf[*ColorPool_ShardView, *TypeProto] { return cast_[*ImmutableMap](v) }}
 var tc_ImmutableMapOf_string__string_ = &tconv_[ImmutableMapOf[string, string]]{box: func(v ImmutableMapOf[string, string]) any { return obj_(v) }, unbox: func(v any) ImmutableMapOf[string, string] { return cast_[*ImmutableMap](v) }}
-var tc_MapOf_string__BoxedOf_int64__ = &tconv_[MapOf[string, BoxedOf[int64]]]{box: func(v MapOf[string, BoxedOf[int64]]) any { return any(v) }, unbox: func(v any) MapOf[string, BoxedOf[int64]] { return icast_Map(v) }}
-var tc_OptimizeCalls_CallGraphCompilerPass = &tconv_[OptimizeCalls_CallGraphCompilerPass]{box: func(v OptimizeCalls_CallGraphCompilerPass) any { return any(v) }, unbox: func(v any) OptimizeCalls_CallGraphCompilerPass { return icast_OptimizeCalls_CallGraphCompilerPass(v) }}
-var tc_RuntimeJsLibManager_ExternedField = &tconv_[RuntimeJsLibManager_ExternedField]{box: func(v RuntimeJsLibManager_ExternedField) any { return any(v) }, unbox: func(v any) RuntimeJsLibManager_ExternedField { return icast_RuntimeJsLibManager_ExternedField(v) }}
+var tc_MapOf_string__BoxedOf_int64__ = &tconv_[MapOf[string, BoxedOf[int64]]]{box: func(v MapOf[string, BoxedOf[int64]]) any { return v }, unbox: func(v any) MapOf[string, BoxedOf[int64]] { return icast_Map(v) }}
+var tc_OptimizeCalls_CallGraphCompilerPass = &tconv_[OptimizeCalls_CallGraphCompilerPass]{box: func(v OptimizeCalls_CallGraphCompilerPass) any { return v }, unbox: func(v any) OptimizeCalls_CallGraphCompilerPass { return icast_OptimizeCalls_CallGraphCompilerPass(v) }}
+var tc_RuntimeJsLibManager_ExternedField = &tconv_[RuntimeJsLibManager_ExternedField]{box: func(v RuntimeJsLibManager_ExternedField) any { return v }, unbox: func(v any) RuntimeJsLibManager_ExternedField { return icast_RuntimeJsLibManager_ExternedField(v) }}
 var tc_p_CheckConformance_Category = &tconv_[*CheckConformance_Category]{box: func(v *CheckConformance_Category) any { return obj_(v) }, unbox: func(v any) *CheckConformance_Category { return cast_[*CheckConformance_Category](v) }}
 var tc_p_ColorId = &tconv_[*ColorId]{box: func(v *ColorId) any { return obj_(v) }, unbox: func(v any) *ColorId { return cast_[*ColorId](v) }}
 var tc_p_ColorPool_ShardView = &tconv_[*ColorPool_ShardView]{box: func(v *ColorPool_ShardView) any { return obj_(v) }, unbox: func(v any) *ColorPool_ShardView { return cast_[*ColorPool_ShardView](v) }}

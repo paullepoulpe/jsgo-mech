@@ -4,29 +4,29 @@ package closure
 
 // Element conversions of the typed lists.
 
-var tc_CodeChangeHandler = &tconv_[CodeChangeHandler]{box: func(v CodeChangeHandler) any { return any(v) }, unbox: func(v any) CodeChangeHandler { return icast_CodeChangeHandler(v) }}
-var tc_DiGraph_DiGraphEdge = &tconv_[DiGraph_DiGraphEdge]{box: func(v DiGraph_DiGraphEdge) any { return any(v) }, unbox: func(v any) DiGraph_DiGraphEdge { return icast_DiGraph_DiGraphEdge(v) }}
-var tc_DiGraph_DiGraphNode = &tconv_[DiGraph_DiGraphNode]{box: func(v DiGraph_DiGraphNode) any { return any(v) }, unbox: func(v any) DiGraph_DiGraphNode { return icast_DiGraph_DiGraphNode(v) }}
-var tc_GraphNode = &tconv_[GraphNode]{box: func(v GraphNode) any { return any(v) }, unbox: func(v any) GraphNode { return icast_GraphNode(v) }}
-var tc_Graph_GraphEdge = &tconv_[Graph_GraphEdge]{box: func(v Graph_GraphEdge) any { return any(v) }, unbox: func(v any) Graph_GraphEdge { return icast_Graph_GraphEdge(v) }}
-var tc_GraphvizGraph_GraphvizEdge = &tconv_[GraphvizGraph_GraphvizEdge]{box: func(v GraphvizGraph_GraphvizEdge) any { return any(v) }, unbox: func(v any) GraphvizGraph_GraphvizEdge { return icast_GraphvizGraph_GraphvizEdge(v) }}
-var tc_GraphvizGraph_GraphvizNode = &tconv_[GraphvizGraph_GraphvizNode]{box: func(v GraphvizGraph_GraphvizNode) any { return any(v) }, unbox: func(v any) GraphvizGraph_GraphvizNode { return icast_GraphvizGraph_GraphvizNode(v) }}
-var tc_JsMessage_Part = &tconv_[JsMessage_Part]{box: func(v JsMessage_Part) any { return any(v) }, unbox: func(v any) JsMessage_Part { return icast_JsMessage_Part(v) }}
+var tc_CodeChangeHandler = &tconv_[CodeChangeHandler]{box: func(v CodeChangeHandler) any { return v }, unbox: func(v any) CodeChangeHandler { return icast_CodeChangeHandler(v) }}
+var tc_DiGraph_DiGraphEdge = &tconv_[DiGraph_DiGraphEdge]{box: func(v DiGraph_DiGraphEdge) any { return v }, unbox: func(v any) DiGraph_DiGraphEdge { return icast_DiGraph_DiGraphEdge(v) }}
+var tc_DiGraph_DiGraphNode = &tconv_[DiGraph_DiGraphNode]{box: func(v DiGraph_DiGraphNode) any { return v }, unbox: func(v any) DiGraph_DiGraphNode { return icast_DiGraph_DiGraphNode(v) }}
+var tc_GraphNode = &tconv_[GraphNode]{box: func(v GraphNode) any { return v }, unbox: func(v any) GraphNode { return icast_GraphNode(v) }}
+var tc_Graph_GraphEdge = &tconv_[Graph_GraphEdge]{box: func(v Graph_GraphEdge) any { return v }, unbox: func(v any) Graph_GraphEdge { return icast_Graph_GraphEdge(v) }}
+var tc_GraphvizGraph_GraphvizEdge = &tconv_[GraphvizGraph_GraphvizEdge]{box: func(v GraphvizGraph_GraphvizEdge) any { return v }, unbox: func(v any) GraphvizGraph_GraphvizEdge { return icast_GraphvizGraph_GraphvizEdge(v) }}
+var tc_GraphvizGraph_GraphvizNode = &tconv_[GraphvizGraph_GraphvizNode]{box: func(v GraphvizGraph_GraphvizNode) any { return v }, unbox: func(v any) GraphvizGraph_GraphvizNode { return icast_GraphvizGraph_GraphvizNode(v) }}
+var tc_JsMessage_Part = &tconv_[JsMessage_Part]{box: func(v JsMessage_Part) any { return v }, unbox: func(v any) JsMessage_Part { return icast_JsMessage_Part(v) }}
 var tc_Map_EntryOf_p_InstrumentationPoint__p_ProfilingReport_InstrumentationPointMetrics_ = &tconv_[Map_EntryOf[*InstrumentationPoint, *ProfilingReport_InstrumentationPointMetrics]]{box: func(v Map_EntryOf[*InstrumentationPoint, *ProfilingReport_InstrumentationPointMetrics]) any {
-	return any(v)
+	return v
 }, unbox: func(v any) Map_EntryOf[*InstrumentationPoint, *ProfilingReport_InstrumentationPointMetrics] {
 	return icast_Map_Entry(v)
 }}
-var tc_Map_EntryOf_p_Token_rhino__BoxedOf_int32__ = &tconv_[Map_EntryOf[Token_rhino, BoxedOf[int32]]]{box: func(v Map_EntryOf[Token_rhino, BoxedOf[int32]]) any { return any(v) }, unbox: func(v any) Map_EntryOf[Token_rhino, BoxedOf[int32]] { return icast_Map_Entry(v) }}
-var tc_Map_EntryOf_string__BoxedOf_int32__ = &tconv_[Map_EntryOf[string, BoxedOf[int32]]]{box: func(v Map_EntryOf[string, BoxedOf[int32]]) any { return any(v) }, unbox: func(v any) Map_EntryOf[string, BoxedOf[int32]] { return icast_Map_Entry(v) }}
-var tc_Map_EntryOf_string__p_PerformanceTracker_Stats_ = &tconv_[Map_EntryOf[string, *PerformanceTracker_Stats]]{box: func(v Map_EntryOf[string, *PerformanceTracker_Stats]) any { return any(v) }, unbox: func(v any) Map_EntryOf[string, *PerformanceTracker_Stats] { return icast_Map_Entry(v) }}
+var tc_Map_EntryOf_p_Token_rhino__BoxedOf_int32__ = &tconv_[Map_EntryOf[Token_rhino, BoxedOf[int32]]]{box: func(v Map_EntryOf[Token_rhino, BoxedOf[int32]]) any { return v }, unbox: func(v any) Map_EntryOf[Token_rhino, BoxedOf[int32]] { return icast_Map_Entry(v) }}
+var tc_Map_EntryOf_string__BoxedOf_int32__ = &tconv_[Map_EntryOf[string, BoxedOf[int32]]]{box: func(v Map_EntryOf[string, BoxedOf[int32]]) any { return v }, unbox: func(v any) Map_EntryOf[string, BoxedOf[int32]] { return icast_Map_Entry(v) }}
+var tc_Map_EntryOf_string__p_PerformanceTracker_Stats_ = &tconv_[Map_EntryOf[string, *PerformanceTracker_Stats]]{box: func(v Map_EntryOf[string, *PerformanceTracker_Stats]) any { return v }, unbox: func(v any) Map_EntryOf[string, *PerformanceTracker_Stats] { return icast_Map_Entry(v) }}
 var tc_Node = &tconv_[Node]{box: func(v Node) any { return v.box_() }, unbox: func(v any) Node { return Node_of_(v) }}
-var tc_NodeTraversal_Callback = &tconv_[NodeTraversal_Callback]{box: func(v NodeTraversal_Callback) any { return any(v) }, unbox: func(v any) NodeTraversal_Callback { return icast_NodeTraversal_Callback(v) }}
-var tc_SortingErrorManager_ErrorReportGenerator = &tconv_[SortingErrorManager_ErrorReportGenerator]{box: func(v SortingErrorManager_ErrorReportGenerator) any { return any(v) }, unbox: func(v any) SortingErrorManager_ErrorReportGenerator {
+var tc_NodeTraversal_Callback = &tconv_[NodeTraversal_Callback]{box: func(v NodeTraversal_Callback) any { return v }, unbox: func(v any) NodeTraversal_Callback { return icast_NodeTraversal_Callback(v) }}
+var tc_SortingErrorManager_ErrorReportGenerator = &tconv_[SortingErrorManager_ErrorReportGenerator]{box: func(v SortingErrorManager_ErrorReportGenerator) any { return v }, unbox: func(v any) SortingErrorManager_ErrorReportGenerator {
 	return icast_SortingErrorManager_ErrorReportGenerator(v)
 }}
-var tc_SourceMap_LocationMapping = &tconv_[SourceMap_LocationMapping]{box: func(v SourceMap_LocationMapping) any { return any(v) }, unbox: func(v any) SourceMap_LocationMapping { return icast_SourceMap_LocationMapping(v) }}
-var tc_UndiGraph_UndiGraphEdge = &tconv_[UndiGraph_UndiGraphEdge]{box: func(v UndiGraph_UndiGraphEdge) any { return any(v) }, unbox: func(v any) UndiGraph_UndiGraphEdge { return icast_UndiGraph_UndiGraphEdge(v) }}
+var tc_SourceMap_LocationMapping = &tconv_[SourceMap_LocationMapping]{box: func(v SourceMap_LocationMapping) any { return v }, unbox: func(v any) SourceMap_LocationMapping { return icast_SourceMap_LocationMapping(v) }}
+var tc_UndiGraph_UndiGraphEdge = &tconv_[UndiGraph_UndiGraphEdge]{box: func(v UndiGraph_UndiGraphEdge) any { return v }, unbox: func(v any) UndiGraph_UndiGraphEdge { return icast_UndiGraph_UndiGraphEdge(v) }}
 var tc_p_AbstractCommandLineRunner_FlagEntry = &tconv_[*AbstractCommandLineRunner_FlagEntry]{box: func(v *AbstractCommandLineRunner_FlagEntry) any { return obj_(v) }, unbox: func(v any) *AbstractCommandLineRunner_FlagEntry {
 	return cast_[*AbstractCommandLineRunner_FlagEntry](v)
 }}

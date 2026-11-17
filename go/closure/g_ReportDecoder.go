@@ -66,7 +66,7 @@ func ReportDecoder_parseMapping(mappingFileContent string) *Outcome_base {
 		var temp *InstrumentationPoint = cast_[*InstrumentationPoint](InstrumentationPoint_newBuilder().setFileName(str_(localFileNames.get(Base64VLQ_decode(encodedDetailsAsCharIt)))).setFunctionName(str_(functionNames.get(Base64VLQ_decode(encodedDetailsAsCharIt)))).setType(types[Base64VLQ_decode(encodedDetailsAsCharIt)]).setLineNumber(Base64VLQ_decode(encodedDetailsAsCharIt)).setColumnNumber(Base64VLQ_decode(encodedDetailsAsCharIt)).build())
 		Map_putIfAbsent_s(mapping, id, obj_(temp))
 	}
-	return Outcome_base_ok_Object(any(mapping))
+	return Outcome_base_ok_Object(mapping)
 }
 
 func ReportDecoder_parseJsonStringList(json string) *Outcome_base {
@@ -91,7 +91,7 @@ func ReportDecoder_parseJsonStringList(json string) *Outcome_base {
 		}
 		list.add(string_.get())
 	}
-	return Outcome_base_ok_Object(any(list))
+	return Outcome_base_ok_Object(list)
 }
 
 func ReportDecoder_decodeReport(mapping MapOf[string, *InstrumentationPoint], frequencies MapOf[string, BoxedOf[int64]]) *ReportProfile {

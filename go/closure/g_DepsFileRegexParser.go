@@ -51,7 +51,7 @@ func (this *DepsFileRegexParser) parseFile(filePath string) *Outcome_base {
 	if fileContents.isErr() {
 		return Outcome_base_err(fileContents.error())
 	}
-	return Outcome_base_ok_Object(any(this.parseFile_2(filePath, str_(fileContents.get()))))
+	return Outcome_base_ok_Object(this.parseFile_2(filePath, str_(fileContents.get())))
 }
 
 func (this *DepsFileRegexParser) parseFile_2(filePath string, fileContents string) ListOf[DependencyInfo] {
@@ -99,9 +99,9 @@ func (this *DepsFileRegexParser) parseLine_impl(line string) *Outcome_base {
 			}
 			var depInfo DependencyInfo = icast_DependencyInfo(obj_(SimpleDependencyInfo_builder(path, this.filePath).setProvides(Collection(provides)).setRequires(icast_Collection(obj_(DepsFileRegexParser_requiresParsedFromDeps(icast_List(requiresOutcome.get()))))).setLoadFlags(loadFlags).build()))
 			if DepsFileRegexParser_logger.isLoggable(Level_FINE) {
-				DepsFileRegexParser_logger.fine(("Found dep: " + objstr_(any(depInfo))))
+				DepsFileRegexParser_logger.fine(("Found dep: " + objstr_(depInfo)))
 			}
-			this.depInfos.add(any(depInfo))
+			this.depInfos.add(depInfo)
 		}
 	}
 	return Outcome_base_ok_Object(any(bool(((!this.shortcutMode || hasDependencies) || CharMatcher_whitespace().matchesAllOf_s(line)))))

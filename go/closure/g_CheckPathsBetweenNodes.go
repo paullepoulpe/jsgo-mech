@@ -80,7 +80,7 @@ func (this *CheckPathsBetweenNodes) discoverBackEdges(u DiGraph_DiGraphNode) {
 }
 
 func (this *CheckPathsBetweenNodes) ignoreEdge(e DiGraph_DiGraphEdge) bool {
-	return !this.edgePredicate.apply(any(e))
+	return !this.edgePredicate.apply(e)
 }
 
 func (this *CheckPathsBetweenNodes) checkAllPathsWithoutBackEdges(a DiGraph_DiGraphNode, b DiGraph_DiGraphNode) bool {

@@ -48,7 +48,7 @@ func (this *LinterMain) run(args []string) *Outcome_base {
 		this.resolutionMode = v
 	})
 	parser.argument(func() any {
-		return any(this.files)
+		return this.files
 	}, func(v_ any) {
 		var v List = icast_List(v_)
 		_ = v

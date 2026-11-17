@@ -232,7 +232,7 @@ func (this *JsFileLineParser) parseJsStringArray(input string) *Outcome_base {
 			this.valueMatcher.reset_s(innerValues)
 		}
 	}
-	return Outcome_base_ok_Object(any(results))
+	return Outcome_base_ok_Object(results)
 }
 
 func (this *JsFileLineParser) parseJsStringMap(input string) *Outcome_base {
@@ -289,7 +289,7 @@ func (this *JsFileLineParser) parseJsStringMap(input string) *Outcome_base {
 			done = true
 		}
 	}
-	return Outcome_base_ok_Object(any(results))
+	return Outcome_base_ok_Object(results)
 }
 
 func JsFileLineParser_check(condition bool, message string) *Outcome_base {

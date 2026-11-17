@@ -73,7 +73,7 @@ func JSChunkGraph_initChunksByDepth(chunks []*JSChunk) *Outcome_base {
 		}
 		icast_List(tmpChunksByDepth.get(depth)).add(obj_(chunk))
 	}
-	return Outcome_base_ok_Object(any(tmpChunksByDepth))
+	return Outcome_base_ok_Object(tmpChunksByDepth)
 }
 
 func JSChunkGraph_makeWeakChunk(chunksInDepOrder ListOf[*JSChunk]) ListOf[*JSChunk] {
@@ -308,7 +308,7 @@ func (this *JSChunkGraph) getTransitiveDeps(m *JSChunk) SetOf[*JSChunk] {
 
 // lambda_JSChunkGraph_getTransitiveDeps_1_ is a lambda of JSChunkGraph_getTransitiveDeps that captures nothing (post-flip step lambdas).
 func lambda_JSChunkGraph_getTransitiveDeps_1_(p0 any) any {
-	return any(cast_[*JSChunk](p0).getAllDependencies())
+	return cast_[*JSChunk](p0).getAllDependencies()
 }
 
 func JSChunkGraph_moveMarkedWeakSources(weakChunk *JSChunk, inputs IterableOf[*CompilerInput]) {
@@ -539,7 +539,7 @@ func (this *JSChunkGraph) createEntryPointInputs(compiler *AbstractCompiler, dep
 	} else {
 		Iterables_addAll(Collection(entryPointInputs), inputs)
 	}
-	return Outcome_base_ok_Object(any(entryPointInputs))
+	return Outcome_base_ok_Object(entryPointInputs)
 }
 
 func (this *JSChunkGraph) toGraphvizGraph() *LinkedDirectedGraph {

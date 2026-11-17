@@ -7,21 +7,21 @@ package closure
 var tc_ArrayListOf_BoxedOf_int32__ = &tconv_[ArrayListOf[BoxedOf[int32]]]{box: func(v ArrayListOf[BoxedOf[int32]]) any { return v.self() }, unbox: func(v any) ArrayListOf[BoxedOf[int32]] { return to_ArrayList(v) }}
 var tc_ArrayListOf_Node_ = &tconv_[ArrayListOf[Node]]{box: func(v ArrayListOf[Node]) any { return v.self() }, unbox: func(v any) ArrayListOf[Node] { return to_ArrayList(v) }}
 var tc_ClassOf_any_ = &tconv_[ClassOf[any]]{box: func(v ClassOf[any]) any { return obj_(v) }, unbox: func(v any) ClassOf[any] { return cast_[*Class](v) }}
-var tc_DependencyInfo = &tconv_[DependencyInfo]{box: func(v DependencyInfo) any { return any(v) }, unbox: func(v any) DependencyInfo { return icast_DependencyInfo(v) }}
-var tc_DequeOf_MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo_ = &tconv_[DequeOf[MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo]]{box: func(v DequeOf[MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo]) any { return any(v) }, unbox: func(v any) DequeOf[MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo] {
+var tc_DependencyInfo = &tconv_[DependencyInfo]{box: func(v DependencyInfo) any { return v }, unbox: func(v any) DependencyInfo { return icast_DependencyInfo(v) }}
+var tc_DequeOf_MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo_ = &tconv_[DequeOf[MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo]]{box: func(v DequeOf[MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo]) any { return v }, unbox: func(v any) DequeOf[MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo] {
 	return icast_Deque(v)
 }}
-var tc_IndexProvider = &tconv_[IndexProvider]{box: func(v IndexProvider) any { return any(v) }, unbox: func(v any) IndexProvider { return icast_IndexProvider(v) }}
-var tc_ListOf_JsMessage_Part_ = &tconv_[ListOf[JsMessage_Part]]{box: func(v ListOf[JsMessage_Part]) any { return any(v) }, unbox: func(v any) ListOf[JsMessage_Part] { return icast_List(v) }}
-var tc_ListOf_p_InstrumentationPointStats_ = &tconv_[ListOf[*InstrumentationPointStats]]{box: func(v ListOf[*InstrumentationPointStats]) any { return any(v) }, unbox: func(v any) ListOf[*InstrumentationPointStats] { return icast_List(v) }}
-var tc_MapOf_BoxedOf_int32___CollectionOf_p_Mapping_OriginalMapping__ = &tconv_[MapOf[BoxedOf[int32], CollectionOf[*Mapping_OriginalMapping]]]{box: func(v MapOf[BoxedOf[int32], CollectionOf[*Mapping_OriginalMapping]]) any { return any(v) }, unbox: func(v any) MapOf[BoxedOf[int32], CollectionOf[*Mapping_OriginalMapping]] { return icast_Map(v) }}
-var tc_MapOf_p_JSChunk__SetOf_string__ = &tconv_[MapOf[*JSChunk, SetOf[string]]]{box: func(v MapOf[*JSChunk, SetOf[string]]) any { return any(v) }, unbox: func(v any) MapOf[*JSChunk, SetOf[string]] { return icast_Map(v) }}
-var tc_MapOf_string__string_ = &tconv_[MapOf[string, string]]{box: func(v MapOf[string, string]) any { return any(v) }, unbox: func(v any) MapOf[string, string] { return icast_Map(v) }}
-var tc_RenamingMap = &tconv_[RenamingMap]{box: func(v RenamingMap) any { return any(v) }, unbox: func(v any) RenamingMap { return icast_RenamingMap(v) }}
-var tc_SetOf_p_CompilerInput_ = &tconv_[SetOf[*CompilerInput]]{box: func(v SetOf[*CompilerInput]) any { return any(v) }, unbox: func(v any) SetOf[*CompilerInput] { return icast_Set(v) }}
-var tc_SetOf_p_JSChunk_ = &tconv_[SetOf[*JSChunk]]{box: func(v SetOf[*JSChunk]) any { return any(v) }, unbox: func(v any) SetOf[*JSChunk] { return icast_Set(v) }}
-var tc_SetOf_string_ = &tconv_[SetOf[string]]{box: func(v SetOf[string]) any { return any(v) }, unbox: func(v any) SetOf[string] { return icast_Set(v) }}
-var tc_SupplierOf_Node_ = &tconv_[SupplierOf[Node]]{box: func(v SupplierOf[Node]) any { return any(v) }, unbox: func(v any) SupplierOf[Node] { return icast_Supplier(v) }}
+var tc_IndexProvider = &tconv_[IndexProvider]{box: func(v IndexProvider) any { return v }, unbox: func(v any) IndexProvider { return icast_IndexProvider(v) }}
+var tc_ListOf_JsMessage_Part_ = &tconv_[ListOf[JsMessage_Part]]{box: func(v ListOf[JsMessage_Part]) any { return v }, unbox: func(v any) ListOf[JsMessage_Part] { return icast_List(v) }}
+var tc_ListOf_p_InstrumentationPointStats_ = &tconv_[ListOf[*InstrumentationPointStats]]{box: func(v ListOf[*InstrumentationPointStats]) any { return v }, unbox: func(v any) ListOf[*InstrumentationPointStats] { return icast_List(v) }}
+var tc_MapOf_BoxedOf_int32___CollectionOf_p_Mapping_OriginalMapping__ = &tconv_[MapOf[BoxedOf[int32], CollectionOf[*Mapping_OriginalMapping]]]{box: func(v MapOf[BoxedOf[int32], CollectionOf[*Mapping_OriginalMapping]]) any { return v }, unbox: func(v any) MapOf[BoxedOf[int32], CollectionOf[*Mapping_OriginalMapping]] { return icast_Map(v) }}
+var tc_MapOf_p_JSChunk__SetOf_string__ = &tconv_[MapOf[*JSChunk, SetOf[string]]]{box: func(v MapOf[*JSChunk, SetOf[string]]) any { return v }, unbox: func(v any) MapOf[*JSChunk, SetOf[string]] { return icast_Map(v) }}
+var tc_MapOf_string__string_ = &tconv_[MapOf[string, string]]{box: func(v MapOf[string, string]) any { return v }, unbox: func(v any) MapOf[string, string] { return icast_Map(v) }}
+var tc_RenamingMap = &tconv_[RenamingMap]{box: func(v RenamingMap) any { return v }, unbox: func(v any) RenamingMap { return icast_RenamingMap(v) }}
+var tc_SetOf_p_CompilerInput_ = &tconv_[SetOf[*CompilerInput]]{box: func(v SetOf[*CompilerInput]) any { return v }, unbox: func(v any) SetOf[*CompilerInput] { return icast_Set(v) }}
+var tc_SetOf_p_JSChunk_ = &tconv_[SetOf[*JSChunk]]{box: func(v SetOf[*JSChunk]) any { return v }, unbox: func(v any) SetOf[*JSChunk] { return icast_Set(v) }}
+var tc_SetOf_string_ = &tconv_[SetOf[string]]{box: func(v SetOf[string]) any { return v }, unbox: func(v any) SetOf[string] { return icast_Set(v) }}
+var tc_SupplierOf_Node_ = &tconv_[SupplierOf[Node]]{box: func(v SupplierOf[Node]) any { return v }, unbox: func(v any) SupplierOf[Node] { return icast_Supplier(v) }}
 var tc_any = &tconv_[any]{box: func(v any) any { return v }, unbox: func(v any) any { return v }}
 var tc_p_AccessorSummary_PropertyAccessKind = &tconv_[AccessorSummary_PropertyAccessKind]{box: func(v AccessorSummary_PropertyAccessKind) any { return obj_(v) }, unbox: func(v any) AccessorSummary_PropertyAccessKind { return cast_[AccessorSummary_PropertyAccessKind](v) }}
 var tc_p_AmbiguateProperties_Property = &tconv_[*AmbiguateProperties_Property]{box: func(v *AmbiguateProperties_Property) any { return obj_(v) }, unbox: func(v any) *AmbiguateProperties_Property { return cast_[*AmbiguateProperties_Property](v) }}
@@ -106,7 +106,7 @@ var tc_p_ProfilingReport_InstrumentationPointMetrics = &tconv_[*ProfilingReport_
 	return cast_[*ProfilingReport_InstrumentationPointMetrics](v)
 }}
 var tc_p_Property = &tconv_[*Property]{box: func(v *Property) any { return obj_(v) }, unbox: func(v any) *Property { return cast_[*Property](v) }}
-var tch_Property_Key = &tconv_[Property_Key]{box: func(v Property_Key) any { return any(v) }, unbox: func(v any) Property_Key { return icast_Property_Key(v) },
+var tch_Property_Key = &tconv_[Property_Key]{box: func(v Property_Key) any { return v }, unbox: func(v any) Property_Key { return icast_Property_Key(v) },
 	hash: func(v Property_Key) int32 { return objhash_(any(v)) }, eq: func(a, b Property_Key) bool { return objequals_(any(a), any(b)) }}
 var tch_p_Color = &tconv_[*Color]{box: func(v *Color) any { return obj_(v) }, unbox: func(v any) *Color { return cast_[*Color](v) },
 	hash: func(v *Color) int32 { return objhash_(obj_(v)) }, eq: func(a, b *Color) bool { return objequals_(obj_(a), obj_(b)) }}

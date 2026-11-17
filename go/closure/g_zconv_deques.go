@@ -4,10 +4,10 @@ package closure
 
 // Element conversions of the typed deques.
 
-var tc_CrossChunkCodeMotion_InstanceofReference = &tconv_[CrossChunkCodeMotion_InstanceofReference]{box: func(v CrossChunkCodeMotion_InstanceofReference) any { return any(v) }, unbox: func(v any) CrossChunkCodeMotion_InstanceofReference {
+var tc_CrossChunkCodeMotion_InstanceofReference = &tconv_[CrossChunkCodeMotion_InstanceofReference]{box: func(v CrossChunkCodeMotion_InstanceofReference) any { return v }, unbox: func(v any) CrossChunkCodeMotion_InstanceofReference {
 	return icast_CrossChunkCodeMotion_InstanceofReference(v)
 }}
-var tc_MakeDeclaredNamesUnique_Renamer = &tconv_[MakeDeclaredNamesUnique_Renamer]{box: func(v MakeDeclaredNamesUnique_Renamer) any { return any(v) }, unbox: func(v any) MakeDeclaredNamesUnique_Renamer { return icast_MakeDeclaredNamesUnique_Renamer(v) }}
+var tc_MakeDeclaredNamesUnique_Renamer = &tconv_[MakeDeclaredNamesUnique_Renamer]{box: func(v MakeDeclaredNamesUnique_Renamer) any { return v }, unbox: func(v any) MakeDeclaredNamesUnique_Renamer { return icast_MakeDeclaredNamesUnique_Renamer(v) }}
 var tc_p_AbstractScope = &tconv_[*AbstractScope]{box: func(v *AbstractScope) any { return v.self() }, unbox: func(v any) *AbstractScope { return to_AbstractScope(v) }}
 var tc_p_AnalyzePrototypeProperties_NameContext = &tconv_[*AnalyzePrototypeProperties_NameContext]{box: func(v *AnalyzePrototypeProperties_NameContext) any { return obj_(v) }, unbox: func(v any) *AnalyzePrototypeProperties_NameContext {
 	return cast_[*AnalyzePrototypeProperties_NameContext](v)

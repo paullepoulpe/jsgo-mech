@@ -1376,7 +1376,7 @@ func (this Node) setStaticSourceFileFrom(other Node) {
 }
 
 func (this Node) setStaticSourceFile(file StaticSourceFile) Node {
-	this.putProp(Node_Prop_SOURCE_FILE, any(file))
+	this.putProp(Node_Prop_SOURCE_FILE, file)
 	return this
 }
 

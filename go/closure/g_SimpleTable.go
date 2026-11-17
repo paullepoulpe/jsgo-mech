@@ -28,7 +28,7 @@ func (this *SimpleTable) put(rowKey any, columnKey any, value any) any {
 	var row MapOf[any, any] = icast_Map(this.rows.get(rowKey))
 	if row == nil {
 		row = new_LinkedHashMap()
-		this.rows.put(rowKey, any(row))
+		this.rows.put(rowKey, row)
 	}
 	return row.put(columnKey, value)
 }
@@ -39,7 +39,7 @@ func (this *SimpleTable) put_s(rowKey any, columnKey string, value any) any {
 	var row MapOf[any, any] = icast_Map(this.rows.get(rowKey))
 	if row == nil {
 		row = new_LinkedHashMap()
-		this.rows.put(rowKey, any(row))
+		this.rows.put(rowKey, row)
 	}
 	return Map_put_s(row, columnKey, value)
 }
@@ -107,7 +107,7 @@ func (this *SimpleTable) values() IterableOf[any] {
 }
 
 // lambda_SimpleTable_values_1_ is a lambda of SimpleTable_values that captures nothing (post-flip step lambdas).
-var lambda_SimpleTable_values_1_ = &Function_base_fn{func(p0 any) any { return any(icast_Map(p0).values()) }}
+var lambda_SimpleTable_values_1_ = &Function_base_fn{func(p0 any) any { return icast_Map(p0).values() }}
 
 func (this *SimpleTable) isEmpty() bool {
 	return this.rows.isEmpty()

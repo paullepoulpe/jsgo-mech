@@ -380,7 +380,7 @@ func ProcessClosurePrimitives_processSetCssNameMapping(compiler *AbstractCompile
 			}
 		}
 		if len(errors) != 0 {
-			compiler.report(JSError_make_Node_DiagnosticType_StringArr(n, ProcessClosurePrimitives_INVALID_CSS_RENAMING_MAP, []string{Object_toString(any(sliceView_(tc_string, errors)))}))
+			compiler.report(JSError_make_Node_DiagnosticType_StringArr(n, ProcessClosurePrimitives_INVALID_CSS_RENAMING_MAP, []string{Object_toString(sliceView_(tc_string, errors))}))
 		}
 	} else if style == CssRenamingMap_Style_BY_WHOLE {
 		var errors []string = []string{}
@@ -400,7 +400,7 @@ func ProcessClosurePrimitives_processSetCssNameMapping(compiler *AbstractCompile
 			}
 		}
 		if len(errors) != 0 {
-			compiler.report(JSError_make_Node_DiagnosticType_StringArr(n, ProcessClosurePrimitives_INVALID_CSS_RENAMING_MAP, []string{Object_toString(any(sliceView_(tc_string, errors)))}))
+			compiler.report(JSError_make_Node_DiagnosticType_StringArr(n, ProcessClosurePrimitives_INVALID_CSS_RENAMING_MAP, []string{Object_toString(sliceView_(tc_string, errors))}))
 		}
 	}
 	return new_ProcessClosurePrimitives_1(cssNames, style)

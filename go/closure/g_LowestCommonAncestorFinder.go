@@ -37,7 +37,7 @@ func (this *LowestCommonAncestorFinder) findAll(roots SetOf[any]) ImmutableSetOf
 			Preconditions_checkNotNull_Object_String_Object(nil, "Root not present in graph: %s", root)
 		}
 		var color *LowestCommonAncestorFinder_Color = LowestCommonAncestorFinder_Color_create(bitForRoot)
-		Map_merge_f(this.searchColoring.asMap(), any(rootNode), obj_(color), lambda_LowestCommonAncestorFinder_findAll_1_)
+		Map_merge_f(this.searchColoring.asMap(), rootNode, obj_(color), lambda_LowestCommonAncestorFinder_findAll_1_)
 		this.paintAncestors(rootNode, color)
 		bitForRoot = (bitForRoot << 1)
 	}
@@ -83,7 +83,7 @@ func (this *LowestCommonAncestorFinder) paintAncestors(root DiGraph_DiGraphNode,
 			if Object_equals(any(parent), any(root)) {
 				continue
 			}
-			var oldColor *LowestCommonAncestorFinder_Color = cast_[*LowestCommonAncestorFinder_Color](Map_getOrDefault(this.searchColoring.asMap(), any(parent), obj_(LowestCommonAncestorFinder_Color_BLANK)))
+			var oldColor *LowestCommonAncestorFinder_Color = cast_[*LowestCommonAncestorFinder_Color](Map_getOrDefault(this.searchColoring.asMap(), parent, obj_(LowestCommonAncestorFinder_Color_BLANK)))
 			if !oldColor.contains(color) {
 				this.searchQueue = append(this.searchQueue, parent)
 				this.searchColoring.put(parent, oldColor.mix(color))

@@ -259,7 +259,7 @@ func (this *MakeDeclaredNamesUnique_ContextualRenameInverter) exitScope(t *NodeT
 	for _, declaredVariableInfo := range scopeContext.declared_ {
 		var variableName string = declaredVariableInfo.getName()
 		var oldStackTop MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo = this.variablesStackedByName.popVariableInfo(variableName)
-		if !(any(oldStackTop) == obj_(declaredVariableInfo)) {
+		if !(oldStackTop == obj_(declaredVariableInfo)) {
 			Preconditions_checkState_boolean_String_Object(false, "Declared variable \"%s\" was not the top of the name stack", strobj_(variableName))
 		}
 		declaredVariableInfo.tryToInvertName()
@@ -405,7 +405,7 @@ func (this *MakeDeclaredNamesUnique_ContextualRenameInverter_DeclaredVariableInf
 }
 
 func (this *MakeDeclaredNamesUnique_ContextualRenameInverter_DeclaredVariableInfo) addPotentialConflict(variableInfo MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo) {
-	if (this.renamingInfo != nil) && (any(variableInfo) != any(this)) {
+	if (this.renamingInfo != nil) && (variableInfo != any(this)) {
 		this.renamingInfo.addPotentialShadowVariable(variableInfo)
 	}
 }
@@ -492,7 +492,7 @@ func new_MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfoStackMap(o
 func (this *MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfoStackMap) pushVariableInfo(info MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo) {
 	var name string = info.getName()
 	var variableInfoStack DequeOf[MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo] = this.getVariableInfoStack(name)
-	variableInfoStack.push(any(info))
+	variableInfoStack.push(info)
 }
 
 func (this *MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfoStackMap) getVariableInfoStack(name string) DequeOf[MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo] {
@@ -511,7 +511,7 @@ func (this *MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfoStackMa
 	var variableInfo MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo
 	if variableInfoStack.isEmpty() {
 		variableInfo = this.outer_.createUndeclaredVariableInfo(name)
-		variableInfoStack.push(any(variableInfo))
+		variableInfoStack.push(variableInfo)
 	} else {
 		variableInfo = icast_MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo(variableInfoStack.peek())
 	}
@@ -666,7 +666,7 @@ func new_MakeDeclaredNamesUnique_ContextualRenamer_Node_SimpleMultiset_boolean_R
 }
 
 func (this *MakeDeclaredNamesUnique_ContextualRenamer) toString() string {
-	return tostrNN_(MoreObjects_toStringHelper(this.self()).add("scopeRoot", this.scopeRoot.box_()).add("nameUsage", obj_(this.nameUsage)).add("declarations", any(this.declarations)).add_String_boolean("global", this.global))
+	return tostrNN_(MoreObjects_toStringHelper(this.self()).add("scopeRoot", this.scopeRoot.box_()).add("nameUsage", obj_(this.nameUsage)).add("declarations", this.declarations).add_String_boolean("global", this.global))
 }
 
 func (this *MakeDeclaredNamesUnique_ContextualRenamer) createForChildScope_impl(scopeRoot Node, hoistingTargetScope bool) MakeDeclaredNamesUnique_Renamer {
@@ -674,7 +674,7 @@ func (this *MakeDeclaredNamesUnique_ContextualRenamer) createForChildScope_impl(
 }
 
 func (this *MakeDeclaredNamesUnique_ContextualRenamer) addDeclaredName(name string, hoisted bool) {
-	if hoisted && (any(this.hoistRenamer) != this.self()) {
+	if hoisted && (this.hoistRenamer != this.self()) {
 		this.hoistRenamer.addDeclaredName(name, true)
 	} else {
 		if !(name == MakeDeclaredNamesUnique_ARGUMENTS) {
@@ -769,7 +769,7 @@ func new_MakeDeclaredNamesUnique_InlineRenamer(convention CodingConvention, uniq
 
 func (this *MakeDeclaredNamesUnique_InlineRenamer) addDeclaredName(name string, hoisted bool) {
 	Preconditions_checkState(!(name == MakeDeclaredNamesUnique_ARGUMENTS))
-	if hoisted && (any(this.hoistRenamer) != any(this)) {
+	if hoisted && (this.hoistRenamer != any(this)) {
 		this.hoistRenamer.addDeclaredName(name, hoisted)
 	} else {
 		mapComputeIfAbsent_f(tc_string, tc_string, this.declarations, name, func(p0 any) any { return strobj_(this.getUniqueName(str_(p0))) })

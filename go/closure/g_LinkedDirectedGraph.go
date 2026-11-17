@@ -106,8 +106,8 @@ func (this *LinkedDirectedGraph) disconnectInDirection_impl(srcValue any, destVa
 	var dest *LinkedDirectedGraph_LinkedDiGraphNode = to_LinkedDirectedGraph_LinkedDiGraphNode(this.getNodeOrFail(destValue))
 	for _, it_1 := range this.getEdgesInDirection(srcValue, destValue) {
 		var edge DiGraph_DiGraphEdge = icast_DiGraph_DiGraphEdge(it_1.self())
-		src.getOutEdges().asList().remove_Object(any(edge))
-		dest.getInEdges().asList().remove_Object(any(edge))
+		src.getOutEdges().asList().remove_Object(edge)
+		dest.getInEdges().asList().remove_Object(edge)
 	}
 }
 
@@ -175,14 +175,14 @@ func (this *LinkedDirectedGraph) getFirstEdge_impl(n1 any, n2 any) Graph_GraphEd
 	it_1 := dNode1.getOutEdges().each()
 	for it_1.next() {
 		var outEdge DiGraph_DiGraphEdge = it_1.v
-		if any(outEdge.getDestination()) == dNode2.self() {
+		if outEdge.getDestination() == dNode2.self() {
 			return Graph_GraphEdge(outEdge)
 		}
 	}
 	it_3 := dNode2.getOutEdges().each()
 	for it_3.next() {
 		var outEdge DiGraph_DiGraphEdge = it_3.v
-		if any(outEdge.getDestination()) == dNode1.self() {
+		if outEdge.getDestination() == dNode1.self() {
 			return Graph_GraphEdge(outEdge)
 		}
 	}
@@ -220,13 +220,13 @@ func (source *LinkedDirectedGraph_LinkedDiGraphNode) isConnectedTo_(dest *Linked
 	outEdges, inEdges := source.getOutEdges(), dest.getInEdges()
 	if outEdges.size() < inEdges.size() {
 		for _, outEdge := range outEdges.items {
-			if any(outEdge.getDestination()) == dest.self() && match(outEdge.getValue()) {
+			if outEdge.getDestination() == dest.self() && match(outEdge.getValue()) {
 				return true
 			}
 		}
 	} else {
 		for _, inEdge := range inEdges.items {
-			if any(inEdge.getSource()) == source.self() && match(inEdge.getValue()) {
+			if inEdge.getSource() == source.self() && match(inEdge.getValue()) {
 				return true
 			}
 		}
@@ -243,7 +243,7 @@ func (this *LinkedDirectedGraph) isConnectedInDirectionLinkedDiGraphNode(source 
 		it_1 := outEdges.each()
 		for it_1.next() {
 			var outEdge DiGraph_DiGraphEdge = it_1.v
-			if (any(outEdge.getDestination()) == dest.self()) && edgeFilter.apply(outEdge.getValue()) {
+			if (outEdge.getDestination() == dest.self()) && edgeFilter.apply(outEdge.getValue()) {
 				return true
 			}
 		}
@@ -251,7 +251,7 @@ func (this *LinkedDirectedGraph) isConnectedInDirectionLinkedDiGraphNode(source 
 		it_3 := inEdges.each()
 		for it_3.next() {
 			var inEdge DiGraph_DiGraphEdge = it_3.v
-			if (any(inEdge.getSource()) == source.self()) && edgeFilter.apply(inEdge.getValue()) {
+			if (inEdge.getSource() == source.self()) && edgeFilter.apply(inEdge.getValue()) {
 				return true
 			}
 		}
@@ -523,7 +523,7 @@ func (this *LinkedDirectedGraph_AnnotatedLinkedDiGraphNode) setAnnotation_impl(d
 func (this *LinkedDirectedGraph_AnnotatedLinkedDiGraphNode) getLabel_impl() string {
 	var result string = this.toString()
 	if this.annotation != nil {
-		result += sstr_(("\n" + objstr_(any(this.annotation))))
+		result += sstr_(("\n" + objstr_(this.annotation)))
 	}
 	return result
 }

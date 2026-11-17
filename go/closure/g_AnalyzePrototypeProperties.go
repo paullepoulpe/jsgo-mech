@@ -352,7 +352,7 @@ func (this *AnalyzePrototypeProperties_ProcessProperties) handlePossibleAssignme
 		var grandParent Node = parent.getParent()
 		if NodeUtil_isExprAssign(grandParent) && NodeUtil_isNameDeclOrSimpleAssignLhs(n, parent) {
 			var prop AnalyzePrototypeProperties_PrototypeProperty = new_AnalyzePrototypeProperties_AssignmentPrototypeProperty(grandParent, this.maybeGetVar(t, root), t.getChunk())
-			this.outer_.getNameInfoForName(n.getString(), AnalyzePrototypeProperties_PROPERTY).getDeclarations().add(any(prop))
+			this.outer_.getNameInfoForName(n.getString(), AnalyzePrototypeProperties_PROPERTY).getDeclarations().add(prop)
 			return true
 		}
 	case tokOrd1_ASSIGN:
@@ -364,7 +364,7 @@ func (this *AnalyzePrototypeProperties_ProcessProperties) handlePossibleAssignme
 					if !key.isQuotedStringKey() && !key.isComputedProp() {
 						var name string = key.getString()
 						var prop AnalyzePrototypeProperties_PrototypeProperty = new_AnalyzePrototypeProperties_LiteralPrototypeProperty(key.getFirstChild(), n, this.maybeGetVar(t, root), t.getChunk())
-						this.outer_.getNameInfoForName(name, AnalyzePrototypeProperties_PROPERTY).getDeclarations().add(any(prop))
+						this.outer_.getNameInfoForName(name, AnalyzePrototypeProperties_PROPERTY).getDeclarations().add(prop)
 					}
 				}
 			}

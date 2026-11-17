@@ -1309,7 +1309,7 @@ func (this *GlobalNamespace_Name) putRef(node Node, ref *GlobalNamespace_Ref) {
 		var refsForNodeMap MapOf[Node, *GlobalNamespace_Ref] = new_LinkedHashMap()
 		var existingRef *GlobalNamespace_Ref = cast_[*GlobalNamespace_Ref](this.refsForNode)
 		refsForNodeMap.put(existingRef.node_.box_(), obj_(existingRef))
-		this.refsForNode = any(refsForNodeMap)
+		this.refsForNode = refsForNodeMap
 	}
 	this.castRefsForNodeMap().put(node.box_(), obj_(ref))
 }

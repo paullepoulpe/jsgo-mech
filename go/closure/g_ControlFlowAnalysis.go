@@ -92,7 +92,7 @@ func (this *ControlFlowAnalysis) computeCfg(root Node) {
 
 func (this *ControlFlowAnalysis) prioritizeFromEntryNode(entry DiGraph_DiGraphNode) {
 	var worklist PriorityQueueOf[DiGraph_DiGraphNode] = new_PriorityQueue_int_Comparator(10, this.priorityComparator)
-	worklist.add(any(entry))
+	worklist.add(entry)
 	for !worklist.isEmpty() {
 		var current DiGraph_DiGraphNode = icast_DiGraph_DiGraphNode(worklist.remove_0())
 		if current.hasPriority() {
@@ -103,7 +103,7 @@ func (this *ControlFlowAnalysis) prioritizeFromEntryNode(entry DiGraph_DiGraphNo
 		// worklist.addAll(successors of current), from its out-edges in order, without the list
 		// and its view (post-flip manual step).
 		for _, e := range to_LinkedDirectedGraph_LinkedDiGraphNode(current).getOutEdges().items {
-			worklist.add(any(to_LinkedDirectedGraph_LinkedDiGraphEdge(any(e)).getDestination()))
+			worklist.add(to_LinkedDirectedGraph_LinkedDiGraphEdge(any(e)).getDestination())
 		}
 	}
 }

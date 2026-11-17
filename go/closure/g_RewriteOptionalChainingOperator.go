@@ -30,7 +30,7 @@ func (this *RewriteOptionalChainingOperator) init_RewriteOptionalChainingOperato
 	this.getTmpVarNameCreatorForInput = func(input_ any) any {
 		var input *CompilerInput = cast_[*CompilerInput](input_)
 		_ = input
-		return any(tmpVarNameCreator)
+		return tmpVarNameCreator
 	}
 }
 
