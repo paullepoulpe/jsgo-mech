@@ -254,13 +254,6 @@ func icast_GraphvizGraph_GraphvizNode(v any) GraphvizGraph_GraphvizNode {
 	return v.(GraphvizGraph_GraphvizNode)
 }
 
-func icast_IcuTemplateDefinition(v any) IcuTemplateDefinition {
-	if v == nil {
-		return nil
-	}
-	return v.(IcuTemplateDefinition)
-}
-
 func icast_IndexProvider(v any) IndexProvider {
 	if v == nil {
 		return nil
@@ -280,34 +273,6 @@ func icast_JSType_WithSourceRef(v any) JSType_WithSourceRef {
 		return nil
 	}
 	return v.(JSType_WithSourceRef)
-}
-
-func icast_JsMessageDefinition(v any) JsMessageDefinition {
-	if v == nil {
-		return nil
-	}
-	return v.(JsMessageDefinition)
-}
-
-func icast_JsMessageVisitor_GoogGetMsgParsedText(v any) JsMessageVisitor_GoogGetMsgParsedText {
-	if v == nil {
-		return nil
-	}
-	return v.(JsMessageVisitor_GoogGetMsgParsedText)
-}
-
-func icast_JsMessageVisitor_IcuTemplateOptions(v any) JsMessageVisitor_IcuTemplateOptions {
-	if v == nil {
-		return nil
-	}
-	return v.(JsMessageVisitor_IcuTemplateOptions)
-}
-
-func icast_JsMessageVisitor_JsMessageOptions(v any) JsMessageVisitor_JsMessageOptions {
-	if v == nil {
-		return nil
-	}
-	return v.(JsMessageVisitor_JsMessageOptions)
 }
 
 func icast_JsMessageVisitor_ObjectLiteralMap(v any) JsMessageVisitor_ObjectLiteralMap {

@@ -86,12 +86,12 @@ func (this *DepsFileRegexParser) parseLine_impl(line string) *Outcome_base[any] 
 			if providesOutcome.isErr() {
 				return Outcome_base_err[any](providesOutcome.error())
 			}
-			var provides ListOf[string] = icast_List(providesOutcome.get())
+			var provides ListOf[string] = providesOutcome.get()
 			var loadFlagsOutcome *Outcome_base[Map] = this.parseLoadFlags(Optional_ofNullable[string](this.depArgsMatch.group(4)))
 			if loadFlagsOutcome.isErr() {
 				return Outcome_base_err[any](loadFlagsOutcome.error())
 			}
-			var loadFlags MapOf[string, string] = icast_Map(loadFlagsOutcome.get())
+			var loadFlags MapOf[string, string] = loadFlagsOutcome.get()
 			if "es6" == str_(Map_get_s(loadFlags, "module")) {
 				provides.add(strobj_(relativePath))
 			}
@@ -99,11 +99,11 @@ func (this *DepsFileRegexParser) parseLine_impl(line string) *Outcome_base[any] 
 			if requiresOutcome.isErr() {
 				return Outcome_base_err[any](requiresOutcome.error())
 			}
-			var depInfo DependencyInfo = icast_DependencyInfo(obj_(SimpleDependencyInfo_builder(path, this.filePath).setProvides(Collection(provides)).setRequires(icast_Collection(obj_(DepsFileRegexParser_requiresParsedFromDeps(icast_List(requiresOutcome.get()))))).setLoadFlags(loadFlags).build()))
+			var depInfo DependencyInfo = icast_DependencyInfo(obj_(SimpleDependencyInfo_builder(path, this.filePath).setProvides(Collection(provides)).setRequires(icast_Collection(obj_(DepsFileRegexParser_requiresParsedFromDeps(requiresOutcome.get())))).setLoadFlags(loadFlags).build()))
 			if DepsFileRegexParser_logger.isLoggable(Level_FINE) {
 				DepsFileRegexParser_logger.fine(("Found dep: " + objstr_(depInfo)))
 			}
-			this.depInfos.add(icast_DependencyInfo(depInfo))
+			this.depInfos.add(depInfo)
 		}
 	}
 	return Outcome_base_ok_Object(any(bool(((!this.shortcutMode || hasDependencies) || CharMatcher_whitespace().matchesAllOf_s(line)))))
@@ -119,9 +119,9 @@ func DepsFileRegexParser_requiresParsedFromDeps(symbols ListOf[string]) Immutabl
 
 func (this *DepsFileRegexParser) parseLoadFlags(loadFlags OptionalOf[string]) *Outcome_base[Map] {
 	if loadFlags.isEmpty() || (loadFlags.get() == "false") {
-		return Outcome_base_ok_Object[Map](icast_Map(obj_(ImmutableMap_of())))
+		return Outcome_base_ok_Object[Map](Map(ImmutableMap_of()))
 	} else if loadFlags.get() == "true" {
-		return Outcome_base_ok_Object[Map](icast_Map(obj_(ImmutableMap_of_Object_Object(strobj_("module"), strobj_("goog")))))
+		return Outcome_base_ok_Object[Map](Map(ImmutableMap_of_Object_Object(strobj_("module"), strobj_("goog"))))
 	} else {
 		return this.parseJsStringMap(loadFlags.get())
 	}

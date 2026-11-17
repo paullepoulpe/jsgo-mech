@@ -282,7 +282,7 @@ var lambda_TranspilationPasses_clinit_1_ = newFuncObj_(func(compiler *AbstractCo
 	if compiler.getOptions().needsTranspilationOf(FeatureSet_Feature_NEW_TARGET) {
 		peepholeTranspilations = append(peepholeTranspilations, new_RewriteNewDotTarget(compiler).as_AbstractPeepholeTranspilation())
 	}
-	return icast_CompilerPass(obj_(PeepholeTranspilationsPass_create(compiler, peepholeTranspilations)))
+	return PeepholeTranspilationsPass_create(compiler, peepholeTranspilations)
 })
 
 // lambda_TranspilationPasses_clinit_2_ is a lambda of TranspilationPasses_clinit that captures nothing (post-flip step lambdas).
@@ -293,12 +293,12 @@ var lambda_TranspilationPasses_clinit_3_ = newFuncObj_(func(p0 *AbstractCompiler
 
 // lambda_TranspilationPasses_clinit_4_ is a lambda of TranspilationPasses_clinit that captures nothing (post-flip step lambdas).
 var lambda_TranspilationPasses_clinit_4_ = newFuncObj_(func(p0 *AbstractCompiler) CompilerPass {
-	return icast_CompilerPass(obj_(RewriteAsyncFunctions_create(p0)))
+	return RewriteAsyncFunctions_create(p0)
 })
 
 // lambda_TranspilationPasses_clinit_5_ is a lambda of TranspilationPasses_clinit that captures nothing (post-flip step lambdas).
 var lambda_TranspilationPasses_clinit_5_ = newFuncObj_(func(p0 *AbstractCompiler) CompilerPass {
-	return icast_CompilerPass(obj_(RewriteAsyncIteration_create(p0)))
+	return RewriteAsyncIteration_create(p0)
 })
 
 // lambda_TranspilationPasses_clinit_6_ is a lambda of TranspilationPasses_clinit that captures nothing (post-flip step lambdas).

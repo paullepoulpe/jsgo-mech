@@ -249,7 +249,7 @@ func (this *DefaultPassConfig) finit_DefaultPassConfig() {
 	this.latePeepholeOptimizations = PassFactory_builder().setName("latePeepholeOptimizations").setInternalFactory(newFuncObj_(func(compiler *AbstractCompiler) CompilerPass {
 		var late bool = true
 		var useTypesForOptimization bool = this.options_.shouldUseTypesForLocalOptimization()
-		return icast_CompilerPass(obj_(PeepholeOptimizationsPass_createFromOptimizations(compiler, "latePeepholeOptimizations", []*AbstractPeepholeOptimization{new_StatementFusion().up_AbstractPeepholeOptimization(), new_PeepholeRemoveDeadCode().up_AbstractPeepholeOptimization(), new_PeepholeMinimizeConditions(late).up_AbstractPeepholeOptimization(), new_PeepholeSubstituteAlternateSyntax(late).up_AbstractPeepholeOptimization(), new_PeepholeReplaceKnownMethods(late, useTypesForOptimization).up_AbstractPeepholeOptimization(), new_PeepholeFoldConstants(late, useTypesForOptimization).up_AbstractPeepholeOptimization()})))
+		return PeepholeOptimizationsPass_createFromOptimizations(compiler, "latePeepholeOptimizations", []*AbstractPeepholeOptimization{new_StatementFusion().up_AbstractPeepholeOptimization(), new_PeepholeRemoveDeadCode().up_AbstractPeepholeOptimization(), new_PeepholeMinimizeConditions(late).up_AbstractPeepholeOptimization(), new_PeepholeSubstituteAlternateSyntax(late).up_AbstractPeepholeOptimization(), new_PeepholeReplaceKnownMethods(late, useTypesForOptimization).up_AbstractPeepholeOptimization(), new_PeepholeFoldConstants(late, useTypesForOptimization).up_AbstractPeepholeOptimization()})
 	})).build()
 	this.checkVars_ = PassFactory_builder().setName(PassNames_CHECK_VARS).setInternalFactory(lambda_DefaultPassConfig_finit_DefaultPassConfig_20_).build()
 	this.inferConsts = PassFactory_builder().setName(PassNames_INFER_CONSTS).setInternalFactory(lambda_DefaultPassConfig_finit_DefaultPassConfig_21_).build()
@@ -448,7 +448,7 @@ func (this *DefaultPassConfig) finit_DefaultPassConfig() {
 	this.removeCastNodes = PassFactory_builder().setName("removeCastNodes").setInternalFactory(lambda_DefaultPassConfig_finit_DefaultPassConfig_81_).build()
 	this.typesToColors = PassFactory_builder().setName("typesToColors").setInternalFactory(lambda_DefaultPassConfig_finit_DefaultPassConfig_82_).build()
 	this.serializeTypedAst = PassFactory_builder().setName("serializeTypedAst").setInternalFactory(newFuncObj_(func(compiler *AbstractCompiler) CompilerPass {
-		return icast_CompilerPass(obj_(SerializeTypedAstPass_createFromPath(compiler, this.options_.getTypedAstOutputFile().orElse(nullstr_), SerializationOptions_builder().setIncludeDebugInfo(compiler.getOptions().shouldSerializeExtraDebugInfo()).setRuntimeLibraries(compiler.getRuntimeJsLibManager().getInjectedLibraries()).build())))
+		return SerializeTypedAstPass_createFromPath(compiler, this.options_.getTypedAstOutputFile().orElse(nullstr_), SerializationOptions_builder().setIncludeDebugInfo(compiler.getOptions().shouldSerializeExtraDebugInfo()).setRuntimeLibraries(compiler.getRuntimeJsLibManager().getInjectedLibraries()).build())
 	})).build()
 	this.removeUnnecessarySyntheticExterns = PassFactory_builder().setName("removeUnnecessarySyntheticExterns").setInternalFactory(lambda_DefaultPassConfig_finit_DefaultPassConfig_83_).build()
 	this.optimizeToEs6 = PassFactory_builder().setName("optimizeToEs6").setInternalFactory(lambda_DefaultPassConfig_finit_DefaultPassConfig_84_).build()
@@ -497,7 +497,7 @@ var lambda_DefaultPassConfig_finit_DefaultPassConfig_6_ = newFuncObj_(func(compi
 	if convention.getExportSymbolFunction() != "" {
 		return new_ExportTestFunctions(compiler, convention.getExportSymbolFunction(), convention.getExportPropertyFunction())
 	} else {
-		return icast_CompilerPass(obj_(ErrorPass_createFromDiagnosticType(compiler, DefaultPassConfig_GENERATE_EXPORTS_ERROR)))
+		return ErrorPass_createFromDiagnosticType(compiler, DefaultPassConfig_GENERATE_EXPORTS_ERROR)
 	}
 })
 

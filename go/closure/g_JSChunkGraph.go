@@ -51,7 +51,7 @@ func JSChunkGraph_create(chunksInDepOrder ListOf[*JSChunk]) *Outcome_base[*JSChu
 	if chunksByDepth.isErr() {
 		return Outcome_base_err[*JSChunkGraph](chunksByDepth.error())
 	}
-	return Outcome_base_ok_Object[*JSChunkGraph](new_JSChunkGraph(chunks, icast_List(chunksByDepth.get())))
+	return Outcome_base_ok_Object[*JSChunkGraph](new_JSChunkGraph(chunks, chunksByDepth.get()))
 }
 
 func JSChunkGraph_initChunksByDepth(chunks []*JSChunk) *Outcome_base[List] {
@@ -71,7 +71,7 @@ func JSChunkGraph_initChunksByDepth(chunks []*JSChunk) *Outcome_base[List] {
 		}
 		chunk.setDepth(depth)
 		if depth == tmpChunksByDepth.size() {
-			tmpChunksByDepth.add(icast_List(new_ArrayList_0().self()))
+			tmpChunksByDepth.add(new_ArrayList_0())
 		}
 		tmpChunksByDepth.get(depth).add(obj_(chunk))
 	}
@@ -333,7 +333,7 @@ func (this *JSChunkGraph) manageDependencies(compiler *AbstractCompiler, depende
 	if entryPointInputsRes.isErr() {
 		return Outcome_base_err[*JSChunkGraph_DependencyManagementResult](entryPointInputsRes.error())
 	}
-	var entryPointInputs SetOf[*CompilerInput] = icast_Set(entryPointInputsRes.get())
+	var entryPointInputs SetOf[*CompilerInput] = entryPointInputsRes.get()
 	var inputsByProvide map[string]SetOf[*CompilerInput] = map[string]SetOf[*CompilerInput]{}
 	for _, el := range immElems_(originalInputs) {
 		input := cast_[*CompilerInput](el)

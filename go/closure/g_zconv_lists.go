@@ -133,7 +133,7 @@ var tc_p_Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationCon
 }}
 var tc_p_FeatureCollector_FeatureContext = &tconv_[FeatureCollector_FeatureContext]{box: func(v FeatureCollector_FeatureContext) any { return obj_(v) }, unbox: func(v any) FeatureCollector_FeatureContext { return cast_[FeatureCollector_FeatureContext](v) }}
 var tc_p_TypeMismatch = &tconv_[*TypeMismatch]{box: func(v *TypeMismatch) any { return obj_(v) }, unbox: func(v any) *TypeMismatch { return cast_[*TypeMismatch](v) }}
-var tc_ListOf_p_JSChunk_ = &tconv_[ListOf[*JSChunk]]{box: func(v ListOf[*JSChunk]) any { return any(v) }, unbox: func(v any) ListOf[*JSChunk] { return icast_List(v) }}
+var tc_ListOf_p_JSChunk_ = &tconv_[ListOf[*JSChunk]]{box: func(v ListOf[*JSChunk]) any { return v }, unbox: func(v any) ListOf[*JSChunk] { return icast_List(v) }}
 var tc_int32 = &tconv_[int32]{box: func(v int32) any { return any(v) }, unbox: func(v any) int32 { return unbox_[int32](v) }}
 var tc_p_AbstractCommandLineRunner_JsonFileSpec = &tconv_[*AbstractCommandLineRunner_JsonFileSpec]{box: func(v *AbstractCommandLineRunner_JsonFileSpec) any { return obj_(v) }, unbox: func(v any) *AbstractCommandLineRunner_JsonFileSpec {
 	return cast_[*AbstractCommandLineRunner_JsonFileSpec](v)

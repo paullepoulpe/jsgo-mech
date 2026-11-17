@@ -36,7 +36,7 @@ func (this *DepsGenerator) computeDependencyCalls() *Outcome_base[string] {
 	if depsFilesRes.isErr() {
 		return Outcome_base_err[string](depsFilesRes.error())
 	}
-	var depsFiles MapOf[string, DependencyInfo] = icast_Map(depsFilesRes.get())
+	var depsFiles MapOf[string, DependencyInfo] = depsFilesRes.get()
 	if DepsGenerator_logger.isLoggable(Level_FINE) {
 		DepsGenerator_logger.fine(("preparsedFiles: " + objstr_(depsFiles)))
 	}
@@ -44,7 +44,7 @@ func (this *DepsGenerator) computeDependencyCalls() *Outcome_base[string] {
 	if jsFilesRes.isErr() {
 		return Outcome_base_err[string](jsFilesRes.error())
 	}
-	var jsFiles MapOf[string, DependencyInfo] = icast_Map(jsFilesRes.get())
+	var jsFiles MapOf[string, DependencyInfo] = jsFilesRes.get()
 	if this.errorManager.getErrorCount() > 0 {
 		return Outcome_base_ok_Object[string](nullstr_)
 	}
@@ -208,12 +208,12 @@ func (this *DepsGenerator) parseDepsFiles() *Outcome_base[Map] {
 			if depInfosRes.isErr() {
 				return Outcome_base_err[Map](depInfosRes.error())
 			}
-			var depInfos ListOf[DependencyInfo] = icast_List(depInfosRes.get())
+			var depInfos ListOf[DependencyInfo] = depInfosRes.get()
 			if depInfos.isEmpty() {
 				this.reportNoDepsInDepsFile(file.getName())
 			} else {
 				for info := range elemsBy_(depInfos, icast_DependencyInfo) {
-					depsFiles.put(info.getPathRelativeToClosureBase(), icast_DependencyInfo(this.removeRelativePathProvide(info)))
+					depsFiles.put(info.getPathRelativeToClosureBase(), this.removeRelativePathProvide(info))
 				}
 			}
 		}
@@ -226,9 +226,9 @@ func (this *DepsGenerator) parseDepsFiles() *Outcome_base[Map] {
 			if srcInfosRes.isErr() {
 				return Outcome_base_err[Map](srcInfosRes.error())
 			}
-			var srcInfos ListOf[DependencyInfo] = icast_List(srcInfosRes.get())
+			var srcInfos ListOf[DependencyInfo] = srcInfosRes.get()
 			for info := range elemsBy_(srcInfos, icast_DependencyInfo) {
-				depsFiles.put(info.getPathRelativeToClosureBase(), icast_DependencyInfo(this.removeRelativePathProvide(info)))
+				depsFiles.put(info.getPathRelativeToClosureBase(), this.removeRelativePathProvide(info))
 			}
 		}
 	}
@@ -239,7 +239,7 @@ func DepsGenerator_parseDepsFile(depsParser *DepsFileRegexParser, file *SourceFi
 	var code *Outcome_base[string] = file.readCodeWithoutCaching()
 	if TextFiles_isDecodingError(code.error()) {
 		depsParser.reportReadError(file.getName())
-		return Outcome_base_ok_Object[List](icast_List(new_ArrayList_0().self()))
+		return Outcome_base_ok_Object[List](List(new_ArrayList_0()))
 	}
 	if code.isErr() {
 		return Outcome_base_err[List](code.error())
@@ -285,7 +285,7 @@ func (this *DepsGenerator) parseSources(preparsedFiles SetOf[string]) *Outcome_b
 				continue
 			}
 			file.clearCachedSource()
-			parsedFiles.put(closureRelativePath, icast_DependencyInfo(depInfo))
+			parsedFiles.put(closureRelativePath, depInfo)
 		}
 	}
 	return Outcome_base_ok_Object[Map](parsedFiles.asMap())

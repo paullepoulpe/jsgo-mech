@@ -2396,19 +2396,19 @@ func (this *Compiler) getSourceFileByName_impl(sourceName OptionalOf[string]) *S
 	return nil
 }
 
-func (this *Compiler) getSourceFileContentByName(sourceName string) any {
+func (this *Compiler) getSourceFileContentByName(sourceName string) string {
 	var file *SourceFile_jscomp = this.getSourceFileByName(Optional_of[string](sourceName))
 	if file.isStubSourceFileForAlreadyProvidedInput() {
-		return nil
+		return nullstr_
 	}
 	if file == nil {
 		panic(new_NullPointerException_0().self())
 	}
 	var codeRes *Outcome_base[string] = file.readCode()
 	if codeRes.isErr() {
-		return nil
+		return nullstr_
 	}
-	return strobj_(codeRes.get())
+	return codeRes.get()
 }
 
 func (this *Compiler) addInputSourceMap_impl(sourceFileName string, inputSourceMap *SourceMapInput) {
