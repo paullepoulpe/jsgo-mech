@@ -8,7 +8,7 @@ type RescopeGlobalSymbolsRewriteCallback struct {
 	symbolInfo                              *RescopeGlobalSymbolsInfo
 	renameHelper                            *RescopeGlobalSymbolsRenameHelper
 	preDeclarations                         []*RescopeGlobalSymbolsRewriteCallback_ChunkGlobal
-	localAliasesForUnwrappedCrossChunkNames *TMap[*JSChunk, SetOf[string]]
+	localAliasesForUnwrappedCrossChunkNames map[*JSChunk]SetOf[string]
 	chunksUsingCrossChunkSymbols            map[string]SetOf[*JSChunk]
 	chunksUsingWrappedReassignableSymbols   map[string]SetOf[*JSChunk]
 	chunksRequiringWrapperInitialization    map[string]SetOf[*JSChunk]
@@ -16,7 +16,7 @@ type RescopeGlobalSymbolsRewriteCallback struct {
 
 func (this *RescopeGlobalSymbolsRewriteCallback) finit_RescopeGlobalSymbolsRewriteCallback() {
 	this.preDeclarations = []*RescopeGlobalSymbolsRewriteCallback_ChunkGlobal{}
-	this.localAliasesForUnwrappedCrossChunkNames = newTMap_(tc_p_JSChunk, tc_SetOf_string_)
+	this.localAliasesForUnwrappedCrossChunkNames = map[*JSChunk]SetOf[string]{}
 	this.chunksUsingCrossChunkSymbols = map[string]SetOf[*JSChunk]{}
 	this.chunksUsingWrappedReassignableSymbols = map[string]SetOf[*JSChunk]{}
 	this.chunksRequiringWrapperInitialization = map[string]SetOf[*JSChunk]{}
@@ -62,14 +62,14 @@ func (this *RescopeGlobalSymbolsRewriteCallback) visit(t *NodeTraversal, n Node,
 }
 
 func (this *RescopeGlobalSymbolsRewriteCallback) visitNameDeclaration(t *NodeTraversal, declaration Node) {
-	var allLhsNodes *TList[Node] = newTList_(tc_Node)
-	NodeUtil_visitLhsNodesInNode(declaration, func(p0 any) { allLhsNodes.add(Node_of_(p0)) })
-	if allLhsNodes.isEmpty() {
+	var allLhsNodes *[]Node = &[]Node{}
+	NodeUtil_visitLhsNodesInNode(declaration, func(p0 any) { *allLhsNodes = append(*allLhsNodes, Node_of_(p0)) })
+	if len(*allLhsNodes) == 0 {
 		return
 	}
 	var hasImportantName bool = false
-	var isGlobalDeclaration bool = cast_[*Var](t.getScope().getVar(allLhsNodes.get(0).getString()).self()).isGlobal()
-	for lhs := range allLhsNodes.All() {
+	var isGlobalDeclaration bool = cast_[*Var](t.getScope().getVar(sliceAt_(*allLhsNodes, 0).getString()).self()).isGlobal()
+	for lhs := range sliceAll_(allLhsNodes) {
 		if !lhs.isName() {
 			panic(new_IllegalStateException_String(Strings_lenientFormat("Unexpected lhs node %s, expected NAME", []any{lhs.box_()})).self())
 		}
@@ -102,7 +102,7 @@ func (this *RescopeGlobalSymbolsRewriteCallback) globalVarStaysLocalInDefiningCh
 	return (!Collection_contains_s(this.symbolInfo.crossChunkNamesWithWriteFromOtherChunk(), name) && Collection_contains_s(this.symbolInfo.globalNamesWithReadInDefiningChunk(), name))
 }
 
-func (this *RescopeGlobalSymbolsRewriteCallback) rewriteNameDeclaration(t *NodeTraversal, declaration Node, allLhsNodes *TList[Node], isGlobalDeclaration bool) {
+func (this *RescopeGlobalSymbolsRewriteCallback) rewriteNameDeclaration(t *NodeTraversal, declaration Node, allLhsNodes *[]Node, isGlobalDeclaration bool) {
 	if this.optimizeLocalAccess.shouldPreserveLocalVarDeclarations() && !NodeUtil_isAnyFor(declaration.getParent()) {
 		var changed bool = false
 		if (isGlobalDeclaration && !declaration.isVar()) && this.containsNonLocalOrInitializedVars(t, declaration, isGlobalDeclaration) {
@@ -146,7 +146,7 @@ func (this *RescopeGlobalSymbolsRewriteCallback) rewriteNameDeclaration(t *NodeT
 		return
 	}
 	if !this.optimizeLocalAccess.shouldOptimize() || this.containsNonLocalOrInitializedVars(t, declaration, isGlobalDeclaration) {
-		for lhs := range allLhsNodes.All() {
+		for lhs := range sliceAll_(allLhsNodes) {
 			this.maybeAddPreDeclaration(t, lhs, isGlobalDeclaration)
 		}
 	}
@@ -233,7 +233,7 @@ func (this *RescopeGlobalSymbolsRewriteCallback) visitName(t *NodeTraversal, n N
 			}
 		} else if this.optimizeLocalAccess.shouldOptimizeAllChunks() && (!this.optimizeLocalAccess.shouldWrapReassignableSymbols() || !Collection_contains_s(this.symbolInfo.wrappedCrossChunkNames(), name)) {
 			if !Collection_contains_s(this.symbolInfo.globalNamesWithInnerScopeWriteInDefiningChunk(), name) && this.compiler_.getChunkGraph().dependsOn(currentChunk, definingChunk) {
-				Collection_add_s(icast_Set(Map_computeIfAbsent_f(this.localAliasesForUnwrappedCrossChunkNames.asMap(), obj_(currentChunk), lambda_RescopeGlobalSymbolsRewriteCallback_visitName_2_)), name)
+				Collection_add_s(icast_Set(mapComputeIfAbsentObj_f(tc_p_JSChunk, tc_SetOf_string_, this.localAliasesForUnwrappedCrossChunkNames, obj_(currentChunk), lambda_RescopeGlobalSymbolsRewriteCallback_visitName_2_)), name)
 				return
 			}
 		}
@@ -484,7 +484,7 @@ func (this *RescopeGlobalSymbolsRewriteCallback) declareLocalAliasesAndWrappersF
 			}
 		}
 	}
-	var allLocalAliases IterableOf[string] = Iterables_concat(icast_Iterable(Map_getOrDefault(this.localAliasesForUnwrappedCrossChunkNames.asMap(), obj_(chunk), obj_(ImmutableSet_of()))), Iterable(wrappedReassignableLocalAliases.asSet()))
+	var allLocalAliases IterableOf[string] = Iterables_concat(icast_Iterable(mapGetOrObj_(tc_p_JSChunk, tc_SetOf_string_, this.localAliasesForUnwrappedCrossChunkNames, obj_(chunk), obj_(ImmutableSet_of()))), Iterable(wrappedReassignableLocalAliases.asSet()))
 	if !Iterables_isEmpty(allLocalAliases) {
 		var aliasesToKeep *TList[string] = newTList_(tc_string)
 		var aliasesToDelete *TList[string] = newTList_(tc_string)

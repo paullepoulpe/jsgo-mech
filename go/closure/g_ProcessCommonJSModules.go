@@ -53,7 +53,7 @@ func (this *ProcessCommonJSModules) shouldTraverse_impl(t *NodeTraversal, n Node
 		var isCommonJsModule bool = finder.isCommonJsModule()
 		var exports ImmutableList_BuilderOf[*ProcessCommonJSModules_ExportInfo] = ImmutableList_builder()
 		if isCommonJsModule || forceModuleDetection {
-			if !finder.umdPatterns.isEmpty() {
+			if len(*finder.umdPatterns) != 0 {
 				var needsRetraverse bool = false
 				if finder.replaceUmdPatterns() {
 					needsRetraverse = true
@@ -350,9 +350,9 @@ func (this *ProcessCommonJSModules) reportNestedScopesChanged(n Node) {
 	NodeUtil_visitPreOrder_Node_Visitor(n, new_ProcessCommonJSModules_2(this))
 }
 
-func ProcessCommonJSModules_findUmdPattern(umdPatterns *TList[*ProcessCommonJSModules_UmdPattern], n Node) *ProcessCommonJSModules_UmdPattern {
-	for i_1 := 0; i_1 < len(umdPatterns.items); i_1++ {
-		var umd *ProcessCommonJSModules_UmdPattern = umdPatterns.items[i_1]
+func ProcessCommonJSModules_findUmdPattern(umdPatterns *[]*ProcessCommonJSModules_UmdPattern, n Node) *ProcessCommonJSModules_UmdPattern {
+	for i_1 := 0; i_1 < len(*umdPatterns); i_1++ {
+		var umd *ProcessCommonJSModules_UmdPattern = (*umdPatterns)[i_1]
 		if umd.ifRoot == n {
 			return umd
 		}
@@ -444,7 +444,7 @@ type ProcessCommonJSModules_FindImportsAndExports struct {
 	outer_                 *ProcessCommonJSModules
 	hasGoogProvideOrModule bool
 	script_                Node
-	umdPatterns            *TList[*ProcessCommonJSModules_UmdPattern]
+	umdPatterns            *[]*ProcessCommonJSModules_UmdPattern
 	moduleExports          []*ProcessCommonJSModules_ExportInfo
 	exports                []*ProcessCommonJSModules_ExportInfo
 	errors_                []*JSError
@@ -453,7 +453,7 @@ type ProcessCommonJSModules_FindImportsAndExports struct {
 func (this *ProcessCommonJSModules_FindImportsAndExports) finit_ProcessCommonJSModules_FindImportsAndExports() {
 	this.hasGoogProvideOrModule = false
 	this.script_ = 0
-	this.umdPatterns = newTList_(tc_p_ProcessCommonJSModules_UmdPattern)
+	this.umdPatterns = &[]*ProcessCommonJSModules_UmdPattern{}
 	this.moduleExports = []*ProcessCommonJSModules_ExportInfo{}
 	this.exports = []*ProcessCommonJSModules_ExportInfo{}
 	this.errors_ = []*JSError{}
@@ -515,7 +515,7 @@ func (this *ProcessCommonJSModules_FindImportsAndExports) visit(t *NodeTraversal
 			if (umdTestAncestor != nil) && !this.isInIfTest(n) {
 				var existingPattern *ProcessCommonJSModules_UmdPattern = ProcessCommonJSModules_findUmdPattern(this.umdPatterns, umdTestAncestor.enclosingIf)
 				if existingPattern == nil {
-					this.umdPatterns.add(new_ProcessCommonJSModules_UmdPattern(umdTestAncestor.enclosingIf, umdTestAncestor.activeBranch))
+					*this.umdPatterns = append(*this.umdPatterns, new_ProcessCommonJSModules_UmdPattern(umdTestAncestor.enclosingIf, umdTestAncestor.activeBranch))
 				}
 			}
 		}
@@ -524,7 +524,7 @@ func (this *ProcessCommonJSModules_FindImportsAndExports) visit(t *NodeTraversal
 		if (umdTestAncestor != nil) && this.isInIfTest(n) {
 			var existingPattern *ProcessCommonJSModules_UmdPattern = ProcessCommonJSModules_findUmdPattern(this.umdPatterns, umdTestAncestor.enclosingIf)
 			if (existingPattern == nil) && (umdTestAncestor.enclosingIf.getChildAtIndex(2) == 0) {
-				this.umdPatterns.add(new_ProcessCommonJSModules_UmdPattern(umdTestAncestor.enclosingIf, 0))
+				*this.umdPatterns = append(*this.umdPatterns, new_ProcessCommonJSModules_UmdPattern(umdTestAncestor.enclosingIf, 0))
 			}
 		}
 	}
@@ -544,7 +544,7 @@ func (this *ProcessCommonJSModules_FindImportsAndExports) visit(t *NodeTraversal
 				if (umdTestAncestor != nil) && !this.isInIfTest(n) {
 					var existingPattern *ProcessCommonJSModules_UmdPattern = ProcessCommonJSModules_findUmdPattern(this.umdPatterns, umdTestAncestor.enclosingIf)
 					if existingPattern == nil {
-						this.umdPatterns.add(new_ProcessCommonJSModules_UmdPattern(umdTestAncestor.enclosingIf, umdTestAncestor.activeBranch))
+						*this.umdPatterns = append(*this.umdPatterns, new_ProcessCommonJSModules_UmdPattern(umdTestAncestor.enclosingIf, umdTestAncestor.activeBranch))
 					}
 				}
 			}
@@ -728,12 +728,12 @@ func (this *ProcessCommonJSModules_FindImportsAndExports) getOutermostUmdTest(n 
 			}
 			return umdTestInfo
 		}
-		var umdTests *TList[Node] = newTList_(tc_Node)
+		var umdTests *[]Node = &[]Node{}
 		NodeUtil_visitPreOrder_Node_Visitor(parent.getFirstChild(), new_ProcessCommonJSModules_FindImportsAndExports_1(this, umdTests))
-		if umdTests.isEmpty() && parent.getFirstChild().isTrue() {
-			umdTests.add(parent.getFirstChild())
+		if len(*umdTests) == 0 && parent.getFirstChild().isTrue() {
+			*umdTests = append(*umdTests, parent.getFirstChild())
 		}
-		if !umdTests.isEmpty() {
+		if len(*umdTests) != 0 {
 			return new_ProcessCommonJSModules_FindImportsAndExports_UmdTestInfo(parent, n)
 		}
 		return nil
@@ -758,7 +758,7 @@ func (this *ProcessCommonJSModules_FindImportsAndExports) isInIfTest(n Node) boo
 func (this *ProcessCommonJSModules_FindImportsAndExports) replaceUmdPatterns() bool {
 	var needsRetraverse bool = false
 	var changeScope Node
-	for umdPattern := range this.umdPatterns.All() {
+	for umdPattern := range sliceAll_(this.umdPatterns) {
 		if NodeUtil_getEnclosingScript(umdPattern.ifRoot) == 0 {
 			this.outer_.reportNestedScopesDeleted(umdPattern.ifRoot)
 			continue
@@ -1625,14 +1625,14 @@ func (this *ProcessCommonJSModules_2) visit(n Node) {
 
 type ProcessCommonJSModules_FindImportsAndExports_1 struct {
 	outer_       *ProcessCommonJSModules_FindImportsAndExports
-	cap_umdTests *TList[Node]
+	cap_umdTests *[]Node
 }
 
 func (this *ProcessCommonJSModules_FindImportsAndExports_1) init_ProcessCommonJSModules_FindImportsAndExports_1() {
 
 }
 
-func new_ProcessCommonJSModules_FindImportsAndExports_1(outer_ *ProcessCommonJSModules_FindImportsAndExports, cap_umdTests *TList[Node]) *ProcessCommonJSModules_FindImportsAndExports_1 {
+func new_ProcessCommonJSModules_FindImportsAndExports_1(outer_ *ProcessCommonJSModules_FindImportsAndExports, cap_umdTests *[]Node) *ProcessCommonJSModules_FindImportsAndExports_1 {
 	this := &ProcessCommonJSModules_FindImportsAndExports_1{}
 	this.outer_ = outer_
 	this.cap_umdTests = cap_umdTests
@@ -1660,7 +1660,7 @@ func (this *ProcessCommonJSModules_FindImportsAndExports_1) visit(node Node) {
 	default:
 		return
 	}
-	this.cap_umdTests.add(node)
+	*this.cap_umdTests = append(*this.cap_umdTests, node)
 }
 
 // shouldTraverse: an object that is exactly a ProcessCommonJSModules calls its shouldTraverse_impl directly (post-flip); others dispatch.

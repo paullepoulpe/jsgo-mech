@@ -75,14 +75,14 @@ func (this *DataFlowAnalysis) analyze() {
 			// control-flow graph overrides neither method).
 			lNode := to_LinkedDirectedGraph_LinkedDiGraphNode(curNode)
 			if this.isForward() {
-				for _, e := range lNode.getOutEdges().items {
+				for _, e := range *lNode.getOutEdges() {
 					var nextNode DiGraph_DiGraphNode = to_LinkedDirectedGraph_LinkedDiGraphEdge(e).getDestination()
 					if nextNode != this.cfg.getImplicitReturn() {
 						this.workQueue.add(nextNode)
 					}
 				}
 			} else {
-				for _, e := range lNode.getInEdges().items {
+				for _, e := range *lNode.getInEdges() {
 					var nextNode DiGraph_DiGraphNode = to_LinkedDirectedGraph_LinkedDiGraphEdge(e).getSource()
 					if nextNode != this.cfg.getImplicitReturn() {
 						this.workQueue.add(nextNode)
@@ -120,7 +120,7 @@ func (this *DataFlowAnalysis) flow(node DiGraph_DiGraphNode) bool {
 		var changed bool = !Object_equals(outBefore, state.getOut())
 		if this.isBranched() {
 			var brancher DataFlowAnalysis_FlowBrancher = this.createFlowBrancher(node.getValue(), icast_LatticeElement(state.getOut()))
-			for outEdge := range node.getOutEdges().All() {
+			for outEdge := range sliceAll_(node.getOutEdges()) {
 				var outBranchBefore LatticeElement = icast_LatticeElement(Annotatable_getAnnotation(Annotatable(outEdge)))
 				outEdge.setAnnotation(icast_Annotation_graph(brancher.branchFlow(cast_[ControlFlowGraph_Branch](outEdge.getValue()))))
 				if !changed {
@@ -142,21 +142,21 @@ func (this *DataFlowAnalysis) joinInputs(node DiGraph_DiGraphNode) {
 		state.setIn(this.createEntryLattice())
 		return
 	}
-	var inEdges *TList[DiGraph_DiGraphEdge] = func() *TList[DiGraph_DiGraphEdge] {
+	var inEdges *[]DiGraph_DiGraphEdge = func() *[]DiGraph_DiGraphEdge {
 		if this.isForward() {
 			return node.getInEdges()
 		}
 		return node.getOutEdges()
 	}()
 	var result LatticeElement
-	switch inEdges.size() {
+	switch int32(len(*inEdges)) {
 	case 0:
 		return
 	case 1:
-		result = this.getInputFromEdge(inEdges.get(0))
+		result = this.getInputFromEdge(sliceAt_(*inEdges, 0))
 	default:
 		var joiner DataFlowAnalysis_FlowJoiner = this.createFlowJoiner()
-		for inEdge := range inEdges.All() {
+		for inEdge := range sliceAll_(inEdges) {
 			joiner.joinFlow(this.getInputFromEdge(inEdge))
 		}
 		result = icast_LatticeElement(joiner.finish())

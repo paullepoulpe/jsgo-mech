@@ -44,7 +44,7 @@ func (this *UndiGraph) getUndirectedGraphNodes() Collection {
 
 type UndiGraph_UndiGraphNode interface {
 	GraphNode
-	getNeighborEdges() *TList[UndiGraph_UndiGraphEdge]
+	getNeighborEdges() *[]UndiGraph_UndiGraphEdge
 	getNeighborEdgesIterator() Iterator
 }
 

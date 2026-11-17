@@ -1411,14 +1411,14 @@ func (this *TypeCheck) checkInterface(n Node, functionType *FunctionType) {
 			properties.asMap().putAll(currentProperties.asMap())
 		}
 	}
-	var loopPath *TList[*FunctionType] = functionType.checkExtendsLoop()
+	var loopPath *[]*FunctionType = functionType.checkExtendsLoop()
 	if loopPath != nil {
 		var displayNames []string = []string{}
-		for loopType := range loopPath.All() {
+		for _, loopType := range *loopPath {
 			displayNames = append(displayNames, loopType.getDisplayName().orElse(nullstr_))
 		}
 		var strPath string = joinStrings_(displayNames, " -> ")
-		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, TypeCheck_INTERFACE_EXTENDS_LOOP, []string{loopPath.get(0).getDisplayName().orElse("null"), strPath}))
+		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, TypeCheck_INTERFACE_EXTENDS_LOOP, []string{sliceAt_(*loopPath, 0).getDisplayName().orElse("null"), strPath}))
 	}
 	this.validator.expectAllInterfaceProperties(n, functionType)
 }

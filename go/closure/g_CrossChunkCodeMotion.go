@@ -60,7 +60,7 @@ func (this *CrossChunkCodeMotion) addInstanceofGuards(globalSymbols CollectionOf
 }
 
 func (this *CrossChunkCodeMotion) moveGlobalSymbols(globalSymbols CollectionOf[*CrossChunkCodeMotion_GlobalSymbol]) {
-	for globalSymbolCycle := range new_CrossChunkCodeMotion_OrderAndCombineGlobalSymbols(this, globalSymbols).orderAndCombine().All() {
+	for globalSymbolCycle := range sliceAll_(new_CrossChunkCodeMotion_OrderAndCombineGlobalSymbols(this, globalSymbols).orderAndCombine()) {
 		globalSymbolCycle.moveDeclarationStatements()
 	}
 }
@@ -155,7 +155,7 @@ func new_CrossChunkCodeMotion_GlobalSymbolCollector(outer_ *CrossChunkCodeMotion
 }
 
 func (this *CrossChunkCodeMotion_GlobalSymbolCollector) collectGlobalSymbols(referenceCollector *CrossChunkReferenceCollector) CollectionOf[*CrossChunkCodeMotion_GlobalSymbol] {
-	for statement := range referenceCollector.getTopLevelStatements().All() {
+	for statement := range sliceAll_(referenceCollector.getTopLevelStatements()) {
 		if statement.isDeclarationStatement() {
 			this.processDeclarationStatement(statement)
 		} else {
@@ -166,7 +166,7 @@ func (this *CrossChunkCodeMotion_GlobalSymbolCollector) collectGlobalSymbols(ref
 }
 
 func (this *CrossChunkCodeMotion_GlobalSymbolCollector) processImmovableStatement(statement *CrossChunkReferenceCollector_TopLevelStatement) {
-	for ref := range statement.getNonDeclarationReferences().All() {
+	for ref := range sliceAll_(statement.getNonDeclarationReferences()) {
 		this.processImmovableReference(ref, statement.getChunk())
 	}
 }
@@ -193,7 +193,7 @@ func (this *CrossChunkCodeMotion_GlobalSymbolCollector) processDeclarationStatem
 }
 
 func (this *CrossChunkCodeMotion_GlobalSymbolCollector) processDeclarationStatementContainedReferences(statement *CrossChunkReferenceCollector_TopLevelStatement, declaredSymbol *CrossChunkCodeMotion_GlobalSymbol, dsg *CrossChunkCodeMotion_DeclarationStatementGroup) {
-	for ref := range statement.getNonDeclarationReferences().All() {
+	for ref := range sliceAll_(statement.getNonDeclarationReferences()) {
 		var refSymbol *CrossChunkCodeMotion_GlobalSymbol = this.getGlobalSymbol(cast_[*Var](ref.getSymbol()))
 		if equalsId_(refSymbol, declaredSymbol) {
 			continue
@@ -442,7 +442,7 @@ type CrossChunkCodeMotion_OrderAndCombineGlobalSymbols struct {
 	inputSymbols             CollectionOf[*CrossChunkCodeMotion_GlobalSymbol]
 	componentContents        []*CrossChunkCodeMotion_GlobalSymbol
 	componentRoots           []*CrossChunkCodeMotion_GlobalSymbol
-	stronglyConnectedSymbols *TList[*CrossChunkCodeMotion_GlobalSymbolCycle]
+	stronglyConnectedSymbols *[]*CrossChunkCodeMotion_GlobalSymbolCycle
 	preorderCounter          int32
 }
 
@@ -455,7 +455,7 @@ func (this *CrossChunkCodeMotion_OrderAndCombineGlobalSymbols) finit_CrossChunkC
 func (this *CrossChunkCodeMotion_OrderAndCombineGlobalSymbols) init_CrossChunkCodeMotion_OrderAndCombineGlobalSymbols(dsgs CollectionOf[*CrossChunkCodeMotion_GlobalSymbol]) {
 	this.finit_CrossChunkCodeMotion_OrderAndCombineGlobalSymbols()
 	this.inputSymbols = dsgs
-	this.stronglyConnectedSymbols = newTListN_(tc_p_CrossChunkCodeMotion_GlobalSymbolCycle, dsgs.size())
+	this.stronglyConnectedSymbols = sliceRef_(make([]*CrossChunkCodeMotion_GlobalSymbolCycle, 0, dsgs.size()))
 }
 
 func new_CrossChunkCodeMotion_OrderAndCombineGlobalSymbols(outer_ *CrossChunkCodeMotion, dsgs CollectionOf[*CrossChunkCodeMotion_GlobalSymbol]) *CrossChunkCodeMotion_OrderAndCombineGlobalSymbols {
@@ -465,7 +465,7 @@ func new_CrossChunkCodeMotion_OrderAndCombineGlobalSymbols(outer_ *CrossChunkCod
 	return this
 }
 
-func (this *CrossChunkCodeMotion_OrderAndCombineGlobalSymbols) orderAndCombine() *TList[*CrossChunkCodeMotion_GlobalSymbolCycle] {
+func (this *CrossChunkCodeMotion_OrderAndCombineGlobalSymbols) orderAndCombine() *[]*CrossChunkCodeMotion_GlobalSymbolCycle {
 	for globalSymbol := range elemsAs_[*CrossChunkCodeMotion_GlobalSymbol](this.inputSymbols) {
 		if globalSymbol.preorderNumber < 0 {
 			this.processGlobalSymbol(globalSymbol)
@@ -502,7 +502,7 @@ func (this *CrossChunkCodeMotion_OrderAndCombineGlobalSymbols) processGlobalSymb
 			cycle.addSymbol(connectedSymbol)
 			connectedSymbol.hasBeenAssignedToAStronglyConnectedComponent = true
 		}
-		this.stronglyConnectedSymbols.push_(cycle)
+		*this.stronglyConnectedSymbols = append(*this.stronglyConnectedSymbols, cycle)
 	}
 }
 

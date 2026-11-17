@@ -147,8 +147,8 @@ func new_GraphColoring_GreedyGraphColoring_AdjacencyGraph_Comparator(graph Adjac
 }
 
 func (this *GraphColoring_GreedyGraphColoring) color_impl() int32 {
-	var worklist *TList[GraphNode] = tlistFrom_(tc_GraphNode, this.graph.getNodes())
-	Collections_sort_List_Comparator(worklist.asList(), Comparator_comparing_Function_Comparator(lambda_GraphColoring_GreedyGraphColoring_color_impl_1_, &Comparator_fn{func(leftProperty any, rightProperty any) int32 {
+	var worklist *[]GraphNode = sliceRef_(sliceFrom_(tc_GraphNode, this.graph.getNodes()))
+	Collections_sort_List_Comparator(sliceViewP_(tc_GraphNode, worklist), Comparator_comparing_Function_Comparator(lambda_GraphColoring_GreedyGraphColoring_color_impl_1_, &Comparator_fn{func(leftProperty any, rightProperty any) int32 {
 		var result int32 = (this.graph.getWeight(rightProperty) - this.graph.getWeight(leftProperty))
 		return func() int32 {
 			if (result == 0) && (this.tieBreaker != nil) {
@@ -158,17 +158,17 @@ func (this *GraphColoring_GreedyGraphColoring) color_impl() int32 {
 		}()
 	}}))
 	var count int32 = 0
-	for do_2 := true; do_2; do_2 = !worklist.isEmpty() {
+	for do_2 := true; do_2; do_2 = len(*worklist) != 0 {
 		var color *GraphColoring_Color = new_GraphColoring_Color(count)
 		var subgraph SubGraph = this.graph.newSubGraph()
 		{
-			var i *tlistIter_[GraphNode] = worklist.cursor()
-			for i.hasNext() {
-				var node GraphNode = i.nextT()
+			var i int = sliceCursor_(worklist)
+			for i < len(*worklist) {
+				var node GraphNode = sliceNext_(*worklist, &i)
 				if subgraph.isIndependentOf(node.getValue()) {
 					subgraph.addNode(node.getValue())
 					node.setAnnotation(color)
-					i.remove()
+					sliceIterRemove_(worklist, &i)
 				}
 			}
 		}

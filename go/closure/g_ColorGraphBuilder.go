@@ -48,7 +48,7 @@ func (this *ColorGraphBuilder) connectUnionWithAncestors(unionNode *LinkedDirect
 	if !flatUnion.getColor().isUnion() {
 		return
 	}
-	if unionNode.getOutEdges().isEmpty() {
+	if len(*unionNode.getOutEdges()) == 0 {
 		panic(new_IllegalStateException_0().self())
 	}
 	var graphNodesBuilder ImmutableSet_BuilderOf[*ColorGraphNode] = ImmutableSet_builder()

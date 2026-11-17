@@ -5,7 +5,7 @@ package closure
 import "strings"
 
 type CmdLineParser struct {
-	options_      *TList[*CmdLineParser_Option]
+	options_      *[]*CmdLineParser_Option
 	optionsSorted bool
 	argumentField *CmdLineParser_Option
 	usageWidth    int32
@@ -13,7 +13,7 @@ type CmdLineParser struct {
 }
 
 func (this *CmdLineParser) finit_CmdLineParser() {
-	this.options_ = newTList_(tc_p_CmdLineParser_Option)
+	this.options_ = &[]*CmdLineParser_Option{}
 	this.optionsSorted = true
 	this.argumentField = nil
 	this.usageWidth = 80
@@ -33,7 +33,7 @@ func new_CmdLineParser() *CmdLineParser {
 func (this *CmdLineParser) option(name string) *CmdLineParser_Option {
 	this.checkOptionNotDefined(name)
 	var option *CmdLineParser_Option = new_CmdLineParser_Option(this, name, false)
-	this.options_.add(option)
+	*this.options_ = append(*this.options_, option)
 	this.optionsSorted = false
 	return option
 }
@@ -52,9 +52,9 @@ func (this *CmdLineParser) checkOptionNotDefined(name string) {
 	}
 }
 
-func (this *CmdLineParser) sortedOptions() *TList[*CmdLineParser_Option] {
+func (this *CmdLineParser) sortedOptions() *[]*CmdLineParser_Option {
 	if !this.optionsSorted {
-		Collections_sort_List_Comparator(this.options_.asList(), lambda_CmdLineParser_sortedOptions_1_)
+		Collections_sort_List_Comparator(sliceViewP_(tc_p_CmdLineParser_Option, this.options_), lambda_CmdLineParser_sortedOptions_1_)
 		this.optionsSorted = true
 	}
 	return this.options_
@@ -79,7 +79,7 @@ func (this *CmdLineParser) setUsageWidth(usageWidth int32) {
 func (this *CmdLineParser) printUsage(out *strBuilder_, filter func(any) bool) {
 	var w *strBuilder_ = out
 	var len_ int32 = 0
-	for option := range this.sortedOptions().All() {
+	for _, option := range *this.sortedOptions() {
 		var curLen int32 = func() int32 {
 			if len(option.usageField) == 0 {
 				return 0
@@ -88,7 +88,7 @@ func (this *CmdLineParser) printUsage(out *strBuilder_, filter func(any) bool) {
 		}()
 		len_ = Math_max(len_, curLen)
 	}
-	for option := range this.sortedOptions().All() {
+	for option := range sliceAll_(this.sortedOptions()) {
 		this.printOption(w, option, len_, filter)
 	}
 }
@@ -198,8 +198,8 @@ func (this *CmdLineParser) parseArgument(args []string) *Outcome_base[any] {
 		present[this.currentOption] = struct{}{}
 	}
 	l_2 := this.sortedOptions()
-	for i_2 := 0; i_2 < len(l_2.items); i_2++ {
-		var option *CmdLineParser_Option = l_2.items[i_2]
+	for i_2 := 0; i_2 < len(*l_2); i_2++ {
+		var option *CmdLineParser_Option = (*l_2)[i_2]
 		if option.requiredField && !has_(present, option) {
 			return Outcome_base_err[any](new_CmdLineException_CmdLineParser_String(this, ("Option \"" + tostr_(option) + "\" is required")).up_Throwable())
 		}
@@ -240,8 +240,8 @@ func (this *CmdLineParser) findOptionOfKeyValuePair(name string) *CmdLineParser_
 
 func (this *CmdLineParser) findOptionByName(name string) *CmdLineParser_Option {
 	l_1 := this.options_
-	for i_1 := 0; i_1 < len(l_1.items); i_1++ {
-		var option *CmdLineParser_Option = l_1.items[i_1]
+	for i_1 := 0; i_1 < len(*l_1); i_1++ {
+		var option *CmdLineParser_Option = (*l_1)[i_1]
 		if name == option.nameField {
 			return option
 		}

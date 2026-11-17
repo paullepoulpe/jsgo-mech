@@ -58,16 +58,16 @@ func (this *LinkedUndirectedGraph) connect_impl(srcValue any, edgeValue any, des
 		}
 		return new_LinkedUndirectedGraph_LinkedUndirectedGraphEdge(icast_UndiGraph_UndiGraphNode(src.self()), edgeValue, icast_UndiGraph_UndiGraphNode(dest.self()))
 	}()
-	src.getNeighborEdges().add(icast_UndiGraph_UndiGraphEdge(edge.self()))
-	dest.getNeighborEdges().add(icast_UndiGraph_UndiGraphEdge(edge.self()))
+	sliceAppend_(src.getNeighborEdges(), icast_UndiGraph_UndiGraphEdge(edge.self()))
+	sliceAppend_(dest.getNeighborEdges(), icast_UndiGraph_UndiGraphEdge(edge.self()))
 }
 
 func (this *LinkedUndirectedGraph) disconnect_impl(srcValue any, destValue any) {
 	var src *LinkedUndirectedGraph_LinkedUndirectedGraphNode = to_LinkedUndirectedGraph_LinkedUndirectedGraphNode(this.getNodeOrFail(srcValue))
 	var dest *LinkedUndirectedGraph_LinkedUndirectedGraphNode = to_LinkedUndirectedGraph_LinkedUndirectedGraphNode(this.getNodeOrFail(destValue))
 	for _, edge := range this.getUndirectedGraphEdges(srcValue, destValue) {
-		src.getNeighborEdges().asList().remove_Object(edge)
-		dest.getNeighborEdges().asList().remove_Object(edge)
+		sliceRemoveObject_(tc_UndiGraph_UndiGraphEdge, src.getNeighborEdges(), edge)
+		sliceRemoveObject_(tc_UndiGraph_UndiGraphEdge, dest.getNeighborEdges(), edge)
 	}
 }
 
@@ -97,7 +97,7 @@ func (this *LinkedUndirectedGraph) getUndirectedGraphEdges_impl(n1 any, n2 any) 
 		return nil
 	}
 	var edges []UndiGraph_UndiGraphEdge = []UndiGraph_UndiGraphEdge{}
-	for outEdge := range dNode1.getNeighborEdges().All() {
+	for outEdge := range sliceAll_(dNode1.getNeighborEdges()) {
 		if (outEdge.getNodeA() == dNode2) || (outEdge.getNodeB() == dNode2) {
 			edges = append(edges, outEdge)
 		}
@@ -124,7 +124,7 @@ func (this *LinkedUndirectedGraph) getEdges_2_impl(n1 any, n2 any) []UndiGraph_U
 func (this *LinkedUndirectedGraph) getEdges_impl() *TList[Graph_GraphEdge] {
 	var result *TList[Graph_GraphEdge] = newTList_(tc_Graph_GraphEdge)
 	for node := range elemsBy_(this.nodes_.values(), to_LinkedUndirectedGraph_LinkedUndirectedGraphNode) {
-		for edge := range node.getNeighborEdges().All() {
+		for edge := range sliceAll_(node.getNeighborEdges()) {
 			if edge.getNodeA() == node.self() {
 				result.add(edge)
 			}
@@ -137,8 +137,8 @@ func (this *LinkedUndirectedGraph) getFirstEdge_impl(n1 any, n2 any) Graph_Graph
 	var dNode1 UndiGraph_UndiGraphNode = icast_UndiGraph_UndiGraphNode(this.getNodeOrFail(n1))
 	var dNode2 UndiGraph_UndiGraphNode = icast_UndiGraph_UndiGraphNode(this.getNodeOrFail(n2))
 	l_1 := dNode1.getNeighborEdges()
-	for i_1 := 0; i_1 < len(l_1.items); i_1++ {
-		var outEdge UndiGraph_UndiGraphEdge = l_1.items[i_1]
+	for i_1 := 0; i_1 < len(*l_1); i_1++ {
+		var outEdge UndiGraph_UndiGraphEdge = (*l_1)[i_1]
 		if (outEdge.getNodeA() == dNode2) || (outEdge.getNodeB() == dNode2) {
 			return Graph_GraphEdge(outEdge)
 		}
@@ -168,8 +168,8 @@ func (this *LinkedUndirectedGraph) isConnectedPredicate(n1 any, edgePredicate Pr
 		return false
 	}
 	l_1 := dNode1.getNeighborEdges()
-	for i_1 := 0; i_1 < len(l_1.items); i_1++ {
-		var outEdge UndiGraph_UndiGraphEdge = l_1.items[i_1]
+	for i_1 := 0; i_1 < len(*l_1); i_1++ {
+		var outEdge UndiGraph_UndiGraphEdge = (*l_1)[i_1]
 		if ((outEdge.getNodeA() == dNode1) && (outEdge.getNodeB() == dNode2)) || ((outEdge.getNodeA() == dNode2) && (outEdge.getNodeB() == dNode1)) {
 			if edgePredicate.apply(outEdge.getValue()) {
 				return true
@@ -182,7 +182,7 @@ func (this *LinkedUndirectedGraph) isConnectedPredicate(n1 any, edgePredicate Pr
 func (this *LinkedUndirectedGraph) getGraphvizEdges() []GraphvizGraph_GraphvizEdge {
 	var edgeList []GraphvizGraph_GraphvizEdge = []GraphvizGraph_GraphvizEdge{}
 	for node := range elemsBy_(this.nodes_.values(), to_LinkedUndirectedGraph_LinkedUndirectedGraphNode) {
-		for edge := range node.getNeighborEdges().All() {
+		for edge := range sliceAll_(node.getNeighborEdges()) {
 			if edge.getNodeA() == node.self() {
 				edgeList = append(edgeList, icast_GraphvizGraph_GraphvizEdge(edge))
 			}
@@ -220,12 +220,12 @@ func (this *LinkedUndirectedGraph) getNodeDegree_impl(value any) int32 {
 	if uNode == nil {
 		panic(new_IllegalArgumentException_String((objstr_(value) + " not found in graph")).self())
 	}
-	return uNode.getNeighborEdges().size()
+	return int32(len(*uNode.getNeighborEdges()))
 }
 
 type LinkedUndirectedGraph_LinkedUndirectedGraphNode struct {
 	self_         LinkedUndirectedGraph_LinkedUndirectedGraphNode_I
-	neighborEdges *TList[UndiGraph_UndiGraphEdge]
+	neighborEdges *[]UndiGraph_UndiGraphEdge
 	value_        any
 }
 
@@ -266,7 +266,7 @@ func (this *LinkedUndirectedGraph_LinkedUndirectedGraphNode) self() any {
 }
 
 func (this *LinkedUndirectedGraph_LinkedUndirectedGraphNode) finit_LinkedUndirectedGraph_LinkedUndirectedGraphNode() {
-	this.neighborEdges = newTList_(tc_UndiGraph_UndiGraphEdge)
+	this.neighborEdges = &[]UndiGraph_UndiGraphEdge{}
 }
 
 func (this *LinkedUndirectedGraph_LinkedUndirectedGraphNode) init_LinkedUndirectedGraph_LinkedUndirectedGraphNode(nodeValue any) {
@@ -281,12 +281,12 @@ func new_LinkedUndirectedGraph_LinkedUndirectedGraphNode(nodeValue any) *LinkedU
 	return this
 }
 
-func (this *LinkedUndirectedGraph_LinkedUndirectedGraphNode) getNeighborEdges() *TList[UndiGraph_UndiGraphEdge] {
+func (this *LinkedUndirectedGraph_LinkedUndirectedGraphNode) getNeighborEdges() *[]UndiGraph_UndiGraphEdge {
 	return this.neighborEdges
 }
 
 func (this *LinkedUndirectedGraph_LinkedUndirectedGraphNode) getNeighborEdgesIterator() IteratorOf[UndiGraph_UndiGraphEdge] {
-	return this.neighborEdges.asList().iterator()
+	return slicePtrIter_(tc_UndiGraph_UndiGraphEdge, this.neighborEdges)
 }
 
 func (this *LinkedUndirectedGraph_LinkedUndirectedGraphNode) getAnnotationUntyped_impl() Annotation_graph {
@@ -314,8 +314,8 @@ func (this *LinkedUndirectedGraph_LinkedUndirectedGraphNode) getLabel() string {
 }
 
 func (this *LinkedUndirectedGraph_LinkedUndirectedGraphNode) neighborList() []GraphNode {
-	var result []GraphNode = make([]GraphNode, 0, this.neighborEdges.size())
-	for edge := range this.neighborEdges.All() {
+	var result []GraphNode = make([]GraphNode, 0, int32(len(*this.neighborEdges)))
+	for edge := range sliceAll_(this.neighborEdges) {
 		if edge.getNodeA() == this.self() {
 			result = append(result, edge.getNodeB())
 		} else {

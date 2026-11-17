@@ -137,10 +137,10 @@ func (this *DotFormatter) traverseNodes(parent Node) {
 		}
 	}
 	if (this.cfg != nil) && this.cfg.hasNode(parent.box_()) {
-		var outEdges *TList[DiGraph_DiGraphEdge] = this.cfg.getOutEdges(parent.box_())
-		var edgeList []string = newstrarr_(outEdges.size())
+		var outEdges *[]DiGraph_DiGraphEdge = this.cfg.getOutEdges(parent.box_())
+		var edgeList []string = newstrarr_(int32(len(*outEdges)))
 		for i := int32(0); i < int32(len(edgeList)); i++ {
-			var edge DiGraph_DiGraphEdge = outEdges.get(i)
+			var edge DiGraph_DiGraphEdge = sliceAt_(*outEdges, i)
 			var succ DiGraph_DiGraphNode = edge.getDestination()
 			var toNode OptionalOf[string] = Optional_empty[string]()
 			if succ == this.cfg.getImplicitReturn() {

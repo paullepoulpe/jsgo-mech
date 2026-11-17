@@ -197,7 +197,7 @@ func EsModuleProcessor_clinit() {
 
 type EsModuleProcessor_FindMutableExports struct {
 	NodeTraversal_AbstractPostOrderCallback
-	exports            *TList[*Export]
+	exports            *[]*Export
 	exportsByLocalName *SimpleListMultimap[any, *Export]
 }
 
@@ -208,16 +208,16 @@ func (this *EsModuleProcessor_FindMutableExports) up_NodeTraversal_AbstractPostO
 	return &this.NodeTraversal_AbstractPostOrderCallback
 }
 
-func (this *EsModuleProcessor_FindMutableExports) init_EsModuleProcessor_FindMutableExports(exports *TList[*Export]) {
+func (this *EsModuleProcessor_FindMutableExports) init_EsModuleProcessor_FindMutableExports(exports *[]*Export) {
 	this.NodeTraversal_AbstractPostOrderCallback.init_NodeTraversal_AbstractPostOrderCallback()
 	this.exports = exports
 	this.exportsByLocalName = SimpleListMultimap_create[any, *Export]()
-	for e := range exports.All() {
+	for e := range sliceAll_(exports) {
 		this.exportsByLocalName.put_s(e.localName().orElse(nullstr_), e)
 	}
 }
 
-func new_EsModuleProcessor_FindMutableExports(exports *TList[*Export]) *EsModuleProcessor_FindMutableExports {
+func new_EsModuleProcessor_FindMutableExports(exports *[]*Export) *EsModuleProcessor_FindMutableExports {
 	this := &EsModuleProcessor_FindMutableExports{}
 	this.self_ = this
 	this.init_EsModuleProcessor_FindMutableExports(exports)
@@ -241,9 +241,9 @@ func (this *EsModuleProcessor_FindMutableExports) visit_impl(t *NodeTraversal, n
 		return
 	}
 	for e := range elemsAs_[*Export](new_ArrayList_Collection(Collection(exports)).self()) {
-		var i int32 = this.exports.asList().indexOf(obj_(e))
+		var i int32 = sliceViewP_(tc_p_Export, this.exports).indexOf(obj_(e))
 		var mutated *Export = e.mutatedCopy()
-		this.exports.set(i, mutated)
+		(*this.exports)[i] = mutated
 		this.exportsByLocalName.remove(strobj_(e.localName().orElse(nullstr_)), obj_(e))
 		this.exportsByLocalName.put_s(e.localName().orElse(nullstr_), mutated)
 	}
@@ -292,7 +292,7 @@ func (this *EsModuleProcessor_UnresolvedModuleBuilder) add(e *Export) bool {
 }
 
 func (this *EsModuleProcessor_UnresolvedModuleBuilder) build() *UnresolvedModule {
-	var localExports *TList[*Export] = newTList_(tc_p_Export)
+	var localExports *[]*Export = &[]*Export{}
 	var indirectExportsBuilder []*Export
 	var starExportsBuilder []*Export
 	for ee := range sliceAll_(&this.exports) {
@@ -300,7 +300,7 @@ func (this *EsModuleProcessor_UnresolvedModuleBuilder) build() *UnresolvedModule
 			if ee.localName().isPresent() && this.importsByLocalName.containsKey(ee.localName().get()) {
 				indirectExportsBuilder = immAdd_(tc_p_Export, indirectExportsBuilder, ee)
 			} else {
-				localExports.add(ee)
+				*localExports = append(*localExports, ee)
 			}
 		} else if "*" == ee.importName().orElse("") {
 			starExportsBuilder = immAdd_(tc_p_Export, starExportsBuilder, ee)
@@ -309,7 +309,7 @@ func (this *EsModuleProcessor_UnresolvedModuleBuilder) build() *UnresolvedModule
 		}
 	}
 	NodeTraversal_traverse(this.outer_.compiler_, this.root, new_EsModuleProcessor_FindMutableExports(localExports))
-	return new_EsModuleProcessor_UnresolvedEsModule(this.outer_, this.outer_.metadata_, this.path_, ImmutableMap_copyOf(this.importsByLocalName.asMap()), immCopyOf_(tc_p_Export, Collection(localExports.asList())), immBuilt_(indirectExportsBuilder), immBuilt_(starExportsBuilder)).up_UnresolvedModule()
+	return new_EsModuleProcessor_UnresolvedEsModule(this.outer_, this.outer_.metadata_, this.path_, ImmutableMap_copyOf(this.importsByLocalName.asMap()), immCopyOf_(tc_p_Export, Collection(sliceViewP_(tc_p_Export, localExports))), immBuilt_(indirectExportsBuilder), immBuilt_(starExportsBuilder)).up_UnresolvedModule()
 }
 
 type EsModuleProcessor_UnresolvedEsModule struct {

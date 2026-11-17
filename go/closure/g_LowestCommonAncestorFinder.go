@@ -79,8 +79,8 @@ func (this *LowestCommonAncestorFinder[N, E]) paintAncestors(root DiGraph_DiGrap
 	this.searchQueue = append(this.searchQueue, root)
 	for len(this.searchQueue) != 0 {
 		var curr DiGraph_DiGraphNode = slicePopFirst_(tc_DiGraph_DiGraphNode, &this.searchQueue)
-		var parentEdges *TList[DiGraph_DiGraphEdge] = curr.getInEdges()
-		for parentEdge := range parentEdges.All() {
+		var parentEdges *[]DiGraph_DiGraphEdge = curr.getInEdges()
+		for parentEdge := range sliceAll_(parentEdges) {
 			var parent DiGraph_DiGraphNode = parentEdge.getSource()
 			if equalsId_(parent, root) {
 				continue

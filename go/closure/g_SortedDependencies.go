@@ -5,8 +5,8 @@ package closure
 import "strings"
 
 type SortedDependencies struct {
-	userOrderedInputs             *TList[*CompilerInput]
-	importOrderedInputs           *TList[*CompilerInput]
+	userOrderedInputs             *[]*CompilerInput
+	importOrderedInputs           *[]*CompilerInput
 	completedInputs               SetOf[any]
 	nonExportingInputs            *TMap[string, any]
 	exportingInputBySymbolName    map[string]any
@@ -14,8 +14,8 @@ type SortedDependencies struct {
 }
 
 func (this *SortedDependencies) finit_SortedDependencies() {
-	this.userOrderedInputs = newTList_(tc_p_CompilerInput)
-	this.importOrderedInputs = newTList_(tc_p_CompilerInput)
+	this.userOrderedInputs = &[]*CompilerInput{}
+	this.importOrderedInputs = &[]*CompilerInput{}
 	this.completedInputs = new_LinkedHashSet()
 	this.nonExportingInputs = newTMap_(tc_string, tc_any)
 	this.exportingInputBySymbolName = map[string]any{}
@@ -24,7 +24,7 @@ func (this *SortedDependencies) finit_SortedDependencies() {
 
 func (this *SortedDependencies) init_SortedDependencies(userOrderedInputs ListOf[any]) {
 	this.finit_SortedDependencies()
-	this.userOrderedInputs.asList().addAll(Collection(userOrderedInputs))
+	sliceAddAll_(tc_p_CompilerInput, this.userOrderedInputs, Collection(userOrderedInputs))
 	this.processInputs()
 }
 
@@ -50,12 +50,12 @@ func (this *SortedDependencies) getStrongDependenciesOf(rootInputs ListOf[any], 
 		}
 	}
 	var builder ImmutableList_BuilderOf[any] = ImmutableList_builder()
-	for el_4 := range func() *TList[*CompilerInput] {
+	for el_4 := range sliceAll_(func() *[]*CompilerInput {
 		if sorted {
 			return this.importOrderedInputs
 		}
 		return this.userOrderedInputs
-	}().All() {
+	}()) {
 		var input DependencyInfo = icast_DependencyInfo(obj_(el_4))
 		if includedInputs.contains(input) {
 			builder.add(input)
@@ -104,7 +104,7 @@ func (this *SortedDependencies) getSortedWeakDependenciesOf(rootInputs ListOf[an
 		}
 	}
 	var builder ImmutableList_BuilderOf[any] = ImmutableList_builder()
-	for el_4 := range this.importOrderedInputs.All() {
+	for el_4 := range sliceAll_(this.importOrderedInputs) {
 		var input DependencyInfo = icast_DependencyInfo(obj_(el_4))
 		if weakInputs.contains(input) {
 			builder.add(input)
@@ -113,7 +113,7 @@ func (this *SortedDependencies) getSortedWeakDependenciesOf(rootInputs ListOf[an
 	return builder.build()
 }
 
-func (this *SortedDependencies) getSortedList() *TList[*CompilerInput] {
+func (this *SortedDependencies) getSortedList() *[]*CompilerInput {
 	return this.importOrderedInputs
 }
 
@@ -132,11 +132,11 @@ func (this *SortedDependencies) orderInput(input DependencyInfo) {
 	for importedInput := range elemsBy_(this.importedInputByImportingInput.get(input), icast_DependencyInfo) {
 		this.orderInput(importedInput)
 	}
-	this.importOrderedInputs.add(cast_[*CompilerInput](input))
+	*this.importOrderedInputs = append(*this.importOrderedInputs, cast_[*CompilerInput](input))
 }
 
 func (this *SortedDependencies) processInputs() {
-	for el_1 := range this.userOrderedInputs.All() {
+	for el_1 := range sliceAll_(this.userOrderedInputs) {
 		var userOrderedInput DependencyInfo = icast_DependencyInfo(obj_(el_1))
 		var provides ImmutableListOf[string] = userOrderedInput.getProvides()
 		var firstProvide OptionalOf[string] = Optional_ofNullable[string](str_(Iterables_getFirst(icast_Iterable(obj_(provides)), nil)))
@@ -148,7 +148,7 @@ func (this *SortedDependencies) processInputs() {
 			this.exportingInputBySymbolName[providedSymbolName] = userOrderedInput
 		}
 	}
-	for el_5 := range this.userOrderedInputs.All() {
+	for el_5 := range sliceAll_(this.userOrderedInputs) {
 		var userOrderedInput DependencyInfo = icast_DependencyInfo(obj_(el_5))
 		for _, el2 := range immElems_(userOrderedInput.getRequiredSymbols()) {
 			symbolName := str_(el2)
@@ -158,7 +158,7 @@ func (this *SortedDependencies) processInputs() {
 			}
 		}
 	}
-	for el_9 := range this.userOrderedInputs.All() {
+	for el_9 := range sliceAll_(this.userOrderedInputs) {
 		var userOrderedInput DependencyInfo = icast_DependencyInfo(obj_(el_9))
 		this.orderInput(userOrderedInput)
 	}

@@ -365,10 +365,10 @@ func SourceFile_jscomp_fromZipInput(zipName string, zipBytes []int8, inputCharse
 	return SourceFile_jscomp_fromZipEntryNames(zipName, archive.get().names(), inputCharset)
 }
 
-func SourceFile_jscomp_fromZipEntryNames(zipName string, entryNames *TList[string], inputCharset string) *Outcome_base[any] {
+func SourceFile_jscomp_fromZipEntryNames(zipName string, entryNames *[]string, inputCharset string) *Outcome_base[any] {
 	var absoluteZipPath string = FilePaths_toAbsolute(zipName)
 	var sourceFiles *TList[*SourceFile_jscomp] = newTList_(tc_p_SourceFile_jscomp)
-	for entryName := range entryNames.All() {
+	for _, entryName := range *entryNames {
 		if !strings.HasSuffix(entryName, ".js") {
 			continue
 		}

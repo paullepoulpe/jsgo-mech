@@ -14,7 +14,7 @@ type GlobalNamespace struct {
 	sourceKind                    GlobalNamespace_SourceKind
 	generated                     bool
 	decisionsLog                  *LogFile
-	globalNames                   *TList[*GlobalNamespace_Name]
+	globalNames                   *[]*GlobalNamespace_Name
 	nameMap                       *TMap[string, *GlobalNamespace_Name]
 	nameMapByModule               *SimpleTable[*ModuleMetadataMap_ModuleMetadata, any, *GlobalNamespace_Name]
 	shouldTraverseScript          func(any) bool
@@ -24,7 +24,7 @@ func (this *GlobalNamespace) finit_GlobalNamespace() {
 	this.globalRoot = IR_root([]Node{})
 	this.spreadSiblingCache = map[Node]BoxedOf[bool]{}
 	this.generated = false
-	this.globalNames = newTList_(tc_p_GlobalNamespace_Name)
+	this.globalNames = &[]*GlobalNamespace_Name{}
 	this.nameMap = newTMap_(tc_string, tc_p_GlobalNamespace_Name)
 	this.nameMapByModule = SimpleTable_create[*ModuleMetadataMap_ModuleMetadata, any, *GlobalNamespace_Name]()
 	this.shouldTraverseScript = lambda_GlobalNamespace_finit_GlobalNamespace_1_
@@ -145,7 +145,7 @@ func (this *GlobalNamespace) ensureGenerated() {
 	}
 }
 
-func (this *GlobalNamespace) getNameForest() *TList[*GlobalNamespace_Name] {
+func (this *GlobalNamespace) getNameForest() *[]*GlobalNamespace_Name {
 	this.ensureGenerated()
 	return this.globalNames
 }
@@ -976,7 +976,7 @@ func (this *GlobalNamespace_BuildGlobalNamespace) getOrCreateName(name string, m
 		} else {
 			node = new_GlobalNamespace_Name(this.outer_, name, nil, this.outer_.sourceKind)
 			if metadata == nil {
-				this.outer_.globalNames.add(node)
+				*this.outer_.globalNames = append(*this.outer_.globalNames, node)
 				this.outer_.nameMap.put(name, node)
 			} else {
 				this.outer_.nameMapByModule.put_s(metadata, name, node)

@@ -456,7 +456,7 @@ func (this *JsMessageVisitor) extractIcuTemplateDefinition(msgNode Node, jsDocIn
 		return Outcome_base_err[IcuTemplateDefinition](icuTemplateOptionsOutcome.error())
 	}
 	var icuTemplateOptions JsMessageVisitor_IcuTemplateOptions = icuTemplateOptionsOutcome.get()
-	var extractedIcuTemplateParts *JsMessageVisitor_ExtractedIcuTemplateParts = icuMessageTemplateString.extractParts(tsetFrom_(tc_string, icuTemplateOptions.getPlaceholderNames(), true))
+	var extractedIcuTemplateParts *JsMessageVisitor_ExtractedIcuTemplateParts = icuMessageTemplateString.extractParts(setImm_(tc_string, icuTemplateOptions.getPlaceholderNames()))
 	var unknownPlaceholdersChecked *Outcome_base[any] = icuTemplateOptions.checkForUnknownPlaceholders(setImm_(tc_string, extractedIcuTemplateParts.extractedPlaceholderNames))
 	if unknownPlaceholdersChecked.isErr() {
 		return Outcome_base_err[IcuTemplateDefinition](unknownPlaceholdersChecked.error())
@@ -866,14 +866,14 @@ func new_JsMessageVisitor_IcuMessageTemplateString(template string) *JsMessageVi
 	return this
 }
 
-func (this *JsMessageVisitor_IcuMessageTemplateString) extractParts(placholderNamesToExtract *TSet[string]) *JsMessageVisitor_ExtractedIcuTemplateParts {
+func (this *JsMessageVisitor_IcuMessageTemplateString) extractParts(placholderNamesToExtract map[string]struct{}) *JsMessageVisitor_ExtractedIcuTemplateParts {
 	var extractedPlaceholderNames ImmutableSet_BuilderOf[string] = ImmutableSet_builder()
 	var partsBuilder ImmutableList_BuilderOf[JsMessage_Part] = ImmutableList_builder()
 	var matcher *Matcher_re2j = JsMessageVisitor_ICU_PLACEHOLDER_RE.matcher_s(this.template)
 	var remainingTemplateStartIndex int32 = 0
 	for matcher.find() {
 		var placeholderName string = matcher.group(1)
-		if placholderNamesToExtract.contains(placeholderName) {
+		if has_(placholderNamesToExtract, placeholderName) {
 			extractedPlaceholderNames.add(strobj_(placeholderName))
 			var nonPlaceholderPrefix string = String_substring(this.template, remainingTemplateStartIndex, matcher.start())
 			remainingTemplateStartIndex = matcher.end()

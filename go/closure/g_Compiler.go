@@ -224,7 +224,7 @@ func (this *Compiler) initOptions(options *CompilerOptions) {
 			this.setErrorManager(new_LoggerErrorManager_MessageFormatter_Logger(this.createMessageFormatter(), Compiler_logger))
 		} else {
 			var builder ImmutableSet_BuilderOf[SortingErrorManager_ErrorReportGenerator] = ImmutableSet_builder()
-			builder.add(obj_(new_PrintStreamErrorReportGenerator(this.createMessageFormatter(), this.outStream, options.getSummaryDetailLevel()))).addAll(Iterable(options.getExtraReportGenerators().asList()))
+			builder.add(obj_(new_PrintStreamErrorReportGenerator(this.createMessageFormatter(), this.outStream, options.getSummaryDetailLevel()))).addAll(Iterable(sliceViewP_(tc_SortingErrorManager_ErrorReportGenerator, options.getExtraReportGenerators())))
 			this.setErrorManager(new_SortingErrorManager(tsetFrom_(tc_SortingErrorManager_ErrorReportGenerator, builder.build(), true)))
 		}
 	}
@@ -1155,7 +1155,7 @@ func (this *Compiler) getCurrentJsSource() string {
 	}
 	if !qnameSet.isEmpty() {
 		var originalToNewQNameMap *SimpleSetMultimap[any, string] = SimpleSetMultimap_createInsertionOrdered[any, string]()
-		var statements *TList[Node] = this.getTopLevelStatements(this.jsRoot)
+		var statements *[]Node = this.getTopLevelStatements(this.jsRoot)
 		builder.append("//\n")
 		builder.append("// closure-compiler: Printing all of the top-level statements\n")
 		builder.append("// that contain references to these qualified names.\n")
@@ -1167,7 +1167,7 @@ func (this *Compiler) getCurrentJsSource() string {
 			}
 		}
 		builder.append("//\n")
-		for statement := range statements.All() {
+		for statement := range sliceAll_(statements) {
 			if !NodeUtil_has(statement, func(n_ any) bool {
 				var n Node = Node_of_(n_)
 				_ = n
@@ -1204,8 +1204,8 @@ var lambda_Compiler_getCurrentJsSource_1_ = &Predicate_base_fn{func(node_ any) b
 	return true
 }}
 
-func (this *Compiler) getTopLevelStatements(root Node) *TList[Node] {
-	var result *TList[Node] = newTList_(tc_Node)
+func (this *Compiler) getTopLevelStatements(root Node) *[]Node {
+	var result *[]Node = &[]Node{}
 	NodeTraversal_traverse(this.up_AbstractCompiler(), root, new_Compiler_2(this, result))
 	return result
 }
@@ -3793,7 +3793,7 @@ func (this *Compiler_1) size() int32 {
 type Compiler_2 struct {
 	NodeTraversal_AbstractPreOrderCallback
 	outer_     *Compiler
-	cap_result *TList[Node]
+	cap_result *[]Node
 }
 
 func (this *Compiler_2) up_NodeTraversal_AbstractPreOrderCallback() *NodeTraversal_AbstractPreOrderCallback {
@@ -3807,7 +3807,7 @@ func (this *Compiler_2) init_Compiler_2() {
 	this.NodeTraversal_AbstractPreOrderCallback.init_NodeTraversal_AbstractPreOrderCallback()
 }
 
-func new_Compiler_2(outer_ *Compiler, cap_result *TList[Node]) *Compiler_2 {
+func new_Compiler_2(outer_ *Compiler, cap_result *[]Node) *Compiler_2 {
 	this := &Compiler_2{}
 	this.self_ = this
 	this.outer_ = outer_
@@ -3818,7 +3818,7 @@ func new_Compiler_2(outer_ *Compiler, cap_result *TList[Node]) *Compiler_2 {
 
 func (this *Compiler_2) shouldTraverse_impl(t *NodeTraversal, n Node, parent Node) bool {
 	if NodeUtil_isStatement(n) {
-		this.cap_result.add(n)
+		*this.cap_result = append(*this.cap_result, n)
 		return false
 	} else {
 		return true

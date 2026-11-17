@@ -49,7 +49,7 @@ func (this *DisambiguateProperties) process_2(externs Node, root Node) {
 	var graph *DiGraph = graphBuilder.build().up_DiGraph()
 	for _, el := range immElems_(flattener.getAllKnownTypes()) {
 		colorGraphNode := cast_[*ColorGraphNode](el)
-		if graph.getOutEdges(obj_(colorGraphNode)).isEmpty() {
+		if len(*graph.getOutEdges(obj_(colorGraphNode))) == 0 {
 			continue
 		}
 		if colorGraphNode.getColor().isUnion() {
@@ -393,7 +393,7 @@ func (this *DisambiguateProperties_TypeNodeJson) init_DisambiguateProperties_Typ
 	this.colorId = t.getColor().getId().toString()
 	this.invalidating = t.getColor().isInvalidating()
 	var edgesBuilder ImmutableSortedSet_BuilderOf[*DisambiguateProperties_TypeEdgeJson] = ImmutableSortedSet_naturalOrder()
-	for e := range n.getOutEdges().All() {
+	for _, e := range *n.getOutEdges() {
 		edgesBuilder.add(obj_(new_DisambiguateProperties_TypeEdgeJson(e)))
 	}
 	this.edges = edgesBuilder.build()

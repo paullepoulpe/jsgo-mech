@@ -88,20 +88,20 @@ func PureFunctionIdentifier_formatSourceLocation(node Node) string {
 }
 
 func PureFunctionIdentifier_collectCallableLeaves(expr Node, astAnalyzer *AstAnalyzer) ImmutableListOf[Node] {
-	var callables *TList[Node] = newTList_(tc_Node)
+	var callables *[]Node = &[]Node{}
 	var allLegal bool = PureFunctionIdentifier_collectCallableLeavesInternal(expr, callables, astAnalyzer)
 	return func() *ImmutableList {
 		if allLegal {
-			return ImmutableList_copyOf(callables.asList())
+			return ImmutableList_copyOf(sliceViewP_(tc_Node, callables))
 		}
 		return nil
 	}()
 }
 
-func PureFunctionIdentifier_collectCallableLeavesInternal(expr Node, results *TList[Node], astAnalyzer *AstAnalyzer) bool {
+func PureFunctionIdentifier_collectCallableLeavesInternal(expr Node, results *[]Node, astAnalyzer *AstAnalyzer) bool {
 	switch expr.ns_().token {
 	case tokOrd1_FUNCTION, tokOrd1_GETPROP, tokOrd1_OPTCHAIN_GETPROP, tokOrd1_NAME:
-		results.add(expr)
+		*results = append(*results, expr)
 		return true
 	case tokOrd1_SUPER:
 		{
@@ -129,7 +129,7 @@ func PureFunctionIdentifier_collectCallableLeavesInternal(expr Node, results *TL
 			if ctorDef != 0 {
 				return PureFunctionIdentifier_collectCallableLeavesInternal(ctorDef.getOnlyChild(), results, astAnalyzer)
 			} else if expr.getSecondChild().isEmpty() {
-				results.add(PureFunctionIdentifier_IMPLICIT_PURE_FN)
+				*results = append(*results, PureFunctionIdentifier_IMPLICIT_PURE_FN)
 				return true
 			} else {
 				return PureFunctionIdentifier_collectCallableLeavesInternal(expr.getSecondChild(), results, astAnalyzer)

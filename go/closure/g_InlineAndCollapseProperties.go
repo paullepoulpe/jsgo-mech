@@ -355,7 +355,7 @@ func (this *InlineAndCollapseProperties_AggressiveInlineAliases) process_2(exter
 }
 
 func (this *InlineAndCollapseProperties_AggressiveInlineAliases) inlineAliases(namespace *GlobalNamespace) {
-	var workList DequeOf[*GlobalNamespace_Name] = new_ArrayDeque_Collection(Collection(namespace.getNameForest().asList()))
+	var workList DequeOf[*GlobalNamespace_Name] = new_ArrayDeque_Collection(Collection(sliceViewP_(tc_p_GlobalNamespace_Name, namespace.getNameForest())))
 	for !workList.isEmpty() {
 		var name *GlobalNamespace_Name = cast_[*GlobalNamespace_Name](workList.pop())
 		if name.isGetOrSetDefinition() {
@@ -925,9 +925,9 @@ func (this *InlineAndCollapseProperties_CollapseProperties) process_2(externs No
 		nullFail_(sstr_("namespace was not initialized"))
 	}
 	this.nameMap = this.outer_.namespace_.getNameIndex()
-	var globalNames *TList[*GlobalNamespace_Name] = this.outer_.namespace_.getNameForest()
+	var globalNames *[]*GlobalNamespace_Name = this.outer_.namespace_.getNameForest()
 	var escaped ImmutableSetOf[*GlobalNamespace_Name] = this.checkNamespaces()
-	for name := range globalNames.All() {
+	for name := range sliceAll_(globalNames) {
 		this.flattenReferencesToCollapsibleDescendantNames(name, name.getBaseName(), setImm_(tc_p_GlobalNamespace_Name, escaped))
 		this.collapseDeclarationOfNameAndDescendants(name, name.getBaseName(), setImm_(tc_p_GlobalNamespace_Name, escaped))
 	}

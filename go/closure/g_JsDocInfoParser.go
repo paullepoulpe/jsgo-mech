@@ -188,7 +188,7 @@ func (this *JsDocInfoParser) parse() bool {
 			this.jsdocBuilder.recordBlockDescription("")
 		}
 	}
-	return this.parseHelperLoop(token, newTList_(tc_p_JsDocInfoParser_ExtendedTypeInfo))
+	return this.parseHelperLoop(token, &[]*JsDocInfoParser_ExtendedTypeInfo{})
 }
 
 func (this *JsDocInfoParser) parseImportantComment() {
@@ -205,7 +205,7 @@ func (this *JsDocInfoParser) parseImportantComment() {
 	}
 }
 
-func (this *JsDocInfoParser) parseHelperLoop(token JsDocToken, extendedTypes *TList[*JsDocInfoParser_ExtendedTypeInfo]) bool {
+func (this *JsDocInfoParser) parseHelperLoop(token JsDocToken, extendedTypes *[]*JsDocInfoParser_ExtendedTypeInfo) bool {
 	for {
 		switch token {
 		case JsDocToken_ANNOTATION:
@@ -250,7 +250,7 @@ func (this *JsDocInfoParser) parseHelperLoop(token JsDocToken, extendedTypes *TL
 	}
 }
 
-func (this *JsDocInfoParser) parseAnnotation(token JsDocToken, extendedTypes *TList[*JsDocInfoParser_ExtendedTypeInfo]) JsDocToken {
+func (this *JsDocInfoParser) parseAnnotation(token JsDocToken, extendedTypes *[]*JsDocInfoParser_ExtendedTypeInfo) JsDocToken {
 	var type_ *JSTypeExpression
 	var lineno int32 = this.stream.getLineno()
 	var charno int32 = this.stream.getCharno()
@@ -459,7 +459,7 @@ func (this *JsDocInfoParser) parseAnnotation(token JsDocToken, extendedTypes *TL
 				typeNode = this.wrapNode(Token_rhino_BANG, typeNode)
 				type_ = this.createJSTypeExpression(typeNode)
 				if annotation == Annotation_parsing_EXTENDS {
-					extendedTypes.add(new_JsDocInfoParser_ExtendedTypeInfo(type_, this.stream.getLineno(), this.stream.getCharno()))
+					*extendedTypes = append(*extendedTypes, new_JsDocInfoParser_ExtendedTypeInfo(type_, this.stream.getLineno(), this.stream.getCharno()))
 				} else {
 					if annotation != Annotation_parsing_IMPLEMENTS {
 						panic(new_IllegalStateException_0().self())
@@ -997,19 +997,19 @@ func (this *JsDocInfoParser) recordDescription(token JsDocToken) JsDocToken {
 	return token
 }
 
-func (this *JsDocInfoParser) checkExtendedTypes(extendedTypes *TList[*JsDocInfoParser_ExtendedTypeInfo]) {
-	if extendedTypes.size() > 1 {
+func (this *JsDocInfoParser) checkExtendedTypes(extendedTypes *[]*JsDocInfoParser_ExtendedTypeInfo) {
+	if int32(len(*extendedTypes)) > 1 {
 		var isInterface bool = this.jsdocBuilder.isInterfaceRecorded()
 		var isFromTsickle bool = equalsId_(this.jsDocSourceKind, JsDocInfoParser_JsDocSourceKind_TSICKLE)
 		if !isInterface && isFromTsickle {
-			var result bool = this.jsdocBuilder.recordBaseType(this.createJSTypeExpression(this.wrapNode(Token_rhino_BANG, this.newStringNode(JsDocInfoParser_TSICKLE_MISSING_TYPE_PLACEHOLDER)).srcrefTree(extendedTypes.get(0).type__.getRoot())))
+			var result bool = this.jsdocBuilder.recordBaseType(this.createJSTypeExpression(this.wrapNode(Token_rhino_BANG, this.newStringNode(JsDocInfoParser_TSICKLE_MISSING_TYPE_PLACEHOLDER)).srcrefTree(sliceAt_(*extendedTypes, 0).type__.getRoot())))
 			if !result {
 				panic(new_IllegalStateException_String("Unexpected failure to record base type").self())
 			}
 			return
 		}
 	}
-	for typeInfo := range extendedTypes.All() {
+	for typeInfo := range sliceAll_(extendedTypes) {
 		if this.jsdocBuilder.isInterfaceRecorded() {
 			if !this.jsdocBuilder.recordExtendedInterface(typeInfo.type__) {
 				this.addParserWarning_3(Msg_JSDOC_EXTENDS_DUPLICATE, typeInfo.lineno_, typeInfo.charno_)

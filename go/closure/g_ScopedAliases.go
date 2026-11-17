@@ -41,7 +41,7 @@ func (this *ScopedAliases) process_2(externs Node, root Node) {
 	var traversal *ScopedAliases_Traversal = new_ScopedAliases_Traversal(this)
 	NodeTraversal_traverse(this.compiler_, root, traversal)
 	if !traversal.hasErrors() {
-		var aliasWorkQueue []*ScopedAliases_AliasUsage = sliceFrom_(tc_p_ScopedAliases_AliasUsage, Collection(traversal.getAliasUsages().asList()))
+		var aliasWorkQueue []*ScopedAliases_AliasUsage = sliceFrom_(tc_p_ScopedAliases_AliasUsage, Collection(sliceViewP_(tc_p_ScopedAliases_AliasUsage, traversal.getAliasUsages())))
 		for len(aliasWorkQueue) != 0 {
 			var newQueue []*ScopedAliases_AliasUsage = []*ScopedAliases_AliasUsage{}
 			for _, aliasUsage := range aliasWorkQueue {
@@ -67,7 +67,7 @@ func (this *ScopedAliases) process_2(externs Node, root Node) {
 				aliasDefinition.detach()
 			}
 		}
-		for scopeCall := range traversal.getScopeCalls().All() {
+		for scopeCall := range sliceAll_(traversal.getScopeCalls()) {
 			var expressionWithScopeCall Node = scopeCall.getParent()
 			var scopeClosureBlock Node = scopeCall.getLastChild().getLastChild()
 			scopeClosureBlock.detach()
@@ -425,8 +425,8 @@ type ScopedAliases_Traversal struct {
 	NodeTraversal_AbstractPostOrderCallback
 	outer_                   *ScopedAliases
 	aliasDefinitionsToDelete *TList[Node]
-	scopeCalls               *TList[Node]
-	aliasUsages              *TList[*ScopedAliases_AliasUsage]
+	scopeCalls               *[]Node
+	aliasUsages              *[]*ScopedAliases_AliasUsage
 	aliases_                 map[string]*Var
 	injectedDecls            map[Node]struct{}
 	deletedAliasVars         *TSet[*Var]
@@ -445,8 +445,8 @@ func (this *ScopedAliases_Traversal) up_NodeTraversal_AbstractPostOrderCallback(
 
 func (this *ScopedAliases_Traversal) finit_ScopedAliases_Traversal() {
 	this.aliasDefinitionsToDelete = newTList_(tc_Node)
-	this.scopeCalls = newTList_(tc_Node)
-	this.aliasUsages = newTList_(tc_p_ScopedAliases_AliasUsage)
+	this.scopeCalls = &[]Node{}
+	this.aliasUsages = &[]*ScopedAliases_AliasUsage{}
 	this.aliases_ = map[string]*Var{}
 	this.injectedDecls = map[Node]struct{}{}
 	this.deletedAliasVars = newTSet_(tch_p_Var)
@@ -473,11 +473,11 @@ func (this *ScopedAliases_Traversal) getAliasDefinitionsToDelete() CollectionOf[
 	return Collection(this.aliasDefinitionsToDelete.asList())
 }
 
-func (this *ScopedAliases_Traversal) getAliasUsages() *TList[*ScopedAliases_AliasUsage] {
+func (this *ScopedAliases_Traversal) getAliasUsages() *[]*ScopedAliases_AliasUsage {
 	return this.aliasUsages
 }
 
-func (this *ScopedAliases_Traversal) getScopeCalls() *TList[Node] {
+func (this *ScopedAliases_Traversal) getScopeCalls() *[]Node {
 	return this.scopeCalls
 }
 
@@ -717,7 +717,7 @@ func (this *ScopedAliases_Traversal) validateScopeCall(t *NodeTraversal, n Node,
 		if (!anonymousFnNode.isFunction() || NodeUtil_getName(anonymousFnNode) != "") || NodeUtil_getFunctionParameters(anonymousFnNode).hasChildren() {
 			this.report(anonymousFnNode, ScopedAliases_GOOG_SCOPE_HAS_BAD_PARAMETERS, []string{})
 		} else {
-			this.scopeCalls.add(n)
+			*this.scopeCalls = append(*this.scopeCalls, n)
 		}
 	}
 }
@@ -764,7 +764,7 @@ func (this *ScopedAliases_Traversal) visit_impl(t *NodeTraversal, n Node, parent
 		this.renameBleedingFunctionName(t, n)
 	}
 	if aliasVar != nil {
-		this.aliasUsages.add(new_ScopedAliases_AliasedNode(aliasVar, n).as_ScopedAliases_AliasUsage())
+		*this.aliasUsages = append(*this.aliasUsages, new_ScopedAliases_AliasedNode(aliasVar, n).as_ScopedAliases_AliasUsage())
 	}
 	var info *JSDocInfo = n.getJSDocInfo()
 	if (info != nil) && !has_(this.injectedDecls, n) {
@@ -784,7 +784,7 @@ func (this *ScopedAliases_Traversal) fixTypeNode(typeNode Node) {
 		var baseName string = String_substring(name, 0, endIndex)
 		var aliasVar *Var = this.aliases_[baseName]
 		if aliasVar != nil {
-			this.aliasUsages.add(new_ScopedAliases_AliasedTypeNode(aliasVar, typeNode).as_ScopedAliases_AliasUsage())
+			*this.aliasUsages = append(*this.aliasUsages, new_ScopedAliases_AliasedTypeNode(aliasVar, typeNode).as_ScopedAliases_AliasUsage())
 		}
 		if this.outer_.compiler_.getOptions().preservesDetailedSourceInfo() {
 			typeNode.setOriginalName(name)

@@ -167,16 +167,16 @@ func (this *CommandLineRunner) processFlagFile(flagFileString string) *Outcome_b
 	}
 	this.flags.flagFiles = new_ArrayList_0()
 	tokens = CommandLineRunner_processArgs(arrmap_(tokens.asList().toArray(arrmap_(newstrarr_(0), func(v_ string) any { return strobj_(v_) })), func(v_ any) string { return str_(v_) }))
-	var previousGuardLevels *TList[*AbstractCommandLineRunner_FlagEntry[any]] = tlistFrom_(tc_p_AbstractCommandLineRunner_FlagEntry, Collection(this.flags.guardLevels.asList()))
-	var previousMixedJsSources *TList[*AbstractCommandLineRunner_FlagEntry[any]] = tlistFrom_(tc_p_AbstractCommandLineRunner_FlagEntry, Collection(this.flags.mixedJsSources.asList()))
-	this.flags.guardLevels.clear()
-	this.flags.mixedJsSources.clear()
+	var previousGuardLevels *[]*AbstractCommandLineRunner_FlagEntry[any] = sliceRef_(sliceFrom_(tc_p_AbstractCommandLineRunner_FlagEntry, Collection(sliceViewP_(tc_p_AbstractCommandLineRunner_FlagEntry, this.flags.guardLevels))))
+	var previousMixedJsSources *[]*AbstractCommandLineRunner_FlagEntry[any] = sliceRef_(sliceFrom_(tc_p_AbstractCommandLineRunner_FlagEntry, Collection(sliceViewP_(tc_p_AbstractCommandLineRunner_FlagEntry, this.flags.mixedJsSources))))
+	sliceClear_(this.flags.guardLevels)
+	sliceClear_(this.flags.mixedJsSources)
 	var parsed *Outcome_base[any] = this.flags.parse(tokens)
 	if parsed.isErr() {
 		return Outcome_base_err[any](parsed.error())
 	}
-	this.flags.guardLevels.addAllT(previousGuardLevels)
-	this.flags.mixedJsSources.addAllT(previousMixedJsSources)
+	*this.flags.guardLevels = append(*this.flags.guardLevels, *previousGuardLevels...)
+	*this.flags.mixedJsSources = append(*this.flags.mixedJsSources, *previousMixedJsSources...)
 	if !this.flags.flagFiles.isEmpty() {
 		this.reportError("ERROR - Arguments in the file cannot contain --flagfile option.")
 	}
@@ -219,8 +219,8 @@ func (this *CommandLineRunner) readFlagInputs(processedArgs *TList[string], flag
 func (this *CommandLineRunner) initConfigFromFlags(args []string, out *Output, err *Output) {
 	this.errorStream = err
 	var processedArgs *TList[string] = CommandLineRunner_processArgs(args)
-	this.flags.guardLevels.clear()
-	this.flags.mixedJsSources.clear()
+	sliceClear_(this.flags.guardLevels)
+	sliceClear_(this.flags.mixedJsSources)
 	var flagInputs *CommandLineRunner_FlagInputs = new_CommandLineRunner_FlagInputs()
 	var flagInputsRead *Outcome_base[any] = this.readFlagInputs(processedArgs, flagInputs)
 	if flagInputsRead.isErr() && is_IOException(flagInputsRead.error().self()) {
@@ -696,8 +696,8 @@ func CommandLineRunner_clinit() {
 }
 
 type CommandLineRunner_Flags struct {
-	guardLevels                        *TList[*AbstractCommandLineRunner_FlagEntry[any]]
-	mixedJsSources                     *TList[*AbstractCommandLineRunner_FlagEntry[any]]
+	guardLevels                        *[]*AbstractCommandLineRunner_FlagEntry[any]
+	mixedJsSources                     *[]*AbstractCommandLineRunner_FlagEntry[any]
 	browserFeaturesetYear              any
 	displayHelp                        bool
 	printTree                          bool
@@ -708,8 +708,8 @@ type CommandLineRunner_Flags struct {
 	jscompDevMode                      CompilerOptions_DevMode
 	loggingLevel                       string
 	externs                            ListOf[string]
-	js                                 *TList[string]
-	unusedJsZip                        *TList[string]
+	js                                 *[]string
+	unusedJsZip                        *[]string
 	jsOutputFile                       string
 	chunk_                             ListOf[string]
 	filenameToSaveTo                   OptionalOf[string]
@@ -733,9 +733,9 @@ type CommandLineRunner_Flags struct {
 	sourceMapInputs                    ListOf[string]
 	parseInlineSourceMaps_             any
 	applyInputSourceMaps               bool
-	jscompError                        *TList[string]
-	jscompWarning                      *TList[string]
-	jscompOff                          *TList[string]
+	jscompError                        *[]string
+	jscompWarning                      *[]string
+	jscompOff                          *[]string
 	define                             ListOf[string]
 	charset                            string
 	compilationLevel                   string
@@ -831,8 +831,8 @@ func (this *CommandLineRunner_Flags) zero_CommandLineRunner_Flags() {
 }
 
 func (this *CommandLineRunner_Flags) finit_CommandLineRunner_Flags() {
-	this.guardLevels = newTList_(tc_p_AbstractCommandLineRunner_FlagEntry)
-	this.mixedJsSources = newTList_(tc_p_AbstractCommandLineRunner_FlagEntry)
+	this.guardLevels = &[]*AbstractCommandLineRunner_FlagEntry[any]{}
+	this.mixedJsSources = &[]*AbstractCommandLineRunner_FlagEntry[any]{}
 	this.browserFeaturesetYear = any(int32(0))
 	this.displayHelp = false
 	this.printTree = false
@@ -843,7 +843,7 @@ func (this *CommandLineRunner_Flags) finit_CommandLineRunner_Flags() {
 	this.jscompDevMode = CompilerOptions_DevMode_OFF
 	this.loggingLevel = Level_WARNING.getName()
 	this.externs = new_ArrayList_0()
-	this.js = newTList_(tc_string)
+	this.js = &[]string{}
 	this.unusedJsZip = nil
 	this.jsOutputFile = ""
 	this.chunk_ = new_ArrayList_0()
@@ -868,9 +868,9 @@ func (this *CommandLineRunner_Flags) finit_CommandLineRunner_Flags() {
 	this.sourceMapInputs = new_ArrayList_0()
 	this.parseInlineSourceMaps_ = any(bool(true))
 	this.applyInputSourceMaps = true
-	this.jscompError = newTList_(tc_string)
-	this.jscompWarning = newTList_(tc_string)
-	this.jscompOff = newTList_(tc_string)
+	this.jscompError = &[]string{}
+	this.jscompWarning = &[]string{}
+	this.jscompOff = &[]string{}
 	this.define = new_ArrayList_0()
 	this.charset = ""
 	this.compilationLevel = "SIMPLE"
@@ -1702,8 +1702,8 @@ func (this *CommandLineRunner_Flags) getMixedJsSources() *Outcome_base[List] {
 	var mixedSources *TList[*AbstractCommandLineRunner_FlagEntry[any]] = newTList_(tc_p_AbstractCommandLineRunner_FlagEntry)
 	var excludes map[string]struct{} = map[string]struct{}{}
 	l_1 := this.mixedJsSources
-	for i_1 := 0; i_1 < len(l_1.items); i_1++ {
-		var source *AbstractCommandLineRunner_FlagEntry[any] = l_1.items[i_1]
+	for i_1 := 0; i_1 < len(*l_1); i_1++ {
+		var source *AbstractCommandLineRunner_FlagEntry[any] = (*l_1)[i_1]
 		if strings.HasSuffix(source.getValue(), ".zip") {
 			mixedSources.add(source)
 		} else if strings.HasPrefix(source.getValue(), "!") {
@@ -1734,7 +1734,7 @@ func (this *CommandLineRunner_Flags) getMixedJsSources() *Outcome_base[List] {
 	for filename := range elemsBy_(fromArguments.get(), str_) {
 		mixedSources.add(new_AbstractCommandLineRunner_FlagEntry(obj_(AbstractCommandLineRunner_JsSourceType_JS), filename))
 	}
-	if (!this.mixedJsSources.isEmpty() && !this.arguments.isEmpty()) && mixedSources.isEmpty() {
+	if (len(*this.mixedJsSources) != 0 && !this.arguments.isEmpty()) && mixedSources.isEmpty() {
 		return Outcome_base_err[List](new_CmdLineException_CmdLineParser_String(this.parser, "No inputs matched").up_Throwable())
 	}
 	return Outcome_base_ok_Object[List](mixedSources.asList())
@@ -1777,16 +1777,16 @@ func (this *CommandLineRunner_Flags) getPackageJsonEntryNames() []string {
 	return sliceImm_(tc_string, Splitter_on(',').splitToList_s(this.packageJsonEntryNames.get()))
 }
 
-func CommandLineRunner_Flags_addMultiFlagValue(values *TList[string], value OptionalOf[string], flag any, entries *TList[*AbstractCommandLineRunner_FlagEntry[any]]) *TList[string] {
+func CommandLineRunner_Flags_addMultiFlagValue(values *[]string, value OptionalOf[string], flag any, entries *[]*AbstractCommandLineRunner_FlagEntry[any]) *[]string {
 	var normalizedValue OptionalOf[string] = value
 	if ((value.isPresent() && (len(value.get()) != 0)) && ((String_substring(value.get(), 0, 1) == "'") || (String_substring(value.get(), 0, 1) == "\""))) && (String_substring_int(value.get(), (String_length(value.get())-1)) == String_substring(value.get(), 0, 1)) {
 		normalizedValue = Optional_of[string](String_substring(value.get(), 1, (String_length(value.get()) - 1)))
 	}
 	if values == nil {
-		values = newTList_(tc_string)
+		values = &[]string{}
 	}
-	values.add(normalizedValue.orElse(nullstr_))
-	entries.add(new_AbstractCommandLineRunner_FlagEntry(flag, normalizedValue.orElse(nullstr_)))
+	*values = append(*values, normalizedValue.orElse(nullstr_))
+	*entries = append(*entries, new_AbstractCommandLineRunner_FlagEntry(flag, normalizedValue.orElse(nullstr_)))
 	return values
 }
 

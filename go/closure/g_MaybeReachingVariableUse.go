@@ -56,9 +56,9 @@ func (this *MaybeReachingVariableUse) flowThrough_impl(n_ any, input_ LatticeEle
 }
 
 func (this *MaybeReachingVariableUse) hasExceptionHandler(cfgNode Node) bool {
-	var branchEdges *TList[DiGraph_DiGraphEdge] = this.getCfg().getOutEdges(cfgNode.box_())
-	for i_1 := 0; i_1 < len(branchEdges.items); i_1++ {
-		var edge DiGraph_DiGraphEdge = branchEdges.items[i_1]
+	var branchEdges *[]DiGraph_DiGraphEdge = this.getCfg().getOutEdges(cfgNode.box_())
+	for i_1 := 0; i_1 < len(*branchEdges); i_1++ {
+		var edge DiGraph_DiGraphEdge = (*branchEdges)[i_1]
 		if cast_[ControlFlowGraph_Branch](edge.getValue()) == ControlFlowGraph_Branch_ON_EX {
 			return true
 		}

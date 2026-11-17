@@ -4300,7 +4300,7 @@ func NodeUtil_getAllVarsDeclaredInFunction(compiler *AbstractCompiler, scopeCrea
 		panic(new_IllegalStateException_String(tostr_(scope)).self())
 	}
 	var nameVarMap *TMap[string, *Var] = newTMap_(tc_string, tc_p_Var)
-	var orderedVars *TList[*Var] = newTList_(tc_p_Var)
+	var orderedVars *[]*Var = &[]*Var{}
 	var finder NodeTraversal_ScopedCallback = new_NodeUtil_2(nameVarMap, orderedVars, scope)
 	NodeTraversal_builder().setCompiler(compiler).setCallback(NodeTraversal_Callback(finder)).setScopeCreator(scopeCreator).traverseAtScope(scope.up_AbstractScope())
 	return new_NodeUtil_AllVarsDeclaredInFunction(nameVarMap, orderedVars)
@@ -4871,18 +4871,18 @@ func (this *NodeUtil_TemplateArgsIterable) iterator() IteratorOf[Node] {
 
 type NodeUtil_AllVarsDeclaredInFunction struct {
 	allVarsInFn *TMap[string, *Var]
-	orderedVars *TList[*Var]
+	orderedVars *[]*Var
 }
 
-func (this *NodeUtil_AllVarsDeclaredInFunction) init_NodeUtil_AllVarsDeclaredInFunction(allVarsInFn *TMap[string, *Var], orderedVars *TList[*Var]) {
-	if allVarsInFn.isEmpty() != orderedVars.isEmpty() {
+func (this *NodeUtil_AllVarsDeclaredInFunction) init_NodeUtil_AllVarsDeclaredInFunction(allVarsInFn *TMap[string, *Var], orderedVars *[]*Var) {
+	if allVarsInFn.isEmpty() != (len(*orderedVars) == 0) {
 		panic(new_IllegalStateException_0().self())
 	}
 	this.allVarsInFn = allVarsInFn
 	this.orderedVars = orderedVars
 }
 
-func new_NodeUtil_AllVarsDeclaredInFunction(allVarsInFn *TMap[string, *Var], orderedVars *TList[*Var]) *NodeUtil_AllVarsDeclaredInFunction {
+func new_NodeUtil_AllVarsDeclaredInFunction(allVarsInFn *TMap[string, *Var], orderedVars *[]*Var) *NodeUtil_AllVarsDeclaredInFunction {
 	this := &NodeUtil_AllVarsDeclaredInFunction{}
 	this.init_NodeUtil_AllVarsDeclaredInFunction(allVarsInFn, orderedVars)
 	return this
@@ -4892,7 +4892,7 @@ func (this *NodeUtil_AllVarsDeclaredInFunction) getAllVariables() *TMap[string, 
 	return this.allVarsInFn
 }
 
-func (this *NodeUtil_AllVarsDeclaredInFunction) getAllVariablesInOrder() *TList[*Var] {
+func (this *NodeUtil_AllVarsDeclaredInFunction) getAllVariablesInOrder() *[]*Var {
 	return this.orderedVars
 }
 
@@ -4997,7 +4997,7 @@ func (this *NodeUtil_1) visit(t *NodeTraversal, n Node, parent Node) {
 
 type NodeUtil_2 struct {
 	cap_nameVarMap  *TMap[string, *Var]
-	cap_orderedVars *TList[*Var]
+	cap_orderedVars *[]*Var
 	cap_scope       *Scope
 }
 
@@ -5005,7 +5005,7 @@ func (this *NodeUtil_2) init_NodeUtil_2() {
 
 }
 
-func new_NodeUtil_2(cap_nameVarMap *TMap[string, *Var], cap_orderedVars *TList[*Var], cap_scope *Scope) *NodeUtil_2 {
+func new_NodeUtil_2(cap_nameVarMap *TMap[string, *Var], cap_orderedVars *[]*Var, cap_scope *Scope) *NodeUtil_2 {
 	this := &NodeUtil_2{}
 	this.cap_nameVarMap = cap_nameVarMap
 	this.cap_orderedVars = cap_orderedVars
@@ -5018,7 +5018,7 @@ func (this *NodeUtil_2) enterScope(t *NodeTraversal) {
 	var currentScope *Scope = t.getScope()
 	for v := range elemsAs_[*Var](currentScope.getVarIterable()) {
 		this.cap_nameVarMap.put(v.getName(), v)
-		this.cap_orderedVars.add(v)
+		*this.cap_orderedVars = append(*this.cap_orderedVars, v)
 	}
 }
 

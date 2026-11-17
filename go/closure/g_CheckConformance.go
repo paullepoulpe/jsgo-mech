@@ -8,12 +8,12 @@ type CheckConformance struct {
 	compiler_       *AbstractCompiler
 	categories      []*CheckConformance_Category
 	mergedBehaviors *TMap[*Requirement, ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior]
-	ruleToBehavior  *TMap[CheckConformance_Rule, ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior]
+	ruleToBehavior  map[CheckConformance_Rule]ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior
 }
 
 func (this *CheckConformance) finit_CheckConformance() {
 	this.mergedBehaviors = newTMap_(tch_p_Requirement, tc_p_ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior)
-	this.ruleToBehavior = newTMap_(tc_CheckConformance_Rule, tc_p_ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior)
+	this.ruleToBehavior = map[CheckConformance_Rule]ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior{}
 }
 
 func (this *CheckConformance) init_CheckConformance_AbstractCompiler(compiler *AbstractCompiler) {
@@ -58,7 +58,7 @@ func (this *CheckConformance) visit(t *NodeTraversal, n Node, parent Node) {
 		if category.precondition.shouldCheck(n) {
 			for r := int32((int32(len(category.rules)) - 1)); r >= 0; r-- {
 				var rule CheckConformance_Rule = sliceAt_(category.rules, r)
-				nn_ := Map_getOrDefault(this.ruleToBehavior.asMap(), rule, obj_(ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior_UNSPECIFIED))
+				nn_ := mapGetOrObj_(tc_CheckConformance_Rule, tc_p_ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior, this.ruleToBehavior, rule, obj_(ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior_UNSPECIFIED))
 				if nn_ == nil {
 					panic(new_NullPointerException_0().self())
 				}
@@ -89,7 +89,7 @@ func (this *CheckConformance) initRules(compiler *AbstractCompiler, configs Immu
 					panic(new_NullPointerException_String("The mergeBehaviors method inserted a null behavior in the mergedBehaviors map").self())
 				}
 			}
-			this.ruleToBehavior.put(rule, behavior)
+			this.ruleToBehavior[rule] = behavior
 		}
 	}
 	var result []*CheckConformance_Category

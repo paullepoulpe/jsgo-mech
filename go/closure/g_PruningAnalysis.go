@@ -70,14 +70,14 @@ func lambda_PruningAnalysis_calculateBottlenecks_1_(entry_ any) int32 {
 func (this *PruningAnalysis) buildGraph() *DiGraph {
 	var graph *DiGraph = LinkedDirectedGraph_create().up_DiGraph()
 	graph.createNode(strobj_(PruningAnalysis_VIRTUAL_ROOT))
-	for input := range this.sorter_.getSortedList().All() {
+	for input := range sliceAll_(this.sorter_.getSortedList()) {
 		graph.createNode(strobj_(input.getName()))
 	}
 	for _, el := range immElems_(this.entryPoints_) {
 		input := cast_[*CompilerInput](el)
 		graph.connect(strobj_(PruningAnalysis_VIRTUAL_ROOT), nil, strobj_(input.getName()))
 	}
-	for input := range this.sorter_.getSortedList().All() {
+	for input := range sliceAll_(this.sorter_.getSortedList()) {
 		var name string = input.getName()
 		var depSymbols *TSet[string] = newTSet_(tc_string)
 		for _, el2 := range immElems_(input.getRequires()) {

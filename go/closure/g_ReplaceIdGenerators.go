@@ -8,7 +8,7 @@ type ReplaceIdGenerators struct {
 	nameGenerators                map[string]ReplaceIdGenerators_NameSupplier
 	consistNameMap                map[string]MapOf[string, string]
 	idGeneratorMaps               *TMap[string, MapOf[string, string]]
-	previousMap                   *TMap[string, *SimpleBiMap[string, string]]
+	previousMap                   map[string]*SimpleBiMap[string, string]
 	generatePseudoNames           bool
 	xidHashFunction               Xid_HashFunction
 }
@@ -21,7 +21,7 @@ func (this *ReplaceIdGenerators) init_ReplaceIdGenerators(compiler *AbstractComp
 	this.nameGenerators = map[string]ReplaceIdGenerators_NameSupplier{}
 	this.idGeneratorMaps = newTMap_(tc_string, tc_MapOf_string__string_)
 	this.consistNameMap = map[string]MapOf[string, string]{}
-	var previousMap *TMap[string, *SimpleBiMap[string, string]] = IdMappingUtil_parseSerializedIdMappings(previousMapSerialized)
+	var previousMap map[string]*SimpleBiMap[string, string] = IdMappingUtil_parseSerializedIdMappings(previousMapSerialized)
 	this.previousMap = previousMap
 	if idGens != nil {
 	L_2:
@@ -44,9 +44,9 @@ func (this *ReplaceIdGenerators) init_ReplaceIdGenerators(compiler *AbstractComp
 					this.nameGenerators[name] = icast_ReplaceIdGenerators_NameSupplier(nil)
 					continue L_2
 				case RenamingToken_INCONSISTENT:
-					this.nameGenerators[name] = this.createNameSupplier(ReplaceIdGenerators_RenameStrategy_INCONSISTENT, previousMap.get(name))
+					this.nameGenerators[name] = this.createNameSupplier(ReplaceIdGenerators_RenameStrategy_INCONSISTENT, previousMap[name])
 				case RenamingToken_STABLE:
-					this.nameGenerators[name] = this.createNameSupplier(ReplaceIdGenerators_RenameStrategy_STABLE, previousMap.get(name))
+					this.nameGenerators[name] = this.createNameSupplier(ReplaceIdGenerators_RenameStrategy_STABLE, previousMap[name])
 				}
 			} else {
 				this.nameGenerators[name] = ReplaceIdGenerators_createNameSupplierRenamingMap(ReplaceIdGenerators_RenameStrategy_MAPPED, map_)
@@ -398,28 +398,28 @@ func (this *ReplaceIdGenerators_GatherGenerators) visit_impl(unused *NodeTravers
 		this.outer_.consistNameMap[name.orElse(nullstr_)] = new_LinkedHashMap()
 		this.outer_.nameGenerators[name.orElse(nullstr_)] = this.outer_.createNameSupplier(ReplaceIdGenerators_RenameStrategy_CONSISTENT, func() *SimpleBiMap[string, string] {
 			if name.isPresent() {
-				return this.outer_.previousMap.get(name.get())
+				return this.outer_.previousMap[name.get()]
 			}
 			return nil
 		}())
 	} else if doc.isStableIdGenerator() {
 		this.outer_.nameGenerators[name.orElse(nullstr_)] = this.outer_.createNameSupplier(ReplaceIdGenerators_RenameStrategy_STABLE, func() *SimpleBiMap[string, string] {
 			if name.isPresent() {
-				return this.outer_.previousMap.get(name.get())
+				return this.outer_.previousMap[name.get()]
 			}
 			return nil
 		}())
 	} else if doc.isXidGenerator() {
 		this.outer_.nameGenerators[name.orElse(nullstr_)] = this.outer_.createNameSupplier(ReplaceIdGenerators_RenameStrategy_XID, func() *SimpleBiMap[string, string] {
 			if name.isPresent() {
-				return this.outer_.previousMap.get(name.get())
+				return this.outer_.previousMap[name.get()]
 			}
 			return nil
 		}())
 	} else if doc.isIdGenerator() {
 		this.outer_.nameGenerators[name.orElse(nullstr_)] = this.outer_.createNameSupplier(ReplaceIdGenerators_RenameStrategy_INCONSISTENT, func() *SimpleBiMap[string, string] {
 			if name.isPresent() {
-				return this.outer_.previousMap.get(name.get())
+				return this.outer_.previousMap[name.get()]
 			}
 			return nil
 		}())
