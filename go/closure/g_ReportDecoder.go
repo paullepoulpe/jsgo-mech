@@ -31,9 +31,9 @@ func ReportDecoder_parseMapping(mappingFileContent string) *Outcome_base {
 	if int32(len(linesOfFile)) < 3 {
 		panic(new_IllegalStateException_String(Strings_lenientFormat("Malformed report %s", []any{sliceView_(tc_string, linesOfFile)})).self())
 	}
-	var fileNamesLine string = String_trim(sliceAt_(linesOfFile, 0))
-	var functionNamesLine string = String_trim(sliceAt_(linesOfFile, 1))
-	var typesLine string = String_trim(sliceAt_(linesOfFile, 2))
+	var fileNamesLine string = strings.Trim(sliceAt_(linesOfFile, 0), javaSpace_)
+	var functionNamesLine string = strings.Trim(sliceAt_(linesOfFile, 1), javaSpace_)
+	var typesLine string = strings.Trim(sliceAt_(linesOfFile, 2), javaSpace_)
 	if !strings.HasPrefix(fileNamesLine, "FileNames:") {
 		panic(new_IllegalStateException_0().self())
 	}

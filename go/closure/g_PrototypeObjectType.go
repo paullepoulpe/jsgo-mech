@@ -377,7 +377,7 @@ var lambda_PrototypeObjectType_clinit_1_ = &Comparator_fn{func(thisProp_ any, ot
 	var otherProp *PrototypeObjectType_PropertyForPrettyPrinting = cast_[*PrototypeObjectType_PropertyForPrettyPrinting](otherProp_)
 	_ = otherProp
 	if !(thisProp.key().humanReadableName() == otherProp.key().humanReadableName()) {
-		return String_compareTo(thisProp.key().humanReadableName(), otherProp.key().humanReadableName())
+		return utf16Compare_(thisProp.key().humanReadableName(), otherProp.key().humanReadableName())
 	}
 	return func() int32 {
 		switch thisProp.key().kind() {
@@ -385,7 +385,7 @@ var lambda_PrototypeObjectType_clinit_1_ = &Comparator_fn{func(thisProp_ any, ot
 			return func() int32 {
 				switch otherProp.key().kind() {
 				case Property_KeyKind_STRING:
-					return String_compareTo(thisProp.key().string(), otherProp.key().string())
+					return utf16Compare_(thisProp.key().string(), otherProp.key().string())
 				case Property_KeyKind_SYMBOL:
 					return -1
 				}
@@ -397,7 +397,7 @@ var lambda_PrototypeObjectType_clinit_1_ = &Comparator_fn{func(thisProp_ any, ot
 				case Property_KeyKind_STRING:
 					return 1
 				case Property_KeyKind_SYMBOL:
-					return String_compareTo(thisProp.type_().toString(), otherProp.type_().toString())
+					return utf16Compare_(thisProp.type_().toString(), otherProp.type_().toString())
 				}
 				panic("unreachable")
 			}()

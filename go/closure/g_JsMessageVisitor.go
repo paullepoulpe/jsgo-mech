@@ -155,7 +155,7 @@ func (this *JsMessageVisitor) checkMessageInitialization(traversal *NodeTraversa
 		this.trackMessage(traversal, possiblyObfuscatedMessageKey, msgNode, extractedMessage)
 		this.reportErrorIfEmptyMessage(node, extractedMessage)
 		var desc OptionalOf[string] = extractedMessage.getDesc()
-		if (desc.isEmpty() || String_trim(desc.get()) == "") && !extractedMessage.isExternal() {
+		if (desc.isEmpty() || strings.Trim(desc.get(), javaSpace_) == "") && !extractedMessage.isExternal() {
 			this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(node, JsMessageVisitor_MESSAGE_HAS_NO_DESCRIPTION, []string{extractedMessage.getKey()}))
 		}
 		this.processJsMessageDefinition(jsMessageDefinition)

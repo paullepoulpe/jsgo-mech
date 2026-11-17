@@ -56,12 +56,12 @@ func (this *StripCode) init_StripCode(compiler *AbstractCompiler, stripTypes Imm
 	this.stripTypePrefixesList = arrmap_(sliceView_(tc_string, stripTypePrefixes).toArray(arrmap_(newstrarr_(0), func(v_ string) any { return strobj_(v_) })), func(v_ any) string { return str_(v_) })
 	var stripNamePrefixesLowerCase []string = []string{}
 	for s := range elemsBy_(obj_(this.stripNamePrefixes), str_) {
-		stripNamePrefixesLowerCase = append(stripNamePrefixesLowerCase, String_toLowerCase(s, Locale_ROOT))
+		stripNamePrefixesLowerCase = append(stripNamePrefixesLowerCase, strings.ToLower(s))
 	}
 	this.stripNamePrefixesLowerCaseList = arrmap_(sliceView_(tc_string, stripNamePrefixesLowerCase).toArray(arrmap_(newstrarr_(0), func(v_ string) any { return strobj_(v_) })), func(v_ any) string { return str_(v_) })
 	var stripNameSuffixesLowerCase []string = []string{}
 	for s := range elemsBy_(obj_(this.stripNameSuffixes), str_) {
-		stripNameSuffixesLowerCase = append(stripNameSuffixesLowerCase, String_toLowerCase(s, Locale_ROOT))
+		stripNameSuffixesLowerCase = append(stripNameSuffixesLowerCase, strings.ToLower(s))
 	}
 	this.stripNameSuffixesLowerCaseList = arrmap_(sliceView_(tc_string, stripNameSuffixesLowerCase).toArray(arrmap_(newstrarr_(0), func(v_ string) any { return strobj_(v_) })), func(v_ any) string { return str_(v_) })
 }
@@ -561,7 +561,7 @@ func (this *StripCode_Strip) isStripName(name string) bool {
 		this.logNotAStripName(Optional_of[string](name), "empty or starts with uppercase")
 		return false
 	}
-	var lcName string = String_toLowerCase(name, Locale_ROOT)
+	var lcName string = strings.ToLower(name)
 	for _, stripName := range this.outer_.stripNamePrefixesLowerCaseList {
 		if strings.HasPrefix(lcName, stripName) {
 			this.logStripNameSupplier(name, func() any {

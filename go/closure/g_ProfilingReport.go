@@ -47,7 +47,7 @@ func ProfilingReport_createTabSeparatedProfilingReport(instrumentationMapping Ma
 	for _, row := range output {
 		rows = append(rows, String_join_s("\t", Iterable(row)))
 	}
-	return String_join_s("\n", Iterable(sliceView_(tc_string, rows)))
+	return joinStrings_(rows, "\n")
 }
 
 // lambda_ProfilingReport_createTabSeparatedProfilingReport_1_ is a lambda of ProfilingReport_createTabSeparatedProfilingReport that captures nothing (post-flip step lambdas).

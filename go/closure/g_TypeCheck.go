@@ -1409,7 +1409,7 @@ func (this *TypeCheck) checkInterface(n Node, functionType *FunctionType) {
 		for loopType := range loopPath.All() {
 			displayNames = append(displayNames, loopType.getDisplayName().orElse(nullstr_))
 		}
-		var strPath string = String_join_s(" -> ", Iterable(sliceView_(tc_string, displayNames)))
+		var strPath string = joinStrings_(displayNames, " -> ")
 		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, TypeCheck_INTERFACE_EXTENDS_LOOP, []string{loopPath.get(0).getDisplayName().orElse("null"), strPath}))
 	}
 	this.validator.expectAllInterfaceProperties(n, functionType)

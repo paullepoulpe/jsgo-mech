@@ -188,7 +188,7 @@ var lambda_AmbiguateProperties_clinit_1_ = &Comparator_fn{func(p1_ any, p2_ any)
 	if p1.numOccurrences != p2.numOccurrences {
 		return (p2.numOccurrences - p1.numOccurrences)
 	}
-	return String_compareTo(p1.oldName, p2.oldName)
+	return utf16Compare_(p1.oldName, p2.oldName)
 }}
 
 type AmbiguateProperties_PropertyGraph struct {

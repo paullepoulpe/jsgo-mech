@@ -75,7 +75,7 @@ var lambda_NodeModuleResolver_buildNodeModulesFoldersRegistry_1_ = &Comparator_f
 	if comparison != 0 {
 		return comparison
 	}
-	return String_compareTo(a, b)
+	return utf16Compare_(a, b)
 }}
 
 func (this *NodeModuleResolver) buildPackageJsonMainEntries(packageJsonMainEntries *TMap[string, string]) ImmutableMapOf[string, string] {

@@ -26,13 +26,13 @@ func JvmMetrics_maybeWriteJvmMetrics(out *Output, options OptionalOf[string]) {
 	var st *StringTokenizer = new_StringTokenizer(options.get(), ":")
 	if st.hasMoreTokens() {
 		var mode string = st.nextToken()
-		if String_equalsIgnoreCase(mode, "verbose") {
+		if strings.EqualFold(mode, "verbose") {
 			verboseMode = true
 		}
 	}
 	if st.hasMoreTokens() {
 		var mode string = st.nextToken()
-		if String_equalsIgnoreCase(mode, "pretty") {
+		if strings.EqualFold(mode, "pretty") {
 			prettyMode = true
 		}
 	}
@@ -51,13 +51,13 @@ func JvmMetrics_maybeWriteJvmMetrics(out *Output, options OptionalOf[string]) {
 }
 
 func JvmMetrics_writeMetrics(out *Output, type_ string, verbose bool, pretty bool) {
-	if (type_ == "gc") || String_equalsIgnoreCase(type_, "all") {
+	if (type_ == "gc") || strings.EqualFold(type_, "all") {
 		JvmMetrics_writeGarbageCollectionStats(out, verbose, pretty)
 	}
-	if (type_ == "mem") || String_equalsIgnoreCase(type_, "all") {
+	if (type_ == "mem") || strings.EqualFold(type_, "all") {
 		JvmMetrics_writeMemoryMetrics(out, verbose, pretty)
 	}
-	if (type_ == "jit") || String_equalsIgnoreCase(type_, "all") {
+	if (type_ == "jit") || strings.EqualFold(type_, "all") {
 		JvmMetrics_writeJitMetrics(out, verbose, pretty)
 	}
 }
@@ -187,7 +187,7 @@ func JvmMetrics_writeGarbageCollectionStats(out *Output, verbose bool, pretty bo
 }
 
 func JvmMetrics_normalizeName(name string) string {
-	return String_toLowerCase(strings.ReplaceAll(name, " ", "_"), Locale_ROOT)
+	return strings.ToLower(strings.ReplaceAll(name, " ", "_"))
 }
 
 func JvmMetrics_normalizeTabularColonPos(string_ string) string {

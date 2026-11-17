@@ -600,7 +600,7 @@ func (this *TypeValidator) registerMismatchAndReport(found *JSType, required *JS
 }
 
 func TypeValidator_formatNodeLocation(node Node) string {
-	return String_format("%s:%s:%s", []any{strobj_(node.getSourceFileName()), any(int32(node.getLineno())), any(int32(node.getCharno()))})
+	return (sstr_(node.getSourceFileName()) + ":" + istr_(int64(int32(node.getLineno()))) + ":" + istr_(int64(int32(node.getCharno()))))
 }
 
 func TypeValidator_formatFoundRequired(description string, found *JSType, required *JSType, missing SetOf[string], mismatch SetOf[string]) string {

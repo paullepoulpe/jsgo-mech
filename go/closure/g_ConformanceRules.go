@@ -1344,7 +1344,7 @@ func (this *ConformanceRules_BannedStringRegex) initBannedStringRegex(compiler *
 	it_1 := foreach_(ProtocolStringList(requirement.getValueList()))
 	for it_1.next() {
 		var value string = str_(it_1.v)
-		if String_trim(value) == "" {
+		if strings.Trim(value, javaSpace_) == "" {
 			return Outcome_base_err(new_CheckConformance_InvalidRequirementSpec_String("empty strings or whitespace are not allowed").up_Throwable())
 		}
 		builder.add(strobj_(value))
@@ -3292,7 +3292,7 @@ func (this *ConformanceRules_BanCreateDom) initBanCreateDom(compiler *AbstractCo
 		if ((int32(len(tagAttr)) != 2) || sliceAt_(tagAttr, 0) == "") || sliceAt_(tagAttr, 1) == "" {
 			return Outcome_base_err(new_CheckConformance_InvalidRequirementSpec_String("Values must be in the format tagname.attribute.").up_Throwable())
 		}
-		var lowercasedTag string = String_toLowerCase(sliceAt_(tagAttr, 0), Locale_ROOT)
+		var lowercasedTag string = strings.ToLower(sliceAt_(tagAttr, 0))
 		bannedTagAttrs.add(any([]string{lowercasedTag, sliceAt_(tagAttr, 1)}))
 	}
 	this.bannedTagAttrs = bannedTagAttrs.build()
@@ -3378,9 +3378,9 @@ func (this *ConformanceRules_BanCreateDom) checkConformance_impl(t *NodeTraversa
 
 func (this *ConformanceRules_BanCreateDom) getTagNames(tag Node) CollectionOf[string] {
 	if tag.isStringLit() {
-		return ImmutableSet_of_Object(strobj_(String_toLowerCase(tag.getString(), Locale_ROOT)))
+		return ImmutableSet_of_Object(strobj_(strings.ToLower(tag.getString())))
 	} else if tag.isGetProp() && ConformanceRules_GOOG_DOM_TAGNAME.matches(tag.getFirstChild()) {
-		return ImmutableSet_of_Object(strobj_(String_toLowerCase(tag.getString(), Locale_ROOT)))
+		return ImmutableSet_of_Object(strobj_(strings.ToLower(tag.getString())))
 	}
 	var type_ *JSType = tag.getJSType()
 	if (type_ == nil) || !type_.isTemplatizedType() {
@@ -3465,7 +3465,7 @@ func new_ConformanceRules_SecuritySensitiveAttributes_Supplier(globalNamespaceSu
 func (this *ConformanceRules_SecuritySensitiveAttributes) init_ConformanceRules_SecuritySensitiveAttributes_Collection_Supplier(bannedAtrrs CollectionOf[string], globalNamespaceSupplier func() any) {
 	var bannedAtrrsBuilder ImmutableSet_BuilderOf[string] = ImmutableSet_builder()
 	for s := range elemsBy_(bannedAtrrs, str_) {
-		bannedAtrrsBuilder.add(strobj_(String_toLowerCase(s, Locale_ROOT)))
+		bannedAtrrsBuilder.add(strobj_(strings.ToLower(s)))
 	}
 	this.bannedAtrrs = bannedAtrrsBuilder.build()
 	this.globalNamespaceSupplier = globalNamespaceSupplier
@@ -3500,7 +3500,7 @@ func (this *ConformanceRules_SecuritySensitiveAttributes) checkConformanceForAtt
 			return ConformanceRules_ConformanceResult_VIOLATION
 		}()
 	}
-	literalName = Optional_of[string](String_toLowerCase(literalName.get(), Locale_ROOT))
+	literalName = Optional_of[string](strings.ToLower(literalName.get()))
 	if Collection_contains_s(this.bannedAtrrs, literalName.get()) || ConformanceRules_ConformanceUtil_isEventHandlerAttrName(literalName.get()) {
 		return ConformanceRules_ConformanceResult_VIOLATION
 	}
@@ -3513,7 +3513,7 @@ func (this *ConformanceRules_SecuritySensitiveAttributes) checkConformanceForAtt
 		return ConformanceRules_ConformanceResult_CONFORMANCE
 	}
 	return func() *ConformanceRules_ConformanceResult {
-		if this.contains(String_toLowerCase(literalName.get(), Locale_ROOT)) {
+		if this.contains(strings.ToLower(literalName.get())) {
 			return ConformanceRules_ConformanceResult_VIOLATION
 		}
 		return ConformanceRules_ConformanceResult_CONFORMANCE
@@ -3668,7 +3668,7 @@ func (this *ConformanceRules_BanElementSetAttribute) checkConformanceOnGetElemen
 	var key Node = getElementNode.getSecondChild()
 	var keyName OptionalOf[string] = ConformanceRules_ConformanceUtil_inferStringValue(traversal.getScope(), key, func() any { return obj_(this.getGlobalNamespace()) })
 	if keyName.isPresent() {
-		if this.securitySensitiveAttributes.contains(String_toLowerCase(keyName.get(), Locale_ROOT)) || (this.requirement_.getReportLooseTypeViolations() && ((keyName.get() == "innerHTML") || (keyName.get() == "outerHTML"))) {
+		if this.securitySensitiveAttributes.contains(strings.ToLower(keyName.get())) || (this.requirement_.getReportLooseTypeViolations() && ((keyName.get() == "innerHTML") || (keyName.get() == "outerHTML"))) {
 			if this.hasElementType(getElementNode) {
 				return ConformanceRules_ConformanceResult_VIOLATION
 			}
@@ -3906,7 +3906,7 @@ func (this *ConformanceRules_BanExecCommand) initBanExecCommand(compiler *Abstra
 	}
 	var bannedAttrsBuilder []string
 	for v := range elemsBy_(ProtocolStringList(requirement.getValueList()), str_) {
-		bannedAttrsBuilder = immAdd_(tc_string, bannedAttrsBuilder, String_toLowerCase(v, Locale_ROOT))
+		bannedAttrsBuilder = immAdd_(tc_string, bannedAttrsBuilder, strings.ToLower(v))
 	}
 	this.bannedAttrs = immBuilt_(bannedAttrsBuilder)
 	return Outcome_base_ok_0()
@@ -3924,7 +3924,7 @@ func (this *ConformanceRules_BanExecCommand) checkConformance_impl(traversal *No
 		return ConformanceRules_ConformanceResult_VIOLATION
 	}
 	var attrName string = attr.getString()
-	if sliceHasStr_(this.bannedAttrs, String_toLowerCase(attrName, Locale_ROOT)) {
+	if sliceHasStr_(this.bannedAttrs, strings.ToLower(attrName)) {
 		return ConformanceRules_ConformanceResult_VIOLATION
 	}
 	return ConformanceRules_ConformanceResult_CONFORMANCE

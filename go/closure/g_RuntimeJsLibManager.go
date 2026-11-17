@@ -133,7 +133,7 @@ func (this *RuntimeJsLibManager) ensureLibraryInjected(resourceName string, forc
 		return this.lastInjectedLibrary
 	}
 	this.recordLibraryInjected(resourceName)
-	var path string = String_join_CharSequence_CharSequenceArr_s("", []any{strobj_(RuntimeJsLibManager_RUNTIME_LIB_DIR), strobj_(resourceName), strobj_(".js")})
+	var path string = (RuntimeJsLibManager_RUNTIME_LIB_DIR + sstr_(resourceName) + ".js")
 	var ast Node = this.resourceProvider(resourceName, path)
 	this.injectLibraryDependencies(ast, force)
 	return this.injectLibrary(ast)

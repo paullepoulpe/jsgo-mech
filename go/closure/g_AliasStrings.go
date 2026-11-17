@@ -240,7 +240,7 @@ func (this *AliasStrings_StringInfo) encodeStringAsIdentifier(prefix string, s s
 	if length == limit {
 		return sb.toString()
 	}
-	var hash int32 = (String_hashCode(s) & this.outer_.unitTestHashReductionMask)
+	var hash int32 = (utf16Hash_(s) & this.outer_.unitTestHashReductionMask)
 	sb.append_char('_')
 	sb.append(Integer_toHexString(hash))
 	var encoded string = sb.toString()

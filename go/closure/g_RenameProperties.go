@@ -199,7 +199,7 @@ var lambda_RenameProperties_clinit_1_ = &Comparator_fn{func(p1_ any, p2_ any) in
 	if p1.numOccurrences != p2.numOccurrences {
 		return (p2.numOccurrences - p1.numOccurrences)
 	}
-	return String_compareTo(p1.oldName, p2.oldName)
+	return utf16Compare_(p1.oldName, p2.oldName)
 }}
 
 type RenameProperties_ProcessProperties struct {
