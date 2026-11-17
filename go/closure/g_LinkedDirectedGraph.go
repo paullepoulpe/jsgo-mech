@@ -456,7 +456,7 @@ func (this *LinkedDirectedGraph_LinkedDiGraphNode) getLabel_impl() string {
 }
 
 func (this *LinkedDirectedGraph_LinkedDiGraphNode) toString() string {
-	return String_valueOf_Object(this.value_)
+	return objstr_(this.value_)
 }
 
 func (this *LinkedDirectedGraph_LinkedDiGraphNode) getInEdges() *TList[DiGraph_DiGraphEdge] {
@@ -617,7 +617,7 @@ func (this *LinkedDirectedGraph_LinkedDiGraphEdge) getColor() string {
 }
 
 func (this *LinkedDirectedGraph_LinkedDiGraphEdge) getLabel() string {
-	return String_valueOf_Object(this.value_)
+	return objstr_(this.value_)
 }
 
 func (this *LinkedDirectedGraph_LinkedDiGraphEdge) getNode1Id() string {

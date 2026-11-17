@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type JsMessageVisitor struct {
 	NodeTraversal_AbstractPostOrderCallback
 	idGenerator_    JsMessage_IdGenerator
@@ -98,7 +100,7 @@ func (this *JsMessageVisitor) checkMessageInitialization(traversal *NodeTraversa
 		return
 	}
 	var messageKeyFromLhs string = func() string {
-		if !String_isEmpty(originalMessageKey) {
+		if originalMessageKey != "" {
 			return originalMessageKey
 		}
 		return possiblyObfuscatedMessageKey
@@ -155,7 +157,7 @@ func (this *JsMessageVisitor) checkMessageInitialization(traversal *NodeTraversa
 		this.trackMessage(traversal, possiblyObfuscatedMessageKey, msgNode, extractedMessage)
 		this.reportErrorIfEmptyMessage(node, extractedMessage)
 		var desc OptionalOf[string] = extractedMessage.getDesc()
-		if (desc.isEmpty() || String_isEmpty(String_trim(desc.get()))) && !extractedMessage.isExternal() {
+		if (desc.isEmpty() || String_trim(desc.get()) == "") && !extractedMessage.isExternal() {
 			this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(node, JsMessageVisitor_MESSAGE_HAS_NO_DESCRIPTION, []string{extractedMessage.getKey()}))
 		}
 		this.processJsMessageDefinition(jsMessageDefinition)
@@ -166,7 +168,7 @@ func (this *JsMessageVisitor) checkMessageInitialization(traversal *NodeTraversa
 
 func (this *JsMessageVisitor) isDeclareIcuTemplateCallee(calleeNode Node) bool {
 	var qualifiedName string = calleeNode.getQualifiedName()
-	return (!String_isEmpty(qualifiedName) && String_endsWith(qualifiedName, JsMessageVisitor_ICU_MSG_FUNCTION_NAME))
+	return (qualifiedName != "" && strings.HasSuffix(qualifiedName, JsMessageVisitor_ICU_MSG_FUNCTION_NAME))
 }
 
 func (this *JsMessageVisitor) buildJsMessage(input JsMessageVisitor_InputForBuildJsMsg) *JsMessage {
@@ -226,8 +228,8 @@ func (this *JsMessageVisitor) reportErrorIfEmptyMessage(node Node, extractedMess
 }
 
 func JsMessageVisitor_getExternalMessageId(messageKey string) OptionalOf[string] {
-	if String_startsWith(messageKey, JsMessageVisitor_MSG_EXTERNAL_PREFIX) {
-		var start int32 = String_length(JsMessageVisitor_MSG_EXTERNAL_PREFIX)
+	if strings.HasPrefix(messageKey, JsMessageVisitor_MSG_EXTERNAL_PREFIX) {
+		var start int32 = int32(len(JsMessageVisitor_MSG_EXTERNAL_PREFIX))
 		var end int32 = start
 		for ; end < String_length(messageKey); end++ {
 			var c uint16 = String_charAt(messageKey, end)
@@ -272,19 +274,19 @@ func (this *JsMessageVisitor) trackUnnamedMessage(t *NodeTraversal, message *JsM
 }
 
 func JsMessageVisitor_isLegalMessageVarAlias(msgNode Node) bool {
-	if (msgNode.isGetProp() && msgNode.isQualifiedName()) && String_startsWith(msgNode.getString(), JsMessageVisitor_MSG_PREFIX) {
+	if (msgNode.isGetProp() && msgNode.isQualifiedName()) && strings.HasPrefix(msgNode.getString(), JsMessageVisitor_MSG_PREFIX) {
 		return true
 	}
 	if !msgNode.isName() {
 		return false
 	}
 	var originalName string = func() string {
-		if !String_isEmpty(msgNode.getOriginalName()) {
+		if msgNode.getOriginalName() != "" {
 			return msgNode.getOriginalName()
 		}
 		return msgNode.getString()
 	}()
-	if String_startsWith(originalName, JsMessageVisitor_MSG_PREFIX) {
+	if strings.HasPrefix(originalName, JsMessageVisitor_MSG_PREFIX) {
 		return true
 	}
 	return false
@@ -601,7 +603,7 @@ func (this *JsMessageVisitor) extractIcuTemplateOptions(optionsBag Node) *Outcom
 	for it_1.next() {
 		var placeholderName string = str_(it_1.v)
 		if !JsMessage_isCanonicalPlaceholderNameFormat(placeholderName) {
-			return Outcome_base_err(new_JsMessageVisitor_MalformedException(String_format("Placeholder not in UPPER_SNAKE_CASE: %s", []any{strobj_(placeholderName)}), optionsBag).up_Throwable())
+			return Outcome_base_err(new_JsMessageVisitor_MalformedException(("Placeholder not in UPPER_SNAKE_CASE: " + sstr_(placeholderName)), optionsBag).up_Throwable())
 		}
 	}
 	var result JsMessageVisitor_IcuTemplateOptions = new_JsMessageVisitor_6(this, description, optErase_(meaning), optErase_(alternateMessageId), placeholderExamplesMap, placeholderOriginalCodeMap, placeholderNames, exampleObjectLiteralMap, originalCodeObjectLiteralMap)
@@ -681,13 +683,13 @@ func JsMessageVisitor_extractGoogGetMsgParsedText(originalMsgText string) *Outco
 			if phEnd < 0 {
 				return Outcome_base_err(new_JsMessage_PlaceholderFormatException("Placeholder incorrectly formatted").up_Throwable())
 			}
-			var phName string = String_substring(msgText, (phBegin + String_length(JsMessage_PH_JS_PREFIX)), phEnd)
+			var phName string = String_substring(msgText, (phBegin + int32(len(JsMessage_PH_JS_PREFIX))), phEnd)
 			if !JsMessage_isLowerCamelCaseWithNumericSuffixes(phName) {
 				return Outcome_base_err(new_JsMessage_PlaceholderFormatException(("Placeholder name not in lowerCamelCase: " + sstr_(phName))).up_Throwable())
 			}
 			placeholderNamesBuilder.add(strobj_(phName))
 			partsBuilder.add(obj_(JsMessage_PlaceholderReference_createForJsName(phName)))
-			var nextPos int32 = (phEnd + String_length(JsMessage_PH_JS_SUFFIX))
+			var nextPos int32 = (phEnd + int32(len(JsMessage_PH_JS_SUFFIX)))
 			if nextPos < String_length(msgText) {
 				msgText = String_substring_int(msgText, nextPos)
 			} else {
@@ -726,17 +728,17 @@ func (this *JsMessageVisitor) processMessageFallback_impl(callNode Node, message
 }
 
 func (this *JsMessageVisitor) isMessageName(identifier string) bool {
-	return (String_startsWith(identifier, JsMessageVisitor_MSG_PREFIX) || JsMessageVisitor_isScopedAliasesPrefix(identifier))
+	return (strings.HasPrefix(identifier, JsMessageVisitor_MSG_PREFIX) || JsMessageVisitor_isScopedAliasesPrefix(identifier))
 }
 
 func JsMessageVisitor_isMessageIdentifier(node Node) bool {
 	var qname string = node.getQualifiedName()
-	return (!String_isEmpty(qname) && String_contains_s(qname, JsMessageVisitor_MSG_PREFIX))
+	return (qname != "" && strings.Contains(qname, JsMessageVisitor_MSG_PREFIX))
 }
 
 func (this *JsMessageVisitor) getJsMessageFromNode(t *NodeTraversal, node Node) *JsMessage {
 	var messageName string = node.getQualifiedName()
-	if String_isEmpty(messageName) || !String_contains_s(messageName, JsMessageVisitor_MSG_PREFIX) {
+	if messageName == "" || !strings.Contains(messageName, JsMessageVisitor_MSG_PREFIX) {
 		return nil
 	}
 	var messageKey string = String_substring_int(messageName, String_indexOf_String(messageName, JsMessageVisitor_MSG_PREFIX))
@@ -829,7 +831,7 @@ func JsMessageVisitor_clinit() {
 	JsMessageVisitor_MESSAGE_DUPLICATE_KEY = DiagnosticType_error("JSC_MSG_KEY_DUPLICATED", "duplicate message variable name found for {0}, initial definition {1}:{2}")
 	JsMessageVisitor_MESSAGE_NODE_IS_ORPHANED = DiagnosticType_error("JSC_MSG_ORPHANED_NODE", "{0}() function may be used only with MSG_* property or variable")
 	JsMessageVisitor_MESSAGE_NOT_INITIALIZED_CORRECTLY = DiagnosticType_warning("JSC_MSG_NOT_INITIALIZED_CORRECTLY", ("Message must be initialized using a call to " + sstr_(JsMessageVisitor_MSG_FUNCTION_QNAME) + " or " + sstr_(JsMessageVisitor_ICU_MSG_FUNCTION_QNAME)))
-	JsMessageVisitor_BAD_FALLBACK_SYNTAX = DiagnosticType_error("JSC_MSG_BAD_FALLBACK_SYNTAX", String_format("Bad syntax. Expected syntax: %s(MSG_1, MSG_2)", []any{strobj_(JsMessageVisitor_MSG_FALLBACK_FUNCTION_NAME)}))
+	JsMessageVisitor_BAD_FALLBACK_SYNTAX = DiagnosticType_error("JSC_MSG_BAD_FALLBACK_SYNTAX", ("Bad syntax. Expected syntax: " + JsMessageVisitor_MSG_FALLBACK_FUNCTION_NAME + "(MSG_1, MSG_2)"))
 	JsMessageVisitor_FALLBACK_ARG_ERROR = DiagnosticType_error("JSC_MSG_FALLBACK_ARG_ERROR", "Could not find message entry for fallback argument {0}")
 	JsMessageVisitor_SCOPED_ALIASES_PREFIX_PATTERN = Pattern_compile(("\\$jscomp\\$scope\\$" + sstr_(JavaRegex_NON_SPACE) + "+\\$MSG_"))
 	JsMessageVisitor_MSG_UNNAMED_PATTERN = Pattern_compile(("MSG_UNNAMED" + sstr_(JavaRegex_DOT) + "*"))

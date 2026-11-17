@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type SymbolTable struct {
 	symbols                *SimpleTable
 	scopes                 *TMap[Node, *SymbolTable_SymbolScope]
@@ -193,7 +195,7 @@ func (this *SymbolTable) getSymbolForName(source Node, name OptionalOf[string]) 
 	}
 	if scope.isModuleScope() {
 		var moduleNameWithDot string = (sstr_(str_(Iterables_getFirst(icast_Iterable(obj_(cast_[*ModuleMetadataMap_ModuleMetadata](Map_get_s(this.compiler_.getModuleMetadataMap().getModulesByPath(), scope.getRootNode().getSourceFileName())).googNamespaces())), nil))) + ".")
-		if String_startsWith(name.get(), moduleNameWithDot) {
+		if strings.HasPrefix(name.get(), moduleNameWithDot) {
 			name = Optional_of[string](String_substring_int(name.get(), String_length(moduleNameWithDot)))
 		}
 	}
@@ -477,7 +479,7 @@ func (this *SymbolTable) copySymbolTo_3(sym StaticSlot, declNode Node, scope *Sy
 }
 
 func SymbolTable_sanitizeSpecialChars(s string) string {
-	return String_replace_s(String_replace_s(String_replace_s(s, "\\", "\\\\"), "\x00", "\\0"), "\n", "\\n")
+	return strings.ReplaceAll(strings.ReplaceAll(strings.ReplaceAll(s, "\\", "\\\\"), "\x00", "\\0"), "\n", "\\n")
 }
 
 func (this *SymbolTable) addSymbol(name string, type_ *JSType, inferred bool, scope *SymbolTable_SymbolScope, declNode Node) *SymbolTable_Symbol {
@@ -544,11 +546,11 @@ func (this *SymbolTable) renameSymbol(scope *SymbolTable_SymbolScope, sym *Symbo
 func (this *SymbolTable) fillNamespaceReferences() {
 	for _, symbol := range this.getAllSymbols() {
 		var qName string = symbol.getName()
-		var rootIndex int32 = String_indexOf(qName, 46)
+		var rootIndex int32 = int32(strings.IndexByte(qName, '.'))
 		if rootIndex == -1 {
 			continue
 		}
-		var root *SymbolTable_Symbol = symbol.scope_.getQualifiedSlot(String_substring(qName, 0, rootIndex))
+		var root *SymbolTable_Symbol = symbol.scope_.getQualifiedSlot(qName[:rootIndex])
 		if root == nil {
 			continue
 		}
@@ -562,7 +564,7 @@ func (this *SymbolTable) fillNamespaceReferences() {
 			for currentNode.isGetProp() {
 				currentNode = currentNode.getFirstChild()
 				var name string = currentNode.getQualifiedName()
-				if String_isEmpty(name) {
+				if name == "" {
 					continue
 				}
 				var namespace *SymbolTable_Symbol = this.isAnySymbolDeclared(name, currentNode, root.scope_)
@@ -908,8 +910,8 @@ func (this *SymbolTable) flattenGoogModuleExports() {
 		it_3 := foreach_(obj_(ImmutableList_copyOf(moduleScope.ownSymbols.asMap().values())))
 		for it_3.next() {
 			var sym *SymbolTable_Symbol = cast_[*SymbolTable_Symbol](it_3.v)
-			if String_startsWith(sym.getName(), "exports.") {
-				this.renameSymbol(moduleScope, sym, String_substring_int(sym.getName(), String_length("exports.")))
+			if strings.HasPrefix(sym.getName(), "exports.") {
+				this.renameSymbol(moduleScope, sym, String_substring_int(sym.getName(), int32(len("exports."))))
 			}
 		}
 	}
@@ -1325,11 +1327,11 @@ func (this *SymbolTable_SymbolScope) getQualifiedSlot(name string) *SymbolTable_
 	if fullyNamedSym != nil {
 		return fullyNamedSym
 	}
-	var dot int32 = String_lastIndexOf(name, 46)
+	var dot int32 = int32(strings.LastIndexByte(name, '.'))
 	if dot != -1 {
-		var owner *SymbolTable_Symbol = this.getQualifiedSlot(String_substring(name, 0, dot))
+		var owner *SymbolTable_Symbol = this.getQualifiedSlot(name[:dot])
 		if (owner != nil) && (owner.getPropertyScope() != nil) {
-			return owner.getPropertyScope().getSlot(String_substring_int(name, (dot + 1)))
+			return owner.getPropertyScope().getSlot(name[dot+1:])
 		}
 	}
 	return nil
@@ -1523,7 +1525,7 @@ func (this *SymbolTable_PropertyRefCollector) maybeDefineTypedReference(n Node, 
 			var namespace Node = propNodeDecl.getFirstChild()
 			var namespaceSym *SymbolTable_Symbol = this.outer_.getSymbolForName(namespace, Optional_of[string](namespace.getQualifiedName()).filterFn_(func(s string) bool {
 				_ = s
-				return !String_isEmpty(s)
+				return s != ""
 			}))
 			if (namespaceSym != nil) && (namespaceSym.getPropertyScope() != nil) {
 				var propSym *SymbolTable_Symbol = namespaceSym.getPropertyScope().getSlot(propName)
@@ -1554,14 +1556,14 @@ func (this *SymbolTable_PropertyRefCollector) visit_impl(t *NodeTraversal, n Nod
 			if defined {
 				this.tryRemoveLexicalQualifiedNameRef(Optional_of[string](n.getQualifiedName()).filterFn_(func(s string) bool {
 					_ = s
-					return !String_isEmpty(s)
+					return s != ""
 				}), n)
 				return
 			}
 		}
 		this.tryDefineLexicalQualifiedNameRef(Optional_of[string](n.getQualifiedName()).filterFn_(func(s string) bool {
 			_ = s
-			return !String_isEmpty(s)
+			return s != ""
 		}), n)
 	} else if n.isStringKey() {
 		var owner *JSType = parent.getJSType()
@@ -1735,12 +1737,12 @@ func (this *SymbolTable_JSDocInfoCollector) visitTypeNode(templateTypeNames Immu
 		if symbol != nil {
 			var ref Node = n
 			var typeString string = func() string {
-				if !String_isEmpty(n.getOriginalName()) {
+				if n.getOriginalName() != "" {
 					return n.getOriginalName()
 				}
 				return n.getString()
 			}()
-			if String_contains_s(typeString, ".") {
+			if strings.Contains(typeString, ".") {
 				var lastPart string = String_substring_int(typeString, (String_lastIndexOf(typeString, 46) + 1))
 				var copy_ Node = n.cloneNode()
 				copy_.setLinenoCharno(copy_.getLineno(), ((copy_.getCharno() + copy_.getLength()) - String_length(lastPart)))

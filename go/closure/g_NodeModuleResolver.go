@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type NodeModuleResolver struct {
 	ModuleResolver
 	packageJsonMainEntries ImmutableMapOf[string, string]
@@ -49,7 +51,7 @@ func NodeModuleResolver_buildNodeModulesFoldersRegistry(modulePaths IterableOf[s
 		it_3 := foreach_(any(moduleRootPaths))
 		for it_3.next() {
 			var moduleRootPath string = str_(it_3.v)
-			if String_startsWith(modulePath, moduleRootPath) {
+			if strings.HasPrefix(modulePath, moduleRootPath) {
 				modulePath = String_substring_int(modulePath, String_length(moduleRootPath))
 				break
 			}
@@ -149,7 +151,7 @@ func (this *NodeModuleResolver) resolveJsModuleNodeFileOrDirectory(scriptAddress
 }
 
 func (this *NodeModuleResolver) resolveJsModuleNodeDirectory(scriptAddress string, moduleAddress string) OptionalOf[string] {
-	if String_endsWith(moduleAddress, ModuleLoader_MODULE_SLASH) {
+	if strings.HasSuffix(moduleAddress, ModuleLoader_MODULE_SLASH) {
 		moduleAddress = String_substring(moduleAddress, 0, (String_length(moduleAddress) - 1))
 	}
 	for i := int32(0); i < int32(len(NodeModuleResolver_FILES_TO_SEARCH)); i++ {
@@ -177,7 +179,7 @@ func (this *NodeModuleResolver) resolveJsModuleFromRegistry(scriptAddress string
 	it_1 := foreach_(obj_(this.nodeModulesFolders))
 	for it_1.next() {
 		var nodeModulesFolder string = str_(it_1.v)
-		if !String_startsWith(normalizedScriptAddress, nodeModulesFolder) {
+		if !strings.HasPrefix(normalizedScriptAddress, nodeModulesFolder) {
 			continue
 		}
 		var fullModulePath string = (sstr_(nodeModulesFolder) + "node_modules/" + sstr_(moduleAddress))

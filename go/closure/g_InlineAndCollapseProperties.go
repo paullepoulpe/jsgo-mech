@@ -2,6 +2,11 @@
 
 package closure
 
+import (
+	"strconv"
+	"strings"
+)
+
 type InlineAndCollapseProperties struct {
 	compiler_                     *AbstractCompiler
 	propertyCollapseLevel         CompilerOptions_PropertyCollapseLevel
@@ -95,7 +100,7 @@ func InlineAndCollapseProperties_maybeGetInnerNameNode(maybeFunctionOrClassNode 
 			panic(new_IllegalStateException_String(objstr_(nameNode.box_())).self())
 		}
 		return func() Node {
-			if String_isEmpty(nameNode.getString()) {
+			if nameNode.getString() == "" {
 				return 0
 			}
 			return nameNode
@@ -467,7 +472,7 @@ func (this *InlineAndCollapseProperties_AggressiveInlineAliases) rewriteAllSubcl
 
 func (this *InlineAndCollapseProperties_AggressiveInlineAliases) isInlineableModuleExportsAlias(name *GlobalNamespace_Name, aliasRefs *ReferenceCollection) bool {
 	var aliasedNameStr string = name.getFullName()
-	if !String_startsWith(aliasedNameStr, ClosureRewriteModule_MODULE_EXPORTS_PREFIX) {
+	if !strings.HasPrefix(aliasedNameStr, ClosureRewriteModule_MODULE_EXPORTS_PREFIX) {
 		return false
 	}
 	var firstRhs Node = 0
@@ -1101,7 +1106,7 @@ func (this *InlineAndCollapseProperties_CollapseProperties) logDecisionForName_3
 
 func (this *InlineAndCollapseProperties_CollapseProperties) logDecisionForName(name *GlobalNamespace_Name, message string) {
 	this.outer_.decisionsLog.log(func() any {
-		return strobj_(String_format("%s: %s", []any{strobj_(name.getFullName()), strobj_(message)}))
+		return strobj_((sstr_(name.getFullName()) + ": " + sstr_(message)))
 	})
 }
 
@@ -1223,7 +1228,7 @@ func (this *InlineAndCollapseProperties_CollapseProperties) collapseDeclarationO
 	var canCollapseChildNames bool
 	if !childNameInlinability.canCollapse() {
 		this.logDecisionForNameSupplier(n, func() any {
-			return strobj_(String_format("child name inlinability: %s: will not collapse child names", []any{obj_(childNameInlinability)}))
+			return strobj_(("child name inlinability: " + objstr_(obj_(childNameInlinability)) + ": will not collapse child names"))
 		})
 		canCollapseChildNames = false
 	} else if has_(escaped, n) {
@@ -1498,7 +1503,7 @@ func (this *InlineAndCollapseProperties_CollapseProperties) declareVariablesForO
 				propName = key.getString()
 			} else {
 				arbitraryNameCounter++
-				propName = String_valueOf(arbitraryNameCounter)
+				propName = strconv.Itoa(int(arbitraryNameCounter))
 			}
 			var qName string = (sstr_(objlitName.getFullName()) + "." + sstr_(propName))
 			var p *GlobalNamespace_Name = this.nameMap.get(qName)
@@ -1579,8 +1584,8 @@ func (this *InlineAndCollapseProperties_CollapseProperties) addStubsForUndeclare
 }
 
 func (this *InlineAndCollapseProperties_CollapseProperties) appendPropForAlias(root string, prop string) string {
-	if String_indexOf(prop, 36) != -1 {
-		prop = String_replace_s(prop, "$", "$0")
+	if strings.Contains(prop, "$") {
+		prop = strings.ReplaceAll(prop, "$", "$0")
 	}
 	var result string = (sstr_(root) + "$" + sstr_(prop))
 	var id int32 = 1

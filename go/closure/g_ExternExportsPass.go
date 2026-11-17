@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type ExternExportsPass struct {
 	NodeTraversal_AbstractPostOrderCallback
 	exports                     []*ExternExportsPass_Export
@@ -266,7 +268,7 @@ func (this *ExternExportsPass_Export) appendExtern(path string, valueToExport No
 	for i := int32(0); i < pathPrefixes.size(); i++ {
 		var pathPrefix string = str_(pathPrefixes.get(i))
 		var isCompletePathPrefix bool = (i == (pathPrefixes.size() - 1))
-		var skipPathPrefix bool = (String_endsWith(pathPrefix, ".prototype") || (has_(this.outer_.alreadyExportedPaths, pathPrefix) && !isCompletePathPrefix))
+		var skipPathPrefix bool = (strings.HasSuffix(pathPrefix, ".prototype") || (has_(this.outer_.alreadyExportedPaths, pathPrefix) && !isCompletePathPrefix))
 		if skipPathPrefix {
 			continue
 		}
@@ -303,7 +305,7 @@ func (this *ExternExportsPass_Export) appendExtern(path string, valueToExport No
 
 func (this *ExternExportsPass_Export) appendPathDefinition(path string, initializer Node, jsdoc *JSDocInfo) {
 	var pathDefinition Node
-	if String_contains_s(path, ".") {
+	if strings.Contains(path, ".") {
 		var qualifiedPath Node = NodeUtil_newQName_AbstractCompiler_String(this.outer_.compiler_, path)
 		if initializer.isEmpty() {
 			pathDefinition = NodeUtil_newExpr(qualifiedPath)
@@ -362,7 +364,7 @@ func (this *ExternExportsPass_Export) createExternsParamListFromOriginalParamLis
 	for it_1.next() {
 		var originalParamName string = str_(it_1.v)
 		var externParamName string = func() string {
-			if String_isEmpty(originalParamName) {
+			if originalParamName == "" {
 				return nameGenerator.generateNextName()
 			}
 			return originalParamName
@@ -384,7 +386,7 @@ func (this *ExternExportsPass_Export) getOriginalNameForParam(paramNode Node) st
 	if nameOrPatternNode.isName() {
 		var originalName string = nameOrPatternNode.getOriginalName()
 		return func() string {
-			if !String_isEmpty(originalName) {
+			if originalName != "" {
 				return originalName
 			}
 			return nameOrPatternNode.getString()
@@ -442,7 +444,7 @@ func (this *ExternExportsPass_Export) createExternObjectLit(exportedObjectLit No
 
 func (this *ExternExportsPass_Export) getValue() Node {
 	var qualifiedName string = this.value_.getQualifiedName()
-	if String_isEmpty(qualifiedName) {
+	if qualifiedName == "" {
 		return 0
 	}
 	var definition Node = this.outer_.definitionMap[qualifiedName]
@@ -479,7 +481,7 @@ func (this *ExternExportsPass_SymbolExport) init_ExternExportsPass_SymbolExport(
 	this.ExternExportsPass_Export.outer_ = this.outer_
 	this.ExternExportsPass_Export.init_ExternExportsPass_Export(symbolName, value)
 	var qualifiedName string = value.getQualifiedName()
-	if !String_isEmpty(qualifiedName) {
+	if qualifiedName != "" {
 		this.outer_.mappedPaths[qualifiedName] = symbolName
 	}
 }
@@ -534,7 +536,7 @@ func (this *ExternExportsPass_PropertyExport) getExportedPath_impl() string {
 	it_1 := foreach_(any(Lists_reverse(icast_List(obj_(ExternExportsPass_computePathPrefixes(this.exportPath))))))
 	for it_1.next() {
 		var currentPath string = str_(it_1.v)
-		if String_length(currentPath) <= 0 {
+		if len(currentPath) == 0 {
 			panic(new_IllegalStateException_0().self())
 		}
 		var mappedPath OptionalOf[string] = Optional_ofNullable[string](mapStr_(this.outer_.mappedPaths, currentPath))

@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type PolyfillUsageFinder struct {
 	compiler_                  *AbstractCompiler
 	polyfills                  *PolyfillUsageFinder_Polyfills
@@ -97,7 +99,7 @@ func PolyfillUsageFinder_findGlobalPrefix(qualifiedName string) OptionalOf[strin
 	it_1 := foreach_(obj_(PolyfillUsageFinder_GLOBAL_NAMES))
 	for it_1.next() {
 		var global string = str_(it_1.v)
-		if String_startsWith(qualifiedName, global) {
+		if strings.HasPrefix(qualifiedName, global) {
 			return Optional_of[string](global)
 		}
 	}
@@ -105,9 +107,9 @@ func PolyfillUsageFinder_findGlobalPrefix(qualifiedName string) OptionalOf[strin
 }
 
 func PolyfillUsageFinder_getMethodOwner(nativeSymbol string) OptionalOf[string] {
-	var protoIdx int32 = String_indexOf_String(nativeSymbol, ".prototype.")
+	var protoIdx int32 = int32(strings.Index(nativeSymbol, ".prototype."))
 	if protoIdx != -1 {
-		return Optional_of[string](String_substring(nativeSymbol, 0, protoIdx))
+		return Optional_of[string](nativeSymbol[:protoIdx])
 	}
 	return Optional_empty[string]()
 }
@@ -345,13 +347,13 @@ func PolyfillUsageFinder_Polyfills_fromTable(table string) *PolyfillUsageFinder_
 	for it_1.next() {
 		var line string = str_(it_1.v)
 		var tokens []string = sliceImm_(tc_string, Splitter_on(' ').omitEmptyStrings().splitToList_s(String_trim(line)))
-		if (int32(len(tokens)) == 1) && String_isEmpty(sliceAt_(tokens, 0)) {
+		if (int32(len(tokens)) == 1) && sliceAt_(tokens, 0) == "" {
 			continue
 		} else if int32(len(tokens)) < 3 {
 			panic(new_IllegalArgumentException_String(("Invalid table: too few tokens on line: " + sstr_(line))).self())
 		}
 		var symbol string = sliceAt_(tokens, 0)
-		var isPrototypeMethod bool = String_contains_s(symbol, ".prototype.")
+		var isPrototypeMethod bool = strings.Contains(symbol, ".prototype.")
 		var nativeVersionStr string = sliceAt_(tokens, 1)
 		var polyfillVersionStr string = sliceAt_(tokens, 2)
 		var polyfill *PolyfillUsageFinder_Polyfill = new_PolyfillUsageFinder_Polyfill(symbol, nativeVersionStr, polyfillVersionStr, func() string {

@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type ReplaceMessages struct {
 	compiler_                *AbstractCompiler
 	bundle                   MessageBundle
@@ -273,10 +275,10 @@ func (this *ReplaceMessages) constructNonGenderedMsgNode(message *JsMessage, pla
 
 func (this *ReplaceMessages) createNodeForMsgString(options *ReplaceMessages_MsgOptions, s string) Node {
 	if options.escapeLessThan() {
-		s = String_replace_s(s, "<", "&lt;")
+		s = strings.ReplaceAll(s, "<", "&lt;")
 	}
 	if options.unescapeHtmlEntities() {
-		s = String_replace_s(String_replace_s(String_replace_s(String_replace_s(String_replace_s(s, "&lt;", "<"), "&gt;", ">"), "&apos;", "'"), "&quot;", "\""), "&amp;", "&")
+		s = strings.ReplaceAll(strings.ReplaceAll(strings.ReplaceAll(strings.ReplaceAll(strings.ReplaceAll(s, "&lt;", "<"), "&gt;", ">"), "&apos;", "'"), "&quot;", "\""), "&amp;", "&")
 	}
 	return this.astFactory_.createString(s)
 }
@@ -304,7 +306,7 @@ func ReplaceMessages_mergeStringParts(parts []JsMessage_Part) *TList[JsMessage_P
 }
 
 func ReplaceMessages_isStartOfIcuMessage(part string) bool {
-	if !String_startsWith(part, "{") {
+	if !strings.HasPrefix(part, "{") {
 		return false
 	}
 	var commaIndex int32 = String_indexOf_int_int(part, 44, 1)

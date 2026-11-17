@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type ModuleResolver struct {
 	self_           ModuleResolver_I
 	modulePaths     ImmutableSetOf[string]
@@ -40,14 +42,14 @@ func (this *ModuleResolver) getPackageJsonMainEntries_impl() map[string]string {
 }
 
 func (this *ModuleResolver) resolveModuleAsPath_impl(scriptAddress string, moduleAddress string) string {
-	if !String_endsWith(moduleAddress, ".js") {
+	if !strings.HasSuffix(moduleAddress, ".js") {
 		moduleAddress += ".js"
 	}
 	var path string = this.pathEscaper.escape(moduleAddress)
 	if ModuleLoader_isRelativeIdentifier(moduleAddress) {
 		var ourPath string = scriptAddress
 		var lastIndex int32 = String_lastIndexOf_String(ourPath, ModuleLoader_MODULE_SLASH)
-		path = ModuleNames_canonicalizePath((sstr_(String_substring(ourPath, 0, (lastIndex+String_length(ModuleLoader_MODULE_SLASH)))) + sstr_(path)))
+		path = ModuleNames_canonicalizePath((sstr_(String_substring(ourPath, 0, (lastIndex+int32(len(ModuleLoader_MODULE_SLASH))))) + sstr_(path)))
 	}
 	return ModuleLoader_normalize(path, icast_Iterable(obj_(this.moduleRootPaths)))
 }
@@ -77,7 +79,7 @@ func (this *ModuleResolver) canonicalizePath(scriptAddress string, moduleAddress
 	if ModuleLoader_isRelativeIdentifier(moduleAddress) {
 		var ourPath string = scriptAddress
 		var lastIndex int32 = String_lastIndexOf_String(ourPath, ModuleLoader_MODULE_SLASH)
-		path = ModuleNames_canonicalizePath((sstr_(String_substring(ourPath, 0, (lastIndex+String_length(ModuleLoader_MODULE_SLASH)))) + sstr_(path)))
+		path = ModuleNames_canonicalizePath((sstr_(String_substring(ourPath, 0, (lastIndex+int32(len(ModuleLoader_MODULE_SLASH))))) + sstr_(path)))
 	}
 	return path
 }

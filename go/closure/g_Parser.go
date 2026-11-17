@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type Parser struct {
 	scanner              *Scanner_parser
 	errorReporter        *ErrorReporter_util
@@ -55,7 +57,7 @@ func (this *Parser) parseProgram() *ProgramTree {
 				ex_ := catch_(r_)
 				if p, ok := ex_.(Error_as); ok {
 					var e *Error = p.as_Error()
-					if String_contains_s(Object_toString(e.self()), "java.lang.StackOverflowError") {
+					if strings.Contains(Object_toString(e.self()), "java.lang.StackOverflowError") {
 						this.reportError("Too deep recursion while parsing", []any{})
 						ret_1 = nil
 						code_ = 1
@@ -1259,7 +1261,7 @@ func (this *Parser) parseLiteralExpression() *LiteralExpressionTree {
 	if (literal.type__ == TokenType_STRING) && cast_[*StringLiteralToken](literal.self()).hasUnescapedUnicodeLineOrParagraphSeparator() {
 		this.recordFeatureUsed(FeatureSet_Feature_UNESCAPED_UNICODE_LINE_OR_PARAGRAPH_SEP)
 	}
-	if (literal.type__ == TokenType_NUMBER) && String_contains_s(literal.toString(), "_") {
+	if (literal.type__ == TokenType_NUMBER) && strings.Contains(literal.toString(), "_") {
 		this.recordFeatureUsed(FeatureSet_Feature_NUMERIC_SEPARATOR)
 	}
 	if literal.type__ == TokenType_BIGINT {
@@ -2716,7 +2718,7 @@ func (this *Parser) reportErrorSourcePosition(position *SourcePosition_util, mes
 }
 
 func (this *Parser) reportTemplateErrorIfPresent(templateToken *TemplateLiteralToken) {
-	if String_isEmpty(templateToken.errorMessage_) {
+	if templateToken.errorMessage_ == "" {
 		return
 	}
 	switch templateToken.errorLevel {
@@ -2945,8 +2947,8 @@ func new_Parser_CommentRecorder(outer_ *Parser) *Parser_CommentRecorder {
 func (this *Parser_CommentRecorder) recordComment(type_ Comment_Type, range_ *SourceRange, value string) {
 	if (this.lastCommentEndPosition == nil) || (range_.end_.offset > this.lastCommentEndPosition.offset) {
 		value = String_trim(value)
-		if String_startsWith(value, Parser_SOURCE_MAPPING_URL_PREFIX) {
-			this.outer_.sourceMapURL = Optional_of[string](String_substring_int(value, String_length(Parser_SOURCE_MAPPING_URL_PREFIX)))
+		if strings.HasPrefix(value, Parser_SOURCE_MAPPING_URL_PREFIX) {
+			this.outer_.sourceMapURL = Optional_of[string](String_substring_int(value, int32(len(Parser_SOURCE_MAPPING_URL_PREFIX))))
 		}
 		this.comments.add(obj_(new_Comment(value, range_, type_)))
 		this.lastCommentEndPosition = range_.end_

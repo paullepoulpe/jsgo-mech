@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type Es6RewriteModulesToCommonJsModules struct {
 	compiler_ *AbstractCompiler
 }
@@ -37,7 +39,7 @@ func Es6RewriteModulesToCommonJsModules_normalizePath(path string) string {
 		if indexOfSlash > -1 {
 			path = String_substring_int(path, (indexOfSlash + 1))
 		}
-	} else if String_startsWith(path, "/") {
+	} else if strings.HasPrefix(path, "/") {
 		path = String_substring_int(path, 1)
 	}
 	return path
@@ -313,7 +315,7 @@ func (this *Es6RewriteModulesToCommonJsModules_Rewriter) addExport(definePropert
 }
 
 func (this *Es6RewriteModulesToCommonJsModules_Rewriter) visitImport(path *ModuleLoader_ModulePath, importDecl Node) {
-	if String_contains_s(importDecl.getLastChild().getString(), "://") {
+	if strings.Contains(importDecl.getLastChild().getString(), "://") {
 		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(importDecl, TranspilationUtil_CANNOT_CONVERT, []string{"Module requests with protocols."}))
 	}
 	this.importRequests.add(Es6RewriteModulesToCommonJsModules_ModuleRequest_create(Es6RewriteModulesToCommonJsModules_normalizePath(path.resolveModuleAsPath(importDecl.getLastChild().getString()).toString()), this.getVarNameOfImportNode(importDecl)))
@@ -326,7 +328,7 @@ func (this *Es6RewriteModulesToCommonJsModules_Rewriter) visitExportDefault(t *N
 	if child.isFunction() || child.isClass() {
 		name = Optional_of[string](NodeUtil_getName(child)).filterFn_(func(s string) bool {
 			_ = s
-			return !String_isEmpty(s)
+			return s != ""
 		})
 	}
 	if name.isPresent() {

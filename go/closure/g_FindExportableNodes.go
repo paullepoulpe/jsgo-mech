@@ -57,7 +57,7 @@ func (this *FindExportableNodes) visit_impl(t *NodeTraversal, n Node, parent Nod
 		if parent.isScript() {
 			export = Optional_of[string](NodeUtil_getName(n)).filterFn_(func(s string) bool {
 				_ = s
-				return !String_isEmpty(s)
+				return s != ""
 			})
 			context = n
 			mode = FindExportableNodes_Mode_EXPORT
@@ -69,7 +69,7 @@ func (this *FindExportableNodes) visit_impl(t *NodeTraversal, n Node, parent Nod
 			if ((grandparent != 0) && grandparent.isScript()) && child.isQualifiedName() {
 				export = Optional_of[string](child.getQualifiedName()).filterFn_(func(s string) bool {
 					_ = s
-					return !String_isEmpty(s)
+					return s != ""
 				})
 				context = n
 				mode = FindExportableNodes_Mode_EXPORT
@@ -98,7 +98,7 @@ func (this *FindExportableNodes) visit_impl(t *NodeTraversal, n Node, parent Nod
 		if n.isStaticMember() {
 			var classNode Node = parent.getParent()
 			var className string = NodeUtil_getName(classNode)
-			if String_isEmpty(className) {
+			if className == "" {
 				t.report(n, FindExportableNodes_EXPORT_ANNOTATION_NOT_ALLOWED, []string{})
 				return
 			}
@@ -145,7 +145,7 @@ func (this *FindExportableNodes) visit_impl(t *NodeTraversal, n Node, parent Nod
 			if mode != FindExportableNodes_Mode_EXTERN {
 				panic(new_IllegalStateException_0().self())
 			}
-			if String_isEmpty(export.get()) {
+			if export.get() == "" {
 				panic(new_IllegalStateException_0().self())
 			}
 			this.localExports.add(export.get())

@@ -501,7 +501,7 @@ func (this *PolymerClassRewriter) createVarsInExternsBlock(block Node, propertyN
 		var_.addChildToBack(n)
 		var newType *JSTypeExpression = PolymerClassRewriter_createNewTypeExpressionForExtern(propName, Optional_of[string](propType.getSourceName()).filterFn_(func(s string) bool {
 			_ = s
-			return !String_isEmpty(s)
+			return s != ""
 		}), prop)
 		var oldInfoBuilder *JSDocInfo_Builder = JSDocInfo_Builder_maybeCopyFrom(prop.info)
 		var info *JSDocInfo = oldInfoBuilder.build()

@@ -96,7 +96,7 @@ func (this *ExtractPrototypeMemberDeclarations) replacePrototypeMemberDeclaratio
 	var accessNode Node = declar.lhs.getFirstFirstChild()
 	var originalName string = accessNode.getOriginalName()
 	var className string = func() string {
-		if !String_isEmpty(originalName) {
+		if originalName != "" {
 			return originalName
 		}
 		return "?"
@@ -190,9 +190,9 @@ func ExtractPrototypeMemberDeclarations_Pattern_clinit() {
 		return
 	}
 	ExtractPrototypeMemberDeclarations_Pattern_clinit_done = true
-	ExtractPrototypeMemberDeclarations_Pattern_USE_GLOBAL_TEMP.init_ExtractPrototypeMemberDeclarations_Pattern(String_length("var t;"), String_length("t=y.prototype;"), (String_length("t.y=") - String_length("x[p].y=")))
-	ExtractPrototypeMemberDeclarations_Pattern_USE_CHUNK_TEMP.init_ExtractPrototypeMemberDeclarations_Pattern(String_length("var t;"), String_length("t=y.prototype;"), (String_length("t.y=") - String_length("x[p].y=")))
-	ExtractPrototypeMemberDeclarations_Pattern_USE_IIFE.init_ExtractPrototypeMemberDeclarations_Pattern(0, String_length("(function(t){})(y.prototype);"), (String_length("t.y=") - String_length("x.prototype.y=")))
+	ExtractPrototypeMemberDeclarations_Pattern_USE_GLOBAL_TEMP.init_ExtractPrototypeMemberDeclarations_Pattern(int32(len("var t;")), int32(len("t=y.prototype;")), (int32(len("t.y=")) - int32(len("x[p].y="))))
+	ExtractPrototypeMemberDeclarations_Pattern_USE_CHUNK_TEMP.init_ExtractPrototypeMemberDeclarations_Pattern(int32(len("var t;")), int32(len("t=y.prototype;")), (int32(len("t.y=")) - int32(len("x[p].y="))))
+	ExtractPrototypeMemberDeclarations_Pattern_USE_IIFE.init_ExtractPrototypeMemberDeclarations_Pattern(0, int32(len("(function(t){})(y.prototype);")), (int32(len("t.y=")) - int32(len("x.prototype.y="))))
 	ExtractPrototypeMemberDeclarations_Pattern_values_ = []ExtractPrototypeMemberDeclarations_Pattern{ExtractPrototypeMemberDeclarations_Pattern_USE_GLOBAL_TEMP, ExtractPrototypeMemberDeclarations_Pattern_USE_CHUNK_TEMP, ExtractPrototypeMemberDeclarations_Pattern_USE_IIFE}
 	registerEnum_("com.google.javascript.jscomp.ExtractPrototypeMemberDeclarations.Pattern", enumValues_(ExtractPrototypeMemberDeclarations_Pattern_values_))
 
@@ -362,7 +362,7 @@ func (this *ExtractPrototypeMemberDeclarations_PrototypeMemberDeclaration) init_
 	var classNode Node = ExtractPrototypeMemberDeclarations_PrototypeMemberDeclaration_getPrototypeClassName(lhs)
 	this.qualifiedClassName = Optional_of[string](classNode.getQualifiedName()).filterFn_(func(s string) bool {
 		_ = s
-		return !String_isEmpty(s)
+		return s != ""
 	})
 	this.constant = classNode.getBooleanProp(Node_IS_CONSTANT_NAME)
 }

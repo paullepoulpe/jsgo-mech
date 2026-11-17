@@ -54,7 +54,7 @@ func (this *ChangeVerifier) associateClones(n Node, snapshot Node) {
 
 func (this *ChangeVerifier) verifyScopeChangesHaveBeenRecorded(passName string, root Node) {
 	var passNameMsg string = func() string {
-		if String_isEmpty(passName) {
+		if passName == "" {
 			return ""
 		}
 		return (sstr_(passName) + ": ")

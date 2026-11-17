@@ -90,7 +90,7 @@ func (this *CheckNoMutatedEs6Exports) visitExport(export Node) {
 				return
 			}
 			var nameNode Node = declaration.getFirstChild()
-			if !nameNode.isEmpty() && !String_isEmpty(nameNode.getString()) {
+			if !nameNode.isEmpty() && nameNode.getString() != "" {
 				this.exportedLocalNames.add(nameNode.getString())
 			}
 		} else {

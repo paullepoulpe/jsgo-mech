@@ -2,6 +2,8 @@
 
 package closure
 
+import "strconv"
+
 type InlineFunctions struct {
 	fns                         *TMap[string, *InlineFunctions_FunctionState]
 	anonFns                     map[Node]string
@@ -439,7 +441,7 @@ func InlineFunctions_checkOptimizationLevelSupportsRequireInlining(options *Comp
 	if len(problems) == 0 {
 		return new_InlineFunctions_ShouldRequireInlining(true, "")
 	}
-	return new_InlineFunctions_ShouldRequireInlining(false, String_format("[%s]", []any{strobj_(String_join_s(", ", Iterable(sliceView_(tc_string, problems))))}))
+	return new_InlineFunctions_ShouldRequireInlining(false, ("[" + sstr_(String_join_s(", ", Iterable(sliceView_(tc_string, problems)))) + "]"))
 }
 
 var InlineFunctions_MISSED_REQUIRED_INLINING *DiagnosticType
@@ -1075,7 +1077,7 @@ func (this *InlineFunctions_FunctionExpression) zero_InlineFunctions_FunctionExp
 
 func (this *InlineFunctions_FunctionExpression) init_InlineFunctions_FunctionExpression(fn Node, index int32) {
 	this.fn = fn
-	this.fakeName = String_valueOf(index)
+	this.fakeName = strconv.Itoa(int(index))
 	this.fakeNameNode = IR_name(this.fakeName)
 }
 

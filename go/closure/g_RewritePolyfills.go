@@ -59,7 +59,7 @@ func (this *RewritePolyfills) process_2(externs Node, root Node) {
 		var polyfillsToInject []*PolyfillUsageFinder_Polyfill = this.polyfills.getPolyfillsNewerThan(this.injectPolyfillsNewerThan)
 		var librariesToInjectBuilder ImmutableList_BuilderOf[string] = ImmutableList_builder()
 		for _, p := range polyfillsToInject {
-			if !String_isEmpty(p.library) {
+			if p.library != "" {
 				librariesToInjectBuilder.add(strobj_(p.library))
 			}
 		}
@@ -75,7 +75,7 @@ func (this *RewritePolyfills) injectAll(librariesToInject IterableOf[string], fo
 	it_1 := foreach_(any(librariesToInject))
 	for it_1.next() {
 		var library string = str_(it_1.v)
-		if String_isEmpty(library) {
+		if library == "" {
 			panic(new_IllegalStateException_String("unexpected empty library").self())
 		}
 		lastNode = this.runtimeJsLibManager.ensureLibraryInjected(library, forceInjection)
@@ -122,7 +122,7 @@ func (this *RewritePolyfills) inject(polyfillUsage *PolyfillUsageFinder_Polyfill
 	if Object_equals(obj_(polyfill.kind_), obj_(PolyfillUsageFinder_Polyfill_Kind_STATIC)) && !outputFeatureSet.containsFeatureSet(featuresRequiredByPolyfill) {
 		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(polyfillUsage.node(), RewritePolyfills_INSUFFICIENT_OUTPUT_VERSION_ERROR, []string{polyfillUsage.name(), outputFeatureSet.version()}))
 	}
-	if !outputFeatureSet.containsFeatureSet(FeatureSet_valueOf(polyfill.nativeVersion)) && !String_isEmpty(polyfill.library) {
+	if !outputFeatureSet.containsFeatureSet(FeatureSet_valueOf(polyfill.nativeVersion)) && polyfill.library != "" {
 		this.libraries.add(polyfill.library)
 	}
 }

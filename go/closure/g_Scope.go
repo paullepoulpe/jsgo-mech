@@ -64,7 +64,7 @@ func (this *Scope) getParent_impl() *AbstractScope {
 }
 
 func (this *Scope) declare(name string, nameNode Node, input *CompilerInput) *Var {
-	if String_isEmpty(name) {
+	if name == "" {
 		panic(new_IllegalArgumentException_0().self())
 	}
 	if cast_[*Var](this.getOwnSlot(name)) != nil {
@@ -76,7 +76,7 @@ func (this *Scope) declare(name string, nameNode Node, input *CompilerInput) *Va
 }
 
 func (this *Scope) declareImplicitGoogNamespaceIfAbsent(name string, definition Node) *Var {
-	if String_isEmpty(name) {
+	if name == "" {
 		panic(new_IllegalArgumentException_0().self())
 	}
 	if !this.isGlobal() {

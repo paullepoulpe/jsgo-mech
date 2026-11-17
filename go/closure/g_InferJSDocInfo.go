@@ -172,7 +172,7 @@ func (this *InferJSDocInfo) inferJSDocForProperty(n Node, parent Node) {
 	if InferJSDocInfo_shouldAttachJSDocToNominalTypeOrShape(propType, aliasedType) {
 		InferJSDocInfo_attachJSDocInfoToNominalTypeOrShape(propType, typeDoc, Optional_of[string](n.getQualifiedName()).filterFn_(func(s string) bool {
 			_ = s
-			return !String_isEmpty(s)
+			return s != ""
 		}))
 	}
 }

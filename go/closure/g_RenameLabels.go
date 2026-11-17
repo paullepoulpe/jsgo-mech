@@ -122,7 +122,7 @@ func (this *RenameLabels_ProcessLabels) visitBreakOrContinue(t *NodeTraversal, n
 	var nameNode Node = node.getFirstChild()
 	if nameNode != 0 {
 		var name string = nameNode.getString()
-		if String_isEmpty(name) {
+		if name == "" {
 			panic(new_IllegalStateException_0().self())
 		}
 		var li *RenameLabels_LabelInfo = this.getLabelInfo(name)

@@ -2,6 +2,11 @@
 
 package closure
 
+import (
+	"strconv"
+	"strings"
+)
+
 type PeepholeFoldConstants struct {
 	AbstractPeepholeOptimization
 	late           bool
@@ -729,7 +734,7 @@ func (this *PeepholeFoldConstants) isBigInt(n Node) bool {
 }
 
 func (this *PeepholeFoldConstants) maybeReplaceBinaryOpWithNumericResult(result float64, lval float64, rval float64) Node {
-	if ((((String_length(String_valueOf_double(result)) <= ((String_length(String_valueOf_double(lval)) + String_length(String_valueOf_double(rval))) + 1)) && (Math_abs(result) <= PeepholeFoldConstants_MAX_FOLD_NUMBER)) || Double_isNaN(result)) || (result == posinf_)) || (result == neginf_) {
+	if ((((String_length(Double_toString(result)) <= ((String_length(Double_toString(lval)) + String_length(Double_toString(rval))) + 1)) && (Math_abs(result) <= PeepholeFoldConstants_MAX_FOLD_NUMBER)) || Double_isNaN(result)) || (result == posinf_)) || (result == neginf_) {
 		return NodeUtil_numberNode(result, 0)
 	}
 	return 0
@@ -768,7 +773,7 @@ func (this *PeepholeFoldConstants) tryFoldLeftChildOp(n Node, left Node, right N
 func (this *PeepholeFoldConstants) foldAddTemplateLiterals(oldNode Node, left Node, right Node) Node {
 	var lastLeft Node = left.getLastChild()
 	var firstRight Node = right.getFirstChild()
-	if this.endsWithUnescapedDollar(lastLeft.getRawString()) && String_startsWith(firstRight.getRawString(), "{") {
+	if this.endsWithUnescapedDollar(lastLeft.getRawString()) && strings.HasPrefix(firstRight.getRawString(), "{") {
 		return oldNode
 	}
 	var mergeNode Node = IR_templateLiteralString(Optional_of[string]((sstr_(lastLeft.getCookedString().orElse("null")) + sstr_(firstRight.getCookedString().orElse("null")))), (sstr_(lastLeft.getRawString()) + sstr_(firstRight.getRawString())))
@@ -805,7 +810,7 @@ func (this *PeepholeFoldConstants) endsWithUnescapedBackslash(raw string) bool {
 }
 
 func (this *PeepholeFoldConstants) endsWithUnescapedDollar(raw string) bool {
-	if !String_endsWith(raw, "$") {
+	if !strings.HasSuffix(raw, "$") {
 		return false
 	}
 	var backslashCount int32 = 0
@@ -842,7 +847,7 @@ func (this *PeepholeFoldConstants) tryFoldTemplateLiteralSubstitutions(n Node) N
 					if (nextNext != 0) && nextNext.isTemplateLitString() {
 						var curCooked OptionalOf[string] = cur.getCookedString()
 						var nextNextCooked OptionalOf[string] = nextNext.getCookedString()
-						if (String_isEmpty(strValue.get()) && this.endsWithUnescapedDollar(cur.getRawString())) && String_startsWith(nextNext.getRawString(), "{") {
+						if (strValue.get() == "" && this.endsWithUnescapedDollar(cur.getRawString())) && strings.HasPrefix(nextNext.getRawString(), "{") {
 							cur = next
 							continue
 						}
@@ -873,14 +878,14 @@ func (this *PeepholeFoldConstants) tryFoldTemplateLiteralSubstitutions(n Node) N
 }
 
 func (this *PeepholeFoldConstants) isRestrictedOctalEscape(prefixRaw string, suffixRaw string) bool {
-	if String_isEmpty(suffixRaw) {
+	if suffixRaw == "" {
 		return false
 	}
 	var firstChar uint16 = String_charAt(suffixRaw, 0)
 	if (int32(firstChar) < 48) || (int32(firstChar) > 57) {
 		return false
 	}
-	if String_endsWith(prefixRaw, "0") {
+	if strings.HasSuffix(prefixRaw, "0") {
 		var beforeZero string = String_substring(prefixRaw, 0, (String_length(prefixRaw) - 1))
 		return this.endsWithUnescapedBackslash(beforeZero)
 	}
@@ -907,9 +912,9 @@ func (this *PeepholeFoldConstants) tryFoldAdd(node Node, left Node, right Node) 
 		}
 		if NodeUtil_isLiteralValue(left, false) && NodeUtil_isLiteralValue(right, false) {
 			return this.tryFoldAddConstantString(node, left, right)
-		} else if (left.isStringLit() && String_isEmpty(left.getString())) && this.isStringTyped(right) {
+		} else if (left.isStringLit() && left.getString() == "") && this.isStringTyped(right) {
 			return this.replace(node, right.cloneTree_1(true))
-		} else if (right.isStringLit() && String_isEmpty(right.getString())) && this.isStringTyped(left) {
+		} else if (right.isStringLit() && right.getString() == "") && this.isStringTyped(left) {
 			return this.replace(node, left.cloneTree_1(true))
 		} else {
 			return this.tryFoldAdjacentLiteralLeaves(node, left, right)
@@ -1023,7 +1028,7 @@ func PeepholeFoldConstants_tryAbstractRelationalComparison(peepholeOptimization 
 		var lvStr OptionalOf[string] = peepholeOptimization.getSideEffectFreeStringValue(left)
 		var rvStr OptionalOf[string] = peepholeOptimization.getSideEffectFreeStringValue(right)
 		if lvStr.isPresent() && rvStr.isPresent() {
-			if (String_indexOf(lvStr.get(), 11) != -1) || (String_indexOf(rvStr.get(), 11) != -1) {
+			if (strings.Contains(lvStr.get(), "\v")) || (strings.Contains(rvStr.get(), "\v")) {
 				return Tri_UNKNOWN
 			} else {
 				return Tri_forBoolean((String_compareTo(lvStr.get(), rvStr.get()) < 0))
@@ -1228,7 +1233,7 @@ func PeepholeFoldConstants_tryStrictEqualityComparison(peepholeOptimization *Abs
 			var lv OptionalOf[string] = peepholeOptimization.getSideEffectFreeStringValue(left)
 			var rv OptionalOf[string] = peepholeOptimization.getSideEffectFreeStringValue(right)
 			if lv.isPresent() && rv.isPresent() {
-				if (String_indexOf(lv.get(), 11) != -1) || (String_indexOf(rv.get(), 11) != -1) {
+				if (strings.Contains(lv.get(), "\v")) || (strings.Contains(rv.get(), "\v")) {
 					return Tri_UNKNOWN
 				} else {
 					return func() Tri {
@@ -1411,7 +1416,7 @@ func (this *PeepholeFoldConstants) tryFoldGetProp(n Node) Node {
 
 func PeepholeFoldConstants_isFoldableElementIndexKey(right Node, intIndex int32) bool {
 	if right.isStringLit() {
-		return ((intIndex >= 0) && (right.getString() == String_valueOf(intIndex)))
+		return ((intIndex >= 0) && (right.getString() == strconv.Itoa(int(intIndex))))
 	}
 	return NodeUtil_isNumericResult(right)
 }

@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type RegExpTree struct {
 	self_ RegExpTree_I
 }
@@ -80,7 +82,7 @@ func RegExpTree_isIdentifierPart(ch uint16) bool {
 }
 
 func RegExpTree_matchesWholeInput(t *RegExpTree, flags string) bool {
-	if String_indexOf(flags, 109) >= 0 {
+	if strings.Contains(flags, "m") {
 		return false
 	}
 	var c *RegExpTree_Concatenation
@@ -727,7 +729,7 @@ func (this *RegExpTree_Text) simplify_impl(flags string) *RegExpTree {
 	if n == 0 {
 		return RegExpTree_Empty_INSTANCE.up_RegExpTree()
 	}
-	if String_indexOf(flags, 105) >= 0 {
+	if strings.Contains(flags, "i") {
 		var canonicalized string = CaseCanonicalize_caseCanonicalizeString(this.text)
 		if !(this.text == canonicalized) {
 			return new_RegExpTree_Text(canonicalized).up_RegExpTree()
@@ -1635,10 +1637,10 @@ func (this *RegExpTree_UnicodePropertyEscape) zero_RegExpTree_UnicodePropertyEsc
 
 func (this *RegExpTree_UnicodePropertyEscape) init_RegExpTree_UnicodePropertyEscape(propertyName OptionalOf[string], propertyValue string, negated bool) {
 	this.RegExpTree_RegExpTreeAtom.init_RegExpTree_RegExpTreeAtom()
-	if !propertyName.isEmpty() && String_isEmpty(propertyName.get()) {
+	if !propertyName.isEmpty() && propertyName.get() == "" {
 		panic(new_IllegalArgumentException_String("if '=' is present in a unicode property escape, the name cannot be empty").self())
 	}
-	if String_isEmpty(propertyValue) {
+	if propertyValue == "" {
 		panic(new_IllegalArgumentException_String("unicode property escape value cannot be empty").self())
 	}
 	this.propertyName_ = propertyName
@@ -1748,7 +1750,7 @@ func (this *RegExpTree_Charset) simplify_impl(flags string) *RegExpTree {
 		return RegExpTree_NEVER_MATCHES
 	}
 	var best *CharRanges = this.ranges_
-	if String_indexOf(flags, 105) >= 0 {
+	if strings.Contains(flags, "i") {
 		var options *TSet[*CharRanges] = newTSet_(tch_p_CharRanges)
 		options.add(CaseCanonicalize_expandToAllMatched(this.ranges_))
 		options.add(CaseCanonicalize_reduceToMinimum(this.ranges_))
@@ -1903,7 +1905,7 @@ func (this *RegExpTree_DecomposedCharset) appendSourceCode(sb *StringBuilder) {
 		if !this.inverted_ && (String_length(this.namedGroups_) == 2) {
 			sb.append(this.namedGroups_)
 			return
-		} else if this.ranges_.isEmpty() && String_isEmpty(this.namedGroups_) {
+		} else if this.ranges_.isEmpty() && this.namedGroups_ == "" {
 			sb.append(func() string {
 				if this.inverted_ {
 					return "[\\S\\s]"
@@ -1918,7 +1920,7 @@ func (this *RegExpTree_DecomposedCharset) appendSourceCode(sb *StringBuilder) {
 		sb.append_char('^')
 	}
 	sb.append(this.namedGroups_)
-	var rangesStartCharset bool = (!this.inverted_ && String_isEmpty(this.namedGroups_))
+	var rangesStartCharset bool = (!this.inverted_ && this.namedGroups_ == "")
 	var emitDashAtEnd bool = false
 	{
 		var i int32 = 0
@@ -2186,7 +2188,7 @@ func (this *RegExpTree_Concatenation) appendSourceCode_impl(sb *StringBuilder) {
 			}
 			text = p2
 			return true
-		}() && String_endsWith(text.text, "{")))
+		}() && strings.HasSuffix(text.text, "{")))
 	}
 }
 
@@ -2427,7 +2429,7 @@ func (this *RegExpTree_1Parser) parseCharset() *RegExpTree {
 		panic(new_IllegalStateException_0().self())
 	}
 	this.pos++
-	var isCaseInsensitive bool = (String_indexOf(this.cap_flags, 105) >= 0)
+	var isCaseInsensitive bool = (strings.Contains(this.cap_flags, "i"))
 	var inverse bool = ((this.pos < this.limit) && (String_charAt(this.cap_pattern, this.pos) == '^'))
 	if inverse {
 		this.pos++
@@ -2497,7 +2499,7 @@ func (this *RegExpTree_1Parser) parseEscapeChar() int32 {
 			return 9
 		case 'u':
 			return func() int32 {
-				if (String_contains_s(this.cap_flags, "u") && (this.pos < this.limit)) && (String_charAt(this.cap_pattern, this.pos) == '{') {
+				if (strings.Contains(this.cap_flags, "u") && (this.pos < this.limit)) && (String_charAt(this.cap_pattern, this.pos) == '{') {
 					return this.parseBracedUnicodeEscape()
 				}
 				return this.parseHex(4)
@@ -2547,7 +2549,7 @@ func (this *RegExpTree_1Parser) parseEscape() *RegExpTree {
 	if (ch == 'b') || (ch == 'B') {
 		this.pos++
 		return new_RegExpTree_WordBoundary(ch).up_RegExpTree()
-	} else if ((ch == 'p') || (ch == 'P')) && String_contains_s(this.cap_flags, "u") {
+	} else if ((ch == 'p') || (ch == 'P')) && strings.Contains(this.cap_flags, "u") {
 		var negated bool = (ch == 'P')
 		this.pos++
 		if (this.pos < this.limit) && (String_charAt(this.cap_pattern, this.pos) == '{') {

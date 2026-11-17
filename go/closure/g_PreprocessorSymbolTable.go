@@ -83,7 +83,7 @@ func (this *PreprocessorSymbolTable) getQualifiedName(n Node) OptionalOf[string]
 		}
 		return Optional_of[string](n.getQualifiedName()).filterFn_(func(s string) bool {
 			_ = s
-			return !String_isEmpty(s)
+			return s != ""
 		})
 	}()
 }

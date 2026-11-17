@@ -205,7 +205,7 @@ func DotFormatter_getNodeLabel(n Node) string {
 	if String_length(content) > DotFormatter_MAX_LABEL_NAME_LENGTH {
 		content = String_substring(content, 0, DotFormatter_MAX_LABEL_NAME_LENGTH)
 	}
-	if !String_isEmpty(content) {
+	if content != "" {
 		content = ("(" + sstr_(content) + ")")
 	}
 	return content

@@ -153,7 +153,7 @@ func Charsets_encode(text string, charset string) []int8 {
 
 func Charsets_encodeUtf16(text string, canonical string) []int8 {
 	var little bool = (canonical == Charsets_UTF_16LE)
-	var mark bool = ((canonical == Charsets_UTF_16) && !String_isEmpty(text))
+	var mark bool = ((canonical == Charsets_UTF_16) && text != "")
 	var start int32 = func() int32 {
 		if mark {
 			return 2

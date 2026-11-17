@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type JsFileRegexParser struct {
 	JsFileLineParser
 	googMatcher               *Matcher_re2j
@@ -123,13 +125,13 @@ func (this *JsFileRegexParser) setModuleType(type_ JsFileRegexParser_ModuleType)
 }
 
 func (this *JsFileRegexParser) parseJsDocCommentLine_impl(line string) bool {
-	if this.includeGoogBase && String_contains_s(line, JsFileRegexParser_PROVIDES_GOOG_COMMENT) {
+	if this.includeGoogBase && strings.Contains(line, JsFileRegexParser_PROVIDES_GOOG_COMMENT) {
 		this.provides.add("goog")
 		return false
-	} else if String_contains_s(line, JsFileRegexParser_EXTERNS_COMMENT) {
+	} else if strings.Contains(line, JsFileRegexParser_EXTERNS_COMMENT) {
 		this.hasExternsAnnotation = true
 		return false
-	} else if String_contains_s(line, JsFileRegexParser_NOCOMPILE_COMMENT) {
+	} else if strings.Contains(line, JsFileRegexParser_NOCOMPILE_COMMENT) {
 		this.hasNoCompileAnnotation = true
 		return false
 	}
@@ -181,11 +183,11 @@ func (this *JsFileRegexParser) applyGoogMatcher(line string) *Outcome_base {
 
 func (this *JsFileRegexParser) parseLine_impl(line string) *Outcome_base {
 	var lineHasProvidesOrRequires bool = false
-	if String_startsWith(line, JsFileRegexParser_BUNDLED_GOOG_MODULE_START) {
+	if strings.HasPrefix(line, JsFileRegexParser_BUNDLED_GOOG_MODULE_START) {
 		this.seenLoadModule = true
 	}
-	var lineHasProvidesOrRequiresWords bool = (((((String_contains_s(line, "provide") || String_contains_s(line, "require")) || String_contains_s(line, "forwardDeclare")) || String_contains_s(line, "module")) || String_contains_s(line, "addDependency")) || String_contains_s(line, "declareModuleId"))
-	if !String_isEmpty(this.googMatcherBuffer) {
+	var lineHasProvidesOrRequiresWords bool = (((((strings.Contains(line, "provide") || strings.Contains(line, "require")) || strings.Contains(line, "forwardDeclare")) || strings.Contains(line, "module")) || strings.Contains(line, "addDependency")) || strings.Contains(line, "declareModuleId"))
+	if this.googMatcherBuffer != "" {
 		var applied *Outcome_base = this.applyGoogMatcher((sstr_(this.googMatcherBuffer) + sstr_(line)))
 		if applied.isErr() {
 			return Outcome_base_err(applied.error())
@@ -204,14 +206,14 @@ func (this *JsFileRegexParser) parseLine_impl(line string) *Outcome_base {
 	} else {
 		this.googMatcherBuffer = ""
 	}
-	if String_startsWith(line, "import") || String_startsWith(line, "export") {
+	if strings.HasPrefix(line, "import") || strings.HasPrefix(line, "export") {
 		this.es6Matcher.reset_s(line)
 		for this.es6Matcher.find() {
 			this.setModuleType(JsFileRegexParser_ModuleType_ES6_MODULE)
 			lineHasProvidesOrRequires = true
 			var arg OptionalOf[string] = Optional_ofNullable[string](this.es6Matcher.group(1))
 			if arg.isPresent() {
-				if String_startsWith(arg.get(), "goog:") {
+				if strings.HasPrefix(arg.get(), "goog:") {
 					this.requires.add(DependencyInfo_Require_googRequireSymbol(String_substring_int(arg.get(), 5)))
 				} else {
 					var path *ModuleLoader_ModulePath = this.file.resolveJsModule(arg.get(), this.filePath, this.lineNum, this.es6Matcher.start())
@@ -226,7 +228,7 @@ func (this *JsFileRegexParser) parseLine_impl(line string) *Outcome_base {
 			this.setModuleType(JsFileRegexParser_ModuleType_ES6_MODULE)
 		}
 	}
-	return Outcome_base_ok_Object(any(bool(((((((!this.shortcutMode || lineHasProvidesOrRequires) || !String_isEmpty(this.googMatcherBuffer)) || CharMatcher_whitespace().matchesAllOf_s(line)) || !String_contains_s(line, ";")) || String_contains_s(line, "goog.setTestOnly")) || String_contains_s(line, "goog.module.declareLegacyNamespace")))))
+	return Outcome_base_ok_Object(any(bool(((((((!this.shortcutMode || lineHasProvidesOrRequires) || this.googMatcherBuffer != "") || CharMatcher_whitespace().matchesAllOf_s(line)) || !strings.Contains(line, ";")) || strings.Contains(line, "goog.setTestOnly")) || strings.Contains(line, "goog.module.declareLegacyNamespace")))))
 }
 
 func JsFileRegexParser_isSupported() bool {

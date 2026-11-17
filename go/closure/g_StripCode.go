@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type StripCode struct {
 	compiler_                      *AbstractCompiler
 	stripNameSuffixes              ImmutableSetOf[string]
@@ -234,16 +236,16 @@ func (this *StripCode_Strip) removeVarDeclarationsByNameOrRvalue(t *NodeTraversa
 				panic(new_IllegalStateException_String(objstr_(nameNode.box_())).self())
 			}
 			var name string = nameNode.getString()
-			var lastDollarSign int32 = String_lastIndexOf(name, 36)
+			var lastDollarSign int32 = int32(strings.LastIndexByte(name, '$'))
 			var possibleStripName string = func() string {
 				if lastDollarSign != -1 {
-					return String_substring_int(name, (lastDollarSign + 1))
+					return name[lastDollarSign+1:]
 				}
 				return name
 			}()
 			if (this.isStripName(possibleStripName) || this.qualifiedNameBeginsWithStripType(nameNode)) || this.isCallWhoseReturnValueShouldBeStripped(nameNode.getFirstChild()) {
 				this.outer_.varsToRemove.add(strobj_(name))
-				if String_contains_s(name, "$") {
+				if strings.Contains(name, "$") {
 					this.decisionsLog.log(func() any {
 						return strobj_((sstr_(name) + ": initialize with null (" + sstr_(possibleStripName) + ")"))
 					})
@@ -429,7 +431,7 @@ func (this *StripCode_Strip) maybeEliminateClassByNameOrExtends(t *NodeTraversal
 		className = nameNode.getQualifiedName()
 		if this.qualifiedNameBeginsWithStripTypeString(Optional_of[string](className).filterFn_(func(s string) bool {
 			_ = s
-			return !String_isEmpty(s)
+			return s != ""
 		})) {
 			this.decisionsLog.log(func() any {
 				return strobj_((sstr_(className) + ": removing class"))
@@ -450,7 +452,7 @@ func (this *StripCode_Strip) maybeEliminateClassByNameOrExtends(t *NodeTraversal
 		var superclassName string = superclassNode.getQualifiedName()
 		if this.qualifiedNameBeginsWithStripTypeString(Optional_of[string](superclassName).filterFn_(func(s string) bool {
 			_ = s
-			return !String_isEmpty(s)
+			return s != ""
 		})) {
 			t.report(classNode, StripCode_STRIP_TYPE_INHERIT_ERROR, []string{className, superclassName})
 		}
@@ -469,7 +471,7 @@ func (this *StripCode_Strip) qualifiedNameBeginsWithStripType(n Node) bool {
 	var name string = n.getQualifiedName()
 	return this.qualifiedNameBeginsWithStripTypeString(Optional_of[string](name).filterFn_(func(s string) bool {
 		_ = s
-		return !String_isEmpty(s)
+		return s != ""
 	}))
 }
 
@@ -482,7 +484,7 @@ func (this *StripCode_Strip) qualifiedNameBeginsWithStripTypeString(name Optiona
 			}
 		}
 		for _, type_ := range this.outer_.stripTypePrefixesList {
-			if String_startsWith(name.get(), type_) {
+			if strings.HasPrefix(name.get(), type_) {
 				this.logStripName(name, "starts with strip type prefix")
 				return true
 			}
@@ -570,13 +572,13 @@ func (this *StripCode_Strip) isStripName(name string) bool {
 		this.logStripName(Optional_of[string](name), "matches a prefix")
 		return true
 	}
-	if String_isEmpty(name) || Character_isUpperCase(String_charAt(name, 0)) {
+	if name == "" || Character_isUpperCase(String_charAt(name, 0)) {
 		this.logNotAStripName(Optional_of[string](name), "empty or starts with uppercase")
 		return false
 	}
 	var lcName string = String_toLowerCase(name, Locale_ROOT)
 	for _, stripName := range this.outer_.stripNamePrefixesLowerCaseList {
-		if String_startsWith(lcName, stripName) {
+		if strings.HasPrefix(lcName, stripName) {
 			this.logStripNameSupplier(name, func() any {
 				return strobj_(("matches lc prefix: " + sstr_(stripName)))
 			})
@@ -584,7 +586,7 @@ func (this *StripCode_Strip) isStripName(name string) bool {
 		}
 	}
 	for _, stripName := range this.outer_.stripNameSuffixesLowerCaseList {
-		if String_endsWith(lcName, stripName) {
+		if strings.HasSuffix(lcName, stripName) {
 			this.logStripNameSupplier(name, func() any {
 				return strobj_(("matches lc suffix: " + sstr_(stripName)))
 			})

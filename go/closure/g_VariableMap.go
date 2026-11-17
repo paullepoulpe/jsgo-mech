@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type VariableMap struct {
 	map__ *SimpleBiMap
 }
@@ -68,7 +70,7 @@ func VariableMap_fromBytes(bytes []int8) *Outcome_base {
 func VariableMap_fromStreamBytes(bytes []int8) *Outcome_base {
 	var map_ ImmutableMap_BuilderOf[string, string] = ImmutableMap_builder()
 	for _, line := range TextFiles_splitLines(Io_utf8String(bytes)) {
-		if String_isEmpty(line) {
+		if line == "" {
 			continue
 		}
 		var pos int32 = VariableMap_findIndexOfUnescapedChar(line, VariableMap_SEPARATOR)
@@ -99,7 +101,7 @@ func VariableMap_fromLines(string_ string) *Outcome_base {
 		}
 		var line string = String_substring(string_, startOfLine, newLine)
 		startOfLine = (endOfLine + 1)
-		if String_isEmpty(line) {
+		if line == "" {
 			continue
 		}
 		var pos int32 = VariableMap_findIndexOfUnescapedChar(line, VariableMap_SEPARATOR)
@@ -117,7 +119,7 @@ func VariableMap_fromLines(string_ string) *Outcome_base {
 }
 
 func VariableMap_escape(value string) string {
-	return String_replace_s(String_replace_s(String_replace_s(value, "\\", "\\\\"), ":", "\\:"), "\n", "\\n")
+	return strings.ReplaceAll(strings.ReplaceAll(strings.ReplaceAll(value, "\\", "\\\\"), ":", "\\:"), "\n", "\\n")
 }
 
 func VariableMap_findIndexOfUnescapedChar(value string, stopChar uint16) int32 {

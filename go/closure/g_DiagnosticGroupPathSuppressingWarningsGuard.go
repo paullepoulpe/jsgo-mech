@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type DiagnosticGroupPathSuppressingWarningsGuard struct {
 	WarningsGuard
 	group *DiagnosticGroup
@@ -34,7 +36,7 @@ func new_DiagnosticGroupPathSuppressingWarningsGuard(group *DiagnosticGroup, par
 }
 
 func (this *DiagnosticGroupPathSuppressingWarningsGuard) level_impl(error_ *JSError) CheckLevel {
-	if error_.sourceName().isEmpty() || !String_contains_s(error_.sourceName().get(), this.part) {
+	if error_.sourceName().isEmpty() || !strings.Contains(error_.sourceName().get(), csStr_(this.part)) {
 		return 0
 	}
 	return func() CheckLevel {

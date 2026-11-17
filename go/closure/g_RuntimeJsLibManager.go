@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type RuntimeJsLibManager struct {
 	changeTracker        *ChangeTracker
 	mode_                RuntimeJsLibManager_RuntimeLibraryMode
@@ -64,7 +66,7 @@ func (this *RuntimeJsLibManager) getExternedFields() []RuntimeJsLibManager_Exter
 }
 
 func (this *RuntimeJsLibManager) createField(fieldName string) *RuntimeJsLibManager_InternalField {
-	if String_isEmpty(fieldName) {
+	if fieldName == "" {
 		panic(new_IllegalArgumentException_String(sstr_(fieldName)).self())
 	}
 	var parts []string = sliceImm_(tc_string, Splitter_on('.').splitToList_s(fieldName))
@@ -83,7 +85,7 @@ func (this *RuntimeJsLibManager) createField(fieldName string) *RuntimeJsLibMana
 	var compiledName string = func() string {
 		switch this.mode_ {
 		case RuntimeJsLibManager_RuntimeLibraryMode_EXTERN_FIELD_NAMES:
-			return String_replace_char_char(fieldName, '.', '_')
+			return strings.ReplaceAll(fieldName, ".", "_")
 		case RuntimeJsLibManager_RuntimeLibraryMode_NO_OP, RuntimeJsLibManager_RuntimeLibraryMode_RECORD_ONLY, RuntimeJsLibManager_RuntimeLibraryMode_RECORD_AND_VALIDATE_FIELDS, RuntimeJsLibManager_RuntimeLibraryMode_INJECT:
 			return fieldName
 		}

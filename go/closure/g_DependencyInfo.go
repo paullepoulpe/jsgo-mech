@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type DependencyInfo interface {
 	getName() string
 	getPathRelativeToClosureBase() string
@@ -317,8 +319,8 @@ func DependencyInfo_Util_writeJsObject(out Appendable, map_ *TMap[string, string
 	it_1 := foreach_(any(map_.asMap().entrySet()))
 	for it_1.next() {
 		var entry Map_Entry = icast_Map_Entry(it_1.v)
-		var key string = String_replace_s(str_(entry.getKey()), "'", "\\'")
-		var value string = String_replace_s(str_(entry.getValue()), "'", "\\'")
+		var key string = strings.ReplaceAll(str_(entry.getKey()), "'", "\\'")
+		var value string = strings.ReplaceAll(str_(entry.getValue()), "'", "\\'")
 		entries.add(("'" + sstr_(key) + "': '" + sstr_(value) + "'"))
 	}
 	out.append_CharSequence_s("{")
@@ -337,5 +339,5 @@ func DependencyInfo_Util_writeJsArray(out Appendable, values CollectionOf[string
 var lambda_DependencyInfo_Util_writeJsArray_1_ = &Function_base_fn{func(arg_ any) any {
 	var arg string = str_(arg_)
 	_ = arg
-	return strobj_(("'" + sstr_(String_replace_s(arg, "'", "\\'")) + "'"))
+	return strobj_(("'" + sstr_(strings.ReplaceAll(arg, "'", "\\'")) + "'"))
 }}

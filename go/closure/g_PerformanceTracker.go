@@ -2,6 +2,11 @@
 
 package closure
 
+import (
+	"strconv"
+	"strings"
+)
+
 type PerformanceTracker struct {
 	externsRoot                    Node
 	mode_                          CompilerOptions_TracerMode
@@ -366,7 +371,7 @@ func (this *PerformanceTracker) recordPrePruningInputCount(originalInputs Iterab
 	for it_1.next() {
 		var input *CompilerInput = cast_[*CompilerInput](it_1.v)
 		var name string = input.getSourceFile().getName()
-		if String_endsWith(name, ".i.js") {
+		if strings.HasSuffix(name, ".i.js") {
 			this.transitiveSummarySourcesParsed += 1
 			this.transitiveSummaryLinesParsed += input.getSourceFile().getNumLines()
 		}
@@ -375,7 +380,7 @@ func (this *PerformanceTracker) recordPrePruningInputCount(originalInputs Iterab
 	for it_3.next() {
 		var input *CompilerInput = cast_[*CompilerInput](it_3.v)
 		var name string = input.getSourceFile().getName()
-		if String_endsWith(name, ".i.js") {
+		if strings.HasSuffix(name, ".i.js") {
 			this.transitiveSummarySourcesParsed += 1
 			this.transitiveSummaryLinesParsed += input.getSourceFile().getNumLines()
 		}
@@ -412,13 +417,13 @@ func (this *PerformanceTracker) outputTracerReport(output *Output) {
 	for _, entry := range sortedPassSummary {
 		var key string = str_(entry.getKey())
 		var stats *PerformanceTracker_Stats = cast_[*PerformanceTracker_Stats](entry.getValue())
-		output.println(String_format("%s,%d,%d,%d,%d,%d,%d,%d", []any{strobj_(key), any(int64(stats.runtime_)), any(int32(stats.allocMem)), any(int32(stats.runs)), any(int32(stats.changes)), any(int32(stats.astDiff)), any(int32(stats.diff)), any(int32(stats.gzDiff))}))
+		output.println((sstr_(key) + "," + istr_(int64(int64(stats.runtime_))) + "," + istr_(int64(int32(stats.allocMem))) + "," + istr_(int64(int32(stats.runs))) + "," + istr_(int64(int32(stats.changes))) + "," + istr_(int64(int32(stats.astDiff))) + "," + istr_(int64(int32(stats.diff))) + "," + istr_(int64(int32(stats.gzDiff)))))
 	}
 	output.println(JSCompStrings_lines([]string{"", "Log:", "pass,runtime,allocMem,codeChanged,astReduction,reduction,gzReduction,astSize,size,gzSize"}))
 	it_3 := eachOf_(&this.log_)
 	for it_3.next() {
 		var stats *PerformanceTracker_Stats = it_3.v
-		output.print(String_format("%s,%d,%d,%s,%d,%d,%d,%d,%d,%d\n", []any{strobj_(stats.pass), any(int64(stats.runtime_)), any(int32(stats.allocMem)), strobj_(String_valueOf_boolean((stats.changes == 1))), any(int32(stats.astDiff)), any(int32(stats.diff)), any(int32(stats.gzDiff)), any(int32(stats.astSize)), any(int32(stats.size_)), any(int32(stats.gzSize))}))
+		output.print((sstr_(stats.pass) + "," + istr_(int64(int64(stats.runtime_))) + "," + istr_(int64(int32(stats.allocMem))) + "," + sstr_(strconv.FormatBool((stats.changes == 1))) + "," + istr_(int64(int32(stats.astDiff))) + "," + istr_(int64(int32(stats.diff))) + "," + istr_(int64(int32(stats.gzDiff))) + "," + istr_(int64(int32(stats.astSize))) + "," + istr_(int64(int32(stats.size_))) + "," + istr_(int64(int32(stats.gzSize))) + "\n"))
 	}
 	if this.astManifest != nil {
 		output.println(JSCompStrings_lines([]string{"", "Input AST Manifest:", "token,count"}))

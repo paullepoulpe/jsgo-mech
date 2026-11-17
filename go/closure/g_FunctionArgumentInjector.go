@@ -230,7 +230,7 @@ func (this *FunctionArgumentInjector) gatherCallArgumentsNeedingTemps(compiler *
 			requiresTempsUpToThisParameterName = parameterName
 		}
 	}
-	if !String_isEmpty(requiresTempsUpToThisParameterName) {
+	if requiresTempsUpToThisParameterName != "" {
 		it_4 := foreach_(obj_(cast_[*ImmutableSet](argMap.keySet())))
 		for it_4.next() {
 			var parameterName string = str_(it_4.v)

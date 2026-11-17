@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type FilePaths struct {
 }
 
@@ -32,7 +34,7 @@ func FilePaths_join(first string, more []string) string {
 	var path strBuilder_
 	path.append(first)
 	for _, part := range more {
-		if !String_isEmpty(part) {
+		if part != "" {
 			if path.length() > 0 {
 				path.append_char('/')
 			}
@@ -43,7 +45,7 @@ func FilePaths_join(first string, more []string) string {
 }
 
 func FilePaths_isAbsolute(path string) bool {
-	return String_startsWith(path, "/")
+	return strings.HasPrefix(path, "/")
 }
 
 func FilePaths_fileName(path string) string {
@@ -71,7 +73,7 @@ func FilePaths_names(plain string) []string {
 		return names
 	}
 	var start int32 = func() int32 {
-		if String_startsWith(plain, "/") {
+		if strings.HasPrefix(plain, "/") {
 			return 1
 		}
 		return 0
@@ -126,10 +128,10 @@ func FilePaths_normalize(path string) string {
 func FilePaths_resolve(path string, other string) string {
 	var base string = FilePaths_clean(path)
 	var target string = FilePaths_clean(other)
-	if FilePaths_isAbsolute(target) || String_isEmpty(base) {
+	if FilePaths_isAbsolute(target) || base == "" {
 		return target
 	}
-	if String_isEmpty(target) {
+	if target == "" {
 		return base
 	}
 	return func() string {
@@ -149,7 +151,7 @@ func FilePaths_relativize(path string, other string) OptionalOf[string] {
 	if base == target {
 		return Optional_of[string]("")
 	}
-	if String_isEmpty(base) {
+	if base == "" {
 		return Optional_of[string](target)
 	}
 	if FilePaths_hasDots(base) || FilePaths_hasDots(target) {
@@ -158,13 +160,13 @@ func FilePaths_relativize(path string, other string) OptionalOf[string] {
 		if base == target {
 			return Optional_of[string]("")
 		}
-		if String_isEmpty(base) {
+		if base == "" {
 			return Optional_of[string](target)
 		}
 	}
 	var from []string = FilePaths_names(base)
 	var to []string = func() []string {
-		if String_isEmpty(target) {
+		if target == "" {
 			return []string{}
 		}
 		return FilePaths_names(target)
@@ -186,7 +188,7 @@ func FilePaths_relativize(path string, other string) OptionalOf[string] {
 		}())
 	}
 	var rest string = FilePaths_joinNames(to, common)
-	if (result.length() > 0) && !String_isEmpty(rest) {
+	if (result.length() > 0) && rest != "" {
 		result.append_char('/')
 	}
 	return Optional_of[string](tostrNN_(result.append(rest)))

@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type ErrorToFixMapper struct {
 	compiler_             *AbstractCompiler
 	metadataForEachScript map[Node]*ScriptMetadata
@@ -166,16 +168,16 @@ func (this *ErrorToFixMapper) getFixForReferenceToShortImportByLongName(error_ *
 		if error_.node().isQualifiedName() {
 			return Optional_of[string](error_.node().getQualifiedName()).filterFn_(func(s string) bool {
 				_ = s
-				return !String_isEmpty(s)
+				return s != ""
 			})
 		}
 		return Optional_of[string](error_.node().getString())
 	}()
-	return fix.replace(error_.node(), NodeUtil_newQName_AbstractCompiler_String(this.compiler_, String_replace_s(oldName.get(), fullName, shortName.get())), this.compiler_).build()
+	return fix.replace(error_.node(), NodeUtil_newQName_AbstractCompiler_String(this.compiler_, strings.ReplaceAll(oldName.get(), csStr_(fullName), csStr_(shortName.get()))), this.compiler_).build()
 }
 
 func (this *ErrorToFixMapper) getFixesForImplicitNullabilityErrors(error_ *JSError) ImmutableListOf[*SuggestedFix] {
-	if String_isEmpty(error_.node().getSourceFileName()) {
+	if error_.node().getSourceFileName() == "" {
 		return ImmutableList_of()
 	}
 	var qmark *SuggestedFix = new_SuggestedFix_Builder().attachMatchedNodeInfo(error_.node(), this.compiler_).insertBefore(error_.node(), "?").setDescription("Make nullability explicit").build()
@@ -239,12 +241,12 @@ func (this *ErrorToFixMapper) getFixForMissingRequire(error_ *JSError, importTyp
 		if error_.node().isQualifiedName() {
 			return Optional_of[string](error_.node().getQualifiedName()).filterFn_(func(s string) bool {
 				_ = s
-				return !String_isEmpty(s)
+				return s != ""
 			})
 		}
 		return Optional_of[string](error_.node().getString())
 	}()
-	if ok_, a1_, a2_ := String_startsWith(qName.get(), namespaceToRequire), error_.node(), namespaceToRequire; !ok_ {
+	if ok_, a1_, a2_ := strings.HasPrefix(qName.get(), namespaceToRequire), error_.node(), namespaceToRequire; !ok_ {
 		panic(new_IllegalStateException_String(Strings_lenientFormat("Expected error location %s to start with namespace <%s>", []any{a1_.box_(), strobj_(a2_)})).self())
 	}
 	var script Node = this.compiler_.getScriptNode(error_.sourceName().orElseThrow())
@@ -254,7 +256,7 @@ func (this *ErrorToFixMapper) getFixForMissingRequire(error_ *JSError, importTyp
 	var fix *SuggestedFix_Builder = new_SuggestedFix_Builder().attachMatchedNodeInfo(error_.node(), this.compiler_).addImport(match, namespaceToRequire, importType, scriptMetadata)
 	var alias OptionalOf[string] = scriptMetadata.getAlias(namespaceToRequire)
 	if alias.isPresent() {
-		fix.replace(error_.node(), NodeUtil_newQName_AbstractCompiler_String(this.compiler_, String_replace_s(qName.get(), namespaceToRequire, alias.get())), this.compiler_)
+		fix.replace(error_.node(), NodeUtil_newQName_AbstractCompiler_String(this.compiler_, strings.ReplaceAll(qName.get(), csStr_(namespaceToRequire), csStr_(alias.get()))), this.compiler_)
 	}
 	return fix.build()
 }

@@ -176,11 +176,11 @@ func (this *CodingConvention_SubclassRelationship) init_CodingConvention_Subclas
 	this.type__ = type_
 	this.subclassName = Optional_of[string](subclassNode.getQualifiedName()).filterFn_(func(s string) bool {
 		_ = s
-		return !String_isEmpty(s)
+		return s != ""
 	})
 	this.superclassName = Optional_of[string](superclassNode.getQualifiedName()).filterFn_(func(s string) bool {
 		_ = s
-		return !String_isEmpty(s)
+		return s != ""
 	})
 }
 

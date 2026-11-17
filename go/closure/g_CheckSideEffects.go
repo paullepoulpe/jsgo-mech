@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type CheckSideEffects struct {
 	NodeTraversal_AbstractPostOrderCallback
 	report_                   bool
@@ -61,7 +63,7 @@ func (this *CheckSideEffects) visit_impl(t *NodeTraversal, n Node, parent Node) 
 	if n.isQualifiedName() && (n.getJSDocInfo() != nil) {
 		return
 	}
-	if (((n.isStringLit() && n.getParent().isExprResult()) && n.getGrandparent().isScript()) && String_startsWith(n.getSourceFileName(), AbstractCompiler_RUNTIME_LIB_DIR)) && String_startsWith(n.getString(), "require ") {
+	if (((n.isStringLit() && n.getParent().isExprResult()) && n.getGrandparent().isScript()) && strings.HasPrefix(n.getSourceFileName(), AbstractCompiler_RUNTIME_LIB_DIR)) && strings.HasPrefix(n.getString(), "require ") {
 		return
 	}
 	var isResultUsed bool = NodeUtil_isExpressionResultUsed(n)
@@ -83,7 +85,7 @@ func (this *CheckSideEffects) visit_impl(t *NodeTraversal, n Node, parent Node) 
 		} else if n.isCall() && ((n.getFirstChild().isGetProp() || n.getFirstChild().isName()) || n.getFirstChild().isStringLit()) {
 			var qname string = n.getFirstChild().getQualifiedName()
 			var isDefinedInSrc bool = false
-			if !String_isEmpty(qname) {
+			if qname != "" {
 				if n.getFirstChild().isGetProp() {
 					var rootNameNode Node = NodeUtil_getRootOfQualifiedName(n.getFirstChild())
 					isDefinedInSrc = (((rootNameNode != 0) && rootNameNode.isName()) && (cast_[*Var](t.getScope().getVar(rootNameNode.getString()).self()) != nil))
@@ -91,7 +93,7 @@ func (this *CheckSideEffects) visit_impl(t *NodeTraversal, n Node, parent Node) 
 					isDefinedInSrc = (cast_[*Var](t.getScope().getVar(qname).self()) != nil)
 				}
 			}
-			if (!String_isEmpty(qname) && has_(this.noSideEffectExterns, qname)) && !isDefinedInSrc {
+			if (qname != "" && has_(this.noSideEffectExterns, qname)) && !isDefinedInSrc {
 				this.problemNodes = append(this.problemNodes, n)
 				if this.report_ {
 					var msg string = ("The result of the extern function call '" + sstr_(qname) + "' is not being used.")
@@ -178,7 +180,7 @@ func (this *CheckSideEffects_StripProtection) visit_impl(t *NodeTraversal, n Nod
 		if target.getString() == CheckSideEffects_J2CL_PROTECTOR_FN {
 			if !J2clSourceUtils_isJ2clSourceString(Optional_of[string](n.getSourceFileName()).filterFn_(func(s string) bool {
 				_ = s
-				return !String_isEmpty(s)
+				return s != ""
 			})) {
 				panic(new_IllegalStateException_String("Only allowed for J2CL code").self())
 			}

@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type SourceMapConsumerFactory struct {
 }
 
@@ -20,9 +22,9 @@ func SourceMapConsumerFactory_parse_String(contents string) *Outcome_base {
 }
 
 func SourceMapConsumerFactory_parse_String_SourceMapSupplier(contents string, supplier SourceMapSupplier) *Outcome_base {
-	if String_startsWith(contents, "/** Begin line maps. **/") {
+	if strings.HasPrefix(contents, "/** Begin line maps. **/") {
 		return Outcome_base_err(new_SourceMapParseException("This appears to be a V1 SourceMap, which is not supported.").up_Throwable())
-	} else if String_startsWith(contents, "{") {
+	} else if strings.HasPrefix(contents, "{") {
 		var sourceMapObjectOutcome *Outcome_base = SourceMapObjectParser_parse(contents)
 		if sourceMapObjectOutcome.isErr() {
 			return Outcome_base_err(sourceMapObjectOutcome.error())
@@ -44,7 +46,7 @@ func SourceMapConsumerFactory_parse_String_SourceMapSupplier(contents string, su
 }
 
 func SourceMapConsumerFactory_parseFast(contents string) *Outcome_base {
-	if String_startsWith(contents, "{") {
+	if strings.HasPrefix(contents, "{") {
 		var sourceMapObjectOutcome *Outcome_base = SourceMapObjectParser_parseFast(contents)
 		if sourceMapObjectOutcome.isErr() {
 			return Outcome_base_err(sourceMapObjectOutcome.error())

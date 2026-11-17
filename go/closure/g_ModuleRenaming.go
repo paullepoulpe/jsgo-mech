@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type ModuleRenaming struct {
 }
 
@@ -104,7 +106,7 @@ func (this *ModuleRenaming_GlobalizedModuleName) toQname(astFactory *AstFactory)
 }
 
 func (this *ModuleRenaming_GlobalizedModuleName) getprop(property string) *ModuleRenaming_GlobalizedModuleName {
-	if String_isEmpty(property) || String_contains_s(property, ".") {
+	if property == "" || strings.Contains(property, ".") {
 		panic(new_IllegalArgumentException_0().self())
 	}
 	return ModuleRenaming_GlobalizedModuleName_create_QualifiedName_JSType(this.aliasName().getprop(property), this.rootNameType())

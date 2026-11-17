@@ -188,10 +188,10 @@ func (this *DefaultPassConfig) finit_DefaultPassConfig() {
 		var convention CodingConvention = compiler.getCodingConvention()
 		var pass *GenerateExports = new_GenerateExports(compiler, this.options_.shouldExportLocalPropertyDefinitions(), Optional_of[string](convention.getExportSymbolFunction()).filterFn_(func(s string) bool {
 			_ = s
-			return !String_isEmpty(s)
+			return s != ""
 		}), Optional_of[string](convention.getExportPropertyFunction()).filterFn_(func(s string) bool {
 			_ = s
-			return !String_isEmpty(s)
+			return s != ""
 		}))
 		return obj_(new_DefaultPassConfig_1(this, pass, compiler))
 		panic("unreachable")
@@ -612,7 +612,7 @@ var lambda_DefaultPassConfig_finit_DefaultPassConfig_6_ = &Function_fn{func(comp
 	var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
 	_ = compiler
 	var convention CodingConvention = compiler.getCodingConvention()
-	if !String_isEmpty(convention.getExportSymbolFunction()) {
+	if convention.getExportSymbolFunction() != "" {
 		return obj_(new_ExportTestFunctions(compiler, convention.getExportSymbolFunction(), convention.getExportPropertyFunction()))
 	} else {
 		return obj_(ErrorPass_createFromDiagnosticType(compiler, DefaultPassConfig_GENERATE_EXPORTS_ERROR))

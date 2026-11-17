@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type ClosureCodingConvention struct {
 	CodingConventions_Proxy
 }
@@ -79,9 +81,9 @@ func ClosureCodingConvention_typeofClassDefiningName(callName Node) CodingConven
 		methodName = Optional_of[string](callName.getString())
 	} else if callName.isName() {
 		var name string = callName.getString()
-		var dollarIndex int32 = String_lastIndexOf(name, 36)
+		var dollarIndex int32 = int32(strings.LastIndexByte(name, '$'))
 		if dollarIndex != -1 {
-			methodName = Optional_of[string](String_substring_int(name, (dollarIndex + 1)))
+			methodName = Optional_of[string](name[dollarIndex+1:])
 		}
 	}
 	if methodName.isPresent() {
@@ -218,7 +220,7 @@ func (this *ClosureCodingConvention) getObjectLiteralCast_impl(callNode Node) *C
 	}
 	return new_CodingConvention_ObjectLiteralCast(Optional_of[string](typeNode.getQualifiedName()).filterFn_(func(s string) bool {
 		_ = s
-		return !String_isEmpty(s)
+		return s != ""
 	}), typeNode.getNext(), nil)
 }
 

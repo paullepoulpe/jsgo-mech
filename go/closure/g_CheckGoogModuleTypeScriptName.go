@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type CheckGoogModuleTypeScriptName struct {
 	compiler_ *AbstractCompiler
 	finished  bool
@@ -49,12 +51,12 @@ func (this *CheckGoogModuleTypeScriptName) checkGoogModuleNamespace(t *NodeTrave
 	} else if google3Index != 0 {
 		sourceName = Optional_of[string](String_substring_int(sourceName.get(), google3Index))
 	}
-	var replacementNamespace string = String_substring(String_replace_char_char(sourceName.get(), '/', '.'), 0, (String_length(sourceName.get()) - String_length(".js")))
+	var replacementNamespace string = String_substring(strings.ReplaceAll(sourceName.get(), "/", "."), 0, (String_length(sourceName.get()) - int32(len(".js"))))
 	if !(originalNamespace.get() == replacementNamespace) {
 		it_1 := foreach_(any(CheckGoogModuleTypeScriptName_allowedDirectories))
 		for it_1.next() {
 			var allowedDirectory string = str_(it_1.v)
-			if String_startsWith(sourceName.get(), allowedDirectory) {
+			if strings.HasPrefix(sourceName.get(), allowedDirectory) {
 				t.report(n, CheckGoogModuleTypeScriptName_MODULE_NAMESPACE_MISMATCHES_TYPESCRIPT_NAMESPACE, []string{replacementNamespace})
 				return
 			}

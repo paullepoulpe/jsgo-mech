@@ -62,7 +62,7 @@ func (this *Output) encodedAs(charset string) *Output {
 }
 
 func (this *Output) print(s string) {
-	if String_isEmpty(s) {
+	if s == "" {
 		return
 	}
 	this.pending.append(s)
@@ -80,7 +80,7 @@ func (this *Output) printStackTrace(t *Throwable) {
 }
 
 func (this *Output) append_CharSequence(s any) Appendable {
-	this.print(String_valueOf_Object(s))
+	this.print(objstr_(s))
 	return this
 }
 
@@ -91,7 +91,7 @@ func (this *Output) append_CharSequence_s(s string) Appendable {
 }
 
 func (this *Output) append_CharSequence_int_int(s any, start int32, end int32) Appendable {
-	this.print(String_substring(String_valueOf_Object(s), start, end))
+	this.print(String_substring(objstr_(s), start, end))
 	return this
 }
 

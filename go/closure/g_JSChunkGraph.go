@@ -65,7 +65,7 @@ func JSChunkGraph_initChunksByDepth(chunks []*JSChunk) *Outcome_base {
 		for _, dep := range chunk.getDependencies() {
 			var depDepth int32 = dep.getDepth()
 			if depDepth < 0 {
-				return Outcome_base_err(new_JSChunkGraph_ChunkDependenceException(String_format("Chunks not in dependency order: %s preceded %s", []any{strobj_(chunk.getName()), strobj_(dep.getName())}), chunk, dep).up_Throwable())
+				return Outcome_base_err(new_JSChunkGraph_ChunkDependenceException(("Chunks not in dependency order: " + sstr_(chunk.getName()) + " preceded " + sstr_(dep.getName())), chunk, dep).up_Throwable())
 			}
 			depth = Math_max(depth, (depDepth + 1))
 		}

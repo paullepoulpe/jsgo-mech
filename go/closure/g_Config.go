@@ -59,7 +59,7 @@ func Config_buildAnnotations(allowlist IterableOf[string]) ImmutableMapOf[string
 	it_1 := foreach_(any(allowlist))
 	for it_1.next() {
 		var unrecognizedAnnotation string = str_(it_1.v)
-		if !String_isEmpty(unrecognizedAnnotation) && !Map_containsKey_s(Annotation_parsing_recognizedAnnotations, unrecognizedAnnotation) {
+		if unrecognizedAnnotation != "" && !Map_containsKey_s(Annotation_parsing_recognizedAnnotations, unrecognizedAnnotation) {
 			annotationsBuilder.put(strobj_(unrecognizedAnnotation), obj_(Annotation_parsing_NOT_IMPLEMENTED))
 		}
 	}

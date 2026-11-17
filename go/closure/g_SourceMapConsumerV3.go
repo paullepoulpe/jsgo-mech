@@ -44,7 +44,7 @@ func (this *SourceMapConsumerV3) parse_2(sourceMapObject *SourceMapObject, secti
 		return Outcome_base_err(new_SourceMapParseException(("Unknown version: " + istr_(int64(sourceMapObject.getVersion())))).up_Throwable())
 	}
 	this.file = sourceMapObject.getFile()
-	if this.file.isPresent() && String_isEmpty(this.file.get()) {
+	if this.file.isPresent() && this.file.get() == "" {
 		return Outcome_base_err(new_SourceMapParseException("File entry is empty").up_Throwable())
 	}
 	if sourceMapObject.getSections() != nil {

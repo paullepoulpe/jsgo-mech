@@ -318,7 +318,7 @@ func (this *NodeTraversal) getSourceName() OptionalOf[string] {
 			if this.currentScript != 0 {
 				return Optional_of[string](this.currentScript.getSourceFileName()).filterFn_(func(s string) bool {
 					_ = s
-					return !String_isEmpty(s)
+					return s != ""
 				})
 			}
 			return Optional_of[string]("")
@@ -927,7 +927,7 @@ func (this *NodeTraversal) getBestSourceFileName(n Node) OptionalOf[string] {
 		}
 		return Optional_of[string](n.getSourceFileName()).filterFn_(func(s string) bool {
 			_ = s
-			return !String_isEmpty(s)
+			return s != ""
 		})
 	}()
 }

@@ -80,7 +80,7 @@ func (this *ChainableReverseAbstractInterpreter) getTypeIfRefinable(node Node, s
 		return nil
 	case tokOrd1_GETPROP:
 		var qualifiedName string = node.getQualifiedName()
-		if String_isEmpty(qualifiedName) {
+		if qualifiedName == "" {
 			return nil
 		}
 		var propVar StaticTypedSlot = icast_StaticTypedSlot(scope.getSlot(qualifiedName))
@@ -107,7 +107,7 @@ func (this *ChainableReverseAbstractInterpreter) declareNameInScope(scope FlowSc
 			return scope.inferSlotType(node.getString(), type_)
 		case tokOrd1_GETPROP:
 			var qualifiedName string = node.getQualifiedName()
-			if String_isEmpty(qualifiedName) {
+			if qualifiedName == "" {
 				panic(new_IllegalStateException_0().self())
 			}
 			var origType *JSType = node.getJSType()

@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type GoogleCodingConvention struct {
 	CodingConventions_Proxy
 }
@@ -70,7 +72,7 @@ func (this *GoogleCodingConvention) isValidEnumKey_impl(key OptionalOf[string]) 
 }
 
 func (this *GoogleCodingConvention) isOptionalParameter_impl(parameter Node) bool {
-	return (this.CodingConventions_Proxy.isOptionalParameter_impl(parameter) || (parameter.isName() && String_startsWith(parameter.getString(), GoogleCodingConvention_OPTIONAL_ARG_PREFIX)))
+	return (this.CodingConventions_Proxy.isOptionalParameter_impl(parameter) || (parameter.isName() && strings.HasPrefix(parameter.getString(), GoogleCodingConvention_OPTIONAL_ARG_PREFIX)))
 }
 
 func (this *GoogleCodingConvention) isVarArgsParameter_impl(parameter Node) bool {
@@ -78,7 +80,7 @@ func (this *GoogleCodingConvention) isVarArgsParameter_impl(parameter Node) bool
 }
 
 func (this *GoogleCodingConvention) isExported_2_impl(name string, local bool) bool {
-	return (this.CodingConventions_Proxy.isExported_2_impl(name, local) || (!local && String_startsWith(name, "_")))
+	return (this.CodingConventions_Proxy.isExported_2_impl(name, local) || (!local && strings.HasPrefix(name, "_")))
 }
 
 func (this *GoogleCodingConvention) isClassFactoryCall_impl(callNode Node) bool {

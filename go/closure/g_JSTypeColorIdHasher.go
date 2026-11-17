@@ -57,7 +57,7 @@ func (this *JSTypeColorIdHasher) putReferenceNameType(hasher Hasher, type_ *Obje
 		return
 	}
 	var moduleId string = sourceRef.getGoogModuleId()
-	if String_isEmpty(moduleId) {
+	if moduleId == "" {
 		hasher.putInt(JSTypeColorIdHasher_Marker_NO_GOOG_MODULE_ID)
 	} else {
 		JSTypeColorIdHasher_putUtf8(hasher, moduleId)

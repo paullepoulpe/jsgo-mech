@@ -182,7 +182,7 @@ func (this *CheckAccessControls) checkTypeDeprecation(t *NodeTraversal, n Node) 
 		return
 	}
 	var message *DiagnosticType = func() *DiagnosticType {
-		if String_isEmpty(deprecationInfo.get()) {
+		if deprecationInfo.get() == "" {
 			return CheckAccessControls_DEPRECATED_CLASS
 		}
 		return CheckAccessControls_DEPRECATED_CLASS_REASON
@@ -225,7 +225,7 @@ func (this *CheckAccessControls) checkPropertyDeprecation(t *NodeTraversal, prop
 	if objectType != nil {
 		var deprecationInfo OptionalOf[string] = CheckAccessControls_getPropertyDeprecationInfo(objectType, propertyName)
 		if deprecationInfo.isPresent() {
-			if !String_isEmpty(deprecationInfo.get()) {
+			if deprecationInfo.get() != "" {
 				this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(propRef.sourceNode(), CheckAccessControls_DEPRECATED_PROP_REASON, []string{propertyName, propRef.getReadableTypeNameOrDefault(), deprecationInfo.get()}))
 			} else {
 				this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(propRef.sourceNode(), CheckAccessControls_DEPRECATED_PROP, []string{propertyName, propRef.getReadableTypeNameOrDefault()}))
@@ -1066,7 +1066,7 @@ func (this *CheckAccessControls_PropertyReference) isDeletion() bool {
 func (this *CheckAccessControls_PropertyReference) getReadableTypeNameOrDefault() string {
 	var preferred string = str_(this.readableTypeName().get())
 	return func() string {
-		if String_isEmpty(preferred) {
+		if preferred == "" {
 			return this.receiverType().toString()
 		}
 		return preferred

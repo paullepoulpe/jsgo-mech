@@ -2,6 +2,8 @@
 
 package closure
 
+import "strconv"
+
 type ProfilingReport struct {
 }
 
@@ -45,7 +47,7 @@ func ProfilingReport_createTabSeparatedProfilingReport(instrumentationMapping Ma
 	var output []ListOf[string] = []ListOf[string]{}
 	output = append(output, List(ImmutableList_of_Object_Object_Object_Object_Object_Object(strobj_("File"), strobj_("Function name"), strobj_("Line"), strobj_("Type"), strobj_("Total executed"), strobj_("Reports occurred"))))
 	for _, entry := range result {
-		output = append(output, List(ImmutableList_of_Object_Object_Object_Object_Object_Object(strobj_(cast_[*InstrumentationPoint](entry.getKey()).getFileName()), strobj_(cast_[*InstrumentationPoint](entry.getKey()).getFunctionName()), strobj_(String_valueOf(cast_[*InstrumentationPoint](entry.getKey()).getLineNumber())), strobj_(cast_[*InstrumentationPoint](entry.getKey()).getType().name()), strobj_(String_valueOf_long(cast_[*ProfilingReport_InstrumentationPointMetrics](entry.getValue()).totalTimesExecuted)), strobj_(String_valueOf(cast_[*ProfilingReport_InstrumentationPointMetrics](entry.getValue()).numberOfReports)))))
+		output = append(output, List(ImmutableList_of_Object_Object_Object_Object_Object_Object(strobj_(cast_[*InstrumentationPoint](entry.getKey()).getFileName()), strobj_(cast_[*InstrumentationPoint](entry.getKey()).getFunctionName()), strobj_(strconv.Itoa(int(cast_[*InstrumentationPoint](entry.getKey()).getLineNumber()))), strobj_(cast_[*InstrumentationPoint](entry.getKey()).getType().name()), strobj_(strconv.FormatInt(cast_[*ProfilingReport_InstrumentationPointMetrics](entry.getValue()).totalTimesExecuted, 10)), strobj_(strconv.Itoa(int(cast_[*ProfilingReport_InstrumentationPointMetrics](entry.getValue()).numberOfReports))))))
 	}
 	var rows []string = []string{}
 	for _, row := range output {
