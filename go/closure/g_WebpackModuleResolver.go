@@ -21,12 +21,12 @@ func (this *WebpackModuleResolver) up_ModuleResolver() *ModuleResolver {
 	return &this.ModuleResolver
 }
 
-func (this *WebpackModuleResolver) init_WebpackModuleResolver(modulePaths ImmutableSetOf[string], moduleRootPaths ImmutableListOf[string], modulesById *TMap[string, string], errorHandler ErrorHandler, pathEscaper *ModuleLoader_PathEscaper) {
+func (this *WebpackModuleResolver) init_WebpackModuleResolver(modulePaths ImmutableSetOf[string], moduleRootPaths ImmutableListOf[string], modulesById *TMap[string, string], errorHandler ErrorHandler, pathEscaper ModuleLoader_PathEscaper) {
 	this.NodeModuleResolver.init_NodeModuleResolver(modulePaths, moduleRootPaths, nil, errorHandler, pathEscaper)
 	this.modulesById = ImmutableMap_copyOf(modulesById.asMap())
 }
 
-func new_WebpackModuleResolver(modulePaths ImmutableSetOf[string], moduleRootPaths ImmutableListOf[string], modulesById *TMap[string, string], errorHandler ErrorHandler, pathEscaper *ModuleLoader_PathEscaper) *WebpackModuleResolver {
+func new_WebpackModuleResolver(modulePaths ImmutableSetOf[string], moduleRootPaths ImmutableListOf[string], modulesById *TMap[string, string], errorHandler ErrorHandler, pathEscaper ModuleLoader_PathEscaper) *WebpackModuleResolver {
 	this := &WebpackModuleResolver{}
 	this.self_ = this
 	this.init_WebpackModuleResolver(modulePaths, moduleRootPaths, modulesById, errorHandler, pathEscaper)
@@ -63,7 +63,7 @@ func new_WebpackModuleResolver_Factory(lookupMap *TMap[string, string]) *Webpack
 	return this
 }
 
-func (this *WebpackModuleResolver_Factory) create(modulePaths ImmutableSetOf[string], moduleRootPaths ImmutableListOf[string], errorHandler ErrorHandler, pathEscaper *ModuleLoader_PathEscaper) *ModuleResolver {
+func (this *WebpackModuleResolver_Factory) create(modulePaths ImmutableSetOf[string], moduleRootPaths ImmutableListOf[string], errorHandler ErrorHandler, pathEscaper ModuleLoader_PathEscaper) *ModuleResolver {
 	var normalizedPathsById *TMap[string, string] = newTMap_(tc_string, tc_string)
 	it_1 := foreach_(any(this.lookupMap.asMap().entrySet()))
 	for it_1.next() {

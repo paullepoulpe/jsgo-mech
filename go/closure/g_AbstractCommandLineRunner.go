@@ -2193,8 +2193,8 @@ type AbstractCommandLineRunner_CommandLineConfig struct {
 	chunkOutputFiles                 *TList[string]
 	chunkConformanceFiles            *TList[string]
 	createSourceMap                  string
-	sourceMapDetailLevel             *SourceMap_DetailLevel
-	sourceMapFormat                  *SourceMap_Format
+	sourceMapDetailLevel             SourceMap_DetailLevel
+	sourceMapFormat                  SourceMap_Format
 	sourceMapLocationMappings        []SourceMap_LocationMapping
 	applyInputSourceMaps             bool
 	warningGuards                    *TList[*AbstractCommandLineRunner_FlagEntry]
@@ -2550,12 +2550,12 @@ func (this *AbstractCommandLineRunner_CommandLineConfig) setCreateSourceMap(crea
 	return this
 }
 
-func (this *AbstractCommandLineRunner_CommandLineConfig) setSourceMapDetailLevel(level *SourceMap_DetailLevel) *AbstractCommandLineRunner_CommandLineConfig {
+func (this *AbstractCommandLineRunner_CommandLineConfig) setSourceMapDetailLevel(level SourceMap_DetailLevel) *AbstractCommandLineRunner_CommandLineConfig {
 	this.sourceMapDetailLevel = level
 	return this
 }
 
-func (this *AbstractCommandLineRunner_CommandLineConfig) setSourceMapFormat(format *SourceMap_Format) *AbstractCommandLineRunner_CommandLineConfig {
+func (this *AbstractCommandLineRunner_CommandLineConfig) setSourceMapFormat(format SourceMap_Format) *AbstractCommandLineRunner_CommandLineConfig {
 	this.sourceMapFormat = format
 	return this
 }

@@ -16,7 +16,7 @@ func new_CodePrinter() *CodePrinter {
 }
 
 func CodePrinter_toSource(root Node, outputFormat CodePrinter_Format, options *CompilerOptions, licenseTracker CodePrinter_LicenseTracker, tagAsTypeSummary bool, tagAsStrict bool, lineBreak bool, codeGeneratorFactory func(CodePrinter_Format, *CodeConsumer) *CodeGenerator) *CodePrinter_SourceAndMappings {
-	Preconditions_checkState((options.getSourceMapDetailLevel() != nil))
+	Preconditions_checkState((options.getSourceMapDetailLevel() != 0))
 	var mcp *CodePrinter_MappedCodePrinter = func() *CodePrinter_MappedCodePrinter {
 		if outputFormat == CodePrinter_Format_COMPACT {
 			return new_CodePrinter_CompactCodePrinter(lineBreak, options.getLineLengthThreshold(), options.shouldGatherSourceMapInfo(), options.getSourceMapDetailLevel(), licenseTracker).up_CodePrinter_MappedCodePrinter()
@@ -47,7 +47,7 @@ type CodePrinter_MappedCodePrinter struct {
 	completeMappings            []*SourceMap_Mapping
 	firstCandidateMappingForCut int32
 	createSrcMap                bool
-	sourceMapDetailLevel        *SourceMap_DetailLevel
+	sourceMapDetailLevel        SourceMap_DetailLevel
 	licenseTracker              CodePrinter_LicenseTracker
 	code_                       *StringBuilder
 	lineLengthThreshold         int32
@@ -101,10 +101,10 @@ func (this *CodePrinter_MappedCodePrinter) finit_CodePrinter_MappedCodePrinter()
 	this.lineIndex = 0
 }
 
-func (this *CodePrinter_MappedCodePrinter) init_CodePrinter_MappedCodePrinter(lineLengthThreshold int32, createSrcMap bool, sourceMapDetailLevel *SourceMap_DetailLevel, licenseTracker CodePrinter_LicenseTracker) {
+func (this *CodePrinter_MappedCodePrinter) init_CodePrinter_MappedCodePrinter(lineLengthThreshold int32, createSrcMap bool, sourceMapDetailLevel SourceMap_DetailLevel, licenseTracker CodePrinter_LicenseTracker) {
 	this.CodeConsumer.init_CodeConsumer()
 	this.finit_CodePrinter_MappedCodePrinter()
-	Preconditions_checkState((sourceMapDetailLevel != nil))
+	Preconditions_checkState((sourceMapDetailLevel != 0))
 	this.lineLengthThreshold = func() int32 {
 		if lineLengthThreshold <= 0 {
 			return int32(2147483647)
@@ -146,7 +146,7 @@ func (this *CodePrinter_MappedCodePrinter) trackLicenses_impl(node Node) {
 }
 
 func (this *CodePrinter_MappedCodePrinter) startSourceMapping_impl(node Node) {
-	Preconditions_checkState((this.sourceMapDetailLevel != nil))
+	Preconditions_checkState((this.sourceMapDetailLevel != 0))
 	Preconditions_checkState((node != 0))
 	if ((this.createSrcMap && !String_isEmpty(node.getSourceFileName())) && (node.getLineno() > 0)) && this.sourceMapDetailLevel.apply(node.box_()) {
 		var line int32 = this.getCurrentLineIndex()
@@ -285,12 +285,12 @@ func (this *CodePrinter_PrettyCodePrinter) finit_CodePrinter_PrettyCodePrinter()
 	this.indent_ = 0
 }
 
-func (this *CodePrinter_PrettyCodePrinter) init_CodePrinter_PrettyCodePrinter(lineLengthThreshold int32, createSourceMap bool, sourceMapDetailLevel *SourceMap_DetailLevel, licenseTracker CodePrinter_LicenseTracker) {
+func (this *CodePrinter_PrettyCodePrinter) init_CodePrinter_PrettyCodePrinter(lineLengthThreshold int32, createSourceMap bool, sourceMapDetailLevel SourceMap_DetailLevel, licenseTracker CodePrinter_LicenseTracker) {
 	this.CodePrinter_MappedCodePrinter.init_CodePrinter_MappedCodePrinter(lineLengthThreshold, createSourceMap, sourceMapDetailLevel, licenseTracker)
 	this.finit_CodePrinter_PrettyCodePrinter()
 }
 
-func new_CodePrinter_PrettyCodePrinter(lineLengthThreshold int32, createSourceMap bool, sourceMapDetailLevel *SourceMap_DetailLevel, licenseTracker CodePrinter_LicenseTracker) *CodePrinter_PrettyCodePrinter {
+func new_CodePrinter_PrettyCodePrinter(lineLengthThreshold int32, createSourceMap bool, sourceMapDetailLevel SourceMap_DetailLevel, licenseTracker CodePrinter_LicenseTracker) *CodePrinter_PrettyCodePrinter {
 	this := &CodePrinter_PrettyCodePrinter{}
 	this.self_ = this
 	this.init_CodePrinter_PrettyCodePrinter(lineLengthThreshold, createSourceMap, sourceMapDetailLevel, licenseTracker)
@@ -528,13 +528,13 @@ func (this *CodePrinter_CompactCodePrinter) finit_CodePrinter_CompactCodePrinter
 	this.preferredBreakPosition = 0
 }
 
-func (this *CodePrinter_CompactCodePrinter) init_CodePrinter_CompactCodePrinter(lineBreak bool, lineLengthThreshold int32, createSrcMap bool, sourceMapDetailLevel *SourceMap_DetailLevel, licenseTracker CodePrinter_LicenseTracker) {
+func (this *CodePrinter_CompactCodePrinter) init_CodePrinter_CompactCodePrinter(lineBreak bool, lineLengthThreshold int32, createSrcMap bool, sourceMapDetailLevel SourceMap_DetailLevel, licenseTracker CodePrinter_LicenseTracker) {
 	this.CodePrinter_MappedCodePrinter.init_CodePrinter_MappedCodePrinter(lineLengthThreshold, createSrcMap, sourceMapDetailLevel, licenseTracker)
 	this.finit_CodePrinter_CompactCodePrinter()
 	this.lineBreak = lineBreak
 }
 
-func new_CodePrinter_CompactCodePrinter(lineBreak bool, lineLengthThreshold int32, createSrcMap bool, sourceMapDetailLevel *SourceMap_DetailLevel, licenseTracker CodePrinter_LicenseTracker) *CodePrinter_CompactCodePrinter {
+func new_CodePrinter_CompactCodePrinter(lineBreak bool, lineLengthThreshold int32, createSrcMap bool, sourceMapDetailLevel SourceMap_DetailLevel, licenseTracker CodePrinter_LicenseTracker) *CodePrinter_CompactCodePrinter {
 	this := &CodePrinter_CompactCodePrinter{}
 	this.self_ = this
 	this.init_CodePrinter_CompactCodePrinter(lineBreak, lineLengthThreshold, createSrcMap, sourceMapDetailLevel, licenseTracker)

@@ -2,71 +2,99 @@
 
 package closure
 
-type ErrorFormat struct {
-	Enum
-	selfI_ func(SourceExcerptProvider, bool) MessageFormatter
+type ErrorFormat uint8
+
+// ErrorFormat_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var ErrorFormat_enum_ = [4]Enum{
+	{self_: ErrorFormat_SINGLELINE, name_: "SINGLELINE", ordinal_: 0},
+	{self_: ErrorFormat_FULL, name_: "FULL", ordinal_: 1},
+	{self_: ErrorFormat_MULTILINE, name_: "MULTILINE", ordinal_: 2},
+	{self_: ErrorFormat_SOURCELESS, name_: "SOURCELESS", ordinal_: 3},
 }
 
-// ErrorFormat_I holds the methods the dispatchers of enum ErrorFormat call on its
-// constant (selfI_, set with self_); every constant of the enum implements them (post-flip).
-type ErrorFormat_I interface {
-	toFormatter_impl(SourceExcerptProvider, bool) MessageFormatter
-}
-
-func (this *ErrorFormat) as_ErrorFormat() *ErrorFormat { return this }
-
-func to_ErrorFormat(v any) *ErrorFormat {
-	if v == nil {
+func (this ErrorFormat) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return v.(interface{ as_ErrorFormat() *ErrorFormat }).as_ErrorFormat()
+	return &ErrorFormat_enum_[this-1]
+}
+
+func (this ErrorFormat) name() string { return this.enum_().name_ }
+
+func (this ErrorFormat) ordinal() int32 {
+	if this == 0 {
+		return this.enum_().ordinal_ // null: dereferences nil, as a null enum object did
+	}
+	return int32(this) - 1 // constants are ordinal+1
+}
+
+func (this ErrorFormat) toString() string { return this.enum_().name_ }
+
+func (this ErrorFormat) compareTo(o any) int32 { return this.enum_().compareTo(o) }
+
+func (this ErrorFormat) self() any {
+	if this == 0 {
+		return nil
+	}
+	return this
+}
+
+func (this ErrorFormat) as_ErrorFormat() ErrorFormat { return this }
+
+func to_ErrorFormat(v any) ErrorFormat {
+	if v == nil {
+		return 0
+	}
+	return v.(interface{ as_ErrorFormat() ErrorFormat }).as_ErrorFormat()
 }
 
 func is_ErrorFormat(v any) bool {
-	_, ok := v.(interface{ as_ErrorFormat() *ErrorFormat })
+	_, ok := v.(interface{ as_ErrorFormat() ErrorFormat })
 	return ok
 }
 
-func (this *ErrorFormat) self() any {
-	if this == nil {
-		return nil
+func (this ErrorFormat) toFormatter(source SourceExcerptProvider, colorize bool) MessageFormatter {
+	switch this {
+	case ErrorFormat_SINGLELINE:
+		var formatter *LightweightMessageFormatter = new_LightweightMessageFormatter_SourceExcerptProvider(source)
+		formatter.setColorize(colorize)
+		return icast_MessageFormatter(obj_(formatter))
+	case ErrorFormat_FULL:
+		var formatter *LightweightMessageFormatter = new_LightweightMessageFormatter_SourceExcerptProvider_SourceExcerpt(source, SourceExcerptProvider_SourceExcerpt_FULL)
+		formatter.setColorize(colorize)
+		return icast_MessageFormatter(obj_(formatter))
+	case ErrorFormat_MULTILINE:
+		var formatter *LightweightMessageFormatter = new_LightweightMessageFormatter_SourceExcerptProvider_SourceExcerpt(source, SourceExcerptProvider_SourceExcerpt_REGION)
+		formatter.setColorize(colorize)
+		return icast_MessageFormatter(obj_(formatter))
+	case ErrorFormat_SOURCELESS:
+		var formatter *LightweightMessageFormatter = LightweightMessageFormatter_withoutSource()
+		formatter.setColorize(colorize)
+		return icast_MessageFormatter(obj_(formatter))
+	default:
+		panic(new_NullPointerException_0().self()) // a call on null
 	}
-	return this.self_
 }
 
-func (this *ErrorFormat) up_Enum() *Enum {
-	if this == nil {
-		return nil
-	}
-	return &this.Enum
+func ErrorFormat_values() []ErrorFormat {
+	return append([]ErrorFormat(nil), ErrorFormat_values_...)
 }
 
-func (this *ErrorFormat) init_ErrorFormat(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
-}
-
-func (this *ErrorFormat) toFormatter(p0 SourceExcerptProvider, p1 bool) MessageFormatter {
-	return this.selfI_(p0, p1)
-}
-
-func ErrorFormat_values() []*ErrorFormat {
-	return append([]*ErrorFormat(nil), ErrorFormat_values_...)
-}
-
-func ErrorFormat_valueOf(name string) *ErrorFormat {
+func ErrorFormat_valueOf(name string) ErrorFormat {
 	for _, v := range ErrorFormat_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("ErrorFormat", name))
 }
 
-var ErrorFormat_SINGLELINE *ErrorFormat
-var ErrorFormat_FULL *ErrorFormat
-var ErrorFormat_MULTILINE *ErrorFormat
-var ErrorFormat_SOURCELESS *ErrorFormat
-var ErrorFormat_values_ []*ErrorFormat
+const ErrorFormat_SINGLELINE ErrorFormat = 1
+const ErrorFormat_FULL ErrorFormat = 2
+const ErrorFormat_MULTILINE ErrorFormat = 3
+const ErrorFormat_SOURCELESS ErrorFormat = 4
+
+var ErrorFormat_values_ []ErrorFormat
 
 var ErrorFormat_clinit_done bool
 
@@ -75,295 +103,7 @@ func ErrorFormat_clinit() {
 		return
 	}
 	ErrorFormat_clinit_done = true
-	ErrorFormat_SINGLELINE = new_ErrorFormat_1("SINGLELINE", 0).up_ErrorFormat()
-	ErrorFormat_FULL = new_ErrorFormat_2("FULL", 1).up_ErrorFormat()
-	ErrorFormat_MULTILINE = new_ErrorFormat_3("MULTILINE", 2).up_ErrorFormat()
-	ErrorFormat_SOURCELESS = new_ErrorFormat_4("SOURCELESS", 3).up_ErrorFormat()
-	ErrorFormat_values_ = []*ErrorFormat{ErrorFormat_SINGLELINE, ErrorFormat_FULL, ErrorFormat_MULTILINE, ErrorFormat_SOURCELESS}
+	ErrorFormat_values_ = []ErrorFormat{ErrorFormat_SINGLELINE, ErrorFormat_FULL, ErrorFormat_MULTILINE, ErrorFormat_SOURCELESS}
 	registerEnum_("com.google.javascript.jscomp.ErrorFormat", enumValues_(ErrorFormat_values_))
 
-}
-
-type ErrorFormat_1 struct {
-	ErrorFormat
-}
-
-func (this *ErrorFormat_1) up_ErrorFormat() *ErrorFormat {
-	if this == nil {
-		return nil
-	}
-	return &this.ErrorFormat
-}
-
-func (this *ErrorFormat_1) up_Enum() *Enum {
-	if this == nil {
-		return nil
-	}
-	return &this.Enum
-}
-
-func (this *ErrorFormat_1) init_ErrorFormat_1(name_ string, ordinal_ int32) {
-	this.ErrorFormat.init_ErrorFormat(name_, ordinal_)
-}
-
-func new_ErrorFormat_1(name_ string, ordinal_ int32) *ErrorFormat_1 {
-	this := &ErrorFormat_1{}
-	this.self_ = this
-	this.selfI_ = this.toFormatter_impl
-	this.init_ErrorFormat_1(name_, ordinal_)
-	return this
-}
-
-func (this *ErrorFormat_1) toFormatter_impl(source SourceExcerptProvider, colorize bool) MessageFormatter {
-	var formatter *LightweightMessageFormatter = new_LightweightMessageFormatter_SourceExcerptProvider(source)
-	formatter.setColorize(colorize)
-	return icast_MessageFormatter(obj_(formatter))
-}
-
-func ErrorFormat_1_values() []*ErrorFormat_1 {
-	return append([]*ErrorFormat_1(nil), ErrorFormat_1_values_...)
-}
-
-func ErrorFormat_1_valueOf(name string) *ErrorFormat_1 {
-	for _, v := range ErrorFormat_1_values_ {
-		if v.Enum.name() == name {
-			return v
-		}
-	}
-	panic(enumValueOfFail_("", name))
-}
-
-var ErrorFormat_1_values_ []*ErrorFormat_1
-
-var ErrorFormat_1_clinit_done bool
-
-func ErrorFormat_1_clinit() {
-	if ErrorFormat_1_clinit_done {
-		return
-	}
-	ErrorFormat_1_clinit_done = true
-	ErrorFormat_1_values_ = []*ErrorFormat_1{}
-	registerEnum_("<anonymous com.google.javascript.jscomp.ErrorFormat>", enumValues_(ErrorFormat_1_values_))
-
-}
-
-type ErrorFormat_2 struct {
-	ErrorFormat
-}
-
-func (this *ErrorFormat_2) up_ErrorFormat() *ErrorFormat {
-	if this == nil {
-		return nil
-	}
-	return &this.ErrorFormat
-}
-
-func (this *ErrorFormat_2) up_Enum() *Enum {
-	if this == nil {
-		return nil
-	}
-	return &this.Enum
-}
-
-func (this *ErrorFormat_2) init_ErrorFormat_2(name_ string, ordinal_ int32) {
-	this.ErrorFormat.init_ErrorFormat(name_, ordinal_)
-}
-
-func new_ErrorFormat_2(name_ string, ordinal_ int32) *ErrorFormat_2 {
-	this := &ErrorFormat_2{}
-	this.self_ = this
-	this.selfI_ = this.toFormatter_impl
-	this.init_ErrorFormat_2(name_, ordinal_)
-	return this
-}
-
-func (this *ErrorFormat_2) toFormatter_impl(source SourceExcerptProvider, colorize bool) MessageFormatter {
-	var formatter *LightweightMessageFormatter = new_LightweightMessageFormatter_SourceExcerptProvider_SourceExcerpt(source, SourceExcerptProvider_SourceExcerpt_FULL)
-	formatter.setColorize(colorize)
-	return icast_MessageFormatter(obj_(formatter))
-}
-
-func ErrorFormat_2_values() []*ErrorFormat_2 {
-	return append([]*ErrorFormat_2(nil), ErrorFormat_2_values_...)
-}
-
-func ErrorFormat_2_valueOf(name string) *ErrorFormat_2 {
-	for _, v := range ErrorFormat_2_values_ {
-		if v.Enum.name() == name {
-			return v
-		}
-	}
-	panic(enumValueOfFail_("", name))
-}
-
-var ErrorFormat_2_values_ []*ErrorFormat_2
-
-var ErrorFormat_2_clinit_done bool
-
-func ErrorFormat_2_clinit() {
-	if ErrorFormat_2_clinit_done {
-		return
-	}
-	ErrorFormat_2_clinit_done = true
-	ErrorFormat_2_values_ = []*ErrorFormat_2{}
-	registerEnum_("<anonymous com.google.javascript.jscomp.ErrorFormat>", enumValues_(ErrorFormat_2_values_))
-
-}
-
-type ErrorFormat_3 struct {
-	ErrorFormat
-}
-
-func (this *ErrorFormat_3) up_ErrorFormat() *ErrorFormat {
-	if this == nil {
-		return nil
-	}
-	return &this.ErrorFormat
-}
-
-func (this *ErrorFormat_3) up_Enum() *Enum {
-	if this == nil {
-		return nil
-	}
-	return &this.Enum
-}
-
-func (this *ErrorFormat_3) init_ErrorFormat_3(name_ string, ordinal_ int32) {
-	this.ErrorFormat.init_ErrorFormat(name_, ordinal_)
-}
-
-func new_ErrorFormat_3(name_ string, ordinal_ int32) *ErrorFormat_3 {
-	this := &ErrorFormat_3{}
-	this.self_ = this
-	this.selfI_ = this.toFormatter_impl
-	this.init_ErrorFormat_3(name_, ordinal_)
-	return this
-}
-
-func (this *ErrorFormat_3) toFormatter_impl(source SourceExcerptProvider, colorize bool) MessageFormatter {
-	var formatter *LightweightMessageFormatter = new_LightweightMessageFormatter_SourceExcerptProvider_SourceExcerpt(source, SourceExcerptProvider_SourceExcerpt_REGION)
-	formatter.setColorize(colorize)
-	return icast_MessageFormatter(obj_(formatter))
-}
-
-func ErrorFormat_3_values() []*ErrorFormat_3 {
-	return append([]*ErrorFormat_3(nil), ErrorFormat_3_values_...)
-}
-
-func ErrorFormat_3_valueOf(name string) *ErrorFormat_3 {
-	for _, v := range ErrorFormat_3_values_ {
-		if v.Enum.name() == name {
-			return v
-		}
-	}
-	panic(enumValueOfFail_("", name))
-}
-
-var ErrorFormat_3_values_ []*ErrorFormat_3
-
-var ErrorFormat_3_clinit_done bool
-
-func ErrorFormat_3_clinit() {
-	if ErrorFormat_3_clinit_done {
-		return
-	}
-	ErrorFormat_3_clinit_done = true
-	ErrorFormat_3_values_ = []*ErrorFormat_3{}
-	registerEnum_("<anonymous com.google.javascript.jscomp.ErrorFormat>", enumValues_(ErrorFormat_3_values_))
-
-}
-
-type ErrorFormat_4 struct {
-	ErrorFormat
-}
-
-func (this *ErrorFormat_4) up_ErrorFormat() *ErrorFormat {
-	if this == nil {
-		return nil
-	}
-	return &this.ErrorFormat
-}
-
-func (this *ErrorFormat_4) up_Enum() *Enum {
-	if this == nil {
-		return nil
-	}
-	return &this.Enum
-}
-
-func (this *ErrorFormat_4) init_ErrorFormat_4(name_ string, ordinal_ int32) {
-	this.ErrorFormat.init_ErrorFormat(name_, ordinal_)
-}
-
-func new_ErrorFormat_4(name_ string, ordinal_ int32) *ErrorFormat_4 {
-	this := &ErrorFormat_4{}
-	this.self_ = this
-	this.selfI_ = this.toFormatter_impl
-	this.init_ErrorFormat_4(name_, ordinal_)
-	return this
-}
-
-func (this *ErrorFormat_4) toFormatter_impl(source SourceExcerptProvider, colorize bool) MessageFormatter {
-	var formatter *LightweightMessageFormatter = LightweightMessageFormatter_withoutSource()
-	formatter.setColorize(colorize)
-	return icast_MessageFormatter(obj_(formatter))
-}
-
-func ErrorFormat_4_values() []*ErrorFormat_4 {
-	return append([]*ErrorFormat_4(nil), ErrorFormat_4_values_...)
-}
-
-func ErrorFormat_4_valueOf(name string) *ErrorFormat_4 {
-	for _, v := range ErrorFormat_4_values_ {
-		if v.Enum.name() == name {
-			return v
-		}
-	}
-	panic(enumValueOfFail_("", name))
-}
-
-var ErrorFormat_4_values_ []*ErrorFormat_4
-
-var ErrorFormat_4_clinit_done bool
-
-func ErrorFormat_4_clinit() {
-	if ErrorFormat_4_clinit_done {
-		return
-	}
-	ErrorFormat_4_clinit_done = true
-	ErrorFormat_4_values_ = []*ErrorFormat_4{}
-	registerEnum_("<anonymous com.google.javascript.jscomp.ErrorFormat>", enumValues_(ErrorFormat_4_values_))
-
-}
-
-// toFormatter: an object that is exactly a ErrorFormat_1 calls its toFormatter_impl directly (post-flip); others dispatch.
-func (this *ErrorFormat_1) toFormatter(p0 SourceExcerptProvider, p1 bool) MessageFormatter {
-	if p, _ := this.self_.(*ErrorFormat_1); p == this {
-		return this.toFormatter_impl(p0, p1)
-	}
-	return this.selfI_(p0, p1)
-}
-
-// toFormatter: an object that is exactly a ErrorFormat_2 calls its toFormatter_impl directly (post-flip); others dispatch.
-func (this *ErrorFormat_2) toFormatter(p0 SourceExcerptProvider, p1 bool) MessageFormatter {
-	if p, _ := this.self_.(*ErrorFormat_2); p == this {
-		return this.toFormatter_impl(p0, p1)
-	}
-	return this.selfI_(p0, p1)
-}
-
-// toFormatter: an object that is exactly a ErrorFormat_3 calls its toFormatter_impl directly (post-flip); others dispatch.
-func (this *ErrorFormat_3) toFormatter(p0 SourceExcerptProvider, p1 bool) MessageFormatter {
-	if p, _ := this.self_.(*ErrorFormat_3); p == this {
-		return this.toFormatter_impl(p0, p1)
-	}
-	return this.selfI_(p0, p1)
-}
-
-// toFormatter: an object that is exactly a ErrorFormat_4 calls its toFormatter_impl directly (post-flip); others dispatch.
-func (this *ErrorFormat_4) toFormatter(p0 SourceExcerptProvider, p1 bool) MessageFormatter {
-	if p, _ := this.self_.(*ErrorFormat_4); p == this {
-		return this.toFormatter_impl(p0, p1)
-	}
-	return this.selfI_(p0, p1)
 }

@@ -53,7 +53,7 @@ func new_ClosureReverseAbstractInterpreter(typeRegistry *JSTypeRegistry) *Closur
 	return this
 }
 
-func (this *ClosureReverseAbstractInterpreter) getPreciserScopeKnowingConditionOutcome_impl(condition Node, blindScope FlowScope, outcome *Outcome_rhino) FlowScope {
+func (this *ClosureReverseAbstractInterpreter) getPreciserScopeKnowingConditionOutcome_impl(condition Node, blindScope FlowScope, outcome Outcome_rhino) FlowScope {
 	if condition.isCall() && condition.hasTwoChildren() {
 		var callee Node = condition.getFirstChild()
 		var param Node = condition.getLastChild()
@@ -182,7 +182,7 @@ func (this *ClosureReverseAbstractInterpreter_2) caseFunctionType_impl(type_ *Fu
 }
 
 // getPreciserScopeKnowingConditionOutcome: an object that is exactly a ClosureReverseAbstractInterpreter calls its getPreciserScopeKnowingConditionOutcome_impl directly (post-flip); others dispatch.
-func (this *ClosureReverseAbstractInterpreter) getPreciserScopeKnowingConditionOutcome(p0 Node, p1 FlowScope, p2 *Outcome_rhino) FlowScope {
+func (this *ClosureReverseAbstractInterpreter) getPreciserScopeKnowingConditionOutcome(p0 Node, p1 FlowScope, p2 Outcome_rhino) FlowScope {
 	if p, _ := this.self_.(*ClosureReverseAbstractInterpreter); p == this {
 		return this.getPreciserScopeKnowingConditionOutcome_impl(p0, p1, p2)
 	}

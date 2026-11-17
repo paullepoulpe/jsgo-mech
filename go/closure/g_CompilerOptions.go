@@ -163,7 +163,7 @@ type CompilerOptions struct {
 	tracer                                       CompilerOptions_TracerMode
 	tracerOutput                                 OptionalOf[string]
 	colorizeErrorOutput                          bool
-	errorFormat                                  *ErrorFormat
+	errorFormat                                  ErrorFormat
 	warningsGuard                                *ComposeWarningsGuard
 	summaryDetailLevel                           int32
 	lineLengthThreshold                          int32
@@ -172,8 +172,8 @@ type CompilerOptions struct {
 	extraReportGenerators                        *TList[SortingErrorManager_ErrorReportGenerator]
 	sourceMapOutputPath                          OptionalOf[string]
 	shouldAlwaysGatherSourceMapInfo_             bool
-	sourceMapDetailLevel                         *SourceMap_DetailLevel
-	sourceMapFormat                              *SourceMap_Format
+	sourceMapDetailLevel                         SourceMap_DetailLevel
+	sourceMapFormat                              SourceMap_Format
 	parseInlineSourceMaps_                       bool
 	applyInputSourceMaps                         bool
 	resolveSourceMapAnnotations                  bool
@@ -197,7 +197,7 @@ type CompilerOptions struct {
 	enableModuleRewriting                        bool
 	moduleResolutionMode                         ModuleLoader_ResolutionMode
 	browserResolverPrefixReplacements            ImmutableMapOf[string, string]
-	pathEscaper                                  *ModuleLoader_PathEscaper
+	pathEscaper                                  ModuleLoader_PathEscaper
 	packageJsonEntryNames                        []string
 	allowDynamicImport                           bool
 	dynamicImportAlias                           OptionalOf[string]
@@ -2060,11 +2060,11 @@ func (this *CompilerOptions) shouldQuoteKeywordProperties() bool {
 	return (this.quoteKeywordProperties || FeatureSet_ES3.containsFeatureSet(this.getOutputFeatureSet()))
 }
 
-func (this *CompilerOptions) setErrorFormat(errorFormat *ErrorFormat) {
+func (this *CompilerOptions) setErrorFormat(errorFormat ErrorFormat) {
 	this.errorFormat = errorFormat
 }
 
-func (this *CompilerOptions) getErrorFormat() *ErrorFormat {
+func (this *CompilerOptions) getErrorFormat() ErrorFormat {
 	return this.errorFormat
 }
 
@@ -2132,19 +2132,19 @@ func (this *CompilerOptions) getParseInlineSourceMaps() bool {
 	return this.parseInlineSourceMaps_
 }
 
-func (this *CompilerOptions) setSourceMapDetailLevel(sourceMapDetailLevel *SourceMap_DetailLevel) {
+func (this *CompilerOptions) setSourceMapDetailLevel(sourceMapDetailLevel SourceMap_DetailLevel) {
 	this.sourceMapDetailLevel = sourceMapDetailLevel
 }
 
-func (this *CompilerOptions) getSourceMapDetailLevel() *SourceMap_DetailLevel {
+func (this *CompilerOptions) getSourceMapDetailLevel() SourceMap_DetailLevel {
 	return this.sourceMapDetailLevel
 }
 
-func (this *CompilerOptions) setSourceMapFormat(sourceMapFormat *SourceMap_Format) {
+func (this *CompilerOptions) setSourceMapFormat(sourceMapFormat SourceMap_Format) {
 	this.sourceMapFormat = sourceMapFormat
 }
 
-func (this *CompilerOptions) getSourceMapFormat() *SourceMap_Format {
+func (this *CompilerOptions) getSourceMapFormat() SourceMap_Format {
 	return this.sourceMapFormat
 }
 
@@ -2318,11 +2318,11 @@ func (this *CompilerOptions) setBrowserResolverPrefixReplacements(browserResolve
 	this.browserResolverPrefixReplacements = browserResolverPrefixReplacements
 }
 
-func (this *CompilerOptions) setPathEscaper(pathEscaper *ModuleLoader_PathEscaper) {
+func (this *CompilerOptions) setPathEscaper(pathEscaper ModuleLoader_PathEscaper) {
 	this.pathEscaper = pathEscaper
 }
 
-func (this *CompilerOptions) getPathEscaper() *ModuleLoader_PathEscaper {
+func (this *CompilerOptions) getPathEscaper() ModuleLoader_PathEscaper {
 	return this.pathEscaper
 }
 

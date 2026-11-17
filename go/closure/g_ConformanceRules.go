@@ -1024,7 +1024,7 @@ type ConformanceRules_BannedProperty struct {
 	ConformanceRules_AbstractRule
 	registry                *JSTypeRegistry
 	props                   *SimpleSetMultimap
-	requirementPrecondition *ConformanceRules_BannedProperty_RequirementPrecondition
+	requirementPrecondition ConformanceRules_BannedProperty_RequirementPrecondition
 }
 
 func (this *ConformanceRules_BannedProperty) up_ConformanceRules_AbstractRule() *ConformanceRules_AbstractRule {
@@ -1067,7 +1067,7 @@ func (this *ConformanceRules_BannedProperty) initBannedProperty(compiler *Abstra
 	if requirement.getValueCount() == 0 {
 		return Outcome_base_err(new_CheckConformance_InvalidRequirementSpec_String("missing value").up_Throwable())
 	}
-	this.requirementPrecondition = func() *ConformanceRules_BannedProperty_RequirementPrecondition {
+	this.requirementPrecondition = func() ConformanceRules_BannedProperty_RequirementPrecondition {
 		switch requirement.getType() {
 		case Requirement_Type_BANNED_PROPERTY:
 			return ConformanceRules_BannedProperty_RequirementPrecondition_BANNED_PROPERTY
@@ -1229,78 +1229,121 @@ func (this *ConformanceRules_BannedProperty) extractName(n Node) OptionalOf[stri
 	}()
 }
 
-type ConformanceRules_BannedProperty_RequirementPrecondition struct {
-	Enum
-	selfI_ func(Node) bool
+type ConformanceRules_BannedProperty_RequirementPrecondition uint8
+
+// ConformanceRules_BannedProperty_RequirementPrecondition_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var ConformanceRules_BannedProperty_RequirementPrecondition_enum_ = [5]Enum{
+	{self_: ConformanceRules_BannedProperty_RequirementPrecondition_BANNED_PROPERTY, name_: "BANNED_PROPERTY", ordinal_: 0},
+	{self_: ConformanceRules_BannedProperty_RequirementPrecondition_BANNED_PROPERTY_WRITE, name_: "BANNED_PROPERTY_WRITE", ordinal_: 1},
+	{self_: ConformanceRules_BannedProperty_RequirementPrecondition_BANNED_PROPERTY_NON_CONSTANT_WRITE, name_: "BANNED_PROPERTY_NON_CONSTANT_WRITE", ordinal_: 2},
+	{self_: ConformanceRules_BannedProperty_RequirementPrecondition_BANNED_PROPERTY_READ, name_: "BANNED_PROPERTY_READ", ordinal_: 3},
+	{self_: ConformanceRules_BannedProperty_RequirementPrecondition_BANNED_PROPERTY_CALL, name_: "BANNED_PROPERTY_CALL", ordinal_: 4},
 }
 
-// ConformanceRules_BannedProperty_RequirementPrecondition_I holds the methods the dispatchers of enum ConformanceRules_BannedProperty_RequirementPrecondition call on its
-// constant (selfI_, set with self_); every constant of the enum implements them (post-flip).
-type ConformanceRules_BannedProperty_RequirementPrecondition_I interface {
-	shouldCheck_impl(Node) bool
+func (this ConformanceRules_BannedProperty_RequirementPrecondition) enum_() *Enum {
+	if this == 0 {
+		return nil
+	}
+	return &ConformanceRules_BannedProperty_RequirementPrecondition_enum_[this-1]
 }
 
-func (this *ConformanceRules_BannedProperty_RequirementPrecondition) as_ConformanceRules_BannedProperty_RequirementPrecondition() *ConformanceRules_BannedProperty_RequirementPrecondition {
+func (this ConformanceRules_BannedProperty_RequirementPrecondition) name() string {
+	return this.enum_().name_
+}
+
+func (this ConformanceRules_BannedProperty_RequirementPrecondition) ordinal() int32 {
+	if this == 0 {
+		return this.enum_().ordinal_ // null: dereferences nil, as a null enum object did
+	}
+	return int32(this) - 1 // constants are ordinal+1
+}
+
+func (this ConformanceRules_BannedProperty_RequirementPrecondition) toString() string {
+	return this.enum_().name_
+}
+
+func (this ConformanceRules_BannedProperty_RequirementPrecondition) compareTo(o any) int32 {
+	return this.enum_().compareTo(o)
+}
+
+func (this ConformanceRules_BannedProperty_RequirementPrecondition) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func to_ConformanceRules_BannedProperty_RequirementPrecondition(v any) *ConformanceRules_BannedProperty_RequirementPrecondition {
+func (this ConformanceRules_BannedProperty_RequirementPrecondition) as_ConformanceRules_BannedProperty_RequirementPrecondition() ConformanceRules_BannedProperty_RequirementPrecondition {
+	return this
+}
+
+func to_ConformanceRules_BannedProperty_RequirementPrecondition(v any) ConformanceRules_BannedProperty_RequirementPrecondition {
 	if v == nil {
-		return nil
+		return 0
 	}
 	return v.(interface {
-		as_ConformanceRules_BannedProperty_RequirementPrecondition() *ConformanceRules_BannedProperty_RequirementPrecondition
+		as_ConformanceRules_BannedProperty_RequirementPrecondition() ConformanceRules_BannedProperty_RequirementPrecondition
 	}).as_ConformanceRules_BannedProperty_RequirementPrecondition()
 }
 
 func is_ConformanceRules_BannedProperty_RequirementPrecondition(v any) bool {
 	_, ok := v.(interface {
-		as_ConformanceRules_BannedProperty_RequirementPrecondition() *ConformanceRules_BannedProperty_RequirementPrecondition
+		as_ConformanceRules_BannedProperty_RequirementPrecondition() ConformanceRules_BannedProperty_RequirementPrecondition
 	})
 	return ok
 }
 
-func (this *ConformanceRules_BannedProperty_RequirementPrecondition) self() any {
-	if this == nil {
-		return nil
+func (this ConformanceRules_BannedProperty_RequirementPrecondition) shouldCheck(n Node) bool {
+	switch this {
+	case ConformanceRules_BannedProperty_RequirementPrecondition_BANNED_PROPERTY:
+		return func() bool {
+			switch n.ns_().token {
+			case tokOrd1_STRING_KEY, tokOrd1_GETPROP, tokOrd1_GETELEM, tokOrd1_COMPUTED_PROP:
+				return true
+			default:
+				return false
+			}
+			panic("unreachable")
+		}()
+	case ConformanceRules_BannedProperty_RequirementPrecondition_BANNED_PROPERTY_WRITE:
+		return NodeUtil_isLValue(n)
+	case ConformanceRules_BannedProperty_RequirementPrecondition_BANNED_PROPERTY_NON_CONSTANT_WRITE:
+		if !NodeUtil_isLValue(n) {
+			return false
+		}
+		if NodeUtil_isLhsOfAssign(n) && (NodeUtil_isLiteralValue(n.getNext(), false) || NodeUtil_isSomeCompileTimeConstStringValue(n.getNext())) {
+			return false
+		}
+		return true
+	case ConformanceRules_BannedProperty_RequirementPrecondition_BANNED_PROPERTY_READ:
+		return (!NodeUtil_isLValue(n) && NodeUtil_isExpressionResultUsed(n))
+	case ConformanceRules_BannedProperty_RequirementPrecondition_BANNED_PROPERTY_CALL:
+		return ConformanceRules_ConformanceUtil_isCallTarget(n)
+	default:
+		panic(new_NullPointerException_0().self()) // a call on null
 	}
-	return this.self_
 }
 
-func (this *ConformanceRules_BannedProperty_RequirementPrecondition) up_Enum() *Enum {
-	if this == nil {
-		return nil
-	}
-	return &this.Enum
+func ConformanceRules_BannedProperty_RequirementPrecondition_values() []ConformanceRules_BannedProperty_RequirementPrecondition {
+	return append([]ConformanceRules_BannedProperty_RequirementPrecondition(nil), ConformanceRules_BannedProperty_RequirementPrecondition_values_...)
 }
 
-func (this *ConformanceRules_BannedProperty_RequirementPrecondition) init_ConformanceRules_BannedProperty_RequirementPrecondition(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
-}
-
-func (this *ConformanceRules_BannedProperty_RequirementPrecondition) shouldCheck(p0 Node) bool {
-	return this.selfI_(p0)
-}
-
-func ConformanceRules_BannedProperty_RequirementPrecondition_values() []*ConformanceRules_BannedProperty_RequirementPrecondition {
-	return append([]*ConformanceRules_BannedProperty_RequirementPrecondition(nil), ConformanceRules_BannedProperty_RequirementPrecondition_values_...)
-}
-
-func ConformanceRules_BannedProperty_RequirementPrecondition_valueOf(name string) *ConformanceRules_BannedProperty_RequirementPrecondition {
+func ConformanceRules_BannedProperty_RequirementPrecondition_valueOf(name string) ConformanceRules_BannedProperty_RequirementPrecondition {
 	for _, v := range ConformanceRules_BannedProperty_RequirementPrecondition_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("RequirementPrecondition", name))
 }
 
-var ConformanceRules_BannedProperty_RequirementPrecondition_BANNED_PROPERTY *ConformanceRules_BannedProperty_RequirementPrecondition
-var ConformanceRules_BannedProperty_RequirementPrecondition_BANNED_PROPERTY_WRITE *ConformanceRules_BannedProperty_RequirementPrecondition
-var ConformanceRules_BannedProperty_RequirementPrecondition_BANNED_PROPERTY_NON_CONSTANT_WRITE *ConformanceRules_BannedProperty_RequirementPrecondition
-var ConformanceRules_BannedProperty_RequirementPrecondition_BANNED_PROPERTY_READ *ConformanceRules_BannedProperty_RequirementPrecondition
-var ConformanceRules_BannedProperty_RequirementPrecondition_BANNED_PROPERTY_CALL *ConformanceRules_BannedProperty_RequirementPrecondition
-var ConformanceRules_BannedProperty_RequirementPrecondition_values_ []*ConformanceRules_BannedProperty_RequirementPrecondition
+const ConformanceRules_BannedProperty_RequirementPrecondition_BANNED_PROPERTY ConformanceRules_BannedProperty_RequirementPrecondition = 1
+const ConformanceRules_BannedProperty_RequirementPrecondition_BANNED_PROPERTY_WRITE ConformanceRules_BannedProperty_RequirementPrecondition = 2
+const ConformanceRules_BannedProperty_RequirementPrecondition_BANNED_PROPERTY_NON_CONSTANT_WRITE ConformanceRules_BannedProperty_RequirementPrecondition = 3
+const ConformanceRules_BannedProperty_RequirementPrecondition_BANNED_PROPERTY_READ ConformanceRules_BannedProperty_RequirementPrecondition = 4
+const ConformanceRules_BannedProperty_RequirementPrecondition_BANNED_PROPERTY_CALL ConformanceRules_BannedProperty_RequirementPrecondition = 5
+
+var ConformanceRules_BannedProperty_RequirementPrecondition_values_ []ConformanceRules_BannedProperty_RequirementPrecondition
 
 var ConformanceRules_BannedProperty_RequirementPrecondition_clinit_done bool
 
@@ -1309,12 +1352,7 @@ func ConformanceRules_BannedProperty_RequirementPrecondition_clinit() {
 		return
 	}
 	ConformanceRules_BannedProperty_RequirementPrecondition_clinit_done = true
-	ConformanceRules_BannedProperty_RequirementPrecondition_BANNED_PROPERTY = new_ConformanceRules_BannedProperty_RequirementPrecondition_1("BANNED_PROPERTY", 0).up_ConformanceRules_BannedProperty_RequirementPrecondition()
-	ConformanceRules_BannedProperty_RequirementPrecondition_BANNED_PROPERTY_WRITE = new_ConformanceRules_BannedProperty_RequirementPrecondition_2("BANNED_PROPERTY_WRITE", 1).up_ConformanceRules_BannedProperty_RequirementPrecondition()
-	ConformanceRules_BannedProperty_RequirementPrecondition_BANNED_PROPERTY_NON_CONSTANT_WRITE = new_ConformanceRules_BannedProperty_RequirementPrecondition_3("BANNED_PROPERTY_NON_CONSTANT_WRITE", 2).up_ConformanceRules_BannedProperty_RequirementPrecondition()
-	ConformanceRules_BannedProperty_RequirementPrecondition_BANNED_PROPERTY_READ = new_ConformanceRules_BannedProperty_RequirementPrecondition_4("BANNED_PROPERTY_READ", 3).up_ConformanceRules_BannedProperty_RequirementPrecondition()
-	ConformanceRules_BannedProperty_RequirementPrecondition_BANNED_PROPERTY_CALL = new_ConformanceRules_BannedProperty_RequirementPrecondition_5("BANNED_PROPERTY_CALL", 4).up_ConformanceRules_BannedProperty_RequirementPrecondition()
-	ConformanceRules_BannedProperty_RequirementPrecondition_values_ = []*ConformanceRules_BannedProperty_RequirementPrecondition{ConformanceRules_BannedProperty_RequirementPrecondition_BANNED_PROPERTY, ConformanceRules_BannedProperty_RequirementPrecondition_BANNED_PROPERTY_WRITE, ConformanceRules_BannedProperty_RequirementPrecondition_BANNED_PROPERTY_NON_CONSTANT_WRITE, ConformanceRules_BannedProperty_RequirementPrecondition_BANNED_PROPERTY_READ, ConformanceRules_BannedProperty_RequirementPrecondition_BANNED_PROPERTY_CALL}
+	ConformanceRules_BannedProperty_RequirementPrecondition_values_ = []ConformanceRules_BannedProperty_RequirementPrecondition{ConformanceRules_BannedProperty_RequirementPrecondition_BANNED_PROPERTY, ConformanceRules_BannedProperty_RequirementPrecondition_BANNED_PROPERTY_WRITE, ConformanceRules_BannedProperty_RequirementPrecondition_BANNED_PROPERTY_NON_CONSTANT_WRITE, ConformanceRules_BannedProperty_RequirementPrecondition_BANNED_PROPERTY_READ, ConformanceRules_BannedProperty_RequirementPrecondition_BANNED_PROPERTY_CALL}
 	registerEnum_("com.google.javascript.jscomp.ConformanceRules.BannedProperty.RequirementPrecondition", enumValues_(ConformanceRules_BannedProperty_RequirementPrecondition_values_))
 
 }
@@ -4048,325 +4086,6 @@ func ConformanceRules_BanStaticThis_isStaticMethod(n Node) bool {
 	return (((parent != 0) && parent.isMemberFunctionDef()) && parent.isStaticMember())
 }
 
-type ConformanceRules_BannedProperty_RequirementPrecondition_1 struct {
-	ConformanceRules_BannedProperty_RequirementPrecondition
-}
-
-func (this *ConformanceRules_BannedProperty_RequirementPrecondition_1) up_ConformanceRules_BannedProperty_RequirementPrecondition() *ConformanceRules_BannedProperty_RequirementPrecondition {
-	if this == nil {
-		return nil
-	}
-	return &this.ConformanceRules_BannedProperty_RequirementPrecondition
-}
-
-func (this *ConformanceRules_BannedProperty_RequirementPrecondition_1) up_Enum() *Enum {
-	if this == nil {
-		return nil
-	}
-	return &this.Enum
-}
-
-func (this *ConformanceRules_BannedProperty_RequirementPrecondition_1) init_ConformanceRules_BannedProperty_RequirementPrecondition_1(name_ string, ordinal_ int32) {
-	this.ConformanceRules_BannedProperty_RequirementPrecondition.init_ConformanceRules_BannedProperty_RequirementPrecondition(name_, ordinal_)
-}
-
-func new_ConformanceRules_BannedProperty_RequirementPrecondition_1(name_ string, ordinal_ int32) *ConformanceRules_BannedProperty_RequirementPrecondition_1 {
-	this := &ConformanceRules_BannedProperty_RequirementPrecondition_1{}
-	this.self_ = this
-	this.selfI_ = this.shouldCheck_impl
-	this.init_ConformanceRules_BannedProperty_RequirementPrecondition_1(name_, ordinal_)
-	return this
-}
-
-func (this *ConformanceRules_BannedProperty_RequirementPrecondition_1) shouldCheck_impl(n Node) bool {
-	return func() bool {
-		switch n.ns_().token {
-		case tokOrd1_STRING_KEY, tokOrd1_GETPROP, tokOrd1_GETELEM, tokOrd1_COMPUTED_PROP:
-			return true
-		default:
-			return false
-		}
-		panic("unreachable")
-	}()
-}
-
-func ConformanceRules_BannedProperty_RequirementPrecondition_1_values() []*ConformanceRules_BannedProperty_RequirementPrecondition_1 {
-	return append([]*ConformanceRules_BannedProperty_RequirementPrecondition_1(nil), ConformanceRules_BannedProperty_RequirementPrecondition_1_values_...)
-}
-
-func ConformanceRules_BannedProperty_RequirementPrecondition_1_valueOf(name string) *ConformanceRules_BannedProperty_RequirementPrecondition_1 {
-	for _, v := range ConformanceRules_BannedProperty_RequirementPrecondition_1_values_ {
-		if v.Enum.name() == name {
-			return v
-		}
-	}
-	panic(enumValueOfFail_("", name))
-}
-
-var ConformanceRules_BannedProperty_RequirementPrecondition_1_values_ []*ConformanceRules_BannedProperty_RequirementPrecondition_1
-
-var ConformanceRules_BannedProperty_RequirementPrecondition_1_clinit_done bool
-
-func ConformanceRules_BannedProperty_RequirementPrecondition_1_clinit() {
-	if ConformanceRules_BannedProperty_RequirementPrecondition_1_clinit_done {
-		return
-	}
-	ConformanceRules_BannedProperty_RequirementPrecondition_1_clinit_done = true
-	ConformanceRules_BannedProperty_RequirementPrecondition_1_values_ = []*ConformanceRules_BannedProperty_RequirementPrecondition_1{}
-	registerEnum_("<anonymous com.google.javascript.jscomp.ConformanceRules.BannedProperty.RequirementPrecondition>", enumValues_(ConformanceRules_BannedProperty_RequirementPrecondition_1_values_))
-
-}
-
-type ConformanceRules_BannedProperty_RequirementPrecondition_2 struct {
-	ConformanceRules_BannedProperty_RequirementPrecondition
-}
-
-func (this *ConformanceRules_BannedProperty_RequirementPrecondition_2) up_ConformanceRules_BannedProperty_RequirementPrecondition() *ConformanceRules_BannedProperty_RequirementPrecondition {
-	if this == nil {
-		return nil
-	}
-	return &this.ConformanceRules_BannedProperty_RequirementPrecondition
-}
-
-func (this *ConformanceRules_BannedProperty_RequirementPrecondition_2) up_Enum() *Enum {
-	if this == nil {
-		return nil
-	}
-	return &this.Enum
-}
-
-func (this *ConformanceRules_BannedProperty_RequirementPrecondition_2) init_ConformanceRules_BannedProperty_RequirementPrecondition_2(name_ string, ordinal_ int32) {
-	this.ConformanceRules_BannedProperty_RequirementPrecondition.init_ConformanceRules_BannedProperty_RequirementPrecondition(name_, ordinal_)
-}
-
-func new_ConformanceRules_BannedProperty_RequirementPrecondition_2(name_ string, ordinal_ int32) *ConformanceRules_BannedProperty_RequirementPrecondition_2 {
-	this := &ConformanceRules_BannedProperty_RequirementPrecondition_2{}
-	this.self_ = this
-	this.selfI_ = this.shouldCheck_impl
-	this.init_ConformanceRules_BannedProperty_RequirementPrecondition_2(name_, ordinal_)
-	return this
-}
-
-func (this *ConformanceRules_BannedProperty_RequirementPrecondition_2) shouldCheck_impl(n Node) bool {
-	return NodeUtil_isLValue(n)
-}
-
-func ConformanceRules_BannedProperty_RequirementPrecondition_2_values() []*ConformanceRules_BannedProperty_RequirementPrecondition_2 {
-	return append([]*ConformanceRules_BannedProperty_RequirementPrecondition_2(nil), ConformanceRules_BannedProperty_RequirementPrecondition_2_values_...)
-}
-
-func ConformanceRules_BannedProperty_RequirementPrecondition_2_valueOf(name string) *ConformanceRules_BannedProperty_RequirementPrecondition_2 {
-	for _, v := range ConformanceRules_BannedProperty_RequirementPrecondition_2_values_ {
-		if v.Enum.name() == name {
-			return v
-		}
-	}
-	panic(enumValueOfFail_("", name))
-}
-
-var ConformanceRules_BannedProperty_RequirementPrecondition_2_values_ []*ConformanceRules_BannedProperty_RequirementPrecondition_2
-
-var ConformanceRules_BannedProperty_RequirementPrecondition_2_clinit_done bool
-
-func ConformanceRules_BannedProperty_RequirementPrecondition_2_clinit() {
-	if ConformanceRules_BannedProperty_RequirementPrecondition_2_clinit_done {
-		return
-	}
-	ConformanceRules_BannedProperty_RequirementPrecondition_2_clinit_done = true
-	ConformanceRules_BannedProperty_RequirementPrecondition_2_values_ = []*ConformanceRules_BannedProperty_RequirementPrecondition_2{}
-	registerEnum_("<anonymous com.google.javascript.jscomp.ConformanceRules.BannedProperty.RequirementPrecondition>", enumValues_(ConformanceRules_BannedProperty_RequirementPrecondition_2_values_))
-
-}
-
-type ConformanceRules_BannedProperty_RequirementPrecondition_3 struct {
-	ConformanceRules_BannedProperty_RequirementPrecondition
-}
-
-func (this *ConformanceRules_BannedProperty_RequirementPrecondition_3) up_ConformanceRules_BannedProperty_RequirementPrecondition() *ConformanceRules_BannedProperty_RequirementPrecondition {
-	if this == nil {
-		return nil
-	}
-	return &this.ConformanceRules_BannedProperty_RequirementPrecondition
-}
-
-func (this *ConformanceRules_BannedProperty_RequirementPrecondition_3) up_Enum() *Enum {
-	if this == nil {
-		return nil
-	}
-	return &this.Enum
-}
-
-func (this *ConformanceRules_BannedProperty_RequirementPrecondition_3) init_ConformanceRules_BannedProperty_RequirementPrecondition_3(name_ string, ordinal_ int32) {
-	this.ConformanceRules_BannedProperty_RequirementPrecondition.init_ConformanceRules_BannedProperty_RequirementPrecondition(name_, ordinal_)
-}
-
-func new_ConformanceRules_BannedProperty_RequirementPrecondition_3(name_ string, ordinal_ int32) *ConformanceRules_BannedProperty_RequirementPrecondition_3 {
-	this := &ConformanceRules_BannedProperty_RequirementPrecondition_3{}
-	this.self_ = this
-	this.selfI_ = this.shouldCheck_impl
-	this.init_ConformanceRules_BannedProperty_RequirementPrecondition_3(name_, ordinal_)
-	return this
-}
-
-func (this *ConformanceRules_BannedProperty_RequirementPrecondition_3) shouldCheck_impl(n Node) bool {
-	if !NodeUtil_isLValue(n) {
-		return false
-	}
-	if NodeUtil_isLhsOfAssign(n) && (NodeUtil_isLiteralValue(n.getNext(), false) || NodeUtil_isSomeCompileTimeConstStringValue(n.getNext())) {
-		return false
-	}
-	return true
-}
-
-func ConformanceRules_BannedProperty_RequirementPrecondition_3_values() []*ConformanceRules_BannedProperty_RequirementPrecondition_3 {
-	return append([]*ConformanceRules_BannedProperty_RequirementPrecondition_3(nil), ConformanceRules_BannedProperty_RequirementPrecondition_3_values_...)
-}
-
-func ConformanceRules_BannedProperty_RequirementPrecondition_3_valueOf(name string) *ConformanceRules_BannedProperty_RequirementPrecondition_3 {
-	for _, v := range ConformanceRules_BannedProperty_RequirementPrecondition_3_values_ {
-		if v.Enum.name() == name {
-			return v
-		}
-	}
-	panic(enumValueOfFail_("", name))
-}
-
-var ConformanceRules_BannedProperty_RequirementPrecondition_3_values_ []*ConformanceRules_BannedProperty_RequirementPrecondition_3
-
-var ConformanceRules_BannedProperty_RequirementPrecondition_3_clinit_done bool
-
-func ConformanceRules_BannedProperty_RequirementPrecondition_3_clinit() {
-	if ConformanceRules_BannedProperty_RequirementPrecondition_3_clinit_done {
-		return
-	}
-	ConformanceRules_BannedProperty_RequirementPrecondition_3_clinit_done = true
-	ConformanceRules_BannedProperty_RequirementPrecondition_3_values_ = []*ConformanceRules_BannedProperty_RequirementPrecondition_3{}
-	registerEnum_("<anonymous com.google.javascript.jscomp.ConformanceRules.BannedProperty.RequirementPrecondition>", enumValues_(ConformanceRules_BannedProperty_RequirementPrecondition_3_values_))
-
-}
-
-type ConformanceRules_BannedProperty_RequirementPrecondition_4 struct {
-	ConformanceRules_BannedProperty_RequirementPrecondition
-}
-
-func (this *ConformanceRules_BannedProperty_RequirementPrecondition_4) up_ConformanceRules_BannedProperty_RequirementPrecondition() *ConformanceRules_BannedProperty_RequirementPrecondition {
-	if this == nil {
-		return nil
-	}
-	return &this.ConformanceRules_BannedProperty_RequirementPrecondition
-}
-
-func (this *ConformanceRules_BannedProperty_RequirementPrecondition_4) up_Enum() *Enum {
-	if this == nil {
-		return nil
-	}
-	return &this.Enum
-}
-
-func (this *ConformanceRules_BannedProperty_RequirementPrecondition_4) init_ConformanceRules_BannedProperty_RequirementPrecondition_4(name_ string, ordinal_ int32) {
-	this.ConformanceRules_BannedProperty_RequirementPrecondition.init_ConformanceRules_BannedProperty_RequirementPrecondition(name_, ordinal_)
-}
-
-func new_ConformanceRules_BannedProperty_RequirementPrecondition_4(name_ string, ordinal_ int32) *ConformanceRules_BannedProperty_RequirementPrecondition_4 {
-	this := &ConformanceRules_BannedProperty_RequirementPrecondition_4{}
-	this.self_ = this
-	this.selfI_ = this.shouldCheck_impl
-	this.init_ConformanceRules_BannedProperty_RequirementPrecondition_4(name_, ordinal_)
-	return this
-}
-
-func (this *ConformanceRules_BannedProperty_RequirementPrecondition_4) shouldCheck_impl(n Node) bool {
-	return (!NodeUtil_isLValue(n) && NodeUtil_isExpressionResultUsed(n))
-}
-
-func ConformanceRules_BannedProperty_RequirementPrecondition_4_values() []*ConformanceRules_BannedProperty_RequirementPrecondition_4 {
-	return append([]*ConformanceRules_BannedProperty_RequirementPrecondition_4(nil), ConformanceRules_BannedProperty_RequirementPrecondition_4_values_...)
-}
-
-func ConformanceRules_BannedProperty_RequirementPrecondition_4_valueOf(name string) *ConformanceRules_BannedProperty_RequirementPrecondition_4 {
-	for _, v := range ConformanceRules_BannedProperty_RequirementPrecondition_4_values_ {
-		if v.Enum.name() == name {
-			return v
-		}
-	}
-	panic(enumValueOfFail_("", name))
-}
-
-var ConformanceRules_BannedProperty_RequirementPrecondition_4_values_ []*ConformanceRules_BannedProperty_RequirementPrecondition_4
-
-var ConformanceRules_BannedProperty_RequirementPrecondition_4_clinit_done bool
-
-func ConformanceRules_BannedProperty_RequirementPrecondition_4_clinit() {
-	if ConformanceRules_BannedProperty_RequirementPrecondition_4_clinit_done {
-		return
-	}
-	ConformanceRules_BannedProperty_RequirementPrecondition_4_clinit_done = true
-	ConformanceRules_BannedProperty_RequirementPrecondition_4_values_ = []*ConformanceRules_BannedProperty_RequirementPrecondition_4{}
-	registerEnum_("<anonymous com.google.javascript.jscomp.ConformanceRules.BannedProperty.RequirementPrecondition>", enumValues_(ConformanceRules_BannedProperty_RequirementPrecondition_4_values_))
-
-}
-
-type ConformanceRules_BannedProperty_RequirementPrecondition_5 struct {
-	ConformanceRules_BannedProperty_RequirementPrecondition
-}
-
-func (this *ConformanceRules_BannedProperty_RequirementPrecondition_5) up_ConformanceRules_BannedProperty_RequirementPrecondition() *ConformanceRules_BannedProperty_RequirementPrecondition {
-	if this == nil {
-		return nil
-	}
-	return &this.ConformanceRules_BannedProperty_RequirementPrecondition
-}
-
-func (this *ConformanceRules_BannedProperty_RequirementPrecondition_5) up_Enum() *Enum {
-	if this == nil {
-		return nil
-	}
-	return &this.Enum
-}
-
-func (this *ConformanceRules_BannedProperty_RequirementPrecondition_5) init_ConformanceRules_BannedProperty_RequirementPrecondition_5(name_ string, ordinal_ int32) {
-	this.ConformanceRules_BannedProperty_RequirementPrecondition.init_ConformanceRules_BannedProperty_RequirementPrecondition(name_, ordinal_)
-}
-
-func new_ConformanceRules_BannedProperty_RequirementPrecondition_5(name_ string, ordinal_ int32) *ConformanceRules_BannedProperty_RequirementPrecondition_5 {
-	this := &ConformanceRules_BannedProperty_RequirementPrecondition_5{}
-	this.self_ = this
-	this.selfI_ = this.shouldCheck_impl
-	this.init_ConformanceRules_BannedProperty_RequirementPrecondition_5(name_, ordinal_)
-	return this
-}
-
-func (this *ConformanceRules_BannedProperty_RequirementPrecondition_5) shouldCheck_impl(n Node) bool {
-	return ConformanceRules_ConformanceUtil_isCallTarget(n)
-}
-
-func ConformanceRules_BannedProperty_RequirementPrecondition_5_values() []*ConformanceRules_BannedProperty_RequirementPrecondition_5 {
-	return append([]*ConformanceRules_BannedProperty_RequirementPrecondition_5(nil), ConformanceRules_BannedProperty_RequirementPrecondition_5_values_...)
-}
-
-func ConformanceRules_BannedProperty_RequirementPrecondition_5_valueOf(name string) *ConformanceRules_BannedProperty_RequirementPrecondition_5 {
-	for _, v := range ConformanceRules_BannedProperty_RequirementPrecondition_5_values_ {
-		if v.Enum.name() == name {
-			return v
-		}
-	}
-	panic(enumValueOfFail_("", name))
-}
-
-var ConformanceRules_BannedProperty_RequirementPrecondition_5_values_ []*ConformanceRules_BannedProperty_RequirementPrecondition_5
-
-var ConformanceRules_BannedProperty_RequirementPrecondition_5_clinit_done bool
-
-func ConformanceRules_BannedProperty_RequirementPrecondition_5_clinit() {
-	if ConformanceRules_BannedProperty_RequirementPrecondition_5_clinit_done {
-		return
-	}
-	ConformanceRules_BannedProperty_RequirementPrecondition_5_clinit_done = true
-	ConformanceRules_BannedProperty_RequirementPrecondition_5_values_ = []*ConformanceRules_BannedProperty_RequirementPrecondition_5{}
-	registerEnum_("<anonymous com.google.javascript.jscomp.ConformanceRules.BannedProperty.RequirementPrecondition>", enumValues_(ConformanceRules_BannedProperty_RequirementPrecondition_5_values_))
-
-}
-
 // checkConformance: an object that is exactly a ConformanceRules_NoOp calls its checkConformance_impl directly (post-flip); others dispatch.
 func (this *ConformanceRules_NoOp) checkConformance(p0 *NodeTraversal, p1 Node) *ConformanceRules_ConformanceResult {
 	if p, _ := this.self_.(*ConformanceRules_NoOp); p == this {
@@ -4645,44 +4364,4 @@ func (this *ConformanceRules_BanStaticThis) checkConformance(p0 *NodeTraversal, 
 		return this.checkConformance_impl(p0, p1)
 	}
 	return this.self_.checkConformance_impl(p0, p1)
-}
-
-// shouldCheck: an object that is exactly a ConformanceRules_BannedProperty_RequirementPrecondition_1 calls its shouldCheck_impl directly (post-flip); others dispatch.
-func (this *ConformanceRules_BannedProperty_RequirementPrecondition_1) shouldCheck(p0 Node) bool {
-	if p, _ := this.self_.(*ConformanceRules_BannedProperty_RequirementPrecondition_1); p == this {
-		return this.shouldCheck_impl(p0)
-	}
-	return this.selfI_(p0)
-}
-
-// shouldCheck: an object that is exactly a ConformanceRules_BannedProperty_RequirementPrecondition_2 calls its shouldCheck_impl directly (post-flip); others dispatch.
-func (this *ConformanceRules_BannedProperty_RequirementPrecondition_2) shouldCheck(p0 Node) bool {
-	if p, _ := this.self_.(*ConformanceRules_BannedProperty_RequirementPrecondition_2); p == this {
-		return this.shouldCheck_impl(p0)
-	}
-	return this.selfI_(p0)
-}
-
-// shouldCheck: an object that is exactly a ConformanceRules_BannedProperty_RequirementPrecondition_3 calls its shouldCheck_impl directly (post-flip); others dispatch.
-func (this *ConformanceRules_BannedProperty_RequirementPrecondition_3) shouldCheck(p0 Node) bool {
-	if p, _ := this.self_.(*ConformanceRules_BannedProperty_RequirementPrecondition_3); p == this {
-		return this.shouldCheck_impl(p0)
-	}
-	return this.selfI_(p0)
-}
-
-// shouldCheck: an object that is exactly a ConformanceRules_BannedProperty_RequirementPrecondition_4 calls its shouldCheck_impl directly (post-flip); others dispatch.
-func (this *ConformanceRules_BannedProperty_RequirementPrecondition_4) shouldCheck(p0 Node) bool {
-	if p, _ := this.self_.(*ConformanceRules_BannedProperty_RequirementPrecondition_4); p == this {
-		return this.shouldCheck_impl(p0)
-	}
-	return this.selfI_(p0)
-}
-
-// shouldCheck: an object that is exactly a ConformanceRules_BannedProperty_RequirementPrecondition_5 calls its shouldCheck_impl directly (post-flip); others dispatch.
-func (this *ConformanceRules_BannedProperty_RequirementPrecondition_5) shouldCheck(p0 Node) bool {
-	if p, _ := this.self_.(*ConformanceRules_BannedProperty_RequirementPrecondition_5); p == this {
-		return this.shouldCheck_impl(p0)
-	}
-	return this.selfI_(p0)
 }

@@ -41,7 +41,7 @@ func (this *NodeModuleResolver) up_ModuleResolver() *ModuleResolver {
 	return &this.ModuleResolver
 }
 
-func (this *NodeModuleResolver) init_NodeModuleResolver(modulePaths ImmutableSetOf[string], moduleRootPaths ImmutableListOf[string], packageJsonMainEntries *TMap[string, string], errorHandler ErrorHandler, pathEscaper *ModuleLoader_PathEscaper) {
+func (this *NodeModuleResolver) init_NodeModuleResolver(modulePaths ImmutableSetOf[string], moduleRootPaths ImmutableListOf[string], packageJsonMainEntries *TMap[string, string], errorHandler ErrorHandler, pathEscaper ModuleLoader_PathEscaper) {
 	this.ModuleResolver.init_ModuleResolver(modulePaths, moduleRootPaths, errorHandler, pathEscaper)
 	this.nodeModulesFolders = NodeModuleResolver_buildNodeModulesFoldersRegistry(icast_Iterable(obj_(modulePaths)), icast_Iterable(obj_(moduleRootPaths)))
 	if packageJsonMainEntries == nil {
@@ -51,7 +51,7 @@ func (this *NodeModuleResolver) init_NodeModuleResolver(modulePaths ImmutableSet
 	}
 }
 
-func new_NodeModuleResolver(modulePaths ImmutableSetOf[string], moduleRootPaths ImmutableListOf[string], packageJsonMainEntries *TMap[string, string], errorHandler ErrorHandler, pathEscaper *ModuleLoader_PathEscaper) *NodeModuleResolver {
+func new_NodeModuleResolver(modulePaths ImmutableSetOf[string], moduleRootPaths ImmutableListOf[string], packageJsonMainEntries *TMap[string, string], errorHandler ErrorHandler, pathEscaper ModuleLoader_PathEscaper) *NodeModuleResolver {
 	this := &NodeModuleResolver{}
 	this.self_ = this
 	this.init_NodeModuleResolver(modulePaths, moduleRootPaths, packageJsonMainEntries, errorHandler, pathEscaper)
@@ -250,7 +250,7 @@ func new_NodeModuleResolver_Factory_Map(packageJsonMainEntries *TMap[string, str
 	return this
 }
 
-func (this *NodeModuleResolver_Factory) create(modulePaths ImmutableSetOf[string], moduleRootPaths ImmutableListOf[string], errorHandler ErrorHandler, pathEscaper *ModuleLoader_PathEscaper) *ModuleResolver {
+func (this *NodeModuleResolver_Factory) create(modulePaths ImmutableSetOf[string], moduleRootPaths ImmutableListOf[string], errorHandler ErrorHandler, pathEscaper ModuleLoader_PathEscaper) *ModuleResolver {
 	return new_NodeModuleResolver(modulePaths, moduleRootPaths, this.packageJsonMainEntries, errorHandler, pathEscaper).up_ModuleResolver()
 }
 
