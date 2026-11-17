@@ -4,7 +4,7 @@ package closure
 
 type MaybeReachingVariableUse struct {
 	DataFlowAnalysis
-	escaped     *TSet[*Var]
+	escaped     map[varKey_]struct{}
 	allVarsInFn *TMap[string, *Var]
 }
 
@@ -15,13 +15,13 @@ func (this *MaybeReachingVariableUse) up_DataFlowAnalysis() *DataFlowAnalysis {
 	return &this.DataFlowAnalysis
 }
 
-func (this *MaybeReachingVariableUse) init_MaybeReachingVariableUse(cfg *ControlFlowGraph, escaped *TSet[*Var], allVarsInFn *TMap[string, *Var]) {
+func (this *MaybeReachingVariableUse) init_MaybeReachingVariableUse(cfg *ControlFlowGraph, escaped map[varKey_]struct{}, allVarsInFn *TMap[string, *Var]) {
 	this.DataFlowAnalysis.init_DataFlowAnalysis(cfg)
 	this.escaped = escaped
 	this.allVarsInFn = allVarsInFn
 }
 
-func new_MaybeReachingVariableUse(cfg *ControlFlowGraph, escaped *TSet[*Var], allVarsInFn *TMap[string, *Var]) *MaybeReachingVariableUse {
+func new_MaybeReachingVariableUse(cfg *ControlFlowGraph, escaped map[varKey_]struct{}, allVarsInFn *TMap[string, *Var]) *MaybeReachingVariableUse {
 	this := &MaybeReachingVariableUse{}
 	this.self_ = this
 	this.init_MaybeReachingVariableUse(cfg, escaped, allVarsInFn)
@@ -175,7 +175,7 @@ func (this *MaybeReachingVariableUse) addToUseIfLocal(name string, node Node, us
 	if var_ == nil {
 		return
 	}
-	if !this.escaped.contains(var_) {
+	if !has_(this.escaped, vkey_(var_)) {
 		use.put(var_, node)
 	}
 }
@@ -185,7 +185,7 @@ func (this *MaybeReachingVariableUse) removeFromUseIfLocal(name string, use *May
 	if var_ == nil {
 		return
 	}
-	if !this.escaped.contains(var_) {
+	if !has_(this.escaped, vkey_(var_)) {
 		use.removeAll(var_)
 	}
 }

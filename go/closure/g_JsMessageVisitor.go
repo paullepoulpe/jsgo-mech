@@ -9,7 +9,7 @@ type JsMessageVisitor struct {
 	idGenerator_    JsMessage_IdGenerator
 	compiler_       *AbstractCompiler
 	messageNames    map[string]*JsMessageVisitor_MessageLocation
-	unnamedMessages *TMap[*Var, *JsMessage]
+	unnamedMessages map[varKey_]*JsMessage
 	googMsgNodes    *TSet[Node]
 }
 
@@ -31,7 +31,7 @@ func (this *JsMessageVisitor) up_NodeTraversal_AbstractPostOrderCallback() *Node
 
 func (this *JsMessageVisitor) finit_JsMessageVisitor() {
 	this.messageNames = map[string]*JsMessageVisitor_MessageLocation{}
-	this.unnamedMessages = newTMap_(tch_p_Var, tc_p_JsMessage)
+	this.unnamedMessages = map[varKey_]*JsMessage{}
 	this.googMsgNodes = newTSet_(tc_Node)
 }
 
@@ -267,7 +267,7 @@ func (this *JsMessageVisitor) trackNormalMessage(message *JsMessage, msgName str
 func (this *JsMessageVisitor) trackUnnamedMessage(t *NodeTraversal, message *JsMessage, msgNameInScope string) {
 	var var_ *Var = cast_[*Var](t.getScope().getVar(msgNameInScope).self())
 	if var_ != nil {
-		this.unnamedMessages.put(var_, message)
+		this.unnamedMessages[vkey_(var_)] = message
 	}
 }
 
@@ -293,7 +293,7 @@ func JsMessageVisitor_isLegalMessageVarAlias(msgNode Node) bool {
 func (this *JsMessageVisitor) getTrackedUnnamedMessage(t *NodeTraversal, msgNameInScope string) *JsMessage {
 	var var_ *Var = cast_[*Var](t.getScope().getVar(msgNameInScope).self())
 	if var_ != nil {
-		return this.unnamedMessages.get(var_)
+		return this.unnamedMessages[vkey_(var_)]
 	}
 	return nil
 }

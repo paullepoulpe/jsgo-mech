@@ -167,7 +167,7 @@ func (this *CoalesceVariableNames) isNameInsideDestructuringAssignment(n Node) b
 	return false
 }
 
-func (this *CoalesceVariableNames) computeVariableNamesInterferenceGraph(cfg *ControlFlowGraph, escaped *TSet[*Var]) *UndiGraph {
+func (this *CoalesceVariableNames) computeVariableNamesInterferenceGraph(cfg *ControlFlowGraph, escaped map[varKey_]struct{}) *UndiGraph {
 	var interferenceGraph *UndiGraph = LinkedUndirectedGraph_create().up_UndiGraph()
 	var orderedVariables []*Var = arrmap_(sliceViewP_(tc_p_Var, this.liveness.getAllVariablesInOrder()).toArray(arrmap_(make([]*Var, 0), func(v_ *Var) any { return obj_(v_) })), func(v_ any) *Var { return cast_[*Var](v_) })
 	var interferenceGraphNodes *BitSet = new_BitSet()
@@ -183,7 +183,7 @@ func (this *CoalesceVariableNames) computeVariableNamesInterferenceGraph(cfg *Co
 	var vIndex int32 = -1
 	for _, v := range orderedVariables {
 		vIndex++
-		if escaped.contains(v) {
+		if has_(escaped, vkey_(v)) {
 			continue
 		}
 		if v.getParentNode().isFunction() {

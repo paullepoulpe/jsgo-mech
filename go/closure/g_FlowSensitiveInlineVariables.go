@@ -50,7 +50,7 @@ func (this *FlowSensitiveInlineVariables) enterScope(t *NodeTraversal) {
 	}
 	var scopeCreator *SyntacticScopeCreator = cast_[*SyntacticScopeCreator](t.getScopeCreator())
 	this.cfg = ControlFlowAnalysis_builder().setCompiler(this.compiler_).setCfgRoot(functionScopeRoot).setIncludeEdgeAnnotations(true).computeCfg()
-	var escaped *TSet[*Var] = newTSet_(tch_p_Var)
+	var escaped map[varKey_]struct{} = map[varKey_]struct{}{}
 	var scope *Scope = t.getScope()
 	var allVarsDeclaredInFunction *NodeUtil_AllVarsDeclaredInFunction = NodeUtil_getAllVarsDeclaredInFunction(this.compiler_, icast_ScopeCreator(obj_(scopeCreator)), cast_[*Scope](scope.getParent().self()))
 	var allVarsInFn *TMap[string, *Var] = allVarsDeclaredInFunction.getAllVariables()

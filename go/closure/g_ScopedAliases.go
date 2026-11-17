@@ -333,7 +333,7 @@ func (this *ScopedAliases_AliasUsage) init_ScopedAliases_AliasUsage(aliasVar *Va
 	this.aliasReference = aliasReference
 }
 
-func (this *ScopedAliases_AliasUsage) referencesOtherAlias(deletedAliasVars *TSet[*Var]) bool {
+func (this *ScopedAliases_AliasUsage) referencesOtherAlias(deletedAliasVars map[varKey_]struct{}) bool {
 	var aliasDefinition Node = this.aliasVar.getInitialValue()
 	var qname string = ScopedAliases_getAliasedNamespace(aliasDefinition)
 	var dotIndex int32 = int32(strings.IndexByte(qname, '.'))
@@ -344,7 +344,7 @@ func (this *ScopedAliases_AliasUsage) referencesOtherAlias(deletedAliasVars *TSe
 		return qname[:dotIndex]
 	}()
 	var otherAliasVar *Var = cast_[*Var](cast_[*Scope](this.aliasVar.getScope()).getOwnSlot(rootName))
-	return ((otherAliasVar != nil) && !deletedAliasVars.contains(otherAliasVar))
+	return ((otherAliasVar != nil) && !has_(deletedAliasVars, vkey_(otherAliasVar)))
 }
 
 func (this *ScopedAliases_AliasUsage) applyAlias(p0 *AbstractCompiler) {
@@ -429,7 +429,7 @@ type ScopedAliases_Traversal struct {
 	aliasUsages              *[]*ScopedAliases_AliasUsage
 	aliases_                 map[string]*Var
 	injectedDecls            map[Node]struct{}
-	deletedAliasVars         *TSet[*Var]
+	deletedAliasVars         map[varKey_]struct{}
 	forbiddenLocals          *TSet[string]
 	hasNamespaceShadows      bool
 	hasErrorsField           bool
@@ -449,7 +449,7 @@ func (this *ScopedAliases_Traversal) finit_ScopedAliases_Traversal() {
 	this.aliasUsages = &[]*ScopedAliases_AliasUsage{}
 	this.aliases_ = map[string]*Var{}
 	this.injectedDecls = map[Node]struct{}{}
-	this.deletedAliasVars = newTSet_(tch_p_Var)
+	this.deletedAliasVars = map[varKey_]struct{}{}
 	this.forbiddenLocals = tsetFrom_(tc_string, Collection(ImmutableSet_of_Object(strobj_("$jscomp"))), false)
 	this.hasNamespaceShadows = false
 	this.hasErrorsField = false
@@ -631,7 +631,7 @@ func (this *ScopedAliases_Traversal) recordAlias(aliasVar *Var) {
 		}()
 		var newName string = (sstr_(name) + sstr_(ScopedAliases_MISSING_ALIASES_PREFIX) + sstr_(suffix))
 		initialValue.replaceWith(IR_name(newName))
-		this.deletedAliasVars.add(aliasVar)
+		this.deletedAliasVars[vkey_(aliasVar)] = struct{}{}
 		this.aliases_[name] = aliasVar
 		return
 	}

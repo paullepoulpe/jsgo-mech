@@ -28,11 +28,11 @@ const InlineObjectLiterals_STRING_KEY_IDENTIFIER string = "string_key"
 
 type InlineObjectLiterals_InliningBehavior struct {
 	outer_    *InlineObjectLiterals
-	staleVars *TSet[*Var]
+	staleVars map[varKey_]struct{}
 }
 
 func (this *InlineObjectLiterals_InliningBehavior) finit_InlineObjectLiterals_InliningBehavior() {
-	this.staleVars = newTSet_(tch_p_Var)
+	this.staleVars = map[varKey_]struct{}{}
 }
 
 func (this *InlineObjectLiterals_InliningBehavior) init_InlineObjectLiterals_InliningBehavior() {
@@ -56,7 +56,7 @@ func (this *InlineObjectLiterals_InliningBehavior) afterExitScope(t *NodeTravers
 			continue
 		}
 		if this.isInlinableObject(referenceInfo.references) {
-			this.staleVars.add(v)
+			this.staleVars[vkey_(v)] = struct{}{}
 			var init_ *Reference = referenceInfo.getInitializingReference()
 			this.splitObject(v, init_, referenceInfo)
 		}
@@ -68,7 +68,7 @@ func (this *InlineObjectLiterals_InliningBehavior) recordStaleVarReferencesInTre
 }
 
 func (this *InlineObjectLiterals_InliningBehavior) isVarInlineForbidden(var_ *Var) bool {
-	return ((((var_.isGlobal() || var_.isExtern()) || this.outer_.compiler_.getCodingConvention().isExported_2(var_.getName(), true)) || this.outer_.compiler_.getCodingConvention().isPropertyRenameFunction(var_.getNameNode())) || this.staleVars.contains(var_))
+	return ((((var_.isGlobal() || var_.isExtern()) || this.outer_.compiler_.getCodingConvention().isExported_2(var_.getName(), true)) || this.outer_.compiler_.getCodingConvention().isPropertyRenameFunction(var_.getNameNode())) || has_(this.staleVars, vkey_(var_)))
 }
 
 func (this *InlineObjectLiterals_InliningBehavior) isInlinableObject(refs *TList[*Reference]) bool {
@@ -355,6 +355,6 @@ func new_InlineObjectLiterals_InliningBehavior_1(outer_ *InlineObjectLiterals_In
 
 func (this *InlineObjectLiterals_InliningBehavior_1) visit(node Node) {
 	if node.isName() {
-		this.outer_.staleVars.add(cast_[*Var](this.cap_scope.getVar(node.getString()).self()))
+		this.outer_.staleVars[vkey_(cast_[*Var](this.cap_scope.getVar(node.getString()).self()))] = struct{}{}
 	}
 }

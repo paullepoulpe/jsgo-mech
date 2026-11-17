@@ -619,7 +619,7 @@ func (this *PureFunctionIdentifier_FunctionBodyAnalyzer) updateSideEffectsForNod
 			if (value != 0) && !NodeUtil_evaluatesToLocalValue(value) {
 				var scope *Scope = traversal.getScope()
 				var var_ *Var = cast_[*Var](scope.getVar(node.getString()).self())
-				sliceTop_(tc_p_PureFunctionIdentifier_FunctionBodyAnalyzer_FunctionStackEntry, this.functionScopeStack).skiplistedVars.add(var_)
+				sliceTop_(tc_p_PureFunctionIdentifier_FunctionBodyAnalyzer_FunctionStackEntry, this.functionScopeStack).skiplistedVars[vkey_(var_)] = struct{}{}
 			}
 		}
 	case tokOrd1_THROW:
@@ -713,12 +713,12 @@ func (this *PureFunctionIdentifier_FunctionBodyAnalyzer) exitScope(t *NodeTraver
 		}
 		for v := range elemsAs_[*Var](t.getScope().getVarIterable()) {
 			var isFromDestructuring bool = NodeUtil_isLhsByDestructuring(v.getNameNode())
-			if ((v.isParam() && !isFromDestructuring) && !functionEntry.skiplistedVars.contains(v)) && functionEntry.taintedVars.contains(v) {
+			if ((v.isParam() && !isFromDestructuring) && !has_(functionEntry.skiplistedVars, vkey_(v))) && has_(functionEntry.taintedVars, vkey_(v)) {
 				sideEffectInfo.setMutatesArgumentAt(PureFunctionIdentifier_getParamIndex(v), v.getNode())
 				continue
 			}
 			if !functionEntry.isLocalVar(v, t.getScope()) {
-				if functionEntry.taintedVars.contains(v) {
+				if has_(functionEntry.taintedVars, vkey_(v)) {
 					sideEffectInfo.setMutatesGlobalStateAndAllOtherFlags(v.getNode())
 					break
 				}
@@ -744,7 +744,7 @@ func (this *PureFunctionIdentifier_FunctionBodyAnalyzer) visitLhsNode(encloserSu
 			if objectNode.isName() {
 				var var_ *Var = cast_[*Var](scope.getVar(objectNode.getString()).self())
 				if PureFunctionIdentifier_FunctionBodyAnalyzer_isVarDeclaredInSameContainerScope(var_, scope) {
-					sliceTop_(tc_p_PureFunctionIdentifier_FunctionBodyAnalyzer_FunctionStackEntry, this.functionScopeStack).taintedVars.add(var_)
+					sliceTop_(tc_p_PureFunctionIdentifier_FunctionBodyAnalyzer_FunctionStackEntry, this.functionScopeStack).taintedVars[vkey_(var_)] = struct{}{}
 				} else {
 					encloserSummary.setMutatesGlobalStateAndAllOtherFlags(lhs)
 				}
@@ -759,7 +759,7 @@ func (this *PureFunctionIdentifier_FunctionBodyAnalyzer) visitLhsNode(encloserSu
 		var var_ *Var = cast_[*Var](scope.getVar(lhs.getString()).self())
 		if PureFunctionIdentifier_FunctionBodyAnalyzer_isVarDeclaredInSameContainerScope(var_, scope) {
 			if !hasLocalRhs.test(lhs.box_()) {
-				sliceTop_(tc_p_PureFunctionIdentifier_FunctionBodyAnalyzer_FunctionStackEntry, this.functionScopeStack).skiplistedVars.add(var_)
+				sliceTop_(tc_p_PureFunctionIdentifier_FunctionBodyAnalyzer_FunctionStackEntry, this.functionScopeStack).skiplistedVars[vkey_(var_)] = struct{}{}
 			}
 		} else {
 			encloserSummary.setMutatesGlobalStateAndAllOtherFlags(lhs)
@@ -805,15 +805,15 @@ func (this *PureFunctionIdentifier_FunctionBodyAnalyzer) addToCatchDepthIfTryBlo
 
 type PureFunctionIdentifier_FunctionBodyAnalyzer_FunctionStackEntry struct {
 	root               Node
-	skiplistedVars     *TSet[*Var]
-	taintedVars        *TSet[*Var]
+	skiplistedVars     map[varKey_]struct{}
+	taintedVars        map[varKey_]struct{}
 	isArtificiallyPure bool
 	catchDepth         int32
 }
 
 func (this *PureFunctionIdentifier_FunctionBodyAnalyzer_FunctionStackEntry) finit_PureFunctionIdentifier_FunctionBodyAnalyzer_FunctionStackEntry() {
-	this.skiplistedVars = newTSet_(tch_p_Var)
-	this.taintedVars = newTSet_(tch_p_Var)
+	this.skiplistedVars = map[varKey_]struct{}{}
+	this.taintedVars = map[varKey_]struct{}{}
 	this.catchDepth = 0
 }
 
@@ -830,7 +830,7 @@ func new_PureFunctionIdentifier_FunctionBodyAnalyzer_FunctionStackEntry(root Nod
 }
 
 func (this *PureFunctionIdentifier_FunctionBodyAnalyzer_FunctionStackEntry) isLocalVar(v *Var, scope *Scope) bool {
-	return (((PureFunctionIdentifier_FunctionBodyAnalyzer_isVarDeclaredInSameContainerScope(v, scope) && !this.skiplistedVars.contains(v)) && !v.isParam()) && !v.isCatch())
+	return (((PureFunctionIdentifier_FunctionBodyAnalyzer_isVarDeclaredInSameContainerScope(v, scope) && !has_(this.skiplistedVars, vkey_(v))) && !v.isParam()) && !v.isCatch())
 }
 
 type PureFunctionIdentifier_SideEffectPropagation struct {

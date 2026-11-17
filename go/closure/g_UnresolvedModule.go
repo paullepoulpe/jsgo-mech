@@ -13,7 +13,7 @@ type UnresolvedModule_I interface {
 	getExportedNames_impl(ModuleRequestResolver) *ImmutableSet
 	metadata_impl() *ModuleMetadataMap_ModuleMetadata
 	reset_impl()
-	resolveExport_5_impl(ModuleRequestResolver, OptionalOf[string], OptionalOf[string], *TSet[*ExportTrace], map[*UnresolvedModule]struct{}) *ResolveExportResult
+	resolveExport_5_impl(ModuleRequestResolver, OptionalOf[string], OptionalOf[string], map[exportTraceKey_]struct{}, map[*UnresolvedModule]struct{}) *ResolveExportResult
 	resolveExport_impl(ModuleRequestResolver, OptionalOf[string]) *ResolveExportResult
 	resolve_2_impl(ModuleRequestResolver, OptionalOf[string]) *Module
 }
@@ -49,7 +49,7 @@ func (this *UnresolvedModule) resolve(moduleRequestResolver ModuleRequestResolve
 }
 
 func (this *UnresolvedModule) resolveExport_impl(moduleRequestResolver ModuleRequestResolver, exportName OptionalOf[string]) *ResolveExportResult {
-	return this.resolveExport_5(moduleRequestResolver, Optional_empty[string](), exportName, newTSet_(tch_p_ExportTrace), map[*UnresolvedModule]struct{}{})
+	return this.resolveExport_5(moduleRequestResolver, Optional_empty[string](), exportName, map[exportTraceKey_]struct{}{}, map[*UnresolvedModule]struct{}{})
 }
 
 func (this *UnresolvedModule) equals(other any) bool {
@@ -64,7 +64,7 @@ func (this *UnresolvedModule) resolveExport(p0 ModuleRequestResolver, p1 Optiona
 	return this.self_.resolveExport_impl(p0, p1)
 }
 
-func (this *UnresolvedModule) resolveExport_5(p0 ModuleRequestResolver, p1 OptionalOf[string], p2 OptionalOf[string], p3 *TSet[*ExportTrace], p4 map[*UnresolvedModule]struct{}) *ResolveExportResult {
+func (this *UnresolvedModule) resolveExport_5(p0 ModuleRequestResolver, p1 OptionalOf[string], p2 OptionalOf[string], p3 map[exportTraceKey_]struct{}, p4 map[*UnresolvedModule]struct{}) *ResolveExportResult {
 	return this.self_.resolveExport_5_impl(p0, p1, p2, p3, p4)
 }
 
