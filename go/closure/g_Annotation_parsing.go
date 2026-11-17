@@ -210,7 +210,7 @@ const Annotation_parsing_WIZ_ANALYZER Annotation_parsing = 78
 const Annotation_parsing_WIZCALLBACK Annotation_parsing = 79
 
 var Annotation_parsing_values_ []Annotation_parsing
-var Annotation_parsing_recognizedAnnotations *ImmutableMap
+var Annotation_parsing_recognizedAnnotations *ErasedImmutableMap
 
 var Annotation_parsing_clinit_done bool
 

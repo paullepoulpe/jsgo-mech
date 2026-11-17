@@ -32,7 +32,7 @@ func (this *DiagnosticToSuppressionMapper) createSuppressionMap() ImmutableSorte
 	delete(validSuppressions, "accessControls")
 	delete(validSuppressions, "missingSourcesWarnings")
 	var diagnosticToSuppression *TMap[*DiagnosticType, string] = newTMap_(tch_p_DiagnosticType, tc_string)
-	for _, el := range immElems_(cast_[*ImmutableSet](this.diagnosticGroups.entrySet())) {
+	for _, el := range immElems_(cast_[*ErasedImmutableSet](this.diagnosticGroups.entrySet())) {
 		entry := icast_Map_Entry(el)
 		var suppression string = str_(entry.getKey())
 		if !has_(validSuppressions, suppression) {
@@ -67,7 +67,7 @@ func DiagnosticToSuppressionMapper_printAsJson(diagnosticToSuppression Immutable
 	writer.setHtmlSafe(true)
 	writer.setSerializeNulls(false)
 	writer.beginObject()
-	for _, el := range immElems_(cast_[*ImmutableSet](diagnosticToSuppression.entrySet())) {
+	for _, el := range immElems_(cast_[*ErasedImmutableSet](diagnosticToSuppression.entrySet())) {
 		entry := icast_Map_Entry(el)
 		writer.name(str_(entry.getKey())).stringValue(Optional_ofNullable[string](str_(entry.getValue())))
 	}
@@ -78,7 +78,7 @@ func DiagnosticToSuppressionMapper_printAsJson(diagnosticToSuppression Immutable
 func DiagnosticToSuppressionMapper_printAsMarkdown(diagnosticToSuppression ImmutableSortedMapOf[string, string]) {
 	Output_stdout().println("| Error | Suppression tag |")
 	Output_stdout().println("|---|---|")
-	for _, el := range immElems_(cast_[*ImmutableSet](diagnosticToSuppression.entrySet())) {
+	for _, el := range immElems_(cast_[*ErasedImmutableSet](diagnosticToSuppression.entrySet())) {
 		e := icast_Map_Entry(el)
 		Output_stdout().println(String_format("|%s|%s|", []any{e.getKey(), e.getValue()}))
 	}

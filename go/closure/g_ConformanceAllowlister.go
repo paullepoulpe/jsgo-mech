@@ -50,7 +50,7 @@ func ConformanceAllowlister_getConformanceErrors(compiler *Compiler, externs Nod
 
 type ConformanceAllowlister_1 struct {
 	ThreadSafeDelegatingErrorManager
-	cap_errors *ImmutableList_Builder
+	cap_errors *ErasedImmutableList_Builder
 }
 
 func (this *ConformanceAllowlister_1) up_ThreadSafeDelegatingErrorManager() *ThreadSafeDelegatingErrorManager {
@@ -64,7 +64,7 @@ func (this *ConformanceAllowlister_1) init_ConformanceAllowlister_1(delegated Er
 	this.ThreadSafeDelegatingErrorManager.init_ThreadSafeDelegatingErrorManager(delegated)
 }
 
-func new_ConformanceAllowlister_1(cap_errors *ImmutableList_Builder, delegated ErrorManager) *ConformanceAllowlister_1 {
+func new_ConformanceAllowlister_1(cap_errors *ErasedImmutableList_Builder, delegated ErrorManager) *ConformanceAllowlister_1 {
 	this := &ConformanceAllowlister_1{}
 	this.self_ = this
 	this.cap_errors = cap_errors

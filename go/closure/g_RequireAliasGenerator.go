@@ -44,7 +44,7 @@ func RequireAliasGenerator_captializeFirstChar(w string) string {
 	return (chrstr_(Ascii_toUpperCase_char(String_charAt(w, 0))) + sstr_(String_substring_int(w, 1)))
 }
 
-var RequireAliasGenerator_SKIPLISTED_ALIASES *ImmutableSet
+var RequireAliasGenerator_SKIPLISTED_ALIASES *ErasedImmutableSet
 var RequireAliasGenerator_DOT_SPLITTER *Splitter
 
 var RequireAliasGenerator_clinit_done bool

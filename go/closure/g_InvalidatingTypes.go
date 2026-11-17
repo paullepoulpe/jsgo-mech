@@ -65,7 +65,7 @@ func InvalidatingTypes_isAmbiguousOrStructuralType(type_ *ObjectType) bool {
 	return true
 }
 
-var InvalidatingTypes_ALWAYS_INVALIDATING_TYPES *ImmutableList
+var InvalidatingTypes_ALWAYS_INVALIDATING_TYPES *ErasedImmutableList
 var InvalidatingTypes_ALWAYS_INVALIDATING_LOCATION Node
 
 var InvalidatingTypes_clinit_done bool

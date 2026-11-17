@@ -2099,9 +2099,9 @@ const JsDocInfoParser_BAD_TYPE_WIKI_LINK string = " See https://github.com/googl
 const JsDocInfoParser_TSICKLE_MISSING_TYPE_PLACEHOLDER string = "JsDocInfoParser_TsickleMode_MissingSupertypePlaceholder"
 const JsDocInfoParser_TS_TYPE_PLACEHOLDER string = "JsDocInfoParser_tsType_PlaceHolder"
 
-var JsDocInfoParser_modifiesAnnotationKeywords *ImmutableSet
-var JsDocInfoParser_idGeneratorAnnotationKeywords *ImmutableSet
-var JsDocInfoParser_primitiveTypes *ImmutableSet
+var JsDocInfoParser_modifiesAnnotationKeywords *ErasedImmutableSet
+var JsDocInfoParser_idGeneratorAnnotationKeywords *ErasedImmutableSet
+var JsDocInfoParser_primitiveTypes *ErasedImmutableSet
 var JsDocInfoParser_NO_UNREAD_TOKEN JsDocToken
 
 var JsDocInfoParser_clinit_done bool

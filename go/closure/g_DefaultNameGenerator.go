@@ -198,7 +198,7 @@ func (this *DefaultNameGenerator) generateNextName() string {
 
 var DefaultNameGenerator_FIRST_CHAR []uint16
 var DefaultNameGenerator_NONFIRST_CHAR []uint16
-var DefaultNameGenerator_BAD_NAMES *ImmutableSet
+var DefaultNameGenerator_BAD_NAMES *ErasedImmutableSet
 
 var DefaultNameGenerator_clinit_done bool
 

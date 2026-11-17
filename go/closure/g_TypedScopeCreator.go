@@ -373,7 +373,7 @@ var TypedScopeCreator_UNKNOWN_LENDS *DiagnosticType
 var TypedScopeCreator_LENDS_ON_NON_OBJECT *DiagnosticType
 var TypedScopeCreator_INCOMPATIBLE_ALIAS_ANNOTATION *DiagnosticType
 var TypedScopeCreator_DYNAMIC_EXTENDS_WITHOUT_JSDOC *DiagnosticType
-var TypedScopeCreator_WELL_KNOWN_SYMBOLS *ImmutableSet
+var TypedScopeCreator_WELL_KNOWN_SYMBOLS *ErasedImmutableSet
 
 var TypedScopeCreator_clinit_done bool
 
@@ -664,7 +664,7 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) initializeModuleScope(module
 		this.outer_.markGoogModuleExportsAsConst(moduleBody)
 	case ModuleMetadataMap_ModuleType_ES6_MODULE:
 		var unresolvedImports ImmutableMapOf[Node, *ScopedName] = this.outer_.moduleImportResolver.declareEsModuleImports(this.getModule(), this.currentScope, this.outer_.compiler_.getInput(NodeUtil_getInputId(moduleBody)))
-		for _, el := range immElems_(cast_[*ImmutableSet](unresolvedImports.entrySet())) {
+		for _, el := range immElems_(cast_[*ErasedImmutableSet](unresolvedImports.entrySet())) {
 			entry := icast_Map_Entry(el)
 			this.outer_.weakImports = append(this.outer_.weakImports, new_TypedScopeCreator_WeakModuleImport(this.outer_, Node_of_(entry.getKey()), to_ScopedName(entry.getValue()), this.currentScope))
 		}

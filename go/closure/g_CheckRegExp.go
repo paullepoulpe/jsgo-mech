@@ -88,7 +88,7 @@ func (this *CheckRegExp) visit_impl(t *NodeTraversal, n Node, parent Node) {
 
 var CheckRegExp_REGEXP_REFERENCE *DiagnosticType
 var CheckRegExp_MALFORMED_REGEXP *DiagnosticType
-var CheckRegExp_REGEXP_PROPERTY_SKIPLIST *ImmutableSet
+var CheckRegExp_REGEXP_PROPERTY_SKIPLIST *ErasedImmutableSet
 
 var CheckRegExp_clinit_done bool
 

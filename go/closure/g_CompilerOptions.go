@@ -1915,7 +1915,7 @@ func (this *CompilerOptions) addCustomPass(time CustomPassExecutionTime, customP
 }
 
 func (this *CompilerOptions) getCustomPassesAt(executionTime CustomPassExecutionTime) ImmutableListOf[CompilerPass] {
-	return func() *ImmutableList {
+	return func() *ErasedImmutableList {
 		if this.customPasses == nil {
 			return ImmutableList_of()
 		}
@@ -2469,9 +2469,9 @@ var CompilerOptions_LEADING_ES_PATTERN *Pattern
 
 const CompilerOptions_DEFAULT_LINE_LENGTH_THRESHOLD int32 = 500
 
-var CompilerOptions_POLYMER_PROPERTY_RESERVED_FIRST_CHARS *ImmutableSet
-var CompilerOptions_POLYMER_PROPERTY_RESERVED_NON_FIRST_CHARS *ImmutableSet
-var CompilerOptions_ANGULAR_PROPERTY_RESERVED_FIRST_CHARS *ImmutableSet
+var CompilerOptions_POLYMER_PROPERTY_RESERVED_FIRST_CHARS *ErasedImmutableSet
+var CompilerOptions_POLYMER_PROPERTY_RESERVED_NON_FIRST_CHARS *ErasedImmutableSet
+var CompilerOptions_ANGULAR_PROPERTY_RESERVED_FIRST_CHARS *ErasedImmutableSet
 
 const CompilerOptions_UNLIMITED_FUN_SIZE_AFTER_INLINING int32 = -1
 
@@ -2731,7 +2731,7 @@ func (this CompilerOptions_BrowserFeaturesetYear) getYear() int32 {
 }
 
 func CompilerOptions_BrowserFeaturesetYear_minimumRequiredFor(feature FeatureSet_Feature) CompilerOptions_BrowserFeaturesetYear {
-	for _, el_1 := range immElems_(cast_[*ImmutableSet](CompilerOptions_BrowserFeaturesetYear_YEAR_MAP.keySet())) {
+	for _, el_1 := range immElems_(cast_[*ErasedImmutableSet](CompilerOptions_BrowserFeaturesetYear_YEAR_MAP.keySet())) {
 		var year int32 = unbox_[int32](el_1)
 		var yearObject CompilerOptions_BrowserFeaturesetYear = cast_[CompilerOptions_BrowserFeaturesetYear](CompilerOptions_BrowserFeaturesetYear_YEAR_MAP.get(any(int32(year))))
 		if yearObject.getFeatureSet().contains(feature) {
@@ -2766,7 +2766,7 @@ const CompilerOptions_BrowserFeaturesetYear_YEAR_2025 CompilerOptions_BrowserFea
 const CompilerOptions_BrowserFeaturesetYear_YEAR_2026 CompilerOptions_BrowserFeaturesetYear = 10
 
 var CompilerOptions_BrowserFeaturesetYear_values_ []CompilerOptions_BrowserFeaturesetYear
-var CompilerOptions_BrowserFeaturesetYear_YEAR_MAP *ImmutableMap
+var CompilerOptions_BrowserFeaturesetYear_YEAR_MAP *ErasedImmutableMap
 
 var CompilerOptions_BrowserFeaturesetYear_clinit_done bool
 

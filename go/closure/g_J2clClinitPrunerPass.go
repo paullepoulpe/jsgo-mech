@@ -163,7 +163,7 @@ func (this *J2clClinitPrunerPass_RedundantClinitPruner) finit_J2clClinitPrunerPa
 
 func (this *J2clClinitPrunerPass_RedundantClinitPruner) init_J2clClinitPrunerPass_RedundantClinitPruner(roots IterableOf[Node]) {
 	this.finit_J2clClinitPrunerPass_RedundantClinitPruner()
-	this.roots = func() *ImmutableSet {
+	this.roots = func() *ErasedImmutableSet {
 		if roots == nil {
 			return ImmutableSet_of()
 		}

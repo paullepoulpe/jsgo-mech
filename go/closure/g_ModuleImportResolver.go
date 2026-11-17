@@ -94,7 +94,7 @@ func (this *ModuleImportResolver) declareEsModuleImports(module *Module, scope *
 		panic(new_IllegalArgumentException_String(tostr_(scope)).self())
 	}
 	var missingNames ImmutableMap_BuilderOf[Node, *ScopedName] = ImmutableMap_builder()
-	for _, el := range immElems_(cast_[*ImmutableSet](module.boundNames().entrySet())) {
+	for _, el := range immElems_(cast_[*ErasedImmutableSet](module.boundNames().entrySet())) {
 		boundName := icast_Map_Entry(el)
 		var binding *Binding = cast_[*Binding](boundName.getValue())
 		var localName string = str_(boundName.getKey())
@@ -131,7 +131,7 @@ func (this *ModuleImportResolver) updateEsModuleNamespaceType(namespace *ObjectT
 	if !scope.isModuleScope() {
 		panic(new_IllegalArgumentException_String(tostr_(scope)).self())
 	}
-	for _, el := range immElems_(cast_[*ImmutableSet](module.namespace().entrySet())) {
+	for _, el := range immElems_(cast_[*ErasedImmutableSet](module.namespace().entrySet())) {
 		boundName := icast_Map_Entry(el)
 		var exportKey string = str_(boundName.getKey())
 		if namespace.isPropertyTypeDeclared(exportKey) {
@@ -248,7 +248,7 @@ func ModuleImportResolver_isGoogModuleBody(moduleBody Node) bool {
 
 const ModuleImportResolver_GOOG string = "goog"
 
-var ModuleImportResolver_GOOG_DEPENDENCY_CALLS *ImmutableSet
+var ModuleImportResolver_GOOG_DEPENDENCY_CALLS *ErasedImmutableSet
 var ModuleImportResolver_GOOG_MODULE_GET *QualifiedName
 
 var ModuleImportResolver_clinit_done bool

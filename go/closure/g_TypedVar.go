@@ -98,7 +98,7 @@ func (this *TypedVar) isMarkedAssignedExactlyOnce() bool {
 	return this.markedAssignedExactlyOnce
 }
 
-var TypedVar_NAME_NODE_TYPES *ImmutableSet
+var TypedVar_NAME_NODE_TYPES *ErasedImmutableSet
 
 var TypedVar_clinit_done bool
 

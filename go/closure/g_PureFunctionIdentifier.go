@@ -90,7 +90,7 @@ func PureFunctionIdentifier_formatSourceLocation(node Node) string {
 func PureFunctionIdentifier_collectCallableLeaves(expr Node, astAnalyzer *AstAnalyzer) ImmutableListOf[Node] {
 	var callables *TList[Node] = newTList_(tc_Node)
 	var allLegal bool = PureFunctionIdentifier_collectCallableLeavesInternal(expr, callables, astAnalyzer)
-	return func() *ImmutableList {
+	return func() *ErasedImmutableList {
 		if allLegal {
 			return ImmutableList_copyOf(callables.asList())
 		}
@@ -279,7 +279,7 @@ func (this *PureFunctionIdentifier) populateFunctionDefinitions(name string, ref
 	if rvaluesAssignedToName.isEmpty() || invalid {
 		summaryForName.setMutatesGlobalStateAndAllOtherFlags(0)
 	} else {
-		for callables := range elemsAs_[*ImmutableList](rvaluesAssignedToName) {
+		for callables := range elemsAs_[*ErasedImmutableList](rvaluesAssignedToName) {
 			for _, el2 := range immElems_(callables) {
 				rvalue := Node_of_(el2)
 				if rvalue.isFunction() {

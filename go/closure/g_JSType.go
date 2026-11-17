@@ -116,7 +116,7 @@ type JSType_I interface {
 	getReferenceName_impl() OptionalOf[string]
 	getSlot_impl(Property_Key) *Property
 	getSuperClassConstructor_impl() *FunctionType
-	getTemplateTypes_impl() *ImmutableList
+	getTemplateTypes_impl() *ErasedImmutableList
 	getTypeOfThis_impl() *JSType
 	hasCachedValues_impl() bool
 	setJSDocInfo_impl(*JSDocInfo)
@@ -174,7 +174,7 @@ func (this *JSType) getSlot_impl(Property_Key) *Property {
 func (this *JSType) getSuperClassConstructor_impl() *FunctionType {
 	panic("getSuperClassConstructor_impl called on a " + goTypeName_(this.self_))
 }
-func (this *JSType) getTemplateTypes_impl() *ImmutableList {
+func (this *JSType) getTemplateTypes_impl() *ErasedImmutableList {
 	panic("getTemplateTypes_impl called on a " + goTypeName_(this.self_))
 }
 func (this *JSType) getTypeOfThis_impl() *JSType {
@@ -605,7 +605,7 @@ func (this *JSType) getTemplateTypeMap_impl() *TemplateTypeMap {
 
 func (this *JSType) getTypeParameters() ImmutableListOf[*TemplateType] {
 	var map_ *TemplateTypeMap = this.getTemplateTypeMap()
-	return cast_[*ImmutableList](map_.getTemplateKeys().subList((map_.size() - this.getTemplateParamCount()), map_.size()))
+	return cast_[*ErasedImmutableList](map_.getTemplateKeys().subList((map_.size() - this.getTemplateParamCount()), map_.size()))
 }
 
 func (this *JSType) getTemplateParamCount_impl() int32 {

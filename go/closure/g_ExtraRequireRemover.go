@@ -210,7 +210,7 @@ func ExtraRequireRemover_isTsickleProtoCall(call Node) bool {
 	return (((moduleId != 0) && moduleId.isStringLit()) && strings.HasPrefix(moduleId.getString(), "proto."))
 }
 
-var ExtraRequireRemover_DEFAULT_EXTRA_NAMESPACES *ImmutableSet
+var ExtraRequireRemover_DEFAULT_EXTRA_NAMESPACES *ErasedImmutableSet
 var ExtraRequireRemover_GOOG_REQUIRE *QualifiedName
 var ExtraRequireRemover_GOOG_REQUIRE_TYPE *QualifiedName
 var ExtraRequireRemover_GOOG_FORWARD_DECLARE *QualifiedName

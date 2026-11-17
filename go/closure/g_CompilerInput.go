@@ -337,7 +337,7 @@ func (this *CompilerInput) getFeatures(compiler *AbstractCompiler) *FeatureSet {
 	return this.ast.features_
 }
 
-func (this *CompilerInput) getRequiredSymbols() *ImmutableList {
+func (this *CompilerInput) getRequiredSymbols() *ErasedImmutableList {
 	return DependencyInfo_getRequiredSymbols_default(this)
 }
 

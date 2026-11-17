@@ -18,7 +18,7 @@ func (this *ArrowType) up_JSType() *JSType {
 
 func (this *ArrowType) init_ArrowType(registry *JSTypeRegistry, parameters *TList[*FunctionType_Parameter], returnType *JSType, returnTypeInferred bool) {
 	this.JSType.init_JSType_JSTypeRegistry(registry)
-	this.parameterList = func() *ImmutableList {
+	this.parameterList = func() *ErasedImmutableList {
 		if parameters == nil {
 			return registry.createParametersWithVarArgs([]*JSType{this.getNativeType(JSTypeNative_UNKNOWN_TYPE)})
 		}

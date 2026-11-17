@@ -307,7 +307,7 @@ var CheckConformance_CONFORMANCE_ERROR *DiagnosticType
 var CheckConformance_CONFORMANCE_VIOLATION *DiagnosticType
 var CheckConformance_CONFORMANCE_POSSIBLE_VIOLATION *DiagnosticType
 var CheckConformance_INVALID_REQUIREMENT_SPEC *DiagnosticType
-var CheckConformance_EXTENDABLE_FIELDS *ImmutableSet
+var CheckConformance_EXTENDABLE_FIELDS *ErasedImmutableSet
 
 var CheckConformance_clinit_done bool
 

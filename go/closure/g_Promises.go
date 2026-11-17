@@ -51,7 +51,7 @@ func Promises_createAsyncReturnableType(registry *JSTypeRegistry, maybeThenable 
 	var unknownType *JSType = registry.getNativeType(JSTypeNative_UNKNOWN_TYPE)
 	var iThenableType *ObjectType = registry.getNativeObjectType(JSTypeNative_I_THENABLE_TYPE)
 	var iThenableOfUnknownType *JSType = registry.createTemplatizedType(iThenableType, []*JSType{unknownType}).up_JSType()
-	var alternates ImmutableListOf[*JSType] = func() *ImmutableList {
+	var alternates ImmutableListOf[*JSType] = func() *ErasedImmutableList {
 		if maybeThenable.isUnionType() {
 			return maybeThenable.toMaybeUnionType().getAlternates()
 		}

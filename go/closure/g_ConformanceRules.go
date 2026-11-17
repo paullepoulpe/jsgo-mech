@@ -2244,7 +2244,7 @@ var lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_29_ = &Conf
 	return ConformanceRules_BanStaticThis_create(p0, p1)
 }}
 
-var ConformanceRules_CustomRuleProxy_CUSTOM_RULE_REGISTRY *ImmutableMap
+var ConformanceRules_CustomRuleProxy_CUSTOM_RULE_REGISTRY *ErasedImmutableMap
 
 var ConformanceRules_CustomRuleProxy_clinit_done bool
 
@@ -3520,7 +3520,7 @@ func (this *ConformanceRules_SecuritySensitiveAttributes) checkConformanceForAtt
 	}()
 }
 
-var ConformanceRules_SecuritySensitiveAttributes_ALL_BANNED_ATTRS *ImmutableSet
+var ConformanceRules_SecuritySensitiveAttributes_ALL_BANNED_ATTRS *ErasedImmutableSet
 
 var ConformanceRules_SecuritySensitiveAttributes_clinit_done bool
 
@@ -3715,7 +3715,7 @@ const ConformanceRules_BanElementSetAttribute_SET_ATTRIBUTE_NS string = "setAttr
 const ConformanceRules_BanElementSetAttribute_SET_ATTRIBUTE_NODE string = "setAttributeNode"
 const ConformanceRules_BanElementSetAttribute_SET_ATTRIBUTE_NODE_NS string = "setAttributeNodeNS"
 
-var ConformanceRules_BanElementSetAttribute_BANNED_PROPERTIES *ImmutableSet
+var ConformanceRules_BanElementSetAttribute_BANNED_PROPERTIES *ErasedImmutableSet
 
 const ConformanceRules_BanElementSetAttribute_GLOBAL_NAMESPACE_ANALYSIS_LIMIT int32 = 10000
 

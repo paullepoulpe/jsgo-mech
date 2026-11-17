@@ -192,8 +192,8 @@ func (this *PolyfillUsageFinder) hasInSupertypesList(subCtor *Color, superCtor *
 }
 
 var PolyfillUsageFinder_PROTOTYPE_PREFIX_PATTERN *Pattern
-var PolyfillUsageFinder_GLOBAL_NAMES *ImmutableSet
-var PolyfillUsageFinder_STANDARD_COLLECTION_IDS *ImmutableSet
+var PolyfillUsageFinder_GLOBAL_NAMES *ErasedImmutableSet
+var PolyfillUsageFinder_STANDARD_COLLECTION_IDS *ErasedImmutableSet
 
 var PolyfillUsageFinder_clinit_done bool
 
@@ -321,7 +321,7 @@ func (this *PolyfillUsageFinder_Polyfills) init_PolyfillUsageFinder_Polyfills(me
 	this.statics = statics
 	this.byNativeVersion = byNativeVersion
 	var suffixList []string = []string{}
-	for _, el := range immElems_(cast_[*ImmutableSet](statics.keySet())) {
+	for _, el := range immElems_(cast_[*ErasedImmutableSet](statics.keySet())) {
 		arg := str_(el)
 		suffixList = append(suffixList, arg[strings.LastIndexByte(arg, '.')+1:])
 	}

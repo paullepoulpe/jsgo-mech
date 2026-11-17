@@ -119,7 +119,7 @@ func (this *ClosureModuleProcessor_UnresolvedGoogModule) resolve_2_impl(moduleRe
 
 func (this *ClosureModuleProcessor_UnresolvedGoogModule) getAllResolvedImports(moduleRequestResolver ModuleRequestResolver) *TMap[string, *Binding] {
 	var imports *TMap[string, *Binding] = newTMap_(tc_string, tc_p_Binding)
-	for _, el := range immElems_(cast_[*ImmutableSet](this.requiresByLocalName.keySet())) {
+	for _, el := range immElems_(cast_[*ErasedImmutableSet](this.requiresByLocalName.keySet())) {
 		name := str_(el)
 		var b *ResolveExportResult = this.resolveImport(moduleRequestResolver, name)
 		if b.resolved() {
@@ -338,7 +338,7 @@ func (this *ClosureModuleProcessor_UnresolvedGoogModule) metadata() *ModuleMetad
 }
 
 // getExportedNames: an object that is exactly a ClosureModuleProcessor_UnresolvedGoogModule calls its getExportedNames_impl directly (post-flip); others dispatch.
-func (this *ClosureModuleProcessor_UnresolvedGoogModule) getExportedNames(p0 ModuleRequestResolver) *ImmutableSet {
+func (this *ClosureModuleProcessor_UnresolvedGoogModule) getExportedNames(p0 ModuleRequestResolver) *ErasedImmutableSet {
 	if p, _ := this.self_.(*ClosureModuleProcessor_UnresolvedGoogModule); p == this {
 		return this.getExportedNames_impl(p0)
 	}
@@ -346,7 +346,7 @@ func (this *ClosureModuleProcessor_UnresolvedGoogModule) getExportedNames(p0 Mod
 }
 
 // getExportedNames_2: an object that is exactly a ClosureModuleProcessor_UnresolvedGoogModule calls its getExportedNames_2_impl directly (post-flip); others dispatch.
-func (this *ClosureModuleProcessor_UnresolvedGoogModule) getExportedNames_2(p0 ModuleRequestResolver, p1 map[*UnresolvedModule]struct{}) *ImmutableSet {
+func (this *ClosureModuleProcessor_UnresolvedGoogModule) getExportedNames_2(p0 ModuleRequestResolver, p1 map[*UnresolvedModule]struct{}) *ErasedImmutableSet {
 	if p, _ := this.self_.(*ClosureModuleProcessor_UnresolvedGoogModule); p == this {
 		return this.getExportedNames_2_impl(p0, p1)
 	}

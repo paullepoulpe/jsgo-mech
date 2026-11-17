@@ -99,7 +99,7 @@ func ConvertToTypedInterface_shouldPreserveAssignment(expr Node, t *NodeTraversa
 var ConvertToTypedInterface_CONSTANT_WITH_SUGGESTED_TYPE *DiagnosticType
 var ConvertToTypedInterface_CONSTANT_WITHOUT_EXPLICIT_TYPE *DiagnosticType
 var ConvertToTypedInterface_GOOG_SCOPE_HIDDEN_TYPE *DiagnosticType
-var ConvertToTypedInterface_CALLS_TO_PRESERVE *ImmutableSet
+var ConvertToTypedInterface_CALLS_TO_PRESERVE *ErasedImmutableSet
 
 var ConvertToTypedInterface_clinit_done bool
 

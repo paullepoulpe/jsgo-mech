@@ -170,7 +170,7 @@ func (this *Reference) getScope() *Scope {
 	return this.scope_
 }
 
-var Reference_DECLARATION_PARENTS *ImmutableSet
+var Reference_DECLARATION_PARENTS *ErasedImmutableSet
 
 var Reference_clinit_done bool
 

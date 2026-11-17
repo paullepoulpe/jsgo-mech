@@ -24,7 +24,7 @@ func (this *BrowserWithTransformedPrefixesModuleResolver) zero_BrowserWithTransf
 func (this *BrowserWithTransformedPrefixesModuleResolver) init_BrowserWithTransformedPrefixesModuleResolver(modulePaths ImmutableSetOf[string], moduleRootPaths ImmutableListOf[string], errorHandler ErrorHandler, pathEscaper ModuleLoader_PathEscaper, prefixReplacements ImmutableMapOf[string, string]) {
 	this.ModuleResolver.init_ModuleResolver(modulePaths, moduleRootPaths, errorHandler, pathEscaper)
 	var sortedReplacements []*BrowserWithTransformedPrefixesModuleResolver_PrefixReplacement = []*BrowserWithTransformedPrefixesModuleResolver_PrefixReplacement{}
-	for _, el := range immElems_(cast_[*ImmutableSet](prefixReplacements.entrySet())) {
+	for _, el := range immElems_(cast_[*ErasedImmutableSet](prefixReplacements.entrySet())) {
 		entry := icast_Map_Entry(el)
 		sortedReplacements = append(sortedReplacements, BrowserWithTransformedPrefixesModuleResolver_PrefixReplacement_of(str_(entry.getKey()), str_(entry.getValue())))
 	}

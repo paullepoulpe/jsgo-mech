@@ -505,7 +505,7 @@ func (this *JsMessageVisitor) extractJsMessageOptions(optionsBag Node) *Outcome_
 		return Outcome_base_err[JsMessageVisitor_JsMessageOptions](exampleObjectLiteralMapOutcome.error())
 	}
 	var exampleObjectLiteralMap JsMessageVisitor_ObjectLiteralMap = icast_JsMessageVisitor_ObjectLiteralMap(exampleObjectLiteralMapOutcome.get())
-	var placeholderExamplesMapOutcome *Outcome_base[*ImmutableMap] = exampleObjectLiteralMap.extractAsStringToStringMap()
+	var placeholderExamplesMapOutcome *Outcome_base[*ErasedImmutableMap] = exampleObjectLiteralMap.extractAsStringToStringMap()
 	if placeholderExamplesMapOutcome.isErr() {
 		return Outcome_base_err[JsMessageVisitor_JsMessageOptions](placeholderExamplesMapOutcome.error())
 	}
@@ -516,7 +516,7 @@ func (this *JsMessageVisitor) extractJsMessageOptions(optionsBag Node) *Outcome_
 		return Outcome_base_err[JsMessageVisitor_JsMessageOptions](originalCodeObjectLiteralMapOutcome.error())
 	}
 	var originalCodeObjectLiteralMap JsMessageVisitor_ObjectLiteralMap = icast_JsMessageVisitor_ObjectLiteralMap(originalCodeObjectLiteralMapOutcome.get())
-	var placeholderOriginalCodeMapOutcome *Outcome_base[*ImmutableMap] = originalCodeObjectLiteralMap.extractAsStringToStringMap()
+	var placeholderOriginalCodeMapOutcome *Outcome_base[*ErasedImmutableMap] = originalCodeObjectLiteralMap.extractAsStringToStringMap()
 	if placeholderOriginalCodeMapOutcome.isErr() {
 		return Outcome_base_err[JsMessageVisitor_JsMessageOptions](placeholderOriginalCodeMapOutcome.error())
 	}
@@ -579,7 +579,7 @@ func (this *JsMessageVisitor) extractIcuTemplateOptions(optionsBag Node) *Outcom
 		return Outcome_base_err[JsMessageVisitor_IcuTemplateOptions](exampleObjectLiteralMapOutcome.error())
 	}
 	var exampleObjectLiteralMap JsMessageVisitor_ObjectLiteralMap = icast_JsMessageVisitor_ObjectLiteralMap(exampleObjectLiteralMapOutcome.get())
-	var placeholderExamplesMapOutcome *Outcome_base[*ImmutableMap] = exampleObjectLiteralMap.extractAsStringToStringMap()
+	var placeholderExamplesMapOutcome *Outcome_base[*ErasedImmutableMap] = exampleObjectLiteralMap.extractAsStringToStringMap()
 	if placeholderExamplesMapOutcome.isErr() {
 		return Outcome_base_err[JsMessageVisitor_IcuTemplateOptions](placeholderExamplesMapOutcome.error())
 	}
@@ -590,7 +590,7 @@ func (this *JsMessageVisitor) extractIcuTemplateOptions(optionsBag Node) *Outcom
 		return Outcome_base_err[JsMessageVisitor_IcuTemplateOptions](originalCodeObjectLiteralMapOutcome.error())
 	}
 	var originalCodeObjectLiteralMap JsMessageVisitor_ObjectLiteralMap = icast_JsMessageVisitor_ObjectLiteralMap(originalCodeObjectLiteralMapOutcome.get())
-	var placeholderOriginalCodeMapOutcome *Outcome_base[*ImmutableMap] = originalCodeObjectLiteralMap.extractAsStringToStringMap()
+	var placeholderOriginalCodeMapOutcome *Outcome_base[*ErasedImmutableMap] = originalCodeObjectLiteralMap.extractAsStringToStringMap()
 	if placeholderOriginalCodeMapOutcome.isErr() {
 		return Outcome_base_err[JsMessageVisitor_IcuTemplateOptions](placeholderOriginalCodeMapOutcome.error())
 	}
@@ -807,8 +807,8 @@ const JsMessageVisitor_MSG_PREFIX string = "MSG_"
 var JsMessageVisitor_SCOPED_ALIASES_PREFIX_PATTERN *Pattern
 var JsMessageVisitor_MSG_UNNAMED_PATTERN *Pattern
 var JsMessageVisitor_ICU_PLACEHOLDER_RE *Pattern
-var JsMessageVisitor_MESSAGE_OPTION_NAMES *ImmutableSet
-var JsMessageVisitor_ICU_TEMPLATE_OPTION_NAMES *ImmutableSet
+var JsMessageVisitor_MESSAGE_OPTION_NAMES *ErasedImmutableSet
+var JsMessageVisitor_ICU_TEMPLATE_OPTION_NAMES *ErasedImmutableSet
 
 var JsMessageVisitor_clinit_done bool
 
@@ -839,7 +839,7 @@ type JsMessageVisitor_InputForBuildJsMsg interface {
 	getMessageKeyFromLhs() string
 	getSourceName() string
 	getMessageText() string
-	getMessageParts() *ImmutableList
+	getMessageParts() *ErasedImmutableList
 	getPlaceholderExampleMap() *TMap[string, string]
 	getPlaceholderOriginalCodeMap() *TMap[string, string]
 	getDescription() OptionalOf[string]
@@ -907,8 +907,8 @@ func new_JsMessageVisitor_ExtractedIcuTemplateParts(extractedPlaceholderNames Im
 type JsMessageVisitor_JsMessageOptions interface {
 	isEscapeLessThan() bool
 	isUnescapeHtmlEntities() bool
-	getPlaceholderExampleMap() *ImmutableMap
-	getPlaceholderOriginalCodeMap() *ImmutableMap
+	getPlaceholderExampleMap() *ErasedImmutableMap
+	getPlaceholderOriginalCodeMap() *ErasedImmutableMap
 	checkForUnknownPlaceholders(map[string]struct{}) *Outcome_base[any]
 }
 
@@ -916,16 +916,16 @@ type JsMessageVisitor_IcuTemplateOptions interface {
 	getDescription() string
 	getMeaning() OptionalOf[string]
 	getAlternateMessageId() OptionalOf[string]
-	getPlaceholderExampleMap() *ImmutableMap
-	getPlaceholderOriginalCodeMap() *ImmutableMap
+	getPlaceholderExampleMap() *ErasedImmutableMap
+	getPlaceholderOriginalCodeMap() *ErasedImmutableMap
 	checkForUnknownPlaceholders(map[string]struct{}) *Outcome_base[any]
-	getPlaceholderNames() *ImmutableSet
+	getPlaceholderNames() *ErasedImmutableSet
 }
 
 type JsMessageVisitor_ObjectLiteralMap interface {
 	getBooleanValueOrFalse(string) *Outcome_base[any]
-	extractAsValueMap() *ImmutableMap
-	extractAsStringToStringMap() *Outcome_base[*ImmutableMap]
+	extractAsValueMap() *ErasedImmutableMap
+	extractAsStringToStringMap() *Outcome_base[*ErasedImmutableMap]
 	getValueNode(string) Node
 	checkForUnexpectedKeys(map[string]struct{}, func(any) any) *Outcome_base[any]
 	checkForRequiredKeys(*TSet[string], func(any) any) *Outcome_base[any]
@@ -979,7 +979,7 @@ func (this *JsMessageVisitor_ObjectLiteralMapImpl) extractAsValueMap() Immutable
 	return this.valueMap
 }
 
-func (this *JsMessageVisitor_ObjectLiteralMapImpl) extractAsStringToStringMap() *Outcome_base[*ImmutableMap] {
+func (this *JsMessageVisitor_ObjectLiteralMapImpl) extractAsStringToStringMap() *Outcome_base[*ErasedImmutableMap] {
 	if this.stringMap == nil {
 		var builder ImmutableMap_BuilderOf[string, string] = ImmutableMap_builder()
 		it_1 := foreach_(this.stringToStringKeyMap.asMap().entrySet())
@@ -987,13 +987,13 @@ func (this *JsMessageVisitor_ObjectLiteralMapImpl) extractAsStringToStringMap() 
 			var entry Map_Entry = icast_Map_Entry(it_1.v)
 			var value *Outcome_base[string] = JsMessageVisitor_extractStringFromStringExprNode(Node_of_(entry.getValue()).getOnlyChild())
 			if value.isErr() {
-				return Outcome_base_err[*ImmutableMap](value.error())
+				return Outcome_base_err[*ErasedImmutableMap](value.error())
 			}
 			builder.put(entry.getKey(), strobj_(value.get()))
 		}
 		this.stringMap = builder.buildOrThrow()
 	}
-	return Outcome_base_ok_Object[*ImmutableMap](this.stringMap)
+	return Outcome_base_ok_Object[*ErasedImmutableMap](this.stringMap)
 }
 
 func (this *JsMessageVisitor_ObjectLiteralMapImpl) checkForUnexpectedKeys(expectedKeys map[string]struct{}, createErrorMessage func(any) any) *Outcome_base[any] {
@@ -1025,8 +1025,8 @@ func (this *JsMessageVisitor_ObjectLiteralMapImpl) checkForRequiredKeys(required
 
 type JsMessageVisitor_GoogGetMsgParsedText interface {
 	getText() string
-	getPlaceholderNames() *ImmutableSet
-	getParts() *ImmutableList
+	getPlaceholderNames() *ErasedImmutableSet
+	getParts() *ErasedImmutableList
 }
 
 type JsMessageVisitor_MalformedException struct {
@@ -1146,7 +1146,7 @@ type JsMessageVisitor_2 struct {
 	cap_msgNode              Node
 	cap_msgTextNode          Node
 	cap_valuesObjLit         Node
-	cap_placeholderValuesMap *ImmutableMap
+	cap_placeholderValuesMap *ErasedImmutableMap
 	cap_jsMessageOptions     JsMessageVisitor_JsMessageOptions
 }
 
@@ -1154,7 +1154,7 @@ func (this *JsMessageVisitor_2) init_JsMessageVisitor_2() {
 
 }
 
-func new_JsMessageVisitor_2(outer_ *JsMessageVisitor, cap_jsExtractedMessage *JsMessage, cap_msgNode Node, cap_msgTextNode Node, cap_valuesObjLit Node, cap_placeholderValuesMap *ImmutableMap, cap_jsMessageOptions JsMessageVisitor_JsMessageOptions) *JsMessageVisitor_2 {
+func new_JsMessageVisitor_2(outer_ *JsMessageVisitor, cap_jsExtractedMessage *JsMessage, cap_msgNode Node, cap_msgTextNode Node, cap_valuesObjLit Node, cap_placeholderValuesMap *ErasedImmutableMap, cap_jsMessageOptions JsMessageVisitor_JsMessageOptions) *JsMessageVisitor_2 {
 	this := &JsMessageVisitor_2{}
 	this.outer_ = outer_
 	this.cap_jsExtractedMessage = cap_jsExtractedMessage
@@ -1293,8 +1293,8 @@ type JsMessageVisitor_5 struct {
 	outer_                           *JsMessageVisitor
 	cap_isEscapeLessThan             bool
 	cap_isUnescapeHtmlEntities       bool
-	cap_placeholderExamplesMap       *ImmutableMap
-	cap_placeholderOriginalCodeMap   *ImmutableMap
+	cap_placeholderExamplesMap       *ErasedImmutableMap
+	cap_placeholderOriginalCodeMap   *ErasedImmutableMap
 	cap_exampleObjectLiteralMap      JsMessageVisitor_ObjectLiteralMap
 	cap_originalCodeObjectLiteralMap JsMessageVisitor_ObjectLiteralMap
 }
@@ -1303,7 +1303,7 @@ func (this *JsMessageVisitor_5) init_JsMessageVisitor_5() {
 
 }
 
-func new_JsMessageVisitor_5(outer_ *JsMessageVisitor, cap_isEscapeLessThan bool, cap_isUnescapeHtmlEntities bool, cap_placeholderExamplesMap *ImmutableMap, cap_placeholderOriginalCodeMap *ImmutableMap, cap_exampleObjectLiteralMap JsMessageVisitor_ObjectLiteralMap, cap_originalCodeObjectLiteralMap JsMessageVisitor_ObjectLiteralMap) *JsMessageVisitor_5 {
+func new_JsMessageVisitor_5(outer_ *JsMessageVisitor, cap_isEscapeLessThan bool, cap_isUnescapeHtmlEntities bool, cap_placeholderExamplesMap *ErasedImmutableMap, cap_placeholderOriginalCodeMap *ErasedImmutableMap, cap_exampleObjectLiteralMap JsMessageVisitor_ObjectLiteralMap, cap_originalCodeObjectLiteralMap JsMessageVisitor_ObjectLiteralMap) *JsMessageVisitor_5 {
 	this := &JsMessageVisitor_5{}
 	this.outer_ = outer_
 	this.cap_isEscapeLessThan = cap_isEscapeLessThan
@@ -1359,9 +1359,9 @@ type JsMessageVisitor_6 struct {
 	cap_description                  string
 	cap_meaning                      Optional[any]
 	cap_alternateMessageId           Optional[any]
-	cap_placeholderExamplesMap       *ImmutableMap
-	cap_placeholderOriginalCodeMap   *ImmutableMap
-	cap_placeholderNames             *ImmutableSet
+	cap_placeholderExamplesMap       *ErasedImmutableMap
+	cap_placeholderOriginalCodeMap   *ErasedImmutableMap
+	cap_placeholderNames             *ErasedImmutableSet
 	cap_exampleObjectLiteralMap      JsMessageVisitor_ObjectLiteralMap
 	cap_originalCodeObjectLiteralMap JsMessageVisitor_ObjectLiteralMap
 }
@@ -1370,7 +1370,7 @@ func (this *JsMessageVisitor_6) init_JsMessageVisitor_6() {
 
 }
 
-func new_JsMessageVisitor_6(outer_ *JsMessageVisitor, cap_description string, cap_meaning Optional[any], cap_alternateMessageId Optional[any], cap_placeholderExamplesMap *ImmutableMap, cap_placeholderOriginalCodeMap *ImmutableMap, cap_placeholderNames *ImmutableSet, cap_exampleObjectLiteralMap JsMessageVisitor_ObjectLiteralMap, cap_originalCodeObjectLiteralMap JsMessageVisitor_ObjectLiteralMap) *JsMessageVisitor_6 {
+func new_JsMessageVisitor_6(outer_ *JsMessageVisitor, cap_description string, cap_meaning Optional[any], cap_alternateMessageId Optional[any], cap_placeholderExamplesMap *ErasedImmutableMap, cap_placeholderOriginalCodeMap *ErasedImmutableMap, cap_placeholderNames *ErasedImmutableSet, cap_exampleObjectLiteralMap JsMessageVisitor_ObjectLiteralMap, cap_originalCodeObjectLiteralMap JsMessageVisitor_ObjectLiteralMap) *JsMessageVisitor_6 {
 	this := &JsMessageVisitor_6{}
 	this.outer_ = outer_
 	this.cap_description = cap_description
@@ -1433,15 +1433,15 @@ func lambda_JsMessageVisitor_6_checkForUnknownPlaceholders_2_(unknownName_ any) 
 
 type JsMessageVisitor_7 struct {
 	cap_originalMsgText  string
-	cap_placeholderNames *ImmutableSet
-	cap_parts            *ImmutableList
+	cap_placeholderNames *ErasedImmutableSet
+	cap_parts            *ErasedImmutableList
 }
 
 func (this *JsMessageVisitor_7) init_JsMessageVisitor_7() {
 
 }
 
-func new_JsMessageVisitor_7(cap_originalMsgText string, cap_placeholderNames *ImmutableSet, cap_parts *ImmutableList) *JsMessageVisitor_7 {
+func new_JsMessageVisitor_7(cap_originalMsgText string, cap_placeholderNames *ErasedImmutableSet, cap_parts *ErasedImmutableList) *JsMessageVisitor_7 {
 	this := &JsMessageVisitor_7{}
 	this.cap_originalMsgText = cap_originalMsgText
 	this.cap_placeholderNames = cap_placeholderNames

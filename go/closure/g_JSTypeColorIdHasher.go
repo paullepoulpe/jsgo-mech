@@ -8,7 +8,7 @@ type JSTypeColorIdHasher struct {
 
 func (this *JSTypeColorIdHasher) init_JSTypeColorIdHasher(registry *JSTypeRegistry) {
 	var standardColorObjectIdsBuilder ImmutableMap_BuilderOf[*ObjectType, *ColorId] = ImmutableMap_builder()
-	for _, el := range immElems_(cast_[*ImmutableSet](JSTypeColorIdHasher_NATIVE_TYPE_TO_ID.entrySet())) {
+	for _, el := range immElems_(cast_[*ErasedImmutableSet](JSTypeColorIdHasher_NATIVE_TYPE_TO_ID.entrySet())) {
 		e := icast_Map_Entry(el)
 		standardColorObjectIdsBuilder.put(registry.getNativeObjectType(cast_[JSTypeNative](e.getKey())).self(), e.getValue())
 	}
@@ -82,7 +82,7 @@ func JSTypeColorIdHasher_putUtf8(hasher Hasher, s string) {
 }
 
 var JSTypeColorIdHasher_FARM_64 HashFunction
-var JSTypeColorIdHasher_NATIVE_TYPE_TO_ID *ImmutableMap
+var JSTypeColorIdHasher_NATIVE_TYPE_TO_ID *ErasedImmutableMap
 
 var JSTypeColorIdHasher_clinit_done bool
 

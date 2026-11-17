@@ -56,7 +56,7 @@ func (this *Config) toString() string {
 }
 
 func (this *Config) annotationNames() ImmutableSetOf[string] {
-	return cast_[*ImmutableSet](this.annotations().keySet())
+	return cast_[*ErasedImmutableSet](this.annotations().keySet())
 }
 
 func (this *Config) toBuilder() *Config_Builder {
@@ -94,15 +94,15 @@ func (this *Config) runMode() Config_RunMode {
 	return this.runMode_
 }
 
-func (this *Config) annotations() *ImmutableMap {
+func (this *Config) annotations() *ErasedImmutableMap {
 	return this.annotations_
 }
 
-func (this *Config) suppressionNames() *ImmutableSet {
+func (this *Config) suppressionNames() *ErasedImmutableSet {
 	return this.suppressionNames_
 }
 
-func (this *Config) closurePrimitiveNames() *ImmutableSet {
+func (this *Config) closurePrimitiveNames() *ErasedImmutableSet {
 	return this.closurePrimitiveNames_
 }
 

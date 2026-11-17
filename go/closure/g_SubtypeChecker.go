@@ -579,7 +579,7 @@ func SubtypeChecker_getObjectTypeIfNative(type_ *JSType) *ObjectType {
 	}()
 }
 
-var SubtypeChecker_BIVARIANT_TYPES *ImmutableSet
+var SubtypeChecker_BIVARIANT_TYPES *ErasedImmutableSet
 
 const SubtypeChecker_POTENTIALLY_CYCLIC_RECURSION_DEPTH int32 = 20
 

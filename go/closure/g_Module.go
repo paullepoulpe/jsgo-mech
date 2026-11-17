@@ -54,15 +54,15 @@ func (this *Module) path() *ModuleLoader_ModulePath {
 	return this.path_
 }
 
-func (this *Module) namespace() *ImmutableMap {
+func (this *Module) namespace() *ErasedImmutableMap {
 	return this.namespace_
 }
 
-func (this *Module) boundNames() *ImmutableMap {
+func (this *Module) boundNames() *ErasedImmutableMap {
 	return this.boundNames_
 }
 
-func (this *Module) localNameToLocalExport() *ImmutableMap {
+func (this *Module) localNameToLocalExport() *ErasedImmutableMap {
 	return this.localNameToLocalExport_
 }
 

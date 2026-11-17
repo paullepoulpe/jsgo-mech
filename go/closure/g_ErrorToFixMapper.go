@@ -29,7 +29,7 @@ func (this *ErrorToFixMapper) getFixesForJsError(error_ *JSError) ImmutableListO
 	if fix != nil {
 		return ImmutableList_of_Object(obj_(fix))
 	}
-	return func() *ImmutableList {
+	return func() *ErasedImmutableList {
 		switch error_.type_().key_ {
 		case "JSC_IMPLICITLY_NONNULL_JSDOC", "JSC_IMPLICITLY_NULLABLE_JSDOC", "JSC_MISSING_NULLABILITY_MODIFIER_JSDOC", "JSC_NULL_MISSING_NULLABILITY_MODIFIER_JSDOC":
 			return this.getFixesForImplicitNullabilityErrors(error_)
@@ -180,7 +180,7 @@ func (this *ErrorToFixMapper) getFixesForImplicitNullabilityErrors(error_ *JSErr
 	}
 	var qmark *SuggestedFix = new_SuggestedFix_Builder().attachMatchedNodeInfo(error_.node(), this.compiler_).insertBefore(error_.node(), "?").setDescription("Make nullability explicit").build()
 	var bang *SuggestedFix = new_SuggestedFix_Builder().attachMatchedNodeInfo(error_.node(), this.compiler_).insertBefore(error_.node(), "!").setDescription("Make type non-nullable").build()
-	return func() *ImmutableList {
+	return func() *ErasedImmutableList {
 		switch error_.type_().key_ {
 		case "JSC_NULL_MISSING_NULLABILITY_MODIFIER_JSDOC":
 			return ImmutableList_of_Object(obj_(qmark))

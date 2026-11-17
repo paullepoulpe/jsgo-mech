@@ -208,7 +208,7 @@ var RegExpTree_INVERSE_WORD_CHARS *CharRanges
 var RegExpTree_SPACE_CHARS *CharRanges
 var RegExpTree_IE_SPACE_CHARS *CharRanges
 var RegExpTree_IE_SPEC_ERRORS *CharRanges
-var RegExpTree_NAMED_CHAR_GROUPS *ImmutableMap
+var RegExpTree_NAMED_CHAR_GROUPS *ErasedImmutableMap
 var RegExpTree_DOT_CHARSET *RegExpTree_Charset
 
 var RegExpTree_clinit_done bool
@@ -1787,7 +1787,7 @@ func (this *RegExpTree_Charset) decompose_2(ranges *CharRanges, inverted bool) *
 		var groupName uint16 = 0x0000
 		var simplest *CharRanges = nil
 		var minComplexity int32 = RegExpTree_DecomposedCharset_complexity(ranges)
-		for _, el := range immElems_(cast_[*ImmutableSet](RegExpTree_NAMED_CHAR_GROUPS.entrySet())) {
+		for _, el := range immElems_(cast_[*ErasedImmutableSet](RegExpTree_NAMED_CHAR_GROUPS.entrySet())) {
 			namedGroup := icast_Map_Entry(el)
 			var group *CharRanges = cast_[*CharRanges](namedGroup.getValue())
 			if ranges.containsAll(group) {

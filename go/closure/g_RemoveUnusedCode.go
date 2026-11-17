@@ -1359,7 +1359,7 @@ func (this *RemoveUnusedCode) replaceNodeWith(n Node, replacement Node) {
 	NodeUtil_markFunctionsDeleted(n, this.compiler_)
 }
 
-var RemoveUnusedCode_IMPLICITLY_USED_PROPERTIES *ImmutableSet
+var RemoveUnusedCode_IMPLICITLY_USED_PROPERTIES *ErasedImmutableSet
 
 const RemoveUnusedCode_DOT_PROTOTYPE string = ".prototype"
 

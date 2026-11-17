@@ -188,10 +188,10 @@ func (this *FunctionArgumentInjector) gatherCallArgumentsNeedingTemps(compiler *
 	var argCount int32 = argMap.size()
 	var isTrivialBody bool = (!block.hasChildren() || (block.hasOneChild() && !this.bodyMayHaveConditionalCode(block.getLastChild())))
 	var hasMinimalParameters bool = ((NodeUtil_isUndefined(cast_[*FunctionArgumentInjector_ParamArgPair](Map_get_s(argMap, FunctionArgumentInjector_THIS_MARKER)).arg()) || (fnNode.isArrowFunction() && cast_[*FunctionArgumentInjector_ParamArgPair](Map_get_s(argMap, FunctionArgumentInjector_THIS_MARKER)).arg().isThis())) && (argCount <= 2))
-	var parametersThatMayNeedTemps *FunctionArgumentInjector_SetContainer = this.findParametersReferencedAfterSideEffect(cast_[*ImmutableSet](argMap.keySet()), block)
+	var parametersThatMayNeedTemps *FunctionArgumentInjector_SetContainer = this.findParametersReferencedAfterSideEffect(cast_[*ErasedImmutableSet](argMap.keySet()), block)
 	var namesAfterSideEffects ImmutableSetOf[string] = parametersThatMayNeedTemps.parametersReferencedAfterSideEffect()
 	var parametersWithNamesReferencedBefore ImmutableSetOf[string] = parametersThatMayNeedTemps.parametersWithNamesReferencedBeforeParameter()
-	for _, el := range immElems_(cast_[*ImmutableSet](argMap.entrySet())) {
+	for _, el := range immElems_(cast_[*ErasedImmutableSet](argMap.entrySet())) {
 		entry := icast_Map_Entry(el)
 		var parameterName string = str_(entry.getKey())
 		var cArg Node = cast_[*FunctionArgumentInjector_ParamArgPair](entry.getValue()).arg()
@@ -230,7 +230,7 @@ func (this *FunctionArgumentInjector) gatherCallArgumentsNeedingTemps(compiler *
 		}
 	}
 	if requiresTempsUpToThisParameterName != "" {
-		for _, el2 := range immElems_(cast_[*ImmutableSet](argMap.keySet())) {
+		for _, el2 := range immElems_(cast_[*ErasedImmutableSet](argMap.keySet())) {
 			parameterName := str_(el2)
 			if (parameterName == FunctionArgumentInjector_THIS_MARKER) && (NodeUtil_isUndefined(cast_[*FunctionArgumentInjector_ParamArgPair](Map_get_s(argMap, FunctionArgumentInjector_THIS_MARKER)).arg()) || (fnNode.isArrowFunction() && cast_[*FunctionArgumentInjector_ParamArgPair](Map_get_s(argMap, FunctionArgumentInjector_THIS_MARKER)).arg().isThis())) {
 				continue
@@ -352,11 +352,11 @@ func new_FunctionArgumentInjector_SetContainer(parametersReferencedAfterSideEffe
 	return this
 }
 
-func (this *FunctionArgumentInjector_SetContainer) parametersReferencedAfterSideEffect() *ImmutableSet {
+func (this *FunctionArgumentInjector_SetContainer) parametersReferencedAfterSideEffect() *ErasedImmutableSet {
 	return this.parametersReferencedAfterSideEffect_
 }
 
-func (this *FunctionArgumentInjector_SetContainer) parametersWithNamesReferencedBeforeParameter() *ImmutableSet {
+func (this *FunctionArgumentInjector_SetContainer) parametersWithNamesReferencedBeforeParameter() *ErasedImmutableSet {
 	return this.parametersWithNamesReferencedBeforeParameter_
 }
 

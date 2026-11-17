@@ -656,7 +656,7 @@ func (this *ObjectType) getCtorExtendedInterfaces() Iterable {
 	return this.self_.getCtorExtendedInterfaces_impl()
 }
 
-func (this *ObjectType) getTemplateTypes() *ImmutableList {
+func (this *ObjectType) getTemplateTypes() *ErasedImmutableList {
 	return this.self_.getTemplateTypes_impl()
 }
 

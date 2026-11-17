@@ -8,8 +8,8 @@ type ErrorManager interface {
 	generateReport()
 	getErrorCount() int32
 	getWarningCount() int32
-	getErrors() *ImmutableList
-	getWarnings() *ImmutableList
+	getErrors() *ErasedImmutableList
+	getWarnings() *ErasedImmutableList
 	setTypedPercent(float64)
 	getTypedPercent() float64
 	hasHaltingErrors() bool

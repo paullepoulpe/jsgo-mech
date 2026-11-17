@@ -42,7 +42,7 @@ func (this *PruningAnalysis) calculateBottlenecks() ImmutableMapOf[string, Boxed
 	var graph *DiGraph = this.buildGraph()
 	var dominatorTree *DominatorTree[string] = DominatorTree_compute[string](graph, PruningAnalysis_VIRTUAL_ROOT)
 	var bottleneckBlame *TMap[string, any] = newTMap_(tc_string, tc_any)
-	for _, el := range immElems_(cast_[*ImmutableSet](dominatorTree.getAllSubtreeSizes().entrySet())) {
+	for _, el := range immElems_(cast_[*ErasedImmutableSet](dominatorTree.getAllSubtreeSizes().entrySet())) {
 		entry := icast_Map_Entry(el)
 		var node string = str_(entry.getKey())
 		var retainedCount int32 = unbox_[int32](entry.getValue())
@@ -118,11 +118,11 @@ func new_PruningAnalysis_Result(entryPointDependencyCount ImmutableMapOf[string,
 	return this
 }
 
-func (this *PruningAnalysis_Result) entryPointDependencyCount() *ImmutableMap {
+func (this *PruningAnalysis_Result) entryPointDependencyCount() *ErasedImmutableMap {
 	return this.entryPointDependencyCount_
 }
 
-func (this *PruningAnalysis_Result) bottleneckBlame() *ImmutableMap {
+func (this *PruningAnalysis_Result) bottleneckBlame() *ErasedImmutableMap {
 	return this.bottleneckBlame_
 }
 

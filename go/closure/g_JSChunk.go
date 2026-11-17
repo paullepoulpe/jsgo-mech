@@ -222,7 +222,7 @@ func (this *JSChunk) readObject(in *ObjectInputStream) {
 	this.inputs = newTMap_(tc_string, tc_p_CompilerInput)
 }
 
-func (this *JSChunk) getRequiredSymbols() *ImmutableList {
+func (this *JSChunk) getRequiredSymbols() *ErasedImmutableList {
 	return DependencyInfo_getRequiredSymbols_default(this)
 }
 

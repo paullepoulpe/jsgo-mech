@@ -357,7 +357,7 @@ func JSTypeReconserializer_isClosureAssert(primitive ClosurePrimitive) bool {
 	}()
 }
 
-var JSTypeReconserializer_JSTYPE_NATIVE_TO_AXIOMATIC_COLOR_MAP *ImmutableMap
+var JSTypeReconserializer_JSTYPE_NATIVE_TO_AXIOMATIC_COLOR_MAP *ErasedImmutableMap
 
 var JSTypeReconserializer_clinit_done bool
 

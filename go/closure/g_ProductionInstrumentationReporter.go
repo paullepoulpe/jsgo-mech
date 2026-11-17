@@ -42,22 +42,22 @@ func ProductionInstrumentationReporter_readFile(filePath string) *Outcome_base[s
 	return TextFiles_readStrict(filePath, Charsets_UTF_8)
 }
 
-func (this *ProductionInstrumentationReporter) getAllExecutionResults(folder string) *Outcome_base[*ImmutableList] {
+func (this *ProductionInstrumentationReporter) getAllExecutionResults(folder string) *Outcome_base[*ErasedImmutableList] {
 	var result ImmutableList_BuilderOf[MapOf[string, BoxedOf[int64]]] = ImmutableList_builder()
 	it_1 := foreach_(Io_listFiles(folder))
 	for it_1.next() {
 		var fileEntry string = str_(it_1.v)
 		var executionResult *Outcome_base[string] = ProductionInstrumentationReporter_readFile(FilePaths_toAbsolute(FilePaths_resolve(folder, fileEntry)))
 		if executionResult.isErr() {
-			return Outcome_base_err[*ImmutableList](executionResult.error())
+			return Outcome_base_err[*ErasedImmutableList](executionResult.error())
 		}
 		var executedInstrumentationData *Outcome_base[Map] = ProductionInstrumentationReporter_parseJsonStringToLongMap(executionResult.get())
 		if executedInstrumentationData.isErr() {
-			return Outcome_base_err[*ImmutableList](executedInstrumentationData.error())
+			return Outcome_base_err[*ErasedImmutableList](executedInstrumentationData.error())
 		}
 		result.add(executedInstrumentationData.get())
 	}
-	return Outcome_base_ok_Object[*ImmutableList](result.build())
+	return Outcome_base_ok_Object[*ErasedImmutableList](result.build())
 }
 
 func ProductionInstrumentationReporter_parseJsonStringToLongMap(json string) *Outcome_base[Map] {
@@ -131,7 +131,7 @@ func (this *ProductionInstrumentationReporter) doMain(args []string) *Outcome_ba
 		return Outcome_base_err[any](mapping.error())
 	}
 	var folder string = this.instrumentationReportsDirectory
-	var listOfExecutionResults *Outcome_base[*ImmutableList] = this.getAllExecutionResults(folder)
+	var listOfExecutionResults *Outcome_base[*ErasedImmutableList] = this.getAllExecutionResults(folder)
 	if listOfExecutionResults.isErr() {
 		return Outcome_base_err[any](listOfExecutionResults.error())
 	}

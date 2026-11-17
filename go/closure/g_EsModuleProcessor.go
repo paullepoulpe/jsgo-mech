@@ -390,7 +390,7 @@ func (this *EsModuleProcessor_UnresolvedEsModule) metadata_impl() *ModuleMetadat
 
 func (this *EsModuleProcessor_UnresolvedEsModule) getAllResolvedImports(moduleRequestResolver ModuleRequestResolver) *TMap[string, *Binding] {
 	var imports *TMap[string, *Binding] = newTMap_(tc_string, tc_p_Binding)
-	for _, el := range immElems_(cast_[*ImmutableSet](this.importsByLocalName.keySet())) {
+	for _, el := range immElems_(cast_[*ErasedImmutableSet](this.importsByLocalName.keySet())) {
 		name := str_(el)
 		var b *ResolveExportResult = this.resolveImport(moduleRequestResolver, name)
 		if b.resolved() {
@@ -635,7 +635,7 @@ func (this *EsModuleProcessor_UnresolvedEsModule) metadata() *ModuleMetadataMap_
 }
 
 // getExportedNames: an object that is exactly a EsModuleProcessor_UnresolvedEsModule calls its getExportedNames_impl directly (post-flip); others dispatch.
-func (this *EsModuleProcessor_UnresolvedEsModule) getExportedNames(p0 ModuleRequestResolver) *ImmutableSet {
+func (this *EsModuleProcessor_UnresolvedEsModule) getExportedNames(p0 ModuleRequestResolver) *ErasedImmutableSet {
 	if p, _ := this.self_.(*EsModuleProcessor_UnresolvedEsModule); p == this {
 		return this.getExportedNames_impl(p0)
 	}
@@ -643,7 +643,7 @@ func (this *EsModuleProcessor_UnresolvedEsModule) getExportedNames(p0 ModuleRequ
 }
 
 // getExportedNames_2: an object that is exactly a EsModuleProcessor_UnresolvedEsModule calls its getExportedNames_2_impl directly (post-flip); others dispatch.
-func (this *EsModuleProcessor_UnresolvedEsModule) getExportedNames_2(p0 ModuleRequestResolver, p1 map[*UnresolvedModule]struct{}) *ImmutableSet {
+func (this *EsModuleProcessor_UnresolvedEsModule) getExportedNames_2(p0 ModuleRequestResolver, p1 map[*UnresolvedModule]struct{}) *ErasedImmutableSet {
 	if p, _ := this.self_.(*EsModuleProcessor_UnresolvedEsModule); p == this {
 		return this.getExportedNames_2_impl(p0, p1)
 	}

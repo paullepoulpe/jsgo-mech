@@ -579,7 +579,7 @@ func (this *CodePrinter_CompactCodePrinter) notePreferredLineBreak_impl() {
 
 type CodePrinter_LicenseTracker interface {
 	trackLicensesForNode(Node)
-	emitLicenses() *ImmutableSet
+	emitLicenses() *ErasedImmutableSet
 }
 
 type CodePrinter_Builder struct {

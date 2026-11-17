@@ -109,7 +109,7 @@ func (this *ConcretizeStaticInheritanceForInlining) isReferenceToClass(t *NodeTr
 }
 
 var ConcretizeStaticInheritanceForInlining_DUPLICATE_CLASS *DiagnosticType
-var ConcretizeStaticInheritanceForInlining_BANNED_PROP_NAMES *ImmutableSet
+var ConcretizeStaticInheritanceForInlining_BANNED_PROP_NAMES *ErasedImmutableSet
 
 var ConcretizeStaticInheritanceForInlining_clinit_done bool
 

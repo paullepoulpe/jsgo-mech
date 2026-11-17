@@ -7,11 +7,11 @@ import "strings"
 type DependencyInfo interface {
 	getName() string
 	getPathRelativeToClosureBase() string
-	getProvides() *ImmutableList
-	getRequires() *ImmutableList
-	getRequiredSymbols() *ImmutableList
-	getTypeRequires() *ImmutableList
-	getLoadFlags() *ImmutableMap
+	getProvides() *ErasedImmutableList
+	getRequires() *ErasedImmutableList
+	getRequiredSymbols() *ErasedImmutableList
+	getTypeRequires() *ErasedImmutableList
+	getLoadFlags() *ErasedImmutableMap
 	isEs6Module() bool
 	isGoogModule() bool
 	getHasExternsAnnotation() bool

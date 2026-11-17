@@ -90,7 +90,7 @@ func (this *TypedAstDeserializer) deserializeTypedAst(typedAstProto *TypedAst, c
 		var containsRequiredInput bool = false
 		for lazyAst := range elemsAs_[*LazyAst](Iterables_concat(Iterable(typedAstProto.getExternAstList()), Iterable(typedAstProto.getCodeAstList()))) {
 			var file *SourceFile_jscomp = sliceAt_(fileShard, (lazyAst.getSourceFile() - 1))
-			if cast_[*ImmutableSet](this.requiredInputFiles.get()).contains(obj_(file)) {
+			if cast_[*ErasedImmutableSet](this.requiredInputFiles.get()).contains(obj_(file)) {
 				containsRequiredInput = true
 				break
 			}
@@ -159,7 +159,7 @@ func (this *TypedAstDeserializer) toFileShard(typedAstProto *TypedAst) []*Source
 
 func (this *TypedAstDeserializer) initLazyAstDeserializer(lazyAst *LazyAst, fileShard []*SourceFile_jscomp, colorShard Optional_baseOf[*ColorPool_ShardView], stringShard *StringPool, compiler *AbstractCompiler, resolveSourceMapAnnotations bool, parseInlineSourceMaps bool) {
 	var file *SourceFile_jscomp = sliceAt_(fileShard, (lazyAst.getSourceFile() - 1))
-	if (this.requiredInputFiles.isPresent() && !cast_[*ImmutableSet](this.requiredInputFiles.get()).contains(obj_(file))) && !JSCompObjects_identical(obj_(this.syntheticExterns), obj_(file)) {
+	if (this.requiredInputFiles.isPresent() && !cast_[*ErasedImmutableSet](this.requiredInputFiles.get()).contains(obj_(file))) && !JSCompObjects_identical(obj_(this.syntheticExterns), obj_(file)) {
 		return
 	}
 	if file.isWeak() {
@@ -374,11 +374,11 @@ func (this *TypedAstDeserializer_DeserializedAst) getColorRegistry() *Optional_b
 	return this.getColorRegistry_
 }
 
-func (this *TypedAstDeserializer_DeserializedAst) getExternProperties() *ImmutableSet {
+func (this *TypedAstDeserializer_DeserializedAst) getExternProperties() *ErasedImmutableSet {
 	return this.getExternProperties_
 }
 
-func (this *TypedAstDeserializer_DeserializedAst) getRuntimeLibraries() *ImmutableSet {
+func (this *TypedAstDeserializer_DeserializedAst) getRuntimeLibraries() *ErasedImmutableSet {
 	return this.getRuntimeLibraries_
 }
 

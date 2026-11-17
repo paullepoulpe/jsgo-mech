@@ -71,7 +71,7 @@ func SourceMapResolver_addBase64PrefixToEncodedSourceMap(encoded string) string 
 const SourceMapResolver_BASE64_URL_PREFIX string = "data:"
 const SourceMapResolver_BASE64_START string = "base64,"
 
-var SourceMapResolver_ACCEPTED_MEDIA_TYPES *ImmutableSet
+var SourceMapResolver_ACCEPTED_MEDIA_TYPES *ErasedImmutableSet
 
 var SourceMapResolver_clinit_done bool
 

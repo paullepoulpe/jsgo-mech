@@ -49,10 +49,10 @@ var StandardColors_TOP_OBJECT *Color
 var StandardColors_TOP_FUNCTION *Color
 var StandardColors_UNKNOWN *Color
 var StandardColors_GBIGINT *Color
-var StandardColors_AXIOMATIC_COLORS *ImmutableMap
-var StandardColors_PRIMITIVE_COLORS *ImmutableMap
-var StandardColors_PRIMITIVE_BOX_IDS *ImmutableSet
-var StandardColors_STANDARD_OBJECT_IDS *ImmutableSet
+var StandardColors_AXIOMATIC_COLORS *ErasedImmutableMap
+var StandardColors_PRIMITIVE_COLORS *ErasedImmutableMap
+var StandardColors_PRIMITIVE_BOX_IDS *ErasedImmutableSet
+var StandardColors_STANDARD_OBJECT_IDS *ErasedImmutableSet
 
 var StandardColors_clinit_done bool
 

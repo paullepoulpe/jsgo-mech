@@ -590,7 +590,7 @@ func new_JSChunkGraph_DependencyManagementResult(orderedInputs ImmutableListOf[*
 	return this
 }
 
-func (this *JSChunkGraph_DependencyManagementResult) orderedInputs() *ImmutableList {
+func (this *JSChunkGraph_DependencyManagementResult) orderedInputs() *ErasedImmutableList {
 	return this.orderedInputs_
 }
 
@@ -598,7 +598,7 @@ func (this *JSChunkGraph_DependencyManagementResult) sorter() *SortedDependencie
 	return this.sorter_
 }
 
-func (this *JSChunkGraph_DependencyManagementResult) entryPointInputs() *ImmutableSet {
+func (this *JSChunkGraph_DependencyManagementResult) entryPointInputs() *ErasedImmutableSet {
 	return this.entryPointInputs_
 }
 

@@ -255,8 +255,8 @@ func (this *CmdLineParser) findOptionByName(name string) *CmdLineParser_Option {
 }
 
 var CmdLineParser_NEWLINE_PATTERN *Pattern
-var CmdLineParser_TRUES *ImmutableSet
-var CmdLineParser_FALSES *ImmutableSet
+var CmdLineParser_TRUES *ErasedImmutableSet
+var CmdLineParser_FALSES *ErasedImmutableSet
 
 var CmdLineParser_clinit_done bool
 

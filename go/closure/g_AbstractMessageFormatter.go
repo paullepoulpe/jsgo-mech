@@ -77,7 +77,7 @@ func (this *AbstractMessageFormatter) formatWarning(p0 *JSError) string {
 	return this.self_.formatWarning_impl(p0)
 }
 
-var AbstractMessageFormatter_SUPPORTED_COLOR_TERMINALS *ImmutableSet
+var AbstractMessageFormatter_SUPPORTED_COLOR_TERMINALS *ErasedImmutableSet
 
 var AbstractMessageFormatter_clinit_done bool
 

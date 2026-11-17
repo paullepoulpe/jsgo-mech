@@ -5,8 +5,8 @@ package closure
 // Element conversions of the ImmutableLists that are slices.
 
 var tc_CheckConformance_Rule = &tconv_[CheckConformance_Rule]{box: func(v CheckConformance_Rule) any { return v }, unbox: func(v any) CheckConformance_Rule { return icast_CheckConformance_Rule(v) }}
-var tc_ImmutableMapOf_p_ColorPool_ShardView__p_TypeProto_ = &tconv_[ImmutableMapOf[*ColorPool_ShardView, *TypeProto]]{box: func(v ImmutableMapOf[*ColorPool_ShardView, *TypeProto]) any { return obj_(v) }, unbox: func(v any) ImmutableMapOf[*ColorPool_ShardView, *TypeProto] { return cast_[*ImmutableMap](v) }}
-var tc_ImmutableMapOf_string__string_ = &tconv_[ImmutableMapOf[string, string]]{box: func(v ImmutableMapOf[string, string]) any { return obj_(v) }, unbox: func(v any) ImmutableMapOf[string, string] { return cast_[*ImmutableMap](v) }}
+var tc_ImmutableMapOf_p_ColorPool_ShardView__p_TypeProto_ = &tconv_[ImmutableMapOf[*ColorPool_ShardView, *TypeProto]]{box: func(v ImmutableMapOf[*ColorPool_ShardView, *TypeProto]) any { return obj_(v) }, unbox: func(v any) ImmutableMapOf[*ColorPool_ShardView, *TypeProto] { return cast_[*ErasedImmutableMap](v) }}
+var tc_ImmutableMapOf_string__string_ = &tconv_[ImmutableMapOf[string, string]]{box: func(v ImmutableMapOf[string, string]) any { return obj_(v) }, unbox: func(v any) ImmutableMapOf[string, string] { return cast_[*ErasedImmutableMap](v) }}
 var tc_MapOf_string__BoxedOf_int64__ = &tconv_[MapOf[string, BoxedOf[int64]]]{box: func(v MapOf[string, BoxedOf[int64]]) any { return v }, unbox: func(v any) MapOf[string, BoxedOf[int64]] { return icast_Map(v) }}
 var tc_OptimizeCalls_CallGraphCompilerPass = &tconv_[OptimizeCalls_CallGraphCompilerPass]{box: func(v OptimizeCalls_CallGraphCompilerPass) any { return v }, unbox: func(v any) OptimizeCalls_CallGraphCompilerPass { return icast_OptimizeCalls_CallGraphCompilerPass(v) }}
 var tc_RuntimeJsLibManager_ExternedField = &tconv_[RuntimeJsLibManager_ExternedField]{box: func(v RuntimeJsLibManager_ExternedField) any { return v }, unbox: func(v any) RuntimeJsLibManager_ExternedField { return icast_RuntimeJsLibManager_ExternedField(v) }}

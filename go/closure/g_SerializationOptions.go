@@ -35,7 +35,7 @@ func (this *SerializationOptions) runValidation() bool {
 	return this.runValidation_
 }
 
-func (this *SerializationOptions) runtimeLibraries() *ImmutableList {
+func (this *SerializationOptions) runtimeLibraries() *ErasedImmutableList {
 	return this.runtimeLibraries_
 }
 

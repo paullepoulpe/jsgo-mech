@@ -339,7 +339,7 @@ func (this *Color_Builder) setBoxId(x *ColorId) *Color_Builder {
 }
 
 func (this *Color_Builder) setPrototype(x *Color) *Color_Builder {
-	return this.setPrototypes(func() *ImmutableSet {
+	return this.setPrototypes(func() *ErasedImmutableSet {
 		if x == nil {
 			return ImmutableSet_of()
 		}
@@ -348,7 +348,7 @@ func (this *Color_Builder) setPrototype(x *Color) *Color_Builder {
 }
 
 func (this *Color_Builder) setInstanceColor(x *Color) *Color_Builder {
-	return this.setInstanceColors(func() *ImmutableSet {
+	return this.setInstanceColors(func() *ErasedImmutableSet {
 		if x == nil {
 			return ImmutableSet_of()
 		}

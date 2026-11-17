@@ -88,7 +88,7 @@ func (this *ClosureRequireProcessor) getAllRequiresFromDestructuring(objectPatte
 	return immBuilt_(requireBuilder)
 }
 
-var ClosureRequireProcessor_GOOG_DEPENDENCY_CALLS *ImmutableMap
+var ClosureRequireProcessor_GOOG_DEPENDENCY_CALLS *ErasedImmutableMap
 
 var ClosureRequireProcessor_clinit_done bool
 
