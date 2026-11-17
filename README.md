@@ -415,6 +415,12 @@ and `tools/j2go/RUNTIME.md`):
 - Eager static initialisation, inline threads, and structural interface
   checks (`instanceof List` is true for anything with List's methods) are
   semantic differences from Java that the byte comparisons have not hit.
+- A null array is a nil slice: `arr.length` (`len`), a for-each over it
+  (`range`) and, after post-flip steps, a read of a nil Go map give 0 or
+  nothing where Java throws `NullPointerException`. Only failure paths
+  differ, so the byte comparisons cannot see it; the fix is a j2go rule (a
+  checked length and loop where the array may be null) and, for Go maps made
+  post-flip, a checked read or a proof of non-null.
 - Go does not fix the order of a plain variable read against a call in the
   same expression; the transpiler only guards the cases with an embedded
   assignment.
