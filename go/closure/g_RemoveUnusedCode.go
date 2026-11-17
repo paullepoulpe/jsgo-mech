@@ -1461,7 +1461,7 @@ func (this *RemoveUnusedCode_Builder) build() *RemoveUnusedCode {
 
 type RemoveUnusedCode_RemovalLogRecord struct {
 	kind_                string
-	nameSupplier         SupplierOf[string]
+	nameSupplier         func() any
 	functionNameSupplier SupplierOf[string]
 }
 
@@ -1469,7 +1469,7 @@ func (this *RemoveUnusedCode_RemovalLogRecord) zero_RemoveUnusedCode_RemovalLogR
 	this.kind_ = nullstr_
 }
 
-func (this *RemoveUnusedCode_RemovalLogRecord) init_RemoveUnusedCode_RemovalLogRecord_String_Supplier_Supplier(kind string, nameSupplier SupplierOf[string], functionNameSupplier SupplierOf[string]) {
+func (this *RemoveUnusedCode_RemovalLogRecord) init_RemoveUnusedCode_RemovalLogRecord_String_Supplier_Supplier(kind string, nameSupplier func() any, functionNameSupplier SupplierOf[string]) {
 	this.kind_ = kind
 	if nameSupplier == nil {
 		panic(new_NullPointerException_0().self())
@@ -1481,14 +1481,14 @@ func (this *RemoveUnusedCode_RemovalLogRecord) init_RemoveUnusedCode_RemovalLogR
 	this.functionNameSupplier = functionNameSupplier
 }
 
-func new_RemoveUnusedCode_RemovalLogRecord_String_Supplier_Supplier(kind string, nameSupplier SupplierOf[string], functionNameSupplier SupplierOf[string]) *RemoveUnusedCode_RemovalLogRecord {
+func new_RemoveUnusedCode_RemovalLogRecord_String_Supplier_Supplier(kind string, nameSupplier func() any, functionNameSupplier SupplierOf[string]) *RemoveUnusedCode_RemovalLogRecord {
 	this := &RemoveUnusedCode_RemovalLogRecord{}
 	this.zero_RemoveUnusedCode_RemovalLogRecord()
 	this.init_RemoveUnusedCode_RemovalLogRecord_String_Supplier_Supplier(kind, nameSupplier, functionNameSupplier)
 	return this
 }
 
-func (this *RemoveUnusedCode_RemovalLogRecord) init_RemoveUnusedCode_RemovalLogRecord_String_Supplier(kind string, nameSupplier SupplierOf[string]) {
+func (this *RemoveUnusedCode_RemovalLogRecord) init_RemoveUnusedCode_RemovalLogRecord_String_Supplier(kind string, nameSupplier func() any) {
 	this.init_RemoveUnusedCode_RemovalLogRecord_String_Supplier_Supplier(kind, nameSupplier, lambda_RemoveUnusedCode_RemovalLogRecord_init_RemoveUnusedCode_RemovalLogRecord_String_Supplier_1_)
 }
 
@@ -1497,7 +1497,7 @@ var lambda_RemoveUnusedCode_RemovalLogRecord_init_RemoveUnusedCode_RemovalLogRec
 	return strobj_("")
 }}
 
-func new_RemoveUnusedCode_RemovalLogRecord_String_Supplier(kind string, nameSupplier SupplierOf[string]) *RemoveUnusedCode_RemovalLogRecord {
+func new_RemoveUnusedCode_RemovalLogRecord_String_Supplier(kind string, nameSupplier func() any) *RemoveUnusedCode_RemovalLogRecord {
 	this := &RemoveUnusedCode_RemovalLogRecord{}
 	this.zero_RemoveUnusedCode_RemovalLogRecord()
 	this.init_RemoveUnusedCode_RemovalLogRecord_String_Supplier(kind, nameSupplier)
@@ -1505,25 +1505,25 @@ func new_RemoveUnusedCode_RemovalLogRecord_String_Supplier(kind string, nameSupp
 }
 
 func (this *RemoveUnusedCode_RemovalLogRecord) get() any {
-	return strobj_(String_join_CharSequence_CharSequenceArr_s("\t", []any{strobj_(this.kind_), this.nameSupplier.get(), this.functionNameSupplier.get()}))
+	return strobj_(String_join_CharSequence_CharSequenceArr_s("\t", []any{strobj_(this.kind_), this.nameSupplier(), this.functionNameSupplier.get()}))
 }
 
 func RemoveUnusedCode_RemovalLogRecord_forProperty(propName string) *RemoveUnusedCode_RemovalLogRecord {
-	return new_RemoveUnusedCode_RemovalLogRecord_String_Supplier("prop", &Supplier_fn{func() any {
+	return new_RemoveUnusedCode_RemovalLogRecord_String_Supplier("prop", func() any {
 		return strobj_(propName)
-	}})
+	})
 }
 
 func RemoveUnusedCode_RemovalLogRecord_forVar(var_ *Var) *RemoveUnusedCode_RemovalLogRecord {
-	return new_RemoveUnusedCode_RemovalLogRecord_String_Supplier("var", &Supplier_fn{func() any { return strobj_(var_.getName()) }})
+	return new_RemoveUnusedCode_RemovalLogRecord_String_Supplier("var", func() any { return strobj_(var_.getName()) })
 }
 
 func RemoveUnusedCode_RemovalLogRecord_forPolyfill(polyfillInfo *RemoveUnusedCode_PolyfillInfo) *RemoveUnusedCode_RemovalLogRecord {
-	return new_RemoveUnusedCode_RemovalLogRecord_String_Supplier("poly", &Supplier_fn{func() any { return strobj_(polyfillInfo.getName()) }})
+	return new_RemoveUnusedCode_RemovalLogRecord_String_Supplier("poly", func() any { return strobj_(polyfillInfo.getName()) })
 }
 
 func RemoveUnusedCode_RemovalLogRecord_forNamedArg(nameNode Node, argList Node) *RemoveUnusedCode_RemovalLogRecord {
-	return new_RemoveUnusedCode_RemovalLogRecord_String_Supplier_Supplier("arg", &Supplier_fn{func() any { return strobj_(nameNode.getString()) }}, RemoveUnusedCode_RemovalLogRecord_getLoggableFunctionNameSupplier(argList))
+	return new_RemoveUnusedCode_RemovalLogRecord_String_Supplier_Supplier("arg", func() any { return strobj_(nameNode.getString()) }, RemoveUnusedCode_RemovalLogRecord_getLoggableFunctionNameSupplier(argList))
 }
 
 func RemoveUnusedCode_RemovalLogRecord_forDestructuringArg(argList Node) *RemoveUnusedCode_RemovalLogRecord {
@@ -1531,12 +1531,12 @@ func RemoveUnusedCode_RemovalLogRecord_forDestructuringArg(argList Node) *Remove
 }
 
 // lambda_RemoveUnusedCode_RemovalLogRecord_forDestructuringArg_1_ is a lambda of RemoveUnusedCode_RemovalLogRecord_forDestructuringArg that captures nothing (post-flip step lambdas).
-var lambda_RemoveUnusedCode_RemovalLogRecord_forDestructuringArg_1_ = &Supplier_fn{func() any {
+func lambda_RemoveUnusedCode_RemovalLogRecord_forDestructuringArg_1_() any {
 	return strobj_("<pattern>")
-}}
+}
 
 func RemoveUnusedCode_RemovalLogRecord_forMarkingNamedArg(nameNode Node, argList Node) *RemoveUnusedCode_RemovalLogRecord {
-	return new_RemoveUnusedCode_RemovalLogRecord_String_Supplier_Supplier("argmark", &Supplier_fn{func() any { return strobj_(nameNode.getString()) }}, RemoveUnusedCode_RemovalLogRecord_getLoggableFunctionNameSupplier(argList))
+	return new_RemoveUnusedCode_RemovalLogRecord_String_Supplier_Supplier("argmark", func() any { return strobj_(nameNode.getString()) }, RemoveUnusedCode_RemovalLogRecord_getLoggableFunctionNameSupplier(argList))
 }
 
 func RemoveUnusedCode_RemovalLogRecord_getLoggableFunctionNameSupplier(argList Node) SupplierOf[string] {

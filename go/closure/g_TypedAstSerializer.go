@@ -604,11 +604,11 @@ func (this *TypedAstSerializer_ColorTypeSerializer) addTypeForNode(node Node, as
 
 func (this *TypedAstSerializer_ColorTypeSerializer) generateTypePool() *TypePool {
 	var mismatchLocationsForDebugging *SimpleSetMultimap = this.colorRegistry.getMismatchLocationsForDebugging()
-	return this.colorSerializer.generateTypePool(func(p0 any) any { return this.colorRegistry.getDisambiguationSupertypes(cast_[*Color](p0)) }, &Function_fn{func(color_ any) any {
+	return this.colorSerializer.generateTypePool(func(p0 any) any { return this.colorRegistry.getDisambiguationSupertypes(cast_[*Color](p0)) }, func(color_ any) any {
 		var color *Color = cast_[*Color](color_)
 		_ = color
 		return mismatchLocationsForDebugging.get(obj_(color.getId()))
-	}})
+	})
 }
 
 type TypedAstSerializer_1 struct {
