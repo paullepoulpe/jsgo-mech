@@ -324,22 +324,6 @@ func (this *ConformanceRules_AbstractRule) as_ConformanceRules_AbstractRule() *C
 	return this
 }
 
-func to_ConformanceRules_AbstractRule(v any) *ConformanceRules_AbstractRule {
-	if v == nil {
-		return nil
-	}
-	return v.(interface {
-		as_ConformanceRules_AbstractRule() *ConformanceRules_AbstractRule
-	}).as_ConformanceRules_AbstractRule()
-}
-
-func is_ConformanceRules_AbstractRule(v any) bool {
-	_, ok := v.(interface {
-		as_ConformanceRules_AbstractRule() *ConformanceRules_AbstractRule
-	})
-	return ok
-}
-
 func (this *ConformanceRules_AbstractRule) self() any {
 	if this == nil {
 		return nil
@@ -574,22 +558,6 @@ type ConformanceRules_AbstractTypeRestrictionRule struct {
 
 func (this *ConformanceRules_AbstractTypeRestrictionRule) as_ConformanceRules_AbstractTypeRestrictionRule() *ConformanceRules_AbstractTypeRestrictionRule {
 	return this
-}
-
-func to_ConformanceRules_AbstractTypeRestrictionRule(v any) *ConformanceRules_AbstractTypeRestrictionRule {
-	if v == nil {
-		return nil
-	}
-	return v.(interface {
-		as_ConformanceRules_AbstractTypeRestrictionRule() *ConformanceRules_AbstractTypeRestrictionRule
-	}).as_ConformanceRules_AbstractTypeRestrictionRule()
-}
-
-func is_ConformanceRules_AbstractTypeRestrictionRule(v any) bool {
-	_, ok := v.(interface {
-		as_ConformanceRules_AbstractTypeRestrictionRule() *ConformanceRules_AbstractTypeRestrictionRule
-	})
-	return ok
 }
 
 func (this *ConformanceRules_AbstractTypeRestrictionRule) self() any {
@@ -1275,22 +1243,6 @@ func (this ConformanceRules_BannedProperty_RequirementPrecondition) self() any {
 
 func (this ConformanceRules_BannedProperty_RequirementPrecondition) as_ConformanceRules_BannedProperty_RequirementPrecondition() ConformanceRules_BannedProperty_RequirementPrecondition {
 	return this
-}
-
-func to_ConformanceRules_BannedProperty_RequirementPrecondition(v any) ConformanceRules_BannedProperty_RequirementPrecondition {
-	if v == nil {
-		return 0
-	}
-	return v.(interface {
-		as_ConformanceRules_BannedProperty_RequirementPrecondition() ConformanceRules_BannedProperty_RequirementPrecondition
-	}).as_ConformanceRules_BannedProperty_RequirementPrecondition()
-}
-
-func is_ConformanceRules_BannedProperty_RequirementPrecondition(v any) bool {
-	_, ok := v.(interface {
-		as_ConformanceRules_BannedProperty_RequirementPrecondition() ConformanceRules_BannedProperty_RequirementPrecondition
-	})
-	return ok
 }
 
 func (this ConformanceRules_BannedProperty_RequirementPrecondition) shouldCheck(n Node) bool {

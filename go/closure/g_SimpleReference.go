@@ -10,23 +10,6 @@ type SimpleReference struct {
 
 func (this *SimpleReference) as_SimpleReference() *SimpleReference { return this }
 
-func to_SimpleReference(v any) *SimpleReference {
-	switch p := v.(type) {
-	case *PreprocessorSymbolTable_Reference:
-		return p.as_SimpleReference()
-	case *SymbolTable_Reference:
-		return p.as_SimpleReference()
-	case nil:
-		return nil
-	}
-	return v.(interface{ as_SimpleReference() *SimpleReference }).as_SimpleReference()
-}
-
-func is_SimpleReference(v any) bool {
-	_, ok := v.(interface{ as_SimpleReference() *SimpleReference })
-	return ok
-}
-
 func (this *SimpleReference) self() any {
 	if this == nil {
 		return nil

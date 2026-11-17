@@ -124,22 +124,6 @@ func (this CheckClosureImports_ClosureImport) as_CheckClosureImports_ClosureImpo
 	return this
 }
 
-func to_CheckClosureImports_ClosureImport(v any) CheckClosureImports_ClosureImport {
-	if v == nil {
-		return 0
-	}
-	return v.(interface {
-		as_CheckClosureImports_ClosureImport() CheckClosureImports_ClosureImport
-	}).as_CheckClosureImports_ClosureImport()
-}
-
-func is_CheckClosureImports_ClosureImport(v any) bool {
-	_, ok := v.(interface {
-		as_CheckClosureImports_ClosureImport() CheckClosureImports_ClosureImport
-	})
-	return ok
-}
-
 func (this CheckClosureImports_ClosureImport) allowDestructuring() bool {
 	switch this {
 	case CheckClosureImports_ClosureImport_REQUIRE, CheckClosureImports_ClosureImport_REQUIRE_TYPE, CheckClosureImports_ClosureImport_REQUIRE_DYNAMIC:

@@ -710,18 +710,6 @@ type SourceFile_CodeLoader_I interface {
 
 func (this *SourceFile_CodeLoader) as_SourceFile_CodeLoader() *SourceFile_CodeLoader { return this }
 
-func to_SourceFile_CodeLoader(v any) *SourceFile_CodeLoader {
-	if v == nil {
-		return nil
-	}
-	return v.(interface{ as_SourceFile_CodeLoader() *SourceFile_CodeLoader }).as_SourceFile_CodeLoader()
-}
-
-func is_SourceFile_CodeLoader(v any) bool {
-	_, ok := v.(interface{ as_SourceFile_CodeLoader() *SourceFile_CodeLoader })
-	return ok
-}
-
 func (this *SourceFile_CodeLoader) self() any {
 	if this == nil {
 		return nil

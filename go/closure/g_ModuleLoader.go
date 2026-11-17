@@ -339,13 +339,6 @@ func to_ModuleLoader_PathEscaper(v any) ModuleLoader_PathEscaper {
 	}).as_ModuleLoader_PathEscaper()
 }
 
-func is_ModuleLoader_PathEscaper(v any) bool {
-	_, ok := v.(interface {
-		as_ModuleLoader_PathEscaper() ModuleLoader_PathEscaper
-	})
-	return ok
-}
-
 func (this ModuleLoader_PathEscaper) escape(path string) string {
 	switch this {
 	case ModuleLoader_PathEscaper_ESCAPE:
@@ -433,13 +426,6 @@ func to_ModuleLoader_PathResolver(v any) ModuleLoader_PathResolver {
 	return v.(interface {
 		as_ModuleLoader_PathResolver() ModuleLoader_PathResolver
 	}).as_ModuleLoader_PathResolver()
-}
-
-func is_ModuleLoader_PathResolver(v any) bool {
-	_, ok := v.(interface {
-		as_ModuleLoader_PathResolver() ModuleLoader_PathResolver
-	})
-	return ok
 }
 
 func (this ModuleLoader_PathResolver) apply(path_ any) any {

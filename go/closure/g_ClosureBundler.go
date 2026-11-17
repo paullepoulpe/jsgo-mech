@@ -211,22 +211,6 @@ func (this ClosureBundler_EvalMode) as_ClosureBundler_EvalMode() ClosureBundler_
 	return this
 }
 
-func to_ClosureBundler_EvalMode(v any) ClosureBundler_EvalMode {
-	if v == nil {
-		return 0
-	}
-	return v.(interface {
-		as_ClosureBundler_EvalMode() ClosureBundler_EvalMode
-	}).as_ClosureBundler_EvalMode()
-}
-
-func is_ClosureBundler_EvalMode(v any) bool {
-	_, ok := v.(interface {
-		as_ClosureBundler_EvalMode() ClosureBundler_EvalMode
-	})
-	return ok
-}
-
 func (this ClosureBundler_EvalMode) appendTraditional(s string, out Appendable, sourceUrl OptionalOf[string]) {
 	switch this {
 	case ClosureBundler_EvalMode_EVAL:
@@ -326,22 +310,6 @@ func (this ClosureBundler_EscapeMode) self() any {
 
 func (this ClosureBundler_EscapeMode) as_ClosureBundler_EscapeMode() ClosureBundler_EscapeMode {
 	return this
-}
-
-func to_ClosureBundler_EscapeMode(v any) ClosureBundler_EscapeMode {
-	if v == nil {
-		return 0
-	}
-	return v.(interface {
-		as_ClosureBundler_EscapeMode() ClosureBundler_EscapeMode
-	}).as_ClosureBundler_EscapeMode()
-}
-
-func is_ClosureBundler_EscapeMode(v any) bool {
-	_, ok := v.(interface {
-		as_ClosureBundler_EscapeMode() ClosureBundler_EscapeMode
-	})
-	return ok
 }
 
 func (this ClosureBundler_EscapeMode) append(s string, out Appendable) {

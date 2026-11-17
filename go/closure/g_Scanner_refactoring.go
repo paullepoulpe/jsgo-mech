@@ -14,18 +14,6 @@ type Scanner_refactoring_I interface {
 
 func (this *Scanner_refactoring) as_Scanner_refactoring() *Scanner_refactoring { return this }
 
-func to_Scanner_refactoring(v any) *Scanner_refactoring {
-	if v == nil {
-		return nil
-	}
-	return v.(interface{ as_Scanner_refactoring() *Scanner_refactoring }).as_Scanner_refactoring()
-}
-
-func is_Scanner_refactoring(v any) bool {
-	_, ok := v.(interface{ as_Scanner_refactoring() *Scanner_refactoring })
-	return ok
-}
-
 func (this *Scanner_refactoring) self() any {
 	if this == nil {
 		return nil

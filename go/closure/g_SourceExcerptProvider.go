@@ -51,22 +51,6 @@ func (this SourceExcerptProvider_SourceExcerpt) as_SourceExcerptProvider_SourceE
 	return this
 }
 
-func to_SourceExcerptProvider_SourceExcerpt(v any) SourceExcerptProvider_SourceExcerpt {
-	if v == nil {
-		return 0
-	}
-	return v.(interface {
-		as_SourceExcerptProvider_SourceExcerpt() SourceExcerptProvider_SourceExcerpt
-	}).as_SourceExcerptProvider_SourceExcerpt()
-}
-
-func is_SourceExcerptProvider_SourceExcerpt(v any) bool {
-	_, ok := v.(interface {
-		as_SourceExcerptProvider_SourceExcerpt() SourceExcerptProvider_SourceExcerpt
-	})
-	return ok
-}
-
 func (this SourceExcerptProvider_SourceExcerpt) get(source SourceExcerptProvider, sourceName OptionalOf[string], lineNumber int32, formatter SourceExcerptProvider_ExcerptFormatter) OptionalOf[string] {
 	return this.get_5(source, sourceName, lineNumber, -1, formatter)
 }

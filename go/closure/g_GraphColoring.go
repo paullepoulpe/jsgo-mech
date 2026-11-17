@@ -8,6 +8,12 @@ type GraphColoring struct {
 	graph          AdjacencyGraph
 }
 
+// GraphColoring_as is implemented by GraphColoring and the classes that extend it: a cast to GraphColoring asserts to it
+// (post-flip).
+type GraphColoring_as interface {
+	as_GraphColoring() *GraphColoring
+}
+
 func (this *GraphColoring) as_GraphColoring() *GraphColoring { return this }
 
 func to_GraphColoring(v any) *GraphColoring {
@@ -17,12 +23,7 @@ func to_GraphColoring(v any) *GraphColoring {
 	case nil:
 		return nil
 	}
-	return v.(interface{ as_GraphColoring() *GraphColoring }).as_GraphColoring()
-}
-
-func is_GraphColoring(v any) bool {
-	_, ok := v.(interface{ as_GraphColoring() *GraphColoring })
-	return ok
+	return v.(GraphColoring_as).as_GraphColoring()
 }
 
 func (this *GraphColoring) self() any {

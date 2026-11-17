@@ -44,27 +44,6 @@ func (this *Visitor_WithDefaultCase) as_Visitor_WithDefaultCase() *Visitor_WithD
 	return this
 }
 
-func to_Visitor_WithDefaultCase(v any) *Visitor_WithDefaultCase {
-	switch p := v.(type) {
-	case *ContainsUpperBoundSuperTypeVisitor:
-		return p.as_Visitor_WithDefaultCase()
-	case *TypeValidator_WellFormedTemplatizedTypeVerifier:
-		return p.as_Visitor_WithDefaultCase()
-	case nil:
-		return nil
-	}
-	return v.(interface {
-		as_Visitor_WithDefaultCase() *Visitor_WithDefaultCase
-	}).as_Visitor_WithDefaultCase()
-}
-
-func is_Visitor_WithDefaultCase(v any) bool {
-	_, ok := v.(interface {
-		as_Visitor_WithDefaultCase() *Visitor_WithDefaultCase
-	})
-	return ok
-}
-
 func (this *Visitor_WithDefaultCase) self() any {
 	if this == nil {
 		return nil

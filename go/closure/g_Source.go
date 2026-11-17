@@ -373,6 +373,12 @@ type Source_Lazy_I interface {
 	get_impl() any
 }
 
+// Source_Lazy_as is implemented by Source_Lazy and the classes that extend it: a cast to Source_Lazy asserts to it
+// (post-flip).
+type Source_Lazy_as interface {
+	as_Source_Lazy() *Source_Lazy
+}
+
 func (this *Source_Lazy) as_Source_Lazy() *Source_Lazy { return this }
 
 func to_Source_Lazy(v any) *Source_Lazy {
@@ -384,11 +390,11 @@ func to_Source_Lazy(v any) *Source_Lazy {
 	case nil:
 		return nil
 	}
-	return v.(interface{ as_Source_Lazy() *Source_Lazy }).as_Source_Lazy()
+	return v.(Source_Lazy_as).as_Source_Lazy()
 }
 
 func is_Source_Lazy(v any) bool {
-	_, ok := v.(interface{ as_Source_Lazy() *Source_Lazy })
+	_, ok := v.(Source_Lazy_as)
 	return ok
 }
 

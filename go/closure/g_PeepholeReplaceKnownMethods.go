@@ -1228,25 +1228,6 @@ func (this *PeepholeReplaceKnownMethods_ConcatFunctionCall) as_PeepholeReplaceKn
 	return this
 }
 
-func to_PeepholeReplaceKnownMethods_ConcatFunctionCall(v any) *PeepholeReplaceKnownMethods_ConcatFunctionCall {
-	switch p := v.(type) {
-	case *PeepholeReplaceKnownMethods_1:
-		return p.as_PeepholeReplaceKnownMethods_ConcatFunctionCall()
-	case nil:
-		return nil
-	}
-	return v.(interface {
-		as_PeepholeReplaceKnownMethods_ConcatFunctionCall() *PeepholeReplaceKnownMethods_ConcatFunctionCall
-	}).as_PeepholeReplaceKnownMethods_ConcatFunctionCall()
-}
-
-func is_PeepholeReplaceKnownMethods_ConcatFunctionCall(v any) bool {
-	_, ok := v.(interface {
-		as_PeepholeReplaceKnownMethods_ConcatFunctionCall() *PeepholeReplaceKnownMethods_ConcatFunctionCall
-	})
-	return ok
-}
-
 func (this *PeepholeReplaceKnownMethods_ConcatFunctionCall) self() any {
 	if this == nil {
 		return nil

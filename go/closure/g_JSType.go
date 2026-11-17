@@ -196,17 +196,23 @@ func (this *JSType) setPropertyNode_impl(Property_Key, Node) {
 	panic("setPropertyNode_impl called on a " + goTypeName_(this.self_))
 }
 
+// JSType_as is implemented by JSType and the classes that extend it: a cast to JSType asserts to it
+// (post-flip).
+type JSType_as interface {
+	as_JSType() *JSType
+}
+
 func (this *JSType) as_JSType() *JSType { return this }
 
 func to_JSType(v any) *JSType {
 	if v == nil {
 		return nil
 	}
-	return v.(interface{ as_JSType() *JSType }).as_JSType()
+	return v.(JSType_as).as_JSType()
 }
 
 func is_JSType(v any) bool {
-	_, ok := v.(interface{ as_JSType() *JSType })
+	_, ok := v.(JSType_as)
 	return ok
 }
 

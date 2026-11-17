@@ -8,23 +8,6 @@ type SymbolType struct {
 
 func (this *SymbolType) as_SymbolType() *SymbolType { return this }
 
-func to_SymbolType(v any) *SymbolType {
-	switch p := v.(type) {
-	case *SymbolType:
-		return p
-	case *KnownSymbolType:
-		return p.as_SymbolType()
-	case nil:
-		return nil
-	}
-	return v.(interface{ as_SymbolType() *SymbolType }).as_SymbolType()
-}
-
-func is_SymbolType(v any) bool {
-	_, ok := v.(interface{ as_SymbolType() *SymbolType })
-	return ok
-}
-
 func (this *SymbolType) self() any {
 	if this == nil {
 		return nil

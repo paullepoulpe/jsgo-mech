@@ -19,25 +19,6 @@ func (this *AbstractMessageFormatter) as_AbstractMessageFormatter() *AbstractMes
 	return this
 }
 
-func to_AbstractMessageFormatter(v any) *AbstractMessageFormatter {
-	switch p := v.(type) {
-	case *LightweightMessageFormatter:
-		return p.as_AbstractMessageFormatter()
-	case nil:
-		return nil
-	}
-	return v.(interface {
-		as_AbstractMessageFormatter() *AbstractMessageFormatter
-	}).as_AbstractMessageFormatter()
-}
-
-func is_AbstractMessageFormatter(v any) bool {
-	_, ok := v.(interface {
-		as_AbstractMessageFormatter() *AbstractMessageFormatter
-	})
-	return ok
-}
-
 func (this *AbstractMessageFormatter) self() any {
 	if this == nil {
 		return nil

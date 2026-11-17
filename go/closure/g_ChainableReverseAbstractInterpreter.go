@@ -21,27 +21,6 @@ func (this *ChainableReverseAbstractInterpreter) as_ChainableReverseAbstractInte
 	return this
 }
 
-func to_ChainableReverseAbstractInterpreter(v any) *ChainableReverseAbstractInterpreter {
-	switch p := v.(type) {
-	case *ClosureReverseAbstractInterpreter:
-		return p.as_ChainableReverseAbstractInterpreter()
-	case *SemanticReverseAbstractInterpreter:
-		return p.as_ChainableReverseAbstractInterpreter()
-	case nil:
-		return nil
-	}
-	return v.(interface {
-		as_ChainableReverseAbstractInterpreter() *ChainableReverseAbstractInterpreter
-	}).as_ChainableReverseAbstractInterpreter()
-}
-
-func is_ChainableReverseAbstractInterpreter(v any) bool {
-	_, ok := v.(interface {
-		as_ChainableReverseAbstractInterpreter() *ChainableReverseAbstractInterpreter
-	})
-	return ok
-}
-
 func (this *ChainableReverseAbstractInterpreter) self() any {
 	if this == nil {
 		return nil
@@ -220,22 +199,6 @@ func (this *ChainableReverseAbstractInterpreter_RestrictByTypeOfResultVisitor) a
 	return this
 }
 
-func to_ChainableReverseAbstractInterpreter_RestrictByTypeOfResultVisitor(v any) *ChainableReverseAbstractInterpreter_RestrictByTypeOfResultVisitor {
-	if v == nil {
-		return nil
-	}
-	return v.(interface {
-		as_ChainableReverseAbstractInterpreter_RestrictByTypeOfResultVisitor() *ChainableReverseAbstractInterpreter_RestrictByTypeOfResultVisitor
-	}).as_ChainableReverseAbstractInterpreter_RestrictByTypeOfResultVisitor()
-}
-
-func is_ChainableReverseAbstractInterpreter_RestrictByTypeOfResultVisitor(v any) bool {
-	_, ok := v.(interface {
-		as_ChainableReverseAbstractInterpreter_RestrictByTypeOfResultVisitor() *ChainableReverseAbstractInterpreter_RestrictByTypeOfResultVisitor
-	})
-	return ok
-}
-
 func (this *ChainableReverseAbstractInterpreter_RestrictByTypeOfResultVisitor) self() any {
 	if this == nil {
 		return nil
@@ -363,29 +326,6 @@ func (this *ChainableReverseAbstractInterpreter_RestrictByTrueTypeOfResultVisito
 	return this
 }
 
-func to_ChainableReverseAbstractInterpreter_RestrictByTrueTypeOfResultVisitor(v any) *ChainableReverseAbstractInterpreter_RestrictByTrueTypeOfResultVisitor {
-	switch p := v.(type) {
-	case *ChainableReverseAbstractInterpreter_1:
-		return p.as_ChainableReverseAbstractInterpreter_RestrictByTrueTypeOfResultVisitor()
-	case *ClosureReverseAbstractInterpreter_1:
-		return p.as_ChainableReverseAbstractInterpreter_RestrictByTrueTypeOfResultVisitor()
-	case *SemanticReverseAbstractInterpreter_RestrictByTrueInstanceOfResultVisitor:
-		return p.as_ChainableReverseAbstractInterpreter_RestrictByTrueTypeOfResultVisitor()
-	case nil:
-		return nil
-	}
-	return v.(interface {
-		as_ChainableReverseAbstractInterpreter_RestrictByTrueTypeOfResultVisitor() *ChainableReverseAbstractInterpreter_RestrictByTrueTypeOfResultVisitor
-	}).as_ChainableReverseAbstractInterpreter_RestrictByTrueTypeOfResultVisitor()
-}
-
-func is_ChainableReverseAbstractInterpreter_RestrictByTrueTypeOfResultVisitor(v any) bool {
-	_, ok := v.(interface {
-		as_ChainableReverseAbstractInterpreter_RestrictByTrueTypeOfResultVisitor() *ChainableReverseAbstractInterpreter_RestrictByTrueTypeOfResultVisitor
-	})
-	return ok
-}
-
 func (this *ChainableReverseAbstractInterpreter_RestrictByTrueTypeOfResultVisitor) self() any {
 	if this == nil {
 		return nil
@@ -452,29 +392,6 @@ type ChainableReverseAbstractInterpreter_RestrictByFalseTypeOfResultVisitor stru
 
 func (this *ChainableReverseAbstractInterpreter_RestrictByFalseTypeOfResultVisitor) as_ChainableReverseAbstractInterpreter_RestrictByFalseTypeOfResultVisitor() *ChainableReverseAbstractInterpreter_RestrictByFalseTypeOfResultVisitor {
 	return this
-}
-
-func to_ChainableReverseAbstractInterpreter_RestrictByFalseTypeOfResultVisitor(v any) *ChainableReverseAbstractInterpreter_RestrictByFalseTypeOfResultVisitor {
-	switch p := v.(type) {
-	case *ChainableReverseAbstractInterpreter_2:
-		return p.as_ChainableReverseAbstractInterpreter_RestrictByFalseTypeOfResultVisitor()
-	case *ClosureReverseAbstractInterpreter_2:
-		return p.as_ChainableReverseAbstractInterpreter_RestrictByFalseTypeOfResultVisitor()
-	case *SemanticReverseAbstractInterpreter_RestrictByFalseInstanceOfResultVisitor:
-		return p.as_ChainableReverseAbstractInterpreter_RestrictByFalseTypeOfResultVisitor()
-	case nil:
-		return nil
-	}
-	return v.(interface {
-		as_ChainableReverseAbstractInterpreter_RestrictByFalseTypeOfResultVisitor() *ChainableReverseAbstractInterpreter_RestrictByFalseTypeOfResultVisitor
-	}).as_ChainableReverseAbstractInterpreter_RestrictByFalseTypeOfResultVisitor()
-}
-
-func is_ChainableReverseAbstractInterpreter_RestrictByFalseTypeOfResultVisitor(v any) bool {
-	_, ok := v.(interface {
-		as_ChainableReverseAbstractInterpreter_RestrictByFalseTypeOfResultVisitor() *ChainableReverseAbstractInterpreter_RestrictByFalseTypeOfResultVisitor
-	})
-	return ok
 }
 
 func (this *ChainableReverseAbstractInterpreter_RestrictByFalseTypeOfResultVisitor) self() any {

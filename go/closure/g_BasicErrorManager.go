@@ -8,25 +8,6 @@ type BasicErrorManager struct {
 
 func (this *BasicErrorManager) as_BasicErrorManager() *BasicErrorManager { return this }
 
-func to_BasicErrorManager(v any) *BasicErrorManager {
-	switch p := v.(type) {
-	case *FixingErrorManager:
-		return p.as_BasicErrorManager()
-	case *JsFileFullParser_1:
-		return p.as_BasicErrorManager()
-	case *LoggerErrorManager:
-		return p.as_BasicErrorManager()
-	case nil:
-		return nil
-	}
-	return v.(interface{ as_BasicErrorManager() *BasicErrorManager }).as_BasicErrorManager()
-}
-
-func is_BasicErrorManager(v any) bool {
-	_, ok := v.(interface{ as_BasicErrorManager() *BasicErrorManager })
-	return ok
-}
-
 func (this *BasicErrorManager) self() any {
 	if this == nil {
 		return nil
