@@ -454,7 +454,11 @@ func (this *AstFactory) createQNameString(scope StaticScope, qname string) Node 
 }
 
 func (this *AstFactory) createQNameIterable(scope StaticScope, names IterableOf[string]) Node {
-	var baseName string = str_(Optional_ofNullable(Iterables_getFirst(names, nil)).orElseThrow())
+	nn_1 := Iterables_getFirst(names, nil)
+	if isnull_(nn_1) {
+		panic(new_NoSuchElementException_String("No value present").self())
+	}
+	var baseName string = str_(nn_1)
 	var propertyNames IterableOf[string] = Iterables_skip(names, 1)
 	return this.createQName_3(scope, baseName, propertyNames)
 }
@@ -490,7 +494,11 @@ func (this *AstFactory) createQName_4(scope StaticScope, baseName string, baseNa
 func (this *AstFactory) createQName(scope StaticScope, field RuntimeJsLibManager_JsLibField) Node {
 	var qname string = field.assertInjected().qualifiedName()
 	var parts *TList[string] = tlistImm_(tc_string, AstFactory_DOT_SPLITTER.splitToList_s(qname))
-	var baseName string = str_(Optional_ofNullable(Iterables_getFirst(Iterable(parts.asList()), nil)).orElseThrow())
+	nn_1 := Iterables_getFirst(Iterable(parts.asList()), nil)
+	if isnull_(nn_1) {
+		panic(new_NoSuchElementException_String("No value present").self())
+	}
+	var baseName string = str_(nn_1)
 	if !strings.HasPrefix(baseName, "$jscomp") {
 		panic(new_IllegalStateException_String(Strings_lenientFormat("Unexpected Field name %s", []any{strobj_(baseName)})).self())
 	}
@@ -513,7 +521,11 @@ func (this *AstFactory) createQNameWithUnknownType(qname string) Node {
 
 func (this *AstFactory) createQNameWithUnknownTypeJsLibField(field RuntimeJsLibManager_JsLibField) Node {
 	var parts *TList[string] = tlistImm_(tc_string, AstFactory_DOT_SPLITTER.splitToList_s(field.assertInjected().qualifiedName()))
-	var baseName string = str_(Optional_ofNullable(Iterables_getFirst(Iterable(parts.asList()), nil)).orElseThrow())
+	nn_1 := Iterables_getFirst(Iterable(parts.asList()), nil)
+	if isnull_(nn_1) {
+		panic(new_NoSuchElementException_String("No value present").self())
+	}
+	var baseName string = str_(nn_1)
 	if !strings.HasPrefix(baseName, "$jscomp") {
 		panic(new_IllegalStateException_String(Strings_lenientFormat("Unexpected Field name %s", []any{strobj_(baseName)})).self())
 	}
@@ -531,7 +543,11 @@ func (this *AstFactory) createQNameWithUnknownTypeJsLibField(field RuntimeJsLibM
 }
 
 func (this *AstFactory) createQNameWithUnknownTypeIterable(names IterableOf[string]) Node {
-	var baseName string = str_(Optional_ofNullable(Iterables_getFirst(names, nil)).orElseThrow())
+	nn_1 := Iterables_getFirst(names, nil)
+	if isnull_(nn_1) {
+		panic(new_NoSuchElementException_String("No value present").self())
+	}
+	var baseName string = str_(nn_1)
 	var propertyNames IterableOf[string] = Iterables_skip(names, 1)
 	return this.createQNameWithUnknownType_2(baseName, propertyNames)
 }

@@ -197,7 +197,7 @@ func (this *JsFileLineParser) parseJsString(jsStringLiteral string) *Outcome_bas
 		return Outcome_base_err(new_JsFileLineParser_ParseException("Syntax error in JS String literal", true).up_Throwable())
 	}
 	return Outcome_base_ok_Object(func() any {
-		if Optional_ofNullable(strobj_(this.valueMatcher.group(1))).isPresent() {
+		if this.valueMatcher.group(1) != nullstr_ {
 			return strobj_(this.valueMatcher.group(1))
 		}
 		return strobj_(this.valueMatcher.group(2))
@@ -219,7 +219,7 @@ func (this *JsFileLineParser) parseJsStringArray(input string) *Outcome_base {
 				return Outcome_base_err(new_JsFileLineParser_ParseException("Syntax error in JS String literal", true).up_Throwable())
 			}
 			results.add(str_(func() any {
-				if Optional_ofNullable(strobj_(this.valueMatcher.group(1))).isPresent() {
+				if this.valueMatcher.group(1) != nullstr_ {
 					return strobj_(this.valueMatcher.group(1))
 				}
 				return strobj_(this.valueMatcher.group(2))
@@ -254,7 +254,7 @@ func (this *JsFileLineParser) parseJsStringMap(input string) *Outcome_base {
 			return Outcome_base_err(checked.error())
 		}
 		var key string = func() string {
-			if Optional_ofNullable(strobj_(this.valueMatcher.group(1))).isPresent() {
+			if this.valueMatcher.group(1) != nullstr_ {
 				return this.valueMatcher.group(1)
 			}
 			return this.valueMatcher.group(2)
@@ -274,7 +274,7 @@ func (this *JsFileLineParser) parseJsStringMap(input string) *Outcome_base {
 			return Outcome_base_err(checked.error())
 		}
 		var val string = func() string {
-			if Optional_ofNullable(strobj_(this.valueMatcher.group(1))).isPresent() {
+			if this.valueMatcher.group(1) != nullstr_ {
 				return this.valueMatcher.group(1)
 			}
 			return this.valueMatcher.group(2)
