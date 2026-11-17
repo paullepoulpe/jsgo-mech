@@ -400,7 +400,7 @@ func (this *RescopeGlobalSymbolsRewriteCallback) declareChunkGlobals() {
 func (this *RescopeGlobalSymbolsRewriteCallback) declareLocalAliasesAndWrappers() {
 	var chunkGraph *JSChunkGraph = this.compiler_.getChunkGraph()
 	var chunks IterableOf[*JSChunk] = chunkGraph.getAllChunks()
-	var defaultRootChunk *JSChunk = cast_[*JSChunk](chunks.iterator().next())
+	var defaultRootChunk *JSChunk = cast_[*JSChunk](first_(chunks))
 	var wrapperAssignmentChunks map[string]*JSChunk = map[string]*JSChunk{}
 	if this.optimizeLocalAccess.shouldWrapReassignableSymbols() && !this.symbolInfo.wrappedCrossChunkNames().isEmpty() {
 		it_1 := foreach_(obj_(this.symbolInfo.wrappedCrossChunkNames()))

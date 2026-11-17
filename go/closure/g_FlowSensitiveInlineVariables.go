@@ -62,7 +62,7 @@ func (this *FlowSensitiveInlineVariables) enterScope(t *NodeTraversal) {
 	this.reachingUses = new_MaybeReachingVariableUse(this.cfg, escaped, allVarsInFn)
 	this.reachingUses.analyze()
 	for !this.candidates.isEmpty() {
-		var c *FlowSensitiveInlineVariables_Candidate = cast_[*FlowSensitiveInlineVariables_Candidate](this.candidates.asSet().iterator().next())
+		var c *FlowSensitiveInlineVariables_Candidate = this.candidates.First()
 		var candidateVar *Var = cast_[*Var](Preconditions_checkNotNull(obj_(allVarsInFn.get(c.varName_))))
 		if c.canInline(cast_[*Scope](candidateVar.getScope())) {
 			c.inlineVariable()

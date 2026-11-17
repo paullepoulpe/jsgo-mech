@@ -340,7 +340,7 @@ func (this *SemanticReverseAbstractInterpreter) caseAndOrMaybeShortCircuiting(le
 	var leftScope FlowScope = this.firstPreciserScopeKnowingConditionOutcome(left, blindScope, outcome.not())
 	var leftVar StaticTypedSlot = func() StaticTypedSlot {
 		if refinements.size() == 1 {
-			return icast_StaticTypedSlot(leftScope.getSlot(str_(refinements.asSet().iterator().next())))
+			return icast_StaticTypedSlot(leftScope.getSlot(refinements.First()))
 		}
 		return nil
 	}()
@@ -352,7 +352,7 @@ func (this *SemanticReverseAbstractInterpreter) caseAndOrMaybeShortCircuiting(le
 	rightScope = this.firstPreciserScopeKnowingConditionOutcome(right, rightScope, outcome.not())
 	var rightVar StaticTypedSlot = func() StaticTypedSlot {
 		if refinements.size() == 1 {
-			return icast_StaticTypedSlot(rightScope.getSlot(str_(refinements.asSet().iterator().next())))
+			return icast_StaticTypedSlot(rightScope.getSlot(refinements.First()))
 		}
 		return nil
 	}()

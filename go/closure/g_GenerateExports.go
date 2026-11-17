@@ -66,9 +66,9 @@ func (this *GenerateExports) process_2(externs Node, root Node) {
 func (this *GenerateExports) validateExportMethodsIncluded(exports *TMap[string, Node], es6Exports *TMap[Node, string], root Node) bool {
 	var errorLocation Node
 	if !exports.isEmpty() {
-		errorLocation = Node_of_(exports.asMap().values().iterator().next())
+		errorLocation = exports.FirstValue()
 	} else {
-		errorLocation = Node_of_(es6Exports.asMap().keySet().iterator().next())
+		errorLocation = es6Exports.FirstKey()
 	}
 	if this.exportSymbolFunction.isEmpty() || this.exportPropertyFunction.isEmpty() {
 		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(errorLocation, GenerateExports_MISSING_EXPORT_CONVENTION, []string{}))
