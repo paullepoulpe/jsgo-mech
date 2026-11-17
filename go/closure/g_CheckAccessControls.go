@@ -6,14 +6,14 @@ type CheckAccessControls struct {
 	compiler_                 *AbstractCompiler
 	typeRegistry              *JSTypeRegistry
 	deprecationDepth          int32
-	currentClassStack         *TList[*ObjectType]
+	currentClassStack         []*ObjectType
 	constPropertyInits        *SimpleTable
 	defaultVisibilityForFiles ImmutableMapOf[StaticSourceFile, JSDocInfo_Visibility]
 }
 
 func (this *CheckAccessControls) finit_CheckAccessControls() {
 	this.deprecationDepth = 0
-	this.currentClassStack = newTList_(tc_p_ObjectType)
+	this.currentClassStack = []*ObjectType{}
 	this.constPropertyInits = SimpleTable_create()
 }
 
@@ -42,14 +42,14 @@ func (this *CheckAccessControls) enterAccessControlScope(root Node) {
 	if CheckAccessControls_isMarkedDeprecated(root) {
 		this.deprecationDepth++
 	}
-	this.currentClassStack.push_(scopeType)
+	this.currentClassStack = append(this.currentClassStack, scopeType)
 }
 
 func (this *CheckAccessControls) exitAccessControlScope(root Node) {
 	if CheckAccessControls_isMarkedDeprecated(root) {
 		this.deprecationDepth--
 	}
-	this.currentClassStack.pop_()
+	slicePop_(tc_p_ObjectType, &this.currentClassStack)
 }
 
 func CheckAccessControls_primaryAccessControlScopeRootFor(node Node) Node {
@@ -526,7 +526,7 @@ func (this *CheckAccessControls) checkPrivatePropertyVisibility(propRef *CheckAc
 
 func (this *CheckAccessControls) checkProtectedPropertyVisibility(propRef *CheckAccessControls_PropertyReference, ownerType *ObjectType) {
 	if ownerType != nil {
-		it_1 := this.currentClassStack.eachRev()
+		it_1 := eachRevOf_(&this.currentClassStack)
 		for it_1.next() {
 			var scopeType *JSType = to_JSType(it_1.v.self())
 			if scopeType == nil {
