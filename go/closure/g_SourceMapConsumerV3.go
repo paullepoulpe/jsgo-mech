@@ -114,8 +114,8 @@ func (this *SourceMapConsumerV3) parseMetaMap(sourceMapObject *SourceMapObject, 
 				return 1
 			}
 		}
-		var sb *StringBuilder = new_StringBuilder()
-		generator.appendTo(sb, sourceMapObject.getFile())
+		var sb strBuilder_
+		generator.appendTo(appendable_(&sb), sourceMapObject.getFile())
 		ret_1 = this.parse(sb.toString())
 		return 1
 	}()

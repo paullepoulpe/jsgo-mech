@@ -1416,8 +1416,8 @@ func (this *AbstractCommandLineRunner) createJsonFile(options *CompilerOptions, 
 		return this.config.jsOutputFile
 	}())
 	if options.shouldGatherSourceMapInfo() {
-		var sourcemap *StringBuilder = new_StringBuilder()
-		this.compiler_.getSourceMap().appendTo(sourcemap, jsonOutput.getPath())
+		var sourcemap strBuilder_
+		this.compiler_.getSourceMap().appendTo(appendable_(&sourcemap), jsonOutput.getPath())
 		jsonOutput.setSourceMap(sourcemap.toString())
 	}
 	return jsonOutput
@@ -1542,18 +1542,18 @@ func (this *AbstractCommandLineRunner) createJsonFileFromChunk(chunk *JSChunk) *
 		return Outcome_base_err[*AbstractCommandLineRunner_JsonFileSpec](filenameOutcome.error())
 	}
 	var filename string = filenameOutcome.get()
-	var output *StringBuilder = new_StringBuilder()
-	var writeChunkOutputOutcome *Outcome_base[any] = this.writeChunkOutput(filename, output, new_Compiler_ScriptNodeLicensesOnlyTracker(this.compiler_.up_AbstractCompiler()), chunk)
+	var output strBuilder_
+	var writeChunkOutputOutcome *Outcome_base[any] = this.writeChunkOutput(filename, appendable_(&output), new_Compiler_ScriptNodeLicensesOnlyTracker(this.compiler_.up_AbstractCompiler()), chunk)
 	if writeChunkOutputOutcome.isErr() {
 		return Outcome_base_err[*AbstractCommandLineRunner_JsonFileSpec](writeChunkOutputOutcome.error())
 	}
 	var jsonFile *AbstractCommandLineRunner_JsonFileSpec = new_AbstractCommandLineRunner_JsonFileSpec_String_String(output.toString(), filename)
-	var chunkSourceMap *StringBuilder = new_StringBuilder()
+	var chunkSourceMap strBuilder_
 	var chunkOutputFileName *Outcome_base[string] = this.getChunkOutputFileName(chunk)
 	if chunkOutputFileName.isErr() {
 		return Outcome_base_err[*AbstractCommandLineRunner_JsonFileSpec](chunkOutputFileName.error())
 	}
-	this.compiler_.getSourceMap().appendTo(chunkSourceMap, Optional_ofNullable[string](chunkOutputFileName.get()))
+	this.compiler_.getSourceMap().appendTo(appendable_(&chunkSourceMap), Optional_ofNullable[string](chunkOutputFileName.get()))
 	jsonFile.setSourceMap(chunkSourceMap.toString())
 	return Outcome_base_ok_Object[*AbstractCommandLineRunner_JsonFileSpec](jsonFile)
 }
