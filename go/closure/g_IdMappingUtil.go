@@ -110,26 +110,28 @@ func new_IdMappingUtil_MappingReader(text string) *IdMappingUtil_MappingReader {
 
 func (this *IdMappingUtil_MappingReader) next() bool {
 	var line string
+	var lineU16 utf16_
 	for {
 		if this.nextLine == int32(len(this.lines)) {
 			break
 		}
 		line = sliceAt_(this.lines, this.nextLine)
+		lineU16 = utf16Of_(line)
 		this.nextLine++
 		this.lineIndex++
 		if line == "" {
 			continue
 		}
 		if line[0] == '[' {
-			this.currentSection = Optional_of[string](String_substring(line, 1, (String_length(line) - 1)))
+			this.currentSection = Optional_of[string](lineU16.substring(1, (lineU16.length() - 1)))
 			this.currentKey = Optional_empty[string]()
 			this.currentValue = Optional_empty[string]()
 			return true
 		} else {
-			var split int32 = String_indexOf(line, 58)
+			var split int32 = lineU16.indexOf(58)
 			if split != -1 {
-				this.currentKey = Optional_of[string](String_substring(line, 0, split))
-				this.currentValue = Optional_of[string](String_substring_int(line, (split + 1)))
+				this.currentKey = Optional_of[string](lineU16.substring(0, split))
+				this.currentValue = Optional_of[string](lineU16.substring_int((split + 1)))
 				return true
 			} else {
 				panic(new_IllegalArgumentException_String(("Cannot parse id map.\n Line: " + sstr_(line) + ", lineIndex: " + istr_(int64(int32(this.lineIndex))))).self())

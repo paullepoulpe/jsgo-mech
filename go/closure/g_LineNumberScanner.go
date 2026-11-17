@@ -63,10 +63,11 @@ func (this *LineNumberScanner) rewindTo(position *SourcePosition_util) {
 func (this *LineNumberScanner) advanceLine() {
 	this.lastLine++
 	this.lastLineStart = this.nextLineStart
+	contentsU16 := utf16Of_(this.contents)
 	for index := int32(this.lastLineStart); index < this.sourceLength; index++ {
-		var ch uint16 = String_charAt(this.contents, index)
+		var ch uint16 = contentsU16.charAt(index)
 		if LineNumberScanner_isLineTerminator(ch) {
-			if ((ch == '\r') && ((index + 1) < this.sourceLength)) && (String_charAt(this.contents, (index+1)) == '\n') {
+			if ((ch == '\r') && ((index + 1) < this.sourceLength)) && (contentsU16.charAt((index + 1)) == '\n') {
 				index++
 			}
 			this.nextLineStart = (index + 1)

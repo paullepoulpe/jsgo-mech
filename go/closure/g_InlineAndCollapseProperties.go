@@ -1078,7 +1078,7 @@ func (this *InlineAndCollapseProperties_CollapseProperties) flattenReferencesToC
 
 func (this *InlineAndCollapseProperties_CollapseProperties) logDecisionForName_3(name *GlobalNamespace_Name, inlinability GlobalNamespace_Inlinability, message string) {
 	this.logDecisionForNameSupplier(name, func() any {
-		return strobj_(String_format("inlinability %s: %s", []any{obj_(inlinability), strobj_(message)}))
+		return strobj_(("inlinability " + objstr_(obj_(inlinability)) + ": " + sstr_(message)))
 	})
 }
 
@@ -1090,7 +1090,7 @@ func (this *InlineAndCollapseProperties_CollapseProperties) logDecisionForName(n
 
 func (this *InlineAndCollapseProperties_CollapseProperties) logDecisionForNameSupplier(name *GlobalNamespace_Name, messageSupplier func() any) {
 	this.outer_.decisionsLog.log(func() any {
-		return strobj_(String_format("%s: %s", []any{strobj_(name.getFullName()), messageSupplier()}))
+		return strobj_((sstr_(name.getFullName()) + ": " + objstr_(messageSupplier())))
 	})
 }
 
@@ -1290,7 +1290,7 @@ func (this *InlineAndCollapseProperties_CollapseProperties) updateGlobalNameDecl
 
 func (this *InlineAndCollapseProperties_CollapseProperties) logDeclarationAction(name *GlobalNamespace_Name, declarationNode Node, message string) {
 	this.logDecisionForNameSupplier(name, func() any {
-		return strobj_(String_format("%s: %s", []any{declarationNode.box_(), strobj_(message)}))
+		return strobj_((objstr_(declarationNode.box_()) + ": " + sstr_(message)))
 	})
 }
 

@@ -342,12 +342,13 @@ func (this *Es6RewriteBlockScopedDeclaration_LoopClosureTransformer) transformLo
 }
 
 func (this *Es6RewriteBlockScopedDeclaration_LoopClosureTransformer) updateNamesInWrapperFunctions(wrapperFunctions *TSet[Node]) {
+	var getStringU16 utf16_
 	for func_ := range wrapperFunctions.All() {
 		var paramList Node = func_.getSecondChild()
 		{
 			var param Node = paramList.getFirstChild()
 			for ; param != 0; param = param.getNext() {
-				var loopObjectName string = String_substring(param.getString(), 0, String_indexOf_String(param.getString(), Es6RewriteBlockScopedDeclaration_LOOP_PARAM_NAME_PREFIX))
+				var loopObjectName string = getStringU16.of(param.getString()).substring(0, getStringU16.of(param.getString()).indexOf_String(Es6RewriteBlockScopedDeclaration_LOOP_PARAM_NAME_PREFIX))
 				this.updateNames(func_.getLastChild(), param, loopObjectName)
 			}
 		}

@@ -173,19 +173,20 @@ func (this *PolymerBehaviorExtractor) resolveBehaviorNameInternal(name string, m
 }
 
 func (this *PolymerBehaviorExtractor) resolveReferenceToLegacyGoogModule(name string) *PolymerBehaviorExtractor_ResolveBehaviorNameResult {
-	var dot int32 = String_length(name)
+	nameU16 := utf16Of_(name)
+	var dot int32 = nameU16.length()
 	for dot >= 0 {
-		var subNamespace string = String_substring(name, 0, dot)
+		var subNamespace string = nameU16.substring(0, dot)
 		var metadata *ModuleMetadataMap_ModuleMetadata = cast_[*ModuleMetadataMap_ModuleMetadata](Map_get_s(this.moduleMetadataMap.getModulesByGoogNamespace(), subNamespace))
 		if (metadata == nil) || !metadata.isLegacyGoogModule() {
-			dot = String_lastIndexOf_int_int(name, 46, (dot - 1))
+			dot = nameU16.lastIndexOf_int_int(46, (dot - 1))
 			continue
 		}
 		var rest string = func() string {
-			if dot == String_length(name) {
+			if dot == nameU16.length() {
 				return ""
 			}
-			return String_substring_int(name, dot)
+			return nameU16.substring_int(dot)
 		}()
 		var result *PolymerBehaviorExtractor_ResolveBehaviorNameResult = this.resolveBehaviorName(Optional_of[string]((sstr_(PolymerBehaviorExtractor_GOOG_MODULE_EXPORTS) + sstr_(rest))), metadata)
 		return func() *PolymerBehaviorExtractor_ResolveBehaviorNameResult {

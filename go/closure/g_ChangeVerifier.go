@@ -223,7 +223,7 @@ var lambda_ChangeVerifier_EqualsResult_equal_1_ = &Supplier_fn{func() any {
 
 func ChangeVerifier_EqualsResult_notEqual(errorNode Node, error_ string, after any, before any) *ChangeVerifier_EqualsResult {
 	return new_ChangeVerifier_EqualsResult(false, errorNode, &Supplier_fn{func() any {
-		return strobj_(String_format("%s\nBefore: %s\nAfter:  %s\n", []any{strobj_(error_), before, after}))
+		return strobj_((sstr_(error_) + "\nBefore: " + objstr_(before) + "\nAfter:  " + objstr_(after) + "\n"))
 	}})
 }
 

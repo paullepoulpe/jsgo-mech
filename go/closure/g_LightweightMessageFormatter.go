@@ -205,11 +205,12 @@ func LightweightMessageFormatter_appendPosition(b *strBuilder_, sourceName Optio
 }
 
 func (this *LightweightMessageFormatter) padLine(charno int32, sourceExcerpt string, b *strBuilder_, errLength int32, errorNode Node) bool {
-	if charno > String_length(sourceExcerpt) {
+	sourceExcerptU16 := utf16Of_(sourceExcerpt)
+	if charno > sourceExcerptU16.length() {
 		return false
 	}
 	for i := int32(0); i < charno; i++ {
-		var c uint16 = String_charAt(sourceExcerpt, i)
+		var c uint16 = sourceExcerptU16.charAt(i)
 		if TokenUtil_isWhitespace(int32(c)) {
 			b.append_char(c)
 		} else {
@@ -219,7 +220,7 @@ func (this *LightweightMessageFormatter) padLine(charno int32, sourceExcerpt str
 	if errorNode == 0 {
 		b.append("^")
 	} else {
-		var length int32 = Math_max(1, Math_min(errLength, (String_length(sourceExcerpt)-charno)))
+		var length int32 = Math_max(1, Math_min(errLength, (sourceExcerptU16.length()-charno)))
 		for i := int32(0); i < length; i++ {
 			b.append("^")
 		}
@@ -247,7 +248,8 @@ func (this *LightweightMessageFormatter) padMultipleLines(startCharno int32, sou
 			b.append("...\n")
 		}
 		var shouldPrintLine bool = ((!requiresTruncation || (i < truncationStart)) || (i >= truncationEnd))
-		var charWithLineNumberOffset int32 = ((charno + String_indexOf(line, 124)) + 2)
+		lineU16 := utf16Of_(line)
+		var charWithLineNumberOffset int32 = ((charno + lineU16.indexOf(124)) + 2)
 		if shouldPrintLine {
 			b.append(line)
 			b.append("\n")
@@ -256,7 +258,7 @@ func (this *LightweightMessageFormatter) padMultipleLines(startCharno int32, sou
 				return false
 			}
 		}
-		remainingLength -= ((String_length(line) + 1) - charWithLineNumberOffset)
+		remainingLength -= ((lineU16.length() + 1) - charWithLineNumberOffset)
 		charno = 0
 	}
 	return true
@@ -304,7 +306,7 @@ func (this *LightweightMessageFormatter_LineNumberingFormatter) formatRegion(reg
 	}
 	var numberLength int32 = int32(len(Integer_toString(region.getEndingLineNumber())))
 	var builder strBuilder_
-	builder.grow((String_length(code) * 2))
+	builder.grow((int32(len(code)) * 2))
 	var start int32 = 0
 	var end int32 = indexByteFrom_(code, '\n', start)
 	var lineNumber int32 = region.getBeginningLineNumber()

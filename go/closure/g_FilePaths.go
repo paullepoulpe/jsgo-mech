@@ -19,7 +19,7 @@ func new_FilePaths() *FilePaths {
 
 func FilePaths_clean(path string) string {
 	var plain strBuilder_
-	plain.grow(String_length(path))
+	plain.grow(int32(len(path)))
 	for _, c := range stringUnits_(path) {
 		if ((c != '/') || (plain.length() == 0)) || (plain.charAt((plain.length() - 1)) != '/') {
 			plain.append_char(c)

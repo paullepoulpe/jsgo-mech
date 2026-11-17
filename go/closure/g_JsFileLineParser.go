@@ -58,6 +58,7 @@ func (this *JsFileLineParser) doParse(filePath string, fileContents string) {
 	this.lineNum = 0
 	var inMultilineComment bool = false
 	var inJsDocComment bool = false
+	var revisedLineU16 utf16_
 	for {
 		if lineIndex == int32(len(lines)) {
 			break
@@ -68,13 +69,13 @@ func (this *JsFileLineParser) doParse(filePath string, fileContents string) {
 		var revisedLine OptionalOf[string] = line
 		var revisedJsDocCommentLine OptionalOf[string] = Optional_of[string]("")
 		if inMultilineComment {
-			var endOfComment int32 = String_indexOf_String(revisedLine.get(), "*/")
+			var endOfComment int32 = revisedLineU16.of(revisedLine.get()).indexOf_String("*/")
 			if endOfComment != -1 {
 				if inJsDocComment {
-					revisedJsDocCommentLine = Optional_of[string](String_substring(revisedLine.get(), 0, (endOfComment + 2)))
+					revisedJsDocCommentLine = Optional_of[string](revisedLineU16.of(revisedLine.get()).substring(0, (endOfComment + 2)))
 					inJsDocComment = false
 				}
-				revisedLine = Optional_of[string](String_substring_int(revisedLine.get(), (endOfComment + 2)))
+				revisedLine = Optional_of[string](revisedLineU16.of(revisedLine.get()).substring_int((endOfComment + 2)))
 				inMultilineComment = false
 			} else {
 				if inJsDocComment {
@@ -85,10 +86,10 @@ func (this *JsFileLineParser) doParse(filePath string, fileContents string) {
 		}
 		if !inMultilineComment {
 			for {
-				var startOfLineComment int32 = String_indexOf_String(revisedLine.get(), "//")
-				var startOfMultilineComment int32 = String_indexOf_String(revisedLine.get(), "/*")
+				var startOfLineComment int32 = revisedLineU16.of(revisedLine.get()).indexOf_String("//")
+				var startOfMultilineComment int32 = revisedLineU16.of(revisedLine.get()).indexOf_String("/*")
 				if (startOfLineComment != -1) && ((startOfMultilineComment == -1) || (startOfLineComment < startOfMultilineComment)) {
-					revisedLine = Optional_of[string](String_substring(revisedLine.get(), 0, startOfLineComment))
+					revisedLine = Optional_of[string](revisedLineU16.of(revisedLine.get()).substring(0, startOfLineComment))
 					break
 				} else if startOfMultilineComment != -1 {
 					if this.isCommentQuoted(revisedLine.get(), startOfMultilineComment, '\'') {
@@ -97,26 +98,26 @@ func (this *JsFileLineParser) doParse(filePath string, fileContents string) {
 					if this.isCommentQuoted(revisedLine.get(), startOfMultilineComment, '"') {
 						break
 					}
-					if startOfMultilineComment == String_indexOf_String(revisedLine.get(), "/**") {
+					if startOfMultilineComment == revisedLineU16.of(revisedLine.get()).indexOf_String("/**") {
 						inJsDocComment = true
 					}
-					var endOfMultilineComment int32 = String_indexOf_String_int(revisedLine.get(), "*/", (startOfMultilineComment + 2))
+					var endOfMultilineComment int32 = revisedLineU16.of(revisedLine.get()).indexOf_String_int("*/", (startOfMultilineComment + 2))
 					if endOfMultilineComment == -1 {
 						if inJsDocComment {
-							revisedJsDocCommentLine = Optional_of[string](String_substring_int(revisedLine.get(), startOfMultilineComment))
+							revisedJsDocCommentLine = Optional_of[string](revisedLineU16.of(revisedLine.get()).substring_int(startOfMultilineComment))
 						}
-						revisedLine = Optional_of[string](String_substring(revisedLine.get(), 0, startOfMultilineComment))
+						revisedLine = Optional_of[string](revisedLineU16.of(revisedLine.get()).substring(0, startOfMultilineComment))
 						inMultilineComment = true
 						break
 					} else {
 						if inJsDocComment {
-							var jsDocComment string = String_substring(revisedLine.get(), startOfMultilineComment, (endOfMultilineComment + 2))
+							var jsDocComment string = revisedLineU16.of(revisedLine.get()).substring(startOfMultilineComment, (endOfMultilineComment + 2))
 							if !this.parseJsDocCommentLine(jsDocComment) && this.shortcutMode {
 								break
 							}
 							inJsDocComment = false
 						}
-						revisedLine = Optional_of[string]((sstr_(String_substring(revisedLine.get(), 0, startOfMultilineComment)) + sstr_(String_substring_int(revisedLine.get(), (endOfMultilineComment+2)))))
+						revisedLine = Optional_of[string]((sstr_(revisedLineU16.of(revisedLine.get()).substring(0, startOfMultilineComment)) + sstr_(revisedLineU16.of(revisedLine.get()).substring_int((endOfMultilineComment + 2)))))
 					}
 				} else {
 					break
@@ -157,14 +158,15 @@ func (this *JsFileLineParser) reportReadError(filePath string) {
 }
 
 func (this *JsFileLineParser) isCommentQuoted(line string, startOfMultilineComment int32, quoteChar uint16) bool {
-	var startQuoteIndex int32 = String_indexOf(line, int32(quoteChar))
+	lineU16 := utf16Of_(line)
+	var startQuoteIndex int32 = lineU16.indexOf(int32(quoteChar))
 	for (startQuoteIndex != -1) && (startQuoteIndex < startOfMultilineComment) {
-		var closingQuoteIndex int32 = String_indexOf_int_int(line, int32(quoteChar), (startQuoteIndex + 1))
+		var closingQuoteIndex int32 = lineU16.indexOf_int_int(int32(quoteChar), (startQuoteIndex + 1))
 		if closingQuoteIndex == -1 {
 			return false
 		}
 		for this.isEscaped(line, closingQuoteIndex) {
-			closingQuoteIndex = String_indexOf_int_int(line, int32(quoteChar), (closingQuoteIndex + 1))
+			closingQuoteIndex = lineU16.indexOf_int_int(int32(quoteChar), (closingQuoteIndex + 1))
 			if closingQuoteIndex == -1 {
 				return false
 			}
@@ -172,7 +174,7 @@ func (this *JsFileLineParser) isCommentQuoted(line string, startOfMultilineComme
 		if closingQuoteIndex > startOfMultilineComment {
 			return true
 		}
-		startQuoteIndex = String_indexOf_int_int(line, int32(quoteChar), (closingQuoteIndex + 1))
+		startQuoteIndex = lineU16.indexOf_int_int(int32(quoteChar), (closingQuoteIndex + 1))
 	}
 	return false
 }
@@ -180,7 +182,8 @@ func (this *JsFileLineParser) isCommentQuoted(line string, startOfMultilineComme
 func (this *JsFileLineParser) isEscaped(line string, closingQuoteIndex int32) bool {
 	var escapeCharCount int32 = 0
 	var index int32 = (closingQuoteIndex - 1)
-	for String_charAt(line, index) == '\\' {
+	lineU16 := utf16Of_(line)
+	for lineU16.charAt(index) == '\\' {
 		index--
 		escapeCharCount++
 	}
@@ -212,6 +215,7 @@ func (this *JsFileLineParser) parseJsStringArray(input string) *Outcome_base[Lis
 		return Outcome_base_err[List](new_JsFileLineParser_ParseException("Syntax error when parsing JS array", true).up_Throwable())
 	}
 	var innerValues string = cutBytes_(input, (indexStart + 1), indexEnd)
+	innerValuesU16 := utf16Of_(innerValues)
 	if strings.Trim(innerValues, javaSpace_) != "" {
 		this.valueMatcher.reset_s(innerValues)
 		for {
@@ -224,13 +228,14 @@ func (this *JsFileLineParser) parseJsStringArray(input string) *Outcome_base[Lis
 				}
 				return strobj_(this.valueMatcher.group(2))
 			}()))
-			if this.valueMatcher.end() == String_length(innerValues) {
+			if this.valueMatcher.end() == innerValuesU16.length() {
 				break
 			}
-			if String_charAt(innerValues, this.valueMatcher.end()) != ',' {
+			if innerValuesU16.charAt(this.valueMatcher.end()) != ',' {
 				return Outcome_base_err[List](new_JsFileLineParser_ParseException("Missing comma in string array", true).up_Throwable())
 			}
-			innerValues = String_substring_int(innerValues, (this.valueMatcher.end() + 1))
+			innerValues = innerValuesU16.substring_int((this.valueMatcher.end() + 1))
+			innerValuesU16 = utf16Of_(innerValues)
 			this.valueMatcher.reset_s(innerValues)
 		}
 	}
@@ -238,13 +243,16 @@ func (this *JsFileLineParser) parseJsStringArray(input string) *Outcome_base[Lis
 }
 
 func (this *JsFileLineParser) parseJsStringMap(input string) *Outcome_base[Map] {
+	inputU16 := utf16Of_(input)
 	input = CharMatcher_whitespace().trimFrom_s(input)
+	inputU16 = utf16Of_(input)
 	var checked *Outcome_base[any]
 	checked = JsFileLineParser_check(((input != "" && (input[0] == '{')) && (input[len(input)-1] == '}')), "Syntax error when parsing JS object")
 	if checked.isErr() {
 		return Outcome_base_err[Map](checked.error())
 	}
-	input = strings.Trim(String_substring(input, 1, (String_length(input)-1)), javaSpace_)
+	input = strings.Trim(inputU16.substring(1, (inputU16.length()-1)), javaSpace_)
+	inputU16 = utf16Of_(input)
 	var results *TMap[string, string] = newTMap_(tc_string, tc_string)
 	var done bool = input == ""
 	this.valueMatcher.reset_s(input)
@@ -259,15 +267,16 @@ func (this *JsFileLineParser) parseJsStringMap(input string) *Outcome_base[Map] 
 			}
 			return this.valueMatcher.group(2)
 		}()
-		checked = JsFileLineParser_check((this.valueMatcher.end() != String_length(input)), "Missing value in JS object literal")
+		checked = JsFileLineParser_check((this.valueMatcher.end() != inputU16.length()), "Missing value in JS object literal")
 		if checked.isErr() {
 			return Outcome_base_err[Map](checked.error())
 		}
-		checked = JsFileLineParser_check((String_charAt(input, this.valueMatcher.end()) == ':'), "Missing colon in JS object literal")
+		checked = JsFileLineParser_check((inputU16.charAt(this.valueMatcher.end()) == ':'), "Missing colon in JS object literal")
 		if checked.isErr() {
 			return Outcome_base_err[Map](checked.error())
 		}
-		input = String_substring_int(input, (this.valueMatcher.end() + 1))
+		input = inputU16.substring_int((this.valueMatcher.end() + 1))
+		inputU16 = utf16Of_(input)
 		this.valueMatcher.reset_s(input)
 		checked = JsFileLineParser_check(this.valueMatcher.lookingAt(), "Bad value in JS object literal")
 		if checked.isErr() {
@@ -280,12 +289,13 @@ func (this *JsFileLineParser) parseJsStringMap(input string) *Outcome_base[Map] 
 			return this.valueMatcher.group(2)
 		}()
 		results.put(key, val)
-		if this.valueMatcher.end() != String_length(input) {
-			checked = JsFileLineParser_check((String_charAt(input, this.valueMatcher.end()) == ','), "Missing comma in JS object literal")
+		if this.valueMatcher.end() != inputU16.length() {
+			checked = JsFileLineParser_check((inputU16.charAt(this.valueMatcher.end()) == ','), "Missing comma in JS object literal")
 			if checked.isErr() {
 				return Outcome_base_err[Map](checked.error())
 			}
-			input = String_substring_int(input, (this.valueMatcher.end() + 1))
+			input = inputU16.substring_int((this.valueMatcher.end() + 1))
+			inputU16 = utf16Of_(input)
 			this.valueMatcher.reset_s(input)
 		} else {
 			done = true

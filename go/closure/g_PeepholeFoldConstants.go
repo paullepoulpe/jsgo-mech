@@ -1513,7 +1513,8 @@ func (this *PeepholeFoldConstants) tryFoldStringArrayAccess(n Node, left Node, r
 		panic(new_IllegalStateException_0().self())
 	}
 	var value string = left.getString()
-	if (intIndex < 0) || (intIndex >= String_length(value)) {
+	valueU16 := utf16Of_(value)
+	if (intIndex < 0) || (intIndex >= valueU16.length()) {
 		var undefined Node = NodeUtil_newUndefinedNode(left)
 		n.replaceWith(undefined)
 		this.reportChangeToEnclosingScope(undefined)
@@ -1521,7 +1522,7 @@ func (this *PeepholeFoldConstants) tryFoldStringArrayAccess(n Node, left Node, r
 	}
 	var c uint16 = 0x0000
 	for i := int32(0); i <= intIndex; i++ {
-		c = String_charAt(value, i)
+		c = valueU16.charAt(i)
 		if (int32(c) < 32) || (int32(c) > 127) {
 			return n
 		}

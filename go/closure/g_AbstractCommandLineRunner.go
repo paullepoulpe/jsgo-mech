@@ -546,7 +546,8 @@ func (this *AbstractCommandLineRunner) deduplicateIjsFiles(files *TList[*Abstrac
 				continue
 			}
 			var relativeName string = this.getModuleRootRelativeName(absoluteName, moduleRoots)
-			var relativeNonIjsName string = String_substring(relativeName, 0, (String_length(relativeName) - int32(len(".i.js"))))
+			relativeNameU16 := utf16Of_(relativeName)
+			var relativeNonIjsName string = relativeNameU16.substring(0, (relativeNameU16.length() - int32(len(".i.js"))))
 			if has_(relativeToAbsoluteName, relativeNonIjsName) {
 				errors.add(obj_(JSError_make_DiagnosticType_StringArr(IjsErrors_CONFLICTING_IJS_FILE, []string{mapStr_(relativeToAbsoluteName, relativeNonIjsName), absoluteName})))
 				iterator.remove()
@@ -558,10 +559,11 @@ func (this *AbstractCommandLineRunner) deduplicateIjsFiles(files *TList[*Abstrac
 
 func (this *AbstractCommandLineRunner) getModuleRootRelativeName(filename string, moduleRoots ListOf[string]) string {
 	it_1 := foreach_(moduleRoots)
+	filenameU16 := utf16Of_(filename)
 	for it_1.next() {
 		var moduleRoot string = str_(it_1.v)
 		if strings.HasPrefix(filename, (sstr_(moduleRoot) + "/")) {
-			return String_substring_int(filename, (String_length(moduleRoot) + 1))
+			return filenameU16.substring_int((String_length(moduleRoot) + 1))
 		}
 	}
 	return filename
@@ -799,11 +801,12 @@ func (this *AbstractCommandLineRunner) writeOutput_8(out Appendable, compiler *C
 }
 
 func (this *AbstractCommandLineRunner) writeOutput(out Appendable, compiler *Compiler, code string, wrapper string, codePlaceholder string, escaper Function_baseOf[string, string], filename string) {
-	var pos int32 = String_indexOf_String(wrapper, codePlaceholder)
+	wrapperU16 := utf16Of_(wrapper)
+	var pos int32 = wrapperU16.indexOf_String(codePlaceholder)
 	if pos != -1 {
 		var prefix string = ""
 		if pos > 0 {
-			prefix = String_substring(wrapper, 0, pos)
+			prefix = wrapperU16.substring(0, pos)
 			out.append_CharSequence_s(prefix)
 		}
 		out.append_CharSequence(func() any {
@@ -813,8 +816,8 @@ func (this *AbstractCommandLineRunner) writeOutput(out Appendable, compiler *Com
 			return escaper.apply(strobj_(code))
 		}())
 		var suffixStart int32 = (pos + int32(len(codePlaceholder)))
-		if suffixStart != String_length(wrapper) {
-			out.append_CharSequence_s(String_substring_int(wrapper, suffixStart))
+		if suffixStart != wrapperU16.length() {
+			out.append_CharSequence_s(wrapperU16.substring_int(suffixStart))
 		}
 		if this.getCommandLineConfig().includeTrailingNewline {
 			out.append_char('\n')
@@ -1786,12 +1789,13 @@ func AbstractCommandLineRunner_createDefineReplacements(definitions []string, op
 			}()
 			var isTrue bool = (defValue == "true")
 			var isFalse bool = (defValue == "false")
+			defValueU16 := utf16Of_(defValue)
 			if isTrue || isFalse {
 				options.setDefineToBooleanLiteral(defName, isTrue)
 				continue
-			} else if (String_length(defValue) > 1) && (((defValue[0] == '\'') && (defValue[len(defValue)-1] == '\'')) || ((defValue[0] == '"') && (defValue[len(defValue)-1] == '"'))) {
-				var maybeStringVal string = String_substring(defValue, 1, (String_length(defValue) - 1))
-				if String_indexOf(maybeStringVal, int32(String_charAt(defValue, 0))) == -1 {
+			} else if (defValueU16.length() > 1) && (((defValue[0] == '\'') && (defValue[len(defValue)-1] == '\'')) || ((defValue[0] == '"') && (defValue[len(defValue)-1] == '"'))) {
+				var maybeStringVal string = defValueU16.substring(1, (defValueU16.length() - 1))
+				if String_indexOf(maybeStringVal, int32(defValueU16.charAt(0))) == -1 {
 					options.setDefineToStringLiteral(defName, maybeStringVal)
 					continue
 				}
@@ -1980,12 +1984,12 @@ func (this *AbstractCommandLineRunner) printChunkGraphManifestOrBundleTo(graph *
 		}
 		if isManifest {
 			var dependencies string = commas.join(Iterable(chunk.getSortedDependencyNames().asList()))
-			out.append_CharSequence_s(String_format("{%s%s}\n", []any{strobj_(chunk.getName()), func() any {
+			out.append_CharSequence_s(("{" + sstr_(chunk.getName()) + objstr_(func() any {
 				if dependencies == "" {
 					return strobj_("")
 				}
 				return strobj_((":" + sstr_(dependencies)))
-			}()}))
+			}()) + "}\n"))
 			this.printManifestTo(chunk, out)
 		} else {
 			var printBundleToOutcome *Outcome_base[any] = this.printBundleTo(chunk, out)

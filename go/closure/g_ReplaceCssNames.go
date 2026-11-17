@@ -390,7 +390,7 @@ func (this *ReplaceCssNames_GetCssNameInstance) replaceWithExpression() {
 	case 3:
 		this.replaceWithConcatenatedArgs()
 	default:
-		panic(new_IllegalStateException_String(String_format("invalid number of children: %s for: %s", []any{any(int32(childCount)), this.callNode_.box_()})).self())
+		panic(new_IllegalStateException_String(("invalid number of children: " + istr_(int64(int32(childCount))) + " for: " + objstr_(this.callNode_.box_()))).self())
 	}
 }
 
@@ -482,7 +482,7 @@ func (this *ReplaceCssNames_GetCssNameInstance) getCssClassName() OptionalOf[str
 			}
 			return Optional_of[string](secondArg.getString())
 		default:
-			panic(new_IllegalStateException_String(String_format("invalid number of children: %s for: %s", []any{any(int32(childCount)), this.callNode_.box_()})).self())
+			panic(new_IllegalStateException_String(("invalid number of children: " + istr_(int64(int32(childCount))) + " for: " + objstr_(this.callNode_.box_()))).self())
 		}
 	}()
 }

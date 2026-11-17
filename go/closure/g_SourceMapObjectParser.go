@@ -312,7 +312,7 @@ func SourceMapObjectParser_getJavaStringArray(object *SimpleJsonValue, key strin
 
 func SourceMapObjectParser_readStringArray(lexer *SourceMapJsonLexer) *Outcome_base[any] {
 	lexer.skipWhitespace()
-	if (lexer.pos < lexer.length_) && String_startsWith_String_int(lexer.json, "null", lexer.pos) {
+	if (lexer.pos < lexer.length_) && lexer.jsonU16.startsWith_String_int("null", lexer.pos) {
 		lexer.pos += 4
 		return Outcome_base_ok_Object[any](nil)
 	}

@@ -677,7 +677,8 @@ func (this *RegExpTree_NamedBackReference) hashCode_impl() int32 {
 
 type RegExpTree_Text struct {
 	RegExpTree_RegExpTreeAtom
-	text string
+	text    string
+	textU16 utf16_
 }
 
 func (this *RegExpTree_Text) up_RegExpTree_RegExpTreeAtom() *RegExpTree_RegExpTreeAtom {
@@ -696,11 +697,13 @@ func (this *RegExpTree_Text) up_RegExpTree() *RegExpTree {
 
 func (this *RegExpTree_Text) zero_RegExpTree_Text() {
 	this.text = nullstr_
+	this.textU16 = utf16Of_(this.text)
 }
 
 func (this *RegExpTree_Text) init_RegExpTree_Text(text string) {
 	this.RegExpTree_RegExpTreeAtom.init_RegExpTree_RegExpTreeAtom()
 	this.text = text
+	this.textU16 = utf16Of_(this.text)
 }
 
 func new_RegExpTree_Text(text string) *RegExpTree_Text {
@@ -726,7 +729,7 @@ func RegExpTree_Text_escapeRegularCharOnto(ch uint16, next int32, sb *strBuilder
 }
 
 func (this *RegExpTree_Text) simplify_impl(flags string) *RegExpTree {
-	var n int32 = String_length(this.text)
+	var n int32 = this.textU16.length()
 	if n == 0 {
 		return RegExpTree_Empty_INSTANCE.up_RegExpTree()
 	}
@@ -742,9 +745,9 @@ func (this *RegExpTree_Text) simplify_impl(flags string) *RegExpTree {
 func (this *RegExpTree_Text) isCaseSensitive_impl() bool {
 	{
 		var i int32 = 0
-		var n int32 = String_length(this.text)
+		var n int32 = this.textU16.length()
 		for ; i < n; i++ {
-			if CaseCanonicalize_CASE_SENSITIVE.contains(int32(String_charAt(this.text, i))) {
+			if CaseCanonicalize_CASE_SENSITIVE.contains(int32(this.textU16.charAt(i))) {
 				return true
 			}
 		}
@@ -755,11 +758,11 @@ func (this *RegExpTree_Text) isCaseSensitive_impl() bool {
 func (this *RegExpTree_Text) appendSourceCode_impl(sb *strBuilder_) {
 	{
 		var i int32 = 0
-		var n int32 = String_length(this.text)
+		var n int32 = this.textU16.length()
 		for ; i < n; i++ {
-			RegExpTree_Text_escapeRegularCharOnto(String_charAt(this.text, i), func() int32 {
+			RegExpTree_Text_escapeRegularCharOnto(this.textU16.charAt(i), func() int32 {
 				if (i + 1) < n {
-					return int32(String_charAt(this.text, (i + 1)))
+					return int32(this.textU16.charAt((i + 1)))
 				}
 				return -1
 			}(), sb)
@@ -894,7 +897,7 @@ func (this *RegExpTree_Repetition) appendBodySourceCode(sb *strBuilder_) {
 		}
 		text = p
 		return true
-	}() && (String_length(text.text) > 1)) {
+	}() && (text.textU16.length() > 1)) {
 		sb.append("(?:")
 		this.body.appendSourceCode(sb)
 		sb.append_char(')')
@@ -1104,7 +1107,7 @@ func (this *RegExpTree_Alternation) simplify_impl(flags string) *RegExpTree {
 				}
 				text = p2
 				return true
-			}() && (String_length(text.text) == 1)) || is_[*RegExpTree_Charset](alternative.self()) {
+			}() && (text.textU16.length() == 1)) || is_[*RegExpTree_Charset](alternative.self()) {
 				var end int32 = i
 				var nCharsets int32 = 0
 				for end < n {
@@ -1122,7 +1125,7 @@ func (this *RegExpTree_Alternation) simplify_impl(flags string) *RegExpTree {
 							}
 							text_6 = p3
 							return true
-						}() && (String_length(text_6.text) == 1)) {
+						}() && (text_6.textU16.length() == 1)) {
 							break
 						}
 					}
@@ -1146,7 +1149,7 @@ func (this *RegExpTree_Alternation) simplify_impl(flags string) *RegExpTree {
 							text_9 = p4
 							return true
 						}() {
-							var ch uint16 = String_charAt(text_9.text, 0)
+							var ch uint16 = text_9.textU16.charAt(0)
 							members[memberIdx] = int32(ch)
 							memberIdx++
 							if RegExpTree_IE_SPEC_ERRORS.contains(int32(ch)) {
@@ -1860,19 +1863,22 @@ func (this *RegExpTree_Charset) hashCode_impl() int32 {
 }
 
 type RegExpTree_DecomposedCharset struct {
-	inverted_    bool
-	ranges_      *CharRanges
-	namedGroups_ string
+	inverted_       bool
+	ranges_         *CharRanges
+	namedGroups_    string
+	namedGroups_U16 utf16_
 }
 
 func (this *RegExpTree_DecomposedCharset) zero_RegExpTree_DecomposedCharset() {
 	this.namedGroups_ = nullstr_
+	this.namedGroups_U16 = utf16Of_(this.namedGroups_)
 }
 
 func (this *RegExpTree_DecomposedCharset) init_RegExpTree_DecomposedCharset(inverted bool, ranges *CharRanges, namedGroups string) {
 	this.inverted_ = inverted
 	this.ranges_ = ranges
 	this.namedGroups_ = namedGroups
+	this.namedGroups_U16 = utf16Of_(this.namedGroups_)
 }
 
 func new_RegExpTree_DecomposedCharset(inverted bool, ranges *CharRanges, namedGroups string) *RegExpTree_DecomposedCharset {
@@ -1888,12 +1894,12 @@ func (this *RegExpTree_DecomposedCharset) complexity() int32 {
 			return 1
 		}
 		return 0
-	}() + String_length(this.namedGroups_)) + RegExpTree_DecomposedCharset_complexity(this.ranges_))
+	}() + this.namedGroups_U16.length()) + RegExpTree_DecomposedCharset_complexity(this.ranges_))
 }
 
 func (this *RegExpTree_DecomposedCharset) appendSourceCode(sb *strBuilder_) {
 	if this.ranges_.isEmpty() {
-		if !this.inverted_ && (String_length(this.namedGroups_) == 2) {
+		if !this.inverted_ && (this.namedGroups_U16.length() == 2) {
 			sb.append(this.namedGroups_)
 			return
 		} else if this.ranges_.isEmpty() && this.namedGroups_ == "" {
@@ -2201,6 +2207,7 @@ func (this *RegExpTree_Concatenation) hashCode_impl() int32 {
 
 type RegExpTree_1Parser struct {
 	cap_pattern                       string
+	cap_patternU16                    utf16_
 	cap_flags                         string
 	pos                               int32
 	numCapturingGroups_               int32
@@ -2211,7 +2218,7 @@ type RegExpTree_1Parser struct {
 
 func (this *RegExpTree_1Parser) finit_RegExpTree_1Parser() {
 	this.capturingGroupNames = map[string]struct{}{}
-	this.limit = String_length(this.cap_pattern)
+	this.limit = this.cap_patternU16.length()
 }
 
 func (this *RegExpTree_1Parser) init_RegExpTree_1Parser() {
@@ -2221,6 +2228,7 @@ func (this *RegExpTree_1Parser) init_RegExpTree_1Parser() {
 func new_RegExpTree_1Parser(cap_pattern string, cap_flags string) *RegExpTree_1Parser {
 	this := &RegExpTree_1Parser{}
 	this.cap_pattern = cap_pattern
+	this.cap_patternU16 = utf16Of_(this.cap_pattern)
 	this.cap_flags = cap_flags
 	this.init_RegExpTree_1Parser()
 	return this
@@ -2238,7 +2246,7 @@ func (this *RegExpTree_1Parser) parseTopLevel() *RegExpTree {
 		out = this.parse()
 	}
 	if this.pos < this.limit {
-		panic(new_IllegalArgumentException_String(String_substring_int(this.cap_pattern, this.pos)).self())
+		panic(new_IllegalArgumentException_String(this.cap_patternU16.substring_int(this.pos)).self())
 	}
 	return out
 }
@@ -2248,7 +2256,7 @@ func (this *RegExpTree_1Parser) parse() *RegExpTree {
 	var preceder *RegExpTree = nil
 topLoop_:
 	for this.pos < this.limit {
-		var ch uint16 = String_charAt(this.cap_pattern, this.pos)
+		var ch uint16 = this.cap_patternU16.charAt(this.pos)
 		var atom *RegExpTree
 		switch ch {
 		case '[':
@@ -2272,21 +2280,21 @@ topLoop_:
 			var end int32 = (this.pos + 1)
 		charsLoop_:
 			for end < this.limit {
-				switch String_charAt(this.cap_pattern, end) {
+				switch this.cap_patternU16.charAt(end) {
 				case '[', '(', ')', '\\', '^', '$', '|', '.', '*', '+', '?', '{':
 					break charsLoop_
 				default:
-					if ((end + 1) >= this.limit) || !this.isRepetitionStart(String_charAt(this.cap_pattern, (end+1))) {
+					if ((end + 1) >= this.limit) || !this.isRepetitionStart(this.cap_patternU16.charAt((end + 1))) {
 						end++
 					} else {
 						break charsLoop_
 					}
 				}
 			}
-			atom = new_RegExpTree_Text(String_substring(this.cap_pattern, start, end)).up_RegExpTree()
+			atom = new_RegExpTree_Text(this.cap_patternU16.substring(start, end)).up_RegExpTree()
 			this.pos = end
 		}
-		if (this.pos < this.limit) && this.isRepetitionStart(String_charAt(this.cap_pattern, this.pos)) {
+		if (this.pos < this.limit) && this.isRepetitionStart(this.cap_patternU16.charAt(this.pos)) {
 			atom = this.parseRepetition(atom)
 		}
 		if preceder == nil {
@@ -2294,7 +2302,7 @@ topLoop_:
 		} else {
 			preceder = new_RegExpTree_Concatenation_RegExpTree_RegExpTree(preceder, atom).up_RegExpTree()
 		}
-		if (this.pos < this.limit) && (String_charAt(this.cap_pattern, this.pos) == '|') {
+		if (this.pos < this.limit) && (this.cap_patternU16.charAt(this.pos) == '|') {
 			if alternatives == nil {
 				alternatives = ImmutableList_builder()
 			}
@@ -2315,16 +2323,16 @@ topLoop_:
 }
 
 func (this *RegExpTree_1Parser) parseParenthetical() *RegExpTree {
-	if String_charAt(this.cap_pattern, this.pos) != '(' {
+	if this.cap_patternU16.charAt(this.pos) != '(' {
 		panic(new_IllegalStateException_0().self())
 	}
 	var start int32 = this.pos
 	this.pos++
 	var type_ RegExpTree_ParentheticalType
 	var captureName OptionalOf[string] = Optional_empty[string]()
-	if (this.pos < this.limit) && (String_charAt(this.cap_pattern, this.pos) == '?') {
+	if (this.pos < this.limit) && (this.cap_patternU16.charAt(this.pos) == '?') {
 		if (this.pos + 1) < this.limit {
-			var ch uint16 = String_charAt(this.cap_pattern, (this.pos + 1))
+			var ch uint16 = this.cap_patternU16.charAt((this.pos + 1))
 			switch ch {
 			case ':':
 				this.pos += 2
@@ -2336,10 +2344,10 @@ func (this *RegExpTree_1Parser) parseParenthetical() *RegExpTree {
 				this.pos += 2
 				type_ = RegExpTree_ParentheticalType_NEGATIVE_LOOKAHEAD
 			case '<':
-				if ((this.pos + 2) < this.limit) && (String_charAt(this.cap_pattern, (this.pos+2)) == '=') {
+				if ((this.pos + 2) < this.limit) && (this.cap_patternU16.charAt((this.pos + 2)) == '=') {
 					this.pos += 3
 					type_ = RegExpTree_ParentheticalType_POSITIVE_LOOKBEHIND
-				} else if ((this.pos + 2) < this.limit) && (String_charAt(this.cap_pattern, (this.pos+2)) == '!') {
+				} else if ((this.pos + 2) < this.limit) && (this.cap_patternU16.charAt((this.pos + 2)) == '!') {
 					this.pos += 3
 					type_ = RegExpTree_ParentheticalType_NEGATIVE_LOOKBEHIND
 				} else {
@@ -2349,19 +2357,19 @@ func (this *RegExpTree_1Parser) parseParenthetical() *RegExpTree {
 					type_ = RegExpTree_ParentheticalType_NAMED_GROUPS
 				}
 			default:
-				panic(new_IllegalArgumentException_String(("Malformed parenthetical: " + sstr_(String_substring_int(this.cap_pattern, start)))).self())
+				panic(new_IllegalArgumentException_String(("Malformed parenthetical: " + sstr_(this.cap_patternU16.substring_int(start)))).self())
 			}
 		} else {
-			panic(new_IllegalArgumentException_String(("Malformed parenthetical: " + sstr_(String_substring_int(this.cap_pattern, start)))).self())
+			panic(new_IllegalArgumentException_String(("Malformed parenthetical: " + sstr_(this.cap_patternU16.substring_int(start)))).self())
 		}
 	} else {
 		type_ = RegExpTree_ParentheticalType_CAPTURING
 	}
 	var body *RegExpTree = this.parse()
-	if (this.pos < this.limit) && (String_charAt(this.cap_pattern, this.pos) == ')') {
+	if (this.pos < this.limit) && (this.cap_patternU16.charAt(this.pos) == ')') {
 		this.pos++
 	} else {
-		panic(new_IllegalArgumentException_String(("Unclosed parenthetical group: " + sstr_(String_substring_int(this.cap_pattern, start)))).self())
+		panic(new_IllegalArgumentException_String(("Unclosed parenthetical group: " + sstr_(this.cap_patternU16.substring_int(start)))).self())
 	}
 	switch type_ {
 	case RegExpTree_ParentheticalType_CAPTURING:
@@ -2382,7 +2390,7 @@ func (this *RegExpTree_1Parser) parseParenthetical() *RegExpTree {
 			this.numCapturingGroups_++
 			return new_RegExpTree_NamedCaptureGroup(body, captureName.get()).up_RegExpTree()
 		} else {
-			panic(new_IllegalArgumentException_String(("Malformed named capture group: " + sstr_(String_substring_int(this.cap_pattern, start)))).self())
+			panic(new_IllegalArgumentException_String(("Malformed named capture group: " + sstr_(this.cap_patternU16.substring_int(start)))).self())
 		}
 	}
 	panic(new_AssertionError_Object(strobj_(("Unrecognized ParentheticalType " + tostr_(type_)))).self())
@@ -2391,41 +2399,41 @@ func (this *RegExpTree_1Parser) parseParenthetical() *RegExpTree {
 func (this *RegExpTree_1Parser) scanNamedGroupName() string {
 	var start int32 = this.pos
 	var end int32 = this.pos
-	if !RegExpTree_isIdentifierStart(String_charAt(this.cap_pattern, start)) {
-		panic(new_IllegalArgumentException_String(("Invalid capture group name: <" + sstr_(String_substring_int(this.cap_pattern, start)))).self())
+	if !RegExpTree_isIdentifierStart(this.cap_patternU16.charAt(start)) {
+		panic(new_IllegalArgumentException_String(("Invalid capture group name: <" + sstr_(this.cap_patternU16.substring_int(start)))).self())
 	}
 	end++
 	for end < this.limit {
-		if String_charAt(this.cap_pattern, end) == '>' {
+		if this.cap_patternU16.charAt(end) == '>' {
 			this.pos = (end + 1)
-			return String_substring(this.cap_pattern, start, end)
-		} else if RegExpTree_isIdentifierPart(String_charAt(this.cap_pattern, end)) {
+			return this.cap_patternU16.substring(start, end)
+		} else if RegExpTree_isIdentifierPart(this.cap_patternU16.charAt(end)) {
 			end++
 		} else {
-			panic(new_IllegalArgumentException_String(("Invalid capture group name: <" + sstr_(String_substring_int(this.cap_pattern, start)))).self())
+			panic(new_IllegalArgumentException_String(("Invalid capture group name: <" + sstr_(this.cap_patternU16.substring_int(start)))).self())
 		}
 	}
-	panic(new_IllegalArgumentException_String(("Malformed named capture group: <" + sstr_(String_substring_int(this.cap_pattern, start)))).self())
+	panic(new_IllegalArgumentException_String(("Malformed named capture group: <" + sstr_(this.cap_patternU16.substring_int(start)))).self())
 }
 
 func (this *RegExpTree_1Parser) parseCharset() *RegExpTree {
-	if String_charAt(this.cap_pattern, this.pos) != '[' {
+	if this.cap_patternU16.charAt(this.pos) != '[' {
 		panic(new_IllegalStateException_0().self())
 	}
 	this.pos++
 	var isCaseInsensitive bool = (strings.Contains(this.cap_flags, "i"))
-	var inverse bool = ((this.pos < this.limit) && (String_charAt(this.cap_pattern, this.pos) == '^'))
+	var inverse bool = ((this.pos < this.limit) && (this.cap_patternU16.charAt(this.pos) == '^'))
 	if inverse {
 		this.pos++
 	}
 	var ranges *CharRanges = CharRanges_EMPTY
 	var ieExplicits *CharRanges = CharRanges_EMPTY
-	for (this.pos < this.limit) && (String_charAt(this.cap_pattern, this.pos) != ']') {
-		var ch uint16 = String_charAt(this.cap_pattern, this.pos)
+	for (this.pos < this.limit) && (this.cap_patternU16.charAt(this.pos) != ']') {
+		var ch uint16 = this.cap_patternU16.charAt(this.pos)
 		var start int32
 		if ch == '\\' {
 			this.pos++
-			var possibleGroupName uint16 = String_charAt(this.cap_pattern, this.pos)
+			var possibleGroupName uint16 = this.cap_patternU16.charAt(this.pos)
 			var group *CharRanges = cast_[*CharRanges](RegExpTree_NAMED_CHAR_GROUPS.get(any(uint16(possibleGroupName))))
 			if group != nil {
 				this.pos++
@@ -2438,9 +2446,9 @@ func (this *RegExpTree_1Parser) parseCharset() *RegExpTree {
 			this.pos++
 		}
 		var end int32 = start
-		if (((this.pos + 1) < this.limit) && (String_charAt(this.cap_pattern, this.pos) == '-')) && (String_charAt(this.cap_pattern, (this.pos+1)) != ']') {
+		if (((this.pos + 1) < this.limit) && (this.cap_patternU16.charAt(this.pos) == '-')) && (this.cap_patternU16.charAt((this.pos + 1)) != ']') {
 			this.pos++
-			ch = String_charAt(this.cap_pattern, this.pos)
+			ch = this.cap_patternU16.charAt(this.pos)
 			if ch == '\\' {
 				this.pos++
 				end = this.parseEscapeChar()
@@ -2468,7 +2476,7 @@ func (this *RegExpTree_1Parser) parseCharset() *RegExpTree {
 func (this *RegExpTree_1Parser) parseEscapeChar() int32 {
 	var escapePos int32 = this.pos
 	this.pos++
-	var ch uint16 = String_charAt(this.cap_pattern, escapePos)
+	var ch uint16 = this.cap_patternU16.charAt(escapePos)
 	return func() int32 {
 		switch ch {
 		case 'b':
@@ -2483,7 +2491,7 @@ func (this *RegExpTree_1Parser) parseEscapeChar() int32 {
 			return 9
 		case 'u':
 			return func() int32 {
-				if (strings.Contains(this.cap_flags, "u") && (this.pos < this.limit)) && (String_charAt(this.cap_pattern, this.pos) == '{') {
+				if (strings.Contains(this.cap_flags, "u") && (this.pos < this.limit)) && (this.cap_patternU16.charAt(this.pos) == '{') {
 					return this.parseBracedUnicodeEscape()
 				}
 				return this.parseHex(4)
@@ -2507,7 +2515,7 @@ func (this *RegExpTree_1Parser) parseEscapeChar() int32 {
 					return 0
 				}()))
 				for this.pos < octLimit {
-					ch = String_charAt(this.cap_pattern, this.pos)
+					ch = this.cap_patternU16.charAt(this.pos)
 					if (48 <= int32(ch)) && (int32(ch) <= 55) {
 						codeUnit = uint16(((int32(codeUnit) << 3) + (int32(ch) - 48)))
 						this.pos++
@@ -2523,26 +2531,26 @@ func (this *RegExpTree_1Parser) parseEscapeChar() int32 {
 }
 
 func (this *RegExpTree_1Parser) parseEscape() *RegExpTree {
-	if String_charAt(this.cap_pattern, this.pos) != '\\' {
+	if this.cap_patternU16.charAt(this.pos) != '\\' {
 		panic(new_IllegalStateException_0().self())
 	}
 	var start int32 = this.pos
 	this.pos++
-	var ch uint16 = String_charAt(this.cap_pattern, this.pos)
+	var ch uint16 = this.cap_patternU16.charAt(this.pos)
 	if (ch == 'b') || (ch == 'B') {
 		this.pos++
 		return new_RegExpTree_WordBoundary(ch).up_RegExpTree()
 	} else if ((ch == 'p') || (ch == 'P')) && strings.Contains(this.cap_flags, "u") {
 		var negated bool = (ch == 'P')
 		this.pos++
-		if (this.pos < this.limit) && (String_charAt(this.cap_pattern, this.pos) == '{') {
+		if (this.pos < this.limit) && (this.cap_patternU16.charAt(this.pos) == '{') {
 			var lhs strBuilder_
 			for {
 				this.pos++
 				if this.pos >= this.limit {
 					break
 				}
-				ch = String_charAt(this.cap_pattern, this.pos)
+				ch = this.cap_patternU16.charAt(this.pos)
 				if !((((ch == '_') || ((97 <= int32(ch)) && (int32(ch) <= 122))) || ((65 <= int32(ch)) && (int32(ch) <= 90))) || ((48 <= int32(ch)) && (int32(ch) <= 57))) {
 					break
 				}
@@ -2558,7 +2566,7 @@ func (this *RegExpTree_1Parser) parseEscape() *RegExpTree {
 					if this.pos >= this.limit {
 						break
 					}
-					ch = String_charAt(this.cap_pattern, this.pos)
+					ch = this.cap_patternU16.charAt(this.pos)
 					if !((((ch == '_') || ((97 <= int32(ch)) && (int32(ch) <= 122))) || ((65 <= int32(ch)) && (int32(ch) <= 90))) || ((48 <= int32(ch)) && (int32(ch) <= 57))) {
 						break
 					}
@@ -2568,20 +2576,20 @@ func (this *RegExpTree_1Parser) parseEscape() *RegExpTree {
 					this.pos++
 					return new_RegExpTree_UnicodePropertyEscape(Optional_of[string](lhs.toString()), rhs.toString(), negated).up_RegExpTree()
 				} else {
-					panic(new_IllegalArgumentException_String(("Malformed Unicode Property Escape: expected '}' after " + sstr_(String_substring(this.cap_pattern, start, this.pos)))).self())
+					panic(new_IllegalArgumentException_String(("Malformed Unicode Property Escape: expected '}' after " + sstr_(this.cap_patternU16.substring(start, this.pos)))).self())
 				}
 			} else {
-				panic(new_IllegalArgumentException_String(("Malformed Unicode Property Escape: expected '=' or '}' after " + sstr_(String_substring(this.cap_pattern, start, this.pos)))).self())
+				panic(new_IllegalArgumentException_String(("Malformed Unicode Property Escape: expected '=' or '}' after " + sstr_(this.cap_patternU16.substring(start, this.pos)))).self())
 			}
 		} else {
-			panic(new_IllegalArgumentException_String(("Malformed Unicode Property Escape: expected '{' after " + sstr_(String_substring(this.cap_pattern, start, this.pos)))).self())
+			panic(new_IllegalArgumentException_String(("Malformed Unicode Property Escape: expected '{' after " + sstr_(this.cap_patternU16.substring(start, this.pos)))).self())
 		}
 	} else if (49 <= int32(ch)) && (int32(ch) <= 57) {
 		this.pos++
 		var possibleGroupIndex int32 = (int32(ch) - 48)
 		if this.numCapturingGroups_ >= possibleGroupIndex {
 			if this.pos < this.limit {
-				var next uint16 = String_charAt(this.cap_pattern, this.pos)
+				var next uint16 = this.cap_patternU16.charAt(this.pos)
 				if (48 <= int32(next)) && (int32(next) <= 57) {
 					var twoDigitGroupIndex int32 = ((possibleGroupIndex * 10) + (int32(next) - 48))
 					if this.numCapturingGroups_ >= twoDigitGroupIndex {
@@ -2599,11 +2607,11 @@ func (this *RegExpTree_1Parser) parseEscape() *RegExpTree {
 				return ch
 			}())).up_RegExpTree()
 		}
-	} else if (((this.lookForNamedCaptureBackreferences && (ch == 'k')) && ((this.pos + 1) < this.limit)) && (String_charAt(this.cap_pattern, (this.pos+1)) == '<')) && !(len(this.capturingGroupNames) == 0) {
+	} else if (((this.lookForNamedCaptureBackreferences && (ch == 'k')) && ((this.pos + 1) < this.limit)) && (this.cap_patternU16.charAt((this.pos + 1)) == '<')) && !(len(this.capturingGroupNames) == 0) {
 		this.pos += 2
 		var potentialName string = this.scanNamedGroupName()
 		if !has_(this.capturingGroupNames, potentialName) {
-			panic(new_IllegalArgumentException_String(("Invalid named capture referenced: " + sstr_(String_substring_int(this.cap_pattern, start)))).self())
+			panic(new_IllegalArgumentException_String(("Invalid named capture referenced: " + sstr_(this.cap_patternU16.substring_int(start)))).self())
 		}
 		return new_RegExpTree_NamedBackReference(potentialName).up_RegExpTree()
 	} else {
@@ -2618,10 +2626,10 @@ func (this *RegExpTree_1Parser) parseEscape() *RegExpTree {
 
 func (this *RegExpTree_1Parser) parseHex(n int32) int32 {
 	if (this.pos + n) > this.limit {
-		panic(new_IllegalArgumentException_String(("Abbreviated hex escape " + sstr_(String_substring_int(this.cap_pattern, this.pos)))).self())
+		panic(new_IllegalArgumentException_String(("Abbreviated hex escape " + sstr_(this.cap_patternU16.substring_int(this.pos)))).self())
 	}
 	if n > 7 {
-		panic(new_IllegalArgumentException_String(("Cannot parse hexadecimal encoding wider than 28 bits: " + sstr_(String_substring(this.cap_pattern, this.pos, (this.pos+n))))).self())
+		panic(new_IllegalArgumentException_String(("Cannot parse hexadecimal encoding wider than 28 bits: " + sstr_(this.cap_patternU16.substring(this.pos, (this.pos+n))))).self())
 	}
 	var result int32 = 0
 	for {
@@ -2629,7 +2637,7 @@ func (this *RegExpTree_1Parser) parseHex(n int32) int32 {
 		if n < 0 {
 			break
 		}
-		var ch uint16 = String_charAt(this.cap_pattern, this.pos)
+		var ch uint16 = this.cap_patternU16.charAt(this.pos)
 		var digit int32
 		if (48 <= int32(ch)) && (int32(ch) <= 57) {
 			digit = (int32(ch) - 48)
@@ -2638,7 +2646,7 @@ func (this *RegExpTree_1Parser) parseHex(n int32) int32 {
 		} else if (65 <= int32(ch)) && (int32(ch) <= 70) {
 			digit = (int32(ch) + -55)
 		} else {
-			panic(new_IllegalArgumentException_String(String_substring_int(this.cap_pattern, this.pos)).self())
+			panic(new_IllegalArgumentException_String(this.cap_patternU16.substring_int(this.pos)).self())
 		}
 		this.pos++
 		result = ((result << 4) | digit)
@@ -2649,21 +2657,21 @@ func (this *RegExpTree_1Parser) parseHex(n int32) int32 {
 func (this *RegExpTree_1Parser) parseBracedUnicodeEscape() int32 {
 	var openBrace int32 = this.pos
 	this.pos++
-	if String_charAt(this.cap_pattern, openBrace) != '{' {
+	if this.cap_patternU16.charAt(openBrace) != '{' {
 		panic(new_IllegalStateException_0().self())
 	}
 	var closeBrace int32 = this.pos
-	for (closeBrace < this.limit) && (String_charAt(this.cap_pattern, closeBrace) != '}') {
+	for (closeBrace < this.limit) && (this.cap_patternU16.charAt(closeBrace) != '}') {
 		closeBrace++
 	}
 	if closeBrace == this.limit {
-		panic(new_IllegalArgumentException_String(("Malformed unicode escape: expected '}' after " + sstr_(String_substring_int(this.cap_pattern, openBrace)))).self())
+		panic(new_IllegalArgumentException_String(("Malformed unicode escape: expected '}' after " + sstr_(this.cap_patternU16.substring_int(openBrace)))).self())
 	} else if closeBrace == this.pos {
 		panic(new_IllegalArgumentException_String("Empty unicode escape").self())
 	}
 	var result int32 = this.parseHex((closeBrace - this.pos))
 	if result > 1114111 {
-		panic(new_IllegalArgumentException_String(("Unicode must be at most 0x10FFFF: " + sstr_(String_substring(this.cap_pattern, (openBrace+1), this.pos)))).self())
+		panic(new_IllegalArgumentException_String(("Unicode must be at most 0x10FFFF: " + sstr_(this.cap_patternU16.substring((openBrace+1), this.pos)))).self())
 	}
 	this.pos++
 	return result
@@ -2686,7 +2694,7 @@ func (this *RegExpTree_1Parser) parseRepetition(body *RegExpTree) *RegExpTree {
 	}
 	var min_ int32
 	var max_ int32
-	switch String_charAt(this.cap_pattern, this.pos) {
+	switch this.cap_patternU16.charAt(this.pos) {
 	case '+':
 		this.pos++
 		min_ = 1
@@ -2702,12 +2710,12 @@ func (this *RegExpTree_1Parser) parseRepetition(body *RegExpTree) *RegExpTree {
 	case '{':
 		this.pos++
 		var start int32 = this.pos
-		var end int32 = String_indexOf_int_int(this.cap_pattern, 125, start)
+		var end int32 = this.cap_patternU16.indexOf_int_int(125, start)
 		if end < 0 {
 			this.pos = (start - 1)
 			return body
 		}
-		var counts string = String_substring(this.cap_pattern, start, end)
+		var counts string = this.cap_patternU16.substring(start, end)
 		this.pos = (end + 1)
 		var comma int32 = int32(strings.IndexByte(counts, ','))
 		var parsedMin any = JSCompStrings_parseIntOrNull(func() OptionalOf[string] {
@@ -2742,7 +2750,7 @@ func (this *RegExpTree_1Parser) parseRepetition(body *RegExpTree) *RegExpTree {
 		return body
 	}
 	var greedy bool = true
-	if (this.pos < this.limit) && (String_charAt(this.cap_pattern, this.pos) == '?') {
+	if (this.pos < this.limit) && (this.cap_patternU16.charAt(this.pos) == '?') {
 		greedy = false
 		this.pos++
 	}

@@ -33,10 +33,11 @@ func SourceMapResolver_extractSourceMap(jsFile *SourceFile_jscomp, sourceMapURL 
 
 func SourceMapResolver_extractBase64String(url string) OptionalOf[string] {
 	if strings.HasPrefix(url, SourceMapResolver_BASE64_URL_PREFIX) && strings.Contains(url, SourceMapResolver_BASE64_START) {
-		var base64StartIndex int32 = String_indexOf_String(url, SourceMapResolver_BASE64_START)
-		var mediaType string = String_substring(url, int32(len(SourceMapResolver_BASE64_URL_PREFIX)), base64StartIndex)
+		urlU16 := utf16Of_(url)
+		var base64StartIndex int32 = urlU16.indexOf_String(SourceMapResolver_BASE64_START)
+		var mediaType string = urlU16.substring(int32(len(SourceMapResolver_BASE64_URL_PREFIX)), base64StartIndex)
 		if Collection_contains_s(SourceMapResolver_ACCEPTED_MEDIA_TYPES, mediaType) {
-			var data []int8 = Io_base64Decode(String_substring_int(url, (base64StartIndex + int32(len(SourceMapResolver_BASE64_START)))))
+			var data []int8 = Io_base64Decode(urlU16.substring_int((base64StartIndex + int32(len(SourceMapResolver_BASE64_START)))))
 			return Optional_of[string](Io_utf8String(data))
 		}
 	}

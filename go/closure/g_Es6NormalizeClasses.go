@@ -770,6 +770,7 @@ func (this *Es6NormalizeClasses) rewriteInstanceMembers(t *NodeTraversal, record
 		var mapSetStmt Node = this.astFactory_.exprResult(mapSetCall).srcrefTreeIfMissing(record.classNode)
 		mapSetStmt.insertBefore(insertionPoint)
 	}
+	var getStringU16 utf16_
 	for !instanceMembers.isEmpty() {
 		var instanceMember Node = instanceMembers.popFirst_()
 		if !instanceMember.isMemberFieldDef() && !instanceMember.isComputedFieldDef() {
@@ -778,7 +779,7 @@ func (this *Es6NormalizeClasses) rewriteInstanceMembers(t *NodeTraversal, record
 		if instanceMember.isPrivateIdentifier() {
 			if this.transpilePrivateClassFields {
 				var privName OptionalOf[string] = record.getPrivateVarName(this.compiler_, t)
-				var propName string = String_substring_int(instanceMember.getString(), 1)
+				var propName string = getStringU16.of(instanceMember.getString()).substring_int(1)
 				var lhs Node = this.astFactory_.createGetPropWithUnknownType(this.astFactory_.createConstantName(privName.get(), AstFactory_typeColor(StandardColors_UNKNOWN)), propName)
 				var fieldValue Node = func() Node {
 					if instanceMember.hasChildren() {
@@ -1053,12 +1054,13 @@ func (this *Es6NormalizeClasses) rewriteStaticMembers(t *NodeTraversal, record *
 		staticInitTempParent.addChildToBack(mapSetStmt)
 		this.addStaticPrivateMembers(record, privName.get(), staticInitTempParent)
 	}
+	var getStringU16 utf16_
 	for !staticMembers.isEmpty() {
 		var staticMember Node = staticMembers.popFirst_()
 		if staticMember.isPrivateIdentifier() {
 			if this.transpilePrivateClassFields {
 				var privName OptionalOf[string] = record.getStaticPrivateVarName(this.compiler_, t)
-				var propName string = String_substring_int(staticMember.getString(), 1)
+				var propName string = getStringU16.of(staticMember.getString()).substring_int(1)
 				var lhs Node = this.astFactory_.createGetPropWithUnknownType(this.astFactory_.createConstantName(privName.get(), AstFactory_typeColor(StandardColors_UNKNOWN)), propName)
 				var fieldValue Node = func() Node {
 					if staticMember.hasChildren() {
@@ -1697,9 +1699,10 @@ func new_Es6NormalizeClasses_ClassRecord_PrivateMember(name string, kind Es6Norm
 }
 
 func (this *Es6NormalizeClasses_ClassRecord_PrivateMember) propertyName() string {
+	name_U16 := utf16Of_(this.name_)
 	return func() string {
 		if strings.HasPrefix(this.name_, "#") {
-			return String_substring_int(this.name_, 1)
+			return name_U16.substring_int(1)
 		}
 		return this.name_
 	}()

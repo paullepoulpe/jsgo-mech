@@ -34,12 +34,13 @@ func JSCompStrings_parseIntOrNull(s OptionalOf[string]) any {
 		}
 		return 0
 	}()
-	if start == String_length(s.get()) {
+	var sU16 utf16_
+	if start == sU16.of(s.get()).length() {
 		return nil
 	}
 	var value int64 = 0
-	for i := int32(start); i < String_length(s.get()); i++ {
-		var digit int32 = Character_digit(String_charAt(s.get(), i), 10)
+	for i := int32(start); i < sU16.of(s.get()).length(); i++ {
+		var digit int32 = Character_digit(sU16.of(s.get()).charAt(i), 10)
 		if digit < 0 {
 			return nil
 		}
