@@ -17,7 +17,7 @@ func (this *DotFormatter) finit_DotFormatter() {
 
 func (this *DotFormatter) init_DotFormatter_0() {
 	this.finit_DotFormatter()
-	this.builder = new_StringBuilder()
+	this.builder = appendable_(&strBuilder_{})
 	this.cfg = nil
 	this.printAnnotations = false
 }
