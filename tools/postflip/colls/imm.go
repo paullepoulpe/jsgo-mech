@@ -711,6 +711,15 @@ func builderUse(k int, recv ast.Expr, m string, call *ast.CallExpr) {
 		})
 		chain()
 	case (m == "addAll" && K.base != "mapb" || m == "putAll" && K.base == "mapb") && n == 1:
+		if y := typedSource(args[0]); y != nil && K.base != "mapb" {
+			// addAll of a typed list of the element type (an immutable one's twin, a list's view)
+			edit(k, func(c *class) rw.Edit {
+				if et := elemOfTList(typeOf(y)); et != nil && types.Identical(et, c.elem[0]) && K.base == "listb" {
+					return rw.Edit{Node: call, Gen: func() string { return R() + ".addAllT(" + rw.Render(y) + ")" }}
+				}
+				return rw.Edit{Node: call, Gen: func() string { return R() + ".addAll(" + rw.Render(args[0]) + ")" }}
+			})
+		}
 		chain()
 	case (m == "build" || m == "buildOrThrow" || K.base == "mapb" && m == "buildKeepingLast") && n == 0:
 		builtUse(k, recv, m, call)
@@ -887,4 +896,83 @@ func isEnum(t types.Type) bool {
 		return false
 	}
 	return rw.HasMethod(n, "enum_") && rw.HasMethod(n, "self")
+}
+
+// typedSource is Y of an argument C(obj_(Y.asImm())) or C(obj_(Y.asList())) (C an interface
+// conversion: icast_Iterable, Iterable, Collection...), Y a typed list; nil otherwise.
+func typedSource(a ast.Expr) ast.Expr {
+	for {
+		a = rw.Unparen(a)
+		c, ok := a.(*ast.CallExpr)
+		if !ok {
+			return nil
+		}
+		if s, ok := c.Fun.(*ast.SelectorExpr); ok && len(c.Args) == 0 && (s.Sel.Name == "asImm" || s.Sel.Name == "asList") {
+			if elemOfTList(typeOf(s.X)) != nil {
+				return s.X
+			}
+			return nil
+		}
+		n, _ := rw.CallName(c)
+		switch n {
+		case "obj_", "any", "icast_Iterable", "icast_Collection", "icast_List", "Iterable", "Collection", "List":
+			if len(c.Args) == 1 {
+				a = c.Args[0]
+				continue
+			}
+		}
+		return nil
+	}
+}
+
+// elemOfTList is T of *TList[T] (*ImmutableList[T]), or nil.
+func elemOfTList(t types.Type) types.Type {
+	p, ok := types.Unalias(t).(*types.Pointer)
+	if !ok {
+		return nil
+	}
+	n, ok := types.Unalias(p.Elem()).(*types.Named)
+	if !ok || n.Obj().Name() != "TList" || n.TypeArgs().Len() != 1 {
+		return nil
+	}
+	return n.TypeArgs().At(0)
+}
+
+// immAddAllInto: X.asList().addAll(C(obj_(y))) of a typed list X of the class's element type
+// and y of class k is X.addAllT(y), without the twin.
+func immAddAllInto(k int, y, top ast.Expr) {
+	a := top
+	for {
+		c, ok := rw.Up(a).(*ast.CallExpr)
+		if !ok || len(c.Args) != 1 || rw.Unparen(c.Args[0]) != a {
+			return
+		}
+		n, _ := rw.CallName(c)
+		if n == "icast_Collection" || n == "Collection" || n == "icast_Iterable" || n == "Iterable" {
+			a = c
+			continue
+		}
+		s, ok := c.Fun.(*ast.SelectorExpr)
+		if !ok || s.Sel.Name != "addAll" {
+			return
+		}
+		lc, ok := rw.Unparen(s.X).(*ast.CallExpr)
+		if !ok || len(lc.Args) != 0 {
+			return
+		}
+		ls, ok := lc.Fun.(*ast.SelectorExpr)
+		if !ok || ls.Sel.Name != "asList" || elemOfTList(typeOf(ls.X)) == nil {
+			return
+		}
+		x, add := ls.X, c
+		edit(k, func(cl *class) rw.Edit {
+			return rw.Edit{Node: add, Gen: func() string {
+				if types.Identical(elemOfTList(typeOf(x)), cl.elem[0]) {
+					return rw.Render(x) + ".addAllT(" + rw.RenderChildren(y) + ")" // y without its twin
+				}
+				return rw.RenderChildren(add)
+			}}
+		})
+		return
+	}
 }
