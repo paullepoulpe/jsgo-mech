@@ -180,7 +180,9 @@ func (this *GraphColoring_GreedyGraphColoring) color_impl() int32 {
 }
 
 // lambda_GraphColoring_GreedyGraphColoring_color_impl_1_ is a lambda of GraphColoring_GreedyGraphColoring_color_impl that captures nothing (post-flip step lambdas).
-func lambda_GraphColoring_GreedyGraphColoring_color_impl_1_(p0 any) any { return icast_GraphNode(p0).getValue() }
+func lambda_GraphColoring_GreedyGraphColoring_color_impl_1_(p0 any) any {
+	return icast_GraphNode(p0).getValue()
+}
 
 // color: an object that is exactly a GraphColoring_GreedyGraphColoring calls its color_impl directly (post-flip); others dispatch.
 func (this *GraphColoring_GreedyGraphColoring) color() int32 {

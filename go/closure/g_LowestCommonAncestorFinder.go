@@ -94,17 +94,7 @@ func (this *LowestCommonAncestorFinder[N, E]) paintAncestors(root DiGraph_DiGrap
 	}
 }
 
-type LowestCommonAncestorFinder_Factory interface {
-	create(*DiGraph) *LowestCommonAncestorFinder[any, any]
-}
-
-type LowestCommonAncestorFinder_Factory_fn struct {
-	f func(*DiGraph) *LowestCommonAncestorFinder[any, any]
-}
-
-func (this *LowestCommonAncestorFinder_Factory_fn) create(p0 *DiGraph) *LowestCommonAncestorFinder[any, any] {
-	return this.f(p0)
-}
+type LowestCommonAncestorFinder_Factory = *funcObj_[func(*DiGraph) *LowestCommonAncestorFinder[any, any]]
 
 type LowestCommonAncestorFinder_Color struct {
 	bitset int32
@@ -188,4 +178,6 @@ func LowestCommonAncestorFinder_Color_clinit() {
 }
 
 // lambda_LowestCommonAncestorFinder_Color_clinit_1_ is a lambda of LowestCommonAncestorFinder_Color_clinit that captures nothing (post-flip step lambdas).
-func lambda_LowestCommonAncestorFinder_Color_clinit_1_(p0 int32) any { return obj_(new_LowestCommonAncestorFinder_Color(p0)) }
+func lambda_LowestCommonAncestorFinder_Color_clinit_1_(p0 int32) any {
+	return obj_(new_LowestCommonAncestorFinder_Color(p0))
+}

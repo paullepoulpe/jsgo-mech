@@ -213,9 +213,9 @@ func (this *LinkedFlowScope) equals(other any) bool {
 }
 
 // lambda_LinkedFlowScope_equals_1_ is a lambda of LinkedFlowScope_equals that captures nothing (post-flip step lambdas).
-var lambda_LinkedFlowScope_equals_1_ = &BiPredicate_fn{func(p0 any, p1 any) bool {
+var lambda_LinkedFlowScope_equals_1_ = newFuncObj_(func(p0 any, p1 any) bool {
 	return LinkedFlowScope_equalScopes(cast_[*LinkedFlowScope_OverlayScope](p0), cast_[*LinkedFlowScope_OverlayScope](p1))
-}}
+})
 
 func LinkedFlowScope_equalScopes(left *LinkedFlowScope_OverlayScope, right *LinkedFlowScope_OverlayScope) bool {
 	if left == right {
@@ -225,9 +225,9 @@ func LinkedFlowScope_equalScopes(left *LinkedFlowScope_OverlayScope, right *Link
 }
 
 // lambda_LinkedFlowScope_equalScopes_1_ is a lambda of LinkedFlowScope_equalScopes that captures nothing (post-flip step lambdas).
-var lambda_LinkedFlowScope_equalScopes_1_ = &BiPredicate_fn{func(p0 any, p1 any) bool {
+var lambda_LinkedFlowScope_equalScopes_1_ = newFuncObj_(func(p0 any, p1 any) bool {
 	return LinkedFlowScope_equalSlots(icast_StaticTypedSlot(obj_(cast_[*LinkedFlowScope_OverlaySlot](p0))), icast_StaticTypedSlot(obj_(cast_[*LinkedFlowScope_OverlaySlot](p1))))
-}}
+})
 
 func LinkedFlowScope_equalSlots(slotA StaticTypedSlot, slotB StaticTypedSlot) bool {
 	return ((slotA == slotB) || !slotA.getType().differsFrom(slotB.getType()))

@@ -367,7 +367,7 @@ func HamtPMap_equivalent[K, V comparable](t1 *HamtPMap[K, V], t2 *HamtPMap[K, V]
 			return false
 		}
 	}
-	if !equivalence.test(boxNull_(t1.value_), boxNull_(t2.value_)) {
+	if !equivalence.call(boxNull_(t1.value_), boxNull_(t2.value_)) {
 		return false
 	}
 	var mask int32 = (t1.mask | t2.mask)

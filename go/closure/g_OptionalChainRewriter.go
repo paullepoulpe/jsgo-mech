@@ -143,7 +143,7 @@ func (this *OptionalChainRewriter) getSubExprNameNode(subExpr Node) Node {
 }
 
 func (this *OptionalChainRewriter) declareTempVarName(valueNode Node) string {
-	var tempVarName string = this.tmpVarNameCreator.createTmpVarName()
+	var tempVarName string = this.tmpVarNameCreator.call()
 	var declarationStatement Node = this.astFactory_.createSingleLetNameDeclaration(tempVarName).srcrefTree(valueNode)
 	declarationStatement.getFirstChild().setInferredConstantVar(true)
 	declarationStatement.insertBefore(this.insertionPoint_)
@@ -154,17 +154,7 @@ func (this *OptionalChainRewriter) declareTempVarName(valueNode Node) string {
 	return tempVarName
 }
 
-type OptionalChainRewriter_TmpVarNameCreator interface {
-	createTmpVarName() string
-}
-
-type OptionalChainRewriter_TmpVarNameCreator_fn struct {
-	f func() string
-}
-
-func (this *OptionalChainRewriter_TmpVarNameCreator_fn) createTmpVarName() string {
-	return this.f()
-}
+type OptionalChainRewriter_TmpVarNameCreator = *funcObj_[func() string]
 
 type OptionalChainRewriter_Builder struct {
 	compiler_         *AbstractCompiler

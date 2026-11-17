@@ -140,7 +140,7 @@ func (this *ExpressionDecomposer) exposeExpression_2(expressionRoot Node, subExp
 }
 
 func (this *ExpressionDecomposer) rewriteAllContainingOptionalChains(subExpression Node) {
-	var optChainRewriterBuilder *OptionalChainRewriter_Builder = OptionalChainRewriter_builder(this.compiler_).setTmpVarNameCreator(&OptionalChainRewriter_TmpVarNameCreator_fn{func() string { return this.getTempConstantValueName() }}).setScope(this.scope_)
+	var optChainRewriterBuilder *OptionalChainRewriter_Builder = OptionalChainRewriter_builder(this.compiler_).setTmpVarNameCreator(newFuncObj_(func() string { return this.getTempConstantValueName() })).setScope(this.scope_)
 	var rewriters []*OptionalChainRewriter = []*OptionalChainRewriter{}
 	{
 		var exprParent Node = subExpression.getParent()

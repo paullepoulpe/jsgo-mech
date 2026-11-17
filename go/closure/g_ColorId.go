@@ -143,14 +143,4 @@ func lambda_ColorId_clinit_1_(s_ any, i int32) int8 {
 	return int8(c)
 }
 
-type ColorId_ByteAt interface {
-	get(any, int32) int8
-}
-
-type ColorId_ByteAt_fn struct {
-	f func(any, int32) int8
-}
-
-func (this *ColorId_ByteAt_fn) get(p0 any, p1 int32) int8 {
-	return this.f(p0, p1)
-}
+type ColorId_ByteAt = *funcObj_[func(any, int32) int8]

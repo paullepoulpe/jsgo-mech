@@ -300,18 +300,18 @@ func (this *MaybeReachingVariableUse_ReachingUses) equals(other any) bool {
 }
 
 // lambda_MaybeReachingVariableUse_ReachingUses_equals_1_ is a lambda of MaybeReachingVariableUse_ReachingUses_equals that captures nothing (post-flip step lambdas).
-var lambda_MaybeReachingVariableUse_ReachingUses_equals_1_ = &BiPredicate_fn{func(p0 any, p1 any) bool {
+var lambda_MaybeReachingVariableUse_ReachingUses_equals_1_ = newFuncObj_(func(p0 any, p1 any) bool {
 	return MaybeReachingVariableUse_ReachingUses_equalMaps(cast_[PMap[Node, Node]](p0), cast_[PMap[Node, Node]](p1))
-}}
+})
 
 func MaybeReachingVariableUse_ReachingUses_equalMaps(map1 PMap[Node, Node], map2 PMap[Node, Node]) bool {
 	return ((map1 == map2) || map1.equivalent(map2, lambda_MaybeReachingVariableUse_ReachingUses_equalMaps_1_))
 }
 
 // lambda_MaybeReachingVariableUse_ReachingUses_equalMaps_1_ is a lambda of MaybeReachingVariableUse_ReachingUses_equalMaps that captures nothing (post-flip step lambdas).
-var lambda_MaybeReachingVariableUse_ReachingUses_equalMaps_1_ = &BiPredicate_fn{func(p0 any, p1 any) bool {
+var lambda_MaybeReachingVariableUse_ReachingUses_equalMaps_1_ = newFuncObj_(func(p0 any, p1 any) bool {
 	return MaybeReachingVariableUse_ReachingUses_equalNodes(Node_of_(p0), Node_of_(p1))
-}}
+})
 
 func MaybeReachingVariableUse_ReachingUses_equalNodes(n1 Node, n2 Node) bool {
 	return (n1 == n2)

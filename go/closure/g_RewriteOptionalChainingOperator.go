@@ -13,9 +13,9 @@ func (this *RewriteOptionalChainingOperator) init_RewriteOptionalChainingOperato
 	this.getTmpVarNameCreatorForInput = func(input_ any) any {
 		var input *CompilerInput = cast_[*CompilerInput](input_)
 		_ = input
-		return any(&OptionalChainRewriter_TmpVarNameCreator_fn{func() string {
+		return any(newFuncObj_(func() string {
 			return ("$jscomp$optchain$tmp" + sstr_(uniqueIdSupplier.getUniqueId(input)))
-		}})
+		}))
 	}
 }
 
@@ -30,7 +30,7 @@ func (this *RewriteOptionalChainingOperator) init_RewriteOptionalChainingOperato
 	this.getTmpVarNameCreatorForInput = func(input_ any) any {
 		var input *CompilerInput = cast_[*CompilerInput](input_)
 		_ = input
-		return tmpVarNameCreator
+		return obj_(tmpVarNameCreator)
 	}
 }
 

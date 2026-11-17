@@ -385,17 +385,13 @@ type BiFunction interface {
 	apply(any, any) any
 }
 
-type BiPredicate interface {
-	test(any, any) bool
-}
+type BiPredicate = *funcObj_[func(any, any) bool]
 
 type BlockingQueue interface {
 	Queue
 }
 
-type BooleanSupplier interface {
-	getAsBoolean() bool
-}
+type BooleanSupplier = *funcObj_[func() bool]
 
 type ByteOutput struct {
 }
@@ -2721,14 +2717,6 @@ func (this *Function_base_fn) apply(p0 any) any {
 	return this.f(p0)
 }
 
-type BiPredicate_fn struct {
-	f func(any, any) bool
-}
-
-func (this *BiPredicate_fn) test(p0 any, p1 any) bool {
-	return this.f(p0, p1)
-}
-
 type Iterable_fn struct {
 	f func() Iterator
 }
@@ -2751,12 +2739,4 @@ type IntUnaryOperator_fn struct {
 
 func (this *IntUnaryOperator_fn) applyAsInt(p0 int32) int32 {
 	return this.f(p0)
-}
-
-type BooleanSupplier_fn struct {
-	f func() bool
-}
-
-func (this *BooleanSupplier_fn) getAsBoolean() bool {
-	return this.f()
 }
