@@ -512,6 +512,7 @@ func main() {
 			return true
 		})
 	}
+	dedup()
 	addImports()
 	var keys []string
 	for k := range count {
@@ -521,7 +522,7 @@ func main() {
 	done := 0
 	for _, k := range keys {
 		fmt.Printf("%5d %s\n", count[k], k)
-		if !strings.HasPrefix(k, "left") {
+		if !strings.HasPrefix(k, "left") && !strings.HasPrefix(k, "also") {
 			done += count[k]
 		}
 	}
@@ -1144,4 +1145,42 @@ func isAnyArg(e ast.Expr) bool {
 // generated reports whether f is a file j2go generated (g_*.go).
 func generated(f *ast.File) bool {
 	return strings.HasPrefix(filepath.Base(rw.Fset.File(f.Pos()).Name()), "g_")
+}
+
+// dedup rewrites `t && t` / `t || t` of an emptiness test t of a variable (String_isEmpty(s),
+// its negation, or s == "" / s != "" that this step writes for them), as j2go writes for Java's
+// `s != null && !s.isEmpty()` of a String that cannot be null, to t: the operand has no
+// effect, so testing it once is the same, and go vet's bools check rejects the duplicate once
+// the call is a comparison.
+func dedup() {
+	for _, f := range rw.Files {
+		if !generated(f) {
+			continue
+		}
+		ast.Inspect(f, func(n ast.Node) bool {
+			b, ok := n.(*ast.BinaryExpr)
+			if !ok || (b.Op != token.LAND && b.Op != token.LOR) || rw.Text(rw.Unparen(b.X)) != rw.Text(rw.Unparen(b.Y)) || !emptinessTest(b.X) {
+				return true
+			}
+			count["also: emptiness test repeated in && / ||, tested once"]++
+			rw.Rewrite[b] = func() string { return rw.Render(b.X) }
+			return true
+		})
+	}
+}
+
+func emptinessTest(e ast.Expr) bool {
+	e = rw.Unparen(e)
+	if u, ok := e.(*ast.UnaryExpr); ok && u.Op == token.NOT {
+		e = rw.Unparen(u.X)
+	}
+	switch x := e.(type) {
+	case *ast.CallExpr:
+		name, _ := rw.CallName(x)
+		return name == "String_isEmpty" && len(x.Args) == 1 && rw.Pure(x.Args[0])
+	case *ast.BinaryExpr:
+		s, ok := constString(x.Y)
+		return (x.Op == token.EQL || x.Op == token.NEQ) && ok && s == "" && rw.Pure(x.X)
+	}
+	return false
 }
