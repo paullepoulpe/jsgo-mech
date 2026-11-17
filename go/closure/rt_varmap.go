@@ -101,6 +101,33 @@ func (m *varMap_[V]) put(v *Var, x V) {
 		m.ents[i].val = x
 		return
 	}
+	m.add(k, h, v, x)
+}
+
+// slot is the value of v as a variable, adding v with the zero value (null) at the end if it
+// has no mapping: Map.computeIfAbsent(v, f) with one lookup is
+//
+//	p := m.slot(v)
+//	if *p == nil {
+//		*p = f(v)
+//	}
+//
+// for an f that never returns null (Java's computeIfAbsent puts f's value at the same place,
+// and treats a key mapped to null as absent, as the test of *p does). The pointer is good
+// until the next change of m.
+func (m *varMap_[V]) slot(v *Var) *V {
+	k, h := keyOfVar_(v)
+	i := m.find(k, h)
+	if i < 0 {
+		var z V
+		m.add(k, h, v, z)
+		i = int32(len(m.ents) - 1)
+	}
+	return &m.ents[i].val
+}
+
+// add appends the mapping of v, which has none (key k, hash h).
+func (m *varMap_[V]) add(k varKey_, h uint32, v *Var, x V) {
 	if m.ents == nil {
 		m.ents = make([]varEnt_[V], 0, 4)
 	}
