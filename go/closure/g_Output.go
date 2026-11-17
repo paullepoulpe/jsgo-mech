@@ -84,6 +84,12 @@ func (this *Output) append_CharSequence(s any) Appendable {
 	return icast_Appendable(any(this))
 }
 
+// append_CharSequence_s is append_CharSequence for a String that is not boxed (post-flip manual step).
+func (this *Output) append_CharSequence_s(s string) Appendable {
+	this.print(sstr_(s))
+	return icast_Appendable(any(this))
+}
+
 func (this *Output) append_CharSequence_int_int(s any, start int32, end int32) Appendable {
 	this.print(String_substring(String_valueOf_Object(s), start, end))
 	return icast_Appendable(any(this))

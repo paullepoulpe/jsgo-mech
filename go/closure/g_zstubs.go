@@ -289,6 +289,7 @@ type AnnotatedElement interface {
 
 type Appendable interface {
 	append_CharSequence(any) Appendable
+	append_CharSequence_s(string) Appendable
 	append_CharSequence_int_int(any, int32, int32) Appendable
 	append_char(uint16) Appendable
 }
