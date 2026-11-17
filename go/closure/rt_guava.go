@@ -248,7 +248,7 @@ func (this *ImmutableCollection) size() int32 {
 	return int32(len(this.items))
 }
 
-func (this *ImmutableCollection) isEmpty() bool       { return len(this.items) == 0 }
+func (this *ImmutableCollection) isEmpty() bool { return len(this.items) == 0 }
 func (this *ImmutableCollection) contains(v any) bool {
 	if this.byOrd != nil {
 		// Enum constants are equal only to themselves.
