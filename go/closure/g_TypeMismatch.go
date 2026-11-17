@@ -10,13 +10,13 @@ type TypeMismatch struct {
 
 func (this *TypeMismatch) init_TypeMismatch(found *JSType, required *JSType, location Node) {
 	if found == nil {
-		panic(new_NullPointerException_String("found").self())
+		panic(new_NullPointerException_String("found"))
 	}
 	if required == nil {
-		panic(new_NullPointerException_String("required").self())
+		panic(new_NullPointerException_String("required"))
 	}
 	if location == 0 {
-		panic(new_NullPointerException_String("location").self())
+		panic(new_NullPointerException_String("location"))
 	}
 	this.found_ = found
 	this.required_ = required

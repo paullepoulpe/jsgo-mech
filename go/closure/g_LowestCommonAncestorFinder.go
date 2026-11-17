@@ -26,17 +26,17 @@ func new_LowestCommonAncestorFinder[N, E comparable](graph *DiGraph) *LowestComm
 
 func (this *LowestCommonAncestorFinder[N, E]) findAll(roots SetOf[any]) ImmutableSetOf[any] {
 	if roots.size() > 31 {
-		panic(new_IllegalArgumentException_String("Too many roots.").self())
+		panic(new_IllegalArgumentException_String("Too many roots."))
 	}
 	if !this.searchColoring.isEmpty() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	var allColor *LowestCommonAncestorFinder_Color = LowestCommonAncestorFinder_Color_create(((int32(1) << (uint32(roots.size()) & 31)) - 1))
 	var bitForRoot int32 = 1
 	for root := range elems_(roots) {
 		var rootNode DiGraph_DiGraphNode = icast_DiGraph_DiGraphNode(this.graph.getNode(root))
 		if rootNode == nil {
-			panic(new_NullPointerException_String(Strings_lenientFormat("Root not present in graph: %s", []any{root})).self())
+			panic(new_NullPointerException_String(Strings_lenientFormat("Root not present in graph: %s", []any{root})))
 		}
 		var color *LowestCommonAncestorFinder_Color = LowestCommonAncestorFinder_Color_create(bitForRoot)
 		Map_merge_f(this.searchColoring.asMap(), rootNode, obj_(color), lambda_LowestCommonAncestorFinder_findAll_1_)
@@ -74,7 +74,7 @@ func lambda_LowestCommonAncestorFinder_findAll_1_(p0 any, p1 any) any {
 
 func (this *LowestCommonAncestorFinder[N, E]) paintAncestors(root DiGraph_DiGraphNode, color *LowestCommonAncestorFinder_Color) {
 	if len(this.searchQueue) != 0 {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	this.searchQueue = append(this.searchQueue, root)
 	for len(this.searchQueue) != 0 {
@@ -94,17 +94,7 @@ func (this *LowestCommonAncestorFinder[N, E]) paintAncestors(root DiGraph_DiGrap
 	}
 }
 
-type LowestCommonAncestorFinder_Factory interface {
-	create(*DiGraph) *LowestCommonAncestorFinder[any, any]
-}
-
-type LowestCommonAncestorFinder_Factory_fn struct {
-	f func(*DiGraph) *LowestCommonAncestorFinder[any, any]
-}
-
-func (this *LowestCommonAncestorFinder_Factory_fn) create(p0 *DiGraph) *LowestCommonAncestorFinder[any, any] {
-	return this.f(p0)
-}
+type LowestCommonAncestorFinder_Factory = *funcObj_[func(*DiGraph) *LowestCommonAncestorFinder[any, any]]
 
 type LowestCommonAncestorFinder_Color struct {
 	bitset int32
@@ -123,7 +113,7 @@ func new_LowestCommonAncestorFinder_Color(bitset int32) *LowestCommonAncestorFin
 func LowestCommonAncestorFinder_Color_create(bitset int32) *LowestCommonAncestorFinder_Color {
 	if bitset < 0 {
 		if bitset != -1 {
-			panic(new_IllegalArgumentException_0().self())
+			panic(new_IllegalArgumentException_0())
 		}
 		return LowestCommonAncestorFinder_Color_NOT_LOWEST
 	} else if bitset < int32(len(LowestCommonAncestorFinder_Color_COMMON_COLOR_CACHE)) {
@@ -172,7 +162,7 @@ func LowestCommonAncestorFinder_Color_clinit() {
 		func() {
 			arr_1 := LowestCommonAncestorFinder_Color_COMMON_COLOR_CACHE
 			tmp_2 := arrmap_(arr_1, func(v_ *LowestCommonAncestorFinder_Color) any { return obj_(v_) })
-			Arrays_setAll(tmp_2, lambda_LowestCommonAncestorFinder_Color_clinit_1_)
+			Arrays_setAll_f(tmp_2, lambda_LowestCommonAncestorFinder_Color_clinit_1_)
 			for i_ := range tmp_2 {
 				arr_1[i_] = cast_[*LowestCommonAncestorFinder_Color](tmp_2[i_])
 			}
@@ -180,7 +170,7 @@ func LowestCommonAncestorFinder_Color_clinit() {
 	}
 	nn_1 := LowestCommonAncestorFinder_Color_COMMON_COLOR_CACHE[0]
 	if nn_1 == nil {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	LowestCommonAncestorFinder_Color_BLANK = nn_1
 	LowestCommonAncestorFinder_Color_NOT_LOWEST = new_LowestCommonAncestorFinder_Color(-1)
@@ -188,4 +178,6 @@ func LowestCommonAncestorFinder_Color_clinit() {
 }
 
 // lambda_LowestCommonAncestorFinder_Color_clinit_1_ is a lambda of LowestCommonAncestorFinder_Color_clinit that captures nothing (post-flip step lambdas).
-var lambda_LowestCommonAncestorFinder_Color_clinit_1_ = &IntFunction_fn{func(p0 int32) any { return obj_(new_LowestCommonAncestorFinder_Color(p0)) }}
+func lambda_LowestCommonAncestorFinder_Color_clinit_1_(p0 int32) any {
+	return obj_(new_LowestCommonAncestorFinder_Color(p0))
+}

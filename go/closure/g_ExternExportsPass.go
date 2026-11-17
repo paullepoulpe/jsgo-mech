@@ -101,7 +101,7 @@ func (this *ExternExportsPass) lookForQnameDefinition(n Node) {
 	} else if n.isName() {
 		var parent Node = n.getParent()
 		if parent == 0 {
-			panic(new_NullPointerException_String(tostr_(n)).self())
+			panic(new_NullPointerException_String(tostr_(n)))
 		}
 		if NodeUtil_isNameDeclaration(parent) {
 			var value Node = n.getFirstChild()
@@ -251,7 +251,7 @@ func (this *ExternExportsPass_Export) zero_ExternExportsPass_Export() {
 func (this *ExternExportsPass_Export) init_ExternExportsPass_Export(symbolName string, value Node) {
 	this.symbolName = symbolName
 	if value == 0 {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	this.value_ = value
 }
@@ -285,7 +285,7 @@ func (this *ExternExportsPass_Export) appendExtern(path string, valueToExport No
 				initializer = this.createExternFunctionForEs6Class(valueToExport)
 			} else {
 				if !valueToExport.isObjectLit() {
-					panic(new_IllegalStateException_0().self())
+					panic(new_IllegalStateException_0())
 				}
 				initializer = this.createExternObjectLit(valueToExport)
 			}
@@ -321,7 +321,7 @@ func (this *ExternExportsPass_Export) appendPathDefinition(path string, initiali
 			pathDefinition.getFirstChild().setJSDocInfo(jsdoc)
 		} else {
 			if !pathDefinition.isVar() {
-				panic(new_IllegalStateException_0().self())
+				panic(new_IllegalStateException_0())
 			}
 			pathDefinition.setJSDocInfo(jsdoc)
 		}
@@ -388,7 +388,7 @@ func (this *ExternExportsPass_Export) getOriginalNameForParam(paramNode Node) st
 		}()
 	} else {
 		if !nameOrPatternNode.isDestructuringPattern() {
-			panic(new_IllegalStateException_String(tostr_(nameOrPatternNode)).self())
+			panic(new_IllegalStateException_String(tostr_(nameOrPatternNode)))
 		}
 		return ""
 	}
@@ -530,7 +530,7 @@ func (this *ExternExportsPass_PropertyExport) getExportedPath_impl() string {
 	for it_1.next() {
 		var currentPath string = str_(it_1.v)
 		if len(currentPath) == 0 {
-			panic(new_IllegalStateException_0().self())
+			panic(new_IllegalStateException_0())
 		}
 		var mappedPath OptionalOf[string] = Optional_ofNullable[string](mapStr_(this.outer_.mappedPaths, currentPath))
 		if mappedPath.isEmpty() {

@@ -92,16 +92,13 @@ func StripCode_toListWithCollapsedVersions(s string) []string {
 
 func (this *StripCode) process_2(externs Node, root Node) {
 	if !this.compiler_.getLifeCycleStage().isNormalized() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
-	_ = func() (code_ int) {
-		var decisionsLog *LogFile = this.compiler_.createOrReopenIndexedLog(Object_getClass(any(this)), "decisions.log", []string{})
-		defer closeResource_(decisionsLog.self())
-		decisionsLog.log(new_StripCode_StripCodeConfigRecord(this).get)
-		decisionsLog.logString("\n=== decisions ===\n")
-		NodeTraversal_traverse(this.compiler_, root, new_StripCode_Strip(this, decisionsLog))
-		return 0
-	}()
+	var decisionsLog *LogFile = this.compiler_.createOrReopenIndexedLog(Object_getClass(any(this)), "decisions.log", []string{})
+	defer closeResource_(decisionsLog.self())
+	decisionsLog.log(new_StripCode_StripCodeConfigRecord(this).get)
+	decisionsLog.logString("\n=== decisions ===\n")
+	NodeTraversal_traverse(this.compiler_, root, new_StripCode_Strip(this, decisionsLog))
 }
 
 var StripCode_STRIP_TYPE_INHERIT_ERROR *DiagnosticType
@@ -225,7 +222,7 @@ func (this *StripCode_Strip) removeVarDeclarationsByNameOrRvalue(t *NodeTraversa
 				continue
 			}
 			if !nameNode.isName() {
-				panic(new_IllegalStateException_String(tostr_(nameNode)).self())
+				panic(new_IllegalStateException_String(tostr_(nameNode)))
 			}
 			var name string = nameNode.getString()
 			var lastDollarSign int32 = int32(strings.LastIndexByte(name, '$'))
@@ -380,7 +377,7 @@ func (this *StripCode_Strip) maybeEliminateAssignmentByLvalueName(t *NodeTravers
 
 func (this *StripCode_Strip) maybeEliminateExpressionByName(n Node) {
 	if !n.isExprResult() {
-		panic(new_IllegalArgumentException_String(tostr_(n)).self())
+		panic(new_IllegalArgumentException_String(tostr_(n)))
 	}
 	var parent Node = n.getParent()
 	if parent == 0 {

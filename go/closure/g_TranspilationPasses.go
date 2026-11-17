@@ -125,7 +125,7 @@ func TranspilationPasses_processTranspile(compiler *AbstractCompiler, combinedRo
 		var singleRoot Node = combinedRoot.getFirstChild()
 		for ; singleRoot != 0; singleRoot = singleRoot.getNext() {
 			if !singleRoot.isScript() {
-				panic(new_IllegalStateException_0().self())
+				panic(new_IllegalStateException_0())
 			}
 			if TranspilationPasses_doesScriptHaveAnyOfTheseFeatures(singleRoot, featuresToRunFor) {
 				for _, callback := range callbacks {
@@ -160,7 +160,7 @@ func TranspilationPasses_postTranspileCheckUnsupportedFeaturesRemoved(compiler *
 	}
 	if !outputFeatures.containsFeatureSet(currentFeatures) {
 		var diff *FeatureSet = currentFeatures.without(outputFeatures)
-		panic(new_IllegalStateException_String(("Unsupported feature(s) leaked to output code:" + tostr_(diff.getFeatures()))).self())
+		panic(new_IllegalStateException_String(("Unsupported feature(s) leaked to output code:" + tostr_(diff.getFeatures()))))
 	}
 }
 

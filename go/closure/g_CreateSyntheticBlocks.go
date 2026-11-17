@@ -69,7 +69,7 @@ func (this *CreateSyntheticBlocks) rewriteFunctionDeclaration(n Node) {
 
 func (this *CreateSyntheticBlocks) rewriteFunctionDeclarationsInBlock(block Node) {
 	if !block.isBlock() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	var next Node = 0
 	{
@@ -95,20 +95,20 @@ func (this *CreateSyntheticBlocks) addBlocks(marker *CreateSyntheticBlocks_Marke
 	outerBlock.addChildToBack(outerBlock.getNext().detach())
 	this.rewriteFunctionDeclarationsInBlock(innerBlock)
 	if ok_, a1_ := (outerBlock.getParent().isBlock() || outerBlock.getParent().isScript()), outerBlock.getParent(); !ok_ {
-		panic(new_IllegalStateException_String(tostr_(a1_)).self())
+		panic(new_IllegalStateException_String(tostr_(a1_)))
 	}
 	if !innerBlock.getParent().isBlock() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	this.compiler_.reportChangeToEnclosingScope(outerBlock)
 }
 
 func (this *CreateSyntheticBlocks) moveSiblingExclusive(dest Node, start Node, end Node) {
 	if start == 0 {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	if end == 0 {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	for start.getNext() != end {
 		var child Node = start.getNext().detach()

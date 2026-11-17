@@ -13,10 +13,10 @@ type Binding struct {
 
 func (this *Binding) init_Binding(metadata *ModuleMetadataMap_ModuleMetadata, sourceNode Node, originatingExport *Export, isModuleNamespace bool, closureNamespace OptionalOf[string], createdBy Binding_CreatedBy) {
 	if metadata == nil {
-		panic(new_NullPointerException_String("metadata").self())
+		panic(new_NullPointerException_String("metadata"))
 	}
 	if createdBy == 0 {
-		panic(new_NullPointerException_String("createdBy").self())
+		panic(new_NullPointerException_String("createdBy"))
 	}
 	this.metadata_ = metadata
 	this.sourceNode_ = sourceNode
@@ -38,7 +38,7 @@ func Binding_from_Export_Node(boundExport *Export, sourceNode Node) *Binding {
 
 func Binding_from_ModuleMetadata_Node_String_CreatedBy(metadata *ModuleMetadataMap_ModuleMetadata, sourceNode Node, closureNamespace string, createdBy Binding_CreatedBy) *Binding {
 	if !createdBy.isClosureImport() {
-		panic(new_IllegalArgumentException_String(Strings_lenientFormat("Expected goog.require(Type) or goog.forwardDeclare, got %s", []any{obj_(createdBy)})).self())
+		panic(new_IllegalArgumentException_String(Strings_lenientFormat("Expected goog.require(Type) or goog.forwardDeclare, got %s", []any{obj_(createdBy)})))
 	}
 	return new_Binding(metadata, sourceNode, nil, true, Optional_of[string](closureNamespace), createdBy)
 }
@@ -49,14 +49,14 @@ func Binding_from_ModuleMetadata_Optional_Node(metadataOfBoundModule *ModuleMeta
 
 func (this *Binding) copy(sourceNode Node, createdBy Binding_CreatedBy) *Binding {
 	if sourceNode == 0 {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	return new_Binding(this.metadata(), sourceNode, this.originatingExport(), this.isModuleNamespace(), this.closureNamespace(), createdBy)
 }
 
 func (this *Binding) boundName() OptionalOf[string] {
 	if this.isModuleNamespace() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	return this.originatingExport().localName()
 }

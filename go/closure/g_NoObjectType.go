@@ -130,7 +130,7 @@ func (this *NoObjectType) getConstructor_impl() *FunctionType {
 }
 
 func (this *NoObjectType) resolveInternal_impl(reporter ErrorReporter_rhino) *JSType {
-	panic(new_AssertionError_0().self())
+	panic(new_AssertionError_0())
 }
 
 // getTypeClass: an object that is exactly a NoObjectType calls its getTypeClass_impl directly (post-flip); others dispatch.

@@ -53,7 +53,7 @@ func (this *PolyfillUsageFinder) traverseOnlyGuarded(root Node, polyfillConsumer
 
 func (this *PolyfillUsageFinder) maybeCreateStaticPolyfillUsageForGetPropChain(traversal *NodeTraversal, getPropNode Node) *PolyfillUsageFinder_PolyfillUsage {
 	if !getPropNode.isGetProp() && !getPropNode.isOptChainGetProp() {
-		panic(new_IllegalArgumentException_String(tostr_(getPropNode)).self())
+		panic(new_IllegalArgumentException_String(tostr_(getPropNode)))
 	}
 	var lastComponent string = getPropNode.getString()
 	if !Collection_contains_s(this.polyfills.suffixes, lastComponent) {
@@ -153,42 +153,31 @@ func (this *PolyfillUsageFinder) isDisjointFromIterator(receiver *Color) bool {
 	return (!this.hasInSupertypesList(receiver, iteratorColor) && !this.hasInSupertypesList(iteratorColor, receiver))
 }
 
-func (this *PolyfillUsageFinder) hasInSupertypesList(subCtor *Color, superCtor *Color) bool {
+func (this *PolyfillUsageFinder) hasInSupertypesList(subCtor *Color, superCtor *Color) (ret_1 bool) {
 	if !this.hasInSupertypesListSeenSet.add(subCtor) {
 		return false
 	}
-	var ret_1 bool
-	code_1 := func() (code_ int) {
-		defer func() {
-			this.hasInSupertypesListSeenSet.remove(subCtor)
-		}()
-		if subCtor.equals_Color(superCtor) {
-			ret_1 = true
-			return 1
-		}
-		it_2 := foreach_(this.registry.getDisambiguationSupertypes(subCtor))
-		for it_2.next() {
-			var immediateSupertype *Color = cast_[*Color](it_2.v)
-			if immediateSupertype.isUnion() {
-				for _, el_4 := range immElems_(immediateSupertype.getUnionElements()) {
-					var alt *Color = cast_[*Color](el_4)
-					if this.hasInSupertypesList(alt, superCtor) {
-						ret_1 = true
-						return 1
-					}
-				}
-			} else if this.hasInSupertypesList(immediateSupertype, superCtor) {
-				ret_1 = true
-				return 1
-			}
-		}
-		ret_1 = false
-		return 1
+	defer func() {
+		this.hasInSupertypesListSeenSet.remove(subCtor)
 	}()
-	if code_1 == 1 {
-		return ret_1
+	if subCtor.equals_Color(superCtor) {
+		return true
 	}
-	panic("unreachable")
+	it_2 := foreach_(this.registry.getDisambiguationSupertypes(subCtor))
+	for it_2.next() {
+		var immediateSupertype *Color = cast_[*Color](it_2.v)
+		if immediateSupertype.isUnion() {
+			for _, el_4 := range immElems_(immediateSupertype.getUnionElements()) {
+				var alt *Color = cast_[*Color](el_4)
+				if this.hasInSupertypesList(alt, superCtor) {
+					return true
+				}
+			}
+		} else if this.hasInSupertypesList(immediateSupertype, superCtor) {
+			return true
+		}
+	}
+	return false
 }
 
 var PolyfillUsageFinder_PROTOTYPE_PREFIX_PATTERN *Pattern
@@ -343,7 +332,7 @@ func PolyfillUsageFinder_Polyfills_fromTable(table string) *PolyfillUsageFinder_
 		if (int32(len(tokens)) == 1) && sliceAt_(tokens, 0) == "" {
 			continue
 		} else if int32(len(tokens)) < 3 {
-			panic(new_IllegalArgumentException_String(("Invalid table: too few tokens on line: " + sstr_(line))).self())
+			panic(new_IllegalArgumentException_String(("Invalid table: too few tokens on line: " + sstr_(line))))
 		}
 		var symbol string = sliceAt_(tokens, 0)
 		var isPrototypeMethod bool = strings.Contains(symbol, ".prototype.")
@@ -395,10 +384,10 @@ func (this *PolyfillUsageFinder_PolyfillUsage) zero_PolyfillUsageFinder_Polyfill
 
 func (this *PolyfillUsageFinder_PolyfillUsage) init_PolyfillUsageFinder_PolyfillUsage(polyfill *PolyfillUsageFinder_Polyfill, node Node, name string, isExplicitGlobal bool) {
 	if polyfill == nil {
-		panic(new_NullPointerException_String("polyfill").self())
+		panic(new_NullPointerException_String("polyfill"))
 	}
 	if node == 0 {
-		panic(new_NullPointerException_String("node").self())
+		panic(new_NullPointerException_String("node"))
 	}
 	this.polyfill_ = polyfill
 	this.node_ = node
@@ -510,7 +499,7 @@ func (this PolyfillUsageFinder_Guard) shouldInclude(isGuarded bool) bool {
 		case PolyfillUsageFinder_Guard_ONLY_UNGUARDED:
 			return !isGuarded
 		}
-		panic("unreachable")
+		panic(new_NullPointerException_0())
 	}()
 }
 

@@ -17,7 +17,7 @@ func (this *Property) finit_Property() {
 func (this *Property) init_Property(name any, type_ *JSType, inferred bool, propertyNode Node) {
 	this.finit_Property()
 	if name == nil {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	this.name_ = name
 	if type_ == nil {
@@ -36,7 +36,7 @@ func new_Property(name any, type_ *JSType, inferred bool, propertyNode Node) *Pr
 
 func Property_createFromKey(name Property_Key, type_ *JSType, inferred bool, propertyNode Node) *Property {
 	if name == nil {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	var nameObject any = func() any {
 		switch name.kind() {
@@ -45,10 +45,10 @@ func Property_createFromKey(name Property_Key, type_ *JSType, inferred bool, pro
 		case Property_KeyKind_SYMBOL:
 			return obj_(name.symbol())
 		}
-		panic("unreachable")
+		panic(new_NullPointerException_0())
 	}()
 	if type_ == nil {
-		panic(new_NullPointerException_String(Strings_lenientFormat("Null type specified for %s", []any{name})).self())
+		panic(new_NullPointerException_String(Strings_lenientFormat("Null type specified for %s", []any{name})))
 	}
 	return new_Property(nameObject, type_, inferred, propertyNode)
 }
@@ -66,7 +66,7 @@ func (this *Property) getName() string {
 				var s *KnownSymbolType = cast_[*KnownSymbolType](sel_)
 				return s.getDisplayName().orElseThrow()
 			default:
-				panic(new_AssertionError_0().self())
+				panic(new_AssertionError_0())
 			}
 		}
 	}()
@@ -139,7 +139,7 @@ func (this *Property) toString() string {
 }
 
 func (this *Property) getScope() StaticScope {
-	panic(new_UnsupportedOperationException_0().self())
+	panic(new_UnsupportedOperationException_0())
 }
 
 func (this *Property) hashCode() int32 {
@@ -247,7 +247,7 @@ func new_Property_StringKey(string_ string) *Property_StringKey {
 }
 
 func (this *Property_StringKey) symbol() *KnownSymbolType {
-	panic(new_UnsupportedOperationException_0().self())
+	panic(new_UnsupportedOperationException_0())
 }
 
 func (this *Property_StringKey) kind() Property_KeyKind {
@@ -290,7 +290,7 @@ type Property_SymbolKey struct {
 
 func (this *Property_SymbolKey) init_Property_SymbolKey(symbol *KnownSymbolType) {
 	if symbol == nil {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	this.symbol_ = symbol
 }
@@ -302,7 +302,7 @@ func new_Property_SymbolKey(symbol *KnownSymbolType) *Property_SymbolKey {
 }
 
 func (this *Property_SymbolKey) string() string {
-	panic(new_UnsupportedOperationException_0().self())
+	panic(new_UnsupportedOperationException_0())
 }
 
 func (this *Property_SymbolKey) kind() Property_KeyKind {

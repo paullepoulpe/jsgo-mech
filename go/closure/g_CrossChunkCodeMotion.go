@@ -28,25 +28,22 @@ func new_CrossChunkCodeMotion(compiler *AbstractCompiler, graph *JSChunkGraph, p
 }
 
 func (this *CrossChunkCodeMotion) process_2(externs Node, root Node) {
-	_ = func() (code_ int) {
-		defer func() {
-			this.cccmLog = nil
-		}()
-		var logFile *LogFile = this.compiler_.createOrReopenIndexedLog(Object_getClass(any(this)), "cccm.log", []string{})
-		defer closeResource_(logFile.self())
-		this.cccmLog = logFile
-		this.cccmLog.logString("doing cccm")
-		if this.graph.getChunkCount() > 1 {
-			var referenceCollector *CrossChunkReferenceCollector = new_CrossChunkReferenceCollector(this.compiler_, new_SyntacticScopeCreator_AbstractCompiler(this.compiler_))
-			referenceCollector.process(root)
-			var globalSymbols CollectionOf[*CrossChunkCodeMotion_GlobalSymbol] = new_CrossChunkCodeMotion_GlobalSymbolCollector(this).collectGlobalSymbols(referenceCollector)
-			this.moveGlobalSymbols(globalSymbols)
-			this.addInstanceofGuards(globalSymbols)
-		} else {
-			this.cccmLog.logString("only one chunk exists")
-		}
-		return 0
+	defer func() {
+		this.cccmLog = nil
 	}()
+	var logFile *LogFile = this.compiler_.createOrReopenIndexedLog(Object_getClass(any(this)), "cccm.log", []string{})
+	defer closeResource_(logFile.self())
+	this.cccmLog = logFile
+	this.cccmLog.logString("doing cccm")
+	if this.graph.getChunkCount() > 1 {
+		var referenceCollector *CrossChunkReferenceCollector = new_CrossChunkReferenceCollector(this.compiler_, new_SyntacticScopeCreator_AbstractCompiler(this.compiler_))
+		referenceCollector.process(root)
+		var globalSymbols CollectionOf[*CrossChunkCodeMotion_GlobalSymbol] = new_CrossChunkCodeMotion_GlobalSymbolCollector(this).collectGlobalSymbols(referenceCollector)
+		this.moveGlobalSymbols(globalSymbols)
+		this.addInstanceofGuards(globalSymbols)
+	} else {
+		this.cccmLog.logString("only one chunk exists")
+	}
 }
 
 func (this *CrossChunkCodeMotion) addInstanceofGuards(globalSymbols CollectionOf[*CrossChunkCodeMotion_GlobalSymbol]) {
@@ -67,11 +64,11 @@ func (this *CrossChunkCodeMotion) moveGlobalSymbols(globalSymbols CollectionOf[*
 
 func (this *CrossChunkCodeMotion) addGuardToInstanceofReference(referenceNode Node) {
 	if !this.isUnguardedInstanceofReference(referenceNode) {
-		panic(new_IllegalStateException_String(Strings_lenientFormat("instanceof Reference is already guarded: %s", []any{referenceNode.box_()})).self())
+		panic(new_IllegalStateException_String(Strings_lenientFormat("instanceof Reference is already guarded: %s", []any{referenceNode.box_()})))
 	}
 	var instanceofNode Node = referenceNode.getParent()
 	if instanceofNode == 0 {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	var referenceForTypeOf Node = referenceNode.cloneNode()
 	var tmp Node = IR_block_0()
@@ -325,7 +322,7 @@ func (this *CrossChunkCodeMotion_GlobalSymbolCycle) addSymbol(symbol *CrossChunk
 func (this *CrossChunkCodeMotion_GlobalSymbolCycle) moveDeclarationStatements() {
 	for symbol := range sliceAll_(&this.symbols) {
 		if symbol.isMoveDeclarationStatementsDone {
-			panic(new_IllegalStateException_String(Strings_lenientFormat("duplicate attempt to move %s", []any{obj_(symbol)})).self())
+			panic(new_IllegalStateException_String(Strings_lenientFormat("duplicate attempt to move %s", []any{obj_(symbol)})))
 		}
 	}
 	var chunksWithImmovableReferences *BitSet = new_BitSet_int(this.outer_.graph.getChunkCount())
@@ -374,12 +371,12 @@ func (this *CrossChunkCodeMotion_GlobalSymbolCycle) getDsgsLatestFirst() DequeOf
 				if dsg1.currentChunk.getIndex() > dsg2.currentChunk.getIndex() {
 					resultStack.add(stack1.pop())
 					if !stack1.isEmpty() && cast_[*CrossChunkCodeMotion_DeclarationStatementGroup](stack1.peek()).currentChunk.getIndex() > dsg1.currentChunk.getIndex() {
-						panic(new_IllegalStateException_String("DSG stacks are out of order.").self())
+						panic(new_IllegalStateException_String("DSG stacks are out of order."))
 					}
 				} else {
 					resultStack.add(stack2.pop())
 					if !stack2.isEmpty() && cast_[*CrossChunkCodeMotion_DeclarationStatementGroup](stack2.peek()).currentChunk.getIndex() > dsg2.currentChunk.getIndex() {
-						panic(new_IllegalStateException_String("DSG stacks are out of order.").self())
+						panic(new_IllegalStateException_String("DSG stacks are out of order."))
 					}
 				}
 			}
@@ -431,7 +428,7 @@ func (this *CrossChunkCodeMotion_DeclarationStatementGroup) makeReferencesImmova
 	this.declaredGlobalSymbol.addImmovableReference(this.currentChunk)
 	for symbol := range this.referencedGlobalSymbols.All() {
 		if symbol.isMoveDeclarationStatementsDone {
-			panic(new_IllegalStateException_String(Strings_lenientFormat("symbol %s moved before referring symbol %s", []any{obj_(symbol), obj_(this.declaredGlobalSymbol)})).self())
+			panic(new_IllegalStateException_String(Strings_lenientFormat("symbol %s moved before referring symbol %s", []any{obj_(symbol), obj_(this.declaredGlobalSymbol)})))
 		}
 		symbol.addImmovableReference(this.currentChunk)
 	}
@@ -476,7 +473,7 @@ func (this *CrossChunkCodeMotion_OrderAndCombineGlobalSymbols) orderAndCombine()
 
 func (this *CrossChunkCodeMotion_OrderAndCombineGlobalSymbols) processGlobalSymbol(symbol *CrossChunkCodeMotion_GlobalSymbol) {
 	if symbol.preorderNumber >= 0 {
-		panic(new_IllegalStateException_String(Strings_lenientFormat("already processed: %s", []any{obj_(symbol)})).self())
+		panic(new_IllegalStateException_String(Strings_lenientFormat("already processed: %s", []any{obj_(symbol)})))
 	}
 	symbol.preorderNumber = this.preorderCounter
 	this.preorderCounter++
@@ -584,12 +581,12 @@ func (this *CrossChunkCodeMotion_DeclarationStatementGroupCycle) getStatementsLa
 				if s1.getOriginalOrder() > s2.getOriginalOrder() {
 					result.add(stack1.pop())
 					if !stack1.isEmpty() && cast_[*CrossChunkReferenceCollector_TopLevelStatement](stack1.peek()).getOriginalOrder() >= s1.getOriginalOrder() {
-						panic(new_IllegalStateException_String("Statements are recorded in the wrong order.").self())
+						panic(new_IllegalStateException_String("Statements are recorded in the wrong order."))
 					}
 				} else {
 					result.add(stack2.pop())
 					if !stack2.isEmpty() && cast_[*CrossChunkReferenceCollector_TopLevelStatement](stack2.peek()).getOriginalOrder() >= s2.getOriginalOrder() {
-						panic(new_IllegalStateException_String("Statements are recorded in the wrong order.").self())
+						panic(new_IllegalStateException_String("Statements are recorded in the wrong order."))
 					}
 				}
 			}

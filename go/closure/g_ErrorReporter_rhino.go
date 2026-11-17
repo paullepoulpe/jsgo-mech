@@ -57,9 +57,9 @@ func new_ErrorReporter_2() *ErrorReporter_2 {
 }
 
 func (this *ErrorReporter_2) warning(message string, sourceName OptionalOf[string], line int32, lineOffset int32) {
-	panic(new_IllegalStateException_String(message).self())
+	panic(new_IllegalStateException_String(message))
 }
 
 func (this *ErrorReporter_2) error(message string, sourceName OptionalOf[string], line int32, lineOffset int32) {
-	panic(new_IllegalStateException_String(message).self())
+	panic(new_IllegalStateException_String(message))
 }

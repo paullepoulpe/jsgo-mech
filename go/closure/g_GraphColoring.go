@@ -58,10 +58,10 @@ func (this *GraphColoring) haveSameColor(first any, second any) bool {
 	var colorFirst *GraphColoring_Color = cast_[*GraphColoring_Color](Annotatable_getAnnotation(Annotatable(this.graph.getNode(first))))
 	var colorSecond *GraphColoring_Color = cast_[*GraphColoring_Color](Annotatable_getAnnotation(Annotatable(this.graph.getNode(second))))
 	if colorFirst == nil {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	if colorSecond == nil {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	return colorFirst.equals_GraphColoring_Color(colorSecond)
 }
@@ -148,7 +148,7 @@ func new_GraphColoring_GreedyGraphColoring_AdjacencyGraph_Comparator(graph Adjac
 
 func (this *GraphColoring_GreedyGraphColoring) color_impl() int32 {
 	var worklist *TList[GraphNode] = tlistFrom_(tc_GraphNode, this.graph.getNodes())
-	Collections_sort_List_Comparator(worklist.asList(), Comparator_comparing_Function_Comparator(lambda_GraphColoring_GreedyGraphColoring_color_impl_1_, &Comparator_fn{func(leftProperty any, rightProperty any) int32 {
+	Collections_sort_List_Comparator(worklist.asList(), Comparator_comparing_Function_Comparator_f(lambda_GraphColoring_GreedyGraphColoring_color_impl_1_, func(leftProperty any, rightProperty any) int32 {
 		var result int32 = (this.graph.getWeight(rightProperty) - this.graph.getWeight(leftProperty))
 		return func() int32 {
 			if (result == 0) && (this.tieBreaker != nil) {
@@ -156,7 +156,7 @@ func (this *GraphColoring_GreedyGraphColoring) color_impl() int32 {
 			}
 			return result
 		}()
-	}}))
+	}))
 	var count int32 = 0
 	for do_2 := true; do_2; do_2 = !worklist.isEmpty() {
 		var color *GraphColoring_Color = new_GraphColoring_Color(count)
@@ -180,7 +180,9 @@ func (this *GraphColoring_GreedyGraphColoring) color_impl() int32 {
 }
 
 // lambda_GraphColoring_GreedyGraphColoring_color_impl_1_ is a lambda of GraphColoring_GreedyGraphColoring_color_impl that captures nothing (post-flip step lambdas).
-var lambda_GraphColoring_GreedyGraphColoring_color_impl_1_ = &Function_fn{func(p0 any) any { return icast_GraphNode(p0).getValue() }}
+func lambda_GraphColoring_GreedyGraphColoring_color_impl_1_(p0 any) any {
+	return icast_GraphNode(p0).getValue()
+}
 
 // color: an object that is exactly a GraphColoring_GreedyGraphColoring calls its color_impl directly (post-flip); others dispatch.
 func (this *GraphColoring_GreedyGraphColoring) color() int32 {

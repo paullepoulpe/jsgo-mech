@@ -12,7 +12,7 @@ type ThreadSafeDelegatingErrorManager struct {
 type ThreadSafeDelegatingErrorManager_I interface {
 	generateReport_impl()
 	report_2_impl(CheckLevel, *JSError)
-	shouldReportConformanceViolation_impl(*Requirement, *Optional_base, *JSError, ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior, bool) bool
+	shouldReportConformanceViolation_impl(*Requirement, Optional_base, *JSError, ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior, bool) bool
 }
 
 func (this *ThreadSafeDelegatingErrorManager) as_ThreadSafeDelegatingErrorManager() *ThreadSafeDelegatingErrorManager {
@@ -77,7 +77,7 @@ func (this *ThreadSafeDelegatingErrorManager) shouldReportConformanceViolation_i
 	return this.delegated.shouldReportConformanceViolation(requirement, allowlistEntry, diagnostic, behavior, isAllowlisted)
 }
 
-func (this *ThreadSafeDelegatingErrorManager) shouldReportConformanceViolation(p0 *Requirement, p1 *Optional_base, p2 *JSError, p3 ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior, p4 bool) bool {
+func (this *ThreadSafeDelegatingErrorManager) shouldReportConformanceViolation(p0 *Requirement, p1 Optional_base, p2 *JSError, p3 ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior, p4 bool) bool {
 	return this.self_.shouldReportConformanceViolation_impl(p0, p1, p2, p3, p4)
 }
 

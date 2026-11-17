@@ -27,7 +27,7 @@ func (this *CompilerBasedTransformer) self() any {
 
 func (this *CompilerBasedTransformer) init_CompilerBasedTransformer(compilerSupplier *CompilerBasedTransformer_CompilerSupplier) {
 	if compilerSupplier == nil {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	this.compilerSupplierField = compilerSupplier
 }
@@ -40,7 +40,7 @@ func (this *CompilerBasedTransformer) transform(input *Source) *Source {
 		for _, error_ := range result.errors_ {
 			message.append(formatter.formatError(error_))
 		}
-		panic(new_IllegalStateException_String(message.toString()).self())
+		panic(new_IllegalStateException_String(message.toString()))
 	}
 	if !result.transformed_ {
 		return input
@@ -111,21 +111,7 @@ func (this *CompilerBasedTransformer_CompilerSupplier) compile(path string, code
 	var source string = compiler.toSource()
 	var sourceMap *StringBuilder = new_StringBuilder()
 	if result.sourceMap_ != nil {
-		_ = func() (code_ int) {
-			defer func() {
-				if r_ := recover(); r_ != nil {
-					ex_ := catch_(r_)
-					if p, ok := ex_.(IOException_as); ok {
-						var e *IOException = p.as_IOException()
-						_ = e
-						return
-					}
-					panic(r_)
-				}
-			}()
-			result.sourceMap_.appendTo(sourceMap, Optional_of[string](path))
-			return 0
-		}()
+		result.sourceMap_.appendTo(sourceMap, Optional_of[string](path))
 	}
 	var transformed bool = this.transformed(result)
 	return new_CompilerBasedTransformer_CompileResult(source, result.errors_, transformed, func() string {
@@ -211,7 +197,7 @@ func (this *CompilerBasedTransformer_CompileResult) zero_CompilerBasedTransforme
 func (this *CompilerBasedTransformer_CompileResult) init_CompilerBasedTransformer_CompileResult(source string, errors ImmutableListOf[*JSError], transformed bool, sourceMap string) {
 	this.source = source
 	if errors == nil {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	this.errors_ = sliceImm_(tc_p_JSError, errors)
 	this.transformed_ = transformed

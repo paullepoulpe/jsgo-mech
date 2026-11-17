@@ -22,10 +22,10 @@ func (this *JSError) zero_JSError() {
 
 func (this *JSError) init_JSError(type_ *DiagnosticType, description string, sourceName OptionalOf[string], lineno int32, charno int32, length int32, node Node, defaultLevel CheckLevel, requirement *Requirement) {
 	if type_ == nil {
-		panic(new_NullPointerException_String("type").self())
+		panic(new_NullPointerException_String("type"))
 	}
 	if defaultLevel == 0 {
-		panic(new_NullPointerException_String("defaultLevel").self())
+		panic(new_NullPointerException_String("defaultLevel"))
 	}
 	this.type__ = type_
 	this.description_ = description
@@ -268,7 +268,7 @@ func new_JSError_Builder(type_ *DiagnosticType, args []string) *JSError_Builder 
 
 func (this *JSError_Builder) setNode(n Node) *JSError_Builder {
 	if !optequalsOn_(JSError_DEFAULT_SOURCENAME, optErase_(this.sourceName_)) {
-		panic(new_IllegalStateException_String("Cannot provide a Node when there's already a source name").self())
+		panic(new_IllegalStateException_String("Cannot provide a Node when there's already a source name"))
 	}
 	this.n = n
 	this.sourceName_ = Optional_of[string](n.getSourceFileName()).filterFn_(func(s string) bool {
@@ -283,7 +283,7 @@ func (this *JSError_Builder) setNode(n Node) *JSError_Builder {
 
 func (this *JSError_Builder) setNodeRange(start Node, end Node) *JSError_Builder {
 	if !optequalsOn_(JSError_DEFAULT_SOURCENAME, optErase_(this.sourceName_)) {
-		panic(new_IllegalStateException_String("Cannot provide a Node when there's already a source name").self())
+		panic(new_IllegalStateException_String("Cannot provide a Node when there's already a source name"))
 	}
 	this.n = start
 	this.sourceName_ = Optional_of[string](this.n.getSourceFileName()).filterFn_(func(s string) bool {
@@ -302,7 +302,7 @@ func (this *JSError_Builder) setNodeRange(start Node, end Node) *JSError_Builder
 
 func (this *JSError_Builder) setLevel(level CheckLevel) *JSError_Builder {
 	if level == 0 {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	this.level_ = level
 	return this
@@ -310,7 +310,7 @@ func (this *JSError_Builder) setLevel(level CheckLevel) *JSError_Builder {
 
 func (this *JSError_Builder) setRequirement(requirement *Requirement) *JSError_Builder {
 	if requirement == nil {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	this.requirement_ = requirement
 	return this
@@ -318,7 +318,7 @@ func (this *JSError_Builder) setRequirement(requirement *Requirement) *JSError_B
 
 func (this *JSError_Builder) setSourceLocation(sourceName OptionalOf[string], lineno int32, charno int32) *JSError_Builder {
 	if this.n != JSError_DEFAULT_NODE {
-		panic(new_IllegalStateException_String("Cannot provide a source location when there is already a Node").self())
+		panic(new_IllegalStateException_String("Cannot provide a source location when there is already a Node"))
 	}
 	this.sourceName_ = sourceName
 	this.lineno_ = lineno

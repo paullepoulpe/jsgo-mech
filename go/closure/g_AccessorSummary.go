@@ -41,7 +41,7 @@ func (this *AccessorSummary) toProto() *AccessorSummaryProto {
 	var builder *AccessorSummaryProto_Builder = AccessorSummaryProto_newBuilder().setAssumeAlwaysGetterAndSetter(this.assumeAlwaysGetterAndSetter)
 	if this.assumeAlwaysGetterAndSetter {
 		if !this.accessors.isEmpty() {
-			panic(new_IllegalStateException_0().self())
+			panic(new_IllegalStateException_0())
 		}
 	} else {
 		for _, el := range immElems_(cast_[*ImmutableSet](this.accessors.entrySet())) {
@@ -64,7 +64,7 @@ func AccessorSummary_toProto(kind AccessorSummary_PropertyAccessKind) PropertyAc
 		case AccessorSummary_PropertyAccessKind_GETTER_AND_SETTER:
 			return PropertyAccessKindProto_KIND_GETTER_AND_SETTER
 		}
-		panic("unreachable")
+		panic(new_NullPointerException_0())
 	}()
 }
 
@@ -91,7 +91,7 @@ func AccessorSummary_fromProtoPropertyAccessKindProto(kind PropertyAccessKindPro
 		case PropertyAccessKindProto_KIND_GETTER_AND_SETTER:
 			return AccessorSummary_PropertyAccessKind_GETTER_AND_SETTER
 		default:
-			panic(new_IllegalArgumentException_String(("Unknown kind: " + tostr_(kind))).self())
+			panic(new_IllegalArgumentException_String(("Unknown kind: " + tostr_(kind))))
 		}
 	}()
 }
@@ -170,7 +170,7 @@ func (this AccessorSummary_PropertyAccessKind) unionWith(other AccessorSummary_P
 		case 3:
 			return AccessorSummary_PropertyAccessKind_GETTER_AND_SETTER
 		default:
-			panic(new_IllegalStateException_String(("unexpected value: " + istr_(int64(combinedFlags)))).self())
+			panic(new_IllegalStateException_String(("unexpected value: " + istr_(int64(combinedFlags)))))
 		}
 	}()
 }

@@ -45,9 +45,9 @@ func (this *SourcePosition_rhino) setItem_impl(item any) {
 
 func (this *SourcePosition_rhino) setPositionInformation(startLineno int32, startCharno int32, endLineno int32, endCharno int32) {
 	if startLineno > endLineno {
-		panic(new_IllegalStateException_String(("Recorded bad position information\nstart-line: " + istr_(int64(startLineno)) + "\nend-line: " + istr_(int64(endLineno)))).self())
+		panic(new_IllegalStateException_String(("Recorded bad position information\nstart-line: " + istr_(int64(startLineno)) + "\nend-line: " + istr_(int64(endLineno)))))
 	} else if (startLineno == endLineno) && (startCharno >= endCharno) {
-		panic(new_IllegalStateException_String(("Recorded bad position information\nline: " + istr_(int64(startLineno)) + "\nstart-char: " + istr_(int64(startCharno)) + "\nend-char: " + istr_(int64(endCharno)))).self())
+		panic(new_IllegalStateException_String(("Recorded bad position information\nline: " + istr_(int64(startLineno)) + "\nstart-char: " + istr_(int64(startCharno)) + "\nend-char: " + istr_(int64(endCharno)))))
 	}
 	this.startLineno = startLineno
 	this.startCharno = startCharno

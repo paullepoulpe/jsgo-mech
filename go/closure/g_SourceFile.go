@@ -32,7 +32,7 @@ func (this *SourceFile_jscomp) finit_SourceFile_jscomp() {
 func (this *SourceFile_jscomp) init_SourceFile_jscomp(loader *SourceFile_CodeLoader, fileName string, kind StaticSourceFile_SourceKind) {
 	this.finit_SourceFile_jscomp()
 	if Strings_isNullOrEmpty(fileName) {
-		panic(new_IllegalArgumentException_String("a source must have a name").self())
+		panic(new_IllegalArgumentException_String("a source must have a name"))
 	}
 	if !("/" == Platform_getFileSeperator()) {
 		fileName = strings.ReplaceAll(fileName, csStr_(Platform_getFileSeperator()), "/")
@@ -60,7 +60,7 @@ func (this *SourceFile_jscomp) setIsStubSourceFileForAlreadyProvidedInput(isStub
 func (this *SourceFile_jscomp) getLineOffset(lineno int32) int32 {
 	this.findLineOffsets()
 	if (lineno < 1) || (lineno > int32(len(this.lineOffsets))) {
-		panic(new_IllegalArgumentException_String(("Expected line number between 1 and " + istr_(int64(int32(len(this.lineOffsets)))) + "\nActual: " + istr_(int64(lineno)))).self())
+		panic(new_IllegalArgumentException_String(("Expected line number between 1 and " + istr_(int64(int32(len(this.lineOffsets)))) + "\nActual: " + istr_(int64(lineno)))))
 	}
 	return this.lineOffsets[(lineno - 1)]
 }
@@ -120,7 +120,7 @@ func (this *SourceFile_jscomp) findLineOffsets() {
 		index++
 	})
 	if index != int32(len(offsets)) {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	this.lineOffsets = offsets
 }
@@ -208,7 +208,7 @@ func (this *SourceFile_jscomp) markAsClosureUnawareCode() {
 
 func (this *SourceFile_jscomp) getLineOfOffset(offset int32) int32 {
 	if offset < 0 {
-		panic(new_IllegalArgumentException_String(Strings_lenientFormat("offset must be non-negative: %s", []any{offset})).self())
+		panic(new_IllegalArgumentException_String(Strings_lenientFormat("offset must be non-negative: %s", []any{offset})))
 	}
 	this.findLineOffsets()
 	var search int32 = Arrays_binarySearch(this.lineOffsets, offset)
@@ -434,20 +434,20 @@ func SourceFile_jscomp_canonicalizePathForMatching(path string) string {
 
 func (this *SourceFile_jscomp) restoreCachedStateFrom(protoSourceFile *SourceFileProto) {
 	if ok_, a1_, a2_ := ((protoSourceFile.getFilename() == this.getName()) || (SourceFile_jscomp_canonicalizePathForMatching(protoSourceFile.getFilename()) == SourceFile_jscomp_canonicalizePathForMatching(this.getName()))), this.getName(), protoSourceFile.getFilename(); !ok_ {
-		panic(new_IllegalStateException_String(Strings_lenientFormat("Cannot restore state for %s from %s", []any{strobj_(a1_), strobj_(a2_)})).self())
+		panic(new_IllegalStateException_String(Strings_lenientFormat("Cannot restore state for %s from %s", []any{strobj_(a1_), strobj_(a2_)})))
 	}
 	if protoSourceFile.getSourceKind() == SourceFileProto_SourceKind_EXTERN {
 		if ok_, a1_ := (this.getKind() == StaticSourceFile_SourceKind_EXTERN), this.getName(); !ok_ {
-			panic(new_IllegalStateException_String(Strings_lenientFormat("TypedAST compilations must pass all extern files as externs, not js, but found %s", []any{strobj_(a1_)})).self())
+			panic(new_IllegalStateException_String(Strings_lenientFormat("TypedAST compilations must pass all extern files as externs, not js, but found %s", []any{strobj_(a1_)})))
 		}
 	}
 	var protoNumLines int32 = (protoSourceFile.getNumLinesPlusOne() - 1)
 	var protoNumBytes int32 = (protoSourceFile.getNumBytesPlusOne() - 1)
 	if protoNumLines < -1 {
-		panic(new_IllegalStateException_String(Strings_lenientFormat("protoNumLines must be >= -1: %s", []any{protoNumLines})).self())
+		panic(new_IllegalStateException_String(Strings_lenientFormat("protoNumLines must be >= -1: %s", []any{protoNumLines})))
 	}
 	if protoNumBytes < -1 {
-		panic(new_IllegalStateException_String(Strings_lenientFormat("protoNumBytes must be >= -1: %s", []any{protoNumBytes})).self())
+		panic(new_IllegalStateException_String(Strings_lenientFormat("protoNumBytes must be >= -1: %s", []any{protoNumBytes})))
 	}
 	this.numLines = func() int32 {
 		if protoNumLines != -1 {
@@ -470,10 +470,10 @@ func SourceFile_jscomp_fromProto_SourceFileProto(protoSourceFile *SourceFileProt
 	var protoNumLines int32 = (protoSourceFile.getNumLinesPlusOne() - 1)
 	var protoNumBytes int32 = (protoSourceFile.getNumBytesPlusOne() - 1)
 	if protoNumLines < -1 {
-		panic(new_IllegalStateException_String(Strings_lenientFormat("protoNumLines must be >= -1: %s", []any{protoNumLines})).self())
+		panic(new_IllegalStateException_String(Strings_lenientFormat("protoNumLines must be >= -1: %s", []any{protoNumLines})))
 	}
 	if protoNumBytes < -1 {
-		panic(new_IllegalStateException_String(Strings_lenientFormat("protoNumBytes must be >= -1: %s", []any{protoNumBytes})).self())
+		panic(new_IllegalStateException_String(Strings_lenientFormat("protoNumBytes must be >= -1: %s", []any{protoNumBytes})))
 	}
 	sourceFile.numLines = protoNumLines
 	sourceFile.numBytes = protoNumBytes
@@ -502,7 +502,7 @@ func SourceFile_jscomp_fromProto_SourceFileProto_SourceKind(protoSourceFile *Sou
 		return SourceFile_jscomp_builder().withKind(sourceKind).withOriginalPath(protoSourceFile.getFilename()).setIsStubSourceFileForAlreadyProvidedInput().build()
 	case SourceFileProto_LoaderCase_LOADER_NOT_SET:
 	}
-	panic(new_AssertionError_0().self())
+	panic(new_AssertionError_0())
 }
 
 func SourceFile_jscomp_getSourceKindFromProto(protoSourceFile *SourceFileProto) StaticSourceFile_SourceKind {
@@ -513,9 +513,9 @@ func SourceFile_jscomp_getSourceKindFromProto(protoSourceFile *SourceFileProto) 
 		case SourceFileProto_SourceKind_CODE:
 			return StaticSourceFile_SourceKind_STRONG
 		case SourceFileProto_SourceKind_NOT_SPECIFIED, SourceFileProto_SourceKind_UNRECOGNIZED:
-			panic(new_AssertionError_Object(strobj_(tostrNN_(protoSourceFile.getSourceKind()))).self())
+			panic(new_AssertionError_Object(strobj_(tostrNN_(protoSourceFile.getSourceKind()))))
 		}
-		panic("unreachable")
+		panic(new_NullPointerException_0())
 	}()
 }
 
@@ -542,9 +542,9 @@ func SourceFile_jscomp_sourceKindToProto(sourceKind StaticSourceFile_SourceKind)
 		case StaticSourceFile_SourceKind_STRONG, StaticSourceFile_SourceKind_WEAK:
 			return SourceFileProto_SourceKind_CODE
 		case StaticSourceFile_SourceKind_NON_CODE:
-			panic(new_AssertionError_Object(strobj_(tostrNN_(sourceKind))).self())
+			panic(new_AssertionError_Object(strobj_(tostrNN_(sourceKind))))
 		}
-		panic("unreachable")
+		panic(new_NullPointerException_0())
 	}()
 }
 
@@ -720,7 +720,7 @@ func (this *SourceFile_CodeLoader) init_SourceFile_CodeLoader() {
 }
 
 func (this *SourceFile_CodeLoader) loadUncachedCode_impl() *Outcome_base[string] {
-	panic(new_AssertionError_0().self())
+	panic(new_AssertionError_0())
 }
 
 func (this *SourceFile_CodeLoader) loadUncachedText_impl() *Outcome_base[string] {
@@ -801,7 +801,7 @@ func new_SourceFile_CodeLoader_StubSourceFileCodeLoader() *SourceFile_CodeLoader
 }
 
 func (this *SourceFile_CodeLoader_StubSourceFileCodeLoader) loadUncachedCode_impl() *Outcome_base[string] {
-	panic(new_UnsupportedOperationException_String("Attempting to load code from a stub SourceFile.").self())
+	panic(new_UnsupportedOperationException_String("Attempting to load code from a stub SourceFile."))
 }
 
 func (this *SourceFile_CodeLoader_StubSourceFileCodeLoader) toProtoLocationBuilder_impl(fileName string) *SourceFileProto_Builder {

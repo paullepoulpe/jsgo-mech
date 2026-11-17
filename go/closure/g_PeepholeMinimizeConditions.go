@@ -239,7 +239,7 @@ func (this *PeepholeMinimizeConditions) areMatchingExits(nodeThis Node, nodeThat
 
 func PeepholeMinimizeConditions_isExceptionPossible(n Node) bool {
 	if !n.isReturn() && !n.isThrow() {
-		panic(new_IllegalStateException_String(tostr_(n)).self())
+		panic(new_IllegalStateException_String(tostr_(n)))
 	}
 	return (n.isThrow() || (n.hasChildren() && !NodeUtil_isLiteralValue(n.getLastChild(), true)))
 }
@@ -250,7 +250,7 @@ func PeepholeMinimizeConditions_getExceptionHandler(n Node) Node {
 
 func (this *PeepholeMinimizeConditions) tryMinimizeNot(n Node) Node {
 	if !n.isNot() {
-		panic(new_IllegalArgumentException_0().self())
+		panic(new_IllegalArgumentException_0())
 	}
 	var parent Node = n.getParent()
 	var notChild Node = n.getFirstChild()
@@ -455,7 +455,7 @@ func (this *PeepholeMinimizeConditions) tryMinimizeIf(n Node) Node {
 		var maybeName2 Node = elseAssign.getFirstChild()
 		if (name1.hasChildren() && maybeName2.isName()) && (name1.getString() == maybeName2.getString()) {
 			if !name1.hasOneChild() {
-				panic(new_IllegalStateException_0().self())
+				panic(new_IllegalStateException_0())
 			}
 			var thenExpr Node = name1.removeFirstChild()
 			var elseExpr Node = elseAssign.getLastChild().detach()
@@ -475,7 +475,7 @@ func (this *PeepholeMinimizeConditions) tryMinimizeIf(n Node) Node {
 		if (name2.hasChildren() && maybeName1.isName()) && (maybeName1.getString() == name2.getString()) {
 			var thenExpr Node = thenAssign.getLastChild().detach()
 			if !name2.hasOneChild() {
-				panic(new_IllegalStateException_0().self())
+				panic(new_IllegalStateException_0())
 			}
 			var elseExpr Node = name2.removeFirstChild()
 			var replacementCond Node = this.replaceNode(originalCond, shortCond).detach()
@@ -496,7 +496,7 @@ func (this *PeepholeMinimizeConditions) tryRemoveRepeatedStatements(n Node) {
 		return
 	}
 	if !n.isIf() {
-		panic(new_IllegalStateException_String(tostr_(n)).self())
+		panic(new_IllegalStateException_String(tostr_(n)))
 	}
 	var parent Node = n.getParent()
 	if !NodeUtil_isStatementBlock(parent) {
@@ -506,10 +506,10 @@ func (this *PeepholeMinimizeConditions) tryRemoveRepeatedStatements(n Node) {
 	var trueBranch Node = cond.getNext()
 	var falseBranch Node = trueBranch.getNext()
 	if trueBranch == 0 {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	if falseBranch == 0 {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	for {
 		var lastTrue Node = trueBranch.getLastChild()
@@ -547,7 +547,7 @@ func PeepholeMinimizeConditions_isFoldableExpressBlock(n Node) bool {
 
 func PeepholeMinimizeConditions_getBlockExpression(n Node) Node {
 	if !PeepholeMinimizeConditions_isFoldableExpressBlock(n) {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	return n.getFirstChild()
 }
@@ -583,7 +583,7 @@ func PeepholeMinimizeConditions_isReturnExpression(n Node) bool {
 
 func PeepholeMinimizeConditions_getBlockReturnExpression(n Node) Node {
 	if !PeepholeMinimizeConditions_isReturnExpressBlock(n) {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	return n.getFirstFirstChild()
 }
@@ -602,7 +602,7 @@ func PeepholeMinimizeConditions_isVarBlock(n Node) bool {
 
 func PeepholeMinimizeConditions_getBlockVar(n Node) Node {
 	if !PeepholeMinimizeConditions_isVarBlock(n) {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	return n.getFirstChild()
 }

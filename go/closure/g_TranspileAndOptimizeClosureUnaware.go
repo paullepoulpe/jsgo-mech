@@ -48,7 +48,7 @@ func (this *TranspileAndOptimizeClosureUnaware) reattachShadowNodes(inputs *Simp
 	for shadowAst := range elemsAs_[*TranspileAndOptimizeClosureUnaware_ShadowAst](inputs.values()) {
 		var script Node = shadowAst.script()
 		if ok_, a1_ := script.hasOneChild(), script.toStringTree(); !ok_ {
-			panic(new_IllegalStateException_String(sstr_(a1_)).self())
+			panic(new_IllegalStateException_String(sstr_(a1_)))
 		}
 		shadowAst.originalRoot().addChildToFront(script.detach())
 		script.setInputId(nil)
@@ -175,7 +175,7 @@ func (this *TranspileAndOptimizeClosureUnaware_CollectShadowAsts) shouldTraverse
 		case JSDocInfo_PerFileClosureUnawareMode_WHITESPACE:
 			return false
 		}
-		panic("unreachable")
+		panic(new_NullPointerException_0())
 	}()
 }
 
@@ -191,7 +191,7 @@ func (this *TranspileAndOptimizeClosureUnaware_CollectShadowAsts) visit(t *NodeT
 		return n.getGrandparent()
 	}()
 	if !callNode.isCall() {
-		panic(new_IllegalStateException_String(tostr_(callNode)).self())
+		panic(new_IllegalStateException_String(tostr_(callNode)))
 	}
 	this.shadowAsts.put(t.getInput().getSourceFile(), new_TranspileAndOptimizeClosureUnaware_ShadowAst(shadow, callNode, shadow.getOnlyChild()))
 }

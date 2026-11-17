@@ -187,7 +187,7 @@ func (this *BranchCoverageInstrumentationCallback) newHeaderNode(traversal *Node
 		return nil
 	}()
 	if data == nil {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	var objName string = CoverageInstrumentationPass_JS_INSTRUMENTATION_OBJECT_NAME
 	var nodes []Node = []Node{}

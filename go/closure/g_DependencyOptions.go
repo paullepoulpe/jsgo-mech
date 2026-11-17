@@ -9,10 +9,10 @@ type DependencyOptions struct {
 
 func (this *DependencyOptions) init_DependencyOptions(mode DependencyOptions_DependencyMode, entryPoints ImmutableListOf[*ModuleIdentifier]) {
 	if mode == 0 {
-		panic(new_NullPointerException_String("mode").self())
+		panic(new_NullPointerException_String("mode"))
 	}
 	if entryPoints == nil {
-		panic(new_NullPointerException_String("entryPoints").self())
+		panic(new_NullPointerException_String("entryPoints"))
 	}
 	this.mode_ = mode
 	this.entryPoints_ = entryPoints
@@ -66,7 +66,7 @@ func DependencyOptions_pruneAllowNoEntryPoints(entryPoints IterableOf[*ModuleIde
 
 func DependencyOptions_pruneForEntryPoints(entryPoints IterableOf[*ModuleIdentifier]) *DependencyOptions {
 	if Iterables_isEmpty(entryPoints) {
-		panic(new_IllegalStateException_String("DependencyMode.PRUNE requires at least one entry point").self())
+		panic(new_IllegalStateException_String("DependencyMode.PRUNE requires at least one entry point"))
 	}
 	return new_DependencyOptions(DependencyOptions_DependencyMode_PRUNE, ImmutableList_copyOf_Iterable(entryPoints))
 }
@@ -132,7 +132,7 @@ func DependencyOptions_fromFlags(dependencyModeFlag DependencyOptions_Dependency
 		case DependencyOptions_DependencyMode_PRUNE:
 			return DependencyOptions_pruneForEntryPoints(icast_Iterable(obj_(entryPointsBuilder.build())))
 		}
-		panic("unreachable")
+		panic(new_NullPointerException_0())
 	}()
 	return Outcome_base_ok_Object[*DependencyOptions](result)
 }

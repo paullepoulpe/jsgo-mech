@@ -20,7 +20,7 @@ func new_GoogleJsMessageIdGenerator(projectId OptionalOf[string]) *GoogleJsMessa
 
 func (this *GoogleJsMessageIdGenerator) generateId(meaning OptionalOf[string], messageParts *TList[JsMessage_Part]) string {
 	if !meaning.isPresent() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	var sb strBuilder_
 	for part := range messageParts.All() {

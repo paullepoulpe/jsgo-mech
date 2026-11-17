@@ -106,20 +106,7 @@ func SourceCodeEscapers_JavaScriptEscaper_asUnicodeHexEscape(c uint16) []uint16 
 
 func (this *SourceCodeEscapers_JavaScriptEscaper) escape(string_ string) string {
 	var sb *StringBuilder = new_StringBuilder()
-	_ = func() (code_ int) {
-		defer func() {
-			if r_ := recover(); r_ != nil {
-				ex_ := catch_(r_)
-				if p, ok := ex_.(IOException_as); ok {
-					var e *IOException = p.as_IOException()
-					panic(new_IllegalStateException_String_Throwable("This should never throw - StringBuilder.append doesn't actually throw IOException", e.up_Throwable()).self())
-				}
-				panic(r_)
-			}
-		}()
-		this.appendTo(strobj_(string_), sb)
-		return 0
-	}()
+	this.appendTo(strobj_(string_), sb)
 	return sb.toString()
 }
 

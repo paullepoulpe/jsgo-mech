@@ -47,6 +47,7 @@ import (
 	"os"
 	"path/filepath"
 	"sort"
+	"strconv"
 	"strings"
 
 	"postflip/rw"
@@ -346,12 +347,17 @@ func tries() {
 			if !ok {
 				return true
 			}
-			lit, ok := rw.Parent[rw.Parent[d]].(*ast.FuncLit)
-			if !ok {
-				note("left: catch defer not in a function literal", d)
+			var body *ast.BlockStmt
+			lit, _ := rw.Parent[rw.Parent[d]].(*ast.FuncLit)
+			if lit != nil {
+				body = lit.Body
+			} else if fd, ok := rw.Parent[rw.Parent[d]].(*ast.FuncDecl); ok {
+				body = fd.Body // a try that ends its function (tools/postflip/tryfn)
+			} else {
+				note("left: catch defer not in a function", d)
 				return true
 			}
-			analyse(lit, d, is)
+			analyse(lit, body, d, is)
 			return true
 		})
 	}
@@ -360,11 +366,13 @@ func tries() {
 // implicit are the exceptions catch_ makes of Go runtime panics, which any code can raise.
 var implicit = []string{"NullPointerException", "ArrayIndexOutOfBoundsException", "ClassCastException", "ArithmeticException", "RuntimeException"}
 
-func analyse(lit *ast.FuncLit, d *ast.DeferStmt, is *ast.IfStmt) {
-	// The try block: the statements of the literal after its defers.
+// analyse reads the catch clauses of the try whose catch defer d is a statement of fn: the
+// body of the try's function literal, or of the function the try ends (lit is nil then).
+func analyse(lit *ast.FuncLit, fn *ast.BlockStmt, d *ast.DeferStmt, is *ast.IfStmt) {
+	// The try block: the statements of the function after the catch defer.
 	var body []ast.Stmt
 	idx := -1
-	for i, s := range lit.Body.List {
+	for i, s := range fn.List {
 		if s == ast.Stmt(d) {
 			idx = i
 		}
@@ -374,12 +382,12 @@ func analyse(lit *ast.FuncLit, d *ast.DeferStmt, is *ast.IfStmt) {
 		return
 	}
 	finally := false
-	for _, s := range lit.Body.List[:idx] {
+	for _, s := range fn.List[:idx] {
 		if _, ok := s.(*ast.DeferStmt); ok {
 			finally = true
 		}
 	}
-	body = lit.Body.List[idx+1:]
+	body = fn.List[idx+1:]
 	set := throwsOf(body)
 	clauses := is.Body.List[1 : len(is.Body.List)-1]
 	live := 0
@@ -430,18 +438,59 @@ func analyse(lit *ast.FuncLit, d *ast.DeferStmt, is *ast.IfStmt) {
 	for _, ci := range dead {
 		rw.Rewrite[ci] = func() string { return rw.Del }
 	}
+	if live == 1 && len(dead) == 0 && len(clauses) == 1 && !finally && lit != nil {
+		errReturn(lit, body, clauses[0].(*ast.IfStmt))
+	}
 	if live > 0 || len(dead) == 0 {
 		return
 	}
 	// No clause is left: the try statement only runs its block.
 	rw.Rewrite[d] = func() string { return rw.Del }
 	note("try emulation without catch clauses: defer deleted", d)
+	if lit == nil {
+		// The function the try ended named its result for the catch clauses (tryfn); with
+		// none left, the name is not used.
+		if fd, ok := rw.Parent[fn].(*ast.FuncDecl); ok && !finally {
+			unnameResult(fd, d)
+		}
+		return
+	}
 	if finally {
+		return
+	}
+	// func() { <block> }() (tools/postflip/tryfn) -> { <block> }
+	call, _ := rw.Parent[lit].(*ast.CallExpr)
+	if es, ok := rw.Up(rw.Parent[lit]).(*ast.ExprStmt); ok && call != nil && lit.Type.Results == nil {
+		returns := 0
+		for _, s := range body {
+			ast.Inspect(s, func(n ast.Node) bool {
+				switch n.(type) {
+				case *ast.FuncLit:
+					return false
+				case *ast.ReturnStmt:
+					returns++
+				}
+				return true
+			})
+		}
+		if returns != 0 {
+			return
+		}
+		note("try emulation without catch clauses: a block", lit)
+		rw.Rewrite[es] = func() string {
+			var out []string
+			for _, s := range body {
+				out = append(out, rw.Render(s))
+			}
+			if !declares(body) {
+				return strings.Join(out, "\n") // no name of the block to scope
+			}
+			return "{\n" + strings.Join(out, "\n") + "\n}"
+		}
 		return
 	}
 	// _ = func() (code_ int) { <block>; return 0 }() -> { <block> }
 	as, ok := rw.Up(rw.Parent[lit]).(*ast.AssignStmt)
-	call, _ := rw.Parent[lit].(*ast.CallExpr)
 	if !ok || call == nil || len(as.Lhs) != 1 || rw.Text(as.Lhs[0]) != "_" || len(body) == 0 || rw.Text(body[len(body)-1]) != "return 0" {
 		return
 	}
@@ -468,6 +517,57 @@ func analyse(lit *ast.FuncLit, d *ast.DeferStmt, is *ast.IfStmt) {
 		}
 		return "{\n" + strings.Join(out, "\n") + "\n}"
 	}
+}
+
+// declares reports whether a statement of l declares a name in the block.
+func declares(l []ast.Stmt) bool {
+	for _, s := range l {
+		switch x := s.(type) {
+		case *ast.DeclStmt:
+			return true
+		case *ast.AssignStmt:
+			if x.Tok == token.DEFINE {
+				return true
+			}
+		case *ast.LabeledStmt:
+			return true
+		}
+	}
+	return false
+}
+
+// unnameResult writes fd's single result ret_N, named by tryfn, without its name when only the
+// deleted catch defer d used it.
+func unnameResult(fd *ast.FuncDecl, d *ast.DeferStmt) {
+	r := fd.Type.Results
+	if r == nil || len(r.List) != 1 || len(r.List[0].Names) != 1 || !strings.HasPrefix(r.List[0].Names[0].Name, "ret_") {
+		return
+	}
+	for _, u := range rw.UsesOf[rw.Info.Defs[r.List[0].Names[0]]] {
+		if !contains(d, u) {
+			return
+		}
+	}
+	ast.Inspect(fd.Body, func(n ast.Node) bool {
+		if b, ok := n.(*ast.ReturnStmt); ok && len(b.Results) == 0 && !inLiteral(b, fd) {
+			r = nil
+		}
+		return r != nil
+	})
+	if r == nil {
+		return // a naked return reads the named result
+	}
+	t := r.List[0].Type
+	rw.Rewrite[r] = func() string { return rw.Render(t) }
+}
+
+func inLiteral(n ast.Node, fd *ast.FuncDecl) bool {
+	for p := rw.Parent[n]; p != nil && p != ast.Node(fd); p = rw.Parent[p] {
+		if _, ok := p.(*ast.FuncLit); ok {
+			return true
+		}
+	}
+	return false
 }
 
 func usesName(l []ast.Stmt, name string) bool {
@@ -504,7 +604,8 @@ func (s *exset) add(c, where string) bool {
 	return true
 }
 
-func (s *exset) union(o *exset, from *node) bool {
+// union adds o, what from throws, to s; noChecked: only the unchecked classes of o reach s.
+func (s *exset) union(o *exset, from *node, noChecked bool) bool {
 	changed := false
 	if o.top && !s.top {
 		s.top = true
@@ -512,6 +613,9 @@ func (s *exset) union(o *exset, from *node) bool {
 		changed = true
 	}
 	for c, w := range o.classes {
+		if noChecked && checked(c) {
+			continue // Java: the method declares no checked exception
+		}
 		if s.add(c, w) {
 			if s.via == nil {
 				s.via = map[string]*node{}
@@ -592,11 +696,52 @@ func subclassesOf(t string) []string {
 
 // node is a function of the call graph: a declaration or a literal.
 type node struct {
-	name    string
-	body    *ast.BlockStmt
-	throws  exset
-	calls   []*node
-	callers []*node
+	name      string
+	body      *ast.BlockStmt
+	throws    exset
+	calls     []*node
+	callers   []*node
+	noChecked bool // a Java override of Object.toString, hashCode or equals
+}
+
+// checked reports whether class c is a checked exception: neither a RuntimeException nor an
+// Error.
+func checked(c string) bool {
+	return !subclass(c, "RuntimeException") && !subclass(c, "Error")
+}
+
+// objectMethod reports whether fd translates an override of Object.toString(),
+// Object.hashCode() or Object.equals(Object) (or is the _impl a dispatcher of one calls).
+// Java does not let these declare a checked exception, so none leaves them: Java's compiler
+// rejects a checked exception that a method neither catches nor declares, and every function
+// of the package translates a Java method (the runtime, a JDK one) or a lambda of its body.
+func objectMethod(fd *ast.FuncDecl) bool {
+	if fd.Recv == nil {
+		return false
+	}
+	sig := rw.Info.Defs[fd.Name].(*types.Func).Type().(*types.Signature)
+	name := strings.TrimSuffix(fd.Name.Name, "_impl")
+	basic := func(t types.Type, k types.BasicKind) bool {
+		b, ok := t.(*types.Basic)
+		return ok && b.Kind() == k
+	}
+	if sig.Results().Len() != 1 {
+		return false
+	}
+	r := sig.Results().At(0).Type()
+	switch name {
+	case "toString":
+		return sig.Params().Len() == 0 && basic(r, types.String)
+	case "hashCode":
+		return sig.Params().Len() == 0 && basic(r, types.Int32)
+	case "equals":
+		if sig.Params().Len() != 1 || !basic(r, types.Bool) {
+			return false
+		}
+		it, ok := sig.Params().At(0).Type().Underlying().(*types.Interface)
+		return ok && it.Empty()
+	}
+	return false
 }
 
 var (
@@ -643,7 +788,7 @@ func buildGraph() {
 			}
 			o := rw.Info.Defs[fd.Name].(*types.Func)
 			funcDecl[o] = fd
-			nodes[fd] = &node{name: fd.Name.Name, body: fd.Body}
+			nodes[fd] = &node{name: fd.Name.Name, body: fd.Body, noChecked: objectMethod(fd)}
 		}
 		ast.Inspect(f, func(n ast.Node) bool {
 			if fl, ok := n.(*ast.FuncLit); ok {
@@ -691,7 +836,7 @@ func buildGraph() {
 		n := work[len(work)-1]
 		work = work[:len(work)-1]
 		for _, c := range n.callers {
-			if c.throws.union(&n.throws, n) {
+			if c.throws.union(&n.throws, n, n.noChecked || !checkedEdge[[2]*node{c, n}]) {
 				work = append(work, c)
 			}
 		}
@@ -713,6 +858,81 @@ func edge(from, to *node) {
 	}
 	from.calls = append(from.calls, to)
 	to.callers = append(to.callers, from)
+	checkedEdge[[2]*node{from, to}] = true
+}
+
+// checkedEdge are the calls that can pass on a checked exception: all but the interface calls
+// of a method of a JDK or Guava interface that declares none (uncheckedEdge).
+var checkedEdge = map[[2]*node]bool{}
+
+// uncheckedEdge is a call through a method that Java declares without a checked exception:
+// only unchecked classes come back through it (the implementation may not throw more than the
+// method it implements declares).
+func uncheckedEdge(from, to *node) {
+	if to == nil {
+		return
+	}
+	from.calls = append(from.calls, to)
+	to.callers = append(to.callers, from)
+}
+
+// noCheckedIface reports whether the methods of interface type t (a named type of the
+// package) declare no checked exception in Java: the interfaces of java.util (not
+// java.util.concurrent, whose Callable.call throws Exception), java.util.function,
+// com.google.common.collect and com.google.common.base (Function, Supplier, Predicate), and
+// java.lang.Iterable, Comparable, CharSequence and Runnable, by the Java names j2go recorded
+// (g_0names.go). Appendable, Closeable and Callable are not among them.
+func noCheckedIface(t types.Type) bool {
+	n, ok := types.Unalias(t).(*types.Named)
+	if !ok {
+		return false
+	}
+	j := javaName(n.Obj().Name())
+	switch {
+	case strings.HasPrefix(j, "java.util.concurrent."):
+		return false
+	case strings.HasPrefix(j, "java.util.function."), strings.HasPrefix(j, "com.google.common.collect."):
+		return true
+	case strings.HasPrefix(j, "java.util.") && !strings.Contains(j[len("java.util."):], "."):
+		return true
+	}
+	switch j {
+	case "java.lang.Iterable", "java.lang.Comparable", "java.lang.CharSequence", "java.lang.Runnable",
+		"com.google.common.base.Function", "com.google.common.base.Supplier", "com.google.common.base.Predicate":
+		return true
+	}
+	return false
+}
+
+var javaNames map[string]string
+
+// javaName is the Java class name j2go recorded for a Go type name (javaNames_ in g_0names.go).
+func javaName(goName string) string {
+	if javaNames == nil {
+		javaNames = map[string]string{}
+		for _, f := range rw.Files {
+			for _, d := range f.Decls {
+				g, ok := d.(*ast.GenDecl)
+				if !ok {
+					continue
+				}
+				for _, sp := range g.Specs {
+					vs, ok := sp.(*ast.ValueSpec)
+					if !ok || len(vs.Names) != 1 || vs.Names[0].Name != "javaNames_" || len(vs.Values) != 1 {
+						continue
+					}
+					cl, _ := vs.Values[0].(*ast.CompositeLit)
+					for _, e := range cl.Elts {
+						kv := e.(*ast.KeyValueExpr)
+						k, _ := strconv.Unquote(rw.Text(kv.Key))
+						v, _ := strconv.Unquote(rw.Text(kv.Value))
+						javaNames[k] = v
+					}
+				}
+			}
+		}
+	}
+	return javaNames[goName]
 }
 
 // implementers are the methods named m that an interface call of iface can reach.
@@ -802,8 +1022,13 @@ func call(n *node, c *ast.CallExpr, where string) {
 		if sel := rw.Info.Selections[f]; sel != nil && sel.Kind() == types.MethodVal {
 			m := sel.Obj().(*types.Func)
 			if iface, ok := sel.Recv().Underlying().(*types.Interface); ok {
+				free := noCheckedIface(sel.Recv())
 				for _, t := range implementers(iface, m.Name()) {
-					edge(n, t)
+					if free {
+						uncheckedEdge(n, t)
+					} else {
+						edge(n, t)
+					}
 				}
 				// Methods of interfaces of other packages (reflect.Type, error) that no type of
 				// the package implements raise only Go runtime panics (implicit).
@@ -1068,9 +1293,9 @@ func throwsOf(body []ast.Stmt) *exset {
 		})
 	}
 	set := &exset{}
-	set.union(&n.throws, nil)
+	set.union(&n.throws, nil, false)
 	for _, c := range n.calls {
-		set.union(&c.throws, c)
+		set.union(&c.throws, c, c.noChecked || !checkedEdge[[2]*node{n, c}])
 	}
 	for _, c := range implicit {
 		set.add(c, "Go runtime errors")
@@ -1126,4 +1351,178 @@ func census() {
 // generated reports whether f is a file j2go generated (g_*.go).
 func generated(f *ast.File) bool {
 	return strings.HasPrefix(filepath.Base(rw.Fset.File(f.Pos()).Name()), "g_")
+}
+
+// ---- a try around one runtime call whose failure has an error-returning variant
+
+// errReturn rewrites
+//
+//	var ret_N T
+//	code_N := func() (code_ int) {
+//		defer func() { ... if e, ok := ex_.(*E); ok { ret_N = x; code_ = 1; return }; panic(r_) ... }()
+//		f(args)
+//		return 0
+//	}()
+//	if code_N == 1 { return ret_N }
+//
+// as `if _, e := fErr_(args); e != nil { return x }` when f is a runtime function with the variant
+// fErr_ (its results and the *E f would throw, returned instead of thrown), the arguments are
+// variables or constants (computing them throws nothing), and no Go runtime error is an E
+// (catch_ makes those NullPointerException, ArrayIndexOutOfBoundsException,
+// ClassCastException, ArithmeticException, RuntimeException). Then the only E the try block can
+// throw is f's, which the variant returns; anything else f throws still panics, as the catch
+// defer rethrew it.
+func errReturn(lit *ast.FuncLit, body []ast.Stmt, ci *ast.IfStmt) {
+	ts, ok := assertClauseType(ci)
+	if !ok || len(ts) != 1 {
+		return
+	}
+	cls := ts[0]
+	if len(body) != 2 || rw.Text(body[1]) != "return 0" {
+		return
+	}
+	for _, c := range implicit {
+		if subclass(c, cls) {
+			note("left: try around one call whose catch class a Go runtime error also is ("+cls+")", ci)
+			return
+		}
+	}
+	es, ok := body[0].(*ast.ExprStmt)
+	if !ok {
+		return
+	}
+	call, ok := es.X.(*ast.CallExpr)
+	if !ok {
+		return
+	}
+	id, ok := call.Fun.(*ast.Ident)
+	if !ok {
+		return
+	}
+	f, ok := rw.Info.Uses[id].(*types.Func)
+	if !ok || generated(fileOf(f.Pos())) {
+		return
+	}
+	v, ok := rw.Pkg.Scope().Lookup(f.Name() + "Err_").(*types.Func)
+	if !ok {
+		note("left: try around one runtime call without an error-returning variant ("+f.Name()+")", ci)
+		return
+	}
+	vs := v.Type().(*types.Signature)
+	fs := f.Type().(*types.Signature)
+	if vs.Results().Len() != fs.Results().Len()+1 || types.TypeString(vs.Params(), nil) != types.TypeString(fs.Params(), nil) {
+		return
+	}
+	last := vs.Results().At(vs.Results().Len() - 1).Type()
+	if p, ok := last.(*types.Pointer); !ok || p.Elem().(*types.Named).Obj().Name() != cls {
+		return
+	}
+	for _, a := range call.Args {
+		if !simple(a) {
+			note("left: try around one runtime call whose arguments compute something", ci)
+			return
+		}
+	}
+	// The statement calling the literal, the code test after it, the result variable before.
+	stmt, ok := rw.Up(rw.Parent[lit]).(*ast.AssignStmt)
+	if !ok || len(stmt.Lhs) != 1 {
+		return
+	}
+	cb := ci.Body.List
+	if len(cb) != 3 || rw.Text(cb[1]) != "code_ = 1" || rw.Text(cb[2]) != "return" {
+		note("left: try around one runtime call, catch block of an unknown shape", ci)
+		return
+	}
+	set, ok := cb[0].(*ast.AssignStmt)
+	if !ok || len(set.Lhs) != 1 || len(set.Rhs) != 1 || set.Tok != token.ASSIGN {
+		return
+	}
+	retName := rw.Text(set.Lhs[0])
+	codeName := rw.Text(stmt.Lhs[0])
+	list, idx := stmtList(stmt)
+	if idx < 1 || idx+1 >= len(list) {
+		return
+	}
+	test, ok := list[idx+1].(*ast.IfStmt)
+	if !ok || test.Init != nil || test.Else != nil || rw.Text(test.Cond) != codeName+" == 1" || len(test.Body.List) != 1 || rw.Text(test.Body.List[0]) != "return "+retName {
+		return
+	}
+	decl, ok := list[idx-1].(*ast.DeclStmt)
+	if !ok || !strings.HasPrefix(rw.Text(decl), "var "+retName+" ") || strings.Contains(rw.Text(decl), "=") {
+		return
+	}
+	// ret_N and code_N used only there.
+	if uses(list, retName) != 3 || uses(list, codeName) != 2 {
+		return
+	}
+	asInit := ci.Init.(*ast.AssignStmt)
+	ename := rw.Text(asInit.Lhs[0])
+	results := strings.Repeat("_, ", fs.Results().Len())
+	x := set.Rhs[0]
+	note("try around one runtime call: the error-returning variant "+v.Name()+", the catch block as an if", ci)
+	rw.Rewrite[decl] = func() string { return rw.Del }
+	rw.Rewrite[test] = func() string { return rw.Del }
+	rw.Rewrite[stmt] = func() string {
+		return "if " + results + ename + " := " + v.Name() + "(" + argsText(call) + "); " + ename + " != nil {\nreturn " + rw.Render(x) + "\n}"
+	}
+}
+
+func argsText(c *ast.CallExpr) string {
+	var out []string
+	for _, a := range c.Args {
+		out = append(out, rw.Render(a))
+	}
+	return strings.Join(out, ", ")
+}
+
+func fileOf(p token.Pos) *ast.File {
+	for _, f := range rw.Files {
+		if f.Pos() <= p && p <= f.End() {
+			return f
+		}
+	}
+	return nil
+}
+
+// simple: a variable or a constant.
+func simple(e ast.Expr) bool {
+	e = rw.Unparen(e)
+	if tv, ok := rw.Info.Types[e]; ok && tv.Value != nil {
+		return true
+	}
+	id, ok := e.(*ast.Ident)
+	if !ok {
+		return false
+	}
+	_, isVar := rw.Info.Uses[id].(*types.Var)
+	return isVar
+}
+
+func stmtList(s ast.Stmt) ([]ast.Stmt, int) {
+	var list []ast.Stmt
+	switch p := rw.Parent[s].(type) {
+	case *ast.BlockStmt:
+		list = p.List
+	case *ast.CaseClause:
+		list = p.Body
+	}
+	for i, x := range list {
+		if x == s {
+			return list, i
+		}
+	}
+	return nil, -1
+}
+
+func uses(l []ast.Stmt, name string) int {
+	n := 0
+	for _, s := range l {
+		ast.Inspect(s, func(m ast.Node) bool {
+			if id, ok := m.(*ast.Ident); ok && id.Name == name {
+				n++
+			}
+			return true
+		})
+	}
+	return n
 }

@@ -60,7 +60,7 @@ func (this *CheckConformance) visit(t *NodeTraversal, n Node, parent Node) {
 				var rule CheckConformance_Rule = sliceAt_(category.rules, r)
 				nn_ := Map_getOrDefault(this.ruleToBehavior.asMap(), rule, obj_(ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior_UNSPECIFIED))
 				if nn_ == nil {
-					panic(new_NullPointerException_0().self())
+					panic(new_NullPointerException_0())
 				}
 				var behavior ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior = cast_[ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior](nn_)
 				rule.check(t, n, behavior)
@@ -86,7 +86,7 @@ func (this *CheckConformance) initRules(compiler *AbstractCompiler, configs Immu
 			if isLibraryLevelReportingMode && this.mergedBehaviors.containsKey(requirement) {
 				behavior = this.mergedBehaviors.get(requirement)
 				if behavior == 0 {
-					panic(new_NullPointerException_String("The mergeBehaviors method inserted a null behavior in the mergedBehaviors map").self())
+					panic(new_NullPointerException_String("The mergeBehaviors method inserted a null behavior in the mergedBehaviors map"))
 				}
 			}
 			this.ruleToBehavior.put(rule, behavior)
@@ -101,7 +101,7 @@ func (this *CheckConformance) initRules(compiler *AbstractCompiler, configs Immu
 
 func CheckConformance_validateBehaviorSettingOfConfigs(compiler *AbstractCompiler, configs ImmutableListOf[*ConformanceConfig], reportingMode CompilerOptions_ConformanceReportingMode) bool {
 	if !equalsId_(reportingMode, CompilerOptions_ConformanceReportingMode_RESPECT_LIBRARY_LEVEL_BEHAVIOR_SPECIFIED_IN_CONFIG) {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	var baseRequirementBehaviors map[string]ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior = map[string]ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior{}
 	for _, el := range immElems_(configs) {
@@ -202,7 +202,7 @@ func (this *CheckConformance) mergeRequirements(compiler *AbstractCompiler, conf
 
 func CheckConformance_mergeExtendingRequirementIntoExtended(extendedRequirement *Requirement_Builder, extendingRequirement *Requirement) {
 	if extendingRequirement.getExtends() != extendedRequirement.getRuleId() {
-		panic(new_IllegalStateException_String("Attempting to merge an requirement with the wrong extended requirement").self())
+		panic(new_IllegalStateException_String("Attempting to merge an requirement with the wrong extended requirement"))
 	}
 	extendedRequirement.addAllWhitelist(Iterable(extendingRequirement.getWhitelistList())).addAllWhitelistRegexp(Iterable(extendingRequirement.getWhitelistRegexpList())).addAllAllowlist(Iterable(extendingRequirement.getAllowlistList())).addAllAllowlistRegexp(Iterable(extendingRequirement.getAllowlistRegexpList())).addAllOnlyApplyTo(Iterable(extendingRequirement.getOnlyApplyToList())).addAllOnlyApplyToRegexp(Iterable(extendingRequirement.getOnlyApplyToRegexpList())).addAllWhitelistEntry(Iterable(extendingRequirement.getWhitelistEntryList())).addAllAllowlistEntry(Iterable(extendingRequirement.getAllowlistEntryList())).addAllValue(Iterable(extendingRequirement.getValueList())).addAllConfigFile(Iterable(extendingRequirement.getConfigFileList()))
 	if extendingRequirement.hasErrorMessage() && extendedRequirement.hasErrorMessage() {
@@ -212,7 +212,7 @@ func CheckConformance_mergeExtendingRequirementIntoExtended(extendedRequirement 
 
 func CheckConformance_validateExtendableRequirement(compiler *AbstractCompiler, requirement *Requirement, extendable map[string]*Requirement_Builder) bool {
 	if !requirement.hasRuleId() {
-		panic(new_IllegalStateException_String("Extendable requirement must have a rule_id").self())
+		panic(new_IllegalStateException_String("Extendable requirement must have a rule_id"))
 	}
 	if requirement.getRuleId() == "" {
 		CheckConformance_reportInvalidRequirement(compiler, requirement, "empty rule_id")
@@ -227,7 +227,7 @@ func CheckConformance_validateExtendableRequirement(compiler *AbstractCompiler, 
 
 func CheckConformance_validateExtendingRequirement(compiler *AbstractCompiler, extendingRequirement *Requirement, extendableRequirement *Requirement_Builder) bool {
 	if !extendingRequirement.hasExtends() {
-		panic(new_IllegalStateException_String("Extending requirement must have an extends").self())
+		panic(new_IllegalStateException_String("Extending requirement must have an extends"))
 	}
 	if extendableRequirement == nil {
 		CheckConformance_reportInvalidRequirement(compiler, extendingRequirement, ("no extendable requirement with rule_id: " + sstr_(extendingRequirement.getExtends())))
@@ -289,7 +289,7 @@ func CheckConformance_initRule(compiler *AbstractCompiler, requirement *Requirem
 		case Requirement_Type_BANNED_STRING_REGEX:
 			return ConformanceRules_BannedStringRegex_create(compiler, requirement)
 		}
-		panic("unreachable")
+		panic(new_NullPointerException_0())
 	}()
 	if rule.isErr() {
 		var e *CheckConformance_InvalidRequirementSpec = cast_[*CheckConformance_InvalidRequirementSpec](rule.error().self())

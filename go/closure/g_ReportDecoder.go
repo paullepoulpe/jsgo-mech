@@ -29,19 +29,19 @@ func ReportDecoder_parseMapping(mappingFileContent string) *Outcome_base[Map] {
 	var mapping *TMap[string, *InstrumentationPoint] = newTMap_(tc_string, tc_p_InstrumentationPoint)
 	var linesOfFile []string = sliceImm_(tc_string, Splitter_on('\n').omitEmptyStrings().splitToList_s(mappingFileContent))
 	if int32(len(linesOfFile)) < 3 {
-		panic(new_IllegalStateException_String(Strings_lenientFormat("Malformed report %s", []any{sliceView_(tc_string, linesOfFile)})).self())
+		panic(new_IllegalStateException_String(Strings_lenientFormat("Malformed report %s", []any{sliceView_(tc_string, linesOfFile)})))
 	}
 	var fileNamesLine string = strings.Trim(sliceAt_(linesOfFile, 0), javaSpace_)
 	var functionNamesLine string = strings.Trim(sliceAt_(linesOfFile, 1), javaSpace_)
 	var typesLine string = strings.Trim(sliceAt_(linesOfFile, 2), javaSpace_)
 	if !strings.HasPrefix(fileNamesLine, "FileNames:") {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	if !strings.HasPrefix(functionNamesLine, "FunctionNames:") {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	if !strings.HasPrefix(typesLine, "Types:") {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	var fileNamesAsJsonArray string = String_substring_int(fileNamesLine, (String_indexOf_String(fileNamesLine, ":") + 1))
 	var functionNamesAsJsonArray string = String_substring_int(functionNamesLine, (String_indexOf_String(functionNamesLine, ":") + 1))
@@ -166,7 +166,7 @@ func ReportDecoder_mergeProfiles(profiles []*ReportProfile) *ReportProfile {
 
 func ReportDecoder_createReportProfile(instrumentationPoints []*InstrumentationPointStats) *ReportProfile {
 	var sortedPoints []*InstrumentationPointStats = sliceFrom_(tc_p_InstrumentationPointStats, Collection(sliceView_(tc_p_InstrumentationPointStats, instrumentationPoints)))
-	List_sort(sliceView_(tc_p_InstrumentationPointStats, sortedPoints), Comparator_thenComparingInt(Comparator_comparing(lambda_ReportDecoder_createReportProfile_1_), lambda_ReportDecoder_createReportProfile_2_))
+	List_sort(sliceView_(tc_p_InstrumentationPointStats, sortedPoints), Comparator_thenComparingInt_f(Comparator_comparing(lambda_ReportDecoder_createReportProfile_1_), lambda_ReportDecoder_createReportProfile_2_))
 	var pointsByFileName *TMap[string, ListOf[*InstrumentationPointStats]] = newTMap_(tc_string, tc_ListOf_p_InstrumentationPointStats_)
 	for _, pointStats := range sortedPoints {
 		pointsByFileName.computeIfAbsent_f(pointStats.getPoint().getFileName(), lambda_ReportDecoder_createReportProfile_3_).add(obj_(pointStats))
@@ -187,11 +187,11 @@ var lambda_ReportDecoder_createReportProfile_1_ = &Function_fn{func(pointStats_ 
 }}
 
 // lambda_ReportDecoder_createReportProfile_2_ is a lambda of ReportDecoder_createReportProfile that captures nothing (post-flip step lambdas).
-var lambda_ReportDecoder_createReportProfile_2_ = &ToIntFunction_fn{func(pointStats_ any) int32 {
+func lambda_ReportDecoder_createReportProfile_2_(pointStats_ any) int32 {
 	var pointStats *InstrumentationPointStats = cast_[*InstrumentationPointStats](pointStats_)
 	_ = pointStats
 	return pointStats.getPoint().getLineNumber()
-}}
+}
 
 // lambda_ReportDecoder_createReportProfile_3_ is a lambda of ReportDecoder_createReportProfile that captures nothing (post-flip step lambdas).
 func lambda_ReportDecoder_createReportProfile_3_(k_ any) any {

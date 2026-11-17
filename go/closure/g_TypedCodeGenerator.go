@@ -18,7 +18,7 @@ func (this *TypedCodeGenerator) up_CodeGenerator() *CodeGenerator {
 func (this *TypedCodeGenerator) init_TypedCodeGenerator(consumer *CodeConsumer, options *CompilerOptions, registry *JSTypeRegistry) {
 	this.CodeGenerator.init_CodeGenerator_CodeConsumer_CompilerOptions(consumer, options)
 	if registry == nil {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	this.registry = registry
 	this.jsDocInfoPrinterField = new_JSDocInfoPrinter_boolean(options.getUseOriginalNamesInOutput())
@@ -92,7 +92,7 @@ func (this *TypedCodeGenerator) getTypeAnnotation(node Node) string {
 func (this *TypedCodeGenerator) getFunctionAnnotation(fnNode Node) string {
 	var type_ *JSType = fnNode.getJSType()
 	if !fnNode.isFunction() && !type_.isFunctionType() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	if (type_ == nil) || type_.isUnknownType() {
 		return ""
@@ -136,7 +136,7 @@ func (this *TypedCodeGenerator) getFunctionAnnotation(fnNode Node) string {
 
 func (this *TypedCodeGenerator) getMemberFunctionAnnotation(fnNode Node) string {
 	if !fnNode.isFunction() || !fnNode.getParent().isMemberFunctionDef() {
-		panic(new_IllegalStateException_String(tostr_(fnNode)).self())
+		panic(new_IllegalStateException_String(tostr_(fnNode)))
 	}
 	var type_ *JSType = fnNode.getJSType()
 	if (type_ == nil) || type_.isUnknownType() {
@@ -182,7 +182,7 @@ func (this *TypedCodeGenerator) getClassAnnotation(classType *JSType) string {
 		return ""
 	}
 	if !classType.isFunctionType() {
-		panic(new_IllegalStateException_String(objstr_(classType.self())).self())
+		panic(new_IllegalStateException_String(objstr_(classType.self())))
 	}
 	var funType *FunctionType = classType.toMaybeFunctionType()
 	var sb strBuilder_
@@ -190,7 +190,7 @@ func (this *TypedCodeGenerator) getClassAnnotation(classType *JSType) string {
 		this.appendInterfaceAnnotations(&sb, funType)
 	} else {
 		if !funType.isConstructor() {
-			panic(new_IllegalStateException_String(objstr_(funType.self())).self())
+			panic(new_IllegalStateException_String(objstr_(funType.self())))
 		}
 		this.appendClassAnnotations(&sb, funType)
 	}
@@ -219,7 +219,7 @@ func (this *TypedCodeGenerator) getParameterJSDocName(paramNode Node, paramIndex
 	var nameNode Node = 0
 	if paramNode != 0 {
 		if !paramNode.getParent().isParamList() {
-			panic(new_IllegalArgumentException_String(tostr_(paramNode)).self())
+			panic(new_IllegalArgumentException_String(tostr_(paramNode)))
 		}
 		if paramNode.isRest() {
 			paramNode = paramNode.getOnlyChild()
@@ -230,7 +230,7 @@ func (this *TypedCodeGenerator) getParameterJSDocName(paramNode Node, paramIndex
 			nameNode = paramNode
 		} else {
 			if !paramNode.isObjectPattern() && !paramNode.isArrayPattern() {
-				panic(new_IllegalStateException_String(tostr_(paramNode)).self())
+				panic(new_IllegalStateException_String(tostr_(paramNode)))
 			}
 			nameNode = 0
 		}
@@ -239,7 +239,7 @@ func (this *TypedCodeGenerator) getParameterJSDocName(paramNode Node, paramIndex
 		return ("p" + istr_(int64(paramIndex)))
 	} else {
 		if !nameNode.isName() {
-			panic(new_IllegalStateException_String(tostr_(nameNode)).self())
+			panic(new_IllegalStateException_String(tostr_(nameNode)))
 		}
 		return nameNode.getString()
 	}

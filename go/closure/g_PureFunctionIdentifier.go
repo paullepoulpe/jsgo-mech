@@ -29,7 +29,7 @@ func (this *PureFunctionIdentifier) finit_PureFunctionIdentifier() {
 func (this *PureFunctionIdentifier) init_PureFunctionIdentifier(compiler *AbstractCompiler, assumeGettersArePure bool, validateArtificialPurity bool) {
 	this.finit_PureFunctionIdentifier()
 	if compiler == nil {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	this.compiler_ = compiler
 	this.assumeGettersArePure_ = assumeGettersArePure
@@ -45,10 +45,10 @@ func new_PureFunctionIdentifier(compiler *AbstractCompiler, assumeGettersArePure
 
 func (this *PureFunctionIdentifier) process_3(externs Node, root Node, references *OptimizeCalls_ReferenceMap) {
 	if !this.compiler_.getLifeCycleStage().isNormalized() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	if this.hasProcessed {
-		panic(new_IllegalStateException_String("PureFunctionIdentifier::process may only be called once per instance.").self())
+		panic(new_IllegalStateException_String("PureFunctionIdentifier::process may only be called once per instance."))
 	}
 	this.hasProcessed = true
 	this.populateDatastructuresForAnalysisTraversal(references)
@@ -107,7 +107,7 @@ func PureFunctionIdentifier_collectCallableLeavesInternal(expr Node, results *TL
 		{
 			var clazz Node = NodeUtil_getEnclosingClass(expr)
 			if clazz == 0 {
-				panic(new_NullPointerException_0().self())
+				panic(new_NullPointerException_0())
 			}
 			return PureFunctionIdentifier_collectCallableLeavesInternal(clazz.getSecondChild(), results, astAnalyzer)
 		}
@@ -168,7 +168,7 @@ func PureFunctionIdentifier_isDefinitelyRValue(rvalue Node) bool {
 
 func (this *PureFunctionIdentifier) getGoogCacheCallableExpression(cacheCall *CodingConvention_Cache) ImmutableListOf[Node] {
 	if cacheCall == nil {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	var builder ImmutableList_BuilderOf[Node] = ImmutableList_builder().addAll(icast_Iterable(obj_(PureFunctionIdentifier_collectCallableLeaves(cacheCall.valueFn, this.astAnalyzer))))
 	if cacheCall.keyFn != 0 {
@@ -179,7 +179,7 @@ func (this *PureFunctionIdentifier) getGoogCacheCallableExpression(cacheCall *Co
 
 func (this *PureFunctionIdentifier) getSummariesForCallee(invocation Node) []*PureFunctionIdentifier_AmbiguatedFunctionSummary {
 	if !NodeUtil_isInvocation(invocation) {
-		panic(new_IllegalArgumentException_String(tostr_(invocation)).self())
+		panic(new_IllegalArgumentException_String(tostr_(invocation)))
 	}
 	var cacheCall *CodingConvention_Cache = this.compiler_.getCodingConvention().describeCachingCall(invocation)
 	var callees ImmutableListOf[Node]
@@ -194,18 +194,18 @@ func (this *PureFunctionIdentifier) getSummariesForCallee(invocation Node) []*Pu
 		return sliceOf_(tc_p_PureFunctionIdentifier_AmbiguatedFunctionSummary, this.unknownFunctionSummary)
 	}
 	if callees.isEmpty() {
-		panic(new_IllegalStateException_String("Unexpected empty callees for valid result").self())
+		panic(new_IllegalStateException_String("Unexpected empty callees for valid result"))
 	}
 	var results []*PureFunctionIdentifier_AmbiguatedFunctionSummary
 	for _, el := range immElems_(callees) {
 		callee := Node_of_(el)
 		if callee.isFunction() {
 			if !callee.isFunction() {
-				panic(new_IllegalStateException_String(tostr_(callee)).self())
+				panic(new_IllegalStateException_String(tostr_(callee)))
 			}
 			var summariesForFunction CollectionOf[*PureFunctionIdentifier_AmbiguatedFunctionSummary] = Collection(this.summariesForAllNamesOfFunctionByNode.get(callee.box_()))
 			if summariesForFunction.isEmpty() {
-				panic(new_IllegalStateException_String(Strings_lenientFormat("Function missed during analysis: %s", []any{callee.box_()})).self())
+				panic(new_IllegalStateException_String(Strings_lenientFormat("Function missed during analysis: %s", []any{callee.box_()})))
 			}
 			results = immAddAll_(tc_p_PureFunctionIdentifier_AmbiguatedFunctionSummary, results, Iterable(summariesForFunction))
 		} else {
@@ -230,10 +230,10 @@ func (this *PureFunctionIdentifier) populateDatastructuresForAnalysisTraversal(r
 		referencesByName.putAll_s((sstr_(PureFunctionIdentifier_PROP_NAME_PREFIX) + sstr_(str_(entry.getKey()))), icast_Iterable(entry.getValue()))
 	}
 	if referencesByName.containsKey_s("") {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	if referencesByName.containsKey_s(PureFunctionIdentifier_PROP_NAME_PREFIX) {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	for name := range elemsBy_(referencesByName.keySet(), str_) {
 		this.summariesByName[name] = PureFunctionIdentifier_AmbiguatedFunctionSummary_createInGraph(this.reverseCallGraph.up_DiGraph(), name)
@@ -245,7 +245,7 @@ func (this *PureFunctionIdentifier) populateDatastructuresForAnalysisTraversal(r
 func (this *PureFunctionIdentifier) populateFunctionDefinitions(name string, references ListOf[Node]) {
 	var summaryForName *PureFunctionIdentifier_AmbiguatedFunctionSummary = this.summariesByName[name]
 	if summaryForName == nil {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	var invalid bool = false
 	var rvaluesAssignedToName ListOf[ImmutableListOf[Node]] = new_ArrayList_0()
@@ -325,7 +325,7 @@ func (this *PureFunctionIdentifier) markPureFunctionCalls() {
 			flags.clearAllFlags()
 			for _, calleeSummary := range calleeSummaries {
 				if calleeSummary == nil {
-					panic(new_NullPointerException_0().self())
+					panic(new_NullPointerException_0())
 				}
 				if calleeSummary.mutatesGlobalState() {
 					flags.setMutatesGlobalState()
@@ -374,7 +374,7 @@ func PureFunctionIdentifier_getParamIndex(param *Var) int32 {
 		return param.getNameNode()
 	}()
 	if !node.getParent().isParamList() {
-		panic(new_IllegalStateException_String(tostr_(node)).self())
+		panic(new_IllegalStateException_String(tostr_(node)))
 	}
 	return node.getParent().getIndexOfChild(node)
 }
@@ -399,7 +399,7 @@ func PureFunctionIdentifier_nameForReference(nameRef Node) OptionalOf[string] {
 		case tokOrd1_GETPROP, tokOrd1_OPTCHAIN_GETPROP:
 			return Optional_of[string]((sstr_(PureFunctionIdentifier_PROP_NAME_PREFIX) + sstr_(nameRef.getString())))
 		default:
-			panic(new_IllegalStateException_String(("Unexpected name reference: " + tostr_(nameRef))).self())
+			panic(new_IllegalStateException_String(("Unexpected name reference: " + tostr_(nameRef))))
 		}
 	}()
 }
@@ -431,7 +431,7 @@ func PureFunctionIdentifier_clinit() {
 	PureFunctionIdentifier_clinit_done = true
 	PureFunctionIdentifier_IMPLICIT_PURE_FN = IR_function(IR_name(""), IR_paramList([]Node{}), IR_block_0())
 	PureFunctionIdentifier_UNUSED_ARTIFICIAL_PURE_ANNOTATION = DiagnosticType_disabled("JSC_UNUSED_ARTIFICIAL_PURE_ANNOTATION", "Artificial @nosideeffects annotation cannot be enforced: found ambiguous definitions of {0}.\n\nSide-effectful definitions:\n  {1}")
-	PureFunctionIdentifier_SOURCE_LOCATION_COMPARATOR = Comparator_thenComparingInt(Comparator_thenComparingInt(Comparator_comparing(lambda_PureFunctionIdentifier_clinit_1_), lambda_PureFunctionIdentifier_clinit_2_), lambda_PureFunctionIdentifier_clinit_3_)
+	PureFunctionIdentifier_SOURCE_LOCATION_COMPARATOR = Comparator_thenComparingInt_f(Comparator_thenComparingInt_f(Comparator_comparing(lambda_PureFunctionIdentifier_clinit_1_), lambda_PureFunctionIdentifier_clinit_2_), lambda_PureFunctionIdentifier_clinit_3_)
 	PureFunctionIdentifier_RHS_IS_ALWAYS_LOCAL = lambda_PureFunctionIdentifier_clinit_4_
 	PureFunctionIdentifier_RHS_IS_NEVER_LOCAL = lambda_PureFunctionIdentifier_clinit_5_
 	PureFunctionIdentifier_FIND_RHS_AND_CHECK_FOR_LOCAL_VALUE = lambda_PureFunctionIdentifier_clinit_6_
@@ -442,10 +442,10 @@ func PureFunctionIdentifier_clinit() {
 var lambda_PureFunctionIdentifier_clinit_1_ = &Function_fn{func(p0 any) any { return strobj_(Node_of_(p0).getSourceFileName()) }}
 
 // lambda_PureFunctionIdentifier_clinit_2_ is a lambda of PureFunctionIdentifier_clinit that captures nothing (post-flip step lambdas).
-var lambda_PureFunctionIdentifier_clinit_2_ = &ToIntFunction_fn{func(p0 any) int32 { return Node_of_(p0).getLineno() }}
+func lambda_PureFunctionIdentifier_clinit_2_(p0 any) int32 { return Node_of_(p0).getLineno() }
 
 // lambda_PureFunctionIdentifier_clinit_3_ is a lambda of PureFunctionIdentifier_clinit that captures nothing (post-flip step lambdas).
-var lambda_PureFunctionIdentifier_clinit_3_ = &ToIntFunction_fn{func(p0 any) int32 { return Node_of_(p0).getCharno() }}
+func lambda_PureFunctionIdentifier_clinit_3_(p0 any) int32 { return Node_of_(p0).getCharno() }
 
 // lambda_PureFunctionIdentifier_clinit_4_ is a lambda of PureFunctionIdentifier_clinit that captures nothing (post-flip step lambdas).
 var lambda_PureFunctionIdentifier_clinit_4_ = &Predicate_fn{func(lhs_ any) bool {
@@ -499,10 +499,10 @@ func (this *PureFunctionIdentifier_ExternFunctionAnnotationAnalyzer) visit(trave
 
 func (this *PureFunctionIdentifier_ExternFunctionAnnotationAnalyzer) updateSideEffectsForExternFunction(externFunction Node, summary *PureFunctionIdentifier_AmbiguatedFunctionSummary) {
 	if !externFunction.isFunction() {
-		panic(new_IllegalArgumentException_0().self())
+		panic(new_IllegalArgumentException_0())
 	}
 	if !externFunction.isFromExterns() {
-		panic(new_IllegalArgumentException_0().self())
+		panic(new_IllegalArgumentException_0())
 	}
 	var info *JSDocInfo = NodeUtil_getBestJSDocInfo(externFunction)
 	if info == nil {
@@ -560,7 +560,7 @@ func (this *PureFunctionIdentifier_FunctionBodyAnalyzer) visit(traversal *NodeTr
 	}
 	for summary := range elemsAs_[*PureFunctionIdentifier_AmbiguatedFunctionSummary](this.outer_.summariesForAllNamesOfFunctionByNode.get(root.box_())) {
 		if summary == nil {
-			panic(new_NullPointerException_0().self())
+			panic(new_NullPointerException_0())
 		}
 		this.updateSideEffectsForNode(summary, traversal, node)
 	}
@@ -653,7 +653,7 @@ func (this *PureFunctionIdentifier_FunctionBodyAnalyzer) updateSideEffectsForNod
 			break
 		}
 		if this.outer_.compiler_.getAstAnalyzer().nodeTypeMayHaveSideEffects(node) {
-			panic(new_IllegalArgumentException_String(("Unhandled side effect node type " + tostr_(node))).self())
+			panic(new_IllegalArgumentException_String(("Unhandled side effect node type " + tostr_(node))))
 		}
 	}
 }
@@ -681,7 +681,7 @@ func (this *PureFunctionIdentifier_FunctionBodyAnalyzer) enterScope(t *NodeTrave
 	}
 	var function Node = t.getScopeRoot()
 	if !function.isFunction() {
-		panic(new_IllegalStateException_String(tostr_(function)).self())
+		panic(new_IllegalStateException_String(tostr_(function)))
 	}
 	var jsdoc *JSDocInfo = NodeUtil_getBestJSDocInfo(function)
 	var isArtificiallyPure bool = ((jsdoc != nil) && jsdoc.isNoSideEffects())
@@ -699,14 +699,14 @@ func (this *PureFunctionIdentifier_FunctionBodyAnalyzer) exitScope(t *NodeTraver
 	}
 	var functionEntry *PureFunctionIdentifier_FunctionBodyAnalyzer_FunctionStackEntry = sliceTop_(tc_p_PureFunctionIdentifier_FunctionBodyAnalyzer_FunctionStackEntry, this.functionScopeStack)
 	if ok_, a1_ := equalsId_(functionScope.getRootNode(), functionEntry.root), functionScope.getRootNode(); !ok_ {
-		panic(new_IllegalStateException_String(tostr_(a1_)).self())
+		panic(new_IllegalStateException_String(tostr_(a1_)))
 	}
 	if equalsId_(t.getScopeRoot(), functionEntry.root) {
 		slicePop_(tc_p_PureFunctionIdentifier_FunctionBodyAnalyzer_FunctionStackEntry, &this.functionScopeStack)
 	}
 	for sideEffectInfo := range elemsAs_[*PureFunctionIdentifier_AmbiguatedFunctionSummary](this.outer_.summariesForAllNamesOfFunctionByNode.get(functionEntry.root.box_())) {
 		if v_, a1_ := sideEffectInfo, functionEntry.root; v_ == nil {
-			panic(new_NullPointerException_String(Strings_lenientFormat("%s has no side effect info.", []any{a1_.box_()})).self())
+			panic(new_NullPointerException_String(Strings_lenientFormat("%s has no side effect info.", []any{a1_.box_()})))
 		}
 		if sideEffectInfo.mutatesGlobalState() {
 			continue
@@ -754,7 +754,7 @@ func (this *PureFunctionIdentifier_FunctionBodyAnalyzer) visitLhsNode(encloserSu
 		}
 	} else {
 		if !lhs.isName() {
-			panic(new_IllegalStateException_String(tostr_(lhs)).self())
+			panic(new_IllegalStateException_String(tostr_(lhs)))
 		}
 		var var_ *Var = cast_[*Var](scope.getVar(lhs.getString()).self())
 		if PureFunctionIdentifier_FunctionBodyAnalyzer_isVarDeclaredInSameContainerScope(var_, scope) {
@@ -845,7 +845,7 @@ type PureFunctionIdentifier_SideEffectPropagation struct {
 
 func (this *PureFunctionIdentifier_SideEffectPropagation) init_PureFunctionIdentifier_SideEffectPropagation(callerIsAlias bool, calleeThisEqualsCallerThis bool, propagateThrows bool, invocation Node, callScope *Scope, callerEntry *PureFunctionIdentifier_FunctionBodyAnalyzer_FunctionStackEntry, argumentsMatchParameters bool) {
 	if invocation != 0 && !NodeUtil_isInvocation(invocation) {
-		panic(new_IllegalArgumentException_String(tostr_(invocation)).self())
+		panic(new_IllegalArgumentException_String(tostr_(invocation)))
 	}
 	this.callerIsAlias = callerIsAlias
 	this.calleeThisEqualsCallerThis = calleeThisEqualsCallerThis
@@ -868,7 +868,7 @@ func PureFunctionIdentifier_SideEffectPropagation_forAlias() *PureFunctionIdenti
 
 func PureFunctionIdentifier_SideEffectPropagation_forInvocation(invocation Node, callScope *Scope, callerEntry *PureFunctionIdentifier_FunctionBodyAnalyzer_FunctionStackEntry, argumentsMatchParameters bool, propagateThrows bool) *PureFunctionIdentifier_SideEffectPropagation {
 	if !NodeUtil_isInvocation(invocation) {
-		panic(new_IllegalArgumentException_String(tostr_(invocation)).self())
+		panic(new_IllegalArgumentException_String(tostr_(invocation)))
 	}
 	return new_PureFunctionIdentifier_SideEffectPropagation(false, (PureFunctionIdentifier_SideEffectPropagation_calleeAndCallerShareThis(invocation) && !callerEntry.root.isArrowFunction()), propagateThrows, invocation, callScope, callerEntry, argumentsMatchParameters)
 }
@@ -1055,7 +1055,7 @@ func (this *PureFunctionIdentifier_AmbiguatedFunctionSummary) setMutatesArgument
 
 func (this *PureFunctionIdentifier_AmbiguatedFunctionSummary) setMutatesArgumentAt(paramIndex int32, debuggingReason Node) *PureFunctionIdentifier_AmbiguatedFunctionSummary {
 	if paramIndex < 0 {
-		panic(new_IllegalArgumentException_String(istr_(int64(int32(paramIndex)))).self())
+		panic(new_IllegalArgumentException_String(istr_(int64(int32(paramIndex)))))
 	}
 	this.maybeCollectImpureDebuggingReason(debuggingReason)
 	var paramBit int64 = func() int64 {

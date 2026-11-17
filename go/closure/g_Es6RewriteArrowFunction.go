@@ -36,7 +36,7 @@ func (this *Es6RewriteArrowFunction) shouldTraverse(t *NodeTraversal, n Node, pa
 	case tokOrd1_SUPER:
 		var context *ThisAndArgumentsReferenceUpdater_ThisAndArgumentsContext = slicePeekTop_(tc_p_ThisAndArgumentsReferenceUpdater_ThisAndArgumentsContext, this.contextStack)
 		if context == nil {
-			panic(new_NullPointerException_0().self())
+			panic(new_NullPointerException_0())
 		}
 		if (context.isConstructor_ && parent.isCall()) && (parent.getFirstChild() == n) {
 			context.lastSuperStatement = this.getEnclosingStatement(parent, context.scopeBody)
@@ -50,7 +50,7 @@ func (this *Es6RewriteArrowFunction) getEnclosingStatement(n Node, block Node) N
 	for Node_of_(Preconditions_checkNotNull(n.getParent().box_())) != block {
 		n = NodeUtil_getEnclosingStatement(n.getParent())
 		if n == 0 {
-			panic(new_NullPointerException_0().self())
+			panic(new_NullPointerException_0())
 		}
 	}
 	return n
@@ -60,7 +60,7 @@ func (this *Es6RewriteArrowFunction) visit(t *NodeTraversal, n Node, parent Node
 	var context *ThisAndArgumentsReferenceUpdater_ThisAndArgumentsContext = slicePeekTop_(tc_p_ThisAndArgumentsReferenceUpdater_ThisAndArgumentsContext, this.contextStack)
 	if n.isArrowFunction() {
 		if context == nil {
-			panic(new_NullPointerException_0().self())
+			panic(new_NullPointerException_0())
 		}
 		this.visitArrowFunction(t, n, context)
 	} else if (context != nil) && (context.scopeBody == n) {
@@ -73,7 +73,7 @@ func (this *Es6RewriteArrowFunction) visitArrowFunction(t *NodeTraversal, n Node
 	n.setIsArrowFunction(false)
 	var body Node = n.getLastChild()
 	if !body.isBlock() {
-		panic(new_IllegalStateException_String("Arrow function body must be a block after normalization").self())
+		panic(new_IllegalStateException_String("Arrow function body must be a block after normalization"))
 	}
 	var updater *ThisAndArgumentsReferenceUpdater = new_ThisAndArgumentsReferenceUpdater(this.compiler_, context, this.astFactory_)
 	NodeTraversal_traverse(this.compiler_, body, updater)

@@ -20,7 +20,7 @@ func new_MinimizedCondition(p *MinimizedCondition_MeasuredNode, n *MinimizedCond
 
 func MinimizedCondition_fromConditionNode(n Node) *MinimizedCondition {
 	if !n.hasParent() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	return func() *MinimizedCondition {
 		switch n.ns_().token {
@@ -42,7 +42,7 @@ func (this *MinimizedCondition) getMinimized(style MinimizedCondition_Minimizati
 
 func MinimizedCondition_unoptimized(n Node) *MinimizedCondition {
 	if n.getParent() == 0 {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	var pos *MinimizedCondition_MeasuredNode = new_MinimizedCondition_MeasuredNode(n, nil, 0, false)
 	var neg *MinimizedCondition_MeasuredNode = new_MinimizedCondition_MeasuredNode(0, nil, int32(2147483647), true)
@@ -210,7 +210,7 @@ func (this *MinimizedCondition_MeasuredNode) isNot() bool {
 
 func (this *MinimizedCondition_MeasuredNode) withoutNot() *MinimizedCondition_MeasuredNode {
 	if !this.isNot() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	return MinimizedCondition_MeasuredNode_normalizeChildren(this.node_, this.children_)[0].change()
 }
@@ -303,17 +303,17 @@ func MinimizedCondition_MeasuredNode_forNode(n Node) *MinimizedCondition_Measure
 
 func (this *MinimizedCondition_MeasuredNode) willChange(original Node) bool {
 	if original == 0 {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	return ((original != this.node_) || this.isChanged())
 }
 
 func (this *MinimizedCondition_MeasuredNode) applyTo(original Node) Node {
 	if original == 0 {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	if !this.willChange(original) {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	var replacement Node = this.buildReplacement()
 	if original != replacement {

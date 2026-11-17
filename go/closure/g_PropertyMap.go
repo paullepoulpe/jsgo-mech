@@ -130,7 +130,7 @@ func (this *PropertyMap) getOwnProperty(propertyName Property_Key) *Property {
 				return nil
 			}()
 		}
-		panic("unreachable")
+		panic(new_NullPointerException_0())
 	}()
 }
 
@@ -248,7 +248,7 @@ func (this *PropertyMap) incrementCachedKeySetCounter() {
 	this.cachedKeySetCounter++
 	this.cachedKeySet = nil
 	if this.cachedKeySetCounter < 0 {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 }
 

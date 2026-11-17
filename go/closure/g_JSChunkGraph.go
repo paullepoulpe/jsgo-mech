@@ -35,14 +35,14 @@ func JSChunkGraph_createFromArray(chunksInDepOrder []*JSChunk) *Outcome_base[*JS
 
 func JSChunkGraph_create(chunksInDepOrder ListOf[*JSChunk]) *Outcome_base[*JSChunkGraph] {
 	if chunksInDepOrder.isEmpty() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	chunksInDepOrder = JSChunkGraph_makeWeakChunk(chunksInDepOrder)
 	var chunks []*JSChunk = make([]*JSChunk, chunksInDepOrder.size())
 	for chunkIndex := int32(0); chunkIndex < int32(len(chunks)); chunkIndex++ {
 		var chunk *JSChunk = cast_[*JSChunk](chunksInDepOrder.get(chunkIndex))
 		if chunk.getIndex() != -1 {
-			panic(new_IllegalStateException_String(Strings_lenientFormat("Chunk index already set: %s", []any{obj_(chunk)})).self())
+			panic(new_IllegalStateException_String(Strings_lenientFormat("Chunk index already set: %s", []any{obj_(chunk)})))
 		}
 		chunk.setIndex(chunkIndex)
 		chunks[chunkIndex] = chunk
@@ -59,7 +59,7 @@ func JSChunkGraph_initChunksByDepth(chunks []*JSChunk) *Outcome_base[List] {
 	for chunkIndex := int32(0); chunkIndex < int32(len(chunks)); chunkIndex++ {
 		var chunk *JSChunk = chunks[chunkIndex]
 		if chunk.getDepth() != -1 {
-			panic(new_IllegalStateException_String(Strings_lenientFormat("Chunk depth already set: %s", []any{obj_(chunk)})).self())
+			panic(new_IllegalStateException_String(Strings_lenientFormat("Chunk depth already set: %s", []any{obj_(chunk)})))
 		}
 		var depth int32 = 0
 		for _, dep := range chunk.getDependencies() {
@@ -86,10 +86,10 @@ func JSChunkGraph_makeWeakChunk(chunksInDepOrder ListOf[*JSChunk]) ListOf[*JSChu
 			var allOtherChunks *TSet[*JSChunk] = tsetFrom_(tc_p_JSChunk, Collection(chunksInDepOrder), false)
 			allOtherChunks.remove(chunk)
 			if !chunk.getAllDependencies().asSet().containsAll(Collection(allOtherChunks.asSet())) {
-				panic(new_IllegalStateException_String("A weak chunk already exists but it does not depend on every other chunk.").self())
+				panic(new_IllegalStateException_String("A weak chunk already exists but it does not depend on every other chunk."))
 			}
 			if chunk.getAllDependencies().size() != allOtherChunks.size() {
-				panic(new_IllegalStateException_String("The weak chunk cannot have extra dependencies.").self())
+				panic(new_IllegalStateException_String("The weak chunk cannot have extra dependencies."))
 			}
 			break
 		}
@@ -117,7 +117,7 @@ func JSChunkGraph_makeWeakChunk(chunksInDepOrder ListOf[*JSChunk]) ListOf[*JSChu
 			if !misplacedWeakFiles.isEmpty() {
 				sb.append("\nFound these weak sources in other chunks:\n  ").append(Joiner_on("\n  ").join(Iterable(misplacedWeakFiles.asList())))
 			}
-			panic(new_IllegalStateException_String(sb.toString()).self())
+			panic(new_IllegalStateException_String(sb.toString()))
 		}
 	} else {
 		var weakChunk *JSChunk = new_JSChunk(JSChunk_WEAK_CHUNK_NAME)
@@ -235,7 +235,7 @@ func (this *JSChunkGraph) dependsOn(src *JSChunk, m *JSChunk) bool {
 
 func (this *JSChunkGraph) getSmallestCoveringSubtree(parentTree *JSChunk, dependentChunks *BitSet) *JSChunk {
 	if dependentChunks.isEmpty() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	var minDependentChunkIndex int32 = int32(len(this.chunks))
 	var candidates *BitSet = new_BitSet_int(int32(len(this.chunks)))
@@ -245,7 +245,7 @@ func (this *JSChunkGraph) getSmallestCoveringSubtree(parentTree *JSChunk, depend
 		candidates.and(this.selfPlusTransitiveDeps[dependentIndex])
 	}
 	if candidates.isEmpty() {
-		panic(new_IllegalStateException_String(Strings_lenientFormat("No common dependency found for %s", []any{obj_(dependentChunks)})).self())
+		panic(new_IllegalStateException_String(Strings_lenientFormat("No common dependency found for %s", []any{obj_(dependentChunks)})))
 	}
 	var parentTreeIndex int32 = parentTree.getIndex()
 	var bestCandidateIndex int32 = parentTreeIndex
@@ -309,7 +309,7 @@ func lambda_JSChunkGraph_getTransitiveDeps_1_(p0 any) any {
 
 func JSChunkGraph_moveMarkedWeakSources(weakChunk *JSChunk, inputs IterableOf[*CompilerInput]) {
 	if weakChunk == nil {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	var allInputs []*CompilerInput = immCopyOf_(tc_p_CompilerInput, inputs)
 	for _, i := range allInputs {
@@ -368,7 +368,7 @@ func (this *JSChunkGraph) manageDependencies(compiler *AbstractCompiler, depende
 	for input := range elemsAs_[*CompilerInput](entryPointInputs) {
 		var chunk *JSChunk = input.getChunk()
 		if chunk == nil {
-			panic(new_NullPointerException_0().self())
+			panic(new_NullPointerException_0())
 		}
 		entryPointInputsPerChunk.put(chunk, input)
 	}
@@ -411,14 +411,14 @@ func (this *JSChunkGraph) manageDependencies(compiler *AbstractCompiler, depende
 	}
 	var weakChunk *JSChunk = this.getChunkByName(JSChunk_WEAK_CHUNK_NAME)
 	if weakChunk == nil {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	if dependencyOptions.shouldPrune() {
 		var weakInputs ImmutableListOf[*CompilerInput] = sorter.getSortedWeakDependenciesOf(orderedInputs)
 		for _, el6 := range immElems_(weakInputs) {
 			i := cast_[*CompilerInput](el6)
 			if i.getChunk() != nil {
-				panic(new_IllegalStateException_0().self())
+				panic(new_IllegalStateException_0())
 			}
 			i.getSourceFile().setKind(StaticSourceFile_SourceKind_WEAK)
 			i.setChunk(weakChunk)

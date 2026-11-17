@@ -40,7 +40,7 @@ func (this *CmdLineParser) option(name string) *CmdLineParser_Option {
 
 func (this *CmdLineParser) argument(get func() any, set func(any)) {
 	if this.argumentField != nil {
-		panic(new_IllegalStateException_String("Argument with index 0 is used more than once").self())
+		panic(new_IllegalStateException_String("Argument with index 0 is used more than once"))
 	}
 	this.argumentField = new_CmdLineParser_Option(this, "", true)
 	this.argumentField.stringList(get, set)
@@ -48,7 +48,7 @@ func (this *CmdLineParser) argument(get func() any, set func(any)) {
 
 func (this *CmdLineParser) checkOptionNotDefined(name string) {
 	if this.findOptionByName(name) != nil {
-		panic(new_IllegalStateException_String(("Option name " + sstr_(name) + " is used more than once")).self())
+		panic(new_IllegalStateException_String(("Option name " + sstr_(name) + " is used more than once")))
 	}
 }
 
@@ -71,7 +71,7 @@ var lambda_CmdLineParser_sortedOptions_1_ = &Comparator_fn{func(o1_ any, o2_ any
 
 func (this *CmdLineParser) setUsageWidth(usageWidth int32) {
 	if usageWidth < 0 {
-		panic(new_IllegalArgumentException_String("Usage width is negative").self())
+		panic(new_IllegalArgumentException_String("Usage width is negative"))
 	}
 	this.usageWidth = usageWidth
 }
@@ -276,17 +276,7 @@ type CmdLineParser_Parameters interface {
 	getParameterOrNull(int32) OptionalOf[string]
 }
 
-type CmdLineParser_Handler interface {
-	parseArguments(CmdLineParser_Parameters) *Outcome_base[any]
-}
-
-type CmdLineParser_Handler_fn struct {
-	f func(CmdLineParser_Parameters) *Outcome_base[any]
-}
-
-func (this *CmdLineParser_Handler_fn) parseArguments(p0 CmdLineParser_Parameters) *Outcome_base[any] {
-	return this.f(p0)
-}
+type CmdLineParser_Handler = *funcObj_[func(CmdLineParser_Parameters) *Outcome_base[any]]
 
 type CmdLineParser_Option struct {
 	owner_        *CmdLineParser

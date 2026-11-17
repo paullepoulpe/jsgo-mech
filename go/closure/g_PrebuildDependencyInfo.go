@@ -36,6 +36,6 @@ func (this *PrebuildDependencyInfo) prebuild(allInputs IterableOf[*CompilerInput
 	}
 	if failed != nil {
 		var e *Exception = new_ExecutionException_Throwable(failed).as_Exception()
-		panic(new_RuntimeException_Throwable(e.up_Throwable()).self())
+		panic(new_RuntimeException_Throwable(e.up_Throwable()))
 	}
 }

@@ -38,7 +38,7 @@ func NestedCompilerRunner_create(original *AbstractCompiler, shadowOptions *Comp
 
 func (this *NestedCompilerRunner) addScript(shadowScript Node, uniqueShadowId string) *NestedCompilerRunner {
 	if !shadowScript.getIsInClosureUnawareSubtree() {
-		panic(new_IllegalArgumentException_String(Strings_lenientFormat("Expected closureUnaware script, found %s", []any{shadowScript.box_()})).self())
+		panic(new_IllegalArgumentException_String(Strings_lenientFormat("Expected closureUnaware script, found %s", []any{shadowScript.box_()})))
 	}
 	var shadowFile *SourceFile_jscomp = SourceFile_jscomp_fromCode_String_String_SourceKind(uniqueShadowId, "", StaticSourceFile_SourceKind_STRONG)
 	var shadowInput *CompilerInput = CompilerInput_createFromInputId(shadowFile, new_InputId(uniqueShadowId))
@@ -112,11 +112,11 @@ func (this *NestedCompilerRunner) delegateDiagnosticsToOriginal() {
 
 func (this *NestedCompilerRunner) checkInvariants() {
 	if ok_, a1_ := (this.baseChunk.getInputs().size() == 1), this.baseChunk.getInputs(); !ok_ {
-		panic(new_IllegalStateException_String(Strings_lenientFormat("Expected exactly 1 base chunk input, got %s", []any{obj_(a1_)})).self())
+		panic(new_IllegalStateException_String(Strings_lenientFormat("Expected exactly 1 base chunk input, got %s", []any{obj_(a1_)})))
 	}
 	var baseInputNode Node = cast_[*CompilerInput](this.baseChunk.getInputs().get(0)).getAstRoot(this.shadowCompiler.up_AbstractCompiler())
 	if ok_, a1_ := !baseInputNode.hasChildren(), baseInputNode.toStringTree(); !ok_ {
-		panic(new_IllegalStateException_String(Strings_lenientFormat("Expected synthetic base input chunk to have zero children, but found %s", []any{strobj_(a1_)})).self())
+		panic(new_IllegalStateException_String(Strings_lenientFormat("Expected synthetic base input chunk to have zero children, but found %s", []any{strobj_(a1_)})))
 	}
 }
 

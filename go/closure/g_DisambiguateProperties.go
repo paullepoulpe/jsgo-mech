@@ -28,7 +28,7 @@ func new_DisambiguateProperties(compiler *AbstractCompiler, propertiesThatMustDi
 
 func (this *DisambiguateProperties) process_2(externs Node, root Node) {
 	if externs.getParent() != root.getParent() {
-		panic(new_IllegalArgumentException_0().self())
+		panic(new_IllegalArgumentException_0())
 	}
 	var flattener *ColorGraphNodeFactory = ColorGraphNodeFactory_createFactory(this.registry)
 	var findRefs *ColorFindPropertyReferences = new_ColorFindPropertyReferences(flattener, func() func(Node) bool {
@@ -145,7 +145,7 @@ func (this *DisambiguateProperties) invalidateBasedOnType(flattener *ColorGraphN
 func (this *DisambiguateProperties) invalidateNonDeclaredPropertyAccesses(colorGraphNode *ColorGraphNode) {
 	var color *Color = colorGraphNode.getColor()
 	if color.isInvalidating() {
-		panic(new_IllegalArgumentException_String("Not applicable to invalidating types. All their properties are invalidated").self())
+		panic(new_IllegalArgumentException_String("Not applicable to invalidating types. All their properties are invalidated"))
 	}
 	for prop := range colorGraphNode.getAssociatedProps().Keys() {
 		if prop.isInvalidated() {
@@ -157,51 +157,38 @@ func (this *DisambiguateProperties) invalidateNonDeclaredPropertyAccesses(colorG
 	}
 }
 
-func (this *DisambiguateProperties) mayHaveProperty(color *Color, propertyName string) bool {
-	var ret_1 bool
-	code_1 := func() (code_ int) {
-		defer func() {
-			this.mayHavePropertySeenSet.remove(color)
-		}()
-		if !this.mayHavePropertySeenSet.add(color) {
-			ret_1 = false
-			return 1
-		}
-		if color.isUnion() {
-			for _, el_2 := range immElems_(color.getUnionElements()) {
-				var element *Color = cast_[*Color](el_2)
-				if this.mayHaveProperty(element, propertyName) {
-					ret_1 = true
-					return 1
-				}
-			}
-			ret_1 = false
-			return 1
-		}
-		if Collection_contains_s(color.getOwnProperties(), propertyName) {
-			ret_1 = true
-			return 1
-		}
-		it_4 := foreach_(this.registry.getDisambiguationSupertypes(color))
-		for it_4.next() {
-			var element *Color = cast_[*Color](it_4.v)
-			if this.mayHaveProperty(element, propertyName) {
-				ret_1 = true
-				return 1
-			}
-		}
-		ret_1 = false
-		return 1
+func (this *DisambiguateProperties) mayHaveProperty(color *Color, propertyName string) (ret_1 bool) {
+	defer func() {
+		this.mayHavePropertySeenSet.remove(color)
 	}()
-	if code_1 == 1 {
-		return ret_1
+	if !this.mayHavePropertySeenSet.add(color) {
+		return false
 	}
-	panic("unreachable")
+	if color.isUnion() {
+		for _, el_2 := range immElems_(color.getUnionElements()) {
+			var element *Color = cast_[*Color](el_2)
+			if this.mayHaveProperty(element, propertyName) {
+				return true
+			}
+		}
+		return false
+	}
+	if Collection_contains_s(color.getOwnProperties(), propertyName) {
+		return true
+	}
+	it_4 := foreach_(this.registry.getDisambiguationSupertypes(color))
+	for it_4.next() {
+		var element *Color = cast_[*Color](it_4.v)
+		if this.mayHaveProperty(element, propertyName) {
+			return true
+		}
+	}
+	return false
 }
 
 func (this *DisambiguateProperties) registerOwnDeclaredProperties(colorGraphNode *ColorGraphNode, propIndex *TMap[string, *PropertyClustering]) {
 	if colorGraphNode.getColor().isUnion() {
-		panic(new_IllegalArgumentException_0().self())
+		panic(new_IllegalArgumentException_0())
 	}
 	for _, el := range immElems_(colorGraphNode.getColor().getOwnProperties()) {
 		propName := str_(el)
@@ -217,21 +204,15 @@ func (this *DisambiguateProperties) registerOwnDeclaredProperties(colorGraphNode
 }
 
 func (this *DisambiguateProperties) logForDiagnostics(name string, data Supplier_baseOf[any]) {
-	_ = func() (code_ int) {
-		var log *LogFile = this.compiler_.createOrReopenLog(Object_getClass(any(this)), (sstr_(name) + ".log"), []string{})
-		defer closeResource_(log.self())
-		log.logJsonSupplier(Supplier(data))
-		return 0
-	}()
+	var log *LogFile = this.compiler_.createOrReopenLog(Object_getClass(any(this)), (sstr_(name) + ".log"), []string{})
+	defer closeResource_(log.self())
+	log.logJsonSupplier(Supplier(data))
 }
 
 func (this *DisambiguateProperties) logForDiagnosticsStreamedJsonProducer(name string, data func(*SimpleJsonWriter)) {
-	_ = func() (code_ int) {
-		var log *LogFile = this.compiler_.createOrReopenLog(Object_getClass(any(this)), (sstr_(name) + ".log"), []string{})
-		defer closeResource_(log.self())
-		log.logJson(data)
-		return 0
-	}()
+	var log *LogFile = this.compiler_.createOrReopenLog(Object_getClass(any(this)), (sstr_(name) + ".log"), []string{})
+	defer closeResource_(log.self())
+	log.logJson(data)
 }
 
 var DisambiguateProperties_PROPERTY_INVALIDATION *DiagnosticType
@@ -441,7 +422,7 @@ func (this *DisambiguateProperties_TypeEdgeJson) compareTo(x_ any) int32 {
 	var x *DisambiguateProperties_TypeEdgeJson = cast_[*DisambiguateProperties_TypeEdgeJson](x_)
 	_ = x
 	if this.dest == x.dest {
-		panic(new_IllegalArgumentException_0().self())
+		panic(new_IllegalArgumentException_0())
 	}
 	return (this.dest - x.dest)
 }

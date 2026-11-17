@@ -137,7 +137,7 @@ func (this *Util_1UnescapedRegion) incrementForNormalChar() {
 
 func (this *Util_1UnescapedRegion) incrementForEscapedChar() {
 	if this.unescapedRegionStart != this.unescapedRegionEnd {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	this.unescapedRegionStart++
 	this.unescapedRegionEnd++

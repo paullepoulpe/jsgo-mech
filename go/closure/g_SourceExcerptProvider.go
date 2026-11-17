@@ -64,7 +64,7 @@ func (this SourceExcerptProvider_SourceExcerpt) get_5(p0 SourceExcerptProvider, 
 	case SourceExcerptProvider_SourceExcerpt_REGION:
 		return this.get_5_REGION(p0, p1, p2, p3, p4)
 	default:
-		panic(new_NullPointerException_0().self()) // a call on null
+		panic(new_NullPointerException_0()) // a call on null
 	}
 }
 

@@ -366,7 +366,7 @@ func (this *ScriptNodeDeserializer) deserializeSingleNode(n *AstNode, templateNo
 		return this.newNodeFromTemplate(Token_rhino_OBJECT_SPREAD, templateNode)
 	case NodeKind_NODE_KIND_UNSPECIFIED, NodeKind_UNRECOGNIZED:
 	}
-	panic(new_IllegalStateException_String(("Unexpected serialized kind for AstNode: " + tostr_(n))).self())
+	panic(new_IllegalStateException_String(("Unexpected serialized kind for AstNode: " + tostr_(n))))
 }
 
 func (this *ScriptNodeDeserializer) filterOutCastProp(nodeProperties int64) int64 {
@@ -400,32 +400,24 @@ func new_ScriptNodeDeserializer_Runner(outer_ *ScriptNodeDeserializer) *ScriptNo
 	return this
 }
 
-func (this *ScriptNodeDeserializer_Runner) run() Node {
-	var ret_1 Node
-	code_1 := func() (code_ int) {
-		defer func() {
-			if r_ := recover(); r_ != nil {
-				ex_ := catch_(r_)
-				if p, ok := ex_.(IOException_as); ok {
-					var ex *IOException = p.as_IOException()
-					panic(obj_(new_MalformedTypedAstException_Object_Throwable(obj_(this.owner().sourceFile), ex.up_Throwable())))
-				}
-				panic(r_)
+func (this *ScriptNodeDeserializer_Runner) run() (ret_1 Node) {
+	defer func() {
+		if r_ := recover(); r_ != nil {
+			ex_ := catch_(r_)
+			if p, ok := ex_.(IOException_as); ok {
+				var ex *IOException = p.as_IOException()
+				panic(new_MalformedTypedAstException_Object_Throwable(obj_(this.owner().sourceFile), ex.up_Throwable()))
 			}
-		}()
-		var astStream *CodedInputStream = this.owner().scriptBytes.newCodedInput()
-		astStream.setRecursionLimit(int32(2147483647))
-		var contextStack *TList[FeatureCollector_FeatureContext] = newTList_(tc_p_FeatureCollector_FeatureContext)
-		SequencedCollection_addLast(contextStack.asList(), obj_(FeatureCollector_FeatureContext_NONE))
-		var scriptNode Node = this.visit(AstNode_parseFrom(astStream, ExtensionRegistry_getEmptyRegistry().up_ExtensionRegistryLite()), contextStack, this.owner().createSourceInfoTemplate(this.owner().sourceFile))
-		scriptNode.setFeatureSet(this.featureCollector.allFeatures())
-		ret_1 = scriptNode
-		return 1
+			panic(r_)
+		}
 	}()
-	if code_1 == 1 {
-		return ret_1
-	}
-	panic("unreachable")
+	var astStream *CodedInputStream = this.owner().scriptBytes.newCodedInput()
+	astStream.setRecursionLimit(int32(2147483647))
+	var contextStack *TList[FeatureCollector_FeatureContext] = newTList_(tc_p_FeatureCollector_FeatureContext)
+	SequencedCollection_addLast(contextStack.asList(), obj_(FeatureCollector_FeatureContext_NONE))
+	var scriptNode Node = this.visit(AstNode_parseFrom(astStream, ExtensionRegistry_getEmptyRegistry().up_ExtensionRegistryLite()), contextStack, this.owner().createSourceInfoTemplate(this.owner().sourceFile))
+	scriptNode.setFeatureSet(this.featureCollector.allFeatures())
+	return scriptNode
 }
 
 func (this *ScriptNodeDeserializer_Runner) owner() *ScriptNodeDeserializer {

@@ -25,7 +25,7 @@ func new_CheckSuper(compiler *AbstractCompiler) *CheckSuper {
 func (this *CheckSuper) process_2(externs Node, root Node) {
 	NodeTraversal_traverse(this.compiler_, root, this)
 	if ok_, a1_ := this.contextStack.isEmpty(), ImmutableList_of_Object(obj_(this.contextStack)); !ok_ {
-		panic(new_IllegalStateException_String(tostr_(a1_)).self())
+		panic(new_IllegalStateException_String(tostr_(a1_)))
 	}
 }
 
@@ -33,7 +33,7 @@ func (this *CheckSuper) shouldTraverse(t *NodeTraversal, n Node, parent Node) bo
 	switch n.ns_().token {
 	case tokOrd1_ROOT:
 		if !this.contextStack.isEmpty() {
-			panic(new_IllegalStateException_0().self())
+			panic(new_IllegalStateException_0())
 		}
 		this.contextStack.push(obj_(new_CheckSuper_SuperNotAllowedContext(n)))
 	case tokOrd1_FUNCTION:
@@ -77,7 +77,7 @@ func (this *CheckSuper) getContextForFunctionNode(currentContext *CheckSuper_Con
 func (this *CheckSuper) visit(t *NodeTraversal, n Node, parent Node) {
 	var currentContext *CheckSuper_Context = to_CheckSuper_Context(this.contextStack.peek())
 	if currentContext == nil {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	switch n.ns_().token {
 	case tokOrd1_SUPER:
@@ -98,7 +98,7 @@ func (this *CheckSuper) visit(t *NodeTraversal, n Node, parent Node) {
 		currentContext.visitReturn(t, n)
 	case tokOrd1_ROOT:
 		if this.contextStack.size() != 1 {
-			panic(new_IllegalStateException_0().self())
+			panic(new_IllegalStateException_0())
 		}
 	default:
 	}
@@ -110,7 +110,7 @@ func (this *CheckSuper) visit(t *NodeTraversal, n Node, parent Node) {
 
 func (this *CheckSuper) isSuperConstructorCall(superNode Node) bool {
 	if !superNode.isSuper() {
-		panic(new_IllegalStateException_String(tostr_(superNode)).self())
+		panic(new_IllegalStateException_String(tostr_(superNode)))
 	}
 	var parent Node = superNode.getParent()
 	return (parent.isCall() && superNode.isFirstChildOf(parent))
@@ -118,7 +118,7 @@ func (this *CheckSuper) isSuperConstructorCall(superNode Node) bool {
 
 func (this *CheckSuper) isSuperPropertyAccess(superNode Node) bool {
 	if !superNode.isSuper() {
-		panic(new_IllegalStateException_String(tostr_(superNode)).self())
+		panic(new_IllegalStateException_String(tostr_(superNode)))
 	}
 	var parent Node = superNode.getParent()
 	return (NodeUtil_isNormalGet(parent) && superNode.isFirstChildOf(parent))
@@ -203,7 +203,7 @@ func (this *CheckSuper_Context) self() any {
 
 func (this *CheckSuper_Context) init_CheckSuper_Context(contextNode Node) {
 	if contextNode == 0 {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	this.contextNode = contextNode
 }
@@ -331,17 +331,17 @@ func (this *CheckSuper_MethodContext) up_CheckSuper_Context() *CheckSuper_Contex
 func (this *CheckSuper_MethodContext) init_CheckSuper_MethodContext(functionNode Node) {
 	this.CheckSuper_Context.init_CheckSuper_Context(functionNode)
 	if !functionNode.isFunction() || !NodeUtil_isMethodDeclaration(functionNode) {
-		panic(new_IllegalArgumentException_String(tostr_(functionNode)).self())
+		panic(new_IllegalArgumentException_String(tostr_(functionNode)))
 	}
 	var objLitOrClassMembers Node = functionNode.getGrandparent()
 	if objLitOrClassMembers == 0 {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	if objLitOrClassMembers.isObjectLit() {
 		this.isClassMethod = false
 	} else {
 		if !objLitOrClassMembers.isClassMembers() {
-			panic(new_IllegalStateException_String(tostr_(objLitOrClassMembers)).self())
+			panic(new_IllegalStateException_String(tostr_(objLitOrClassMembers)))
 		}
 		this.isClassMethod = true
 	}
@@ -378,7 +378,7 @@ func (this *CheckSuper_MethodContext) visitSuperConstructorCall_impl(t *NodeTrav
 func (this *CheckSuper_MethodContext) getPropertyName() OptionalOf[string] {
 	var parent Node = this.getContextNode().getParent()
 	if parent == 0 {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	if (parent.isMemberFunctionDef() || parent.isGetterDef()) || parent.isSetterDef() {
 		return Optional_of[string](parent.getString())
@@ -421,7 +421,7 @@ func (this *CheckSuper_ConstructorContext) init_CheckSuper_ConstructorContext(co
 	this.CheckSuper_Context.init_CheckSuper_Context(contextNode)
 	this.finit_CheckSuper_ConstructorContext()
 	if !NodeUtil_isEs6Constructor(contextNode) {
-		panic(new_IllegalArgumentException_String(tostr_(contextNode)).self())
+		panic(new_IllegalArgumentException_String(tostr_(contextNode)))
 	}
 	var classNode Node = NodeUtil_getEnclosingClass(contextNode)
 	this.hasParentClass = !classNode.getSecondChild().isEmpty()
@@ -512,7 +512,7 @@ func (this *CheckSuper_ConstructorArrowContext) up_CheckSuper_Context() *CheckSu
 func (this *CheckSuper_ConstructorArrowContext) init_CheckSuper_ConstructorArrowContext(constructorContext *CheckSuper_ConstructorContext, arrowFn Node) {
 	this.CheckSuper_Context.init_CheckSuper_Context(arrowFn)
 	if constructorContext == nil {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	this.constructorContext = constructorContext
 }

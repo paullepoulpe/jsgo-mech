@@ -10,7 +10,7 @@ type SerializationOptions struct {
 
 func (this *SerializationOptions) init_SerializationOptions(includeDebugInfo bool, runValidation bool, runtimeLibraries ImmutableListOf[string]) {
 	if runtimeLibraries == nil {
-		panic(new_NullPointerException_String("runtimeLibraries").self())
+		panic(new_NullPointerException_String("runtimeLibraries"))
 	}
 	this.includeDebugInfo_ = includeDebugInfo
 	this.runValidation_ = runValidation
@@ -90,7 +90,7 @@ func (this *SerializationOptions_Builder) setRunValidation(runValidation bool) *
 
 func (this *SerializationOptions_Builder) setRuntimeLibraries(runtimeLibraries ImmutableListOf[string]) *SerializationOptions_Builder {
 	if runtimeLibraries == nil {
-		panic(new_NullPointerException_String("Null runtimeLibraries").self())
+		panic(new_NullPointerException_String("Null runtimeLibraries"))
 	}
 	this.runtimeLibraries_ = runtimeLibraries
 	return this
@@ -108,7 +108,7 @@ func (this *SerializationOptions_Builder) build() *SerializationOptions {
 		if this.runtimeLibraries_ == nil {
 			missing.append(" runtimeLibraries")
 		}
-		panic(new_IllegalStateException_String(("Missing required properties:" + missing.toString())).self())
+		panic(new_IllegalStateException_String(("Missing required properties:" + missing.toString())))
 	}
 	return new_SerializationOptions(this.includeDebugInfo_, this.runValidation_, this.runtimeLibraries_)
 }

@@ -21,6 +21,6 @@ func SourceMapGeneratorFactory_getInstance(format SourceMapFormat) SourceMapGene
 		case SourceMapFormat_DEFAULT, SourceMapFormat_V3:
 			return new_SourceMapGeneratorV3()
 		}
-		panic("unreachable")
+		panic(new_NullPointerException_0())
 	}()
 }

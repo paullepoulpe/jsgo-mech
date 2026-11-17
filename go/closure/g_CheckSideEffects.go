@@ -180,7 +180,7 @@ func (this *CheckSideEffects_StripProtection) visit_impl(t *NodeTraversal, n Nod
 				_ = s
 				return s != ""
 			})) {
-				panic(new_IllegalStateException_String("Only allowed for J2CL code").self())
+				panic(new_IllegalStateException_String("Only allowed for J2CL code"))
 			}
 			NodeUtil_deleteFunctionCall(n, this.compiler_)
 			return

@@ -37,7 +37,7 @@ func SerializeTypesToPointers_create(compiler *AbstractCompiler, stringPoolBuild
 
 func (this *SerializeTypesToPointers) gatherTypesOnAst(root Node) {
 	if this.typePool != nil {
-		panic(new_IllegalStateException_String("Cannot call process() twice").self())
+		panic(new_IllegalStateException_String("Cannot call process() twice"))
 	}
 	NodeTraversal_traverse(this.compiler_, root, new_SerializeTypesToPointers_PropertySearchCallback(this))
 	NodeTraversal_traverse(this.compiler_, root, new_SerializeTypesToPointers_TypeSearchCallback(this))
@@ -58,23 +58,19 @@ func (this *SerializeTypesToPointers) getTypePool() *TypePool {
 }
 
 func (this *SerializeTypesToPointers) logSerializationDebugInfo(serializer *JSTypeReconserializer, typePool *TypePool) {
-	_ = func() (code_ int) {
+	func() {
 		var log *LogFile = this.compiler_.createOrReopenLog(Object_getClass(any(this)), "object_uuids.log", []string{})
 		defer closeResource_(log.self())
 		if log.isLogging() {
 			var allSerializedTypes MapOf[string, ListOf[*JSType]] = serializer.getColorIdToJSTypeMapForDebugging().asMap()
 			log.logJson(new_SerializeTypesToPointers_StreamObjectUuidsJson(allSerializedTypes).writeJson)
 		}
-		return 0
 	}()
-	_ = func() (code_ int) {
-		var log *LogFile = this.compiler_.createOrReopenLog(Object_getClass(any(this)), "mismatches.log", []string{})
-		defer closeResource_(log.self())
-		log.log(func() any {
-			return strobj_(SerializeTypesToPointers_typeMismatchesToJson(this.logTypeMismatches(this.compiler_.getTypeMismatches(), serializer, typePool)))
-		})
-		return 0
-	}()
+	var log *LogFile = this.compiler_.createOrReopenLog(Object_getClass(any(this)), "mismatches.log", []string{})
+	defer closeResource_(log.self())
+	log.log(func() any {
+		return strobj_(SerializeTypesToPointers_typeMismatchesToJson(this.logTypeMismatches(this.compiler_.getTypeMismatches(), serializer, typePool)))
+	})
 }
 
 func (this *SerializeTypesToPointers) logTypeMismatches(typeMismatches IterableOf[*TypeMismatch], serializer *JSTypeReconserializer, typePool *TypePool) ImmutableSortedSetOf[*SerializeTypesToPointers_TypeMismatchJson] {
@@ -249,7 +245,7 @@ func SerializeTypesToPointers_TypeMismatchJson_typePointerToId(poolOffset int32,
 		return ColorId_fromBytesByteString(typeProto.getObject().getUuid())
 	case TypeProto_KindCase_KIND_NOT_SET:
 	}
-	panic(new_AssertionError_Object(strobj_(("Unrecognized TypeProto " + tostr_(typeProto)))).self())
+	panic(new_AssertionError_Object(strobj_(("Unrecognized TypeProto " + tostr_(typeProto)))))
 }
 
 func (this *SerializeTypesToPointers_TypeMismatchJson) compareTo(x_ any) int32 {

@@ -26,19 +26,19 @@ func (this *JsMessage) zero_JsMessage() {
 
 func (this *JsMessage) init_JsMessage(getSourceName OptionalOf[string], getKey string, isAnonymous bool, isExternal bool, getId string, getParts ImmutableListOf[JsMessage_Part], getGenderedMessagesMap ImmutableMapOf[JsMessage_GrammaticalGenderCase, ImmutableListOf[JsMessage_Part]], getAlternateId OptionalOf[string], getDesc OptionalOf[string], getMeaning OptionalOf[string], getPlaceholderNameToExampleMap ImmutableMapOf[string, string], getPlaceholderNameToOriginalCodeMap ImmutableMapOf[string, string], jsPlaceholderNames ImmutableSetOf[string], canonicalPlaceholderNames ImmutableSetOf[string]) {
 	if getParts == nil {
-		panic(new_NullPointerException_String("getParts").self())
+		panic(new_NullPointerException_String("getParts"))
 	}
 	if getPlaceholderNameToExampleMap == nil {
-		panic(new_NullPointerException_String("getPlaceholderNameToExampleMap").self())
+		panic(new_NullPointerException_String("getPlaceholderNameToExampleMap"))
 	}
 	if getPlaceholderNameToOriginalCodeMap == nil {
-		panic(new_NullPointerException_String("getPlaceholderNameToOriginalCodeMap").self())
+		panic(new_NullPointerException_String("getPlaceholderNameToOriginalCodeMap"))
 	}
 	if jsPlaceholderNames == nil {
-		panic(new_NullPointerException_String("jsPlaceholderNames").self())
+		panic(new_NullPointerException_String("jsPlaceholderNames"))
 	}
 	if canonicalPlaceholderNames == nil {
-		panic(new_NullPointerException_String("canonicalPlaceholderNames").self())
+		panic(new_NullPointerException_String("canonicalPlaceholderNames"))
 	}
 	this.getSourceName_ = getSourceName
 	this.getKey_ = getKey
@@ -73,7 +73,7 @@ func (this *JsMessage) getPlaceholderExample(placeholderReference *JsMessage_Pla
 
 func (this *JsMessage) getGenderedMessageParts(genderCase JsMessage_GrammaticalGenderCase) []JsMessage_Part {
 	if this.getGenderedMessagesMap().isEmpty() {
-		panic(new_UnsupportedOperationException_String("Message does not contain grammatical gendered variants.").self())
+		panic(new_UnsupportedOperationException_String("Message does not contain grammatical gendered variants."))
 	}
 	return sliceImm_(tc_JsMessage_Part, cast_[*ImmutableList](this.getGenderedMessagesMap().get(obj_(genderCase))))
 }
@@ -84,7 +84,7 @@ func (this *JsMessage) getGenderedMessageVariants() []JsMessage_GrammaticalGende
 
 func (this *JsMessage) asJsMessageString() string {
 	if !this.getGenderedMessagesMap().isEmpty() {
-		panic(new_UnsupportedOperationException_String("asJsMessageString() is not supported for messages with gendered variants. Please provide a grammatical gender case as an argument.").self())
+		panic(new_UnsupportedOperationException_String("asJsMessageString() is not supported for messages with gendered variants. Please provide a grammatical gender case as an argument."))
 	}
 	var sb strBuilder_
 	for _, el := range immElems_(this.getParts()) {
@@ -100,7 +100,7 @@ func (this *JsMessage) asJsMessageString() string {
 
 func (this *JsMessage) asJsMessageString_1(genderCase JsMessage_GrammaticalGenderCase) string {
 	if !this.getGenderedMessagesMap().containsKey(obj_(genderCase)) {
-		panic(new_IllegalArgumentException_String(("No message for grammtical gender case: " + tostr_(genderCase))).self())
+		panic(new_IllegalArgumentException_String(("No message for grammtical gender case: " + tostr_(genderCase))))
 	}
 	var sb strBuilder_
 	for _, el := range immElems_(cast_[*ImmutableList](this.getGenderedMessagesMap().get(obj_(genderCase)))) {
@@ -116,7 +116,7 @@ func (this *JsMessage) asJsMessageString_1(genderCase JsMessage_GrammaticalGende
 
 func (this *JsMessage) asIcuMessageString() string {
 	if !this.getGenderedMessagesMap().isEmpty() {
-		panic(new_UnsupportedOperationException_String("asIcuMessageString() is not supported for messages with gendered variants. Please provide a grammatical gender case as an argument.").self())
+		panic(new_UnsupportedOperationException_String("asIcuMessageString() is not supported for messages with gendered variants. Please provide a grammatical gender case as an argument."))
 	}
 	var sb strBuilder_
 	for _, el := range immElems_(this.getParts()) {
@@ -132,7 +132,7 @@ func (this *JsMessage) asIcuMessageString() string {
 
 func (this *JsMessage) asIcuMessageString_1(genderCase JsMessage_GrammaticalGenderCase) string {
 	if !this.getGenderedMessagesMap().containsKey(obj_(genderCase)) {
-		panic(new_IllegalArgumentException_String(("No message for grammtical gender case: " + tostr_(genderCase))).self())
+		panic(new_IllegalArgumentException_String(("No message for grammtical gender case: " + tostr_(genderCase))))
 	}
 	var sb strBuilder_
 	for _, el := range immElems_(cast_[*ImmutableList](this.getGenderedMessagesMap().get(obj_(genderCase)))) {
@@ -443,11 +443,11 @@ func (this *JsMessage_StringPart) isPlaceholder() bool {
 }
 
 func (this *JsMessage_StringPart) getJsPlaceholderName() string {
-	panic(new_UnsupportedOperationException_String(("not a placeholder: '" + sstr_(this.string()) + "'")).self())
+	panic(new_UnsupportedOperationException_String(("not a placeholder: '" + sstr_(this.string()) + "'")))
 }
 
 func (this *JsMessage_StringPart) getCanonicalPlaceholderName() string {
-	panic(new_UnsupportedOperationException_String(("not a placeholder: '" + sstr_(this.string()) + "'")).self())
+	panic(new_UnsupportedOperationException_String(("not a placeholder: '" + sstr_(this.string()) + "'")))
 }
 
 func (this *JsMessage_StringPart) string() string {
@@ -503,14 +503,14 @@ func (this *JsMessage_PlaceholderReference) isCanonicalFormat() bool {
 
 func JsMessage_PlaceholderReference_createForJsName(name string) *JsMessage_PlaceholderReference {
 	if !JsMessage_isLowerCamelCaseWithNumericSuffixes(name) {
-		panic(new_IllegalArgumentException_String(Strings_lenientFormat("invalid JS placeholder name format: '%s'", []any{strobj_(name)})).self())
+		panic(new_IllegalArgumentException_String(Strings_lenientFormat("invalid JS placeholder name format: '%s'", []any{strobj_(name)})))
 	}
 	return new_JsMessage_PlaceholderReference(name, false)
 }
 
 func JsMessage_PlaceholderReference_createForCanonicalName(name string) *JsMessage_PlaceholderReference {
 	if !JsMessage_isCanonicalPlaceholderNameFormat(name) {
-		panic(new_IllegalArgumentException_String(Strings_lenientFormat("not a canonical placeholder name format: '%s'", []any{strobj_(name)})).self())
+		panic(new_IllegalArgumentException_String(Strings_lenientFormat("not a canonical placeholder name format: '%s'", []any{strobj_(name)})))
 	}
 	return new_JsMessage_PlaceholderReference(name, true)
 }
@@ -540,7 +540,7 @@ func (this *JsMessage_PlaceholderReference) getCanonicalPlaceholderName() string
 }
 
 func (this *JsMessage_PlaceholderReference) getString() string {
-	panic(new_UnsupportedOperationException_String(("not a string part: '" + sstr_(this.getJsPlaceholderName()) + "'")).self())
+	panic(new_UnsupportedOperationException_String(("not a string part: '" + sstr_(this.getJsPlaceholderName()) + "'")))
 }
 
 func (this *JsMessage_PlaceholderReference) storedPlaceholderName() string {
@@ -630,7 +630,7 @@ func (this *JsMessage_Builder) setSourceName(sourceName string) *JsMessage_Build
 
 func (this *JsMessage_Builder) appendPart(part JsMessage_Part) *JsMessage_Builder {
 	if part == nil {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	this.parts.add(part)
 	if part.isPlaceholder() {
@@ -680,7 +680,7 @@ func (this *JsMessage_Builder) appendStringPart(part string) *JsMessage_Builder 
 
 func (this *JsMessage_Builder) appendStringPart_2(genderCase JsMessage_GrammaticalGenderCase, part string) *JsMessage_Builder {
 	if genderCase == 0 {
-		panic(new_NullPointerException_String("Grammatical gender case must not be null").self())
+		panic(new_NullPointerException_String("Grammatical gender case must not be null"))
 	}
 	this.genderedMessageMap.get(genderCase).add(obj_(JsMessage_StringPart_create(part)))
 	return this
@@ -688,7 +688,7 @@ func (this *JsMessage_Builder) appendStringPart_2(genderCase JsMessage_Grammatic
 
 func (this *JsMessage_Builder) addGenderedMessageKey(part JsMessage_GrammaticalGenderCase) *JsMessage_Builder {
 	if part == 0 {
-		panic(new_NullPointerException_String("Gendered message key must not be null").self())
+		panic(new_NullPointerException_String("Gendered message key must not be null"))
 	}
 	this.genderedMessageMap.put(part, new_ArrayList_0())
 	return this
@@ -726,7 +726,7 @@ func (this *JsMessage_Builder) setIsAnonymous(isAnonymous bool) *JsMessage_Build
 
 func (this *JsMessage_Builder) setId(id OptionalOf[string]) *JsMessage_Builder {
 	if ok_, a1_, a2_ := this.id.isEmpty(), this.id.orElse("null"), id.orElse("null"); !ok_ {
-		panic(new_IllegalStateException_String(Strings_lenientFormat("id already set to '%s': cannot change it to '%s'", []any{strobj_(a1_), strobj_(a2_)})).self())
+		panic(new_IllegalStateException_String(Strings_lenientFormat("id already set to '%s': cannot change it to '%s'", []any{strobj_(a1_), strobj_(a2_)})))
 	}
 	this.id = id
 	return this
@@ -751,13 +751,13 @@ func (this *JsMessage_Builder) getParts() *TList[JsMessage_Part] {
 
 func (this *JsMessage_Builder) build() *JsMessage {
 	if !this.key_.isPresent() {
-		panic(new_IllegalStateException_String("key has not been set").self())
+		panic(new_IllegalStateException_String("key has not been set"))
 	}
 	if !this.id.isPresent() {
-		panic(new_IllegalStateException_String("id has not been set").self())
+		panic(new_IllegalStateException_String("id has not been set"))
 	}
 	if this.isExternal_ && this.isAnonymous_ {
-		panic(new_IllegalStateException_String("a message cannot be both anonymous and external").self())
+		panic(new_IllegalStateException_String("a message cannot be both anonymous and external"))
 	}
 	if this.alternateId.isPresent() && optequalsOn_(this.alternateId, this.id) {
 		this.alternateId = Optional_empty[string]()

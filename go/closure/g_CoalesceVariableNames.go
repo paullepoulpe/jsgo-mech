@@ -35,7 +35,7 @@ func (this *CoalesceVariableNames) init_CoalesceVariableNames(compiler *Abstract
 	this.NodeTraversal_AbstractCfgCallback.init_NodeTraversal_AbstractCfgCallback()
 	this.finit_CoalesceVariableNames()
 	if !compiler.getLifeCycleStage().isNormalized() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	this.compiler_ = compiler
 	this.colorings = []*GraphColoring{}
@@ -54,10 +54,10 @@ func new_CoalesceVariableNames(compiler *AbstractCompiler, usePseudoNames bool) 
 
 func (this *CoalesceVariableNames) process_2(externs Node, root Node) {
 	if externs == 0 {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	if root == 0 {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	NodeTraversal_builder().setCompiler(this.compiler_).setCallback(this).setScopeCreator(icast_ScopeCreator(obj_(this.scopeCreator))).traverse(root)
 	this.compiler_.setLifeCycleStage(AbstractCompiler_LifeCycleStage_RAW)
@@ -82,7 +82,7 @@ func (this *CoalesceVariableNames) enterScopeWithCfg_impl(t *NodeTraversal) {
 	this.shouldOptimizeScopeStack.push(any(bool(true)))
 	var scope *Scope = t.getScope()
 	if !scope.isFunctionScope() {
-		panic(new_IllegalStateException_String(tostr_(scope)).self())
+		panic(new_IllegalStateException_String(tostr_(scope)))
 	}
 	var cfg *ControlFlowGraph = this.getControlFlowGraph(this.compiler_)
 	this.liveness = new_LiveVariablesAnalysis(cfg, scope, nil, this.compiler_, icast_ScopeCreator(obj_(this.scopeCreator)), allVarsDeclaredInFunction)
@@ -151,7 +151,7 @@ func (this *CoalesceVariableNames) visit_impl(t *NodeTraversal, n Node, parent N
 
 func (this *CoalesceVariableNames) updateDeclarationsPostCoalescing(n Node, coalescedVar *Var, originalVar *Var, parent Node) {
 	if !n.isName() {
-		panic(new_IllegalStateException_String("trying to update the declaration of a non-name node").self())
+		panic(new_IllegalStateException_String("trying to update the declaration of a non-name node"))
 	}
 	if NodeUtil_isNameDeclaration(parent) || (((NodeUtil_getEnclosingType(n, Token_rhino_DESTRUCTURING_LHS) != 0) && NodeUtil_isLhsByDestructuring(n)) && !this.isNameInsideDestructuringAssignment(n)) {
 		this.makeDeclarationVar(coalescedVar)
@@ -175,7 +175,7 @@ func (this *CoalesceVariableNames) computeVariableNamesInterferenceGraph(cfg *Co
 	func() {
 		arr_1 := interferenceBitSet
 		tmp_2 := arrmap_(arr_1, func(v_ *BitSet) any { return obj_(v_) })
-		Arrays_setAll(tmp_2, lambda_CoalesceVariableNames_computeVariableNamesInterferenceGraph_1_)
+		Arrays_setAll_f(tmp_2, lambda_CoalesceVariableNames_computeVariableNamesInterferenceGraph_1_)
 		for i_ := range tmp_2 {
 			arr_1[i_] = cast_[*BitSet](tmp_2[i_])
 		}
@@ -240,9 +240,9 @@ func (this *CoalesceVariableNames) computeVariableNamesInterferenceGraph(cfg *Co
 }
 
 // lambda_CoalesceVariableNames_computeVariableNamesInterferenceGraph_1_ is a lambda of CoalesceVariableNames_computeVariableNamesInterferenceGraph that captures nothing (post-flip step lambdas).
-var lambda_CoalesceVariableNames_computeVariableNamesInterferenceGraph_1_ = &IntFunction_fn{func(i int32) any {
+func lambda_CoalesceVariableNames_computeVariableNamesInterferenceGraph_1_(i int32) any {
 	return obj_(new_BitSet())
-}}
+}
 
 func (this *CoalesceVariableNames) isInMultipleLvalueDecl(v *Var) bool {
 	var declarationType Token_rhino = v.declarationType()
@@ -284,7 +284,7 @@ func (this *CoalesceVariableNames) removeVarDeclaration(name Node, originalVar *
 		var_.replaceWith(name.detach())
 	} else {
 		if !var_.hasOneChild() || var_.getFirstChild() != name {
-			panic(new_IllegalStateException_String(tostr_(var_)).self())
+			panic(new_IllegalStateException_String(tostr_(var_)))
 		}
 		if name.hasChildren() {
 			var value Node = name.removeFirstChild()
@@ -317,7 +317,7 @@ func (this *CoalesceVariableNames) makeDeclarationVar(coalescedName *Var) {
 	if coalescedName.isConst() || coalescedName.isLet() {
 		var nameNode Node = coalescedName.getNameNode()
 		if nameNode == 0 {
-			panic(new_NullPointerException_String(tostr_(coalescedName)).self())
+			panic(new_NullPointerException_String(tostr_(coalescedName)))
 		}
 		if CoalesceVariableNames_isUninitializedLetNameInLoopBody(nameNode) {
 			var undefinedValue Node = this.astFactory_.createUndefinedValue().srcrefTree(nameNode)
@@ -335,7 +335,7 @@ func lambda_CoalesceVariableNames_makeDeclarationVar_1_(p0 any) bool {
 
 func CoalesceVariableNames_isUninitializedLetNameInLoopBody(nameNode Node) bool {
 	if !nameNode.isName() {
-		panic(new_IllegalStateException_String(tostr_(nameNode)).self())
+		panic(new_IllegalStateException_String(tostr_(nameNode)))
 	}
 	var letNode Node = nameNode.getParent()
 	if !letNode.isLet() {
@@ -356,17 +356,17 @@ func (this *CoalesceVariableNames) isUninitializedLetNameInLoopBodyAndLive(nameN
 		return false
 	}
 	if this.liveness == nil {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	var letNode Node = nameNode.getParent()
 	var cfg *ControlFlowGraph = this.liveness.getCfg()
 	var cfgNode DiGraph_DiGraphNode = icast_DiGraph_DiGraphNode(cfg.getNode(letNode.box_()))
 	if cfgNode == nil {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	var state *DataFlowAnalysis_LinearFlowState[any] = cast_[*DataFlowAnalysis_LinearFlowState[any]](Annotatable_getAnnotation(Annotatable(cfgNode)))
 	if state == nil {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	var varIndex int32 = this.liveness.getVarIndex(originalVar.getName())
 	return ((varIndex >= 0) && cast_[*LiveVariablesAnalysis_LiveVariableLattice](state.getOut()).isLive(varIndex))

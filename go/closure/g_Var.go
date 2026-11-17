@@ -30,7 +30,7 @@ func (this *Var) init_Var(name string, nameNode Node, scope *Scope, index int32,
 		switch nameNode.ns_().token {
 		case tokOrd1_MODULE_BODY, tokOrd1_NAME, tokOrd1_IMPORT_STAR:
 		default:
-			panic(new_IllegalArgumentException_String(("Invalid name node " + tostr_(nameNode))).self())
+			panic(new_IllegalArgumentException_String(("Invalid name node " + tostr_(nameNode))))
 		}
 	}
 }

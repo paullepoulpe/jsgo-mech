@@ -45,7 +45,7 @@ func (this *Es6ConvertSuper) isInterface(classNode Node) bool {
 
 func (this *Es6ConvertSuper) visitSuper(node Node, parent Node) {
 	if !node.isSuper() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	var exprRoot Node = node
 	if exprRoot.getParent().isGetElem() || exprRoot.getParent().isGetProp() {
@@ -69,7 +69,7 @@ func (this *Es6ConvertSuper) visitSuper(node Node, parent Node) {
 			this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(node, TranspilationUtil_CANNOT_CONVERT_YET, []string{"Only calls to super or to a method of super are supported."}))
 		}
 	} else if parent.isNew() {
-		panic(new_IllegalStateException_String("This should never happen. Did Es6SuperCheck fail to run?").self())
+		panic(new_IllegalStateException_String("This should never happen. Did Es6SuperCheck fail to run?"))
 	} else {
 		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(node, TranspilationUtil_CANNOT_CONVERT_YET, []string{"Only calls to super or to a method of super are supported."}))
 	}
@@ -91,10 +91,10 @@ func lambda_Es6ConvertSuper_visitSuper_1_(n_ any) bool {
 
 func (this *Es6ConvertSuper) visitSuperCall(node Node, parent Node, enclosingMemberDef Node) {
 	if !parent.isCall() {
-		panic(new_IllegalStateException_String(tostr_(parent)).self())
+		panic(new_IllegalStateException_String(tostr_(parent)))
 	}
 	if !node.isSuper() {
-		panic(new_IllegalStateException_String(tostr_(node)).self())
+		panic(new_IllegalStateException_String(tostr_(node)))
 	}
 	var clazz Node = NodeUtil_getEnclosingClass(node)
 	var superName Node = clazz.getSecondChild()
@@ -110,20 +110,20 @@ func (this *Es6ConvertSuper) visitSuperCall(node Node, parent Node, enclosingMem
 		}
 		return
 	} else {
-		panic(new_IllegalStateException_String("This should never happen. Did Es6SuperCheck fail to run?").self())
+		panic(new_IllegalStateException_String("This should never happen. Did Es6SuperCheck fail to run?"))
 	}
 }
 
 func (this *Es6ConvertSuper) visitSuperPropertyCall(node Node, parent Node, enclosingMemberDef Node) {
 	if !parent.isGetProp() && !parent.isGetElem() {
-		panic(new_IllegalStateException_String(tostr_(parent)).self())
+		panic(new_IllegalStateException_String(tostr_(parent)))
 	}
 	if !node.isSuper() {
-		panic(new_IllegalStateException_String(tostr_(node)).self())
+		panic(new_IllegalStateException_String(tostr_(node)))
 	}
 	var grandparent Node = parent.getParent()
 	if !grandparent.isCall() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	var clazz Node = NodeUtil_getEnclosingClass(node)
 	var superName Node = clazz.getSecondChild()
@@ -159,10 +159,10 @@ func (this *Es6ConvertSuper) visitSuperPropertyCall(node Node, parent Node, encl
 
 func (this *Es6ConvertSuper) visitSuperPropertyAccess(node Node, parent Node, enclosingMemberDef Node) {
 	if !parent.isGetProp() && !parent.isGetElem() {
-		panic(new_IllegalStateException_String(tostr_(parent)).self())
+		panic(new_IllegalStateException_String(tostr_(parent)))
 	}
 	if !node.isSuper() {
-		panic(new_IllegalStateException_String(tostr_(node)).self())
+		panic(new_IllegalStateException_String(tostr_(node)))
 	}
 	var grandparent Node = parent.getParent()
 	if NodeUtil_isLValue(parent) {

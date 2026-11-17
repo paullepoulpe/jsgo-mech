@@ -89,7 +89,7 @@ func (this *PerformanceTracker) finit_PerformanceTracker() {
 func (this *PerformanceTracker) init_PerformanceTracker(externsRoot Node, jsRoot Node, mode CompilerOptions_TracerMode) {
 	this.finit_PerformanceTracker()
 	if mode == CompilerOptions_TracerMode_OFF {
-		panic(new_IllegalArgumentException_String("PerformanceTracker can't work without tracer data.").self())
+		panic(new_IllegalArgumentException_String("PerformanceTracker can't work without tracer data."))
 	}
 	this.startTime = System_currentTimeMillis()
 	this.externsRoot = externsRoot
@@ -141,7 +141,7 @@ func (this *PerformanceTracker) recordPassStop(passName string, runtime int64) {
 	var allocMem int32 = this.getAllocatedMegabytes()
 	var logStats *PerformanceTracker_Stats = slicePop_(tc_p_PerformanceTracker_Stats, &this.currentPass)
 	if passName != logStats.pass {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	this.log_ = append(this.log_, logStats)
 	logStats.runtime_ = runtime
@@ -318,13 +318,13 @@ func (this *PerformanceTracker) calcTotalStats() {
 		this.gzDiff += stats.gzDiff
 	}
 	if this.tracksAstSize() && this.initAstSize != (this.astDiff+this.astSize) {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	if this.tracksSize() && this.initCodeSize != (this.diff+this.codeSize) {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	if this.tracksGzSize() && this.initGzCodeSize != (this.gzDiff+this.gzCodeSize) {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 }
 
@@ -406,7 +406,7 @@ func (this *PerformanceTracker) outputTracerReport(output *Output) {
 	}()))), ("Type summary sources (post-pruning):   " + istr_(int64(this.transitiveSummarySources))), "", ("Dependency pruning analysis: " + sstr_(this.pruningAnalysisSummary))}))
 	output.println(JSCompStrings_lines([]string{"", "Summary:", "pass,runtime,allocMem,runs,changingRuns,astReduction,reduction,gzReduction"}))
 	var sortedPassSummary []Map_EntryOf[string, *PerformanceTracker_Stats] = sliceFrom_(tc_Map_EntryOf_string__p_PerformanceTracker_Stats_, Collection(this.passSummary.entrySet()))
-	List_sort(sliceView_(tc_Map_EntryOf_string__p_PerformanceTracker_Stats_, sortedPassSummary), Comparator_comparingLong(lambda_PerformanceTracker_outputTracerReport_1_))
+	List_sort(sliceView_(tc_Map_EntryOf_string__p_PerformanceTracker_Stats_, sortedPassSummary), Comparator_comparingLong_f(lambda_PerformanceTracker_outputTracerReport_1_))
 	for _, entry := range sortedPassSummary {
 		var key string = str_(entry.getKey())
 		var stats *PerformanceTracker_Stats = cast_[*PerformanceTracker_Stats](entry.getValue())
@@ -432,11 +432,11 @@ func (this *PerformanceTracker) outputTracerReport(output *Output) {
 }
 
 // lambda_PerformanceTracker_outputTracerReport_1_ is a lambda of PerformanceTracker_outputTracerReport that captures nothing (post-flip step lambdas).
-var lambda_PerformanceTracker_outputTracerReport_1_ = &ToLongFunction_fn{func(e_ any) int64 {
+func lambda_PerformanceTracker_outputTracerReport_1_(e_ any) int64 {
 	var e Map_Entry = icast_Map_Entry(e_)
 	_ = e
 	return cast_[*PerformanceTracker_Stats](e.getValue()).runtime_
-}}
+}
 
 const PerformanceTracker_DEFAULT_WHEN_SIZE_UNTRACKED int32 = -1
 

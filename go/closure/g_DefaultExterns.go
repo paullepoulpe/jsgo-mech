@@ -20,7 +20,7 @@ func DefaultExterns_prepareExterns(env CompilerOptions_Environment, externs *TMa
 	for _, el := range immElems_(DefaultExterns_BUILTIN_LANG_EXTERNS) {
 		key := str_(el)
 		if !externs.containsKey(key) {
-			panic(new_IllegalStateException_String(Strings_lenientFormat("Externs must contain builtin: %s", []any{strobj_(key)})).self())
+			panic(new_IllegalStateException_String(Strings_lenientFormat("Externs must contain builtin: %s", []any{strobj_(key)})))
 		}
 		out.add(externs.remove(key))
 	}
@@ -28,7 +28,7 @@ func DefaultExterns_prepareExterns(env CompilerOptions_Environment, externs *TMa
 		for _, el2 := range immElems_(DefaultExterns_BROWSER_EXTERN_DEP_ORDER) {
 			key := str_(el2)
 			if !externs.containsKey(key) {
-				panic(new_IllegalStateException_String(Strings_lenientFormat("Externs must contain builtin for env %s: %s", []any{obj_(env), strobj_(key)})).self())
+				panic(new_IllegalStateException_String(Strings_lenientFormat("Externs must contain builtin for env %s: %s", []any{obj_(env), strobj_(key)})))
 			}
 			out.add(externs.remove(key))
 		}

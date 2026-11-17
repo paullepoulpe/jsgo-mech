@@ -63,7 +63,7 @@ func PathUtil_makeAbsolute_String_String(path string, rootPath string) string {
 
 func PathUtil_makeRelative(basePath string, targetPath string) string {
 	if PathUtil_isAbsolute(basePath) != PathUtil_isAbsolute(targetPath) {
-		panic(new_IllegalArgumentException_String(("Paths must both be relative or both absolute.\n  basePath: " + sstr_(basePath) + "\n  targetPath: " + sstr_(targetPath))).self())
+		panic(new_IllegalArgumentException_String(("Paths must both be relative or both absolute.\n  basePath: " + sstr_(basePath) + "\n  targetPath: " + sstr_(targetPath))))
 	}
 	basePath = PathUtil_collapseDots(basePath)
 	targetPath = PathUtil_collapseDots(targetPath)

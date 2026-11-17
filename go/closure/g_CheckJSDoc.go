@@ -361,7 +361,7 @@ func (this *CheckJSDoc) validateTypeAnnotations(n Node, info *JSDocInfo) {
 
 func CheckJSDoc_isTypeAnnotationAllowedForName(n Node) bool {
 	if !n.isName() {
-		panic(new_IllegalStateException_String(tostr_(n)).self())
+		panic(new_IllegalStateException_String(tostr_(n)))
 	}
 	if !NodeUtil_isLValue(n) {
 		return false

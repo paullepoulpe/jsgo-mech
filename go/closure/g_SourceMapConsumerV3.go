@@ -78,51 +78,28 @@ func (this *SourceMapConsumerV3) parseMetaMap(sourceMapObject *SourceMapObject, 
 	if sectionSupplier == nil {
 		sectionSupplier = new_SourceMapConsumerV3_DefaultSourceMapSupplier()
 	}
-	var ret_1 *Outcome_base[any]
-	code_1 := func() (code_ int) {
-		defer func() {
-			if r_ := recover(); r_ != nil {
-				ex_ := catch_(r_)
-				if p, ok := ex_.(IOException_as); ok {
-					var ex *IOException = p.as_IOException()
-					ret_1 = Outcome_base_err[any](new_SourceMapParseException(("IO exception: " + objstr_(ex.self()))).up_Throwable())
-					code_ = 1
-					return
-				}
-				panic(r_)
-			}
-		}()
-		if (((sourceMapObject.getLineCount() >= 0) || sourceMapObject.getMappings().isPresent()) || ((sourceMapObject.getSources() != nil) && (int32(len(sourceMapObject.getSources())) > 0))) || (sourceMapObject.getNames() != nil) {
-			ret_1 = Outcome_base_err[any](new_SourceMapParseException("Invalid map format").up_Throwable())
-			return 1
-		}
-		var generator *SourceMapGeneratorV3 = new_SourceMapGeneratorV3()
-		it_2 := foreach_(sourceMapObject.getSections())
-		for it_2.next() {
-			var section *SourceMapSection = cast_[*SourceMapSection](it_2.v)
-			var mapSectionContents OptionalOf[string] = Optional_of[string](section.getSectionValue())
-			if section.getSectionType() == SourceMapSection_SectionType_URL {
-				mapSectionContents = sectionSupplier.getSourceMap(section.getSectionValue())
-			}
-			if mapSectionContents.isEmpty() {
-				ret_1 = Outcome_base_err[any](new_SourceMapParseException(("Unable to retrieve: " + sstr_(section.getSectionValue()))).up_Throwable())
-				return 1
-			}
-			var merged *Outcome_base[any] = generator.mergeMapSection(section.getLine(), section.getColumn(), mapSectionContents.get())
-			if merged.isErr() {
-				ret_1 = Outcome_base_err[any](merged.error())
-				return 1
-			}
-		}
-		var sb *StringBuilder = new_StringBuilder()
-		generator.appendTo(sb, sourceMapObject.getFile())
-		ret_1 = this.parse(sb.toString())
-		return 1
-	}()
-	if code_1 == 1 {
-		return ret_1
+	if (((sourceMapObject.getLineCount() >= 0) || sourceMapObject.getMappings().isPresent()) || ((sourceMapObject.getSources() != nil) && (int32(len(sourceMapObject.getSources())) > 0))) || (sourceMapObject.getNames() != nil) {
+		return Outcome_base_err[any](new_SourceMapParseException("Invalid map format").up_Throwable())
 	}
-	panic("unreachable")
+	var generator *SourceMapGeneratorV3 = new_SourceMapGeneratorV3()
+	it_2 := foreach_(sourceMapObject.getSections())
+	for it_2.next() {
+		var section *SourceMapSection = cast_[*SourceMapSection](it_2.v)
+		var mapSectionContents OptionalOf[string] = Optional_of[string](section.getSectionValue())
+		if section.getSectionType() == SourceMapSection_SectionType_URL {
+			mapSectionContents = sectionSupplier.getSourceMap(section.getSectionValue())
+		}
+		if mapSectionContents.isEmpty() {
+			return Outcome_base_err[any](new_SourceMapParseException(("Unable to retrieve: " + sstr_(section.getSectionValue()))).up_Throwable())
+		}
+		var merged *Outcome_base[any] = generator.mergeMapSection(section.getLine(), section.getColumn(), mapSectionContents.get())
+		if merged.isErr() {
+			return Outcome_base_err[any](merged.error())
+		}
+	}
+	var sb *StringBuilder = new_StringBuilder()
+	generator.appendTo(sb, sourceMapObject.getFile())
+	return this.parse(sb.toString())
 }
 
 func (this *SourceMapConsumerV3) getMappingForLine(lineNumber int32, column int32) *Mapping_OriginalMapping {
@@ -141,7 +118,7 @@ func (this *SourceMapConsumerV3) getMappingForLine(lineNumber int32, column int3
 	}
 	var index int32 = this.search(column, start, (end - this.mappings.getEntrySize()))
 	if index < 0 {
-		panic(new_IllegalStateException_String(Strings_lenientFormat("unexpected:%s", []any{index})).self())
+		panic(new_IllegalStateException_String(Strings_lenientFormat("unexpected:%s", []any{index})))
 	}
 	return this.getOriginalMappingForEntry(index, Mapping_OriginalMapping_Precision_EXACT)
 }
@@ -537,15 +514,15 @@ func (this *SourceMapConsumerV3_MappingBuilder) getSourceColumn(index int32) int
 
 func (this *SourceMapConsumerV3_MappingBuilder) validateEntry(entriesCount int32, line int32) {
 	if this.lineCount >= 0 && line >= this.lineCount {
-		panic(new_IllegalStateException_String(Strings_lenientFormat("line=%s, lineCount=%s", []any{line, this.lineCount})).self())
+		panic(new_IllegalStateException_String(Strings_lenientFormat("line=%s, lineCount=%s", []any{line, this.lineCount})))
 	}
 	var sourceFileId int32 = this.getSourceFileId(entriesCount)
 	var nameId int32 = this.getNameId(entriesCount)
 	if sourceFileId != SourceMapConsumerV3_UNMAPPED && sourceFileId >= int32(len(this.outer_.sources)) {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	if nameId != SourceMapConsumerV3_UNMAPPED && nameId >= int32(len(this.outer_.names_)) {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 }
 

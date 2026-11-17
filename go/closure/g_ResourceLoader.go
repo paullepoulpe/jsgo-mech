@@ -18,7 +18,7 @@ func new_ResourceLoader() *ResourceLoader {
 func ResourceLoader_loadTextResource(name string) string {
 	var bytes OptionalOf[[]int8] = Io_readResource(name)
 	if bytes.isEmpty() {
-		panic(new_RuntimeException_String(("No such resource: " + sstr_(name))).self())
+		panic(new_RuntimeException_String(("No such resource: " + sstr_(name))))
 	}
 	return Io_utf8String(bytes.get())
 }

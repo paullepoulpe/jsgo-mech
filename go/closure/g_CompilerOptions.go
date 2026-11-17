@@ -579,7 +579,7 @@ func (this *CompilerOptions) getNameGenerator() NameGenerator {
 
 func (this *CompilerOptions) setReplaceMessagesWithChromeI18n(replaceMessagesWithChromeI18n bool, tcProjectId string) {
 	if (replaceMessagesWithChromeI18n && (this.messageBundle != nil)) && !is_[*EmptyMessageBundle](this.messageBundle) {
-		panic(new_RuntimeException_String("When replacing messages with chrome.i18n.getMessage, a message bundle should not be specified.").self())
+		panic(new_RuntimeException_String("When replacing messages with chrome.i18n.getMessage, a message bundle should not be specified."))
 	}
 	this.replaceMessagesWithChromeI18n = replaceMessagesWithChromeI18n
 	this.tcProjectId = tcProjectId
@@ -592,10 +592,10 @@ func (this *CompilerOptions) getTcProjectId() string {
 func (this *CompilerOptions) shouldRunReplaceMessagesForChrome() bool {
 	if this.replaceMessagesWithChromeI18n {
 		if this.messageBundle != nil && !is_[*EmptyMessageBundle](this.messageBundle) {
-			panic(new_IllegalStateException_String("When replacing messages with chrome.i18n.getMessage, a message bundle should not be specified.").self())
+			panic(new_IllegalStateException_String("When replacing messages with chrome.i18n.getMessage, a message bundle should not be specified."))
 		}
 		if this.doLateLocalizationField {
-			panic(new_IllegalStateException_String("Late localization is not supported for chrome.i18n.getMessage").self())
+			panic(new_IllegalStateException_String("Late localization is not supported for chrome.i18n.getMessage"))
 		}
 		return true
 	} else {
@@ -836,7 +836,7 @@ func (this *CompilerOptions) getDefineReplacements() ImmutableMapOf[string, Node
 				}() {
 					map_.put(strobj_(name), IR_string(string_).box_())
 				} else {
-					panic(new_IllegalStateException_String(objstr_(value)).self())
+					panic(new_IllegalStateException_String(objstr_(value)))
 				}
 			}
 		}
@@ -963,7 +963,7 @@ func (this *CompilerOptions) getInlineFunctionsLevel() CompilerOptions_Reach {
 
 func (this *CompilerOptions) setMaxFunctionSizeAfterInlining(funAstSize int32) {
 	if funAstSize <= 0 {
-		panic(new_IllegalArgumentException_0().self())
+		panic(new_IllegalArgumentException_0())
 	}
 	this.maxFunctionSizeAfterInlining = funAstSize
 }
@@ -1103,7 +1103,7 @@ func (this *CompilerOptions) getAngularPass() bool {
 
 func (this *CompilerOptions) setPolymerVersion(polymerVersion any) {
 	if !(((polymerVersion == nil) || (unbox_[int32](polymerVersion) == 1)) || (unbox_[int32](polymerVersion) == 2)) {
-		panic(new_IllegalArgumentException_String(Strings_lenientFormat("Invalid Polymer version: (%s)", []any{polymerVersion})).self())
+		panic(new_IllegalArgumentException_String(Strings_lenientFormat("Invalid Polymer version: (%s)", []any{polymerVersion})))
 	}
 	this.polymerPass = (polymerVersion != nil)
 }
@@ -1194,7 +1194,7 @@ func (this *CompilerOptions) getTweakProcessing() CompilerOptions_TweakProcessin
 
 func (this *CompilerOptions) setLanguage(language CompilerOptions_LanguageMode) {
 	if language == CompilerOptions_LanguageMode_NO_TRANSPILE {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	this.setLanguageIn(language)
 	this.setLanguageOut(language)
@@ -1202,7 +1202,7 @@ func (this *CompilerOptions) setLanguage(language CompilerOptions_LanguageMode) 
 
 func (this *CompilerOptions) setLanguageIn(languageIn CompilerOptions_LanguageMode) {
 	if languageIn == CompilerOptions_LanguageMode_NO_TRANSPILE {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	this.languageIn = func() CompilerOptions_LanguageMode {
 		if languageIn == CompilerOptions_LanguageMode_STABLE {
@@ -2270,7 +2270,7 @@ func (this *CompilerOptions) getUnusedImportsToRemove() ImmutableSetOf[string] {
 
 func (this *CompilerOptions) setInstrumentForCoverageOption(instrumentForCoverageOption CompilerOptions_InstrumentOption) {
 	if instrumentForCoverageOption == 0 {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	this.instrumentForCoverageOption = instrumentForCoverageOption
 }
@@ -3700,9 +3700,9 @@ func (this CompilerOptions_LanguageMode) toFeatureSet() *FeatureSet {
 		case CompilerOptions_LanguageMode_UNSUPPORTED:
 			return FeatureSet_ES_UNSUPPORTED
 		case CompilerOptions_LanguageMode_STABLE:
-			panic(new_UnsupportedOperationException_String("STABLE has different feature sets for language in and out. Use STABLE_IN or STABLE_OUT.").self())
+			panic(new_UnsupportedOperationException_String("STABLE has different feature sets for language in and out. Use STABLE_IN or STABLE_OUT."))
 		}
-		panic("unreachable")
+		panic(new_NullPointerException_0())
 	}()
 }
 

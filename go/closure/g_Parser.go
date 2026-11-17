@@ -49,35 +49,26 @@ func (this *Parser) getSourceMapURL() OptionalOf[string] {
 	return this.sourceMapURL
 }
 
-func (this *Parser) parseProgram() *ProgramTree {
-	var ret_1 *ProgramTree
-	code_1 := func() (code_ int) {
-		defer func() {
-			if r_ := recover(); r_ != nil {
-				ex_ := catch_(r_)
-				if p, ok := ex_.(Error_as); ok {
-					var e *Error = p.as_Error()
-					if strings.Contains(Object_toString(e.self()), "java.lang.StackOverflowError") {
-						this.reportError("Too deep recursion while parsing", []any{})
-						ret_1 = nil
-						code_ = 1
-						return
-					}
-					panic(e.self())
+func (this *Parser) parseProgram() (ret_1 *ProgramTree) {
+	defer func() {
+		if r_ := recover(); r_ != nil {
+			ex_ := catch_(r_)
+			if p, ok := ex_.(Error_as); ok {
+				var e *Error = p.as_Error()
+				if strings.Contains(Object_toString(e.self()), "java.lang.StackOverflowError") {
+					this.reportError("Too deep recursion while parsing", []any{})
+					ret_1 = nil
+					return
 				}
-				panic(r_)
+				panic(e.self())
 			}
-		}()
-		var start *SourcePosition_util = this.lastSourcePosition
-		var sourceElements []*ParseTree = this.parseGlobalSourceElements()
-		this.eat(TokenType_END_OF_FILE)
-		ret_1 = new_ProgramTree(this.getTreeLocation(start), sourceElements, this.commentRecorder.getComments())
-		return 1
+			panic(r_)
+		}
 	}()
-	if code_1 == 1 {
-		return ret_1
-	}
-	panic("unreachable")
+	var start *SourcePosition_util = this.lastSourcePosition
+	var sourceElements []*ParseTree = this.parseGlobalSourceElements()
+	this.eat(TokenType_END_OF_FILE)
+	return new_ProgramTree(this.getTreeLocation(start), sourceElements, this.commentRecorder.getComments())
 }
 
 func (this *Parser) parseGlobalSourceElements() []*ParseTree {
@@ -373,7 +364,7 @@ func (this *Parser) parseFieldDefinition(elementInfo *ClassOrObjectElementInfo) 
 		return new_FieldDeclarationTree(this.getTreeLocation(elementInfo.start_), elementInfo.getName(), elementInfo.isStatic, initializer).up_ParseTree()
 	} else {
 		if !elementInfo.hasNameExpr() {
-			panic(new_IllegalStateException_0().self())
+			panic(new_IllegalStateException_0())
 		}
 		return new_ComputedPropertyFieldTree(this.getTreeLocation(elementInfo.start_), elementInfo.getNameExpr(), elementInfo.isStatic, initializer).up_ParseTree()
 	}
@@ -401,7 +392,7 @@ func (this *Parser) parseMethodDefinition(elementInfo *ClassOrObjectElementInfo,
 		return function
 	} else {
 		if !elementInfo.hasNameExpr() {
-			panic(new_IllegalStateException_0().self())
+			panic(new_IllegalStateException_0())
 		}
 		return new_ComputedPropertyMethodTree(this.getTreeLocation(elementInfo.start_), elementInfo.getNameExpr(), function).up_ParseTree()
 	}
@@ -605,7 +596,7 @@ func (this *Parser) parseParameter() *ParseTree {
 	} else if this.peekPatternStart() {
 		parameter = this.parsePattern(Parser_PatternKind_INITIALIZER)
 	} else {
-		panic(new_IllegalStateException_String("parseParameterCalled() without confirming a parameter exists.").self())
+		panic(new_IllegalStateException_String("parseParameterCalled() without confirming a parameter exists."))
 	}
 	if !parameter.isRestParameter() && this.peek(TokenType_EQUAL) {
 		this.eat(TokenType_EQUAL)
@@ -1415,7 +1406,7 @@ func (this *Parser) parseObjectLiteralPropertyAssignment() *ParseTree {
 			return new_ComputedPropertyMethodTree(this.getTreeLocation(start), name, value).up_ParseTree()
 		}
 	} else {
-		panic(new_RuntimeException_String("unreachable").self())
+		panic(new_RuntimeException_String("unreachable"))
 	}
 }
 
@@ -2144,7 +2135,7 @@ func (this *Parser) parseLeftHandSideExpression() *ParseTree {
 			case TokenType_NO_SUBSTITUTION_TEMPLATE, TokenType_TEMPLATE_HEAD:
 				operand = this.parseTemplateLiteral(operand).up_ParseTree()
 			default:
-				panic(new_AssertionError_Object(strobj_(("unexpected case: " + tostr_(this.peekType())))).self())
+				panic(new_AssertionError_Object(strobj_(("unexpected case: " + tostr_(this.peekType())))))
 			}
 		}
 		operand = this.maybeParseOptionalExpression(operand)
@@ -2205,7 +2196,7 @@ func (this *Parser) parseRemainingOptionalChainSegment(optionalExpression *Parse
 			this.eat(TokenType_CLOSE_SQUARE)
 			optionalExpression = new_OptionalMemberLookupExpressionTree(this.getTreeLocation(start), optionalExpression, member, false).up_ParseTree()
 		default:
-			panic(new_AssertionError_Object(strobj_(("unexpected case: " + tostr_(this.peekType())))).self())
+			panic(new_AssertionError_Object(strobj_(("unexpected case: " + tostr_(this.peekType())))))
 		}
 	}
 	return optionalExpression
@@ -2241,7 +2232,7 @@ func (this *Parser) parseMemberExpressionNoNew() *ParseTree {
 		case TokenType_NO_SUBSTITUTION_TEMPLATE, TokenType_TEMPLATE_HEAD:
 			operand = this.parseTemplateLiteral(operand).up_ParseTree()
 		default:
-			panic(new_RuntimeException_String("unreachable").self())
+			panic(new_RuntimeException_String("unreachable"))
 		}
 	}
 	return operand
@@ -2691,7 +2682,7 @@ func (this *Parser) reportTemplateErrorIfPresent(templateToken *TemplateLiteralT
 		this.reportErrorSourcePosition(templateToken.errorPosition, "%s", []any{strobj_(templateToken.errorMessage_)})
 		return
 	}
-	panic(new_AssertionError_0().self())
+	panic(new_AssertionError_0())
 }
 
 func (this *Parser) recordFeatureUsed(feature FeatureSet_Feature) *Parser {

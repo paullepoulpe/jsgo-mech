@@ -20,16 +20,16 @@ func (this *SimpleDependencyInfo) zero_SimpleDependencyInfo() {
 
 func (this *SimpleDependencyInfo) init_SimpleDependencyInfo(getName string, getPathRelativeToClosureBase string, getProvides ImmutableListOf[string], getRequires ImmutableListOf[*DependencyInfo_Require], getTypeRequires ImmutableListOf[string], getLoadFlags ImmutableMapOf[string, string], getHasExternsAnnotation bool, getHasNoCompileAnnotation bool) {
 	if getProvides == nil {
-		panic(new_NullPointerException_String("getProvides").self())
+		panic(new_NullPointerException_String("getProvides"))
 	}
 	if getRequires == nil {
-		panic(new_NullPointerException_String("getRequires").self())
+		panic(new_NullPointerException_String("getRequires"))
 	}
 	if getTypeRequires == nil {
-		panic(new_NullPointerException_String("getTypeRequires").self())
+		panic(new_NullPointerException_String("getTypeRequires"))
 	}
 	if getLoadFlags == nil {
-		panic(new_NullPointerException_String("getLoadFlags").self())
+		panic(new_NullPointerException_String("getLoadFlags"))
 	}
 	this.getName_ = getName
 	this.getPathRelativeToClosureBase_ = getPathRelativeToClosureBase
@@ -167,7 +167,7 @@ func SimpleDependencyInfo_Builder_from(copy_ DependencyInfo) *SimpleDependencyIn
 
 func (this *SimpleDependencyInfo_Builder) setName(name OptionalOf[string]) *SimpleDependencyInfo_Builder {
 	if name.isEmpty() {
-		panic(new_NullPointerException_String("Null name").self())
+		panic(new_NullPointerException_String("Null name"))
 	}
 	this.name_ = name
 	return this
@@ -258,7 +258,7 @@ func (this *SimpleDependencyInfo_Builder) build() *SimpleDependencyInfo {
 		if (int32(this.set0) & 2) == 0 {
 			missing.append(" hasNoCompileAnnotation")
 		}
-		panic(new_IllegalStateException_String(("Missing required properties:" + missing.toString())).self())
+		panic(new_IllegalStateException_String(("Missing required properties:" + missing.toString())))
 	}
 	return new_SimpleDependencyInfo(this.name_.get(), this.pathRelativeToClosureBase.get(), this.provides, this.requires, this.typeRequires, this.loadFlags_, this.hasExternsAnnotation, this.hasNoCompileAnnotation)
 }

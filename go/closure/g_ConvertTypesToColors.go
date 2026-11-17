@@ -23,7 +23,7 @@ func (this *ConvertTypesToColors) process_2(externs Node, root Node) {
 		return
 	}
 	if this.compiler_.getLifeCycleStage().isNormalized() {
-		panic(new_IllegalStateException_String("Not expected to run after normalization").self())
+		panic(new_IllegalStateException_String("Not expected to run after normalization"))
 	}
 	var externsAndJsRoot Node = root.getParent()
 	if !this.compiler_.hasTypeCheckingRun() {

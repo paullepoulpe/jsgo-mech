@@ -36,14 +36,13 @@ func ConformanceAllowlister_getConformanceErrors(compiler *Compiler, externs Nod
 	var cleanedConfig *ConformanceConfig = cast_[*ConformanceConfig](ConformanceConfig_newBuilder().addRequirement(cleanedRequirement).build())
 	var oldErrorManager ErrorManager = compiler.getErrorManager()
 	var errors ImmutableList_BuilderOf[*JSError] = ImmutableList_builder()
-	_ = func() (code_ int) {
+	func() {
 		defer func() {
 			compiler.setErrorManager(oldErrorManager)
 		}()
 		compiler.setErrorManager(new_ConformanceAllowlister_1(errors, oldErrorManager))
 		var check *CheckConformance = new_CheckConformance_AbstractCompiler_ImmutableList_ConformanceReportingMode(compiler.up_AbstractCompiler(), ImmutableList_of_Object(obj_(cleanedConfig)), 0)
 		check.process_2(externs, ast)
-		return 0
 	}()
 	return sliceImm_(tc_p_JSError, errors.build())
 }
@@ -78,7 +77,7 @@ func (this *ConformanceAllowlister_1) shouldReportConformanceViolation_impl(requ
 }
 
 // shouldReportConformanceViolation: an object that is exactly a ConformanceAllowlister_1 calls its shouldReportConformanceViolation_impl directly (post-flip); others dispatch.
-func (this *ConformanceAllowlister_1) shouldReportConformanceViolation(p0 *Requirement, p1 *Optional_base, p2 *JSError, p3 ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior, p4 bool) bool {
+func (this *ConformanceAllowlister_1) shouldReportConformanceViolation(p0 *Requirement, p1 Optional_base, p2 *JSError, p3 ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior, p4 bool) bool {
 	if p, _ := this.self_.(*ConformanceAllowlister_1); p == this {
 		return this.shouldReportConformanceViolation_impl(p0, p1, p2, p3, p4)
 	}

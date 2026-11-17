@@ -45,7 +45,7 @@ func SourceMapResolver_extractBase64String(url string) OptionalOf[string] {
 
 func SourceMapResolver_isAbsolute(url string) bool {
 	if !Uris_isValid(url) {
-		panic(new_RuntimeException_String(("Sourcemap url was invalid: " + sstr_(url))).self())
+		panic(new_RuntimeException_String(("Sourcemap url was invalid: " + sstr_(url))))
 	}
 	return (Uris_hasScheme(url) || strings.HasPrefix(url, "/"))
 }

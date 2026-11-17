@@ -52,7 +52,7 @@ func (this *FixedPointGraphTraversal[N, E]) computeFixedPointSet(graph *DiGraph,
 		this.visitNode(icast_DiGraph_DiGraphNode(SequencedCollection_getFirst(workSet.asSet())), workSet)
 	}
 	if cycleCount == maxIterations {
-		panic(new_IllegalStateException_String(FixedPointGraphTraversal_NON_HALTING_ERROR_MSG).self())
+		panic(new_IllegalStateException_String(FixedPointGraphTraversal_NON_HALTING_ERROR_MSG))
 	}
 }
 
@@ -78,7 +78,7 @@ func (this *FixedPointGraphTraversal[N, E]) visitNode(node DiGraph_DiGraphNode, 
 		}
 		return
 	}
-	panic(new_AssertionError_Object(strobj_(("Unrecognized direction " + tostr_(this.traversalDirection)))).self())
+	panic(new_AssertionError_Object(strobj_(("Unrecognized direction " + tostr_(this.traversalDirection)))))
 }
 
 const FixedPointGraphTraversal_NON_HALTING_ERROR_MSG string = "Fixed point computation not halting"

@@ -189,7 +189,7 @@ func (this SourceMap_Format) getInstance() *SourceMap {
 	case SourceMap_Format_V3:
 		return new_SourceMap(SourceMapGeneratorFactory_getInstance(SourceMapFormat_V3))
 	default:
-		panic(new_NullPointerException_0().self()) // a call on null
+		panic(new_NullPointerException_0()) // a call on null
 	}
 }
 
@@ -271,7 +271,7 @@ func (this SourceMap_DetailLevel) apply(node_ any) bool {
 		_ = node
 		return ((((((node.isCall() || node.isNew()) || node.isFunction()) || node.isName()) || NodeUtil_isNormalOrOptChainGet(node)) || NodeUtil_mayBeObjectLitKey(node)) || node.isTaggedTemplateLit())
 	default:
-		panic(new_NullPointerException_0().self()) // a call on null
+		panic(new_NullPointerException_0()) // a call on null
 	}
 }
 

@@ -168,10 +168,10 @@ type CodingConvention_SubclassRelationship struct {
 
 func (this *CodingConvention_SubclassRelationship) init_CodingConvention_SubclassRelationship(type_ CodingConvention_SubclassType, subclassNode Node, superclassNode Node) {
 	if !subclassNode.isQualifiedName() {
-		panic(new_IllegalArgumentException_String(Strings_lenientFormat("Expected qualified name, found: %s", []any{subclassNode.box_()})).self())
+		panic(new_IllegalArgumentException_String(Strings_lenientFormat("Expected qualified name, found: %s", []any{subclassNode.box_()})))
 	}
 	if !superclassNode.isQualifiedName() {
-		panic(new_IllegalArgumentException_String(Strings_lenientFormat("Expected qualified name, found: %s", []any{superclassNode.box_()})).self())
+		panic(new_IllegalArgumentException_String(Strings_lenientFormat("Expected qualified name, found: %s", []any{superclassNode.box_()})))
 	}
 	this.type__ = type_
 	this.subclassName = Optional_of[string](subclassNode.getQualifiedName()).filterFn_(func(s string) bool {
@@ -217,7 +217,7 @@ type CodingConvention_AssertionFunctionSpec struct {
 
 func (this *CodingConvention_AssertionFunctionSpec) init_CodingConvention_AssertionFunctionSpec(getFunctionName OptionalOf[string], getClosurePrimitive ClosurePrimitive, getAssertionKind CodingConvention_AssertionFunctionSpec_AssertionKind, getParamIndex int32) {
 	if getAssertionKind == 0 {
-		panic(new_NullPointerException_String("getAssertionKind").self())
+		panic(new_NullPointerException_String("getAssertionKind"))
 	}
 	this.getFunctionName_ = getFunctionName
 	this.getClosurePrimitive_ = getClosurePrimitive
@@ -410,7 +410,7 @@ func (this *CodingConvention_AssertionFunctionSpec_Builder) setParamIndex(paramI
 
 func (this *CodingConvention_AssertionFunctionSpec_Builder) setAssertionKind(kind CodingConvention_AssertionFunctionSpec_AssertionKind) *CodingConvention_AssertionFunctionSpec_Builder {
 	if kind == 0 {
-		panic(new_NullPointerException_String("Null assertionKind").self())
+		panic(new_NullPointerException_String("Null assertionKind"))
 	}
 	this.assertionKind = kind
 	return this
@@ -425,7 +425,7 @@ func (this *CodingConvention_AssertionFunctionSpec_Builder) autoBuild() *CodingC
 		if (int32(this.set0) & 1) == 0 {
 			missing.append(" paramIndex")
 		}
-		panic(new_IllegalStateException_String(("Missing required properties:" + missing.toString())).self())
+		panic(new_IllegalStateException_String(("Missing required properties:" + missing.toString())))
 	}
 	return new_CodingConvention_AssertionFunctionSpec(this.functionName, this.closurePrimitive, this.assertionKind, this.paramIndex)
 }
@@ -433,7 +433,7 @@ func (this *CodingConvention_AssertionFunctionSpec_Builder) autoBuild() *CodingC
 func (this *CodingConvention_AssertionFunctionSpec_Builder) build() *CodingConvention_AssertionFunctionSpec {
 	var spec *CodingConvention_AssertionFunctionSpec = this.autoBuild()
 	if !spec.getFunctionName().isPresent() && spec.getClosurePrimitive() == 0 {
-		panic(new_IllegalStateException_String("Must provide a function name or ClosurePrimitive for each spec").self())
+		panic(new_IllegalStateException_String("Must provide a function name or ClosurePrimitive for each spec"))
 	}
 	return spec
 }

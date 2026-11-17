@@ -114,7 +114,7 @@ func (this *LinkedFlowScope) getRootNode() Node {
 }
 
 func (this *LinkedFlowScope) getParentScope() StaticScope {
-	panic(new_UnsupportedOperationException_0().self())
+	panic(new_UnsupportedOperationException_0())
 }
 
 func (this *LinkedFlowScope) getSlot(name string) StaticSlot {
@@ -169,7 +169,7 @@ func (this *LinkedFlowScope) getOverlayScopeForScope(scope *TypedScope, create b
 }
 
 func (this *LinkedFlowScope) getOwnSlot(name string) StaticSlot {
-	panic(new_UnsupportedOperationException_0().self())
+	panic(new_UnsupportedOperationException_0())
 }
 
 func (this *LinkedFlowScope) withSyntacticScope(scope StaticTypedScope) FlowScope {
@@ -213,9 +213,9 @@ func (this *LinkedFlowScope) equals(other any) bool {
 }
 
 // lambda_LinkedFlowScope_equals_1_ is a lambda of LinkedFlowScope_equals that captures nothing (post-flip step lambdas).
-var lambda_LinkedFlowScope_equals_1_ = &BiPredicate_fn{func(p0 any, p1 any) bool {
+var lambda_LinkedFlowScope_equals_1_ = newFuncObj_(func(p0 any, p1 any) bool {
 	return LinkedFlowScope_equalScopes(cast_[*LinkedFlowScope_OverlayScope](p0), cast_[*LinkedFlowScope_OverlayScope](p1))
-}}
+})
 
 func LinkedFlowScope_equalScopes(left *LinkedFlowScope_OverlayScope, right *LinkedFlowScope_OverlayScope) bool {
 	if left == right {
@@ -225,16 +225,16 @@ func LinkedFlowScope_equalScopes(left *LinkedFlowScope_OverlayScope, right *Link
 }
 
 // lambda_LinkedFlowScope_equalScopes_1_ is a lambda of LinkedFlowScope_equalScopes that captures nothing (post-flip step lambdas).
-var lambda_LinkedFlowScope_equalScopes_1_ = &BiPredicate_fn{func(p0 any, p1 any) bool {
+var lambda_LinkedFlowScope_equalScopes_1_ = newFuncObj_(func(p0 any, p1 any) bool {
 	return LinkedFlowScope_equalSlots(icast_StaticTypedSlot(obj_(cast_[*LinkedFlowScope_OverlaySlot](p0))), icast_StaticTypedSlot(obj_(cast_[*LinkedFlowScope_OverlaySlot](p1))))
-}}
+})
 
 func LinkedFlowScope_equalSlots(slotA StaticTypedSlot, slotB StaticTypedSlot) bool {
 	return ((slotA == slotB) || !slotA.getType().differsFrom(slotB.getType()))
 }
 
 func (this *LinkedFlowScope) hashCode() int32 {
-	panic(new_UnsupportedOperationException_0().self())
+	panic(new_UnsupportedOperationException_0())
 }
 
 func LinkedFlowScope_join(linkedA *LinkedFlowScope, linkedB *LinkedFlowScope, commonParent *TypedScope) PMap[*TypedScope, *LinkedFlowScope_OverlayScope] {
@@ -443,7 +443,7 @@ type LinkedFlowScope_OverlayScope struct {
 
 func (this *LinkedFlowScope_OverlayScope) init_LinkedFlowScope_OverlayScope_TypedScope(scope *TypedScope) {
 	if scope == nil {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	this.scope_ = scope
 	this.slots = LinkedFlowScope_EMPTY_SLOTS
@@ -457,7 +457,7 @@ func new_LinkedFlowScope_OverlayScope_TypedScope(scope *TypedScope) *LinkedFlowS
 
 func (this *LinkedFlowScope_OverlayScope) init_LinkedFlowScope_OverlayScope_TypedScope_PMap(scope *TypedScope, slots PMap[string, *LinkedFlowScope_OverlaySlot]) {
 	if scope == nil {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	this.scope_ = scope
 	this.slots = slots
@@ -529,5 +529,5 @@ func (this *LinkedFlowScope_OverlaySlot) getJSDocInfo() *JSDocInfo {
 }
 
 func (this *LinkedFlowScope_OverlaySlot) getScope() StaticScope {
-	panic(new_UnsupportedOperationException_0().self())
+	panic(new_UnsupportedOperationException_0())
 }

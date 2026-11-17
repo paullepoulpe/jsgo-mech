@@ -154,7 +154,7 @@ func (this *IRFactory) validateAll(n Node) {
 		}
 	}
 	if len(work) != 0 {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 }
 
@@ -1034,10 +1034,10 @@ func (this *IRFactory) normalizeNumber(token *LiteralToken) float64 {
 	var location *SourceRange = token.location_
 	var length int32 = String_length(value)
 	if length <= 0 {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	if String_charAt(value, 0) == '-' || String_charAt(value, 0) == '+' {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	if String_charAt(value, 0) == '.' {
 		return Double_parseDouble(("0" + sstr_(value)))
@@ -1107,7 +1107,7 @@ func (this *IRFactory) normalizeNumber(token *LiteralToken) float64 {
 				this.errorReporter.error(IRFactory_INVALID_OCTAL_DIGIT, this.sourceName_, IRFactory_linenoSourcePosition(location.start_), IRFactory_charno(location.start_))
 				return 0
 			default:
-				panic(new_IllegalStateException_String(("Unexpected character in number literal: " + chrstr_(String_charAt(value, 1)))).self())
+				panic(new_IllegalStateException_String(("Unexpected character in number literal: " + chrstr_(String_charAt(value, 1)))))
 			}
 		}()
 	} else {
@@ -1123,10 +1123,10 @@ func (this *IRFactory) normalizeBigInt(token *LiteralToken) *BigInteger {
 	}
 	var length int32 = String_length(value)
 	if length <= 0 {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	if String_charAt(value, 0) == '-' || String_charAt(value, 0) == '+' {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	if (String_charAt(value, 0) == '0') && (length > 1) {
 		return func() *BigInteger {
@@ -1140,9 +1140,9 @@ func (this *IRFactory) normalizeBigInt(token *LiteralToken) *BigInteger {
 			case 'x', 'X':
 				return new_BigInteger(String_substring_int(value, 2), 16)
 			case '0', '1', '2', '3', '4', '5', '6', '7', '8', '9':
-				panic(new_IllegalStateException_String("Nonzero BigInts can't have a leading zero").self())
+				panic(new_IllegalStateException_String("Nonzero BigInts can't have a leading zero"))
 			default:
-				panic(new_IllegalStateException_String(("Unexpected character in bigint literal: " + chrstr_(String_charAt(value, 1)))).self())
+				panic(new_IllegalStateException_String(("Unexpected character in bigint literal: " + chrstr_(String_charAt(value, 1)))))
 			}
 		}()
 	} else {
@@ -1168,7 +1168,7 @@ func IRFactory_binarydigit(c uint16) int32 {
 	if (int32(c) >= 48) && (int32(c) <= 49) {
 		return (int32(c) - 48)
 	}
-	panic(new_IllegalStateException_String(("unexpected: " + chrstr_(c))).self())
+	panic(new_IllegalStateException_String(("unexpected: " + chrstr_(c))))
 }
 
 func IRFactory_isOctalDigit(c uint16) bool {
@@ -1179,7 +1179,7 @@ func IRFactory_octaldigit(c uint16) int32 {
 	if IRFactory_isOctalDigit(c) {
 		return (int32(c) - 48)
 	}
-	panic(new_IllegalStateException_String(("unexpected: " + chrstr_(c))).self())
+	panic(new_IllegalStateException_String(("unexpected: " + chrstr_(c))))
 }
 
 func IRFactory_hexdigit(c uint16) int32 {
@@ -1218,7 +1218,7 @@ func IRFactory_hexdigit(c uint16) int32 {
 		case 'f', 'F':
 			return 15
 		default:
-			panic(new_IllegalStateException_String(("unexpected: " + chrstr_(c))).self())
+			panic(new_IllegalStateException_String(("unexpected: " + chrstr_(c))))
 		}
 	}()
 }
@@ -1231,7 +1231,7 @@ func IRFactory_transformBooleanTokenType(token TokenType) Token_rhino {
 		case TokenType_FALSE:
 			return Token_rhino_FALSE
 		default:
-			panic(new_IllegalStateException_String(tostr_(token)).self())
+			panic(new_IllegalStateException_String(tostr_(token)))
 		}
 	}()
 }
@@ -1244,7 +1244,7 @@ func IRFactory_transformUpdateTokenType(token TokenType) Token_rhino {
 		case TokenType_MINUS_MINUS:
 			return Token_rhino_DEC
 		default:
-			panic(new_IllegalStateException_String(tostr_(token)).self())
+			panic(new_IllegalStateException_String(tostr_(token)))
 		}
 	}()
 }
@@ -1267,7 +1267,7 @@ func IRFactory_transformUnaryTokenType(token TokenType) Token_rhino {
 		case TokenType_VOID:
 			return Token_rhino_VOID
 		default:
-			panic(new_IllegalStateException_String(tostr_(token)).self())
+			panic(new_IllegalStateException_String(tostr_(token)))
 		}
 	}()
 }
@@ -1360,7 +1360,7 @@ func IRFactory_transformBinaryTokenType(token TokenType) Token_rhino {
 		case TokenType_QUESTION_QUESTION_EQUAL:
 			return Token_rhino_ASSIGN_COALESCE
 		default:
-			panic(new_IllegalStateException_String(tostr_(token)).self())
+			panic(new_IllegalStateException_String(tostr_(token)))
 		}
 	}()
 }
@@ -1457,7 +1457,7 @@ func IRFactory_clinit() {
 	IRFactory_CR_OR_CRLF_PATTERN = Pattern_compile("\r\n?")
 	IRFactory_ES5_RESERVED_KEYWORDS = ImmutableSet_of_Object_Object_Object_Object_Object_Object_ObjectArr(strobj_("class"), strobj_("const"), strobj_("enum"), strobj_("export"), strobj_("extends"), strobj_("import"), []any{strobj_("super")})
 	IRFactory_ES5_STRICT_RESERVED_KEYWORDS = ImmutableSet_of_Object_Object_Object_Object_Object_Object_ObjectArr(strobj_("class"), strobj_("const"), strobj_("enum"), strobj_("export"), strobj_("extends"), strobj_("import"), []any{strobj_("super"), strobj_("implements"), strobj_("interface"), strobj_("let"), strobj_("package"), strobj_("private"), strobj_("protected"), strobj_("public"), strobj_("static"), strobj_("yield")})
-	IRFactory_COMMENT_START_POSITION_COMPARATOR = Comparator_thenComparingInt(Comparator_comparingInt_f(lambda_IRFactory_clinit_1_), lambda_IRFactory_clinit_2_)
+	IRFactory_COMMENT_START_POSITION_COMPARATOR = Comparator_thenComparingInt_f(Comparator_comparingInt_f(lambda_IRFactory_clinit_1_), lambda_IRFactory_clinit_2_)
 	IRFactory_GOOG_MODULE = QualifiedName_of("goog.module")
 
 }
@@ -1470,11 +1470,11 @@ func lambda_IRFactory_clinit_1_(x_ any) int32 {
 }
 
 // lambda_IRFactory_clinit_2_ is a lambda of IRFactory_clinit that captures nothing (post-flip step lambdas).
-var lambda_IRFactory_clinit_2_ = &ToIntFunction_fn{func(x_ any) int32 {
+func lambda_IRFactory_clinit_2_(x_ any) int32 {
 	var x *Comment = cast_[*Comment](x_)
 	_ = x
 	return x.location_.start_.column_
-}}
+}
 
 type IRFactory_LineAndColumn struct {
 	lineNo_ int32
@@ -1499,7 +1499,7 @@ func IRFactory_LineAndColumn_fromSourcePosition(pos *SourcePosition_util) *IRFac
 func (this *IRFactory_LineAndColumn) compareTo(o_ any) int32 {
 	var o *IRFactory_LineAndColumn = cast_[*IRFactory_LineAndColumn](o_)
 	_ = o
-	return Comparator_thenComparingInt(Comparator_comparingInt_f(lambda_IRFactory_LineAndColumn_compareTo_1_), lambda_IRFactory_LineAndColumn_compareTo_2_).compare(any(this), obj_(o))
+	return Comparator_thenComparingInt_f(Comparator_comparingInt_f(lambda_IRFactory_LineAndColumn_compareTo_1_), lambda_IRFactory_LineAndColumn_compareTo_2_).compare(any(this), obj_(o))
 }
 
 // lambda_IRFactory_LineAndColumn_compareTo_1_ is a lambda of IRFactory_LineAndColumn_compareTo that captures nothing (post-flip step lambdas).
@@ -1508,7 +1508,9 @@ func lambda_IRFactory_LineAndColumn_compareTo_1_(p0 any) int32 {
 }
 
 // lambda_IRFactory_LineAndColumn_compareTo_2_ is a lambda of IRFactory_LineAndColumn_compareTo that captures nothing (post-flip step lambdas).
-var lambda_IRFactory_LineAndColumn_compareTo_2_ = &ToIntFunction_fn{func(p0 any) int32 { return cast_[*IRFactory_LineAndColumn](p0).column() }}
+func lambda_IRFactory_LineAndColumn_compareTo_2_(p0 any) int32 {
+	return cast_[*IRFactory_LineAndColumn](p0).column()
+}
 
 func (this *IRFactory_LineAndColumn) lineNo() int32 {
 	return this.lineNo_
@@ -1722,7 +1724,7 @@ func (this *IRFactory_TransformDispatcher) processObjectPatternElement(child *Pa
 			this.outer_.setSourceInfo(rest, child)
 			return rest
 		default:
-			panic(new_IllegalStateException_String(("Unexpected object pattern element: " + objstr_(child.self()))).self())
+			panic(new_IllegalStateException_String(("Unexpected object pattern element: " + objstr_(child.self()))))
 		}
 	}()
 }
@@ -1796,7 +1798,7 @@ func (this *IRFactory_TransformDispatcher) processAstRoot(rootNode *ProgramTree)
 
 func (this *IRFactory_TransformDispatcher) isGoogModuleFile(scriptNode Node) bool {
 	if !scriptNode.isScript() {
-		panic(new_IllegalArgumentException_0().self())
+		panic(new_IllegalArgumentException_0())
 	}
 	if !scriptNode.hasChildren() {
 		return false
@@ -1955,7 +1957,7 @@ func (this *IRFactory_TransformDispatcher) processFunctionCall(callNode *CallExp
 
 func (this *IRFactory_TransformDispatcher) annotateCalls(n Node) {
 	if !((n.isCall() || n.isOptChainCall()) || n.isTaggedTemplateLit()) {
-		panic(new_IllegalStateException_String(tostr_(n)).self())
+		panic(new_IllegalStateException_String(tostr_(n)))
 	}
 	var callee Node = n.getFirstChild()
 	for callee.isCast() {
@@ -2113,7 +2115,7 @@ func (this *IRFactory_TransformDispatcher) processFunction(functionTree *Functio
 	var bodyNode Node = this.outer_.transform(functionTree.functionBody)
 	if (!isArrow && !isSignature) && !bodyNode.isBlock() {
 		if this.outer_.config.runMode() != Config_RunMode_KEEP_GOING {
-			panic(new_IllegalStateException_0().self())
+			panic(new_IllegalStateException_0())
 		}
 		bodyNode = IR_block_0()
 	}
@@ -2190,7 +2192,7 @@ func (this *IRFactory_TransformDispatcher) processFormalParameterList(tree *Form
 			this.attachPossibleTrailingCommentsForArg(paramNode, sliceAt_(zones, argCount))
 		}
 		if !((((paramNode.isName() || paramNode.isRest()) || paramNode.isArrayPattern()) || paramNode.isObjectPattern()) || paramNode.isDefaultValue()) {
-			panic(new_IllegalStateException_0().self())
+			panic(new_IllegalStateException_0())
 		}
 		params.addChildToBack(paramNode)
 		argCount++
@@ -2299,19 +2301,11 @@ func (this *IRFactory_TransformDispatcher) processBinaryExpressionHelper(exprTre
 	return root
 }
 
-func (this *IRFactory_TransformDispatcher) transformLhsOfBinaryTree(exprTree *BinaryOperatorTree) Node {
+func (this *IRFactory_TransformDispatcher) transformLhsOfBinaryTree(exprTree *BinaryOperatorTree) (ret_1 Node) {
 	var lhsOfInIsPrivateId bool = (((exprTree.operator.type__ == TokenType_IN) && is_[*IdentifierExpressionTree](exprTree.left.self())) && exprTree.left.asIdentifierExpression().identifierToken.isPrivateIdentifier())
-	var ret_1 Node
-	code_1 := func() (code_ int) {
-		var ignored IRFactory_TransformDispatcher_AutoDecrement = this.privateIdLhsOfInScope.maybeIncrement(lhsOfInIsPrivateId)
-		defer closeResource_(ignored)
-		ret_1 = this.outer_.transform(exprTree.left)
-		return 1
-	}()
-	if code_1 == 1 {
-		return ret_1
-	}
-	panic("unreachable")
+	var ignored IRFactory_TransformDispatcher_AutoDecrement = this.privateIdLhsOfInScope.maybeIncrement(lhsOfInIsPrivateId)
+	defer closeResource_(ignored)
+	return this.outer_.transform(exprTree.left)
 }
 
 func (this *IRFactory_TransformDispatcher) processDebuggerStatement(unused *DebuggerStatementTree) Node {
@@ -2354,7 +2348,7 @@ func (this *IRFactory_TransformDispatcher) processName_3(identifierToken *Identi
 
 func (this *IRFactory_TransformDispatcher) processString(token *LiteralToken) Node {
 	if token.type__ != TokenType_STRING {
-		panic(new_IllegalArgumentException_0().self())
+		panic(new_IllegalArgumentException_0())
 	}
 	var comment *NonJSDocComment = this.outer_.parseNonJSDocCommentAt(token.getStart(), true)
 	var node Node = this.outer_.newStringNode_2(Token_rhino_STRINGLIT, this.outer_.normalizeString(token, false))
@@ -2367,7 +2361,7 @@ func (this *IRFactory_TransformDispatcher) processString(token *LiteralToken) No
 
 func (this *IRFactory_TransformDispatcher) processTemplateLiteralToken(token *TemplateLiteralToken) Node {
 	if !((((token.type__ == TokenType_NO_SUBSTITUTION_TEMPLATE) || (token.type__ == TokenType_TEMPLATE_HEAD)) || (token.type__ == TokenType_TEMPLATE_MIDDLE)) || (token.type__ == TokenType_TEMPLATE_TAIL)) {
-		panic(new_IllegalArgumentException_0().self())
+		panic(new_IllegalArgumentException_0())
 	}
 	var node Node
 	if token.hasError() {
@@ -2854,7 +2848,7 @@ func (this *IRFactory_TransformDispatcher) processVariableDeclarationList(decl *
 	case TokenType_VAR:
 		declType = Token_rhino_VAR
 	default:
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	var node Node = this.outer_.newNode(declType)
 	for _, child := range decl.declarations {
@@ -2959,7 +2953,7 @@ func (this *IRFactory_TransformDispatcher) processClassDeclaration(tree *ClassDe
 	var superClass Node = this.transformOrEmpty(tree.superClass_, tree.up_ParseTree())
 	var classMembers Node = this.outer_.newNode(Token_rhino_CLASS_MEMBERS)
 	this.outer_.setSourceInfo(classMembers, tree.up_ParseTree())
-	_ = func() (code_ int) {
+	func() {
 		var ignored IRFactory_TransformDispatcher_AutoDecrement = this.classScope.increment()
 		defer closeResource_(ignored)
 		var hasConstructor bool = false
@@ -2980,7 +2974,6 @@ func (this *IRFactory_TransformDispatcher) processClassDeclaration(tree *ClassDe
 			}
 			classMembers.addChildToBack(this.outer_.transform(child))
 		}
-		return 0
 	}()
 	if !this.classScope.inScope() {
 		this.validatePrivatePropertyUsage(this.getPrivatePropsAndValidateUniqueness(classMembers), classMembers)
@@ -2992,7 +2985,7 @@ func (this *IRFactory_TransformDispatcher) processClassDeclaration(tree *ClassDe
 
 func (this *IRFactory_TransformDispatcher) validatePrivatePropertyUsage(privatePropNames *TTreeSet[string], classMembers Node) {
 	if !classMembers.isClassMembers() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	if !classMembers.hasChildren() {
 		return
@@ -3013,7 +3006,7 @@ func (this *IRFactory_TransformDispatcher) validatePrivatePropertyUsage(privateP
 		if node.isDelProp() {
 			var firstChild Node = node.getFirstChild()
 			if firstChild == 0 {
-				panic(new_NullPointerException_0().self())
+				panic(new_NullPointerException_0())
 			}
 			if firstChild.isPrivateIdentifier() && (firstChild.isGetProp() || firstChild.isOptChainGetProp()) {
 				this.outer_.errorReporter.error("Private fields cannot be deleted", this.outer_.sourceName_, node.getLineno(), node.getCharno())
@@ -3049,7 +3042,7 @@ func (this *IRFactory_TransformDispatcher) getPrivatePropsAndValidateUniqueness(
 			}
 			var propName string = curNode.getString()
 			if ok_, a1_, a2_ := (((curNode.isGetterDef() || curNode.isSetterDef()) || curNode.isMemberFieldDef()) || curNode.isMemberFunctionDef()), propName, curNode.getToken(); !ok_ {
-				panic(new_IllegalStateException_String(Strings_lenientFormat("Private property '%s' has an unsupported token type: %s", []any{strobj_(a1_), obj_(a2_)})).self())
+				panic(new_IllegalStateException_String(Strings_lenientFormat("Private property '%s' has an unsupported token type: %s", []any{strobj_(a1_), obj_(a2_)})))
 			}
 			var isStatic bool = curNode.isStaticMember()
 			var alreadyDeclared bool = privatePropNames.contains(propName)
@@ -3068,7 +3061,7 @@ func (this *IRFactory_TransformDispatcher) getPrivatePropsAndValidateUniqueness(
 						}
 						return privateSetterNames.contains(propName)
 					}() {
-						panic(new_IllegalStateException_0().self())
+						panic(new_IllegalStateException_0())
 					}
 					alreadyDeclared = alreadyDeclaredIsOtherThanItsSetter
 				}
@@ -3091,7 +3084,7 @@ func (this *IRFactory_TransformDispatcher) getPrivatePropsAndValidateUniqueness(
 						}
 						return privateGetterNames.contains(propName)
 					}() {
-						panic(new_IllegalStateException_0().self())
+						panic(new_IllegalStateException_0())
 					}
 					alreadyDeclared = alreadyDeclaredIsOtherThanItsGetter
 				}
@@ -3180,11 +3173,11 @@ func (this *IRFactory_TransformDispatcher) processExportDecl(tree *ExportDeclara
 	var decls Node = 0
 	if tree.isExportAll {
 		if tree.declaration_ != nil || tree.exportSpecifierList != nil {
-			panic(new_IllegalStateException_0().self())
+			panic(new_IllegalStateException_0())
 		}
 	} else if tree.declaration_ != nil {
 		if tree.exportSpecifierList != nil {
-			panic(new_IllegalStateException_0().self())
+			panic(new_IllegalStateException_0())
 		}
 		decls = this.outer_.transform(tree.declaration_)
 	} else {
@@ -3306,7 +3299,7 @@ func (this *IRFactory_TransformDispatcher) processLiteralExpression(expr *Litera
 		case TokenType_REGULAR_EXPRESSION:
 			return this.processRegExpLiteral(expr)
 		default:
-			panic(new_IllegalStateException_String(("Unexpected literal type: " + tostr_(Object_getClass(expr.literalToken.self())) + " type: " + tostr_(expr.literalToken.type__))).self())
+			panic(new_IllegalStateException_String(("Unexpected literal type: " + tostr_(Object_getClass(expr.literalToken.self())) + " type: " + tostr_(expr.literalToken.type__))))
 		}
 	}()
 }
@@ -3511,7 +3504,7 @@ func (this *IRFactory_TransformDispatcher_ScopeTracker) increment() IRFactory_Tr
 func (this *IRFactory_TransformDispatcher_ScopeTracker) maybeIncrement(condition bool) IRFactory_TransformDispatcher_AutoDecrement {
 	if condition {
 		if this.usageCount < 0 {
-			panic(new_IllegalStateException_0().self())
+			panic(new_IllegalStateException_0())
 		}
 		this.usageCount++
 	}
@@ -3626,12 +3619,12 @@ func new_IRFactory_TransformDispatcher_ScopeTracker_1(outer_ *IRFactory_Transfor
 
 func (this *IRFactory_TransformDispatcher_ScopeTracker_1) close() {
 	if this.closed {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	if this.cap_condition {
 		this.outer_.usageCount--
 		if this.outer_.usageCount < 0 {
-			panic(new_IllegalStateException_0().self())
+			panic(new_IllegalStateException_0())
 		}
 	}
 	this.closed = true

@@ -118,7 +118,7 @@ func (this *MaybeReachingVariableUse) computeMayUse(n Node, cfgNode Node, output
 	case tokOrd1_VAR, tokOrd1_LET, tokOrd1_CONST:
 		var varName Node = n.getFirstChild()
 		if !n.hasChildren() {
-			panic(new_IllegalStateException_String(Strings_lenientFormat("AST should be normalized (%s)", []any{n.box_()})).self())
+			panic(new_IllegalStateException_String(Strings_lenientFormat("AST should be normalized (%s)", []any{n.box_()})))
 		}
 		if varName.isDestructuringLhs() {
 			this.computeMayUse(varName.getFirstChild(), cfgNode, output, conditional)
@@ -146,7 +146,7 @@ func (this *MaybeReachingVariableUse) computeMayUse(n Node, cfgNode Node, output
 	default:
 		if NodeUtil_isAssignmentOp(n) && n.getFirstChild().isName() {
 			if NodeUtil_isLogicalAssignmentOp(n) {
-				panic(new_IllegalStateException_0().self())
+				panic(new_IllegalStateException_0())
 			}
 			var name Node = n.getFirstChild()
 			if !conditional {
@@ -193,7 +193,7 @@ func (this *MaybeReachingVariableUse) removeFromUseIfLocal(name string, use *May
 func (this *MaybeReachingVariableUse) getUses(name string, defNode Node) IterableOf[Node] {
 	var n GraphNode = this.getCfg().getNode(defNode.box_())
 	if n == nil {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	var state *DataFlowAnalysis_LinearFlowState[any] = cast_[*DataFlowAnalysis_LinearFlowState[any]](Annotatable_getAnnotation(Annotatable(n)))
 	return cast_[*MaybeReachingVariableUse_ReachingUses](state.getOut()).get(this.allVarsInFn.get(name))
@@ -300,25 +300,25 @@ func (this *MaybeReachingVariableUse_ReachingUses) equals(other any) bool {
 }
 
 // lambda_MaybeReachingVariableUse_ReachingUses_equals_1_ is a lambda of MaybeReachingVariableUse_ReachingUses_equals that captures nothing (post-flip step lambdas).
-var lambda_MaybeReachingVariableUse_ReachingUses_equals_1_ = &BiPredicate_fn{func(p0 any, p1 any) bool {
+var lambda_MaybeReachingVariableUse_ReachingUses_equals_1_ = newFuncObj_(func(p0 any, p1 any) bool {
 	return MaybeReachingVariableUse_ReachingUses_equalMaps(cast_[PMap[Node, Node]](p0), cast_[PMap[Node, Node]](p1))
-}}
+})
 
 func MaybeReachingVariableUse_ReachingUses_equalMaps(map1 PMap[Node, Node], map2 PMap[Node, Node]) bool {
 	return ((map1 == map2) || map1.equivalent(map2, lambda_MaybeReachingVariableUse_ReachingUses_equalMaps_1_))
 }
 
 // lambda_MaybeReachingVariableUse_ReachingUses_equalMaps_1_ is a lambda of MaybeReachingVariableUse_ReachingUses_equalMaps that captures nothing (post-flip step lambdas).
-var lambda_MaybeReachingVariableUse_ReachingUses_equalMaps_1_ = &BiPredicate_fn{func(p0 any, p1 any) bool {
+var lambda_MaybeReachingVariableUse_ReachingUses_equalMaps_1_ = newFuncObj_(func(p0 any, p1 any) bool {
 	return MaybeReachingVariableUse_ReachingUses_equalNodes(Node_of_(p0), Node_of_(p1))
-}}
+})
 
 func MaybeReachingVariableUse_ReachingUses_equalNodes(n1 Node, n2 Node) bool {
 	return (n1 == n2)
 }
 
 func (this *MaybeReachingVariableUse_ReachingUses) hashCode() int32 {
-	panic(new_UnsupportedOperationException_String("the hashcode of this object is not stable").self())
+	panic(new_UnsupportedOperationException_String("the hashcode of this object is not stable"))
 }
 
 type MaybeReachingVariableUse_ReachingUsesJoinOp struct {

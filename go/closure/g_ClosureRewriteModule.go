@@ -36,7 +36,7 @@ func (this *ClosureRewriteModule) finit_ClosureRewriteModule() {
 func (this *ClosureRewriteModule) init_ClosureRewriteModule(compiler *AbstractCompiler, preprocessorSymbolTable *PreprocessorSymbolTable, globalTypedScope *TypedScope) {
 	this.finit_ClosureRewriteModule()
 	if globalTypedScope != nil && !globalTypedScope.isGlobal() {
-		panic(new_IllegalArgumentException_0().self())
+		panic(new_IllegalArgumentException_0())
 	}
 	this.compiler_ = compiler
 	this.astFactory_ = compiler.createAstFactory()
@@ -83,7 +83,7 @@ func (this *ClosureRewriteModule) process_2(externs Node, root Node) {
 			var script Node = parent.getFirstChild()
 			for ; script != 0; script = script.getNext() {
 				if !script.isScript() {
-					panic(new_IllegalStateException_String(tostr_(script)).self())
+					panic(new_IllegalStateException_String(tostr_(script)))
 				}
 				NodeTraversal_traverse(this.compiler_, script, new_ClosureRewriteModule_UnwrapGoogLoadModule(this))
 				this.pushScript(new_ClosureRewriteModule_ScriptDescription())
@@ -129,7 +129,7 @@ func (this *ClosureRewriteModule) preprocessExportDeclaration(t *NodeTraversal, 
 		return
 	}
 	if this.currentScript.defaultExport != nil {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	var exportRhs Node = n.getNext()
 	if NodeUtil_isNamedExportsLiteral(exportRhs) {
@@ -308,7 +308,7 @@ func (this *ClosureRewriteModule) maybeRecordExportDeclaration(t *NodeTraversal,
 	}
 	var exportRhs Node = n.getNext()
 	if NodeUtil_isNamedExportsLiteral(exportRhs) {
-		panic(new_IllegalStateException_String("Exports object should have been converted already").self())
+		panic(new_IllegalStateException_String("Exports object should have been converted already"))
 	}
 	this.currentScript.willCreateExportsObject = true
 	var defaultExport *ClosureRewriteModule_ExportDefinition = ClosureRewriteModule_ExportDefinition_newDefaultExport(t, exportRhs)
@@ -338,7 +338,7 @@ func (this *ClosureRewriteModule) updateGoogModule(t *NodeTraversal, call Node) 
 	}
 	if !this.currentScript.willCreateExportsObject {
 		if this.currentScript.hasCreatedExportObject {
-			panic(new_IllegalStateException_String(objstr_(obj_(this.currentScript))).self())
+			panic(new_IllegalStateException_String(objstr_(obj_(this.currentScript))))
 		}
 		this.exportTheEmptyBinaryNamespaceAt(NodeUtil_getEnclosingStatement(call), ClosureRewriteModule_AddAt_AFTER, t)
 	}
@@ -379,7 +379,7 @@ func (this *ClosureRewriteModule) updateGoogRequire(t *NodeTraversal, call Node)
 				var importSpec Node = lhs.getFirstFirstChild()
 				for ; importSpec != 0; importSpec = importSpec.getNext() {
 					if !importSpec.hasChildren() {
-						panic(new_IllegalStateException_String(tostr_(importSpec)).self())
+						panic(new_IllegalStateException_String(tostr_(importSpec)))
 					}
 					var importedProperty string = importSpec.getString()
 					var aliasNode Node = importSpec.getFirstChild()
@@ -391,7 +391,7 @@ func (this *ClosureRewriteModule) updateGoogRequire(t *NodeTraversal, call Node)
 				}
 			}
 		} else {
-			panic(new_RuntimeException_String(("Illegal goog.module import: " + tostr_(lhs))).self())
+			panic(new_RuntimeException_String(("Illegal goog.module import: " + tostr_(lhs))))
 		}
 	}
 	if this.currentScript.isModule_ || targetIsNonLegacyGoogModule {
@@ -402,7 +402,7 @@ func (this *ClosureRewriteModule) updateGoogRequire(t *NodeTraversal, call Node)
 			}
 		} else if targetIsNonLegacyGoogModule {
 			if !this.isTopLevel(t, statementNode, ClosureRewriteModule_ScopeType_EXEC_CONTEXT) {
-				panic(new_IllegalStateException_String(Strings_lenientFormat("Unexpected non-top-level require at %s", []any{call.box_()})).self())
+				panic(new_IllegalStateException_String(Strings_lenientFormat("Unexpected non-top-level require at %s", []any{call.box_()})))
 			}
 			if importHasAlias || !this.rewriteState.isLegacyModule(namespaceId) {
 				if !this.preserveSugar {
@@ -420,7 +420,7 @@ func (this *ClosureRewriteModule) updateGoogRequire(t *NodeTraversal, call Node)
 
 func (this *ClosureRewriteModule) maybeWarnForInvalidDestructuring(t *NodeTraversal, importNode Node, importedNamespace string) {
 	if !importNode.getFirstChild().isDestructuringLhs() {
-		panic(new_IllegalArgumentException_String(tostr_(importNode)).self())
+		panic(new_IllegalArgumentException_String(tostr_(importNode)))
 	}
 	var importedModule *ClosureRewriteModule_ScriptDescription = this.rewriteState.scriptDescriptionsByGoogModuleNamespace[importedNamespace]
 	if importedModule == nil {
@@ -458,7 +458,7 @@ func (this *ClosureRewriteModule) updateGoogRequireDynamicCall(call Node) {
 		return
 	}
 	if !(parent.isAwait() || (parent.isGetProp() && (parent.getString() == "then"))) {
-		panic(new_IllegalStateException_String("goog.requireDynamic() in only allowed in await/then expression").self())
+		panic(new_IllegalStateException_String("goog.requireDynamic() in only allowed in await/then expression"))
 	}
 	if parent.isAwait() {
 		this.updateGoogRequireDynamicCallInAwait(call)
@@ -472,40 +472,40 @@ func (this *ClosureRewriteModule) updateGoogRequireDynamicCallInThen(call Node) 
 	var namespaceId string = namespaceIdNode.getString()
 	var exportedNamespace OptionalOf[string] = this.rewriteState.getExportedNamespaceOrScript(namespaceId)
 	if !exportedNamespace.isPresent() {
-		panic(new_IllegalStateException_String("Exported namespace for goog.requireDynamic() canot be null").self())
+		panic(new_IllegalStateException_String("Exported namespace for goog.requireDynamic() canot be null"))
 	}
 	var getProp Node = call.getParent()
 	var thenCallNode Node = getProp.getParent()
 	if thenCallNode == 0 || !thenCallNode.isCall() {
-		panic(new_IllegalStateException_String("must be a 'then' call expression").self())
+		panic(new_IllegalStateException_String("must be a 'then' call expression"))
 	}
 	var argNode Node = this.astFactory_.createString(this.namespaceIdToXid(namespaceId)).srcref(namespaceIdNode)
 	namespaceIdNode.replaceWith(argNode)
 	var calleeNode Node = call.getFirstChild()
 	if !calleeNode.matchesQualifiedName(ClosureRewriteModule_GOOG_REQUIREDYNAMIC_NAME) {
-		panic(new_IllegalStateException_String(tostr_(calleeNode)).self())
+		panic(new_IllegalStateException_String(tostr_(calleeNode)))
 	}
 	calleeNode.setString(ClosureRewriteModule_IMPORT_HANDLER_NAME)
 	var exportedNamespaceNameNode Node = this.astFactory_.createNameStaticScope(icast_StaticScope(obj_(this.globalTypedScope)), exportedNamespace.get()).srcrefTree(call)
 	exportedNamespaceNameNode.setOriginalName(namespaceId)
 	var functionNode Node = thenCallNode.getSecondChild()
 	if functionNode == 0 || !functionNode.isFunction() {
-		panic(new_IllegalStateException_String("must be a function in `then`").self())
+		panic(new_IllegalStateException_String("must be a function in `then`"))
 	}
 	var paramListNode Node = functionNode.getSecondChild()
 	if paramListNode.getChildCount() != 1 {
-		panic(new_IllegalStateException_String("function must have only one parameter").self())
+		panic(new_IllegalStateException_String("function must have only one parameter"))
 	}
 	var functionBody Node = paramListNode.getNext()
 	var objectPatternOrNameNode Node = paramListNode.getOnlyChild()
 	if !objectPatternOrNameNode.isObjectPattern() && !objectPatternOrNameNode.isName() {
-		panic(new_IllegalStateException_String("parameter of callback function must be object pattern or name").self())
+		panic(new_IllegalStateException_String("parameter of callback function must be object pattern or name"))
 	}
 	objectPatternOrNameNode.detach()
 	paramListNode.removeChildren()
 	var languageIn CompilerOptions_LanguageMode = this.compiler_.getOptions().getLanguageIn()
 	if !languageIn.toFeatureSet().contains(FeatureSet_Feature_CONST_DECLARATIONS) {
-		panic(new_IllegalStateException_String(Strings_lenientFormat("'%s' does not contain '%s'", []any{obj_(languageIn), obj_(FeatureSet_Feature_CONST_DECLARATIONS)})).self())
+		panic(new_IllegalStateException_String(Strings_lenientFormat("'%s' does not contain '%s'", []any{obj_(languageIn), obj_(FeatureSet_Feature_CONST_DECLARATIONS)})))
 	}
 	var enclosingScript Node = NodeUtil_getEnclosingScript(call)
 	NodeUtil_addFeatureToScript(enclosingScript, FeatureSet_Feature_CONST_DECLARATIONS, this.compiler_)
@@ -533,11 +533,11 @@ func (this *ClosureRewriteModule) updateGoogRequireDynamicCallInAwait(call Node)
 	var namespaceId string = namespaceIdNode.getString()
 	var exportedNamespace OptionalOf[string] = this.rewriteState.getExportedNamespaceOrScript(namespaceId)
 	if !exportedNamespace.isPresent() {
-		panic(new_IllegalStateException_String("Exported namespace for goog.requireDynamic() cannot be null").self())
+		panic(new_IllegalStateException_String("Exported namespace for goog.requireDynamic() cannot be null"))
 	}
 	var existingAwait Node = call.getParent()
 	if !existingAwait.isAwait() {
-		panic(new_IllegalStateException_String("Only goog.requireDynamic() in await expression is supported now").self())
+		panic(new_IllegalStateException_String("Only goog.requireDynamic() in await expression is supported now"))
 	}
 	var awaitParent Node = existingAwait.getParent()
 	if (awaitParent == 0) || (!awaitParent.isDestructuringLhs() && !awaitParent.isName()) {
@@ -554,7 +554,7 @@ func (this *ClosureRewriteModule) updateGoogRequireDynamicCallInAwait(call Node)
 	namespaceIdNode.replaceWith(argNode)
 	var calleeNode Node = call.getFirstChild()
 	if !calleeNode.matchesQualifiedName(ClosureRewriteModule_GOOG_REQUIREDYNAMIC_NAME) {
-		panic(new_IllegalStateException_String(tostr_(calleeNode)).self())
+		panic(new_IllegalStateException_String(tostr_(calleeNode)))
 	}
 	calleeNode.setString(ClosureRewriteModule_IMPORT_HANDLER_NAME)
 	existingAwait.replaceWith(exportedNamespaceNameNode)
@@ -600,11 +600,11 @@ func (this *ClosureRewriteModule) recordExportsPropertyAssignment(t *NodeTravers
 	}
 	var parent Node = getpropNode.getParent()
 	if !parent.isAssign() && !parent.isExprResult() {
-		panic(new_IllegalStateException_String(tostr_(parent)).self())
+		panic(new_IllegalStateException_String(tostr_(parent)))
 	}
 	var exportsNameNode Node = getpropNode.getFirstChild()
 	if exportsNameNode.getString() != "exports" {
-		panic(new_IllegalStateException_String(tostr_(exportsNameNode)).self())
+		panic(new_IllegalStateException_String(tostr_(exportsNameNode)))
 	}
 	if t.inModuleScope() {
 		var exportName string = getpropNode.getString()
@@ -624,11 +624,11 @@ func (this *ClosureRewriteModule) updateExportsPropertyAssignment(getpropNode No
 	}
 	var parent Node = getpropNode.getParent()
 	if !parent.isAssign() && !parent.isExprResult() {
-		panic(new_IllegalStateException_String(tostr_(parent)).self())
+		panic(new_IllegalStateException_String(tostr_(parent)))
 	}
 	var exportsNameNode Node = getpropNode.getFirstChild()
 	if exportsNameNode.getString() != "exports" {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	var exportedNamespace OptionalOf[string] = this.currentScript.getExportedNamespace()
 	this.safeSetMaybeQualifiedString(exportsNameNode, exportedNamespace.get(), false)
@@ -664,7 +664,7 @@ func (this *ClosureRewriteModule) maybeUpdateTopLevelName(t *NodeTraversal, name
 		this.maybeAddAliasToSymbolTable(nameNode, this.currentScript.namespaceId)
 		var inline *ClosureRewriteModule_AliasName = this.currentScript.namesToInlineByAlias[name]
 		var namespaceToInline string = inline.newName
-		if optequalsOn_(Optional_of(strobj_(namespaceToInline)), optErase_(this.currentScript.getBinaryNamespace())) {
+		if optOfEquals_(strNonNull_(namespaceToInline), this.currentScript.getBinaryNamespace()) {
 			this.currentScript.hasCreatedExportObject = true
 		}
 		var isModuleNamespace bool = ((inline.namespaceId.isPresent() && has_(this.rewriteState.scriptDescriptionsByGoogModuleNamespace, inline.namespaceId.get())) && !this.rewriteState.scriptDescriptionsByGoogModuleNamespace[inline.namespaceId.get()].willCreateExportsObject)
@@ -781,13 +781,13 @@ func (this *ClosureRewriteModule) maybeUpdateExportNameRef(t *NodeTraversal, n N
 	}
 	this.safeSetString(n, this.currentScript.getBinaryNamespace().get())
 	if !this.currentScript.willCreateExportsObject && !this.currentScript.hasCreatedExportObject {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 }
 
 func (this *ClosureRewriteModule) updateModuleBody(moduleBody Node) {
 	if !moduleBody.isModuleBody() || !moduleBody.getParent().getBooleanProp(Node_GOOG_MODULE) {
-		panic(new_IllegalArgumentException_String(tostr_(moduleBody)).self())
+		panic(new_IllegalArgumentException_String(tostr_(moduleBody)))
 	}
 	moduleBody.setToken(Token_rhino_BLOCK)
 	NodeUtil_tryMergeBlock(moduleBody, true)
@@ -796,10 +796,10 @@ func (this *ClosureRewriteModule) updateModuleBody(moduleBody Node) {
 		this.safeSetMaybeQualifiedString(nameNode, (sstr_(this.currentScript.getBinaryNamespace().orElse("null")) + sstr_(export.getExportPostfix())), false)
 	}
 	if !this.currentScript.isModule_ {
-		panic(new_IllegalStateException_String(objstr_(obj_(this.currentScript))).self())
+		panic(new_IllegalStateException_String(objstr_(obj_(this.currentScript))))
 	}
 	if !this.currentScript.declareLegacyNamespace && !this.currentScript.hasCreatedExportObject {
-		panic(new_IllegalStateException_String(objstr_(obj_(this.currentScript))).self())
+		panic(new_IllegalStateException_String(objstr_(obj_(this.currentScript))))
 	}
 	this.popScript()
 }
@@ -842,7 +842,7 @@ func (this *ClosureRewriteModule) exportTheEmptyBinaryNamespaceAt(atNode Node, a
 
 func ClosureRewriteModule_checkAndSetStrictModeDirective(t *NodeTraversal, n Node) {
 	if !n.isScript() {
-		panic(new_IllegalStateException_String(tostr_(n)).self())
+		panic(new_IllegalStateException_String(tostr_(n)))
 	}
 	if n.isUseStrict() {
 		t.report(n, ClosureRewriteModule_USELESS_USE_STRICT_DIRECTIVE, []string{})
@@ -877,10 +877,10 @@ func ClosureRewriteModule_markConstAndCopyJsDoc(from Node, target Node) {
 
 func (this *ClosureRewriteModule) recordExportToInline(exportDefinition *ClosureRewriteModule_ExportDefinition) {
 	if ok_, a1_, a2_ := exportDefinition.hasInlinableName(this.currentScript.exportsToInline.asMap().keySet()), exportDefinition, this.currentScript.exportsToInline.asMap().keySet(); !ok_ {
-		panic(new_IllegalStateException_String(Strings_lenientFormat("exportDefinition: %s\n\nexportsToInline keys: %s", []any{obj_(a1_), a2_})).self())
+		panic(new_IllegalStateException_String(Strings_lenientFormat("exportDefinition: %s\n\nexportsToInline keys: %s", []any{obj_(a1_), a2_})))
 	}
 	if ok_, a1_ := (this.currentScript.exportsToInline.put(exportDefinition.nameDecl, exportDefinition) == nil), exportDefinition.nameDecl; !ok_ {
-		panic(new_IllegalStateException_String(Strings_lenientFormat("Already found a mapping for inlining export: %s", []any{obj_(a1_)})).self())
+		panic(new_IllegalStateException_String(Strings_lenientFormat("Already found a mapping for inlining export: %s", []any{obj_(a1_)})))
 	}
 	var localName OptionalOf[string] = exportDefinition.getLocalName()
 	var fullExportedName string = (sstr_(this.currentScript.getBinaryNamespace().orElse("null")) + sstr_(exportDefinition.getExportPostfix()))
@@ -1005,7 +1005,7 @@ func ClosureRewriteModule_safeSetStringIfDeclaration(nameParent Node, nameNode N
 		NodeUtil_replaceDeclarationChild(nameNode, newStatement)
 		return true
 	case tokOrd1_OBJECT_PATTERN, tokOrd1_ARRAY_PATTERN, tokOrd1_PARAM_LIST:
-		panic(new_RuntimeException_String("Not supported").self())
+		panic(new_RuntimeException_String("Not supported"))
 	default:
 	}
 	return false
@@ -1013,10 +1013,10 @@ func ClosureRewriteModule_safeSetStringIfDeclaration(nameParent Node, nameNode N
 
 func ClosureRewriteModule_updateSourceInfoForExportedTopLevelVariable(assign Node, sourceName Node) {
 	if !assign.isAssign() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	if !sourceName.isName() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	var getProp Node = assign.getFirstChild()
 	if !getProp.isGetProp() {
@@ -1093,7 +1093,7 @@ func (this *ClosureRewriteModule) maybeAddAliasToSymbolTable(n Node, module Opti
 
 func (this *ClosureRewriteModule) declareGlobalVariable(n Node, t *NodeTraversal) {
 	if !n.isName() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	if this.globalTypedScope == nil {
 		return
@@ -1110,7 +1110,7 @@ func (this *ClosureRewriteModule) declareGlobalVariable(n Node, t *NodeTraversal
 	} else {
 		var type_ *JSType = n.getJSType()
 		if type_ == nil {
-			panic(new_NullPointerException_0().self())
+			panic(new_NullPointerException_0())
 		}
 		this.globalTypedScope.declare(name, n, type_, t.getInput(), false)
 	}
@@ -1653,13 +1653,13 @@ func (this *ClosureRewriteModule_ScriptUpdater) shouldTraverse(t *NodeTraversal,
 	case tokOrd1_SCRIPT:
 		var currentDescription *ClosureRewriteModule_ScriptDescription = slicePopFirst_(tc_p_ClosureRewriteModule_ScriptDescription, &this.scriptDescriptions)
 		if currentDescription.rootNode_ != n {
-			panic(new_IllegalStateException_0().self())
+			panic(new_IllegalStateException_0())
 		}
 		if n.isFromExterns() && !NodeUtil_isFromTypeSummary(n) {
 			return false
 		}
 		if len(this.outer_.scriptStack) != 0 {
-			panic(new_IllegalStateException_0().self())
+			panic(new_IllegalStateException_0())
 		}
 		this.outer_.pushScript(currentDescription)
 		t.getScope()
@@ -1711,7 +1711,7 @@ func (this *ClosureRewriteModule_ScriptUpdater) visit(t *NodeTraversal, n Node, 
 		this.outer_.maybeUpdateExportNameRef(t, n)
 	case tokOrd1_SCRIPT:
 		if this.outer_.currentScript.rootNode_ != n {
-			panic(new_IllegalStateException_0().self())
+			panic(new_IllegalStateException_0())
 		}
 		this.outer_.popScript()
 	default:
@@ -1830,7 +1830,7 @@ func (this *ClosureRewriteModule_GlobalRewriteState) containsModule(namespaceId 
 
 func (this *ClosureRewriteModule_GlobalRewriteState) isLegacyModule(namespaceId string) bool {
 	if !this.containsModule(namespaceId) {
-		panic(new_IllegalArgumentException_0().self())
+		panic(new_IllegalArgumentException_0())
 	}
 	return this.scriptDescriptionsByGoogModuleNamespace[namespaceId].declareLegacyNamespace
 }

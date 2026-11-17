@@ -29,17 +29,17 @@ func (this *TemplateAstMatcher) finit_TemplateAstMatcher() {
 func (this *TemplateAstMatcher) init_TemplateAstMatcher(compiler *AbstractCompiler, templateFunctionNode Node, typeMatchingStrategy TypeMatchingStrategy) {
 	this.finit_TemplateAstMatcher()
 	if !templateFunctionNode.isFunction() {
-		panic(new_IllegalStateException_String(Strings_lenientFormat("Template node must be a function node. Received: %s", []any{templateFunctionNode.box_()})).self())
+		panic(new_IllegalStateException_String(Strings_lenientFormat("Template node must be a function node. Received: %s", []any{templateFunctionNode.box_()})))
 	}
 	this.topScope = compiler.getTopScope()
 	nn_1 := compiler.getTypeRegistry()
 	if nn_1 == nil {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	this.typeRegistry = nn_1
 	this.templateStart = this.initTemplate(templateFunctionNode)
 	if typeMatchingStrategy == 0 {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	this.typeMatchingStrategy = typeMatchingStrategy
 }
@@ -107,7 +107,7 @@ func (this *TemplateAstMatcher) prepTemplatePlaceholders(fn Node) {
 	var info *JSDocInfo = NodeUtil_getBestJSDocInfo(fn)
 	if templateParametersNode.hasChildren() {
 		if info == nil {
-			panic(new_NullPointerException_String(Strings_lenientFormat("Missing JSDoc declaration for template function %s", []any{strobj_(fnName)})).self())
+			panic(new_NullPointerException_String(Strings_lenientFormat("Missing JSDoc declaration for template function %s", []any{strobj_(fnName)})))
 		}
 	}
 	{
@@ -116,11 +116,11 @@ func (this *TemplateAstMatcher) prepTemplatePlaceholders(fn Node) {
 			var name string = paramNode.getString()
 			var expression *JSTypeExpression = info.getParameterType(Optional_of[string](name))
 			if expression == nil {
-				panic(new_NullPointerException_String(Strings_lenientFormat("Missing JSDoc for parameter %s of template function %s", []any{strobj_(name), strobj_(fnName)})).self())
+				panic(new_NullPointerException_String(Strings_lenientFormat("Missing JSDoc for parameter %s of template function %s", []any{strobj_(name), strobj_(fnName)})))
 			}
 			var type_ *JSType = this.typeRegistry.evaluateTypeExpression(expression, icast_StaticTypedScope(obj_(this.topScope)))
 			if type_ == nil {
-				panic(new_NullPointerException_0().self())
+				panic(new_NullPointerException_0())
 			}
 			params.add(name)
 			paramTypes[name] = type_
@@ -167,10 +167,10 @@ func (this *TemplateAstMatcher) isTemplateParameterStringLiteralNode(n Node) boo
 
 func (this *TemplateAstMatcher) createTemplateParameterNode(index int32, type_ *JSType, isStringLiteral bool) Node {
 	if index < 0 {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	if type_ == nil {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	var n Node = Node_newNumber(float64(index))
 	if isStringLiteral {
@@ -188,7 +188,7 @@ func (this *TemplateAstMatcher) isTemplateLocalNameNode(n Node) bool {
 
 func (this *TemplateAstMatcher) createTemplateLocalNameNode(index int32) Node {
 	if index < 0 {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	var n Node = Node_newNumber(float64(index))
 	n.setToken(TemplateAstMatcher_TEMPLATE_LOCAL_NAME)
@@ -254,7 +254,7 @@ func (this *TemplateAstMatcher) matchesNode(template Node, ast Node) bool {
 		}
 		var templateType *JSType = template.getJSType()
 		if templateType == nil {
-			panic(new_NullPointerException_String("null template parameter type.").self())
+			panic(new_NullPointerException_String("null template parameter type."))
 		}
 		if this.isUnresolvedType(templateType) {
 			return false

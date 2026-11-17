@@ -99,7 +99,7 @@ func (this *ColorFindPropertyReferences) handleClass(t *NodeTraversal, classNode
 			}()
 		} else {
 			if !((m.isMemberFunctionDef() || m.isGetterDef()) || m.isSetterDef()) {
-				panic(new_IllegalStateException_String(tostr_(m)).self())
+				panic(new_IllegalStateException_String(tostr_(m)))
 			}
 			var classPrototypeType ImmutableSetOf[*Color] = classType.getPrototypes()
 			return func() any {
@@ -160,7 +160,7 @@ func (this *ColorFindPropertyReferences) handleObjectDefineProperties(t *NodeTra
 
 func (this *ColorFindPropertyReferences) traverseObjectlitLike(t *NodeTraversal, n Node, memberOwnerFn func(any) any) {
 	if !((n.isObjectLit() || n.isObjectPattern()) || n.isClassMembers()) {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	{
 		var child Node = n.getFirstChild()
@@ -175,7 +175,7 @@ func (this *ColorFindPropertyReferences) traverseObjectlitLike(t *NodeTraversal,
 				}
 				this.registerPropertyUse(t, child, cast_[*Color](memberOwnerFn(child.box_())))
 			default:
-				panic(new_IllegalStateException_String(("Unexpected child of " + tostr_(n.getToken()) + ": " + sstr_(child.toStringTree()))).self())
+				panic(new_IllegalStateException_String(("Unexpected child of " + tostr_(n.getToken()) + ": " + sstr_(child.toStringTree()))))
 			}
 		}
 	}
@@ -197,17 +197,7 @@ func lambda_ColorFindPropertyReferences_registerPropertyUse_1_(p0 any) any {
 	return obj_(new_PropertyClustering(str_(p0)))
 }
 
-type ColorFindPropertyReferences_IsPropertyReflector interface {
-	test(Node) bool
-}
-
-type ColorFindPropertyReferences_IsPropertyReflector_fn struct {
-	f func(Node) bool
-}
-
-func (this *ColorFindPropertyReferences_IsPropertyReflector_fn) test(p0 Node) bool {
-	return this.f(p0)
-}
+type ColorFindPropertyReferences_IsPropertyReflector = *funcObj_[func(Node) bool]
 
 // visit: an object that is exactly a ColorFindPropertyReferences calls its visit_impl directly (post-flip); others dispatch.
 func (this *ColorFindPropertyReferences) visit(p0 *NodeTraversal, p1 Node, p2 Node) {

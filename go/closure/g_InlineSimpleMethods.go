@@ -29,13 +29,13 @@ func new_InlineSimpleMethods(compiler *AbstractCompiler) *InlineSimpleMethods {
 
 func (this *InlineSimpleMethods) process_2(externs Node, root Node) {
 	if ok_, a1_ := this.compiler_.getLifeCycleStage().isNormalized(), this.compiler_.getLifeCycleStage(); !ok_ {
-		panic(new_IllegalStateException_String(tostr_(a1_)).self())
+		panic(new_IllegalStateException_String(tostr_(a1_)))
 	}
 	if !this.methodDefinitions.isEmpty() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	if externs == 0 {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	NodeTraversal_traverseRoots(this.compiler_, new_InlineSimpleMethods_GatherSignatures(this), externs, root)
 	NodeTraversal_traverse(this.compiler_, root, new_InlineSimpleMethods_InlineTrivialAccessors(this))
@@ -282,7 +282,7 @@ func (this *InlineSimpleMethods_GatherSignatures) visit_impl(t *NodeTraversal, n
 					this.outer_.nonInlineableProperties[key.getString()] = struct{}{}
 				case tokOrd1_COMPUTED_PROP, tokOrd1_OBJECT_SPREAD, tokOrd1_COMPUTED_FIELD_DEF, tokOrd1_BLOCK:
 				default:
-					panic(new_IllegalStateException_String(("Unexpected " + tostr_(n.getToken()) + " key: " + tostr_(key))).self())
+					panic(new_IllegalStateException_String(("Unexpected " + tostr_(n.getToken()) + " key: " + tostr_(key))))
 				}
 			}
 		}

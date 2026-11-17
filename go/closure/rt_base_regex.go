@@ -37,13 +37,28 @@ var patternCache_ = map[patternKey_]*Pattern{}
 
 func Pattern_compile(regex string) *Pattern { return Pattern_compile_String_int(regex, 0) }
 
+// Pattern_compileErr_ is Pattern.compile(regex) returning the PatternSyntaxException of a
+// malformed regex as a Go error value instead of throwing it (the Go idiom for a failure the
+// caller handles, as regexp.Compile does); every other failure throws as Pattern.compile does.
+func Pattern_compileErr_(regex string) (*Pattern, *PatternSyntaxException) {
+	return patternCompile_(regex, 0)
+}
+
 func Pattern_compile_String_int(regex string, flags int32) *Pattern {
+	p, err := patternCompile_(regex, flags)
+	if err != nil {
+		panic(err)
+	}
+	return p
+}
+
+func patternCompile_(regex string, flags int32) (*Pattern, *PatternSyntaxException) {
 	if regex == nullstr_ {
 		panic(new_NullPointerException_0().self())
 	}
 	key := patternKey_{regex, flags}
 	if p, ok := patternCache_[key]; ok {
-		return p
+		return p, nil
 	}
 	pat := &Pattern{src: regex, flags_: flags, names: map[string]int{}}
 	prefix := ""
@@ -65,7 +80,7 @@ func Pattern_compile_String_int(regex string, flags int32) *Pattern {
 		ex := &PatternSyntaxException{}
 		ex.self_ = ex
 		ex.init_PatternSyntaxException_String(strings.TrimPrefix(err.Error(), "error parsing regexp: "))
-		panic(ex.self())
+		return nil, ex
 	}
 	pat.re = re
 	for i, n := range re.SubexpNames() {
@@ -77,7 +92,7 @@ func Pattern_compile_String_int(regex string, flags int32) *Pattern {
 		patternCache_ = map[patternKey_]*Pattern{}
 	}
 	patternCache_[key] = pat
-	return pat
+	return pat, nil
 }
 
 func Pattern_quote(s string) string { return regexp.QuoteMeta(s) }

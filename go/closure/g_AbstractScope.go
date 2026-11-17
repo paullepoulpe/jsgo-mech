@@ -55,7 +55,7 @@ func (this *AbstractScope) finit_AbstractScope() {
 func (this *AbstractScope) init_AbstractScope(rootNode Node) {
 	this.finit_AbstractScope()
 	if rootNode == 0 {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	this.rootNode_ = rootNode
 }
@@ -65,16 +65,16 @@ func (this *AbstractScope) toString() string {
 }
 
 func (this *AbstractScope) untyped_impl() *Scope {
-	panic(new_IllegalStateException_String("untyped() called, but not an untyped scope.").self())
+	panic(new_IllegalStateException_String("untyped() called, but not an untyped scope."))
 }
 
 func (this *AbstractScope) typed_impl() *TypedScope {
-	panic(new_IllegalStateException_String("typed() called, but not a typed scope.").self())
+	panic(new_IllegalStateException_String("typed() called, but not a typed scope."))
 }
 
 func (this *AbstractScope) contains(other *AbstractScope) bool {
 	if other == nil {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	var s *AbstractScope = other
 	for s != nil {
@@ -104,10 +104,10 @@ func (this *AbstractScope) getParentScope() StaticScope {
 
 func (this *AbstractScope) undeclare(var_ *AbstractVar) {
 	if to_AbstractScope(var_.getScope()) != this {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	if !this.ownVar_(var_.getName()).equals_ScopedName(var_.up_ScopedName()) {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	this.undeclareInteral(var_)
 }
@@ -120,7 +120,7 @@ func (this *AbstractScope) undeclareInteral(var_ *AbstractVar) {
 
 func (this *AbstractScope) declareInternal(name string, var_ *AbstractVar) {
 	if ok_, a1_ := (this.hasOwnSlot(name) || this.canDeclare(name)), var_.getNode(); !ok_ {
-		panic(new_IllegalStateException_String(Strings_lenientFormat("Illegal shadow: %s", []any{a1_.box_()})).self())
+		panic(new_IllegalStateException_String(Strings_lenientFormat("Illegal shadow: %s", []any{a1_.box_()})))
 	}
 	if this.vars == nil {
 		this.vars = newScopeVars_()
@@ -335,7 +335,7 @@ func (this *AbstractScope) getClosestContainerScope() *AbstractScope {
 	if scope.isFunctionBlockScope() {
 		scope = scope.getParent()
 		if scope.isBlockScope() {
-			panic(new_IllegalStateException_String(objstr_(scope.self())).self())
+			panic(new_IllegalStateException_String(objstr_(scope.self())))
 		}
 	}
 	return scope
@@ -347,19 +347,19 @@ func (this *AbstractScope) thisScope() *AbstractScope {
 
 func (this *AbstractScope) checkChildScope(parent *AbstractScope) {
 	if parent == nil {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	if !NodeUtil_createsScope(this.rootNode_) {
-		panic(new_IllegalArgumentException_String(tostr_(this.rootNode_)).self())
+		panic(new_IllegalArgumentException_String(tostr_(this.rootNode_)))
 	}
 	if this.rootNode_ == parent.getRootNode() {
-		panic(new_IllegalArgumentException_String(Strings_lenientFormat("rootNode should not be the parent's root node: %s", []any{this.rootNode_.box_()})).self())
+		panic(new_IllegalArgumentException_String(Strings_lenientFormat("rootNode should not be the parent's root node: %s", []any{this.rootNode_.box_()})))
 	}
 }
 
 func (this *AbstractScope) checkRootScope() {
 	if !((NodeUtil_createsScope(this.rootNode_) || this.rootNode_.isScript()) || this.rootNode_.isRoot()) {
-		panic(new_IllegalArgumentException_String(tostr_(this.rootNode_)).self())
+		panic(new_IllegalArgumentException_String(tostr_(this.rootNode_)))
 	}
 }
 
@@ -377,7 +377,7 @@ func (this *AbstractScope) getCommonParent(other *AbstractScope) *AbstractScope 
 		}
 	}
 	if left == nil || left != right {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	return left
 }
@@ -493,7 +493,7 @@ func (this AbstractScope_ImplicitVar) isMadeByScope(scope *AbstractScope) bool {
 		case AbstractScope_ImplicitVar_ARGUMENTS:
 			return NodeUtil_isNonArrowFunction(scope.getRootNode())
 		}
-		panic("unreachable")
+		panic(new_NullPointerException_0())
 	}()
 }
 

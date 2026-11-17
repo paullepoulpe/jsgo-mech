@@ -567,7 +567,7 @@ func (this *RegExpTree_BackReference) up_RegExpTree() *RegExpTree {
 func (this *RegExpTree_BackReference) init_RegExpTree_BackReference(groupIndex int32) {
 	this.RegExpTree_RegExpTreeAtom.init_RegExpTree_RegExpTreeAtom()
 	if groupIndex < 0 || groupIndex > 99 {
-		panic(new_IllegalArgumentException_0().self())
+		panic(new_IllegalArgumentException_0())
 	}
 	this.groupIndex = groupIndex
 }
@@ -928,7 +928,7 @@ func RegExpTree_Repetition_suffixLen(min_ int32, max_ int32) int32 {
 
 func RegExpTree_Repetition_numDecimalDigits(n int32) int32 {
 	if n < 0 {
-		panic(new_AssertionError_0().self())
+		panic(new_AssertionError_0())
 	}
 	var nDigits int32 = 1
 	for n >= 10 {
@@ -1632,10 +1632,10 @@ func (this *RegExpTree_UnicodePropertyEscape) zero_RegExpTree_UnicodePropertyEsc
 func (this *RegExpTree_UnicodePropertyEscape) init_RegExpTree_UnicodePropertyEscape(propertyName OptionalOf[string], propertyValue string, negated bool) {
 	this.RegExpTree_RegExpTreeAtom.init_RegExpTree_RegExpTreeAtom()
 	if !propertyName.isEmpty() && propertyName.get() == "" {
-		panic(new_IllegalArgumentException_String("if '=' is present in a unicode property escape, the name cannot be empty").self())
+		panic(new_IllegalArgumentException_String("if '=' is present in a unicode property escape, the name cannot be empty"))
 	}
 	if propertyValue == "" {
-		panic(new_IllegalArgumentException_String("unicode property escape value cannot be empty").self())
+		panic(new_IllegalArgumentException_String("unicode property escape value cannot be empty"))
 	}
 	this.propertyName_ = propertyName
 	this.propertyValue = propertyValue
@@ -2238,7 +2238,7 @@ func (this *RegExpTree_1Parser) parseTopLevel() *RegExpTree {
 		out = this.parse()
 	}
 	if this.pos < this.limit {
-		panic(new_IllegalArgumentException_String(String_substring_int(this.cap_pattern, this.pos)).self())
+		panic(new_IllegalArgumentException_String(String_substring_int(this.cap_pattern, this.pos)))
 	}
 	return out
 }
@@ -2316,7 +2316,7 @@ topLoop_:
 
 func (this *RegExpTree_1Parser) parseParenthetical() *RegExpTree {
 	if String_charAt(this.cap_pattern, this.pos) != '(' {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	var start int32 = this.pos
 	this.pos++
@@ -2349,10 +2349,10 @@ func (this *RegExpTree_1Parser) parseParenthetical() *RegExpTree {
 					type_ = RegExpTree_ParentheticalType_NAMED_GROUPS
 				}
 			default:
-				panic(new_IllegalArgumentException_String(("Malformed parenthetical: " + sstr_(String_substring_int(this.cap_pattern, start)))).self())
+				panic(new_IllegalArgumentException_String(("Malformed parenthetical: " + sstr_(String_substring_int(this.cap_pattern, start)))))
 			}
 		} else {
-			panic(new_IllegalArgumentException_String(("Malformed parenthetical: " + sstr_(String_substring_int(this.cap_pattern, start)))).self())
+			panic(new_IllegalArgumentException_String(("Malformed parenthetical: " + sstr_(String_substring_int(this.cap_pattern, start)))))
 		}
 	} else {
 		type_ = RegExpTree_ParentheticalType_CAPTURING
@@ -2361,7 +2361,7 @@ func (this *RegExpTree_1Parser) parseParenthetical() *RegExpTree {
 	if (this.pos < this.limit) && (String_charAt(this.cap_pattern, this.pos) == ')') {
 		this.pos++
 	} else {
-		panic(new_IllegalArgumentException_String(("Unclosed parenthetical group: " + sstr_(String_substring_int(this.cap_pattern, start)))).self())
+		panic(new_IllegalArgumentException_String(("Unclosed parenthetical group: " + sstr_(String_substring_int(this.cap_pattern, start)))))
 	}
 	switch type_ {
 	case RegExpTree_ParentheticalType_CAPTURING:
@@ -2382,17 +2382,17 @@ func (this *RegExpTree_1Parser) parseParenthetical() *RegExpTree {
 			this.numCapturingGroups_++
 			return new_RegExpTree_NamedCaptureGroup(body, captureName.get()).up_RegExpTree()
 		} else {
-			panic(new_IllegalArgumentException_String(("Malformed named capture group: " + sstr_(String_substring_int(this.cap_pattern, start)))).self())
+			panic(new_IllegalArgumentException_String(("Malformed named capture group: " + sstr_(String_substring_int(this.cap_pattern, start)))))
 		}
 	}
-	panic(new_AssertionError_Object(strobj_(("Unrecognized ParentheticalType " + tostr_(type_)))).self())
+	panic(new_AssertionError_Object(strobj_(("Unrecognized ParentheticalType " + tostr_(type_)))))
 }
 
 func (this *RegExpTree_1Parser) scanNamedGroupName() string {
 	var start int32 = this.pos
 	var end int32 = this.pos
 	if !RegExpTree_isIdentifierStart(String_charAt(this.cap_pattern, start)) {
-		panic(new_IllegalArgumentException_String(("Invalid capture group name: <" + sstr_(String_substring_int(this.cap_pattern, start)))).self())
+		panic(new_IllegalArgumentException_String(("Invalid capture group name: <" + sstr_(String_substring_int(this.cap_pattern, start)))))
 	}
 	end++
 	for end < this.limit {
@@ -2402,15 +2402,15 @@ func (this *RegExpTree_1Parser) scanNamedGroupName() string {
 		} else if RegExpTree_isIdentifierPart(String_charAt(this.cap_pattern, end)) {
 			end++
 		} else {
-			panic(new_IllegalArgumentException_String(("Invalid capture group name: <" + sstr_(String_substring_int(this.cap_pattern, start)))).self())
+			panic(new_IllegalArgumentException_String(("Invalid capture group name: <" + sstr_(String_substring_int(this.cap_pattern, start)))))
 		}
 	}
-	panic(new_IllegalArgumentException_String(("Malformed named capture group: <" + sstr_(String_substring_int(this.cap_pattern, start)))).self())
+	panic(new_IllegalArgumentException_String(("Malformed named capture group: <" + sstr_(String_substring_int(this.cap_pattern, start)))))
 }
 
 func (this *RegExpTree_1Parser) parseCharset() *RegExpTree {
 	if String_charAt(this.cap_pattern, this.pos) != '[' {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	this.pos++
 	var isCaseInsensitive bool = (strings.Contains(this.cap_flags, "i"))
@@ -2524,7 +2524,7 @@ func (this *RegExpTree_1Parser) parseEscapeChar() int32 {
 
 func (this *RegExpTree_1Parser) parseEscape() *RegExpTree {
 	if String_charAt(this.cap_pattern, this.pos) != '\\' {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	var start int32 = this.pos
 	this.pos++
@@ -2568,13 +2568,13 @@ func (this *RegExpTree_1Parser) parseEscape() *RegExpTree {
 					this.pos++
 					return new_RegExpTree_UnicodePropertyEscape(Optional_of[string](lhs.toString()), rhs.toString(), negated).up_RegExpTree()
 				} else {
-					panic(new_IllegalArgumentException_String(("Malformed Unicode Property Escape: expected '}' after " + sstr_(String_substring(this.cap_pattern, start, this.pos)))).self())
+					panic(new_IllegalArgumentException_String(("Malformed Unicode Property Escape: expected '}' after " + sstr_(String_substring(this.cap_pattern, start, this.pos)))))
 				}
 			} else {
-				panic(new_IllegalArgumentException_String(("Malformed Unicode Property Escape: expected '=' or '}' after " + sstr_(String_substring(this.cap_pattern, start, this.pos)))).self())
+				panic(new_IllegalArgumentException_String(("Malformed Unicode Property Escape: expected '=' or '}' after " + sstr_(String_substring(this.cap_pattern, start, this.pos)))))
 			}
 		} else {
-			panic(new_IllegalArgumentException_String(("Malformed Unicode Property Escape: expected '{' after " + sstr_(String_substring(this.cap_pattern, start, this.pos)))).self())
+			panic(new_IllegalArgumentException_String(("Malformed Unicode Property Escape: expected '{' after " + sstr_(String_substring(this.cap_pattern, start, this.pos)))))
 		}
 	} else if (49 <= int32(ch)) && (int32(ch) <= 57) {
 		this.pos++
@@ -2603,7 +2603,7 @@ func (this *RegExpTree_1Parser) parseEscape() *RegExpTree {
 		this.pos += 2
 		var potentialName string = this.scanNamedGroupName()
 		if !has_(this.capturingGroupNames, potentialName) {
-			panic(new_IllegalArgumentException_String(("Invalid named capture referenced: " + sstr_(String_substring_int(this.cap_pattern, start)))).self())
+			panic(new_IllegalArgumentException_String(("Invalid named capture referenced: " + sstr_(String_substring_int(this.cap_pattern, start)))))
 		}
 		return new_RegExpTree_NamedBackReference(potentialName).up_RegExpTree()
 	} else {
@@ -2618,10 +2618,10 @@ func (this *RegExpTree_1Parser) parseEscape() *RegExpTree {
 
 func (this *RegExpTree_1Parser) parseHex(n int32) int32 {
 	if (this.pos + n) > this.limit {
-		panic(new_IllegalArgumentException_String(("Abbreviated hex escape " + sstr_(String_substring_int(this.cap_pattern, this.pos)))).self())
+		panic(new_IllegalArgumentException_String(("Abbreviated hex escape " + sstr_(String_substring_int(this.cap_pattern, this.pos)))))
 	}
 	if n > 7 {
-		panic(new_IllegalArgumentException_String(("Cannot parse hexadecimal encoding wider than 28 bits: " + sstr_(String_substring(this.cap_pattern, this.pos, (this.pos+n))))).self())
+		panic(new_IllegalArgumentException_String(("Cannot parse hexadecimal encoding wider than 28 bits: " + sstr_(String_substring(this.cap_pattern, this.pos, (this.pos+n))))))
 	}
 	var result int32 = 0
 	for {
@@ -2638,7 +2638,7 @@ func (this *RegExpTree_1Parser) parseHex(n int32) int32 {
 		} else if (65 <= int32(ch)) && (int32(ch) <= 70) {
 			digit = (int32(ch) + -55)
 		} else {
-			panic(new_IllegalArgumentException_String(String_substring_int(this.cap_pattern, this.pos)).self())
+			panic(new_IllegalArgumentException_String(String_substring_int(this.cap_pattern, this.pos)))
 		}
 		this.pos++
 		result = ((result << 4) | digit)
@@ -2650,20 +2650,20 @@ func (this *RegExpTree_1Parser) parseBracedUnicodeEscape() int32 {
 	var openBrace int32 = this.pos
 	this.pos++
 	if String_charAt(this.cap_pattern, openBrace) != '{' {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	var closeBrace int32 = this.pos
 	for (closeBrace < this.limit) && (String_charAt(this.cap_pattern, closeBrace) != '}') {
 		closeBrace++
 	}
 	if closeBrace == this.limit {
-		panic(new_IllegalArgumentException_String(("Malformed unicode escape: expected '}' after " + sstr_(String_substring_int(this.cap_pattern, openBrace)))).self())
+		panic(new_IllegalArgumentException_String(("Malformed unicode escape: expected '}' after " + sstr_(String_substring_int(this.cap_pattern, openBrace)))))
 	} else if closeBrace == this.pos {
-		panic(new_IllegalArgumentException_String("Empty unicode escape").self())
+		panic(new_IllegalArgumentException_String("Empty unicode escape"))
 	}
 	var result int32 = this.parseHex((closeBrace - this.pos))
 	if result > 1114111 {
-		panic(new_IllegalArgumentException_String(("Unicode must be at most 0x10FFFF: " + sstr_(String_substring(this.cap_pattern, (openBrace+1), this.pos)))).self())
+		panic(new_IllegalArgumentException_String(("Unicode must be at most 0x10FFFF: " + sstr_(String_substring(this.cap_pattern, (openBrace+1), this.pos)))))
 	}
 	this.pos++
 	return result

@@ -40,7 +40,7 @@ func new_InstrumentAsyncContext(compiler *AbstractCompiler, shouldInstrumentAwai
 
 func (this *InstrumentAsyncContext) process_2(externs Node, root Node) {
 	if ok_, a1_ := this.compiler_.getLifeCycleStage().isNormalized(), this.compiler_.getLifeCycleStage(); !ok_ {
-		panic(new_IllegalStateException_String(tostr_(a1_)).self())
+		panic(new_IllegalStateException_String(tostr_(a1_)))
 	}
 	NodeTraversal_traverse(this.compiler_, root, this)
 }
@@ -92,7 +92,7 @@ func (this *InstrumentAsyncContext) visit(t *NodeTraversal, n Node, parent Node)
 			this.instrumentGeneratorFunction(t, n, context)
 		} else {
 			if !n.isAsyncFunction() {
-				panic(new_IllegalStateException_0().self())
+				panic(new_IllegalStateException_0())
 			}
 			this.instrumentAsyncFunction(n, t.getInput(), context)
 		}
@@ -145,7 +145,7 @@ func (this *InstrumentAsyncContext) instrumentForAwaitOf(t *NodeTraversal, n Nod
 	placeholder.replaceWith(functionContext.suspend_1(arg).srcrefTreeIfMissing(arg))
 	var body Node = n.getLastChild()
 	if !body.isBlock() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	body.replaceWith(placeholder)
 	placeholder.replaceWith(IR_blockNodeVarargs([]Node{IR_exprResult(functionContext.resume().srcrefTreeIfMissing(arg)), IR_tryFinally(body, IR_block_Node(IR_exprResult(functionContext.suspend().srcrefTreeIfMissing(arg))))}))
@@ -166,7 +166,7 @@ func (this *InstrumentAsyncContext) instrumentTry(n Node, functionContext *Instr
 		block = block.getNext()
 	}
 	if !block.isBlock() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	block.addChildToFront(IR_exprResult(functionContext.resume().srcrefTreeIfMissing(block)))
 }
@@ -292,7 +292,7 @@ func (this *InstrumentAsyncContext) simplifyParameter(param Node, t *NodeTravers
 		var newParam Node = this.astFactory_.createName((sstr_(param.getString()) + "$jscomp$param$" + sstr_(this.uniqueIdSupplier.getUniqueId(t.getInput()))), AstFactory_type_Node(param)).srcrefTreeIfMissing(param)
 		return new_InstrumentAsyncContext_ArgParamPair(newParam.cloneTree(), newParam)
 	}
-	panic(new_IllegalStateException_String(("Unexpected parameter: " + tostr_(param))).self())
+	panic(new_IllegalStateException_String(("Unexpected parameter: " + tostr_(param))))
 }
 
 func (this *InstrumentAsyncContext) instrumentAsyncFunction(f Node, input *CompilerInput, functionContext *InstrumentAsyncContext_FunctionContext) {

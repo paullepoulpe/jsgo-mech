@@ -37,7 +37,7 @@ func (this *GraphReachability) compute(entry any) {
 func (this *GraphReachability) recompute(reachableNode any) {
 	var newReachable GraphNode = this.graph.getNode(reachableNode)
 	if Annotatable_getAnnotation(Annotatable(newReachable)) == GraphReachability_REACHABLE {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	newReachable.setAnnotation(GraphReachability_REACHABLE)
 	FixedPointGraphTraversal_newTraversal[any, any](this.traverseEdge).computeFixedPoint_2(this.graph, reachableNode)

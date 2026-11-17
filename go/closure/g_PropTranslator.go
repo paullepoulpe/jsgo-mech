@@ -6,7 +6,7 @@ type PropTranslator struct {
 }
 
 func (this *PropTranslator) init_PropTranslator() {
-	panic(new_AssertionError_0().self())
+	panic(new_AssertionError_0())
 }
 
 func new_PropTranslator() *PropTranslator {
@@ -28,7 +28,7 @@ func PropTranslator_setProps() {
 		var protoProp NodeProperty = PropTranslator_serializeProp(rhinoProp)
 		if protoProp != 0 {
 			if ok_, a1_, a2_ := (protoProp.getNumber() < 63), protoProp, protoProp.getNumber(); !ok_ {
-				panic(new_IllegalStateException_String(Strings_lenientFormat("enum %s value %s", []any{obj_(a1_), a2_})).self())
+				panic(new_IllegalStateException_String(Strings_lenientFormat("enum %s value %s", []any{obj_(a1_), a2_})))
 			}
 			PropTranslator_protoToRhinoProp[protoProp.ordinal()] = rhinoProp
 			PropTranslator_rhinoToProtoProp[rhinoProp.ordinal()] = protoProp
@@ -112,7 +112,7 @@ func PropTranslator_serializeProp(prop Node_Prop) NodeProperty {
 		case Node_Prop_CLOSURE_UNAWARE_SHADOW, Node_Prop_IS_IN_CLOSURE_UNAWARE_SUBTREE, Node_Prop_SIDE_EFFECT_FLAGS, Node_Prop_DECLARED_TYPE_EXPR, Node_Prop_FEATURE_SET, Node_Prop_TYPE_BEFORE_CAST, Node_Prop_NON_JSDOC_COMMENT, Node_Prop_TRAILING_NON_JSDOC_COMMENT, Node_Prop_JSDOC_INFO, Node_Prop_INCRDECR, Node_Prop_QUOTED, Node_Prop_USE_STRICT, Node_Prop_SOURCE_FILE, Node_Prop_INPUT_ID, Node_Prop_CHANGE_TIME, Node_Prop_OPT_ES6_TYPED, Node_Prop_GENERIC_TYPE, Node_Prop_IMPLEMENTS, Node_Prop_CONSTRUCT_SIGNATURE, Node_Prop_ACCESS_MODIFIER, Node_Prop_IS_TYPESCRIPT_ABSTRACT, Node_Prop_TYPEDEF_TYPE:
 			return 0
 		}
-		panic("unreachable")
+		panic(new_NullPointerException_0())
 	}()
 }
 
@@ -126,7 +126,7 @@ func PropTranslator_checkUnexpectedNullProtoProps() {
 		case NodeProperty_CLOSURE_UNAWARE_SHADOW:
 		default:
 			if PropTranslator_protoToRhinoProp[protoProp.ordinal()] == 0 {
-				panic(new_IllegalStateException_String(Strings_lenientFormat("Hit unhandled node property: %s", []any{obj_(protoProp)})).self())
+				panic(new_IllegalStateException_String(Strings_lenientFormat("Hit unhandled node property: %s", []any{obj_(protoProp)})))
 			}
 		}
 	}
