@@ -367,7 +367,7 @@ func (this *PeepholeReplaceKnownMethods) tryFoldKnownNumericMethods(subtree Node
 }
 
 func (this *PeepholeReplaceKnownMethods) tryFoldStringToLowerCase(subtree Node, stringNode Node) Node {
-	var lowered string = String_toLowerCase(stringNode.getString(), Locale_ROOT)
+	var lowered string = strings.ToLower(stringNode.getString())
 	var replacement Node = IR_string(lowered)
 	subtree.replaceWith(replacement)
 	this.reportChangeToEnclosingScope(replacement)
@@ -375,7 +375,7 @@ func (this *PeepholeReplaceKnownMethods) tryFoldStringToLowerCase(subtree Node, 
 }
 
 func (this *PeepholeReplaceKnownMethods) tryFoldStringToUpperCase(subtree Node, stringNode Node) Node {
-	var upped string = String_toUpperCase(stringNode.getString(), Locale_ROOT)
+	var upped string = strings.ToUpper(stringNode.getString())
 	var replacement Node = IR_string(upped)
 	subtree.replaceWith(replacement)
 	this.reportChangeToEnclosingScope(replacement)
@@ -479,7 +479,7 @@ func (this *PeepholeReplaceKnownMethods) tryFoldParseNumber(n Node, functionName
 				return newNode
 			}
 			var normalizedNewVal string = "0"
-			var parsed any = Doubles_tryParse(String_trim(stringVal.get()))
+			var parsed any = Doubles_tryParse(strings.Trim(stringVal.get(), javaSpace_))
 			if parsed == nil {
 				return n
 			}

@@ -548,7 +548,7 @@ func JSChunkGraph_depthCompare(m1 *JSChunk, m2 *JSChunk) int32 {
 		}
 		return func() int32 {
 			if d2 == d1 {
-				return String_compareTo(m1.getName(), m2.getName())
+				return utf16Compare_(m1.getName(), m2.getName())
 			}
 			return 1
 		}()

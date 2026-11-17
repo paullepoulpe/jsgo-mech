@@ -77,14 +77,14 @@ func (this *PureFunctionIdentifier) validateArtificialPurity() {
 			for _, reason := range sortedReasons {
 				formattedReasons = append(formattedReasons, PureFunctionIdentifier_formatSourceLocation(reason))
 			}
-			var sideEffectfulDefinitions string = String_join_s("\n  ", Iterable(sliceView_(tc_string, formattedReasons)))
+			var sideEffectfulDefinitions string = joinStrings_(formattedReasons, "\n  ")
 			this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(function, PureFunctionIdentifier_UNUSED_ARTIFICIAL_PURE_ANNOTATION, []string{summary.name_, sideEffectfulDefinitions}))
 		}
 	}
 }
 
 func PureFunctionIdentifier_formatSourceLocation(node Node) string {
-	return String_format("%s:%s:%s", []any{strobj_(node.getSourceFileName()), any(int32(node.getLineno())), any(int32(node.getCharno()))})
+	return (sstr_(node.getSourceFileName()) + ":" + istr_(int64(int32(node.getLineno()))) + ":" + istr_(int64(int32(node.getCharno()))))
 }
 
 func PureFunctionIdentifier_collectCallableLeaves(expr Node, astAnalyzer *AstAnalyzer) ImmutableListOf[Node] {

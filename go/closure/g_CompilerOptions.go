@@ -3658,7 +3658,7 @@ func CompilerOptions_LanguageMode_fromString(value OptionalOf[string]) CompilerO
 	if value.isEmpty() {
 		return 0
 	}
-	var canonicalizedName string = CompilerOptions_LEADING_ES_PATTERN.matcher_s(Ascii_toUpperCase(String_trim(value.get()))).replaceFirst("ECMASCRIPT")
+	var canonicalizedName string = CompilerOptions_LEADING_ES_PATTERN.matcher_s(Ascii_toUpperCase(strings.Trim(value.get(), javaSpace_))).replaceFirst("ECMASCRIPT")
 	if (canonicalizedName == "ECMASCRIPT6") || (canonicalizedName == "ECMASCRIPT6_STRICT") {
 		return CompilerOptions_LanguageMode_ECMASCRIPT_2015
 	}

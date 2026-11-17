@@ -137,5 +137,5 @@ func (this *Timeline_Time) equals(anObject any) bool {
 }
 
 func (this *Timeline_Time) hashCode() int32 {
-	return String_hashCode(this.name_)
+	return utf16Hash_(this.name_)
 }

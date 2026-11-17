@@ -180,7 +180,7 @@ func (this *SortingErrorManager_LeveledJSErrorComparator) compare(p1_ any, p2_ a
 	var source1 OptionalOf[string] = p1.error_.sourceName()
 	var source2 OptionalOf[string] = p2.error_.sourceName()
 	if source1.isPresent() && source2.isPresent() {
-		var sourceCompare int32 = String_compareTo(source1.get(), source2.get())
+		var sourceCompare int32 = utf16Compare_(source1.get(), source2.get())
 		if sourceCompare != 0 {
 			return sourceCompare
 		}
@@ -207,7 +207,7 @@ func (this *SortingErrorManager_LeveledJSErrorComparator) compare(p1_ any, p2_ a
 	} else if (0 <= charno1) && (charno2 < 0) {
 		return SortingErrorManager_LeveledJSErrorComparator_P1_GT_P2
 	}
-	return String_compareTo(p1.error_.description(), p2.error_.description())
+	return utf16Compare_(p1.error_.description(), p2.error_.description())
 }
 
 const SortingErrorManager_LeveledJSErrorComparator_P1_LT_P2 int32 = -1

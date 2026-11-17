@@ -286,7 +286,7 @@ func (this *JSDocInfoPrinter) print(info *JSDocInfo) string {
 		var cleaned string = JSDocInfoPrinter_DESCRIPTION_LINE_START_PATTERN.matcher_s(info.getBlockDescription().get()).replaceAll("\n")
 		if cleaned != "" {
 			multiline = true
-			cleaned = String_trim(cleaned)
+			cleaned = strings.Trim(cleaned, javaSpace_)
 			if parts.size() > 1 {
 				cleaned += "\n"
 			}
@@ -351,7 +351,7 @@ func (this *JSDocInfoPrinter) buildParamType(info *JSDocInfo, name string) strin
 			}
 			return ""
 		}()))
-		return String_trim(p)
+		return strings.Trim(p, javaSpace_)
 	} else {
 		return name
 	}

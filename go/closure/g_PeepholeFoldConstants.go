@@ -725,7 +725,7 @@ func (this *PeepholeFoldConstants) isBigInt(n Node) bool {
 }
 
 func (this *PeepholeFoldConstants) maybeReplaceBinaryOpWithNumericResult(result float64, lval float64, rval float64) Node {
-	if ((((String_length(Double_toString(result)) <= ((String_length(Double_toString(lval)) + String_length(Double_toString(rval))) + 1)) && (Math_abs(result) <= PeepholeFoldConstants_MAX_FOLD_NUMBER)) || Double_isNaN(result)) || (result == posinf_)) || (result == neginf_) {
+	if ((((int32(len(Double_toString(result))) <= ((int32(len(Double_toString(lval))) + int32(len(Double_toString(rval)))) + 1)) && (Math_abs(result) <= PeepholeFoldConstants_MAX_FOLD_NUMBER)) || Double_isNaN(result)) || (result == posinf_)) || (result == neginf_) {
 		return NodeUtil_numberNode(result, 0)
 	}
 	return 0
@@ -1020,7 +1020,7 @@ func PeepholeFoldConstants_tryAbstractRelationalComparison(peepholeOptimization 
 			if (strings.Contains(lvStr.get(), "\v")) || (strings.Contains(rvStr.get(), "\v")) {
 				return Tri_UNKNOWN
 			} else {
-				return Tri_forBoolean((String_compareTo(lvStr.get(), rvStr.get()) < 0))
+				return Tri_forBoolean((utf16Compare_(lvStr.get(), rvStr.get()) < 0))
 			}
 		} else if (((left.isTypeOf() && right.isTypeOf()) && left.getFirstChild().isName()) && right.getFirstChild().isName()) && (left.getFirstChild().getString() == right.getFirstChild().getString()) {
 			return Tri_FALSE

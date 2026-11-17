@@ -429,7 +429,7 @@ func InlineFunctions_checkOptimizationLevelSupportsRequireInlining(options *Comp
 	if len(problems) == 0 {
 		return new_InlineFunctions_ShouldRequireInlining(true, "")
 	}
-	return new_InlineFunctions_ShouldRequireInlining(false, ("[" + sstr_(String_join_s(", ", Iterable(sliceView_(tc_string, problems)))) + "]"))
+	return new_InlineFunctions_ShouldRequireInlining(false, ("[" + sstr_(joinStrings_(problems, ", ")) + "]"))
 }
 
 var InlineFunctions_MISSED_REQUIRED_INLINING *DiagnosticType

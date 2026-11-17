@@ -319,7 +319,7 @@ func new_DisambiguateProperties_PropertyReferenceIndexJson(prop *PropertyCluster
 func (this *DisambiguateProperties_PropertyReferenceIndexJson) compareTo(x_ any) int32 {
 	var x *DisambiguateProperties_PropertyReferenceIndexJson = cast_[*DisambiguateProperties_PropertyReferenceIndexJson](x_)
 	_ = x
-	return String_compareTo(this.name_, x.name_)
+	return utf16Compare_(this.name_, x.name_)
 }
 
 func (this *DisambiguateProperties_PropertyReferenceIndexJson) writeJson(writer *SimpleJsonWriter) {

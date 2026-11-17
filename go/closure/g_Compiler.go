@@ -438,7 +438,7 @@ func (this *Compiler) initRuntimeLibraryTypedAsts_impl(colorPoolBuilder Optional
 	if this.runtimeLibraryTypedAsts != nil {
 		panic(new_IllegalStateException_0().self())
 	}
-	var path string = String_join_CharSequence_CharSequenceArr_s("", []any{strobj_("runtime_libs.typedast")})
+	var path string = "runtime_libs.typedast"
 	var typedAsts OptionalOf[[]int8] = Io_readResource(path)
 	if typedAsts.isEmpty() {
 		panic(new_IllegalArgumentException_String("Cannot read from TypedAST input stream").self())
@@ -2826,7 +2826,7 @@ func (this *Compiler) loadResourceContents(resourceName string, path string) Nod
 		if this.runtimeLibraryTypedAsts == nil {
 			panic(new_NullPointerException_String("Must call initRuntimeLibraryTypedAsts before calling ensureLibraryInjected during optimizations").self())
 		}
-		nn_, nn1_, nn2_ := Map_get_s(this.runtimeLibraryTypedAsts, path), String_join_CharSequence_CharSequenceArr_s("", []any{strobj_("Missing precompiled .typedast for '%s'. If this file is newly added, "), strobj_("you may need to regenerate runtime_libs.typedast.textproto"), strobj_("")}), path
+		nn_, nn1_, nn2_ := Map_get_s(this.runtimeLibraryTypedAsts, path), ("Missing precompiled .typedast for '%s'. If this file is newly added, " + "you may need to regenerate runtime_libs.typedast.textproto" + ""), path
 		if nn_ == nil {
 			panic(new_NullPointerException_String(Strings_lenientFormat(nn1_, []any{strobj_(nn2_)})).self())
 		}
@@ -3304,7 +3304,7 @@ func Compiler_resolveSibling(fromPath string, toPath string) string {
 		}
 	}
 	fromPathParts = append(fromPathParts, toPathParts...)
-	return String_join_s("/", Iterable(sliceView_(tc_string, fromPathParts)))
+	return joinStrings_(fromPathParts, "/")
 }
 
 func (this *Compiler) resetAndIntitializeSourceMap() {
@@ -3744,7 +3744,7 @@ func (this *Compiler_CodeBuilder) getColumnIndex() int32 {
 }
 
 func (this *Compiler_CodeBuilder) endsWith(suffix string) bool {
-	return ((this.sb.length() > String_length(suffix)) && (suffix == this.sb.substring_int((this.sb.length() - String_length(suffix)))))
+	return ((this.sb.length() > int32(len(suffix))) && (suffix == this.sb.substring_int((this.sb.length() - int32(len(suffix))))))
 }
 
 type Compiler_1 struct {

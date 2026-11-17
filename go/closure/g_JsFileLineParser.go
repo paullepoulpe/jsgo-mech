@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type JsFileLineParser struct {
 	self_          JsFileLineParser_I
 	shortcutMode   bool
@@ -210,7 +212,7 @@ func (this *JsFileLineParser) parseJsStringArray(input string) *Outcome_base {
 		return Outcome_base_err(new_JsFileLineParser_ParseException("Syntax error when parsing JS array", true).up_Throwable())
 	}
 	var innerValues string = String_substring(input, (indexStart + 1), indexEnd)
-	if String_trim(innerValues) != "" {
+	if strings.Trim(innerValues, javaSpace_) != "" {
 		this.valueMatcher.reset_s(innerValues)
 		for {
 			if !this.valueMatcher.lookingAt() {
@@ -242,7 +244,7 @@ func (this *JsFileLineParser) parseJsStringMap(input string) *Outcome_base {
 	if checked.isErr() {
 		return Outcome_base_err(checked.error())
 	}
-	input = String_trim(String_substring(input, 1, (String_length(input) - 1)))
+	input = strings.Trim(String_substring(input, 1, (String_length(input)-1)), javaSpace_)
 	var results *TMap[string, string] = newTMap_(tc_string, tc_string)
 	var done bool = input == ""
 	this.valueMatcher.reset_s(input)

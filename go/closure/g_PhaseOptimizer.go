@@ -99,7 +99,7 @@ func (this *PhaseOptimizer) process_2(externs Node, root Node) {
 
 func (this *PhaseOptimizer) maybePrintAstHashcodes(passName string, root Node) {
 	if this.printAstHashcodes {
-		var hashCodeMsg string = ("AST hashCode after " + sstr_(passName) + ": " + istr_(int64(String_hashCode(this.compiler_.toSource_1(root)))))
+		var hashCodeMsg string = ("AST hashCode after " + sstr_(passName) + ": " + istr_(int64(utf16Hash_(this.compiler_.toSource_1(root)))))
 		PhaseOptimizer_logger.info(hashCodeMsg)
 	}
 }

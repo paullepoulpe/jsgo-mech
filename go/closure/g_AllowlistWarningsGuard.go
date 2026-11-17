@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type AllowlistWarningsGuard struct {
 	WarningsGuard
 	allowlist ImmutableSetOf[string]
@@ -43,7 +45,7 @@ func new_AllowlistWarningsGuard_Set(allowlist *TSet[string]) *AllowlistWarningsG
 func AllowlistWarningsGuard_normalizeAllowlist(allowlist *TSet[string]) ImmutableSetOf[string] {
 	var result *TSet[string] = newTSet_(tc_string)
 	for line := range allowlist.All() {
-		var trimmed string = String_trim(line)
+		var trimmed string = strings.Trim(line, javaSpace_)
 		if trimmed == "" || (String_charAt(trimmed, 0) == '#') {
 			continue
 		}

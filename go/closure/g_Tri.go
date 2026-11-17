@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type Tri uint8
 
 // Tri_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
@@ -92,7 +94,7 @@ func Tri_forBoolean(x bool) Tri {
 }
 
 func (this Tri) toString() string {
-	return String_toLowerCase(this.name(), Locale_ROOT)
+	return strings.ToLower(this.name())
 }
 
 func Tri_forInt(x int32) Tri {

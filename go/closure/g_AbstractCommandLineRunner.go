@@ -812,7 +812,7 @@ func (this *AbstractCommandLineRunner) writeOutput(out Appendable, compiler *Com
 			}
 			return escaper.apply(strobj_(code))
 		}())
-		var suffixStart int32 = (pos + String_length(codePlaceholder))
+		var suffixStart int32 = (pos + int32(len(codePlaceholder)))
 		if suffixStart != String_length(wrapper) {
 			out.append_CharSequence_s(String_substring_int(wrapper, suffixStart))
 		}
@@ -1796,7 +1796,7 @@ func AbstractCommandLineRunner_createDefineReplacements(definitions []string, op
 					continue
 				}
 			} else {
-				var value any = Doubles_tryParse(String_trim(defValue))
+				var value any = Doubles_tryParse(strings.Trim(defValue, javaSpace_))
 				if value != nil {
 					options.setDefineToDoubleLiteral(defName, unbox_[float64](value))
 					continue
@@ -2985,7 +2985,7 @@ func (this *AbstractCommandLineRunner_FlagEntry) equals(o any) bool {
 }
 
 func (this *AbstractCommandLineRunner_FlagEntry) hashCode() int32 {
-	return (Object_hashCode(this.flag_) + String_hashCode(this.value_))
+	return (Object_hashCode(this.flag_) + utf16Hash_(this.value_))
 }
 
 func (this *AbstractCommandLineRunner_FlagEntry) toString() string {

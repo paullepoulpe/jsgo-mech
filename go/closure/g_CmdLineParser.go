@@ -66,7 +66,7 @@ var lambda_CmdLineParser_sortedOptions_1_ = &Comparator_fn{func(o1_ any, o2_ any
 	_ = o1
 	var o2 *CmdLineParser_Option = cast_[*CmdLineParser_Option](o2_)
 	_ = o2
-	return String_compareTo(o1.toString(), o2.toString())
+	return utf16Compare_(o1.toString(), o2.toString())
 }}
 
 func (this *CmdLineParser) setUsageWidth(usageWidth int32) {
@@ -148,7 +148,7 @@ func CmdLineParser_wrapLines(line string, maxLength int32) []string {
 				lineLength = maxLength
 			}
 			rv = append(rv, String_substring(restOfLine, 0, lineLength))
-			restOfLine = String_trim(String_substring_int(restOfLine, lineLength))
+			restOfLine = strings.Trim(String_substring_int(restOfLine, lineLength), javaSpace_)
 		}
 		rv = append(rv, restOfLine)
 	}
@@ -582,7 +582,7 @@ func (this *CmdLineParser_Option) toString() string {
 		return ""
 	}
 	if len(this.aliasesField) != 0 {
-		return (sstr_(this.nameField) + " (" + sstr_(String_join_s(", ", sliceView_(tc_string, this.aliasesField))) + ")")
+		return (sstr_(this.nameField) + " (" + sstr_(joinStrings_(this.aliasesField, ", ")) + ")")
 	}
 	return this.nameField
 }
