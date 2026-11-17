@@ -1075,14 +1075,14 @@ func (this *RegExpTree_Alternation) simplify_impl(flags string) *RegExpTree {
 	}
 	var last *RegExpTree = nil
 	{
-		var it IteratorOf[*RegExpTree] = alternatives.asList().iterator()
+		var it *tlistIter_[*RegExpTree] = alternatives.cursor()
 		for it.hasNext() {
-			var alternative *RegExpTree = to_RegExpTree(it.next())
+			var alternative *RegExpTree = it.nextT()
 			if alternative.equals(RegExpTree_NEVER_MATCHES.self()) {
 				continue
 			}
 			if alternative.equals(last.self()) && !alternative.hasCapturingGroup() {
-				Iterator_remove(it)
+				it.remove()
 			} else {
 				last = alternative
 			}

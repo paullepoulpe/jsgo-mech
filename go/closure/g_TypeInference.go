@@ -94,7 +94,7 @@ func (this *TypeInference) inferParameters(entryFlowScope FlowScope) FlowScope {
 		iifeArgumentNode = functionNode.getNext()
 	}
 	var functionType *FunctionType = JSType_toMaybeFunctionType(functionNode.getJSType())
-	var parameterTypes IteratorOf[*FunctionType_Parameter] = functionType.getParameters().iterator()
+	var parameterTypes *immCursor_ = immCursorOf_(functionType.getParameters())
 	var parameter *FunctionType_Parameter = func() *FunctionType_Parameter {
 		if parameterTypes.hasNext() {
 			return cast_[*FunctionType_Parameter](parameterTypes.next())
@@ -1371,7 +1371,7 @@ func (this *TypeInference) updateTypeOfArguments(n Node, fnType *FunctionType) {
 	if !NodeUtil_isInvocation(n) {
 		panic(new_IllegalStateException_String(objstr_(n.box_())).self())
 	}
-	var parameters IteratorOf[*FunctionType_Parameter] = fnType.getParameters().iterator()
+	var parameters *immCursor_ = immCursorOf_(fnType.getParameters())
 	if n.isTaggedTemplateLit() {
 		if !parameters.hasNext() {
 			return

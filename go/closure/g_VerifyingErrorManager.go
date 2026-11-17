@@ -34,20 +34,20 @@ func new_VerifyingErrorManager(delegate ErrorManager, expectedDiagnostics *TList
 func (this *VerifyingErrorManager) report_2_impl(level CheckLevel, error_ *JSError) {
 	var formattedError string = this.formatErrorForMatching(level, error_)
 	var matchedPattern *Pattern = nil
-	var iterator IteratorOf[*Pattern] = this.unmatchedExpectations.asList().iterator()
+	var iterator *tlistIter_[*Pattern] = this.unmatchedExpectations.cursor()
 	for iterator.hasNext() {
-		var p *Pattern = cast_[*Pattern](iterator.next())
+		var p *Pattern = iterator.nextT()
 		if p.matcher_s(formattedError).find() {
 			if matchedPattern == nil {
 				matchedPattern = p
-				Iterator_remove(iterator)
+				iterator.remove()
 				continue
 			}
 			if tostrNN_(matchedPattern) == tostrNN_(p) {
 				continue
 			}
 			this.ThreadSafeDelegatingErrorManager.report_2_impl(CheckLevel_ERROR, JSError_make_DiagnosticType_StringArr(AbstractCommandLineRunner_AMBIGUOUS_EXPECTATION, []string{formattedError, tostrNN_(matchedPattern), tostrNN_(p)}))
-			Iterator_remove(iterator)
+			iterator.remove()
 		}
 	}
 	if matchedPattern == nil {

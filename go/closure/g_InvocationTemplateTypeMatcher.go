@@ -50,7 +50,7 @@ func (this *InvocationTemplateTypeMatcher) match() ImmutableMapOf[*TemplateType,
 		this.matchTemplateTypesRecursive(typeOfThisRequiredByTheFunction, typeOfThisProvidedByTheCall)
 	}
 	if this.invocation.isTaggedTemplateLit() {
-		var calleeParameters IteratorOf[*FunctionType_Parameter] = this.calleeType.getParameters().iterator()
+		var calleeParameters *immCursor_ = immCursorOf_(this.calleeType.getParameters())
 		if !calleeParameters.hasNext() {
 			return this.copyMatchedTypes()
 		}
@@ -88,7 +88,7 @@ func (this *InvocationTemplateTypeMatcher) matchTemplateTypesRecursive(paramType
 		if (argFunctionType != nil) && argFunctionType.isSubtype(paramType) {
 			this.matchTemplateTypesRecursive(paramFunctionType.getTypeOfThis(), argFunctionType.getTypeOfThis())
 			this.matchTemplateTypesRecursive(paramFunctionType.getReturnType(), argFunctionType.getReturnType())
-			this.matchTemplateTypesFromParameters(paramFunctionType.getParameters().iterator(), argFunctionType.getParameters().iterator())
+			this.matchTemplateTypesFromParameters(immCursorOf_(paramFunctionType.getParameters()), immCursorOf_(argFunctionType.getParameters()))
 		}
 	} else if paramType.isRecordType() && !paramType.isNominalType() {
 		if this.seenTypes.add(paramType.self()) {
@@ -138,7 +138,7 @@ func (this *InvocationTemplateTypeMatcher) matchTemplateTypesFromNodesIterator(d
 	}
 }
 
-func (this *InvocationTemplateTypeMatcher) matchTemplateTypesFromParameters(declParams IteratorOf[*FunctionType_Parameter], callParams IteratorOf[*FunctionType_Parameter]) {
+func (this *InvocationTemplateTypeMatcher) matchTemplateTypesFromParameters(declParams *immCursor_, callParams *immCursor_) {
 	for declParams.hasNext() && callParams.hasNext() {
 		var declParam *FunctionType_Parameter = cast_[*FunctionType_Parameter](declParams.next())
 		this.matchTemplateTypesRecursive(declParam.getJSType(), cast_[*FunctionType_Parameter](callParams.next()).getJSType())
