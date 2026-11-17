@@ -23,7 +23,12 @@
 // order. A deque pushed at its head and used at its tail, or seen as an erased collection,
 // stays erased.
 //
-// usage: colls -kind list|map|set|deque [-n] [-v] <dir of package closure>
+// -kind treeset, -kind treemap: a TreeSet / TreeMap whose class holds only new TreeSets /
+// TreeMaps (natural ordering, or a comparator over elements boxed without allocating:
+// pointers, interfaces) becomes a *TTreeSet[K] / *TTreeMap[K, V] (rt_ttree.go), the same
+// sorted slice with the same comparator, typed; the set and map operations as above.
+//
+// usage: colls -kind list|map|set|deque|treeset|treemap [-n] [-v] <dir of package closure>
 //
 //	(-n: report only; -v: list the classes)
 package main
@@ -60,12 +65,14 @@ type class struct {
 	dqIter     bool   // a deque iterated
 	dqHeadPush string // a deque pushed at its head: the first such use
 	anyAt      string // where a value is boxed into an Object, if anywhere
+	cmpNew     bool   // a sorted collection made with a comparator (treeset, treemap)
 }
 
 // ---- kinds
 
 type kindDef struct {
 	name      string
+	base      string       // the kind whose operations it has: list, deque, map or set
 	held      []types.Type // the erased types that hold a collection of the kind
 	aliases   []string
 	nargs     int
@@ -74,6 +81,7 @@ type kindDef struct {
 	copyFns   map[string]bool
 	immutable map[string]bool
 	view      string
+	views     []types.Type // interfaces the view satisfies (default: held[0])
 	helpers   map[string]string
 	goType    func(c *class) string
 	newCode   func(c *class, cap ast.Expr) string
@@ -154,6 +162,46 @@ func kinds() map[string]*kindDef {
 				return fmt.Sprintf("tsetFrom_(%s, %s, %v)", c.convName(0), from, imm)
 			},
 		},
+		// A TreeSet / TreeMap: *TTreeSet[K] / *TTreeMap[K, V] (rt_ttree.go), the runtime's sorted
+		// slice with the same comparator, typed. Keys compare through the comparator, so any key
+		// type with a conversion will do.
+		"treeset": {
+			name: "treeset", base: "set", held: []types.Type{look("Set"), look("SortedSet"), look("NavigableSet"), ptr("TreeSet")},
+			aliases: []string{"SetOf", "SortedSetOf", "NavigableSetOf", "TreeSetOf"}, nargs: 1,
+			conv:      []string{"Collections_unmodifiableSet", "Collections_unmodifiableSortedSet", "icast_Set", "icast_SortedSet", "icast_NavigableSet", "to_TreeSet", "cast_[*TreeSet]", "Set", "SortedSet", "NavigableSet"},
+			newFns:    map[string]int{"new_TreeSet": 0, "new_TreeSet_Comparator": 1},
+			copyFns:   map[string]bool{},
+			immutable: map[string]bool{},
+			view:      "asSet",
+			views:     []types.Type{look("Set"), look("SortedSet"), look("NavigableSet")},
+			helpers:   map[string]string{"Collection_contains_s": "contains", "Collection_add_s": "add", "Collection_remove_s": "remove"},
+			goType:    func(c *class) string { return "*TTreeSet[" + c.elemText[0] + "]" },
+			newCode: func(c *class, cmp ast.Expr) string {
+				if cmp == nil {
+					return "newTTreeSet_(" + c.convName(0) + ")"
+				}
+				return "newTTreeSetC_(" + c.convName(0) + ", " + rw.Render(cmp) + ")"
+			},
+		},
+		"treemap": {
+			name: "treemap", base: "map", held: []types.Type{look("Map"), look("SortedMap"), look("NavigableMap"), ptr("TreeMap")},
+			aliases: []string{"MapOf", "SortedMapOf", "NavigableMapOf", "TreeMapOf"}, nargs: 2,
+			conv:      []string{"Collections_unmodifiableMap", "icast_Map", "icast_SortedMap", "icast_NavigableMap", "to_TreeMap", "cast_[*TreeMap]", "Map", "SortedMap", "NavigableMap"},
+			newFns:    map[string]int{"new_TreeMap": 0, "new_TreeMap_Comparator": 1},
+			copyFns:   map[string]bool{},
+			immutable: map[string]bool{},
+			view:      "asMap",
+			views:     []types.Type{look("Map"), look("SortedMap"), look("NavigableMap")},
+			helpers: map[string]string{"Map_get_s": "get", "Map_put_s": "put", "Map_containsKey_s": "containsKey", "Map_remove_s": "remove",
+				"Map_getOrDefault_s": "getOrDefault", "Map_putIfAbsent_s": "putIfAbsent", "Map_computeIfAbsent_s": "computeIfAbsent"},
+			goType: func(c *class) string { return "*TTreeMap[" + c.elemText[0] + ", " + c.elemText[1] + "]" },
+			newCode: func(c *class, cmp ast.Expr) string {
+				if cmp == nil {
+					return "newTTreeMap_(" + c.convName(0) + ", " + c.convName(1) + ")"
+				}
+				return "newTTreeMapC_(" + c.convName(0) + ", " + c.convName(1) + ", " + rw.Render(cmp) + ")"
+			},
+		},
 	}
 }
 
@@ -205,6 +253,7 @@ func union(a, b int) {
 		da.dqTail = db.dqTail
 	}
 	da.dqIter = da.dqIter || db.dqIter
+	da.cmpNew = da.cmpNew || db.cmpNew
 	if da.dqHeadPush == "" {
 		da.dqHeadPush = db.dqHeadPush
 	}
@@ -248,6 +297,17 @@ func isList(t types.Type) bool {
 	t = types.Unalias(t)
 	for _, k := range K.held {
 		if types.Identical(t, k) {
+			return true
+		}
+	}
+	return false
+}
+
+// isView reports whether t is an interface the kind's view satisfies.
+func isView(t types.Type) bool {
+	t = types.Unalias(t)
+	for _, v := range K.views {
+		if types.Identical(t, v) {
 			return true
 		}
 	}
@@ -562,6 +622,9 @@ func flow(dest int, src ast.Expr, top ast.Expr) {
 		poison(dest, v.why)
 	case vNew:
 		capExpr := v.cap
+		if capExpr != nil && (K.name == "treeset" || K.name == "treemap") {
+			cls(dest).cmpNew = true
+		}
 		edit(dest, func(c *class) rw.Edit {
 			return rw.Edit{Node: top, Gen: func() string { return K.newCode(c, capExpr) }}
 		})
@@ -654,7 +717,7 @@ func handle(e ast.Expr) {
 		inner := unwrap(e)
 		if top != inner {
 			if _, ok := top.(*ast.CallExpr); ok {
-				if types.Identical(types.Unalias(typeOf(top)), K.held[0]) {
+				if isView(typeOf(top)) {
 					edit(src, func(c *class) rw.Edit {
 						return rw.Edit{Node: top, Gen: func() string { return rw.Render(inner) + "." + K.view + "()" }}
 					})
@@ -782,7 +845,7 @@ func handle(e ast.Expr) {
 				continue
 			}
 			// it := foreach_(any(l))
-			if n, _ := rw.CallName(x); n == "foreach_" && src != 0 && K.name != "map" {
+			if n, _ := rw.CallName(x); n == "foreach_" && src != 0 && K.base != "map" {
 				if K.name == "deque" {
 					cls(src).dqIter = true
 				}
@@ -867,7 +930,9 @@ func implicitConversions() {
 		}
 		return true
 	}
-	why := func(e ast.Expr) string { return "implicitly converted from " + types.TypeString(typeOf(e), types.RelativeTo(rw.Pkg)) }
+	why := func(e ast.Expr) string {
+		return "implicitly converted from " + types.TypeString(typeOf(e), types.RelativeTo(rw.Pkg))
+	}
 	// An immutable collection is copied into the typed one, as through an explicit conversion.
 	into := func(dest int, r ast.Expr) {
 		if K.fromCode == nil || !isImmutable(typeOf(r)) {
@@ -1028,7 +1093,7 @@ func use(k int, recv ast.Expr, m string, call *ast.CallExpr) {
 	key := func(i int) func(c *class) string { return func(c *class) string { return keyArg(c, i) } }
 	val := func(i int) func(c *class) string { return func(c *class) string { return valArg(c, i) } }
 	n := len(args)
-	switch K.name {
+	switch K.base {
 	case "list":
 		switch {
 		case m == "add" && n == 1:
@@ -1122,7 +1187,7 @@ func use(k int, recv ast.Expr, m string, call *ast.CallExpr) {
 			}
 		}
 	}
-	if m == "addAll" && n == 1 && K.name != "map" {
+	if m == "addAll" && n == 1 && K.base != "map" {
 		// addAll(other) where other is a typed collection of the same element type: typed.
 		arg := args[0]
 		for {
@@ -1267,7 +1332,7 @@ func (c *class) element(i int) (ast.Expr, types.Type, string) {
 	var el ast.Expr
 	var et types.Type
 	var anySlot ast.Expr
-	anyOK := K.name == "map" && i == 1
+	anyOK := K.base == "map" && i == 1
 	for _, e := range c.elems[i] {
 		if a := rw.AliasArgs(e, "BoxedOf"); a != nil {
 			if anyOK {
@@ -1327,6 +1392,16 @@ func (c *class) element(i int) (ast.Expr, types.Type, string) {
 	return el, et, ""
 }
 
+// boxFree reports whether a value of type t is boxed into an Object without allocating (a
+// pointer or an interface).
+func boxFree(t types.Type) bool {
+	switch types.Unalias(t).Underlying().(type) {
+	case *types.Pointer, *types.Interface:
+		return true
+	}
+	return false
+}
+
 func isString(t types.Type) bool {
 	b, ok := types.Unalias(t).(*types.Basic)
 	return ok && b.Kind() == types.String
@@ -1381,8 +1456,14 @@ func main() {
 	}
 	rw.Load(os.Args[len(os.Args)-1])
 	K = kinds()[kind]
+	if K != nil && K.base == "" {
+		K.base = K.name
+	}
+	if K != nil && K.views == nil {
+		K.views = K.held[:1]
+	}
 	if K == nil {
-		fmt.Fprintln(os.Stderr, "usage: colls -kind list|map|set [-n] [-v] <dir>")
+		fmt.Fprintln(os.Stderr, "usage: colls -kind list|map|set|deque|treeset|treemap [-n] [-v] <dir>")
 		os.Exit(2)
 	}
 	transparent = map[string]bool{"obj_": true, "any": true}
@@ -1581,7 +1662,7 @@ func main() {
 		}
 		ast.Inspect(f, func(n ast.Node) bool {
 			if c, ok := n.(*ast.CallExpr); ok && len(c.Args) == 1 && isList(typeOf(c)) && !isList(typeOf(c.Args[0])) {
-				if t := types.Unalias(typeOf(c)); t != K.held[0] && !types.Identical(t, K.held[0]) {
+				if t := types.Unalias(typeOf(c)); !isView(t) {
 					concreteCasts++
 				}
 			}
@@ -1631,6 +1712,10 @@ func main() {
 				case c.dqHeadPush != "" && c.dqTail != "":
 					why = "pushed at its head (" + c.dqHeadPush + ") and used at its tail (" + c.dqTail + ")"
 				}
+			}
+			if why == "" && c.cmpNew && !boxFree(c.elem[0]) {
+				// The comparator takes Objects: each comparison would box both elements.
+				why = "a comparator over " + c.elemText[0] + " elements would box each compared element"
 			}
 			if why == "" && c.strKey && !isString(c.elem[0]) {
 				why = "string-key helper on a collection whose key is not a string"
