@@ -194,7 +194,7 @@ func (this *SymbolTable) getSymbolForName(source Node, name OptionalOf[string]) 
 		return nil
 	}
 	if scope.isModuleScope() {
-		var moduleNameWithDot string = (sstr_(str_(Iterables_getFirst(icast_Iterable(obj_(cast_[*ModuleMetadataMap_ModuleMetadata](Map_get_s(this.compiler_.getModuleMetadataMap().getModulesByPath(), scope.getRootNode().getSourceFileName())).googNamespaces())), nil))) + ".")
+		var moduleNameWithDot string = (sstr_(str_(Iterables_getFirst(icast_Iterable(obj_(Map_get_s(this.compiler_.getModuleMetadataMap().getModulesByPath(), scope.getRootNode().getSourceFileName()).(*ModuleMetadataMap_ModuleMetadata).googNamespaces())), nil))) + ".")
 		if strings.HasPrefix(name.get(), moduleNameWithDot) {
 			name = Optional_of[string](String_substring_int(name.get(), String_length(moduleNameWithDot)))
 		}
@@ -240,7 +240,7 @@ func (this *SymbolTable) getSymbolForTypeHelper(type_ *JSType, linkToCtor bool) 
 			return this.getSymbolDeclaredBy(type_.toMaybeFunctionType())
 		}()
 	} else if type_.isFunctionPrototypeType() {
-		var ownerFn *FunctionType = to_ObjectType(type_.self()).getOwnerFunction()
+		var ownerFn *FunctionType = type_.self().(ObjectType_as).as_ObjectType().getOwnerFunction()
 		if !ownerFn.isConstructor() && !ownerFn.isInterface() {
 			return nil
 		}
@@ -251,7 +251,7 @@ func (this *SymbolTable) getSymbolForTypeHelper(type_ *JSType, linkToCtor bool) 
 			return this.getSymbolForInstancesOf(ownerFn)
 		}()
 	} else if type_.isInstanceType() {
-		var ownerFn *FunctionType = to_ObjectType(type_.self()).getConstructor()
+		var ownerFn *FunctionType = type_.self().(ObjectType_as).as_ObjectType().getConstructor()
 		return func() *SymbolTable_Symbol {
 			if linkToCtor {
 				return this.getSymbolDeclaredBy(ownerFn)
@@ -268,7 +268,7 @@ func (this *SymbolTable) getSymbolForTypeHelper(type_ *JSType, linkToCtor bool) 
 	} else if type_.autoboxesTo() != nil {
 		return this.getSymbolForTypeHelper(type_.autoboxesTo(), linkToCtor)
 	} else if type_.isEnumType() {
-		return this.getSymbolDeclaredByEnumType(cast_[*EnumType](type_.self()))
+		return this.getSymbolDeclaredByEnumType(type_.self().(*EnumType))
 	} else if type_.isRecordType() {
 		return this.symbolThatDeclaresType.get(type_)
 	}
@@ -496,7 +496,7 @@ func (this *SymbolTable) removeSymbol(s *SymbolTable_Symbol) {
 	if !s.equals_SymbolTable_Symbol(scope.ownSymbols.remove(s.getName())) {
 		panic(new_IllegalStateException_String(("Symbol not found in scope " + tostr_(s))))
 	}
-	if !s.equals(obj_(this.symbols.remove(cast_[*SymbolTable_Reference](s.getDeclaration()).getNode().box_(), strobj_(s.getName())))) {
+	if !s.equals(obj_(this.symbols.remove(s.getDeclaration().(*SymbolTable_Reference).getNode().box_(), strobj_(s.getName())))) {
 		panic(new_IllegalStateException_String(("Symbol not found in table " + tostr_(s))))
 	}
 	if (s.propertyScope != nil) && s.equals_SymbolTable_Symbol(s.propertyScope.getSymbolForScope()) {
@@ -637,7 +637,7 @@ nextSymbol_:
 			}
 			currentName = String_substring(currentName, 0, dot)
 			var owner *SymbolTable_Symbol = s.scope_.getQualifiedSlot(currentName)
-			if ((owner != nil) && (this.getType(icast_StaticSlot(obj_(owner))) != nil)) && ((this.getType(icast_StaticSlot(obj_(owner))).isNominalConstructorOrInterface() || this.getType(icast_StaticSlot(obj_(owner))).isFunctionPrototypeType()) || this.getType(icast_StaticSlot(obj_(owner))).isEnumType()) {
+			if ((owner != nil) && (this.getType(any(owner).(StaticSlot)) != nil)) && ((this.getType(any(owner).(StaticSlot)).isNominalConstructorOrInterface() || this.getType(any(owner).(StaticSlot)).isFunctionPrototypeType()) || this.getType(any(owner).(StaticSlot)).isEnumType()) {
 				this.removeSymbol(s)
 				continue nextSymbol_
 			}
@@ -1427,7 +1427,7 @@ func (this *SymbolTable_PropertyRefCollector) tryDefineLexicalQualifiedNameRef(n
 func (this *SymbolTable_PropertyRefCollector) tryRemoveLexicalQualifiedNameRef(name OptionalOf[string], n Node) {
 	if name.isPresent() {
 		var lexicalSym *SymbolTable_Symbol = this.outer_.getEnclosingScope(n).getQualifiedSlot(name.get())
-		if ((lexicalSym != nil) && lexicalSym.isLexicalVariable()) && (cast_[*SymbolTable_Reference](lexicalSym.getDeclaration()).getNode() == n) {
+		if ((lexicalSym != nil) && lexicalSym.isLexicalVariable()) && (lexicalSym.getDeclaration().(*SymbolTable_Reference).getNode() == n) {
 			this.outer_.removeSymbol(lexicalSym)
 		}
 	}

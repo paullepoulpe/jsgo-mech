@@ -41,7 +41,7 @@ func ProfilingReport_createTabSeparatedProfilingReport(instrumentationMapping Ma
 	var output []ListOf[string] = []ListOf[string]{}
 	output = append(output, List(ImmutableList_of_Object_Object_Object_Object_Object_Object(strobj_("File"), strobj_("Function name"), strobj_("Line"), strobj_("Type"), strobj_("Total executed"), strobj_("Reports occurred"))))
 	for _, entry := range result {
-		output = append(output, List(ImmutableList_of_Object_Object_Object_Object_Object_Object(strobj_(cast_[*InstrumentationPoint](entry.getKey()).getFileName()), strobj_(cast_[*InstrumentationPoint](entry.getKey()).getFunctionName()), strobj_(strconv.Itoa(int(cast_[*InstrumentationPoint](entry.getKey()).getLineNumber()))), strobj_(cast_[*InstrumentationPoint](entry.getKey()).getType().name()), strobj_(strconv.FormatInt(cast_[*ProfilingReport_InstrumentationPointMetrics](entry.getValue()).totalTimesExecuted, 10)), strobj_(strconv.Itoa(int(cast_[*ProfilingReport_InstrumentationPointMetrics](entry.getValue()).numberOfReports))))))
+		output = append(output, List(ImmutableList_of_Object_Object_Object_Object_Object_Object(strobj_(entry.getKey().(*InstrumentationPoint).getFileName()), strobj_(entry.getKey().(*InstrumentationPoint).getFunctionName()), strobj_(strconv.Itoa(int(entry.getKey().(*InstrumentationPoint).getLineNumber()))), strobj_(entry.getKey().(*InstrumentationPoint).getType().name()), strobj_(strconv.FormatInt(entry.getValue().(*ProfilingReport_InstrumentationPointMetrics).totalTimesExecuted, 10)), strobj_(strconv.Itoa(int(entry.getValue().(*ProfilingReport_InstrumentationPointMetrics).numberOfReports))))))
 	}
 	var rows []string = []string{}
 	for _, row := range output {
@@ -54,28 +54,28 @@ func ProfilingReport_createTabSeparatedProfilingReport(instrumentationMapping Ma
 var lambda_ProfilingReport_createTabSeparatedProfilingReport_1_ = &Function_fn{func(point_ any) any {
 	var point Map_Entry = icast_Map_Entry(point_)
 	_ = point
-	return strobj_(cast_[*InstrumentationPoint](point.getKey()).getFileName())
+	return strobj_(point.getKey().(*InstrumentationPoint).getFileName())
 }}
 
 // lambda_ProfilingReport_createTabSeparatedProfilingReport_2_ is a lambda of ProfilingReport_createTabSeparatedProfilingReport that captures nothing (post-flip step lambdas).
 func lambda_ProfilingReport_createTabSeparatedProfilingReport_2_(point_ any) int64 {
 	var point Map_Entry = icast_Map_Entry(point_)
 	_ = point
-	return (-cast_[*ProfilingReport_InstrumentationPointMetrics](point.getValue()).totalTimesExecuted)
+	return (-point.getValue().(*ProfilingReport_InstrumentationPointMetrics).totalTimesExecuted)
 }
 
 // lambda_ProfilingReport_createTabSeparatedProfilingReport_3_ is a lambda of ProfilingReport_createTabSeparatedProfilingReport that captures nothing (post-flip step lambdas).
 func lambda_ProfilingReport_createTabSeparatedProfilingReport_3_(point_ any) int32 {
 	var point Map_Entry = icast_Map_Entry(point_)
 	_ = point
-	return cast_[*InstrumentationPoint](point.getKey()).getLineNumber()
+	return point.getKey().(*InstrumentationPoint).getLineNumber()
 }
 
 // lambda_ProfilingReport_createTabSeparatedProfilingReport_4_ is a lambda of ProfilingReport_createTabSeparatedProfilingReport that captures nothing (post-flip step lambdas).
 func lambda_ProfilingReport_createTabSeparatedProfilingReport_4_(point_ any) int32 {
 	var point Map_Entry = icast_Map_Entry(point_)
 	_ = point
-	return cast_[*InstrumentationPoint](point.getKey()).getType().getNumber()
+	return point.getKey().(*InstrumentationPoint).getType().getNumber()
 }
 
 type ProfilingReport_InstrumentationPointMetrics struct {

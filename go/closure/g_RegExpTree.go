@@ -1238,7 +1238,7 @@ func (this *RegExpTree_Alternation) appendSourceCode_impl(sb *strBuilder_) {
 			if i != 0 {
 				sb.append_char('|')
 			}
-			to_RegExpTree(this.alternatives.get(i)).appendSourceCode(sb)
+			this.alternatives.get(i).(RegExpTree_as).as_RegExpTree().appendSourceCode(sb)
 		}
 	}
 }

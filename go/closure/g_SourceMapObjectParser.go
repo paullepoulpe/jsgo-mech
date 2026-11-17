@@ -299,8 +299,8 @@ func SourceMapObjectParser_getJavaStringArray(object *SimpleJsonValue, key strin
 	var result []string = newstrarr_(len_)
 	for i := int32(0); i < len_; i++ {
 		var item *Outcome_base[string] = Outcome_base_ok_Object[string](nullstr_)
-		if cast_[*SimpleJsonValue](array.elements().get(i)).kind() != SimpleJsonValue_Kind_NULL {
-			item = cast_[*SimpleJsonValue](array.elements().get(i)).asString()
+		if array.elements().get(i).(*SimpleJsonValue).kind() != SimpleJsonValue_Kind_NULL {
+			item = array.elements().get(i).(*SimpleJsonValue).asString()
 		}
 		if item.isErr() {
 			return Outcome_base_err[any](SourceMapObjectParser_invalidMember(key).up_Throwable())

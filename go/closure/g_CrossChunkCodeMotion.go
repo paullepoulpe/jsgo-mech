@@ -370,12 +370,12 @@ func (this *CrossChunkCodeMotion_GlobalSymbolCycle) getDsgsLatestFirst() DequeOf
 				var dsg2 *CrossChunkCodeMotion_DeclarationStatementGroup = cast_[*CrossChunkCodeMotion_DeclarationStatementGroup](stack2.peek())
 				if dsg1.currentChunk.getIndex() > dsg2.currentChunk.getIndex() {
 					resultStack.add(stack1.pop())
-					if !stack1.isEmpty() && cast_[*CrossChunkCodeMotion_DeclarationStatementGroup](stack1.peek()).currentChunk.getIndex() > dsg1.currentChunk.getIndex() {
+					if !stack1.isEmpty() && stack1.peek().(*CrossChunkCodeMotion_DeclarationStatementGroup).currentChunk.getIndex() > dsg1.currentChunk.getIndex() {
 						panic(new_IllegalStateException_String("DSG stacks are out of order."))
 					}
 				} else {
 					resultStack.add(stack2.pop())
-					if !stack2.isEmpty() && cast_[*CrossChunkCodeMotion_DeclarationStatementGroup](stack2.peek()).currentChunk.getIndex() > dsg2.currentChunk.getIndex() {
+					if !stack2.isEmpty() && stack2.peek().(*CrossChunkCodeMotion_DeclarationStatementGroup).currentChunk.getIndex() > dsg2.currentChunk.getIndex() {
 						panic(new_IllegalStateException_String("DSG stacks are out of order."))
 					}
 				}
@@ -580,12 +580,12 @@ func (this *CrossChunkCodeMotion_DeclarationStatementGroupCycle) getStatementsLa
 				var s2 *CrossChunkReferenceCollector_TopLevelStatement = cast_[*CrossChunkReferenceCollector_TopLevelStatement](stack2.peek())
 				if s1.getOriginalOrder() > s2.getOriginalOrder() {
 					result.add(stack1.pop())
-					if !stack1.isEmpty() && cast_[*CrossChunkReferenceCollector_TopLevelStatement](stack1.peek()).getOriginalOrder() >= s1.getOriginalOrder() {
+					if !stack1.isEmpty() && stack1.peek().(*CrossChunkReferenceCollector_TopLevelStatement).getOriginalOrder() >= s1.getOriginalOrder() {
 						panic(new_IllegalStateException_String("Statements are recorded in the wrong order."))
 					}
 				} else {
 					result.add(stack2.pop())
-					if !stack2.isEmpty() && cast_[*CrossChunkReferenceCollector_TopLevelStatement](stack2.peek()).getOriginalOrder() >= s2.getOriginalOrder() {
+					if !stack2.isEmpty() && stack2.peek().(*CrossChunkReferenceCollector_TopLevelStatement).getOriginalOrder() >= s2.getOriginalOrder() {
 						panic(new_IllegalStateException_String("Statements are recorded in the wrong order."))
 					}
 				}

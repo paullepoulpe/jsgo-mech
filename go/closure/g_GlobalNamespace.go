@@ -1243,7 +1243,7 @@ func (this *GlobalNamespace_Name) getParent() *GlobalNamespace_Name {
 }
 
 func (this *GlobalNamespace_Name) getDeepestCommonAncestorChunk(chunkGraph *JSChunkGraph) *JSChunk {
-	var commonAncestor *JSChunk = cast_[*GlobalNamespace_Ref](this.getDeclaration()).getChunk()
+	var commonAncestor *JSChunk = this.getDeclaration().(*GlobalNamespace_Ref).getChunk()
 	for r := range elemsAs_[*GlobalNamespace_Ref](this.getRefs()) {
 		var rChunk *JSChunk = r.getChunk()
 		commonAncestor = chunkGraph.getDeepestCommonDependencyInclusive_2(rChunk, commonAncestor)
@@ -1618,7 +1618,7 @@ func (this *GlobalNamespace_Name) calculateInlinability() GlobalNamespace_Inlina
 		if this.getInitialization() != nil {
 			return this.getInitialization().getChunk()
 		}
-		return cast_[*GlobalNamespace_Ref](this.getDeclaration()).getChunk()
+		return this.getDeclaration().(*GlobalNamespace_Ref).getChunk()
 	}()
 	it_1 := foreach_(this.getRefs())
 L_2:
@@ -1680,7 +1680,7 @@ func (this *GlobalNamespace_Name) canCollapseOrInline() GlobalNamespace_Inlinabi
 		return GlobalNamespace_Inlinability_DO_NOT_INLINE
 	}
 	if cast_[*GlobalNamespace_Ref](this.getDeclaration()) != nil {
-		var declaration Node = cast_[*GlobalNamespace_Ref](this.getDeclaration()).getNode()
+		var declaration Node = this.getDeclaration().(*GlobalNamespace_Ref).getNode()
 		if declaration.getParent().isObjectLit() {
 			if this.outer_.declarationHasFollowingObjectSpreadSibling(declaration) {
 				this.logDecision(GlobalNamespace_Inlinability_DO_NOT_INLINE, "obj lit property followed by spread")

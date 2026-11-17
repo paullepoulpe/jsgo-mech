@@ -187,14 +187,14 @@ func (this *FunctionArgumentInjector) gatherCallArgumentsNeedingTemps(compiler *
 	var requiresTempsUpToThisParameterName string = ""
 	var argCount int32 = argMap.size()
 	var isTrivialBody bool = (!block.hasChildren() || (block.hasOneChild() && !this.bodyMayHaveConditionalCode(block.getLastChild())))
-	var hasMinimalParameters bool = ((NodeUtil_isUndefined(cast_[*FunctionArgumentInjector_ParamArgPair](Map_get_s(argMap, FunctionArgumentInjector_THIS_MARKER)).arg()) || (fnNode.isArrowFunction() && cast_[*FunctionArgumentInjector_ParamArgPair](Map_get_s(argMap, FunctionArgumentInjector_THIS_MARKER)).arg().isThis())) && (argCount <= 2))
+	var hasMinimalParameters bool = ((NodeUtil_isUndefined(Map_get_s(argMap, FunctionArgumentInjector_THIS_MARKER).(*FunctionArgumentInjector_ParamArgPair).arg()) || (fnNode.isArrowFunction() && Map_get_s(argMap, FunctionArgumentInjector_THIS_MARKER).(*FunctionArgumentInjector_ParamArgPair).arg().isThis())) && (argCount <= 2))
 	var parametersThatMayNeedTemps *FunctionArgumentInjector_SetContainer = this.findParametersReferencedAfterSideEffect(cast_[*ImmutableSet](argMap.keySet()), block)
 	var namesAfterSideEffects ImmutableSetOf[string] = parametersThatMayNeedTemps.parametersReferencedAfterSideEffect()
 	var parametersWithNamesReferencedBefore ImmutableSetOf[string] = parametersThatMayNeedTemps.parametersWithNamesReferencedBeforeParameter()
 	for _, el := range immElems_(cast_[*ImmutableSet](argMap.entrySet())) {
 		entry := icast_Map_Entry(el)
 		var parameterName string = str_(entry.getKey())
-		var cArg Node = cast_[*FunctionArgumentInjector_ParamArgPair](entry.getValue()).arg()
+		var cArg Node = entry.getValue().(*FunctionArgumentInjector_ParamArgPair).arg()
 		if namesNeedingTemps.contains(parameterName) {
 			requiresTempsUpToThisParameterName = parameterName
 			continue
@@ -232,7 +232,7 @@ func (this *FunctionArgumentInjector) gatherCallArgumentsNeedingTemps(compiler *
 	if requiresTempsUpToThisParameterName != "" {
 		for _, el2 := range immElems_(cast_[*ImmutableSet](argMap.keySet())) {
 			parameterName := str_(el2)
-			if (parameterName == FunctionArgumentInjector_THIS_MARKER) && (NodeUtil_isUndefined(cast_[*FunctionArgumentInjector_ParamArgPair](Map_get_s(argMap, FunctionArgumentInjector_THIS_MARKER)).arg()) || (fnNode.isArrowFunction() && cast_[*FunctionArgumentInjector_ParamArgPair](Map_get_s(argMap, FunctionArgumentInjector_THIS_MARKER)).arg().isThis())) {
+			if (parameterName == FunctionArgumentInjector_THIS_MARKER) && (NodeUtil_isUndefined(Map_get_s(argMap, FunctionArgumentInjector_THIS_MARKER).(*FunctionArgumentInjector_ParamArgPair).arg()) || (fnNode.isArrowFunction() && Map_get_s(argMap, FunctionArgumentInjector_THIS_MARKER).(*FunctionArgumentInjector_ParamArgPair).arg().isThis())) {
 				continue
 			}
 			if parameterName == requiresTempsUpToThisParameterName {

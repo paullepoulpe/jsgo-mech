@@ -95,7 +95,7 @@ func (this *RandomNameGenerator) checkPrefix(prefix string) {
 }
 
 func RandomNameGenerator_shuffleAndCopyAlphabet(input SetOf[BoxedOf[uint16]], random *Random) string {
-	var shuffled ListOf[BoxedOf[uint16]] = icast_List(new_ArrayList_Collection(Collection(input)).self())
+	var shuffled ListOf[BoxedOf[uint16]] = new_ArrayList_Collection(Collection(input)).self().(List)
 	Collections_shuffle(shuffled, random)
 	return new_String(Chars_toArray(Collection(shuffled)))
 }

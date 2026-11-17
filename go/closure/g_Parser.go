@@ -1236,7 +1236,7 @@ func (this *Parser) parseIdentifierExpression() *IdentifierExpressionTree {
 func (this *Parser) parseLiteralExpression() *LiteralExpressionTree {
 	var start *SourcePosition_util = this.getTreeStartLocation()
 	var literal *Token_parser = this.nextLiteralToken()
-	if (literal.type__ == TokenType_STRING) && cast_[*StringLiteralToken](literal.self()).hasUnescapedUnicodeLineOrParagraphSeparator() {
+	if (literal.type__ == TokenType_STRING) && literal.self().(*StringLiteralToken).hasUnescapedUnicodeLineOrParagraphSeparator() {
 		this.recordFeatureUsed(FeatureSet_Feature_UNESCAPED_UNICODE_LINE_OR_PARAGRAPH_SEP)
 	}
 	if (literal.type__ == TokenType_NUMBER) && strings.Contains(literal.toString(), "_") {
@@ -1450,7 +1450,7 @@ func (this *Parser) eatPredefinedString(string_ string) *Token_parser {
 }
 
 func (this *Parser) peekPredefinedString_2(index int32, string_ string) bool {
-	return (this.peek_2(index, TokenType_IDENTIFIER) && cast_[*IdentifierToken](this.peekToken_1(index).self()).valueEquals(string_))
+	return (this.peek_2(index, TokenType_IDENTIFIER) && this.peekToken_1(index).self().(*IdentifierToken).valueEquals(string_))
 }
 
 func (this *Parser) parseObjectLiteralGetAccessor() *ParseTree {

@@ -382,7 +382,7 @@ func (this *RemoveUnusedCode) traverseCall(callNode Node, scope *Scope) {
 			if nn_ == nil {
 				panic(new_NullPointerException_String(sstr_(nn1_)))
 			}
-			classVar = cast_[*Var](nn_.self())
+			classVar = nn_.self().(*Var)
 		}
 		if (classVar == nil) || !classVar.isGlobal() {
 			this.traverseChildren(callNode, scope)
@@ -467,7 +467,7 @@ func (this *RemoveUnusedCode) getVarForNameNode(nameNode Node, scope *Scope) *Va
 	if nn_ == nil {
 		panic(new_NullPointerException_String(tostr_(nameNode)))
 	}
-	return cast_[*Var](nn_.self())
+	return nn_.self().(*Var)
 }
 
 func (this *RemoveUnusedCode) traverseObjectLiteral(objectLiteral Node, scope *Scope) {
@@ -1127,7 +1127,7 @@ func (this *RemoveUnusedCode) traverseVar(var_ *Var) RemoveUnusedCode_VarInfo {
 		panic(new_NullPointerException_0())
 	}
 	if this.removeLocalVars_ && var_.isArguments() {
-		var functionScope *Scope = cast_[*Scope](cast_[*Scope](var_.getScope()).getClosestHoistScope().self())
+		var functionScope *Scope = cast_[*Scope](var_.getScope().(*Scope).getClosestHoistScope().self())
 		var paramList Node = NodeUtil_getFunctionParameters(functionScope.getRootNode())
 		{
 			var param Node = paramList.getFirstChild()

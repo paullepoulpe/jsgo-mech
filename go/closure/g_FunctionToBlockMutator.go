@@ -192,7 +192,7 @@ func (this *FunctionToBlockMutator) aliasAndInlineArguments(fnTemplateRoot Node,
 		var replacements map[string]Node = map[string]Node{}
 		for _, el := range immElems_(cast_[*ImmutableSet](paramToArgMap.entrySet())) {
 			entry := icast_Map_Entry(el)
-			replacements[str_(entry.getKey())] = cast_[*FunctionArgumentInjector_ParamArgPair](entry.getValue()).arg()
+			replacements[str_(entry.getKey())] = entry.getValue().(*FunctionArgumentInjector_ParamArgPair).arg()
 		}
 		var result Node = this.functionArgumentInjector_.inject(this.compiler_, fnTemplateRoot, 0, replacements)
 		if result != fnTemplateRoot {

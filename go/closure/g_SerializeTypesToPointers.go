@@ -231,7 +231,7 @@ func SerializeTypesToPointers_TypeMismatchJson_create(x *TypeMismatch, serialize
 
 func SerializeTypesToPointers_TypeMismatchJson_typePointerToId(poolOffset int32, typePool *TypePool) *ColorId {
 	if TypePointers_isAxiomatic(poolOffset) {
-		return cast_[*Color](TypePointers_OFFSET_TO_AXIOMATIC_COLOR.get(poolOffset)).getId()
+		return TypePointers_OFFSET_TO_AXIOMATIC_COLOR.get(poolOffset).(*Color).getId()
 	}
 	var typeProto *TypeProto = cast_[*TypeProto](typePool.getTypeList().get(TypePointers_trimOffset(poolOffset)))
 	switch typeProto.getKindCase() {

@@ -195,7 +195,7 @@ func (this *JSTypeReconserializer) serializeInvolvedTypes(types CollectionOf[*JS
 		}
 		distinctPointers.add(any(int32(this.serializeType(t))))
 	}
-	var result ListOf[BoxedOf[int32]] = icast_List(new_ArrayList_Collection(distinctPointers).self())
+	var result ListOf[BoxedOf[int32]] = new_ArrayList_Collection(distinctPointers).self().(List)
 	Collections_sort(result)
 	return ImmutableList_copyOf(Collection(result))
 }

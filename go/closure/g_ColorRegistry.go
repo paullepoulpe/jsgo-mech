@@ -31,7 +31,7 @@ func (this *ColorRegistry) get(id *ColorId) *Color {
 	if nn_ == nil {
 		panic(new_NullPointerException_String(Strings_lenientFormat("Missing Color for %s", []any{obj_(id)})))
 	}
-	return cast_[*Color](nn_)
+	return nn_.(*Color)
 }
 
 func (this *ColorRegistry) getDisambiguationSupertypes(x *Color) SetOf[*Color] {

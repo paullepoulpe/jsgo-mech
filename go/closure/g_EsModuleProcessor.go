@@ -229,7 +229,7 @@ func (this *EsModuleProcessor_FindMutableExports) visit_impl(t *NodeTraversal, n
 		return
 	}
 	var scope *Scope = t.getScope()
-	if !NodeUtil_isLValue(n) || cast_[*Scope](scope.getClosestHoistScope().self()).isModuleScope() {
+	if !NodeUtil_isLValue(n) || scope.getClosestHoistScope().self().(*Scope).isModuleScope() {
 		return
 	}
 	var exports ListOf[*Export] = this.exportsByLocalName.get_s(n.getString())
@@ -237,7 +237,7 @@ func (this *EsModuleProcessor_FindMutableExports) visit_impl(t *NodeTraversal, n
 		return
 	}
 	var var_ *Var = cast_[*Var](scope.getVar(n.getString()).self())
-	if (var_ == nil) || !cast_[*Scope](var_.getScope()).isModuleScope() {
+	if (var_ == nil) || !var_.getScope().(*Scope).isModuleScope() {
 		return
 	}
 	for e := range elemsAs_[*Export](new_ArrayList_Collection(Collection(exports)).self()) {

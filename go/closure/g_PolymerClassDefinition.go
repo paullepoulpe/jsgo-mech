@@ -269,7 +269,7 @@ func PolymerClassDefinition_removeDuplicateBehaviorProps(behaviorProps *TMap[*Po
 	var behaviorsItr IteratorOf[Map_EntryOf[*PolymerPass_MemberDefinition, *PolymerBehaviorExtractor_BehaviorDefinition]] = behaviorProps.asMap().entrySet().iterator()
 	var seen map[string]struct{} = map[string]struct{}{}
 	for behaviorsItr.hasNext() {
-		var memberDefinition *PolymerPass_MemberDefinition = cast_[*PolymerPass_MemberDefinition](icast_Map_Entry(behaviorsItr.next()).getKey())
+		var memberDefinition *PolymerPass_MemberDefinition = cast_[*PolymerPass_MemberDefinition](behaviorsItr.next().(Map_Entry).getKey())
 		var propertyName string = memberDefinition.name_.getString()
 		if !setAdd_(seen, propertyName) {
 			Iterator_remove(behaviorsItr)
@@ -287,7 +287,7 @@ func PolymerClassDefinition_removeBehaviorPropsOverlappingWithElementProps(behav
 	}
 	var behaviorsItr IteratorOf[Map_EntryOf[*PolymerPass_MemberDefinition, *PolymerBehaviorExtractor_BehaviorDefinition]] = behaviorProps.asMap().entrySet().iterator()
 	for behaviorsItr.hasNext() {
-		var memberDefinition *PolymerPass_MemberDefinition = cast_[*PolymerPass_MemberDefinition](icast_Map_Entry(behaviorsItr.next()).getKey())
+		var memberDefinition *PolymerPass_MemberDefinition = cast_[*PolymerPass_MemberDefinition](behaviorsItr.next().(Map_Entry).getKey())
 		if has_(elementPropNames, memberDefinition.name_.getString()) {
 			Iterator_remove(behaviorsItr)
 		}

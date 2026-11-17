@@ -803,7 +803,7 @@ func (this *FunctionTypeBuilder_ValidatorBase) apply(p0 any) bool {
 }
 
 func (this *FunctionTypeBuilder_ValidatorBase) test(p0 any) bool {
-	return Predicate_base_test(icast_Predicate_base(this.self()), p0)
+	return Predicate_base_test(this.self().(Predicate_base), p0)
 }
 
 type FunctionTypeBuilder_ExtendedTypeValidator struct {

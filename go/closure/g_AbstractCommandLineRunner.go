@@ -410,10 +410,10 @@ func (this *AbstractCommandLineRunner) parseJsonFilesFromInputStream() *Outcome_
 	if parsed.isErr() {
 		return Outcome_base_err[List](new_SimpleJsonException("Malformed JSON in the JSON stream input").up_Throwable())
 	}
-	if cast_[*SimpleJsonValue](parsed.get()).kind() != SimpleJsonValue_Kind_ARRAY {
+	if parsed.get().(*SimpleJsonValue).kind() != SimpleJsonValue_Kind_ARRAY {
 		return Outcome_base_err[List](new_SimpleJsonException("Malformed JSON stream: expected an array").up_Throwable())
 	}
-	it_1 := foreach_(cast_[*SimpleJsonValue](parsed.get()).elements())
+	it_1 := foreach_(parsed.get().(*SimpleJsonValue).elements())
 	for it_1.next() {
 		var element *SimpleJsonValue = cast_[*SimpleJsonValue](it_1.v)
 		var jsonFile *Outcome_base[*AbstractCommandLineRunner_JsonFileSpec] = AbstractCommandLineRunner_JsonFileSpec_readJson(element)
@@ -682,7 +682,7 @@ func AbstractCommandLineRunner_createJsChunks(specs *TList[*AbstractCommandLineR
 		numJsFilesLeft -= numJsFiles
 		chunkIndex++
 	}
-	return Outcome_base_ok_Object[List](icast_List(new_ArrayList_Collection(chunksByName.asMap().values()).self()))
+	return Outcome_base_ok_Object[List](new_ArrayList_Collection(chunksByName.asMap().values()).self().(List))
 }
 
 func (this *AbstractCommandLineRunner) checkChunkName_impl(name string) *Outcome_base[any] {

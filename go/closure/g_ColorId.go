@@ -34,7 +34,7 @@ func ColorId_fromBytesByteString(bytes *ByteString) *ColorId {
 
 // lambda_ColorId_fromBytesByteString_1_ is a lambda of ColorId_fromBytesByteString that captures nothing (post-flip step lambdas).
 func lambda_ColorId_fromBytesByteString_1_(p0 any, p1 int32) int8 {
-	return cast_[*ByteString](p0).byteAt(p1)
+	return p0.(*ByteString).byteAt(p1)
 }
 
 func ColorId_fromBytes(bytes []int8) *ColorId {

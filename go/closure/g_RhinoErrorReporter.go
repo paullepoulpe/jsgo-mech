@@ -52,7 +52,7 @@ func (this *RhinoErrorReporter) errorAtLine(message string, sourceName OptionalO
 func RhinoErrorReporter_mapError(message string) *DiagnosticType {
 	for _, el_1 := range immElems_(cast_[*ImmutableSet](RhinoErrorReporter_typeMap.entrySet())) {
 		var entry Map_Entry = icast_Map_Entry(el_1)
-		if cast_[*Pattern](entry.getKey()).matcher_s(message).matches() {
+		if entry.getKey().(*Pattern).matcher_s(message).matches() {
 			return cast_[*DiagnosticType](entry.getValue())
 		}
 	}

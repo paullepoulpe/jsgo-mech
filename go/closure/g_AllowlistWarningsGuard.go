@@ -197,7 +197,7 @@ func (this *AllowlistWarningsGuard_AllowlistBuilder) writeAllowlist(out string) 
 		return Outcome_base_err[any](stream.error())
 	}
 	this.appendAllowlist(cast_[*Output](stream.get()))
-	return cast_[*Output](stream.get()).close()
+	return stream.get().(*Output).close()
 }
 
 func (this *AllowlistWarningsGuard_AllowlistBuilder) appendAllowlist(out *Output) {
@@ -219,7 +219,7 @@ func (this *AllowlistWarningsGuard_AllowlistBuilder) appendAllowlist(out *Output
 		if DiagnosticGroups_DEPRECATED.matchesDiagnosticType(type_) {
 			continue
 		}
-		cast_[*Output](cast_[*Output](cast_[*Output](out.append_CharSequence_s("\n# Warning ")).append_CharSequence_s(type_.key_)).append_CharSequence_s(": ")).println(str_(first_(AllowlistWarningsGuard_LINE_SPLITTER.split_s(type_.formatField))))
+		cast_[*Output](out.append_CharSequence_s("\n# Warning ").(*Output).append_CharSequence_s(type_.key_).(*Output).append_CharSequence_s(": ")).println(str_(first_(AllowlistWarningsGuard_LINE_SPLITTER.split_s(type_.formatField))))
 		for warning := range elemsBy_(warningsByType.get(obj_(type_)), str_) {
 			out.println(warning)
 		}

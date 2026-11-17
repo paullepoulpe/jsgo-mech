@@ -252,7 +252,7 @@ func (this *ExtractPrototypeMemberDeclarations_GatherExtractionInfo) visit_impl(
 				continue
 			}
 			var instance *ExtractPrototypeMemberDeclarations_ExtractionInstance = new_ExtractPrototypeMemberDeclarations_ExtractionInstance(this.outer_, prototypeMember, n)
-			cur = cast_[*ExtractPrototypeMemberDeclarations_PrototypeMemberDeclaration](Iterables_getLast(Iterable(sliceView_(tc_p_ExtractPrototypeMemberDeclarations_PrototypeMemberDeclaration, instance.declarations)))).node_
+			cur = Iterables_getLast(Iterable(sliceView_(tc_p_ExtractPrototypeMemberDeclarations_PrototypeMemberDeclaration, instance.declarations))).(*ExtractPrototypeMemberDeclarations_PrototypeMemberDeclaration).node_
 			if instance.isFavorable() {
 				Map_computeIfAbsent_f(this.instancesByChunk.asMap(), obj_(t.getChunk()), lambda_ExtractPrototypeMemberDeclarations_GatherExtractionInfo_visit_impl_1_)
 				var instanceInfo *ExtractPrototypeMemberDeclarations_ExtractionInstanceInfo = this.instancesByChunk.get(t.getChunk())

@@ -149,7 +149,7 @@ func (this *FunctionInjector) inlineReturnValue(ref *FunctionInjector_Reference,
 	var paramReplacements map[string]Node = map[string]Node{}
 	for _, el := range immElems_(cast_[*ImmutableSet](paramToArgMap.entrySet())) {
 		entry := icast_Map_Entry(el)
-		paramReplacements[str_(entry.getKey())] = cast_[*FunctionArgumentInjector_ParamArgPair](entry.getValue()).arg()
+		paramReplacements[str_(entry.getKey())] = entry.getValue().(*FunctionArgumentInjector_ParamArgPair).arg()
 	}
 	var newExpression Node
 	if !block.hasChildren() {
@@ -375,8 +375,8 @@ func (this *FunctionInjector) innerFunctionOf(containerFn Node) Node {
 func (this *FunctionInjector) callMeetsBlockInliningRequirements(callRef *FunctionInjector_Reference, calleeFn Node, namesToAlias ImmutableSetOf[string]) bool {
 	var calleeContainsVars bool = NodeUtil_has(NodeUtil_getFunctionBody(calleeFn), new_NodeUtil_MatchDeclaration().apply, new_NodeUtil_MatchShallowStatement())
 	var forbidTemps bool = false
-	if !cast_[*Scope](callRef.scope_.getClosestHoistScope().self()).isGlobal() {
-		var callerFn Node = cast_[*Scope](callRef.scope_.getClosestHoistScope().self()).getRootNode().getParent()
+	if !callRef.scope_.getClosestHoistScope().self().(*Scope).isGlobal() {
+		var callerFn Node = callRef.scope_.getClosestHoistScope().self().(*Scope).getRootNode().getParent()
 		if this.referencesEval(callerFn) {
 			forbidTemps = true
 		} else {

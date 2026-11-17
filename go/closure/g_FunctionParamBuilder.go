@@ -84,7 +84,7 @@ func (this *FunctionParamBuilder) hasOptionalOrVarArgs() bool {
 }
 
 func (this *FunctionParamBuilder) hasVarArgs() bool {
-	return (len(this.parameters) != 0 && cast_[*FunctionType_Parameter](Iterables_getLast(sliceView_(tc_p_FunctionType_Parameter, this.parameters))).isVariadic())
+	return (len(this.parameters) != 0 && Iterables_getLast(sliceView_(tc_p_FunctionType_Parameter, this.parameters)).(*FunctionType_Parameter).isVariadic())
 }
 
 func (this *FunctionParamBuilder) build() ImmutableListOf[*FunctionType_Parameter] {

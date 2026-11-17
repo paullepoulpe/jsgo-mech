@@ -30,7 +30,7 @@ func new_GraphReachability_DiGraph_Predicate(graph *DiGraph, edgePredicate func(
 
 func (this *GraphReachability) compute(entry any) {
 	this.graph.clearNodeAnnotations()
-	icast_DiGraph_DiGraphNode(this.graph.getNode(entry)).setAnnotation(GraphReachability_REACHABLE)
+	this.graph.getNode(entry).(DiGraph_DiGraphNode).setAnnotation(GraphReachability_REACHABLE)
 	FixedPointGraphTraversal_newTraversal[any, any](this.traverseEdge).computeFixedPoint_2(this.graph, entry)
 }
 

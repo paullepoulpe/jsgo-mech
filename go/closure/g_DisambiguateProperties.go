@@ -380,7 +380,7 @@ func (this *DisambiguateProperties_TypeNodeJson) init_DisambiguateProperties_Typ
 	this.edges = edgesBuilder.build()
 	var propsBuilder ImmutableSortedMap_BuilderOf[string, ColorGraphNode_PropAssociation] = ImmutableSortedMap_naturalOrder()
 	for e := range elemsBy_(t.getAssociatedProps().asMap().entrySet(), icast_Map_Entry) {
-		propsBuilder.put(strobj_(cast_[*PropertyClustering](e.getKey()).getName()), e.getValue())
+		propsBuilder.put(strobj_(e.getKey().(*PropertyClustering).getName()), e.getValue())
 	}
 	this.props = propsBuilder.buildOrThrow()
 }
@@ -408,7 +408,7 @@ type DisambiguateProperties_TypeEdgeJson struct {
 }
 
 func (this *DisambiguateProperties_TypeEdgeJson) init_DisambiguateProperties_TypeEdgeJson(e DiGraph_DiGraphEdge) {
-	this.dest = cast_[*ColorGraphNode](e.getDestination().getValue()).getIndex()
+	this.dest = e.getDestination().getValue().(*ColorGraphNode).getIndex()
 	this.value_ = e.getValue()
 }
 

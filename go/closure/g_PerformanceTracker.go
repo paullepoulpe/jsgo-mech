@@ -435,7 +435,7 @@ func (this *PerformanceTracker) outputTracerReport(output *Output) {
 func lambda_PerformanceTracker_outputTracerReport_1_(e_ any) int64 {
 	var e Map_Entry = icast_Map_Entry(e_)
 	_ = e
-	return cast_[*PerformanceTracker_Stats](e.getValue()).runtime_
+	return e.getValue().(*PerformanceTracker_Stats).runtime_
 }
 
 const PerformanceTracker_DEFAULT_WHEN_SIZE_UNTRACKED int32 = -1

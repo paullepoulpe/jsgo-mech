@@ -403,7 +403,7 @@ func ConformanceRules_AbstractRule_getTypeMatchingStrategy(requirement *Requirem
 func (this *ConformanceRules_AbstractRule) findAllowListForPath(path string) *ConformanceRules_AllowList {
 	var pathRegex Optional_baseOf[*Pattern] = this.compiler_.getOptions().getConformanceRemoveRegexFromPath()
 	if pathRegex.isPresent() {
-		path = cast_[*Pattern](pathRegex.get()).matcher_s(path).replaceFirst("")
+		path = pathRegex.get().(*Pattern).matcher_s(path).replaceFirst("")
 	}
 	for _, allowlist := range this.allowlists {
 		if allowlist.matches(path) {
@@ -470,7 +470,7 @@ func (this *ConformanceRules_AbstractRule) tsIsAllowlisted() bool {
 }
 
 func (this *ConformanceRules_AbstractRule) getPrecondition_impl() CheckConformance_Precondition {
-	return CheckConformance_Rule_getPrecondition_default(icast_CheckConformance_Rule(this.self()))
+	return CheckConformance_Rule_getPrecondition_default(this.self().(CheckConformance_Rule))
 }
 
 type ConformanceRules_NoOp struct {
@@ -1484,7 +1484,7 @@ func ConformanceRules_ConformanceUtil_getValueFromGlobalName(scope *Scope, gns *
 	if (((gn == nil) || (gn.getGlobalSets() != 1)) || (gn.getTotalSets() != 1)) || !ConformanceRules_ConformanceUtil_isAnnotatedAsConst(gn.getJSDocInfo()) {
 		return Optional_empty[string]()
 	}
-	return ConformanceRules_ConformanceUtil_inferStringValue(scope, NodeUtil_getRValueOfLValue(cast_[*GlobalNamespace_Ref](gn.getDeclaration()).getNode()), func() any {
+	return ConformanceRules_ConformanceUtil_inferStringValue(scope, NodeUtil_getRValueOfLValue(gn.getDeclaration().(*GlobalNamespace_Ref).getNode()), func() any {
 		return obj_(gns)
 	})
 }

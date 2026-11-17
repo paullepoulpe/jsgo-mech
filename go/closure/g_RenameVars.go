@@ -215,7 +215,7 @@ func (this *RenameVars) okToRenameVar(name string, isLocal bool) bool {
 
 func (this *RenameVars) getLocalVarIndex(v *Var) int32 {
 	var num int32 = v.getIndex()
-	var s *Scope = cast_[*Scope](cast_[*Scope](v.getScope()).getParent().self())
+	var s *Scope = cast_[*Scope](v.getScope().(*Scope).getParent().self())
 	if s == nil {
 		panic(new_IllegalArgumentException_String("Var is not local"))
 	}
@@ -357,7 +357,7 @@ func (this *RenameVars_ProcessVars) visit_impl(t *NodeTraversal, n Node, parent 
 		return
 	}
 	var var_ *Var = cast_[*Var](t.getScope().getVar(name).self())
-	var local bool = (((var_ != nil) && var_.isLocal()) && (cast_[*Scope](cast_[*Scope](var_.getScope()).getParent().self()).isLocal() || !var_.isBleedingFunction()))
+	var local bool = (((var_ != nil) && var_.isLocal()) && (var_.getScope().(*Scope).getParent().self().(*Scope).isLocal() || !var_.isBleedingFunction()))
 	if (var_ != nil) && var_.isArguments() {
 		Collection_add_s(this.outer_.reservedNames, name)
 		return

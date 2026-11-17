@@ -677,7 +677,7 @@ func (this *JSDocInfo) getMarkers() CollectionOf[*JSDocInfo_Marker] {
 	var markers ArrayListOf[*JSDocInfo_Marker] = to_ArrayList(JSDocInfo_MARKERS.get(this))
 	return func() Collection {
 		if markers != nil {
-			return icast_Collection(markers.self())
+			return markers.self().(Collection)
 		}
 		return ImmutableList_of()
 	}()
@@ -697,7 +697,7 @@ func (this *JSDocInfo) getTemplateTypes() ImmutableMapOf[string, *JSTypeExpressi
 	var map_ LinkedHashMapOf[string, *JSTypeExpression] = cast_[*LinkedHashMap](JSDocInfo_TEMPLATE_TYPE_NAMES.get(this))
 	return func() *ImmutableMap {
 		if map_ != nil {
-			return ImmutableMap_copyOf(icast_Map(obj_(map_)))
+			return ImmutableMap_copyOf(any(map_).(Map))
 		}
 		return ImmutableMap_of()
 	}()
@@ -707,7 +707,7 @@ func (this *JSDocInfo) getTypeTransformations() ImmutableMapOf[string, Node] {
 	var map_ LinkedHashMapOf[string, Node] = cast_[*LinkedHashMap](JSDocInfo_TYPE_TRANSFORMATIONS.get(this))
 	return func() *ImmutableMap {
 		if map_ != nil {
-			return ImmutableMap_copyOf(icast_Map(obj_(map_)))
+			return ImmutableMap_copyOf(any(map_).(Map))
 		}
 		return ImmutableMap_of()
 	}()
@@ -975,7 +975,7 @@ func (this *JSDocInfo_Property) clone_impl(arg any, unusedTransform func(*JSType
 }
 
 func (this *JSDocInfo_Property) isDefault(value any) bool {
-	return ((((value == nil) || (value == obj_(JSDocInfo_Visibility_INHERITED))) || (is_[Collection](value) && icast_Collection(value).isEmpty())) || (is_[Map](value) && icast_Map(value).isEmpty()))
+	return ((((value == nil) || (value == obj_(JSDocInfo_Visibility_INHERITED))) || (is_[Collection](value) && value.(Collection).isEmpty())) || (is_[Map](value) && value.(Map).isEmpty()))
 }
 
 func (this *JSDocInfo_Property) equalValues_impl(left any, right any) bool {
@@ -1147,7 +1147,7 @@ func (this *JSDocInfo_TypeListProperty) getUnmodifiable(info *JSDocInfo) ListOf[
 	var value ArrayListOf[*JSTypeExpression] = to_ArrayList(this.get(info))
 	return func() List {
 		if value != nil {
-			return Collections_unmodifiableList(icast_List(value.self()))
+			return Collections_unmodifiableList(value.self().(List))
 		}
 		return ImmutableList_of()
 	}()
@@ -2393,7 +2393,7 @@ func (this *JSDocInfo_Builder) recordSuppressions_2(suppressions ImmutableSetOf[
 		if current.containsKey(obj_(suppressions)) {
 			return
 		}
-		mapBuilder.putAll(icast_Map(obj_(current)))
+		mapBuilder.putAll(any(current).(Map))
 	}
 	mapBuilder.put(obj_(JSDocInfo_internSet(icast_Set(obj_(suppressions)))), strobj_(description))
 	var suppressionsMap ImmutableMapOf[ImmutableSetOf[string], string] = mapBuilder.buildOrThrow()

@@ -79,7 +79,7 @@ func (this *TypedAstDeserializer) toDeserializedAst() *TypedAstDeserializer_Dese
 		if equalsId_(this.mode_, TypedAstDeserializer_Mode_RUNTIME_LIBRARY_ONLY) || !this.colorPoolBuilder.isPresent() {
 			return Optional_base_absent()
 		}
-		return Optional_base_of(obj_(cast_[*ColorPool_Builder](this.colorPoolBuilder.get()).build().getRegistry()))
+		return Optional_base_of(obj_(this.colorPoolBuilder.get().(*ColorPool_Builder).build().getRegistry()))
 	}()
 	return TypedAstDeserializer_DeserializedAst_create(this.typedAstFilesystem, registry, this.externProperties.build(), this.runtimeLibraries_.build())
 }

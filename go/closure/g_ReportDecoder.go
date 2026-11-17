@@ -80,11 +80,11 @@ func ReportDecoder_parseJsonStringList(json string) *Outcome_base[List] {
 	if parsed.isErr() {
 		return Outcome_base_err[List](parsed.error())
 	}
-	if cast_[*SimpleJsonValue](parsed.get()).kind() != SimpleJsonValue_Kind_ARRAY {
+	if parsed.get().(*SimpleJsonValue).kind() != SimpleJsonValue_Kind_ARRAY {
 		return Outcome_base_err[List](new_SimpleJsonException("Malformed mapping: expected a JSON array").up_Throwable())
 	}
 	var list *TList[string] = newTList_(tc_string)
-	it_1 := foreach_(cast_[*SimpleJsonValue](parsed.get()).elements())
+	it_1 := foreach_(parsed.get().(*SimpleJsonValue).elements())
 	for it_1.next() {
 		var element *SimpleJsonValue = cast_[*SimpleJsonValue](it_1.v)
 		if element.kind() == SimpleJsonValue_Kind_NULL {
@@ -201,7 +201,7 @@ func lambda_ReportDecoder_createReportProfile_3_(k_ any) any {
 }
 
 // lambda_ReportDecoder_createReportProfile_4_ is a lambda of ReportDecoder_createReportProfile that captures nothing (post-flip step lambdas).
-var lambda_ReportDecoder_createReportProfile_4_ = &Function_fn{func(p0 any) any { return strobj_(cast_[*FileProfile](p0).getFileName()) }}
+var lambda_ReportDecoder_createReportProfile_4_ = &Function_fn{func(p0 any) any { return strobj_(p0.(*FileProfile).getFileName()) }}
 
 type ReportDecoder_StringCharIterator struct {
 	content  string

@@ -78,7 +78,7 @@ func ColorPool_createUnionColorId(proto *TypeProto, allObjectIds []*ColorId) *Co
 		var memberPointer any = unionMemberList.get(i)
 		var memberId *ColorId = func() *ColorId {
 			if TypePointers_isAxiomatic(unbox_[int32](memberPointer)) {
-				return cast_[*Color](TypePointers_OFFSET_TO_AXIOMATIC_COLOR.get(unbox_[int32](memberPointer))).getId()
+				return TypePointers_OFFSET_TO_AXIOMATIC_COLOR.get(unbox_[int32](memberPointer)).(*Color).getId()
 			}
 			return allObjectIds[TypePointers_trimOffset(unbox_[int32](memberPointer))]
 		}()
@@ -134,7 +134,7 @@ func (this *ColorPool_ShardView) getColor(pointer int32) *Color {
 
 func (this *ColorPool_ShardView) getId(untrimmedOffset int32) *ColorId {
 	if TypePointers_isAxiomatic(untrimmedOffset) {
-		return cast_[*Color](TypePointers_OFFSET_TO_AXIOMATIC_COLOR.get(untrimmedOffset)).getId()
+		return TypePointers_OFFSET_TO_AXIOMATIC_COLOR.get(untrimmedOffset).(*Color).getId()
 	} else {
 		return sliceAt_(this.trimmedOffsetToId, TypePointers_trimOffset(untrimmedOffset))
 	}
