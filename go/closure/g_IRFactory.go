@@ -2299,19 +2299,11 @@ func (this *IRFactory_TransformDispatcher) processBinaryExpressionHelper(exprTre
 	return root
 }
 
-func (this *IRFactory_TransformDispatcher) transformLhsOfBinaryTree(exprTree *BinaryOperatorTree) Node {
+func (this *IRFactory_TransformDispatcher) transformLhsOfBinaryTree(exprTree *BinaryOperatorTree) (ret_1 Node) {
 	var lhsOfInIsPrivateId bool = (((exprTree.operator.type__ == TokenType_IN) && is_[*IdentifierExpressionTree](exprTree.left.self())) && exprTree.left.asIdentifierExpression().identifierToken.isPrivateIdentifier())
-	var ret_1 Node
-	code_1 := func() (code_ int) {
-		var ignored IRFactory_TransformDispatcher_AutoDecrement = this.privateIdLhsOfInScope.maybeIncrement(lhsOfInIsPrivateId)
-		defer closeResource_(ignored)
-		ret_1 = this.outer_.transform(exprTree.left)
-		return 1
-	}()
-	if code_1 == 1 {
-		return ret_1
-	}
-	panic("unreachable")
+	var ignored IRFactory_TransformDispatcher_AutoDecrement = this.privateIdLhsOfInScope.maybeIncrement(lhsOfInIsPrivateId)
+	defer closeResource_(ignored)
+	return this.outer_.transform(exprTree.left)
 }
 
 func (this *IRFactory_TransformDispatcher) processDebuggerStatement(unused *DebuggerStatementTree) Node {
@@ -2959,7 +2951,7 @@ func (this *IRFactory_TransformDispatcher) processClassDeclaration(tree *ClassDe
 	var superClass Node = this.transformOrEmpty(tree.superClass_, tree.up_ParseTree())
 	var classMembers Node = this.outer_.newNode(Token_rhino_CLASS_MEMBERS)
 	this.outer_.setSourceInfo(classMembers, tree.up_ParseTree())
-	_ = func() (code_ int) {
+	func() {
 		var ignored IRFactory_TransformDispatcher_AutoDecrement = this.classScope.increment()
 		defer closeResource_(ignored)
 		var hasConstructor bool = false
@@ -2980,7 +2972,6 @@ func (this *IRFactory_TransformDispatcher) processClassDeclaration(tree *ClassDe
 			}
 			classMembers.addChildToBack(this.outer_.transform(child))
 		}
-		return 0
 	}()
 	if !this.classScope.inScope() {
 		this.validatePrivatePropertyUsage(this.getPrivatePropsAndValidateUniqueness(classMembers), classMembers)

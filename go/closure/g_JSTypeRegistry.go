@@ -75,13 +75,10 @@ func (this *JSTypeRegistry) init_JSTypeRegistry_ErrorReporter_Set(reporter Error
 	this.emptyTemplateTypeMap = TemplateTypeMap_createEmpty(this)
 	this.resolver = JSTypeResolver_create(this)
 	this.nativeTypes = make([]*JSType, int32(len(JSTypeNative_values())))
-	_ = func() (code_ int) {
-		var closer *JSTypeResolver_Closer = this.resolver.openForDefinition()
-		defer closeResource_(obj_(closer))
-		this.initializeBuiltInTypes()
-		this.initializeRegistry()
-		return 0
-	}()
+	var closer *JSTypeResolver_Closer = this.resolver.openForDefinition()
+	defer closeResource_(obj_(closer))
+	this.initializeBuiltInTypes()
+	this.initializeRegistry()
 }
 
 func new_JSTypeRegistry_ErrorReporter_Set(reporter ErrorReporter_rhino, forwardDeclaredTypes SetOf[string]) *JSTypeRegistry {

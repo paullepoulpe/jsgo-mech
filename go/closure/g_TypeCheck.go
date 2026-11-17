@@ -87,16 +87,13 @@ func (this *TypeCheck) process_2(externsRoot Node, jsRoot Node) {
 	if externsRoot != 0 && !externsAndJs.hasChild(externsRoot) {
 		panic(new_IllegalStateException_0())
 	}
-	_ = func() (code_ int) {
-		var debugTypeLogger *TypeCheck_DebugTypeLogger = new_TypeCheck_DebugTypeLogger(this)
-		defer closeResource_(obj_(debugTypeLogger))
-		this.debugTypeLogger = debugTypeLogger
-		if externsRoot != 0 {
-			this.check(externsRoot, true)
-		}
-		this.check(jsRoot, false)
-		return 0
-	}()
+	var debugTypeLogger *TypeCheck_DebugTypeLogger = new_TypeCheck_DebugTypeLogger(this)
+	defer closeResource_(obj_(debugTypeLogger))
+	this.debugTypeLogger = debugTypeLogger
+	if externsRoot != 0 {
+		this.check(externsRoot, true)
+	}
+	this.check(jsRoot, false)
 }
 
 func (this *TypeCheck) processForTesting(externsRoot Node, jsRoot Node) *TypedScope {

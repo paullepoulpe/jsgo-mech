@@ -22,37 +22,34 @@ func (this *OptimizeReturns) process_2(externs Node, root Node) {
 }
 
 func (this *OptimizeReturns) process_3(externs Node, root Node, definitions *OptimizeCalls_ReferenceMap) {
-	_ = func() (code_ int) {
-		defer func() {
-			this.decisionsLog = nil
-		}()
-		var logFile *LogFile = this.compiler_.createOrReopenIndexedLog(Object_getClass(any(this)), "decisions.log", []string{})
-		defer closeResource_(logFile.self())
-		this.decisionsLog = logFile
-		var toOptimize []ArrayListOf[Node] = []ArrayListOf[Node]{}
-		for entry := range elemsBy_(definitions.getNameReferences(), icast_Map_Entry) {
-			var key string = str_(entry.getKey())
-			var refs ArrayListOf[Node] = to_ArrayList(entry.getValue())
-			if this.isCandidate(key, icast_List(refs.self())) {
-				this.decisionsLog.log_2("name %s\tremoving return value", []any{strobj_(key)})
-				toOptimize = append(toOptimize, refs)
-			}
-		}
-		for entry := range elemsBy_(definitions.getPropReferences(), icast_Map_Entry) {
-			var key string = str_(entry.getKey())
-			var refs ArrayListOf[Node] = to_ArrayList(entry.getValue())
-			if this.isCandidate(key, icast_List(refs.self())) {
-				this.decisionsLog.log_2("property %s\tremoving return value", []any{strobj_(key)})
-				toOptimize = append(toOptimize, refs)
-			}
-		}
-		for _, refs := range toOptimize {
-			for fn := range elemsBy_(OptimizeCalls_ReferenceMap_getFunctionNodes(icast_List(refs.self())).values(), Node_of_) {
-				this.rewriteReturns(fn)
-			}
-		}
-		return 0
+	defer func() {
+		this.decisionsLog = nil
 	}()
+	var logFile *LogFile = this.compiler_.createOrReopenIndexedLog(Object_getClass(any(this)), "decisions.log", []string{})
+	defer closeResource_(logFile.self())
+	this.decisionsLog = logFile
+	var toOptimize []ArrayListOf[Node] = []ArrayListOf[Node]{}
+	for entry := range elemsBy_(definitions.getNameReferences(), icast_Map_Entry) {
+		var key string = str_(entry.getKey())
+		var refs ArrayListOf[Node] = to_ArrayList(entry.getValue())
+		if this.isCandidate(key, icast_List(refs.self())) {
+			this.decisionsLog.log_2("name %s\tremoving return value", []any{strobj_(key)})
+			toOptimize = append(toOptimize, refs)
+		}
+	}
+	for entry := range elemsBy_(definitions.getPropReferences(), icast_Map_Entry) {
+		var key string = str_(entry.getKey())
+		var refs ArrayListOf[Node] = to_ArrayList(entry.getValue())
+		if this.isCandidate(key, icast_List(refs.self())) {
+			this.decisionsLog.log_2("property %s\tremoving return value", []any{strobj_(key)})
+			toOptimize = append(toOptimize, refs)
+		}
+	}
+	for _, refs := range toOptimize {
+		for fn := range elemsBy_(OptimizeCalls_ReferenceMap_getFunctionNodes(icast_List(refs.self())).values(), Node_of_) {
+			this.rewriteReturns(fn)
+		}
+	}
 }
 
 func (this *OptimizeReturns) isCandidate(name string, refs ListOf[Node]) bool {

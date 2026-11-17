@@ -274,47 +274,38 @@ func (this *ColorPool_Builder) reconcilationDebugStackProtos() []ImmutableMapOf[
 	return immBuilt_(result)
 }
 
-func (this *ColorPool_Builder) lookupOrReconcileColor(id *ColorId) *Color {
+func (this *ColorPool_Builder) lookupOrReconcileColor(id *ColorId) (ret_1 *Color) {
 	this.reconcilationDebugStack = append(this.reconcilationDebugStack, id)
-	var ret_1 *Color
-	code_1 := func() (code_ int) {
-		defer func() {
-			slicePop_(tc_p_ColorId, &this.reconcilationDebugStack)
-		}()
-		var existing *Color = cast_[*Color](Map_putIfAbsent(this.idToColor.asMap(), obj_(id), obj_(ColorPool_PENDING_COLOR)))
-		if existing != nil {
-			if JSCompObjects_identical(obj_(existing), obj_(ColorPool_PENDING_COLOR)) {
-				panic(new_MalformedTypedAstException_Object(strobj_(("Cyclic Color structure detected: " + objstr_(sliceView_(tc_ImmutableMapOf_p_ColorPool_ShardView__p_TypeProto_, this.reconcilationDebugStackProtos()))))))
-			}
-			ret_1 = existing
-			return 1
-		}
-		var viewToProto MapOf[*ColorPool_ShardView, *TypeProto] = this.idToProto.row(id)
-		var sample *TypeProto = cast_[*TypeProto](Iterables_getFirst(Iterable(viewToProto.values()), nil))
-		if sample == nil {
-			panic(new_NullPointerException_String(tostr_(id)))
-		}
-		var result *Color = func() *Color {
-			switch sample.getKindCase() {
-			case TypeProto_KindCase_OBJECT:
-				return this.reconcileObjectProtos(id, viewToProto)
-			case TypeProto_KindCase_UNION:
-				return this.reconcileUnionProtos(id, viewToProto)
-			default:
-				panic(new_AssertionError_Object(obj_(sample)))
-			}
-		}()
-		if result == nil {
-			panic(new_IllegalStateException_String(tostr_(id)))
-		}
-		this.idToColor.put(id, result)
-		ret_1 = result
-		return 1
+	defer func() {
+		slicePop_(tc_p_ColorId, &this.reconcilationDebugStack)
 	}()
-	if code_1 == 1 {
-		return ret_1
+	var existing *Color = cast_[*Color](Map_putIfAbsent(this.idToColor.asMap(), obj_(id), obj_(ColorPool_PENDING_COLOR)))
+	if existing != nil {
+		if JSCompObjects_identical(obj_(existing), obj_(ColorPool_PENDING_COLOR)) {
+			panic(new_MalformedTypedAstException_Object(strobj_(("Cyclic Color structure detected: " + objstr_(sliceView_(tc_ImmutableMapOf_p_ColorPool_ShardView__p_TypeProto_, this.reconcilationDebugStackProtos()))))))
+		}
+		return existing
 	}
-	panic("unreachable")
+	var viewToProto MapOf[*ColorPool_ShardView, *TypeProto] = this.idToProto.row(id)
+	var sample *TypeProto = cast_[*TypeProto](Iterables_getFirst(Iterable(viewToProto.values()), nil))
+	if sample == nil {
+		panic(new_NullPointerException_String(tostr_(id)))
+	}
+	var result *Color = func() *Color {
+		switch sample.getKindCase() {
+		case TypeProto_KindCase_OBJECT:
+			return this.reconcileObjectProtos(id, viewToProto)
+		case TypeProto_KindCase_UNION:
+			return this.reconcileUnionProtos(id, viewToProto)
+		default:
+			panic(new_AssertionError_Object(obj_(sample)))
+		}
+	}()
+	if result == nil {
+		panic(new_IllegalStateException_String(tostr_(id)))
+	}
+	this.idToColor.put(id, result)
+	return result
 }
 
 func (this *ColorPool_Builder) reconcileObjectProtos(id *ColorId, viewToProto MapOf[*ColorPool_ShardView, *TypeProto]) *Color {

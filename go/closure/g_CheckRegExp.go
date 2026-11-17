@@ -68,7 +68,7 @@ func (this *CheckRegExp) visit_impl(t *NodeTraversal, n Node, parent Node) {
 			}
 			return ""
 		}()
-		_ = func() (code_ int) {
+		func() {
 			defer func() {
 				if r_ := recover(); r_ != nil {
 					ex_ := catch_(r_)
@@ -81,7 +81,6 @@ func (this *CheckRegExp) visit_impl(t *NodeTraversal, n Node, parent Node) {
 				}
 			}()
 			RegExpTree_parseRegExp(pattern, flags)
-			return 0
 		}()
 	}
 }

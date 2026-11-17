@@ -321,12 +321,9 @@ func (this *Compiler) maybeLogPrunedInputs() {
 }
 
 func (this *Compiler) logToFile(logFileName string, logStringSupplier func() any) {
-	_ = func() (code_ int) {
-		var log *LogFile = this.createOrReopenLog(Object_getClass(obj_(this)), logFileName, []string{})
-		defer closeResource_(log.self())
-		log.log(logStringSupplier)
-		return 0
-	}()
+	var log *LogFile = this.createOrReopenLog(Object_getClass(obj_(this)), logFileName, []string{})
+	defer closeResource_(log.self())
+	log.log(logStringSupplier)
 }
 
 func (this *Compiler) initWarningsGuard(warningsGuard *WarningsGuard) {
@@ -402,20 +399,12 @@ func (this *Compiler) mergeAndDeserializeTypedAsts(requiredInputFiles ImmutableS
 	this.maybeSetTracker()
 	this.setLifeCycleStage(AbstractCompiler_LifeCycleStage_COLORS_AND_SIMPLIFIED_JSDOC)
 	var deserializeTypes bool = options.requiresTypesForOptimization()
-	var astData *TypedAstDeserializer_DeserializedAst = cast_[*TypedAstDeserializer_DeserializedAst](this.runInCompilerThread(func() any {
+	var astData *TypedAstDeserializer_DeserializedAst = cast_[*TypedAstDeserializer_DeserializedAst](this.runInCompilerThread(func() (ret_1 any) {
 		var tracer *Tracer = this.newTracer("deserializeTypedAst")
-		var ret_1 any
-		code_1 := func() (code_ int) {
-			defer func() {
-				this.stopTracer(tracer, "deserializeTypedAst")
-			}()
-			ret_1 = obj_(TypedAstDeserializer_deserializeFullAst(this.up_AbstractCompiler(), this.SYNTHETIC_EXTERNS_FILE, requiredInputFiles, typedAstListStream, deserializeTypes, options.getResolveSourceMapAnnotations(), options.getParseInlineSourceMaps()))
-			return 1
+		defer func() {
+			this.stopTracer(tracer, "deserializeTypedAst")
 		}()
-		if code_1 == 1 {
-			return ret_1
-		}
-		panic("unreachable")
+		return obj_(TypedAstDeserializer_deserializeFullAst(this.up_AbstractCompiler(), this.SYNTHETIC_EXTERNS_FILE, requiredInputFiles, typedAstListStream, deserializeTypes, options.getResolveSourceMapAnnotations(), options.getParseInlineSourceMaps()))
 	}))
 	this.typedAstFilesystem = astData.getFilesystem()
 	this.externProperties = astData.getExternProperties()
@@ -486,11 +475,10 @@ func (this *Compiler) initChunks(externs ListOf[*SourceFile_jscomp], chunks List
 	if this.isDebugLoggingEnabled() || options.shouldPrintConfig() {
 		this.printConfig()
 	}
-	_ = func() (code_ int) {
+	func() {
 		var chunkGraphLog *LogFile = this.createOrReopenLog(Object_getClass(obj_(this)), "chunk_graph.dot", []string{})
 		defer closeResource_(chunkGraphLog.self())
 		chunkGraphLog.logString(DotFormatter_toDot_GraphvizGraph(icast_GraphvizGraph(this.chunkGraph.toGraphvizGraph().self())))
-		return 0
 	}()
 	this.runtimeJsLibManager = RuntimeJsLibManager_create(options.getRuntimeLibraryMode(), func(p0 string, p1 string) Node { return this.loadResourceContents(p0, p1) }, this.changeTracker, func() Supplier {
 		if options.getRuntimeLibraryMode() == RuntimeJsLibManager_RuntimeLibraryMode_EXTERN_FIELD_NAMES {
@@ -577,7 +565,7 @@ func (this *Compiler) compile(externs ListOf[*SourceFile_jscomp], inputs ListOf[
 	if this.jsRoot != 0 {
 		panic(new_IllegalStateException_0())
 	}
-	_ = func() (code_ int) {
+	func() {
 		defer func() {
 			this.generateReport()
 		}()
@@ -599,7 +587,6 @@ func (this *Compiler) compile(externs ListOf[*SourceFile_jscomp], inputs ListOf[
 			}
 			this.performPostCompilationTasks()
 		}
-		return 0
 	}()
 	return this.getResult()
 }
@@ -614,7 +601,7 @@ func (this *Compiler) compileChunks(externs ListOf[*SourceFile_jscomp], chunks L
 	if this.jsRoot != 0 {
 		panic(new_IllegalStateException_0())
 	}
-	_ = func() (code_ int) {
+	func() {
 		defer func() {
 			this.generateReport()
 		}()
@@ -636,7 +623,6 @@ func (this *Compiler) compileChunks(externs ListOf[*SourceFile_jscomp], chunks L
 			}
 			this.performPostCompilationTasks()
 		}
-		return 0
 	}()
 	return this.getResult()
 }
@@ -750,7 +736,7 @@ func (this *Compiler) performPostCompilationTasksInternal() {
 				panic(new_RuntimeException_Throwable(out.error()))
 			}
 			var closed *Outcome_base[any]
-			_ = func() (code_ int) {
+			func() {
 				defer func() {
 					closed = cast_[*Output](out.get()).close()
 				}()
@@ -765,7 +751,6 @@ func (this *Compiler) performPostCompilationTasksInternal() {
 					}
 				}()
 				this.tracker.outputTracerReport(cast_[*Output](out.get()))
-				return 0
 			}()
 			if closed.isErr() {
 				panic(new_RuntimeException_Throwable(closed.error()))
@@ -851,16 +836,13 @@ func (this *Compiler) setPassConfig(passes *PassConfig) {
 func (this *Compiler) whitespaceOnlyPasses() {
 	this.runCustomPasses(CustomPassExecutionTime_BEFORE_CHECKS)
 	var t *Tracer = this.newTracer("runWhitespaceOnlyPasses")
-	_ = func() (code_ int) {
-		defer func() {
-			this.stopTracer(t, "runWhitespaceOnlyPasses")
-		}()
-		for _, el := range immElems_(this.getPassConfig().getWhitespaceOnlyPasses().build()) {
-			pf := cast_[*PassFactory](el)
-			pf.create(this.up_AbstractCompiler()).process_2(this.externsRoot, this.jsRoot)
-		}
-		return 0
+	defer func() {
+		this.stopTracer(t, "runWhitespaceOnlyPasses")
 	}()
+	for _, el := range immElems_(this.getPassConfig().getWhitespaceOnlyPasses().build()) {
+		pf := cast_[*PassFactory](el)
+		pf.create(this.up_AbstractCompiler()).process_2(this.externsRoot, this.jsRoot)
+	}
 }
 
 func (this *Compiler) markTranspiledFiles() {
@@ -882,23 +864,17 @@ func (this *Compiler) markTranspiledFiles() {
 func (this *Compiler) transpileAndDontCheck() {
 	var t *Tracer = this.newTracer("runTranspileOnlyPasses")
 	this.markTranspiledFiles()
-	code_1 := func() (code_ int) {
-		defer func() {
-			this.stopTracer(t, "runTranspileOnlyPasses")
-		}()
-		for _, el_2 := range immElems_(this.getPassConfig().getTranspileOnlyPasses().build()) {
-			var pf *PassFactory = cast_[*PassFactory](el_2)
-			if this.hasErrors() {
-				return 1
-			}
-			this.beforePass(pf.getName())
-			pf.create(this.up_AbstractCompiler()).process_2(this.externsRoot, this.jsRoot)
-			this.afterPass(pf.getName())
-		}
-		return 0
+	defer func() {
+		this.stopTracer(t, "runTranspileOnlyPasses")
 	}()
-	if code_1 == 1 {
-		return
+	for _, el_2 := range immElems_(this.getPassConfig().getTranspileOnlyPasses().build()) {
+		var pf *PassFactory = cast_[*PassFactory](el_2)
+		if this.hasErrors() {
+			return
+		}
+		this.beforePass(pf.getName())
+		pf.create(this.up_AbstractCompiler()).process_2(this.externsRoot, this.jsRoot)
+		this.afterPass(pf.getName())
 	}
 }
 
@@ -940,16 +916,13 @@ func (this *Compiler) runValidityCheck() {
 func (this *Compiler) runCustomPasses(executionTime CustomPassExecutionTime) {
 	var customPasses ImmutableListOf[CompilerPass] = this.options_.getCustomPassesAt(executionTime)
 	var t *Tracer = this.newTracer("runCustomPasses")
-	_ = func() (code_ int) {
-		defer func() {
-			this.stopTracer(t, "runCustomPasses")
-		}()
-		for _, el := range immElems_(customPasses) {
-			p := icast_CompilerPass(el)
-			this.process(p)
-		}
-		return 0
+	defer func() {
+		this.stopTracer(t, "runCustomPasses")
 	}()
+	for _, el := range immElems_(customPasses) {
+		p := icast_CompilerPass(el)
+		this.process(p)
+	}
 }
 
 func (this *Compiler) beforePass_impl(passName string) {
@@ -1072,11 +1045,10 @@ func (this *Compiler) maybePrintSourceAfterEachPass(passName string) {
 		return
 	}
 	if this.isDebugLoggingEnabled() {
-		_ = func() (code_ int) {
+		func() {
 			var log *LogFile = this.createOrReopenIndexedLog(Object_getClass(obj_(this)), "source_after_pass", []string{passName})
 			defer closeResource_(log.self())
 			log.logString(currentJsSource)
-			return 0
 		}()
 	} else {
 		Output_stderr().println("")
@@ -1508,126 +1480,114 @@ func (this *Compiler) initializeModuleLoader() {
 	this.moduleLoader = ModuleLoader_builder().setModuleRoots(icast_Iterable(obj_(this.options_.getModuleRoots()))).setInputs(this.chunkGraph.getAllInputs()).setFactory(moduleResolverFactory).setPathResolver(ModuleLoader_PathResolver_RELATIVE).setPathEscaper(this.options_.getPathEscaper()).build()
 }
 
-func (this *Compiler) parseInputs() Node {
+func (this *Compiler) parseInputs() (ret_1 Node) {
 	var devMode bool = (this.options_.getDevMode() != CompilerOptions_DevMode_OFF)
 	this.externsRoot.detachChildren()
 	this.jsRoot.detachChildren()
 	this.scriptNodeByFilename.clear()
 	var tracer *Tracer = this.newTracer(PassNames_PARSE_INPUTS)
 	this.beforePass(PassNames_PARSE_INPUTS)
-	var ret_1 Node
-	code_1 := func() (code_ int) {
-		defer func() {
-			this.afterPass(PassNames_PARSE_INPUTS)
-			this.stopTracer(tracer, PassNames_PARSE_INPUTS)
-		}()
-		if this.options_.getNumParallelThreads() > 1 {
-			new_PrebuildAst(this.up_AbstractCompiler(), this.options_.getNumParallelThreads()).prebuild(this.externs.asList())
-		}
-		l_2 := this.externs
-		for i_2 := 0; i_2 < len(l_2.items); i_2++ {
-			var input *CompilerInput = l_2.items[i_2]
-			var n Node = input.getAstRoot(this.up_AbstractCompiler())
-			if n == 0 {
-				panic(new_NullPointerException_0())
-			}
-			if this.hasErrors() {
-				ret_1 = 0
-				return 1
-			}
-			this.externsRoot.addChildToBack(n)
-			Map_put_s(this.scriptNodeByFilename, input.getSourceFile().getName(), n.box_())
-		}
-		if this.options_.getLanguageIn().toFeatureSet().has(FeatureSet_Feature_MODULES) || this.options_.getProcessCommonJSModules() {
-			this.initializeModuleLoader()
-		} else {
-			this.moduleLoader = ModuleLoader_EMPTY
-		}
-		if this.options_.getDependencyOptions().needsManagement() {
-			this.findModulesFromEntryPoints(this.options_.getLanguageIn().toFeatureSet().has(FeatureSet_Feature_MODULES), this.options_.getProcessCommonJSModules())
-		} else if this.options_.needsTranspilationFrom(FeatureSet_ES2015_MODULES) || this.options_.getProcessCommonJSModules() {
-			if this.options_.getLanguageIn().toFeatureSet().has(FeatureSet_Feature_MODULES) {
-				this.parsePotentialModules(this.chunkGraph.getAllInputs())
-			}
-			var inputModuleIdentifiers map[string]*CompilerInput = map[string]*CompilerInput{}
-			for input := range elemsAs_[*CompilerInput](this.chunkGraph.getAllInputs()) {
-				if input.getKnownProvides().isEmpty() {
-					var modPath *ModuleLoader_ModulePath = this.moduleLoader.resolve(input.getSourceFile().getName())
-					inputModuleIdentifiers[modPath.toModuleName()] = input
-				}
-			}
-			var inputsToRewrite *TMap[string, *CompilerInput] = newTMap_(tc_string, tc_p_CompilerInput)
-			for input := range elemsAs_[*CompilerInput](this.chunkGraph.getAllInputs()) {
-				for _, el := range immElems_(input.getKnownRequiredSymbols()) {
-					require := str_(el)
-					if has_(inputModuleIdentifiers, require) && !inputsToRewrite.containsKey(require) {
-						inputsToRewrite.put(require, inputModuleIdentifiers[require])
-					}
-				}
-			}
-			for input := range inputsToRewrite.Values() {
-				input.setJsModuleType(CompilerInput_ModuleType_IMPORTED_SCRIPT)
-			}
-		}
-		if this.moduleLoader != nil {
-			this.moduleLoader.setErrorHandler(this)
-		}
-		this.orderInputs()
-		this.markClosureUnawareCode()
-		if this.hasErrors() {
-			ret_1 = 0
-			return 1
-		}
-		if this.options_.getNumParallelThreads() > 1 {
-			new_PrebuildAst(this.up_AbstractCompiler(), this.options_.getNumParallelThreads()).prebuild(this.chunkGraph.getAllInputs())
-		}
-		it_12 := foreach_(this.chunkGraph.getAllInputs())
-		for it_12.next() {
-			var input *CompilerInput = cast_[*CompilerInput](it_12.v)
-			var n Node = input.getAstRoot(this.up_AbstractCompiler())
-			if n == 0 {
-				panic(new_NullPointerException_0())
-			}
-			if devMode {
-				this.runValidityCheck()
-				if this.hasErrors() {
-					ret_1 = 0
-					return 1
-				}
-			}
-			if (this.options_.shouldGatherSourceMapInfo() || this.options_.getExternExportsPath().isPresent()) || !this.options_.getReplaceStringsFunctionDescriptions().isEmpty() {
-				var sia *SourceInformationAnnotator = func() *SourceInformationAnnotator {
-					if this.options_.getDevMode() == CompilerOptions_DevMode_OFF {
-						return SourceInformationAnnotator_create()
-					}
-					return SourceInformationAnnotator_createWithAnnotationChecks(input.getName())
-				}()
-				NodeTraversal_traverse(this.up_AbstractCompiler(), n, icast_NodeTraversal_Callback(obj_(sia)))
-			}
-			if NodeUtil_isFromTypeSummary(n) {
-				input.setIsExtern()
-				this.externsRoot.addChildToBack(n)
-			} else {
-				this.jsRoot.addChildToBack(n)
-			}
-			Map_put_s(this.scriptNodeByFilename, input.getSourceFile().getName(), n.box_())
-		}
-		if this.hasErrors() {
-			ret_1 = 0
-			return 1
-		}
-		if this.typedAstFilesystem != nil {
-			if ok_, a1_ := ((this.typedAstFilesystem.size() == 1) || this.typedAstFilesystem.isEmpty()), int32(this.typedAstFilesystem.size()); !ok_ {
-				panic(new_IllegalStateException_String(istr_(int64(a1_))))
-			}
-		}
-		ret_1 = this.externAndJsRoot
-		return 1
+	defer func() {
+		this.afterPass(PassNames_PARSE_INPUTS)
+		this.stopTracer(tracer, PassNames_PARSE_INPUTS)
 	}()
-	if code_1 == 1 {
-		return ret_1
+	if this.options_.getNumParallelThreads() > 1 {
+		new_PrebuildAst(this.up_AbstractCompiler(), this.options_.getNumParallelThreads()).prebuild(this.externs.asList())
 	}
-	panic("unreachable")
+	l_2 := this.externs
+	for i_2 := 0; i_2 < len(l_2.items); i_2++ {
+		var input *CompilerInput = l_2.items[i_2]
+		var n Node = input.getAstRoot(this.up_AbstractCompiler())
+		if n == 0 {
+			panic(new_NullPointerException_0())
+		}
+		if this.hasErrors() {
+			return 0
+		}
+		this.externsRoot.addChildToBack(n)
+		Map_put_s(this.scriptNodeByFilename, input.getSourceFile().getName(), n.box_())
+	}
+	if this.options_.getLanguageIn().toFeatureSet().has(FeatureSet_Feature_MODULES) || this.options_.getProcessCommonJSModules() {
+		this.initializeModuleLoader()
+	} else {
+		this.moduleLoader = ModuleLoader_EMPTY
+	}
+	if this.options_.getDependencyOptions().needsManagement() {
+		this.findModulesFromEntryPoints(this.options_.getLanguageIn().toFeatureSet().has(FeatureSet_Feature_MODULES), this.options_.getProcessCommonJSModules())
+	} else if this.options_.needsTranspilationFrom(FeatureSet_ES2015_MODULES) || this.options_.getProcessCommonJSModules() {
+		if this.options_.getLanguageIn().toFeatureSet().has(FeatureSet_Feature_MODULES) {
+			this.parsePotentialModules(this.chunkGraph.getAllInputs())
+		}
+		var inputModuleIdentifiers map[string]*CompilerInput = map[string]*CompilerInput{}
+		for input := range elemsAs_[*CompilerInput](this.chunkGraph.getAllInputs()) {
+			if input.getKnownProvides().isEmpty() {
+				var modPath *ModuleLoader_ModulePath = this.moduleLoader.resolve(input.getSourceFile().getName())
+				inputModuleIdentifiers[modPath.toModuleName()] = input
+			}
+		}
+		var inputsToRewrite *TMap[string, *CompilerInput] = newTMap_(tc_string, tc_p_CompilerInput)
+		for input := range elemsAs_[*CompilerInput](this.chunkGraph.getAllInputs()) {
+			for _, el := range immElems_(input.getKnownRequiredSymbols()) {
+				require := str_(el)
+				if has_(inputModuleIdentifiers, require) && !inputsToRewrite.containsKey(require) {
+					inputsToRewrite.put(require, inputModuleIdentifiers[require])
+				}
+			}
+		}
+		for input := range inputsToRewrite.Values() {
+			input.setJsModuleType(CompilerInput_ModuleType_IMPORTED_SCRIPT)
+		}
+	}
+	if this.moduleLoader != nil {
+		this.moduleLoader.setErrorHandler(this)
+	}
+	this.orderInputs()
+	this.markClosureUnawareCode()
+	if this.hasErrors() {
+		return 0
+	}
+	if this.options_.getNumParallelThreads() > 1 {
+		new_PrebuildAst(this.up_AbstractCompiler(), this.options_.getNumParallelThreads()).prebuild(this.chunkGraph.getAllInputs())
+	}
+	it_12 := foreach_(this.chunkGraph.getAllInputs())
+	for it_12.next() {
+		var input *CompilerInput = cast_[*CompilerInput](it_12.v)
+		var n Node = input.getAstRoot(this.up_AbstractCompiler())
+		if n == 0 {
+			panic(new_NullPointerException_0())
+		}
+		if devMode {
+			this.runValidityCheck()
+			if this.hasErrors() {
+				return 0
+			}
+		}
+		if (this.options_.shouldGatherSourceMapInfo() || this.options_.getExternExportsPath().isPresent()) || !this.options_.getReplaceStringsFunctionDescriptions().isEmpty() {
+			var sia *SourceInformationAnnotator = func() *SourceInformationAnnotator {
+				if this.options_.getDevMode() == CompilerOptions_DevMode_OFF {
+					return SourceInformationAnnotator_create()
+				}
+				return SourceInformationAnnotator_createWithAnnotationChecks(input.getName())
+			}()
+			NodeTraversal_traverse(this.up_AbstractCompiler(), n, icast_NodeTraversal_Callback(obj_(sia)))
+		}
+		if NodeUtil_isFromTypeSummary(n) {
+			input.setIsExtern()
+			this.externsRoot.addChildToBack(n)
+		} else {
+			this.jsRoot.addChildToBack(n)
+		}
+		Map_put_s(this.scriptNodeByFilename, input.getSourceFile().getName(), n.box_())
+	}
+	if this.hasErrors() {
+		return 0
+	}
+	if this.typedAstFilesystem != nil {
+		if ok_, a1_ := ((this.typedAstFilesystem.size() == 1) || this.typedAstFilesystem.isEmpty()), int32(this.typedAstFilesystem.size()); !ok_ {
+			panic(new_IllegalStateException_String(istr_(int64(a1_))))
+		}
+	}
+	return this.externAndJsRoot
 }
 
 func (this *Compiler) preferRegexParser_impl() bool {
@@ -1641,12 +1601,11 @@ func (this *Compiler) setPreferRegexParser(preferRegexParser bool) {
 func (this *Compiler) orderInputsWithLargeStack() {
 	this.runInCompilerThread(func() any {
 		var tracer *Tracer = this.newTracer("orderInputsWithLargeStack")
-		_ = func() (code_ int) {
+		func() {
 			defer func() {
 				this.stopTracer(tracer, "orderInputsWithLargeStack")
 			}()
 			this.orderInputs()
-			return 0
 		}()
 		return nil
 	})
@@ -1928,41 +1887,33 @@ func (this *Compiler) getDefaultErrorReporter_impl() ErrorReporter_rhino {
 }
 
 func (this *Compiler) toSource_impl() string {
-	return str_(this.runInCompilerThread(func() any {
+	return str_(this.runInCompilerThread(func() (ret_1 any) {
 		var tracer *Tracer = this.newTracer("toSource")
-		var ret_1 any
-		code_1 := func() (code_ int) {
-			defer func() {
-				this.stopTracer(tracer, "toSource")
-			}()
-			var cb *Compiler_CodeBuilder = new_Compiler_CodeBuilder()
-			var lt *Compiler_SingleBinaryLicenseTracker = new_Compiler_SingleBinaryLicenseTracker(this.up_AbstractCompiler())
-			if this.jsRoot != 0 {
-				var i int32 = 0
-				if this.options_.shouldPrintExterns() {
-					{
-						var scriptNode Node = this.externsRoot.getFirstChild()
-						for ; scriptNode != 0; scriptNode = scriptNode.getNext() {
-							this.toSource_4(cb, lt, i, scriptNode)
-							i++
-						}
-					}
-				}
+		defer func() {
+			this.stopTracer(tracer, "toSource")
+		}()
+		var cb *Compiler_CodeBuilder = new_Compiler_CodeBuilder()
+		var lt *Compiler_SingleBinaryLicenseTracker = new_Compiler_SingleBinaryLicenseTracker(this.up_AbstractCompiler())
+		if this.jsRoot != 0 {
+			var i int32 = 0
+			if this.options_.shouldPrintExterns() {
 				{
-					var scriptNode Node = this.jsRoot.getFirstChild()
+					var scriptNode Node = this.externsRoot.getFirstChild()
 					for ; scriptNode != 0; scriptNode = scriptNode.getNext() {
 						this.toSource_4(cb, lt, i, scriptNode)
 						i++
 					}
 				}
 			}
-			ret_1 = strobj_(cb.toString())
-			return 1
-		}()
-		if code_1 == 1 {
-			return ret_1
+			{
+				var scriptNode Node = this.jsRoot.getFirstChild()
+				for ; scriptNode != 0; scriptNode = scriptNode.getNext() {
+					this.toSource_4(cb, lt, i, scriptNode)
+					i++
+				}
+			}
 		}
-		panic("unreachable")
+		return strobj_(cb.toString())
 	}))
 }
 

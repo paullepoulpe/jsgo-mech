@@ -418,7 +418,7 @@ func (this *ProcessClosurePrimitives) processForwardDeclare(n Node) {
 	}
 	var convention CodingConvention = this.compiler_.getCodingConvention()
 	var typeDeclaration OptionalOf[string] = Optional_empty[string]()
-	_ = func() (code_ int) {
+	func() {
 		defer func() {
 			if r_ := recover(); r_ != nil {
 				ex_ := catch_(r_)
@@ -432,7 +432,6 @@ func (this *ProcessClosurePrimitives) processForwardDeclare(n Node) {
 			}
 		}()
 		typeDeclaration = Optional_ofNullable[string](str_(Iterables_getOnlyElement(Iterable(sliceView_(tc_string, convention.identifyTypeDeclarationCall(n))))))
-		return 0
 	}()
 	if typeDeclaration.isPresent() {
 		this.compiler_.forwardDeclareType(typeDeclaration.get())

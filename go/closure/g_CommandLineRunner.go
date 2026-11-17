@@ -553,7 +553,7 @@ func CommandLineRunner_loadConformanceConfig(configFile string) *Outcome_base[Me
 	if textProto != "" && (int32(String_charAt(textProto, 0)) == CommandLineRunner_UTF8_BOM_CODE) {
 		textProto = String_substring_int(textProto, 1)
 	}
-	_ = func() (code_ int) {
+	func() {
 		defer func() {
 			if r_ := recover(); r_ != nil {
 				ex_ := catch_(r_)
@@ -565,7 +565,6 @@ func CommandLineRunner_loadConformanceConfig(configFile string) *Outcome_base[Me
 			}
 		}()
 		TextFormat_merge(strobj_(textProto), icast_Message_Builder(obj_(builder)))
-		return 0
 	}()
 	return Outcome_base_ok_Object[MessageLite](builder.build())
 }

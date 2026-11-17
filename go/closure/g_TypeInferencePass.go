@@ -33,7 +33,7 @@ func new_TypeInferencePass(compiler *AbstractCompiler, reverseInterpreter Revers
 }
 
 func (this *TypeInferencePass) inferAllScopes(inferenceRoot Node) *TypedScope {
-	_ = func() (code_ int) {
+	func() {
 		var closer *JSTypeResolver_Closer = this.registry.getResolver().openForDefinition()
 		defer closeResource_(obj_(closer))
 		if !inferenceRoot.isRoot() {
@@ -48,7 +48,6 @@ func (this *TypeInferencePass) inferAllScopes(inferenceRoot Node) *TypedScope {
 		this.topScope = cast_[*TypedScope](this.scopeCreator.createScopeAbstractScope(inferenceRoot, nil).self())
 		NodeTraversal_builder().setCompiler(this.compiler_).setCallback(new_TypeInferencePass_FirstScopeBuildingCallback()).setScopeCreator(icast_ScopeCreator(obj_(this.scopeCreator))).traverseWithScope(inferenceRoot, this.topScope.up_AbstractScope())
 		this.scopeCreator.resolveWeakImportsPreResolution()
-		return 0
 	}()
 	this.scopeCreator.finishAndFreeze()
 	NodeTraversal_builder().setCompiler(this.compiler_).setCallback(new_TypeInferencePass_SecondScopeBuildingCallback(this)).setScopeCreator(icast_ScopeCreator(obj_(this.scopeCreator))).traverseWithScope(inferenceRoot, this.topScope.up_AbstractScope())
@@ -59,7 +58,7 @@ func (this *TypeInferencePass) inferAllScopes(inferenceRoot Node) *TypedScope {
 		}
 	}
 	if this.stepCountHistogram != nil {
-		_ = func() (code_ int) {
+		func() {
 			var histogram *LogFile = this.compiler_.createOrReopenLog(Object_getClass(any(this)), "step_histogram.log", []string{})
 			defer closeResource_(histogram.self())
 			histogram.logString("step_count token population")
@@ -76,7 +75,6 @@ func (this *TypeInferencePass) inferAllScopes(inferenceRoot Node) *TypedScope {
 				}
 			}
 			histogram.log_2("%s TOTAL %s", []any{any(int32(totals[0])), any(int32(totals[1]))})
-			return 0
 		}()
 	}
 	return this.topScope

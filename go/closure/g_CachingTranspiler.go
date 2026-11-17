@@ -21,29 +21,21 @@ func new_CachingTranspiler(delegate Transpiler_transpile, builder CacheBuilderOf
 	return this
 }
 
-func (this *CachingTranspiler) transpile(path string, code string) *TranspileResult {
-	var ret_1 *TranspileResult
-	code_1 := func() (code_ int) {
-		defer func() {
-			if r_ := recover(); r_ != nil {
-				ex_ := catch_(r_)
-				if e, ok := ex_.(*UncheckedExecutionException); ok {
-					if _, ok2 := e.getCause().self().(*TranspilationException); ok2 {
-						panic(new_TranspilationException_Exception(e.up_Exception()))
-					} else {
-						panic(e.self())
-					}
+func (this *CachingTranspiler) transpile(path string, code string) (ret_1 *TranspileResult) {
+	defer func() {
+		if r_ := recover(); r_ != nil {
+			ex_ := catch_(r_)
+			if e, ok := ex_.(*UncheckedExecutionException); ok {
+				if _, ok2 := e.getCause().self().(*TranspilationException); ok2 {
+					panic(new_TranspilationException_Exception(e.up_Exception()))
+				} else {
+					panic(e.self())
 				}
-				panic(r_)
 			}
-		}()
-		ret_1 = cast_[*TranspileResult](this.cache.getUnchecked(obj_(new_CachingTranspiler_Key(path, code))))
-		return 1
+			panic(r_)
+		}
 	}()
-	if code_1 == 1 {
-		return ret_1
-	}
-	panic("unreachable")
+	return cast_[*TranspileResult](this.cache.getUnchecked(obj_(new_CachingTranspiler_Key(path, code))))
 }
 
 func (this *CachingTranspiler) runtime() string {
