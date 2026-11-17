@@ -94,7 +94,7 @@ func (this *ReplaceMessages) lookupMessage(callNode Node, bundle MessageBundle, 
 	if alternateMessage != nil {
 		var jsCodePlaceholderNames ImmutableSetOf[string] = message.jsPlaceholderNames()
 		var alternateMsgPlaceholderNames ImmutableSetOf[string] = alternateMessage.jsPlaceholderNames()
-		if !Objects_equals(obj_(jsCodePlaceholderNames), obj_(alternateMsgPlaceholderNames)) {
+		if !objequalsBy_(jsCodePlaceholderNames, obj_(alternateMsgPlaceholderNames), (ImmutableSetOf[string]).equals) {
 			if jsCodePlaceholderNames.isEmpty() && ReplaceMessages_isStartOfIcuMessage(message.asIcuMessageString()) {
 				return alternateMessage
 			} else {
@@ -183,7 +183,7 @@ func (this *ReplaceMessages) createHookExpressionForGenderedMsg(type_ AstFactory
 		panic("unreachable")
 	}
 	for _, grammaticalGender := range msg.getGenderedMessageVariants() {
-		if Object_equals(obj_(grammaticalGender), obj_(JsMessage_GrammaticalGenderCase_OTHER)) {
+		if equalsId_(grammaticalGender, JsMessage_GrammaticalGenderCase_OTHER) {
 			continue
 		}
 		var condition Node = this.createConditionForGrammaticalGender(type_, grammaticalGender, nodeToReplace)

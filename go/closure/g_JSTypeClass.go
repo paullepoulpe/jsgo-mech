@@ -61,7 +61,7 @@ func (this JSTypeClass) self() any {
 }
 
 func (this JSTypeClass) isTypeOf(t *JSType) bool {
-	return Object_equals(obj_(this), obj_(t.getTypeClass()))
+	return this == t.getTypeClass()
 }
 
 func JSTypeClass_values() []JSTypeClass {

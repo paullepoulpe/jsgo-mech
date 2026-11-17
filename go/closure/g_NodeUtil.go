@@ -80,7 +80,7 @@ func NodeUtil_getBooleanValue(n Node) Tri {
 		case Token_rhino_HOOK:
 			var trueValue Tri = NodeUtil_getBooleanValue(n.getSecondChild())
 			var falseValue Tri = NodeUtil_getBooleanValue(n.getLastChild())
-			if Object_equals(obj_(trueValue), obj_(falseValue)) {
+			if equalsId_(trueValue, falseValue) {
 				return trueValue
 			} else {
 				return Tri_UNKNOWN
@@ -88,7 +88,7 @@ func NodeUtil_getBooleanValue(n Node) Tri {
 		case Token_rhino_COALESCE, Token_rhino_ASSIGN_COALESCE:
 			var lhs Tri = NodeUtil_getBooleanValue(n.getFirstChild())
 			var rhs Tri = NodeUtil_getBooleanValue(n.getLastChild())
-			if Object_equals(obj_(lhs), obj_(Tri_TRUE)) || Object_equals(obj_(lhs), obj_(rhs)) {
+			if equalsId_(lhs, Tri_TRUE) || equalsId_(lhs, rhs) {
 				return lhs
 			} else {
 				return Tri_UNKNOWN
@@ -5014,13 +5014,13 @@ func (this *NodeUtil_GoogRequire) equals(p0 any) bool {
 	if !ok || o == nil {
 		return false
 	}
-	return true && this.namespace_ == o.namespace_ && Objects_equals(obj_(optErase_(this.property_)), obj_(optErase_(o.property_))) && this.isStrongRequire_ == o.isStrongRequire_
+	return true && this.namespace_ == o.namespace_ && optequals_(this.property_, o.property_) && this.isStrongRequire_ == o.isStrongRequire_
 }
 
 func (this *NodeUtil_GoogRequire) hashCode() int32 {
 	var h int32
 	h = h*31 + objhashStr_(this.namespace_)
-	h = h*31 + Objects_hashCode(obj_(optErase_(this.property_)))
+	h = h*31 + objhashBy_(this.property_, (OptionalOf[string]).hashCode)
 	h = h*31 + Boolean_hashCode(bool(this.isStrongRequire_))
 	return h
 }

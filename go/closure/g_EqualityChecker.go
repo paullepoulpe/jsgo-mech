@@ -93,7 +93,7 @@ func (this *EqualityChecker) areEqualInternal(left *JSType, right *JSType) bool 
 		return false
 	}
 	if left.isNoResolvedType() && right.isNoResolvedType() {
-		return Object_equals(obj_(optErase_(left.toObjectType().getReferenceName())), obj_(optErase_(right.toObjectType().getReferenceName())))
+		return optequalsOn_(left.toObjectType().getReferenceName(), right.toObjectType().getReferenceName())
 	}
 	var leftUnknown bool = left.isUnknownType()
 	var rightUnknown bool = right.isUnknownType()
@@ -238,7 +238,7 @@ func (this *EqualityChecker) areFunctionEqual(left *FunctionType, right *Functio
 	if JSCompObjects_identical(left.self(), right.self()) {
 		return true
 	}
-	if !Objects_equals(obj_(left.getKind()), obj_(right.getKind())) {
+	if left.getKind() != right.getKind() {
 		return false
 	}
 	return func() bool {
@@ -246,7 +246,7 @@ func (this *EqualityChecker) areFunctionEqual(left *FunctionType, right *Functio
 		case FunctionType_Kind_CONSTRUCTOR, FunctionType_Kind_INTERFACE:
 			return false
 		case FunctionType_Kind_ORDINARY:
-			return ((this.areEqualCaching(left.getTypeOfThis(), right.getTypeOfThis()) && this.areEqualCaching(left.getInternalArrowType().up_JSType(), right.getInternalArrowType().up_JSType())) && Objects_equals(obj_(left.getClosurePrimitive()), obj_(right.getClosurePrimitive())))
+			return ((this.areEqualCaching(left.getTypeOfThis(), right.getTypeOfThis()) && this.areEqualCaching(left.getInternalArrowType().up_JSType(), right.getInternalArrowType().up_JSType())) && left.getClosurePrimitive() == right.getClosurePrimitive())
 		default:
 			panic(new_AssertionError_0().self())
 		}
@@ -289,7 +289,7 @@ func (this *EqualityChecker) areArrowParameterEqual(left *ArrowType, right *Arro
 func (this *EqualityChecker) areRecordEqual(left *RecordType, right *RecordType) bool {
 	var leftKeys SetOf[string] = left.getOwnPropertyNames()
 	var rightKeys SetOf[string] = right.getOwnPropertyNames()
-	if !Object_equals(any(rightKeys), any(leftKeys)) {
+	if !equalsDyn_(rightKeys, any(leftKeys)) {
 		return false
 	}
 	it_1 := foreach_(any(leftKeys))

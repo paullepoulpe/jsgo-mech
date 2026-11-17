@@ -58,13 +58,13 @@ func TypedAstDeserializer_deserializeRuntimeLibraries(compiler *AbstractCompiler
 }
 
 func TypedAstDeserializer_deserialize(compiler *AbstractCompiler, syntheticExterns *SourceFile_jscomp, requiredInputFiles Optional_baseOf[ImmutableSetOf[*SourceFile_jscomp]], scriptSourceFiles ImmutableMapOf[string, *SourceFile_jscomp], colorPool Optional_baseOf[*ColorPool_Builder], typedAstStream []int8, mode TypedAstDeserializer_Mode, includeTypeInformation bool, resolveSourceMapAnnotations bool, parseInlineSourceMaps bool) *TypedAstDeserializer_DeserializedAst {
-	if colorPool.isPresent() != (Object_equals(obj_(mode), obj_(TypedAstDeserializer_Mode_RUNTIME_LIBRARY_ONLY)) && includeTypeInformation) {
+	if colorPool.isPresent() != (equalsId_(mode, TypedAstDeserializer_Mode_RUNTIME_LIBRARY_ONLY) && includeTypeInformation) {
 		panic(new_IllegalArgumentException_String("ColorPool.Builder required iff deserializing runtime libraries & including types").self())
 	}
 	var deserializer *TypedAstDeserializer = new_TypedAstDeserializer(syntheticExterns, colorPool, requiredInputFiles, mode, includeTypeInformation)
 	deserializer.addToFilePool(syntheticExterns.getName(), syntheticExterns)
 	Map_forEach_f(icast_Map(obj_(scriptSourceFiles)), func(p0 any, p1 any) { deserializer.addToFilePool(str_(p0), cast_[*SourceFile_jscomp](p1)) })
-	if !Object_equals(obj_(mode), obj_(TypedAstDeserializer_Mode_RUNTIME_LIBRARY_ONLY)) {
+	if !equalsId_(mode, TypedAstDeserializer_Mode_RUNTIME_LIBRARY_ONLY) {
 		compiler.initRuntimeLibraryTypedAsts(deserializer.colorPoolBuilder)
 	}
 	TypedAstDeserializer_deserializeTypedAsts(typedAstStream, deserializer, compiler, resolveSourceMapAnnotations, parseInlineSourceMaps)
@@ -77,7 +77,7 @@ func TypedAstDeserializer_deserialize(compiler *AbstractCompiler, syntheticExter
 
 func (this *TypedAstDeserializer) toDeserializedAst() *TypedAstDeserializer_DeserializedAst {
 	var registry Optional_baseOf[*ColorRegistry] = func() *Optional_base {
-		if Object_equals(obj_(this.mode_), obj_(TypedAstDeserializer_Mode_RUNTIME_LIBRARY_ONLY)) || !this.colorPoolBuilder.isPresent() {
+		if equalsId_(this.mode_, TypedAstDeserializer_Mode_RUNTIME_LIBRARY_ONLY) || !this.colorPoolBuilder.isPresent() {
 			return Optional_base_absent()
 		}
 		return Optional_base_of(obj_(cast_[*ColorPool_Builder](this.colorPoolBuilder.get()).build().getRegistry()))
@@ -87,7 +87,7 @@ func (this *TypedAstDeserializer) toDeserializedAst() *TypedAstDeserializer_Dese
 
 func (this *TypedAstDeserializer) deserializeTypedAst(typedAstProto *TypedAst, compiler *AbstractCompiler, resolveSourceMapAnnotations bool, parseInlineSourceMaps bool) {
 	var fileShard []*SourceFile_jscomp = this.toFileShard(typedAstProto)
-	if Object_equals(obj_(this.mode_), obj_(TypedAstDeserializer_Mode_FULL_AST)) {
+	if equalsId_(this.mode_, TypedAstDeserializer_Mode_FULL_AST) {
 		var containsRequiredInput bool = false
 		it_1 := foreach_(any(Iterables_concat(Iterable(typedAstProto.getExternAstList()), Iterable(typedAstProto.getCodeAstList()))))
 		for it_1.next() {
@@ -347,9 +347,15 @@ type TypedAstDeserializer_DeserializedAst struct {
 }
 
 func (this *TypedAstDeserializer_DeserializedAst) init_TypedAstDeserializer_DeserializedAst(getFilesystem ConcurrentMapOf[*SourceFile_jscomp, SupplierOf[Node]], getColorRegistry Optional_baseOf[*ColorRegistry], getExternProperties ImmutableSetOf[string], getRuntimeLibraries ImmutableSetOf[string]) {
-	Objects_requireNonNull(any(getFilesystem), "getFilesystem")
-	Objects_requireNonNull(obj_(getColorRegistry), "getColorRegistry")
-	Objects_requireNonNull(obj_(getRuntimeLibraries), "getRuntimeLibraries")
+	if getFilesystem == nil {
+		panic(new_NullPointerException_String("getFilesystem").self())
+	}
+	if getColorRegistry == nil {
+		panic(new_NullPointerException_String("getColorRegistry").self())
+	}
+	if getRuntimeLibraries == nil {
+		panic(new_NullPointerException_String("getRuntimeLibraries").self())
+	}
 	this.getFilesystem_ = getFilesystem
 	this.getColorRegistry_ = getColorRegistry
 	this.getExternProperties_ = getExternProperties
@@ -391,14 +397,14 @@ func (this *TypedAstDeserializer_DeserializedAst) equals(p0 any) bool {
 	if !ok || o == nil {
 		return false
 	}
-	return true && Objects_equals(any(this.getFilesystem_), any(o.getFilesystem_)) && objequalsBy_(this.getColorRegistry_, obj_(o.getColorRegistry_), (Optional_baseOf[*ColorRegistry]).equals) && Objects_equals(obj_(this.getExternProperties_), obj_(o.getExternProperties_)) && Objects_equals(obj_(this.getRuntimeLibraries_), obj_(o.getRuntimeLibraries_))
+	return true && objequalsDyn_(this.getFilesystem_, any(o.getFilesystem_)) && objequalsBy_(this.getColorRegistry_, obj_(o.getColorRegistry_), (Optional_baseOf[*ColorRegistry]).equals) && objequalsBy_(this.getExternProperties_, obj_(o.getExternProperties_), (ImmutableSetOf[string]).equals) && objequalsBy_(this.getRuntimeLibraries_, obj_(o.getRuntimeLibraries_), (ImmutableSetOf[string]).equals)
 }
 
 func (this *TypedAstDeserializer_DeserializedAst) hashCode() int32 {
 	var h int32
-	h = h*31 + Objects_hashCode(any(this.getFilesystem_))
+	h = h*31 + objhashDyn_(this.getFilesystem_)
 	h = h*31 + objhashBy_(this.getColorRegistry_, (Optional_baseOf[*ColorRegistry]).hashCode)
-	h = h*31 + Objects_hashCode(obj_(this.getExternProperties_))
-	h = h*31 + Objects_hashCode(obj_(this.getRuntimeLibraries_))
+	h = h*31 + objhashBy_(this.getExternProperties_, (ImmutableSetOf[string]).hashCode)
+	h = h*31 + objhashBy_(this.getRuntimeLibraries_, (ImmutableSetOf[string]).hashCode)
 	return h
 }

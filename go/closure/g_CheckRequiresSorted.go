@@ -114,7 +114,7 @@ func CheckRequiresSorted_parseImport(callNode Node) *CheckRequiresSorted_ImportS
 
 func (this *CheckRequiresSorted) checkCanonical(t *NodeTraversal) {
 	var canonicalImports *TList[*CheckRequiresSorted_ImportStatement] = CheckRequiresSorted_canonicalizeImports(this.importsByNamespace)
-	if !Object_equals(any(sliceView_(tc_p_CheckRequiresSorted_ImportStatement, this.originalImports)), any(canonicalImports.asList())) {
+	if !equalsVia_(sliceView_(tc_p_CheckRequiresSorted_ImportStatement, this.originalImports), any(canonicalImports.asList())) {
 		this.needsFixField = true
 		this.replacement_ = Optional_of[string](String_join_s("\n", Iterables_transform(Iterable(canonicalImports.asList()), lambda_CheckRequiresSorted_checkCanonical_1_)))
 		if this.mode_ == CheckRequiresSorted_Mode_COLLECT_AND_REPORT {
@@ -343,7 +343,7 @@ func (this CheckRequiresSorted_ImportPrimitive) init_CheckRequiresSorted_ImportP
 
 func CheckRequiresSorted_ImportPrimitive_fromName(name OptionalOf[string]) CheckRequiresSorted_ImportPrimitive {
 	for _, primitive := range CheckRequiresSorted_ImportPrimitive_values() {
-		if Object_equals(obj_(Optional_of(strobj_(CheckRequiresSorted_ImportPrimitive_nameField_[primitive-1]))), obj_(optErase_(name))) {
+		if optequalsOn_(Optional_of(strobj_(CheckRequiresSorted_ImportPrimitive_nameField_[primitive-1])), optErase_(name)) {
 			return primitive
 		}
 	}
@@ -497,8 +497,12 @@ func (this *CheckRequiresSorted_ImportStatement) zero_CheckRequiresSorted_Import
 }
 
 func (this *CheckRequiresSorted_ImportStatement) init_CheckRequiresSorted_ImportStatement(nodes ImmutableListOf[Node], primitive CheckRequiresSorted_ImportPrimitive, namespace string, alias OptionalOf[string], destructures ImmutableListOf[*CheckRequiresSorted_DestructuringBinding]) {
-	Objects_requireNonNull(obj_(nodes), "nodes")
-	Objects_requireNonNull(obj_(primitive), "primitive")
+	if nodes == nil {
+		panic(new_NullPointerException_String("nodes").self())
+	}
+	if primitive == 0 {
+		panic(new_NullPointerException_String("primitive").self())
+	}
 	if !alias.isEmpty() && destructures != nil {
 		panic(new_IllegalArgumentException_String("Import statement cannot be simultaneously aliasing and destructuring").self())
 	}
@@ -627,16 +631,16 @@ func (this *CheckRequiresSorted_ImportStatement) equals(p0 any) bool {
 	if !ok || o == nil {
 		return false
 	}
-	return true && Objects_equals(obj_(this.nodes_), obj_(o.nodes_)) && Objects_equals(obj_(this.primitive_), obj_(o.primitive_)) && this.namespace_ == o.namespace_ && Objects_equals(obj_(optErase_(this.alias_)), obj_(optErase_(o.alias_))) && Objects_equals(obj_(this.destructures_), obj_(o.destructures_))
+	return true && objequalsBy_(this.nodes_, obj_(o.nodes_), (ImmutableListOf[Node]).equals) && this.primitive_ == o.primitive_ && this.namespace_ == o.namespace_ && optequals_(this.alias_, o.alias_) && objequalsBy_(this.destructures_, obj_(o.destructures_), (ImmutableListOf[*CheckRequiresSorted_DestructuringBinding]).equals)
 }
 
 func (this *CheckRequiresSorted_ImportStatement) hashCode() int32 {
 	var h int32
-	h = h*31 + Objects_hashCode(obj_(this.nodes_))
-	h = h*31 + Objects_hashCode(obj_(this.primitive_))
+	h = h*31 + objhashBy_(this.nodes_, (ImmutableListOf[Node]).hashCode)
+	h = h*31 + objhashId_(this.primitive_)
 	h = h*31 + objhashStr_(this.namespace_)
-	h = h*31 + Objects_hashCode(obj_(optErase_(this.alias_)))
-	h = h*31 + Objects_hashCode(obj_(this.destructures_))
+	h = h*31 + objhashBy_(this.alias_, (OptionalOf[string]).hashCode)
+	h = h*31 + objhashBy_(this.destructures_, (ImmutableListOf[*CheckRequiresSorted_DestructuringBinding]).hashCode)
 	return h
 }
 

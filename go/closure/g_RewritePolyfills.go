@@ -119,7 +119,7 @@ func (this *RewritePolyfills) inject(polyfillUsage *PolyfillUsageFinder_Polyfill
 	var polyfill *PolyfillUsageFinder_Polyfill = polyfillUsage.polyfill()
 	var outputFeatureSet *FeatureSet = this.compiler_.getOptions().getOutputFeatureSet()
 	var featuresRequiredByPolyfill *FeatureSet = FeatureSet_valueOf(polyfill.polyfillVersion)
-	if Object_equals(obj_(polyfill.kind_), obj_(PolyfillUsageFinder_Polyfill_Kind_STATIC)) && !outputFeatureSet.containsFeatureSet(featuresRequiredByPolyfill) {
+	if equalsId_(polyfill.kind_, PolyfillUsageFinder_Polyfill_Kind_STATIC) && !outputFeatureSet.containsFeatureSet(featuresRequiredByPolyfill) {
 		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(polyfillUsage.node(), RewritePolyfills_INSUFFICIENT_OUTPUT_VERSION_ERROR, []string{polyfillUsage.name(), outputFeatureSet.version()}))
 	}
 	if !outputFeatureSet.containsFeatureSet(FeatureSet_valueOf(polyfill.nativeVersion)) && polyfill.library != "" {

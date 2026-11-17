@@ -170,11 +170,11 @@ func (this *FeatureSet) equals(other any) bool {
 		}
 		featureSet = p
 		return true
-	}() && Object_equals(obj_(featureSet.features_), obj_(this.features_)))
+	}() && equalsBy_(featureSet.features_, obj_(this.features_), (ImmutableSetOf[FeatureSet_Feature]).equals))
 }
 
 func (this *FeatureSet) hashCode() int32 {
-	return Object_hashCode(obj_(this.features_))
+	return hashBy_(this.features_, (ImmutableSetOf[FeatureSet_Feature]).hashCode)
 }
 
 func (this *FeatureSet) toString() string {

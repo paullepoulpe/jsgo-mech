@@ -210,7 +210,7 @@ func InferJSDocInfo_attachJSDocInfoToNominalTypeOrShape(objType *ObjectType, doc
 }
 
 func InferJSDocInfo_isReferenceNameOf(type_ *ObjectType, name OptionalOf[string]) bool {
-	return (type_.hasReferenceName() && Object_equals(obj_(optErase_(type_.getReferenceName())), obj_(optErase_(name))))
+	return (type_.hasReferenceName() && optequalsOn_(type_.getReferenceName(), name))
 }
 
 // visit: an object that is exactly a InferJSDocInfo calls its visit_impl directly (post-flip); others dispatch.

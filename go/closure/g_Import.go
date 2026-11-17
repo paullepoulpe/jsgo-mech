@@ -18,8 +18,12 @@ func (this *Import) zero_Import() {
 }
 
 func (this *Import) init_Import(moduleRequest string, importName string, localName string, modulePath *ModuleLoader_ModulePath, importNode Node, nameNode Node) {
-	Objects_requireNonNull(importNode.box_(), "importNode")
-	Objects_requireNonNull(nameNode.box_(), "nameNode")
+	if importNode == 0 {
+		panic(new_NullPointerException_String("importNode").self())
+	}
+	if nameNode == 0 {
+		panic(new_NullPointerException_String("nameNode").self())
+	}
 	this.moduleRequest_ = moduleRequest
 	this.importName_ = importName
 	this.localName_ = localName

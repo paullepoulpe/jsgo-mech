@@ -155,19 +155,19 @@ func (this *CheckAccessControls) checkDeprecation(node Node, propRef *CheckAcces
 		this.checkNameDeprecation(traversal, node)
 	default:
 	}
-	if (propRef != nil) && !Object_equals(obj_(identifierBehaviour), obj_(CheckAccessControls_IdentifierBehaviour_ES5_CLASS_NAMESPACE)) {
+	if (propRef != nil) && !equalsId_(identifierBehaviour, CheckAccessControls_IdentifierBehaviour_ES5_CLASS_NAMESPACE) {
 		this.checkPropertyDeprecation(traversal, propRef)
 	}
 }
 
 func (this *CheckAccessControls) checkVisibility(node Node, propRef *CheckAccessControls_PropertyReference, identifierBehaviour CheckAccessControls_IdentifierBehaviour, scope *Scope) {
-	if Object_equals(obj_(identifierBehaviour), obj_(CheckAccessControls_IdentifierBehaviour_ES6_CLASS_INVOCATION)) {
+	if equalsId_(identifierBehaviour, CheckAccessControls_IdentifierBehaviour_ES6_CLASS_INVOCATION) {
 		this.checkEs6ConstructorInvocationVisibility(node)
 	}
-	if !Object_equals(obj_(identifierBehaviour), obj_(CheckAccessControls_IdentifierBehaviour_ES5_CLASS_NAMESPACE)) {
+	if !equalsId_(identifierBehaviour, CheckAccessControls_IdentifierBehaviour_ES5_CLASS_NAMESPACE) {
 		this.checkNameVisibility(scope, node)
 	}
-	if (propRef != nil) && !Object_equals(obj_(identifierBehaviour), obj_(CheckAccessControls_IdentifierBehaviour_ES5_CLASS_NAMESPACE)) {
+	if (propRef != nil) && !equalsId_(identifierBehaviour, CheckAccessControls_IdentifierBehaviour_ES5_CLASS_NAMESPACE) {
 		this.checkPropertyVisibility(propRef)
 	}
 }
@@ -271,7 +271,7 @@ func (this *CheckAccessControls) isPackageAccessAllowed(var_ *Var, name Node) bo
 	var codingConvention CodingConvention = this.compiler_.getCodingConvention()
 	var srcPackage OptionalOf[string] = codingConvention.getPackageName(varSrc)
 	var refPackage OptionalOf[string] = codingConvention.getPackageName(refSrc)
-	return ((srcPackage.isPresent() && refPackage.isPresent()) && Object_equals(obj_(optErase_(srcPackage)), obj_(optErase_(refPackage))))
+	return ((srcPackage.isPresent() && refPackage.isPresent()) && optequalsOn_(srcPackage, refPackage))
 }
 
 func (this *CheckAccessControls) checkPropertyOverrideVisibilityIsSame(overriding JSDocInfo_Visibility, overridden JSDocInfo_Visibility, fileOverview JSDocInfo_Visibility, propRef *CheckAccessControls_PropertyReference) {
@@ -305,14 +305,14 @@ func (this *CheckAccessControls) checkFinalClassOverrides(ctor Node) {
 }
 
 func (this *CheckAccessControls) checkConstantProperty(propRef *CheckAccessControls_PropertyReference, identifierBehaviour CheckAccessControls_IdentifierBehaviour) {
-	if (propRef == nil) || Object_equals(obj_(identifierBehaviour), obj_(CheckAccessControls_IdentifierBehaviour_ES5_CLASS_NAMESPACE)) {
+	if (propRef == nil) || equalsId_(identifierBehaviour, CheckAccessControls_IdentifierBehaviour_ES5_CLASS_NAMESPACE) {
 		return
 	}
 	var objectType *ObjectType = CheckAccessControls_dereference(propRef.receiverType().up_JSType())
 	var propertyName string = propRef.name()
 	var sourceNode Node = propRef.sourceNode()
 	var constness CheckAccessControls_Constancy = this.isPropertyDeclaredConstant(objectType, propertyName)
-	if Object_equals(obj_(constness), obj_(CheckAccessControls_Constancy_MUTABLE)) {
+	if equalsId_(constness, CheckAccessControls_Constancy_MUTABLE) {
 		return
 	}
 	if sourceNode.isFromExterns() && propRef.declaration() {
@@ -336,7 +336,7 @@ func (this *CheckAccessControls) checkConstantProperty(propRef *CheckAccessContr
 	var init_ *CheckAccessControls_ConstantDeclaration = this.getConstPropertyInit(propRef, objectType)
 	if init_ != nil {
 		var diagnostic *DiagnosticType = func() *DiagnosticType {
-			if Object_equals(obj_(init_.annotation), obj_(CheckAccessControls_Constancy_FINAL)) {
+			if equalsId_(init_.annotation, CheckAccessControls_Constancy_FINAL) {
 				return CheckAccessControls_FINAL_PROPERTY_OVERRIDDEN
 			}
 			return CheckAccessControls_CONST_PROPERTY_REASSIGNED_VALUE
@@ -465,7 +465,7 @@ func (this *CheckAccessControls) checkEs6ConstructorInvocationVisibility(target 
 	}}).build()
 	var annotatedCtorVisibility JSDocInfo_Visibility = CheckAccessControls_getEffectiveVisibilityForNonOverriddenProperty(fauxCtorRef, prototypeType, cast_[JSDocInfo_Visibility](this.defaultVisibilityForFiles.get(definingSource)))
 	var effectiveCtorVisibility JSDocInfo_Visibility = func() JSDocInfo_Visibility {
-		if Object_equals(obj_(annotatedCtorVisibility), obj_(JSDocInfo_Visibility_INHERITED)) {
+		if equalsId_(annotatedCtorVisibility, JSDocInfo_Visibility_INHERITED) {
 			return JSDocInfo_Visibility_PUBLIC
 		}
 		return annotatedCtorVisibility
@@ -511,7 +511,7 @@ func (this *CheckAccessControls) checkPackagePropertyVisibility(propRef *CheckAc
 	var codingConvention CodingConvention = this.compiler_.getCodingConvention()
 	var refPackage OptionalOf[string] = codingConvention.getPackageName(referenceSource)
 	var defPackage OptionalOf[string] = codingConvention.getPackageName(definingSource)
-	if (refPackage.isEmpty() || defPackage.isEmpty()) || !Object_equals(obj_(optErase_(refPackage)), obj_(optErase_(defPackage))) {
+	if (refPackage.isEmpty() || defPackage.isEmpty()) || !optequalsOn_(refPackage, defPackage) {
 		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(propRef.sourceNode(), CheckAccessControls_BAD_PACKAGE_PROPERTY_ACCESS, []string{propRef.name(), propRef.getReadableTypeNameOrDefault()}))
 	}
 }
@@ -1020,9 +1020,15 @@ func (this *CheckAccessControls_PropertyReference) zero_CheckAccessControls_Prop
 }
 
 func (this *CheckAccessControls_PropertyReference) init_CheckAccessControls_PropertyReference(sourceNode Node, name string, receiverType *ObjectType, mutation bool, declaration bool, override bool, readableTypeName SupplierOf[string]) {
-	Objects_requireNonNull(sourceNode.box_(), "sourceNode")
-	Objects_requireNonNull(receiverType.self(), "receiverType")
-	Objects_requireNonNull(any(readableTypeName), "readableTypeName")
+	if sourceNode == 0 {
+		panic(new_NullPointerException_String("sourceNode").self())
+	}
+	if receiverType == nil {
+		panic(new_NullPointerException_String("receiverType").self())
+	}
+	if readableTypeName == nil {
+		panic(new_NullPointerException_String("readableTypeName").self())
+	}
 	this.sourceNode_ = sourceNode
 	this.name_ = name
 	this.receiverType_ = receiverType
@@ -1106,18 +1112,18 @@ func (this *CheckAccessControls_PropertyReference) equals(p0 any) bool {
 	if !ok || o == nil {
 		return false
 	}
-	return true && this.sourceNode_ == o.sourceNode_ && this.name_ == o.name_ && Objects_equals(this.receiverType_.self(), o.receiverType_.self()) && this.mutation_ == o.mutation_ && this.declaration_ == o.declaration_ && this.override_ == o.override_ && Objects_equals(any(this.readableTypeName_), any(o.readableTypeName_))
+	return true && this.sourceNode_ == o.sourceNode_ && this.name_ == o.name_ && objequalsBy_(this.receiverType_, o.receiverType_.self(), (*ObjectType).equals) && this.mutation_ == o.mutation_ && this.declaration_ == o.declaration_ && this.override_ == o.override_ && objequalsDyn_(this.readableTypeName_, any(o.readableTypeName_))
 }
 
 func (this *CheckAccessControls_PropertyReference) hashCode() int32 {
 	var h int32
 	h = h*31 + objhashId_(this.sourceNode_)
 	h = h*31 + objhashStr_(this.name_)
-	h = h*31 + Objects_hashCode(this.receiverType_.self())
+	h = h*31 + objhashBy_(this.receiverType_, (*ObjectType).hashCode)
 	h = h*31 + Boolean_hashCode(bool(this.mutation_))
 	h = h*31 + Boolean_hashCode(bool(this.declaration_))
 	h = h*31 + Boolean_hashCode(bool(this.override_))
-	h = h*31 + Objects_hashCode(any(this.readableTypeName_))
+	h = h*31 + objhashDyn_(this.readableTypeName_)
 	return h
 }
 

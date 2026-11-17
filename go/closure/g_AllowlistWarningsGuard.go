@@ -55,7 +55,7 @@ func AllowlistWarningsGuard_normalizeAllowlist(allowlist *TSet[string]) Immutabl
 }
 
 func (this *AllowlistWarningsGuard) level_impl(error_ *JSError) CheckLevel {
-	if Object_equals(obj_(error_.defaultLevel()), obj_(CheckLevel_ERROR)) {
+	if equalsId_(error_.defaultLevel(), CheckLevel_ERROR) {
 		return 0
 	}
 	if !this.allowlist.isEmpty() && this.containWarning(this.formatWarning(error_)) {
@@ -185,7 +185,7 @@ func (this *AllowlistWarningsGuard_AllowlistBuilder) setNote(note string) *Allow
 }
 
 func (this *AllowlistWarningsGuard_AllowlistBuilder) report_2(level CheckLevel, error_ *JSError) {
-	if Object_equals(obj_(error_.defaultLevel()), obj_(CheckLevel_ERROR)) {
+	if equalsId_(error_.defaultLevel(), CheckLevel_ERROR) {
 		return
 	}
 	this.warnings_.add(error_)

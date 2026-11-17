@@ -1918,7 +1918,7 @@ func (this Node) isEquivalentTo_5(node Node, recursion Node_RecursionMode, typeC
 					return true
 				}() {
 					var other *Node_TemplateLiteralSubstring = cast_[*Node_TemplateLiteralSubstring](node.payload_get_())
-					return (RhinoStringPool_uncheckedEquals(substring.raw, other.raw) && Object_equals(obj_(optErase_(substring.cooked)), obj_(optErase_(other.cooked))))
+					return (RhinoStringPool_uncheckedEquals(substring.raw, other.raw) && optequalsOn_(substring.cooked, other.cooked))
 				}
 			}
 		}

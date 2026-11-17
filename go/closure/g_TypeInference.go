@@ -901,7 +901,7 @@ func (this *TypeInference) traverseName(n Node, scope FlowScope) FlowScope {
 				}
 				return nil
 			}()
-			var nonLocalInferredSlot bool = (Object_equals(any(var_), obj_(maybeOuterVar)) && !maybeOuterVar.isMarkedAssignedExactlyOnce())
+			var nonLocalInferredSlot bool = (equalsDyn_(var_, obj_(maybeOuterVar)) && !maybeOuterVar.isMarkedAssignedExactlyOnce())
 			if !unflowable && !nonLocalInferredSlot {
 				type_ = var_.getType()
 				if type_ == nil {
@@ -2279,12 +2279,12 @@ func (this *TypeInference_1) branchFlow(branch ControlFlowGraph_Branch) any {
 					return this.outer_.traverseOr(this.condition, this.cap_output)
 				}()
 			}
-			return this.outer_.reverseInterpreter.getPreciserScopeKnowingConditionOutcome(this.condition, this.conditionOutcomes.getOutcomeFlowScope(this.condition.getToken(), (branch == ControlFlowGraph_Branch_ON_TRUE)), Outcome_rhino_forBoolean(Object_equals(obj_(branch), obj_(ControlFlowGraph_Branch_ON_TRUE))))
+			return this.outer_.reverseInterpreter.getPreciserScopeKnowingConditionOutcome(this.condition, this.conditionOutcomes.getOutcomeFlowScope(this.condition.getToken(), (branch == ControlFlowGraph_Branch_ON_TRUE)), Outcome_rhino_forBoolean(equalsId_(branch, ControlFlowGraph_Branch_ON_TRUE)))
 		}
 		if this.conditionFlowScope == nil {
 			this.conditionFlowScope = this.outer_.traverse(this.condition, this.cap_output)
 		}
-		return this.outer_.reverseInterpreter.getPreciserScopeKnowingConditionOutcome(this.condition, this.conditionFlowScope, Outcome_rhino_forBoolean(Object_equals(obj_(branch), obj_(ControlFlowGraph_Branch_ON_TRUE))))
+		return this.outer_.reverseInterpreter.getPreciserScopeKnowingConditionOutcome(this.condition, this.conditionFlowScope, Outcome_rhino_forBoolean(equalsId_(branch, ControlFlowGraph_Branch_ON_TRUE)))
 	default:
 		return this.cap_output
 	}

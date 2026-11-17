@@ -361,8 +361,12 @@ func (this *Es6RewriteClass_ClassProperty) zero_Es6RewriteClass_ClassProperty() 
 }
 
 func (this *Es6RewriteClass_ClassProperty) init_Es6RewriteClass_ClassProperty(propertyKey string, kind Es6RewriteClass_ClassProperty_PropertyKind, jsDocInfo *JSDocInfo, propertyType *Color) {
-	Objects_requireNonNull(obj_(kind), "kind")
-	Objects_requireNonNull(obj_(jsDocInfo), "jsDocInfo")
+	if kind == 0 {
+		panic(new_NullPointerException_String("kind").self())
+	}
+	if jsDocInfo == nil {
+		panic(new_NullPointerException_String("jsDocInfo").self())
+	}
 	this.propertyKey_ = propertyKey
 	this.kind_ = kind
 	this.jsDocInfo_ = jsDocInfo
@@ -418,13 +422,13 @@ func (this *Es6RewriteClass_ClassProperty) equals(p0 any) bool {
 	if !ok || o == nil {
 		return false
 	}
-	return true && this.propertyKey_ == o.propertyKey_ && Objects_equals(obj_(this.kind_), obj_(o.kind_)) && this.jsDocInfo_ == o.jsDocInfo_ && objequalsBy_(this.propertyType_, obj_(o.propertyType_), (*Color).equals)
+	return true && this.propertyKey_ == o.propertyKey_ && this.kind_ == o.kind_ && this.jsDocInfo_ == o.jsDocInfo_ && objequalsBy_(this.propertyType_, obj_(o.propertyType_), (*Color).equals)
 }
 
 func (this *Es6RewriteClass_ClassProperty) hashCode() int32 {
 	var h int32
 	h = h*31 + objhashStr_(this.propertyKey_)
-	h = h*31 + Objects_hashCode(obj_(this.kind_))
+	h = h*31 + objhashId_(this.kind_)
 	h = h*31 + objhashId_(this.jsDocInfo_)
 	h = h*31 + objhashBy_(this.propertyType_, (*Color).hashCode)
 	return h
@@ -584,14 +588,38 @@ type Es6RewriteClass_ClassDeclarationMetadata struct {
 }
 
 func (this *Es6RewriteClass_ClassDeclarationMetadata) init_Es6RewriteClass_ClassDeclarationMetadata(insertionPoint *Es6RewriteClass_InsertionPoint, definePropertiesObjForPrototype Node, definePropertiesObjForClass Node, classMembersToDeclare MapOf[string, *Es6RewriteClass_ClassProperty], fullClassNameNode Node, classPrototypeNode Node, anonymous bool, classNameNode Node, superClassNameNode Node) {
-	this.insertionPointField = cast_[*Es6RewriteClass_InsertionPoint](Objects_requireNonNull(obj_(insertionPoint), "insertionPoint"))
-	this.definePropertiesObjForPrototypeField = Node_of_(Objects_requireNonNull(definePropertiesObjForPrototype.box_(), "definePropertiesObjForPrototype"))
-	this.definePropertiesObjForClassField = Node_of_(Objects_requireNonNull(definePropertiesObjForClass.box_(), "definePropertiesObjForClass"))
-	this.classMembersToDeclareField = icast_Map(Objects_requireNonNull(any(classMembersToDeclare), "classMembersToDeclare"))
-	this.fullClassNameNodeField = Node_of_(Objects_requireNonNull(fullClassNameNode.box_(), "fullClassNameNode"))
-	this.classPrototypeNodeField = Node_of_(Objects_requireNonNull(classPrototypeNode.box_(), "classPrototypeNode"))
-	this.classNameNodeField = Node_of_(Objects_requireNonNull(classNameNode.box_(), "classNameNode"))
-	this.superClassNameNodeField = Node_of_(Objects_requireNonNull(superClassNameNode.box_(), "superClassNameNode"))
+	if insertionPoint == nil {
+		panic(new_NullPointerException_String("insertionPoint").self())
+	}
+	this.insertionPointField = insertionPoint
+	if definePropertiesObjForPrototype == 0 {
+		panic(new_NullPointerException_String("definePropertiesObjForPrototype").self())
+	}
+	this.definePropertiesObjForPrototypeField = definePropertiesObjForPrototype
+	if definePropertiesObjForClass == 0 {
+		panic(new_NullPointerException_String("definePropertiesObjForClass").self())
+	}
+	this.definePropertiesObjForClassField = definePropertiesObjForClass
+	if classMembersToDeclare == nil {
+		panic(new_NullPointerException_String("classMembersToDeclare").self())
+	}
+	this.classMembersToDeclareField = classMembersToDeclare
+	if fullClassNameNode == 0 {
+		panic(new_NullPointerException_String("fullClassNameNode").self())
+	}
+	this.fullClassNameNodeField = fullClassNameNode
+	if classPrototypeNode == 0 {
+		panic(new_NullPointerException_String("classPrototypeNode").self())
+	}
+	this.classPrototypeNodeField = classPrototypeNode
+	if classNameNode == 0 {
+		panic(new_NullPointerException_String("classNameNode").self())
+	}
+	this.classNameNodeField = classNameNode
+	if superClassNameNode == 0 {
+		panic(new_NullPointerException_String("superClassNameNode").self())
+	}
+	this.superClassNameNodeField = superClassNameNode
 	this.anonymousField = anonymous
 }
 

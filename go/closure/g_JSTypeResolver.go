@@ -57,7 +57,7 @@ func (this *JSTypeResolver) resolveIfClosed(captured *JSType, caller JSTypeClass
 }
 
 func (this *JSTypeResolver) openForDefinition() *JSTypeResolver_Closer {
-	if !Object_equals(obj_(this.state), obj_(JSTypeResolver_State_CLOSED)) {
+	if !equalsId_(this.state, JSTypeResolver_State_CLOSED) {
 		panic(new_IllegalStateException_0().self())
 	}
 	if len(this.captureStack) != 0 {
@@ -68,7 +68,7 @@ func (this *JSTypeResolver) openForDefinition() *JSTypeResolver_Closer {
 }
 
 func (this *JSTypeResolver) resolveAll() {
-	if !Object_equals(obj_(this.state), obj_(JSTypeResolver_State_OPEN)) {
+	if !equalsId_(this.state, JSTypeResolver_State_OPEN) {
 		panic(new_IllegalStateException_0().self())
 	}
 	if len(this.captureStack) != 0 {
@@ -97,7 +97,7 @@ func (this *JSTypeResolver) doResolve(type_ *JSType) {
 }
 
 func (this *JSTypeResolver) assertLegalToResolveTypes() {
-	if Object_equals(obj_(this.state), obj_(JSTypeResolver_State_OPEN)) {
+	if equalsId_(this.state, JSTypeResolver_State_OPEN) {
 		panic(new_IllegalStateException_String("Types cannot be resolved while the registry is open").self())
 	}
 }

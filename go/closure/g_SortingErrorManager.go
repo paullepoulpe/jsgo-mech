@@ -233,7 +233,7 @@ func new_SortingErrorManager_ErrorWithLevel(error_ *JSError, level CheckLevel) *
 }
 
 func (this *SortingErrorManager_ErrorWithLevel) hashCode() int32 {
-	return Objects_hash([]any{obj_(this.level_), strobj_(this.error_.description()), obj_(optErase_(this.error_.sourceName())), any(int32(this.error_.getLineNumber())), any(int32(this.error_.charno()))})
+	return hashOf_(objhashId_(this.level_), objhashStr_(this.error_.description()), objhashBy_(this.error_.sourceName(), (OptionalOf[string]).hashCode), int32(this.error_.getLineNumber()), int32(this.error_.charno()))
 }
 
 func (this *SortingErrorManager_ErrorWithLevel) equals(obj any) bool {
@@ -250,5 +250,5 @@ func (this *SortingErrorManager_ErrorWithLevel) equals(obj any) bool {
 	}()) {
 		return false
 	}
-	return ((((Objects_equals(obj_(this.level_), obj_(e.level_)) && (this.error_.description() == e.error_.description())) && Object_equals(obj_(optErase_(this.error_.sourceName())), obj_(optErase_(e.error_.sourceName())))) && (this.error_.getLineNumber() == e.error_.getLineNumber())) && (this.error_.charno() == e.error_.charno()))
+	return ((((this.level_ == e.level_ && (this.error_.description() == e.error_.description())) && optequalsOn_(this.error_.sourceName(), e.error_.sourceName())) && (this.error_.getLineNumber() == e.error_.getLineNumber())) && (this.error_.charno() == e.error_.charno()))
 }

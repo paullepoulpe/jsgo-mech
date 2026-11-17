@@ -190,7 +190,7 @@ func new_DeadPropertyAssignmentElimination_PropertyWrite(assignedAt Node) *DeadP
 }
 
 func (this *DeadPropertyAssignmentElimination_PropertyWrite) isSafeToRemove(nextWrite *DeadPropertyAssignmentElimination_PropertyWrite) bool {
-	return ((!this.isRead && (nextWrite != nil)) && Object_equals(obj_(optErase_(this.qualifiedName_)), obj_(optErase_(nextWrite.qualifiedName_))))
+	return ((!this.isRead && (nextWrite != nil)) && optequalsOn_(this.qualifiedName_, nextWrite.qualifiedName_))
 }
 
 func (this *DeadPropertyAssignmentElimination_PropertyWrite) markRead() {

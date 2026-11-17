@@ -14,13 +14,27 @@ type Config struct {
 }
 
 func (this *Config) init_Config(languageMode Config_LanguageMode, strictMode Config_StrictMode, jsDocParsingMode Config_JsDocParsing, runMode Config_RunMode, annotations ImmutableMapOf[string, Annotation_parsing], suppressionNames ImmutableSetOf[string], closurePrimitiveNames ImmutableSetOf[string], parseInlineSourceMaps bool) {
-	Objects_requireNonNull(obj_(languageMode), "languageMode")
-	Objects_requireNonNull(obj_(strictMode), "strictMode")
-	Objects_requireNonNull(obj_(jsDocParsingMode), "jsDocParsingMode")
-	Objects_requireNonNull(obj_(runMode), "runMode")
-	Objects_requireNonNull(obj_(annotations), "annotations")
-	Objects_requireNonNull(obj_(suppressionNames), "suppressionNames")
-	Objects_requireNonNull(obj_(closurePrimitiveNames), "closurePrimitiveNames")
+	if languageMode == 0 {
+		panic(new_NullPointerException_String("languageMode").self())
+	}
+	if strictMode == 0 {
+		panic(new_NullPointerException_String("strictMode").self())
+	}
+	if jsDocParsingMode == 0 {
+		panic(new_NullPointerException_String("jsDocParsingMode").self())
+	}
+	if runMode == 0 {
+		panic(new_NullPointerException_String("runMode").self())
+	}
+	if annotations == nil {
+		panic(new_NullPointerException_String("annotations").self())
+	}
+	if suppressionNames == nil {
+		panic(new_NullPointerException_String("suppressionNames").self())
+	}
+	if closurePrimitiveNames == nil {
+		panic(new_NullPointerException_String("closurePrimitiveNames").self())
+	}
 	this.languageMode_ = languageMode
 	this.strictMode_ = strictMode
 	this.jsDocParsingMode_ = jsDocParsingMode
@@ -103,18 +117,18 @@ func (this *Config) equals(p0 any) bool {
 	if !ok || o == nil {
 		return false
 	}
-	return true && Objects_equals(obj_(this.languageMode_), obj_(o.languageMode_)) && Objects_equals(obj_(this.strictMode_), obj_(o.strictMode_)) && Objects_equals(obj_(this.jsDocParsingMode_), obj_(o.jsDocParsingMode_)) && Objects_equals(obj_(this.runMode_), obj_(o.runMode_)) && objequalsBy_(this.annotations_, obj_(o.annotations_), (ImmutableMapOf[string, Annotation_parsing]).equals) && Objects_equals(obj_(this.suppressionNames_), obj_(o.suppressionNames_)) && Objects_equals(obj_(this.closurePrimitiveNames_), obj_(o.closurePrimitiveNames_)) && this.parseInlineSourceMaps_ == o.parseInlineSourceMaps_
+	return true && this.languageMode_ == o.languageMode_ && this.strictMode_ == o.strictMode_ && this.jsDocParsingMode_ == o.jsDocParsingMode_ && this.runMode_ == o.runMode_ && objequalsBy_(this.annotations_, obj_(o.annotations_), (ImmutableMapOf[string, Annotation_parsing]).equals) && objequalsBy_(this.suppressionNames_, obj_(o.suppressionNames_), (ImmutableSetOf[string]).equals) && objequalsBy_(this.closurePrimitiveNames_, obj_(o.closurePrimitiveNames_), (ImmutableSetOf[string]).equals) && this.parseInlineSourceMaps_ == o.parseInlineSourceMaps_
 }
 
 func (this *Config) hashCode() int32 {
 	var h int32
-	h = h*31 + Objects_hashCode(obj_(this.languageMode_))
-	h = h*31 + Objects_hashCode(obj_(this.strictMode_))
-	h = h*31 + Objects_hashCode(obj_(this.jsDocParsingMode_))
-	h = h*31 + Objects_hashCode(obj_(this.runMode_))
+	h = h*31 + objhashId_(this.languageMode_)
+	h = h*31 + objhashId_(this.strictMode_)
+	h = h*31 + objhashId_(this.jsDocParsingMode_)
+	h = h*31 + objhashId_(this.runMode_)
 	h = h*31 + objhashBy_(this.annotations_, (ImmutableMapOf[string, Annotation_parsing]).hashCode)
-	h = h*31 + Objects_hashCode(obj_(this.suppressionNames_))
-	h = h*31 + Objects_hashCode(obj_(this.closurePrimitiveNames_))
+	h = h*31 + objhashBy_(this.suppressionNames_, (ImmutableSetOf[string]).hashCode)
+	h = h*31 + objhashBy_(this.closurePrimitiveNames_, (ImmutableSetOf[string]).hashCode)
 	h = h*31 + Boolean_hashCode(bool(this.parseInlineSourceMaps_))
 	return h
 }

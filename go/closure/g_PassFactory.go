@@ -15,9 +15,15 @@ func (this *PassFactory) zero_PassFactory() {
 }
 
 func (this *PassFactory) init_PassFactory(getName string, getCondition FunctionOf[*CompilerOptions, BoxedOf[bool]], getPreconditionCheck FunctionOf[*CompilerOptions, *PassFactory_PreconditionResult], isRunInFixedPointLoop bool, getInternalFactory FunctionOf[*AbstractCompiler, CompilerPass]) {
-	Objects_requireNonNull(any(getCondition), "getCondition")
-	Objects_requireNonNull(any(getPreconditionCheck), "getPreconditionCheck")
-	Objects_requireNonNull(any(getInternalFactory), "getInternalFactory")
+	if getCondition == nil {
+		panic(new_NullPointerException_String("getCondition").self())
+	}
+	if getPreconditionCheck == nil {
+		panic(new_NullPointerException_String("getPreconditionCheck").self())
+	}
+	if getInternalFactory == nil {
+		panic(new_NullPointerException_String("getInternalFactory").self())
+	}
 	this.getName_ = getName
 	this.getCondition_ = getCondition
 	this.getPreconditionCheck_ = getPreconditionCheck
@@ -109,16 +115,16 @@ func (this *PassFactory) equals(p0 any) bool {
 	if !ok || o == nil {
 		return false
 	}
-	return true && this.getName_ == o.getName_ && Objects_equals(any(this.getCondition_), any(o.getCondition_)) && Objects_equals(any(this.getPreconditionCheck_), any(o.getPreconditionCheck_)) && this.isRunInFixedPointLoop_ == o.isRunInFixedPointLoop_ && Objects_equals(any(this.getInternalFactory_), any(o.getInternalFactory_))
+	return true && this.getName_ == o.getName_ && this.getCondition_ == o.getCondition_ && this.getPreconditionCheck_ == o.getPreconditionCheck_ && this.isRunInFixedPointLoop_ == o.isRunInFixedPointLoop_ && this.getInternalFactory_ == o.getInternalFactory_
 }
 
 func (this *PassFactory) hashCode() int32 {
 	var h int32
 	h = h*31 + objhashStr_(this.getName_)
-	h = h*31 + Objects_hashCode(any(this.getCondition_))
-	h = h*31 + Objects_hashCode(any(this.getPreconditionCheck_))
+	h = h*31 + objhashId_(this.getCondition_)
+	h = h*31 + objhashId_(this.getPreconditionCheck_)
 	h = h*31 + Boolean_hashCode(bool(this.isRunInFixedPointLoop_))
-	h = h*31 + Objects_hashCode(any(this.getInternalFactory_))
+	h = h*31 + objhashId_(this.getInternalFactory_)
 	return h
 }
 
@@ -151,13 +157,13 @@ func (this *PassFactory_PreconditionResult) equals(p0 any) bool {
 	if !ok || o == nil {
 		return false
 	}
-	return true && this.success_ == o.success_ && Objects_equals(obj_(optErase_(this.message_)), obj_(optErase_(o.message_)))
+	return true && this.success_ == o.success_ && optequals_(this.message_, o.message_)
 }
 
 func (this *PassFactory_PreconditionResult) hashCode() int32 {
 	var h int32
 	h = h*31 + Boolean_hashCode(bool(this.success_))
-	h = h*31 + Objects_hashCode(obj_(optErase_(this.message_)))
+	h = h*31 + objhashBy_(this.message_, (OptionalOf[string]).hashCode)
 	return h
 }
 
