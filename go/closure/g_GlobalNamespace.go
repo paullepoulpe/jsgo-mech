@@ -1553,7 +1553,7 @@ func (this *GlobalNamespace_Name) getFirstRef() *GlobalNamespace_Ref {
 	}() {
 		return ref
 	}
-	return cast_[*GlobalNamespace_Ref](this.castRefsForNodeMap().values().iterator().next())
+	return cast_[*GlobalNamespace_Ref](first_(this.castRefsForNodeMap().values()))
 }
 
 func (this *GlobalNamespace_Name) canEliminate() bool {
