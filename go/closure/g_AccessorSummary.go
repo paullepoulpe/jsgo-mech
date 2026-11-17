@@ -51,8 +51,8 @@ func (this *AccessorSummary) toProto() *AccessorSummaryProto {
 	return cast_[*AccessorSummaryProto](builder.build())
 }
 
-func AccessorSummary_toProto(kind AccessorSummary_PropertyAccessKind) *PropertyAccessKindProto {
-	return func() *PropertyAccessKindProto {
+func AccessorSummary_toProto(kind AccessorSummary_PropertyAccessKind) PropertyAccessKindProto {
+	return func() PropertyAccessKindProto {
 		switch kind {
 		case AccessorSummary_PropertyAccessKind_NORMAL:
 			return PropertyAccessKindProto_KIND_NORMAL
@@ -80,7 +80,7 @@ func AccessorSummary_fromProto(proto *AccessorSummaryProto) *AccessorSummary {
 	return AccessorSummary_create(tmapFrom_(tc_string, tc_p_AccessorSummary_PropertyAccessKind, builder.buildOrThrow(), true))
 }
 
-func AccessorSummary_fromProtoPropertyAccessKindProto(kind *PropertyAccessKindProto) AccessorSummary_PropertyAccessKind {
+func AccessorSummary_fromProtoPropertyAccessKindProto(kind PropertyAccessKindProto) AccessorSummary_PropertyAccessKind {
 	return func() AccessorSummary_PropertyAccessKind {
 		switch kind {
 		case PropertyAccessKindProto_KIND_NORMAL:

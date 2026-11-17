@@ -32,8 +32,8 @@ var tc_p_ClosureExportTypeClassifier_NameInfo = &tconv_[*ClosureExportTypeClassi
 var tc_p_ClosureRequireProcessor_Require = &tconv_[*ClosureRequireProcessor_Require]{box: func(v *ClosureRequireProcessor_Require) any { return obj_(v) }, unbox: func(v any) *ClosureRequireProcessor_Require { return cast_[*ClosureRequireProcessor_Require](v) }}
 var tc_p_ColorGraphNode = &tconv_[*ColorGraphNode]{box: func(v *ColorGraphNode) any { return obj_(v) }, unbox: func(v any) *ColorGraphNode { return cast_[*ColorGraphNode](v) }}
 var tc_p_ColorGraphNode_PropAssociation = &tconv_[ColorGraphNode_PropAssociation]{box: func(v ColorGraphNode_PropAssociation) any { return obj_(v) }, unbox: func(v any) ColorGraphNode_PropAssociation { return cast_[ColorGraphNode_PropAssociation](v) }}
-var tc_p_ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior = &tconv_[*ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior]{box: func(v *ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior) any { return obj_(v) }, unbox: func(v any) *ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior {
-	return cast_[*ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior](v)
+var tc_p_ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior = &tconv_[ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior]{box: func(v ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior) any { return obj_(v) }, unbox: func(v any) ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior {
+	return cast_[ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior](v)
 }}
 var tc_p_DeadPropertyAssignmentElimination_Property = &tconv_[*DeadPropertyAssignmentElimination_Property]{box: func(v *DeadPropertyAssignmentElimination_Property) any { return obj_(v) }, unbox: func(v any) *DeadPropertyAssignmentElimination_Property {
 	return cast_[*DeadPropertyAssignmentElimination_Property](v)
@@ -96,7 +96,7 @@ var tc_p_ClosureRewriteModule_ExportDefinition = &tconv_[*ClosureRewriteModule_E
 	return cast_[*ClosureRewriteModule_ExportDefinition](v)
 }}
 var tc_p_InlineVariables_InlineVarAnalysis = &tconv_[*InlineVariables_InlineVarAnalysis]{box: func(v *InlineVariables_InlineVarAnalysis) any { return v.self() }, unbox: func(v any) *InlineVariables_InlineVarAnalysis { return to_InlineVariables_InlineVarAnalysis(v) }}
-var tc_p_InstrumentationPointStats_Presence = &tconv_[*InstrumentationPointStats_Presence]{box: func(v *InstrumentationPointStats_Presence) any { return obj_(v) }, unbox: func(v any) *InstrumentationPointStats_Presence { return cast_[*InstrumentationPointStats_Presence](v) }}
+var tc_p_InstrumentationPointStats_Presence = &tconv_[InstrumentationPointStats_Presence]{box: func(v InstrumentationPointStats_Presence) any { return obj_(v) }, unbox: func(v any) InstrumentationPointStats_Presence { return cast_[InstrumentationPointStats_Presence](v) }}
 var tc_p_JSTypeReconserializer_SeenTypeRecord = &tconv_[*JSTypeReconserializer_SeenTypeRecord]{box: func(v *JSTypeReconserializer_SeenTypeRecord) any { return obj_(v) }, unbox: func(v any) *JSTypeReconserializer_SeenTypeRecord {
 	return cast_[*JSTypeReconserializer_SeenTypeRecord](v)
 }}

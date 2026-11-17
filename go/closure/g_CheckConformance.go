@@ -5,8 +5,8 @@ package closure
 type CheckConformance struct {
 	compiler_       *AbstractCompiler
 	categories      []*CheckConformance_Category
-	mergedBehaviors *TMap[*Requirement, *ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior]
-	ruleToBehavior  *TMap[CheckConformance_Rule, *ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior]
+	mergedBehaviors *TMap[*Requirement, ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior]
+	ruleToBehavior  *TMap[CheckConformance_Rule, ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior]
 }
 
 func (this *CheckConformance) finit_CheckConformance() {
@@ -56,7 +56,7 @@ func (this *CheckConformance) visit(t *NodeTraversal, n Node, parent Node) {
 		if category.precondition.shouldCheck(n) {
 			for r := int32((int32(len(category.rules)) - 1)); r >= 0; r-- {
 				var rule CheckConformance_Rule = sliceAt_(category.rules, r)
-				var behavior *ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior = cast_[*ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior](Preconditions_checkNotNull(Map_getOrDefault(this.ruleToBehavior.asMap(), any(rule), obj_(ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior_UNSPECIFIED))))
+				var behavior ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior = cast_[ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior](Preconditions_checkNotNull(Map_getOrDefault(this.ruleToBehavior.asMap(), any(rule), obj_(ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior_UNSPECIFIED))))
 				rule.check(t, n, behavior)
 			}
 		}
@@ -73,7 +73,7 @@ func (this *CheckConformance) initRules(compiler *AbstractCompiler, configs Immu
 	}
 	var mergedRequirements []*Requirement = this.mergeRequirements(compiler, sliceImm_(tc_p_ConformanceConfig, configs), isLibraryLevelReportingMode)
 	for _, requirement := range mergedRequirements {
-		var behavior *ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior = ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior_UNSPECIFIED
+		var behavior ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior = ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior_UNSPECIFIED
 		var rule CheckConformance_Rule = CheckConformance_initRule(compiler, requirement)
 		if rule != nil {
 			builder.put(any(rule.getPrecondition()), any(rule))
@@ -95,14 +95,14 @@ func (this *CheckConformance) initRules(compiler *AbstractCompiler, configs Immu
 
 func CheckConformance_validateBehaviorSettingOfConfigs(compiler *AbstractCompiler, configs ImmutableListOf[*ConformanceConfig], reportingMode CompilerOptions_ConformanceReportingMode) bool {
 	Preconditions_checkState(Object_equals(obj_(reportingMode), obj_(CompilerOptions_ConformanceReportingMode_RESPECT_LIBRARY_LEVEL_BEHAVIOR_SPECIFIED_IN_CONFIG)))
-	var baseRequirementBehaviors map[string]*ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior = map[string]*ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior{}
+	var baseRequirementBehaviors map[string]ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior = map[string]ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior{}
 	it_1 := foreach_(obj_(configs))
 	for it_1.next() {
 		var config *ConformanceConfig = cast_[*ConformanceConfig](it_1.v)
 		if !config.hasLibraryLevelNonAllowlistedConformanceViolationsBehavior() {
 			continue
 		}
-		var behavior *ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior = config.getLibraryLevelNonAllowlistedConformanceViolationsBehavior()
+		var behavior ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior = config.getLibraryLevelNonAllowlistedConformanceViolationsBehavior()
 		it_3 := foreach_(any(config.getRequirementList()))
 		for it_3.next() {
 			var requirement *Requirement = cast_[*Requirement](it_3.v)
@@ -121,10 +121,10 @@ func CheckConformance_validateBehaviorSettingOfConfigs(compiler *AbstractCompile
 		for it_7.next() {
 			var requirement *Requirement = cast_[*Requirement](it_7.v)
 			if requirement.hasExtends() {
-				var extendingBehavior *ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior = config.getLibraryLevelNonAllowlistedConformanceViolationsBehavior()
+				var extendingBehavior ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior = config.getLibraryLevelNonAllowlistedConformanceViolationsBehavior()
 				var baseRuleId string = requirement.getExtends()
 				if has_(baseRequirementBehaviors, baseRuleId) {
-					var baseBehavior *ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior = baseRequirementBehaviors[baseRuleId]
+					var baseBehavior ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior = baseRequirementBehaviors[baseRuleId]
 					if !equalsId_(baseBehavior, extendingBehavior) {
 						CheckConformance_reportInvalidRequirement(compiler, requirement, "extending rule's config may not specify a different value of 'library_level_non_allowlisted_conformance_violations_behavior' than the base rule's config. Skipping all conformance checks.")
 						return false
@@ -137,7 +137,7 @@ func CheckConformance_validateBehaviorSettingOfConfigs(compiler *AbstractCompile
 }
 
 func (this *CheckConformance) mergeRequirements(compiler *AbstractCompiler, configs []*ConformanceConfig, isLibraryLevelConformanceReportingMode bool) []*Requirement {
-	var rootRequirements *TMap[*Requirement_Builder, *ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior] = newTMap_(tc_p_Requirement_Builder, tc_p_ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior)
+	var rootRequirements *TMap[*Requirement_Builder, ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior] = newTMap_(tc_p_Requirement_Builder, tc_p_ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior)
 	var extendable map[string]*Requirement_Builder = map[string]*Requirement_Builder{}
 	for _, config := range configs {
 		it_3 := foreach_(any(config.getRequirementList()))
@@ -151,12 +151,12 @@ func (this *CheckConformance) mergeRequirements(compiler *AbstractCompiler, conf
 				extendable[requirement.getRuleId()] = builder
 			}
 			var hasBehavior bool = config.hasLibraryLevelNonAllowlistedConformanceViolationsBehavior()
-			var behavior *ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior = config.getLibraryLevelNonAllowlistedConformanceViolationsBehavior()
+			var behavior ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior = config.getLibraryLevelNonAllowlistedConformanceViolationsBehavior()
 			if !requirement.hasExtends() {
 				if !isLibraryLevelConformanceReportingMode {
 					rootRequirements.put(builder, ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior_UNSPECIFIED)
 				} else {
-					rootRequirements.put(builder, cast_[*ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior](func() any {
+					rootRequirements.put(builder, cast_[ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior](func() any {
 						if hasBehavior {
 							return obj_(behavior)
 						}
@@ -191,10 +191,10 @@ func (this *CheckConformance) mergeRequirements(compiler *AbstractCompiler, conf
 	for it_9.next() {
 		var entry Map_Entry = icast_Map_Entry(it_9.v)
 		var builder *Requirement_Builder = cast_[*Requirement_Builder](entry.getKey())
-		var behavior *ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior = cast_[*ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior](entry.getValue())
+		var behavior ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior = cast_[ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior](entry.getValue())
 		CheckConformance_removeDuplicates(builder)
 		var requirement *Requirement = cast_[*Requirement](builder.build())
-		if (isLibraryLevelConformanceReportingMode && (behavior != nil)) && (behavior != ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior_UNSPECIFIED) {
+		if (isLibraryLevelConformanceReportingMode && (behavior != 0)) && (behavior != ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior_UNSPECIFIED) {
 			this.mergedBehaviors.put(requirement, behavior)
 		}
 		cleanedUpRootRequirements = append(cleanedUpRootRequirements, requirement)
@@ -324,14 +324,14 @@ func CheckConformance_clinit() {
 
 type CheckConformance_Rule interface {
 	getPrecondition() CheckConformance_Precondition
-	check(*NodeTraversal, Node, *ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior)
+	check(*NodeTraversal, Node, ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior)
 }
 
 type CheckConformance_Rule_fn struct {
-	f func(*NodeTraversal, Node, *ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior)
+	f func(*NodeTraversal, Node, ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior)
 }
 
-func (this *CheckConformance_Rule_fn) check(p0 *NodeTraversal, p1 Node, p2 *ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior) {
+func (this *CheckConformance_Rule_fn) check(p0 *NodeTraversal, p1 Node, p2 ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior) {
 	this.f(p0, p1, p2)
 }
 

@@ -52,7 +52,7 @@ func ReportDecoder_parseMapping(mappingFileContent string) *Outcome_base {
 	if typesAsStringList.isErr() {
 		return Outcome_base_err(typesAsStringList.error())
 	}
-	var types []*InstrumentationPoint_Type = []*InstrumentationPoint_Type{}
+	var types []InstrumentationPoint_Type = []InstrumentationPoint_Type{}
 	it_1 := foreach_(any(icast_List(typesAsStringList.get())))
 	for it_1.next() {
 		var typeAsString string = str_(it_1.v)
@@ -114,7 +114,7 @@ func ReportDecoder_createProfileOfStaticallyUsedCode(mapping *TMap[string, *Inst
 	it_2 := foreach_(any(mapping.asMap().entrySet()))
 	for it_2.next() {
 		var entry Map_Entry = icast_Map_Entry(it_2.v)
-		instrumentationPoints = append(instrumentationPoints, cast_[*InstrumentationPointStats](any(InstrumentationPointStats_newBuilder().setPoint(cast_[*InstrumentationPoint](entry.getValue())).setTimesExecuted(0).setPointPresence(func() *InstrumentationPointStats_Presence {
+		instrumentationPoints = append(instrumentationPoints, cast_[*InstrumentationPointStats](any(InstrumentationPointStats_newBuilder().setPoint(cast_[*InstrumentationPoint](entry.getValue())).setTimesExecuted(0).setPointPresence(func() InstrumentationPointStats_Presence {
 			if has_(encodedPoints, str_(entry.getKey())) {
 				return InstrumentationPointStats_Presence_PRESENT
 			}
@@ -126,7 +126,7 @@ func ReportDecoder_createProfileOfStaticallyUsedCode(mapping *TMap[string, *Inst
 
 func ReportDecoder_mergeProfiles(profiles []*ReportProfile) *ReportProfile {
 	var frequencies *TMap[*InstrumentationPoint, any] = newTMap_(tch_p_InstrumentationPoint, tc_any)
-	var presences *TMap[*InstrumentationPoint, *InstrumentationPointStats_Presence] = newTMap_(tch_p_InstrumentationPoint, tc_p_InstrumentationPointStats_Presence)
+	var presences *TMap[*InstrumentationPoint, InstrumentationPointStats_Presence] = newTMap_(tch_p_InstrumentationPoint, tc_p_InstrumentationPointStats_Presence)
 	for _, profile := range profiles {
 		it_3 := foreach_(any(profile.getFileProfileList()))
 		for it_3.next() {
@@ -147,10 +147,10 @@ func ReportDecoder_mergeProfiles(profiles []*ReportProfile) *ReportProfile {
 				Map_compute_f(presences.asMap(), obj_(pointStats.getPoint()), func(p_ any, existing_ any) any {
 					var p *InstrumentationPoint = cast_[*InstrumentationPoint](p_)
 					_ = p
-					var existing *InstrumentationPointStats_Presence = cast_[*InstrumentationPointStats_Presence](existing_)
+					var existing InstrumentationPointStats_Presence = cast_[InstrumentationPointStats_Presence](existing_)
 					_ = existing
 					return func() any {
-						if ((pointStats.getPointPresence() == InstrumentationPointStats_Presence_PRESENT) || (existing == InstrumentationPointStats_Presence_PRESENCE_UNKNOWN)) || (existing == nil) {
+						if ((pointStats.getPointPresence() == InstrumentationPointStats_Presence_PRESENT) || (existing == InstrumentationPointStats_Presence_PRESENCE_UNKNOWN)) || (existing == 0) {
 							return obj_(pointStats.getPointPresence())
 						}
 						return obj_(existing)

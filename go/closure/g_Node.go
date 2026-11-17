@@ -799,19 +799,19 @@ func (this Node) removeProp(prop Node_Prop) {
 	(*this.props_()) = Node_rebuildListWithoutProp((*this.props_()), prop)
 }
 
-func Node_nodePropertyToBit(prop *NodeProperty) int64 {
+func Node_nodePropertyToBit(prop NodeProperty) int64 {
 	return (int64(1) << (uint32(prop.getNumber()) & 63))
 }
 
-func Node_setNodePropertyBit(bitset int64, prop *NodeProperty) int64 {
+func Node_setNodePropertyBit(bitset int64, prop NodeProperty) int64 {
 	return (bitset | Node_nodePropertyToBit(prop))
 }
 
-func Node_removeNodePropertyBit(bitset int64, prop *NodeProperty) int64 {
+func Node_removeNodePropertyBit(bitset int64, prop NodeProperty) int64 {
 	return (bitset & (^Node_nodePropertyToBit(prop)))
 }
 
-func Node_hasNodePropertyBitSet(bitset int64, prop *NodeProperty) bool {
+func Node_hasNodePropertyBitSet(bitset int64, prop NodeProperty) bool {
 	return ((bitset & Node_nodePropertyToBit(prop)) != 0)
 }
 
@@ -842,8 +842,8 @@ func (this Node) serializeProperties() int64 {
 				propSet = Node_setNodePropertyBit(propSet, NodeProperty_CLOSURE_UNAWARE_SHADOW)
 			default:
 				if is_[*Node_IntPropListItem](propListItem.self()) {
-					var nodeProperty *NodeProperty = PropTranslator_serialize(prop)
-					if nodeProperty != nil {
+					var nodeProperty NodeProperty = PropTranslator_serialize(prop)
+					if nodeProperty != 0 {
 						propSet = Node_setNodePropertyBit(propSet, nodeProperty)
 					}
 				}
@@ -894,7 +894,7 @@ func (this Node) deserializeProperties(propSet int64, isInClosureUnawareSubtree 
 		if !Node_hasBitSet(propSet, i) {
 			continue
 		}
-		var nodeProperty *NodeProperty = NodeProperty_forNumber(i)
+		var nodeProperty NodeProperty = NodeProperty_forNumber(i)
 		switch nodeProperty {
 		case NodeProperty_IS_DECLARED_CONSTANT:
 			constantVarFlags |= Node_ConstantVarFlags_DECLARED
