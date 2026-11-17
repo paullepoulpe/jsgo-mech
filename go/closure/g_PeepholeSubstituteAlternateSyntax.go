@@ -70,7 +70,6 @@ func (this *PeepholeSubstituteAlternateSyntax) optimizeSubtree_impl(node Node) N
 		default:
 			return node
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -446,7 +445,6 @@ func (this *PeepholeSubstituteAlternateSyntax) tryMinimizeArrayLiteral(n Node) N
 	} else {
 		return n
 	}
-	panic("unreachable")
 }
 
 func (this *PeepholeSubstituteAlternateSyntax) tryMinimizeStringArrayLiteral(n Node) Node {

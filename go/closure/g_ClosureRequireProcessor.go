@@ -68,7 +68,6 @@ func (this *ClosureRequireProcessor) getAllRequiresInDeclaration() []*ClosureReq
 		}
 		return this.getAllRequiresFromDestructuring(objectPattern, namespace)
 	}
-	panic("unreachable")
 }
 
 func (this *ClosureRequireProcessor) getAllRequiresFromDestructuring(objectPattern Node, namespace string) []*ClosureRequireProcessor_Require {

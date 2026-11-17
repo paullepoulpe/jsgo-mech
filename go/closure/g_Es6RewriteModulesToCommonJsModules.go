@@ -204,7 +204,6 @@ func (this *Es6RewriteModulesToCommonJsModules_Rewriter) getNameOfImportedValue(
 		}
 		return (sstr_(moduleName) + ".default")
 	}
-	panic("unreachable")
 }
 
 func (this *Es6RewriteModulesToCommonJsModules_Rewriter) maybeGetNameOfImportedValue(s *Scope, nameNode Node) OptionalOf[string] {

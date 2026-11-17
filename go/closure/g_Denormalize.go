@@ -196,7 +196,6 @@ func (this *Denormalize) getAssignOpFromOp(n Node) Token_rhino {
 		default:
 			panic(new_IllegalStateException_String(("Unexpected operator: " + objstr_(n.box_()))).self())
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -208,7 +207,6 @@ func (this *Denormalize) hasCorrespondingAssignmentOp(n Node) bool {
 		default:
 			return false
 		}
-		panic("unreachable")
 	}()
 }
 

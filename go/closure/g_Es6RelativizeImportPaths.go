@@ -65,7 +65,6 @@ func (this *Es6RelativizeImportPaths_Rewriter) shouldTraverse_impl(nodeTraversal
 		default:
 			return false
 		}
-		panic("unreachable")
 	}()
 }
 

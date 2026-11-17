@@ -101,7 +101,6 @@ func ControlFlowGraph_isEnteringNewCfgNode(n Node) bool {
 		default:
 			return false
 		}
-		panic("unreachable")
 	}()
 }
 

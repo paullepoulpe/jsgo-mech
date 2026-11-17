@@ -210,7 +210,6 @@ func (this *ClosureExportTypeClassifier) kindOfValue(value Node, jsdoc *JSDocInf
 		default:
 			return ClosureExportTypeClassifier_Kind_NOT_NAMESPACE
 		}
-		panic("unreachable")
 	}()
 }
 

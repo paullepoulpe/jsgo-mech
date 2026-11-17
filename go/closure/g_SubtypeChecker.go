@@ -116,7 +116,6 @@ func (this *SubtypeChecker) isSubtypeCaching(subtype *JSType, supertype *JSType)
 			this.recursionDepth++
 			ret_1 = this.isSubtypeDispatching(subtype, supertype)
 			return 1
-			return 0
 		}()
 		if code_1 == 1 {
 			return ret_1
@@ -158,7 +157,6 @@ func (this *SubtypeChecker) isSubtypeDispatching(subtype *JSType, supertype *JST
 		default:
 			return this.isSubtypeHelper(subtype, supertype)
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -439,7 +437,6 @@ func (this *SubtypeChecker) isEnumElementSubtype(subtype *EnumElementType, super
 	} else {
 		return this.isSubtypeCaching(subtype.getPrimitiveType(), supertype)
 	}
-	panic("unreachable")
 }
 
 func (this *SubtypeChecker) isProxyObjectSubtype(subtype *ProxyObjectType, supertype *JSType) bool {
@@ -452,7 +449,6 @@ func (this *SubtypeChecker) isTemplateSubtype(subtype *TemplateType, supertype *
 	} else {
 		return this.isProxyObjectSubtype(subtype.up_ProxyObjectType(), supertype)
 	}
-	panic("unreachable")
 }
 
 func (this *SubtypeChecker) isTypeMapSubmap(subtype *ObjectType, supertype *ObjectType) bool {
@@ -543,7 +539,6 @@ func SubtypeChecker_getTemplateKeyIfCovariantType(type_ *JSType) *TemplateType {
 		default:
 			return nil
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -566,7 +561,6 @@ func (this *SubtypeChecker) hackTemporarilyChangeSubtypingMode(tempMode JSType_S
 		this.subtypingMode = tempMode
 		ret_1 = callback()
 		return 1
-		return 0
 	}()
 	if code_1 == 1 {
 		return ret_1

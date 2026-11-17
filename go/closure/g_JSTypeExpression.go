@@ -111,7 +111,6 @@ func JSTypeExpression_makeOptionalArg(expr *JSTypeExpression) *JSTypeExpression 
 		equals.clonePropsFrom(expr.root)
 		return new_JSTypeExpression(equals, expr.sourceName_)
 	}
-	panic("unreachable")
 }
 
 func JSTypeExpression_makeVarArgs(expr *JSTypeExpression) *JSTypeExpression {
@@ -122,7 +121,6 @@ func JSTypeExpression_makeVarArgs(expr *JSTypeExpression) *JSTypeExpression {
 		equals.clonePropsFrom(expr.root)
 		return new_JSTypeExpression(equals, expr.sourceName_)
 	}
-	panic("unreachable")
 }
 
 func (this *JSTypeExpression) isOptionalArg() bool {

@@ -96,7 +96,6 @@ func (this *CoverageInstrumentationPass) createConditionalObjectDecl(name string
 		default:
 			panic(new_AssertionError_Object(strobj_(("Unexpected option: " + objstr_(obj_(this.instrumentOption))))).self())
 		}
-		panic("unreachable")
 	}()
 	var var_ Node = IR_var_Node_Node(IR_name(name), IR_or(IR_getelem(IR_getprop_Node_String(IR_name("window"), "top"), IR_string("__jscov")), IR_assign(IR_getelem(IR_getprop_Node_String(IR_name("window"), "top"), IR_string("__jscov")), jscovData)))
 	return var_.srcrefTreeIfMissing(srcref)

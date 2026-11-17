@@ -155,7 +155,6 @@ func (this *ReplaceMessages) createConditionForGrammaticalGender(type_ AstFactor
 			default:
 				return "goog$msgKind$OTHER"
 			}
-			panic("unreachable")
 		}()
 		var result Node = this.astFactory_.createName(referenceName, AstFactory_type_Node(nodeToReplace))
 		result.putBooleanProp(Node_IS_CONSTANT_NAME, true)
@@ -165,7 +164,6 @@ func (this *ReplaceMessages) createConditionForGrammaticalGender(type_ AstFactor
 		googNode.putBooleanProp(Node_IS_CONSTANT_NAME, true)
 		return this.astFactory_.createGetProp(this.astFactory_.createGetProp(googNode, "msgKind", AstFactory_type_Node(nodeToReplace)), Object_toString(obj_(grammaticalGender)), AstFactory_type_Node(nodeToReplace))
 	}
-	panic("unreachable")
 }
 
 func (this *ReplaceMessages) createHookExpressionForGenderedMsg(type_ AstFactory_Type, msg *JsMessage, options *ReplaceMessages_MsgOptions, nodeToReplace Node, placeholderMapIds map[string]string) *Outcome_base {
@@ -180,7 +178,6 @@ func (this *ReplaceMessages) createHookExpressionForGenderedMsg(type_ AstFactory
 			}
 			return 0
 		}()
-		panic("unreachable")
 	}
 	for _, grammaticalGender := range msg.getGenderedMessageVariants() {
 		if Object_equals(obj_(grammaticalGender), obj_(JsMessage_GrammaticalGenderCase_OTHER)) {
@@ -252,7 +249,6 @@ func (this *ReplaceMessages) constructStringExprNode(message *JsMessage, placeho
 	} else {
 		return this.constructNonGenderedMsgNode(message, placeholderMap, options, nodeToReplace)
 	}
-	panic("unreachable")
 }
 
 func (this *ReplaceMessages) constructNonGenderedMsgNode(message *JsMessage, placeholderMap *TMap[string, Node], options *ReplaceMessages_MsgOptions, nodeToReplace Node) *Outcome_base {

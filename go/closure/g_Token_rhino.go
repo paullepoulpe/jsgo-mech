@@ -231,7 +231,6 @@ func Token_rhino_arity(token Token_rhino) int32 {
 		default:
 			panic(new_IllegalStateException_String(("No arity defined for " + objstr_(obj_(token)))).self())
 		}
-		panic("unreachable")
 	}()
 }
 

@@ -197,7 +197,6 @@ func (this *StripCode_Strip) shouldTraverse(t *NodeTraversal, n Node, parent Nod
 	default:
 		return true
 	}
-	panic("unreachable")
 }
 
 // lambda_StripCode_Strip_shouldTraverse_1_ is a lambda of StripCode_Strip_shouldTraverse that captures nothing (post-flip step lambdas).

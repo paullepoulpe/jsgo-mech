@@ -121,7 +121,6 @@ func (this *TypedScope) getTypeOfThis() *JSType {
 	} else {
 		return cast_[*TypedScope](this.getParent().self()).getTypeOfThis()
 	}
-	panic("unreachable")
 }
 
 func (this *TypedScope) declare(name string, nameNode Node, type_ *JSType, input *CompilerInput, inferred bool) *TypedVar {
@@ -212,7 +211,6 @@ func (this *TypedScope) getVar_impl(name string) *AbstractVar {
 	} else {
 		return to_AbstractVar(cast_[*TypedScope](rootVar.getScope()).getOwnSlot(name))
 	}
-	panic("unreachable")
 }
 
 func (this *TypedScope) getTypeThroughNamespace(moduleId string) *JSType {
@@ -234,7 +232,6 @@ func (this *TypedScope) getTypeThroughNamespace(moduleId string) *JSType {
 			return nil
 		}()
 	}
-	panic("unreachable")
 }
 
 func (this *TypedScope) getTopmostScopeOfEventualDeclaration_impl(name string) StaticScope {
@@ -245,7 +242,6 @@ func (this *TypedScope) getTopmostScopeOfEventualDeclaration_impl(name string) S
 	} else {
 		return cast_[*TypedScope](this.getParent().self()).getTopmostScopeOfEventualDeclaration(name)
 	}
-	panic("unreachable")
 }
 
 func (this *TypedScope) lookupQualifiedName(p0 *QualifiedName) *JSType {

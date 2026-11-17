@@ -61,7 +61,6 @@ func CompilationLevel_fromString(value OptionalOf[string]) CompilationLevel {
 		default:
 			return 0
 		}
-		panic("unreachable")
 	}()
 }
 

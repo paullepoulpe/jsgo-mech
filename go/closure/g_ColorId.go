@@ -146,7 +146,6 @@ func lambda_ColorId_clinit_1_(s_ any, i int32) int8 {
 		panic(new_IllegalStateException_String(objstr_(any(int32(c)))).self())
 	}
 	return int8(c)
-	panic("unreachable")
 }
 
 type ColorId_ByteAt interface {

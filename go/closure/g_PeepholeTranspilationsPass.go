@@ -75,6 +75,5 @@ func (this *PeepholeTranspilationsPass_PeepCallback) shouldTraverse(t *NodeTrave
 		default:
 			return true
 		}
-		panic("unreachable")
 	}()
 }

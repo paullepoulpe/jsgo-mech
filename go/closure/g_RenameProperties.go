@@ -214,7 +214,6 @@ var lambda_RenameProperties_clinit_1_ = &Comparator_fn{func(p1_ any, p2_ any) in
 		return (p2.numOccurrences - p1.numOccurrences)
 	}
 	return String_compareTo(p1.oldName, p2.oldName)
-	panic("unreachable")
 }}
 
 type RenameProperties_ProcessProperties struct {

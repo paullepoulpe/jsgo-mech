@@ -219,7 +219,6 @@ func (this *FunctionRewriter_EmptyFunctionReducer) reduce_impl(node Node) Node {
 	} else {
 		return node
 	}
-	panic("unreachable")
 }
 
 const FunctionRewriter_EmptyFunctionReducer_FACTORY_METHOD_NAME string = "JSCompiler_emptyFn"
@@ -328,7 +327,6 @@ func (this *FunctionRewriter_IdentityReducer) reduce_impl(node Node) Node {
 	} else {
 		return node
 	}
-	panic("unreachable")
 }
 
 func (this *FunctionRewriter_IdentityReducer) isIdentityFunction(functionNode Node) bool {
@@ -387,7 +385,6 @@ func (this *FunctionRewriter_ReturnConstantReducer) reduce_impl(node Node) Node 
 	} else {
 		return node
 	}
-	panic("unreachable")
 }
 
 func (this *FunctionRewriter_ReturnConstantReducer) getValueNode(functionNode Node) Node {
@@ -448,7 +445,6 @@ func (this *FunctionRewriter_GetterReducer) reduce_impl(node Node) Node {
 	} else {
 		return node
 	}
-	panic("unreachable")
 }
 
 func (this *FunctionRewriter_GetterReducer) getGetPropertyName(functionNode Node) Node {
@@ -501,7 +497,6 @@ func (this *FunctionRewriter_SetterReducer) reduce_impl(node Node) Node {
 	} else {
 		return node
 	}
-	panic("unreachable")
 }
 
 func (this *FunctionRewriter_SetterReducer) getSetPropertyName(functionNode Node) Node {

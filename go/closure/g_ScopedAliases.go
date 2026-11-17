@@ -95,7 +95,6 @@ func ScopedAliases_isValidAliasRhs(rhs Node) bool {
 		default:
 			return false
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -125,7 +124,6 @@ func ScopedAliases_getAliasedNamespace(rhs Node) string {
 		default:
 			panic(new_RuntimeException_String(("Invalid alias RHS:" + objstr_(rhs.box_()))).self())
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -673,7 +671,6 @@ func (this *ScopedAliases_Traversal) containsInvalidGoogModuleGet(expression Nod
 		default:
 			panic(new_IllegalStateException_String(("Unrecognized alias rhs " + objstr_(expression.box_()))).self())
 		}
-		panic("unreachable")
 	}()
 }
 

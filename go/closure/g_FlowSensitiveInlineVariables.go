@@ -484,7 +484,6 @@ func (this *FlowSensitiveInlineVariables_Candidate) isRhsSafeToInline(usageScope
 			}
 		}
 		return false
-		panic("unreachable")
 	}, Predicates_alwaysTrue()) {
 		return false
 	}
@@ -501,7 +500,6 @@ func lambda_FlowSensitiveInlineVariables_Candidate_isRhsSafeToInline_1_(input_ a
 	default:
 	}
 	return false
-	panic("unreachable")
 }
 
 // lambda_FlowSensitiveInlineVariables_Candidate_isRhsSafeToInline_2_ is a lambda of FlowSensitiveInlineVariables_Candidate_isRhsSafeToInline that captures nothing (post-flip step lambdas).

@@ -214,7 +214,6 @@ func FeatureSet_valueOf(name string) *FeatureSet {
 		default:
 			panic(new_IllegalArgumentException_String(("No such FeatureSet: " + sstr_(name))).self())
 		}
-		panic("unreachable")
 	}()
 }
 

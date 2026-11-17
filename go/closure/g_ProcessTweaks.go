@@ -214,7 +214,6 @@ func (this ProcessTweaks_TweakFunction) createDefaultValueNode() Node {
 		default:
 			panic(new_IllegalStateException_0().self())
 		}
-		panic("unreachable")
 	}()
 }
 

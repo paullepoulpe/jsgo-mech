@@ -133,7 +133,6 @@ func (this *JSError) format(level CheckLevel, formatter MessageFormatter) Option
 		default:
 			return Optional_empty[string]()
 		}
-		panic("unreachable")
 	}()
 }
 

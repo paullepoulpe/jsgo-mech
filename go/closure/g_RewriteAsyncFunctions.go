@@ -333,7 +333,6 @@ func (this *RewriteAsyncFunctions_RootContext) getContextForNode_impl(t *NodeTra
 	} else {
 		return this.up_RewriteAsyncFunctions_LexicalContext()
 	}
-	panic("unreachable")
 }
 
 func (this *RewriteAsyncFunctions_RootContext) visit_impl(t *NodeTraversal, n Node) {
@@ -381,7 +380,6 @@ func (this *RewriteAsyncFunctions_ParameterListContext) getContextForNode_impl(t
 	} else {
 		return this.up_RewriteAsyncFunctions_LexicalContext()
 	}
-	panic("unreachable")
 }
 
 func (this *RewriteAsyncFunctions_ParameterListContext) getAsyncContextForParameterList() *RewriteAsyncFunctions_FunctionContext {
@@ -496,7 +494,6 @@ func (this *RewriteAsyncFunctions_FunctionContext) getContextForNode_impl(t *Nod
 	} else {
 		return this.up_RewriteAsyncFunctions_LexicalContext()
 	}
-	panic("unreachable")
 }
 
 func (this *RewriteAsyncFunctions_FunctionContext) recordAsyncThisReplacementWasDone(typeOfThis AstFactory_Type) {

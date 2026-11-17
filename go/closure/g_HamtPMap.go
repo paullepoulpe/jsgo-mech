@@ -165,7 +165,6 @@ func (this *HamtPMap[K, V]) plus_3(key K, hash int32, value V) *HamtPMap[K, V] {
 		var newChild *HamtPMap[K, V] = new_HamtPMap(key, hash, value, 0, HamtPMap_emptyChildren[K, V]())
 		return this.withChildren((this.mask | bucketMask), HamtPMap_insertChild(this.children_, index, newChild))
 	}
-	panic("unreachable")
 }
 
 func (this *HamtPMap[K, V]) replaceRoot(key K, hash int32, value V) *HamtPMap[K, V] {
@@ -221,7 +220,6 @@ func (this *HamtPMap[K, V]) minus_3(key K, hash int32, value []V) *HamtPMap[K, V
 	} else {
 		return this.withChildren(this.mask, HamtPMap_replaceChild(this.children_, index, newChild))
 	}
-	panic("unreachable")
 }
 
 func (this *HamtPMap[K, V]) reconcile(that PMap[K, V], joiner PMap_Reconciler[K, V]) PMap[K, V] {
@@ -510,7 +508,6 @@ func HamtPMap_deleteRoot[K, V comparable](mask int32, children []*HamtPMap[K, V]
 	} else {
 		return new_HamtPMap(child.key_, newHash, child.value_, mask, HamtPMap_replaceChild(children, 0, newChild))
 	}
-	panic("unreachable")
 }
 
 func HamtPMap_insertChild[K, V comparable](children []*HamtPMap[K, V], index int32, child *HamtPMap[K, V]) []*HamtPMap[K, V] {

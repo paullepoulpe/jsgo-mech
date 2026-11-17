@@ -226,7 +226,6 @@ func FeatureCollector_contextFor(contextStack *TList[FeatureCollector_FeatureCon
 		default:
 			return FeatureCollector_FeatureContext_NONE
 		}
-		panic("unreachable")
 	}()
 }
 

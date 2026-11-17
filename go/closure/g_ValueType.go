@@ -61,7 +61,6 @@ func (this *ValueType) getPropertyKind_2_impl(propertyName Property_Key, autobox
 	} else {
 		return this.JSType.getPropertyKind_2_impl(propertyName, autobox)
 	}
-	panic("unreachable")
 }
 
 func (this *ValueType) recursionUnsafeHashCode_impl() int32 {

@@ -111,7 +111,6 @@ func Keywords_isStrictKeyword(token TokenType) bool {
 		default:
 			return false
 		}
-		panic("unreachable")
 	}()
 }
 

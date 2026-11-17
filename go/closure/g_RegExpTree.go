@@ -916,7 +916,6 @@ func RegExpTree_Repetition_suffixLen(min_ int32, max_ int32) int32 {
 			default:
 				return (3 + RegExpTree_Repetition_numDecimalDigits(min_))
 			}
-			panic("unreachable")
 		}()
 	}
 	if (min_ == 0) && (max_ == 1) {
@@ -2093,7 +2092,6 @@ func (this *RegExpTree_Concatenation) simplify_impl(flags string) *RegExpTree {
 		default:
 			return new_RegExpTree_Concatenation_List(s.simplified).up_RegExpTree()
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -2316,7 +2314,6 @@ topLoop_:
 	} else {
 		return preceder
 	}
-	panic("unreachable")
 }
 
 func (this *RegExpTree_1Parser) parseParenthetical() *RegExpTree {
@@ -2524,7 +2521,6 @@ func (this *RegExpTree_1Parser) parseEscapeChar() int32 {
 			}
 			return int32(ch)
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -2620,7 +2616,6 @@ func (this *RegExpTree_1Parser) parseEscape() *RegExpTree {
 		}
 		return new_RegExpTree_Text(new_String(Character_toChars(this.parseEscapeChar()))).up_RegExpTree()
 	}
-	panic("unreachable")
 }
 
 func (this *RegExpTree_1Parser) parseHex(n int32) int32 {
@@ -2684,7 +2679,6 @@ func (this *RegExpTree_1Parser) isRepetitionStart(ch uint16) bool {
 		default:
 			return false
 		}
-		panic("unreachable")
 	}()
 }
 

@@ -426,7 +426,6 @@ func (this *NodeTraversal) createsBlockScope(n Node) bool {
 		default:
 			return false
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -672,7 +671,6 @@ func (this *NodeTraversal) getScopeRoot() Node {
 	} else {
 		return 0
 	}
-	panic("unreachable")
 }
 
 func (this *NodeTraversal) getScopeDepth() int32 {
@@ -710,7 +708,6 @@ func (this *NodeTraversal) getAbstractScope_1(rootDepth int32) *AbstractScope {
 	} else {
 		return this.scopes[rootDepth].scope
 	}
-	panic("unreachable")
 }
 
 func (this *NodeTraversal) isHoistScope() bool {
@@ -755,7 +752,6 @@ func NodeTraversal_isHoistScopeRootNode(n Node) bool {
 		default:
 			return NodeUtil_isFunctionBlock(n)
 		}
-		panic("unreachable")
 	}()
 }
 

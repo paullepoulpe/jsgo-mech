@@ -36,7 +36,6 @@ func (this *EsModuleProcessor) shouldTraverse(t *NodeTraversal, n Node, parent N
 		default:
 			return false
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -294,7 +293,6 @@ func (this *EsModuleProcessor_UnresolvedModuleBuilder) add(e *Export) bool {
 		this.exportedNames[e.exportName().get()] = struct{}{}
 		return true
 	}
-	panic("unreachable")
 }
 
 func (this *EsModuleProcessor_UnresolvedModuleBuilder) build() *UnresolvedModule {
@@ -463,7 +461,6 @@ func (this *EsModuleProcessor_UnresolvedEsModule) resolveImportImpl(moduleReques
 			return result.copy(forSourceInfo, Binding_CreatedBy_IMPORT)
 		}
 	}
-	panic("unreachable")
 }
 
 func (this *EsModuleProcessor_UnresolvedEsModule) getExportedNames_impl(moduleRequestResolver ModuleRequestResolver) ImmutableSetOf[string] {

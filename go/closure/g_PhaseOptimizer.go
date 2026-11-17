@@ -116,7 +116,6 @@ func (this *PhaseOptimizer) maybeRunValidityCheck(passName string, externs Node,
 				if is_RuntimeException(ex_) {
 					var e *RuntimeException = to_RuntimeException(ex_)
 					panic(new_IllegalStateException_String_Throwable(("Validity checks failed for pass: " + sstr_(passName)), e.up_Throwable()).self())
-					return
 				}
 				panic(r_)
 			}
@@ -271,7 +270,6 @@ func (this *PhaseOptimizer_NamedPass) process_2(externs Node, root Node) {
 				if is_IllegalStateException(ex_) {
 					var e *IllegalStateException = to_IllegalStateException(ex_)
 					panic(new_RuntimeException_String_Throwable(("Validity check failed for " + sstr_(this.name_)), e.up_Throwable()).self())
-					return
 				}
 				panic(r_)
 			}
@@ -427,7 +425,6 @@ func (this *PhaseOptimizer_Loop) process_2(externs Node, root Node) {
 				}
 			}
 		}
-		return 0
 	}()
 	if code_3 == 1 {
 		return

@@ -67,7 +67,6 @@ func (this *DisambiguateProperties) process_2(externs Node, root Node) {
 		}
 		List_sort(sliceView_(tc_p_DisambiguateProperties_TypeNodeJson, result), Comparator_comparingInt_f(lambda_DisambiguateProperties_process_2_2_))
 		return obj_(ImmutableList_copyOf(Collection(sliceView_(tc_p_DisambiguateProperties_TypeNodeJson, result))))
-		panic("unreachable")
 	}})
 	this.invalidateBasedOnType(flattener)
 	FixedPointGraphTraversal_newTraversal(icast_FixedPointGraphTraversal_EdgeCallback(obj_(propagator))).computeFixedPoint(graph)
@@ -206,7 +205,6 @@ func (this *DisambiguateProperties) mayHaveProperty(color *Color, propertyName s
 		}
 		ret_1 = false
 		return 1
-		return 0
 	}()
 	if code_1 == 1 {
 		return ret_1

@@ -99,7 +99,6 @@ func (this *AnalyzePrototypeProperties) getNameInfoForName(name string, type_ An
 		this.symbolGraph.createNode(obj_(nameInfo))
 		return nameInfo
 	}
-	panic("unreachable")
 }
 
 var AnalyzePrototypeProperties_PROPERTY AnalyzePrototypeProperties_SymbolType

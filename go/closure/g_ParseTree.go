@@ -377,7 +377,6 @@ func (this *ParseTree) isPattern() bool {
 		default:
 			return false
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -395,7 +394,6 @@ func (this *ParseTree) isValidNonVanillaAssignmentTarget() bool {
 		default:
 			return false
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -411,7 +409,6 @@ func (this *ParseTree) isValidAssignmentTarget() bool {
 		default:
 			return false
 		}
-		panic("unreachable")
 	}()
 }
 

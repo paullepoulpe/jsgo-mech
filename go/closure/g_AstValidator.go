@@ -406,7 +406,6 @@ func AstValidator_getTypeAnnotationString(typeI *JSType) string {
 	} else {
 		return ("{" + sstr_(typeI.toAnnotationString(JSType_Nullability_EXPLICIT)) + "}")
 	}
-	panic("unreachable")
 }
 
 func (this *AstValidator) validateYield(n Node) {
@@ -1104,7 +1103,6 @@ func (this *AstValidator) allowsSuperPropertyReference(n Node) bool {
 		default:
 			return this.allowsSuperPropertyReference(n.getParent())
 		}
-		panic("unreachable")
 	}()
 }
 

@@ -264,7 +264,6 @@ func (this *CoalesceVariableNames) isInMultipleLvalueDecl(v *Var) bool {
 		default:
 			return false
 		}
-		panic("unreachable")
 	}()
 }
 

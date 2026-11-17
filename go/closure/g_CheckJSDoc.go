@@ -295,7 +295,6 @@ func (this *CheckJSDoc) isJSDocOnFunctionNode(n Node, info *JSDocInfo) bool {
 		default:
 			return false
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -331,7 +330,6 @@ func CheckJSDoc_isValidMsgName(nameNode Node) bool {
 	} else {
 		return false
 	}
-	panic("unreachable")
 }
 
 func (this *CheckJSDoc) validateTypeAnnotations(n Node, info *JSDocInfo) {

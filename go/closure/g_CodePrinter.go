@@ -224,7 +224,6 @@ func CodePrinter_MappedCodePrinter_convertPositionAfterLineCut(position *FilePos
 	} else {
 		return position
 	}
-	panic("unreachable")
 }
 
 func (this *CodePrinter_MappedCodePrinter) getCode() string {
@@ -459,7 +458,6 @@ func (this *CodePrinter_PrettyCodePrinter) breakAfterBlockFor_impl(n Node, isSta
 		default:
 			return true
 		}
-		panic("unreachable")
 	}()
 }
 

@@ -50,7 +50,6 @@ func (this *ColorSerializer) addColor(color *Color) int32 {
 		var index int32 = int32(len(this.colorsInSerializedOrder))
 		this.colorsInSerializedOrder = append(this.colorsInSerializedOrder, color)
 		return any(int32(index))
-		panic("unreachable")
 	}))
 }
 

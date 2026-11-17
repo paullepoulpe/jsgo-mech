@@ -556,7 +556,6 @@ func (this *ProcessClosurePrimitives_1) get(value string) OptionalOf[string] {
 	} else {
 		return Optional_of[string](value)
 	}
-	panic("unreachable")
 }
 
 func (this *ProcessClosurePrimitives_1) getStyle() CssRenamingMap_Style {

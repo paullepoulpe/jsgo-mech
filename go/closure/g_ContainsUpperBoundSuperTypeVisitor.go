@@ -80,7 +80,6 @@ func (this *ContainsUpperBoundSuperTypeVisitor) caseForwardingType(type_ *JSType
 		this.seen.add(type_.self())
 		return cast_[ContainsUpperBoundSuperTypeVisitor_Result](reference.visit(icast_Visitor(obj_(this))))
 	}
-	panic("unreachable")
 }
 
 type ContainsUpperBoundSuperTypeVisitor_Result uint8

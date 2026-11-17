@@ -96,7 +96,6 @@ func AccessorSummary_fromProtoPropertyAccessKindProto(kind *PropertyAccessKindPr
 		default:
 			panic(new_IllegalArgumentException_String(("Unknown kind: " + objstr_(obj_(kind)))).self())
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -176,7 +175,6 @@ func (this AccessorSummary_PropertyAccessKind) unionWith(other AccessorSummary_P
 		default:
 			panic(new_IllegalStateException_String(("unexpected value: " + istr_(int64(combinedFlags)))).self())
 		}
-		panic("unreachable")
 	}()
 }
 

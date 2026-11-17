@@ -55,7 +55,6 @@ func (this *CheckEs6ModuleFileStructure) shouldTraverse_impl(t *NodeTraversal, n
 			}
 			return false
 		}
-		panic("unreachable")
 	}()
 }
 

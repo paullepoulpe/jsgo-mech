@@ -897,7 +897,6 @@ func lambda_SymbolTable_fillGoogProvideModuleRequires_1_(n_ any) bool {
 		return false
 	}
 	return true
-	panic("unreachable")
 }
 
 func (this *SymbolTable) flattenGoogModuleExports() {
@@ -1004,7 +1003,6 @@ func (this *SymbolTable) getLexicalScopeDepth(scope *SymbolTable_SymbolScope) in
 		}
 		return (this.getLexicalScopeDepth(this.getScope(sym)) + 1)
 	}
-	panic("unreachable")
 }
 
 func (this *SymbolTable) getType(sym StaticSlot) *JSType {
@@ -1407,7 +1405,6 @@ func (this *SymbolTable_SymbolScope) toString() string {
 	} else {
 		return ("PropertyScope@" + objstr_(obj_(this.getSymbolForScope())))
 	}
-	panic("unreachable")
 }
 
 type SymbolTable_PropertyRefCollector struct {
@@ -1723,7 +1720,6 @@ func (this *SymbolTable_JSDocInfoCollector) isNativeSourcelessType(name string) 
 		default:
 			return false
 		}
-		panic("unreachable")
 	}()
 }
 

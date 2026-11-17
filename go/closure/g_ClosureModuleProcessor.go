@@ -152,7 +152,6 @@ func (this *ClosureModuleProcessor_UnresolvedGoogModule) resolveImport(moduleReq
 		}()
 		return result.copy(forSourceInfo, require.createdBy())
 	}
-	panic("unreachable")
 }
 
 func (this *ClosureModuleProcessor_UnresolvedGoogModule) metadata_impl() *ModuleMetadataMap_ModuleMetadata {
@@ -252,7 +251,6 @@ func (this *ClosureModuleProcessor_ModuleProcessingCallback) shouldTraverse_impl
 		default:
 			return false
 		}
-		panic("unreachable")
 	}()
 }
 

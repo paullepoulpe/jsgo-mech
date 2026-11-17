@@ -21,7 +21,6 @@ func TranspilationPasses_addEs6ModulePass(passes *PassListBuilder, preprocessorT
 		_ = compiler
 		preprocessorTableFactory.maybeInitialize(compiler)
 		return obj_(new_Es6RewriteModules_AbstractCompiler_ModuleMetadataMap_ModuleMap_PreprocessorSymbolTable_TypedScope_ChunkOutputType(compiler, compiler.getModuleMetadataMap(), compiler.getModuleMap(), preprocessorTableFactory.getInstanceOrNull(), compiler.getTopScope(), compiler.getOptions().getChunkOutputType()))
-		panic("unreachable")
 	}}).build())
 }
 
@@ -294,7 +293,6 @@ var lambda_TranspilationPasses_clinit_1_ = &Function_fn{func(compiler_ any) any 
 		peepholeTranspilations = append(peepholeTranspilations, to_AbstractPeepholeTranspilation(obj_(new_RewriteNewDotTarget(compiler))))
 	}
 	return obj_(PeepholeTranspilationsPass_create(compiler, peepholeTranspilations))
-	panic("unreachable")
 }}
 
 // lambda_TranspilationPasses_clinit_2_ is a lambda of TranspilationPasses_clinit that captures nothing (post-flip step lambdas).

@@ -68,5 +68,4 @@ func (this *ColorGraphNodeFactory) simplifyColor(type_ *Color) *Color {
 	} else {
 		return type_
 	}
-	panic("unreachable")
 }

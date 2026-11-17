@@ -531,7 +531,6 @@ func (this *CommandLineRunner) createExterns_impl(options *CompilerOptions) *Out
 		builtinExterns.addAll(Collection(externs))
 		return Outcome_base_ok_Object(any(builtinExterns))
 	}
-	panic("unreachable")
 }
 
 func CommandLineRunner_loadConformanceConfigs(configPaths ListOf[string]) []*ConformanceConfig {
@@ -565,7 +564,6 @@ func CommandLineRunner_loadConformanceConfig(configFile string) *Outcome_base {
 				if is_Exception(ex_) {
 					var e *Exception = to_Exception(ex_)
 					panic(new_RuntimeException_Throwable(e.up_Throwable()).self())
-					return
 				}
 				panic(r_)
 			}

@@ -327,7 +327,6 @@ func (this *Es6RewriteClass) getQualifiedMemberAccess(member Node, metadata *Es6
 		var methodName Node = member.getFirstFirstChild()
 		return this.astFactory_.createGetProp(context, member.getString(), AstFactory_type_Node(member)).srcrefTree(methodName)
 	}
-	panic("unreachable")
 }
 
 func (this *Es6RewriteClass) createPropertyDescriptor() Node {

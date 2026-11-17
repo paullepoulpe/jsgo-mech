@@ -27,7 +27,6 @@ func (this *ForbidDynamicImportUsage) shouldTraverse(t *NodeTraversal, n Node, p
 	} else {
 		return true
 	}
-	panic("unreachable")
 }
 
 func (this *ForbidDynamicImportUsage) getFeatureSetOfScript(n Node) *FeatureSet {

@@ -278,7 +278,6 @@ func DeadPropertyAssignmentElimination_FindCandidateAssignmentTraversal_isCondit
 		default:
 			return false
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -369,7 +368,6 @@ func (this *DeadPropertyAssignmentElimination_FindCandidateAssignmentTraversal) 
 			}
 			return true
 		}
-		panic("unreachable")
 	}()
 }
 

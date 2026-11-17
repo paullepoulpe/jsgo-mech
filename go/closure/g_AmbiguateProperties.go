@@ -161,7 +161,6 @@ var lambda_AmbiguateProperties_process_2_2_ = &FixedPointGraphTraversal_EdgeCall
 	var startSize int32 = supertype.getSubtypeIndices().cardinality()
 	supertype.getSubtypeIndices().or(subtype.getSubtypeIndices())
 	return (supertype.getSubtypeIndices().cardinality() > startSize)
-	panic("unreachable")
 }}
 
 func (this *AmbiguateProperties) getProperty(name string) *AmbiguateProperties_Property {
@@ -175,7 +174,6 @@ func (this *AmbiguateProperties) getColor(n Node) *Color {
 	} else {
 		return type_
 	}
-	panic("unreachable")
 }
 
 var AmbiguateProperties_logger *Logger
@@ -203,7 +201,6 @@ var lambda_AmbiguateProperties_clinit_1_ = &Comparator_fn{func(p1_ any, p2_ any)
 		return (p2.numOccurrences - p1.numOccurrences)
 	}
 	return String_compareTo(p1.oldName, p2.oldName)
-	panic("unreachable")
 }}
 
 type AmbiguateProperties_PropertyGraph struct {

@@ -601,7 +601,6 @@ func (this *CompilerOptions) shouldRunReplaceMessagesForChrome() bool {
 	} else {
 		return false
 	}
-	panic("unreachable")
 }
 
 func (this *CompilerOptions) setAssumeForwardDeclaredForMissingTypes(assumeForwardDeclaredForMissingTypes bool) {
@@ -3364,7 +3363,6 @@ func CompilerOptions_InstrumentOption_fromString(value OptionalOf[string]) Compi
 		default:
 			return 0
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -3641,7 +3639,6 @@ func (this CompilerOptions_LanguageMode) isDefaultStrict() bool {
 		default:
 			return true
 		}
-		panic("unreachable")
 	}()
 }
 

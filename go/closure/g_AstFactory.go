@@ -234,7 +234,6 @@ func (this *AstFactory) createThisForEs6ClassMember(memberNode Node) Node {
 	} else {
 		return this.createThisForEs6Class(classNode)
 	}
-	panic("unreachable")
 }
 
 func (this *AstFactory) getTypeOfThisForFunctionNode(functionNode Node) *JSType {
@@ -249,7 +248,6 @@ func (this *AstFactory) getTypeOfThisForFunctionNode(functionNode Node) *JSType 
 	} else {
 		return nil
 	}
-	panic("unreachable")
 }
 
 func (this *AstFactory) getTypeOfThisForEs6Class(functionNode Node) AstFactory_Type {
@@ -300,7 +298,6 @@ func (this *AstFactory) createSingleNameDeclaration(tokenType Token_rhino, name 
 		default:
 			panic(new_UnsupportedOperationException_String(("Unexpeted token type: " + objstr_(obj_(tokenType)))).self())
 		}
-		panic("unreachable")
 	}()
 }
 

@@ -188,7 +188,6 @@ var lambda_BaseTranspiler_CompilerSupplier_setOptions_1_ = &SourceMap_LocationMa
 		return location
 	}
 	return optErase_(new_SourceMap_PrefixLocationMapping("", "/").map_(optConv_(location, func(v any) string { return str_(v) })))
-	panic("unreachable")
 }}
 
 func (this *BaseTranspiler_CompilerSupplier) createTrivialExterns() *SourceFile_jscomp {

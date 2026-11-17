@@ -66,7 +66,6 @@ func (this *EqualityChecker) areEqualCaching(left *JSType, right *JSType) bool {
 			this.recursionDepth++
 			ret_1 = this.areEqualInternal(left, right)
 			return 1
-			return 0
 		}()
 		if code_1 == 1 {
 			return ret_1
@@ -245,7 +244,6 @@ func (this *EqualityChecker) areFunctionEqual(left *FunctionType, right *Functio
 		default:
 			panic(new_AssertionError_0().self())
 		}
-		panic("unreachable")
 	}()
 }
 

@@ -340,7 +340,6 @@ func (this *TypeTransformationParser) validTypeExpression(expr Node) bool {
 		default:
 			panic(new_IllegalStateException_String("Invalid type expression").self())
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -435,7 +434,6 @@ func (this *TypeTransformationParser) validBooleanExpression(expr Node) bool {
 		default:
 			panic(new_IllegalStateException_String("Invalid boolean expression").self())
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -601,7 +599,6 @@ func (this *TypeTransformationParser) validOperationExpression(expr Node) bool {
 		default:
 			panic(new_IllegalStateException_String("Invalid type transformation operation").self())
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -628,7 +625,6 @@ func (this *TypeTransformationParser) validTypeTransformationExpression(expr Nod
 		default:
 			panic(new_IllegalStateException_String("Invalid type transformation expression").self())
 		}
-		panic("unreachable")
 	}()
 }
 

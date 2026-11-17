@@ -358,7 +358,6 @@ func ProcessDefines_isValidClosureDefinesValue(val Node) bool {
 		default:
 			return false
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -370,7 +369,6 @@ func (this *ProcessDefines) hasValidValue(define *ProcessDefines_Define) bool {
 	} else {
 		return this.isValidDefineValue(define.value_).toBoolean(false)
 	}
-	panic("unreachable")
 }
 
 func ProcessDefines_isGlobalConst(name *GlobalNamespace_Name) bool {

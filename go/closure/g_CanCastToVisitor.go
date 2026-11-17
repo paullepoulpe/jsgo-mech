@@ -48,7 +48,6 @@ func (this *CanCastToVisitor) canCastToFunction(thisType *JSType, functionType *
 	} else {
 		return (thisType.isSubtypeOf(functionType.up_JSType()) || functionType.isSubtype(thisType))
 	}
-	panic("unreachable")
 }
 
 func (this *CanCastToVisitor) isInterface(type_ *JSType) bool {

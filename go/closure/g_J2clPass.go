@@ -241,7 +241,6 @@ func (this *J2clPass_ClassStaticFunctionsInliner_FunctionDefsCollector) visit(t 
 			default:
 				panic(new_AssertionError_0().self())
 			}
-			panic("unreachable")
 		}()
 		var previousValue *J2clPass_ClassStaticFunctionsInliner_InlinableFunction = mapPut_(tc_p_J2clPass_ClassStaticFunctionsInliner_InlinableFunction, this.outer_.fnsToInlineByQualifiedName, qualifiedFnName.orElse(nullstr_), inlinableFunction)
 		if previousValue != nil {

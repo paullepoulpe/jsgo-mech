@@ -34,14 +34,12 @@ func (this *CachingTranspiler) transpile(path string, code string) *TranspileRes
 					} else {
 						panic(e.self())
 					}
-					return
 				}
 				panic(r_)
 			}
 		}()
 		ret_1 = cast_[*TranspileResult](this.cache.getUnchecked(obj_(new_CachingTranspiler_Key(path, code))))
 		return 1
-		return 0
 	}()
 	if code_1 == 1 {
 		return ret_1
