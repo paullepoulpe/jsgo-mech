@@ -316,7 +316,7 @@ func AbstractCommandLineRunner_getBuiltinExterns(env CompilerOptions_Environment
 		if data.isEmpty() {
 			return Outcome_base_err[List](new_IOException_String("Cannot read zip file externs.zip").up_Throwable())
 		}
-		mapFromExternsZip.put(filename, SourceFile_jscomp_builder().withPath(("externs.zip//" + sstr_(filename))).withContent(Io_utf8String(data.get())).build())
+		mapFromExternsZip.Put(filename, SourceFile_jscomp_builder().withPath(("externs.zip//" + sstr_(filename))).withContent(Io_utf8String(data.get())).build())
 	}
 	return Outcome_base_ok_Object[List](DefaultExterns_prepareExterns(env, mapFromExternsZip).asList())
 }
@@ -634,12 +634,12 @@ func AbstractCommandLineRunner_createJsChunks(specs *[]*AbstractCommandLineRunne
 	var minJsFilesRequired int32 = 0
 	for i_1 := 0; i_1 < len(*specs); i_1++ {
 		var spec *AbstractCommandLineRunner_JsChunkSpec = (*specs)[i_1]
-		if chunksByName.containsKey(spec.name_) {
+		if chunksByName.Has(spec.name_) {
 			return Outcome_base_err[List](new_FlagUsageException(("Duplicate chunk name: " + sstr_(spec.name_))).up_Throwable())
 		}
 		var chunk *JSChunk = new_JSChunk(spec.name_)
 		for _, dep := range spec.deps {
-			var other *JSChunk = chunksByName.get(dep)
+			var other *JSChunk = chunksByName.Get(dep)
 			if other == nil {
 				return Outcome_base_err[List](new_FlagUsageException(("Chunk '" + sstr_(spec.name_) + "' depends on unknown chunk '" + sstr_(dep) + "'. Be sure to list chunks in dependency order.")).up_Throwable())
 			}
@@ -655,7 +655,7 @@ func AbstractCommandLineRunner_createJsChunks(specs *[]*AbstractCommandLineRunne
 		}
 		sliceInsert_(&chunkNames, 0, spec.name_)
 		chunksFileCountMap[spec.name_] = any(int32(spec.numJsFiles))
-		chunksByName.put(spec.name_, chunk)
+		chunksByName.Put(spec.name_, chunk)
 	}
 	var totalNumJsFiles int32 = int32(len(inputs))
 	if (numJsFilesExpected >= 0) || (minJsFilesRequired > totalNumJsFiles) {
@@ -672,7 +672,7 @@ func AbstractCommandLineRunner_createJsChunks(specs *[]*AbstractCommandLineRunne
 	var chunkIndex int32 = 0
 	for _, chunkName := range chunkNames {
 		var numJsFiles int32 = unbox_[int32](chunksFileCountMap[chunkName])
-		var chunk *JSChunk = chunksByName.get(chunkName)
+		var chunk *JSChunk = chunksByName.Get(chunkName)
 		if (chunkIndex == (int32(len(chunkNames)) - 1)) && (numJsFiles == -1) {
 			numJsFiles = numJsFilesLeft
 		}
@@ -699,7 +699,7 @@ func AbstractCommandLineRunner_parseChunkWrappers(specs *[]string, chunks Iterab
 	}
 	var wrappers *TMap[string, string] = newTMap_(tc_string, tc_string)
 	for c := range elemsAs_[*JSChunk](chunks) {
-		wrappers.put(c.getName(), "")
+		wrappers.Put(c.getName(), "")
 	}
 	for i_3 := 0; i_3 < len(*specs); i_3++ {
 		var spec string = (*specs)[i_3]
@@ -708,7 +708,7 @@ func AbstractCommandLineRunner_parseChunkWrappers(specs *[]string, chunks Iterab
 			return Outcome_base_err[*TMap[string, string]](new_FlagUsageException(("Expected chunk wrapper to have <name>:<wrapper> format: " + sstr_(spec))).up_Throwable())
 		}
 		var name string = spec[:pos]
-		if !wrappers.containsKey(name) {
+		if !wrappers.Has(name) {
 			return Outcome_base_err[*TMap[string, string]](new_FlagUsageException(("Unknown chunk: '" + sstr_(name) + "'")).up_Throwable())
 		}
 		var wrapper string = spec[pos+1:]
@@ -716,7 +716,7 @@ func AbstractCommandLineRunner_parseChunkWrappers(specs *[]string, chunks Iterab
 		if !strings.Contains(wrapper, "%s") {
 			return Outcome_base_err[*TMap[string, string]](new_FlagUsageException(("No %s placeholder in chunk wrapper: '" + sstr_(wrapper) + "'")).up_Throwable())
 		}
-		wrappers.put(name, wrapper)
+		wrappers.Put(name, wrapper)
 	}
 	return Outcome_base_ok_Object[*TMap[string, string]](wrappers)
 }
@@ -777,7 +777,7 @@ func (this *AbstractCommandLineRunner) writeChunkOutput(fileName string, out App
 		AbstractCommandLineRunner_maybeCreateDirsForPath(fileName)
 	}
 	var baseName string = FilePaths_fileName(fileName)
-	this.writeOutput_8(out, this.compiler_, lt, m, strings.ReplaceAll(this.parsedChunkWrappers.get(m.getName()), "%basename%", csStr_(baseName)), "%s", nil, fileName)
+	this.writeOutput_8(out, this.compiler_, lt, m, strings.ReplaceAll(this.parsedChunkWrappers.Get(m.getName()), "%basename%", csStr_(baseName)), "%s", nil, fileName)
 	return Outcome_base_ok_0()
 }
 

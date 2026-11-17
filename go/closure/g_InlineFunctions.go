@@ -46,14 +46,14 @@ func new_InlineFunctions(compiler *AbstractCompiler, safeNameIdSupplier Supplier
 }
 
 func (this *InlineFunctions) getOrCreateFunctionState(fnName string) *InlineFunctions_FunctionState {
-	return this.fns.computeIfAbsent_f(fnName, lambda_InlineFunctions_getOrCreateFunctionState_1_)
+	return this.fns.ComputeIfAbsent(fnName, lambda_InlineFunctions_getOrCreateFunctionState_1_)
 }
 
 // lambda_InlineFunctions_getOrCreateFunctionState_1_ is a lambda of InlineFunctions_getOrCreateFunctionState that captures nothing (post-flip step lambdas).
-func lambda_InlineFunctions_getOrCreateFunctionState_1_(k_ any) any {
-	var k string = str_(k_)
+func lambda_InlineFunctions_getOrCreateFunctionState_1_(k_ string) *InlineFunctions_FunctionState {
+	var k string = k_
 	_ = k
-	return obj_(new_InlineFunctions_FunctionState())
+	return new_InlineFunctions_FunctionState()
 }
 
 func (this *InlineFunctions) process_2(externs Node, root Node) {
@@ -61,18 +61,18 @@ func (this *InlineFunctions) process_2(externs Node, root Node) {
 		panic(new_IllegalStateException_0().self())
 	}
 	NodeTraversal_traverse(this.compiler_, root, new_InlineFunctions_FindCandidateFunctions(this))
-	if this.fns.isEmpty() {
+	if this.fns.IsEmpty() {
 		return
 	}
 	NodeTraversal_traverse(this.compiler_, root, new_InlineFunctions_FindCandidatesReferences(this, this.fns, this.anonFns))
 	this.trimCandidatesNotMeetingMinimumRequirements()
-	if this.fns.isEmpty() {
+	if this.fns.IsEmpty() {
 		return
 	}
 	var fnNames ImmutableSetOf[string] = ImmutableSet_copyOf(Collection(this.fns.asMap().keySet()))
 	this.injector.setKnownConstantFunctions(fnNames)
 	this.trimCandidatesUsingOnCost()
-	if this.fns.isEmpty() {
+	if this.fns.IsEmpty() {
 		return
 	}
 	this.resolveInlineConflicts()
@@ -140,7 +140,7 @@ func (this *InlineFunctions) updateFunctionStateForInlining(fn InlineFunctions_F
 		if functionState.canInline() {
 			functionState.setChunk(chunk)
 			var namesToAlias *TSet[string] = tsetFrom_(tc_string, this.functionArgumentInjector_.findModifiedParameters(fnNode), true)
-			if !namesToAlias.isEmpty() {
+			if !namesToAlias.IsEmpty() {
 				functionState.inlineDirectly(false)
 				functionState.setNamesToAlias(namesToAlias)
 			}
@@ -311,9 +311,9 @@ func (this *InlineFunctions) resolveInlineConflictsForFunction(functionState *In
 	}
 	var fnNode Node = functionState.getFn().getFunctionNode()
 	var names *TSet[string] = this.findCalledFunctions(fnNode)
-	if !names.isEmpty() {
+	if !names.IsEmpty() {
 		for name := range names.All() {
-			var fsCalled *InlineFunctions_FunctionState = this.fns.get(name)
+			var fsCalled *InlineFunctions_FunctionState = this.fns.Get(name)
 			if (fsCalled != nil) && fsCalled.canRemove() {
 				fsCalled.setRemove(false, this.compiler_, InlineFunctions_CannotRemoveReason_CALLED_BY_INLINED_FUNCTION, InlineFunctions_ShouldWarnWhenRequireInliningCannotInline_NO)
 				if (!this.minimizeCost(fsCalled) && !fsCalled.requireInlining()) && !fsCalled.encourageInlining() {
@@ -336,7 +336,7 @@ func InlineFunctions_findCalledFunctions(node Node, changed *TSet[string]) {
 		panic(new_IllegalArgumentException_0().self())
 	}
 	if node.isName() && InlineFunctions_isCandidateUsage(node) {
-		changed.add(node.getString())
+		changed.Add(node.getString())
 	}
 	{
 		var c Node = node.getFirstChild()
@@ -601,7 +601,7 @@ func (this *InlineFunctions_CallVisitor) visit_impl(t *NodeTraversal, n Node, pa
 			}
 		}
 		if name.isPresent() {
-			var functionState *InlineFunctions_FunctionState = this.functionMap.get(name.get())
+			var functionState *InlineFunctions_FunctionState = this.functionMap.Get(name.get())
 			if functionState != nil {
 				this.callback(t, n, functionState)
 			}
@@ -695,7 +695,7 @@ func (this *InlineFunctions_FindCandidatesReferences) checkNameUsage(n Node, par
 		return
 	}
 	var name string = n.getString()
-	var functionState *InlineFunctions_FunctionState = this.outer_.fns.get(name)
+	var functionState *InlineFunctions_FunctionState = this.outer_.fns.Get(name)
 	if functionState == nil {
 		return
 	}
@@ -928,7 +928,7 @@ func (this *InlineFunctions_FunctionState) inlineDirectly(directReplacement bool
 }
 
 func (this *InlineFunctions_FunctionState) hasReferences() bool {
-	return ((this.references != nil) && !this.references.isEmpty())
+	return ((this.references != nil) && !this.references.IsEmpty())
 }
 
 func (this *InlineFunctions_FunctionState) getReferencesInternal() *TMap[Node, *InlineFunctions_Reference] {
@@ -942,7 +942,7 @@ func (this *InlineFunctions_FunctionState) addReference(ref *InlineFunctions_Ref
 	if this.references == nil {
 		this.references = newTMap_(tc_Node, tc_p_InlineFunctions_Reference)
 	}
-	this.references.put(ref.callNode_, ref)
+	this.references.Put(ref.callNode_, ref)
 }
 
 func (this *InlineFunctions_FunctionState) getReferences() CollectionOf[*InlineFunctions_Reference] {
@@ -950,7 +950,7 @@ func (this *InlineFunctions_FunctionState) getReferences() CollectionOf[*InlineF
 }
 
 func (this *InlineFunctions_FunctionState) getReference(n Node) *InlineFunctions_Reference {
-	return this.getReferencesInternal().get(n)
+	return this.getReferencesInternal().Get(n)
 }
 
 func (this *InlineFunctions_FunctionState) getNamesToAlias() ImmutableSetOf[string] {

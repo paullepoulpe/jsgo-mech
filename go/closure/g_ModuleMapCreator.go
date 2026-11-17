@@ -29,8 +29,8 @@ func new_ModuleMapCreator(compiler *AbstractCompiler, moduleMetadataMap *ModuleM
 }
 
 func (this *ModuleMapCreator) create() *ModuleMap {
-	this.unresolvedModules.clear()
-	this.unresolvedModulesByClosureNamespace.clear()
+	this.unresolvedModules.Clear()
+	this.unresolvedModulesByClosureNamespace.Clear()
 	for _, el := range immElems_(this.moduleMetadataMap.getAllModuleMetadata()) {
 		moduleMetadata := cast_[*ModuleMetadataMap_ModuleMetadata](el)
 		this.process(moduleMetadata)
@@ -46,10 +46,10 @@ func (this *ModuleMapCreator) resolve() *ModuleMap {
 		var toResolve ImmutableSetOf[string] = Sets_difference(this.unresolvedModules.asMap().keySet(), resolvedModules.asMap().keySet()).immutableCopy()
 		for _, el := range immElems_(toResolve) {
 			key := str_(el)
-			var resolved *Module = this.unresolvedModules.get(key).resolve(requestResolver)
-			resolvedModules.put(key, resolved)
+			var resolved *Module = this.unresolvedModules.Get(key).resolve(requestResolver)
+			resolvedModules.Put(key, resolved)
 			for namespace := range elemsBy_(obj_(resolved.metadata().googNamespaces()), str_) {
-				resolvedClosureModules.put(namespace, resolved)
+				resolvedClosureModules.Put(namespace, resolved)
 			}
 		}
 	}
@@ -57,11 +57,11 @@ func (this *ModuleMapCreator) resolve() *ModuleMap {
 		var toResolve ImmutableSetOf[string] = Sets_difference(this.unresolvedModulesByClosureNamespace.asMap().keySet(), resolvedClosureModules.asMap().keySet()).immutableCopy()
 		for _, el2 := range immElems_(toResolve) {
 			namespace := str_(el2)
-			resolvedClosureModules.put(namespace, this.unresolvedModulesByClosureNamespace.get(namespace).resolve(requestResolver))
+			resolvedClosureModules.Put(namespace, this.unresolvedModulesByClosureNamespace.Get(namespace).resolve(requestResolver))
 		}
 	}
-	this.unresolvedModules.clear()
-	this.unresolvedModulesByClosureNamespace.clear()
+	this.unresolvedModules.Clear()
+	this.unresolvedModulesByClosureNamespace.Clear()
 	return new_ModuleMap(ImmutableMap_copyOf(resolvedModules.asMap()), ImmutableMap_copyOf(resolvedClosureModules.asMap()))
 }
 
@@ -81,10 +81,10 @@ func (this *ModuleMapCreator) process(moduleMetadata *ModuleMetadataMap_ModuleMe
 	}
 	var module *UnresolvedModule = processor.process(moduleMetadata, moduleMetadata.path(), moduleMetadata.rootNode())
 	if moduleMetadata.path() != nil {
-		this.unresolvedModules.put(moduleMetadata.path().toModuleName(), module)
+		this.unresolvedModules.Put(moduleMetadata.path().toModuleName(), module)
 	}
 	for namespace := range elemsBy_(obj_(moduleMetadata.googNamespaces()), str_) {
-		this.unresolvedModulesByClosureNamespace.put(namespace, module)
+		this.unresolvedModulesByClosureNamespace.Put(namespace, module)
 	}
 }
 
@@ -143,7 +143,7 @@ func (this *ModuleMapCreator_ModuleRequestResolverImpl) resolve(e *Export) *Unre
 }
 
 func (this *ModuleMapCreator_ModuleRequestResolverImpl) resolveForClosure(namespace string) *UnresolvedModule {
-	return this.outer_.unresolvedModulesByClosureNamespace.computeIfAbsent_f(namespace, func(p0 any) any { return this.getFallbackForMissingClosureModule(str_(p0)).self() })
+	return this.outer_.unresolvedModulesByClosureNamespace.ComputeIfAbsent(namespace, func(p0 string) *UnresolvedModule { return this.getFallbackForMissingClosureModule(p0) })
 }
 
 func (this *ModuleMapCreator_ModuleRequestResolverImpl) resolve_3(moduleRequest string, modulePath *ModuleLoader_ModulePath, forLineInfo Node) *UnresolvedModule {
@@ -157,13 +157,13 @@ func (this *ModuleMapCreator_ModuleRequestResolverImpl) resolve_3(moduleRequest 
 	}), forLineInfo.getLineno(), forLineInfo.getCharno())
 	if requestedPath == nil {
 		requestedPath = modulePath.resolveModuleAsPath(moduleRequest)
-		if !this.outer_.unresolvedModules.containsKey(requestedPath.toModuleName()) {
+		if !this.outer_.unresolvedModules.Has(requestedPath.toModuleName()) {
 			var module *UnresolvedModule = this.getFallbackForMissingNonClosureModule(requestedPath)
-			this.outer_.unresolvedModules.put(requestedPath.toModuleName(), module)
+			this.outer_.unresolvedModules.Put(requestedPath.toModuleName(), module)
 			return module
 		}
 	}
-	return this.outer_.unresolvedModules.get(requestedPath.toModuleName())
+	return this.outer_.unresolvedModules.Get(requestedPath.toModuleName())
 }
 
 type ModuleMapCreator_ModuleProcessor interface {

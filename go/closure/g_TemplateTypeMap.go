@@ -126,7 +126,7 @@ func (this *TemplateTypeMap) copyWithoutKeys(removals *TSet[*TemplateType]) *Tem
 	for i := int32(int32(len(this.templateValues))); i < this.templateKeys.size(); i++ {
 		var key *TemplateType = cast_[*TemplateType](this.templateKeys.get(i))
 		inNewSubmap = (inNewSubmap || this.subMapStarts.get(i))
-		if !removals.contains(key) {
+		if !removals.Has(key) {
 			keys.add(obj_(key))
 			newsubMapStarts.set_int_boolean((int32(len(this.templateValues)) + newKeysSize), inNewSubmap)
 			newKeysSize++

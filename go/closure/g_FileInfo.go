@@ -65,7 +65,7 @@ func (this *FileInfo) recordDeclaration(decl *PotentialDeclaration) {
 }
 
 func (this *FileInfo) recordImport(localName string) {
-	this.requiredLocalNames.add(localName)
+	this.requiredLocalNames.Add(localName)
 }
 
 func (this *FileInfo) isNameDeclared(fullyQualifiedName string) bool {
@@ -103,5 +103,5 @@ func (this *FileInfo) isStrictPrefixDeclared(fullyQualifiedName string) bool {
 }
 
 func (this *FileInfo) markProvided(providedName string) {
-	this.providedNamespaces.add(providedName)
+	this.providedNamespaces.Add(providedName)
 }

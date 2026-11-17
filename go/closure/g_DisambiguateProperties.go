@@ -120,13 +120,13 @@ func DisambiguateProperties_buildRenamingIndex(props *TMap[string, *PropertyClus
 func DisambiguateProperties_invalidateWellKnownProperties(propIndex *TMap[string, *PropertyClustering]) {
 	var names []string = sliceOf_(tc_string, "prototype", "constructor", "then")
 	for _, name := range names {
-		propIndex.computeIfAbsent_f(name, lambda_DisambiguateProperties_invalidateWellKnownProperties_1_).invalidate(Invalidation_wellKnownProperty())
+		propIndex.ComputeIfAbsent(name, lambda_DisambiguateProperties_invalidateWellKnownProperties_1_).invalidate(Invalidation_wellKnownProperty())
 	}
 }
 
 // lambda_DisambiguateProperties_invalidateWellKnownProperties_1_ is a lambda of DisambiguateProperties_invalidateWellKnownProperties that captures nothing (post-flip step lambdas).
-func lambda_DisambiguateProperties_invalidateWellKnownProperties_1_(p0 any) any {
-	return obj_(new_PropertyClustering(str_(p0)))
+func lambda_DisambiguateProperties_invalidateWellKnownProperties_1_(p0 string) *PropertyClustering {
+	return new_PropertyClustering(p0)
 }
 
 func (this *DisambiguateProperties) invalidateBasedOnType(flattener *ColorGraphNodeFactory) {
@@ -161,9 +161,9 @@ func (this *DisambiguateProperties) mayHaveProperty(color *Color, propertyName s
 	var ret_1 bool
 	code_1 := func() (code_ int) {
 		defer func() {
-			this.mayHavePropertySeenSet.remove(color)
+			this.mayHavePropertySeenSet.Delete(color)
 		}()
-		if !this.mayHavePropertySeenSet.add(color) {
+		if !this.mayHavePropertySeenSet.Add(color) {
 			ret_1 = false
 			return 1
 		}
@@ -205,14 +205,14 @@ func (this *DisambiguateProperties) registerOwnDeclaredProperties(colorGraphNode
 	}
 	for _, el := range immElems_(colorGraphNode.getColor().getOwnProperties()) {
 		propName := str_(el)
-		var prop *PropertyClustering = propIndex.get(propName)
+		var prop *PropertyClustering = propIndex.Get(propName)
 		if prop == nil {
 			continue
 		} else if prop.isInvalidated() {
 			continue
 		}
 		prop.getClusters().add(obj_(colorGraphNode))
-		colorGraphNode.getAssociatedProps().put(prop, ColorGraphNode_PropAssociation_TYPE_SYSTEM)
+		colorGraphNode.getAssociatedProps().Put(prop, ColorGraphNode_PropAssociation_TYPE_SYSTEM)
 	}
 }
 

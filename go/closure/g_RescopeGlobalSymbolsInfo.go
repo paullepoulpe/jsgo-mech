@@ -52,11 +52,11 @@ func new_RescopeGlobalSymbolsInfo_String_Set_Set_Set_Set_Set_Set_Set_Set(globalS
 
 func RescopeGlobalSymbolsInfo_collectWrappedCrossChunkNames(externNames *TSet[string], crossChunkNames *TSet[string], crossChunkNamesWithWriteFromOtherChunk *TSet[string], crossChunkNamesUsedInNonDependentChunk *TSet[string], globalNamesWithInnerScopeWriteInDefiningChunk *TSet[string]) ImmutableSetOf[string] {
 	var candidates *TSet[string] = newTSet_(tc_string)
-	candidates.addAllT(crossChunkNamesWithWriteFromOtherChunk)
-	candidates.addAllT(crossChunkNamesUsedInNonDependentChunk)
+	candidates.AddAll(crossChunkNamesWithWriteFromOtherChunk)
+	candidates.AddAll(crossChunkNamesUsedInNonDependentChunk)
 	for name := range globalNamesWithInnerScopeWriteInDefiningChunk.All() {
-		if crossChunkNames.contains(name) {
-			candidates.add(name)
+		if crossChunkNames.Has(name) {
+			candidates.Add(name)
 		}
 	}
 	candidates.asSet().removeAll(Collection(externNames.asSet()))

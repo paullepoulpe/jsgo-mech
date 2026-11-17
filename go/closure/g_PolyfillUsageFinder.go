@@ -154,13 +154,13 @@ func (this *PolyfillUsageFinder) isDisjointFromIterator(receiver *Color) bool {
 }
 
 func (this *PolyfillUsageFinder) hasInSupertypesList(subCtor *Color, superCtor *Color) bool {
-	if !this.hasInSupertypesListSeenSet.add(subCtor) {
+	if !this.hasInSupertypesListSeenSet.Add(subCtor) {
 		return false
 	}
 	var ret_1 bool
 	code_1 := func() (code_ int) {
 		defer func() {
-			this.hasInSupertypesListSeenSet.remove(subCtor)
+			this.hasInSupertypesListSeenSet.Delete(subCtor)
 		}()
 		if subCtor.equals_Color(superCtor) {
 			ret_1 = true

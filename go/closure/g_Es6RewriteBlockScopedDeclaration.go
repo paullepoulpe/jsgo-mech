@@ -41,7 +41,7 @@ func (this *Es6RewriteBlockScopedDeclaration) visit_impl(t *NodeTraversal, n Nod
 		panic(new_IllegalStateException_String(tostr_(parent)).self())
 	}
 	if n.isLet() || n.isConst() {
-		this.letConsts.add(n)
+		this.letConsts.Add(n)
 		{
 			var nameNode Node = n.getFirstChild()
 			for ; nameNode != 0; nameNode = nameNode.getNext() {
@@ -185,7 +185,7 @@ func (this *Es6RewriteBlockScopedDeclaration) getInsertSpotBeforeLoop(loopNode N
 }
 
 func (this *Es6RewriteBlockScopedDeclaration) rewriteDeclsToVars() {
-	if !this.letConsts.isEmpty() {
+	if !this.letConsts.IsEmpty() {
 		for n := range this.letConsts.All() {
 			this.handleLetConstDeclarationList(n, n.getParent())
 		}
@@ -303,7 +303,7 @@ func (this *Es6RewriteBlockScopedDeclaration_LoopClosureTransformer) shouldTrave
 			_ = k
 			return obj_(new_Es6RewriteBlockScopedDeclaration_LoopClosureTransformer_LoopObject(this.createUniqueObjectName(t.getInput())))
 		}))
-		object.vars.add(var_)
+		object.vars.Add(var_)
 		this.nodesRequiringLoopObjectsClosureMap.put(nodeToWrapInClosure, object)
 	}
 	return true
@@ -318,12 +318,12 @@ func (this *Es6RewriteBlockScopedDeclaration_LoopClosureTransformer) getLoopObjP
 }
 
 func (this *Es6RewriteBlockScopedDeclaration_LoopClosureTransformer) transformLoopClosure() {
-	if this.loopObjectMap.isEmpty() {
+	if this.loopObjectMap.IsEmpty() {
 		return
 	}
 	var wrapperFunctions *TSet[Node] = this.createWrapperFunctions()
 	for loopNode := range this.loopObjectMap.Keys() {
-		var loopObject *Es6RewriteBlockScopedDeclaration_LoopClosureTransformer_LoopObject = this.loopObjectMap.get(loopNode)
+		var loopObject *Es6RewriteBlockScopedDeclaration_LoopClosureTransformer_LoopObject = this.loopObjectMap.Get(loopNode)
 		var objectLitNextIteration Node = this.outer_.astFactory_.createObjectLit([]Node{})
 		this.renameVarsToProperties(loopObject, objectLitNextIteration, loopNode)
 		var updateLoopObject Node = this.outer_.astFactory_.createAssign(this.createLoopObjectNameNode(loopObject), objectLitNextIteration)
@@ -376,7 +376,7 @@ func (this *Es6RewriteBlockScopedDeclaration_LoopClosureTransformer) createWrapp
 				var child Node = scopeBody.getFirstChild()
 				for ; child != 0; child = child.getNext() {
 					if child.isLet() || child.isConst() {
-						this.outer_.letConsts.add(child)
+						this.outer_.letConsts.Add(child)
 					}
 				}
 			}
@@ -401,7 +401,7 @@ func (this *Es6RewriteBlockScopedDeclaration_LoopClosureTransformer) createWrapp
 		}
 		replacement = call.srcrefTreeIfMissing(functionOrObjectLit)
 		functionOrObjectLit.replaceWith(replacement)
-		wrapperFunctions.add(iife)
+		wrapperFunctions.Add(iife)
 		returnNode.addChildToFront(functionOrObjectLit)
 		this.outer_.compiler_.reportChangeToEnclosingScope(replacement)
 	}
@@ -465,7 +465,7 @@ func (this *Es6RewriteBlockScopedDeclaration_LoopClosureTransformer) changeLoopL
 func (this *Es6RewriteBlockScopedDeclaration_LoopClosureTransformer) replaceDeclarationWithProperty(loopObject *Es6RewriteBlockScopedDeclaration_LoopClosureTransformer_LoopObject, newPropertyName string, reference Node) {
 	var declaration Node = reference.getParent()
 	var grandParent Node = declaration.getParent()
-	this.outer_.letConsts.remove(declaration)
+	this.outer_.letConsts.Delete(declaration)
 	this.outer_.handleLetConstDeclarationList(declaration, grandParent)
 	declaration = reference.getParent()
 	if reference.hasChildren() {

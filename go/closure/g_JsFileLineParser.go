@@ -279,7 +279,7 @@ func (this *JsFileLineParser) parseJsStringMap(input string) *Outcome_base[Map] 
 			}
 			return this.valueMatcher.group(2)
 		}()
-		results.put(key, val)
+		results.Put(key, val)
 		if this.valueMatcher.end() != String_length(input) {
 			checked = JsFileLineParser_check((String_charAt(input, this.valueMatcher.end()) == ','), "Missing comma in JS object literal")
 			if checked.isErr() {

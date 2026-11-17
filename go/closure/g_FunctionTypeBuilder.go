@@ -373,7 +373,7 @@ func (this *FunctionTypeBuilder) inferParameterTypes_2(paramsParent Node, info *
 				}
 			}
 			if paramName.isPresent() {
-				allJsDocParams.remove(paramName.get())
+				allJsDocParams.Delete(paramName.get())
 			}
 			var parameterType *JSType = nil
 			if (info != nil) && info.hasParameterType(paramName) {
@@ -500,9 +500,9 @@ func (this *FunctionTypeBuilder) buildTemplateTypesFromJSDocInfo(info *JSDocInfo
 		}
 		var template *TemplateType = this.typeRegistry.getType(StaticScope(this.templateScope), str_(entry.getKey())).toMaybeTemplateType()
 		if template != nil {
-			templatesToBounds.put(template, typeBound)
+			templatesToBounds.Put(template, typeBound)
 		} else {
-			templatesToBounds.put(this.typeRegistry.createTemplateType_2(str_(entry.getKey()), typeBound), typeBound)
+			templatesToBounds.Put(this.typeRegistry.createTemplateType_2(str_(entry.getKey()), typeBound), typeBound)
 		}
 	}
 	for entryKey, entryValue := range templatesToBounds.All() {

@@ -114,7 +114,7 @@ func (this *RenameVars) setNameAndReport(n Node, newName OptionalOf[string]) {
 
 func (this *RenameVars) getNewGlobalName(n Node) OptionalOf[string] {
 	var oldName string = n.getString()
-	var a *RenameVars_Assignment = this.assignments.get(oldName)
+	var a *RenameVars_Assignment = this.assignments.Get(oldName)
 	if a.newName.isPresent() && !(a.newName.get() == oldName) {
 		if this.pseudoNameMap != nil {
 			return Optional_ofNullable[string](mapStr_(this.pseudoNameMap, n))
@@ -127,7 +127,7 @@ func (this *RenameVars) getNewGlobalName(n Node) OptionalOf[string] {
 
 func (this *RenameVars) getNewLocalName(n Node) OptionalOf[string] {
 	var oldTempName string = n.getString()
-	var a *RenameVars_Assignment = this.assignments.get(oldTempName)
+	var a *RenameVars_Assignment = this.assignments.Get(oldTempName)
 	if !(a.newName.get() == oldTempName) {
 		if this.pseudoNameMap != nil {
 			return Optional_ofNullable[string](mapStr_(this.pseudoNameMap, n))
@@ -202,7 +202,7 @@ func (this *RenameVars) assignNames(varsToRename SortedSetOf[*RenameVars_Assignm
 
 func (this *RenameVars) finalizeNameAssignment(a *RenameVars_Assignment, newName string) {
 	a.setNewName(newName)
-	this.renameMap.put(a.oldName, newName)
+	this.renameMap.Put(a.oldName, newName)
 }
 
 func (this *RenameVars) getVariableMap() *VariableMap {
@@ -391,7 +391,7 @@ func (this *RenameVars_ProcessVars) visit_impl(t *NodeTraversal, n Node, parent 
 }
 
 func (this *RenameVars_ProcessVars) incCount(name string) {
-	var s *RenameVars_Assignment = this.outer_.assignments.computeIfAbsent_f(name, func(p0 any) any { return obj_(new_RenameVars_Assignment(this.outer_, str_(p0))) })
+	var s *RenameVars_Assignment = this.outer_.assignments.ComputeIfAbsent(name, func(p0 string) *RenameVars_Assignment { return new_RenameVars_Assignment(this.outer_, p0) })
 	s.count_++
 }
 

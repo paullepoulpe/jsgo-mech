@@ -44,7 +44,7 @@ func (this *GenerateExports) process_2(externs Node, root Node) {
 	for export := range localExports.All() {
 		this.addExtern(export)
 	}
-	if !exports.isEmpty() || !es6Exports.isEmpty() {
+	if !exports.IsEmpty() || !es6Exports.IsEmpty() {
 		if !this.validateExportMethodsIncluded(exports, es6Exports, root) {
 			return
 		}
@@ -61,7 +61,7 @@ func (this *GenerateExports) process_2(externs Node, root Node) {
 
 func (this *GenerateExports) validateExportMethodsIncluded(exports *TMap[string, Node], es6Exports *TMap[Node, string], root Node) bool {
 	var errorLocation Node
-	if !exports.isEmpty() {
+	if !exports.IsEmpty() {
 		errorLocation = exports.FirstValue()
 	} else {
 		errorLocation = es6Exports.FirstKey()
@@ -119,9 +119,9 @@ func (this *GenerateExports) addExtern(export string) {
 func (this *GenerateExports) recordExportSymbol(qname string) {
 	var dot int32 = String_indexOf(qname, 46)
 	if dot == -1 {
-		this.exportedVariables.add(qname)
+		this.exportedVariables.Add(qname)
 	} else {
-		this.exportedVariables.add(String_substring(qname, 0, dot))
+		this.exportedVariables.Add(String_substring(qname, 0, dot))
 	}
 }
 
@@ -153,7 +153,7 @@ func (this *GenerateExports) addExportMethod(exports *TMap[string, Node], export
 	var useExportSymbol bool = true
 	if isEs5StylePrototypeAssignment {
 		useExportSymbol = false
-	} else if methodOwnerName != "" && exports.containsKey(methodOwnerName) {
+	} else if methodOwnerName != "" && exports.Has(methodOwnerName) {
 		useExportSymbol = false
 	}
 	if useExportSymbol {

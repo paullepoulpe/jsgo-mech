@@ -845,19 +845,19 @@ func (this *CompilerOptions) getDefineReplacements() ImmutableMapOf[string, Node
 }
 
 func (this *CompilerOptions) setDefineToBooleanLiteral(defineName string, value bool) {
-	this.defineReplacements.put(defineName, any(bool(value)))
+	this.defineReplacements.Put(defineName, any(bool(value)))
 }
 
 func (this *CompilerOptions) setDefineToStringLiteral(defineName string, value string) {
-	this.defineReplacements.put(defineName, strobj_(value))
+	this.defineReplacements.Put(defineName, strobj_(value))
 }
 
 func (this *CompilerOptions) setDefineToNumberLiteral(defineName string, value int32) {
-	this.defineReplacements.put(defineName, any(int32(value)))
+	this.defineReplacements.Put(defineName, any(int32(value)))
 }
 
 func (this *CompilerOptions) setDefineToDoubleLiteral(defineName string, value float64) {
-	this.defineReplacements.put(defineName, any(float64(value)))
+	this.defineReplacements.Put(defineName, any(float64(value)))
 }
 
 func (this *CompilerOptions) skipAllCompilerPasses() {
@@ -1924,7 +1924,7 @@ func (this *CompilerOptions) getCustomPassesAt(executionTime CustomPassExecution
 }
 
 func (this *CompilerOptions) setDefineReplacements(defineReplacements *TMap[string, any]) {
-	this.defineReplacements.clear()
+	this.defineReplacements.Clear()
 	this.defineReplacements.asMap().putAll(defineReplacements.asMap())
 }
 

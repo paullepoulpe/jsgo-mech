@@ -62,7 +62,7 @@ func (this *FixingErrorManager) report_2_impl(level CheckLevel, error_ *JSError)
 	if !this.unfixableErrors.contains(obj_(error_.type_())) {
 		var fixes ImmutableListOf[*SuggestedFix] = this.fixer.getFixesForJsError(error_)
 		if fixes.size() == 1 {
-			this.sureFixes.put(error_, cast_[*SuggestedFix](fixes.get(0)))
+			this.sureFixes.Put(error_, cast_[*SuggestedFix](fixes.get(0)))
 		} else {
 			this.multiFixes.putAll(error_, icast_Iterable(obj_(fixes)))
 		}
@@ -91,8 +91,8 @@ func (this *FixingErrorManager) containsFixableShorthandModuleWarning() bool {
 }
 
 func (this *FixingErrorManager) getFixesForJsError(error_ *JSError) ListOf[*SuggestedFix] {
-	if this.sureFixes.containsKey(error_) {
-		return ImmutableList_of_Object(obj_(this.sureFixes.get(error_)))
+	if this.sureFixes.Has(error_) {
+		return ImmutableList_of_Object(obj_(this.sureFixes.Get(error_)))
 	} else {
 		return this.multiFixes.get(obj_(error_))
 	}
@@ -105,8 +105,8 @@ func (this *FixingErrorManager) getFixes(fixTypes FixingErrorManager_FixTypes) C
 		error_ := cast_[*JSError](el)
 		if containsFixableShorthandModuleWarning && error_.type_().equals_DiagnosticType(CheckExtraRequires_EXTRA_REQUIRE_WARNING) {
 		} else {
-			if (fixTypes == FixingErrorManager_FixTypes_ONE_FIX) && this.sureFixes.containsKey(error_) {
-				fixes.add(obj_(this.sureFixes.get(error_)))
+			if (fixTypes == FixingErrorManager_FixTypes_ONE_FIX) && this.sureFixes.Has(error_) {
+				fixes.add(obj_(this.sureFixes.Get(error_)))
 			} else if fixTypes == FixingErrorManager_FixTypes_ONE_FIX_AND_MULTI_FIXES {
 				fixes.addAll(Collection(this.getFixesForJsError(error_)))
 			}
@@ -116,8 +116,8 @@ func (this *FixingErrorManager) getFixes(fixTypes FixingErrorManager_FixTypes) C
 		warning := cast_[*JSError](el2)
 		if warning.type_().equals_DiagnosticType(CheckExtraRequires_EXTRA_REQUIRE_WARNING) && containsFixableShorthandModuleWarning {
 		} else {
-			if (fixTypes == FixingErrorManager_FixTypes_ONE_FIX) && this.sureFixes.containsKey(warning) {
-				fixes.add(obj_(this.sureFixes.get(warning)))
+			if (fixTypes == FixingErrorManager_FixTypes_ONE_FIX) && this.sureFixes.Has(warning) {
+				fixes.add(obj_(this.sureFixes.Get(warning)))
 			} else if fixTypes == FixingErrorManager_FixTypes_ONE_FIX_AND_MULTI_FIXES {
 				fixes.addAll(Collection(this.getFixesForJsError(warning)))
 			}

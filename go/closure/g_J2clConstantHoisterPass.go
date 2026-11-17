@@ -29,7 +29,7 @@ func (this *J2clConstantHoisterPass) process_2(externs Node, root Node) {
 			fieldAssignments.put_s(node.getQualifiedName(), parent)
 		}
 		if J2clConstantHoisterPass_isHoistableFunction(t, node) {
-			hoistableFunctions.add(node)
+			hoistableFunctions.Add(node)
 		}
 	}).traverse(root)
 	for assignments := range elemsBy_(fieldAssignments.asMap().values(), icast_Collection) {

@@ -88,7 +88,7 @@ func (this *SimpleSetMultimap[K, V]) put(key K, value V) bool {
 		return false
 	}
 	if this.entryOrder != nil {
-		this.entryOrder.add(new_SimpleSetMultimap_Entry[any, any](keyBox_, valueBox_))
+		this.entryOrder.Add(new_SimpleSetMultimap_Entry[any, any](keyBox_, valueBox_))
 	}
 	return true
 }
@@ -181,7 +181,7 @@ func (this *SimpleSetMultimap[K, V]) removeAll(key any) SetOf[any] {
 	}
 	if this.entryOrder != nil {
 		for value := range elems_(values) {
-			this.entryOrder.remove(new_SimpleSetMultimap_Entry(key, value))
+			this.entryOrder.Delete(new_SimpleSetMultimap_Entry(key, value))
 		}
 	}
 	return Collections_unmodifiableSet(values)
@@ -199,7 +199,7 @@ func (this *SimpleSetMultimap[K, V]) removeAll_s(key string) SetOf[any] {
 	if this.entryOrder != nil {
 		k := strobj_(key)
 		for value := range elems_(values) {
-			this.entryOrder.remove(new_SimpleSetMultimap_Entry(k, value))
+			this.entryOrder.Delete(new_SimpleSetMultimap_Entry(k, value))
 		}
 	}
 	return Collections_unmodifiableSet(values)
@@ -211,7 +211,7 @@ func (this *SimpleSetMultimap[K, V]) clear() {
 	}
 	this.map__.clear()
 	if this.entryOrder != nil {
-		this.entryOrder.clear()
+		this.entryOrder.Clear()
 	}
 }
 

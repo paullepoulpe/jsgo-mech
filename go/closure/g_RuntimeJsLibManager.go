@@ -39,11 +39,11 @@ func RuntimeJsLibManager_create(mode RuntimeJsLibManager_RuntimeLibraryMode, res
 }
 
 func (this *RuntimeJsLibManager) recordLibraryInjected(resourceName string) {
-	this.injectedLibs.add(resourceName)
+	this.injectedLibs.Add(resourceName)
 }
 
 func (this *RuntimeJsLibManager) hasInjectedLibrary(resourceName string) bool {
-	return this.injectedLibs.contains(resourceName)
+	return this.injectedLibs.Has(resourceName)
 }
 
 func (this *RuntimeJsLibManager) getInjectedLibraries() ImmutableListOf[string] {
@@ -97,7 +97,7 @@ func (this *RuntimeJsLibManager) getJsLibField(fieldName string) RuntimeJsLibMan
 }
 
 func (this *RuntimeJsLibManager) getJsLibFieldInternal(fieldName string) *RuntimeJsLibManager_InternalField {
-	return this.internedFields.computeIfAbsent_f(fieldName, func(p0 any) any { return obj_(this.createField(str_(p0))) })
+	return this.internedFields.ComputeIfAbsent(fieldName, func(p0 string) *RuntimeJsLibManager_InternalField { return this.createField(p0) })
 }
 
 func (this *RuntimeJsLibManager) injectLibForField(fieldName string) {
@@ -129,7 +129,7 @@ func (this *RuntimeJsLibManager) ensureLibraryInjected(resourceName string, forc
 		case RuntimeJsLibManager_RuntimeLibraryMode_INJECT:
 		}
 	}
-	if this.injectedLibs.contains(resourceName) {
+	if this.injectedLibs.Has(resourceName) {
 		return this.lastInjectedLibrary
 	}
 	this.recordLibraryInjected(resourceName)

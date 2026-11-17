@@ -70,7 +70,7 @@ func ReportDecoder_parseMapping(mappingFileContent string) *Outcome_base[*TMap[s
 		var encodedDetails string = lineItem[strings.IndexByte(lineItem, ':')+1:]
 		var encodedDetailsAsCharIt *ReportDecoder_StringCharIterator = new_ReportDecoder_StringCharIterator(encodedDetails)
 		var temp *InstrumentationPoint = cast_[*InstrumentationPoint](InstrumentationPoint_newBuilder().setFileName(localFileNames.get(Base64VLQ_decode(encodedDetailsAsCharIt))).setFunctionName(functionNames.get(Base64VLQ_decode(encodedDetailsAsCharIt))).setType(types[Base64VLQ_decode(encodedDetailsAsCharIt)]).setLineNumber(Base64VLQ_decode(encodedDetailsAsCharIt)).setColumnNumber(Base64VLQ_decode(encodedDetailsAsCharIt)).build())
-		mapping.putIfAbsent(id, temp)
+		mapping.PutIfAbsent(id, temp)
 	}
 	return Outcome_base_ok_Object[*TMap[string, *InstrumentationPoint]](mapping)
 }
@@ -159,7 +159,7 @@ func ReportDecoder_mergeProfiles(profiles []*ReportProfile) *ReportProfile {
 	}
 	var finalPoints []*InstrumentationPointStats = []*InstrumentationPointStats{}
 	for entryKey, entryValue := range frequencies.All() {
-		finalPoints = append(finalPoints, cast_[*InstrumentationPointStats](InstrumentationPointStats_newBuilder().setPoint(entryKey).setTimesExecuted(unbox_[int64](entryValue)).setPointPresence(presences.get(entryKey)).build()))
+		finalPoints = append(finalPoints, cast_[*InstrumentationPointStats](InstrumentationPointStats_newBuilder().setPoint(entryKey).setTimesExecuted(unbox_[int64](entryValue)).setPointPresence(presences.Get(entryKey)).build()))
 	}
 	return ReportDecoder_createReportProfile(finalPoints)
 }

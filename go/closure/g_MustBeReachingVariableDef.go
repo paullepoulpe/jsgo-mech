@@ -196,7 +196,7 @@ func (this *MustBeReachingVariableDef) computeMustDef(n Node, cfgNode Node, outp
 }
 
 func (this *MustBeReachingVariableDef) addToDefIfLocal(name string, node Node, rValue Node, def *MustBeReachingVariableDef_MustDef) {
-	var var_ *Var = this.allVarsInFn.get(name)
+	var var_ *Var = this.allVarsInFn.Get(name)
 	if var_ == nil {
 		return
 	}
@@ -205,7 +205,7 @@ func (this *MustBeReachingVariableDef) addToDefIfLocal(name string, node Node, r
 		if otherDef == nil {
 			continue
 		}
-		if otherDef.depends.contains(var_) {
+		if otherDef.depends.Has(var_) {
 			def.reachingDef.ents[i_].val = nil
 		}
 	}
@@ -257,7 +257,7 @@ func (this *MustBeReachingVariableDef) getDef(name string, useNode Node) *MustBe
 	var n GraphNode = this.getCfg().getNode(useNode.box_())
 	var state *DataFlowAnalysis_LinearFlowState[any] = cast_[*DataFlowAnalysis_LinearFlowState[any]](Annotatable_getAnnotation(Annotatable(n)))
 	return func() *MustBeReachingVariableDef_Definition {
-		d, _ := cast_[*MustBeReachingVariableDef_MustDef](state.getIn()).reachingDef.get(this.allVarsInFn.get(name))
+		d, _ := cast_[*MustBeReachingVariableDef_MustDef](state.getIn()).reachingDef.get(this.allVarsInFn.Get(name))
 		return d
 	}()
 }
@@ -464,11 +464,11 @@ func new_MustBeReachingVariableDef_1(outer_ *MustBeReachingVariableDef, cap_def 
 
 func (this *MustBeReachingVariableDef_1) visit_impl(t *NodeTraversal, n Node, parent Node) {
 	if n.isName() {
-		var dep *Var = this.outer_.allVarsInFn.get(n.getString())
+		var dep *Var = this.outer_.allVarsInFn.Get(n.getString())
 		if dep == nil {
 			this.cap_def.unknownDependencies = true
 		} else {
-			this.cap_def.depends.add(dep)
+			this.cap_def.depends.Add(dep)
 		}
 	}
 }

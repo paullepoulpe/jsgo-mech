@@ -88,11 +88,11 @@ func (this *AnalyzePrototypeProperties) getNameInfoForName(name string, type_ An
 		}
 		return this.varNameInfo
 	}()
-	if map_.containsKey(name) {
-		return map_.get(name)
+	if map_.Has(name) {
+		return map_.Get(name)
 	} else {
 		var nameInfo *AnalyzePrototypeProperties_NameInfo = new_AnalyzePrototypeProperties_NameInfo(this, name)
-		map_.put(name, nameInfo)
+		map_.Put(name, nameInfo)
 		this.symbolGraph.createNode(obj_(nameInfo))
 		return nameInfo
 	}

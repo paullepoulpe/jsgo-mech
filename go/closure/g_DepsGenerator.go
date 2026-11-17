@@ -63,11 +63,11 @@ func (this *DepsGenerator) cleanUpDuplicatedFiles(depsFiles *TMap[string, Depend
 	var depsPathsCopy *TSet[string] = tsetFrom_(tc_string, Collection(depsFiles.asMap().keySet()), false)
 	for path := range depsPathsCopy.All() {
 		if this.mergeStrategy != DepsGenerator_InclusionStrategy_WHEN_IN_SRCS {
-			jsFiles.remove(path)
+			jsFiles.Delete(path)
 		}
 	}
 	for path := range elemsBy_(jsFiles.asMap().keySet(), str_) {
-		depsFiles.remove(path)
+		depsFiles.Delete(path)
 	}
 }
 
@@ -103,7 +103,7 @@ func (this *DepsGenerator) removeMungedSymbols(depFiles *TMap[string, Dependency
 			}
 			provides = builder.build()
 		}
-		newJsFiles.put(dependencyInfo.getPathRelativeToClosureBase(), icast_DependencyInfo(obj_(SimpleDependencyInfo_builder(dependencyInfo.getPathRelativeToClosureBase(), Optional_of[string](dependencyInfo.getName())).setProvides(icast_Collection(obj_(provides))).setRequires(slicePtrView_(tc_p_DependencyInfo_Require, newRequires)).setLoadFlags(icast_Map(obj_(dependencyInfo.getLoadFlags()))).build())))
+		newJsFiles.Put(dependencyInfo.getPathRelativeToClosureBase(), icast_DependencyInfo(obj_(SimpleDependencyInfo_builder(dependencyInfo.getPathRelativeToClosureBase(), Optional_of[string](dependencyInfo.getName())).setProvides(icast_Collection(obj_(provides))).setRequires(slicePtrView_(tc_p_DependencyInfo_Require, newRequires)).setLoadFlags(icast_Map(obj_(dependencyInfo.getLoadFlags()))).build())))
 	}
 	return newJsFiles
 }
@@ -213,7 +213,7 @@ func (this *DepsGenerator) parseDepsFiles() *Outcome_base[*TMap[string, Dependen
 				this.reportNoDepsInDepsFile(file.getName())
 			} else {
 				for info := range elemsBy_(depInfos.asList(), icast_DependencyInfo) {
-					depsFiles.put(info.getPathRelativeToClosureBase(), this.removeRelativePathProvide(info))
+					depsFiles.Put(info.getPathRelativeToClosureBase(), this.removeRelativePathProvide(info))
 				}
 			}
 		}
@@ -228,7 +228,7 @@ func (this *DepsGenerator) parseDepsFiles() *Outcome_base[*TMap[string, Dependen
 			}
 			var srcInfos *TList[DependencyInfo] = srcInfosRes.get()
 			for info := range elemsBy_(srcInfos.asList(), icast_DependencyInfo) {
-				depsFiles.put(info.getPathRelativeToClosureBase(), this.removeRelativePathProvide(info))
+				depsFiles.Put(info.getPathRelativeToClosureBase(), this.removeRelativePathProvide(info))
 			}
 		}
 	}
@@ -285,7 +285,7 @@ func (this *DepsGenerator) parseSources(preparsedFiles SetOf[string]) *Outcome_b
 				continue
 			}
 			file.clearCachedSource()
-			parsedFiles.put(closureRelativePath, depInfo)
+			parsedFiles.Put(closureRelativePath, depInfo)
 		}
 	}
 	return Outcome_base_ok_Object[*TMap[string, DependencyInfo]](parsedFiles)

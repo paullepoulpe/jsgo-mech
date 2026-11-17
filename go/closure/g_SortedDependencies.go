@@ -121,7 +121,7 @@ func (this *SortedDependencies) maybeGetInputProviding(symbol string) Dependency
 	if has_(this.exportingInputBySymbolName, symbol) {
 		return icast_DependencyInfo(this.exportingInputBySymbolName[symbol])
 	}
-	return icast_DependencyInfo(this.nonExportingInputs.get(ModuleNames_fileToModuleName(symbol)))
+	return icast_DependencyInfo(this.nonExportingInputs.Get(ModuleNames_fileToModuleName(symbol)))
 }
 
 func (this *SortedDependencies) orderInput(input DependencyInfo) {
@@ -141,7 +141,7 @@ func (this *SortedDependencies) processInputs() {
 		var provides ImmutableListOf[string] = userOrderedInput.getProvides()
 		var firstProvide OptionalOf[string] = Optional_ofNullable[string](str_(Iterables_getFirst(icast_Iterable(obj_(provides)), nil)))
 		if firstProvide.isEmpty() || (((provides.size() == 1) && strings.HasPrefix(firstProvide.get(), "module$")) && !userOrderedInput.isEs6Module()) {
-			this.nonExportingInputs.put(ModuleNames_fileToModuleName(userOrderedInput.getName()), any(userOrderedInput))
+			this.nonExportingInputs.Put(ModuleNames_fileToModuleName(userOrderedInput.getName()), any(userOrderedInput))
 		}
 		for _, el := range immElems_(userOrderedInput.getProvides()) {
 			providedSymbolName := str_(el)

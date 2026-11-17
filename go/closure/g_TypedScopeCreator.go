@@ -93,7 +93,7 @@ func (this *TypedScopeCreator) getAllSymbols() IterableOf[*TypedVar] {
 }
 
 func (this *TypedScopeCreator) getNodeToScopeMapper() FunctionOf[Node, *TypedScope] {
-	return &Function_fn{func(p0 any) any { return obj_(this.memoized.get(Node_of_(p0))) }}
+	return &Function_fn{func(p0 any) any { return obj_(this.memoized.Get(Node_of_(p0))) }}
 }
 
 func (this *TypedScopeCreator) getAllMemoizedScopes() CollectionOf[*TypedScope] {
@@ -101,7 +101,7 @@ func (this *TypedScopeCreator) getAllMemoizedScopes() CollectionOf[*TypedScope] 
 }
 
 func (this *TypedScopeCreator) createScope(n Node) *TypedScope {
-	var s *TypedScope = this.memoized.get(n)
+	var s *TypedScope = this.memoized.Get(n)
 	return func() *TypedScope {
 		if s != nil {
 			return s
@@ -115,14 +115,14 @@ func (this *TypedScopeCreator) createScopeAbstractScope(root Node, parent *Abstr
 		panic(new_IllegalArgumentException_0().self())
 	}
 	var typedParent *TypedScope = cast_[*TypedScope](parent.self())
-	var scope *TypedScope = this.memoized.get(root)
+	var scope *TypedScope = this.memoized.Get(root)
 	if scope != nil {
 		if typedParent != cast_[*TypedScope](scope.getParent().self()) {
 			panic(new_IllegalStateException_0().self())
 		}
 	} else {
 		scope = this.createScopeInternal(root, typedParent)
-		this.memoized.put(root, scope)
+		this.memoized.Put(root, scope)
 	}
 	return scope.up_AbstractScope()
 }
@@ -155,9 +155,9 @@ func (this *TypedScopeCreator) createScopeInternal(root Node, typedParent *Typed
 		var reservedNames *TSet[string] = newTSet_(tc_string)
 		reservedNames.asSet().addAll(Collection(this.reservedNamesForScope.removeAll(root.box_())))
 		if (module != nil) && module.metadata().isGoogModule() {
-			reservedNames.add("exports")
+			reservedNames.Add("exports")
 		} else if root.isFunction() && NodeUtil_isBundledGoogModuleCall(root.getParent()) {
-			reservedNames.remove("exports")
+			reservedNames.Delete("exports")
 		}
 		newScope = new_TypedScope_TypedScope_Node_Set_Module(typedParent, root, reservedNames, module)
 	}
@@ -263,7 +263,7 @@ func (this *TypedScopeCreator) createInitialScope(root Node) *TypedScope {
 	this.declareNativeValueType(s, "undefined", JSTypeNative_VOID_TYPE)
 	this.addWellKnownSymbols(s)
 	this.gatherAllProvides(root)
-	this.memoized.put(root, s)
+	this.memoized.Put(root, s)
 	return s
 }
 
@@ -489,7 +489,7 @@ func new_TypedScopeCreator_WeakModuleImport(outer_ *TypedScopeCreator, moduleLoc
 }
 
 func (this *TypedScopeCreator_WeakModuleImport) resolve() {
-	var resolvedScope *TypedScope = this.outer_.memoized.get(this.scopedImport.getScopeRoot())
+	var resolvedScope *TypedScope = this.outer_.memoized.Get(this.scopedImport.getScopeRoot())
 	var requiredVar *TypedVar = func() *TypedVar {
 		if resolvedScope != nil {
 			return cast_[*TypedVar](resolvedScope.getSlot(this.scopedImport.getName()))
@@ -1146,7 +1146,7 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) defineModuleImport(localName
 	}
 	var exportScope *TypedScope = func() *TypedScope {
 		if exportedName.getScopeRoot() != 0 {
-			return this.outer_.memoized.get(exportedName.getScopeRoot())
+			return this.outer_.memoized.Get(exportedName.getScopeRoot())
 		}
 		return nil
 	}()
@@ -1284,10 +1284,10 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) getCtorForGoogModuleGet(exte
 		call = call.getFirstChild()
 	}
 	var extendsCall *ScopedName = this.outer_.moduleImportResolver.getClosureNamespaceTypeFromCall(call)
-	if (extendsCall == nil) || !this.outer_.memoized.containsKey(extendsCall.getScopeRoot()) {
+	if (extendsCall == nil) || !this.outer_.memoized.Has(extendsCall.getScopeRoot()) {
 		return nil
 	}
-	var moduleScope *TypedScope = this.outer_.memoized.get(extendsCall.getScopeRoot())
+	var moduleScope *TypedScope = this.outer_.memoized.Get(extendsCall.getScopeRoot())
 	sliceInsert_(&properties, 0, extendsCall.getName())
 	var superclassName *QualifiedName = QualifiedName_of(Joiner_on_char('.').join(sliceView_(tc_string, properties)))
 	return moduleScope.lookupQualifiedName(superclassName)
@@ -1523,7 +1523,7 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) createEnumTypeFromNodes(rVal
 func (this *TypedScopeCreator_AbstractScopeBuilder) declare(scope *TypedScope, name string, n Node, type_ *JSType, input *CompilerInput, inferred bool) *TypedVar {
 	var var_ *TypedVar = scope.declare(name, n, type_, input, inferred)
 	var scopedName *ScopedName = ScopedName_of(name, scope.getRootNode())
-	if this.outer_.escapedVarNames.contains(scopedName) {
+	if this.outer_.escapedVarNames.Has(scopedName) {
 		var_.markEscaped()
 	}
 	if this.outer_.assignedVarNames.count(scopedName.self()) == 1 {
@@ -1911,7 +1911,7 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) isQualifiedNameInferred(qNam
 	if this.hasControlStructureAncestor(n.getParent()) {
 		return true
 	}
-	if (ownerScope != nil) && this.outer_.escapedVarNames.contains(ScopedName_of(qName.orElse(nullstr_), ownerScope.getRootNode())) {
+	if (ownerScope != nil) && this.outer_.escapedVarNames.Has(ScopedName_of(qName.orElse(nullstr_), ownerScope.getRootNode())) {
 		return true
 	}
 	return false
@@ -2359,14 +2359,14 @@ func (this *TypedScopeCreator_FunctionScopeBuilder) declareTemplatesInFunctionBo
 		var ownerNode Node = NodeUtil_getBestLValue(functionNode)
 		for _, el := range immElems_(this.findOwnerTypeKeys(ownerNode)) {
 			templateKey := cast_[*TemplateType](el)
-			templateNames.add(templateKey.getReferenceName().orElseThrow())
+			templateNames.Add(templateKey.getReferenceName().orElseThrow())
 		}
 	}
 	if info != nil {
 		templateNames.asSet().addAll(icast_Collection(obj_(info.getTemplateTypeNames())))
 		templateNames.asSet().addAll(Collection(info.getTypeTransformations().keySet()))
 	}
-	if templateNames.isEmpty() {
+	if templateNames.IsEmpty() {
 		return
 	}
 	var input *CompilerInput = this.getCompilerInput()
@@ -2661,7 +2661,7 @@ func (this *TypedScopeCreator_FirstOrderFunctionAnalyzer) visit_impl(t *NodeTrav
 				var scopedName *ScopedName = ScopedName_of(name, ownerScope.getRootNode())
 				this.outer_.assignedVarNames.add(scopedName)
 				if !containerScope.hasSameContainerScope(ownerScope.up_AbstractScope()) {
-					this.outer_.escapedVarNames.add(scopedName)
+					this.outer_.escapedVarNames.Add(scopedName)
 				}
 			}
 		}
@@ -2672,7 +2672,7 @@ func (this *TypedScopeCreator_FirstOrderFunctionAnalyzer) visit_impl(t *NodeTrav
 		if var_ != nil {
 			var ownerScope *Scope = cast_[*Scope](var_.getScope())
 			if ownerScope.isLocal() && !containerScope.hasSameContainerScope(ownerScope.up_AbstractScope()) {
-				this.outer_.escapedVarNames.add(ScopedName_of(n.getQualifiedName(), ownerScope.getRootNode()))
+				this.outer_.escapedVarNames.Add(ScopedName_of(n.getQualifiedName(), ownerScope.getRootNode()))
 			}
 		}
 	}

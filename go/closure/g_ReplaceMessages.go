@@ -124,7 +124,7 @@ func (this *ReplaceMessages) createNodeForGenderedMsgString(message *JsMessage, 
 		return Outcome_base_err[Node](hookExpressionOutcome.error())
 	}
 	var hookExpression Node = hookExpressionOutcome.get()
-	if placeholderMap.isEmpty() {
+	if placeholderMap.IsEmpty() {
 		return Outcome_base_ok_Object[Node](hookExpression)
 	}
 	var function Node = this.astFactory_.createFunction("", paramList, IR_block_Node(IR_returnNode_Node(hookExpression)), type_)
@@ -246,7 +246,7 @@ func (this *ReplaceMessages) constructStringExprNode(message *JsMessage, placeho
 }
 
 func (this *ReplaceMessages) constructNonGenderedMsgNode(message *JsMessage, placeholderMap *TMap[string, Node], options *ReplaceMessages_MsgOptions, nodeToReplace Node) *Outcome_base[Node] {
-	if placeholderMap.isEmpty() {
+	if placeholderMap.IsEmpty() {
 		if options.isIcuTemplate() {
 			return Outcome_base_ok_Object[Node](this.createNodeForMsgString(options, message.asIcuMessageString()))
 		} else if message.jsPlaceholderNames().isEmpty() {
@@ -260,7 +260,7 @@ func (this *ReplaceMessages) constructNonGenderedMsgNode(message *JsMessage, pla
 			}
 		}
 	}
-	return this.buildMessageNode(sliceImm_(tc_JsMessage_Part, message.getParts()), options, nodeToReplace, func(p0 string) Node { return placeholderMap.get(p0) }, false)
+	return this.buildMessageNode(sliceImm_(tc_JsMessage_Part, message.getParts()), options, nodeToReplace, func(p0 string) Node { return placeholderMap.Get(p0) }, false)
 }
 
 func (this *ReplaceMessages) createNodeForMsgString(options *ReplaceMessages_MsgOptions, s string) Node {
@@ -520,10 +520,10 @@ func (this *ReplaceMessages_QuotedKeyObjectLitBuilder) addString(key string, val
 }
 
 func (this *ReplaceMessages_QuotedKeyObjectLitBuilder) addNode(key string, node Node) *ReplaceMessages_QuotedKeyObjectLitBuilder {
-	if this.keyToValueNodeMap.containsKey(key) {
+	if this.keyToValueNodeMap.Has(key) {
 		panic(new_IllegalStateException_String(Strings_lenientFormat("repeated key: %s", []any{strobj_(key)})).self())
 	}
-	this.keyToValueNodeMap.put(key, node)
+	this.keyToValueNodeMap.Put(key, node)
 	return this
 }
 

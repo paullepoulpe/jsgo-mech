@@ -42,17 +42,17 @@ func (this *SimpleBiMap[K, V]) put(key K, value V) V {
 	if hadKey && Objects_equals(oldValue, valueBox_) {
 		return unboxT_[V](oldValue)
 	}
-	if this.backward.containsKey(str_(valueBox_)) {
+	if this.backward.Has(str_(valueBox_)) {
 		panic(new_IllegalArgumentException_String(Strings_lenientFormat("value already present: %s", []any{valueBox_})).self())
 	}
 	this.forward.put(keyBox_, valueBox_)
 	if hadKey {
-		this.backward.clear()
+		this.backward.Clear()
 		for e := range elemsBy_(this.forward.entrySet(), icast_Map_Entry) {
-			this.backward.put(str_(e.getValue()), str_(e.getKey()))
+			this.backward.Put(str_(e.getValue()), str_(e.getKey()))
 		}
 	} else {
-		this.backward.put(str_(valueBox_), str_(keyBox_))
+		this.backward.Put(str_(valueBox_), str_(keyBox_))
 	}
 	return unboxT_[V](oldValue)
 }
@@ -63,7 +63,7 @@ func (this *SimpleBiMap[K, V]) get(key any) V {
 
 func (this *SimpleBiMap[K, V]) clear() {
 	this.forward.clear()
-	this.backward.clear()
+	this.backward.Clear()
 }
 
 func (this *SimpleBiMap[K, V]) keySet() SetOf[any] {

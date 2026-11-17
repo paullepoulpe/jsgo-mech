@@ -332,10 +332,10 @@ func (this *PerformanceTracker) populatePassSummary() {
 	var tmpPassSummary *TMap[string, *PerformanceTracker_Stats] = newTMap_(tc_string, tc_p_PerformanceTracker_Stats)
 	for logStat := range sliceAll_(&this.log_) {
 		var passName string = logStat.pass
-		var entry *PerformanceTracker_Stats = tmpPassSummary.computeIfAbsent_f(passName, func(k_ any) any {
-			var k string = str_(k_)
+		var entry *PerformanceTracker_Stats = tmpPassSummary.ComputeIfAbsent(passName, func(k_ string) *PerformanceTracker_Stats {
+			var k string = k_
 			_ = k
-			return obj_(new_PerformanceTracker_Stats(k, logStat.isOneTime))
+			return new_PerformanceTracker_Stats(k, logStat.isOneTime)
 		})
 		entry.runtime_ += logStat.runtime_
 		entry.allocMem = Math_max(entry.allocMem, logStat.allocMem)

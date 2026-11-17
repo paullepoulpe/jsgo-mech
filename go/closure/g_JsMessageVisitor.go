@@ -115,7 +115,7 @@ func (this *JsMessageVisitor) checkMessageInitialization(traversal *NodeTraversa
 		return
 	}
 	if msgNodeIsACall {
-		this.googMsgNodes.remove(msgNode)
+		this.googMsgNodes.Delete(msgNode)
 	} else {
 		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(node, JsMessageVisitor_MESSAGE_NOT_INITIALIZED_CORRECTLY, []string{}))
 		return
@@ -253,7 +253,7 @@ func (this *JsMessageVisitor) collectGetMsgCall(traversal *NodeTraversal, call N
 	}
 	var callee Node = call.getFirstChild()
 	if callee.matchesQualifiedName(JsMessageVisitor_MSG_FUNCTION_QNAME) || this.isDeclareIcuTemplateCallee(callee) {
-		this.googMsgNodes.add(call)
+		this.googMsgNodes.Add(call)
 	} else if callee.matchesQualifiedName(JsMessageVisitor_MSG_FALLBACK_FUNCTION_NAME) {
 		this.visitFallbackFunctionCall(traversal, call)
 	}
@@ -643,10 +643,10 @@ func JsMessageVisitor_extractObjectLiteralMap(objLit Node) *Outcome_base[any] {
 				return Outcome_base_err[any](new_JsMessageVisitor_MalformedException("string key expected", stringKey).up_Throwable())
 			}
 			var key string = stringKey.getString()
-			if stringToStringKeyMap.containsKey(key) {
+			if stringToStringKeyMap.Has(key) {
 				return Outcome_base_err[any](new_JsMessageVisitor_MalformedException(("duplicate string key: " + sstr_(key)), stringKey).up_Throwable())
 			}
-			stringToStringKeyMap.put(stringKey.getString(), stringKey)
+			stringToStringKeyMap.Put(stringKey.getString(), stringKey)
 		}
 	}
 	return Outcome_base_ok_Object(obj_(new_JsMessageVisitor_ObjectLiteralMapImpl(stringToStringKeyMap)))
@@ -954,7 +954,7 @@ func new_JsMessageVisitor_ObjectLiteralMapImpl(stringToStringKeyMap *TMap[string
 }
 
 func (this *JsMessageVisitor_ObjectLiteralMapImpl) getValueNode(key string) Node {
-	var stringKeyNode Node = this.stringToStringKeyMap.get(key)
+	var stringKeyNode Node = this.stringToStringKeyMap.Get(key)
 	return func() Node {
 		if stringKeyNode == 0 {
 			return 0
@@ -964,7 +964,7 @@ func (this *JsMessageVisitor_ObjectLiteralMapImpl) getValueNode(key string) Node
 }
 
 func (this *JsMessageVisitor_ObjectLiteralMapImpl) getBooleanValueOrFalse(key string) *Outcome_base[any] {
-	var stringKeyNode Node = this.stringToStringKeyMap.get(key)
+	var stringKeyNode Node = this.stringToStringKeyMap.Get(key)
 	return JsMessageVisitor_extractBooleanStringKeyValue(stringKeyNode)
 }
 
@@ -1004,7 +1004,7 @@ func (this *JsMessageVisitor_ObjectLiteralMapImpl) checkForUnexpectedKeys(expect
 		}
 		var key string = l_1.keys[i_1]
 		if !has_(expectedKeys, key) {
-			return Outcome_base_err[any](new_JsMessageVisitor_MalformedException(str_(createErrorMessage(strobj_(key))), this.stringToStringKeyMap.get(key)).up_Throwable())
+			return Outcome_base_err[any](new_JsMessageVisitor_MalformedException(str_(createErrorMessage(strobj_(key))), this.stringToStringKeyMap.Get(key)).up_Throwable())
 		}
 	}
 	return Outcome_base_ok_0()
@@ -1016,7 +1016,7 @@ func (this *JsMessageVisitor_ObjectLiteralMapImpl) checkForRequiredKeys(required
 			continue
 		}
 		var requiredKey string = requiredKeys.keys[i_1]
-		if !this.stringToStringKeyMap.containsKey(requiredKey) {
+		if !this.stringToStringKeyMap.Has(requiredKey) {
 			return Outcome_base_err[any](to_Throwable(createException(strobj_(requiredKey))))
 		}
 	}

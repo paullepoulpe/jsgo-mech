@@ -267,7 +267,7 @@ func (this *PureFunctionIdentifier) populateFunctionDefinitions(name string, ref
 						var jsdoc *JSDocInfo = NodeUtil_getBestJSDocInfo(callable)
 						var isArtificiallyPure bool = ((jsdoc != nil) && jsdoc.isNoSideEffects())
 						if isArtificiallyPure {
-							this.artificiallyPureLiteralsForDebugging.add(callable)
+							this.artificiallyPureLiteralsForDebugging.Add(callable)
 							summaryForName.setCollectImpureDebuggingReason()
 						}
 					}
@@ -1012,7 +1012,7 @@ func (this *PureFunctionIdentifier_AmbiguatedFunctionSummary) maybeCollectImpure
 	if this.impureFunctionReasonsForDebugging == nil {
 		this.impureFunctionReasonsForDebugging = newTSet_(tc_Node)
 	}
-	this.impureFunctionReasonsForDebugging.add(NodeUtil_getEnclosingFunction(debuggingReason))
+	this.impureFunctionReasonsForDebugging.Add(NodeUtil_getEnclosingFunction(debuggingReason))
 }
 
 func (this *PureFunctionIdentifier_AmbiguatedFunctionSummary) mutatesThis() bool {

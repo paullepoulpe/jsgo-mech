@@ -113,7 +113,7 @@ func PolymerClassDefinition_extractFromCallNode(callNode Node, compiler *Abstrac
 	var behaviorProps *TMap[*PolymerPass_MemberDefinition, *PolymerBehaviorExtractor_BehaviorDefinition] = newTMap_(tc_p_PolymerPass_MemberDefinition, tc_p_PolymerBehaviorExtractor_BehaviorDefinition)
 	for _, behavior := range behaviors {
 		for _, prop := range behavior.props {
-			behaviorProps.put(prop, behavior)
+			behaviorProps.Put(prop, behavior)
 		}
 	}
 	PolymerClassDefinition_overwriteMembersIfPresent(properties, PolymerPassStaticUtils_extractProperties(descriptor, PolymerClassDefinition_DefinitionType_ObjectLiteral, compiler, 0))

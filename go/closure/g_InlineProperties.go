@@ -274,9 +274,9 @@ func (this *InlineProperties_ReplaceCandidates) hasInSupertypesList(subCtor *Col
 	var ret_1 bool
 	code_1 := func() (code_ int) {
 		defer func() {
-			this.hasInSupertypesListSeenSet.remove(subCtor)
+			this.hasInSupertypesListSeenSet.Delete(subCtor)
 		}()
-		if !this.hasInSupertypesListSeenSet.add(subCtor) {
+		if !this.hasInSupertypesListSeenSet.Add(subCtor) {
 			ret_1 = false
 			return 1
 		}

@@ -77,7 +77,7 @@ func (this *ExtraRequireRemover) visit(t *NodeTraversal, n Node, parent Node) {
 
 func (this *ExtraRequireRemover) reset() {
 	clear(this.usages)
-	this.requires.clear()
+	this.requires.Clear()
 }
 
 func (this *ExtraRequireRemover) removeExtraRequiresInScript() {
@@ -139,7 +139,7 @@ func (this *ExtraRequireRemover) visitRequire(localName string, namespace string
 	if Collection_contains_s(ExtraRequireRemover_DEFAULT_EXTRA_NAMESPACES, namespace) {
 		return
 	}
-	this.requires.putIfAbsent(localName, node)
+	this.requires.PutIfAbsent(localName, node)
 }
 
 func (this *ExtraRequireRemover) visitGoogRequire(namespace string, googRequireCall Node, parent Node) {

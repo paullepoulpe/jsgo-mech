@@ -658,14 +658,14 @@ func (this *ProcessCommonJSModules_FindImportsAndExports) initializeModule() boo
 			var newExport *ProcessCommonJSModules_ExportInfo = new_ProcessCommonJSModules_ExportInfo(IR_getprop_Node_String(export.node_.removeFirstChild(), prop.getString()), export.scope_)
 			export.node_.replaceWith(newExport.node_)
 			this.outer_.compiler_.reportChangeToEnclosingScope(newExport.node_)
-			exportsToReplace.put(export, newExport)
+			exportsToReplace.Put(export, newExport)
 		}
 	}
 	sliceRemoveAll_(tc_p_ProcessCommonJSModules_ExportInfo, &this.moduleExports, Collection(sliceView_(tc_p_ProcessCommonJSModules_ExportInfo, exportsToRemove)))
 	for oldExport := range exportsToReplace.Keys() {
 		var oldIndex int32 = sliceView_(tc_p_ProcessCommonJSModules_ExportInfo, this.moduleExports).indexOf(obj_(oldExport))
 		sliceRemoveAt_(&this.moduleExports, oldIndex)
-		sliceInsert_(&this.moduleExports, oldIndex, exportsToReplace.get(oldExport))
+		sliceInsert_(&this.moduleExports, oldIndex, exportsToReplace.Get(oldExport))
 	}
 	var directAssignments int32 = 0
 	for export := range sliceAll_(&this.moduleExports) {

@@ -159,7 +159,7 @@ func (this *InlineObjectLiterals_InliningBehavior) computeVarList(referenceInfo 
 					var child Node = val.getFirstChild()
 					for ; child != 0; child = child.getNext() {
 						var varname string = child.getString()
-						if varmap.containsKey(varname) {
+						if varmap.Has(varname) {
 							continue
 						}
 						var var_ string = varname
@@ -167,7 +167,7 @@ func (this *InlineObjectLiterals_InliningBehavior) computeVarList(referenceInfo 
 							var_ = InlineObjectLiterals_STRING_KEY_IDENTIFIER
 						}
 						var_ = (sstr_(InlineObjectLiterals_VAR_PREFIX) + sstr_(var_) + "_" + sstr_(str_(this.outer_.safeNameIdSupplier_.get())))
-						varmap.put(varname, var_)
+						varmap.Put(varname, var_)
 					}
 				}
 			}
@@ -178,11 +178,11 @@ func (this *InlineObjectLiterals_InliningBehavior) computeVarList(referenceInfo 
 				panic(new_IllegalStateException_String(tostr_(getprop)).self())
 			}
 			var varname string = getprop.getString()
-			if varmap.containsKey(varname) {
+			if varmap.Has(varname) {
 				continue
 			}
 			var var_ string = (sstr_(InlineObjectLiterals_VAR_PREFIX) + sstr_(varname) + "_" + sstr_(str_(this.outer_.safeNameIdSupplier_.get())))
-			varmap.put(varname, var_)
+			varmap.Put(varname, var_)
 		}
 	}
 	return varmap
@@ -214,12 +214,12 @@ func (this *InlineObjectLiterals_InliningBehavior) replaceAssignmentExpression(v
 		for ; key != 0; key = key.getNext() {
 			var var_ string = key.getString()
 			var value Node = key.removeFirstChild()
-			nodes.add(IR_assign(IR_name(varmap.get(var_)), value).box_())
-			all.remove(var_)
+			nodes.add(IR_assign(IR_name(varmap.Get(var_)), value).box_())
+			all.Delete(var_)
 		}
 	}
 	for var_ := range all.All() {
-		nodes.add(IR_assign(IR_name(varmap.get(var_)), NodeUtil_newUndefinedNode(0)).box_())
+		nodes.add(IR_assign(IR_name(varmap.Get(var_)), NodeUtil_newUndefinedNode(0)).box_())
 	}
 	var replacement Node
 	if nodes.isEmpty() {
@@ -274,7 +274,7 @@ func (this *InlineObjectLiterals_InliningBehavior) splitObject(v *Var, init_ *Re
 	if !NodeUtil_isStatement(vnode) {
 		panic(new_IllegalStateException_String(tostr_(vnode)).self())
 	}
-	if isBlockScoped && !varmap.isEmpty() {
+	if isBlockScoped && !varmap.IsEmpty() {
 		var script Node = NodeUtil_getEnclosingScript(vnode)
 		if script != 0 {
 			NodeUtil_addFeatureToScript(script, FeatureSet_Feature_LET_DECLARATIONS, this.outer_.compiler_)
@@ -318,10 +318,10 @@ func (this *InlineObjectLiterals_InliningBehavior) splitObject(v *Var, init_ *Re
 				panic(new_IllegalStateException_String(tostr_(getprop)).self())
 			}
 			var var_ string = getprop.getString()
-			if !varmap.containsKey(var_) {
+			if !varmap.Has(var_) {
 				panic(new_IllegalStateException_0().self())
 			}
-			var replacement Node = IR_name(varmap.get(var_))
+			var replacement Node = IR_name(varmap.Get(var_))
 			replacement.srcrefIfMissing(getprop)
 			ref.getParent().replaceWith(replacement)
 		}

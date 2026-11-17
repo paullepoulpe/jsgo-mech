@@ -284,7 +284,7 @@ func (this *CrossChunkCodeMotion_GlobalSymbol) addDeclarationStatement(statement
 }
 
 func (this *CrossChunkCodeMotion_GlobalSymbol) addReferringGlobalSymbol(declaredSymbol *CrossChunkCodeMotion_GlobalSymbol) {
-	this.referencingGlobalSymbols.add(declaredSymbol)
+	this.referencingGlobalSymbols.Add(declaredSymbol)
 }
 
 func (this *CrossChunkCodeMotion_GlobalSymbol) declarationsCoverChunk(chunk *JSChunk) bool {
@@ -424,7 +424,7 @@ func (this *CrossChunkCodeMotion_DeclarationStatementGroup) allStatementsCanMove
 }
 
 func (this *CrossChunkCodeMotion_DeclarationStatementGroup) addReferenceToGlobalSymbol(refSymbol *CrossChunkCodeMotion_GlobalSymbol) {
-	this.referencedGlobalSymbols.add(refSymbol)
+	this.referencedGlobalSymbols.Add(refSymbol)
 }
 
 func (this *CrossChunkCodeMotion_DeclarationStatementGroup) makeReferencesImmovable() {

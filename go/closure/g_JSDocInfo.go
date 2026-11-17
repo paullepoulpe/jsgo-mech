@@ -759,12 +759,12 @@ func (this *JSDocInfo) getOriginalCommentPosition() int32 {
 }
 
 func (this *JSDocInfo) modifiesThis() bool {
-	return this.getModifies().contains("this")
+	return this.getModifies().Has("this")
 }
 
 func (this *JSDocInfo) hasSideEffectsArgumentsAnnotation() bool {
 	var modifies *TSet[string] = this.getModifies()
-	return ((modifies.size() > 1) || ((modifies.size() == 1) && !modifies.contains("this")))
+	return ((modifies.Len() > 1) || ((modifies.Len() == 1) && !modifies.Has("this")))
 }
 
 func (this *JSDocInfo) getLogTypeInCompiler() bool {

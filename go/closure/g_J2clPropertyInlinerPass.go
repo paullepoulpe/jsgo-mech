@@ -374,7 +374,7 @@ func (this *J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_GatherJ2CLCla
 			}
 		}
 		if (getKey != 0) && (!hasSetter || (setKey != 0)) {
-			this.j2clPropertiesByName.put((sstr_(classNameString) + "." + sstr_(name)), new_J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_J2clPropertyEs5(this.outer_, getKey, setKey).as_J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_J2clProperty())
+			this.j2clPropertiesByName.Put((sstr_(classNameString) + "." + sstr_(name)), new_J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_J2clPropertyEs5(this.outer_, getKey, setKey).as_J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_J2clProperty())
 		}
 	}
 }
@@ -392,7 +392,7 @@ func (this *J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_GatherJ2CLCla
 			}
 			switch memberFunction.ns_().token {
 			case tokOrd1_GETTER_DEF:
-				getterDefByName.put(memberFunction.getString(), memberFunction)
+				getterDefByName.Put(memberFunction.getString(), memberFunction)
 			case tokOrd1_SETTER_DEF:
 				setterDefByName[memberFunction.getString()] = memberFunction
 			default:
@@ -400,10 +400,10 @@ func (this *J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_GatherJ2CLCla
 		}
 	}
 	for propertyName := range getterDefByName.Keys() {
-		var getterDef Node = getterDefByName.get(propertyName)
+		var getterDef Node = getterDefByName.Get(propertyName)
 		var setterDef Node = setterDefByName[propertyName]
 		if this.outer_.matchesJ2clGetKeySignature(className, getterDef) && ((setterDef == 0) || this.outer_.matchesJ2clSetKeySignature(className, setterDef)) {
-			this.j2clPropertiesByName.put((sstr_(className) + "." + sstr_(propertyName)), new_J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_J2clPropertyEs6(this.outer_, getterDef, setterDef).as_J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_J2clProperty())
+			this.j2clPropertiesByName.Put((sstr_(className) + "." + sstr_(propertyName)), new_J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_J2clPropertyEs6(this.outer_, getterDef, setterDef).as_J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_J2clProperty())
 		}
 	}
 }
@@ -437,7 +437,7 @@ func (this *J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_DetermineInli
 		var assignmentTarget Node = n.getFirstChild()
 		if assignmentTarget.isGetProp() {
 			var accessName string = assignmentTarget.getQualifiedName()
-			var prop *J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_J2clProperty = this.propertiesByName.get(accessName)
+			var prop *J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_J2clProperty = this.propertiesByName.Get(accessName)
 			if prop != nil {
 				prop.isSafeToInline = false
 			}
@@ -489,7 +489,7 @@ func (this *J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_InlinePropert
 			return
 		}
 		var accessName string = n.getQualifiedName()
-		var prop *J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_J2clProperty = this.propertiesByName.get(accessName)
+		var prop *J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_J2clProperty = this.propertiesByName.Get(accessName)
 		if (prop != nil) && prop.isSafeToInline {
 			var injector *FunctionInjector = new_FunctionInjector_Builder(this.outer_.outer_.compiler_).assumeStrictThis(true).build()
 			var functionCall Node = IR_call(IR_name("inlined_j2cl_getter"), []Node{})
@@ -504,7 +504,7 @@ func (this *J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_InlinePropert
 		var assignmentValue Node = n.getLastChild()
 		if assignmentTarget.isGetProp() {
 			var accessName string = assignmentTarget.getQualifiedName()
-			var prop *J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_J2clProperty = this.propertiesByName.get(accessName)
+			var prop *J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_J2clProperty = this.propertiesByName.Get(accessName)
 			if ((prop != nil) && (prop.setKey_ != 0)) && prop.isSafeToInline {
 				var injector *FunctionInjector = new_FunctionInjector_Builder(this.outer_.outer_.compiler_).assumeStrictThis(true).build()
 				assignmentValue.detach()

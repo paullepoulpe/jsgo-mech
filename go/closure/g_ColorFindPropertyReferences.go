@@ -182,19 +182,19 @@ func (this *ColorFindPropertyReferences) traverseObjectlitLike(t *NodeTraversal,
 }
 
 func (this *ColorFindPropertyReferences) registerPropertyUse(t *NodeTraversal, site Node, owner *Color) {
-	var prop *PropertyClustering = this.propIndex.computeIfAbsent_f(site.getString(), lambda_ColorFindPropertyReferences_registerPropertyUse_1_)
+	var prop *PropertyClustering = this.propIndex.ComputeIfAbsent(site.getString(), lambda_ColorFindPropertyReferences_registerPropertyUse_1_)
 	var flatOwner *ColorGraphNode = this.colorGraphNodeFactory.createNode(owner)
-	flatOwner.getAssociatedProps().put(prop, ColorGraphNode_PropAssociation_AST)
+	flatOwner.getAssociatedProps().Put(prop, ColorGraphNode_PropAssociation_AST)
 	prop.getClusters().add(obj_(flatOwner))
-	prop.getUseSites().put(site, flatOwner)
+	prop.getUseSites().Put(site, flatOwner)
 	if t.getCurrentScript().isFromExterns() || ((owner != nil) && owner.getPropertiesKeepOriginalName()) {
 		prop.registerOriginalNameType(flatOwner)
 	}
 }
 
 // lambda_ColorFindPropertyReferences_registerPropertyUse_1_ is a lambda of ColorFindPropertyReferences_registerPropertyUse that captures nothing (post-flip step lambdas).
-func lambda_ColorFindPropertyReferences_registerPropertyUse_1_(p0 any) any {
-	return obj_(new_PropertyClustering(str_(p0)))
+func lambda_ColorFindPropertyReferences_registerPropertyUse_1_(p0 string) *PropertyClustering {
+	return new_PropertyClustering(p0)
 }
 
 type ColorFindPropertyReferences_IsPropertyReflector interface {

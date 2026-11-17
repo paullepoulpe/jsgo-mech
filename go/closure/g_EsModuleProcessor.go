@@ -274,7 +274,7 @@ func new_EsModuleProcessor_UnresolvedModuleBuilder(outer_ *EsModuleProcessor, pa
 }
 
 func (this *EsModuleProcessor_UnresolvedModuleBuilder) addImport(i *Import) {
-	this.importsByLocalName.put(i.localName(), i)
+	this.importsByLocalName.Put(i.localName(), i)
 }
 
 func (this *EsModuleProcessor_UnresolvedModuleBuilder) add(e *Export) bool {
@@ -297,7 +297,7 @@ func (this *EsModuleProcessor_UnresolvedModuleBuilder) build() *UnresolvedModule
 	var starExportsBuilder []*Export
 	for ee := range sliceAll_(&this.exports) {
 		if ee.moduleRequest().isEmpty() {
-			if ee.localName().isPresent() && this.importsByLocalName.containsKey(ee.localName().get()) {
+			if ee.localName().isPresent() && this.importsByLocalName.Has(ee.localName().get()) {
 				indirectExportsBuilder = immAdd_(tc_p_Export, indirectExportsBuilder, ee)
 			} else {
 				*localExports = append(*localExports, ee)
@@ -368,14 +368,14 @@ func (this *EsModuleProcessor_UnresolvedEsModule) resolve_2_impl(moduleRequestRe
 		var boundNames *TMap[string, *Binding] = tmapFrom_(tc_string, tc_p_Binding, this.getAllResolvedImports(moduleRequestResolver).asMap(), false)
 		var localNameToLocalExport *TMap[string, *Export] = newTMap_(tc_string, tc_p_Export)
 		for _, e := range this.localExports {
-			localNameToLocalExport.put(e.localName().orElse(nullstr_), e)
+			localNameToLocalExport.Put(e.localName().orElse(nullstr_), e)
 			if !optOfEquals_(Export_DEFAULT_EXPORT_NAME, e.localName()) {
 				var b *ResolveExportResult = this.resolveExport(moduleRequestResolver, e.exportName())
 				if !b.resolved() {
 					panic(new_IllegalStateException_String("Cannot have invalid missing own export!").self())
 				}
 				if !b.isAmbiguous() {
-					boundNames.put(e.localName().orElse(nullstr_), b.getBinding())
+					boundNames.Put(e.localName().orElse(nullstr_), b.getBinding())
 				}
 			}
 		}
@@ -394,7 +394,7 @@ func (this *EsModuleProcessor_UnresolvedEsModule) getAllResolvedImports(moduleRe
 		name := str_(el)
 		var b *ResolveExportResult = this.resolveImport(moduleRequestResolver, name)
 		if b.resolved() {
-			imports.put(name, b.getBinding())
+			imports.Put(name, b.getBinding())
 		}
 	}
 	return imports
@@ -502,7 +502,7 @@ func (this *EsModuleProcessor_UnresolvedEsModule) getAllResolvedExports(moduleRe
 			panic(new_IllegalStateException_String("Cannot have invalid own export.").self())
 		}
 		if b.resolved() {
-			exports.put(name, b.getBinding())
+			exports.Put(name, b.getBinding())
 		} else if b.isAmbiguous() {
 			this.outer_.compiler_.report(JSError_make_Optional_int_int_DiagnosticType_StringArr(Optional_of[string](this.path_.toString()), -1, -1, EsModuleProcessor_AMBIGUOUS_EXPORT_DEFINITION, []string{name}))
 		}

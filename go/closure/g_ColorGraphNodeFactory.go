@@ -21,7 +21,7 @@ func new_ColorGraphNodeFactory(initialTypeIndex *TMap[*Color, *ColorGraphNode], 
 func ColorGraphNodeFactory_createFactory(colorRegistry *ColorRegistry) *ColorGraphNodeFactory {
 	var typeIndex *TMap[*Color, *ColorGraphNode] = newTMap_(tch_p_Color, tc_p_ColorGraphNode)
 	var unknownColorNode *ColorGraphNode = ColorGraphNode_create(StandardColors_UNKNOWN, 0)
-	typeIndex.put(StandardColors_UNKNOWN, unknownColorNode)
+	typeIndex.Put(StandardColors_UNKNOWN, unknownColorNode)
 	return new_ColorGraphNodeFactory(typeIndex, colorRegistry)
 }
 
@@ -35,7 +35,7 @@ func (this *ColorGraphNodeFactory) getAllKnownTypes() ImmutableSetOf[*ColorGraph
 }
 
 func (this *ColorGraphNodeFactory) newColorGraphNode(key *Color) *ColorGraphNode {
-	var id int32 = this.typeIndex.size()
+	var id int32 = this.typeIndex.Len()
 	return ColorGraphNode_create(key, id)
 }
 

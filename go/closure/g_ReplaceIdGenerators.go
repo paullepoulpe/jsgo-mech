@@ -51,7 +51,7 @@ func (this *ReplaceIdGenerators) init_ReplaceIdGenerators(compiler *AbstractComp
 			} else {
 				this.nameGenerators[name] = ReplaceIdGenerators_createNameSupplierRenamingMap(ReplaceIdGenerators_RenameStrategy_MAPPED, map_)
 			}
-			this.idGeneratorMaps.put(name, newTMap_(tc_string, tc_string))
+			this.idGeneratorMaps.Put(name, newTMap_(tc_string, tc_string))
 		}
 	}
 }
@@ -234,7 +234,7 @@ func new_ReplaceIdGenerators_ObfuscatedNameSupplier(renameStrategy ReplaceIdGene
 }
 
 func (this *ReplaceIdGenerators_ObfuscatedNameSupplier) getName(id string, name string) OptionalOf[string] {
-	var newName OptionalOf[string] = Optional_ofNullable[string](this.previousMappings.get(id))
+	var newName OptionalOf[string] = Optional_ofNullable[string](this.previousMappings.Get(id))
 	if newName.isEmpty() {
 		newName = Optional_of[string](this.generator.generateNextName())
 	}
@@ -437,7 +437,7 @@ func (this *ReplaceIdGenerators_GatherGenerators) visit_impl(unused *NodeTravers
 	} else {
 		panic(new_IllegalStateException_String("unexpected").self())
 	}
-	this.outer_.idGeneratorMaps.put(name.orElse(nullstr_), newTMap_(tc_string, tc_string))
+	this.outer_.idGeneratorMaps.Put(name.orElse(nullstr_), newTMap_(tc_string, tc_string))
 }
 
 type ReplaceIdGenerators_ReplaceGenerators struct {
@@ -633,7 +633,7 @@ func (this *ReplaceIdGenerators_ReplaceGenerators) getObfuscatedName(id Node, ca
 	var rename OptionalOf[string] = Optional_empty[string]()
 	var idGeneratorMap *TMap[string, string] = func() *TMap[string, string] {
 		if callName.isPresent() {
-			return this.outer_.idGeneratorMaps.get(callName.get())
+			return this.outer_.idGeneratorMaps.Get(callName.get())
 		}
 		return nil
 	}()
@@ -645,15 +645,15 @@ func (this *ReplaceIdGenerators_ReplaceGenerators) getObfuscatedName(id Node, ca
 			}
 			return nil
 		}()
-		rename = Optional_ofNullable[string](entry.get(instanceId))
+		rename = Optional_ofNullable[string](entry.Get(instanceId))
 		if rename.isEmpty() {
 			rename = nameGenerator.getName(instanceId, name)
-			entry.put(instanceId, rename.orElse(nullstr_))
+			entry.Put(instanceId, rename.orElse(nullstr_))
 		}
 	} else {
 		rename = nameGenerator.getName(instanceId, name)
 	}
-	idGeneratorMap.put(rename.orElse(nullstr_), instanceId)
+	idGeneratorMap.Put(rename.orElse(nullstr_), instanceId)
 	return rename
 }
 

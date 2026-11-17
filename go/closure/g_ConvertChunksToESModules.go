@@ -29,8 +29,8 @@ func new_ConvertChunksToESModules(compiler *AbstractCompiler) *ConvertChunksToES
 func (this *ConvertChunksToESModules) process_2(externs Node, root Node) {
 	NodeTraversal_traverse(this.compiler_, root, new_ConvertChunksToESModules_FindCrossChunkReferences(this))
 	for chunk := range elemsAs_[*JSChunk](this.compiler_.getChunkGraph().getAllChunks()) {
-		if (!this.crossChunkExports.containsKey(chunk) && !this.crossChunkImports.containsKey(chunk)) && !chunk.getInputs().isEmpty() {
-			this.crossChunkExports.put(chunk, newTSet_(tc_string))
+		if (!this.crossChunkExports.Has(chunk) && !this.crossChunkImports.Has(chunk)) && !chunk.getInputs().isEmpty() {
+			this.crossChunkExports.Put(chunk, newTSet_(tc_string))
 		}
 	}
 	this.convertChunkSourcesToModules()
@@ -94,8 +94,8 @@ func (this *ConvertChunksToESModules) addExportStatements() {
 			exportSpec.putIntProp(Node_IS_SHORTHAND_PROPERTY, 1)
 			exportSpecs.addChildToBack(exportSpec)
 		}
-		var importsByChunk *TMap[*JSChunk, SetOf[string]] = this.crossChunkImports.get(jsModuleExportsKey)
-		if (exportSpecs.hasChildren() || (importsByChunk == nil)) || importsByChunk.isEmpty() {
+		var importsByChunk *TMap[*JSChunk, SetOf[string]] = this.crossChunkImports.Get(jsModuleExportsKey)
+		if (exportSpecs.hasChildren() || (importsByChunk == nil)) || importsByChunk.IsEmpty() {
 			var export Node = IR_export(exportSpecs).srcrefTree(moduleBody)
 			moduleBody.addChildToBack(export)
 			this.compiler_.reportChangeToEnclosingScope(moduleBody)
@@ -248,7 +248,7 @@ func (this *ConvertChunksToESModules) visitName(t *NodeTraversal, nameNode Node,
 			t.report(nameNode, ConvertChunksToESModules_ASSIGNMENT_TO_IMPORT, []string{nameNode.getString(), ConvertChunksToESModules_getChunkName(referencingChunk), ConvertChunksToESModules_getChunkName(definingChunk)})
 		}
 		var namesToExport *TSet[string] = tsetOf_[string](Map_computeIfAbsent_f(this.crossChunkExports.asMap(), obj_(definingChunk), lambda_ConvertChunksToESModules_visitName_1_))
-		namesToExport.add(name)
+		namesToExport.Add(name)
 		var namesToImportByChunk *TMap[*JSChunk, SetOf[string]] = tmapOf_[*JSChunk, SetOf[string]](Map_computeIfAbsent_f(this.crossChunkImports.asMap(), obj_(referencingChunk), lambda_ConvertChunksToESModules_visitName_2_))
 		if importType == ConvertChunksToESModules_ImportType_STATIC {
 			var importsForChunk SetOf[string] = icast_Set(Map_computeIfAbsent_f(namesToImportByChunk.asMap(), obj_(definingChunk), lambda_ConvertChunksToESModules_visitName_3_))

@@ -39,7 +39,7 @@ func (this *RecordType) init_RecordType(registry *JSTypeRegistry, properties *TM
 	this.setPrettyPrint(true)
 	this.declared = declared
 	for property := range properties.Keys() {
-		var prop *RecordTypeBuilder_RecordProperty = properties.get(property)
+		var prop *RecordTypeBuilder_RecordProperty = properties.Get(property)
 		if prop == nil {
 			panic(new_IllegalStateException_String("RecordProperty associated with a property should not be null!").self())
 		}

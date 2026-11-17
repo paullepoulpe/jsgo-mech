@@ -33,8 +33,8 @@ func (this *JSTypeReconserializer) init_JSTypeReconserializer(registry *JSTypeRe
 	this.shouldPropagatePropertyName = shouldPropagatePropertyName
 	this.serializationMode = serializationMode
 	this.seedCachesWithAxiomaticTypes()
-	this.unknownRecord = this.seenTypeRecords.get(StandardColors_UNKNOWN.getId())
-	this.topFunctionRecord = this.seenTypeRecords.get(StandardColors_TOP_FUNCTION.getId())
+	this.unknownRecord = this.seenTypeRecords.Get(StandardColors_UNKNOWN.getId())
+	this.topFunctionRecord = this.seenTypeRecords.Get(StandardColors_TOP_FUNCTION.getId())
 }
 
 func new_JSTypeReconserializer(registry *JSTypeRegistry, invalidatingTypes *InvalidatingTypes, stringPoolBuilder *StringPool_Builder, shouldPropagatePropertyName func(any) bool, serializationMode *SerializationOptions) *JSTypeReconserializer {
@@ -78,7 +78,7 @@ func (this *JSTypeReconserializer) recordType(type_ *JSType) *JSTypeReconseriali
 	if (type_.isFunctionType() && !type_.toMaybeFunctionType().hasInstanceType()) && (type_.toMaybeFunctionType().getClosurePrimitive() == 0) {
 		return this.topFunctionRecord
 	}
-	var jstypeRecord *JSTypeReconserializer_SeenTypeRecord = this.typeToRecordCache.get(type_)
+	var jstypeRecord *JSTypeReconserializer_SeenTypeRecord = this.typeToRecordCache.Get(type_)
 	if jstypeRecord != nil {
 		return jstypeRecord
 	}
@@ -99,12 +99,12 @@ func (this *JSTypeReconserializer) recordUnionType(type_ *UnionType) *JSTypeReco
 		altType := to_JSType(el)
 		var alt *JSTypeReconserializer_SeenTypeRecord = this.recordType(altType)
 		if alt.unionMembers == nil {
-			altRecords.add(alt)
+			altRecords.Add(alt)
 		} else {
 			altRecords.asSet().addAll(icast_Collection(obj_(alt.unionMembers)))
 		}
 	}
-	if altRecords.size() == 1 {
+	if altRecords.Len() == 1 {
 		return cast_[*JSTypeReconserializer_SeenTypeRecord](Iterables_getOnlyElement(altRecords.asSet()))
 	}
 	var alternateIds ImmutableSet_BuilderOf[*ColorId] = ImmutableSet_builder()
@@ -166,10 +166,10 @@ func (this *JSTypeReconserializer) getOrCreateRecord(id *ColorId, jstype *JSType
 	var record *JSTypeReconserializer_SeenTypeRecord = cast_[*JSTypeReconserializer_SeenTypeRecord](Map_computeIfAbsent_f(this.seenTypeRecords.asMap(), obj_(id), func(unused_ any) any {
 		var unused *ColorId = cast_[*ColorId](unused_)
 		_ = unused
-		var pointer int32 = this.seenTypeRecords.size()
+		var pointer int32 = this.seenTypeRecords.Len()
 		return obj_(new_JSTypeReconserializer_SeenTypeRecord(id, pointer))
 	}))
-	this.typeToRecordCache.put(jstype, record)
+	this.typeToRecordCache.Put(jstype, record)
 	record.jstypes = append(record.jstypes, jstype)
 	return record
 }
@@ -247,14 +247,14 @@ func (this *JSTypeReconserializer) ownAncestorInterfacesOf(type_ *ObjectType) Im
 }
 
 func (this *JSTypeReconserializer) seedCachesWithAxiomaticTypes() {
-	if !this.seenTypeRecords.isEmpty() {
+	if !this.seenTypeRecords.IsEmpty() {
 		panic(new_IllegalStateException_0().self())
 	}
 	for _, el := range immElems_(TypePointers_OFFSET_TO_AXIOMATIC_COLOR) {
 		axiomatic := cast_[*Color](el)
-		var index int32 = this.seenTypeRecords.size()
+		var index int32 = this.seenTypeRecords.Len()
 		var record *JSTypeReconserializer_SeenTypeRecord = new_JSTypeReconserializer_SeenTypeRecord(axiomatic.getId(), index)
-		this.seenTypeRecords.put(axiomatic.getId(), record)
+		this.seenTypeRecords.Put(axiomatic.getId(), record)
 	}
 	Map_forEach_f(icast_Map(obj_(JSTypeReconserializer_JSTYPE_NATIVE_TO_AXIOMATIC_COLOR_MAP)), func(jstypeNative_ any, axiomatic_ any) {
 		var jstypeNative JSTypeNative = cast_[JSTypeNative](jstypeNative_)
@@ -263,7 +263,7 @@ func (this *JSTypeReconserializer) seedCachesWithAxiomaticTypes() {
 		_ = axiomatic
 		this.getOrCreateRecord(axiomatic.getId(), this.registry.getNativeType(jstypeNative))
 	})
-	if this.seenTypeRecords.size() != TypePointers_OFFSET_TO_AXIOMATIC_COLOR.size() {
+	if this.seenTypeRecords.Len() != TypePointers_OFFSET_TO_AXIOMATIC_COLOR.size() {
 		panic(new_IllegalStateException_0().self())
 	}
 }
@@ -272,7 +272,7 @@ func (this *JSTypeReconserializer) checkValidLinearTime() {
 	if !this.serializationMode.runValidation() {
 		return
 	}
-	var totalTypeCount int32 = this.seenTypeRecords.size()
+	var totalTypeCount int32 = this.seenTypeRecords.Len()
 	for seen := range this.seenTypeRecords.Values() {
 		var offset int32 = seen.pointer
 		if offset < 0 {

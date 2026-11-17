@@ -42,13 +42,13 @@ func (this *GatherExternProperties) visit(t *NodeTraversal, n Node, parent Node)
 	if GatherExternProperties_Mode_optimize_[this.mode_-1] {
 		switch n.ns_().token {
 		case tokOrd1_GETPROP:
-			this.externProperties.add(n.getString())
+			this.externProperties.Add(n.getString())
 		case tokOrd1_STRING_KEY:
 			if parent.isObjectLit() {
-				this.externProperties.add(n.getString())
+				this.externProperties.Add(n.getString())
 			}
 		case tokOrd1_MEMBER_FUNCTION_DEF, tokOrd1_MEMBER_FIELD_DEF, tokOrd1_GETTER_DEF, tokOrd1_SETTER_DEF:
-			this.externProperties.add(n.getString())
+			this.externProperties.Add(n.getString())
 		default:
 		}
 	}
@@ -101,7 +101,7 @@ func (this *GatherExternProperties) gatherPropertiesFromJsDocRecordType(jsDocRec
 			if strings.HasPrefix(fieldName, "'") || strings.HasPrefix(fieldName, "\"") {
 				fieldName = String_substring(fieldName, 1, (String_length(fieldName) - 1))
 			}
-			this.externProperties.add(fieldName)
+			this.externProperties.Add(fieldName)
 			if fieldTypeNode != 0 {
 				this.gatherPropertiesFromJsTypeExpressionNode(fieldTypeNode)
 			}
