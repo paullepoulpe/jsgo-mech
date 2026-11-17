@@ -118,7 +118,10 @@ func ParserRunner_newParserConfig(config *Config) *Parser_Config {
 		}
 		panic("unreachable")
 	}()
-	return new_Parser_Config_Mode_boolean(Preconditions_checkNotNullT(parserConfigLanguageMode), isStrictMode)
+	if parserConfigLanguageMode == 0 {
+		panic(new_NullPointerException_0().self())
+	}
+	return new_Parser_Config_Mode_boolean(parserConfigLanguageMode, isStrictMode)
 }
 
 var ParserRunner_annotationNames *ImmutableSet

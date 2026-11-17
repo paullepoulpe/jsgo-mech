@@ -32,8 +32,14 @@ func (this *NodeTraversal) finit_NodeTraversal() {
 
 func (this *NodeTraversal) init_NodeTraversal(builder *NodeTraversal_Builder) {
 	this.finit_NodeTraversal()
-	this.compiler_ = Preconditions_checkNotNullT(builder.compiler_)
-	this.callback = Preconditions_checkNotNullT(builder.callback)
+	if builder.compiler_ == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	this.compiler_ = builder.compiler_
+	if builder.callback == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	this.callback = builder.callback
 	var scopedCallback NodeTraversal_ScopedCallback
 	_ = scopedCallback
 	this.scopeCallback = func() NodeTraversal_ScopedCallback {

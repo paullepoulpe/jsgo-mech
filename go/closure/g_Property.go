@@ -116,7 +116,10 @@ func (this *Property) isFromExterns() bool {
 }
 
 func (this *Property) setType(type_ *JSType) {
-	this.type__ = Preconditions_checkNotNullT_String_Object(type_, "Null type specified for property %s", this.name_)
+	if type_ == nil {
+		nullFail_(Strings_lenientFormat("Null type specified for property %s", []any{this.name_}))
+	}
+	this.type__ = type_
 }
 
 func (this *Property) getJSDocInfo() *JSDocInfo {

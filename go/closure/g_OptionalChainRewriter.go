@@ -19,7 +19,10 @@ func (this *OptionalChainRewriter) init_OptionalChainRewriter(builder *OptionalC
 	}
 	this.compiler_ = builder.compiler_
 	this.astFactory_ = builder.astFactory_
-	this.tmpVarNameCreator = Preconditions_checkNotNullT(builder.tmpVarNameCreator)
+	if builder.tmpVarNameCreator == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	this.tmpVarNameCreator = builder.tmpVarNameCreator
 	this.scope_ = builder.scope_
 	this.wholeChain = wholeChain
 	nn_ := wholeChain.getParent()

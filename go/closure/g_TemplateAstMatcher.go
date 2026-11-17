@@ -32,7 +32,11 @@ func (this *TemplateAstMatcher) init_TemplateAstMatcher(compiler *AbstractCompil
 		panic(new_IllegalStateException_String(Strings_lenientFormat("Template node must be a function node. Received: %s", []any{templateFunctionNode.box_()})).self())
 	}
 	this.topScope = compiler.getTopScope()
-	this.typeRegistry = Preconditions_checkNotNullT(compiler.getTypeRegistry())
+	nn_1 := compiler.getTypeRegistry()
+	if nn_1 == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	this.typeRegistry = nn_1
 	this.templateStart = this.initTemplate(templateFunctionNode)
 	if typeMatchingStrategy == 0 {
 		panic(new_NullPointerException_0().self())

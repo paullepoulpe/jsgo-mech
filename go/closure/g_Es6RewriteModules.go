@@ -488,7 +488,10 @@ func (this *Es6RewriteModules) declareGlobalVariable(n Node, t *NodeTraversal) {
 	if this.globalTypedScope.hasOwnSlot(name) {
 		t.report(t.getCurrentScript(), ClosureRewriteModule_ILLEGAL_MODULE_RENAMING_CONFLICT, []string{name})
 	} else {
-		var type_ *JSType = Preconditions_checkNotNullT(n.getJSType())
+		var type_ *JSType = n.getJSType()
+		if type_ == nil {
+			panic(new_NullPointerException_0().self())
+		}
 		this.globalTypedScope.declare(name, n, type_, t.getInput(), false)
 	}
 }

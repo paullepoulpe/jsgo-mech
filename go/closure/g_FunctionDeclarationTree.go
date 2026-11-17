@@ -29,9 +29,18 @@ func (this *FunctionDeclarationTree) init_FunctionDeclarationTree(builder *Funct
 	this.isStatic = builder.isStatic
 	this.isGenerator = builder.isGenerator
 	this.isOptional_ = builder.isOptional_
-	this.kind_ = Preconditions_checkNotNullT(builder.kind_)
-	this.formalParameterList = Preconditions_checkNotNullT(builder.formalParameterList)
-	this.functionBody = Preconditions_checkNotNullT(builder.functionBody)
+	if builder.kind_ == 0 {
+		panic(new_NullPointerException_0().self())
+	}
+	this.kind_ = builder.kind_
+	if builder.formalParameterList == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	this.formalParameterList = builder.formalParameterList
+	if builder.functionBody == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	this.functionBody = builder.functionBody
 	this.isAsync = builder.isAsync
 }
 

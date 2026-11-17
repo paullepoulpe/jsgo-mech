@@ -1130,7 +1130,10 @@ func (this *Compiler) getCurrentJsSource() string {
 		}
 	}
 	if len(chunkNameRegexList) != 0 {
-		var chunks IterableOf[*JSChunk] = Preconditions_checkNotNullT(this.getChunks())
+		var chunks IterableOf[*JSChunk] = this.getChunks()
+		if chunks == nil {
+			panic(new_NullPointerException_0().self())
+		}
 		var unmatchedChunkNames []string = []string{}
 		var lt *Compiler_ChunkGraphAwareLicenseTracker = new_Compiler_ChunkGraphAwareLicenseTracker(this.up_AbstractCompiler())
 		for jsChunk := range elemsAs_[*JSChunk](chunks) {

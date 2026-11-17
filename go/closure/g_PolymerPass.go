@@ -179,7 +179,10 @@ func PolymerPass_exportTsickleProps(classNode Node, classQualifiedName string) {
 					if prop == 0 {
 						continue
 					}
-					var jsdoc *JSDocInfo = Preconditions_checkNotNullT_String_Object(prop.getJSDocInfo(), "No JSDoc found for %s", prop.box_())
+					var jsdoc *JSDocInfo = prop.getJSDocInfo()
+					if jsdoc == nil {
+						nullFail_(Strings_lenientFormat("No JSDoc found for %s", []any{prop.box_()}))
+					}
 					if jsdoc.getVisibility() == JSDocInfo_Visibility_PRIVATE {
 						continue
 					}

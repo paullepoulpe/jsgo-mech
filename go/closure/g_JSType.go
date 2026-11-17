@@ -485,12 +485,18 @@ func (this *JSType) toMaybeFunctionType_impl() *FunctionType {
 }
 
 func (this *JSType) assertFunctionType() *FunctionType {
-	var result *FunctionType = Preconditions_checkNotNullT_String_Object(this.toMaybeFunctionType(), "not a FunctionType: %s", this.self())
+	var result *FunctionType = this.toMaybeFunctionType()
+	if result == nil {
+		nullFail_(Strings_lenientFormat("not a FunctionType: %s", []any{this.self()}))
+	}
 	return result
 }
 
 func (this *JSType) assertObjectType() *ObjectType {
-	var result *ObjectType = Preconditions_checkNotNullT_String_Object(this.toMaybeObjectType(), "Not an ObjectType: %s", this.self())
+	var result *ObjectType = this.toMaybeObjectType()
+	if result == nil {
+		nullFail_(Strings_lenientFormat("Not an ObjectType: %s", []any{this.self()}))
+	}
 	return result
 }
 

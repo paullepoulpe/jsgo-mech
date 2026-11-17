@@ -25,11 +25,20 @@ func (this *FunctionInjector) finit_FunctionInjector() {
 
 func (this *FunctionInjector) init_FunctionInjector(builder *FunctionInjector_Builder) {
 	this.finit_FunctionInjector()
-	this.compiler_ = Preconditions_checkNotNullT(builder.compiler_)
-	this.safeNameIdSupplier_ = Preconditions_checkNotNullT(builder.safeNameIdSupplierField)
+	if builder.compiler_ == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	this.compiler_ = builder.compiler_
+	if builder.safeNameIdSupplierField == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	this.safeNameIdSupplier_ = builder.safeNameIdSupplierField
 	this.assumeStrictThis_ = builder.assumeStrictThisField
 	this.allowDecomposition_ = builder.allowDecompositionField
-	this.functionArgumentInjector_ = Preconditions_checkNotNullT(builder.functionArgumentInjectorField)
+	if builder.functionArgumentInjectorField == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	this.functionArgumentInjector_ = builder.functionArgumentInjectorField
 }
 
 func new_FunctionInjector(builder *FunctionInjector_Builder) *FunctionInjector {
@@ -613,7 +622,11 @@ func (this *FunctionInjector_Builder) build() *FunctionInjector {
 		this.safeNameIdSupplierField = this.compiler_.getUniqueNameIdSupplier()
 	}
 	if this.functionArgumentInjectorField == nil {
-		this.functionArgumentInjectorField = new_FunctionArgumentInjector(Preconditions_checkNotNullT(this.compiler_.getAstAnalyzer()))
+		nn_1 := this.compiler_.getAstAnalyzer()
+		if nn_1 == nil {
+			panic(new_NullPointerException_0().self())
+		}
+		this.functionArgumentInjectorField = new_FunctionArgumentInjector(nn_1)
 	}
 	return new_FunctionInjector(this)
 }

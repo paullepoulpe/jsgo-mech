@@ -251,7 +251,10 @@ func (this *MakeDeclaredNamesUnique_ContextualRenameInverter) exitScope(t *NodeT
 	if t.inGlobalScope() {
 		return
 	}
-	var scopeContext *MakeDeclaredNamesUnique_ContextualRenameInverter_ScopeContext = Preconditions_checkNotNullT(slicePop_(tc_p_MakeDeclaredNamesUnique_ContextualRenameInverter_ScopeContext, &this.scopeContextStack))
+	var scopeContext *MakeDeclaredNamesUnique_ContextualRenameInverter_ScopeContext = slicePop_(tc_p_MakeDeclaredNamesUnique_ContextualRenameInverter_ScopeContext, &this.scopeContextStack)
+	if scopeContext == nil {
+		panic(new_NullPointerException_0().self())
+	}
 	for referencedVariable := range scopeContext.referencedVariables { // conflicts go into sets: order-free
 		scopeContext.recordPotentialConflicts(referencedVariable)
 	}
