@@ -533,9 +533,9 @@ func (this *AbstractCommandLineRunner) deduplicateIjsFiles(files *TList[*Abstrac
 			relativeToAbsoluteName[relativeName] = absoluteName
 		}
 	}
-	var iterator IteratorOf[*AbstractCommandLineRunner_FlagEntry] = files.asList().iterator()
+	var iterator *tlistIter_[*AbstractCommandLineRunner_FlagEntry] = files.cursor()
 	for iterator.hasNext() {
-		var file *AbstractCommandLineRunner_FlagEntry = cast_[*AbstractCommandLineRunner_FlagEntry](iterator.next())
+		var file *AbstractCommandLineRunner_FlagEntry = iterator.nextT()
 		if cast_[AbstractCommandLineRunner_JsSourceType](file.flag_) == AbstractCommandLineRunner_JsSourceType_IJS {
 			if hasChunkSpecs {
 				return Outcome_base_err(new_FlagUsageException("--ijs is incompatible with --chunk or --module.").up_Throwable())
@@ -549,7 +549,7 @@ func (this *AbstractCommandLineRunner) deduplicateIjsFiles(files *TList[*Abstrac
 			var relativeNonIjsName string = String_substring(relativeName, 0, (String_length(relativeName) - int32(len(".i.js"))))
 			if has_(relativeToAbsoluteName, relativeNonIjsName) {
 				errors.add(obj_(JSError_make_DiagnosticType_StringArr(IjsErrors_CONFLICTING_IJS_FILE, []string{mapStr_(relativeToAbsoluteName, relativeNonIjsName), absoluteName})))
-				Iterator_remove(iterator)
+				iterator.remove()
 			}
 		}
 	}

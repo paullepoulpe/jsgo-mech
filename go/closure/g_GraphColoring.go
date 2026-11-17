@@ -162,13 +162,13 @@ func (this *GraphColoring_GreedyGraphColoring) color_impl() int32 {
 		var color *GraphColoring_Color = new_GraphColoring_Color(count)
 		var subgraph SubGraph = this.graph.newSubGraph()
 		{
-			var i IteratorOf[GraphNode] = worklist.asList().iterator()
+			var i *tlistIter_[GraphNode] = worklist.cursor()
 			for i.hasNext() {
-				var node GraphNode = icast_GraphNode(i.next())
+				var node GraphNode = i.nextT()
 				if subgraph.isIndependentOf(node.getValue()) {
 					subgraph.addNode(node.getValue())
 					node.setAnnotation(color)
-					Iterator_remove(i)
+					i.remove()
 				}
 			}
 		}

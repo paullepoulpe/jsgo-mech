@@ -69,11 +69,11 @@ func (this *FlowSensitiveInlineVariables) enterScope(t *NodeTraversal) {
 			this.candidates.remove(c)
 			if !c.defMetadata.depends.isEmpty() {
 				{
-					var it IteratorOf[*FlowSensitiveInlineVariables_Candidate] = this.candidates.asSet().iterator()
+					var it *tmapIter_[*FlowSensitiveInlineVariables_Candidate, struct{}] = this.candidates.cursor()
 					for it.hasNext() {
-						var other *FlowSensitiveInlineVariables_Candidate = cast_[*FlowSensitiveInlineVariables_Candidate](it.next())
+						var other *FlowSensitiveInlineVariables_Candidate = it.nextKey()
 						if other.defMetadata.depends.contains(cast_[*Var](t.getScope().getVar(c.varName_).self())) && !other.defMetadata.depends.asSet().containsAll(Collection(c.defMetadata.depends.asSet())) {
-							Iterator_remove(it)
+							it.remove()
 						}
 					}
 				}

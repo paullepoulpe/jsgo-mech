@@ -406,10 +406,10 @@ func (this *Es6RewriteDestructuring) objectPatternRestRHS(objectPattern Node, re
 	var restTempVarModel Node = this.createTempVarNameNode(restTempVarName, AstFactory_type_Node(objectPattern))
 	var result Node = restTempVarModel.cloneNode()
 	if !statedProperties.isEmpty() {
-		var propItr IteratorOf[Node] = statedProperties.asList().iterator()
-		var comma Node = this.deletionNodeForRestProperty(restTempVarModel.cloneNode(), Node_of_(propItr.next()))
+		var propItr *tlistIter_[Node] = statedProperties.cursor()
+		var comma Node = this.deletionNodeForRestProperty(restTempVarModel.cloneNode(), propItr.nextT())
 		for propItr.hasNext() {
-			comma = this.astFactory_.createComma(comma, this.deletionNodeForRestProperty(restTempVarModel.cloneNode(), Node_of_(propItr.next())))
+			comma = this.astFactory_.createComma(comma, this.deletionNodeForRestProperty(restTempVarModel.cloneNode(), propItr.nextT()))
 		}
 		result = this.astFactory_.createComma(comma, result)
 	}

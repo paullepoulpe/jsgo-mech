@@ -875,13 +875,13 @@ func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_Transpilation
 			sliceClear_(&currentCase.references)
 		}
 	}
-	var it IteratorOf[*Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_Case] = this.allCases.asList().iterator()
-	var prevCase *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_Case = cast_[*Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_Case](it.next())
+	var it *tlistIter_[*Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_Case] = this.allCases.cursor()
+	var prevCase *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_Case = it.nextT()
 	if prevCase.id != 1 {
 		panic(new_IllegalStateException_0().self())
 	}
 	for it.hasNext() {
-		var currentCase *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_Case = cast_[*Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_Case](it.next())
+		var currentCase *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_Case = it.nextT()
 		if len(currentCase.references) == 0 {
 			if currentCase.embedInto != 0 {
 				panic(new_IllegalStateException_0().self())
@@ -890,7 +890,7 @@ func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_Transpilation
 				prevCase.caseBlock.addChildrenToBack(currentCase.caseBlock.removeChildren())
 				prevCase.mayFallThrough = currentCase.mayFallThrough
 			}
-			Iterator_remove(it)
+			it.remove()
 			continue
 		}
 		if currentCase.embedInto != 0 {
@@ -899,7 +899,7 @@ func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_Transpilation
 			}
 			if (int32(len(currentCase.references)) == 1) && !currentCase.mayFallThrough {
 				currentCase.embedInto.replaceWith(currentCase.caseBlock)
-				Iterator_remove(it)
+				it.remove()
 				continue
 			}
 		}
@@ -920,7 +920,7 @@ func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_Transpilation
 			}
 			prevCase.jumpToField = currentCase.jumpToField
 			sliceAddAll_(tc_Node, &prevCase.references, Collection(sliceView_(tc_Node, currentCase.references)))
-			Iterator_remove(it)
+			it.remove()
 			continue
 		}
 		prevCase = currentCase
