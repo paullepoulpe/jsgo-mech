@@ -301,12 +301,18 @@ func (this *JSError_Builder) setNodeRange(start Node, end Node) *JSError_Builder
 }
 
 func (this *JSError_Builder) setLevel(level CheckLevel) *JSError_Builder {
-	this.level_ = Preconditions_checkNotNullT(level)
+	if level == 0 {
+		panic(new_NullPointerException_0().self())
+	}
+	this.level_ = level
 	return this
 }
 
 func (this *JSError_Builder) setRequirement(requirement *Requirement) *JSError_Builder {
-	this.requirement_ = Preconditions_checkNotNullT(requirement)
+	if requirement == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	this.requirement_ = requirement
 	return this
 }
 

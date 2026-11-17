@@ -1322,7 +1322,10 @@ func (this *GlobalNamespace_Name) addSingleRefForTesting(node Node, type_ Global
 }
 
 func (this *GlobalNamespace_Name) addAliasingGetClonedFromDeclaration(newRefNode Node) {
-	var declRef *GlobalNamespace_Ref = Preconditions_checkNotNullT(this.declaration_)
+	if this.declaration_ == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	var declRef *GlobalNamespace_Ref = this.declaration_
 	this.addRef(declRef.chunk_, declRef.scope_, newRefNode, GlobalNamespace_Ref_Type_ALIASING_GET)
 }
 

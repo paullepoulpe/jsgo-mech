@@ -26,7 +26,10 @@ func (this *CompilerBasedTransformer) self() any {
 }
 
 func (this *CompilerBasedTransformer) init_CompilerBasedTransformer(compilerSupplier *CompilerBasedTransformer_CompilerSupplier) {
-	this.compilerSupplierField = Preconditions_checkNotNullT(compilerSupplier)
+	if compilerSupplier == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	this.compilerSupplierField = compilerSupplier
 }
 
 func (this *CompilerBasedTransformer) transform(input *Source) *Source {

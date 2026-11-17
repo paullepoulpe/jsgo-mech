@@ -2269,7 +2269,10 @@ func (this *CompilerOptions) getUnusedImportsToRemove() ImmutableSetOf[string] {
 }
 
 func (this *CompilerOptions) setInstrumentForCoverageOption(instrumentForCoverageOption CompilerOptions_InstrumentOption) {
-	this.instrumentForCoverageOption = Preconditions_checkNotNullT(instrumentForCoverageOption)
+	if instrumentForCoverageOption == 0 {
+		panic(new_NullPointerException_0().self())
+	}
+	this.instrumentForCoverageOption = instrumentForCoverageOption
 }
 
 func (this *CompilerOptions) getInstrumentForCoverageOption() CompilerOptions_InstrumentOption {

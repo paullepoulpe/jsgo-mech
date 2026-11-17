@@ -125,67 +125,115 @@ func (this *JSTypeRegistry) getObjectIndexKey() *TemplateType {
 }
 
 func (this *JSTypeRegistry) getIterableValueTemplate() *TemplateType {
-	return Preconditions_checkNotNullT(this.iterableValueTemplate)
+	if this.iterableValueTemplate == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	return this.iterableValueTemplate
 }
 
 func (this *JSTypeRegistry) getIterableReturnTemplate() *TemplateType {
-	return Preconditions_checkNotNullT(this.iterableReturnTemplate)
+	if this.iterableReturnTemplate == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	return this.iterableReturnTemplate
 }
 
 func (this *JSTypeRegistry) getIteratorIterableValueTemplate() *TemplateType {
-	return Preconditions_checkNotNullT(this.iteratorIterableValueTemplate)
+	if this.iteratorIterableValueTemplate == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	return this.iteratorIterableValueTemplate
 }
 
 func (this *JSTypeRegistry) getIteratorIterableReturnTemplate() *TemplateType {
-	return Preconditions_checkNotNullT(this.iteratorIterableReturnTemplate)
+	if this.iteratorIterableReturnTemplate == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	return this.iteratorIterableReturnTemplate
 }
 
 func (this *JSTypeRegistry) getIIterableResultValueTemplate() *TemplateType {
-	return Preconditions_checkNotNullT(this.iiterableResultValueTemplate)
+	if this.iiterableResultValueTemplate == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	return this.iiterableResultValueTemplate
 }
 
 func (this *JSTypeRegistry) getIteratorLikeValueTemplate() *TemplateType {
-	return Preconditions_checkNotNullT(this.iteratorLikeValueTemplate)
+	if this.iteratorLikeValueTemplate == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	return this.iteratorLikeValueTemplate
 }
 
 func (this *JSTypeRegistry) getIteratorLikeReturnTemplate() *TemplateType {
-	return Preconditions_checkNotNullT(this.iteratorLikeReturnTemplate)
+	if this.iteratorLikeReturnTemplate == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	return this.iteratorLikeReturnTemplate
 }
 
 func (this *JSTypeRegistry) getIteratorValueTemplate() *TemplateType {
-	return Preconditions_checkNotNullT(this.iteratorValueTemplate)
+	if this.iteratorValueTemplate == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	return this.iteratorValueTemplate
 }
 
 func (this *JSTypeRegistry) getIteratorReturnTemplate() *TemplateType {
-	return Preconditions_checkNotNullT(this.iteratorReturnTemplate)
+	if this.iteratorReturnTemplate == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	return this.iteratorReturnTemplate
 }
 
 func (this *JSTypeRegistry) getGeneratorValueTemplate() *TemplateType {
-	return Preconditions_checkNotNullT(this.generatorValueTemplate)
+	if this.generatorValueTemplate == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	return this.generatorValueTemplate
 }
 
 func (this *JSTypeRegistry) getGeneratorReturnTemplate() *TemplateType {
-	return Preconditions_checkNotNullT(this.generatorReturnTemplate)
+	if this.generatorReturnTemplate == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	return this.generatorReturnTemplate
 }
 
 func (this *JSTypeRegistry) getAsyncIterableValueTemplate() *TemplateType {
-	return Preconditions_checkNotNullT(this.asyncIterableValueTemplate)
+	if this.asyncIterableValueTemplate == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	return this.asyncIterableValueTemplate
 }
 
 func (this *JSTypeRegistry) getAsyncIterableReturnTemplate() *TemplateType {
-	return Preconditions_checkNotNullT(this.asyncIterableReturnTemplate)
+	if this.asyncIterableReturnTemplate == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	return this.asyncIterableReturnTemplate
 }
 
 func (this *JSTypeRegistry) getAsyncIteratorValueTemplate() *TemplateType {
-	return Preconditions_checkNotNullT(this.asyncIteratorValueTemplate)
+	if this.asyncIteratorValueTemplate == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	return this.asyncIteratorValueTemplate
 }
 
 func (this *JSTypeRegistry) getAsyncIteratorReturnTemplate() *TemplateType {
-	return Preconditions_checkNotNullT(this.asyncIteratorReturnTemplate)
+	if this.asyncIteratorReturnTemplate == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	return this.asyncIteratorReturnTemplate
 }
 
 func (this *JSTypeRegistry) getIThenableTemplate() *TemplateType {
-	return Preconditions_checkNotNullT(this.iThenableTemplateKey)
+	if this.iThenableTemplateKey == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	return this.iThenableTemplateKey
 }
 
 func (this *JSTypeRegistry) maybeGetTemplateTypesOfBuiltin(scope StaticScope, fnName string) ImmutableListOf[*TemplateType] {

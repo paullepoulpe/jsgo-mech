@@ -21,9 +21,18 @@ func (this *RewriteAsyncIteration) finit_RewriteAsyncIteration() {
 
 func (this *RewriteAsyncIteration) init_RewriteAsyncIteration(compiler *AbstractCompiler, astFactory *AstFactory, namespace StaticScope) {
 	this.finit_RewriteAsyncIteration()
-	this.compiler_ = Preconditions_checkNotNullT(compiler)
-	this.astFactory_ = Preconditions_checkNotNullT(astFactory)
-	this.namespace_ = Preconditions_checkNotNullT(namespace)
+	if compiler == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	this.compiler_ = compiler
+	if astFactory == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	this.astFactory_ = astFactory
+	if namespace == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	this.namespace_ = namespace
 	this.contextStack = []*RewriteAsyncIteration_LexicalContext{}
 	var runtimeLibManager *RuntimeJsLibManager = compiler.getRuntimeJsLibManager()
 	this.asyncGeneratorWrapper = runtimeLibManager.getJsLibField("$jscomp.AsyncGeneratorWrapper")

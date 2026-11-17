@@ -68,7 +68,10 @@ func (this *AbstractPeepholeOptimization) isASTNormalized() bool {
 }
 
 func (this *AbstractPeepholeOptimization) beginTraversal_impl(compiler *AbstractCompiler) {
-	this.compiler_ = Preconditions_checkNotNullT(compiler)
+	if compiler == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	this.compiler_ = compiler
 	this.astAnalyzer = compiler.getAstAnalyzer()
 }
 

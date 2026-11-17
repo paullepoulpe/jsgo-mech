@@ -34,7 +34,10 @@ func (this *TemplateAstMatcher) init_TemplateAstMatcher(compiler *AbstractCompil
 	this.topScope = compiler.getTopScope()
 	this.typeRegistry = Preconditions_checkNotNullT(compiler.getTypeRegistry())
 	this.templateStart = this.initTemplate(templateFunctionNode)
-	this.typeMatchingStrategy = Preconditions_checkNotNullT(typeMatchingStrategy)
+	if typeMatchingStrategy == 0 {
+		panic(new_NullPointerException_0().self())
+	}
+	this.typeMatchingStrategy = typeMatchingStrategy
 }
 
 func new_TemplateAstMatcher(compiler *AbstractCompiler, templateFunctionNode Node, typeMatchingStrategy TypeMatchingStrategy) *TemplateAstMatcher {

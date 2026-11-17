@@ -2092,7 +2092,10 @@ func (this *TypedScopeCreator_AbstractScopeBuilder_SlotDefiner) forVariableName(
 }
 
 func (this *TypedScopeCreator_AbstractScopeBuilder_SlotDefiner) inScope(scope *TypedScope) *TypedScopeCreator_AbstractScopeBuilder_SlotDefiner {
-	this.scope_ = Preconditions_checkNotNullT(scope)
+	if scope == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	this.scope_ = scope
 	return this
 }
 

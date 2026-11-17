@@ -20,7 +20,10 @@ func (this *Property) init_Property(name any, type_ *JSType, inferred bool, prop
 		panic(new_NullPointerException_0().self())
 	}
 	this.name_ = name
-	this.type__ = Preconditions_checkNotNullT_String_Object(type_, "Null type specified for %s", name)
+	if type_ == nil {
+		nullFail_(Strings_lenientFormat("Null type specified for %s", []any{name}))
+	}
+	this.type__ = type_
 	this.inferred = inferred
 	this.propertyNode = propertyNode
 }

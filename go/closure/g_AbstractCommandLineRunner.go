@@ -74,9 +74,18 @@ func (this *AbstractCommandLineRunner) init_AbstractCommandLineRunner_Output_Out
 func (this *AbstractCommandLineRunner) init_AbstractCommandLineRunner_Input_Output_Output(in *Io_Input, out *Output, err *Output) {
 	this.finit_AbstractCommandLineRunner()
 	this.config = new_AbstractCommandLineRunner_CommandLineConfig()
-	this.in = Preconditions_checkNotNullT(in)
-	this.defaultJsOutput = Preconditions_checkNotNullT(out)
-	this.err = Preconditions_checkNotNullT(err)
+	if in == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	this.in = in
+	if out == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	this.defaultJsOutput = out
+	if err == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	this.err = err
 }
 
 func (this *AbstractCommandLineRunner) enableTestMode(externsSupplier func() any, inputsSupplier func() any, chunksSupplier func() any, exitCodeReceiver Function_baseOf[BoxedOf[int32], any]) {
@@ -91,7 +100,10 @@ func (this *AbstractCommandLineRunner) enableTestMode(externsSupplier func() any
 }
 
 func (this *AbstractCommandLineRunner) setExitCodeReceiver(newExitCodeReceiver Function_baseOf[BoxedOf[int32], any]) {
-	this.exitCodeReceiver = Preconditions_checkNotNullT(newExitCodeReceiver)
+	if newExitCodeReceiver == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	this.exitCodeReceiver = newExitCodeReceiver
 }
 
 func (this *AbstractCommandLineRunner) isInTestMode() bool {

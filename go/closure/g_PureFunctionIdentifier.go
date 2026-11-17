@@ -28,7 +28,10 @@ func (this *PureFunctionIdentifier) finit_PureFunctionIdentifier() {
 
 func (this *PureFunctionIdentifier) init_PureFunctionIdentifier(compiler *AbstractCompiler, assumeGettersArePure bool, validateArtificialPurity bool) {
 	this.finit_PureFunctionIdentifier()
-	this.compiler_ = Preconditions_checkNotNullT(compiler)
+	if compiler == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	this.compiler_ = compiler
 	this.assumeGettersArePure_ = assumeGettersArePure
 	this.astAnalyzer = compiler.getAstAnalyzer()
 	this.validateArtificialPurityField = validateArtificialPurity

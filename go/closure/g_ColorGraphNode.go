@@ -51,7 +51,10 @@ func ColorGraphNode_createForTesting_Color_int(single *Color, index int32) *Colo
 }
 
 func (this *ColorGraphNode) getColor() *Color {
-	return Preconditions_checkNotNullT(this.color_)
+	if this.color_ == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	return this.color_
 }
 
 func (this *ColorGraphNode) getIndex() int32 {

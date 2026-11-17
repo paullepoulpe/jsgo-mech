@@ -134,7 +134,10 @@ func JSDocSerializer_serializeJsdoc(jsdoc *JSDocInfo, stringPool *StringPool_Bui
 	if equalsBy_(OptimizationJsdoc_getDefaultInstance(), obj_(result), (*OptimizationJsdoc).equals) {
 		return nil
 	}
-	return Preconditions_checkNotNullT(result)
+	if result == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	return result
 }
 
 func JSDocSerializer_serializeIdGenerator(doc *JSDocInfo) JsdocTag {

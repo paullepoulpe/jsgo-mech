@@ -360,7 +360,10 @@ func (this *CrossChunkReferenceCollector_TopLevelStatement) isDeclarationStateme
 }
 
 func (this *CrossChunkReferenceCollector_TopLevelStatement) getDeclaredNameReference() *Reference {
-	return Preconditions_checkNotNullT(this.declaredNameReference)
+	if this.declaredNameReference == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	return this.declaredNameReference
 }
 
 func (this *CrossChunkReferenceCollector_TopLevelStatement) getDeclaredValueNode() Node {

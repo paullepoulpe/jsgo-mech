@@ -42,7 +42,10 @@ func (this *ClassOrObjectElementInfo) hasName() bool {
 }
 
 func (this *ClassOrObjectElementInfo) getName() *IdentifierToken {
-	return Preconditions_checkNotNullT(this.name_)
+	if this.name_ == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	return this.name_
 }
 
 func (this *ClassOrObjectElementInfo) setNameExpr(nameExpr *ParseTree) {
@@ -57,5 +60,8 @@ func (this *ClassOrObjectElementInfo) hasNameExpr() bool {
 }
 
 func (this *ClassOrObjectElementInfo) getNameExpr() *ParseTree {
-	return Preconditions_checkNotNullT(this.nameExpr)
+	if this.nameExpr == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	return this.nameExpr
 }

@@ -171,7 +171,10 @@ type OptionalChainRewriter_Builder struct {
 }
 
 func (this *OptionalChainRewriter_Builder) init_OptionalChainRewriter_Builder(compiler *AbstractCompiler) {
-	this.compiler_ = Preconditions_checkNotNullT(compiler)
+	if compiler == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	this.compiler_ = compiler
 	this.astFactory_ = compiler.createAstFactory()
 }
 
@@ -182,12 +185,18 @@ func new_OptionalChainRewriter_Builder(compiler *AbstractCompiler) *OptionalChai
 }
 
 func (this *OptionalChainRewriter_Builder) setTmpVarNameCreator(tmpVarNameCreator OptionalChainRewriter_TmpVarNameCreator) *OptionalChainRewriter_Builder {
-	this.tmpVarNameCreator = Preconditions_checkNotNullT(tmpVarNameCreator)
+	if tmpVarNameCreator == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	this.tmpVarNameCreator = tmpVarNameCreator
 	return this
 }
 
 func (this *OptionalChainRewriter_Builder) setScope(scope *Scope) *OptionalChainRewriter_Builder {
-	this.scope_ = Preconditions_checkNotNullT(scope)
+	if scope == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	this.scope_ = scope
 	return this
 }
 

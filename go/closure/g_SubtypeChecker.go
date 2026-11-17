@@ -34,7 +34,10 @@ func (this *SubtypeChecker) setSupertype(value *JSType) *SubtypeChecker {
 	if this.initialSupertype != nil {
 		panic(new_IllegalStateException_0().self())
 	}
-	this.initialSupertype = Preconditions_checkNotNullT(value)
+	if value == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	this.initialSupertype = value
 	return this
 }
 
@@ -43,7 +46,10 @@ func (this *SubtypeChecker) setSubtype(value *JSType) *SubtypeChecker {
 	if this.initialSubtype != nil {
 		panic(new_IllegalStateException_0().self())
 	}
-	this.initialSubtype = Preconditions_checkNotNullT(value)
+	if value == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	this.initialSubtype = value
 	return this
 }
 
@@ -61,7 +67,10 @@ func (this *SubtypeChecker) setSubtypingMode(value JSType_SubtypingMode) *Subtyp
 	if this.subtypingMode != 0 {
 		panic(new_IllegalStateException_0().self())
 	}
-	this.subtypingMode = Preconditions_checkNotNullT(value)
+	if value == 0 {
+		panic(new_NullPointerException_0().self())
+	}
+	this.subtypingMode = value
 	return this
 }
 

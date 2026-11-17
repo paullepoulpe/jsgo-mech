@@ -1342,7 +1342,10 @@ func (this *Compiler) getTypeRegistry_impl() *JSTypeRegistry {
 }
 
 func (this *Compiler) getColorRegistry_impl() *ColorRegistry {
-	return Preconditions_checkNotNullT_Object(this.colorRegistry, strobj_("Color registry has not been initialized yet"))
+	if this.colorRegistry == nil {
+		nullFail_(objstr_(strobj_("Color registry has not been initialized yet")))
+	}
+	return this.colorRegistry
 }
 
 func (this *Compiler) setColorRegistry_impl(colorRegistry *ColorRegistry) {
@@ -2799,7 +2802,10 @@ func (this *Compiler) getAccessorSummary_impl() *AccessorSummary {
 }
 
 func (this *Compiler) setAccessorSummary_impl(summary *AccessorSummary) {
-	this.accessorSummary = Preconditions_checkNotNullT(summary)
+	if summary == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	this.accessorSummary = summary
 }
 
 func (this *Compiler) loadResourceContents(resourceName string, path string) Node {

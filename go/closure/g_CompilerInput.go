@@ -35,8 +35,14 @@ func (this *CompilerInput) finit_CompilerInput() {
 
 func (this *CompilerInput) init_CompilerInput_SourceFile_InputId_boolean(sourceFile *SourceFile_jscomp, inputId *InputId, isExtern bool) {
 	this.finit_CompilerInput()
-	this.sourceFile = Preconditions_checkNotNullT(sourceFile)
-	this.id = Preconditions_checkNotNullT(inputId)
+	if sourceFile == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	this.sourceFile = sourceFile
+	if inputId == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	this.id = inputId
 	if isExtern {
 		this.setIsExtern()
 	}

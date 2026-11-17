@@ -9,7 +9,10 @@ type FunctionToBlockMutator struct {
 }
 
 func (this *FunctionToBlockMutator) init_FunctionToBlockMutator(compiler *AbstractCompiler, safeNameIdSupplier SupplierOf[string]) {
-	this.compiler_ = Preconditions_checkNotNullT(compiler)
+	if compiler == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	this.compiler_ = compiler
 	this.safeNameIdSupplier_ = safeNameIdSupplier
 	this.functionArgumentInjector_ = new_FunctionArgumentInjector(compiler.getAstAnalyzer())
 }

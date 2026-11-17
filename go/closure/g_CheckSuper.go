@@ -511,7 +511,10 @@ func (this *CheckSuper_ConstructorArrowContext) up_CheckSuper_Context() *CheckSu
 
 func (this *CheckSuper_ConstructorArrowContext) init_CheckSuper_ConstructorArrowContext(constructorContext *CheckSuper_ConstructorContext, arrowFn Node) {
 	this.CheckSuper_Context.init_CheckSuper_Context(arrowFn)
-	this.constructorContext = Preconditions_checkNotNullT(constructorContext)
+	if constructorContext == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	this.constructorContext = constructorContext
 }
 
 func new_CheckSuper_ConstructorArrowContext(constructorContext *CheckSuper_ConstructorContext, arrowFn Node) *CheckSuper_ConstructorArrowContext {

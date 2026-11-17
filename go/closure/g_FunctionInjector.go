@@ -569,7 +569,10 @@ func (this *FunctionInjector_Builder) finit_FunctionInjector_Builder() {
 
 func (this *FunctionInjector_Builder) init_FunctionInjector_Builder(compiler *AbstractCompiler) {
 	this.finit_FunctionInjector_Builder()
-	this.compiler_ = Preconditions_checkNotNullT(compiler)
+	if compiler == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	this.compiler_ = compiler
 }
 
 func new_FunctionInjector_Builder(compiler *AbstractCompiler) *FunctionInjector_Builder {
@@ -579,7 +582,10 @@ func new_FunctionInjector_Builder(compiler *AbstractCompiler) *FunctionInjector_
 }
 
 func (this *FunctionInjector_Builder) safeNameIdSupplier(safeNameIdSupplier SupplierOf[string]) *FunctionInjector_Builder {
-	this.safeNameIdSupplierField = Preconditions_checkNotNullT(safeNameIdSupplier)
+	if safeNameIdSupplier == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	this.safeNameIdSupplierField = safeNameIdSupplier
 	return this
 }
 
@@ -594,7 +600,10 @@ func (this *FunctionInjector_Builder) assumeStrictThis(assumeStrictThis bool) *F
 }
 
 func (this *FunctionInjector_Builder) functionArgumentInjector(functionArgumentInjector *FunctionArgumentInjector) *FunctionInjector_Builder {
-	this.functionArgumentInjectorField = Preconditions_checkNotNullT(functionArgumentInjector)
+	if functionArgumentInjector == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	this.functionArgumentInjectorField = functionArgumentInjector
 	return this
 }
 

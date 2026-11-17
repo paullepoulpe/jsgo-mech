@@ -110,7 +110,10 @@ func (this *NodeIterators_LocalVarMotion) init_NodeIterators_LocalVarMotion(comp
 		panic(new_IllegalArgumentException_0().self())
 	}
 	var valueNode Node = NodeUtil_getAssignedValue(nameNode)
-	this.compiler_ = Preconditions_checkNotNullT(compiler)
+	if compiler == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	this.compiler_ = compiler
 	this.varName_ = nameNode.getString()
 	this.valueHasSideEffects = ((valueNode != 0) && compiler.getAstAnalyzer().mayHaveSideEffects(valueNode))
 	this.iterator_ = iterator

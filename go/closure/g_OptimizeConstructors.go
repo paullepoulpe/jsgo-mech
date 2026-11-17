@@ -14,7 +14,10 @@ func (this *OptimizeConstructors) finit_OptimizeConstructors() {
 
 func (this *OptimizeConstructors) init_OptimizeConstructors(compiler *AbstractCompiler) {
 	this.finit_OptimizeConstructors()
-	this.compiler_ = Preconditions_checkNotNullT(compiler)
+	if compiler == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	this.compiler_ = compiler
 	this.astAnalyzer = compiler.getAstAnalyzer()
 }
 
