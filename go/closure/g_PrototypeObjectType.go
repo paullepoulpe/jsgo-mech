@@ -390,7 +390,7 @@ var lambda_PrototypeObjectType_clinit_1_ = &Comparator_fn{func(thisProp_ any, ot
 				case Property_KeyKind_SYMBOL:
 					return -1
 				}
-				panic("unreachable")
+				panic(new_NullPointerException_0())
 			}()
 		case Property_KeyKind_SYMBOL:
 			return func() int32 {
@@ -400,10 +400,10 @@ var lambda_PrototypeObjectType_clinit_1_ = &Comparator_fn{func(thisProp_ any, ot
 				case Property_KeyKind_SYMBOL:
 					return utf16Compare_(thisProp.type_().toString(), otherProp.type_().toString())
 				}
-				panic("unreachable")
+				panic(new_NullPointerException_0())
 			}()
 		}
-		panic("unreachable")
+		panic(new_NullPointerException_0())
 	}()
 }}
 

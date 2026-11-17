@@ -64,7 +64,7 @@ func AccessorSummary_toProto(kind AccessorSummary_PropertyAccessKind) PropertyAc
 		case AccessorSummary_PropertyAccessKind_GETTER_AND_SETTER:
 			return PropertyAccessKindProto_KIND_GETTER_AND_SETTER
 		}
-		panic("unreachable")
+		panic(new_NullPointerException_0())
 	}()
 }
 

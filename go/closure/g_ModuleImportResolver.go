@@ -213,7 +213,7 @@ func (this *ModuleImportResolver) getScopedNameFromEsBinding(binding *Binding) *
 		case ModuleMetadataMap_ModuleType_COMMON_JS:
 			panic(new_IllegalStateException_String("Typechecking CommonJS modules is not supported"))
 		}
-		panic("unreachable")
+		panic(new_NullPointerException_0())
 	}()
 }
 

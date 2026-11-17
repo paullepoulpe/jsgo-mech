@@ -153,7 +153,7 @@ func J2clEqualitySameRewriterPass_getKnownLiteralValue(n Node) J2clEqualitySameR
 		case NodeUtil_ValueType_UNDETERMINED:
 			return J2clEqualitySameRewriterPass_NodeValue_UNKNOWN
 		}
-		panic("unreachable")
+		panic(new_NullPointerException_0())
 	}()
 }
 
