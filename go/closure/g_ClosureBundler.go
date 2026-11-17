@@ -214,10 +214,10 @@ func (this ClosureBundler_EvalMode) as_ClosureBundler_EvalMode() ClosureBundler_
 func (this ClosureBundler_EvalMode) appendTraditional(s string, out Appendable, sourceUrl OptionalOf[string]) {
 	switch this {
 	case ClosureBundler_EvalMode_EVAL:
-		out.append_CharSequence(strobj_("eval(this.CLOSURE_EVAL_PREFILTER(\""))
+		out.append_CharSequence_s("eval(this.CLOSURE_EVAL_PREFILTER(\"")
 		ClosureBundler_EscapeMode_ESCAPED.append(s, out)
 		ClosureBundler_appendSourceUrl(out, ClosureBundler_EscapeMode_ESCAPED, sourceUrl)
-		out.append_CharSequence(strobj_("\"));\n"))
+		out.append_CharSequence_s("\"));\n")
 	case ClosureBundler_EvalMode_NORMAL:
 		ClosureBundler_EscapeMode_NORMAL.append(s, out)
 		ClosureBundler_appendSourceUrl(out, ClosureBundler_EscapeMode_NORMAL, sourceUrl)
@@ -229,14 +229,14 @@ func (this ClosureBundler_EvalMode) appendTraditional(s string, out Appendable, 
 func (this ClosureBundler_EvalMode) appendGoogModule(s string, out Appendable, sourceUrl OptionalOf[string]) {
 	switch this {
 	case ClosureBundler_EvalMode_EVAL:
-		out.append_CharSequence(strobj_("goog.loadModule(\""))
+		out.append_CharSequence_s("goog.loadModule(\"")
 		ClosureBundler_EscapeMode_ESCAPED.append(s, out)
 		ClosureBundler_appendSourceUrl(out, ClosureBundler_EscapeMode_ESCAPED, sourceUrl)
-		out.append_CharSequence(strobj_("\");\n"))
+		out.append_CharSequence_s("\");\n")
 	case ClosureBundler_EvalMode_NORMAL:
-		out.append_CharSequence(strobj_("goog.loadModule(function(exports) {'use strict';"))
+		out.append_CharSequence_s("goog.loadModule(function(exports) {'use strict';")
 		ClosureBundler_EscapeMode_NORMAL.append(s, out)
-		out.append_CharSequence(strobj_("\n;return exports;});\n"))
+		out.append_CharSequence_s("\n;return exports;});\n")
 		ClosureBundler_appendSourceUrl(out, ClosureBundler_EscapeMode_NORMAL, sourceUrl)
 	default:
 		panic(new_NullPointerException_0().self()) // a call on null
@@ -317,7 +317,7 @@ func (this ClosureBundler_EscapeMode) append(s string, out Appendable) {
 	case ClosureBundler_EscapeMode_ESCAPED:
 		SourceCodeEscapers_appendWithJavascriptEscaper(strobj_(s), out)
 	case ClosureBundler_EscapeMode_NORMAL:
-		out.append_CharSequence(strobj_(s))
+		out.append_CharSequence_s(s)
 	default:
 		panic(new_NullPointerException_0().self()) // a call on null
 	}

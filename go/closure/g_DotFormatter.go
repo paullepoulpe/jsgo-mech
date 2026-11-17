@@ -128,11 +128,11 @@ func (this *DotFormatter) traverseNodes(parent Node) {
 		var child Node = parent.getFirstChild()
 		for ; child != 0; child = child.getNext() {
 			var keyChild int32 = this.key(child)
-			this.builder.append_CharSequence(strobj_(DotFormatter_INDENT))
-			this.builder.append_CharSequence(strobj_(DotFormatter_formatNodeName(any(int32(keyParent)))))
-			this.builder.append_CharSequence(strobj_(DotFormatter_ARROW))
-			this.builder.append_CharSequence(strobj_(DotFormatter_formatNodeName(any(int32(keyChild)))))
-			this.builder.append_CharSequence(strobj_(" [weight=1];\n"))
+			this.builder.append_CharSequence_s(DotFormatter_INDENT)
+			this.builder.append_CharSequence_s(DotFormatter_formatNodeName(any(int32(keyParent))))
+			this.builder.append_CharSequence_s(DotFormatter_ARROW)
+			this.builder.append_CharSequence_s(DotFormatter_formatNodeName(any(int32(keyChild))))
+			this.builder.append_CharSequence_s(" [weight=1];\n")
 			this.traverseNodes(child)
 		}
 	}
@@ -160,8 +160,8 @@ func (this *DotFormatter) traverseNodes(parent Node) {
 			}
 		}()
 		for _, element := range edgeList {
-			this.builder.append_CharSequence(strobj_(DotFormatter_INDENT))
-			this.builder.append_CharSequence(strobj_(element))
+			this.builder.append_CharSequence_s(DotFormatter_INDENT)
+			this.builder.append_CharSequence_s(element)
 		}
 	}
 }
@@ -172,30 +172,30 @@ func (this *DotFormatter) key(n Node) int32 {
 		key = any(int32(this.keyCount))
 		this.keyCount++
 		this.assignments[n] = key
-		this.builder.append_CharSequence(strobj_(DotFormatter_INDENT))
-		this.builder.append_CharSequence(strobj_(DotFormatter_formatNodeName(key)))
-		this.builder.append_CharSequence(strobj_(" [label=\""))
-		this.builder.append_CharSequence(strobj_(tostrNN_(n.getToken())))
+		this.builder.append_CharSequence_s(DotFormatter_INDENT)
+		this.builder.append_CharSequence_s(DotFormatter_formatNodeName(key))
+		this.builder.append_CharSequence_s(" [label=\"")
+		this.builder.append_CharSequence_s(tostrNN_(n.getToken()))
 		if (((n.isName() || n.isStringLit()) || n.isGetProp()) || n.isImportStar()) || n.isStringKey() {
-			this.builder.append_CharSequence(strobj_(DotFormatter_getNodeLabel(n)))
+			this.builder.append_CharSequence_s(DotFormatter_getNodeLabel(n))
 		}
 		var type_ *JSType = n.getJSType()
 		if type_ != nil {
-			this.builder.append_CharSequence(strobj_(" : "))
-			this.builder.append_CharSequence(strobj_(type_.toString()))
+			this.builder.append_CharSequence_s(" : ")
+			this.builder.append_CharSequence_s(type_.toString())
 		}
 		if (this.printAnnotations && (this.cfg != nil)) && this.cfg.hasNode(n.box_()) {
 			var annotation any = Annotatable_getAnnotation(Annotatable(this.cfg.getNode(n.box_())))
 			if annotation != nil {
-				this.builder.append_CharSequence(strobj_("\\n"))
-				this.builder.append_CharSequence(strobj_(Object_toString(annotation)))
+				this.builder.append_CharSequence_s("\\n")
+				this.builder.append_CharSequence_s(Object_toString(annotation))
 			}
 		}
-		this.builder.append_CharSequence(strobj_("\""))
+		this.builder.append_CharSequence_s("\"")
 		if n.getJSDocInfo() != nil {
-			this.builder.append_CharSequence(strobj_(" color=\"green\""))
+			this.builder.append_CharSequence_s(" color=\"green\"")
 		}
-		this.builder.append_CharSequence(strobj_("];\n"))
+		this.builder.append_CharSequence_s("];\n")
 	}
 	return unbox_[int32](key)
 }
@@ -216,13 +216,13 @@ func DotFormatter_formatNodeName(key any) string {
 }
 
 func (this *DotFormatter) formatPreamble() {
-	this.builder.append_CharSequence(strobj_("digraph AST {\n"))
-	this.builder.append_CharSequence(strobj_(DotFormatter_INDENT))
-	this.builder.append_CharSequence(strobj_("node [color=lightblue2, style=filled];\n"))
+	this.builder.append_CharSequence_s("digraph AST {\n")
+	this.builder.append_CharSequence_s(DotFormatter_INDENT)
+	this.builder.append_CharSequence_s("node [color=lightblue2, style=filled];\n")
 }
 
 func (this *DotFormatter) formatConclusion() {
-	this.builder.append_CharSequence(strobj_("}\n"))
+	this.builder.append_CharSequence_s("}\n")
 }
 
 const DotFormatter_INDENT string = "  "

@@ -95,7 +95,7 @@ func Util_appendHexJavaScriptRepresentationInt(codePoint int32, out Appendable) 
 		Util_appendHexJavaScriptRepresentationInt(int32(surrogates[1]), out)
 		return
 	}
-	out.append_CharSequence(strobj_("\\u")).append_char(Util_HEX_CHARS[(int32(uint32(codePoint)>>12) & 15)]).append_char(Util_HEX_CHARS[(int32(uint32(codePoint)>>8) & 15)]).append_char(Util_HEX_CHARS[(int32(uint32(codePoint)>>4) & 15)]).append_char(Util_HEX_CHARS[(codePoint & 15)])
+	out.append_CharSequence_s("\\u").append_char(Util_HEX_CHARS[(int32(uint32(codePoint)>>12) & 15)]).append_char(Util_HEX_CHARS[(int32(uint32(codePoint)>>8) & 15)]).append_char(Util_HEX_CHARS[(int32(uint32(codePoint)>>4) & 15)]).append_char(Util_HEX_CHARS[(codePoint & 15)])
 }
 
 var Util_HEX_CHARS []uint16

@@ -300,16 +300,16 @@ func new_DependencyInfo_Util() *DependencyInfo_Util {
 }
 
 func DependencyInfo_Util_writeAddDependency(out Appendable, info DependencyInfo) {
-	out.append_CharSequence(strobj_("goog.addDependency('")).append_CharSequence(strobj_(info.getPathRelativeToClosureBase())).append_CharSequence(strobj_("', "))
+	out.append_CharSequence_s("goog.addDependency('").append_CharSequence_s(info.getPathRelativeToClosureBase()).append_CharSequence_s("', ")
 	DependencyInfo_Util_writeJsArray(out, icast_Collection(obj_(info.getProvides())))
-	out.append_CharSequence(strobj_(", "))
+	out.append_CharSequence_s(", ")
 	DependencyInfo_Util_writeJsArray(out, icast_Collection(obj_(DependencyInfo_Require_asSymbolList(icast_Iterable(obj_(info.getRequires()))))))
 	var loadFlags ImmutableMapOf[string, string] = info.getLoadFlags()
 	if !loadFlags.isEmpty() {
-		out.append_CharSequence(strobj_(", "))
+		out.append_CharSequence_s(", ")
 		DependencyInfo_Util_writeJsObject(out, tmapFrom_(tc_string, tc_string, loadFlags, true))
 	}
-	out.append_CharSequence(strobj_(");\n"))
+	out.append_CharSequence_s(");\n")
 }
 
 func DependencyInfo_Util_writeJsObject(out Appendable, map_ *TMap[string, string]) {
@@ -321,16 +321,16 @@ func DependencyInfo_Util_writeJsObject(out Appendable, map_ *TMap[string, string
 		var value string = String_replace_s(str_(entry.getValue()), "'", "\\'")
 		entries.add(("'" + sstr_(key) + "': '" + sstr_(value) + "'"))
 	}
-	out.append_CharSequence(strobj_("{"))
-	out.append_CharSequence(strobj_(Joiner_on(", ").join(Iterable(entries.asList()))))
-	out.append_CharSequence(strobj_("}"))
+	out.append_CharSequence_s("{")
+	out.append_CharSequence_s(Joiner_on(", ").join(Iterable(entries.asList())))
+	out.append_CharSequence_s("}")
 }
 
 func DependencyInfo_Util_writeJsArray(out Appendable, values CollectionOf[string]) {
 	var quoted IterableOf[string] = Iterables_transform(Iterable(values), lambda_DependencyInfo_Util_writeJsArray_1_)
-	out.append_CharSequence(strobj_("["))
-	out.append_CharSequence(strobj_(Joiner_on(", ").join(quoted)))
-	out.append_CharSequence(strobj_("]"))
+	out.append_CharSequence_s("[")
+	out.append_CharSequence_s(Joiner_on(", ").join(quoted))
+	out.append_CharSequence_s("]")
 }
 
 // lambda_DependencyInfo_Util_writeJsArray_1_ is a lambda of DependencyInfo_Util_writeJsArray that captures nothing (post-flip step lambdas).
