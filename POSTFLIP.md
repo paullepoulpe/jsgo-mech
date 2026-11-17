@@ -222,3 +222,43 @@ Where typed-full still trails pre-flip Java (pass time, tracer):
 | collapseObjectLiterals | 1.62s | 2.30s | 0.70 |
 | checkTypes | 1.61s | 2.17s | 0.74 |
 | coalesceVariableNames | 1.01s | 1.36s | 0.74 |
+
+## postflip5, rounds 2-5: beating pre-flip Java
+
+Ratios are Java time / Go time (above 1: the transpiled Go + post-flip steps is faster).
+
+**Result** (postflip5 tip, one machine, idle, pre-flip Java and Go alternating ABBA; out.js,
+stdout and stderr byte-identical to pre-flip Java on both tasks):
+
+| task | pre-flip Java (median) | postflip5 (median) | Java/Go medians | per round |
+|---|---:|---:|---:|---|
+| typed-full (8 rounds) | 50.88s | 48.31s | **1.053** | 1.015-1.088, all > 1 |
+| bundle (6 rounds) | 26.12s | 23.14s | **1.129** | 1.066-1.246, all > 1 |
+
+The session moved to a different machine between the round-1 measurements above and these, so
+only ratios within one run compare. On this machine, at the end of round 1 (tip ff3de79..4e902b3)
+typed-full was 0.987 and bundle 1.111.
+
+Each group below was prototyped on its own branch by one agent (gated there), merged here by
+re-running its tools and cherry-picking its runtime and manual commits, and gated again as a
+group (runtime tests ok, four projects MATCH). Measurements are the agents' per-pass tracer A/B
+(ABBA, under a lock so that no two timings overlapped) and the milestone runs on this branch.
+
+| group (branch) | steps | measured |
+|---|---|---|
+| dispatch (r2-dispatch2) | tool `vdispatch -sub`: a method only part of a hierarchy has is in the root's interface (140 sites); `-enums`: enums with constant bodies dispatch through their own interface (87 sites). No dispatch through an anonymous-interface assertion is left | dispatch microbenchmark: itab call 2.7-3.0ns, anonymous assertion 4.1-5.3ns |
+| erased collections (r3-erased) | runtime: typed maps/sets of keys with equals hash as HashMap does; deques as typed lists; tools `colls` (list, map, set, new deque kind) and `native` (list, set) re-run: erased constructors 456 -> 278 | milestone step -0.3% (within noise) |
+| enums (r3-enums) | tool `enums`: 192 of 228 enums are uint8 types (0 = null), fields as tables; null-safe `ordinal()`/`name()` (51b6058, f5b5ffe: ordinal is value-1, no table load) | milestone step -1.0% (4 of 4 rounds faster); ordinal -0.45% (6 of 6) |
+| node properties | the prototype 1cdb142 reverted (failure-path order deviation); its Java prep form (main-r2-nodeprops, prep 04c) slows pre-flip Java by 1.7% (bundle) and 1.9% (typed-full), so it is not adopted | revert +1.6% on typed-full |
+| immutable builders (r2-immbuild) | runtime: sliceImm_ without a TList, Guava-like builder growth; tool `immbuild` (51 builders, 42 copyOf/of sites) | milestone -0.9% (3 of 4); typed-full objects -2.5% |
+| data flow (r2-dataflow) | runtime: Comparator combinators as comparator types, PriorityQueue int-key fast path; manual: CFG priority on the node directly, pointer-keyed seen set | 64-node heap round 14.4 -> 4.8us |
+| scopes (r2-refcoll) | runtime `scopeVars_` (declaration-ordered, LinkedHashMap semantics); manual: hash a name once per lookup chain, implicit vars as an array by ordinal, block and scope stacks typed | milestone -2.0% (4 of 4); objects -4.0% |
+| boxing (r3-boxing) | tools `objslots`, `charseq`, `strkeys`; runtime and manual: PMap/HamtPMap Go generic | objects -1.2% |
+| misc (r3-misc) | tool `funcparams` extended (fields, interface groups, Guava predicates; `rw.SaveChecked`); tool `eqhash` (equals/hashCode decided from static types); tool `sbuild` (append-only StringBuilders as strings.Builder); manual: compiler "thread" runs its task directly | objects -1.3% |
+| types (r5-types) | tool `selfeq` (exact-object check as a type assertion, no efaceeq call; 1,494 sites); runtime: Node keys first in htable_, string-key TreeMap key slice; manual: Node.jstypeOrColor holds the *JSType (7 sites) | checkTypes -10.7%, typesToColors -10.3%, all passes -2.4% |
+| code generation (r5-codegen) | tool `strunits` (loops over a string's UTF-16 units, 20 loops); runtime: ImmutableSet.copyOf(EnumSet) stays an enum set, asciiCharAt_ | time after the passes 2.0s -> 1.6s (Java 1.5s) |
+| flow-sensitive inlining (r5-fsiv) | runtime: comparingInt_f is an int-key comparator; tool `arraycopy` covers Arrays.copyOf; manual: work-queue marker in the graph node, NodeTraversal's own scope-stack room, astPosition a Go map | flowSensitiveInlineVariables -7.4%, deadAssignmentsElimination -8.8%, inferTypes -4.3% |
+| inlining / purity (r5-inlvar) | runtime: typed-map iteration starts at its first live entry (LinkedHashSet work queues); manual: Node's property-list head in a column of its own (47 accesses, one pattern) | markPureFunctions 1180 -> 785ms (Java 670); passes total -2.6% |
+
+Not kept: `varMap_.slot` for computeIfAbsent in addReference (within noise, possibly slower).
+

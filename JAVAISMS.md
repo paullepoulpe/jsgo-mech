@@ -49,3 +49,28 @@ By measured cost and number of sites:
 4. Generics instead of erasure (j2go), which removes most of the boxing and casts that remain.
 5. Node boolean properties as bits (pre-flip Java step, then a j2go layout rule).
 6. Enums as integers (j2go); Preconditions without boxing (post-flip tool).
+
+## Status on postflip5 (final)
+
+Census of g_*.go at the postflip5 tip against postflip4, and the post-flip step that handles each
+Java-ism (what is left is listed with its reason in the step's commit message):
+
+| Java-ism | postflip4 | postflip5 | step(s) |
+|---|---:|---:|---|
+| dispatch through `self_` with an anonymous-interface assertion | 1,806 | 0 | `dispatch` (step 6), `vdispatch -retype/-sub/-enums`, `selfeq` |
+| anonymous-interface assertions (all) | 2,135 | 302 | the above; `casts` (small hierarchies); the rest are casts over the JSType/ObjectType hierarchies, where a type switch measured no faster |
+| erased Java collection constructors | 456 | 278 | `colls` (list/map/set/deque), `native`; left: values boxed into Object fields cast back elsewhere, raw declarations, TreeSet/TreeMap, BitSet (already a word array) |
+| typed TList/TMap/TSet | 480 | 401 | `native` (to []T / Go maps where nothing shares a list while it changes and nothing observes a map's order) |
+| Guava immutables | 876 | 748 | `native -kind imm`, `immbuild`; left: immutables used as collections or compared by value |
+| iterator for-each | 1,360 | 1,137 | `native` (range), runtime foreach_ over slices without iterator objects |
+| boxing into any | 14,342 | 10,150 | `generics` (Optional[T]), `arraycopy`, `precond`, `objslots`, `charseq`, `strkeys`, PMap[K,V], `enums` (an integer enum boxes without allocating) |
+| class casts / instanceof | 3,417 / 408 | 3,163 / 398 | `casts`; most remaining casts are concrete assertions already (j2go's cast_[*X]) |
+| lambda objects | 1,110 | 417 | `lambdas` (non-capturing made once), `funcparams` (Go func values) |
+| Optional | 1,858 | 103 | prep step 10, step 7, `generics` |
+| equals/hashCode protocol | 909 | 633 | `eqhash`; left: values of interface type (immutables, Optional), floats |
+| enums as objects | 205 structs embed Enum | 13 | `enums` (uint8 types); left: enums whose constants have bodies, and runtime enums |
+| StringBuilder | 426 | 283 | `sbuild`; left: builders passed on or using charAt/setLength/insert |
+| thread/executor emulation | 78 | 47 | manual (runInCompilerThread runs its task directly); left: names in stubs and two same-thread checks |
+| Preconditions with message arguments | 889 boxed per call | boxed only on failure | `precond` |
+| exceptions, String_* UTF-16 helpers, reflect, unsafe | | | not translation artefacts: jsgo has the same (panic/defer, UTF-16 semantics over WTF-8); reflect/unsafe hits are names, not uses |
+
