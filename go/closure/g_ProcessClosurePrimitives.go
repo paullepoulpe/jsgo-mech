@@ -222,7 +222,7 @@ func (this *ProcessClosurePrimitives) maybeProcessClassBaseCall(n Node) {
 }
 
 func (this *ProcessClosurePrimitives) rewriteBaseCallInConstructor(enclosingQname string, baseContainer OptionalOf[string], n Node, enclosingFnNameNode Node) {
-	if !optequalsOn_(Optional_of(strobj_(enclosingQname)), optErase_(baseContainer)) {
+	if !optOfEquals_(enclosingQname, baseContainer) {
 		if baseContainer.isPresent() && has_(this.knownClosureSubclasses, baseContainer.get()) {
 			this.reportBadBaseMethodUse(n, baseContainer, ("Must be used within " + sstr_(baseContainer.orElse("null")) + " methods"))
 		}

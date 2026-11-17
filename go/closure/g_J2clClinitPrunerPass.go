@@ -388,7 +388,7 @@ func (this *J2clClinitPrunerPass_EmptyClinitPruner) isAssignToEmptyFn(node Node,
 		panic(new_IllegalStateException_String(objstr_(lhs.box_())).self())
 	}
 	var rhs Node = node.getFirstChild().getLastChild()
-	return (NodeUtil_isEmptyFunctionExpression(rhs) && optequalsOn_(optErase_(NodeUtil_getBestLValueName(lhs)), Optional_of(strobj_(enclosingFnName))))
+	return (NodeUtil_isEmptyFunctionExpression(rhs) && optEqualsOf_(NodeUtil_getBestLValueName(lhs), enclosingFnName))
 }
 
 type J2clClinitPrunerPass_HierarchicalSet struct {

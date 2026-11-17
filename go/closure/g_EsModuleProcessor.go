@@ -369,7 +369,7 @@ func (this *EsModuleProcessor_UnresolvedEsModule) resolve_2_impl(moduleRequestRe
 		var localNameToLocalExport *TMap[string, *Export] = newTMap_(tc_string, tc_p_Export)
 		for _, e := range this.localExports {
 			localNameToLocalExport.put(e.localName().orElse(nullstr_), e)
-			if !optequalsOn_(Optional_of(strobj_(Export_DEFAULT_EXPORT_NAME)), optErase_(e.localName())) {
+			if !optOfEquals_(Export_DEFAULT_EXPORT_NAME, e.localName()) {
 				var b *ResolveExportResult = this.resolveExport(moduleRequestResolver, e.exportName())
 				if !b.resolved() {
 					panic(new_IllegalStateException_String("Cannot have invalid missing own export!").self())
@@ -547,7 +547,7 @@ func (this *EsModuleProcessor_UnresolvedEsModule) resolveExport_4(moduleRequestR
 			}
 		}
 	}
-	if optequalsOn_(Optional_of(strobj_(Export_DEFAULT)), optErase_(exportName)) {
+	if optOfEquals_(Export_DEFAULT, exportName) {
 		panic(new_IllegalStateException_String("Default export cannot come from export *.").self())
 	}
 	if has_(exportStarSet, this.as_UnresolvedModule()) {

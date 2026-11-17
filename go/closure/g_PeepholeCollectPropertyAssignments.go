@@ -234,7 +234,7 @@ func (this *PeepholeCollectPropertyAssignments) collectObjectProperty(objectLite
 			if currentProperty.isStringKey() || currentProperty.isMemberFunctionDef() {
 				var currentPropertyName string = currentProperty.getString()
 				var currentValue Node = currentProperty.getFirstChild()
-				if optequalsOn_(Optional_of(strobj_(currentPropertyName)), optErase_(propertyName)) {
+				if optOfEquals_(currentPropertyName, propertyName) {
 					existingProperty = currentProperty
 					var isCurrentValueSideEffect bool = NodeUtil_canBeSideEffected_Node(currentValue)
 					var isNewValueSideEffect bool = NodeUtil_canBeSideEffected_Node(rhs)
@@ -245,12 +245,12 @@ func (this *PeepholeCollectPropertyAssignments) collectObjectProperty(objectLite
 				}
 			} else if currentProperty.isGetterDef() || currentProperty.isSetterDef() {
 				var currentPropertyName string = currentProperty.getString()
-				if optequalsOn_(Optional_of(strobj_(currentPropertyName)), optErase_(propertyName)) {
+				if optOfEquals_(currentPropertyName, propertyName) {
 					return false
 				}
 			} else if currentProperty.isComputedProp() {
 				var keyNode Node = currentProperty.getFirstChild()
-				if !keyNode.isStringLit() || optequalsOn_(Optional_of(strobj_(keyNode.getString())), optErase_(propertyName)) {
+				if !keyNode.isStringLit() || optOfEquals_(keyNode.getString(), propertyName) {
 					return false
 				}
 			}
