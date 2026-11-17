@@ -643,7 +643,7 @@ func TypeValidator_formatFoundRequired(description string, found *JSType, requir
 }
 
 func (this *TypeValidator) getJSType(n Node) *JSType {
-	return to_JSType(Preconditions_checkNotNull_Object_String_Object(n.getJSType().self(), "%s has no JSType attached", n.box_()))
+	return Preconditions_checkNotNullT_String_Object(n.getJSType(), "%s has no JSType attached", n.box_())
 }
 
 func (this *TypeValidator) getNativeType(typeId JSTypeNative) *JSType {

@@ -2222,7 +2222,7 @@ func (this Node) jstypeOrColorObj_() any {
 }
 
 func (this Node) getJSTypeRequired() *JSType {
-	return to_JSType(Preconditions_checkNotNull_Object_String_Object(this.getJSType().self(), "no jstypeOrColor: %s", this.box_()))
+	return Preconditions_checkNotNullT_String_Object(this.getJSType(), "no jstypeOrColor: %s", this.box_())
 }
 
 func (this Node) setJSType(x *JSType) Node {

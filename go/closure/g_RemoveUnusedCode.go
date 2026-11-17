@@ -1443,8 +1443,8 @@ func (this *RemoveUnusedCode_RemovalLogRecord) zero_RemoveUnusedCode_RemovalLogR
 
 func (this *RemoveUnusedCode_RemovalLogRecord) init_RemoveUnusedCode_RemovalLogRecord_String_Supplier_Supplier(kind string, nameSupplier SupplierOf[string], functionNameSupplier SupplierOf[string]) {
 	this.kind_ = kind
-	this.nameSupplier = icast_Supplier(Preconditions_checkNotNull(any(nameSupplier)))
-	this.functionNameSupplier = icast_Supplier(Preconditions_checkNotNull(any(functionNameSupplier)))
+	this.nameSupplier = Preconditions_checkNotNullT(nameSupplier)
+	this.functionNameSupplier = Preconditions_checkNotNullT(functionNameSupplier)
 }
 
 func new_RemoveUnusedCode_RemovalLogRecord_String_Supplier_Supplier(kind string, nameSupplier SupplierOf[string], functionNameSupplier SupplierOf[string]) *RemoveUnusedCode_RemovalLogRecord {

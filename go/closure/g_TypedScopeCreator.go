@@ -164,8 +164,8 @@ func (this *TypedScopeCreator) createScopeInternal(root Node, typedParent *Typed
 	} else {
 		scopeBuilder = new_TypedScopeCreator_NormalScopeBuilder(this, newScope).up_TypedScopeCreator_AbstractScopeBuilder()
 		if root.isModuleBody() {
-			var inputId *InputId = cast_[*InputId](Preconditions_checkNotNull(obj_(NodeUtil_getInputId(root))))
-			var compilerInput *CompilerInput = cast_[*CompilerInput](Preconditions_checkNotNull(obj_(this.compiler_.getInput(inputId))))
+			var inputId *InputId = Preconditions_checkNotNullT(NodeUtil_getInputId(root))
+			var compilerInput *CompilerInput = Preconditions_checkNotNullT(this.compiler_.getInput(inputId))
 			compilerInput.setTypedScope(newScope)
 		}
 	}
@@ -2103,7 +2103,7 @@ func (this *TypedScopeCreator_AbstractScopeBuilder_SlotDefiner) forVariableName(
 }
 
 func (this *TypedScopeCreator_AbstractScopeBuilder_SlotDefiner) inScope(scope *TypedScope) *TypedScopeCreator_AbstractScopeBuilder_SlotDefiner {
-	this.scope_ = cast_[*TypedScope](Preconditions_checkNotNull(obj_(scope)))
+	this.scope_ = Preconditions_checkNotNullT(scope)
 	return this
 }
 

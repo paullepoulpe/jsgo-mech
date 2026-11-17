@@ -91,9 +91,9 @@ func (this *AbstractCommandLineRunner) init_AbstractCommandLineRunner_Output_Out
 func (this *AbstractCommandLineRunner) init_AbstractCommandLineRunner_Input_Output_Output(in *Io_Input, out *Output, err *Output) {
 	this.finit_AbstractCommandLineRunner()
 	this.config = new_AbstractCommandLineRunner_CommandLineConfig()
-	this.in = cast_[*Io_Input](Preconditions_checkNotNull(obj_(in)))
-	this.defaultJsOutput = cast_[*Output](Preconditions_checkNotNull(obj_(out)))
-	this.err = cast_[*Output](Preconditions_checkNotNull(obj_(err)))
+	this.in = Preconditions_checkNotNullT(in)
+	this.defaultJsOutput = Preconditions_checkNotNullT(out)
+	this.err = Preconditions_checkNotNullT(err)
 }
 
 func (this *AbstractCommandLineRunner) enableTestMode(externsSupplier func() any, inputsSupplier func() any, chunksSupplier func() any, exitCodeReceiver Function_baseOf[BoxedOf[int32], any]) {
@@ -106,7 +106,7 @@ func (this *AbstractCommandLineRunner) enableTestMode(externsSupplier func() any
 }
 
 func (this *AbstractCommandLineRunner) setExitCodeReceiver(newExitCodeReceiver Function_baseOf[BoxedOf[int32], any]) {
-	this.exitCodeReceiver = icast_Function_base(Preconditions_checkNotNull(any(newExitCodeReceiver)))
+	this.exitCodeReceiver = Preconditions_checkNotNullT(newExitCodeReceiver)
 }
 
 func (this *AbstractCommandLineRunner) isInTestMode() bool {

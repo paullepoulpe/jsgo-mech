@@ -47,7 +47,7 @@ func (this *CompilerBasedTransformer) self() any {
 }
 
 func (this *CompilerBasedTransformer) init_CompilerBasedTransformer(compilerSupplier *CompilerBasedTransformer_CompilerSupplier) {
-	this.compilerSupplierField = to_CompilerBasedTransformer_CompilerSupplier(Preconditions_checkNotNull(compilerSupplier.self()))
+	this.compilerSupplierField = Preconditions_checkNotNullT(compilerSupplier)
 }
 
 func (this *CompilerBasedTransformer) transform(input *Source) *Source {
@@ -249,7 +249,7 @@ func (this *CompilerBasedTransformer_CompileResult) zero_CompilerBasedTransforme
 
 func (this *CompilerBasedTransformer_CompileResult) init_CompilerBasedTransformer_CompileResult(source string, errors ImmutableListOf[*JSError], transformed bool, sourceMap string) {
 	this.source = source
-	this.errors_ = sliceImm_(tc_p_JSError, cast_[*ImmutableList](Preconditions_checkNotNull(obj_(errors))))
+	this.errors_ = sliceImm_(tc_p_JSError, Preconditions_checkNotNullT(errors))
 	this.transformed_ = transformed
 	this.sourceMap_ = sourceMap
 }

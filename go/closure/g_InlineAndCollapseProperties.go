@@ -906,7 +906,7 @@ func (this *InlineAndCollapseProperties_CollapseProperties) process_2(externs No
 	if (this.outer_.propertyCollapseLevel == CompilerOptions_PropertyCollapseLevel_MODULE_EXPORT) || (this.outer_.chunkOutputType == CompilerOptions_ChunkOutputType_ES_MODULES) {
 		NodeTraversal_traverse(this.outer_.compiler_, root, new_InlineAndCollapseProperties_CollapseProperties_FindDynamicallyImportedModules(this, this.outer_.haveModulesBeenRewritten, this.outer_.moduleResolutionMode))
 	}
-	this.nameMap = cast_[*GlobalNamespace](Preconditions_checkNotNull_Object_Object(obj_(this.outer_.namespace_), strobj_("namespace was not initialized"))).getNameIndex()
+	this.nameMap = Preconditions_checkNotNullT_Object(this.outer_.namespace_, strobj_("namespace was not initialized")).getNameIndex()
 	var globalNames *TList[*GlobalNamespace_Name] = this.outer_.namespace_.getNameForest()
 	var escaped ImmutableSetOf[*GlobalNamespace_Name] = this.checkNamespaces()
 	it_1 := globalNames.each()

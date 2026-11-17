@@ -58,7 +58,7 @@ func (this *PropertyClustering) isInvalidated() bool {
 }
 
 func (this *PropertyClustering) invalidate(invalidation *Invalidation) {
-	this.lastInvalidation = to_Invalidation(Preconditions_checkNotNull(invalidation.self()))
+	this.lastInvalidation = Preconditions_checkNotNullT(invalidation)
 }
 
 func (this *PropertyClustering) getLastInvalidation() *Invalidation {

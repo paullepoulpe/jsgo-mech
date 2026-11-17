@@ -354,7 +354,7 @@ func (this *AstValidator) validateCallType(callNode Node) {
 	switch this.typeValidationMode {
 	case AstValidator_TypeInfoValidation_JSTYPE:
 		var callee Node = callNode.getFirstChild()
-		var calleeType *JSType = to_JSType(Preconditions_checkNotNull_Object_String_Object(callee.getJSType().self(), "Callee of\n\n%s\nhas no type.", strobj_(callNode.toStringTree())))
+		var calleeType *JSType = Preconditions_checkNotNullT_String_Object(callee.getJSType(), "Callee of\n\n%s\nhas no type.", strobj_(callNode.toStringTree()))
 		if calleeType.isFunctionType() {
 			var calleeFunctionType *FunctionType = calleeType.toMaybeFunctionType()
 			var returnType *JSType = calleeFunctionType.getReturnType()

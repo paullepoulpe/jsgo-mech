@@ -213,7 +213,7 @@ func (this *JSTypeReconserializer) reconcileObjectTypes(seen *JSTypeReconseriali
 	it_1 := eachOf_(&seen.jstypes)
 	for it_1.next() {
 		var type_ *JSType = it_1.v
-		var objType *ObjectType = to_ObjectType(Preconditions_checkNotNull_Object_Object(type_.toMaybeObjectType().self(), type_.self()))
+		var objType *ObjectType = Preconditions_checkNotNullT_Object(type_.toMaybeObjectType(), type_.self())
 		if objType.isFunctionType() {
 			var fnType *FunctionType = objType.toMaybeFunctionType()
 			if fnType.hasInstanceType() && (fnType.getInstanceType() != nil) {

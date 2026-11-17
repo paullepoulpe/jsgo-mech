@@ -106,7 +106,7 @@ func (this *NodeIterators_LocalVarMotion) zero_NodeIterators_LocalVarMotion() {
 func (this *NodeIterators_LocalVarMotion) init_NodeIterators_LocalVarMotion(compiler *AbstractCompiler, nameNode Node, iterator *NodeIterators_FunctionlessLocalScope) {
 	Preconditions_checkArgument(nameNode.isName())
 	var valueNode Node = NodeUtil_getAssignedValue(nameNode)
-	this.compiler_ = to_AbstractCompiler(Preconditions_checkNotNull(compiler.self()))
+	this.compiler_ = Preconditions_checkNotNullT(compiler)
 	this.varName_ = nameNode.getString()
 	this.valueHasSideEffects = ((valueNode != 0) && compiler.getAstAnalyzer().mayHaveSideEffects(valueNode))
 	this.iterator_ = iterator

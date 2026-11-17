@@ -226,7 +226,7 @@ func ModuleImportResolver_getModuleFromScopeRoot(moduleMap *ModuleMap, inputProv
 		return moduleMap.getClosureModule(namespace)
 	} else if moduleBody.isModuleBody() {
 		var scriptNode Node = moduleBody.getParent()
-		var input *CompilerInput = cast_[*CompilerInput](Preconditions_checkNotNull(obj_(inputProvider.getInput(scriptNode.getInputId()))))
+		var input *CompilerInput = Preconditions_checkNotNullT(inputProvider.getInput(scriptNode.getInputId()))
 		var module *Module = moduleMap.getModule(input.getPath())
 		Preconditions_checkState_boolean_Object(module.metadata().isEs6Module(), strobj_("Typechecking of non-goog- and non-es-modules not supported"))
 		return module

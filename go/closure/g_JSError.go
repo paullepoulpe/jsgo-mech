@@ -292,12 +292,12 @@ func (this *JSError_Builder) setNodeRange(start Node, end Node) *JSError_Builder
 }
 
 func (this *JSError_Builder) setLevel(level CheckLevel) *JSError_Builder {
-	this.level_ = cast_[CheckLevel](Preconditions_checkNotNull(obj_(level)))
+	this.level_ = Preconditions_checkNotNullT(level)
 	return this
 }
 
 func (this *JSError_Builder) setRequirement(requirement *Requirement) *JSError_Builder {
-	this.requirement_ = cast_[*Requirement](Preconditions_checkNotNull(obj_(requirement)))
+	this.requirement_ = Preconditions_checkNotNullT(requirement)
 	return this
 }
 

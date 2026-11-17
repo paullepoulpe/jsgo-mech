@@ -1113,7 +1113,7 @@ func (this *Compiler) getCurrentJsSource() string {
 		}
 	}
 	if len(chunkNameRegexList) != 0 {
-		var chunks IterableOf[*JSChunk] = icast_Iterable(Preconditions_checkNotNull(any(this.getChunks())))
+		var chunks IterableOf[*JSChunk] = Preconditions_checkNotNullT(this.getChunks())
 		var unmatchedChunkNames []string = []string{}
 		var lt *Compiler_ChunkGraphAwareLicenseTracker = new_Compiler_ChunkGraphAwareLicenseTracker(this.up_AbstractCompiler())
 		it_6 := foreach_(any(chunks))
@@ -1337,7 +1337,7 @@ func (this *Compiler) getTypeRegistry_impl() *JSTypeRegistry {
 }
 
 func (this *Compiler) getColorRegistry_impl() *ColorRegistry {
-	return cast_[*ColorRegistry](Preconditions_checkNotNull_Object_Object(obj_(this.colorRegistry), strobj_("Color registry has not been initialized yet")))
+	return Preconditions_checkNotNullT_Object(this.colorRegistry, strobj_("Color registry has not been initialized yet"))
 }
 
 func (this *Compiler) setColorRegistry_impl(colorRegistry *ColorRegistry) {
@@ -2785,7 +2785,7 @@ func (this *Compiler) getAccessorSummary_impl() *AccessorSummary {
 }
 
 func (this *Compiler) setAccessorSummary_impl(summary *AccessorSummary) {
-	this.accessorSummary = cast_[*AccessorSummary](Preconditions_checkNotNull(obj_(summary)))
+	this.accessorSummary = Preconditions_checkNotNullT(summary)
 }
 
 func (this *Compiler) loadResourceContents(resourceName string, path string) Node {

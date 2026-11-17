@@ -1084,7 +1084,7 @@ func (this *ClosureRewriteModule) declareGlobalVariable(n Node, t *NodeTraversal
 			return "<unknown>"
 		}()})
 	} else {
-		var type_ *JSType = to_JSType(Preconditions_checkNotNull(n.getJSType().self()))
+		var type_ *JSType = Preconditions_checkNotNullT(n.getJSType())
 		this.globalTypedScope.declare(name, n, type_, t.getInput(), false)
 	}
 }

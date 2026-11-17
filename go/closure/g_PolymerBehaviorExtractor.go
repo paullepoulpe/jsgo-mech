@@ -93,7 +93,7 @@ func (this *PolymerBehaviorExtractor) resolveBehaviorName(name OptionalOf[string
 		return this.globalResolveMemoized[name.get()]
 	}()
 	if memoized == nil {
-		memoized = cast_[*PolymerBehaviorExtractor_ResolveBehaviorNameResult](Preconditions_checkNotNull(obj_(this.resolveBehaviorNameInternal(name.get(), moduleMetadata))))
+		memoized = Preconditions_checkNotNullT(this.resolveBehaviorNameInternal(name.get(), moduleMetadata))
 		if moduleMetadata != nil {
 			this.resolveMemoized.put(strobj_(name.get()), obj_(moduleMetadata), obj_(memoized))
 		} else {

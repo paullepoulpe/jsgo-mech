@@ -169,7 +169,7 @@ func LowestCommonAncestorFinder_Color_clinit() {
 			}
 		}()
 	}
-	LowestCommonAncestorFinder_Color_BLANK = cast_[*LowestCommonAncestorFinder_Color](Preconditions_checkNotNull(obj_(LowestCommonAncestorFinder_Color_COMMON_COLOR_CACHE[0])))
+	LowestCommonAncestorFinder_Color_BLANK = Preconditions_checkNotNullT(LowestCommonAncestorFinder_Color_COMMON_COLOR_CACHE[0])
 	LowestCommonAncestorFinder_Color_NOT_LOWEST = new_LowestCommonAncestorFinder_Color(-1)
 
 }

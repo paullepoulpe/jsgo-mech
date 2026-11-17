@@ -32,14 +32,14 @@ func new_SubtypeChecker(registry *JSTypeRegistry) *SubtypeChecker {
 func (this *SubtypeChecker) setSupertype(value *JSType) *SubtypeChecker {
 	this.checkHasNotRun()
 	Preconditions_checkState((this.initialSupertype == nil))
-	this.initialSupertype = to_JSType(Preconditions_checkNotNull(value.self()))
+	this.initialSupertype = Preconditions_checkNotNullT(value)
 	return this
 }
 
 func (this *SubtypeChecker) setSubtype(value *JSType) *SubtypeChecker {
 	this.checkHasNotRun()
 	Preconditions_checkState((this.initialSubtype == nil))
-	this.initialSubtype = to_JSType(Preconditions_checkNotNull(value.self()))
+	this.initialSubtype = Preconditions_checkNotNullT(value)
 	return this
 }
 
@@ -53,7 +53,7 @@ func (this *SubtypeChecker) setUsingStructuralSubtyping(value bool) *SubtypeChec
 func (this *SubtypeChecker) setSubtypingMode(value JSType_SubtypingMode) *SubtypeChecker {
 	this.checkHasNotRun()
 	Preconditions_checkState((this.subtypingMode == 0))
-	this.subtypingMode = cast_[JSType_SubtypingMode](Preconditions_checkNotNull(obj_(value)))
+	this.subtypingMode = Preconditions_checkNotNullT(value)
 	return this
 }
 

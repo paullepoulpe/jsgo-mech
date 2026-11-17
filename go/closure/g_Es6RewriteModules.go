@@ -469,7 +469,7 @@ func (this *Es6RewriteModules) declareGlobalVariable(n Node, t *NodeTraversal) {
 	if this.globalTypedScope.hasOwnSlot(name) {
 		t.report(t.getCurrentScript(), ClosureRewriteModule_ILLEGAL_MODULE_RENAMING_CONFLICT, []string{name})
 	} else {
-		var type_ *JSType = to_JSType(Preconditions_checkNotNull(n.getJSType().self()))
+		var type_ *JSType = Preconditions_checkNotNullT(n.getJSType())
 		this.globalTypedScope.declare(name, n, type_, t.getInput(), false)
 	}
 }

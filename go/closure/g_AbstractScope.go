@@ -69,7 +69,7 @@ func (this *AbstractScope) typed_impl() *TypedScope {
 }
 
 func (this *AbstractScope) contains(other *AbstractScope) bool {
-	var s *AbstractScope = to_AbstractScope(Preconditions_checkNotNull(other.self()))
+	var s *AbstractScope = Preconditions_checkNotNullT(other)
 	for s != nil {
 		if s == this {
 			return true

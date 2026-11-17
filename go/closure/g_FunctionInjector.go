@@ -23,11 +23,11 @@ func (this *FunctionInjector) finit_FunctionInjector() {
 
 func (this *FunctionInjector) init_FunctionInjector(builder *FunctionInjector_Builder) {
 	this.finit_FunctionInjector()
-	this.compiler_ = to_AbstractCompiler(Preconditions_checkNotNull(builder.compiler_.self()))
-	this.safeNameIdSupplier_ = icast_Supplier(Preconditions_checkNotNull(any(builder.safeNameIdSupplierField)))
+	this.compiler_ = Preconditions_checkNotNullT(builder.compiler_)
+	this.safeNameIdSupplier_ = Preconditions_checkNotNullT(builder.safeNameIdSupplierField)
 	this.assumeStrictThis_ = builder.assumeStrictThisField
 	this.allowDecomposition_ = builder.allowDecompositionField
-	this.functionArgumentInjector_ = cast_[*FunctionArgumentInjector](Preconditions_checkNotNull(obj_(builder.functionArgumentInjectorField)))
+	this.functionArgumentInjector_ = Preconditions_checkNotNullT(builder.functionArgumentInjectorField)
 }
 
 func new_FunctionInjector(builder *FunctionInjector_Builder) *FunctionInjector {
@@ -556,7 +556,7 @@ func (this *FunctionInjector_Builder) finit_FunctionInjector_Builder() {
 
 func (this *FunctionInjector_Builder) init_FunctionInjector_Builder(compiler *AbstractCompiler) {
 	this.finit_FunctionInjector_Builder()
-	this.compiler_ = to_AbstractCompiler(Preconditions_checkNotNull(compiler.self()))
+	this.compiler_ = Preconditions_checkNotNullT(compiler)
 }
 
 func new_FunctionInjector_Builder(compiler *AbstractCompiler) *FunctionInjector_Builder {
@@ -566,7 +566,7 @@ func new_FunctionInjector_Builder(compiler *AbstractCompiler) *FunctionInjector_
 }
 
 func (this *FunctionInjector_Builder) safeNameIdSupplier(safeNameIdSupplier SupplierOf[string]) *FunctionInjector_Builder {
-	this.safeNameIdSupplierField = icast_Supplier(Preconditions_checkNotNull(any(safeNameIdSupplier)))
+	this.safeNameIdSupplierField = Preconditions_checkNotNullT(safeNameIdSupplier)
 	return this
 }
 
@@ -581,7 +581,7 @@ func (this *FunctionInjector_Builder) assumeStrictThis(assumeStrictThis bool) *F
 }
 
 func (this *FunctionInjector_Builder) functionArgumentInjector(functionArgumentInjector *FunctionArgumentInjector) *FunctionInjector_Builder {
-	this.functionArgumentInjectorField = cast_[*FunctionArgumentInjector](Preconditions_checkNotNull(obj_(functionArgumentInjector)))
+	this.functionArgumentInjectorField = Preconditions_checkNotNullT(functionArgumentInjector)
 	return this
 }
 
@@ -590,7 +590,7 @@ func (this *FunctionInjector_Builder) build() *FunctionInjector {
 		this.safeNameIdSupplierField = this.compiler_.getUniqueNameIdSupplier()
 	}
 	if this.functionArgumentInjectorField == nil {
-		this.functionArgumentInjectorField = new_FunctionArgumentInjector(cast_[*AstAnalyzer](Preconditions_checkNotNull(obj_(this.compiler_.getAstAnalyzer()))))
+		this.functionArgumentInjectorField = new_FunctionArgumentInjector(Preconditions_checkNotNullT(this.compiler_.getAstAnalyzer()))
 	}
 	return new_FunctionInjector(this)
 }

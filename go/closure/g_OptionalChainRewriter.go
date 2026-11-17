@@ -19,7 +19,7 @@ func (this *OptionalChainRewriter) init_OptionalChainRewriter(builder *OptionalC
 	}
 	this.compiler_ = builder.compiler_
 	this.astFactory_ = builder.astFactory_
-	this.tmpVarNameCreator = icast_OptionalChainRewriter_TmpVarNameCreator(Preconditions_checkNotNull(any(builder.tmpVarNameCreator)))
+	this.tmpVarNameCreator = Preconditions_checkNotNullT(builder.tmpVarNameCreator)
 	this.scope_ = builder.scope_
 	this.wholeChain = wholeChain
 	this.chainParent = Node_of_(Preconditions_checkNotNull_Object_Object(wholeChain.getParent().box_(), wholeChain.box_()))
@@ -165,7 +165,7 @@ type OptionalChainRewriter_Builder struct {
 }
 
 func (this *OptionalChainRewriter_Builder) init_OptionalChainRewriter_Builder(compiler *AbstractCompiler) {
-	this.compiler_ = to_AbstractCompiler(Preconditions_checkNotNull(compiler.self()))
+	this.compiler_ = Preconditions_checkNotNullT(compiler)
 	this.astFactory_ = compiler.createAstFactory()
 }
 
@@ -176,12 +176,12 @@ func new_OptionalChainRewriter_Builder(compiler *AbstractCompiler) *OptionalChai
 }
 
 func (this *OptionalChainRewriter_Builder) setTmpVarNameCreator(tmpVarNameCreator OptionalChainRewriter_TmpVarNameCreator) *OptionalChainRewriter_Builder {
-	this.tmpVarNameCreator = icast_OptionalChainRewriter_TmpVarNameCreator(Preconditions_checkNotNull(any(tmpVarNameCreator)))
+	this.tmpVarNameCreator = Preconditions_checkNotNullT(tmpVarNameCreator)
 	return this
 }
 
 func (this *OptionalChainRewriter_Builder) setScope(scope *Scope) *OptionalChainRewriter_Builder {
-	this.scope_ = cast_[*Scope](Preconditions_checkNotNull(obj_(scope)))
+	this.scope_ = Preconditions_checkNotNullT(scope)
 	return this
 }
 

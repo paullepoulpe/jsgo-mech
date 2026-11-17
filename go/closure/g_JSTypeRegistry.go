@@ -121,67 +121,67 @@ func (this *JSTypeRegistry) getObjectIndexKey() *TemplateType {
 }
 
 func (this *JSTypeRegistry) getIterableValueTemplate() *TemplateType {
-	return cast_[*TemplateType](Preconditions_checkNotNull(obj_(this.iterableValueTemplate)))
+	return Preconditions_checkNotNullT(this.iterableValueTemplate)
 }
 
 func (this *JSTypeRegistry) getIterableReturnTemplate() *TemplateType {
-	return cast_[*TemplateType](Preconditions_checkNotNull(obj_(this.iterableReturnTemplate)))
+	return Preconditions_checkNotNullT(this.iterableReturnTemplate)
 }
 
 func (this *JSTypeRegistry) getIteratorIterableValueTemplate() *TemplateType {
-	return cast_[*TemplateType](Preconditions_checkNotNull(obj_(this.iteratorIterableValueTemplate)))
+	return Preconditions_checkNotNullT(this.iteratorIterableValueTemplate)
 }
 
 func (this *JSTypeRegistry) getIteratorIterableReturnTemplate() *TemplateType {
-	return cast_[*TemplateType](Preconditions_checkNotNull(obj_(this.iteratorIterableReturnTemplate)))
+	return Preconditions_checkNotNullT(this.iteratorIterableReturnTemplate)
 }
 
 func (this *JSTypeRegistry) getIIterableResultValueTemplate() *TemplateType {
-	return cast_[*TemplateType](Preconditions_checkNotNull(obj_(this.iiterableResultValueTemplate)))
+	return Preconditions_checkNotNullT(this.iiterableResultValueTemplate)
 }
 
 func (this *JSTypeRegistry) getIteratorLikeValueTemplate() *TemplateType {
-	return cast_[*TemplateType](Preconditions_checkNotNull(obj_(this.iteratorLikeValueTemplate)))
+	return Preconditions_checkNotNullT(this.iteratorLikeValueTemplate)
 }
 
 func (this *JSTypeRegistry) getIteratorLikeReturnTemplate() *TemplateType {
-	return cast_[*TemplateType](Preconditions_checkNotNull(obj_(this.iteratorLikeReturnTemplate)))
+	return Preconditions_checkNotNullT(this.iteratorLikeReturnTemplate)
 }
 
 func (this *JSTypeRegistry) getIteratorValueTemplate() *TemplateType {
-	return cast_[*TemplateType](Preconditions_checkNotNull(obj_(this.iteratorValueTemplate)))
+	return Preconditions_checkNotNullT(this.iteratorValueTemplate)
 }
 
 func (this *JSTypeRegistry) getIteratorReturnTemplate() *TemplateType {
-	return cast_[*TemplateType](Preconditions_checkNotNull(obj_(this.iteratorReturnTemplate)))
+	return Preconditions_checkNotNullT(this.iteratorReturnTemplate)
 }
 
 func (this *JSTypeRegistry) getGeneratorValueTemplate() *TemplateType {
-	return cast_[*TemplateType](Preconditions_checkNotNull(obj_(this.generatorValueTemplate)))
+	return Preconditions_checkNotNullT(this.generatorValueTemplate)
 }
 
 func (this *JSTypeRegistry) getGeneratorReturnTemplate() *TemplateType {
-	return cast_[*TemplateType](Preconditions_checkNotNull(obj_(this.generatorReturnTemplate)))
+	return Preconditions_checkNotNullT(this.generatorReturnTemplate)
 }
 
 func (this *JSTypeRegistry) getAsyncIterableValueTemplate() *TemplateType {
-	return cast_[*TemplateType](Preconditions_checkNotNull(obj_(this.asyncIterableValueTemplate)))
+	return Preconditions_checkNotNullT(this.asyncIterableValueTemplate)
 }
 
 func (this *JSTypeRegistry) getAsyncIterableReturnTemplate() *TemplateType {
-	return cast_[*TemplateType](Preconditions_checkNotNull(obj_(this.asyncIterableReturnTemplate)))
+	return Preconditions_checkNotNullT(this.asyncIterableReturnTemplate)
 }
 
 func (this *JSTypeRegistry) getAsyncIteratorValueTemplate() *TemplateType {
-	return cast_[*TemplateType](Preconditions_checkNotNull(obj_(this.asyncIteratorValueTemplate)))
+	return Preconditions_checkNotNullT(this.asyncIteratorValueTemplate)
 }
 
 func (this *JSTypeRegistry) getAsyncIteratorReturnTemplate() *TemplateType {
-	return cast_[*TemplateType](Preconditions_checkNotNull(obj_(this.asyncIteratorReturnTemplate)))
+	return Preconditions_checkNotNullT(this.asyncIteratorReturnTemplate)
 }
 
 func (this *JSTypeRegistry) getIThenableTemplate() *TemplateType {
-	return cast_[*TemplateType](Preconditions_checkNotNull(obj_(this.iThenableTemplateKey)))
+	return Preconditions_checkNotNullT(this.iThenableTemplateKey)
 }
 
 func (this *JSTypeRegistry) maybeGetTemplateTypesOfBuiltin(scope StaticScope, fnName string) ImmutableListOf[*TemplateType] {
