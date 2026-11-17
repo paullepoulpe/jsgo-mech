@@ -869,7 +869,7 @@ func DToA_numberToString(value float64) string {
 	}
 	var buffer *StringBuilder = new_StringBuilder()
 	DToA_JS_dtostr(buffer, DToA_DTOSTR_STANDARD, 0, value)
-	return Object_toString(obj_(buffer))
+	return tostrNN_(buffer)
 }
 
 const DToA_DTOSTR_STANDARD int32 = 0

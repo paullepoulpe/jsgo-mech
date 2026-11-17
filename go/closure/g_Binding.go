@@ -113,7 +113,7 @@ func (this *Binding) hashCode() int32 {
 }
 
 func (this *Binding) toString() string {
-	return "Binding[" + "metadata=" + objstr_(obj_(this.metadata_)) + ", sourceNode=" + objstr_(this.sourceNode_.box_()) + ", originatingExport=" + objstr_(obj_(this.originatingExport_)) + ", isModuleNamespace=" + objstr_(any(bool(this.isModuleNamespace_))) + ", closureNamespace=" + objstr_(obj_(optErase_(this.closureNamespace_))) + ", createdBy=" + objstr_(obj_(this.createdBy_)) + "]"
+	return "Binding[" + "metadata=" + tostr_(this.metadata_) + ", sourceNode=" + tostr_(this.sourceNode_) + ", originatingExport=" + tostr_(this.originatingExport_) + ", isModuleNamespace=" + boolstr_(bool(this.isModuleNamespace_)) + ", closureNamespace=" + tostr_(optErase_(this.closureNamespace_)) + ", createdBy=" + tostr_(this.createdBy_) + "]"
 }
 
 type Binding_CreatedBy uint8

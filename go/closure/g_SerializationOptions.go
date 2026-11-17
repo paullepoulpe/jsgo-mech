@@ -54,7 +54,7 @@ func (this *SerializationOptions) hashCode() int32 {
 }
 
 func (this *SerializationOptions) toString() string {
-	return "SerializationOptions[" + "includeDebugInfo=" + objstr_(any(bool(this.includeDebugInfo_))) + ", runValidation=" + objstr_(any(bool(this.runValidation_))) + ", runtimeLibraries=" + objstr_(obj_(this.runtimeLibraries_)) + "]"
+	return "SerializationOptions[" + "includeDebugInfo=" + boolstr_(bool(this.includeDebugInfo_)) + ", runValidation=" + boolstr_(bool(this.runValidation_)) + ", runtimeLibraries=" + tostr_(this.runtimeLibraries_) + "]"
 }
 
 type SerializationOptions_Builder struct {

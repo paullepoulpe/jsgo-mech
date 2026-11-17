@@ -57,7 +57,7 @@ func (this *SuggestedFix) toString() string {
 		sb.append("Replacements for file: ").append(str_(entry.getKey())).append("\n")
 		Joiner_on("\n\n").appendTo(sb, icast_Iterable(entry.getValue()))
 	}
-	return Object_toString(obj_(sb))
+	return tostrNN_(sb)
 }
 
 func SuggestedFix_getStartPositionForNodeConsideringComments(node Node) int32 {
@@ -295,7 +295,7 @@ func (this *SuggestedFix_Builder) rename_3(n Node, name string, replaceNameSubtr
 	case tokOrd1_STRING_KEY, tokOrd1_NAME:
 		range_ = n
 	default:
-		panic(new_UnsupportedOperationException_String(("Rename is not implemented for this node type: " + objstr_(n.box_()))).self())
+		panic(new_UnsupportedOperationException_String(("Rename is not implemented for this node type: " + tostr_(n))).self())
 	}
 	this.replacements.put_s(range_.getSourceFileName(), obj_(CodeReplacement_create_int_int_String(range_.getSourceOffset(), range_.getLength(), name)))
 	return this
@@ -739,5 +739,5 @@ func (this *SuggestedFix_MatchedNodeInfo) hashCode() int32 {
 }
 
 func (this *SuggestedFix_MatchedNodeInfo) toString() string {
-	return "MatchedNodeInfo[" + "sourceFilename=" + objstr_(strobj_(this.sourceFilename_)) + ", lineno=" + objstr_(any(int32(this.lineno_))) + ", charno=" + objstr_(any(int32(this.charno_))) + ", inClosurizedFile=" + objstr_(any(bool(this.inClosurizedFile_))) + "]"
+	return "MatchedNodeInfo[" + "sourceFilename=" + sstr_(this.sourceFilename_) + ", lineno=" + istr_(int64(int32(this.lineno_))) + ", charno=" + istr_(int64(int32(this.charno_))) + ", inClosurizedFile=" + boolstr_(bool(this.inClosurizedFile_)) + "]"
 }

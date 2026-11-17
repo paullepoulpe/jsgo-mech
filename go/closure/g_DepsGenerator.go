@@ -56,7 +56,7 @@ func (this *DepsGenerator) computeDependencyCalls() *Outcome_base {
 	}
 	var output *StringBuilder = new_StringBuilder()
 	this.writeDepsContent(depsFiles, jsFiles, output)
-	return Outcome_base_ok_Object(strobj_(Io_utf8String(Io_utf8Bytes(Object_toString(obj_(output))))))
+	return Outcome_base_ok_Object(strobj_(Io_utf8String(Io_utf8Bytes(tostrNN_(output)))))
 }
 
 func (this *DepsGenerator) cleanUpDuplicatedFiles(depsFiles MapOf[string, DependencyInfo], jsFiles MapOf[string, DependencyInfo]) {
@@ -141,7 +141,7 @@ func (this *DepsGenerator) validateDependencies(preparsedFileDependencies Iterab
 					}
 				case DependencyInfo_Require_Type_GOOG_REQUIRE_SYMBOL, DependencyInfo_Require_Type_PARSED_FROM_DEPS:
 				case DependencyInfo_Require_Type_COMMON_JS, DependencyInfo_Require_Type_COMPILER_CHUNK:
-					panic(new_IllegalStateException_String(("Unexpected import type: " + objstr_(obj_(require.getType())))).self())
+					panic(new_IllegalStateException_String(("Unexpected import type: " + tostr_(require.getType()))).self())
 				}
 			}
 		}

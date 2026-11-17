@@ -204,7 +204,7 @@ func JvmMetrics_normalizeTabularColonPos(string_ string) string {
 	for ; index < JvmMetrics_TABULAR_COLON_POS; index++ {
 		sb.insert(index, ' ')
 	}
-	return Object_toString(obj_(sb))
+	return tostrNN_(sb)
 }
 
 func JvmMetrics_formatBytes(numBytes int64) string {

@@ -458,7 +458,7 @@ func (this *PolyfillUsageFinder_PolyfillUsage) hashCode() int32 {
 }
 
 func (this *PolyfillUsageFinder_PolyfillUsage) toString() string {
-	return "PolyfillUsage[" + "polyfill=" + objstr_(obj_(this.polyfill_)) + ", node=" + objstr_(this.node_.box_()) + ", name=" + objstr_(strobj_(this.name_)) + ", isExplicitGlobal=" + objstr_(any(bool(this.isExplicitGlobal_))) + "]"
+	return "PolyfillUsage[" + "polyfill=" + objstr_(obj_(this.polyfill_)) + ", node=" + tostr_(this.node_) + ", name=" + sstr_(this.name_) + ", isExplicitGlobal=" + boolstr_(bool(this.isExplicitGlobal_)) + "]"
 }
 
 type PolyfillUsageFinder_Guard uint8

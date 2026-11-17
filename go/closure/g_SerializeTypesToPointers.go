@@ -258,7 +258,7 @@ func SerializeTypesToPointers_TypeMismatchJson_typePointerToId(poolOffset int32,
 		return ColorId_fromBytesByteString(typeProto.getObject().getUuid())
 	case TypeProto_KindCase_KIND_NOT_SET:
 	}
-	panic(new_AssertionError_Object(strobj_(("Unrecognized TypeProto " + objstr_(obj_(typeProto))))).self())
+	panic(new_AssertionError_Object(strobj_(("Unrecognized TypeProto " + tostr_(typeProto)))).self())
 }
 
 func (this *SerializeTypesToPointers_TypeMismatchJson) compareTo(x_ any) int32 {

@@ -309,5 +309,5 @@ func (this *PropertyMap_AllKeys) hashCode() int32 {
 }
 
 func (this *PropertyMap_AllKeys) toString() string {
-	return "AllKeys[" + "stringKeys=" + objstr_(obj_(this.stringKeys_)) + ", knownSymbolKeys=" + objstr_(any(this.knownSymbolKeys_.asSet())) + "]"
+	return "AllKeys[" + "stringKeys=" + tostr_(this.stringKeys_) + ", knownSymbolKeys=" + objstr_(any(this.knownSymbolKeys_.asSet())) + "]"
 }

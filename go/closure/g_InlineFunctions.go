@@ -1390,7 +1390,7 @@ func (this *InlineFunctions_ShouldRequireInlining) hashCode() int32 {
 }
 
 func (this *InlineFunctions_ShouldRequireInlining) toString() string {
-	return "ShouldRequireInlining[" + "shouldValidate=" + objstr_(any(bool(this.shouldValidate_))) + ", optMessage=" + objstr_(strobj_(this.optMessage_)) + "]"
+	return "ShouldRequireInlining[" + "shouldValidate=" + boolstr_(bool(this.shouldValidate_)) + ", optMessage=" + sstr_(this.optMessage_) + "]"
 }
 
 // visit: an object that is exactly a InlineFunctions_FindCandidateFunctions calls its visit_impl directly (post-flip); others dispatch.

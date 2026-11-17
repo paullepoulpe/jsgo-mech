@@ -252,7 +252,7 @@ func (this *Compiler) initOptions(options *CompilerOptions) {
 	}
 	this.preferRegexParserField = (this.preferRegexParserField || options.getDependencyOptions().shouldPrune())
 	if options.getMergedPrecompiledLibraries() && options.getDependencyOptions().needsManagement() {
-		panic(new_IllegalArgumentException_String(("Using precompiled libraries (i.e. TypedAST) is incompatible with flags that automatically order/prune dependencies: " + objstr_(obj_(options.getDependencyOptions())) + "")).self())
+		panic(new_IllegalArgumentException_String(("Using precompiled libraries (i.e. TypedAST) is incompatible with flags that automatically order/prune dependencies: " + tostr_(options.getDependencyOptions()) + "")).self())
 	}
 	if options.getMergedPrecompiledLibraries() && !options.getConformanceConfigs().isEmpty() {
 		var conformanceConfigFiles ImmutableSet_BuilderOf[string] = ImmutableSet_builder()
@@ -265,7 +265,7 @@ func (this *Compiler) initOptions(options *CompilerOptions) {
 				conformanceConfigFiles.addAll(Iterable(requirement.getConfigFileList()))
 			}
 		}
-		panic(new_IllegalArgumentException_String(("use_precompiled_libraries mode does not support passing JS conformance configs: this mode skips all check passes including conformance\nUnsupported conformance configs: " + objstr_(obj_(conformanceConfigFiles.build())))).self())
+		panic(new_IllegalArgumentException_String(("use_precompiled_libraries mode does not support passing JS conformance configs: this mode skips all check passes including conformance\nUnsupported conformance configs: " + tostr_(conformanceConfigFiles.build()))).self())
 	}
 	if options.shouldRunDeadAssignmentElimination() && !(options.shouldRemoveUnusedVariables() || options.shouldRemoveUnusedLocalVariables()) {
 		panic(new_IllegalArgumentException_String("Invalid flag combination: enabling dead assignment elimination also requires unused variable removal. Either disable dead assignment elimination or enable unused variable removal.").self())
@@ -295,7 +295,7 @@ func (this *Compiler) printConfig() {
 		err.println("==== Inputs ====")
 		err.println(Compiler_toPrettyJson(this.chunkGraph.toJson()))
 		err.println("==== CompilerOptions ====")
-		err.println(String_valueOf_Object(obj_(this.options_)))
+		err.println(tostr_(this.options_))
 		err.println("==== WarningsGuard ====")
 		err.println(String_valueOf_Object(this.warningsGuard.self()))
 	}
@@ -2157,7 +2157,7 @@ func (this *Compiler) getOptimizationPassesToRunInCurrentSegment(segmentOfCompil
 		case CompilerOptions_SegmentOfCompilationToRun_OPTIMIZATIONS_SECOND_HALF:
 			return this.passListAfter(allOptimizationPassesToRun, PassNames_OPTIMIZATIONS_HALFWAY_POINT)
 		default:
-			panic(new_IllegalArgumentException_String(("Unsupported segment of optimizations to run: " + objstr_(obj_(segmentOfCompilationToRun)))).self())
+			panic(new_IllegalArgumentException_String(("Unsupported segment of optimizations to run: " + tostr_(segmentOfCompilationToRun))).self())
 		}
 		panic("unreachable")
 	}()
@@ -2283,7 +2283,7 @@ func (this *Compiler) getParserConfigLanguageMode(languageMode CompilerOptions_L
 		case CompilerOptions_LanguageMode_UNSUPPORTED:
 			return Config_LanguageMode_UNSUPPORTED
 		default:
-			panic(new_IllegalStateException_String(("Unexpected language mode: " + objstr_(obj_(this.options_.getLanguageIn())))).self())
+			panic(new_IllegalStateException_String(("Unexpected language mode: " + tostr_(this.options_.getLanguageIn()))).self())
 		}
 		panic("unreachable")
 	}()
@@ -3340,7 +3340,7 @@ func (this *Compiler) maybeLogPruningAnalysis(result *JSChunkGraph_DependencyMan
 	}
 	var analysis *PruningAnalysis = PruningAnalysis_create(result.sorter(), icast_Collection(obj_(result.entryPointInputs())))
 	var pruningResult *PruningAnalysis_Result = analysis.analyze()
-	this.tracker.setPruningAnalysisSummary(("\nTransitive dependency count per entry point:\n" + objstr_(obj_(pruningResult.entryPointDependencyCount())) + "\n\nTop bottleneck dependencies:\n" + objstr_(obj_(pruningResult.bottleneckBlame()))))
+	this.tracker.setPruningAnalysisSummary(("\nTransitive dependency count per entry point:\n" + tostr_(pruningResult.entryPointDependencyCount()) + "\n\nTop bottleneck dependencies:\n" + tostr_(pruningResult.bottleneckBlame())))
 }
 
 var Compiler_SLASH_PATTERN *Pattern
@@ -3714,7 +3714,7 @@ func (this *Compiler_CodeBuilder) append(str string) *Compiler_CodeBuilder {
 }
 
 func (this *Compiler_CodeBuilder) toString() string {
-	return Object_toString(obj_(this.sb))
+	return tostrNN_(this.sb)
 }
 
 func (this *Compiler_CodeBuilder) getLength() int32 {

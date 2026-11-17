@@ -912,7 +912,7 @@ func (this Node) deserializeProperties(propSet int64, isInClosureUnawareSubtree 
 		default:
 			var prop Node_Prop = PropTranslator_deserialize(nodeProperty)
 			if prop == 0 {
-				panic(new_IllegalStateException_String(("Can not translate " + objstr_(obj_(nodeProperty)) + " to AST Prop")).self())
+				panic(new_IllegalStateException_String(("Can not translate " + tostr_(nodeProperty) + " to AST Prop")).self())
 			}
 			(*this.props_()) = new_Node_IntPropListItem(int8(prop.ordinal()), 1, (*this.props_())).up_Node_PropListItem()
 		}
@@ -926,7 +926,7 @@ func (this Node) deserializeProperties(propSet int64, isInClosureUnawareSubtree 
 	this.validateProperties(func(errorMessage_ any) {
 		var errorMessage string = str_(errorMessage_)
 		_ = errorMessage
-		panic(new_IllegalStateException_String(("deserialize error: " + sstr_(errorMessage) + ": " + objstr_(this.box_()))).self())
+		panic(new_IllegalStateException_String(("deserialize error: " + sstr_(errorMessage) + ": " + tostr_(this))).self())
 	})
 }
 
@@ -1153,7 +1153,7 @@ func (this Node) getCookedString() OptionalOf[string] {
 }
 
 func (this Node) payloadKindMismatch(wanted string) *ClassCastException {
-	return new_ClassCastException_String((objstr_(obj_(Token_rhino(this.ns_().token))) + " node is not a " + sstr_(wanted) + " node"))
+	return new_ClassCastException_String((tostr_(Token_rhino(this.ns_().token)) + " node is not a " + sstr_(wanted) + " node"))
 }
 
 func (this Node) toString() string {
@@ -1163,7 +1163,7 @@ func (this Node) toString() string {
 func (this Node) toString_3(printSource bool, printAnnotations bool, printType bool) string {
 	var sb *StringBuilder = new_StringBuilder()
 	this.toString_4(sb, printSource, printAnnotations, printType)
-	return Object_toString(obj_(sb))
+	return tostrNN_(sb)
 }
 
 func (this Node) toString_4(sb *StringBuilder, printSource bool, printAnnotations bool, printType bool) {
@@ -1207,7 +1207,7 @@ func (this Node) toString_4(sb *StringBuilder, printSource bool, printAnnotation
 			}
 			var x *Node_PropListItem = this.lookupProperty(type_)
 			sb.append(" [")
-			sb.append(Ascii_toLowerCase(String_valueOf_Object(obj_(type_))))
+			sb.append(Ascii_toLowerCase(tostr_(type_)))
 			sb.append(": ")
 			sb.append_Object(x.self())
 			sb.append_char(']')
@@ -1234,7 +1234,7 @@ func Node_createJsonPairRawValue(name string, value string) string {
 
 func (this Node) toJson(sb Appendable) {
 	sb.append_char('{')
-	sb.append_CharSequence(strobj_(Node_createJsonPair("token", Object_toString(obj_(Token_rhino(this.ns_().token))))))
+	sb.append_CharSequence(strobj_(Node_createJsonPair("token", tostrNN_(Token_rhino(this.ns_().token)))))
 	if (*this.payload_s_()) != nullstr_ {
 		sb.append_char(',')
 		sb.append_CharSequence(strobj_(Node_createJsonPair("string", this.getString())))
@@ -1273,7 +1273,7 @@ func (this Node) toJson(sb Appendable) {
 		for i := int32(0); i < int32(len(keys)); i++ {
 			var type_ Node_Prop = Node_propValues[keys[i]]
 			var x *Node_PropListItem = this.lookupProperty(type_)
-			sb.append_CharSequence(strobj_(Node_createJsonPair(Ascii_toLowerCase(String_valueOf_Object(obj_(type_))), String_replace_s(String_replace_s(Object_toString(x.self()), "\n", "\\n"), "\"", "\\\""))))
+			sb.append_CharSequence(strobj_(Node_createJsonPair(Ascii_toLowerCase(tostr_(type_)), String_replace_s(String_replace_s(Object_toString(x.self()), "\n", "\\n"), "\"", "\\\""))))
 			if (i + 1) < int32(len(keys)) {
 				sb.append_char(',')
 			}
@@ -1321,7 +1321,7 @@ func (this Node) toStringTreeImpl() string {
 		}()
 		var s *StringBuilder = new_StringBuilder()
 		this.appendStringTree(s)
-		ret_1 = Object_toString(obj_(s))
+		ret_1 = tostrNN_(s)
 		return 1
 		return 0
 	}()

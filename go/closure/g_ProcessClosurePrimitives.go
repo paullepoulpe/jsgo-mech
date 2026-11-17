@@ -145,7 +145,7 @@ func (this *ProcessClosurePrimitives) validateWeakUsageCall(call Node) {
 		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(call, ProcessClosurePrimitives_INVALID_GOOG_WEAK_USAGE_CALL, []string{calleeName, ("should have exactly one argument, not " + istr_(int64((childCount - 1))))}))
 	}
 	if (childCount >= 2) && !call.getSecondChild().isQualifiedName() {
-		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(call, ProcessClosurePrimitives_INVALID_GOOG_WEAK_USAGE_CALL, []string{calleeName, ("argument should be a name or qualified name, not " + objstr_(arg.box_()))}))
+		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(call, ProcessClosurePrimitives_INVALID_GOOG_WEAK_USAGE_CALL, []string{calleeName, ("argument should be a name or qualified name, not " + tostr_(arg))}))
 	}
 }
 

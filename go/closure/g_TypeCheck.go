@@ -391,7 +391,7 @@ func (this *TypeCheck) visit(t *NodeTraversal, n Node, parent Node) {
 		this.checkSpread(n)
 		typeable = false
 	default:
-		this.report(n, TypeCheck_UNEXPECTED_TOKEN, []string{Object_toString(obj_(n.getToken()))})
+		this.report(n, TypeCheck_UNEXPECTED_TOKEN, []string{tostrNN_(n.getToken())})
 		this.ensureTyped(n)
 	}
 	if NodeUtil_isBlocklessArrowFunctionResult(n) {
@@ -1670,7 +1670,7 @@ func (this *TypeCheck) visitBinaryOperator(op Token_rhino, n Node) {
 		}
 	case Token_rhino_ASSIGN_ADD, Token_rhino_ADD:
 	default:
-		this.report(n, TypeCheck_UNEXPECTED_TOKEN, []string{Object_toString(obj_(op))})
+		this.report(n, TypeCheck_UNEXPECTED_TOKEN, []string{tostrNN_(op)})
 	}
 	this.ensureTyped(n)
 }

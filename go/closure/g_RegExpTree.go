@@ -58,7 +58,7 @@ func (this *RegExpTree) toString() string {
 		sb.append("(?:)")
 	}
 	sb.append_char('/')
-	return Object_toString(obj_(sb))
+	return tostrNN_(sb)
 }
 
 func RegExpTree_parseRegExp(pattern string, flags string) *RegExpTree {
@@ -1808,7 +1808,7 @@ func (this *RegExpTree_Charset) decompose_2(ranges *CharRanges, inverted bool) *
 			break
 		}
 	}
-	return new_RegExpTree_DecomposedCharset(inverted, ranges, Object_toString(obj_(namedGroups)))
+	return new_RegExpTree_DecomposedCharset(inverted, ranges, tostrNN_(namedGroups))
 }
 
 func (this *RegExpTree_Charset) decompose() *RegExpTree_DecomposedCharset {
@@ -2038,7 +2038,7 @@ func (this *RegExpTree_DecomposedCharset) hashCode() int32 {
 }
 
 func (this *RegExpTree_DecomposedCharset) toString() string {
-	return "DecomposedCharset[" + "inverted=" + objstr_(any(bool(this.inverted_))) + ", ranges=" + objstr_(obj_(this.ranges_)) + ", namedGroups=" + objstr_(strobj_(this.namedGroups_)) + "]"
+	return "DecomposedCharset[" + "inverted=" + boolstr_(bool(this.inverted_)) + ", ranges=" + tostr_(this.ranges_) + ", namedGroups=" + sstr_(this.namedGroups_) + "]"
 }
 
 type RegExpTree_Concatenation struct {
@@ -2391,7 +2391,7 @@ func (this *RegExpTree_1Parser) parseParenthetical() *RegExpTree {
 			panic(new_IllegalArgumentException_String(("Malformed named capture group: " + sstr_(String_substring_int(this.cap_pattern, start)))).self())
 		}
 	}
-	panic(new_AssertionError_Object(strobj_(("Unrecognized ParentheticalType " + objstr_(obj_(type_))))).self())
+	panic(new_AssertionError_Object(strobj_(("Unrecognized ParentheticalType " + tostr_(type_)))).self())
 }
 
 func (this *RegExpTree_1Parser) scanNamedGroupName() string {

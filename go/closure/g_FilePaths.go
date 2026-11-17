@@ -25,7 +25,7 @@ func FilePaths_clean(path string) string {
 	if (plain.length() > 1) && (plain.charAt((plain.length() - 1)) == '/') {
 		plain.setLength((plain.length() - 1))
 	}
-	return Object_toString(obj_(plain))
+	return tostrNN_(plain)
 }
 
 func FilePaths_join(first string, more []string) string {
@@ -189,7 +189,7 @@ func FilePaths_relativize(path string, other string) OptionalOf[string] {
 	if (result.length() > 0) && !String_isEmpty(rest) {
 		result.append_char('/')
 	}
-	return Optional_of[string](Object_toString(obj_(result.append(rest))))
+	return Optional_of[string](tostrNN_(result.append(rest)))
 }
 
 func FilePaths_hasDots(plain string) bool {

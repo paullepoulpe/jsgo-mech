@@ -175,7 +175,7 @@ func (this *ChromePass) createObjectsForQualifiedName(namespace string) *TList[N
 		var currPrefix *StringBuilder = new_StringBuilder().append(parts[0])
 		for i := int32(1); i < int32(len(parts)); i++ {
 			currPrefix.append(".").append(parts[i])
-			this.createObjectIfNew(objects, Object_toString(obj_(currPrefix)), false)
+			this.createObjectIfNew(objects, tostrNN_(currPrefix), false)
 		}
 	}
 	return objects

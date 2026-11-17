@@ -354,7 +354,7 @@ func (this *RescopeGlobalSymbolsRewriteCallback) addGlobalNamespaceAlias(n Node,
 		aliasStatement.insertAfter(stmt)
 		this.compiler_.reportChangeToEnclosingScope(stmt.getParent())
 	} else {
-		panic(new_IllegalStateException_String(("Unexpected unsafe write to local alias: " + objstr_(n.box_()))).self())
+		panic(new_IllegalStateException_String(("Unexpected unsafe write to local alias: " + tostr_(n))).self())
 	}
 }
 

@@ -1225,7 +1225,7 @@ func (this *CodeGenerator) add_3(node Node, context CodeGenerator_Context, print
 		this.maybeAddTypeDecl(node)
 		this.cc.endStatement_2(true, this.hasTrailingCommentOnSameLine(node))
 	default:
-		panic(new_IllegalStateException_String(("Unknown token " + objstr_(obj_(type_)) + "\n" + sstr_(node.toStringTree()))).self())
+		panic(new_IllegalStateException_String(("Unknown token " + tostr_(type_) + "\n" + sstr_(node.toStringTree()))).self())
 	}
 	this.printTrailingComment(node)
 	this.cc.endSourceMapping(node)
@@ -1348,7 +1348,7 @@ func (this *CodeGenerator) addFunction(n Node, first Node, last Node, context Co
 func (this *CodeGenerator) maybeAddAccessibilityModifier(n Node) {
 	var access JSDocInfo_Visibility = n.getAccessModifier()
 	if access != 0 {
-		this.add((sstr_(Ascii_toLowerCase(Object_toString(obj_(access)))) + " "))
+		this.add((sstr_(Ascii_toLowerCase(tostrNN_(access))) + " "))
 	}
 }
 
@@ -1784,7 +1784,7 @@ func (this *CodeGenerator) strEscape(s string, doublequoteEscape string, singleq
 			}
 		}
 	}
-	return Object_toString(obj_(sb))
+	return tostrNN_(sb)
 }
 
 func (this *CodeGenerator) appendEscapedEq(sb *StringBuilder, isRegexp bool) {
@@ -1862,7 +1862,7 @@ func (this *CodeGenerator) escapeUnrecognizedCharacters(s string) string {
 			escapeStart = start
 		}
 	}
-	return Object_toString(obj_(sb))
+	return tostrNN_(sb)
 }
 
 func CodeGenerator_identifierEscape(s string) string {
@@ -1877,7 +1877,7 @@ func CodeGenerator_identifierEscape(s string) string {
 			Util_appendHexJavaScriptRepresentation(sb, c)
 		}
 	}
-	return Object_toString(obj_(sb))
+	return tostrNN_(sb)
 }
 
 func CodeGenerator_getNonEmptyChildCount(n Node, maxCount int32) int32 {

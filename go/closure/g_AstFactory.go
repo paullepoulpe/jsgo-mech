@@ -280,7 +280,7 @@ func (this *AstFactory) createSingleNameDeclaration(tokenType Token_rhino, name 
 		case Token_rhino_CONST:
 			return this.createSingleConstNameDeclaration(name, value)
 		default:
-			panic(new_UnsupportedOperationException_String(("Unexpeted token type: " + objstr_(obj_(tokenType)))).self())
+			panic(new_UnsupportedOperationException_String(("Unexpeted token type: " + tostr_(tokenType))).self())
 		}
 		panic("unreachable")
 	}()

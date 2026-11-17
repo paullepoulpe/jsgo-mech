@@ -279,7 +279,7 @@ func (this *InlineSimpleMethods_GatherSignatures) visit_impl(t *NodeTraversal, n
 					this.outer_.nonInlineableProperties[key.getString()] = struct{}{}
 				case tokOrd1_COMPUTED_PROP, tokOrd1_OBJECT_SPREAD, tokOrd1_COMPUTED_FIELD_DEF, tokOrd1_BLOCK:
 				default:
-					panic(new_IllegalStateException_String(("Unexpected " + objstr_(obj_(n.getToken())) + " key: " + objstr_(key.box_()))).self())
+					panic(new_IllegalStateException_String(("Unexpected " + tostr_(n.getToken()) + " key: " + tostr_(key))).self())
 				}
 			}
 		}

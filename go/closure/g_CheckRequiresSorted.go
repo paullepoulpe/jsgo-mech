@@ -479,7 +479,7 @@ func (this *CheckRequiresSorted_DestructuringBinding) hashCode() int32 {
 }
 
 func (this *CheckRequiresSorted_DestructuringBinding) toString() string {
-	return "DestructuringBinding[" + "exportedName=" + objstr_(strobj_(this.exportedName_)) + ", localName=" + objstr_(strobj_(this.localName_)) + ", isShorthandProperty=" + objstr_(any(bool(this.isShorthandProperty_))) + "]"
+	return "DestructuringBinding[" + "exportedName=" + sstr_(this.exportedName_) + ", localName=" + sstr_(this.localName_) + ", isShorthandProperty=" + boolstr_(bool(this.isShorthandProperty_)) + "]"
 }
 
 type CheckRequiresSorted_ImportStatement struct {
@@ -637,5 +637,5 @@ func (this *CheckRequiresSorted_ImportStatement) hashCode() int32 {
 }
 
 func (this *CheckRequiresSorted_ImportStatement) toString() string {
-	return "ImportStatement[" + "nodes=" + objstr_(obj_(this.nodes_)) + ", primitive=" + objstr_(obj_(this.primitive_)) + ", namespace=" + objstr_(strobj_(this.namespace_)) + ", alias=" + objstr_(obj_(optErase_(this.alias_))) + ", destructures=" + objstr_(obj_(this.destructures_)) + "]"
+	return "ImportStatement[" + "nodes=" + tostr_(this.nodes_) + ", primitive=" + tostr_(this.primitive_) + ", namespace=" + sstr_(this.namespace_) + ", alias=" + tostr_(optErase_(this.alias_)) + ", destructures=" + tostr_(this.destructures_) + "]"
 }

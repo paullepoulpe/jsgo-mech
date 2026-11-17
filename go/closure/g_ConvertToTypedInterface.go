@@ -453,7 +453,7 @@ func (this *ConvertToTypedInterface_SimplifyDeclarations) processClass(n Node) {
 				}
 				this.processFunction(member.getSecondChild())
 			default:
-				panic(new_AssertionError_Object(strobj_((objstr_(obj_(member.getToken())) + " should not be handled by processClass"))).self())
+				panic(new_AssertionError_Object(strobj_((tostr_(member.getToken()) + " should not be handled by processClass"))).self())
 			}
 			member = next
 		}

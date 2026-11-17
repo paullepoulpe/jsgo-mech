@@ -203,7 +203,7 @@ func (this *CmdLineParser) parseArgument(args []string) *Outcome_base {
 	for it_2.next() {
 		var option *CmdLineParser_Option = it_2.v
 		if option.requiredField && !has_(present, option) {
-			return Outcome_base_err(new_CmdLineException_CmdLineParser_String(this, ("Option \"" + objstr_(obj_(option)) + "\" is required")).up_Throwable())
+			return Outcome_base_err(new_CmdLineException_CmdLineParser_String(this, ("Option \"" + tostr_(option) + "\" is required")).up_Throwable())
 		}
 	}
 	return Outcome_base_ok_0()
@@ -565,7 +565,7 @@ func CmdLineParser_Option_enumMetaVariable(values []*Enum) string {
 	}
 	rv.delete((rv.length() - 3), rv.length())
 	rv.append("]")
-	return Object_toString(obj_(rv))
+	return tostrNN_(rv)
 }
 
 func CmdLineParser_Option_addValue(get func() any, set func(any), value any) {
@@ -666,7 +666,7 @@ func (this *CmdLineParser_CmdLineImpl) proceed(n int32) {
 
 func (this *CmdLineParser_CmdLineImpl) getParameter(idx int32) *Outcome_base {
 	if ((this.pos + idx) >= int32(len(this.args))) || ((this.pos + idx) < 0) {
-		return Outcome_base_err(new_CmdLineException_CmdLineParser_String(this.outer_, ("Option \"" + objstr_(obj_(this.outer_.currentOption)) + "\" takes an operand")).up_Throwable())
+		return Outcome_base_err(new_CmdLineException_CmdLineParser_String(this.outer_, ("Option \"" + tostr_(this.outer_.currentOption) + "\" takes an operand")).up_Throwable())
 	}
 	return Outcome_base_ok_Object(strobj_(this.args[(this.pos + idx)]))
 }

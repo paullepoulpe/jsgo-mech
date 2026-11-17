@@ -53,7 +53,7 @@ func (this *Es6RewriteClass) visit(t *NodeTraversal, n Node, parent Node) {
 func (this *Es6RewriteClass) visitClass(t *NodeTraversal, classNode Node, parent Node) {
 	var metadata *Es6RewriteClass_ClassDeclarationMetadata = Es6RewriteClass_ClassDeclarationMetadata_create(classNode, parent, this.astFactory_)
 	if metadata == nil {
-		panic(new_IllegalStateException_String(("Can only convert classes that are declarations or the right hand side of a simple assignment: " + objstr_(classNode.box_()))).self())
+		panic(new_IllegalStateException_String(("Can only convert classes that are declarations or the right hand side of a simple assignment: " + tostr_(classNode))).self())
 	}
 	if metadata.hasSuperClass() {
 		if ok_, a1_ := metadata.superClassNameNode().isQualifiedName(), metadata.superClassNameNode(); !ok_ {
@@ -127,7 +127,7 @@ func (this *Es6RewriteClass) visitClass(t *NodeTraversal, classNode Node, parent
 	} else if parent.isAssign() {
 		parent.setJSDocInfo(newInfo.build())
 	} else {
-		panic(new_IllegalStateException_String(("Unexpected parent node " + objstr_(parent.box_()))).self())
+		panic(new_IllegalStateException_String(("Unexpected parent node " + tostr_(parent))).self())
 	}
 	t.reportCodeChange()
 }
@@ -427,7 +427,7 @@ func (this *Es6RewriteClass_ClassProperty) hashCode() int32 {
 }
 
 func (this *Es6RewriteClass_ClassProperty) toString() string {
-	return "ClassProperty[" + "propertyKey=" + objstr_(strobj_(this.propertyKey_)) + ", kind=" + objstr_(obj_(this.kind_)) + ", jsDocInfo=" + objstr_(obj_(this.jsDocInfo_)) + ", propertyType=" + objstr_(obj_(this.propertyType_)) + "]"
+	return "ClassProperty[" + "propertyKey=" + sstr_(this.propertyKey_) + ", kind=" + tostr_(this.kind_) + ", jsDocInfo=" + tostr_(this.jsDocInfo_) + ", propertyType=" + tostr_(this.propertyType_) + "]"
 }
 
 type Es6RewriteClass_ClassProperty_PropertyKind uint8

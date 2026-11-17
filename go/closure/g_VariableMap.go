@@ -153,7 +153,7 @@ func VariableMap_unescape(value string) string {
 		}
 		sb.append_char(c)
 	}
-	return Object_toString(obj_(sb))
+	return tostrNN_(sb)
 }
 
 func VariableMap_fromMap(map_ *TMap[string, string]) *VariableMap {

@@ -47,7 +47,7 @@ func (this *CheckUnusedPrivateProperties) getPropName(n Node) string {
 		return n.getString()
 	default:
 	}
-	panic(new_RuntimeException_String(("Unexpected node type: " + objstr_(n.box_()))).self())
+	panic(new_RuntimeException_String(("Unexpected node type: " + tostr_(n))).self())
 }
 
 func (this *CheckUnusedPrivateProperties) shouldTraverse(t *NodeTraversal, n Node, parent Node) bool {

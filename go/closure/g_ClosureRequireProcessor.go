@@ -159,5 +159,5 @@ func (this *ClosureRequireProcessor_Require) hashCode() int32 {
 }
 
 func (this *ClosureRequireProcessor_Require) toString() string {
-	return "Require[" + "localName=" + objstr_(strobj_(this.localName_)) + ", importRecord=" + objstr_(obj_(this.importRecord_)) + ", createdBy=" + objstr_(obj_(this.createdBy_)) + "]"
+	return "Require[" + "localName=" + sstr_(this.localName_) + ", importRecord=" + tostr_(this.importRecord_) + ", createdBy=" + tostr_(this.createdBy_) + "]"
 }

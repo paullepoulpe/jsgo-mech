@@ -36,7 +36,7 @@ func new_Color(id *ColorId, prototypes ImmutableSetOf[*Color], instanceColors Im
 }
 
 func (this *Color) toString() string {
-	return ("Color{id=" + objstr_(obj_(this.id)) + ", prototypes=" + objstr_(obj_(this.prototypes)) + ", instanceColors=" + objstr_(obj_(this.instanceColors)) + ", invalidating=" + boolstr_(this.invalidating) + ", propertiesKeepOriginalName=" + boolstr_(this.propertiesKeepOriginalName) + ", constructor=" + boolstr_(this.constructor_) + ", ownProperties=" + objstr_(obj_(this.ownProperties)) + ", boxId=" + objstr_(obj_(this.boxId)) + ", closureAssert=" + boolstr_(this.closureAssert) + ", unionElements=" + objstr_(obj_(this.unionElements)) + "}")
+	return ("Color{id=" + tostr_(this.id) + ", prototypes=" + tostr_(this.prototypes) + ", instanceColors=" + tostr_(this.instanceColors) + ", invalidating=" + boolstr_(this.invalidating) + ", propertiesKeepOriginalName=" + boolstr_(this.propertiesKeepOriginalName) + ", constructor=" + boolstr_(this.constructor_) + ", ownProperties=" + tostr_(this.ownProperties) + ", boxId=" + tostr_(this.boxId) + ", closureAssert=" + boolstr_(this.closureAssert) + ", unionElements=" + tostr_(this.unionElements) + "}")
 }
 
 func (this *Color) equals(o any) bool {

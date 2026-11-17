@@ -81,5 +81,5 @@ func (this *SimpleBiMap) inverse() *TMap[string, string] {
 }
 
 func (this *SimpleBiMap) toString() string {
-	return Object_toString(obj_(this.forward))
+	return tostrNN_(this.forward)
 }

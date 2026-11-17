@@ -135,7 +135,7 @@ func NodeUtil_getStringValue(n Node) OptionalOf[string] {
 			}
 			return Optional_empty[string]()
 		case tokOrd1_BIGINT:
-			return Optional_ofNullable[string](Object_toString(obj_(n.getBigInt())))
+			return Optional_ofNullable[string](tostrNN_(n.getBigInt()))
 		case tokOrd1_FALSE:
 			return Optional_of[string]("false")
 		case tokOrd1_TRUE:
@@ -637,7 +637,7 @@ func NodeUtil_isImmutableValue(n Node) bool {
 			}
 			return true
 		case tokOrd1_TEMPLATELIT_STRING:
-			panic(new_IllegalArgumentException_String(("Invalid argument " + objstr_(n.box_()))).self())
+			panic(new_IllegalArgumentException_String(("Invalid argument " + tostr_(n))).self())
 		default:
 			return false
 		}
@@ -665,7 +665,7 @@ func NodeUtil_getNumericLiteralValue(n Node) float64 {
 		case tokOrd1_NEG:
 			return (-n.getFirstChild().getDouble())
 		default:
-			panic(new_AssertionError_Object(strobj_(("Unreachable: " + objstr_(n.box_())))).self())
+			panic(new_AssertionError_Object(strobj_(("Unreachable: " + tostr_(n)))).self())
 		}
 		panic("unreachable")
 	}()
@@ -707,7 +707,7 @@ func NodeUtil_getInverseOperator(type_ Token_rhino) Token_rhino {
 		case Token_rhino_LE:
 			return Token_rhino_GE
 		default:
-			panic(new_IllegalArgumentException_String(("Unexpected token: " + objstr_(obj_(type_)))).self())
+			panic(new_IllegalArgumentException_String(("Unexpected token: " + tostr_(type_))).self())
 		}
 		panic("unreachable")
 	}()
@@ -1106,7 +1106,7 @@ func NodeUtil_precedence(type_ Token_rhino) int32 {
 			return 22
 		default:
 			Preconditions_checkArgument((type_ != Token_rhino_TEMPLATELIT_STRING))
-			panic(new_IllegalStateException_String(("Unknown precedence for " + objstr_(obj_(type_)))).self())
+			panic(new_IllegalStateException_String(("Unknown precedence for " + tostr_(type_))).self())
 		}
 		panic("unreachable")
 	}()
@@ -1390,7 +1390,7 @@ func NodeUtil_getOpFromAssignmentOp(n Node) Token_rhino {
 		case tokOrd1_ASSIGN_COALESCE:
 			return Token_rhino_COALESCE
 		default:
-			panic(new_IllegalArgumentException_String(("Not an assignment op:" + objstr_(n.box_()))).self())
+			panic(new_IllegalArgumentException_String(("Not an assignment op:" + tostr_(n))).self())
 		}
 		panic("unreachable")
 	}()
@@ -1671,7 +1671,7 @@ func NodeUtil_getNonOptChainToken(optChainToken Token_rhino) Token_rhino {
 		case Token_rhino_OPTCHAIN_GETPROP:
 			return Token_rhino_GETPROP
 		default:
-			panic(new_IllegalStateException_String(("Should be an OPTCHAIN token: " + objstr_(obj_(optChainToken)))).self())
+			panic(new_IllegalStateException_String(("Should be an OPTCHAIN token: " + tostr_(optChainToken))).self())
 		}
 		panic("unreachable")
 	}()
@@ -1833,7 +1833,7 @@ func NodeUtil_getConditionExpression(n Node) Node {
 		case tokOrd1_FOR_IN, tokOrd1_FOR_OF, tokOrd1_FOR_AWAIT_OF, tokOrd1_CASE:
 			return 0
 		default:
-			panic(new_IllegalArgumentException_String((objstr_(n.box_()) + " does not have a condition.")).self())
+			panic(new_IllegalArgumentException_String((tostr_(n) + " does not have a condition.")).self())
 		}
 		panic("unreachable")
 	}()
@@ -2007,10 +2007,10 @@ func NodeUtil_removeChild(parent Node, node Node) {
 		if node == parent.getFirstChild() {
 			node.replaceWith(IR_empty())
 		} else {
-			panic(new_IllegalStateException_String(("Invalid attempt to remove: " + objstr_(node.box_()) + " from " + objstr_(parent.box_()))).self())
+			panic(new_IllegalStateException_String(("Invalid attempt to remove: " + tostr_(node) + " from " + tostr_(parent))).self())
 		}
 	} else {
-		panic(new_IllegalStateException_String(("Invalid attempt to remove node: " + objstr_(node.box_()) + " of " + objstr_(parent.box_()))).self())
+		panic(new_IllegalStateException_String(("Invalid attempt to remove node: " + tostr_(node) + " of " + tostr_(parent))).self())
 	}
 }
 
@@ -2541,7 +2541,7 @@ func NodeUtil_getObjectOrClassLitKeyName(key Node) OptionalOf[string] {
 	if keyNode != 0 {
 		return Optional_of[string](keyNode.getString())
 	}
-	panic(new_IllegalStateException_String(("Unexpected node type: " + objstr_(key.box_()))).self())
+	panic(new_IllegalStateException_String(("Unexpected node type: " + tostr_(key))).self())
 }
 
 func NodeUtil_getObjectOrClassLitKeyNode(key Node) Node {
@@ -2557,7 +2557,7 @@ func NodeUtil_getObjectOrClassLitKeyNode(key Node) Node {
 		}()
 	default:
 	}
-	panic(new_IllegalStateException_String(("Unexpected node type: " + objstr_(key.box_()))).self())
+	panic(new_IllegalStateException_String(("Unexpected node type: " + tostr_(key))).self())
 }
 
 func NodeUtil_isGetOrSetKey(node Node) bool {
@@ -2677,7 +2677,7 @@ func NodeUtil_opToStr(operator Token_rhino) OptionalOf[string] {
 func NodeUtil_opToStrNoFail(operator Token_rhino) string {
 	var res OptionalOf[string] = NodeUtil_opToStr(operator)
 	if res.isEmpty() {
-		panic(new_Error_String(("Unknown op " + objstr_(obj_(operator)))).self())
+		panic(new_Error_String(("Unknown op " + tostr_(operator))).self())
 	}
 	return res.get()
 }
@@ -2985,7 +2985,7 @@ func nodeUtilLhsNodes_(n Node, consumer func(Node)) {
 		if NodeUtil_isAssignmentOp(n) {
 			nodeUtilLhsNodes_(n.getFirstChild(), consumer)
 		} else {
-			panic(new_IllegalStateException_String(("Invalid node in lhs: " + objstr_(n.box_()))).self())
+			panic(new_IllegalStateException_String(("Invalid node in lhs: " + tostr_(n))).self())
 		}
 	}
 }
@@ -3525,7 +3525,7 @@ func NodeUtil_evaluatesToLocalValue(value Node) bool {
 			if (NodeUtil_isAssignmentOp(value) || NodeUtil_isSimpleOperator(value)) || NodeUtil_isImmutableValue(value) {
 				return true
 			}
-			panic(new_IllegalStateException_String(("Unexpected expression node: " + objstr_(value.box_()) + "\n parent:" + objstr_(value.getParent().box_()))).self())
+			panic(new_IllegalStateException_String(("Unexpected expression node: " + tostr_(value) + "\n parent:" + tostr_(value.getParent()))).self())
 		}
 		panic("unreachable")
 	}()
@@ -3559,7 +3559,7 @@ func NodeUtil_isDefinedValue(value Node) bool {
 			if NodeUtil_isAssignmentOp(value) || NodeUtil_isSimpleOperator(value) {
 				return true
 			}
-			panic(new_IllegalStateException_String(("Unexpected expression node: " + objstr_(value.box_()) + "\n parent:" + objstr_(value.getParent().box_()))).self())
+			panic(new_IllegalStateException_String(("Unexpected expression node: " + tostr_(value) + "\n parent:" + tostr_(value.getParent()))).self())
 		}
 		panic("unreachable")
 	}()
@@ -3677,7 +3677,7 @@ func NodeUtil_getBestJsDocInfoNodeStrict(n Node) Node {
 	if isExport {
 		return NodeUtil_getBestJsDocInfoNodeInternal(n)
 	}
-	panic(new_IllegalStateException_String(("Not allowed to get JSDocInfo node for node: " + objstr_(n.box_()))).self())
+	panic(new_IllegalStateException_String(("Not allowed to get JSDocInfo node for node: " + tostr_(n))).self())
 }
 
 func NodeUtil_isRhsClass(n Node) bool {
@@ -4920,7 +4920,7 @@ func (this *NodeUtil_GoogRequire) hashCode() int32 {
 }
 
 func (this *NodeUtil_GoogRequire) toString() string {
-	return "GoogRequire[" + "namespace=" + objstr_(strobj_(this.namespace_)) + ", property=" + objstr_(obj_(optErase_(this.property_))) + ", isStrongRequire=" + objstr_(any(bool(this.isStrongRequire_))) + "]"
+	return "GoogRequire[" + "namespace=" + sstr_(this.namespace_) + ", property=" + tostr_(optErase_(this.property_)) + ", isStrongRequire=" + boolstr_(bool(this.isStrongRequire_)) + "]"
 }
 
 type NodeUtil_1 struct {

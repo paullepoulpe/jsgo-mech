@@ -84,7 +84,7 @@ func (this *FixedPointGraphTraversal) visitNode(node DiGraph_DiGraphNode, workSe
 		}
 		return
 	}
-	panic(new_AssertionError_Object(strobj_(("Unrecognized direction " + objstr_(obj_(this.traversalDirection))))).self())
+	panic(new_AssertionError_Object(strobj_(("Unrecognized direction " + tostr_(this.traversalDirection)))).self())
 }
 
 const FixedPointGraphTraversal_NON_HALTING_ERROR_MSG string = "Fixed point computation not halting"

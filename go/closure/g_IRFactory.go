@@ -573,7 +573,7 @@ func (this *IRFactory) parseNonJSDocCommentAt(pos *SourcePosition_util, isInline
 	if this.config.jsDocParsingMode() != Config_JsDocParsing_INCLUDE_ALL_COMMENTS {
 		return nil
 	}
-	var nonJSDocComment *NonJSDocComment = new_NonJSDocComment(firstComment.location_.start_, lastComment.location_.end_, Object_toString(obj_(result)))
+	var nonJSDocComment *NonJSDocComment = new_NonJSDocComment(firstComment.location_.start_, lastComment.location_.end_, tostrNN_(result))
 	nonJSDocComment.setEndsAsLineComment((lastComment.type__ == Comment_Type_LINE))
 	nonJSDocComment.setIsInline(isInline)
 	return nonJSDocComment
@@ -745,9 +745,9 @@ func IRFactory_charno(location *SourcePosition_util) int32 {
 func IRFactory_languageFeatureWarningMessage(feature FeatureSet_Feature) string {
 	var forFeature Config_LanguageMode = Config_LanguageMode_minimumRequiredFor(feature)
 	if forFeature == Config_LanguageMode_UNSUPPORTED {
-		return ("This language feature is not currently supported by the compiler: " + objstr_(obj_(feature)))
+		return ("This language feature is not currently supported by the compiler: " + tostr_(feature))
 	} else {
-		return ("This language feature is only supported for " + objstr_(obj_(Config_LanguageMode_minimumRequiredFor(feature))) + " mode or better: " + objstr_(obj_(feature)))
+		return ("This language feature is only supported for " + tostr_(Config_LanguageMode_minimumRequiredFor(feature)) + " mode or better: " + tostr_(feature))
 	}
 	panic("unreachable")
 }
@@ -914,7 +914,7 @@ func (this *IRFactory) normalizeRegex(token *LiteralToken) string {
 		cur = String_indexOf_int_int(value, 92, start)
 	}
 	result.append_CharSequence_int_int_s(value, start, lastSlash)
-	return Object_toString(obj_(result))
+	return tostrNN_(result)
 }
 
 func (this *IRFactory) normalizeString(token *LiteralToken, templateLiteral bool) string {
@@ -1016,7 +1016,7 @@ func (this *IRFactory) normalizeString(token *LiteralToken, templateLiteral bool
 		}
 		return (String_length(value) - 1)
 	}())
-	return Object_toString(obj_(result))
+	return tostrNN_(result)
 }
 
 func (this *IRFactory) isSupportedForInputLanguageMode(feature FeatureSet_Feature) bool {
@@ -1229,7 +1229,7 @@ func IRFactory_transformBooleanTokenType(token TokenType) Token_rhino {
 		case TokenType_FALSE:
 			return Token_rhino_FALSE
 		default:
-			panic(new_IllegalStateException_String(String_valueOf_Object(obj_(token))).self())
+			panic(new_IllegalStateException_String(tostr_(token)).self())
 		}
 		panic("unreachable")
 	}()
@@ -1243,7 +1243,7 @@ func IRFactory_transformUpdateTokenType(token TokenType) Token_rhino {
 		case TokenType_MINUS_MINUS:
 			return Token_rhino_DEC
 		default:
-			panic(new_IllegalStateException_String(String_valueOf_Object(obj_(token))).self())
+			panic(new_IllegalStateException_String(tostr_(token)).self())
 		}
 		panic("unreachable")
 	}()
@@ -1267,7 +1267,7 @@ func IRFactory_transformUnaryTokenType(token TokenType) Token_rhino {
 		case TokenType_VOID:
 			return Token_rhino_VOID
 		default:
-			panic(new_IllegalStateException_String(String_valueOf_Object(obj_(token))).self())
+			panic(new_IllegalStateException_String(tostr_(token)).self())
 		}
 		panic("unreachable")
 	}()
@@ -1361,7 +1361,7 @@ func IRFactory_transformBinaryTokenType(token TokenType) Token_rhino {
 		case TokenType_QUESTION_QUESTION_EQUAL:
 			return Token_rhino_ASSIGN_COALESCE
 		default:
-			panic(new_IllegalStateException_String(String_valueOf_Object(obj_(token))).self())
+			panic(new_IllegalStateException_String(tostr_(token)).self())
 		}
 		panic("unreachable")
 	}()
@@ -1536,7 +1536,7 @@ func (this *IRFactory_LineAndColumn) hashCode() int32 {
 }
 
 func (this *IRFactory_LineAndColumn) toString() string {
-	return "LineAndColumn[" + "lineNo=" + objstr_(any(int32(this.lineNo_))) + ", column=" + objstr_(any(int32(this.column_))) + "]"
+	return "LineAndColumn[" + "lineNo=" + istr_(int64(int32(this.lineNo_))) + ", column=" + istr_(int64(int32(this.column_))) + "]"
 }
 
 type IRFactory_CommentTracker struct {
@@ -1652,7 +1652,7 @@ func (this *IRFactory_TransformDispatcher) processObjectLitKey(input *Token_pars
 		case TokenType_NUMBER:
 			return this.outer_.newStringNode_2(output, DToA_numberToString(this.outer_.normalizeNumber(literal)))
 		case TokenType_BIGINT:
-			return this.outer_.newStringNode_2(output, Object_toString(obj_(this.outer_.normalizeBigInt(literal))))
+			return this.outer_.newStringNode_2(output, tostrNN_(this.outer_.normalizeBigInt(literal)))
 		default:
 			return this.outer_.newStringNode_2(output, this.outer_.normalizeString(literal, false))
 		}
@@ -2048,7 +2048,7 @@ func (this *IRFactory_TransformDispatcher) addExtraTrailingComment(node Node, la
 		comment.append("\n")
 	}
 	comment.append(lastComment.getCommentString())
-	var allComments *NonJSDocComment = new_NonJSDocComment(currentComment.getStartPosition(), lastComment.getEndPosition(), Object_toString(obj_(comment)))
+	var allComments *NonJSDocComment = new_NonJSDocComment(currentComment.getStartPosition(), lastComment.getEndPosition(), tostrNN_(comment))
 	allComments.setEndsAsLineComment(lastComment.isEndingAsLineComment())
 	allComments.setIsInline(true)
 	node.getLastChild().setTrailingNonJSDocComment(allComments)
@@ -2903,7 +2903,7 @@ func (this *IRFactory_TransformDispatcher) createMissingExpressionNode() Node {
 }
 
 func (this *IRFactory_TransformDispatcher) processIllegalToken(node *ParseTree) Node {
-	this.outer_.errorReporter.error(("Unsupported syntax: " + objstr_(obj_(node.type__))), this.outer_.sourceName_, IRFactory_lineno(node), 0)
+	this.outer_.errorReporter.error(("Unsupported syntax: " + tostr_(node.type__)), this.outer_.sourceName_, IRFactory_lineno(node), 0)
 	return this.outer_.newNode(Token_rhino_EMPTY)
 }
 
@@ -3296,7 +3296,7 @@ func (this *IRFactory_TransformDispatcher) processLiteralExpression(expr *Litera
 		case TokenType_REGULAR_EXPRESSION:
 			return this.processRegExpLiteral(expr)
 		default:
-			panic(new_IllegalStateException_String(("Unexpected literal type: " + objstr_(obj_(Object_getClass(expr.literalToken.self()))) + " type: " + objstr_(obj_(expr.literalToken.type__)))).self())
+			panic(new_IllegalStateException_String(("Unexpected literal type: " + tostr_(Object_getClass(expr.literalToken.self())) + " type: " + tostr_(expr.literalToken.type__))).self())
 		}
 		panic("unreachable")
 	}()

@@ -408,7 +408,7 @@ func (this *GlobalNamespace_SimpleAstChange) hashCode() int32 {
 }
 
 func (this *GlobalNamespace_SimpleAstChange) toString() string {
-	return "SimpleAstChange[" + "node=" + objstr_(this.node_.box_()) + ", chunk=" + objstr_(obj_(this.chunk_)) + ", scope=" + objstr_(obj_(this.scope_)) + "]"
+	return "SimpleAstChange[" + "node=" + tostr_(this.node_) + ", chunk=" + tostr_(this.chunk_) + ", scope=" + tostr_(this.scope_) + "]"
 }
 
 type GlobalNamespace_RefBasedAstChange struct {
@@ -459,7 +459,7 @@ func (this *GlobalNamespace_RefBasedAstChange) hashCode() int32 {
 }
 
 func (this *GlobalNamespace_RefBasedAstChange) toString() string {
-	return "RefBasedAstChange[" + "ref=" + objstr_(obj_(this.ref_)) + ", node=" + objstr_(this.node_.box_()) + "]"
+	return "RefBasedAstChange[" + "ref=" + tostr_(this.ref_) + ", node=" + tostr_(this.node_) + "]"
 }
 
 type GlobalNamespace_BuildGlobalNamespace struct {
@@ -870,7 +870,7 @@ func (this *GlobalNamespace_BuildGlobalNamespace) determineRefTypeForGet(n Node,
 		case tokOrd1_NAME, tokOrd1_GETPROP, tokOrd1_GETELEM, tokOrd1_ARRAY_PATTERN, tokOrd1_OBJECT_PATTERN:
 			type_ = GlobalNamespace_Ref_Type_ALIASING_GET
 		default:
-			panic(new_IllegalStateException_String(("Unexpected previous sibling of " + objstr_(obj_(n.getToken())) + ": " + objstr_(n.getPrevious().box_()))).self())
+			panic(new_IllegalStateException_String(("Unexpected previous sibling of " + tostr_(n.getToken()) + ": " + tostr_(n.getPrevious()))).self())
 		}
 	default:
 		type_ = GlobalNamespace_Ref_Type_ALIASING_GET
@@ -1721,7 +1721,7 @@ func (this *GlobalNamespace_Name) canCollapseOrInline() GlobalNamespace_Inlinabi
 		this.logDecision(unsafeInlinability, "parent cannot be inlined")
 		return unsafeInlinability
 	}
-	panic(new_IllegalStateException_String(("unknown enum value " + objstr_(obj_(parentInlinability)))).self())
+	panic(new_IllegalStateException_String(("unknown enum value " + tostr_(parentInlinability))).self())
 }
 
 func (this *GlobalNamespace_Name) logDecision(inlinability GlobalNamespace_Inlinability, reason string) {
@@ -2103,7 +2103,7 @@ func (this *GlobalNamespace_Ref) isUninitializedDeclaration() bool {
 }
 
 func (this *GlobalNamespace_Ref) toString() string {
-	return Object_toString(obj_(MoreObjects_toStringHelper(any(this)).omitNullValues().add("type", obj_(this.type__)).add("node", this.node_.box_()).add("scope", obj_(this.scope_))))
+	return tostrNN_(MoreObjects_toStringHelper(any(this)).omitNullValues().add("type", obj_(this.type__)).add("node", this.node_.box_()).add("scope", obj_(this.scope_)))
 }
 
 type GlobalNamespace_Ref_Type uint8
@@ -2364,7 +2364,7 @@ func (this *GlobalNamespace_ObjLitStringKeyAnalysis) hashCode() int32 {
 }
 
 func (this *GlobalNamespace_ObjLitStringKeyAnalysis) toString() string {
-	return "ObjLitStringKeyAnalysis[" + "nameString=" + objstr_(obj_(optErase_(this.nameString_))) + ", nameType=" + objstr_(obj_(this.nameType_)) + "]"
+	return "ObjLitStringKeyAnalysis[" + "nameString=" + tostr_(optErase_(this.nameString_)) + ", nameType=" + tostr_(this.nameType_) + "]"
 }
 
 // shouldTraverse: an object that is exactly a GlobalNamespace_BuildGlobalNamespace calls its shouldTraverse_impl directly (post-flip); others dispatch.

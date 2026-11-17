@@ -328,7 +328,7 @@ func (this *MustBeReachingVariableDef_Definition) equals(other any) bool {
 }
 
 func (this *MustBeReachingVariableDef_Definition) toString() string {
-	return ("Definition@" + objstr_(this.node_.box_()))
+	return ("Definition@" + tostr_(this.node_))
 }
 
 func (this *MustBeReachingVariableDef_Definition) hashCode() int32 {

@@ -140,7 +140,7 @@ func (this *ReplaceStrings) replaceExpression(t *NodeTraversal, expr Node) Node 
 		var keyBuilder *StringBuilder = new_StringBuilder()
 		var keyNode Node = IR_string("")
 		replacement = this.buildReplacement(t, expr, keyNode, keyBuilder)
-		key = Optional_of[string](Object_toString(obj_(keyBuilder)))
+		key = Optional_of[string](tostrNN_(keyBuilder))
 		if key.get() == this.placeholderToken {
 			return expr
 		}
@@ -191,7 +191,7 @@ func (this *ReplaceStrings) buildReplacement(t *NodeTraversal, expr Node, prefix
 				case tokOrd1_TEMPLATELIT_SUB:
 					prefix = this.buildReplacement(t, child.getFirstChild(), prefix, keyBuilder)
 				default:
-					panic(new_IllegalStateException_String(("Unexpected TEMPLATELIT child: " + objstr_(child.box_()))).self())
+					panic(new_IllegalStateException_String(("Unexpected TEMPLATELIT child: " + tostr_(child))).self())
 				}
 			}
 		}

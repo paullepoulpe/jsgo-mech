@@ -639,7 +639,7 @@ func (this *JSChunkGraph_DependencyManagementResult) hashCode() int32 {
 }
 
 func (this *JSChunkGraph_DependencyManagementResult) toString() string {
-	return "DependencyManagementResult[" + "orderedInputs=" + objstr_(obj_(this.orderedInputs_)) + ", sorter=" + objstr_(obj_(this.sorter_)) + ", entryPointInputs=" + objstr_(obj_(this.entryPointInputs_)) + "]"
+	return "DependencyManagementResult[" + "orderedInputs=" + tostr_(this.orderedInputs_) + ", sorter=" + objstr_(obj_(this.sorter_)) + ", entryPointInputs=" + tostr_(this.entryPointInputs_) + "]"
 }
 
 type JSChunkGraph_InverseDepthComparator struct {

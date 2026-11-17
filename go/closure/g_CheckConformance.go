@@ -233,7 +233,7 @@ func CheckConformance_validateExtendingRequirement(compiler *AbstractCompiler, e
 	for it_1.next() {
 		var field *Descriptors_FieldDescriptor = cast_[*Descriptors_FieldDescriptor](it_1.v)
 		if !Collection_contains_s(CheckConformance_EXTENDABLE_FIELDS, field.getName()) {
-			CheckConformance_reportInvalidRequirement(compiler, extendingRequirement, ("extending rules allow only " + objstr_(obj_(CheckConformance_EXTENDABLE_FIELDS))))
+			CheckConformance_reportInvalidRequirement(compiler, extendingRequirement, ("extending rules allow only " + tostr_(CheckConformance_EXTENDABLE_FIELDS)))
 		}
 	}
 	if (extendingRequirement.getValueCount() > 0) && !extendableRequirement.getAllowExtendingValue() {

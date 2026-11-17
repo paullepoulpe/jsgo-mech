@@ -59,8 +59,8 @@ func (this *ValidityCheck) checkExternProperties(externs Node) {
 	}
 	new_GatherExternProperties(this.compiler_, GatherExternProperties_Mode_CHECK).process_2(externs, 0)
 	if !Object_equals(obj_(this.compiler_.getExternProperties()), obj_(externProperties)) {
-		this.compiler_.report(JSError_make_DiagnosticType_StringArr(ValidityCheck_EXTERN_PROPERTIES_CHANGED, []string{Object_toString(obj_(externProperties)), Object_toString(obj_(this.compiler_.getExternProperties()))}))
-		panic(new_IllegalStateException_String(("Validity Check failed: Extern properties changed from:\n" + objstr_(obj_(externProperties)) + "\nto:\n" + objstr_(obj_(this.compiler_.getExternProperties())))).self())
+		this.compiler_.report(JSError_make_DiagnosticType_StringArr(ValidityCheck_EXTERN_PROPERTIES_CHANGED, []string{tostrNN_(externProperties), tostrNN_(this.compiler_.getExternProperties())}))
+		panic(new_IllegalStateException_String(("Validity Check failed: Extern properties changed from:\n" + tostr_(externProperties) + "\nto:\n" + tostr_(this.compiler_.getExternProperties()))).self())
 	}
 }
 
@@ -155,7 +155,7 @@ func (this *ValidityCheck_VerifyConstants) visit_impl(t *NodeTraversal, n Node, 
 		if value == nil {
 			this.constantMap[name] = any(bool(isConst))
 		} else if Boolean_booleanValue(value) != isConst {
-			panic(new_IllegalStateException_String(("The name " + sstr_(name) + " is not consistently annotated as constant. Current constness: " + boolstr_(isConst) + ", previous constness: " + boolstr_(Boolean_booleanValue(value)) + "\n\nAt node: " + objstr_(n.box_()))).self())
+			panic(new_IllegalStateException_String(("The name " + sstr_(name) + " is not consistently annotated as constant. Current constness: " + boolstr_(isConst) + ", previous constness: " + boolstr_(Boolean_booleanValue(value)) + "\n\nAt node: " + tostr_(n))).self())
 		}
 	}
 }

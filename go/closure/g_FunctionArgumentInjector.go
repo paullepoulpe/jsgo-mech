@@ -308,7 +308,7 @@ func FunctionArgumentInjector_getFunctionParameterSet(fnNode Node) ImmutableSetO
 			if n.isRest() {
 				builder.add(strobj_(FunctionArgumentInjector_REST_MARKER))
 			} else if (n.isDefaultValue() || n.isObjectPattern()) || n.isArrayPattern() {
-				panic(new_IllegalStateException_String(("Not supported: " + objstr_(n.box_()))).self())
+				panic(new_IllegalStateException_String(("Not supported: " + tostr_(n))).self())
 			} else {
 				builder.add(strobj_(n.getString()))
 			}
@@ -374,7 +374,7 @@ func (this *FunctionArgumentInjector_SetContainer) hashCode() int32 {
 }
 
 func (this *FunctionArgumentInjector_SetContainer) toString() string {
-	return "SetContainer[" + "parametersReferencedAfterSideEffect=" + objstr_(obj_(this.parametersReferencedAfterSideEffect_)) + ", parametersWithNamesReferencedBeforeParameter=" + objstr_(obj_(this.parametersWithNamesReferencedBeforeParameter_)) + "]"
+	return "SetContainer[" + "parametersReferencedAfterSideEffect=" + tostr_(this.parametersReferencedAfterSideEffect_) + ", parametersWithNamesReferencedBeforeParameter=" + tostr_(this.parametersWithNamesReferencedBeforeParameter_) + "]"
 }
 
 type FunctionArgumentInjector_ReferencedAfterSideEffect struct {
@@ -533,5 +533,5 @@ func (this *FunctionArgumentInjector_ParamArgPair) hashCode() int32 {
 }
 
 func (this *FunctionArgumentInjector_ParamArgPair) toString() string {
-	return "ParamArgPair[" + "paramNode=" + objstr_(this.paramNode_.box_()) + ", arg=" + objstr_(this.arg_.box_()) + "]"
+	return "ParamArgPair[" + "paramNode=" + tostr_(this.paramNode_) + ", arg=" + tostr_(this.arg_) + "]"
 }

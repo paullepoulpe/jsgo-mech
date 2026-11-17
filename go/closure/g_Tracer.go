@@ -69,7 +69,7 @@ func Tracer_longToPaddedString(v int64, digitsColumnWidth int32) string {
 	var sb *StringBuilder = new_StringBuilder()
 	Tracer_appendSpaces(sb, (digitsColumnWidth - digitWidth))
 	sb.append_long(v)
-	return Object_toString(obj_(sb))
+	return tostrNN_(sb)
 }
 
 func Tracer_numDigits(n int64) int32 {
@@ -156,7 +156,7 @@ func Tracer_setDefaultSilenceThreshold(threshold int32) {
 func Tracer_initCurrentThreadTrace_0() {
 	var events *Tracer_ThreadTrace = Tracer_getThreadTrace()
 	if !events.isEmpty() {
-		Tracer_logger.log(Level_WARNING, ("Non-empty timer log:\n" + objstr_(obj_(events))), new_Throwable_0())
+		Tracer_logger.log(Level_WARNING, ("Non-empty timer log:\n" + tostr_(events)), new_Throwable_0())
 		Tracer_clearThreadTrace()
 		events = Tracer_getThreadTrace()
 	}
@@ -393,7 +393,7 @@ func (this *Tracer_Event) toString(prevEventTime int64, indent string, digitsCol
 	}
 	sb.append(indent)
 	sb.append_Object(obj_(this.tracer))
-	return Object_toString(obj_(sb))
+	return tostrNN_(sb)
 }
 
 type Tracer_ThreadTrace struct {
@@ -571,7 +571,7 @@ func (this *Tracer_ThreadTrace) toString() string {
 			sb.append(")\n")
 		}
 	}
-	return Object_toString(obj_(sb))
+	return tostrNN_(sb)
 }
 
 func (this *Tracer_ThreadTrace) getMaxDigits() int32 {

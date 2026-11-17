@@ -296,7 +296,7 @@ func (this *SymbolTable) toDebugStringTree() string {
 		visitedScopes[symbol.getPropertyScope()] = struct{}{}
 		this.toDebugStringTree_4(builder, "", symbol.propertyScope, childrenScopes)
 	}
-	return Object_toString(obj_(builder))
+	return tostrNN_(builder)
 }
 
 func (this *SymbolTable) toDebugStringTree_4(builder *StringBuilder, prefix string, scope *SymbolTable_SymbolScope, childrenScopes *SimpleListMultimap) {
@@ -332,7 +332,7 @@ func (this *SymbolTable) toDebugString() string {
 	for _, symbol := range this.getAllSymbols() {
 		this.toDebugString_4(builder, "", symbol, true)
 	}
-	return Object_toString(obj_(builder))
+	return tostrNN_(builder)
 }
 
 func (this *SymbolTable) toDebugString_4(builder *StringBuilder, prefix string, symbol *SymbolTable_Symbol, printScope bool) {
@@ -509,10 +509,10 @@ func (this *SymbolTable) mergeSymbol(from *SymbolTable_Symbol, to *SymbolTable_S
 func (this *SymbolTable) removeSymbol(s *SymbolTable_Symbol) {
 	var scope *SymbolTable_SymbolScope = this.getScope(s)
 	if !s.equals(obj_(scope.ownSymbols.remove(s.getName()))) {
-		panic(new_IllegalStateException_String(("Symbol not found in scope " + objstr_(obj_(s)))).self())
+		panic(new_IllegalStateException_String(("Symbol not found in scope " + tostr_(s))).self())
 	}
 	if !s.equals(this.symbols.remove(cast_[*SymbolTable_Reference](s.getDeclaration()).getNode().box_(), strobj_(s.getName()))) {
-		panic(new_IllegalStateException_String(("Symbol not found in table " + objstr_(obj_(s)))).self())
+		panic(new_IllegalStateException_String(("Symbol not found in table " + tostr_(s))).self())
 	}
 	if (s.propertyScope != nil) && s.equals(obj_(s.propertyScope.getSymbolForScope())) {
 		it_1 := foreach_(obj_(ImmutableList_copyOf(s.propertyScope.ownSymbols.asMap().values())))
@@ -1387,7 +1387,7 @@ func (this *SymbolTable_SymbolScope) toString() string {
 		}
 		return (sstr_(type_) + "@" + sstr_(n.getSourceFileName()) + ":" + istr_(int64(n.getLineno())))
 	} else {
-		return ("PropertyScope@" + objstr_(obj_(this.getSymbolForScope())))
+		return ("PropertyScope@" + tostr_(this.getSymbolForScope()))
 	}
 	panic("unreachable")
 }
@@ -1627,7 +1627,7 @@ func (this *SymbolTable_ThisRefCollector) enterScope_impl(t *NodeTraversal) {
 				}
 			}
 		} else {
-			SymbolTable_logger.fine(("Skipping empty function: " + objstr_(scopeRoot.box_())))
+			SymbolTable_logger.fine(("Skipping empty function: " + tostr_(scopeRoot)))
 		}
 		this.thisStack = append(this.thisStack, symbol)
 	}

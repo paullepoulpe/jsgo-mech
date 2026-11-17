@@ -84,7 +84,7 @@ func (this *J2clPass_InlineSpec) hashCode() int32 {
 }
 
 func (this *J2clPass_InlineSpec) toString() string {
-	return "InlineSpec[" + "classFileName=" + objstr_(strobj_(this.classFileName_)) + ", fnNamesToInline=" + objstr_(any(this.fnNamesToInline_.asSet())) + ", inliningMode=" + objstr_(obj_(this.inliningMode_)) + "]"
+	return "InlineSpec[" + "classFileName=" + sstr_(this.classFileName_) + ", fnNamesToInline=" + objstr_(any(this.fnNamesToInline_.asSet())) + ", inliningMode=" + tostr_(this.inliningMode_) + "]"
 }
 
 type J2clPass_ClassStaticFunctionsInliner struct {
@@ -178,7 +178,7 @@ func (this *J2clPass_ClassStaticFunctionsInliner_InlinableFunction) hashCode() i
 }
 
 func (this *J2clPass_ClassStaticFunctionsInliner_InlinableFunction) toString() string {
-	return "InlinableFunction[" + "impl=" + objstr_(this.impl_.box_()) + ", inliningMode=" + objstr_(obj_(this.inliningMode_)) + "]"
+	return "InlinableFunction[" + "impl=" + tostr_(this.impl_) + ", inliningMode=" + tostr_(this.inliningMode_) + "]"
 }
 
 type J2clPass_ClassStaticFunctionsInliner_FunctionDefsCollector struct {

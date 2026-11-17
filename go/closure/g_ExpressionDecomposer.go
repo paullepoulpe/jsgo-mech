@@ -247,7 +247,7 @@ func (this *ExpressionDecomposer) extractConditional(expr Node, injectionPoint N
 		trueExpr.addChildToFront(this.astFactory_.exprResult(ExpressionDecomposer_buildResultExpression(this.astFactory_.createName(tempNameAssign, AstFactory_type_Node(first)).srcref(expr), needResult, tempName)))
 		falseExpr.addChildToFront(this.astFactory_.exprResult(ExpressionDecomposer_buildResultExpression(last, needResult, tempName)))
 	default:
-		panic(new_IllegalStateException_String(("Unexpected expression: " + objstr_(expr.box_()))).self())
+		panic(new_IllegalStateException_String(("Unexpected expression: " + tostr_(expr))).self())
 	}
 	var ifNode Node
 	if falseExpr.hasChildren() {
@@ -788,7 +788,7 @@ func new_ExpressionDecomposer_DecompositionState() *ExpressionDecomposer_Decompo
 }
 
 func (this *ExpressionDecomposer_DecompositionState) toString() string {
-	return Object_toString(obj_(MoreObjects_toStringHelper(any(this)).add_String_boolean("sideEffects", this.sideEffects).add("extractBeforeStatement", this.extractBeforeStatement.box_())))
+	return tostrNN_(MoreObjects_toStringHelper(any(this)).add_String_boolean("sideEffects", this.sideEffects).add("extractBeforeStatement", this.extractBeforeStatement.box_()))
 }
 
 type ExpressionDecomposer_EvaluationDirection uint8

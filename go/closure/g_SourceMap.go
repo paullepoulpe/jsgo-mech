@@ -392,5 +392,5 @@ func new_SourceMap_Mapping() *SourceMap_Mapping {
 }
 
 func (this *SourceMap_Mapping) toString() string {
-	return ("Mapping: start " + objstr_(obj_(this.start_)) + ", end " + objstr_(obj_(this.end_)) + ", node " + objstr_(this.node_.box_()))
+	return ("Mapping: start " + tostr_(this.start_) + ", end " + tostr_(this.end_) + ", node " + tostr_(this.node_))
 }

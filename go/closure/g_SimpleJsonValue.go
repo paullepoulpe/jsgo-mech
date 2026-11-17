@@ -80,7 +80,7 @@ func (this *SimpleJsonValue) asString() *Outcome_base {
 	if ((this.tag == SimpleJsonValue_Kind_STRING) || (this.tag == SimpleJsonValue_Kind_NUMBER)) || (this.tag == SimpleJsonValue_Kind_BOOLEAN) {
 		return Outcome_base_ok_Object(strobj_(this.text))
 	}
-	return Outcome_base_err(new_SimpleJsonException(("Expected a JSON string but found " + objstr_(obj_(this.tag)))).up_Throwable())
+	return Outcome_base_err(new_SimpleJsonException(("Expected a JSON string but found " + tostr_(this.tag))).up_Throwable())
 }
 
 func (this *SimpleJsonValue) asInt() *Outcome_base {
@@ -94,7 +94,7 @@ func (this *SimpleJsonValue) asInt() *Outcome_base {
 		parsed = any(int32(SimpleJsonValue_wrapToInt(this.text)))
 	}
 	if parsed == nil {
-		return Outcome_base_err(new_SimpleJsonException(("Expected a JSON integer but found " + objstr_(obj_(this.tag)))).up_Throwable())
+		return Outcome_base_err(new_SimpleJsonException(("Expected a JSON integer but found " + tostr_(this.tag))).up_Throwable())
 	}
 	return Outcome_base_ok_Object(parsed)
 }

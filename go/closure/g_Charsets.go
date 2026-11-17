@@ -119,7 +119,7 @@ func Charsets_decodeUtf16(bytes []int8, canonical string, strict bool) OptionalO
 	if strict && !valid {
 		return Optional_empty[string]()
 	}
-	return Optional_of[string](Object_toString(obj_(text)))
+	return Optional_of[string](tostrNN_(text))
 }
 
 func Charsets_encode(text string, charset string) []int8 {

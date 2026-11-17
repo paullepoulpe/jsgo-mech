@@ -147,7 +147,7 @@ func (this *TranspileAndOptimizeClosureUnaware_ShadowAst) hashCode() int32 {
 }
 
 func (this *TranspileAndOptimizeClosureUnaware_ShadowAst) toString() string {
-	return "ShadowAst[" + "originalRoot=" + objstr_(this.originalRoot_.box_()) + ", callNode=" + objstr_(this.callNode_.box_()) + ", script=" + objstr_(this.script_.box_()) + "]"
+	return "ShadowAst[" + "originalRoot=" + tostr_(this.originalRoot_) + ", callNode=" + tostr_(this.callNode_) + ", script=" + tostr_(this.script_) + "]"
 }
 
 type TranspileAndOptimizeClosureUnaware_CollectShadowAsts struct {

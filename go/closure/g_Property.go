@@ -271,7 +271,7 @@ func (this *Property_StringKey) hashCode() int32 {
 }
 
 func (this *Property_StringKey) toString() string {
-	return "StringKey[" + "string=" + objstr_(strobj_(this.string_)) + "]"
+	return "StringKey[" + "string=" + sstr_(this.string_) + "]"
 }
 
 type Property_SymbolKey struct {
@@ -324,7 +324,7 @@ func (this *Property_SymbolKey) hashCode() int32 {
 }
 
 func (this *Property_SymbolKey) toString() string {
-	return "SymbolKey[" + "symbol=" + objstr_(obj_(this.symbol_)) + "]"
+	return "SymbolKey[" + "symbol=" + tostr_(this.symbol_) + "]"
 }
 
 type Property_OwnedProperty struct {

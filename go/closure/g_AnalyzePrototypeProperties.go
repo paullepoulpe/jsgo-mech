@@ -229,7 +229,7 @@ func (this *AnalyzePrototypeProperties_ProcessProperties) visit(t *NodeTraversal
 						this.addSymbolUse(propNode.getString(), t.getChunk(), AnalyzePrototypeProperties_PROPERTY)
 					}
 				default:
-					panic(new_IllegalStateException_String(("Unexpected child of " + objstr_(obj_(n.getToken())) + ": " + sstr_(propNode.toStringTree()))).self())
+					panic(new_IllegalStateException_String(("Unexpected child of " + tostr_(n.getToken()) + ": " + sstr_(propNode.toStringTree()))).self())
 				}
 			}
 		}

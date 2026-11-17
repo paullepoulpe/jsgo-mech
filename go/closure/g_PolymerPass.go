@@ -247,7 +247,7 @@ func new_PolymerPass_MemberDefinition(info *JSDocInfo, name Node, value Node, en
 }
 
 func (this *PolymerPass_MemberDefinition) toString() string {
-	return Object_toString(obj_(MoreObjects_toStringHelper(any(this)).add("name", this.name_.box_()).add("value", this.value_.box_())))
+	return tostrNN_(MoreObjects_toStringHelper(any(this)).add("name", this.name_.box_()).add("value", this.value_.box_()))
 }
 
 // visit: an object that is exactly a PolymerPass calls its visit_impl directly (post-flip); others dispatch.

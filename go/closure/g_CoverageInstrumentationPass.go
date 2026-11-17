@@ -92,7 +92,7 @@ func (this *CoverageInstrumentationPass) createConditionalObjectDecl(name string
 		case CompilerOptions_InstrumentOption_LINE_ONLY:
 			return IR_objectlit([]Node{IR_quotedStringKey("fileNames", IR_arraylit([]Node{})), IR_quotedStringKey("instrumentedLines", IR_arraylit([]Node{})), IR_quotedStringKey("executedLines", IR_arraylit([]Node{}))})
 		default:
-			panic(new_AssertionError_Object(strobj_(("Unexpected option: " + objstr_(obj_(this.instrumentOption))))).self())
+			panic(new_AssertionError_Object(strobj_(("Unexpected option: " + tostr_(this.instrumentOption)))).self())
 		}
 		panic("unreachable")
 	}()

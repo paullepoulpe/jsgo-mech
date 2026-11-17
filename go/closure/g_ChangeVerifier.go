@@ -148,14 +148,14 @@ func (this *ChangeVerifier) path(ancestor Node, child Node) string {
 		result.append(sliceAt_(childToAncestor, i))
 		result.append("\n")
 	}
-	return Object_toString(obj_(result))
+	return tostrNN_(result)
 }
 
 func ChangeVerifier_getInequivalenceReasonExcludingFunctions(thisNode Node, thatNode Node) *ChangeVerifier_EqualsResult {
 	Preconditions_checkNotNull(thisNode.box_())
 	Preconditions_checkNotNull(thatNode.box_())
 	if thisNode.getChildCount() != thatNode.getChildCount() {
-		return ChangeVerifier_EqualsResult_notEqual(thisNode, "differing child count", strobj_((objstr_(thisNode.box_()) + ": " + istr_(int64(thisNode.getChildCount())))), strobj_((objstr_(thatNode.box_()) + ": " + istr_(int64(thatNode.getChildCount())))))
+		return ChangeVerifier_EqualsResult_notEqual(thisNode, "differing child count", strobj_((tostr_(thisNode) + ": " + istr_(int64(thisNode.getChildCount())))), strobj_((tostr_(thatNode) + ": " + istr_(int64(thatNode.getChildCount())))))
 	}
 	if !thisNode.isEquivalentWithSideEffectsToShallow(thatNode) {
 		return ChangeVerifier_EqualsResult_notEqual(thisNode, "shallow inequivalence", thisNode.box_(), thatNode.box_())
@@ -253,7 +253,7 @@ func (this *ChangeVerifier_EqualsResult) hashCode() int32 {
 }
 
 func (this *ChangeVerifier_EqualsResult) toString() string {
-	return "EqualsResult[" + "equals=" + objstr_(any(bool(this.equals_))) + ", errorNode=" + objstr_(this.errorNode_.box_()) + ", errorMessage=" + objstr_(any(this.errorMessage_)) + "]"
+	return "EqualsResult[" + "equals=" + boolstr_(bool(this.equals_)) + ", errorNode=" + tostr_(this.errorNode_) + ", errorMessage=" + objstr_(any(this.errorMessage_)) + "]"
 }
 
 type ChangeVerifier_1 struct {

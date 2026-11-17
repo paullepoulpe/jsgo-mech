@@ -533,7 +533,7 @@ func ControlFlowAnalysis_computeFollowNode_Node_Node_ControlFlowAnalysis(fromNod
 			}
 			return ControlFlowAnalysis_computeFollowNode_Node_Node_ControlFlowAnalysis(fromNode, parent, cfa)
 		}
-		panic(new_IllegalStateException_String(("Unexpected TRY child " + objstr_(node.box_()))).self())
+		panic(new_IllegalStateException_String(("Unexpected TRY child " + tostr_(node))).self())
 	default:
 	}
 	var nextSibling Node = node.getNext()

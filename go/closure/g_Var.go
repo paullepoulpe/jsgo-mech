@@ -30,7 +30,7 @@ func (this *Var) init_Var(name string, nameNode Node, scope *Scope, index int32,
 		switch nameNode.ns_().token {
 		case tokOrd1_MODULE_BODY, tokOrd1_NAME, tokOrd1_IMPORT_STAR:
 		default:
-			panic(new_IllegalArgumentException_String(("Invalid name node " + objstr_(nameNode.box_()))).self())
+			panic(new_IllegalArgumentException_String(("Invalid name node " + tostr_(nameNode))).self())
 		}
 	}
 }
@@ -48,7 +48,7 @@ func Var_createImplicitGoogNamespace(name string, scope *Scope, definition Node)
 }
 
 func (this *Var) toString() string {
-	return ("Var " + sstr_(this.getName()) + " @ " + objstr_(this.getNameNode().box_()))
+	return ("Var " + sstr_(this.getName()) + " @ " + tostr_(this.getNameNode()))
 }
 
 const Var_ARGUMENTS string = "arguments"

@@ -2395,7 +2395,7 @@ func (this *TypedScopeCreator_FunctionScopeBuilder) declareNamesInPositionalPara
 	case tokOrd1_ARRAY_PATTERN, tokOrd1_OBJECT_PATTERN:
 		this.declareDestructuringParameter(isInferred, astParameter, paramType)
 	default:
-		panic(new_IllegalStateException_String(("Unexpected function parameter node " + objstr_(astParameter.box_()))).self())
+		panic(new_IllegalStateException_String(("Unexpected function parameter node " + tostr_(astParameter))).self())
 	}
 }
 

@@ -117,14 +117,14 @@ func (this *ReportUntranspilableFeatures) reportUntranspilable(feature FeatureSe
 	if this.browserFeatureSetYear != 0 {
 		var minimumYear CompilerOptions_BrowserFeaturesetYear = CompilerOptions_BrowserFeaturesetYear_minimumRequiredFor(feature)
 		if minimumYear == 0 {
-			minimum = (objstr_(obj_(minimumLanguageMode)) + ", which is not yet supported by any browser featureset year")
+			minimum = (tostr_(minimumLanguageMode) + ", which is not yet supported by any browser featureset year")
 			suggestion = ""
 		} else {
 			minimum = ("browser featureset year " + istr_(int64(minimumYear.getYear())))
 			suggestion = (sstr_(suggestion) + "\nCurrent browser featureset year: " + istr_(int64(this.browserFeatureSetYear.getYear())))
 		}
 	} else {
-		minimum = Object_toString(obj_(minimumLanguageMode))
+		minimum = tostrNN_(minimumLanguageMode)
 	}
 	this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(node, ReportUntranspilableFeatures_UNTRANSPILABLE_FEATURE_PRESENT, []string{feature.toString(), minimum, suggestion}))
 }

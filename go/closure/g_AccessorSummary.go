@@ -92,7 +92,7 @@ func AccessorSummary_fromProtoPropertyAccessKindProto(kind PropertyAccessKindPro
 		case PropertyAccessKindProto_KIND_GETTER_AND_SETTER:
 			return AccessorSummary_PropertyAccessKind_GETTER_AND_SETTER
 		default:
-			panic(new_IllegalArgumentException_String(("Unknown kind: " + objstr_(obj_(kind)))).self())
+			panic(new_IllegalArgumentException_String(("Unknown kind: " + tostr_(kind))).self())
 		}
 		panic("unreachable")
 	}()

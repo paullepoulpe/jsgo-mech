@@ -531,7 +531,7 @@ func PotentialDeclaration_DefineDeclaration_from(callNode Node) *PotentialDeclar
 			var parent Node = callNode.getParent()
 			return new_PotentialDeclaration_DefineDeclaration(parent.getString(), parent, callNode.getLastChild())
 		default:
-			panic(new_IllegalStateException_String(("Unexpected parent: " + objstr_(obj_(callNode.getParent().getToken())))).self())
+			panic(new_IllegalStateException_String(("Unexpected parent: " + tostr_(callNode.getParent().getToken()))).self())
 		}
 		panic("unreachable")
 	}()

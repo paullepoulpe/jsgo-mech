@@ -58,7 +58,7 @@ func (this *AbstractScope) init_AbstractScope(rootNode Node) {
 }
 
 func (this *AbstractScope) toString() string {
-	return ("Scope@" + objstr_(this.rootNode_.box_()))
+	return ("Scope@" + tostr_(this.rootNode_))
 }
 
 func (this *AbstractScope) untyped_impl() *Scope {

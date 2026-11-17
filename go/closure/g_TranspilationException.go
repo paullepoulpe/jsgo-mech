@@ -87,7 +87,7 @@ func TranspilationException_format(source SourceExcerptProvider, errors Immutabl
 		var warning *JSError = cast_[*JSError](it_3.v)
 		sb.append("\n").append(formatter.formatError(warning))
 	}
-	return Object_toString(obj_(sb))
+	return tostrNN_(sb)
 }
 
 func TranspilationException_tryCastToTranspilationException(t *Throwable) *TranspilationException {

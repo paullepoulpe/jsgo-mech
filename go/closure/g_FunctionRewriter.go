@@ -51,7 +51,7 @@ func (this *FunctionRewriter) process_2(externs Node, root Node) {
 }
 
 func (this *FunctionRewriter) parseHelperCode(reducer *FunctionRewriter_Reducer) Node {
-	var root Node = this.compiler_.parseSyntheticCode((objstr_(obj_(Object_getClass(reducer.self()))) + ":helper"), reducer.getHelperSource())
+	var root Node = this.compiler_.parseSyntheticCode((tostr_(Object_getClass(reducer.self())) + ":helper"), reducer.getHelperSource())
 	return func() Node {
 		if root != 0 {
 			return root.removeFirstChild()
@@ -415,7 +415,7 @@ func (this *FunctionRewriter_GetterReducer) reduce_impl(node Node) Node {
 	var getprop Node = this.getGetPropertyName(node)
 	if getprop != 0 {
 		if !getprop.isGetProp() {
-			panic(new_IllegalStateException_String(("Expected GETPROP, got " + objstr_(obj_(getprop.getToken())))).self())
+			panic(new_IllegalStateException_String(("Expected GETPROP, got " + tostr_(getprop.getToken()))).self())
 		}
 		var arg Node = IR_string(getprop.getString()).srcref(getprop)
 		return this.buildCallNode(FunctionRewriter_GetterReducer_FACTORY_METHOD_NAME, arg, node)
@@ -469,7 +469,7 @@ func (this *FunctionRewriter_SetterReducer) reduce_impl(node Node) Node {
 	var propName Node = this.getSetPropertyName(node)
 	if propName != 0 {
 		if !propName.isStringLit() {
-			panic(new_IllegalStateException_String(("Expected STRING, got " + objstr_(obj_(propName.getToken())))).self())
+			panic(new_IllegalStateException_String(("Expected STRING, got " + tostr_(propName.getToken()))).self())
 		}
 		return this.buildCallNode(FunctionRewriter_SetterReducer_FACTORY_METHOD_NAME, propName, node)
 	} else {

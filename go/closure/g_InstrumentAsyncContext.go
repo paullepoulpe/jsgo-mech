@@ -284,7 +284,7 @@ func (this *InstrumentAsyncContext) simplifyParameter(param Node, t *NodeTravers
 		var newParam Node = this.astFactory_.createName((sstr_(param.getString()) + "$jscomp$param$" + sstr_(this.uniqueIdSupplier.getUniqueId(t.getInput()))), AstFactory_type_Node(param)).srcrefTreeIfMissing(param)
 		return new_InstrumentAsyncContext_ArgParamPair(newParam.cloneTree(), newParam)
 	}
-	panic(new_IllegalStateException_String(("Unexpected parameter: " + objstr_(param.box_()))).self())
+	panic(new_IllegalStateException_String(("Unexpected parameter: " + tostr_(param))).self())
 }
 
 func (this *InstrumentAsyncContext) instrumentAsyncFunction(f Node, input *CompilerInput, functionContext *InstrumentAsyncContext_FunctionContext) {
@@ -479,5 +479,5 @@ func (this *InstrumentAsyncContext_FunctionContext) hashCode() int32 {
 }
 
 func (this *InstrumentAsyncContext_FunctionContext) toString() string {
-	return "FunctionContext[" + "uniqueSuffix=" + objstr_(strobj_(this.uniqueSuffix_)) + ", suspendName=" + objstr_(this.suspendName_.box_()) + ", resumeName=" + objstr_(this.resumeName_.box_()) + ", factoryName=" + objstr_(this.factoryName_.box_()) + ", astFactory=" + objstr_(obj_(this.astFactory_)) + "]"
+	return "FunctionContext[" + "uniqueSuffix=" + sstr_(this.uniqueSuffix_) + ", suspendName=" + tostr_(this.suspendName_) + ", resumeName=" + tostr_(this.resumeName_) + ", factoryName=" + tostr_(this.factoryName_) + ", astFactory=" + objstr_(obj_(this.astFactory_)) + "]"
 }

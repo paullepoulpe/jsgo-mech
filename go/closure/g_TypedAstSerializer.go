@@ -181,7 +181,7 @@ func (this *TypedAstSerializer) valueTranslator(builder *AstNode_Builder, n Node
 		builder.setDoubleValue(n.getDouble())
 		return
 	case tokOrd1_BIGINT:
-		builder.setStringValuePointer(this.stringPool.put(Object_toString(obj_(n.getBigInt()))))
+		builder.setStringValuePointer(this.stringPool.put(tostrNN_(n.getBigInt())))
 		return
 	default:
 		return
@@ -496,7 +496,7 @@ func (this *TypedAstSerializer) kindTranslator(n Node) NodeKind {
 		return NodeKind_SWITCH_BODY
 	case tokOrd1_ROOT, tokOrd1_STRING_TYPE, tokOrd1_BOOLEAN_TYPE, tokOrd1_NUMBER_TYPE, tokOrd1_FUNCTION_TYPE, tokOrd1_PARAMETERIZED_TYPE, tokOrd1_UNION_TYPE, tokOrd1_ANY_TYPE, tokOrd1_NULLABLE_TYPE, tokOrd1_VOID_TYPE, tokOrd1_REST_PARAMETER_TYPE, tokOrd1_NAMED_TYPE, tokOrd1_RECORD_TYPE, tokOrd1_UNDEFINED_TYPE, tokOrd1_OPTIONAL_PARAMETER, tokOrd1_ARRAY_TYPE, tokOrd1_GENERIC_TYPE, tokOrd1_GENERIC_TYPE_LIST, tokOrd1_INTERFACE, tokOrd1_INTERFACE_EXTENDS, tokOrd1_INTERFACE_MEMBERS, tokOrd1_MEMBER_VARIABLE_DEF, tokOrd1_ENUM, tokOrd1_ENUM_MEMBERS, tokOrd1_IMPLEMENTS, tokOrd1_TYPE_ALIAS, tokOrd1_DECLARE, tokOrd1_INDEX_SIGNATURE, tokOrd1_CALL_SIGNATURE, tokOrd1_NAMESPACE, tokOrd1_NAMESPACE_ELEMENTS, tokOrd1_ANNOTATION, tokOrd1_PIPE, tokOrd1_STAR, tokOrd1_EOC, tokOrd1_QMARK, tokOrd1_BANG, tokOrd1_EQUALS, tokOrd1_LB, tokOrd1_LC, tokOrd1_COLON, tokOrd1_CAST, tokOrd1_PLACEHOLDER1, tokOrd1_PLACEHOLDER2, tokOrd1_PLACEHOLDER3:
 	}
-	panic(new_IllegalStateException_String(("Unserializable token for node: " + objstr_(n.box_()))).self())
+	panic(new_IllegalStateException_String(("Unserializable token for node: " + tostr_(n))).self())
 }
 
 func TypedAstSerializer_createJSTypeSerializer(compiler *AbstractCompiler, serializationMode *SerializationOptions, stringPoolBuilder *StringPool_Builder) *TypedAstSerializer_JSTypeSerializer {

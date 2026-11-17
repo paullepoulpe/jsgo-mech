@@ -79,7 +79,7 @@ func (this *DiagnosticGroupWarningsGuard) groupMatchesAll(types ImmutableSetOf[*
 }
 
 func (this *DiagnosticGroupWarningsGuard) toString() string {
-	return (objstr_(obj_(this.group)) + "(" + objstr_(obj_(this.levelField)) + ")")
+	return (tostr_(this.group) + "(" + tostr_(this.levelField) + ")")
 }
 
 const DiagnosticGroupWarningsGuard_serialVersionUID int64 = 1

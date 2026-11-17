@@ -304,7 +304,7 @@ func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler) transpileSta
 	case tokOrd1_SWITCH:
 		this.transpileSwitch(statement, breakCase)
 	default:
-		panic(new_IllegalStateException_String(("Unsupported token: " + objstr_(obj_(statement.getToken())))).self())
+		panic(new_IllegalStateException_String(("Unsupported token: " + tostr_(statement.getToken()))).self())
 	}
 }
 

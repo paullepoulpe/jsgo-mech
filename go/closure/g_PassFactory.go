@@ -162,7 +162,7 @@ func (this *PassFactory_PreconditionResult) hashCode() int32 {
 }
 
 func (this *PassFactory_PreconditionResult) toString() string {
-	return "PreconditionResult[" + "success=" + objstr_(any(bool(this.success_))) + ", message=" + objstr_(obj_(optErase_(this.message_))) + "]"
+	return "PreconditionResult[" + "success=" + boolstr_(bool(this.success_)) + ", message=" + tostr_(optErase_(this.message_)) + "]"
 }
 
 var PassFactory_PreconditionResult_SUCCESS *PassFactory_PreconditionResult

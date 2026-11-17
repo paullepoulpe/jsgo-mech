@@ -361,7 +361,7 @@ func new_TypedAstDeserializer_DeserializedAst(getFilesystem ConcurrentMapOf[*Sou
 }
 
 func (this *TypedAstDeserializer_DeserializedAst) toString() string {
-	return ("DeserializedAst{filesystem=" + objstr_(any(this.getFilesystem_)) + ", colorRegistry=" + objstr_(obj_(this.getColorRegistry_)) + ", externProperties=" + objstr_(obj_(this.getExternProperties_)) + ", runtimeLibraries=" + objstr_(obj_(this.getRuntimeLibraries_)) + "}")
+	return ("DeserializedAst{filesystem=" + objstr_(any(this.getFilesystem_)) + ", colorRegistry=" + tostr_(this.getColorRegistry_) + ", externProperties=" + tostr_(this.getExternProperties_) + ", runtimeLibraries=" + tostr_(this.getRuntimeLibraries_) + "}")
 }
 
 func TypedAstDeserializer_DeserializedAst_create(filesystem ConcurrentMapOf[*SourceFile_jscomp, SupplierOf[Node]], colorRegistry Optional_baseOf[*ColorRegistry], externProperties ImmutableSetOf[string], runtimeLibraries ImmutableSetOf[string]) *TypedAstDeserializer_DeserializedAst {
