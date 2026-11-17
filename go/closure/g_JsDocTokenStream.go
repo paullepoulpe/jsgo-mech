@@ -24,7 +24,7 @@ type JsDocTokenStream struct {
 func (this *JsDocTokenStream) zero_JsDocTokenStream() {
 	this.string_ = nullstr_
 	this.sourceString = nullstr_
-	this.sourceStringU16 = utf16Of_(this.sourceString)
+	this.sourceStringU16 = utf16Kept_(this.sourceString)
 }
 
 func (this *JsDocTokenStream) finit_JsDocTokenStream() {
@@ -62,7 +62,7 @@ func (this *JsDocTokenStream) init_JsDocTokenStream_String_int_int(sourceString 
 	this.finit_JsDocTokenStream()
 	this.lineno_ = lineno
 	this.sourceString = sourceString
-	this.sourceStringU16 = utf16Of_(this.sourceString)
+	this.sourceStringU16 = utf16Kept_(this.sourceString)
 	this.sourceEnd = String_length(sourceString)
 	this.cursor = 0
 	this.sourceCursor = 0
