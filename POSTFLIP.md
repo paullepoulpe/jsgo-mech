@@ -223,8 +223,42 @@ Where typed-full still trails pre-flip Java (pass time, tracer):
 | checkTypes | 1.61s | 2.17s | 0.74 |
 | coalesceVariableNames | 1.01s | 1.36s | 0.74 |
 
+## Correction: PGO (13-17 Nov)
+
+`go/cmd/mech/default.pgo` was in the tree from 1fef152c (13 Nov) to c4aefc67 (17 Nov), and
+`go build` uses a `default.pgo` in the main package's directory automatically. Every binary
+built in that window was profile-guided, including the measurements of rounds 2-5 below. The
+profile and `tools/pgo` are removed (c4aefc67). Measured again without PGO (no `-pgo` in
+`go version -m`), against pre-flip Java, interleaved, byte-identical outputs:
+
+| tree | typed-full Java/Go (median; rounds) | bundle Java/Go (median; rounds) |
+|---|---|---|
+| cc8beb35 (end of round 6) built with PGO | 1.038; 0.985-1.201 | 1.147; 1.111-1.182 |
+| cc8beb35 without PGO | 1.042; 1.026-1.236, all > 1 | 1.129; 1.113-1.135, all > 1 |
+| 2d204c0f (round 7 merged) without PGO | **1.082**; 1.024-1.122, all > 1 | **1.117**; 1.093-1.154, all > 1 |
+
+PGO was worth about nothing on typed-full and 1.6% on bundle; the result does not depend on it.
+
+## postflip5, round 7: Java-isms (merged at 2d204c0f)
+
+Five branches (postflip5-r7-erased, -typed, -strings, -misc, -generics), each prototyped and
+gated by one agent from cc8beb35, merged here in that order by cherry-picking their tool and
+runtime commits and re-running each step's tool on the merged tree; each group gated (runtime
+tests ok, four projects MATCH). Then a dry run (-n) of every post-flip tool on the merged tree:
+only `tostr` had work left (613 conversions, 85416d7a); `colls -kind set` would convert one class
+whose value comes from a generic class's type argument but does not compile (left for round 8).
+
+| group | steps (commands) | census (g_*.go, cc8beb35 -> merged) |
+|---|---|---|
+| erased collections | `colls/run.sh` (list, map, set, deque, treeset, treemap, idmap, then native); runtime TTreeSet/TTreeMap, LinkedIdentityHashMap on a typed map | erased constructors 278 -> 228 |
+| loops and iterators | `ranges -index`, `ranges -entries`, `iters`; runtime immElems_, immCursor_, typed cursors | for-each cursors 198 -> 101, explicit iterators 123 -> 102 |
+| strings | `strnative`, `strcuts/run.sh`, `strunits` | String_* 1,184 -> 973 |
+| misc | `nnchecks` (hoisting), `exceptions`, `nnchecks` (Optional tests), `optof`, `instof`, `eqtyped`, manual thread names, `passfn`, `funcparams` | Preconditions 76 -> 3, lambdas 396 -> 201, equals/hashCode 153 -> 48, Optional 103 -> 85, instanceof 79 -> 72, try/catch 68 -> 62, threads 19 -> 13 |
+| generic classes | `generics/classes.sh` (25 classes are Go generic types), then `castfold`, `castfold -instof`, `casts -named`, `anyconv -all`, `objslots` | boxing 6,039 -> 5,175, unboxing 791 -> 704, class casts 2,192 -> 2,018, interface casts 969 -> 959, any declarations 2,128 -> 1,852 |
+
 ## postflip5, rounds 2-5: beating pre-flip Java
 
+These measurements were made with PGO (see the correction above).
 Ratios are Java time / Go time (above 1: the transpiled Go + post-flip steps is faster).
 
 **Result** (postflip5 tip, one machine, idle, pre-flip Java and Go alternating ABBA; out.js,

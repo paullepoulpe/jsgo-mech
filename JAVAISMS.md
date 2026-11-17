@@ -72,5 +72,21 @@ Java-ism (what is left is listed with its reason in the step's commit message):
 | StringBuilder | 426 | 283 | `sbuild`; left: builders passed on or using charAt/setLength/insert |
 | thread/executor emulation | 78 | 47 | manual (runInCompilerThread runs its task directly); left: names in stubs and two same-thread checks |
 | Preconditions with message arguments | 889 boxed per call | boxed only on failure | `precond` |
-| exceptions, String_* UTF-16 helpers, reflect, unsafe | | | not translation artefacts: jsgo has the same (panic/defer, UTF-16 semantics over WTF-8); reflect/unsafe hits are names, not uses |
+| exceptions, String_* UTF-16 helpers, reflect, unsafe | | | being converted by post-flip steps (round 8, see "After round 7" below); not left as "not translation artefacts" |
 
+
+## After round 7 (merged tree 85416d7a)
+
+Census (tools/census, g_*.go), cc8beb35 -> 85416d7a: erased collection constructors 278 -> 228;
+typed TList/TMap/TSet constructors 401 -> 431 (erased ones that became typed); Guava immutables
+748 -> 748; for-each cursors 198 -> 101; explicit iterators 123 -> 102; interface casts 969 -> 959;
+class casts 2,192 -> 2,018; instanceof 79 -> 72; boxing 6,039 -> 5,175 before the tostr re-run
+(-613 after it); unboxing 791 -> 704; lambda objects 396 -> 201; Optional 103 -> 85; try/catch
+emulation 68 -> 62; panic 3,470 -> 3,517 (inline checks panic directly); defer 91 -> 88;
+equals/hashCode 153 -> 48; String_* 1,184 -> 973; StringBuilder 24 -> 24; Preconditions 76 -> 3;
+threads 19 -> 13; reflect 5; unsafe 1; any declarations 2,128 -> 1,852.
+
+Round 8 (in progress), one branch each: Guava immutables (postflip5-r8-imm), erased slots, casts
+and generic interfaces (postflip5-r8-casts), the exception model and the misc rows
+(postflip5-r8-exc), String_* and StringBuilder (postflip5-r8-str), the remaining Java collections
+and typed collections to Go slices and maps (postflip5-r8-colls).
