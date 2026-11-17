@@ -531,7 +531,7 @@ func ConformanceRules_NoOp_create(compiler *AbstractCompiler, requirement *Requi
 	if inited.isErr() {
 		return Outcome_base_err[CheckConformance_Rule](inited.error())
 	}
-	return Outcome_base_ok_Object[CheckConformance_Rule](icast_CheckConformance_Rule(obj_(rule)))
+	return Outcome_base_ok_Object[CheckConformance_Rule](CheckConformance_Rule(rule))
 }
 
 func (this *ConformanceRules_NoOp) initNoOp(compiler *AbstractCompiler, requirement *Requirement) *Outcome_base[any] {
@@ -713,7 +713,7 @@ func ConformanceRules_InferredConstCheck_create(compiler *AbstractCompiler, requ
 	if inited.isErr() {
 		return Outcome_base_err[CheckConformance_Rule](inited.error())
 	}
-	return Outcome_base_ok_Object[CheckConformance_Rule](icast_CheckConformance_Rule(obj_(rule)))
+	return Outcome_base_ok_Object[CheckConformance_Rule](CheckConformance_Rule(rule))
 }
 
 func (this *ConformanceRules_InferredConstCheck) initInferredConstCheck(compiler *AbstractCompiler, requirement *Requirement) *Outcome_base[any] {
@@ -772,7 +772,7 @@ func ConformanceRules_BannedDependency_create(compiler *AbstractCompiler, requir
 	if inited.isErr() {
 		return Outcome_base_err[CheckConformance_Rule](inited.error())
 	}
-	return Outcome_base_ok_Object[CheckConformance_Rule](icast_CheckConformance_Rule(obj_(rule)))
+	return Outcome_base_ok_Object[CheckConformance_Rule](CheckConformance_Rule(rule))
 }
 
 func (this *ConformanceRules_BannedDependency) initBannedDependency(compiler *AbstractCompiler, requirement *Requirement) *Outcome_base[any] {
@@ -834,7 +834,7 @@ func ConformanceRules_BannedDependencyRegex_create(compiler *AbstractCompiler, r
 	if inited.isErr() {
 		return Outcome_base_err[CheckConformance_Rule](inited.error())
 	}
-	return Outcome_base_ok_Object[CheckConformance_Rule](icast_CheckConformance_Rule(obj_(rule)))
+	return Outcome_base_ok_Object[CheckConformance_Rule](CheckConformance_Rule(rule))
 }
 
 func (this *ConformanceRules_BannedDependencyRegex) initBannedDependencyRegex(compiler *AbstractCompiler, requirement *Requirement) *Outcome_base[any] {
@@ -900,7 +900,7 @@ func ConformanceRules_BannedName_create(compiler *AbstractCompiler, requirement 
 	if inited.isErr() {
 		return Outcome_base_err[CheckConformance_Rule](inited.error())
 	}
-	return Outcome_base_ok_Object[CheckConformance_Rule](icast_CheckConformance_Rule(obj_(rule)))
+	return Outcome_base_ok_Object[CheckConformance_Rule](CheckConformance_Rule(rule))
 }
 
 func (this *ConformanceRules_BannedName) initBannedName(compiler *AbstractCompiler, requirement *Requirement) *Outcome_base[any] {
@@ -1015,7 +1015,7 @@ func ConformanceRules_BannedProperty_create(compiler *AbstractCompiler, requirem
 	if inited.isErr() {
 		return Outcome_base_err[CheckConformance_Rule](inited.error())
 	}
-	return Outcome_base_ok_Object[CheckConformance_Rule](icast_CheckConformance_Rule(obj_(rule)))
+	return Outcome_base_ok_Object[CheckConformance_Rule](CheckConformance_Rule(rule))
 }
 
 func (this *ConformanceRules_BannedProperty) initBannedProperty(compiler *AbstractCompiler, requirement *Requirement) *Outcome_base[any] {
@@ -1329,7 +1329,7 @@ func ConformanceRules_BannedStringRegex_create(compiler *AbstractCompiler, requi
 	if inited.isErr() {
 		return Outcome_base_err[CheckConformance_Rule](inited.error())
 	}
-	return Outcome_base_ok_Object[CheckConformance_Rule](icast_CheckConformance_Rule(obj_(rule)))
+	return Outcome_base_ok_Object[CheckConformance_Rule](CheckConformance_Rule(rule))
 }
 
 func (this *ConformanceRules_BannedStringRegex) initBannedStringRegex(compiler *AbstractCompiler, requirement *Requirement) *Outcome_base[any] {
@@ -1611,7 +1611,7 @@ func ConformanceRules_RestrictedNameCall_create(compiler *AbstractCompiler, requ
 	if inited.isErr() {
 		return Outcome_base_err[CheckConformance_Rule](inited.error())
 	}
-	return Outcome_base_ok_Object[CheckConformance_Rule](icast_CheckConformance_Rule(obj_(rule)))
+	return Outcome_base_ok_Object[CheckConformance_Rule](CheckConformance_Rule(rule))
 }
 
 func (this *ConformanceRules_RestrictedNameCall) initRestrictedNameCall(compiler *AbstractCompiler, requirement *Requirement) *Outcome_base[any] {
@@ -1721,7 +1721,7 @@ func ConformanceRules_RestrictedMethodCall_create(compiler *AbstractCompiler, re
 	if inited.isErr() {
 		return Outcome_base_err[CheckConformance_Rule](inited.error())
 	}
-	return Outcome_base_ok_Object[CheckConformance_Rule](icast_CheckConformance_Rule(obj_(rule)))
+	return Outcome_base_ok_Object[CheckConformance_Rule](CheckConformance_Rule(rule))
 }
 
 func (this *ConformanceRules_RestrictedMethodCall) initRestrictedMethodCall(compiler *AbstractCompiler, requirement *Requirement) *Outcome_base[any] {
@@ -1869,7 +1869,7 @@ func ConformanceRules_RestrictedPropertyWrite_create(compiler *AbstractCompiler,
 	if inited.isErr() {
 		return Outcome_base_err[CheckConformance_Rule](inited.error())
 	}
-	return Outcome_base_ok_Object[CheckConformance_Rule](icast_CheckConformance_Rule(obj_(rule)))
+	return Outcome_base_ok_Object[CheckConformance_Rule](CheckConformance_Rule(rule))
 }
 
 func (this *ConformanceRules_RestrictedPropertyWrite) initRestrictedPropertyWrite(compiler *AbstractCompiler, requirement *Requirement) *Outcome_base[any] {
@@ -1996,7 +1996,7 @@ func ConformanceRules_BannedCodePattern_create(compiler *AbstractCompiler, requi
 	if inited.isErr() {
 		return Outcome_base_err[CheckConformance_Rule](inited.error())
 	}
-	return Outcome_base_ok_Object[CheckConformance_Rule](icast_CheckConformance_Rule(obj_(rule)))
+	return Outcome_base_ok_Object[CheckConformance_Rule](CheckConformance_Rule(rule))
 }
 
 func (this *ConformanceRules_BannedCodePattern) initBannedCodePattern(compiler *AbstractCompiler, requirement *Requirement) *Outcome_base[any] {
@@ -2063,7 +2063,7 @@ func ConformanceRules_CustomRuleProxy_create(compiler *AbstractCompiler, require
 	if inited.isErr() {
 		return Outcome_base_err[CheckConformance_Rule](inited.error())
 	}
-	return Outcome_base_ok_Object[CheckConformance_Rule](icast_CheckConformance_Rule(obj_(rule)))
+	return Outcome_base_ok_Object[CheckConformance_Rule](CheckConformance_Rule(rule))
 }
 
 func (this *ConformanceRules_CustomRuleProxy) initCustomRuleProxy(compiler *AbstractCompiler, requirement *Requirement) *Outcome_base[any] {
@@ -2074,7 +2074,7 @@ func (this *ConformanceRules_CustomRuleProxy) initCustomRuleProxy(compiler *Abst
 	if customRuleOutcome.isErr() {
 		return Outcome_base_err[any](customRuleOutcome.error())
 	}
-	this.customRule = icast_CheckConformance_Rule(customRuleOutcome.get())
+	this.customRule = customRuleOutcome.get()
 	return Outcome_base_ok_0()
 }
 
@@ -2302,7 +2302,7 @@ func ConformanceRules_BanForOf_create(compiler *AbstractCompiler, requirement *R
 	if inited.isErr() {
 		return Outcome_base_err[CheckConformance_Rule](inited.error())
 	}
-	return Outcome_base_ok_Object[CheckConformance_Rule](icast_CheckConformance_Rule(obj_(rule)))
+	return Outcome_base_ok_Object[CheckConformance_Rule](CheckConformance_Rule(rule))
 }
 
 func (this *ConformanceRules_BanForOf) initBanForOf(compiler *AbstractCompiler, requirement *Requirement) *Outcome_base[any] {
@@ -2353,7 +2353,7 @@ func ConformanceRules_RequireUseStrict_create(compiler *AbstractCompiler, requir
 	if inited.isErr() {
 		return Outcome_base_err[CheckConformance_Rule](inited.error())
 	}
-	return Outcome_base_ok_Object[CheckConformance_Rule](icast_CheckConformance_Rule(obj_(rule)))
+	return Outcome_base_ok_Object[CheckConformance_Rule](CheckConformance_Rule(rule))
 }
 
 func (this *ConformanceRules_RequireUseStrict) initRequireUseStrict(compiler *AbstractCompiler, requirement *Requirement) *Outcome_base[any] {
@@ -2410,7 +2410,7 @@ func ConformanceRules_BanThrowOfNonErrorTypes_create(compiler *AbstractCompiler,
 	if inited.isErr() {
 		return Outcome_base_err[CheckConformance_Rule](inited.error())
 	}
-	return Outcome_base_ok_Object[CheckConformance_Rule](icast_CheckConformance_Rule(obj_(rule)))
+	return Outcome_base_ok_Object[CheckConformance_Rule](CheckConformance_Rule(rule))
 }
 
 func (this *ConformanceRules_BanThrowOfNonErrorTypes) initBanThrowOfNonErrorTypes(compiler *AbstractCompiler, requirement *Requirement) *Outcome_base[any] {
@@ -2474,7 +2474,7 @@ func ConformanceRules_BanNullDeref_create(compiler *AbstractCompiler, requiremen
 	if inited.isErr() {
 		return Outcome_base_err[CheckConformance_Rule](inited.error())
 	}
-	return Outcome_base_ok_Object[CheckConformance_Rule](icast_CheckConformance_Rule(obj_(rule)))
+	return Outcome_base_ok_Object[CheckConformance_Rule](CheckConformance_Rule(rule))
 }
 
 func (this *ConformanceRules_BanNullDeref) initBanNullDeref(compiler *AbstractCompiler, requirement *Requirement) *Outcome_base[any] {
@@ -2559,7 +2559,7 @@ func ConformanceRules_BanUnknownThis_create(compiler *AbstractCompiler, requirem
 	if inited.isErr() {
 		return Outcome_base_err[CheckConformance_Rule](inited.error())
 	}
-	return Outcome_base_ok_Object[CheckConformance_Rule](icast_CheckConformance_Rule(obj_(rule)))
+	return Outcome_base_ok_Object[CheckConformance_Rule](CheckConformance_Rule(rule))
 }
 
 func (this *ConformanceRules_BanUnknownThis) initBanUnknownThis(compiler *AbstractCompiler, requirement *Requirement) *Outcome_base[any] {
@@ -2628,7 +2628,7 @@ func ConformanceRules_BanUnknownDirectThisPropsReferences_create(compiler *Abstr
 	if inited.isErr() {
 		return Outcome_base_err[CheckConformance_Rule](inited.error())
 	}
-	return Outcome_base_ok_Object[CheckConformance_Rule](icast_CheckConformance_Rule(obj_(rule)))
+	return Outcome_base_ok_Object[CheckConformance_Rule](CheckConformance_Rule(rule))
 }
 
 func (this *ConformanceRules_BanUnknownDirectThisPropsReferences) initBanUnknownDirectThisPropsReferences(compiler *AbstractCompiler, requirement *Requirement) *Outcome_base[any] {
@@ -2701,7 +2701,7 @@ func ConformanceRules_BanUnknownTypedClassPropsReferences_create(compiler *Abstr
 	if inited.isErr() {
 		return Outcome_base_err[CheckConformance_Rule](inited.error())
 	}
-	return Outcome_base_ok_Object[CheckConformance_Rule](icast_CheckConformance_Rule(obj_(rule)))
+	return Outcome_base_ok_Object[CheckConformance_Rule](CheckConformance_Rule(rule))
 }
 
 func (this *ConformanceRules_BanUnknownTypedClassPropsReferences) initBanUnknownTypedClassPropsReferences(compiler *AbstractCompiler, requirement *Requirement) *Outcome_base[any] {
@@ -2810,7 +2810,7 @@ func ConformanceRules_BanUnresolvedType_create(compiler *AbstractCompiler, requi
 	if inited.isErr() {
 		return Outcome_base_err[CheckConformance_Rule](inited.error())
 	}
-	return Outcome_base_ok_Object[CheckConformance_Rule](icast_CheckConformance_Rule(obj_(rule)))
+	return Outcome_base_ok_Object[CheckConformance_Rule](CheckConformance_Rule(rule))
 }
 
 func (this *ConformanceRules_BanUnresolvedType) initBanUnresolvedType(compiler *AbstractCompiler, requirement *Requirement) *Outcome_base[any] {
@@ -2901,7 +2901,7 @@ func ConformanceRules_StrictBanUnresolvedType_create(compiler *AbstractCompiler,
 	if inited.isErr() {
 		return Outcome_base_err[CheckConformance_Rule](inited.error())
 	}
-	return Outcome_base_ok_Object[CheckConformance_Rule](icast_CheckConformance_Rule(obj_(rule)))
+	return Outcome_base_ok_Object[CheckConformance_Rule](CheckConformance_Rule(rule))
 }
 
 func (this *ConformanceRules_StrictBanUnresolvedType) initStrictBanUnresolvedType(compiler *AbstractCompiler, requirement *Requirement) *Outcome_base[any] {
@@ -2954,7 +2954,7 @@ func ConformanceRules_BanGlobalVars_create(compiler *AbstractCompiler, requireme
 	if inited.isErr() {
 		return Outcome_base_err[CheckConformance_Rule](inited.error())
 	}
-	return Outcome_base_ok_Object[CheckConformance_Rule](icast_CheckConformance_Rule(obj_(rule)))
+	return Outcome_base_ok_Object[CheckConformance_Rule](CheckConformance_Rule(rule))
 }
 
 func (this *ConformanceRules_BanGlobalVars) initBanGlobalVars(compiler *AbstractCompiler, requirement *Requirement) *Outcome_base[any] {
@@ -3039,7 +3039,7 @@ func ConformanceRules_BannedEnhance_create(compiler *AbstractCompiler, requireme
 	if inited.isErr() {
 		return Outcome_base_err[CheckConformance_Rule](inited.error())
 	}
-	return Outcome_base_ok_Object[CheckConformance_Rule](icast_CheckConformance_Rule(obj_(rule)))
+	return Outcome_base_ok_Object[CheckConformance_Rule](CheckConformance_Rule(rule))
 }
 
 func (this *ConformanceRules_BannedEnhance) initBannedEnhance(compiler *AbstractCompiler, requirement *Requirement) *Outcome_base[any] {
@@ -3110,7 +3110,7 @@ func ConformanceRules_BannedModsRegex_create(compiler *AbstractCompiler, require
 	if inited.isErr() {
 		return Outcome_base_err[CheckConformance_Rule](inited.error())
 	}
-	return Outcome_base_ok_Object[CheckConformance_Rule](icast_CheckConformance_Rule(obj_(rule)))
+	return Outcome_base_ok_Object[CheckConformance_Rule](CheckConformance_Rule(rule))
 }
 
 func (this *ConformanceRules_BannedModsRegex) initBannedModsRegex(compiler *AbstractCompiler, requirement *Requirement) *Outcome_base[any] {
@@ -3184,7 +3184,7 @@ func ConformanceRules_BanCreateElement_create(compiler *AbstractCompiler, requir
 	if inited.isErr() {
 		return Outcome_base_err[CheckConformance_Rule](inited.error())
 	}
-	return Outcome_base_ok_Object[CheckConformance_Rule](icast_CheckConformance_Rule(obj_(rule)))
+	return Outcome_base_ok_Object[CheckConformance_Rule](CheckConformance_Rule(rule))
 }
 
 func (this *ConformanceRules_BanCreateElement) initBanCreateElement(compiler *AbstractCompiler, requirement *Requirement) *Outcome_base[any] {
@@ -3278,7 +3278,7 @@ func ConformanceRules_BanCreateDom_create(compiler *AbstractCompiler, requiremen
 	if inited.isErr() {
 		return Outcome_base_err[CheckConformance_Rule](inited.error())
 	}
-	return Outcome_base_ok_Object[CheckConformance_Rule](icast_CheckConformance_Rule(obj_(rule)))
+	return Outcome_base_ok_Object[CheckConformance_Rule](CheckConformance_Rule(rule))
 }
 
 func (this *ConformanceRules_BanCreateDom) initBanCreateDom(compiler *AbstractCompiler, requirement *Requirement) *Outcome_base[any] {
@@ -3578,7 +3578,7 @@ func ConformanceRules_BanElementSetAttribute_create(compiler *AbstractCompiler, 
 	if inited.isErr() {
 		return Outcome_base_err[CheckConformance_Rule](inited.error())
 	}
-	return Outcome_base_ok_Object[CheckConformance_Rule](icast_CheckConformance_Rule(obj_(rule)))
+	return Outcome_base_ok_Object[CheckConformance_Rule](CheckConformance_Rule(rule))
 }
 
 func (this *ConformanceRules_BanElementSetAttribute) initBanElementSetAttribute(compiler *AbstractCompiler, requirement *Requirement) *Outcome_base[any] {
@@ -3767,7 +3767,7 @@ func ConformanceRules_BanSettingAttributes_create(compiler *AbstractCompiler, re
 	if inited.isErr() {
 		return Outcome_base_err[CheckConformance_Rule](inited.error())
 	}
-	return Outcome_base_ok_Object[CheckConformance_Rule](icast_CheckConformance_Rule(obj_(rule)))
+	return Outcome_base_ok_Object[CheckConformance_Rule](CheckConformance_Rule(rule))
 }
 
 func (this *ConformanceRules_BanSettingAttributes) initBanSettingAttributes(compiler *AbstractCompiler, requirement *Requirement) *Outcome_base[any] {
@@ -3898,7 +3898,7 @@ func ConformanceRules_BanExecCommand_create(compiler *AbstractCompiler, requirem
 	if inited.isErr() {
 		return Outcome_base_err[CheckConformance_Rule](inited.error())
 	}
-	return Outcome_base_ok_Object[CheckConformance_Rule](icast_CheckConformance_Rule(obj_(rule)))
+	return Outcome_base_ok_Object[CheckConformance_Rule](CheckConformance_Rule(rule))
 }
 
 func (this *ConformanceRules_BanExecCommand) initBanExecCommand(compiler *AbstractCompiler, requirement *Requirement) *Outcome_base[any] {
@@ -3995,7 +3995,7 @@ func ConformanceRules_BanStaticThis_create(compiler *AbstractCompiler, requireme
 	if inited.isErr() {
 		return Outcome_base_err[CheckConformance_Rule](inited.error())
 	}
-	return Outcome_base_ok_Object[CheckConformance_Rule](icast_CheckConformance_Rule(obj_(rule)))
+	return Outcome_base_ok_Object[CheckConformance_Rule](CheckConformance_Rule(rule))
 }
 
 func (this *ConformanceRules_BanStaticThis) initBanStaticThis(compiler *AbstractCompiler, requirement *Requirement) *Outcome_base[any] {

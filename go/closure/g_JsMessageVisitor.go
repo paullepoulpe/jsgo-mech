@@ -138,7 +138,7 @@ func (this *JsMessageVisitor) checkMessageInitialization(traversal *NodeTraversa
 			this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(ex.getNode(), JsMessageVisitor_MESSAGE_TREE_MALFORMED, []string{ex.getMessage()}))
 			return
 		}
-		var icuTemplateDefinition IcuTemplateDefinition = icast_IcuTemplateDefinition(icuTemplateDefinitionOutcome.get())
+		var icuTemplateDefinition IcuTemplateDefinition = icuTemplateDefinitionOutcome.get()
 		var extractedMessage *JsMessage = icuTemplateDefinition.getMessage()
 		this.trackMessage(traversal, possiblyObfuscatedMessageKey, msgNode, extractedMessage)
 		this.reportErrorIfEmptyMessage(node, extractedMessage)
@@ -150,7 +150,7 @@ func (this *JsMessageVisitor) checkMessageInitialization(traversal *NodeTraversa
 			this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(ex.getNode(), JsMessageVisitor_MESSAGE_TREE_MALFORMED, []string{ex.getMessage()}))
 			return
 		}
-		var jsMessageDefinition JsMessageDefinition = icast_JsMessageDefinition(jsMessageDefinitionOutcome.get())
+		var jsMessageDefinition JsMessageDefinition = jsMessageDefinitionOutcome.get()
 		var extractedMessage *JsMessage = jsMessageDefinition.getMessage()
 		this.trackMessage(traversal, possiblyObfuscatedMessageKey, msgNode, extractedMessage)
 		this.reportErrorIfEmptyMessage(node, extractedMessage)
@@ -385,7 +385,7 @@ func (this *JsMessageVisitor) extractJsMessageDefinition(msgNode Node, jsDocInfo
 	if googGetMsgParsedTextRes.isErr() {
 		return Outcome_base_err[JsMessageDefinition](new_JsMessageVisitor_MalformedException(googGetMsgParsedTextRes.errorMessage().orElseThrow(), msgTextNode).up_Throwable())
 	}
-	var googGetMsgParsedText JsMessageVisitor_GoogGetMsgParsedText = icast_JsMessageVisitor_GoogGetMsgParsedText(googGetMsgParsedTextRes.get())
+	var googGetMsgParsedText JsMessageVisitor_GoogGetMsgParsedText = googGetMsgParsedTextRes.get()
 	var placeholderObjectLiteralMapOutcome *Outcome_base[any] = JsMessageVisitor_extractObjectLiteralMap(valuesObjLit)
 	if placeholderObjectLiteralMapOutcome.isErr() {
 		return Outcome_base_err[JsMessageDefinition](placeholderObjectLiteralMapOutcome.error())
@@ -409,7 +409,7 @@ func (this *JsMessageVisitor) extractJsMessageDefinition(msgNode Node, jsDocInfo
 	if jsMessageOptionsOutcome.isErr() {
 		return Outcome_base_err[JsMessageDefinition](jsMessageOptionsOutcome.error())
 	}
-	var jsMessageOptions JsMessageVisitor_JsMessageOptions = icast_JsMessageVisitor_JsMessageOptions(jsMessageOptionsOutcome.get())
+	var jsMessageOptions JsMessageVisitor_JsMessageOptions = jsMessageOptionsOutcome.get()
 	var unknownPlaceholdersChecked *Outcome_base[any] = jsMessageOptions.checkForUnknownPlaceholders(setImm_(tc_string, placeholderNamesFromText))
 	if unknownPlaceholdersChecked.isErr() {
 		return Outcome_base_err[JsMessageDefinition](unknownPlaceholdersChecked.error())
@@ -455,7 +455,7 @@ func (this *JsMessageVisitor) extractIcuTemplateDefinition(msgNode Node, jsDocIn
 	if icuTemplateOptionsOutcome.isErr() {
 		return Outcome_base_err[IcuTemplateDefinition](icuTemplateOptionsOutcome.error())
 	}
-	var icuTemplateOptions JsMessageVisitor_IcuTemplateOptions = icast_JsMessageVisitor_IcuTemplateOptions(icuTemplateOptionsOutcome.get())
+	var icuTemplateOptions JsMessageVisitor_IcuTemplateOptions = icuTemplateOptionsOutcome.get()
 	var extractedIcuTemplateParts *JsMessageVisitor_ExtractedIcuTemplateParts = icuMessageTemplateString.extractParts(tsetFrom_(tc_string, icuTemplateOptions.getPlaceholderNames(), true))
 	var unknownPlaceholdersChecked *Outcome_base[any] = icuTemplateOptions.checkForUnknownPlaceholders(setImm_(tc_string, extractedIcuTemplateParts.extractedPlaceholderNames))
 	if unknownPlaceholdersChecked.isErr() {
@@ -658,7 +658,7 @@ func JsMessageVisitor_parseJsMessageTextIntoParts(originalMsgText string) *Outco
 	if googGetMsgParsedTextRes.isErr() {
 		return Outcome_base_err[List](googGetMsgParsedTextRes.error())
 	}
-	var googGetMsgParsedText JsMessageVisitor_GoogGetMsgParsedText = icast_JsMessageVisitor_GoogGetMsgParsedText(googGetMsgParsedTextRes.get())
+	var googGetMsgParsedText JsMessageVisitor_GoogGetMsgParsedText = googGetMsgParsedTextRes.get()
 	return Outcome_base_ok_Object[List](icast_List(obj_(googGetMsgParsedText.getParts())))
 }
 

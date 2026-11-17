@@ -61,7 +61,7 @@ func SourceMapObjectParser_parse(contents string) *Outcome_base[*SourceMapObject
 		if sections.isErr() {
 			return Outcome_base_err[*SourceMapObject](sections.error())
 		}
-		builder.setSections(icast_List(sections.get()))
+		builder.setSections(sections.get())
 	}
 	var sources *Outcome_base[any] = SourceMapObjectParser_getJavaStringArray(sourceMapRoot, "sources")
 	if sources.isErr() {
@@ -155,7 +155,7 @@ func SourceMapObjectParser_parseFastInto(builder *SourceMapObject_Builder, conte
 			if sections.isErr() {
 				return Outcome_base_err[any](sections.error())
 			}
-			builder.setSections(icast_List(sections.get()))
+			builder.setSections(sections.get())
 		case "sources":
 			var sources *Outcome_base[any] = SourceMapObjectParser_readStringArray(lexer)
 			if sources.isErr() {

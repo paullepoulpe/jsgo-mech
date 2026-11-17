@@ -50,18 +50,18 @@ func ReportDecoder_parseMapping(mappingFileContent string) *Outcome_base[Map] {
 	if localFileNamesOutcome.isErr() {
 		return Outcome_base_err[Map](localFileNamesOutcome.error())
 	}
-	var localFileNames ListOf[string] = icast_List(localFileNamesOutcome.get())
+	var localFileNames ListOf[string] = localFileNamesOutcome.get()
 	var functionNamesOutcome *Outcome_base[List] = ReportDecoder_parseJsonStringList(functionNamesAsJsonArray)
 	if functionNamesOutcome.isErr() {
 		return Outcome_base_err[Map](functionNamesOutcome.error())
 	}
-	var functionNames ListOf[string] = icast_List(functionNamesOutcome.get())
+	var functionNames ListOf[string] = functionNamesOutcome.get()
 	var typesAsStringList *Outcome_base[List] = ReportDecoder_parseJsonStringList(typesAsJsonArray)
 	if typesAsStringList.isErr() {
 		return Outcome_base_err[Map](typesAsStringList.error())
 	}
 	var types []InstrumentationPoint_Type = []InstrumentationPoint_Type{}
-	for typeAsString := range elemsBy_(icast_List(typesAsStringList.get()), str_) {
+	for typeAsString := range elemsBy_(typesAsStringList.get(), str_) {
 		types = append(types, InstrumentationPoint_Type_valueOf(typeAsString))
 	}
 	for i := int32(3); i < int32(len(linesOfFile)); i++ {

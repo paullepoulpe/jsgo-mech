@@ -200,12 +200,12 @@ func (this *CommandLineRunner) readFlagInputs(processedArgs *TList[string], flag
 	if mixedSources.isErr() {
 		return Outcome_base_err[any](mixedSources.error())
 	}
-	flagInputs.mixedSources = icast_List(mixedSources.get())
+	flagInputs.mixedSources = mixedSources.get()
 	var mappings *Outcome_base[List] = this.flags.getSourceMapLocationMappings()
 	if mappings.isErr() {
 		return Outcome_base_err[any](mappings.error())
 	}
-	flagInputs.mappings = icast_List(mappings.get())
+	flagInputs.mappings = mappings.get()
 	var sourceMapInputs *Outcome_base[*ImmutableMap] = this.flags.getSourceMapInputs()
 	if sourceMapInputs.isErr() {
 		return Outcome_base_err[any](sourceMapInputs.error())
@@ -517,7 +517,7 @@ func (this *CommandLineRunner) createExterns_impl(options *CompilerOptions) *Out
 	if externsOutcome.isErr() {
 		return Outcome_base_err[List](externsOutcome.error())
 	}
-	var externs ListOf[*SourceFile_jscomp] = icast_List(externsOutcome.get())
+	var externs ListOf[*SourceFile_jscomp] = externsOutcome.get()
 	if this.isInTestMode() {
 		return Outcome_base_ok_Object[List](externs)
 	} else {
@@ -525,7 +525,7 @@ func (this *CommandLineRunner) createExterns_impl(options *CompilerOptions) *Out
 		if builtinExternsRes.isErr() {
 			return Outcome_base_err[List](builtinExternsRes.error())
 		}
-		var builtinExterns ListOf[*SourceFile_jscomp] = icast_List(builtinExternsRes.get())
+		var builtinExterns ListOf[*SourceFile_jscomp] = builtinExternsRes.get()
 		builtinExterns.addAll(Collection(externs))
 		return Outcome_base_ok_Object[List](builtinExterns)
 	}
@@ -1711,7 +1711,7 @@ func (this *CommandLineRunner_Flags) getMixedJsSources() *Outcome_base[List] {
 			if found.isErr() {
 				return Outcome_base_err[List](found.error())
 			}
-			for filename := range elemsBy_(icast_List(found.get()), str_) {
+			for filename := range elemsBy_(found.get(), str_) {
 				excludes[filename] = struct{}{}
 				mixedSources.remove_Object(obj_(new_AbstractCommandLineRunner_FlagEntry(obj_(AbstractCommandLineRunner_JsSourceType_JS), filename)))
 			}
@@ -1720,7 +1720,7 @@ func (this *CommandLineRunner_Flags) getMixedJsSources() *Outcome_base[List] {
 			if found.isErr() {
 				return Outcome_base_err[List](found.error())
 			}
-			for filename := range elemsBy_(icast_List(found.get()), str_) {
+			for filename := range elemsBy_(found.get(), str_) {
 				if !has_(excludes, filename) {
 					mixedSources.add(obj_(new_AbstractCommandLineRunner_FlagEntry(obj_(AbstractCommandLineRunner_JsSourceType_JS), filename)))
 				}
@@ -1731,7 +1731,7 @@ func (this *CommandLineRunner_Flags) getMixedJsSources() *Outcome_base[List] {
 	if fromArguments.isErr() {
 		return Outcome_base_err[List](fromArguments.error())
 	}
-	for filename := range elemsBy_(icast_List(fromArguments.get()), str_) {
+	for filename := range elemsBy_(fromArguments.get(), str_) {
 		mixedSources.add(obj_(new_AbstractCommandLineRunner_FlagEntry(obj_(AbstractCommandLineRunner_JsSourceType_JS), filename)))
 	}
 	if (!this.mixedJsSources.isEmpty() && !this.arguments.isEmpty()) && mixedSources.isEmpty() {

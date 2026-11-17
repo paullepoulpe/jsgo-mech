@@ -773,7 +773,7 @@ func (this *AbstractCommandLineRunner) writeChunkOutput(fileName string, out App
 		if parsedChunkWrappersOutcome.isErr() {
 			return Outcome_base_err[any](parsedChunkWrappersOutcome.error())
 		}
-		this.parsedChunkWrappers = icast_Map(parsedChunkWrappersOutcome.get())
+		this.parsedChunkWrappers = parsedChunkWrappersOutcome.get()
 	}
 	if !this.isOutputInJson() {
 		AbstractCommandLineRunner_maybeCreateDirsForPath(fileName)
@@ -906,7 +906,7 @@ func (this *AbstractCommandLineRunner) doRun() *Outcome_base[any] {
 	if externsOutcome.isErr() {
 		return Outcome_base_err[any](externsOutcome.error())
 	}
-	var externs ListOf[*SourceFile_jscomp] = icast_List(externsOutcome.get())
+	var externs ListOf[*SourceFile_jscomp] = externsOutcome.get()
 	var chunks ListOf[*JSChunk] = nil
 	this.rootRelativePathsMap = this.constructRootRelativePathsMap()
 	var writeOutputToFile bool = this.config.jsOutputFile != ""
@@ -933,7 +933,7 @@ func (this *AbstractCommandLineRunner) doRun() *Outcome_base[any] {
 		if jsonFilesOutcome.isErr() {
 			return Outcome_base_err[any](jsonFilesOutcome.error())
 		}
-		jsonFiles = icast_List(jsonFilesOutcome.get())
+		jsonFiles = jsonFilesOutcome.get()
 		var inputSourceMaps ImmutableMap_BuilderOf[string, *SourceMapInput] = new_ImmutableMap_Builder()
 		var inputPathByWebpackId ImmutableMap_BuilderOf[string, string] = new_ImmutableMap_Builder()
 		var foundJsonInputSourceMap bool = false
@@ -964,7 +964,7 @@ func (this *AbstractCommandLineRunner) doRun() *Outcome_base[any] {
 	if sourcesOutcome.isErr() {
 		return Outcome_base_err[any](sourcesOutcome.error())
 	}
-	var sources ListOf[*SourceFile_jscomp] = icast_List(sourcesOutcome.get())
+	var sources ListOf[*SourceFile_jscomp] = sourcesOutcome.get()
 	if !jsChunkSpecs.isEmpty() {
 		if this.isInTestMode() {
 			chunks = icast_List(this.chunksSupplierForTesting())
@@ -987,7 +987,7 @@ func (this *AbstractCommandLineRunner) doRun() *Outcome_base[any] {
 			if chunksOutcome.isErr() {
 				return Outcome_base_err[any](chunksOutcome.error())
 			}
-			chunks = icast_List(chunksOutcome.get())
+			chunks = chunksOutcome.get()
 		}
 		it_8 := foreach_(chunks)
 		for it_8.next() {
@@ -1449,7 +1449,7 @@ func (this *AbstractCommandLineRunner) outputChunkBinaryAndSourceMaps(chunkGraph
 	if parsedChunkWrappersOutcome.isErr() {
 		return Outcome_base_err[*DiagnosticType](parsedChunkWrappersOutcome.error())
 	}
-	this.parsedChunkWrappers = icast_Map(parsedChunkWrappersOutcome.get())
+	this.parsedChunkWrappers = parsedChunkWrappersOutcome.get()
 	if !this.isOutputInJson() {
 		AbstractCommandLineRunner_maybeCreateDirsForPath((sstr_(this.config.chunkOutputPathPrefix) + "dummy"))
 	}

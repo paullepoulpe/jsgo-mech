@@ -961,7 +961,7 @@ func ReplaceMessages_ProtectedJsMessage_fromAstNode(node Node, idGenerator JsMes
 		if partsRes.isErr() {
 			panic(new_IllegalStateException_String((sstr_(messageTextNode.getLocation()) + ": Placeholder incorrectly formatted: >" + sstr_(messageText.orElse("null")) + "<")).self())
 		}
-		jsMessageBuilder.appendParts(icast_List(partsRes.get()))
+		jsMessageBuilder.appendParts(partsRes.get())
 	}
 	var externalMessageId OptionalOf[string] = JsMessageVisitor_getExternalMessageId(msgKey.get())
 	if externalMessageId.isPresent() {

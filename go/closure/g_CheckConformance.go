@@ -296,7 +296,7 @@ func CheckConformance_initRule(compiler *AbstractCompiler, requirement *Requirem
 		CheckConformance_reportInvalidRequirement(compiler, requirement, e.getMessage())
 		return nil
 	}
-	return icast_CheckConformance_Rule(rule.get())
+	return rule.get()
 }
 
 func CheckConformance_reportInvalidRequirement(compiler *AbstractCompiler, requirement *Requirement, reason string) {
