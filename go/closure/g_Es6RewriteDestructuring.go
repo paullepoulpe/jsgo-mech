@@ -46,7 +46,7 @@ func new_Es6RewriteDestructuring(builder *Es6RewriteDestructuring_Builder) *Es6R
 
 func (this *Es6RewriteDestructuring) process_2(externs Node, root Node) {
 	Preconditions_checkState(len(this.patternNestingStack) == 0)
-	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(any(this)))
+	NodeTraversal_traverse(this.compiler_, root, this)
 	TranspilationPasses_maybeMarkFeaturesAsTranspiledAway(this.compiler_, root, this.featuresToMarkAsRemoved)
 	Preconditions_checkState(len(this.patternNestingStack) == 0)
 }

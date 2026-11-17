@@ -61,7 +61,7 @@ func (this *DefaultDependencyResolver) addDependency(symbol string, seen *TSet[s
 }
 
 func DefaultDependencyResolver_parseRequires(code string, addClosureBase bool) CollectionOf[string] {
-	var errorManager ErrorManager = icast_ErrorManager(obj_(new_LoggerErrorManager_Logger(DefaultDependencyResolver_logger)))
+	var errorManager ErrorManager = new_LoggerErrorManager_Logger(DefaultDependencyResolver_logger)
 	var parser *JsFileRegexParser = new_JsFileRegexParser(errorManager)
 	var deps DependencyInfo = parser.parseFile("<unknown path>", "<unknown path>", code)
 	var requires *TList[string] = newTList_(tc_string)

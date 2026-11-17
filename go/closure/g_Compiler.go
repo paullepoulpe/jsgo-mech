@@ -98,22 +98,22 @@ func (this *Compiler) finit_Compiler() {
 	this.externs = newTList_(tc_p_CompilerInput)
 	this.lastJsSource = Optional_empty[string]()
 	this.inputsById = map[string]*CompilerInput{}
-	this.scriptNodeByFilename = icast_Map(obj_(new_ConcurrentHashMap()))
+	this.scriptNodeByFilename = new_ConcurrentHashMap()
 	this.hoistedExternsByChunk = SimpleSetMultimap_createInsertionOrdered()
 	this.sourceMapOriginalSources = new_ConcurrentHashMap()
 	this.inputSourceMaps = new_ConcurrentHashMap()
-	this.commentsPerFile = icast_Map(obj_(new_ConcurrentHashMap()))
+	this.commentsPerFile = new_ConcurrentHashMap()
 	this.debugMessage = Optional_empty[string]()
 	this.externExports = Optional_empty[string]()
 	this.uniqueIdSupplier = new_UniqueIdSupplier()
 	this.uniqueNameId = 0
 	this.hasRegExpGlobalReferencesField = true
 	this.runJ2clPassesField = false
-	this.defaultCodingConvention = icast_CodingConvention(obj_(new_ClosureCodingConvention_0()))
+	this.defaultCodingConvention = new_ClosureCodingConvention_0()
 	this.parserConfig = nil
 	this.externsParserConfig = nil
 	this.phaseOptimizer = nil
-	this.forwardDeclaredTypes = icast_Set(obj_(new_LinkedHashSet()))
+	this.forwardDeclaredTypes = new_LinkedHashSet()
 	this.typeCheckingHasRun = false
 	this.oldErrorReporter = RhinoErrorReporter_forOldRhino(this.report_2)
 	this.compilerExecutor = this.createCompilerExecutor()
@@ -188,12 +188,12 @@ func Compiler_createFromErrorManager(errorManager ErrorManager) *Compiler {
 
 func (this *Compiler) setErrorManager(errorManager ErrorManager) {
 	Preconditions_checkNotNull_Object_Object(any(errorManager), strobj_("the error manager cannot be null"))
-	this.errorManager = icast_ErrorManager(new_ThreadSafeDelegatingErrorManager(errorManager).self())
+	this.errorManager = new_ThreadSafeDelegatingErrorManager(errorManager)
 }
 
 func (this *Compiler) createMessageFormatter() MessageFormatter {
 	var colorize bool = this.options_.shouldColorizeErrorOutput()
-	return this.options_.getErrorFormat().toFormatter(icast_SourceExcerptProvider(obj_(this)), colorize)
+	return this.options_.getErrorFormat().toFormatter(this, colorize)
 }
 
 func (this *Compiler) initExperimentalOutputFeatureSetOptions(options *CompilerOptions) {
@@ -217,11 +217,11 @@ func (this *Compiler) initOptions(options *CompilerOptions) {
 	this.initExperimentalOutputFeatureSetOptions(options)
 	if this.errorManager == nil {
 		if this.outStream == nil {
-			this.setErrorManager(icast_ErrorManager(obj_(new_LoggerErrorManager_MessageFormatter_Logger(this.createMessageFormatter(), Compiler_logger))))
+			this.setErrorManager(new_LoggerErrorManager_MessageFormatter_Logger(this.createMessageFormatter(), Compiler_logger))
 		} else {
 			var builder ImmutableSet_BuilderOf[SortingErrorManager_ErrorReportGenerator] = ImmutableSet_builder()
-			cast_[*ImmutableSet_Builder](obj_(builder.add(obj_(new_PrintStreamErrorReportGenerator(this.createMessageFormatter(), this.outStream, options.getSummaryDetailLevel()))))).addAll(Iterable(options.getExtraReportGenerators().asList()))
-			this.setErrorManager(icast_ErrorManager(new_SortingErrorManager(tsetFrom_(tc_SortingErrorManager_ErrorReportGenerator, builder.build(), true)).self()))
+			builder.add(obj_(new_PrintStreamErrorReportGenerator(this.createMessageFormatter(), this.outStream, options.getSummaryDetailLevel()))).addAll(Iterable(options.getExtraReportGenerators().asList()))
+			this.setErrorManager(new_SortingErrorManager(tsetFrom_(tc_SortingErrorManager_ErrorReportGenerator, builder.build(), true)))
 		}
 	}
 	if options.getSkipNonTranspilationPasses() {
@@ -244,7 +244,7 @@ func (this *Compiler) initOptions(options *CompilerOptions) {
 		options.setUseTypesForOptimization(false)
 	}
 	if options.assumeForwardDeclaredForMissingTypes() {
-		this.forwardDeclaredTypes = icast_Set(obj_(new_Compiler_1(this)))
+		this.forwardDeclaredTypes = new_Compiler_1(this)
 	}
 	this.initWarningsGuard(options.getWarningsGuard())
 	if this.isDebugLoggingEnabled() {
@@ -330,7 +330,7 @@ func (this *Compiler) logToFile(logFileName string, logStringSupplier func() any
 
 func (this *Compiler) initWarningsGuard(warningsGuard *WarningsGuard) {
 	var guards ImmutableList_BuilderOf[*WarningsGuard] = ImmutableList_builder()
-	cast_[*ImmutableList_Builder](obj_(cast_[*ImmutableList_Builder](obj_(cast_[*ImmutableList_Builder](obj_(guards.add(obj_(new_J2clSuppressWarningsGuard())))).add(obj_(new_ClosureUnawareCodeWarningsGuard())))).add(obj_(new_SuppressDocWarningsGuard(this.up_AbstractCompiler(), tmapFrom_(tc_string, tc_p_DiagnosticGroup, DiagnosticGroups_getRegisteredGroups(), true)))))).add(warningsGuard.self())
+	guards.add(obj_(new_J2clSuppressWarningsGuard())).add(obj_(new_ClosureUnawareCodeWarningsGuard())).add(obj_(new_SuppressDocWarningsGuard(this.up_AbstractCompiler(), tmapFrom_(tc_string, tc_p_DiagnosticGroup, DiagnosticGroups_getRegisteredGroups(), true)))).add(warningsGuard.self())
 	this.warningsGuard = new_ComposeWarningsGuard(tlistImm_(tc_p_WarningsGuard, guards.build())).up_WarningsGuard()
 }
 
@@ -371,7 +371,7 @@ func (this *Compiler) getTypedAstDeserializer_impl(file *SourceFile_jscomp) Supp
 }
 
 func (this *Compiler) initWithTypedAstFilesystem(externs ListOf[*SourceFile_jscomp], sources ListOf[*SourceFile_jscomp], options *CompilerOptions, typedAstListStream []int8) {
-	var files ImmutableSetOf[*SourceFile_jscomp] = cast_[*ImmutableSet](obj_(cast_[*ImmutableSet_Builder](obj_(cast_[*ImmutableSet_Builder](obj_(ImmutableSet_builder().addAll(Iterable(externs)))).addAll(Iterable(sources)))).build()))
+	var files ImmutableSetOf[*SourceFile_jscomp] = ImmutableSet_builder().addAll(Iterable(externs)).addAll(Iterable(sources)).build()
 	options.setMergedPrecompiledLibraries(true)
 	this.initOptions(options)
 	this.init(externs, sources, options)
@@ -390,7 +390,7 @@ func (this *Compiler) initChunksWithTypedAstFilesystem(externs ListOf[*SourceFil
 			filesBuilder.add(obj_(input.getSourceFile()))
 		}
 	}
-	var files ImmutableSetOf[*SourceFile_jscomp] = cast_[*ImmutableSet](obj_(filesBuilder.build()))
+	var files ImmutableSetOf[*SourceFile_jscomp] = filesBuilder.build()
 	options.setMergedPrecompiledLibraries(true)
 	this.initOptions(options)
 	this.initChunks(externs, chunks, options)
@@ -463,7 +463,7 @@ func (this *Compiler) init(externs ListOf[*SourceFile_jscomp], sources ListOf[*S
 		var source *SourceFile_jscomp = cast_[*SourceFile_jscomp](it_1.v)
 		chunk.addCompilerInput(new_CompilerInput_SourceFile_boolean(source, false))
 	}
-	var chunks ListOf[*JSChunk] = icast_List(new_ArrayList_int(1).self())
+	var chunks ListOf[*JSChunk] = new_ArrayList_int(1)
 	chunks.add(obj_(chunk))
 	this.initChunks(externs, chunks, options)
 	this.addFilesToSourceMap(Iterable(sources))
@@ -486,7 +486,7 @@ func (this *Compiler) initChunks(externs ListOf[*SourceFile_jscomp], chunks List
 	}
 	this.chunkGraph = cast_[*JSChunkGraph](chunkGraphOutcome.get())
 	this.fillEmptyChunks(this.getChunks())
-	this.commentsPerFile = icast_Map(obj_(new_ConcurrentHashMap_int(this.chunkGraph.getInputCount())))
+	this.commentsPerFile = new_ConcurrentHashMap_int(this.chunkGraph.getInputCount())
 	this.initBasedOnOptions()
 	this.initInputsByIdMap()
 	this.initAST()
@@ -584,7 +584,7 @@ func (this *Compiler) initAST() {
 }
 
 func (this *Compiler) compileSourceFile(extern *SourceFile_jscomp, input *SourceFile_jscomp, options *CompilerOptions) *Result {
-	return this.compile(icast_List(obj_(ImmutableList_of_Object(obj_(extern)))), icast_List(obj_(ImmutableList_of_Object(obj_(input)))), options)
+	return this.compile(ImmutableList_of_Object(obj_(extern)), ImmutableList_of_Object(obj_(input)), options)
 }
 
 func (this *Compiler) compile(externs ListOf[*SourceFile_jscomp], inputs ListOf[*SourceFile_jscomp], options *CompilerOptions) *Result {
@@ -789,7 +789,7 @@ func (this *Compiler) instrumentForCoverage() {
 
 func (this *Compiler) instrumentForCoverageInternal(instrumentForCoverageOption CompilerOptions_InstrumentOption) {
 	var tracer *Tracer = this.newTracer("instrumentationPass")
-	this.process(icast_CompilerPass(obj_(new_CoverageInstrumentationPass_AbstractCompiler_CoverageReach_InstrumentOption_String(this.up_AbstractCompiler(), CoverageInstrumentationPass_CoverageReach_ALL, instrumentForCoverageOption, this.options_.getProductionInstrumentationArrayName()))))
+	this.process(new_CoverageInstrumentationPass_AbstractCompiler_CoverageReach_InstrumentOption_String(this.up_AbstractCompiler(), CoverageInstrumentationPass_CoverageReach_ALL, instrumentForCoverageOption, this.options_.getProductionInstrumentationArrayName()))
 	this.stopTracer(tracer, "instrumentationPass")
 }
 
@@ -1123,7 +1123,7 @@ func (this *Compiler) getCurrentJsSource() string {
 			lt.setCurrentChunkContext(jsChunk)
 			for _, regex := range chunkNameRegexList {
 				if Pattern_matches_s(regex, chunkName) {
-					var source string = ("// module '" + sstr_(chunkName) + "'\n" + sstr_(this.toSource_2(icast_CodePrinter_LicenseTracker(obj_(lt)), jsChunk)))
+					var source string = ("// module '" + sstr_(chunkName) + "'\n" + sstr_(this.toSource_2(lt, jsChunk)))
 					builder.append(source)
 					break
 				}
@@ -1195,7 +1195,7 @@ var lambda_Compiler_getCurrentJsSource_1_ = &Predicate_base_fn{func(node_ any) b
 
 func (this *Compiler) getTopLevelStatements(root Node) *TList[Node] {
 	var result *TList[Node] = newTList_(tc_Node)
-	NodeTraversal_traverse(this.up_AbstractCompiler(), root, icast_NodeTraversal_Callback(obj_(new_Compiler_2(this, result))))
+	NodeTraversal_traverse(this.up_AbstractCompiler(), root, new_Compiler_2(this, result))
 	return result
 }
 
@@ -1388,8 +1388,8 @@ func (this *Compiler) buildKnownSymbolTable() *SymbolTable {
 		symbolTable.findScopes(this.externsRoot, this.jsRoot)
 	}
 	var globalNamespace *GlobalNamespace = new_GlobalNamespace_AbstractCompiler_Node_Node(this.up_AbstractCompiler(), this.externsRoot, this.jsRoot)
-	symbolTable.addSymbolsFrom(icast_StaticSymbolTable(obj_(globalNamespace)))
-	var refCollector *ReferenceCollector = new_ReferenceCollector_AbstractCompiler_Behavior_ScopeCreator(this.up_AbstractCompiler(), ReferenceCollector_DO_NOTHING_BEHAVIOR, icast_ScopeCreator(obj_(new_SyntacticScopeCreator_AbstractCompiler(this.up_AbstractCompiler()))))
+	symbolTable.addSymbolsFrom(globalNamespace)
+	var refCollector *ReferenceCollector = new_ReferenceCollector_AbstractCompiler_Behavior_ScopeCreator(this.up_AbstractCompiler(), ReferenceCollector_DO_NOTHING_BEHAVIOR, new_SyntacticScopeCreator_AbstractCompiler(this.up_AbstractCompiler()))
 	refCollector.process(this.getRoot())
 	symbolTable.addSymbolsFrom(icast_StaticSymbolTable(obj_(refCollector)))
 	var preprocessorSymbolTable *PreprocessorSymbolTable = this.ensureDefaultPassConfig().getPreprocessorSymbolTable()
@@ -1455,7 +1455,7 @@ func (this *Compiler) getTranspilationNamespace_impl() StaticScope {
 			return (script.isFromExterns() || script.isFirstChildOf(this.getJsRoot()))
 		})
 		gn.getNameForest()
-		this.transpilationNamespace = icast_StaticScope(obj_(gn))
+		this.transpilationNamespace = gn
 	}
 	return this.transpilationNamespace
 }
@@ -1474,11 +1474,11 @@ func (this *Compiler) initializeModuleLoader() {
 		case ModuleLoader_ResolutionMode_BROWSER:
 			return BrowserModuleResolver_FACTORY
 		case ModuleLoader_ResolutionMode_NODE:
-			return icast_ModuleLoader_ModuleResolverFactory(obj_(new_NodeModuleResolver_Factory_Map(this.processJsonInputs(this.chunkGraph.getAllInputs()))))
+			return new_NodeModuleResolver_Factory_Map(this.processJsonInputs(this.chunkGraph.getAllInputs()))
 		case ModuleLoader_ResolutionMode_WEBPACK:
-			return icast_ModuleLoader_ModuleResolverFactory(obj_(new_WebpackModuleResolver_Factory(tmapFrom_(tc_string, tc_string, this.inputPathByWebpackId, true))))
+			return new_WebpackModuleResolver_Factory(tmapFrom_(tc_string, tc_string, this.inputPathByWebpackId, true))
 		case ModuleLoader_ResolutionMode_BROWSER_WITH_TRANSFORMED_PREFIXES:
-			return icast_ModuleLoader_ModuleResolverFactory(obj_(new_BrowserWithTransformedPrefixesModuleResolver_Factory(this.options_.getBrowserResolverPrefixReplacements())))
+			return new_BrowserWithTransformedPrefixesModuleResolver_Factory(this.options_.getBrowserResolverPrefixReplacements())
 		}
 		panic("unreachable")
 	}()
@@ -1499,7 +1499,7 @@ func (this *Compiler) parseInputs() Node {
 			this.stopTracer(tracer, PassNames_PARSE_INPUTS)
 		}()
 		if this.options_.getNumParallelThreads() > 1 {
-			new_PrebuildAst(this.up_AbstractCompiler(), this.options_.getNumParallelThreads()).prebuild(icast_Iterable(any(this.externs.asList())))
+			new_PrebuildAst(this.up_AbstractCompiler(), this.options_.getNumParallelThreads()).prebuild(this.externs.asList())
 		}
 		it_2 := this.externs.each()
 		for it_2.next() {
@@ -1551,7 +1551,7 @@ func (this *Compiler) parseInputs() Node {
 			}
 		}
 		if this.moduleLoader != nil {
-			this.moduleLoader.setErrorHandler(icast_ErrorHandler(obj_(this)))
+			this.moduleLoader.setErrorHandler(this)
 		}
 		this.orderInputs()
 		this.markClosureUnawareCode()
@@ -1636,7 +1636,7 @@ func (this *Compiler) orderInputs() {
 	this.maybeDoThreadedParsing()
 	var originalInputs ImmutableListOf[*CompilerInput] = ImmutableList_copyOf_Iterable(this.chunkGraph.getAllInputs())
 	if this.tracker != nil {
-		this.tracker.recordPrePruningInputCount(icast_Iterable(obj_(originalInputs)), icast_Iterable(any(this.externs.asList())))
+		this.tracker.recordPrePruningInputCount(icast_Iterable(obj_(originalInputs)), this.externs.asList())
 	}
 	this.markExterns(originalInputs)
 	var staleInputs bool = false
@@ -1877,7 +1877,7 @@ func (this *Compiler) initCompilerOptionsIfTesting() {
 func (this *Compiler) parseSyntheticCode_impl(fileName string, js string) Node {
 	this.initCompilerOptionsIfTesting()
 	var source *SourceFile_jscomp = SourceFile_jscomp_fromCode_String_String((sstr_(Compiler_SYNTHETIC_FILE_NAME_PREFIX) + sstr_(fileName) + "] "), js)
-	this.addFilesToSourceMap(icast_Iterable(obj_(ImmutableList_of_Object(obj_(source)))))
+	this.addFilesToSourceMap(ImmutableList_of_Object(obj_(source)))
 	return this.parseCodeHelper(source)
 }
 
@@ -1933,7 +1933,7 @@ func (this *Compiler) toSource_impl() string {
 					{
 						var scriptNode Node = this.externsRoot.getFirstChild()
 						for ; scriptNode != 0; scriptNode = scriptNode.getNext() {
-							this.toSource_4(cb, icast_CodePrinter_LicenseTracker(obj_(lt)), i, scriptNode)
+							this.toSource_4(cb, lt, i, scriptNode)
 							i++
 						}
 					}
@@ -1941,7 +1941,7 @@ func (this *Compiler) toSource_impl() string {
 				{
 					var scriptNode Node = this.jsRoot.getFirstChild()
 					for ; scriptNode != 0; scriptNode = scriptNode.getNext() {
-						this.toSource_4(cb, icast_CodePrinter_LicenseTracker(obj_(lt)), i, scriptNode)
+						this.toSource_4(cb, lt, i, scriptNode)
 						i++
 					}
 				}
@@ -1958,7 +1958,7 @@ func (this *Compiler) toSource_impl() string {
 }
 
 func (this *Compiler) toSourceJSChunk(chunk *JSChunk) string {
-	return this.toSource_2(icast_CodePrinter_LicenseTracker(obj_(new_Compiler_ScriptNodeLicensesOnlyTracker(this.up_AbstractCompiler()))), chunk)
+	return this.toSource_2(new_Compiler_ScriptNodeLicensesOnlyTracker(this.up_AbstractCompiler()), chunk)
 }
 
 func (this *Compiler) toSource_2(licenseTracker CodePrinter_LicenseTracker, chunk *JSChunk) string {
@@ -1968,7 +1968,7 @@ func (this *Compiler) toSource_2(licenseTracker CodePrinter_LicenseTracker, chun
 			if this.options_.shouldPrintExterns() {
 				return this.hoistedExternsByChunk.get(obj_(chunk))
 			}
-			return icast_Set(obj_(ImmutableSet_of()))
+			return ImmutableSet_of()
 		}()
 		if inputs.isEmpty() && chunkExterns.isEmpty() {
 			return strobj_("")
@@ -2056,7 +2056,7 @@ func (this *Compiler) toSource_1_impl(n Node) string {
 	this.initCompilerOptionsIfTesting()
 	var sb strBuilder_
 	var lt *Compiler_ScriptNodeLicensesOnlyTracker = new_Compiler_ScriptNodeLicensesOnlyTracker(this.up_AbstractCompiler())
-	var code string = this.toSourceAndMappings(n, false, icast_CodePrinter_LicenseTracker(obj_(lt))).source
+	var code string = this.toSourceAndMappings(n, false, lt).source
 	it_1 := foreach_(obj_(lt.emitLicenses()))
 	for it_1.next() {
 		var license string = str_(it_1.v)
@@ -2797,7 +2797,7 @@ func (this *Compiler) loadResourceContents(resourceName string, path string) Nod
 	Preconditions_checkState_boolean_Object(!this.hasTypeCheckingRun(), strobj_("runtime library injected after type checking but before optimization colors"))
 	var originalCode string = ResourceLoader_loadTextResource((sstr_(ResourceLoader_JSCOMP) + "js/" + sstr_(resourceName) + ".js"))
 	var source *SourceFile_jscomp = SourceFile_jscomp_fromCode_String_String(path, originalCode)
-	this.addFilesToSourceMap(icast_Iterable(obj_(ImmutableList_of_Object(obj_(source)))))
+	this.addFilesToSourceMap(ImmutableList_of_Object(obj_(source)))
 	return this.parseCodeHelper(source)
 }
 
@@ -2901,7 +2901,7 @@ func Compiler_toVariableMapEntries(map_ *VariableMap) *TList[*VariableMapEntryPr
 }
 
 func Compiler_fromProtoList(protos ListOf[*FeatureProto]) *FeatureSet {
-	var features SetOf[FeatureSet_Feature] = icast_Set(obj_(new_LinkedHashSet()))
+	var features SetOf[FeatureSet_Feature] = new_LinkedHashSet()
 	it_1 := foreach_(any(protos))
 	for it_1.next() {
 		var p *FeatureProto = cast_[*FeatureProto](it_1.v)
@@ -2976,7 +2976,7 @@ func (this *Compiler) getCompilerStateProtoBuilder() *JSCompilerStateProto_Build
 		}
 		builder.addChunks(cast_[*ChunkProto](chunkBuilder.build()))
 	}
-	builder.setUniqueNameId(this.uniqueNameId).addAllUniqueIdSupplier(Iterable(this.uniqueIdSupplier.toProto().asList())).addAllExportedNames(icast_Iterable(any(this.exportedNames.asSet())))
+	builder.setUniqueNameId(this.uniqueNameId).addAllUniqueIdSupplier(Iterable(this.uniqueIdSupplier.toProto().asList())).addAllExportedNames(this.exportedNames.asSet())
 	builder.setHasCssNames((this.cssNames != nil))
 	if this.cssNames != nil {
 		builder.addAllCssNames(Iterable(this.cssNames.asSet()))
@@ -3017,7 +3017,7 @@ func (this *Compiler) restoreFromState(compilerState *JSCompilerStateProto) {
 	this.typeCheckingHasRun = compilerState.getTypeCheckingHasRun()
 	this.scriptNodeByFilename.clear()
 	this.hasRegExpGlobalReferencesField = compilerState.getHasRegExpGlobalReferences()
-	it_1 := foreach_(any(icast_ProtocolStringList(compilerState.getInjectedLibrariesList())))
+	it_1 := foreach_(any(ProtocolStringList(compilerState.getInjectedLibrariesList())))
 	for it_1.next() {
 		var library string = str_(it_1.v)
 		this.getRuntimeJsLibManager().recordLibraryInjected(library)
@@ -3074,7 +3074,7 @@ func (this *Compiler) saveState() []int8 {
 		var stateProto *JSCompilerStateProto = cast_[*JSCompilerStateProto](this.getCompilerStateProtoBuilder().build())
 		this.stopTracer(tracer, "serializeCompilerState")
 		tracer = this.newTracer("serializeTypedAst")
-		var typedAstList ListOf[[]int8] = icast_List(new_ArrayList_0().self())
+		var typedAstList ListOf[[]int8] = new_ArrayList_0()
 		SerializeTypedAstPass_createFromConsumer(this.up_AbstractCompiler(), func(p0 any) { typedAstList.add(any(cast_[[]int8](p0))) }, SerializationOptions_builder().setRuntimeLibraries(ImmutableList_of()).setIncludeDebugInfo(this.getOptions().shouldSerializeExtraDebugInfo()).build()).process_2(this.externsRoot, this.jsRoot)
 		this.stopTracer(tracer, "serializeTypedAst")
 		var typedAsts []int8 = cast_[[]int8](Iterables_getOnlyElement(Iterable(typedAstList)))
@@ -3162,9 +3162,9 @@ func (this *Compiler) deserializeCompilerState(state []int8) {
 		allInputFiles.add(obj_(extern.getSourceFile()))
 		externFilesBuilder.put(strobj_(extern.getInputId().getIdName()), obj_(extern.getSourceFile()))
 	}
-	var deserializedAst *TypedAstDeserializer_DeserializedAst = TypedAstDeserializer_deserializeFullAst(this.up_AbstractCompiler(), this.SYNTHETIC_EXTERNS_FILE, cast_[*ImmutableSet](obj_(allInputFiles.build())), typedAsts, stateProto.getTypeCheckingHasRun(), this.getOptions().getResolveSourceMapAnnotations(), this.getOptions().getParseInlineSourceMaps())
+	var deserializedAst *TypedAstDeserializer_DeserializedAst = TypedAstDeserializer_deserializeFullAst(this.up_AbstractCompiler(), this.SYNTHETIC_EXTERNS_FILE, allInputFiles.build(), typedAsts, stateProto.getTypeCheckingHasRun(), this.getOptions().getResolveSourceMapAnnotations(), this.getOptions().getParseInlineSourceMaps())
 	this.restoreFromState(stateProto)
-	var chunks ListOf[*JSChunk] = icast_List(new_ArrayList_0().self())
+	var chunks ListOf[*JSChunk] = new_ArrayList_0()
 	it_5 := foreach_(any(stateProto.getChunksList()))
 	for it_5.next() {
 		var chunkProto *ChunkProto = cast_[*ChunkProto](it_5.v)
@@ -3191,7 +3191,7 @@ func (this *Compiler) deserializeCompilerState(state []int8) {
 	this.typedAstFilesystem = deserializedAst.getFilesystem()
 	var externFiles ImmutableMapOf[string, *SourceFile_jscomp] = externFilesBuilder.buildOrThrow()
 	var codeFiles ImmutableMapOf[string, *SourceFile_jscomp] = codeFilesBuilder.buildOrThrow()
-	it_10 := foreach_(any(icast_ProtocolStringList(stateProto.getExternsList())))
+	it_10 := foreach_(any(ProtocolStringList(stateProto.getExternsList())))
 	for it_10.next() {
 		var externName string = str_(it_10.v)
 		if externName == this.SYNTHETIC_EXTERNS_FILE.getName() {
@@ -3211,7 +3211,7 @@ func (this *Compiler) deserializeCompilerState(state []int8) {
 	}
 	for i := int32(0); i < chunks.size(); i++ {
 		var chunkProto *ChunkProto = stateProto.getChunks(i)
-		it_13 := foreach_(any(icast_ProtocolStringList(chunkProto.getInputIdsList())))
+		it_13 := foreach_(any(ProtocolStringList(chunkProto.getInputIdsList())))
 		for it_13.next() {
 			var inputId string = str_(it_13.v)
 			var src *SourceFile_jscomp = cast_[*SourceFile_jscomp](Map_get_s(codeFiles, inputId))
@@ -3602,7 +3602,7 @@ func (this *Compiler_ChunkGraphAwareLicenseTracker) finit_Compiler_ChunkGraphAwa
 	this.currentChunkLicencesInTDeps = map[string]struct{}{}
 	this.lastSeenFile = ""
 	this.licensesNewInCurrentFile = newTSet_(tc_string)
-	this.licensesNewInCurrentChunk = icast_Set(obj_(new_LinkedHashSet()))
+	this.licensesNewInCurrentChunk = new_LinkedHashSet()
 	this.log_ = LogFile_createNoOp()
 }
 
@@ -3631,7 +3631,7 @@ func (this *Compiler_ChunkGraphAwareLicenseTracker) setCurrentChunkContext(chunk
 	if has_(this.licensesFromChunks, chunk) {
 		panic(new_IllegalStateException_String("Visiting a chunk more than once is not allowed.").self())
 	}
-	this.licensesNewInCurrentChunk = icast_Set(obj_(new_LinkedHashSet()))
+	this.licensesNewInCurrentChunk = new_LinkedHashSet()
 	this.licensesFromChunks[chunk] = this.licensesNewInCurrentChunk
 }
 
@@ -3656,7 +3656,7 @@ func (this *Compiler_ChunkGraphAwareLicenseTracker) trackLicensesForNode(node No
 			if !has_(this.licensesFromChunks, depChunk) {
 				panic(new_IllegalStateException_String("Chunk aware license analysis error - analysis out of order.").self())
 			}
-			setAddAllFrom_(tc_string, this.currentChunkLicencesInTDeps, icast_Collection(any(this.licensesFromChunks[depChunk])))
+			setAddAllFrom_(tc_string, this.currentChunkLicencesInTDeps, Collection(this.licensesFromChunks[depChunk]))
 		}
 		this.haveInitializedCurrentChunkLicenses = true
 	}

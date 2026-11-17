@@ -164,7 +164,7 @@ func (this *GraphColoring_GreedyGraphColoring) color_impl() int32 {
 				var node GraphNode = icast_GraphNode(i.next())
 				if subgraph.isIndependentOf(node.getValue()) {
 					subgraph.addNode(node.getValue())
-					node.setAnnotation(icast_Annotation_graph(obj_(color)))
+					node.setAnnotation(color)
 					Iterator_remove(i)
 				}
 			}

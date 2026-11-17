@@ -27,7 +27,7 @@ func new_Es6RewriteBlockScopedFunctionDeclaration(compiler *AbstractCompiler) *E
 }
 
 func (this *Es6RewriteBlockScopedFunctionDeclaration) process_2(externs Node, root Node) {
-	TranspilationPasses_processTranspile(this.compiler_, root, Es6RewriteBlockScopedFunctionDeclaration_transpiledFeatures, []NodeTraversal_Callback{icast_NodeTraversal_Callback(obj_(this))})
+	TranspilationPasses_processTranspile(this.compiler_, root, Es6RewriteBlockScopedFunctionDeclaration_transpiledFeatures, []NodeTraversal_Callback{NodeTraversal_Callback(this)})
 	TranspilationPasses_maybeMarkFeaturesAsTranspiledAway(this.compiler_, root, Es6RewriteBlockScopedFunctionDeclaration_transpiledFeatures)
 }
 

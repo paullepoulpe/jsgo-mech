@@ -57,7 +57,7 @@ func (this *JSTypeRegistry) finit_JSTypeRegistry() {
 }
 
 func (this *JSTypeRegistry) init_JSTypeRegistry_ErrorReporter(reporter ErrorReporter_rhino) {
-	this.init_JSTypeRegistry_ErrorReporter_Set(reporter, icast_Set(obj_(ImmutableSet_of())))
+	this.init_JSTypeRegistry_ErrorReporter_Set(reporter, ImmutableSet_of())
 }
 
 func new_JSTypeRegistry_ErrorReporter(reporter ErrorReporter_rhino) *JSTypeRegistry {
@@ -604,7 +604,7 @@ func (this *JSTypeRegistry) resolveViaClosureNamespace(reference string) *JSType
 			if namespace.isLegacy() {
 				return nil
 			} else {
-				return this.resolveViaPropertyGivenSlot(namespace.type_(), namespace.definitionNode(), sliceImm_(tc_string, cast_[*ImmutableList](obj_(unusedComponents.build())).reverse()))
+				return this.resolveViaPropertyGivenSlot(namespace.type_(), namespace.definitionNode(), sliceImm_(tc_string, unusedComponents.build().reverse()))
 			}
 		}
 		var lastDot int32 = String_lastIndexOf_String(prefix, ".")
@@ -785,7 +785,7 @@ func (this *JSTypeRegistry) canPropertyBeDefined(type_ *JSType, propertyName str
 			case JSType_HasPropertyKind_ABSENT:
 			}
 		}
-		var associatedTypes IterableOf[*JSType] = icast_Iterable(obj_(ImmutableList_of()))
+		var associatedTypes IterableOf[*JSType] = ImmutableList_of()
 		if this.nonRefTypesIndexedByProperty.containsKey_s(propertyName) {
 			associatedTypes = Iterable(this.nonRefTypesIndexedByProperty.get_s(propertyName))
 		}
@@ -827,7 +827,7 @@ func (this *JSTypeRegistry) getEachReferenceTypeWithProperty(propertyName string
 	if this.eachRefTypeIndexedByProperty.containsKey_s(propertyName) {
 		return Iterable(this.eachRefTypeIndexedByProperty.get_s(propertyName))
 	} else {
-		return icast_Iterable(obj_(ImmutableList_of()))
+		return ImmutableList_of()
 	}
 	panic("unreachable")
 }
@@ -1448,11 +1448,11 @@ func (this *JSTypeRegistry) parseTemplateArgs(nominalType *JSType, typeNode Node
 		sliceInsert_(&templateArgs, 0, this.getNativeType(JSTypeNative_UNKNOWN_TYPE))
 	}
 	if nominalType.isNamedType() && !nominalType.isResolved() {
-		return ImmutableList_copyOf(icast_Collection(any(sliceView_(tc_p_JSType, templateArgs))))
+		return ImmutableList_copyOf(sliceView_(tc_p_JSType, templateArgs))
 	}
 	var requiredTemplateArgCount int32 = nominalType.getTemplateParamCount()
 	if int32(len(templateArgs)) <= requiredTemplateArgCount {
-		return ImmutableList_copyOf(icast_Collection(any(sliceView_(tc_p_JSType, templateArgs))))
+		return ImmutableList_copyOf(sliceView_(tc_p_JSType, templateArgs))
 	}
 	if !nominalType.isUnknownType() && !this.isNonNullableName(StaticScope(scope), typeNode.getString()) {
 		var firstExtraTemplateParam Node = typeNode.getFirstChild().getChildAtIndex(requiredTemplateArgCount)
@@ -1498,7 +1498,7 @@ func (this *JSTypeRegistry) registerTemplateTypeNamesInScope(keys IterableOf[*Te
 }
 
 func (this *JSTypeRegistry) createScopeWithTemplates(scope StaticTypedScope, templates IterableOf[*TemplateType]) StaticTypedScope {
-	return icast_StaticTypedScope(obj_(new_JSTypeRegistry_SyntheticTemplateScope(scope, templates)))
+	return new_JSTypeRegistry_SyntheticTemplateScope(scope, templates)
 }
 
 func (this *JSTypeRegistry) nativeConstructorBuilder(name string) *FunctionType_Builder {
@@ -1680,13 +1680,13 @@ func (this *JSTypeRegistry_SyntheticTemplateScope) getTemplateType(name string) 
 
 func (this *JSTypeRegistry_SyntheticTemplateScope) getTopmostScopeOfEventualDeclaration(name string) StaticScope {
 	if this.types.get(name) != nil {
-		return icast_StaticScope(any(this))
+		return this
 	}
 	return this.delegate.getTopmostScopeOfEventualDeclaration(name)
 }
 
 func (this *JSTypeRegistry_SyntheticTemplateScope) lookupQualifiedName(p0 *QualifiedName) *JSType {
-	return StaticTypedScope_lookupQualifiedName_default(icast_StaticTypedScope(any(this)), p0)
+	return StaticTypedScope_lookupQualifiedName_default(this, p0)
 }
 
 type JSTypeRegistry_ClosureNamespace struct {

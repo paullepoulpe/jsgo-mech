@@ -33,9 +33,9 @@ func (this *J2clUtilGetDefineRewriterPass) process_2(externs Node, root Node) {
 	}
 	this.defines = this.compiler_.getDefineNames()
 	var checkGetDefineCalls *J2clUtilGetDefineRewriterPass_CheckGetDefineCalls = new_J2clUtilGetDefineRewriterPass_CheckGetDefineCalls(this)
-	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(obj_(checkGetDefineCalls)))
+	NodeTraversal_traverse(this.compiler_, root, checkGetDefineCalls)
 	checkGetDefineCalls.validateRegisteredDefines()
-	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(obj_(this)))
+	NodeTraversal_traverse(this.compiler_, root, this)
 }
 
 func (this *J2clUtilGetDefineRewriterPass) visit_impl(t *NodeTraversal, n Node, parent Node) {

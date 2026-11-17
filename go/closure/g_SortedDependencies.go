@@ -14,7 +14,7 @@ type SortedDependencies struct {
 func (this *SortedDependencies) finit_SortedDependencies() {
 	this.userOrderedInputs = newTList_(tc_p_CompilerInput)
 	this.importOrderedInputs = newTList_(tc_p_CompilerInput)
-	this.completedInputs = icast_Set(obj_(new_LinkedHashSet()))
+	this.completedInputs = new_LinkedHashSet()
 	this.nonExportingInputs = newTMap_(tc_string, tc_any)
 	this.exportingInputBySymbolName = map[string]any{}
 	this.importedInputByImportingInput = SimpleSetMultimap_createInsertionOrdered()
@@ -33,8 +33,8 @@ func new_SortedDependencies(userOrderedInputs ListOf[any]) *SortedDependencies {
 }
 
 func (this *SortedDependencies) getStrongDependenciesOf(rootInputs ListOf[any], sorted bool) ImmutableListOf[any] {
-	var includedInputs SetOf[any] = icast_Set(obj_(new_LinkedHashSet()))
-	var worklist DequeOf[any] = icast_Deque(obj_(new_ArrayDeque_Collection(Collection(rootInputs))))
+	var includedInputs SetOf[any] = new_LinkedHashSet()
+	var worklist DequeOf[any] = new_ArrayDeque_Collection(Collection(rootInputs))
 	for !worklist.isEmpty() {
 		var input DependencyInfo = icast_DependencyInfo(worklist.pop())
 		if includedInputs.add(any(input)) {
@@ -61,7 +61,7 @@ func (this *SortedDependencies) getStrongDependenciesOf(rootInputs ListOf[any], 
 			builder.add(any(input))
 		}
 	}
-	return cast_[*ImmutableList](obj_(builder.build()))
+	return builder.build()
 }
 
 func (this *SortedDependencies) getInputProviding(symbolName string) *Outcome_base {
@@ -81,9 +81,9 @@ func (this *SortedDependencies) getSortedStrongDependenciesOf(roots ListOf[any])
 }
 
 func (this *SortedDependencies) getSortedWeakDependenciesOf(rootInputs ListOf[any]) ImmutableListOf[any] {
-	var strongInputs SetOf[any] = icast_Set(obj_(new_LinkedHashSet_Collection(icast_Collection(obj_(this.getSortedStrongDependenciesOf(rootInputs))))))
-	var weakInputs SetOf[any] = icast_Set(obj_(new_LinkedHashSet()))
-	var worklist DequeOf[any] = icast_Deque(obj_(new_ArrayDeque_Collection(Collection(strongInputs))))
+	var strongInputs SetOf[any] = new_LinkedHashSet_Collection(icast_Collection(obj_(this.getSortedStrongDependenciesOf(rootInputs))))
+	var weakInputs SetOf[any] = new_LinkedHashSet()
+	var worklist DequeOf[any] = new_ArrayDeque_Collection(Collection(strongInputs))
 	for !worklist.isEmpty() {
 		var input DependencyInfo = icast_DependencyInfo(worklist.pop())
 		var isStrong bool = strongInputs.contains(any(input))
@@ -113,7 +113,7 @@ func (this *SortedDependencies) getSortedWeakDependenciesOf(rootInputs ListOf[an
 			builder.add(any(input))
 		}
 	}
-	return cast_[*ImmutableList](obj_(builder.build()))
+	return builder.build()
 }
 
 func (this *SortedDependencies) getSortedList() *TList[*CompilerInput] {

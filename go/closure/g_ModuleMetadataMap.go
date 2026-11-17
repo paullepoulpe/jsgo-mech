@@ -11,7 +11,7 @@ type ModuleMetadataMap struct {
 func (this *ModuleMetadataMap) init_ModuleMetadataMap(modulesByPath *TMap[string, *ModuleMetadataMap_ModuleMetadata], modulesByGoogNamespace *TMap[string, *ModuleMetadataMap_ModuleMetadata]) {
 	this.modulesByPath = ImmutableMap_copyOf(modulesByPath.asMap())
 	this.modulesByGoogNamespace = ImmutableMap_copyOf(modulesByGoogNamespace.asMap())
-	this.moduleMetadata_ = cast_[*ImmutableSet](obj_(cast_[*ImmutableSet_Builder](obj_(cast_[*ImmutableSet_Builder](obj_(ImmutableSet_builder().addAll(Iterable(modulesByPath.asMap().values())))).addAll(Iterable(modulesByGoogNamespace.asMap().values())))).build()))
+	this.moduleMetadata_ = ImmutableSet_builder().addAll(Iterable(modulesByPath.asMap().values())).addAll(Iterable(modulesByGoogNamespace.asMap().values())).build()
 }
 
 func new_ModuleMetadataMap(modulesByPath *TMap[string, *ModuleMetadataMap_ModuleMetadata], modulesByGoogNamespace *TMap[string, *ModuleMetadataMap_ModuleMetadata]) *ModuleMetadataMap {
@@ -363,7 +363,7 @@ func (this *ModuleMetadataMap_ModuleMetadata_Builder) build() *ModuleMetadataMap
 		this.es6ImportSpecifiers_ = SimpleMultiset_of()
 	}
 	if this.nestedModulesBuilderField != nil {
-		this.nestedModules_ = cast_[*ImmutableList](obj_(this.nestedModulesBuilderField.build()))
+		this.nestedModules_ = this.nestedModulesBuilderField.build()
 	} else if this.nestedModules_ == nil {
 		this.nestedModules_ = ImmutableList_of()
 	}

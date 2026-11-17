@@ -50,7 +50,7 @@ func (this *LinkedDirectedGraph) up_Graph() *Graph {
 }
 
 func (this *LinkedDirectedGraph) finit_LinkedDirectedGraph() {
-	this.nodes_ = icast_Map(obj_(new_LinkedHashMap()))
+	this.nodes_ = new_LinkedHashMap()
 }
 
 func (this *LinkedDirectedGraph) init_LinkedDirectedGraph(useNodeAnnotations bool, useEdgeAnnotations bool) {
@@ -68,7 +68,7 @@ func new_LinkedDirectedGraph(useNodeAnnotations bool, useEdgeAnnotations bool) *
 }
 
 func (this *LinkedDirectedGraph) newSubGraph_impl() SubGraph {
-	return icast_SubGraph(obj_(new_Graph_SimpleSubGraph(this.up_Graph())))
+	return new_Graph_SimpleSubGraph(this.up_Graph())
 }
 
 func LinkedDirectedGraph_createWithoutAnnotations() *LinkedDirectedGraph {
@@ -356,12 +356,12 @@ func (this *LinkedDirectedGraph) getNeighborNodes_impl(value any) []GraphNode {
 	it_1 := node.getInEdges().each()
 	for it_1.next() {
 		var inEdge DiGraph_DiGraphEdge = it_1.v
-		result = append(result, icast_GraphNode(any(inEdge.getSource())))
+		result = append(result, GraphNode(inEdge.getSource()))
 	}
 	it_3 := node.getOutEdges().each()
 	for it_3.next() {
 		var outEdge DiGraph_DiGraphEdge = it_3.v
-		result = append(result, icast_GraphNode(any(outEdge.getDestination())))
+		result = append(result, GraphNode(outEdge.getDestination()))
 	}
 	return result
 }

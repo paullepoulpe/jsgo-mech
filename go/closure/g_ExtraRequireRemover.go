@@ -26,7 +26,7 @@ func new_ExtraRequireRemover(compiler *AbstractCompiler) *ExtraRequireRemover {
 
 func (this *ExtraRequireRemover) process_2(externs Node, root Node) {
 	this.reset()
-	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(any(this)))
+	NodeTraversal_traverse(this.compiler_, root, this)
 }
 
 func (this *ExtraRequireRemover) extractNamespace(call Node, primitiveNames []*QualifiedName) OptionalOf[string] {

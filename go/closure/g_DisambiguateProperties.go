@@ -39,7 +39,7 @@ func (this *DisambiguateProperties) process_2(externs Node, root Node) {
 		recv_2 := this.compiler_
 		return func(p0 any) { recv_2.reportChangeToEnclosingScope(Node_of_(p0)) }
 	}())
-	NodeTraversal_traverse(this.compiler_, externs.getParent(), icast_NodeTraversal_Callback(obj_(findRefs)))
+	NodeTraversal_traverse(this.compiler_, externs.getParent(), findRefs)
 	var propIndex *TMap[string, *PropertyClustering] = findRefs.getPropertyIndex()
 	DisambiguateProperties_invalidateWellKnownProperties(propIndex)
 	this.logForDiagnosticsStreamedJsonProducer("prop_refs", new_DisambiguateProperties_1(this, propIndex).writeJson)
@@ -68,7 +68,7 @@ func (this *DisambiguateProperties) process_2(externs Node, root Node) {
 		panic("unreachable")
 	}})
 	this.invalidateBasedOnType(flattener)
-	FixedPointGraphTraversal_newTraversal(icast_FixedPointGraphTraversal_EdgeCallback(obj_(propagator))).computeFixedPoint(graph)
+	FixedPointGraphTraversal_newTraversal(propagator).computeFixedPoint(graph)
 	var trackerSummaryGenerator *DisambiguateProperties_TrackerSummaryGenerator = new_DisambiguateProperties_TrackerSummaryGenerator()
 	it_7 := propIndex.each()
 	for it_7.next() {
@@ -317,7 +317,7 @@ func (this *DisambiguateProperties_PropertyReferenceIndexJson) init_Disambiguate
 			var e Map_Entry = icast_Map_Entry(it_1.v)
 			refsBuilder.add(obj_(new_DisambiguateProperties_PropertyReferenceJson(Node_of_(e.getKey()), cast_[*ColorGraphNode](e.getValue()))))
 		}
-		this.refs = cast_[*ImmutableSortedSet](obj_(refsBuilder.build()))
+		this.refs = refsBuilder.build()
 	}
 }
 
@@ -411,14 +411,14 @@ func (this *DisambiguateProperties_TypeNodeJson) init_DisambiguateProperties_Typ
 		var e DiGraph_DiGraphEdge = it_1.v
 		edgesBuilder.add(obj_(new_DisambiguateProperties_TypeEdgeJson(e)))
 	}
-	this.edges = cast_[*ImmutableSortedSet](obj_(edgesBuilder.build()))
+	this.edges = edgesBuilder.build()
 	var propsBuilder ImmutableSortedMap_BuilderOf[string, ColorGraphNode_PropAssociation] = ImmutableSortedMap_naturalOrder()
 	it_3 := foreach_(any(t.getAssociatedProps().asMap().entrySet()))
 	for it_3.next() {
 		var e Map_Entry = icast_Map_Entry(it_3.v)
 		propsBuilder.put(strobj_(cast_[*PropertyClustering](e.getKey()).getName()), e.getValue())
 	}
-	this.props = cast_[*ImmutableSortedMap](obj_(propsBuilder.buildOrThrow()))
+	this.props = propsBuilder.buildOrThrow()
 }
 
 func new_DisambiguateProperties_TypeNodeJson(n DiGraph_DiGraphNode) *DisambiguateProperties_TypeNodeJson {
@@ -492,7 +492,7 @@ func (this *DisambiguateProperties_1) writeJson(writer *SimpleJsonWriter) {
 		var prop *PropertyClustering = it_1.v
 		propRefsJsonBuilder.add(obj_(new_DisambiguateProperties_PropertyReferenceIndexJson(prop)))
 	}
-	var propRefsJson ImmutableSortedSetOf[*DisambiguateProperties_PropertyReferenceIndexJson] = cast_[*ImmutableSortedSet](obj_(propRefsJsonBuilder.build()))
+	var propRefsJson ImmutableSortedSetOf[*DisambiguateProperties_PropertyReferenceIndexJson] = propRefsJsonBuilder.build()
 	writer.beginObject()
 	it_3 := foreach_(obj_(propRefsJson))
 	for it_3.next() {

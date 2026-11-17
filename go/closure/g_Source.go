@@ -228,7 +228,7 @@ func (this *Source_Builder) setOriginalCode(code string) *Source_Builder {
 }
 
 func (this *Source_Builder) addRuntime(runtimes []string) *Source_Builder {
-	return this.setRuntimes(cast_[*ImmutableSet](obj_(cast_[*ImmutableSet_Builder](obj_(cast_[*ImmutableSet_Builder](obj_(ImmutableSet_builder().addAll(icast_Iterable(obj_(this.runtimes()))))).add_ObjectArr(arrmap_(runtimes, func(v_ string) any { return strobj_(v_) })))).build())))
+	return this.setRuntimes(ImmutableSet_builder().addAll(icast_Iterable(obj_(this.runtimes()))).add_ObjectArr(arrmap_(runtimes, func(v_ string) any { return strobj_(v_) })).build())
 }
 
 func (this *Source_Builder) setDependencyInfo(info DependencyInfo) *Source_Builder {

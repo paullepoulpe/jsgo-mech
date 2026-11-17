@@ -56,7 +56,7 @@ func (this *ProcessTweaks) stripAllCalls(tweakInfos *TMap[string, *ProcessTweaks
 
 func (this *ProcessTweaks) collectTweaks(root Node) *ProcessTweaks_CollectTweaksResult {
 	var pass *ProcessTweaks_CollectTweaks = new_ProcessTweaks_CollectTweaks(this)
-	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(obj_(pass)))
+	NodeTraversal_traverse(this.compiler_, root, pass)
 	var tweakInfos *TMap[string, *ProcessTweaks_TweakInfo] = pass.allTweaks
 	it_1 := tweakInfos.each()
 	for it_1.next() {
@@ -90,7 +90,7 @@ func ProcessTweaks_clinit() {
 	ProcessTweaks_TWEAK_WRONG_GETTER_TYPE_WARNING = DiagnosticType_warning("JSC_TWEAK_WRONG_GETTER_TYPE_WARNING", "tweak getter function {0} used for tweak registered using {1}")
 	ProcessTweaks_INVALID_TWEAK_ID_ERROR = DiagnosticType_error("JSC_INVALID_TWEAK_ID_ERROR", "tweak ID contains illegal characters. Only letters, numbers, _ and . are allowed")
 	{
-		ProcessTweaks_TWEAK_FUNCTIONS_MAP = icast_Map(obj_(new_LinkedHashMap()))
+		ProcessTweaks_TWEAK_FUNCTIONS_MAP = new_LinkedHashMap()
 		it_1 := foreach_(obj_(EnumSet_allOf(classOf_("com.google.javascript.jscomp.ProcessTweaks.TweakFunction"))))
 		for it_1.next() {
 			var func_ ProcessTweaks_TweakFunction = cast_[ProcessTweaks_TweakFunction](it_1.v)

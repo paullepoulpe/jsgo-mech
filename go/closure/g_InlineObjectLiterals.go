@@ -19,7 +19,7 @@ func new_InlineObjectLiterals(compiler *AbstractCompiler, safeNameIdSupplier Sup
 }
 
 func (this *InlineObjectLiterals) process_2(externs Node, root Node) {
-	var callback *ReferenceCollector = new_ReferenceCollector_AbstractCompiler_Behavior_ScopeCreator(this.compiler_, icast_ReferenceCollector_Behavior(obj_(new_InlineObjectLiterals_InliningBehavior(this))), icast_ScopeCreator(obj_(new_SyntacticScopeCreator_AbstractCompiler(this.compiler_))))
+	var callback *ReferenceCollector = new_ReferenceCollector_AbstractCompiler_Behavior_ScopeCreator(this.compiler_, new_InlineObjectLiterals_InliningBehavior(this), new_SyntacticScopeCreator_AbstractCompiler(this.compiler_))
 	callback.process_2(externs, root)
 }
 
@@ -66,7 +66,7 @@ func (this *InlineObjectLiterals_InliningBehavior) afterExitScope(t *NodeTravers
 }
 
 func (this *InlineObjectLiterals_InliningBehavior) recordStaleVarReferencesInTree(root Node, scope *Scope) {
-	NodeUtil_visitPreOrder_Node_Visitor_Predicate(root, icast_NodeUtil_Visitor(obj_(new_InlineObjectLiterals_InliningBehavior_1(this, scope))), NodeUtil_MATCH_NOT_FUNCTION)
+	NodeUtil_visitPreOrder_Node_Visitor_Predicate(root, new_InlineObjectLiterals_InliningBehavior_1(this, scope), NodeUtil_MATCH_NOT_FUNCTION)
 }
 
 func (this *InlineObjectLiterals_InliningBehavior) isVarInlineForbidden(var_ *Var) bool {
@@ -206,7 +206,7 @@ func (this *InlineObjectLiterals_InliningBehavior) fillInitialValues(init_ *Refe
 }
 
 func (this *InlineObjectLiterals_InliningBehavior) replaceAssignmentExpression(v *Var, ref *Reference, varmap *TMap[string, string]) {
-	var nodes ListOf[Node] = icast_List(new_ArrayList_0().self())
+	var nodes ListOf[Node] = new_ArrayList_0()
 	var val Node = ref.getAssignedValue()
 	this.recordStaleVarReferencesInTree(val, cast_[*Scope](v.getScope()))
 	if !val.isObjectLit() {
@@ -337,11 +337,11 @@ func (this *InlineObjectLiterals_InliningBehavior) splitObject(v *Var, init_ *Re
 }
 
 func (this *InlineObjectLiterals_InliningBehavior) beforeTraverseNode(p0 *NodeTraversal, p1 Node, p2 Node) {
-	ReferenceCollector_Behavior_beforeTraverseNode_default(icast_ReferenceCollector_Behavior(any(this)), p0, p1, p2)
+	ReferenceCollector_Behavior_beforeTraverseNode_default(this, p0, p1, p2)
 }
 
 func (this *InlineObjectLiterals_InliningBehavior) afterVisitNode(p0 *NodeTraversal, p1 Node, p2 Node, p3 *Reference) {
-	ReferenceCollector_Behavior_afterVisitNode_default(icast_ReferenceCollector_Behavior(any(this)), p0, p1, p2, p3)
+	ReferenceCollector_Behavior_afterVisitNode_default(this, p0, p1, p2, p3)
 }
 
 type InlineObjectLiterals_InliningBehavior_1 struct {

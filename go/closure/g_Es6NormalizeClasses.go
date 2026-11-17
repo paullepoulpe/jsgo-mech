@@ -76,7 +76,7 @@ func Es6NormalizeClasses_generateUniquePrivateVarName(compiler *AbstractCompiler
 }
 
 func (this *Es6NormalizeClasses) process_2(externs Node, root Node) {
-	NodeTraversal_traverseRoots(this.compiler_, icast_NodeTraversal_Callback(any(this)), externs, root)
+	NodeTraversal_traverseRoots(this.compiler_, this, externs, root)
 	var transpiledFeatures *FeatureSet = FeatureSet_BARE_MINIMUM.with(FeatureSet_Feature_CLASS_STATIC_BLOCK)
 	if this.transpileClassFields {
 		transpiledFeatures = transpiledFeatures.with(FeatureSet_Feature_PUBLIC_CLASS_FIELDS)
@@ -1543,7 +1543,7 @@ func (this *Es6NormalizeClasses_ClassRecord) recordConstructorScope(s *Scope) {
 		Preconditions_checkState_boolean_Object(false, obj_(this.constructorVars))
 	}
 	var argsScope *Scope = cast_[*Scope](s.getParent().self())
-	this.constructorVars = cast_[*ImmutableSet](obj_(cast_[*ImmutableSet_Builder](obj_(cast_[*ImmutableSet_Builder](obj_(ImmutableSet_builder().addAll(s.getAllSymbols()))).addAll(argsScope.getAllSymbols()))).build()))
+	this.constructorVars = ImmutableSet_builder().addAll(s.getAllSymbols()).addAll(argsScope.getAllSymbols()).build()
 }
 
 func (this *Es6NormalizeClasses_ClassRecord) createNewNameReferenceNode() Node {

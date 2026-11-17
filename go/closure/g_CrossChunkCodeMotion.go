@@ -37,7 +37,7 @@ func (this *CrossChunkCodeMotion) process_2(externs Node, root Node) {
 		this.cccmLog = logFile
 		this.cccmLog.logString("doing cccm")
 		if this.graph.getChunkCount() > 1 {
-			var referenceCollector *CrossChunkReferenceCollector = new_CrossChunkReferenceCollector(this.compiler_, icast_ScopeCreator(obj_(new_SyntacticScopeCreator_AbstractCompiler(this.compiler_))))
+			var referenceCollector *CrossChunkReferenceCollector = new_CrossChunkReferenceCollector(this.compiler_, new_SyntacticScopeCreator_AbstractCompiler(this.compiler_))
 			referenceCollector.process(root)
 			var globalSymbols CollectionOf[*CrossChunkCodeMotion_GlobalSymbol] = new_CrossChunkCodeMotion_GlobalSymbolCollector(this).collectGlobalSymbols(referenceCollector)
 			this.moveGlobalSymbols(globalSymbols)
@@ -147,7 +147,7 @@ type CrossChunkCodeMotion_GlobalSymbolCollector struct {
 
 func (this *CrossChunkCodeMotion_GlobalSymbolCollector) finit_CrossChunkCodeMotion_GlobalSymbolCollector() {
 	this.globalSymbolforVar = newTMap_(tch_p_Var, tc_p_CrossChunkCodeMotion_GlobalSymbol)
-	this.symbolStack = icast_Deque(obj_(new_ArrayDeque()))
+	this.symbolStack = new_ArrayDeque()
 }
 
 func (this *CrossChunkCodeMotion_GlobalSymbolCollector) init_CrossChunkCodeMotion_GlobalSymbolCollector() {
@@ -190,7 +190,7 @@ func (this *CrossChunkCodeMotion_GlobalSymbolCollector) processImmovableReferenc
 			return
 		} else if this.outer_.isUnguardedInstanceofReference(n) {
 			var instanceofReference *CrossChunkCodeMotion_ImmovableInstanceofReference = new_CrossChunkCodeMotion_ImmovableInstanceofReference(chunk, ref)
-			globalSymbol.instanceofReferencesToGuard = append(globalSymbol.instanceofReferencesToGuard, icast_CrossChunkCodeMotion_InstanceofReference(obj_(instanceofReference)))
+			globalSymbol.instanceofReferencesToGuard = append(globalSymbol.instanceofReferencesToGuard, CrossChunkCodeMotion_InstanceofReference(instanceofReference))
 			return
 		}
 	}
@@ -217,7 +217,7 @@ func (this *CrossChunkCodeMotion_GlobalSymbolCollector) processDeclarationStatem
 				continue
 			} else if this.outer_.isUnguardedInstanceofReference(n) {
 				var instanceofReference *CrossChunkCodeMotion_MovableInstanceofReference = new_CrossChunkCodeMotion_MovableInstanceofReference(dsg, ref)
-				refSymbol.instanceofReferencesToGuard = append(refSymbol.instanceofReferencesToGuard, icast_CrossChunkCodeMotion_InstanceofReference(obj_(instanceofReference)))
+				refSymbol.instanceofReferencesToGuard = append(refSymbol.instanceofReferencesToGuard, CrossChunkCodeMotion_InstanceofReference(instanceofReference))
 				continue
 			}
 		}
@@ -249,7 +249,7 @@ type CrossChunkCodeMotion_GlobalSymbol struct {
 }
 
 func (this *CrossChunkCodeMotion_GlobalSymbol) finit_CrossChunkCodeMotion_GlobalSymbol() {
-	this.dsgStack = icast_Deque(obj_(new_ArrayDeque()))
+	this.dsgStack = new_ArrayDeque()
 	this.chunksWithImmovableReferences = new_BitSet_int(this.outer_.graph.getChunkCount())
 	this.referencingGlobalSymbols = newTSet_(tc_p_CrossChunkCodeMotion_GlobalSymbol)
 	this.instanceofReferencesToGuard = []CrossChunkCodeMotion_InstanceofReference{}
@@ -373,13 +373,13 @@ func (this *CrossChunkCodeMotion_GlobalSymbolCycle) getDsgCyclesLatestFirst() []
 }
 
 func (this *CrossChunkCodeMotion_GlobalSymbolCycle) getDsgsLatestFirst() DequeOf[*CrossChunkCodeMotion_DeclarationStatementGroup] {
-	var resultStack DequeOf[*CrossChunkCodeMotion_DeclarationStatementGroup] = icast_Deque(obj_(new_ArrayDeque()))
+	var resultStack DequeOf[*CrossChunkCodeMotion_DeclarationStatementGroup] = new_ArrayDeque()
 	it_1 := eachOf_(&this.symbols)
 	for it_1.next() {
 		var symbol *CrossChunkCodeMotion_GlobalSymbol = it_1.v
 		var stack1 DequeOf[*CrossChunkCodeMotion_DeclarationStatementGroup] = resultStack
-		var stack2 DequeOf[*CrossChunkCodeMotion_DeclarationStatementGroup] = icast_Deque(obj_(new_ArrayDeque_Collection(Collection(symbol.dsgStack))))
-		resultStack = icast_Deque(obj_(new_ArrayDeque_int((stack1.size() + stack2.size()))))
+		var stack2 DequeOf[*CrossChunkCodeMotion_DeclarationStatementGroup] = new_ArrayDeque_Collection(Collection(symbol.dsgStack))
+		resultStack = new_ArrayDeque_int((stack1.size() + stack2.size()))
 		for {
 			if stack1.isEmpty() {
 				resultStack.addAll(Collection(stack2))
@@ -412,7 +412,7 @@ type CrossChunkCodeMotion_DeclarationStatementGroup struct {
 
 func (this *CrossChunkCodeMotion_DeclarationStatementGroup) finit_CrossChunkCodeMotion_DeclarationStatementGroup() {
 	this.referencedGlobalSymbols = newTSet_(tc_p_CrossChunkCodeMotion_GlobalSymbol)
-	this.statementStack = icast_Deque(obj_(new_ArrayDeque()))
+	this.statementStack = new_ArrayDeque()
 }
 
 func (this *CrossChunkCodeMotion_DeclarationStatementGroup) init_CrossChunkCodeMotion_DeclarationStatementGroup(declaredGlobalSymbol *CrossChunkCodeMotion_GlobalSymbol, currentChunk *JSChunk) {
@@ -591,13 +591,13 @@ func (this *CrossChunkCodeMotion_DeclarationStatementGroupCycle) moveStatementsT
 }
 
 func (this *CrossChunkCodeMotion_DeclarationStatementGroupCycle) getStatementsLastFirst() DequeOf[*CrossChunkReferenceCollector_TopLevelStatement] {
-	var result DequeOf[*CrossChunkReferenceCollector_TopLevelStatement] = icast_Deque(obj_(new_ArrayDeque()))
+	var result DequeOf[*CrossChunkReferenceCollector_TopLevelStatement] = new_ArrayDeque()
 	it_1 := eachOf_(&this.dsgs)
 	for it_1.next() {
 		var dsg *CrossChunkCodeMotion_DeclarationStatementGroup = it_1.v
-		var stack1 DequeOf[*CrossChunkReferenceCollector_TopLevelStatement] = icast_Deque(obj_(new_ArrayDeque_Collection(Collection(dsg.statementStack))))
+		var stack1 DequeOf[*CrossChunkReferenceCollector_TopLevelStatement] = new_ArrayDeque_Collection(Collection(dsg.statementStack))
 		var stack2 DequeOf[*CrossChunkReferenceCollector_TopLevelStatement] = result
-		result = icast_Deque(obj_(new_ArrayDeque_int((stack1.size() + stack2.size()))))
+		result = new_ArrayDeque_int((stack1.size() + stack2.size()))
 		for {
 			if stack1.isEmpty() {
 				result.addAll(Collection(stack2))

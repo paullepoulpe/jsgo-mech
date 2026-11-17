@@ -48,7 +48,7 @@ func RewriteAsyncIteration_create(compiler *AbstractCompiler) *RewriteAsyncItera
 func (this *RewriteAsyncIteration) process_2(externs Node, root Node) {
 	Preconditions_checkState(len(this.contextStack) == 0)
 	this.contextStack = append(this.contextStack, RewriteAsyncIteration_LexicalContext_newGlobalContext(root))
-	TranspilationPasses_processTranspile(this.compiler_, root, RewriteAsyncIteration_transpiledFeatures, []NodeTraversal_Callback{icast_NodeTraversal_Callback(any(this))})
+	TranspilationPasses_processTranspile(this.compiler_, root, RewriteAsyncIteration_transpiledFeatures, []NodeTraversal_Callback{NodeTraversal_Callback(this)})
 	TranspilationPasses_maybeMarkFeaturesAsTranspiledAway(this.compiler_, root, RewriteAsyncIteration_transpiledFeatures)
 	Preconditions_checkState((sliceTop_(tc_p_RewriteAsyncIteration_LexicalContext, this.contextStack).function == 0))
 	slicePop_(tc_p_RewriteAsyncIteration_LexicalContext, &this.contextStack)

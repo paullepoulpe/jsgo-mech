@@ -79,8 +79,8 @@ func (this *IsolatePolyfills) process_2(externs Node, root Node) {
 func (this *IsolatePolyfills) findAllInjectedPolyfills() ImmutableSetOf[string] {
 	var actualPolyfills ImmutableSet_BuilderOf[string] = ImmutableSet_builder()
 	var lastInjectedNode Node = this.compiler_.getNodeForCodeInsertion(nil)
-	NodeTraversal_traverse(this.compiler_, lastInjectedNode, icast_NodeTraversal_Callback(obj_(new_IsolatePolyfills_1(this, actualPolyfills))))
-	return cast_[*ImmutableSet](obj_(actualPolyfills.build()))
+	NodeTraversal_traverse(this.compiler_, lastInjectedNode, new_IsolatePolyfills_1(this, actualPolyfills))
+	return actualPolyfills.build()
 }
 
 func (this *IsolatePolyfills) isJSCompPolyfillCall(call Node) bool {

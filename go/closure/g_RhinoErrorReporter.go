@@ -53,7 +53,7 @@ func RhinoErrorReporter_replacePlaceHolders(s string) *Pattern {
 }
 
 func RhinoErrorReporter_forOldRhino(internalReporter func(CheckLevel, *JSError)) ErrorReporter_rhino {
-	return icast_ErrorReporter_rhino(obj_(new_RhinoErrorReporter_OldRhinoErrorReporter(internalReporter)))
+	return new_RhinoErrorReporter_OldRhinoErrorReporter(internalReporter)
 }
 
 func (this *RhinoErrorReporter) warningAtLine(message string, sourceName OptionalOf[string], line int32, lineOffset int32) {

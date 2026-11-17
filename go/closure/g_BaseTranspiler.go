@@ -121,7 +121,7 @@ func (this *BaseTranspiler_CompilerSupplier) compile(path string, code string) *
 					panic(r_)
 				}
 			}()
-			result.sourceMap_.appendTo(icast_Appendable(obj_(sourceMap)), Optional_of[string](path))
+			result.sourceMap_.appendTo(sourceMap, Optional_of[string](path))
 			return 0
 		}()
 	}
@@ -140,7 +140,7 @@ func (this *BaseTranspiler_CompilerSupplier) compile(path string, code string) *
 func (this *BaseTranspiler_CompilerSupplier) runtime(library string) string {
 	var compiler *Compiler = this.compiler()
 	var options *CompilerOptions = this.options()
-	options.setForceLibraryInjection(icast_Iterable(obj_(ImmutableList_of_Object(strobj_(library)))))
+	options.setForceLibraryInjection(ImmutableList_of_Object(strobj_(library)))
 	compiler.compileSourceFile(this.createTrivialExterns(), this.createEmptySource(), options)
 	return compiler.toSource()
 }
@@ -176,7 +176,7 @@ func (this *BaseTranspiler_CompilerSupplier) setOptions(options *CompilerOptions
 	options.setApplyInputSourceMaps(true)
 	options.setSourceMapOutputPath(Optional_of[string]("/dev/null"))
 	options.setSourceMapIncludeSourcesContent(true)
-	options.setSourceMapLocationMappings(sliceOf_(tc_SourceMap_LocationMapping, icast_SourceMap_LocationMapping(any(lambda_BaseTranspiler_CompilerSupplier_setOptions_1_))))
+	options.setSourceMapLocationMappings(sliceOf_(tc_SourceMap_LocationMapping, SourceMap_LocationMapping(lambda_BaseTranspiler_CompilerSupplier_setOptions_1_)))
 }
 
 // lambda_BaseTranspiler_CompilerSupplier_setOptions_1_ is a lambda of BaseTranspiler_CompilerSupplier_setOptions that captures nothing (post-flip step lambdas).

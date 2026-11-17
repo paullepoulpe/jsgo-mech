@@ -139,7 +139,7 @@ func (this *CompilerInput) getKnownRequires() ImmutableCollectionOf[*DependencyI
 		if this.dependencyInfo != nil {
 			return icast_Iterable(obj_(this.dependencyInfo.getRequires()))
 		}
-		return icast_Iterable(obj_(ImmutableList_of()))
+		return ImmutableList_of()
 	}(), Iterable(this.extraRequires.asList())).up_ImmutableCollection()
 }
 
@@ -164,7 +164,7 @@ func (this *CompilerInput) getKnownProvides() ImmutableCollectionOf[string] {
 		if this.dependencyInfo != nil {
 			return icast_Iterable(obj_(this.dependencyInfo.getProvides()))
 		}
-		return icast_Iterable(obj_(ImmutableList_of()))
+		return ImmutableList_of()
 	}(), Iterable(this.extraProvides.asList())).up_ImmutableCollection()
 }
 
@@ -244,7 +244,7 @@ func (this *CompilerInput) generateDependencyInfo() DependencyInfo {
 			return icast_DependencyInfo(obj_(SimpleDependencyInfo_EMPTY))
 		}
 		var info DependencyInfo = new_JsFileRegexParser(this.compiler_.getErrorManager()).setModuleLoader(this.compiler_.getModuleLoader()).setIncludeGoogBase(true).parseFile(this.getName(), this.getName(), str_(codeRes.get()))
-		return icast_DependencyInfo(obj_(new_LazyParsedDependencyInfo(info, this, this.compiler_)))
+		return new_LazyParsedDependencyInfo(info, this, this.compiler_)
 	} else {
 		var finder *CompilerInput_DepsFinder = new_CompilerInput_DepsFinder(this.getPath())
 		var root Node = this.getAstRoot(this.compiler_)
@@ -304,7 +304,7 @@ func (this *CompilerInput) getLoadFlags() ImmutableMapOf[string, string] {
 }
 
 func CompilerInput_concat(first IterableOf[any], second IterableOf[any]) ImmutableSetOf[any] {
-	return cast_[*ImmutableSet](obj_(cast_[*ImmutableSet_Builder](obj_(cast_[*ImmutableSet_Builder](obj_(ImmutableSet_builder().addAll(first))).addAll(second))).build()))
+	return ImmutableSet_builder().addAll(first).addAll(second).build()
 }
 
 func (this *CompilerInput) getPath() *ModuleLoader_ModulePath {
@@ -322,7 +322,7 @@ func (this *CompilerInput) getFeatures(compiler *AbstractCompiler) *FeatureSet {
 }
 
 func (this *CompilerInput) getRequiredSymbols() *ImmutableList {
-	return DependencyInfo_getRequiredSymbols_default(icast_DependencyInfo(any(this)))
+	return DependencyInfo_getRequiredSymbols_default(this)
 }
 
 const CompilerInput_serialVersionUID int64 = 2
@@ -336,7 +336,7 @@ type CompilerInput_DepsFinder struct {
 }
 
 func (this *CompilerInput_DepsFinder) finit_CompilerInput_DepsFinder() {
-	this.loadFlags_ = icast_Map(obj_(new_TreeMap()))
+	this.loadFlags_ = new_TreeMap()
 	this.provides = newTList_(tc_string)
 	this.requires = newTList_(tc_p_DependencyInfo_Require)
 	this.typeRequires = newTList_(tc_string)

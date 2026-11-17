@@ -20,7 +20,7 @@ func new_ExtractPrototypeMemberDeclarations(compiler *AbstractCompiler, pattern 
 
 func (this *ExtractPrototypeMemberDeclarations) process_2(externs Node, root Node) {
 	var extractionInfo *ExtractPrototypeMemberDeclarations_GatherExtractionInfo = new_ExtractPrototypeMemberDeclarations_GatherExtractionInfo(this)
-	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(obj_(extractionInfo)))
+	NodeTraversal_traverse(this.compiler_, root, extractionInfo)
 	this.maybeDoExtraction(extractionInfo)
 }
 

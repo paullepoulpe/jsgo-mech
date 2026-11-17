@@ -63,7 +63,7 @@ func (this *CheckEs6Modules) visitExport(t *NodeTraversal, export Node) {
 }
 
 func (this *CheckEs6Modules) process_2(externs Node, root Node) {
-	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(any(this)))
+	NodeTraversal_traverse(this.compiler_, root, this)
 }
 
 var CheckEs6Modules_DUPLICATE_IMPORT *DiagnosticType

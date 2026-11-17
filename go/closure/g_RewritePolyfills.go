@@ -63,7 +63,7 @@ func (this *RewritePolyfills) process_2(externs Node, root Node) {
 				librariesToInjectBuilder.add(strobj_(p.library))
 			}
 		}
-		librariesToInject = cast_[*ImmutableList](obj_(librariesToInjectBuilder.build()))
+		librariesToInject = librariesToInjectBuilder.build()
 	} else {
 		librariesToInject = ImmutableList_copyOf(Collection(this.libraries.asSet()))
 	}

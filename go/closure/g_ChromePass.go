@@ -29,7 +29,7 @@ func new_ChromePass(compiler *AbstractCompiler) *ChromePass {
 }
 
 func (this *ChromePass) process_2(externs Node, root Node) {
-	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(obj_(this)))
+	NodeTraversal_traverse(this.compiler_, root, this)
 }
 
 func (this *ChromePass) visit_impl(t *NodeTraversal, node Node, parent Node) {
@@ -148,7 +148,7 @@ func (this *ChromePass) visitNamespaceDefinition(crDefineCallNode Node, parent N
 		return
 	}
 	var exports map[string]string = ChromePass_objectLitToMap(objectLit)
-	NodeTraversal_traverse(this.compiler_, functionBlock, icast_NodeTraversal_Callback(obj_(new_ChromePass_RenameInternalsToExternalsCallback(this, namespace, exports, functionBlock))))
+	NodeTraversal_traverse(this.compiler_, functionBlock, new_ChromePass_RenameInternalsToExternalsCallback(this, namespace, exports, functionBlock))
 }
 
 func ChromePass_objectLitToMap(objectLit Node) map[string]string {

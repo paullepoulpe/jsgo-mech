@@ -52,7 +52,7 @@ func (this *ReplaceIdGenerators) init_ReplaceIdGenerators(compiler *AbstractComp
 			} else {
 				this.nameGenerators[name] = ReplaceIdGenerators_createNameSupplierRenamingMap(ReplaceIdGenerators_RenameStrategy_MAPPED, map_)
 			}
-			this.idGeneratorMaps.put(name, icast_Map(obj_(new_LinkedHashMap())))
+			this.idGeneratorMaps.put(name, new_LinkedHashMap())
 		}
 	}
 }
@@ -71,26 +71,26 @@ func (this *ReplaceIdGenerators) createNameSupplier(renameStrategy ReplaceIdGene
 		return SimpleBiMap_create()
 	}()
 	if renameStrategy == ReplaceIdGenerators_RenameStrategy_STABLE {
-		return icast_ReplaceIdGenerators_NameSupplier(obj_(new_ReplaceIdGenerators_StableNameSupplier()))
+		return new_ReplaceIdGenerators_StableNameSupplier()
 	} else if renameStrategy == ReplaceIdGenerators_RenameStrategy_XID {
-		return icast_ReplaceIdGenerators_NameSupplier(obj_(new_ReplaceIdGenerators_XidNameSupplier(this.xidHashFunction)))
+		return new_ReplaceIdGenerators_XidNameSupplier(this.xidHashFunction)
 	} else if this.generatePseudoNames {
-		return icast_ReplaceIdGenerators_NameSupplier(obj_(new_ReplaceIdGenerators_PseudoNameSupplier(renameStrategy)))
+		return new_ReplaceIdGenerators_PseudoNameSupplier(renameStrategy)
 	} else {
-		return icast_ReplaceIdGenerators_NameSupplier(obj_(new_ReplaceIdGenerators_ObfuscatedNameSupplier(renameStrategy, previousMappings)))
+		return new_ReplaceIdGenerators_ObfuscatedNameSupplier(renameStrategy, previousMappings)
 	}
 	panic("unreachable")
 }
 
 func ReplaceIdGenerators_createNameSupplierRenamingMap(renameStrategy ReplaceIdGenerators_RenameStrategy, mappings RenamingMap) ReplaceIdGenerators_NameSupplier {
 	Preconditions_checkState((renameStrategy == ReplaceIdGenerators_RenameStrategy_MAPPED))
-	return icast_ReplaceIdGenerators_NameSupplier(obj_(new_ReplaceIdGenerators_MappedNameSupplier(mappings)))
+	return new_ReplaceIdGenerators_MappedNameSupplier(mappings)
 }
 
 func (this *ReplaceIdGenerators) process_2(externs Node, root Node) {
-	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(obj_(new_ReplaceIdGenerators_GatherGenerators(this))))
+	NodeTraversal_traverse(this.compiler_, root, new_ReplaceIdGenerators_GatherGenerators(this))
 	if !(len(this.nameGenerators) == 0) {
-		NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(obj_(new_ReplaceIdGenerators_ReplaceGenerators(this))))
+		NodeTraversal_traverse(this.compiler_, root, new_ReplaceIdGenerators_ReplaceGenerators(this))
 	}
 }
 
@@ -224,7 +224,7 @@ type ReplaceIdGenerators_ObfuscatedNameSupplier struct {
 
 func (this *ReplaceIdGenerators_ObfuscatedNameSupplier) init_ReplaceIdGenerators_ObfuscatedNameSupplier(renameStrategy ReplaceIdGenerators_RenameStrategy, previousMappings *SimpleBiMap) {
 	this.previousMappings = previousMappings.inverse()
-	this.generator = icast_NameGenerator(obj_(new_DefaultNameGenerator_Set_String_Set(previousMappings.keySet(), "", icast_Set(obj_(ImmutableSet_of())))))
+	this.generator = new_DefaultNameGenerator_Set_String_Set(previousMappings.keySet(), "", ImmutableSet_of())
 	this.renameStrategy = renameStrategy
 }
 
@@ -396,7 +396,7 @@ func (this *ReplaceIdGenerators_GatherGenerators) visit_impl(unused *NodeTravers
 		return
 	}
 	if doc.isConsistentIdGenerator() {
-		this.outer_.consistNameMap[name.orElse(nullstr_)] = icast_Map(obj_(new_LinkedHashMap()))
+		this.outer_.consistNameMap[name.orElse(nullstr_)] = new_LinkedHashMap()
 		this.outer_.nameGenerators[name.orElse(nullstr_)] = this.outer_.createNameSupplier(ReplaceIdGenerators_RenameStrategy_CONSISTENT, func() *SimpleBiMap {
 			if name.isPresent() {
 				return this.outer_.previousMap.get(name.get())
@@ -438,7 +438,7 @@ func (this *ReplaceIdGenerators_GatherGenerators) visit_impl(unused *NodeTravers
 	} else {
 		panic(new_IllegalStateException_String("unexpected").self())
 	}
-	this.outer_.idGeneratorMaps.put(name.orElse(nullstr_), icast_Map(obj_(new_LinkedHashMap())))
+	this.outer_.idGeneratorMaps.put(name.orElse(nullstr_), new_LinkedHashMap())
 }
 
 type ReplaceIdGenerators_ReplaceGenerators struct {

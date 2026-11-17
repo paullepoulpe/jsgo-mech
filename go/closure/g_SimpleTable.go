@@ -27,7 +27,7 @@ func SimpleTable_create() *SimpleTable {
 func (this *SimpleTable) put(rowKey any, columnKey any, value any) any {
 	var row MapOf[any, any] = icast_Map(this.rows.get(rowKey))
 	if row == nil {
-		row = icast_Map(obj_(new_LinkedHashMap()))
+		row = new_LinkedHashMap()
 		this.rows.put(rowKey, any(row))
 	}
 	return row.put(columnKey, value)
@@ -38,7 +38,7 @@ func (this *SimpleTable) put(rowKey any, columnKey any, value any) any {
 func (this *SimpleTable) put_s(rowKey any, columnKey string, value any) any {
 	var row MapOf[any, any] = icast_Map(this.rows.get(rowKey))
 	if row == nil {
-		row = icast_Map(obj_(new_LinkedHashMap()))
+		row = new_LinkedHashMap()
 		this.rows.put(rowKey, any(row))
 	}
 	return Map_put_s(row, columnKey, value)
@@ -92,7 +92,7 @@ func (this *SimpleTable) row(rowKey *ColorId) MapOf[any, any] {
 	var row MapOf[any, any] = icast_Map(this.rows.get(obj_(rowKey)))
 	return func() Map {
 		if row == nil {
-			return icast_Map(obj_(ImmutableMap_of()))
+			return ImmutableMap_of()
 		}
 		return Collections_unmodifiableMap(row)
 	}()

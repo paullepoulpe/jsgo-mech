@@ -77,7 +77,7 @@ func ParserRunner_parse(sourceFile StaticSourceFile, sourceString string, config
 		var p *Parser = new_Parser(es6config, es6ErrorReporter.up_ErrorReporter_util(), file)
 		var tree *ProgramTree = p.parseProgram()
 		var root Node = 0
-		var comments ListOf[*Comment] = icast_List(obj_(ImmutableList_of()))
+		var comments ListOf[*Comment] = ImmutableList_of()
 		var topLevelStatementRanges []*SourceRange = []*SourceRange{}
 		var features *FeatureSet = p.getFeatures()
 		if (tree != nil) && (!es6ErrorReporter.hadError() || keepGoing) {

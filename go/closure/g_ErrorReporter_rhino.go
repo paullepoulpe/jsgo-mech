@@ -17,8 +17,8 @@ func ErrorReporter_rhino_clinit() {
 		return
 	}
 	ErrorReporter_rhino_clinit_done = true
-	ErrorReporter_rhino_NULL_INSTANCE = icast_ErrorReporter_rhino(obj_(new_ErrorReporter_1()))
-	ErrorReporter_rhino_ALWAYS_THROWS_INSTANCE = icast_ErrorReporter_rhino(obj_(new_ErrorReporter_2()))
+	ErrorReporter_rhino_NULL_INSTANCE = new_ErrorReporter_1()
+	ErrorReporter_rhino_ALWAYS_THROWS_INSTANCE = new_ErrorReporter_2()
 
 }
 

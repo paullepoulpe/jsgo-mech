@@ -363,7 +363,7 @@ func (this *ColorPool_Builder) reconcileObjectProtos(id *ColorId, viewToProto Ma
 			ownProperties.add(strobj_(shard.stringPool.get(objProto.getOwnProperty(i))))
 		}
 	}
-	return Color_singleBuilder().setId(id).setInstanceColors(cast_[*ImmutableSet](obj_(instanceColors.build()))).setPrototypes(cast_[*ImmutableSet](obj_(prototypes.build()))).setOwnProperties(cast_[*ImmutableSet](obj_(ownProperties.build()))).setClosureAssert(isClosureAssert.toBoolean(false)).setConstructor(isConstructor).setInvalidating(isInvalidating).setPropertiesKeepOriginalName(propertiesKeepOriginalName).build()
+	return Color_singleBuilder().setId(id).setInstanceColors(instanceColors.build()).setPrototypes(prototypes.build()).setOwnProperties(ownProperties.build()).setClosureAssert(isClosureAssert.toBoolean(false)).setConstructor(isConstructor).setInvalidating(isInvalidating).setPropertiesKeepOriginalName(propertiesKeepOriginalName).build()
 }
 
 func (this *ColorPool_Builder) reconcileUnionProtos(id *ColorId, viewToProto MapOf[*ColorPool_ShardView, *TypeProto]) *Color {

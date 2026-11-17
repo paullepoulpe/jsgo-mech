@@ -62,7 +62,7 @@ func (this *LowestCommonAncestorFinder) findAll(roots SetOf[any]) ImmutableSetOf
 	})
 	this.searchColoring.clear()
 	sliceClear_(&this.searchQueue)
-	return cast_[*ImmutableSet](obj_(results.build()))
+	return results.build()
 }
 
 // lambda_LowestCommonAncestorFinder_findAll_1_ is a lambda of LowestCommonAncestorFinder_findAll that captures nothing (post-flip step lambdas).

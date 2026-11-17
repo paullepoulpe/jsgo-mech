@@ -363,7 +363,7 @@ func (this *RegExpTree_RegExpTreeAtom) numCapturingGroups_impl() int32 {
 }
 
 func (this *RegExpTree_RegExpTreeAtom) children_impl() List {
-	return icast_List(obj_(ImmutableList_of()))
+	return ImmutableList_of()
 }
 
 type RegExpTree_Empty struct {
@@ -881,7 +881,7 @@ func (this *RegExpTree_Repetition) numCapturingGroups_impl() int32 {
 }
 
 func (this *RegExpTree_Repetition) children_impl() List {
-	return icast_List(obj_(ImmutableList_of_Object(this.body.self())))
+	return ImmutableList_of_Object(this.body.self())
 }
 
 func (this *RegExpTree_Repetition) appendBodySourceCode(sb *StringBuilder) {
@@ -1314,7 +1314,7 @@ func (this *RegExpTree_LookaheadAssertion) numCapturingGroups_impl() int32 {
 }
 
 func (this *RegExpTree_LookaheadAssertion) children_impl() List {
-	return icast_List(obj_(ImmutableList_of_Object(this.body.self())))
+	return ImmutableList_of_Object(this.body.self())
 }
 
 func (this *RegExpTree_LookaheadAssertion) appendSourceCode_impl(sb *StringBuilder) {
@@ -1406,7 +1406,7 @@ func (this *RegExpTree_LookbehindAssertion) numCapturingGroups_impl() int32 {
 }
 
 func (this *RegExpTree_LookbehindAssertion) children_impl() List {
-	return icast_List(obj_(ImmutableList_of_Object(this.body.self())))
+	return ImmutableList_of_Object(this.body.self())
 }
 
 func (this *RegExpTree_LookbehindAssertion) appendSourceCode_impl(sb *StringBuilder) {
@@ -1490,7 +1490,7 @@ func (this *RegExpTree_CapturingGroup) numCapturingGroups_impl() int32 {
 }
 
 func (this *RegExpTree_CapturingGroup) children_impl() List {
-	return icast_List(obj_(ImmutableList_of_Object(this.body.self())))
+	return ImmutableList_of_Object(this.body.self())
 }
 
 func (this *RegExpTree_CapturingGroup) appendSourceCode_impl(sb *StringBuilder) {
@@ -1568,7 +1568,7 @@ func (this *RegExpTree_NamedCaptureGroup) numCapturingGroups_impl() int32 {
 }
 
 func (this *RegExpTree_NamedCaptureGroup) children_impl() List {
-	return icast_List(obj_(ImmutableList_of_Object(this.body.self())))
+	return ImmutableList_of_Object(this.body.self())
 }
 
 func (this *RegExpTree_NamedCaptureGroup) appendSourceCode_impl(sb *StringBuilder) {

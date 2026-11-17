@@ -27,8 +27,8 @@ func new_ProcessCommonJSModules(compiler *AbstractCompiler) *ProcessCommonJSModu
 }
 
 func (this *ProcessCommonJSModules) process_2(externs Node, root Node) {
-	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(obj_(this)))
-	NodeTraversal_traverse(this.compiler_, externs, icast_NodeTraversal_Callback(obj_(this)))
+	NodeTraversal_traverse(this.compiler_, root, this)
+	NodeTraversal_traverse(this.compiler_, externs, this)
 }
 
 func (this *ProcessCommonJSModules) shouldTraverse_impl(t *NodeTraversal, n Node, parent Node) bool {
@@ -68,7 +68,7 @@ func (this *ProcessCommonJSModules) shouldTraverse_impl(t *NodeTraversal, n Node
 		}
 		finder.reportModuleErrors()
 		this.compiler_.getModuleLoader().setErrorHandler(moduleLoaderErrorHandler)
-		NodeTraversal_traverse(this.compiler_, n, icast_NodeTraversal_Callback(obj_(new_ProcessCommonJSModules_RewriteModule(this, (isCommonJsModule || forceModuleDetection), exports.build(), defaultExportIsConst))))
+		NodeTraversal_traverse(this.compiler_, n, new_ProcessCommonJSModules_RewriteModule(this, (isCommonJsModule || forceModuleDetection), exports.build(), defaultExportIsConst))
 	}
 	return false
 }
@@ -330,11 +330,11 @@ func (this *ProcessCommonJSModules) removeWebpackModuleShim(root Node) {
 }
 
 func (this *ProcessCommonJSModules) reportNestedScopesDeleted(n Node) {
-	NodeUtil_visitPreOrder_Node_Visitor(n, icast_NodeUtil_Visitor(obj_(new_ProcessCommonJSModules_1(this))))
+	NodeUtil_visitPreOrder_Node_Visitor(n, new_ProcessCommonJSModules_1(this))
 }
 
 func (this *ProcessCommonJSModules) reportNestedScopesChanged(n Node) {
-	NodeUtil_visitPreOrder_Node_Visitor(n, icast_NodeUtil_Visitor(obj_(new_ProcessCommonJSModules_2(this))))
+	NodeUtil_visitPreOrder_Node_Visitor(n, new_ProcessCommonJSModules_2(this))
 }
 
 func ProcessCommonJSModules_findUmdPattern(umdPatterns *TList[*ProcessCommonJSModules_UmdPattern], n Node) *ProcessCommonJSModules_UmdPattern {
@@ -727,7 +727,7 @@ func (this *ProcessCommonJSModules_FindImportsAndExports) getOutermostUmdTest(n 
 			return umdTestInfo
 		}
 		var umdTests *TList[Node] = newTList_(tc_Node)
-		NodeUtil_visitPreOrder_Node_Visitor(parent.getFirstChild(), icast_NodeUtil_Visitor(obj_(new_ProcessCommonJSModules_FindImportsAndExports_1(this, umdTests))))
+		NodeUtil_visitPreOrder_Node_Visitor(parent.getFirstChild(), new_ProcessCommonJSModules_FindImportsAndExports_1(this, umdTests))
 		if umdTests.isEmpty() && parent.getFirstChild().isTrue() {
 			umdTests.add(parent.getFirstChild())
 		}

@@ -17,7 +17,7 @@ func new_ForbidDynamicImportUsage(compiler *AbstractCompiler) *ForbidDynamicImpo
 }
 
 func (this *ForbidDynamicImportUsage) process_2(externs Node, root Node) {
-	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(any(this)))
+	NodeTraversal_traverse(this.compiler_, root, this)
 	this.compiler_.markFeatureNotAllowed(FeatureSet_Feature_DYNAMIC_IMPORT)
 }
 

@@ -56,7 +56,7 @@ func (this *JSChunk) getRequires() ImmutableListOf[*DependencyInfo_Require] {
 		var chunk *JSChunk = it_1.v
 		builder.add(obj_(DependencyInfo_Require_compilerChunk(chunk.getName())))
 	}
-	return cast_[*ImmutableList](obj_(builder.build()))
+	return builder.build()
 }
 
 func (this *JSChunk) getTypeRequires() ImmutableListOf[string] {
@@ -142,7 +142,7 @@ func (this *JSChunk) getAllDependencies() SetOf[*JSChunk] {
 			}
 		}
 	}
-	return icast_Set(obj_(allDeps))
+	return allDeps
 }
 
 func (this *JSChunk) getThisAndAllDependencies() SetOf[*JSChunk] {
@@ -231,7 +231,7 @@ func (this *JSChunk) readObject(in *ObjectInputStream) {
 }
 
 func (this *JSChunk) getRequiredSymbols() *ImmutableList {
-	return DependencyInfo_getRequiredSymbols_default(icast_DependencyInfo(any(this)))
+	return DependencyInfo_getRequiredSymbols_default(this)
 }
 
 const JSChunk_STRONG_CHUNK_NAME string = "$strong$"

@@ -54,7 +54,7 @@ func (this *RewriteDynamicImports) process_2(externs Node, root Node) {
 	if !root.isRoot() {
 		Preconditions_checkArgument_boolean_Object(false, root.box_())
 	}
-	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(obj_(this)))
+	NodeTraversal_traverse(this.compiler_, root, this)
 	if this.wrappedDynamicImportCallback {
 		this.injectWrappingFunctionExtern()
 	}
@@ -62,7 +62,7 @@ func (this *RewriteDynamicImports) process_2(externs Node, root Node) {
 		this.compiler_.markFeatureNotAllowed(FeatureSet_Feature_DYNAMIC_IMPORT)
 		NodeUtil_removeFeatureFromAllScripts(root, FeatureSet_Feature_DYNAMIC_IMPORT, this.compiler_)
 		if this.requiresAliasing && this.aliasIsValid() {
-			NodeTraversal_traverse(this.compiler_, externs, icast_NodeTraversal_Callback(obj_(new_RewriteDynamicImports_AliasInjectingTraversal(this))))
+			NodeTraversal_traverse(this.compiler_, externs, new_RewriteDynamicImports_AliasInjectingTraversal(this))
 		}
 	}
 }

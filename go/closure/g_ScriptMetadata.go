@@ -32,7 +32,7 @@ func ScriptMetadata_createNodeMetadata(script Node, metadata *NodeMetadata) *Scr
 func ScriptMetadata_create(script Node, compiler *AbstractCompiler) *ScriptMetadata {
 	Preconditions_checkArgument(script.isScript())
 	var toFill *ScriptMetadata = new_ScriptMetadata(script)
-	NodeTraversal_traverse(compiler, script, icast_NodeTraversal_Callback(obj_(new_ScriptMetadata_FillerCallback(toFill))))
+	NodeTraversal_traverse(compiler, script, new_ScriptMetadata_FillerCallback(toFill))
 	if !(len(toFill.requireAliases) == 0) {
 		toFill.supportsRequireAliasesField = true
 	}

@@ -29,8 +29,8 @@ func new_StrictModeCheck(compiler *AbstractCompiler, defaultLevel CheckLevel) *S
 }
 
 func (this *StrictModeCheck) process_2(externs Node, root Node) {
-	NodeTraversal_traverseRoots(this.compiler_, icast_NodeTraversal_Callback(obj_(this)), externs, root)
-	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(obj_(new_StrictModeCheck_NonExternChecks(this))))
+	NodeTraversal_traverseRoots(this.compiler_, this, externs, root)
+	NodeTraversal_traverse(this.compiler_, root, new_StrictModeCheck_NonExternChecks(this))
 }
 
 func (this *StrictModeCheck) visit_impl(t *NodeTraversal, n Node, parent Node) {

@@ -109,7 +109,7 @@ func CheckRequiresSorted_parseImport(callNode Node) *CheckRequiresSorted_ImportS
 			destructures.add(obj_(CheckRequiresSorted_DestructuringBinding_of(exportedName, localName, isShorthandProperty)))
 		}
 	}
-	return CheckRequiresSorted_ImportStatement_of(ImmutableList_of_Object(grandparent.box_()), primitive, namespace, Optional_empty[string](), cast_[*ImmutableList](obj_(destructures.build())))
+	return CheckRequiresSorted_ImportStatement_of(ImmutableList_of_Object(grandparent.box_()), primitive, namespace, Optional_empty[string](), destructures.build())
 }
 
 func (this *CheckRequiresSorted) checkCanonical(t *NodeTraversal) {
@@ -158,7 +158,7 @@ func CheckRequiresSorted_canonicalizeImports(importsByNamespace *SimpleListMulti
 				}
 			}
 		}
-		var destructuringNodes ImmutableListOf[Node] = cast_[*ImmutableList](obj_(destructuringNodesBuilder.build()))
+		var destructuringNodes ImmutableListOf[Node] = destructuringNodesBuilder.build()
 		var sortedDestructures []*CheckRequiresSorted_DestructuringBinding = []*CheckRequiresSorted_DestructuringBinding{}
 		it_11 := foreach_(any(allImports))
 		for it_11.next() {
@@ -172,7 +172,7 @@ func CheckRequiresSorted_canonicalizeImports(importsByNamespace *SimpleListMulti
 			}
 		}
 		Collections_sort(sliceView_(tc_p_CheckRequiresSorted_DestructuringBinding, sortedDestructures))
-		var destructures ImmutableListOf[*CheckRequiresSorted_DestructuringBinding] = ImmutableList_copyOf(icast_Collection(obj_(new_LinkedHashSet_Collection(Collection(sliceView_(tc_p_CheckRequiresSorted_DestructuringBinding, sortedDestructures))))))
+		var destructures ImmutableListOf[*CheckRequiresSorted_DestructuringBinding] = ImmutableList_copyOf(new_LinkedHashSet_Collection(Collection(sliceView_(tc_p_CheckRequiresSorted_DestructuringBinding, sortedDestructures))))
 		if !destructures.isEmpty() {
 			canonicalImports.add(CheckRequiresSorted_ImportStatement_of(destructuringNodes, strongestPrimitive, namespace, Optional_empty[string](), destructures))
 			hasDestructuring = true
@@ -190,7 +190,7 @@ func CheckRequiresSorted_canonicalizeImports(importsByNamespace *SimpleListMulti
 					}
 				}
 			}
-			var standaloneNodes ImmutableListOf[Node] = cast_[*ImmutableList](obj_(standaloneNodesBuilder.build()))
+			var standaloneNodes ImmutableListOf[Node] = standaloneNodesBuilder.build()
 			canonicalImports.add(CheckRequiresSorted_ImportStatement_of(standaloneNodes, strongestPrimitive, namespace, Optional_empty[string](), nil))
 		}
 	}

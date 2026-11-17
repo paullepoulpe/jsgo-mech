@@ -185,7 +185,7 @@ func ReferenceCollector_clinit() {
 		return
 	}
 	ReferenceCollector_clinit_done = true
-	ReferenceCollector_DO_NOTHING_BEHAVIOR = icast_ReferenceCollector_Behavior(obj_(new_ReferenceCollector_1()))
+	ReferenceCollector_DO_NOTHING_BEHAVIOR = new_ReferenceCollector_1()
 
 }
 
@@ -295,9 +295,9 @@ func (this *ReferenceCollector_1) afterExitScope(t *NodeTraversal, referenceMap 
 }
 
 func (this *ReferenceCollector_1) beforeTraverseNode(p0 *NodeTraversal, p1 Node, p2 Node) {
-	ReferenceCollector_Behavior_beforeTraverseNode_default(icast_ReferenceCollector_Behavior(any(this)), p0, p1, p2)
+	ReferenceCollector_Behavior_beforeTraverseNode_default(this, p0, p1, p2)
 }
 
 func (this *ReferenceCollector_1) afterVisitNode(p0 *NodeTraversal, p1 Node, p2 Node, p3 *Reference) {
-	ReferenceCollector_Behavior_afterVisitNode_default(icast_ReferenceCollector_Behavior(any(this)), p0, p1, p2, p3)
+	ReferenceCollector_Behavior_afterVisitNode_default(this, p0, p1, p2, p3)
 }

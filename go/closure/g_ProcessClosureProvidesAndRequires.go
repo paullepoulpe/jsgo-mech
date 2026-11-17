@@ -47,7 +47,7 @@ func (this *ProcessClosureProvidesAndRequires) getExportedVariableNames() *TSet[
 func (this *ProcessClosureProvidesAndRequires) collectProvidedNames(externs Node, root Node) *TMap[string, *ProcessClosureProvidesAndRequires_ProvidedName] {
 	if this.providedNames.isEmpty() {
 		this.providedNames.put(ProcessClosureProvidesAndRequires_GOOG, new_ProcessClosureProvidesAndRequires_ProvidedNameBuilder(this).setNamespace(ProcessClosureProvidesAndRequires_GOOG).setNode(0).setChunk(nil).build())
-		NodeTraversal_traverseRoots(this.compiler_, icast_NodeTraversal_Callback(obj_(new_ProcessClosureProvidesAndRequires_CollectDefinitions(this))), externs, root)
+		NodeTraversal_traverseRoots(this.compiler_, new_ProcessClosureProvidesAndRequires_CollectDefinitions(this), externs, root)
 	}
 	return this.providedNames
 }

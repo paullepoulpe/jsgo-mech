@@ -7,7 +7,7 @@ type StandardUnionFind struct {
 }
 
 func (this *StandardUnionFind) finit_StandardUnionFind() {
-	this.elmap = icast_Map(obj_(new_LinkedHashMap()))
+	this.elmap = new_LinkedHashMap()
 }
 
 func (this *StandardUnionFind) init_StandardUnionFind_0() {
@@ -99,7 +99,7 @@ func (this *StandardUnionFind) allEquivalenceClasses() ImmutableListOf[Immutable
 		var group Set = icast_Set(it_3.v)
 		result.add(obj_(ImmutableSet_copyOf(Collection(group))))
 	}
-	return cast_[*ImmutableList](obj_(result.build()))
+	return result.build()
 }
 
 func (this *StandardUnionFind) allRepresentatives() ImmutableSetOf[any] {
@@ -111,7 +111,7 @@ func (this *StandardUnionFind) allRepresentatives() ImmutableSetOf[any] {
 			result.add(n.element)
 		}
 	}
-	return cast_[*ImmutableSet](obj_(result.build()))
+	return result.build()
 }
 
 func (this *StandardUnionFind) findRootOrCreateNode(e any) *StandardUnionFind_Node {
@@ -135,8 +135,8 @@ func (this *StandardUnionFind) findAll(value any) SetOf[any] {
 	if !this.elmap.containsKey(value) {
 		Preconditions_checkArgument_boolean_String_Object(false, "Element does not exist: %s", value)
 	}
-	var isSameRoot Predicate_baseOf[any] = icast_Predicate_base(obj_(new_StandardUnionFind_1(this, value)))
-	return icast_Set(obj_(new_StandardUnionFind_2(this, isSameRoot, value)))
+	var isSameRoot Predicate_baseOf[any] = new_StandardUnionFind_1(this, value)
+	return new_StandardUnionFind_2(this, isSameRoot, value)
 }
 
 type StandardUnionFind_Node struct {
@@ -198,7 +198,7 @@ func (this *StandardUnionFind_1) apply(b any) bool {
 }
 
 func (this *StandardUnionFind_1) test(p0 any) bool {
-	return Predicate_base_test(icast_Predicate_base(any(this)), p0)
+	return Predicate_base_test(this, p0)
 }
 
 type StandardUnionFind_2 struct {
@@ -234,7 +234,7 @@ func (this *StandardUnionFind_2) contains(o any) bool {
 }
 
 func (this *StandardUnionFind_2) iterator() IteratorOf[any] {
-	return icast_Iterator(obj_(Iterators_filter(this.outer_.elmap.keySet().iterator(), this.cap_isSameRoot)))
+	return Iterators_filter(this.outer_.elmap.keySet().iterator(), this.cap_isSameRoot)
 }
 
 func (this *StandardUnionFind_2) size() int32 {

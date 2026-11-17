@@ -53,7 +53,7 @@ func JSChunkGraph_create(chunksInDepOrder ListOf[*JSChunk]) *Outcome_base {
 }
 
 func JSChunkGraph_initChunksByDepth(chunks []*JSChunk) *Outcome_base {
-	var tmpChunksByDepth ListOf[ListOf[*JSChunk]] = icast_List(new_ArrayList_0().self())
+	var tmpChunksByDepth ListOf[ListOf[*JSChunk]] = new_ArrayList_0()
 	for chunkIndex := int32(0); chunkIndex < int32(len(chunks)); chunkIndex++ {
 		var chunk *JSChunk = chunks[chunkIndex]
 		if !(chunk.getDepth() == -1) {
@@ -357,7 +357,7 @@ func (this *JSChunkGraph) manageDependencies(compiler *AbstractCompiler, depende
 		for it_7.next() {
 			var require string = str_(it_7.v)
 			if has_(inputsByProvide, require) {
-				entryPointInputs.addAll(icast_Collection(any(inputsByProvide[require])))
+				entryPointInputs.addAll(inputsByProvide[require])
 			}
 		}
 	}
@@ -366,7 +366,7 @@ func (this *JSChunkGraph) manageDependencies(compiler *AbstractCompiler, depende
 		var input *CompilerInput = cast_[*CompilerInput](it_9.v)
 		for _, require := range input.getRequireDynamicImports() {
 			if has_(inputsByProvide, require) {
-				entryPointInputs.addAll(icast_Collection(any(inputsByProvide[require])))
+				entryPointInputs.addAll(inputsByProvide[require])
 			}
 		}
 	}
@@ -384,7 +384,7 @@ func (this *JSChunkGraph) manageDependencies(compiler *AbstractCompiler, depende
 		var chunk *JSChunk = cast_[*JSChunk](it_15.v)
 		chunk.removeAll()
 	}
-	var orderedInputs ListOf[*CompilerInput] = icast_List(new_ArrayList_0().self())
+	var orderedInputs ListOf[*CompilerInput] = new_ArrayList_0()
 	var reachedInputs map[*CompilerInput]struct{} = map[*CompilerInput]struct{}{}
 	for _, chunk := range this.chunks {
 		var transitiveClosure *TList[*CompilerInput]
@@ -487,7 +487,7 @@ func (this *JSChunkGraph) getDepthFirstDependenciesOf(rootInput *CompilerInput, 
 }
 
 func (this *JSChunkGraph) createEntryPointInputs(compiler *AbstractCompiler, dependencyOptions *DependencyOptions, inputs IterableOf[*CompilerInput], sorter *SortedDependencies) *Outcome_base {
-	var entryPointInputs SetOf[*CompilerInput] = icast_Set(obj_(new_LinkedHashSet()))
+	var entryPointInputs SetOf[*CompilerInput] = new_LinkedHashSet()
 	var chunksByName map[string]*JSChunk = this.getChunksByName()
 	if dependencyOptions.shouldPrune() {
 		var baseJs *CompilerInput = cast_[*CompilerInput](sorter.maybeGetInputProviding("goog"))

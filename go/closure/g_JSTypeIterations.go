@@ -46,7 +46,7 @@ func JSTypeIterations_mapTypesImmutableList(mapper func(any) any, types Immutabl
 	for i := int32(0); i < types.size(); i++ {
 		builder.add(mapper(types.get(i)))
 	}
-	return cast_[*ImmutableList](obj_(builder.build()))
+	return builder.build()
 }
 
 func JSTypeIterations_mapTypes(mapper func(any) any, union *UnionType) *JSType {

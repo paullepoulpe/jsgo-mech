@@ -27,7 +27,7 @@ func FixedPointGraphTraversal_newReverseTraversal(callback FixedPointGraphTraver
 }
 
 func (this *FixedPointGraphTraversal) computeFixedPoint(graph *DiGraph) {
-	var nodes SetOf[any] = icast_Set(obj_(new_LinkedHashSet()))
+	var nodes SetOf[any] = new_LinkedHashSet()
 	it_1 := foreach_(any(graph.getNodes()))
 	for it_1.next() {
 		var node DiGraph_DiGraphNode = icast_DiGraph_DiGraphNode(it_1.v)
@@ -37,7 +37,7 @@ func (this *FixedPointGraphTraversal) computeFixedPoint(graph *DiGraph) {
 }
 
 func (this *FixedPointGraphTraversal) computeFixedPoint_2(graph *DiGraph, entry any) {
-	var entrySet SetOf[any] = icast_Set(obj_(new_LinkedHashSet()))
+	var entrySet SetOf[any] = new_LinkedHashSet()
 	entrySet.add(entry)
 	this.computeFixedPointSet(graph, entrySet)
 }
@@ -53,7 +53,7 @@ func (this *FixedPointGraphTraversal) computeFixedPointSet(graph *DiGraph, entry
 		workSet.add(icast_DiGraph_DiGraphNode(any(graph.getNode(n))))
 	}
 	for ; !workSet.isEmpty() && (cycleCount < maxIterations); cycleCount++ {
-		this.visitNode(icast_DiGraph_DiGraphNode(SequencedCollection_getFirst(icast_SequencedCollection(any(workSet.asSet())))), workSet)
+		this.visitNode(icast_DiGraph_DiGraphNode(SequencedCollection_getFirst(workSet.asSet())), workSet)
 	}
 	Preconditions_checkState_boolean_Object((cycleCount != maxIterations), strobj_(FixedPointGraphTraversal_NON_HALTING_ERROR_MSG))
 }

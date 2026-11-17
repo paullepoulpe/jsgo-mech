@@ -19,9 +19,9 @@ func new_Denormalize(compiler *AbstractCompiler, outputFeatureSet *FeatureSet) *
 }
 
 func (this *Denormalize) process_2(externs Node, root Node) {
-	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(any(this)))
+	NodeTraversal_traverse(this.compiler_, root, this)
 	if this.compiler_.getOptions().getSyntheticBlockStartMarker().isEmpty() {
-		new_ReferenceCollector_AbstractCompiler_Behavior_ScopeCreator(this.compiler_, icast_ReferenceCollector_Behavior(any(this)), icast_ScopeCreator(obj_(new_SyntacticScopeCreator_AbstractCompiler(this.compiler_)))).process(root)
+		new_ReferenceCollector_AbstractCompiler_Behavior_ScopeCreator(this.compiler_, this, new_SyntacticScopeCreator_AbstractCompiler(this.compiler_)).process(root)
 	}
 }
 
@@ -213,9 +213,9 @@ func (this *Denormalize) hasCorrespondingAssignmentOp(n Node) bool {
 }
 
 func (this *Denormalize) beforeTraverseNode(p0 *NodeTraversal, p1 Node, p2 Node) {
-	ReferenceCollector_Behavior_beforeTraverseNode_default(icast_ReferenceCollector_Behavior(any(this)), p0, p1, p2)
+	ReferenceCollector_Behavior_beforeTraverseNode_default(this, p0, p1, p2)
 }
 
 func (this *Denormalize) afterVisitNode(p0 *NodeTraversal, p1 Node, p2 Node, p3 *Reference) {
-	ReferenceCollector_Behavior_afterVisitNode_default(icast_ReferenceCollector_Behavior(any(this)), p0, p1, p2, p3)
+	ReferenceCollector_Behavior_afterVisitNode_default(this, p0, p1, p2, p3)
 }

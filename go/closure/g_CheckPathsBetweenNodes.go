@@ -152,11 +152,11 @@ func CheckPathsBetweenNodes_clinit() {
 		return
 	}
 	CheckPathsBetweenNodes_clinit_done = true
-	CheckPathsBetweenNodes_BACK_EDGE = icast_Annotation_graph(obj_(new_CheckPathsBetweenNodes_1()))
-	CheckPathsBetweenNodes_VISITED_EDGE = icast_Annotation_graph(obj_(new_CheckPathsBetweenNodes_2()))
+	CheckPathsBetweenNodes_BACK_EDGE = new_CheckPathsBetweenNodes_1()
+	CheckPathsBetweenNodes_VISITED_EDGE = new_CheckPathsBetweenNodes_2()
 	CheckPathsBetweenNodes_WHITE = nil
-	CheckPathsBetweenNodes_GRAY = icast_Annotation_graph(obj_(new_CheckPathsBetweenNodes_3()))
-	CheckPathsBetweenNodes_BLACK = icast_Annotation_graph(obj_(new_CheckPathsBetweenNodes_4()))
+	CheckPathsBetweenNodes_GRAY = new_CheckPathsBetweenNodes_3()
+	CheckPathsBetweenNodes_BLACK = new_CheckPathsBetweenNodes_4()
 
 }
 

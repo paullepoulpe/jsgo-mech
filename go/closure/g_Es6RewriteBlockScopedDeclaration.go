@@ -52,9 +52,9 @@ func (this *Es6RewriteBlockScopedDeclaration) visit_impl(t *NodeTraversal, n Nod
 }
 
 func (this *Es6RewriteBlockScopedDeclaration) process_2(externs Node, root Node) {
-	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(obj_(this)))
+	NodeTraversal_traverse(this.compiler_, root, this)
 	var transformer *Es6RewriteBlockScopedDeclaration_LoopClosureTransformer = new_Es6RewriteBlockScopedDeclaration_LoopClosureTransformer(this)
-	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(obj_(transformer)))
+	NodeTraversal_traverse(this.compiler_, root, transformer)
 	transformer.transformLoopClosure()
 	this.rewriteDeclsToVars()
 	TranspilationPasses_maybeMarkFeaturesAsTranspiledAway(this.compiler_, root, Es6RewriteBlockScopedDeclaration_transpiledFeatures)
@@ -383,7 +383,7 @@ func (this *Es6RewriteBlockScopedDeclaration_LoopClosureTransformer) createWrapp
 			var input *CompilerInput = this.outer_.compiler_.getInput(script.getInputId())
 			var thisContext *ThisAndArgumentsReferenceUpdater_ThisAndArgumentsContext = new_ThisAndArgumentsReferenceUpdater_ThisAndArgumentsContext(scopeBody, isConstructor, this.outer_.uniqueIdSupplier.getUniqueId(input))
 			var updater *ThisAndArgumentsReferenceUpdater = new_ThisAndArgumentsReferenceUpdater(this.outer_.compiler_, thisContext, this.outer_.astFactory_)
-			NodeTraversal_traverse(this.outer_.compiler_, functionOrObjectLit, icast_NodeTraversal_Callback(obj_(updater)))
+			NodeTraversal_traverse(this.outer_.compiler_, functionOrObjectLit, updater)
 			thisContext.addVarDeclarations(this.outer_.compiler_, this.outer_.astFactory_, script)
 			{
 				var child Node = scopeBody.getFirstChild()

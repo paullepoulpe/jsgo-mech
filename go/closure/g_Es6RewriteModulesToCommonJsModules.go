@@ -21,7 +21,7 @@ func (this *Es6RewriteModulesToCommonJsModules) process_2(externs Node, root Nod
 		var script Node = root.getFirstChild()
 		for ; script != 0; script = script.getNext() {
 			if Es6RewriteModules_isEs6ModuleRoot(script) {
-				NodeTraversal_traverse(this.compiler_, script, icast_NodeTraversal_Callback(obj_(new_Es6RewriteModulesToCommonJsModules_Rewriter(this.compiler_, script))))
+				NodeTraversal_traverse(this.compiler_, script, new_Es6RewriteModulesToCommonJsModules_Rewriter(this.compiler_, script))
 			}
 		}
 	}
@@ -145,7 +145,7 @@ func (this *Es6RewriteModulesToCommonJsModules_Rewriter) init_Es6RewriteModulesT
 	this.compiler_ = compiler
 	this.script_ = script
 	this.requireInsertSpot = 0
-	this.exportedNameToLocalQName = icast_Map(obj_(new_TreeMap()))
+	this.exportedNameToLocalQName = new_TreeMap()
 	this.importRequests = newTSet_(tch_p_Es6RewriteModulesToCommonJsModules_ModuleRequest)
 	this.imports = newTSet_(tc_Node)
 	this.modulePath_ = compiler.getInput(script.getInputId()).getPath()

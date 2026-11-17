@@ -46,7 +46,7 @@ func new_Es6RewriteGenerators(compiler *AbstractCompiler) *Es6RewriteGenerators 
 
 func (this *Es6RewriteGenerators) process_2(externs Node, root Node) {
 	Preconditions_checkState(this.compiler_.getLifeCycleStage().isNormalized())
-	TranspilationPasses_processTranspile(this.compiler_, root, Es6RewriteGenerators_transpiledFeatures, []NodeTraversal_Callback{icast_NodeTraversal_Callback(obj_(new_Es6RewriteGenerators_GeneratorFunctionsTranspiler(this)))})
+	TranspilationPasses_processTranspile(this.compiler_, root, Es6RewriteGenerators_transpiledFeatures, []NodeTraversal_Callback{NodeTraversal_Callback(new_Es6RewriteGenerators_GeneratorFunctionsTranspiler(this))})
 	TranspilationPasses_maybeMarkFeaturesAsTranspiledAway(this.compiler_, root, Es6RewriteGenerators_transpiledFeatures)
 }
 
@@ -251,7 +251,7 @@ func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler) transpile() 
 		this.originalGeneratorBody.replaceWith(this.newGeneratorHoistBlock)
 	}
 	this.outer_.compiler_.reportChangeToChangeScope(program)
-	NodeTraversal_traverse(this.outer_.compiler_, this.originalGeneratorBody, icast_NodeTraversal_Callback(obj_(new_Es6RewriteGenerators_YieldNodeMarker())))
+	NodeTraversal_traverse(this.outer_.compiler_, this.originalGeneratorBody, new_Es6RewriteGenerators_YieldNodeMarker())
 	var shouldAddFinalJump bool = !this.isEndOfBlockUnreachable(this.originalGeneratorBody)
 	for this.originalGeneratorBody.hasChildren() {
 		this.transpileStatement(this.originalGeneratorBody.removeFirstChild())
@@ -413,8 +413,8 @@ func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler) exposeYieldA
 		}
 		return n
 	}()})
-	NodeTraversal_traverse(this.outer_.compiler_, n, icast_NodeTraversal_Callback(obj_(new_Es6RewriteGenerators_YieldExposer(this.outer_))))
-	NodeTraversal_traverse(this.outer_.compiler_, block, icast_NodeTraversal_Callback(obj_(new_Es6RewriteGenerators_YieldNodeMarker())))
+	NodeTraversal_traverse(this.outer_.compiler_, n, new_Es6RewriteGenerators_YieldExposer(this.outer_))
+	NodeTraversal_traverse(this.outer_.compiler_, block, new_Es6RewriteGenerators_YieldNodeMarker())
 	var decomposed Node = block.getLastChild().detach()
 	this.transpileStatement(block)
 	return func() Node {
@@ -442,7 +442,7 @@ func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler) prepareNodeF
 		}
 		return this.outer_.astFactory_.exprResult(n)
 	}()
-	NodeTraversal_traverse(this.outer_.compiler_, wrapper, icast_NodeTraversal_Callback(obj_(new_Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_UnmarkedNodeTranspiler(this.context))))
+	NodeTraversal_traverse(this.outer_.compiler_, wrapper, new_Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_UnmarkedNodeTranspiler(this.context))
 	Preconditions_checkState(wrapper.hasOneChild())
 	return wrapper.removeFirstChild()
 }
@@ -702,7 +702,7 @@ func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler) transpileSwi
 
 func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler) findYield(n Node) Node {
 	var yieldFinder *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_YieldFinder = new_Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_YieldFinder()
-	NodeTraversal_traverse(this.outer_.compiler_, n, icast_NodeTraversal_Callback(obj_(yieldFinder)))
+	NodeTraversal_traverse(this.outer_.compiler_, n, yieldFinder)
 	return yieldFinder.getYieldNode()
 }
 
@@ -830,7 +830,7 @@ func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_Transpilation
 				var reference Node = it_4.v
 				reference.setDouble(float64(currentCase.jumpToField.id))
 			}
-			sliceAddAll_(tc_Node, &currentCase.jumpToField.references, icast_Collection(any(sliceView_(tc_Node, currentCase.references))))
+			sliceAddAll_(tc_Node, &currentCase.jumpToField.references, Collection(sliceView_(tc_Node, currentCase.references)))
 			sliceClear_(&currentCase.references)
 		}
 	}
@@ -868,7 +868,7 @@ func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_Transpilation
 				reference.setDouble(float64(prevCase.id))
 			}
 			prevCase.jumpToField = currentCase.jumpToField
-			sliceAddAll_(tc_Node, &prevCase.references, icast_Collection(any(sliceView_(tc_Node, currentCase.references))))
+			sliceAddAll_(tc_Node, &prevCase.references, Collection(sliceView_(tc_Node, currentCase.references)))
 			Iterator_remove(it)
 			continue
 		}
@@ -925,7 +925,7 @@ func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_Transpilation
 
 func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext) transpileUnmarkedBlock(block Node) {
 	if block.hasChildren() {
-		NodeTraversal_traverse(this.outer_.outer_.compiler_, block, icast_NodeTraversal_Callback(obj_(new_Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_UnmarkedNodeTranspiler(this))))
+		NodeTraversal_traverse(this.outer_.outer_.compiler_, block, new_Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_UnmarkedNodeTranspiler(this))
 		for block.hasChildren() {
 			this.writeGeneratedNode(block.removeFirstChild())
 		}

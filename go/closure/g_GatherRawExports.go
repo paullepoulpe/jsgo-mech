@@ -34,7 +34,7 @@ func new_GatherRawExports(compiler *AbstractCompiler) *GatherRawExports {
 
 func (this *GatherRawExports) process_2(externs Node, root Node) {
 	Preconditions_checkState(this.compiler_.getLifeCycleStage().isNormalized())
-	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(obj_(this)))
+	NodeTraversal_traverse(this.compiler_, root, this)
 }
 
 func (this *GatherRawExports) visit_impl(t *NodeTraversal, n Node, parent Node) {

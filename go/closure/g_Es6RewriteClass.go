@@ -25,8 +25,8 @@ func new_Es6RewriteClass(compiler *AbstractCompiler, es6SubclassTranspilation Co
 }
 
 func (this *Es6RewriteClass) process_2(externs Node, root Node) {
-	TranspilationPasses_processTranspile(this.compiler_, externs, Es6RewriteClass_features, []NodeTraversal_Callback{icast_NodeTraversal_Callback(any(this))})
-	TranspilationPasses_processTranspile(this.compiler_, root, Es6RewriteClass_features, []NodeTraversal_Callback{icast_NodeTraversal_Callback(any(this))})
+	TranspilationPasses_processTranspile(this.compiler_, externs, Es6RewriteClass_features, []NodeTraversal_Callback{NodeTraversal_Callback(this)})
+	TranspilationPasses_processTranspile(this.compiler_, root, Es6RewriteClass_features, []NodeTraversal_Callback{NodeTraversal_Callback(this)})
 	this.convertSuperConstructorCalls.setGlobalNamespace(new_GlobalNamespace_AbstractCompiler_Node_Node(this.compiler_, externs, root))
 	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(obj_(this.convertSuperConstructorCalls)))
 	TranspilationPasses_maybeMarkFeaturesAsTranspiledAway(this.compiler_, root, Es6RewriteClass_features)
@@ -642,7 +642,7 @@ func (this *Es6RewriteClass_ClassDeclarationMetadata) superClassNameNode() Node 
 }
 
 func Es6RewriteClass_ClassDeclarationMetadata_builder() *Es6RewriteClass_ClassDeclarationMetadata_Builder {
-	return new_Es6RewriteClass_ClassDeclarationMetadata_Builder().setClassMembersToDeclare(icast_Map(obj_(new_LinkedHashMap())))
+	return new_Es6RewriteClass_ClassDeclarationMetadata_Builder().setClassMembersToDeclare(new_LinkedHashMap())
 }
 
 func Es6RewriteClass_ClassDeclarationMetadata_create(classNode Node, parent Node, astFactory *AstFactory) *Es6RewriteClass_ClassDeclarationMetadata {

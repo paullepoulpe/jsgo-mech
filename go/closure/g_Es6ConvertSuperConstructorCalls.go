@@ -409,7 +409,7 @@ func (this *Es6ConvertSuperConstructorCalls) isDefinedInSources(t *NodeTraversal
 }
 
 func (this *Es6ConvertSuperConstructorCalls) updateThisToSuperThis(typeOfThis AstFactory_Type, constructorBody Node, superCalls *TList[Node], uniqueSuperThisName string) {
-	var replaceThisWithSuperThis NodeTraversal_Callback = icast_NodeTraversal_Callback(obj_(new_Es6ConvertSuperConstructorCalls_1(this, superCalls, uniqueSuperThisName, typeOfThis)))
+	var replaceThisWithSuperThis NodeTraversal_Callback = new_Es6ConvertSuperConstructorCalls_1(this, superCalls, uniqueSuperThisName, typeOfThis)
 	NodeTraversal_traverse(this.compiler_, constructorBody, replaceThisWithSuperThis)
 }
 
@@ -504,7 +504,7 @@ func new_Es6ConvertSuperConstructorCalls_UndefinedReturnValueCheck(outer_ *Es6Co
 
 func (this *Es6ConvertSuperConstructorCalls_UndefinedReturnValueCheck) mayReturnDefinedValue(functionBody Node) bool {
 	this.foundNonEmptyReturn = false
-	var checkForDefinedReturnValue NodeTraversal_Callback = icast_NodeTraversal_Callback(obj_(new_Es6ConvertSuperConstructorCalls_UndefinedReturnValueCheck_1(this)))
+	var checkForDefinedReturnValue NodeTraversal_Callback = new_Es6ConvertSuperConstructorCalls_UndefinedReturnValueCheck_1(this)
 	NodeTraversal_traverse(this.outer_.compiler_, functionBody, checkForDefinedReturnValue)
 	return this.foundNonEmptyReturn
 }

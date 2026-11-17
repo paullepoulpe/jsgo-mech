@@ -271,7 +271,7 @@ func LightweightMessageFormatter_clinit() {
 		return
 	}
 	LightweightMessageFormatter_clinit_done = true
-	LightweightMessageFormatter_excerptFormatter = icast_SourceExcerptProvider_ExcerptFormatter(obj_(new_LightweightMessageFormatter_LineNumberingFormatter()))
+	LightweightMessageFormatter_excerptFormatter = new_LightweightMessageFormatter_LineNumberingFormatter()
 
 }
 

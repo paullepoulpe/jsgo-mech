@@ -28,7 +28,7 @@ func (this *CoalesceVariableNames) finit_CoalesceVariableNames() {
 		_ = arg
 		return this.liveness.getVarIndex(arg.getName())
 	})
-	this.shouldOptimizeScopeStack = icast_Deque(obj_(new_ArrayDeque()))
+	this.shouldOptimizeScopeStack = new_ArrayDeque()
 }
 
 func (this *CoalesceVariableNames) init_CoalesceVariableNames(compiler *AbstractCompiler, usePseudoNames bool) {
@@ -53,7 +53,7 @@ func new_CoalesceVariableNames(compiler *AbstractCompiler, usePseudoNames bool) 
 func (this *CoalesceVariableNames) process_2(externs Node, root Node) {
 	Preconditions_checkNotNull(externs.box_())
 	Preconditions_checkNotNull(root.box_())
-	NodeTraversal_builder().setCompiler(this.compiler_).setCallback(icast_NodeTraversal_Callback(obj_(this))).setScopeCreator(icast_ScopeCreator(obj_(this.scopeCreator))).traverse(root)
+	NodeTraversal_builder().setCompiler(this.compiler_).setCallback(this).setScopeCreator(icast_ScopeCreator(obj_(this.scopeCreator))).traverse(root)
 	this.compiler_.setLifeCycleStage(AbstractCompiler_LifeCycleStage_RAW)
 }
 
@@ -121,7 +121,7 @@ func (this *CoalesceVariableNames) visit_impl(t *NodeTraversal, n Node, parent N
 		this.compiler_.reportChangeToEnclosingScope(n)
 		this.updateDeclarationsPostCoalescing(n, coalescedVar, var_, parent)
 	} else {
-		var allMergedNames SetOf[string] = icast_Set(obj_(new_TreeSet()))
+		var allMergedNames SetOf[string] = new_TreeSet()
 		it_1 := this.liveness.getAllVariablesInOrder().each()
 		for it_1.next() {
 			var iVar *Var = it_1.v

@@ -245,7 +245,7 @@ func CodePrinter_MappedCodePrinter_computeLineLengths(code string) ImmutableList
 		lineStartPos = (lineEndPos + 1)
 		lineEndPos = String_indexOf_int_int(code, 10, lineStartPos)
 	}
-	return cast_[*ImmutableList](obj_(builder.build()))
+	return builder.build()
 }
 
 func CodePrinter_MappedCodePrinter_adjustEndPosition(lineLengths ListOf[BoxedOf[int32]], endPosition *FilePosition) *FilePosition {

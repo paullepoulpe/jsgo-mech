@@ -28,7 +28,7 @@ func new_ExportTestFunctions(compiler *AbstractCompiler, exportSymbolFunction st
 }
 
 func (this *ExportTestFunctions) process_2(externs Node, root Node) {
-	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(obj_(new_ExportTestFunctions_ExportTestFunctionsNodes(this))))
+	NodeTraversal_traverse(this.compiler_, root, new_ExportTestFunctions_ExportTestFunctionsNodes(this))
 }
 
 func (this *ExportTestFunctions) exportTestFunctionAsSymbol(testFunctionName string, node Node) {

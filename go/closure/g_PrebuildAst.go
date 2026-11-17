@@ -39,7 +39,7 @@ func (this *PrebuildAst) prebuild(allInputs IterableOf[*CompilerInput]) {
 		}()
 	}
 	if failed != nil {
-		var e *Exception = to_Exception(new_ExecutionException_Throwable(failed).self())
+		var e *Exception = new_ExecutionException_Throwable(failed).as_Exception()
 		panic(new_RuntimeException_Throwable(e.up_Throwable()).self())
 	}
 }

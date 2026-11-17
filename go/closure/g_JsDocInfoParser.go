@@ -165,7 +165,7 @@ func JsDocInfoParser_parseFileOverviewJsdoc(toParse string) *JSDocInfo {
 }
 
 func JsDocInfoParser_getParser(toParse string) *JsDocInfoParser {
-	var config *Config = Config_builder().setLanguageMode(Config_LanguageMode_ECMASCRIPT3).setStrictMode(Config_StrictMode_SLOPPY).setClosurePrimitiveNames(icast_Iterable(obj_(ImmutableSet_of_Object(strobj_("testPrimitive"))))).build()
+	var config *Config = Config_builder().setLanguageMode(Config_LanguageMode_ECMASCRIPT3).setStrictMode(Config_StrictMode_SLOPPY).setClosurePrimitiveNames(ImmutableSet_of_Object(strobj_("testPrimitive"))).build()
 	return new_JsDocInfoParser(new_JsDocTokenStream_String(toParse), Optional_of[string](toParse), 0, 0, config, JsDocInfoParser_JsDocSourceKind_NORMAL, ErrorReporter_rhino_NULL_INSTANCE)
 }
 
@@ -1022,7 +1022,7 @@ func (this *JsDocInfoParser) parseSuppressTag(token JsDocToken) JsDocToken {
 		this.addParserWarning(Msg_JSDOC_SUPPRESS)
 		return token
 	} else {
-		var suppressions SetOf[string] = icast_Set(obj_(new_LinkedHashSet()))
+		var suppressions SetOf[string] = new_LinkedHashSet()
 		for {
 			this.skipEOLs()
 			if this.match(JsDocToken_STRING) {
@@ -1108,7 +1108,7 @@ func (this *JsDocInfoParser) parseClosurePrimitiveTag(token JsDocToken) JsDocTok
 
 func (this *JsDocInfoParser) parseModifiesTag(token JsDocToken) JsDocToken {
 	if token == JsDocToken_LEFT_CURLY {
-		var modifies SetOf[string] = icast_Set(obj_(new_LinkedHashSet()))
+		var modifies SetOf[string] = new_LinkedHashSet()
 		for {
 			if this.match(JsDocToken_STRING) {
 				var name string = this.stream.getString()

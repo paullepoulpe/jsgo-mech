@@ -268,7 +268,7 @@ func (this *ProxyObjectType) getOwnerFunction_impl() *FunctionType {
 func (this *ProxyObjectType) getCtorImplementedInterfaces_impl() IterableOf[*ObjectType] {
 	return func() Iterable {
 		if this.referencedObjType == nil {
-			return icast_Iterable(obj_(ImmutableList_of()))
+			return ImmutableList_of()
 		}
 		return this.referencedObjType.getCtorImplementedInterfaces()
 	}()

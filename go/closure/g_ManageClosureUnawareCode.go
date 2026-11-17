@@ -21,7 +21,7 @@ func ManageClosureUnawareCode_unwrap(compiler *AbstractCompiler) *ManageClosureU
 }
 
 func (this *ManageClosureUnawareCode) process_2(externs Node, root Node) {
-	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(obj_(new_ManageClosureUnawareCode_UnwrapConcealedClosureUnawareCode())))
+	NodeTraversal_traverse(this.compiler_, root, new_ManageClosureUnawareCode_UnwrapConcealedClosureUnawareCode())
 }
 
 type ManageClosureUnawareCode_UnwrapConcealedClosureUnawareCode struct {

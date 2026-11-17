@@ -42,9 +42,9 @@ func new_J2clPropertyInlinerPass_StaticFieldGetterSetterInliner(outer_ *J2clProp
 
 func (this *J2clPropertyInlinerPass_StaticFieldGetterSetterInliner) run() {
 	var gatherer *J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_GatherJ2CLClassGetterSetters = new_J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_GatherJ2CLClassGetterSetters(this)
-	NodeTraversal_traverse(this.outer_.compiler_, this.root, icast_NodeTraversal_Callback(obj_(gatherer)))
+	NodeTraversal_traverse(this.outer_.compiler_, this.root, gatherer)
 	var result *TMap[string, *J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_J2clProperty] = gatherer.getResults()
-	NodeTraversal_traverse(this.outer_.compiler_, this.root, icast_NodeTraversal_Callback(obj_(new_J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_DetermineInlinableProperties(result))))
+	NodeTraversal_traverse(this.outer_.compiler_, this.root, new_J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_DetermineInlinableProperties(result))
 	new_J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_InlinePropertiesPass(this, result).run()
 }
 
@@ -377,7 +377,7 @@ func (this *J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_GatherJ2CLCla
 			}
 		}
 		if (getKey != 0) && (!hasSetter || (setKey != 0)) {
-			this.j2clPropertiesByName.put((sstr_(classNameString) + "." + sstr_(name)), to_J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_J2clProperty(obj_(new_J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_J2clPropertyEs5(this.outer_, getKey, setKey))))
+			this.j2clPropertiesByName.put((sstr_(classNameString) + "." + sstr_(name)), new_J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_J2clPropertyEs5(this.outer_, getKey, setKey).as_J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_J2clProperty())
 		}
 	}
 }
@@ -408,7 +408,7 @@ func (this *J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_GatherJ2CLCla
 		var getterDef Node = getterDefByName.get(propertyName)
 		var setterDef Node = setterDefByName[propertyName]
 		if this.outer_.matchesJ2clGetKeySignature(className, getterDef) && ((setterDef == 0) || this.outer_.matchesJ2clSetKeySignature(className, setterDef)) {
-			this.j2clPropertiesByName.put((sstr_(className) + "." + sstr_(propertyName)), to_J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_J2clProperty(obj_(new_J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_J2clPropertyEs6(this.outer_, getterDef, setterDef))))
+			this.j2clPropertiesByName.put((sstr_(className) + "." + sstr_(propertyName)), new_J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_J2clPropertyEs6(this.outer_, getterDef, setterDef).as_J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_J2clProperty())
 		}
 	}
 }
@@ -477,7 +477,7 @@ func new_J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_InlineProperties
 }
 
 func (this *J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_InlinePropertiesPass) run() {
-	NodeTraversal_traverse(this.outer_.outer_.compiler_, this.outer_.root, icast_NodeTraversal_Callback(obj_(this)))
+	NodeTraversal_traverse(this.outer_.outer_.compiler_, this.outer_.root, this)
 	it_1 := this.propertiesByName.each()
 	for it_1.next() {
 		var prop *J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_J2clProperty = it_1.v

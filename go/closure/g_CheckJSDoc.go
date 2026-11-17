@@ -35,9 +35,9 @@ func new_CheckJSDoc(compiler *AbstractCompiler) *CheckJSDoc {
 
 func (this *CheckJSDoc) process_2(externs Node, root Node) {
 	this.inExterns_ = true
-	NodeTraversal_traverse(this.compiler_, externs, icast_NodeTraversal_Callback(obj_(this)))
+	NodeTraversal_traverse(this.compiler_, externs, this)
 	this.inExterns_ = false
-	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(obj_(this)))
+	NodeTraversal_traverse(this.compiler_, root, this)
 }
 
 func (this *CheckJSDoc) checkJsDocInBlockComments(fileName OptionalOf[string]) {

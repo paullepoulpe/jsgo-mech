@@ -99,7 +99,7 @@ func (this *CheckEs6ModuleFileStructure) visitImport(t *NodeTraversal, importNod
 }
 
 func (this *CheckEs6ModuleFileStructure) process_2(externs Node, root Node) {
-	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(obj_(this)))
+	NodeTraversal_traverse(this.compiler_, root, this)
 }
 
 var CheckEs6ModuleFileStructure_MUST_COME_BEFORE *DiagnosticType

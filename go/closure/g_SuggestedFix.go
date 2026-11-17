@@ -13,7 +13,7 @@ func (this *SuggestedFix) init_SuggestedFix(matchedNodeInfo *SuggestedFix_Matche
 	this.matchedNodeInfo = matchedNodeInfo
 	this.replacements = replacements
 	this.description_ = description
-	this.alternatives = cast_[*ImmutableList](obj_(cast_[*ImmutableList_Builder](obj_(cast_[*ImmutableList_Builder](obj_(ImmutableList_builder().add(any(this)))).addAll(sliceView_(tc_p_SuggestedFix, alternatives)))).build()))
+	this.alternatives = ImmutableList_builder().add(any(this)).addAll(sliceView_(tc_p_SuggestedFix, alternatives)).build()
 }
 
 func new_SuggestedFix(matchedNodeInfo *SuggestedFix_MatchedNodeInfo, replacements *SimpleSetMultimap, description OptionalOf[string], alternatives []*SuggestedFix) *SuggestedFix {

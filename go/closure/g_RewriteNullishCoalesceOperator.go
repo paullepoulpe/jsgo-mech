@@ -21,7 +21,7 @@ func new_RewriteNullishCoalesceOperator(compiler *AbstractCompiler) *RewriteNull
 }
 
 func (this *RewriteNullishCoalesceOperator) process_2(externs Node, root Node) {
-	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(any(this)))
+	NodeTraversal_traverse(this.compiler_, root, this)
 	TranspilationPasses_maybeMarkFeatureAsTranspiledAway(this.compiler_, root, FeatureSet_Feature_NULL_COALESCE_OP)
 }
 

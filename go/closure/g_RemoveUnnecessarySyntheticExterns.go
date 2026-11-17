@@ -24,7 +24,7 @@ func new_RemoveUnnecessarySyntheticExterns(compiler *AbstractCompiler) *RemoveUn
 
 func (this *RemoveUnnecessarySyntheticExterns) process_2(externs Node, root Node) {
 	var globalRoot Node = externs.getParent()
-	var scopeCreator *SyntacticScopeCreator = new_SyntacticScopeCreator_AbstractCompiler_RedeclarationHandler_boolean(this.compiler_, icast_SyntacticScopeCreator_RedeclarationHandler(obj_(new_RemoveUnnecessarySyntheticExterns_RedeclarationCheckHandler(this))), true)
+	var scopeCreator *SyntacticScopeCreator = new_SyntacticScopeCreator_AbstractCompiler_RedeclarationHandler_boolean(this.compiler_, new_RemoveUnnecessarySyntheticExterns_RedeclarationCheckHandler(this), true)
 	scopeCreator.createScope(globalRoot, nil)
 	if this.nodesToDetach.isEmpty() {
 		return

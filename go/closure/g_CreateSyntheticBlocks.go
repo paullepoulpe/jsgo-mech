@@ -45,7 +45,7 @@ func new_CreateSyntheticBlocks(compiler *AbstractCompiler, startMarkerName strin
 }
 
 func (this *CreateSyntheticBlocks) process_2(externs Node, root Node) {
-	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(obj_(this)))
+	NodeTraversal_traverse(this.compiler_, root, this)
 	it_1 := eachRevOf_(&this.markerStack)
 	for it_1.next() {
 		var node Node = it_1.v

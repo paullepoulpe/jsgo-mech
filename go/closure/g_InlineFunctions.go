@@ -50,11 +50,11 @@ func lambda_InlineFunctions_getOrCreateFunctionState_1_(k_ any) any {
 
 func (this *InlineFunctions) process_2(externs Node, root Node) {
 	Preconditions_checkState(this.compiler_.getLifeCycleStage().isNormalized())
-	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(obj_(new_InlineFunctions_FindCandidateFunctions(this))))
+	NodeTraversal_traverse(this.compiler_, root, new_InlineFunctions_FindCandidateFunctions(this))
 	if this.fns.isEmpty() {
 		return
 	}
-	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(obj_(new_InlineFunctions_FindCandidatesReferences(this, this.fns, this.anonFns))))
+	NodeTraversal_traverse(this.compiler_, root, new_InlineFunctions_FindCandidatesReferences(this, this.fns, this.anonFns))
 	this.trimCandidatesNotMeetingMinimumRequirements()
 	if this.fns.isEmpty() {
 		return
@@ -67,7 +67,7 @@ func (this *InlineFunctions) process_2(externs Node, root Node) {
 	}
 	this.resolveInlineConflicts()
 	this.decomposeExpressions()
-	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(new_InlineFunctions_CallVisitor(this.fns, this.anonFns, new_InlineFunctions_Inline(this.injector).visitCallSite).self()))
+	NodeTraversal_traverse(this.compiler_, root, new_InlineFunctions_CallVisitor(this.fns, this.anonFns, new_InlineFunctions_Inline(this.injector).visitCallSite))
 	this.removeInlinedFunctions()
 }
 
@@ -185,7 +185,7 @@ func InlineFunctions_hasRequireInliningAnnotation(fnNode Node) bool {
 
 func InlineFunctions_hasLocalNames(fnNode Node) bool {
 	var block Node = NodeUtil_getFunctionBody(fnNode)
-	return (NodeUtil_getFunctionParameters(fnNode).hasChildren() || NodeUtil_has(block, new_NodeUtil_MatchDeclaration().apply, icast_Predicate_base(obj_(new_NodeUtil_MatchShallowStatement()))))
+	return (NodeUtil_getFunctionParameters(fnNode).hasChildren() || NodeUtil_has(block, new_NodeUtil_MatchDeclaration().apply, new_NodeUtil_MatchShallowStatement()))
 }
 
 func (this *InlineFunctions) isCandidateFunction(fn InlineFunctions_Function) bool {
@@ -481,12 +481,12 @@ func (this *InlineFunctions_FindCandidateFunctions) findNamedFunctions(t *NodeTr
 		}
 		var nameNode Node = n.getFirstChild()
 		if (nameNode.isName() && nameNode.hasChildren()) && nameNode.getFirstChild().isFunction() {
-			this.outer_.maybeAddFunction(icast_InlineFunctions_Function(obj_(new_InlineFunctions_FunctionVar(this.outer_, n))), t.getChunk())
+			this.outer_.maybeAddFunction(new_InlineFunctions_FunctionVar(this.outer_, n), t.getChunk())
 		}
 	case tokOrd1_FUNCTION:
 		Preconditions_checkState((NodeUtil_isStatementBlock(parent) || parent.isLabel()))
 		if NodeUtil_isFunctionDeclaration(n) {
-			var fn InlineFunctions_Function = icast_InlineFunctions_Function(obj_(new_InlineFunctions_NamedFunction(this.outer_, n)))
+			var fn InlineFunctions_Function = new_InlineFunctions_NamedFunction(this.outer_, n)
 			this.outer_.maybeAddFunction(fn, t.getChunk())
 		}
 	default:
@@ -506,7 +506,7 @@ func (this *InlineFunctions_FindCandidateFunctions) findFunctionExpressions(t *N
 			}
 		}
 		if fnNode != 0 {
-			var fn InlineFunctions_Function = icast_InlineFunctions_Function(obj_(new_InlineFunctions_FunctionExpression(fnNode, this.callsSeen)))
+			var fn InlineFunctions_Function = new_InlineFunctions_FunctionExpression(fnNode, this.callsSeen)
 			this.callsSeen++
 			this.outer_.maybeAddFunction(fn, t.getChunk())
 			this.outer_.anonFns[fnNode] = fn.getName()

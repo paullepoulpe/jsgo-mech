@@ -37,7 +37,7 @@ func PeepholeTranspilationsPass_create(compiler *AbstractCompiler, transpilation
 }
 
 func (this *PeepholeTranspilationsPass) process_2(externs Node, root Node) {
-	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(obj_(new_PeepholeTranspilationsPass_PeepCallback(this))))
+	NodeTraversal_traverse(this.compiler_, root, new_PeepholeTranspilationsPass_PeepCallback(this))
 	TranspilationPasses_maybeMarkFeaturesAsTranspiledAway(this.compiler_, root, this.featureSetToMarkAsTranspiledAway)
 }
 

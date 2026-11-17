@@ -167,14 +167,14 @@ func (this *PeepholeReplaceKnownMethods) tryFoldKnownNumberMethods(subtree Node,
 
 func (this *PeepholeReplaceKnownMethods) tryFoldKnownMathMethods(subtree Node, callTarget Node) Node {
 	Preconditions_checkArgument((subtree.isCall() && callTarget.isGetProp()))
-	var args ListOf[BoxedOf[float64]] = icast_List(obj_(ImmutableList_of()))
+	var args ListOf[BoxedOf[float64]] = ImmutableList_of()
 	{
 		var arg Node = callTarget.getNext()
 		for ; arg != 0; arg = arg.getNext() {
 			var d any = this.getSideEffectFreeNumberValue(arg)
 			if d != nil {
 				if args.isEmpty() {
-					args = icast_List(new_ArrayList_0().self())
+					args = new_ArrayList_0()
 				}
 				args.add(d)
 			} else {

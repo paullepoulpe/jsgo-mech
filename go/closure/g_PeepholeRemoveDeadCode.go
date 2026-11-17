@@ -1264,7 +1264,7 @@ func (this *PeepholeRemoveDeadCode_MatchUnnamedBreak) apply(n_ any) bool {
 }
 
 func (this *PeepholeRemoveDeadCode_MatchUnnamedBreak) test(p0 any) bool {
-	return Predicate_base_test(icast_Predicate_base(any(this)), p0)
+	return Predicate_base_test(this, p0)
 }
 
 // optimizeSubtree: an object that is exactly a PeepholeRemoveDeadCode calls its optimizeSubtree_impl directly (post-flip); others dispatch.

@@ -58,7 +58,7 @@ func (this *FlowSensitiveInlineVariables) enterScope(t *NodeTraversal) {
 	this.reachingDef = new_MustBeReachingVariableDef(this.cfg, this.compiler_, escaped, allVarsInFn)
 	this.reachingDef.analyze()
 	this.candidates = newTSet_(tc_p_FlowSensitiveInlineVariables_Candidate)
-	NodeTraversal_traverse(this.compiler_, t.getScopeRoot(), icast_NodeTraversal_Callback(obj_(new_FlowSensitiveInlineVariables_GatherCandidates(this))))
+	NodeTraversal_traverse(this.compiler_, t.getScopeRoot(), new_FlowSensitiveInlineVariables_GatherCandidates(this))
 	this.reachingUses = new_MaybeReachingVariableUse(this.cfg, escaped, allVarsInFn)
 	this.reachingUses.analyze()
 	for !this.candidates.isEmpty() {
@@ -121,7 +121,7 @@ func (this *FlowSensitiveInlineVariables) exitScope(t *NodeTraversal) {
 }
 
 func (this *FlowSensitiveInlineVariables) process_2(externs Node, root Node) {
-	NodeTraversal_builder().setCompiler(this.compiler_).setCallback(icast_NodeTraversal_Callback(any(this))).traverseRoots(externs, root)
+	NodeTraversal_builder().setCompiler(this.compiler_).setCallback(this).traverseRoots(externs, root)
 }
 
 func (this *FlowSensitiveInlineVariables) visit(t *NodeTraversal, n Node, parent Node) {
@@ -232,7 +232,7 @@ func (this *FlowSensitiveInlineVariables_SideEffectPredicate) apply(n_ any) bool
 }
 
 func (this *FlowSensitiveInlineVariables_SideEffectPredicate) test(p0 any) bool {
-	return Predicate_base_test(icast_Predicate_base(any(this)), p0)
+	return Predicate_base_test(this, p0)
 }
 
 type FlowSensitiveInlineVariables_GatherCandidatesCfgNodeCallback struct {

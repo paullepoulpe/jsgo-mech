@@ -23,7 +23,7 @@ func ScopeCreator_clinit() {
 		return
 	}
 	ScopeCreator_clinit_done = true
-	ScopeCreator_ASSERT_NO_SCOPES_CREATED = icast_ScopeCreator(obj_(new_ScopeCreator_1()))
+	ScopeCreator_ASSERT_NO_SCOPES_CREATED = new_ScopeCreator_1()
 
 }
 

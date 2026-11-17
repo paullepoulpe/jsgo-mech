@@ -27,7 +27,7 @@ func new_ImplicitNullabilityCheck(compiler *AbstractCompiler) *ImplicitNullabili
 }
 
 func (this *ImplicitNullabilityCheck) process_2(externs Node, root Node) {
-	NodeTraversal_traverseRoots(this.compiler_, icast_NodeTraversal_Callback(obj_(this)), externs, root)
+	NodeTraversal_traverseRoots(this.compiler_, this, externs, root)
 }
 
 func ImplicitNullabilityCheck_findImplicitNullabilityResults(info *JSDocInfo, t *NodeTraversal) []*ImplicitNullabilityCheck_Result {
@@ -38,7 +38,7 @@ func ImplicitNullabilityCheck_findImplicitNullabilityResults(info *JSDocInfo, t 
 	it_1 := foreach_(any(info.getTypeNodes()))
 	for it_1.next() {
 		var typeRoot Node = Node_of_(it_1.v)
-		NodeUtil_visitPreOrder_Node_Visitor_Predicate(typeRoot, icast_NodeUtil_Visitor(obj_(new_ImplicitNullabilityCheck_1(t, builder))), Predicates_alwaysTrue())
+		NodeUtil_visitPreOrder_Node_Visitor_Predicate(typeRoot, new_ImplicitNullabilityCheck_1(t, builder), Predicates_alwaysTrue())
 	}
 	return sliceImm_(tc_p_ImplicitNullabilityCheck_Result, builder.build())
 }

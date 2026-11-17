@@ -17,14 +17,14 @@ func new_JsFileFullParser() *JsFileFullParser {
 
 func JsFileFullParser_parse(code string, filename string, reporter JsFileFullParser_Reporter) *JsFileFullParser_FileInfo {
 	var errorReporter *JsFileFullParser_DelegatingReporter = new_JsFileFullParser_DelegatingReporter(reporter)
-	var compiler *Compiler = Compiler_createFromErrorManager(icast_ErrorManager(obj_(new_JsFileFullParser_1(errorReporter))))
+	var compiler *Compiler = Compiler_createFromErrorManager(new_JsFileFullParser_1(errorReporter))
 	var source *SourceFile_jscomp = SourceFile_jscomp_fromCode_String_String(filename, code)
 	var options *CompilerOptions = new_CompilerOptions()
 	options.setChecksOnly(true)
-	compiler.init(icast_List(obj_(ImmutableList_of())), icast_List(obj_(ImmutableList_of_Object(obj_(source)))), options)
+	compiler.init(ImmutableList_of(), ImmutableList_of_Object(obj_(source)), options)
 	var config *Config = ParserRunner_createConfig_LanguageMode_JsDocParsing_RunMode_Set_boolean_StrictMode(Config_LanguageMode_ES_NEXT, Config_JsDocParsing_INCLUDE_DESCRIPTIONS_NO_WHITESPACE, Config_RunMode_STOP_AFTER_ERROR, tsetFrom_(tc_string, ImmutableSet_of(), true), true, Config_StrictMode_SLOPPY)
 	var info *JsFileFullParser_FileInfo = new_JsFileFullParser_FileInfo()
-	var parsed *ParserRunner_ParseResult = ParserRunner_parse(icast_StaticSourceFile(obj_(source)), code, config, icast_ErrorReporter_rhino(obj_(errorReporter)))
+	var parsed *ParserRunner_ParseResult = ParserRunner_parse(icast_StaticSourceFile(obj_(source)), code, config, errorReporter)
 	if errorReporter.seenError {
 		return info
 	}

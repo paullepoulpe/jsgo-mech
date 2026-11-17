@@ -17,9 +17,9 @@ func new_FunctionRewriter(compiler *AbstractCompiler) *FunctionRewriter {
 }
 
 func (this *FunctionRewriter) process_2(externs Node, root Node) {
-	var reducers []*FunctionRewriter_Reducer = sliceOf_(tc_p_FunctionRewriter_Reducer, to_FunctionRewriter_Reducer(obj_(new_FunctionRewriter_ReturnConstantReducer())), to_FunctionRewriter_Reducer(obj_(new_FunctionRewriter_GetterReducer())), to_FunctionRewriter_Reducer(obj_(new_FunctionRewriter_SetterReducer())), to_FunctionRewriter_Reducer(obj_(new_FunctionRewriter_EmptyFunctionReducer())), to_FunctionRewriter_Reducer(obj_(new_FunctionRewriter_IdentityReducer())))
+	var reducers []*FunctionRewriter_Reducer = sliceOf_(tc_p_FunctionRewriter_Reducer, new_FunctionRewriter_ReturnConstantReducer().as_FunctionRewriter_Reducer(), new_FunctionRewriter_GetterReducer().as_FunctionRewriter_Reducer(), new_FunctionRewriter_SetterReducer().as_FunctionRewriter_Reducer(), new_FunctionRewriter_EmptyFunctionReducer().as_FunctionRewriter_Reducer(), new_FunctionRewriter_IdentityReducer().as_FunctionRewriter_Reducer())
 	var reductionMap *SimpleSetMultimap = SimpleSetMultimap_createInsertionOrdered()
-	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(obj_(new_FunctionRewriter_ReductionGatherer(this, reducers, reductionMap))))
+	NodeTraversal_traverse(this.compiler_, root, new_FunctionRewriter_ReductionGatherer(this, reducers, reductionMap))
 	for _, reducer := range reducers {
 		var reductions CollectionOf[*FunctionRewriter_Reduction] = Collection(reductionMap.get(reducer.self()))
 		if reductions.isEmpty() {

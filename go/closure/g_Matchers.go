@@ -16,19 +16,19 @@ func new_Matchers() *Matchers {
 }
 
 func Matchers_anything() Matcher {
-	return icast_Matcher(obj_(new_Matchers_1()))
+	return new_Matchers_1()
 }
 
 func Matchers_allOf(matchers []Matcher) Matcher {
-	return icast_Matcher(obj_(new_Matchers_2(matchers)))
+	return new_Matchers_2(matchers)
 }
 
 func Matchers_anyOf(matchers []Matcher) Matcher {
-	return icast_Matcher(obj_(new_Matchers_3(matchers)))
+	return new_Matchers_3(matchers)
 }
 
 func Matchers_not(matcher func(Node, *NodeMetadata) bool) Matcher {
-	return icast_Matcher(obj_(new_Matchers_4(matcher)))
+	return new_Matchers_4(matcher)
 }
 
 func Matchers_constructor_0() Matcher {
@@ -36,15 +36,15 @@ func Matchers_constructor_0() Matcher {
 }
 
 func Matchers_constructor_Optional(name OptionalOf[string]) Matcher {
-	return icast_Matcher(obj_(new_Matchers_5(optErase_(name))))
+	return new_Matchers_5(optErase_(name))
 }
 
 func Matchers_newClass_0() Matcher {
-	return icast_Matcher(obj_(new_Matchers_6()))
+	return new_Matchers_6()
 }
 
 func Matchers_newClass_String(className string) Matcher {
-	return icast_Matcher(obj_(new_Matchers_7(className)))
+	return new_Matchers_7(className)
 }
 
 func Matchers_functionCall_0() Matcher {
@@ -52,11 +52,11 @@ func Matchers_functionCall_0() Matcher {
 }
 
 func Matchers_functionCall_Optional(name OptionalOf[string]) Matcher {
-	return icast_Matcher(obj_(new_Matchers_8(optErase_(name))))
+	return new_Matchers_8(optErase_(name))
 }
 
 func Matchers_functionCallWithNumArgs_int(numArgs int32) Matcher {
-	return icast_Matcher(obj_(new_Matchers_9(numArgs)))
+	return new_Matchers_9(numArgs)
 }
 
 func Matchers_functionCallWithNumArgs_String_int(name string, numArgs int32) Matcher {
@@ -98,19 +98,19 @@ func Matchers_propertyAccess_0() Matcher {
 }
 
 func Matchers_propertyAccess_Optional(name OptionalOf[string]) Matcher {
-	return icast_Matcher(obj_(new_Matchers_10(optErase_(name))))
+	return new_Matchers_10(optErase_(name))
 }
 
 func Matchers_enumDefinition() Matcher {
-	return icast_Matcher(obj_(new_Matchers_11()))
+	return new_Matchers_11()
 }
 
 func Matchers_enumDefinitionOfType(type_ string) Matcher {
-	return icast_Matcher(obj_(new_Matchers_12(type_)))
+	return new_Matchers_12(type_)
 }
 
 func Matchers_assignmentWithRhs(rhsMatcher func(Node, *NodeMetadata) bool) Matcher {
-	return icast_Matcher(obj_(new_Matchers_13(rhsMatcher)))
+	return new_Matchers_13(rhsMatcher)
 }
 
 func Matchers_prototypeVariableDeclaration() Matcher {
@@ -122,15 +122,15 @@ func Matchers_prototypeMethodDeclaration() Matcher {
 }
 
 func Matchers_jsDocType(type_ string) Matcher {
-	return icast_Matcher(obj_(new_Matchers_14(type_)))
+	return new_Matchers_14(type_)
 }
 
 func Matchers_constructorPropertyDeclaration() Matcher {
-	return icast_Matcher(obj_(new_Matchers_15()))
+	return new_Matchers_15()
 }
 
 func Matchers_isPrivate() Matcher {
-	return icast_Matcher(obj_(new_Matchers_16()))
+	return new_Matchers_16()
 }
 
 func Matchers_getJsType(metadata *NodeMetadata, type_ string) *JSType {
@@ -179,7 +179,7 @@ func Matchers_matchesPrototypeInstanceVar(node Node, metadata *NodeMetadata, nam
 }
 
 func Matchers_matcherForPrototypeDeclaration(requireFunctionType bool) Matcher {
-	return icast_Matcher(obj_(new_Matchers_17(requireFunctionType)))
+	return new_Matchers_17(requireFunctionType)
 }
 
 var Matchers_PROTOTYPE_PATTERN *Pattern

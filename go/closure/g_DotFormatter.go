@@ -17,7 +17,7 @@ func (this *DotFormatter) finit_DotFormatter() {
 
 func (this *DotFormatter) init_DotFormatter_0() {
 	this.finit_DotFormatter()
-	this.builder = icast_Appendable(obj_(new_StringBuilder()))
+	this.builder = new_StringBuilder()
 	this.cfg = nil
 	this.printAnnotations = false
 }
@@ -50,7 +50,7 @@ func DotFormatter_toDotNode(n Node) string {
 
 func DotFormatter_toDot_Node_ControlFlowGraph(n Node, inCFG *ControlFlowGraph) string {
 	var builder *StringBuilder = new_StringBuilder()
-	var unused *DotFormatter = new_DotFormatter_Node_ControlFlowGraph_Appendable_boolean(n, inCFG, icast_Appendable(obj_(builder)), false)
+	var unused *DotFormatter = new_DotFormatter_Node_ControlFlowGraph_Appendable_boolean(n, inCFG, builder, false)
 	_ = unused
 	return Object_toString(obj_(builder))
 }

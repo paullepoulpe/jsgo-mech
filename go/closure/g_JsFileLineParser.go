@@ -220,7 +220,7 @@ func (this *JsFileLineParser) parseJsString(jsStringLiteral string) *Outcome_bas
 }
 
 func (this *JsFileLineParser) parseJsStringArray(input string) *Outcome_base {
-	var results ListOf[string] = icast_List(new_ArrayList_0().self())
+	var results ListOf[string] = new_ArrayList_0()
 	var indexStart int32 = String_indexOf(input, 91)
 	var indexEnd int32 = String_lastIndexOf(input, 93)
 	if (indexStart == -1) || (indexEnd == -1) {
@@ -260,7 +260,7 @@ func (this *JsFileLineParser) parseJsStringMap(input string) *Outcome_base {
 		return Outcome_base_err(checked.error())
 	}
 	input = String_trim(String_substring(input, 1, (String_length(input) - 1)))
-	var results MapOf[string, string] = icast_Map(obj_(new_LinkedHashMap()))
+	var results MapOf[string, string] = new_LinkedHashMap()
 	var done bool = String_isEmpty(input)
 	this.valueMatcher.reset_s(input)
 	for !done {

@@ -64,15 +64,15 @@ func (this *LinkedFlowScope) inferSlotType(symbol string, type_ *JSType) FlowSco
 	}()
 	return func() FlowScope {
 		if newScopes != this.scopes {
-			return icast_FlowScope(obj_(new_LinkedFlowScope(this.inputProvider, newScopes, this.syntacticScope, this.functionScope)))
+			return new_LinkedFlowScope(this.inputProvider, newScopes, this.syntacticScope, this.functionScope)
 		}
-		return icast_FlowScope(any(this))
+		return this
 	}()
 }
 
 func (this *LinkedFlowScope) inferQualifiedSlot(node Node, symbol string, bottomType *JSType, inferredType *JSType, declared bool) FlowScope {
 	if this.functionScope.isGlobal() {
-		return icast_FlowScope(any(this))
+		return this
 	}
 	var v *TypedVar = cast_[*TypedVar](this.syntacticScope.getVar(symbol).self())
 	if (v == nil) && !this.functionScope.isBottom() {
@@ -94,7 +94,7 @@ func (this *LinkedFlowScope) inferQualifiedSlot(node Node, symbol string, bottom
 	if v != nil {
 		if !v.isTypeInferred() {
 			if (((declaredType == nil) || !inferredType.isSubtypeOf(declaredType)) || declaredType.isSubtypeOf(inferredType)) || inferredType.equals(declaredType.self()) {
-				return icast_FlowScope(any(this))
+				return this
 			}
 		} else if (declaredType != nil) && !inferredType.isSubtypeOf(declaredType) {
 			v.setType(v.getType().getLeastSupertype(inferredType))
@@ -174,9 +174,9 @@ func (this *LinkedFlowScope) withSyntacticScope(scope StaticTypedScope) FlowScop
 	var typedScope *TypedScope = cast_[*TypedScope](scope)
 	return func() FlowScope {
 		if any(scope) != obj_(this.syntacticScope) {
-			return icast_FlowScope(obj_(new_LinkedFlowScope(this.inputProvider, this.trimScopes(typedScope), typedScope, this.functionScope)))
+			return new_LinkedFlowScope(this.inputProvider, this.trimScopes(typedScope), typedScope, this.functionScope)
 		}
-		return icast_FlowScope(any(this))
+		return this
 	}()
 }
 
@@ -372,11 +372,11 @@ func LinkedFlowScope_join(linkedA *LinkedFlowScope, linkedB *LinkedFlowScope, co
 }
 
 func (this *LinkedFlowScope) lookupQualifiedName(p0 *QualifiedName) *JSType {
-	return StaticTypedScope_lookupQualifiedName_default(icast_StaticTypedScope(any(this)), p0)
+	return StaticTypedScope_lookupQualifiedName_default(this, p0)
 }
 
 func (this *LinkedFlowScope) getTopmostScopeOfEventualDeclaration(p0 string) StaticScope {
-	return StaticScope_getTopmostScopeOfEventualDeclaration_default(icast_StaticScope(any(this)), p0)
+	return StaticScope_getTopmostScopeOfEventualDeclaration_default(this, p0)
 }
 
 var LinkedFlowScope_EMPTY_SLOTS PMap[string, *LinkedFlowScope_OverlaySlot]

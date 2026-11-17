@@ -66,7 +66,7 @@ func ProductionInstrumentationReporter_parseJsonStringToLongMap(json string) *Ou
 		return Outcome_base_err(parsed.error())
 	}
 	var document *SimpleJsonValue = cast_[*SimpleJsonValue](parsed.get())
-	var map_ MapOf[string, BoxedOf[int64]] = icast_Map(obj_(new_LinkedHashMap()))
+	var map_ MapOf[string, BoxedOf[int64]] = new_LinkedHashMap()
 	if document.kind() == SimpleJsonValue_Kind_OBJECT {
 		it_1 := foreach_(any(document.members().entrySet()))
 		for it_1.next() {

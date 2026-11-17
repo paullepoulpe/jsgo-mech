@@ -19,7 +19,7 @@ func SourceMapGeneratorFactory_getInstance(format SourceMapFormat) SourceMapGene
 	return func() SourceMapGenerator {
 		switch format {
 		case SourceMapFormat_DEFAULT, SourceMapFormat_V3:
-			return icast_SourceMapGenerator(obj_(new_SourceMapGeneratorV3()))
+			return new_SourceMapGeneratorV3()
 		}
 		panic("unreachable")
 	}()

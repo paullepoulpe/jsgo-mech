@@ -36,7 +36,7 @@ func new_LoggerErrorManager_MessageFormatter_Logger(formatter MessageFormatter, 
 }
 
 func (this *LoggerErrorManager) init_LoggerErrorManager_Logger(logger *Logger) {
-	this.init_LoggerErrorManager_MessageFormatter_Logger(icast_MessageFormatter(obj_(LightweightMessageFormatter_withoutSource())), logger)
+	this.init_LoggerErrorManager_MessageFormatter_Logger(LightweightMessageFormatter_withoutSource(), logger)
 }
 
 func new_LoggerErrorManager_Logger(logger *Logger) *LoggerErrorManager {

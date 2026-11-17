@@ -55,21 +55,21 @@ func (this *SimpleSourceFile) toString() string {
 }
 
 func (this *SimpleSourceFile) isStrong() bool {
-	return StaticSourceFile_isStrong_default(icast_StaticSourceFile(any(this)))
+	return StaticSourceFile_isStrong_default(this)
 }
 
 func (this *SimpleSourceFile) isWeak() bool {
-	return StaticSourceFile_isWeak_default(icast_StaticSourceFile(any(this)))
+	return StaticSourceFile_isWeak_default(this)
 }
 
 func (this *SimpleSourceFile) isExtern() bool {
-	return StaticSourceFile_isExtern_default(icast_StaticSourceFile(any(this)))
+	return StaticSourceFile_isExtern_default(this)
 }
 
 func (this *SimpleSourceFile) isNonCode() bool {
-	return StaticSourceFile_isNonCode_default(icast_StaticSourceFile(any(this)))
+	return StaticSourceFile_isNonCode_default(this)
 }
 
 func (this *SimpleSourceFile) isTypeScriptSource() bool {
-	return StaticSourceFile_isTypeScriptSource_default(icast_StaticSourceFile(any(this)))
+	return StaticSourceFile_isTypeScriptSource_default(this)
 }

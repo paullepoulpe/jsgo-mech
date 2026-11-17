@@ -50,8 +50,8 @@ func (this *ChainableReverseAbstractInterpreter) self() any {
 }
 
 func (this *ChainableReverseAbstractInterpreter) finit_ChainableReverseAbstractInterpreter() {
-	this.restrictToArrayVisitor = icast_Visitor(obj_(new_ChainableReverseAbstractInterpreter_1(this)))
-	this.restrictToNotArrayVisitor = icast_Visitor(obj_(new_ChainableReverseAbstractInterpreter_2(this)))
+	this.restrictToArrayVisitor = new_ChainableReverseAbstractInterpreter_1(this)
+	this.restrictToNotArrayVisitor = new_ChainableReverseAbstractInterpreter_2(this)
 }
 
 func (this *ChainableReverseAbstractInterpreter) init_ChainableReverseAbstractInterpreter(typeRegistry *JSTypeRegistry) {
@@ -158,7 +158,7 @@ func (this *ChainableReverseAbstractInterpreter) getRestrictedByTypeOfResult(typ
 			return nil
 		}
 	}
-	return to_JSType(type_.visit(icast_Visitor(obj_(new_ChainableReverseAbstractInterpreter_RestrictByOneTypeOfResultVisitor(this, value, resultEqualsValue)))))
+	return to_JSType(type_.visit(new_ChainableReverseAbstractInterpreter_RestrictByOneTypeOfResultVisitor(this, value, resultEqualsValue)))
 }
 
 func (this *ChainableReverseAbstractInterpreter) getNativeType(typeId JSTypeNative) *JSType {

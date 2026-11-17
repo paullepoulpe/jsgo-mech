@@ -23,7 +23,7 @@ func new_RewriteObjectSpread(compiler *AbstractCompiler) *RewriteObjectSpread {
 }
 
 func (this *RewriteObjectSpread) process_2(externs Node, root Node) {
-	TranspilationPasses_processTranspile(this.compiler_, root, RewriteObjectSpread_transpiledFeatures, []NodeTraversal_Callback{icast_NodeTraversal_Callback(any(this))})
+	TranspilationPasses_processTranspile(this.compiler_, root, RewriteObjectSpread_transpiledFeatures, []NodeTraversal_Callback{NodeTraversal_Callback(this)})
 	TranspilationPasses_maybeMarkFeaturesAsTranspiledAway(this.compiler_, root, RewriteObjectSpread_transpiledFeatures)
 }
 

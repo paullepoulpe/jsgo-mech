@@ -29,7 +29,7 @@ func (this *CollapseVariableDeclarations) process_2(externs Node, root Node) {
 	clear(this.collapses)
 	this.collapses = this.collapses[:0]
 	clear(this.nodesToCollapse)
-	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(obj_(new_CollapseVariableDeclarations_GatherCollapses(this))))
+	NodeTraversal_traverse(this.compiler_, root, new_CollapseVariableDeclarations_GatherCollapses(this))
 	if !(len(this.collapses) == 0) {
 		this.applyCollapses()
 	}

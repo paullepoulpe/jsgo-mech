@@ -41,8 +41,8 @@ func new_CheckSideEffects(compiler *AbstractCompiler, report bool, protectSideEf
 }
 
 func (this *CheckSideEffects) process_2(externs Node, root Node) {
-	NodeTraversal_traverse(this.compiler_, externs, icast_NodeTraversal_Callback(obj_(new_CheckSideEffects_GetNoSideEffectExterns(this))))
-	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(obj_(this)))
+	NodeTraversal_traverse(this.compiler_, externs, new_CheckSideEffects_GetNoSideEffectExterns(this))
+	NodeTraversal_traverse(this.compiler_, root, this)
 	if this.protectSideEffectFreeCode {
 		this.protectSideEffects()
 	}
@@ -166,7 +166,7 @@ func new_CheckSideEffects_StripProtection(compiler *AbstractCompiler) *CheckSide
 }
 
 func (this *CheckSideEffects_StripProtection) process_2(externs Node, root Node) {
-	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(obj_(this)))
+	NodeTraversal_traverse(this.compiler_, root, this)
 }
 
 func (this *CheckSideEffects_StripProtection) visit_impl(t *NodeTraversal, n Node, parent Node) {

@@ -106,12 +106,12 @@ func (this *TemplateTypeReplacer) caseFunctionTypeUnguarded(type_ *FunctionType)
 	}
 	var changed bool = false
 	var beforeThis *JSType = type_.getTypeOfThis()
-	var afterThis *JSType = this.coerseToThisType(to_JSType(beforeThis.visit(icast_Visitor(any(this)))))
+	var afterThis *JSType = this.coerseToThisType(to_JSType(beforeThis.visit(this)))
 	if !JSCompObjects_identical(beforeThis.self(), afterThis.self()) {
 		changed = true
 	}
 	var beforeReturn *JSType = type_.getReturnType()
-	var afterReturn *JSType = to_JSType(beforeReturn.visit(icast_Visitor(any(this))))
+	var afterReturn *JSType = to_JSType(beforeReturn.visit(this))
 	if !JSCompObjects_identical(beforeReturn.self(), afterReturn.self()) {
 		changed = true
 	}
@@ -126,7 +126,7 @@ func (this *TemplateTypeReplacer) caseFunctionTypeUnguarded(type_ *FunctionType)
 	for i := int32(0); i < numParams; i++ {
 		var parameter *FunctionType_Parameter = cast_[*FunctionType_Parameter](type_.getParameters().get(i))
 		var beforeParamType *JSType = parameter.getJSType()
-		var afterParamType *JSType = to_JSType(beforeParamType.visit(icast_Visitor(any(this))))
+		var afterParamType *JSType = to_JSType(beforeParamType.visit(this))
 		if !JSCompObjects_identical(beforeParamType.self(), afterParamType.self()) {
 			changed = true
 			paramsChanged = true
@@ -180,7 +180,7 @@ func (this *TemplateTypeReplacer) caseObjectTypeUnguarded(objType *ObjectType) *
 		var prop string = str_(it_1.v)
 		var propertyNode Node = objType.getPropertyNode(prop)
 		var beforeType *JSType = objType.getPropertyType(prop)
-		var afterType *JSType = to_JSType(beforeType.visit(icast_Visitor(any(this))))
+		var afterType *JSType = to_JSType(beforeType.visit(this))
 		if !JSCompObjects_identical(beforeType.self(), afterType.self()) {
 			changed = true
 		}
@@ -203,7 +203,7 @@ func (this *TemplateTypeReplacer) caseTemplatizedType(type_ *TemplatizedType) an
 func (this *TemplateTypeReplacer) caseTemplatizedTypeUnguarded(type_ *TemplatizedType) *JSType {
 	var changed bool = false
 	var beforeBaseType *ObjectType = type_.getReferencedType()
-	var afterBaseType *ObjectType = ObjectType_cast(to_JSType(beforeBaseType.visit(icast_Visitor(any(this)))))
+	var afterBaseType *ObjectType = ObjectType_cast(to_JSType(beforeBaseType.visit(this)))
 	if !JSCompObjects_identical(beforeBaseType.self(), afterBaseType.self()) {
 		changed = true
 	}
@@ -211,14 +211,14 @@ func (this *TemplateTypeReplacer) caseTemplatizedTypeUnguarded(type_ *Templatize
 	it_1 := foreach_(obj_(type_.getTemplateTypes()))
 	for it_1.next() {
 		var beforeTemplateType *JSType = to_JSType(it_1.v)
-		var afterTemplateType *JSType = to_JSType(beforeTemplateType.visit(icast_Visitor(any(this))))
+		var afterTemplateType *JSType = to_JSType(beforeTemplateType.visit(this))
 		if !JSCompObjects_identical(beforeTemplateType.self(), afterTemplateType.self()) {
 			changed = true
 		}
 		builder.add(afterTemplateType.self())
 	}
 	if changed {
-		type_ = this.registry.createTemplatizedTypeImmutableList(afterBaseType, cast_[*ImmutableList](obj_(builder.build())))
+		type_ = this.registry.createTemplatizedTypeImmutableList(afterBaseType, builder.build())
 	}
 	return type_.up_JSType()
 }
@@ -262,7 +262,7 @@ func (this *TemplateTypeReplacer) caseUnionTypeUnguarded(type_ *UnionType) *JSTy
 	var alternateCount int32 = alternates.size()
 	for i := int32(0); i < alternateCount; i++ {
 		var alternative *JSType = to_JSType(alternates.get(i))
-		var replacement *JSType = to_JSType(alternative.visit(icast_Visitor(any(this))))
+		var replacement *JSType = to_JSType(alternative.visit(this))
 		if !JSCompObjects_identical(replacement.self(), alternative.self()) {
 			changed = true
 		}
@@ -300,7 +300,7 @@ func (this *TemplateTypeReplacer) caseTemplateType(type_ *TemplateType) any {
 		return obj_(type_)
 	}
 	this.seenTypes.add(obj_(type_))
-	var visitedReplacement *JSType = to_JSType(replacement.visit(icast_Visitor(any(this))))
+	var visitedReplacement *JSType = to_JSType(replacement.visit(this))
 	this.seenTypes.remove_Object(obj_(type_))
 	if JSCompObjects_identical(visitedReplacement.self(), obj_(this.keyType)) {
 		Preconditions_checkState_boolean_String_Object(false, "Trying to replace key %s with the same value", obj_(this.keyType))
@@ -326,7 +326,7 @@ func (this *TemplateTypeReplacer) caseProxyObjectType(type_ *ProxyObjectType) an
 
 func (this *TemplateTypeReplacer) caseProxyObjectTypeUnguarded(type_ *ProxyObjectType) *JSType {
 	var beforeType *JSType = type_.getReferencedTypeInternal()
-	var replacement *JSType = to_JSType(beforeType.visit(icast_Visitor(any(this))))
+	var replacement *JSType = to_JSType(beforeType.visit(this))
 	if !JSCompObjects_identical(replacement.self(), beforeType.self()) {
 		return replacement
 	}

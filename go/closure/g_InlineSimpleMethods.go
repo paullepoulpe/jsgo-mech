@@ -33,8 +33,8 @@ func (this *InlineSimpleMethods) process_2(externs Node, root Node) {
 	}
 	Preconditions_checkState(this.methodDefinitions.isEmpty())
 	Preconditions_checkState((externs != 0))
-	NodeTraversal_traverseRoots(this.compiler_, icast_NodeTraversal_Callback(obj_(new_InlineSimpleMethods_GatherSignatures(this))), externs, root)
-	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(obj_(new_InlineSimpleMethods_InlineTrivialAccessors(this))))
+	NodeTraversal_traverseRoots(this.compiler_, new_InlineSimpleMethods_GatherSignatures(this), externs, root)
+	NodeTraversal_traverse(this.compiler_, root, new_InlineSimpleMethods_InlineTrivialAccessors(this))
 }
 
 func InlineSimpleMethods_isPropertyTree(expectedGetprop Node) bool {

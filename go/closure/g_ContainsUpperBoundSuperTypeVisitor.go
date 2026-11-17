@@ -63,7 +63,7 @@ func (this *ContainsUpperBoundSuperTypeVisitor) caseUnionType_impl(type_ *UnionT
 	it_1 := foreach_(obj_(type_.getAlternates()))
 	for it_1.next() {
 		var alt *JSType = to_JSType(it_1.v)
-		var foundInAlt ContainsUpperBoundSuperTypeVisitor_Result = cast_[ContainsUpperBoundSuperTypeVisitor_Result](alt.visit(icast_Visitor(obj_(this))))
+		var foundInAlt ContainsUpperBoundSuperTypeVisitor_Result = cast_[ContainsUpperBoundSuperTypeVisitor_Result](alt.visit(this))
 		if foundInAlt != ContainsUpperBoundSuperTypeVisitor_Result_ABSENT {
 			return obj_(foundInAlt)
 		}
@@ -78,7 +78,7 @@ func (this *ContainsUpperBoundSuperTypeVisitor) caseForwardingType(type_ *JSType
 		return ContainsUpperBoundSuperTypeVisitor_Result_CYCLE
 	} else {
 		this.seen.add(type_.self())
-		return cast_[ContainsUpperBoundSuperTypeVisitor_Result](reference.visit(icast_Visitor(obj_(this))))
+		return cast_[ContainsUpperBoundSuperTypeVisitor_Result](reference.visit(this))
 	}
 	panic("unreachable")
 }

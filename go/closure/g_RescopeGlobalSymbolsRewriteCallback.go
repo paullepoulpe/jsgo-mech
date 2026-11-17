@@ -406,7 +406,7 @@ func (this *RescopeGlobalSymbolsRewriteCallback) declareLocalAliasesAndWrappers(
 		it_1 := foreach_(obj_(this.symbolInfo.wrappedCrossChunkNames()))
 		for it_1.next() {
 			var name string = str_(it_1.v)
-			var chunksRequiringWrapper SetOf[*JSChunk] = mapGetOr_(this.chunksRequiringWrapperInitialization, name, icast_Set(obj_(ImmutableSet_of())))
+			var chunksRequiringWrapper SetOf[*JSChunk] = mapGetOr_(this.chunksRequiringWrapperInitialization, name, Set(ImmutableSet_of()))
 			var wrapperAssignmentChunk *JSChunk = func() *JSChunk {
 				if chunksRequiringWrapper.isEmpty() {
 					return defaultRootChunk

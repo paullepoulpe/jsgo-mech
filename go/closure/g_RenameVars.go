@@ -52,9 +52,9 @@ func (this *RenameVars) init_RenameVars(compiler *AbstractCompiler, prefix Optio
 	this.reservedCharacters = reservedCharacters
 	this.preferStableNames = preferStableNames
 	if reservedNames == nil {
-		this.reservedNames = icast_Set(obj_(new_LinkedHashSet()))
+		this.reservedNames = new_LinkedHashSet()
 	} else {
-		this.reservedNames = icast_Set(obj_(new_LinkedHashSet_Collection(Collection(reservedNames.asSet()))))
+		this.reservedNames = new_LinkedHashSet_Collection(Collection(reservedNames.asSet()))
 	}
 	this.nameGenerator = nameGenerator
 }
@@ -76,9 +76,9 @@ func RenameVars_frequencyComparator(a1 *RenameVars_Assignment, a2 *RenameVars_As
 func (this *RenameVars) process_2(externs Node, root Node) {
 	this.externNames_ = NodeUtil_collectExternVariableNames(this.compiler_, externs)
 	clear(this.originalNameByNode)
-	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(obj_(new_RenameVars_ProcessVars(this))))
+	NodeTraversal_traverse(this.compiler_, root, new_RenameVars_ProcessVars(this))
 	this.reservedNames.addAll(icast_Collection(obj_(this.externNames_)))
-	var varsByFrequency SortedSetOf[*RenameVars_Assignment] = icast_SortedSet(obj_(new_TreeSet_Comparator(lambda_RenameVars_process_2_1_)))
+	var varsByFrequency SortedSetOf[*RenameVars_Assignment] = new_TreeSet_Comparator(lambda_RenameVars_process_2_1_)
 	varsByFrequency.addAll(this.assignments.asMap().values())
 	if this.prevUsedRenameMap != nil {
 		this.reusePreviouslyUsedVariableMap(varsByFrequency)
@@ -193,7 +193,7 @@ func (this *RenameVars) assignNames(varsToRename SortedSetOf[*RenameVars_Assignm
 	}
 	var numPendingAssignments int32 = int32(len(generatedNamesForAssignments))
 	for i := int32(0); i < numPendingAssignments; {
-		var varsByOrderOfOccurrence SortedSetOf[*RenameVars_Assignment] = icast_SortedSet(obj_(new_TreeSet_Comparator(RenameVars_ORDER_OF_OCCURRENCE_COMPARATOR)))
+		var varsByOrderOfOccurrence SortedSetOf[*RenameVars_Assignment] = new_TreeSet_Comparator(RenameVars_ORDER_OF_OCCURRENCE_COMPARATOR)
 		var len_ int32 = String_length(generatedNamesForAssignments[i])
 		for j := int32(i); (j < numPendingAssignments) && (String_length(generatedNamesForAssignments[j]) == len_); j++ {
 			varsByOrderOfOccurrence.add(obj_(pendingAssignments[j]))

@@ -40,7 +40,7 @@ func (this *InstrumentAsyncContext) process_2(externs Node, root Node) {
 	if ok_, a1_ := this.compiler_.getLifeCycleStage().isNormalized(), this.compiler_.getLifeCycleStage(); !ok_ {
 		Preconditions_checkState_boolean_Object(false, obj_(a1_))
 	}
-	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(any(this)))
+	NodeTraversal_traverse(this.compiler_, root, this)
 }
 
 func (this *InstrumentAsyncContext) shouldTraverse(t *NodeTraversal, n Node, parent Node) bool {
@@ -186,7 +186,7 @@ func (this *InstrumentAsyncContext) instrumentGeneratorFunction(t *NodeTraversal
 	f.addChildToBack(newOuterBody.srcrefTreeIfMissing(generatorBody))
 	var thisContext *ThisAndArgumentsReferenceUpdater_ThisAndArgumentsContext = new_ThisAndArgumentsReferenceUpdater_ThisAndArgumentsContext(newOuterBody, false, this.uniqueIdSupplier.getUniqueId(t.getInput()))
 	var updater *ThisAndArgumentsReferenceUpdater = new_ThisAndArgumentsReferenceUpdater(this.compiler_, thisContext, this.astFactory_)
-	NodeTraversal_traverse(this.compiler_, generatorBody, icast_NodeTraversal_Callback(obj_(updater)))
+	NodeTraversal_traverse(this.compiler_, generatorBody, updater)
 	thisContext.addVarDeclarations(this.compiler_, this.astFactory_, t.getCurrentScript())
 	this.compiler_.reportChangeToChangeScope(f)
 	this.compiler_.reportChangeToChangeScope(inner)
@@ -211,7 +211,7 @@ func (this *InstrumentAsyncContext) instrumentGeneratorMethod(t *NodeTraversal, 
 	var argumentsParam Node = 0
 	var argumentsReference Node = 0
 	var renamer *InstrumentAsyncContext_ArgumentsRenamer = new_InstrumentAsyncContext_ArgumentsRenamer(this)
-	NodeTraversal_traverse(this.compiler_, generatorBody, icast_NodeTraversal_Callback(obj_(renamer)))
+	NodeTraversal_traverse(this.compiler_, generatorBody, renamer)
 	if renamer.argumentsName.isPresent() {
 		argumentsReference = this.astFactory_.createArgumentsReference()
 		argumentsParam = this.astFactory_.createName(renamer.argumentsName.get(), AstFactory_type_Node(argumentsReference))

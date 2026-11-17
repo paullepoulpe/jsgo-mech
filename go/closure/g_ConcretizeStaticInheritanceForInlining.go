@@ -28,7 +28,7 @@ func new_ConcretizeStaticInheritanceForInlining(compiler *AbstractCompiler) *Con
 
 func (this *ConcretizeStaticInheritanceForInlining) process_2(externs Node, root Node) {
 	var findStaticMembers *ConcretizeStaticInheritanceForInlining_FindStaticMembers = new_ConcretizeStaticInheritanceForInlining_FindStaticMembers(this)
-	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(obj_(findStaticMembers)))
+	NodeTraversal_traverse(this.compiler_, root, findStaticMembers)
 	this.processInherits(findStaticMembers)
 }
 

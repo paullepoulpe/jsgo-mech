@@ -32,8 +32,8 @@ func new_GatherModuleMetadata(compiler *AbstractCompiler, processCommonJsModules
 }
 
 func (this *GatherModuleMetadata) process_2(externs Node, root Node) {
-	NodeTraversal_traverse(this.compiler_, externs, icast_NodeTraversal_Callback(obj_(new_GatherModuleMetadata_Finder(this))))
-	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(obj_(new_GatherModuleMetadata_Finder(this))))
+	NodeTraversal_traverse(this.compiler_, externs, new_GatherModuleMetadata_Finder(this))
+	NodeTraversal_traverse(this.compiler_, root, new_GatherModuleMetadata_Finder(this))
 	this.compiler_.setModuleMetadataMap(new_ModuleMetadataMap(this.modulesByPath, this.modulesByGoogNamespace))
 }
 

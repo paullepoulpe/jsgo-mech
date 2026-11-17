@@ -25,7 +25,7 @@ func (this *ConvertTypesToColors) process_2(externs Node, root Node) {
 	Preconditions_checkState_boolean_Object(!this.compiler_.getLifeCycleStage().isNormalized(), strobj_("Not expected to run after normalization"))
 	var externsAndJsRoot Node = root.getParent()
 	if !this.compiler_.hasTypeCheckingRun() {
-		NodeTraversal_traverse(this.compiler_, externsAndJsRoot, icast_NodeTraversal_Callback(new_ConvertTypesToColors_RemoveTypes().self()))
+		NodeTraversal_traverse(this.compiler_, externsAndJsRoot, new_ConvertTypesToColors_RemoveTypes())
 		this.compiler_.clearJSTypeRegistry()
 		this.compiler_.initRuntimeLibraryTypedAsts(Optional_base_absent())
 		return
@@ -39,7 +39,7 @@ func (this *ConvertTypesToColors) process_2(externs Node, root Node) {
 	this.compiler_.initRuntimeLibraryTypedAsts(Optional_base_of(obj_(colorPoolBuilder)))
 	var callback *ConvertTypesToColors_RemoveTypesAndApplyColors = new_ConvertTypesToColors_RemoveTypesAndApplyColors(colorPoolBuilder.addShard(typePool, stringPool), serializeJstypes.getTypePointersByJstype())
 	var colorPool *ColorPool = colorPoolBuilder.build()
-	NodeTraversal_traverse(this.compiler_, externsAndJsRoot, icast_NodeTraversal_Callback(obj_(callback)))
+	NodeTraversal_traverse(this.compiler_, externsAndJsRoot, callback)
 	this.compiler_.clearJSTypeRegistry()
 	this.compiler_.setColorRegistry(colorPool.getRegistry())
 }

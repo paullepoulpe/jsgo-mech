@@ -59,7 +59,7 @@ func new_NodeModuleResolver(modulePaths ImmutableSetOf[string], moduleRootPaths 
 }
 
 func NodeModuleResolver_buildNodeModulesFoldersRegistry(modulePaths IterableOf[string], moduleRootPaths IterableOf[string]) ImmutableSortedSetOf[string] {
-	var registry SortedSetOf[string] = icast_SortedSet(obj_(new_TreeSet_Comparator(lambda_NodeModuleResolver_buildNodeModulesFoldersRegistry_1_)))
+	var registry SortedSetOf[string] = new_TreeSet_Comparator(lambda_NodeModuleResolver_buildNodeModulesFoldersRegistry_1_)
 	it_1 := foreach_(any(modulePaths))
 	for it_1.next() {
 		var modulePath string = str_(it_1.v)

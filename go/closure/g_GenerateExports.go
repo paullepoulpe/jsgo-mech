@@ -35,7 +35,7 @@ func (this *GenerateExports) getExportedVariableNames() *TSet[string] {
 
 func (this *GenerateExports) process_2(externs Node, root Node) {
 	var findExportableNodes *FindExportableNodes = new_FindExportableNodes(this.compiler_, this.allowNonGlobalExports)
-	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(obj_(findExportableNodes)))
+	NodeTraversal_traverse(this.compiler_, root, findExportableNodes)
 	var exports *TMap[string, Node] = findExportableNodes.getExports()
 	var es6Exports *TMap[Node, string] = findExportableNodes.getEs6ClassExports()
 	var localExports *TSet[string] = findExportableNodes.getLocalExports()

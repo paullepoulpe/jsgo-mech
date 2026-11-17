@@ -188,7 +188,7 @@ func Color_createUnion(elements *TSet[*Color]) *Color {
 		propertiesKeepOriginalName = bor_(propertiesKeepOriginalName, element.getPropertiesKeepOriginalName())
 		prototypes.addAll(icast_Iterable(obj_(element.getPrototypes())))
 	}
-	return new_Color_Builder().setClosureAssert(isClosureAssert).setConstructor(isConstructor).setId(ColorId_union(tsetFrom_(tch_p_ColorId, ids.build(), true))).setInstanceColors(cast_[*ImmutableSet](obj_(instanceColors.build()))).setInvalidating(isInvalidating).setOwnProperties(cast_[*ImmutableSet](obj_(ownProperties.build()))).setPropertiesKeepOriginalName(propertiesKeepOriginalName).setPrototypes(cast_[*ImmutableSet](obj_(prototypes.build()))).setUnionElements(cast_[*ImmutableSet](obj_(newElements.build()))).buildUnion()
+	return new_Color_Builder().setClosureAssert(isClosureAssert).setConstructor(isConstructor).setId(ColorId_union(tsetFrom_(tch_p_ColorId, ids.build(), true))).setInstanceColors(instanceColors.build()).setInvalidating(isInvalidating).setOwnProperties(ownProperties.build()).setPropertiesKeepOriginalName(propertiesKeepOriginalName).setPrototypes(prototypes.build()).setUnionElements(newElements.build()).buildUnion()
 }
 
 func (this *Color) isPrimitive() bool {

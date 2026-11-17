@@ -641,7 +641,7 @@ func (this *Parser) parseFormalParameterList() *FormalParameterListTree {
 		}
 	}
 	this.eat(TokenType_CLOSE_PAREN)
-	return new_FormalParameterListTree(this.getTreeLocation(listStart), cast_[*ImmutableList](obj_(result.build())), trailingComma, cast_[*ImmutableList](obj_(commaPositions.build())))
+	return new_FormalParameterListTree(this.getTreeLocation(listStart), result.build(), trailingComma, commaPositions.build())
 }
 
 func (this *Parser) parseSetterParameterList() *FormalParameterListTree {
@@ -2340,7 +2340,7 @@ func (this *Parser) parseArguments() *ArgumentListTree {
 		}
 	}
 	this.eat(TokenType_CLOSE_PAREN)
-	return new_ArgumentListTree(this.getTreeLocation(start), cast_[*ImmutableList](obj_(arguments.build())), trailingComma, cast_[*ImmutableList](obj_(commaPositions.build())))
+	return new_ArgumentListTree(this.getTreeLocation(start), arguments.build(), trailingComma, commaPositions.build())
 }
 
 func (this *Parser) peekAssignmentOrSpread() bool {
@@ -2949,7 +2949,7 @@ func (this *Parser_CommentRecorder) recordComment(type_ Comment_Type, range_ *So
 }
 
 func (this *Parser_CommentRecorder) getComments() ImmutableListOf[*Comment] {
-	return cast_[*ImmutableList](obj_(this.comments.build()))
+	return this.comments.build()
 }
 
 type Parser_Expression uint8

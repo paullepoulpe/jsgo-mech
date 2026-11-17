@@ -361,7 +361,7 @@ func (this *CompilerOptions) init_CompilerOptions() {
 	this.disambiguateProperties_ = false
 	this.ambiguateProperties = false
 	this.exportTestFunctions = false
-	this.nameGenerator = icast_NameGenerator(obj_(new_DefaultNameGenerator_0()))
+	this.nameGenerator = new_DefaultNameGenerator_0()
 	this.syntheticBlockStartMarker = Optional_empty[string]()
 	this.syntheticBlockEndMarker = Optional_empty[string]()
 	this.locale = Optional_empty[string]()
@@ -874,7 +874,7 @@ func (this *CompilerOptions) setUnknownDefinesToIgnore(unknownDefinesToIgnore []
 }
 
 func (this *CompilerOptions) addUnknownDefinesToIgnore(unknownDefinesToIgnore []string) {
-	this.unknownDefinesToIgnore = sliceImm_(tc_string, cast_[*ImmutableList_Builder](obj_(cast_[*ImmutableList_Builder](obj_(ImmutableList_builder().addAll(sliceView_(tc_string, this.unknownDefinesToIgnore)))).addAll(sliceView_(tc_string, unknownDefinesToIgnore)))).build())
+	this.unknownDefinesToIgnore = sliceImm_(tc_string, ImmutableList_builder().addAll(sliceView_(tc_string, this.unknownDefinesToIgnore)).addAll(sliceView_(tc_string, unknownDefinesToIgnore)).build())
 }
 
 func (this *CompilerOptions) getUnknownDefinesToIgnore() []string {
@@ -2173,7 +2173,7 @@ func (this *CompilerOptions) getEs6ModuleTranspilation() CompilerOptions_Es6Modu
 }
 
 func (this *CompilerOptions) setCommonJSModulePathPrefix(commonJSModulePathPrefix string) {
-	this.setModuleRoots(icast_List(obj_(ImmutableList_of_Object(strobj_(commonJSModulePathPrefix)))))
+	this.setModuleRoots(ImmutableList_of_Object(strobj_(commonJSModulePathPrefix)))
 }
 
 func (this *CompilerOptions) setModuleRoots(moduleRoots ListOf[string]) {

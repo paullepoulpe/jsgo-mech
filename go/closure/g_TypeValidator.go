@@ -307,7 +307,7 @@ func (this *TypeValidator) expectCanAssignToPropertyOf_6(n Node, rightType *JSTy
 		if (rightType.containsReferenceAncestor(left.up_JSType()) || rightType.isUnknownType()) || left.isUnknownType() {
 			return true
 		} else {
-			this.registerMismatchAndReport_7(n, TypeValidator_TYPE_MISMATCH_WARNING, ("assignment to property " + sstr_(propName.orElse("null")) + " of " + sstr_(str_(typeNameSupplier()))), rightType, leftType, icast_Set(obj_(new_LinkedHashSet())), icast_Set(obj_(new_LinkedHashSet())))
+			this.registerMismatchAndReport_7(n, TypeValidator_TYPE_MISMATCH_WARNING, ("assignment to property " + sstr_(propName.orElse("null")) + " of " + sstr_(str_(typeNameSupplier()))), rightType, leftType, new_LinkedHashSet(), new_LinkedHashSet())
 			return false
 		}
 	}
@@ -330,7 +330,7 @@ func (this *TypeValidator) expectCanAssignTo(n Node, rightType *JSType, leftType
 		if (rightType.containsReferenceAncestor(left.up_JSType()) || rightType.isUnknownType()) || left.isUnknownType() {
 			return true
 		} else {
-			this.registerMismatchAndReport_7(n, TypeValidator_TYPE_MISMATCH_WARNING, msg, rightType, leftType, icast_Set(obj_(new_LinkedHashSet())), icast_Set(obj_(new_LinkedHashSet())))
+			this.registerMismatchAndReport_7(n, TypeValidator_TYPE_MISMATCH_WARNING, msg, rightType, leftType, new_LinkedHashSet(), new_LinkedHashSet())
 			return false
 		}
 	}
@@ -506,7 +506,7 @@ func (this *TypeValidator) checkPropertyType(n Node, instance *JSType, parent *O
 	var required *JSType = parent.getPropertyTypeKey(propertyName)
 	var typeMap *TemplateTypeMap = instance.getTemplateTypeMap()
 	if !typeMap.isEmpty() && required.hasAnyTemplateTypes() {
-		required = to_JSType(required.visit(icast_Visitor(obj_(TemplateTypeReplacer_forPartialReplacement(this.typeRegistry, typeMap)))))
+		required = to_JSType(required.visit(TemplateTypeReplacer_forPartialReplacement(this.typeRegistry, typeMap)))
 	}
 	if found.isSubtypeOf_2(required, this.subtypingMode) {
 		return
@@ -570,8 +570,8 @@ func (this *TypeValidator) mismatchJSType(n Node, msg string, found *JSType, req
 			}
 		}
 		if structuralType != nil {
-			missing = icast_Set(obj_(new_TreeSet()))
-			mismatch = icast_Set(obj_(new_TreeSet()))
+			missing = new_TreeSet()
+			mismatch = new_TreeSet()
 			var requiredObject *ObjectType = structuralType.toMaybeObjectType()
 			var foundObject *ObjectType = found.toMaybeObjectType()
 			if (requiredObject != nil) && (foundObject != nil) {
@@ -658,7 +658,7 @@ func TypeValidator_hasDuplicateDeclarationSuppression(compiler *AbstractCompiler
 func (this *TypeValidator) expectWellFormedTemplatizedType(n Node) {
 	var verifier *TypeValidator_WellFormedTemplatizedTypeVerifier = new_TypeValidator_WellFormedTemplatizedTypeVerifier(this, n)
 	if n.getJSType() != nil {
-		n.getJSType().visit(icast_Visitor(obj_(verifier)))
+		n.getJSType().visit(verifier)
 	}
 }
 
@@ -735,22 +735,22 @@ func (this *TypeValidator_WellFormedTemplatizedTypeVerifier) caseDefault_impl(ty
 }
 
 func (this *TypeValidator_WellFormedTemplatizedTypeVerifier) caseEnumElementType_impl(type_ *EnumElementType) any {
-	return any(bool(((type_.getPrimitiveType() == nil) || unbox_[bool](type_.getPrimitiveType().visit(icast_Visitor(obj_(this)))))))
+	return any(bool(((type_.getPrimitiveType() == nil) || unbox_[bool](type_.getPrimitiveType().visit(this)))))
 }
 
 func (this *TypeValidator_WellFormedTemplatizedTypeVerifier) caseFunctionType_impl(type_ *FunctionType) any {
 	it_1 := foreach_(obj_(type_.getParameters()))
 	for it_1.next() {
 		var param *FunctionType_Parameter = cast_[*FunctionType_Parameter](it_1.v)
-		if !unbox_[bool](param.getJSType().visit(icast_Visitor(obj_(this)))) {
+		if !unbox_[bool](param.getJSType().visit(this)) {
 			return any(bool(false))
 		}
 	}
-	return type_.getReturnType().visit(icast_Visitor(obj_(this)))
+	return type_.getReturnType().visit(this)
 }
 
 func (this *TypeValidator_WellFormedTemplatizedTypeVerifier) caseNamedType_impl(type_ *NamedType) any {
-	return type_.getReferencedType().visit(icast_Visitor(obj_(this)))
+	return type_.getReferencedType().visit(this)
 }
 
 func (this *TypeValidator_WellFormedTemplatizedTypeVerifier) caseUnionType_impl(type_ *UnionType) any {
@@ -758,7 +758,7 @@ func (this *TypeValidator_WellFormedTemplatizedTypeVerifier) caseUnionType_impl(
 	var alternateCount int32 = alternates.size()
 	for i := int32(0); i < alternateCount; i++ {
 		var alternative *JSType = to_JSType(alternates.get(i))
-		if !unbox_[bool](alternative.visit(icast_Visitor(obj_(this)))) {
+		if !unbox_[bool](alternative.visit(this)) {
 			return any(bool(false))
 		}
 	}
@@ -781,7 +781,7 @@ func (this *TypeValidator_WellFormedTemplatizedTypeVerifier) caseTemplatizedType
 }
 
 func (this *TypeValidator_WellFormedTemplatizedTypeVerifier) caseTemplateType_impl(templateType *TemplateType) any {
-	return any(bool((!templateType.containsCycle() && unbox_[bool](templateType.getBound().visit(icast_Visitor(obj_(this)))))))
+	return any(bool((!templateType.containsCycle() && unbox_[bool](templateType.getBound().visit(this)))))
 }
 
 // caseDefault: an object that is exactly a TypeValidator_WellFormedTemplatizedTypeVerifier calls its caseDefault_impl directly (post-flip); others dispatch.

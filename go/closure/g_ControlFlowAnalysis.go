@@ -61,7 +61,7 @@ func (this *ControlFlowAnalysis) computeCfg(root Node) {
 	this.astPosition = map[Node]int32{}
 	this.astPositionCounter = 0
 	this.cfg = new_ControlFlowAnalysis_AstControlFlowGraph(ControlFlowAnalysis_computeFallThrough(root), this.edgeAnnotations).up_ControlFlowGraph()
-	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(any(this)))
+	NodeTraversal_traverse(this.compiler_, root, this)
 	this.astPositionCounter++
 	this.astPosition[0] = this.astPositionCounter
 	this.priorityCounter = 0

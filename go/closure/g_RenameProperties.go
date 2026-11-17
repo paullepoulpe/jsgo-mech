@@ -66,11 +66,11 @@ func new_RenameProperties_AbstractCompiler_boolean_VariableMap_Set_Set_NameGener
 
 func (this *RenameProperties) process_2(externs Node, root Node) {
 	Preconditions_checkState(this.compiler_.getLifeCycleStage().isNormalized())
-	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(obj_(new_RenameProperties_ProcessProperties(this))))
-	var reservedNames SetOf[string] = icast_Set(obj_(Sets_newLinkedHashSetWithExpectedSize((this.externedNames.size() + this.quotedNames.size()))))
+	NodeTraversal_traverse(this.compiler_, root, new_RenameProperties_ProcessProperties(this))
+	var reservedNames SetOf[string] = Sets_newLinkedHashSetWithExpectedSize((this.externedNames.size() + this.quotedNames.size()))
 	reservedNames.addAll(Collection(this.externedNames.asSet()))
 	reservedNames.addAll(Collection(this.quotedNames.asSet()))
-	var propsByFreq SetOf[*RenameProperties_Property] = icast_Set(obj_(new_TreeSet_Comparator(RenameProperties_FREQUENCY_COMPARATOR)))
+	var propsByFreq SetOf[*RenameProperties_Property] = new_TreeSet_Comparator(RenameProperties_FREQUENCY_COMPARATOR)
 	propsByFreq.addAll(this.propertyMap.asMap().values())
 	if this.prevUsedPropertyMap != nil {
 		this.reusePropertyNames(reservedNames, Collection(propsByFreq))

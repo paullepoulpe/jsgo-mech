@@ -67,7 +67,7 @@ func (this *ObjectType) getSlot_impl(name Property_Key) *Property {
 }
 
 func (this *ObjectType) getSlotString(name string) *Property {
-	return this.getSlot(icast_Property_Key(obj_(new_Property_StringKey(name))))
+	return this.getSlot(new_Property_StringKey(name))
 }
 
 func (this *ObjectType) getOwnSlotString(name string) *Property {
@@ -187,7 +187,7 @@ func (this *ObjectType) getSuperClassConstructor_impl() *FunctionType {
 }
 
 func (this *ObjectType) getClosestDefiningType(propertyName string) *ObjectType {
-	var property *Property_OwnedProperty = this.getPropertyMap().findClosest(icast_Property_Key(obj_(new_Property_StringKey(propertyName))))
+	var property *Property_OwnedProperty = this.getPropertyMap().findClosest(new_Property_StringKey(propertyName))
 	return func() *ObjectType {
 		if property == nil {
 			return nil
@@ -197,7 +197,7 @@ func (this *ObjectType) getClosestDefiningType(propertyName string) *ObjectType 
 }
 
 func (this *ObjectType) findClosestDefinitionString(propertyName string) *Property_OwnedProperty {
-	return this.findClosestDefinition(icast_Property_Key(obj_(new_Property_StringKey(propertyName))))
+	return this.findClosestDefinition(new_Property_StringKey(propertyName))
 }
 
 func (this *ObjectType) findClosestDefinition(propertyName Property_Key) *Property_OwnedProperty {
@@ -207,12 +207,12 @@ func (this *ObjectType) findClosestDefinition(propertyName Property_Key) *Proper
 func (this *ObjectType) getImplicitPrototypeChain() IterableOf[*ObjectType] {
 	var self *ObjectType = this
 	return &Iterable_fn{func() Iterator {
-		return icast_Iterator(obj_(new_ObjectType_1(this, self)))
+		return new_ObjectType_1(this, self)
 	}}
 }
 
 func (this *ObjectType) defineDeclaredProperty(propertyName string, type_ *JSType, propertyNode Node) bool {
-	return this.defineDeclaredPropertyKey(icast_Property_Key(obj_(new_Property_StringKey(propertyName))), type_, propertyNode)
+	return this.defineDeclaredPropertyKey(new_Property_StringKey(propertyName), type_, propertyNode)
 }
 
 func (this *ObjectType) defineDeclaredPropertyKey(propertyName Property_Key, type_ *JSType, propertyNode Node) bool {
@@ -246,11 +246,11 @@ func (this *ObjectType) defineInferredProperty(propertyName string, type_ *JSTyp
 }
 
 func (this *ObjectType) definePropertyString(propertyName string, type_ *JSType, inferred bool, propertyNode Node) bool {
-	return this.defineProperty(icast_Property_Key(obj_(new_Property_StringKey(propertyName))), type_, inferred, propertyNode)
+	return this.defineProperty(new_Property_StringKey(propertyName), type_, inferred, propertyNode)
 }
 
 func (this *ObjectType) getPropertyNode(propertyName string) Node {
-	return this.getPropertyNodeKey(icast_Property_Key(obj_(new_Property_StringKey(propertyName))))
+	return this.getPropertyNodeKey(new_Property_StringKey(propertyName))
 }
 
 func (this *ObjectType) getPropertyNodeKey(propertyName Property_Key) Node {
@@ -264,7 +264,7 @@ func (this *ObjectType) getPropertyNodeKey(propertyName Property_Key) Node {
 }
 
 func (this *ObjectType) getPropertyDefSite(propertyName string) Node {
-	return this.getPropertyDefSiteKey(icast_Property_Key(obj_(new_Property_StringKey(propertyName))))
+	return this.getPropertyDefSiteKey(new_Property_StringKey(propertyName))
 }
 
 func (this *ObjectType) getPropertyDefSiteKey(propertyName Property_Key) Node {
@@ -272,7 +272,7 @@ func (this *ObjectType) getPropertyDefSiteKey(propertyName Property_Key) Node {
 }
 
 func (this *ObjectType) getPropertyJSDocInfo(propertyName string) *JSDocInfo {
-	return this.getPropertyJSDocInfoKey(icast_Property_Key(obj_(new_Property_StringKey(propertyName))))
+	return this.getPropertyJSDocInfoKey(new_Property_StringKey(propertyName))
 }
 
 func (this *ObjectType) getPropertyJSDocInfoKey(propertyName Property_Key) *JSDocInfo {
@@ -286,7 +286,7 @@ func (this *ObjectType) getPropertyJSDocInfoKey(propertyName Property_Key) *JSDo
 }
 
 func (this *ObjectType) getOwnPropertyJSDocInfo(propertyName string) *JSDocInfo {
-	return this.getOwnPropertyJSDocInfoKey(icast_Property_Key(obj_(new_Property_StringKey(propertyName))))
+	return this.getOwnPropertyJSDocInfoKey(new_Property_StringKey(propertyName))
 }
 
 func (this *ObjectType) getOwnPropertyJSDocInfoKey(propertyName Property_Key) *JSDocInfo {
@@ -300,7 +300,7 @@ func (this *ObjectType) getOwnPropertyJSDocInfoKey(propertyName Property_Key) *J
 }
 
 func (this *ObjectType) getOwnPropertyDefSite(propertyName string) Node {
-	return this.getOwnPropertyDefSiteKey(icast_Property_Key(obj_(new_Property_StringKey(propertyName))))
+	return this.getOwnPropertyDefSiteKey(new_Property_StringKey(propertyName))
 }
 
 func (this *ObjectType) getOwnPropertyDefSiteKey(propertyName Property_Key) Node {
@@ -314,7 +314,7 @@ func (this *ObjectType) getOwnPropertyDefSiteKey(propertyName Property_Key) Node
 }
 
 func (this *ObjectType) setPropertyJSDocInfo(propertyName string, info *JSDocInfo) {
-	this.setPropertyJSDocInfoKey(icast_Property_Key(obj_(new_Property_StringKey(propertyName))), info)
+	this.setPropertyJSDocInfoKey(new_Property_StringKey(propertyName), info)
 }
 
 func (this *ObjectType) setPropertyJSDocInfoKey_impl(propertyName Property_Key, info *JSDocInfo) {
@@ -322,7 +322,7 @@ func (this *ObjectType) setPropertyJSDocInfoKey_impl(propertyName Property_Key, 
 }
 
 func (this *ObjectType) setPropertyNodeString(propertyName string, defSite Node) {
-	this.setPropertyNode(icast_Property_Key(obj_(new_Property_StringKey(propertyName))), defSite)
+	this.setPropertyNode(new_Property_StringKey(propertyName), defSite)
 }
 
 func (this *ObjectType) setPropertyNode_impl(propertyName Property_Key, defSite Node) {
@@ -339,7 +339,7 @@ func (this *ObjectType) findPropertyTypeWithoutConsideringTemplateTypes_impl(pro
 }
 
 func (this *ObjectType) getPropertyType(propertyName string) *JSType {
-	return this.getPropertyTypeKey(icast_Property_Key(obj_(new_Property_StringKey(propertyName))))
+	return this.getPropertyTypeKey(new_Property_StringKey(propertyName))
 }
 
 func (this *ObjectType) getPropertyTypeKey_impl(propertyName Property_Key) *JSType {
@@ -364,7 +364,7 @@ func (this *ObjectType) getPropertyKind_2_impl(propertyName Property_Key, autobo
 }
 
 func (this *ObjectType) getOwnPropertyKindString(propertyName string) JSType_HasPropertyKind {
-	return this.getOwnPropertyKind(icast_Property_Key(obj_(new_Property_StringKey(propertyName))))
+	return this.getOwnPropertyKind(new_Property_StringKey(propertyName))
 }
 
 func (this *ObjectType) getOwnPropertyKind(propertyName Property_Key) JSType_HasPropertyKind {
@@ -377,7 +377,7 @@ func (this *ObjectType) getOwnPropertyKind(propertyName Property_Key) JSType_Has
 }
 
 func (this *ObjectType) hasOwnProperty(propertyName string) bool {
-	return this.hasOwnPropertyKey(icast_Property_Key(obj_(new_Property_StringKey(propertyName))))
+	return this.hasOwnPropertyKey(new_Property_StringKey(propertyName))
 }
 
 func (this *ObjectType) hasOwnPropertyKey(propertyName Property_Key) bool {
@@ -406,11 +406,11 @@ func (this *ObjectType) getOwnPropertyKeys() ImmutableSetOf[Property_Key] {
 		var symbol *KnownSymbolType = cast_[*KnownSymbolType](it_3.v)
 		ownPropertyKeys.add(obj_(new_Property_SymbolKey(symbol)))
 	}
-	return cast_[*ImmutableSet](obj_(ownPropertyKeys.build()))
+	return ownPropertyKeys.build()
 }
 
 func (this *ObjectType) isPropertyTypeInferred(propertyName string) bool {
-	return this.isPropertyTypeInferredKey(icast_Property_Key(obj_(new_Property_StringKey(propertyName))))
+	return this.isPropertyTypeInferredKey(new_Property_StringKey(propertyName))
 }
 
 func (this *ObjectType) isPropertyTypeInferredKey(propertyName Property_Key) bool {
@@ -424,7 +424,7 @@ func (this *ObjectType) isPropertyTypeInferredKey(propertyName Property_Key) boo
 }
 
 func (this *ObjectType) isPropertyTypeDeclared(propertyName string) bool {
-	return this.isPropertyTypeDeclaredKey(icast_Property_Key(obj_(new_Property_StringKey(propertyName))))
+	return this.isPropertyTypeDeclaredKey(new_Property_StringKey(propertyName))
 }
 
 func (this *ObjectType) isPropertyTypeDeclaredKey(propertyName Property_Key) bool {
@@ -572,11 +572,11 @@ func (this *ObjectType) setOwnerFunction_impl(type_ *FunctionType) {
 }
 
 func (this *ObjectType) getCtorImplementedInterfaces_impl() IterableOf[*ObjectType] {
-	return icast_Iterable(obj_(ImmutableSet_of()))
+	return ImmutableSet_of()
 }
 
 func (this *ObjectType) getCtorExtendedInterfaces_impl() IterableOf[*ObjectType] {
-	return icast_Iterable(obj_(ImmutableSet_of()))
+	return ImmutableSet_of()
 }
 
 func (this *ObjectType) getPropertyTypeMap_impl() *TMap[string, *JSType] {

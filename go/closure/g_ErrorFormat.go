@@ -117,7 +117,7 @@ func new_ErrorFormat_1(name_ string, ordinal_ int32) *ErrorFormat_1 {
 func (this *ErrorFormat_1) toFormatter_impl(source SourceExcerptProvider, colorize bool) MessageFormatter {
 	var formatter *LightweightMessageFormatter = new_LightweightMessageFormatter_SourceExcerptProvider(source)
 	formatter.setColorize(colorize)
-	return icast_MessageFormatter(obj_(formatter))
+	return formatter
 }
 
 func ErrorFormat_1_values() []*ErrorFormat_1 {
@@ -180,7 +180,7 @@ func new_ErrorFormat_2(name_ string, ordinal_ int32) *ErrorFormat_2 {
 func (this *ErrorFormat_2) toFormatter_impl(source SourceExcerptProvider, colorize bool) MessageFormatter {
 	var formatter *LightweightMessageFormatter = new_LightweightMessageFormatter_SourceExcerptProvider_SourceExcerpt(source, SourceExcerptProvider_SourceExcerpt_FULL)
 	formatter.setColorize(colorize)
-	return icast_MessageFormatter(obj_(formatter))
+	return formatter
 }
 
 func ErrorFormat_2_values() []*ErrorFormat_2 {
@@ -243,7 +243,7 @@ func new_ErrorFormat_3(name_ string, ordinal_ int32) *ErrorFormat_3 {
 func (this *ErrorFormat_3) toFormatter_impl(source SourceExcerptProvider, colorize bool) MessageFormatter {
 	var formatter *LightweightMessageFormatter = new_LightweightMessageFormatter_SourceExcerptProvider_SourceExcerpt(source, SourceExcerptProvider_SourceExcerpt_REGION)
 	formatter.setColorize(colorize)
-	return icast_MessageFormatter(obj_(formatter))
+	return formatter
 }
 
 func ErrorFormat_3_values() []*ErrorFormat_3 {
@@ -306,7 +306,7 @@ func new_ErrorFormat_4(name_ string, ordinal_ int32) *ErrorFormat_4 {
 func (this *ErrorFormat_4) toFormatter_impl(source SourceExcerptProvider, colorize bool) MessageFormatter {
 	var formatter *LightweightMessageFormatter = LightweightMessageFormatter_withoutSource()
 	formatter.setColorize(colorize)
-	return icast_MessageFormatter(obj_(formatter))
+	return formatter
 }
 
 func ErrorFormat_4_values() []*ErrorFormat_4 {

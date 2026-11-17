@@ -61,14 +61,14 @@ func (this *NestedCompilerRunner) initializeCompiler() {
 	this.shadowCompiler.setExternProperties(this.original_.getExternProperties())
 	this.shadowCompiler.setDebugMessage("<shadow AST compilation>")
 	var chunks ImmutableListOf[*JSChunk] = this.createChunks()
-	this.shadowCompiler.initChunks(icast_List(obj_(ImmutableList_of())), icast_List(obj_(chunks)), this.shadowOptions)
+	this.shadowCompiler.initChunks(ImmutableList_of(), icast_List(obj_(chunks)), this.shadowOptions)
 	this.shadowCompiler.setPassConfig(this.shadowPassConfig)
 	this.shadowCompiler.parseForCompilation()
 }
 
 func (this *NestedCompilerRunner) createChunks() ImmutableListOf[*JSChunk] {
 	this.baseChunk.addCompilerInput(new_CompilerInput_SourceFile(SourceFile_jscomp_fromCode_String_String_SourceKind("synthetic_base", "", StaticSourceFile_SourceKind_STRONG)))
-	var chunks ImmutableList_BuilderOf[*JSChunk] = cast_[*ImmutableList_Builder](obj_(ImmutableList_builder().add(obj_(this.baseChunk))))
+	var chunks ImmutableList_BuilderOf[*JSChunk] = ImmutableList_builder().add(obj_(this.baseChunk))
 	it_1 := eachOf_(&this.inputs)
 	for it_1.next() {
 		var input *CompilerInput = it_1.v
@@ -77,7 +77,7 @@ func (this *NestedCompilerRunner) createChunks() ImmutableListOf[*JSChunk] {
 		chunk.addDependency(this.baseChunk)
 		chunks.add(obj_(chunk))
 	}
-	return cast_[*ImmutableList](obj_(chunks.build()))
+	return chunks.build()
 }
 
 func (this *NestedCompilerRunner) runCompilation() {

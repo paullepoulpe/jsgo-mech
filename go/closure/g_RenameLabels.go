@@ -33,7 +33,7 @@ func new_RenameLabels_AbstractCompiler_Supplier_boolean_boolean(compiler *Abstra
 }
 
 func (this *RenameLabels) process_2(externs Node, root Node) {
-	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(obj_(new_RenameLabels_ProcessLabels(this, this.markChanges))))
+	NodeTraversal_traverse(this.compiler_, root, new_RenameLabels_ProcessLabels(this, this.markChanges))
 }
 
 type RenameLabels_DefaultNameSupplier struct {
@@ -41,7 +41,7 @@ type RenameLabels_DefaultNameSupplier struct {
 }
 
 func (this *RenameLabels_DefaultNameSupplier) init_RenameLabels_DefaultNameSupplier() {
-	this.nameGenerator = icast_NameGenerator(obj_(new_DefaultNameGenerator_Set_String_Set(icast_Set(obj_(new_LinkedHashSet())), "", icast_Set(obj_(ImmutableSet_of())))))
+	this.nameGenerator = new_DefaultNameGenerator_Set_String_Set(new_LinkedHashSet(), "", ImmutableSet_of())
 }
 
 func new_RenameLabels_DefaultNameSupplier() *RenameLabels_DefaultNameSupplier {

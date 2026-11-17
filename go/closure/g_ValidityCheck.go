@@ -39,7 +39,7 @@ func (this *ValidityCheck) checkVars(externs Node, root Node) {
 }
 
 func (this *ValidityCheck) checkNormalization(externs Node, root Node) {
-	var handler CodeChangeHandler = icast_CodeChangeHandler(obj_(new_ForbiddenChange()))
+	var handler CodeChangeHandler = new_ForbiddenChange()
 	this.changeTracker.addChangeHandler(handler)
 	if this.compiler_.getLifeCycleStage().isNormalized() {
 		Normalize_builder(this.compiler_).assertOnChange(true).build().process_2(externs, root)
@@ -113,7 +113,7 @@ func (this *ValidityCheck_VerifyConstants) process_2(externs Node, root Node) {
 	var externsAndJs Node = root.getParent()
 	Preconditions_checkState((externsAndJs != 0))
 	Preconditions_checkState(externsAndJs.hasChild(externs))
-	NodeTraversal_traverseRoots(this.compiler_, icast_NodeTraversal_Callback(obj_(this)), externs, root)
+	NodeTraversal_traverseRoots(this.compiler_, this, externs, root)
 }
 
 func (this *ValidityCheck_VerifyConstants) visit_impl(t *NodeTraversal, n Node, parent Node) {

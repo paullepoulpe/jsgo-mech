@@ -28,8 +28,8 @@ func new_GatherExternProperties(compiler *AbstractCompiler, mode GatherExternPro
 }
 
 func (this *GatherExternProperties) process_2(externs Node, root Node) {
-	NodeTraversal_traverse(this.compiler_, externs, icast_NodeTraversal_Callback(any(this)))
-	this.compiler_.setExternProperties(ImmutableSet_copyOf(icast_Collection(any(this.externProperties.asSet()))))
+	NodeTraversal_traverse(this.compiler_, externs, this)
+	this.compiler_.setExternProperties(ImmutableSet_copyOf(this.externProperties.asSet()))
 }
 
 func (this *GatherExternProperties) shouldTraverse(t *NodeTraversal, n Node, parent Node) bool {

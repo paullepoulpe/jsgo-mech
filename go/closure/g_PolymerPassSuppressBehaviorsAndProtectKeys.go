@@ -114,7 +114,7 @@ func (this *PolymerPassSuppressBehaviorsAndProtectKeys) addBehaviorSuppressions(
 
 func (this *PolymerPassSuppressBehaviorsAndProtectKeys) addSuppressionJsDocAnnotations(node Node) {
 	var suppressDoc *JSDocInfo_Builder = JSDocInfo_Builder_maybeCopyFrom(node.getJSDocInfo())
-	suppressDoc.recordSuppressions(icast_Set(obj_(ImmutableSet_of_Object_Object_Object(strobj_("checkTypes"), strobj_("globalThis"), strobj_("visibility")))))
+	suppressDoc.recordSuppressions(ImmutableSet_of_Object_Object_Object(strobj_("checkTypes"), strobj_("globalThis"), strobj_("visibility")))
 	node.setJSDocInfo(suppressDoc.build())
 }
 

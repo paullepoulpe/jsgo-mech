@@ -27,7 +27,7 @@ func new_LateEs6ToEs3Converter(compiler *AbstractCompiler) *LateEs6ToEs3Converte
 }
 
 func (this *LateEs6ToEs3Converter) process_2(externs Node, root Node) {
-	TranspilationPasses_processTranspile(this.compiler_, root, LateEs6ToEs3Converter_transpiledFeatures, []NodeTraversal_Callback{icast_NodeTraversal_Callback(any(this))})
+	TranspilationPasses_processTranspile(this.compiler_, root, LateEs6ToEs3Converter_transpiledFeatures, []NodeTraversal_Callback{NodeTraversal_Callback(this)})
 	TranspilationPasses_maybeMarkFeaturesAsTranspiledAway(this.compiler_, root, LateEs6ToEs3Converter_transpiledFeatures)
 }
 
@@ -103,7 +103,7 @@ func (this *LateEs6ToEs3Converter) visitObject(t *NodeTraversal, obj Node) {
 
 func (this *LateEs6ToEs3Converter) visitObjectWithComputedProperty(t *NodeTraversal, obj Node) {
 	Preconditions_checkArgument(obj.isObjectLit())
-	var props ListOf[Node] = icast_List(new_ArrayList_0().self())
+	var props ListOf[Node] = new_ArrayList_0()
 	var currElement Node = obj.getFirstChild()
 	var objectType AstFactory_Type = AstFactory_type_Node(obj)
 	for currElement != 0 {

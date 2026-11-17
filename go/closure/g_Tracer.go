@@ -282,7 +282,7 @@ func Tracer_clinit() {
 	}
 	Tracer_clinit_done = true
 	Tracer_logger = Logger_getLogger(classOf_("com.google.javascript.jscomp.Tracer").getName())
-	Tracer_extraTracingStatistics = icast_List(obj_(new_CopyOnWriteArrayList()))
+	Tracer_extraTracingStatistics = new_CopyOnWriteArrayList()
 	Tracer_clock = new_Tracer_1().currentTimeMillis
 	Tracer_ZERO_STAT = new_Tracer_Stat()
 	Tracer_traces = new_ThreadLocal()
@@ -525,7 +525,7 @@ func (this *Tracer_ThreadTrace) toString() string {
 	var etime int64 = -1
 	var indent DequeOf[string] = func() Deque {
 		if this.prettyPrint {
-			return icast_Deque(obj_(new_ArrayDeque()))
+			return new_ArrayDeque()
 		}
 		return nil
 	}()
@@ -604,7 +604,7 @@ type Tracer_AtomicTracerStatMap struct {
 }
 
 func (this *Tracer_AtomicTracerStatMap) finit_Tracer_AtomicTracerStatMap() {
-	this.map__ = icast_ConcurrentMap(obj_(new_ConcurrentHashMap()))
+	this.map__ = new_ConcurrentHashMap()
 }
 
 func (this *Tracer_AtomicTracerStatMap) init_Tracer_AtomicTracerStatMap() {

@@ -371,7 +371,7 @@ func (this *RuntimeJsLibManager_InternalField) assertInjected() RuntimeJsLibMana
 			Preconditions_checkState_boolean_String_Object(false, "Field %s is not injected", strobj_(this.uncompiledNameField))
 		}
 	}
-	return icast_RuntimeJsLibManager_InjectedJsLibField(any(this))
+	return this
 }
 
 func (this *RuntimeJsLibManager_InternalField) matches(node Node) bool {

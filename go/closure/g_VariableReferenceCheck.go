@@ -25,7 +25,7 @@ func new_VariableReferenceCheck(compiler *AbstractCompiler) *VariableReferenceCh
 }
 
 func (this *VariableReferenceCheck) process_2(externs Node, root Node) {
-	new_ReferenceCollector_AbstractCompiler_Behavior_ScopeCreator(this.compiler_, icast_ReferenceCollector_Behavior(obj_(new_VariableReferenceCheck_ReferenceCheckingBehavior(this))), icast_ScopeCreator(obj_(new_SyntacticScopeCreator_AbstractCompiler(this.compiler_)))).process_2(externs, root)
+	new_ReferenceCollector_AbstractCompiler_Behavior_ScopeCreator(this.compiler_, new_VariableReferenceCheck_ReferenceCheckingBehavior(this), new_SyntacticScopeCreator_AbstractCompiler(this.compiler_)).process_2(externs, root)
 }
 
 func (this *VariableReferenceCheck) lookForHoistedFunction(references *TList[*Reference]) *Reference {
@@ -248,7 +248,7 @@ func (this *VariableReferenceCheck_ReferenceCheckingBehavior) afterExitScope(t *
 }
 
 func (this *VariableReferenceCheck_ReferenceCheckingBehavior) checkDefaultParam(param *Var, scope *Scope, varsInFunctionBody map[string]struct{}) {
-	NodeTraversal_traverse(this.outer_.compiler_, param.getParentNode().getSecondChild(), icast_NodeTraversal_Callback(obj_(new_VariableReferenceCheck_ReferenceCheckingBehavior_1(this, varsInFunctionBody, scope))))
+	NodeTraversal_traverse(this.outer_.compiler_, param.getParentNode().getSecondChild(), new_VariableReferenceCheck_ReferenceCheckingBehavior_1(this, varsInFunctionBody, scope))
 }
 
 func (this *VariableReferenceCheck_ReferenceCheckingBehavior) checkShadowParam(v *Var, functionScope *Scope, references *TList[*Reference]) {
@@ -339,11 +339,11 @@ func (this *VariableReferenceCheck_ReferenceCheckingBehavior) checkVar(v *Var, r
 }
 
 func (this *VariableReferenceCheck_ReferenceCheckingBehavior) beforeTraverseNode(p0 *NodeTraversal, p1 Node, p2 Node) {
-	ReferenceCollector_Behavior_beforeTraverseNode_default(icast_ReferenceCollector_Behavior(any(this)), p0, p1, p2)
+	ReferenceCollector_Behavior_beforeTraverseNode_default(this, p0, p1, p2)
 }
 
 func (this *VariableReferenceCheck_ReferenceCheckingBehavior) afterVisitNode(p0 *NodeTraversal, p1 Node, p2 Node, p3 *Reference) {
-	ReferenceCollector_Behavior_afterVisitNode_default(icast_ReferenceCollector_Behavior(any(this)), p0, p1, p2, p3)
+	ReferenceCollector_Behavior_afterVisitNode_default(this, p0, p1, p2, p3)
 }
 
 type VariableReferenceCheck_ReferenceCheckingBehavior_1 struct {

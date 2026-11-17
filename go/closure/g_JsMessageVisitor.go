@@ -425,8 +425,8 @@ func (this *JsMessageVisitor) extractJsMessageDefinition(msgNode Node, jsDocInfo
 	if unknownPlaceholdersChecked.isErr() {
 		return Outcome_base_err(unknownPlaceholdersChecked.error())
 	}
-	var jsExtractedMessage *JsMessage = this.buildJsMessage(icast_JsMessageVisitor_InputForBuildJsMsg(obj_(new_JsMessageVisitor_1(this, messageKeyFromLhs, sourceName, googGetMsgParsedText, jsMessageOptions, optErase_(description), optErase_(meaning), optErase_(alternateMessageId)))))
-	var result JsMessageDefinition = icast_JsMessageDefinition(obj_(new_JsMessageVisitor_2(this, jsExtractedMessage, msgNode, msgTextNode, valuesObjLit, placeholderValuesMap, jsMessageOptions)))
+	var jsExtractedMessage *JsMessage = this.buildJsMessage(new_JsMessageVisitor_1(this, messageKeyFromLhs, sourceName, googGetMsgParsedText, jsMessageOptions, optErase_(description), optErase_(meaning), optErase_(alternateMessageId)))
+	var result JsMessageDefinition = new_JsMessageVisitor_2(this, jsExtractedMessage, msgNode, msgTextNode, valuesObjLit, placeholderValuesMap, jsMessageOptions)
 	return Outcome_base_ok_Object(any(result))
 }
 
@@ -476,8 +476,8 @@ func (this *JsMessageVisitor) extractIcuTemplateDefinition(msgNode Node, jsDocIn
 	if unexpectedArgument != 0 {
 		return Outcome_base_err(new_JsMessageVisitor_MalformedException("too many arguments", unexpectedArgument).up_Throwable())
 	}
-	var extractedMessage *JsMessage = this.buildJsMessage(icast_JsMessageVisitor_InputForBuildJsMsg(obj_(new_JsMessageVisitor_3(this, messageKeyFromLhs, sourceName, icuMessageTemplateString, extractedIcuTemplateParts, icuTemplateOptions))))
-	var result IcuTemplateDefinition = icast_IcuTemplateDefinition(obj_(new_JsMessageVisitor_4(this, extractedMessage, msgNode, stringLiteralExpression)))
+	var extractedMessage *JsMessage = this.buildJsMessage(new_JsMessageVisitor_3(this, messageKeyFromLhs, sourceName, icuMessageTemplateString, extractedIcuTemplateParts, icuTemplateOptions))
+	var result IcuTemplateDefinition = new_JsMessageVisitor_4(this, extractedMessage, msgNode, stringLiteralExpression)
 	return Outcome_base_ok_Object(any(result))
 }
 
@@ -532,7 +532,7 @@ func (this *JsMessageVisitor) extractJsMessageOptions(optionsBag Node) *Outcome_
 		return Outcome_base_err(placeholderOriginalCodeMapOutcome.error())
 	}
 	var placeholderOriginalCodeMap ImmutableMapOf[string, string] = cast_[*ImmutableMap](placeholderOriginalCodeMapOutcome.get())
-	var result JsMessageVisitor_JsMessageOptions = icast_JsMessageVisitor_JsMessageOptions(obj_(new_JsMessageVisitor_5(this, isEscapeLessThan, isUnescapeHtmlEntities, placeholderExamplesMap, placeholderOriginalCodeMap, exampleObjectLiteralMap, originalCodeObjectLiteralMap)))
+	var result JsMessageVisitor_JsMessageOptions = new_JsMessageVisitor_5(this, isEscapeLessThan, isUnescapeHtmlEntities, placeholderExamplesMap, placeholderOriginalCodeMap, exampleObjectLiteralMap, originalCodeObjectLiteralMap)
 	return Outcome_base_ok_Object(any(result))
 }
 
@@ -606,7 +606,7 @@ func (this *JsMessageVisitor) extractIcuTemplateOptions(optionsBag Node) *Outcom
 		return Outcome_base_err(placeholderOriginalCodeMapOutcome.error())
 	}
 	var placeholderOriginalCodeMap ImmutableMapOf[string, string] = cast_[*ImmutableMap](placeholderOriginalCodeMapOutcome.get())
-	var placeholderNames ImmutableSetOf[string] = cast_[*ImmutableSet](obj_(cast_[*ImmutableSet_Builder](obj_(cast_[*ImmutableSet_Builder](obj_(ImmutableSet_builder().addAll(Iterable(placeholderExamplesMap.keySet())))).addAll(Iterable(placeholderOriginalCodeMap.keySet())))).build()))
+	var placeholderNames ImmutableSetOf[string] = ImmutableSet_builder().addAll(Iterable(placeholderExamplesMap.keySet())).addAll(Iterable(placeholderOriginalCodeMap.keySet())).build()
 	it_1 := foreach_(obj_(placeholderNames))
 	for it_1.next() {
 		var placeholderName string = str_(it_1.v)
@@ -614,7 +614,7 @@ func (this *JsMessageVisitor) extractIcuTemplateOptions(optionsBag Node) *Outcom
 			return Outcome_base_err(new_JsMessageVisitor_MalformedException(String_format("Placeholder not in UPPER_SNAKE_CASE: %s", []any{strobj_(placeholderName)}), optionsBag).up_Throwable())
 		}
 	}
-	var result JsMessageVisitor_IcuTemplateOptions = icast_JsMessageVisitor_IcuTemplateOptions(obj_(new_JsMessageVisitor_6(this, description, optErase_(meaning), optErase_(alternateMessageId), placeholderExamplesMap, placeholderOriginalCodeMap, placeholderNames, exampleObjectLiteralMap, originalCodeObjectLiteralMap)))
+	var result JsMessageVisitor_IcuTemplateOptions = new_JsMessageVisitor_6(this, description, optErase_(meaning), optErase_(alternateMessageId), placeholderExamplesMap, placeholderOriginalCodeMap, placeholderNames, exampleObjectLiteralMap, originalCodeObjectLiteralMap)
 	return Outcome_base_ok_Object(any(result))
 }
 
@@ -705,9 +705,9 @@ func JsMessageVisitor_extractGoogGetMsgParsedText(originalMsgText string) *Outco
 			}
 		}
 	}
-	var placeholderNames ImmutableSetOf[string] = cast_[*ImmutableSet](obj_(placeholderNamesBuilder.build()))
-	var parts ImmutableListOf[JsMessage_Part] = cast_[*ImmutableList](obj_(partsBuilder.build()))
-	var parsedText JsMessageVisitor_GoogGetMsgParsedText = icast_JsMessageVisitor_GoogGetMsgParsedText(obj_(new_JsMessageVisitor_7(originalMsgText, placeholderNames, parts)))
+	var placeholderNames ImmutableSetOf[string] = placeholderNamesBuilder.build()
+	var parts ImmutableListOf[JsMessage_Part] = partsBuilder.build()
+	var parsedText JsMessageVisitor_GoogGetMsgParsedText = new_JsMessageVisitor_7(originalMsgText, placeholderNames, parts)
 	return Outcome_base_ok_Object(any(parsedText))
 }
 
@@ -831,7 +831,7 @@ func JsMessageVisitor_clinit() {
 		return
 	}
 	JsMessageVisitor_clinit_done = true
-	JsMessageVisitor_FUNCTIONS_USED_IN_MESSAGE_EXTRACTION = icast_List(obj_(ImmutableList_of_Object_Object(strobj_(JsMessageVisitor_MSG_FUNCTION_NAME), strobj_(JsMessageVisitor_ICU_MSG_FUNCTION_NAME))))
+	JsMessageVisitor_FUNCTIONS_USED_IN_MESSAGE_EXTRACTION = ImmutableList_of_Object_Object(strobj_(JsMessageVisitor_MSG_FUNCTION_NAME), strobj_(JsMessageVisitor_ICU_MSG_FUNCTION_NAME))
 	JsMessageVisitor_MESSAGE_HAS_NO_DESCRIPTION = DiagnosticType_warning("JSC_MSG_HAS_NO_DESCRIPTION", "Message {0} has no description. Add @desc JsDoc tag.")
 	JsMessageVisitor_MESSAGE_HAS_NO_TEXT = DiagnosticType_warning("JSC_MSG_HAS_NO_TEXT", "Message value of {0} is just an empty string. Empty messages are forbidden.")
 	JsMessageVisitor_MESSAGE_TREE_MALFORMED = DiagnosticType_error("JSC_MSG_TREE_MALFORMED", "Message parse tree malformed. {0}")
@@ -899,7 +899,7 @@ func (this *JsMessageVisitor_IcuMessageTemplateString) extractParts(placholderNa
 		var remainingTemplate string = String_substring_int(this.template, remainingTemplateStartIndex)
 		partsBuilder.add(obj_(JsMessage_StringPart_create(remainingTemplate)))
 	}
-	return new_JsMessageVisitor_ExtractedIcuTemplateParts(cast_[*ImmutableSet](obj_(extractedPlaceholderNames.build())), cast_[*ImmutableList](obj_(partsBuilder.build())))
+	return new_JsMessageVisitor_ExtractedIcuTemplateParts(extractedPlaceholderNames.build(), partsBuilder.build())
 }
 
 type JsMessageVisitor_ExtractedIcuTemplateParts struct {

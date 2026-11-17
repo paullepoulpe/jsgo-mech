@@ -66,12 +66,12 @@ func (this *PhaseOptimizer) consume(factories []*PassFactory) {
 }
 
 func (this *PhaseOptimizer) addOneTimePass(factory *PassFactory) {
-	this.passes = append(this.passes, icast_CompilerPass(obj_(new_PhaseOptimizer_NamedPass(this, factory))))
+	this.passes = append(this.passes, CompilerPass(new_PhaseOptimizer_NamedPass(this, factory)))
 }
 
 func (this *PhaseOptimizer) addFixedPointLoop() *PhaseOptimizer_Loop {
 	var loop *PhaseOptimizer_Loop = new_PhaseOptimizer_Loop(this)
-	this.passes = append(this.passes, icast_CompilerPass(obj_(loop)))
+	this.passes = append(this.passes, CompilerPass(loop))
 	return loop
 }
 

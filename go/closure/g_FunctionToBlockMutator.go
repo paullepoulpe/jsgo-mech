@@ -41,7 +41,7 @@ func (this *FunctionToBlockMutator) mutateInternal(fnName string, fnNode Node, c
 	var allNamesToAlias ImmutableSetOf[string] = ImmutableSet_of()
 	if hasArgs {
 		var temps ImmutableSetOf[string] = this.functionArgumentInjector_.gatherCallArgumentsNeedingTemps(this.compiler_, newFnNode, args, modifiedParameters, this.compiler_.getCodingConvention())
-		allNamesToAlias = cast_[*ImmutableSet](obj_(cast_[*ImmutableSet_Builder](obj_(cast_[*ImmutableSet_Builder](obj_(ImmutableSet_builder().addAll(icast_Iterable(obj_(modifiedParameters))))).addAll(icast_Iterable(obj_(temps))))).build()))
+		allNamesToAlias = ImmutableSet_builder().addAll(icast_Iterable(obj_(modifiedParameters))).addAll(icast_Iterable(obj_(temps))).build()
 	}
 	var newBlock Node = NodeUtil_getFunctionBody(newFnNode)
 	newBlock.detach()
@@ -162,7 +162,7 @@ func FunctionToBlockMutator_fixUninitializedVarDeclarations_Node_Node_boolean(n 
 
 func (this *FunctionToBlockMutator) makeLocalNamesUnique(fnNode Node, isCallInLoop bool) {
 	var idSupplier SupplierOf[string] = this.compiler_.getUniqueNameIdSupplier()
-	NodeTraversal_traverseScopeRoots(this.compiler_, tlistImm_(tc_Node, ImmutableList_of_Object(fnNode.box_())), icast_NodeTraversal_Callback(obj_(MakeDeclaredNamesUnique_builder().withRenamer(icast_MakeDeclaredNamesUnique_Renamer(obj_(new_MakeDeclaredNamesUnique_InlineRenamer(this.compiler_.getCodingConvention(), idSupplier, "inline_", isCallInLoop, true, nil)))).withMarkChanges(false).build())), true)
+	NodeTraversal_traverseScopeRoots(this.compiler_, tlistImm_(tc_Node, ImmutableList_of_Object(fnNode.box_())), icast_NodeTraversal_Callback(obj_(MakeDeclaredNamesUnique_builder().withRenamer(new_MakeDeclaredNamesUnique_InlineRenamer(this.compiler_.getCodingConvention(), idSupplier, "inline_", isCallInLoop, true, nil)).withMarkChanges(false).build())), true)
 	new_RenameLabels_AbstractCompiler_Supplier_boolean_boolean(this.compiler_, new_FunctionToBlockMutator_LabelNameSupplier(idSupplier).get, false, false).process_2(0, fnNode)
 }
 
@@ -237,7 +237,7 @@ func FunctionToBlockMutator_replaceReturns(block Node, resultName OptionalOf[str
 	Preconditions_checkNotNull(block.box_())
 	var root Node = block
 	var hasReturnAtExit bool = false
-	var returnCount int32 = NodeUtil_getNodeTypeReferenceCount(block, Token_rhino_RETURN, icast_Predicate_base(obj_(new_NodeUtil_MatchShallowStatement())))
+	var returnCount int32 = NodeUtil_getNodeTypeReferenceCount(block, Token_rhino_RETURN, new_NodeUtil_MatchShallowStatement())
 	if returnCount > 0 {
 		hasReturnAtExit = FunctionToBlockMutator_hasReturnAtExit(block)
 		if hasReturnAtExit {

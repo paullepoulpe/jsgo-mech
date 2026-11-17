@@ -30,7 +30,7 @@ func (this *OptimizeCalls) process_2(externs Node, root Node) {
 		return
 	}
 	var references *OptimizeCalls_ReferenceMap = new_OptimizeCalls_ReferenceMap()
-	NodeTraversal_traverseRoots(this.compiler_, icast_NodeTraversal_Callback(obj_(new_OptimizeCalls_ReferenceMapBuildingCallback(this, references))), externs, root)
+	NodeTraversal_traverseRoots(this.compiler_, new_OptimizeCalls_ReferenceMapBuildingCallback(this, references), externs, root)
 	this.eliminateAccessorsFrom(references)
 	for _, pass := range this.passes {
 		pass.process_3(externs, root, references)
@@ -258,7 +258,7 @@ func OptimizeCalls_ReferenceMap_definitionFunctionNodesFor(definitionSite Node) 
 		}
 	default:
 	}
-	return cast_[*ImmutableList](obj_(fns.build()))
+	return fns.build()
 }
 
 func OptimizeCalls_ReferenceMap_addValueFunctionNodes(fns ImmutableList_BuilderOf[Node], n Node) {

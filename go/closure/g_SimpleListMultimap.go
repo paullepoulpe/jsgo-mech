@@ -41,7 +41,7 @@ func (this *SimpleListMultimap) put(key any, value any) *SimpleListMultimap {
 	Preconditions_checkState_boolean_Object(!this.frozen, strobj_("immutable"))
 	var values ListOf[any] = icast_List(this.map__.get(key))
 	if values == nil {
-		values = icast_List(new_ArrayList_0().self())
+		values = new_ArrayList_0()
 		this.map__.put(key, any(values))
 	}
 	values.add(value)
@@ -53,7 +53,7 @@ func (this *SimpleListMultimap) put_s(key string, value any) *SimpleListMultimap
 	Preconditions_checkState_boolean_Object(!this.frozen, strobj_("immutable"))
 	var values ListOf[any] = icast_List(Map_get_s(this.map__, key))
 	if values == nil {
-		values = icast_List(new_ArrayList_0().self())
+		values = new_ArrayList_0()
 		Map_put_s(this.map__, key, any(values))
 	}
 	values.add(value)
@@ -81,7 +81,7 @@ func (this *SimpleListMultimap) putAll_s(key string, values IterableOf[any]) *Si
 
 func (this *SimpleListMultimap) replaceValues(key any, values IterableOf[any]) {
 	Preconditions_checkState_boolean_Object(!this.frozen, strobj_("immutable"))
-	var newValues ListOf[any] = icast_List(new_ArrayList_0().self())
+	var newValues ListOf[any] = new_ArrayList_0()
 	Iterables_addAll(Collection(newValues), values)
 	if newValues.isEmpty() {
 		this.map__.remove(key)
@@ -94,7 +94,7 @@ func (this *SimpleListMultimap) get(key any) ListOf[any] {
 	var values ListOf[any] = icast_List(this.map__.get(key))
 	return func() List {
 		if values == nil {
-			return icast_List(obj_(ImmutableList_of()))
+			return ImmutableList_of()
 		}
 		return Collections_unmodifiableList(values)
 	}()
@@ -104,7 +104,7 @@ func (this *SimpleListMultimap) get(key any) ListOf[any] {
 func (this *SimpleListMultimap) get_s(key string) ListOf[any] {
 	var values ListOf[any] = icast_List(Map_get_s(this.map__, key))
 	if values == nil {
-		return icast_List(obj_(ImmutableList_of()))
+		return ImmutableList_of()
 	}
 	return Collections_unmodifiableList(values)
 }
@@ -135,7 +135,7 @@ func (this *SimpleListMultimap) removeAll(key any) ListOf[any] {
 	var values ListOf[any] = icast_List(this.map__.remove(key))
 	return func() List {
 		if values == nil {
-			return icast_List(obj_(ImmutableList_of()))
+			return ImmutableList_of()
 		}
 		return Collections_unmodifiableList(values)
 	}()
@@ -146,7 +146,7 @@ func (this *SimpleListMultimap) keySet() SetOf[any] {
 }
 
 func (this *SimpleListMultimap) values() CollectionOf[any] {
-	return icast_Collection(obj_(new_SimpleListMultimap_1(this)))
+	return new_SimpleListMultimap_1(this)
 }
 
 func (this *SimpleListMultimap) asMap() MapOf[any, ListOf[any]] {

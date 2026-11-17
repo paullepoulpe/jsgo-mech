@@ -1317,7 +1317,7 @@ func (this Node) toStringTreeImpl() string {
 			}
 		}()
 		var s *StringBuilder = new_StringBuilder()
-		this.appendStringTree(icast_Appendable(obj_(s)))
+		this.appendStringTree(s)
 		ret_1 = Object_toString(obj_(s))
 		return 1
 		return 0
@@ -1517,9 +1517,9 @@ func (this Node) setLinenoCharno(lineno int32, charno int32) Node {
 
 func (this Node) children() IterableOf[Node] {
 	if this.ns_().first == 0 {
-		return icast_Iterable(obj_(ImmutableSet_of()))
+		return ImmutableSet_of()
 	} else {
-		return icast_Iterable(obj_(new_Node_SiblingNodeIterable(this.ns_().first)))
+		return new_Node_SiblingNodeIterable(this.ns_().first)
 	}
 	panic("unreachable")
 }
@@ -3541,7 +3541,7 @@ func new_Node_SiblingNodeIterable(start Node) *Node_SiblingNodeIterable {
 }
 
 func (this *Node_SiblingNodeIterable) iterator() IteratorOf[Node] {
-	return icast_Iterator(obj_(new_Node_SiblingNodeIterator(this.start_)))
+	return new_Node_SiblingNodeIterator(this.start_)
 }
 
 type Node_SiblingNodeIterator struct {
@@ -3590,7 +3590,7 @@ func new_Node_AncestorIterable(cur Node) *Node_AncestorIterable {
 }
 
 func (this *Node_AncestorIterable) iterator() IteratorOf[Node] {
-	return icast_Iterator(obj_(new_Node_AncestorIterable_1(this)))
+	return new_Node_AncestorIterable_1(this)
 }
 
 type Node_RecursionMode uint8

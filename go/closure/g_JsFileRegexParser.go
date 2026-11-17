@@ -86,7 +86,7 @@ func (this *JsFileRegexParser) parseReader(filePath string, closureRelativePath 
 	if this.moduleType_ == JsFileRegexParser_ModuleType_ES6_MODULE {
 		this.provides.add(this.file.toModuleName())
 	}
-	var loadFlags MapOf[string, string] = icast_Map(obj_(new_LinkedHashMap()))
+	var loadFlags MapOf[string, string] = new_LinkedHashMap()
 	switch this.moduleType_ {
 	case JsFileRegexParser_ModuleType_GOOG_MODULE:
 		Map_put_s(loadFlags, "module", strobj_("goog"))

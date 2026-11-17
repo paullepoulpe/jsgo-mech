@@ -44,8 +44,8 @@ func (this *InlineProperties) getColor(n Node) *Color {
 }
 
 func (this *InlineProperties) process_2(externs Node, root Node) {
-	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(obj_(new_InlineProperties_GatherCandidates(this))))
-	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(obj_(new_InlineProperties_ReplaceCandidates(this))))
+	NodeTraversal_traverse(this.compiler_, root, new_InlineProperties_GatherCandidates(this))
+	NodeTraversal_traverse(this.compiler_, root, new_InlineProperties_ReplaceCandidates(this))
 }
 
 func InlineProperties_removeNullAndUndefinedIfUnion(original *Color) *Color {

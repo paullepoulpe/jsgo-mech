@@ -81,17 +81,17 @@ func (this *Output) printStackTrace(t *Throwable) {
 
 func (this *Output) append_CharSequence(s any) Appendable {
 	this.print(String_valueOf_Object(s))
-	return icast_Appendable(any(this))
+	return this
 }
 
 func (this *Output) append_CharSequence_int_int(s any, start int32, end int32) Appendable {
 	this.print(String_substring(String_valueOf_Object(s), start, end))
-	return icast_Appendable(any(this))
+	return this
 }
 
 func (this *Output) append_char(c uint16) Appendable {
 	this.print(String_valueOf_char(c))
-	return icast_Appendable(any(this))
+	return this
 }
 
 func (this *Output) flush() {

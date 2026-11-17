@@ -34,7 +34,7 @@ func (this *RewriteJsonToModule) getPackageJsonMainEntries() ImmutableMapOf[stri
 
 func (this *RewriteJsonToModule) process_2(externs Node, root Node) {
 	Preconditions_checkState(root.isScript())
-	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(obj_(this)))
+	NodeTraversal_traverse(this.compiler_, root, this)
 }
 
 func (this *RewriteJsonToModule) visit_impl(t *NodeTraversal, n Node, parent Node) {

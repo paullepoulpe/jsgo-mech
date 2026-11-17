@@ -45,7 +45,7 @@ func (this *TypeInference) init_TypeInference(compiler *AbstractCompiler, cfg *C
 	this.assertionFunctionLookup = cast_[*CodingConvention_AssertionFunctionLookup](Preconditions_checkNotNull(obj_(assertionFunctionLookup)))
 	this.unknownType = this.registry.getNativeObjectType(JSTypeNative_UNKNOWN_TYPE)
 	this.numberAdditionSupertype = this.registry.getNativeType(JSTypeNative_NUMBER_ADDITION_SUPERTYPE)
-	this.bottomScope = icast_FlowScope(obj_(LinkedFlowScope_createEntryLattice(icast_CompilerInputProvider(compiler.self()), TypedScope_createLatticeBottom(syntacticScope.getRootNode()))))
+	this.bottomScope = LinkedFlowScope_createEntryLattice(icast_CompilerInputProvider(compiler.self()), TypedScope_createLatticeBottom(syntacticScope.getRootNode()))
 }
 
 func new_TypeInference(compiler *AbstractCompiler, cfg *ControlFlowGraph, reverseInterpreter ReverseAbstractInterpreter, syntacticScope *TypedScope, scopeCreator *TypedScopeCreator, assertionFunctionLookup *CodingConvention_AssertionFunctionLookup) *TypeInference {
@@ -178,7 +178,7 @@ func (this *TypeInference) createInitialEstimateLattice_impl() LatticeElement {
 }
 
 func (this *TypeInference) createEntryLattice_impl() LatticeElement {
-	var entryScope FlowScope = this.inferDeclarativelyUnboundVarsWithoutTypes(icast_FlowScope(obj_(LinkedFlowScope_createEntryLattice(icast_CompilerInputProvider(this.compiler_.self()), this.containerScope))))
+	var entryScope FlowScope = this.inferDeclarativelyUnboundVarsWithoutTypes(LinkedFlowScope_createEntryLattice(icast_CompilerInputProvider(this.compiler_.self()), this.containerScope))
 	return LatticeElement(this.inferParameters(entryScope))
 }
 
@@ -265,7 +265,7 @@ func (this *TypeInference) isBranched_impl() bool {
 }
 
 func (this *TypeInference) createFlowJoiner_impl() DataFlowAnalysis_FlowJoiner {
-	return icast_DataFlowAnalysis_FlowJoiner(obj_(new_LinkedFlowScope_FlowScopeJoinOp(icast_CompilerInputProvider(this.compiler_.self()))))
+	return new_LinkedFlowScope_FlowScopeJoinOp(icast_CompilerInputProvider(this.compiler_.self()))
 }
 
 func (this *TypeInference) createFlowBrancher_impl(source_ any, output_ LatticeElement) DataFlowAnalysis_FlowBrancher {
@@ -273,7 +273,7 @@ func (this *TypeInference) createFlowBrancher_impl(source_ any, output_ LatticeE
 	_ = source
 	var output FlowScope = icast_FlowScope(output_)
 	_ = output
-	return icast_DataFlowAnalysis_FlowBrancher(obj_(new_TypeInference_1(this, source, output)))
+	return new_TypeInference_1(this, source, output)
 }
 
 func (this *TypeInference) traverse(n Node, scope FlowScope) FlowScope {
@@ -1461,7 +1461,7 @@ func (this *TypeInference) inferTemplatedTypesForCall(n Node, fnType *FunctionTy
 	}
 	var replacer *TemplateTypeReplacer = TemplateTypeReplacer_forInference(this.registry, inferred)
 	var callTarget Node = n.getFirstChild()
-	var replacementFnType *FunctionType = to_JSType(fnType.visit(icast_Visitor(obj_(replacer)))).toMaybeFunctionType()
+	var replacementFnType *FunctionType = to_JSType(fnType.visit(replacer)).toMaybeFunctionType()
 	Preconditions_checkNotNull(replacementFnType.self())
 	callTarget.setJSType(replacementFnType.up_JSType())
 	n.setJSType(replacementFnType.getReturnType())
@@ -1585,9 +1585,9 @@ func (this *TypeInference) dereferenceKnownSymbolProp(obj *JSType, indexSymbol *
 		if obj.isUnionType() {
 			return icast_Collection(obj_(obj.toMaybeUnionType().getAlternates()))
 		}
-		return icast_Collection(obj_(ImmutableList_of_Object(obj.self())))
+		return ImmutableList_of_Object(obj.self())
 	}()
-	var key Property_Key = icast_Property_Key(obj_(new_Property_SymbolKey(indexSymbol)))
+	var key Property_Key = new_Property_SymbolKey(indexSymbol)
 	it_1 := foreach_(any(alternates))
 	for it_1.next() {
 		var option *JSType = to_JSType(it_1.v)
@@ -1616,7 +1616,7 @@ func (this *TypeInference) dereferenceIndexSignature(obj *JSType) *JSType {
 		if obj.isUnionType() {
 			return icast_Collection(obj_(obj.toMaybeUnionType().getAlternates()))
 		}
-		return icast_Collection(obj_(ImmutableList_of_Object(obj.self())))
+		return ImmutableList_of_Object(obj.self())
 	}()
 	it_1 := foreach_(any(alternates))
 	for it_1.next() {

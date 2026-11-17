@@ -118,7 +118,7 @@ func (this *SourceCodeEscapers_JavaScriptEscaper) escape(string_ string) string 
 				panic(r_)
 			}
 		}()
-		this.appendTo(strobj_(string_), icast_Appendable(obj_(sb)))
+		this.appendTo(strobj_(string_), sb)
 		return 0
 	}()
 	return Object_toString(obj_(sb))

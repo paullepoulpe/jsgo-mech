@@ -35,7 +35,7 @@ func new_ProcessClosurePrimitives(compiler *AbstractCompiler) *ProcessClosurePri
 }
 
 func (this *ProcessClosurePrimitives) process_2(externs Node, root Node) {
-	NodeTraversal_traverseRoots(this.compiler_, icast_NodeTraversal_Callback(obj_(this)), externs, root)
+	NodeTraversal_traverseRoots(this.compiler_, this, externs, root)
 }
 
 func (this *ProcessClosurePrimitives) visit_impl(t *NodeTraversal, n Node, parent Node) {
@@ -403,7 +403,7 @@ func ProcessClosurePrimitives_processSetCssNameMapping(compiler *AbstractCompile
 			compiler.report(JSError_make_Node_DiagnosticType_StringArr(n, ProcessClosurePrimitives_INVALID_CSS_RENAMING_MAP, []string{Object_toString(any(sliceView_(tc_string, errors)))}))
 		}
 	}
-	return icast_CssRenamingMap(obj_(new_ProcessClosurePrimitives_1(cssNames, style)))
+	return new_ProcessClosurePrimitives_1(cssNames, style)
 }
 
 func (this *ProcessClosurePrimitives) processAddDependency(n Node) {

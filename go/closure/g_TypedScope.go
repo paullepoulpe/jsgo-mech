@@ -235,7 +235,7 @@ func (this *TypedScope) getTypeThroughNamespace(moduleId string) *JSType {
 
 func (this *TypedScope) getTopmostScopeOfEventualDeclaration_impl(name string) StaticScope {
 	if (cast_[*TypedVar](this.getOwnSlot(name)) != nil) || this.reservedNames.contains(name) {
-		return icast_StaticScope(obj_(this))
+		return this
 	} else if cast_[*TypedScope](this.getParent().self()) == nil {
 		return nil
 	} else {
@@ -245,7 +245,7 @@ func (this *TypedScope) getTopmostScopeOfEventualDeclaration_impl(name string) S
 }
 
 func (this *TypedScope) lookupQualifiedName(p0 *QualifiedName) *JSType {
-	return StaticTypedScope_lookupQualifiedName_default(icast_StaticTypedScope(obj_(this)), p0)
+	return StaticTypedScope_lookupQualifiedName_default(this, p0)
 }
 
 // typed: an object that is exactly a TypedScope calls its typed_impl directly (post-flip); others dispatch.

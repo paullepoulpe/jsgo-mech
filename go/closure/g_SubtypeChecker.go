@@ -269,7 +269,7 @@ func (this *SubtypeChecker) isStructuralSubtypeHelper(subtype *ObjectType, super
 	it_1 := foreach_(any(props))
 	for it_1.next() {
 		var property string = str_(it_1.v)
-		if !this.checkPropertyPresence(icast_Property_Key(obj_(new_Property_StringKey(property))), subtype, supertype, optionality) {
+		if !this.checkPropertyPresence(new_Property_StringKey(property), subtype, supertype, optionality) {
 			return false
 		}
 	}
@@ -282,7 +282,7 @@ func (this *SubtypeChecker) isStructuralSubtypeHelper(subtype *ObjectType, super
 	it_3 := foreach_(any(knownSymbols))
 	for it_3.next() {
 		var knownSymbolType *KnownSymbolType = cast_[*KnownSymbolType](it_3.v)
-		var knownSymbolTypeKey Property_Key = icast_Property_Key(obj_(new_Property_SymbolKey(knownSymbolType)))
+		var knownSymbolTypeKey Property_Key = new_Property_SymbolKey(knownSymbolType)
 		if !this.checkPropertyPresence(knownSymbolTypeKey, subtype, supertype, optionality) {
 			return false
 		}
@@ -425,7 +425,7 @@ func (this *SubtypeChecker) isProxyObjectSubtype(subtype *ProxyObjectType, super
 
 func (this *SubtypeChecker) isTemplateSubtype(subtype *TemplateType, supertype *JSType) bool {
 	if (!subtype.getBound().isUnknownType() && supertype.isTemplateType()) && !supertype.toMaybeTemplateType().getBound().isUnknownType() {
-		return (cast_[ContainsUpperBoundSuperTypeVisitor_Result](subtype.visit(icast_Visitor(obj_(new_ContainsUpperBoundSuperTypeVisitor(supertype))))) == ContainsUpperBoundSuperTypeVisitor_Result_PRESENT)
+		return (cast_[ContainsUpperBoundSuperTypeVisitor_Result](subtype.visit(new_ContainsUpperBoundSuperTypeVisitor(supertype))) == ContainsUpperBoundSuperTypeVisitor_Result_PRESENT)
 	} else {
 		return this.isProxyObjectSubtype(subtype.up_ProxyObjectType(), supertype)
 	}

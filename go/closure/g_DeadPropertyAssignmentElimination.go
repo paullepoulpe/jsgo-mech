@@ -20,8 +20,8 @@ func (this *DeadPropertyAssignmentElimination) process_2(externs Node, root Node
 	if (this.compiler_.getExternProperties() == nil) || (this.compiler_.getAccessorSummary() == nil) {
 		return
 	}
-	var skiplistedPropNames SetOf[string] = icast_Set(obj_(Sets_union(this.compiler_.getAccessorSummary().getAccessors().keySet(), icast_Set(obj_(this.compiler_.getExternProperties())))))
-	NodeTraversal_traverse(this.compiler_, this.compiler_.getJsRoot(), icast_NodeTraversal_Callback(obj_(new_DeadPropertyAssignmentElimination_FunctionVisitor(skiplistedPropNames))))
+	var skiplistedPropNames SetOf[string] = Sets_union(this.compiler_.getAccessorSummary().getAccessors().keySet(), icast_Set(obj_(this.compiler_.getExternProperties())))
+	NodeTraversal_traverse(this.compiler_, this.compiler_.getJsRoot(), new_DeadPropertyAssignmentElimination_FunctionVisitor(skiplistedPropNames))
 }
 
 type DeadPropertyAssignmentElimination_FunctionVisitor struct {
@@ -64,7 +64,7 @@ func (this *DeadPropertyAssignmentElimination_FunctionVisitor) enterChangedScope
 		return
 	}
 	var traversal *DeadPropertyAssignmentElimination_FindCandidateAssignmentTraversal = new_DeadPropertyAssignmentElimination_FindCandidateAssignmentTraversal(this.skiplistedPropNames)
-	NodeTraversal_traverse(compiler, body, icast_NodeTraversal_Callback(obj_(traversal)))
+	NodeTraversal_traverse(compiler, body, traversal)
 	it_1 := traversal.propertyMap.each()
 	for it_1.next() {
 		var property *DeadPropertyAssignmentElimination_Property = it_1.v
@@ -109,7 +109,7 @@ func (this *DeadPropertyAssignmentElimination_Property) zero_DeadPropertyAssignm
 }
 
 func (this *DeadPropertyAssignmentElimination_Property) finit_DeadPropertyAssignmentElimination_Property() {
-	this.writes = icast_Deque(obj_(new_ArrayDeque()))
+	this.writes = new_ArrayDeque()
 	this.children_ = newTSet_(tc_p_DeadPropertyAssignmentElimination_Property)
 }
 
@@ -133,7 +133,7 @@ func (this *DeadPropertyAssignmentElimination_Property) markLastWriteRead() {
 
 func (this *DeadPropertyAssignmentElimination_Property) markChildrenRead() {
 	var propertiesSet *TSet[*DeadPropertyAssignmentElimination_Property] = tsetFrom_(tc_p_DeadPropertyAssignmentElimination_Property, Collection(this.children_.asSet()), false)
-	var propertyQueue QueueOf[*DeadPropertyAssignmentElimination_Property] = icast_Queue(obj_(new_ArrayDeque_Collection(Collection(propertiesSet.asSet()))))
+	var propertyQueue QueueOf[*DeadPropertyAssignmentElimination_Property] = new_ArrayDeque_Collection(Collection(propertiesSet.asSet()))
 	propertiesSet.add(this)
 	for !propertyQueue.isEmpty() {
 		var childProperty *DeadPropertyAssignmentElimination_Property = cast_[*DeadPropertyAssignmentElimination_Property](propertyQueue.remove_0())

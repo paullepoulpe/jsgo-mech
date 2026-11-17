@@ -29,7 +29,7 @@ func new_ConstCheck(compiler *AbstractCompiler) *ConstCheck {
 }
 
 func (this *ConstCheck) process_2(externs Node, root Node) {
-	NodeTraversal_traverseRoots(this.compiler_, icast_NodeTraversal_Callback(obj_(this)), externs, root)
+	NodeTraversal_traverseRoots(this.compiler_, this, externs, root)
 }
 
 func (this *ConstCheck) visit_impl(t *NodeTraversal, n Node, parent Node) {

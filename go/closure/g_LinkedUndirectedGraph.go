@@ -24,7 +24,7 @@ func (this *LinkedUndirectedGraph) up_Graph() *Graph {
 }
 
 func (this *LinkedUndirectedGraph) finit_LinkedUndirectedGraph() {
-	this.nodes_ = icast_Map(obj_(new_LinkedHashMap()))
+	this.nodes_ = new_LinkedHashMap()
 }
 
 func (this *LinkedUndirectedGraph) init_LinkedUndirectedGraph(useNodeAnnotations bool, useEdgeAnnotations bool) {
@@ -42,7 +42,7 @@ func new_LinkedUndirectedGraph(useNodeAnnotations bool, useEdgeAnnotations bool)
 }
 
 func (this *LinkedUndirectedGraph) newSubGraph_impl() SubGraph {
-	return icast_SubGraph(obj_(new_Graph_SimpleSubGraph(this.up_Graph())))
+	return new_Graph_SimpleSubGraph(this.up_Graph())
 }
 
 func LinkedUndirectedGraph_create() *LinkedUndirectedGraph {
@@ -132,7 +132,7 @@ func (this *LinkedUndirectedGraph) getEdges_impl() *TList[Graph_GraphEdge] {
 		for it_3.next() {
 			var edge UndiGraph_UndiGraphEdge = it_3.v
 			if any(edge.getNodeA()) == node.self() {
-				result.add(icast_Graph_GraphEdge(any(edge)))
+				result.add(edge)
 			}
 		}
 	}

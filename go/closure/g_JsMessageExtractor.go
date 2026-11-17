@@ -31,12 +31,12 @@ func new_JsMessageExtractor_IdGenerator_CompilerOptions_boolean(idGenerator JsMe
 }
 
 func (this *JsMessageExtractor) extractMessages(inputs []*SourceFile_jscomp) CollectionOf[*JsMessage] {
-	return this.extractMessagesIterable(icast_Iterable(obj_(ImmutableList_copyOf_ObjectArr(arrmap_(inputs, func(v_ *SourceFile_jscomp) any { return obj_(v_) })))))
+	return this.extractMessagesIterable(ImmutableList_copyOf_ObjectArr(arrmap_(inputs, func(v_ *SourceFile_jscomp) any { return obj_(v_) })))
 }
 
 func (this *JsMessageExtractor) extractMessagesIterable(inputs IterableOf[*SourceFile_jscomp]) CollectionOf[*JsMessage] {
 	var compiler *Compiler = new_Compiler_0()
-	compiler.init(icast_List(obj_(ImmutableList_of())), icast_List(obj_(ImmutableList_copyOf_Iterable(inputs))), this.options_)
+	compiler.init(ImmutableList_of(), icast_List(obj_(ImmutableList_copyOf_Iterable(inputs))), this.options_)
 	compiler.runInCompilerThread(func() any {
 		compiler.parseInputs()
 		return nil
@@ -50,7 +50,7 @@ func (this *JsMessageExtractor) extractMessagesIterable(inputs IterableOf[*Sourc
 	if !errors.isEmpty() {
 		var msg strBuilder_
 		msg.append("JSCompiler errors\n")
-		var formatter MessageFormatter = icast_MessageFormatter(obj_(new_LightweightMessageFormatter_SourceExcerptProvider(icast_SourceExcerptProvider(obj_(compiler)))))
+		var formatter MessageFormatter = new_LightweightMessageFormatter_SourceExcerptProvider(compiler)
 		it_1 := foreach_(obj_(errors))
 		for it_1.next() {
 			var e *JSError = cast_[*JSError](it_1.v)

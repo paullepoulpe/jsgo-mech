@@ -33,7 +33,7 @@ func new_Es6ForOfConverter(compiler *AbstractCompiler) *Es6ForOfConverter {
 }
 
 func (this *Es6ForOfConverter) process_2(externs Node, root Node) {
-	TranspilationPasses_processTranspile(this.compiler_, root, Es6ForOfConverter_transpiledFeatures, []NodeTraversal_Callback{icast_NodeTraversal_Callback(obj_(this))})
+	TranspilationPasses_processTranspile(this.compiler_, root, Es6ForOfConverter_transpiledFeatures, []NodeTraversal_Callback{NodeTraversal_Callback(this)})
 	TranspilationPasses_maybeMarkFeaturesAsTranspiledAway(this.compiler_, root, Es6ForOfConverter_transpiledFeatures)
 }
 

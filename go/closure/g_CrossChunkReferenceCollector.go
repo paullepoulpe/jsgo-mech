@@ -19,7 +19,7 @@ func (this *CrossChunkReferenceCollector) finit_CrossChunkReferenceCollector() {
 func (this *CrossChunkReferenceCollector) init_CrossChunkReferenceCollector(compiler *AbstractCompiler, creator ScopeCreator) {
 	this.finit_CrossChunkReferenceCollector()
 	this.compiler_ = compiler
-	this.referenceCollector = new_ReferenceCollector_AbstractCompiler_Behavior_ScopeCreator_Predicate_boolean(compiler, icast_ReferenceCollector_Behavior(obj_(new_CrossChunkReferenceCollector_TopLevelStatementCollectingBehavior(this))), creator, &Predicate_base_fn{func(p0 any) bool { return this.shouldCollectVar(cast_[*Var](p0)) }}, false)
+	this.referenceCollector = new_ReferenceCollector_AbstractCompiler_Behavior_ScopeCreator_Predicate_boolean(compiler, new_CrossChunkReferenceCollector_TopLevelStatementCollectingBehavior(this), creator, &Predicate_base_fn{func(p0 any) bool { return this.shouldCollectVar(cast_[*Var](p0)) }}, false)
 }
 
 func new_CrossChunkReferenceCollector(compiler *AbstractCompiler, creator ScopeCreator) *CrossChunkReferenceCollector {

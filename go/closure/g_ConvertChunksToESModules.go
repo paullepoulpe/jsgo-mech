@@ -27,12 +27,12 @@ func new_ConvertChunksToESModules(compiler *AbstractCompiler) *ConvertChunksToES
 }
 
 func (this *ConvertChunksToESModules) process_2(externs Node, root Node) {
-	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(obj_(new_ConvertChunksToESModules_FindCrossChunkReferences(this))))
+	NodeTraversal_traverse(this.compiler_, root, new_ConvertChunksToESModules_FindCrossChunkReferences(this))
 	it_1 := foreach_(any(this.compiler_.getChunkGraph().getAllChunks()))
 	for it_1.next() {
 		var chunk *JSChunk = cast_[*JSChunk](it_1.v)
 		if (!this.crossChunkExports.containsKey(chunk) && !this.crossChunkImports.containsKey(chunk)) && !chunk.getInputs().isEmpty() {
-			this.crossChunkExports.put(chunk, icast_Set(obj_(new_LinkedHashSet())))
+			this.crossChunkExports.put(chunk, new_LinkedHashSet())
 		}
 	}
 	this.convertChunkSourcesToModules()

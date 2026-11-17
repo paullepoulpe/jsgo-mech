@@ -25,7 +25,7 @@ func new_CheckNoMutatedEs6Exports(compiler *AbstractCompiler) *CheckNoMutatedEs6
 }
 
 func (this *CheckNoMutatedEs6Exports) checkNoMutations() {
-	var mutatedExports SetOf[string] = icast_Set(obj_(Sets_intersection(this.mutatedNames.keySet(), this.exportedLocalNames.asSet())))
+	var mutatedExports SetOf[string] = Sets_intersection(this.mutatedNames.keySet(), this.exportedLocalNames.asSet())
 	it_1 := foreach_(any(mutatedExports))
 	for it_1.next() {
 		var mutatedExport string = str_(it_1.v)
@@ -108,7 +108,7 @@ func (this *CheckNoMutatedEs6Exports) visitName(t *NodeTraversal, name Node) {
 }
 
 func (this *CheckNoMutatedEs6Exports) process_2(externs Node, root Node) {
-	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(any(this)))
+	NodeTraversal_traverse(this.compiler_, root, this)
 }
 
 var CheckNoMutatedEs6Exports_MUTATED_EXPORT *DiagnosticType

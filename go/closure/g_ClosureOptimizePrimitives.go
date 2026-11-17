@@ -20,7 +20,7 @@ func new_ClosureOptimizePrimitives(compiler *AbstractCompiler, canUseEs6Syntax b
 
 func (this *ClosureOptimizePrimitives) process_2(externs Node, root Node) {
 	var pass *ClosureOptimizePrimitives_FindPrimitives = new_ClosureOptimizePrimitives_FindPrimitives(this)
-	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(obj_(pass)))
+	NodeTraversal_traverse(this.compiler_, root, pass)
 }
 
 func (this *ClosureOptimizePrimitives) processObjectCreateCall(callNode Node) {

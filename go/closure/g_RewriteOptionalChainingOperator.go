@@ -41,7 +41,7 @@ func new_RewriteOptionalChainingOperator_AbstractCompiler_TmpVarNameCreator(comp
 }
 
 func (this *RewriteOptionalChainingOperator) process_2(externs Node, root Node) {
-	NodeTraversal_traverseRoots(this.compiler_, icast_NodeTraversal_Callback(obj_(new_RewriteOptionalChainingOperator_TranspilationCallback(this))), externs, root)
+	NodeTraversal_traverseRoots(this.compiler_, new_RewriteOptionalChainingOperator_TranspilationCallback(this), externs, root)
 	TranspilationPasses_maybeMarkFeatureAsTranspiledAway(this.compiler_, root, FeatureSet_Feature_OPTIONAL_CHAINING)
 }
 

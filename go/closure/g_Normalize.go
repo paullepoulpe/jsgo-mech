@@ -48,8 +48,8 @@ func Normalize_isFunctionExpressionNameNode(n Node) bool {
 
 func (this *Normalize) process_2(externs Node, root Node) {
 	var renamer *MakeDeclaredNamesUnique = MakeDeclaredNamesUnique_builder().withAssertOnChange(this.assertOnChange_).build()
-	NodeTraversal_traverseRoots(this.compiler_, icast_NodeTraversal_Callback(obj_(new_Normalize_NormalizeStatements(this.compiler_, this.assertOnChange_, renamer))), externs, root)
-	NodeTraversal_builder().setCompiler(this.compiler_).setCallback(icast_NodeTraversal_Callback(obj_(new_Normalize_PropagateConstantPropertyOverVars(this.compiler_, this.assertOnChange_)))).setScopeCreator(icast_ScopeCreator(obj_(new_SyntacticScopeCreator_AbstractCompiler_RedeclarationHandler(this.compiler_, icast_SyntacticScopeCreator_RedeclarationHandler(obj_(new_Normalize_DuplicateDeclarationHandler(this))))))).traverseRoots(externs, root)
+	NodeTraversal_traverseRoots(this.compiler_, new_Normalize_NormalizeStatements(this.compiler_, this.assertOnChange_, renamer), externs, root)
+	NodeTraversal_builder().setCompiler(this.compiler_).setCallback(new_Normalize_PropagateConstantPropertyOverVars(this.compiler_, this.assertOnChange_)).setScopeCreator(new_SyntacticScopeCreator_AbstractCompiler_RedeclarationHandler(this.compiler_, new_Normalize_DuplicateDeclarationHandler(this))).traverseRoots(externs, root)
 	if !this.compiler_.getLifeCycleStage().isNormalized() {
 		this.compiler_.setLifeCycleStage(AbstractCompiler_LifeCycleStage_NORMALIZED)
 	}

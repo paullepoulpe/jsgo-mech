@@ -27,7 +27,7 @@ func new_CheckDebuggerStatement(compiler *AbstractCompiler) *CheckDebuggerStatem
 }
 
 func (this *CheckDebuggerStatement) process_2(externs Node, root Node) {
-	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(obj_(this)))
+	NodeTraversal_traverse(this.compiler_, root, this)
 }
 
 func (this *CheckDebuggerStatement) visit_impl(t *NodeTraversal, n Node, parent Node) {

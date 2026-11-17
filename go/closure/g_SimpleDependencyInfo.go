@@ -45,19 +45,19 @@ func (this *SimpleDependencyInfo) toString() string {
 }
 
 func SimpleDependencyInfo_builder(srcPathRelativeToClosure string, pathOfDefiningFile OptionalOf[string]) *SimpleDependencyInfo_Builder {
-	return new_SimpleDependencyInfo_Builder().setName(pathOfDefiningFile).setPathRelativeToClosureBase(srcPathRelativeToClosure).setProvides(icast_Collection(obj_(ImmutableList_of()))).setRequires(icast_Collection(obj_(ImmutableList_of()))).setTypeRequires(icast_Collection(obj_(ImmutableList_of()))).setLoadFlags(icast_Map(obj_(ImmutableMap_of()))).setHasExternsAnnotation(false).setHasNoCompileAnnotation(false)
+	return new_SimpleDependencyInfo_Builder().setName(pathOfDefiningFile).setPathRelativeToClosureBase(srcPathRelativeToClosure).setProvides(ImmutableList_of()).setRequires(ImmutableList_of()).setTypeRequires(ImmutableList_of()).setLoadFlags(ImmutableMap_of()).setHasExternsAnnotation(false).setHasNoCompileAnnotation(false)
 }
 
 func (this *SimpleDependencyInfo) getRequiredSymbols() *ImmutableList {
-	return DependencyInfo_getRequiredSymbols_default(icast_DependencyInfo(any(this)))
+	return DependencyInfo_getRequiredSymbols_default(this)
 }
 
 func (this *SimpleDependencyInfo) isEs6Module() bool {
-	return DependencyInfo_isEs6Module_default(icast_DependencyInfo(any(this)))
+	return DependencyInfo_isEs6Module_default(this)
 }
 
 func (this *SimpleDependencyInfo) isGoogModule() bool {
-	return DependencyInfo_isGoogModule_default(icast_DependencyInfo(any(this)))
+	return DependencyInfo_isGoogModule_default(this)
 }
 
 func (this *SimpleDependencyInfo) getName() string {
@@ -176,7 +176,7 @@ func (this *SimpleDependencyInfo_Builder) setProvides(provides CollectionOf[stri
 }
 
 func (this *SimpleDependencyInfo_Builder) setProvidesStringVarargs(provides []string) *SimpleDependencyInfo_Builder {
-	return this.setProvides(icast_Collection(obj_(ImmutableList_copyOf_ObjectArr(arrmap_(provides, func(v_ string) any { return strobj_(v_) })))))
+	return this.setProvides(ImmutableList_copyOf_ObjectArr(arrmap_(provides, func(v_ string) any { return strobj_(v_) })))
 }
 
 func (this *SimpleDependencyInfo_Builder) setRequires(requires CollectionOf[*DependencyInfo_Require]) *SimpleDependencyInfo_Builder {
@@ -185,7 +185,7 @@ func (this *SimpleDependencyInfo_Builder) setRequires(requires CollectionOf[*Dep
 }
 
 func (this *SimpleDependencyInfo_Builder) setRequiresRequireVarargs(requires []*DependencyInfo_Require) *SimpleDependencyInfo_Builder {
-	return this.setRequires(icast_Collection(obj_(ImmutableList_copyOf_ObjectArr(arrmap_(requires, func(v_ *DependencyInfo_Require) any { return obj_(v_) })))))
+	return this.setRequires(ImmutableList_copyOf_ObjectArr(arrmap_(requires, func(v_ *DependencyInfo_Require) any { return obj_(v_) })))
 }
 
 func (this *SimpleDependencyInfo_Builder) setTypeRequires(typeRequires CollectionOf[string]) *SimpleDependencyInfo_Builder {
@@ -194,7 +194,7 @@ func (this *SimpleDependencyInfo_Builder) setTypeRequires(typeRequires Collectio
 }
 
 func (this *SimpleDependencyInfo_Builder) setTypeRequiresStringVarargs(typeRequires []string) *SimpleDependencyInfo_Builder {
-	return this.setTypeRequires(icast_Collection(obj_(ImmutableList_copyOf_ObjectArr(arrmap_(typeRequires, func(v_ string) any { return strobj_(v_) })))))
+	return this.setTypeRequires(ImmutableList_copyOf_ObjectArr(arrmap_(typeRequires, func(v_ string) any { return strobj_(v_) })))
 }
 
 func (this *SimpleDependencyInfo_Builder) setLoadFlags(loadFlags MapOf[string, string]) *SimpleDependencyInfo_Builder {
@@ -219,7 +219,7 @@ func (this *SimpleDependencyInfo_Builder) setGoogModule(isModule bool) *SimpleDe
 		if isModule {
 			return icast_Map(obj_(SimpleDependencyInfo_Builder_GOOG_MODULE_FLAGS))
 		}
-		return icast_Map(obj_(ImmutableMap_of()))
+		return ImmutableMap_of()
 	}())
 }
 

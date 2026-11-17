@@ -44,15 +44,15 @@ func new_PolymerPass(compiler *AbstractCompiler) *PolymerPass {
 
 func (this *PolymerPass) process_2(externs Node, root Node) {
 	var externsCallback *PolymerPassFindExterns = new_PolymerPassFindExterns()
-	NodeTraversal_traverse(this.compiler_, externs, icast_NodeTraversal_Callback(obj_(externsCallback)))
+	NodeTraversal_traverse(this.compiler_, externs, externsCallback)
 	this.polymerElementExterns = externsCallback.getPolymerElementExterns()
 	this.polymerElementProps = externsCallback.getPolymerElementProps()
 	this.globalNames = new_GlobalNamespace_AbstractCompiler_Node_Node(this.compiler_, externs, root)
 	this.behaviorExtractor = new_PolymerBehaviorExtractor(this.compiler_, this.globalNames, this.compiler_.getModuleMetadataMap(), this.compiler_.getModuleMap())
 	var externsAndJsRoot Node = root.getParent()
-	NodeTraversal_traverse(this.compiler_, externsAndJsRoot, icast_NodeTraversal_Callback(obj_(this)))
+	NodeTraversal_traverse(this.compiler_, externsAndJsRoot, this)
 	var suppressBehaviorsCallback *PolymerPassSuppressBehaviorsAndProtectKeys = new_PolymerPassSuppressBehaviorsAndProtectKeys(this.compiler_)
-	NodeTraversal_traverse(this.compiler_, externsAndJsRoot, icast_NodeTraversal_Callback(obj_(suppressBehaviorsCallback)))
+	NodeTraversal_traverse(this.compiler_, externsAndJsRoot, suppressBehaviorsCallback)
 }
 
 func (this *PolymerPass) visit_impl(traversal *NodeTraversal, node Node, parent Node) {

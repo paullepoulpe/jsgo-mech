@@ -275,7 +275,7 @@ func (this *FunctionArgumentInjector) findParametersReferencedAfterSideEffect(pa
 	var locals *TSet[string] = tsetFrom_(tc_string, icast_Collection(obj_(parameters)), false)
 	FunctionArgumentInjector_gatherLocalNames(root, locals)
 	var collector *FunctionArgumentInjector_ReferencedAfterSideEffect = new_FunctionArgumentInjector_ReferencedAfterSideEffect(this, parameters, ImmutableSet_copyOf(Collection(locals.asSet())))
-	NodeUtil_visitPostOrder_Node_Visitor_Predicate(root, collector.visit, icast_Predicate_base(obj_(collector)))
+	NodeUtil_visitPostOrder_Node_Visitor_Predicate(root, collector.visit, collector)
 	return new_FunctionArgumentInjector_SetContainer(collector.getParametersReferencedAfterSideEffect(), collector.getParametersWithNamesReferencedBeforeParameter())
 }
 
@@ -314,7 +314,7 @@ func FunctionArgumentInjector_getFunctionParameterSet(fnNode Node) ImmutableSetO
 			}
 		}
 	}
-	return cast_[*ImmutableSet](obj_(builder.build()))
+	return builder.build()
 }
 
 const FunctionArgumentInjector_THIS_MARKER string = "this"
@@ -488,7 +488,7 @@ func (this *FunctionArgumentInjector_ReferencedAfterSideEffect) isLocalName(node
 }
 
 func (this *FunctionArgumentInjector_ReferencedAfterSideEffect) test(p0 any) bool {
-	return Predicate_base_test(icast_Predicate_base(any(this)), p0)
+	return Predicate_base_test(this, p0)
 }
 
 type FunctionArgumentInjector_ParamArgPair struct {

@@ -9,7 +9,7 @@ type XtbMessageBundle struct {
 
 func (this *XtbMessageBundle) init_XtbMessageBundle(xtb []int8, projectId OptionalOf[string]) {
 	this.messages = newTMap_(tc_string, tc_p_JsMessage)
-	this.idGeneratorField = icast_JsMessage_IdGenerator(obj_(new_GoogleJsMessageIdGenerator(projectId)))
+	this.idGeneratorField = new_GoogleJsMessageIdGenerator(projectId)
 	_ = func() (code_ int) {
 		defer func() {
 			if r_ := recover(); r_ != nil {
@@ -25,7 +25,7 @@ func (this *XtbMessageBundle) init_XtbMessageBundle(xtb []int8, projectId Option
 		var parser *SAXParser = XtbMessageBundle_createSAXParser()
 		var reader XMLReader = parser.getXMLReader()
 		var contentHandler *XtbMessageBundle_Handler = new_XtbMessageBundle_Handler(this)
-		reader.setContentHandler(icast_ContentHandler(obj_(contentHandler)))
+		reader.setContentHandler(contentHandler)
 		reader.parse(new_InputSource(new_ByteArrayInputStream(xtb).up_InputStream()))
 		return 0
 	}()

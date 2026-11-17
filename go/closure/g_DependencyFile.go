@@ -47,7 +47,7 @@ func (this *DependencyFile) getDependencyInfo(symbol string) DependencyInfo {
 func (this *DependencyFile) loadGraph() {
 	clear(this.dependencies)
 	DependencyFile_logger.info("Loading dependency graph")
-	var errorManager ErrorManager = icast_ErrorManager(obj_(new_LoggerErrorManager_Logger(DependencyFile_logger)))
+	var errorManager ErrorManager = new_LoggerErrorManager_Logger(DependencyFile_logger)
 	var parser *DepsFileRegexParser = new_DepsFileRegexParser_ErrorManager(errorManager)
 	var depInfos ListOf[DependencyInfo] = parser.parseFile_2(this.getName(), this.getContent())
 	if !parser.didParseSucceed() {

@@ -38,7 +38,7 @@ func new_CheckConformance_AbstractCompiler_ImmutableList_ConformanceReportingMod
 
 func (this *CheckConformance) process_2(externs Node, root Node) {
 	if len(this.categories) != 0 {
-		NodeTraversal_traverseRoots(this.compiler_, icast_NodeTraversal_Callback(any(this)), externs, root)
+		NodeTraversal_traverseRoots(this.compiler_, this, externs, root)
 	}
 }
 
@@ -365,7 +365,7 @@ func CheckConformance_Precondition_clinit() {
 		return
 	}
 	CheckConformance_Precondition_clinit_done = true
-	CheckConformance_Precondition_CHECK_ALL = icast_CheckConformance_Precondition(obj_(new_CheckConformance_Precondition_1()))
+	CheckConformance_Precondition_CHECK_ALL = new_CheckConformance_Precondition_1()
 	CheckConformance_Precondition_IS_CONSTRUCTOR_OR_CLASS = lambda_CheckConformance_Precondition_clinit_1_
 
 }

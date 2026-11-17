@@ -31,7 +31,7 @@ func new_ClosureCheckModule(compiler *AbstractCompiler, moduleMetadataMap *Modul
 }
 
 func (this *ClosureCheckModule) process_2(externs Node, root Node) {
-	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(obj_(this)))
+	NodeTraversal_traverse(this.compiler_, root, this)
 }
 
 func (this *ClosureCheckModule) enterModule_impl(currentModule *ModuleMetadataMap_ModuleMetadata, moduleScopeRoot Node) {
@@ -146,7 +146,7 @@ func (this *ClosureCheckModule) checkJSDoc(t *NodeTraversal, jsDoc *JSDocInfo) {
 }
 
 func (this *ClosureCheckModule) checkTypeExpression(t *NodeTraversal, typeNode Node) {
-	NodeUtil_visitPreOrder_Node_Visitor(typeNode, icast_NodeUtil_Visitor(obj_(new_ClosureCheckModule_1(this, t))))
+	NodeUtil_visitPreOrder_Node_Visitor(typeNode, new_ClosureCheckModule_1(this, t))
 }
 
 func ClosureCheckModule_isLocalVar(v *Var) bool {

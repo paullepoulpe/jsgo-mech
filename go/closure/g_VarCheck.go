@@ -50,9 +50,9 @@ func (this *VarCheck) createScopeCreator() *SyntacticScopeCreator {
 func (this *VarCheck) process_2(externs Node, root Node) {
 	var scopeCreator ScopeCreator = icast_ScopeCreator(obj_(this.createScopeCreator()))
 	if !this.validityCheck {
-		NodeTraversal_builder().setCompiler(this.compiler_).setCallback(icast_NodeTraversal_Callback(obj_(new_VarCheck_NameRefInExternsCheck(this)))).setScopeCreator(scopeCreator).traverse(externs)
+		NodeTraversal_builder().setCompiler(this.compiler_).setCallback(new_VarCheck_NameRefInExternsCheck(this)).setScopeCreator(scopeCreator).traverse(externs)
 	}
-	NodeTraversal_builder().setCompiler(this.compiler_).setCallback(icast_NodeTraversal_Callback(any(this))).setScopeCreator(scopeCreator).traverseRoots(externs, root)
+	NodeTraversal_builder().setCompiler(this.compiler_).setCallback(this).setScopeCreator(scopeCreator).traverseRoots(externs, root)
 	it_1 := this.undefinedNamesFromExterns.each()
 	for it_1.next() {
 		var varName string = it_1.v

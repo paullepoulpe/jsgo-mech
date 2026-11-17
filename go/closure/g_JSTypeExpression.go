@@ -83,7 +83,7 @@ func (this *JSTypeExpression) getAllTypeNames() ImmutableSetOf[string] {
 		_ = n
 		builder.add(strobj_(n.getString()))
 	})
-	return cast_[*ImmutableSet](obj_(builder.build()))
+	return builder.build()
 }
 
 func JSTypeExpression_visitAllTypeNodes(n Node, visitor func(any)) {
@@ -167,7 +167,7 @@ func (this *JSTypeExpression) isExplicitUnknownTemplateBound() bool {
 func (this *JSTypeExpression) getRecordPropertyNames() ImmutableSetOf[string] {
 	var builder ImmutableSet_BuilderOf[string] = ImmutableSet_builder()
 	JSTypeExpression_getRecordPropertyNamesRecursive(this.root, builder)
-	return cast_[*ImmutableSet](obj_(builder.build()))
+	return builder.build()
 }
 
 func JSTypeExpression_getRecordPropertyNamesRecursive(n Node, names ImmutableSet_BuilderOf[string]) {
@@ -199,7 +199,7 @@ func JSTypeExpression_clinit() {
 	JSTypeExpression_clinit_done = true
 	JSTypeExpression_IMPLICIT_TEMPLATE_BOUND = new_JSTypeExpression(new_Node_Token(Token_rhino_QMARK), JSTypeExpression_IMPLICIT_TEMPLATE_BOUND_SOURCE)
 	{
-		JSTypeExpression_IMPLICIT_TEMPLATE_BOUND.getRoot().setStaticSourceFile(icast_StaticSourceFile(obj_(new_SimpleSourceFile(JSTypeExpression_IMPLICIT_TEMPLATE_BOUND_SOURCE, StaticSourceFile_SourceKind_STRONG))))
+		JSTypeExpression_IMPLICIT_TEMPLATE_BOUND.getRoot().setStaticSourceFile(new_SimpleSourceFile(JSTypeExpression_IMPLICIT_TEMPLATE_BOUND_SOURCE, StaticSourceFile_SourceKind_STRONG))
 	}
 
 }

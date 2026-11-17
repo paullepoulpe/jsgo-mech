@@ -1087,7 +1087,7 @@ func (this *AstFactory) createJSCompMakeAsyncIteratorCall(iterable Node, scope S
 func (this *AstFactory) replaceTemplate(templatedType *JSType, templateTypes []*JSType) *JSType {
 	var typeMap *TemplateTypeMap = this.registry.getEmptyTemplateTypeMap().copyWithExtension_2(templatedType.getTemplateTypeMap().getTemplateKeys(), templateTypes)
 	var replacer *TemplateTypeReplacer = TemplateTypeReplacer_forPartialReplacement(this.registry, typeMap)
-	return to_JSType(templatedType.visit(icast_Visitor(obj_(replacer))))
+	return to_JSType(templatedType.visit(replacer))
 }
 
 func (this *AstFactory) createEmptyAsyncGeneratorWrapperArgument(asyncGeneratorWrapperType *JSType) Node {
@@ -1164,35 +1164,35 @@ func (this *AstFactory) setJSTypeOrColor(type_ AstFactory_Type, result Node) {
 }
 
 func AstFactory_type_Node(node Node) AstFactory_Type {
-	return icast_AstFactory_Type(obj_(new_AstFactory_TypeOnNode(node)))
+	return new_AstFactory_TypeOnNode(node)
 }
 
 func AstFactory_typeJSType_JSType(type_ *JSType) AstFactory_Type {
-	return icast_AstFactory_Type(obj_(new_AstFactory_JSTypeOrColor(type_, 0, nil, nil)))
+	return new_AstFactory_JSTypeOrColor(type_, 0, nil, nil)
 }
 
 func AstFactory_typeJSTypeNative(type_ JSTypeNative) AstFactory_Type {
-	return icast_AstFactory_Type(obj_(new_AstFactory_JSTypeOrColor(nil, type_, nil, nil)))
+	return new_AstFactory_JSTypeOrColor(nil, type_, nil, nil)
 }
 
 func AstFactory_typeColor(type_ *Color) AstFactory_Type {
-	return icast_AstFactory_Type(obj_(new_AstFactory_JSTypeOrColor(nil, 0, type_, nil)))
+	return new_AstFactory_JSTypeOrColor(nil, 0, type_, nil)
 }
 
 func AstFactory_typeColorId(type_ *ColorId) AstFactory_Type {
-	return icast_AstFactory_Type(obj_(new_AstFactory_JSTypeOrColor(nil, 0, nil, type_)))
+	return new_AstFactory_JSTypeOrColor(nil, 0, nil, type_)
 }
 
 func AstFactory_typeJSType_JSType_Color(type_ *JSType, color *Color) AstFactory_Type {
-	return icast_AstFactory_Type(obj_(new_AstFactory_JSTypeOrColor(type_, 0, color, nil)))
+	return new_AstFactory_JSTypeOrColor(type_, 0, color, nil)
 }
 
 func AstFactory_type_JSTypeNative_Color(type_ JSTypeNative, color *Color) AstFactory_Type {
-	return icast_AstFactory_Type(obj_(new_AstFactory_JSTypeOrColor(nil, type_, color, nil)))
+	return new_AstFactory_JSTypeOrColor(nil, type_, color, nil)
 }
 
 func AstFactory_noTypeInformation() AstFactory_Type {
-	return icast_AstFactory_Type(obj_(new_AstFactory_JSTypeOrColor(nil, 0, nil, nil)))
+	return new_AstFactory_JSTypeOrColor(nil, 0, nil, nil)
 }
 
 var AstFactory_DOT_SPLITTER *Splitter

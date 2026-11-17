@@ -20,7 +20,7 @@ func ConformanceAllowlister_getViolatingPaths(compiler *Compiler, externs Node, 
 	for _, error_ := range ConformanceAllowlister_getConformanceErrors(compiler, externs, ast, requirement) {
 		result.add(strobj_(error_.sourceName().get()))
 	}
-	return cast_[*ImmutableSet](obj_(result.build()))
+	return result.build()
 }
 
 func ConformanceAllowlister_getViolatingNodes(compiler *Compiler, externs Node, ast Node, requirement *Requirement) ImmutableSetOf[Node] {
@@ -28,7 +28,7 @@ func ConformanceAllowlister_getViolatingNodes(compiler *Compiler, externs Node, 
 	for _, error_ := range ConformanceAllowlister_getConformanceErrors(compiler, externs, ast, requirement) {
 		result.add(error_.node().box_())
 	}
-	return cast_[*ImmutableSet](obj_(result.build()))
+	return result.build()
 }
 
 func ConformanceAllowlister_getConformanceErrors(compiler *Compiler, externs Node, ast Node, requirement *Requirement) []*JSError {
@@ -40,7 +40,7 @@ func ConformanceAllowlister_getConformanceErrors(compiler *Compiler, externs Nod
 		defer func() {
 			compiler.setErrorManager(oldErrorManager)
 		}()
-		compiler.setErrorManager(icast_ErrorManager(obj_(new_ConformanceAllowlister_1(errors, oldErrorManager))))
+		compiler.setErrorManager(new_ConformanceAllowlister_1(errors, oldErrorManager))
 		var check *CheckConformance = new_CheckConformance_AbstractCompiler_ImmutableList_ConformanceReportingMode(compiler.up_AbstractCompiler(), ImmutableList_of_Object(obj_(cleanedConfig)), 0)
 		check.process_2(externs, ast)
 		return 0

@@ -76,7 +76,7 @@ func (this *DepsGenerator) cleanUpDuplicatedFiles(depsFiles MapOf[string, Depend
 }
 
 func (this *DepsGenerator) removeMungedSymbols(depFiles MapOf[string, DependencyInfo], jsFiles MapOf[string, DependencyInfo]) MapOf[string, DependencyInfo] {
-	var newJsFiles MapOf[string, DependencyInfo] = icast_Map(obj_(new_LinkedHashMap()))
+	var newJsFiles MapOf[string, DependencyInfo] = new_LinkedHashMap()
 	var providesMap map[string]DependencyInfo = map[string]DependencyInfo{}
 	this.addToProvideMap(Iterable(depFiles.values()), providesMap, true)
 	this.addToProvideMap(Iterable(jsFiles.values()), providesMap, false)
@@ -109,9 +109,9 @@ func (this *DepsGenerator) removeMungedSymbols(depFiles MapOf[string, Dependency
 					builder.add(strobj_(provide))
 				}
 			}
-			provides = cast_[*ImmutableList](obj_(builder.build()))
+			provides = builder.build()
 		}
-		Map_put_s(newJsFiles, dependencyInfo.getPathRelativeToClosureBase(), obj_(SimpleDependencyInfo_builder(dependencyInfo.getPathRelativeToClosureBase(), Optional_of[string](dependencyInfo.getName())).setProvides(icast_Collection(obj_(provides))).setRequires(icast_Collection(any(newRequires.asList()))).setLoadFlags(icast_Map(obj_(dependencyInfo.getLoadFlags()))).build()))
+		Map_put_s(newJsFiles, dependencyInfo.getPathRelativeToClosureBase(), obj_(SimpleDependencyInfo_builder(dependencyInfo.getPathRelativeToClosureBase(), Optional_of[string](dependencyInfo.getName())).setProvides(icast_Collection(obj_(provides))).setRequires(newRequires.asList()).setLoadFlags(icast_Map(obj_(dependencyInfo.getLoadFlags()))).build()))
 	}
 	return newJsFiles
 }
@@ -212,7 +212,7 @@ func (this *DepsGenerator) shouldSkipDepsFile(file *SourceFile_jscomp) bool {
 
 func (this *DepsGenerator) parseDepsFiles() *Outcome_base {
 	var depsParser *DepsFileRegexParser = this.createDepsFileParser()
-	var depsFiles MapOf[string, DependencyInfo] = icast_Map(obj_(new_LinkedHashMap()))
+	var depsFiles MapOf[string, DependencyInfo] = new_LinkedHashMap()
 	it_1 := foreach_(any(this.deps))
 	for it_1.next() {
 		var file *SourceFile_jscomp = cast_[*SourceFile_jscomp](it_1.v)
@@ -281,10 +281,10 @@ func DepsGenerator_providesWithoutRelativePath(info DependencyInfo) *TList[strin
 }
 
 func (this *DepsGenerator) parseSources(preparsedFiles SetOf[string]) *Outcome_base {
-	var parsedFiles MapOf[string, DependencyInfo] = icast_Map(obj_(new_LinkedHashMap()))
+	var parsedFiles MapOf[string, DependencyInfo] = new_LinkedHashMap()
 	var jsParser *JsFileRegexParser = new_JsFileRegexParser(this.errorManager).setModuleLoader(this.loader)
 	var compiler *Compiler = new_Compiler_0()
-	compiler.init(icast_List(obj_(ImmutableList_of())), icast_List(obj_(ImmutableList_of())), new_CompilerOptions())
+	compiler.init(ImmutableList_of(), ImmutableList_of(), new_CompilerOptions())
 	it_1 := foreach_(any(this.srcs))
 	for it_1.next() {
 		var file *SourceFile_jscomp = cast_[*SourceFile_jscomp](it_1.v)
@@ -298,7 +298,7 @@ func (this *DepsGenerator) parseSources(preparsedFiles SetOf[string]) *Outcome_b
 				return Outcome_base_err(code.error())
 			}
 			var depInfo DependencyInfo = jsParser.parseFile(file.getName(), closureRelativePath, str_(code.get()))
-			depInfo = icast_DependencyInfo(obj_(new_LazyParsedDependencyInfo(depInfo, new_CompilerInput_SourceFile(file), compiler.up_AbstractCompiler())))
+			depInfo = new_LazyParsedDependencyInfo(depInfo, new_CompilerInput_SourceFile(file), compiler.up_AbstractCompiler())
 			if depInfo.getHasExternsAnnotation() {
 				continue
 			}
@@ -355,7 +355,7 @@ func DepsGenerator_createSourceFilesFromPathsStringVarargs(paths []string) []*So
 }
 
 func DepsGenerator_createSourceFilesFromZipPaths(paths CollectionOf[string]) *Outcome_base {
-	var zipSourceFiles ListOf[*SourceFile_jscomp] = icast_List(new_ArrayList_0().self())
+	var zipSourceFiles ListOf[*SourceFile_jscomp] = new_ArrayList_0()
 	it_1 := foreach_(any(paths))
 	for it_1.next() {
 		var path string = str_(it_1.v)

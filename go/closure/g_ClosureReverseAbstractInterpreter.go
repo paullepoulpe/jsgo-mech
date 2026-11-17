@@ -17,8 +17,8 @@ func (this *ClosureReverseAbstractInterpreter) up_ChainableReverseAbstractInterp
 }
 
 func (this *ClosureReverseAbstractInterpreter) finit_ClosureReverseAbstractInterpreter() {
-	this.restrictToObjectVisitor = icast_Visitor(obj_(new_ClosureReverseAbstractInterpreter_1(this)))
-	this.restrictToNotObjectVisitor = icast_Visitor(obj_(new_ClosureReverseAbstractInterpreter_2(this)))
+	this.restrictToObjectVisitor = new_ClosureReverseAbstractInterpreter_1(this)
+	this.restrictToNotObjectVisitor = new_ClosureReverseAbstractInterpreter_2(this)
 }
 
 func (this *ClosureReverseAbstractInterpreter) init_ClosureReverseAbstractInterpreter(typeRegistry *JSTypeRegistry) {

@@ -62,8 +62,8 @@ func (this *ConvertToTypedInterface) processFile(scriptNode Node) {
 		scriptNode.setJSDocInfo(scriptJsDocBuilder.build())
 	}
 	var currentFile *FileInfo = new_FileInfo(sourceFileName)
-	NodeTraversal_traverse(this.compiler_, scriptNode, icast_NodeTraversal_Callback(obj_(new_ConvertToTypedInterface_RemoveNonDeclarations())))
-	NodeTraversal_traverse(this.compiler_, scriptNode, icast_NodeTraversal_Callback(obj_(new_ConvertToTypedInterface_PropagateConstJsdoc(currentFile))))
+	NodeTraversal_traverse(this.compiler_, scriptNode, new_ConvertToTypedInterface_RemoveNonDeclarations())
+	NodeTraversal_traverse(this.compiler_, scriptNode, new_ConvertToTypedInterface_PropagateConstJsdoc(currentFile))
 	new_ConvertToTypedInterface_SimplifyDeclarations(this.compiler_, currentFile).simplifyAll()
 }
 
