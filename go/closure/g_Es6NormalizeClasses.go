@@ -405,9 +405,8 @@ func (this *Es6NormalizeClasses) insertPrivateDeclarations(t *NodeTraversal, rec
 }
 
 func (this *Es6NormalizeClasses) findPrivateMember(name string) *Es6NormalizeClasses_ResolvedPrivateMember {
-	it_1 := eachRevOf_(&this.classStack)
-	for it_1.next() {
-		var record *Es6NormalizeClasses_ClassRecord = it_1.v
+	for i_1 := 0; i_1 < len(this.classStack); i_1++ {
+		var record *Es6NormalizeClasses_ClassRecord = this.classStack[len(this.classStack)-1-i_1]
 		if record.hasPrivateMember(name) {
 			return new_Es6NormalizeClasses_ResolvedPrivateMember(record, record.getPrivateMember(name))
 		}
@@ -1191,9 +1190,8 @@ func (this *Es6NormalizeClasses) addStaticPrivateMembers(record *Es6NormalizeCla
 }
 
 func (this *Es6NormalizeClasses) maybeUpdateClassSelfRef(t *NodeTraversal, nameNode Node) {
-	it_1 := eachRevOf_(&this.classStack)
-	for it_1.next() {
-		var klass *Es6NormalizeClasses_ClassRecord = it_1.v
+	for i_1 := 0; i_1 < len(this.classStack); i_1++ {
+		var klass *Es6NormalizeClasses_ClassRecord = this.classStack[len(this.classStack)-1-i_1]
 		if klass.bindingIdentifier.isEmpty() {
 			continue
 		}

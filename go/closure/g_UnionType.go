@@ -116,7 +116,8 @@ func lambda_UnionType_matchesObjectContext_impl_1_(p0 any) bool {
 
 func (this *UnionType) findPropertyTypeWithoutConsideringTemplateTypes_impl(propertyName Property_Key) *JSType {
 	var propertyType *JSType = nil
-	for alternate := range elemsBy_(obj_(this.alternates), to_JSType) {
+	for _, el := range immElems_(this.alternates) {
+		alternate := to_JSType(el)
 		if alternate.isNullType() || alternate.isVoidType() {
 			continue
 		}
@@ -345,7 +346,8 @@ func (this *UnionType) getRestrictedUnion(type_ *JSType) *JSType {
 func (this *UnionType) appendTo_impl(sb *TypeStringBuilder) {
 	sb.append("(")
 	var names *TList[string] = newTList_(tc_string)
-	for alt := range elemsBy_(obj_(this.alternates), to_JSType) {
+	for _, el := range immElems_(this.alternates) {
+		alt := to_JSType(el)
 		names.add(sb.cloneWithConfig().appendJSType(alt).build())
 	}
 	Collections_sort(names.asList())

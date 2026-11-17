@@ -23,7 +23,8 @@ func (this *InjectRuntimeLibraries) process_2(externs Node, root Node) {
 }
 
 func (this *InjectRuntimeLibraries) injectLibraries() {
-	for forced := range elemsBy_(obj_(this.forceInjectedLibraries), str_) {
+	for _, el := range immElems_(this.forceInjectedLibraries) {
+		forced := str_(el)
 		this.runtimeLibs.ensureLibraryInjected(forced, true)
 	}
 }

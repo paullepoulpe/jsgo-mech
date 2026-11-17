@@ -49,7 +49,8 @@ func (this *DefaultDependencyResolver) addDependency(symbol string, seen *TSet[s
 		}
 	} else if !seen.asSet().containsAll(icast_Collection(obj_(dependency.getProvides()))) {
 		seen.asSet().addAll(icast_Collection(obj_(dependency.getProvides())))
-		for require := range elemsBy_(obj_(dependency.getRequiredSymbols()), str_) {
+		for _, el := range immElems_(dependency.getRequiredSymbols()) {
+			require := str_(el)
 			this.addDependency(require, seen, list)
 		}
 		list.add(dependency.getPathRelativeToClosureBase())

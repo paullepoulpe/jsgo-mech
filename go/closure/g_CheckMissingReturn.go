@@ -77,9 +77,9 @@ var lambda_CheckMissingReturn_enterScopeWithCfg_impl_1_ = &Predicate_base_fn{fun
 var lambda_CheckMissingReturn_enterScopeWithCfg_impl_2_ = &Predicate_base_fn{func(p0 any) bool { return CheckMissingReturn_goesThroughTrueCondition(icast_DiGraph_DiGraphEdge(p0)) }}
 
 func (this *CheckMissingReturn) fastAllPathsReturnCheck(cfg *ControlFlowGraph) bool {
-	it_1 := cfg.getImplicitReturn().getInEdges().each()
-	for it_1.next() {
-		var s DiGraph_DiGraphEdge = it_1.v
+	l_1 := cfg.getImplicitReturn().getInEdges()
+	for i_1 := 0; i_1 < len(l_1.items); i_1++ {
+		var s DiGraph_DiGraphEdge = l_1.items[i_1]
 		var n Node = Node_of_(s.getSource().getValue())
 		if !n.isReturn() && !this.convention.isFunctionCallThatAlwaysThrows(n) {
 			return false

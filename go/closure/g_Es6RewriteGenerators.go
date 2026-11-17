@@ -1130,9 +1130,8 @@ func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_Transpilation
 }
 
 func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext) getNextCatchCase() *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_Case {
-	it_1 := eachRevOf_(&this.catchCases)
-	for it_1.next() {
-		var catchCase *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_CatchCase = it_1.v
+	for i_1 := 0; i_1 < len(this.catchCases); i_1++ {
+		var catchCase *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_CatchCase = this.catchCases[len(this.catchCases)-1-i_1]
 		if catchCase.finallyBlocks == 0 {
 			return catchCase.catchCase
 		}

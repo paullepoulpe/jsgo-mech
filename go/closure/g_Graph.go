@@ -290,9 +290,8 @@ func new_Graph_SimpleSubGraph(graph *Graph) *Graph_SimpleSubGraph {
 
 func (this *Graph_SimpleSubGraph) isIndependentOf(value any) bool {
 	var node GraphNode = this.graph.getNode(value)
-	it_1 := eachOf_(&this.nodes_)
-	for it_1.next() {
-		var n GraphNode = it_1.v
+	for i_1 := 0; i_1 < len(this.nodes_); i_1++ {
+		var n GraphNode = this.nodes_[i_1]
 		if sliceView_(tc_GraphNode, this.graph.getNeighborNodes(n.getValue())).contains(node) {
 			return false
 		}

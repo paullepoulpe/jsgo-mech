@@ -34,7 +34,8 @@ func (this *TemplatizedType) init_TemplatizedType(registry *JSTypeRegistry, obje
 	this.ProxyObjectType.init_ProxyObjectType_JSTypeRegistry_JSType_TemplateTypeMap(registry, objectType.up_JSType(), objectType.getTemplateTypeMap().copyFilledWithValues(templateTypes))
 	var builder ImmutableList_BuilderOf[*JSType] = ImmutableList_builder()
 	var maybeIsSpecializedOnlyWithUnknown bool = true
-	for newlyFilledTemplateKey := range elemsAs_[*TemplateType](obj_(objectType.getTypeParameters())) {
+	for _, el := range immElems_(objectType.getTypeParameters()) {
+		newlyFilledTemplateKey := cast_[*TemplateType](el)
 		var resolvedType *JSType = this.getTemplateTypeMap().getResolvedTemplateType(newlyFilledTemplateKey)
 		builder.add(resolvedType.self())
 		if maybeIsSpecializedOnlyWithUnknown {
@@ -161,7 +162,8 @@ func (this *TemplatizedType) resolveInternal_impl(reporter ErrorReporter_rhino) 
 	this.ProxyObjectType.resolveInternal_impl(reporter)
 	var rebuild bool = (baseTypeBefore != this.getReferencedType().up_JSType())
 	var builder ImmutableList_BuilderOf[*JSType] = ImmutableList_builder()
-	for type_ := range elemsBy_(obj_(this.templateTypes), to_JSType) {
+	for _, el := range immElems_(this.templateTypes) {
+		type_ := to_JSType(el)
 		var resolved *JSType = type_.resolve(reporter)
 		rebuild = bor_(rebuild, !JSCompObjects_identical(resolved.self(), type_.self()))
 		builder.add(resolved.self())

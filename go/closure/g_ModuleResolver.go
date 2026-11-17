@@ -63,9 +63,8 @@ func (this *ModuleResolver) locate(scriptAddress string, name string) OptionalOf
 	if Collection_contains_s(this.modulePaths, normalizedPath) {
 		return Optional_of[string](canonicalizedPath)
 	}
-	it_1 := foreach_(obj_(this.moduleRootPaths))
-	for it_1.next() {
-		var rootPath string = str_(it_1.v)
+	for _, el_1 := range immElems_(this.moduleRootPaths) {
+		var rootPath string = str_(el_1)
 		var modulePath string = (sstr_(rootPath) + sstr_(normalizedPath))
 		if Collection_contains_s(this.modulePaths, modulePath) {
 			return Optional_of[string](canonicalizedPath)

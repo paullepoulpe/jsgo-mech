@@ -85,9 +85,8 @@ func (this *PhaseOptimizer) setPrintAstHashcodes(printAstHashcodes bool) {
 }
 
 func (this *PhaseOptimizer) process_2(externs Node, root Node) {
-	it_1 := eachOf_(&this.passes)
-	for it_1.next() {
-		var pass CompilerPass = it_1.v
+	for i_1 := 0; i_1 < len(this.passes); i_1++ {
+		var pass CompilerPass = this.passes[i_1]
 		if Platform_isThreadInterrupted() {
 			panic(new_RuntimeException_Throwable(new_InterruptedException_0().up_Throwable()).self())
 		}
@@ -384,9 +383,8 @@ func (this *PhaseOptimizer_Loop) process_2(externs Node, root Node) {
 			}
 			count++
 			lastIterMadeChanges = false
-			it_5 := eachOf_(&this.myPasses)
-			for it_5.next() {
-				var pass *PhaseOptimizer_NamedPass = it_5.v
+			for i_5 := 0; i_5 < len(this.myPasses); i_5++ {
+				var pass *PhaseOptimizer_NamedPass = this.myPasses[i_5]
 				if (((state == PhaseOptimizer_State_RUN_PASSES_NOT_RUN_IN_PREV_ITER) && !has_(runInPrevIter, pass)) && !has_(didNotMakeChanges, pass)) || ((state == PhaseOptimizer_State_RUN_PASSES_THAT_CHANGED_STH_IN_PREV_ITER) && has_(madeChanges, pass)) {
 					this.outer_.changeTracker.incrementChangeStamp()
 					this.outer_.currentPass = pass
@@ -448,9 +446,8 @@ func (this *PhaseOptimizer_Loop) isPopulated() bool {
 }
 
 func (this *PhaseOptimizer_Loop) isCodeRemovalLoop() bool {
-	it_1 := eachOf_(&this.myPasses)
-	for it_1.next() {
-		var pass *PhaseOptimizer_NamedPass = it_1.v
+	for i_1 := 0; i_1 < len(this.myPasses); i_1++ {
+		var pass *PhaseOptimizer_NamedPass = this.myPasses[i_1]
 		if Collection_contains_s(PhaseOptimizer_CODE_REMOVING_PASSES, pass.name_) {
 			return true
 		}

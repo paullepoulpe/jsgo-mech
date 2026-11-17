@@ -351,9 +351,8 @@ func (this *ProcessCommonJSModules) reportNestedScopesChanged(n Node) {
 }
 
 func ProcessCommonJSModules_findUmdPattern(umdPatterns *TList[*ProcessCommonJSModules_UmdPattern], n Node) *ProcessCommonJSModules_UmdPattern {
-	it_1 := umdPatterns.each()
-	for it_1.next() {
-		var umd *ProcessCommonJSModules_UmdPattern = it_1.v
+	for i_1 := 0; i_1 < len(umdPatterns.items); i_1++ {
+		var umd *ProcessCommonJSModules_UmdPattern = umdPatterns.items[i_1]
 		if umd.ifRoot == n {
 			return umd
 		}
@@ -943,7 +942,8 @@ func (this *ProcessCommonJSModules_RewriteModule) visit_impl(t *NodeTraversal, n
 				functionExpr.detach().insertAfter(insertionPoint)
 			}
 		}
-		for export := range elemsAs_[*ProcessCommonJSModules_ExportInfo](obj_(this.exports)) {
+		for _, el := range immElems_(this.exports) {
+			export := cast_[*ProcessCommonJSModules_ExportInfo](el)
 			this.visitExport(t, export)
 		}
 		for require := range sliceAll_(&this.imports) {
@@ -1358,9 +1358,8 @@ func (this *ProcessCommonJSModules_RewriteModule) getExportedName(t *NodeTravers
 		})
 	}
 	var baseExportName OptionalOf[string] = this.outer_.getBasePropertyImport(ProcessCommonJSModules_getModuleName(t.getInput()))
-	it_1 := foreach_(obj_(this.exports))
-	for it_1.next() {
-		var export *ProcessCommonJSModules_ExportInfo = cast_[*ProcessCommonJSModules_ExportInfo](it_1.v)
+	for _, el_1 := range immElems_(this.exports) {
+		var export *ProcessCommonJSModules_ExportInfo = cast_[*ProcessCommonJSModules_ExportInfo](el_1)
 		var exportBase Node = this.outer_.getBaseQualifiedNameNode(export.node_)
 		var exportRValue Node = NodeUtil_getRValueOfLValue(exportBase)
 		if exportRValue == 0 {

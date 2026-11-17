@@ -4410,7 +4410,8 @@ func NodeUtil_addFeaturesToScript(scriptNode Node, features *FeatureSet, compile
 	if !scriptNode.isScript() {
 		panic(new_IllegalStateException_String(objstr_(scriptNode.box_())).self())
 	}
-	for feature := range elemsAs_[FeatureSet_Feature](obj_(features.getFeatures())) {
+	for _, el := range immElems_(features.getFeatures()) {
+		feature := cast_[FeatureSet_Feature](el)
 		NodeUtil_addFeatureToScript(scriptNode, feature, compiler)
 	}
 }

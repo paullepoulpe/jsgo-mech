@@ -50,9 +50,8 @@ func CaseCanonicalize_caseCanonicalize(ch uint16) uint16 {
 		}()
 	}
 	if CaseCanonicalize_CASE_SENSITIVE.contains(int32(ch)) {
-		it_1 := foreach_(obj_(CaseCanonicalize_CANON_DELTA_SETS))
-		for it_1.next() {
-			var ds *CaseCanonicalize_DeltaSet = cast_[*CaseCanonicalize_DeltaSet](it_1.v)
+		for _, el_1 := range immElems_(CaseCanonicalize_CANON_DELTA_SETS) {
+			var ds *CaseCanonicalize_DeltaSet = cast_[*CaseCanonicalize_DeltaSet](el_1)
 			if ds.codeUnits.contains(int32(ch)) {
 				return uint16((int32(ch) - ds.delta))
 			}
@@ -67,7 +66,8 @@ func CaseCanonicalize_expandToAllMatched(ranges *CharRanges) *CharRanges {
 		return ranges
 	}
 	var expanded *CharRanges = CharRanges_EMPTY
-	for ds := range elemsAs_[*CaseCanonicalize_DeltaSet](obj_(CaseCanonicalize_DELTA_SETS)) {
+	for _, el := range immElems_(CaseCanonicalize_DELTA_SETS) {
+		ds := cast_[*CaseCanonicalize_DeltaSet](el)
 		expanded = expanded.union(caseSensitive.intersection(ds.codeUnits).shift((-ds.delta)))
 	}
 	return ranges.union(expanded)
@@ -79,7 +79,8 @@ func CaseCanonicalize_reduceToMinimum(ranges *CharRanges) *CharRanges {
 		return ranges
 	}
 	var expanded *CharRanges = CharRanges_EMPTY
-	for ds := range elemsAs_[*CaseCanonicalize_DeltaSet](obj_(CaseCanonicalize_CANON_DELTA_SETS)) {
+	for _, el := range immElems_(CaseCanonicalize_CANON_DELTA_SETS) {
+		ds := cast_[*CaseCanonicalize_DeltaSet](el)
 		expanded = expanded.union(caseSensitive.intersection(ds.codeUnits).shift((-ds.delta)))
 	}
 	expanded = expanded.difference(CaseCanonicalize_UCASE_ASCII_LETTERS).union(expanded.intersection(CaseCanonicalize_UCASE_ASCII_LETTERS).shift(32))

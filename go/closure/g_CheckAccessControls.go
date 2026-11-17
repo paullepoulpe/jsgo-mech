@@ -526,9 +526,9 @@ func (this *CheckAccessControls) checkPrivatePropertyVisibility(propRef *CheckAc
 
 func (this *CheckAccessControls) checkProtectedPropertyVisibility(propRef *CheckAccessControls_PropertyReference, ownerType *ObjectType) {
 	if ownerType != nil {
-		it_1 := eachRevOf_(&this.currentClassStack)
-		for it_1.next() {
-			var scopeType *JSType = to_JSType(it_1.v.self())
+		for i_1 := 0; i_1 < len(this.currentClassStack); i_1++ {
+			el_1 := this.currentClassStack[len(this.currentClassStack)-1-i_1]
+			var scopeType *JSType = to_JSType(el_1.self())
 			if scopeType == nil {
 				continue
 			} else if scopeType.isSubtypeOf(ownerType.up_JSType()) {

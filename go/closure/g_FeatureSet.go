@@ -83,9 +83,8 @@ func (this *FeatureSet) union(other *FeatureSet) *FeatureSet {
 }
 
 func (this *FeatureSet) containsAtLeastOneOf(other *FeatureSet) bool {
-	it_1 := foreach_(obj_(other.features_))
-	for it_1.next() {
-		var otherFeature FeatureSet_Feature = cast_[FeatureSet_Feature](it_1.v)
+	for _, el_1 := range immElems_(other.features_) {
+		var otherFeature FeatureSet_Feature = cast_[FeatureSet_Feature](el_1)
 		if this.features_.contains(obj_(otherFeature)) {
 			return true
 		}

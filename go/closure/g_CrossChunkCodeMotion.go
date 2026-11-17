@@ -609,9 +609,8 @@ func (this *CrossChunkCodeMotion_DeclarationStatementGroupCycle) getPreferredChu
 }
 
 func (this *CrossChunkCodeMotion_DeclarationStatementGroupCycle) allStatementsCanMove() bool {
-	it_1 := eachOf_(&this.dsgs)
-	for it_1.next() {
-		var dsg *CrossChunkCodeMotion_DeclarationStatementGroup = it_1.v
+	for i_1 := 0; i_1 < len(this.dsgs); i_1++ {
+		var dsg *CrossChunkCodeMotion_DeclarationStatementGroup = this.dsgs[i_1]
 		if !dsg.allStatementsCanMove() {
 			return false
 		}

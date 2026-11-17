@@ -484,13 +484,15 @@ func (this *FunctionTypeBuilder) buildTemplateTypesFromJSDocInfo(info *JSDocInfo
 		return ImmutableList_of()
 	}
 	var unboundedTemplates *TList[*TemplateType] = newTList_(tc_p_TemplateType)
-	for templateKey := range elemsBy_(obj_(cast_[*ImmutableSet](infoTypeKeys.keySet())), str_) {
+	for _, el := range immElems_(cast_[*ImmutableSet](infoTypeKeys.keySet())) {
+		templateKey := str_(el)
 		unboundedTemplates.add(this.typeRegistry.createTemplateType(templateKey))
 	}
 	this.templateScope = this.typeRegistry.createScopeWithTemplates(this.templateScope, Iterable(unboundedTemplates.asList()))
 	var templates ImmutableList_BuilderOf[*TemplateType] = ImmutableList_builder()
 	var templatesToBounds *TMap[*TemplateType, *JSType] = newTMap_(tch_p_TemplateType, tc_p_JSType)
-	for entry := range elemsBy_(obj_(cast_[*ImmutableSet](infoTypeKeys.entrySet())), icast_Map_Entry) {
+	for _, el2 := range immElems_(cast_[*ImmutableSet](infoTypeKeys.entrySet())) {
+		entry := icast_Map_Entry(el2)
 		var expr *JSTypeExpression = cast_[*JSTypeExpression](entry.getValue())
 		var typeBound *JSType = this.typeRegistry.evaluateTypeExpression(cast_[*JSTypeExpression](entry.getValue()), this.templateScope)
 		if expr.isExplicitUnknownTemplateBound() {
@@ -509,7 +511,8 @@ func (this *FunctionTypeBuilder) buildTemplateTypesFromJSDocInfo(info *JSDocInfo
 		template.setBound(bound)
 		templates.add(obj_(template))
 	}
-	for entry := range elemsBy_(obj_(cast_[*ImmutableSet](infoTypeTransformations.entrySet())), icast_Map_Entry) {
+	for _, el3 := range immElems_(cast_[*ImmutableSet](infoTypeTransformations.entrySet())) {
+		entry := icast_Map_Entry(el3)
 		if allowTypeTransformations {
 			templates.add(obj_(this.typeRegistry.createTemplateTypeWithTransformation(str_(entry.getKey()), Node_of_(entry.getValue()))))
 		} else {
@@ -517,7 +520,8 @@ func (this *FunctionTypeBuilder) buildTemplateTypesFromJSDocInfo(info *JSDocInfo
 		}
 	}
 	var builtTemplates ImmutableListOf[*TemplateType] = templates.build()
-	for template := range elemsAs_[*TemplateType](obj_(builtTemplates)) {
+	for _, el4 := range immElems_(builtTemplates) {
+		template := cast_[*TemplateType](el4)
 		if template.containsCycle() {
 			this.reportError(RhinoErrorReporter_CYCLIC_INHERITANCE_ERROR, []string{("Cycle detected in inheritance chain of type " + sstr_(template.getReferenceName().orElse("null")))})
 		}
@@ -712,9 +716,8 @@ func FunctionTypeBuilder_hasMoreTagsToResolve(objectType *ObjectType) bool {
 	}
 	var ctor *FunctionType = objectType.getConstructor()
 	if ctor != nil {
-		it_1 := foreach_(obj_(ctor.getExtendedInterfaces()))
-		for it_1.next() {
-			var interfaceType *ObjectType = to_ObjectType(it_1.v)
+		for _, el_1 := range immElems_(ctor.getExtendedInterfaces()) {
+			var interfaceType *ObjectType = to_ObjectType(el_1)
 			if !interfaceType.isResolved() {
 				return true
 			}

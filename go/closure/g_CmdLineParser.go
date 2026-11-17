@@ -197,9 +197,9 @@ func (this *CmdLineParser) parseArgument(args []string) *Outcome_base {
 		cmdLine.proceed(unbox_[int32](diff.get()))
 		present[this.currentOption] = struct{}{}
 	}
-	it_2 := this.sortedOptions().each()
-	for it_2.next() {
-		var option *CmdLineParser_Option = it_2.v
+	l_2 := this.sortedOptions()
+	for i_2 := 0; i_2 < len(l_2.items); i_2++ {
+		var option *CmdLineParser_Option = l_2.items[i_2]
 		if option.requiredField && !has_(present, option) {
 			return Outcome_base_err(new_CmdLineException_CmdLineParser_String(this, ("Option \"" + tostr_(option) + "\" is required")).up_Throwable())
 		}
@@ -239,9 +239,9 @@ func (this *CmdLineParser) findOptionOfKeyValuePair(name string) *CmdLineParser_
 }
 
 func (this *CmdLineParser) findOptionByName(name string) *CmdLineParser_Option {
-	it_1 := this.options_.each()
-	for it_1.next() {
-		var option *CmdLineParser_Option = it_1.v
+	l_1 := this.options_
+	for i_1 := 0; i_1 < len(l_1.items); i_1++ {
+		var option *CmdLineParser_Option = l_1.items[i_1]
 		if name == option.nameField {
 			return option
 		}

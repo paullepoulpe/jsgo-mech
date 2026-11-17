@@ -32,13 +32,15 @@ func (this *DiagnosticToSuppressionMapper) createSuppressionMap() ImmutableSorte
 	delete(validSuppressions, "accessControls")
 	delete(validSuppressions, "missingSourcesWarnings")
 	var diagnosticToSuppression *TMap[*DiagnosticType, string] = newTMap_(tch_p_DiagnosticType, tc_string)
-	for entry := range elemsBy_(obj_(cast_[*ImmutableSet](this.diagnosticGroups.entrySet())), icast_Map_Entry) {
+	for _, el := range immElems_(cast_[*ImmutableSet](this.diagnosticGroups.entrySet())) {
+		entry := icast_Map_Entry(el)
 		var suppression string = str_(entry.getKey())
 		if !has_(validSuppressions, suppression) {
 			continue
 		}
 		var group *DiagnosticGroup = cast_[*DiagnosticGroup](entry.getValue())
-		for diagnosticType := range elemsAs_[*DiagnosticType](obj_(group.getTypes())) {
+		for _, el2 := range immElems_(group.getTypes()) {
+			diagnosticType := cast_[*DiagnosticType](el2)
 			Map_merge_f(diagnosticToSuppression.asMap(), obj_(diagnosticType), strobj_(suppression), func(p0 any, p1 any) any { return strobj_(this.preferMoreTargetedGroup(str_(p0), str_(p1))) })
 		}
 	}
@@ -65,7 +67,8 @@ func DiagnosticToSuppressionMapper_printAsJson(diagnosticToSuppression Immutable
 	writer.setHtmlSafe(true)
 	writer.setSerializeNulls(false)
 	writer.beginObject()
-	for entry := range elemsBy_(obj_(cast_[*ImmutableSet](diagnosticToSuppression.entrySet())), icast_Map_Entry) {
+	for _, el := range immElems_(cast_[*ImmutableSet](diagnosticToSuppression.entrySet())) {
+		entry := icast_Map_Entry(el)
 		writer.name(str_(entry.getKey())).stringValue(Optional_ofNullable[string](str_(entry.getValue())))
 	}
 	writer.endObject()
@@ -75,7 +78,8 @@ func DiagnosticToSuppressionMapper_printAsJson(diagnosticToSuppression Immutable
 func DiagnosticToSuppressionMapper_printAsMarkdown(diagnosticToSuppression ImmutableSortedMapOf[string, string]) {
 	Output_stdout().println("| Error | Suppression tag |")
 	Output_stdout().println("|---|---|")
-	for e := range elemsBy_(obj_(cast_[*ImmutableSet](diagnosticToSuppression.entrySet())), icast_Map_Entry) {
+	for _, el := range immElems_(cast_[*ImmutableSet](diagnosticToSuppression.entrySet())) {
+		e := icast_Map_Entry(el)
 		Output_stdout().println(String_format("|%s|%s|", []any{e.getKey(), e.getValue()}))
 	}
 }

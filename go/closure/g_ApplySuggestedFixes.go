@@ -21,9 +21,11 @@ func ApplySuggestedFixes_applySuggestedFixesToFiles(fixes IterableOf[*SuggestedF
 		filenames.asSet().addAll(Collection(fix.getReplacements().keySet()))
 	}
 	var filenameToCodeMap map[string]string = map[string]string{}
-	it_3 := filenames.each()
-	for it_3.next() {
-		var filename string = it_3.v
+	for i_3 := filenames.first(); i_3 < len(filenames.keys); i_3++ {
+		if filenames.isDead(i_3) {
+			continue
+		}
+		var filename string = filenames.keys[i_3]
 		var code *Outcome_base = TextFiles_read(filename, Charsets_UTF_8)
 		if code.isErr() {
 			return Outcome_base_err(code.error())
@@ -31,9 +33,8 @@ func ApplySuggestedFixes_applySuggestedFixesToFiles(fixes IterableOf[*SuggestedF
 		filenameToCodeMap[filename] = str_(code.get())
 	}
 	var newCode ImmutableMapOf[string, string] = ApplySuggestedFixes_applySuggestedFixesToCode(fixes, filenameToCodeMap)
-	it_5 := foreach_(obj_(cast_[*ImmutableSet](newCode.entrySet())))
-	for it_5.next() {
-		var entry Map_Entry = icast_Map_Entry(it_5.v)
+	for _, el_5 := range immElems_(cast_[*ImmutableSet](newCode.entrySet())) {
+		var entry Map_Entry = icast_Map_Entry(el_5)
 		var written *Outcome_base = TextFiles_write(str_(entry.getKey()), Charsets_UTF_8, str_(entry.getValue()))
 		if written.isErr() {
 			return Outcome_base_err(written.error())
@@ -102,7 +103,8 @@ func ApplySuggestedFixes_applyCodeReplacements(replacements CollectionOf[*CodeRe
 	}
 	var sb strBuilder_
 	var lastIndex int32 = 0
-	for replacement := range elemsAs_[*CodeReplacement](obj_(sortedReplacements)) {
+	for _, el := range immElems_(sortedReplacements) {
+		replacement := cast_[*CodeReplacement](el)
 		sb.append_CharSequence_int_int_s(code, lastIndex, replacement.getStartPosition())
 		sb.append(replacement.getNewContent())
 		lastIndex = replacement.getEndPosition()
@@ -115,9 +117,8 @@ func ApplySuggestedFixes_applyCodeReplacements(replacements CollectionOf[*CodeRe
 
 func ApplySuggestedFixes_containsOverlaps(replacements ImmutableSortedSetOf[*CodeReplacement]) bool {
 	var start int32 = -1
-	it_1 := foreach_(obj_(replacements))
-	for it_1.next() {
-		var replacement *CodeReplacement = cast_[*CodeReplacement](it_1.v)
+	for _, el_1 := range immElems_(replacements) {
+		var replacement *CodeReplacement = cast_[*CodeReplacement](el_1)
 		if replacement.getStartPosition() < start {
 			return true
 		}

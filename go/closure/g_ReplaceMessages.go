@@ -39,7 +39,8 @@ func (this *ReplaceMessages) createMsgPropertiesNode(message *JsMessage, msgOpti
 	msgPropsBuilder.addString("key", message.getKey())
 	if msgOptions.isIcuTemplate() && !message.canonicalPlaceholderNames().isEmpty() {
 		var namesArrayLit Node = this.astFactory_.createArraylit([]Node{})
-		for name := range elemsBy_(obj_(message.canonicalPlaceholderNames()), str_) {
+		for _, el := range immElems_(message.canonicalPlaceholderNames()) {
+			name := str_(el)
 			namesArrayLit.addChildToBack(this.astFactory_.createString(name))
 		}
 		msgPropsBuilder.addNode("icu_placeholder_names", namesArrayLit)
@@ -207,9 +208,8 @@ func (this *ReplaceMessages) buildMessageNode(msgParts []JsMessage_Part, options
 		return Outcome_base_ok_Object(this.astFactory_.createString("").box_())
 	}
 	var message Node = 0
-	it_1 := parts.each()
-	for it_1.next() {
-		var msgPart JsMessage_Part = it_1.v
+	for i_1 := 0; i_1 < len(parts.items); i_1++ {
+		var msgPart JsMessage_Part = parts.items[i_1]
 		var partNode Node
 		if msgPart.isPlaceholder() {
 			var jsPlaceholderName string = msgPart.getJsPlaceholderName()

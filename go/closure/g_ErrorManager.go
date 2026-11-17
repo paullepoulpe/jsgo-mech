@@ -20,9 +20,8 @@ func ErrorManager_hasHaltingErrors_default(this ErrorManager) bool {
 	if this.getErrorCount() == 0 {
 		return false
 	}
-	it_1 := foreach_(obj_(this.getErrors()))
-	for it_1.next() {
-		var error_ *JSError = cast_[*JSError](it_1.v)
+	for _, el_1 := range immElems_(this.getErrors()) {
+		var error_ *JSError = cast_[*JSError](el_1)
 		if error_.type_().level_ == CheckLevel_ERROR {
 			return true
 		}

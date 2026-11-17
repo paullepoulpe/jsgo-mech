@@ -74,9 +74,8 @@ func (this *InlineObjectLiterals_InliningBehavior) isVarInlineForbidden(var_ *Va
 func (this *InlineObjectLiterals_InliningBehavior) isInlinableObject(refs *TList[*Reference]) bool {
 	var ret bool = false
 	var validProperties map[string]struct{} = map[string]struct{}{}
-	it_1 := refs.each()
-	for it_1.next() {
-		var ref *Reference = it_1.v
+	for i_1 := 0; i_1 < len(refs.items); i_1++ {
+		var ref *Reference = refs.items[i_1]
 		var name Node = ref.getNode()
 		var parent Node = ref.getParent()
 		var grandparent Node = ref.getGrandparent()
@@ -125,9 +124,8 @@ func (this *InlineObjectLiterals_InliningBehavior) isInlinableObject(refs *TList
 				}
 				validProperties[child.getString()] = struct{}{}
 				var childVal Node = child.getFirstChild()
-				it_5 := refs.each()
-				for it_5.next() {
-					var t *Reference = it_5.v
+				for i_5 := 0; i_5 < len(refs.items); i_5++ {
+					var t *Reference = refs.items[i_5]
 					var refNode Node = t.getParent()
 					for !NodeUtil_isStatementBlock(refNode) {
 						if refNode == childVal {

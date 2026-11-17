@@ -128,11 +128,11 @@ func (this *AbstractCommandLineRunner) getDiagnosticGroups() *DiagnosticGroups {
 func AbstractCommandLineRunner_setWarningGuardOptions(options *CompilerOptions, warningGuards *TList[*AbstractCommandLineRunner_FlagEntry], diagnosticGroups *DiagnosticGroups) *Outcome_base {
 	if warningGuards != nil {
 		var groupNames ImmutableSetOf[string] = cast_[*ImmutableSet](DiagnosticGroups_getRegisteredGroups().keySet())
-		it_1 := warningGuards.each()
-		for it_1.next() {
-			var entry *AbstractCommandLineRunner_FlagEntry = it_1.v
+		for i_1 := 0; i_1 < len(warningGuards.items); i_1++ {
+			var entry *AbstractCommandLineRunner_FlagEntry = warningGuards.items[i_1]
 			if "*" == entry.value_ {
-				for groupName := range elemsBy_(obj_(groupNames), str_) {
+				for _, el := range immElems_(groupNames) {
+					groupName := str_(el)
 					if !Collection_contains_s(DiagnosticGroups_wildcardExcludedGroups, groupName) {
 						diagnosticGroups.setWarningLevel(options, groupName, cast_[CheckLevel](entry.flag_))
 					}
@@ -246,9 +246,9 @@ func (this *AbstractCommandLineRunner) setRunOptions(options *CompilerOptions) *
 	}
 	if !this.config.outputManifests.isEmpty() {
 		var uniqueNames map[string]struct{} = map[string]struct{}{}
-		it_3 := this.config.outputManifests.each()
-		for it_3.next() {
-			var filename string = it_3.v
+		l_3 := this.config.outputManifests
+		for i_3 := 0; i_3 < len(l_3.items); i_3++ {
+			var filename string = l_3.items[i_3]
 			if !setAdd_(uniqueNames, filename) {
 				return Outcome_base_err(new_FlagUsageException(("output_manifest flags specify duplicate file names: " + sstr_(filename))).up_Throwable())
 			}
@@ -256,9 +256,9 @@ func (this *AbstractCommandLineRunner) setRunOptions(options *CompilerOptions) *
 	}
 	if !this.config.outputBundles.isEmpty() {
 		var uniqueNames map[string]struct{} = map[string]struct{}{}
-		it_5 := this.config.outputBundles.each()
-		for it_5.next() {
-			var filename string = it_5.v
+		l_5 := this.config.outputBundles
+		for i_5 := 0; i_5 < len(l_5.items); i_5++ {
+			var filename string = l_5.items[i_5]
 			if !setAdd_(uniqueNames, filename) {
 				return Outcome_base_err(new_FlagUsageException(("output_bundle flags specify duplicate file names: " + sstr_(filename))).up_Throwable())
 			}
@@ -302,9 +302,9 @@ func AbstractCommandLineRunner_getBuiltinExterns(env CompilerOptions_Environment
 	}
 	var envPrefix string = (sstr_(Ascii_toLowerCase(tostrNN_(env))) + "/")
 	var mapFromExternsZip *TMap[string, *SourceFile_jscomp] = newTMap_(tc_string, tc_p_SourceFile_jscomp)
-	it_1 := zip.get().names().each()
-	for it_1.next() {
-		var entryName string = it_1.v
+	l_1 := zip.get().names()
+	for i_1 := 0; i_1 < len(l_1.items); i_1++ {
+		var entryName string = l_1.items[i_1]
 		var filename string = entryName
 		if strings.Contains(filename, "/") {
 			if !strings.HasPrefix(filename, envPrefix) {
@@ -583,7 +583,8 @@ func (this *AbstractCommandLineRunner) createSourceInputs(jsChunkSpecs *TList[*A
 	if ijsErrors.isErr() {
 		return Outcome_base_err(ijsErrors.error())
 	}
-	for error_ := range elemsAs_[*JSError](obj_(cast_[*ImmutableList](ijsErrors.get()))) {
+	for _, el := range immElems_(cast_[*ImmutableList](ijsErrors.get())) {
+		error_ := cast_[*JSError](el)
 		this.compiler_.report(error_)
 	}
 	var inputsRes *Outcome_base
@@ -631,9 +632,8 @@ func AbstractCommandLineRunner_createJsChunks(specs *TList[*AbstractCommandLineR
 	var chunksFileCountMap map[string]BoxedOf[int32] = map[string]BoxedOf[int32]{}
 	var numJsFilesExpected int32 = 0
 	var minJsFilesRequired int32 = 0
-	it_1 := specs.each()
-	for it_1.next() {
-		var spec *AbstractCommandLineRunner_JsChunkSpec = it_1.v
+	for i_1 := 0; i_1 < len(specs.items); i_1++ {
+		var spec *AbstractCommandLineRunner_JsChunkSpec = specs.items[i_1]
 		if chunksByName.containsKey(spec.name_) {
 			return Outcome_base_err(new_FlagUsageException(("Duplicate chunk name: " + sstr_(spec.name_))).up_Throwable())
 		}
@@ -701,9 +701,8 @@ func AbstractCommandLineRunner_parseChunkWrappers(specs *TList[string], chunks I
 	for c := range elemsAs_[*JSChunk](chunks) {
 		wrappers.put(c.getName(), "")
 	}
-	it_3 := specs.each()
-	for it_3.next() {
-		var spec string = it_3.v
+	for i_3 := 0; i_3 < len(specs.items); i_3++ {
+		var spec string = specs.items[i_3]
 		var pos int32 = int32(strings.IndexByte(spec, ':'))
 		if pos == -1 {
 			return Outcome_base_err(new_FlagUsageException(("Expected chunk wrapper to have <name>:<wrapper> format: " + sstr_(spec))).up_Throwable())
@@ -727,9 +726,8 @@ func AbstractCommandLineRunner_parseChunkOutputFiles(specs *TList[string]) *Outc
 		panic(new_IllegalArgumentException_0().self())
 	}
 	var outputFilesBuilder ImmutableMap_BuilderOf[string, string] = ImmutableMap_builder()
-	it_1 := specs.each()
-	for it_1.next() {
-		var spec string = it_1.v
+	for i_1 := 0; i_1 < len(specs.items); i_1++ {
+		var spec string = specs.items[i_1]
 		var pos int32 = int32(strings.IndexByte(spec, ':'))
 		if pos == -1 {
 			return Outcome_base_err(new_FlagUsageException(("Expected chunk_output_file to have <name>:<output_file> format: " + sstr_(spec))).up_Throwable())
@@ -970,9 +968,9 @@ func (this *AbstractCommandLineRunner) doRun() *Outcome_base {
 			chunks = icast_List(this.chunksSupplierForTesting())
 		} else {
 			if CompilerOptions_JsonStreamMode_IN == this.config.jsonStreamMode || CompilerOptions_JsonStreamMode_NONE == this.config.jsonStreamMode {
-				it_4 := jsChunkSpecs.each()
-				for it_4.next() {
-					var m *AbstractCommandLineRunner_JsChunkSpec = it_4.v
+				l_4 := jsChunkSpecs
+				for i_4 := 0; i_4 < len(l_4.items); i_4++ {
+					var m *AbstractCommandLineRunner_JsChunkSpec = l_4.items[i_4]
 					var checkChunkNameOutcome *Outcome_base = this.checkChunkName(m.getName())
 					if checkChunkNameOutcome.isErr() {
 						return Outcome_base_err(checkChunkNameOutcome.error())
@@ -1852,9 +1850,8 @@ func (this *AbstractCommandLineRunner) outputManifestOrBundle(outputFiles *TList
 	if outputFiles.isEmpty() {
 		return Outcome_base_ok_0()
 	}
-	it_1 := outputFiles.each()
-	for it_1.next() {
-		var output string = it_1.v
+	for i_1 := 0; i_1 < len(outputFiles.items); i_1++ {
+		var output string = outputFiles.items[i_1]
 		if output == "" {
 			continue
 		}
@@ -2002,7 +1999,8 @@ func (this *AbstractCommandLineRunner) printChunkGraphManifestOrBundleTo(graph *
 }
 
 func (this *AbstractCommandLineRunner) printManifestTo(chunk *JSChunk, out Appendable) {
-	for input := range elemsAs_[*CompilerInput](obj_(chunk.getInputs())) {
+	for _, el := range immElems_(chunk.getInputs()) {
+		input := cast_[*CompilerInput](el)
 		var name string = input.getName()
 		if AbstractCompiler_isFillFileName(name) {
 			continue
@@ -2021,9 +2019,8 @@ func (this *AbstractCommandLineRunner) printBundleTo(chunk *JSChunk, out Appenda
 		new_PrebuildAst(this.compiler_.up_AbstractCompiler(), this.compiler_.getOptions().getNumParallelThreads()).prebuild(icast_Iterable(obj_(inputs)))
 	}
 	if options.getRuntimeLibraryMode() == RuntimeJsLibManager_RuntimeLibraryMode_INJECT {
-		it_1 := foreach_(obj_(inputs))
-		for it_1.next() {
-			var input *CompilerInput = cast_[*CompilerInput](it_1.v)
+		for _, el_1 := range immElems_(inputs) {
+			var input *CompilerInput = cast_[*CompilerInput](el_1)
 			if input.isEs6Module() {
 				var appendRuntimeToOutcome *Outcome_base = this.appendRuntimeTo(out)
 				if appendRuntimeToOutcome.isErr() {
@@ -2033,9 +2030,8 @@ func (this *AbstractCommandLineRunner) printBundleTo(chunk *JSChunk, out Appenda
 			}
 		}
 	}
-	it_3 := foreach_(obj_(inputs))
-	for it_3.next() {
-		var input *CompilerInput = cast_[*CompilerInput](it_3.v)
+	for _, el_3 := range immElems_(inputs) {
+		var input *CompilerInput = cast_[*CompilerInput](el_3)
 		var name string = input.getName()
 		var codeRes *Outcome_base = input.getSourceFile().readCode()
 		if codeRes.isErr() {

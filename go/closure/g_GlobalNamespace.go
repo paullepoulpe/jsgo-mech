@@ -1571,9 +1571,8 @@ func (this *GlobalNamespace_Name) canEliminate() bool {
 		return false
 	}
 	if this.props != nil {
-		it_1 := eachOf_(&this.props)
-		for it_1.next() {
-			var n *GlobalNamespace_Name = it_1.v
+		for i_1 := 0; i_1 < len(this.props); i_1++ {
+			var n *GlobalNamespace_Name = this.props[i_1]
 			if !n.canCollapse() {
 				return false
 			}

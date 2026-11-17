@@ -791,7 +791,8 @@ func (this *JSTypeRegistry) registerDroppedPropertiesInUnion(subtype *RecordType
 
 func (this *JSTypeRegistry) registerPropertyOnType(propertyName string, type_ *JSType) {
 	if type_.isUnionType() {
-		for alternate := range elemsBy_(obj_(type_.toMaybeUnionType().getAlternates()), to_JSType) {
+		for _, el := range immElems_(type_.toMaybeUnionType().getAlternates()) {
+			alternate := to_JSType(el)
 			this.registerPropertyOnType(propertyName, alternate)
 		}
 		return
@@ -976,9 +977,8 @@ func JSTypeRegistry_getSimpleReadableJSTypeName(type_ *JSType) OptionalOf[string
 	} else if _, ok4 := type_.self().(*UnionType); ok4 {
 		var unionType *UnionType = type_.toMaybeUnionType()
 		var union OptionalOf[string] = Optional_empty[string]()
-		it_1 := foreach_(obj_(unionType.getAlternates()))
-		for it_1.next() {
-			var alternate *JSType = to_JSType(it_1.v)
+		for _, el_1 := range immElems_(unionType.getAlternates()) {
+			var alternate *JSType = to_JSType(el_1)
 			var name OptionalOf[string] = JSTypeRegistry_getSimpleReadableJSTypeName(alternate)
 			if name.isEmpty() {
 				return Optional_empty[string]()

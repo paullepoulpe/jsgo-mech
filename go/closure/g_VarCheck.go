@@ -155,7 +155,8 @@ func (this *VarCheck) enterScope(t *NodeTraversal) {
 func (this *VarCheck) exitScope(t *NodeTraversal) {
 	if !this.validityCheck && t.inGlobalScope() {
 		var scope *Scope = t.getScope()
-		for requiredSymbol := range elemsBy_(obj_(VarCheck_REQUIRED_SYMBOLS), str_) {
+		for _, el := range immElems_(VarCheck_REQUIRED_SYMBOLS) {
+			requiredSymbol := str_(el)
 			var var_ *Var = cast_[*Var](scope.getVar(requiredSymbol).self())
 			if var_ == nil {
 				this.undefinedNamesFromExterns.add(requiredSymbol)

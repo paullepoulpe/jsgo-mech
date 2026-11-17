@@ -51,7 +51,8 @@ func (this *UseSiteRenamer) getRenamingIndex() *SimpleSetMultimap {
 
 func UseSiteRenamer_createAllClusterNames(prop *PropertyClustering) ImmutableMapOf[*ColorGraphNode, string] {
 	var result ImmutableMap_BuilderOf[*ColorGraphNode, string] = ImmutableMap_builder()
-	for r := range elemsAs_[*ColorGraphNode](obj_(prop.getClusters().allRepresentatives())) {
+	for _, el := range immElems_(prop.getClusters().allRepresentatives()) {
+		r := cast_[*ColorGraphNode](el)
 		result.put(obj_(r), strobj_(UseSiteRenamer_createClusterName(prop, r)))
 	}
 	return result.buildOrThrow()

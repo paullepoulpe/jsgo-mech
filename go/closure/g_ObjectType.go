@@ -578,7 +578,8 @@ func (this *ObjectType) getCtorExtendedInterfaces_impl() IterableOf[*ObjectType]
 
 func (this *ObjectType) getPropertyTypeMap_impl() *TMap[string, *JSType] {
 	var propTypeMap ImmutableMap_BuilderOf[string, *JSType] = ImmutableMap_builder()
-	for name := range elemsBy_(obj_(this.getPropertyNames()), str_) {
+	for _, el := range immElems_(this.getPropertyNames()) {
+		name := str_(el)
 		propTypeMap.put(strobj_(name), this.getPropertyType(name).self())
 	}
 	return tmapFrom_(tc_string, tc_p_JSType, propTypeMap.buildOrThrow(), true)

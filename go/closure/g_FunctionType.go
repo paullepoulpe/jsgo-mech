@@ -270,7 +270,8 @@ func (this *FunctionType) getParameters() ImmutableListOf[*FunctionType_Paramete
 func (this *FunctionType) getMinArity() int32 {
 	var i int32 = 0
 	var min_ int32 = 0
-	for parameter := range elemsAs_[*FunctionType_Parameter](obj_(this.getParameters())) {
+	for _, el := range immElems_(this.getParameters()) {
+		parameter := cast_[*FunctionType_Parameter](el)
 		i++
 		if !parameter.isOptional() && !parameter.isVariadic() {
 			min_ = i
@@ -399,7 +400,8 @@ func (this *FunctionType) setPrototypeNoCheck(prototype *ObjectType, propertyNod
 
 func (this *FunctionType) getAllImplementedInterfaces() IterableOf[*ObjectType] {
 	var interfaces *TSet[*ObjectType] = newTSet_(tch_p_ObjectType)
-	for type_ := range elemsBy_(obj_(this.getImplementedInterfaces()), to_ObjectType) {
+	for _, el := range immElems_(this.getImplementedInterfaces()) {
+		type_ := to_ObjectType(el)
 		this.addRelatedInterfaces(type_, interfaces)
 	}
 	return Iterable(interfaces.asSet())
@@ -835,7 +837,8 @@ func (this *FunctionType) resolveInternal_impl(reporter ErrorReporter_rhino) *JS
 func (this *FunctionType) resolveTypeListHelper(list ImmutableListOf[*ObjectType], reporter ErrorReporter_rhino) ImmutableListOf[*ObjectType] {
 	var changed bool = false
 	var resolvedList ImmutableList_BuilderOf[*ObjectType] = ImmutableList_builder()
-	for type_ := range elemsBy_(obj_(list), to_ObjectType) {
+	for _, el := range immElems_(list) {
+		type_ := to_ObjectType(el)
 		var rt *JSType = type_.resolve(reporter)
 		if !rt.isObjectType() {
 			reporter.warning(("not an object type: " + objstr_(rt.self()) + " (at " + sstr_(this.toString()) + ")"), Optional_of[string](this.source.getSourceFileName()).filterFn_(func(s string) bool {
@@ -901,7 +904,8 @@ func FunctionType_updatePropertyTypeMap(type_ *FunctionType, propTypeMap *TMap[s
 	}
 	var iterable ImmutableListOf[*ObjectType] = type_.getExtendedInterfaces()
 	if iterable != nil {
-		for interfaceType := range elemsBy_(obj_(iterable), to_ObjectType) {
+		for _, el := range immElems_(iterable) {
+			interfaceType := to_ObjectType(el)
 			var superConstructor *FunctionType = interfaceType.getConstructor()
 			if (superConstructor == nil) || cache.contains(superConstructor) {
 				continue
@@ -920,9 +924,8 @@ func (this *FunctionType) checkExtendsLoop() *TList[*FunctionType] {
 func (this *FunctionType) checkExtendsLoop_2(cache *TSet[*FunctionType], path *TList[*FunctionType]) *TList[*FunctionType] {
 	var iterable ImmutableListOf[*ObjectType] = this.getExtendedInterfaces()
 	if iterable != nil {
-		it_1 := foreach_(obj_(iterable))
-		for it_1.next() {
-			var interfaceType *ObjectType = to_ObjectType(it_1.v)
+		for _, el_1 := range immElems_(iterable) {
+			var interfaceType *ObjectType = to_ObjectType(el_1)
 			var superConstructor *FunctionType = interfaceType.getConstructor()
 			if superConstructor == nil {
 				continue

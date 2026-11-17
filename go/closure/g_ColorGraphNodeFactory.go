@@ -41,7 +41,8 @@ func (this *ColorGraphNodeFactory) newColorGraphNode(key *Color) *ColorGraphNode
 
 func (this *ColorGraphNodeFactory) simplifyColors(types ImmutableSetOf[*Color]) ImmutableSetOf[*Color] {
 	var result ImmutableSet_BuilderOf[*Color] = ImmutableSet_builder()
-	for type_ := range elemsAs_[*Color](obj_(types)) {
+	for _, el := range immElems_(types) {
+		type_ := cast_[*Color](el)
 		result.add(obj_(this.simplifyColor(type_)))
 	}
 	return result.build()

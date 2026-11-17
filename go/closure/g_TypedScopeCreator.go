@@ -262,7 +262,8 @@ func (this *TypedScopeCreator) createInitialScope(root Node) *TypedScope {
 }
 
 func (this *TypedScopeCreator) addWellKnownSymbols(scope *TypedScope) {
-	for symbol := range elemsBy_(obj_(TypedScopeCreator_WELL_KNOWN_SYMBOLS), str_) {
+	for _, el := range immElems_(TypedScopeCreator_WELL_KNOWN_SYMBOLS) {
+		symbol := str_(el)
 		var type_ *JSType = new_KnownSymbolType(this.typeRegistry, symbol).up_JSType()
 		TypedScopeCreator_declareNativeType(scope, symbol, type_)
 	}
@@ -657,7 +658,8 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) initializeModuleScope(module
 		this.outer_.markGoogModuleExportsAsConst(moduleBody)
 	case ModuleMetadataMap_ModuleType_ES6_MODULE:
 		var unresolvedImports ImmutableMapOf[Node, *ScopedName] = this.outer_.moduleImportResolver.declareEsModuleImports(this.getModule(), this.currentScope, this.outer_.compiler_.getInput(NodeUtil_getInputId(moduleBody)))
-		for entry := range elemsBy_(obj_(cast_[*ImmutableSet](unresolvedImports.entrySet())), icast_Map_Entry) {
+		for _, el := range immElems_(cast_[*ImmutableSet](unresolvedImports.entrySet())) {
+			entry := icast_Map_Entry(el)
 			this.outer_.weakImports = append(this.outer_.weakImports, new_TypedScopeCreator_WeakModuleImport(this.outer_, Node_of_(entry.getKey()), to_ScopedName(entry.getValue()), this.currentScope))
 		}
 	default:
@@ -1959,9 +1961,8 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) getObjectSlot(slotName strin
 func (this *TypedScopeCreator_AbstractScopeBuilder) getInheritedInterfacePropertyType(obj *ObjectType, propName string) *JSType {
 	if (obj != nil) && obj.isFunctionPrototypeType() {
 		var f *FunctionType = obj.getOwnerFunction()
-		it_1 := foreach_(obj_(f.getImplementedInterfaces()))
-		for it_1.next() {
-			var i *ObjectType = to_ObjectType(it_1.v)
+		for _, el_1 := range immElems_(f.getImplementedInterfaces()) {
+			var i *ObjectType = to_ObjectType(el_1)
 			if i.hasProperty(propName) {
 				return i.getPropertyType(propName)
 			}
@@ -2350,7 +2351,8 @@ func (this *TypedScopeCreator_FunctionScopeBuilder) declareTemplatesInFunctionBo
 	var isPossiblePrototypeMethod bool = (!functionType.hasInstanceType() && ((info == nil) || !info.hasThisType()))
 	if isPossiblePrototypeMethod {
 		var ownerNode Node = NodeUtil_getBestLValue(functionNode)
-		for templateKey := range elemsAs_[*TemplateType](obj_(this.findOwnerTypeKeys(ownerNode))) {
+		for _, el := range immElems_(this.findOwnerTypeKeys(ownerNode)) {
+			templateKey := cast_[*TemplateType](el)
 			templateNames.add(templateKey.getReferenceName().orElseThrow())
 		}
 	}

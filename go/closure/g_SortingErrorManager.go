@@ -119,7 +119,8 @@ func (this *SortingErrorManager) filterToListOf(level CheckLevel) ImmutableListO
 }
 
 func (this *SortingErrorManager) generateReport_impl() {
-	for generator := range elemsBy_(obj_(this.errorReportGenerators), icast_SortingErrorManager_ErrorReportGenerator) {
+	for _, el := range immElems_(this.errorReportGenerators) {
+		generator := icast_SortingErrorManager_ErrorReportGenerator(el)
 		generator.generateReport(this)
 	}
 }

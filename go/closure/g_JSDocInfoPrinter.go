@@ -184,7 +184,8 @@ func (this *JSDocInfoPrinter) print(info *JSDocInfo) string {
 	var typeTransformations ImmutableMapOf[string, Node] = info.getTypeTransformations()
 	if !typeTransformations.isEmpty() {
 		multiline = true
-		for e := range elemsBy_(obj_(cast_[*ImmutableSet](typeTransformations.entrySet())), icast_Map_Entry) {
+		for _, el := range immElems_(cast_[*ImmutableSet](typeTransformations.entrySet())) {
+			e := icast_Map_Entry(el)
 			var name string = str_(e.getKey())
 			var tranformationDefinition string = new_CodePrinter_Builder(Node_of_(e.getValue())).build()
 			parts.add(("@template " + sstr_(name) + " := " + sstr_(tranformationDefinition) + " =:"))
@@ -217,7 +218,8 @@ func (this *JSDocInfoPrinter) print(info *JSDocInfo) string {
 	}
 	var suppressions ImmutableMapOf[ImmutableSetOf[string], string] = info.getSuppressionsAndTheirDescription()
 	if !suppressions.isEmpty() {
-		for suppression := range elemsBy_(obj_(cast_[*ImmutableSet](suppressions.entrySet())), icast_Map_Entry) {
+		for _, el2 := range immElems_(cast_[*ImmutableSet](suppressions.entrySet())) {
+			suppression := icast_Map_Entry(el2)
 			var warnings []string = arrmap_(cast_[*ImmutableSet](suppression.getKey()).toArray(arrmap_(newstrarr_(0), func(v_ string) any { return strobj_(v_) })), func(v_ any) string { return str_(v_) })
 			func() {
 				arr_15 := warnings
@@ -276,7 +278,8 @@ func (this *JSDocInfoPrinter) print(info *JSDocInfo) string {
 	if info.isLegacyNamedTsExport() {
 		parts.add("@legacyNamedTsExport")
 	}
-	for tsType := range elemsBy_(obj_(info.getTsTypes()), str_) {
+	for _, el3 := range immElems_(info.getTsTypes()) {
+		tsType := str_(el3)
 		parts.add(("@tsType " + sstr_(tsType)))
 	}
 	if this.printDesc && info.getBlockDescription().isPresent() {

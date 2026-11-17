@@ -182,7 +182,8 @@ func Color_createUnion(elements *TSet[*Color]) *Color {
 	var propertiesKeepOriginalName bool = false
 	for element := range elements.All() {
 		if element.isUnion() {
-			for nestedElement := range elemsAs_[*Color](obj_(element.getUnionElements())) {
+			for _, el := range immElems_(element.getUnionElements()) {
+				nestedElement := cast_[*Color](el)
 				newElements.add(obj_(nestedElement))
 				ids.add(obj_(nestedElement.getId()))
 			}

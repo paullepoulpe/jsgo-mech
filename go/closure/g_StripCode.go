@@ -23,14 +23,16 @@ func (this *StripCode) init_StripCode(compiler *AbstractCompiler, stripTypes Imm
 	this.finit_StripCode()
 	this.compiler_ = compiler
 	var stripNameSuffixesBuilder ImmutableSet_BuilderOf[string] = ImmutableSet_builder()
-	for s := range elemsBy_(obj_(stripNameSuffixes), str_) {
+	for _, el := range immElems_(stripNameSuffixes) {
+		s := str_(el)
 		for _, form := range StripCode_toListWithCollapsedVersions(s) {
 			stripNameSuffixesBuilder.add(strobj_(form))
 		}
 	}
 	this.stripNameSuffixes = stripNameSuffixesBuilder.build()
 	var stripNamePrefixesBuilder ImmutableSet_BuilderOf[string] = ImmutableSet_builder()
-	for s := range elemsBy_(obj_(stripNamePrefixes), str_) {
+	for _, el2 := range immElems_(stripNamePrefixes) {
+		s := str_(el2)
 		for _, form := range StripCode_toListWithCollapsedVersions(s) {
 			stripNamePrefixesBuilder.add(strobj_(form))
 		}
@@ -49,18 +51,21 @@ func (this *StripCode) init_StripCode(compiler *AbstractCompiler, stripTypes Imm
 	var stripTypesAdjusted ImmutableSetOf[string] = stripTypesAdjustedBuilder.build()
 	this.stripTypesList = arrmap_(stripTypesAdjusted.toArray(arrmap_(newstrarr_(0), func(v_ string) any { return strobj_(v_) })), func(v_ any) string { return str_(v_) })
 	var stripTypePrefixes []string = []string{}
-	for s := range elemsBy_(obj_(stripTypesAdjusted), str_) {
+	for _, el3 := range immElems_(stripTypesAdjusted) {
+		s := str_(el3)
 		stripTypePrefixes = append(stripTypePrefixes, (sstr_(s) + "."))
 		stripTypePrefixes = append(stripTypePrefixes, (sstr_(s) + "$"))
 	}
 	this.stripTypePrefixesList = arrmap_(sliceView_(tc_string, stripTypePrefixes).toArray(arrmap_(newstrarr_(0), func(v_ string) any { return strobj_(v_) })), func(v_ any) string { return str_(v_) })
 	var stripNamePrefixesLowerCase []string = []string{}
-	for s := range elemsBy_(obj_(this.stripNamePrefixes), str_) {
+	for _, el4 := range immElems_(this.stripNamePrefixes) {
+		s := str_(el4)
 		stripNamePrefixesLowerCase = append(stripNamePrefixesLowerCase, String_toLowerCase(s, Locale_ROOT))
 	}
 	this.stripNamePrefixesLowerCaseList = arrmap_(sliceView_(tc_string, stripNamePrefixesLowerCase).toArray(arrmap_(newstrarr_(0), func(v_ string) any { return strobj_(v_) })), func(v_ any) string { return str_(v_) })
 	var stripNameSuffixesLowerCase []string = []string{}
-	for s := range elemsBy_(obj_(this.stripNameSuffixes), str_) {
+	for _, el5 := range immElems_(this.stripNameSuffixes) {
+		s := str_(el5)
 		stripNameSuffixesLowerCase = append(stripNameSuffixesLowerCase, String_toLowerCase(s, Locale_ROOT))
 	}
 	this.stripNameSuffixesLowerCaseList = arrmap_(sliceView_(tc_string, stripNameSuffixesLowerCase).toArray(arrmap_(newstrarr_(0), func(v_ string) any { return strobj_(v_) })), func(v_ any) string { return str_(v_) })
@@ -132,12 +137,14 @@ func new_StripCode_StripCodeConfigRecord(outer_ *StripCode) *StripCode_StripCode
 func (this *StripCode_StripCodeConfigRecord) get() any {
 	var builder strBuilder_
 	builder.append("=== stripNameSuffixes ===\n")
-	for stripNameSuffix := range elemsBy_(obj_(this.outer_.stripNameSuffixes), str_) {
+	for _, el := range immElems_(this.outer_.stripNameSuffixes) {
+		stripNameSuffix := str_(el)
 		builder.append(stripNameSuffix).append("\n")
 	}
 	builder.append("\n")
 	builder.append("=== stripNamePrefixes ===\n")
-	for stripNamePrefix := range elemsBy_(obj_(this.outer_.stripNamePrefixes), str_) {
+	for _, el2 := range immElems_(this.outer_.stripNamePrefixes) {
+		stripNamePrefix := str_(el2)
 		builder.append(stripNamePrefix).append("\n")
 	}
 	builder.append("\n")

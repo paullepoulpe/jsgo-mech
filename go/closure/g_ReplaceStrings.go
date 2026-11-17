@@ -90,9 +90,8 @@ func (this *ReplaceStrings) findMatching(name string, callsiteSourceFileName str
 		config = this.functions[name]
 	}
 	if config != nil {
-		it_1 := foreach_(obj_(config.excludedFilenameSuffixes))
-		for it_1.next() {
-			var excludedSuffix string = str_(it_1.v)
+		for _, el_1 := range immElems_(config.excludedFilenameSuffixes) {
+			var excludedSuffix string = str_(el_1)
 			if strings.HasSuffix(callsiteSourceFileName, excludedSuffix) {
 				return nil
 			}
