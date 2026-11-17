@@ -174,7 +174,7 @@ func (this *ProcessClosureProvidesAndRequires) checkNestedTypedefProvide(exprRes
 	if !this.providedNames.containsKey(name) {
 		return
 	}
-	var parentName string = String_substring(name, 0, String_lastIndexOf_String(name, "."))
+	var parentName string = name[:strings.LastIndex(name, ".")]
 	var parent *ProcessClosureProvidesAndRequires_ProvidedName = this.providedNames.get(parentName)
 	var parentDefinition Node = parent.getCandidateDefinition()
 	if ((parentDefinition == 0) || !equalsId_(parentDefinition.getStaticSourceFile(), exprResult.getStaticSourceFile())) || this.isTypedefStubDeclaration(parentDefinition) {

@@ -306,7 +306,7 @@ func NodeUtil_getStringNumberValue(rawJsString string) any {
 	if s == "" {
 		return any(float64(0.0))
 	}
-	if (String_length(s) >= 2) && (String_charAt(s, 0) == '0') {
+	if (String_length(s) >= 2) && (s[0] == '0') {
 		var radix int32 = 0
 		var prefix uint16 = String_charAt(s, 1)
 		if (prefix == 'x') || (prefix == 'X') {
@@ -333,7 +333,7 @@ func NodeUtil_getStringNumberValue(rawJsString string) any {
 			}
 		}
 	}
-	if (((String_length(s) > 3) && ((String_charAt(s, 0) == '-') || (String_charAt(s, 0) == '+'))) && (String_charAt(s, 1) == '0')) && ((String_charAt(s, 2) == 'x') || (String_charAt(s, 2) == 'X')) {
+	if (((String_length(s) > 3) && ((s[0] == '-') || (s[0] == '+'))) && (s[1] == '0')) && ((String_charAt(s, 2) == 'x') || (String_charAt(s, 2) == 'X')) {
 		return nil
 	}
 	if ((s == "infinity") || (s == "-infinity")) || (s == "+infinity") {
@@ -446,7 +446,7 @@ func NodeUtil_getStringBigIntValue(rawJsString string) *BigInteger {
 	if s == "" {
 		return BigInteger_ZERO
 	}
-	if (String_length(s) > 2) && (String_charAt(s, 0) == '0') {
+	if (String_length(s) > 2) && (s[0] == '0') {
 		var radix int32 = func() int32 {
 			switch String_charAt(s, 1) {
 			case 'x', 'X':
@@ -474,7 +474,7 @@ func NodeUtil_getStringBigIntValue(rawJsString string) *BigInteger {
 
 func NodeUtil_isParsableBigInteger(s string, radix int32) bool {
 	var start int32 = func() int32 {
-		if s != "" && ((String_charAt(s, 0) == '-') || (String_charAt(s, 0) == '+')) {
+		if s != "" && ((s[0] == '-') || (s[0] == '+')) {
 			return 1
 		}
 		return 0

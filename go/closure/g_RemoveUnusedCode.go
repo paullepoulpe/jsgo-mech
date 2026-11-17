@@ -1329,7 +1329,7 @@ func (this *RemoveUnusedCode) createPolyfillInfo(call Node, scope *Scope, name s
 	var owner string = name[:lastDot]
 	var prop string = name[lastDot+1:]
 	if strings.HasSuffix(owner, RemoveUnusedCode_DOT_PROTOTYPE) {
-		owner = String_substring(owner, 0, (String_length(owner) - int32(len(RemoveUnusedCode_DOT_PROTOTYPE))))
+		owner = owner[:len(owner)-len(RemoveUnusedCode_DOT_PROTOTYPE)]
 		return new_RemoveUnusedCode_PrototypePropertyPolyfillInfo(this, removable, prop, owner).up_RemoveUnusedCode_PolyfillInfo()
 	}
 	return new_RemoveUnusedCode_StaticPropertyPolyfillInfo(this, removable, prop, owner).up_RemoveUnusedCode_PolyfillInfo()

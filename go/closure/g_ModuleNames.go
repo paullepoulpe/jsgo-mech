@@ -36,16 +36,16 @@ func ModuleNames_toJSIdentifier(path string) string {
 
 func ModuleNames_toModuleName(path string) string {
 	if strings.HasPrefix(path, ModuleNames_MODULE_SLASH) {
-		path = String_substring_int(path, 1)
+		path = path[1:]
 	}
 	return ("module$" + sstr_(ModuleNames_toJSIdentifier(path)))
 }
 
 func ModuleNames_stripJsExtension(fileName string) string {
 	if strings.HasSuffix(fileName, ".js") {
-		fileName = String_substring(fileName, 0, (String_length(fileName) - int32(len(".js"))))
+		fileName = fileName[:len(fileName)-len(".js")]
 		if strings.HasSuffix(fileName, ".js.i") {
-			fileName = String_substring(fileName, 0, (String_length(fileName) - int32(len(".js.i"))))
+			fileName = fileName[:len(fileName)-len(".js.i")]
 		}
 	}
 	return fileName

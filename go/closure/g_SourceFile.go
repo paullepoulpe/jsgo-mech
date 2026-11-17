@@ -399,13 +399,13 @@ func SourceFile_jscomp_stubSourceFile(fileName string, kind StaticSourceFile_Sou
 
 func SourceFile_jscomp_stripConfigSegment(path string) string {
 	if strings.HasPrefix(path, "bin/") {
-		return String_substring_int(path, 4)
+		return path[4:]
 	}
 	if strings.HasPrefix(path, "genfiles/") {
-		return String_substring_int(path, 9)
+		return path[9:]
 	}
 	if strings.HasPrefix(path, "testlogs/") {
-		return String_substring_int(path, 9)
+		return path[9:]
 	}
 	var blazeOutIdx int32 = String_indexOf_String(path, "blaze-out/")
 	if blazeOutIdx == -1 {

@@ -736,7 +736,7 @@ func (this *JsMessageVisitor) getJsMessageFromNode(t *NodeTraversal, node Node) 
 	if messageName == "" || !strings.Contains(messageName, JsMessageVisitor_MSG_PREFIX) {
 		return nil
 	}
-	var messageKey string = String_substring_int(messageName, String_indexOf_String(messageName, JsMessageVisitor_MSG_PREFIX))
+	var messageKey string = messageName[strings.Index(messageName, JsMessageVisitor_MSG_PREFIX):]
 	if JsMessageVisitor_isUnnamedMessageName(messageKey) {
 		return this.getTrackedUnnamedMessage(t, messageName)
 	} else {

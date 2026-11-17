@@ -98,9 +98,9 @@ func ModuleLoader_normalize(path string, moduleRootPaths IterableOf[string]) str
 	for it_1.next() {
 		var moduleRoot string = str_(it_1.v)
 		if strings.HasPrefix(normalizedPath, moduleRoot) {
-			var trailing string = String_substring_int(normalizedPath, String_length(moduleRoot))
+			var trailing string = normalizedPath[len(moduleRoot):]
 			if strings.HasPrefix(trailing, ModuleLoader_MODULE_SLASH) {
-				return String_substring_int(trailing, int32(len(ModuleLoader_MODULE_SLASH)))
+				return trailing[len(ModuleLoader_MODULE_SLASH):]
 			}
 		}
 	}
