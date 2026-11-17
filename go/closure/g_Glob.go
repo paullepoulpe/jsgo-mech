@@ -111,9 +111,9 @@ func Glob_matchesWithoutBraces(glob string, path string) bool {
 			} else if (c == '\\') && ((i + 1) < String_length(glob)) {
 				end = (i + 2)
 			}
-			for p := int32(0); p < String_length(path); p++ {
+			for p, u_ := range stringUnits_(path) {
 				if reached[p] {
-					var actual uint16 = String_charAt(path, p)
+					var actual uint16 = u_
 					if classClose >= 0 {
 						next[(p + 1)] = ((actual != '/') && Glob_classHas(String_substring(glob, (i+1), classClose), actual))
 					} else if c == '?' {

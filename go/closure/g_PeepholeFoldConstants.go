@@ -773,8 +773,8 @@ func (this *PeepholeFoldConstants) foldAddTemplateLiterals(oldNode Node, left No
 }
 
 func (this *PeepholeFoldConstants) isSimpleTemplateStringValue(s string) bool {
-	for i := int32(0); i < String_length(s); i++ {
-		switch String_charAt(s, i) {
+	for _, u_ := range stringUnits_(s) {
+		switch u_ {
 		case '`', '$', '{', '\\', '\n', '\r', 0x2028, 0x2029:
 			return false
 		default:
