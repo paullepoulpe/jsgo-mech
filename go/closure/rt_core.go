@@ -396,3 +396,11 @@ func newarr2_[T any](n, m int32) [][]T {
 	}
 	return a
 }
+
+// funcObj_ is a function value with an identity: a Java lambda object that a translated class
+// compares, hashes or prints (an AutoValue property), holding the lambda as a Go func of its
+// typed signature, f.call(x). newFuncObj_ is called where Java made the lambda object, so that
+// == and the identity hash of the pointer are those of the object (post-flip step passfn).
+type funcObj_[F any] struct{ call F }
+
+func newFuncObj_[F any](f F) *funcObj_[F] { return &funcObj_[F]{f} }
