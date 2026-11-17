@@ -24,11 +24,6 @@ func to_ObjectType(v any) *ObjectType {
 	return v.(ObjectType_as).as_ObjectType()
 }
 
-func is_ObjectType(v any) bool {
-	_, ok := v.(ObjectType_as)
-	return ok
-}
-
 func (this *ObjectType) self() any {
 	if this == nil {
 		return nil

@@ -35,11 +35,6 @@ func to_ScopedName(v any) *ScopedName {
 	return v.(ScopedName_as).as_ScopedName()
 }
 
-func is_ScopedName(v any) bool {
-	_, ok := v.(ScopedName_as)
-	return ok
-}
-
 func (this *ScopedName) self() any {
 	if this == nil {
 		return nil

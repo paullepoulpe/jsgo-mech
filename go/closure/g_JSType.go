@@ -211,11 +211,6 @@ func to_JSType(v any) *JSType {
 	return v.(JSType_as).as_JSType()
 }
 
-func is_JSType(v any) bool {
-	_, ok := v.(JSType_as)
-	return ok
-}
-
 func (this *JSType) self() any {
 	if this == nil {
 		return nil
