@@ -38,8 +38,10 @@ func enumValues_[T comparable](vs []T) []any {
 	return out
 }
 
-func enumValueOfFail_(enum string, name string) any {
-	return new_IllegalArgumentException_String("No enum constant " + enum + "." + name).self()
+// enumValueOfFail_ is the exception Enum.valueOf throws for a name that is not a constant of
+// the enum: a Go error value, which the generated valueOf panics with.
+func enumValueOfFail_(enum string, name string) *IllegalArgumentException {
+	return new_IllegalArgumentException_String("No enum constant " + enum + "." + name)
 }
 
 var classes_ = map[string]*Class{}
