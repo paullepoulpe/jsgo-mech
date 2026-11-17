@@ -106,12 +106,12 @@ func (this *AstAnalyzer) isTypedAsString(n Node) bool {
 	if this.useTypesForLocalOptimization_ {
 		var color *Color = n.getColor()
 		if color != nil {
-			return color.equals(obj_(StandardColors_STRING))
+			return color.equals_Color(StandardColors_STRING)
 		}
 		var type_ *JSType = n.getJSType()
 		if type_ != nil {
 			var nativeStringType *JSType = this.typeRegistry.getNativeType(JSTypeNative_STRING_TYPE)
-			if type_.equals(nativeStringType.self()) {
+			if type_.equals_JSType(nativeStringType) {
 				return true
 			}
 		}

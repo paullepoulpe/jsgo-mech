@@ -95,7 +95,7 @@ func (this *LinkedFlowScope) inferQualifiedSlot(node Node, symbol string, bottom
 	}()
 	if v != nil {
 		if !v.isTypeInferred() {
-			if (((declaredType == nil) || !inferredType.isSubtypeOf(declaredType)) || declaredType.isSubtypeOf(inferredType)) || inferredType.equals(declaredType.self()) {
+			if (((declaredType == nil) || !inferredType.isSubtypeOf(declaredType)) || declaredType.isSubtypeOf(inferredType)) || inferredType.equals_JSType(declaredType) {
 				return this
 			}
 		} else if (declaredType != nil) && !inferredType.isSubtypeOf(declaredType) {

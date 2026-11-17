@@ -92,7 +92,7 @@ func ConformanceRules_isTaggedTemplateLitString(node Node) bool {
 }
 
 func ConformanceRules_isLooseObject(type_ *JSType, registry *JSTypeRegistry) bool {
-	return type_.equals(registry.getNativeType(JSTypeNative_OBJECT_TYPE).self())
+	return type_.equals_JSType(registry.getNativeType(JSTypeNative_OBJECT_TYPE))
 }
 
 var ConformanceRules_ALL_TS_ALLOWLIST *ConformanceRules_AllowList
@@ -607,7 +607,7 @@ func ConformanceRules_AbstractTypeRestrictionRule_isKnown(n Node) bool {
 
 func (this *ConformanceRules_AbstractTypeRestrictionRule) isNativeObjectType(n Node) bool {
 	var type_ *JSType = n.getJSType().restrictByNotNullOrUndefined()
-	return type_.equals(this.nativeObjectType.self())
+	return type_.equals_JSType(this.nativeObjectType)
 }
 
 func ConformanceRules_AbstractTypeRestrictionRule_isTop(n Node) bool {
@@ -1127,7 +1127,7 @@ func (this *ConformanceRules_BannedProperty) matchTypes(foundType *JSType, check
 func (this *ConformanceRules_BannedProperty) matchesPrototype(type_ *JSType, maybePrototype *JSType) bool {
 	var methodClassObjectType *ObjectType = type_.toMaybeObjectType()
 	if methodClassObjectType != nil {
-		if methodClassObjectType.getImplicitPrototype().equals(maybePrototype.self()) {
+		if methodClassObjectType.getImplicitPrototype().equals_JSType(maybePrototype) {
 			return true
 		}
 	}
@@ -2967,7 +2967,7 @@ func (this *ConformanceRules_BanGlobalVars) initBanGlobalVars(compiler *Abstract
 func (this *ConformanceRules_BanGlobalVars) checkConformance_impl(t *NodeTraversal, n Node) *ConformanceRules_ConformanceResult {
 	if ((t.inGlobalScope() && NodeUtil_isDeclaration(n)) && !n.getBooleanProp(Node_IS_NAMESPACE)) && !this.isAllowlisted(n) {
 		var enclosingScript Node = NodeUtil_getEnclosingScript(n)
-		if (enclosingScript != 0) && ((enclosingScript.getBooleanProp(Node_GOOG_MODULE) || enclosingScript.getBooleanProp(Node_ES6_MODULE)) || enclosingScript.getInputId().equals(obj_(this.compiler_.getSyntheticCodeInputId()))) {
+		if (enclosingScript != 0) && ((enclosingScript.getBooleanProp(Node_GOOG_MODULE) || enclosingScript.getBooleanProp(Node_ES6_MODULE)) || enclosingScript.getInputId().equals_InputId(this.compiler_.getSyntheticCodeInputId())) {
 			return ConformanceRules_ConformanceResult_CONFORMANCE
 		}
 		return ConformanceRules_ConformanceResult_VIOLATION
@@ -3411,7 +3411,7 @@ func (this *ConformanceRules_BanCreateDom) isCreateDomCall(n Node) bool {
 	if type_ == nil {
 		return false
 	}
-	if type_.equals(this.domHelperType.self()) {
+	if type_.equals_JSType(this.domHelperType) {
 		return true
 	}
 	return false

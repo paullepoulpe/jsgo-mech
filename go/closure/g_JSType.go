@@ -680,17 +680,16 @@ func (this *JSType) equals(other any) bool {
 	if this.self() == other {
 		return true
 	}
-	var jSType *JSType
-	_ = jSType
-	return (func() bool {
-		v_ := other
-		p, ok := v_.(JSType_as)
-		if !ok {
-			return false
-		}
-		jSType = p.as_JSType()
+	p, ok := other.(JSType_as)
+	return ok && this.equals_JSType(p.as_JSType())
+}
+
+// equals_JSType is equals of a JSType (post-flip step eqtyped).
+func (this *JSType) equals_JSType(jSType *JSType) bool {
+	if jSType == this {
 		return true
-	}() && new_EqualityChecker().setEqMethod(EqualityChecker_EqMethod_IDENTITY).check(this, jSType))
+	}
+	return ((jSType != nil) && new_EqualityChecker().setEqMethod(EqualityChecker_EqMethod_IDENTITY).check(this, jSType))
 }
 
 func (this *JSType) differsFrom(that *JSType) bool {
@@ -906,7 +905,7 @@ func (this *JSType) getLeastSupertype_impl(that *JSType) *JSType {
 }
 
 func JSType_getLeastSupertype(thisType *JSType, thatType *JSType) *JSType {
-	var areEquivalent bool = thisType.equals(thatType.self())
+	var areEquivalent bool = thisType.equals_JSType(thatType)
 	return func() *JSType {
 		if areEquivalent {
 			return thisType
@@ -922,7 +921,7 @@ func (this *JSType) getGreatestSubtype_impl(that *JSType) *JSType {
 func JSType_getGreatestSubtype(thisType *JSType, thatType *JSType) *JSType {
 	if thisType.isFunctionType() && thatType.isFunctionType() {
 		return thisType.toMaybeFunctionType().supAndInfHelper(thatType.toMaybeFunctionType(), false).up_JSType()
-	} else if thisType.equals(thatType.self()) {
+	} else if thisType.equals_JSType(thatType) {
 		return thisType
 	} else if thisType.isUnknownType() {
 		if !thatType.isUnknownType() {

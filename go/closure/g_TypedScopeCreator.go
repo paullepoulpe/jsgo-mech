@@ -1541,7 +1541,7 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) finishConstructorDefinition(
 	if (prototypeVar != nil) && (cast_[*TypedScope](prototypeVar.getScope()) == scopeToDeclareIn) {
 		scopeToDeclareIn.undeclare(prototypeVar.up_AbstractVar())
 	}
-	scopeToDeclareIn.declare(prototypeName, declarationNode, prototypeSlot.getType(), input, ((superClassCtor == nil) || superClassCtor.getInstanceType().equals(this.outer_.getNativeType(JSTypeNative_OBJECT_TYPE).self())))
+	scopeToDeclareIn.declare(prototypeName, declarationNode, prototypeSlot.getType(), input, ((superClassCtor == nil) || superClassCtor.getInstanceType().equals_JSType(this.outer_.getNativeType(JSTypeNative_OBJECT_TYPE))))
 }
 
 func (this *TypedScopeCreator_AbstractScopeBuilder) isLValueRootedInGlobalScope(n Node) bool {
@@ -2384,7 +2384,7 @@ func (this *TypedScopeCreator_FunctionScopeBuilder) declareTemplatesInFunctionBo
 
 func (this *TypedScopeCreator_FunctionScopeBuilder) declareNamesInPositionalParameter(astParameter Node, declaredParameterType *JSType, iifeArgumentNode Node) {
 	var paramType *JSType = declaredParameterType
-	var isInferred bool = paramType.equals(this.outer_.unknownType.self())
+	var isInferred bool = paramType.equals_JSType(this.outer_.unknownType.up_JSType())
 	if (iifeArgumentNode != 0) && isInferred {
 		var argumentName string = iifeArgumentNode.getQualifiedName()
 		var argumentVar *TypedVar = func() *TypedVar {

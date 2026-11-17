@@ -516,7 +516,7 @@ func (this *CheckAccessControls) checkPackagePropertyVisibility(propRef *CheckAc
 
 func (this *CheckAccessControls) checkPrivatePropertyVisibility(propRef *CheckAccessControls_PropertyReference, ownerType *ObjectType) {
 	var readableTypeName string = func() string {
-		if (ownerType == nil) || ownerType.equals(propRef.receiverType().self()) {
+		if (ownerType == nil) || ownerType.equals_JSType(propRef.receiverType().up_JSType()) {
 			return propRef.getReadableTypeNameOrDefault()
 		}
 		return ownerType.toString()

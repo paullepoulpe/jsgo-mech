@@ -493,13 +493,13 @@ func (this *SymbolTable) mergeSymbol(from *SymbolTable_Symbol, to *SymbolTable_S
 
 func (this *SymbolTable) removeSymbol(s *SymbolTable_Symbol) {
 	var scope *SymbolTable_SymbolScope = this.getScope(s)
-	if !s.equals(obj_(scope.ownSymbols.remove(s.getName()))) {
+	if !s.equals_SymbolTable_Symbol(scope.ownSymbols.remove(s.getName())) {
 		panic(new_IllegalStateException_String(("Symbol not found in scope " + tostr_(s))).self())
 	}
 	if !s.equals(this.symbols.remove(cast_[*SymbolTable_Reference](s.getDeclaration()).getNode().box_(), strobj_(s.getName()))) {
 		panic(new_IllegalStateException_String(("Symbol not found in table " + tostr_(s))).self())
 	}
-	if (s.propertyScope != nil) && s.equals(obj_(s.propertyScope.getSymbolForScope())) {
+	if (s.propertyScope != nil) && s.equals_SymbolTable_Symbol(s.propertyScope.getSymbolForScope()) {
 		for _, el := range immElems_(ImmutableList_copyOf(s.propertyScope.ownSymbols.asMap().values())) {
 			childSymbol := cast_[*SymbolTable_Symbol](el)
 			this.removeSymbol(childSymbol)
@@ -581,14 +581,14 @@ func (this *SymbolTable) fillPropertyScopes() {
 	for s := range elemsAs_[*SymbolTable_Symbol](allTypes) {
 		var type_ *JSType = this.getType(icast_StaticSlot(obj_(s)))
 		var symbolForType *SymbolTable_Symbol = this.getSymbolForTypeHelper(type_, false)
-		if ((type_.isNominalConstructorOrInterface() || type_.isFunctionPrototypeType()) || type_.isEnumType()) && !s.equals(obj_(symbolForType)) {
+		if ((type_.isNominalConstructorOrInterface() || type_.isFunctionPrototypeType()) || type_.isEnumType()) && !s.equals_SymbolTable_Symbol(symbolForType) {
 			continue
 		}
 		this.symbolThatDeclaresType.put(type_, s)
 	}
 	for s := range elemsAs_[*SymbolTable_Symbol](allTypes) {
 		var type_ *JSType = this.getType(icast_StaticSlot(obj_(s)))
-		if (type_ == nil) || s.equals(obj_(this.symbolThatDeclaresType.get(type_))) {
+		if (type_ == nil) || s.equals_SymbolTable_Symbol(this.symbolThatDeclaresType.get(type_)) {
 			this.createPropertyScopeFor(s)
 		}
 	}
@@ -1079,17 +1079,13 @@ func new_SymbolTable_Symbol(name string, type_ *JSType, inferred bool, scope *Sy
 }
 
 func (this *SymbolTable_Symbol) equals(o any) bool {
-	var other *SymbolTable_Symbol
-	_ = other
-	if !(func() bool {
-		v_ := o
-		p, ok := v_.(*SymbolTable_Symbol)
-		if !ok {
-			return false
-		}
-		other = p
-		return true
-	}()) {
+	p, ok := o.(*SymbolTable_Symbol)
+	return ok && this.equals_SymbolTable_Symbol(p)
+}
+
+// equals_SymbolTable_Symbol is equals of a SymbolTable_Symbol (post-flip step eqtyped).
+func (this *SymbolTable_Symbol) equals_SymbolTable_Symbol(other *SymbolTable_Symbol) bool {
+	if !(other != nil) {
 		return false
 	}
 	return ((((this.isTypeInferred() == other.isTypeInferred()) && (this.getName() == other.getName())) && objequalsBy_(this.getType(), other.getType().self(), (*JSType).equals)) && this.scope_ == other.scope_)

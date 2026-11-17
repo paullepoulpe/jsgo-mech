@@ -334,7 +334,7 @@ func (this *TypeTransformation) evalTypePredicate(ttlAst Node, nameResolver *Typ
 	return func() bool {
 		switch keyword {
 		case TypeTransformationParser_Keywords_EQ:
-			return type_.equals(params[1].self())
+			return type_.equals_JSType(params[1])
 		case TypeTransformationParser_Keywords_SUB:
 			return type_.isSubtypeOf(params[1])
 		case TypeTransformationParser_Keywords_ISCTOR:
@@ -522,7 +522,7 @@ func (this *TypeTransformation) evalRecordType(ttlAst Node, nameResolver *TypeTr
 			return this.getUnknownType()
 		}
 		var recType *JSType = this.registry.buildRecordTypeFromObject(objType)
-		if !recType.equals(this.getObjectType().self()) {
+		if !recType.equals_JSType(this.getObjectType()) {
 			recTypesBuilder = immAdd_(tc_p_ObjectType, recTypesBuilder, recType.toMaybeObjectType())
 		}
 	}
@@ -552,7 +552,7 @@ func (this *TypeTransformation) evalMaprecord(ttlAst Node, nameResolver *TypeTra
 	var recordNode Node = ttlAst.getSecondChild()
 	var mapFunction Node = ttlAst.getChildAtIndex(2)
 	var type_ *JSType = this.evalInternal(recordNode, nameResolver)
-	if type_.equals(this.getObjectType().self()) {
+	if type_.equals_JSType(this.getObjectType()) {
 		return this.getObjectType()
 	}
 	if !type_.isRecordType() {
@@ -581,7 +581,7 @@ func (this *TypeTransformation) evalMaprecord(ttlAst Node, nameResolver *TypeTra
 		if body.isUnknownType() {
 			return this.getUnknownType()
 		}
-		if body.isEmptyType() || body.equals(this.getObjectType().self()) {
+		if body.isEmptyType() || body.equals_JSType(this.getObjectType()) {
 			continue
 		}
 		if !body.isRecordType() {

@@ -76,14 +76,14 @@ func (this *FixingErrorManager) containsFixableShorthandModuleWarning() bool {
 			continue
 		}
 		var error_ *JSError = l_1.keys[i_1]
-		if error_.type_().equals(obj_(ClosureCheckModule_REFERENCE_TO_SHORT_IMPORT_BY_LONG_NAME_INCLUDING_SHORT_NAME)) {
+		if error_.type_().equals_DiagnosticType(ClosureCheckModule_REFERENCE_TO_SHORT_IMPORT_BY_LONG_NAME_INCLUDING_SHORT_NAME) {
 			return true
 		}
 	}
 	it_3 := foreach_(this.multiFixes.keySet())
 	for it_3.next() {
 		var error_ *JSError = cast_[*JSError](it_3.v)
-		if error_.type_().equals(obj_(ClosureCheckModule_REFERENCE_TO_SHORT_IMPORT_BY_LONG_NAME_INCLUDING_SHORT_NAME)) {
+		if error_.type_().equals_DiagnosticType(ClosureCheckModule_REFERENCE_TO_SHORT_IMPORT_BY_LONG_NAME_INCLUDING_SHORT_NAME) {
 			return true
 		}
 	}
@@ -103,7 +103,7 @@ func (this *FixingErrorManager) getFixes(fixTypes FixingErrorManager_FixTypes) C
 	var fixes CollectionOf[*SuggestedFix] = new_ArrayList_0()
 	for _, el := range immElems_(this.getErrors()) {
 		error_ := cast_[*JSError](el)
-		if containsFixableShorthandModuleWarning && error_.type_().equals(obj_(CheckExtraRequires_EXTRA_REQUIRE_WARNING)) {
+		if containsFixableShorthandModuleWarning && error_.type_().equals_DiagnosticType(CheckExtraRequires_EXTRA_REQUIRE_WARNING) {
 		} else {
 			if (fixTypes == FixingErrorManager_FixTypes_ONE_FIX) && this.sureFixes.containsKey(error_) {
 				fixes.add(obj_(this.sureFixes.get(error_)))
@@ -114,7 +114,7 @@ func (this *FixingErrorManager) getFixes(fixTypes FixingErrorManager_FixTypes) C
 	}
 	for _, el2 := range immElems_(this.getWarnings()) {
 		warning := cast_[*JSError](el2)
-		if warning.type_().equals(obj_(CheckExtraRequires_EXTRA_REQUIRE_WARNING)) && containsFixableShorthandModuleWarning {
+		if warning.type_().equals_DiagnosticType(CheckExtraRequires_EXTRA_REQUIRE_WARNING) && containsFixableShorthandModuleWarning {
 		} else {
 			if (fixTypes == FixingErrorManager_FixTypes_ONE_FIX) && this.sureFixes.containsKey(warning) {
 				fixes.add(obj_(this.sureFixes.get(warning)))

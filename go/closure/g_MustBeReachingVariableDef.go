@@ -312,17 +312,13 @@ func new_MustBeReachingVariableDef_Definition(node Node) *MustBeReachingVariable
 }
 
 func (this *MustBeReachingVariableDef_Definition) equals(other any) bool {
-	var otherDef *MustBeReachingVariableDef_Definition
-	_ = otherDef
-	if !(func() bool {
-		v_ := other
-		p, ok := v_.(*MustBeReachingVariableDef_Definition)
-		if !ok {
-			return false
-		}
-		otherDef = p
-		return true
-	}()) {
+	p, ok := other.(*MustBeReachingVariableDef_Definition)
+	return ok && this.equals_MustBeReachingVariableDef_Definition(p)
+}
+
+// equals_MustBeReachingVariableDef_Definition is equals of a MustBeReachingVariableDef_Definition (post-flip step eqtyped).
+func (this *MustBeReachingVariableDef_Definition) equals_MustBeReachingVariableDef_Definition(otherDef *MustBeReachingVariableDef_Definition) bool {
+	if !(otherDef != nil) {
 		return false
 	}
 	return (otherDef.node_ == this.node_)
@@ -428,7 +424,7 @@ func (this *MustBeReachingVariableDef_MustDefJoin) mergeVarDef(var_ *Var, def *M
 		resultDef = nil
 	} else if old, ok := this.resultMap.get(var_); !ok {
 		resultDef = def
-	} else if def.equals(obj_(old)) {
+	} else if def.equals_MustBeReachingVariableDef_Definition(old) {
 		return
 	} else {
 		resultDef = nil

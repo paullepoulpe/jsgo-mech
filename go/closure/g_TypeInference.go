@@ -1245,7 +1245,7 @@ func (this *TypeInference) setCallNodeTypeAfterChildrenTraversed(n Node, scopeAf
 		var fnType *FunctionType = functionType.toMaybeFunctionType()
 		n.setJSType(fnType.getReturnType())
 		this.backwardsInferenceFromCallSite(n, fnType, scopeAfterChildren)
-	} else if functionType.equals(this.getNativeType(JSTypeNative_CHECKED_UNKNOWN_TYPE).self()) {
+	} else if functionType.equals_JSType(this.getNativeType(JSTypeNative_CHECKED_UNKNOWN_TYPE)) {
 		n.setJSType(this.getNativeType(JSTypeNative_CHECKED_UNKNOWN_TYPE))
 	} else if (left.getJSType() != nil) && left.getJSType().isUnknownType() {
 		n.setJSType(this.unknownType.up_JSType())
@@ -1754,7 +1754,7 @@ func (this *TypeInference) tightenTypeAfterDereference(n Node, scope FlowScope) 
 	if n.isQualifiedName() {
 		var type_ *JSType = this.getJSType(n)
 		var narrowed *JSType = type_.restrictByNotNullOrUndefined()
-		if !type_.equals(narrowed.self()) {
+		if !type_.equals_JSType(narrowed) {
 			scope = this.narrowScope(scope, n, narrowed)
 		}
 	}
@@ -1795,7 +1795,7 @@ func (this *TypeInference) getPropertyType(objType *JSType, propName string, n N
 	}
 	if propertyType == nil {
 		return this.unknownType.up_JSType()
-	} else if propertyType.equals(this.unknownType.self()) && isLocallyInferred {
+	} else if propertyType.equals_JSType(this.unknownType.up_JSType()) && isLocallyInferred {
 		return this.getNativeType(JSTypeNative_CHECKED_UNKNOWN_TYPE)
 	} else {
 		return propertyType

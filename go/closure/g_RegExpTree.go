@@ -1769,7 +1769,7 @@ func (this *RegExpTree_Charset) simplify_impl(flags string) *RegExpTree {
 	if (best.getNumRanges() == 1) && ((best.end(0) - best.start(0)) == 1) {
 		return new_RegExpTree_Text(Character_toString(uint16(best.start(0)))).up_RegExpTree()
 	}
-	if !best.equals(obj_(this.ranges_)) {
+	if !best.equals_CharRanges(this.ranges_) {
 		return new_RegExpTree_Charset(best, this.ieExplicits).up_RegExpTree()
 	}
 	return this.up_RegExpTree()
@@ -1777,7 +1777,7 @@ func (this *RegExpTree_Charset) simplify_impl(flags string) *RegExpTree {
 
 func (this *RegExpTree_Charset) isCaseSensitive_impl() bool {
 	var withoutNamedGroups *CharRanges = this.decompose().ranges_
-	return !withoutNamedGroups.equals(obj_(CaseCanonicalize_expandToAllMatched(withoutNamedGroups)))
+	return !withoutNamedGroups.equals_CharRanges(CaseCanonicalize_expandToAllMatched(withoutNamedGroups))
 }
 
 func (this *RegExpTree_Charset) decompose_2(ranges *CharRanges, inverted bool) *RegExpTree_DecomposedCharset {
@@ -1830,7 +1830,7 @@ func (this *RegExpTree_Charset) decompose() *RegExpTree_DecomposedCharset {
 }
 
 func (this *RegExpTree_Charset) appendSourceCode_impl(sb *strBuilder_) {
-	if RegExpTree_DOT_CHARSET.ranges_.equals(obj_(this.ranges_)) {
+	if RegExpTree_DOT_CHARSET.ranges_.equals_CharRanges(this.ranges_) {
 		sb.append_char('.')
 		return
 	}
@@ -1852,7 +1852,7 @@ func (this *RegExpTree_Charset) equals_impl(o any) bool {
 		}
 		charset = p
 		return true
-	}() && this.ranges_.equals(obj_(charset.ranges_)))
+	}() && this.ranges_.equals_CharRanges(charset.ranges_))
 }
 
 func (this *RegExpTree_Charset) hashCode_impl() int32 {

@@ -129,7 +129,7 @@ func (this *Es7RewriteExponentialOperator) checkOperatorType(operator Node) bool
 		panic(new_IllegalArgumentException_String(objstr_(operator.box_())).self())
 	}
 	if this.compiler_.hasTypeCheckingRun() {
-		if operator.getColor().equals(obj_(StandardColors_BIGINT)) {
+		if operator.getColor().equals_Color(StandardColors_BIGINT) {
 			this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(operator, Es7RewriteExponentialOperator_TRANSPILE_EXPONENT_USING_BIGINT, []string{}))
 			return false
 		}

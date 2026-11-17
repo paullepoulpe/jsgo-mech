@@ -284,7 +284,7 @@ func (this *InlineProperties_ReplaceCandidates) hasInSupertypesList(subCtor *Col
 			ret_1 = false
 			return 1
 		}
-		if subCtor.equals(obj_(superCtor)) {
+		if subCtor.equals_Color(superCtor) {
 			ret_1 = true
 			return 1
 		}
