@@ -257,7 +257,7 @@ func (this *SourceMapConsumerV3) createReverseMapping() {
 			var sourceLine int32 = this.mappings.getSourceLine(i)
 			if (sourceFileId != SourceMapConsumerV3_UNMAPPED) && (sourceLine != SourceMapConsumerV3_UNMAPPED) {
 				var originalFile string = this.sources[sourceFileId]
-				var lineToCollectionMap MapOf[BoxedOf[int32], CollectionOf[*Mapping_OriginalMapping]] = mapComputeIfAbsent_(tc_string, tc_MapOf_BoxedOf_int32___CollectionOf_p_Mapping_OriginalMapping__, this.reverseSourceMapping, originalFile, lambda_SourceMapConsumerV3_createReverseMapping_1_)
+				var lineToCollectionMap MapOf[BoxedOf[int32], CollectionOf[*Mapping_OriginalMapping]] = mapComputeIfAbsent_f(tc_string, tc_MapOf_BoxedOf_int32___CollectionOf_p_Mapping_OriginalMapping__, this.reverseSourceMapping, originalFile, lambda_SourceMapConsumerV3_createReverseMapping_1_)
 				if !lineToCollectionMap.containsKey(any(int32(sourceLine))) {
 					lineToCollectionMap.put(any(int32(sourceLine)), new_ArrayList_int(1).self())
 				}
@@ -270,11 +270,11 @@ func (this *SourceMapConsumerV3) createReverseMapping() {
 }
 
 // lambda_SourceMapConsumerV3_createReverseMapping_1_ is a lambda of SourceMapConsumerV3_createReverseMapping that captures nothing (post-flip step lambdas).
-var lambda_SourceMapConsumerV3_createReverseMapping_1_ = &Function_fn{func(k_ any) any {
+func lambda_SourceMapConsumerV3_createReverseMapping_1_(k_ any) any {
 	var k string = str_(k_)
 	_ = k
 	return obj_(new_LinkedHashMap())
-}}
+}
 
 func (this *SourceMapConsumerV3) visitMappings(visitor func(string, string, *FilePosition, *FilePosition, *FilePosition)) {
 	var pending bool = false

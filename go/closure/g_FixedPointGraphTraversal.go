@@ -3,26 +3,26 @@
 package closure
 
 type FixedPointGraphTraversal struct {
-	callback           FixedPointGraphTraversal_EdgeCallback
+	callback           func(any, any, any) bool
 	traversalDirection FixedPointGraphTraversal_TraversalDirection
 }
 
-func (this *FixedPointGraphTraversal) init_FixedPointGraphTraversal(callback FixedPointGraphTraversal_EdgeCallback, traversalDirection FixedPointGraphTraversal_TraversalDirection) {
+func (this *FixedPointGraphTraversal) init_FixedPointGraphTraversal(callback func(any, any, any) bool, traversalDirection FixedPointGraphTraversal_TraversalDirection) {
 	this.callback = callback
 	this.traversalDirection = traversalDirection
 }
 
-func new_FixedPointGraphTraversal(callback FixedPointGraphTraversal_EdgeCallback, traversalDirection FixedPointGraphTraversal_TraversalDirection) *FixedPointGraphTraversal {
+func new_FixedPointGraphTraversal(callback func(any, any, any) bool, traversalDirection FixedPointGraphTraversal_TraversalDirection) *FixedPointGraphTraversal {
 	this := &FixedPointGraphTraversal{}
 	this.init_FixedPointGraphTraversal(callback, traversalDirection)
 	return this
 }
 
-func FixedPointGraphTraversal_newTraversal(callback FixedPointGraphTraversal_EdgeCallback) *FixedPointGraphTraversal {
+func FixedPointGraphTraversal_newTraversal(callback func(any, any, any) bool) *FixedPointGraphTraversal {
 	return new_FixedPointGraphTraversal(callback, FixedPointGraphTraversal_TraversalDirection_OUTWARDS)
 }
 
-func FixedPointGraphTraversal_newReverseTraversal(callback FixedPointGraphTraversal_EdgeCallback) *FixedPointGraphTraversal {
+func FixedPointGraphTraversal_newReverseTraversal(callback func(any, any, any) bool) *FixedPointGraphTraversal {
 	return new_FixedPointGraphTraversal(callback, FixedPointGraphTraversal_TraversalDirection_INWARDS)
 }
 
@@ -67,7 +67,7 @@ func (this *FixedPointGraphTraversal) visitNode(node DiGraph_DiGraphNode, workSe
 		for it_2.next() {
 			var edge DiGraph_DiGraphEdge = it_2.v
 			var destValue any = edge.getDestination().getValue()
-			if this.callback.traverseEdge(sourceValue, edge.getValue(), destValue) {
+			if this.callback(sourceValue, edge.getValue(), destValue) {
 				workSet.add(edge.getDestination())
 			}
 		}
@@ -78,7 +78,7 @@ func (this *FixedPointGraphTraversal) visitNode(node DiGraph_DiGraphNode, workSe
 		for it_4.next() {
 			var edge DiGraph_DiGraphEdge = it_4.v
 			var revDestValue any = edge.getSource().getValue()
-			if this.callback.traverseEdge(revSourceValue, edge.getValue(), revDestValue) {
+			if this.callback(revSourceValue, edge.getValue(), revDestValue) {
 				workSet.add(edge.getSource())
 			}
 		}

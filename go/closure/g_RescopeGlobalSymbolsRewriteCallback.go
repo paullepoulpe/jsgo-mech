@@ -218,7 +218,7 @@ func (this *RescopeGlobalSymbolsRewriteCallback) visitName(t *NodeTraversal, n N
 	}
 	var currentChunk *JSChunk = t.getChunk()
 	if this.optimizeLocalAccess.shouldWrapReassignableSymbols() {
-		mapComputeIfAbsent_(tc_string, tc_SetOf_p_JSChunk_, this.chunksUsingCrossChunkSymbols, name, lambda_RescopeGlobalSymbolsRewriteCallback_visitName_1_).add(obj_(currentChunk))
+		mapComputeIfAbsent_f(tc_string, tc_SetOf_p_JSChunk_, this.chunksUsingCrossChunkSymbols, name, lambda_RescopeGlobalSymbolsRewriteCallback_visitName_1_).add(obj_(currentChunk))
 	}
 	if this.optimizeLocalAccess.shouldOptimize() && !Collection_contains_s(this.symbolInfo.crossChunkNamesWithWriteFromOtherChunk(), name) {
 		var definingChunk *JSChunk = var_.getInput().getChunk()
@@ -250,18 +250,18 @@ func (this *RescopeGlobalSymbolsRewriteCallback) visitName(t *NodeTraversal, n N
 	if !Collection_contains_s(this.symbolInfo.wrappedCrossChunkNames(), name) {
 		Preconditions_checkState_boolean_String_Object(false, "Unexpected unaliased cross-chunk symbol under ALL_CHUNKS_WITH_WRAPPED_REASSIGNABLE_SYMBOLS: %s", strobj_(name))
 	}
-	mapComputeIfAbsent_(tc_string, tc_SetOf_p_JSChunk_, this.chunksUsingWrappedReassignableSymbols, name, lambda_RescopeGlobalSymbolsRewriteCallback_visitName_3_).add(obj_(currentChunk))
-	mapComputeIfAbsent_(tc_string, tc_SetOf_p_JSChunk_, this.chunksRequiringWrapperInitialization, name, lambda_RescopeGlobalSymbolsRewriteCallback_visitName_4_).add(obj_(currentChunk))
+	mapComputeIfAbsent_f(tc_string, tc_SetOf_p_JSChunk_, this.chunksUsingWrappedReassignableSymbols, name, lambda_RescopeGlobalSymbolsRewriteCallback_visitName_3_).add(obj_(currentChunk))
+	mapComputeIfAbsent_f(tc_string, tc_SetOf_p_JSChunk_, this.chunksRequiringWrapperInitialization, name, lambda_RescopeGlobalSymbolsRewriteCallback_visitName_4_).add(obj_(currentChunk))
 	var replacement Node = IR_getprop_Node_String(IR_name(name), "_")
 	this.replaceSymbol(n, name, replacement)
 }
 
 // lambda_RescopeGlobalSymbolsRewriteCallback_visitName_1_ is a lambda of RescopeGlobalSymbolsRewriteCallback_visitName that captures nothing (post-flip step lambdas).
-var lambda_RescopeGlobalSymbolsRewriteCallback_visitName_1_ = &Function_fn{func(k_ any) any {
+func lambda_RescopeGlobalSymbolsRewriteCallback_visitName_1_(k_ any) any {
 	var k string = str_(k_)
 	_ = k
 	return obj_(new_LinkedHashSet())
-}}
+}
 
 // lambda_RescopeGlobalSymbolsRewriteCallback_visitName_2_ is a lambda of RescopeGlobalSymbolsRewriteCallback_visitName that captures nothing (post-flip step lambdas).
 func lambda_RescopeGlobalSymbolsRewriteCallback_visitName_2_(k_ any) any {
@@ -271,18 +271,18 @@ func lambda_RescopeGlobalSymbolsRewriteCallback_visitName_2_(k_ any) any {
 }
 
 // lambda_RescopeGlobalSymbolsRewriteCallback_visitName_3_ is a lambda of RescopeGlobalSymbolsRewriteCallback_visitName that captures nothing (post-flip step lambdas).
-var lambda_RescopeGlobalSymbolsRewriteCallback_visitName_3_ = &Function_fn{func(k_ any) any {
+func lambda_RescopeGlobalSymbolsRewriteCallback_visitName_3_(k_ any) any {
 	var k string = str_(k_)
 	_ = k
 	return obj_(new_LinkedHashSet())
-}}
+}
 
 // lambda_RescopeGlobalSymbolsRewriteCallback_visitName_4_ is a lambda of RescopeGlobalSymbolsRewriteCallback_visitName that captures nothing (post-flip step lambdas).
-var lambda_RescopeGlobalSymbolsRewriteCallback_visitName_4_ = &Function_fn{func(k_ any) any {
+func lambda_RescopeGlobalSymbolsRewriteCallback_visitName_4_(k_ any) any {
 	var k string = str_(k_)
 	_ = k
 	return obj_(new_LinkedHashSet())
-}}
+}
 
 func (this *RescopeGlobalSymbolsRewriteCallback) replaceSymbol(node Node, name string, replacement Node) {
 	var parent Node = node.getParent()
@@ -302,7 +302,7 @@ func (this *RescopeGlobalSymbolsRewriteCallback) addGlobalNamespaceAlias(n Node,
 	}
 	var globalTarget Node = IR_getprop_Node_String(IR_name(this.symbolInfo.globalSymbolNamespace()), name)
 	if this.optimizeLocalAccess.shouldWrapReassignableSymbols() && Collection_contains_s(this.symbolInfo.wrappedCrossChunkNames(), name) {
-		mapComputeIfAbsent_(tc_string, tc_SetOf_p_JSChunk_, this.chunksRequiringWrapperInitialization, name, lambda_RescopeGlobalSymbolsRewriteCallback_addGlobalNamespaceAlias_1_).add(obj_(currentChunk))
+		mapComputeIfAbsent_f(tc_string, tc_SetOf_p_JSChunk_, this.chunksRequiringWrapperInitialization, name, lambda_RescopeGlobalSymbolsRewriteCallback_addGlobalNamespaceAlias_1_).add(obj_(currentChunk))
 		globalTarget = IR_getprop_Node_String(globalTarget, "_")
 	}
 	var parent Node = n.getParent()
@@ -359,11 +359,11 @@ func (this *RescopeGlobalSymbolsRewriteCallback) addGlobalNamespaceAlias(n Node,
 }
 
 // lambda_RescopeGlobalSymbolsRewriteCallback_addGlobalNamespaceAlias_1_ is a lambda of RescopeGlobalSymbolsRewriteCallback_addGlobalNamespaceAlias that captures nothing (post-flip step lambdas).
-var lambda_RescopeGlobalSymbolsRewriteCallback_addGlobalNamespaceAlias_1_ = &Function_fn{func(k_ any) any {
+func lambda_RescopeGlobalSymbolsRewriteCallback_addGlobalNamespaceAlias_1_(k_ any) any {
 	var k string = str_(k_)
 	_ = k
 	return obj_(new_LinkedHashSet())
-}}
+}
 
 func RescopeGlobalSymbolsRewriteCallback_isSafeDestructuringWrite(n Node, stmt Node) bool {
 	if !NodeUtil_isLhsByDestructuring(n) || !NodeUtil_isStatementBlock(stmt.getParent()) {

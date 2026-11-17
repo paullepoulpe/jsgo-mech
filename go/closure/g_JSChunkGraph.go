@@ -343,11 +343,11 @@ func (this *JSChunkGraph) manageDependencies(compiler *AbstractCompiler, depende
 		it_3 := foreach_(obj_(input.getKnownProvides()))
 		for it_3.next() {
 			var provide string = str_(it_3.v)
-			mapComputeIfAbsent_(tc_string, tc_SetOf_p_CompilerInput_, inputsByProvide, provide, lambda_JSChunkGraph_manageDependencies_1_)
+			mapComputeIfAbsent_f(tc_string, tc_SetOf_p_CompilerInput_, inputsByProvide, provide, lambda_JSChunkGraph_manageDependencies_1_)
 			inputsByProvide[provide].add(obj_(input))
 		}
 		var chunkName string = input.getPath().toModuleName()
-		mapComputeIfAbsent_(tc_string, tc_SetOf_p_CompilerInput_, inputsByProvide, chunkName, lambda_JSChunkGraph_manageDependencies_2_)
+		mapComputeIfAbsent_f(tc_string, tc_SetOf_p_CompilerInput_, inputsByProvide, chunkName, lambda_JSChunkGraph_manageDependencies_2_)
 		inputsByProvide[chunkName].add(obj_(input))
 	}
 	it_5 := foreach_(obj_(originalInputs))
@@ -451,18 +451,18 @@ func (this *JSChunkGraph) manageDependencies(compiler *AbstractCompiler, depende
 }
 
 // lambda_JSChunkGraph_manageDependencies_1_ is a lambda of JSChunkGraph_manageDependencies that captures nothing (post-flip step lambdas).
-var lambda_JSChunkGraph_manageDependencies_1_ = &Function_fn{func(k_ any) any {
+func lambda_JSChunkGraph_manageDependencies_1_(k_ any) any {
 	var k string = str_(k_)
 	_ = k
 	return obj_(new_LinkedHashSet())
-}}
+}
 
 // lambda_JSChunkGraph_manageDependencies_2_ is a lambda of JSChunkGraph_manageDependencies that captures nothing (post-flip step lambdas).
-var lambda_JSChunkGraph_manageDependencies_2_ = &Function_fn{func(k_ any) any {
+func lambda_JSChunkGraph_manageDependencies_2_(k_ any) any {
 	var k string = str_(k_)
 	_ = k
 	return obj_(new_LinkedHashSet())
-}}
+}
 
 func (this *JSChunkGraph) getDepthFirstDependenciesOf(rootInput *CompilerInput, unreachedInputs map[*CompilerInput]struct{}, inputsByProvide map[string]SetOf[*CompilerInput]) *TList[*CompilerInput] {
 	var orderedInputs *TList[*CompilerInput] = newTList_(tc_p_CompilerInput)

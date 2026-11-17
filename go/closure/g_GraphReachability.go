@@ -31,14 +31,14 @@ func new_GraphReachability_DiGraph_Predicate(graph *DiGraph, edgePredicate func(
 func (this *GraphReachability) compute(entry any) {
 	this.graph.clearNodeAnnotations()
 	icast_DiGraph_DiGraphNode(this.graph.getNode(entry)).setAnnotation(GraphReachability_REACHABLE)
-	FixedPointGraphTraversal_newTraversal(this).computeFixedPoint_2(this.graph, entry)
+	FixedPointGraphTraversal_newTraversal(this.traverseEdge).computeFixedPoint_2(this.graph, entry)
 }
 
 func (this *GraphReachability) recompute(reachableNode any) {
 	var newReachable GraphNode = this.graph.getNode(reachableNode)
 	Preconditions_checkState((Annotatable_getAnnotation(Annotatable(newReachable)) != GraphReachability_REACHABLE))
 	newReachable.setAnnotation(GraphReachability_REACHABLE)
-	FixedPointGraphTraversal_newTraversal(this).computeFixedPoint_2(this.graph, reachableNode)
+	FixedPointGraphTraversal_newTraversal(this.traverseEdge).computeFixedPoint_2(this.graph, reachableNode)
 }
 
 func (this *GraphReachability) traverseEdge(source any, e any, destination any) bool {

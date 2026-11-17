@@ -303,7 +303,7 @@ func (this *PureFunctionIdentifier) propagateSideEffects() {
 }
 
 // lambda_PureFunctionIdentifier_propagateSideEffects_1_ is a lambda of PureFunctionIdentifier_propagateSideEffects that captures nothing (post-flip step lambdas).
-var lambda_PureFunctionIdentifier_propagateSideEffects_1_ = &FixedPointGraphTraversal_EdgeCallback_fn{func(source_ any, edge_ any, destination_ any) bool {
+func lambda_PureFunctionIdentifier_propagateSideEffects_1_(source_ any, edge_ any, destination_ any) bool {
 	var source *PureFunctionIdentifier_AmbiguatedFunctionSummary = cast_[*PureFunctionIdentifier_AmbiguatedFunctionSummary](source_)
 	_ = source
 	var edge *PureFunctionIdentifier_SideEffectPropagation = cast_[*PureFunctionIdentifier_SideEffectPropagation](edge_)
@@ -311,7 +311,7 @@ var lambda_PureFunctionIdentifier_propagateSideEffects_1_ = &FixedPointGraphTrav
 	var destination *PureFunctionIdentifier_AmbiguatedFunctionSummary = cast_[*PureFunctionIdentifier_AmbiguatedFunctionSummary](destination_)
 	_ = destination
 	return edge.propagate(source, destination)
-}}
+}
 
 func (this *PureFunctionIdentifier) markPureFunctionCalls() {
 	it_1 := eachOf_(&this.allFunctionCalls)

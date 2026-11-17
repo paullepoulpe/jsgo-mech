@@ -143,7 +143,7 @@ func lambda_AmbiguateProperties_process_2_1_(p0 *DiGraph) *LowestCommonAncestorF
 }
 
 // lambda_AmbiguateProperties_process_2_2_ is a lambda of AmbiguateProperties_process_2 that captures nothing (post-flip step lambdas).
-var lambda_AmbiguateProperties_process_2_2_ = &FixedPointGraphTraversal_EdgeCallback_fn{func(subtype_ any, e any, supertype_ any) bool {
+func lambda_AmbiguateProperties_process_2_2_(subtype_ any, e any, supertype_ any) bool {
 	var subtype *ColorGraphNode = cast_[*ColorGraphNode](subtype_)
 	_ = subtype
 	var supertype *ColorGraphNode = cast_[*ColorGraphNode](supertype_)
@@ -156,7 +156,7 @@ var lambda_AmbiguateProperties_process_2_2_ = &FixedPointGraphTraversal_EdgeCall
 	supertype.getSubtypeIndices().or(subtype.getSubtypeIndices())
 	return (supertype.getSubtypeIndices().cardinality() > startSize)
 	panic("unreachable")
-}}
+}
 
 func (this *AmbiguateProperties) getProperty(name string) *AmbiguateProperties_Property {
 	return this.propertyMap.computeIfAbsent_f(name, func(p0 any) any { return obj_(new_AmbiguateProperties_Property(this, str_(p0))) })

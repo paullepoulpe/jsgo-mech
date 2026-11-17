@@ -136,15 +136,15 @@ func (this *ClosureExportTypeClassifier) visitAssign(expr Node) {
 }
 
 func (this *ClosureExportTypeClassifier) getOrCreate(name string) *ClosureExportTypeClassifier_NameInfo {
-	return mapComputeIfAbsent_(tc_string, tc_p_ClosureExportTypeClassifier_NameInfo, this.topLevelNames, name, lambda_ClosureExportTypeClassifier_getOrCreate_1_)
+	return mapComputeIfAbsent_f(tc_string, tc_p_ClosureExportTypeClassifier_NameInfo, this.topLevelNames, name, lambda_ClosureExportTypeClassifier_getOrCreate_1_)
 }
 
 // lambda_ClosureExportTypeClassifier_getOrCreate_1_ is a lambda of ClosureExportTypeClassifier_getOrCreate that captures nothing (post-flip step lambdas).
-var lambda_ClosureExportTypeClassifier_getOrCreate_1_ = &Function_fn{func(unused_ any) any {
+func lambda_ClosureExportTypeClassifier_getOrCreate_1_(unused_ any) any {
 	var unused string = str_(unused_)
 	_ = unused
 	return obj_(new_ClosureExportTypeClassifier_NameInfo())
-}}
+}
 
 func (this *ClosureExportTypeClassifier) kindOfName(info *ClosureExportTypeClassifier_NameInfo, depth int32) ClosureExportTypeClassifier_Kind {
 	if info.isNeverNamespace {

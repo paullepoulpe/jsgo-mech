@@ -68,7 +68,7 @@ func (this *DisambiguateProperties) process_2(externs Node, root Node) {
 		panic("unreachable")
 	}})
 	this.invalidateBasedOnType(flattener)
-	FixedPointGraphTraversal_newTraversal(propagator).computeFixedPoint(graph)
+	FixedPointGraphTraversal_newTraversal(propagator.traverseEdge).computeFixedPoint(graph)
 	var trackerSummaryGenerator *DisambiguateProperties_TrackerSummaryGenerator = new_DisambiguateProperties_TrackerSummaryGenerator()
 	it_7 := propIndex.each()
 	for it_7.next() {
