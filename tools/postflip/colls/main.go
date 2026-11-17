@@ -49,7 +49,9 @@
 // map operations as above. Not with a Comparator, nor other keys: those compare Objects, so a
 // typed collection would box both elements of every comparison again.
 //
-// usage: colls -kind list|map|set|deque|treeset|treemap|idmap [-n] [-v] <dir of package closure>
+// usage: colls -kind list|map|set|deque|treeset|treemap|idmap|immlist|immset|immmap|immlistb|immsetb|immmapb [-n] [-v] <dir of package closure>
+//
+// The imm kinds (Guava's immutable collections and their builders) are described in imm.go.
 //
 //	(-n: report only; -v: list the classes; COLLS_CTORS=1 counts the constructors of the kind
 //	by why their class stays erased, COLLS_WHY=<text>|all lists each)
@@ -72,6 +74,7 @@ import (
 // ---- union-find over slots
 
 type class struct {
+	convText   []string     // the conversion variables, when they are given (imm.go: immDirect)
 	elem       []types.Type // element types: T of a list or set; K, V of a map
 	elemText   []string
 	cv         []rw.Conv
@@ -100,6 +103,9 @@ type class struct {
 // ---- kinds
 
 type kindDef struct {
+	// imm: the Guava immutable type a slot of the kind is declared with (ImmutableList,
+	// ImmutableSet, ImmutableMap; imm.go); "" for the mutable kinds.
+	imm       string
 	name      string
 	base      string       // the kind whose operations it has: list, deque, map or set
 	held      []types.Type // the erased types that hold a collection of the kind
@@ -175,7 +181,7 @@ func kinds() map[string]*kindDef {
 			conv:      []string{"Collections_unmodifiableMap", "icast_Map", "to_LinkedHashMap", "cast_[*LinkedHashMap]", "Map"},
 			newFns:    map[string]int{"new_LinkedHashMap": 0, "Maps_newLinkedHashMapWithExpectedSize": 1},
 			copyFns:   map[string]bool{"new_LinkedHashMap_Map": true},
-			immutable: map[string]bool{"ImmutableMap": true},
+			immutable: map[string]bool{"ErasedImmutableMap": true},
 			view:      "asMap",
 			helpers: map[string]string{"Map_get_s": "get", "Map_put_s": "put", "Map_containsKey_s": "containsKey", "Map_remove_s": "remove",
 				"Map_getOrDefault_s": "getOrDefault", "Map_putIfAbsent_s": "putIfAbsent", "Map_computeIfAbsent_s": "computeIfAbsent"},
@@ -357,6 +363,9 @@ func isList(t types.Type) bool {
 	if t == nil {
 		return false
 	}
+	if K.imm != "" {
+		return immName(t) == K.imm
+	}
 	t = types.Unalias(t)
 	for _, k := range K.held {
 		if types.Identical(t, k) {
@@ -376,7 +385,7 @@ func isPrim(t types.Type) bool {
 // keyMode is rw.KeyMode, with primitive keys (a boxed primitive class typed as the primitive)
 // compared by ==, as Integer.equals compares.
 func keyMode(t types.Type) int {
-	if isPrim(t) {
+	if isPrim(t) || K.imm != "" && isEnum(t) {
 		return rw.KeyEq
 	}
 	return rw.KeyMode(t)
@@ -385,6 +394,12 @@ func keyMode(t types.Type) int {
 // convFor is rw.ConvFor, with primitives boxed by any(v) and unboxed by unbox_[T], as the
 // generated code does.
 func convFor(t types.Type) rw.Conv {
+	if K.imm != "" && isEnum(t) {
+		// An enum constant (ordinal + 1, 0 for null): boxed by self(), unboxed by cast_.
+		n := "cast_[" + types.TypeString(t, types.RelativeTo(rw.Pkg)) + "]"
+		return rw.Conv{Box: func(e string) string { return e + ".self()" }, Unbox: func(e string) string { return n + "(" + e + ")" },
+			IsUnbox: func(m string) bool { return m == n }, OK: true}
+	}
 	if isPrim(t) {
 		n := "unbox_[" + types.TypeString(t, nil) + "]"
 		return rw.Conv{Box: func(e string) string { return "any(" + e + ")" }, Unbox: func(e string) string { return n + "(" + e + ")" },
@@ -408,12 +423,15 @@ func (c *class) primOK(i int, prim []ast.Expr) string {
 	switch {
 	case !isPrim(t):
 		return types.TypeString(t, nil) + " compares other than by =="
-	case K.name != "list" && K.name != "set" && K.name != "map":
+	case K.name != "list" && K.name != "set" && K.name != "map" && K.name != "immlist" && K.name != "immset" && !(K.name == "immmap" && i == 0):
 		return "a " + K.name + " answers null for an absent element"
 	case c.inferBad[i] != "":
 		return c.inferBad[i]
-	case c.viewAt != "":
+	case c.viewAt != "" && K.imm == "":
 		return "erased code sees it (" + c.viewAt + ")"
+	}
+	if c.inferred == nil {
+		return ""
 	}
 	for _, s := range c.inferred[i] {
 		if !types.Identical(s, t) {
@@ -470,6 +488,9 @@ func groupOf(f *types.Func) string {
 			rs = append(rs, types.TypeString(types.Unalias(sig.Results().At(i).Type()), nil))
 		}
 		g = "m|" + strings.TrimSuffix(f.Name(), "_impl") + "(" + strings.Join(ps, ",") + ")" + strings.Join(rs, ",")
+		if K.imm != "" {
+			g += methodFamily(f)
+		}
 	}
 	funcKeys[f] = g
 	return g
@@ -508,6 +529,9 @@ func declare(g string, ft *ast.FuncType, fixed bool, what string) {
 					}
 					if j < len(f.Names) {
 						if v, ok := rw.Info.Defs[f.Names[j]].(*types.Var); ok {
+							if st, ok := stated[k]; ok && K.imm != "" {
+								stated[varKey(v)] = st
+							}
 							union(k, varKey(v))
 						}
 					}
@@ -533,8 +557,12 @@ func declareType(k int, te ast.Expr) {
 		for i := range a {
 			c.elems[i] = append(c.elems[i], a[i])
 		}
+		stated[k] = a
 	}
 }
+
+// stated are the type arguments each slot's own declaration states (imm kinds).
+var stated = map[int][]ast.Expr{}
 
 // ---- values
 
@@ -543,16 +571,19 @@ const (
 	vNew
 	vNil
 	vForeign
-	vImm  // an immutable list from erased code: copied into an immutable TList
-	vCopy // new ArrayList(collection)
+	vImm    // an immutable list from erased code: copied into an immutable TList
+	vCopy   // new ArrayList(collection)
+	vOf     // ImmutableList.of(a, b...) (imm kinds)
+	vCopyOf // ImmutableList.copyOf(x) (imm kinds)
 )
 
 type value struct {
 	kind int
 	k    int
 	why  string
-	cap  ast.Expr // capacity of a new list
-	from ast.Expr // the erased collection of vImm and vCopy
+	cap  ast.Expr   // capacity of a new list
+	from ast.Expr   // the erased collection of vImm and vCopy
+	args []ast.Expr // the elements of vOf (ImmutableList.of(a, b...)), the source of vCopyOf
 }
 
 func isImmutable(t types.Type) bool {
@@ -667,6 +698,11 @@ func valueOf(e ast.Expr) value {
 			}
 			return value{kind: vForeign, why: "converted from " + rw.Text(x.Args[0])[:min(40, len(rw.Text(x.Args[0])))]}
 		}
+		if K.imm != "" {
+			if v, ok := immValue(x, n); ok {
+				return v
+			}
+		}
 		if a, ok := K.newFns[n]; ok && len(c.Args) == a {
 			if a == 1 {
 				return value{kind: vNew, cap: c.Args[0]}
@@ -678,6 +714,9 @@ func valueOf(e ast.Expr) value {
 		}
 		if fl, ok := rw.Unparen(x.Fun).(*ast.FuncLit); ok {
 			return value{kind: vSlot, k: resultKey(litGroup(fl), 0)}
+		}
+		if f := calleeFunc(x); K.imm != "" && f != nil && genericResult(f) {
+			return value{kind: vImm, from: x} // a type parameter's value (Outcome<ImmutableMap<..>>.get())
 		}
 		if f := calleeFunc(x); f != nil && isList(f.Type().(*types.Signature).Results().At(0).Type()) {
 			if !generated(f.Pos()) {
@@ -694,6 +733,9 @@ func valueOf(e ast.Expr) value {
 		return value{kind: vForeign, why: "result of " + n}
 	}
 	if v := varOf(e); v != nil {
+		if K.imm != "" && genericVar(v) {
+			return value{kind: vImm, from: e}
+		}
 		return value{kind: vSlot, k: slotOfVar(v)}
 	}
 	return value{kind: vForeign, why: fmt.Sprintf("%T", e)}
@@ -733,10 +775,12 @@ func climb(e ast.Expr) ast.Expr {
 // flow records that the value of expression src (whose outermost conversion is top) goes to slot dest.
 func flow(dest int, src ast.Expr, top ast.Expr) {
 	v := valueOf(src)
-	if v.kind == vNew || v.kind == vCopy {
+	if v.kind == vNew || v.kind == vCopy || v.kind == vOf || v.kind == vCopyOf || v.kind == vImm && isCtor(unwrap(src)) {
 		ctorDest[unwrap(src)] = dest
 	}
 	switch v.kind {
+	case vOf, vCopyOf:
+		immFlow(dest, v, top)
 	case vNil:
 	case vForeign:
 		poison(dest, v.why)
@@ -761,6 +805,10 @@ func flow(dest int, src ast.Expr, top ast.Expr) {
 			}}
 		})
 	case vSlot:
+		if K.imm != "" && statedApart(dest, v.k) {
+			convFlow(dest, v.k, unwrap(src), top)
+			return
+		}
 		union(dest, v.k)
 		inner := unwrap(src)
 		if top != inner {
@@ -797,7 +845,7 @@ func paramIndexKey(c *ast.CallExpr, i int) (int, bool) {
 	if sig.Variadic() && i >= sig.Params().Len()-1 {
 		return 0, false
 	}
-	if i >= sig.Params().Len() || !isList(sig.Params().At(i).Type()) {
+	if i >= sig.Params().Len() || !isList(sig.Params().At(i).Type()) || K.imm != "" && genericParam(f, i) {
 		return 0, false
 	}
 	return paramKey(groupOf(f), i), true
@@ -808,7 +856,7 @@ func handle(e ast.Expr) {
 	v := valueOf(e)
 	top := climb(e)
 	p := rw.Parent[top]
-	if v.kind == vNew || v.kind == vCopy {
+	if v.kind == vNew || v.kind == vCopy || v.kind == vOf || v.kind == vCopyOf || v.kind == vImm && isCtor(e) {
 		ctorWhy[e] = fmt.Sprintf("used directly in a %T", p)
 		if c, ok := p.(*ast.CallExpr); ok {
 			n, _ := rw.CallName(c)
@@ -829,6 +877,14 @@ func handle(e ast.Expr) {
 		}
 		if !readsOnly(top) {
 			viewed(src, top)
+		}
+		if K.imm != "" {
+			// The twin, with every conversion around the value kept: it has the value's type.
+			inner := unwrap(e)
+			edit(src, func(c *class) rw.Edit {
+				return rw.Edit{Node: inner, Gen: func() string { return rw.RenderChildren(inner) + "." + K.view + "()" }}
+			})
+			return
 		}
 		if K.view == "" {
 			if os.Getenv("COLLS_ANY") != "" {
@@ -893,6 +949,10 @@ func handle(e ast.Expr) {
 				return
 			}
 			dv := varOf(x.Lhs[i])
+			if dv != nil && K.imm != "" && genericVar(dv) {
+				boundary()
+				return
+			}
 			if dv == nil {
 				if src != 0 {
 					poison(src, "stored into an element of a map, slice or array")
@@ -926,6 +986,10 @@ func handle(e ast.Expr) {
 					boundary() // returned as an Object
 					return
 				}
+				if rt := enclosingResult(x, i); K.imm != "" && rt != nil && !isList(rt) {
+					boundary() // returned as an erased List
+					return
+				}
 				flow(resultKey(g, i), e, top)
 			}
 		}
@@ -954,6 +1018,11 @@ func handle(e ast.Expr) {
 				edit(src, func(c *class) rw.Edit {
 					return rw.Edit{Node: top, Gen: func() string { return "obj_(" + rw.Render(inner) + ")" }}
 				})
+				return
+			}
+		}
+		if n, _ := rw.CallName(x); K.imm != "" && src != 0 && n == "immElems_" && len(x.Args) == 1 && x.Args[0] == top && top == unwrap(e) {
+			if immRange(src, e, x) {
 				return
 			}
 		}
@@ -992,6 +1061,11 @@ func handle(e ast.Expr) {
 			if c, ok := rw.Parent[x].(*ast.CallExpr); ok && c.Fun == x {
 				if src != 0 {
 					use(src, top, x.Sel.Name, c)
+				} else if K.imm != "" && isBuilder() && v.kind == vOf {
+					// ImmutableList.builder().add(x)...: the chain is a class of its own.
+					k := key(fmt.Sprintf("chain|%d", e.Pos()))
+					flow(k, e, top)
+					use(k, top, x.Sel.Name, c)
 				}
 				return
 			}
@@ -1023,7 +1097,7 @@ func handle(e ast.Expr) {
 	case *ast.KeyValueExpr:
 		if x.Value == top {
 			if id, ok := x.Key.(*ast.Ident); ok {
-				if fv, ok := rw.Info.Uses[id].(*types.Var); ok && isList(fv.Type()) {
+				if fv, ok := rw.Info.Uses[id].(*types.Var); ok && isList(fv.Type()) && !(K.imm != "" && genericVar(fv)) {
 					flow(slotOfVar(fv), e, top)
 					return
 				}
@@ -1033,6 +1107,14 @@ func handle(e ast.Expr) {
 		return
 	case *ast.ExprStmt:
 		return
+	case *ast.CompositeLit:
+		// An element of a []any (varargs of a runtime call, String.format...): boxed.
+		if K.imm != "" && src != 0 {
+			if sl, ok := types.Unalias(typeOf(x)).(*types.Slice); ok && !isList(sl.Elem()) {
+				boundary()
+				return
+			}
+		}
 	}
 	if src != 0 {
 		poison(src, fmt.Sprintf("used in a %T", p))
@@ -1070,6 +1152,12 @@ func implicitConversions() {
 		if K.fromCode == nil || !isImmutable(typeOf(r)) {
 			poison(dest, why(r))
 			return
+		}
+		if K.imm != "" {
+			if w := immForeign(r); w != "" {
+				poison(dest, w)
+				return
+			}
 		}
 		inferBad(dest, -1, "an erased collection is copied in")
 		edit(dest, func(c *class) rw.Edit {
@@ -1230,7 +1318,7 @@ func (c *class) infer(i int) (types.Type, string) {
 	switch {
 	case c.inferBad[i] != "":
 		return nil, "no slot states an element type, and " + c.inferBad[i]
-	case c.viewAt != "":
+	case c.viewAt != "" && K.imm == "":
 		return nil, "no slot states an element type, and erased code sees it (" + c.viewAt + ")"
 	case c.inferred == nil || len(c.inferred[i]) == 0:
 		return nil, "no slot states an element type"
@@ -1368,8 +1456,14 @@ func use(k int, recv ast.Expr, m string, call *ast.CallExpr) {
 		}
 		return
 	}
+	if K.imm != "" && immUse(k, recv, m, call, read, raw) {
+		return
+	}
 	switch K.base {
 	case "list":
+		if K.imm != "" {
+			break // changes go through the view (rt_guava.go throws as before)
+		}
 		switch {
 		case m == "add" && n == 1:
 			plain("add", key(0))
@@ -1409,6 +1503,9 @@ func use(k int, recv ast.Expr, m string, call *ast.CallExpr) {
 		poison(k, "deque method "+m)
 		return
 	case "set":
+		if K.imm != "" {
+			break
+		}
 		switch {
 		case m == "add" && n == 1:
 			plain("add", key(0))
@@ -1423,6 +1520,9 @@ func use(k int, recv ast.Expr, m string, call *ast.CallExpr) {
 			return
 		}
 	case "map":
+		if K.imm != "" {
+			break
+		}
 		switch {
 		case m == "get" && n == 1:
 			read(1, "get", key(0))
@@ -1462,7 +1562,7 @@ func use(k int, recv ast.Expr, m string, call *ast.CallExpr) {
 			}
 		}
 	}
-	if m == "addAll" && n == 1 && K.base != "map" {
+	if m == "addAll" && n == 1 && K.base != "map" && K.imm == "" {
 		// addAll(other) where other is a typed collection of the same element type: typed.
 		arg := args[0]
 		for {
@@ -1492,7 +1592,7 @@ func use(k int, recv ast.Expr, m string, call *ast.CallExpr) {
 		}
 	}
 	viewed(k, call)
-	if m == "self" && n == 0 {
+	if m == "self" && n == 0 && K.imm == "" {
 		edit(k, func(c *class) rw.Edit {
 			return rw.Edit{Node: call, Gen: func() string { return "any(" + R() + "." + K.view + "())" }}
 		})
@@ -1644,6 +1744,12 @@ func (c *class) element(i int) (ast.Expr, types.Type, string) {
 				el, et = e, t
 			case types.AssignableTo(t, et):
 			default:
+				if os.Getenv("COLLS_DIS") != "" {
+					fmt.Fprintf(os.Stderr, "DISAGREE %s %s | %s %s\n", rw.Fset.Position(el.Pos()), rw.Text(el), rw.Fset.Position(e.Pos()), rw.Text(e))
+					for _, te := range c.typeExpr {
+						fmt.Fprintf(os.Stderr, "  decl %s %s\n", rw.Fset.Position(te.Pos()), rw.Text(te))
+					}
+				}
 				return nil, nil, "slots disagree on the element type (" + rw.Text(el) + ", " + rw.Text(e) + ")"
 			}
 		}
@@ -1660,7 +1766,7 @@ func (c *class) element(i int) (ast.Expr, types.Type, string) {
 	if et == nil && anySlot == nil {
 		// A raw declaration: the type of what the code stores and looks up.
 		t, why := c.infer(i)
-		if t != nil && isPrim(t) && (i != 0 || K.name != "list" && K.name != "set" && K.name != "map") {
+		if t != nil && isPrim(t) && (i != 0 || K.name != "list" && K.name != "set" && K.name != "map" && K.imm == "") {
 			// A primitive has no null: not for a map's values or a deque's elements, which
 			// answer null for an absent one.
 			t, why = nil, "no slot states an element type, and the values stored are primitives"
@@ -1699,10 +1805,10 @@ func (c *class) element(i int) (ast.Expr, types.Type, string) {
 			return nil, nil, "an identity map's key type " + types.TypeString(et, types.RelativeTo(rw.Pkg)) + " is not a pointer"
 		}
 	}
-	if i == 0 && (K.name == "map" || K.name == "set") {
+	if i == 0 && (K.base == "map" || K.base == "set") && K.name != "treeset" && K.name != "treemap" && K.name != "idmap" {
 		switch keyMode(et) {
 		case rw.KeyNone:
-			return nil, nil, "key type " + rw.Text(el) + " has no typed comparison"
+			return nil, nil, "key type " + types.TypeString(et, types.RelativeTo(rw.Pkg)) + " has no typed comparison"
 		case rw.KeyHash:
 			c.hashKey = true
 		}
@@ -1721,6 +1827,9 @@ var nonIdent = regexp.MustCompile(`[^A-Za-z0-9_]`)
 
 // convName is the conversion variable of type argument i of the class.
 func (c *class) convName(i int) string {
+	if c.convText != nil {
+		return c.convText[i]
+	}
 	text, t := c.elemText[i], c.elem[i]
 	hash := i == 0 && c.hashKey
 	prefix := "tc_"
@@ -1764,6 +1873,9 @@ func main() {
 	}
 	rw.Load(os.Args[len(os.Args)-1])
 	K = kinds()[kind]
+	if K == nil {
+		K = immKinds()[kind]
+	}
 	if K != nil && K.base == "" {
 		K.base = K.name
 	}
@@ -1771,7 +1883,7 @@ func main() {
 		K.views = K.held[:1]
 	}
 	if K == nil {
-		fmt.Fprintln(os.Stderr, "usage: colls -kind list|map|set|deque|treeset|treemap|idmap [-n] [-v] <dir>")
+		fmt.Fprintln(os.Stderr, "usage: colls -kind list|map|set|deque|treeset|treemap|idmap|immlist|immset|immmap|immlistb|immsetb|immmapb [-n] [-v] <dir>")
 		os.Exit(2)
 	}
 	transparent = map[string]bool{"obj_": true, "any": true}
@@ -2017,7 +2129,7 @@ func main() {
 					}
 				}
 			}
-			if why == "" && c.anyAt != "" && concreteCasts > 0 {
+			if why == "" && c.anyAt != "" && concreteCasts > 0 && K.imm == "" {
 				why = "boxed into an Object, and Objects are cast back to the concrete runtime type elsewhere"
 				poisonAt[why] = c.anyAt
 			}
@@ -2128,11 +2240,20 @@ func main() {
 	}
 	if verbose {
 		for _, c := range good {
+			if len(c.typeExpr) == 0 {
+				continue
+			}
 			p := rw.Fset.Position(c.typeExpr[0].Pos())
 			fmt.Printf("class\t%d decls\t%s:%d\t%s\n", len(c.typeExpr), filepath.Base(p.Filename), p.Line, K.goType(c))
 		}
 	}
-	sort.Slice(good, func(i, j int) bool { return good[i].typeExpr[0].Pos() < good[j].typeExpr[0].Pos() })
+	pos := func(c *class) token.Pos {
+		if len(c.typeExpr) > 0 {
+			return c.typeExpr[0].Pos()
+		}
+		return c.edits[0](c).Node.Pos() // a class of := locals only
+	}
+	sort.Slice(good, func(i, j int) bool { return pos(good[i]) < pos(good[j]) })
 	if r := os.Getenv("COLLS_RANGE"); r != "" { // bisection aid: apply only classes [a, b)
 		var a, b int
 		fmt.Sscanf(r, "%d,%d", &a, &b)
@@ -2141,6 +2262,9 @@ func main() {
 			p := rw.Fset.Position(c.typeExpr[0].Pos())
 			fmt.Fprintf(os.Stderr, "applying %s:%d %s\n", filepath.Base(p.Filename), p.Line, K.goType(c))
 		}
+	}
+	if K.imm != "" && !isBuilder() {
+		immDirect(report)
 	}
 	if report {
 		return
