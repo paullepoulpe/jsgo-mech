@@ -95,6 +95,17 @@ no table, storing a `double` needs no box, `field == null` is `code == 0`, and a
 same field of another object copies the code (for a `String` field, the id). The value code
 of an `Object` field is a column of its own, as its string slot was.
 
+A line `Class::field handle-table [Flag]` (today `Node::jstypeOrColor`, flag `JSType`) stores
+a field declared `Object` whose values repeat across objects as a `uint32` handle into a table
+that holds each distinct value once (`htab_set_`, `rt_ids.go`; a value is found again by its
+interface words, so by identity). Bit 0 of the handle says whether the value is an instance
+of the flag type, so `field instanceof Flag` is a bit test; any other read is a table load.
+The table must not keep a value alive longer than the fields holding it would (the `JSType`s
+that a second type-check replaces are garbage in Java): an entry counts the fields holding
+its handle (`htab_set_` and, for a copy from the same field of another object, `htab_copy_`)
+and is freed when the count returns to zero. An object of a handle class is never freed, so
+what its fields hold stays, as it does for every other field of such an object.
+
 A line `Class::field cold` names a pointer-free field of a handle class that
 traversals do not read (today `Node::previous`, `linenoCharno`, `length`). Cold
 fields, and the handle's own value that `box_` points at, go to a third record

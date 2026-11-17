@@ -199,7 +199,7 @@ public class Handles {
 
   /**
    * A handle class whose fields are ids (selftest/handles.txt): label and note are string-id Strings,
-   * value a string-id Object (a value code), kind a plain Object field.
+   * value a string-id Object (a value code), kind a handle-table Object with Named as its flag type.
    */
   static final class Cell {
     String label = "";

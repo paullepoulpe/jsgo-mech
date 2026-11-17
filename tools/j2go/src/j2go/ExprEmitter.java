@@ -666,8 +666,8 @@ abstract class ExprEmitter extends Base {
       ExpressionTree x = kl == Ctx.K.NULL ? r : l;
       Ctx.K kx = kl == Ctx.K.NULL ? kr : kl;
       if (kx == Ctx.K.NULL) return op.equals("==") ? "true" : "false";
-      Object[] idf = fieldRead(x, cx::strId);
-      // Null is code 0 of a string id or value code.
+      Object[] idf = fieldRead(x, f -> (cx.strId(f) && !cx.valCode(f)) || cx.valCode(f) || cx.handleTable(f) != null);
+      // Null is code 0 of a string id, value code or table handle.
       if (idf != null) return "(" + cx.fieldLoc((String) idf[0], (VariableElement) idf[1]) + " " + op + " 0)";
       return "(" + expr(x) + " " + op + " " + cx.nil(kl == Ctx.K.NULL ? tr : tl) + ")";
     }
@@ -739,6 +739,21 @@ abstract class ExprEmitter extends Base {
   }
 
   String instanceOf(InstanceOfTree t) {
+    Object[] ht = fieldRead(t.getExpression(), f -> cx.handleTable(f) != null);
+    if (ht != null) {
+      VariableElement f = (VariableElement) ht[1];
+      TypeMirror target = t.getPattern() instanceof BindingPatternTree b0 ? cx.erase(elemOf(b0.getVariable()).asType())
+          : typeOf(t.getType()) != null ? typeOf(t.getType()) : cx.trees.getTypeMirror(cx.trees.getPath(cu, t.getType()));
+      if (cx.types.isSameType(cx.erase(target), cx.handleTable(f))) {
+        // The handle's bit 0 says whether the value is an instance of the flag type.
+        String test = "(" + cx.fieldLoc((String) ht[0], f) + "&1 != 0)";
+        if (t.getPattern() == null) return test;
+        Element ve = elemOf(((BindingPatternTree) t.getPattern()).getVariable());
+        String name = declareHoisted(ve);
+        return "func() bool { if !" + test + " { return false }; " + name + " = " + cx.coerce(ht[0] + "." + cx.fieldName(f) + "_get_()", objectType(), cx.erase(ve.asType()))
+            + "; return true }()";
+      }
+    }
     Object[] slot = strSlotRead(t.getExpression());
     if (slot != null) {
       // The String of a string-slot field is in the string slot, everything else in the other.
@@ -800,9 +815,9 @@ abstract class ExprEmitter extends Base {
     throw unsupported(t, "++/-- used as a value");
   }
 
-  /** A string-id field is assigned only as a whole (stmtExpr). */
+  /** A string-id or handle-table field is assigned only as a whole (stmtExpr). */
   void storedWhole(Tree t, LValue lv) {
-    if (lv.field != null && cx.strId(lv.field)) throw unsupported(t, "compound assignment to a string-id field");
+    if (lv.field != null && (cx.strId(lv.field) || cx.handleTable(lv.field) != null)) throw unsupported(t, "compound assignment to a string-id or handle-table field");
   }
 
   String incDecStmt(UnaryTree t) {
@@ -1350,12 +1365,15 @@ abstract class ExprEmitter extends Base {
           if (cx.valCode((VariableElement) slot[1]) && rt != null && rt.getKind() == TypeKind.DOUBLE) return fn + "_setd_(" + expr(a.getExpression()) + ")";
           return fn + "_set_(" + asAny(a.getExpression()) + ")";
         }
-        Object[] idf = fieldRead(a.getVariable(), cx::strId);
+        Object[] idf = fieldRead(a.getVariable(), f -> cx.strId(f) || cx.handleTable(f) != null);
         if (idf != null) {
-          // A string id: a copy from the same field of another object copies the id.
+          // A string id or table handle: a copy from the same field of another object copies the id.
           VariableElement f = (VariableElement) idf[1];
           Object[] from = fieldRead(a.getExpression(), g -> g == f);
+          // (the table counts the fields holding a handle).
+          if (from != null && cx.handleTable(f) != null) return "htab_copy_(&" + cx.fieldLoc((String) idf[0], f) + ", " + cx.fieldLoc((String) from[0], f) + ")";
           if (from != null) return cx.fieldLoc((String) idf[0], f) + " = " + cx.fieldLoc((String) from[0], f);
+          if (cx.handleTable(f) != null) return idf[0] + "." + cx.fieldName(f) + "_set_(" + asAny(a.getExpression()) + ")";
         }
         LValue lv = lvalue(a.getVariable());
         String val = exprAs(a.getExpression(), lv.type);

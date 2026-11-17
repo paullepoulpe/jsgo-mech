@@ -103,12 +103,12 @@ final class Ctx {
 
   /** True if field f of a handle class holds no Go pointer: it lives in the record the collector never scans. */
   boolean pointerFree(VariableElement f) {
-    return kind(f.asType()) == K.PRIM || isHandleType(f.asType()) || storedEnum(f.asType()) != null || strId(f);
+    return kind(f.asType()) == K.PRIM || isHandleType(f.asType()) || storedEnum(f.asType()) != null || strId(f) || handleTable(f) != null;
   }
 
   /** Go type of the stored form of handle-class field f. */
   String storedType(VariableElement f) {
-    if (strId(f)) return "uint32";
+    if (strId(f) || handleTable(f) != null) return "uint32";
     TypeElement en = storedEnum(f.asType());
     if (en == null) return declType(f.asType());
     return enumConstants(en) < 256 ? "uint8" : "uint16";
@@ -158,6 +158,19 @@ final class Ctx {
     return strId(f) && strSlot(f);
   }
 
+  /**
+   * Fields of handle classes, declared Object, stored as a uint32 handle into a table that holds each
+   * distinct value once (handles.txt, "Class::field handle-table [Flag]"): the value of the field is
+   * table[code>>1]; bit 0 of the code says whether the value is an instance of Flag (the type named
+   * on the line, or none), so that `field instanceof Flag` needs no table read.
+   */
+  final Map<VariableElement, TypeMirror> handleTables = new HashMap<>();
+
+  /** The flag type of handle-table field f (java.lang.Object without one), or null if f is not one. */
+  TypeMirror handleTable(VariableElement f) {
+    return handleTables.get(f);
+  }
+
   /** The Go rvalue of the string slot of field f of recv: a column of its own, or decoded from a value code. */
   String strSlotLoc(String recv, VariableElement f) {
     if (valCode(f)) return recv + "." + fieldName(f) + "_s_()";
@@ -173,7 +186,7 @@ final class Ctx {
 
   /** Go expression reading instance field f of recv, at the Go type of f's Java type. */
   String fieldGet(String recv, VariableElement f) {
-    if (strSlot(f)) return recv + "." + fieldName(f) + "_get_()";
+    if (strSlot(f) || handleTable(f) != null) return recv + "." + fieldName(f) + "_get_()";
     String loc = fieldLoc(recv, f);
     if (strId(f)) return "strid_str_(" + loc + ")";
     TypeElement en = isHandle(ownerOf(f)) ? storedEnum(f.asType()) : null;
@@ -182,7 +195,7 @@ final class Ctx {
 
   /** Go statement storing value (of the Go type of f's Java type) into instance field f of recv. */
   String fieldSet(String recv, VariableElement f, String value) {
-    if (strSlot(f)) return recv + "." + fieldName(f) + "_set_(" + value + ")";
+    if (strSlot(f) || handleTable(f) != null) return recv + "." + fieldName(f) + "_set_(" + value + ")";
     return fieldLoc(recv, f) + " = " + stored(f, value);
   }
 
@@ -229,17 +242,18 @@ final class Ctx {
     slots.sort(Comparator.comparingInt((String l) -> l.matches(".*\\scold\\s*") ? 1 : 0));
     TypeMirror object = elems.getTypeElement("java.lang.Object").asType();
     for (String line : slots) {
-      java.util.regex.Matcher m = java.util.regex.Pattern.compile("(\\S+)::(\\w+)\\s+(string-slot|string-id|cold)").matcher(line);
+      java.util.regex.Matcher m = java.util.regex.Pattern.compile("(\\S+)::(\\w+)\\s+(string-slot|string-id|handle-table|cold)(?:\\s+(\\S+))?").matcher(line);
       TypeElement te = m.matches() ? elems.getTypeElement(m.group(1)) : null;
       VariableElement field = null;
       if (te != null && handles.contains(te)) {
         for (VariableElement f : instanceFields(te)) if (f.getSimpleName().contentEquals(m.group(2))) field = f;
       }
       if (field == null) {
-        handleErrors.add(line + ": not \"Class::field string-slot|string-id|cold\" naming a field of a handle class");
+        handleErrors.add(line + ": not \"Class::field string-slot|string-id|handle-table [Flag]|cold\" naming a field of a handle class");
         continue;
       }
       boolean isObject = types.isSameType(field.asType(), object);
+      if (m.group(4) != null && !m.group(3).equals("handle-table")) handleErrors.add(line + ": only handle-table takes a type");
       switch (m.group(3)) {
         case "cold" -> {
           if (!pointerFree(field)) handleErrors.add(line + ": a cold field must be pointer-free");
@@ -252,13 +266,21 @@ final class Ctx {
             strSlots.add(field);
           } else handleErrors.add(line + ": the field is not declared String or Object");
         }
+        case "handle-table" -> {
+          TypeElement flag = m.group(4) == null ? null : elems.getTypeElement(m.group(4));
+          if (!isObject) handleErrors.add(line + ": the field is not declared Object");
+          else if (m.group(4) != null && flag == null) handleErrors.add(line + ": no type " + m.group(4));
+          else handleTables.put(field, flag == null ? object : types.erasure(flag.asType()));
+        }
         default -> {
           if (!isObject) handleErrors.add(line + ": the field is not declared Object");
           else strSlots.add(field);
         }
       }
     }
-
+    for (VariableElement f : strSlots) {
+      if (handleTables.containsKey(f)) handleErrors.add(f + ": both a string slot and a handle table");
+    }
   }
 
   Ctx(Trees trees, Types types, Elements elems) {

@@ -322,6 +322,19 @@ final class Emitter extends StmtEmitter {
       };
       for (String[] a : acc) sb.append(recv(te)).append(fn).append(a[0]).append(" {\n\t").append(a[1]).append("\n}\n\n");
     }
+    List<VariableElement> pf = new ArrayList<>(ns);
+    pf.addAll(cs);
+    for (VariableElement f : pf) {
+      TypeMirror flag = cx.handleTable(f);
+      if (flag == null) continue;
+      // A handle-table field: a uint32 handle into a table of distinct values (rt_ids.go: htab_set_), bit 0
+      // telling whether the value is an instance of the flag type.
+      String fn = cx.fieldName(f), loc = cx.fieldLoc("this", f);
+      boolean noFlag = flag.toString().equals("java.lang.Object");
+      sb.append(recv(te)).append(fn).append("_get_() any {\n\treturn htab_get_(").append(loc).append(")\n}\n\n");
+      sb.append(recv(te)).append(fn).append("_set_(v any) {\n\thtab_set_(&").append(loc).append(", v, ")
+          .append(noFlag ? "false" : isCheck("v", flag)).append(")\n}\n\n");
+    }
     for (VariableElement f : ps) {
       if (!cx.strSlot(f)) continue;
       // A string-slot field: the String a Java Object field holds is kept unboxed, in a column of its own

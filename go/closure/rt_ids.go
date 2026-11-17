@@ -14,11 +14,21 @@ package closure
 //	              objects. Numbers and other objects get a new table entry per store (Java's
 //	              Double is a value here as elsewhere in the translation; another object keeps
 //	              its identity).
+//	handle-table  an Object field holds a handle into a table of distinct values, htab_: value
+//	              code>>1, bit 0 a flag the generated setter computes (whether the value is an
+//	              instance of the type handles.txt names). A value is found again by identity
+//	              (its interface words), so storing the same object twice makes one entry.
+//	              An entry counts the fields holding its handle and is freed when none does,
+//	              so that the table keeps a value alive exactly as long as the fields would.
 //
-// The tables are chunked like the records of handle classes and never shrink: an entry lives as
-// long as the process. The translation runs one compiler thread, so they take no lock.
+// The tables are chunked like the records of handle classes and never shrink. A string, a
+// number and an object of a value code live as long as the process (strings and numbers hold no
+// pointer to anything else; other objects are rare: BigIntegers, template literal strings); the
+// entries of the handle table are counted and freed. The translation runs one compiler thread,
+// so the tables take no lock.
 
 import (
+	"fmt"
 	"math"
 	"unsafe"
 )
@@ -186,4 +196,144 @@ func valcode_caststr_(c uint32) string {
 		return nullstr_
 	}
 	return str_(valcode_obj_(c))
+}
+
+// ---------------------------------------------------------------- handle tables
+
+// htabEntry_ is a value of the table and the number of fields holding its handle (the largest
+// number: for ever).
+type htabEntry_ struct {
+	v    any
+	refs uint32
+}
+
+const htabPinned_ = 1<<32 - 1
+
+// Entry 0 is never used: code 0 is null. htabCache_ remembers the handles of values stored
+// lately by their interface words, so that storing one of them again needs no map lookup.
+var (
+	htabTab_   idTable_[htabEntry_]
+	htabTab0_  = htabTab_.reserve0()
+	htabIds_   = map[eface_]uint32{}
+	htabCache_ [1024]struct {
+		k  eface_
+		id uint32
+	}
+	htabFree_ []uint32 // entries no field holds any more, to use again
+)
+
+func htabCacheAt_(k eface_) *struct {
+	k  eface_
+	id uint32
+} {
+	return &htabCache_[(uintptr(k.data)>>4^uintptr(k.typ)>>3)&uintptr(len(htabCache_)-1)]
+}
+
+// htabRef_ is the entry of v (not nil), new if v has none, counted once more.
+func htabRef_(v any) uint32 {
+	k := *(*eface_)(unsafe.Pointer(&v))
+	e := htabCacheAt_(k)
+	id := e.id
+	if e.k != k {
+		var ok bool
+		if id, ok = htabIds_[k]; !ok {
+			if n := len(htabFree_); n > 0 {
+				id = htabFree_[n-1]
+				htabFree_ = htabFree_[:n-1]
+				*htabTab_.ptr(id) = htabEntry_{v: v}
+			} else {
+				id = htabTab_.add(htabEntry_{v: v})
+				if id >= 1<<31 {
+					panic(new_RuntimeException_String("handle table: more than 2^31 values").self())
+				}
+			}
+			htabIds_[k] = id
+		}
+		e.k, e.id = k, id
+	}
+	if p := htabTab_.ptr(id); p.refs != htabPinned_ {
+		p.refs++
+	}
+	return id
+}
+
+// htabUnref_ counts the entry of handle c (not 0) once less and frees it at zero: the table
+// keeps a value alive as long as a field holds it, as the field itself would.
+func htabUnref_(c uint32) {
+	p := htabTab_.ptr(c >> 1)
+	if p.refs == htabPinned_ {
+		return
+	}
+	if p.refs--; p.refs == 0 {
+		k := *(*eface_)(unsafe.Pointer(&p.v))
+		delete(htabIds_, k)
+		if e := htabCacheAt_(k); e.k == k {
+			e.k, e.id = eface_{}, 0
+		}
+		p.v = nil
+		htabFree_ = append(htabFree_, c>>1)
+	}
+}
+
+// htab_set_ stores v in the field at loc: its handle (0 for nil) shifted left by one, with
+// flag in bit 0.
+func htab_set_(loc *uint32, v any, flag bool) {
+	old := *loc
+	if v == nil {
+		*loc = 0
+	} else {
+		c := htabRef_(v) << 1
+		if flag {
+			c |= 1
+		}
+		*loc = c
+	}
+	if old != 0 {
+		htabUnref_(old)
+	}
+}
+
+// htab_copy_ stores in the field at loc what another field of the same kind holds, c.
+func htab_copy_(loc *uint32, c uint32) {
+	old := *loc
+	if c != 0 {
+		if p := htabTab_.ptr(c >> 1); p.refs != htabPinned_ {
+			p.refs++
+		}
+	}
+	*loc = c
+	if old != 0 {
+		htabUnref_(old)
+	}
+}
+
+// htab_pin_ is the handle of v (0 for nil) shifted left by one, for ever: for the runtime's own
+// fields, which copy and drop handles without counting (rt_node_props.go).
+func htab_pin_(v any) uint32 {
+	if v == nil {
+		return 0
+	}
+	id := htabRef_(v)
+	htabTab_.ptr(id).refs = htabPinned_
+	return id << 1
+}
+
+func htab_get_(c uint32) any {
+	if c == 0 {
+		return nil
+	}
+	return htabTab_.ptr(c >> 1).v
+}
+
+// For JSGO_HANDLE_STATS.
+func init() {
+	handleStats_ = append(handleStats_, func() string {
+		pinned := 0
+		for i := uint32(1); i < htabTab_.n; i++ {
+			if htabTab_.ptr(i).refs == htabPinned_ {
+				pinned++
+			}
+		}
+		return fmt.Sprintf("handle table: %d entries, %d in use (%d for ever)\n", htabTab_.n-1, len(htabIds_), pinned)
+	})
 }
