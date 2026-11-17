@@ -145,8 +145,6 @@ the translated program.
   the backing slice in place, as their iterators do, and it holds an `Iterator` only for
   anything else. The cursor must be declared before the `for`, not in its init clause, where
   Go would copy it at every iteration.
-- **Profile-guided optimization.** `go/cmd/mech/default.pgo` is a merged CPU profile of the
-  four gate projects; `go build` uses it by itself. `tools/pgo/regen.sh` regenerates it.
 
 What the runtime does for the same reason (entries of hash tables stored by value, small
 tables searched linearly, no per-entry or per-view objects) is described in `RUNTIME.md`.

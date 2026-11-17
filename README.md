@@ -151,6 +151,49 @@ to +11% depending on the task. The large gains the plan expects from a
 NodeStore do not appear with this translator; allocation of other objects
 (16%), the remaining marking (25%), boxed strings and hash lookups dominate.
 
+**Planned: a node store the collector never scans.** The handle rule above made the tree
+links 32-bit ids, but a `Node` still carries Go pointers: on postflip5 its columns are a
+16-byte traversal record (`next`, `first`, `parent`, `token`) and a 16-byte cold record
+(`previous`, `linenoCharno`, `length`), both pointer-free, plus a 48-byte record of
+`jstypeOrColor any`, `originalName string` and `payload any` (5 of its 6 words are pointers),
+an 8-byte property-list head and a 16-byte string payload: about 104 bytes and 7 pointer words
+per node that the collector marks on every cycle, and one heap object (Java's `PropListItem`,
+3-5 pointer words) per property. jsgo's `NodeStore` (`internal/rhino/node_store.go`) has a
+single 36-byte record with no pointers at all, in blocks the collector never scans. The target
+is the same: no Go pointer in any per-node column; what has pointers is per distinct value
+(interned strings, types, source files) or per rare property, in side tables. Each change is
+a j2go handle-class rule configured in `tools/j2go/handles.txt` (so `Node.java` and every pass
+read as before: `n.getString()`, `n.getJSType()`, `n.getBooleanProp(p)` are unchanged), with
+the tables in the handwritten runtime, gated byte-identical like every rule:
+
+1. **Strings as ids.** A `Node` field declared `String` or `Object`-holding-`String`
+   (`payload`'s string slot, `originalName`) becomes a `uint32` id into a process-wide
+   interning table (`handles.txt`: `string-id`). A read is one more load (the table entry);
+   interning costs a hash lookup when the parser or a pass sets the string, and makes equal
+   names share one string. Numbers in `payload` are inline (int31) or an index into a table of
+   doubles; BigInts and template literals (raw and cooked) go to their own tables.
+2. **Types as handles.** `jstypeOrColor` becomes a `uint32` handle into a table holding each
+   distinct `JSType` or `Color` once (`handles.txt`: `handle-table`); a flag bit says which.
+3. **Properties as bits.** The boolean and small-int properties of `Prop` become bits and
+   small fields of the node record; object-valued and rare properties (JSDocInfo, feature sets,
+   module data) go to a side table keyed by node id that only nodes having them occupy. This
+   one replaces `Node.java`'s property-list code, so it is handwritten runtime for those
+   methods, selected by a `handles.txt` entry; a Java prep step doing the same in `Node.java`
+   was tried for a narrower change (prep 04c, node properties) and slowed pre-flip Java by
+   1.7-1.9%, which the plan does not allow.
+4. **One record.** With 1-3 the traversal and cold records and the scalar fields above fit in
+   about 40 bytes (four links, token, flags, payload id, original-name id, type handle,
+   property bits, position, length); whether the cold split still pays is measured, not
+   assumed.
+5. **A check.** A runtime test asserts with reflection that no per-node column type contains
+   a pointer, so a later rule cannot bring one back unnoticed.
+
+What jsgo has and this plan leaves out: moving (pre-order) compaction, which jsgo measured at
++0.09s with four threads and +4.6s with one, and more RSS during the copy (jsgo keeps only a
+13-line pruning of dead side-table entries, which is taken); per-worker id ranges, which only
+a parallel parser needs. The typed AST view of jsgo (`docs/typed-ast.md`) is a separate,
+later post-flip phase: it changes how passes read the tree, not how it is stored.
+
 **Cheap performance items (branch `wip/perf1`).** A measurement study found that the
 translated compiler allocates 500 times more objects than a hand-written port, a third of them
 Java Strings boxed into `any` as lookup keys. Six cheap remedies are now in the translator and
@@ -161,7 +204,6 @@ not comparable, only the two sides of one row):
 
 | change | mallocs | wall | CPU |
 |---|---:|---:|---:|
-| profile-guided optimization (`default.pgo`) | 331.8M -> 313.3M | 56.0s -> 53.9s | 67.0s -> 64.3s |
 | String keys reach maps and sets unboxed | 313.3M -> 236.7M | 51.8s -> 50.5s | 61.9s -> 59.4s |
 | hash-table entries by value, sets without values | 236.9M -> 225.3M | 45.5s -> 44.9s | 53.4s -> 52.9s |
 | tables of up to 8 entries searched linearly | 225.3M -> 216.1M | 45.3s -> 41.8s | 52.9s -> 48.8s |
@@ -169,6 +211,11 @@ not comparable, only the two sides of one row):
 | for-each on a stack cursor, no iterator object | 215.3M -> 195.3M | 37.4s -> 37.5s | 44.1s -> 43.7s |
 | table capacity 4 at first insert, hash chains in a slice | 195.3M -> 181.5M | 44.1s -> 42.6s | 52.2s -> 49.9s |
 | all together | 331.8M -> 181.5M | 54.6s -> 43.6s | 65.4s -> 51.1s |
+
+The "all together" row and the nine tasks below were measured with a profile-guided build
+(`go/cmd/mech/default.pgo`, then in the tree; PGO alone: 331.8M -> 313.3M mallocs, 56.0s ->
+53.9s). The plan uses no PGO, and the profile has since been removed; later measurements
+(POSTFLIP.md on the post-flip branches) are without it.
 
 Nine benchmark tasks with the final build, all byte-identical with Java (3 cold runs,
 medians, same harness and machine as above):
