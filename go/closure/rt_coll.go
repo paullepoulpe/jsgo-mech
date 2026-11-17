@@ -757,8 +757,11 @@ var hseed_ = maphash.MakeSeed()
 // hashOf is the hash a key is indexed by: a string's (Go's string hash), a key with its own
 // equals/hashCode its hashCode (mixed), any other key Go's hash of the interface value.
 func (t *htable_) hashOf(k any) uint32 {
-	if s, ok := k.(string); ok {
-		return uint32(maphash.String(hseed_, s))
+	switch k := k.(type) {
+	case string:
+		return uint32(maphash.String(hseed_, k))
+	case Node:
+		return hmix_(int32(k))
 	}
 	if h, ok := t.customKey_(k); ok {
 		return hmix_(h.hashCode())
@@ -792,8 +795,11 @@ func (t *htable_) customKey_(k any) (hashed_, bool) {
 
 // find returns the position of key k, or -1.
 func (t *htable_) find(k any) int {
-	if s, ok := k.(string); ok {
-		return t.findStr(s)
+	switch k := k.(type) {
+	case string:
+		return t.findStr(k)
+	case Node:
+		return t.findNode(k)
 	}
 	if !t.indexed {
 		// No key here has its own equals, so one that does is not found either.
@@ -831,6 +837,30 @@ func (t *htable_) find(k any) int {
 		if sl := x.slots[j]; uint32(sl>>32) == hv {
 			if i := int32(uint32(sl)) - 1; t.keys[i] == k {
 				return int(i)
+			}
+		}
+	}
+	return -1
+}
+
+// findNode is find for a node handle. A Node has no equals or hashCode of its own, so it is
+// hashed as primHash_ hashes it and compared by value, as == on the boxed keys compares it, but
+// without the runtime call that == of two interface values makes for a handle.
+func (t *htable_) findNode(n Node) int {
+	if !t.indexed {
+		for i, x := range t.keys {
+			if xn, ok := x.(Node); ok && xn == n {
+				return i
+			}
+		}
+		return -1
+	}
+	x := t.x
+	hv := hmix_(int32(n))
+	for j, m := hv&uint32(len(x.slots)-1), uint32(len(x.slots)-1); x.slots[j] != 0; j = (j + 1) & m {
+		if sl := x.slots[j]; uint32(sl>>32) == hv {
+			if xn, ok := t.keys[int32(uint32(sl))-1].(Node); ok && xn == n {
+				return int(int32(uint32(sl)) - 1)
 			}
 		}
 	}
@@ -918,7 +948,9 @@ func (t *htable_) addStr(s string) bool {
 // insert appends a key that find did not find.
 func (t *htable_) insert(k any) {
 	if !t.indexed {
-		if _, isStr := k.(string); !isStr {
+		switch k.(type) {
+		case string, Node:
+		default:
 			if _, custom := t.customKey_(k); custom {
 				t.buildIndex()
 			}
