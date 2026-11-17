@@ -384,6 +384,9 @@ type LinkedDirectedGraph_LinkedDiGraphNode struct {
 	// a control-flow graph have one of each, and their lists then need no array of their own;
 	// a second edge moves the list to an array, as appending past capacity does).
 	inEdge1_, outEdge1_ [1]DiGraph_DiGraphEdge
+	// The data-flow work queue that holds the node, if any (post-flip manual step: membership
+	// in DataFlowAnalysis.UniqueQueue is this field, not a hash set).
+	queuedIn_ *DataFlowAnalysis_UniqueQueue
 }
 
 // LinkedDirectedGraph_LinkedDiGraphNode_I holds the methods the dispatchers of LinkedDirectedGraph_LinkedDiGraphNode's hierarchy call on the most derived

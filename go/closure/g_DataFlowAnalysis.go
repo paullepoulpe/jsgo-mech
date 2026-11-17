@@ -327,14 +327,15 @@ func (this *DataFlowAnalysis_LinearFlowState) toString() string {
 }
 
 type DataFlowAnalysis_UniqueQueue struct {
-	// membership only, never iterated: a Go map (graph nodes compare by identity), keyed by the
-	// node's LinkedDiGraphNode, the only DiGraphNode class (post-flip manual step).
+	// membership only, never iterated (graph nodes compare by identity). A node that is in
+	// this queue names it in its queuedIn_ field, so a lookup reads that field (post-flip
+	// manual steps). A node added while another queue holds it is kept in seenSet, a Go map,
+	// instead; seenSet and the marked nodes are disjoint, and together are the queue's nodes.
 	seenSet map[*LinkedDirectedGraph_LinkedDiGraphNode]struct{}
 	queue   QueueOf[any]
 }
 
 func (this *DataFlowAnalysis_UniqueQueue) finit_DataFlowAnalysis_UniqueQueue() {
-	this.seenSet = map[*LinkedDirectedGraph_LinkedDiGraphNode]struct{}{}
 }
 
 func (this *DataFlowAnalysis_UniqueQueue) init_DataFlowAnalysis_UniqueQueue(priority ComparatorOf[any]) {
@@ -359,19 +360,37 @@ func (this *DataFlowAnalysis_UniqueQueue) isEmpty() bool {
 
 func (this *DataFlowAnalysis_UniqueQueue) removeFirst() any {
 	var t any = this.queue.poll()
-	delete(this.seenSet, to_LinkedDirectedGraph_LinkedDiGraphNode(t))
+	if k := to_LinkedDirectedGraph_LinkedDiGraphNode(t); k != nil && k.queuedIn_ == this {
+		k.queuedIn_ = nil
+	} else {
+		delete(this.seenSet, k)
+	}
 	return t
 }
 
 func (this *DataFlowAnalysis_UniqueQueue) add(t any) {
 	k := to_LinkedDirectedGraph_LinkedDiGraphNode(t)
-	if _, seen := this.seenSet[k]; !seen {
-		this.seenSet[k] = struct{}{}
-		this.queue.add(t)
+	if k.queuedIn_ == this {
+		return
 	}
+	if _, seen := this.seenSet[k]; seen {
+		return
+	}
+	if k.queuedIn_ == nil {
+		k.queuedIn_ = this
+	} else {
+		if this.seenSet == nil {
+			this.seenSet = map[*LinkedDirectedGraph_LinkedDiGraphNode]struct{}{}
+		}
+		this.seenSet[k] = struct{}{}
+	}
+	this.queue.add(t)
 }
 
 func (this *DataFlowAnalysis_UniqueQueue) clear() {
+	for !this.queue.isEmpty() {
+		this.removeFirst()
+	}
 	clear(this.seenSet)
 	this.queue.clear()
 }
