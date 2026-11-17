@@ -139,7 +139,7 @@ func panicKind(c *ast.CallExpr) {
 	}
 	switch {
 	case t == `"unreachable"`:
-		add(row, `panic("unreachable") after a try whose code is read (Go's terminating-statement rule)`)
+		add(row, `panic("unreachable") ending a function whose end Go cannot prove unreachable (after a loop only a return leaves, or a try's code tests; the throws step counts them)`)
 	case isString(a):
 		add(row, "panic with a string: abstract-method fallback or j2go stub that Java never reaches (Go idiom for an impossible state)")
 	case strings.HasPrefix(t, "enumValueOfFail_("):
