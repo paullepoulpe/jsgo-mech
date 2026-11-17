@@ -1110,8 +1110,11 @@ func (this *PeepholeReplaceKnownMethods) jsSplit(stringValue string, separator O
 	}
 	var splitStrings []string = []string{}
 	if separator.get() == "" {
-		for i := int32(0); (i < String_length(stringValue)) && (i < limit); i++ {
-			splitStrings = append(splitStrings, String_substring(stringValue, i, (i+1)))
+		for i, u_ := range stringUnits_(stringValue) {
+			if !(i < limit) {
+				break
+			}
+			splitStrings = append(splitStrings, chrstr_(u_))
 		}
 	} else {
 		var startIndex int32 = 0
