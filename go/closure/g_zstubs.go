@@ -2284,20 +2284,6 @@ type TemplateStringValueOrBuilder interface {
 	getRawStringPointer() int32
 }
 
-func (this *Thread) self() any {
-	if this == nil {
-		return nil
-	}
-	return this.self_
-}
-
-type ThreadFactory interface {
-	newThread(Runnable) *Thread
-}
-
-type Thread_UncaughtExceptionHandler interface {
-}
-
 // Throwable_as is implemented by Throwable and the classes that extend it: a cast to Throwable asserts to it
 // (post-flip).
 type Throwable_as interface {
