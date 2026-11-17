@@ -47,3 +47,7 @@ com.google.javascript.rhino.Node::length cold
 com.google.javascript.rhino.Node::originalName cold
 com.google.javascript.rhino.Node::jstypeOrColor cold
 com.google.javascript.rhino.Node::propListHead cold
+#
+# Columns: "Class::field column" names a pointer-free field of a handle class kept in an array of its
+# own instead of a record (most reads of Node.payload are of its String, and a column keeps them dense).
+com.google.javascript.rhino.Node::payload column

@@ -194,6 +194,16 @@ final class Ctx {
     return runtimeMethods.getOrDefault(te, Set.of()).contains(m.getSimpleName().toString());
   }
 
+  /**
+   * Pointer-free fields of handle classes kept in a column of their own (handles.txt, "Class::field
+   * column"): an array of the field's values per chunk instead of a slot in a record.
+   */
+  final Set<VariableElement> columns = new HashSet<>();
+
+  boolean column(VariableElement f) {
+    return columns.contains(f);
+  }
+
   /** The Go rvalue of the string slot of field f of recv: a column of its own, or decoded from a value code. */
   String strSlotLoc(String recv, VariableElement f) {
     if (valCode(f)) return recv + "." + fieldName(f) + "_s_()";
@@ -203,7 +213,7 @@ final class Ctx {
   /** The storage location of instance field f of the object recv (a Go lvalue). */
   String fieldLoc(String recv, VariableElement f) {
     if (!isHandle(ownerOf(f))) return recv + "." + fieldName(f);
-    if (valCode(f)) return "(*" + recv + "." + fieldName(f) + "_c_())";
+    if (column(f)) return "(*" + recv + "." + fieldName(f) + "_c_())";
     return recv + (cold(f) ? ".cs_()." : pointerFree(f) ? ".ns_()." : ".ps_().") + fieldName(f);
   }
 
@@ -262,10 +272,10 @@ final class Ctx {
       }
     }
     // Storage kinds first, then cold (which needs to know whether a field is pointer-free).
-    slots.sort(Comparator.comparingInt((String l) -> l.matches(".*\\scold\\s*") ? 1 : 0));
+    slots.sort(Comparator.comparingInt((String l) -> l.matches(".*\\s(cold|column)\\s*") ? 1 : 0));
     TypeMirror object = elems.getTypeElement("java.lang.Object").asType();
     for (String line : slots) {
-      java.util.regex.Matcher m = java.util.regex.Pattern.compile("(\\S+)::(\\w+)\\s+(string-slot|string-id|handle-table|cold|runtime)(?:\\s+(\\S+))?").matcher(line);
+      java.util.regex.Matcher m = java.util.regex.Pattern.compile("(\\S+)::(\\w+)\\s+(string-slot|string-id|handle-table|cold|column|runtime)(?:\\s+(\\S+))?").matcher(line);
       TypeElement te = m.matches() ? elems.getTypeElement(m.group(1)) : null;
       VariableElement field = null;
       if (te != null && handles.contains(te)) {
@@ -279,7 +289,7 @@ final class Ctx {
         }
       }
       if (field == null) {
-        handleErrors.add(line + ": not \"Class::field string-slot|string-id|handle-table [Flag]|cold\" naming a field of a handle class");
+        handleErrors.add(line + ": not \"Class::field string-slot|string-id|handle-table [Flag]|cold|column|runtime GoType\" naming a field of a handle class");
         continue;
       }
       boolean isObject = types.isSameType(field.asType(), object);
@@ -292,6 +302,10 @@ final class Ctx {
         case "cold" -> {
           if (!pointerFree(field)) handleErrors.add(line + ": a cold field must be pointer-free");
           else coldFields.add(field);
+        }
+        case "column" -> {
+          if (!pointerFree(field) || cold(field)) handleErrors.add(line + ": a column must be pointer-free and not cold");
+          else columns.add(field);
         }
         case "string-id" -> {
           if (kind(field.asType()) == K.STR) strIds.add(field);

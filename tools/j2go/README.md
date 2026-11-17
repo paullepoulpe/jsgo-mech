@@ -92,8 +92,7 @@ as an index into a table of doubles, any other object as an index into a table o
 new entry per store, so identity is kept). Reads, tests, casts and copies are those of a
 string-slot field, on the code: `field instanceof String` and `field instanceof Double` read
 no table, storing a `double` needs no box, `field == null` is `code == 0`, and a copy from the
-same field of another object copies the code (for a `String` field, the id). The value code
-of an `Object` field is a column of its own, as its string slot was.
+same field of another object copies the code (for a `String` field, the id).
 
 A line `Class::field handle-table [Flag]` (today `Node::jstypeOrColor`, flag `JSType`) stores
 a field declared `Object` whose values repeat across objects as a `uint32` handle into a table
@@ -120,11 +119,16 @@ the property list (debug strings, validation, serialization, equivalence) is tra
 reads the list Java would hold, which `propListHead_get_` builds from the bits.
 
 A line `Class::field cold` names a pointer-free field of a handle class that
-traversals do not read (today `Node::previous`, `linenoCharno`, `length`). Cold
-fields, and the handle's own value that `box_` points at, go to a third record
+traversals do not read (today `Node::previous`, `linenoCharno`, `length`,
+`originalName`, `jstypeOrColor` and `propListHead`). Cold
+fields, and the handle's own value that `box_` points at, go to a second record
 `C_cs_`, so that `C_ns_`, the record a traversal reads for every node, stays
 small: `Node_ns_` is 16 bytes (next, first, parent, token), four nodes to a
-cache line. Only the layout changes; reads and writes of the field are the same.
+cache line. A line `Class::field column` (today `Node::payload`) keeps a pointer-free
+field in an array of its own, one element per object, instead of a record: most reads of
+`Node.payload` are of its String, and a column of 4-byte codes keeps them dense. Only the
+layout changes; reads and writes of the field are the same. A class whose fields are all
+pointer-free has no `C_ps_` record.
 
 **Type arguments in declarations.** Generics are erased, but the declared type
 of a field, local or parameter whose Java type is a parameterized library type
