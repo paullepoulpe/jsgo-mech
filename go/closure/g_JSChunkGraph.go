@@ -7,11 +7,11 @@ type JSChunkGraph struct {
 	selfPlusTransitiveDeps []*BitSet
 	subtreeSize            []int32
 	chunksByDepth          ListOf[ListOf[*JSChunk]]
-	dependencyMap          *LinkedIdentityHashMap
+	dependencyMap          *TMap[*JSChunk, any]
 }
 
 func (this *JSChunkGraph) finit_JSChunkGraph() {
-	this.dependencyMap = new_LinkedIdentityHashMap()
+	this.dependencyMap = newTMap_(tc_p_JSChunk, tc_any)
 }
 
 func (this *JSChunkGraph) init_JSChunkGraph(chunks []*JSChunk, chunksByDepth ListOf[ListOf[*JSChunk]]) {
@@ -297,7 +297,7 @@ func (this *JSChunkGraph) getTransitiveDepsDeepestFirst(m *JSChunk) ListOf[*JSCh
 }
 
 func (this *JSChunkGraph) getTransitiveDeps(m *JSChunk) SetOf[*JSChunk] {
-	return icast_Set(this.dependencyMap.computeIfAbsent(obj_(m), lambda_JSChunkGraph_getTransitiveDeps_1_))
+	return icast_Set(lihmComputeIfAbsent_(this.dependencyMap, m, lambda_JSChunkGraph_getTransitiveDeps_1_))
 }
 
 // lambda_JSChunkGraph_getTransitiveDeps_1_ is a lambda of JSChunkGraph_getTransitiveDeps that captures nothing (post-flip step lambdas).

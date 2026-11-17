@@ -136,3 +136,4 @@ var tc_p_AbstractCommandLineRunner_JsonFileSpec = &tconv_[*AbstractCommandLineRu
 	return cast_[*AbstractCommandLineRunner_JsonFileSpec](v)
 }}
 var tc_p_Comment = &tconv_[*Comment]{box: func(v *Comment) any { return obj_(v) }, unbox: func(v any) *Comment { return cast_[*Comment](v) }}
+var tc_int32 = &tconv_[int32]{box: func(v int32) any { return any(v) }, unbox: func(v any) int32 { return unbox_[int32](v) }}

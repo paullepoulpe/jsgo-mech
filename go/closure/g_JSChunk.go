@@ -128,13 +128,13 @@ func (this *JSChunk) getSortedDependencyNames() *TList[string] {
 func (this *JSChunk) getAllDependencies() *TSet[*JSChunk] {
 	var allDeps *TSet[*JSChunk] = newTSet_(tc_p_JSChunk)
 	allDeps.asSet().addAll(Collection(this.deps.asList()))
-	var stack ArrayDequeOf[*JSChunk] = new_ArrayDeque_Collection(Collection(this.deps.asList()))
+	var stack *TList[*JSChunk] = tlistFromRev_(tc_p_JSChunk, Collection(this.deps.asList()))
 	for !stack.isEmpty() {
-		var chunk *JSChunk = cast_[*JSChunk](stack.pop())
+		var chunk *JSChunk = stack.pop_()
 		var chunkDeps *TList[*JSChunk] = chunk.deps
 		for dep := range chunkDeps.All() {
 			if allDeps.add(dep) {
-				stack.push(obj_(dep))
+				stack.push_(dep)
 			}
 		}
 	}

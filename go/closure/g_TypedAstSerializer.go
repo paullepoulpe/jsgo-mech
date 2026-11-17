@@ -548,16 +548,16 @@ func (this *TypedAstSerializer_NoOpTypeSerializer) generateTypePool() *TypePool 
 }
 
 type TypedAstSerializer_JSTypeSerializer struct {
-	typesToPointers *LinkedIdentityHashMap
+	typesToPointers *TMap[*JSType, any]
 	typePool        *TypePool
 }
 
-func (this *TypedAstSerializer_JSTypeSerializer) init_TypedAstSerializer_JSTypeSerializer(typesToPointers *LinkedIdentityHashMap, typePool *TypePool) {
+func (this *TypedAstSerializer_JSTypeSerializer) init_TypedAstSerializer_JSTypeSerializer(typesToPointers *TMap[*JSType, any], typePool *TypePool) {
 	this.typesToPointers = typesToPointers
 	this.typePool = typePool
 }
 
-func new_TypedAstSerializer_JSTypeSerializer(typesToPointers *LinkedIdentityHashMap, typePool *TypePool) *TypedAstSerializer_JSTypeSerializer {
+func new_TypedAstSerializer_JSTypeSerializer(typesToPointers *TMap[*JSType, any], typePool *TypePool) *TypedAstSerializer_JSTypeSerializer {
 	this := &TypedAstSerializer_JSTypeSerializer{}
 	this.init_TypedAstSerializer_JSTypeSerializer(typesToPointers, typePool)
 	return this
@@ -566,7 +566,7 @@ func new_TypedAstSerializer_JSTypeSerializer(typesToPointers *LinkedIdentityHash
 func (this *TypedAstSerializer_JSTypeSerializer) addTypeForNode(node Node, astNodeBuilder *AstNode_Builder) {
 	var type_ *JSType = node.getJSType()
 	if type_ != nil {
-		nn_ := this.typesToPointers.get(type_.self())
+		nn_ := this.typesToPointers.get(type_)
 		if nn_ == nil {
 			panic(new_NullPointerException_String(Strings_lenientFormat("cannot find pointer for %s", []any{type_.self()})).self())
 		}

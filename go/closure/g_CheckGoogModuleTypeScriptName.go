@@ -53,9 +53,9 @@ func (this *CheckGoogModuleTypeScriptName) checkGoogModuleNamespace(t *NodeTrave
 	}
 	var replacementNamespace string = String_substring(strings.ReplaceAll(sourceName.get(), "/", "."), 0, (String_length(sourceName.get()) - int32(len(".js"))))
 	if !(originalNamespace.get() == replacementNamespace) {
-		it_1 := foreach_(CheckGoogModuleTypeScriptName_allowedDirectories)
+		it_1 := CheckGoogModuleTypeScriptName_allowedDirectories.each()
 		for it_1.next() {
-			var allowedDirectory string = str_(it_1.v)
+			var allowedDirectory string = it_1.v
 			if strings.HasPrefix(sourceName.get(), allowedDirectory) {
 				t.report(n, CheckGoogModuleTypeScriptName_MODULE_NAMESPACE_MISMATCHES_TYPESCRIPT_NAMESPACE, []string{replacementNamespace})
 				return
@@ -65,7 +65,7 @@ func (this *CheckGoogModuleTypeScriptName) checkGoogModuleNamespace(t *NodeTrave
 }
 
 var CheckGoogModuleTypeScriptName_MODULE_NAMESPACE_MISMATCHES_TYPESCRIPT_NAMESPACE *DiagnosticType
-var CheckGoogModuleTypeScriptName_allowedDirectories Set
+var CheckGoogModuleTypeScriptName_allowedDirectories *TSet[string]
 
 var CheckGoogModuleTypeScriptName_clinit_done bool
 
@@ -75,11 +75,11 @@ func CheckGoogModuleTypeScriptName_clinit() {
 	}
 	CheckGoogModuleTypeScriptName_clinit_done = true
 	CheckGoogModuleTypeScriptName_MODULE_NAMESPACE_MISMATCHES_TYPESCRIPT_NAMESPACE = DiagnosticType_disabled("JSC_MODULE_NAMESPACE_MISMATCHES_TYPESCRIPT_NAMESPACE", "goog.module namespace does not match the future TypeScript namespace, which is generated from the file path. The correct namespace is: \"{0}\"")
-	CheckGoogModuleTypeScriptName_allowedDirectories = new_LinkedHashSet()
+	CheckGoogModuleTypeScriptName_allowedDirectories = newTSet_(tc_string)
 	{
-		Collection_add_s(CheckGoogModuleTypeScriptName_allowedDirectories, "google3/gws/")
-		Collection_add_s(CheckGoogModuleTypeScriptName_allowedDirectories, "google3/java/com/google/gws/")
-		Collection_add_s(CheckGoogModuleTypeScriptName_allowedDirectories, "google3/javascript/search/")
+		CheckGoogModuleTypeScriptName_allowedDirectories.add("google3/gws/")
+		CheckGoogModuleTypeScriptName_allowedDirectories.add("google3/java/com/google/gws/")
+		CheckGoogModuleTypeScriptName_allowedDirectories.add("google3/javascript/search/")
 	}
 
 }

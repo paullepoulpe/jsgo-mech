@@ -519,11 +519,11 @@ func (this *PureFunctionIdentifier_ExternFunctionAnnotationAnalyzer) updateSideE
 
 type PureFunctionIdentifier_FunctionBodyAnalyzer struct {
 	outer_             *PureFunctionIdentifier
-	functionScopeStack ArrayDequeOf[*PureFunctionIdentifier_FunctionBodyAnalyzer_FunctionStackEntry]
+	functionScopeStack *TList[*PureFunctionIdentifier_FunctionBodyAnalyzer_FunctionStackEntry]
 }
 
 func (this *PureFunctionIdentifier_FunctionBodyAnalyzer) finit_PureFunctionIdentifier_FunctionBodyAnalyzer() {
-	this.functionScopeStack = new_ArrayDeque_Collection(ImmutableList_of_Object(obj_(new_PureFunctionIdentifier_FunctionBodyAnalyzer_FunctionStackEntry(0, false))))
+	this.functionScopeStack = tlistFrom_(tc_p_PureFunctionIdentifier_FunctionBodyAnalyzer_FunctionStackEntry, ImmutableList_of_Object(obj_(new_PureFunctionIdentifier_FunctionBodyAnalyzer_FunctionStackEntry(0, false))))
 }
 
 func (this *PureFunctionIdentifier_FunctionBodyAnalyzer) init_PureFunctionIdentifier_FunctionBodyAnalyzer() {
@@ -547,7 +547,7 @@ func (this *PureFunctionIdentifier_FunctionBodyAnalyzer) visit(traversal *NodeTr
 	if NodeUtil_isInvocation(node) {
 		this.outer_.allFunctionCalls = append(this.outer_.allFunctionCalls, node)
 	}
-	var enclosingFunction *PureFunctionIdentifier_FunctionBodyAnalyzer_FunctionStackEntry = cast_[*PureFunctionIdentifier_FunctionBodyAnalyzer_FunctionStackEntry](SequencedCollection_getLast(icast_SequencedCollection(obj_(this.functionScopeStack))))
+	var enclosingFunction *PureFunctionIdentifier_FunctionBodyAnalyzer_FunctionStackEntry = this.functionScopeStack.getTop_()
 	var root Node = enclosingFunction.root
 	if (root == 0) || enclosingFunction.isArtificiallyPure {
 		return
@@ -610,7 +610,7 @@ func (this *PureFunctionIdentifier_FunctionBodyAnalyzer) updateSideEffectsForNod
 			if (value != 0) && !NodeUtil_evaluatesToLocalValue(value) {
 				var scope *Scope = traversal.getScope()
 				var var_ *Var = cast_[*Var](scope.getVar(node.getString()).self())
-				cast_[*PureFunctionIdentifier_FunctionBodyAnalyzer_FunctionStackEntry](SequencedCollection_getLast(icast_SequencedCollection(obj_(this.functionScopeStack)))).skiplistedVars.add(var_)
+				this.functionScopeStack.getTop_().skiplistedVars.add(var_)
 			}
 		}
 	case tokOrd1_THROW:
@@ -661,8 +661,8 @@ func (this *PureFunctionIdentifier_FunctionBodyAnalyzer) deprecatedSetSideEffect
 }
 
 func (this *PureFunctionIdentifier_FunctionBodyAnalyzer) recordThrowsBasedOnContext(encloserSummary *PureFunctionIdentifier_AmbiguatedFunctionSummary) {
-	if cast_[*PureFunctionIdentifier_FunctionBodyAnalyzer_FunctionStackEntry](SequencedCollection_getLast(icast_SequencedCollection(obj_(this.functionScopeStack)))).catchDepth == 0 {
-		encloserSummary.setThrows(cast_[*PureFunctionIdentifier_FunctionBodyAnalyzer_FunctionStackEntry](SequencedCollection_getLast(icast_SequencedCollection(obj_(this.functionScopeStack)))).root)
+	if this.functionScopeStack.getTop_().catchDepth == 0 {
+		encloserSummary.setThrows(this.functionScopeStack.getTop_().root)
 	}
 }
 
@@ -676,7 +676,7 @@ func (this *PureFunctionIdentifier_FunctionBodyAnalyzer) enterScope(t *NodeTrave
 	}
 	var jsdoc *JSDocInfo = NodeUtil_getBestJSDocInfo(function)
 	var isArtificiallyPure bool = ((jsdoc != nil) && jsdoc.isNoSideEffects())
-	SequencedCollection_addLast(icast_SequencedCollection(obj_(this.functionScopeStack)), obj_(new_PureFunctionIdentifier_FunctionBodyAnalyzer_FunctionStackEntry(function, isArtificiallyPure)))
+	this.functionScopeStack.push_(new_PureFunctionIdentifier_FunctionBodyAnalyzer_FunctionStackEntry(function, isArtificiallyPure))
 	if !this.outer_.summariesForAllNamesOfFunctionByNode.containsKey(function.box_()) {
 		var summary *PureFunctionIdentifier_AmbiguatedFunctionSummary = PureFunctionIdentifier_AmbiguatedFunctionSummary_createInGraph(this.outer_.reverseCallGraph.up_DiGraph(), "<anonymous>")
 		this.outer_.summariesForAllNamesOfFunctionByNode.put(function.box_(), obj_(summary))
@@ -688,12 +688,12 @@ func (this *PureFunctionIdentifier_FunctionBodyAnalyzer) exitScope(t *NodeTraver
 	if !functionScope.isFunctionScope() {
 		return
 	}
-	var functionEntry *PureFunctionIdentifier_FunctionBodyAnalyzer_FunctionStackEntry = cast_[*PureFunctionIdentifier_FunctionBodyAnalyzer_FunctionStackEntry](SequencedCollection_getLast(icast_SequencedCollection(obj_(this.functionScopeStack))))
+	var functionEntry *PureFunctionIdentifier_FunctionBodyAnalyzer_FunctionStackEntry = this.functionScopeStack.getTop_()
 	if ok_, a1_ := equalsId_(functionScope.getRootNode(), functionEntry.root), functionScope.getRootNode(); !ok_ {
 		panic(new_IllegalStateException_String(objstr_(a1_.box_())).self())
 	}
 	if equalsId_(t.getScopeRoot(), functionEntry.root) {
-		SequencedCollection_removeLast(icast_SequencedCollection(obj_(this.functionScopeStack)))
+		this.functionScopeStack.pop_()
 	}
 	for sideEffectInfo := range elemsAs_[*PureFunctionIdentifier_AmbiguatedFunctionSummary](this.outer_.summariesForAllNamesOfFunctionByNode.get(functionEntry.root.box_())) {
 		if v_, a1_ := sideEffectInfo, functionEntry.root; v_ == nil {
@@ -725,7 +725,7 @@ func PureFunctionIdentifier_FunctionBodyAnalyzer_isVarDeclaredInSameContainerSco
 func (this *PureFunctionIdentifier_FunctionBodyAnalyzer) visitLhsNode(encloserSummary *PureFunctionIdentifier_AmbiguatedFunctionSummary, scope *Scope, lhs Node, hasLocalRhs PredicateOf[Node]) {
 	if NodeUtil_isNormalOrOptChainGet(lhs) {
 		if lhs.getFirstChild().isThis() {
-			if cast_[*PureFunctionIdentifier_FunctionBodyAnalyzer_FunctionStackEntry](SequencedCollection_getLast(icast_SequencedCollection(obj_(this.functionScopeStack)))).root.isArrowFunction() {
+			if this.functionScopeStack.getTop_().root.isArrowFunction() {
 				encloserSummary.setMutatesGlobalStateAndAllOtherFlags(lhs)
 			} else {
 				encloserSummary.setMutatesThis(lhs)
@@ -735,7 +735,7 @@ func (this *PureFunctionIdentifier_FunctionBodyAnalyzer) visitLhsNode(encloserSu
 			if objectNode.isName() {
 				var var_ *Var = cast_[*Var](scope.getVar(objectNode.getString()).self())
 				if PureFunctionIdentifier_FunctionBodyAnalyzer_isVarDeclaredInSameContainerScope(var_, scope) {
-					cast_[*PureFunctionIdentifier_FunctionBodyAnalyzer_FunctionStackEntry](SequencedCollection_getLast(icast_SequencedCollection(obj_(this.functionScopeStack)))).taintedVars.add(var_)
+					this.functionScopeStack.getTop_().taintedVars.add(var_)
 				} else {
 					encloserSummary.setMutatesGlobalStateAndAllOtherFlags(lhs)
 				}
@@ -750,7 +750,7 @@ func (this *PureFunctionIdentifier_FunctionBodyAnalyzer) visitLhsNode(encloserSu
 		var var_ *Var = cast_[*Var](scope.getVar(lhs.getString()).self())
 		if PureFunctionIdentifier_FunctionBodyAnalyzer_isVarDeclaredInSameContainerScope(var_, scope) {
 			if !hasLocalRhs.test(lhs.box_()) {
-				cast_[*PureFunctionIdentifier_FunctionBodyAnalyzer_FunctionStackEntry](SequencedCollection_getLast(icast_SequencedCollection(obj_(this.functionScopeStack)))).skiplistedVars.add(var_)
+				this.functionScopeStack.getTop_().skiplistedVars.add(var_)
 			}
 		} else {
 			encloserSummary.setMutatesGlobalStateAndAllOtherFlags(lhs)
@@ -770,7 +770,7 @@ func (this *PureFunctionIdentifier_FunctionBodyAnalyzer) visitCall(callerInfo *P
 		callerInfo.setMutatesGlobalStateAndAllOtherFlags(0)
 		return
 	}
-	var enclosingFunction *PureFunctionIdentifier_FunctionBodyAnalyzer_FunctionStackEntry = cast_[*PureFunctionIdentifier_FunctionBodyAnalyzer_FunctionStackEntry](SequencedCollection_getLast(icast_SequencedCollection(obj_(this.functionScopeStack))))
+	var enclosingFunction *PureFunctionIdentifier_FunctionBodyAnalyzer_FunctionStackEntry = this.functionScopeStack.getTop_()
 	var propagatesThrows bool = (enclosingFunction.catchDepth == 0)
 	for _, calleeInfo := range calleeSummaries {
 		var edge *PureFunctionIdentifier_SideEffectPropagation = PureFunctionIdentifier_SideEffectPropagation_forInvocation(invocation, scope, enclosingFunction, this.argumentsMatchParameters(invocation), propagatesThrows)
@@ -791,7 +791,7 @@ func (this *PureFunctionIdentifier_FunctionBodyAnalyzer) addToCatchDepthIfTryBlo
 	if jsCatch == 0 {
 		return
 	}
-	cast_[*PureFunctionIdentifier_FunctionBodyAnalyzer_FunctionStackEntry](SequencedCollection_getLast(icast_SequencedCollection(obj_(this.functionScopeStack)))).catchDepth += delta
+	this.functionScopeStack.getTop_().catchDepth += delta
 }
 
 type PureFunctionIdentifier_FunctionBodyAnalyzer_FunctionStackEntry struct {

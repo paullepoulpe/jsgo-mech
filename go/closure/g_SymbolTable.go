@@ -11,7 +11,7 @@ type SymbolTable struct {
 	globalScope            *SymbolTable_SymbolScope
 	compiler_              *AbstractCompiler
 	registry               *JSTypeRegistry
-	symbolThatDeclaresType *LinkedIdentityHashMap
+	symbolThatDeclaresType *TMap[*JSType, *SymbolTable_Symbol]
 	sourceNameOrdering     OrderingOf[string]
 	nodeOrdering           OrderingOf[Node]
 	lexicalScopeOrdering   OrderingOf[*SymbolTable_SymbolScope]
@@ -23,7 +23,7 @@ func (this *SymbolTable) finit_SymbolTable() {
 	this.scopes = newTMap_(tc_Node, tc_p_SymbolTable_SymbolScope)
 	this.docInfos = newTList_(tc_Node)
 	this.globalScope = nil
-	this.symbolThatDeclaresType = new_LinkedIdentityHashMap()
+	this.symbolThatDeclaresType = newTMap_(tc_p_JSType, tc_p_SymbolTable_Symbol)
 	this.sourceNameOrdering = Ordering_natural().nullsFirst()
 	this.nodeOrdering = new_SymbolTable_5(this).up_Ordering()
 	this.lexicalScopeOrdering = new_SymbolTable_6(this).up_Ordering()
@@ -269,7 +269,7 @@ func (this *SymbolTable) getSymbolForTypeHelper(type_ *JSType, linkToCtor bool) 
 	} else if type_.isEnumType() {
 		return this.getSymbolDeclaredByEnumType(cast_[*EnumType](type_.self()))
 	} else if type_.isRecordType() {
-		return cast_[*SymbolTable_Symbol](this.symbolThatDeclaresType.get(type_.self()))
+		return this.symbolThatDeclaresType.get(type_)
 	}
 	return nil
 }
@@ -582,18 +582,18 @@ func (this *SymbolTable) fillPropertyScopes() {
 		if ((type_.isNominalConstructorOrInterface() || type_.isFunctionPrototypeType()) || type_.isEnumType()) && !s.equals(obj_(symbolForType)) {
 			continue
 		}
-		this.symbolThatDeclaresType.put(type_.self(), obj_(s))
+		this.symbolThatDeclaresType.put(type_, s)
 	}
 	for s := range elemsAs_[*SymbolTable_Symbol](allTypes) {
 		var type_ *JSType = this.getType(icast_StaticSlot(obj_(s)))
-		if (type_ == nil) || s.equals(this.symbolThatDeclaresType.get(type_.self())) {
+		if (type_ == nil) || s.equals(obj_(this.symbolThatDeclaresType.get(type_))) {
 			this.createPropertyScopeFor(s)
 		}
 	}
 	for s := range elemsAs_[*SymbolTable_Symbol](allTypes) {
 		var type_ *JSType = this.getType(icast_StaticSlot(obj_(s)))
-		if (type_ != nil) && (cast_[*SymbolTable_Symbol](this.symbolThatDeclaresType.get(type_.self())) != nil) {
-			s.propertyScope = cast_[*SymbolTable_Symbol](this.symbolThatDeclaresType.get(type_.self())).getPropertyScope()
+		if (type_ != nil) && (this.symbolThatDeclaresType.get(type_) != nil) {
+			s.propertyScope = this.symbolThatDeclaresType.get(type_).getPropertyScope()
 		}
 	}
 	this.pruneOrphanedNames()

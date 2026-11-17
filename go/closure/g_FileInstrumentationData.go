@@ -7,7 +7,7 @@ type FileInstrumentationData struct {
 	arrayName        string
 	fileName         string
 	branchPresent    *BitSet
-	branchesInLine   MapOf[BoxedOf[int32], BoxedOf[int32]]
+	branchesInLine   *TMap[int32, any]
 	branchNodes      *TMap[*FileInstrumentationData_BranchIndexPair, Node]
 }
 
@@ -21,7 +21,7 @@ func (this *FileInstrumentationData) init_FileInstrumentationData(fileName strin
 	this.arrayName = arrayName
 	this.instrumentedBits = new_BitSet()
 	this.branchPresent = new_BitSet()
-	this.branchesInLine = new_LinkedHashMap()
+	this.branchesInLine = newTMap_(tc_int32, tc_any)
 	this.branchNodes = newTMap_(tch_p_FileInstrumentationData_BranchIndexPair, tc_Node)
 }
 
@@ -103,16 +103,16 @@ func (this *FileInstrumentationData) setBranchPresent(lineNumber int32) {
 
 func (this *FileInstrumentationData) addBranches(lineNumber int32, numberOfBranches int32) {
 	var lineIdx int32 = (lineNumber - 1)
-	var currentValue any = this.branchesInLine.get(Integer_valueOf(lineIdx))
+	var currentValue any = this.branchesInLine.get(unbox_[int32](Integer_valueOf(lineIdx)))
 	if currentValue == nil {
-		this.branchesInLine.put(any(int32(lineIdx)), any(int32(numberOfBranches)))
+		this.branchesInLine.put(int32(lineIdx), any(int32(numberOfBranches)))
 	} else {
-		this.branchesInLine.put(any(int32(lineIdx)), any(int32((unbox_[int32](currentValue) + numberOfBranches))))
+		this.branchesInLine.put(int32(lineIdx), any(int32((unbox_[int32](currentValue) + numberOfBranches))))
 	}
 }
 
 func (this *FileInstrumentationData) getNumBranches(lineNumber int32) int32 {
-	var numBranches any = this.branchesInLine.get(any(int32((lineNumber - 1))))
+	var numBranches any = this.branchesInLine.get(int32((lineNumber - 1)))
 	if numBranches == nil {
 		return 0
 	} else {

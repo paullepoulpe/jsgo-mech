@@ -3,7 +3,7 @@
 package closure
 
 type InvocationTemplateTypeMatcher struct {
-	matchedTypes  *LinkedIdentityHashMap
+	matchedTypes  *TMap[*TemplateType, any]
 	seenTypes     *LinkedIdentityHashSet
 	registry      *JSTypeRegistry
 	calleeType    *FunctionType
@@ -13,7 +13,7 @@ type InvocationTemplateTypeMatcher struct {
 }
 
 func (this *InvocationTemplateTypeMatcher) finit_InvocationTemplateTypeMatcher() {
-	this.matchedTypes = new_LinkedIdentityHashMap()
+	this.matchedTypes = newTMap_(tc_p_TemplateType, tc_any)
 	this.seenTypes = new_LinkedIdentityHashSet()
 }
 
@@ -151,7 +151,7 @@ func (this *InvocationTemplateTypeMatcher) recordTemplateMatch(template *Templat
 	if match.isUnknownType() {
 		return
 	}
-	this.matchedTypes.merge(obj_(template), match.self(), lambda_InvocationTemplateTypeMatcher_recordTemplateMatch_1_)
+	lihmMerge_(this.matchedTypes, template, match.self(), lambda_InvocationTemplateTypeMatcher_recordTemplateMatch_1_)
 }
 
 // lambda_InvocationTemplateTypeMatcher_recordTemplateMatch_1_ is a lambda of InvocationTemplateTypeMatcher_recordTemplateMatch that captures nothing (post-flip step lambdas).
@@ -161,7 +161,7 @@ func lambda_InvocationTemplateTypeMatcher_recordTemplateMatch_1_(p0 any, p1 any)
 
 func (this *InvocationTemplateTypeMatcher) copyMatchedTypes() ImmutableMapOf[*TemplateType, *JSType] {
 	var builder ImmutableMap_BuilderOf[*TemplateType, *JSType] = ImmutableMap_builder()
-	this.matchedTypes.forEach(func(p0 any, p1 any) { builder.put(obj_(cast_[*TemplateType](p0)), to_JSType(p1).self()) })
+	lihmForEach_(this.matchedTypes, func(p0 any, p1 any) { builder.put(obj_(cast_[*TemplateType](p0)), to_JSType(p1).self()) })
 	return builder.buildOrThrow()
 }
 

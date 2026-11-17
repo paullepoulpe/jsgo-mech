@@ -4,7 +4,7 @@ package closure
 
 type SimpleJsonWriter struct {
 	out            *strBuilder_
-	stack          ArrayListOf[BoxedOf[int32]]
+	stack          *TList[int32]
 	indent_        string
 	htmlSafe       bool
 	serializeNulls bool
@@ -18,7 +18,7 @@ func (this *SimpleJsonWriter) zero_SimpleJsonWriter() {
 
 func (this *SimpleJsonWriter) finit_SimpleJsonWriter() {
 	this.out = &strBuilder_{}
-	this.stack = new_ArrayList_0()
+	this.stack = newTList_(tc_int32)
 	this.indent_ = ""
 	this.htmlSafe = false
 	this.serializeNulls = true
@@ -28,7 +28,7 @@ func (this *SimpleJsonWriter) finit_SimpleJsonWriter() {
 
 func (this *SimpleJsonWriter) init_SimpleJsonWriter() {
 	this.finit_SimpleJsonWriter()
-	this.stack.add(any(int32(SimpleJsonWriter_DOCUMENT)))
+	this.stack.add(int32(SimpleJsonWriter_DOCUMENT))
 }
 
 func new_SimpleJsonWriter() *SimpleJsonWriter {
@@ -143,20 +143,20 @@ func (this *SimpleJsonWriter) toString() string {
 
 func (this *SimpleJsonWriter) open(empty int32, openBracket uint16) *SimpleJsonWriter {
 	this.beforeValue()
-	this.stack.add(any(int32(empty)))
+	this.stack.add(int32(empty))
 	this.out.append_char(openBracket)
 	return this
 }
 
 func (this *SimpleJsonWriter) close(empty int32, nonempty int32, closeBracket uint16) *SimpleJsonWriter {
-	var context int32 = unbox_[int32](this.stack.get((this.stack.size() - 1)))
+	var context int32 = this.stack.get((this.stack.size() - 1))
 	if (context != nonempty) && (context != empty) {
 		panic(new_IllegalStateException_String("Nesting problem.").self())
 	}
 	if this.deferredName.isPresent() {
 		panic(new_IllegalStateException_String(("Dangling name: " + sstr_(this.deferredName.get()))).self())
 	}
-	this.stack.remove((this.stack.size() - 1))
+	this.stack.removeAt((this.stack.size() - 1))
 	if context == nonempty {
 		this.newline()
 	}
@@ -169,7 +169,7 @@ func (this *SimpleJsonWriter) beforeValue() {
 		this.sink(strobj_(this.takeText()))
 	}
 	var top int32 = (this.stack.size() - 1)
-	var context int32 = unbox_[int32](this.stack.get(top))
+	var context int32 = this.stack.get(top)
 	if this.deferredName.isPresent() {
 		if context == SimpleJsonWriter_NONEMPTY_OBJECT {
 			this.out.append_char(',')
@@ -185,9 +185,9 @@ func (this *SimpleJsonWriter) beforeValue() {
 			}
 			return ": "
 		}())
-		this.stack.set(top, any(int32(SimpleJsonWriter_NONEMPTY_OBJECT)))
+		this.stack.set(top, int32(SimpleJsonWriter_NONEMPTY_OBJECT))
 	} else if context == SimpleJsonWriter_EMPTY_ARRAY {
-		this.stack.set(top, any(int32(SimpleJsonWriter_NONEMPTY_ARRAY)))
+		this.stack.set(top, int32(SimpleJsonWriter_NONEMPTY_ARRAY))
 		this.newline()
 	} else if context == SimpleJsonWriter_NONEMPTY_ARRAY {
 		this.out.append_char(',')

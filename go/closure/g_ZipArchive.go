@@ -106,7 +106,7 @@ func ZipArchive_int32(bytes []int8, position int32) int32 {
 
 func ZipArchive_open(path string) *Outcome_base {
 	var modified int64 = Io_lastModified(path)
-	var known *ZipArchive_Opened = cast_[*ZipArchive_Opened](Map_get_s(ZipArchive_opened, path))
+	var known *ZipArchive_Opened = ZipArchive_opened.get(path)
 	if (known != nil) && (known.modified == modified) {
 		return Outcome_base_ok_Object(obj_(known.archive))
 	}
@@ -118,7 +118,7 @@ func ZipArchive_open(path string) *Outcome_base {
 	if archive.isEmpty() {
 		return Outcome_base_err(ZipArchive_unreadable(path).up_Throwable())
 	}
-	Map_put_s(ZipArchive_opened, path, obj_(new_ZipArchive_Opened(archive.get(), modified)))
+	ZipArchive_opened.put(path, new_ZipArchive_Opened(archive.get(), modified))
 	return Outcome_base_ok_Object(obj_(archive.get()))
 }
 
@@ -145,7 +145,7 @@ const ZipArchive_RECORD_SIZE int32 = 46
 const ZipArchive_LOCAL_SIGNATURE int32 = 67324752
 const ZipArchive_LOCAL_SIZE int32 = 30
 
-var ZipArchive_opened Map
+var ZipArchive_opened *TMap[string, *ZipArchive_Opened]
 
 var ZipArchive_clinit_done bool
 
@@ -154,7 +154,7 @@ func ZipArchive_clinit() {
 		return
 	}
 	ZipArchive_clinit_done = true
-	ZipArchive_opened = new_LinkedHashMap()
+	ZipArchive_opened = newTMap_(tc_string, tc_p_ZipArchive_Opened)
 
 }
 
