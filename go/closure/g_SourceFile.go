@@ -536,8 +536,8 @@ func (this *SourceFile_jscomp) getProto() *SourceFileProto {
 	return cast_[*SourceFileProto](this.loader.toProtoLocationBuilder(this.getName()).setFilename(this.getName()).setSourceKind(SourceFile_jscomp_sourceKindToProto(this.getKind())).setIsClosureUnawareCode(this.isClosureUnawareCodeField).setNumLinesPlusOne((this.numLines + 1)).setNumBytesPlusOne((this.numBytes + 1)).build())
 }
 
-func SourceFile_jscomp_sourceKindToProto(sourceKind StaticSourceFile_SourceKind) *SourceFileProto_SourceKind {
-	return func() *SourceFileProto_SourceKind {
+func SourceFile_jscomp_sourceKindToProto(sourceKind StaticSourceFile_SourceKind) SourceFileProto_SourceKind {
+	return func() SourceFileProto_SourceKind {
 		switch sourceKind {
 		case StaticSourceFile_SourceKind_EXTERN:
 			return SourceFileProto_SourceKind_EXTERN

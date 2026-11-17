@@ -197,7 +197,7 @@ func (this *TypedAstSerializer) setOriginalName(builder *AstNode_Builder, n Node
 	builder.setOriginalNamePointer(this.stringPool.put(originalName))
 }
 
-func (this *TypedAstSerializer) kindTranslator(n Node) *NodeKind {
+func (this *TypedAstSerializer) kindTranslator(n Node) NodeKind {
 	switch n.ns_().token {
 	case tokOrd1_SCRIPT:
 		return NodeKind_SOURCE_FILE
@@ -298,14 +298,14 @@ func (this *TypedAstSerializer) kindTranslator(n Node) *NodeKind {
 	case tokOrd1_URSH:
 		return NodeKind_UNSIGNED_RIGHT_SHIFT
 	case tokOrd1_INC:
-		return func() *NodeKind {
+		return func() NodeKind {
 			if n.getBooleanProp(Node_INCRDECR_PROP) {
 				return NodeKind_POST_INCREMENT
 			}
 			return NodeKind_PRE_INCREMENT
 		}()
 	case tokOrd1_DEC:
-		return func() *NodeKind {
+		return func() NodeKind {
 			if n.getBooleanProp(Node_INCRDECR_PROP) {
 				return NodeKind_POST_DECREMENT
 			}
@@ -436,7 +436,7 @@ func (this *TypedAstSerializer) kindTranslator(n Node) *NodeKind {
 	case tokOrd1_PARAM_LIST:
 		return NodeKind_PARAMETER_LIST
 	case tokOrd1_STRING_KEY:
-		return func() *NodeKind {
+		return func() NodeKind {
 			if n.isQuotedStringKey() {
 				return NodeKind_QUOTED_STRING_KEY
 			}
@@ -459,14 +459,14 @@ func (this *TypedAstSerializer) kindTranslator(n Node) *NodeKind {
 	case tokOrd1_DEFAULT_VALUE:
 		return NodeKind_DEFAULT_VALUE
 	case tokOrd1_GETTER_DEF:
-		return func() *NodeKind {
+		return func() NodeKind {
 			if n.isQuotedStringKey() {
 				return NodeKind_QUOTED_GETTER_DEF
 			}
 			return NodeKind_RENAMABLE_GETTER_DEF
 		}()
 	case tokOrd1_SETTER_DEF:
-		return func() *NodeKind {
+		return func() NodeKind {
 			if n.isQuotedStringKey() {
 				return NodeKind_QUOTED_SETTER_DEF
 			}

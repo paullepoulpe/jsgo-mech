@@ -304,7 +304,7 @@ type ConformanceRules_AbstractRule struct {
 	self_                     ConformanceRules_AbstractRule_I
 	compiler_                 *AbstractCompiler
 	message_                  string
-	severity                  *Requirement_Severity
+	severity                  Requirement_Severity
 	allowlists                []*ConformanceRules_AllowList
 	onlyApplyTo               *ConformanceRules_AllowList
 	reportLooseTypeViolations bool
@@ -457,14 +457,14 @@ func (this *ConformanceRules_AbstractRule) findAllowListForPath(path string) *Co
 	return nil
 }
 
-func (this *ConformanceRules_AbstractRule) check(t *NodeTraversal, n Node, behavior *ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior) {
+func (this *ConformanceRules_AbstractRule) check(t *NodeTraversal, n Node, behavior ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior) {
 	var result *ConformanceRules_ConformanceResult = this.checkConformance(t, n)
 	if result.level_ != ConformanceRules_ConformanceLevel_CONFORMANCE {
 		this.report_3(n, result, behavior)
 	}
 }
 
-func (this *ConformanceRules_AbstractRule) report_3(n Node, result *ConformanceRules_ConformanceResult, behavior *ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior) {
+func (this *ConformanceRules_AbstractRule) report_3(n Node, result *ConformanceRules_ConformanceResult, behavior ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior) {
 	var msg *DiagnosticType
 	if this.severity == Requirement_Severity_ERROR {
 		msg = CheckConformance_CONFORMANCE_ERROR
@@ -904,7 +904,7 @@ func (this *ConformanceRules_BannedDependencyRegex) checkConformance_impl(t *Nod
 
 type ConformanceRules_BannedName struct {
 	ConformanceRules_AbstractRule
-	requirementType *Requirement_Type
+	requirementType Requirement_Type
 	qualifiedNames  []Node
 	shortNames      ImmutableSetOf[string]
 }
@@ -2138,7 +2138,7 @@ func (this *ConformanceRules_CustomRuleProxy) getPrecondition() CheckConformance
 	return this.customRule.getPrecondition()
 }
 
-func (this *ConformanceRules_CustomRuleProxy) check(t *NodeTraversal, n Node, behavior *ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior) {
+func (this *ConformanceRules_CustomRuleProxy) check(t *NodeTraversal, n Node, behavior ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior) {
 	this.customRule.check(t, n, behavior)
 }
 

@@ -13,7 +13,7 @@ type ErrorManager interface {
 	setTypedPercent(float64)
 	getTypedPercent() float64
 	hasHaltingErrors() bool
-	shouldReportConformanceViolation(*Requirement, *Optional_base, *JSError, *ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior, bool) bool
+	shouldReportConformanceViolation(*Requirement, *Optional_base, *JSError, ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior, bool) bool
 }
 
 func ErrorManager_hasHaltingErrors_default(this ErrorManager) bool {
@@ -30,6 +30,6 @@ func ErrorManager_hasHaltingErrors_default(this ErrorManager) bool {
 	return false
 }
 
-func ErrorManager_shouldReportConformanceViolation_default(this ErrorManager, requirement *Requirement, allowlistEntry Optional_baseOf[*RequirementScopeEntry], diagnostic *JSError, behavior *ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior, isAllowlisted bool) bool {
+func ErrorManager_shouldReportConformanceViolation_default(this ErrorManager, requirement *Requirement, allowlistEntry Optional_baseOf[*RequirementScopeEntry], diagnostic *JSError, behavior ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior, isAllowlisted bool) bool {
 	return (behavior != ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior_RECORD_ONLY)
 }
