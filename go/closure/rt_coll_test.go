@@ -450,3 +450,29 @@ func TestNodeKeyIsPlain(t *testing.T) {
 		t.Fatal("Node implements hashed_; htable_.findNode would not call its equals")
 	}
 }
+// TestTreeMapStringKeys drives a naturally ordered TreeMap with string keys through puts,
+// removals and clears, and checks that search_s (which reads skeys) agrees with search.
+func TestTreeMapStringKeys(t *testing.T) {
+	r := rand.New(rand.NewSource(7))
+	m := new_TreeMap()
+	for step := 0; step < 20000; step++ {
+		k := "p" + istr_(int64(r.Intn(60)))
+		if r.Intn(9) == 0 {
+			k = "é" + k
+		}
+		switch op := r.Intn(20); {
+		case op < 11:
+			m.put(k, int32(step))
+		case op < 19:
+			m.remove(k)
+		default:
+			m.clear()
+		}
+		q := "p" + istr_(int64(r.Intn(70)))
+		i, ok := m.search(q)
+		j, ok2 := m.search_s(q)
+		if i != j || ok != ok2 || len(m.skeys) != len(m.entries) {
+			t.Fatalf("step %d: search %d %v, search_s %d %v, %d skeys for %d entries", step, i, ok, j, ok2, len(m.skeys), len(m.entries))
+		}
+	}
+}
