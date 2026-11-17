@@ -70,7 +70,7 @@ func (this *CheckConformance) visit(t *NodeTraversal, n Node, parent Node) {
 }
 
 func (this *CheckConformance) initRules(compiler *AbstractCompiler, configs ImmutableListOf[*ConformanceConfig], reportingMode CompilerOptions_ConformanceReportingMode) []*CheckConformance_Category {
-	var builder *SimpleSetMultimap = SimpleSetMultimap_createInsertionOrdered()
+	var builder *SimpleSetMultimap[CheckConformance_Precondition, CheckConformance_Rule] = SimpleSetMultimap_createInsertionOrdered[CheckConformance_Precondition, CheckConformance_Rule]()
 	var isLibraryLevelReportingMode bool = ((reportingMode != 0) && equalsId_(reportingMode, CompilerOptions_ConformanceReportingMode_RESPECT_LIBRARY_LEVEL_BEHAVIOR_SPECIFIED_IN_CONFIG))
 	if isLibraryLevelReportingMode {
 		if !CheckConformance_validateBehaviorSettingOfConfigs(compiler, configs, reportingMode) {
@@ -260,7 +260,7 @@ func CheckConformance_removeDuplicates(requirement *Requirement_Builder) {
 }
 
 func CheckConformance_initRule(compiler *AbstractCompiler, requirement *Requirement) CheckConformance_Rule {
-	var rule *Outcome_base = func() *Outcome_base {
+	var rule *Outcome_base[CheckConformance_Rule] = func() *Outcome_base[CheckConformance_Rule] {
 		switch requirement.getType() {
 		case Requirement_Type_CUSTOM:
 			return ConformanceRules_CustomRuleProxy_create(compiler, requirement)

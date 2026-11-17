@@ -17,65 +17,65 @@ func new_SourceMapObjectParser() *SourceMapObjectParser {
 	return this
 }
 
-func SourceMapObjectParser_parse(contents string) *Outcome_base {
+func SourceMapObjectParser_parse(contents string) *Outcome_base[*SourceMapObject] {
 	var builder *SourceMapObject_Builder = SourceMapObject_builder()
-	var parsed *Outcome_base = Json_parse(contents)
+	var parsed *Outcome_base[any] = Json_parse(contents)
 	if parsed.isErr() {
-		return Outcome_base_err(new_SourceMapParseException(("JSON parse exception: " + sstr_(parsed.errorMessage().orElse("null")))).up_Throwable())
+		return Outcome_base_err[*SourceMapObject](new_SourceMapParseException(("JSON parse exception: " + sstr_(parsed.errorMessage().orElse("null")))).up_Throwable())
 	}
 	var sourceMapRoot *SimpleJsonValue = cast_[*SimpleJsonValue](parsed.get())
 	if sourceMapRoot.kind() != SimpleJsonValue_Kind_OBJECT {
-		return Outcome_base_err(new_SourceMapParseException("Invalid map format: not a JSON object").up_Throwable())
+		return Outcome_base_err[*SourceMapObject](new_SourceMapParseException("Invalid map format: not a JSON object").up_Throwable())
 	}
-	var version *Outcome_base = SourceMapObjectParser_getInt(sourceMapRoot, "version")
+	var version *Outcome_base[any] = SourceMapObjectParser_getInt(sourceMapRoot, "version")
 	if version.isErr() {
-		return Outcome_base_err(version.error())
+		return Outcome_base_err[*SourceMapObject](version.error())
 	}
 	builder.setVersion(unbox_[int32](version.get()))
-	var file *Outcome_base = SourceMapObjectParser_getStringOrNull(sourceMapRoot, "file")
+	var file *Outcome_base[string] = SourceMapObjectParser_getStringOrNull(sourceMapRoot, "file")
 	if file.isErr() {
-		return Outcome_base_err(file.error())
+		return Outcome_base_err[*SourceMapObject](file.error())
 	}
-	builder.setFile(Optional_ofNullable[string](str_(file.get())))
+	builder.setFile(Optional_ofNullable[string](file.get()))
 	var lineCount int32 = -1
 	if sourceMapRoot.get("lineCount") != nil {
-		var lineCountOutcome *Outcome_base = SourceMapObjectParser_getInt(sourceMapRoot, "lineCount")
+		var lineCountOutcome *Outcome_base[any] = SourceMapObjectParser_getInt(sourceMapRoot, "lineCount")
 		if lineCountOutcome.isErr() {
-			return Outcome_base_err(lineCountOutcome.error())
+			return Outcome_base_err[*SourceMapObject](lineCountOutcome.error())
 		}
 		lineCount = unbox_[int32](lineCountOutcome.get())
 	}
 	builder.setLineCount(lineCount)
-	var mappings *Outcome_base = SourceMapObjectParser_getStringOrNull(sourceMapRoot, "mappings")
+	var mappings *Outcome_base[string] = SourceMapObjectParser_getStringOrNull(sourceMapRoot, "mappings")
 	if mappings.isErr() {
-		return Outcome_base_err(mappings.error())
+		return Outcome_base_err[*SourceMapObject](mappings.error())
 	}
-	builder.setMappings(Optional_ofNullable[string](str_(mappings.get())))
-	var sourceRoot *Outcome_base = SourceMapObjectParser_getStringOrNull(sourceMapRoot, "sourceRoot")
+	builder.setMappings(Optional_ofNullable[string](mappings.get()))
+	var sourceRoot *Outcome_base[string] = SourceMapObjectParser_getStringOrNull(sourceMapRoot, "sourceRoot")
 	if sourceRoot.isErr() {
-		return Outcome_base_err(sourceRoot.error())
+		return Outcome_base_err[*SourceMapObject](sourceRoot.error())
 	}
-	builder.setSourceRoot(Optional_ofNullable[string](str_(sourceRoot.get())))
+	builder.setSourceRoot(Optional_ofNullable[string](sourceRoot.get()))
 	if sourceMapRoot.get("sections") != nil {
-		var sections *Outcome_base = SourceMapObjectParser_buildSections(sourceMapRoot.get("sections"))
+		var sections *Outcome_base[List] = SourceMapObjectParser_buildSections(sourceMapRoot.get("sections"))
 		if sections.isErr() {
-			return Outcome_base_err(sections.error())
+			return Outcome_base_err[*SourceMapObject](sections.error())
 		}
 		builder.setSections(icast_List(sections.get()))
 	}
-	var sources *Outcome_base = SourceMapObjectParser_getJavaStringArray(sourceMapRoot, "sources")
+	var sources *Outcome_base[any] = SourceMapObjectParser_getJavaStringArray(sourceMapRoot, "sources")
 	if sources.isErr() {
-		return Outcome_base_err(sources.error())
+		return Outcome_base_err[*SourceMapObject](sources.error())
 	}
 	builder.setSources(cast_[[]string](sources.get()))
-	var sourcesContent *Outcome_base = SourceMapObjectParser_getJavaStringArray(sourceMapRoot, "sourcesContent")
+	var sourcesContent *Outcome_base[any] = SourceMapObjectParser_getJavaStringArray(sourceMapRoot, "sourcesContent")
 	if sourcesContent.isErr() {
-		return Outcome_base_err(sourcesContent.error())
+		return Outcome_base_err[*SourceMapObject](sourcesContent.error())
 	}
 	builder.setSourcesContent(cast_[[]string](sourcesContent.get()))
-	var names *Outcome_base = SourceMapObjectParser_getJavaStringArray(sourceMapRoot, "names")
+	var names *Outcome_base[any] = SourceMapObjectParser_getJavaStringArray(sourceMapRoot, "names")
 	if names.isErr() {
-		return Outcome_base_err(names.error())
+		return Outcome_base_err[*SourceMapObject](names.error())
 	}
 	builder.setNames(cast_[[]string](names.get()))
 	var extensions *TMap[string, any] = newTMap_(tc_string, tc_any)
@@ -85,256 +85,256 @@ func SourceMapObjectParser_parse(contents string) *Outcome_base {
 		}
 	}
 	builder.setExtensions(extensions)
-	return Outcome_base_ok_Object(obj_(builder.build()))
+	return Outcome_base_ok_Object[*SourceMapObject](builder.build())
 }
 
-func SourceMapObjectParser_parseFast(contents string) *Outcome_base {
+func SourceMapObjectParser_parseFast(contents string) *Outcome_base[*SourceMapObject] {
 	var builder *SourceMapObject_Builder = SourceMapObject_builder()
 	builder.setLineCount(-1)
-	var parsed *Outcome_base = SourceMapObjectParser_parseFastInto(builder, contents)
+	var parsed *Outcome_base[any] = SourceMapObjectParser_parseFastInto(builder, contents)
 	if parsed.isErr() {
-		return Outcome_base_err(new_SourceMapParseException(("Parse exception: " + objstr_(parsed.error().self()))).up_Throwable())
+		return Outcome_base_err[*SourceMapObject](new_SourceMapParseException(("Parse exception: " + objstr_(parsed.error().self()))).up_Throwable())
 	}
-	return Outcome_base_ok_Object(obj_(builder.build()))
+	return Outcome_base_ok_Object[*SourceMapObject](builder.build())
 }
 
-func SourceMapObjectParser_parseFastInto(builder *SourceMapObject_Builder, contents string) *Outcome_base {
+func SourceMapObjectParser_parseFastInto(builder *SourceMapObject_Builder, contents string) *Outcome_base[any] {
 	var lexer *SourceMapJsonLexer = new_SourceMapJsonLexer(contents)
-	var begun *Outcome_base = lexer.beginObject()
+	var begun *Outcome_base[any] = lexer.beginObject()
 	if begun.isErr() {
-		return Outcome_base_err(begun.error())
+		return Outcome_base_err[any](begun.error())
 	}
 	var extensions *TMap[string, any] = newTMap_(tc_string, tc_any)
 	for lexer.hasNext() {
-		var nameOutcome *Outcome_base = lexer.nextName()
+		var nameOutcome *Outcome_base[string] = lexer.nextName()
 		if nameOutcome.isErr() {
-			return Outcome_base_err(nameOutcome.error())
+			return Outcome_base_err[any](nameOutcome.error())
 		}
-		var name string = str_(nameOutcome.get())
+		var name string = nameOutcome.get()
 		switch name {
 		case "version":
-			var version *Outcome_base = lexer.nextInt()
+			var version *Outcome_base[any] = lexer.nextInt()
 			if version.isErr() {
-				return Outcome_base_err(version.error())
+				return Outcome_base_err[any](version.error())
 			}
 			builder.setVersion(unbox_[int32](version.get()))
 		case "file":
-			var file *Outcome_base = lexer.nextStringOrNull()
+			var file *Outcome_base[string] = lexer.nextStringOrNull()
 			if file.isErr() {
-				return Outcome_base_err(file.error())
+				return Outcome_base_err[any](file.error())
 			}
-			builder.setFile(Optional_ofNullable[string](str_(file.get())))
+			builder.setFile(Optional_ofNullable[string](file.get()))
 		case "lineCount":
-			var lineCount *Outcome_base = lexer.nextInt()
+			var lineCount *Outcome_base[any] = lexer.nextInt()
 			if lineCount.isErr() {
-				return Outcome_base_err(lineCount.error())
+				return Outcome_base_err[any](lineCount.error())
 			}
 			builder.setLineCount(unbox_[int32](lineCount.get()))
 		case "mappings":
-			var mappings *Outcome_base = lexer.nextStringOrNull()
+			var mappings *Outcome_base[string] = lexer.nextStringOrNull()
 			if mappings.isErr() {
-				return Outcome_base_err(mappings.error())
+				return Outcome_base_err[any](mappings.error())
 			}
-			builder.setMappings(Optional_ofNullable[string](str_(mappings.get())))
+			builder.setMappings(Optional_ofNullable[string](mappings.get()))
 		case "sourceRoot":
-			var sourceRoot *Outcome_base = lexer.nextStringOrNull()
+			var sourceRoot *Outcome_base[string] = lexer.nextStringOrNull()
 			if sourceRoot.isErr() {
-				return Outcome_base_err(sourceRoot.error())
+				return Outcome_base_err[any](sourceRoot.error())
 			}
-			builder.setSourceRoot(Optional_ofNullable[string](str_(sourceRoot.get())))
+			builder.setSourceRoot(Optional_ofNullable[string](sourceRoot.get()))
 		case "sections":
-			var rawSections *Outcome_base = lexer.nextRawValue()
+			var rawSections *Outcome_base[string] = lexer.nextRawValue()
 			if rawSections.isErr() {
-				return Outcome_base_err(rawSections.error())
+				return Outcome_base_err[any](rawSections.error())
 			}
-			var sectionsArray *Outcome_base = Json_parse(str_(rawSections.get()))
+			var sectionsArray *Outcome_base[any] = Json_parse(rawSections.get())
 			if sectionsArray.isErr() {
-				return Outcome_base_err(new_SourceMapParseException(sectionsArray.errorMessage().orElse(nullstr_)).up_Throwable())
+				return Outcome_base_err[any](new_SourceMapParseException(sectionsArray.errorMessage().orElse(nullstr_)).up_Throwable())
 			}
-			var sections *Outcome_base = SourceMapObjectParser_buildSections(cast_[*SimpleJsonValue](sectionsArray.get()))
+			var sections *Outcome_base[List] = SourceMapObjectParser_buildSections(cast_[*SimpleJsonValue](sectionsArray.get()))
 			if sections.isErr() {
-				return Outcome_base_err(sections.error())
+				return Outcome_base_err[any](sections.error())
 			}
 			builder.setSections(icast_List(sections.get()))
 		case "sources":
-			var sources *Outcome_base = SourceMapObjectParser_readStringArray(lexer)
+			var sources *Outcome_base[any] = SourceMapObjectParser_readStringArray(lexer)
 			if sources.isErr() {
-				return Outcome_base_err(sources.error())
+				return Outcome_base_err[any](sources.error())
 			}
 			builder.setSources(cast_[[]string](sources.get()))
 		case "sourcesContent":
-			var sourcesContent *Outcome_base = SourceMapObjectParser_readStringArray(lexer)
+			var sourcesContent *Outcome_base[any] = SourceMapObjectParser_readStringArray(lexer)
 			if sourcesContent.isErr() {
-				return Outcome_base_err(sourcesContent.error())
+				return Outcome_base_err[any](sourcesContent.error())
 			}
 			builder.setSourcesContent(cast_[[]string](sourcesContent.get()))
 		case "names":
-			var names *Outcome_base = SourceMapObjectParser_readStringArray(lexer)
+			var names *Outcome_base[any] = SourceMapObjectParser_readStringArray(lexer)
 			if names.isErr() {
-				return Outcome_base_err(names.error())
+				return Outcome_base_err[any](names.error())
 			}
 			builder.setNames(cast_[[]string](names.get()))
 		default:
 			if strings.HasPrefix(name, "x_") {
-				var rawValue *Outcome_base = lexer.nextRawValue()
+				var rawValue *Outcome_base[string] = lexer.nextRawValue()
 				if rawValue.isErr() {
-					return Outcome_base_err(rawValue.error())
+					return Outcome_base_err[any](rawValue.error())
 				}
-				var value *Outcome_base = Json_parse(str_(rawValue.get()))
+				var value *Outcome_base[any] = Json_parse(rawValue.get())
 				if value.isErr() {
-					return Outcome_base_err(new_SourceMapParseException(value.errorMessage().orElse(nullstr_)).up_Throwable())
+					return Outcome_base_err[any](new_SourceMapParseException(value.errorMessage().orElse(nullstr_)).up_Throwable())
 				}
 				extensions.put(name, value.get())
 			} else {
-				var skipped *Outcome_base = lexer.skipValue()
+				var skipped *Outcome_base[any] = lexer.skipValue()
 				if skipped.isErr() {
-					return Outcome_base_err(skipped.error())
+					return Outcome_base_err[any](skipped.error())
 				}
 			}
 		}
-		var comma *Outcome_base = lexer.checkComma()
+		var comma *Outcome_base[any] = lexer.checkComma()
 		if comma.isErr() {
-			return Outcome_base_err(comma.error())
+			return Outcome_base_err[any](comma.error())
 		}
 	}
-	var ended *Outcome_base = lexer.endObject()
+	var ended *Outcome_base[any] = lexer.endObject()
 	if ended.isErr() {
-		return Outcome_base_err(ended.error())
+		return Outcome_base_err[any](ended.error())
 	}
 	lexer.skipWhitespace()
 	if lexer.pos < lexer.length_ {
-		return Outcome_base_err(new_SourceMapParseException("Unexpected trailing characters").up_Throwable())
+		return Outcome_base_err[any](new_SourceMapParseException("Unexpected trailing characters").up_Throwable())
 	}
 	builder.setExtensions(extensions)
 	return Outcome_base_ok_0()
 }
 
-func SourceMapObjectParser_buildSections(sections *SimpleJsonValue) *Outcome_base {
+func SourceMapObjectParser_buildSections(sections *SimpleJsonValue) *Outcome_base[List] {
 	if sections.kind() != SimpleJsonValue_Kind_ARRAY {
-		return Outcome_base_err(SourceMapObjectParser_invalidMember("sections").up_Throwable())
+		return Outcome_base_err[List](SourceMapObjectParser_invalidMember("sections").up_Throwable())
 	}
 	var listBuilder ImmutableList_BuilderOf[*SourceMapSection] = ImmutableList_builder()
 	it_1 := foreach_(sections.elements())
 	for it_1.next() {
 		var each *SimpleJsonValue = cast_[*SimpleJsonValue](it_1.v)
-		var section *Outcome_base = SourceMapObjectParser_buildSection(each)
+		var section *Outcome_base[*SourceMapSection] = SourceMapObjectParser_buildSection(each)
 		if section.isErr() {
-			return Outcome_base_err(section.error())
+			return Outcome_base_err[List](section.error())
 		}
-		listBuilder.add(section.get())
+		listBuilder.add(obj_(section.get()))
 	}
-	return Outcome_base_ok_Object(obj_(listBuilder.build()))
+	return Outcome_base_ok_Object[List](icast_List(obj_(listBuilder.build())))
 }
 
-func SourceMapObjectParser_buildSection(section *SimpleJsonValue) *Outcome_base {
+func SourceMapObjectParser_buildSection(section *SimpleJsonValue) *Outcome_base[*SourceMapSection] {
 	var offset *SimpleJsonValue = section.get("offset")
 	if offset == nil {
-		return Outcome_base_err(SourceMapObjectParser_invalidMember("offset").up_Throwable())
+		return Outcome_base_err[*SourceMapSection](SourceMapObjectParser_invalidMember("offset").up_Throwable())
 	}
-	var line *Outcome_base = SourceMapObjectParser_getInt(offset, "line")
+	var line *Outcome_base[any] = SourceMapObjectParser_getInt(offset, "line")
 	if line.isErr() {
-		return Outcome_base_err(line.error())
+		return Outcome_base_err[*SourceMapSection](line.error())
 	}
-	var column *Outcome_base = SourceMapObjectParser_getInt(offset, "column")
+	var column *Outcome_base[any] = SourceMapObjectParser_getInt(offset, "column")
 	if column.isErr() {
-		return Outcome_base_err(column.error())
+		return Outcome_base_err[*SourceMapSection](column.error())
 	}
 	var map_ *SimpleJsonValue = section.get("map")
 	if (map_ != nil) && (section.get("url") != nil) {
-		return Outcome_base_err(new_SourceMapParseException("Invalid map format: section may not have both 'map' and 'url'").up_Throwable())
+		return Outcome_base_err[*SourceMapSection](new_SourceMapParseException("Invalid map format: section may not have both 'map' and 'url'").up_Throwable())
 	} else if section.get("url") != nil {
-		var url *Outcome_base = section.get("url").asString()
+		var url *Outcome_base[string] = section.get("url").asString()
 		if url.isErr() {
-			return Outcome_base_err(SourceMapObjectParser_invalidMember("url").up_Throwable())
+			return Outcome_base_err[*SourceMapSection](SourceMapObjectParser_invalidMember("url").up_Throwable())
 		}
-		return Outcome_base_ok_Object(obj_(SourceMapSection_forURL(str_(url.get()), unbox_[int32](line.get()), unbox_[int32](column.get()))))
+		return Outcome_base_ok_Object[*SourceMapSection](SourceMapSection_forURL(url.get(), unbox_[int32](line.get()), unbox_[int32](column.get())))
 	} else if map_ != nil {
 		var mapStr string = func() string {
 			if map_.kind() == SimpleJsonValue_Kind_STRING {
-				return str_(map_.asString().get())
+				return map_.asString().get()
 			}
 			return map_.toString()
 		}()
-		return Outcome_base_ok_Object(obj_(SourceMapSection_forMap(mapStr, unbox_[int32](line.get()), unbox_[int32](column.get()))))
+		return Outcome_base_ok_Object[*SourceMapSection](SourceMapSection_forMap(mapStr, unbox_[int32](line.get()), unbox_[int32](column.get())))
 	}
-	return Outcome_base_err(new_SourceMapParseException("Invalid map format: section must have either 'map' or 'url'").up_Throwable())
+	return Outcome_base_err[*SourceMapSection](new_SourceMapParseException("Invalid map format: section must have either 'map' or 'url'").up_Throwable())
 }
 
 func SourceMapObjectParser_invalidMember(key string) *SourceMapParseException {
 	return new_SourceMapParseException(("Invalid map format: missing or malformed '" + sstr_(key) + "'"))
 }
 
-func SourceMapObjectParser_getInt(object *SimpleJsonValue, key string) *Outcome_base {
+func SourceMapObjectParser_getInt(object *SimpleJsonValue, key string) *Outcome_base[any] {
 	var value *SimpleJsonValue = object.get(key)
 	if value == nil {
-		return Outcome_base_err(SourceMapObjectParser_invalidMember(key).up_Throwable())
+		return Outcome_base_err[any](SourceMapObjectParser_invalidMember(key).up_Throwable())
 	}
-	var result *Outcome_base = value.asInt()
+	var result *Outcome_base[any] = value.asInt()
 	if result.isErr() {
-		return Outcome_base_err(SourceMapObjectParser_invalidMember(key).up_Throwable())
+		return Outcome_base_err[any](SourceMapObjectParser_invalidMember(key).up_Throwable())
 	}
 	return result
 }
 
-func SourceMapObjectParser_getStringOrNull(object *SimpleJsonValue, key string) *Outcome_base {
+func SourceMapObjectParser_getStringOrNull(object *SimpleJsonValue, key string) *Outcome_base[string] {
 	var value *SimpleJsonValue = object.get(key)
 	if (value == nil) || (value.kind() == SimpleJsonValue_Kind_NULL) {
-		return Outcome_base_ok_Object(nil)
+		return Outcome_base_ok_Object[string](nullstr_)
 	}
-	var result *Outcome_base = value.asString()
+	var result *Outcome_base[string] = value.asString()
 	if result.isErr() {
-		return Outcome_base_err(SourceMapObjectParser_invalidMember(key).up_Throwable())
+		return Outcome_base_err[string](SourceMapObjectParser_invalidMember(key).up_Throwable())
 	}
-	return Outcome_base_ok_Object(result.get())
+	return Outcome_base_ok_Object[string](result.get())
 }
 
-func SourceMapObjectParser_getJavaStringArray(object *SimpleJsonValue, key string) *Outcome_base {
+func SourceMapObjectParser_getJavaStringArray(object *SimpleJsonValue, key string) *Outcome_base[any] {
 	var array *SimpleJsonValue = object.get(key)
 	if (array == nil) || (array.kind() == SimpleJsonValue_Kind_NULL) {
-		return Outcome_base_ok_Object(nil)
+		return Outcome_base_ok_Object[any](nil)
 	} else if array.kind() != SimpleJsonValue_Kind_ARRAY {
-		return Outcome_base_err(SourceMapObjectParser_invalidMember(key).up_Throwable())
+		return Outcome_base_err[any](SourceMapObjectParser_invalidMember(key).up_Throwable())
 	}
 	var len_ int32 = array.elements().size()
 	var result []string = newstrarr_(len_)
 	for i := int32(0); i < len_; i++ {
-		var item *Outcome_base = Outcome_base_ok_Object(nil)
+		var item *Outcome_base[string] = Outcome_base_ok_Object[string](nullstr_)
 		if cast_[*SimpleJsonValue](array.elements().get(i)).kind() != SimpleJsonValue_Kind_NULL {
 			item = cast_[*SimpleJsonValue](array.elements().get(i)).asString()
 		}
 		if item.isErr() {
-			return Outcome_base_err(SourceMapObjectParser_invalidMember(key).up_Throwable())
+			return Outcome_base_err[any](SourceMapObjectParser_invalidMember(key).up_Throwable())
 		}
-		result[i] = str_(item.get())
+		result[i] = item.get()
 	}
 	return Outcome_base_ok_Object(any(result))
 }
 
-func SourceMapObjectParser_readStringArray(lexer *SourceMapJsonLexer) *Outcome_base {
+func SourceMapObjectParser_readStringArray(lexer *SourceMapJsonLexer) *Outcome_base[any] {
 	lexer.skipWhitespace()
 	if (lexer.pos < lexer.length_) && String_startsWith_String_int(lexer.json, "null", lexer.pos) {
 		lexer.pos += 4
-		return Outcome_base_ok_Object(nil)
+		return Outcome_base_ok_Object[any](nil)
 	}
 	var list []string = []string{}
-	var begun *Outcome_base = lexer.beginArray()
+	var begun *Outcome_base[any] = lexer.beginArray()
 	if begun.isErr() {
-		return Outcome_base_err(begun.error())
+		return Outcome_base_err[any](begun.error())
 	}
 	for lexer.hasNext() {
-		var item *Outcome_base = lexer.nextStringOrNull()
+		var item *Outcome_base[string] = lexer.nextStringOrNull()
 		if item.isErr() {
-			return Outcome_base_err(item.error())
+			return Outcome_base_err[any](item.error())
 		}
-		list = append(list, str_(item.get()))
-		var comma *Outcome_base = lexer.checkComma()
+		list = append(list, item.get())
+		var comma *Outcome_base[any] = lexer.checkComma()
 		if comma.isErr() {
-			return Outcome_base_err(comma.error())
+			return Outcome_base_err[any](comma.error())
 		}
 	}
-	var ended *Outcome_base = lexer.endArray()
+	var ended *Outcome_base[any] = lexer.endArray()
 	if ended.isErr() {
-		return Outcome_base_err(ended.error())
+		return Outcome_base_err[any](ended.error())
 	}
 	return Outcome_base_ok_Object(any(arrmap_(sliceView_(tc_string, list).toArray(arrmap_(newstrarr_(0), func(v_ string) any { return strobj_(v_) })), func(v_ any) string { return str_(v_) })))
 }

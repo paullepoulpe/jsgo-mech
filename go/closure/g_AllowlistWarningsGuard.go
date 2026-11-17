@@ -75,11 +75,11 @@ func AllowlistWarningsGuard_fromFile(file string) *AllowlistWarningsGuard {
 }
 
 func AllowlistWarningsGuard_loadAllowlistedJsWarningsFile(file string) *TSet[string] {
-	var text *Outcome_base = TextFiles_read(file, Charsets_UTF_8)
+	var text *Outcome_base[string] = TextFiles_read(file, Charsets_UTF_8)
 	if text.isErr() {
 		panic(new_RuntimeException_Throwable(text.error()).self())
 	}
-	return AllowlistWarningsGuard_loadAllowlistedJsWarningsText(str_(text.get()))
+	return AllowlistWarningsGuard_loadAllowlistedJsWarningsText(text.get())
 }
 
 func AllowlistWarningsGuard_loadAllowlistedJsWarningsText(text string) *TSet[string] {
@@ -189,10 +189,10 @@ func (this *AllowlistWarningsGuard_AllowlistBuilder) report_2(level CheckLevel, 
 	this.warnings_.add(error_)
 }
 
-func (this *AllowlistWarningsGuard_AllowlistBuilder) writeAllowlist(out string) *Outcome_base {
-	var stream *Outcome_base = Output_open(out, Charsets_UTF_8, false)
+func (this *AllowlistWarningsGuard_AllowlistBuilder) writeAllowlist(out string) *Outcome_base[any] {
+	var stream *Outcome_base[any] = Output_open(out, Charsets_UTF_8, false)
 	if stream.isErr() {
-		return Outcome_base_err(stream.error())
+		return Outcome_base_err[any](stream.error())
 	}
 	this.appendAllowlist(cast_[*Output](stream.get()))
 	return cast_[*Output](stream.get()).close()
@@ -209,9 +209,9 @@ func (this *AllowlistWarningsGuard_AllowlistBuilder) appendAllowlist(out *Output
 	if this.headerNote.isPresent() {
 		out.append_CharSequence_s(("#" + sstr_(Joiner_on("\n# ").join(Splitter_on('\n').split_s(this.headerNote.get()))) + "\n"))
 	}
-	var warningsByType *SimpleSetMultimap = SimpleSetMultimap_createSorted()
+	var warningsByType *SimpleSetMultimap[*DiagnosticType, string] = SimpleSetMultimap_createSorted[*DiagnosticType, string]()
 	for warning := range this.warnings_.All() {
-		warningsByType.put(obj_(warning.type_()), strobj_(this.outer_.formatWarning_2(warning, true)))
+		warningsByType.put(warning.type_(), this.outer_.formatWarning_2(warning, true))
 	}
 	for type_ := range elemsAs_[*DiagnosticType](warningsByType.keySet()) {
 		if DiagnosticGroups_DEPRECATED.matchesDiagnosticType(type_) {

@@ -7,14 +7,14 @@ type CheckAccessControls struct {
 	typeRegistry              *JSTypeRegistry
 	deprecationDepth          int32
 	currentClassStack         DequeOf[*ObjectType]
-	constPropertyInits        *SimpleTable
+	constPropertyInits        *SimpleTable[*ObjectType, any, *CheckAccessControls_ConstantDeclaration]
 	defaultVisibilityForFiles ImmutableMapOf[StaticSourceFile, JSDocInfo_Visibility]
 }
 
 func (this *CheckAccessControls) finit_CheckAccessControls() {
 	this.deprecationDepth = 0
 	this.currentClassStack = new_LinkedList()
-	this.constPropertyInits = SimpleTable_create()
+	this.constPropertyInits = SimpleTable_create[*ObjectType, any, *CheckAccessControls_ConstantDeclaration]()
 }
 
 func (this *CheckAccessControls) init_CheckAccessControls(compiler *AbstractCompiler) {
@@ -347,11 +347,11 @@ func (this *CheckAccessControls) checkConstantProperty(propRef *CheckAccessContr
 func (this *CheckAccessControls) getConstPropertyInit(ref *CheckAccessControls_PropertyReference, type_ *ObjectType) *CheckAccessControls_ConstantDeclaration {
 	var name string = ref.name()
 	for type_ != nil {
-		var init_ *CheckAccessControls_ConstantDeclaration = cast_[*CheckAccessControls_ConstantDeclaration](this.constPropertyInits.get_s(type_.self(), name))
+		var init_ *CheckAccessControls_ConstantDeclaration = this.constPropertyInits.get_s(type_.self(), name)
 		if init_ != nil {
 			return init_
 		}
-		var canonicalInit *CheckAccessControls_ConstantDeclaration = cast_[*CheckAccessControls_ConstantDeclaration](this.constPropertyInits.get_s(CheckAccessControls_getCanonicalInstance(type_).self(), name))
+		var canonicalInit *CheckAccessControls_ConstantDeclaration = this.constPropertyInits.get_s(CheckAccessControls_getCanonicalInstance(type_).self(), name)
 		if canonicalInit != nil {
 			return canonicalInit
 		}
@@ -362,13 +362,13 @@ func (this *CheckAccessControls) getConstPropertyInit(ref *CheckAccessControls_P
 
 func (this *CheckAccessControls) recordConstPropertyInit(ref *CheckAccessControls_PropertyReference, type_ *ObjectType, annotation CheckAccessControls_Constancy) {
 	if !this.constPropertyInits.contains_s(type_.self(), ref.name()) {
-		this.constPropertyInits.put_s(type_.self(), ref.name(), obj_(new_CheckAccessControls_ConstantDeclaration(ref.sourceNode(), annotation)))
+		this.constPropertyInits.put_s(type_, ref.name(), new_CheckAccessControls_ConstantDeclaration(ref.sourceNode(), annotation))
 	}
 	if type_.isInstanceType() {
 		var prototype *ObjectType = type_.getImplicitPrototype()
 		if (prototype != nil) && prototype.hasProperty(ref.name()) {
 			if !this.constPropertyInits.contains_s(prototype.self(), ref.name()) {
-				this.constPropertyInits.put_s(prototype.self(), ref.name(), obj_(new_CheckAccessControls_ConstantDeclaration(ref.sourceNode(), annotation)))
+				this.constPropertyInits.put_s(prototype, ref.name(), new_CheckAccessControls_ConstantDeclaration(ref.sourceNode(), annotation))
 			}
 		}
 	}

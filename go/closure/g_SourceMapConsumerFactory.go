@@ -17,50 +17,50 @@ func new_SourceMapConsumerFactory() *SourceMapConsumerFactory {
 	return this
 }
 
-func SourceMapConsumerFactory_parse_String(contents string) *Outcome_base {
+func SourceMapConsumerFactory_parse_String(contents string) *Outcome_base[*SourceMapConsumerV3] {
 	return SourceMapConsumerFactory_parse_String_SourceMapSupplier(contents, nil)
 }
 
-func SourceMapConsumerFactory_parse_String_SourceMapSupplier(contents string, supplier SourceMapSupplier) *Outcome_base {
+func SourceMapConsumerFactory_parse_String_SourceMapSupplier(contents string, supplier SourceMapSupplier) *Outcome_base[*SourceMapConsumerV3] {
 	if strings.HasPrefix(contents, "/** Begin line maps. **/") {
-		return Outcome_base_err(new_SourceMapParseException("This appears to be a V1 SourceMap, which is not supported.").up_Throwable())
+		return Outcome_base_err[*SourceMapConsumerV3](new_SourceMapParseException("This appears to be a V1 SourceMap, which is not supported.").up_Throwable())
 	} else if strings.HasPrefix(contents, "{") {
-		var sourceMapObjectOutcome *Outcome_base = SourceMapObjectParser_parse(contents)
+		var sourceMapObjectOutcome *Outcome_base[*SourceMapObject] = SourceMapObjectParser_parse(contents)
 		if sourceMapObjectOutcome.isErr() {
-			return Outcome_base_err(sourceMapObjectOutcome.error())
+			return Outcome_base_err[*SourceMapConsumerV3](sourceMapObjectOutcome.error())
 		}
-		var sourceMapObject *SourceMapObject = cast_[*SourceMapObject](sourceMapObjectOutcome.get())
+		var sourceMapObject *SourceMapObject = sourceMapObjectOutcome.get()
 		switch sourceMapObject.getVersion() {
 		case 3:
 			var consumer *SourceMapConsumerV3 = new_SourceMapConsumerV3()
-			var parsed *Outcome_base = consumer.parse_2(sourceMapObject, supplier)
+			var parsed *Outcome_base[any] = consumer.parse_2(sourceMapObject, supplier)
 			if parsed.isErr() {
-				return Outcome_base_err(parsed.error())
+				return Outcome_base_err[*SourceMapConsumerV3](parsed.error())
 			}
-			return Outcome_base_ok_Object(obj_(consumer))
+			return Outcome_base_ok_Object[*SourceMapConsumerV3](consumer)
 		default:
-			return Outcome_base_err(new_SourceMapParseException(("Unknown source map version:" + istr_(int64(sourceMapObject.getVersion())))).up_Throwable())
+			return Outcome_base_err[*SourceMapConsumerV3](new_SourceMapParseException(("Unknown source map version:" + istr_(int64(sourceMapObject.getVersion())))).up_Throwable())
 		}
 	}
-	return Outcome_base_err(new_SourceMapParseException("unable to detect source map format").up_Throwable())
+	return Outcome_base_err[*SourceMapConsumerV3](new_SourceMapParseException("unable to detect source map format").up_Throwable())
 }
 
-func SourceMapConsumerFactory_parseFast(contents string) *Outcome_base {
+func SourceMapConsumerFactory_parseFast(contents string) *Outcome_base[*SourceMapConsumerV3] {
 	if strings.HasPrefix(contents, "{") {
-		var sourceMapObjectOutcome *Outcome_base = SourceMapObjectParser_parseFast(contents)
+		var sourceMapObjectOutcome *Outcome_base[*SourceMapObject] = SourceMapObjectParser_parseFast(contents)
 		if sourceMapObjectOutcome.isErr() {
-			return Outcome_base_err(sourceMapObjectOutcome.error())
+			return Outcome_base_err[*SourceMapConsumerV3](sourceMapObjectOutcome.error())
 		}
-		var sourceMapObject *SourceMapObject = cast_[*SourceMapObject](sourceMapObjectOutcome.get())
+		var sourceMapObject *SourceMapObject = sourceMapObjectOutcome.get()
 		if ok_, a1_ := (sourceMapObject.getVersion() == 3), sourceMapObject.getVersion(); !ok_ {
 			panic(new_IllegalArgumentException_String(Strings_lenientFormat("Unknown source map version:%s", []any{a1_})).self())
 		}
 		var consumer *SourceMapConsumerV3 = new_SourceMapConsumerV3()
-		var parsed *Outcome_base = consumer.parse_2(sourceMapObject, nil)
+		var parsed *Outcome_base[any] = consumer.parse_2(sourceMapObject, nil)
 		if parsed.isErr() {
-			return Outcome_base_err(parsed.error())
+			return Outcome_base_err[*SourceMapConsumerV3](parsed.error())
 		}
-		return Outcome_base_ok_Object(obj_(consumer))
+		return Outcome_base_ok_Object[*SourceMapConsumerV3](consumer)
 	}
-	return Outcome_base_err(new_SourceMapParseException("unable to detect source map format").up_Throwable())
+	return Outcome_base_err[*SourceMapConsumerV3](new_SourceMapParseException("unable to detect source map format").up_Throwable())
 }

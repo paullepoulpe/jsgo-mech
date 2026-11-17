@@ -83,7 +83,7 @@ func ioShow_(v any) string {
 		return "null"
 	case ioRaw_:
 		return string(x)
-	case *Outcome_base:
+	case *Outcome_base[any]:
 		if x.isErr() {
 			return ioFailure_(x.error().self_)
 		}
@@ -186,7 +186,7 @@ func TestIoUtf8(t *testing.T) {
 }
 
 // ioSummary_ is the length and CRC-32 of the data, or the failure.
-func ioSummary_(data *Outcome_base) any {
+func ioSummary_(data *Outcome_base[any]) any {
 	if data.isErr() {
 		return data
 	}

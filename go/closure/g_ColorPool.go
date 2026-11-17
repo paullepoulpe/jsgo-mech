@@ -150,7 +150,7 @@ type ColorPool_Builder struct {
 	protoToShard            *LinkedIdentityHashMap
 	idToColor               *TMap[*ColorId, *Color]
 	registry                *ColorRegistry_Builder
-	idToProto               *SimpleTable
+	idToProto               *SimpleTable[*ColorId, *ColorPool_ShardView, *TypeProto]
 	forTestingField         bool
 	reconcilationDebugStack []*ColorId
 }
@@ -159,7 +159,7 @@ func (this *ColorPool_Builder) finit_ColorPool_Builder() {
 	this.protoToShard = new_LinkedIdentityHashMap()
 	this.idToColor = newTMap_(tch_p_ColorId, tc_p_Color)
 	this.registry = ColorRegistry_builder()
-	this.idToProto = SimpleTable_create()
+	this.idToProto = SimpleTable_create[*ColorId, *ColorPool_ShardView, *TypeProto]()
 	this.forTestingField = false
 	this.reconcilationDebugStack = []*ColorId{}
 }
@@ -218,7 +218,7 @@ func (this *ColorPool_Builder) build() *ColorPool {
 		_ = shard
 		for i := int32(0); i < shard.typePool.getTypeCount(); i++ {
 			var id *ColorId = sliceAt_(shard.trimmedOffsetToId, i)
-			this.idToProto.put(obj_(id), obj_(shard), obj_(shard.typePool.getType(i)))
+			this.idToProto.put(id, shard, shard.typePool.getType(i))
 		}
 	})
 	for id := range elemsAs_[*ColorId](obj_(cast_[*ImmutableSet](StandardColors_AXIOMATIC_COLORS.keySet()))) {

@@ -526,7 +526,7 @@ func Es6RewriteModules_clinit() {
 type Es6RewriteModules_RewriteRequiresForEs6Modules struct {
 	NodeTraversal_AbstractPostOrderCallback
 	outer_      *Es6RewriteModules
-	renameTable *SimpleTable
+	renameTable *SimpleTable[Node, any, string]
 }
 
 func (this *Es6RewriteModules_RewriteRequiresForEs6Modules) up_NodeTraversal_AbstractPostOrderCallback() *NodeTraversal_AbstractPostOrderCallback {
@@ -549,7 +549,7 @@ func new_Es6RewriteModules_RewriteRequiresForEs6Modules(outer_ *Es6RewriteModule
 }
 
 func (this *Es6RewriteModules_RewriteRequiresForEs6Modules) rewrite(scriptNode Node) {
-	this.renameTable = SimpleTable_create()
+	this.renameTable = SimpleTable_create[Node, any, string]()
 	NodeTraversal_traverse(this.outer_.compiler_, scriptNode, this)
 	if !this.renameTable.isEmpty() {
 		NodeTraversal_traverse(this.outer_.compiler_, scriptNode, new_Es6RenameTypeReferences(this.renameTable))
@@ -610,7 +610,7 @@ func (this *Es6RewriteModules_RewriteRequiresForEs6Modules) visit_impl(t *NodeTr
 						if !child.getFirstChild().isName() {
 							panic(new_IllegalStateException_0().self())
 						}
-						this.renameTable.put_s(t.getScopeRoot().box_(), child.getFirstChild().getString(), strobj_(ModuleRenaming_getGlobalName_ModuleMetadata_Optional(moduleMetadata, Optional_of[string](name)).getprop(child.getString()).join().orElse(nullstr_)))
+						this.renameTable.put_s(t.getScopeRoot(), child.getFirstChild().getString(), ModuleRenaming_getGlobalName_ModuleMetadata_Optional(moduleMetadata, Optional_of[string](name)).getprop(child.getString()).join().orElse(nullstr_))
 					}
 				}
 			} else {
@@ -644,7 +644,7 @@ func (this *Es6RewriteModules_RewriteRequiresForEs6Modules) visit_impl(t *NodeTr
 					t.report(statementNode, diagnostic, []string{})
 					return
 				}
-				this.renameTable.put_s(t.getScopeRoot().box_(), statementNode.getFirstChild().getString(), strobj_(ModuleRenaming_getGlobalName_ModuleMetadata_Optional(moduleMetadata, Optional_of[string](name)).join().orElse(nullstr_)))
+				this.renameTable.put_s(t.getScopeRoot(), statementNode.getFirstChild().getString(), ModuleRenaming_getGlobalName_ModuleMetadata_Optional(moduleMetadata, Optional_of[string](name)).join().orElse(nullstr_))
 				statementNode.detach()
 				t.reportCodeChange()
 			} else {
@@ -654,7 +654,7 @@ func (this *Es6RewriteModules_RewriteRequiresForEs6Modules) visit_impl(t *NodeTr
 		}
 	} else {
 		if isForwardDeclare || isRequireType {
-			this.renameTable.put_s(t.getScopeRoot().box_(), name, strobj_(ModuleRenaming_getGlobalName_ModuleMetadata_Optional(moduleMetadata, Optional_of[string](name)).join().orElse(nullstr_)))
+			this.renameTable.put_s(t.getScopeRoot(), name, ModuleRenaming_getGlobalName_ModuleMetadata_Optional(moduleMetadata, Optional_of[string](name)).join().orElse(nullstr_))
 			statementNode.detach()
 		} else {
 			if statementNode.isExprResult() && (statementNode.getFirstChild() == n) {

@@ -51,7 +51,7 @@ func new_LinkedDirectedGraph(useNodeAnnotations bool, useEdgeAnnotations bool) *
 }
 
 func (this *LinkedDirectedGraph) newSubGraph_impl() SubGraph {
-	return new_Graph_SimpleSubGraph(this.up_Graph())
+	return new_Graph_SimpleSubGraph[any, any](this.up_Graph())
 }
 
 func LinkedDirectedGraph_createWithoutAnnotations() *LinkedDirectedGraph {

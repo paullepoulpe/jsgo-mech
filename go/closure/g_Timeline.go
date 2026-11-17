@@ -2,34 +2,34 @@
 
 package closure
 
-type Timeline struct {
-	eventsByTime  MapOf[*Timeline_Time, *Timeline_Event]
-	eventsByValue MapOf[any, *Timeline_Event]
-	headEvent     *Timeline_Event
+type Timeline[T comparable] struct {
+	eventsByTime  MapOf[*Timeline_Time, *Timeline_Event[any]]
+	eventsByValue MapOf[any, *Timeline_Event[any]]
+	headEvent     *Timeline_Event[any]
 }
 
-func (this *Timeline) finit_Timeline() {
+func (this *Timeline[T]) finit_Timeline() {
 	this.eventsByTime = new_LinkedHashMap()
 	this.eventsByValue = new_LinkedHashMap()
 	this.headEvent = new_Timeline_Event(obj_(new_Timeline_Time("-beginning-")))
 }
 
-func (this *Timeline) init_Timeline() {
+func (this *Timeline[T]) init_Timeline() {
 	this.finit_Timeline()
 }
 
-func new_Timeline() *Timeline {
-	this := &Timeline{}
+func new_Timeline[T comparable]() *Timeline[T] {
+	this := &Timeline[T]{}
 	this.init_Timeline()
 	return this
 }
 
-func (this *Timeline) add(value any) {
-	this.addEvent(value, this.eventsByValue)
+func (this *Timeline[T]) add(value T) {
+	this.addEvent(boxNull_(value), this.eventsByValue)
 }
 
-func (this *Timeline) remove(value any) {
-	var event *Timeline_Event = cast_[*Timeline_Event](this.eventsByValue.remove(value))
+func (this *Timeline[T]) remove(value T) {
+	var event *Timeline_Event[any] = cast_[*Timeline_Event[any]](this.eventsByValue.remove(boxNull_(value)))
 	if event != nil {
 		if event.nextEvent != nil {
 			event.nextEvent.previousEvent = event.previousEvent
@@ -42,18 +42,18 @@ func (this *Timeline) remove(value any) {
 	}
 }
 
-func (this *Timeline) mark(timeName string) {
+func (this *Timeline[T]) mark(timeName string) {
 	this.addEvent(obj_(new_Timeline_Time(timeName)), this.eventsByTime)
 }
 
-func (this *Timeline) getSince(timeName string) *TList[Node] {
+func (this *Timeline[T]) getSince(timeName string) *TList[Node] {
 	var values *TList[Node] = newTList_(tc_Node)
-	var firstEvent *Timeline_Event = cast_[*Timeline_Event](this.eventsByTime.get(obj_(new_Timeline_Time(timeName))))
+	var firstEvent *Timeline_Event[any] = cast_[*Timeline_Event[any]](this.eventsByTime.get(obj_(new_Timeline_Time(timeName))))
 	if firstEvent == nil {
 		return nil
 	}
 	{
-		var event *Timeline_Event = firstEvent
+		var event *Timeline_Event[any] = firstEvent
 		for ; event != nil; event = event.nextEvent {
 			if _, ok := event.value_.(*Timeline_Time); !ok {
 				values.add(Node_of_(event.value_))
@@ -63,8 +63,8 @@ func (this *Timeline) getSince(timeName string) *TList[Node] {
 	return values
 }
 
-func (this *Timeline) addEvent(value any, eventsByKey MapOf[any, *Timeline_Event]) {
-	var event *Timeline_Event = cast_[*Timeline_Event](eventsByKey.get(value))
+func (this *Timeline[T]) addEvent(value any, eventsByKey MapOf[any, *Timeline_Event[any]]) {
+	var event *Timeline_Event[any] = cast_[*Timeline_Event[any]](eventsByKey.get(value))
 	if this.headEvent == event {
 		return
 	}
@@ -81,21 +81,21 @@ func (this *Timeline) addEvent(value any, eventsByKey MapOf[any, *Timeline_Event
 	this.headEvent = event
 }
 
-type Timeline_Event struct {
-	nextEvent     *Timeline_Event
-	previousEvent *Timeline_Event
-	value_        any
+type Timeline_Event[T comparable] struct {
+	nextEvent     *Timeline_Event[any]
+	previousEvent *Timeline_Event[any]
+	value_        T
 }
 
-func (this *Timeline_Event) init_Timeline_Event(value any) {
-	if value == nil {
+func (this *Timeline_Event[T]) init_Timeline_Event(value T) {
+	if value == null_[T]() {
 		panic(new_NullPointerException_0().self())
 	}
 	this.value_ = value
 }
 
-func new_Timeline_Event(value any) *Timeline_Event {
-	this := &Timeline_Event{}
+func new_Timeline_Event[T comparable](value T) *Timeline_Event[T] {
+	this := &Timeline_Event[T]{value_: null_[T]()}
 	this.init_Timeline_Event(value)
 	return this
 }

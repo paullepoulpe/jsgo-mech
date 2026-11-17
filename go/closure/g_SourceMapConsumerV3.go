@@ -31,21 +31,21 @@ func new_SourceMapConsumerV3() *SourceMapConsumerV3 {
 	return this
 }
 
-func (this *SourceMapConsumerV3) parse(contents string) *Outcome_base {
-	var sourceMapObject *Outcome_base = SourceMapObjectParser_parse(contents)
+func (this *SourceMapConsumerV3) parse(contents string) *Outcome_base[any] {
+	var sourceMapObject *Outcome_base[*SourceMapObject] = SourceMapObjectParser_parse(contents)
 	if sourceMapObject.isErr() {
-		return Outcome_base_err(sourceMapObject.error())
+		return Outcome_base_err[any](sourceMapObject.error())
 	}
-	return this.parse_2(cast_[*SourceMapObject](sourceMapObject.get()), nil)
+	return this.parse_2(sourceMapObject.get(), nil)
 }
 
-func (this *SourceMapConsumerV3) parse_2(sourceMapObject *SourceMapObject, sectionSupplier SourceMapSupplier) *Outcome_base {
+func (this *SourceMapConsumerV3) parse_2(sourceMapObject *SourceMapObject, sectionSupplier SourceMapSupplier) *Outcome_base[any] {
 	if sourceMapObject.getVersion() != 3 {
-		return Outcome_base_err(new_SourceMapParseException(("Unknown version: " + istr_(int64(sourceMapObject.getVersion())))).up_Throwable())
+		return Outcome_base_err[any](new_SourceMapParseException(("Unknown version: " + istr_(int64(sourceMapObject.getVersion())))).up_Throwable())
 	}
 	this.file = sourceMapObject.getFile()
 	if this.file.isPresent() && this.file.get() == "" {
-		return Outcome_base_err(new_SourceMapParseException("File entry is empty").up_Throwable())
+		return Outcome_base_err[any](new_SourceMapParseException("File entry is empty").up_Throwable())
 	}
 	if sourceMapObject.getSections() != nil {
 		return this.parseMetaMap(sourceMapObject, sectionSupplier)
@@ -66,26 +66,26 @@ func (this *SourceMapConsumerV3) parse_2(sourceMapObject *SourceMapObject, secti
 		estimatedEntries = Math_max(estimatedEntries, (String_length(sourceMapObject.getMappings().get()) / 6))
 	}
 	this.extensions.asMap().putAll(sourceMapObject.getExtensions().asMap())
-	var built *Outcome_base = new_SourceMapConsumerV3_MappingBuilder(this, sourceMapObject.getMappings().get(), this.lineCount, useCompactMappings, estimatedEntries).build()
+	var built *Outcome_base[*SourceMapConsumerV3_Mappings] = new_SourceMapConsumerV3_MappingBuilder(this, sourceMapObject.getMappings().get(), this.lineCount, useCompactMappings, estimatedEntries).build()
 	if built.isErr() {
-		return Outcome_base_err(built.error())
+		return Outcome_base_err[any](built.error())
 	}
-	this.mappings = cast_[*SourceMapConsumerV3_Mappings](built.get())
+	this.mappings = built.get()
 	return Outcome_base_ok_0()
 }
 
-func (this *SourceMapConsumerV3) parseMetaMap(sourceMapObject *SourceMapObject, sectionSupplier SourceMapSupplier) *Outcome_base {
+func (this *SourceMapConsumerV3) parseMetaMap(sourceMapObject *SourceMapObject, sectionSupplier SourceMapSupplier) *Outcome_base[any] {
 	if sectionSupplier == nil {
 		sectionSupplier = new_SourceMapConsumerV3_DefaultSourceMapSupplier()
 	}
-	var ret_1 *Outcome_base
+	var ret_1 *Outcome_base[any]
 	code_1 := func() (code_ int) {
 		defer func() {
 			if r_ := recover(); r_ != nil {
 				ex_ := catch_(r_)
 				if p, ok := ex_.(IOException_as); ok {
 					var ex *IOException = p.as_IOException()
-					ret_1 = Outcome_base_err(new_SourceMapParseException(("IO exception: " + objstr_(ex.self()))).up_Throwable())
+					ret_1 = Outcome_base_err[any](new_SourceMapParseException(("IO exception: " + objstr_(ex.self()))).up_Throwable())
 					code_ = 1
 					return
 				}
@@ -93,7 +93,7 @@ func (this *SourceMapConsumerV3) parseMetaMap(sourceMapObject *SourceMapObject, 
 			}
 		}()
 		if (((sourceMapObject.getLineCount() >= 0) || sourceMapObject.getMappings().isPresent()) || ((sourceMapObject.getSources() != nil) && (int32(len(sourceMapObject.getSources())) > 0))) || (sourceMapObject.getNames() != nil) {
-			ret_1 = Outcome_base_err(new_SourceMapParseException("Invalid map format").up_Throwable())
+			ret_1 = Outcome_base_err[any](new_SourceMapParseException("Invalid map format").up_Throwable())
 			return 1
 		}
 		var generator *SourceMapGeneratorV3 = new_SourceMapGeneratorV3()
@@ -105,12 +105,12 @@ func (this *SourceMapConsumerV3) parseMetaMap(sourceMapObject *SourceMapObject, 
 				mapSectionContents = sectionSupplier.getSourceMap(section.getSectionValue())
 			}
 			if mapSectionContents.isEmpty() {
-				ret_1 = Outcome_base_err(new_SourceMapParseException(("Unable to retrieve: " + sstr_(section.getSectionValue()))).up_Throwable())
+				ret_1 = Outcome_base_err[any](new_SourceMapParseException(("Unable to retrieve: " + sstr_(section.getSectionValue()))).up_Throwable())
 				return 1
 			}
-			var merged *Outcome_base = generator.mergeMapSection(section.getLine(), section.getColumn(), mapSectionContents.get())
+			var merged *Outcome_base[any] = generator.mergeMapSection(section.getLine(), section.getColumn(), mapSectionContents.get())
 			if merged.isErr() {
-				ret_1 = Outcome_base_err(merged.error())
+				ret_1 = Outcome_base_err[any](merged.error())
 				return 1
 			}
 		}
@@ -380,7 +380,7 @@ func new_SourceMapConsumerV3_MappingBuilder(outer_ *SourceMapConsumerV3, lineMap
 	return this
 }
 
-func (this *SourceMapConsumerV3_MappingBuilder) build() *Outcome_base {
+func (this *SourceMapConsumerV3_MappingBuilder) build() *Outcome_base[*SourceMapConsumerV3_Mappings] {
 	var temp []int32 = make([]int32, SourceMapConsumerV3_MappingBuilder_MAX_ENTRY_VALUES)
 	var entriesCount int32 = 0
 	var linesCount int32 = 0
@@ -397,9 +397,9 @@ func (this *SourceMapConsumerV3_MappingBuilder) build() *Outcome_base {
 				temp[entryValues] = this.nextValue()
 				entryValues++
 			}
-			var entrySet *Outcome_base = this.setEntry(entriesCount, temp, entryValues, this.previousCol, this.previousSrcId, this.previousSrcLine, this.previousSrcColumn, this.previousNameId)
+			var entrySet *Outcome_base[any] = this.setEntry(entriesCount, temp, entryValues, this.previousCol, this.previousSrcId, this.previousSrcLine, this.previousSrcColumn, this.previousNameId)
 			if entrySet.isErr() {
-				return Outcome_base_err(entrySet.error())
+				return Outcome_base_err[*SourceMapConsumerV3_Mappings](entrySet.error())
 			}
 			this.validateEntry(entriesCount, this.line_)
 			this.previousCol = this.getGeneratedColumn(entriesCount)
@@ -420,7 +420,7 @@ func (this *SourceMapConsumerV3_MappingBuilder) build() *Outcome_base {
 		this.setLineStart(linesCount, entriesCount)
 	}
 	this.trim(entriesCount, linesCount)
-	return Outcome_base_ok_Object(obj_(new_SourceMapConsumerV3_Mappings(this.flatEntries, this.lineStart, this.lineCount, this.entrySize)))
+	return Outcome_base_ok_Object[*SourceMapConsumerV3_Mappings](new_SourceMapConsumerV3_Mappings(this.flatEntries, this.lineStart, this.lineCount, this.entrySize))
 }
 
 func (this *SourceMapConsumerV3_MappingBuilder) getLineStart(line int32) int32 {
@@ -434,7 +434,7 @@ func (this *SourceMapConsumerV3_MappingBuilder) setLineStart(line int32, entries
 	this.lineStart[line] = entriesCount
 }
 
-func (this *SourceMapConsumerV3_MappingBuilder) setEntry(entriesCount int32, vals []int32, entryValues int32, previousCol int32, previousSrcId int32, previousSrcLine int32, previousSrcColumn int32, previousNameId int32) *Outcome_base {
+func (this *SourceMapConsumerV3_MappingBuilder) setEntry(entriesCount int32, vals []int32, entryValues int32, previousCol int32, previousSrcId int32, previousSrcLine int32, previousSrcColumn int32, previousNameId int32) *Outcome_base[any] {
 	if (entriesCount + this.entrySize) > int32(len(this.flatEntries)) {
 		this.flatEntries = Arrays_copyOf(this.flatEntries, (int32(len(this.flatEntries)) * 2))
 	}
@@ -445,7 +445,7 @@ func (this *SourceMapConsumerV3_MappingBuilder) setEntry(entriesCount int32, val
 	}
 }
 
-func (this *SourceMapConsumerV3_MappingBuilder) setEntryCompact(entriesCount int32, vals []int32, entryValues int32, previousCol int32, previousSrcId int32, previousSrcLine int32, previousSrcColumn int32, previousNameId int32) *Outcome_base {
+func (this *SourceMapConsumerV3_MappingBuilder) setEntryCompact(entriesCount int32, vals []int32, entryValues int32, previousCol int32, previousSrcId int32, previousSrcLine int32, previousSrcColumn int32, previousNameId int32) *Outcome_base[any] {
 	switch entryValues {
 	case 1:
 		this.flatEntries[entriesCount] = (vals[0] + previousCol)
@@ -466,12 +466,12 @@ func (this *SourceMapConsumerV3_MappingBuilder) setEntryCompact(entriesCount int
 		var nameId int32 = (vals[4] + previousNameId)
 		this.flatEntries[(entriesCount + 3)] = ((srcId << 16) | (nameId & 65535))
 	default:
-		return Outcome_base_err(new_SourceMapParseException(("Unexpected number of values for entry:" + istr_(int64(entryValues)))).up_Throwable())
+		return Outcome_base_err[any](new_SourceMapParseException(("Unexpected number of values for entry:" + istr_(int64(entryValues)))).up_Throwable())
 	}
 	return Outcome_base_ok_0()
 }
 
-func (this *SourceMapConsumerV3_MappingBuilder) setEntryNormal(entriesCount int32, vals []int32, entryValues int32, previousCol int32, previousSrcId int32, previousSrcLine int32, previousSrcColumn int32, previousNameId int32) *Outcome_base {
+func (this *SourceMapConsumerV3_MappingBuilder) setEntryNormal(entriesCount int32, vals []int32, entryValues int32, previousCol int32, previousSrcId int32, previousSrcLine int32, previousSrcColumn int32, previousNameId int32) *Outcome_base[any] {
 	switch entryValues {
 	case 1:
 		this.flatEntries[entriesCount] = (vals[0] + previousCol)
@@ -492,7 +492,7 @@ func (this *SourceMapConsumerV3_MappingBuilder) setEntryNormal(entriesCount int3
 		this.flatEntries[(entriesCount + 3)] = (vals[1] + previousSrcId)
 		this.flatEntries[(entriesCount + 4)] = (vals[4] + previousNameId)
 	default:
-		return Outcome_base_err(new_SourceMapParseException(("Unexpected number of values for entry:" + istr_(int64(entryValues)))).up_Throwable())
+		return Outcome_base_err[any](new_SourceMapParseException(("Unexpected number of values for entry:" + istr_(int64(entryValues)))).up_Throwable())
 	}
 	return Outcome_base_ok_0()
 }

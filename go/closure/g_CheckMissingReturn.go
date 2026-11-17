@@ -60,7 +60,7 @@ func (this *CheckMissingReturn) enterScopeWithCfg_impl(t *NodeTraversal) {
 	if this.fastAllPathsReturnCheck(cfg) {
 		return
 	}
-	var test *CheckPathsBetweenNodes = new_CheckPathsBetweenNodes_DiGraph_DiGraphNode_DiGraphNode_Predicate_Predicate(cfg.up_DiGraph(), cfg.getEntry(), cfg.getImplicitReturn(), lambda_CheckMissingReturn_enterScopeWithCfg_impl_1_, lambda_CheckMissingReturn_enterScopeWithCfg_impl_2_)
+	var test *CheckPathsBetweenNodes[any, any] = new_CheckPathsBetweenNodes_DiGraph_DiGraphNode_DiGraphNode_Predicate_Predicate(cfg.up_DiGraph(), cfg.getEntry(), cfg.getImplicitReturn(), lambda_CheckMissingReturn_enterScopeWithCfg_impl_1_, lambda_CheckMissingReturn_enterScopeWithCfg_impl_2_)
 	if !test.allPathsSatisfyPredicate() {
 		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(t.getScopeRoot(), CheckMissingReturn_MISSING_RETURN_STATEMENT, []string{returnType.toString()}))
 	}

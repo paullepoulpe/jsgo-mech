@@ -39,8 +39,8 @@ var tc_p_Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationCon
 var tc_p_GraphColoring = &tconv_[*GraphColoring]{box: func(v *GraphColoring) any { return v.self() }, unbox: func(v any) *GraphColoring { return to_GraphColoring(v) }}
 var tc_p_Graph_GraphAnnotationState = &tconv_[*Graph_GraphAnnotationState]{box: func(v *Graph_GraphAnnotationState) any { return obj_(v) }, unbox: func(v any) *Graph_GraphAnnotationState { return cast_[*Graph_GraphAnnotationState](v) }}
 var tc_p_GuardedCallback_Context = &tconv_[*GuardedCallback_Context]{box: func(v *GuardedCallback_Context) any { return obj_(v) }, unbox: func(v any) *GuardedCallback_Context { return cast_[*GuardedCallback_Context](v) }}
-var tc_p_J2clClinitPrunerPass_HierarchicalSet = &tconv_[*J2clClinitPrunerPass_HierarchicalSet]{box: func(v *J2clClinitPrunerPass_HierarchicalSet) any { return obj_(v) }, unbox: func(v any) *J2clClinitPrunerPass_HierarchicalSet {
-	return cast_[*J2clClinitPrunerPass_HierarchicalSet](v)
+var tc_p_J2clClinitPrunerPass_HierarchicalSet = &tconv_[*J2clClinitPrunerPass_HierarchicalSet[string]]{box: func(v *J2clClinitPrunerPass_HierarchicalSet[string]) any { return obj_(v) }, unbox: func(v any) *J2clClinitPrunerPass_HierarchicalSet[string] {
+	return cast_[*J2clClinitPrunerPass_HierarchicalSet[string]](v)
 }}
 var tc_p_LiveVariablesAnalysis = &tconv_[*LiveVariablesAnalysis]{box: func(v *LiveVariablesAnalysis) any { return obj_(v) }, unbox: func(v any) *LiveVariablesAnalysis { return cast_[*LiveVariablesAnalysis](v) }}
 var tc_p_MakeDeclaredNamesUnique_ContextualRenameInverter_ScopeContext = &tconv_[*MakeDeclaredNamesUnique_ContextualRenameInverter_ScopeContext]{box: func(v *MakeDeclaredNamesUnique_ContextualRenameInverter_ScopeContext) any { return obj_(v) }, unbox: func(v any) *MakeDeclaredNamesUnique_ContextualRenameInverter_ScopeContext {

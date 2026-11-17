@@ -268,27 +268,27 @@ type Graph_GraphEdge interface {
 	getNodeB() GraphNode
 }
 
-type Graph_SimpleSubGraph struct {
+type Graph_SimpleSubGraph[N, E comparable] struct {
 	graph  *Graph
 	nodes_ []GraphNode
 }
 
-func (this *Graph_SimpleSubGraph) finit_Graph_SimpleSubGraph() {
+func (this *Graph_SimpleSubGraph[N, E]) finit_Graph_SimpleSubGraph() {
 	this.nodes_ = []GraphNode{}
 }
 
-func (this *Graph_SimpleSubGraph) init_Graph_SimpleSubGraph(graph *Graph) {
+func (this *Graph_SimpleSubGraph[N, E]) init_Graph_SimpleSubGraph(graph *Graph) {
 	this.finit_Graph_SimpleSubGraph()
 	this.graph = graph
 }
 
-func new_Graph_SimpleSubGraph(graph *Graph) *Graph_SimpleSubGraph {
-	this := &Graph_SimpleSubGraph{}
+func new_Graph_SimpleSubGraph[N, E comparable](graph *Graph) *Graph_SimpleSubGraph[N, E] {
+	this := &Graph_SimpleSubGraph[N, E]{}
 	this.init_Graph_SimpleSubGraph(graph)
 	return this
 }
 
-func (this *Graph_SimpleSubGraph) isIndependentOf(value any) bool {
+func (this *Graph_SimpleSubGraph[N, E]) isIndependentOf(value any) bool {
 	var node GraphNode = this.graph.getNode(value)
 	it_1 := eachOf_(&this.nodes_)
 	for it_1.next() {
@@ -300,6 +300,6 @@ func (this *Graph_SimpleSubGraph) isIndependentOf(value any) bool {
 	return true
 }
 
-func (this *Graph_SimpleSubGraph) addNode(value any) {
+func (this *Graph_SimpleSubGraph[N, E]) addNode(value any) {
 	this.nodes_ = append(this.nodes_, this.graph.getNodeOrFail(value))
 }

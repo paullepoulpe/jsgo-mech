@@ -4,13 +4,13 @@ package closure
 
 type PreprocessorSymbolTable struct {
 	symbols *TMap[string, *SimpleSlot]
-	refs    *SimpleListMultimap
+	refs    *SimpleListMultimap[any, *PreprocessorSymbolTable_Reference]
 	root    Node
 }
 
 func (this *PreprocessorSymbolTable) finit_PreprocessorSymbolTable() {
 	this.symbols = newTMap_(tc_string, tc_p_SimpleSlot)
-	this.refs = SimpleListMultimap_create()
+	this.refs = SimpleListMultimap_create[any, *PreprocessorSymbolTable_Reference]()
 }
 
 func (this *PreprocessorSymbolTable) init_PreprocessorSymbolTable(root Node) {
@@ -66,7 +66,7 @@ func (this *PreprocessorSymbolTable) addReference(node Node) {
 
 func (this *PreprocessorSymbolTable) addReference_2(node Node, name string) {
 	this.symbols.computeIfAbsent_f(name, lambda_PreprocessorSymbolTable_addReference_2_1_)
-	this.refs.put_s(name, obj_(new_PreprocessorSymbolTable_Reference(this.symbols.get(name), node)))
+	this.refs.put_s(name, new_PreprocessorSymbolTable_Reference(this.symbols.get(name), node))
 }
 
 // lambda_PreprocessorSymbolTable_addReference_2_1_ is a lambda of PreprocessorSymbolTable_addReference_2 that captures nothing (post-flip step lambdas).

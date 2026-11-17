@@ -51,15 +51,15 @@ func (this *CheckUnreachableCode) initScope(controlFlowGraph *ControlFlowGraph) 
 
 // lambda_CheckUnreachableCode_initScope_1_ is a lambda of CheckUnreachableCode_initScope that captures nothing (post-flip step lambdas).
 func lambda_CheckUnreachableCode_initScope_1_(p0 any) bool {
-	return CheckUnreachableCode_isReachable(cast_[*GraphReachability_EdgeTuple](p0))
+	return CheckUnreachableCode_isReachable(cast_[*GraphReachability_EdgeTuple[Node, ControlFlowGraph_Branch]](p0))
 }
 
-func CheckUnreachableCode_isReachable(input *GraphReachability_EdgeTuple) bool {
-	var branch ControlFlowGraph_Branch = cast_[ControlFlowGraph_Branch](input.edge)
+func CheckUnreachableCode_isReachable(input *GraphReachability_EdgeTuple[Node, ControlFlowGraph_Branch]) bool {
+	var branch ControlFlowGraph_Branch = input.edge
 	if !branch.isConditional() {
 		return true
 	}
-	var predecessor Node = Node_of_(input.sourceNode_)
+	var predecessor Node = input.sourceNode_
 	var condition Node = NodeUtil_getConditionExpression(predecessor)
 	if condition != 0 {
 		var val Tri = NodeUtil_getBooleanValue(condition)

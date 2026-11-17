@@ -47,8 +47,8 @@ func i8_(b []byte) []int8 {
 }
 
 // ioErr_ is the error Outcome of a failed operation: a plain IOException with the message.
-func ioErr_(message string) *Outcome_base {
-	return Outcome_base_err(new_IOException_String(message).as_Throwable())
+func ioErr_(message string) *Outcome_base[any] {
+	return Outcome_base_err[any](new_IOException_String(message).as_Throwable())
 }
 
 // ---- UTF-8
@@ -108,7 +108,7 @@ func Io_utf8StringStrict(bytes []int8) Optional[string] {
 
 // ---- Files and directories
 
-func Io_readBytes(path string) *Outcome_base {
+func Io_readBytes(path string) *Outcome_base[any] {
 	if !Io_exists(path) {
 		return ioErr_(path + ": No such file")
 	}
@@ -116,10 +116,10 @@ func Io_readBytes(path string) *Outcome_base {
 	if err != nil {
 		return ioErr_(path + ": Cannot read file")
 	}
-	return Outcome_base_ok_Object(i8_(b))
+	return Outcome_base_ok_Object[any](i8_(b))
 }
 
-func Io_writeBytes(path string, bytes []int8) *Outcome_base {
+func Io_writeBytes(path string, bytes []int8) *Outcome_base[any] {
 	if os.WriteFile(path, u8_(bytes), 0o666) != nil {
 		return ioErr_(path + ": Cannot write file")
 	}
@@ -209,7 +209,7 @@ func Io_stderr() *Io_Sink { return stderr_ }
 // printErr_ writes text to standard error, for the runtime's own messages.
 func printErr_(text string) { stderr_.write(Io_utf8Bytes(text)) }
 
-func Io_openFile(path string, appendTo bool) *Outcome_base {
+func Io_openFile(path string, appendTo bool) *Outcome_base[any] {
 	mode := os.O_TRUNC
 	if appendTo {
 		mode = os.O_APPEND
@@ -218,7 +218,7 @@ func Io_openFile(path string, appendTo bool) *Outcome_base {
 	if err != nil {
 		return ioErr_(path + ": Cannot write file")
 	}
-	return Outcome_base_ok_Object(&Io_Sink{file: file, path: path})
+	return Outcome_base_ok_Object[any](&Io_Sink{file: file, path: path})
 }
 
 func (this *Io_Sink) write(bytes []int8) {
@@ -230,7 +230,7 @@ func (this *Io_Sink) write(bytes []int8) {
 	}
 }
 
-func (this *Io_Sink) close() *Outcome_base {
+func (this *Io_Sink) close() *Outcome_base[any] {
 	if this.closed {
 		return Outcome_base_ok_0()
 	}
@@ -248,22 +248,22 @@ type Io_Input struct{ file *os.File }
 
 func Io_stdin() *Io_Input { return &Io_Input{os.Stdin} }
 
-func (this *Io_Input) readBytes() *Outcome_base {
+func (this *Io_Input) readBytes() *Outcome_base[any] {
 	b, err := io.ReadAll(this.file)
 	if err != nil {
 		return ioErr_("stdin: Cannot read file")
 	}
-	return Outcome_base_ok_Object(i8_(b))
+	return Outcome_base_ok_Object[any](i8_(b))
 }
 
 // ---- Codecs
 
-func Io_inflate(deflated []int8) *Outcome_base {
+func Io_inflate(deflated []int8) *Outcome_base[any] {
 	data, err := io.ReadAll(flate.NewReader(bytes.NewReader(u8_(deflated))))
 	if err != nil {
 		return ioErr_("Malformed compressed data")
 	}
-	return Outcome_base_ok_Object(i8_(data))
+	return Outcome_base_ok_Object[any](i8_(data))
 }
 
 // Io_gzip does not produce the bytes Java's zlib does; the contract leaves them to the platform.
@@ -275,7 +275,7 @@ func Io_gzip(data []int8) []int8 {
 	return i8_(out.Bytes())
 }
 
-func Io_gunzip(gzipped []int8) *Outcome_base {
+func Io_gunzip(gzipped []int8) *Outcome_base[any] {
 	r, err := gzip.NewReader(bytes.NewReader(u8_(gzipped)))
 	if err != nil {
 		return ioErr_("Malformed gzip data")
@@ -285,7 +285,7 @@ func Io_gunzip(gzipped []int8) *Outcome_base {
 	if err != nil {
 		return ioErr_("Malformed gzip data")
 	}
-	return Outcome_base_ok_Object(i8_(data))
+	return Outcome_base_ok_Object[any](i8_(data))
 }
 
 func Io_base64Encode(bytes []int8) string { return base64.StdEncoding.EncodeToString(u8_(bytes)) }

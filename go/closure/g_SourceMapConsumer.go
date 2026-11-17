@@ -4,5 +4,5 @@ package closure
 
 type SourceMapConsumer interface {
 	SourceMapping
-	parse(string) *Outcome_base
+	parse(string) *Outcome_base[any]
 }

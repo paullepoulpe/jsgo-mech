@@ -100,13 +100,13 @@ func (this *CommandLineRunner) reportError(message string) {
 	this.errorStream.flush()
 }
 
-func (this *CommandLineRunner) processFlagFiles() *Outcome_base {
+func (this *CommandLineRunner) processFlagFiles() *Outcome_base[any] {
 	it_1 := foreach_(this.flags.flagFiles)
 	for it_1.next() {
 		var flagFile string = str_(it_1.v)
-		var processed *Outcome_base = this.processFlagFile(flagFile)
+		var processed *Outcome_base[any] = this.processFlagFile(flagFile)
 		if processed.isErr() && !is_IOException(processed.error().self()) {
-			return Outcome_base_err(processed.error())
+			return Outcome_base_err[any](processed.error())
 		}
 		if processed.isErr() {
 			this.reportError(("ERROR - " + sstr_(flagFile) + " read error."))
@@ -115,12 +115,12 @@ func (this *CommandLineRunner) processFlagFiles() *Outcome_base {
 	return Outcome_base_ok_0()
 }
 
-func (this *CommandLineRunner) processFlagFile(flagFileString string) *Outcome_base {
-	var buffer *Outcome_base = TextFiles_readStrict(flagFileString, Charsets_UTF_8)
+func (this *CommandLineRunner) processFlagFile(flagFileString string) *Outcome_base[any] {
+	var buffer *Outcome_base[string] = TextFiles_readStrict(flagFileString, Charsets_UTF_8)
 	if buffer.isErr() {
-		return Outcome_base_err(buffer.error())
+		return Outcome_base_err[any](buffer.error())
 	}
-	var flagFileText string = str_(buffer.get())
+	var flagFileText string = buffer.get()
 	var flagFileIndex int32 = 0
 	var builder strBuilder_
 	var tokens *TList[string] = newTList_(tc_string)
@@ -167,13 +167,13 @@ func (this *CommandLineRunner) processFlagFile(flagFileString string) *Outcome_b
 	}
 	this.flags.flagFiles = new_ArrayList_0()
 	tokens = CommandLineRunner_processArgs(arrmap_(tokens.asList().toArray(arrmap_(newstrarr_(0), func(v_ string) any { return strobj_(v_) })), func(v_ any) string { return str_(v_) }))
-	var previousGuardLevels *TList[*AbstractCommandLineRunner_FlagEntry] = tlistFrom_(tc_p_AbstractCommandLineRunner_FlagEntry, Collection(this.flags.guardLevels.asList()))
-	var previousMixedJsSources *TList[*AbstractCommandLineRunner_FlagEntry] = tlistFrom_(tc_p_AbstractCommandLineRunner_FlagEntry, Collection(this.flags.mixedJsSources.asList()))
+	var previousGuardLevels *TList[*AbstractCommandLineRunner_FlagEntry[any]] = tlistFrom_(tc_p_AbstractCommandLineRunner_FlagEntry, Collection(this.flags.guardLevels.asList()))
+	var previousMixedJsSources *TList[*AbstractCommandLineRunner_FlagEntry[any]] = tlistFrom_(tc_p_AbstractCommandLineRunner_FlagEntry, Collection(this.flags.mixedJsSources.asList()))
 	this.flags.guardLevels.clear()
 	this.flags.mixedJsSources.clear()
-	var parsed *Outcome_base = this.flags.parse(tokens)
+	var parsed *Outcome_base[any] = this.flags.parse(tokens)
 	if parsed.isErr() {
-		return Outcome_base_err(parsed.error())
+		return Outcome_base_err[any](parsed.error())
 	}
 	this.flags.guardLevels.addAllT(previousGuardLevels)
 	this.flags.mixedJsSources.addAllT(previousMixedJsSources)
@@ -187,30 +187,30 @@ func (this *CommandLineRunner) getVersionText_impl() string {
 	return String_join_CharSequence_CharSequenceArr_s("\n", []any{strobj_("Closure Compiler (http://github.com/google/closure-compiler)"), strobj_(("Version: " + sstr_("v20261104")))})
 }
 
-func (this *CommandLineRunner) readFlagInputs(processedArgs *TList[string], flagInputs *CommandLineRunner_FlagInputs) *Outcome_base {
-	var parsed *Outcome_base = this.flags.parse(processedArgs)
+func (this *CommandLineRunner) readFlagInputs(processedArgs *TList[string], flagInputs *CommandLineRunner_FlagInputs) *Outcome_base[any] {
+	var parsed *Outcome_base[any] = this.flags.parse(processedArgs)
 	if parsed.isErr() {
-		return Outcome_base_err(parsed.error())
+		return Outcome_base_err[any](parsed.error())
 	}
-	var flagFilesProcessed *Outcome_base = this.processFlagFiles()
+	var flagFilesProcessed *Outcome_base[any] = this.processFlagFiles()
 	if flagFilesProcessed.isErr() {
-		return Outcome_base_err(flagFilesProcessed.error())
+		return Outcome_base_err[any](flagFilesProcessed.error())
 	}
-	var mixedSources *Outcome_base = this.flags.getMixedJsSources()
+	var mixedSources *Outcome_base[List] = this.flags.getMixedJsSources()
 	if mixedSources.isErr() {
-		return Outcome_base_err(mixedSources.error())
+		return Outcome_base_err[any](mixedSources.error())
 	}
 	flagInputs.mixedSources = icast_List(mixedSources.get())
-	var mappings *Outcome_base = this.flags.getSourceMapLocationMappings()
+	var mappings *Outcome_base[List] = this.flags.getSourceMapLocationMappings()
 	if mappings.isErr() {
-		return Outcome_base_err(mappings.error())
+		return Outcome_base_err[any](mappings.error())
 	}
 	flagInputs.mappings = icast_List(mappings.get())
-	var sourceMapInputs *Outcome_base = this.flags.getSourceMapInputs()
+	var sourceMapInputs *Outcome_base[*ImmutableMap] = this.flags.getSourceMapInputs()
 	if sourceMapInputs.isErr() {
-		return Outcome_base_err(sourceMapInputs.error())
+		return Outcome_base_err[any](sourceMapInputs.error())
 	}
-	flagInputs.sourceMapInputs = cast_[*ImmutableMap](sourceMapInputs.get())
+	flagInputs.sourceMapInputs = sourceMapInputs.get()
 	flagInputs.parseInlineSourceMaps_ = unbox_[bool](this.flags.parseInlineSourceMaps_)
 	flagInputs.applyInputSourceMaps = this.flags.applyInputSourceMaps
 	return Outcome_base_ok_0()
@@ -222,14 +222,14 @@ func (this *CommandLineRunner) initConfigFromFlags(args []string, out *Output, e
 	this.flags.guardLevels.clear()
 	this.flags.mixedJsSources.clear()
 	var flagInputs *CommandLineRunner_FlagInputs = new_CommandLineRunner_FlagInputs()
-	var flagInputsRead *Outcome_base = this.readFlagInputs(processedArgs, flagInputs)
+	var flagInputsRead *Outcome_base[any] = this.readFlagInputs(processedArgs, flagInputs)
 	if flagInputsRead.isErr() && is_IOException(flagInputsRead.error().self()) {
 		this.reportError(("ERROR - " + sstr_(flagInputsRead.error().getMessage())))
 	} else if flagInputsRead.isErr() {
 		var e *CmdLineException = cast_[*CmdLineException](flagInputsRead.error().self())
 		this.reportError(e.getMessage())
 	}
-	var mixedSources ListOf[*AbstractCommandLineRunner_FlagEntry] = flagInputs.mixedSources
+	var mixedSources ListOf[*AbstractCommandLineRunner_FlagEntry[any]] = flagInputs.mixedSources
 	var mappings ListOf[SourceMap_LocationMapping] = flagInputs.mappings
 	var sourceMapInputs ImmutableMapOf[string, string] = flagInputs.sourceMapInputs
 	var parseInlineSourceMaps bool = flagInputs.parseInlineSourceMaps_
@@ -244,11 +244,11 @@ func (this *CommandLineRunner) initConfigFromFlags(args []string, out *Output, e
 		this.flags.outputWrapper = Optional_of[string]("")
 	}
 	if this.flags.outputWrapperFile.isPresent() && this.flags.outputWrapperFile.get() != "" {
-		var outputWrapper *Outcome_base = TextFiles_read(FilePaths_clean(this.flags.outputWrapperFile.get()), Charsets_UTF_8)
+		var outputWrapper *Outcome_base[string] = TextFiles_read(FilePaths_clean(this.flags.outputWrapperFile.get()), Charsets_UTF_8)
 		if outputWrapper.isErr() {
 			this.reportError("ERROR - invalid output_wrapper_file specified.")
 		} else {
-			this.flags.outputWrapper = Optional_ofNullable[string](str_(outputWrapper.get()))
+			this.flags.outputWrapper = Optional_ofNullable[string](outputWrapper.get())
 		}
 	}
 	if this.flags.outputWrapper.get() != "" && !strings.Contains(this.flags.outputWrapper.get(), CommandLineRunner_OUTPUT_MARKER_FIELD) {
@@ -283,11 +283,11 @@ func (this *CommandLineRunner) initConfigFromFlags(args []string, out *Output, e
 		this.reportError("ERROR - renaming cannot be disabled when ADVANCED_OPTIMIZATIONS is used.")
 	}
 	var dependencyOptions *DependencyOptions = nil
-	var dependencyOptionsRes *Outcome_base = DependencyOptions_fromFlags(this.flags.dependencyMode, this.flags.entryPoint, []string{}, Optional_empty[string](), false, false)
+	var dependencyOptionsRes *Outcome_base[*DependencyOptions] = DependencyOptions_fromFlags(this.flags.dependencyMode, this.flags.entryPoint, []string{}, Optional_empty[string](), false, false)
 	if dependencyOptionsRes.isErr() {
 		this.reportError(dependencyOptionsRes.errorMessage().orElseThrow())
 	} else {
-		dependencyOptions = cast_[*DependencyOptions](dependencyOptionsRes.get())
+		dependencyOptions = dependencyOptionsRes.get()
 	}
 	if this.errors_ {
 		CommandLineRunner_Flags_printShortUsageAfterErrors(this.errorStream)
@@ -324,34 +324,34 @@ func (this *CommandLineRunner) addAllowlistWarningsGuard_impl(options *CompilerO
 	options.addWarningsGuard(AllowlistWarningsGuard_fromFile(allowlistFile).up_WarningsGuard())
 }
 
-func (this *CommandLineRunner) checkChunkName_impl(name string) *Outcome_base {
+func (this *CommandLineRunner) checkChunkName_impl(name string) *Outcome_base[any] {
 	if !TokenStream_isJSIdentifier(CommandLineRunner_extraChunkNameChars.matcher_s(name).replaceAll("_")) {
-		return Outcome_base_err(new_FlagUsageException(("Invalid chunk name: '" + sstr_(name) + "'")).up_Throwable())
+		return Outcome_base_err[any](new_FlagUsageException(("Invalid chunk name: '" + sstr_(name) + "'")).up_Throwable())
 	}
 	return Outcome_base_ok_0()
 }
 
-func (this *CommandLineRunner) createOptions_impl() *Outcome_base {
+func (this *CommandLineRunner) createOptions_impl() *Outcome_base[*CompilerOptions] {
 	var options *CompilerOptions = new_CompilerOptions()
 	if this.flags.languageIn != "" {
 		var languageMode CompilerOptions_LanguageMode = CompilerOptions_LanguageMode_fromString(Optional_of[string](this.flags.languageIn))
 		if languageMode == CompilerOptions_LanguageMode_UNSUPPORTED {
-			return Outcome_base_err(new_FlagUsageException("Cannot specify the unsupported set of features for language_in.").up_Throwable())
+			return Outcome_base_err[*CompilerOptions](new_FlagUsageException("Cannot specify the unsupported set of features for language_in.").up_Throwable())
 		}
 		if languageMode != 0 {
 			options.setLanguageIn(languageMode)
 		} else {
-			return Outcome_base_err(new_FlagUsageException(("Unknown language `" + sstr_(this.flags.languageIn) + "' specified. Expected one of: " + objstr_(sliceView_(tc_string, CompilerOptions_LanguageMode_validCommandLineNames())))).up_Throwable())
+			return Outcome_base_err[*CompilerOptions](new_FlagUsageException(("Unknown language `" + sstr_(this.flags.languageIn) + "' specified. Expected one of: " + objstr_(sliceView_(tc_string, CompilerOptions_LanguageMode_validCommandLineNames())))).up_Throwable())
 		}
 	}
 	var languageMode CompilerOptions_LanguageMode = CompilerOptions_LanguageMode_fromString(Optional_of[string](this.flags.languageOut))
 	if languageMode == CompilerOptions_LanguageMode_UNSUPPORTED {
-		return Outcome_base_err(new_FlagUsageException("Cannot specify the unsupported set of features for language_out.").up_Throwable())
+		return Outcome_base_err[*CompilerOptions](new_FlagUsageException("Cannot specify the unsupported set of features for language_out.").up_Throwable())
 	}
 	if languageMode != 0 {
 		options.setLanguageOut(languageMode)
 	} else {
-		return Outcome_base_err(new_FlagUsageException(("Unknown language `" + sstr_(this.flags.languageOut) + "' specified. Expected one of: " + objstr_(sliceView_(tc_string, CompilerOptions_LanguageMode_validCommandLineNames())))).up_Throwable())
+		return Outcome_base_err[*CompilerOptions](new_FlagUsageException(("Unknown language `" + sstr_(this.flags.languageOut) + "' specified. Expected one of: " + objstr_(sliceView_(tc_string, CompilerOptions_LanguageMode_validCommandLineNames())))).up_Throwable())
 	}
 	options.setCodingConvention(new_ClosureCodingConvention_0())
 	options.setExtraAnnotationNames(Iterable(this.flags.extraAnnotationName))
@@ -399,7 +399,7 @@ func (this *CommandLineRunner) createOptions_impl() *Outcome_base {
 			}
 		}
 		if j2clPassMode == 0 {
-			return Outcome_base_err(new_FlagUsageException(("Unknown J2clPassMode `" + sstr_(this.flags.j2clPassMode) + "' specified.")).up_Throwable())
+			return Outcome_base_err[*CompilerOptions](new_FlagUsageException(("Unknown J2clPassMode `" + sstr_(this.flags.j2clPassMode) + "' specified.")).up_Throwable())
 		}
 		options.setJ2clPass(j2clPassMode)
 	}
@@ -414,7 +414,7 @@ func (this *CommandLineRunner) createOptions_impl() *Outcome_base {
 	options.setRewritePolyfills((this.flags.rewritePolyfills && options.getLanguageIn().toFeatureSet().containsFeatureSet(FeatureSet_ES2015)))
 	options.setIsolatePolyfills(this.flags.isolatePolyfills)
 	if this.flags.translationsFile != "" {
-		var xtb *Outcome_base = Io_readBytes(this.flags.translationsFile)
+		var xtb *Outcome_base[any] = Io_readBytes(this.flags.translationsFile)
 		if xtb.isErr() {
 			panic(new_RuntimeException_String_Throwable("Reading XTB file", xtb.error()).self())
 		}
@@ -440,13 +440,13 @@ func (this *CommandLineRunner) createOptions_impl() *Outcome_base {
 		options.setPropertyRenaming(PropertyRenamingPolicy_OFF)
 	}
 	if (this.flags.instrumentCodeParsed == CompilerOptions_InstrumentOption_PRODUCTION) && Strings_isNullOrEmpty(this.flags.instrumentationMappingOutputFile) {
-		return Outcome_base_err(new_FlagUsageException("Expected --instrument_mapping_report to be set when --instrument_for_coverage_option is set to Production").up_Throwable())
+		return Outcome_base_err[*CompilerOptions](new_FlagUsageException("Expected --instrument_mapping_report to be set when --instrument_for_coverage_option is set to Production").up_Throwable())
 	}
 	if !Strings_isNullOrEmpty(this.flags.instrumentationMappingOutputFile) && (this.flags.instrumentCodeParsed != CompilerOptions_InstrumentOption_PRODUCTION) {
-		return Outcome_base_err(new_FlagUsageException("Expected --instrument_for_coverage_option to be passed with PRODUCTION when --instrument_mapping_report is set").up_Throwable())
+		return Outcome_base_err[*CompilerOptions](new_FlagUsageException("Expected --instrument_for_coverage_option to be passed with PRODUCTION when --instrument_mapping_report is set").up_Throwable())
 	}
 	if Strings_isNullOrEmpty(this.flags.productionInstrumentationArrayName) && (this.flags.instrumentCodeParsed == CompilerOptions_InstrumentOption_PRODUCTION) {
-		return Outcome_base_err(new_FlagUsageException("Expected --production_instrumentation_array_name to be set when --instrument_for_coverage_option is set to Production").up_Throwable())
+		return Outcome_base_err[*CompilerOptions](new_FlagUsageException("Expected --production_instrumentation_array_name to be set when --instrument_for_coverage_option is set to Production").up_Throwable())
 	}
 	options.setInstrumentForCoverageOption(this.flags.instrumentCodeParsed)
 	options.setProductionInstrumentationArrayName(this.flags.productionInstrumentationArrayName)
@@ -456,10 +456,10 @@ func (this *CommandLineRunner) createOptions_impl() *Outcome_base {
 	options.setCrossChunkCodeMotionNoStubMethods(this.flags.assumeNoPrototypeMethodEnumeration)
 	if this.flags.chunkOutputType == CompilerOptions_ChunkOutputType_ES_MODULES {
 		if this.flags.renamePrefixNamespace.isPresent() {
-			return Outcome_base_err(new_FlagUsageException("Expected --rename_prefix_namespace not to be specified when --chunk_output_type is set to ES_MODULES.").up_Throwable())
+			return Outcome_base_err[*CompilerOptions](new_FlagUsageException("Expected --rename_prefix_namespace not to be specified when --chunk_output_type is set to ES_MODULES.").up_Throwable())
 		}
 		if this.flags.emitUseStrict {
-			return Outcome_base_err(new_FlagUsageException("Expected --emit_use_strict should not be specified when --chunk_output_type is set to ES_MODULES.").up_Throwable())
+			return Outcome_base_err[*CompilerOptions](new_FlagUsageException("Expected --emit_use_strict should not be specified when --chunk_output_type is set to ES_MODULES.").up_Throwable())
 		}
 		options.setChunkOutputType(this.flags.chunkOutputType)
 		options.setEmitUseStrict(false)
@@ -467,16 +467,16 @@ func (this *CommandLineRunner) createOptions_impl() *Outcome_base {
 			options.setExtractPrototypeMemberDeclarationsMode(CompilerOptions_ExtractPrototypeMemberDeclarationsMode_USE_CHUNK_TEMP)
 		}
 	}
-	return Outcome_base_ok_Object(obj_(options))
+	return Outcome_base_ok_Object[*CompilerOptions](options)
 }
 
 func (this *CommandLineRunner) createCompiler_impl() *Compiler {
 	return new_Compiler_Output(this.getErrorPrintStream())
 }
 
-func (this *CommandLineRunner) getBundler() *Outcome_base {
+func (this *CommandLineRunner) getBundler() *Outcome_base[*ClosureBundler] {
 	if this.bundler != nil {
-		return Outcome_base_ok_Object(obj_(this.bundler))
+		return Outcome_base_ok_Object[*ClosureBundler](this.bundler)
 	}
 	var moduleRoots ImmutableListOf[string]
 	if !this.flags.moduleRoot.isEmpty() {
@@ -484,57 +484,57 @@ func (this *CommandLineRunner) getBundler() *Outcome_base {
 	} else {
 		moduleRoots = ImmutableList_of_Object(strobj_(ModuleLoader_DEFAULT_FILENAME_PREFIX))
 	}
-	var optionsOutcome *Outcome_base = this.createOptions()
+	var optionsOutcome *Outcome_base[*CompilerOptions] = this.createOptions()
 	if optionsOutcome.isErr() {
-		return Outcome_base_err(optionsOutcome.error())
+		return Outcome_base_err[*ClosureBundler](optionsOutcome.error())
 	}
-	var options *CompilerOptions = cast_[*CompilerOptions](optionsOutcome.get())
+	var options *CompilerOptions = optionsOutcome.get()
 	var newBundler *ClosureBundler = new_ClosureBundler_Transpiler_Transpiler(Transpiler_transpile_NULL, new_BaseTranspiler(new_BaseTranspiler_CompilerSupplier_FeatureSet_ResolutionMode_ImmutableList_ImmutableMap(CompilerOptions_LanguageMode_ECMASCRIPT_NEXT.toFeatureSet().without_2(FeatureSet_Feature_MODULES, []FeatureSet_Feature{}), options.getModuleResolutionMode(), moduleRoots, options.getBrowserResolverPrefixReplacements()), ""))
 	this.bundler = newBundler
-	return Outcome_base_ok_Object(obj_(newBundler))
+	return Outcome_base_ok_Object[*ClosureBundler](newBundler)
 }
 
-func (this *CommandLineRunner) prepForBundleAndAppendTo_impl(out Appendable, input *CompilerInput, content string) *Outcome_base {
-	var bundlerOutcome *Outcome_base = this.getBundler()
+func (this *CommandLineRunner) prepForBundleAndAppendTo_impl(out Appendable, input *CompilerInput, content string) *Outcome_base[any] {
+	var bundlerOutcome *Outcome_base[*ClosureBundler] = this.getBundler()
 	if bundlerOutcome.isErr() {
-		return Outcome_base_err(bundlerOutcome.error())
+		return Outcome_base_err[any](bundlerOutcome.error())
 	}
-	cast_[*ClosureBundler](bundlerOutcome.get()).withPath(input.getName()).appendTo(out, icast_DependencyInfo(obj_(input)), content)
+	bundlerOutcome.get().withPath(input.getName()).appendTo(out, icast_DependencyInfo(obj_(input)), content)
 	return Outcome_base_ok_0()
 }
 
-func (this *CommandLineRunner) appendRuntimeTo_impl(out Appendable) *Outcome_base {
-	var bundlerOutcome *Outcome_base = this.getBundler()
+func (this *CommandLineRunner) appendRuntimeTo_impl(out Appendable) *Outcome_base[any] {
+	var bundlerOutcome *Outcome_base[*ClosureBundler] = this.getBundler()
 	if bundlerOutcome.isErr() {
-		return Outcome_base_err(bundlerOutcome.error())
+		return Outcome_base_err[any](bundlerOutcome.error())
 	}
-	cast_[*ClosureBundler](bundlerOutcome.get()).appendRuntimeTo(out)
+	bundlerOutcome.get().appendRuntimeTo(out)
 	return Outcome_base_ok_0()
 }
 
-func (this *CommandLineRunner) createExterns_impl(options *CompilerOptions) *Outcome_base {
-	var externsOutcome *Outcome_base = this.AbstractCommandLineRunner.createExterns_impl(options)
+func (this *CommandLineRunner) createExterns_impl(options *CompilerOptions) *Outcome_base[List] {
+	var externsOutcome *Outcome_base[List] = this.AbstractCommandLineRunner.createExterns_impl(options)
 	if externsOutcome.isErr() {
-		return Outcome_base_err(externsOutcome.error())
+		return Outcome_base_err[List](externsOutcome.error())
 	}
 	var externs ListOf[*SourceFile_jscomp] = icast_List(externsOutcome.get())
 	if this.isInTestMode() {
-		return Outcome_base_ok_Object(externs)
+		return Outcome_base_ok_Object[List](externs)
 	} else {
-		var builtinExternsRes *Outcome_base = AbstractCommandLineRunner_getBuiltinExterns(options.getEnvironment())
+		var builtinExternsRes *Outcome_base[List] = AbstractCommandLineRunner_getBuiltinExterns(options.getEnvironment())
 		if builtinExternsRes.isErr() {
-			return Outcome_base_err(builtinExternsRes.error())
+			return Outcome_base_err[List](builtinExternsRes.error())
 		}
 		var builtinExterns ListOf[*SourceFile_jscomp] = icast_List(builtinExternsRes.get())
 		builtinExterns.addAll(Collection(externs))
-		return Outcome_base_ok_Object(builtinExterns)
+		return Outcome_base_ok_Object[List](builtinExterns)
 	}
 }
 
 func CommandLineRunner_loadConformanceConfigs(configPaths ListOf[string]) []*ConformanceConfig {
 	var configs []*ConformanceConfig
 	for configPath := range elemsBy_(configPaths, str_) {
-		var config *Outcome_base = CommandLineRunner_loadConformanceConfig(configPath)
+		var config *Outcome_base[MessageLite] = CommandLineRunner_loadConformanceConfig(configPath)
 		if config.isErr() {
 			panic(new_RuntimeException_String_Throwable("Error loading conformance config", config.error()).self())
 		}
@@ -543,12 +543,12 @@ func CommandLineRunner_loadConformanceConfigs(configPaths ListOf[string]) []*Con
 	return immBuilt_(configs)
 }
 
-func CommandLineRunner_loadConformanceConfig(configFile string) *Outcome_base {
-	var text *Outcome_base = TextFiles_read(FilePaths_clean(configFile), Charsets_UTF_8)
+func CommandLineRunner_loadConformanceConfig(configFile string) *Outcome_base[MessageLite] {
+	var text *Outcome_base[string] = TextFiles_read(FilePaths_clean(configFile), Charsets_UTF_8)
 	if text.isErr() {
-		return Outcome_base_err(text.error())
+		return Outcome_base_err[MessageLite](text.error())
 	}
-	var textProto string = str_(text.get())
+	var textProto string = text.get()
 	var builder *ConformanceConfig_Builder = ConformanceConfig_newBuilder()
 	if textProto != "" && (int32(String_charAt(textProto, 0)) == CommandLineRunner_UTF8_BOM_CODE) {
 		textProto = String_substring_int(textProto, 1)
@@ -567,18 +567,18 @@ func CommandLineRunner_loadConformanceConfig(configFile string) *Outcome_base {
 		TextFormat_merge(strobj_(textProto), icast_Message_Builder(obj_(builder)))
 		return 0
 	}()
-	return Outcome_base_ok_Object(builder.build())
+	return Outcome_base_ok_Object[MessageLite](builder.build())
 }
 
-func CommandLineRunner_getDefaultExterns() *Outcome_base {
+func CommandLineRunner_getDefaultExterns() *Outcome_base[List] {
 	return AbstractCommandLineRunner_getBuiltinExterns(CompilerOptions_Environment_BROWSER)
 }
 
-func CommandLineRunner_findJsFiles_Collection(patterns CollectionOf[string]) *Outcome_base {
+func CommandLineRunner_findJsFiles_Collection(patterns CollectionOf[string]) *Outcome_base[List] {
 	return CommandLineRunner_findJsFiles_Collection_boolean(patterns, false)
 }
 
-func CommandLineRunner_findJsFiles_Collection_boolean(patterns CollectionOf[string], sortAlphabetically bool) *Outcome_base {
+func CommandLineRunner_findJsFiles_Collection_boolean(patterns CollectionOf[string], sortAlphabetically bool) *Outcome_base[List] {
 	var allJsInputs MapOf[string, string] = func() Map {
 		if sortAlphabetically {
 			return new_TreeMap()
@@ -592,14 +592,14 @@ func CommandLineRunner_findJsFiles_Collection_boolean(patterns CollectionOf[stri
 		if !strings.Contains(pattern, "*") && !strings.HasPrefix(pattern, "!") {
 			if Io_isDirectory(pattern) {
 				var directory string = FilePaths_clean(pattern)
-				var matched *Outcome_base = CommandLineRunner_matchPaths(func() string {
+				var matched *Outcome_base[any] = CommandLineRunner_matchPaths(func() string {
 					if strings.HasSuffix(directory, FilePaths_SEPARATOR) {
 						return (sstr_(directory) + "**.js")
 					}
 					return (sstr_(directory) + sstr_(FilePaths_SEPARATOR) + "**.js")
 				}(), allJsInputs, excludes)
 				if matched.isErr() {
-					return Outcome_base_err(matched.error())
+					return Outcome_base_err[List](matched.error())
 				}
 			} else {
 				var original string = FilePaths_clean(pattern)
@@ -609,16 +609,16 @@ func CommandLineRunner_findJsFiles_Collection_boolean(patterns CollectionOf[stri
 				}
 			}
 		} else {
-			var matched *Outcome_base = CommandLineRunner_matchPaths(pattern, allJsInputs, excludes)
+			var matched *Outcome_base[any] = CommandLineRunner_matchPaths(pattern, allJsInputs, excludes)
 			if matched.isErr() {
-				return Outcome_base_err(matched.error())
+				return Outcome_base_err[List](matched.error())
 			}
 		}
 	}
-	return Outcome_base_ok_Object(new_ArrayList_Collection(allJsInputs.values()).self())
+	return Outcome_base_ok_Object[List](icast_List(new_ArrayList_Collection(allJsInputs.values()).self()))
 }
 
-func CommandLineRunner_matchPaths(pattern string, allJsInputs MapOf[string, string], excludes map[string]struct{}) *Outcome_base {
+func CommandLineRunner_matchPaths(pattern string, allJsInputs MapOf[string, string], excludes map[string]struct{}) *Outcome_base[any] {
 	var remove bool = (String_indexOf(pattern, 33) == 0)
 	if remove {
 		pattern = String_substring_int(pattern, 1)
@@ -696,8 +696,8 @@ func CommandLineRunner_clinit() {
 }
 
 type CommandLineRunner_Flags struct {
-	guardLevels                        *TList[*AbstractCommandLineRunner_FlagEntry]
-	mixedJsSources                     *TList[*AbstractCommandLineRunner_FlagEntry]
+	guardLevels                        *TList[*AbstractCommandLineRunner_FlagEntry[any]]
+	mixedJsSources                     *TList[*AbstractCommandLineRunner_FlagEntry[any]]
 	browserFeaturesetYear              any
 	displayHelp                        bool
 	printTree                          bool
@@ -1588,18 +1588,18 @@ func new_CommandLineRunner_Flags() *CommandLineRunner_Flags {
 	return this
 }
 
-func (this *CommandLineRunner_Flags) parse(args *TList[string]) *Outcome_base {
-	var parsed *Outcome_base = this.parser.parseArgumentCollection(Collection(args.asList()))
+func (this *CommandLineRunner_Flags) parse(args *TList[string]) *Outcome_base[any] {
+	var parsed *Outcome_base[any] = this.parser.parseArgumentCollection(Collection(args.asList()))
 	if parsed.isErr() {
-		return Outcome_base_err(parsed.error())
+		return Outcome_base_err[any](parsed.error())
 	}
 	this.compilationLevelParsed = CompilationLevel_fromString(Optional_of[string](Ascii_toUpperCase(this.compilationLevel)))
 	if this.compilationLevelParsed == 0 {
-		return Outcome_base_err(new_CmdLineException_CmdLineParser_String(this.parser, ("Bad value for --compilation_level: " + sstr_(this.compilationLevel))).up_Throwable())
+		return Outcome_base_err[any](new_CmdLineException_CmdLineParser_String(this.parser, ("Bad value for --compilation_level: " + sstr_(this.compilationLevel))).up_Throwable())
 	}
 	this.instrumentCodeParsed = CompilerOptions_InstrumentOption_fromString(Optional_of[string](Ascii_toUpperCase(this.instrumentForCoverageOption)))
 	if this.instrumentCodeParsed == 0 {
-		return Outcome_base_err(new_CmdLineException_CmdLineParser_String(this.parser, ("Bad value for --instrument_for_coverage_option: " + sstr_(this.instrumentForCoverageOption))).up_Throwable())
+		return Outcome_base_err[any](new_CmdLineException_CmdLineParser_String(this.parser, ("Bad value for --instrument_for_coverage_option: " + sstr_(this.instrumentForCoverageOption))).up_Throwable())
 	}
 	return Outcome_base_ok_0()
 }
@@ -1698,27 +1698,27 @@ func CommandLineRunner_Flags_printShortUsageAfterErrors(ps *Output) {
 	ps.flush()
 }
 
-func (this *CommandLineRunner_Flags) getMixedJsSources() *Outcome_base {
-	var mixedSources ListOf[*AbstractCommandLineRunner_FlagEntry] = new_ArrayList_0()
+func (this *CommandLineRunner_Flags) getMixedJsSources() *Outcome_base[List] {
+	var mixedSources ListOf[*AbstractCommandLineRunner_FlagEntry[any]] = new_ArrayList_0()
 	var excludes map[string]struct{} = map[string]struct{}{}
 	it_1 := this.mixedJsSources.each()
 	for it_1.next() {
-		var source *AbstractCommandLineRunner_FlagEntry = it_1.v
+		var source *AbstractCommandLineRunner_FlagEntry[any] = it_1.v
 		if strings.HasSuffix(source.getValue(), ".zip") {
 			mixedSources.add(obj_(source))
 		} else if strings.HasPrefix(source.getValue(), "!") {
-			var found *Outcome_base = CommandLineRunner_findJsFiles_Collection(ImmutableList_of_Object(strobj_(String_substring_int(source.getValue(), 1))))
+			var found *Outcome_base[List] = CommandLineRunner_findJsFiles_Collection(ImmutableList_of_Object(strobj_(String_substring_int(source.getValue(), 1))))
 			if found.isErr() {
-				return Outcome_base_err(found.error())
+				return Outcome_base_err[List](found.error())
 			}
 			for filename := range elemsBy_(icast_List(found.get()), str_) {
 				excludes[filename] = struct{}{}
 				mixedSources.remove_Object(obj_(new_AbstractCommandLineRunner_FlagEntry(obj_(AbstractCommandLineRunner_JsSourceType_JS), filename)))
 			}
 		} else {
-			var found *Outcome_base = CommandLineRunner_findJsFiles_Collection_boolean(Collection(Collections_singletonList(strobj_(source.getValue()))), true)
+			var found *Outcome_base[List] = CommandLineRunner_findJsFiles_Collection_boolean(Collection(Collections_singletonList(strobj_(source.getValue()))), true)
 			if found.isErr() {
-				return Outcome_base_err(found.error())
+				return Outcome_base_err[List](found.error())
 			}
 			for filename := range elemsBy_(icast_List(found.get()), str_) {
 				if !has_(excludes, filename) {
@@ -1727,37 +1727,37 @@ func (this *CommandLineRunner_Flags) getMixedJsSources() *Outcome_base {
 			}
 		}
 	}
-	var fromArguments *Outcome_base = CommandLineRunner_findJsFiles_Collection(Collection(this.arguments))
+	var fromArguments *Outcome_base[List] = CommandLineRunner_findJsFiles_Collection(Collection(this.arguments))
 	if fromArguments.isErr() {
-		return Outcome_base_err(fromArguments.error())
+		return Outcome_base_err[List](fromArguments.error())
 	}
 	for filename := range elemsBy_(icast_List(fromArguments.get()), str_) {
 		mixedSources.add(obj_(new_AbstractCommandLineRunner_FlagEntry(obj_(AbstractCommandLineRunner_JsSourceType_JS), filename)))
 	}
 	if (!this.mixedJsSources.isEmpty() && !this.arguments.isEmpty()) && mixedSources.isEmpty() {
-		return Outcome_base_err(new_CmdLineException_CmdLineParser_String(this.parser, "No inputs matched").up_Throwable())
+		return Outcome_base_err[List](new_CmdLineException_CmdLineParser_String(this.parser, "No inputs matched").up_Throwable())
 	}
-	return Outcome_base_ok_Object(mixedSources)
+	return Outcome_base_ok_Object[List](mixedSources)
 }
 
-func (this *CommandLineRunner_Flags) getSourceMapLocationMappings() *Outcome_base {
+func (this *CommandLineRunner_Flags) getSourceMapLocationMappings() *Outcome_base[List] {
 	var locationMappings ImmutableList_BuilderOf[SourceMap_LocationMapping] = ImmutableList_builder()
-	var splitOutcome *Outcome_base = this.splitPipeParts(Iterable(this.sourceMapLocationMapping), "--source_map_location_mapping")
+	var splitOutcome *Outcome_base[*ImmutableMap] = this.splitPipeParts(Iterable(this.sourceMapLocationMapping), "--source_map_location_mapping")
 	if splitOutcome.isErr() {
-		return Outcome_base_err(splitOutcome.error())
+		return Outcome_base_err[List](splitOutcome.error())
 	}
-	var split ImmutableMapOf[string, string] = cast_[*ImmutableMap](splitOutcome.get())
+	var split ImmutableMapOf[string, string] = splitOutcome.get()
 	for mapping := range elemsBy_(obj_(cast_[*ImmutableSet](split.entrySet())), icast_Map_Entry) {
 		locationMappings.add(obj_(new_SourceMap_PrefixLocationMapping(str_(mapping.getKey()), str_(mapping.getValue()))))
 	}
-	return Outcome_base_ok_Object(obj_(locationMappings.build()))
+	return Outcome_base_ok_Object[List](icast_List(obj_(locationMappings.build())))
 }
 
-func (this *CommandLineRunner_Flags) getSourceMapInputs() *Outcome_base {
+func (this *CommandLineRunner_Flags) getSourceMapInputs() *Outcome_base[*ImmutableMap] {
 	return this.splitPipeParts(Iterable(this.sourceMapInputs), "--source_map_input")
 }
 
-func (this *CommandLineRunner_Flags) splitPipeParts(input IterableOf[string], flagName string) *Outcome_base {
+func (this *CommandLineRunner_Flags) splitPipeParts(input IterableOf[string], flagName string) *Outcome_base[*ImmutableMap] {
 	var result ImmutableMap_BuilderOf[string, string] = new_ImmutableMap_Builder()
 	var splitter *Splitter = Splitter_on('|').limit(2)
 	it_1 := foreach_(input)
@@ -1765,18 +1765,18 @@ func (this *CommandLineRunner_Flags) splitPipeParts(input IterableOf[string], fl
 		var inputSourceMap string = str_(it_1.v)
 		var parts []string = sliceImm_(tc_string, splitter.splitToList_s(inputSourceMap))
 		if int32(len(parts)) != 2 {
-			return Outcome_base_err(new_CmdLineException_CmdLineParser_String(this.parser, ("Bad value for " + sstr_(flagName) + " (duplicate key): " + objstr_(input))).up_Throwable())
+			return Outcome_base_err[*ImmutableMap](new_CmdLineException_CmdLineParser_String(this.parser, ("Bad value for " + sstr_(flagName) + " (duplicate key): " + objstr_(input))).up_Throwable())
 		}
 		result.put(strobj_(sliceAt_(parts, 0)), strobj_(sliceAt_(parts, 1)))
 	}
-	return Outcome_base_ok_Object(obj_(result.buildOrThrow()))
+	return Outcome_base_ok_Object[*ImmutableMap](result.buildOrThrow())
 }
 
 func (this *CommandLineRunner_Flags) getPackageJsonEntryNames() []string {
 	return sliceImm_(tc_string, Splitter_on(',').splitToList_s(this.packageJsonEntryNames.get()))
 }
 
-func CommandLineRunner_Flags_addMultiFlagValue(values *TList[string], value OptionalOf[string], flag any, entries *TList[*AbstractCommandLineRunner_FlagEntry]) *TList[string] {
+func CommandLineRunner_Flags_addMultiFlagValue(values *TList[string], value OptionalOf[string], flag any, entries *TList[*AbstractCommandLineRunner_FlagEntry[any]]) *TList[string] {
 	var normalizedValue OptionalOf[string] = value
 	if ((value.isPresent() && (len(value.get()) != 0)) && ((String_substring(value.get(), 0, 1) == "'") || (String_substring(value.get(), 0, 1) == "\""))) && (String_substring_int(value.get(), (String_length(value.get())-1)) == String_substring(value.get(), 0, 1)) {
 		normalizedValue = Optional_of[string](String_substring(value.get(), 1, (String_length(value.get()) - 1)))
@@ -1789,7 +1789,7 @@ func CommandLineRunner_Flags_addMultiFlagValue(values *TList[string], value Opti
 	return values
 }
 
-var CommandLineRunner_Flags_categories *SimpleListMultimap
+var CommandLineRunner_Flags_categories *SimpleListMultimap[any, any]
 
 const CommandLineRunner_Flags_BOLD_PREFIX string = "\x1b[1m"
 const CommandLineRunner_Flags_NORMAL_PREFIX string = "\x1b[0m"
@@ -1804,7 +1804,7 @@ func CommandLineRunner_Flags_clinit() {
 		return
 	}
 	CommandLineRunner_Flags_clinit_done = true
-	CommandLineRunner_Flags_categories = SimpleListMultimap_create().putAll_s("Basic Usage", ImmutableList_of_Object_Object_Object_Object_Object_Object_Object_Object(strobj_("compilation_level"), strobj_("env"), strobj_("externs"), strobj_("js"), strobj_("js_output_file"), strobj_("language_in"), strobj_("language_out"), strobj_("warning_level"))).putAll_s("Warning and Error Management", ImmutableList_of_Object_Object_Object_Object_Object_Object_Object_Object_Object(strobj_("conformance_configs"), strobj_("error_format"), strobj_("extra_annotation_name"), strobj_("hide_warnings_for"), strobj_("jscomp_error"), strobj_("jscomp_off"), strobj_("jscomp_warning"), strobj_("strict_mode_input"), strobj_("warnings_allowlist_file"))).putAll_s("Output", ImmutableList_of_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object(strobj_("assume_function_wrapper"), strobj_("debug"), strobj_("emit_use_strict"), strobj_("export_local_property_definitions"), strobj_("formatting"), strobj_("generate_exports"), strobj_("isolation_mode"), strobj_("output_wrapper"), strobj_("output_wrapper_file"), strobj_("rename_variable_prefix"))).putAll_s("Dependency Management", ImmutableList_of_Object_Object(strobj_("dependency_mode"), strobj_("entry_point"))).putAll_s("JS Modules", ImmutableList_of_Object_Object_Object_Object_Object(strobj_("dynamic_import_alias"), strobj_("js_module_root"), strobj_("module_resolution"), strobj_("process_common_js_modules"), strobj_("package_json_entry_names"))).putAll_s("Library and Framework Specific", ImmutableList_of_Object_Object_Object_Object_Object_Object_Object(strobj_("angular_pass"), strobj_("force_inject_library"), strobj_("inject_libraries"), strobj_("polymer_version"), strobj_("process_closure_primitives"), strobj_("rewrite_polyfills"), strobj_("isolate_polyfills"))).putAll_s("Code Splitting", ImmutableList_of_Object_Object_Object_Object_Object(strobj_("chunk"), strobj_("chunk_output_path_prefix"), strobj_("chunk_output_type"), strobj_("chunk_wrapper"), strobj_("rename_prefix_namespace"))).putAll_s("Reports", ImmutableList_of_Object_Object_Object_Object_Object_Object_Object_Object(strobj_("create_source_map"), strobj_("output_manifest"), strobj_("output_chunk_dependencies"), strobj_("property_renaming_report"), strobj_("source_map_input"), strobj_("source_map_include_content"), strobj_("source_map_location_mapping"), strobj_("variable_renaming_report"))).putAll_s("Miscellaneous", ImmutableList_of_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object(strobj_("assume_static_inheritance_is_not_used"), strobj_("browser_featureset_year"), strobj_("charset"), strobj_("checks_only"), strobj_("define"), strobj_("flagfile"), strobj_("help"), strobj_("json_streams"), strobj_("third_party"), strobj_("use_types_for_optimization"), strobj_("version"))).immutableCopy()
+	CommandLineRunner_Flags_categories = SimpleListMultimap_create[any, any]().putAll_s("Basic Usage", ImmutableList_of_Object_Object_Object_Object_Object_Object_Object_Object(strobj_("compilation_level"), strobj_("env"), strobj_("externs"), strobj_("js"), strobj_("js_output_file"), strobj_("language_in"), strobj_("language_out"), strobj_("warning_level"))).putAll_s("Warning and Error Management", ImmutableList_of_Object_Object_Object_Object_Object_Object_Object_Object_Object(strobj_("conformance_configs"), strobj_("error_format"), strobj_("extra_annotation_name"), strobj_("hide_warnings_for"), strobj_("jscomp_error"), strobj_("jscomp_off"), strobj_("jscomp_warning"), strobj_("strict_mode_input"), strobj_("warnings_allowlist_file"))).putAll_s("Output", ImmutableList_of_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object(strobj_("assume_function_wrapper"), strobj_("debug"), strobj_("emit_use_strict"), strobj_("export_local_property_definitions"), strobj_("formatting"), strobj_("generate_exports"), strobj_("isolation_mode"), strobj_("output_wrapper"), strobj_("output_wrapper_file"), strobj_("rename_variable_prefix"))).putAll_s("Dependency Management", ImmutableList_of_Object_Object(strobj_("dependency_mode"), strobj_("entry_point"))).putAll_s("JS Modules", ImmutableList_of_Object_Object_Object_Object_Object(strobj_("dynamic_import_alias"), strobj_("js_module_root"), strobj_("module_resolution"), strobj_("process_common_js_modules"), strobj_("package_json_entry_names"))).putAll_s("Library and Framework Specific", ImmutableList_of_Object_Object_Object_Object_Object_Object_Object(strobj_("angular_pass"), strobj_("force_inject_library"), strobj_("inject_libraries"), strobj_("polymer_version"), strobj_("process_closure_primitives"), strobj_("rewrite_polyfills"), strobj_("isolate_polyfills"))).putAll_s("Code Splitting", ImmutableList_of_Object_Object_Object_Object_Object(strobj_("chunk"), strobj_("chunk_output_path_prefix"), strobj_("chunk_output_type"), strobj_("chunk_wrapper"), strobj_("rename_prefix_namespace"))).putAll_s("Reports", ImmutableList_of_Object_Object_Object_Object_Object_Object_Object_Object(strobj_("create_source_map"), strobj_("output_manifest"), strobj_("output_chunk_dependencies"), strobj_("property_renaming_report"), strobj_("source_map_input"), strobj_("source_map_include_content"), strobj_("source_map_location_mapping"), strobj_("variable_renaming_report"))).putAll_s("Miscellaneous", ImmutableList_of_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object(strobj_("assume_static_inheritance_is_not_used"), strobj_("browser_featureset_year"), strobj_("charset"), strobj_("checks_only"), strobj_("define"), strobj_("flagfile"), strobj_("help"), strobj_("json_streams"), strobj_("third_party"), strobj_("use_types_for_optimization"), strobj_("version"))).immutableCopy()
 	CommandLineRunner_Flags_MARKDOWN_CHARS_TO_ESCAPE = Pattern_compile("[-*\\`\\[\\]{}\\(\\)#+\\.!<>]")
 	CommandLineRunner_Flags_WHITESPACE_PATTERN = Pattern_compile(JavaRegex_SPACE)
 
@@ -1895,7 +1895,7 @@ func CommandLineRunner_FormattingOption_clinit() {
 }
 
 type CommandLineRunner_FlagInputs struct {
-	mixedSources           ListOf[*AbstractCommandLineRunner_FlagEntry]
+	mixedSources           ListOf[*AbstractCommandLineRunner_FlagEntry[any]]
 	mappings               ListOf[SourceMap_LocationMapping]
 	sourceMapInputs        ImmutableMapOf[string, string]
 	parseInlineSourceMaps_ bool
@@ -1938,7 +1938,7 @@ func (this *CommandLineRunner) addAllowlistWarningsGuard(p0 *CompilerOptions, p1
 }
 
 // checkChunkName: an object that is exactly a CommandLineRunner calls its checkChunkName_impl directly (post-flip); others dispatch.
-func (this *CommandLineRunner) checkChunkName(p0 string) *Outcome_base {
+func (this *CommandLineRunner) checkChunkName(p0 string) *Outcome_base[any] {
 	if p, _ := this.self_.(*CommandLineRunner); p == this {
 		return this.checkChunkName_impl(p0)
 	}
@@ -1946,7 +1946,7 @@ func (this *CommandLineRunner) checkChunkName(p0 string) *Outcome_base {
 }
 
 // createOptions: an object that is exactly a CommandLineRunner calls its createOptions_impl directly (post-flip); others dispatch.
-func (this *CommandLineRunner) createOptions() *Outcome_base {
+func (this *CommandLineRunner) createOptions() *Outcome_base[*CompilerOptions] {
 	if p, _ := this.self_.(*CommandLineRunner); p == this {
 		return this.createOptions_impl()
 	}
@@ -1962,7 +1962,7 @@ func (this *CommandLineRunner) createCompiler() *Compiler {
 }
 
 // prepForBundleAndAppendTo: an object that is exactly a CommandLineRunner calls its prepForBundleAndAppendTo_impl directly (post-flip); others dispatch.
-func (this *CommandLineRunner) prepForBundleAndAppendTo(p0 Appendable, p1 *CompilerInput, p2 string) *Outcome_base {
+func (this *CommandLineRunner) prepForBundleAndAppendTo(p0 Appendable, p1 *CompilerInput, p2 string) *Outcome_base[any] {
 	if p, _ := this.self_.(*CommandLineRunner); p == this {
 		return this.prepForBundleAndAppendTo_impl(p0, p1, p2)
 	}
@@ -1970,7 +1970,7 @@ func (this *CommandLineRunner) prepForBundleAndAppendTo(p0 Appendable, p1 *Compi
 }
 
 // appendRuntimeTo: an object that is exactly a CommandLineRunner calls its appendRuntimeTo_impl directly (post-flip); others dispatch.
-func (this *CommandLineRunner) appendRuntimeTo(p0 Appendable) *Outcome_base {
+func (this *CommandLineRunner) appendRuntimeTo(p0 Appendable) *Outcome_base[any] {
 	if p, _ := this.self_.(*CommandLineRunner); p == this {
 		return this.appendRuntimeTo_impl(p0)
 	}
@@ -1978,7 +1978,7 @@ func (this *CommandLineRunner) appendRuntimeTo(p0 Appendable) *Outcome_base {
 }
 
 // createExterns: an object that is exactly a CommandLineRunner calls its createExterns_impl directly (post-flip); others dispatch.
-func (this *CommandLineRunner) createExterns(p0 *CompilerOptions) *Outcome_base {
+func (this *CommandLineRunner) createExterns(p0 *CompilerOptions) *Outcome_base[List] {
 	if p, _ := this.self_.(*CommandLineRunner); p == this {
 		return this.createExterns_impl(p0)
 	}

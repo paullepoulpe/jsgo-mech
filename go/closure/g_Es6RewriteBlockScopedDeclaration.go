@@ -211,9 +211,9 @@ type Es6RewriteBlockScopedDeclaration_LoopClosureTransformer struct {
 	NodeTraversal_AbstractPreOrderCallback
 	outer_                              *Es6RewriteBlockScopedDeclaration
 	loopObjectMap                       *TMap[Node, *Es6RewriteBlockScopedDeclaration_LoopClosureTransformer_LoopObject]
-	nodesRequiringLoopObjectsClosureMap *SimpleSetMultimap
-	nodesHandledForLoopObjectClosure    *SimpleSetMultimap
-	referenceMap                        *SimpleSetMultimap
+	nodesRequiringLoopObjectsClosureMap *SimpleSetMultimap[Node, *Es6RewriteBlockScopedDeclaration_LoopClosureTransformer_LoopObject]
+	nodesHandledForLoopObjectClosure    *SimpleSetMultimap[Node, string]
+	referenceMap                        *SimpleSetMultimap[*Var, Node]
 }
 
 func (this *Es6RewriteBlockScopedDeclaration_LoopClosureTransformer) up_NodeTraversal_AbstractPreOrderCallback() *NodeTraversal_AbstractPreOrderCallback {
@@ -225,9 +225,9 @@ func (this *Es6RewriteBlockScopedDeclaration_LoopClosureTransformer) up_NodeTrav
 
 func (this *Es6RewriteBlockScopedDeclaration_LoopClosureTransformer) finit_Es6RewriteBlockScopedDeclaration_LoopClosureTransformer() {
 	this.loopObjectMap = newTMap_(tc_Node, tc_p_Es6RewriteBlockScopedDeclaration_LoopClosureTransformer_LoopObject)
-	this.nodesRequiringLoopObjectsClosureMap = SimpleSetMultimap_createInsertionOrdered()
-	this.nodesHandledForLoopObjectClosure = SimpleSetMultimap_createInsertionOrdered()
-	this.referenceMap = SimpleSetMultimap_createInsertionOrdered()
+	this.nodesRequiringLoopObjectsClosureMap = SimpleSetMultimap_createInsertionOrdered[Node, *Es6RewriteBlockScopedDeclaration_LoopClosureTransformer_LoopObject]()
+	this.nodesHandledForLoopObjectClosure = SimpleSetMultimap_createInsertionOrdered[Node, string]()
+	this.referenceMap = SimpleSetMultimap_createInsertionOrdered[*Var, Node]()
 }
 
 func (this *Es6RewriteBlockScopedDeclaration_LoopClosureTransformer) init_Es6RewriteBlockScopedDeclaration_LoopClosureTransformer() {
@@ -273,7 +273,7 @@ func (this *Es6RewriteBlockScopedDeclaration_LoopClosureTransformer) shouldTrave
 			}
 		}
 	}
-	this.referenceMap.put(obj_(var_), n.box_())
+	this.referenceMap.put(var_, n)
 	var outerMostFunctionScope *Scope = nil
 	{
 		var s *Scope = referencedIn
@@ -297,14 +297,14 @@ func (this *Es6RewriteBlockScopedDeclaration_LoopClosureTransformer) shouldTrave
 		if this.nodesHandledForLoopObjectClosure.containsEntry(nodeToWrapInClosure.box_(), name) {
 			return true
 		}
-		this.nodesHandledForLoopObjectClosure.put(nodeToWrapInClosure.box_(), strobj_(name))
+		this.nodesHandledForLoopObjectClosure.put(nodeToWrapInClosure, name)
 		var object *Es6RewriteBlockScopedDeclaration_LoopClosureTransformer_LoopObject = cast_[*Es6RewriteBlockScopedDeclaration_LoopClosureTransformer_LoopObject](Map_computeIfAbsent_f(this.loopObjectMap.asMap(), loopNode.box_(), func(k_ any) any {
 			var k Node = Node_of_(k_)
 			_ = k
 			return obj_(new_Es6RewriteBlockScopedDeclaration_LoopClosureTransformer_LoopObject(this.createUniqueObjectName(t.getInput())))
 		}))
 		object.vars.add(var_)
-		this.nodesRequiringLoopObjectsClosureMap.put(nodeToWrapInClosure.box_(), obj_(object))
+		this.nodesRequiringLoopObjectsClosureMap.put(nodeToWrapInClosure, object)
 	}
 	return true
 }

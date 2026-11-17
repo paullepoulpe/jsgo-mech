@@ -4,12 +4,12 @@ package closure
 
 type ChangeVerifier struct {
 	changeTracker   *ChangeTracker
-	clonesByCurrent *SimpleBiMap
+	clonesByCurrent *SimpleBiMap[Node, Node]
 	snapshotChange  int32
 }
 
 func (this *ChangeVerifier) finit_ChangeVerifier() {
-	this.clonesByCurrent = SimpleBiMap_create()
+	this.clonesByCurrent = SimpleBiMap_create[Node, Node]()
 }
 
 func (this *ChangeVerifier) init_ChangeVerifier(compiler *AbstractCompiler) {
@@ -41,7 +41,7 @@ func (this *ChangeVerifier) checkRecordedChanges_2(passName string, root Node) {
 
 func (this *ChangeVerifier) associateClones(n Node, snapshot Node) {
 	if n.isRoot() || ChangeTracker_isChangeScopeRoot(n) {
-		this.clonesByCurrent.put(n.box_(), snapshot.box_())
+		this.clonesByCurrent.put(n, snapshot)
 	}
 	var child Node = n.getFirstChild()
 	var snapshotChild Node = snapshot.getFirstChild()
@@ -60,7 +60,7 @@ func (this *ChangeVerifier) verifyScopeChangesHaveBeenRecorded(passName string, 
 		return (sstr_(passName) + ": ")
 	}()
 	var snapshotScopeNodes *TSet[Node] = newTSet_(tc_Node)
-	NodeUtil_visitPreOrder_Node_Visitor(Node_of_(this.clonesByCurrent.get(root.box_())), new_ChangeVerifier_1(this, snapshotScopeNodes))
+	NodeUtil_visitPreOrder_Node_Visitor(this.clonesByCurrent.get(root.box_()), new_ChangeVerifier_1(this, snapshotScopeNodes))
 	NodeUtil_visitPreOrder_Node_Visitor(root, new_ChangeVerifier_2(this, snapshotScopeNodes, passNameMsg))
 	this.verifyDeletedScopeNodes(passNameMsg, snapshotScopeNodes)
 }
@@ -305,7 +305,7 @@ func (this *ChangeVerifier_2) visit(n Node) {
 	if n.isRoot() {
 		this.outer_.verifyRoot(n)
 	} else if ChangeTracker_isChangeScopeRoot(n) {
-		var clone Node = Node_of_(this.outer_.clonesByCurrent.get(n.box_()))
+		var clone Node = this.outer_.clonesByCurrent.get(n.box_())
 		this.cap_snapshotScopeNodes.remove(clone)
 		this.outer_.verifyNode(this.cap_passNameMsg, n)
 		if clone == 0 {

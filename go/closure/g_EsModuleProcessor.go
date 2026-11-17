@@ -198,7 +198,7 @@ func EsModuleProcessor_clinit() {
 type EsModuleProcessor_FindMutableExports struct {
 	NodeTraversal_AbstractPostOrderCallback
 	exports            *TList[*Export]
-	exportsByLocalName *SimpleListMultimap
+	exportsByLocalName *SimpleListMultimap[any, *Export]
 }
 
 func (this *EsModuleProcessor_FindMutableExports) up_NodeTraversal_AbstractPostOrderCallback() *NodeTraversal_AbstractPostOrderCallback {
@@ -211,9 +211,9 @@ func (this *EsModuleProcessor_FindMutableExports) up_NodeTraversal_AbstractPostO
 func (this *EsModuleProcessor_FindMutableExports) init_EsModuleProcessor_FindMutableExports(exports *TList[*Export]) {
 	this.NodeTraversal_AbstractPostOrderCallback.init_NodeTraversal_AbstractPostOrderCallback()
 	this.exports = exports
-	this.exportsByLocalName = SimpleListMultimap_create()
+	this.exportsByLocalName = SimpleListMultimap_create[any, *Export]()
 	for e := range exports.All() {
-		this.exportsByLocalName.put_s(e.localName().orElse(nullstr_), obj_(e))
+		this.exportsByLocalName.put_s(e.localName().orElse(nullstr_), e)
 	}
 }
 
@@ -245,7 +245,7 @@ func (this *EsModuleProcessor_FindMutableExports) visit_impl(t *NodeTraversal, n
 		var mutated *Export = e.mutatedCopy()
 		this.exports.set(i, mutated)
 		this.exportsByLocalName.remove(strobj_(e.localName().orElse(nullstr_)), obj_(e))
-		this.exportsByLocalName.put_s(e.localName().orElse(nullstr_), obj_(mutated))
+		this.exportsByLocalName.put_s(e.localName().orElse(nullstr_), mutated)
 	}
 }
 

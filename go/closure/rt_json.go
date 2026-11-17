@@ -23,8 +23,8 @@ const (
 
 // Json_parse parses a text that is one JSON value. A number keeps its source text; a member
 // whose name is repeated replaces the earlier one, at the earlier one's position.
-func Json_parse(text string) *Outcome_base {
-	malformed := Outcome_base_err(new_SimpleJsonException("Malformed JSON").as_Throwable())
+func Json_parse(text string) *Outcome_base[any] {
+	malformed := Outcome_base_err[any](new_SimpleJsonException("Malformed JSON").as_Throwable())
 	doc := []byte(text)
 	if bytes.IndexByte(doc, 0xED) >= 0 {
 		// A surrogate that the string holds on its own (three bytes, see rt_string.go) is written

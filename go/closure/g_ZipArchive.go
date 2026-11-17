@@ -83,7 +83,7 @@ func (this *ZipArchive) read(name string) OptionalOf[[]int8] {
 	if method != 8 {
 		return Optional_empty[[]int8]()
 	}
-	var data *Outcome_base = Io_inflate(stored)
+	var data *Outcome_base[any] = Io_inflate(stored)
 	if data.isErr() || (int32(len(cast_[[]int8](data.get()))) != size) {
 		return Optional_empty[[]int8]()
 	}
@@ -104,32 +104,32 @@ func ZipArchive_int32(bytes []int8, position int32) int32 {
 	return (ZipArchive_int16(bytes, position) | (ZipArchive_int16(bytes, (position+2)) << 16))
 }
 
-func ZipArchive_open(path string) *Outcome_base {
+func ZipArchive_open(path string) *Outcome_base[*ZipArchive] {
 	var modified int64 = Io_lastModified(path)
 	var known *ZipArchive_Opened = cast_[*ZipArchive_Opened](Map_get_s(ZipArchive_opened, path))
 	if (known != nil) && (known.modified == modified) {
-		return Outcome_base_ok_Object(obj_(known.archive))
+		return Outcome_base_ok_Object[*ZipArchive](known.archive)
 	}
-	var bytes *Outcome_base = Io_readBytes(path)
+	var bytes *Outcome_base[any] = Io_readBytes(path)
 	if bytes.isErr() {
-		return Outcome_base_err(bytes.error())
+		return Outcome_base_err[*ZipArchive](bytes.error())
 	}
 	var archive OptionalOf[*ZipArchive] = ZipArchive_parse(cast_[[]int8](bytes.get()))
 	if archive.isEmpty() {
-		return Outcome_base_err(ZipArchive_unreadable(path).up_Throwable())
+		return Outcome_base_err[*ZipArchive](ZipArchive_unreadable(path).up_Throwable())
 	}
 	Map_put_s(ZipArchive_opened, path, obj_(new_ZipArchive_Opened(archive.get(), modified)))
-	return Outcome_base_ok_Object(obj_(archive.get()))
+	return Outcome_base_ok_Object[*ZipArchive](archive.get())
 }
 
-func ZipArchive_readEntry(path string, name string) *Outcome_base {
-	var archive *Outcome_base = ZipArchive_open(path)
+func ZipArchive_readEntry(path string, name string) *Outcome_base[any] {
+	var archive *Outcome_base[*ZipArchive] = ZipArchive_open(path)
 	if archive.isErr() {
-		return Outcome_base_err(archive.error())
+		return Outcome_base_err[any](archive.error())
 	}
-	var data OptionalOf[[]int8] = cast_[*ZipArchive](archive.get()).read(name)
+	var data OptionalOf[[]int8] = archive.get().read(name)
 	if data.isEmpty() {
-		return Outcome_base_err(ZipArchive_unreadable((sstr_(path) + "!/" + sstr_(name))).up_Throwable())
+		return Outcome_base_err[any](ZipArchive_unreadable((sstr_(path) + "!/" + sstr_(name))).up_Throwable())
 	}
 	return Outcome_base_ok_Object(any(data.get()))
 }

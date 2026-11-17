@@ -4,14 +4,14 @@ package closure
 
 type ChangeTracker struct {
 	changeStamp        int32
-	changeTimeline     *Timeline
+	changeTimeline     *Timeline[Node]
 	recentChange       *RecentChange
 	codeChangeHandlers []CodeChangeHandler
 }
 
 func (this *ChangeTracker) finit_ChangeTracker() {
 	this.changeStamp = 1
-	this.changeTimeline = new_Timeline()
+	this.changeTimeline = new_Timeline[Node]()
 	this.recentChange = new_RecentChange()
 	this.codeChangeHandlers = []CodeChangeHandler{}
 }
@@ -68,7 +68,7 @@ func (this *ChangeTracker) reportFunctionDeleted(n Node) {
 		panic(new_IllegalStateException_0().self())
 	}
 	n.setDeleted(true)
-	this.changeTimeline.remove(n.box_())
+	this.changeTimeline.remove(n)
 }
 
 func (this *ChangeTracker) getChangedScopeNodesForPass(passName string) *TList[Node] {
@@ -123,5 +123,5 @@ func (this *ChangeTracker) recordChange(n Node) {
 	}
 	n.setChangeTime(this.changeStamp)
 	this.incrementChangeStamp()
-	this.changeTimeline.add(n.box_())
+	this.changeTimeline.add(n)
 }

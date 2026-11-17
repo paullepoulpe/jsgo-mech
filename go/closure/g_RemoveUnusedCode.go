@@ -14,10 +14,10 @@ type RemoveUnusedCode struct {
 	worklist                                       []*RemoveUnusedCode_Continuation
 	varInfoMap                                     varMap_[RemoveUnusedCode_VarInfo]
 	pinnedPropertyNames                            map[string]struct{}
-	removablesForPropertyNames                     *SimpleSetMultimap
+	removablesForPropertyNames                     *SimpleSetMultimap[any, *RemoveUnusedCode_Removable]
 	canonicalUnremovableVarInfo                    RemoveUnusedCode_VarInfo
 	allFunctionParamScopes                         []*Scope
-	polyfills                                      *SimpleSetMultimap
+	polyfills                                      *SimpleSetMultimap[any, *RemoveUnusedCode_PolyfillInfo]
 	guardedUsages                                  map[Node]struct{}
 	polyfillsFromTable                             *PolyfillUsageFinder_Polyfills
 	polyfillUsageFinder                            *PolyfillUsageFinder
@@ -35,9 +35,9 @@ type RemoveUnusedCode struct {
 func (this *RemoveUnusedCode) finit_RemoveUnusedCode() {
 	this.worklist = []*RemoveUnusedCode_Continuation{}
 	this.pinnedPropertyNames = setFrom_(tc_string, icast_Collection(obj_(RemoveUnusedCode_IMPLICITLY_USED_PROPERTIES)))
-	this.removablesForPropertyNames = SimpleSetMultimap_createInsertionOrdered()
+	this.removablesForPropertyNames = SimpleSetMultimap_createInsertionOrdered[any, *RemoveUnusedCode_Removable]()
 	this.allFunctionParamScopes = []*Scope{}
-	this.polyfills = SimpleSetMultimap_createInsertionOrdered()
+	this.polyfills = SimpleSetMultimap_createInsertionOrdered[any, *RemoveUnusedCode_PolyfillInfo]()
 	this.guardedUsages = map[Node]struct{}{}
 }
 
@@ -356,7 +356,7 @@ func (this *RemoveUnusedCode) traverseCall(callNode Node, scope *Scope) {
 			polyfillName = ("TypedArray.prototype." + sstr_(polyfillName))
 		}
 		var info *RemoveUnusedCode_PolyfillInfo = this.createPolyfillInfo(callNode, scope, polyfillName)
-		this.polyfills.put_s(info.key_, info.self())
+		this.polyfills.put_s(info.key_, info)
 		this.traverseNode(callNode.getFirstChild(), scope)
 	} else if (NodeUtil_isGoogWeakUsageCall(callNode) && callNode.hasTwoChildren()) && callNode.getSecondChild().isName() {
 		var varInfo RemoveUnusedCode_VarInfo = this.traverseNameNode(callNode.getSecondChild(), scope)
@@ -1025,7 +1025,7 @@ func (this *RemoveUnusedCode) considerForIndependentRemoval(removable *RemoveUnu
 		if has_(this.pinnedPropertyNames, propertyName) || this.codingConvention.isExported_2(propertyName, false) {
 			removable.applyContinuations()
 		} else if this.isIndependentlyRemovable(removable) {
-			this.removablesForPropertyNames.put_s(propertyName, removable.self())
+			this.removablesForPropertyNames.put_s(propertyName, removable)
 		} else {
 			removable.applyContinuations()
 			this.markPropertyNameAsPinned(propertyName)

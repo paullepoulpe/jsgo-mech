@@ -2,31 +2,31 @@
 
 package closure
 
-type FixedPointGraphTraversal struct {
+type FixedPointGraphTraversal[N, E comparable] struct {
 	callback           func(any, any, any) bool
 	traversalDirection FixedPointGraphTraversal_TraversalDirection
 }
 
-func (this *FixedPointGraphTraversal) init_FixedPointGraphTraversal(callback func(any, any, any) bool, traversalDirection FixedPointGraphTraversal_TraversalDirection) {
+func (this *FixedPointGraphTraversal[N, E]) init_FixedPointGraphTraversal(callback func(any, any, any) bool, traversalDirection FixedPointGraphTraversal_TraversalDirection) {
 	this.callback = callback
 	this.traversalDirection = traversalDirection
 }
 
-func new_FixedPointGraphTraversal(callback func(any, any, any) bool, traversalDirection FixedPointGraphTraversal_TraversalDirection) *FixedPointGraphTraversal {
-	this := &FixedPointGraphTraversal{}
+func new_FixedPointGraphTraversal[N, E comparable](callback func(any, any, any) bool, traversalDirection FixedPointGraphTraversal_TraversalDirection) *FixedPointGraphTraversal[N, E] {
+	this := &FixedPointGraphTraversal[N, E]{}
 	this.init_FixedPointGraphTraversal(callback, traversalDirection)
 	return this
 }
 
-func FixedPointGraphTraversal_newTraversal(callback func(any, any, any) bool) *FixedPointGraphTraversal {
-	return new_FixedPointGraphTraversal(callback, FixedPointGraphTraversal_TraversalDirection_OUTWARDS)
+func FixedPointGraphTraversal_newTraversal[NodeT, EdgeT comparable](callback func(any, any, any) bool) *FixedPointGraphTraversal[NodeT, EdgeT] {
+	return new_FixedPointGraphTraversal[NodeT, EdgeT](callback, FixedPointGraphTraversal_TraversalDirection_OUTWARDS)
 }
 
-func FixedPointGraphTraversal_newReverseTraversal(callback func(any, any, any) bool) *FixedPointGraphTraversal {
-	return new_FixedPointGraphTraversal(callback, FixedPointGraphTraversal_TraversalDirection_INWARDS)
+func FixedPointGraphTraversal_newReverseTraversal[NodeT, EdgeT comparable](callback func(any, any, any) bool) *FixedPointGraphTraversal[NodeT, EdgeT] {
+	return new_FixedPointGraphTraversal[NodeT, EdgeT](callback, FixedPointGraphTraversal_TraversalDirection_INWARDS)
 }
 
-func (this *FixedPointGraphTraversal) computeFixedPoint(graph *DiGraph) {
+func (this *FixedPointGraphTraversal[N, E]) computeFixedPoint(graph *DiGraph) {
 	var nodes SetOf[any] = new_LinkedHashSet()
 	for node := range elemsBy_(graph.getNodes(), icast_DiGraph_DiGraphNode) {
 		nodes.add(node.getValue())
@@ -34,13 +34,13 @@ func (this *FixedPointGraphTraversal) computeFixedPoint(graph *DiGraph) {
 	this.computeFixedPointSet(graph, nodes)
 }
 
-func (this *FixedPointGraphTraversal) computeFixedPoint_2(graph *DiGraph, entry any) {
+func (this *FixedPointGraphTraversal[N, E]) computeFixedPoint_2(graph *DiGraph, entry N) {
 	var entrySet SetOf[any] = new_LinkedHashSet()
-	entrySet.add(entry)
+	entrySet.add(boxNull_(entry))
 	this.computeFixedPointSet(graph, entrySet)
 }
 
-func (this *FixedPointGraphTraversal) computeFixedPointSet(graph *DiGraph, entrySet SetOf[any]) {
+func (this *FixedPointGraphTraversal[N, E]) computeFixedPointSet(graph *DiGraph, entrySet SetOf[any]) {
 	var cycleCount int64 = 0
 	var nodeCount int64 = Math_min_long_long(int64(graph.getNodeCount()), FixedPointGraphTraversal_MAX_NODE_COUNT_FOR_ITERATION_LIMIT)
 	var maxIterations int64 = Math_max_long_long(((nodeCount * nodeCount) * nodeCount), 100)
@@ -56,7 +56,7 @@ func (this *FixedPointGraphTraversal) computeFixedPointSet(graph *DiGraph, entry
 	}
 }
 
-func (this *FixedPointGraphTraversal) visitNode(node DiGraph_DiGraphNode, workSet *TSet[DiGraph_DiGraphNode]) {
+func (this *FixedPointGraphTraversal[N, E]) visitNode(node DiGraph_DiGraphNode, workSet *TSet[DiGraph_DiGraphNode]) {
 	workSet.remove(node)
 	switch this.traversalDirection {
 	case FixedPointGraphTraversal_TraversalDirection_OUTWARDS:

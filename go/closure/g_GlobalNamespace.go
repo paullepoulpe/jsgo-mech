@@ -16,7 +16,7 @@ type GlobalNamespace struct {
 	decisionsLog                  *LogFile
 	globalNames                   *TList[*GlobalNamespace_Name]
 	nameMap                       *TMap[string, *GlobalNamespace_Name]
-	nameMapByModule               *SimpleTable
+	nameMapByModule               *SimpleTable[*ModuleMetadataMap_ModuleMetadata, any, *GlobalNamespace_Name]
 	shouldTraverseScript          func(any) bool
 }
 
@@ -26,7 +26,7 @@ func (this *GlobalNamespace) finit_GlobalNamespace() {
 	this.generated = false
 	this.globalNames = newTList_(tc_p_GlobalNamespace_Name)
 	this.nameMap = newTMap_(tc_string, tc_p_GlobalNamespace_Name)
-	this.nameMapByModule = SimpleTable_create()
+	this.nameMapByModule = SimpleTable_create[*ModuleMetadataMap_ModuleMetadata, any, *GlobalNamespace_Name]()
 	this.shouldTraverseScript = lambda_GlobalNamespace_finit_GlobalNamespace_1_
 }
 
@@ -208,7 +208,7 @@ func (this *GlobalNamespace) getNameFromModule(moduleMetadata *ModuleMetadataMap
 		panic(new_NullPointerException_0().self())
 	}
 	this.ensureGenerated()
-	return cast_[*GlobalNamespace_Name](this.nameMapByModule.get_s(obj_(moduleMetadata), name))
+	return this.nameMapByModule.get_s(obj_(moduleMetadata), name)
 }
 
 func (this *GlobalNamespace) declarationHasFollowingObjectSpreadSibling(declaration Node) bool {
@@ -956,7 +956,7 @@ func (this *GlobalNamespace_BuildGlobalNamespace) getOrCreateName(name string, m
 		if metadata == nil {
 			return this.outer_.nameMap.get(name)
 		}
-		return cast_[*GlobalNamespace_Name](this.outer_.nameMapByModule.get_s(obj_(metadata), name))
+		return this.outer_.nameMapByModule.get_s(obj_(metadata), name)
 	}()
 	if node == nil {
 		var i int32 = int32(strings.LastIndexByte(name, '.'))
@@ -967,7 +967,7 @@ func (this *GlobalNamespace_BuildGlobalNamespace) getOrCreateName(name string, m
 			if metadata == nil {
 				this.outer_.nameMap.put(name, node)
 			} else {
-				this.outer_.nameMapByModule.put_s(obj_(metadata), name, obj_(node))
+				this.outer_.nameMapByModule.put_s(metadata, name, node)
 			}
 		} else {
 			node = new_GlobalNamespace_Name(this.outer_, name, nil, this.outer_.sourceKind)
@@ -975,7 +975,7 @@ func (this *GlobalNamespace_BuildGlobalNamespace) getOrCreateName(name string, m
 				this.outer_.globalNames.add(node)
 				this.outer_.nameMap.put(name, node)
 			} else {
-				this.outer_.nameMapByModule.put_s(obj_(metadata), name, obj_(node))
+				this.outer_.nameMapByModule.put_s(metadata, name, node)
 			}
 		}
 	}

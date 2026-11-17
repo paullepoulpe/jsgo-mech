@@ -28,7 +28,7 @@ func (this *DevirtualizeMethods) process_3(externs Node, root Node, refMap *Opti
 }
 
 func (this *DevirtualizeMethods) processReferenceList(name string, sites ListOf[Node]) {
-	var functionsBySite *SimpleListMultimap = OptimizeCalls_ReferenceMap_getFunctionNodes(sites)
+	var functionsBySite *SimpleListMultimap[Node, any] = OptimizeCalls_ReferenceMap_getFunctionNodes(sites)
 	if functionsBySite.isEmpty() {
 		return
 	}

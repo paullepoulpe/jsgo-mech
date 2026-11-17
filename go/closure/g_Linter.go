@@ -32,15 +32,15 @@ func (this *Linter) lint_2(path string, compiler *Compiler) {
 	compiler.compile(ImmutableList_of_Object(obj_(externs)), ImmutableList_of_Object(obj_(file)), this.options_)
 }
 
-func (this *Linter) fixRepeatedly(filename string) *Outcome_base {
+func (this *Linter) fixRepeatedly(filename string) *Outcome_base[any] {
 	return this.fixRepeatedly_2(filename, ImmutableSet_of())
 }
 
-func (this *Linter) fixRepeatedly_2(filename string, unfixableErrors ImmutableSetOf[*DiagnosticType]) *Outcome_base {
+func (this *Linter) fixRepeatedly_2(filename string, unfixableErrors ImmutableSetOf[*DiagnosticType]) *Outcome_base[any] {
 	for i := int32(0); i < Linter_MAX_FIXES; i++ {
-		var fixed *Outcome_base = this.fix(filename, unfixableErrors)
+		var fixed *Outcome_base[any] = this.fix(filename, unfixableErrors)
 		if fixed.isErr() {
-			return Outcome_base_err(fixed.error())
+			return Outcome_base_err[any](fixed.error())
 		}
 		if !unbox_[bool](fixed.get()) {
 			break
@@ -49,7 +49,7 @@ func (this *Linter) fixRepeatedly_2(filename string, unfixableErrors ImmutableSe
 	return Outcome_base_ok_0()
 }
 
-func (this *Linter) fix(filename string, unfixableErrors ImmutableSetOf[*DiagnosticType]) *Outcome_base {
+func (this *Linter) fix(filename string, unfixableErrors ImmutableSetOf[*DiagnosticType]) *Outcome_base[any] {
 	var compiler *Compiler = new_Compiler_Output(Output_stdout())
 	var errorManager *FixingErrorManager = new_FixingErrorManager_ImmutableSet(unfixableErrors)
 	compiler.setErrorManager(errorManager)
@@ -57,9 +57,9 @@ func (this *Linter) fix(filename string, unfixableErrors ImmutableSetOf[*Diagnos
 	this.lint_2(FilePaths_clean(filename), compiler)
 	var fixes CollectionOf[*SuggestedFix] = errorManager.getSureFixes()
 	if !fixes.isEmpty() {
-		var applied *Outcome_base = ApplySuggestedFixes_applySuggestedFixesToFiles(Iterable(fixes))
+		var applied *Outcome_base[any] = ApplySuggestedFixes_applySuggestedFixesToFiles(Iterable(fixes))
 		if applied.isErr() {
-			return Outcome_base_err(applied.error())
+			return Outcome_base_err[any](applied.error())
 		}
 		return Outcome_base_ok_Object(any(bool(true)))
 	}

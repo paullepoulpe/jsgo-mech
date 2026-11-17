@@ -132,7 +132,7 @@ func (this *JsMessageVisitor) checkMessageInitialization(traversal *NodeTraversa
 	}
 	var fnNameNode Node = msgNode.getFirstChild()
 	if this.isDeclareIcuTemplateCallee(fnNameNode) {
-		var icuTemplateDefinitionOutcome *Outcome_base = this.extractIcuTemplateDefinition(msgNode, jsDocInfo, messageKeyFromLhs, sourceName)
+		var icuTemplateDefinitionOutcome *Outcome_base[IcuTemplateDefinition] = this.extractIcuTemplateDefinition(msgNode, jsDocInfo, messageKeyFromLhs, sourceName)
 		if icuTemplateDefinitionOutcome.isErr() {
 			var ex *JsMessageVisitor_MalformedException = cast_[*JsMessageVisitor_MalformedException](icuTemplateDefinitionOutcome.error().self())
 			this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(ex.getNode(), JsMessageVisitor_MESSAGE_TREE_MALFORMED, []string{ex.getMessage()}))
@@ -144,7 +144,7 @@ func (this *JsMessageVisitor) checkMessageInitialization(traversal *NodeTraversa
 		this.reportErrorIfEmptyMessage(node, extractedMessage)
 		this.processIcuTemplateDefinition(icuTemplateDefinition)
 	} else if fnNameNode.matchesQualifiedName(JsMessageVisitor_MSG_FUNCTION_QNAME) {
-		var jsMessageDefinitionOutcome *Outcome_base = this.extractJsMessageDefinition(msgNode, jsDocInfo, messageKeyFromLhs, sourceName)
+		var jsMessageDefinitionOutcome *Outcome_base[JsMessageDefinition] = this.extractJsMessageDefinition(msgNode, jsDocInfo, messageKeyFromLhs, sourceName)
 		if jsMessageDefinitionOutcome.isErr() {
 			var ex *JsMessageVisitor_MalformedException = cast_[*JsMessageVisitor_MalformedException](jsMessageDefinitionOutcome.error().self())
 			this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(ex.getNode(), JsMessageVisitor_MESSAGE_TREE_MALFORMED, []string{ex.getMessage()}))
@@ -315,35 +315,35 @@ func (this *JsMessageVisitor) checkIfMessageDuplicated(msgName string, msgNode N
 	}
 }
 
-func JsMessageVisitor_extractStringFromStringExprNode(node Node) *Outcome_base {
+func JsMessageVisitor_extractStringFromStringExprNode(node Node) *Outcome_base[string] {
 	switch node.ns_().token {
 	case tokOrd1_STRINGLIT:
-		return Outcome_base_ok_Object(strobj_(node.getString()))
+		return Outcome_base_ok_Object[string](node.getString())
 	case tokOrd1_TEMPLATELIT:
 		if node.hasOneChild() {
-			return Outcome_base_ok_Object(strobj_(node.getFirstChild().getCookedString().orElseThrow()))
+			return Outcome_base_ok_Object[string](node.getFirstChild().getCookedString().orElseThrow())
 		} else {
-			return Outcome_base_err(new_JsMessageVisitor_MalformedException("Template literals with substitutions are not allowed.", node).up_Throwable())
+			return Outcome_base_err[string](new_JsMessageVisitor_MalformedException("Template literals with substitutions are not allowed.", node).up_Throwable())
 		}
 	case tokOrd1_ADD:
 		var sb strBuilder_
 		{
 			var child Node = node.getFirstChild()
 			for ; child != 0; child = child.getNext() {
-				var childString *Outcome_base = JsMessageVisitor_extractStringFromStringExprNode(child)
+				var childString *Outcome_base[string] = JsMessageVisitor_extractStringFromStringExprNode(child)
 				if childString.isErr() {
-					return Outcome_base_err(childString.error())
+					return Outcome_base_err[string](childString.error())
 				}
-				sb.append(str_(childString.get()))
+				sb.append(childString.get())
 			}
 		}
-		return Outcome_base_ok_Object(strobj_(sb.toString()))
+		return Outcome_base_ok_Object[string](sb.toString())
 	default:
-		return Outcome_base_err(new_JsMessageVisitor_MalformedException("literal string or concatenation expected", node).up_Throwable())
+		return Outcome_base_err[string](new_JsMessageVisitor_MalformedException("literal string or concatenation expected", node).up_Throwable())
 	}
 }
 
-func (this *JsMessageVisitor) extractJsMessageDefinition(msgNode Node, jsDocInfo *JSDocInfo, messageKeyFromLhs string, sourceName string) *Outcome_base {
+func (this *JsMessageVisitor) extractJsMessageDefinition(msgNode Node, jsDocInfo *JSDocInfo, messageKeyFromLhs string, sourceName string) *Outcome_base[JsMessageDefinition] {
 	var description OptionalOf[string]
 	var meaning OptionalOf[string]
 	var alternateMessageId OptionalOf[string]
@@ -358,7 +358,7 @@ func (this *JsMessageVisitor) extractJsMessageDefinition(msgNode Node, jsDocInfo
 	}
 	var msgTextNode Node = msgNode.getSecondChild()
 	if msgTextNode == 0 {
-		return Outcome_base_err(new_JsMessageVisitor_MalformedException("Message string literal expected", msgNode).up_Throwable())
+		return Outcome_base_err[JsMessageDefinition](new_JsMessageVisitor_MalformedException("Message string literal expected", msgNode).up_Throwable())
 	}
 	var valuesObjLit Node = msgTextNode.getNext()
 	var optionsBagArgument Node = func() Node {
@@ -374,49 +374,49 @@ func (this *JsMessageVisitor) extractJsMessageDefinition(msgNode Node, jsDocInfo
 		return optionsBagArgument.getNext()
 	}()
 	if unexpectedArgument != 0 {
-		return Outcome_base_err(new_JsMessageVisitor_MalformedException("too many arguments", unexpectedArgument).up_Throwable())
+		return Outcome_base_err[JsMessageDefinition](new_JsMessageVisitor_MalformedException("too many arguments", unexpectedArgument).up_Throwable())
 	}
-	var msgTextStringOutcome *Outcome_base = JsMessageVisitor_extractStringFromStringExprNode(msgTextNode)
+	var msgTextStringOutcome *Outcome_base[string] = JsMessageVisitor_extractStringFromStringExprNode(msgTextNode)
 	if msgTextStringOutcome.isErr() {
-		return Outcome_base_err(msgTextStringOutcome.error())
+		return Outcome_base_err[JsMessageDefinition](msgTextStringOutcome.error())
 	}
-	var msgTextString string = str_(msgTextStringOutcome.get())
-	var googGetMsgParsedTextRes *Outcome_base = JsMessageVisitor_extractGoogGetMsgParsedText(msgTextString)
+	var msgTextString string = msgTextStringOutcome.get()
+	var googGetMsgParsedTextRes *Outcome_base[JsMessageVisitor_GoogGetMsgParsedText] = JsMessageVisitor_extractGoogGetMsgParsedText(msgTextString)
 	if googGetMsgParsedTextRes.isErr() {
-		return Outcome_base_err(new_JsMessageVisitor_MalformedException(googGetMsgParsedTextRes.errorMessage().orElseThrow(), msgTextNode).up_Throwable())
+		return Outcome_base_err[JsMessageDefinition](new_JsMessageVisitor_MalformedException(googGetMsgParsedTextRes.errorMessage().orElseThrow(), msgTextNode).up_Throwable())
 	}
 	var googGetMsgParsedText JsMessageVisitor_GoogGetMsgParsedText = icast_JsMessageVisitor_GoogGetMsgParsedText(googGetMsgParsedTextRes.get())
-	var placeholderObjectLiteralMapOutcome *Outcome_base = JsMessageVisitor_extractObjectLiteralMap(valuesObjLit)
+	var placeholderObjectLiteralMapOutcome *Outcome_base[any] = JsMessageVisitor_extractObjectLiteralMap(valuesObjLit)
 	if placeholderObjectLiteralMapOutcome.isErr() {
-		return Outcome_base_err(placeholderObjectLiteralMapOutcome.error())
+		return Outcome_base_err[JsMessageDefinition](placeholderObjectLiteralMapOutcome.error())
 	}
 	var placeholderObjectLiteralMap JsMessageVisitor_ObjectLiteralMap = icast_JsMessageVisitor_ObjectLiteralMap(placeholderObjectLiteralMapOutcome.get())
 	var placeholderNamesFromText ImmutableSetOf[string] = googGetMsgParsedText.getPlaceholderNames()
-	var requiredKeysChecked *Outcome_base = placeholderObjectLiteralMap.checkForRequiredKeys(tsetFrom_(tc_string, placeholderNamesFromText, true), func(placeholderName_ any) any {
+	var requiredKeysChecked *Outcome_base[any] = placeholderObjectLiteralMap.checkForRequiredKeys(tsetFrom_(tc_string, placeholderNamesFromText, true), func(placeholderName_ any) any {
 		var placeholderName string = str_(placeholderName_)
 		_ = placeholderName
 		return obj_(new_JsMessageVisitor_MalformedException(("Unrecognized message placeholder referenced: " + sstr_(placeholderName)), msgTextNode))
 	})
 	if requiredKeysChecked.isErr() {
-		return Outcome_base_err(requiredKeysChecked.error())
+		return Outcome_base_err[JsMessageDefinition](requiredKeysChecked.error())
 	}
-	var unexpectedKeysChecked *Outcome_base = placeholderObjectLiteralMap.checkForUnexpectedKeys(setImm_(tc_string, placeholderNamesFromText), lambda_JsMessageVisitor_extractJsMessageDefinition_1_)
+	var unexpectedKeysChecked *Outcome_base[any] = placeholderObjectLiteralMap.checkForUnexpectedKeys(setImm_(tc_string, placeholderNamesFromText), lambda_JsMessageVisitor_extractJsMessageDefinition_1_)
 	if unexpectedKeysChecked.isErr() {
-		return Outcome_base_err(unexpectedKeysChecked.error())
+		return Outcome_base_err[JsMessageDefinition](unexpectedKeysChecked.error())
 	}
 	var placeholderValuesMap ImmutableMapOf[string, Node] = placeholderObjectLiteralMap.extractAsValueMap()
-	var jsMessageOptionsOutcome *Outcome_base = this.extractJsMessageOptions(optionsBagArgument)
+	var jsMessageOptionsOutcome *Outcome_base[JsMessageVisitor_JsMessageOptions] = this.extractJsMessageOptions(optionsBagArgument)
 	if jsMessageOptionsOutcome.isErr() {
-		return Outcome_base_err(jsMessageOptionsOutcome.error())
+		return Outcome_base_err[JsMessageDefinition](jsMessageOptionsOutcome.error())
 	}
 	var jsMessageOptions JsMessageVisitor_JsMessageOptions = icast_JsMessageVisitor_JsMessageOptions(jsMessageOptionsOutcome.get())
-	var unknownPlaceholdersChecked *Outcome_base = jsMessageOptions.checkForUnknownPlaceholders(setImm_(tc_string, placeholderNamesFromText))
+	var unknownPlaceholdersChecked *Outcome_base[any] = jsMessageOptions.checkForUnknownPlaceholders(setImm_(tc_string, placeholderNamesFromText))
 	if unknownPlaceholdersChecked.isErr() {
-		return Outcome_base_err(unknownPlaceholdersChecked.error())
+		return Outcome_base_err[JsMessageDefinition](unknownPlaceholdersChecked.error())
 	}
 	var jsExtractedMessage *JsMessage = this.buildJsMessage(new_JsMessageVisitor_1(this, messageKeyFromLhs, sourceName, googGetMsgParsedText, jsMessageOptions, optErase_(description), optErase_(meaning), optErase_(alternateMessageId)))
 	var result JsMessageDefinition = new_JsMessageVisitor_2(this, jsExtractedMessage, msgNode, msgTextNode, valuesObjLit, placeholderValuesMap, jsMessageOptions)
-	return Outcome_base_ok_Object(result)
+	return Outcome_base_ok_Object[JsMessageDefinition](result)
 }
 
 // lambda_JsMessageVisitor_extractJsMessageDefinition_1_ is a lambda of JsMessageVisitor_extractJsMessageDefinition that captures nothing (post-flip step lambdas).
@@ -426,103 +426,103 @@ func lambda_JsMessageVisitor_extractJsMessageDefinition_1_(placeholderName_ any)
 	return strobj_(("Unused message placeholder: " + sstr_(placeholderName)))
 }
 
-func (this *JsMessageVisitor) extractIcuTemplateDefinition(msgNode Node, jsDocInfo *JSDocInfo, messageKeyFromLhs string, sourceName string) *Outcome_base {
+func (this *JsMessageVisitor) extractIcuTemplateDefinition(msgNode Node, jsDocInfo *JSDocInfo, messageKeyFromLhs string, sourceName string) *Outcome_base[IcuTemplateDefinition] {
 	if jsDocInfo != nil {
 		if jsDocInfo.getAlternateMessageId().isPresent() {
-			return Outcome_base_err(new_JsMessageVisitor_MalformedException("Use the 'alternate_message_id' option, not the '@alternateMessageId' annotation", msgNode).up_Throwable())
+			return Outcome_base_err[IcuTemplateDefinition](new_JsMessageVisitor_MalformedException("Use the 'alternate_message_id' option, not the '@alternateMessageId' annotation", msgNode).up_Throwable())
 		}
 		if jsDocInfo.getDescription().isPresent() {
-			return Outcome_base_err(new_JsMessageVisitor_MalformedException("Use the 'description' option, not the '@desc' annotation", msgNode).up_Throwable())
+			return Outcome_base_err[IcuTemplateDefinition](new_JsMessageVisitor_MalformedException("Use the 'description' option, not the '@desc' annotation", msgNode).up_Throwable())
 		}
 		if jsDocInfo.getMeaning().isPresent() {
-			return Outcome_base_err(new_JsMessageVisitor_MalformedException("Use the 'meaning' option, not the '@meaning' annotation", msgNode).up_Throwable())
+			return Outcome_base_err[IcuTemplateDefinition](new_JsMessageVisitor_MalformedException("Use the 'meaning' option, not the '@meaning' annotation", msgNode).up_Throwable())
 		}
 	}
 	var stringLiteralExpression Node = msgNode.getSecondChild()
 	if stringLiteralExpression == 0 {
-		return Outcome_base_err(new_JsMessageVisitor_MalformedException("message string argument expected", msgNode).up_Throwable())
+		return Outcome_base_err[IcuTemplateDefinition](new_JsMessageVisitor_MalformedException("message string argument expected", msgNode).up_Throwable())
 	}
-	var icuMessageTemplateStringOutcome *Outcome_base = this.extractIcuMessageTemplateString(stringLiteralExpression)
+	var icuMessageTemplateStringOutcome *Outcome_base[*JsMessageVisitor_IcuMessageTemplateString] = this.extractIcuMessageTemplateString(stringLiteralExpression)
 	if icuMessageTemplateStringOutcome.isErr() {
-		return Outcome_base_err(icuMessageTemplateStringOutcome.error())
+		return Outcome_base_err[IcuTemplateDefinition](icuMessageTemplateStringOutcome.error())
 	}
-	var icuMessageTemplateString *JsMessageVisitor_IcuMessageTemplateString = cast_[*JsMessageVisitor_IcuMessageTemplateString](icuMessageTemplateStringOutcome.get())
+	var icuMessageTemplateString *JsMessageVisitor_IcuMessageTemplateString = icuMessageTemplateStringOutcome.get()
 	var optionsBagNode Node = stringLiteralExpression.getNext()
 	if optionsBagNode == 0 {
-		return Outcome_base_err(new_JsMessageVisitor_MalformedException("options argument expected", msgNode).up_Throwable())
+		return Outcome_base_err[IcuTemplateDefinition](new_JsMessageVisitor_MalformedException("options argument expected", msgNode).up_Throwable())
 	}
-	var icuTemplateOptionsOutcome *Outcome_base = this.extractIcuTemplateOptions(optionsBagNode)
+	var icuTemplateOptionsOutcome *Outcome_base[JsMessageVisitor_IcuTemplateOptions] = this.extractIcuTemplateOptions(optionsBagNode)
 	if icuTemplateOptionsOutcome.isErr() {
-		return Outcome_base_err(icuTemplateOptionsOutcome.error())
+		return Outcome_base_err[IcuTemplateDefinition](icuTemplateOptionsOutcome.error())
 	}
 	var icuTemplateOptions JsMessageVisitor_IcuTemplateOptions = icast_JsMessageVisitor_IcuTemplateOptions(icuTemplateOptionsOutcome.get())
 	var extractedIcuTemplateParts *JsMessageVisitor_ExtractedIcuTemplateParts = icuMessageTemplateString.extractParts(tsetFrom_(tc_string, icuTemplateOptions.getPlaceholderNames(), true))
-	var unknownPlaceholdersChecked *Outcome_base = icuTemplateOptions.checkForUnknownPlaceholders(setImm_(tc_string, extractedIcuTemplateParts.extractedPlaceholderNames))
+	var unknownPlaceholdersChecked *Outcome_base[any] = icuTemplateOptions.checkForUnknownPlaceholders(setImm_(tc_string, extractedIcuTemplateParts.extractedPlaceholderNames))
 	if unknownPlaceholdersChecked.isErr() {
-		return Outcome_base_err(unknownPlaceholdersChecked.error())
+		return Outcome_base_err[IcuTemplateDefinition](unknownPlaceholdersChecked.error())
 	}
 	var unexpectedArgument Node = optionsBagNode.getNext()
 	if unexpectedArgument != 0 {
-		return Outcome_base_err(new_JsMessageVisitor_MalformedException("too many arguments", unexpectedArgument).up_Throwable())
+		return Outcome_base_err[IcuTemplateDefinition](new_JsMessageVisitor_MalformedException("too many arguments", unexpectedArgument).up_Throwable())
 	}
 	var extractedMessage *JsMessage = this.buildJsMessage(new_JsMessageVisitor_3(this, messageKeyFromLhs, sourceName, icuMessageTemplateString, extractedIcuTemplateParts, icuTemplateOptions))
 	var result IcuTemplateDefinition = new_JsMessageVisitor_4(this, extractedMessage, msgNode, stringLiteralExpression)
-	return Outcome_base_ok_Object(result)
+	return Outcome_base_ok_Object[IcuTemplateDefinition](result)
 }
 
-func (this *JsMessageVisitor) extractIcuMessageTemplateString(stringExpression Node) *Outcome_base {
-	var templateStringOutcome *Outcome_base = JsMessageVisitor_extractStringFromStringExprNode(stringExpression)
+func (this *JsMessageVisitor) extractIcuMessageTemplateString(stringExpression Node) *Outcome_base[*JsMessageVisitor_IcuMessageTemplateString] {
+	var templateStringOutcome *Outcome_base[string] = JsMessageVisitor_extractStringFromStringExprNode(stringExpression)
 	if templateStringOutcome.isErr() {
-		return Outcome_base_err(templateStringOutcome.error())
+		return Outcome_base_err[*JsMessageVisitor_IcuMessageTemplateString](templateStringOutcome.error())
 	}
-	var templateString string = str_(templateStringOutcome.get())
-	return Outcome_base_ok_Object(obj_(new_JsMessageVisitor_IcuMessageTemplateString(templateString)))
+	var templateString string = templateStringOutcome.get()
+	return Outcome_base_ok_Object[*JsMessageVisitor_IcuMessageTemplateString](new_JsMessageVisitor_IcuMessageTemplateString(templateString))
 }
 
-func (this *JsMessageVisitor) extractJsMessageOptions(optionsBag Node) *Outcome_base {
-	var objectLiteralMapOutcome *Outcome_base = JsMessageVisitor_extractObjectLiteralMap(optionsBag)
+func (this *JsMessageVisitor) extractJsMessageOptions(optionsBag Node) *Outcome_base[JsMessageVisitor_JsMessageOptions] {
+	var objectLiteralMapOutcome *Outcome_base[any] = JsMessageVisitor_extractObjectLiteralMap(optionsBag)
 	if objectLiteralMapOutcome.isErr() {
-		return Outcome_base_err(objectLiteralMapOutcome.error())
+		return Outcome_base_err[JsMessageVisitor_JsMessageOptions](objectLiteralMapOutcome.error())
 	}
 	var objectLiteralMap JsMessageVisitor_ObjectLiteralMap = icast_JsMessageVisitor_ObjectLiteralMap(objectLiteralMapOutcome.get())
-	var unexpectedKeysChecked *Outcome_base = objectLiteralMap.checkForUnexpectedKeys(setImm_(tc_string, JsMessageVisitor_MESSAGE_OPTION_NAMES), lambda_JsMessageVisitor_extractJsMessageOptions_1_)
+	var unexpectedKeysChecked *Outcome_base[any] = objectLiteralMap.checkForUnexpectedKeys(setImm_(tc_string, JsMessageVisitor_MESSAGE_OPTION_NAMES), lambda_JsMessageVisitor_extractJsMessageOptions_1_)
 	if unexpectedKeysChecked.isErr() {
-		return Outcome_base_err(unexpectedKeysChecked.error())
+		return Outcome_base_err[JsMessageVisitor_JsMessageOptions](unexpectedKeysChecked.error())
 	}
-	var isEscapeLessThanOutcome *Outcome_base = objectLiteralMap.getBooleanValueOrFalse("html")
+	var isEscapeLessThanOutcome *Outcome_base[any] = objectLiteralMap.getBooleanValueOrFalse("html")
 	if isEscapeLessThanOutcome.isErr() {
-		return Outcome_base_err(isEscapeLessThanOutcome.error())
+		return Outcome_base_err[JsMessageVisitor_JsMessageOptions](isEscapeLessThanOutcome.error())
 	}
 	var isEscapeLessThan bool = unbox_[bool](isEscapeLessThanOutcome.get())
-	var isUnescapeHtmlEntitiesOutcome *Outcome_base = objectLiteralMap.getBooleanValueOrFalse("unescapeHtmlEntities")
+	var isUnescapeHtmlEntitiesOutcome *Outcome_base[any] = objectLiteralMap.getBooleanValueOrFalse("unescapeHtmlEntities")
 	if isUnescapeHtmlEntitiesOutcome.isErr() {
-		return Outcome_base_err(isUnescapeHtmlEntitiesOutcome.error())
+		return Outcome_base_err[JsMessageVisitor_JsMessageOptions](isUnescapeHtmlEntitiesOutcome.error())
 	}
 	var isUnescapeHtmlEntities bool = unbox_[bool](isUnescapeHtmlEntitiesOutcome.get())
 	var exampleValueNode Node = objectLiteralMap.getValueNode("example")
-	var exampleObjectLiteralMapOutcome *Outcome_base = JsMessageVisitor_extractObjectLiteralMap(exampleValueNode)
+	var exampleObjectLiteralMapOutcome *Outcome_base[any] = JsMessageVisitor_extractObjectLiteralMap(exampleValueNode)
 	if exampleObjectLiteralMapOutcome.isErr() {
-		return Outcome_base_err(exampleObjectLiteralMapOutcome.error())
+		return Outcome_base_err[JsMessageVisitor_JsMessageOptions](exampleObjectLiteralMapOutcome.error())
 	}
 	var exampleObjectLiteralMap JsMessageVisitor_ObjectLiteralMap = icast_JsMessageVisitor_ObjectLiteralMap(exampleObjectLiteralMapOutcome.get())
-	var placeholderExamplesMapOutcome *Outcome_base = exampleObjectLiteralMap.extractAsStringToStringMap()
+	var placeholderExamplesMapOutcome *Outcome_base[*ImmutableMap] = exampleObjectLiteralMap.extractAsStringToStringMap()
 	if placeholderExamplesMapOutcome.isErr() {
-		return Outcome_base_err(placeholderExamplesMapOutcome.error())
+		return Outcome_base_err[JsMessageVisitor_JsMessageOptions](placeholderExamplesMapOutcome.error())
 	}
-	var placeholderExamplesMap ImmutableMapOf[string, string] = cast_[*ImmutableMap](placeholderExamplesMapOutcome.get())
+	var placeholderExamplesMap ImmutableMapOf[string, string] = placeholderExamplesMapOutcome.get()
 	var originalCodeValueNode Node = objectLiteralMap.getValueNode("original_code")
-	var originalCodeObjectLiteralMapOutcome *Outcome_base = JsMessageVisitor_extractObjectLiteralMap(originalCodeValueNode)
+	var originalCodeObjectLiteralMapOutcome *Outcome_base[any] = JsMessageVisitor_extractObjectLiteralMap(originalCodeValueNode)
 	if originalCodeObjectLiteralMapOutcome.isErr() {
-		return Outcome_base_err(originalCodeObjectLiteralMapOutcome.error())
+		return Outcome_base_err[JsMessageVisitor_JsMessageOptions](originalCodeObjectLiteralMapOutcome.error())
 	}
 	var originalCodeObjectLiteralMap JsMessageVisitor_ObjectLiteralMap = icast_JsMessageVisitor_ObjectLiteralMap(originalCodeObjectLiteralMapOutcome.get())
-	var placeholderOriginalCodeMapOutcome *Outcome_base = originalCodeObjectLiteralMap.extractAsStringToStringMap()
+	var placeholderOriginalCodeMapOutcome *Outcome_base[*ImmutableMap] = originalCodeObjectLiteralMap.extractAsStringToStringMap()
 	if placeholderOriginalCodeMapOutcome.isErr() {
-		return Outcome_base_err(placeholderOriginalCodeMapOutcome.error())
+		return Outcome_base_err[JsMessageVisitor_JsMessageOptions](placeholderOriginalCodeMapOutcome.error())
 	}
-	var placeholderOriginalCodeMap ImmutableMapOf[string, string] = cast_[*ImmutableMap](placeholderOriginalCodeMapOutcome.get())
+	var placeholderOriginalCodeMap ImmutableMapOf[string, string] = placeholderOriginalCodeMapOutcome.get()
 	var result JsMessageVisitor_JsMessageOptions = new_JsMessageVisitor_5(this, isEscapeLessThan, isUnescapeHtmlEntities, placeholderExamplesMap, placeholderOriginalCodeMap, exampleObjectLiteralMap, originalCodeObjectLiteralMap)
-	return Outcome_base_ok_Object(result)
+	return Outcome_base_ok_Object[JsMessageVisitor_JsMessageOptions](result)
 }
 
 // lambda_JsMessageVisitor_extractJsMessageOptions_1_ is a lambda of JsMessageVisitor_extractJsMessageOptions that captures nothing (post-flip step lambdas).
@@ -532,79 +532,79 @@ func lambda_JsMessageVisitor_extractJsMessageOptions_1_(optionName_ any) any {
 	return strobj_(("Unknown option: " + sstr_(optionName)))
 }
 
-func (this *JsMessageVisitor) extractIcuTemplateOptions(optionsBag Node) *Outcome_base {
-	var objectLiteralMapOutcome *Outcome_base = JsMessageVisitor_extractObjectLiteralMap(optionsBag)
+func (this *JsMessageVisitor) extractIcuTemplateOptions(optionsBag Node) *Outcome_base[JsMessageVisitor_IcuTemplateOptions] {
+	var objectLiteralMapOutcome *Outcome_base[any] = JsMessageVisitor_extractObjectLiteralMap(optionsBag)
 	if objectLiteralMapOutcome.isErr() {
-		return Outcome_base_err(objectLiteralMapOutcome.error())
+		return Outcome_base_err[JsMessageVisitor_IcuTemplateOptions](objectLiteralMapOutcome.error())
 	}
 	var objectLiteralMap JsMessageVisitor_ObjectLiteralMap = icast_JsMessageVisitor_ObjectLiteralMap(objectLiteralMapOutcome.get())
-	var unexpectedKeysChecked *Outcome_base = objectLiteralMap.checkForUnexpectedKeys(setImm_(tc_string, JsMessageVisitor_ICU_TEMPLATE_OPTION_NAMES), lambda_JsMessageVisitor_extractIcuTemplateOptions_1_)
+	var unexpectedKeysChecked *Outcome_base[any] = objectLiteralMap.checkForUnexpectedKeys(setImm_(tc_string, JsMessageVisitor_ICU_TEMPLATE_OPTION_NAMES), lambda_JsMessageVisitor_extractIcuTemplateOptions_1_)
 	if unexpectedKeysChecked.isErr() {
-		return Outcome_base_err(unexpectedKeysChecked.error())
+		return Outcome_base_err[JsMessageVisitor_IcuTemplateOptions](unexpectedKeysChecked.error())
 	}
 	var descriptionNode Node = objectLiteralMap.getValueNode("description")
 	if descriptionNode == 0 {
-		return Outcome_base_err(new_JsMessageVisitor_MalformedException("'description' option field is missing", optionsBag).up_Throwable())
+		return Outcome_base_err[JsMessageVisitor_IcuTemplateOptions](new_JsMessageVisitor_MalformedException("'description' option field is missing", optionsBag).up_Throwable())
 	}
-	var descriptionOutcome *Outcome_base = JsMessageVisitor_extractStringFromStringExprNode(descriptionNode)
+	var descriptionOutcome *Outcome_base[string] = JsMessageVisitor_extractStringFromStringExprNode(descriptionNode)
 	if descriptionOutcome.isErr() {
-		return Outcome_base_err(descriptionOutcome.error())
+		return Outcome_base_err[JsMessageVisitor_IcuTemplateOptions](descriptionOutcome.error())
 	}
-	var description string = str_(descriptionOutcome.get())
+	var description string = descriptionOutcome.get()
 	var meaningNode Node = objectLiteralMap.getValueNode("meaning")
 	var meaning OptionalOf[string]
 	if meaningNode == 0 {
 		meaning = Optional_empty[string]()
 	} else {
-		var meaningOutcome *Outcome_base = JsMessageVisitor_extractStringFromStringExprNode(meaningNode)
+		var meaningOutcome *Outcome_base[string] = JsMessageVisitor_extractStringFromStringExprNode(meaningNode)
 		if meaningOutcome.isErr() {
-			return Outcome_base_err(meaningOutcome.error())
+			return Outcome_base_err[JsMessageVisitor_IcuTemplateOptions](meaningOutcome.error())
 		}
-		meaning = Optional_ofNullable[string](str_(meaningOutcome.get()))
+		meaning = Optional_ofNullable[string](meaningOutcome.get())
 	}
 	var alternateMessageIdNode Node = objectLiteralMap.getValueNode("alternate_message_id")
 	var alternateMessageId OptionalOf[string]
 	if alternateMessageIdNode == 0 {
 		alternateMessageId = Optional_empty[string]()
 	} else {
-		var alternateMessageIdOutcome *Outcome_base = JsMessageVisitor_extractStringFromStringExprNode(alternateMessageIdNode)
+		var alternateMessageIdOutcome *Outcome_base[string] = JsMessageVisitor_extractStringFromStringExprNode(alternateMessageIdNode)
 		if alternateMessageIdOutcome.isErr() {
-			return Outcome_base_err(alternateMessageIdOutcome.error())
+			return Outcome_base_err[JsMessageVisitor_IcuTemplateOptions](alternateMessageIdOutcome.error())
 		}
-		alternateMessageId = Optional_ofNullable[string](str_(alternateMessageIdOutcome.get()))
+		alternateMessageId = Optional_ofNullable[string](alternateMessageIdOutcome.get())
 	}
 	var exampleValueNode Node = objectLiteralMap.getValueNode("example")
-	var exampleObjectLiteralMapOutcome *Outcome_base = JsMessageVisitor_extractObjectLiteralMap(exampleValueNode)
+	var exampleObjectLiteralMapOutcome *Outcome_base[any] = JsMessageVisitor_extractObjectLiteralMap(exampleValueNode)
 	if exampleObjectLiteralMapOutcome.isErr() {
-		return Outcome_base_err(exampleObjectLiteralMapOutcome.error())
+		return Outcome_base_err[JsMessageVisitor_IcuTemplateOptions](exampleObjectLiteralMapOutcome.error())
 	}
 	var exampleObjectLiteralMap JsMessageVisitor_ObjectLiteralMap = icast_JsMessageVisitor_ObjectLiteralMap(exampleObjectLiteralMapOutcome.get())
-	var placeholderExamplesMapOutcome *Outcome_base = exampleObjectLiteralMap.extractAsStringToStringMap()
+	var placeholderExamplesMapOutcome *Outcome_base[*ImmutableMap] = exampleObjectLiteralMap.extractAsStringToStringMap()
 	if placeholderExamplesMapOutcome.isErr() {
-		return Outcome_base_err(placeholderExamplesMapOutcome.error())
+		return Outcome_base_err[JsMessageVisitor_IcuTemplateOptions](placeholderExamplesMapOutcome.error())
 	}
-	var placeholderExamplesMap ImmutableMapOf[string, string] = cast_[*ImmutableMap](placeholderExamplesMapOutcome.get())
+	var placeholderExamplesMap ImmutableMapOf[string, string] = placeholderExamplesMapOutcome.get()
 	var originalCodeValueNode Node = objectLiteralMap.getValueNode("original_code")
-	var originalCodeObjectLiteralMapOutcome *Outcome_base = JsMessageVisitor_extractObjectLiteralMap(originalCodeValueNode)
+	var originalCodeObjectLiteralMapOutcome *Outcome_base[any] = JsMessageVisitor_extractObjectLiteralMap(originalCodeValueNode)
 	if originalCodeObjectLiteralMapOutcome.isErr() {
-		return Outcome_base_err(originalCodeObjectLiteralMapOutcome.error())
+		return Outcome_base_err[JsMessageVisitor_IcuTemplateOptions](originalCodeObjectLiteralMapOutcome.error())
 	}
 	var originalCodeObjectLiteralMap JsMessageVisitor_ObjectLiteralMap = icast_JsMessageVisitor_ObjectLiteralMap(originalCodeObjectLiteralMapOutcome.get())
-	var placeholderOriginalCodeMapOutcome *Outcome_base = originalCodeObjectLiteralMap.extractAsStringToStringMap()
+	var placeholderOriginalCodeMapOutcome *Outcome_base[*ImmutableMap] = originalCodeObjectLiteralMap.extractAsStringToStringMap()
 	if placeholderOriginalCodeMapOutcome.isErr() {
-		return Outcome_base_err(placeholderOriginalCodeMapOutcome.error())
+		return Outcome_base_err[JsMessageVisitor_IcuTemplateOptions](placeholderOriginalCodeMapOutcome.error())
 	}
-	var placeholderOriginalCodeMap ImmutableMapOf[string, string] = cast_[*ImmutableMap](placeholderOriginalCodeMapOutcome.get())
+	var placeholderOriginalCodeMap ImmutableMapOf[string, string] = placeholderOriginalCodeMapOutcome.get()
 	var placeholderNames ImmutableSetOf[string] = ImmutableSet_builder().addAll(Iterable(placeholderExamplesMap.keySet())).addAll(Iterable(placeholderOriginalCodeMap.keySet())).build()
 	it_1 := foreach_(obj_(placeholderNames))
 	for it_1.next() {
 		var placeholderName string = str_(it_1.v)
 		if !JsMessage_isCanonicalPlaceholderNameFormat(placeholderName) {
-			return Outcome_base_err(new_JsMessageVisitor_MalformedException(("Placeholder not in UPPER_SNAKE_CASE: " + sstr_(placeholderName)), optionsBag).up_Throwable())
+			return Outcome_base_err[JsMessageVisitor_IcuTemplateOptions](new_JsMessageVisitor_MalformedException(("Placeholder not in UPPER_SNAKE_CASE: " + sstr_(placeholderName)), optionsBag).up_Throwable())
 		}
 	}
 	var result JsMessageVisitor_IcuTemplateOptions = new_JsMessageVisitor_6(this, description, optErase_(meaning), optErase_(alternateMessageId), placeholderExamplesMap, placeholderOriginalCodeMap, placeholderNames, exampleObjectLiteralMap, originalCodeObjectLiteralMap)
-	return Outcome_base_ok_Object(result)
+	return Outcome_base_ok_Object[JsMessageVisitor_IcuTemplateOptions](result)
 }
 
 // lambda_JsMessageVisitor_extractIcuTemplateOptions_1_ is a lambda of JsMessageVisitor_extractIcuTemplateOptions that captures nothing (post-flip step lambdas).
@@ -614,7 +614,7 @@ func lambda_JsMessageVisitor_extractIcuTemplateOptions_1_(optionName_ any) any {
 	return strobj_(("Unknown option: " + sstr_(optionName)))
 }
 
-func JsMessageVisitor_extractBooleanStringKeyValue(stringKeyNode Node) *Outcome_base {
+func JsMessageVisitor_extractBooleanStringKeyValue(stringKeyNode Node) *Outcome_base[any] {
 	if stringKeyNode == 0 {
 		return Outcome_base_ok_Object(any(bool(false)))
 	} else {
@@ -624,28 +624,28 @@ func JsMessageVisitor_extractBooleanStringKeyValue(stringKeyNode Node) *Outcome_
 		} else if valueNode.isFalse() {
 			return Outcome_base_ok_Object(any(bool(false)))
 		} else {
-			return Outcome_base_err(new_JsMessageVisitor_MalformedException((sstr_(stringKeyNode.getString()) + ": Literal true or false expected"), valueNode).up_Throwable())
+			return Outcome_base_err[any](new_JsMessageVisitor_MalformedException((sstr_(stringKeyNode.getString()) + ": Literal true or false expected"), valueNode).up_Throwable())
 		}
 	}
 }
 
-func JsMessageVisitor_extractObjectLiteralMap(objLit Node) *Outcome_base {
+func JsMessageVisitor_extractObjectLiteralMap(objLit Node) *Outcome_base[any] {
 	if objLit == 0 {
 		return Outcome_base_ok_Object(obj_(new_JsMessageVisitor_ObjectLiteralMapImpl(tmapFrom_(tc_string, tc_Node, ImmutableMap_of(), true))))
 	}
 	if !objLit.isObjectLit() {
-		return Outcome_base_err(new_JsMessageVisitor_MalformedException("object literal expected", objLit).up_Throwable())
+		return Outcome_base_err[any](new_JsMessageVisitor_MalformedException("object literal expected", objLit).up_Throwable())
 	}
 	var stringToStringKeyMap *TMap[string, Node] = newTMap_(tc_string, tc_Node)
 	{
 		var stringKey Node = objLit.getFirstChild()
 		for ; stringKey != 0; stringKey = stringKey.getNext() {
 			if !stringKey.isStringKey() {
-				return Outcome_base_err(new_JsMessageVisitor_MalformedException("string key expected", stringKey).up_Throwable())
+				return Outcome_base_err[any](new_JsMessageVisitor_MalformedException("string key expected", stringKey).up_Throwable())
 			}
 			var key string = stringKey.getString()
 			if stringToStringKeyMap.containsKey(key) {
-				return Outcome_base_err(new_JsMessageVisitor_MalformedException(("duplicate string key: " + sstr_(key)), stringKey).up_Throwable())
+				return Outcome_base_err[any](new_JsMessageVisitor_MalformedException(("duplicate string key: " + sstr_(key)), stringKey).up_Throwable())
 			}
 			stringToStringKeyMap.put(stringKey.getString(), stringKey)
 		}
@@ -653,16 +653,16 @@ func JsMessageVisitor_extractObjectLiteralMap(objLit Node) *Outcome_base {
 	return Outcome_base_ok_Object(obj_(new_JsMessageVisitor_ObjectLiteralMapImpl(stringToStringKeyMap)))
 }
 
-func JsMessageVisitor_parseJsMessageTextIntoParts(originalMsgText string) *Outcome_base {
-	var googGetMsgParsedTextRes *Outcome_base = JsMessageVisitor_extractGoogGetMsgParsedText(originalMsgText)
+func JsMessageVisitor_parseJsMessageTextIntoParts(originalMsgText string) *Outcome_base[List] {
+	var googGetMsgParsedTextRes *Outcome_base[JsMessageVisitor_GoogGetMsgParsedText] = JsMessageVisitor_extractGoogGetMsgParsedText(originalMsgText)
 	if googGetMsgParsedTextRes.isErr() {
-		return Outcome_base_err(googGetMsgParsedTextRes.error())
+		return Outcome_base_err[List](googGetMsgParsedTextRes.error())
 	}
 	var googGetMsgParsedText JsMessageVisitor_GoogGetMsgParsedText = icast_JsMessageVisitor_GoogGetMsgParsedText(googGetMsgParsedTextRes.get())
-	return Outcome_base_ok_Object(obj_(googGetMsgParsedText.getParts()))
+	return Outcome_base_ok_Object[List](icast_List(obj_(googGetMsgParsedText.getParts())))
 }
 
-func JsMessageVisitor_extractGoogGetMsgParsedText(originalMsgText string) *Outcome_base {
+func JsMessageVisitor_extractGoogGetMsgParsedText(originalMsgText string) *Outcome_base[JsMessageVisitor_GoogGetMsgParsedText] {
 	var msgText string = originalMsgText
 	var partsBuilder ImmutableList_BuilderOf[JsMessage_Part] = ImmutableList_builder()
 	var placeholderNamesBuilder ImmutableSet_BuilderOf[string] = ImmutableSet_builder()
@@ -677,11 +677,11 @@ func JsMessageVisitor_extractGoogGetMsgParsedText(originalMsgText string) *Outco
 			}
 			var phEnd int32 = String_indexOf_String_int(msgText, JsMessage_PH_JS_SUFFIX, phBegin)
 			if phEnd < 0 {
-				return Outcome_base_err(new_JsMessage_PlaceholderFormatException("Placeholder incorrectly formatted").up_Throwable())
+				return Outcome_base_err[JsMessageVisitor_GoogGetMsgParsedText](new_JsMessage_PlaceholderFormatException("Placeholder incorrectly formatted").up_Throwable())
 			}
 			var phName string = String_substring(msgText, (phBegin + int32(len(JsMessage_PH_JS_PREFIX))), phEnd)
 			if !JsMessage_isLowerCamelCaseWithNumericSuffixes(phName) {
-				return Outcome_base_err(new_JsMessage_PlaceholderFormatException(("Placeholder name not in lowerCamelCase: " + sstr_(phName))).up_Throwable())
+				return Outcome_base_err[JsMessageVisitor_GoogGetMsgParsedText](new_JsMessage_PlaceholderFormatException(("Placeholder name not in lowerCamelCase: " + sstr_(phName))).up_Throwable())
 			}
 			placeholderNamesBuilder.add(strobj_(phName))
 			partsBuilder.add(obj_(JsMessage_PlaceholderReference_createForJsName(phName)))
@@ -696,7 +696,7 @@ func JsMessageVisitor_extractGoogGetMsgParsedText(originalMsgText string) *Outco
 	var placeholderNames ImmutableSetOf[string] = placeholderNamesBuilder.build()
 	var parts ImmutableListOf[JsMessage_Part] = partsBuilder.build()
 	var parsedText JsMessageVisitor_GoogGetMsgParsedText = new_JsMessageVisitor_7(originalMsgText, placeholderNames, parts)
-	return Outcome_base_ok_Object(parsedText)
+	return Outcome_base_ok_Object[JsMessageVisitor_GoogGetMsgParsedText](parsedText)
 }
 
 func (this *JsMessageVisitor) visitFallbackFunctionCall(t *NodeTraversal, call Node) {
@@ -749,12 +749,12 @@ func JsMessageVisitor_isUnnamedMessageName(identifier string) bool {
 	return JsMessageVisitor_MSG_UNNAMED_PATTERN.matcher_s(identifier).matches()
 }
 
-func (this *JsMessageVisitor) checkNode(node Node, type_ Token_rhino) *Outcome_base {
+func (this *JsMessageVisitor) checkNode(node Node, type_ Token_rhino) *Outcome_base[any] {
 	if node == 0 {
-		return Outcome_base_err(new_JsMessageVisitor_MalformedException(("Expected node type " + tostr_(type_) + "; found: null"), node).up_Throwable())
+		return Outcome_base_err[any](new_JsMessageVisitor_MalformedException(("Expected node type " + tostr_(type_) + "; found: null"), node).up_Throwable())
 	}
 	if node.getToken() != type_ {
-		return Outcome_base_err(new_JsMessageVisitor_MalformedException(("Expected node type " + tostr_(type_) + "; found: " + tostr_(node.getToken())), node).up_Throwable())
+		return Outcome_base_err[any](new_JsMessageVisitor_MalformedException(("Expected node type " + tostr_(type_) + "; found: " + tostr_(node.getToken())), node).up_Throwable())
 	}
 	return Outcome_base_ok_0()
 }
@@ -910,7 +910,7 @@ type JsMessageVisitor_JsMessageOptions interface {
 	isUnescapeHtmlEntities() bool
 	getPlaceholderExampleMap() *ImmutableMap
 	getPlaceholderOriginalCodeMap() *ImmutableMap
-	checkForUnknownPlaceholders(map[string]struct{}) *Outcome_base
+	checkForUnknownPlaceholders(map[string]struct{}) *Outcome_base[any]
 }
 
 type JsMessageVisitor_IcuTemplateOptions interface {
@@ -919,17 +919,17 @@ type JsMessageVisitor_IcuTemplateOptions interface {
 	getAlternateMessageId() OptionalOf[string]
 	getPlaceholderExampleMap() *ImmutableMap
 	getPlaceholderOriginalCodeMap() *ImmutableMap
-	checkForUnknownPlaceholders(map[string]struct{}) *Outcome_base
+	checkForUnknownPlaceholders(map[string]struct{}) *Outcome_base[any]
 	getPlaceholderNames() *ImmutableSet
 }
 
 type JsMessageVisitor_ObjectLiteralMap interface {
-	getBooleanValueOrFalse(string) *Outcome_base
+	getBooleanValueOrFalse(string) *Outcome_base[any]
 	extractAsValueMap() *ImmutableMap
-	extractAsStringToStringMap() *Outcome_base
+	extractAsStringToStringMap() *Outcome_base[*ImmutableMap]
 	getValueNode(string) Node
-	checkForUnexpectedKeys(map[string]struct{}, func(any) any) *Outcome_base
-	checkForRequiredKeys(*TSet[string], func(any) any) *Outcome_base
+	checkForUnexpectedKeys(map[string]struct{}, func(any) any) *Outcome_base[any]
+	checkForRequiredKeys(*TSet[string], func(any) any) *Outcome_base[any]
 }
 
 type JsMessageVisitor_ObjectLiteralMapImpl struct {
@@ -964,7 +964,7 @@ func (this *JsMessageVisitor_ObjectLiteralMapImpl) getValueNode(key string) Node
 	}()
 }
 
-func (this *JsMessageVisitor_ObjectLiteralMapImpl) getBooleanValueOrFalse(key string) *Outcome_base {
+func (this *JsMessageVisitor_ObjectLiteralMapImpl) getBooleanValueOrFalse(key string) *Outcome_base[any] {
 	var stringKeyNode Node = this.stringToStringKeyMap.get(key)
 	return JsMessageVisitor_extractBooleanStringKeyValue(stringKeyNode)
 }
@@ -980,40 +980,40 @@ func (this *JsMessageVisitor_ObjectLiteralMapImpl) extractAsValueMap() Immutable
 	return this.valueMap
 }
 
-func (this *JsMessageVisitor_ObjectLiteralMapImpl) extractAsStringToStringMap() *Outcome_base {
+func (this *JsMessageVisitor_ObjectLiteralMapImpl) extractAsStringToStringMap() *Outcome_base[*ImmutableMap] {
 	if this.stringMap == nil {
 		var builder ImmutableMap_BuilderOf[string, string] = ImmutableMap_builder()
 		it_1 := foreach_(this.stringToStringKeyMap.asMap().entrySet())
 		for it_1.next() {
 			var entry Map_Entry = icast_Map_Entry(it_1.v)
-			var value *Outcome_base = JsMessageVisitor_extractStringFromStringExprNode(Node_of_(entry.getValue()).getOnlyChild())
+			var value *Outcome_base[string] = JsMessageVisitor_extractStringFromStringExprNode(Node_of_(entry.getValue()).getOnlyChild())
 			if value.isErr() {
-				return Outcome_base_err(value.error())
+				return Outcome_base_err[*ImmutableMap](value.error())
 			}
-			builder.put(entry.getKey(), value.get())
+			builder.put(entry.getKey(), strobj_(value.get()))
 		}
 		this.stringMap = builder.buildOrThrow()
 	}
-	return Outcome_base_ok_Object(obj_(this.stringMap))
+	return Outcome_base_ok_Object[*ImmutableMap](this.stringMap)
 }
 
-func (this *JsMessageVisitor_ObjectLiteralMapImpl) checkForUnexpectedKeys(expectedKeys map[string]struct{}, createErrorMessage func(any) any) *Outcome_base {
+func (this *JsMessageVisitor_ObjectLiteralMapImpl) checkForUnexpectedKeys(expectedKeys map[string]struct{}, createErrorMessage func(any) any) *Outcome_base[any] {
 	it_1 := this.stringToStringKeyMap.each()
 	for it_1.next() {
 		var key string = it_1.k
 		if !has_(expectedKeys, key) {
-			return Outcome_base_err(new_JsMessageVisitor_MalformedException(str_(createErrorMessage(strobj_(key))), this.stringToStringKeyMap.get(key)).up_Throwable())
+			return Outcome_base_err[any](new_JsMessageVisitor_MalformedException(str_(createErrorMessage(strobj_(key))), this.stringToStringKeyMap.get(key)).up_Throwable())
 		}
 	}
 	return Outcome_base_ok_0()
 }
 
-func (this *JsMessageVisitor_ObjectLiteralMapImpl) checkForRequiredKeys(requiredKeys *TSet[string], createException func(any) any) *Outcome_base {
+func (this *JsMessageVisitor_ObjectLiteralMapImpl) checkForRequiredKeys(requiredKeys *TSet[string], createException func(any) any) *Outcome_base[any] {
 	it_1 := requiredKeys.each()
 	for it_1.next() {
 		var requiredKey string = it_1.v
 		if !this.stringToStringKeyMap.containsKey(requiredKey) {
-			return Outcome_base_err(to_Throwable(createException(strobj_(requiredKey))))
+			return Outcome_base_err[any](to_Throwable(createException(strobj_(requiredKey))))
 		}
 	}
 	return Outcome_base_ok_0()
@@ -1328,10 +1328,10 @@ func (this *JsMessageVisitor_5) getPlaceholderOriginalCodeMap() ImmutableMapOf[s
 	return this.cap_placeholderOriginalCodeMap
 }
 
-func (this *JsMessageVisitor_5) checkForUnknownPlaceholders(knownPlaceholders map[string]struct{}) *Outcome_base {
-	var exampleChecked *Outcome_base = this.cap_exampleObjectLiteralMap.checkForUnexpectedKeys(knownPlaceholders, lambda_JsMessageVisitor_5_checkForUnknownPlaceholders_1_)
+func (this *JsMessageVisitor_5) checkForUnknownPlaceholders(knownPlaceholders map[string]struct{}) *Outcome_base[any] {
+	var exampleChecked *Outcome_base[any] = this.cap_exampleObjectLiteralMap.checkForUnexpectedKeys(knownPlaceholders, lambda_JsMessageVisitor_5_checkForUnknownPlaceholders_1_)
 	if exampleChecked.isErr() {
-		return Outcome_base_err(exampleChecked.error())
+		return Outcome_base_err[any](exampleChecked.error())
 	}
 	return this.cap_originalCodeObjectLiteralMap.checkForUnexpectedKeys(knownPlaceholders, lambda_JsMessageVisitor_5_checkForUnknownPlaceholders_2_)
 }
@@ -1405,10 +1405,10 @@ func (this *JsMessageVisitor_6) getPlaceholderNames() ImmutableSetOf[string] {
 	return this.cap_placeholderNames
 }
 
-func (this *JsMessageVisitor_6) checkForUnknownPlaceholders(knownPlaceholders map[string]struct{}) *Outcome_base {
-	var exampleChecked *Outcome_base = this.cap_exampleObjectLiteralMap.checkForUnexpectedKeys(knownPlaceholders, lambda_JsMessageVisitor_6_checkForUnknownPlaceholders_1_)
+func (this *JsMessageVisitor_6) checkForUnknownPlaceholders(knownPlaceholders map[string]struct{}) *Outcome_base[any] {
+	var exampleChecked *Outcome_base[any] = this.cap_exampleObjectLiteralMap.checkForUnexpectedKeys(knownPlaceholders, lambda_JsMessageVisitor_6_checkForUnknownPlaceholders_1_)
 	if exampleChecked.isErr() {
-		return Outcome_base_err(exampleChecked.error())
+		return Outcome_base_err[any](exampleChecked.error())
 	}
 	return this.cap_originalCodeObjectLiteralMap.checkForUnexpectedKeys(knownPlaceholders, lambda_JsMessageVisitor_6_checkForUnknownPlaceholders_2_)
 }

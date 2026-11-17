@@ -42,7 +42,7 @@ func new_LinkedUndirectedGraph(useNodeAnnotations bool, useEdgeAnnotations bool)
 }
 
 func (this *LinkedUndirectedGraph) newSubGraph_impl() SubGraph {
-	return new_Graph_SimpleSubGraph(this.up_Graph())
+	return new_Graph_SimpleSubGraph[any, any](this.up_Graph())
 }
 
 func LinkedUndirectedGraph_create() *LinkedUndirectedGraph {

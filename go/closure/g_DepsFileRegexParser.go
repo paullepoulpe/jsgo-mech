@@ -48,12 +48,12 @@ func new_DepsFileRegexParser_Function_ErrorManager(pathTranslator Function_baseO
 	return this
 }
 
-func (this *DepsFileRegexParser) parseFile(filePath string) *Outcome_base {
-	var fileContents *Outcome_base = TextFiles_read(filePath, Charsets_UTF_8)
+func (this *DepsFileRegexParser) parseFile(filePath string) *Outcome_base[List] {
+	var fileContents *Outcome_base[string] = TextFiles_read(filePath, Charsets_UTF_8)
 	if fileContents.isErr() {
-		return Outcome_base_err(fileContents.error())
+		return Outcome_base_err[List](fileContents.error())
 	}
-	return Outcome_base_ok_Object(this.parseFile_2(filePath, str_(fileContents.get())))
+	return Outcome_base_ok_Object[List](this.parseFile_2(filePath, fileContents.get()))
 }
 
 func (this *DepsFileRegexParser) parseFile_2(filePath string, fileContents string) ListOf[DependencyInfo] {
@@ -65,7 +65,7 @@ func (this *DepsFileRegexParser) parseFile_2(filePath string, fileContents strin
 	return this.depInfos
 }
 
-func (this *DepsFileRegexParser) parseLine_impl(line string) *Outcome_base {
+func (this *DepsFileRegexParser) parseLine_impl(line string) *Outcome_base[any] {
 	var hasDependencies bool = false
 	if strings.Contains(line, "addDependency") {
 		this.depMatcher.reset_s(line)
@@ -74,30 +74,30 @@ func (this *DepsFileRegexParser) parseLine_impl(line string) *Outcome_base {
 			var addDependencyParams string = this.depMatcher.group(1)
 			this.depArgsMatch.reset_s(addDependencyParams)
 			if !this.depArgsMatch.matches() {
-				return Outcome_base_err(new_JsFileLineParser_ParseException(("Invalid arguments to goog.addDependency(). Found: " + sstr_(addDependencyParams)), true).up_Throwable())
+				return Outcome_base_err[any](new_JsFileLineParser_ParseException(("Invalid arguments to goog.addDependency(). Found: " + sstr_(addDependencyParams)), true).up_Throwable())
 			}
-			var relativePathOutcome *Outcome_base = this.parseJsString(this.depArgsMatch.group(1))
+			var relativePathOutcome *Outcome_base[string] = this.parseJsString(this.depArgsMatch.group(1))
 			if relativePathOutcome.isErr() {
-				return Outcome_base_err(relativePathOutcome.error())
+				return Outcome_base_err[any](relativePathOutcome.error())
 			}
-			var relativePath string = str_(relativePathOutcome.get())
+			var relativePath string = relativePathOutcome.get()
 			var path string = str_(this.pathTranslator.apply(strobj_(relativePath)))
-			var providesOutcome *Outcome_base = this.parseJsStringArray(this.depArgsMatch.group(2))
+			var providesOutcome *Outcome_base[List] = this.parseJsStringArray(this.depArgsMatch.group(2))
 			if providesOutcome.isErr() {
-				return Outcome_base_err(providesOutcome.error())
+				return Outcome_base_err[any](providesOutcome.error())
 			}
 			var provides ListOf[string] = icast_List(providesOutcome.get())
-			var loadFlagsOutcome *Outcome_base = this.parseLoadFlags(Optional_ofNullable[string](this.depArgsMatch.group(4)))
+			var loadFlagsOutcome *Outcome_base[Map] = this.parseLoadFlags(Optional_ofNullable[string](this.depArgsMatch.group(4)))
 			if loadFlagsOutcome.isErr() {
-				return Outcome_base_err(loadFlagsOutcome.error())
+				return Outcome_base_err[any](loadFlagsOutcome.error())
 			}
 			var loadFlags MapOf[string, string] = icast_Map(loadFlagsOutcome.get())
 			if "es6" == str_(Map_get_s(loadFlags, "module")) {
 				provides.add(strobj_(relativePath))
 			}
-			var requiresOutcome *Outcome_base = this.parseJsStringArray(this.depArgsMatch.group(3))
+			var requiresOutcome *Outcome_base[List] = this.parseJsStringArray(this.depArgsMatch.group(3))
 			if requiresOutcome.isErr() {
-				return Outcome_base_err(requiresOutcome.error())
+				return Outcome_base_err[any](requiresOutcome.error())
 			}
 			var depInfo DependencyInfo = icast_DependencyInfo(obj_(SimpleDependencyInfo_builder(path, this.filePath).setProvides(Collection(provides)).setRequires(icast_Collection(obj_(DepsFileRegexParser_requiresParsedFromDeps(icast_List(requiresOutcome.get()))))).setLoadFlags(loadFlags).build()))
 			if DepsFileRegexParser_logger.isLoggable(Level_FINE) {
@@ -117,11 +117,11 @@ func DepsFileRegexParser_requiresParsedFromDeps(symbols ListOf[string]) Immutabl
 	return result.build()
 }
 
-func (this *DepsFileRegexParser) parseLoadFlags(loadFlags OptionalOf[string]) *Outcome_base {
+func (this *DepsFileRegexParser) parseLoadFlags(loadFlags OptionalOf[string]) *Outcome_base[Map] {
 	if loadFlags.isEmpty() || (loadFlags.get() == "false") {
-		return Outcome_base_ok_Object(obj_(ImmutableMap_of()))
+		return Outcome_base_ok_Object[Map](icast_Map(obj_(ImmutableMap_of())))
 	} else if loadFlags.get() == "true" {
-		return Outcome_base_ok_Object(obj_(ImmutableMap_of_Object_Object(strobj_("module"), strobj_("goog"))))
+		return Outcome_base_ok_Object[Map](icast_Map(obj_(ImmutableMap_of_Object_Object(strobj_("module"), strobj_("goog")))))
 	} else {
 		return this.parseJsStringMap(loadFlags.get())
 	}
@@ -141,7 +141,7 @@ func DepsFileRegexParser_clinit() {
 }
 
 // parseLine: an object that is exactly a DepsFileRegexParser calls its parseLine_impl directly (post-flip); others dispatch.
-func (this *DepsFileRegexParser) parseLine(p0 string) *Outcome_base {
+func (this *DepsFileRegexParser) parseLine(p0 string) *Outcome_base[any] {
 	if p, _ := this.self_.(*DepsFileRegexParser); p == this {
 		return this.parseLine_impl(p0)
 	}

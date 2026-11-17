@@ -4,7 +4,7 @@ package closure
 
 type Es6RenameTypeReferences struct {
 	NodeTraversal_AbstractPostOrderCallback
-	renameTable *SimpleTable
+	renameTable *SimpleTable[Node, any, string]
 }
 
 func (this *Es6RenameTypeReferences) up_NodeTraversal_AbstractPostOrderCallback() *NodeTraversal_AbstractPostOrderCallback {
@@ -14,12 +14,12 @@ func (this *Es6RenameTypeReferences) up_NodeTraversal_AbstractPostOrderCallback(
 	return &this.NodeTraversal_AbstractPostOrderCallback
 }
 
-func (this *Es6RenameTypeReferences) init_Es6RenameTypeReferences(renameTable *SimpleTable) {
+func (this *Es6RenameTypeReferences) init_Es6RenameTypeReferences(renameTable *SimpleTable[Node, any, string]) {
 	this.NodeTraversal_AbstractPostOrderCallback.init_NodeTraversal_AbstractPostOrderCallback()
 	this.renameTable = renameTable
 }
 
-func new_Es6RenameTypeReferences(renameTable *SimpleTable) *Es6RenameTypeReferences {
+func new_Es6RenameTypeReferences(renameTable *SimpleTable[Node, any, string]) *Es6RenameTypeReferences {
 	this := &Es6RenameTypeReferences{}
 	this.self_ = this
 	this.init_Es6RenameTypeReferences(renameTable)
@@ -69,7 +69,7 @@ func (this *Es6RenameTypeReferences) renameReference(t *NodeTraversal, n Node, o
 	var current *Scope = t.getScope()
 	for current != nil {
 		var currentRootNode Node = current.getRootNode()
-		var newName OptionalOf[string] = Optional_ofNullable[string](str_(this.renameTable.get_s(currentRootNode.box_(), oldName)))
+		var newName OptionalOf[string] = Optional_ofNullable[string](this.renameTable.get_s(currentRootNode.box_(), oldName))
 		if newName.isPresent() {
 			if !((currentRootNode.isModuleBody() || currentRootNode.isScript()) || NodeUtil_isFunctionBlock(currentRootNode)) {
 				panic(new_IllegalStateException_String(Strings_lenientFormat("Not a MODULE_BODY or SCRIPT or goog.loadModule root: %s", []any{currentRootNode.box_()})).self())

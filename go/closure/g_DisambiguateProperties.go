@@ -65,7 +65,7 @@ func (this *DisambiguateProperties) process_2(externs Node, root Node) {
 		return obj_(ImmutableList_copyOf(Collection(sliceView_(tc_p_DisambiguateProperties_TypeNodeJson, result))))
 	}})
 	this.invalidateBasedOnType(flattener)
-	FixedPointGraphTraversal_newTraversal(propagator.traverseEdge).computeFixedPoint(graph)
+	FixedPointGraphTraversal_newTraversal[any, any](propagator.traverseEdge).computeFixedPoint(graph)
 	var trackerSummaryGenerator *DisambiguateProperties_TrackerSummaryGenerator = new_DisambiguateProperties_TrackerSummaryGenerator()
 	for prop := range propIndex.Values() {
 		var renameUsesResult UseSiteRenamer_RenameUsesResult = renamer.renameUses(prop)
@@ -86,8 +86,8 @@ func (this *DisambiguateProperties) process_2(externs Node, root Node) {
 }
 
 // lambda_DisambiguateProperties_process_2_1_ is a lambda of DisambiguateProperties_process_2 that captures nothing (post-flip step lambdas).
-func lambda_DisambiguateProperties_process_2_1_(p0 *DiGraph) *LowestCommonAncestorFinder {
-	return new_LowestCommonAncestorFinder(p0)
+func lambda_DisambiguateProperties_process_2_1_(p0 *DiGraph) *LowestCommonAncestorFinder[any, any] {
+	return new_LowestCommonAncestorFinder[any, any](p0)
 }
 
 // lambda_DisambiguateProperties_process_2_2_ is a lambda of DisambiguateProperties_process_2 that captures nothing (post-flip step lambdas).
@@ -103,7 +103,7 @@ func (this *DisambiguateProperties) createInvalidationError(prop *PropertyCluste
 }
 
 func DisambiguateProperties_buildRenamingIndex(props *TMap[string, *PropertyClustering], renamer *UseSiteRenamer) ImmutableMapOf[string, any] {
-	var newNames *SimpleSetMultimap = renamer.getRenamingIndex()
+	var newNames *SimpleSetMultimap[string, string] = renamer.getRenamingIndex()
 	var result ImmutableSortedMap_BuilderOf[string, any] = ImmutableSortedMap_naturalOrder()
 	for prop := range props.Values() {
 		result.put(strobj_(prop.getName()), func() any {

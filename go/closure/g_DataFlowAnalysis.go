@@ -62,7 +62,7 @@ func (this *DataFlowAnalysis) analyze() {
 	this.initialize()
 	for !this.workQueue.isEmpty() {
 		var curNode DiGraph_DiGraphNode = icast_DiGraph_DiGraphNode(this.workQueue.removeFirst())
-		var curState *DataFlowAnalysis_LinearFlowState = cast_[*DataFlowAnalysis_LinearFlowState](Annotatable_getAnnotation(Annotatable(curNode)))
+		var curState *DataFlowAnalysis_LinearFlowState[any] = cast_[*DataFlowAnalysis_LinearFlowState[any]](Annotatable_getAnnotation(Annotatable(curNode)))
 		var stepCount int32 = curState.stepCount
 		curState.stepCount++
 		if stepCount > DataFlowAnalysis_MAX_STEPS_PER_NODE {
@@ -99,7 +99,7 @@ func (this *DataFlowAnalysis) analyze() {
 func (this *DataFlowAnalysis) initialize() {
 	this.workQueue.clear()
 	for node := range elemsBy_(this.cfg.getNodes(), icast_DiGraph_DiGraphNode) {
-		node.setAnnotation(new_DataFlowAnalysis_LinearFlowState(this.createInitialEstimateLattice(), this.createInitialEstimateLattice()))
+		node.setAnnotation(new_DataFlowAnalysis_LinearFlowState[any](this.createInitialEstimateLattice(), this.createInitialEstimateLattice()))
 		if node != this.cfg.getImplicitReturn() {
 			this.workQueue.add(node)
 		}
@@ -113,7 +113,7 @@ func (this *DataFlowAnalysis) initialize() {
 }
 
 func (this *DataFlowAnalysis) flow(node DiGraph_DiGraphNode) bool {
-	var state *DataFlowAnalysis_LinearFlowState = cast_[*DataFlowAnalysis_LinearFlowState](Annotatable_getAnnotation(Annotatable(node)))
+	var state *DataFlowAnalysis_LinearFlowState[any] = cast_[*DataFlowAnalysis_LinearFlowState[any]](Annotatable_getAnnotation(Annotatable(node)))
 	if this.isForward() {
 		var outBefore LatticeElement = icast_LatticeElement(state.getOut())
 		state.setOut(this.flowThrough(node.getValue(), icast_LatticeElement(state.getIn())))
@@ -137,7 +137,7 @@ func (this *DataFlowAnalysis) flow(node DiGraph_DiGraphNode) bool {
 }
 
 func (this *DataFlowAnalysis) joinInputs(node DiGraph_DiGraphNode) {
-	var state *DataFlowAnalysis_LinearFlowState = cast_[*DataFlowAnalysis_LinearFlowState](Annotatable_getAnnotation(Annotatable(node)))
+	var state *DataFlowAnalysis_LinearFlowState[any] = cast_[*DataFlowAnalysis_LinearFlowState[any]](Annotatable_getAnnotation(Annotatable(node)))
 	if this.isForward() && (this.cfg.getEntry() == node) {
 		state.setIn(this.createEntryLattice())
 		return
@@ -172,14 +172,14 @@ func (this *DataFlowAnalysis) getInputFromEdge(edge DiGraph_DiGraphEdge) Lattice
 	if this.isBranched() {
 		return icast_LatticeElement(Annotatable_getAnnotation(Annotatable(edge)))
 	} else if this.isForward() {
-		var state *DataFlowAnalysis_LinearFlowState = cast_[*DataFlowAnalysis_LinearFlowState](Annotatable_getAnnotation(Annotatable(edge.getSource())))
+		var state *DataFlowAnalysis_LinearFlowState[any] = cast_[*DataFlowAnalysis_LinearFlowState[any]](Annotatable_getAnnotation(Annotatable(edge.getSource())))
 		return icast_LatticeElement(state.getOut())
 	} else {
 		var node DiGraph_DiGraphNode = edge.getDestination()
 		if node == this.cfg.getImplicitReturn() {
 			return this.createEntryLattice()
 		}
-		var state *DataFlowAnalysis_LinearFlowState = cast_[*DataFlowAnalysis_LinearFlowState](Annotatable_getAnnotation(Annotatable(node)))
+		var state *DataFlowAnalysis_LinearFlowState[any] = cast_[*DataFlowAnalysis_LinearFlowState[any]](Annotatable_getAnnotation(Annotatable(node)))
 		return icast_LatticeElement(state.getIn())
 	}
 }
@@ -257,62 +257,62 @@ func (this *DataFlowAnalysis_FlowBrancher_fn) branchFlow(p0 ControlFlowGraph_Bra
 	return this.f(p0)
 }
 
-type DataFlowAnalysis_LinearFlowState struct {
+type DataFlowAnalysis_LinearFlowState[L comparable] struct {
 	stepCount int32
-	in        any
-	out       any
+	in        L
+	out       L
 }
 
-func (this *DataFlowAnalysis_LinearFlowState) finit_DataFlowAnalysis_LinearFlowState() {
+func (this *DataFlowAnalysis_LinearFlowState[L]) finit_DataFlowAnalysis_LinearFlowState() {
 	this.stepCount = 0
 }
 
-func (this *DataFlowAnalysis_LinearFlowState) init_DataFlowAnalysis_LinearFlowState(in any, out any) {
+func (this *DataFlowAnalysis_LinearFlowState[L]) init_DataFlowAnalysis_LinearFlowState(in L, out L) {
 	this.finit_DataFlowAnalysis_LinearFlowState()
-	if in == nil {
+	if in == null_[L]() {
 		panic(new_NullPointerException_0().self())
 	}
-	if out == nil {
+	if out == null_[L]() {
 		panic(new_NullPointerException_0().self())
 	}
 	this.in = in
 	this.out = out
 }
 
-func new_DataFlowAnalysis_LinearFlowState(in any, out any) *DataFlowAnalysis_LinearFlowState {
-	this := &DataFlowAnalysis_LinearFlowState{}
+func new_DataFlowAnalysis_LinearFlowState[L comparable](in L, out L) *DataFlowAnalysis_LinearFlowState[L] {
+	this := &DataFlowAnalysis_LinearFlowState[L]{in: null_[L](), out: null_[L]()}
 	this.init_DataFlowAnalysis_LinearFlowState(in, out)
 	return this
 }
 
-func (this *DataFlowAnalysis_LinearFlowState) getStepCount() int32 {
+func (this *DataFlowAnalysis_LinearFlowState[L]) getStepCount() int32 {
 	return this.stepCount
 }
 
-func (this *DataFlowAnalysis_LinearFlowState) getIn() any {
+func (this *DataFlowAnalysis_LinearFlowState[L]) getIn() L {
 	return this.in
 }
 
-func (this *DataFlowAnalysis_LinearFlowState) setIn(in LatticeElement) {
+func (this *DataFlowAnalysis_LinearFlowState[L]) setIn(in LatticeElement) {
 	if in == nil {
 		panic(new_NullPointerException_0().self())
 	}
-	this.in = in
+	this.in = unboxT_[L](in)
 }
 
-func (this *DataFlowAnalysis_LinearFlowState) getOut() any {
+func (this *DataFlowAnalysis_LinearFlowState[L]) getOut() L {
 	return this.out
 }
 
-func (this *DataFlowAnalysis_LinearFlowState) setOut(out any) {
-	if out == nil {
+func (this *DataFlowAnalysis_LinearFlowState[L]) setOut(out L) {
+	if out == null_[L]() {
 		panic(new_NullPointerException_0().self())
 	}
 	this.out = out
 }
 
-func (this *DataFlowAnalysis_LinearFlowState) toString() string {
-	return String_format("IN: %s OUT: %s", []any{this.in, this.out})
+func (this *DataFlowAnalysis_LinearFlowState[L]) toString() string {
+	return String_format("IN: %s OUT: %s", []any{boxNull_(this.in), boxNull_(this.out)})
 }
 
 type DataFlowAnalysis_UniqueQueue struct {

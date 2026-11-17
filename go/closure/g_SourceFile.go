@@ -105,13 +105,13 @@ func (this *SourceFile_jscomp) findLineOffsets() {
 	}
 	var localCode OptionalOf[string] = this.code_
 	if localCode.isEmpty() {
-		var codeRes *Outcome_base = this.readCode()
+		var codeRes *Outcome_base[string] = this.readCode()
 		if codeRes.isErr() {
 			localCode = Optional_of[string]("")
 			this.lineOffsets = make([]int32, 1)
 			return
 		}
-		localCode = Optional_ofNullable[string](str_(codeRes.get()))
+		localCode = Optional_ofNullable[string](codeRes.get())
 	}
 	var offsets []int32 = make([]int32, this.numLines)
 	var index int32 = 1
@@ -125,30 +125,30 @@ func (this *SourceFile_jscomp) findLineOffsets() {
 	this.lineOffsets = offsets
 }
 
-func (this *SourceFile_jscomp) readCode() *Outcome_base {
+func (this *SourceFile_jscomp) readCode() *Outcome_base[string] {
 	if this.code_.isEmpty() {
 		{
 			if this.code_.isEmpty() {
-				var loaded *Outcome_base = this.loader.loadUncachedCode()
+				var loaded *Outcome_base[string] = this.loader.loadUncachedCode()
 				if loaded.isErr() {
-					return Outcome_base_err(loaded.error())
+					return Outcome_base_err[string](loaded.error())
 				}
-				this.setCodeAndDoBookkeeping(Optional_ofNullable[string](str_(loaded.get())))
+				this.setCodeAndDoBookkeeping(Optional_ofNullable[string](loaded.get()))
 			}
 		}
 	}
-	return Outcome_base_ok_Object(strobj_(this.code_.orElse(nullstr_)))
+	return Outcome_base_ok_Object[string](this.code_.orElse(nullstr_))
 }
 
 func (this *SourceFile_jscomp) setCodeDeprecated(code string) {
 	this.setCodeAndDoBookkeeping(Optional_of[string](code))
 }
 
-func (this *SourceFile_jscomp) readCodeWithoutCaching() *Outcome_base {
+func (this *SourceFile_jscomp) readCodeWithoutCaching() *Outcome_base[string] {
 	if this.code_.isEmpty() {
 		{
 			if this.code_.isEmpty() {
-				var uncachedText *Outcome_base = this.loader.loadUncachedText()
+				var uncachedText *Outcome_base[string] = this.loader.loadUncachedText()
 				if uncachedText != nil {
 					return uncachedText
 				}
@@ -226,11 +226,11 @@ func (this *SourceFile_jscomp) getColumnOfOffset(offset int32) int32 {
 }
 
 func (this *SourceFile_jscomp) getLine(lineNumber int32) OptionalOf[string] {
-	var codeRes *Outcome_base = this.readCode()
+	var codeRes *Outcome_base[string] = this.readCode()
 	if codeRes.isErr() {
 		return Optional_empty[string]()
 	}
-	var js string = str_(codeRes.get())
+	var js string = codeRes.get()
 	this.findLineOffsets()
 	if lineNumber > int32(len(this.lineOffsets)) {
 		return Optional_empty[string]()
@@ -256,11 +256,11 @@ func (this *SourceFile_jscomp) getLine(lineNumber int32) OptionalOf[string] {
 }
 
 func (this *SourceFile_jscomp) getLines(lineNumber int32, length int32) Region {
-	var codeRes *Outcome_base = this.readCode()
+	var codeRes *Outcome_base[string] = this.readCode()
 	if codeRes.isErr() {
 		return nil
 	}
-	var js string = str_(codeRes.get())
+	var js string = codeRes.get()
 	this.findLineOffsets()
 	if lineNumber > int32(len(this.lineOffsets)) {
 		return nil
@@ -299,11 +299,11 @@ func (this *SourceFile_jscomp) getLines(lineNumber int32, length int32) Region {
 }
 
 func (this *SourceFile_jscomp) getRegion(lineNumber int32) Region {
-	var codeRes *Outcome_base = this.readCode()
+	var codeRes *Outcome_base[string] = this.readCode()
 	if codeRes.isErr() {
 		return nil
 	}
-	var js string = str_(codeRes.get())
+	var js string = codeRes.get()
 	var pos int32 = 0
 	var startLine int32 = Math_max(1, ((lineNumber - 3) + 1))
 	for n := int32(1); n < startLine; n++ {
@@ -349,23 +349,23 @@ func (this *SourceFile_jscomp) toString() string {
 	return this.fileName
 }
 
-func SourceFile_jscomp_fromZipFile(zipName string, inputCharset string) *Outcome_base {
-	var archive *Outcome_base = ZipArchive_open(zipName)
+func SourceFile_jscomp_fromZipFile(zipName string, inputCharset string) *Outcome_base[any] {
+	var archive *Outcome_base[*ZipArchive] = ZipArchive_open(zipName)
 	if archive.isErr() {
-		return Outcome_base_err(archive.error())
-	}
-	return SourceFile_jscomp_fromZipEntryNames(zipName, cast_[*ZipArchive](archive.get()).names(), inputCharset)
-}
-
-func SourceFile_jscomp_fromZipInput(zipName string, zipBytes []int8, inputCharset string) *Outcome_base {
-	var archive OptionalOf[*ZipArchive] = ZipArchive_parse(zipBytes)
-	if archive.isEmpty() {
-		return Outcome_base_err(new_IOException_String(("Cannot read zip file " + sstr_(zipName))).up_Throwable())
+		return Outcome_base_err[any](archive.error())
 	}
 	return SourceFile_jscomp_fromZipEntryNames(zipName, archive.get().names(), inputCharset)
 }
 
-func SourceFile_jscomp_fromZipEntryNames(zipName string, entryNames *TList[string], inputCharset string) *Outcome_base {
+func SourceFile_jscomp_fromZipInput(zipName string, zipBytes []int8, inputCharset string) *Outcome_base[any] {
+	var archive OptionalOf[*ZipArchive] = ZipArchive_parse(zipBytes)
+	if archive.isEmpty() {
+		return Outcome_base_err[any](new_IOException_String(("Cannot read zip file " + sstr_(zipName))).up_Throwable())
+	}
+	return SourceFile_jscomp_fromZipEntryNames(zipName, archive.get().names(), inputCharset)
+}
+
+func SourceFile_jscomp_fromZipEntryNames(zipName string, entryNames *TList[string], inputCharset string) *Outcome_base[any] {
 	var absoluteZipPath string = FilePaths_toAbsolute(zipName)
 	var sourceFiles ListOf[*SourceFile_jscomp] = new_ArrayList_0()
 	for entryName := range entryNames.All() {
@@ -374,7 +374,7 @@ func SourceFile_jscomp_fromZipEntryNames(zipName string, entryNames *TList[strin
 		}
 		sourceFiles.add(obj_(SourceFile_jscomp_builder().withCharset(inputCharset).withOriginalPath((sstr_(zipName) + sstr_(SourceFile_jscomp_BANG_SLASH) + sstr_(entryName))).withZipEntryPath(absoluteZipPath, entryName).build()))
 	}
-	return Outcome_base_ok_Object(sourceFiles)
+	return Outcome_base_ok_Object[any](sourceFiles)
 }
 
 func SourceFile_jscomp_fromFile_String_String(fileName string, charset string) *SourceFile_jscomp {
@@ -701,8 +701,8 @@ type SourceFile_CodeLoader struct {
 // SourceFile_CodeLoader_I holds the methods the dispatchers of SourceFile_CodeLoader's hierarchy call on the most derived
 // object (self_); every class of the hierarchy implements them (post-flip).
 type SourceFile_CodeLoader_I interface {
-	loadUncachedCode_impl() *Outcome_base
-	loadUncachedText_impl() *Outcome_base
+	loadUncachedCode_impl() *Outcome_base[string]
+	loadUncachedText_impl() *Outcome_base[string]
 	toProtoLocationBuilder_impl(string) *SourceFileProto_Builder
 }
 
@@ -719,15 +719,15 @@ func (this *SourceFile_CodeLoader) init_SourceFile_CodeLoader() {
 
 }
 
-func (this *SourceFile_CodeLoader) loadUncachedCode_impl() *Outcome_base {
+func (this *SourceFile_CodeLoader) loadUncachedCode_impl() *Outcome_base[string] {
 	panic(new_AssertionError_0().self())
 }
 
-func (this *SourceFile_CodeLoader) loadUncachedText_impl() *Outcome_base {
+func (this *SourceFile_CodeLoader) loadUncachedText_impl() *Outcome_base[string] {
 	return nil
 }
 
-func (this *SourceFile_CodeLoader) loadUncachedCode() *Outcome_base {
+func (this *SourceFile_CodeLoader) loadUncachedCode() *Outcome_base[string] {
 	return this.self_.loadUncachedCode_impl()
 }
 
@@ -735,7 +735,7 @@ func (this *SourceFile_CodeLoader) toProtoLocationBuilder(p0 string) *SourceFile
 	return this.self_.toProtoLocationBuilder_impl(p0)
 }
 
-func (this *SourceFile_CodeLoader) loadUncachedText() *Outcome_base {
+func (this *SourceFile_CodeLoader) loadUncachedText() *Outcome_base[string] {
 	return this.self_.loadUncachedText_impl()
 }
 
@@ -768,8 +768,8 @@ func new_SourceFile_CodeLoader_Preloaded(preloadedCode string) *SourceFile_CodeL
 	return this
 }
 
-func (this *SourceFile_CodeLoader_Preloaded) loadUncachedCode_impl() *Outcome_base {
-	return Outcome_base_ok_Object(strobj_(this.preloadedCode))
+func (this *SourceFile_CodeLoader_Preloaded) loadUncachedCode_impl() *Outcome_base[string] {
+	return Outcome_base_ok_Object[string](this.preloadedCode)
 }
 
 func (this *SourceFile_CodeLoader_Preloaded) toProtoLocationBuilder_impl(fileName string) *SourceFileProto_Builder {
@@ -800,7 +800,7 @@ func new_SourceFile_CodeLoader_StubSourceFileCodeLoader() *SourceFile_CodeLoader
 	return this
 }
 
-func (this *SourceFile_CodeLoader_StubSourceFileCodeLoader) loadUncachedCode_impl() *Outcome_base {
+func (this *SourceFile_CodeLoader_StubSourceFileCodeLoader) loadUncachedCode_impl() *Outcome_base[string] {
 	panic(new_UnsupportedOperationException_String("Attempting to load code from a stub SourceFile.").self())
 }
 
@@ -842,11 +842,11 @@ func new_SourceFile_CodeLoader_OnDisk(relativePath string, c string) *SourceFile
 	return this
 }
 
-func (this *SourceFile_CodeLoader_OnDisk) loadUncachedCode_impl() *Outcome_base {
+func (this *SourceFile_CodeLoader_OnDisk) loadUncachedCode_impl() *Outcome_base[string] {
 	return TextFiles_readStrict(this.relativePath, this.serializableCharset)
 }
 
-func (this *SourceFile_CodeLoader_OnDisk) loadUncachedText_impl() *Outcome_base {
+func (this *SourceFile_CodeLoader_OnDisk) loadUncachedText_impl() *Outcome_base[string] {
 	return TextFiles_readStrict(this.relativePath, this.serializableCharset)
 }
 
@@ -902,15 +902,15 @@ func new_SourceFile_CodeLoader_AtZip(zipName string, entryName string, c string)
 	return this
 }
 
-func (this *SourceFile_CodeLoader_AtZip) loadUncachedCode_impl() *Outcome_base {
-	var data *Outcome_base = ZipArchive_readEntry(this.zipName, this.entryName)
+func (this *SourceFile_CodeLoader_AtZip) loadUncachedCode_impl() *Outcome_base[string] {
+	var data *Outcome_base[any] = ZipArchive_readEntry(this.zipName, this.entryName)
 	if data.isErr() {
-		return Outcome_base_err(data.error())
+		return Outcome_base_err[string](data.error())
 	}
-	return Outcome_base_ok_Object(strobj_(Charsets_decode(cast_[[]int8](data.get()), this.serializableCharset)))
+	return Outcome_base_ok_Object[string](Charsets_decode(cast_[[]int8](data.get()), this.serializableCharset))
 }
 
-func (this *SourceFile_CodeLoader_AtZip) loadUncachedText_impl() *Outcome_base {
+func (this *SourceFile_CodeLoader_AtZip) loadUncachedText_impl() *Outcome_base[string] {
 	return this.loadUncachedCode()
 }
 
@@ -926,7 +926,7 @@ func (this *SourceFile_CodeLoader_AtZip) toProtoLocationBuilder_impl(fileName st
 const SourceFile_CodeLoader_AtZip_serialVersionUID int64 = 1
 
 // loadUncachedCode: an object that is exactly a SourceFile_CodeLoader_Preloaded calls its loadUncachedCode_impl directly (post-flip); others dispatch.
-func (this *SourceFile_CodeLoader_Preloaded) loadUncachedCode() *Outcome_base {
+func (this *SourceFile_CodeLoader_Preloaded) loadUncachedCode() *Outcome_base[string] {
 	if p, _ := this.self_.(*SourceFile_CodeLoader_Preloaded); p == this {
 		return this.loadUncachedCode_impl()
 	}
@@ -942,7 +942,7 @@ func (this *SourceFile_CodeLoader_Preloaded) toProtoLocationBuilder(p0 string) *
 }
 
 // loadUncachedCode: an object that is exactly a SourceFile_CodeLoader_StubSourceFileCodeLoader calls its loadUncachedCode_impl directly (post-flip); others dispatch.
-func (this *SourceFile_CodeLoader_StubSourceFileCodeLoader) loadUncachedCode() *Outcome_base {
+func (this *SourceFile_CodeLoader_StubSourceFileCodeLoader) loadUncachedCode() *Outcome_base[string] {
 	if p, _ := this.self_.(*SourceFile_CodeLoader_StubSourceFileCodeLoader); p == this {
 		return this.loadUncachedCode_impl()
 	}
@@ -958,7 +958,7 @@ func (this *SourceFile_CodeLoader_StubSourceFileCodeLoader) toProtoLocationBuild
 }
 
 // loadUncachedCode: an object that is exactly a SourceFile_CodeLoader_OnDisk calls its loadUncachedCode_impl directly (post-flip); others dispatch.
-func (this *SourceFile_CodeLoader_OnDisk) loadUncachedCode() *Outcome_base {
+func (this *SourceFile_CodeLoader_OnDisk) loadUncachedCode() *Outcome_base[string] {
 	if p, _ := this.self_.(*SourceFile_CodeLoader_OnDisk); p == this {
 		return this.loadUncachedCode_impl()
 	}
@@ -966,7 +966,7 @@ func (this *SourceFile_CodeLoader_OnDisk) loadUncachedCode() *Outcome_base {
 }
 
 // loadUncachedText: an object that is exactly a SourceFile_CodeLoader_OnDisk calls its loadUncachedText_impl directly (post-flip); others dispatch.
-func (this *SourceFile_CodeLoader_OnDisk) loadUncachedText() *Outcome_base {
+func (this *SourceFile_CodeLoader_OnDisk) loadUncachedText() *Outcome_base[string] {
 	if p, _ := this.self_.(*SourceFile_CodeLoader_OnDisk); p == this {
 		return this.loadUncachedText_impl()
 	}
@@ -982,7 +982,7 @@ func (this *SourceFile_CodeLoader_OnDisk) toProtoLocationBuilder(p0 string) *Sou
 }
 
 // loadUncachedCode: an object that is exactly a SourceFile_CodeLoader_AtZip calls its loadUncachedCode_impl directly (post-flip); others dispatch.
-func (this *SourceFile_CodeLoader_AtZip) loadUncachedCode() *Outcome_base {
+func (this *SourceFile_CodeLoader_AtZip) loadUncachedCode() *Outcome_base[string] {
 	if p, _ := this.self_.(*SourceFile_CodeLoader_AtZip); p == this {
 		return this.loadUncachedCode_impl()
 	}
@@ -990,7 +990,7 @@ func (this *SourceFile_CodeLoader_AtZip) loadUncachedCode() *Outcome_base {
 }
 
 // loadUncachedText: an object that is exactly a SourceFile_CodeLoader_AtZip calls its loadUncachedText_impl directly (post-flip); others dispatch.
-func (this *SourceFile_CodeLoader_AtZip) loadUncachedText() *Outcome_base {
+func (this *SourceFile_CodeLoader_AtZip) loadUncachedText() *Outcome_base[string] {
 	if p, _ := this.self_.(*SourceFile_CodeLoader_AtZip); p == this {
 		return this.loadUncachedText_impl()
 	}

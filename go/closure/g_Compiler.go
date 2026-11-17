@@ -26,7 +26,7 @@ type Compiler struct {
 	allowableFeatures              *FeatureSet
 	inputsById                     map[string]*CompilerInput // keyed by InputId.id: InputId.equals compares that string
 	scriptNodeByFilename           MapOf[string, Node]
-	hoistedExternsByChunk          *SimpleSetMultimap
+	hoistedExternsByChunk          *SimpleSetMultimap[*JSChunk, *CompilerInput]
 	inputPathByWebpackId           ImmutableMapOf[string, string]
 	transpilationNamespace         StaticScope
 	runtimeJsLibManager            *RuntimeJsLibManager
@@ -104,7 +104,7 @@ func (this *Compiler) finit_Compiler() {
 	this.lastJsSource = Optional_empty[string]()
 	this.inputsById = map[string]*CompilerInput{}
 	this.scriptNodeByFilename = new_ConcurrentHashMap()
-	this.hoistedExternsByChunk = SimpleSetMultimap_createInsertionOrdered()
+	this.hoistedExternsByChunk = SimpleSetMultimap_createInsertionOrdered[*JSChunk, *CompilerInput]()
 	this.sourceMapOriginalSources = new_ConcurrentHashMap()
 	this.inputSourceMaps = new_ConcurrentHashMap()
 	this.commentsPerFile = new_ConcurrentHashMap()
@@ -470,13 +470,13 @@ func (this *Compiler) initChunks(externs ListOf[*SourceFile_jscomp], chunks List
 	for file := range elemsAs_[*SourceFile_jscomp](externs) {
 		this.externs.add(new_CompilerInput_SourceFile_boolean(file, true))
 	}
-	var chunkGraphOutcome *Outcome_base = JSChunkGraph_create(chunks)
+	var chunkGraphOutcome *Outcome_base[*JSChunkGraph] = JSChunkGraph_create(chunks)
 	if chunkGraphOutcome.isErr() {
 		var e *JSChunkGraph_ChunkDependenceException = cast_[*JSChunkGraph_ChunkDependenceException](chunkGraphOutcome.error().self())
 		this.report(JSError_make_DiagnosticType_StringArr(Compiler_CHUNK_DEPENDENCY_ERROR, []string{e.getChunk().getName(), e.getDependentChunk().getName()}))
 		return
 	}
-	this.chunkGraph = cast_[*JSChunkGraph](chunkGraphOutcome.get())
+	this.chunkGraph = chunkGraphOutcome.get()
 	this.fillEmptyChunks(this.getChunks())
 	this.commentsPerFile = new_ConcurrentHashMap_int(this.chunkGraph.getInputCount())
 	this.initBasedOnOptions()
@@ -743,11 +743,11 @@ func (this *Compiler) performPostCompilationTasksInternal() {
 		if this.options_.getTracerOutput().isEmpty() {
 			this.tracker.outputTracerReport(this.outStream)
 		} else {
-			var out *Outcome_base = Output_open(this.options_.getTracerOutput().get(), Charsets_UTF_8, false)
+			var out *Outcome_base[any] = Output_open(this.options_.getTracerOutput().get(), Charsets_UTF_8, false)
 			if out.isErr() {
 				panic(new_RuntimeException_Throwable(out.error()).self())
 			}
-			var closed *Outcome_base
+			var closed *Outcome_base[any]
 			_ = func() (code_ int) {
 				defer func() {
 					closed = cast_[*Output](out.get()).close()
@@ -1147,7 +1147,7 @@ func (this *Compiler) getCurrentJsSource() string {
 		}
 	}
 	if !qnameSet.isEmpty() {
-		var originalToNewQNameMap *SimpleSetMultimap = SimpleSetMultimap_createInsertionOrdered()
+		var originalToNewQNameMap *SimpleSetMultimap[any, string] = SimpleSetMultimap_createInsertionOrdered[any, string]()
 		var statements *TList[Node] = this.getTopLevelStatements(this.jsRoot)
 		builder.append("//\n")
 		builder.append("// closure-compiler: Printing all of the top-level statements\n")
@@ -1176,7 +1176,7 @@ func (this *Compiler) getCurrentJsSource() string {
 				}
 				var originalQname string = n.getOriginalQualifiedName()
 				if originalQname != "" && qnameSet.contains(originalQname) {
-					originalToNewQNameMap.put_s(originalQname, strobj_(qname))
+					originalToNewQNameMap.put_s(originalQname, qname)
 					return true
 				} else {
 					return false
@@ -1653,7 +1653,7 @@ func (this *Compiler) orderInputs() {
 	this.markExterns(originalInputs)
 	var staleInputs bool = false
 	if this.options_.getDependencyOptions().needsManagement() {
-		var resultRes *Outcome_base = this.chunkGraph.manageDependencies(this.up_AbstractCompiler(), this.options_.getDependencyOptions())
+		var resultRes *Outcome_base[*JSChunkGraph_DependencyManagementResult] = this.chunkGraph.manageDependencies(this.up_AbstractCompiler(), this.options_.getDependencyOptions())
 		if resultRes.isErr() {
 			if _, ok := resultRes.error().self().(*SortedDependencies_MissingProvideException); ok {
 				this.report(JSError_make_DiagnosticType_StringArr(Compiler_MISSING_ENTRY_ERROR, []string{resultRes.errorMessage().orElse("null")}))
@@ -1661,7 +1661,7 @@ func (this *Compiler) orderInputs() {
 				this.report(JSError_make_DiagnosticType_StringArr(Compiler_MISSING_CHUNK_ERROR, []string{resultRes.errorMessage().orElse("null")}))
 			}
 		} else {
-			var result *JSChunkGraph_DependencyManagementResult = cast_[*JSChunkGraph_DependencyManagementResult](resultRes.get())
+			var result *JSChunkGraph_DependencyManagementResult = resultRes.get()
 			staleInputs = true
 			this.maybeLogPruningAnalysis(result)
 		}
@@ -1767,7 +1767,7 @@ func (this *Compiler) hoistIfExtern(input *CompilerInput) bool {
 		Map_put_s(this.scriptNodeByFilename, input.getSourceFile().getName(), root.box_())
 		var chunk *JSChunk = input.getChunk()
 		if chunk != nil {
-			this.hoistedExternsByChunk.put(obj_(chunk), obj_(input))
+			this.hoistedExternsByChunk.put(chunk, input)
 			chunk.remove(input)
 		}
 		this.externs.add(input)
@@ -1826,11 +1826,11 @@ func (this *Compiler) processJsonInputs(inputsToProcess IterableOf[*CompilerInpu
 			continue
 		}
 		input.setCompiler(this.up_AbstractCompiler())
-		var codeRes *Outcome_base = input.getSourceFile().readCode()
+		var codeRes *Outcome_base[string] = input.getSourceFile().readCode()
 		if codeRes.isErr() {
 			continue
 		}
-		input.getSourceFile().setCodeDeprecated(("(" + sstr_(str_(codeRes.get())) + ")"))
+		input.getSourceFile().setCodeDeprecated(("(" + sstr_(codeRes.get()) + ")"))
 		var root Node = input.getAstRoot(this.up_AbstractCompiler())
 		if root == 0 {
 			panic(new_NullPointerException_0().self())
@@ -2390,11 +2390,11 @@ func (this *Compiler) getSourceFileContentByName(sourceName string) any {
 	if file == nil {
 		panic(new_NullPointerException_0().self())
 	}
-	var codeRes *Outcome_base = file.readCode()
+	var codeRes *Outcome_base[string] = file.readCode()
 	if codeRes.isErr() {
 		return nil
 	}
-	return codeRes.get()
+	return strobj_(codeRes.get())
 }
 
 func (this *Compiler) addInputSourceMap_impl(sourceFileName string, inputSourceMap *SourceMapInput) {
@@ -2862,11 +2862,11 @@ func (this *Compiler) getModuleLoader_impl() *ModuleLoader {
 func (this *Compiler) addFilesToSourceMap(files IterableOf[*SourceFile_jscomp]) {
 	if this.getOptions().getSourceMapIncludeSourcesContent() && (this.getSourceMap() != nil) {
 		for file := range elemsAs_[*SourceFile_jscomp](files) {
-			var codeRes *Outcome_base = file.readCode()
+			var codeRes *Outcome_base[string] = file.readCode()
 			if codeRes.isErr() {
 				panic(new_RuntimeException_String_Throwable("Cannot read code of a source map's source file.", codeRes.error()).self())
 			}
-			this.getSourceMap().addSourceFile(file.getName(), str_(codeRes.get()))
+			this.getSourceMap().addSourceFile(file.getName(), codeRes.get())
 		}
 	}
 }
@@ -3104,13 +3104,13 @@ func (this *Compiler) saveState() []int8 {
 	}))
 }
 
-func (this *Compiler) restoreState(state []int8) *Outcome_base {
+func (this *Compiler) restoreState(state []int8) *Outcome_base[any] {
 	this.initWarningsGuard(this.options_.getWarningsGuard())
 	this.maybeSetTracker()
-	var restored *Outcome_base = cast_[*Outcome_base](this.runInCompilerThread(func() any {
+	var restored *Outcome_base[any] = cast_[*Outcome_base[any]](this.runInCompilerThread(func() any {
 		var tracer *Tracer = this.newTracer(PassNames_DESERIALIZE_COMPILER_STATE)
 		Compiler_logger.fine("Deserializing the CompilerState")
-		var ret_1 *Outcome_base
+		var ret_1 *Outcome_base[any]
 		code_1 := func() (code_ int) {
 			defer func() {
 				Compiler_logger.fine("Finished deserializing CompilerState")
@@ -3121,9 +3121,9 @@ func (this *Compiler) restoreState(state []int8) *Outcome_base {
 			if wrapper != nil {
 				uncompressed = cast_[[]int8](wrapper.apply(any(state)))
 			} else {
-				var unzipped *Outcome_base = Io_gunzip(state)
+				var unzipped *Outcome_base[any] = Io_gunzip(state)
 				if unzipped.isErr() {
-					ret_1 = Outcome_base_err(new_RuntimeException_Throwable(unzipped.error()).up_Throwable())
+					ret_1 = Outcome_base_err[any](new_RuntimeException_Throwable(unzipped.error()).up_Throwable())
 					return 1
 				}
 				uncompressed = cast_[[]int8](unzipped.get())
@@ -3138,7 +3138,7 @@ func (this *Compiler) restoreState(state []int8) *Outcome_base {
 		panic("unreachable")
 	}))
 	if restored.isErr() {
-		return Outcome_base_err(restored.error())
+		return Outcome_base_err[any](restored.error())
 	}
 	if this.tracker != nil {
 		this.tracker.updateAfterDeserialize(this.jsRoot)
@@ -3184,7 +3184,7 @@ func (this *Compiler) deserializeCompilerState(state []int8) {
 			chunk.addDependency(cast_[*JSChunk](chunks.get(depIdx)))
 		}
 	}
-	this.chunkGraph = cast_[*JSChunkGraph](JSChunkGraph_create(chunks).get())
+	this.chunkGraph = JSChunkGraph_create(chunks).get()
 	this.externProperties = deserializedAst.getExternProperties()
 	this.externAndJsRoot = IR_root([]Node{IR_root([]Node{}), IR_root([]Node{})})
 	this.externsRoot = this.externAndJsRoot.getFirstChild()

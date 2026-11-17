@@ -2,57 +2,57 @@
 
 package closure
 
-type Outcome_base struct {
-	value_     any
+type Outcome_base[T comparable] struct {
+	value_     T
 	errorField *Throwable
 }
 
-func (this *Outcome_base) init_Outcome_base(value any, error_ *Throwable) {
+func (this *Outcome_base[T]) init_Outcome_base(value T, error_ *Throwable) {
 	this.value_ = value
 	this.errorField = error_
 }
 
-func new_Outcome_base(value any, error_ *Throwable) *Outcome_base {
-	this := &Outcome_base{}
+func new_Outcome_base[T comparable](value T, error_ *Throwable) *Outcome_base[T] {
+	this := &Outcome_base[T]{value_: null_[T]()}
 	this.init_Outcome_base(value, error_)
 	return this
 }
 
-func Outcome_base_ok_Object(value any) *Outcome_base {
+func Outcome_base_ok_Object[T comparable](value T) *Outcome_base[T] {
 	return new_Outcome_base(value, nil)
 }
 
-func Outcome_base_ok_0() *Outcome_base {
-	return new_Outcome_base(nil, nil)
+func Outcome_base_ok_0() *Outcome_base[any] {
+	return new_Outcome_base[any](nil, nil)
 }
 
-func Outcome_base_err(error_ *Throwable) *Outcome_base {
+func Outcome_base_err[T comparable](error_ *Throwable) *Outcome_base[T] {
 	if error_ == nil {
 		panic(new_NullPointerException_0().self())
 	}
-	return new_Outcome_base(nil, error_)
+	return new_Outcome_base[T](null_[T](), error_)
 }
 
-func (this *Outcome_base) isOk() bool {
+func (this *Outcome_base[T]) isOk() bool {
 	return (this.errorField == nil)
 }
 
-func (this *Outcome_base) isErr() bool {
+func (this *Outcome_base[T]) isErr() bool {
 	return (this.errorField != nil)
 }
 
-func (this *Outcome_base) get() any {
+func (this *Outcome_base[T]) get() T {
 	if this.errorField != nil {
 		panic(new_IllegalStateException_String_Throwable("Outcome.get() called on an error outcome", this.errorField).self())
 	}
 	return this.value_
 }
 
-func (this *Outcome_base) error() *Throwable {
+func (this *Outcome_base[T]) error() *Throwable {
 	return this.errorField
 }
 
-func (this *Outcome_base) errorMessage() OptionalOf[string] {
+func (this *Outcome_base[T]) errorMessage() OptionalOf[string] {
 	return func() OptionalOf[string] {
 		if this.errorField == nil {
 			return Optional_empty[string]()

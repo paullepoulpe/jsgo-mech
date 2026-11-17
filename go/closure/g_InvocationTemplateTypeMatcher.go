@@ -4,7 +4,7 @@ package closure
 
 type InvocationTemplateTypeMatcher struct {
 	matchedTypes  *LinkedIdentityHashMap
-	seenTypes     *LinkedIdentityHashSet
+	seenTypes     *LinkedIdentityHashSet[*JSType]
 	registry      *JSTypeRegistry
 	calleeType    *FunctionType
 	localThisType *JSType
@@ -14,7 +14,7 @@ type InvocationTemplateTypeMatcher struct {
 
 func (this *InvocationTemplateTypeMatcher) finit_InvocationTemplateTypeMatcher() {
 	this.matchedTypes = new_LinkedIdentityHashMap()
-	this.seenTypes = new_LinkedIdentityHashSet()
+	this.seenTypes = new_LinkedIdentityHashSet[*JSType]()
 }
 
 func (this *InvocationTemplateTypeMatcher) init_InvocationTemplateTypeMatcher(registry *JSTypeRegistry, calleeType *FunctionType, localThisType *JSType, invocation Node) {
@@ -89,7 +89,7 @@ func (this *InvocationTemplateTypeMatcher) matchTemplateTypesRecursive(paramType
 			this.matchTemplateTypesFromParameters(paramFunctionType.getParameters().iterator(), argFunctionType.getParameters().iterator())
 		}
 	} else if paramType.isRecordType() && !paramType.isNominalType() {
-		if this.seenTypes.add(paramType.self()) {
+		if this.seenTypes.add(paramType) {
 			var paramRecordType *ObjectType = paramType.toObjectType()
 			var argObjectType *ObjectType = argType.restrictByNotNullOrUndefined().toObjectType()
 			if ((argObjectType != nil) && !argObjectType.isUnknownType()) && !argObjectType.isEmptyType() {
@@ -100,7 +100,7 @@ func (this *InvocationTemplateTypeMatcher) matchTemplateTypesRecursive(paramType
 					}
 				}
 			}
-			this.seenTypes.remove(paramType.self())
+			this.seenTypes.remove(paramType)
 		}
 	} else if paramType.isTemplatizedType() {
 		var templatizedParamType *TemplatizedType = paramType.toMaybeTemplatizedType()

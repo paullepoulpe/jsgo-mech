@@ -31,32 +31,32 @@ func new_DepsGenerator(deps CollectionOf[*SourceFile_jscomp], srcs CollectionOf[
 	return this
 }
 
-func (this *DepsGenerator) computeDependencyCalls() *Outcome_base {
-	var depsFilesRes *Outcome_base = this.parseDepsFiles()
+func (this *DepsGenerator) computeDependencyCalls() *Outcome_base[string] {
+	var depsFilesRes *Outcome_base[Map] = this.parseDepsFiles()
 	if depsFilesRes.isErr() {
-		return Outcome_base_err(depsFilesRes.error())
+		return Outcome_base_err[string](depsFilesRes.error())
 	}
 	var depsFiles MapOf[string, DependencyInfo] = icast_Map(depsFilesRes.get())
 	if DepsGenerator_logger.isLoggable(Level_FINE) {
 		DepsGenerator_logger.fine(("preparsedFiles: " + objstr_(depsFiles)))
 	}
-	var jsFilesRes *Outcome_base = this.parseSources(depsFiles.keySet())
+	var jsFilesRes *Outcome_base[Map] = this.parseSources(depsFiles.keySet())
 	if jsFilesRes.isErr() {
-		return Outcome_base_err(jsFilesRes.error())
+		return Outcome_base_err[string](jsFilesRes.error())
 	}
 	var jsFiles MapOf[string, DependencyInfo] = icast_Map(jsFilesRes.get())
 	if this.errorManager.getErrorCount() > 0 {
-		return Outcome_base_ok_Object(nil)
+		return Outcome_base_ok_Object[string](nullstr_)
 	}
 	this.cleanUpDuplicatedFiles(depsFiles, jsFiles)
 	jsFiles = this.removeMungedSymbols(depsFiles, jsFiles)
 	this.validateDependencies(Iterable(depsFiles.values()), Iterable(jsFiles.values()))
 	if this.errorManager.getErrorCount() > 0 {
-		return Outcome_base_ok_Object(nil)
+		return Outcome_base_ok_Object[string](nullstr_)
 	}
 	var output strBuilder_
 	this.writeDepsContent(depsFiles, jsFiles, &output)
-	return Outcome_base_ok_Object(strobj_(Io_utf8String(Io_utf8Bytes(output.toString()))))
+	return Outcome_base_ok_Object[string](Io_utf8String(Io_utf8Bytes(output.toString())))
 }
 
 func (this *DepsGenerator) cleanUpDuplicatedFiles(depsFiles MapOf[string, DependencyInfo], jsFiles MapOf[string, DependencyInfo]) {
@@ -194,16 +194,16 @@ func (this *DepsGenerator) shouldSkipDepsFile(file *SourceFile_jscomp) bool {
 	return false
 }
 
-func (this *DepsGenerator) parseDepsFiles() *Outcome_base {
+func (this *DepsGenerator) parseDepsFiles() *Outcome_base[Map] {
 	var depsParser *DepsFileRegexParser = this.createDepsFileParser()
 	var depsFiles MapOf[string, DependencyInfo] = new_LinkedHashMap()
 	it_1 := foreach_(this.deps)
 	for it_1.next() {
 		var file *SourceFile_jscomp = cast_[*SourceFile_jscomp](it_1.v)
 		if !this.shouldSkipDepsFile(file) {
-			var depInfosRes *Outcome_base = DepsGenerator_parseDepsFile(depsParser, file)
+			var depInfosRes *Outcome_base[List] = DepsGenerator_parseDepsFile(depsParser, file)
 			if depInfosRes.isErr() {
-				return Outcome_base_err(depInfosRes.error())
+				return Outcome_base_err[Map](depInfosRes.error())
 			}
 			var depInfos ListOf[DependencyInfo] = icast_List(depInfosRes.get())
 			if depInfos.isEmpty() {
@@ -219,9 +219,9 @@ func (this *DepsGenerator) parseDepsFiles() *Outcome_base {
 	for it_5.next() {
 		var src *SourceFile_jscomp = cast_[*SourceFile_jscomp](it_5.v)
 		if !this.shouldSkipDepsFile(src) {
-			var srcInfosRes *Outcome_base = DepsGenerator_parseDepsFile(depsParser, src)
+			var srcInfosRes *Outcome_base[List] = DepsGenerator_parseDepsFile(depsParser, src)
 			if srcInfosRes.isErr() {
-				return Outcome_base_err(srcInfosRes.error())
+				return Outcome_base_err[Map](srcInfosRes.error())
 			}
 			var srcInfos ListOf[DependencyInfo] = icast_List(srcInfosRes.get())
 			for info := range elemsBy_(srcInfos, icast_DependencyInfo) {
@@ -229,19 +229,19 @@ func (this *DepsGenerator) parseDepsFiles() *Outcome_base {
 			}
 		}
 	}
-	return Outcome_base_ok_Object(depsFiles)
+	return Outcome_base_ok_Object[Map](depsFiles)
 }
 
-func DepsGenerator_parseDepsFile(depsParser *DepsFileRegexParser, file *SourceFile_jscomp) *Outcome_base {
-	var code *Outcome_base = file.readCodeWithoutCaching()
+func DepsGenerator_parseDepsFile(depsParser *DepsFileRegexParser, file *SourceFile_jscomp) *Outcome_base[List] {
+	var code *Outcome_base[string] = file.readCodeWithoutCaching()
 	if TextFiles_isDecodingError(code.error()) {
 		depsParser.reportReadError(file.getName())
-		return Outcome_base_ok_Object(new_ArrayList_0().self())
+		return Outcome_base_ok_Object[List](icast_List(new_ArrayList_0().self()))
 	}
 	if code.isErr() {
-		return Outcome_base_err(code.error())
+		return Outcome_base_err[List](code.error())
 	}
-	return Outcome_base_ok_Object(depsParser.parseFile_2(file.getName(), str_(code.get())))
+	return Outcome_base_ok_Object[List](depsParser.parseFile_2(file.getName(), code.get()))
 }
 
 func (this *DepsGenerator) removeRelativePathProvide(info DependencyInfo) DependencyInfo {
@@ -258,7 +258,7 @@ func DepsGenerator_providesWithoutRelativePath(info DependencyInfo) *TList[strin
 	return result
 }
 
-func (this *DepsGenerator) parseSources(preparsedFiles SetOf[string]) *Outcome_base {
+func (this *DepsGenerator) parseSources(preparsedFiles SetOf[string]) *Outcome_base[Map] {
 	var parsedFiles MapOf[string, DependencyInfo] = new_LinkedHashMap()
 	var jsParser *JsFileRegexParser = new_JsFileRegexParser(this.errorManager).setModuleLoader(this.loader)
 	var compiler *Compiler = new_Compiler_0()
@@ -271,11 +271,11 @@ func (this *DepsGenerator) parseSources(preparsedFiles SetOf[string]) *Outcome_b
 			DepsGenerator_logger.fine(("Closure-relative path: " + sstr_(closureRelativePath)))
 		}
 		if (DepsGenerator_InclusionStrategy_WHEN_IN_SRCS == this.mergeStrategy) || !Collection_contains_s(preparsedFiles, closureRelativePath) {
-			var code *Outcome_base = file.readCode()
+			var code *Outcome_base[string] = file.readCode()
 			if code.isErr() {
-				return Outcome_base_err(code.error())
+				return Outcome_base_err[Map](code.error())
 			}
-			var depInfo DependencyInfo = jsParser.parseFile(file.getName(), closureRelativePath, str_(code.get()))
+			var depInfo DependencyInfo = jsParser.parseFile(file.getName(), closureRelativePath, code.get())
 			depInfo = new_LazyParsedDependencyInfo(depInfo, new_CompilerInput_SourceFile(file), compiler.up_AbstractCompiler())
 			if depInfo.getHasExternsAnnotation() {
 				continue
@@ -284,13 +284,13 @@ func (this *DepsGenerator) parseSources(preparsedFiles SetOf[string]) *Outcome_b
 			Map_put_s(parsedFiles, closureRelativePath, depInfo)
 		}
 	}
-	return Outcome_base_ok_Object(parsedFiles)
+	return Outcome_base_ok_Object[Map](parsedFiles)
 }
 
 func (this *DepsGenerator) writeDepsContent(depsFiles MapOf[string, DependencyInfo], jsFiles MapOf[string, DependencyInfo], out *strBuilder_) {
 	DepsGenerator_writeDepInfos(out, jsFiles.values())
 	if this.mergeStrategy == DepsGenerator_InclusionStrategy_ALWAYS {
-		var infosIndex *SimpleListMultimap = SimpleListMultimap_create()
+		var infosIndex *SimpleListMultimap[any, DependencyInfo] = SimpleListMultimap_create[any, DependencyInfo]()
 		for info := range elemsBy_(depsFiles.values(), icast_DependencyInfo) {
 			infosIndex.put_s(info.getName(), info)
 		}
@@ -324,18 +324,18 @@ func DepsGenerator_createSourceFilesFromPathsStringVarargs(paths []string) []*So
 	return DepsGenerator_createSourceFilesFromPaths(Collection(Arrays_asList(arrmap_(paths, func(v_ string) any { return strobj_(v_) }))))
 }
 
-func DepsGenerator_createSourceFilesFromZipPaths(paths CollectionOf[string]) *Outcome_base {
+func DepsGenerator_createSourceFilesFromZipPaths(paths CollectionOf[string]) *Outcome_base[List] {
 	var zipSourceFiles ListOf[*SourceFile_jscomp] = new_ArrayList_0()
 	it_1 := foreach_(paths)
 	for it_1.next() {
 		var path string = str_(it_1.v)
-		var zipFiles *Outcome_base = SourceFile_jscomp_fromZipFile(path, Charsets_UTF_8)
+		var zipFiles *Outcome_base[any] = SourceFile_jscomp_fromZipFile(path, Charsets_UTF_8)
 		if zipFiles.isErr() {
-			return Outcome_base_err(zipFiles.error())
+			return Outcome_base_err[List](zipFiles.error())
 		}
 		zipSourceFiles.addAll(icast_Collection(zipFiles.get()))
 	}
-	return Outcome_base_ok_Object(zipSourceFiles)
+	return Outcome_base_ok_Object[List](zipSourceFiles)
 }
 
 var DepsGenerator_logger *Logger

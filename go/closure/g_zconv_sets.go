@@ -31,5 +31,5 @@ var tch_p_ObjectType = &tconv_[*ObjectType]{box: func(v *ObjectType) any { retur
 	hash: func(v *ObjectType) int32 { return objhashVia_(v) }, eq: func(a, b *ObjectType) bool { return objequalsVia_(a, b.self()) }}
 var tch_p_ScopedName = &tconv_[*ScopedName]{box: func(v *ScopedName) any { return v.self() }, unbox: func(v any) *ScopedName { return to_ScopedName(v) },
 	hash: func(v *ScopedName) int32 { return objhashVia_(v) }, eq: func(a, b *ScopedName) bool { return objequalsVia_(a, b.self()) }}
-var tch_p_SimpleSetMultimap_Entry = &tconv_[*SimpleSetMultimap_Entry]{box: func(v *SimpleSetMultimap_Entry) any { return obj_(v) }, unbox: func(v any) *SimpleSetMultimap_Entry { return cast_[*SimpleSetMultimap_Entry](v) },
-	hash: func(v *SimpleSetMultimap_Entry) int32 { return objhashVia_(v) }, eq: func(a, b *SimpleSetMultimap_Entry) bool { return objequalsVia_(a, obj_(b)) }}
+var tch_p_SimpleSetMultimap_Entry = &tconv_[*SimpleSetMultimap_Entry[any, any]]{box: func(v *SimpleSetMultimap_Entry[any, any]) any { return obj_(v) }, unbox: func(v any) *SimpleSetMultimap_Entry[any, any] { return cast_[*SimpleSetMultimap_Entry[any, any]](v) },
+	hash: func(v *SimpleSetMultimap_Entry[any, any]) int32 { return objhashVia_(v) }, eq: func(a, b *SimpleSetMultimap_Entry[any, any]) bool { return objequalsVia_(a, obj_(b)) }}

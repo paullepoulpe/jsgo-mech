@@ -32,7 +32,7 @@ func JsFileFullParser_parse(code string, filename string, reporter JsFileFullPar
 	parsed.ast.setInputId(new_InputId(filename))
 	var version string = parsed.features_.version()
 	if !(version == "es3") {
-		info.loadFlags_.put_s("lang", strobj_(version))
+		info.loadFlags_.put_s("lang", version)
 	}
 	var gatherModuleMetadata *GatherModuleMetadata = new_GatherModuleMetadata(compiler.up_AbstractCompiler(), false, ModuleLoader_ResolutionMode_BROWSER)
 	gatherModuleMetadata.process_2(new_Node_Token(Token_rhino_ROOT), parsed.ast)
@@ -42,9 +42,9 @@ func JsFileFullParser_parse(code string, filename string, reporter JsFileFullPar
 	}
 	var module *ModuleMetadataMap_ModuleMetadata = cast_[*ModuleMetadataMap_ModuleMetadata](Iterables_getOnlyElement(Iterable(compiler.getModuleMetadataMap().getModulesByPath().values())))
 	if module.isEs6Module() {
-		info.loadFlags_.put_s("module", strobj_("es6"))
+		info.loadFlags_.put_s("module", "es6")
 	} else if module.isGoogModule() {
-		info.loadFlags_.put_s("module", strobj_("goog"))
+		info.loadFlags_.put_s("module", "goog")
 	}
 	switch module.moduleType() {
 	case ModuleMetadataMap_ModuleType_GOOG_PROVIDE:
@@ -88,11 +88,11 @@ type JsFileFullParser_FileInfo struct {
 	importedModules   map[string]struct{}
 	dynamicRequires   map[string]struct{}
 	readToggles_      map[string]struct{}
-	provides          *SimpleMultiset
-	requires          *SimpleMultiset
-	typeRequires      *SimpleMultiset
-	maybeRequires     *SimpleMultiset
-	loadFlags_        *SimpleSetMultimap
+	provides          *SimpleMultiset[any]
+	requires          *SimpleMultiset[any]
+	typeRequires      *SimpleMultiset[any]
+	maybeRequires     *SimpleMultiset[any]
+	loadFlags_        *SimpleSetMultimap[any, string]
 	parsed            *ParserRunner_ParseResult
 }
 
@@ -104,11 +104,11 @@ func (this *JsFileFullParser_FileInfo) finit_JsFileFullParser_FileInfo() {
 	this.importedModules = map[string]struct{}{}
 	this.dynamicRequires = map[string]struct{}{}
 	this.readToggles_ = map[string]struct{}{}
-	this.provides = SimpleMultiset_createSorted()
-	this.requires = SimpleMultiset_createSorted()
-	this.typeRequires = SimpleMultiset_createSorted()
-	this.maybeRequires = SimpleMultiset_createSorted()
-	this.loadFlags_ = SimpleSetMultimap_createSorted()
+	this.provides = SimpleMultiset_createSorted[any]()
+	this.requires = SimpleMultiset_createSorted[any]()
+	this.typeRequires = SimpleMultiset_createSorted[any]()
+	this.maybeRequires = SimpleMultiset_createSorted[any]()
+	this.loadFlags_ = SimpleSetMultimap_createSorted[any, string]()
 	this.parsed = nil
 }
 

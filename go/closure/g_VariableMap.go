@@ -5,11 +5,11 @@ package closure
 import "strings"
 
 type VariableMap struct {
-	map__ *SimpleBiMap
+	map__ *SimpleBiMap[any, string]
 }
 
 func (this *VariableMap) init_VariableMap(map_ *TMap[string, string]) {
-	this.map__ = SimpleBiMap_copyOf(map_)
+	this.map__ = SimpleBiMap_copyOf[any, string](map_)
 }
 
 func new_VariableMap(map_ *TMap[string, string]) *VariableMap {
@@ -19,7 +19,7 @@ func new_VariableMap(map_ *TMap[string, string]) *VariableMap {
 }
 
 func (this *VariableMap) lookupNewName(sourceName string) OptionalOf[string] {
-	return Optional_ofNullable[string](str_(this.map__.get(strobj_(sourceName))))
+	return Optional_ofNullable[string](this.map__.get(strobj_(sourceName)))
 }
 
 func (this *VariableMap) lookupSourceName(newName OptionalOf[string]) string {
@@ -34,18 +34,18 @@ func (this *VariableMap) getNewNameToOriginalNameMap() ImmutableMapOf[string, st
 	return ImmutableMap_copyOf(this.map__.inverse().asMap())
 }
 
-func (this *VariableMap) save(filename string) *Outcome_base {
+func (this *VariableMap) save(filename string) *Outcome_base[any] {
 	return Io_writeBytes(filename, this.toBytes())
 }
 
-func VariableMap_load(filename string) *Outcome_base {
-	var bytes *Outcome_base = Io_readBytes(filename)
+func VariableMap_load(filename string) *Outcome_base[*VariableMap] {
+	var bytes *Outcome_base[any] = Io_readBytes(filename)
 	if bytes.isErr() {
-		return Outcome_base_err(bytes.error())
+		return Outcome_base_err[*VariableMap](bytes.error())
 	}
-	var mapRes *Outcome_base = VariableMap_fromBytes(cast_[[]int8](bytes.get()))
+	var mapRes *Outcome_base[*VariableMap] = VariableMap_fromBytes(cast_[[]int8](bytes.get()))
 	if mapRes.isErr() {
-		return Outcome_base_err(new_IOException_Throwable(mapRes.error()).up_Throwable())
+		return Outcome_base_err[*VariableMap](new_IOException_Throwable(mapRes.error()).up_Throwable())
 	}
 	return mapRes
 }
@@ -61,11 +61,11 @@ func (this *VariableMap) toBytes() []int8 {
 	return Io_utf8Bytes(writer.toString())
 }
 
-func VariableMap_fromBytes(bytes []int8) *Outcome_base {
+func VariableMap_fromBytes(bytes []int8) *Outcome_base[*VariableMap] {
 	return VariableMap_fromLines(Io_utf8String(bytes))
 }
 
-func VariableMap_fromStreamBytes(bytes []int8) *Outcome_base {
+func VariableMap_fromStreamBytes(bytes []int8) *Outcome_base[*VariableMap] {
 	var map_ ImmutableMap_BuilderOf[string, string] = ImmutableMap_builder()
 	for _, line := range TextFiles_splitLines(Io_utf8String(bytes)) {
 		if line == "" {
@@ -73,7 +73,7 @@ func VariableMap_fromStreamBytes(bytes []int8) *Outcome_base {
 		}
 		var pos int32 = VariableMap_findIndexOfUnescapedChar(line, VariableMap_SEPARATOR)
 		if pos <= 0 {
-			return Outcome_base_err(new_ParseException(("Bad line: " + sstr_(line)), 0).up_Throwable())
+			return Outcome_base_err[*VariableMap](new_ParseException(("Bad line: " + sstr_(line)), 0).up_Throwable())
 		}
 		map_.put(strobj_(VariableMap_unescape(String_substring(line, 0, pos))), func() any {
 			if pos == (String_length(line) - 1) {
@@ -82,10 +82,10 @@ func VariableMap_fromStreamBytes(bytes []int8) *Outcome_base {
 			return strobj_(VariableMap_unescape(String_substring_int(line, (pos + 1))))
 		}())
 	}
-	return Outcome_base_ok_Object(obj_(new_VariableMap(tmapFrom_(tc_string, tc_string, map_.buildOrThrow(), true))))
+	return Outcome_base_ok_Object[*VariableMap](new_VariableMap(tmapFrom_(tc_string, tc_string, map_.buildOrThrow(), true)))
 }
 
-func VariableMap_fromLines(string_ string) *Outcome_base {
+func VariableMap_fromLines(string_ string) *Outcome_base[*VariableMap] {
 	var map_ ImmutableMap_BuilderOf[string, string] = ImmutableMap_builder()
 	var startOfLine int32 = 0
 	for startOfLine < String_length(string_) {
@@ -104,7 +104,7 @@ func VariableMap_fromLines(string_ string) *Outcome_base {
 		}
 		var pos int32 = VariableMap_findIndexOfUnescapedChar(line, VariableMap_SEPARATOR)
 		if pos <= 0 {
-			return Outcome_base_err(new_ParseException(("Bad line: " + sstr_(line)), 0).up_Throwable())
+			return Outcome_base_err[*VariableMap](new_ParseException(("Bad line: " + sstr_(line)), 0).up_Throwable())
 		}
 		map_.put(strobj_(VariableMap_unescape(String_substring(line, 0, pos))), func() any {
 			if pos == (String_length(line) - 1) {
@@ -113,7 +113,7 @@ func VariableMap_fromLines(string_ string) *Outcome_base {
 			return strobj_(VariableMap_unescape(String_substring_int(line, (pos + 1))))
 		}())
 	}
-	return Outcome_base_ok_Object(obj_(new_VariableMap(tmapFrom_(tc_string, tc_string, map_.buildOrThrow(), true))))
+	return Outcome_base_ok_Object[*VariableMap](new_VariableMap(tmapFrom_(tc_string, tc_string, map_.buildOrThrow(), true)))
 }
 
 func VariableMap_escape(value string) string {

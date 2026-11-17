@@ -138,7 +138,7 @@ func (this *JsFileRegexParser) parseJsDocCommentLine_impl(line string) bool {
 	return true
 }
 
-func (this *JsFileRegexParser) applyGoogMatcher(line string) *Outcome_base {
+func (this *JsFileRegexParser) applyGoogMatcher(line string) *Outcome_base[any] {
 	var lineHasProvidesOrRequires bool = false
 	this.googMatcher.reset_s(line)
 	for this.googMatcher.find() {
@@ -161,11 +161,11 @@ func (this *JsFileRegexParser) applyGoogMatcher(line string) *Outcome_base {
 			providesNamespace = this.setModuleType(JsFileRegexParser_ModuleType_GOOG_PROVIDE)
 		}
 		if providesNamespace || isRequire {
-			var argOutcome *Outcome_base = this.parseJsString(this.googMatcher.group_String("args"))
+			var argOutcome *Outcome_base[string] = this.parseJsString(this.googMatcher.group_String("args"))
 			if argOutcome.isErr() {
-				return Outcome_base_err(argOutcome.error())
+				return Outcome_base_err[any](argOutcome.error())
 			}
-			var arg string = str_(argOutcome.get())
+			var arg string = argOutcome.get()
 			if isRequire {
 				if ("requireType" == methodName) || ("forwardDeclare" == methodName) {
 					this.typeRequires.add(arg)
@@ -181,23 +181,23 @@ func (this *JsFileRegexParser) applyGoogMatcher(line string) *Outcome_base {
 	return Outcome_base_ok_Object(any(bool(lineHasProvidesOrRequires)))
 }
 
-func (this *JsFileRegexParser) parseLine_impl(line string) *Outcome_base {
+func (this *JsFileRegexParser) parseLine_impl(line string) *Outcome_base[any] {
 	var lineHasProvidesOrRequires bool = false
 	if strings.HasPrefix(line, JsFileRegexParser_BUNDLED_GOOG_MODULE_START) {
 		this.seenLoadModule = true
 	}
 	var lineHasProvidesOrRequiresWords bool = (((((strings.Contains(line, "provide") || strings.Contains(line, "require")) || strings.Contains(line, "forwardDeclare")) || strings.Contains(line, "module")) || strings.Contains(line, "addDependency")) || strings.Contains(line, "declareModuleId"))
 	if this.googMatcherBuffer != "" {
-		var applied *Outcome_base = this.applyGoogMatcher((sstr_(this.googMatcherBuffer) + sstr_(line)))
+		var applied *Outcome_base[any] = this.applyGoogMatcher((sstr_(this.googMatcherBuffer) + sstr_(line)))
 		if applied.isErr() {
-			return Outcome_base_err(applied.error())
+			return Outcome_base_err[any](applied.error())
 		}
 		lineHasProvidesOrRequires = unbox_[bool](applied.get())
 	}
 	if !lineHasProvidesOrRequires && lineHasProvidesOrRequiresWords {
-		var applied *Outcome_base = this.applyGoogMatcher(line)
+		var applied *Outcome_base[any] = this.applyGoogMatcher(line)
 		if applied.isErr() {
-			return Outcome_base_err(applied.error())
+			return Outcome_base_err[any](applied.error())
 		}
 		lineHasProvidesOrRequires = unbox_[bool](applied.get())
 	}
@@ -343,7 +343,7 @@ func (this *JsFileRegexParser) parseJsDocCommentLine(p0 string) bool {
 }
 
 // parseLine: an object that is exactly a JsFileRegexParser calls its parseLine_impl directly (post-flip); others dispatch.
-func (this *JsFileRegexParser) parseLine(p0 string) *Outcome_base {
+func (this *JsFileRegexParser) parseLine(p0 string) *Outcome_base[any] {
 	if p, _ := this.self_.(*JsFileRegexParser); p == this {
 		return this.parseLine_impl(p0)
 	}

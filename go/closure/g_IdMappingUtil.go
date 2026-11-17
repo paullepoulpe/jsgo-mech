@@ -48,10 +48,10 @@ func IdMappingUtil_parseSectionOfBytes(idMappings []int8, sectionFilter string) 
 	return mapBuilder.buildKeepingLast()
 }
 
-func IdMappingUtil_parseSerializedIdMappingsText(idMappings string) *TMap[string, *SimpleBiMap] {
-	var resultMap *TMap[string, *SimpleBiMap] = newTMap_(tc_string, tc_p_SimpleBiMap)
+func IdMappingUtil_parseSerializedIdMappingsText(idMappings string) *TMap[string, *SimpleBiMap[string, string]] {
+	var resultMap *TMap[string, *SimpleBiMap[string, string]] = newTMap_(tc_string, tc_p_SimpleBiMap)
 	var mr *IdMappingUtil_MappingReader = new_IdMappingUtil_MappingReader(idMappings)
-	var currentSectionMap *SimpleBiMap = nil
+	var currentSectionMap *SimpleBiMap[string, string] = nil
 	var sectionNames map[string]struct{} = map[string]struct{}{}
 	for mr.next() {
 		if mr.isSection() {
@@ -59,19 +59,19 @@ func IdMappingUtil_parseSerializedIdMappingsText(idMappings string) *TMap[string
 			if !setAdd_(sectionNames, sectionName.orElse(nullstr_)) {
 				panic(new_IllegalArgumentException_String(("Cannot parse id map: Duplicate section " + sstr_(sectionName.orElse("null")) + "\n lineIndex: " + istr_(int64(int32(mr.getLineIndex()))))).self())
 			}
-			currentSectionMap = SimpleBiMap_create()
+			currentSectionMap = SimpleBiMap_create[string, string]()
 			resultMap.put(sectionName.orElse(nullstr_), currentSectionMap)
 		} else {
 			if currentSectionMap == nil {
 				panic(new_IllegalArgumentException_String("Mapping entry outside of section").self())
 			}
-			currentSectionMap.put(strobj_(mr.getKey().orElse(nullstr_)), strobj_(mr.getValue().orElse(nullstr_)))
+			currentSectionMap.put(mr.getKey().orElse(nullstr_), mr.getValue().orElse(nullstr_))
 		}
 	}
 	return resultMap
 }
 
-func IdMappingUtil_parseSerializedIdMappings(idMappings string) *TMap[string, *SimpleBiMap] {
+func IdMappingUtil_parseSerializedIdMappings(idMappings string) *TMap[string, *SimpleBiMap[string, string]] {
 	if Strings_isNullOrEmpty(idMappings) {
 		return tmapFrom_(tc_string, tc_p_SimpleBiMap, ImmutableMap_of(), true)
 	}

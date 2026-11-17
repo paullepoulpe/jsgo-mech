@@ -126,23 +126,23 @@ func (this *SourceMapGeneratorV3) addSourcesContent(source string, content strin
 	this.sourceFileContentMap[source] = content
 }
 
-func (this *SourceMapGeneratorV3) mergeMapSection(line int32, column int32, mapSectionContents string) *Outcome_base {
+func (this *SourceMapGeneratorV3) mergeMapSection(line int32, column int32, mapSectionContents string) *Outcome_base[any] {
 	this.setStartingPosition(line, column)
 	var section *SourceMapConsumerV3 = new_SourceMapConsumerV3()
-	var parsed *Outcome_base = section.parse(mapSectionContents)
+	var parsed *Outcome_base[any] = section.parse(mapSectionContents)
 	if parsed.isErr() {
-		return Outcome_base_err(parsed.error())
+		return Outcome_base_err[any](parsed.error())
 	}
 	section.visitMappings(new_SourceMapGeneratorV3_ConsumerEntryVisitor(this).visit)
 	return Outcome_base_ok_0()
 }
 
-func (this *SourceMapGeneratorV3) mergeMapSection_4(line int32, column int32, mapSectionContents string, mergeAction func(string, any, any) any) *Outcome_base {
+func (this *SourceMapGeneratorV3) mergeMapSection_4(line int32, column int32, mapSectionContents string, mergeAction func(string, any, any) any) *Outcome_base[any] {
 	this.setStartingPosition(line, column)
 	var section *SourceMapConsumerV3 = new_SourceMapConsumerV3()
-	var parsed *Outcome_base = section.parse(mapSectionContents)
+	var parsed *Outcome_base[any] = section.parse(mapSectionContents)
 	if parsed.isErr() {
-		return Outcome_base_err(parsed.error())
+		return Outcome_base_err[any](parsed.error())
 	}
 	section.visitMappings(new_SourceMapGeneratorV3_ConsumerEntryVisitor(this).visit)
 	for entry := range elemsBy_(section.getExtensions().asMap().entrySet(), icast_Map_Entry) {
@@ -207,9 +207,9 @@ func (this *SourceMapGeneratorV3) setSourceRoot(path string) {
 	this.sourceRootPath = Optional_of[string](path)
 }
 
-func (this *SourceMapGeneratorV3) addExtension(name string, object any) *Outcome_base {
+func (this *SourceMapGeneratorV3) addExtension(name string, object any) *Outcome_base[any] {
 	if !strings.HasPrefix(name, "x_") {
-		return Outcome_base_err(new_SourceMapParseException(("Extension '" + sstr_(name) + "' must start with 'x_'")).up_Throwable())
+		return Outcome_base_err[any](new_SourceMapParseException(("Extension '" + sstr_(name) + "' must start with 'x_'")).up_Throwable())
 	}
 	this.extensions.put(name, object)
 	return Outcome_base_ok_0()

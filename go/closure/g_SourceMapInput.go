@@ -28,15 +28,15 @@ func (this *SourceMapInput) getSourceMap(errorManager ErrorManager) *SourceMapCo
 	if !this.cached {
 		this.cached = true
 		var sourceMapPath string = this.sourceFile.getName()
-		var codeRes *Outcome_base = this.sourceFile.readCode()
+		var codeRes *Outcome_base[string] = this.sourceFile.readCode()
 		if codeRes.isErr() {
 			var error_ *JSError = JSError_make_DiagnosticType_StringArr(SourceMapInput_SOURCEMAP_RESOLVE_FAILED, []string{sourceMapPath, codeRes.errorMessage().orElse("null")})
 			errorManager.report_2(error_.defaultLevel(), error_)
 			return this.parsedSourceMap
 		}
-		var sourceMapContents string = str_(codeRes.get())
+		var sourceMapContents string = codeRes.get()
 		var consumer *SourceMapConsumerV3 = new_SourceMapConsumerV3()
-		var parsed *Outcome_base = consumer.parse(sourceMapContents)
+		var parsed *Outcome_base[any] = consumer.parse(sourceMapContents)
 		if parsed.isErr() {
 			var e *SourceMapParseException = cast_[*SourceMapParseException](parsed.error().self())
 			var error_ *JSError = JSError_make_DiagnosticType_StringArr(SourceMapInput_SOURCEMAP_PARSE_FAILED, []string{sourceMapPath, e.getMessage()})
@@ -56,11 +56,11 @@ func (this *SourceMapInput) getOriginalPath() string {
 }
 
 func (this *SourceMapInput) getRawSourceMapContents() OptionalOf[string] {
-	var codeRes *Outcome_base = this.sourceFile.readCode()
+	var codeRes *Outcome_base[string] = this.sourceFile.readCode()
 	if codeRes.isErr() {
 		return Optional_empty[string]()
 	}
-	return Optional_ofNullable[string](str_(codeRes.get()))
+	return Optional_ofNullable[string](codeRes.get())
 }
 
 var SourceMapInput_SOURCEMAP_RESOLVE_FAILED *DiagnosticType

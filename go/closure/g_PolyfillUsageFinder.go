@@ -313,13 +313,13 @@ func PolyfillUsageFinder_Polyfill_Kind_clinit() {
 }
 
 type PolyfillUsageFinder_Polyfills struct {
-	methods         *SimpleListMultimap
+	methods         *SimpleListMultimap[any, *PolyfillUsageFinder_Polyfill]
 	statics         ImmutableMapOf[string, *PolyfillUsageFinder_Polyfill]
 	suffixes        ImmutableSetOf[string]
-	byNativeVersion *SimpleListMultimap
+	byNativeVersion *SimpleListMultimap[any, *PolyfillUsageFinder_Polyfill]
 }
 
-func (this *PolyfillUsageFinder_Polyfills) init_PolyfillUsageFinder_Polyfills(methods *SimpleListMultimap, statics ImmutableMapOf[string, *PolyfillUsageFinder_Polyfill], byNativeVersion *SimpleListMultimap) {
+func (this *PolyfillUsageFinder_Polyfills) init_PolyfillUsageFinder_Polyfills(methods *SimpleListMultimap[any, *PolyfillUsageFinder_Polyfill], statics ImmutableMapOf[string, *PolyfillUsageFinder_Polyfill], byNativeVersion *SimpleListMultimap[any, *PolyfillUsageFinder_Polyfill]) {
 	this.methods = methods
 	this.statics = statics
 	this.byNativeVersion = byNativeVersion
@@ -330,16 +330,16 @@ func (this *PolyfillUsageFinder_Polyfills) init_PolyfillUsageFinder_Polyfills(me
 	this.suffixes = ImmutableSet_copyOf(Collection(sliceView_(tc_string, suffixList)))
 }
 
-func new_PolyfillUsageFinder_Polyfills(methods *SimpleListMultimap, statics ImmutableMapOf[string, *PolyfillUsageFinder_Polyfill], byNativeVersion *SimpleListMultimap) *PolyfillUsageFinder_Polyfills {
+func new_PolyfillUsageFinder_Polyfills(methods *SimpleListMultimap[any, *PolyfillUsageFinder_Polyfill], statics ImmutableMapOf[string, *PolyfillUsageFinder_Polyfill], byNativeVersion *SimpleListMultimap[any, *PolyfillUsageFinder_Polyfill]) *PolyfillUsageFinder_Polyfills {
 	this := &PolyfillUsageFinder_Polyfills{}
 	this.init_PolyfillUsageFinder_Polyfills(methods, statics, byNativeVersion)
 	return this
 }
 
 func PolyfillUsageFinder_Polyfills_fromTable(table string) *PolyfillUsageFinder_Polyfills {
-	var methods *SimpleListMultimap = SimpleListMultimap_create()
+	var methods *SimpleListMultimap[any, *PolyfillUsageFinder_Polyfill] = SimpleListMultimap_create[any, *PolyfillUsageFinder_Polyfill]()
 	var statics ImmutableMap_BuilderOf[string, *PolyfillUsageFinder_Polyfill] = ImmutableMap_builder()
-	var byNativeVersion *SimpleListMultimap = SimpleListMultimap_create()
+	var byNativeVersion *SimpleListMultimap[any, *PolyfillUsageFinder_Polyfill] = SimpleListMultimap_create[any, *PolyfillUsageFinder_Polyfill]()
 	for line := range elemsBy_(Splitter_on('\n').omitEmptyStrings().split_s(table), str_) {
 		var tokens []string = sliceImm_(tc_string, Splitter_on(' ').omitEmptyStrings().splitToList_s(String_trim(line)))
 		if (int32(len(tokens)) == 1) && sliceAt_(tokens, 0) == "" {
@@ -363,11 +363,11 @@ func PolyfillUsageFinder_Polyfills_fromTable(table string) *PolyfillUsageFinder_
 			return PolyfillUsageFinder_Polyfill_Kind_STATIC
 		}())
 		if isPrototypeMethod {
-			methods.put_s(PolyfillUsageFinder_PROTOTYPE_PREFIX_PATTERN.matcher_s(symbol).replaceAll(""), obj_(polyfill))
+			methods.put_s(PolyfillUsageFinder_PROTOTYPE_PREFIX_PATTERN.matcher_s(symbol).replaceAll(""), polyfill)
 		} else {
 			statics.put(strobj_(symbol), obj_(polyfill))
 		}
-		byNativeVersion.put_s(nativeVersionStr, obj_(polyfill))
+		byNativeVersion.put_s(nativeVersionStr, polyfill)
 	}
 	return new_PolyfillUsageFinder_Polyfills(methods.immutableCopy(), statics.buildOrThrow(), byNativeVersion.immutableCopy())
 }

@@ -4,7 +4,7 @@ package closure
 
 type Es6RenameReferences struct {
 	NodeTraversal_AbstractPostOrderCallback
-	renameTable *SimpleTable
+	renameTable *SimpleTable[any, any, string]
 }
 
 func (this *Es6RenameReferences) up_NodeTraversal_AbstractPostOrderCallback() *NodeTraversal_AbstractPostOrderCallback {
@@ -14,12 +14,12 @@ func (this *Es6RenameReferences) up_NodeTraversal_AbstractPostOrderCallback() *N
 	return &this.NodeTraversal_AbstractPostOrderCallback
 }
 
-func (this *Es6RenameReferences) init_Es6RenameReferences(renameTable *SimpleTable) {
+func (this *Es6RenameReferences) init_Es6RenameReferences(renameTable *SimpleTable[any, any, string]) {
 	this.NodeTraversal_AbstractPostOrderCallback.init_NodeTraversal_AbstractPostOrderCallback()
 	this.renameTable = renameTable
 }
 
-func new_Es6RenameReferences(renameTable *SimpleTable) *Es6RenameReferences {
+func new_Es6RenameReferences(renameTable *SimpleTable[any, any, string]) *Es6RenameReferences {
 	this := &Es6RenameReferences{}
 	this.self_ = this
 	this.init_Es6RenameReferences(renameTable)
@@ -35,7 +35,7 @@ func (this *Es6RenameReferences) visit_impl(t *NodeTraversal, n Node, parent Nod
 func (this *Es6RenameReferences) renameReference(t *NodeTraversal, n Node, oldName string) {
 	var current *Scope = t.getScope()
 	for current != nil {
-		var newName OptionalOf[string] = Optional_ofNullable[string](str_(this.renameTable.get_s(current.getRootNode().box_(), oldName)))
+		var newName OptionalOf[string] = Optional_ofNullable[string](this.renameTable.get_s(current.getRootNode().box_(), oldName))
 		if newName.isPresent() {
 			n.setString(newName.get())
 			t.reportCodeChange()

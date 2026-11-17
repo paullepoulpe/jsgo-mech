@@ -7,14 +7,14 @@ import "strings"
 type FileInfo struct {
 	providedNamespaces    *TSet[string]
 	requiredLocalNames    *TSet[string]
-	declarations          *SimpleListMultimap
+	declarations          *SimpleListMultimap[string, *PotentialDeclaration]
 	isFromTypeScriptField bool
 }
 
 func (this *FileInfo) finit_FileInfo() {
 	this.providedNamespaces = newTSet_(tc_string)
 	this.requiredLocalNames = newTSet_(tc_string)
-	this.declarations = SimpleListMultimap_create()
+	this.declarations = SimpleListMultimap_create[string, *PotentialDeclaration]()
 }
 
 func (this *FileInfo) init_FileInfo(sourceFileName string) {
@@ -56,12 +56,12 @@ func (this *FileInfo) recordAliasDeclaration(nameNode Node) {
 	this.recordDeclaration(PotentialDeclaration_fromAlias(nameNode))
 }
 
-func (this *FileInfo) getDeclarations() *SimpleListMultimap {
+func (this *FileInfo) getDeclarations() *SimpleListMultimap[string, *PotentialDeclaration] {
 	return this.declarations
 }
 
 func (this *FileInfo) recordDeclaration(decl *PotentialDeclaration) {
-	this.declarations.put_s(decl.getFullyQualifiedName(), decl.self())
+	this.declarations.put_s(decl.getFullyQualifiedName(), decl)
 }
 
 func (this *FileInfo) recordImport(localName string) {
