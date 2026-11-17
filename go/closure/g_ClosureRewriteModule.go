@@ -669,7 +669,7 @@ func (this *ClosureRewriteModule) maybeUpdateTopLevelName(t *NodeTraversal, name
 		var isModuleNamespace bool = ((inline.namespaceId.isPresent() && has_(this.rewriteState.scriptDescriptionsByGoogModuleNamespace, inline.namespaceId.get())) && !this.rewriteState.scriptDescriptionsByGoogModuleNamespace[inline.namespaceId.get()].willCreateExportsObject)
 		this.safeSetMaybeQualifiedString(nameNode, namespaceToInline, isModuleNamespace)
 		if strings.Contains(namespaceToInline, ".") {
-			var firstQualifiedName string = String_substring(namespaceToInline, 0, String_indexOf(namespaceToInline, 46))
+			var firstQualifiedName string = namespaceToInline[:strings.IndexByte(namespaceToInline, '.')]
 			var shadowedVar *Var = cast_[*Var](t.getScope().getVar(firstQualifiedName).self())
 			if ((shadowedVar == nil) || shadowedVar.isGlobal()) || cast_[*Scope](shadowedVar.getScope()).isModuleScope() {
 				return
@@ -1790,7 +1790,7 @@ func (this *ClosureRewriteModule_ReplaceJsDocRefs) rewriteIfClosureNamespaceRef(
 			return
 		}
 		if strings.Contains(prefixTypeName, ".") {
-			prefixTypeName = String_substring(prefixTypeName, 0, String_lastIndexOf(prefixTypeName, 46))
+			prefixTypeName = prefixTypeName[:strings.LastIndexByte(prefixTypeName, '.')]
 			suffix = String_substring_int(typeName, String_length(prefixTypeName))
 		} else {
 			break

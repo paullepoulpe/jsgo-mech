@@ -120,7 +120,7 @@ func (this *IdMappingUtil_MappingReader) next() bool {
 		if line == "" {
 			continue
 		}
-		if String_charAt(line, 0) == '[' {
+		if line[0] == '[' {
 			this.currentSection = Optional_of[string](String_substring(line, 1, (String_length(line) - 1)))
 			this.currentKey = Optional_empty[string]()
 			this.currentValue = Optional_empty[string]()

@@ -325,7 +325,7 @@ func (this *PolyfillUsageFinder_Polyfills) init_PolyfillUsageFinder_Polyfills(me
 	this.byNativeVersion = byNativeVersion
 	var suffixList []string = []string{}
 	for arg := range elemsBy_(obj_(cast_[*ImmutableSet](statics.keySet())), str_) {
-		suffixList = append(suffixList, String_substring_int(arg, (String_lastIndexOf(arg, 46)+1)))
+		suffixList = append(suffixList, arg[strings.LastIndexByte(arg, '.')+1:])
 	}
 	this.suffixes = ImmutableSet_copyOf(Collection(sliceView_(tc_string, suffixList)))
 }

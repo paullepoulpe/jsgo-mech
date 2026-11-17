@@ -417,7 +417,7 @@ func (this *ScopedAliases_AliasedTypeNode) applyAlias_impl(compiler *AbstractCom
 	if !strings.HasPrefix(typeName, aliasName) {
 		panic(new_IllegalStateException_String(Strings_lenientFormat("%s must start with %s", []any{strobj_(typeName), strobj_(aliasName)})).self())
 	}
-	var replacement string = (sstr_(aliasExpanded) + sstr_(String_substring_int(typeName, String_length(aliasName))))
+	var replacement string = (sstr_(aliasExpanded) + sstr_(typeName[len(aliasName):]))
 	this.aliasReference.setString(replacement)
 }
 

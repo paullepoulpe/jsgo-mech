@@ -46,7 +46,7 @@ func AllowlistWarningsGuard_normalizeAllowlist(allowlist *TSet[string]) Immutabl
 	var result *TSet[string] = newTSet_(tc_string)
 	for line := range allowlist.All() {
 		var trimmed string = strings.Trim(line, javaSpace_)
-		if trimmed == "" || (String_charAt(trimmed, 0) == '#') {
+		if trimmed == "" || (trimmed[0] == '#') {
 			continue
 		}
 		result.add(AllowlistWarningsGuard_LINE_NUMBER.matcher_s(trimmed).replaceFirst(":"))

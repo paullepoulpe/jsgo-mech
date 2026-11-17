@@ -964,7 +964,7 @@ func (this *JsDocInfoParser) parseTtlAst(ttlExtraction *JsDocInfoParser_Extracti
 	if !strings.HasPrefix(ttlExpression, JsDocInfoParser_TTL_START_DELIMITER) {
 		return 0
 	}
-	ttlExpression = String_substring_int(ttlExpression, int32(len(JsDocInfoParser_TTL_START_DELIMITER)))
+	ttlExpression = ttlExpression[len(JsDocInfoParser_TTL_START_DELIMITER):]
 	var endIndex int32 = String_indexOf_String(ttlExpression, JsDocInfoParser_TTL_END_DELIMITER)
 	if endIndex >= 0 {
 		ttlExpression = String_substring(ttlExpression, 0, endIndex)

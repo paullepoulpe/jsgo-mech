@@ -783,7 +783,7 @@ func (this *MakeDeclaredNamesUnique_InlineRenamer) getUniqueName(name string) st
 		return name
 	}
 	if strings.Contains(name, MakeDeclaredNamesUnique_ContextualRenamer_UNIQUE_ID_SEPARATOR) {
-		name = String_substring(name, 0, String_lastIndexOf_String(name, MakeDeclaredNamesUnique_ContextualRenamer_UNIQUE_ID_SEPARATOR))
+		name = name[:strings.LastIndex(name, MakeDeclaredNamesUnique_ContextualRenamer_UNIQUE_ID_SEPARATOR)]
 	}
 	if this.convention.isExported(name) {
 		name = ("JSCompiler_" + sstr_(name))

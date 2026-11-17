@@ -307,7 +307,7 @@ func ClosureCheckModule_checkShortName(t *NodeTraversal, shortNameNode Node, nam
 	if strings.HasPrefix(namespace, "google3.") {
 		return
 	}
-	var lastSegment string = String_substring_int(namespace, (String_lastIndexOf(namespace, 46) + 1))
+	var lastSegment string = namespace[strings.LastIndexByte(namespace, '.')+1:]
 	if (nextQnamePart == lastSegment) || lastSegment == "" {
 		return
 	}

@@ -67,7 +67,7 @@ func ReportDecoder_parseMapping(mappingFileContent string) *Outcome_base {
 	for i := int32(3); i < int32(len(linesOfFile)); i++ {
 		var lineItem string = sliceAt_(linesOfFile, i)
 		var id string = String_substring(lineItem, 0, String_indexOf(lineItem, 58))
-		var encodedDetails string = String_substring_int(lineItem, (String_indexOf(lineItem, 58) + 1))
+		var encodedDetails string = lineItem[strings.IndexByte(lineItem, ':')+1:]
 		var encodedDetailsAsCharIt *ReportDecoder_StringCharIterator = new_ReportDecoder_StringCharIterator(encodedDetails)
 		var temp *InstrumentationPoint = cast_[*InstrumentationPoint](InstrumentationPoint_newBuilder().setFileName(str_(localFileNames.get(Base64VLQ_decode(encodedDetailsAsCharIt)))).setFunctionName(str_(functionNames.get(Base64VLQ_decode(encodedDetailsAsCharIt)))).setType(types[Base64VLQ_decode(encodedDetailsAsCharIt)]).setLineNumber(Base64VLQ_decode(encodedDetailsAsCharIt)).setColumnNumber(Base64VLQ_decode(encodedDetailsAsCharIt)).build())
 		Map_putIfAbsent_s(mapping, id, obj_(temp))

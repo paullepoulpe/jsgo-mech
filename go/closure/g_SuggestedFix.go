@@ -326,11 +326,11 @@ func (this *SuggestedFix_Builder) replace(original Node, newNode Node, compiler 
 	}
 	var newCode string = this.generateCode(compiler, newNode)
 	if strings.HasSuffix(newCode, "\n") {
-		newCode = String_substring(newCode, 0, (String_length(newCode) - 1))
+		newCode = newCode[:len(newCode)-1]
 	}
 	var needsSemicolon bool = ((parent != 0) && (((parent.isExprResult() || parent.isBlock()) || parent.isScript()) || parent.isModuleBody()))
 	if strings.HasSuffix(newCode, ";") && !needsSemicolon {
-		newCode = String_substring(newCode, 0, (String_length(newCode) - 1))
+		newCode = newCode[:len(newCode)-1]
 	}
 	if (parent != 0) && IR_mayBeExpression(parent) {
 		var replacement Node = newNode
