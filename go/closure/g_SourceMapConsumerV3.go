@@ -97,8 +97,8 @@ func (this *SourceMapConsumerV3) parseMetaMap(sourceMapObject *SourceMapObject, 
 			return Outcome_base_err[any](merged.error())
 		}
 	}
-	var sb *StringBuilder = new_StringBuilder()
-	generator.appendTo(sb, sourceMapObject.getFile())
+	var sb strBuilder_
+	generator.appendTo(appendable_(&sb), sourceMapObject.getFile())
 	return this.parse(sb.toString())
 }
 
