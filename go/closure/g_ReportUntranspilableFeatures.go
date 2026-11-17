@@ -162,7 +162,8 @@ func (this *ReportUntranspilableFeatures) checkForLookbehind(regexpNode Node, tr
 func lambda_ReportUntranspilableFeatures_checkForLookbehind_1_(t_ any) bool {
 	var t *RegExpTree = to_RegExpTree(t_)
 	_ = t
-	return is_[*RegExpTree_LookbehindAssertion](t.self())
+	_, ok := t.self().(*RegExpTree_LookbehindAssertion)
+	return ok
 }
 
 func (this *ReportUntranspilableFeatures) checkForNamedGroups(regexpNode Node, tree *RegExpTree) {
@@ -178,7 +179,8 @@ func (this *ReportUntranspilableFeatures) checkForNamedGroups(regexpNode Node, t
 func lambda_ReportUntranspilableFeatures_checkForNamedGroups_1_(t_ any) bool {
 	var t *RegExpTree = to_RegExpTree(t_)
 	_ = t
-	return is_[*RegExpTree_NamedCaptureGroup](t.self())
+	_, ok := t.self().(*RegExpTree_NamedCaptureGroup)
+	return ok
 }
 
 func (this *ReportUntranspilableFeatures) checkForUnicodePropertyEscape(regexpNode Node, tree *RegExpTree) {
@@ -194,7 +196,8 @@ func (this *ReportUntranspilableFeatures) checkForUnicodePropertyEscape(regexpNo
 func lambda_ReportUntranspilableFeatures_checkForUnicodePropertyEscape_1_(t_ any) bool {
 	var t *RegExpTree = to_RegExpTree(t_)
 	_ = t
-	return is_[*RegExpTree_UnicodePropertyEscape](t.self())
+	_, ok := t.self().(*RegExpTree_UnicodePropertyEscape)
+	return ok
 }
 
 func (this *ReportUntranspilableFeatures) checkForRegExpDFlag(regexpNode Node) {
