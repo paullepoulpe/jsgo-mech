@@ -154,7 +154,7 @@ func ZipArchive_clinit() {
 		return
 	}
 	ZipArchive_clinit_done = true
-	ZipArchive_opened = icast_Map(obj_(new_LinkedHashMap()))
+	ZipArchive_opened = new_LinkedHashMap()
 
 }
 

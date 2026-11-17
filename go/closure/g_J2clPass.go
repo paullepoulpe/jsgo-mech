@@ -112,7 +112,7 @@ func (this *J2clPass_ClassStaticFunctionsInliner) init_J2clPass_ClassStaticFunct
 			fnNamesToInlineBuilder.add(strobj_(fnName))
 		}
 	}
-	var fnNamesToInline ImmutableSetOf[string] = cast_[*ImmutableSet](obj_(fnNamesToInlineBuilder.build()))
+	var fnNamesToInline ImmutableSetOf[string] = fnNamesToInlineBuilder.build()
 	this.injector.setKnownConstantFunctions(fnNamesToInline)
 }
 
@@ -124,8 +124,8 @@ func new_J2clPass_ClassStaticFunctionsInliner(outer_ *J2clPass, root Node, inlin
 }
 
 func (this *J2clPass_ClassStaticFunctionsInliner) run() {
-	NodeTraversal_traverse(this.outer_.compiler_, this.root, icast_NodeTraversal_Callback(obj_(new_J2clPass_ClassStaticFunctionsInliner_FunctionDefsCollector(this))))
-	NodeTraversal_traverse(this.outer_.compiler_, this.root, icast_NodeTraversal_Callback(obj_(new_J2clPass_ClassStaticFunctionsInliner_StaticCallInliner(this))))
+	NodeTraversal_traverse(this.outer_.compiler_, this.root, new_J2clPass_ClassStaticFunctionsInliner_FunctionDefsCollector(this))
+	NodeTraversal_traverse(this.outer_.compiler_, this.root, new_J2clPass_ClassStaticFunctionsInliner_StaticCallInliner(this))
 }
 
 func (this *J2clPass_ClassStaticFunctionsInliner) findMatchingSpecsForFile(sourceFileName string) []*J2clPass_InlineSpec {

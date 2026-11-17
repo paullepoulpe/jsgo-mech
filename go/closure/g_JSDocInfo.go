@@ -10,7 +10,7 @@ type JSDocInfo struct {
 
 func (this *JSDocInfo) init_JSDocInfo(bits int64, props TreeMapOf[*JSDocInfo_Property, any]) {
 	var keys int64 = 0
-	var values ListOf[any] = icast_List(new_ArrayList_0().self())
+	var values ListOf[any] = new_ArrayList_0()
 	it_1 := foreach_(any(props.entrySet()))
 	for it_1.next() {
 		var entry Map_Entry = icast_Map_Entry(it_1.v)
@@ -375,7 +375,7 @@ func (this *JSDocInfo) getThrowsAnnotations() ListOf[string] {
 		if annotations != nil {
 			return annotations
 		}
-		return icast_List(obj_(ImmutableList_of()))
+		return ImmutableList_of()
 	}()
 }
 
@@ -587,7 +587,7 @@ func (this *JSDocInfo) getDeprecationReason() OptionalOf[string] {
 func (this *JSDocInfo) getSuppressions() SetOf[string] {
 	var suppressions ImmutableMapOf[ImmutableSetOf[string], string] = cast_[*ImmutableMap](JSDocInfo_SUPPRESSIONS.get(this))
 	if suppressions == nil {
-		return icast_Set(obj_(ImmutableSet_of()))
+		return ImmutableSet_of()
 	}
 	var nameSets ImmutableSetOf[ImmutableSetOf[string]] = cast_[*ImmutableSet](suppressions.keySet())
 	var names *TSet[string] = newTSet_(tc_string)
@@ -680,7 +680,7 @@ func (this *JSDocInfo) getMarkers() CollectionOf[*JSDocInfo_Marker] {
 		if markers != nil {
 			return icast_Collection(markers.self())
 		}
-		return icast_Collection(obj_(ImmutableList_of()))
+		return ImmutableList_of()
 	}()
 }
 
@@ -819,7 +819,7 @@ func JSDocInfo_internSet(strings SetOf[string]) ImmutableSetOf[string] {
 		var s string = str_(it_1.v)
 		interned.add(strobj_(RhinoStringPool_addOrGet(s)))
 	}
-	return cast_[*ImmutableSet](obj_(interned.build()))
+	return interned.build()
 }
 
 const JSDocInfo_serialVersionUID int64 = 1
@@ -988,7 +988,7 @@ func (this *JSDocInfo_Property) equalValues_impl(left any, right any) bool {
 }
 
 func (this *JSDocInfo_Property) getTypeExpressions_impl(unusedValue any) IterableOf[*JSTypeExpression] {
-	return icast_Iterable(obj_(ImmutableList_of()))
+	return ImmutableList_of()
 }
 
 func (this *JSDocInfo_Property) compareTo(that_ any) int32 {
@@ -1118,7 +1118,7 @@ func (this *JSDocInfo_TypeProperty) equalValues_impl(left_ any, right_ any) bool
 func (this *JSDocInfo_TypeProperty) getTypeExpressions_impl(type__ any) Iterable {
 	var type_ *JSTypeExpression = cast_[*JSTypeExpression](type__)
 	_ = type_
-	return icast_Iterable(obj_(ImmutableList_of_Object(obj_(type_))))
+	return ImmutableList_of_Object(obj_(type_))
 }
 
 type JSDocInfo_TypeListProperty struct {
@@ -1154,7 +1154,7 @@ func (this *JSDocInfo_TypeListProperty) getUnmodifiable(info *JSDocInfo) ListOf[
 		if value != nil {
 			return Collections_unmodifiableList(icast_List(value.self()))
 		}
-		return icast_List(obj_(ImmutableList_of()))
+		return ImmutableList_of()
 	}()
 }
 

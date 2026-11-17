@@ -163,14 +163,14 @@ func (this *DefaultPassConfig) finit_DefaultPassConfig() {
 		_ = compiler
 		var sharedCallbacks []NodeTraversal_Callback = []NodeTraversal_Callback{}
 		if this.options_.getCheckSuspiciousCode() {
-			sharedCallbacks = append(sharedCallbacks, icast_NodeTraversal_Callback(obj_(new_CheckSuspiciousCode())))
-			sharedCallbacks = append(sharedCallbacks, icast_NodeTraversal_Callback(obj_(new_CheckDuplicateCase(compiler))))
+			sharedCallbacks = append(sharedCallbacks, NodeTraversal_Callback(new_CheckSuspiciousCode()))
+			sharedCallbacks = append(sharedCallbacks, NodeTraversal_Callback(new_CheckDuplicateCase(compiler)))
 		}
 		if this.options_.enables(DiagnosticGroups_GLOBAL_THIS) {
-			sharedCallbacks = append(sharedCallbacks, icast_NodeTraversal_Callback(obj_(new_CheckGlobalThis(compiler))))
+			sharedCallbacks = append(sharedCallbacks, NodeTraversal_Callback(new_CheckGlobalThis(compiler)))
 		}
 		if this.options_.enables(DiagnosticGroups_DEBUGGER_STATEMENT_PRESENT) {
-			sharedCallbacks = append(sharedCallbacks, icast_NodeTraversal_Callback(obj_(new_CheckDebuggerStatement(compiler))))
+			sharedCallbacks = append(sharedCallbacks, NodeTraversal_Callback(new_CheckDebuggerStatement(compiler)))
 		}
 		return any(DefaultPassConfig_combineChecks(compiler, sharedCallbacks))
 		panic("unreachable")
@@ -228,7 +228,7 @@ func (this *DefaultPassConfig) finit_DefaultPassConfig() {
 	this.replaceMessagesForChrome = PassFactory_builder().setName(PassNames_REPLACE_MESSAGES).setInternalFactory(&Function_fn{func(compiler_ any) any {
 		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
 		_ = compiler
-		return obj_(new_ReplaceMessagesForChrome(compiler, icast_JsMessage_IdGenerator(obj_(new_GoogleJsMessageIdGenerator(Optional_of[string](this.options_.getTcProjectId()))))))
+		return obj_(new_ReplaceMessagesForChrome(compiler, new_GoogleJsMessageIdGenerator(Optional_of[string](this.options_.getTcProjectId()))))
 	}}).build()
 	this.closureGoogScopeAliasesForIjs = PassFactory_builder().setName("closureGoogScopeAliasesForIjs").setInternalFactory(lambda_DefaultPassConfig_finit_DefaultPassConfig_8_).build()
 	this.closureGoogScopeAliases = PassFactory_builder().setName("closureGoogScopeAliases").setInternalFactory(&Function_fn{func(compiler_ any) any {
@@ -324,10 +324,10 @@ func (this *DefaultPassConfig) finit_DefaultPassConfig() {
 		_ = compiler
 		var callbacks []NodeTraversal_Callback = []NodeTraversal_Callback{}
 		if !this.options_.disables(DiagnosticGroups_CHECK_USELESS_CODE) {
-			callbacks = append(callbacks, icast_NodeTraversal_Callback(obj_(new_CheckUnreachableCode(compiler))))
+			callbacks = append(callbacks, NodeTraversal_Callback(new_CheckUnreachableCode(compiler)))
 		}
 		if !this.options_.disables(DiagnosticGroups_MISSING_RETURN) {
-			callbacks = append(callbacks, icast_NodeTraversal_Callback(obj_(new_CheckMissingReturn(compiler))))
+			callbacks = append(callbacks, NodeTraversal_Callback(new_CheckMissingReturn(compiler)))
 		}
 		return any(DefaultPassConfig_combineChecks(compiler, callbacks))
 		panic("unreachable")
@@ -596,7 +596,7 @@ var lambda_DefaultPassConfig_finit_DefaultPassConfig_2_ = &Function_fn{func(comp
 var lambda_DefaultPassConfig_finit_DefaultPassConfig_3_ = &Function_fn{func(compiler_ any) any {
 	var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
 	_ = compiler
-	return any(DefaultPassConfig_combineChecks(compiler, sliceOf_(tc_NodeTraversal_Callback, icast_NodeTraversal_Callback(obj_(new_CheckJSDoc(compiler))), icast_NodeTraversal_Callback(obj_(new_Es6CheckModule(compiler))))))
+	return any(DefaultPassConfig_combineChecks(compiler, sliceOf_(tc_NodeTraversal_Callback, NodeTraversal_Callback(new_CheckJSDoc(compiler)), NodeTraversal_Callback(new_Es6CheckModule(compiler)))))
 }}
 
 // lambda_DefaultPassConfig_finit_DefaultPassConfig_4_ is a lambda of DefaultPassConfig_finit_DefaultPassConfig that captures nothing (post-flip step lambdas).
@@ -670,7 +670,7 @@ var lambda_DefaultPassConfig_finit_DefaultPassConfig_16_ = &Function_fn{func(com
 	var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
 	_ = compiler
 	var useTypesForOptimization bool = compiler.getOptions().shouldUseTypesForLocalOptimization()
-	var peepholeOptimizations ListOf[*AbstractPeepholeOptimization] = icast_List(new_ArrayList_0().self())
+	var peepholeOptimizations ListOf[*AbstractPeepholeOptimization] = new_ArrayList_0()
 	peepholeOptimizations.add(obj_(new_PeepholeRemoveDeadCode()))
 	if compiler.getOptions().getJ2clPass().shouldAddJ2clPasses() {
 		peepholeOptimizations.add(obj_(new_J2clEqualitySameRewriterPass(useTypesForOptimization)))
@@ -757,7 +757,7 @@ var lambda_DefaultPassConfig_finit_DefaultPassConfig_28_ = &Function_fn{func(p0 
 var lambda_DefaultPassConfig_finit_DefaultPassConfig_29_ = &Function_fn{func(compiler_ any) any {
 	var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
 	_ = compiler
-	var callbacks ImmutableList_BuilderOf[NodeTraversal_Callback] = cast_[*ImmutableList_Builder](obj_(cast_[*ImmutableList_Builder](obj_(cast_[*ImmutableList_Builder](obj_(cast_[*ImmutableList_Builder](obj_(cast_[*ImmutableList_Builder](obj_(cast_[*ImmutableList_Builder](obj_(cast_[*ImmutableList_Builder](obj_(cast_[*ImmutableList_Builder](obj_(cast_[*ImmutableList_Builder](obj_(cast_[*ImmutableList_Builder](obj_(cast_[*ImmutableList_Builder](obj_(cast_[*ImmutableList_Builder](obj_(cast_[*ImmutableList_Builder](obj_(cast_[*ImmutableList_Builder](obj_(cast_[*ImmutableList_Builder](obj_(cast_[*ImmutableList_Builder](obj_(cast_[*ImmutableList_Builder](obj_(cast_[*ImmutableList_Builder](obj_(ImmutableList_builder().add(obj_(new_CheckConstPrivateProperties(compiler))))).add(obj_(new_CheckConstantCaseNames(compiler))))).add(obj_(new_CheckEmptyStatements(compiler))))).add(obj_(new_CheckEnums(compiler))))).add(obj_(new_CheckEs6ModuleFileStructure(compiler))))).add(obj_(new_CheckEs6Modules(compiler))))).add(obj_(new_CheckNoMutatedEs6Exports(compiler))))).add(obj_(new_CheckGoogModuleTypeScriptName(compiler))))).add(obj_(new_CheckInterfaces(compiler))))).add(obj_(new_CheckJSDocStyle(compiler))))).add(obj_(new_CheckMissingSemicolon(compiler))))).add(obj_(new_CheckNullabilityModifiers(compiler))))).add(obj_(new_CheckPrimitiveAsObject(compiler))))).add(obj_(new_CheckPrototypeProperties(compiler))))).add(obj_(new_CheckUnusedPrivateProperties(compiler))))).add(obj_(new_CheckUnusedLabels(compiler))))).add(obj_(new_CheckUselessBlocks(compiler))))).add(obj_(new_CheckVar(compiler)))))
+	var callbacks ImmutableList_BuilderOf[NodeTraversal_Callback] = ImmutableList_builder().add(obj_(new_CheckConstPrivateProperties(compiler))).add(obj_(new_CheckConstantCaseNames(compiler))).add(obj_(new_CheckEmptyStatements(compiler))).add(obj_(new_CheckEnums(compiler))).add(obj_(new_CheckEs6ModuleFileStructure(compiler))).add(obj_(new_CheckEs6Modules(compiler))).add(obj_(new_CheckNoMutatedEs6Exports(compiler))).add(obj_(new_CheckGoogModuleTypeScriptName(compiler))).add(obj_(new_CheckInterfaces(compiler))).add(obj_(new_CheckJSDocStyle(compiler))).add(obj_(new_CheckMissingSemicolon(compiler))).add(obj_(new_CheckNullabilityModifiers(compiler))).add(obj_(new_CheckPrimitiveAsObject(compiler))).add(obj_(new_CheckPrototypeProperties(compiler))).add(obj_(new_CheckUnusedPrivateProperties(compiler))).add(obj_(new_CheckUnusedLabels(compiler))).add(obj_(new_CheckUselessBlocks(compiler))).add(obj_(new_CheckVar(compiler)))
 	return any(DefaultPassConfig_combineChecks(compiler, sliceImm_(tc_NodeTraversal_Callback, callbacks.build())))
 	panic("unreachable")
 }}
@@ -766,7 +766,7 @@ var lambda_DefaultPassConfig_finit_DefaultPassConfig_29_ = &Function_fn{func(com
 var lambda_DefaultPassConfig_finit_DefaultPassConfig_30_ = &Function_fn{func(compiler_ any) any {
 	var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
 	_ = compiler
-	var callbacks []NodeTraversal_Callback = sliceOf_(tc_NodeTraversal_Callback, icast_NodeTraversal_Callback(obj_(new_CheckArrayWithGoogObject(compiler))), icast_NodeTraversal_Callback(obj_(new_ImplicitNullabilityCheck(compiler))), icast_NodeTraversal_Callback(obj_(new_CheckNestedNames(compiler))))
+	var callbacks []NodeTraversal_Callback = sliceOf_(tc_NodeTraversal_Callback, NodeTraversal_Callback(new_CheckArrayWithGoogObject(compiler)), NodeTraversal_Callback(new_ImplicitNullabilityCheck(compiler)), NodeTraversal_Callback(new_CheckNestedNames(compiler)))
 	return any(DefaultPassConfig_combineChecks(compiler, callbacks))
 	panic("unreachable")
 }}
@@ -775,7 +775,7 @@ var lambda_DefaultPassConfig_finit_DefaultPassConfig_30_ = &Function_fn{func(com
 var lambda_DefaultPassConfig_finit_DefaultPassConfig_31_ = &Function_fn{func(compiler_ any) any {
 	var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
 	_ = compiler
-	return any(DefaultPassConfig_combineChecks(compiler, sliceOf_(tc_NodeTraversal_Callback, icast_NodeTraversal_Callback(obj_(new_CheckProvidesSorted(CheckProvidesSorted_Mode_COLLECT_AND_REPORT))), icast_NodeTraversal_Callback(obj_(new_CheckRequiresSorted(CheckRequiresSorted_Mode_COLLECT_AND_REPORT))))))
+	return any(DefaultPassConfig_combineChecks(compiler, sliceOf_(tc_NodeTraversal_Callback, NodeTraversal_Callback(new_CheckProvidesSorted(CheckProvidesSorted_Mode_COLLECT_AND_REPORT)), NodeTraversal_Callback(new_CheckRequiresSorted(CheckRequiresSorted_Mode_COLLECT_AND_REPORT)))))
 }}
 
 // lambda_DefaultPassConfig_finit_DefaultPassConfig_32_ is a lambda of DefaultPassConfig_finit_DefaultPassConfig that captures nothing (post-flip step lambdas).
@@ -820,7 +820,7 @@ var lambda_DefaultPassConfig_finit_DefaultPassConfig_39_ = &Function_fn{func(p0 
 var lambda_DefaultPassConfig_finit_DefaultPassConfig_40_ = &Function_fn{func(compiler_ any) any {
 	var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
 	_ = compiler
-	return obj_(OptimizeCalls_builder().setCompiler(compiler).setConsiderExterns(false).addPass(icast_OptimizeCalls_CallGraphCompilerPass(obj_(new_DevirtualizeMethods(compiler)))).build())
+	return obj_(OptimizeCalls_builder().setCompiler(compiler).setConsiderExterns(false).addPass(new_DevirtualizeMethods(compiler)).build())
 }}
 
 // lambda_DefaultPassConfig_finit_DefaultPassConfig_41_ is a lambda of DefaultPassConfig_finit_DefaultPassConfig that captures nothing (post-flip step lambdas).
@@ -832,7 +832,7 @@ var lambda_DefaultPassConfig_finit_DefaultPassConfig_41_ = &Function_fn{func(p0 
 var lambda_DefaultPassConfig_finit_DefaultPassConfig_42_ = &Function_fn{func(compiler_ any) any {
 	var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
 	_ = compiler
-	return obj_(OptimizeCalls_builder().setCompiler(compiler).setConsiderExterns(false).addPass(icast_OptimizeCalls_CallGraphCompilerPass(obj_(new_OptimizeReturns(compiler)))).addPass(icast_OptimizeCalls_CallGraphCompilerPass(obj_(new_OptimizeParameters(compiler)))).build())
+	return obj_(OptimizeCalls_builder().setCompiler(compiler).setConsiderExterns(false).addPass(new_OptimizeReturns(compiler)).addPass(new_OptimizeParameters(compiler)).build())
 }}
 
 // lambda_DefaultPassConfig_finit_DefaultPassConfig_43_ is a lambda of DefaultPassConfig_finit_DefaultPassConfig that captures nothing (post-flip step lambdas).
@@ -844,7 +844,7 @@ var lambda_DefaultPassConfig_finit_DefaultPassConfig_43_ = &Function_fn{func(p0 
 var lambda_DefaultPassConfig_finit_DefaultPassConfig_44_ = &Function_fn{func(compiler_ any) any {
 	var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
 	_ = compiler
-	return obj_(OptimizeCalls_builder().setCompiler(compiler).setConsiderExterns(false).addPass(icast_OptimizeCalls_CallGraphCompilerPass(obj_(new_OptimizeConstructors(compiler)))).build())
+	return obj_(OptimizeCalls_builder().setCompiler(compiler).setConsiderExterns(false).addPass(new_OptimizeConstructors(compiler)).build())
 }}
 
 // lambda_DefaultPassConfig_finit_DefaultPassConfig_45_ is a lambda of DefaultPassConfig_finit_DefaultPassConfig that captures nothing (post-flip step lambdas).
@@ -1763,7 +1763,7 @@ func DefaultPassConfig_createPeepholeOptimizationsPass(compiler *AbstractCompile
 	}
 	var late bool = false
 	var useTypesForOptimization bool = compiler.getOptions().shouldUseTypesForLocalOptimization()
-	var optimizations ListOf[*AbstractPeepholeOptimization] = icast_List(new_ArrayList_0().self())
+	var optimizations ListOf[*AbstractPeepholeOptimization] = new_ArrayList_0()
 	if expectAstIsNormalized {
 		optimizations.add(obj_(new_MinimizeExitPoints()))
 	}
@@ -1778,12 +1778,12 @@ func DefaultPassConfig_createPeepholeOptimizationsPass(compiler *AbstractCompile
 	}
 	optimizations.add(obj_(new_PeepholeFoldConstants(late, useTypesForOptimization)))
 	optimizations.add(obj_(new_PeepholeCollectPropertyAssignments()))
-	return icast_CompilerPass(obj_(new_PeepholeOptimizationsPass(compiler, passName, optimizations)))
+	return new_PeepholeOptimizationsPass(compiler, passName, optimizations)
 }
 
 func DefaultPassConfig_combineChecks(compiler *AbstractCompiler, callbacks []NodeTraversal_Callback) CompilerPass {
 	Preconditions_checkArgument(len(callbacks) != 0)
-	return icast_CompilerPass(obj_(new_CombinedCompilerPass(compiler, callbacks)))
+	return new_CombinedCompilerPass(compiler, callbacks)
 }
 
 func (this *DefaultPassConfig) createProcessDefines(mode ProcessDefines_Mode) *PassFactory {
@@ -1795,7 +1795,7 @@ func (this *DefaultPassConfig) createProcessDefines(mode ProcessDefines_Mode) *P
 }
 
 func (this *DefaultPassConfig) runVariableRenaming(compiler *AbstractCompiler, prevVariableMap *VariableMap, externs Node, root Node) *VariableMap {
-	var reservedChars SetOf[BoxedOf[uint16]] = icast_Set(obj_(ImmutableSet_of()))
+	var reservedChars SetOf[BoxedOf[uint16]] = ImmutableSet_of()
 	var reservedNames *TSet[string] = newTSet_(tc_string)
 	if this.options_.getRenamePrefixNamespace().isPresent() {
 		reservedNames.add(this.options_.getRenamePrefixNamespace().get())
@@ -1824,7 +1824,7 @@ func (this *DefaultPassConfig) getCustomPasses(executionTime CustomPassExecution
 }
 
 func DefaultPassConfig_runInSerial(passes CollectionOf[CompilerPass]) CompilerPass {
-	return icast_CompilerPass(obj_(new_DefaultPassConfig_13(passes)))
+	return new_DefaultPassConfig_13(passes)
 }
 
 func DefaultPassConfig_getAdditionalReplacements(options *CompilerOptions) *TMap[string, Node] {
@@ -1956,7 +1956,7 @@ func (this *DefaultPassConfig_3) process_2(externs Node, jsRoot Node) {
 	pass.process_2(externs, jsRoot)
 	this.cap_compiler.setCssNames(func() *TSet[string] {
 		if cssNames.isPresent() {
-			return tsetFrom_(tc_string, cast_[*ImmutableSet_Builder](any(cssNames.get())).build(), true)
+			return tsetFrom_(tc_string, cssNames.get().build(), true)
 		}
 		return nil
 	}())

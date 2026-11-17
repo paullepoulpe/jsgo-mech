@@ -19,7 +19,7 @@ func new_InlineVariables(compiler *AbstractCompiler, mode InlineVariables_Mode) 
 }
 
 func (this *InlineVariables) process_2(externs Node, root Node) {
-	var callback *ReferenceCollector = new_ReferenceCollector_AbstractCompiler_Behavior_ScopeCreator_Predicate(this.compiler_, icast_ReferenceCollector_Behavior(obj_(new_InlineVariables_InliningBehavior(this))), icast_ScopeCreator(obj_(new_SyntacticScopeCreator_AbstractCompiler(this.compiler_))), InlineVariables_Mode_varPredicate_[this.mode_-1])
+	var callback *ReferenceCollector = new_ReferenceCollector_AbstractCompiler_Behavior_ScopeCreator_Predicate(this.compiler_, new_InlineVariables_InliningBehavior(this), new_SyntacticScopeCreator_AbstractCompiler(this.compiler_), InlineVariables_Mode_varPredicate_[this.mode_-1])
 	callback.process_2(externs, root)
 }
 
@@ -506,10 +506,10 @@ func (this *InlineVariables_InliningBehavior) canMoveAggressively(value Node) bo
 func (this *InlineVariables_InliningBehavior) canMoveModerately(initialization *Reference, reference *Reference) bool {
 	var it IteratorOf[Node]
 	if NodeUtil_isNameDeclaration(initialization.getParent()) {
-		it = icast_Iterator(obj_(NodeIterators_LocalVarMotion_forVar(this.outer_.compiler_, initialization.getNode(), initialization.getParent(), initialization.getGrandparent())))
+		it = NodeIterators_LocalVarMotion_forVar(this.outer_.compiler_, initialization.getNode(), initialization.getParent(), initialization.getGrandparent())
 	} else if initialization.getParent().isAssign() {
 		Preconditions_checkState(initialization.getGrandparent().isExprResult())
-		it = icast_Iterator(obj_(NodeIterators_LocalVarMotion_forAssign(this.outer_.compiler_, initialization.getNode(), initialization.getParent(), initialization.getGrandparent(), initialization.getGrandparent().getParent())))
+		it = NodeIterators_LocalVarMotion_forAssign(this.outer_.compiler_, initialization.getNode(), initialization.getParent(), initialization.getGrandparent(), initialization.getGrandparent().getParent())
 	} else {
 		panic(new_IllegalStateException_String(("Unexpected initialization parent\n" + sstr_(initialization.getParent().toStringTree()))).self())
 	}
@@ -551,11 +551,11 @@ func (this *InlineVariables_InliningBehavior) isValidReference(reference *Refere
 }
 
 func (this *InlineVariables_InliningBehavior) beforeTraverseNode(p0 *NodeTraversal, p1 Node, p2 Node) {
-	ReferenceCollector_Behavior_beforeTraverseNode_default(icast_ReferenceCollector_Behavior(any(this)), p0, p1, p2)
+	ReferenceCollector_Behavior_beforeTraverseNode_default(this, p0, p1, p2)
 }
 
 func (this *InlineVariables_InliningBehavior) afterVisitNode(p0 *NodeTraversal, p1 Node, p2 Node, p3 *Reference) {
-	ReferenceCollector_Behavior_afterVisitNode_default(icast_ReferenceCollector_Behavior(any(this)), p0, p1, p2, p3)
+	ReferenceCollector_Behavior_afterVisitNode_default(this, p0, p1, p2, p3)
 }
 
 const InlineVariables_InliningBehavior_MAX_MODERATE_MOTION_STEPS int32 = 5000

@@ -111,7 +111,7 @@ func (this *DataFlowAnalysis) initialize() {
 	it_1 := foreach_(any(this.cfg.getNodes()))
 	for it_1.next() {
 		var node DiGraph_DiGraphNode = icast_DiGraph_DiGraphNode(it_1.v)
-		node.setAnnotation(icast_Annotation_graph(obj_(new_DataFlowAnalysis_LinearFlowState(any(this.createInitialEstimateLattice()), any(this.createInitialEstimateLattice())))))
+		node.setAnnotation(new_DataFlowAnalysis_LinearFlowState(any(this.createInitialEstimateLattice()), any(this.createInitialEstimateLattice())))
 		if node != this.cfg.getImplicitReturn() {
 			this.workQueue.add(any(node))
 		}
@@ -342,9 +342,9 @@ func (this *DataFlowAnalysis_UniqueQueue) init_DataFlowAnalysis_UniqueQueue(prio
 	this.finit_DataFlowAnalysis_UniqueQueue()
 	this.queue = func() Queue {
 		if priority == nil {
-			return icast_Queue(obj_(new_ArrayDeque()))
+			return new_ArrayDeque()
 		}
-		return icast_Queue(obj_(new_PriorityQueue(priority)))
+		return new_PriorityQueue(priority)
 	}()
 }
 

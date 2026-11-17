@@ -31,7 +31,7 @@ func (this *LazyParsedDependencyInfo) isGoogModule() bool {
 
 func (this *LazyParsedDependencyInfo) getLoadFlags() ImmutableMapOf[string, string] {
 	if this.loadFlags_ == nil {
-		var loadFlagsBuilder MapOf[string, string] = icast_Map(obj_(new_TreeMap()))
+		var loadFlagsBuilder MapOf[string, string] = new_TreeMap()
 		var hadSourceInMemory bool = this.ast.getSourceFile().hasSourceInMemory()
 		loadFlagsBuilder.putAll(icast_Map(obj_(this.delegate.getLoadFlags())))
 		var features *FeatureSet = this.ast.getFeatures(this.compiler_)
@@ -84,5 +84,5 @@ func (this *LazyParsedDependencyInfo) getHasNoCompileAnnotation() bool {
 }
 
 func (this *LazyParsedDependencyInfo) getRequiredSymbols() *ImmutableList {
-	return DependencyInfo_getRequiredSymbols_default(icast_DependencyInfo(any(this)))
+	return DependencyInfo_getRequiredSymbols_default(this)
 }

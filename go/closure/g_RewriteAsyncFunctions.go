@@ -29,7 +29,7 @@ func RewriteAsyncFunctions_create(compiler *AbstractCompiler) *RewriteAsyncFunct
 }
 
 func (this *RewriteAsyncFunctions) process_2(externs Node, root Node) {
-	TranspilationPasses_processTranspile(this.compiler_, root, RewriteAsyncFunctions_transpiledFeatures, []NodeTraversal_Callback{icast_NodeTraversal_Callback(any(this))})
+	TranspilationPasses_processTranspile(this.compiler_, root, RewriteAsyncFunctions_transpiledFeatures, []NodeTraversal_Callback{NodeTraversal_Callback(this)})
 	TranspilationPasses_maybeMarkFeaturesAsTranspiledAway(this.compiler_, root, RewriteAsyncFunctions_transpiledFeatures)
 }
 
@@ -37,7 +37,7 @@ func (this *RewriteAsyncFunctions) shouldTraverse(t *NodeTraversal, n Node, pare
 	if parent == 0 {
 		Preconditions_checkState(len(this.contextStack) == 0)
 		var uniqueId string = this.compiler_.getUniqueIdSupplier().getUniqueId(t.getInput())
-		this.contextStack = append(this.contextStack, to_RewriteAsyncFunctions_LexicalContext(obj_(new_RewriteAsyncFunctions_RootContext(this, n, uniqueId))))
+		this.contextStack = append(this.contextStack, new_RewriteAsyncFunctions_RootContext(this, n, uniqueId).as_RewriteAsyncFunctions_LexicalContext())
 	} else {
 		var parentContext *RewriteAsyncFunctions_LexicalContext = slicePeekTop_(tc_p_RewriteAsyncFunctions_LexicalContext, this.contextStack)
 		var nodeContext *RewriteAsyncFunctions_LexicalContext = parentContext.getContextForNode(t, n)

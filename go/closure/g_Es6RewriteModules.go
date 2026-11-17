@@ -60,7 +60,7 @@ func (this *Es6RewriteModules) process_2(externs Node, root Node) {
 	if !root.isRoot() {
 		Preconditions_checkArgument_boolean_Object(false, root.box_())
 	}
-	NodeTraversal_traverseRoots(this.compiler_, icast_NodeTraversal_Callback(any(this)), externs, root)
+	NodeTraversal_traverseRoots(this.compiler_, this, externs, root)
 	NodeUtil_removeFeatureFromAllScripts(root, FeatureSet_Feature_MODULES, this.compiler_)
 	GatherGetterAndSetterProperties_update(this.compiler_, externs, root)
 }
@@ -221,7 +221,7 @@ func (this *Es6RewriteModules) visitScript(t *NodeTraversal, script Node) {
 	}
 	var moduleName string = qualifiedName.getRoot()
 	var moduleVar Node = this.createExportsObject(moduleName, t, script, moduleObjectType)
-	NodeTraversal_traverse(this.compiler_, script, icast_NodeTraversal_Callback(obj_(new_Es6RewriteModules_RenameGlobalVars(this, thisModule))))
+	NodeTraversal_traverse(this.compiler_, script, new_Es6RewriteModules_RenameGlobalVars(this, thisModule))
 	moduleVar.getFirstChild().setString(moduleName)
 	moduleVar.makeNonIndexableRecursive()
 	this.declareGlobalVariable(moduleVar.getFirstChild(), t)
@@ -532,9 +532,9 @@ func new_Es6RewriteModules_RewriteRequiresForEs6Modules(outer_ *Es6RewriteModule
 
 func (this *Es6RewriteModules_RewriteRequiresForEs6Modules) rewrite(scriptNode Node) {
 	this.renameTable = SimpleTable_create()
-	NodeTraversal_traverse(this.outer_.compiler_, scriptNode, icast_NodeTraversal_Callback(obj_(this)))
+	NodeTraversal_traverse(this.outer_.compiler_, scriptNode, this)
 	if !this.renameTable.isEmpty() {
-		NodeTraversal_traverse(this.outer_.compiler_, scriptNode, icast_NodeTraversal_Callback(obj_(new_Es6RenameTypeReferences(this.renameTable))))
+		NodeTraversal_traverse(this.outer_.compiler_, scriptNode, new_Es6RenameTypeReferences(this.renameTable))
 	}
 }
 

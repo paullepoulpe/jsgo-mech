@@ -9,8 +9,8 @@ type Timeline struct {
 }
 
 func (this *Timeline) finit_Timeline() {
-	this.eventsByTime = icast_Map(obj_(new_LinkedHashMap()))
-	this.eventsByValue = icast_Map(obj_(new_LinkedHashMap()))
+	this.eventsByTime = new_LinkedHashMap()
+	this.eventsByValue = new_LinkedHashMap()
 	this.headEvent = new_Timeline_Event(obj_(new_Timeline_Time("-beginning-")))
 }
 

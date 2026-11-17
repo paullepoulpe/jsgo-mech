@@ -89,7 +89,7 @@ func (this *FixingErrorManager) containsFixableShorthandModuleWarning() bool {
 
 func (this *FixingErrorManager) getFixesForJsError(error_ *JSError) ListOf[*SuggestedFix] {
 	if this.sureFixes.containsKey(error_) {
-		return icast_List(obj_(ImmutableList_of_Object(obj_(this.sureFixes.get(error_)))))
+		return ImmutableList_of_Object(obj_(this.sureFixes.get(error_)))
 	} else {
 		return this.multiFixes.get(obj_(error_))
 	}
@@ -98,7 +98,7 @@ func (this *FixingErrorManager) getFixesForJsError(error_ *JSError) ListOf[*Sugg
 
 func (this *FixingErrorManager) getFixes(fixTypes FixingErrorManager_FixTypes) CollectionOf[*SuggestedFix] {
 	var containsFixableShorthandModuleWarning bool = this.containsFixableShorthandModuleWarning()
-	var fixes CollectionOf[*SuggestedFix] = icast_Collection(new_ArrayList_0().self())
+	var fixes CollectionOf[*SuggestedFix] = new_ArrayList_0()
 	it_1 := foreach_(obj_(this.getErrors()))
 	for it_1.next() {
 		var error_ *JSError = cast_[*JSError](it_1.v)

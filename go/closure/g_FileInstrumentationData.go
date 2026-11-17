@@ -21,7 +21,7 @@ func (this *FileInstrumentationData) init_FileInstrumentationData(fileName strin
 	this.arrayName = arrayName
 	this.instrumentedBits = new_BitSet()
 	this.branchPresent = new_BitSet()
-	this.branchesInLine = icast_Map(obj_(new_LinkedHashMap()))
+	this.branchesInLine = new_LinkedHashMap()
 	this.branchNodes = newTMap_(tch_p_FileInstrumentationData_BranchIndexPair, tc_Node)
 }
 

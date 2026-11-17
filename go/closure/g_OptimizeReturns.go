@@ -18,7 +18,7 @@ func new_OptimizeReturns(compiler *AbstractCompiler) *OptimizeReturns {
 }
 
 func (this *OptimizeReturns) process_2(externs Node, root Node) {
-	OptimizeCalls_builder().setCompiler(this.compiler_).setConsiderExterns(false).addPass(icast_OptimizeCalls_CallGraphCompilerPass(any(this))).build().process_2(externs, root)
+	OptimizeCalls_builder().setCompiler(this.compiler_).setConsiderExterns(false).addPass(this).build().process_2(externs, root)
 }
 
 func (this *OptimizeReturns) process_3(externs Node, root Node, definitions *OptimizeCalls_ReferenceMap) {
@@ -145,7 +145,7 @@ func OptimizeReturns_isCandidateFunction(n Node) bool {
 func (this *OptimizeReturns) rewriteReturns(fnNode Node) {
 	Preconditions_checkState(fnNode.isFunction())
 	var body Node = fnNode.getLastChild()
-	NodeUtil_visitPostOrder_Node_Visitor_Predicate(body, new_OptimizeReturns_1(this, body).visit, icast_Predicate_base(obj_(new_NodeUtil_MatchShallowStatement())))
+	NodeUtil_visitPostOrder_Node_Visitor_Predicate(body, new_OptimizeReturns_1(this, body).visit, new_NodeUtil_MatchShallowStatement())
 }
 
 func (this *OptimizeReturns) isRemovableValue(n Node) bool {

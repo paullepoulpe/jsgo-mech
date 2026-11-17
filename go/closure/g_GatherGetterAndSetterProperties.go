@@ -33,7 +33,7 @@ func GatherGetterAndSetterProperties_update(compiler *AbstractCompiler, externs 
 
 func GatherGetterAndSetterProperties_gather(compiler *AbstractCompiler, root Node) ImmutableMapOf[string, AccessorSummary_PropertyAccessKind] {
 	var gatherCallback *GatherGetterAndSetterProperties_GatherCallback = new_GatherGetterAndSetterProperties_GatherCallback()
-	NodeTraversal_traverse(compiler, root, icast_NodeTraversal_Callback(obj_(gatherCallback)))
+	NodeTraversal_traverse(compiler, root, gatherCallback)
 	return ImmutableMap_copyOf(gatherCallback.properties.asMap())
 }
 

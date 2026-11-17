@@ -163,7 +163,7 @@ func (this *CommandLineRunner) processFlagFile(flagFileString string) *Outcome_b
 	if builder.length() != 0 {
 		tokens.add(Object_toString(obj_(builder)))
 	}
-	this.flags.flagFiles = icast_List(new_ArrayList_0().self())
+	this.flags.flagFiles = new_ArrayList_0()
 	tokens = CommandLineRunner_processArgs(arrmap_(tokens.asList().toArray(arrmap_(newstrarr_(0), func(v_ string) any { return strobj_(v_) })), func(v_ any) string { return str_(v_) }))
 	var previousGuardLevels *TList[*AbstractCommandLineRunner_FlagEntry] = tlistFrom_(tc_p_AbstractCommandLineRunner_FlagEntry, Collection(this.flags.guardLevels.asList()))
 	var previousMixedJsSources *TList[*AbstractCommandLineRunner_FlagEntry] = tlistFrom_(tc_p_AbstractCommandLineRunner_FlagEntry, Collection(this.flags.mixedJsSources.asList()))
@@ -273,9 +273,9 @@ func (this *CommandLineRunner) initConfigFromFlags(args []string, out *Output, e
 	if this.flags.thirdParty {
 		conv = CodingConventions_getDefault()
 	} else if this.flags.chromePass {
-		conv = icast_CodingConvention(obj_(new_ChromeCodingConvention_0()))
+		conv = new_ChromeCodingConvention_0()
 	} else {
-		conv = icast_CodingConvention(obj_(new_ClosureCodingConvention_0()))
+		conv = new_ClosureCodingConvention_0()
 	}
 	if !this.flags.renaming && (this.flags.compilationLevelParsed == CompilationLevel_ADVANCED_OPTIMIZATIONS) {
 		this.reportError("ERROR - renaming cannot be disabled when ADVANCED_OPTIMIZATIONS is used.")
@@ -347,7 +347,7 @@ func (this *CommandLineRunner) createOptions_impl() *Outcome_base {
 	} else {
 		return Outcome_base_err(new_FlagUsageException(("Unknown language `" + sstr_(this.flags.languageOut) + "' specified. Expected one of: " + objstr_(any(sliceView_(tc_string, CompilerOptions_LanguageMode_validCommandLineNames()))))).up_Throwable())
 	}
-	options.setCodingConvention(icast_CodingConvention(obj_(new_ClosureCodingConvention_0())))
+	options.setCodingConvention(new_ClosureCodingConvention_0())
 	options.setExtraAnnotationNames(Iterable(this.flags.extraAnnotationName))
 	var level CompilationLevel = this.flags.compilationLevelParsed
 	level.setOptionsForCompilationLevel(options)
@@ -414,9 +414,9 @@ func (this *CommandLineRunner) createOptions_impl() *Outcome_base {
 		if xtb.isErr() {
 			panic(new_RuntimeException_String_Throwable("Reading XTB file", xtb.error()).self())
 		}
-		options.setMessageBundle(icast_MessageBundle(obj_(new_XtbMessageBundle(cast_[[]int8](xtb.get()), this.flags.translationsProject))))
+		options.setMessageBundle(new_XtbMessageBundle(cast_[[]int8](xtb.get()), this.flags.translationsProject))
 	} else if CompilationLevel_ADVANCED_OPTIMIZATIONS == level {
-		options.setMessageBundle(icast_MessageBundle(obj_(new_EmptyMessageBundle())))
+		options.setMessageBundle(new_EmptyMessageBundle())
 		options.setWarningLevel(DiagnosticGroups_MSG_CONVENTIONS, CheckLevel_OFF)
 	}
 	options.setConformanceConfigs(CommandLineRunner_loadConformanceConfigs(this.flags.conformanceConfigs))
@@ -485,7 +485,7 @@ func (this *CommandLineRunner) getBundler() *Outcome_base {
 		return Outcome_base_err(optionsOutcome.error())
 	}
 	var options *CompilerOptions = cast_[*CompilerOptions](optionsOutcome.get())
-	var newBundler *ClosureBundler = new_ClosureBundler_Transpiler_Transpiler(Transpiler_transpile_NULL, icast_Transpiler_transpile(obj_(new_BaseTranspiler(new_BaseTranspiler_CompilerSupplier_FeatureSet_ResolutionMode_ImmutableList_ImmutableMap(CompilerOptions_LanguageMode_ECMASCRIPT_NEXT.toFeatureSet().without_2(FeatureSet_Feature_MODULES, []FeatureSet_Feature{}), options.getModuleResolutionMode(), moduleRoots, options.getBrowserResolverPrefixReplacements()), ""))))
+	var newBundler *ClosureBundler = new_ClosureBundler_Transpiler_Transpiler(Transpiler_transpile_NULL, new_BaseTranspiler(new_BaseTranspiler_CompilerSupplier_FeatureSet_ResolutionMode_ImmutableList_ImmutableMap(CompilerOptions_LanguageMode_ECMASCRIPT_NEXT.toFeatureSet().without_2(FeatureSet_Feature_MODULES, []FeatureSet_Feature{}), options.getModuleResolutionMode(), moduleRoots, options.getBrowserResolverPrefixReplacements()), ""))
 	this.bundler = newBundler
 	return Outcome_base_ok_Object(obj_(newBundler))
 }
@@ -581,9 +581,9 @@ func CommandLineRunner_findJsFiles_Collection(patterns CollectionOf[string]) *Ou
 func CommandLineRunner_findJsFiles_Collection_boolean(patterns CollectionOf[string], sortAlphabetically bool) *Outcome_base {
 	var allJsInputs MapOf[string, string] = func() Map {
 		if sortAlphabetically {
-			return icast_Map(obj_(new_TreeMap()))
+			return new_TreeMap()
 		}
-		return icast_Map(obj_(new_LinkedHashMap()))
+		return new_LinkedHashMap()
 	}()
 	var excludes map[string]struct{} = map[string]struct{}{}
 	it_1 := foreach_(any(patterns))
@@ -844,11 +844,11 @@ func (this *CommandLineRunner_Flags) finit_CommandLineRunner_Flags() {
 	this.strictModeInput = true
 	this.jscompDevMode = CompilerOptions_DevMode_OFF
 	this.loggingLevel = Level_WARNING.getName()
-	this.externs = icast_List(new_ArrayList_0().self())
+	this.externs = new_ArrayList_0()
 	this.js = newTList_(tc_string)
 	this.unusedJsZip = nil
 	this.jsOutputFile = ""
-	this.chunk_ = icast_List(new_ArrayList_0().self())
+	this.chunk_ = new_ArrayList_0()
 	this.filenameToSaveTo = Optional_empty[string]()
 	this.filenameToRestoreFrom = Optional_empty[string]()
 	this.segmentOfCompilationToRun = CompilerOptions_SegmentOfCompilationToRun_ENTIRE_COMPILATION
@@ -862,18 +862,18 @@ func (this *CommandLineRunner_Flags) finit_CommandLineRunner_Flags() {
 	this.isolationMode = CompilerOptions_IsolationMode_NONE
 	this.outputWrapper = Optional_of[string]("")
 	this.outputWrapperFile = Optional_of[string]("")
-	this.chunkWrapper = icast_List(new_ArrayList_0().self())
+	this.chunkWrapper = new_ArrayList_0()
 	this.chunkOutputPathPrefix = "./"
 	this.createSourceMap = ""
 	this.sourceMapFormat = SourceMap_Format_DEFAULT
-	this.sourceMapLocationMapping = icast_List(new_ArrayList_0().self())
-	this.sourceMapInputs = icast_List(new_ArrayList_0().self())
+	this.sourceMapLocationMapping = new_ArrayList_0()
+	this.sourceMapInputs = new_ArrayList_0()
 	this.parseInlineSourceMaps_ = any(bool(true))
 	this.applyInputSourceMaps = true
 	this.jscompError = newTList_(tc_string)
 	this.jscompWarning = newTList_(tc_string)
 	this.jscompOff = newTList_(tc_string)
-	this.define = icast_List(new_ArrayList_0().self())
+	this.define = new_ArrayList_0()
 	this.charset = ""
 	this.compilationLevel = "SIMPLE"
 	this.compilationLevelParsed = 0
@@ -888,9 +888,9 @@ func (this *CommandLineRunner_Flags) finit_CommandLineRunner_Flags() {
 	this.typedAstOutputFile = Optional_empty[string]()
 	this.generateExports = true
 	this.exportLocalPropertyDefinitions = true
-	this.formatting = icast_List(new_ArrayList_0().self())
+	this.formatting = new_ArrayList_0()
 	this.processCommonJsModules = false
-	this.moduleRoot = icast_List(new_ArrayList_0().self())
+	this.moduleRoot = new_ArrayList_0()
 	this.processClosurePrimitives = true
 	this.angularPass = false
 	this.polymerVersion = nil
@@ -904,26 +904,26 @@ func (this *CommandLineRunner_Flags) finit_CommandLineRunner_Flags() {
 	this.version_ = false
 	this.translationsFile = ""
 	this.translationsProject = Optional_empty[string]()
-	this.flagFiles = icast_List(new_ArrayList_0().self())
+	this.flagFiles = new_ArrayList_0()
 	this.warningsAllowlistFile = ""
-	this.hideWarningsFor = icast_List(new_ArrayList_0().self())
-	this.extraAnnotationName = icast_List(new_ArrayList_0().self())
+	this.hideWarningsFor = new_ArrayList_0()
+	this.extraAnnotationName = new_ArrayList_0()
 	this.tracerMode = CompilerOptions_TracerMode_OFF
 	this.renamePrefix = Optional_empty[string]()
 	this.renamePrefixNamespace = Optional_empty[string]()
-	this.conformanceConfigs = icast_List(new_ArrayList_0().self())
+	this.conformanceConfigs = new_ArrayList_0()
 	this.environment = CompilerOptions_Environment_BROWSER
 	this.jsonStreamMode = CompilerOptions_JsonStreamMode_NONE
 	this.preserveTypeAnnotations = false
 	this.injectLibraries_ = true
-	this.forceInjectLibraries = icast_List(new_ArrayList_0().self())
+	this.forceInjectLibraries = new_ArrayList_0()
 	this.dependencyMode = 0
-	this.entryPoint = icast_List(new_ArrayList_0().self())
+	this.entryPoint = new_ArrayList_0()
 	this.rewritePolyfills = true
 	this.isolatePolyfills = false
 	this.printSourceAfterEachPass = false
 	this.moduleResolutionMode = ModuleLoader_ResolutionMode_BROWSER
-	this.browserResolverPrefixReplacements = icast_Map(obj_(new_LinkedHashMap()))
+	this.browserResolverPrefixReplacements = new_LinkedHashMap()
 	this.packageJsonEntryNames = Optional_empty[string]()
 	this.errorFormat = AbstractCommandLineRunner_CommandLineConfig_ErrorFormatOption_STANDARD
 	this.renaming = true
@@ -938,8 +938,8 @@ func (this *CommandLineRunner_Flags) finit_CommandLineRunner_Flags() {
 	this.assumeNoPrototypeMethodEnumeration = false
 	this.variableMapInputFile = ""
 	this.propertyMapInputFile = ""
-	this.expectedDiagnostics = icast_List(new_ArrayList_0().self())
-	this.arguments = icast_List(new_ArrayList_0().self())
+	this.expectedDiagnostics = new_ArrayList_0()
+	this.arguments = new_ArrayList_0()
 	this.maxLineLength = 80
 }
 
@@ -1705,7 +1705,7 @@ func CommandLineRunner_Flags_printShortUsageAfterErrors(ps *Output) {
 }
 
 func (this *CommandLineRunner_Flags) getMixedJsSources() *Outcome_base {
-	var mixedSources ListOf[*AbstractCommandLineRunner_FlagEntry] = icast_List(new_ArrayList_0().self())
+	var mixedSources ListOf[*AbstractCommandLineRunner_FlagEntry] = new_ArrayList_0()
 	var excludes map[string]struct{} = map[string]struct{}{}
 	it_1 := this.mixedJsSources.each()
 	for it_1.next() {
@@ -1713,7 +1713,7 @@ func (this *CommandLineRunner_Flags) getMixedJsSources() *Outcome_base {
 		if String_endsWith(source.getValue(), ".zip") {
 			mixedSources.add(obj_(source))
 		} else if String_startsWith(source.getValue(), "!") {
-			var found *Outcome_base = CommandLineRunner_findJsFiles_Collection(icast_Collection(obj_(ImmutableList_of_Object(strobj_(String_substring_int(source.getValue(), 1))))))
+			var found *Outcome_base = CommandLineRunner_findJsFiles_Collection(ImmutableList_of_Object(strobj_(String_substring_int(source.getValue(), 1))))
 			if found.isErr() {
 				return Outcome_base_err(found.error())
 			}
@@ -1818,7 +1818,7 @@ func CommandLineRunner_Flags_clinit() {
 		return
 	}
 	CommandLineRunner_Flags_clinit_done = true
-	CommandLineRunner_Flags_categories = SimpleListMultimap_create().putAll_s("Basic Usage", icast_Iterable(obj_(ImmutableList_of_Object_Object_Object_Object_Object_Object_Object_Object(strobj_("compilation_level"), strobj_("env"), strobj_("externs"), strobj_("js"), strobj_("js_output_file"), strobj_("language_in"), strobj_("language_out"), strobj_("warning_level"))))).putAll_s("Warning and Error Management", icast_Iterable(obj_(ImmutableList_of_Object_Object_Object_Object_Object_Object_Object_Object_Object(strobj_("conformance_configs"), strobj_("error_format"), strobj_("extra_annotation_name"), strobj_("hide_warnings_for"), strobj_("jscomp_error"), strobj_("jscomp_off"), strobj_("jscomp_warning"), strobj_("strict_mode_input"), strobj_("warnings_allowlist_file"))))).putAll_s("Output", icast_Iterable(obj_(ImmutableList_of_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object(strobj_("assume_function_wrapper"), strobj_("debug"), strobj_("emit_use_strict"), strobj_("export_local_property_definitions"), strobj_("formatting"), strobj_("generate_exports"), strobj_("isolation_mode"), strobj_("output_wrapper"), strobj_("output_wrapper_file"), strobj_("rename_variable_prefix"))))).putAll_s("Dependency Management", icast_Iterable(obj_(ImmutableList_of_Object_Object(strobj_("dependency_mode"), strobj_("entry_point"))))).putAll_s("JS Modules", icast_Iterable(obj_(ImmutableList_of_Object_Object_Object_Object_Object(strobj_("dynamic_import_alias"), strobj_("js_module_root"), strobj_("module_resolution"), strobj_("process_common_js_modules"), strobj_("package_json_entry_names"))))).putAll_s("Library and Framework Specific", icast_Iterable(obj_(ImmutableList_of_Object_Object_Object_Object_Object_Object_Object(strobj_("angular_pass"), strobj_("force_inject_library"), strobj_("inject_libraries"), strobj_("polymer_version"), strobj_("process_closure_primitives"), strobj_("rewrite_polyfills"), strobj_("isolate_polyfills"))))).putAll_s("Code Splitting", icast_Iterable(obj_(ImmutableList_of_Object_Object_Object_Object_Object(strobj_("chunk"), strobj_("chunk_output_path_prefix"), strobj_("chunk_output_type"), strobj_("chunk_wrapper"), strobj_("rename_prefix_namespace"))))).putAll_s("Reports", icast_Iterable(obj_(ImmutableList_of_Object_Object_Object_Object_Object_Object_Object_Object(strobj_("create_source_map"), strobj_("output_manifest"), strobj_("output_chunk_dependencies"), strobj_("property_renaming_report"), strobj_("source_map_input"), strobj_("source_map_include_content"), strobj_("source_map_location_mapping"), strobj_("variable_renaming_report"))))).putAll_s("Miscellaneous", icast_Iterable(obj_(ImmutableList_of_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object(strobj_("assume_static_inheritance_is_not_used"), strobj_("browser_featureset_year"), strobj_("charset"), strobj_("checks_only"), strobj_("define"), strobj_("flagfile"), strobj_("help"), strobj_("json_streams"), strobj_("third_party"), strobj_("use_types_for_optimization"), strobj_("version"))))).immutableCopy()
+	CommandLineRunner_Flags_categories = SimpleListMultimap_create().putAll_s("Basic Usage", ImmutableList_of_Object_Object_Object_Object_Object_Object_Object_Object(strobj_("compilation_level"), strobj_("env"), strobj_("externs"), strobj_("js"), strobj_("js_output_file"), strobj_("language_in"), strobj_("language_out"), strobj_("warning_level"))).putAll_s("Warning and Error Management", ImmutableList_of_Object_Object_Object_Object_Object_Object_Object_Object_Object(strobj_("conformance_configs"), strobj_("error_format"), strobj_("extra_annotation_name"), strobj_("hide_warnings_for"), strobj_("jscomp_error"), strobj_("jscomp_off"), strobj_("jscomp_warning"), strobj_("strict_mode_input"), strobj_("warnings_allowlist_file"))).putAll_s("Output", ImmutableList_of_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object(strobj_("assume_function_wrapper"), strobj_("debug"), strobj_("emit_use_strict"), strobj_("export_local_property_definitions"), strobj_("formatting"), strobj_("generate_exports"), strobj_("isolation_mode"), strobj_("output_wrapper"), strobj_("output_wrapper_file"), strobj_("rename_variable_prefix"))).putAll_s("Dependency Management", ImmutableList_of_Object_Object(strobj_("dependency_mode"), strobj_("entry_point"))).putAll_s("JS Modules", ImmutableList_of_Object_Object_Object_Object_Object(strobj_("dynamic_import_alias"), strobj_("js_module_root"), strobj_("module_resolution"), strobj_("process_common_js_modules"), strobj_("package_json_entry_names"))).putAll_s("Library and Framework Specific", ImmutableList_of_Object_Object_Object_Object_Object_Object_Object(strobj_("angular_pass"), strobj_("force_inject_library"), strobj_("inject_libraries"), strobj_("polymer_version"), strobj_("process_closure_primitives"), strobj_("rewrite_polyfills"), strobj_("isolate_polyfills"))).putAll_s("Code Splitting", ImmutableList_of_Object_Object_Object_Object_Object(strobj_("chunk"), strobj_("chunk_output_path_prefix"), strobj_("chunk_output_type"), strobj_("chunk_wrapper"), strobj_("rename_prefix_namespace"))).putAll_s("Reports", ImmutableList_of_Object_Object_Object_Object_Object_Object_Object_Object(strobj_("create_source_map"), strobj_("output_manifest"), strobj_("output_chunk_dependencies"), strobj_("property_renaming_report"), strobj_("source_map_input"), strobj_("source_map_include_content"), strobj_("source_map_location_mapping"), strobj_("variable_renaming_report"))).putAll_s("Miscellaneous", ImmutableList_of_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object(strobj_("assume_static_inheritance_is_not_used"), strobj_("browser_featureset_year"), strobj_("charset"), strobj_("checks_only"), strobj_("define"), strobj_("flagfile"), strobj_("help"), strobj_("json_streams"), strobj_("third_party"), strobj_("use_types_for_optimization"), strobj_("version"))).immutableCopy()
 	CommandLineRunner_Flags_MARKDOWN_CHARS_TO_ESCAPE = Pattern_compile("[-*\\`\\[\\]{}\\(\\)#+\\.!<>]")
 	CommandLineRunner_Flags_WHITESPACE_PATTERN = Pattern_compile(JavaRegex_SPACE)
 

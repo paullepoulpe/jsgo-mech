@@ -41,7 +41,7 @@ func (this *DevirtualizeMethods) processReferenceList(name string, sites ListOf[
 			callSitesBuilder.add(s.box_())
 		}
 	}
-	var callSites ImmutableListOf[Node] = cast_[*ImmutableList](obj_(callSitesBuilder.build()))
+	var callSites ImmutableListOf[Node] = callSitesBuilder.build()
 	if callSites.isEmpty() {
 		return
 	}

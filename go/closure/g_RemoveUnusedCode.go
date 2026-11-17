@@ -56,7 +56,7 @@ func (this *RemoveUnusedCode) init_RemoveUnusedCode(builder *RemoveUnusedCode_Bu
 	this.polyfillsFromTable = PolyfillUsageFinder_Polyfills_fromTable(ResourceLoader_loadTextResource((sstr_(ResourceLoader_JSCOMP) + "js/polyfills.txt")))
 	this.polyfillUsageFinder = new_PolyfillUsageFinder(this.compiler_, this.polyfillsFromTable, this.disambiguateProperties_)
 	this.assumeGettersArePure_ = builder.assumeGettersArePureField
-	this.canonicalUnremovableVarInfo = icast_RemoveUnusedCode_VarInfo(obj_(new_RemoveUnusedCode_CanonicalUnremovableVarInfo(this)))
+	this.canonicalUnremovableVarInfo = new_RemoveUnusedCode_CanonicalUnremovableVarInfo(this)
 }
 
 func new_RemoveUnusedCode(builder *RemoveUnusedCode_Builder) *RemoveUnusedCode {
@@ -1171,7 +1171,7 @@ func (this *RemoveUnusedCode) getVarInfo(var_ *Var) RemoveUnusedCode_VarInfo {
 	} else {
 		var varInfo, _ = this.varInfoMap.get(var_)
 		if varInfo == nil {
-			varInfo = icast_RemoveUnusedCode_VarInfo(obj_(new_RemoveUnusedCode_RealVarInfo(this, var_.getName())))
+			varInfo = new_RemoveUnusedCode_RealVarInfo(this, var_.getName())
 			if var_.getParentNode().isParamList() {
 				varInfo.setHasNonLocalOrNonLiteralValue()
 			}

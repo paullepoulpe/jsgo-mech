@@ -16,7 +16,7 @@ func Transpiler_transpile_clinit() {
 		return
 	}
 	Transpiler_transpile_clinit_done = true
-	Transpiler_transpile_NULL = icast_Transpiler_transpile(obj_(new_Transpiler_1()))
+	Transpiler_transpile_NULL = new_Transpiler_1()
 
 }
 

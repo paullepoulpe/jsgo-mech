@@ -20,7 +20,7 @@ func new_RefactoringDriver(inputs ListOf[*SourceFile_jscomp], externs ListOf[*So
 
 func (this *RefactoringDriver) drive_2(scanner *Scanner_refactoring, includeFilePattern *Pattern) *TList[*SuggestedFix] {
 	var callback *JsFlumeCallback = new_JsFlumeCallback(scanner, includeFilePattern)
-	NodeTraversal_traverse(this.compiler_.up_AbstractCompiler(), this.rootNode_, icast_NodeTraversal_Callback(obj_(callback)))
+	NodeTraversal_traverse(this.compiler_.up_AbstractCompiler(), this.rootNode_, callback)
 	var fixes *TList[*SuggestedFix] = callback.getFixes()
 	fixes.addAllT(scanner.processAllMatches(Collection(callback.getMatches().asList())))
 	return fixes
@@ -35,7 +35,7 @@ func (this *RefactoringDriver) getCompiler() *Compiler {
 }
 
 func RefactoringDriver_createCompiler(inputs ListOf[*SourceFile_jscomp], externs ListOf[*SourceFile_jscomp], compilerOptions *CompilerOptions) *Compiler {
-	var compiler *Compiler = Compiler_createFromErrorManager(icast_ErrorManager(obj_(new_BlackHoleErrorManager())))
+	var compiler *Compiler = Compiler_createFromErrorManager(new_BlackHoleErrorManager())
 	compiler.disableThreads()
 	compiler.compile(externs, inputs, compilerOptions)
 	return compiler

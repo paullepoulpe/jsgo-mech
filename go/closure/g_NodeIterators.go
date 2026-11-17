@@ -20,7 +20,7 @@ type NodeIterators_FunctionlessLocalScope struct {
 }
 
 func (this *NodeIterators_FunctionlessLocalScope) finit_NodeIterators_FunctionlessLocalScope() {
-	this.ancestors = icast_Deque(obj_(new_ArrayDeque()))
+	this.ancestors = new_ArrayDeque()
 }
 
 func (this *NodeIterators_FunctionlessLocalScope) init_NodeIterators_FunctionlessLocalScope(ancestors []Node) {

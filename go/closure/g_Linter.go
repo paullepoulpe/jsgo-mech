@@ -29,7 +29,7 @@ func (this *Linter) lint_2(path string, compiler *Compiler) {
 	compiler.setPassConfig(new_LintPassConfig(this.options_).up_PassConfig())
 	compiler.disableThreads()
 	var externs *SourceFile_jscomp = SourceFile_jscomp_fromCode_String_String("<Linter externs>", "")
-	compiler.compile(icast_List(obj_(ImmutableList_of_Object(obj_(externs)))), icast_List(obj_(ImmutableList_of_Object(obj_(file)))), this.options_)
+	compiler.compile(ImmutableList_of_Object(obj_(externs)), ImmutableList_of_Object(obj_(file)), this.options_)
 }
 
 func (this *Linter) fixRepeatedly(filename string) *Outcome_base {
@@ -52,7 +52,7 @@ func (this *Linter) fixRepeatedly_2(filename string, unfixableErrors ImmutableSe
 func (this *Linter) fix(filename string, unfixableErrors ImmutableSetOf[*DiagnosticType]) *Outcome_base {
 	var compiler *Compiler = new_Compiler_Output(Output_stdout())
 	var errorManager *FixingErrorManager = new_FixingErrorManager_ImmutableSet(unfixableErrors)
-	compiler.setErrorManager(icast_ErrorManager(obj_(errorManager)))
+	compiler.setErrorManager(errorManager)
 	errorManager.setCompiler(compiler.up_AbstractCompiler())
 	this.lint_2(FilePaths_clean(filename), compiler)
 	var fixes CollectionOf[*SuggestedFix] = errorManager.getSureFixes()
@@ -82,7 +82,7 @@ func (this *Linter_Builder) init_Linter_Builder() {
 	this.options_.setPreferSingleQuotes(true)
 	this.options_.setEmitUseStrict(false)
 	this.options_.setParseJsDocDocumentation(Config_JsDocParsing_INCLUDE_ALL_COMMENTS)
-	this.options_.setCodingConvention(icast_CodingConvention(obj_(new_GoogleCodingConvention_0())))
+	this.options_.setCodingConvention(new_GoogleCodingConvention_0())
 	this.options_.setWarningLevel(DiagnosticGroups_CHECK_TYPES, CheckLevel_WARNING)
 	this.options_.setWarningLevel(DiagnosticGroups_JSDOC_MISSING_TYPE, CheckLevel_ERROR)
 	this.options_.setWarningLevel(DiagnosticGroups_MISPLACED_MSG_ANNOTATION, CheckLevel_WARNING)

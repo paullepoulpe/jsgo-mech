@@ -60,8 +60,8 @@ func (this *ChangeVerifier) verifyScopeChangesHaveBeenRecorded(passName string, 
 		return (sstr_(passName) + ": ")
 	}()
 	var snapshotScopeNodes *TSet[Node] = newTSet_(tc_Node)
-	NodeUtil_visitPreOrder_Node_Visitor(Node_of_(this.clonesByCurrent.get(root.box_())), icast_NodeUtil_Visitor(obj_(new_ChangeVerifier_1(this, snapshotScopeNodes))))
-	NodeUtil_visitPreOrder_Node_Visitor(root, icast_NodeUtil_Visitor(obj_(new_ChangeVerifier_2(this, snapshotScopeNodes, passNameMsg))))
+	NodeUtil_visitPreOrder_Node_Visitor(Node_of_(this.clonesByCurrent.get(root.box_())), new_ChangeVerifier_1(this, snapshotScopeNodes))
+	NodeUtil_visitPreOrder_Node_Visitor(root, new_ChangeVerifier_2(this, snapshotScopeNodes, passNameMsg))
 	this.verifyDeletedScopeNodes(passNameMsg, snapshotScopeNodes)
 }
 

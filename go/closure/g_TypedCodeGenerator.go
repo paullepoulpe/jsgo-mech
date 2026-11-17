@@ -258,7 +258,7 @@ func (this *TypedCodeGenerator) appendClassAnnotations(sb *StringBuilder, funTyp
 			sb.append("\n")
 		}
 	}
-	var interfaces SetOf[string] = icast_Set(obj_(new_TreeSet()))
+	var interfaces SetOf[string] = new_TreeSet()
 	it_1 := foreach_(any(funType.getAncestorInterfaces()))
 	for it_1.next() {
 		var interfaze *ObjectType = to_ObjectType(it_1.v)
@@ -274,7 +274,7 @@ func (this *TypedCodeGenerator) appendClassAnnotations(sb *StringBuilder, funTyp
 }
 
 func (this *TypedCodeGenerator) appendInterfaceAnnotations(sb *StringBuilder, funType *FunctionType) {
-	var interfaces SetOf[string] = icast_Set(obj_(new_TreeSet()))
+	var interfaces SetOf[string] = new_TreeSet()
 	it_1 := foreach_(any(funType.getAncestorInterfaces()))
 	for it_1.next() {
 		var interfaceType *ObjectType = to_ObjectType(it_1.v)

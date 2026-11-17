@@ -38,15 +38,15 @@ func PolyfillUsageFinder_getPolyfillSupportedFeatureSet(nativeVersionStr string)
 }
 
 func (this *PolyfillUsageFinder) traverseExcludingGuarded(root Node, polyfillConsumer func(any)) {
-	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(obj_(new_PolyfillUsageFinder_Traverser(this, this.compiler_, polyfillConsumer, PolyfillUsageFinder_Guard_ONLY_UNGUARDED))))
+	NodeTraversal_traverse(this.compiler_, root, new_PolyfillUsageFinder_Traverser(this, this.compiler_, polyfillConsumer, PolyfillUsageFinder_Guard_ONLY_UNGUARDED))
 }
 
 func (this *PolyfillUsageFinder) traverseIncludingGuarded(root Node, polyfillConsumer func(any)) {
-	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(obj_(new_PolyfillUsageFinder_Traverser(this, this.compiler_, polyfillConsumer, PolyfillUsageFinder_Guard_ALL))))
+	NodeTraversal_traverse(this.compiler_, root, new_PolyfillUsageFinder_Traverser(this, this.compiler_, polyfillConsumer, PolyfillUsageFinder_Guard_ALL))
 }
 
 func (this *PolyfillUsageFinder) traverseOnlyGuarded(root Node, polyfillConsumer func(any)) {
-	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(obj_(new_PolyfillUsageFinder_Traverser(this, this.compiler_, polyfillConsumer, PolyfillUsageFinder_Guard_ONLY_GUARDED))))
+	NodeTraversal_traverse(this.compiler_, root, new_PolyfillUsageFinder_Traverser(this, this.compiler_, polyfillConsumer, PolyfillUsageFinder_Guard_ONLY_GUARDED))
 }
 
 func (this *PolyfillUsageFinder) maybeCreateStaticPolyfillUsageForGetPropChain(traversal *NodeTraversal, getPropNode Node) *PolyfillUsageFinder_PolyfillUsage {
@@ -58,20 +58,20 @@ func (this *PolyfillUsageFinder) maybeCreateStaticPolyfillUsageForGetPropChain(t
 		return nil
 	}
 	var components ArrayDequeOf[string] = new_ArrayDeque()
-	SequencedCollection_addFirst(icast_SequencedCollection(obj_(components)), strobj_(lastComponent))
+	SequencedCollection_addFirst(components, strobj_(lastComponent))
 	var ownerNode Node
 	{
 		ownerNode = getPropNode.getFirstChild()
 		for ; ownerNode.isGetProp() || ownerNode.isOptChainGetProp(); ownerNode = ownerNode.getFirstChild() {
-			SequencedCollection_addFirst(icast_SequencedCollection(obj_(components)), strobj_(ownerNode.getString()))
+			SequencedCollection_addFirst(components, strobj_(ownerNode.getString()))
 		}
 	}
 	if !ownerNode.isName() {
 		return nil
 	}
 	var rootName string = ownerNode.getString()
-	SequencedCollection_addFirst(icast_SequencedCollection(obj_(components)), strobj_(rootName))
-	var fullName string = String_join_s(".", icast_Iterable(obj_(components)))
+	SequencedCollection_addFirst(components, strobj_(rootName))
+	var fullName string = String_join_s(".", components)
 	var globalPrefix OptionalOf[string] = PolyfillUsageFinder_findGlobalPrefix(fullName)
 	if globalPrefix.isPresent() {
 		var polyfill *PolyfillUsageFinder_Polyfill = cast_[*PolyfillUsageFinder_Polyfill](Map_get_s(this.polyfills.statics, String_substring_int(fullName, String_length(globalPrefix.get()))))

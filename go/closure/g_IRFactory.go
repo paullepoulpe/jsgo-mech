@@ -31,7 +31,7 @@ func (this *IRFactory) finit_IRFactory() {
 	this.firstFileoverview = nil
 	this.currentFileIsExterns = false
 	this.features_ = FeatureSet_BARE_MINIMUM
-	this.closureUnawareCodeRanges = icast_RangeSet(obj_(TreeRangeSet_create()))
+	this.closureUnawareCodeRanges = TreeRangeSet_create()
 }
 
 func (this *IRFactory) init_IRFactory(sourceFile StaticSourceFile, config *Config, errorReporter ErrorReporter_rhino, comments ImmutableListOf[*Comment], fileWithContent *SourceFile_parser, jsDocSourceKind JsDocInfoParser_JsDocSourceKind) {
@@ -410,7 +410,7 @@ func (this *IRFactory) setFileOverviewJsDoc(irNode Node) {
 		return this.firstFileoverview.toBuilder()
 	}()
 	if !this.licenseBuilder.isEmpty() {
-		fileoverview.recordLicense(String_join_s("", icast_Iterable(any(this.licenseBuilder.asSet()))))
+		fileoverview.recordLicense(String_join_s("", this.licenseBuilder.asSet()))
 	}
 	irNode.setJSDocInfo(fileoverview.build_1(false))
 }
@@ -3031,12 +3031,12 @@ func (this *IRFactory_TransformDispatcher) validatePrivatePropertyUsage(privateP
 }
 
 func (this *IRFactory_TransformDispatcher) getPrivatePropsAndValidateUniqueness(classMembers Node) SetOf[string] {
-	var privateGetterNames SetOf[string] = icast_Set(obj_(new_TreeSet()))
-	var privateSetterNames SetOf[string] = icast_Set(obj_(new_TreeSet()))
-	var privateStaticGetterNames SetOf[string] = icast_Set(obj_(new_TreeSet()))
-	var privateStaticSetterNames SetOf[string] = icast_Set(obj_(new_TreeSet()))
-	var privateFieldAndMethodNames SetOf[string] = icast_Set(obj_(new_TreeSet()))
-	var privatePropNames SetOf[string] = icast_Set(obj_(new_TreeSet()))
+	var privateGetterNames SetOf[string] = new_TreeSet()
+	var privateSetterNames SetOf[string] = new_TreeSet()
+	var privateStaticGetterNames SetOf[string] = new_TreeSet()
+	var privateStaticSetterNames SetOf[string] = new_TreeSet()
+	var privateFieldAndMethodNames SetOf[string] = new_TreeSet()
+	var privatePropNames SetOf[string] = new_TreeSet()
 	{
 		var curNode Node = classMembers.getFirstChild()
 		for ; curNode != 0; curNode = curNode.getNext() {
@@ -3503,7 +3503,7 @@ func (this *IRFactory_TransformDispatcher_ScopeTracker) maybeIncrement(condition
 		Preconditions_checkState((this.usageCount >= 0))
 		this.usageCount++
 	}
-	return icast_IRFactory_TransformDispatcher_AutoDecrement(obj_(new_IRFactory_TransformDispatcher_ScopeTracker_1(this, condition)))
+	return new_IRFactory_TransformDispatcher_ScopeTracker_1(this, condition)
 }
 
 type IRFactory_TransformDispatcher_AutoDecrement interface {

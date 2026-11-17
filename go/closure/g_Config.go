@@ -50,7 +50,7 @@ func (this *Config) toBuilder() *Config_Builder {
 }
 
 func Config_builder() *Config_Builder {
-	return new_Config_Builder_0().setLanguageMode(Config_LanguageMode_UNSUPPORTED).setStrictMode(Config_StrictMode_STRICT).setJsDocParsingMode(Config_JsDocParsing_TYPES_ONLY).setRunMode(Config_RunMode_STOP_AFTER_ERROR).setExtraAnnotationNames(icast_Iterable(obj_(ImmutableSet_of()))).setSuppressionNames(icast_Iterable(obj_(ImmutableSet_of()))).setClosurePrimitiveNames(icast_Iterable(obj_(ImmutableSet_of()))).setParseInlineSourceMaps(false)
+	return new_Config_Builder_0().setLanguageMode(Config_LanguageMode_UNSUPPORTED).setStrictMode(Config_StrictMode_STRICT).setJsDocParsingMode(Config_JsDocParsing_TYPES_ONLY).setRunMode(Config_RunMode_STOP_AFTER_ERROR).setExtraAnnotationNames(ImmutableSet_of()).setSuppressionNames(ImmutableSet_of()).setClosurePrimitiveNames(ImmutableSet_of()).setParseInlineSourceMaps(false)
 }
 
 func Config_buildAnnotations(allowlist IterableOf[string]) ImmutableMapOf[string, Annotation_parsing] {

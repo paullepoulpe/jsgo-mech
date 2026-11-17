@@ -162,7 +162,7 @@ func (this *CompilerBasedTransformer_CompilerSupplier) compile(path string, code
 					panic(r_)
 				}
 			}()
-			result.sourceMap_.appendTo(icast_Appendable(obj_(sourceMap)), Optional_of[string](path))
+			result.sourceMap_.appendTo(sourceMap, Optional_of[string](path))
 			return 0
 		}()
 	}
@@ -182,7 +182,7 @@ func (this *CompilerBasedTransformer_CompilerSupplier) transformed_impl(result *
 func (this *CompilerBasedTransformer_CompilerSupplier) runtime(library string) string {
 	var compiler *Compiler = this.compiler()
 	var options *CompilerOptions = this.options()
-	options.setForceLibraryInjection(icast_Iterable(obj_(ImmutableList_of_Object(strobj_(library)))))
+	options.setForceLibraryInjection(ImmutableList_of_Object(strobj_(library)))
 	compiler.compileSourceFile(CompilerBasedTransformer_CompilerSupplier_EXTERNS, CompilerBasedTransformer_CompilerSupplier_EMPTY, options)
 	return compiler.toSource()
 }

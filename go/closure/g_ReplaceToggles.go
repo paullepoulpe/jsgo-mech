@@ -25,7 +25,7 @@ func new_ReplaceToggles(compiler *AbstractCompiler) *ReplaceToggles {
 }
 
 func (this *ReplaceToggles) process_2(externs Node, root Node) {
-	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(obj_(new_ReplaceToggles_Traversal(this))))
+	NodeTraversal_traverse(this.compiler_, root, new_ReplaceToggles_Traversal(this))
 }
 
 var ReplaceToggles_INVALID_TOGGLE_PARAMETER *DiagnosticType
@@ -87,7 +87,7 @@ func (this *ReplaceToggles_Traversal) visit_impl(t *NodeTraversal, n Node, paren
 			return
 		}
 		var mapping *TMap[string, any] = newTMap_(tc_string, tc_any)
-		var ordinals SetOf[BoxedOf[int32]] = icast_Set(obj_(new_LinkedHashSet()))
+		var ordinals SetOf[BoxedOf[int32]] = new_LinkedHashSet()
 		{
 			var c Node = rhs.getFirstChild()
 			for ; c != 0; c = c.getNext() {

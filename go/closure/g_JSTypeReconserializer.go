@@ -104,7 +104,7 @@ func (this *JSTypeReconserializer) recordUnionType(type_ *UnionType) *JSTypeReco
 		}
 	}
 	if altRecords.size() == 1 {
-		return cast_[*JSTypeReconserializer_SeenTypeRecord](Iterables_getOnlyElement(icast_Iterable(any(altRecords.asSet()))))
+		return cast_[*JSTypeReconserializer_SeenTypeRecord](Iterables_getOnlyElement(altRecords.asSet()))
 	}
 	var alternateIds ImmutableSet_BuilderOf[*ColorId] = ImmutableSet_builder()
 	it_3 := altRecords.each()
@@ -115,9 +115,9 @@ func (this *JSTypeReconserializer) recordUnionType(type_ *UnionType) *JSTypeReco
 	var unionId *ColorId = ColorId_union(tsetFrom_(tch_p_ColorId, alternateIds.build(), true))
 	var record *JSTypeReconserializer_SeenTypeRecord = this.getOrCreateRecord(unionId, type_.up_JSType())
 	if record.unionMembers == nil {
-		record.unionMembers = ImmutableSet_copyOf(icast_Collection(any(altRecords.asSet())))
+		record.unionMembers = ImmutableSet_copyOf(altRecords.asSet())
 	} else if this.serializationMode.runValidation() {
-		if ok_, a1_, a2_, a3_ := Object_equals(any(altRecords.asSet()), obj_(record.unionMembers)), unionId, JSTypeReconserializer_colorIdsOf(icast_Collection(any(altRecords.asSet()))), JSTypeReconserializer_colorIdsOf(icast_Collection(obj_(record.unionMembers))); !ok_ {
+		if ok_, a1_, a2_, a3_ := Object_equals(any(altRecords.asSet()), obj_(record.unionMembers)), unionId, JSTypeReconserializer_colorIdsOf(altRecords.asSet()), JSTypeReconserializer_colorIdsOf(icast_Collection(obj_(record.unionMembers))); !ok_ {
 			Preconditions_checkState_boolean_String_Object_Object_Object(false, "Unions with same ID must have same members: %s => %s == %s", obj_(a1_), obj_(a2_), obj_(a3_))
 		}
 	}
@@ -131,7 +131,7 @@ func JSTypeReconserializer_colorIdsOf(records CollectionOf[*JSTypeReconserialize
 		var r *JSTypeReconserializer_SeenTypeRecord = cast_[*JSTypeReconserializer_SeenTypeRecord](it_1.v)
 		result.add(obj_(r.colorId))
 	}
-	return cast_[*ImmutableSet](obj_(result.build()))
+	return result.build()
 }
 
 func (this *JSTypeReconserializer) recordObjectType(type_ *ObjectType) *JSTypeReconserializer_SeenTypeRecord {
@@ -177,7 +177,7 @@ func (this *JSTypeReconserializer) reconcileUnionTypes(seen *JSTypeReconserializ
 }
 
 func JSTypeReconserializer_sortedPointersOf(records CollectionOf[*JSTypeReconserializer_SeenTypeRecord]) ImmutableListOf[BoxedOf[int32]] {
-	var result ListOf[BoxedOf[int32]] = icast_List(new_ArrayList_0().self())
+	var result ListOf[BoxedOf[int32]] = new_ArrayList_0()
 	it_1 := foreach_(any(records))
 	for it_1.next() {
 		var r *JSTypeReconserializer_SeenTypeRecord = cast_[*JSTypeReconserializer_SeenTypeRecord](it_1.v)
@@ -197,7 +197,7 @@ func (this *JSTypeReconserializer) serializeInvolvedTypes(types CollectionOf[*JS
 		}
 		distinctPointers.add(any(int32(this.serializeType(t))))
 	}
-	var result ListOf[BoxedOf[int32]] = icast_List(new_ArrayList_Collection(icast_Collection(obj_(distinctPointers))).self())
+	var result ListOf[BoxedOf[int32]] = icast_List(new_ArrayList_Collection(distinctPointers).self())
 	Collections_sort(result)
 	return ImmutableList_copyOf(Collection(result))
 }
@@ -233,7 +233,7 @@ func (this *JSTypeReconserializer) reconcileObjectTypes(seen *JSTypeReconseriali
 		isInvalidating = bor_(isInvalidating, this.invalidatingTypes.isInvalidating(objType.up_JSType()))
 		propertiesKeepOriginalName = bor_(propertiesKeepOriginalName, objType.isEnumType())
 	}
-	var objectProto *ObjectTypeProto = cast_[*ObjectTypeProto](ObjectTypeProto_newBuilder().addAllInstanceType(icast_Iterable(obj_(instancePointers))).addAllOwnProperty(icast_Iterable(obj_(ownProperties))).addAllPrototype(icast_Iterable(obj_(prototypePointers))).setClosureAssert(isClosureAssert).setIsInvalidating(isInvalidating).setMarkedConstructor(isConstructor).setPropertiesKeepOriginalName(propertiesKeepOriginalName).setUuid(seen.colorId.asByteString()).build())
+	var objectProto *ObjectTypeProto = cast_[*ObjectTypeProto](ObjectTypeProto_newBuilder().addAllInstanceType(instancePointers).addAllOwnProperty(ownProperties).addAllPrototype(prototypePointers).setClosureAssert(isClosureAssert).setIsInvalidating(isInvalidating).setMarkedConstructor(isConstructor).setPropertiesKeepOriginalName(propertiesKeepOriginalName).setUuid(seen.colorId.asByteString()).build())
 	return cast_[*TypeProto](TypeProto_newBuilder().setObject(objectProto).build())
 }
 
@@ -248,7 +248,7 @@ func (this *JSTypeReconserializer) ownAncestorInterfacesOf(type_ *ObjectType) Im
 		var ancestor *JSType = to_JSType(it_1.v)
 		ancestors.add(any(int32(this.serializeType(ancestor))))
 	}
-	return cast_[*ImmutableList](obj_(ancestors.build()))
+	return ancestors.build()
 }
 
 func (this *JSTypeReconserializer) seedCachesWithAxiomaticTypes() {

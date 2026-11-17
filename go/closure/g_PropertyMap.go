@@ -19,7 +19,7 @@ func (this *PropertyMap) finit_PropertyMap() {
 }
 
 func (this *PropertyMap) init_PropertyMap_0() {
-	this.init_PropertyMap_Map_Map(icast_Map(obj_(new_TreeMap())), nil)
+	this.init_PropertyMap_Map_Map(new_TreeMap(), nil)
 }
 
 func new_PropertyMap_0() *PropertyMap {
@@ -72,7 +72,7 @@ func (this *PropertyMap) getPrimaryParent() *PropertyMap {
 
 func (this *PropertyMap) getSecondaryParentObjects() IterableOf[*ObjectType] {
 	if this.parentSource == nil {
-		return icast_Iterable(obj_(ImmutableList_of()))
+		return ImmutableList_of()
 	}
 	if (this.parentSource.getConstructor() != nil) && this.parentSource.getConstructor().isAbstract() {
 		return icast_Iterable(obj_(this.parentSource.getConstructor().getOwnImplementedInterfaces()))
@@ -81,7 +81,7 @@ func (this *PropertyMap) getSecondaryParentObjects() IterableOf[*ObjectType] {
 }
 
 func (this *PropertyMap) findClosestString(name string) *Property_OwnedProperty {
-	return this.findClosest(icast_Property_Key(obj_(new_Property_StringKey(name))))
+	return this.findClosest(new_Property_StringKey(name))
 }
 
 func (this *PropertyMap) findClosest(name Property_Key) *Property_OwnedProperty {
@@ -151,7 +151,7 @@ func (this *PropertyMap) getOwnKnownSymbols() SetOf[*KnownSymbolType] {
 		if this.knownSymbols != nil {
 			return this.knownSymbols.asMap().keySet()
 		}
-		return icast_Set(obj_(ImmutableSet_of()))
+		return ImmutableSet_of()
 	}()
 }
 
@@ -178,7 +178,7 @@ func (this *PropertyMap) getAllKeys() *PropertyMap_AllKeys {
 			keys.addAll(Collection(ancestor.getOwnPropertyNames()))
 			knownSymbolsKeys.asSet().addAll(Collection(ancestor.getOwnKnownSymbols()))
 		}
-		this.cachedKeySet = ImmutableSortedSet_copyOfSorted(icast_SortedSet(obj_(keys)))
+		this.cachedKeySet = ImmutableSortedSet_copyOfSorted(keys)
 		this.cachedKnownSymbolsKeySet = ImmutableSet_copyOf(Collection(knownSymbolsKeys.asSet()))
 	}
 	return new_PropertyMap_AllKeys(this.cachedKeySet, tsetFrom_(tch_p_KnownSymbolType, this.cachedKnownSymbolsKeySet, true))
@@ -265,7 +265,7 @@ func PropertyMap_clinit() {
 		return
 	}
 	PropertyMap_clinit_done = true
-	PropertyMap_EMPTY_MAP = new_PropertyMap_Map_Map(icast_Map(obj_(ImmutableMap_of())), tmapFrom_(tch_p_KnownSymbolType, tc_p_Property, ImmutableMap_of(), true))
+	PropertyMap_EMPTY_MAP = new_PropertyMap_Map_Map(ImmutableMap_of(), tmapFrom_(tch_p_KnownSymbolType, tc_p_Property, ImmutableMap_of(), true))
 
 }
 

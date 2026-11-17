@@ -64,7 +64,7 @@ func (this *ReplaceStrings) getStringMap() *VariableMap {
 }
 
 func (this *ReplaceStrings) process_2(externs Node, root Node) {
-	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(obj_(this)))
+	NodeTraversal_traverse(this.compiler_, root, this)
 }
 
 func (this *ReplaceStrings) visit_impl(t *NodeTraversal, n Node, parent Node) {
@@ -243,7 +243,7 @@ func (this *ReplaceStrings) parseConfiguration(function string) *ReplaceStrings_
 	var name string = String_substring(function, 0, first)
 	var params string = String_substring(function, (first + 1), last)
 	var paramCount int32 = 0
-	var replacementParameters ListOf[BoxedOf[int32]] = icast_List(new_ArrayList_0().self())
+	var replacementParameters ListOf[BoxedOf[int32]] = new_ArrayList_0()
 	var parts []string = sliceImm_(tc_string, Splitter_on(',').splitToList_s(params))
 	for _, param := range parts {
 		paramCount++
@@ -271,7 +271,7 @@ func (this *ReplaceStrings) parseConfiguration(function string) *ReplaceStrings_
 func ReplaceStrings_createNameGenerator() *DefaultNameGenerator {
 	var namePrefix string = ""
 	var reservedChars ImmutableSetOf[BoxedOf[uint16]] = ImmutableSet_of()
-	return new_DefaultNameGenerator_Set_String_Set(icast_Set(obj_(ImmutableSet_of())), namePrefix, icast_Set(obj_(reservedChars)))
+	return new_DefaultNameGenerator_Set_String_Set(ImmutableSet_of(), namePrefix, reservedChars)
 }
 
 var ReplaceStrings_COMMA_PATTERN *Pattern

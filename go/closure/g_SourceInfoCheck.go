@@ -24,12 +24,12 @@ func new_SourceInfoCheck(compiler *AbstractCompiler) *SourceInfoCheck {
 
 func (this *SourceInfoCheck) setCheckSubTree(root Node) {
 	this.requiresLineNumbers = true
-	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(any(this)))
+	NodeTraversal_traverse(this.compiler_, root, this)
 }
 
 func (this *SourceInfoCheck) process_2(externs Node, root Node) {
 	this.requiresLineNumbers = false
-	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(any(this)))
+	NodeTraversal_traverse(this.compiler_, root, this)
 }
 
 func (this *SourceInfoCheck) shouldTraverse(unused *NodeTraversal, n Node, parent Node) bool {

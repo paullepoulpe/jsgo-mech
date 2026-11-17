@@ -33,7 +33,7 @@ func (this *DeadAssignmentsElimination) process_2(externs Node, root Node) {
 	Preconditions_checkNotNull(externs.box_())
 	Preconditions_checkNotNull(root.box_())
 	Preconditions_checkState(this.compiler_.getLifeCycleStage().isNormalized())
-	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(obj_(this)))
+	NodeTraversal_traverse(this.compiler_, root, this)
 }
 
 func (this *DeadAssignmentsElimination) visit_impl(t *NodeTraversal, n Node, parent Node) {
@@ -80,8 +80,8 @@ func (this *DeadAssignmentsElimination) eliminateDeadAssignments(t *NodeTraversa
 	}
 	var cfg *ControlFlowGraph = this.getControlFlowGraph(this.compiler_)
 	var scopeCreator *SyntacticScopeCreator = new_SyntacticScopeCreator_AbstractCompiler(this.compiler_)
-	var allVarsDeclaredInFunction *NodeUtil_AllVarsDeclaredInFunction = NodeUtil_getAllVarsDeclaredInFunction(this.compiler_, icast_ScopeCreator(obj_(scopeCreator)), functionScope)
-	this.liveness = new_LiveVariablesAnalysis(cfg, functionScope, blockScope, this.compiler_, icast_ScopeCreator(obj_(scopeCreator)), allVarsDeclaredInFunction)
+	var allVarsDeclaredInFunction *NodeUtil_AllVarsDeclaredInFunction = NodeUtil_getAllVarsDeclaredInFunction(this.compiler_, scopeCreator, functionScope)
+	this.liveness = new_LiveVariablesAnalysis(cfg, functionScope, blockScope, this.compiler_, scopeCreator, allVarsDeclaredInFunction)
 	this.liveness.analyze()
 	var allVarsInFn *TMap[string, *Var] = this.liveness.getAllVariables()
 	this.tryRemoveDeadAssignments(t, cfg, allVarsInFn)

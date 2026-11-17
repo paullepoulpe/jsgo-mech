@@ -152,7 +152,7 @@ func DiagnosticGroups_clinit() {
 	DiagnosticGroups_clinit_done = true
 	DiagnosticGroups_UNUSED = DiagnosticType_warning("JSC_UNUSED", "{0}")
 	DiagnosticGroups_wildcardExcludedGroups = ImmutableSet_of_Object_Object_Object_Object(strobj_("reportUnknownTypes"), strobj_("analyzerChecks"), strobj_("missingSourcesWarnings"), strobj_("closureUnawareCodeAnnotationPresent"))
-	DiagnosticGroups_groupsByName = icast_Map(obj_(new_LinkedHashMap()))
+	DiagnosticGroups_groupsByName = new_LinkedHashMap()
 	DiagnosticGroups_UNTRANSPILABLE_FEATURES = DiagnosticGroups_registerGroup("untranspilableFeatures", []*DiagnosticType{ReportUntranspilableFeatures_UNTRANSPILABLE_FEATURE_PRESENT})
 	DiagnosticGroups_MODULE_LOAD = DiagnosticGroups_registerGroup("moduleLoad", []*DiagnosticType{ModuleLoader_LOAD_WARNING, ProcessCommonJSModules_SUSPICIOUS_EXPORTS_ASSIGNMENT, ProcessCommonJSModules_UNKNOWN_REQUIRE_ENSURE})
 	DiagnosticGroups_MODULE_IMPORT = DiagnosticGroups_registerGroup("moduleImport", []*DiagnosticType{ModuleMapCreator_DOES_NOT_HAVE_EXPORT, ModuleMapCreator_DOES_NOT_HAVE_EXPORT_WITH_DETAILS})

@@ -35,15 +35,15 @@ func (this *MustBeReachingVariableDef) isForward_impl() bool {
 }
 
 func (this *MustBeReachingVariableDef) createEntryLattice_impl() LatticeElement {
-	return icast_LatticeElement(obj_(new_MustBeReachingVariableDef_MustDef_Collection(this.allVarsInFn.asMap().values())))
+	return new_MustBeReachingVariableDef_MustDef_Collection(this.allVarsInFn.asMap().values())
 }
 
 func (this *MustBeReachingVariableDef) createInitialEstimateLattice_impl() LatticeElement {
-	return icast_LatticeElement(obj_(new_MustBeReachingVariableDef_MustDef_0()))
+	return new_MustBeReachingVariableDef_MustDef_0()
 }
 
 func (this *MustBeReachingVariableDef) createFlowJoiner_impl() DataFlowAnalysis_FlowJoiner {
-	return icast_DataFlowAnalysis_FlowJoiner(obj_(new_MustBeReachingVariableDef_MustDefJoin()))
+	return new_MustBeReachingVariableDef_MustDefJoin()
 }
 
 func (this *MustBeReachingVariableDef) flowThrough_impl(n_ any, input_ LatticeElement) LatticeElement {
@@ -53,7 +53,7 @@ func (this *MustBeReachingVariableDef) flowThrough_impl(n_ any, input_ LatticeEl
 	_ = input
 	var output *MustBeReachingVariableDef_MustDef = MustBeReachingVariableDef_MustDef_createFromMustDef(input)
 	this.computeMustDef(n, n, output, false)
-	return icast_LatticeElement(obj_(output))
+	return output
 }
 
 func (this *MustBeReachingVariableDef) computeMustDef(n Node, cfgNode Node, output *MustBeReachingVariableDef_MustDef, conditional bool) {
@@ -251,7 +251,7 @@ func MustBeReachingVariableDef_isParameter(v *Var) bool {
 }
 
 func (this *MustBeReachingVariableDef) computeDependence(def *MustBeReachingVariableDef_Definition, rValue Node) {
-	NodeTraversal_traverse(this.compiler_, rValue, icast_NodeTraversal_Callback(obj_(new_MustBeReachingVariableDef_1(this, def))))
+	NodeTraversal_traverse(this.compiler_, rValue, new_MustBeReachingVariableDef_1(this, def))
 }
 
 func (this *MustBeReachingVariableDef) getDef(name string, useNode Node) *MustBeReachingVariableDef_Definition {

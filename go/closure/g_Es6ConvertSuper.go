@@ -205,8 +205,8 @@ func (this *Es6ConvertSuper) ensureNoCollapseOnStaticMemberDef(memberDef Node) {
 }
 
 func (this *Es6ConvertSuper) process_2(externs Node, root Node) {
-	TranspilationPasses_processTranspile(this.compiler_, externs, Es6ConvertSuper_FEATURES_TO_RUN_FOR, []NodeTraversal_Callback{icast_NodeTraversal_Callback(obj_(this))})
-	TranspilationPasses_processTranspile(this.compiler_, root, Es6ConvertSuper_FEATURES_TO_RUN_FOR, []NodeTraversal_Callback{icast_NodeTraversal_Callback(obj_(this))})
+	TranspilationPasses_processTranspile(this.compiler_, externs, Es6ConvertSuper_FEATURES_TO_RUN_FOR, []NodeTraversal_Callback{NodeTraversal_Callback(this)})
+	TranspilationPasses_processTranspile(this.compiler_, root, Es6ConvertSuper_FEATURES_TO_RUN_FOR, []NodeTraversal_Callback{NodeTraversal_Callback(this)})
 }
 
 var Es6ConvertSuper_FEATURES_TO_RUN_FOR *FeatureSet

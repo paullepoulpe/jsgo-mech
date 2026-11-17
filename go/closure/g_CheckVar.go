@@ -27,7 +27,7 @@ func new_CheckVar(compiler *AbstractCompiler) *CheckVar {
 }
 
 func (this *CheckVar) process_2(externs Node, root Node) {
-	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(obj_(this)))
+	NodeTraversal_traverse(this.compiler_, root, this)
 }
 
 func (this *CheckVar) visit_impl(t *NodeTraversal, n Node, parent Node) {

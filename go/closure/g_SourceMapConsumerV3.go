@@ -76,7 +76,7 @@ func (this *SourceMapConsumerV3) parse_2(sourceMapObject *SourceMapObject, secti
 
 func (this *SourceMapConsumerV3) parseMetaMap(sourceMapObject *SourceMapObject, sectionSupplier SourceMapSupplier) *Outcome_base {
 	if sectionSupplier == nil {
-		sectionSupplier = icast_SourceMapSupplier(obj_(new_SourceMapConsumerV3_DefaultSourceMapSupplier()))
+		sectionSupplier = new_SourceMapConsumerV3_DefaultSourceMapSupplier()
 	}
 	var ret_1 *Outcome_base
 	code_1 := func() (code_ int) {
@@ -116,7 +116,7 @@ func (this *SourceMapConsumerV3) parseMetaMap(sourceMapObject *SourceMapObject, 
 			}
 		}
 		var sb *StringBuilder = new_StringBuilder()
-		generator.appendTo(icast_Appendable(obj_(sb)), sourceMapObject.getFile())
+		generator.appendTo(sb, sourceMapObject.getFile())
 		ret_1 = this.parse(Object_toString(obj_(sb)))
 		return 1
 		return 0

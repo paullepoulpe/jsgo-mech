@@ -85,7 +85,7 @@ func (this *RewriteGoogJsImports) findGoogImportNode(scriptRoot Node) Node {
 func (this *RewriteGoogJsImports) rewriteImports(scriptRoot Node) {
 	if Es6RewriteModules_isEs6ModuleRoot(scriptRoot) {
 		var googImportNode Node = this.findGoogImportNode(scriptRoot)
-		NodeTraversal_traverse(this.compiler_, scriptRoot, icast_NodeTraversal_Callback(obj_(new_RewriteGoogJsImports_FindReexports((googImportNode != 0)))))
+		NodeTraversal_traverse(this.compiler_, scriptRoot, new_RewriteGoogJsImports_FindReexports((googImportNode != 0)))
 		var module *Module = this.moduleMap.getModule(this.compiler_.getInput(scriptRoot.getInputId()).getPath())
 		Preconditions_checkNotNull(obj_(module))
 		if (googImportNode != 0) && (this.mode_ == RewriteGoogJsImports_Mode_LINT_AND_REWRITE) {
@@ -276,7 +276,7 @@ func (this *RewriteGoogJsImports_ReferenceReplacer) init_RewriteGoogJsImports_Re
 	this.NodeTraversal_AbstractPostOrderCallback.init_NodeTraversal_AbstractPostOrderCallback()
 	this.googImportNode = googImportNode
 	this.globalizeAllReferences = globalizeAllReferences
-	NodeTraversal_traverse(this.outer_.compiler_, script, icast_NodeTraversal_Callback(obj_(this)))
+	NodeTraversal_traverse(this.outer_.compiler_, script, this)
 	if googImportNode.getSecondChild().isImportStar() {
 		var newBindings *TMap[string, *Binding] = tmapFrom_(tc_string, tc_p_Binding, icast_Map(obj_(module.boundNames())), false)
 		newBindings.remove("goog")

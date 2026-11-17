@@ -27,7 +27,7 @@ func new_ConvertToDottedProperties(compiler *AbstractCompiler) *ConvertToDottedP
 }
 
 func (this *ConvertToDottedProperties) process_2(externs Node, root Node) {
-	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(obj_(this)))
+	NodeTraversal_traverse(this.compiler_, root, this)
 	GatherGetterAndSetterProperties_update(this.compiler_, externs, root)
 }
 

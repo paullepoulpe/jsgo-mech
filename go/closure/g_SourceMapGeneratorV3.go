@@ -311,7 +311,7 @@ func SourceMapGeneratorV3_appendFieldEnd(out Appendable) {
 }
 
 func (this *SourceMapGeneratorV3) prepMappings() int32 {
-	new_SourceMapGeneratorV3_MappingTraversal(this).traverse(icast_SourceMapGeneratorV3_MappingVisitor(obj_(new_SourceMapGeneratorV3_UsedMappingCheck())))
+	new_SourceMapGeneratorV3_MappingTraversal(this).traverse(new_SourceMapGeneratorV3_UsedMappingCheck())
 	var id int32 = 0
 	var maxLine int32 = 0
 	for _, m := range this.mappings {
@@ -649,7 +649,7 @@ func (this *SourceMapGeneratorV3_LineMapper) writeEntry(m *SourceMapGeneratorV3_
 
 func (this *SourceMapGeneratorV3_LineMapper) appendLineMappings() {
 	this.openLine(true)
-	new_SourceMapGeneratorV3_MappingTraversal(this.outer_).traverse(icast_SourceMapGeneratorV3_MappingVisitor(any(this)))
+	new_SourceMapGeneratorV3_MappingTraversal(this.outer_).traverse(this)
 	this.closeLine(true)
 }
 

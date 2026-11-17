@@ -279,11 +279,11 @@ func (this *AbstractCommandLineRunner) setRunOptions(options *CompilerOptions) *
 		if jsonWarnings.isErr() {
 			return Outcome_base_err(jsonWarnings.error())
 		}
-		options.addReportGenerator(icast_SortingErrorManager_ErrorReportGenerator(obj_(new_JsonErrorReportGenerator(cast_[*Output](jsonWarnings.get()), icast_SourceExcerptProvider(obj_(this.compiler_))))))
+		options.addReportGenerator(new_JsonErrorReportGenerator(cast_[*Output](jsonWarnings.get()), icast_SourceExcerptProvider(obj_(this.compiler_))))
 	}
 	if this.config.errorFormat == AbstractCommandLineRunner_CommandLineConfig_ErrorFormatOption_JSON {
 		var errorGenerator *JsonErrorReportGenerator = new_JsonErrorReportGenerator(this.getErrorPrintStream(), icast_SourceExcerptProvider(obj_(this.compiler_)))
-		this.compiler_.setErrorManager(icast_ErrorManager(new_SortingErrorManager(tsetFrom_(tc_SortingErrorManager_ErrorReportGenerator, ImmutableSet_of_Object(obj_(errorGenerator)), true)).self()))
+		this.compiler_.setErrorManager(new_SortingErrorManager(tsetFrom_(tc_SortingErrorManager_ErrorReportGenerator, ImmutableSet_of_Object(obj_(errorGenerator)), true)))
 	}
 	if this.config.printTree || this.config.printTreeJson {
 		options.setParseJsDocDocumentation(Config_JsDocParsing_INCLUDE_ALL_COMMENTS)
@@ -407,7 +407,7 @@ func (this *AbstractCommandLineRunner) readStdin() *Outcome_base {
 }
 
 func (this *AbstractCommandLineRunner) parseJsonFilesFromInputStream() *Outcome_base {
-	var jsonFiles ListOf[*AbstractCommandLineRunner_JsonFileSpec] = icast_List(new_ArrayList_0().self())
+	var jsonFiles ListOf[*AbstractCommandLineRunner_JsonFileSpec] = new_ArrayList_0()
 	var json *Outcome_base = this.readStdin()
 	if json.isErr() {
 		return Outcome_base_err(json.error())
@@ -440,7 +440,7 @@ func (this *AbstractCommandLineRunner) createInputsList(files *TList[*AbstractCo
 }
 
 func (this *AbstractCommandLineRunner) createInputs_4(files *TList[*AbstractCommandLineRunner_FlagEntry], jsonFiles ListOf[*AbstractCommandLineRunner_JsonFileSpec], allowStdIn bool, jsChunkSpecs *TList[*AbstractCommandLineRunner_JsChunkSpec]) *Outcome_base {
-	var inputs ListOf[*SourceFile_jscomp] = icast_List(new_ArrayList_int(files.size()).self())
+	var inputs ListOf[*SourceFile_jscomp] = new_ArrayList_int(files.size())
 	var usingStdin bool = false
 	var jsChunkIndex int32 = 0
 	var jsChunkSpec *AbstractCommandLineRunner_JsChunkSpec = cast_[*AbstractCommandLineRunner_JsChunkSpec](Iterables_getFirst(Iterable(jsChunkSpecs.asList()), nil))
@@ -704,7 +704,7 @@ func (this *AbstractCommandLineRunner) checkChunkName_impl(name string) *Outcome
 
 func AbstractCommandLineRunner_parseChunkWrappers(specs *TList[string], chunks IterableOf[*JSChunk]) *Outcome_base {
 	Preconditions_checkState((specs != nil))
-	var wrappers MapOf[string, string] = icast_Map(obj_(new_LinkedHashMap()))
+	var wrappers MapOf[string, string] = new_LinkedHashMap()
 	it_1 := foreach_(any(chunks))
 	for it_1.next() {
 		var c *JSChunk = cast_[*JSChunk](it_1.v)
@@ -895,7 +895,7 @@ func (this *AbstractCommandLineRunner) doRun() *Outcome_base {
 	Compiler_setLoggingLevel(Level_parse(this.config.loggingLevel))
 	this.compiler_ = this.createCompiler()
 	if !this.config.expectedDiagnostics.isEmpty() {
-		this.compiler_.setErrorManager(icast_ErrorManager(obj_(new_VerifyingErrorManager(this.compiler_.getErrorManager(), this.config.expectedDiagnostics))))
+		this.compiler_.setErrorManager(new_VerifyingErrorManager(this.compiler_.getErrorManager(), this.config.expectedDiagnostics))
 	}
 	var optionsOutcome *Outcome_base = this.createOptions()
 	if optionsOutcome.isErr() {
@@ -1169,7 +1169,7 @@ func (this *AbstractCommandLineRunner) runCompilerPasses(metricsRecorder Compile
 }
 
 func (this *AbstractCommandLineRunner) getCompileMetricsRecorder() CompileMetricsRecorderInterface {
-	return icast_CompileMetricsRecorderInterface(obj_(new_DummyCompileMetricsRecorder()))
+	return new_DummyCompileMetricsRecorder()
 }
 
 func (this *AbstractCommandLineRunner) initWithTypedAstFilesystem(externs ListOf[*SourceFile_jscomp], sources ListOf[*SourceFile_jscomp], options *CompilerOptions, filename string) {
@@ -1408,7 +1408,7 @@ func (this *AbstractCommandLineRunner) outputSingleBinary(options *CompilerOptio
 			return Outcome_base_err(jsOutputOutcome.error())
 		}
 		var jsOutput Appendable = icast_Appendable(jsOutputOutcome.get())
-		this.writeOutput_8(jsOutput, this.compiler_, icast_CodePrinter_LicenseTracker(obj_(new_Compiler_SingleBinaryLicenseTracker(this.compiler_.up_AbstractCompiler()))), nil, this.config.outputWrapper, marker, escaper, this.config.jsOutputFile)
+		this.writeOutput_8(jsOutput, this.compiler_, new_Compiler_SingleBinaryLicenseTracker(this.compiler_.up_AbstractCompiler()), nil, this.config.outputWrapper, marker, escaper, this.config.jsOutputFile)
 		var jsOutputClosed *Outcome_base = AbstractCommandLineRunner_closeAppendable(jsOutput)
 		if jsOutputClosed.isErr() {
 			return Outcome_base_err(jsOutputClosed.error())
@@ -1418,8 +1418,8 @@ func (this *AbstractCommandLineRunner) outputSingleBinary(options *CompilerOptio
 }
 
 func (this *AbstractCommandLineRunner) createJsonFile(options *CompilerOptions, outputMarker string, escaper Function_baseOf[string, string]) *AbstractCommandLineRunner_JsonFileSpec {
-	var jsOutput Appendable = icast_Appendable(obj_(new_StringBuilder()))
-	this.writeOutput_8(jsOutput, this.compiler_, icast_CodePrinter_LicenseTracker(obj_(new_Compiler_SingleBinaryLicenseTracker(this.compiler_.up_AbstractCompiler()))), nil, this.config.outputWrapper, outputMarker, escaper, this.config.jsOutputFile)
+	var jsOutput Appendable = new_StringBuilder()
+	this.writeOutput_8(jsOutput, this.compiler_, new_Compiler_SingleBinaryLicenseTracker(this.compiler_.up_AbstractCompiler()), nil, this.config.outputWrapper, outputMarker, escaper, this.config.jsOutputFile)
 	var jsonOutput *AbstractCommandLineRunner_JsonFileSpec = new_AbstractCommandLineRunner_JsonFileSpec_String_String(Object_toString(any(jsOutput)), func() string {
 		if Strings_isNullOrEmpty(this.config.jsOutputFile) {
 			return "compiled.js"
@@ -1428,7 +1428,7 @@ func (this *AbstractCommandLineRunner) createJsonFile(options *CompilerOptions, 
 	}())
 	if options.shouldGatherSourceMapInfo() {
 		var sourcemap *StringBuilder = new_StringBuilder()
-		this.compiler_.getSourceMap().appendTo(icast_Appendable(obj_(sourcemap)), jsonOutput.getPath())
+		this.compiler_.getSourceMap().appendTo(sourcemap, jsonOutput.getPath())
 		jsonOutput.setSourceMap(Object_toString(obj_(sourcemap)))
 	}
 	return jsonOutput
@@ -1514,7 +1514,7 @@ func (this *AbstractCommandLineRunner) outputChunkBinaryAndSourceMaps(chunkGraph
 					this.compiler_.resetAndIntitializeSourceMap()
 				}
 				mlicenseTracker.setCurrentChunkContext(m)
-				var writeChunkOutputOutcome *Outcome_base = this.writeChunkOutput(chunkFilename, icast_Appendable(obj_(writer)), icast_CodePrinter_LicenseTracker(obj_(mlicenseTracker)), m)
+				var writeChunkOutputOutcome *Outcome_base = this.writeChunkOutput(chunkFilename, icast_Appendable(obj_(writer)), mlicenseTracker, m)
 				if writeChunkOutputOutcome.isErr() {
 					ret_3 = Outcome_base_err(writeChunkOutputOutcome.error())
 					return 1
@@ -1556,7 +1556,7 @@ func (this *AbstractCommandLineRunner) createJsonFileFromChunk(chunk *JSChunk) *
 	}
 	var filename string = str_(filenameOutcome.get())
 	var output *StringBuilder = new_StringBuilder()
-	var writeChunkOutputOutcome *Outcome_base = this.writeChunkOutput(filename, icast_Appendable(obj_(output)), icast_CodePrinter_LicenseTracker(obj_(new_Compiler_ScriptNodeLicensesOnlyTracker(this.compiler_.up_AbstractCompiler()))), chunk)
+	var writeChunkOutputOutcome *Outcome_base = this.writeChunkOutput(filename, output, new_Compiler_ScriptNodeLicensesOnlyTracker(this.compiler_.up_AbstractCompiler()), chunk)
 	if writeChunkOutputOutcome.isErr() {
 		return Outcome_base_err(writeChunkOutputOutcome.error())
 	}
@@ -1566,7 +1566,7 @@ func (this *AbstractCommandLineRunner) createJsonFileFromChunk(chunk *JSChunk) *
 	if chunkOutputFileName.isErr() {
 		return Outcome_base_err(chunkOutputFileName.error())
 	}
-	this.compiler_.getSourceMap().appendTo(icast_Appendable(obj_(chunkSourceMap)), Optional_ofNullable[string](str_(chunkOutputFileName.get())))
+	this.compiler_.getSourceMap().appendTo(chunkSourceMap, Optional_ofNullable[string](str_(chunkOutputFileName.get())))
 	jsonFile.setSourceMap(Object_toString(obj_(chunkSourceMap)))
 	return Outcome_base_ok_Object(obj_(jsonFile))
 }
@@ -2286,9 +2286,9 @@ func (this *AbstractCommandLineRunner_CommandLineConfig) finit_AbstractCommandLi
 	this.skipNormalOutputs = false
 	this.manifestMaps = []string{}
 	this.processCommonJSModules = false
-	this.moduleRoots = icast_List(obj_(ImmutableList_of_Object(strobj_(ModuleLoader_DEFAULT_FILENAME_PREFIX))))
+	this.moduleRoots = ImmutableList_of_Object(strobj_(ModuleLoader_DEFAULT_FILENAME_PREFIX))
 	this.warningsAllowFile = ""
-	this.hideWarningsFor = icast_List(obj_(ImmutableList_of()))
+	this.hideWarningsFor = ImmutableList_of()
 	this.angularPass = false
 	this.jsonStreamMode = CompilerOptions_JsonStreamMode_NONE
 	this.errorFormat = AbstractCommandLineRunner_CommandLineConfig_ErrorFormatOption_STANDARD

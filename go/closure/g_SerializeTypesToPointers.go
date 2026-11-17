@@ -37,8 +37,8 @@ func SerializeTypesToPointers_create(compiler *AbstractCompiler, stringPoolBuild
 
 func (this *SerializeTypesToPointers) gatherTypesOnAst(root Node) {
 	Preconditions_checkState_boolean_Object((this.typePool == nil), strobj_("Cannot call process() twice"))
-	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(obj_(new_SerializeTypesToPointers_PropertySearchCallback(this))))
-	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(obj_(new_SerializeTypesToPointers_TypeSearchCallback(this))))
+	NodeTraversal_traverse(this.compiler_, root, new_SerializeTypesToPointers_PropertySearchCallback(this))
+	NodeTraversal_traverse(this.compiler_, root, new_SerializeTypesToPointers_TypeSearchCallback(this))
 	it_1 := foreach_(any(this.compiler_.getTypeMismatches()))
 	for it_1.next() {
 		var mismatch *TypeMismatch = cast_[*TypeMismatch](it_1.v)
@@ -84,7 +84,7 @@ func (this *SerializeTypesToPointers) logTypeMismatches(typeMismatches IterableO
 		var mismatch *TypeMismatch = cast_[*TypeMismatch](it_1.v)
 		result.add(obj_(SerializeTypesToPointers_TypeMismatchJson_create(mismatch, serializer, typePool)))
 	}
-	return cast_[*ImmutableSortedSet](obj_(result.build()))
+	return result.build()
 }
 
 func SerializeTypesToPointers_typeMismatchesToJson(typeMismatches ImmutableSortedSetOf[*SerializeTypesToPointers_TypeMismatchJson]) string {
@@ -161,7 +161,7 @@ func (this *SerializeTypesToPointers_TypeSearchCallback) visit(t *NodeTraversal,
 	}
 	var shadow Node = n.getClosureUnawareShadow()
 	if shadow != 0 {
-		NodeTraversal_traverse(this.outer_.compiler_, shadow.getFirstFirstChild().getFirstChild(), icast_NodeTraversal_Callback(obj_(new_SerializeTypesToPointers_TypeSearchCallback(this.outer_))))
+		NodeTraversal_traverse(this.outer_.compiler_, shadow.getFirstFirstChild().getFirstChild(), new_SerializeTypesToPointers_TypeSearchCallback(this.outer_))
 	}
 }
 

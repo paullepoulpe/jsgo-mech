@@ -137,7 +137,7 @@ func (this *TypeMismatch_Accumulator) registerMismatch(location Node, found *JST
 }
 
 func (this *TypeMismatch_Accumulator) getMismatches() ImmutableCollectionOf[*TypeMismatch] {
-	return ImmutableList_copyOf(icast_Collection(any(sliceView_(tc_p_TypeMismatch, this.mismatches)))).up_ImmutableCollection()
+	return ImmutableList_copyOf(sliceView_(tc_p_TypeMismatch, this.mismatches)).up_ImmutableCollection()
 }
 
 func (this *TypeMismatch_Accumulator) registerIfMismatch(location Node, found *JSType, required *JSType) {

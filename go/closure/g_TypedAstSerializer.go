@@ -38,9 +38,9 @@ func (this *TypedAstSerializer) serializeRoots(externsRoot Node, jsRoot Node) *T
 	if this.compiler_.hasOptimizationColors() {
 		this.typeSerializer = icast_TypedAstSerializer_TypeSerializer(obj_(this.createColorTypeSerializer(this.compiler_, this.serializationMode, this.stringPool)))
 	} else if this.compiler_.hasTypeCheckingRun() {
-		this.typeSerializer = icast_TypedAstSerializer_TypeSerializer(obj_(TypedAstSerializer_createJSTypeSerializer(this.compiler_, this.serializationMode, this.stringPool)))
+		this.typeSerializer = TypedAstSerializer_createJSTypeSerializer(this.compiler_, this.serializationMode, this.stringPool)
 	} else {
-		this.typeSerializer = icast_TypedAstSerializer_TypeSerializer(obj_(new_TypedAstSerializer_NoOpTypeSerializer()))
+		this.typeSerializer = new_TypedAstSerializer_NoOpTypeSerializer()
 	}
 	var builder *TypedAst_Builder = TypedAst_newBuilder()
 	{
@@ -81,7 +81,7 @@ func (this *TypedAstSerializer) sourceFileProtos() ImmutableListOf[*SourceFilePr
 		var sourceFile *SourceFile_jscomp = it_1.k
 		result.add(obj_(sourceFile.getProto()))
 	}
-	return cast_[*ImmutableList](obj_(result.build()))
+	return result.build()
 }
 
 func (this *TypedAstSerializer) serializeScriptNode(script Node) *LazyAst {
@@ -513,8 +513,8 @@ func (this *TypedAstSerializer) createColorTypeSerializer(compiler *AbstractComp
 
 func TypedAstSerializer_collectUsedPropertyNames(compiler *AbstractCompiler) ImmutableSetOf[string] {
 	var propertyNamesBuilder ImmutableSet_BuilderOf[string] = ImmutableSet_builder()
-	NodeTraversal_traverse(compiler, compiler.getRoot(), icast_NodeTraversal_Callback(obj_(new_TypedAstSerializer_1(propertyNamesBuilder))))
-	return cast_[*ImmutableSet](obj_(propertyNamesBuilder.build()))
+	NodeTraversal_traverse(compiler, compiler.getRoot(), new_TypedAstSerializer_1(propertyNamesBuilder))
+	return propertyNamesBuilder.build()
 }
 
 type TypedAstSerializer_TypeSerializer interface {

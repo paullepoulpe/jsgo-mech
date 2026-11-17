@@ -28,7 +28,7 @@ func (this *StripCode) init_StripCode(compiler *AbstractCompiler, stripTypes Imm
 			stripNameSuffixesBuilder.add(strobj_(form))
 		}
 	}
-	this.stripNameSuffixes = cast_[*ImmutableSet](obj_(stripNameSuffixesBuilder.build()))
+	this.stripNameSuffixes = stripNameSuffixesBuilder.build()
 	var stripNamePrefixesBuilder ImmutableSet_BuilderOf[string] = ImmutableSet_builder()
 	it_5 := foreach_(obj_(stripNamePrefixes))
 	for it_5.next() {
@@ -37,7 +37,7 @@ func (this *StripCode) init_StripCode(compiler *AbstractCompiler, stripTypes Imm
 			stripNamePrefixesBuilder.add(strobj_(form))
 		}
 	}
-	this.stripNamePrefixes = cast_[*ImmutableSet](obj_(stripNamePrefixesBuilder.build()))
+	this.stripNamePrefixes = stripNamePrefixesBuilder.build()
 	var stripTypesToAdjust []string = sliceFrom_(tc_string, icast_Collection(obj_(stripTypes)))
 	if enableTweakStripping {
 		stripTypesToAdjust = append(stripTypesToAdjust, "goog.tweak")
@@ -48,7 +48,7 @@ func (this *StripCode) init_StripCode(compiler *AbstractCompiler, stripTypes Imm
 			stripTypesAdjustedBuilder.add(strobj_(form))
 		}
 	}
-	var stripTypesAdjusted ImmutableSetOf[string] = cast_[*ImmutableSet](obj_(stripTypesAdjustedBuilder.build()))
+	var stripTypesAdjusted ImmutableSetOf[string] = stripTypesAdjustedBuilder.build()
 	this.stripTypesList = arrmap_(stripTypesAdjusted.toArray(arrmap_(newstrarr_(0), func(v_ string) any { return strobj_(v_) })), func(v_ any) string { return str_(v_) })
 	var stripTypePrefixes []string = []string{}
 	it_13 := foreach_(obj_(stripTypesAdjusted))
@@ -100,7 +100,7 @@ func (this *StripCode) process_2(externs Node, root Node) {
 		defer closeResource_(decisionsLog.self())
 		decisionsLog.log(new_StripCode_StripCodeConfigRecord(this).get)
 		decisionsLog.logString("\n=== decisions ===\n")
-		NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(obj_(new_StripCode_Strip(this, decisionsLog))))
+		NodeTraversal_traverse(this.compiler_, root, new_StripCode_Strip(this, decisionsLog))
 		return 0
 	}()
 }

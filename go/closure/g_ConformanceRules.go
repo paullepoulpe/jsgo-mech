@@ -29,7 +29,7 @@ func ConformanceRules_createTsAllowlist() *ConformanceRules_AllowList {
 				panic(r_)
 			}
 		}()
-		ret_1 = cast_[*ConformanceRules_AllowList](ConformanceRules_AllowList_create(icast_List(obj_(ImmutableList_of())), icast_List(obj_(ImmutableList_of_Object_Object(strobj_(".*\\.closure\\.js"), strobj_(".*\\.tsx\\.cl\\.js"))))).get())
+		ret_1 = cast_[*ConformanceRules_AllowList](ConformanceRules_AllowList_create(ImmutableList_of(), ImmutableList_of_Object_Object(strobj_(".*\\.closure\\.js"), strobj_(".*\\.tsx\\.cl\\.js"))).get())
 		return 1
 		return 0
 	}()
@@ -952,7 +952,7 @@ func (this *ConformanceRules_BannedName) initBannedName(compiler *AbstractCompil
 	this.requirementType = requirement.getType()
 	var qualifiedBuilder []Node
 	var shortBuilder ImmutableSet_BuilderOf[string] = ImmutableSet_builder()
-	it_1 := foreach_(any(icast_ProtocolStringList(requirement.getValueList())))
+	it_1 := foreach_(any(ProtocolStringList(requirement.getValueList())))
 	for it_1.next() {
 		var name string = str_(it_1.v)
 		var qualifiedName Node = NodeUtil_newQName_AbstractCompiler_String(compiler, name)
@@ -960,7 +960,7 @@ func (this *ConformanceRules_BannedName) initBannedName(compiler *AbstractCompil
 		shortBuilder.add(strobj_(qualifiedName.getString()))
 	}
 	this.qualifiedNames = immBuilt_(qualifiedBuilder)
-	this.shortNames = cast_[*ImmutableSet](obj_(shortBuilder.build()))
+	this.shortNames = shortBuilder.build()
 	return Outcome_base_ok_0()
 }
 
@@ -1086,7 +1086,7 @@ func (this *ConformanceRules_BannedProperty) initBannedProperty(compiler *Abstra
 	}()
 	this.registry = compiler.getTypeRegistry()
 	var builder *SimpleSetMultimap = SimpleSetMultimap_create()
-	it_2 := foreach_(any(icast_ProtocolStringList(requirement.getValueList())))
+	it_2 := foreach_(any(ProtocolStringList(requirement.getValueList())))
 	for it_2.next() {
 		var value string = str_(it_2.v)
 		var typename OptionalOf[string] = ConformanceRules_ConformanceUtil_getClassFromDeclarationName(value)
@@ -1117,7 +1117,7 @@ func (this *ConformanceRules_BannedProperty) checkConformance_impl(t *NodeTraver
 		if name.isPresent() {
 			return this.props.get_s(name.get())
 		}
-		return icast_Set(obj_(ImmutableSet_of()))
+		return ImmutableSet_of()
 	}()
 	if checkTypes.isEmpty() {
 		return ConformanceRules_ConformanceResult_CONFORMANCE
@@ -1403,7 +1403,7 @@ func (this *ConformanceRules_BannedStringRegex) initBannedStringRegex(compiler *
 		return Outcome_base_err(new_CheckConformance_InvalidRequirementSpec_String("missing value").up_Throwable())
 	}
 	var builder ImmutableList_BuilderOf[string] = ImmutableList_builder()
-	it_1 := foreach_(any(icast_ProtocolStringList(requirement.getValueList())))
+	it_1 := foreach_(any(ProtocolStringList(requirement.getValueList())))
 	for it_1.next() {
 		var value string = str_(it_1.v)
 		if String_isEmpty(String_trim(value)) {
@@ -1411,7 +1411,7 @@ func (this *ConformanceRules_BannedStringRegex) initBannedStringRegex(compiler *
 		}
 		builder.add(strobj_(value))
 	}
-	var values ImmutableListOf[string] = cast_[*ImmutableList](obj_(builder.build()))
+	var values ImmutableListOf[string] = builder.build()
 	if values.isEmpty() {
 		return Outcome_base_err(new_CheckConformance_InvalidRequirementSpec_String("missing value").up_Throwable())
 	}
@@ -1679,7 +1679,7 @@ func (this *ConformanceRules_RestrictedNameCall) initRestrictedNameCall(compiler
 		return Outcome_base_err(new_CheckConformance_InvalidRequirementSpec_String("missing value").up_Throwable())
 	}
 	var builder []*ConformanceRules_RestrictedNameCall_Restriction
-	it_1 := foreach_(any(icast_ProtocolStringList(requirement.getValueList())))
+	it_1 := foreach_(any(ProtocolStringList(requirement.getValueList())))
 	for it_1.next() {
 		var value string = str_(it_1.v)
 		var name Node = NodeUtil_newQName_AbstractCompiler_String(compiler, ConformanceRules_RestrictedNameCall_getNameFromValue(value).get())
@@ -1790,7 +1790,7 @@ func (this *ConformanceRules_RestrictedMethodCall) initRestrictedMethodCall(comp
 	}
 	var registry *JSTypeRegistry = compiler.getTypeRegistry()
 	var builder []*ConformanceRules_RestrictedMethodCall_Restriction
-	it_1 := foreach_(any(icast_ProtocolStringList(requirement.getValueList())))
+	it_1 := foreach_(any(ProtocolStringList(requirement.getValueList())))
 	for it_1.next() {
 		var value string = str_(it_1.v)
 		var typeDecl *Outcome_base = ConformanceRules_ConformanceUtil_removeTypeDecl(value)
@@ -1938,7 +1938,7 @@ func (this *ConformanceRules_RestrictedPropertyWrite) initRestrictedPropertyWrit
 	}
 	var registry *JSTypeRegistry = compiler.getTypeRegistry()
 	var builder []*ConformanceRules_RestrictedPropertyWrite_Restriction
-	it_1 := foreach_(any(icast_ProtocolStringList(requirement.getValueList())))
+	it_1 := foreach_(any(ProtocolStringList(requirement.getValueList())))
 	for it_1.next() {
 		var value string = str_(it_1.v)
 		var typeDecl *Outcome_base = ConformanceRules_ConformanceUtil_removeTypeDecl(value)
@@ -2064,7 +2064,7 @@ func (this *ConformanceRules_BannedCodePattern) initBannedCodePattern(compiler *
 		return Outcome_base_err(new_CheckConformance_InvalidRequirementSpec_String("missing value").up_Throwable())
 	}
 	var builder []*TemplateAstMatcher
-	it_1 := foreach_(any(icast_ProtocolStringList(requirement.getValueList())))
+	it_1 := foreach_(any(ProtocolStringList(requirement.getValueList())))
 	for it_1.next() {
 		var value string = str_(it_1.v)
 		var parseRoot Node = new_CompilerInput_SourceFile(SourceFile_jscomp_fromCode_String_String("<template>", value)).getAstRoot(compiler)
@@ -2415,7 +2415,7 @@ func (this *ConformanceRules_RequireUseStrict) initRequireUseStrict(compiler *Ab
 	if superInited.isErr() {
 		return Outcome_base_err(superInited.error())
 	}
-	if !icast_ProtocolStringList(requirement.getValueList()).isEmpty() {
+	if !ProtocolStringList(requirement.getValueList()).isEmpty() {
 		return Outcome_base_err(new_CheckConformance_InvalidRequirementSpec_String("invalid value").up_Throwable())
 	}
 	return Outcome_base_ok_0()
@@ -2909,7 +2909,7 @@ func ConformanceRules_BanUnresolvedType_getNonConformingPart(type_ *JSType) Opti
 			}
 		}
 		if nonConformingParts != nil {
-			return Optional_of[string](Joiner_on_char('|').join(icast_Iterable(any(nonConformingParts.asList()))))
+			return Optional_of[string](Joiner_on_char('|').join(nonConformingParts.asList()))
 		}
 	} else if type_.isNoResolvedType() {
 		var noResolvedType *ObjectType = type_.toObjectType()
@@ -3250,7 +3250,7 @@ func (this *ConformanceRules_BanCreateElement) initBanCreateElement(compiler *Ab
 		return Outcome_base_err(superInited.error())
 	}
 	this.bannedTags = map[string]struct{}{}
-	it_1 := foreach_(any(icast_ProtocolStringList(requirement.getValueList())))
+	it_1 := foreach_(any(ProtocolStringList(requirement.getValueList())))
 	for it_1.next() {
 		var value string = str_(it_1.v)
 		this.bannedTags[Ascii_toLowerCase(value)] = struct{}{}
@@ -3346,7 +3346,7 @@ func (this *ConformanceRules_BanCreateDom) initBanCreateDom(compiler *AbstractCo
 		return Outcome_base_err(superInited.error())
 	}
 	var bannedTagAttrs ImmutableList_BuilderOf[[]string] = ImmutableList_builder()
-	it_1 := foreach_(any(icast_ProtocolStringList(requirement.getValueList())))
+	it_1 := foreach_(any(ProtocolStringList(requirement.getValueList())))
 	for it_1.next() {
 		var value string = str_(it_1.v)
 		var tagAttr []string = sliceImm_(tc_string, ConformanceRules_ON_DOT.splitToList_s(value))
@@ -3356,7 +3356,7 @@ func (this *ConformanceRules_BanCreateDom) initBanCreateDom(compiler *AbstractCo
 		var lowercasedTag string = String_toLowerCase(sliceAt_(tagAttr, 0), Locale_ROOT)
 		bannedTagAttrs.add(any([]string{lowercasedTag, sliceAt_(tagAttr, 1)}))
 	}
-	this.bannedTagAttrs = cast_[*ImmutableList](obj_(bannedTagAttrs.build()))
+	this.bannedTagAttrs = bannedTagAttrs.build()
 	if this.bannedTagAttrs.isEmpty() {
 		return Outcome_base_err(new_CheckConformance_InvalidRequirementSpec_String("Specify one or more values.").up_Throwable())
 	}
@@ -3439,9 +3439,9 @@ func (this *ConformanceRules_BanCreateDom) checkConformance_impl(t *NodeTraversa
 
 func (this *ConformanceRules_BanCreateDom) getTagNames(tag Node) CollectionOf[string] {
 	if tag.isStringLit() {
-		return icast_Collection(obj_(ImmutableSet_of_Object(strobj_(String_toLowerCase(tag.getString(), Locale_ROOT)))))
+		return ImmutableSet_of_Object(strobj_(String_toLowerCase(tag.getString(), Locale_ROOT)))
 	} else if tag.isGetProp() && ConformanceRules_GOOG_DOM_TAGNAME.matches(tag.getFirstChild()) {
-		return icast_Collection(obj_(ImmutableSet_of_Object(strobj_(String_toLowerCase(tag.getString(), Locale_ROOT)))))
+		return ImmutableSet_of_Object(strobj_(String_toLowerCase(tag.getString(), Locale_ROOT)))
 	}
 	var type_ *JSType = tag.getJSType()
 	if (type_ == nil) || !type_.isTemplatizedType() {
@@ -3530,7 +3530,7 @@ func (this *ConformanceRules_SecuritySensitiveAttributes) init_ConformanceRules_
 		var s string = str_(it_1.v)
 		bannedAtrrsBuilder.add(strobj_(String_toLowerCase(s, Locale_ROOT)))
 	}
-	this.bannedAtrrs = cast_[*ImmutableSet](obj_(bannedAtrrsBuilder.build()))
+	this.bannedAtrrs = bannedAtrrsBuilder.build()
 	this.globalNamespaceSupplier = globalNamespaceSupplier
 }
 
@@ -3836,12 +3836,12 @@ func (this *ConformanceRules_BanSettingAttributes) initBanSettingAttributes(comp
 	if superInited.isErr() {
 		return Outcome_base_err(superInited.error())
 	}
-	if icast_ProtocolStringList(requirement.getValueList()).isEmpty() {
+	if ProtocolStringList(requirement.getValueList()).isEmpty() {
 		return Outcome_base_err(new_CheckConformance_InvalidRequirementSpec_String("missing value").up_Throwable())
 	}
 	var registry *JSTypeRegistry = compiler.getTypeRegistry()
 	var builder []*ConformanceRules_BanSettingAttributes_AttributeSettingRestriction
-	it_1 := foreach_(any(icast_ProtocolStringList(requirement.getValueList())))
+	it_1 := foreach_(any(ProtocolStringList(requirement.getValueList())))
 	for it_1.next() {
 		var value string = str_(it_1.v)
 		var type_ OptionalOf[string] = ConformanceRules_ConformanceUtil_getClassFromDeclarationName(value)
@@ -3968,7 +3968,7 @@ func (this *ConformanceRules_BanExecCommand) initBanExecCommand(compiler *Abstra
 		return Outcome_base_err(superInited.error())
 	}
 	var bannedAttrsBuilder []string
-	it_1 := foreach_(any(icast_ProtocolStringList(requirement.getValueList())))
+	it_1 := foreach_(any(ProtocolStringList(requirement.getValueList())))
 	for it_1.next() {
 		var v string = str_(it_1.v)
 		bannedAttrsBuilder = immAdd_(tc_string, bannedAttrsBuilder, String_toLowerCase(v, Locale_ROOT))

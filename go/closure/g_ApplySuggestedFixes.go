@@ -75,7 +75,7 @@ func ApplySuggestedFixes_applySuggestedFixChoicesToCode(fixChoices IterableOf[*S
 		var choices *SuggestedFix = cast_[*SuggestedFix](it_1.v)
 		chosenFixesBuilder.add(choices.getAlternatives().get(choiceIndex))
 	}
-	var chosenFixes ImmutableListOf[*SuggestedFix] = cast_[*ImmutableList](obj_(chosenFixesBuilder.build()))
+	var chosenFixes ImmutableListOf[*SuggestedFix] = chosenFixesBuilder.build()
 	return ApplySuggestedFixes_applySuggestedFixesToCode(icast_Iterable(obj_(chosenFixes)), fileNameToCodeMap)
 }
 
@@ -175,7 +175,7 @@ func (this *ApplySuggestedFixes_ReplacementMap) canPut(fix *SuggestedFix) bool {
 	it_1 := foreach_(any(fix.getReplacements().keySet()))
 	for it_1.next() {
 		var filename string = str_(it_1.v)
-		var replacements ImmutableSortedSetOf[*CodeReplacement] = cast_[*ImmutableSortedSet](obj_(cast_[*ImmutableSortedSet_Builder](obj_(cast_[*ImmutableSortedSet_Builder](obj_(ImmutableSortedSet_naturalOrder().addAll(Iterable(this.map__.get_s(filename))))).addAll(Iterable(fix.getReplacements().get_s(filename))))).build()))
+		var replacements ImmutableSortedSetOf[*CodeReplacement] = ImmutableSortedSet_naturalOrder().addAll(Iterable(this.map__.get_s(filename))).addAll(Iterable(fix.getReplacements().get_s(filename))).build()
 		if ApplySuggestedFixes_containsOverlaps(replacements) {
 			return false
 		}

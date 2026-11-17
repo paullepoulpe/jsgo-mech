@@ -28,10 +28,10 @@ func new_InferJSDocInfo(compiler *AbstractCompiler) *InferJSDocInfo {
 
 func (this *InferJSDocInfo) process_2(externs Node, root Node) {
 	if externs != 0 {
-		NodeTraversal_traverse(this.compiler_, externs, icast_NodeTraversal_Callback(obj_(this)))
+		NodeTraversal_traverse(this.compiler_, externs, this)
 	}
 	if root != 0 {
-		NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(obj_(this)))
+		NodeTraversal_traverse(this.compiler_, root, this)
 	}
 }
 
@@ -130,9 +130,9 @@ func (this *InferJSDocInfo) inferJSDocForObjectKeyOrClassField(n Node, parent No
 		if (keyType == nil) || !keyType.isKnownSymbolValueType() {
 			return
 		}
-		propName = icast_Property_Key(obj_(new_Property_SymbolKey(keyType.toMaybeKnownSymbolType())))
+		propName = new_Property_SymbolKey(keyType.toMaybeKnownSymbolType())
 	} else {
-		propName = icast_Property_Key(obj_(new_Property_StringKey(n.getString())))
+		propName = new_Property_StringKey(n.getString())
 	}
 	if owningType.hasOwnPropertyKey(propName) && (owningType.getPropertyJSDocInfoKey(propName) == nil) {
 		owningType.setPropertyJSDocInfoKey(propName, typeDoc)

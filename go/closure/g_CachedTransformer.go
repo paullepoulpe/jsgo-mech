@@ -35,15 +35,15 @@ func (this *CachedTransformer) transform(input *Source) *Source {
 }
 
 func (this *CachedTransformer) asFunction() Function {
-	return Source_Transformer_asFunction_default(icast_Source_Transformer(any(this)))
+	return Source_Transformer_asFunction_default(this)
 }
 
 func (this *CachedTransformer) andThen(p0 Source_Transformer) Source_Transformer {
-	return Source_Transformer_andThen_default(icast_Source_Transformer(any(this)), p0)
+	return Source_Transformer_andThen_default(this, p0)
 }
 
 func (this *CachedTransformer) compose(p0 Source_Transformer) Source_Transformer {
-	return Source_Transformer_compose_default(icast_Source_Transformer(any(this)), p0)
+	return Source_Transformer_compose_default(this, p0)
 }
 
 const CachedTransformer_DEFAULT_CACHE_SPEC string = "maximumSize=10000"

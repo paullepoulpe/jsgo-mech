@@ -30,7 +30,7 @@ func (this *J2clAssertRemovalPass) process_2(externs Node, root Node) {
 	if !J2clSourceFileChecker_shouldRunJ2clPasses(this.compiler_) {
 		return
 	}
-	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(obj_(this)))
+	NodeTraversal_traverse(this.compiler_, root, this)
 }
 
 func (this *J2clAssertRemovalPass) visit_impl(t *NodeTraversal, node Node, parent Node) {

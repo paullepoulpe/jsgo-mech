@@ -42,7 +42,7 @@ func (this *ClosureModuleProcessor) process(metadata *ModuleMetadataMap_ModuleMe
 	}
 	Preconditions_checkArgument_boolean_Object((script.isCall() || (path != nil)), strobj_("Non goog.loadModules must have a path"))
 	var moduleProcessingCallback *ClosureModuleProcessor_ModuleProcessingCallback = new_ClosureModuleProcessor_ModuleProcessingCallback(metadata)
-	NodeTraversal_traverse(this.compiler_, script, icast_NodeTraversal_Callback(obj_(moduleProcessingCallback)))
+	NodeTraversal_traverse(this.compiler_, script, moduleProcessingCallback)
 	return new_ClosureModuleProcessor_UnresolvedGoogModule(metadata, script.getSourceFileName(), path, ImmutableMap_copyOf(moduleProcessingCallback.namespace_.asMap()), ImmutableMap_copyOf(moduleProcessingCallback.requiresByLocalName.asMap()), this.compiler_).up_UnresolvedModule()
 }
 

@@ -33,15 +33,15 @@ func (this *MaybeReachingVariableUse) isForward_impl() bool {
 }
 
 func (this *MaybeReachingVariableUse) createEntryLattice_impl() LatticeElement {
-	return icast_LatticeElement(obj_(new_MaybeReachingVariableUse_ReachingUses_0()))
+	return new_MaybeReachingVariableUse_ReachingUses_0()
 }
 
 func (this *MaybeReachingVariableUse) createInitialEstimateLattice_impl() LatticeElement {
-	return icast_LatticeElement(obj_(new_MaybeReachingVariableUse_ReachingUses_0()))
+	return new_MaybeReachingVariableUse_ReachingUses_0()
 }
 
 func (this *MaybeReachingVariableUse) createFlowJoiner_impl() DataFlowAnalysis_FlowJoiner {
-	return icast_DataFlowAnalysis_FlowJoiner(obj_(new_MaybeReachingVariableUse_ReachingUsesJoinOp()))
+	return new_MaybeReachingVariableUse_ReachingUsesJoinOp()
 }
 
 func (this *MaybeReachingVariableUse) flowThrough_impl(n_ any, input_ LatticeElement) LatticeElement {
@@ -52,7 +52,7 @@ func (this *MaybeReachingVariableUse) flowThrough_impl(n_ any, input_ LatticeEle
 	var output *MaybeReachingVariableUse_ReachingUses = new_MaybeReachingVariableUse_ReachingUses_ReachingUses(input)
 	var conditional bool = this.hasExceptionHandler(n)
 	this.computeMayUse(n, n, output, conditional)
-	return icast_LatticeElement(obj_(output))
+	return output
 }
 
 func (this *MaybeReachingVariableUse) hasExceptionHandler(cfgNode Node) bool {
@@ -231,7 +231,7 @@ func (this *MaybeReachingVariableUse_ReachingUses) get(v *Var) IterableOf[Node] 
 		if uses != nil {
 			return uses.keys()
 		}
-		return icast_Iterable(obj_(ImmutableList_of()))
+		return ImmutableList_of()
 	}()
 }
 

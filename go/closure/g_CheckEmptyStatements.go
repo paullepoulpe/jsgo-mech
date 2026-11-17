@@ -27,7 +27,7 @@ func new_CheckEmptyStatements(compiler *AbstractCompiler) *CheckEmptyStatements 
 }
 
 func (this *CheckEmptyStatements) process_2(externs Node, root Node) {
-	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(obj_(this)))
+	NodeTraversal_traverse(this.compiler_, root, this)
 }
 
 func (this *CheckEmptyStatements) visit_impl(t *NodeTraversal, n Node, parent Node) {

@@ -27,15 +27,15 @@ func RequireAliasGenerator_createSkiplistedAliases() ImmutableSetOf[string] {
 		builder.add(strobj_(RequireAliasGenerator_captializeFirstChar(seed)))
 		builder.add(strobj_(Ascii_toLowerCase(seed)))
 	}
-	return cast_[*ImmutableSet](obj_(builder.build()))
+	return builder.build()
 }
 
 func RequireAliasGenerator_over(namespace string) IterableOf[string] {
-	return icast_Iterable(obj_(new_RequireAliasGenerator(namespace)))
+	return new_RequireAliasGenerator(namespace)
 }
 
 func (this *RequireAliasGenerator) iterator() IteratorOf[string] {
-	return icast_Iterator(obj_(new_RequireAliasGenerator_NameIterator(this)))
+	return new_RequireAliasGenerator_NameIterator(this)
 }
 
 func RequireAliasGenerator_captializeFirstChar(w string) string {

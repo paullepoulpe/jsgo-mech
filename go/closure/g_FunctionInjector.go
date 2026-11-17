@@ -16,7 +16,7 @@ type FunctionInjector struct {
 
 func (this *FunctionInjector) finit_FunctionInjector() {
 	this.knownConstantFunctions = ImmutableSet_of()
-	this.throwawayNameSupplier = icast_Supplier(obj_(new_FunctionInjector_1(this)))
+	this.throwawayNameSupplier = new_FunctionInjector_1(this)
 	this.referencesEvalCache = map[Node]BoxedOf[bool]{}
 	this.innerFunctionCache = map[Node]Node{}
 }
@@ -351,7 +351,7 @@ func (this *FunctionInjector) innerFunctionOf(containerFn Node) Node {
 }
 
 func (this *FunctionInjector) callMeetsBlockInliningRequirements(callRef *FunctionInjector_Reference, calleeFn Node, namesToAlias ImmutableSetOf[string]) bool {
-	var calleeContainsVars bool = NodeUtil_has(NodeUtil_getFunctionBody(calleeFn), new_NodeUtil_MatchDeclaration().apply, icast_Predicate_base(obj_(new_NodeUtil_MatchShallowStatement())))
+	var calleeContainsVars bool = NodeUtil_has(NodeUtil_getFunctionBody(calleeFn), new_NodeUtil_MatchDeclaration().apply, new_NodeUtil_MatchShallowStatement())
 	var forbidTemps bool = false
 	if !cast_[*Scope](callRef.scope_.getClosestHoistScope().self()).isGlobal() {
 		var callerFn Node = cast_[*Scope](callRef.scope_.getClosestHoistScope().self()).getRootNode().getParent()
@@ -495,7 +495,7 @@ func FunctionInjector_inlineCostDelta(fnNode Node, namesToAlias map[string]struc
 		var perReturnOverhead int32 = 2
 		var perReturnResultOverhead int32 = 3
 		var perAliasOverhead int32 = 3
-		var returnCount int32 = NodeUtil_getNodeTypeReferenceCount(block, Token_rhino_RETURN, icast_Predicate_base(obj_(new_NodeUtil_MatchShallowStatement())))
+		var returnCount int32 = NodeUtil_getNodeTypeReferenceCount(block, Token_rhino_RETURN, new_NodeUtil_MatchShallowStatement())
 		var resultCount int32 = func() int32 {
 			if returnCount > 0 {
 				return (returnCount - 1)

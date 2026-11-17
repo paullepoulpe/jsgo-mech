@@ -278,7 +278,7 @@ func NodeTraversal_traverseScopeRoots(compiler *AbstractCompiler, scopeNodes *TL
 	for it_1.next() {
 		var scopeNode Node = it_1.v
 		scb.scopeNode = scopeNode
-		NodeTraversal_builder().setCompiler(compiler).setCallback(icast_NodeTraversal_Callback(obj_(scb))).setScopeCreator(icast_ScopeCreator(obj_(scopeCreator))).build().traverseScopeRoot(scopeNode)
+		NodeTraversal_builder().setCompiler(compiler).setCallback(scb).setScopeCreator(scopeCreator).build().traverseScopeRoot(scopeNode)
 	}
 }
 
@@ -1639,7 +1639,7 @@ func (this *NodeTraversal_Builder) setCallback(x NodeTraversal_Callback) *NodeTr
 }
 
 func (this *NodeTraversal_Builder) setCallbackAbstractPostOrderCallbackInterface(x func(*NodeTraversal, Node, Node)) *NodeTraversal_Builder {
-	this.callback = icast_NodeTraversal_Callback(obj_(new_NodeTraversal_Builder_1(this, x)))
+	this.callback = new_NodeTraversal_Builder_1(this, x)
 	return this
 }
 

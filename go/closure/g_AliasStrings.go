@@ -14,7 +14,7 @@ type AliasStrings struct {
 }
 
 func (this *AliasStrings) finit_AliasStrings() {
-	this.stringInfoMap = icast_SortedMap(obj_(new_TreeMap()))
+	this.stringInfoMap = new_TreeMap()
 	this.usedHashedAliases = map[string]struct{}{}
 	this.chunkVarParentMap = map[*JSChunk]Node{}
 	this.unitTestHashReductionMask = -1
@@ -37,7 +37,7 @@ func new_AliasStrings(compiler *AbstractCompiler, chunkGraph *JSChunkGraph, outp
 
 func (this *AliasStrings) process_2(externs Node, root Node) {
 	AliasStrings_logger.fine("Aliasing common strings")
-	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(any(this)))
+	NodeTraversal_traverse(this.compiler_, root, this)
 	this.replaceStringsWithAliases()
 	this.addAliasDeclarationNodes()
 	if this.outputStringUsageField {

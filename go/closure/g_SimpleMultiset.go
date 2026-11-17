@@ -25,11 +25,11 @@ func new_SimpleMultiset(counts MapOf[any, BoxedOf[int32]]) *SimpleMultiset {
 }
 
 func SimpleMultiset_create() *SimpleMultiset {
-	return new_SimpleMultiset(icast_Map(obj_(new_LinkedHashMap())))
+	return new_SimpleMultiset(new_LinkedHashMap())
 }
 
 func SimpleMultiset_createSorted() *SimpleMultiset {
-	return new_SimpleMultiset(icast_Map(obj_(new_TreeMap())))
+	return new_SimpleMultiset(new_TreeMap())
 }
 
 func SimpleMultiset_of() *SimpleMultiset {
@@ -193,7 +193,7 @@ func (this *SimpleMultiset) asList() ImmutableListOf[any] {
 			list.add(e.getKey())
 		}
 	}
-	return cast_[*ImmutableList](obj_(list.build()))
+	return list.build()
 }
 
 func (this *SimpleMultiset) iterator() IteratorOf[any] {

@@ -40,7 +40,7 @@ func (this *ColorSerializer) addColors(colors CollectionOf[*Color]) ImmutableLis
 		var color *Color = cast_[*Color](it_1.v)
 		builder.add(any(int32(this.addColor(color))))
 	}
-	return cast_[*ImmutableList](obj_(builder.build()))
+	return builder.build()
 }
 
 func (this *ColorSerializer) addColor(color *Color) int32 {
@@ -117,5 +117,5 @@ func (this *ColorSerializer) getOwnPropertyStringPoolOffsets(color *Color) Immut
 			builder.add(this.getStringPoolIndexFn(strobj_(ownProperty)))
 		}
 	}
-	return cast_[*ImmutableList](obj_(builder.build()))
+	return builder.build()
 }

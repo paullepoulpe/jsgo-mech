@@ -43,7 +43,7 @@ func (this *TemplatizedType) init_TemplatizedType(registry *JSTypeRegistry, obje
 			maybeIsSpecializedOnlyWithUnknown = this.getNativeType(JSTypeNative_UNKNOWN_TYPE).equals(resolvedType.self())
 		}
 	}
-	this.templateTypes = cast_[*ImmutableList](obj_(builder.build()))
+	this.templateTypes = builder.build()
 	this.isSpecializedOnlyWithUnknown = maybeIsSpecializedOnlyWithUnknown
 	this.replacer = TemplateTypeReplacer_forPartialReplacement(registry, this.getTemplateTypeMap())
 	registry.getResolver().resolveIfClosed(this.up_JSType(), TemplatizedType_TYPE_CLASS_FIELD)
@@ -67,7 +67,7 @@ func (this *TemplatizedType) getCtorImplementedInterfaces_impl() IterableOf[*Obj
 		var obj *ObjectType = to_ObjectType(it_1.v)
 		resolvedImplementedInterfaces.add(to_JSType(obj.visit(icast_Visitor(obj_(this.replacer)))).toObjectType())
 	}
-	return icast_Iterable(any(resolvedImplementedInterfaces.asSet()))
+	return resolvedImplementedInterfaces.asSet()
 }
 
 func (this *TemplatizedType) getCtorExtendedInterfaces_impl() IterableOf[*ObjectType] {
@@ -77,7 +77,7 @@ func (this *TemplatizedType) getCtorExtendedInterfaces_impl() IterableOf[*Object
 		var obj *ObjectType = to_ObjectType(it_1.v)
 		resolvedExtendedInterfaces.add(to_JSType(obj.visit(icast_Visitor(obj_(this.replacer)))).toObjectType())
 	}
-	return icast_Iterable(any(resolvedExtendedInterfaces.asSet()))
+	return resolvedExtendedInterfaces.asSet()
 }
 
 func (this *TemplatizedType) appendTo_impl(sb *TypeStringBuilder) {
@@ -171,7 +171,7 @@ func (this *TemplatizedType) resolveInternal_impl(reporter ErrorReporter_rhino) 
 		builder.add(resolved.self())
 	}
 	if rebuild {
-		return new_TemplatizedType(this.registry, this.getReferencedType(), cast_[*ImmutableList](obj_(builder.build()))).up_JSType()
+		return new_TemplatizedType(this.registry, this.getReferencedType(), builder.build()).up_JSType()
 	} else {
 		return this.up_JSType()
 	}

@@ -336,7 +336,7 @@ func (this *SemanticReverseAbstractInterpreter) caseAndOrNotShortCircuiting(left
 
 func (this *SemanticReverseAbstractInterpreter) caseAndOrMaybeShortCircuiting(left Node, right Node, blindScope FlowScope, outcome Outcome_rhino) FlowScope {
 	var refinements *TSet[string] = newTSet_(tc_string)
-	blindScope = icast_FlowScope(obj_(new_SemanticReverseAbstractInterpreter_RefinementTrackingFlowScope(blindScope, refinements)))
+	blindScope = new_SemanticReverseAbstractInterpreter_RefinementTrackingFlowScope(blindScope, refinements)
 	var leftScope FlowScope = this.firstPreciserScopeKnowingConditionOutcome(left, blindScope, outcome.not())
 	var leftVar StaticTypedSlot = func() StaticTypedSlot {
 		if refinements.size() == 1 {
@@ -348,7 +348,7 @@ func (this *SemanticReverseAbstractInterpreter) caseAndOrMaybeShortCircuiting(le
 		return SemanticReverseAbstractInterpreter_unwrap(blindScope)
 	}
 	refinements.clear()
-	var rightScope FlowScope = icast_FlowScope(obj_(new_SemanticReverseAbstractInterpreter_RefinementTrackingFlowScope(this.firstPreciserScopeKnowingConditionOutcome(left, blindScope, outcome), refinements)))
+	var rightScope FlowScope = new_SemanticReverseAbstractInterpreter_RefinementTrackingFlowScope(this.firstPreciserScopeKnowingConditionOutcome(left, blindScope, outcome), refinements)
 	rightScope = this.firstPreciserScopeKnowingConditionOutcome(right, rightScope, outcome.not())
 	var rightVar StaticTypedSlot = func() StaticTypedSlot {
 		if refinements.size() == 1 {
@@ -411,9 +411,9 @@ func (this *SemanticReverseAbstractInterpreter) caseInstanceOf(left Node, right 
 	}
 	var visitor Visitor
 	if outcome.isTruthy() {
-		visitor = icast_Visitor(obj_(new_SemanticReverseAbstractInterpreter_RestrictByTrueInstanceOfResultVisitor(this, targetType)))
+		visitor = new_SemanticReverseAbstractInterpreter_RestrictByTrueInstanceOfResultVisitor(this, targetType)
 	} else {
-		visitor = icast_Visitor(obj_(new_SemanticReverseAbstractInterpreter_RestrictByFalseInstanceOfResultVisitor(this, targetType)))
+		visitor = new_SemanticReverseAbstractInterpreter_RestrictByFalseInstanceOfResultVisitor(this, targetType)
 	}
 	return this.maybeRestrictName(blindScope, left, leftType, to_JSType(leftType.visit(visitor)))
 }
@@ -616,9 +616,9 @@ func (this *SemanticReverseAbstractInterpreter_RefinementTrackingFlowScope) infe
 func (this *SemanticReverseAbstractInterpreter_RefinementTrackingFlowScope) wrap(scope FlowScope) FlowScope {
 	return func() FlowScope {
 		if scope != this.delegate {
-			return icast_FlowScope(obj_(new_SemanticReverseAbstractInterpreter_RefinementTrackingFlowScope(scope, this.refinements)))
+			return new_SemanticReverseAbstractInterpreter_RefinementTrackingFlowScope(scope, this.refinements)
 		}
-		return icast_FlowScope(any(this))
+		return this
 	}()
 }
 
@@ -647,11 +647,11 @@ func (this *SemanticReverseAbstractInterpreter_RefinementTrackingFlowScope) getT
 }
 
 func (this *SemanticReverseAbstractInterpreter_RefinementTrackingFlowScope) lookupQualifiedName(p0 *QualifiedName) *JSType {
-	return StaticTypedScope_lookupQualifiedName_default(icast_StaticTypedScope(any(this)), p0)
+	return StaticTypedScope_lookupQualifiedName_default(this, p0)
 }
 
 func (this *SemanticReverseAbstractInterpreter_RefinementTrackingFlowScope) getTopmostScopeOfEventualDeclaration(p0 string) StaticScope {
-	return StaticScope_getTopmostScopeOfEventualDeclaration_default(icast_StaticScope(any(this)), p0)
+	return StaticScope_getTopmostScopeOfEventualDeclaration_default(this, p0)
 }
 
 // getPreciserScopeKnowingConditionOutcome: an object that is exactly a SemanticReverseAbstractInterpreter calls its getPreciserScopeKnowingConditionOutcome_impl directly (post-flip); others dispatch.

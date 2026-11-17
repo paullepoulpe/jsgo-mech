@@ -73,7 +73,7 @@ func (this *TypedScopeCreator) report(error_ *JSError) {
 func (this *TypedScopeCreator) getReferences_StaticSlot(var__ StaticSlot) Iterable {
 	var var_ *TypedVar = cast_[*TypedVar](var__)
 	_ = var_
-	return icast_Iterable(obj_(ImmutableList_of_Object(obj_(var_))))
+	return ImmutableList_of_Object(obj_(var_))
 }
 
 func (this *TypedScopeCreator) getScope(var__ StaticSlot) StaticScope {
@@ -236,8 +236,8 @@ func (this *TypedScopeCreator) createInitialScope(root Node) *TypedScope {
 		Preconditions_checkArgument_boolean_Object(false, root.box_())
 	}
 	var scopeCreator *MemoizedScopeCreator = new_MemoizedScopeCreator(new_SyntacticScopeCreator_AbstractCompiler(this.compiler_).createScopeAbstractScope)
-	NodeTraversal_builder().setCompiler(this.compiler_).setCallback(icast_NodeTraversal_Callback(obj_(new_TypedScopeCreator_FirstOrderFunctionAnalyzer(this)))).setScopeCreator(icast_ScopeCreator(obj_(scopeCreator))).traverseRoots(root.getFirstChild(), root.getLastChild())
-	NodeTraversal_builder().setCompiler(this.compiler_).setCallback(icast_NodeTraversal_Callback(obj_(new_TypedScopeCreator_IdentifyEnumsAndTypedefsAsNonNullable(this.typeRegistry)))).setScopeCreator(icast_ScopeCreator(obj_(scopeCreator))).traverse(root)
+	NodeTraversal_builder().setCompiler(this.compiler_).setCallback(new_TypedScopeCreator_FirstOrderFunctionAnalyzer(this)).setScopeCreator(scopeCreator).traverseRoots(root.getFirstChild(), root.getLastChild())
+	NodeTraversal_builder().setCompiler(this.compiler_).setCallback(new_TypedScopeCreator_IdentifyEnumsAndTypedefsAsNonNullable(this.typeRegistry)).setScopeCreator(scopeCreator).traverse(root)
 	var s *TypedScope = TypedScope_createGlobalScope(root)
 	this.declareNativeFunctionType(s, JSTypeNative_ARRAY_FUNCTION_TYPE)
 	this.declareNativeFunctionType(s, JSTypeNative_BIGINT_OBJECT_FUNCTION_TYPE)
@@ -728,7 +728,7 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) finishDeclaringGoogModule() 
 			var parentType *JSType = cast_[*TypedScope](this.currentScope.getGlobalScope().self()).lookupQualifiedName(moduleNamespace.getOwner())
 			if (parentType != nil) && (parentType.toMaybeObjectType() != nil) {
 				var typeDoc *JSDocInfo = NodeUtil_getBestJSDocInfo(exportsVar.getNameNode())
-				this.declarePropertyIfNamespaceType(parentType.toMaybeObjectType(), exportsVar.getNameNode(), icast_Property_Key(obj_(new_Property_StringKey(moduleNamespace.getComponent()))), exportsVar.getType(), exportsVar.getNameNode(), typeDoc)
+				this.declarePropertyIfNamespaceType(parentType.toMaybeObjectType(), exportsVar.getNameNode(), new_Property_StringKey(moduleNamespace.getComponent()), exportsVar.getType(), exportsVar.getNameNode(), typeDoc)
 			}
 		}
 		this.declareAliasTypeIfRvalueIsAliasable_6(this.getModule().closureNamespace(), exportsVar.getNameNode(), QualifiedName_of("exports"), exportsVar.getType(), this.currentScope, cast_[*TypedScope](this.currentScope.getGlobalScope().self()))
@@ -885,11 +885,11 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) processObjectLitProperties(o
 					continue
 				}
 				qualifiedName = Optional_empty[string]()
-				memberName = icast_Property_Key(obj_(new_Property_SymbolKey(symbol)))
+				memberName = new_Property_SymbolKey(symbol)
 				value = keyNode.getSecondChild()
 			} else {
 				value = keyNode.getFirstChild()
-				memberName = icast_Property_Key(obj_(new_Property_StringKey(NodeUtil_getObjectOrClassLitKeyName(keyNode).orElseThrow())))
+				memberName = new_Property_StringKey(NodeUtil_getObjectOrClassLitKeyName(keyNode).orElseThrow())
 				qualifiedName = NodeUtil_getBestLValueName(keyNode)
 			}
 			var info *JSDocInfo = keyNode.getJSDocInfo()
@@ -1187,7 +1187,7 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) createClassTypeFromNodes(cla
 	if !clazz.isClass() {
 		Preconditions_checkArgument_boolean_Object(false, clazz.box_())
 	}
-	var builder *FunctionTypeBuilder = new_FunctionTypeBuilder(name, this.outer_.compiler_, clazz, this.currentScope).usingClassSyntax().setSyntacticFunctionName(syntacticName).setContents(icast_FunctionTypeBuilder_FunctionContents(obj_(new_FunctionTypeBuilder_AstFunctionContents(clazz)))).setDeclarationScope(func() *TypedScope {
+	var builder *FunctionTypeBuilder = new_FunctionTypeBuilder(name, this.outer_.compiler_, clazz, this.currentScope).usingClassSyntax().setSyntacticFunctionName(syntacticName).setContents(new_FunctionTypeBuilder_AstFunctionContents(clazz)).setDeclarationScope(func() *TypedScope {
 		if lvalueNode != 0 {
 			return this.getLValueRootScope(lvalueNode)
 		}
@@ -1302,7 +1302,7 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) getCtorForGoogModuleGet(exte
 	}
 	var moduleScope *TypedScope = this.outer_.memoized.get(extendsCall.getScopeRoot())
 	properties.insert(0, extendsCall.getName())
-	var superclassName *QualifiedName = QualifiedName_of(Joiner_on_char('.').join(icast_Iterable(any(properties.asList()))))
+	var superclassName *QualifiedName = QualifiedName_of(Joiner_on_char('.').join(properties.asList()))
 	return moduleScope.lookupQualifiedName(superclassName)
 }
 
@@ -1483,7 +1483,7 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) findOverriddenProperty(owner
 		}
 	}
 	if ((result != nil) && (typeMap != nil)) && !typeMap.isEmpty() {
-		result = to_JSType(result.visit(icast_Visitor(obj_(TemplateTypeReplacer_forPartialReplacement(this.outer_.typeRegistry, typeMap)))))
+		result = to_JSType(result.visit(TemplateTypeReplacer_forPartialReplacement(this.outer_.typeRegistry, typeMap)))
 	}
 	return result
 }
@@ -1836,7 +1836,7 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) maybeDeclareGetElem(info *JS
 	if ownerType == nil {
 		return
 	}
-	this.declarePropertyIfNamespaceType(ownerType, ownerNode, icast_Property_Key(obj_(new_Property_SymbolKey(keyType))), valueType, n, nil)
+	this.declarePropertyIfNamespaceType(ownerType, ownerNode, new_Property_SymbolKey(keyType), valueType, n, nil)
 }
 
 func (this *TypedScopeCreator_AbstractScopeBuilder) maybeDeclareQualifiedName(t *NodeTraversal, info *JSDocInfo, n Node, parent Node, rhsValue Node) {
@@ -1878,7 +1878,7 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) maybeDeclareQualifiedName(t 
 	if !inferred {
 		var ownerType *ObjectType = this.getObjectSlot(ownerName)
 		if ownerType != nil {
-			this.declarePropertyIfNamespaceType(ownerType, ownerNode, icast_Property_Key(obj_(new_Property_StringKey(propName))), valueType, n, nil)
+			this.declarePropertyIfNamespaceType(ownerType, ownerNode, new_Property_StringKey(propName), valueType, n, nil)
 		}
 		var declareInScope bool = ((ownerType == nil) || !ownerType.isFunctionPrototypeType())
 		if declareInScope {
@@ -2556,7 +2556,7 @@ func (this *TypedScopeCreator_ClassScopeBuilder) defineComputedMemberField(n Nod
 		}()
 	}
 	var ownerType *ObjectType = this.determineOwnerTypeForClassMember(n)
-	ownerType.defineDeclaredPropertyKey(icast_Property_Key(obj_(new_Property_SymbolKey(keyType.toMaybeKnownSymbolType()))), declaredType, n)
+	ownerType.defineDeclaredPropertyKey(new_Property_SymbolKey(keyType.toMaybeKnownSymbolType()), declaredType, n)
 	n.setJSType(declaredType)
 }
 

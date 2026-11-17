@@ -51,7 +51,7 @@ func new_LocaleDataPasses_ProtectGoogLocale(compiler *AbstractCompiler) *LocaleD
 func (this *LocaleDataPasses_ProtectGoogLocale) process_2(externs Node, root Node) {
 	NodeUtil_createSynthesizedExternsSymbol(this.compiler_, LocaleDataPasses_GOOG_LOCALE_REPLACEMENT)
 	var protectLocaleCallback *LocaleDataPasses_ProtectCurrentLocale = new_LocaleDataPasses_ProtectCurrentLocale(this.compiler_)
-	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(obj_(protectLocaleCallback)))
+	NodeTraversal_traverse(this.compiler_, root, protectLocaleCallback)
 }
 
 type LocaleDataPasses_ProtectCurrentLocale struct {
@@ -135,7 +135,7 @@ func new_LocaleDataPasses_LocaleSubstitutions(compiler *AbstractCompiler, locale
 }
 
 func (this *LocaleDataPasses_LocaleSubstitutions) process_2(externs Node, root Node) {
-	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(obj_(this)))
+	NodeTraversal_traverse(this.compiler_, root, this)
 }
 
 func (this *LocaleDataPasses_LocaleSubstitutions) visit_impl(t *NodeTraversal, n Node, parent Node) {

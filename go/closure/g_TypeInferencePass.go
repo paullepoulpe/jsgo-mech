@@ -40,12 +40,12 @@ func (this *TypeInferencePass) inferAllScopes(inferenceRoot Node) *TypedScope {
 		Preconditions_checkState((inferenceRoot.getParent() == 0))
 		Preconditions_checkState((this.topScope == nil))
 		this.topScope = cast_[*TypedScope](this.scopeCreator.createScopeAbstractScope(inferenceRoot, nil).self())
-		NodeTraversal_builder().setCompiler(this.compiler_).setCallback(icast_NodeTraversal_Callback(obj_(new_TypeInferencePass_FirstScopeBuildingCallback()))).setScopeCreator(icast_ScopeCreator(obj_(this.scopeCreator))).traverseWithScope(inferenceRoot, this.topScope.up_AbstractScope())
+		NodeTraversal_builder().setCompiler(this.compiler_).setCallback(new_TypeInferencePass_FirstScopeBuildingCallback()).setScopeCreator(icast_ScopeCreator(obj_(this.scopeCreator))).traverseWithScope(inferenceRoot, this.topScope.up_AbstractScope())
 		this.scopeCreator.resolveWeakImportsPreResolution()
 		return 0
 	}()
 	this.scopeCreator.finishAndFreeze()
-	NodeTraversal_builder().setCompiler(this.compiler_).setCallback(icast_NodeTraversal_Callback(obj_(new_TypeInferencePass_SecondScopeBuildingCallback(this)))).setScopeCreator(icast_ScopeCreator(obj_(this.scopeCreator))).traverseWithScope(inferenceRoot, this.topScope.up_AbstractScope())
+	NodeTraversal_builder().setCompiler(this.compiler_).setCallback(new_TypeInferencePass_SecondScopeBuildingCallback(this)).setScopeCreator(icast_ScopeCreator(obj_(this.scopeCreator))).traverseWithScope(inferenceRoot, this.topScope.up_AbstractScope())
 	var unknownType *JSType = this.registry.getNativeType(JSTypeNative_UNKNOWN_TYPE)
 	it_2 := foreach_(any(this.scopeCreator.getAllSymbols()))
 	for it_2.next() {

@@ -21,7 +21,7 @@ func (this *Es6RelativizeImportPaths) process_2(externs Node, root Node) {
 		var script Node = root.getFirstChild()
 		for ; script != 0; script = script.getNext() {
 			if Es6RewriteModules_isEs6ModuleRoot(script) {
-				NodeTraversal_traverse(this.compiler_, script, icast_NodeTraversal_Callback(obj_(new_Es6RelativizeImportPaths_Rewriter())))
+				NodeTraversal_traverse(this.compiler_, script, new_Es6RelativizeImportPaths_Rewriter())
 			}
 		}
 	}

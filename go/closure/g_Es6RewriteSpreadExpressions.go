@@ -31,7 +31,7 @@ func new_Es6RewriteSpreadExpressions(compiler *AbstractCompiler) *Es6RewriteSpre
 }
 
 func (this *Es6RewriteSpreadExpressions) process_2(externs Node, root Node) {
-	TranspilationPasses_processTranspile(this.compiler_, root, Es6RewriteSpreadExpressions_TRANSPILED_FEATURES, []NodeTraversal_Callback{icast_NodeTraversal_Callback(obj_(this))})
+	TranspilationPasses_processTranspile(this.compiler_, root, Es6RewriteSpreadExpressions_TRANSPILED_FEATURES, []NodeTraversal_Callback{NodeTraversal_Callback(this)})
 	TranspilationPasses_maybeMarkFeaturesAsTranspiledAway(this.compiler_, root, Es6RewriteSpreadExpressions_TRANSPILED_FEATURES)
 }
 

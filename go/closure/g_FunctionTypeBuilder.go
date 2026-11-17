@@ -456,7 +456,7 @@ func (this *FunctionTypeBuilder) setConstructorTemplateTypeNames(templates *TLis
 			if this.templateTypeNames.isEmpty() {
 				return ImmutableList_copyOf(Collection(templates.asList()))
 			}
-			return cast_[*ImmutableList](obj_(cast_[*ImmutableList_Builder](obj_(cast_[*ImmutableList_Builder](obj_(ImmutableList_builder().addAll(icast_Iterable(obj_(this.templateTypeNames))))).addAll(icast_Iterable(obj_(this.constructorTemplateTypeNames))))).build()))
+			return ImmutableList_builder().addAll(icast_Iterable(obj_(this.templateTypeNames))).addAll(icast_Iterable(obj_(this.constructorTemplateTypeNames))).build()
 		}()
 		this.registerTemplates(Iterable(templates.asList()), ctor)
 	}
@@ -523,7 +523,7 @@ func (this *FunctionTypeBuilder) buildTemplateTypesFromJSDocInfo(info *JSDocInfo
 			this.reportWarning(FunctionTypeBuilder_TEMPLATE_TRANSFORMATION_ON_CLASS, []string{str_(entry.getKey())})
 		}
 	}
-	var builtTemplates ImmutableListOf[*TemplateType] = cast_[*ImmutableList](obj_(templates.build()))
+	var builtTemplates ImmutableListOf[*TemplateType] = templates.build()
 	it_9 := foreach_(obj_(builtTemplates))
 	for it_9.next() {
 		var template *TemplateType = cast_[*TemplateType](it_9.v)

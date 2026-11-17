@@ -64,7 +64,7 @@ func DependencyInfo_Require_asSymbolList(requires IterableOf[*DependencyInfo_Req
 		var require *DependencyInfo_Require = cast_[*DependencyInfo_Require](it_1.v)
 		result.add(strobj_(require.getSymbol()))
 	}
-	return cast_[*ImmutableList](obj_(result.build()))
+	return result.build()
 }
 
 func DependencyInfo_Require_googRequireSymbol(symbol string) *DependencyInfo_Require {

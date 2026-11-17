@@ -13,7 +13,7 @@ type CheckAccessControls struct {
 
 func (this *CheckAccessControls) finit_CheckAccessControls() {
 	this.deprecationDepth = 0
-	this.currentClassStack = icast_Deque(obj_(new_LinkedList()))
+	this.currentClassStack = new_LinkedList()
 	this.constPropertyInits = SimpleTable_create()
 }
 
@@ -33,8 +33,8 @@ func (this *CheckAccessControls) process_2(externs Node, root Node) {
 	var collectPass *CollectFileOverviewVisibility = new_CollectFileOverviewVisibility(this.compiler_)
 	collectPass.process_2(externs, root)
 	this.defaultVisibilityForFiles = collectPass.getFileOverviewVisibilityMap()
-	NodeTraversal_traverse(this.compiler_, externs, icast_NodeTraversal_Callback(any(this)))
-	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(any(this)))
+	NodeTraversal_traverse(this.compiler_, externs, this)
+	NodeTraversal_traverse(this.compiler_, root, this)
 }
 
 func (this *CheckAccessControls) enterAccessControlScope(root Node) {

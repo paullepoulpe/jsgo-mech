@@ -17,7 +17,7 @@ func new_RemovePropertyRenamingCalls(compiler *AbstractCompiler) *RemoveProperty
 }
 
 func (this *RemovePropertyRenamingCalls) process_2(externs Node, root Node) {
-	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(obj_(new_RemovePropertyRenamingCalls_RemoveCompilerPropertyRenamingCallback(this))))
+	NodeTraversal_traverse(this.compiler_, root, new_RemovePropertyRenamingCalls_RemoveCompilerPropertyRenamingCallback(this))
 }
 
 type RemovePropertyRenamingCalls_RemoveCompilerPropertyRenamingCallback struct {

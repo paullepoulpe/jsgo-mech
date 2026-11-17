@@ -41,7 +41,7 @@ func MakeDeclaredNamesUnique_builder() *MakeDeclaredNamesUnique_Builder {
 }
 
 func MakeDeclaredNamesUnique_getContextualRenameInverter(compiler *AbstractCompiler) CompilerPass {
-	return icast_CompilerPass(obj_(new_MakeDeclaredNamesUnique_ContextualRenameInverter(compiler)))
+	return new_MakeDeclaredNamesUnique_ContextualRenameInverter(compiler)
 }
 
 func (this *MakeDeclaredNamesUnique) enterScope_impl(t *NodeTraversal) {
@@ -165,7 +165,7 @@ func (this *MakeDeclaredNamesUnique_Builder) withAssertOnChange(assertOnChange b
 
 func (this *MakeDeclaredNamesUnique_Builder) build() *MakeDeclaredNamesUnique {
 	if this.renamer == nil {
-		this.renamer = icast_MakeDeclaredNamesUnique_Renamer(new_MakeDeclaredNamesUnique_ContextualRenamer_0().self())
+		this.renamer = new_MakeDeclaredNamesUnique_ContextualRenamer_0()
 	}
 	return new_MakeDeclaredNamesUnique(this.renamer, this.markChanges, this.assertOnChange_)
 }
@@ -201,7 +201,7 @@ func new_MakeDeclaredNamesUnique_ContextualRenameInverter(compiler *AbstractComp
 }
 
 func (this *MakeDeclaredNamesUnique_ContextualRenameInverter) process_2(externs Node, js Node) {
-	NodeTraversal_traverse(this.compiler_, js, icast_NodeTraversal_Callback(any(this)))
+	NodeTraversal_traverse(this.compiler_, js, this)
 }
 
 func MakeDeclaredNamesUnique_ContextualRenameInverter_getOriginalName(name string) string {
@@ -286,7 +286,7 @@ func (this *MakeDeclaredNamesUnique_ContextualRenameInverter) visit(t *NodeTrave
 }
 
 func (this *MakeDeclaredNamesUnique_ContextualRenameInverter) createUndeclaredVariableInfo(name string) MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo {
-	return icast_MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo(obj_(new_MakeDeclaredNamesUnique_ContextualRenameInverter_UndeclaredVariableInfo(name)))
+	return new_MakeDeclaredNamesUnique_ContextualRenameInverter_UndeclaredVariableInfo(name)
 }
 
 type MakeDeclaredNamesUnique_ContextualRenameInverter_RenamingInfo struct {
@@ -622,7 +622,7 @@ func (this *MakeDeclaredNamesUnique_ContextualRenamer) self() any {
 }
 
 func (this *MakeDeclaredNamesUnique_ContextualRenamer) finit_MakeDeclaredNamesUnique_ContextualRenamer() {
-	this.declarations = icast_Map(obj_(new_LinkedHashMap()))
+	this.declarations = new_LinkedHashMap()
 }
 
 func (this *MakeDeclaredNamesUnique_ContextualRenamer) init_MakeDeclaredNamesUnique_ContextualRenamer_0() {
@@ -678,7 +678,7 @@ func (this *MakeDeclaredNamesUnique_ContextualRenamer) toString() string {
 }
 
 func (this *MakeDeclaredNamesUnique_ContextualRenamer) createForChildScope_impl(scopeRoot Node, hoistingTargetScope bool) MakeDeclaredNamesUnique_Renamer {
-	return icast_MakeDeclaredNamesUnique_Renamer(new_MakeDeclaredNamesUnique_ContextualRenamer_Node_SimpleMultiset_boolean_Renamer(scopeRoot, this.nameUsage, hoistingTargetScope, icast_MakeDeclaredNamesUnique_Renamer(this.self())).self())
+	return new_MakeDeclaredNamesUnique_ContextualRenamer_Node_SimpleMultiset_boolean_Renamer(scopeRoot, this.nameUsage, hoistingTargetScope, icast_MakeDeclaredNamesUnique_Renamer(this.self()))
 }
 
 func (this *MakeDeclaredNamesUnique_ContextualRenamer) addDeclaredName(name string, hoisted bool) {
@@ -762,7 +762,7 @@ func (this *MakeDeclaredNamesUnique_InlineRenamer) init_MakeDeclaredNamesUnique_
 	this.idPrefix = idPrefix
 	this.removeConstness = removeConstness
 	if hoistingTargetScope {
-		this.hoistRenamer = icast_MakeDeclaredNamesUnique_Renamer(any(this))
+		this.hoistRenamer = this
 	} else {
 		this.hoistRenamer = parent.getHoistRenamer()
 	}
@@ -802,7 +802,7 @@ func (this *MakeDeclaredNamesUnique_InlineRenamer) getReplacementName(oldName st
 }
 
 func (this *MakeDeclaredNamesUnique_InlineRenamer) createForChildScope(scopeRoot Node, hoistingTargetScope bool) MakeDeclaredNamesUnique_Renamer {
-	return icast_MakeDeclaredNamesUnique_Renamer(obj_(new_MakeDeclaredNamesUnique_InlineRenamer(this.convention, this.uniqueIdSupplier, this.idPrefix, this.removeConstness, hoistingTargetScope, icast_MakeDeclaredNamesUnique_Renamer(any(this)))))
+	return new_MakeDeclaredNamesUnique_InlineRenamer(this.convention, this.uniqueIdSupplier, this.idPrefix, this.removeConstness, hoistingTargetScope, this)
 }
 
 func (this *MakeDeclaredNamesUnique_InlineRenamer) stripConstIfReplaced() bool {
@@ -847,7 +847,7 @@ func new_MakeDeclaredNamesUnique_BoilerplateRenamer(convention CodingConvention,
 }
 
 func (this *MakeDeclaredNamesUnique_BoilerplateRenamer) createForChildScope_impl(scopeRoot Node, hoisted bool) MakeDeclaredNamesUnique_Renamer {
-	return icast_MakeDeclaredNamesUnique_Renamer(obj_(new_MakeDeclaredNamesUnique_InlineRenamer(this.convention, this.uniqueIdSupplier, this.idPrefix, false, hoisted, icast_MakeDeclaredNamesUnique_Renamer(obj_(this)))))
+	return new_MakeDeclaredNamesUnique_InlineRenamer(this.convention, this.uniqueIdSupplier, this.idPrefix, false, hoisted, this)
 }
 
 type MakeDeclaredNamesUnique_TargettedRenamer struct {
@@ -886,7 +886,7 @@ func (this *MakeDeclaredNamesUnique_TargettedRenamer) stripConstIfReplaced() boo
 }
 
 func (this *MakeDeclaredNamesUnique_TargettedRenamer) createForChildScope(scopeRoot Node, hoistingTargetScope bool) MakeDeclaredNamesUnique_Renamer {
-	return icast_MakeDeclaredNamesUnique_Renamer(obj_(new_MakeDeclaredNamesUnique_TargettedRenamer(this.delegate.createForChildScope(scopeRoot, hoistingTargetScope), this.targets)))
+	return new_MakeDeclaredNamesUnique_TargettedRenamer(this.delegate.createForChildScope(scopeRoot, hoistingTargetScope), this.targets)
 }
 
 func (this *MakeDeclaredNamesUnique_TargettedRenamer) getHoistRenamer() MakeDeclaredNamesUnique_Renamer {

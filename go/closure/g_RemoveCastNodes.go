@@ -17,7 +17,7 @@ func new_RemoveCastNodes(compiler *AbstractCompiler) *RemoveCastNodes {
 }
 
 func (this *RemoveCastNodes) process_2(externs Node, root Node) {
-	NodeTraversal_traverseRoots(this.compiler_, icast_NodeTraversal_Callback(obj_(new_RemoveCastNodes_RemoveCastsCallback(this))), externs, root)
+	NodeTraversal_traverseRoots(this.compiler_, new_RemoveCastNodes_RemoveCastsCallback(this), externs, root)
 }
 
 type RemoveCastNodes_RemoveCastsCallback struct {

@@ -283,7 +283,7 @@ func (this *ErrorToFixMapper) getFixForExtraRequire(error_ *JSError) *SuggestedF
 func (this *ErrorToFixMapper) getFixForUnsortedRequires(error_ *JSError) *SuggestedFix {
 	var script Node = NodeUtil_getEnclosingScript(error_.node())
 	var callback *CheckRequiresSorted = new_CheckRequiresSorted(CheckRequiresSorted_Mode_COLLECT_ONLY)
-	NodeTraversal_traverse(this.compiler_, script, icast_NodeTraversal_Callback(obj_(callback)))
+	NodeTraversal_traverse(this.compiler_, script, callback)
 	if !callback.needsFix() {
 		return nil
 	}
@@ -293,7 +293,7 @@ func (this *ErrorToFixMapper) getFixForUnsortedRequires(error_ *JSError) *Sugges
 func (this *ErrorToFixMapper) getFixForUnsortedProvides(error_ *JSError) *SuggestedFix {
 	var script Node = NodeUtil_getEnclosingScript(error_.node())
 	var callback *CheckProvidesSorted = new_CheckProvidesSorted(CheckProvidesSorted_Mode_COLLECT_ONLY)
-	NodeTraversal_traverse(this.compiler_, script, icast_NodeTraversal_Callback(obj_(callback)))
+	NodeTraversal_traverse(this.compiler_, script, callback)
 	if !callback.needsFix() {
 		return nil
 	}

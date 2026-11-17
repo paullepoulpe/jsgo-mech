@@ -442,7 +442,7 @@ func (this *FunctionType) getImplementedInterfaces() ImmutableListOf[*ObjectType
 		builder.addAll(icast_Iterable(obj_(superCtor.implementedInterfaces)))
 		superCtor = superCtor.getSuperClassConstructor()
 	}
-	return cast_[*ImmutableList](obj_(builder.build()))
+	return builder.build()
 }
 
 func (this *FunctionType) getOwnImplementedInterfaces() ImmutableListOf[*ObjectType] {
@@ -843,7 +843,7 @@ func (this *FunctionType) resolveTypeListHelper(list ImmutableListOf[*ObjectType
 	}
 	return func() *ImmutableList {
 		if changed {
-			return cast_[*ImmutableList](obj_(resolvedList.build()))
+			return resolvedList.build()
 		}
 		return nil
 	}()

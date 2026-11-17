@@ -23,7 +23,7 @@ func new_CheckGoogModuleTypeScriptName(compiler *AbstractCompiler) *CheckGoogMod
 }
 
 func (this *CheckGoogModuleTypeScriptName) process_2(externs Node, root Node) {
-	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(any(this)))
+	NodeTraversal_traverse(this.compiler_, root, this)
 }
 
 func (this *CheckGoogModuleTypeScriptName) shouldTraverse(t *NodeTraversal, n Node, parent Node) bool {
@@ -73,7 +73,7 @@ func CheckGoogModuleTypeScriptName_clinit() {
 	}
 	CheckGoogModuleTypeScriptName_clinit_done = true
 	CheckGoogModuleTypeScriptName_MODULE_NAMESPACE_MISMATCHES_TYPESCRIPT_NAMESPACE = DiagnosticType_disabled("JSC_MODULE_NAMESPACE_MISMATCHES_TYPESCRIPT_NAMESPACE", "goog.module namespace does not match the future TypeScript namespace, which is generated from the file path. The correct namespace is: \"{0}\"")
-	CheckGoogModuleTypeScriptName_allowedDirectories = icast_Set(obj_(new_LinkedHashSet()))
+	CheckGoogModuleTypeScriptName_allowedDirectories = new_LinkedHashSet()
 	{
 		Collection_add_s(CheckGoogModuleTypeScriptName_allowedDirectories, "google3/gws/")
 		Collection_add_s(CheckGoogModuleTypeScriptName_allowedDirectories, "google3/java/com/google/gws/")

@@ -61,15 +61,15 @@ func (this *CoverageInstrumentationPass) checkIfArrayNameExternDeclared(externsN
 func (this *CoverageInstrumentationPass) process_2(externsNode Node, rootNode Node) {
 	if rootNode.hasChildren() {
 		if this.instrumentOption == CompilerOptions_InstrumentOption_BRANCH_ONLY {
-			NodeTraversal_traverse(this.compiler_, rootNode, icast_NodeTraversal_Callback(obj_(new_BranchCoverageInstrumentationCallback(this.compiler_, this.instrumentationData))))
+			NodeTraversal_traverse(this.compiler_, rootNode, new_BranchCoverageInstrumentationCallback(this.compiler_, this.instrumentationData))
 		} else if this.instrumentOption == CompilerOptions_InstrumentOption_PRODUCTION {
 			var productionCoverageInstrumentationCallback *ProductionCoverageInstrumentationCallback = new_ProductionCoverageInstrumentationCallback(this.compiler_, this.productionInstrumentationArrayName)
-			NodeTraversal_traverse(this.compiler_, rootNode, icast_NodeTraversal_Callback(obj_(productionCoverageInstrumentationCallback)))
+			NodeTraversal_traverse(this.compiler_, rootNode, productionCoverageInstrumentationCallback)
 			this.checkIfArrayNameExternDeclared(externsNode, this.productionInstrumentationArrayName)
 			var instrumentationMapping *VariableMap = productionCoverageInstrumentationCallback.getInstrumentationMapping()
 			this.compiler_.setInstrumentationMapping(instrumentationMapping)
 		} else {
-			NodeTraversal_traverse(this.compiler_, rootNode, icast_NodeTraversal_Callback(obj_(new_CoverageInstrumentationCallback(this.instrumentationData, this.reach))))
+			NodeTraversal_traverse(this.compiler_, rootNode, new_CoverageInstrumentationCallback(this.instrumentationData, this.reach))
 		}
 		var firstScript Node = rootNode.getFirstChild()
 		Preconditions_checkState(firstScript.isScript())

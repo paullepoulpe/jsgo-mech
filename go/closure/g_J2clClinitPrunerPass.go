@@ -43,13 +43,13 @@ func (this *J2clClinitPrunerPass) process_2(externs Node, root Node) {
 
 func (this *J2clClinitPrunerPass) removeRedundantClinits(root Node, changedScopeNodes *TList[Node]) {
 	var changedRoots *TList[Node] = J2clClinitPrunerPass_getNonNestedParentScopeNodes(changedScopeNodes)
-	this.traverseScopeRootsWithFallback(root, changedRoots, icast_NodeTraversal_Callback(obj_(new_J2clClinitPrunerPass_RedundantClinitPruner(this, Iterable(changedRoots.asList())))), true)
-	this.traverseScopeRootsWithFallback(root, changedScopeNodes, icast_NodeTraversal_Callback(obj_(new_J2clClinitPrunerPass_LookAheadRedundantClinitPruner(this))), false)
+	this.traverseScopeRootsWithFallback(root, changedRoots, new_J2clClinitPrunerPass_RedundantClinitPruner(this, Iterable(changedRoots.asList())), true)
+	this.traverseScopeRootsWithFallback(root, changedScopeNodes, new_J2clClinitPrunerPass_LookAheadRedundantClinitPruner(this), false)
 }
 
 func (this *J2clClinitPrunerPass) pruneEmptyClinits(root Node, changedScopes *TList[Node]) {
 	this.emptiedClinitMethods.clear()
-	this.traverseScopeRootsWithFallback(root, changedScopes, icast_NodeTraversal_Callback(obj_(new_J2clClinitPrunerPass_EmptyClinitPruner(this))), false)
+	this.traverseScopeRootsWithFallback(root, changedScopes, new_J2clClinitPrunerPass_EmptyClinitPruner(this), false)
 	it_1 := foreach_(any(this.emptiedClinitMethods.asMap().entrySet()))
 	for it_1.next() {
 		var clinitReplacementEntry Map_Entry = icast_Map_Entry(it_1.v)
@@ -85,7 +85,7 @@ func (this *J2clClinitPrunerPass) resolveReplacement(node Node) Node {
 
 func (this *J2clClinitPrunerPass) collectClinitReferences(root Node) *SimpleSetMultimap {
 	var clinitReferences *SimpleSetMultimap = SimpleSetMultimap_createInsertionOrdered()
-	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(obj_(new_J2clClinitPrunerPass_1(this, clinitReferences))))
+	NodeTraversal_traverse(this.compiler_, root, new_J2clClinitPrunerPass_1(this, clinitReferences))
 	return clinitReferences
 }
 
@@ -402,7 +402,7 @@ type J2clClinitPrunerPass_HierarchicalSet struct {
 }
 
 func (this *J2clClinitPrunerPass_HierarchicalSet) finit_J2clClinitPrunerPass_HierarchicalSet() {
-	this.currentSet = icast_Set(obj_(new_LinkedHashSet()))
+	this.currentSet = new_LinkedHashSet()
 }
 
 func (this *J2clClinitPrunerPass_HierarchicalSet) init_J2clClinitPrunerPass_HierarchicalSet(parent *J2clClinitPrunerPass_HierarchicalSet) {

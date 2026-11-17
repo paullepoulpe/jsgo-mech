@@ -20,7 +20,7 @@ func (this *RandomNameGenerator) zero_RandomNameGenerator() {
 
 func (this *RandomNameGenerator) init_RandomNameGenerator_Random(random *Random) {
 	this.random = random
-	this.reset(icast_Set(obj_(ImmutableSet_of())), "", icast_Set(obj_(ImmutableSet_of())))
+	this.reset(ImmutableSet_of(), "", ImmutableSet_of())
 }
 
 func new_RandomNameGenerator_Random(random *Random) *RandomNameGenerator {
@@ -69,7 +69,7 @@ func (this *RandomNameGenerator) reset_4(reservedNames SetOf[string], prefix str
 }
 
 func (this *RandomNameGenerator) clone(reservedNames SetOf[string], prefix string, reservedCharacters SetOf[BoxedOf[uint16]]) NameGenerator {
-	return icast_NameGenerator(obj_(new_RandomNameGenerator_Set_String_Set_Random(reservedNames, prefix, reservedCharacters, this.random)))
+	return new_RandomNameGenerator_Set_String_Set_Random(reservedNames, prefix, reservedCharacters, this.random)
 }
 
 func RandomNameGenerator_asSet(chars []uint16) ImmutableSetOf[BoxedOf[uint16]] {

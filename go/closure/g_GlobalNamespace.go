@@ -129,7 +129,7 @@ func (this *GlobalNamespace) getReferences_StaticSlot(slot_ StaticSlot) Iterable
 func (this *GlobalNamespace) getScope(slot_ StaticSlot) StaticScope {
 	var slot *GlobalNamespace_Name = cast_[*GlobalNamespace_Name](slot_)
 	_ = slot
-	return icast_StaticScope(any(this))
+	return this
 }
 
 func (this *GlobalNamespace) getAllSymbols() Iterable {
@@ -184,7 +184,7 @@ func (this *GlobalNamespace) scanFromNode(builder *GlobalNamespace_BuildGlobalNa
 }
 
 func (this *GlobalNamespace) process() {
-	var traversal *NodeTraversal_Builder = NodeTraversal_builder().setCompiler(this.compiler_).setCallback(icast_NodeTraversal_Callback(obj_(new_GlobalNamespace_BuildGlobalNamespace(this))))
+	var traversal *NodeTraversal_Builder = NodeTraversal_builder().setCompiler(this.compiler_).setCallback(new_GlobalNamespace_BuildGlobalNamespace(this))
 	if this.hasExternsRoot() {
 		traversal.traverseRoots(this.externsRoot, this.root)
 	} else {
@@ -255,7 +255,7 @@ func GlobalNamespace_isQnameDeclarationWithoutAssignment(node Node) bool {
 }
 
 func (this *GlobalNamespace) getTopmostScopeOfEventualDeclaration(p0 string) StaticScope {
-	return StaticScope_getTopmostScopeOfEventualDeclaration_default(icast_StaticScope(any(this)), p0)
+	return StaticScope_getTopmostScopeOfEventualDeclaration_default(this, p0)
 }
 
 var GlobalNamespace_GOOG_PROVIDE *QualifiedName
@@ -1305,7 +1305,7 @@ func (this *GlobalNamespace_Name) putRef(node Node, ref *GlobalNamespace_Ref) {
 		return
 	}
 	if is_[*GlobalNamespace_Ref](this.refsForNode) {
-		var refsForNodeMap MapOf[Node, *GlobalNamespace_Ref] = icast_Map(obj_(new_LinkedHashMap()))
+		var refsForNodeMap MapOf[Node, *GlobalNamespace_Ref] = new_LinkedHashMap()
 		var existingRef *GlobalNamespace_Ref = cast_[*GlobalNamespace_Ref](this.refsForNode)
 		refsForNodeMap.put(existingRef.node_.box_(), obj_(existingRef))
 		this.refsForNode = any(refsForNodeMap)
@@ -1493,7 +1493,7 @@ func (this *GlobalNamespace_Name) removeRefFromNodeMap(ref *GlobalNamespace_Ref)
 
 func (this *GlobalNamespace_Name) getRefs() CollectionOf[*GlobalNamespace_Ref] {
 	if this.refsForNode == nil {
-		return icast_Collection(obj_(ImmutableSet_of()))
+		return ImmutableSet_of()
 	}
 	var ref *GlobalNamespace_Ref
 	_ = ref
@@ -1505,7 +1505,7 @@ func (this *GlobalNamespace_Name) getRefs() CollectionOf[*GlobalNamespace_Ref] {
 		ref = cast_[*GlobalNamespace_Ref](v_)
 		return true
 	}() {
-		return icast_Collection(obj_(ImmutableSet_of_Object(obj_(ref))))
+		return ImmutableSet_of_Object(obj_(ref))
 	}
 	return this.castRefsForNodeMap().values()
 }

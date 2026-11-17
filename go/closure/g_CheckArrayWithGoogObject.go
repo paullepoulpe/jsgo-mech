@@ -73,7 +73,7 @@ func (this *CheckArrayWithGoogObject) visit_impl(unused *NodeTraversal, n Node, 
 }
 
 func (this *CheckArrayWithGoogObject) process_2(externs Node, root Node) {
-	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(obj_(this)))
+	NodeTraversal_traverse(this.compiler_, root, this)
 }
 
 var CheckArrayWithGoogObject_GOOG_OBJECT_METHODS *ImmutableSet

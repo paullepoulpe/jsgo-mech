@@ -192,7 +192,7 @@ func (this *CmdLineParser) parseArgument(args []string) *Outcome_base {
 			}
 			this.currentOption = this.argumentField
 		}
-		var diff *Outcome_base = this.currentOption.handler(icast_CmdLineParser_Parameters(obj_(cmdLine)))
+		var diff *Outcome_base = this.currentOption.handler(cmdLine)
 		if diff.isErr() {
 			return Outcome_base_err(diff.error())
 		}
@@ -513,7 +513,7 @@ func (this *CmdLineParser_Option) map_(get func() any, set func(any)) {
 	this.handler = func(params CmdLineParser_Parameters) *Outcome_base {
 		var map_ MapOf[string, string] = icast_Map(get())
 		if map_ == nil {
-			map_ = icast_Map(obj_(new_LinkedHashMap()))
+			map_ = new_LinkedHashMap()
 			set(any(map_))
 		}
 		var argumentOutcome *Outcome_base = params.getParameter(0)
@@ -571,7 +571,7 @@ func CmdLineParser_Option_enumMetaVariable(values []*Enum) string {
 func CmdLineParser_Option_addValue(get func() any, set func(any), value any) {
 	var list ListOf[any] = icast_List(get())
 	if list == nil {
-		list = icast_List(new_ArrayList_0().self())
+		list = new_ArrayList_0()
 		set(any(list))
 	}
 	list.add(value)

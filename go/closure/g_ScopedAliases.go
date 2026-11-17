@@ -37,7 +37,7 @@ func ScopedAliases_builder(compiler *AbstractCompiler) *ScopedAliases_Builder {
 
 func (this *ScopedAliases) process_2(externs Node, root Node) {
 	var traversal *ScopedAliases_Traversal = new_ScopedAliases_Traversal(this)
-	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(obj_(traversal)))
+	NodeTraversal_traverse(this.compiler_, root, traversal)
 	if !traversal.hasErrors() {
 		var aliasWorkQueue []*ScopedAliases_AliasUsage = sliceFrom_(tc_p_ScopedAliases_AliasUsage, Collection(traversal.getAliasUsages().asList()))
 		for len(aliasWorkQueue) != 0 {
@@ -285,7 +285,7 @@ func (this *ScopedAliases_Builder) setInvalidModuleGetHandling(invalidModuleGetH
 func (this *ScopedAliases_Builder) build() *ScopedAliases {
 	return new_ScopedAliases(this.compiler_, this.preprocessorSymbolTable, func() Set {
 		if this.moduleMetadataMap == nil {
-			return icast_Set(obj_(ImmutableSet_of()))
+			return ImmutableSet_of()
 		}
 		return this.moduleMetadataMap.getModulesByGoogNamespace().keySet()
 	}(), this.invalidModuleGetHandling)
@@ -457,7 +457,7 @@ func (this *ScopedAliases_Traversal) finit_ScopedAliases_Traversal() {
 	this.aliases_ = map[string]*Var{}
 	this.injectedDecls = map[Node]struct{}{}
 	this.deletedAliasVars = newTSet_(tch_p_Var)
-	this.forbiddenLocals = tsetFrom_(tc_string, icast_Collection(obj_(ImmutableSet_of_Object(strobj_("$jscomp")))), false)
+	this.forbiddenLocals = tsetFrom_(tc_string, Collection(ImmutableSet_of_Object(strobj_("$jscomp"))), false)
 	this.hasNamespaceShadows = false
 	this.hasErrorsField = false
 	this.scopeFunctionBody = 0
@@ -695,7 +695,7 @@ func (this *ScopedAliases_Traversal) renameNamespaceShadows(t *NodeTraversal) {
 		Preconditions_checkState_boolean_Object(false, a1_.box_())
 	}
 	if this.hasNamespaceShadows {
-		var renamer MakeDeclaredNamesUnique_Renamer = icast_MakeDeclaredNamesUnique_Renamer(obj_(new_MakeDeclaredNamesUnique_TargettedRenamer(icast_MakeDeclaredNamesUnique_Renamer(new_MakeDeclaredNamesUnique_ContextualRenamer_0().self()), this.forbiddenLocals)))
+		var renamer MakeDeclaredNamesUnique_Renamer = new_MakeDeclaredNamesUnique_TargettedRenamer(new_MakeDeclaredNamesUnique_ContextualRenamer_0(), this.forbiddenLocals)
 		it_1 := this.forbiddenLocals.each()
 		for it_1.next() {
 			var s string = it_1.v
@@ -709,7 +709,7 @@ func (this *ScopedAliases_Traversal) renameNamespaceShadows(t *NodeTraversal) {
 func (this *ScopedAliases_Traversal) renameBleedingFunctionName(t *NodeTraversal, fnName Node) {
 	var name string = fnName.getString()
 	var suffix string = this.outer_.compiler_.getUniqueIdSupplier().getUniqueId(t.getInput())
-	var cb NodeTraversal_Callback = icast_NodeTraversal_Callback(obj_(new_ScopedAliases_Traversal_1(this, name, fnName, suffix)))
+	var cb NodeTraversal_Callback = new_ScopedAliases_Traversal_1(this, name, fnName, suffix)
 	NodeTraversal_builder().setCompiler(this.outer_.compiler_).setCallback(cb).setScopeCreator(t.getScopeCreator()).traverseAtScope(t.getScope().up_AbstractScope())
 	fnName.setString((sstr_(name) + "$jscomp$scopedAliases$" + sstr_(suffix)))
 }
@@ -778,7 +778,7 @@ func (this *ScopedAliases_Traversal) visit_impl(t *NodeTraversal, n Node, parent
 		this.renameBleedingFunctionName(t, n)
 	}
 	if aliasVar != nil {
-		this.aliasUsages.add(to_ScopedAliases_AliasUsage(obj_(new_ScopedAliases_AliasedNode(aliasVar, n))))
+		this.aliasUsages.add(new_ScopedAliases_AliasedNode(aliasVar, n).as_ScopedAliases_AliasUsage())
 	}
 	var info *JSDocInfo = n.getJSDocInfo()
 	if (info != nil) && !has_(this.injectedDecls, n) {
@@ -800,7 +800,7 @@ func (this *ScopedAliases_Traversal) fixTypeNode(typeNode Node) {
 		var baseName string = String_substring(name, 0, endIndex)
 		var aliasVar *Var = this.aliases_[baseName]
 		if aliasVar != nil {
-			this.aliasUsages.add(to_ScopedAliases_AliasUsage(obj_(new_ScopedAliases_AliasedTypeNode(aliasVar, typeNode))))
+			this.aliasUsages.add(new_ScopedAliases_AliasedTypeNode(aliasVar, typeNode).as_ScopedAliases_AliasUsage())
 		}
 		if this.outer_.compiler_.getOptions().preservesDetailedSourceInfo() {
 			typeNode.setOriginalName(name)

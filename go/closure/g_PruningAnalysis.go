@@ -33,7 +33,7 @@ func (this *PruningAnalysis) calculateTotalBlame() ImmutableMapOf[string, BoxedO
 	it_1 := foreach_(obj_(this.entryPoints_))
 	for it_1.next() {
 		var provider *CompilerInput = cast_[*CompilerInput](it_1.v)
-		var transitiveClosure ImmutableSetOf[*CompilerInput] = cast_[*ImmutableSet](obj_(cast_[*ImmutableSet_Builder](obj_(cast_[*ImmutableSet_Builder](obj_(ImmutableSet_builder().addAll(icast_Iterable(obj_(this.sorter_.getStrongDependenciesOf(icast_List(obj_(ImmutableList_of_Object(obj_(provider)))), false)))))).addAll(icast_Iterable(obj_(this.sorter_.getSortedWeakDependenciesOf(icast_List(obj_(ImmutableList_of_Object(obj_(provider)))))))))).build()))
+		var transitiveClosure ImmutableSetOf[*CompilerInput] = ImmutableSet_builder().addAll(icast_Iterable(obj_(this.sorter_.getStrongDependenciesOf(ImmutableList_of_Object(obj_(provider)), false)))).addAll(icast_Iterable(obj_(this.sorter_.getSortedWeakDependenciesOf(ImmutableList_of_Object(obj_(provider)))))).build()
 		reachabilityPerEntryPoint.put(strobj_(provider.getName()), any(int32(transitiveClosure.size())))
 	}
 	return reachabilityPerEntryPoint.buildOrThrow()

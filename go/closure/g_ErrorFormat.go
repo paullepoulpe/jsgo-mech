@@ -58,19 +58,19 @@ func (this ErrorFormat) toFormatter(source SourceExcerptProvider, colorize bool)
 	case ErrorFormat_SINGLELINE:
 		var formatter *LightweightMessageFormatter = new_LightweightMessageFormatter_SourceExcerptProvider(source)
 		formatter.setColorize(colorize)
-		return icast_MessageFormatter(obj_(formatter))
+		return formatter
 	case ErrorFormat_FULL:
 		var formatter *LightweightMessageFormatter = new_LightweightMessageFormatter_SourceExcerptProvider_SourceExcerpt(source, SourceExcerptProvider_SourceExcerpt_FULL)
 		formatter.setColorize(colorize)
-		return icast_MessageFormatter(obj_(formatter))
+		return formatter
 	case ErrorFormat_MULTILINE:
 		var formatter *LightweightMessageFormatter = new_LightweightMessageFormatter_SourceExcerptProvider_SourceExcerpt(source, SourceExcerptProvider_SourceExcerpt_REGION)
 		formatter.setColorize(colorize)
-		return icast_MessageFormatter(obj_(formatter))
+		return formatter
 	case ErrorFormat_SOURCELESS:
 		var formatter *LightweightMessageFormatter = LightweightMessageFormatter_withoutSource()
 		formatter.setColorize(colorize)
-		return icast_MessageFormatter(obj_(formatter))
+		return formatter
 	default:
 		panic(new_NullPointerException_0().self()) // a call on null
 	}

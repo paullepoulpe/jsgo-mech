@@ -79,14 +79,14 @@ func (this *FunctionParamBuilder) hasOptionalOrVarArgs() bool {
 	if len(this.parameters) == 0 {
 		return false
 	}
-	var lastParam *FunctionType_Parameter = cast_[*FunctionType_Parameter](Iterables_getLast(icast_Iterable(any(sliceView_(tc_p_FunctionType_Parameter, this.parameters)))))
+	var lastParam *FunctionType_Parameter = cast_[*FunctionType_Parameter](Iterables_getLast(sliceView_(tc_p_FunctionType_Parameter, this.parameters)))
 	return (lastParam.isOptional() || lastParam.isVariadic())
 }
 
 func (this *FunctionParamBuilder) hasVarArgs() bool {
-	return (len(this.parameters) != 0 && cast_[*FunctionType_Parameter](Iterables_getLast(icast_Iterable(any(sliceView_(tc_p_FunctionType_Parameter, this.parameters))))).isVariadic())
+	return (len(this.parameters) != 0 && cast_[*FunctionType_Parameter](Iterables_getLast(sliceView_(tc_p_FunctionType_Parameter, this.parameters))).isVariadic())
 }
 
 func (this *FunctionParamBuilder) build() ImmutableListOf[*FunctionType_Parameter] {
-	return ImmutableList_copyOf(icast_Collection(any(sliceView_(tc_p_FunctionType_Parameter, this.parameters))))
+	return ImmutableList_copyOf(sliceView_(tc_p_FunctionType_Parameter, this.parameters))
 }

@@ -38,7 +38,7 @@ func new_CheckExtraRequires(compiler *AbstractCompiler, requiresToRemove Immutab
 
 func (this *CheckExtraRequires) process_2(externs Node, root Node) {
 	this.reset()
-	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(obj_(this)))
+	NodeTraversal_traverse(this.compiler_, root, this)
 }
 
 func (this *CheckExtraRequires) extractNamespace(call Node, primitiveNames []string) OptionalOf[string] {

@@ -29,7 +29,7 @@ func (this *TemplateTypeMap) init_TemplateTypeMap(registry *JSTypeRegistry, temp
 			var templateKey *TemplateType = cast_[*TemplateType](this.templateKeys.get(i))
 			replacer.setKeyType(templateKey, nextSubMap)
 			var templateValue *JSType = sliceAt_(this.templateValues, i)
-			resolvedValues[i] = to_JSType(templateValue.visit(icast_Visitor(obj_(replacer))))
+			resolvedValues[i] = to_JSType(templateValue.visit(replacer))
 		} else {
 			resolvedValues[i] = cast_[*TemplateType](this.templateKeys.get(i)).getBound()
 		}
@@ -67,7 +67,7 @@ func (this *TemplateTypeMap) copyFilledWithValues(values ImmutableListOf[*JSType
 	extendedValues.asList().addAll(sliceView_(tc_p_JSType, this.templateValues))
 	extendedValues.asList().addAll(icast_Collection(obj_(values)))
 	this.padToSameLength(this.templateKeys, extendedValues)
-	return new_TemplateTypeMap(this.registry, this.templateKeys, immCopyOf_(tc_p_JSType, icast_Collection(any(extendedValues.asList()))), this.subMapStarts)
+	return new_TemplateTypeMap(this.registry, this.templateKeys, immCopyOf_(tc_p_JSType, Collection(extendedValues.asList())), this.subMapStarts)
 }
 
 func (this *TemplateTypeMap) copyWithExtension(extension *TemplateTypeMap) *TemplateTypeMap {
@@ -91,7 +91,7 @@ func (this *TemplateTypeMap) copyWithExtension_3(keys ImmutableListOf[*TemplateT
 	if (this.numUnfilledTemplateKeys() == 0) && keys.isEmpty() {
 		return this
 	}
-	var extendedKeys ImmutableListOf[*TemplateType] = cast_[*ImmutableList](obj_(cast_[*ImmutableList_Builder](obj_(cast_[*ImmutableList_Builder](obj_(ImmutableList_builder().addAll(icast_Iterable(obj_(this.templateKeys))))).addAll(icast_Iterable(obj_(keys))))).build()))
+	var extendedKeys ImmutableListOf[*TemplateType] = ImmutableList_builder().addAll(icast_Iterable(obj_(this.templateKeys))).addAll(icast_Iterable(obj_(keys))).build()
 	var extendedValues *TList[*JSType] = newTList_(tc_p_JSType)
 	extendedValues.asList().addAll(sliceView_(tc_p_JSType, this.templateValues))
 	this.padToSameLength(this.templateKeys, extendedValues)
@@ -101,7 +101,7 @@ func (this *TemplateTypeMap) copyWithExtension_3(keys ImmutableListOf[*TemplateT
 	for i := int32(0); i < keys.size(); i++ {
 		extendedsubMapStarts.set_int_boolean((i + this.templateKeys.size()), newsubMapStarts.get(i))
 	}
-	return new_TemplateTypeMap(this.registry, extendedKeys, immCopyOf_(tc_p_JSType, icast_Collection(any(extendedValues.asList()))), extendedsubMapStarts)
+	return new_TemplateTypeMap(this.registry, extendedKeys, immCopyOf_(tc_p_JSType, Collection(extendedValues.asList())), extendedsubMapStarts)
 }
 
 func (this *TemplateTypeMap) copyWithoutKeys(removals *TSet[*TemplateType]) *TemplateTypeMap {
@@ -123,10 +123,10 @@ func (this *TemplateTypeMap) copyWithoutKeys(removals *TSet[*TemplateType]) *Tem
 			inNewSubmap = false
 		}
 	}
-	if cast_[*ImmutableList](obj_(keys.build())).size() == this.templateKeys.size() {
+	if keys.build().size() == this.templateKeys.size() {
 		return this
 	}
-	return new_TemplateTypeMap(this.registry, cast_[*ImmutableList](obj_(keys.build())), this.templateValues, newsubMapStarts)
+	return new_TemplateTypeMap(this.registry, keys.build(), this.templateValues, newsubMapStarts)
 }
 
 func (this *TemplateTypeMap) size() int32 {
@@ -283,5 +283,5 @@ func (this *TemplateTypeMap) getIndicesOfSubmapsForTesting() ImmutableListOf[Box
 			indices.add(any(int32(i)))
 		}
 	}
-	return cast_[*ImmutableList](obj_(indices.build()))
+	return indices.build()
 }

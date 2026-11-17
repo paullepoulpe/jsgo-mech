@@ -55,7 +55,7 @@ func (this *ColorGraphBuilder) connectUnionWithAncestors(unionNode *LinkedDirect
 		var element *Color = cast_[*Color](it_1.v)
 		graphNodesBuilder.add(obj_(this.nodeFactory.createNode(element)))
 	}
-	var graphNodes ImmutableSetOf[*ColorGraphNode] = cast_[*ImmutableSet](obj_(graphNodesBuilder.build()))
+	var graphNodes ImmutableSetOf[*ColorGraphNode] = graphNodesBuilder.build()
 	it_3 := foreach_(obj_(this.lcaFinder.findAll(icast_Set(obj_(graphNodes)))))
 	for it_3.next() {
 		var lca *ColorGraphNode = cast_[*ColorGraphNode](it_3.v)

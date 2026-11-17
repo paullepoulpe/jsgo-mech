@@ -174,7 +174,7 @@ func (this *PrototypeObjectType) appendTo_impl(sb *TypeStringBuilder) {
 		return
 	}
 	this.prettyPrint = false
-	var properties SetOf[*PrototypeObjectType_PropertyForPrettyPrinting] = icast_Set(obj_(new_TreeSet_Comparator(PrototypeObjectType_PROP_COMPARATOR)))
+	var properties SetOf[*PrototypeObjectType_PropertyForPrettyPrinting] = new_TreeSet_Comparator(PrototypeObjectType_PROP_COMPARATOR)
 	{
 		var current *ObjectType = this.up_ObjectType()
 		for ; current != nil; current = current.getImplicitPrototype() {
@@ -185,13 +185,13 @@ func (this *PrototypeObjectType) appendTo_impl(sb *TypeStringBuilder) {
 			for it_2.next() {
 				var stringKey string = str_(it_2.v)
 				var key *Property_StringKey = new_Property_StringKey(stringKey)
-				properties.add(obj_(new_PrototypeObjectType_PropertyForPrettyPrinting(icast_Property_Key(obj_(key)), current.getPropertyTypeKey(icast_Property_Key(obj_(key))))))
+				properties.add(obj_(new_PrototypeObjectType_PropertyForPrettyPrinting(key, current.getPropertyTypeKey(key))))
 			}
 			it_4 := foreach_(any(current.getOwnPropertyKnownSymbols()))
 			for it_4.next() {
 				var symbolKey *KnownSymbolType = cast_[*KnownSymbolType](it_4.v)
 				var key *Property_SymbolKey = new_Property_SymbolKey(symbolKey)
-				properties.add(obj_(new_PrototypeObjectType_PropertyForPrettyPrinting(icast_Property_Key(obj_(key)), current.getPropertyTypeKey(icast_Property_Key(obj_(key))))))
+				properties.add(obj_(new_PrototypeObjectType_PropertyForPrettyPrinting(key, current.getPropertyTypeKey(key))))
 			}
 		}
 	}
@@ -288,7 +288,7 @@ func (this *PrototypeObjectType) getCtorImplementedInterfaces_impl() IterableOf[
 		if this.isFunctionPrototypeType() {
 			return icast_Iterable(obj_(this.getOwnerFunction().getImplementedInterfaces()))
 		}
-		return icast_Iterable(obj_(ImmutableList_of()))
+		return ImmutableList_of()
 	}()
 }
 
@@ -297,7 +297,7 @@ func (this *PrototypeObjectType) getCtorExtendedInterfaces_impl() IterableOf[*Ob
 		if this.isFunctionPrototypeType() {
 			return icast_Iterable(obj_(this.getOwnerFunction().getExtendedInterfaces()))
 		}
-		return icast_Iterable(obj_(ImmutableList_of()))
+		return ImmutableList_of()
 	}()
 }
 

@@ -29,7 +29,7 @@ func (this *AmbiguateProperties) init_AmbiguateProperties(compiler *AbstractComp
 	this.compiler_ = compiler
 	this.reservedFirstCharacters = reservedFirstCharacters
 	this.reservedNonFirstCharacters = reservedNonFirstCharacters
-	this.externedNames = cast_[*ImmutableSet](obj_(cast_[*ImmutableSet_Builder](obj_(cast_[*ImmutableSet_Builder](obj_(ImmutableSet_builder().add(strobj_("prototype")))).addAll(Iterable(externProperties.asSet())))).build()))
+	this.externedNames = ImmutableSet_builder().add(strobj_("prototype")).addAll(Iterable(externProperties.asSet())).build()
 	this.colorRegistry = compiler.getColorRegistry()
 }
 
@@ -52,7 +52,7 @@ func (this *AmbiguateProperties) getRenamingMap() *TMap[string, string] {
 
 func (this *AmbiguateProperties) process_2(externs Node, root Node) {
 	this.graphNodeFactory = ColorGraphNodeFactory_createFactory(this.colorRegistry)
-	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(obj_(new_AmbiguateProperties_ProcessPropertiesAndConstructors(this))))
+	NodeTraversal_traverse(this.compiler_, root, new_AmbiguateProperties_ProcessPropertiesAndConstructors(this))
 	var graphBuilder *ColorGraphBuilder = new_ColorGraphBuilder(this.graphNodeFactory, lambda_AmbiguateProperties_process_2_1_, this.colorRegistry)
 	graphBuilder.addAll(icast_Collection(obj_(this.graphNodeFactory.getAllKnownTypes())))
 	var colorGraph *LinkedDirectedGraph = graphBuilder.build()
@@ -81,7 +81,7 @@ func (this *AmbiguateProperties) process_2(externs Node, root Node) {
 		}
 		prop.relatedColorsSeeds = nil
 	}
-	var reservedNames ImmutableSet_BuilderOf[string] = cast_[*ImmutableSet_Builder](obj_(cast_[*ImmutableSet_Builder](obj_(ImmutableSet_builder().addAll(icast_Iterable(obj_(this.externedNames))))).addAll(Iterable(this.quotedNames.asSet()))))
+	var reservedNames ImmutableSet_BuilderOf[string] = ImmutableSet_builder().addAll(icast_Iterable(obj_(this.externedNames))).addAll(Iterable(this.quotedNames.asSet()))
 	var numRenamedPropertyNames int32 = 0
 	var numSkippedPropertyNames int32 = 0
 	var nodes *TList[*AmbiguateProperties_PropertyGraphNode] = newTListN_(tc_p_AmbiguateProperties_PropertyGraphNode, this.propertyMap.size())
@@ -99,9 +99,9 @@ func (this *AmbiguateProperties) process_2(externs Node, root Node) {
 	var finalNumRenamedPropertyNames int32 = numRenamedPropertyNames
 	var finalNumSkippedPropertyNames int32 = numSkippedPropertyNames
 	var propertyGraph *AmbiguateProperties_PropertyGraph = new_AmbiguateProperties_PropertyGraph(nodes)
-	var coloring *GraphColoring = new_GraphColoring_GreedyGraphColoring_AdjacencyGraph_Comparator(icast_AdjacencyGraph(obj_(propertyGraph)), AmbiguateProperties_FREQUENCY_COMPARATOR).up_GraphColoring()
+	var coloring *GraphColoring = new_GraphColoring_GreedyGraphColoring_AdjacencyGraph_Comparator(propertyGraph, AmbiguateProperties_FREQUENCY_COMPARATOR).up_GraphColoring()
 	var numNewPropertyNames int32 = coloring.color()
-	var nameGen NameGenerator = icast_NameGenerator(obj_(new_DefaultNameGenerator_Set_String_Set_Set(icast_Set(obj_(reservedNames.build())), "", this.reservedFirstCharacters, this.reservedNonFirstCharacters)))
+	var nameGen NameGenerator = new_DefaultNameGenerator_Set_String_Set_Set(icast_Set(obj_(reservedNames.build())), "", this.reservedFirstCharacters, this.reservedNonFirstCharacters)
 	var colorMap []string = newstrarr_(numNewPropertyNames)
 	for i := int32(0); i < numNewPropertyNames; i++ {
 		colorMap[i] = nameGen.generateNextName()
@@ -215,7 +215,7 @@ func new_AmbiguateProperties_PropertyGraph(nodes *TList[*AmbiguateProperties_Pro
 }
 
 func (this *AmbiguateProperties_PropertyGraph) getNodes() Collection {
-	return icast_Collection(any(this.nodes_.asList()))
+	return this.nodes_.asList()
 }
 
 func (this *AmbiguateProperties_PropertyGraph) getNodeCount() int32 {
@@ -229,7 +229,7 @@ func (this *AmbiguateProperties_PropertyGraph) getNode(property_ any) GraphNode 
 }
 
 func (this *AmbiguateProperties_PropertyGraph) newSubGraph() SubGraph {
-	return icast_SubGraph(obj_(new_AmbiguateProperties_PropertySubGraph()))
+	return new_AmbiguateProperties_PropertySubGraph()
 }
 
 func (this *AmbiguateProperties_PropertyGraph) clearNodeAnnotations() {

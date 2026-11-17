@@ -20,9 +20,9 @@ func new_DominatorTree(idoms MapOf[any, any], subtreeSizes MapOf[any, BoxedOf[in
 
 func DominatorTree_compute(graph *DiGraph, entry any) *DominatorTree {
 	Preconditions_checkNotNull_Object_Object(any(graph.getNode(entry)), strobj_("Entry node not in graph"))
-	var postOrder ListOf[any] = icast_List(new_ArrayList_0().self())
-	var postOrderIndex MapOf[any, BoxedOf[int32]] = icast_Map(obj_(new_LinkedHashMap()))
-	DominatorTree_buildPostOrder(graph, entry, postOrder, icast_Map(obj_(new_LinkedHashMap())))
+	var postOrder ListOf[any] = new_ArrayList_0()
+	var postOrderIndex MapOf[any, BoxedOf[int32]] = new_LinkedHashMap()
+	DominatorTree_buildPostOrder(graph, entry, postOrder, new_LinkedHashMap())
 	var numNodes int32 = postOrder.size()
 	var reversePostOrder []any = DominatorTree_toReversedArray(postOrder)
 	for i := int32(0); i < numNodes; i++ {
@@ -64,7 +64,7 @@ func DominatorTree_compute(graph *DiGraph, entry any) *DominatorTree {
 			}
 		}
 	}
-	var idomsMap MapOf[any, any] = icast_Map(obj_(new_LinkedHashMap()))
+	var idomsMap MapOf[any, any] = new_LinkedHashMap()
 	var children *SimpleListMultimap = SimpleListMultimap_create()
 	for i := int32(0); i < numNodes; i++ {
 		var node any = postOrder.get(i)
@@ -75,7 +75,7 @@ func DominatorTree_compute(graph *DiGraph, entry any) *DominatorTree {
 			children.put(idom, node)
 		}
 	}
-	var sizesMap MapOf[any, BoxedOf[int32]] = icast_Map(obj_(new_LinkedHashMap()))
+	var sizesMap MapOf[any, BoxedOf[int32]] = new_LinkedHashMap()
 	DominatorTree_computeSubtreeSizes(entry, children, sizesMap)
 	return new_DominatorTree(idomsMap, sizesMap)
 }

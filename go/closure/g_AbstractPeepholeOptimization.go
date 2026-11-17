@@ -163,7 +163,7 @@ func (this *AbstractPeepholeOptimization) addFeatureToEnclosingScript(feature Fe
 }
 
 func (this *AbstractPeepholeOptimization) getNewFeatures() ImmutableSetOf[FeatureSet_Feature] {
-	return ImmutableSet_copyOf(icast_Collection(any(this.newFeatures.asSet())))
+	return ImmutableSet_copyOf(this.newFeatures.asSet())
 }
 
 func (this *AbstractPeepholeOptimization) clearNewFeatures() {

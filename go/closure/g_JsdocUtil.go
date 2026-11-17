@@ -191,7 +191,7 @@ func JsdocUtil_clinit() {
 		return
 	}
 	JsdocUtil_clinit_done = true
-	JsdocUtil_SYNTHETIC_FILE = icast_StaticSourceFile(obj_(new_SimpleSourceFile(JsdocUtil_SYNTHETIC_FILE_NAME, StaticSourceFile_SourceKind_EXTERN)))
+	JsdocUtil_SYNTHETIC_FILE = new_SimpleSourceFile(JsdocUtil_SYNTHETIC_FILE_NAME, StaticSourceFile_SourceKind_EXTERN)
 	JsdocUtil_SYNTETIC_SRCINFO_NODE = new_Node_Token(Token_rhino_EMPTY).setStaticSourceFile(JsdocUtil_SYNTHETIC_FILE)
 
 }

@@ -77,7 +77,7 @@ func (this *J2clChecksPass) getSourceName(jsType *JSType) OptionalOf[string] {
 }
 
 func (this *J2clChecksPass) process_2(externs Node, root Node) {
-	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(obj_(this)))
+	NodeTraversal_traverse(this.compiler_, root, this)
 }
 
 var J2clChecksPass_J2CL_REFERENCE_EQUALITY *DiagnosticType

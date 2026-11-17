@@ -67,11 +67,11 @@ func new_AnalyzePrototypeProperties(compiler *AbstractCompiler, chunkGraph *JSCh
 func (this *AnalyzePrototypeProperties) process_2(externRoot Node, root Node) {
 	Preconditions_checkState(this.compiler_.getLifeCycleStage().isNormalized())
 	if !this.canModifyExterns {
-		NodeTraversal_traverse(this.compiler_, externRoot, icast_NodeTraversal_Callback(obj_(new_AnalyzePrototypeProperties_ProcessExternProperties(this))))
+		NodeTraversal_traverse(this.compiler_, externRoot, new_AnalyzePrototypeProperties_ProcessExternProperties(this))
 	}
-	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(obj_(new_AnalyzePrototypeProperties_ProcessProperties(this))))
-	var t *FixedPointGraphTraversal = FixedPointGraphTraversal_newTraversal(icast_FixedPointGraphTraversal_EdgeCallback(obj_(new_AnalyzePrototypeProperties_PropagateReferences(this))))
-	t.computeFixedPointSet(this.symbolGraph.up_DiGraph(), icast_Set(obj_(ImmutableSet_of_Object_Object(obj_(this.externNode), obj_(this.globalNode)))))
+	NodeTraversal_traverse(this.compiler_, root, new_AnalyzePrototypeProperties_ProcessProperties(this))
+	var t *FixedPointGraphTraversal = FixedPointGraphTraversal_newTraversal(new_AnalyzePrototypeProperties_PropagateReferences(this))
+	t.computeFixedPointSet(this.symbolGraph.up_DiGraph(), ImmutableSet_of_Object_Object(obj_(this.externNode), obj_(this.globalNode)))
 }
 
 func (this *AnalyzePrototypeProperties) getAllNameInfo() CollectionOf[*AnalyzePrototypeProperties_NameInfo] {
@@ -351,7 +351,7 @@ func (this *AnalyzePrototypeProperties_ProcessProperties) handlePossibleAssignme
 		var parent Node = n.getParent()
 		var grandParent Node = parent.getParent()
 		if NodeUtil_isExprAssign(grandParent) && NodeUtil_isNameDeclOrSimpleAssignLhs(n, parent) {
-			var prop AnalyzePrototypeProperties_PrototypeProperty = icast_AnalyzePrototypeProperties_PrototypeProperty(obj_(new_AnalyzePrototypeProperties_AssignmentPrototypeProperty(grandParent, this.maybeGetVar(t, root), t.getChunk())))
+			var prop AnalyzePrototypeProperties_PrototypeProperty = new_AnalyzePrototypeProperties_AssignmentPrototypeProperty(grandParent, this.maybeGetVar(t, root), t.getChunk())
 			this.outer_.getNameInfoForName(n.getString(), AnalyzePrototypeProperties_PROPERTY).getDeclarations().add(any(prop))
 			return true
 		}
@@ -363,7 +363,7 @@ func (this *AnalyzePrototypeProperties_ProcessProperties) handlePossibleAssignme
 				for ; key != 0; key = key.getNext() {
 					if !key.isQuotedStringKey() && !key.isComputedProp() {
 						var name string = key.getString()
-						var prop AnalyzePrototypeProperties_PrototypeProperty = icast_AnalyzePrototypeProperties_PrototypeProperty(obj_(new_AnalyzePrototypeProperties_LiteralPrototypeProperty(key.getFirstChild(), n, this.maybeGetVar(t, root), t.getChunk())))
+						var prop AnalyzePrototypeProperties_PrototypeProperty = new_AnalyzePrototypeProperties_LiteralPrototypeProperty(key.getFirstChild(), n, this.maybeGetVar(t, root), t.getChunk())
 						this.outer_.getNameInfoForName(name, AnalyzePrototypeProperties_PROPERTY).getDeclarations().add(any(prop))
 					}
 				}
@@ -723,7 +723,7 @@ func (this *AnalyzePrototypeProperties_NameInfo) zero_AnalyzePrototypeProperties
 
 func (this *AnalyzePrototypeProperties_NameInfo) finit_AnalyzePrototypeProperties_NameInfo() {
 	this.referenced = false
-	this.declarations = icast_Deque(obj_(new_ArrayDeque()))
+	this.declarations = new_ArrayDeque()
 	this.deepestCommonChunkRef = nil
 	this.readClosureVariables = false
 	this.referencesSuperField = false

@@ -52,7 +52,7 @@ func (this *DiagnosticToSuppressionMapper) createSuppressionMap() ImmutableSorte
 		var entrySet Map_Entry = icast_Map_Entry(it_5.v)
 		result.put(strobj_(cast_[*DiagnosticType](entrySet.getKey()).key_), entrySet.getValue())
 	}
-	return cast_[*ImmutableSortedMap](obj_(result.buildOrThrow()))
+	return result.buildOrThrow()
 }
 
 func (this *DiagnosticToSuppressionMapper) preferMoreTargetedGroup(next string, current string) string {

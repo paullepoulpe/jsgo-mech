@@ -110,7 +110,7 @@ func (this *TypeCheck) processForTesting(externsRoot Node, jsRoot Node) *TypedSc
 func (this *TypeCheck) check(node Node, externs bool) {
 	Preconditions_checkNotNull(node.box_())
 	this.inExterns_ = externs
-	NodeTraversal_builder().setCompiler(this.compiler_).setCallback(icast_NodeTraversal_Callback(any(this))).setScopeCreator(icast_ScopeCreator(obj_(this.scopeCreator))).traverseWithScope(node, this.topScope.up_AbstractScope())
+	NodeTraversal_builder().setCompiler(this.compiler_).setCallback(this).setScopeCreator(icast_ScopeCreator(obj_(this.scopeCreator))).traverseWithScope(node, this.topScope.up_AbstractScope())
 	if externs {
 		this.inferJSDocInfo.process_2(node, 0)
 	} else {
@@ -560,8 +560,8 @@ func (this *TypeCheck) checkCanAssignToNameGetpropOrGetelem(t *NodeTraversal, no
 			return
 		}
 		var objectCastType *ObjectType = ObjectType_cast(objectJsType.restrictByNotNullOrUndefined())
-		var expectedPropertyType *JSType = this.getPropertyTypeIfDeclared(objectCastType, icast_Property_Key(obj_(new_Property_StringKey(pname))))
-		this.checkPropertyInheritanceOnAssignment(nodeToWarn, object, icast_Property_Key(obj_(new_Property_StringKey(pname))), info, expectedPropertyType)
+		var expectedPropertyType *JSType = this.getPropertyTypeIfDeclared(objectCastType, new_Property_StringKey(pname))
+		this.checkPropertyInheritanceOnAssignment(nodeToWarn, object, new_Property_StringKey(pname), info, expectedPropertyType)
 		if !expectedPropertyType.isUnknownType() {
 			if !TypeCheck_propertyIsImplicitCast(objectCastType, pname) {
 				this.validator.expectCanAssignToPropertyOf(nodeToWarn, rightType, expectedPropertyType, object, Optional_of[string](pname))
@@ -573,8 +573,8 @@ func (this *TypeCheck) checkCanAssignToNameGetpropOrGetelem(t *NodeTraversal, no
 		var objectJsType *JSType = this.getJSType(object)
 		var objectCastType *ObjectType = ObjectType_cast(objectJsType.restrictByNotNullOrUndefined())
 		var property *KnownSymbolType = lvalue.getLastChild().getJSType().toMaybeKnownSymbolType()
-		var expectedPropertyType *JSType = this.getPropertyTypeIfDeclared(objectCastType, icast_Property_Key(obj_(new_Property_SymbolKey(property))))
-		this.checkPropertyInheritanceOnAssignment(nodeToWarn, object, icast_Property_Key(obj_(new_Property_SymbolKey(property))), info, expectedPropertyType)
+		var expectedPropertyType *JSType = this.getPropertyTypeIfDeclared(objectCastType, new_Property_SymbolKey(property))
+		this.checkPropertyInheritanceOnAssignment(nodeToWarn, object, new_Property_SymbolKey(property), info, expectedPropertyType)
 	}
 	var leftType *JSType = this.getJSType(lvalue)
 	if lvalue.isQualifiedName() {
@@ -693,13 +693,13 @@ func (this *TypeCheck) visitObjectOrClassLiteralKey(key Node, owner Node, ownerT
 		if keyType.isKnownSymbolValueType() {
 			if owner.isClass() {
 				var classConstructorType *FunctionType = owner.getJSType().assertFunctionType()
-				this.checkPropertyInheritanceOnClassMember(key, icast_Property_Key(obj_(new_Property_SymbolKey(keyType.toMaybeKnownSymbolType()))), classConstructorType)
+				this.checkPropertyInheritanceOnClassMember(key, new_Property_SymbolKey(keyType.toMaybeKnownSymbolType()), classConstructorType)
 			} else {
 				if !owner.isObjectLit() {
 					Preconditions_checkState_boolean_String_Object(false, "Unexpected owner %s", owner.box_())
 				}
 				var objectCastType *ObjectType = ObjectType_cast(ownerType.restrictByNotNullOrUndefined())
-				var expectedPropertyType *JSType = this.getPropertyTypeIfDeclared(objectCastType, icast_Property_Key(obj_(new_Property_SymbolKey(keyType.toMaybeKnownSymbolType()))))
+				var expectedPropertyType *JSType = this.getPropertyTypeIfDeclared(objectCastType, new_Property_SymbolKey(keyType.toMaybeKnownSymbolType()))
 				this.validator.expectCanAssignToPropertyOf(key, expectedPropertyType, this.getJSType(key.getSecondChild()), owner, keyType.toMaybeKnownSymbolType().getDisplayName())
 			}
 		}
@@ -751,7 +751,7 @@ func (this *TypeCheck) visitObjectOrClassLiteralKey(key Node, owner Node, ownerT
 	} else {
 		this.ensureTyped(key)
 	}
-	var propertyKey Property_Key = icast_Property_Key(obj_(new_Property_StringKey(propertyName.orElseThrow())))
+	var propertyKey Property_Key = new_Property_StringKey(propertyName.orElseThrow())
 	if owner.isClass() {
 		var classConstructorType *FunctionType = owner.getJSType().assertFunctionType()
 		this.checkPropertyInheritanceOnClassMember(key, propertyKey, classConstructorType)

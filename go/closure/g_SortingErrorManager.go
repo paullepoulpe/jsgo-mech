@@ -54,7 +54,7 @@ func (this *SortingErrorManager) self() any {
 }
 
 func (this *SortingErrorManager) finit_SortingErrorManager() {
-	this.messages = new_TreeSet_Comparator(icast_Comparator(obj_(new_SortingErrorManager_LeveledJSErrorComparator())))
+	this.messages = new_TreeSet_Comparator(new_SortingErrorManager_LeveledJSErrorComparator())
 	this.originalErrorCount = 0
 	this.promotedErrorCount = 0
 	this.warningCount = 0
@@ -129,7 +129,7 @@ func (this *SortingErrorManager) filterToListOf(level CheckLevel) ImmutableListO
 			result.add(obj_(e.error_))
 		}
 	}
-	return cast_[*ImmutableList](obj_(result.build()))
+	return result.build()
 }
 
 func (this *SortingErrorManager) generateReport_impl() {

@@ -14,7 +14,7 @@ func (this *GoogleCodingConvention) up_CodingConventions_Proxy() *CodingConventi
 }
 
 func (this *GoogleCodingConvention) init_GoogleCodingConvention_0() {
-	this.init_GoogleCodingConvention_CodingConvention(icast_CodingConvention(obj_(new_ClosureCodingConvention_0())))
+	this.init_GoogleCodingConvention_CodingConvention(new_ClosureCodingConvention_0())
 }
 
 func new_GoogleCodingConvention_0() *GoogleCodingConvention {

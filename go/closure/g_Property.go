@@ -79,7 +79,7 @@ func (this *Property) getSourceFile() StaticSourceFile {
 }
 
 func (this *Property) getSymbol() StaticSlot {
-	return icast_StaticSlot(any(this))
+	return this
 }
 
 func (this *Property) getDeclaration() StaticRef {
@@ -87,7 +87,7 @@ func (this *Property) getDeclaration() StaticRef {
 		if this.propertyNode == 0 {
 			return nil
 		}
-		return icast_StaticRef(any(this))
+		return this
 	}()
 }
 
@@ -249,7 +249,7 @@ func (this *Property_StringKey) humanReadableName() string {
 }
 
 func (this *Property_StringKey) matches(p0 string) bool {
-	return Property_Key_matches_default(icast_Property_Key(any(this)), p0)
+	return Property_Key_matches_default(this, p0)
 }
 
 func (this *Property_StringKey) string() string {
@@ -302,7 +302,7 @@ func (this *Property_SymbolKey) humanReadableName() string {
 }
 
 func (this *Property_SymbolKey) matches(p0 string) bool {
-	return Property_Key_matches_default(icast_Property_Key(any(this)), p0)
+	return Property_Key_matches_default(this, p0)
 }
 
 func (this *Property_SymbolKey) symbol() *KnownSymbolType {

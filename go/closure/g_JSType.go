@@ -266,15 +266,15 @@ func (this *JSType) getPropertyKind_2_impl(pname Property_Key, autobox bool) JST
 }
 
 func (this *JSType) getPropertyKindString(pname string, autobox bool) JSType_HasPropertyKind {
-	return this.getPropertyKind_2(icast_Property_Key(obj_(new_Property_StringKey(pname))), autobox)
+	return this.getPropertyKind_2(new_Property_StringKey(pname), autobox)
 }
 
 func (this *JSType) getPropertyKind(pname string) JSType_HasPropertyKind {
-	return this.getPropertyKindKey(icast_Property_Key(obj_(new_Property_StringKey(pname))))
+	return this.getPropertyKindKey(new_Property_StringKey(pname))
 }
 
 func (this *JSType) hasProperty(pname string) bool {
-	return this.hasPropertyKey(icast_Property_Key(obj_(new_Property_StringKey(pname))))
+	return this.hasPropertyKey(new_Property_StringKey(pname))
 }
 
 func (this *JSType) hasPropertyKey(pname Property_Key) bool {
@@ -447,7 +447,7 @@ func (this *JSType) isDict_impl() bool {
 
 func (this *JSType) containsReferenceAncestor(target *JSType) bool {
 	var visitor *ContainsUpperBoundSuperTypeVisitor = new_ContainsUpperBoundSuperTypeVisitor(target)
-	return (cast_[ContainsUpperBoundSuperTypeVisitor_Result](this.visit(icast_Visitor(obj_(visitor)))) == ContainsUpperBoundSuperTypeVisitor_Result_PRESENT)
+	return (cast_[ContainsUpperBoundSuperTypeVisitor_Result](this.visit(visitor)) == ContainsUpperBoundSuperTypeVisitor_Result_PRESENT)
 }
 
 func (this *JSType) isLiteralObject() bool {
@@ -731,11 +731,11 @@ func (this *JSType) findPropertyTypeKey(propertyName Property_Key) *JSType {
 	}
 	var typeMap *TemplateTypeMap = this.getTemplateTypeMap()
 	var replacer *TemplateTypeReplacer = TemplateTypeReplacer_forPartialReplacement(this.registry, typeMap)
-	return to_JSType(propertyType.visit(icast_Visitor(obj_(replacer))))
+	return to_JSType(propertyType.visit(replacer))
 }
 
 func (this *JSType) findPropertyType(propertyName string) *JSType {
-	return this.findPropertyTypeKey(icast_Property_Key(obj_(new_Property_StringKey(propertyName))))
+	return this.findPropertyTypeKey(new_Property_StringKey(propertyName))
 }
 
 func (this *JSType) findPropertyTypeWithoutConsideringTemplateTypes_impl(propertyName Property_Key) *JSType {

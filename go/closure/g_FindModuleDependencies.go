@@ -39,7 +39,7 @@ func (this *FindModuleDependencies) process(root Node) {
 	if input.getRequires().contains(obj_(DependencyInfo_Require_BASE)) {
 		input.addOrderedRequire(DependencyInfo_Require_BASE)
 	}
-	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(any(this)))
+	NodeTraversal_traverse(this.compiler_, root, this)
 	if this.moduleType_ == CompilerInput_ModuleType_ES6 {
 		this.convertToEs6Module(root, true)
 	} else if ((this.moduleType_ == CompilerInput_ModuleType_NONE) && (this.inputPathByWebpackId != nil)) && this.inputPathByWebpackId.containsValue(strobj_(input.getPath().toString())) {
@@ -157,7 +157,7 @@ func (this *FindModuleDependencies) convertToEs6Module(root Node, skipGoogProvid
 	}
 	if !skipGoogProvideModuleCheck {
 		var finder *FindModuleDependencies_FindGoogProvideOrGoogModule = new_FindModuleDependencies_FindGoogProvideOrGoogModule()
-		NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(obj_(finder)))
+		NodeTraversal_traverse(this.compiler_, root, finder)
 		if finder.isFound() {
 			return false
 		}

@@ -35,7 +35,7 @@ func new_DeclaredGlobalExternsOnWindow(compiler *AbstractCompiler) *DeclaredGlob
 }
 
 func (this *DeclaredGlobalExternsOnWindow) process_2(externs Node, root Node) {
-	NodeTraversal_traverse(this.compiler_, externs, icast_NodeTraversal_Callback(obj_(this)))
+	NodeTraversal_traverse(this.compiler_, externs, this)
 	this.addWindowProperties()
 }
 
@@ -90,7 +90,7 @@ func DeclaredGlobalExternsOnWindow_addExtern(node Node, defineOnWindow bool) {
 			}
 			builder = JSDocInfo_Builder_copyFrom(oldJSDocInfo)
 		}
-		builder.recordSuppressions(icast_Set(obj_(ImmutableSet_of_Object_Object(strobj_("const"), strobj_("duplicate")))))
+		builder.recordSuppressions(ImmutableSet_of_Object_Object(strobj_("const"), strobj_("duplicate")))
 		var jsDocInfo *JSDocInfo = builder.build()
 		newNode.setJSDocInfo(jsDocInfo)
 	}

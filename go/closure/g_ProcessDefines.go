@@ -115,7 +115,7 @@ func (this *ProcessDefines) overrideDefines() {
 		}
 	}
 	if ProcessDefines_Mode_optimize_[this.mode_-1] {
-		var unusedReplacements SetOf[string] = icast_Set(obj_(Sets_difference(icast_Set(obj_(Sets_union(this.replacementValuesFromFlags.keySet(), this.replacementValuesFromClosureDefines.asMap().keySet()))), icast_Set(obj_(Sets_union(icast_Set(obj_(Sets_union(icast_Set(obj_(ProcessDefines_KNOWN_DEFINES)), this.defineByDefineName.asMap().keySet()))), icast_Set(obj_(this.unknownDefinesToIgnore))))))))
+		var unusedReplacements SetOf[string] = Sets_difference(Sets_union(this.replacementValuesFromFlags.keySet(), this.replacementValuesFromClosureDefines.asMap().keySet()), Sets_union(Sets_union(icast_Set(obj_(ProcessDefines_KNOWN_DEFINES)), this.defineByDefineName.asMap().keySet()), icast_Set(obj_(this.unknownDefinesToIgnore))))
 		it_3 := foreach_(any(unusedReplacements))
 		for it_3.next() {
 			var unknownDefine string = str_(it_3.v)
@@ -171,7 +171,7 @@ func (this *ProcessDefines) isValidDefineType(expression *JSTypeExpression) bool
 
 func (this *ProcessDefines) collectDefines(root Node) {
 	if this.recognizeClosureDefines {
-		NodeTraversal_builder().setCompiler(this.compiler_).setCallback(icast_NodeTraversal_Callback(obj_(new_ProcessDefines_ClosureDefinesCollector(this)))).traverse(root)
+		NodeTraversal_builder().setCompiler(this.compiler_).setCallback(new_ProcessDefines_ClosureDefinesCollector(this)).traverse(root)
 	}
 	it_1 := foreach_(any(icast_Collection(this.namespace_.getAllSymbols())))
 	for it_1.next() {
@@ -210,7 +210,7 @@ func (this *ProcessDefines) collectDefines(root Node) {
 			}
 		}
 	}
-	this.compiler_.setDefineNames(icast_Collection(obj_(cast_[*ImmutableSet_Builder](obj_(cast_[*ImmutableSet_Builder](obj_(ImmutableSet_builder().addAll(icast_Iterable(obj_(ProcessDefines_KNOWN_DEFINES))))).addAll(Iterable(this.defineByDefineName.asMap().keySet())))).build())))
+	this.compiler_.setDefineNames(icast_Collection(obj_(ImmutableSet_builder().addAll(icast_Iterable(obj_(ProcessDefines_KNOWN_DEFINES))).addAll(Iterable(this.defineByDefineName.asMap().keySet())).build())))
 }
 
 func (this *ProcessDefines) selectDefineDeclaration(name *GlobalNamespace_Name) *GlobalNamespace_Ref {

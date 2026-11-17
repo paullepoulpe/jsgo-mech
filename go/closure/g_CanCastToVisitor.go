@@ -35,7 +35,7 @@ func (this *CanCastToVisitor) canCastToUnion(thisType *JSType, unionType *UnionT
 	it_1 := foreach_(obj_(unionType.getAlternates()))
 	for it_1.next() {
 		var type_ *JSType = to_JSType(it_1.v)
-		if unbox_[bool](thisType.visit_2(icast_RelationshipVisitor(any(this)), type_)) {
+		if unbox_[bool](thisType.visit_2(this, type_)) {
 			return true
 		}
 	}
@@ -70,13 +70,13 @@ func (this *CanCastToVisitor) castCastToHelper(thisType *JSType, thatType *JSTyp
 	} else if this.isInterface(thisType) || this.isInterface(thatType) {
 		return any(bool(true))
 	} else if thatType.isEnumElementType() {
-		return thisType.visit_2(icast_RelationshipVisitor(any(this)), thatType.toMaybeEnumElementType().getPrimitiveType())
+		return thisType.visit_2(this, thatType.toMaybeEnumElementType().getPrimitiveType())
 	} else if thatType.isUnionType() {
 		return any(bool(this.canCastToUnion(thisType, thatType.toMaybeUnionType())))
 	} else if thatType.isFunctionType() {
 		return any(bool(this.canCastToFunction(thisType, thatType.toMaybeFunctionType())))
 	} else if thatType.isTemplatizedType() {
-		return thisType.visit_2(icast_RelationshipVisitor(any(this)), thatType.toMaybeTemplatizedType().getReferencedTypeInternal())
+		return thisType.visit_2(this, thatType.toMaybeTemplatizedType().getReferencedTypeInternal())
 	}
 	return any(bool((thisType.isSubtypeOf(thatType) || thatType.isSubtypeOf(thisType))))
 }
@@ -101,7 +101,7 @@ func (this *CanCastToVisitor) caseUnionType(thisType *UnionType, thatType *JSTyp
 		if type_.isVoidType() || type_.isNullType() {
 		} else {
 			visited = true
-			if unbox_[bool](type_.visit_2(icast_RelationshipVisitor(any(this)), thatType)) {
+			if unbox_[bool](type_.visit_2(this, thatType)) {
 				return any(bool(true))
 			}
 		}
@@ -109,13 +109,13 @@ func (this *CanCastToVisitor) caseUnionType(thisType *UnionType, thatType *JSTyp
 	if !visited {
 		var NULL_TYPE *JSType = thisType.getNativeType(JSTypeNative_NULL_TYPE)
 		var VOID_TYPE *JSType = thisType.getNativeType(JSTypeNative_VOID_TYPE)
-		return any(bool((unbox_[bool](NULL_TYPE.visit_2(icast_RelationshipVisitor(any(this)), thatType)) || unbox_[bool](VOID_TYPE.visit_2(icast_RelationshipVisitor(any(this)), thatType)))))
+		return any(bool((unbox_[bool](NULL_TYPE.visit_2(this, thatType)) || unbox_[bool](VOID_TYPE.visit_2(this, thatType)))))
 	}
 	return any(bool(false))
 }
 
 func (this *CanCastToVisitor) caseTemplatizedType(thisType *TemplatizedType, thatType *JSType) any {
-	return thisType.getReferencedTypeInternal().visit_2(icast_RelationshipVisitor(any(this)), thatType)
+	return thisType.getReferencedTypeInternal().visit_2(this, thatType)
 }
 
 func (this *CanCastToVisitor) caseTemplateType(thisType *TemplateType, thatType *JSType) any {
@@ -123,5 +123,5 @@ func (this *CanCastToVisitor) caseTemplateType(thisType *TemplateType, thatType 
 }
 
 func (this *CanCastToVisitor) caseEnumElementType(typeType *EnumElementType, thatType *JSType) any {
-	return typeType.getPrimitiveType().visit_2(icast_RelationshipVisitor(any(this)), thatType)
+	return typeType.getPrimitiveType().visit_2(this, thatType)
 }

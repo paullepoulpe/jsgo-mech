@@ -29,7 +29,7 @@ func (this *TranspilerBuilder) cachingString(spec string) *TranspilerBuilder {
 }
 
 func (this *TranspilerBuilder) caching_1(builder CacheBuilderOf[any, any]) *TranspilerBuilder {
-	return new_TranspilerBuilder(icast_Transpiler_transpile(obj_(new_CachingTranspiler(this.transpiler, builder))))
+	return new_TranspilerBuilder(new_CachingTranspiler(this.transpiler, builder))
 }
 
 func (this *TranspilerBuilder) build() Transpiler_transpile {
@@ -47,6 +47,6 @@ func TranspilerBuilder_clinit() {
 		return
 	}
 	TranspilerBuilder_clinit_done = true
-	TranspilerBuilder_TO_ES5 = new_TranspilerBuilder(icast_Transpiler_transpile(obj_(new_BaseTranspiler(new_BaseTranspiler_CompilerSupplier_0(), "es6_runtime"))))
+	TranspilerBuilder_TO_ES5 = new_TranspilerBuilder(new_BaseTranspiler(new_BaseTranspiler_CompilerSupplier_0(), "es6_runtime"))
 
 }

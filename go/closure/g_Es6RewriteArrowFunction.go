@@ -21,7 +21,7 @@ func new_Es6RewriteArrowFunction(compiler *AbstractCompiler) *Es6RewriteArrowFun
 }
 
 func (this *Es6RewriteArrowFunction) process_2(externs Node, root Node) {
-	TranspilationPasses_processTranspile(this.compiler_, root, Es6RewriteArrowFunction_transpiledFeatures, []NodeTraversal_Callback{icast_NodeTraversal_Callback(any(this))})
+	TranspilationPasses_processTranspile(this.compiler_, root, Es6RewriteArrowFunction_transpiledFeatures, []NodeTraversal_Callback{NodeTraversal_Callback(this)})
 	TranspilationPasses_maybeMarkFeaturesAsTranspiledAway(this.compiler_, root, Es6RewriteArrowFunction_transpiledFeatures)
 }
 
@@ -65,7 +65,7 @@ func (this *Es6RewriteArrowFunction) visitArrowFunction(t *NodeTraversal, n Node
 	var body Node = n.getLastChild()
 	Preconditions_checkState_boolean_Object(body.isBlock(), strobj_("Arrow function body must be a block after normalization"))
 	var updater *ThisAndArgumentsReferenceUpdater = new_ThisAndArgumentsReferenceUpdater(this.compiler_, context, this.astFactory_)
-	NodeTraversal_traverse(this.compiler_, body, icast_NodeTraversal_Callback(obj_(updater)))
+	NodeTraversal_traverse(this.compiler_, body, updater)
 	t.reportCodeChange()
 }
 

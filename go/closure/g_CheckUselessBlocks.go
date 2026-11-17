@@ -19,7 +19,7 @@ func new_CheckUselessBlocks(compiler *AbstractCompiler) *CheckUselessBlocks {
 }
 
 func (this *CheckUselessBlocks) process_2(externs Node, root Node) {
-	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(any(this)))
+	NodeTraversal_traverse(this.compiler_, root, this)
 }
 
 func (this *CheckUselessBlocks) isLoneBlock(n Node) bool {

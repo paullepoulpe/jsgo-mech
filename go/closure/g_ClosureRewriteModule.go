@@ -56,7 +56,7 @@ func (this *ClosureRewriteModule) rewriteJsdoc(info *JSDocInfo, scope *Scope) {
 	it_1 := foreach_(any(info.getTypeNodes()))
 	for it_1.next() {
 		var typeNode Node = Node_of_(it_1.v)
-		NodeUtil_visitPreOrder_Node_Visitor(typeNode, icast_NodeUtil_Visitor(obj_(replacer)))
+		NodeUtil_visitPreOrder_Node_Visitor(typeNode, replacer)
 	}
 }
 
@@ -84,12 +84,12 @@ func (this *ClosureRewriteModule) process_2(externs Node, root Node) {
 				if !script.isScript() {
 					Preconditions_checkState_boolean_Object(false, script.box_())
 				}
-				NodeTraversal_traverse(this.compiler_, script, icast_NodeTraversal_Callback(obj_(new_ClosureRewriteModule_UnwrapGoogLoadModule(this))))
+				NodeTraversal_traverse(this.compiler_, script, new_ClosureRewriteModule_UnwrapGoogLoadModule(this))
 				this.pushScript(new_ClosureRewriteModule_ScriptDescription())
 				this.currentScript.rootNode_ = script
 				scriptDescriptions = append(scriptDescriptions, this.currentScript)
-				NodeTraversal_traverse(this.compiler_, script, icast_NodeTraversal_Callback(obj_(new_ClosureRewriteModule_ScriptPreprocessor(this))))
-				NodeTraversal_traverse(this.compiler_, script, icast_NodeTraversal_Callback(obj_(new_ClosureRewriteModule_ScriptRecorder(this))))
+				NodeTraversal_traverse(this.compiler_, script, new_ClosureRewriteModule_ScriptPreprocessor(this))
+				NodeTraversal_traverse(this.compiler_, script, new_ClosureRewriteModule_ScriptRecorder(this))
 				this.popScript()
 			}
 		}
@@ -98,10 +98,10 @@ func (this *ClosureRewriteModule) process_2(externs Node, root Node) {
 	if this.compiler_.hasHaltingErrors() {
 		return
 	}
-	NodeTraversal_traverseRoots(this.compiler_, icast_NodeTraversal_Callback(obj_(new_ClosureRewriteModule_ScriptUpdater(this, scriptDescriptions))), externs, root)
+	NodeTraversal_traverseRoots(this.compiler_, new_ClosureRewriteModule_ScriptUpdater(this, scriptDescriptions), externs, root)
 	this.declareSyntheticExterns()
-	Iterable_forEach_f(icast_Iterable(any(this.googModuleGetCalls.asList())), func(p0 any) { this.updateGoogModuleGetCall(Node_of_(p0)) })
-	Iterable_forEach_f(icast_Iterable(any(this.googRequireDynamicCalls.asList())), func(p0 any) { this.updateGoogRequireDynamicCall(Node_of_(p0)) })
+	Iterable_forEach_f(this.googModuleGetCalls.asList(), func(p0 any) { this.updateGoogModuleGetCall(Node_of_(p0)) })
+	Iterable_forEach_f(this.googRequireDynamicCalls.asList(), func(p0 any) { this.updateGoogRequireDynamicCall(Node_of_(p0)) })
 }
 
 func (this *ClosureRewriteModule) declareSyntheticExterns() {
@@ -113,7 +113,7 @@ func (this *ClosureRewriteModule) declareSyntheticExterns() {
 			varsBuilder.add(IR_var_Node(this.astFactory_.createNameWithUnknownType(lhs.getString())).srcrefTree(lhs).box_())
 		}
 	}
-	var vars ImmutableListOf[Node] = cast_[*ImmutableList](obj_(varsBuilder.build()))
+	var vars ImmutableListOf[Node] = varsBuilder.build()
 	if vars.isEmpty() {
 		return
 	}

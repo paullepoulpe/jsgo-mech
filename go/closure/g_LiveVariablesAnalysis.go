@@ -72,15 +72,15 @@ func (this *LiveVariablesAnalysis) isForward_impl() bool {
 }
 
 func (this *LiveVariablesAnalysis) createEntryLattice_impl() LatticeElement {
-	return icast_LatticeElement(obj_(new_LiveVariablesAnalysis_LiveVariableLattice(new_BitSet_int(this.orderedVars.size()))))
+	return new_LiveVariablesAnalysis_LiveVariableLattice(new_BitSet_int(this.orderedVars.size()))
 }
 
 func (this *LiveVariablesAnalysis) createInitialEstimateLattice_impl() LatticeElement {
-	return icast_LatticeElement(obj_(new_LiveVariablesAnalysis_LiveVariableLattice(new_BitSet_int(this.orderedVars.size()))))
+	return new_LiveVariablesAnalysis_LiveVariableLattice(new_BitSet_int(this.orderedVars.size()))
 }
 
 func (this *LiveVariablesAnalysis) createFlowJoiner_impl() DataFlowAnalysis_FlowJoiner {
-	return icast_DataFlowAnalysis_FlowJoiner(obj_(new_LiveVariablesAnalysis_LiveVariableJoinOp(this)))
+	return new_LiveVariablesAnalysis_LiveVariableJoinOp(this)
 }
 
 func (this *LiveVariablesAnalysis) flowThrough_impl(node_ any, input_ LatticeElement) LatticeElement {
@@ -103,7 +103,7 @@ func (this *LiveVariablesAnalysis) flowThrough_impl(node_ any, input_ LatticeEle
 	var result *LiveVariablesAnalysis_LiveVariableLattice = LiveVariablesAnalysis_LiveVariableLattice_createFromLattice(input)
 	result.liveSet.andNot(kill)
 	result.liveSet.or(gen)
-	return icast_LatticeElement(obj_(result))
+	return result
 }
 
 func (this *LiveVariablesAnalysis) computeGenKill(n Node, gen *BitSet, kill *BitSet, conditional bool) {

@@ -365,7 +365,7 @@ func (this *SymbolTable) addScopes(scopes CollectionOf[any]) {
 }
 
 func (this *SymbolTable) findScopes(externs Node, root Node) {
-	NodeTraversal_traverseRoots(this.compiler_, icast_NodeTraversal_Callback(obj_(new_SymbolTable_1(this))), externs, root)
+	NodeTraversal_traverseRoots(this.compiler_, new_SymbolTable_1(this), externs, root)
 }
 
 func (this *SymbolTable) getAllScopes() CollectionOf[*SymbolTable_SymbolScope] {
@@ -672,7 +672,7 @@ func (this *SymbolTable) fillPropertySymbols(externs Node, root Node) {
 }
 
 func (this *SymbolTable) fillJSDocInfo(externs Node, root Node) {
-	NodeTraversal_traverseRoots(this.compiler_, icast_NodeTraversal_Callback(obj_(new_SymbolTable_JSDocInfoCollector(this, this.compiler_.getTypeRegistry()))), externs, root)
+	NodeTraversal_traverseRoots(this.compiler_, new_SymbolTable_JSDocInfoCollector(this, this.compiler_.getTypeRegistry()), externs, root)
 	for _, sym := range this.getAllSymbols() {
 		var info *JSDocInfo = sym.getJSDocInfo()
 		if info == nil {
@@ -712,7 +712,7 @@ func (this *SymbolTable) fillSymbolVisibility(externs Node, root Node) {
 	var collectPass *CollectFileOverviewVisibility = new_CollectFileOverviewVisibility(this.compiler_)
 	collectPass.process_2(externs, root)
 	var visibilityMap ImmutableMapOf[StaticSourceFile, JSDocInfo_Visibility] = collectPass.getFileOverviewVisibilityMap()
-	NodeTraversal_traverseRoots(this.compiler_, icast_NodeTraversal_Callback(obj_(new_SymbolTable_VisibilityCollector(this, visibilityMap))), externs, root)
+	NodeTraversal_traverseRoots(this.compiler_, new_SymbolTable_VisibilityCollector(this, visibilityMap), externs, root)
 }
 
 func (this *SymbolTable) createPropertyScopeFor(s *SymbolTable_Symbol) {
@@ -805,7 +805,7 @@ func (this *SymbolTable) fillThisReferences(externs Node, root Node) {
 }
 
 func (this *SymbolTable) fillSuperReferences(externs Node, root Node) {
-	var collectSuper NodeTraversal_Callback = icast_NodeTraversal_Callback(obj_(new_SymbolTable_2(this)))
+	var collectSuper NodeTraversal_Callback = new_SymbolTable_2(this)
 	NodeTraversal_traverseRoots(this.compiler_, collectSuper, externs, root)
 }
 
@@ -864,8 +864,8 @@ func (this *SymbolTable) fillGoogProvideModuleRequires(externs Node, root Node) 
 	var declaredNamespaces map[string]*SymbolTable_Symbol = map[string]*SymbolTable_Symbol{}
 	var moduleScopes map[string]*SymbolTable_SymbolScope = map[string]*SymbolTable_SymbolScope{}
 	var looksLikeGoogCall func(any) bool = lambda_SymbolTable_fillGoogProvideModuleRequires_1_
-	var collectModuleScopes NodeTraversal_Callback = icast_NodeTraversal_Callback(obj_(new_SymbolTable_3(this, looksLikeGoogCall, declaredNamespaces, moduleScopes)))
-	var processRequireStatements NodeTraversal_Callback = icast_NodeTraversal_Callback(obj_(new_SymbolTable_4(this, looksLikeGoogCall, moduleScopes, declaredNamespaces)))
+	var collectModuleScopes NodeTraversal_Callback = new_SymbolTable_3(this, looksLikeGoogCall, declaredNamespaces, moduleScopes)
+	var processRequireStatements NodeTraversal_Callback = new_SymbolTable_4(this, looksLikeGoogCall, moduleScopes, declaredNamespaces)
 	NodeTraversal_traverseRoots(this.compiler_, collectModuleScopes, externs, root)
 	NodeTraversal_traverseRoots(this.compiler_, processRequireStatements, externs, root)
 }
@@ -1413,7 +1413,7 @@ func new_SymbolTable_PropertyRefCollector(outer_ *SymbolTable) *SymbolTable_Prop
 }
 
 func (this *SymbolTable_PropertyRefCollector) process_2(externs Node, root Node) {
-	NodeTraversal_traverseRoots(this.outer_.compiler_, icast_NodeTraversal_Callback(obj_(this)), externs, root)
+	NodeTraversal_traverseRoots(this.outer_.compiler_, this, externs, root)
 }
 
 func (this *SymbolTable_PropertyRefCollector) maybeDefineReference(n Node, propName string, ownerSymbol *SymbolTable_Symbol) bool {
@@ -1583,7 +1583,7 @@ func new_SymbolTable_ThisRefCollector(outer_ *SymbolTable) *SymbolTable_ThisRefC
 }
 
 func (this *SymbolTable_ThisRefCollector) process_2(externs Node, root Node) {
-	NodeTraversal_traverseRoots(this.outer_.compiler_, icast_NodeTraversal_Callback(obj_(this)), externs, root)
+	NodeTraversal_traverseRoots(this.outer_.compiler_, this, externs, root)
 }
 
 func (this *SymbolTable_ThisRefCollector) enterScope_impl(t *NodeTraversal) {

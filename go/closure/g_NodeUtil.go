@@ -2945,7 +2945,7 @@ func NodeUtil_isValidPropertyName(mode *FeatureSet, name string) bool {
 
 func NodeUtil_getVarsDeclaredInBranch(root Node) CollectionOf[Node] {
 	var collector *NodeUtil_VarCollector = new_NodeUtil_VarCollector()
-	NodeUtil_visitPreOrder_Node_Visitor_Predicate(root, icast_NodeUtil_Visitor(obj_(collector)), NodeUtil_MATCH_NOT_FUNCTION)
+	NodeUtil_visitPreOrder_Node_Visitor_Predicate(root, collector, NodeUtil_MATCH_NOT_FUNCTION)
 	return collector.vars.asMap().values()
 }
 
@@ -3307,7 +3307,7 @@ func NodeUtil_visitPostOrder_Node_Visitor_Predicate(node Node, visitor func(Node
 
 func NodeUtil_preOrderIterable_Node_Predicate(root Node, travserseNodePredicate Predicate_baseOf[Node]) IterableOf[Node] {
 	return &Iterable_fn{func() Iterator {
-		return icast_Iterator(obj_(new_NodeUtil_PreOrderIterator(root, travserseNodePredicate)))
+		return new_NodeUtil_PreOrderIterator(root, travserseNodePredicate)
 	}}
 }
 
@@ -4156,7 +4156,7 @@ func NodeUtil_isCallToNode(n Node, targetMethod Node) bool {
 }
 
 func NodeUtil_collectExternVariableNames(compiler *AbstractCompiler, externs Node) ImmutableSetOf[string] {
-	var externsRefs *ReferenceCollector = new_ReferenceCollector_AbstractCompiler_Behavior_ScopeCreator(compiler, ReferenceCollector_DO_NOTHING_BEHAVIOR, icast_ScopeCreator(obj_(new_SyntacticScopeCreator_AbstractCompiler(compiler))))
+	var externsRefs *ReferenceCollector = new_ReferenceCollector_AbstractCompiler_Behavior_ScopeCreator(compiler, ReferenceCollector_DO_NOTHING_BEHAVIOR, new_SyntacticScopeCreator_AbstractCompiler(compiler))
 	externsRefs.process(externs)
 	var externsNames ImmutableSet_BuilderOf[string] = ImmutableSet_builder()
 	it_1 := foreach_(any(externsRefs.getAllSymbols()))
@@ -4166,7 +4166,7 @@ func NodeUtil_collectExternVariableNames(compiler *AbstractCompiler, externs Nod
 			externsNames.add(strobj_(v.getName()))
 		}
 	}
-	return cast_[*ImmutableSet](obj_(externsNames.build()))
+	return externsNames.build()
 }
 
 func NodeUtil_createSynthesizedExternsSymbol(compiler *AbstractCompiler, nameToAdd string) {
@@ -4237,13 +4237,13 @@ func NodeUtil_removeNestedChangeScopeNodes(scopeNodes []Node) *TList[Node] {
 
 func NodeUtil_getInvocationArgsAsIterable(invocation Node) IterableOf[Node] {
 	if invocation.isTaggedTemplateLit() {
-		return icast_Iterable(obj_(new_NodeUtil_TemplateArgsIterable(invocation.getLastChild())))
+		return new_NodeUtil_TemplateArgsIterable(invocation.getLastChild())
 	}
 	if !NodeUtil_isCallOrNew(invocation) {
 		Preconditions_checkState_boolean_Object(false, invocation.box_())
 	}
 	if invocation.hasOneChild() {
-		return icast_Iterable(obj_(ImmutableList_of()))
+		return ImmutableList_of()
 	}
 	var list ImmutableList_BuilderOf[Node] = ImmutableList_builder()
 	{
@@ -4257,7 +4257,7 @@ func NodeUtil_getInvocationArgsAsIterable(invocation Node) IterableOf[Node] {
 
 func NodeUtil_getInvocationArgsCount(invocation Node) int32 {
 	if invocation.isTaggedTemplateLit() {
-		var args IterableOf[Node] = icast_Iterable(obj_(new_NodeUtil_TemplateArgsIterable(invocation.getLastChild())))
+		var args IterableOf[Node] = new_NodeUtil_TemplateArgsIterable(invocation.getLastChild())
 		return (Iterables_size(args) + 1)
 	} else {
 		return (invocation.getChildCount() - 1)
@@ -4271,7 +4271,7 @@ func NodeUtil_getAllVarNamesDeclaredInModule(moduleNode Node, compiler *Abstract
 		Preconditions_checkState_boolean_Object(false, obj_(globalScope))
 	}
 	var nameVars map[string]struct{} = map[string]struct{}{}
-	var finder NodeTraversal_ScopedCallback = icast_NodeTraversal_ScopedCallback(obj_(new_NodeUtil_1(nameVars)))
+	var finder NodeTraversal_ScopedCallback = new_NodeUtil_1(nameVars)
 	NodeTraversal_builder().setCompiler(compiler).setCallback(NodeTraversal_Callback(finder)).setScopeCreator(scopeCreator).traverseWithScope(moduleNode, globalScope.up_AbstractScope())
 	return nameVars
 }
@@ -4282,7 +4282,7 @@ func NodeUtil_getAllVarsDeclaredInFunction(compiler *AbstractCompiler, scopeCrea
 	}
 	var nameVarMap *TMap[string, *Var] = newTMap_(tc_string, tc_p_Var)
 	var orderedVars *TList[*Var] = newTList_(tc_p_Var)
-	var finder NodeTraversal_ScopedCallback = icast_NodeTraversal_ScopedCallback(obj_(new_NodeUtil_2(nameVarMap, orderedVars, scope)))
+	var finder NodeTraversal_ScopedCallback = new_NodeUtil_2(nameVarMap, orderedVars, scope)
 	NodeTraversal_builder().setCompiler(compiler).setCallback(NodeTraversal_Callback(finder)).setScopeCreator(scopeCreator).traverseAtScope(scope.up_AbstractScope())
 	return new_NodeUtil_AllVarsDeclaredInFunction(nameVarMap, orderedVars)
 }
@@ -4677,7 +4677,7 @@ func (this *NodeUtil_MatchNameNode) apply(n_ any) bool {
 }
 
 func (this *NodeUtil_MatchNameNode) test(p0 any) bool {
-	return Predicate_base_test(icast_Predicate_base(any(this)), p0)
+	return Predicate_base_test(this, p0)
 }
 
 type NodeUtil_MatchNodeType struct {
@@ -4701,7 +4701,7 @@ func (this *NodeUtil_MatchNodeType) apply(n_ any) bool {
 }
 
 func (this *NodeUtil_MatchNodeType) test(p0 any) bool {
-	return Predicate_base_test(icast_Predicate_base(any(this)), p0)
+	return Predicate_base_test(this, p0)
 }
 
 type NodeUtil_MatchDeclaration struct {
@@ -4724,7 +4724,7 @@ func (this *NodeUtil_MatchDeclaration) apply(n_ any) bool {
 }
 
 func (this *NodeUtil_MatchDeclaration) test(p0 any) bool {
-	return Predicate_base_test(icast_Predicate_base(any(this)), p0)
+	return Predicate_base_test(this, p0)
 }
 
 type NodeUtil_MatchShallowStatement struct {
@@ -4748,7 +4748,7 @@ func (this *NodeUtil_MatchShallowStatement) apply(n_ any) bool {
 }
 
 func (this *NodeUtil_MatchShallowStatement) test(p0 any) bool {
-	return Predicate_base_test(icast_Predicate_base(any(this)), p0)
+	return Predicate_base_test(this, p0)
 }
 
 type NodeUtil_Visitor interface {
@@ -4832,7 +4832,7 @@ func new_NodeUtil_TemplateArgsIterable(templateLit Node) *NodeUtil_TemplateArgsI
 }
 
 func (this *NodeUtil_TemplateArgsIterable) iterator() IteratorOf[Node] {
-	return icast_Iterator(obj_(new_NodeUtil_TemplateArgsIterable_1(this)))
+	return new_NodeUtil_TemplateArgsIterable_1(this)
 }
 
 type NodeUtil_AllVarsDeclaredInFunction struct {

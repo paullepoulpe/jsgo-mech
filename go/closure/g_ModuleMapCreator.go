@@ -40,7 +40,7 @@ func (this *ModuleMapCreator) create() *ModuleMap {
 }
 
 func (this *ModuleMapCreator) resolve() *ModuleMap {
-	var requestResolver ModuleRequestResolver = icast_ModuleRequestResolver(obj_(new_ModuleMapCreator_ModuleRequestResolverImpl(this)))
+	var requestResolver ModuleRequestResolver = new_ModuleMapCreator_ModuleRequestResolverImpl(this)
 	var resolvedModules *TMap[string, *Module] = newTMap_(tc_string, tc_p_Module)
 	var resolvedClosureModules *TMap[string, *Module] = newTMap_(tc_string, tc_p_Module)
 	for do_2 := true; do_2; do_2 = !resolvedModules.asMap().keySet().containsAll(Collection(this.unresolvedModules.asMap().keySet())) {

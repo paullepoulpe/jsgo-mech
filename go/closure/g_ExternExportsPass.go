@@ -48,7 +48,7 @@ func ExternExportsPass_computePathPrefixes(path string) ImmutableListOf[string] 
 		partial = ExternExportsPass_Q_NAME_JOINER.join_Object_Object_ObjectArr(strobj_(partial), strobj_(sliceAt_(pieces, i)), []any{})
 		pathPrefixes.add(strobj_(partial))
 	}
-	return cast_[*ImmutableList](obj_(pathPrefixes.build()))
+	return pathPrefixes.build()
 }
 
 func (this *ExternExportsPass) initExportMethods() {
@@ -58,8 +58,8 @@ func (this *ExternExportsPass) initExportMethods() {
 }
 
 func (this *ExternExportsPass) process_2(externs Node, root Node) {
-	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(obj_(this)))
-	var sorted SetOf[*ExternExportsPass_Export] = icast_Set(obj_(new_TreeSet_Comparator(Comparator_comparing(lambda_ExternExportsPass_process_2_1_))))
+	NodeTraversal_traverse(this.compiler_, root, this)
+	var sorted SetOf[*ExternExportsPass_Export] = new_TreeSet_Comparator(Comparator_comparing(lambda_ExternExportsPass_process_2_1_))
 	sorted.addAll(Collection(sliceView_(tc_p_ExternExportsPass_Export, this.exports)))
 	it_1 := foreach_(any(sorted))
 	for it_1.next() {
@@ -127,7 +127,7 @@ func (this *ExternExportsPass) lookForSymbolExportCall(n Node) {
 	if !nameArg.isStringLit() {
 		return
 	}
-	this.exports = append(this.exports, to_ExternExportsPass_Export(obj_(new_ExternExportsPass_SymbolExport(this, nameArg.getString(), valueArg))))
+	this.exports = append(this.exports, new_ExternExportsPass_SymbolExport(this, nameArg.getString(), valueArg).as_ExternExportsPass_Export())
 }
 
 func (this *ExternExportsPass) lookForPropertyExportCall(n Node) {
@@ -147,7 +147,7 @@ func (this *ExternExportsPass) lookForPropertyExportCall(n Node) {
 	if !nameArg.isStringLit() {
 		return
 	}
-	this.exports = append(this.exports, to_ExternExportsPass_Export(obj_(new_ExternExportsPass_PropertyExport(this, objectArg.getQualifiedName(), nameArg.getString(), valueArg))))
+	this.exports = append(this.exports, new_ExternExportsPass_PropertyExport(this, objectArg.getQualifiedName(), nameArg.getString(), valueArg).as_ExternExportsPass_Export())
 }
 
 func (this *ExternExportsPass) isCallToOneOf(n Node, functionQnames ImmutableSetOf[string]) bool {
@@ -182,7 +182,7 @@ func (this *ExternExportsPass) lookForAtExportOnThisDotProperty(t *NodeTraversal
 	var propertyName string = thisDotPropName.getString()
 	var prototypeName string = (sstr_(className) + ".prototype")
 	var propertyNameNode Node = NodeUtil_newQName_AbstractCompiler_String(this.compiler_, ("this." + sstr_(propertyName)))
-	this.exports = append(this.exports, to_ExternExportsPass_Export(obj_(new_ExternExportsPass_PropertyExport(this, prototypeName, propertyName, propertyNameNode))))
+	this.exports = append(this.exports, new_ExternExportsPass_PropertyExport(this, prototypeName, propertyName, propertyNameNode).as_ExternExportsPass_Export())
 }
 
 var ExternExportsPass_Q_NAME_JOINER *Joiner
@@ -333,7 +333,7 @@ func (this *ExternExportsPass_Export) createExternFunction(exportedFunction Node
 
 func (this *ExternExportsPass_Export) createExternsParamListFromOriginalFunction(exportedFunction Node) Node {
 	var originalParamList Node = NodeUtil_getFunctionParameters(exportedFunction)
-	var originalParamNames ListOf[string] = icast_List(new_ArrayList_0().self())
+	var originalParamNames ListOf[string] = new_ArrayList_0()
 	{
 		var originalParam Node = originalParamList.getFirstChild()
 		for ; originalParam != 0; originalParam = originalParam.getNext() {
@@ -350,7 +350,7 @@ func (this *ExternExportsPass_Export) createExternsParamListFromFunctionType(fun
 
 func (this *ExternExportsPass_Export) createExternsParamListFromOriginalParamList(originalParamNames ListOf[string]) Node {
 	var paramList Node = IR_paramList([]Node{})
-	var nameGenerator NameGenerator = icast_NameGenerator(obj_(new_DefaultNameGenerator_Set_String_Set(icast_Set(obj_(ImmutableSet_copyOf(Collection(originalParamNames)))), "", icast_Set(obj_(ImmutableSet_of())))))
+	var nameGenerator NameGenerator = new_DefaultNameGenerator_Set_String_Set(icast_Set(obj_(ImmutableSet_copyOf(Collection(originalParamNames)))), "", ImmutableSet_of())
 	it_1 := foreach_(any(originalParamNames))
 	for it_1.next() {
 		var originalParamName string = str_(it_1.v)
@@ -412,7 +412,7 @@ func (this *ExternExportsPass_Export) buildEmptyJSDoc() *JSDocInfo {
 func (this *ExternExportsPass_Export) buildNamespaceJSDoc() *JSDocInfo {
 	var builder *JSDocInfo_Builder = JSDocInfo_builder()
 	builder.recordConstancy()
-	builder.recordSuppressions(icast_Set(obj_(ImmutableSet_of_Object_Object(strobj_("const"), strobj_("duplicate")))))
+	builder.recordSuppressions(ImmutableSet_of_Object_Object(strobj_("const"), strobj_("duplicate")))
 	return builder.build()
 }
 

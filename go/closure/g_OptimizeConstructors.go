@@ -26,7 +26,7 @@ func new_OptimizeConstructors(compiler *AbstractCompiler) *OptimizeConstructors 
 
 func (this *OptimizeConstructors) process_2(externs Node, root Node) {
 	Preconditions_checkState((this.compiler_.getLifeCycleStage() == AbstractCompiler_LifeCycleStage_NORMALIZED))
-	OptimizeCalls_builder().setCompiler(this.compiler_).setConsiderExterns(false).addPass(icast_OptimizeCalls_CallGraphCompilerPass(any(this))).build().process_2(externs, root)
+	OptimizeCalls_builder().setCompiler(this.compiler_).setConsiderExterns(false).addPass(this).build().process_2(externs, root)
 }
 
 func (this *OptimizeConstructors) process_3(externs Node, root Node, refMap *OptimizeCalls_ReferenceMap) {

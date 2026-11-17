@@ -33,7 +33,7 @@ func new_SubstituteEs6Syntax(compiler *AbstractCompiler) *SubstituteEs6Syntax {
 }
 
 func (this *SubstituteEs6Syntax) process_2(externs Node, root Node) {
-	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(obj_(this)))
+	NodeTraversal_traverse(this.compiler_, root, this)
 }
 
 func (this *SubstituteEs6Syntax) visit_impl(t *NodeTraversal, n Node, parent Node) {

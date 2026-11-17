@@ -66,7 +66,7 @@ func (this *ModuleLoader) createRootPaths(roots IterableOf[string]) ImmutableLis
 			return strobj_(n)
 		}())
 	}
-	return cast_[*ImmutableSortedSet](obj_(result.build())).asList()
+	return result.build().asList()
 }
 
 func (this *ModuleLoader) resolvePaths(inputs IterableOf[DependencyInfo]) ImmutableSetOf[string] {
@@ -166,7 +166,7 @@ func ModuleLoader_clinit() {
 	ModuleLoader_INVALID_MODULE_PATH = DiagnosticType_error("JSC_INVALID_MODULE_PATH", "Invalid module path \"{0}\" for resolution mode \"{1}\"")
 	ModuleLoader_BEST_MATCH_PATH_ORDERING = Comparator_thenComparing_Comparator(Comparator_reversed(Comparator_comparingInt_f(lambda_ModuleLoader_clinit_1_)), Comparator_naturalOrder())
 	ModuleLoader_NOOP_ERROR_HANDER = lambda_ModuleLoader_clinit_2_
-	ModuleLoader_EMPTY = ModuleLoader_builder().setModuleRoots(icast_Iterable(obj_(ImmutableList_of()))).setInputs(icast_Iterable(obj_(ImmutableList_of()))).setFactory(BrowserModuleResolver_FACTORY).build()
+	ModuleLoader_EMPTY = ModuleLoader_builder().setModuleRoots(ImmutableList_of()).setInputs(ImmutableList_of()).setFactory(BrowserModuleResolver_FACTORY).build()
 
 }
 

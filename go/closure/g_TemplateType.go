@@ -143,7 +143,7 @@ func (this *TemplateType) setValidator_impl(validator Predicate_baseOf[*JSType])
 
 func (this *TemplateType) containsCycle() bool {
 	var typeVisitor *ContainsUpperBoundSuperTypeVisitor = new_ContainsUpperBoundSuperTypeVisitor(nil)
-	return (cast_[ContainsUpperBoundSuperTypeVisitor_Result](this.visit(icast_Visitor(obj_(typeVisitor)))) == ContainsUpperBoundSuperTypeVisitor_Result_CYCLE)
+	return (cast_[ContainsUpperBoundSuperTypeVisitor_Result](this.visit(typeVisitor)) == ContainsUpperBoundSuperTypeVisitor_Result_CYCLE)
 }
 
 func (this *TemplateType) recursionUnsafeHashCode_impl() int32 {

@@ -25,7 +25,7 @@ func new_ReplaceMessages(compiler *AbstractCompiler, bundle MessageBundle, stric
 }
 
 func (this *ReplaceMessages) getMsgProtectionPass() CompilerPass {
-	return icast_CompilerPass(obj_(new_ReplaceMessages_MsgProtectionPass(this)))
+	return new_ReplaceMessages_MsgProtectionPass(this)
 }
 
 func (this *ReplaceMessages) getMsgOptionsFromDefinition(definition JsMessageDefinition) *ReplaceMessages_MsgOptions {
@@ -68,7 +68,7 @@ func (this *ReplaceMessages) createMsgPropertiesNode(message *JsMessage, msgOpti
 }
 
 func (this *ReplaceMessages) getReplacementCompletionPass() CompilerPass {
-	return icast_CompilerPass(obj_(new_ReplaceMessages_ReplacementCompletionPass(this)))
+	return new_ReplaceMessages_ReplacementCompletionPass(this)
 }
 
 func ReplaceMessages_extractPlaceholderValuesMapOrThrow(valuesObjLit Node) ImmutableMapOf[string, Node] {
@@ -105,7 +105,7 @@ func (this *ReplaceMessages) lookupMessage(callNode Node, bundle MessageBundle, 
 }
 
 func (this *ReplaceMessages) getFullReplacementPass() CompilerPass {
-	return icast_CompilerPass(obj_(new_ReplaceMessages_FullReplacementPass(this)))
+	return new_ReplaceMessages_FullReplacementPass(this)
 }
 
 func (this *ReplaceMessages) createNodeForGenderedMsgString(message *JsMessage, placeholderMap *TMap[string, Node], options *ReplaceMessages_MsgOptions, nodeToReplace Node) *Outcome_base {
@@ -296,7 +296,7 @@ func ReplaceMessages_mergeStringParts(parts []JsMessage_Part) *TList[JsMessage_P
 			if (lastPart == nil) || lastPart.isPlaceholder() {
 				result.add(part)
 			} else {
-				result.set((result.size() - 1), icast_JsMessage_Part(obj_(JsMessage_StringPart_create((sstr_(lastPart.getString()) + sstr_(part.getString()))))))
+				result.set((result.size() - 1), JsMessage_StringPart_create((sstr_(lastPart.getString()) + sstr_(part.getString()))))
 			}
 		}
 	}
@@ -557,7 +557,7 @@ func new_ReplaceMessages_ReplacementCompletionPass(outer_ *ReplaceMessages) *Rep
 }
 
 func (this *ReplaceMessages_ReplacementCompletionPass) process_2(externs Node, root Node) {
-	NodeTraversal_traverse(this.outer_.compiler_, root, icast_NodeTraversal_Callback(obj_(new_ReplaceMessages_ReplacementCompletionPass_1(this))))
+	NodeTraversal_traverse(this.outer_.compiler_, root, new_ReplaceMessages_ReplacementCompletionPass_1(this))
 }
 
 func (this *ReplaceMessages_ReplacementCompletionPass) visitMsgDefinition(protectedJsMessage *ReplaceMessages_ProtectedJsMessage) {

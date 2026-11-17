@@ -21,9 +21,9 @@ func new_RewriteCallerCodeLocation(compiler *AbstractCompiler) *RewriteCallerCod
 }
 
 func (this *RewriteCallerCodeLocation) process_2(externs Node, root Node) {
-	NodeTraversal_traverse(this.compiler_, this.compiler_.getRoot(), icast_NodeTraversal_Callback(obj_(new_RewriteCallerCodeLocation_FindCallerLocationFunctions(this))))
+	NodeTraversal_traverse(this.compiler_, this.compiler_.getRoot(), new_RewriteCallerCodeLocation_FindCallerLocationFunctions(this))
 	if !(len(this.callerLocationFunctionNames) == 0) {
-		NodeTraversal_traverse(this.compiler_, this.compiler_.getRoot(), icast_NodeTraversal_Callback(obj_(new_RewriteCallerCodeLocation_RewriteCallerLocationFunctionCalls(this))))
+		NodeTraversal_traverse(this.compiler_, this.compiler_.getRoot(), new_RewriteCallerCodeLocation_RewriteCallerLocationFunctionCalls(this))
 	}
 }
 

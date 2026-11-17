@@ -272,7 +272,7 @@ func (this *SourceFile_jscomp) getLines(lineNumber int32, length int32) Region {
 	}
 	var pos int32 = this.lineOffsets[(lineNumber - 1)]
 	if pos == String_length(js) {
-		return icast_Region(obj_(new_SimpleRegion(lineNumber, lineNumber, "")))
+		return new_SimpleRegion(lineNumber, lineNumber, "")
 	}
 	var endChar int32 = pos
 	var endLine int32 = lineNumber
@@ -287,14 +287,14 @@ func (this *SourceFile_jscomp) getLines(lineNumber int32, length int32) Region {
 	if endChar > pos {
 		if String_charAt(js, (endChar-1)) == '\n' {
 			if ((endChar - 1) > pos) && (String_charAt(js, (endChar-2)) == '\r') {
-				return icast_Region(obj_(new_SimpleRegion(lineNumber, endLine, String_substring(js, pos, (endChar-2)))))
+				return new_SimpleRegion(lineNumber, endLine, String_substring(js, pos, (endChar-2)))
 			}
-			return icast_Region(obj_(new_SimpleRegion(lineNumber, endLine, String_substring(js, pos, (endChar-1)))))
+			return new_SimpleRegion(lineNumber, endLine, String_substring(js, pos, (endChar-1)))
 		} else if SourceFile_jscomp_isLineTerminator(String_charAt(js, (endChar - 1))) {
-			return icast_Region(obj_(new_SimpleRegion(lineNumber, endLine, String_substring(js, pos, (endChar-1)))))
+			return new_SimpleRegion(lineNumber, endLine, String_substring(js, pos, (endChar-1)))
 		}
 	}
-	return icast_Region(obj_(new_SimpleRegion(lineNumber, endLine, String_substring(js, pos, endChar))))
+	return new_SimpleRegion(lineNumber, endLine, String_substring(js, pos, endChar))
 }
 
 func (this *SourceFile_jscomp) getRegion(lineNumber int32) Region {
@@ -335,12 +335,12 @@ func (this *SourceFile_jscomp) getRegion(lineNumber int32) Region {
 	if end == -1 {
 		var last int32 = (String_length(js) - 1)
 		if String_charAt(js, last) == '\n' {
-			return icast_Region(obj_(new_SimpleRegion(startLine, endLine, String_substring(js, pos, last))))
+			return new_SimpleRegion(startLine, endLine, String_substring(js, pos, last))
 		} else {
-			return icast_Region(obj_(new_SimpleRegion(startLine, endLine, String_substring_int(js, pos))))
+			return new_SimpleRegion(startLine, endLine, String_substring_int(js, pos))
 		}
 	} else {
-		return icast_Region(obj_(new_SimpleRegion(startLine, endLine, String_substring(js, pos, end))))
+		return new_SimpleRegion(startLine, endLine, String_substring(js, pos, end))
 	}
 	panic("unreachable")
 }
@@ -367,7 +367,7 @@ func SourceFile_jscomp_fromZipInput(zipName string, zipBytes []int8, inputCharse
 
 func SourceFile_jscomp_fromZipEntryNames(zipName string, entryNames *TList[string], inputCharset string) *Outcome_base {
 	var absoluteZipPath string = FilePaths_toAbsolute(zipName)
-	var sourceFiles ListOf[*SourceFile_jscomp] = icast_List(new_ArrayList_0().self())
+	var sourceFiles ListOf[*SourceFile_jscomp] = new_ArrayList_0()
 	it_1 := entryNames.each()
 	for it_1.next() {
 		var entryName string = it_1.v
@@ -551,23 +551,23 @@ func SourceFile_jscomp_sourceKindToProto(sourceKind StaticSourceFile_SourceKind)
 }
 
 func (this *SourceFile_jscomp) isStrong() bool {
-	return StaticSourceFile_isStrong_default(icast_StaticSourceFile(any(this)))
+	return StaticSourceFile_isStrong_default(this)
 }
 
 func (this *SourceFile_jscomp) isWeak() bool {
-	return StaticSourceFile_isWeak_default(icast_StaticSourceFile(any(this)))
+	return StaticSourceFile_isWeak_default(this)
 }
 
 func (this *SourceFile_jscomp) isExtern() bool {
-	return StaticSourceFile_isExtern_default(icast_StaticSourceFile(any(this)))
+	return StaticSourceFile_isExtern_default(this)
 }
 
 func (this *SourceFile_jscomp) isNonCode() bool {
-	return StaticSourceFile_isNonCode_default(icast_StaticSourceFile(any(this)))
+	return StaticSourceFile_isNonCode_default(this)
 }
 
 func (this *SourceFile_jscomp) isTypeScriptSource() bool {
-	return StaticSourceFile_isTypeScriptSource_default(icast_StaticSourceFile(any(this)))
+	return StaticSourceFile_isTypeScriptSource_default(this)
 }
 
 const SourceFile_jscomp_UTF8_BOM string = "\ufeff"

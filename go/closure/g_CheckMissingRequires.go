@@ -35,7 +35,7 @@ func new_CheckMissingRequires(compiler *AbstractCompiler, moduleMetadataMap *Mod
 }
 
 func (this *CheckMissingRequires) process_2(externs Node, root Node) {
-	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(obj_(this)))
+	NodeTraversal_traverse(this.compiler_, root, this)
 }
 
 func (this *CheckMissingRequires) shouldTraverse_4_impl(t *NodeTraversal, n Node, currentModule *ModuleMetadataMap_ModuleMetadata, scopeRoot Node) bool {
@@ -452,9 +452,9 @@ func (this *CheckMissingRequires) isAllowedNamespace(currentFile *ModuleMetadata
 func CheckMissingRequires_hasAcceptableRequire(rdep *ModuleMetadataMap_ModuleMetadata, namespace *QualifiedName, dep *ModuleMetadataMap_ModuleMetadata, referenceStrength CheckMissingRequires_Strength) bool {
 	var acceptableRequires SetOf[string] = rdep.stronglyRequiredGoogNamespaces().elementSet()
 	if !CheckMissingRequires_Strength_isStrong__[referenceStrength-1] {
-		acceptableRequires = icast_Set(obj_(Sets_union(acceptableRequires, rdep.weaklyRequiredGoogNamespaces().elementSet())))
+		acceptableRequires = Sets_union(acceptableRequires, rdep.weaklyRequiredGoogNamespaces().elementSet())
 	}
-	acceptableRequires = icast_Set(obj_(Sets_intersection(acceptableRequires, dep.googNamespaces().elementSet())))
+	acceptableRequires = Sets_intersection(acceptableRequires, dep.googNamespaces().elementSet())
 	{
 		var parent *QualifiedName = namespace
 		for ; parent != nil; parent = parent.getOwner() {

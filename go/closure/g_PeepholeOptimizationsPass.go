@@ -41,9 +41,9 @@ func (this *PeepholeOptimizationsPass) process_2(externs Node, root Node) {
 		var changedScopeNodes *TList[Node] = this.compiler_.getChangeTracker().getChangedScopeNodesForPass(this.passName)
 		for ; (changedScopeNodes == nil) || !changedScopeNodes.isEmpty(); changedScopeNodes = this.compiler_.getChangeTracker().getChangedScopeNodesForPass(this.passName) {
 			if changedScopeNodes == nil {
-				NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(obj_(new_PeepholeOptimizationsPass_PeepCallback(this))))
+				NodeTraversal_traverse(this.compiler_, root, new_PeepholeOptimizationsPass_PeepCallback(this))
 			} else {
-				NodeTraversal_traverseScopeRoots(this.compiler_, changedScopeNodes, icast_NodeTraversal_Callback(obj_(new_PeepholeOptimizationsPass_PeepCallback(this))), false)
+				NodeTraversal_traverseScopeRoots(this.compiler_, changedScopeNodes, new_PeepholeOptimizationsPass_PeepCallback(this), false)
 			}
 			if !this.retraverseOnChange {
 				break

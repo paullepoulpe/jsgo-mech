@@ -24,7 +24,7 @@ func ReportDecoder_parseMappingFromFile(mappingFilePath string) *Outcome_base {
 }
 
 func ReportDecoder_parseMapping(mappingFileContent string) *Outcome_base {
-	var mapping MapOf[string, *InstrumentationPoint] = icast_Map(obj_(new_LinkedHashMap()))
+	var mapping MapOf[string, *InstrumentationPoint] = new_LinkedHashMap()
 	var linesOfFile []string = sliceImm_(tc_string, Splitter_on('\n').omitEmptyStrings().splitToList_s(mappingFileContent))
 	if !(int32(len(linesOfFile)) >= 3) {
 		Preconditions_checkState_boolean_String_Object(false, "Malformed report %s", any(sliceView_(tc_string, linesOfFile)))
@@ -63,7 +63,7 @@ func ReportDecoder_parseMapping(mappingFileContent string) *Outcome_base {
 		var id string = String_substring(lineItem, 0, String_indexOf(lineItem, 58))
 		var encodedDetails string = String_substring_int(lineItem, (String_indexOf(lineItem, 58) + 1))
 		var encodedDetailsAsCharIt *ReportDecoder_StringCharIterator = new_ReportDecoder_StringCharIterator(encodedDetails)
-		var temp *InstrumentationPoint = cast_[*InstrumentationPoint](InstrumentationPoint_newBuilder().setFileName(str_(localFileNames.get(Base64VLQ_decode(icast_Base64VLQ_CharIterator(obj_(encodedDetailsAsCharIt)))))).setFunctionName(str_(functionNames.get(Base64VLQ_decode(icast_Base64VLQ_CharIterator(obj_(encodedDetailsAsCharIt)))))).setType(types[Base64VLQ_decode(icast_Base64VLQ_CharIterator(obj_(encodedDetailsAsCharIt)))]).setLineNumber(Base64VLQ_decode(icast_Base64VLQ_CharIterator(obj_(encodedDetailsAsCharIt)))).setColumnNumber(Base64VLQ_decode(icast_Base64VLQ_CharIterator(obj_(encodedDetailsAsCharIt)))).build())
+		var temp *InstrumentationPoint = cast_[*InstrumentationPoint](InstrumentationPoint_newBuilder().setFileName(str_(localFileNames.get(Base64VLQ_decode(encodedDetailsAsCharIt)))).setFunctionName(str_(functionNames.get(Base64VLQ_decode(encodedDetailsAsCharIt)))).setType(types[Base64VLQ_decode(encodedDetailsAsCharIt)]).setLineNumber(Base64VLQ_decode(encodedDetailsAsCharIt)).setColumnNumber(Base64VLQ_decode(encodedDetailsAsCharIt)).build())
 		Map_putIfAbsent_s(mapping, id, obj_(temp))
 	}
 	return Outcome_base_ok_Object(any(mapping))
@@ -77,7 +77,7 @@ func ReportDecoder_parseJsonStringList(json string) *Outcome_base {
 	if cast_[*SimpleJsonValue](parsed.get()).kind() != SimpleJsonValue_Kind_ARRAY {
 		return Outcome_base_err(new_SimpleJsonException("Malformed mapping: expected a JSON array").up_Throwable())
 	}
-	var list ListOf[string] = icast_List(new_ArrayList_0().self())
+	var list ListOf[string] = new_ArrayList_0()
 	it_1 := foreach_(any(cast_[*SimpleJsonValue](parsed.get()).elements()))
 	for it_1.next() {
 		var element *SimpleJsonValue = cast_[*SimpleJsonValue](it_1.v)

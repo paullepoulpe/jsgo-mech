@@ -25,7 +25,7 @@ func new_RewriteGlobalDeclarationsForTryCatchWrapping(compiler *AbstractCompiler
 }
 
 func (this *RewriteGlobalDeclarationsForTryCatchWrapping) process_2(externs Node, root Node) {
-	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(any(this)))
+	NodeTraversal_traverse(this.compiler_, root, this)
 	it_1 := foreach_(any(this.functions.asMap().entrySet()))
 	for it_1.next() {
 		var entry Map_Entry = icast_Map_Entry(it_1.v)

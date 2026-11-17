@@ -18,7 +18,7 @@ type TypedAstDeserializer struct {
 func (this *TypedAstDeserializer) finit_TypedAstDeserializer() {
 	this.filePoolBuilder = map[string]*SourceFile_jscomp{}
 	this.canonicalFilePool = map[string]*SourceFile_jscomp{}
-	this.typedAstFilesystem = icast_ConcurrentMap(obj_(new_ConcurrentHashMap()))
+	this.typedAstFilesystem = new_ConcurrentHashMap()
 	this.externProperties = ImmutableSet_builder()
 	this.runtimeLibraries_ = ImmutableSet_builder()
 	this.syntheticExternsDeserializers = newTList_(tc_p_ScriptNodeDeserializer)
@@ -80,7 +80,7 @@ func (this *TypedAstDeserializer) toDeserializedAst() *TypedAstDeserializer_Dese
 		}
 		return Optional_base_of(obj_(cast_[*ColorPool_Builder](this.colorPoolBuilder.get()).build().getRegistry()))
 	}()
-	return TypedAstDeserializer_DeserializedAst_create(this.typedAstFilesystem, registry, cast_[*ImmutableSet](obj_(this.externProperties.build())), cast_[*ImmutableSet](obj_(this.runtimeLibraries_.build())))
+	return TypedAstDeserializer_DeserializedAst_create(this.typedAstFilesystem, registry, this.externProperties.build(), this.runtimeLibraries_.build())
 }
 
 func (this *TypedAstDeserializer) deserializeTypedAst(typedAstProto *TypedAst, compiler *AbstractCompiler, resolveSourceMapAnnotations bool, parseInlineSourceMaps bool) {
@@ -100,7 +100,7 @@ func (this *TypedAstDeserializer) deserializeTypedAst(typedAstProto *TypedAst, c
 			return
 		}
 	}
-	var runtimeLibraryList ProtocolStringList = icast_ProtocolStringList(typedAstProto.getRuntimeLibraryToInjectList())
+	var runtimeLibraryList ProtocolStringList = typedAstProto.getRuntimeLibraryToInjectList()
 	for i := int32(0); i < runtimeLibraryList.size(); i++ {
 		this.runtimeLibraries_.add(runtimeLibraryList.get(i))
 	}

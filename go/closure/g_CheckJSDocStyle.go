@@ -27,8 +27,8 @@ func new_CheckJSDocStyle(compiler *AbstractCompiler) *CheckJSDocStyle {
 }
 
 func (this *CheckJSDocStyle) process_2(externs Node, root Node) {
-	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(obj_(this)))
-	NodeTraversal_traverse(this.compiler_, externs, icast_NodeTraversal_Callback(obj_(new_CheckJSDocStyle_ExternsCallback())))
+	NodeTraversal_traverse(this.compiler_, root, this)
+	NodeTraversal_traverse(this.compiler_, externs, new_CheckJSDocStyle_ExternsCallback())
 }
 
 func (this *CheckJSDocStyle) visit_impl(t *NodeTraversal, n Node, unused Node) {
@@ -289,7 +289,7 @@ func (this *CheckJSDocStyle) checkReturn(function Node, jsDoc *JSDocInfo) {
 		return
 	}
 	var finder *CheckJSDocStyle_FindNonTrivialReturn = new_CheckJSDocStyle_FindNonTrivialReturn()
-	NodeTraversal_traverse(this.compiler_, function.getLastChild(), icast_NodeTraversal_Callback(obj_(finder)))
+	NodeTraversal_traverse(this.compiler_, function.getLastChild(), finder)
 	if finder.found_ {
 		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(function, CheckJSDocStyle_MISSING_RETURN_JSDOC, []string{func() string {
 			if (jsDoc != nil) && jsDoc.isOverride() {

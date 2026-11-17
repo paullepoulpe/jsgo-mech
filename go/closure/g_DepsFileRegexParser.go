@@ -55,7 +55,7 @@ func (this *DepsFileRegexParser) parseFile(filePath string) *Outcome_base {
 }
 
 func (this *DepsFileRegexParser) parseFile_2(filePath string, fileContents string) ListOf[DependencyInfo] {
-	this.depInfos = icast_List(new_ArrayList_0().self())
+	this.depInfos = new_ArrayList_0()
 	if DepsFileRegexParser_logger.isLoggable(Level_FINE) {
 		DepsFileRegexParser_logger.fine(("Parsing Dep: " + sstr_(filePath)))
 	}
@@ -114,7 +114,7 @@ func DepsFileRegexParser_requiresParsedFromDeps(symbols ListOf[string]) Immutabl
 		var symbol string = str_(it_1.v)
 		result.add(obj_(DependencyInfo_Require_parsedFromDeps(symbol)))
 	}
-	return cast_[*ImmutableList](obj_(result.build()))
+	return result.build()
 }
 
 func (this *DepsFileRegexParser) parseLoadFlags(loadFlags OptionalOf[string]) *Outcome_base {

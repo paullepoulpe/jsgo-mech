@@ -41,7 +41,7 @@ func DiagnosticGroup_createFromGroups_Optional_DiagnosticGroupArr(name OptionalO
 	for _, group := range groups {
 		set.addAll(icast_Iterable(obj_(group.types)))
 	}
-	return new_DiagnosticGroup_Optional_DiagnosticTypeArr(name, arrmap_(cast_[*ImmutableSet](obj_(set.build())).toArray(arrmap_(make([]*DiagnosticType, 0), func(v_ *DiagnosticType) any { return obj_(v_) })), func(v_ any) *DiagnosticType { return cast_[*DiagnosticType](v_) }))
+	return new_DiagnosticGroup_Optional_DiagnosticTypeArr(name, arrmap_(set.build().toArray(arrmap_(make([]*DiagnosticType, 0), func(v_ *DiagnosticType) any { return obj_(v_) })), func(v_ any) *DiagnosticType { return cast_[*DiagnosticType](v_) }))
 }
 
 func DiagnosticGroup_forType(type_ *DiagnosticType) *DiagnosticGroup {
@@ -90,6 +90,6 @@ func DiagnosticGroup_clinit() {
 		return
 	}
 	DiagnosticGroup_clinit_done = true
-	DiagnosticGroup_singletons = icast_Map(obj_(new_LinkedHashMap()))
+	DiagnosticGroup_singletons = new_LinkedHashMap()
 
 }

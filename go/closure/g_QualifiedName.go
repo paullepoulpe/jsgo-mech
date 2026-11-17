@@ -66,7 +66,7 @@ func QualifiedName_of(string_ string) *QualifiedName {
 		builder.add(strobj_(RhinoStringPool_addOrGet(term)))
 		lastIndex = (index + 1)
 	}
-	var terms ImmutableListOf[string] = cast_[*ImmutableList](obj_(builder.build()))
+	var terms ImmutableListOf[string] = builder.build()
 	return new_QualifiedName_StringListQname(terms, terms.size()).up_QualifiedName()
 }
 

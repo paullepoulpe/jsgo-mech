@@ -45,8 +45,8 @@ func (this *PureFunctionIdentifier) process_3(externs Node, root Node, reference
 	Preconditions_checkState_boolean_Object(!this.hasProcessed, strobj_("PureFunctionIdentifier::process may only be called once per instance."))
 	this.hasProcessed = true
 	this.populateDatastructuresForAnalysisTraversal(references)
-	NodeTraversal_traverse(this.compiler_, externs, icast_NodeTraversal_Callback(obj_(new_PureFunctionIdentifier_ExternFunctionAnnotationAnalyzer(this))))
-	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(obj_(new_PureFunctionIdentifier_FunctionBodyAnalyzer(this))))
+	NodeTraversal_traverse(this.compiler_, externs, new_PureFunctionIdentifier_ExternFunctionAnnotationAnalyzer(this))
+	NodeTraversal_traverse(this.compiler_, root, new_PureFunctionIdentifier_FunctionBodyAnalyzer(this))
 	this.propagateSideEffects()
 	this.validateArtificialPurity()
 	this.markPureFunctionCalls()
@@ -68,7 +68,7 @@ func (this *PureFunctionIdentifier) validateArtificialPurity() {
 			if summary.name_ == ".constructor" {
 				continue
 			}
-			var sortedReasons []Node = sliceFrom_(tc_Node, icast_Collection(any(summary.impureFunctionReasonsForDebugging.asSet())))
+			var sortedReasons []Node = sliceFrom_(tc_Node, Collection(summary.impureFunctionReasonsForDebugging.asSet()))
 			List_sort(sliceView_(tc_Node, sortedReasons), PureFunctionIdentifier_SOURCE_LOCATION_COMPARATOR)
 			var formattedReasons []string = []string{}
 			for _, reason := range sortedReasons {
@@ -89,7 +89,7 @@ func PureFunctionIdentifier_collectCallableLeaves(expr Node, astAnalyzer *AstAna
 	var allLegal bool = PureFunctionIdentifier_collectCallableLeavesInternal(expr, callables, astAnalyzer)
 	return func() *ImmutableList {
 		if allLegal {
-			return ImmutableList_copyOf(icast_Collection(any(callables.asList())))
+			return ImmutableList_copyOf(callables.asList())
 		}
 		return nil
 	}()
@@ -164,11 +164,11 @@ func PureFunctionIdentifier_isDefinitelyRValue(rvalue Node) bool {
 
 func (this *PureFunctionIdentifier) getGoogCacheCallableExpression(cacheCall *CodingConvention_Cache) ImmutableListOf[Node] {
 	Preconditions_checkNotNull(obj_(cacheCall))
-	var builder ImmutableList_BuilderOf[Node] = cast_[*ImmutableList_Builder](obj_(ImmutableList_builder().addAll(icast_Iterable(obj_(PureFunctionIdentifier_collectCallableLeaves(cacheCall.valueFn, this.astAnalyzer))))))
+	var builder ImmutableList_BuilderOf[Node] = ImmutableList_builder().addAll(icast_Iterable(obj_(PureFunctionIdentifier_collectCallableLeaves(cacheCall.valueFn, this.astAnalyzer))))
 	if cacheCall.keyFn != 0 {
 		builder.addAll(icast_Iterable(obj_(PureFunctionIdentifier_collectCallableLeaves(cacheCall.keyFn, this.astAnalyzer))))
 	}
-	return cast_[*ImmutableList](obj_(builder.build()))
+	return builder.build()
 }
 
 func (this *PureFunctionIdentifier) getSummariesForCallee(invocation Node) []*PureFunctionIdentifier_AmbiguatedFunctionSummary {
@@ -240,7 +240,7 @@ func (this *PureFunctionIdentifier) populateDatastructuresForAnalysisTraversal(r
 func (this *PureFunctionIdentifier) populateFunctionDefinitions(name string, references ListOf[Node]) {
 	var summaryForName *PureFunctionIdentifier_AmbiguatedFunctionSummary = cast_[*PureFunctionIdentifier_AmbiguatedFunctionSummary](Preconditions_checkNotNull(obj_(this.summariesByName[name])))
 	var invalid bool = false
-	var rvaluesAssignedToName ListOf[ImmutableListOf[Node]] = icast_List(new_ArrayList_0().self())
+	var rvaluesAssignedToName ListOf[ImmutableListOf[Node]] = new_ArrayList_0()
 	it_1 := foreach_(any(references))
 	for it_1.next() {
 		var reference Node = Node_of_(it_1.v)
@@ -527,7 +527,7 @@ type PureFunctionIdentifier_FunctionBodyAnalyzer struct {
 }
 
 func (this *PureFunctionIdentifier_FunctionBodyAnalyzer) finit_PureFunctionIdentifier_FunctionBodyAnalyzer() {
-	this.functionScopeStack = new_ArrayDeque_Collection(icast_Collection(obj_(ImmutableList_of_Object(obj_(new_PureFunctionIdentifier_FunctionBodyAnalyzer_FunctionStackEntry(0, false))))))
+	this.functionScopeStack = new_ArrayDeque_Collection(ImmutableList_of_Object(obj_(new_PureFunctionIdentifier_FunctionBodyAnalyzer_FunctionStackEntry(0, false))))
 }
 
 func (this *PureFunctionIdentifier_FunctionBodyAnalyzer) init_PureFunctionIdentifier_FunctionBodyAnalyzer() {
@@ -1119,5 +1119,5 @@ func new_PureFunctionIdentifier_Driver(compiler *AbstractCompiler) *PureFunction
 
 func (this *PureFunctionIdentifier_Driver) process_2(externs Node, root Node) {
 	var shouldValidate CheckLevel = this.compiler_.getOptions().getWarningsGuard().level(JSError_make_DiagnosticType_StringArr(PureFunctionIdentifier_UNUSED_ARTIFICIAL_PURE_ANNOTATION, []string{"", ""}))
-	OptimizeCalls_builder().setCompiler(this.compiler_).setConsiderExterns(true).addPass(icast_OptimizeCalls_CallGraphCompilerPass(obj_(new_PureFunctionIdentifier(this.compiler_, this.compiler_.getOptions().getAssumeGettersArePure(), (shouldValidate != CheckLevel_OFF))))).build().process_2(externs, root)
+	OptimizeCalls_builder().setCompiler(this.compiler_).setConsiderExterns(true).addPass(new_PureFunctionIdentifier(this.compiler_, this.compiler_.getOptions().getAssumeGettersArePure(), (shouldValidate != CheckLevel_OFF))).build().process_2(externs, root)
 }

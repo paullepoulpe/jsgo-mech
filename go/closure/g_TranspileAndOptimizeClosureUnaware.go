@@ -20,7 +20,7 @@ func new_TranspileAndOptimizeClosureUnaware(original *AbstractCompiler, mode Nes
 
 func (this *TranspileAndOptimizeClosureUnaware) process_2(externs Node, root Node) {
 	var collector *TranspileAndOptimizeClosureUnaware_CollectShadowAsts = new_TranspileAndOptimizeClosureUnaware_CollectShadowAsts()
-	NodeTraversal_traverse(this.original_, root, icast_NodeTraversal_Callback(obj_(collector)))
+	NodeTraversal_traverse(this.original_, root, collector)
 	if collector.shadowAsts.isEmpty() {
 		return
 	}

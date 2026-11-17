@@ -66,7 +66,7 @@ func SyntacticScopeCreator_clinit() {
 		return
 	}
 	SyntacticScopeCreator_clinit_done = true
-	SyntacticScopeCreator_DEFAULT_REDECLARATION_HANDLER = icast_SyntacticScopeCreator_RedeclarationHandler(obj_(new_SyntacticScopeCreator_DefaultRedeclarationHandler()))
+	SyntacticScopeCreator_DEFAULT_REDECLARATION_HANDLER = new_SyntacticScopeCreator_DefaultRedeclarationHandler()
 
 }
 

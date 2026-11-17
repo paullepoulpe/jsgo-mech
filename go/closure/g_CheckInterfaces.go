@@ -27,7 +27,7 @@ func new_CheckInterfaces(compiler *AbstractCompiler) *CheckInterfaces {
 }
 
 func (this *CheckInterfaces) process_2(externs Node, root Node) {
-	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(obj_(this)))
+	NodeTraversal_traverse(this.compiler_, root, this)
 }
 
 func CheckInterfaces_isInterface(jsDoc *JSDocInfo) bool {

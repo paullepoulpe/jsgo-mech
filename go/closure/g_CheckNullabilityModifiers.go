@@ -39,7 +39,7 @@ func new_CheckNullabilityModifiers(compiler *AbstractCompiler) *CheckNullability
 }
 
 func (this *CheckNullabilityModifiers) process_2(externs Node, root Node) {
-	NodeTraversal_traverseRoots(this.compiler_, icast_NodeTraversal_Callback(obj_(this)), externs, root)
+	NodeTraversal_traverseRoots(this.compiler_, this, externs, root)
 }
 
 func (this *CheckNullabilityModifiers) visit_impl(t *NodeTraversal, n Node, parent Node) {

@@ -51,17 +51,17 @@ func (this *RescopeGlobalSymbols) process_2(externs Node, root Node) {
 	if this.addExtern_ {
 		this.addExternForGlobalSymbolNamespace()
 	}
-	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(obj_(new_RescopeGlobalSymbols_RewriteGlobalClassFunctionDeclarationsToVarAssignmentsCallback(this.compiler_))))
+	NodeTraversal_traverse(this.compiler_, root, new_RescopeGlobalSymbols_RewriteGlobalClassFunctionDeclarationsToVarAssignmentsCallback(this.compiler_))
 	var renameHelperBuilder *RescopeGlobalSymbolsRenameHelper_HelperBuilder = new_RescopeGlobalSymbolsRenameHelper_HelperBuilder(this.compiler_, this.globalSymbolNamespace_, this.optimizeLocalAccess)
 	var findCrossChunkNames *RescopeGlobalSymbols_FindCrossChunkNamesCallback = new_RescopeGlobalSymbols_FindCrossChunkNamesCallback(this.compiler_, this.assumeCrossChunkNames, this.optimizeLocalAccess.shouldOptimize(), renameHelperBuilder)
 	var findNamesReferencingThis *RescopeGlobalSymbols_FindNamesReferencingThis = new_RescopeGlobalSymbols_FindNamesReferencingThis()
-	CombinedCompilerPass_traverse(this.compiler_, root, sliceOf_(tc_NodeTraversal_Callback, icast_NodeTraversal_Callback(obj_(findCrossChunkNames)), icast_NodeTraversal_Callback(obj_(findNamesReferencingThis))))
+	CombinedCompilerPass_traverse(this.compiler_, root, sliceOf_(tc_NodeTraversal_Callback, NodeTraversal_Callback(findCrossChunkNames), NodeTraversal_Callback(findNamesReferencingThis)))
 	var externNames ImmutableSetOf[string] = NodeUtil_collectExternVariableNames(this.compiler_, externs)
 	var symbolInfo *RescopeGlobalSymbolsInfo = new_RescopeGlobalSymbolsInfo_String_Set_Set_Set_Set_Set_Set_Set_Set(this.globalSymbolNamespace_, tsetFrom_(tc_string, externNames, true), findCrossChunkNames.crossChunkNames_, findCrossChunkNames.crossChunkNamesWithWriteFromOtherChunk_, findCrossChunkNames.crossChunkNamesUsedInNonDependentChunk_, findCrossChunkNames.globalNamesWithReadInDefiningChunk_, findCrossChunkNames.globalNamesWithInnerScopeWriteInDefiningChunk_, findCrossChunkNames.globalNamesWithUnsafeWriteForLocalAliasInDefiningChunk_, findNamesReferencingThis.maybeReferencesThis_)
 	var renameHelper *RescopeGlobalSymbolsRenameHelper = renameHelperBuilder.build(symbolInfo)
 	var rewriteScope *RescopeGlobalSymbolsRewriteCallback = new_RescopeGlobalSymbolsRewriteCallback(this.compiler_, this.optimizeLocalAccess, symbolInfo, renameHelper)
-	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(obj_(rewriteScope)))
-	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(obj_(new_RescopeGlobalSymbols_RemoveGlobalVarCallback(this.compiler_, this.optimizeLocalAccess.shouldPreserveLocalVarDeclarations()))))
+	NodeTraversal_traverse(this.compiler_, root, rewriteScope)
+	NodeTraversal_traverse(this.compiler_, root, new_RescopeGlobalSymbols_RemoveGlobalVarCallback(this.compiler_, this.optimizeLocalAccess.shouldPreserveLocalVarDeclarations()))
 	rewriteScope.addDeclarations()
 }
 
