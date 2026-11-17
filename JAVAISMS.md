@@ -77,7 +77,7 @@ Java-ism (what is left is listed with its reason in the step's commit message):
 
 ## After round 7 (merged tree 85416d7a)
 
-Census (tools/census, g_*.go), cc8beb35 -> 85416d7a: erased collection constructors 278 -> 228;
+Census (`tools/postflip/census.py`, g_*.go), cc8beb35 -> 85416d7a: erased collection constructors 278 -> 228;
 typed TList/TMap/TSet constructors 401 -> 431 (erased ones that became typed); Guava immutables
 748 -> 748; for-each cursors 198 -> 101; explicit iterators 123 -> 102; interface casts 969 -> 959;
 class casts 2,192 -> 2,018; instanceof 79 -> 72; boxing 6,039 -> 5,175 before the tostr re-run
