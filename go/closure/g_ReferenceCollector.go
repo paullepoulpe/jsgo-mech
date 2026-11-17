@@ -157,11 +157,11 @@ func (this *ReferenceCollector) addReference(v *Var, n Node, t *NodeTraversal) *
 	if !this.varFilter.apply(obj_(v)) {
 		return nil
 	}
-	collection, ok := this.referenceMap.get(v)
-	if !ok || collection == nil {
-		collection = new_ReferenceCollection()
-		this.referenceMap.put(v, collection)
+	p := this.referenceMap.slot(v)
+	if *p == nil {
+		*p = new_ReferenceCollection()
 	}
+	collection := *p
 	var reference *Reference = new_Reference_Node_NodeTraversal_BasicBlock(n, t, blockStackEnd_(this.blockStack, len(this.blockStack)-1))
 	collection.add(reference)
 	return reference
