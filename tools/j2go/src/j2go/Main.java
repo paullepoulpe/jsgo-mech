@@ -241,6 +241,10 @@ public final class Main {
       for (String e : cx.handleErrors) System.err.println("handle class " + e);
       System.exit(1);
     }
+    GenScan gs = new GenScan(cx, trees);
+    gs.candidates(cx.source);
+    for (CompilationUnitTree cu : units) gs.scan(cu);
+    if (System.getenv("J2GO_GENERICS") != null) gs.report();
     cx.assignClassNames();
     cx.analyzeMethods();
     Files.createDirectories(out);
