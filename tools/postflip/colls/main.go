@@ -680,6 +680,11 @@ func valueOf(e ast.Expr) value {
 			return value{kind: vSlot, k: resultKey(litGroup(fl), 0)}
 		}
 		if f := calleeFunc(x); f != nil && isList(f.Type().(*types.Signature).Results().At(0).Type()) {
+			if typeArgSlot(f, false, 0) {
+				// A generic class's method whose result is its type argument (Outcome_base[Set].get):
+				// the declaration's slot is the type parameter, not this collection type.
+				return value{kind: vForeign, why: "result of a generic " + f.Name() + " (a type argument)"}
+			}
 			if !generated(f.Pos()) {
 				if freshImmutable[f.Name()] {
 					return value{kind: vImm, from: x}
@@ -797,10 +802,25 @@ func paramIndexKey(c *ast.CallExpr, i int) (int, bool) {
 	if sig.Variadic() && i >= sig.Params().Len()-1 {
 		return 0, false
 	}
-	if i >= sig.Params().Len() || !isList(sig.Params().At(i).Type()) {
+	if i >= sig.Params().Len() || !isList(sig.Params().At(i).Type()) || typeArgSlot(f, true, i) {
 		return 0, false
 	}
 	return paramKey(groupOf(f), i), true
+}
+
+// typeArgSlot reports whether parameter (param) or result i of f, an instance of a generic
+// function or of a generic class's method, is declared as a type parameter there: its slot
+// in the generic declaration holds every type argument, so the value is not this class's.
+func typeArgSlot(f *types.Func, param bool, i int) bool {
+	o := f.Origin()
+	if o == f {
+		return false
+	}
+	os, fs := o.Type().(*types.Signature), f.Type().(*types.Signature)
+	if param {
+		return !types.Identical(os.Params().At(i).Type(), fs.Params().At(i).Type())
+	}
+	return !types.Identical(os.Results().At(i).Type(), fs.Results().At(i).Type())
 }
 
 // handle classifies the occurrence of list-valued expression e (not an assignment target).
