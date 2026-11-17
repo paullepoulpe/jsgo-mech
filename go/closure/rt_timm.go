@@ -633,11 +633,19 @@ func tsetHash_[K comparable](a *TSet[K], obj bool) int32 {
 		}
 		panic(new_NullPointerException_0().self())
 	}
+	if a.imm && a.x != nil && a.x.hashed {
+		return a.x.hash
+	}
 	var h int32
 	for i := a.first(); i < len(a.keys); i++ {
 		if !a.isDead(i) {
 			h += elemHash_(a.kc, a.keys[i])
 		}
+	}
+	if a.imm {
+		// An immutable set's hash code never changes: computed once, as the erased set keeps it.
+		x := a.ext()
+		x.hash, x.hashed = h, true
 	}
 	return h
 }

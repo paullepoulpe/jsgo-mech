@@ -39,6 +39,9 @@ type tmapExt_[K comparable, V any] struct {
 	slots []uint64
 	// Of an immutable map or set: the ImmutableMap or ImmutableSet erased code sees (rt_timm.go).
 	twin any
+	// Of an immutable set: its hash code, once computed (tsetHash_; Guava computes it once).
+	hash   int32
+	hashed bool
 }
 
 func (m *TMap[K, V]) ext() *tmapExt_[K, V] {
