@@ -567,7 +567,7 @@ type SourceMapConsumerV3_StringCharIterator struct {
 
 func (this *SourceMapConsumerV3_StringCharIterator) zero_SourceMapConsumerV3_StringCharIterator() {
 	this.content = nullstr_
-	this.contentU16 = utf16Of_(this.content)
+	this.contentU16 = utf16Kept_(this.content)
 }
 
 func (this *SourceMapConsumerV3_StringCharIterator) finit_SourceMapConsumerV3_StringCharIterator() {
@@ -577,7 +577,7 @@ func (this *SourceMapConsumerV3_StringCharIterator) finit_SourceMapConsumerV3_St
 func (this *SourceMapConsumerV3_StringCharIterator) init_SourceMapConsumerV3_StringCharIterator(content string) {
 	this.finit_SourceMapConsumerV3_StringCharIterator()
 	this.content = content
-	this.contentU16 = utf16Of_(this.content)
+	this.contentU16 = utf16Kept_(this.content)
 	this.length_ = String_length(content)
 }
 
