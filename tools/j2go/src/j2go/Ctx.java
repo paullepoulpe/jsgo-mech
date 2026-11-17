@@ -32,6 +32,40 @@ final class Ctx {
   final Set<TypeElement> typedClasses = new HashSet<>();
   /** The type parameters that are Go type parameters (GenScan.kept); the others are erased. */
   final Set<TypeParameterElement> keptVars = new HashSet<>();
+  /** Erased class type parameters that every use instantiates with their bound: as type arguments, the bound. */
+  final Set<TypeParameterElement> fixedVars = new HashSet<>();
+
+  /**
+   * Generic instance methods with a kept type parameter: Go generic functions taking the receiver
+   * first (GenScan.genericFunction: they override nothing and nothing overrides them).
+   */
+  final Set<ExecutableElement> genFns = new HashSet<>();
+
+  /** The Go name of generic function m: Owner_m (Owner_m_this if a static method has m's name). */
+  String genFnName(ExecutableElement m) {
+    TypeElement owner = ownerOf(m);
+    String n = className(owner) + "_" + safeMember(m.getSimpleName().toString());
+    for (Element e : owner.getEnclosedElements()) {
+      if (e.getKind() == ElementKind.METHOD && e.getModifiers().contains(Modifier.STATIC) && e.getSimpleName().equals(m.getSimpleName())) return n + "_this";
+    }
+    long same = owner.getEnclosedElements().stream().filter(e -> e.getKind() == ElementKind.METHOD && e.getSimpleName().equals(m.getSimpleName())).count();
+    return same > 1 ? n + sigToken(m) : n;
+  }
+
+  /** The type parameter list of generic function m: its class's, then its own kept ones. */
+  String genFnTparamsDecl(ExecutableElement m) {
+    String c = goTparamsDecl(ownerOf(m)), o = typeParamsDecl(m.getTypeParameters());
+    if (c.isEmpty()) return o;
+    if (o.isEmpty()) return c;
+    return c.substring(0, c.length() - 1) + ", " + o.substring(1);
+  }
+
+  /** The Go constraint of kept type parameter tp: its bound, an interface of the program, or any. */
+  String constraint(TypeParameterElement tp) {
+    List<? extends TypeMirror> bs = tp.getBounds();
+    if (bs.size() == 1 && kind(bs.get(0)) == K.IFACE && isSource(typeElement(bs.get(0)))) return goType(bs.get(0));
+    return "any";
+  }
 
   /** A type variable that is a Go type parameter: of a typed declaration, or of a static generic method of one. */
   boolean typedVar(TypeMirror t) {
@@ -108,7 +142,7 @@ final class Ctx {
     List<TypeParameterElement> tps = keptOf(tps0);
     if (tps.isEmpty()) return "";
     StringBuilder sb = new StringBuilder("[");
-    for (int i = 0; i < tps.size(); i++) sb.append(i > 0 ? ", " : "").append(tvName(tps.get(i))).append(" any");
+    for (int i = 0; i < tps.size(); i++) sb.append(i > 0 ? ", " : "").append(tvName(tps.get(i))).append(" ").append(constraint(tps.get(i)));
     return sb.append("]").toString();
   }
 
@@ -125,6 +159,9 @@ final class Ctx {
   String goTypeArg(TypeMirror a) {
     if (a == null) return "any";
     if (typedVar(a)) return tvName(a);
+    if (a.getKind() == TypeKind.TYPEVAR && ((TypeVariable) a).asElement() instanceof TypeParameterElement tp && fixedVars.contains(tp)) {
+      return goTypeArg(types.erasure(tp.getBounds().get(0)));
+    }
     switch (a.getKind()) {
       case TYPEVAR, WILDCARD, INTERSECTION, UNION: return "any";
       default: break;
@@ -203,8 +240,64 @@ final class Ctx {
 
   /** The Go type of a reference to class te: a pointer to its struct, or the handle type itself. */
   String ref(TypeElement te) {
-    if (typedClasses.contains(te)) return "*" + className(te) + typeParamsUse(te.getTypeParameters());
+    List<TypeParameterElement> tps = goTparams(te);
+    if (!tps.isEmpty()) return "*" + className(te) + tparamNames(tps);
     return isHandle(te) ? className(te) : "*" + className(te);
+  }
+
+  private final Map<TypeElement, List<TypeParameterElement>> goTparamsCache = new HashMap<>();
+
+  /**
+   * The Go type parameters of source class te: its kept own type parameters, and for a local or
+   * anonymous class those of the scopes it is declared in (the kept type parameters of enclosing
+   * generic methods, and of the enclosing class when it has an enclosing instance). Such a class
+   * is only named inside those scopes, where the type parameters have the same names.
+   */
+  List<TypeParameterElement> goTparams(TypeElement te) {
+    List<TypeParameterElement> c = goTparamsCache.get(te);
+    if (c != null) return c;
+    List<TypeParameterElement> out = new ArrayList<>();
+    if (te.getNestingKind() == NestingKind.LOCAL || te.getNestingKind() == NestingKind.ANONYMOUS) {
+      for (Element e = te.getEnclosingElement(); e != null; e = e.getEnclosingElement()) {
+        if (e instanceof ExecutableElement m) out.addAll(0, keptOf(m.getTypeParameters()));
+        if (e instanceof TypeElement o) {
+          TypeElement lo = lexicalOuter.getOrDefault(te, o);
+          if (localWithOuter.contains(te)) out.addAll(0, goTparams(lo));
+          break;
+        }
+      }
+    }
+    out.addAll(keptOf(te.getTypeParameters()));
+    goTparamsCache.put(te, out);
+    return out;
+  }
+
+  /** The Go struct type that class te embeds for its superclass (or ancestor) a: a typed one at te's view of it. */
+  String superStruct(TypeElement te, TypeElement a) {
+    if (typedClasses.contains(a)) return className(a) + viewArgs(te.asType(), a);
+    if (isSource(a) && !goTparams(a).isEmpty()) return className(a) + goTparamsUse(a);
+    return className(a);
+  }
+
+  /** "[K any, V any]" for goTparams(te), or "". */
+  String goTparamsDecl(TypeElement te) {
+    List<TypeParameterElement> tps = goTparams(te);
+    if (tps.isEmpty()) return "";
+    StringBuilder sb = new StringBuilder("[");
+    for (int i = 0; i < tps.size(); i++) sb.append(i > 0 ? ", " : "").append(tvName(tps.get(i))).append(" ").append(constraint(tps.get(i)));
+    return sb.append("]").toString();
+  }
+
+  /** "[K, V]" for goTparams(te), or "". */
+  String goTparamsUse(TypeElement te) {
+    return tparamNames(goTparams(te));
+  }
+
+  String tparamNames(List<TypeParameterElement> tps) {
+    if (tps.isEmpty()) return "";
+    StringBuilder sb = new StringBuilder("[");
+    for (int i = 0; i < tps.size(); i++) sb.append(i > 0 ? ", " : "").append(tvName(tps.get(i)));
+    return sb.append("]").toString();
   }
 
   /** Go spelling of Java null at type t. */
@@ -536,6 +629,12 @@ final class Ctx {
       default:
         // the types the Go code keeps: type variables of typed classes, their parameterized types
         if (typedVar(t) || typedDecl(t)) return t;
+        if (t.getKind() == TypeKind.ARRAY) {
+          // an array of a kept type: its component's Go type ([]N)
+          TypeMirror c = ((ArrayType) t).getComponentType(), ec = erase(c);
+          if (ec.getKind() != TypeKind.TYPEVAR && types.isSameType(ec, types.erasure(c)) && !typedDecl(ec)) return types.erasure(t);
+          return ec == c ? t : types.getArrayType(ec);
+        }
         if (t.getKind() == TypeKind.TYPEVAR) {
           // an erased type variable is its bound, which may be a typed declaration (T extends G<N>)
           TypeMirror b = ((TypeVariable) t).getUpperBound();
@@ -719,7 +818,7 @@ final class Ctx {
         }
         if (isHandle(tt)) return gt + "_of_(" + src + ")";
         if (isLeaf(tt)) return "cast_[" + gt + "](" + src + ")";
-        return "to_" + className(tt) + "(" + src + ")";
+        return "to_" + className(tt) + (typedDecl(to) ? typeArgsOf(to) : goTparamsUse(tt)) + "(" + src + ")";
       }
       case STR:
         switch (kf) {
@@ -844,6 +943,7 @@ final class Ctx {
 
   /** The supertype of site (or site itself) whose class is target, with site's type arguments substituted; null if none. */
   DeclaredType superView(TypeMirror site, TypeElement target) {
+    if (site != null && site.getKind() == TypeKind.TYPEVAR) site = ((TypeVariable) site).getUpperBound();
     if (site == null || site.getKind() != TypeKind.DECLARED) return null;
     if (typeElement(site).equals(target)) return (DeclaredType) site;
     for (TypeMirror st : types.directSupertypes(site)) {

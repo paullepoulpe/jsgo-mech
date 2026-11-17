@@ -5,7 +5,10 @@ package closure
 // (a string, a class pointer, a handle, an interface value) and meets Object, an erased slot, the
 // way the erased code boxed it.
 
-import "reflect"
+import (
+	"reflect"
+	"unsafe"
+)
 
 // null_ is Java null as a value of type parameter T: the null string for a String, the zero value
 // otherwise (nil for a class or an interface, the zero handle).
@@ -30,6 +33,10 @@ func isnull_[T any](v T) bool {
 	if x == nil {
 		return true
 	}
+	if h, ok := x.(interface{ box_() any }); ok {
+		// another handle class: its zero handle boxes as nil
+		return h.box_() == nil
+	}
 	switch r := reflect.ValueOf(x); r.Kind() {
 	case reflect.Pointer, reflect.Slice, reflect.Map, reflect.Func:
 		return r.IsNil()
@@ -50,11 +57,17 @@ func boxT_[T any](v T) any {
 		return *p
 	}
 	x := any(v)
-	if x == nil {
+	if x == nil || (*eface_)(unsafe.Pointer(&x)).data == nil {
+		// null: a nil interface, or a nil pointer (whose self() a superclass would promote and
+		// dereference); a pointer-shaped value is the interface's data word itself
 		return nil
 	}
 	if s, ok := x.(interface{ self() any }); ok {
 		return s.self()
+	}
+	if h, ok := x.(interface{ box_() any }); ok {
+		// another handle class: its own box (nil for the zero handle)
+		return h.box_()
 	}
 	switch r := reflect.ValueOf(x); r.Kind() {
 	case reflect.Pointer, reflect.Map, reflect.Func:
@@ -111,4 +124,68 @@ func embeddedPtr_(v reflect.Value, want reflect.Type) reflect.Value {
 		}
 	}
 	return reflect.Value{}
+}
+
+// Object's methods called on a value of a type parameter, and == between two values of one type
+// parameter: as the erased code computes them on the box, without making a box for a String or a
+// Node (strobj_ allocates; the erased code had the box at hand).
+
+// hashCodeT_ is v.hashCode() for a value of a type parameter.
+func hashCodeT_[T any](v T) int32 {
+	switch p := any(&v).(type) {
+	case *string:
+		if *p == nullstr_ {
+			panic(new_NullPointerException_0().self())
+		}
+		return String_hashCode(*p)
+	case *Node:
+		return Object_hashCode(p.box_())
+	}
+	return Object_hashCode(boxT_(v))
+}
+
+// equalsT_ is a.equals(b) for a value a of a type parameter.
+func equalsT_[T any](a T, b any) bool {
+	if p, ok := any(&a).(*string); ok {
+		if *p == nullstr_ {
+			panic(new_NullPointerException_0().self())
+		}
+		s, ok := b.(string)
+		return ok && s == *p
+	}
+	return Object_equals(boxT_(a), b)
+}
+
+// equalsTT_ is a.equals(b) for two values of one type parameter.
+func equalsTT_[T any](a, b T) bool {
+	if p, ok := any(&a).(*string); ok {
+		if *p == nullstr_ {
+			panic(new_NullPointerException_0().self())
+		}
+		return *p == *any(&b).(*string)
+	}
+	return Object_equals(boxT_(a), boxT_(b))
+}
+
+// toStringT_ is v.toString() for a value of a type parameter.
+func toStringT_[T any](v T) string {
+	if p, ok := any(&v).(*string); ok {
+		if *p == nullstr_ {
+			panic(new_NullPointerException_0().self())
+		}
+		return *p
+	}
+	return Object_toString(boxT_(v))
+}
+
+// eqT_ is a == b for two values of one type parameter: the boxes compared, as in the erased code
+// (a String compares by contents there too, null only equal to null).
+func eqT_[T any](a, b T) bool {
+	switch p := any(&a).(type) {
+	case *string:
+		return *p == *any(&b).(*string)
+	case *Node:
+		return *p == *any(&b).(*Node)
+	}
+	return boxT_(a) == boxT_(b)
 }

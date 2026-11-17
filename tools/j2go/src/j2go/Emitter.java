@@ -182,9 +182,9 @@ final class Emitter extends StmtEmitter {
     String n = cx.className(te);
     TypeElement sup = cx.superclass(te);
     boolean handle = cx.isHandle(te);
-    String tps = cx.typedClasses.contains(te) ? cx.typeParamsDecl(te.getTypeParameters()) : "";
+    String tps = cx.goTparamsDecl(te);
     StringBuilder sb = new StringBuilder(handle ? "" : "type " + n + tps + " struct {\n");
-    if (sup != null) sb.append("\t").append(cx.className(sup)).append("\n");
+    if (sup != null) sb.append("\t").append(cx.superStruct(te, sup)).append("\n");
     if (cx.declaresSelf(te)) sb.append("\tself_ any\n");
     ClassCtx c = cc();
     if (c.hasOuter) sb.append("\touter_ ").append(cx.ref(cx.enclosingClass(te))).append("\n");
@@ -209,13 +209,21 @@ final class Emitter extends StmtEmitter {
     }
     sb.append(handle ? handleDecl(te) : "}\n\n");
     boolean leaf = cx.isLeaf(te);
+    // A generic Go type (typed class, or a local class of a generic scope) is spelled with its
+    // type parameters; "instanceof" of it, which asks about any instantiation, has a marker method.
+    String self = handle ? n : cx.ref(te), gtd = cx.goTparamsDecl(te);
+    boolean generic = !handle && !gtd.isEmpty();
+    if (generic) {
+      sb.append("func (this ").append(self).append(") isa_").append(n).append("_() {}\n\n");
+      sb.append("func is_").append(n).append("(v any) bool {\n\t_, ok := v.(interface{ isa_").append(n).append("_() })\n\treturn ok\n}\n\n");
+    }
     if (!leaf) {
-      sb.append("func (this *").append(n).append(") as_").append(n).append("() *").append(n).append(" { return this }\n\n");
-      sb.append("func to_").append(n).append("(v any) *").append(n).append(" {\n\tif v == nil {\n\t\treturn nil\n\t}\n\treturn v.(interface{ as_")
-          .append(n).append("() *").append(n).append(" }).as_").append(n).append("()\n}\n\n");
-      sb.append("func is_").append(n).append("(v any) bool {\n\t_, ok := v.(interface{ as_").append(n).append("() *").append(n).append(" })\n\treturn ok\n}\n\n");
+      sb.append("func (this ").append(self).append(") as_").append(n).append("() ").append(self).append(" { return this }\n\n");
+      sb.append("func to_").append(n).append(gtd).append("(v any) ").append(self).append(" {\n\tif v == nil {\n\t\treturn nil\n\t}\n\treturn v.(interface{ as_")
+          .append(n).append("() ").append(self).append(" }).as_").append(n).append("()\n}\n\n");
+      if (!generic) sb.append("func is_").append(n).append("(v any) bool {\n\t_, ok := v.(interface{ as_").append(n).append("() *").append(n).append(" })\n\treturn ok\n}\n\n");
       if (cx.hasSelf(te)) {
-        sb.append("func (this *").append(n).append(") self() any {\n\tif this == nil {\n\t\treturn nil\n\t}\n\treturn this.self_\n}\n\n");
+        sb.append("func (this ").append(self).append(") self() any {\n\tif this == nil {\n\t\treturn nil\n\t}\n\treturn this.self_\n}\n\n");
       }
     }
     boolean pastLibrary = false;
@@ -223,7 +231,7 @@ final class Emitter extends StmtEmitter {
       // Only the nearest library superclass: the runtime's structs need not mirror the JDK's hierarchy.
       if (!cx.isSource(a)) pastLibrary = true;
       String an = cx.className(a);
-      sb.append("func (this *").append(n).append(") up_").append(an).append("() *").append(an)
+      sb.append("func (this ").append(self).append(") up_").append(an).append("() *").append(cx.superStruct(te, a))
           .append(" {\n\tif this == nil {\n\t\treturn nil\n\t}\n\treturn &this.").append(an).append("\n}\n\n");
     }
     if (needsZero(te)) {
@@ -269,7 +277,7 @@ final class Emitter extends StmtEmitter {
 
   /** The type parameter list of the constructors of te: "[K any, V any]" for a typed class, else "". */
   String tparams(TypeElement te) {
-    return cx.typedClasses.contains(te) ? cx.typeParamsDecl(te.getTypeParameters()) : "";
+    return cx.goTparamsDecl(te);
   }
 
   /** Receiver clause of an instance method of class te. */
@@ -450,7 +458,7 @@ final class Emitter extends StmtEmitter {
         if (cx.hasClinit(c) && c.getKind() != ElementKind.ENUM && !enumLike(c)) b.append(cx.className(c)).append("_clinit()\n");
       }
     }
-    String targs = cx.typedClasses.contains(te) ? cx.typeParamsUse(te.getTypeParameters()) : "";
+    String targs = cx.goTparamsUse(te);
     b.append(cx.isHandle(te) ? "this := " + n + "_alloc_()\n" : "this := &" + n + targs + "{}\n");
     if (cx.hasSelf(te)) b.append("this.self_ = this\n");
     if (needsZero(te)) b.append("this.zero_").append(n).append("()\n");
@@ -565,6 +573,11 @@ final class Emitter extends StmtEmitter {
       }
     }
     List<TypeMirror> ps = ownParams(e);
+    if (cx.typedClasses.contains(sup)) {
+      // the superclass's constructor at this class's view of it
+      ps = new ArrayList<>();
+      for (VariableElement pe : e.getParameters()) ps.add(cx.erase(cx.atSite(pe.asType(), sup, te.asType())));
+    }
     String init = cx.ctorName(e, "init_");
     if (!cx.isSource(sup)) cx.noteMethodOn(sup, init, ps, cx.types.getNoType(TypeKind.VOID));
     sb.append("this.").append(sn).append(".").append(init).append("(").append(join(cx.isSource(sup) ? enumArgs : "", argList(e, ps, args(t.getArguments())))).append(")");
@@ -594,6 +607,11 @@ final class Emitter extends StmtEmitter {
       String fn = priv ? cx.staticMethodName(e) : n + "_" + cx.methodName(e) + "_default";
       // a generic function of the interface's type parameters for a typed interface
       head = "func " + fn + tparams(te) + "(" + join("this " + cx.goType(te.asType()), p.decl) + ")";
+    } else if (cx.genFns.contains(e)) {
+      // a generic instance method: a generic function taking the receiver first
+      ret = cx.erase(e.getReturnType());
+      p = params(mt.getParameters(), null);
+      head = "func " + cx.genFnName(e) + cx.genFnTparamsDecl(e) + "(" + join("this " + cx.ref(te), p.decl) + ")";
     } else {
       ret = cx.groupReturn(e, te.asType());
       p = params(mt.getParameters(), cx.groupParams(e, te.asType()));

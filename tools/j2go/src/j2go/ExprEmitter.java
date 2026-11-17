@@ -411,7 +411,7 @@ abstract class ExprEmitter extends Base {
         if (f.getModifiers().contains(Modifier.STATIC)) return cx.coerce(staticField(f), f.asType(), typeOf(t));
         Recv r = implicitRecv(cx.ownerOf(f));
         noteField(f);
-        return cx.coerce(cx.fieldGet(r.code, f), f.asType(), typeOf(t));
+        return cx.coerce(cx.fieldGet(r.code, f), memberType(r.type, f), typeOf(t));
       }
       default:
         throw unsupported(t, "identifier of kind " + e.getKind());
@@ -510,7 +510,11 @@ abstract class ExprEmitter extends Base {
       VariableElement f = (VariableElement) e;
       lv.type = cx.erase(f.asType());
       if (f.getModifiers().contains(Modifier.STATIC)) lv.code = staticField(f);
-      else lv.code = cx.fieldLoc(implicitRecv(cx.ownerOf(f)).code, f);
+      else {
+        Recv r = implicitRecv(cx.ownerOf(f));
+        lv.code = cx.fieldLoc(r.code, f);
+        lv.type = cx.erase(memberType(r.type, f));
+      }
       lv.field = f;
       noteField(f);
       return lv;
@@ -695,6 +699,7 @@ abstract class ExprEmitter extends Base {
     }
     if (kl == Ctx.K.TVAR || kr == Ctx.K.TVAR) {
       // a type parameter is not comparable in Go: the boxes are, as in the erased code
+      if (kl == kr && cx.goType(tl).equals(cx.goType(tr))) return (op.equals("==") ? "" : "!") + "eqT_(" + expr(l) + ", " + expr(r) + ")";
       return "(" + asAny(l) + " " + op + " " + asAny(r) + ")";
     }
     if (kl == Ctx.K.PRIM || kr == Ctx.K.PRIM) {
@@ -733,6 +738,8 @@ abstract class ExprEmitter extends Base {
       case STR: return "isstr_(" + anyCode + ")";
       case CLS: {
         TypeElement te = Ctx.typeElement(target);
+        // a generic Go type: any instantiation, through the marker method isa_C_ (Emitter.structDecl)
+        if (cx.isSource(te) && !cx.goTparams(te).isEmpty()) return "is_" + cx.className(te) + "(" + anyCode + ")";
         if (cx.isLeaf(te)) return "is_[" + cx.goType(target) + "](" + anyCode + ")";
         return "is_" + cx.className(te) + "(" + anyCode + ")";
       }
@@ -990,6 +997,19 @@ abstract class ExprEmitter extends Base {
       owner = ro;
       ok = cx.kind(owner.asType());
     }
+    if (!src && !superCall && recv != null && cx.kind(recv.type) == Ctx.K.TVAR && owner.getQualifiedName().contentEquals("java.lang.Object")) {
+      // Object's methods on a value of a type parameter: without boxing a String (rt_generic.go)
+      String mn = e.getSimpleName().toString();
+      if (mn.equals("hashCode") && args.isEmpty()) return new CallResult("hashCodeT_(" + recv.code + ")", prim(TypeKind.INT));
+      if (mn.equals("toString") && args.isEmpty()) return new CallResult("toStringT_(" + recv.code + ")", stringType());
+      if (mn.equals("equals") && args.size() == 1) {
+        Arg a = args.get(0);
+        if (cx.kind(a.type) == Ctx.K.TVAR && cx.goType(a.type).equals(cx.goType(recv.type))) {
+          return new CallResult("equalsTT_(" + recv.code + ", " + a.as(a.type) + ")", prim(TypeKind.BOOLEAN));
+        }
+        return new CallResult("equalsT_(" + recv.code + ", " + a.as(objectType()) + ")", prim(TypeKind.BOOLEAN));
+      }
+    }
     if (!src && (ok == Ctx.K.STR || ok == Ctx.K.ANY || owner.getKind().isInterface() && e.isDefault())) {
       // Static-style helper taking the receiver first.
       List<TypeMirror> params = ownParams(e);
@@ -1003,6 +1023,7 @@ abstract class ExprEmitter extends Base {
       noteMethod("func " + name, e, full, ret, "receiver-first");
       return new CallResult(name + "(" + r + (al.isEmpty() ? "" : ", " + al) + ")", ret);
     }
+    if (src && !superCall && cx.genFns.contains(e)) return genFnCall(e, recv, args);
     // A method of a typed class or interface: its parameters and result at the receiver's view of it.
     TypeMirror site = superCall ? cc().te.asType() : recv != null ? recv.type : null;
     List<TypeMirror> params = cx.groupParams(e, site);
@@ -1027,7 +1048,8 @@ abstract class ExprEmitter extends Base {
     } else {
       Ctx.K rk = cx.kind(recv.type);
       String rc = recv.code;
-      if (rk == Ctx.K.ANY || rk == Ctx.K.STR || rk == Ctx.K.ARR || rk == Ctx.K.PRIM) {
+      boolean boxedTvar = rk == Ctx.K.TVAR && cx.constraint((TypeParameterElement) ((TypeVariable) cx.erase(recv.type)).asElement()).equals("any");
+      if (rk == Ctx.K.ANY || rk == Ctx.K.STR || rk == Ctx.K.ARR || rk == Ctx.K.PRIM || boxedTvar) {
         rc = cx.coerce(rc, recv.type, owner.asType());
       } else if (rk == Ctx.K.CLS && owner.getKind().isInterface() && !cx.sub(recv.type, owner.asType())) {
         rc = cx.coerce(rc, recv.type, owner.asType());
@@ -1035,6 +1057,33 @@ abstract class ExprEmitter extends Base {
       target = rc + "." + name;
     }
     return new CallResult(target + "(" + argList(e, params, args) + ")", ret);
+  }
+
+  /** A call of generic instance method e (Ctx.genFns): Owner_m[class args, method args](recv, args). */
+  CallResult genFnCall(ExecutableElement e, Recv recv, List<Arg> args) {
+    TypeElement owner = cx.ownerOf(e);
+    if (recv == null) recv = implicitRecv(owner);
+    ExecutableType inst = curInst;
+    curInst = null;
+    if (inst == null || inst.getParameterTypes().size() != e.getParameters().size()) throw new IllegalStateException("no instantiated type for a call of " + e);
+    Map<Element, TypeMirror> m = new HashMap<>();
+    unify(e.getReturnType(), inst.getReturnType(), m);
+    for (int i = 0; i < e.getParameters().size(); i++) unify(e.getParameters().get(i).asType(), inst.getParameterTypes().get(i), m);
+    Map<Element, TypeMirror> mk = new HashMap<>();
+    StringBuilder ta = new StringBuilder();
+    String ca = cx.typedClasses.contains(owner) ? cx.viewArgs(recv.type, owner) : cx.goTparamsUse(owner);
+    if (!ca.isEmpty()) ta.append(ca, 1, ca.length() - 1);
+    for (TypeParameterElement tp : cx.keptOf(e.getTypeParameters())) {
+      ta.append(ta.length() > 0 ? ", " : "").append(cx.goTypeArg(m.get(tp)));
+      if (m.get(tp) != null) mk.put(tp, m.get(tp));
+    }
+    List<TypeMirror> params = new ArrayList<>();
+    for (VariableElement pe : e.getParameters()) params.add(cx.erase(cx.subst(cx.atSite(pe.asType(), owner, recv.type), mk, 0)));
+    TypeMirror ret = cx.erase(cx.subst(cx.atSite(e.getReturnType(), owner, recv.type), mk, 0));
+    DeclaredType view = cx.superView(recv.type, owner);
+    String rc = cx.coerce(recv.code, recv.type, view != null && cx.typedDecl(view) ? view : owner.asType());
+    String al = argList(e, params, args);
+    return new CallResult(cx.genFnName(e) + "[" + ta + "](" + rc + (al.isEmpty() ? "" : ", " + al) + ")", ret);
   }
 
   /**
@@ -1092,7 +1141,10 @@ abstract class ExprEmitter extends Base {
       if (qt != null && qt.getKind() == TypeKind.ARRAY && e.getSimpleName().contentEquals("clone")) {
         return new CallResult("append(" + cx.goType(qt) + "(nil), " + expr(q) + "...)", qt);
       }
-      return special(e, new Recv(expr(q), qt), as);
+      // the receiver's code first: a call in it sets curInst for itself
+      String rcode = expr(q);
+      curInst = typeOf(sel) instanceof ExecutableType et ? et : null;
+      return special(e, new Recv(rcode, qt), as);
     }
     return special(e, null, as);
   }
@@ -1150,7 +1202,10 @@ abstract class ExprEmitter extends Base {
     List<TypeMirror> params = ownParams(ctor);
     String name = cx.ctorName(ctor, "new_");
     if (!cx.isSource(te)) noteMethod("func " + name, ctor, params, ty, "constructor");
-    if (cx.typedDecl(ty)) {
+    if (cx.isSource(te) && (te.getNestingKind() == NestingKind.LOCAL || te.getNestingKind() == NestingKind.ANONYMOUS) && !cx.goTparams(te).isEmpty()) {
+      // a local or anonymous class of a generic scope: at that scope's type parameters
+      name += cx.goTparamsUse(te);
+    } else if (cx.typedDecl(ty)) {
       // new C<X>(...): new_C[X], its parameters at those type arguments
       params = new ArrayList<>();
       for (VariableElement pe : ctor.getParameters()) params.add(cx.erase(cx.atSite(pe.asType(), te, ty)));

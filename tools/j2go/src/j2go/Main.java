@@ -243,12 +243,17 @@ public final class Main {
     }
     GenScan gs = new GenScan(cx, trees);
     gs.candidates(cx.source);
+    gs.noteOverrides(cx.source);
     for (CompilationUnitTree cu : units) gs.scan(cu);
     if (System.getenv("J2GO_GENERICS") != null) gs.report();
     // J2GO_ERASED=1 translates every generic class erased (the translation before typed generics).
     if (System.getenv("J2GO_ERASED") == null) {
       cx.typedClasses.addAll(gs.typed());
       cx.keptVars.addAll(gs.kept());
+      cx.fixedVars.addAll(gs.fixedVars());
+      for (TypeParameterElement tp : cx.keptVars) {
+        if (tp.getGenericElement() instanceof ExecutableElement m && !m.getModifiers().contains(Modifier.STATIC)) cx.genFns.add(m);
+      }
     }
     cx.assignClassNames();
     cx.analyzeMethods();
