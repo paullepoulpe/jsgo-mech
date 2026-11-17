@@ -85,7 +85,7 @@ func (this *WritingLogFile) logJson_impl(producer func(*SimpleJsonWriter)) *LogF
 }
 
 func (this *WritingLogFile) logInternal(value string) *LogFile {
-	cast_[*Output](this.writer.append_CharSequence_s(value)).append_char('\n')
+	this.writer.append_CharSequence_s(value).(*Output).append_char('\n')
 	return this.up_LogFile()
 }
 

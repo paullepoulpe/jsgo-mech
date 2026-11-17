@@ -233,7 +233,7 @@ func LiveVariablesAnalysis_isDeclaredInFunctionBlockOrParameter(scope *Scope, na
 	if !scope.isFunctionBlockScope() {
 		panic(new_IllegalStateException_0().self())
 	}
-	return (scope.hasOwnSlot(name) || cast_[*Scope](scope.getParent().self()).hasOwnSlot(name))
+	return (scope.hasOwnSlot(name) || scope.getParent().self().(*Scope).hasOwnSlot(name))
 }
 
 func (this *LiveVariablesAnalysis) markAllParametersEscaped() {

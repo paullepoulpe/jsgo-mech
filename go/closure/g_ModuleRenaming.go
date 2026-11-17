@@ -55,7 +55,7 @@ func ModuleRenaming_getNameRootType(qname string, globalTypedScope *TypedScope) 
 	if nn_ == nil {
 		panic(new_NullPointerException_String(Strings_lenientFormat("missing var for %s", []any{strobj_(root)})).self())
 	}
-	return cast_[*TypedVar](nn_.self()).getType()
+	return nn_.self().(*TypedVar).getType()
 }
 
 func ModuleRenaming_getGlobalNameForJsDoc(moduleMap *ModuleMap, binding *Binding, propertyChain ListOf[string]) OptionalOf[string] {

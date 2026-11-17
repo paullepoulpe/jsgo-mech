@@ -77,7 +77,7 @@ func ReplaceMessages_extractPlaceholderValuesMapOrThrow(valuesObjLit Node) Immut
 	if objectLiteralMap.isErr() {
 		panic(new_IllegalStateException_Throwable(objectLiteralMap.error()).self())
 	}
-	return icast_JsMessageVisitor_ObjectLiteralMap(objectLiteralMap.get()).extractAsValueMap()
+	return objectLiteralMap.get().(JsMessageVisitor_ObjectLiteralMap).extractAsValueMap()
 }
 
 func (this *ReplaceMessages) lookupMessage(callNode Node, bundle MessageBundle, message *JsMessage) *JsMessage {

@@ -126,10 +126,10 @@ func InlineVariables_Mode_clinit() {
 }
 
 // lambda_InlineVariables_Mode_clinit_1_ is a lambda of InlineVariables_Mode_clinit that captures nothing (post-flip step lambdas).
-var lambda_InlineVariables_Mode_clinit_1_ = &Predicate_base_fn{func(p0 any) bool { return cast_[*Var](p0).isDeclaredOrInferredConst() }}
+var lambda_InlineVariables_Mode_clinit_1_ = &Predicate_base_fn{func(p0 any) bool { return p0.(*Var).isDeclaredOrInferredConst() }}
 
 // lambda_InlineVariables_Mode_clinit_2_ is a lambda of InlineVariables_Mode_clinit that captures nothing (post-flip step lambdas).
-var lambda_InlineVariables_Mode_clinit_2_ = &Predicate_base_fn{func(p0 any) bool { return cast_[*Var](p0).isLocal() }}
+var lambda_InlineVariables_Mode_clinit_2_ = &Predicate_base_fn{func(p0 any) bool { return p0.(*Var).isLocal() }}
 
 type InlineVariables_VarExpert struct {
 	self_ InlineVariables_VarExpert_I
@@ -851,7 +851,7 @@ func (this *InlineVariables_InliningBehavior_StandardVarExpert_InitialValueAnaly
 				if aliasedName == this.outer_.v.getName() {
 					return nil
 				}
-				return cast_[*Scope](this.outer_.v.getScope()).getVar(aliasedName).self()
+				return this.outer_.v.getScope().(*Scope).getVar(aliasedName).self()
 			}()))
 		}
 		return this.aliasedVar.setKnownValueOnce(nil)

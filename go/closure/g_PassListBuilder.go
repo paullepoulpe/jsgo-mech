@@ -48,7 +48,7 @@ func (this *PassListBuilder) addAllUpTo(other *PassListBuilder, passName string)
 	var otherPasses ImmutableListOf[*PassFactory] = other.build()
 	var index int32 = -1
 	for i := int32(0); i < otherPasses.size(); i++ {
-		if passName == cast_[*PassFactory](otherPasses.get(i)).getName() {
+		if passName == otherPasses.get(i).(*PassFactory).getName() {
 			index = i
 			break
 		}

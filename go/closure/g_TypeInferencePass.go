@@ -64,10 +64,10 @@ func (this *TypeInferencePass) inferAllScopes(inferenceRoot Node) *TypedScope {
 			defer closeResource_(histogram.self())
 			histogram.logString("step_count token population")
 			var totals []int32 = []int32{0, 0}
-			var stepCounts ListOf[BoxedOf[int32]] = icast_List(new_ArrayList_Collection(Collection(this.stepCountHistogram.keySet())).self())
+			var stepCounts ListOf[BoxedOf[int32]] = new_ArrayList_Collection(Collection(this.stepCountHistogram.keySet())).self().(List)
 			List_sort(stepCounts, Comparator_reversed(Comparator_naturalOrder()))
 			for stepCount := range elems_(stepCounts) {
-				var entries []Map_EntryOf[Token_rhino, BoxedOf[int32]] = sliceFrom_(tc_Map_EntryOf_p_Token_rhino__BoxedOf_int32__, Collection(cast_[*SimpleMultiset[any]](this.stepCountHistogram.get(stepCount)).entrySet()))
+				var entries []Map_EntryOf[Token_rhino, BoxedOf[int32]] = sliceFrom_(tc_Map_EntryOf_p_Token_rhino__BoxedOf_int32__, Collection(this.stepCountHistogram.get(stepCount).(*SimpleMultiset[any]).entrySet()))
 				List_sort(sliceView_(tc_Map_EntryOf_p_Token_rhino__BoxedOf_int32__, entries), Comparator_comparingInt_f(lambda_TypeInferencePass_inferAllScopes_1_))
 				for _, e := range entries {
 					totals[0] += (unbox_[int32](stepCount) * unbox_[int32](e.getValue()))
@@ -84,7 +84,7 @@ func (this *TypeInferencePass) inferAllScopes(inferenceRoot Node) *TypedScope {
 
 // lambda_TypeInferencePass_inferAllScopes_1_ is a lambda of TypeInferencePass_inferAllScopes that captures nothing (post-flip step lambdas).
 func lambda_TypeInferencePass_inferAllScopes_1_(p0 any) int32 {
-	return unbox_[int32](icast_Map_Entry(p0).getValue())
+	return unbox_[int32](p0.(Map_Entry).getValue())
 }
 
 func (this *TypeInferencePass) inferScope(n Node, scope *TypedScope) {

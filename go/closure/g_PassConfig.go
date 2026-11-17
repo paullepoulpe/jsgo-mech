@@ -62,7 +62,7 @@ func (this *PassConfig) getPassGraph() GraphvizGraph {
 		}
 		lastPass = Optional_of[string](passName)
 	}
-	return icast_GraphvizGraph(graph.self())
+	return graph.self().(GraphvizGraph)
 }
 
 func (this *PassConfig) getBasePassConfig() *PassConfig {

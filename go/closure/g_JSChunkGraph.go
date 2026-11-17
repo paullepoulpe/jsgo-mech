@@ -124,7 +124,7 @@ func JSChunkGraph_makeWeakChunk(chunksInDepOrder ListOf[*JSChunk]) ListOf[*JSChu
 		for chunk := range elemsAs_[*JSChunk](chunksInDepOrder) {
 			weakChunk.addDependency(chunk)
 		}
-		chunksInDepOrder = icast_List(new_ArrayList_Collection(Collection(chunksInDepOrder)).self())
+		chunksInDepOrder = new_ArrayList_Collection(Collection(chunksInDepOrder)).self().(List)
 		chunksInDepOrder.add(obj_(weakChunk))
 	}
 	return chunksInDepOrder
@@ -160,7 +160,7 @@ func (this *JSChunkGraph) getAllInputs() IterableOf[*CompilerInput] {
 }
 
 // lambda_JSChunkGraph_getAllInputs_1_ is a lambda of JSChunkGraph_getAllInputs that captures nothing (post-flip step lambdas).
-var lambda_JSChunkGraph_getAllInputs_1_ = &Function_base_fn{func(p0 any) any { return obj_(cast_[*JSChunk](p0).getInputs()) }}
+var lambda_JSChunkGraph_getAllInputs_1_ = &Function_base_fn{func(p0 any) any { return obj_(p0.(*JSChunk).getInputs()) }}
 
 func (this *JSChunkGraph) getInputCount() int32 {
 	var count int32 = 0
@@ -304,7 +304,7 @@ func (this *JSChunkGraph) getTransitiveDeps(m *JSChunk) SetOf[*JSChunk] {
 
 // lambda_JSChunkGraph_getTransitiveDeps_1_ is a lambda of JSChunkGraph_getTransitiveDeps that captures nothing (post-flip step lambdas).
 func lambda_JSChunkGraph_getTransitiveDeps_1_(p0 any) any {
-	return cast_[*JSChunk](p0).getAllDependencies()
+	return p0.(*JSChunk).getAllDependencies()
 }
 
 func JSChunkGraph_moveMarkedWeakSources(weakChunk *JSChunk, inputs IterableOf[*CompilerInput]) {

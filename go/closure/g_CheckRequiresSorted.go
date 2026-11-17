@@ -124,7 +124,7 @@ func (this *CheckRequiresSorted) checkCanonical(t *NodeTraversal) {
 }
 
 // lambda_CheckRequiresSorted_checkCanonical_1_ is a lambda of CheckRequiresSorted_checkCanonical that captures nothing (post-flip step lambdas).
-var lambda_CheckRequiresSorted_checkCanonical_1_ = &Function_base_fn{func(p0 any) any { return strobj_(cast_[*CheckRequiresSorted_ImportStatement](p0).format()) }}
+var lambda_CheckRequiresSorted_checkCanonical_1_ = &Function_base_fn{func(p0 any) any { return strobj_(p0.(*CheckRequiresSorted_ImportStatement).format()) }}
 
 func CheckRequiresSorted_canonicalizeImports(importsByNamespace *SimpleListMultimap[any, *CheckRequiresSorted_ImportStatement]) *TList[*CheckRequiresSorted_ImportStatement] {
 	var canonicalImports *TList[*CheckRequiresSorted_ImportStatement] = newTList_(tc_p_CheckRequiresSorted_ImportStatement)
@@ -185,7 +185,7 @@ func CheckRequiresSorted_canonicalizeImports(importsByNamespace *SimpleListMulti
 
 // lambda_CheckRequiresSorted_canonicalizeImports_1_ is a lambda of CheckRequiresSorted_canonicalizeImports that captures nothing (post-flip step lambdas).
 func lambda_CheckRequiresSorted_canonicalizeImports_1_(p0 any) bool {
-	return cast_[*CheckRequiresSorted_ImportStatement](p0).isAliasing()
+	return p0.(*CheckRequiresSorted_ImportStatement).isAliasing()
 }
 
 var CheckRequiresSorted_REQUIRES_NOT_SORTED *DiagnosticType

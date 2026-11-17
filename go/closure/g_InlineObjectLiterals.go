@@ -261,7 +261,7 @@ func (this *InlineObjectLiterals_InliningBehavior) splitObject(v *Var, init_ *Re
 		vnode = init_.getParent()
 		this.fillInitialValues(init_, initvals)
 	} else if isBlockScoped {
-		var scopeRoot Node = cast_[*Scope](v.getScope()).getRootNode()
+		var scopeRoot Node = v.getScope().(*Scope).getRootNode()
 		vnode = scopeRoot.getFirstChild()
 		if !NodeUtil_isStatement(vnode) && NodeUtil_isStatement(scopeRoot) {
 			vnode = scopeRoot
@@ -269,7 +269,7 @@ func (this *InlineObjectLiterals_InliningBehavior) splitObject(v *Var, init_ *Re
 			vnode = scopeRoot.getParent()
 		}
 	} else {
-		vnode = cast_[*Scope](cast_[*Scope](v.getScope()).getClosestHoistScope().self()).getRootNode().getFirstChild()
+		vnode = v.getScope().(*Scope).getClosestHoistScope().self().(*Scope).getRootNode().getFirstChild()
 	}
 	if !NodeUtil_isStatement(vnode) {
 		panic(new_IllegalStateException_String(tostr_(vnode)).self())

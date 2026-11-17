@@ -48,7 +48,7 @@ func lambda_BrowserWithTransformedPrefixesModuleResolver_init_BrowserWithTransfo
 
 // lambda_BrowserWithTransformedPrefixesModuleResolver_init_BrowserWithTransformedPrefixesModuleResolver_2_ is a lambda of BrowserWithTransformedPrefixesModuleResolver_init_BrowserWithTransformedPrefixesModuleResolver that captures nothing (post-flip step lambdas).
 var lambda_BrowserWithTransformedPrefixesModuleResolver_init_BrowserWithTransformedPrefixesModuleResolver_2_ = &Function_fn{func(p0 any) any {
-	return strobj_(cast_[*BrowserWithTransformedPrefixesModuleResolver_PrefixReplacement](p0).prefix())
+	return strobj_(p0.(*BrowserWithTransformedPrefixesModuleResolver_PrefixReplacement).prefix())
 }}
 
 func new_BrowserWithTransformedPrefixesModuleResolver(modulePaths ImmutableSetOf[string], moduleRootPaths ImmutableListOf[string], errorHandler ErrorHandler, pathEscaper ModuleLoader_PathEscaper, prefixReplacements ImmutableMapOf[string, string]) *BrowserWithTransformedPrefixesModuleResolver {

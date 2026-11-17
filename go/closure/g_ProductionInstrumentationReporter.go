@@ -87,7 +87,7 @@ func ProductionInstrumentationReporter_parseJsonStringToLongMap(json string) *Ou
 		if (pair.kind() != SimpleJsonValue_Kind_ARRAY) || (pair.elements().size() != 2) {
 			return Outcome_base_err[Map](new_SimpleJsonException("Malformed report: expected a [name, value]").up_Throwable())
 		}
-		var key *Outcome_base[string] = cast_[*SimpleJsonValue](pair.elements().get(0)).asString()
+		var key *Outcome_base[string] = pair.elements().get(0).(*SimpleJsonValue).asString()
 		if key.isErr() {
 			return Outcome_base_err[Map](key.error())
 		}

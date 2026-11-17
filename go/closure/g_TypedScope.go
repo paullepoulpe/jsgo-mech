@@ -110,16 +110,16 @@ func (this *TypedScope) getTypeOfThis() *JSType {
 			return nil
 		}
 	} else if this.isStaticBlockScope() {
-		return cast_[*TypedScope](this.getParent().self()).getRootNode().getJSType()
+		return this.getParent().self().(*TypedScope).getRootNode().getJSType()
 	} else if this.isMemberFieldDefScope() || this.isComputedFieldDefRhsScope() {
-		var classType *JSType = cast_[*TypedScope](this.getParent().self()).getRootNode().getJSType()
+		var classType *JSType = this.getParent().self().(*TypedScope).getRootNode().getJSType()
 		if root.isStaticMember() {
 			return classType
 		} else {
 			return classType.assertFunctionType().getInstanceType().up_JSType()
 		}
 	} else {
-		return cast_[*TypedScope](this.getParent().self()).getTypeOfThis()
+		return this.getParent().self().(*TypedScope).getTypeOfThis()
 	}
 }
 
@@ -151,7 +151,7 @@ func (this *TypedScope) hasOwnImplicitSlot_impl(name AbstractScope_ImplicitVar) 
 func (this *TypedScope) getImplicitVarType(var_ AbstractScope_ImplicitVar) *JSType {
 	switch var_ {
 	case AbstractScope_ImplicitVar_ARGUMENTS:
-		var globalArgs *TypedVar = cast_[*TypedVar](cast_[*TypedScope](this.getGlobalScope().self()).getVar(Var_ARGUMENTS).self())
+		var globalArgs *TypedVar = cast_[*TypedVar](this.getGlobalScope().self().(*TypedScope).getVar(Var_ARGUMENTS).self())
 		return func() *JSType {
 			if (globalArgs != nil) && globalArgs.isExtern() {
 				return globalArgs.getType()
@@ -207,9 +207,9 @@ func (this *TypedScope) getVar_impl(name string) *AbstractVar {
 	if dot < 0 {
 		return rootVar.up_AbstractVar()
 	} else if rootVar == nil {
-		return to_AbstractVar(cast_[*TypedScope](cast_[*TypedScope](this.getParent().self()).getGlobalScope().self()).getOwnSlot(name))
+		return to_AbstractVar(this.getParent().self().(*TypedScope).getGlobalScope().self().(*TypedScope).getOwnSlot(name))
 	} else {
-		return to_AbstractVar(cast_[*TypedScope](rootVar.getScope()).getOwnSlot(name))
+		return to_AbstractVar(rootVar.getScope().(*TypedScope).getOwnSlot(name))
 	}
 }
 
@@ -240,7 +240,7 @@ func (this *TypedScope) getTopmostScopeOfEventualDeclaration_impl(name string) S
 	} else if cast_[*TypedScope](this.getParent().self()) == nil {
 		return nil
 	} else {
-		return cast_[*TypedScope](this.getParent().self()).getTopmostScopeOfEventualDeclaration(name)
+		return this.getParent().self().(*TypedScope).getTopmostScopeOfEventualDeclaration(name)
 	}
 }
 

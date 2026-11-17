@@ -1504,11 +1504,11 @@ func (this *IRFactory_LineAndColumn) compareTo(o_ any) int32 {
 
 // lambda_IRFactory_LineAndColumn_compareTo_1_ is a lambda of IRFactory_LineAndColumn_compareTo that captures nothing (post-flip step lambdas).
 func lambda_IRFactory_LineAndColumn_compareTo_1_(p0 any) int32 {
-	return cast_[*IRFactory_LineAndColumn](p0).lineNo()
+	return p0.(*IRFactory_LineAndColumn).lineNo()
 }
 
 // lambda_IRFactory_LineAndColumn_compareTo_2_ is a lambda of IRFactory_LineAndColumn_compareTo that captures nothing (post-flip step lambdas).
-var lambda_IRFactory_LineAndColumn_compareTo_2_ = &ToIntFunction_fn{func(p0 any) int32 { return cast_[*IRFactory_LineAndColumn](p0).column() }}
+var lambda_IRFactory_LineAndColumn_compareTo_2_ = &ToIntFunction_fn{func(p0 any) int32 { return p0.(*IRFactory_LineAndColumn).column() }}
 
 func (this *IRFactory_LineAndColumn) lineNo() int32 {
 	return this.lineNo_

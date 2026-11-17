@@ -109,7 +109,7 @@ func (this *SimpleTable[R, C, V]) values() IterableOf[any] {
 }
 
 // lambda_SimpleTable_values_1_ is a lambda of SimpleTable_values that captures nothing (post-flip step lambdas).
-var lambda_SimpleTable_values_1_ = &Function_base_fn{func(p0 any) any { return icast_Map(p0).values() }}
+var lambda_SimpleTable_values_1_ = &Function_base_fn{func(p0 any) any { return p0.(Map).values() }}
 
 func (this *SimpleTable[R, C, V]) isEmpty() bool {
 	return this.rows.isEmpty()

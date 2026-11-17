@@ -401,7 +401,7 @@ func (this *MakeDeclaredNamesUnique_ContextualRenameInverter_DeclaredVariableInf
 }
 
 func (this *MakeDeclaredNamesUnique_ContextualRenameInverter_DeclaredVariableInfo) getScopeDepth() int32 {
-	return cast_[*Scope](this.var_.getScope()).getDepth()
+	return this.var_.getScope().(*Scope).getDepth()
 }
 
 func (this *MakeDeclaredNamesUnique_ContextualRenameInverter_DeclaredVariableInfo) addPotentialConflict(variableInfo MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo) {
@@ -622,7 +622,7 @@ func (this *MakeDeclaredNamesUnique_ContextualRenamer) init_MakeDeclaredNamesUni
 	this.scopeRoot = 0
 	this.global = true
 	this.nameUsage = SimpleMultiset_create[any]()
-	this.hoistRenamer = icast_MakeDeclaredNamesUnique_Renamer(this.self())
+	this.hoistRenamer = this.self().(MakeDeclaredNamesUnique_Renamer)
 }
 
 func new_MakeDeclaredNamesUnique_ContextualRenamer_0() *MakeDeclaredNamesUnique_ContextualRenamer {
@@ -649,7 +649,7 @@ func (this *MakeDeclaredNamesUnique_ContextualRenamer) init_MakeDeclaredNamesUni
 		if NodeUtil_createsBlockScope(scopeRoot) {
 			panic(new_IllegalStateException_String(tostr_(scopeRoot)).self())
 		}
-		this.hoistRenamer = icast_MakeDeclaredNamesUnique_Renamer(this.self())
+		this.hoistRenamer = this.self().(MakeDeclaredNamesUnique_Renamer)
 	} else {
 		if !NodeUtil_createsBlockScope(scopeRoot) && !scopeRoot.isFunction() {
 			panic(new_IllegalStateException_String(tostr_(scopeRoot)).self())
@@ -670,7 +670,7 @@ func (this *MakeDeclaredNamesUnique_ContextualRenamer) toString() string {
 }
 
 func (this *MakeDeclaredNamesUnique_ContextualRenamer) createForChildScope_impl(scopeRoot Node, hoistingTargetScope bool) MakeDeclaredNamesUnique_Renamer {
-	return new_MakeDeclaredNamesUnique_ContextualRenamer_Node_SimpleMultiset_boolean_Renamer(scopeRoot, this.nameUsage, hoistingTargetScope, icast_MakeDeclaredNamesUnique_Renamer(this.self()))
+	return new_MakeDeclaredNamesUnique_ContextualRenamer_Node_SimpleMultiset_boolean_Renamer(scopeRoot, this.nameUsage, hoistingTargetScope, this.self().(MakeDeclaredNamesUnique_Renamer))
 }
 
 func (this *MakeDeclaredNamesUnique_ContextualRenamer) addDeclaredName(name string, hoisted bool) {

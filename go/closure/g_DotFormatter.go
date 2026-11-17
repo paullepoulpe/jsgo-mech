@@ -108,10 +108,10 @@ func DotFormatter_toDot_GraphvizGraph(graph GraphvizGraph) string {
 }
 
 // lambda_DotFormatter_toDot_GraphvizGraph_1_ is a lambda of DotFormatter_toDot_GraphvizGraph that captures nothing (post-flip step lambdas).
-var lambda_DotFormatter_toDot_GraphvizGraph_1_ = &Function_fn{func(p0 any) any { return strobj_(icast_GraphvizGraph_GraphvizEdge(p0).getNode1Id()) }}
+var lambda_DotFormatter_toDot_GraphvizGraph_1_ = &Function_fn{func(p0 any) any { return strobj_(p0.(GraphvizGraph_GraphvizEdge).getNode1Id()) }}
 
 // lambda_DotFormatter_toDot_GraphvizGraph_2_ is a lambda of DotFormatter_toDot_GraphvizGraph that captures nothing (post-flip step lambdas).
-var lambda_DotFormatter_toDot_GraphvizGraph_2_ = &Function_fn{func(p0 any) any { return strobj_(icast_GraphvizGraph_GraphvizEdge(p0).getNode2Id()) }}
+var lambda_DotFormatter_toDot_GraphvizGraph_2_ = &Function_fn{func(p0 any) any { return strobj_(p0.(GraphvizGraph_GraphvizEdge).getNode2Id()) }}
 
 func DotFormatter_appendDot(n Node, inCFG *ControlFlowGraph, builder Appendable) {
 	var unused *DotFormatter = new_DotFormatter_Node_ControlFlowGraph_Appendable_boolean(n, inCFG, builder, false)

@@ -98,14 +98,14 @@ func CodeReplacement_clinit() {
 
 // lambda_CodeReplacement_clinit_1_ is a lambda of CodeReplacement_clinit that captures nothing (post-flip step lambdas).
 func lambda_CodeReplacement_clinit_1_(p0 any) int32 {
-	return cast_[*CodeReplacement](p0).getStartPosition()
+	return p0.(*CodeReplacement).getStartPosition()
 }
 
 // lambda_CodeReplacement_clinit_2_ is a lambda of CodeReplacement_clinit that captures nothing (post-flip step lambdas).
-var lambda_CodeReplacement_clinit_2_ = &ToIntFunction_fn{func(p0 any) int32 { return cast_[*CodeReplacement](p0).getLength() }}
+var lambda_CodeReplacement_clinit_2_ = &ToIntFunction_fn{func(p0 any) int32 { return p0.(*CodeReplacement).getLength() }}
 
 // lambda_CodeReplacement_clinit_3_ is a lambda of CodeReplacement_clinit that captures nothing (post-flip step lambdas).
-var lambda_CodeReplacement_clinit_3_ = &Function_fn{func(p0 any) any { return strobj_(cast_[*CodeReplacement](p0).getSortKey()) }}
+var lambda_CodeReplacement_clinit_3_ = &Function_fn{func(p0 any) any { return strobj_(p0.(*CodeReplacement).getSortKey()) }}
 
 // lambda_CodeReplacement_clinit_4_ is a lambda of CodeReplacement_clinit that captures nothing (post-flip step lambdas).
-var lambda_CodeReplacement_clinit_4_ = &Function_fn{func(p0 any) any { return strobj_(cast_[*CodeReplacement](p0).getNewContent()) }}
+var lambda_CodeReplacement_clinit_4_ = &Function_fn{func(p0 any) any { return strobj_(p0.(*CodeReplacement).getNewContent()) }}

@@ -106,7 +106,7 @@ func (this *AmbiguateProperties) process_2(externs Node, root Node) {
 	for node := range elemsAs_[*AmbiguateProperties_PropertyGraphNode](icast_List(propertyGraph.getNodes())) {
 		cast_[*AmbiguateProperties_Property](node.getValue()).newName = Optional_of[string](colorMap[Object_hashCode(Annotatable_getAnnotation(icast_Annotatable(obj_(node))))])
 		if this.renamingMap != nil {
-			this.renamingMap.put(cast_[*AmbiguateProperties_Property](node.getValue()).oldName, cast_[*AmbiguateProperties_Property](node.getValue()).newName.orElse(nullstr_))
+			this.renamingMap.put(node.getValue().(*AmbiguateProperties_Property).oldName, node.getValue().(*AmbiguateProperties_Property).newName.orElse(nullstr_))
 		}
 	}
 	for n := range sliceAll_(&this.stringNodesToRename) {

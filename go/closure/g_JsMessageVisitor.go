@@ -43,7 +43,7 @@ func (this *JsMessageVisitor) init_JsMessageVisitor(compiler *AbstractCompiler, 
 }
 
 func (this *JsMessageVisitor) process_2_impl(externs Node, root Node) {
-	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(this.self()))
+	NodeTraversal_traverse(this.compiler_, root, this.self().(NodeTraversal_Callback))
 	for msgNode := range this.googMsgNodes.All() {
 		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(msgNode, JsMessageVisitor_MESSAGE_NODE_IS_ORPHANED, []string{msgNode.getFirstChild().getQualifiedName()}))
 	}

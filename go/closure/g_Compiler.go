@@ -444,7 +444,7 @@ func (this *Compiler) initRuntimeLibraryTypedAsts_impl(colorPoolBuilder Optional
 	var astData *TypedAstDeserializer_DeserializedAst = TypedAstDeserializer_deserializeRuntimeLibraries(this.up_AbstractCompiler(), this.SYNTHETIC_EXTERNS_FILE, colorPoolBuilder, typedAsts.get(), this.getOptions().getResolveSourceMapAnnotations(), this.getOptions().getParseInlineSourceMaps())
 	var runtimeLibraryTypedAsts *TMap[string, SupplierOf[Node]] = newTMap_(tc_string, tc_SupplierOf_Node_)
 	for library := range elemsBy_(astData.getFilesystem().entrySet(), icast_Map_Entry) {
-		runtimeLibraryTypedAsts.computeIfAbsent_f(cast_[*SourceFile_jscomp](library.getKey()).getName(), func(f_ any) any {
+		runtimeLibraryTypedAsts.computeIfAbsent_f(library.getKey().(*SourceFile_jscomp).getName(), func(f_ any) any {
 			var f string = str_(f_)
 			_ = f
 			return library.getValue()
@@ -524,8 +524,8 @@ func (this *Compiler) initBasedOnOptions() {
 func (this *Compiler) checkFirstChunk(chunks ListOf[*JSChunk]) {
 	if chunks.isEmpty() {
 		this.report(JSError_make_DiagnosticType_StringArr(Compiler_EMPTY_CHUNK_LIST_ERROR, []string{}))
-	} else if cast_[*JSChunk](chunks.get(0)).getInputs().isEmpty() && (chunks.size() > 1) {
-		this.report(JSError_make_DiagnosticType_StringArr(Compiler_EMPTY_ROOT_CHUNK_ERROR, []string{cast_[*JSChunk](chunks.get(0)).getName()}))
+	} else if chunks.get(0).(*JSChunk).getInputs().isEmpty() && (chunks.size() > 1) {
+		this.report(JSError_make_DiagnosticType_StringArr(Compiler_EMPTY_ROOT_CHUNK_ERROR, []string{chunks.get(0).(*JSChunk).getName()}))
 	}
 }
 
@@ -752,7 +752,7 @@ func (this *Compiler) performPostCompilationTasksInternal() {
 			var closed *Outcome_base[any]
 			_ = func() (code_ int) {
 				defer func() {
-					closed = cast_[*Output](out.get()).close()
+					closed = out.get().(*Output).close()
 				}()
 				defer func() {
 					if r_ := recover(); r_ != nil {
@@ -1412,10 +1412,10 @@ func (this *Compiler) buildKnownSymbolTable() *SymbolTable {
 	symbolTable.addSymbolsFrom(globalNamespace)
 	var refCollector *ReferenceCollector = new_ReferenceCollector_AbstractCompiler_Behavior_ScopeCreator(this.up_AbstractCompiler(), ReferenceCollector_DO_NOTHING_BEHAVIOR, new_SyntacticScopeCreator_AbstractCompiler(this.up_AbstractCompiler()))
 	refCollector.process(this.getRoot())
-	symbolTable.addSymbolsFrom(icast_StaticSymbolTable(obj_(refCollector)))
+	symbolTable.addSymbolsFrom(any(refCollector).(StaticSymbolTable))
 	var preprocessorSymbolTable *PreprocessorSymbolTable = this.ensureDefaultPassConfig().getPreprocessorSymbolTable()
 	if preprocessorSymbolTable != nil {
-		symbolTable.addSymbolsFrom(icast_StaticSymbolTable(obj_(preprocessorSymbolTable)))
+		symbolTable.addSymbolsFrom(any(preprocessorSymbolTable).(StaticSymbolTable))
 	}
 	symbolTable.flattenGoogModuleExports()
 	symbolTable.fillNamespaceReferences()
@@ -1993,7 +1993,7 @@ func (this *Compiler) toSource_2(licenseTracker CodePrinter_LicenseTracker, chun
 			seq++
 		}
 		for i := int32(0); i < inputs.size(); i++ {
-			if !chunkExterns.isEmpty() && AbstractCompiler_isFillFileName(cast_[*CompilerInput](inputs.get(i)).getName()) {
+			if !chunkExterns.isEmpty() && AbstractCompiler_isFillFileName(inputs.get(i).(*CompilerInput).getName()) {
 				continue
 			}
 			var scriptNode Node = cast_[*CompilerInput](inputs.get(i)).getAstRoot(this.up_AbstractCompiler())
@@ -2112,7 +2112,7 @@ func (this *Compiler) toSourceArray(licenseTracker CodePrinter_LicenseTracker, c
 		for i := int32(0); i < numInputs; i++ {
 			var scriptNode Node = cast_[*CompilerInput](inputs.get(i)).getAstRoot(this.up_AbstractCompiler())
 			if scriptNode == 0 {
-				panic(new_IllegalArgumentException_String(("Bad chunk input: " + sstr_(cast_[*CompilerInput](inputs.get(i)).getName()))).self())
+				panic(new_IllegalArgumentException_String(("Bad chunk input: " + sstr_(inputs.get(i).(*CompilerInput).getName()))).self())
 			}
 			cb.reset()
 			this.toSource_4(cb, licenseTracker, i, scriptNode)
@@ -2492,7 +2492,7 @@ func (this *Compiler) getSourceMapping_Optional_int_int_impl(sourceName Optional
 			this.resolvedSourceMap.relativePath = relativePath
 		}
 	}
-	return cast_[*Mapping_OriginalMapping](cast_[*Mapping_OriginalMapping_Builder](result.toBuilder()).setOriginalFile(relativePath).setColumnPosition((result.getColumnPosition() - 1)).build())
+	return cast_[*Mapping_OriginalMapping](result.toBuilder().(*Mapping_OriginalMapping_Builder).setOriginalFile(relativePath).setColumnPosition((result.getColumnPosition() - 1)).build())
 }
 
 func (this *Compiler) getSourceLine_impl(sourceName OptionalOf[string], lineNumber int32) OptionalOf[string] {
@@ -2831,7 +2831,7 @@ func (this *Compiler) loadResourceContents(resourceName string, path string) Nod
 		if nn_ == nil {
 			panic(new_NullPointerException_String(Strings_lenientFormat(nn1_, []any{strobj_(nn2_)})).self())
 		}
-		var typedAstSupplier SupplierOf[Node] = icast_Supplier(nn_)
+		var typedAstSupplier SupplierOf[Node] = nn_.(Supplier)
 		return Node_of_(typedAstSupplier.get())
 	}
 	if this.hasTypeCheckingRun() {
@@ -3246,7 +3246,7 @@ func (this *Compiler) deserializeCompilerState(state []int8) {
 			this.jsRoot.addChildToBack(script)
 			Map_put_s(this.scriptNodeByFilename, src.getName(), script.box_())
 			this.putCompilerInput(input)
-			cast_[*JSChunk](chunks.get(i)).addCompilerInput(input)
+			chunks.get(i).(*JSChunk).addCompilerInput(input)
 		}
 	}
 	for _, el := range immElems_(deserializedAst.getRuntimeLibraries()) {

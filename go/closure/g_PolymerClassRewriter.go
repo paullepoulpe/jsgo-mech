@@ -171,7 +171,7 @@ func (this *PolymerClassRewriter) rewritePolymerCall(cls *PolymerClassDefinition
 	}
 	if !traversal.inGlobalScope() {
 		var polymerElement *Var = cast_[*Var](traversal.getScope().getVar("PolymerElement").self())
-		if (polymerElement != nil) && !cast_[*Scope](polymerElement.getScope()).isGlobal() {
+		if (polymerElement != nil) && !polymerElement.getScope().(*Scope).isGlobal() {
 			var nameNode Node = polymerElement.getNameNode()
 			this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(cls.constructor_.value_, PolymerClassRewriter_POLYMER_ELEMENT_CONFLICT, []string{nameNode.getSourceFileName(), Integer_toString(nameNode.getLineno()), Integer_toString(nameNode.getCharno())}))
 		}

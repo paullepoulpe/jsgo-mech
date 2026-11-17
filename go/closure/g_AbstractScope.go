@@ -173,7 +173,7 @@ func (this *AbstractScope) getOwnImplicitSlot(name AbstractScope_ImplicitVar) *A
 func (this *AbstractScope) getOwnSlot(name string) StaticSlot {
 	var var_ *AbstractVar = this.ownVar_(name)
 	if var_ != nil {
-		return icast_StaticSlot(var_.self())
+		return var_.self().(StaticSlot)
 	}
 	return icast_StaticSlot(this.getOwnImplicitSlot(AbstractScope_ImplicitVar_of(name)).self())
 }
@@ -427,7 +427,7 @@ func (this *AbstractScope) getTopmostScopeOfEventualDeclaration(p0 string) Stati
 }
 
 func (this *AbstractScope) getTopmostScopeOfEventualDeclaration_impl(p0 string) StaticScope {
-	return StaticScope_getTopmostScopeOfEventualDeclaration_default(icast_StaticScope(this.self()), p0)
+	return StaticScope_getTopmostScopeOfEventualDeclaration_default(this.self().(StaticScope), p0)
 }
 
 type AbstractScope_ImplicitVar uint8

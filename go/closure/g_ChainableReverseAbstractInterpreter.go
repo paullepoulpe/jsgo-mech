@@ -224,7 +224,7 @@ func (this *ChainableReverseAbstractInterpreter_RestrictByTypeOfResultVisitor) c
 	var restricted *JSType = nil
 	for _, el := range immElems_(type_.getAlternates()) {
 		alternate := to_JSType(el)
-		var restrictedAlternate *JSType = to_JSType(alternate.visit(icast_Visitor(this.self())))
+		var restrictedAlternate *JSType = to_JSType(alternate.visit(this.self().(Visitor)))
 		if restrictedAlternate != nil {
 			if restricted == nil {
 				restricted = restrictedAlternate
@@ -241,7 +241,7 @@ func (this *ChainableReverseAbstractInterpreter_RestrictByTypeOfResultVisitor) c
 }
 
 func (this *ChainableReverseAbstractInterpreter_RestrictByTypeOfResultVisitor) caseEnumElementType(enumElementType *EnumElementType) any {
-	var type_ *JSType = to_JSType(enumElementType.getPrimitiveType().visit(icast_Visitor(this.self())))
+	var type_ *JSType = to_JSType(enumElementType.getPrimitiveType().visit(this.self().(Visitor)))
 	if (type_ != nil) && enumElementType.getPrimitiveType().equals_JSType(type_) {
 		return obj_(enumElementType)
 	} else {
@@ -262,7 +262,7 @@ func (this *ChainableReverseAbstractInterpreter_RestrictByTypeOfResultVisitor) c
 }
 
 func (this *ChainableReverseAbstractInterpreter_RestrictByTypeOfResultVisitor) caseProxyObjectType(type_ *ProxyObjectType) any {
-	return type_.visitReferenceType(icast_Visitor(this.self()))
+	return type_.visitReferenceType(this.self().(Visitor))
 }
 
 func (this *ChainableReverseAbstractInterpreter_RestrictByTypeOfResultVisitor) caseNoObjectType() any {

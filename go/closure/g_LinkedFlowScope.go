@@ -481,7 +481,7 @@ func (this *LinkedFlowScope_OverlayScope) getSlot(name string) StaticTypedSlot {
 	var slot *LinkedFlowScope_OverlaySlot = this.slots.get(name)
 	return func() StaticTypedSlot {
 		if slot != nil {
-			return icast_StaticTypedSlot(obj_(slot))
+			return any(slot).(StaticTypedSlot)
 		}
 		return icast_StaticTypedSlot(this.scope_.getSlot(name))
 	}()

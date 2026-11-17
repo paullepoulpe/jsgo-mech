@@ -649,7 +649,7 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) getModule() *Module {
 
 func (this *TypedScopeCreator_AbstractScopeBuilder) build() {
 	this.initializeModuleScope(this.currentScope.getRootNode())
-	NodeTraversal_builder().setCompiler(this.outer_.compiler_).setCallback(icast_NodeTraversal_Callback(this.self())).setScopeCreator(ScopeCreator_ASSERT_NO_SCOPES_CREATED).traverseAtScope(this.currentScope.up_AbstractScope())
+	NodeTraversal_builder().setCompiler(this.outer_.compiler_).setCallback(this.self().(NodeTraversal_Callback)).setScopeCreator(ScopeCreator_ASSERT_NO_SCOPES_CREATED).traverseAtScope(this.currentScope.up_AbstractScope())
 	this.finishDeclaringGoogModule()
 }
 
@@ -768,10 +768,10 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) visit(t *NodeTraversal, n No
 }
 
 // lambda_TypedScopeCreator_AbstractScopeBuilder_visit_1_ is a lambda of TypedScopeCreator_AbstractScopeBuilder_visit that captures nothing (post-flip step lambdas).
-func lambda_TypedScopeCreator_AbstractScopeBuilder_visit_1_(p0 any) { icast_Runnable(p0).run() }
+func lambda_TypedScopeCreator_AbstractScopeBuilder_visit_1_(p0 any) { p0.(Runnable).run() }
 
 // lambda_TypedScopeCreator_AbstractScopeBuilder_visit_2_ is a lambda of TypedScopeCreator_AbstractScopeBuilder_visit that captures nothing (post-flip step lambdas).
-func lambda_TypedScopeCreator_AbstractScopeBuilder_visit_2_(p0 any) { icast_Runnable(p0).run() }
+func lambda_TypedScopeCreator_AbstractScopeBuilder_visit_2_(p0 any) { p0.(Runnable).run() }
 
 func (this *TypedScopeCreator_AbstractScopeBuilder) visitPreorder_impl(t *NodeTraversal, n Node, parent Node) {
 
@@ -1043,7 +1043,7 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) inferTypeForDestructuredTarg
 
 func (this *TypedScopeCreator_AbstractScopeBuilder) defineDestructuringPatternInVarDeclaration(pattern Node, scope *TypedScope, patternTypeSupplier func() any) {
 	for _, target := range DestructuredTarget_createAllNonEmptyTargetsInPatternSupplier(this.outer_.typeRegistry, func() any {
-		return cast_[*TypedScopeCreator_RValueInfo](patternTypeSupplier()).type__.self()
+		return patternTypeSupplier().(*TypedScopeCreator_RValueInfo).type__.self()
 	}, pattern) {
 		var typeSupplier func() any = func() any {
 			return obj_(this.inferTypeForDestructuredTarget(target, patternTypeSupplier))
@@ -1750,7 +1750,7 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) getDeclaredRValueType(lValue
 	}
 	if rValue.isCall() && rValue.getFirstChild().matchesName("Symbol") {
 		var symbolVar *TypedVar = cast_[*TypedVar](this.currentScope.getVar("Symbol").self())
-		if (symbolVar != nil) && cast_[*TypedScope](symbolVar.getScope()).isGlobal() {
+		if (symbolVar != nil) && symbolVar.getScope().(*TypedScope).isGlobal() {
 			return this.outer_.typeRegistry.getNativeType(JSTypeNative_SYMBOL_TYPE)
 		}
 	}
@@ -2391,7 +2391,7 @@ func (this *TypedScopeCreator_FunctionScopeBuilder) declareNamesInPositionalPara
 			if argumentName == "" || (cast_[*TypedScope](this.currentScope.getParent().self()) == nil) {
 				return nil
 			}
-			return cast_[*TypedVar](cast_[*TypedScope](this.currentScope.getParent().self()).getVar(argumentName).self())
+			return cast_[*TypedVar](this.currentScope.getParent().self().(*TypedScope).getVar(argumentName).self())
 		}()
 		if (argumentVar != nil) && !argumentVar.isTypeInferred() {
 			paramType = argumentVar.getType()
@@ -2583,7 +2583,7 @@ func (this *TypedScopeCreator_ClassScopeBuilder) defineGetterSetter(n Node) {
 				if methodType.getParameters().isEmpty() {
 					return this.outer_.unknownType.up_JSType()
 				}
-				return cast_[*FunctionType_Parameter](methodType.getParameters().get(0)).getJSType()
+				return methodType.getParameters().get(0).(*FunctionType_Parameter).getJSType()
 			}()
 		default:
 			panic(new_AssertionError_Object(strobj_(n.toStringTree())).self())

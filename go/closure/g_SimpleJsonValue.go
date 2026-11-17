@@ -165,7 +165,7 @@ func (this *SimpleJsonValue) writeTo(writer *SimpleJsonWriter) {
 		writer.beginObject()
 		for member := range elemsBy_(this.named.entrySet(), icast_Map_Entry) {
 			writer.name(str_(member.getKey()))
-			cast_[*SimpleJsonValue](member.getValue()).writeTo(writer)
+			member.getValue().(*SimpleJsonValue).writeTo(writer)
 		}
 		writer.endObject()
 	case SimpleJsonValue_Kind_ARRAY:
