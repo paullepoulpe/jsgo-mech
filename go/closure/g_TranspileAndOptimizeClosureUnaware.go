@@ -33,7 +33,7 @@ func (this *TranspileAndOptimizeClosureUnaware) process_2(externs Node, root Nod
 	this.reattachShadowNodes(collector.shadowAsts)
 }
 
-func (this *TranspileAndOptimizeClosureUnaware) initShadowInputs(shadowCompiler *NestedCompilerRunner, perFileInputs *SimpleSetMultimap) {
+func (this *TranspileAndOptimizeClosureUnaware) initShadowInputs(shadowCompiler *NestedCompilerRunner, perFileInputs *SimpleSetMultimap[*SourceFile_jscomp, *TranspileAndOptimizeClosureUnaware_ShadowAst]) {
 	for sourceFile := range elemsAs_[*SourceFile_jscomp](perFileInputs.keySet()) {
 		var indexInFile int32 = 0
 		for shadowAst := range elemsAs_[*TranspileAndOptimizeClosureUnaware_ShadowAst](perFileInputs.get(obj_(sourceFile))) {
@@ -44,7 +44,7 @@ func (this *TranspileAndOptimizeClosureUnaware) initShadowInputs(shadowCompiler 
 	}
 }
 
-func (this *TranspileAndOptimizeClosureUnaware) reattachShadowNodes(inputs *SimpleSetMultimap) {
+func (this *TranspileAndOptimizeClosureUnaware) reattachShadowNodes(inputs *SimpleSetMultimap[*SourceFile_jscomp, *TranspileAndOptimizeClosureUnaware_ShadowAst]) {
 	for shadowAst := range elemsAs_[*TranspileAndOptimizeClosureUnaware_ShadowAst](inputs.values()) {
 		var script Node = shadowAst.script()
 		if ok_, a1_ := script.hasOneChild(), script.toStringTree(); !ok_ {
@@ -139,11 +139,11 @@ func (this *TranspileAndOptimizeClosureUnaware_ShadowAst) toString() string {
 }
 
 type TranspileAndOptimizeClosureUnaware_CollectShadowAsts struct {
-	shadowAsts *SimpleSetMultimap
+	shadowAsts *SimpleSetMultimap[*SourceFile_jscomp, *TranspileAndOptimizeClosureUnaware_ShadowAst]
 }
 
 func (this *TranspileAndOptimizeClosureUnaware_CollectShadowAsts) finit_TranspileAndOptimizeClosureUnaware_CollectShadowAsts() {
-	this.shadowAsts = SimpleSetMultimap_createInsertionOrdered()
+	this.shadowAsts = SimpleSetMultimap_createInsertionOrdered[*SourceFile_jscomp, *TranspileAndOptimizeClosureUnaware_ShadowAst]()
 }
 
 func (this *TranspileAndOptimizeClosureUnaware_CollectShadowAsts) init_TranspileAndOptimizeClosureUnaware_CollectShadowAsts() {
@@ -193,7 +193,7 @@ func (this *TranspileAndOptimizeClosureUnaware_CollectShadowAsts) visit(t *NodeT
 	if !callNode.isCall() {
 		panic(new_IllegalStateException_String(objstr_(callNode.box_())).self())
 	}
-	this.shadowAsts.put(obj_(t.getInput().getSourceFile()), obj_(new_TranspileAndOptimizeClosureUnaware_ShadowAst(shadow, callNode, shadow.getOnlyChild())))
+	this.shadowAsts.put(t.getInput().getSourceFile(), new_TranspileAndOptimizeClosureUnaware_ShadowAst(shadow, callNode, shadow.getOnlyChild()))
 }
 
 type TranspileAndOptimizeClosureUnaware_RuntimeLibInjectionPassConfig struct {

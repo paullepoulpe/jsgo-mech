@@ -15,15 +15,15 @@ type TypedScopeCreator struct {
 	moduleImportResolver         *ModuleImportResolver
 	processClosurePrimitives     bool
 	memoized                     *TMap[Node, *TypedScope]
-	reservedNamesForScope        *SimpleListMultimap
+	reservedNamesForScope        *SimpleListMultimap[Node, string]
 	functionsWithNonEmptyReturns map[Node]struct{}
 	escapedVarNames              *TSet[*ScopedName]
-	assignedVarNames             *SimpleMultiset
+	assignedVarNames             *SimpleMultiset[*ScopedName]
 	unknownType                  *ObjectType
 	weakImports                  []*TypedScopeCreator_WeakModuleImport
 	unresolvedNodes              []Node
 	undeclaredNamesForClosure    map[Node]struct{}
-	providedNamesFromCall        *SimpleSetMultimap
+	providedNamesFromCall        *SimpleSetMultimap[Node, *ProcessClosureProvidesAndRequires_ProvidedName]
 	stage                        TypedScopeCreator_Stage
 }
 
@@ -231,7 +231,7 @@ func (this *TypedScopeCreator) gatherAllProvides(root Node) {
 				this.undeclaredNamesForClosure[firstDefinitionNode.getFirstFirstChild()] = struct{}{}
 			}
 		} else if ((name.getFirstProvideCall() != 0) && NodeUtil_isExprCall(name.getFirstProvideCall())) && !name.isFromLegacyModule() {
-			this.providedNamesFromCall.put(name.getFirstProvideCall().box_(), obj_(name))
+			this.providedNamesFromCall.put(name.getFirstProvideCall(), name)
 		}
 		if name.isExplicitlyProvided() && !name.isFromLegacyModule() {
 			this.typeRegistry.registerLegacyClosureNamespace(name.getNamespace())
@@ -318,14 +318,14 @@ func (this *TypedScopeCreator) finishAndFreeze() {
 }
 
 func (this *TypedScopeCreator) clearCommonState() {
-	this.reservedNamesForScope = SimpleListMultimap_create()
+	this.reservedNamesForScope = SimpleListMultimap_create[Node, string]()
 	this.functionsWithNonEmptyReturns = map[Node]struct{}{}
 	this.escapedVarNames = newTSet_(tch_p_ScopedName)
-	this.assignedVarNames = SimpleMultiset_create()
+	this.assignedVarNames = SimpleMultiset_create[*ScopedName]()
 	this.weakImports = []*TypedScopeCreator_WeakModuleImport{}
 	this.unresolvedNodes = []Node{}
 	this.undeclaredNamesForClosure = map[Node]struct{}{}
-	this.providedNamesFromCall = SimpleSetMultimap_createInsertionOrdered()
+	this.providedNamesFromCall = SimpleSetMultimap_createInsertionOrdered[Node, *ProcessClosureProvidesAndRequires_ProvidedName]()
 }
 
 func (this *TypedScopeCreator) getNativeType(nativeType JSTypeNative) *JSType {
@@ -607,7 +607,7 @@ type TypedScopeCreator_AbstractScopeBuilder struct {
 	currentHoistScope *TypedScope
 	sourceName_       OptionalOf[string]
 	inputId           *InputId
-	deferredActions   *SimpleSetMultimap
+	deferredActions   *SimpleSetMultimap[Node, *Runnable_fn]
 }
 
 // TypedScopeCreator_AbstractScopeBuilder_I holds the methods the dispatchers of TypedScopeCreator_AbstractScopeBuilder's hierarchy call on the most derived
@@ -630,7 +630,7 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) self() any {
 
 func (this *TypedScopeCreator_AbstractScopeBuilder) finit_TypedScopeCreator_AbstractScopeBuilder() {
 	this.sourceName_ = Optional_empty[string]()
-	this.deferredActions = SimpleSetMultimap_createInsertionOrdered()
+	this.deferredActions = SimpleSetMultimap_createInsertionOrdered[Node, *Runnable_fn]()
 }
 
 func (this *TypedScopeCreator_AbstractScopeBuilder) init_TypedScopeCreator_AbstractScopeBuilder(scope *TypedScope) {
@@ -800,9 +800,9 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) attachLiteralTypes(n Node) {
 	case tokOrd1_OBJECTLIT:
 		var info *JSDocInfo = n.getJSDocInfo()
 		if (info != nil) && info.hasLendsName() {
-			this.deferredActions.put(NodeUtil_getEnclosingStatement(n).box_(), any(&Runnable_fn{func() {
+			this.deferredActions.put(NodeUtil_getEnclosingStatement(n), &Runnable_fn{func() {
 				this.defineObjectLiteral(n)
-			}}))
+			}})
 		} else {
 			this.defineObjectLiteral(n)
 		}
@@ -1529,7 +1529,7 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) declare(scope *TypedScope, n
 	if this.outer_.assignedVarNames.count(scopedName.self()) == 1 {
 		var_.markAssignedExactlyOnce()
 	}
-	this.outer_.assignedVarNames.remove(scopedName.self())
+	this.outer_.assignedVarNames.remove(scopedName)
 	return var_
 }
 
@@ -1861,9 +1861,9 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) maybeDeclareQualifiedName(t 
 	if valueType == nil {
 		if parent.isExprResult() {
 			var isExtern bool = ((t.getInput() != nil) && t.getInput().isExtern())
-			this.deferredActions.put(this.currentScope.getRootNode().box_(), any(&Runnable_fn{func() {
+			this.deferredActions.put(this.currentScope.getRootNode(), &Runnable_fn{func() {
 				this.resolveStubDeclaration(n, isExtern, ownerName)
-			}}))
+			}})
 		}
 		return
 	}
@@ -2639,7 +2639,7 @@ func (this *TypedScopeCreator_FirstOrderFunctionAnalyzer) enterScope_impl(t *Nod
 	var scope *Scope = t.getScope()
 	var root Node = scope.getRootNode()
 	for symbol := range elemsAs_[*Var](scope.getVarIterable()) {
-		this.outer_.reservedNamesForScope.put(root.box_(), strobj_(symbol.getName()))
+		this.outer_.reservedNamesForScope.put(root, symbol.getName())
 	}
 }
 
@@ -2659,7 +2659,7 @@ func (this *TypedScopeCreator_FirstOrderFunctionAnalyzer) visit_impl(t *NodeTrav
 			var ownerScope *Scope = cast_[*Scope](var_.getScope())
 			if ownerScope.isLocal() {
 				var scopedName *ScopedName = ScopedName_of(name, ownerScope.getRootNode())
-				this.outer_.assignedVarNames.add(scopedName.self())
+				this.outer_.assignedVarNames.add(scopedName)
 				if !containerScope.hasSameContainerScope(ownerScope.up_AbstractScope()) {
 					this.outer_.escapedVarNames.add(scopedName)
 				}

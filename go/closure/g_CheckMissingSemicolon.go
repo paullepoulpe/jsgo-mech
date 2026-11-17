@@ -59,11 +59,11 @@ func (this *CheckMissingSemicolon) checkSemicolon(t *NodeTraversal, n Node) {
 		sourceFile = p
 		return true
 	}() {
-		var codeRes *Outcome_base = sourceFile.readCode()
+		var codeRes *Outcome_base[string] = sourceFile.readCode()
 		if codeRes.isErr() {
 			return
 		}
-		var code string = str_(codeRes.get())
+		var code string = codeRes.get()
 		var length int32 = n.getLength()
 		if length == 0 {
 			return

@@ -4,7 +4,7 @@ package closure
 
 type CheckRequiresSorted struct {
 	mode_              CheckRequiresSorted_Mode
-	importsByNamespace *SimpleListMultimap
+	importsByNamespace *SimpleListMultimap[any, *CheckRequiresSorted_ImportStatement]
 	originalImports    []*CheckRequiresSorted_ImportStatement
 	firstNode          Node
 	lastNode           Node
@@ -14,7 +14,7 @@ type CheckRequiresSorted struct {
 }
 
 func (this *CheckRequiresSorted) finit_CheckRequiresSorted() {
-	this.importsByNamespace = SimpleListMultimap_create()
+	this.importsByNamespace = SimpleListMultimap_create[any, *CheckRequiresSorted_ImportStatement]()
 	this.originalImports = []*CheckRequiresSorted_ImportStatement{}
 	this.firstNode = 0
 	this.lastNode = 0
@@ -68,7 +68,7 @@ func (this *CheckRequiresSorted) visit(t *NodeTraversal, n Node, parent Node) {
 	if (callNode != 0) && CheckRequiresSorted_isValidImportCall(callNode) {
 		var stmt *CheckRequiresSorted_ImportStatement = CheckRequiresSorted_parseImport(callNode)
 		this.originalImports = append(this.originalImports, stmt)
-		this.importsByNamespace.put_s(stmt.namespace(), obj_(stmt))
+		this.importsByNamespace.put_s(stmt.namespace(), stmt)
 		if this.firstNode == 0 {
 			this.lastNode = n
 			this.firstNode = n
@@ -126,7 +126,7 @@ func (this *CheckRequiresSorted) checkCanonical(t *NodeTraversal) {
 // lambda_CheckRequiresSorted_checkCanonical_1_ is a lambda of CheckRequiresSorted_checkCanonical that captures nothing (post-flip step lambdas).
 var lambda_CheckRequiresSorted_checkCanonical_1_ = &Function_base_fn{func(p0 any) any { return strobj_(cast_[*CheckRequiresSorted_ImportStatement](p0).format()) }}
 
-func CheckRequiresSorted_canonicalizeImports(importsByNamespace *SimpleListMultimap) *TList[*CheckRequiresSorted_ImportStatement] {
+func CheckRequiresSorted_canonicalizeImports(importsByNamespace *SimpleListMultimap[any, *CheckRequiresSorted_ImportStatement]) *TList[*CheckRequiresSorted_ImportStatement] {
 	var canonicalImports *TList[*CheckRequiresSorted_ImportStatement] = newTList_(tc_p_CheckRequiresSorted_ImportStatement)
 	for namespace := range elemsBy_(importsByNamespace.keySet(), str_) {
 		var allImports CollectionOf[*CheckRequiresSorted_ImportStatement] = Collection(importsByNamespace.get_s(namespace))

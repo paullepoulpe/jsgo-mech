@@ -15,7 +15,7 @@ func new_ApplySuggestedFixes() *ApplySuggestedFixes {
 	return this
 }
 
-func ApplySuggestedFixes_applySuggestedFixesToFiles(fixes IterableOf[*SuggestedFix]) *Outcome_base {
+func ApplySuggestedFixes_applySuggestedFixesToFiles(fixes IterableOf[*SuggestedFix]) *Outcome_base[any] {
 	var filenames *TSet[string] = newTSet_(tc_string)
 	for fix := range elemsAs_[*SuggestedFix](fixes) {
 		filenames.asSet().addAll(Collection(fix.getReplacements().keySet()))
@@ -26,18 +26,18 @@ func ApplySuggestedFixes_applySuggestedFixesToFiles(fixes IterableOf[*SuggestedF
 			continue
 		}
 		var filename string = filenames.keys[i_3]
-		var code *Outcome_base = TextFiles_read(filename, Charsets_UTF_8)
+		var code *Outcome_base[string] = TextFiles_read(filename, Charsets_UTF_8)
 		if code.isErr() {
-			return Outcome_base_err(code.error())
+			return Outcome_base_err[any](code.error())
 		}
-		filenameToCodeMap[filename] = str_(code.get())
+		filenameToCodeMap[filename] = code.get()
 	}
 	var newCode ImmutableMapOf[string, string] = ApplySuggestedFixes_applySuggestedFixesToCode(fixes, filenameToCodeMap)
 	for _, el_5 := range immElems_(cast_[*ImmutableSet](newCode.entrySet())) {
 		var entry Map_Entry = icast_Map_Entry(el_5)
-		var written *Outcome_base = TextFiles_write(str_(entry.getKey()), Charsets_UTF_8, str_(entry.getValue()))
+		var written *Outcome_base[any] = TextFiles_write(str_(entry.getKey()), Charsets_UTF_8, str_(entry.getValue()))
 		if written.isErr() {
-			return Outcome_base_err(written.error())
+			return Outcome_base_err[any](written.error())
 		}
 	}
 	return Outcome_base_ok_0()
@@ -141,11 +141,11 @@ func ApplySuggestedFixes_clinit() {
 }
 
 type ApplySuggestedFixes_ReplacementMap struct {
-	map__ *SimpleSetMultimap
+	map__ *SimpleSetMultimap[any, any]
 }
 
 func (this *ApplySuggestedFixes_ReplacementMap) finit_ApplySuggestedFixes_ReplacementMap() {
-	this.map__ = SimpleSetMultimap_createInsertionOrdered()
+	this.map__ = SimpleSetMultimap_createInsertionOrdered[any, any]()
 }
 
 func (this *ApplySuggestedFixes_ReplacementMap) init_ApplySuggestedFixes_ReplacementMap() {

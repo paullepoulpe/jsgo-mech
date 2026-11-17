@@ -3,13 +3,13 @@
 package closure
 
 type LinkedIdentityHashMap struct {
-	innerMap       IdentityHashMapOf[any, *LinkedIdentityHashMap_Entry]
-	iterationOrder []*LinkedIdentityHashMap_Entry
+	innerMap       IdentityHashMapOf[any, *LinkedIdentityHashMap_Entry[any, any]]
+	iterationOrder []*LinkedIdentityHashMap_Entry[any, any]
 }
 
 func (this *LinkedIdentityHashMap) finit_LinkedIdentityHashMap() {
 	this.innerMap = new_IdentityHashMap()
-	this.iterationOrder = []*LinkedIdentityHashMap_Entry{}
+	this.iterationOrder = []*LinkedIdentityHashMap_Entry[any, any]{}
 }
 
 func (this *LinkedIdentityHashMap) init_LinkedIdentityHashMap() {
@@ -23,7 +23,7 @@ func new_LinkedIdentityHashMap() *LinkedIdentityHashMap {
 }
 
 func (this *LinkedIdentityHashMap) get(key any) any {
-	var entry *LinkedIdentityHashMap_Entry = cast_[*LinkedIdentityHashMap_Entry](this.innerMap.get(key))
+	var entry *LinkedIdentityHashMap_Entry[any, any] = cast_[*LinkedIdentityHashMap_Entry[any, any]](this.innerMap.get(key))
 	return func() any {
 		if entry == nil {
 			return nil
@@ -33,7 +33,7 @@ func (this *LinkedIdentityHashMap) get(key any) any {
 }
 
 func (this *LinkedIdentityHashMap) put(key any, value any) any {
-	var entry *LinkedIdentityHashMap_Entry = cast_[*LinkedIdentityHashMap_Entry](this.innerMap.get(key))
+	var entry *LinkedIdentityHashMap_Entry[any, any] = cast_[*LinkedIdentityHashMap_Entry[any, any]](this.innerMap.get(key))
 	if entry == nil {
 		entry = new_LinkedIdentityHashMap_Entry(key, value)
 		this.innerMap.put(key, obj_(entry))
@@ -73,18 +73,18 @@ func (this *LinkedIdentityHashMap) forEach(fn func(any, any)) {
 	}
 }
 
-type LinkedIdentityHashMap_Entry struct {
-	key_   any
-	value_ any
+type LinkedIdentityHashMap_Entry[K, V comparable] struct {
+	key_   K
+	value_ V
 }
 
-func (this *LinkedIdentityHashMap_Entry) init_LinkedIdentityHashMap_Entry(key any, value any) {
+func (this *LinkedIdentityHashMap_Entry[K, V]) init_LinkedIdentityHashMap_Entry(key K, value V) {
 	this.key_ = key
 	this.value_ = value
 }
 
-func new_LinkedIdentityHashMap_Entry(key any, value any) *LinkedIdentityHashMap_Entry {
-	this := &LinkedIdentityHashMap_Entry{}
+func new_LinkedIdentityHashMap_Entry[K, V comparable](key K, value V) *LinkedIdentityHashMap_Entry[K, V] {
+	this := &LinkedIdentityHashMap_Entry[K, V]{key_: null_[K](), value_: null_[V]()}
 	this.init_LinkedIdentityHashMap_Entry(key, value)
 	return this
 }

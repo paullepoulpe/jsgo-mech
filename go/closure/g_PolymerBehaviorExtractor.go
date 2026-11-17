@@ -9,12 +9,12 @@ type PolymerBehaviorExtractor struct {
 	globalNames           *GlobalNamespace
 	moduleMetadataMap     *ModuleMetadataMap
 	moduleMap             *ModuleMap
-	resolveMemoized       *SimpleTable
+	resolveMemoized       *SimpleTable[string, *ModuleMetadataMap_ModuleMetadata, *PolymerBehaviorExtractor_ResolveBehaviorNameResult]
 	globalResolveMemoized map[string]*PolymerBehaviorExtractor_ResolveBehaviorNameResult
 }
 
 func (this *PolymerBehaviorExtractor) finit_PolymerBehaviorExtractor() {
-	this.resolveMemoized = SimpleTable_create()
+	this.resolveMemoized = SimpleTable_create[string, *ModuleMetadataMap_ModuleMetadata, *PolymerBehaviorExtractor_ResolveBehaviorNameResult]()
 	this.globalResolveMemoized = map[string]*PolymerBehaviorExtractor_ResolveBehaviorNameResult{}
 }
 
@@ -90,7 +90,7 @@ func (this *PolymerBehaviorExtractor) resolveBehaviorName(name OptionalOf[string
 	}
 	var memoized *PolymerBehaviorExtractor_ResolveBehaviorNameResult = func() *PolymerBehaviorExtractor_ResolveBehaviorNameResult {
 		if moduleMetadata != nil {
-			return cast_[*PolymerBehaviorExtractor_ResolveBehaviorNameResult](this.resolveMemoized.get(strobj_(name.get()), obj_(moduleMetadata)))
+			return this.resolveMemoized.get(strobj_(name.get()), obj_(moduleMetadata))
 		}
 		return this.globalResolveMemoized[name.get()]
 	}()
@@ -101,7 +101,7 @@ func (this *PolymerBehaviorExtractor) resolveBehaviorName(name OptionalOf[string
 		}
 		memoized = nn_1
 		if moduleMetadata != nil {
-			this.resolveMemoized.put(strobj_(name.get()), obj_(moduleMetadata), obj_(memoized))
+			this.resolveMemoized.put(name.get(), moduleMetadata, memoized)
 		} else {
 			this.globalResolveMemoized[name.get()] = memoized
 		}

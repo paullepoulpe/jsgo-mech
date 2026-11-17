@@ -9,7 +9,7 @@ type TypeInferencePass struct {
 	topScope                *TypedScope
 	scopeCreator            *TypedScopeCreator
 	assertionFunctionLookup *CodingConvention_AssertionFunctionLookup
-	stepCountHistogram      LinkedHashMapOf[BoxedOf[int32], *SimpleMultiset]
+	stepCountHistogram      LinkedHashMapOf[BoxedOf[int32], *SimpleMultiset[any]]
 }
 
 func (this *TypeInferencePass) init_TypeInferencePass(compiler *AbstractCompiler, reverseInterpreter ReverseAbstractInterpreter, scopeCreator *TypedScopeCreator) {
@@ -67,7 +67,7 @@ func (this *TypeInferencePass) inferAllScopes(inferenceRoot Node) *TypedScope {
 			var stepCounts ListOf[BoxedOf[int32]] = icast_List(new_ArrayList_Collection(Collection(this.stepCountHistogram.keySet())).self())
 			List_sort(stepCounts, Comparator_reversed(Comparator_naturalOrder()))
 			for stepCount := range elems_(stepCounts) {
-				var entries []Map_EntryOf[Token_rhino, BoxedOf[int32]] = sliceFrom_(tc_Map_EntryOf_p_Token_rhino__BoxedOf_int32__, Collection(cast_[*SimpleMultiset](this.stepCountHistogram.get(stepCount)).entrySet()))
+				var entries []Map_EntryOf[Token_rhino, BoxedOf[int32]] = sliceFrom_(tc_Map_EntryOf_p_Token_rhino__BoxedOf_int32__, Collection(cast_[*SimpleMultiset[any]](this.stepCountHistogram.get(stepCount)).entrySet()))
 				List_sort(sliceView_(tc_Map_EntryOf_p_Token_rhino__BoxedOf_int32__, entries), Comparator_comparingInt_f(lambda_TypeInferencePass_inferAllScopes_1_))
 				for _, e := range entries {
 					totals[0] += (unbox_[int32](stepCount) * unbox_[int32](e.getValue()))
@@ -96,15 +96,15 @@ func (this *TypeInferencePass) inferScope(n Node, scope *TypedScope) {
 			if node == cfg.getImplicitReturn() {
 				continue
 			}
-			var state *DataFlowAnalysis_LinearFlowState = cast_[*DataFlowAnalysis_LinearFlowState](Annotatable_getAnnotation(Annotatable(node)))
-			cast_[*SimpleMultiset](Map_computeIfAbsent_f(icast_Map(obj_(this.stepCountHistogram)), any(int32(state.getStepCount())), lambda_TypeInferencePass_inferScope_1_)).add(obj_(Node_of_(node.getValue()).getToken()))
+			var state *DataFlowAnalysis_LinearFlowState[any] = cast_[*DataFlowAnalysis_LinearFlowState[any]](Annotatable_getAnnotation(Annotatable(node)))
+			cast_[*SimpleMultiset[any]](Map_computeIfAbsent_f(icast_Map(obj_(this.stepCountHistogram)), any(int32(state.getStepCount())), lambda_TypeInferencePass_inferScope_1_)).add(obj_(Node_of_(node.getValue()).getToken()))
 		}
 	}
 }
 
 // lambda_TypeInferencePass_inferScope_1_ is a lambda of TypeInferencePass_inferScope that captures nothing (post-flip step lambdas).
 func lambda_TypeInferencePass_inferScope_1_(k any) any {
-	return obj_(SimpleMultiset_create())
+	return obj_(SimpleMultiset_create[any]())
 }
 
 func (this *TypeInferencePass) computeCfg(n Node) *ControlFlowGraph {

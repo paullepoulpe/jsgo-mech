@@ -6,19 +6,19 @@ import "strings"
 
 type SuggestedFix struct {
 	matchedNodeInfo *SuggestedFix_MatchedNodeInfo
-	replacements    *SimpleSetMultimap
+	replacements    *SimpleSetMultimap[any, any]
 	description_    OptionalOf[string]
 	alternatives    ImmutableListOf[*SuggestedFix]
 }
 
-func (this *SuggestedFix) init_SuggestedFix(matchedNodeInfo *SuggestedFix_MatchedNodeInfo, replacements *SimpleSetMultimap, description OptionalOf[string], alternatives []*SuggestedFix) {
+func (this *SuggestedFix) init_SuggestedFix(matchedNodeInfo *SuggestedFix_MatchedNodeInfo, replacements *SimpleSetMultimap[any, any], description OptionalOf[string], alternatives []*SuggestedFix) {
 	this.matchedNodeInfo = matchedNodeInfo
 	this.replacements = replacements
 	this.description_ = description
 	this.alternatives = ImmutableList_builder().add(any(this)).addAll(sliceView_(tc_p_SuggestedFix, alternatives)).build()
 }
 
-func new_SuggestedFix(matchedNodeInfo *SuggestedFix_MatchedNodeInfo, replacements *SimpleSetMultimap, description OptionalOf[string], alternatives []*SuggestedFix) *SuggestedFix {
+func new_SuggestedFix(matchedNodeInfo *SuggestedFix_MatchedNodeInfo, replacements *SimpleSetMultimap[any, any], description OptionalOf[string], alternatives []*SuggestedFix) *SuggestedFix {
 	this := &SuggestedFix{}
 	this.init_SuggestedFix(matchedNodeInfo, replacements, description, alternatives)
 	return this
@@ -28,7 +28,7 @@ func (this *SuggestedFix) getMatchedNodeInfo() *SuggestedFix_MatchedNodeInfo {
 	return this.matchedNodeInfo
 }
 
-func (this *SuggestedFix) getReplacements() *SimpleSetMultimap {
+func (this *SuggestedFix) getReplacements() *SimpleSetMultimap[any, any] {
 	return this.replacements
 }
 
@@ -144,14 +144,14 @@ func SuggestedFix_ImportType_clinit() {
 
 type SuggestedFix_Builder struct {
 	matchedNodeInfo *SuggestedFix_MatchedNodeInfo
-	replacements    *SimpleSetMultimap
+	replacements    *SimpleSetMultimap[any, any]
 	alternatives    ImmutableList_BuilderOf[*SuggestedFix]
 	description_    OptionalOf[string]
 }
 
 func (this *SuggestedFix_Builder) finit_SuggestedFix_Builder() {
 	this.matchedNodeInfo = nil
-	this.replacements = SimpleSetMultimap_create()
+	this.replacements = SimpleSetMultimap_create[any, any]()
 	this.alternatives = ImmutableList_builder()
 	this.description_ = Optional_empty[string]()
 }

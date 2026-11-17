@@ -5,9 +5,9 @@ package closure
 type GuardedCallback struct {
 	self_            any
 	compiler_        *AbstractCompiler
-	registeredGuards *SimpleSetMultimap
-	guarded          *SimpleMultiset
-	installedGuards  *SimpleListMultimap
+	registeredGuards *SimpleSetMultimap[Node, string]
+	guarded          *SimpleMultiset[any]
+	installedGuards  *SimpleListMultimap[Node, any]
 	contextStack     []*GuardedCallback_Context
 }
 
@@ -21,9 +21,9 @@ func (this *GuardedCallback) self() any {
 }
 
 func (this *GuardedCallback) finit_GuardedCallback() {
-	this.registeredGuards = SimpleSetMultimap_create()
-	this.guarded = SimpleMultiset_create()
-	this.installedGuards = SimpleListMultimap_create()
+	this.registeredGuards = SimpleSetMultimap_create[Node, string]()
+	this.guarded = SimpleMultiset_create[any]()
+	this.installedGuards = SimpleListMultimap_create[Node, any]()
 	this.contextStack = []*GuardedCallback_Context{}
 }
 
@@ -40,7 +40,7 @@ func (this *GuardedCallback) shouldTraverse(traversal *NodeTraversal, n Node, pa
 		if ((parent != 0) && GuardedCallback_CAN_HAVE_GUARDS.contains(obj_(parent.getToken()))) && this.registeredGuards.containsKey(parent.box_()) {
 			for resource := range elems_(this.registeredGuards.removeAll(parent.box_())) {
 				this.guarded.add(resource)
-				this.installedGuards.put(parent.box_(), resource)
+				this.installedGuards.put(parent, resource)
 			}
 		}
 	}
@@ -65,7 +65,7 @@ func (this *GuardedCallback) promoteAbruptReturns(parent Node) {
 	if parent.isIf() && this.installedGuards.containsKey(parent.box_()) {
 		var grandparent Node = parent.getParent()
 		if grandparent.isBlock() || grandparent.isScript() {
-			this.registeredGuards.putAll_2(grandparent.box_(), Iterable(this.installedGuards.get(parent.box_())))
+			this.registeredGuards.putAll_2(grandparent, Iterable(this.installedGuards.get(parent.box_())))
 		}
 	}
 }
@@ -79,7 +79,7 @@ func (this *GuardedCallback) isGuarded(resource string) bool {
 		return false
 	}
 	for (context != nil) && (context.conditional != 0) {
-		this.registeredGuards.put(context.conditional.box_(), strobj_(resource))
+		this.registeredGuards.put(context.conditional, resource)
 		context = context.linked
 	}
 	return true

@@ -155,14 +155,14 @@ func CmdLineParser_wrapLines(line string, maxLength int32) []string {
 	return rv
 }
 
-func (this *CmdLineParser) parseArgumentCollection(args CollectionOf[string]) *Outcome_base {
+func (this *CmdLineParser) parseArgumentCollection(args CollectionOf[string]) *Outcome_base[any] {
 	return this.parseArgument(arrmap_(args.toArray(arrmap_(newstrarr_(0), func(v_ string) any { return strobj_(v_) })), func(v_ any) string { return str_(v_) }))
 }
 
-func (this *CmdLineParser) parseArgument(args []string) *Outcome_base {
-	var expandedArgs *Outcome_base = this.expandAtFiles(args)
+func (this *CmdLineParser) parseArgument(args []string) *Outcome_base[any] {
+	var expandedArgs *Outcome_base[any] = this.expandAtFiles(args)
 	if expandedArgs.isErr() {
-		return Outcome_base_err(expandedArgs.error())
+		return Outcome_base_err[any](expandedArgs.error())
 	}
 	var cmdLine *CmdLineParser_CmdLineImpl = new_CmdLineParser_CmdLineImpl(this, cast_[[]string](expandedArgs.get()))
 	var present map[*CmdLineParser_Option]struct{} = map[*CmdLineParser_Option]struct{}{}
@@ -177,7 +177,7 @@ func (this *CmdLineParser) parseArgument(args []string) *Outcome_base {
 				return this.findOptionByName(arg)
 			}()
 			if this.currentOption == nil {
-				return Outcome_base_err(new_CmdLineException_CmdLineParser_String(this, ("\"" + sstr_(arg) + "\" is not a valid option")).up_Throwable())
+				return Outcome_base_err[any](new_CmdLineException_CmdLineParser_String(this, ("\"" + sstr_(arg) + "\" is not a valid option")).up_Throwable())
 			}
 			if isKeyValuePair {
 				cmdLine.splitToken()
@@ -186,13 +186,13 @@ func (this *CmdLineParser) parseArgument(args []string) *Outcome_base {
 			}
 		} else {
 			if this.argumentField == nil {
-				return Outcome_base_err(new_CmdLineException_CmdLineParser_String(this, ("No argument is allowed: " + sstr_(arg))).up_Throwable())
+				return Outcome_base_err[any](new_CmdLineException_CmdLineParser_String(this, ("No argument is allowed: " + sstr_(arg))).up_Throwable())
 			}
 			this.currentOption = this.argumentField
 		}
-		var diff *Outcome_base = this.currentOption.handler(cmdLine)
+		var diff *Outcome_base[any] = this.currentOption.handler(cmdLine)
 		if diff.isErr() {
-			return Outcome_base_err(diff.error())
+			return Outcome_base_err[any](diff.error())
 		}
 		cmdLine.proceed(unbox_[int32](diff.get()))
 		present[this.currentOption] = struct{}{}
@@ -201,25 +201,25 @@ func (this *CmdLineParser) parseArgument(args []string) *Outcome_base {
 	for i_2 := 0; i_2 < len(l_2.items); i_2++ {
 		var option *CmdLineParser_Option = l_2.items[i_2]
 		if option.requiredField && !has_(present, option) {
-			return Outcome_base_err(new_CmdLineException_CmdLineParser_String(this, ("Option \"" + tostr_(option) + "\" is required")).up_Throwable())
+			return Outcome_base_err[any](new_CmdLineException_CmdLineParser_String(this, ("Option \"" + tostr_(option) + "\" is required")).up_Throwable())
 		}
 	}
 	return Outcome_base_ok_0()
 }
 
-func (this *CmdLineParser) expandAtFiles(args []string) *Outcome_base {
+func (this *CmdLineParser) expandAtFiles(args []string) *Outcome_base[any] {
 	var result []string = []string{}
 	for _, arg := range args {
 		if strings.HasPrefix(arg, "@") {
 			var file string = FilePaths_clean(arg[1:])
 			if !Io_exists(file) {
-				return Outcome_base_err(new_CmdLineException_CmdLineParser_String(this, ("No such file: " + sstr_(file))).up_Throwable())
+				return Outcome_base_err[any](new_CmdLineException_CmdLineParser_String(this, ("No such file: " + sstr_(file))).up_Throwable())
 			}
-			var text *Outcome_base = TextFiles_read(file, Charsets_UTF_8)
+			var text *Outcome_base[string] = TextFiles_read(file, Charsets_UTF_8)
 			if text.isErr() {
-				return Outcome_base_err(new_CmdLineException_CmdLineParser_String_Throwable(this, ("Failed to parse " + sstr_(file)), text.error()).up_Throwable())
+				return Outcome_base_err[any](new_CmdLineException_CmdLineParser_String_Throwable(this, ("Failed to parse " + sstr_(file)), text.error()).up_Throwable())
 			}
-			result = append(result, TextFiles_splitLines(str_(text.get()))...)
+			result = append(result, TextFiles_splitLines(text.get())...)
 		} else {
 			result = append(result, arg)
 		}
@@ -272,19 +272,19 @@ func CmdLineParser_clinit() {
 }
 
 type CmdLineParser_Parameters interface {
-	getParameter(int32) *Outcome_base
+	getParameter(int32) *Outcome_base[string]
 	getParameterOrNull(int32) OptionalOf[string]
 }
 
 type CmdLineParser_Handler interface {
-	parseArguments(CmdLineParser_Parameters) *Outcome_base
+	parseArguments(CmdLineParser_Parameters) *Outcome_base[any]
 }
 
 type CmdLineParser_Handler_fn struct {
-	f func(CmdLineParser_Parameters) *Outcome_base
+	f func(CmdLineParser_Parameters) *Outcome_base[any]
 }
 
-func (this *CmdLineParser_Handler_fn) parseArguments(p0 CmdLineParser_Parameters) *Outcome_base {
+func (this *CmdLineParser_Handler_fn) parseArguments(p0 CmdLineParser_Parameters) *Outcome_base[any] {
 	return this.f(p0)
 }
 
@@ -298,7 +298,7 @@ type CmdLineParser_Option struct {
 	requiredField bool
 	metaVariable  OptionalOf[string]
 	defaultValues func() any
-	handler       func(CmdLineParser_Parameters) *Outcome_base
+	handler       func(CmdLineParser_Parameters) *Outcome_base[any]
 }
 
 func (this *CmdLineParser_Option) zero_CmdLineParser_Option() {
@@ -367,12 +367,12 @@ func (this *CmdLineParser_Option) string(get func() any, set func(any)) {
 	this.defaultValues = func() any {
 		return CmdLineParser_Option_asList(get())
 	}
-	this.handler = func(params CmdLineParser_Parameters) *Outcome_base {
-		var value *Outcome_base = params.getParameter(0)
+	this.handler = func(params CmdLineParser_Parameters) *Outcome_base[any] {
+		var value *Outcome_base[string] = params.getParameter(0)
 		if value.isErr() {
-			return Outcome_base_err(value.error())
+			return Outcome_base_err[any](value.error())
 		}
-		set(value.get())
+		set(strobj_(value.get()))
 		return Outcome_base_ok_Object(any(int32(1)))
 	}
 }
@@ -382,12 +382,12 @@ func (this *CmdLineParser_Option) stringList(get func() any, set func(any)) {
 	this.defaultValues = func() any {
 		return get()
 	}
-	this.handler = func(params CmdLineParser_Parameters) *Outcome_base {
-		var value *Outcome_base = params.getParameter(0)
+	this.handler = func(params CmdLineParser_Parameters) *Outcome_base[any] {
+		var value *Outcome_base[string] = params.getParameter(0)
 		if value.isErr() {
-			return Outcome_base_err(value.error())
+			return Outcome_base_err[any](value.error())
 		}
-		CmdLineParser_Option_addValue(get, set, value.get())
+		CmdLineParser_Option_addValue(get, set, strobj_(value.get()))
 		return Outcome_base_ok_Object(any(int32(1)))
 	}
 }
@@ -395,12 +395,12 @@ func (this *CmdLineParser_Option) stringList(get func() any, set func(any)) {
 func (this *CmdLineParser_Option) stringEach(add func(any)) {
 	this.metaVariable = Optional_of[string]("VAL")
 	this.defaultValues = nil
-	this.handler = func(params CmdLineParser_Parameters) *Outcome_base {
-		var value *Outcome_base = params.getParameter(0)
+	this.handler = func(params CmdLineParser_Parameters) *Outcome_base[any] {
+		var value *Outcome_base[string] = params.getParameter(0)
 		if value.isErr() {
-			return Outcome_base_err(value.error())
+			return Outcome_base_err[any](value.error())
 		}
-		add(value.get())
+		add(strobj_(value.get()))
 		return Outcome_base_ok_Object(any(int32(1)))
 	}
 }
@@ -410,19 +410,19 @@ func (this *CmdLineParser_Option) integer(get func() any, set func(any)) {
 	this.defaultValues = func() any {
 		return CmdLineParser_Option_asList(get())
 	}
-	this.handler = func(params CmdLineParser_Parameters) *Outcome_base {
-		var tokenOutcome *Outcome_base = params.getParameter(0)
+	this.handler = func(params CmdLineParser_Parameters) *Outcome_base[any] {
+		var tokenOutcome *Outcome_base[string] = params.getParameter(0)
 		if tokenOutcome.isErr() {
-			return Outcome_base_err(tokenOutcome.error())
+			return Outcome_base_err[any](tokenOutcome.error())
 		}
-		var token string = str_(tokenOutcome.get())
+		var token string = tokenOutcome.get()
 		var value any = JSCompStrings_parseIntOrNull(Optional_of[string](token))
 		if value == nil {
-			var flagName *Outcome_base = params.getParameter(-1)
+			var flagName *Outcome_base[string] = params.getParameter(-1)
 			if flagName.isErr() {
-				return Outcome_base_err(flagName.error())
+				return Outcome_base_err[any](flagName.error())
 			}
-			return Outcome_base_err(new_CmdLineException_CmdLineParser_String(this.owner_, CmdLineParser_Option_illegalOperand(str_(flagName.get()), token)).up_Throwable())
+			return Outcome_base_err[any](new_CmdLineException_CmdLineParser_String(this.owner_, CmdLineParser_Option_illegalOperand(flagName.get(), token)).up_Throwable())
 		}
 		set(value)
 		return Outcome_base_ok_Object(any(int32(1)))
@@ -434,7 +434,7 @@ func (this *CmdLineParser_Option) flag(get func() any, set func(any)) {
 	this.defaultValues = func() any {
 		return CmdLineParser_Option_asList(get())
 	}
-	this.handler = func(params CmdLineParser_Parameters) *Outcome_base {
+	this.handler = func(params CmdLineParser_Parameters) *Outcome_base[any] {
 		set(any(bool(true)))
 		return Outcome_base_ok_Object(any(int32(0)))
 	}
@@ -445,7 +445,7 @@ func (this *CmdLineParser_Option) bool(get func() any, set func(any)) {
 	this.defaultValues = func() any {
 		return CmdLineParser_Option_asList(get())
 	}
-	this.handler = func(params CmdLineParser_Parameters) *Outcome_base {
+	this.handler = func(params CmdLineParser_Parameters) *Outcome_base[any] {
 		var param OptionalOf[string] = params.getParameterOrNull(0)
 		if param.isEmpty() {
 			set(any(bool(true)))
@@ -470,12 +470,12 @@ func (this *CmdLineParser_Option) enumValue(values []*Enum, get func() any, set 
 	this.defaultValues = func() any {
 		return CmdLineParser_Option_asList(get())
 	}
-	this.handler = func(params CmdLineParser_Parameters) *Outcome_base {
-		var value *Outcome_base = this.parseEnum(values, params)
+	this.handler = func(params CmdLineParser_Parameters) *Outcome_base[any] {
+		var value *Outcome_base[*Enum] = this.parseEnum(values, params)
 		if value.isErr() {
-			return Outcome_base_err(value.error())
+			return Outcome_base_err[any](value.error())
 		}
-		set(value.get())
+		set(value.get().self())
 		return Outcome_base_ok_Object(any(int32(1)))
 	}
 }
@@ -485,12 +485,12 @@ func (this *CmdLineParser_Option) enumList(values []*Enum, get func() any, set f
 	this.defaultValues = func() any {
 		return get()
 	}
-	this.handler = func(params CmdLineParser_Parameters) *Outcome_base {
-		var value *Outcome_base = this.parseEnum(values, params)
+	this.handler = func(params CmdLineParser_Parameters) *Outcome_base[any] {
+		var value *Outcome_base[*Enum] = this.parseEnum(values, params)
 		if value.isErr() {
-			return Outcome_base_err(value.error())
+			return Outcome_base_err[any](value.error())
 		}
-		CmdLineParser_Option_addValue(get, set, value.get())
+		CmdLineParser_Option_addValue(get, set, value.get().self())
 		return Outcome_base_ok_Object(any(int32(1)))
 	}
 }
@@ -500,20 +500,20 @@ func (this *CmdLineParser_Option) map_(get func() any, set func(any)) {
 	this.defaultValues = func() any {
 		return CmdLineParser_Option_asList(get())
 	}
-	this.handler = func(params CmdLineParser_Parameters) *Outcome_base {
+	this.handler = func(params CmdLineParser_Parameters) *Outcome_base[any] {
 		var map_ MapOf[string, string] = icast_Map(get())
 		if map_ == nil {
 			map_ = new_LinkedHashMap()
 			set(map_)
 		}
-		var argumentOutcome *Outcome_base = params.getParameter(0)
+		var argumentOutcome *Outcome_base[string] = params.getParameter(0)
 		if argumentOutcome.isErr() {
-			return Outcome_base_err(argumentOutcome.error())
+			return Outcome_base_err[any](argumentOutcome.error())
 		}
-		var argument string = str_(argumentOutcome.get())
+		var argument string = argumentOutcome.get()
 		var idx int32 = int32(strings.IndexByte(argument, '='))
 		if idx == -1 {
-			return Outcome_base_err(new_CmdLineException_CmdLineParser_String(this.owner_, "An argument for setting a Map must contain a \"=\"").up_Throwable())
+			return Outcome_base_err[any](new_CmdLineException_CmdLineParser_String(this.owner_, "An argument for setting a Map must contain a \"=\"").up_Throwable())
 		}
 		var mapKey string = argument[:idx]
 		var mapValue OptionalOf[string] = Optional_of[string](argument[idx+1:])
@@ -521,29 +521,29 @@ func (this *CmdLineParser_Option) map_(get func() any, set func(any)) {
 			mapValue = Optional_empty[string]()
 		}
 		if len(mapKey) == 0 {
-			return Outcome_base_err(new_CmdLineException_CmdLineParser_String(this.owner_, "A key must be set.").up_Throwable())
+			return Outcome_base_err[any](new_CmdLineException_CmdLineParser_String(this.owner_, "A key must be set.").up_Throwable())
 		}
 		Map_put_s(map_, mapKey, strobj_(mapValue.orElse(nullstr_)))
 		return Outcome_base_ok_Object(any(int32(1)))
 	}
 }
 
-func (this *CmdLineParser_Option) parseEnum(values []*Enum, params CmdLineParser_Parameters) *Outcome_base {
-	var token *Outcome_base = params.getParameter(0)
+func (this *CmdLineParser_Option) parseEnum(values []*Enum, params CmdLineParser_Parameters) *Outcome_base[*Enum] {
+	var token *Outcome_base[string] = params.getParameter(0)
 	if token.isErr() {
-		return Outcome_base_err(token.error())
+		return Outcome_base_err[*Enum](token.error())
 	}
-	var s string = strings.ReplaceAll(str_(token.get()), "-", "_")
+	var s string = strings.ReplaceAll(token.get(), "-", "_")
 	for _, value := range values {
 		if String_equalsIgnoreCase(value.name(), s) {
-			return Outcome_base_ok_Object(value.self())
+			return Outcome_base_ok_Object[*Enum](value)
 		}
 	}
-	var flagName *Outcome_base = params.getParameter(-1)
+	var flagName *Outcome_base[string] = params.getParameter(-1)
 	if flagName.isErr() {
-		return Outcome_base_err(flagName.error())
+		return Outcome_base_err[*Enum](flagName.error())
 	}
-	return Outcome_base_err(new_CmdLineException_CmdLineParser_String(this.owner_, CmdLineParser_Option_illegalOperand(str_(flagName.get()), s)).up_Throwable())
+	return Outcome_base_err[*Enum](new_CmdLineException_CmdLineParser_String(this.owner_, CmdLineParser_Option_illegalOperand(flagName.get(), s)).up_Throwable())
 }
 
 func CmdLineParser_Option_enumMetaVariable(values []*Enum) string {
@@ -651,11 +651,11 @@ func (this *CmdLineParser_CmdLineImpl) proceed(n int32) {
 	this.pos += n
 }
 
-func (this *CmdLineParser_CmdLineImpl) getParameter(idx int32) *Outcome_base {
+func (this *CmdLineParser_CmdLineImpl) getParameter(idx int32) *Outcome_base[string] {
 	if ((this.pos + idx) >= int32(len(this.args))) || ((this.pos + idx) < 0) {
-		return Outcome_base_err(new_CmdLineException_CmdLineParser_String(this.outer_, ("Option \"" + tostr_(this.outer_.currentOption) + "\" takes an operand")).up_Throwable())
+		return Outcome_base_err[string](new_CmdLineException_CmdLineParser_String(this.outer_, ("Option \"" + tostr_(this.outer_.currentOption) + "\" takes an operand")).up_Throwable())
 	}
-	return Outcome_base_ok_Object(strobj_(this.args[(this.pos + idx)]))
+	return Outcome_base_ok_Object[string](this.args[(this.pos + idx)])
 }
 
 func (this *CmdLineParser_CmdLineImpl) getParameterOrNull(idx int32) OptionalOf[string] {

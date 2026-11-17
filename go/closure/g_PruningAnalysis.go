@@ -40,7 +40,7 @@ func (this *PruningAnalysis) calculateTotalBlame() ImmutableMapOf[string, BoxedO
 
 func (this *PruningAnalysis) calculateBottlenecks() ImmutableMapOf[string, BoxedOf[int32]] {
 	var graph *DiGraph = this.buildGraph()
-	var dominatorTree *DominatorTree = DominatorTree_compute(graph, strobj_(PruningAnalysis_VIRTUAL_ROOT))
+	var dominatorTree *DominatorTree[string] = DominatorTree_compute[string](graph, PruningAnalysis_VIRTUAL_ROOT)
 	var bottleneckBlame *TMap[string, any] = newTMap_(tc_string, tc_any)
 	for _, el := range immElems_(cast_[*ImmutableSet](dominatorTree.getAllSubtreeSizes().entrySet())) {
 		entry := icast_Map_Entry(el)
@@ -86,7 +86,7 @@ func (this *PruningAnalysis) buildGraph() *DiGraph {
 		}
 		depSymbols.asSet().addAll(icast_Collection(obj_(input.getTypeRequires())))
 		for symbol := range depSymbols.All() {
-			var depRes *Outcome_base = this.sorter_.getInputProviding(symbol)
+			var depRes *Outcome_base[any] = this.sorter_.getInputProviding(symbol)
 			if depRes.isErr() {
 			} else {
 				var dep *CompilerInput = cast_[*CompilerInput](depRes.get())

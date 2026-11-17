@@ -195,7 +195,7 @@ func (this *MaybeReachingVariableUse) getUses(name string, defNode Node) Iterabl
 	if n == nil {
 		panic(new_NullPointerException_0().self())
 	}
-	var state *DataFlowAnalysis_LinearFlowState = cast_[*DataFlowAnalysis_LinearFlowState](Annotatable_getAnnotation(Annotatable(n)))
+	var state *DataFlowAnalysis_LinearFlowState[any] = cast_[*DataFlowAnalysis_LinearFlowState[any]](Annotatable_getAnnotation(Annotatable(n)))
 	return cast_[*MaybeReachingVariableUse_ReachingUses](state.getOut()).get(this.allVarsInFn.get(name))
 }
 

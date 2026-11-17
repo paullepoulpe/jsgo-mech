@@ -4,8 +4,8 @@ package closure
 
 type ColorRegistry struct {
 	nativeColors                        ImmutableMapOf[*ColorId, *Color]
-	colorToDisambiguationSupertypeGraph *SimpleSetMultimap
-	mismatchLocations                   *SimpleSetMultimap
+	colorToDisambiguationSupertypeGraph *SimpleSetMultimap[*Color, *Color]
+	mismatchLocations                   *SimpleSetMultimap[any, any]
 }
 
 func (this *ColorRegistry) init_ColorRegistry(builder *ColorRegistry_Builder) {
@@ -38,7 +38,7 @@ func (this *ColorRegistry) getDisambiguationSupertypes(x *Color) SetOf[*Color] {
 	return this.colorToDisambiguationSupertypeGraph.get(obj_(x))
 }
 
-func (this *ColorRegistry) getMismatchLocationsForDebugging() *SimpleSetMultimap {
+func (this *ColorRegistry) getMismatchLocationsForDebugging() *SimpleSetMultimap[any, any] {
 	return this.mismatchLocations
 }
 
@@ -61,14 +61,14 @@ func ColorRegistry_clinit() {
 
 type ColorRegistry_Builder struct {
 	nativeColors                        *TMap[*ColorId, *Color]
-	colorToDisambiguationSupertypeGraph *SimpleSetMultimap
-	mismatchLocations                   *SimpleSetMultimap
+	colorToDisambiguationSupertypeGraph *SimpleSetMultimap[*Color, *Color]
+	mismatchLocations                   *SimpleSetMultimap[any, any]
 }
 
 func (this *ColorRegistry_Builder) finit_ColorRegistry_Builder() {
 	this.nativeColors = newTMap_(tch_p_ColorId, tc_p_Color)
-	this.colorToDisambiguationSupertypeGraph = SimpleSetMultimap_create()
-	this.mismatchLocations = SimpleSetMultimap_create()
+	this.colorToDisambiguationSupertypeGraph = SimpleSetMultimap_create[*Color, *Color]()
+	this.mismatchLocations = SimpleSetMultimap_create[any, any]()
 }
 
 func (this *ColorRegistry_Builder) init_ColorRegistry_Builder() {
@@ -90,7 +90,7 @@ func (this *ColorRegistry_Builder) setNativeColor(x *Color) *ColorRegistry_Build
 }
 
 func (this *ColorRegistry_Builder) addDisambiguationEdge(subtype *Color, supertype *Color) *ColorRegistry_Builder {
-	this.colorToDisambiguationSupertypeGraph.put(obj_(subtype), obj_(supertype))
+	this.colorToDisambiguationSupertypeGraph.put(subtype, supertype)
 	return this
 }
 

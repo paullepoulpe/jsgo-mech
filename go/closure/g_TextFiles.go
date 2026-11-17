@@ -15,24 +15,24 @@ func new_TextFiles() *TextFiles {
 	return this
 }
 
-func TextFiles_read(path string, charset string) *Outcome_base {
-	var bytes *Outcome_base = Io_readBytes(path)
+func TextFiles_read(path string, charset string) *Outcome_base[string] {
+	var bytes *Outcome_base[any] = Io_readBytes(path)
 	if bytes.isErr() {
-		return Outcome_base_err(bytes.error())
+		return Outcome_base_err[string](bytes.error())
 	}
-	return Outcome_base_ok_Object(strobj_(Charsets_decode(cast_[[]int8](bytes.get()), charset)))
+	return Outcome_base_ok_Object[string](Charsets_decode(cast_[[]int8](bytes.get()), charset))
 }
 
-func TextFiles_readStrict(path string, charset string) *Outcome_base {
-	var bytes *Outcome_base = Io_readBytes(path)
+func TextFiles_readStrict(path string, charset string) *Outcome_base[string] {
+	var bytes *Outcome_base[any] = Io_readBytes(path)
 	if bytes.isErr() {
-		return Outcome_base_err(bytes.error())
+		return Outcome_base_err[string](bytes.error())
 	}
 	var text OptionalOf[string] = Charsets_decodeStrict(cast_[[]int8](bytes.get()), charset)
 	if text.isEmpty() {
-		return Outcome_base_err(new_TextFiles_DecodingException(("Failed to read: " + sstr_(path) + ", is this input UTF-8 encoded?")).up_Throwable())
+		return Outcome_base_err[string](new_TextFiles_DecodingException(("Failed to read: " + sstr_(path) + ", is this input UTF-8 encoded?")).up_Throwable())
 	}
-	return Outcome_base_ok_Object(strobj_(text.get()))
+	return Outcome_base_ok_Object[string](text.get())
 }
 
 func TextFiles_isDecodingError(error_ *Throwable) bool {
@@ -40,7 +40,7 @@ func TextFiles_isDecodingError(error_ *Throwable) bool {
 	return ok
 }
 
-func TextFiles_write(path string, charset string, text string) *Outcome_base {
+func TextFiles_write(path string, charset string, text string) *Outcome_base[any] {
 	return Io_writeBytes(path, Charsets_encode(text, charset))
 }
 

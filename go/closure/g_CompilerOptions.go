@@ -114,7 +114,7 @@ type CompilerOptions struct {
 	stripTypes                                   ImmutableSetOf[string]
 	stripNameSuffixes                            ImmutableSetOf[string]
 	stripNamePrefixes                            ImmutableSetOf[string]
-	customPasses                                 *SimpleSetMultimap
+	customPasses                                 *SimpleSetMultimap[any, any]
 	defineReplacements                           *TMap[string, any]
 	tweakProcessing                              CompilerOptions_TweakProcessing
 	rewriteGlobalDeclarationsForTryCatchWrapping bool
@@ -1909,7 +1909,7 @@ func (this *CompilerOptions) getStripNamePrefixes() ImmutableSetOf[string] {
 
 func (this *CompilerOptions) addCustomPass(time CustomPassExecutionTime, customPass CompilerPass) {
 	if this.customPasses == nil {
-		this.customPasses = SimpleSetMultimap_createInsertionOrdered()
+		this.customPasses = SimpleSetMultimap_createInsertionOrdered[any, any]()
 	}
 	this.customPasses.put(obj_(time), customPass)
 }
@@ -2699,18 +2699,18 @@ func (this CompilerOptions_BrowserFeaturesetYear) init_CompilerOptions_BrowserFe
 }
 
 func CompilerOptions_BrowserFeaturesetYear_from(year int32) CompilerOptions_BrowserFeaturesetYear {
-	var yearRes *Outcome_base = CompilerOptions_BrowserFeaturesetYear_fromResult(year)
+	var yearRes *Outcome_base[CompilerOptions_BrowserFeaturesetYear] = CompilerOptions_BrowserFeaturesetYear_fromResult(year)
 	if yearRes.isErr() {
 		panic(to_IllegalStateException(yearRes.error().self()).self())
 	}
-	return cast_[CompilerOptions_BrowserFeaturesetYear](yearRes.get())
+	return yearRes.get()
 }
 
-func CompilerOptions_BrowserFeaturesetYear_fromResult(year int32) *Outcome_base {
+func CompilerOptions_BrowserFeaturesetYear_fromResult(year int32) *Outcome_base[CompilerOptions_BrowserFeaturesetYear] {
 	if !CompilerOptions_BrowserFeaturesetYear_YEAR_MAP.containsKey(any(int32(year))) {
-		return Outcome_base_err(new_IllegalStateException_String(Strings_lenientFormat("Illegal browser_featureset_year=%s. We support values 2012, or 2018..2026 only", []any{any(int32(year))})).up_Throwable())
+		return Outcome_base_err[CompilerOptions_BrowserFeaturesetYear](new_IllegalStateException_String(Strings_lenientFormat("Illegal browser_featureset_year=%s. We support values 2012, or 2018..2026 only", []any{any(int32(year))})).up_Throwable())
 	}
-	return Outcome_base_ok_Object(CompilerOptions_BrowserFeaturesetYear_YEAR_MAP.get(any(int32(year))))
+	return Outcome_base_ok_Object[CompilerOptions_BrowserFeaturesetYear](cast_[CompilerOptions_BrowserFeaturesetYear](CompilerOptions_BrowserFeaturesetYear_YEAR_MAP.get(any(int32(year)))))
 }
 
 func (this CompilerOptions_BrowserFeaturesetYear) setDependentValuesFromYear(options *CompilerOptions) {

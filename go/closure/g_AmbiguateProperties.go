@@ -70,7 +70,7 @@ func (this *AmbiguateProperties) process_2(externs Node, root Node) {
 		node := cast_[*ColorGraphNode](el)
 		node.getSubtypeIndices().set(node.getIndex())
 	}
-	FixedPointGraphTraversal_newReverseTraversal(lambda_AmbiguateProperties_process_2_2_).computeFixedPoint(colorGraph.up_DiGraph())
+	FixedPointGraphTraversal_newReverseTraversal[any, any](lambda_AmbiguateProperties_process_2_2_).computeFixedPoint(colorGraph.up_DiGraph())
 	for prop := range this.propertyMap.Values() {
 		if prop.relatedColorsSeeds == nil {
 			continue
@@ -133,8 +133,8 @@ func (this *AmbiguateProperties) process_2(externs Node, root Node) {
 }
 
 // lambda_AmbiguateProperties_process_2_1_ is a lambda of AmbiguateProperties_process_2 that captures nothing (post-flip step lambdas).
-func lambda_AmbiguateProperties_process_2_1_(p0 *DiGraph) *LowestCommonAncestorFinder {
-	return new_LowestCommonAncestorFinder(p0)
+func lambda_AmbiguateProperties_process_2_1_(p0 *DiGraph) *LowestCommonAncestorFinder[any, any] {
+	return new_LowestCommonAncestorFinder[any, any](p0)
 }
 
 // lambda_AmbiguateProperties_process_2_2_ is a lambda of AmbiguateProperties_process_2 that captures nothing (post-flip step lambdas).

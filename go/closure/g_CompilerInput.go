@@ -253,12 +253,12 @@ func (this *CompilerInput) generateDependencyInfo() DependencyInfo {
 		panic(new_NullPointerException_String(Strings_lenientFormat("Expected compiler to call an error manager: %s", []any{any(this)})).self())
 	}
 	if JsFileRegexParser_isSupported() && this.compiler_.preferRegexParser() {
-		var codeRes *Outcome_base = this.getSourceFile().readCode()
+		var codeRes *Outcome_base[string] = this.getSourceFile().readCode()
 		if codeRes.isErr() {
 			this.compiler_.getErrorManager().report_2(CheckLevel_ERROR, JSError_make_DiagnosticType_StringArr(AbstractCompiler_READ_ERROR, []string{this.getName(), codeRes.errorMessage().orElse("null")}))
 			return icast_DependencyInfo(obj_(SimpleDependencyInfo_EMPTY))
 		}
-		var info DependencyInfo = new_JsFileRegexParser(this.compiler_.getErrorManager()).setModuleLoader(this.compiler_.getModuleLoader()).setIncludeGoogBase(true).parseFile(this.getName(), this.getName(), str_(codeRes.get()))
+		var info DependencyInfo = new_JsFileRegexParser(this.compiler_.getErrorManager()).setModuleLoader(this.compiler_.getModuleLoader()).setIncludeGoogBase(true).parseFile(this.getName(), this.getName(), codeRes.get())
 		return new_LazyParsedDependencyInfo(info, this, this.compiler_)
 	} else {
 		var finder *CompilerInput_DepsFinder = new_CompilerInput_DepsFinder(this.getPath())
@@ -272,7 +272,7 @@ func (this *CompilerInput) generateDependencyInfo() DependencyInfo {
 	}
 }
 
-func (this *CompilerInput) readCode() *Outcome_base {
+func (this *CompilerInput) readCode() *Outcome_base[string] {
 	return this.getSourceFile().readCode()
 }
 
@@ -604,11 +604,11 @@ func (this *CompilerInput_JsAst) isParsed() bool {
 }
 
 func (this *CompilerInput_JsAst) parse(compiler *AbstractCompiler) {
-	var codeRes *Outcome_base = this.outer_.sourceFile.readCode()
+	var codeRes *Outcome_base[string] = this.outer_.sourceFile.readCode()
 	if codeRes.isErr() {
 		compiler.report(JSError_make_DiagnosticType_StringArr(AbstractCompiler_READ_ERROR, []string{this.outer_.sourceFile.getName(), codeRes.errorMessage().orElse("null")}))
 	} else {
-		var result *ParserRunner_ParseResult = ParserRunner_parse(icast_StaticSourceFile(obj_(this.outer_.sourceFile)), str_(codeRes.get()), compiler.getParserConfig(func() AbstractCompiler_ConfigContext {
+		var result *ParserRunner_ParseResult = ParserRunner_parse(icast_StaticSourceFile(obj_(this.outer_.sourceFile)), codeRes.get(), compiler.getParserConfig(func() AbstractCompiler_ConfigContext {
 			if this.outer_.sourceFile.isExtern() {
 				return AbstractCompiler_ConfigContext_EXTERNS
 			}

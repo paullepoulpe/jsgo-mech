@@ -206,10 +206,10 @@ func (this *OptimizeCalls_ReferenceMap) getPropReferences() IterableOf[Map_Entry
 	return Iterable(this.props.asMap().entrySet())
 }
 
-func OptimizeCalls_ReferenceMap_getFunctionNodes(definitionSites ListOf[Node]) *SimpleListMultimap {
-	var result *SimpleListMultimap = SimpleListMultimap_create()
+func OptimizeCalls_ReferenceMap_getFunctionNodes(definitionSites ListOf[Node]) *SimpleListMultimap[Node, any] {
+	var result *SimpleListMultimap[Node, any] = SimpleListMultimap_create[Node, any]()
 	for def := range elemsBy_(definitionSites, Node_of_) {
-		result.putAll(def.box_(), icast_Iterable(obj_(OptimizeCalls_ReferenceMap_definitionFunctionNodesFor(def))))
+		result.putAll(def, icast_Iterable(obj_(OptimizeCalls_ReferenceMap_definitionFunctionNodesFor(def))))
 	}
 	return result.immutableCopy()
 }

@@ -25,7 +25,7 @@ func new_LinterMain() *LinterMain {
 }
 
 func LinterMain_main(args []string) {
-	var done *Outcome_base = new_LinterMain().run(args)
+	var done *Outcome_base[any] = new_LinterMain().run(args)
 	if done.isErr() {
 		Output_stderr().print("Exception in thread \"main\" ")
 		Output_stderr().printStackTrace(done.error())
@@ -33,7 +33,7 @@ func LinterMain_main(args []string) {
 	}
 }
 
-func (this *LinterMain) run(args []string) *Outcome_base {
+func (this *LinterMain) run(args []string) *Outcome_base[any] {
 	var parser *CmdLineParser = new_CmdLineParser()
 	parser.option("--fix").usage("Fix lint warnings automatically").flag(func() any {
 		return any(bool(this.fix_))
@@ -60,9 +60,9 @@ func (this *LinterMain) run(args []string) *Outcome_base {
 	for it_1.next() {
 		var filename string = str_(it_1.v)
 		if this.fix_ {
-			var fixed *Outcome_base = linter.fixRepeatedly(filename)
+			var fixed *Outcome_base[any] = linter.fixRepeatedly(filename)
 			if fixed.isErr() {
-				return Outcome_base_err(fixed.error())
+				return Outcome_base_err[any](fixed.error())
 			}
 		} else {
 			linter.lint(filename)

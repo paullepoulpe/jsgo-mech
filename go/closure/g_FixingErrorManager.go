@@ -6,7 +6,7 @@ type FixingErrorManager struct {
 	BasicErrorManager
 	fixer           *ErrorToFixMapper
 	sureFixes       *TMap[*JSError, *SuggestedFix]
-	multiFixes      *SimpleListMultimap
+	multiFixes      *SimpleListMultimap[*JSError, any]
 	unfixableErrors ImmutableSetOf[*DiagnosticType]
 }
 
@@ -26,7 +26,7 @@ func (this *FixingErrorManager) up_SortingErrorManager() *SortingErrorManager {
 
 func (this *FixingErrorManager) finit_FixingErrorManager() {
 	this.sureFixes = newTMap_(tch_p_JSError, tc_p_SuggestedFix)
-	this.multiFixes = SimpleListMultimap_create()
+	this.multiFixes = SimpleListMultimap_create[*JSError, any]()
 }
 
 func (this *FixingErrorManager) init_FixingErrorManager_0() {
@@ -64,7 +64,7 @@ func (this *FixingErrorManager) report_2_impl(level CheckLevel, error_ *JSError)
 		if fixes.size() == 1 {
 			this.sureFixes.put(error_, cast_[*SuggestedFix](fixes.get(0)))
 		} else {
-			this.multiFixes.putAll(obj_(error_), icast_Iterable(obj_(fixes)))
+			this.multiFixes.putAll(error_, icast_Iterable(obj_(fixes)))
 		}
 	}
 }

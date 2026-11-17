@@ -71,31 +71,31 @@ func DependencyOptions_pruneForEntryPoints(entryPoints IterableOf[*ModuleIdentif
 	return new_DependencyOptions(DependencyOptions_DependencyMode_PRUNE, ImmutableList_copyOf_Iterable(entryPoints))
 }
 
-func DependencyOptions_fromFlags(dependencyModeFlag DependencyOptions_DependencyMode, entryPointFlag ListOf[string], closureEntryPointFlag []string, commonJsEntryModuleFlag OptionalOf[string], manageClosureDependenciesFlag bool, onlyClosureDependenciesFlag bool) *Outcome_base {
+func DependencyOptions_fromFlags(dependencyModeFlag DependencyOptions_DependencyMode, entryPointFlag ListOf[string], closureEntryPointFlag []string, commonJsEntryModuleFlag OptionalOf[string], manageClosureDependenciesFlag bool, onlyClosureDependenciesFlag bool) *Outcome_base[*DependencyOptions] {
 	var hasEntryPoint bool = ((commonJsEntryModuleFlag.isPresent() || !entryPointFlag.isEmpty()) || len(closureEntryPointFlag) != 0)
 	if !hasEntryPoint && onlyClosureDependenciesFlag {
-		return Outcome_base_err(new_FlagUsageException("--only_closure_dependencies requires --entry_point.").up_Throwable())
+		return Outcome_base_err[*DependencyOptions](new_FlagUsageException("--only_closure_dependencies requires --entry_point.").up_Throwable())
 	}
 	if !hasEntryPoint && (dependencyModeFlag == DependencyOptions_DependencyMode_PRUNE) {
-		return Outcome_base_err(new_FlagUsageException("--dependency_mode=PRUNE requires --entry_point.").up_Throwable())
+		return Outcome_base_err[*DependencyOptions](new_FlagUsageException("--dependency_mode=PRUNE requires --entry_point.").up_Throwable())
 	}
 	if hasEntryPoint && ((dependencyModeFlag == DependencyOptions_DependencyMode_NONE) || (dependencyModeFlag == DependencyOptions_DependencyMode_SORT_ONLY)) {
-		return Outcome_base_err(new_FlagUsageException(("--dependency_mode=" + tostr_(dependencyModeFlag) + " cannot be used with --entry_point, --closure_entry_point or --common_js_entry_module.")).up_Throwable())
+		return Outcome_base_err[*DependencyOptions](new_FlagUsageException(("--dependency_mode=" + tostr_(dependencyModeFlag) + " cannot be used with --entry_point, --closure_entry_point or --common_js_entry_module.")).up_Throwable())
 	}
 	if !entryPointFlag.isEmpty() && len(closureEntryPointFlag) != 0 {
-		return Outcome_base_err(new_FlagUsageException("--closure_entry_point cannot be used with --entry_point.").up_Throwable())
+		return Outcome_base_err[*DependencyOptions](new_FlagUsageException("--closure_entry_point cannot be used with --entry_point.").up_Throwable())
 	}
 	if commonJsEntryModuleFlag.isPresent() && (!entryPointFlag.isEmpty() || len(closureEntryPointFlag) != 0) {
-		return Outcome_base_err(new_FlagUsageException("--common_js_entry_module cannot be used with either --entry_point or --closure_entry_point.").up_Throwable())
+		return Outcome_base_err[*DependencyOptions](new_FlagUsageException("--common_js_entry_module cannot be used with either --entry_point or --closure_entry_point.").up_Throwable())
 	}
 	if manageClosureDependenciesFlag && onlyClosureDependenciesFlag {
-		return Outcome_base_err(new_FlagUsageException("--only_closure_dependencies cannot be used with --manage_closure_dependencies.").up_Throwable())
+		return Outcome_base_err[*DependencyOptions](new_FlagUsageException("--only_closure_dependencies cannot be used with --manage_closure_dependencies.").up_Throwable())
 	}
 	if manageClosureDependenciesFlag && (dependencyModeFlag != 0) {
-		return Outcome_base_err(new_FlagUsageException("--manage_closure_dependencies cannot be used with --dependency_mode.").up_Throwable())
+		return Outcome_base_err[*DependencyOptions](new_FlagUsageException("--manage_closure_dependencies cannot be used with --dependency_mode.").up_Throwable())
 	}
 	if onlyClosureDependenciesFlag && (dependencyModeFlag != 0) {
-		return Outcome_base_err(new_FlagUsageException("--only_closure_dependencies cannot be used with --dependency_mode.").up_Throwable())
+		return Outcome_base_err[*DependencyOptions](new_FlagUsageException("--only_closure_dependencies cannot be used with --dependency_mode.").up_Throwable())
 	}
 	var dependencyMode DependencyOptions_DependencyMode
 	if (dependencyModeFlag == DependencyOptions_DependencyMode_PRUNE) || onlyClosureDependenciesFlag {
@@ -107,7 +107,7 @@ func DependencyOptions_fromFlags(dependencyModeFlag DependencyOptions_Dependency
 	} else if dependencyModeFlag != 0 {
 		dependencyMode = dependencyModeFlag
 	} else {
-		return Outcome_base_ok_Object(nil)
+		return Outcome_base_ok_Object[*DependencyOptions](nil)
 	}
 	var entryPointsBuilder ImmutableList_BuilderOf[*ModuleIdentifier] = ImmutableList_builder()
 	if commonJsEntryModuleFlag.isPresent() {
@@ -134,7 +134,7 @@ func DependencyOptions_fromFlags(dependencyModeFlag DependencyOptions_Dependency
 		}
 		panic("unreachable")
 	}()
-	return Outcome_base_ok_Object(obj_(result))
+	return Outcome_base_ok_Object[*DependencyOptions](result)
 }
 
 func (this *DependencyOptions) mode() DependencyOptions_DependencyMode {

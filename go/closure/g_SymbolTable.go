@@ -5,7 +5,7 @@ package closure
 import "strings"
 
 type SymbolTable struct {
-	symbols                *SimpleTable
+	symbols                *SimpleTable[Node, any, *SymbolTable_Symbol]
 	scopes                 *TMap[Node, *SymbolTable_SymbolScope]
 	docInfos               *TList[Node]
 	globalScope            *SymbolTable_SymbolScope
@@ -19,7 +19,7 @@ type SymbolTable struct {
 }
 
 func (this *SymbolTable) finit_SymbolTable() {
-	this.symbols = SimpleTable_create()
+	this.symbols = SimpleTable_create[Node, any, *SymbolTable_Symbol]()
 	this.scopes = newTMap_(tc_Node, tc_p_SymbolTable_SymbolScope)
 	this.docInfos = newTList_(tc_Node)
 	this.globalScope = nil
@@ -276,13 +276,13 @@ func (this *SymbolTable) getSymbolForTypeHelper(type_ *JSType, linkToCtor bool) 
 }
 
 func (this *SymbolTable) toDebugStringTree() string {
-	var childrenScopesBuilder *SimpleListMultimap = SimpleListMultimap_create()
+	var childrenScopesBuilder *SimpleListMultimap[*SymbolTable_SymbolScope, *SymbolTable_SymbolScope] = SimpleListMultimap_create[*SymbolTable_SymbolScope, *SymbolTable_SymbolScope]()
 	for scope := range elemsAs_[*SymbolTable_SymbolScope](this.getAllScopes()) {
 		if scope.getParentScope() != nil {
-			childrenScopesBuilder.put(obj_(scope.getParentScope()), obj_(scope))
+			childrenScopesBuilder.put(scope.getParentScope(), scope)
 		}
 	}
-	var childrenScopes *SimpleListMultimap = childrenScopesBuilder.immutableCopy()
+	var childrenScopes *SimpleListMultimap[*SymbolTable_SymbolScope, *SymbolTable_SymbolScope] = childrenScopesBuilder.immutableCopy()
 	var builder strBuilder_
 	for scope := range elemsAs_[*SymbolTable_SymbolScope](this.getAllScopes()) {
 		if scope.getParentScope() == nil {
@@ -300,7 +300,7 @@ func (this *SymbolTable) toDebugStringTree() string {
 	return builder.toString()
 }
 
-func (this *SymbolTable) toDebugStringTree_4(builder *strBuilder_, prefix string, scope *SymbolTable_SymbolScope, childrenScopes *SimpleListMultimap) {
+func (this *SymbolTable) toDebugStringTree_4(builder *strBuilder_, prefix string, scope *SymbolTable_SymbolScope, childrenScopes *SimpleListMultimap[*SymbolTable_SymbolScope, *SymbolTable_SymbolScope]) {
 	builder.append(prefix).append_Object(obj_(scope))
 	var childrenPrefix string = (sstr_(prefix) + "    ")
 	var printedSomething bool = false
@@ -420,7 +420,7 @@ func (this *SymbolTable) addSymbolsFrom(otherSymbolTable StaticSymbolTable) {
 }
 
 func (this *SymbolTable) isAnySymbolDeclared(name string, declNode Node, scope *SymbolTable_SymbolScope) *SymbolTable_Symbol {
-	var sym *SymbolTable_Symbol = cast_[*SymbolTable_Symbol](this.symbols.get_s(declNode.box_(), name))
+	var sym *SymbolTable_Symbol = this.symbols.get_s(declNode.box_(), name)
 	if sym == nil {
 		return scope.ownSymbols.get(name)
 	}
@@ -464,7 +464,7 @@ func SymbolTable_sanitizeSpecialChars(s string) string {
 func (this *SymbolTable) addSymbol(name string, type_ *JSType, inferred bool, scope *SymbolTable_SymbolScope, declNode Node) *SymbolTable_Symbol {
 	name = SymbolTable_sanitizeSpecialChars(name)
 	var symbol *SymbolTable_Symbol = new_SymbolTable_Symbol(name, type_, inferred, scope)
-	var replacedSymbol *SymbolTable_Symbol = cast_[*SymbolTable_Symbol](this.symbols.put_s(declNode.box_(), name, obj_(symbol)))
+	var replacedSymbol *SymbolTable_Symbol = this.symbols.put_s(declNode, name, symbol)
 	if replacedSymbol != nil {
 		panic(new_IllegalStateException_String(Strings_lenientFormat("Found duplicate symbol %s in global index. Type %s", []any{strobj_(name), type_.self()})).self())
 	}
@@ -496,7 +496,7 @@ func (this *SymbolTable) removeSymbol(s *SymbolTable_Symbol) {
 	if !s.equals_SymbolTable_Symbol(scope.ownSymbols.remove(s.getName())) {
 		panic(new_IllegalStateException_String(("Symbol not found in scope " + tostr_(s))).self())
 	}
-	if !s.equals(this.symbols.remove(cast_[*SymbolTable_Reference](s.getDeclaration()).getNode().box_(), strobj_(s.getName()))) {
+	if !s.equals(obj_(this.symbols.remove(cast_[*SymbolTable_Reference](s.getDeclaration()).getNode().box_(), strobj_(s.getName())))) {
 		panic(new_IllegalStateException_String(("Symbol not found in table " + tostr_(s))).self())
 	}
 	if (s.propertyScope != nil) && s.equals_SymbolTable_Symbol(s.propertyScope.getSymbolForScope()) {
@@ -724,11 +724,11 @@ func (this *SymbolTable) createPropertyScopeFor(s *SymbolTable_Symbol) {
 		if newProp.getDeclaration() == nil {
 			continue
 		}
-		var oldProp *SymbolTable_Symbol = cast_[*SymbolTable_Symbol](this.symbols.get_s(newProp.getDeclaration().getNode().box_(), (sstr_(s.getName()) + "." + sstr_(propName))))
+		var oldProp *SymbolTable_Symbol = this.symbols.get_s(newProp.getDeclaration().getNode().box_(), (sstr_(s.getName()) + "." + sstr_(propName)))
 		if (oldProp != nil) && (this.compiler_.getModuleMap().getClosureModule(oldProp.getName()) != nil) {
 			continue
 		}
-		if cast_[*SymbolTable_Symbol](this.symbols.get_s(newProp.getDeclaration().getNode().box_(), newProp.getName())) != nil {
+		if this.symbols.get_s(newProp.getDeclaration().getNode().box_(), newProp.getName()) != nil {
 			if SymbolTable_logger.isLoggable(Level_FINE) {
 				SymbolTable_logger.fine(("Found duplicate symbol " + objstr_(newProp)))
 			}
@@ -884,7 +884,7 @@ func (this *SymbolTable) isSymbolDuplicatedExternOnWindow(symbol *SymbolTable_Sy
 }
 
 func (this *SymbolTable) mergeExternSymbolsDuplicatedOnWindow() {
-	var externSymbols *SimpleTable = SimpleTable_create()
+	var externSymbols *SimpleTable[string, any, *SymbolTable_Symbol] = SimpleTable_create[string, any, *SymbolTable_Symbol]()
 	for _, el := range immElems_(ImmutableList_copyOf_Iterable(this.symbols.values())) {
 		symbol := cast_[*SymbolTable_Symbol](el)
 		if ((symbol.getDeclarationNode() == 0) || (symbol.getDeclarationNode().getStaticSourceFile() == nil)) || !symbol.getDeclarationNode().getStaticSourceFile().isExtern() {
@@ -893,13 +893,13 @@ func (this *SymbolTable) mergeExternSymbolsDuplicatedOnWindow() {
 		var sourceFile string = symbol.getSourceFileName()
 		var position int32 = symbol.getDeclarationNode().getSourcePosition()
 		if !externSymbols.contains(strobj_(sourceFile), any(int32(position))) {
-			externSymbols.put(strobj_(sourceFile), any(int32(position)), obj_(symbol))
+			externSymbols.put(sourceFile, any(int32(position)), symbol)
 			continue
 		}
-		var existingSymbol *SymbolTable_Symbol = cast_[*SymbolTable_Symbol](externSymbols.get(strobj_(sourceFile), any(int32(position))))
+		var existingSymbol *SymbolTable_Symbol = externSymbols.get(strobj_(sourceFile), any(int32(position)))
 		if this.isSymbolDuplicatedExternOnWindow(existingSymbol) {
 			this.mergeSymbol(existingSymbol, symbol)
-			externSymbols.put(strobj_(sourceFile), any(int32(position)), obj_(symbol))
+			externSymbols.put(sourceFile, any(int32(position)), symbol)
 		} else if this.isSymbolDuplicatedExternOnWindow(symbol) {
 			this.mergeSymbol(symbol, existingSymbol)
 		}
@@ -1397,7 +1397,7 @@ func (this *SymbolTable_PropertyRefCollector) maybeDefineReference(n Node, propN
 	var owner *JSType = ownerSymbol.getType()
 	if (owner != nil) && owner.isObjectType() {
 		var propNode Node = owner.toObjectType().getPropertyNode(propName)
-		var propSymbol *SymbolTable_Symbol = cast_[*SymbolTable_Symbol](this.outer_.symbols.get_s(propNode.box_(), propName))
+		var propSymbol *SymbolTable_Symbol = this.outer_.symbols.get_s(propNode.box_(), propName)
 		if propSymbol != nil {
 			propSymbol.defineReferenceAt(n)
 			return true
@@ -1758,7 +1758,7 @@ func (this *SymbolTable_VisibilityCollector) visit_impl(t *NodeTraversal, n Node
 }
 
 func (this *SymbolTable_VisibilityCollector) visitName(t *NodeTraversal, n Node) {
-	var symbol *SymbolTable_Symbol = cast_[*SymbolTable_Symbol](this.outer_.symbols.get_s(n.box_(), n.getString()))
+	var symbol *SymbolTable_Symbol = this.outer_.symbols.get_s(n.box_(), n.getString())
 	if symbol == nil {
 		return
 	}
@@ -1778,7 +1778,7 @@ func (this *SymbolTable_VisibilityCollector) visitName(t *NodeTraversal, n Node)
 
 func (this *SymbolTable_VisibilityCollector) visitProperty(getprop Node, parent Node) {
 	var propertyName string = getprop.getString()
-	var symbol *SymbolTable_Symbol = cast_[*SymbolTable_Symbol](this.outer_.symbols.get_s(getprop.box_(), propertyName))
+	var symbol *SymbolTable_Symbol = this.outer_.symbols.get_s(getprop.box_(), propertyName)
 	if symbol == nil {
 		return
 	}

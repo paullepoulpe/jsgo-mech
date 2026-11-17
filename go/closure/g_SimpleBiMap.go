@@ -2,80 +2,82 @@
 
 package closure
 
-type SimpleBiMap struct {
+type SimpleBiMap[K, V comparable] struct {
 	forward  LinkedHashMapOf[any, any]
 	backward *TMap[string, string]
 }
 
-func (this *SimpleBiMap) finit_SimpleBiMap() {
+func (this *SimpleBiMap[K, V]) finit_SimpleBiMap() {
 	this.forward = new_LinkedHashMap()
 	this.backward = newTMap_(tc_string, tc_string)
 }
 
-func (this *SimpleBiMap) init_SimpleBiMap() {
+func (this *SimpleBiMap[K, V]) init_SimpleBiMap() {
 	this.finit_SimpleBiMap()
 }
 
-func new_SimpleBiMap() *SimpleBiMap {
-	this := &SimpleBiMap{}
+func new_SimpleBiMap[K, V comparable]() *SimpleBiMap[K, V] {
+	this := &SimpleBiMap[K, V]{}
 	this.init_SimpleBiMap()
 	return this
 }
 
-func SimpleBiMap_create() *SimpleBiMap {
-	return new_SimpleBiMap()
+func SimpleBiMap_create[K, V comparable]() *SimpleBiMap[K, V] {
+	return new_SimpleBiMap[K, V]()
 }
 
-func SimpleBiMap_copyOf(map_ *TMap[string, string]) *SimpleBiMap {
-	var copy_ *SimpleBiMap = new_SimpleBiMap()
+func SimpleBiMap_copyOf[K, V comparable](map_ *TMap[string, string]) *SimpleBiMap[K, V] {
+	var copy_ *SimpleBiMap[K, V] = new_SimpleBiMap[K, V]()
 	for eKey, eValue := range map_.All() {
-		copy_.put(strobj_(eKey), strobj_(eValue))
+		copy_.put(unboxT_[K](strobj_(eKey)), unboxT_[V](strobj_(eValue)))
 	}
 	return copy_
 }
 
-func (this *SimpleBiMap) put(key any, value any) any {
-	var hadKey bool = this.forward.containsKey(key)
-	var oldValue any = this.forward.get(key)
-	if hadKey && Objects_equals(oldValue, value) {
-		return oldValue
+func (this *SimpleBiMap[K, V]) put(key K, value V) V {
+	keyBox_ := boxNull_(key)
+	valueBox_ := boxNull_(value)
+	var hadKey bool = this.forward.containsKey(keyBox_)
+	var oldValue any = this.forward.get(keyBox_)
+	if hadKey && Objects_equals(oldValue, valueBox_) {
+		return unboxT_[V](oldValue)
 	}
-	if this.backward.containsKey(str_(value)) {
-		panic(new_IllegalArgumentException_String(Strings_lenientFormat("value already present: %s", []any{value})).self())
+	if this.backward.containsKey(str_(valueBox_)) {
+		panic(new_IllegalArgumentException_String(Strings_lenientFormat("value already present: %s", []any{valueBox_})).self())
 	}
-	this.forward.put(key, value)
+	this.forward.put(keyBox_, valueBox_)
 	if hadKey {
 		this.backward.clear()
 		for e := range elemsBy_(this.forward.entrySet(), icast_Map_Entry) {
 			this.backward.put(str_(e.getValue()), str_(e.getKey()))
 		}
 	} else {
-		this.backward.put(str_(value), str_(key))
+		this.backward.put(str_(valueBox_), str_(keyBox_))
 	}
-	return oldValue
+	return unboxT_[V](oldValue)
 }
 
-func (this *SimpleBiMap) get(key any) any {
-	return this.forward.get(key)
+func (this *SimpleBiMap[K, V]) get(key any) V {
+	return unboxT_[V](this.forward.get(key))
 }
 
-func (this *SimpleBiMap) clear() {
+func (this *SimpleBiMap[K, V]) clear() {
 	this.forward.clear()
 	this.backward.clear()
 }
 
-func (this *SimpleBiMap) keySet() SetOf[any] {
+func (this *SimpleBiMap[K, V]) keySet() SetOf[any] {
 	return Collections_unmodifiableSet(this.forward.keySet())
 }
 
-func (this *SimpleBiMap) asMap() MapOf[any, any] {
+func (this *SimpleBiMap[K, V]) asMap() MapOf[any, any] {
 	return Collections_unmodifiableMap(icast_Map(obj_(this.forward)))
 }
 
-func (this *SimpleBiMap) inverse() *TMap[string, string] {
+func (this *SimpleBiMap[K, V]) inverse() *TMap[string, string] {
 	return this.backward
 }
 
-func (this *SimpleBiMap) toString() string {
+func (this *SimpleBiMap[K, V]) toString() string {
 	return tostrNN_(this.forward)
 }

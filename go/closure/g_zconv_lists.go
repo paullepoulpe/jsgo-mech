@@ -27,8 +27,8 @@ var tc_SortingErrorManager_ErrorReportGenerator = &tconv_[SortingErrorManager_Er
 }}
 var tc_SourceMap_LocationMapping = &tconv_[SourceMap_LocationMapping]{box: func(v SourceMap_LocationMapping) any { return v }, unbox: func(v any) SourceMap_LocationMapping { return icast_SourceMap_LocationMapping(v) }}
 var tc_UndiGraph_UndiGraphEdge = &tconv_[UndiGraph_UndiGraphEdge]{box: func(v UndiGraph_UndiGraphEdge) any { return v }, unbox: func(v any) UndiGraph_UndiGraphEdge { return icast_UndiGraph_UndiGraphEdge(v) }}
-var tc_p_AbstractCommandLineRunner_FlagEntry = &tconv_[*AbstractCommandLineRunner_FlagEntry]{box: func(v *AbstractCommandLineRunner_FlagEntry) any { return obj_(v) }, unbox: func(v any) *AbstractCommandLineRunner_FlagEntry {
-	return cast_[*AbstractCommandLineRunner_FlagEntry](v)
+var tc_p_AbstractCommandLineRunner_FlagEntry = &tconv_[*AbstractCommandLineRunner_FlagEntry[any]]{box: func(v *AbstractCommandLineRunner_FlagEntry[any]) any { return obj_(v) }, unbox: func(v any) *AbstractCommandLineRunner_FlagEntry[any] {
+	return cast_[*AbstractCommandLineRunner_FlagEntry[any]](v)
 }}
 var tc_p_AbstractCommandLineRunner_JsChunkSpec = &tconv_[*AbstractCommandLineRunner_JsChunkSpec]{box: func(v *AbstractCommandLineRunner_JsChunkSpec) any { return obj_(v) }, unbox: func(v any) *AbstractCommandLineRunner_JsChunkSpec {
 	return cast_[*AbstractCommandLineRunner_JsChunkSpec](v)
@@ -84,7 +84,9 @@ var tc_p_JSType = &tconv_[*JSType]{box: func(v *JSType) any { return v.self() },
 var tc_p_JsDocInfoParser_ExtendedTypeInfo = &tconv_[*JsDocInfoParser_ExtendedTypeInfo]{box: func(v *JsDocInfoParser_ExtendedTypeInfo) any { return obj_(v) }, unbox: func(v any) *JsDocInfoParser_ExtendedTypeInfo { return cast_[*JsDocInfoParser_ExtendedTypeInfo](v) }}
 var tc_p_JsMessage = &tconv_[*JsMessage]{box: func(v *JsMessage) any { return obj_(v) }, unbox: func(v any) *JsMessage { return cast_[*JsMessage](v) }}
 var tc_p_LinkedDirectedGraph_LinkedDiGraphEdge = &tconv_[*LinkedDirectedGraph_LinkedDiGraphEdge]{box: func(v *LinkedDirectedGraph_LinkedDiGraphEdge) any { return v.self() }, unbox: func(v any) *LinkedDirectedGraph_LinkedDiGraphEdge { return to_LinkedDirectedGraph_LinkedDiGraphEdge(v) }}
-var tc_p_LinkedIdentityHashMap_Entry = &tconv_[*LinkedIdentityHashMap_Entry]{box: func(v *LinkedIdentityHashMap_Entry) any { return obj_(v) }, unbox: func(v any) *LinkedIdentityHashMap_Entry { return cast_[*LinkedIdentityHashMap_Entry](v) }}
+var tc_p_LinkedIdentityHashMap_Entry = &tconv_[*LinkedIdentityHashMap_Entry[any, any]]{box: func(v *LinkedIdentityHashMap_Entry[any, any]) any { return obj_(v) }, unbox: func(v any) *LinkedIdentityHashMap_Entry[any, any] {
+	return cast_[*LinkedIdentityHashMap_Entry[any, any]](v)
+}}
 var tc_p_Match = &tconv_[*Match]{box: func(v *Match) any { return obj_(v) }, unbox: func(v any) *Match { return cast_[*Match](v) }}
 var tc_p_NamedType_PropertyContinuation = &tconv_[*NamedType_PropertyContinuation]{box: func(v *NamedType_PropertyContinuation) any { return obj_(v) }, unbox: func(v any) *NamedType_PropertyContinuation { return cast_[*NamedType_PropertyContinuation](v) }}
 var tc_p_ObjectType = &tconv_[*ObjectType]{box: func(v *ObjectType) any { return v.self() }, unbox: func(v any) *ObjectType { return to_ObjectType(v) }}

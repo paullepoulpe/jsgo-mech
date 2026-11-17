@@ -2,93 +2,95 @@
 
 package closure
 
-type SimpleTable struct {
+type SimpleTable[R, C, V comparable] struct {
 	rows LinkedHashMapOf[any, MapOf[any, any]]
 }
 
-func (this *SimpleTable) finit_SimpleTable() {
+func (this *SimpleTable[R, C, V]) finit_SimpleTable() {
 	this.rows = new_LinkedHashMap()
 }
 
-func (this *SimpleTable) init_SimpleTable() {
+func (this *SimpleTable[R, C, V]) init_SimpleTable() {
 	this.finit_SimpleTable()
 }
 
-func new_SimpleTable() *SimpleTable {
-	this := &SimpleTable{}
+func new_SimpleTable[R, C, V comparable]() *SimpleTable[R, C, V] {
+	this := &SimpleTable[R, C, V]{}
 	this.init_SimpleTable()
 	return this
 }
 
-func SimpleTable_create() *SimpleTable {
-	return new_SimpleTable()
+func SimpleTable_create[R, C, V comparable]() *SimpleTable[R, C, V] {
+	return new_SimpleTable[R, C, V]()
 }
 
-func (this *SimpleTable) put(rowKey any, columnKey any, value any) any {
-	var row MapOf[any, any] = icast_Map(this.rows.get(rowKey))
+func (this *SimpleTable[R, C, V]) put(rowKey R, columnKey C, value V) V {
+	rowKeyBox_ := boxNull_(rowKey)
+	var row MapOf[any, any] = icast_Map(this.rows.get(rowKeyBox_))
 	if row == nil {
 		row = new_LinkedHashMap()
-		this.rows.put(rowKey, row)
+		this.rows.put(rowKeyBox_, row)
 	}
-	return row.put(columnKey, value)
+	return unboxT_[V](row.put(boxNull_(columnKey), boxNull_(value)))
 }
 
 // put_s, get_s and contains_s are put, get and contains for a string column key that is not
 // boxed (post-flip manual step).
-func (this *SimpleTable) put_s(rowKey any, columnKey string, value any) any {
-	var row MapOf[any, any] = icast_Map(this.rows.get(rowKey))
+func (this *SimpleTable[R, C, V]) put_s(rowKey R, columnKey string, value V) V {
+	rowKeyBox_ := boxNull_(rowKey)
+	var row MapOf[any, any] = icast_Map(this.rows.get(rowKeyBox_))
 	if row == nil {
 		row = new_LinkedHashMap()
-		this.rows.put(rowKey, row)
+		this.rows.put(rowKeyBox_, row)
 	}
-	return Map_put_s(row, columnKey, value)
+	return unboxT_[V](Map_put_s(row, columnKey, boxNull_(value)))
 }
 
-func (this *SimpleTable) get(rowKey any, columnKey any) any {
+func (this *SimpleTable[R, C, V]) get(rowKey any, columnKey any) V {
 	var row MapOf[any, any] = icast_Map(this.rows.get(rowKey))
-	return func() any {
+	return unboxT_[V](func() any {
 		if row == nil {
 			return nil
 		}
 		return row.get(columnKey)
-	}()
+	}())
 }
 
-func (this *SimpleTable) get_s(rowKey any, columnKey string) any {
+func (this *SimpleTable[R, C, V]) get_s(rowKey any, columnKey string) V {
 	var row MapOf[any, any] = icast_Map(this.rows.get(rowKey))
 	if row == nil {
-		return nil
+		return null_[V]()
 	}
-	return Map_get_s(row, columnKey)
+	return unboxT_[V](Map_get_s(row, columnKey))
 }
 
-func (this *SimpleTable) contains(rowKey any, columnKey any) bool {
+func (this *SimpleTable[R, C, V]) contains(rowKey any, columnKey any) bool {
 	var row MapOf[any, any] = icast_Map(this.rows.get(rowKey))
 	return ((row != nil) && row.containsKey(columnKey))
 }
 
-func (this *SimpleTable) contains_s(rowKey any, columnKey string) bool {
+func (this *SimpleTable[R, C, V]) contains_s(rowKey any, columnKey string) bool {
 	var row MapOf[any, any] = icast_Map(this.rows.get(rowKey))
 	return ((row != nil) && Map_containsKey_s(row, columnKey))
 }
 
-func (this *SimpleTable) containsRow(rowKey any) bool {
+func (this *SimpleTable[R, C, V]) containsRow(rowKey any) bool {
 	return this.rows.containsKey(rowKey)
 }
 
-func (this *SimpleTable) remove(rowKey any, columnKey any) any {
+func (this *SimpleTable[R, C, V]) remove(rowKey any, columnKey any) V {
 	var row MapOf[any, any] = icast_Map(this.rows.get(rowKey))
 	if row == nil {
-		return nil
+		return null_[V]()
 	}
 	var value any = row.remove(columnKey)
 	if row.isEmpty() {
 		this.rows.remove(rowKey)
 	}
-	return value
+	return unboxT_[V](value)
 }
 
-func (this *SimpleTable) row(rowKey *ColorId) MapOf[any, any] {
+func (this *SimpleTable[R, C, V]) row(rowKey *ColorId) MapOf[any, any] {
 	var row MapOf[any, any] = icast_Map(this.rows.get(obj_(rowKey)))
 	return func() Map {
 		if row == nil {
@@ -98,21 +100,21 @@ func (this *SimpleTable) row(rowKey *ColorId) MapOf[any, any] {
 	}()
 }
 
-func (this *SimpleTable) rowKeySet() SetOf[any] {
+func (this *SimpleTable[R, C, V]) rowKeySet() SetOf[any] {
 	return Collections_unmodifiableSet(this.rows.keySet())
 }
 
-func (this *SimpleTable) values() IterableOf[any] {
+func (this *SimpleTable[R, C, V]) values() IterableOf[any] {
 	return Iterables_unmodifiableIterable(Iterables_concat_Iterable(Iterables_transform(Iterable(this.rows.values()), lambda_SimpleTable_values_1_)))
 }
 
 // lambda_SimpleTable_values_1_ is a lambda of SimpleTable_values that captures nothing (post-flip step lambdas).
 var lambda_SimpleTable_values_1_ = &Function_base_fn{func(p0 any) any { return icast_Map(p0).values() }}
 
-func (this *SimpleTable) isEmpty() bool {
+func (this *SimpleTable[R, C, V]) isEmpty() bool {
 	return this.rows.isEmpty()
 }
 
-func (this *SimpleTable) toString() string {
+func (this *SimpleTable[R, C, V]) toString() string {
 	return tostrNN_(this.rows)
 }

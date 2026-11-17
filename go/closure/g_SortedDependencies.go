@@ -10,7 +10,7 @@ type SortedDependencies struct {
 	completedInputs               SetOf[any]
 	nonExportingInputs            *TMap[string, any]
 	exportingInputBySymbolName    map[string]any
-	importedInputByImportingInput *SimpleSetMultimap
+	importedInputByImportingInput *SimpleSetMultimap[DependencyInfo, DependencyInfo]
 }
 
 func (this *SortedDependencies) finit_SortedDependencies() {
@@ -19,7 +19,7 @@ func (this *SortedDependencies) finit_SortedDependencies() {
 	this.completedInputs = new_LinkedHashSet()
 	this.nonExportingInputs = newTMap_(tc_string, tc_any)
 	this.exportingInputBySymbolName = map[string]any{}
-	this.importedInputByImportingInput = SimpleSetMultimap_createInsertionOrdered()
+	this.importedInputByImportingInput = SimpleSetMultimap_createInsertionOrdered[DependencyInfo, DependencyInfo]()
 }
 
 func (this *SortedDependencies) init_SortedDependencies(userOrderedInputs ListOf[any]) {
@@ -64,12 +64,12 @@ func (this *SortedDependencies) getStrongDependenciesOf(rootInputs ListOf[any], 
 	return builder.build()
 }
 
-func (this *SortedDependencies) getInputProviding(symbolName string) *Outcome_base {
+func (this *SortedDependencies) getInputProviding(symbolName string) *Outcome_base[any] {
 	var input DependencyInfo = this.maybeGetInputProviding(symbolName)
 	if input != nil {
-		return Outcome_base_ok_Object(input)
+		return Outcome_base_ok_Object[any](input)
 	}
-	return Outcome_base_err(new_SortedDependencies_MissingProvideException_String(symbolName).up_Throwable())
+	return Outcome_base_err[any](new_SortedDependencies_MissingProvideException_String(symbolName).up_Throwable())
 }
 
 func (this *SortedDependencies) getInputsWithoutProvides() []any {

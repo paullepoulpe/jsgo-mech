@@ -7,7 +7,7 @@ type PureFunctionIdentifier struct {
 	astAnalyzer                          *AstAnalyzer
 	validateArtificialPurityField        bool
 	summariesByName                      map[string]*PureFunctionIdentifier_AmbiguatedFunctionSummary
-	summariesForAllNamesOfFunctionByNode *SimpleListMultimap
+	summariesForAllNamesOfFunctionByNode *SimpleListMultimap[Node, *PureFunctionIdentifier_AmbiguatedFunctionSummary]
 	artificiallyPureLiteralsForDebugging *TSet[Node]
 	allFunctionCalls                     []Node
 	reverseCallGraph                     *LinkedDirectedGraph
@@ -18,7 +18,7 @@ type PureFunctionIdentifier struct {
 
 func (this *PureFunctionIdentifier) finit_PureFunctionIdentifier() {
 	this.summariesByName = map[string]*PureFunctionIdentifier_AmbiguatedFunctionSummary{}
-	this.summariesForAllNamesOfFunctionByNode = SimpleListMultimap_create()
+	this.summariesForAllNamesOfFunctionByNode = SimpleListMultimap_create[Node, *PureFunctionIdentifier_AmbiguatedFunctionSummary]()
 	this.artificiallyPureLiteralsForDebugging = newTSet_(tc_Node)
 	this.allFunctionCalls = []Node{}
 	this.reverseCallGraph = LinkedDirectedGraph_createWithoutAnnotations()
@@ -222,7 +222,7 @@ func (this *PureFunctionIdentifier) getSummariesForCallee(invocation Node) []*Pu
 }
 
 func (this *PureFunctionIdentifier) populateDatastructuresForAnalysisTraversal(referenceMap *OptimizeCalls_ReferenceMap) {
-	var referencesByName *SimpleListMultimap = SimpleListMultimap_create()
+	var referencesByName *SimpleListMultimap[any, any] = SimpleListMultimap_create[any, any]()
 	for entry := range elemsBy_(referenceMap.getNameReferences(), icast_Map_Entry) {
 		referencesByName.putAll(entry.getKey(), icast_Iterable(entry.getValue()))
 	}
@@ -239,7 +239,7 @@ func (this *PureFunctionIdentifier) populateDatastructuresForAnalysisTraversal(r
 		this.summariesByName[name] = PureFunctionIdentifier_AmbiguatedFunctionSummary_createInGraph(this.reverseCallGraph.up_DiGraph(), name)
 	}
 	Map_forEach_f(referencesByName.asMap(), func(p0 any, p1 any) { this.populateFunctionDefinitions(str_(p0), icast_List(p1)) })
-	this.summariesForAllNamesOfFunctionByNode.put(PureFunctionIdentifier_IMPLICIT_PURE_FN.box_(), obj_(PureFunctionIdentifier_AmbiguatedFunctionSummary_createInGraph(this.reverseCallGraph.up_DiGraph(), "<implicit pure class ctor")))
+	this.summariesForAllNamesOfFunctionByNode.put(PureFunctionIdentifier_IMPLICIT_PURE_FN, PureFunctionIdentifier_AmbiguatedFunctionSummary_createInGraph(this.reverseCallGraph.up_DiGraph(), "<implicit pure class ctor"))
 }
 
 func (this *PureFunctionIdentifier) populateFunctionDefinitions(name string, references ListOf[Node]) {
@@ -283,7 +283,7 @@ func (this *PureFunctionIdentifier) populateFunctionDefinitions(name string, ref
 			for _, el2 := range immElems_(callables) {
 				rvalue := Node_of_(el2)
 				if rvalue.isFunction() {
-					this.summariesForAllNamesOfFunctionByNode.put(rvalue.box_(), obj_(summaryForName))
+					this.summariesForAllNamesOfFunctionByNode.put(rvalue, summaryForName)
 				} else if NodeUtil_isUndefined(rvalue) {
 				} else {
 					var rvalueName OptionalOf[string] = PureFunctionIdentifier_nameForReference(rvalue)
@@ -301,7 +301,7 @@ func (this *PureFunctionIdentifier) populateFunctionDefinitions(name string, ref
 }
 
 func (this *PureFunctionIdentifier) propagateSideEffects() {
-	FixedPointGraphTraversal_newTraversal(lambda_PureFunctionIdentifier_propagateSideEffects_1_).computeFixedPoint(this.reverseCallGraph.up_DiGraph())
+	FixedPointGraphTraversal_newTraversal[any, any](lambda_PureFunctionIdentifier_propagateSideEffects_1_).computeFixedPoint(this.reverseCallGraph.up_DiGraph())
 }
 
 // lambda_PureFunctionIdentifier_propagateSideEffects_1_ is a lambda of PureFunctionIdentifier_propagateSideEffects that captures nothing (post-flip step lambdas).
@@ -688,7 +688,7 @@ func (this *PureFunctionIdentifier_FunctionBodyAnalyzer) enterScope(t *NodeTrave
 	this.functionScopeStack = append(this.functionScopeStack, new_PureFunctionIdentifier_FunctionBodyAnalyzer_FunctionStackEntry(function, isArtificiallyPure))
 	if !this.outer_.summariesForAllNamesOfFunctionByNode.containsKey(function.box_()) {
 		var summary *PureFunctionIdentifier_AmbiguatedFunctionSummary = PureFunctionIdentifier_AmbiguatedFunctionSummary_createInGraph(this.outer_.reverseCallGraph.up_DiGraph(), "<anonymous>")
-		this.outer_.summariesForAllNamesOfFunctionByNode.put(function.box_(), obj_(summary))
+		this.outer_.summariesForAllNamesOfFunctionByNode.put(function, summary)
 	}
 }
 

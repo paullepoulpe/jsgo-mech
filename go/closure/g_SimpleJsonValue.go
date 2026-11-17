@@ -76,14 +76,14 @@ func (this *SimpleJsonValue) get(name string) *SimpleJsonValue {
 	return cast_[*SimpleJsonValue](Map_get_s(this.named, name))
 }
 
-func (this *SimpleJsonValue) asString() *Outcome_base {
+func (this *SimpleJsonValue) asString() *Outcome_base[string] {
 	if ((this.tag == SimpleJsonValue_Kind_STRING) || (this.tag == SimpleJsonValue_Kind_NUMBER)) || (this.tag == SimpleJsonValue_Kind_BOOLEAN) {
-		return Outcome_base_ok_Object(strobj_(this.text))
+		return Outcome_base_ok_Object[string](this.text)
 	}
-	return Outcome_base_err(new_SimpleJsonException(("Expected a JSON string but found " + tostr_(this.tag))).up_Throwable())
+	return Outcome_base_err[string](new_SimpleJsonException(("Expected a JSON string but found " + tostr_(this.tag))).up_Throwable())
 }
 
-func (this *SimpleJsonValue) asInt() *Outcome_base {
+func (this *SimpleJsonValue) asInt() *Outcome_base[any] {
 	var parsed any = func() any {
 		if (this.tag == SimpleJsonValue_Kind_STRING) || (this.tag == SimpleJsonValue_Kind_NUMBER) {
 			return JSCompStrings_parseIntOrNull(Optional_of[string](this.text))
@@ -94,7 +94,7 @@ func (this *SimpleJsonValue) asInt() *Outcome_base {
 		parsed = any(int32(SimpleJsonValue_wrapToInt(this.text)))
 	}
 	if parsed == nil {
-		return Outcome_base_err(new_SimpleJsonException(("Expected a JSON integer but found " + tostr_(this.tag))).up_Throwable())
+		return Outcome_base_err[any](new_SimpleJsonException(("Expected a JSON integer but found " + tostr_(this.tag))).up_Throwable())
 	}
 	return Outcome_base_ok_Object(parsed)
 }

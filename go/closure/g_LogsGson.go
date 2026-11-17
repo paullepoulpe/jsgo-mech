@@ -40,11 +40,11 @@ func LogsGson_write(out *SimpleJsonWriter, value any) {
 		}() {
 			out.rawValue(Optional_of[string](LogsGson_toJson(able.toLogsGson())))
 		} else {
-			var multimap *SimpleListMultimap
+			var multimap *SimpleListMultimap[any, any]
 			_ = multimap
 			if func() bool {
 				v_ := value
-				p2, ok2 := v_.(*SimpleListMultimap)
+				p2, ok2 := v_.(*SimpleListMultimap[any, any])
 				if !ok2 {
 					return false
 				}
@@ -53,11 +53,11 @@ func LogsGson_write(out *SimpleJsonWriter, value any) {
 			}() {
 				out.rawValue(Optional_of[string](LogsGson_toJson(multimap.asMap())))
 			} else {
-				var multimap_1 *SimpleSetMultimap
+				var multimap_1 *SimpleSetMultimap[any, any]
 				_ = multimap_1
 				if func() bool {
 					v_ := value
-					p3, ok3 := v_.(*SimpleSetMultimap)
+					p3, ok3 := v_.(*SimpleSetMultimap[any, any])
 					if !ok3 {
 						return false
 					}
@@ -66,11 +66,11 @@ func LogsGson_write(out *SimpleJsonWriter, value any) {
 				}() {
 					out.rawValue(Optional_of[string](LogsGson_toJson(multimap_1.asMap())))
 				} else {
-					var bimap *SimpleBiMap
+					var bimap *SimpleBiMap[string, string]
 					_ = bimap
 					if func() bool {
 						v_ := value
-						p4, ok4 := v_.(*SimpleBiMap)
+						p4, ok4 := v_.(*SimpleBiMap[string, string])
 						if !ok4 {
 							return false
 						}
@@ -79,11 +79,11 @@ func LogsGson_write(out *SimpleJsonWriter, value any) {
 					}() {
 						out.rawValue(Optional_of[string](LogsGson_toJson(bimap.asMap())))
 					} else {
-						var multiset *SimpleMultiset
+						var multiset *SimpleMultiset[any]
 						_ = multiset
 						if func() bool {
 							v_ := value
-							p5, ok5 := v_.(*SimpleMultiset)
+							p5, ok5 := v_.(*SimpleMultiset[any])
 							if !ok5 {
 								return false
 							}

@@ -2,7 +2,7 @@
 
 package closure
 
-type CheckPathsBetweenNodes struct {
+type CheckPathsBetweenNodes[N, E comparable] struct {
 	nodePredicate Predicate_baseOf[any]
 	edgePredicate Predicate_baseOf[DiGraph_DiGraphEdge]
 	inclusive     bool
@@ -11,7 +11,7 @@ type CheckPathsBetweenNodes struct {
 	end_          DiGraph_DiGraphNode
 }
 
-func (this *CheckPathsBetweenNodes) init_CheckPathsBetweenNodes_DiGraph_DiGraphNode_DiGraphNode_Predicate_Predicate_boolean(graph *DiGraph, a DiGraph_DiGraphNode, b DiGraph_DiGraphNode, nodePredicate Predicate_baseOf[any], edgePredicate Predicate_baseOf[DiGraph_DiGraphEdge], inclusive bool) {
+func (this *CheckPathsBetweenNodes[N, E]) init_CheckPathsBetweenNodes_DiGraph_DiGraphNode_DiGraphNode_Predicate_Predicate_boolean(graph *DiGraph, a DiGraph_DiGraphNode, b DiGraph_DiGraphNode, nodePredicate Predicate_baseOf[any], edgePredicate Predicate_baseOf[DiGraph_DiGraphEdge], inclusive bool) {
 	this.graph = graph
 	this.start_ = a
 	this.end_ = b
@@ -20,48 +20,48 @@ func (this *CheckPathsBetweenNodes) init_CheckPathsBetweenNodes_DiGraph_DiGraphN
 	this.inclusive = inclusive
 }
 
-func new_CheckPathsBetweenNodes_DiGraph_DiGraphNode_DiGraphNode_Predicate_Predicate_boolean(graph *DiGraph, a DiGraph_DiGraphNode, b DiGraph_DiGraphNode, nodePredicate Predicate_baseOf[any], edgePredicate Predicate_baseOf[DiGraph_DiGraphEdge], inclusive bool) *CheckPathsBetweenNodes {
-	this := &CheckPathsBetweenNodes{}
+func new_CheckPathsBetweenNodes_DiGraph_DiGraphNode_DiGraphNode_Predicate_Predicate_boolean(graph *DiGraph, a DiGraph_DiGraphNode, b DiGraph_DiGraphNode, nodePredicate Predicate_baseOf[any], edgePredicate Predicate_baseOf[DiGraph_DiGraphEdge], inclusive bool) *CheckPathsBetweenNodes[any, any] {
+	this := &CheckPathsBetweenNodes[any, any]{}
 	this.init_CheckPathsBetweenNodes_DiGraph_DiGraphNode_DiGraphNode_Predicate_Predicate_boolean(graph, a, b, nodePredicate, edgePredicate, inclusive)
 	return this
 }
 
-func (this *CheckPathsBetweenNodes) init_CheckPathsBetweenNodes_DiGraph_DiGraphNode_DiGraphNode_Predicate_Predicate(graph *DiGraph, a DiGraph_DiGraphNode, b DiGraph_DiGraphNode, nodePredicate Predicate_baseOf[any], edgePredicate Predicate_baseOf[DiGraph_DiGraphEdge]) {
+func (this *CheckPathsBetweenNodes[N, E]) init_CheckPathsBetweenNodes_DiGraph_DiGraphNode_DiGraphNode_Predicate_Predicate(graph *DiGraph, a DiGraph_DiGraphNode, b DiGraph_DiGraphNode, nodePredicate Predicate_baseOf[any], edgePredicate Predicate_baseOf[DiGraph_DiGraphEdge]) {
 	this.init_CheckPathsBetweenNodes_DiGraph_DiGraphNode_DiGraphNode_Predicate_Predicate_boolean(graph, a, b, nodePredicate, edgePredicate, true)
 }
 
-func new_CheckPathsBetweenNodes_DiGraph_DiGraphNode_DiGraphNode_Predicate_Predicate(graph *DiGraph, a DiGraph_DiGraphNode, b DiGraph_DiGraphNode, nodePredicate Predicate_baseOf[any], edgePredicate Predicate_baseOf[DiGraph_DiGraphEdge]) *CheckPathsBetweenNodes {
-	this := &CheckPathsBetweenNodes{}
+func new_CheckPathsBetweenNodes_DiGraph_DiGraphNode_DiGraphNode_Predicate_Predicate(graph *DiGraph, a DiGraph_DiGraphNode, b DiGraph_DiGraphNode, nodePredicate Predicate_baseOf[any], edgePredicate Predicate_baseOf[DiGraph_DiGraphEdge]) *CheckPathsBetweenNodes[any, any] {
+	this := &CheckPathsBetweenNodes[any, any]{}
 	this.init_CheckPathsBetweenNodes_DiGraph_DiGraphNode_DiGraphNode_Predicate_Predicate(graph, a, b, nodePredicate, edgePredicate)
 	return this
 }
 
-func (this *CheckPathsBetweenNodes) allPathsSatisfyPredicate() bool {
+func (this *CheckPathsBetweenNodes[N, E]) allPathsSatisfyPredicate() bool {
 	this.setUp()
 	var result bool = this.checkAllPathsWithoutBackEdges(this.start_, this.end_)
 	this.tearDown()
 	return result
 }
 
-func (this *CheckPathsBetweenNodes) somePathsSatisfyPredicate() bool {
+func (this *CheckPathsBetweenNodes[N, E]) somePathsSatisfyPredicate() bool {
 	this.setUp()
 	var result bool = this.checkSomePathsWithoutBackEdges(this.start_, this.end_)
 	this.tearDown()
 	return result
 }
 
-func (this *CheckPathsBetweenNodes) setUp() {
+func (this *CheckPathsBetweenNodes[N, E]) setUp() {
 	this.graph.pushNodeAnnotations()
 	this.graph.pushEdgeAnnotations()
 	this.discoverBackEdges(this.start_)
 }
 
-func (this *CheckPathsBetweenNodes) tearDown() {
+func (this *CheckPathsBetweenNodes[N, E]) tearDown() {
 	this.graph.popNodeAnnotations()
 	this.graph.popEdgeAnnotations()
 }
 
-func (this *CheckPathsBetweenNodes) discoverBackEdges(u DiGraph_DiGraphNode) {
+func (this *CheckPathsBetweenNodes[N, E]) discoverBackEdges(u DiGraph_DiGraphNode) {
 	u.setAnnotation(CheckPathsBetweenNodes_GRAY)
 	for e := range u.getOutEdges().All() {
 		if this.ignoreEdge(e) {
@@ -77,11 +77,11 @@ func (this *CheckPathsBetweenNodes) discoverBackEdges(u DiGraph_DiGraphNode) {
 	u.setAnnotation(CheckPathsBetweenNodes_BLACK)
 }
 
-func (this *CheckPathsBetweenNodes) ignoreEdge(e DiGraph_DiGraphEdge) bool {
+func (this *CheckPathsBetweenNodes[N, E]) ignoreEdge(e DiGraph_DiGraphEdge) bool {
 	return !this.edgePredicate.apply(e)
 }
 
-func (this *CheckPathsBetweenNodes) checkAllPathsWithoutBackEdges(a DiGraph_DiGraphNode, b DiGraph_DiGraphNode) bool {
+func (this *CheckPathsBetweenNodes[N, E]) checkAllPathsWithoutBackEdges(a DiGraph_DiGraphNode, b DiGraph_DiGraphNode) bool {
 	if this.nodePredicate.apply(a.getValue()) && (this.inclusive || ((a != this.start_) && (a != this.end_))) {
 		return true
 	}
@@ -109,7 +109,7 @@ func (this *CheckPathsBetweenNodes) checkAllPathsWithoutBackEdges(a DiGraph_DiGr
 	return true
 }
 
-func (this *CheckPathsBetweenNodes) checkSomePathsWithoutBackEdges(a DiGraph_DiGraphNode, b DiGraph_DiGraphNode) bool {
+func (this *CheckPathsBetweenNodes[N, E]) checkSomePathsWithoutBackEdges(a DiGraph_DiGraphNode, b DiGraph_DiGraphNode) bool {
 	if this.nodePredicate.apply(a.getValue()) && (this.inclusive || ((a != this.start_) && (a != this.end_))) {
 		return true
 	}

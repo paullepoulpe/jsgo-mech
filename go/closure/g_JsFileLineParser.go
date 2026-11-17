@@ -18,7 +18,7 @@ type JsFileLineParser struct {
 // object (self_); every class of the hierarchy implements them (post-flip).
 type JsFileLineParser_I interface {
 	parseJsDocCommentLine_impl(string) bool
-	parseLine_impl(string) *Outcome_base
+	parseLine_impl(string) *Outcome_base[any]
 }
 
 func (this *JsFileLineParser) as_JsFileLineParser() *JsFileLineParser { return this }
@@ -129,7 +129,7 @@ func (this *JsFileLineParser) doParse(filePath string, fileContents string) {
 			}
 		}
 		if revisedLine.get() != "" {
-			var keepGoing *Outcome_base = this.parseLine(revisedLine.get())
+			var keepGoing *Outcome_base[any] = this.parseLine(revisedLine.get())
 			if keepGoing.isErr() {
 				var e *JsFileLineParser_ParseException = cast_[*JsFileLineParser_ParseException](keepGoing.error().self())
 				this.errorManager.report_2(func() CheckLevel {
@@ -191,32 +191,32 @@ func (this *JsFileLineParser) parseJsDocCommentLine_impl(line string) bool {
 	return true
 }
 
-func (this *JsFileLineParser) parseJsString(jsStringLiteral string) *Outcome_base {
+func (this *JsFileLineParser) parseJsString(jsStringLiteral string) *Outcome_base[string] {
 	this.valueMatcher.reset_s(jsStringLiteral)
 	if !this.valueMatcher.matches() {
-		return Outcome_base_err(new_JsFileLineParser_ParseException("Syntax error in JS String literal", true).up_Throwable())
+		return Outcome_base_err[string](new_JsFileLineParser_ParseException("Syntax error in JS String literal", true).up_Throwable())
 	}
-	return Outcome_base_ok_Object(func() any {
+	return Outcome_base_ok_Object[string](str_(func() any {
 		if this.valueMatcher.group(1) != nullstr_ {
 			return strobj_(this.valueMatcher.group(1))
 		}
 		return strobj_(this.valueMatcher.group(2))
-	}())
+	}()))
 }
 
-func (this *JsFileLineParser) parseJsStringArray(input string) *Outcome_base {
+func (this *JsFileLineParser) parseJsStringArray(input string) *Outcome_base[List] {
 	var results *TList[string] = newTList_(tc_string)
 	var indexStart int32 = String_indexOf(input, 91)
 	var indexEnd int32 = String_lastIndexOf(input, 93)
 	if (indexStart == -1) || (indexEnd == -1) {
-		return Outcome_base_err(new_JsFileLineParser_ParseException("Syntax error when parsing JS array", true).up_Throwable())
+		return Outcome_base_err[List](new_JsFileLineParser_ParseException("Syntax error when parsing JS array", true).up_Throwable())
 	}
 	var innerValues string = String_substring(input, (indexStart + 1), indexEnd)
 	if strings.Trim(innerValues, javaSpace_) != "" {
 		this.valueMatcher.reset_s(innerValues)
 		for {
 			if !this.valueMatcher.lookingAt() {
-				return Outcome_base_err(new_JsFileLineParser_ParseException("Syntax error in JS String literal", true).up_Throwable())
+				return Outcome_base_err[List](new_JsFileLineParser_ParseException("Syntax error in JS String literal", true).up_Throwable())
 			}
 			results.add(str_(func() any {
 				if this.valueMatcher.group(1) != nullstr_ {
@@ -228,21 +228,21 @@ func (this *JsFileLineParser) parseJsStringArray(input string) *Outcome_base {
 				break
 			}
 			if String_charAt(innerValues, this.valueMatcher.end()) != ',' {
-				return Outcome_base_err(new_JsFileLineParser_ParseException("Missing comma in string array", true).up_Throwable())
+				return Outcome_base_err[List](new_JsFileLineParser_ParseException("Missing comma in string array", true).up_Throwable())
 			}
 			innerValues = String_substring_int(innerValues, (this.valueMatcher.end() + 1))
 			this.valueMatcher.reset_s(innerValues)
 		}
 	}
-	return Outcome_base_ok_Object(results.asList())
+	return Outcome_base_ok_Object[List](results.asList())
 }
 
-func (this *JsFileLineParser) parseJsStringMap(input string) *Outcome_base {
+func (this *JsFileLineParser) parseJsStringMap(input string) *Outcome_base[Map] {
 	input = CharMatcher_whitespace().trimFrom_s(input)
-	var checked *Outcome_base
+	var checked *Outcome_base[any]
 	checked = JsFileLineParser_check(((input != "" && (input[0] == '{')) && (input[len(input)-1] == '}')), "Syntax error when parsing JS object")
 	if checked.isErr() {
-		return Outcome_base_err(checked.error())
+		return Outcome_base_err[Map](checked.error())
 	}
 	input = strings.Trim(String_substring(input, 1, (String_length(input)-1)), javaSpace_)
 	var results *TMap[string, string] = newTMap_(tc_string, tc_string)
@@ -251,7 +251,7 @@ func (this *JsFileLineParser) parseJsStringMap(input string) *Outcome_base {
 	for !done {
 		checked = JsFileLineParser_check(this.valueMatcher.lookingAt(), "Bad key in JS object literal")
 		if checked.isErr() {
-			return Outcome_base_err(checked.error())
+			return Outcome_base_err[Map](checked.error())
 		}
 		var key string = func() string {
 			if this.valueMatcher.group(1) != nullstr_ {
@@ -261,17 +261,17 @@ func (this *JsFileLineParser) parseJsStringMap(input string) *Outcome_base {
 		}()
 		checked = JsFileLineParser_check((this.valueMatcher.end() != String_length(input)), "Missing value in JS object literal")
 		if checked.isErr() {
-			return Outcome_base_err(checked.error())
+			return Outcome_base_err[Map](checked.error())
 		}
 		checked = JsFileLineParser_check((String_charAt(input, this.valueMatcher.end()) == ':'), "Missing colon in JS object literal")
 		if checked.isErr() {
-			return Outcome_base_err(checked.error())
+			return Outcome_base_err[Map](checked.error())
 		}
 		input = String_substring_int(input, (this.valueMatcher.end() + 1))
 		this.valueMatcher.reset_s(input)
 		checked = JsFileLineParser_check(this.valueMatcher.lookingAt(), "Bad value in JS object literal")
 		if checked.isErr() {
-			return Outcome_base_err(checked.error())
+			return Outcome_base_err[Map](checked.error())
 		}
 		var val string = func() string {
 			if this.valueMatcher.group(1) != nullstr_ {
@@ -283,7 +283,7 @@ func (this *JsFileLineParser) parseJsStringMap(input string) *Outcome_base {
 		if this.valueMatcher.end() != String_length(input) {
 			checked = JsFileLineParser_check((String_charAt(input, this.valueMatcher.end()) == ','), "Missing comma in JS object literal")
 			if checked.isErr() {
-				return Outcome_base_err(checked.error())
+				return Outcome_base_err[Map](checked.error())
 			}
 			input = String_substring_int(input, (this.valueMatcher.end() + 1))
 			this.valueMatcher.reset_s(input)
@@ -291,17 +291,17 @@ func (this *JsFileLineParser) parseJsStringMap(input string) *Outcome_base {
 			done = true
 		}
 	}
-	return Outcome_base_ok_Object(results.asMap())
+	return Outcome_base_ok_Object[Map](results.asMap())
 }
 
-func JsFileLineParser_check(condition bool, message string) *Outcome_base {
+func JsFileLineParser_check(condition bool, message string) *Outcome_base[any] {
 	if !condition {
-		return Outcome_base_err(new_JsFileLineParser_ParseException(message, true).up_Throwable())
+		return Outcome_base_err[any](new_JsFileLineParser_ParseException(message, true).up_Throwable())
 	}
 	return Outcome_base_ok_0()
 }
 
-func (this *JsFileLineParser) parseLine(p0 string) *Outcome_base {
+func (this *JsFileLineParser) parseLine(p0 string) *Outcome_base[any] {
 	return this.self_.parseLine_impl(p0)
 }
 

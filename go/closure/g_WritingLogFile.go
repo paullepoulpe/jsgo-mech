@@ -31,7 +31,7 @@ func WritingLogFile_create(file string) *LogFile {
 	if directory.isPresent() {
 		Io_mkdirs(directory.get())
 	}
-	var writer *Outcome_base = Output_open(file, Charsets_UTF_8, true)
+	var writer *Outcome_base[any] = Output_open(file, Charsets_UTF_8, true)
 	if writer.isErr() {
 		panic(new_RuntimeException_Throwable(writer.error()).self())
 	}
@@ -69,7 +69,7 @@ func (this *WritingLogFile) logJson_impl(producer func(*SimpleJsonWriter)) *LogF
 		_ = text
 		this.writer.print(text)
 	})
-	var closed *Outcome_base
+	var closed *Outcome_base[any]
 	_ = func() (code_ int) {
 		defer func() {
 			this.writer.print(jsonWriter.takeText())
@@ -90,7 +90,7 @@ func (this *WritingLogFile) logInternal(value string) *LogFile {
 }
 
 func (this *WritingLogFile) close_impl() {
-	var closed *Outcome_base = this.writer.close()
+	var closed *Outcome_base[any] = this.writer.close()
 	if closed.isErr() {
 		panic(new_RuntimeException_Throwable(closed.error()).self())
 	}

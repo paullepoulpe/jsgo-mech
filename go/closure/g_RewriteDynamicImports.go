@@ -153,12 +153,12 @@ func (this *RewriteDynamicImports) retargetImportSpecifier(t *NodeTraversal, dyn
 	var retargetedSpecifier string
 	var importingChunkFilename string = RewriteDynamicImports_getChunkFileName(t.getInput().getChunk())
 	var targetChunkFilename string = RewriteDynamicImports_getChunkFileName(targetChunk)
-	var retargetedSpecifierOutcome *Outcome_base = ModuleLoader_relativePathFrom(importingChunkFilename, targetChunkFilename)
+	var retargetedSpecifierOutcome *Outcome_base[string] = ModuleLoader_relativePathFrom(importingChunkFilename, targetChunkFilename)
 	if retargetedSpecifierOutcome.isErr() {
 		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(dynamicImport, ConvertChunksToESModules_UNABLE_TO_COMPUTE_RELATIVE_PATH, []string{importingChunkFilename, targetChunkFilename}))
 		return
 	}
-	retargetedSpecifier = str_(retargetedSpecifierOutcome.get())
+	retargetedSpecifier = retargetedSpecifierOutcome.get()
 	var originalSpecifierNode Node = dynamicImport.getFirstChild()
 	var newSpecifier Node = this.astFactory_.createString(retargetedSpecifier).srcref(originalSpecifierNode)
 	originalSpecifierNode.replaceWith(newSpecifier)

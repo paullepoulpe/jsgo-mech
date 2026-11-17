@@ -254,12 +254,12 @@ func (this *InlineVariables_InlineVarAnalysis) getAliasedVar() *Var {
 type InlineVariables_InliningBehavior struct {
 	outer_                            *InlineVariables
 	currentScopeHandledVarAnalysesMap *TMap[*Var, *InlineVariables_InlineVarAnalysis]
-	varToAliasRetryHandlersMap        *SimpleSetMultimap
+	varToAliasRetryHandlersMap        *SimpleSetMultimap[*Var, *InlineVariables_InliningBehavior_AliasInlineRetryHandler]
 }
 
 func (this *InlineVariables_InliningBehavior) finit_InlineVariables_InliningBehavior() {
 	this.currentScopeHandledVarAnalysesMap = newTMap_(tch_p_Var, tc_p_InlineVariables_InlineVarAnalysis)
-	this.varToAliasRetryHandlersMap = SimpleSetMultimap_createInsertionOrdered()
+	this.varToAliasRetryHandlersMap = SimpleSetMultimap_createInsertionOrdered[*Var, *InlineVariables_InliningBehavior_AliasInlineRetryHandler]()
 }
 
 func (this *InlineVariables_InliningBehavior) init_InlineVariables_InliningBehavior() {
@@ -291,7 +291,7 @@ func (this *InlineVariables_InliningBehavior) doInlinesForScope(t *NodeTraversal
 			if aliasedVarAnalysis != nil {
 				retryHandler.handleAliasedVarCompletion(aliasedVar, aliasedVarAnalysis)
 			} else {
-				this.varToAliasRetryHandlersMap.put(obj_(aliasedVar), obj_(retryHandler))
+				this.varToAliasRetryHandlersMap.put(aliasedVar, retryHandler)
 			}
 		} else {
 			if analysis.shouldInline() {
@@ -582,13 +582,13 @@ type InlineVariables_InliningBehavior_StandardVarExpert struct {
 	declaration_                        *Reference
 	isDeclaredOrInferredConstant        bool
 	mayBeAParameterModifiedViaArguments bool
-	isNeverAssignedField                InlineVariables_InitiallyUnknown // a value: part of its owner (post-flip manual step)
-	isWellDefinedField                  InlineVariables_InitiallyUnknown // a value: part of its owner (post-flip manual step)
-	isAssignedOnceInLifetimeField       InlineVariables_InitiallyUnknown // a value: part of its owner (post-flip manual step)
-	isReferencedWeaklyField             InlineVariables_InitiallyUnknown // a value: part of its owner (post-flip manual step)
-	isWellDefinedAssignedOnceField      InlineVariables_InitiallyUnknown // a value: part of its owner (post-flip manual step)
-	initializationReference             InlineVariables_InitiallyUnknown // a value: part of its owner (post-flip manual step)
-	allReferencesAreValidField          InlineVariables_InitiallyUnknown // a value: part of its owner (post-flip manual step)
+	isNeverAssignedField                InlineVariables_InitiallyUnknown[any]        // a value: part of its owner (post-flip manual step)
+	isWellDefinedField                  InlineVariables_InitiallyUnknown[any]        // a value: part of its owner (post-flip manual step)
+	isAssignedOnceInLifetimeField       InlineVariables_InitiallyUnknown[any]        // a value: part of its owner (post-flip manual step)
+	isReferencedWeaklyField             InlineVariables_InitiallyUnknown[any]        // a value: part of its owner (post-flip manual step)
+	isWellDefinedAssignedOnceField      InlineVariables_InitiallyUnknown[any]        // a value: part of its owner (post-flip manual step)
+	initializationReference             InlineVariables_InitiallyUnknown[*Reference] // a value: part of its owner (post-flip manual step)
+	allReferencesAreValidField          InlineVariables_InitiallyUnknown[any]        // a value: part of its owner (post-flip manual step)
 }
 
 func (this *InlineVariables_InliningBehavior_StandardVarExpert) up_InlineVariables_VarExpert() *InlineVariables_VarExpert {
@@ -670,7 +670,7 @@ func (this *InlineVariables_InliningBehavior_StandardVarExpert) isWellDefinedAss
 
 func (this *InlineVariables_InliningBehavior_StandardVarExpert) getInitialization() *Reference {
 	if this.initializationReference.isKnown() {
-		return cast_[*Reference](this.initializationReference.getKnownValue())
+		return this.initializationReference.getKnownValue()
 	} else {
 		var initRef *Reference = func() *Reference {
 			if this.isDeclaredOrInferredConstant {
@@ -678,7 +678,7 @@ func (this *InlineVariables_InliningBehavior_StandardVarExpert) getInitializatio
 			}
 			return this.referenceInfo.getInitializingReference()
 		}()
-		return cast_[*Reference](this.initializationReference.setKnownValueOnce(obj_(initRef)))
+		return this.initializationReference.setKnownValueOnce(initRef)
 	}
 }
 
@@ -808,8 +808,8 @@ func (this *InlineVariables_InliningBehavior_StandardVarExpert) reanalyzeAfterAl
 type InlineVariables_InliningBehavior_StandardVarExpert_InitialValueAnalysis struct {
 	outer_                *InlineVariables_InliningBehavior_StandardVarExpert
 	value_                Node
-	isImmutableValueField InlineVariables_InitiallyUnknown // a value: part of its owner (post-flip manual step)
-	aliasedVar            InlineVariables_InitiallyUnknown // a value: part of its owner (post-flip manual step)
+	isImmutableValueField InlineVariables_InitiallyUnknown[any]  // a value: part of its owner (post-flip manual step)
+	aliasedVar            InlineVariables_InitiallyUnknown[*Var] // a value: part of its owner (post-flip manual step)
 }
 
 func (this *InlineVariables_InliningBehavior_StandardVarExpert_InitialValueAnalysis) finit_InlineVariables_InliningBehavior_StandardVarExpert_InitialValueAnalysis() {
@@ -843,18 +843,18 @@ func (this *InlineVariables_InliningBehavior_StandardVarExpert_InitialValueAnaly
 
 func (this *InlineVariables_InliningBehavior_StandardVarExpert_InitialValueAnalysis) getAliasedVar() *Var {
 	if this.aliasedVar.isKnown() {
-		return cast_[*Var](this.aliasedVar.getKnownValue())
+		return this.aliasedVar.getKnownValue()
 	} else {
 		if (this.value_ != 0) && this.value_.isName() {
 			var aliasedName string = this.value_.getString()
-			return cast_[*Var](this.aliasedVar.setKnownValueOnce(func() any {
+			return this.aliasedVar.setKnownValueOnce(cast_[*Var](func() any {
 				if aliasedName == this.outer_.v.getName() {
 					return nil
 				}
 				return cast_[*Scope](this.outer_.v.getScope()).getVar(aliasedName).self()
 			}()))
 		}
-		return cast_[*Var](this.aliasedVar.setKnownValueOnce(nil))
+		return this.aliasedVar.setKnownValueOnce(nil)
 	}
 }
 
@@ -947,43 +947,43 @@ func new_InlineVariables_InliningBehavior_VarExpertInitData() *InlineVariables_I
 	return this
 }
 
-type InlineVariables_InitiallyUnknown struct {
+type InlineVariables_InitiallyUnknown[T comparable] struct {
 	isKnownField bool
-	value_       any
+	value_       T
 }
 
-func (this *InlineVariables_InitiallyUnknown) finit_InlineVariables_InitiallyUnknown() {
+func (this *InlineVariables_InitiallyUnknown[T]) finit_InlineVariables_InitiallyUnknown() {
 	this.isKnownField = false
-	this.value_ = nil
+	this.value_ = null_[T]()
 }
 
-func (this *InlineVariables_InitiallyUnknown) init_InlineVariables_InitiallyUnknown() {
+func (this *InlineVariables_InitiallyUnknown[T]) init_InlineVariables_InitiallyUnknown() {
 	this.finit_InlineVariables_InitiallyUnknown()
 }
 
-func new_InlineVariables_InitiallyUnknown() *InlineVariables_InitiallyUnknown {
-	this := &InlineVariables_InitiallyUnknown{}
+func new_InlineVariables_InitiallyUnknown[T comparable]() *InlineVariables_InitiallyUnknown[T] {
+	this := &InlineVariables_InitiallyUnknown[T]{value_: null_[T]()}
 	this.init_InlineVariables_InitiallyUnknown()
 	return this
 }
 
-func (this *InlineVariables_InitiallyUnknown) isKnown() bool {
+func (this *InlineVariables_InitiallyUnknown[T]) isKnown() bool {
 	return this.isKnownField
 }
 
-func (this *InlineVariables_InitiallyUnknown) isKnownNotNull() bool {
-	return this.isKnownNotToBe(nil)
+func (this *InlineVariables_InitiallyUnknown[T]) isKnownNotNull() bool {
+	return this.isKnownNotToBe(null_[T]())
 }
 
-func (this *InlineVariables_InitiallyUnknown) isKnownToBe(other any) bool {
+func (this *InlineVariables_InitiallyUnknown[T]) isKnownToBe(other T) bool {
 	return (this.isKnownField && (this.value_ == other))
 }
 
-func (this *InlineVariables_InitiallyUnknown) isKnownNotToBe(other any) bool {
+func (this *InlineVariables_InitiallyUnknown[T]) isKnownNotToBe(other T) bool {
 	return (this.isKnownField && (this.value_ != other))
 }
 
-func (this *InlineVariables_InitiallyUnknown) setKnownValueOnce(value any) any {
+func (this *InlineVariables_InitiallyUnknown[T]) setKnownValueOnce(value T) T {
 	if this.isKnownField {
 		panic(new_IllegalStateException_String("already known").self())
 	}
@@ -992,7 +992,7 @@ func (this *InlineVariables_InitiallyUnknown) setKnownValueOnce(value any) any {
 	return value
 }
 
-func (this *InlineVariables_InitiallyUnknown) getKnownValue() any {
+func (this *InlineVariables_InitiallyUnknown[T]) getKnownValue() T {
 	if !this.isKnownField {
 		panic(new_IllegalStateException_String("not yet known").self())
 	}

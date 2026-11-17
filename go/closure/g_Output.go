@@ -49,10 +49,10 @@ func Output_to(sink *Io_Sink) *Output {
 	return new_Output(sink, Charsets_UTF_8, false)
 }
 
-func Output_open(path string, charset string, append_ bool) *Outcome_base {
-	var sink *Outcome_base = Io_openFile(path, append_)
+func Output_open(path string, charset string, append_ bool) *Outcome_base[any] {
+	var sink *Outcome_base[any] = Io_openFile(path, append_)
 	if sink.isErr() {
-		return Outcome_base_err(sink.error())
+		return Outcome_base_err[any](sink.error())
 	}
 	return Outcome_base_ok_Object(obj_(new_Output(cast_[*Io_Sink](sink.get()), charset, true)))
 }
@@ -104,7 +104,7 @@ func (this *Output) flush() {
 	this.write(false)
 }
 
-func (this *Output) close() *Outcome_base {
+func (this *Output) close() *Outcome_base[any] {
 	this.write(true)
 	if this.sink == nil {
 		return Outcome_base_ok_0()

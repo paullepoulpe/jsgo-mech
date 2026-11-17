@@ -84,7 +84,7 @@ var tc_p_RewriteAsyncFunctions_SuperPropertyWrapperInfo = &tconv_[*RewriteAsyncF
 }}
 var tc_p_RuntimeJsLibManager_InternalField = &tconv_[*RuntimeJsLibManager_InternalField]{box: func(v *RuntimeJsLibManager_InternalField) any { return obj_(v) }, unbox: func(v any) *RuntimeJsLibManager_InternalField { return cast_[*RuntimeJsLibManager_InternalField](v) }}
 var tc_p_ScriptMetadata = &tconv_[*ScriptMetadata]{box: func(v *ScriptMetadata) any { return obj_(v) }, unbox: func(v any) *ScriptMetadata { return cast_[*ScriptMetadata](v) }}
-var tc_p_SimpleBiMap = &tconv_[*SimpleBiMap]{box: func(v *SimpleBiMap) any { return obj_(v) }, unbox: func(v any) *SimpleBiMap { return cast_[*SimpleBiMap](v) }}
+var tc_p_SimpleBiMap = &tconv_[*SimpleBiMap[string, string]]{box: func(v *SimpleBiMap[string, string]) any { return obj_(v) }, unbox: func(v any) *SimpleBiMap[string, string] { return cast_[*SimpleBiMap[string, string]](v) }}
 var tc_p_SimpleSlot = &tconv_[*SimpleSlot]{box: func(v *SimpleSlot) any { return v.self() }, unbox: func(v any) *SimpleSlot { return to_SimpleSlot(v) }}
 var tc_p_SymbolTable_Reference = &tconv_[*SymbolTable_Reference]{box: func(v *SymbolTable_Reference) any { return obj_(v) }, unbox: func(v any) *SymbolTable_Reference { return cast_[*SymbolTable_Reference](v) }}
 var tc_p_SymbolTable_SymbolScope = &tconv_[*SymbolTable_SymbolScope]{box: func(v *SymbolTable_SymbolScope) any { return obj_(v) }, unbox: func(v any) *SymbolTable_SymbolScope { return cast_[*SymbolTable_SymbolScope](v) }}

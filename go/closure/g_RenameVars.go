@@ -17,7 +17,7 @@ type RenameVars struct {
 	prefix_                        string
 	assignmentCount                int32
 	localBleedingFunctions         *TSet[*Var]
-	localBleedingFunctionsPerScope *SimpleListMultimap
+	localBleedingFunctionsPerScope *SimpleListMultimap[*AbstractScope, *Var]
 	assignments                    *TMap[string, *RenameVars_Assignment]
 	localRenamingOnly              bool
 	preferStableNames              bool
@@ -36,7 +36,7 @@ func (this *RenameVars) finit_RenameVars() {
 	this.renameMap = newTMap_(tc_string, tc_string)
 	this.assignmentCount = 0
 	this.localBleedingFunctions = newTSet_(tch_p_Var)
-	this.localBleedingFunctionsPerScope = SimpleListMultimap_create()
+	this.localBleedingFunctionsPerScope = SimpleListMultimap_create[*AbstractScope, *Var]()
 	this.assignments = newTMap_(tc_string, tc_p_RenameVars_Assignment)
 }
 
@@ -336,7 +336,7 @@ func (this *RenameVars_ProcessVars) enterScope(t *NodeTraversal) {
 	for current := range elemsAs_[*Var](scope.getVarIterable()) {
 		if current.isBleedingFunction() {
 			this.outer_.localBleedingFunctions.add(current)
-			this.outer_.localBleedingFunctionsPerScope.put(scope.getParent().self(), obj_(current))
+			this.outer_.localBleedingFunctionsPerScope.put(scope.getParent(), current)
 		}
 	}
 }

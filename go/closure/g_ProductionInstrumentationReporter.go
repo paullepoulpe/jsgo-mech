@@ -32,38 +32,38 @@ func new_ProductionInstrumentationReporter() *ProductionInstrumentationReporter 
 }
 
 func ProductionInstrumentationReporter_main(args []string) {
-	var done *Outcome_base = new_ProductionInstrumentationReporter().doMain(args)
+	var done *Outcome_base[any] = new_ProductionInstrumentationReporter().doMain(args)
 	if done.isErr() {
 		Output_stderr().println(done.errorMessage().get())
 	}
 }
 
-func ProductionInstrumentationReporter_readFile(filePath string) *Outcome_base {
+func ProductionInstrumentationReporter_readFile(filePath string) *Outcome_base[string] {
 	return TextFiles_readStrict(filePath, Charsets_UTF_8)
 }
 
-func (this *ProductionInstrumentationReporter) getAllExecutionResults(folder string) *Outcome_base {
+func (this *ProductionInstrumentationReporter) getAllExecutionResults(folder string) *Outcome_base[*ImmutableList] {
 	var result ImmutableList_BuilderOf[MapOf[string, BoxedOf[int64]]] = ImmutableList_builder()
 	it_1 := foreach_(Io_listFiles(folder))
 	for it_1.next() {
 		var fileEntry string = str_(it_1.v)
-		var executionResult *Outcome_base = ProductionInstrumentationReporter_readFile(FilePaths_toAbsolute(FilePaths_resolve(folder, fileEntry)))
+		var executionResult *Outcome_base[string] = ProductionInstrumentationReporter_readFile(FilePaths_toAbsolute(FilePaths_resolve(folder, fileEntry)))
 		if executionResult.isErr() {
-			return Outcome_base_err(executionResult.error())
+			return Outcome_base_err[*ImmutableList](executionResult.error())
 		}
-		var executedInstrumentationData *Outcome_base = ProductionInstrumentationReporter_parseJsonStringToLongMap(str_(executionResult.get()))
+		var executedInstrumentationData *Outcome_base[Map] = ProductionInstrumentationReporter_parseJsonStringToLongMap(executionResult.get())
 		if executedInstrumentationData.isErr() {
-			return Outcome_base_err(executedInstrumentationData.error())
+			return Outcome_base_err[*ImmutableList](executedInstrumentationData.error())
 		}
 		result.add(executedInstrumentationData.get())
 	}
-	return Outcome_base_ok_Object(obj_(result.build()))
+	return Outcome_base_ok_Object[*ImmutableList](result.build())
 }
 
-func ProductionInstrumentationReporter_parseJsonStringToLongMap(json string) *Outcome_base {
-	var parsed *Outcome_base = Json_parse(json)
+func ProductionInstrumentationReporter_parseJsonStringToLongMap(json string) *Outcome_base[Map] {
+	var parsed *Outcome_base[any] = Json_parse(json)
 	if parsed.isErr() {
-		return Outcome_base_err(parsed.error())
+		return Outcome_base_err[Map](parsed.error())
 	}
 	var document *SimpleJsonValue = cast_[*SimpleJsonValue](parsed.get())
 	var map_ *TMap[string, any] = newTMap_(tc_string, tc_any)
@@ -71,71 +71,71 @@ func ProductionInstrumentationReporter_parseJsonStringToLongMap(json string) *Ou
 		it_1 := foreach_(document.members().entrySet())
 		for it_1.next() {
 			var member Map_Entry = icast_Map_Entry(it_1.v)
-			var value *Outcome_base = ProductionInstrumentationReporter_readJsonLong(cast_[*SimpleJsonValue](member.getValue()))
+			var value *Outcome_base[any] = ProductionInstrumentationReporter_readJsonLong(cast_[*SimpleJsonValue](member.getValue()))
 			if value.isErr() {
-				return Outcome_base_err(value.error())
+				return Outcome_base_err[Map](value.error())
 			}
 			map_.put(str_(member.getKey()), value.get())
 		}
-		return Outcome_base_ok_Object(map_.asMap())
+		return Outcome_base_ok_Object[Map](map_.asMap())
 	} else if document.kind() != SimpleJsonValue_Kind_ARRAY {
-		return Outcome_base_err(new_SimpleJsonException("Malformed report: expected a JSON object").up_Throwable())
+		return Outcome_base_err[Map](new_SimpleJsonException("Malformed report: expected a JSON object").up_Throwable())
 	}
 	it_3 := foreach_(document.elements())
 	for it_3.next() {
 		var pair *SimpleJsonValue = cast_[*SimpleJsonValue](it_3.v)
 		if (pair.kind() != SimpleJsonValue_Kind_ARRAY) || (pair.elements().size() != 2) {
-			return Outcome_base_err(new_SimpleJsonException("Malformed report: expected a [name, value]").up_Throwable())
+			return Outcome_base_err[Map](new_SimpleJsonException("Malformed report: expected a [name, value]").up_Throwable())
 		}
-		var key *Outcome_base = cast_[*SimpleJsonValue](pair.elements().get(0)).asString()
+		var key *Outcome_base[string] = cast_[*SimpleJsonValue](pair.elements().get(0)).asString()
 		if key.isErr() {
-			return Outcome_base_err(key.error())
+			return Outcome_base_err[Map](key.error())
 		}
-		var value *Outcome_base = ProductionInstrumentationReporter_readJsonLong(cast_[*SimpleJsonValue](pair.elements().get(1)))
+		var value *Outcome_base[any] = ProductionInstrumentationReporter_readJsonLong(cast_[*SimpleJsonValue](pair.elements().get(1)))
 		if value.isErr() {
-			return Outcome_base_err(value.error())
+			return Outcome_base_err[Map](value.error())
 		}
-		var replaced any = map_.put(str_(key.get()), value.get())
+		var replaced any = map_.put(key.get(), value.get())
 		if replaced != nil {
-			return Outcome_base_err(new_SimpleJsonException(("duplicate key: " + sstr_(str_(key.get())))).up_Throwable())
+			return Outcome_base_err[Map](new_SimpleJsonException(("duplicate key: " + sstr_(key.get()))).up_Throwable())
 		}
 	}
-	return Outcome_base_ok_Object(map_.asMap())
+	return Outcome_base_ok_Object[Map](map_.asMap())
 }
 
-func ProductionInstrumentationReporter_readJsonLong(value *SimpleJsonValue) *Outcome_base {
+func ProductionInstrumentationReporter_readJsonLong(value *SimpleJsonValue) *Outcome_base[any] {
 	if value.kind() == SimpleJsonValue_Kind_NULL {
-		return Outcome_base_ok_Object(nil)
+		return Outcome_base_ok_Object[any](nil)
 	}
-	var text *Outcome_base = value.asString()
+	var text *Outcome_base[string] = value.asString()
 	var result any = func() any {
 		if text.isErr() {
 			return nil
 		}
-		return Longs_tryParse(str_(text.get()))
+		return Longs_tryParse(text.get())
 	}()
 	if result == nil {
-		return Outcome_base_err(new_SimpleJsonException("Malformed report: expected an integer").up_Throwable())
+		return Outcome_base_err[any](new_SimpleJsonException("Malformed report: expected an integer").up_Throwable())
 	}
 	return Outcome_base_ok_Object(result)
 }
 
-func (this *ProductionInstrumentationReporter) createFile(fileName string, fileContents string) *Outcome_base {
+func (this *ProductionInstrumentationReporter) createFile(fileName string, fileContents string) *Outcome_base[any] {
 	return TextFiles_write(fileName, Charsets_UTF_8, fileContents)
 }
 
-func (this *ProductionInstrumentationReporter) doMain(args []string) *Outcome_base {
+func (this *ProductionInstrumentationReporter) doMain(args []string) *Outcome_base[any] {
 	this.parseCmdLineArguments(args)
-	var mapping *Outcome_base = ReportDecoder_parseMappingFromFile(this.instrumentationMappingLocation)
+	var mapping *Outcome_base[Map] = ReportDecoder_parseMappingFromFile(this.instrumentationMappingLocation)
 	if mapping.isErr() {
-		return Outcome_base_err(mapping.error())
+		return Outcome_base_err[any](mapping.error())
 	}
 	var folder string = this.instrumentationReportsDirectory
-	var listOfExecutionResults *Outcome_base = this.getAllExecutionResults(folder)
+	var listOfExecutionResults *Outcome_base[*ImmutableList] = this.getAllExecutionResults(folder)
 	if listOfExecutionResults.isErr() {
-		return Outcome_base_err(listOfExecutionResults.error())
+		return Outcome_base_err[any](listOfExecutionResults.error())
 	}
-	return this.createFile(this.finalResultOutput, ProfilingReport_createTabSeparatedProfilingReport(icast_Map(mapping.get()), sliceImm_(tc_MapOf_string__BoxedOf_int64__, cast_[*ImmutableList](listOfExecutionResults.get()))))
+	return this.createFile(this.finalResultOutput, ProfilingReport_createTabSeparatedProfilingReport(icast_Map(mapping.get()), sliceImm_(tc_MapOf_string__BoxedOf_int64__, icast_Collection(obj_(listOfExecutionResults.get())))))
 }
 
 func (this *ProductionInstrumentationReporter) parseCmdLineArguments(args []string) {
@@ -162,7 +162,7 @@ func (this *ProductionInstrumentationReporter) parseCmdLineArguments(args []stri
 		this.finalResultOutput = v
 	})
 	parser.setUsageWidth(80)
-	var parsed *Outcome_base = parser.parseArgument(args)
+	var parsed *Outcome_base[any] = parser.parseArgument(args)
 	if parsed.isErr() {
 		var e *CmdLineException = cast_[*CmdLineException](parsed.error().self())
 		Output_stderr().println(e.getMessage())

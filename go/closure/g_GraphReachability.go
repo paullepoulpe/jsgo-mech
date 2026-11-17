@@ -31,7 +31,7 @@ func new_GraphReachability_DiGraph_Predicate(graph *DiGraph, edgePredicate func(
 func (this *GraphReachability) compute(entry any) {
 	this.graph.clearNodeAnnotations()
 	icast_DiGraph_DiGraphNode(this.graph.getNode(entry)).setAnnotation(GraphReachability_REACHABLE)
-	FixedPointGraphTraversal_newTraversal(this.traverseEdge).computeFixedPoint_2(this.graph, entry)
+	FixedPointGraphTraversal_newTraversal[any, any](this.traverseEdge).computeFixedPoint_2(this.graph, entry)
 }
 
 func (this *GraphReachability) recompute(reachableNode any) {
@@ -40,11 +40,11 @@ func (this *GraphReachability) recompute(reachableNode any) {
 		panic(new_IllegalStateException_0().self())
 	}
 	newReachable.setAnnotation(GraphReachability_REACHABLE)
-	FixedPointGraphTraversal_newTraversal(this.traverseEdge).computeFixedPoint_2(this.graph, reachableNode)
+	FixedPointGraphTraversal_newTraversal[any, any](this.traverseEdge).computeFixedPoint_2(this.graph, reachableNode)
 }
 
 func (this *GraphReachability) traverseEdge(source any, e any, destination any) bool {
-	if (Annotatable_getAnnotation(Annotatable(this.graph.getNode(source))) == GraphReachability_REACHABLE) && ((this.edgePredicate == nil) || this.edgePredicate(obj_(new_GraphReachability_EdgeTuple(source, e, destination)))) {
+	if (Annotatable_getAnnotation(Annotatable(this.graph.getNode(source))) == GraphReachability_REACHABLE) && ((this.edgePredicate == nil) || this.edgePredicate(obj_(new_GraphReachability_EdgeTuple[Node, ControlFlowGraph_Branch](Node_of_(source), cast_[ControlFlowGraph_Branch](e), Node_of_(destination))))) {
 		var destNode GraphNode = this.graph.getNode(destination)
 		if Annotatable_getAnnotation(Annotatable(destNode)) != GraphReachability_REACHABLE {
 			destNode.setAnnotation(GraphReachability_REACHABLE)
@@ -67,18 +67,18 @@ func GraphReachability_clinit() {
 
 }
 
-type GraphReachability_EdgeTuple struct {
-	sourceNode_ any
-	edge        any
+type GraphReachability_EdgeTuple[N, E comparable] struct {
+	sourceNode_ N
+	edge        E
 }
 
-func (this *GraphReachability_EdgeTuple) init_GraphReachability_EdgeTuple(sourceNode any, edge any, destNode any) {
+func (this *GraphReachability_EdgeTuple[N, E]) init_GraphReachability_EdgeTuple(sourceNode N, edge E, destNode N) {
 	this.sourceNode_ = sourceNode
 	this.edge = edge
 }
 
-func new_GraphReachability_EdgeTuple(sourceNode any, edge any, destNode any) *GraphReachability_EdgeTuple {
-	this := &GraphReachability_EdgeTuple{}
+func new_GraphReachability_EdgeTuple[N, E comparable](sourceNode N, edge E, destNode N) *GraphReachability_EdgeTuple[N, E] {
+	this := &GraphReachability_EdgeTuple[N, E]{sourceNode_: null_[N](), edge: null_[E]()}
 	this.init_GraphReachability_EdgeTuple(sourceNode, edge, destNode)
 	return this
 }

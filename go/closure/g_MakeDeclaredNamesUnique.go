@@ -579,7 +579,7 @@ type MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo interface {
 type MakeDeclaredNamesUnique_ContextualRenamer struct {
 	self_        MakeDeclaredNamesUnique_ContextualRenamer_I
 	scopeRoot    Node
-	nameUsage    *SimpleMultiset
+	nameUsage    *SimpleMultiset[any]
 	declarations MapOf[string, OptionalOf[string]]
 	global       bool
 	hoistRenamer MakeDeclaredNamesUnique_Renamer
@@ -621,7 +621,7 @@ func (this *MakeDeclaredNamesUnique_ContextualRenamer) init_MakeDeclaredNamesUni
 	this.finit_MakeDeclaredNamesUnique_ContextualRenamer()
 	this.scopeRoot = 0
 	this.global = true
-	this.nameUsage = SimpleMultiset_create()
+	this.nameUsage = SimpleMultiset_create[any]()
 	this.hoistRenamer = icast_MakeDeclaredNamesUnique_Renamer(this.self())
 }
 
@@ -632,7 +632,7 @@ func new_MakeDeclaredNamesUnique_ContextualRenamer_0() *MakeDeclaredNamesUnique_
 	return this
 }
 
-func (this *MakeDeclaredNamesUnique_ContextualRenamer) init_MakeDeclaredNamesUnique_ContextualRenamer_Node_SimpleMultiset_boolean_Renamer(scopeRoot Node, nameUsage *SimpleMultiset, hoistingTargetScope bool, parent MakeDeclaredNamesUnique_Renamer) {
+func (this *MakeDeclaredNamesUnique_ContextualRenamer) init_MakeDeclaredNamesUnique_ContextualRenamer_Node_SimpleMultiset_boolean_Renamer(scopeRoot Node, nameUsage *SimpleMultiset[any], hoistingTargetScope bool, parent MakeDeclaredNamesUnique_Renamer) {
 	this.finit_MakeDeclaredNamesUnique_ContextualRenamer()
 	if !NodeUtil_createsScope(scopeRoot) {
 		panic(new_IllegalStateException_String(objstr_(scopeRoot.box_())).self())
@@ -658,7 +658,7 @@ func (this *MakeDeclaredNamesUnique_ContextualRenamer) init_MakeDeclaredNamesUni
 	}
 }
 
-func new_MakeDeclaredNamesUnique_ContextualRenamer_Node_SimpleMultiset_boolean_Renamer(scopeRoot Node, nameUsage *SimpleMultiset, hoistingTargetScope bool, parent MakeDeclaredNamesUnique_Renamer) *MakeDeclaredNamesUnique_ContextualRenamer {
+func new_MakeDeclaredNamesUnique_ContextualRenamer_Node_SimpleMultiset_boolean_Renamer(scopeRoot Node, nameUsage *SimpleMultiset[any], hoistingTargetScope bool, parent MakeDeclaredNamesUnique_Renamer) *MakeDeclaredNamesUnique_ContextualRenamer {
 	this := &MakeDeclaredNamesUnique_ContextualRenamer{}
 	this.self_ = this
 	this.init_MakeDeclaredNamesUnique_ContextualRenamer_Node_SimpleMultiset_boolean_Renamer(scopeRoot, nameUsage, hoistingTargetScope, parent)

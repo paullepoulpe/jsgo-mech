@@ -33,29 +33,29 @@ type JSTypeRegistry struct {
 	mapValueTemplateKey             *TemplateType
 	reporter                        ErrorReporter_rhino
 	nativeTypes                     []*JSType
-	scopedNameTable                 *SimpleTable
+	scopedNameTable                 *SimpleTable[Node, any, *JSType]
 	closureNamespaces               map[string]*JSTypeRegistry_ClosureNamespace
 	nameTableGlobalRoot             Node
-	nonNullableTypeNames            *SimpleSetMultimap
+	nonNullableTypeNames            *SimpleSetMultimap[Node, string]
 	forwardDeclaredTypes            SetOf[string]
-	nonRefTypesIndexedByProperty    *SimpleSetMultimap
+	nonRefTypesIndexedByProperty    *SimpleSetMultimap[any, *JSType]
 	sentinelObjectLiteral           *JSType
 	propertiesOfSupertypesInUnions  map[string]struct{}
 	droppedPropertiesOfUnions       map[string]struct{}
-	eachRefTypeIndexedByProperty    *SimpleSetMultimap
+	eachRefTypeIndexedByProperty    *SimpleSetMultimap[any, *ObjectType]
 	emptyTemplateTypeMap            *TemplateTypeMap
 	resolver                        *JSTypeResolver
 }
 
 func (this *JSTypeRegistry) finit_JSTypeRegistry() {
-	this.scopedNameTable = SimpleTable_create()
+	this.scopedNameTable = SimpleTable_create[Node, any, *JSType]()
 	this.closureNamespaces = map[string]*JSTypeRegistry_ClosureNamespace{}
 	this.nameTableGlobalRoot = new_Node_Token(Token_rhino_ROOT)
-	this.nonNullableTypeNames = SimpleSetMultimap_create()
-	this.nonRefTypesIndexedByProperty = SimpleSetMultimap_create()
+	this.nonNullableTypeNames = SimpleSetMultimap_create[Node, string]()
+	this.nonRefTypesIndexedByProperty = SimpleSetMultimap_create[any, *JSType]()
 	this.propertiesOfSupertypesInUnions = map[string]struct{}{}
 	this.droppedPropertiesOfUnions = map[string]struct{}{}
-	this.eachRefTypeIndexedByProperty = SimpleSetMultimap_create()
+	this.eachRefTypeIndexedByProperty = SimpleSetMultimap_create[any, *ObjectType]()
 }
 
 func (this *JSTypeRegistry) init_JSTypeRegistry_ErrorReporter(reporter ErrorReporter_rhino) {
@@ -746,7 +746,7 @@ func JSTypeRegistry_resolveTypeFromNodeIfTypedef(node Node) *JSType {
 
 func (this *JSTypeRegistry) getTypeForScopeInternal(scope StaticScope, name string) *JSType {
 	var rootNode Node = this.getRootNodeForScope(scope)
-	var type_ *JSType = to_JSType(this.scopedNameTable.get_s(rootNode.box_(), name))
+	var type_ *JSType = this.scopedNameTable.get_s(rootNode.box_(), name)
 	return type_
 }
 
@@ -764,7 +764,7 @@ func (this *JSTypeRegistry) register(scope StaticScope, type_ *JSType, name stri
 }
 
 func (this *JSTypeRegistry) registerForScope(scope StaticScope, type_ *JSType, name string) {
-	this.scopedNameTable.put_s(this.getRootNodeForScope(scope).box_(), name, type_.self())
+	this.scopedNameTable.put_s(this.getRootNodeForScope(scope), name, type_)
 }
 
 func (this *JSTypeRegistry) registerNativeType(typeId JSTypeNative, type_ *JSType) {
@@ -811,9 +811,9 @@ func (this *JSTypeRegistry) registerPropertyOnType(propertyName string, type_ *J
 		objType = p.as_ObjectType()
 		return true
 	}() && objType.hasReferenceName() {
-		this.eachRefTypeIndexedByProperty.put_s(propertyName, objType.self())
+		this.eachRefTypeIndexedByProperty.put_s(propertyName, objType)
 	} else {
-		this.nonRefTypesIndexedByProperty.put_s(propertyName, type_.self())
+		this.nonRefTypesIndexedByProperty.put_s(propertyName, type_)
 	}
 }
 
@@ -1303,7 +1303,7 @@ func (this *JSTypeRegistry) createNamedType(scope StaticTypedScope, reference st
 
 func (this *JSTypeRegistry) identifyNonNullableName(scope StaticScope, name string) {
 	var lookupScope StaticScope = JSTypeRegistry_getLookupScope(scope, name)
-	this.nonNullableTypeNames.put(this.getRootNodeForScope(lookupScope).box_(), strobj_(name))
+	this.nonNullableTypeNames.put(this.getRootNodeForScope(lookupScope), name)
 }
 
 func (this *JSTypeRegistry) isNonNullableName(scope StaticScope, name string) bool {
@@ -1546,7 +1546,7 @@ func (this *JSTypeRegistry) createRecordTypeFromNodes(n Node, sourceName Optiona
 
 func (this *JSTypeRegistry) registerTemplateTypeNamesInScope(keys IterableOf[*TemplateType], scopeRoot Node) {
 	for key := range elemsAs_[*TemplateType](keys) {
-		this.scopedNameTable.put_s(scopeRoot.box_(), key.getReferenceName().orElseThrow(), obj_(key))
+		this.scopedNameTable.put_s(scopeRoot, key.getReferenceName().orElseThrow(), to_JSType(obj_(key)))
 	}
 }
 

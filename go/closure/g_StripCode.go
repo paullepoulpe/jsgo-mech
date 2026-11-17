@@ -8,7 +8,7 @@ type StripCode struct {
 	compiler_                      *AbstractCompiler
 	stripNameSuffixes              ImmutableSetOf[string]
 	stripNamePrefixes              ImmutableSetOf[string]
-	varsToRemove                   *LinkedIdentityHashSet
+	varsToRemove                   *LinkedIdentityHashSet[string]
 	stripTypesList                 []string
 	stripTypePrefixesList          []string
 	stripNamePrefixesLowerCaseList []string
@@ -16,7 +16,7 @@ type StripCode struct {
 }
 
 func (this *StripCode) finit_StripCode() {
-	this.varsToRemove = new_LinkedIdentityHashSet()
+	this.varsToRemove = new_LinkedIdentityHashSet[string]()
 }
 
 func (this *StripCode) init_StripCode(compiler *AbstractCompiler, stripTypes ImmutableSetOf[string], stripNameSuffixes ImmutableSetOf[string], stripNamePrefixes ImmutableSetOf[string], enableTweakStripping bool) {
@@ -236,7 +236,7 @@ func (this *StripCode_Strip) removeVarDeclarationsByNameOrRvalue(t *NodeTraversa
 				return name
 			}()
 			if (this.isStripName(possibleStripName) || this.qualifiedNameBeginsWithStripType(nameNode)) || this.isCallWhoseReturnValueShouldBeStripped(nameNode.getFirstChild()) {
-				this.outer_.varsToRemove.add(strobj_(name))
+				this.outer_.varsToRemove.add(name)
 				if strings.Contains(name, "$") {
 					this.decisionsLog.log(func() any {
 						return strobj_((sstr_(name) + ": initialize with null (" + sstr_(possibleStripName) + ")"))
@@ -487,7 +487,7 @@ func (this *StripCode_Strip) qualifiedNameBeginsWithStripTypeString(name Optiona
 }
 
 func (this *StripCode_Strip) isReferenceToRemovedVar(n Node) bool {
-	return this.outer_.varsToRemove.contains(strobj_(n.getString()))
+	return this.outer_.varsToRemove.contains(n.getString())
 }
 
 func (this *StripCode_Strip) isMethodOrCtorCallThatTriggersRemoval(t *NodeTraversal, n Node, parent Node) bool {

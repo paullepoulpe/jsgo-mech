@@ -2,34 +2,34 @@
 
 package closure
 
-type LinkedIdentityHashSet struct {
+type LinkedIdentityHashSet[E comparable] struct {
 	innerMap *LinkedIdentityHashMap
 }
 
-func (this *LinkedIdentityHashSet) finit_LinkedIdentityHashSet() {
+func (this *LinkedIdentityHashSet[E]) finit_LinkedIdentityHashSet() {
 	this.innerMap = new_LinkedIdentityHashMap()
 }
 
-func (this *LinkedIdentityHashSet) init_LinkedIdentityHashSet() {
+func (this *LinkedIdentityHashSet[E]) init_LinkedIdentityHashSet() {
 	this.finit_LinkedIdentityHashSet()
 }
 
-func new_LinkedIdentityHashSet() *LinkedIdentityHashSet {
-	this := &LinkedIdentityHashSet{}
+func new_LinkedIdentityHashSet[E comparable]() *LinkedIdentityHashSet[E] {
+	this := &LinkedIdentityHashSet[E]{}
 	this.init_LinkedIdentityHashSet()
 	return this
 }
 
-func (this *LinkedIdentityHashSet) contains(element any) bool {
-	return (cast_[*LinkedIdentityHashSet_Sentinel](this.innerMap.get(element)) == LinkedIdentityHashSet_SENTINEL)
+func (this *LinkedIdentityHashSet[E]) contains(element E) bool {
+	return (cast_[*LinkedIdentityHashSet_Sentinel](this.innerMap.get(boxNull_(element))) == LinkedIdentityHashSet_SENTINEL)
 }
 
-func (this *LinkedIdentityHashSet) add(element any) bool {
-	return (cast_[*LinkedIdentityHashSet_Sentinel](this.innerMap.put(element, obj_(LinkedIdentityHashSet_SENTINEL))) == nil)
+func (this *LinkedIdentityHashSet[E]) add(element E) bool {
+	return (cast_[*LinkedIdentityHashSet_Sentinel](this.innerMap.put(boxNull_(element), obj_(LinkedIdentityHashSet_SENTINEL))) == nil)
 }
 
-func (this *LinkedIdentityHashSet) remove(element any) bool {
-	return (cast_[*LinkedIdentityHashSet_Sentinel](this.innerMap.put(element, nil)) == LinkedIdentityHashSet_SENTINEL)
+func (this *LinkedIdentityHashSet[E]) remove(element E) bool {
+	return (cast_[*LinkedIdentityHashSet_Sentinel](this.innerMap.put(boxNull_(element), nil)) == LinkedIdentityHashSet_SENTINEL)
 }
 
 var LinkedIdentityHashSet_SENTINEL *LinkedIdentityHashSet_Sentinel

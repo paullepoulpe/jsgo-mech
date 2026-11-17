@@ -5,7 +5,7 @@ package closure
 type ContainsUpperBoundSuperTypeVisitor struct {
 	Visitor_WithDefaultCase
 	target *JSType
-	seen   *LinkedIdentityHashSet
+	seen   *LinkedIdentityHashSet[*JSType]
 }
 
 func (this *ContainsUpperBoundSuperTypeVisitor) up_Visitor_WithDefaultCase() *Visitor_WithDefaultCase {
@@ -16,7 +16,7 @@ func (this *ContainsUpperBoundSuperTypeVisitor) up_Visitor_WithDefaultCase() *Vi
 }
 
 func (this *ContainsUpperBoundSuperTypeVisitor) finit_ContainsUpperBoundSuperTypeVisitor() {
-	this.seen = new_LinkedIdentityHashSet()
+	this.seen = new_LinkedIdentityHashSet[*JSType]()
 }
 
 func (this *ContainsUpperBoundSuperTypeVisitor) init_ContainsUpperBoundSuperTypeVisitor(target *JSType) {
@@ -73,10 +73,10 @@ func (this *ContainsUpperBoundSuperTypeVisitor) caseUnionType_impl(type_ *UnionT
 func (this *ContainsUpperBoundSuperTypeVisitor) caseForwardingType(type_ *JSType, reference *JSType) ContainsUpperBoundSuperTypeVisitor_Result {
 	if JSCompObjects_identical(type_.self(), this.target.self()) {
 		return ContainsUpperBoundSuperTypeVisitor_Result_PRESENT
-	} else if this.seen.contains(type_.self()) {
+	} else if this.seen.contains(type_) {
 		return ContainsUpperBoundSuperTypeVisitor_Result_CYCLE
 	} else {
-		this.seen.add(type_.self())
+		this.seen.add(type_)
 		return cast_[ContainsUpperBoundSuperTypeVisitor_Result](reference.visit(this))
 	}
 }

@@ -2,29 +2,29 @@
 
 package closure
 
-type LowestCommonAncestorFinder struct {
+type LowestCommonAncestorFinder[N, E comparable] struct {
 	graph          *DiGraph
 	searchColoring *TMap[DiGraph_DiGraphNode, *LowestCommonAncestorFinder_Color]
 	searchQueue    []DiGraph_DiGraphNode
 }
 
-func (this *LowestCommonAncestorFinder) finit_LowestCommonAncestorFinder() {
+func (this *LowestCommonAncestorFinder[N, E]) finit_LowestCommonAncestorFinder() {
 	this.searchColoring = newTMap_(tc_DiGraph_DiGraphNode, tc_p_LowestCommonAncestorFinder_Color)
 	this.searchQueue = []DiGraph_DiGraphNode{}
 }
 
-func (this *LowestCommonAncestorFinder) init_LowestCommonAncestorFinder(graph *DiGraph) {
+func (this *LowestCommonAncestorFinder[N, E]) init_LowestCommonAncestorFinder(graph *DiGraph) {
 	this.finit_LowestCommonAncestorFinder()
 	this.graph = graph
 }
 
-func new_LowestCommonAncestorFinder(graph *DiGraph) *LowestCommonAncestorFinder {
-	this := &LowestCommonAncestorFinder{}
+func new_LowestCommonAncestorFinder[N, E comparable](graph *DiGraph) *LowestCommonAncestorFinder[N, E] {
+	this := &LowestCommonAncestorFinder[N, E]{}
 	this.init_LowestCommonAncestorFinder(graph)
 	return this
 }
 
-func (this *LowestCommonAncestorFinder) findAll(roots SetOf[any]) ImmutableSetOf[any] {
+func (this *LowestCommonAncestorFinder[N, E]) findAll(roots SetOf[any]) ImmutableSetOf[any] {
 	if roots.size() > 31 {
 		panic(new_IllegalArgumentException_String("Too many roots.").self())
 	}
@@ -72,7 +72,7 @@ func lambda_LowestCommonAncestorFinder_findAll_1_(p0 any, p1 any) any {
 	return obj_(cast_[*LowestCommonAncestorFinder_Color](p0).mix(cast_[*LowestCommonAncestorFinder_Color](p1)))
 }
 
-func (this *LowestCommonAncestorFinder) paintAncestors(root DiGraph_DiGraphNode, color *LowestCommonAncestorFinder_Color) {
+func (this *LowestCommonAncestorFinder[N, E]) paintAncestors(root DiGraph_DiGraphNode, color *LowestCommonAncestorFinder_Color) {
 	if len(this.searchQueue) != 0 {
 		panic(new_IllegalStateException_0().self())
 	}
@@ -95,14 +95,14 @@ func (this *LowestCommonAncestorFinder) paintAncestors(root DiGraph_DiGraphNode,
 }
 
 type LowestCommonAncestorFinder_Factory interface {
-	create(*DiGraph) *LowestCommonAncestorFinder
+	create(*DiGraph) *LowestCommonAncestorFinder[any, any]
 }
 
 type LowestCommonAncestorFinder_Factory_fn struct {
-	f func(*DiGraph) *LowestCommonAncestorFinder
+	f func(*DiGraph) *LowestCommonAncestorFinder[any, any]
 }
 
-func (this *LowestCommonAncestorFinder_Factory_fn) create(p0 *DiGraph) *LowestCommonAncestorFinder {
+func (this *LowestCommonAncestorFinder_Factory_fn) create(p0 *DiGraph) *LowestCommonAncestorFinder[any, any] {
 	return this.f(p0)
 }
 

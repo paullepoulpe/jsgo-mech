@@ -473,11 +473,11 @@ func CodePrinter_PrettyCodePrinter_getNumberFromSource(n Node) OptionalOf[string
 	if src.isStubSourceFileForAlreadyProvidedInput() {
 		return Optional_empty[string]()
 	}
-	var codeRes *Outcome_base = src.readCode()
+	var codeRes *Outcome_base[string] = src.readCode()
 	if codeRes.isErr() {
 		return Optional_empty[string]()
 	}
-	var srcCode string = str_(codeRes.get())
+	var srcCode string = codeRes.get()
 	var lineno int32 = n.getLineno()
 	if (lineno != -1) && !src.isValidLineNumber(lineno) {
 		return Optional_empty[string]()

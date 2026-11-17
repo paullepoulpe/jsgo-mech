@@ -408,7 +408,7 @@ func (this *FlowSensitiveInlineVariables_Candidate) canInline(scope *Scope) bool
 		return false
 	}
 	if NodeUtil_isStatementBlock(this.getDefCfgNode().getParent()) && (this.getDefCfgNode().getNext() != this.useCfgNode) {
-		var pathCheck *CheckPathsBetweenNodes = new_CheckPathsBetweenNodes_DiGraph_DiGraphNode_DiGraphNode_Predicate_Predicate_boolean(this.outer_.cfg.up_DiGraph(), icast_DiGraph_DiGraphNode(this.outer_.cfg.getNode(this.getDefCfgNode().box_())), icast_DiGraph_DiGraphNode(this.outer_.cfg.getNode(this.useCfgNode.box_())), icast_Predicate_base(obj_(this.outer_.sideEffectPredicate)), Predicates_alwaysTrue(), false)
+		var pathCheck *CheckPathsBetweenNodes[any, any] = new_CheckPathsBetweenNodes_DiGraph_DiGraphNode_DiGraphNode_Predicate_Predicate_boolean(this.outer_.cfg.up_DiGraph(), icast_DiGraph_DiGraphNode(this.outer_.cfg.getNode(this.getDefCfgNode().box_())), icast_DiGraph_DiGraphNode(this.outer_.cfg.getNode(this.useCfgNode.box_())), icast_Predicate_base(obj_(this.outer_.sideEffectPredicate)), Predicates_alwaysTrue(), false)
 		if pathCheck.somePathsSatisfyPredicate() {
 			return false
 		}

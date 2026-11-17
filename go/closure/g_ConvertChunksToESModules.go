@@ -128,11 +128,11 @@ func (this *ConvertChunksToESModules) addImportStatements() {
 			var importStatement Node = new_Node_Token(Token_rhino_IMPORT)
 			var exportingChunk *JSChunk = cast_[*JSChunk](importsByChunk.getKey())
 			var importPath string = ConvertChunksToESModules_getChunkName(exportingChunk)
-			var relativeImportPath *Outcome_base = ModuleLoader_relativePathFrom(ConvertChunksToESModules_getChunkName(importingChunk), ConvertChunksToESModules_getChunkName(exportingChunk))
+			var relativeImportPath *Outcome_base[string] = ModuleLoader_relativePathFrom(ConvertChunksToESModules_getChunkName(importingChunk), ConvertChunksToESModules_getChunkName(exportingChunk))
 			if relativeImportPath.isErr() {
 				this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(moduleBody, ConvertChunksToESModules_UNABLE_TO_COMPUTE_RELATIVE_PATH, []string{ConvertChunksToESModules_getChunkName(importingChunk), ConvertChunksToESModules_getChunkName(exportingChunk)}))
 			} else {
-				importPath = str_(relativeImportPath.get())
+				importPath = relativeImportPath.get()
 			}
 			importStatement.addChildToFront(IR_string(importPath))
 			if importSpecs.hasChildren() {

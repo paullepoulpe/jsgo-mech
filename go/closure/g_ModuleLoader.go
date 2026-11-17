@@ -97,7 +97,7 @@ func (this *ModuleLoader) resolvePaths(inputs IterableOf[DependencyInfo]) Immuta
 		}()))
 	}
 	List_sort(sortedModulePaths.asList(), ModuleLoader_BEST_MATCH_PATH_ORDERING)
-	var dupeModulePaths *SimpleMultiset = SimpleMultiset_copyOf(Iterable(sortedModulePaths.asList()))
+	var dupeModulePaths *SimpleMultiset[any] = SimpleMultiset_copyOf[any](Iterable(sortedModulePaths.asList()))
 	if dupeModulePaths.size() != dupeModulePaths.elementSet().size() {
 		panic(new_IllegalStateException_String(Strings_lenientFormat("Duplicate module paths after resolving: %s", []any{obj_(dupeModulePaths)})).self())
 	}
@@ -122,24 +122,24 @@ func ModuleLoader_normalize(path string, moduleRootPaths IterableOf[string]) str
 	return path
 }
 
-func ModuleLoader_relativePathFrom(fromUriPath string, toUriPath string) *Outcome_base {
+func ModuleLoader_relativePathFrom(fromUriPath string, toUriPath string) *Outcome_base[string] {
 	var toPath string = FilePaths_clean(toUriPath)
 	var fromFolder OptionalOf[string] = FilePaths_parent(fromUriPath)
 	if fromFolder.isEmpty() && FilePaths_parent(toUriPath).isEmpty() {
-		return Outcome_base_ok_Object(strobj_(("./" + sstr_(toUriPath))))
+		return Outcome_base_ok_Object[string](("./" + sstr_(toUriPath)))
 	} else if fromFolder.isEmpty() && ((strings.HasPrefix(toUriPath, ".") || strings.HasPrefix(toPath, "/")) || strings.HasPrefix(toPath, "\\")) {
-		return Outcome_base_ok_Object(strobj_(toUriPath))
+		return Outcome_base_ok_Object[string](toUriPath)
 	} else if fromFolder.isEmpty() {
-		return Outcome_base_err(new_IllegalArgumentException_String("Relative path between URIs cannot be calculated").up_Throwable())
+		return Outcome_base_err[string](new_IllegalArgumentException_String("Relative path between URIs cannot be calculated").up_Throwable())
 	}
 	var calculatedPath OptionalOf[string] = FilePaths_relativize(fromFolder.get(), toUriPath)
 	if calculatedPath.isEmpty() {
-		return Outcome_base_err(new_IllegalArgumentException_String("Relative path between URIs cannot be calculated").up_Throwable())
+		return Outcome_base_err[string](new_IllegalArgumentException_String("Relative path between URIs cannot be calculated").up_Throwable())
 	}
 	if strings.HasPrefix(calculatedPath.get(), ".") || strings.HasPrefix(calculatedPath.get(), "/") {
-		return Outcome_base_ok_Object(strobj_(calculatedPath.get()))
+		return Outcome_base_ok_Object[string](calculatedPath.get())
 	}
-	return Outcome_base_ok_Object(strobj_(("./" + sstr_(calculatedPath.get()))))
+	return Outcome_base_ok_Object[string](("./" + sstr_(calculatedPath.get())))
 }
 
 func (this *ModuleLoader) setErrorHandler(errorHandler ErrorHandler) {

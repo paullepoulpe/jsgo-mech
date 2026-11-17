@@ -71,7 +71,7 @@ func (this *AnalyzePrototypeProperties) process_2(externRoot Node, root Node) {
 		NodeTraversal_traverse(this.compiler_, externRoot, new_AnalyzePrototypeProperties_ProcessExternProperties(this))
 	}
 	NodeTraversal_traverse(this.compiler_, root, new_AnalyzePrototypeProperties_ProcessProperties(this))
-	var t *FixedPointGraphTraversal = FixedPointGraphTraversal_newTraversal(new_AnalyzePrototypeProperties_PropagateReferences(this).traverseEdge)
+	var t *FixedPointGraphTraversal[any, any] = FixedPointGraphTraversal_newTraversal[any, any](new_AnalyzePrototypeProperties_PropagateReferences(this).traverseEdge)
 	t.computeFixedPointSet(this.symbolGraph.up_DiGraph(), ImmutableSet_of_Object_Object(obj_(this.externNode), obj_(this.globalNode)))
 }
 
