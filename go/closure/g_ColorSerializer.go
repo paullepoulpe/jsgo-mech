@@ -73,8 +73,8 @@ func (this *ColorSerializer) generateTypePool(getDisambiguationSupertypesFn func
 				typePointerList.add(typePointer)
 			}
 		}
-		for entry := range elemsBy_(srcRefToTypePointerList.asMap().entrySet(), icast_Map_Entry) {
-			debugInfoBuilder.addMismatchBuilder().setSourceRef(str_(entry.getKey())).addAllInvolvedColor(icast_Iterable(entry.getValue()))
+		for entryKey, entryValue := range srcRefToTypePointerList.All() {
+			debugInfoBuilder.addMismatchBuilder().setSourceRef(entryKey).addAllInvolvedColor(icast_Iterable(entryValue.self()))
 		}
 	}
 	return cast_[*TypePool](typePoolBuilder.build())

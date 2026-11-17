@@ -280,9 +280,9 @@ func (this *InlineObjectLiterals_InliningBehavior) splitObject(v *Var, init_ *Re
 			NodeUtil_addFeatureToScript(script, FeatureSet_Feature_LET_DECLARATIONS, this.outer_.compiler_)
 		}
 	}
-	for entry := range elemsBy_(varmap.asMap().entrySet(), icast_Map_Entry) {
-		var val Node = initvals[str_(entry.getKey())]
-		var lhs Node = IR_name(str_(entry.getValue()))
+	for entryKey, entryValue := range varmap.All() {
+		var val Node = initvals[entryKey]
+		var lhs Node = IR_name(entryValue)
 		var declarationType Token_rhino = func() Token_rhino {
 			if isBlockScoped {
 				return Token_rhino_LET

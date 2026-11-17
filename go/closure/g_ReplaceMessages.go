@@ -529,8 +529,8 @@ func (this *ReplaceMessages_QuotedKeyObjectLitBuilder) addNode(key string, node 
 
 func (this *ReplaceMessages_QuotedKeyObjectLitBuilder) build() Node {
 	var result Node = this.outer_.astFactory_.createObjectLit([]Node{})
-	for entry := range elemsBy_(this.keyToValueNodeMap.asMap().entrySet(), icast_Map_Entry) {
-		result.addChildToBack(this.outer_.astFactory_.createQuotedStringKey(str_(entry.getKey()), Node_of_(entry.getValue())))
+	for entryKey, entryValue := range this.keyToValueNodeMap.All() {
+		result.addChildToBack(this.outer_.astFactory_.createQuotedStringKey(entryKey, entryValue))
 	}
 	return result
 }

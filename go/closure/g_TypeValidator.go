@@ -538,9 +538,9 @@ func (this *TypeValidator) expectAbstractMethodsImplemented(n Node, ctorType *Fu
 		currSuperCtor = currSuperCtor.getSuperClassConstructor()
 	}
 	var instance *ObjectType = ctorType.getInstanceType()
-	for entry := range elemsBy_(abstractMethodSuperTypeMap.asMap().entrySet(), icast_Map_Entry) {
-		var method Property_Key = icast_Property_Key(entry.getKey())
-		var superType *ObjectType = to_ObjectType(entry.getValue())
+	for entryKey, entryValue := range abstractMethodSuperTypeMap.All() {
+		var method Property_Key = entryKey
+		var superType *ObjectType = entryValue
 		var abstractMethod *FunctionType = instance.findPropertyTypeKey(method).toMaybeFunctionType()
 		if (abstractMethod == nil) || abstractMethod.isAbstract() {
 			this.registerMismatchAndReport(instance.up_JSType(), superType.up_JSType(), JSError_make_Node_DiagnosticType_StringArr(n, TypeValidator_ABSTRACT_METHOD_NOT_IMPLEMENTED, []string{method.humanReadableName(), superType.toString(), instance.toString()}))

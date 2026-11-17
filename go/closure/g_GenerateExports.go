@@ -49,12 +49,12 @@ func (this *GenerateExports) process_2(externs Node, root Node) {
 			return
 		}
 	}
-	for entry := range elemsBy_(es6Exports.asMap().entrySet(), icast_Map_Entry) {
-		this.addExportForEs6Method(Node_of_(entry.getKey()), str_(entry.getValue()))
+	for entryKey, entryValue := range es6Exports.All() {
+		this.addExportForEs6Method(entryKey, entryValue)
 	}
-	for entry := range elemsBy_(exports.asMap().entrySet(), icast_Map_Entry) {
-		var export string = str_(entry.getKey())
-		var context Node = Node_of_(entry.getValue())
+	for entryKey2, entryValue2 := range exports.All() {
+		var export string = entryKey2
+		var context Node = entryValue2
 		this.addExportMethod(exports, export, context)
 	}
 }

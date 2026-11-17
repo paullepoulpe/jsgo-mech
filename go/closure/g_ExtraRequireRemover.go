@@ -81,9 +81,9 @@ func (this *ExtraRequireRemover) reset() {
 }
 
 func (this *ExtraRequireRemover) removeExtraRequiresInScript() {
-	for entry := range elemsBy_(this.requires.asMap().entrySet(), icast_Map_Entry) {
-		var require string = str_(entry.getKey())
-		var call Node = Node_of_(entry.getValue())
+	for entryKey, entryValue := range this.requires.All() {
+		var require string = entryKey
+		var call Node = entryValue
 		this.removeExtraRequire(call, require)
 	}
 }

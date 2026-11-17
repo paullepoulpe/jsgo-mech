@@ -65,12 +65,12 @@ func new_WebpackModuleResolver_Factory(lookupMap *TMap[string, string]) *Webpack
 
 func (this *WebpackModuleResolver_Factory) create(modulePaths ImmutableSetOf[string], moduleRootPaths ImmutableListOf[string], errorHandler ErrorHandler, pathEscaper ModuleLoader_PathEscaper) *ModuleResolver {
 	var normalizedPathsById *TMap[string, string] = newTMap_(tc_string, tc_string)
-	for moduleEntry := range elemsBy_(this.lookupMap.asMap().entrySet(), icast_Map_Entry) {
-		var canonicalizedPath string = ModuleLoader_normalize(pathEscaper.escape(str_(moduleEntry.getValue())), icast_Iterable(obj_(moduleRootPaths)))
+	for moduleEntryKey, moduleEntryValue := range this.lookupMap.All() {
+		var canonicalizedPath string = ModuleLoader_normalize(pathEscaper.escape(moduleEntryValue), icast_Iterable(obj_(moduleRootPaths)))
 		if ModuleLoader_isAmbiguousIdentifier(canonicalizedPath) {
 			canonicalizedPath = (sstr_(ModuleLoader_MODULE_SLASH) + sstr_(canonicalizedPath))
 		}
-		normalizedPathsById.put(str_(moduleEntry.getKey()), canonicalizedPath)
+		normalizedPathsById.put(moduleEntryKey, canonicalizedPath)
 	}
 	return new_WebpackModuleResolver(modulePaths, moduleRootPaths, normalizedPathsById, errorHandler, pathEscaper).up_ModuleResolver()
 }

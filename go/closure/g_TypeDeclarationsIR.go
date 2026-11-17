@@ -54,11 +54,11 @@ func TypeDeclarationsIR_namedTypeIterable(segments IterableOf[string]) Node {
 
 func TypeDeclarationsIR_recordType(properties *TMap[string, Node]) Node {
 	var node Node = new_Node_Token(Token_rhino_RECORD_TYPE)
-	for prop := range elemsBy_(properties.asMap().entrySet(), icast_Map_Entry) {
-		var stringKey Node = IR_stringKey_String(str_(prop.getKey()))
+	for propKey, propValue := range properties.All() {
+		var stringKey Node = IR_stringKey_String(propKey)
 		node.addChildToBack(stringKey)
-		if Node_of_(prop.getValue()) != 0 {
-			stringKey.addChildToFront(Node_of_(prop.getValue()))
+		if propValue != 0 {
+			stringKey.addChildToFront(propValue)
 		}
 	}
 	return node
@@ -79,14 +79,14 @@ func TypeDeclarationsIR_functionType(returnType Node, requiredParams *TMap[strin
 	if optionalParams.asMap() == nil {
 		panic(new_NullPointerException_0().self())
 	}
-	for param := range elemsBy_(requiredParams.asMap().entrySet(), icast_Map_Entry) {
-		var name Node = IR_name(str_(param.getKey()))
-		node.addChildToBack(TypeDeclarationsIR_maybeAddType(name, Node_of_(param.getValue())))
+	for paramKey, paramValue := range requiredParams.All() {
+		var name Node = IR_name(paramKey)
+		node.addChildToBack(TypeDeclarationsIR_maybeAddType(name, paramValue))
 	}
-	for param := range elemsBy_(optionalParams.asMap().entrySet(), icast_Map_Entry) {
-		var name Node = IR_name(str_(param.getKey()))
+	for paramKey2, paramValue2 := range optionalParams.All() {
+		var name Node = IR_name(paramKey2)
 		name.putBooleanProp(Node_OPT_ES6_TYPED, true)
-		node.addChildToBack(TypeDeclarationsIR_maybeAddType(name, Node_of_(param.getValue())))
+		node.addChildToBack(TypeDeclarationsIR_maybeAddType(name, paramValue2))
 	}
 	if restName.isPresent() {
 		var rest Node = new_Node_Token_Node(Token_rhino_ITER_REST, IR_name(restName.get()))

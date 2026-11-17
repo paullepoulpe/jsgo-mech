@@ -302,8 +302,8 @@ func (this *DisambiguateProperties_PropertyReferenceIndexJson) init_Disambiguate
 		this.refs = ImmutableSortedSet_of()
 	} else {
 		var refsBuilder ImmutableSortedSet_BuilderOf[*DisambiguateProperties_PropertyReferenceJson] = ImmutableSortedSet_naturalOrder()
-		for e := range elemsBy_(prop.getUseSites().asMap().entrySet(), icast_Map_Entry) {
-			refsBuilder.add(obj_(new_DisambiguateProperties_PropertyReferenceJson(Node_of_(e.getKey()), cast_[*ColorGraphNode](e.getValue()))))
+		for eKey, eValue := range prop.getUseSites().All() {
+			refsBuilder.add(obj_(new_DisambiguateProperties_PropertyReferenceJson(eKey, eValue)))
 		}
 		this.refs = refsBuilder.build()
 	}

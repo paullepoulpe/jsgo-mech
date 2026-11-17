@@ -430,9 +430,9 @@ func (this *PolymerClassRewriter) appendBehaviorPropertiesToBlock(cls *PolymerCl
 	if ((cls.behaviors == nil) || len(cls.behaviors) == 0) || (cls.behaviorProps == nil) {
 		return
 	}
-	for itr := range elemsBy_(cls.behaviorProps.asMap().entrySet(), icast_Map_Entry) {
-		var behavior *PolymerBehaviorExtractor_BehaviorDefinition = cast_[*PolymerBehaviorExtractor_BehaviorDefinition](itr.getValue())
-		var prop *PolymerPass_MemberDefinition = cast_[*PolymerPass_MemberDefinition](itr.getKey())
+	for itrKey, itrValue := range cls.behaviorProps.All() {
+		var behavior *PolymerBehaviorExtractor_BehaviorDefinition = itrValue
+		var prop *PolymerPass_MemberDefinition = itrKey
 		var propertyNode Node = this.getPropertyNode(prop, basePath)
 		if propertyNode == 0 {
 			continue

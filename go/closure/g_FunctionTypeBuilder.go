@@ -505,9 +505,9 @@ func (this *FunctionTypeBuilder) buildTemplateTypesFromJSDocInfo(info *JSDocInfo
 			templatesToBounds.put(this.typeRegistry.createTemplateType_2(str_(entry.getKey()), typeBound), typeBound)
 		}
 	}
-	for entry := range elemsBy_(templatesToBounds.asMap().entrySet(), icast_Map_Entry) {
-		var template *TemplateType = cast_[*TemplateType](entry.getKey())
-		var bound *JSType = to_JSType(entry.getValue())
+	for entryKey, entryValue := range templatesToBounds.All() {
+		var template *TemplateType = entryKey
+		var bound *JSType = entryValue
 		template.setBound(bound)
 		templates.add(obj_(template))
 	}

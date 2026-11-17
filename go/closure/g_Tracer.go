@@ -554,10 +554,10 @@ func (this *Tracer_ThreadTrace) toString() string {
 			sb.append("  ").append_Object(obj_(t)).append(" (").append_long((now - t.startTimeMs)).append(" ms, started at ").append(Tracer_formatTime(t.startTimeMs)).append(")\n")
 		}
 	}
-	for statEntry := range elemsBy_(this.stats.asMap().entrySet(), icast_Map_Entry) {
-		var stat *Tracer_Stat = cast_[*Tracer_Stat](statEntry.getValue())
+	for statEntryKey, statEntryValue := range this.stats.All() {
+		var stat *Tracer_Stat = statEntryValue
 		if stat.count_ > 1 {
-			sb.append(" TOTAL ").append(str_(statEntry.getKey())).append(" ").append_int(stat.count_).append(" (").append_int(stat.clockTime).append(" ms")
+			sb.append(" TOTAL ").append(statEntryKey).append(" ").append_int(stat.count_).append(" (").append_int(stat.clockTime).append(" ms")
 			if stat.extraInfo != nil {
 				for i := int32(0); i < int32(len(stat.extraInfo)); i++ {
 					sb.append("; ")
