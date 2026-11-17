@@ -16,12 +16,10 @@ func new_TranspilationPasses() *TranspilationPasses {
 }
 
 func TranspilationPasses_addEs6ModulePass(passes *PassListBuilder, preprocessorTableFactory *PreprocessorSymbolTable_CachedInstanceFactory) {
-	passes.maybeAdd(PassFactory_builder().setName("es6RewriteModule").setInternalFactory(&Function_fn{func(compiler_ any) any {
-		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
-		_ = compiler
+	passes.maybeAdd(PassFactory_builder().setName("es6RewriteModule").setInternalFactory(newFuncObj_(func(compiler *AbstractCompiler) CompilerPass {
 		preprocessorTableFactory.maybeInitialize(compiler)
-		return obj_(new_Es6RewriteModules_AbstractCompiler_ModuleMetadataMap_ModuleMap_PreprocessorSymbolTable_TypedScope_ChunkOutputType(compiler, compiler.getModuleMetadataMap(), compiler.getModuleMap(), preprocessorTableFactory.getInstanceOrNull(), compiler.getTopScope(), compiler.getOptions().getChunkOutputType()))
-	}}).build())
+		return new_Es6RewriteModules_AbstractCompiler_ModuleMetadataMap_ModuleMap_PreprocessorSymbolTable_TypedScope_ChunkOutputType(compiler, compiler.getModuleMetadataMap(), compiler.getModuleMap(), preprocessorTableFactory.getInstanceOrNull(), compiler.getTopScope(), compiler.getOptions().getChunkOutputType())
+	})).build())
 }
 
 func TranspilationPasses_addTranspilationRuntimeLibraries(passes *PassListBuilder) {
@@ -108,11 +106,9 @@ func TranspilationPasses_addRewritePolyfillPass(passes *PassListBuilder) {
 }
 
 func TranspilationPasses_getEs6RewriteDestructuring(rewriteMode Es6RewriteDestructuring_ObjectDestructuringRewriteMode) *PassFactory {
-	return PassFactory_builder().setName("Es6RewriteDestructuring").setInternalFactory(&Function_fn{func(compiler_ any) any {
-		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
-		_ = compiler
-		return obj_(new_Es6RewriteDestructuring_Builder(compiler).setDestructuringRewriteMode(rewriteMode).build())
-	}}).build()
+	return PassFactory_builder().setName("Es6RewriteDestructuring").setInternalFactory(newFuncObj_(func(compiler *AbstractCompiler) CompilerPass {
+		return icast_CompilerPass(obj_(new_Es6RewriteDestructuring_Builder(compiler).setDestructuringRewriteMode(rewriteMode).build()))
+	})).build()
 }
 
 func TranspilationPasses_doesScriptHaveAnyOfTheseFeatures(script Node, featureSet *FeatureSet) bool {
@@ -169,13 +165,11 @@ func TranspilationPasses_postTranspileCheckUnsupportedFeaturesRemoved(compiler *
 }
 
 func TranspilationPasses_createFeatureRemovalPass(passName string, featuresToRemove *FeatureSet) *PassFactory {
-	return PassFactory_builder().setName(passName).setInternalFactory(&Function_fn{func(compiler_ any) any {
-		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
-		_ = compiler
-		return any(&CompilerPass_fn{func(externs Node, root Node) {
+	return PassFactory_builder().setName(passName).setInternalFactory(newFuncObj_(func(compiler *AbstractCompiler) CompilerPass {
+		return &CompilerPass_fn{func(externs Node, root Node) {
 			TranspilationPasses_maybeMarkFeaturesAsTranspiledAway(compiler, root, featuresToRemove)
-		}})
-	}}).build()
+		}}
+	})).build()
 }
 
 func TranspilationPasses_createPostTranspileUnsupportedFeaturesRemovedCheck(passName string) *PassFactory {
@@ -183,13 +177,11 @@ func TranspilationPasses_createPostTranspileUnsupportedFeaturesRemovedCheck(pass
 }
 
 // lambda_TranspilationPasses_createPostTranspileUnsupportedFeaturesRemovedCheck_1_ is a lambda of TranspilationPasses_createPostTranspileUnsupportedFeaturesRemovedCheck that captures nothing (post-flip step lambdas).
-var lambda_TranspilationPasses_createPostTranspileUnsupportedFeaturesRemovedCheck_1_ = &Function_fn{func(compiler_ any) any {
-	var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
-	_ = compiler
-	return any(&CompilerPass_fn{func(externs Node, root Node) {
+var lambda_TranspilationPasses_createPostTranspileUnsupportedFeaturesRemovedCheck_1_ = newFuncObj_(func(compiler *AbstractCompiler) CompilerPass {
+	return &CompilerPass_fn{func(externs Node, root Node) {
 		TranspilationPasses_postTranspileCheckUnsupportedFeaturesRemoved(compiler)
-	}})
-}}
+	}}
+})
 
 func TranspilationPasses_createUnifiedFeatureRemovalPass(passName string, options *CompilerOptions) *PassFactory {
 	var featuresToMarkRemoved *FeatureSet = FeatureSet_BARE_MINIMUM
@@ -278,9 +270,7 @@ func TranspilationPasses_clinit() {
 }
 
 // lambda_TranspilationPasses_clinit_1_ is a lambda of TranspilationPasses_clinit that captures nothing (post-flip step lambdas).
-var lambda_TranspilationPasses_clinit_1_ = &Function_fn{func(compiler_ any) any {
-	var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
-	_ = compiler
+var lambda_TranspilationPasses_clinit_1_ = newFuncObj_(func(compiler *AbstractCompiler) CompilerPass {
 	var peepholeTranspilations []*AbstractPeepholeTranspilation = []*AbstractPeepholeTranspilation{}
 	peepholeTranspilations = append(peepholeTranspilations, new_ReportUntranspilableFeatures(compiler, compiler.getOptions().getBrowserFeaturesetYearObject(), compiler.getOptions().getOutputFeatureSet()).as_AbstractPeepholeTranspilation())
 	if compiler.getOptions().needsTranspilationOf(FeatureSet_Feature_OPTIONAL_CATCH_BINDING) {
@@ -292,90 +282,88 @@ var lambda_TranspilationPasses_clinit_1_ = &Function_fn{func(compiler_ any) any 
 	if compiler.getOptions().needsTranspilationOf(FeatureSet_Feature_NEW_TARGET) {
 		peepholeTranspilations = append(peepholeTranspilations, new_RewriteNewDotTarget(compiler).as_AbstractPeepholeTranspilation())
 	}
-	return obj_(PeepholeTranspilationsPass_create(compiler, peepholeTranspilations))
-}}
+	return icast_CompilerPass(obj_(PeepholeTranspilationsPass_create(compiler, peepholeTranspilations)))
+})
 
 // lambda_TranspilationPasses_clinit_2_ is a lambda of TranspilationPasses_clinit that captures nothing (post-flip step lambdas).
-var lambda_TranspilationPasses_clinit_2_ = &Function_fn{func(p0 any) any { return obj_(new_Es6RewriteModulesToCommonJsModules(to_AbstractCompiler(p0))) }}
+var lambda_TranspilationPasses_clinit_2_ = newFuncObj_(func(p0 *AbstractCompiler) CompilerPass { return new_Es6RewriteModulesToCommonJsModules(p0) })
 
 // lambda_TranspilationPasses_clinit_3_ is a lambda of TranspilationPasses_clinit that captures nothing (post-flip step lambdas).
-var lambda_TranspilationPasses_clinit_3_ = &Function_fn{func(p0 any) any { return obj_(new_Es6RelativizeImportPaths(to_AbstractCompiler(p0))) }}
+var lambda_TranspilationPasses_clinit_3_ = newFuncObj_(func(p0 *AbstractCompiler) CompilerPass { return new_Es6RelativizeImportPaths(p0) })
 
 // lambda_TranspilationPasses_clinit_4_ is a lambda of TranspilationPasses_clinit that captures nothing (post-flip step lambdas).
-var lambda_TranspilationPasses_clinit_4_ = &Function_fn{func(p0 any) any { return obj_(RewriteAsyncFunctions_create(to_AbstractCompiler(p0))) }}
+var lambda_TranspilationPasses_clinit_4_ = newFuncObj_(func(p0 *AbstractCompiler) CompilerPass {
+	return icast_CompilerPass(obj_(RewriteAsyncFunctions_create(p0)))
+})
 
 // lambda_TranspilationPasses_clinit_5_ is a lambda of TranspilationPasses_clinit that captures nothing (post-flip step lambdas).
-var lambda_TranspilationPasses_clinit_5_ = &Function_fn{func(p0 any) any { return obj_(RewriteAsyncIteration_create(to_AbstractCompiler(p0))) }}
+var lambda_TranspilationPasses_clinit_5_ = newFuncObj_(func(p0 *AbstractCompiler) CompilerPass {
+	return icast_CompilerPass(obj_(RewriteAsyncIteration_create(p0)))
+})
 
 // lambda_TranspilationPasses_clinit_6_ is a lambda of TranspilationPasses_clinit that captures nothing (post-flip step lambdas).
-var lambda_TranspilationPasses_clinit_6_ = &Function_fn{func(p0 any) any { return obj_(new_RewriteObjectSpread(to_AbstractCompiler(p0))) }}
+var lambda_TranspilationPasses_clinit_6_ = newFuncObj_(func(p0 *AbstractCompiler) CompilerPass { return new_RewriteObjectSpread(p0) })
 
 // lambda_TranspilationPasses_clinit_7_ is a lambda of TranspilationPasses_clinit that captures nothing (post-flip step lambdas).
-var lambda_TranspilationPasses_clinit_7_ = &Function_fn{func(p0 any) any { return obj_(new_Es7RewriteExponentialOperator(to_AbstractCompiler(p0))) }}
+var lambda_TranspilationPasses_clinit_7_ = newFuncObj_(func(p0 *AbstractCompiler) CompilerPass { return new_Es7RewriteExponentialOperator(p0) })
 
 // lambda_TranspilationPasses_clinit_8_ is a lambda of TranspilationPasses_clinit that captures nothing (post-flip step lambdas).
-var lambda_TranspilationPasses_clinit_8_ = &Function_fn{func(p0 any) any { return obj_(new_Es6NormalizeClasses(to_AbstractCompiler(p0))) }}
+var lambda_TranspilationPasses_clinit_8_ = newFuncObj_(func(p0 *AbstractCompiler) CompilerPass { return new_Es6NormalizeClasses(p0) })
 
 // lambda_TranspilationPasses_clinit_9_ is a lambda of TranspilationPasses_clinit that captures nothing (post-flip step lambdas).
-var lambda_TranspilationPasses_clinit_9_ = &Function_fn{func(compiler_ any) any {
-	var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
-	_ = compiler
-	return obj_(new_Es6RewriteClass(compiler, compiler.getOptions().getEs6SubclassTranspilation()))
-}}
+var lambda_TranspilationPasses_clinit_9_ = newFuncObj_(func(compiler *AbstractCompiler) CompilerPass {
+	return new_Es6RewriteClass(compiler, compiler.getOptions().getEs6SubclassTranspilation())
+})
 
 // lambda_TranspilationPasses_clinit_10_ is a lambda of TranspilationPasses_clinit that captures nothing (post-flip step lambdas).
-var lambda_TranspilationPasses_clinit_10_ = &Function_fn{func(p0 any) any { return obj_(new_Es6RewriteArrowFunction(to_AbstractCompiler(p0))) }}
+var lambda_TranspilationPasses_clinit_10_ = newFuncObj_(func(p0 *AbstractCompiler) CompilerPass { return new_Es6RewriteArrowFunction(p0) })
 
 // lambda_TranspilationPasses_clinit_11_ is a lambda of TranspilationPasses_clinit that captures nothing (post-flip step lambdas).
-var lambda_TranspilationPasses_clinit_11_ = &Function_fn{func(compiler_ any) any {
-	var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
-	_ = compiler
-	return obj_(new_RewritePolyfills_AbstractCompiler_boolean_boolean_LanguageMode_boolean(compiler, compiler.getOptions().getRewritePolyfills(), compiler.getOptions().getIsolatePolyfills(), compiler.getOptions().getInjectPolyfillsNewerThan(), compiler.getOptions().shouldDisambiguateProperties()))
-}}
+var lambda_TranspilationPasses_clinit_11_ = newFuncObj_(func(compiler *AbstractCompiler) CompilerPass {
+	return new_RewritePolyfills_AbstractCompiler_boolean_boolean_LanguageMode_boolean(compiler, compiler.getOptions().getRewritePolyfills(), compiler.getOptions().getIsolatePolyfills(), compiler.getOptions().getInjectPolyfillsNewerThan(), compiler.getOptions().shouldDisambiguateProperties())
+})
 
 // lambda_TranspilationPasses_clinit_12_ is a lambda of TranspilationPasses_clinit that captures nothing (post-flip step lambdas).
-var lambda_TranspilationPasses_clinit_12_ = &Function_fn{func(compiler_ any) any {
-	var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
-	_ = compiler
-	return obj_(new_InstrumentAsyncContext(compiler, compiler.getOptions().getOutputFeatureSet().contains(FeatureSet_Feature_ASYNC_FUNCTIONS)))
-}}
+var lambda_TranspilationPasses_clinit_12_ = newFuncObj_(func(compiler *AbstractCompiler) CompilerPass {
+	return new_InstrumentAsyncContext(compiler, compiler.getOptions().getOutputFeatureSet().contains(FeatureSet_Feature_ASYNC_FUNCTIONS))
+})
 
 // lambda_TranspilationPasses_clinit_13_ is a lambda of TranspilationPasses_clinit that captures nothing (post-flip step lambdas).
-var lambda_TranspilationPasses_clinit_13_ = &Function_fn{func(p0 any) any { return obj_(new_Es6ConvertSuper(to_AbstractCompiler(p0))) }}
+var lambda_TranspilationPasses_clinit_13_ = newFuncObj_(func(p0 *AbstractCompiler) CompilerPass { return new_Es6ConvertSuper(p0) })
 
 // lambda_TranspilationPasses_clinit_14_ is a lambda of TranspilationPasses_clinit that captures nothing (post-flip step lambdas).
-var lambda_TranspilationPasses_clinit_14_ = &Function_fn{func(p0 any) any {
-	return obj_(new_InjectTranspilationRuntimeLibraries_AbstractCompiler(to_AbstractCompiler(p0)))
-}}
+var lambda_TranspilationPasses_clinit_14_ = newFuncObj_(func(p0 *AbstractCompiler) CompilerPass {
+	return new_InjectTranspilationRuntimeLibraries_AbstractCompiler(p0)
+})
 
 // lambda_TranspilationPasses_clinit_15_ is a lambda of TranspilationPasses_clinit that captures nothing (post-flip step lambdas).
-var lambda_TranspilationPasses_clinit_15_ = &Function_fn{func(p0 any) any { return obj_(new_Es6RewriteRestParameters(to_AbstractCompiler(p0))) }}
+var lambda_TranspilationPasses_clinit_15_ = newFuncObj_(func(p0 *AbstractCompiler) CompilerPass { return new_Es6RewriteRestParameters(p0) })
 
 // lambda_TranspilationPasses_clinit_16_ is a lambda of TranspilationPasses_clinit that captures nothing (post-flip step lambdas).
-var lambda_TranspilationPasses_clinit_16_ = &Function_fn{func(p0 any) any { return obj_(new_Es6RewriteSpreadExpressions(to_AbstractCompiler(p0))) }}
+var lambda_TranspilationPasses_clinit_16_ = newFuncObj_(func(p0 *AbstractCompiler) CompilerPass { return new_Es6RewriteSpreadExpressions(p0) })
 
 // lambda_TranspilationPasses_clinit_17_ is a lambda of TranspilationPasses_clinit that captures nothing (post-flip step lambdas).
-var lambda_TranspilationPasses_clinit_17_ = &Function_fn{func(p0 any) any { return obj_(new_LateEs6ToEs3Converter(to_AbstractCompiler(p0))) }}
+var lambda_TranspilationPasses_clinit_17_ = newFuncObj_(func(p0 *AbstractCompiler) CompilerPass { return new_LateEs6ToEs3Converter(p0) })
 
 // lambda_TranspilationPasses_clinit_18_ is a lambda of TranspilationPasses_clinit that captures nothing (post-flip step lambdas).
-var lambda_TranspilationPasses_clinit_18_ = &Function_fn{func(p0 any) any { return obj_(new_Es6ForOfConverter(to_AbstractCompiler(p0))) }}
+var lambda_TranspilationPasses_clinit_18_ = newFuncObj_(func(p0 *AbstractCompiler) CompilerPass { return new_Es6ForOfConverter(p0) })
 
 // lambda_TranspilationPasses_clinit_19_ is a lambda of TranspilationPasses_clinit that captures nothing (post-flip step lambdas).
-var lambda_TranspilationPasses_clinit_19_ = &Function_fn{func(p0 any) any { return obj_(new_Es6RewriteBlockScopedFunctionDeclaration(to_AbstractCompiler(p0))) }}
+var lambda_TranspilationPasses_clinit_19_ = newFuncObj_(func(p0 *AbstractCompiler) CompilerPass { return new_Es6RewriteBlockScopedFunctionDeclaration(p0) })
 
 // lambda_TranspilationPasses_clinit_20_ is a lambda of TranspilationPasses_clinit that captures nothing (post-flip step lambdas).
-var lambda_TranspilationPasses_clinit_20_ = &Function_fn{func(p0 any) any { return obj_(new_Es6RewriteBlockScopedDeclaration(to_AbstractCompiler(p0))) }}
+var lambda_TranspilationPasses_clinit_20_ = newFuncObj_(func(p0 *AbstractCompiler) CompilerPass { return new_Es6RewriteBlockScopedDeclaration(p0) })
 
 // lambda_TranspilationPasses_clinit_21_ is a lambda of TranspilationPasses_clinit that captures nothing (post-flip step lambdas).
-var lambda_TranspilationPasses_clinit_21_ = &Function_fn{func(p0 any) any { return obj_(new_Es6RewriteGenerators(to_AbstractCompiler(p0))) }}
+var lambda_TranspilationPasses_clinit_21_ = newFuncObj_(func(p0 *AbstractCompiler) CompilerPass { return new_Es6RewriteGenerators(p0) })
 
 // lambda_TranspilationPasses_clinit_22_ is a lambda of TranspilationPasses_clinit that captures nothing (post-flip step lambdas).
-var lambda_TranspilationPasses_clinit_22_ = &Function_fn{func(p0 any) any { return obj_(new_RewriteLogicalAssignmentOperatorsPass(to_AbstractCompiler(p0))) }}
+var lambda_TranspilationPasses_clinit_22_ = newFuncObj_(func(p0 *AbstractCompiler) CompilerPass { return new_RewriteLogicalAssignmentOperatorsPass(p0) })
 
 // lambda_TranspilationPasses_clinit_23_ is a lambda of TranspilationPasses_clinit that captures nothing (post-flip step lambdas).
-var lambda_TranspilationPasses_clinit_23_ = &Function_fn{func(p0 any) any {
-	return obj_(new_RewriteOptionalChainingOperator_AbstractCompiler(to_AbstractCompiler(p0)))
-}}
+var lambda_TranspilationPasses_clinit_23_ = newFuncObj_(func(p0 *AbstractCompiler) CompilerPass {
+	return new_RewriteOptionalChainingOperator_AbstractCompiler(p0)
+})
 
 // lambda_TranspilationPasses_clinit_24_ is a lambda of TranspilationPasses_clinit that captures nothing (post-flip step lambdas).
-var lambda_TranspilationPasses_clinit_24_ = &Function_fn{func(p0 any) any { return obj_(new_RewriteNullishCoalesceOperator(to_AbstractCompiler(p0))) }}
+var lambda_TranspilationPasses_clinit_24_ = newFuncObj_(func(p0 *AbstractCompiler) CompilerPass { return new_RewriteNullishCoalesceOperator(p0) })

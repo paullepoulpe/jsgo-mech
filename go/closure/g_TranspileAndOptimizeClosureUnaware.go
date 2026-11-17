@@ -71,11 +71,9 @@ func (this *TranspileAndOptimizeClosureUnaware) createInjectRuntimeLibrariesPass
 		var closureUnawareFunction Node = NodeUtil_findPreorder(shadowAst.script(), lambda_TranspileAndOptimizeClosureUnaware_createInjectRuntimeLibrariesPass_1_, lambda_TranspileAndOptimizeClosureUnaware_createInjectRuntimeLibrariesPass_2_)
 		callSites.add(obj_(new_InjectClosureUnawareRuntimeLibraries_ClosureUnawareCallSite(shadowAst.callNode(), closureUnawareFunction)))
 	}
-	return PassFactory_builder().setName("injectClosureUnawareRuntimeLibs").setInternalFactory(&Function_fn{func(compiler_ any) any {
-		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
-		_ = compiler
-		return obj_(new_InjectClosureUnawareRuntimeLibraries(this.original_, compiler, sliceImm_(tc_p_InjectClosureUnawareRuntimeLibraries_ClosureUnawareCallSite, callSites.build())))
-	}}).build()
+	return PassFactory_builder().setName("injectClosureUnawareRuntimeLibs").setInternalFactory(newFuncObj_(func(compiler *AbstractCompiler) CompilerPass {
+		return new_InjectClosureUnawareRuntimeLibraries(this.original_, compiler, sliceImm_(tc_p_InjectClosureUnawareRuntimeLibraries_ClosureUnawareCallSite, callSites.build()))
+	})).build()
 }
 
 // lambda_TranspileAndOptimizeClosureUnaware_createInjectRuntimeLibrariesPass_1_ is a lambda of TranspileAndOptimizeClosureUnaware_createInjectRuntimeLibrariesPass that captures nothing (post-flip step lambdas).
