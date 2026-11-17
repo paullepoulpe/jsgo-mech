@@ -6,6 +6,7 @@ package closure
 import (
 	"fmt"
 	"math"
+	"reflect"
 	"strconv"
 )
 
@@ -194,7 +195,8 @@ func unbox_[T any](v any) T {
 		}
 	}
 	if out == nil {
-		panic(fmt.Sprintf("unbox_: %T is not %T", v, z))
+		// Only v's type: a box passed to unbox_ need not escape to the heap.
+		panic(fmt.Sprintf("unbox_: %v is not %T", reflect.TypeOf(v), z))
 	}
 	return out.(T)
 }
