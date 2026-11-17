@@ -170,6 +170,12 @@ type J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_J2clProperty_I inter
 	remove_impl()
 }
 
+// J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_J2clProperty_as is implemented by J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_J2clProperty and the classes that extend it: a cast to J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_J2clProperty asserts to it
+// (post-flip).
+type J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_J2clProperty_as interface {
+	as_J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_J2clProperty() *J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_J2clProperty
+}
+
 func (this *J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_J2clProperty) as_J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_J2clProperty() *J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_J2clProperty {
 	return this
 }
@@ -183,16 +189,7 @@ func to_J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_J2clProperty(v an
 	case nil:
 		return nil
 	}
-	return v.(interface {
-		as_J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_J2clProperty() *J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_J2clProperty
-	}).as_J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_J2clProperty()
-}
-
-func is_J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_J2clProperty(v any) bool {
-	_, ok := v.(interface {
-		as_J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_J2clProperty() *J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_J2clProperty
-	})
-	return ok
+	return v.(J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_J2clProperty_as).as_J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_J2clProperty()
 }
 
 func (this *J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_J2clProperty) self() any {

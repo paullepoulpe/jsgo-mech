@@ -11,23 +11,6 @@ type LinkedDirectedGraph struct {
 
 func (this *LinkedDirectedGraph) as_LinkedDirectedGraph() *LinkedDirectedGraph { return this }
 
-func to_LinkedDirectedGraph(v any) *LinkedDirectedGraph {
-	switch p := v.(type) {
-	case *LinkedDirectedGraph:
-		return p
-	case *ControlFlowAnalysis_AstControlFlowGraph:
-		return p.as_LinkedDirectedGraph()
-	case nil:
-		return nil
-	}
-	return v.(interface{ as_LinkedDirectedGraph() *LinkedDirectedGraph }).as_LinkedDirectedGraph()
-}
-
-func is_LinkedDirectedGraph(v any) bool {
-	_, ok := v.(interface{ as_LinkedDirectedGraph() *LinkedDirectedGraph })
-	return ok
-}
-
 func (this *LinkedDirectedGraph) self() any {
 	if this == nil {
 		return nil
@@ -397,6 +380,12 @@ type LinkedDirectedGraph_LinkedDiGraphNode_I interface {
 	setAnnotation_impl(Annotation_graph)
 }
 
+// LinkedDirectedGraph_LinkedDiGraphNode_as is implemented by LinkedDirectedGraph_LinkedDiGraphNode and the classes that extend it: a cast to LinkedDirectedGraph_LinkedDiGraphNode asserts to it
+// (post-flip).
+type LinkedDirectedGraph_LinkedDiGraphNode_as interface {
+	as_LinkedDirectedGraph_LinkedDiGraphNode() *LinkedDirectedGraph_LinkedDiGraphNode
+}
+
 func (this *LinkedDirectedGraph_LinkedDiGraphNode) as_LinkedDirectedGraph_LinkedDiGraphNode() *LinkedDirectedGraph_LinkedDiGraphNode {
 	return this
 }
@@ -410,16 +399,7 @@ func to_LinkedDirectedGraph_LinkedDiGraphNode(v any) *LinkedDirectedGraph_Linked
 	case nil:
 		return nil
 	}
-	return v.(interface {
-		as_LinkedDirectedGraph_LinkedDiGraphNode() *LinkedDirectedGraph_LinkedDiGraphNode
-	}).as_LinkedDirectedGraph_LinkedDiGraphNode()
-}
-
-func is_LinkedDirectedGraph_LinkedDiGraphNode(v any) bool {
-	_, ok := v.(interface {
-		as_LinkedDirectedGraph_LinkedDiGraphNode() *LinkedDirectedGraph_LinkedDiGraphNode
-	})
-	return ok
+	return v.(LinkedDirectedGraph_LinkedDiGraphNode_as).as_LinkedDirectedGraph_LinkedDiGraphNode()
 }
 
 func (this *LinkedDirectedGraph_LinkedDiGraphNode) self() any {
@@ -562,6 +542,12 @@ type LinkedDirectedGraph_LinkedDiGraphEdge_I interface {
 	setAnnotation_impl(Annotation_graph)
 }
 
+// LinkedDirectedGraph_LinkedDiGraphEdge_as is implemented by LinkedDirectedGraph_LinkedDiGraphEdge and the classes that extend it: a cast to LinkedDirectedGraph_LinkedDiGraphEdge asserts to it
+// (post-flip).
+type LinkedDirectedGraph_LinkedDiGraphEdge_as interface {
+	as_LinkedDirectedGraph_LinkedDiGraphEdge() *LinkedDirectedGraph_LinkedDiGraphEdge
+}
+
 func (this *LinkedDirectedGraph_LinkedDiGraphEdge) as_LinkedDirectedGraph_LinkedDiGraphEdge() *LinkedDirectedGraph_LinkedDiGraphEdge {
 	return this
 }
@@ -575,16 +561,7 @@ func to_LinkedDirectedGraph_LinkedDiGraphEdge(v any) *LinkedDirectedGraph_Linked
 	case nil:
 		return nil
 	}
-	return v.(interface {
-		as_LinkedDirectedGraph_LinkedDiGraphEdge() *LinkedDirectedGraph_LinkedDiGraphEdge
-	}).as_LinkedDirectedGraph_LinkedDiGraphEdge()
-}
-
-func is_LinkedDirectedGraph_LinkedDiGraphEdge(v any) bool {
-	_, ok := v.(interface {
-		as_LinkedDirectedGraph_LinkedDiGraphEdge() *LinkedDirectedGraph_LinkedDiGraphEdge
-	})
-	return ok
+	return v.(LinkedDirectedGraph_LinkedDiGraphEdge_as).as_LinkedDirectedGraph_LinkedDiGraphEdge()
 }
 
 func (this *LinkedDirectedGraph_LinkedDiGraphEdge) self() any {

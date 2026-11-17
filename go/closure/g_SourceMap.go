@@ -147,6 +147,12 @@ type SourceMap_Format_I interface {
 	getInstance_impl() *SourceMap
 }
 
+// SourceMap_Format_as is implemented by SourceMap_Format and the classes that extend it: a cast to SourceMap_Format asserts to it
+// (post-flip).
+type SourceMap_Format_as interface {
+	as_SourceMap_Format() *SourceMap_Format
+}
+
 func (this *SourceMap_Format) as_SourceMap_Format() *SourceMap_Format { return this }
 
 func to_SourceMap_Format(v any) *SourceMap_Format {
@@ -158,12 +164,7 @@ func to_SourceMap_Format(v any) *SourceMap_Format {
 	case nil:
 		return nil
 	}
-	return v.(interface{ as_SourceMap_Format() *SourceMap_Format }).as_SourceMap_Format()
-}
-
-func is_SourceMap_Format(v any) bool {
-	_, ok := v.(interface{ as_SourceMap_Format() *SourceMap_Format })
-	return ok
+	return v.(SourceMap_Format_as).as_SourceMap_Format()
 }
 
 func (this *SourceMap_Format) self() any {
@@ -231,23 +232,6 @@ type SourceMap_DetailLevel_I interface {
 }
 
 func (this *SourceMap_DetailLevel) as_SourceMap_DetailLevel() *SourceMap_DetailLevel { return this }
-
-func to_SourceMap_DetailLevel(v any) *SourceMap_DetailLevel {
-	switch p := v.(type) {
-	case *SourceMap_DetailLevel_1:
-		return p.as_SourceMap_DetailLevel()
-	case *SourceMap_DetailLevel_2:
-		return p.as_SourceMap_DetailLevel()
-	case nil:
-		return nil
-	}
-	return v.(interface{ as_SourceMap_DetailLevel() *SourceMap_DetailLevel }).as_SourceMap_DetailLevel()
-}
-
-func is_SourceMap_DetailLevel(v any) bool {
-	_, ok := v.(interface{ as_SourceMap_DetailLevel() *SourceMap_DetailLevel })
-	return ok
-}
 
 func (this *SourceMap_DetailLevel) self() any {
 	if this == nil {

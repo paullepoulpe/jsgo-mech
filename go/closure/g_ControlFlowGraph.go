@@ -8,6 +8,12 @@ type ControlFlowGraph struct {
 	entry          DiGraph_DiGraphNode
 }
 
+// ControlFlowGraph_as is implemented by ControlFlowGraph and the classes that extend it: a cast to ControlFlowGraph asserts to it
+// (post-flip).
+type ControlFlowGraph_as interface {
+	as_ControlFlowGraph() *ControlFlowGraph
+}
+
 func (this *ControlFlowGraph) as_ControlFlowGraph() *ControlFlowGraph { return this }
 
 func to_ControlFlowGraph(v any) *ControlFlowGraph {
@@ -17,12 +23,7 @@ func to_ControlFlowGraph(v any) *ControlFlowGraph {
 	case nil:
 		return nil
 	}
-	return v.(interface{ as_ControlFlowGraph() *ControlFlowGraph }).as_ControlFlowGraph()
-}
-
-func is_ControlFlowGraph(v any) bool {
-	_, ok := v.(interface{ as_ControlFlowGraph() *ControlFlowGraph })
-	return ok
+	return v.(ControlFlowGraph_as).as_ControlFlowGraph()
 }
 
 func (this *ControlFlowGraph) self() any {
@@ -208,22 +209,6 @@ type ControlFlowGraph_AbstractCfgNodeTraversalCallback_I interface {
 
 func (this *ControlFlowGraph_AbstractCfgNodeTraversalCallback) as_ControlFlowGraph_AbstractCfgNodeTraversalCallback() *ControlFlowGraph_AbstractCfgNodeTraversalCallback {
 	return this
-}
-
-func to_ControlFlowGraph_AbstractCfgNodeTraversalCallback(v any) *ControlFlowGraph_AbstractCfgNodeTraversalCallback {
-	if v == nil {
-		return nil
-	}
-	return v.(interface {
-		as_ControlFlowGraph_AbstractCfgNodeTraversalCallback() *ControlFlowGraph_AbstractCfgNodeTraversalCallback
-	}).as_ControlFlowGraph_AbstractCfgNodeTraversalCallback()
-}
-
-func is_ControlFlowGraph_AbstractCfgNodeTraversalCallback(v any) bool {
-	_, ok := v.(interface {
-		as_ControlFlowGraph_AbstractCfgNodeTraversalCallback() *ControlFlowGraph_AbstractCfgNodeTraversalCallback
-	})
-	return ok
 }
 
 func (this *ControlFlowGraph_AbstractCfgNodeTraversalCallback) self() any {

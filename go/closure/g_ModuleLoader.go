@@ -306,27 +306,6 @@ func (this *ModuleLoader_PathEscaper) as_ModuleLoader_PathEscaper() *ModuleLoade
 	return this
 }
 
-func to_ModuleLoader_PathEscaper(v any) *ModuleLoader_PathEscaper {
-	switch p := v.(type) {
-	case *ModuleLoader_PathEscaper_1:
-		return p.as_ModuleLoader_PathEscaper()
-	case *ModuleLoader_PathEscaper_2:
-		return p.as_ModuleLoader_PathEscaper()
-	case nil:
-		return nil
-	}
-	return v.(interface {
-		as_ModuleLoader_PathEscaper() *ModuleLoader_PathEscaper
-	}).as_ModuleLoader_PathEscaper()
-}
-
-func is_ModuleLoader_PathEscaper(v any) bool {
-	_, ok := v.(interface {
-		as_ModuleLoader_PathEscaper() *ModuleLoader_PathEscaper
-	})
-	return ok
-}
-
 func (this *ModuleLoader_PathEscaper) self() any {
 	if this == nil {
 		return nil
@@ -393,27 +372,6 @@ type ModuleLoader_PathResolver_I interface {
 
 func (this *ModuleLoader_PathResolver) as_ModuleLoader_PathResolver() *ModuleLoader_PathResolver {
 	return this
-}
-
-func to_ModuleLoader_PathResolver(v any) *ModuleLoader_PathResolver {
-	switch p := v.(type) {
-	case *ModuleLoader_PathResolver_1:
-		return p.as_ModuleLoader_PathResolver()
-	case *ModuleLoader_PathResolver_2:
-		return p.as_ModuleLoader_PathResolver()
-	case nil:
-		return nil
-	}
-	return v.(interface {
-		as_ModuleLoader_PathResolver() *ModuleLoader_PathResolver
-	}).as_ModuleLoader_PathResolver()
-}
-
-func is_ModuleLoader_PathResolver(v any) bool {
-	_, ok := v.(interface {
-		as_ModuleLoader_PathResolver() *ModuleLoader_PathResolver
-	})
-	return ok
 }
 
 func (this *ModuleLoader_PathResolver) self() any {

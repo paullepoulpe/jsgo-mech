@@ -924,18 +924,19 @@ type JSDocInfo_Property_I interface {
 	getTypeExpressions_impl(any) Iterable
 }
 
+// JSDocInfo_Property_as is implemented by JSDocInfo_Property and the classes that extend it: a cast to JSDocInfo_Property asserts to it
+// (post-flip).
+type JSDocInfo_Property_as interface {
+	as_JSDocInfo_Property() *JSDocInfo_Property
+}
+
 func (this *JSDocInfo_Property) as_JSDocInfo_Property() *JSDocInfo_Property { return this }
 
 func to_JSDocInfo_Property(v any) *JSDocInfo_Property {
 	if v == nil {
 		return nil
 	}
-	return v.(interface{ as_JSDocInfo_Property() *JSDocInfo_Property }).as_JSDocInfo_Property()
-}
-
-func is_JSDocInfo_Property(v any) bool {
-	_, ok := v.(interface{ as_JSDocInfo_Property() *JSDocInfo_Property })
-	return ok
+	return v.(JSDocInfo_Property_as).as_JSDocInfo_Property()
 }
 
 func (this *JSDocInfo_Property) self() any {
@@ -1827,22 +1828,6 @@ func (this *JSDocInfo_ComparableSourcePosition) as_JSDocInfo_ComparableSourcePos
 	return this
 }
 
-func to_JSDocInfo_ComparableSourcePosition(v any) *JSDocInfo_ComparableSourcePosition {
-	if v == nil {
-		return nil
-	}
-	return v.(interface {
-		as_JSDocInfo_ComparableSourcePosition() *JSDocInfo_ComparableSourcePosition
-	}).as_JSDocInfo_ComparableSourcePosition()
-}
-
-func is_JSDocInfo_ComparableSourcePosition(v any) bool {
-	_, ok := v.(interface {
-		as_JSDocInfo_ComparableSourcePosition() *JSDocInfo_ComparableSourcePosition
-	})
-	return ok
-}
-
 func (this *JSDocInfo_ComparableSourcePosition) self() any {
 	if this == nil {
 		return nil
@@ -1871,27 +1856,6 @@ type JSDocInfo_StringPosition struct {
 
 func (this *JSDocInfo_StringPosition) as_JSDocInfo_StringPosition() *JSDocInfo_StringPosition {
 	return this
-}
-
-func to_JSDocInfo_StringPosition(v any) *JSDocInfo_StringPosition {
-	switch p := v.(type) {
-	case *JSDocInfo_StringPosition:
-		return p
-	case *JSDocInfo_TrimmedStringPosition:
-		return p.as_JSDocInfo_StringPosition()
-	case nil:
-		return nil
-	}
-	return v.(interface {
-		as_JSDocInfo_StringPosition() *JSDocInfo_StringPosition
-	}).as_JSDocInfo_StringPosition()
-}
-
-func is_JSDocInfo_StringPosition(v any) bool {
-	_, ok := v.(interface {
-		as_JSDocInfo_StringPosition() *JSDocInfo_StringPosition
-	})
-	return ok
 }
 
 func (this *JSDocInfo_StringPosition) self() any {

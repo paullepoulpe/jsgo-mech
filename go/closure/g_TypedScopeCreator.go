@@ -622,29 +622,6 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) as_TypedScopeCreator_Abstrac
 	return this
 }
 
-func to_TypedScopeCreator_AbstractScopeBuilder(v any) *TypedScopeCreator_AbstractScopeBuilder {
-	switch p := v.(type) {
-	case *TypedScopeCreator_ClassScopeBuilder:
-		return p.as_TypedScopeCreator_AbstractScopeBuilder()
-	case *TypedScopeCreator_FunctionScopeBuilder:
-		return p.as_TypedScopeCreator_AbstractScopeBuilder()
-	case *TypedScopeCreator_NormalScopeBuilder:
-		return p.as_TypedScopeCreator_AbstractScopeBuilder()
-	case nil:
-		return nil
-	}
-	return v.(interface {
-		as_TypedScopeCreator_AbstractScopeBuilder() *TypedScopeCreator_AbstractScopeBuilder
-	}).as_TypedScopeCreator_AbstractScopeBuilder()
-}
-
-func is_TypedScopeCreator_AbstractScopeBuilder(v any) bool {
-	_, ok := v.(interface {
-		as_TypedScopeCreator_AbstractScopeBuilder() *TypedScopeCreator_AbstractScopeBuilder
-	})
-	return ok
-}
-
 func (this *TypedScopeCreator_AbstractScopeBuilder) self() any {
 	if this == nil {
 		return nil

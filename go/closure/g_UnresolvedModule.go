@@ -18,18 +18,19 @@ type UnresolvedModule_I interface {
 	resolve_2_impl(ModuleRequestResolver, OptionalOf[string]) *Module
 }
 
+// UnresolvedModule_as is implemented by UnresolvedModule and the classes that extend it: a cast to UnresolvedModule asserts to it
+// (post-flip).
+type UnresolvedModule_as interface {
+	as_UnresolvedModule() *UnresolvedModule
+}
+
 func (this *UnresolvedModule) as_UnresolvedModule() *UnresolvedModule { return this }
 
 func to_UnresolvedModule(v any) *UnresolvedModule {
 	if v == nil {
 		return nil
 	}
-	return v.(interface{ as_UnresolvedModule() *UnresolvedModule }).as_UnresolvedModule()
-}
-
-func is_UnresolvedModule(v any) bool {
-	_, ok := v.(interface{ as_UnresolvedModule() *UnresolvedModule })
-	return ok
+	return v.(UnresolvedModule_as).as_UnresolvedModule()
 }
 
 func (this *UnresolvedModule) self() any {

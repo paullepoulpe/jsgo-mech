@@ -248,6 +248,12 @@ type LinkedUndirectedGraph_LinkedUndirectedGraphNode_I interface {
 	setAnnotation_impl(Annotation_graph)
 }
 
+// LinkedUndirectedGraph_LinkedUndirectedGraphNode_as is implemented by LinkedUndirectedGraph_LinkedUndirectedGraphNode and the classes that extend it: a cast to LinkedUndirectedGraph_LinkedUndirectedGraphNode asserts to it
+// (post-flip).
+type LinkedUndirectedGraph_LinkedUndirectedGraphNode_as interface {
+	as_LinkedUndirectedGraph_LinkedUndirectedGraphNode() *LinkedUndirectedGraph_LinkedUndirectedGraphNode
+}
+
 func (this *LinkedUndirectedGraph_LinkedUndirectedGraphNode) as_LinkedUndirectedGraph_LinkedUndirectedGraphNode() *LinkedUndirectedGraph_LinkedUndirectedGraphNode {
 	return this
 }
@@ -261,16 +267,7 @@ func to_LinkedUndirectedGraph_LinkedUndirectedGraphNode(v any) *LinkedUndirected
 	case nil:
 		return nil
 	}
-	return v.(interface {
-		as_LinkedUndirectedGraph_LinkedUndirectedGraphNode() *LinkedUndirectedGraph_LinkedUndirectedGraphNode
-	}).as_LinkedUndirectedGraph_LinkedUndirectedGraphNode()
-}
-
-func is_LinkedUndirectedGraph_LinkedUndirectedGraphNode(v any) bool {
-	_, ok := v.(interface {
-		as_LinkedUndirectedGraph_LinkedUndirectedGraphNode() *LinkedUndirectedGraph_LinkedUndirectedGraphNode
-	})
-	return ok
+	return v.(LinkedUndirectedGraph_LinkedUndirectedGraphNode_as).as_LinkedUndirectedGraph_LinkedUndirectedGraphNode()
 }
 
 func (this *LinkedUndirectedGraph_LinkedUndirectedGraphNode) self() any {
@@ -397,27 +394,6 @@ type LinkedUndirectedGraph_LinkedUndirectedGraphEdge_I interface {
 
 func (this *LinkedUndirectedGraph_LinkedUndirectedGraphEdge) as_LinkedUndirectedGraph_LinkedUndirectedGraphEdge() *LinkedUndirectedGraph_LinkedUndirectedGraphEdge {
 	return this
-}
-
-func to_LinkedUndirectedGraph_LinkedUndirectedGraphEdge(v any) *LinkedUndirectedGraph_LinkedUndirectedGraphEdge {
-	switch p := v.(type) {
-	case *LinkedUndirectedGraph_LinkedUndirectedGraphEdge:
-		return p
-	case *LinkedUndirectedGraph_AnnotatedLinkedUndirectedGraphEdge:
-		return p.as_LinkedUndirectedGraph_LinkedUndirectedGraphEdge()
-	case nil:
-		return nil
-	}
-	return v.(interface {
-		as_LinkedUndirectedGraph_LinkedUndirectedGraphEdge() *LinkedUndirectedGraph_LinkedUndirectedGraphEdge
-	}).as_LinkedUndirectedGraph_LinkedUndirectedGraphEdge()
-}
-
-func is_LinkedUndirectedGraph_LinkedUndirectedGraphEdge(v any) bool {
-	_, ok := v.(interface {
-		as_LinkedUndirectedGraph_LinkedUndirectedGraphEdge() *LinkedUndirectedGraph_LinkedUndirectedGraphEdge
-	})
-	return ok
 }
 
 func (this *LinkedUndirectedGraph_LinkedUndirectedGraphEdge) self() any {

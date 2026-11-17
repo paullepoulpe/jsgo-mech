@@ -19,18 +19,19 @@ type PotentialDeclaration_I interface {
 	simplify_impl(*AbstractCompiler)
 }
 
+// PotentialDeclaration_as is implemented by PotentialDeclaration and the classes that extend it: a cast to PotentialDeclaration asserts to it
+// (post-flip).
+type PotentialDeclaration_as interface {
+	as_PotentialDeclaration() *PotentialDeclaration
+}
+
 func (this *PotentialDeclaration) as_PotentialDeclaration() *PotentialDeclaration { return this }
 
 func to_PotentialDeclaration(v any) *PotentialDeclaration {
 	if v == nil {
 		return nil
 	}
-	return v.(interface{ as_PotentialDeclaration() *PotentialDeclaration }).as_PotentialDeclaration()
-}
-
-func is_PotentialDeclaration(v any) bool {
-	_, ok := v.(interface{ as_PotentialDeclaration() *PotentialDeclaration })
-	return ok
+	return v.(PotentialDeclaration_as).as_PotentialDeclaration()
 }
 
 func (this *PotentialDeclaration) self() any {

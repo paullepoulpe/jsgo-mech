@@ -15,18 +15,6 @@ type ErrorFormat_I interface {
 
 func (this *ErrorFormat) as_ErrorFormat() *ErrorFormat { return this }
 
-func to_ErrorFormat(v any) *ErrorFormat {
-	if v == nil {
-		return nil
-	}
-	return v.(interface{ as_ErrorFormat() *ErrorFormat }).as_ErrorFormat()
-}
-
-func is_ErrorFormat(v any) bool {
-	_, ok := v.(interface{ as_ErrorFormat() *ErrorFormat })
-	return ok
-}
-
 func (this *ErrorFormat) self() any {
 	if this == nil {
 		return nil

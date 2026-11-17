@@ -99,22 +99,6 @@ func (this *CheckClosureImports_ClosureImport) as_CheckClosureImports_ClosureImp
 	return this
 }
 
-func to_CheckClosureImports_ClosureImport(v any) *CheckClosureImports_ClosureImport {
-	if v == nil {
-		return nil
-	}
-	return v.(interface {
-		as_CheckClosureImports_ClosureImport() *CheckClosureImports_ClosureImport
-	}).as_CheckClosureImports_ClosureImport()
-}
-
-func is_CheckClosureImports_ClosureImport(v any) bool {
-	_, ok := v.(interface {
-		as_CheckClosureImports_ClosureImport() *CheckClosureImports_ClosureImport
-	})
-	return ok
-}
-
 func (this *CheckClosureImports_ClosureImport) self() any {
 	if this == nil {
 		return nil

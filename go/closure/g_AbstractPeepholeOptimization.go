@@ -16,6 +16,12 @@ type AbstractPeepholeOptimization_I interface {
 	optimizeSubtree_impl(Node) Node
 }
 
+// AbstractPeepholeOptimization_as is implemented by AbstractPeepholeOptimization and the classes that extend it: a cast to AbstractPeepholeOptimization asserts to it
+// (post-flip).
+type AbstractPeepholeOptimization_as interface {
+	as_AbstractPeepholeOptimization() *AbstractPeepholeOptimization
+}
+
 func (this *AbstractPeepholeOptimization) as_AbstractPeepholeOptimization() *AbstractPeepholeOptimization {
 	return this
 }
@@ -24,16 +30,7 @@ func to_AbstractPeepholeOptimization(v any) *AbstractPeepholeOptimization {
 	if v == nil {
 		return nil
 	}
-	return v.(interface {
-		as_AbstractPeepholeOptimization() *AbstractPeepholeOptimization
-	}).as_AbstractPeepholeOptimization()
-}
-
-func is_AbstractPeepholeOptimization(v any) bool {
-	_, ok := v.(interface {
-		as_AbstractPeepholeOptimization() *AbstractPeepholeOptimization
-	})
-	return ok
+	return v.(AbstractPeepholeOptimization_as).as_AbstractPeepholeOptimization()
 }
 
 func (this *AbstractPeepholeOptimization) self() any {

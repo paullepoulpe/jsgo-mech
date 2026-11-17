@@ -6,17 +6,16 @@ type ValueType struct {
 	JSType
 }
 
-func (this *ValueType) as_ValueType() *ValueType { return this }
-
-func to_ValueType(v any) *ValueType {
-	if v == nil {
-		return nil
-	}
-	return v.(interface{ as_ValueType() *ValueType }).as_ValueType()
+// ValueType_as is implemented by ValueType and the classes that extend it: a cast to ValueType asserts to it
+// (post-flip).
+type ValueType_as interface {
+	as_ValueType() *ValueType
 }
 
+func (this *ValueType) as_ValueType() *ValueType { return this }
+
 func is_ValueType(v any) bool {
-	_, ok := v.(interface{ as_ValueType() *ValueType })
+	_, ok := v.(ValueType_as)
 	return ok
 }
 

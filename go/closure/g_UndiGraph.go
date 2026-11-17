@@ -8,21 +8,6 @@ type UndiGraph struct {
 
 func (this *UndiGraph) as_UndiGraph() *UndiGraph { return this }
 
-func to_UndiGraph(v any) *UndiGraph {
-	switch p := v.(type) {
-	case *LinkedUndirectedGraph:
-		return p.as_UndiGraph()
-	case nil:
-		return nil
-	}
-	return v.(interface{ as_UndiGraph() *UndiGraph }).as_UndiGraph()
-}
-
-func is_UndiGraph(v any) bool {
-	_, ok := v.(interface{ as_UndiGraph() *UndiGraph })
-	return ok
-}
-
 func (this *UndiGraph) self() any {
 	if this == nil {
 		return nil

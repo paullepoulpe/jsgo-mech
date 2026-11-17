@@ -17,23 +17,6 @@ type Outcome_type_I interface {
 
 func (this *Outcome_type) as_Outcome_type() *Outcome_type { return this }
 
-func to_Outcome_type(v any) *Outcome_type {
-	switch p := v.(type) {
-	case *Outcome_1_type:
-		return p.as_Outcome_type()
-	case *Outcome_2_type:
-		return p.as_Outcome_type()
-	case nil:
-		return nil
-	}
-	return v.(interface{ as_Outcome_type() *Outcome_type }).as_Outcome_type()
-}
-
-func is_Outcome_type(v any) bool {
-	_, ok := v.(interface{ as_Outcome_type() *Outcome_type })
-	return ok
-}
-
 func (this *Outcome_type) self() any {
 	if this == nil {
 		return nil

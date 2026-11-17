@@ -78,25 +78,6 @@ func (this *Graph) isConnectedInDirection_impl(any, any) bool {
 
 func (this *Graph) as_Graph() *Graph { return this }
 
-func to_Graph(v any) *Graph {
-	switch p := v.(type) {
-	case *ControlFlowAnalysis_AstControlFlowGraph:
-		return p.as_Graph()
-	case *LinkedDirectedGraph:
-		return p.as_Graph()
-	case *LinkedUndirectedGraph:
-		return p.as_Graph()
-	case nil:
-		return nil
-	}
-	return v.(interface{ as_Graph() *Graph }).as_Graph()
-}
-
-func is_Graph(v any) bool {
-	_, ok := v.(interface{ as_Graph() *Graph })
-	return ok
-}
-
 func (this *Graph) self() any {
 	if this == nil {
 		return nil

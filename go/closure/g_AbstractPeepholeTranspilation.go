@@ -14,6 +14,12 @@ type AbstractPeepholeTranspilation_I interface {
 	transpileSubtree_impl(Node) Node
 }
 
+// AbstractPeepholeTranspilation_as is implemented by AbstractPeepholeTranspilation and the classes that extend it: a cast to AbstractPeepholeTranspilation asserts to it
+// (post-flip).
+type AbstractPeepholeTranspilation_as interface {
+	as_AbstractPeepholeTranspilation() *AbstractPeepholeTranspilation
+}
+
 func (this *AbstractPeepholeTranspilation) as_AbstractPeepholeTranspilation() *AbstractPeepholeTranspilation {
 	return this
 }
@@ -22,16 +28,7 @@ func to_AbstractPeepholeTranspilation(v any) *AbstractPeepholeTranspilation {
 	if v == nil {
 		return nil
 	}
-	return v.(interface {
-		as_AbstractPeepholeTranspilation() *AbstractPeepholeTranspilation
-	}).as_AbstractPeepholeTranspilation()
-}
-
-func is_AbstractPeepholeTranspilation(v any) bool {
-	_, ok := v.(interface {
-		as_AbstractPeepholeTranspilation() *AbstractPeepholeTranspilation
-	})
-	return ok
+	return v.(AbstractPeepholeTranspilation_as).as_AbstractPeepholeTranspilation()
 }
 
 func (this *AbstractPeepholeTranspilation) self() any {

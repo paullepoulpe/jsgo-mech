@@ -188,27 +188,6 @@ func (this *ClosureBundler_EvalMode) as_ClosureBundler_EvalMode() *ClosureBundle
 	return this
 }
 
-func to_ClosureBundler_EvalMode(v any) *ClosureBundler_EvalMode {
-	switch p := v.(type) {
-	case *ClosureBundler_EvalMode_1:
-		return p.as_ClosureBundler_EvalMode()
-	case *ClosureBundler_EvalMode_2:
-		return p.as_ClosureBundler_EvalMode()
-	case nil:
-		return nil
-	}
-	return v.(interface {
-		as_ClosureBundler_EvalMode() *ClosureBundler_EvalMode
-	}).as_ClosureBundler_EvalMode()
-}
-
-func is_ClosureBundler_EvalMode(v any) bool {
-	_, ok := v.(interface {
-		as_ClosureBundler_EvalMode() *ClosureBundler_EvalMode
-	})
-	return ok
-}
-
 func (this *ClosureBundler_EvalMode) self() any {
 	if this == nil {
 		return nil
@@ -279,27 +258,6 @@ type ClosureBundler_EscapeMode_I interface {
 
 func (this *ClosureBundler_EscapeMode) as_ClosureBundler_EscapeMode() *ClosureBundler_EscapeMode {
 	return this
-}
-
-func to_ClosureBundler_EscapeMode(v any) *ClosureBundler_EscapeMode {
-	switch p := v.(type) {
-	case *ClosureBundler_EscapeMode_1:
-		return p.as_ClosureBundler_EscapeMode()
-	case *ClosureBundler_EscapeMode_2:
-		return p.as_ClosureBundler_EscapeMode()
-	case nil:
-		return nil
-	}
-	return v.(interface {
-		as_ClosureBundler_EscapeMode() *ClosureBundler_EscapeMode
-	}).as_ClosureBundler_EscapeMode()
-}
-
-func is_ClosureBundler_EscapeMode(v any) bool {
-	_, ok := v.(interface {
-		as_ClosureBundler_EscapeMode() *ClosureBundler_EscapeMode
-	})
-	return ok
 }
 
 func (this *ClosureBundler_EscapeMode) self() any {

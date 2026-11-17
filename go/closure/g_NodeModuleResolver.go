@@ -10,23 +10,6 @@ type NodeModuleResolver struct {
 
 func (this *NodeModuleResolver) as_NodeModuleResolver() *NodeModuleResolver { return this }
 
-func to_NodeModuleResolver(v any) *NodeModuleResolver {
-	switch p := v.(type) {
-	case *NodeModuleResolver:
-		return p
-	case *WebpackModuleResolver:
-		return p.as_NodeModuleResolver()
-	case nil:
-		return nil
-	}
-	return v.(interface{ as_NodeModuleResolver() *NodeModuleResolver }).as_NodeModuleResolver()
-}
-
-func is_NodeModuleResolver(v any) bool {
-	_, ok := v.(interface{ as_NodeModuleResolver() *NodeModuleResolver })
-	return ok
-}
-
 func (this *NodeModuleResolver) self() any {
 	if this == nil {
 		return nil

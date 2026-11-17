@@ -139,6 +139,12 @@ type FunctionRewriter_Reducer_I interface {
 	reduce_impl(Node) Node
 }
 
+// FunctionRewriter_Reducer_as is implemented by FunctionRewriter_Reducer and the classes that extend it: a cast to FunctionRewriter_Reducer asserts to it
+// (post-flip).
+type FunctionRewriter_Reducer_as interface {
+	as_FunctionRewriter_Reducer() *FunctionRewriter_Reducer
+}
+
 func (this *FunctionRewriter_Reducer) as_FunctionRewriter_Reducer() *FunctionRewriter_Reducer {
 	return this
 }
@@ -147,16 +153,7 @@ func to_FunctionRewriter_Reducer(v any) *FunctionRewriter_Reducer {
 	if v == nil {
 		return nil
 	}
-	return v.(interface {
-		as_FunctionRewriter_Reducer() *FunctionRewriter_Reducer
-	}).as_FunctionRewriter_Reducer()
-}
-
-func is_FunctionRewriter_Reducer(v any) bool {
-	_, ok := v.(interface {
-		as_FunctionRewriter_Reducer() *FunctionRewriter_Reducer
-	})
-	return ok
+	return v.(FunctionRewriter_Reducer_as).as_FunctionRewriter_Reducer()
 }
 
 func (this *FunctionRewriter_Reducer) self() any {
@@ -231,29 +228,6 @@ type FunctionRewriter_SingleReturnStatementReducer struct {
 
 func (this *FunctionRewriter_SingleReturnStatementReducer) as_FunctionRewriter_SingleReturnStatementReducer() *FunctionRewriter_SingleReturnStatementReducer {
 	return this
-}
-
-func to_FunctionRewriter_SingleReturnStatementReducer(v any) *FunctionRewriter_SingleReturnStatementReducer {
-	switch p := v.(type) {
-	case *FunctionRewriter_GetterReducer:
-		return p.as_FunctionRewriter_SingleReturnStatementReducer()
-	case *FunctionRewriter_IdentityReducer:
-		return p.as_FunctionRewriter_SingleReturnStatementReducer()
-	case *FunctionRewriter_ReturnConstantReducer:
-		return p.as_FunctionRewriter_SingleReturnStatementReducer()
-	case nil:
-		return nil
-	}
-	return v.(interface {
-		as_FunctionRewriter_SingleReturnStatementReducer() *FunctionRewriter_SingleReturnStatementReducer
-	}).as_FunctionRewriter_SingleReturnStatementReducer()
-}
-
-func is_FunctionRewriter_SingleReturnStatementReducer(v any) bool {
-	_, ok := v.(interface {
-		as_FunctionRewriter_SingleReturnStatementReducer() *FunctionRewriter_SingleReturnStatementReducer
-	})
-	return ok
 }
 
 func (this *FunctionRewriter_SingleReturnStatementReducer) self() any {

@@ -8,23 +8,6 @@ type DiGraph struct {
 
 func (this *DiGraph) as_DiGraph() *DiGraph { return this }
 
-func to_DiGraph(v any) *DiGraph {
-	switch p := v.(type) {
-	case *ControlFlowAnalysis_AstControlFlowGraph:
-		return p.as_DiGraph()
-	case *LinkedDirectedGraph:
-		return p.as_DiGraph()
-	case nil:
-		return nil
-	}
-	return v.(interface{ as_DiGraph() *DiGraph }).as_DiGraph()
-}
-
-func is_DiGraph(v any) bool {
-	_, ok := v.(interface{ as_DiGraph() *DiGraph })
-	return ok
-}
-
 func (this *DiGraph) self() any {
 	if this == nil {
 		return nil

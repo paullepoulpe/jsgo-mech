@@ -22,18 +22,6 @@ type DataFlowAnalysis_I interface {
 
 func (this *DataFlowAnalysis) as_DataFlowAnalysis() *DataFlowAnalysis { return this }
 
-func to_DataFlowAnalysis(v any) *DataFlowAnalysis {
-	if v == nil {
-		return nil
-	}
-	return v.(interface{ as_DataFlowAnalysis() *DataFlowAnalysis }).as_DataFlowAnalysis()
-}
-
-func is_DataFlowAnalysis(v any) bool {
-	_, ok := v.(interface{ as_DataFlowAnalysis() *DataFlowAnalysis })
-	return ok
-}
-
 func (this *DataFlowAnalysis) self() any {
 	if this == nil {
 		return nil

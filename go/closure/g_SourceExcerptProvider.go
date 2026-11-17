@@ -24,29 +24,6 @@ func (this *SourceExcerptProvider_SourceExcerpt) as_SourceExcerptProvider_Source
 	return this
 }
 
-func to_SourceExcerptProvider_SourceExcerpt(v any) *SourceExcerptProvider_SourceExcerpt {
-	switch p := v.(type) {
-	case *SourceExcerptProvider_SourceExcerpt_1:
-		return p.as_SourceExcerptProvider_SourceExcerpt()
-	case *SourceExcerptProvider_SourceExcerpt_2:
-		return p.as_SourceExcerptProvider_SourceExcerpt()
-	case *SourceExcerptProvider_SourceExcerpt_3:
-		return p.as_SourceExcerptProvider_SourceExcerpt()
-	case nil:
-		return nil
-	}
-	return v.(interface {
-		as_SourceExcerptProvider_SourceExcerpt() *SourceExcerptProvider_SourceExcerpt
-	}).as_SourceExcerptProvider_SourceExcerpt()
-}
-
-func is_SourceExcerptProvider_SourceExcerpt(v any) bool {
-	_, ok := v.(interface {
-		as_SourceExcerptProvider_SourceExcerpt() *SourceExcerptProvider_SourceExcerpt
-	})
-	return ok
-}
-
 func (this *SourceExcerptProvider_SourceExcerpt) self() any {
 	if this == nil {
 		return nil

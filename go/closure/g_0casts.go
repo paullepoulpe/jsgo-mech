@@ -58,25 +58,11 @@ func icast_AstFactory_Type(v any) AstFactory_Type {
 	return v.(AstFactory_Type)
 }
 
-func icast_AstValidator_ViolationHandler(v any) AstValidator_ViolationHandler {
-	if v == nil {
-		return nil
-	}
-	return v.(AstValidator_ViolationHandler)
-}
-
 func icast_Base64VLQ_CharIterator(v any) Base64VLQ_CharIterator {
 	if v == nil {
 		return nil
 	}
 	return v.(Base64VLQ_CharIterator)
-}
-
-func icast_BlockingQueue(v any) BlockingQueue {
-	if v == nil {
-		return nil
-	}
-	return v.(BlockingQueue)
 }
 
 func icast_CheckConformance_Precondition(v any) CheckConformance_Precondition {
@@ -93,32 +79,11 @@ func icast_CheckConformance_Rule(v any) CheckConformance_Rule {
 	return v.(CheckConformance_Rule)
 }
 
-func icast_CmdLineParser_Parameters(v any) CmdLineParser_Parameters {
-	if v == nil {
-		return nil
-	}
-	return v.(CmdLineParser_Parameters)
-}
-
 func icast_CodeChangeHandler(v any) CodeChangeHandler {
 	if v == nil {
 		return nil
 	}
 	return v.(CodeChangeHandler)
-}
-
-func icast_CodePrinter_Builder_CodeGeneratorFactory(v any) CodePrinter_Builder_CodeGeneratorFactory {
-	if v == nil {
-		return nil
-	}
-	return v.(CodePrinter_Builder_CodeGeneratorFactory)
-}
-
-func icast_CodePrinter_LicenseTracker(v any) CodePrinter_LicenseTracker {
-	if v == nil {
-		return nil
-	}
-	return v.(CodePrinter_LicenseTracker)
 }
 
 func icast_CodingConvention(v any) CodingConvention {
@@ -142,13 +107,6 @@ func icast_Comparator(v any) Comparator {
 	return v.(Comparator)
 }
 
-func icast_CompileMetricsRecorderInterface(v any) CompileMetricsRecorderInterface {
-	if v == nil {
-		return nil
-	}
-	return v.(CompileMetricsRecorderInterface)
-}
-
 func icast_CompilerInputProvider(v any) CompilerInputProvider {
 	if v == nil {
 		return nil
@@ -163,13 +121,6 @@ func icast_CompilerPass(v any) CompilerPass {
 	return v.(CompilerPass)
 }
 
-func icast_ConcurrentMap(v any) ConcurrentMap {
-	if v == nil {
-		return nil
-	}
-	return v.(ConcurrentMap)
-}
-
 func icast_ConformanceRules_CustomRuleProxy_CustomRuleFactory(v any) ConformanceRules_CustomRuleProxy_CustomRuleFactory {
 	if v == nil {
 		return nil
@@ -177,46 +128,11 @@ func icast_ConformanceRules_CustomRuleProxy_CustomRuleFactory(v any) Conformance
 	return v.(ConformanceRules_CustomRuleProxy_CustomRuleFactory)
 }
 
-func icast_Consumer(v any) Consumer {
-	if v == nil {
-		return nil
-	}
-	return v.(Consumer)
-}
-
-func icast_ContentHandler(v any) ContentHandler {
-	if v == nil {
-		return nil
-	}
-	return v.(ContentHandler)
-}
-
 func icast_CrossChunkCodeMotion_InstanceofReference(v any) CrossChunkCodeMotion_InstanceofReference {
 	if v == nil {
 		return nil
 	}
 	return v.(CrossChunkCodeMotion_InstanceofReference)
-}
-
-func icast_CssRenamingMap(v any) CssRenamingMap {
-	if v == nil {
-		return nil
-	}
-	return v.(CssRenamingMap)
-}
-
-func icast_DataFlowAnalysis_FlowBrancher(v any) DataFlowAnalysis_FlowBrancher {
-	if v == nil {
-		return nil
-	}
-	return v.(DataFlowAnalysis_FlowBrancher)
-}
-
-func icast_DataFlowAnalysis_FlowJoiner(v any) DataFlowAnalysis_FlowJoiner {
-	if v == nil {
-		return nil
-	}
-	return v.(DataFlowAnalysis_FlowJoiner)
 }
 
 func icast_DependencyInfo(v any) DependencyInfo {
@@ -266,27 +182,6 @@ func icast_ErrorManager(v any) ErrorManager {
 		return nil
 	}
 	return v.(ErrorManager)
-}
-
-func icast_ErrorReporter_rhino(v any) ErrorReporter_rhino {
-	if v == nil {
-		return nil
-	}
-	return v.(ErrorReporter_rhino)
-}
-
-func icast_ExecutorService(v any) ExecutorService {
-	if v == nil {
-		return nil
-	}
-	return v.(ExecutorService)
-}
-
-func icast_FixedPointGraphTraversal_EdgeCallback(v any) FixedPointGraphTraversal_EdgeCallback {
-	if v == nil {
-		return nil
-	}
-	return v.(FixedPointGraphTraversal_EdgeCallback)
 }
 
 func icast_FlowScope(v any) FlowScope {
@@ -366,13 +261,6 @@ func icast_GraphvizGraph_GraphvizNode(v any) GraphvizGraph_GraphvizNode {
 	return v.(GraphvizGraph_GraphvizNode)
 }
 
-func icast_IRFactory_TransformDispatcher_AutoDecrement(v any) IRFactory_TransformDispatcher_AutoDecrement {
-	if v == nil {
-		return nil
-	}
-	return v.(IRFactory_TransformDispatcher_AutoDecrement)
-}
-
 func icast_IcuTemplateDefinition(v any) IcuTemplateDefinition {
 	if v == nil {
 		return nil
@@ -387,20 +275,6 @@ func icast_IndexProvider(v any) IndexProvider {
 	return v.(IndexProvider)
 }
 
-func icast_InlineFunctions_CallVisitorCallback(v any) InlineFunctions_CallVisitorCallback {
-	if v == nil {
-		return nil
-	}
-	return v.(InlineFunctions_CallVisitorCallback)
-}
-
-func icast_InlineFunctions_Function(v any) InlineFunctions_Function {
-	if v == nil {
-		return nil
-	}
-	return v.(InlineFunctions_Function)
-}
-
 func icast_Iterable(v any) Iterable {
 	if v == nil {
 		return nil
@@ -408,25 +282,11 @@ func icast_Iterable(v any) Iterable {
 	return v.(Iterable)
 }
 
-func icast_Iterator(v any) Iterator {
-	if v == nil {
-		return nil
-	}
-	return v.(Iterator)
-}
-
 func icast_JSType_WithSourceRef(v any) JSType_WithSourceRef {
 	if v == nil {
 		return nil
 	}
 	return v.(JSType_WithSourceRef)
-}
-
-func icast_JsFileFullParser_Reporter(v any) JsFileFullParser_Reporter {
-	if v == nil {
-		return nil
-	}
-	return v.(JsFileFullParser_Reporter)
 }
 
 func icast_JsMessageDefinition(v any) JsMessageDefinition {
@@ -450,13 +310,6 @@ func icast_JsMessageVisitor_IcuTemplateOptions(v any) JsMessageVisitor_IcuTempla
 	return v.(JsMessageVisitor_IcuTemplateOptions)
 }
 
-func icast_JsMessageVisitor_InputForBuildJsMsg(v any) JsMessageVisitor_InputForBuildJsMsg {
-	if v == nil {
-		return nil
-	}
-	return v.(JsMessageVisitor_InputForBuildJsMsg)
-}
-
 func icast_JsMessageVisitor_JsMessageOptions(v any) JsMessageVisitor_JsMessageOptions {
 	if v == nil {
 		return nil
@@ -469,13 +322,6 @@ func icast_JsMessageVisitor_ObjectLiteralMap(v any) JsMessageVisitor_ObjectLiter
 		return nil
 	}
 	return v.(JsMessageVisitor_ObjectLiteralMap)
-}
-
-func icast_JsMessage_IdGenerator(v any) JsMessage_IdGenerator {
-	if v == nil {
-		return nil
-	}
-	return v.(JsMessage_IdGenerator)
 }
 
 func icast_JsMessage_Part(v any) JsMessage_Part {
@@ -497,13 +343,6 @@ func icast_List(v any) List {
 		return nil
 	}
 	return v.(List)
-}
-
-func icast_LogFile_StreamedJsonProducer(v any) LogFile_StreamedJsonProducer {
-	if v == nil {
-		return nil
-	}
-	return v.(LogFile_StreamedJsonProducer)
 }
 
 func icast_LogsGson_Able(v any) LogsGson_Able {
@@ -541,32 +380,11 @@ func icast_Map_Entry(v any) Map_Entry {
 	return v.(Map_Entry)
 }
 
-func icast_Matcher(v any) Matcher {
-	if v == nil {
-		return nil
-	}
-	return v.(Matcher)
-}
-
 func icast_MemoryPoolMXBean(v any) MemoryPoolMXBean {
 	if v == nil {
 		return nil
 	}
 	return v.(MemoryPoolMXBean)
-}
-
-func icast_MessageBundle(v any) MessageBundle {
-	if v == nil {
-		return nil
-	}
-	return v.(MessageBundle)
-}
-
-func icast_MessageFormatter(v any) MessageFormatter {
-	if v == nil {
-		return nil
-	}
-	return v.(MessageFormatter)
 }
 
 func icast_MessageLite_Builder(v any) MessageLite_Builder {
@@ -590,32 +408,11 @@ func icast_Message_Builder(v any) Message_Builder {
 	return v.(Message_Builder)
 }
 
-func icast_ModuleLoader_ModuleResolverFactory(v any) ModuleLoader_ModuleResolverFactory {
-	if v == nil {
-		return nil
-	}
-	return v.(ModuleLoader_ModuleResolverFactory)
-}
-
 func icast_ModuleMapCreator_ModuleProcessor(v any) ModuleMapCreator_ModuleProcessor {
 	if v == nil {
 		return nil
 	}
 	return v.(ModuleMapCreator_ModuleProcessor)
-}
-
-func icast_ModuleRequestResolver(v any) ModuleRequestResolver {
-	if v == nil {
-		return nil
-	}
-	return v.(ModuleRequestResolver)
-}
-
-func icast_NameGenerator(v any) NameGenerator {
-	if v == nil {
-		return nil
-	}
-	return v.(NameGenerator)
 }
 
 func icast_NodeTraversal_Callback(v any) NodeTraversal_Callback {
@@ -667,34 +464,6 @@ func icast_Property_Key(v any) Property_Key {
 	return v.(Property_Key)
 }
 
-func icast_ProtocolStringList(v any) ProtocolStringList {
-	if v == nil {
-		return nil
-	}
-	return v.(ProtocolStringList)
-}
-
-func icast_Queue(v any) Queue {
-	if v == nil {
-		return nil
-	}
-	return v.(Queue)
-}
-
-func icast_RangeSet(v any) RangeSet {
-	if v == nil {
-		return nil
-	}
-	return v.(RangeSet)
-}
-
-func icast_ReferenceCollector_Behavior(v any) ReferenceCollector_Behavior {
-	if v == nil {
-		return nil
-	}
-	return v.(ReferenceCollector_Behavior)
-}
-
 func icast_ReferenceMap(v any) ReferenceMap {
 	if v == nil {
 		return nil
@@ -702,25 +471,11 @@ func icast_ReferenceMap(v any) ReferenceMap {
 	return v.(ReferenceMap)
 }
 
-func icast_Region(v any) Region {
-	if v == nil {
-		return nil
-	}
-	return v.(Region)
-}
-
 func icast_RelationshipVisitor(v any) RelationshipVisitor {
 	if v == nil {
 		return nil
 	}
 	return v.(RelationshipVisitor)
-}
-
-func icast_RemoveUnusedCode_VarInfo(v any) RemoveUnusedCode_VarInfo {
-	if v == nil {
-		return nil
-	}
-	return v.(RemoveUnusedCode_VarInfo)
 }
 
 func icast_RenamingMap(v any) RenamingMap {
@@ -758,13 +513,6 @@ func icast_RuntimeJsLibManager_ExternedField(v any) RuntimeJsLibManager_Externed
 	return v.(RuntimeJsLibManager_ExternedField)
 }
 
-func icast_RuntimeJsLibManager_InjectedJsLibField(v any) RuntimeJsLibManager_InjectedJsLibField {
-	if v == nil {
-		return nil
-	}
-	return v.(RuntimeJsLibManager_InjectedJsLibField)
-}
-
 func icast_RuntimeJsLibManager_JsLibField(v any) RuntimeJsLibManager_JsLibField {
 	if v == nil {
 		return nil
@@ -800,13 +548,6 @@ func icast_Set(v any) Set {
 	return v.(Set)
 }
 
-func icast_SortedMap(v any) SortedMap {
-	if v == nil {
-		return nil
-	}
-	return v.(SortedMap)
-}
-
 func icast_SortedSet(v any) SortedSet {
 	if v == nil {
 		return nil
@@ -833,41 +574,6 @@ func icast_SourceExcerptProvider_ExcerptFormatter(v any) SourceExcerptProvider_E
 		return nil
 	}
 	return v.(SourceExcerptProvider_ExcerptFormatter)
-}
-
-func icast_SourceFileMapping(v any) SourceFileMapping {
-	if v == nil {
-		return nil
-	}
-	return v.(SourceFileMapping)
-}
-
-func icast_SourceMapConsumerV3_EntryVisitor(v any) SourceMapConsumerV3_EntryVisitor {
-	if v == nil {
-		return nil
-	}
-	return v.(SourceMapConsumerV3_EntryVisitor)
-}
-
-func icast_SourceMapGenerator(v any) SourceMapGenerator {
-	if v == nil {
-		return nil
-	}
-	return v.(SourceMapGenerator)
-}
-
-func icast_SourceMapGeneratorV3_MappingVisitor(v any) SourceMapGeneratorV3_MappingVisitor {
-	if v == nil {
-		return nil
-	}
-	return v.(SourceMapGeneratorV3_MappingVisitor)
-}
-
-func icast_SourceMapSupplier(v any) SourceMapSupplier {
-	if v == nil {
-		return nil
-	}
-	return v.(SourceMapSupplier)
 }
 
 func icast_SourceMap_LocationMapping(v any) SourceMap_LocationMapping {
@@ -933,13 +639,6 @@ func icast_StaticTypedSlot(v any) StaticTypedSlot {
 	return v.(StaticTypedSlot)
 }
 
-func icast_SubGraph(v any) SubGraph {
-	if v == nil {
-		return nil
-	}
-	return v.(SubGraph)
-}
-
 func icast_Supplier(v any) Supplier {
 	if v == nil {
 		return nil
@@ -952,27 +651,6 @@ func icast_SyntacticScopeCreator_RedeclarationHandler(v any) SyntacticScopeCreat
 		return nil
 	}
 	return v.(SyntacticScopeCreator_RedeclarationHandler)
-}
-
-func icast_TemplateAstMatcher_Visitor(v any) TemplateAstMatcher_Visitor {
-	if v == nil {
-		return nil
-	}
-	return v.(TemplateAstMatcher_Visitor)
-}
-
-func icast_ThreadFactory(v any) ThreadFactory {
-	if v == nil {
-		return nil
-	}
-	return v.(ThreadFactory)
-}
-
-func icast_Tracer_InternalClock(v any) Tracer_InternalClock {
-	if v == nil {
-		return nil
-	}
-	return v.(Tracer_InternalClock)
 }
 
 func icast_Tracer_TracingStatistic(v any) Tracer_TracingStatistic {

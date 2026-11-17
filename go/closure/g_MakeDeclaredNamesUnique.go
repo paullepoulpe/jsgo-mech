@@ -591,26 +591,18 @@ type MakeDeclaredNamesUnique_ContextualRenamer_I interface {
 	createForChildScope_impl(Node, bool) MakeDeclaredNamesUnique_Renamer
 }
 
+// MakeDeclaredNamesUnique_ContextualRenamer_as is implemented by MakeDeclaredNamesUnique_ContextualRenamer and the classes that extend it: a cast to MakeDeclaredNamesUnique_ContextualRenamer asserts to it
+// (post-flip).
+type MakeDeclaredNamesUnique_ContextualRenamer_as interface {
+	as_MakeDeclaredNamesUnique_ContextualRenamer() *MakeDeclaredNamesUnique_ContextualRenamer
+}
+
 func (this *MakeDeclaredNamesUnique_ContextualRenamer) as_MakeDeclaredNamesUnique_ContextualRenamer() *MakeDeclaredNamesUnique_ContextualRenamer {
 	return this
 }
 
-func to_MakeDeclaredNamesUnique_ContextualRenamer(v any) *MakeDeclaredNamesUnique_ContextualRenamer {
-	switch p := v.(type) {
-	case *MakeDeclaredNamesUnique_ContextualRenamer:
-		return p
-	case nil:
-		return nil
-	}
-	return v.(interface {
-		as_MakeDeclaredNamesUnique_ContextualRenamer() *MakeDeclaredNamesUnique_ContextualRenamer
-	}).as_MakeDeclaredNamesUnique_ContextualRenamer()
-}
-
 func is_MakeDeclaredNamesUnique_ContextualRenamer(v any) bool {
-	_, ok := v.(interface {
-		as_MakeDeclaredNamesUnique_ContextualRenamer() *MakeDeclaredNamesUnique_ContextualRenamer
-	})
+	_, ok := v.(MakeDeclaredNamesUnique_ContextualRenamer_as)
 	return ok
 }
 

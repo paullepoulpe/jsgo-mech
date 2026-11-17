@@ -15,23 +15,6 @@ type Invalidation_I interface {
 
 func (this *Invalidation) as_Invalidation() *Invalidation { return this }
 
-func to_Invalidation(v any) *Invalidation {
-	switch p := v.(type) {
-	case *Invalidation:
-		return p
-	case *Invalidation_WithReceiverType:
-		return p.as_Invalidation()
-	case nil:
-		return nil
-	}
-	return v.(interface{ as_Invalidation() *Invalidation }).as_Invalidation()
-}
-
-func is_Invalidation(v any) bool {
-	_, ok := v.(interface{ as_Invalidation() *Invalidation })
-	return ok
-}
-
 func (this *Invalidation) self() any {
 	if this == nil {
 		return nil
