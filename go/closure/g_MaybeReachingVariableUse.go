@@ -288,10 +288,11 @@ func (this *MaybeReachingVariableUse_ReachingUses) equals(other any) bool {
 	_ = reachingUses
 	return (func() bool {
 		v_ := other
-		if !is_[*MaybeReachingVariableUse_ReachingUses](v_) {
+		p, ok := v_.(*MaybeReachingVariableUse_ReachingUses)
+		if !ok {
 			return false
 		}
-		reachingUses = cast_[*MaybeReachingVariableUse_ReachingUses](v_)
+		reachingUses = p
 		return true
 	}() && reachingUses.mayUsePMap.equivalent(this.mayUsePMap, lambda_MaybeReachingVariableUse_ReachingUses_equals_1_))
 }

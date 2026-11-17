@@ -64,8 +64,8 @@ func (this *CompilerExecutor) runInCompilerThread(callable func() any, dumpTrace
 			defer func() {
 				if r_ := recover(); r_ != nil {
 					ex_ := catch_(r_)
-					if is_Throwable(ex_) {
-						exception = to_Throwable(ex_)
+					if p, ok := ex_.(Throwable_as); ok {
+						exception = p.as_Throwable()
 						return
 					}
 					panic(r_)
@@ -82,8 +82,8 @@ func (this *CompilerExecutor) runInCompilerThread(callable func() any, dumpTrace
 			defer func() {
 				if r_ := recover(); r_ != nil {
 					ex_ := catch_(r_)
-					if is_Exception(ex_) {
-						exception = to_Exception(ex_).up_Throwable()
+					if p2, ok2 := ex_.(Exception_as); ok2 {
+						exception = p2.as_Exception().up_Throwable()
 						return
 					}
 					panic(r_)

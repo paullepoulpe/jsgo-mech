@@ -451,10 +451,11 @@ func CodePrinter_PrettyCodePrinter_getNumberFromSource(n Node) OptionalOf[string
 	_ = src
 	if !(func() bool {
 		v_ := any(staticSrc)
-		if !is_[*SourceFile_jscomp](v_) {
+		p, ok := v_.(*SourceFile_jscomp)
+		if !ok {
 			return false
 		}
-		src = cast_[*SourceFile_jscomp](v_)
+		src = p
 		return true
 	}()) {
 		return Optional_empty[string]()

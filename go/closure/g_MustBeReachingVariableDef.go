@@ -315,10 +315,11 @@ func (this *MustBeReachingVariableDef_Definition) equals(other any) bool {
 	_ = otherDef
 	if !(func() bool {
 		v_ := other
-		if !is_[*MustBeReachingVariableDef_Definition](v_) {
+		p, ok := v_.(*MustBeReachingVariableDef_Definition)
+		if !ok {
 			return false
 		}
-		otherDef = cast_[*MustBeReachingVariableDef_Definition](v_)
+		otherDef = p
 		return true
 	}()) {
 		return false
@@ -377,10 +378,11 @@ func (this *MustBeReachingVariableDef_MustDef) equals(other any) bool {
 	_ = mustDef
 	return (func() bool {
 		v_ := other
-		if !is_[*MustBeReachingVariableDef_MustDef](v_) {
+		p, ok := v_.(*MustBeReachingVariableDef_MustDef)
+		if !ok {
 			return false
 		}
-		mustDef = cast_[*MustBeReachingVariableDef_MustDef](v_)
+		mustDef = p
 		return true
 	}() && mustDef.reachingDef.equalsWith(&this.reachingDef, func(a, b *MustBeReachingVariableDef_Definition) bool {
 		return objequalsBy_(a, obj_(b), (*MustBeReachingVariableDef_Definition).equals)

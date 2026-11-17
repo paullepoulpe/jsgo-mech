@@ -175,10 +175,11 @@ func (this *ClosureModuleProcessor_UnresolvedGoogModule) reportInvalidDestructur
 	_ = unresolvedGoogModule
 	if func() bool {
 		v_ := requested.self()
-		if !is_[*ClosureModuleProcessor_UnresolvedGoogModule](v_) {
+		p, ok := v_.(*ClosureModuleProcessor_UnresolvedGoogModule)
+		if !ok {
 			return false
 		}
-		unresolvedGoogModule = cast_[*ClosureModuleProcessor_UnresolvedGoogModule](v_)
+		unresolvedGoogModule = p
 		return true
 	}() {
 		var exports ImmutableMapOf[string, *Binding] = unresolvedGoogModule.namespace_

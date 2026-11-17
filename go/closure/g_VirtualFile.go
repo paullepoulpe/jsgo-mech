@@ -45,10 +45,11 @@ func (this *VirtualFile) equals(o any) bool {
 	_ = vf
 	if func() bool {
 		v_ := o
-		if !is_[*VirtualFile](v_) {
+		p, ok := v_.(*VirtualFile)
+		if !ok {
 			return false
 		}
-		vf = cast_[*VirtualFile](v_)
+		vf = p
 		return true
 	}() {
 		return ((this.name_ == vf.name_) && (this.code_ == vf.code_))

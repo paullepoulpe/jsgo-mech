@@ -31,10 +31,11 @@ func LogsGson_write(out *SimpleJsonWriter, value any) {
 		_ = able
 		if func() bool {
 			v_ := value
-			if !is_[LogsGson_Able](v_) {
+			p, ok := v_.(LogsGson_Able)
+			if !ok {
 				return false
 			}
-			able = icast_LogsGson_Able(v_)
+			able = p
 			return true
 		}() {
 			out.rawValue(Optional_of[string](LogsGson_toJson(able.toLogsGson())))
@@ -43,10 +44,11 @@ func LogsGson_write(out *SimpleJsonWriter, value any) {
 			_ = multimap
 			if func() bool {
 				v_ := value
-				if !is_[*SimpleListMultimap](v_) {
+				p2, ok2 := v_.(*SimpleListMultimap)
+				if !ok2 {
 					return false
 				}
-				multimap = cast_[*SimpleListMultimap](v_)
+				multimap = p2
 				return true
 			}() {
 				out.rawValue(Optional_of[string](LogsGson_toJson(any(multimap.asMap()))))
@@ -55,10 +57,11 @@ func LogsGson_write(out *SimpleJsonWriter, value any) {
 				_ = multimap_1
 				if func() bool {
 					v_ := value
-					if !is_[*SimpleSetMultimap](v_) {
+					p3, ok3 := v_.(*SimpleSetMultimap)
+					if !ok3 {
 						return false
 					}
-					multimap_1 = cast_[*SimpleSetMultimap](v_)
+					multimap_1 = p3
 					return true
 				}() {
 					out.rawValue(Optional_of[string](LogsGson_toJson(any(multimap_1.asMap()))))
@@ -67,10 +70,11 @@ func LogsGson_write(out *SimpleJsonWriter, value any) {
 					_ = bimap
 					if func() bool {
 						v_ := value
-						if !is_[*SimpleBiMap](v_) {
+						p4, ok4 := v_.(*SimpleBiMap)
+						if !ok4 {
 							return false
 						}
-						bimap = cast_[*SimpleBiMap](v_)
+						bimap = p4
 						return true
 					}() {
 						out.rawValue(Optional_of[string](LogsGson_toJson(any(bimap.asMap()))))
@@ -79,10 +83,11 @@ func LogsGson_write(out *SimpleJsonWriter, value any) {
 						_ = multiset
 						if func() bool {
 							v_ := value
-							if !is_[*SimpleMultiset](v_) {
+							p5, ok5 := v_.(*SimpleMultiset)
+							if !ok5 {
 								return false
 							}
-							multiset = cast_[*SimpleMultiset](v_)
+							multiset = p5
 							return true
 						}() {
 							out.rawValue(Optional_of[string](LogsGson_toJson(obj_(multiset.asList()))))
@@ -91,10 +96,11 @@ func LogsGson_write(out *SimpleJsonWriter, value any) {
 							_ = map_
 							if func() bool {
 								v_ := value
-								if !is_[Map](v_) {
+								p6, ok6 := v_.(Map)
+								if !ok6 {
 									return false
 								}
-								map_ = icast_Map(v_)
+								map_ = p6
 								return true
 							}() {
 								out.beginObject()
@@ -110,10 +116,11 @@ func LogsGson_write(out *SimpleJsonWriter, value any) {
 								_ = collection
 								if func() bool {
 									v_ := value
-									if !is_[Collection](v_) {
+									p7, ok7 := v_.(Collection)
+									if !ok7 {
 										return false
 									}
-									collection = icast_Collection(v_)
+									collection = p7
 									return true
 								}() {
 									out.beginArray()
@@ -140,7 +147,7 @@ func LogsGson_write(out *SimpleJsonWriter, value any) {
 										_ = bool_
 										if func() bool {
 											v_ := value
-											if !is_[bool](v_) {
+											if _, ok8 := v_.(bool); !ok8 {
 												return false
 											}
 											bool_ = v_
@@ -154,7 +161,7 @@ func LogsGson_write(out *SimpleJsonWriter, value any) {
 											_ = enumValue
 											if func() bool {
 												v_ := value
-												if !is_Enum(v_) {
+												if _, ok9 := v_.(enumConst_); !ok9 {
 													return false
 												}
 												enumValue = to_Enum(v_)

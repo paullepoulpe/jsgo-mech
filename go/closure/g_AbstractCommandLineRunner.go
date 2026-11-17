@@ -326,8 +326,8 @@ func (this *AbstractCommandLineRunner) run() {
 		defer func() {
 			if r_ := recover(); r_ != nil {
 				ex_ := catch_(r_)
-				if is_Throwable(ex_) {
-					var t *Throwable = to_Throwable(ex_)
+				if p, ok := ex_.(Throwable_as); ok {
+					var t *Throwable = p.as_Throwable()
 					this.err.printStackTrace(t)
 					result = -2
 					return
@@ -341,10 +341,11 @@ func (this *AbstractCommandLineRunner) run() {
 			_ = e
 			if func() bool {
 				v_ := resultOutcome.error().self()
-				if !is_[*FlagUsageException](v_) {
+				p2, ok2 := v_.(*FlagUsageException)
+				if !ok2 {
 					return false
 				}
-				e = cast_[*FlagUsageException](v_)
+				e = p2
 				return true
 			}() {
 				this.err.println(e.getMessage())
@@ -354,10 +355,11 @@ func (this *AbstractCommandLineRunner) run() {
 				_ = e_2
 				if func() bool {
 					v_ := resultOutcome.error().self()
-					if !is_IOException(v_) {
+					p3, ok3 := v_.(IOException_as)
+					if !ok3 {
 						return false
 					}
-					e_2 = to_IOException(v_)
+					e_2 = p3.as_IOException()
 					return true
 				}() {
 					this.err.println(("ERROR - " + sstr_(e_2.getMessage())))
@@ -846,10 +848,11 @@ func AbstractCommandLineRunner_closeAppendable(output Appendable) *Outcome_base 
 	_ = out
 	if func() bool {
 		v_ := any(output)
-		if !is_[*Output](v_) {
+		p, ok := v_.(*Output)
+		if !ok {
 			return false
 		}
-		out = cast_[*Output](v_)
+		out = p
 		return true
 	}() {
 		out.flush()
@@ -2975,8 +2978,7 @@ func new_AbstractCommandLineRunner_FlagEntry(flag any, value string) *AbstractCo
 }
 
 func (this *AbstractCommandLineRunner_FlagEntry) equals(o any) bool {
-	if is_[*AbstractCommandLineRunner_FlagEntry](o) {
-		var that *AbstractCommandLineRunner_FlagEntry = cast_[*AbstractCommandLineRunner_FlagEntry](o)
+	if that, ok := o.(*AbstractCommandLineRunner_FlagEntry); ok {
 		return (Object_equals(that.flag_, this.flag_) && (that.value_ == this.value_))
 	}
 	return false

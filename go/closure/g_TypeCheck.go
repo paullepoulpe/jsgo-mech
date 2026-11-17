@@ -375,7 +375,7 @@ func (this *TypeCheck) visit(t *NodeTraversal, n Node, parent Node) {
 	case tokOrd1_SUPER, tokOrd1_NEW_TARGET, tokOrd1_IMPORT_META, tokOrd1_AWAIT, tokOrd1_AND, tokOrd1_HOOK, tokOrd1_OR, tokOrd1_COALESCE:
 		this.ensureTyped(n)
 	case tokOrd1_OBJECTLIT:
-		if is_[*EnumType](parent.getJSType().self()) {
+		if _, ok := parent.getJSType().self().(*EnumType); ok {
 			this.ensureTypedJSType(n, parent.getJSType())
 		} else {
 			this.ensureTyped(n)
@@ -1055,7 +1055,7 @@ func (this *TypeCheck) checkPropertyAccess(childType *JSType, propNode Node, pro
 		var objectType *ObjectType = ObjectType_cast(childType)
 		if objectType != nil {
 			if !objectType.hasProperty(propName) || objectType.equals(this.typeRegistry.getNativeType(JSTypeNative_UNKNOWN_TYPE).self()) {
-				if is_[*EnumType](objectType.self()) {
+				if _, ok := objectType.self().(*EnumType); ok {
 					this.report(propNode, TypeCheck_INEXISTENT_ENUM_ELEMENT, []string{propName})
 				} else {
 					this.checkPropertyAccessHelper(objectType.up_JSType(), propNode, objNode, false)
@@ -1817,10 +1817,11 @@ func (this *TypeCheck) isReasonableObjectPropertyKey(type_ *JSType) bool {
 	_ = namedType
 	if func() bool {
 		v_ := type_.self()
-		if !is_[*NamedType](v_) {
+		p, ok := v_.(*NamedType)
+		if !ok {
 			return false
 		}
-		namedType = cast_[*NamedType](v_)
+		namedType = p
 		return true
 	}() {
 		return this.isReasonableObjectPropertyKey(namedType.getReferencedType())

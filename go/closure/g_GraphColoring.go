@@ -91,10 +91,11 @@ func (this *GraphColoring_Color) equals(other any) bool {
 	_ = color
 	if !(func() bool {
 		v_ := other
-		if !is_[*GraphColoring_Color](v_) {
+		p, ok := v_.(*GraphColoring_Color)
+		if !ok {
 			return false
 		}
-		color = cast_[*GraphColoring_Color](v_)
+		color = p
 		return true
 	}()) {
 		return false

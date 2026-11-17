@@ -113,8 +113,8 @@ func (this *PhaseOptimizer) maybeRunValidityCheck(passName string, externs Node,
 		defer func() {
 			if r_ := recover(); r_ != nil {
 				ex_ := catch_(r_)
-				if is_RuntimeException(ex_) {
-					var e *RuntimeException = to_RuntimeException(ex_)
+				if p, ok := ex_.(RuntimeException_as); ok {
+					var e *RuntimeException = p.as_RuntimeException()
 					panic(new_IllegalStateException_String_Throwable(("Validity checks failed for pass: " + sstr_(passName)), e.up_Throwable()).self())
 					return
 				}
@@ -268,8 +268,7 @@ func (this *PhaseOptimizer_NamedPass) process_2(externs Node, root Node) {
 		defer func() {
 			if r_ := recover(); r_ != nil {
 				ex_ := catch_(r_)
-				if is_IllegalStateException(ex_) {
-					var e *IllegalStateException = to_IllegalStateException(ex_)
+				if e, ok := ex_.(*IllegalStateException); ok {
 					panic(new_RuntimeException_String_Throwable(("Validity check failed for " + sstr_(this.name_)), e.up_Throwable()).self())
 					return
 				}
