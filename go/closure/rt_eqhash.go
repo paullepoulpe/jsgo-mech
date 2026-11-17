@@ -239,3 +239,28 @@ func optequalsOn_[T any](a, b Optional[T]) bool {
 	a.nn_()
 	return b.set && objequals_(a.content_(), b.content_())
 }
+
+// objhashHandle_ is Objects.hashCode(a) for a handle (Node): the identity hash of its number,
+// as identityHash_ takes it from the box, without boxing it.
+func objhashHandle_[T interface {
+	comparable
+	handle_() uint32
+}](a T) int32 {
+	var zero T
+	if a == zero {
+		return 0
+	}
+	return handleHash_(a.handle_())
+}
+
+// hashHandle_ is a.hashCode() for a handle: a NullPointerException when a is null.
+func hashHandle_[T interface {
+	comparable
+	handle_() uint32
+}](a T) int32 {
+	var zero T
+	if a == zero {
+		panic(new_NullPointerException_0().self())
+	}
+	return handleHash_(a.handle_())
+}
