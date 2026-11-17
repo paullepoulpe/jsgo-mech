@@ -242,7 +242,10 @@ func (this *PureFunctionIdentifier) populateDatastructuresForAnalysisTraversal(r
 }
 
 func (this *PureFunctionIdentifier) populateFunctionDefinitions(name string, references ListOf[Node]) {
-	var summaryForName *PureFunctionIdentifier_AmbiguatedFunctionSummary = Preconditions_checkNotNullT(this.summariesByName[name])
+	var summaryForName *PureFunctionIdentifier_AmbiguatedFunctionSummary = this.summariesByName[name]
+	if summaryForName == nil {
+		panic(new_NullPointerException_0().self())
+	}
 	var invalid bool = false
 	var rvaluesAssignedToName ListOf[ImmutableListOf[Node]] = new_ArrayList_0()
 	for reference := range elemsBy_(references, Node_of_) {
@@ -553,7 +556,10 @@ func (this *PureFunctionIdentifier_FunctionBodyAnalyzer) visit(traversal *NodeTr
 		return
 	}
 	for summary := range elemsAs_[*PureFunctionIdentifier_AmbiguatedFunctionSummary](this.outer_.summariesForAllNamesOfFunctionByNode.get(root.box_())) {
-		this.updateSideEffectsForNode(Preconditions_checkNotNullT(summary), traversal, node)
+		if summary == nil {
+			panic(new_NullPointerException_0().self())
+		}
+		this.updateSideEffectsForNode(summary, traversal, node)
 	}
 }
 

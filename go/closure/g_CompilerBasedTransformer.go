@@ -210,7 +210,10 @@ func (this *CompilerBasedTransformer_CompileResult) zero_CompilerBasedTransforme
 
 func (this *CompilerBasedTransformer_CompileResult) init_CompilerBasedTransformer_CompileResult(source string, errors ImmutableListOf[*JSError], transformed bool, sourceMap string) {
 	this.source = source
-	this.errors_ = sliceImm_(tc_p_JSError, Preconditions_checkNotNullT(errors))
+	if errors == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	this.errors_ = sliceImm_(tc_p_JSError, errors)
 	this.transformed_ = transformed
 	this.sourceMap_ = sourceMap
 }

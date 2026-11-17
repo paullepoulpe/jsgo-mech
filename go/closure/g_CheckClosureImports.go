@@ -36,7 +36,10 @@ func (this *CheckClosureImports) verifyRequireOrder(namespace string, call Node,
 		return
 	}
 	var requiredInputId *InputId = NodeUtil_getInputId(requiredModule.rootNode())
-	var requiredInput *CompilerInput = Preconditions_checkNotNullT_String_Object(this.compiler_.getInput(requiredInputId), "Cannot find CompilerInput for %s", obj_(requiredModule))
+	var requiredInput *CompilerInput = this.compiler_.getInput(requiredInputId)
+	if requiredInput == nil {
+		nullFail_(Strings_lenientFormat("Cannot find CompilerInput for %s", []any{obj_(requiredModule)}))
+	}
 	var requiredChunk *JSChunk = requiredInput.getChunk()
 	var currentChunk *JSChunk = t.getChunk()
 	if (currentChunk != requiredChunk) && !this.chunkGraph.dependsOn(currentChunk, requiredChunk) {

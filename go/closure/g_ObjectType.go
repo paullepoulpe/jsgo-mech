@@ -240,7 +240,10 @@ func (this *ObjectType) defineInferredProperty(propertyName string, type_ *JSTyp
 		if this.isPropertyTypeDeclared(propertyName) {
 			return true
 		}
-		var originalType *JSType = Preconditions_checkNotNullT(this.getPropertyType(propertyName))
+		var originalType *JSType = this.getPropertyType(propertyName)
+		if originalType == nil {
+			panic(new_NullPointerException_0().self())
+		}
 		type_ = originalType.getLeastSupertype(type_)
 	}
 	var result bool = this.definePropertyString(propertyName, type_, true, propertyNode)

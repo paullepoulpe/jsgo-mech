@@ -240,7 +240,11 @@ func (this *AstFactory) getTypeOfThisForFunctionNode(functionNode Node) *JSType 
 	this.assertNotAddingColors()
 	if this.isAddingTypes() {
 		var functionType *FunctionType = this.getFunctionType(functionNode)
-		return Preconditions_checkNotNullT_Object(functionType.getTypeOfThis(), functionType.self())
+		nn_1 := functionType.getTypeOfThis()
+		if nn_1 == nil {
+			nullFail_(objstr_(functionType.self()))
+		}
+		return nn_1
 	} else {
 		return nil
 	}
@@ -380,7 +384,10 @@ func (this *AstFactory) createNameStaticScope(scope StaticScope, name string) No
 				panic(new_IllegalStateException_String(Strings_lenientFormat("Missing var %s in scope %s", []any{strobj_(name), scope})).self())
 			}
 		} else {
-			var declaration StaticRef = Preconditions_checkNotNullT_String_Object(var_.getDeclaration(), "Cannot find type for var with missing declaration %s", var_)
+			var declaration StaticRef = var_.getDeclaration()
+			if declaration == nil {
+				nullFail_(Strings_lenientFormat("Cannot find type for var with missing declaration %s", []any{var_}))
+			}
 			var varDefinitionNode Node = declaration.getNode()
 			if varDefinitionNode == 0 {
 				panic(new_NullPointerException_String(Strings_lenientFormat("Missing node for declaration %s", []any{declaration})).self())
@@ -432,7 +439,11 @@ func (this *AstFactory) createQNameUsingJSTypeInfo(globalTypedScope *TypedScope,
 		if var_ == nil {
 			panic(new_NullPointerException_String(sstr_(receiverPart)).self())
 		}
-		receiver.setJSType(Preconditions_checkNotNullT_Object(var_.getType(), obj_(var_)))
+		nn_1 := var_.getType()
+		if nn_1 == nil {
+			nullFail_(objstr_(obj_(var_)))
+		}
+		receiver.setJSType(nn_1)
 	}
 	var otherParts ListOf[string] = sliceView_(tc_string, nameParts).subList(1, int32(len(nameParts)))
 	return this.createGetPropsWithoutColors(receiver, Iterable(otherParts))
@@ -464,7 +475,11 @@ func (this *AstFactory) createQName_4(scope StaticScope, baseName string, baseNa
 		name += sstr_(("." + sstr_(propertyName)))
 		var type_ AstFactory_Type = nil
 		if this.isAddingTypes() || this.isAddingColors() {
-			var def Node = Preconditions_checkNotNullT_String_Object(scope.getSlot(name), "Cannot find name %s in StaticScope.", strobj_(name)).getDeclaration().getNode()
+			nn_1 := scope.getSlot(name)
+			if nn_1 == nil {
+				nullFail_(Strings_lenientFormat("Cannot find name %s in StaticScope.", []any{strobj_(name)}))
+			}
+			var def Node = nn_1.getDeclaration().getNode()
 			type_ = AstFactory_type_Node(def)
 		}
 		qname = this.createGetProp(qname, propertyName, type_)
@@ -695,12 +710,24 @@ func (this *AstFactory) createAnd(left Node, right Node) Node {
 	var result Node = IR_and(left, right)
 	switch this.typeMode {
 	case AstFactory_TypeMode_JSTYPE:
-		var leftType *JSType = Preconditions_checkNotNullT_Object(left.getJSType(), left.box_())
-		var rightType *JSType = Preconditions_checkNotNullT_Object(right.getJSType(), right.box_())
+		var leftType *JSType = left.getJSType()
+		if leftType == nil {
+			nullFail_(objstr_(left.box_()))
+		}
+		var rightType *JSType = right.getJSType()
+		if rightType == nil {
+			nullFail_(objstr_(right.box_()))
+		}
 		result.setJSType(this.registry.createUnionType([]*JSType{leftType, rightType}))
 	case AstFactory_TypeMode_COLOR:
-		var leftColor *Color = Preconditions_checkNotNullT_Object(left.getColor(), left.box_())
-		var rightColor *Color = Preconditions_checkNotNullT_Object(right.getColor(), right.box_())
+		var leftColor *Color = left.getColor()
+		if leftColor == nil {
+			nullFail_(objstr_(left.box_()))
+		}
+		var rightColor *Color = right.getColor()
+		if rightColor == nil {
+			nullFail_(objstr_(right.box_()))
+		}
 		result.setColor(Color_createUnion(tsetFrom_(tch_p_Color, ImmutableSet_of_Object_Object(obj_(leftColor), obj_(rightColor)), true)))
 	case AstFactory_TypeMode_NONE:
 	}
@@ -711,12 +738,24 @@ func (this *AstFactory) createOr(left Node, right Node) Node {
 	var result Node = IR_or(left, right)
 	switch this.typeMode {
 	case AstFactory_TypeMode_JSTYPE:
-		var leftType *JSType = Preconditions_checkNotNullT_Object(left.getJSType(), left.box_())
-		var rightType *JSType = Preconditions_checkNotNullT_Object(right.getJSType(), right.box_())
+		var leftType *JSType = left.getJSType()
+		if leftType == nil {
+			nullFail_(objstr_(left.box_()))
+		}
+		var rightType *JSType = right.getJSType()
+		if rightType == nil {
+			nullFail_(objstr_(right.box_()))
+		}
 		result.setJSType(this.registry.createUnionType([]*JSType{leftType, rightType}))
 	case AstFactory_TypeMode_COLOR:
-		var leftColor *Color = Preconditions_checkNotNullT_Object(left.getColor(), left.box_())
-		var rightColor *Color = Preconditions_checkNotNullT_Object(right.getColor(), right.box_())
+		var leftColor *Color = left.getColor()
+		if leftColor == nil {
+			nullFail_(objstr_(left.box_()))
+		}
+		var rightColor *Color = right.getColor()
+		if rightColor == nil {
+			nullFail_(objstr_(right.box_()))
+		}
 		result.setColor(Color_createUnion(tsetFrom_(tch_p_Color, ImmutableSet_of_Object_Object(obj_(leftColor), obj_(rightColor)), true)))
 	case AstFactory_TypeMode_NONE:
 	}
@@ -828,8 +867,14 @@ func (this *AstFactory) createConstructorCall(classType AstFactory_Type, callee 
 	switch this.typeMode {
 	case AstFactory_TypeMode_JSTYPE:
 		var classJSType *JSType = classType.getJSType(this.registry)
-		var constructorType *FunctionType = Preconditions_checkNotNullT(classJSType.toMaybeFunctionType())
-		var instanceType *ObjectType = Preconditions_checkNotNullT(constructorType.getInstanceType())
+		var constructorType *FunctionType = classJSType.toMaybeFunctionType()
+		if constructorType == nil {
+			panic(new_NullPointerException_0().self())
+		}
+		var instanceType *ObjectType = constructorType.getInstanceType()
+		if instanceType == nil {
+			panic(new_NullPointerException_0().self())
+		}
 		result.setJSType(instanceType.up_JSType())
 	case AstFactory_TypeMode_COLOR:
 		result.setColor(this.getInstanceOfColor(classType.getColor(this.colorRegistry)))
@@ -1141,7 +1186,11 @@ func (this *AstFactory) getNativeType(nativeType JSTypeNative) *JSType {
 	if this.registry == nil {
 		panic(new_NullPointerException_String("registry is null").self())
 	}
-	return Preconditions_checkNotNullT_String_Object(this.registry.getNativeType(nativeType), "native type not found: %s", obj_(nativeType))
+	nn_1 := this.registry.getNativeType(nativeType)
+	if nn_1 == nil {
+		nullFail_(Strings_lenientFormat("native type not found: %s", []any{obj_(nativeType)}))
+	}
+	return nn_1
 }
 
 func (this *AstFactory) getJsTypeForProperty(receiver Node, propertyName string) *JSType {
@@ -1372,6 +1421,9 @@ func (this *AstFactory_JSTypeOrColor) getColor(registry *ColorRegistry) *Color {
 		if this.color_ != nil {
 			return this.color_
 		}
-		return registry.get(Preconditions_checkNotNullT(this.colorId))
+		if this.colorId == nil {
+			panic(new_NullPointerException_0().self())
+		}
+		return registry.get(this.colorId)
 	}()
 }

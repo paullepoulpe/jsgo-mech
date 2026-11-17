@@ -519,7 +519,11 @@ func (this *GlobalNamespace_BuildGlobalNamespace) setupModuleMetadata(moduleRoot
 		return
 	}
 	this.curModuleRoot = moduleRoot
-	this.curMetadata = Preconditions_checkNotNullT(ModuleImportResolver_getModuleFromScopeRoot(moduleMap, icast_CompilerInputProvider(this.outer_.compiler_.self()), moduleRoot).metadata())
+	nn_1 := ModuleImportResolver_getModuleFromScopeRoot(moduleMap, icast_CompilerInputProvider(this.outer_.compiler_.self()), moduleRoot).metadata()
+	if nn_1 == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	this.curMetadata = nn_1
 	if this.curMetadata.isGoogModule() {
 		this.getOrCreateName("exports", this.curMetadata)
 	}
@@ -1297,7 +1301,13 @@ func (this *GlobalNamespace_Name) castRefsForNodeMap() MapOf[Node, *GlobalNamesp
 }
 
 func (this *GlobalNamespace_Name) createNewRef(chunk *JSChunk, scope *Scope, node Node, type_ GlobalNamespace_Ref_Type) *GlobalNamespace_Ref {
-	return new_GlobalNamespace_Ref(chunk, Preconditions_checkNotNullT(scope), Node_of_(Preconditions_checkNotNull(node.box_())), type_)
+	if scope == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	if node == 0 {
+		panic(new_NullPointerException_0().self())
+	}
+	return new_GlobalNamespace_Ref(chunk, scope, node, type_)
 }
 
 func (this *GlobalNamespace_Name) putRef(node Node, ref *GlobalNamespace_Ref) {

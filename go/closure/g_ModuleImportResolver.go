@@ -222,7 +222,10 @@ func ModuleImportResolver_getModuleFromScopeRoot(moduleMap *ModuleMap, inputProv
 		return moduleMap.getClosureModule(namespace)
 	} else if moduleBody.isModuleBody() {
 		var scriptNode Node = moduleBody.getParent()
-		var input *CompilerInput = Preconditions_checkNotNullT(inputProvider.getInput(scriptNode.getInputId()))
+		var input *CompilerInput = inputProvider.getInput(scriptNode.getInputId())
+		if input == nil {
+			panic(new_NullPointerException_0().self())
+		}
 		var module *Module = moduleMap.getModule(input.getPath())
 		if !module.metadata().isEs6Module() {
 			panic(new_IllegalStateException_String("Typechecking of non-goog- and non-es-modules not supported").self())

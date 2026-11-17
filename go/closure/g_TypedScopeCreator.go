@@ -168,8 +168,14 @@ func (this *TypedScopeCreator) createScopeInternal(root Node, typedParent *Typed
 	} else {
 		scopeBuilder = new_TypedScopeCreator_NormalScopeBuilder(this, newScope).up_TypedScopeCreator_AbstractScopeBuilder()
 		if root.isModuleBody() {
-			var inputId *InputId = Preconditions_checkNotNullT(NodeUtil_getInputId(root))
-			var compilerInput *CompilerInput = Preconditions_checkNotNullT(this.compiler_.getInput(inputId))
+			var inputId *InputId = NodeUtil_getInputId(root)
+			if inputId == nil {
+				panic(new_NullPointerException_0().self())
+			}
+			var compilerInput *CompilerInput = this.compiler_.getInput(inputId)
+			if compilerInput == nil {
+				panic(new_NullPointerException_0().self())
+			}
 			compilerInput.setTypedScope(newScope)
 		}
 	}

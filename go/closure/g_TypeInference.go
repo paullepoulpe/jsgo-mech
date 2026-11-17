@@ -40,7 +40,11 @@ func (this *TypeInference) init_TypeInference(compiler *AbstractCompiler, cfg *C
 		panic(new_NullPointerException_0().self())
 	}
 	this.compiler_ = compiler
-	this.registry = Preconditions_checkNotNullT(compiler.getTypeRegistry())
+	nn_1 := compiler.getTypeRegistry()
+	if nn_1 == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	this.registry = nn_1
 	if reverseInterpreter == nil {
 		panic(new_NullPointerException_0().self())
 	}

@@ -26,7 +26,11 @@ func (this *ProcessClosurePrimitives) init_ProcessClosurePrimitives(compiler *Ab
 	this.NodeTraversal_AbstractPostOrderCallback.init_NodeTraversal_AbstractPostOrderCallback()
 	this.finit_ProcessClosurePrimitives()
 	this.compiler_ = compiler
-	this.closureModules = Preconditions_checkNotNullT_Object(compiler.getModuleMetadataMap(), strobj_("Need to run GatherModuleMetadata")).getModulesByGoogNamespace()
+	nn_1 := compiler.getModuleMetadataMap()
+	if nn_1 == nil {
+		nullFail_(objstr_(strobj_("Need to run GatherModuleMetadata")))
+	}
+	this.closureModules = nn_1.getModulesByGoogNamespace()
 }
 
 func new_ProcessClosurePrimitives(compiler *AbstractCompiler) *ProcessClosurePrimitives {

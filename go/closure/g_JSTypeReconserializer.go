@@ -208,7 +208,10 @@ func (this *JSTypeReconserializer) reconcileObjectTypes(seen *JSTypeReconseriali
 	var isInvalidating bool = false
 	var propertiesKeepOriginalName bool = false
 	for type_ := range sliceAll_(&seen.jstypes) {
-		var objType *ObjectType = Preconditions_checkNotNullT_Object(type_.toMaybeObjectType(), type_.self())
+		var objType *ObjectType = type_.toMaybeObjectType()
+		if objType == nil {
+			nullFail_(objstr_(type_.self()))
+		}
 		if objType.isFunctionType() {
 			var fnType *FunctionType = objType.toMaybeFunctionType()
 			if fnType.hasInstanceType() && (fnType.getInstanceType() != nil) {

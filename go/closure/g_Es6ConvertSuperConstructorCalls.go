@@ -49,7 +49,10 @@ func (this *Es6ConvertSuperConstructorCalls) shouldTraverse(t *NodeTraversal, n 
 		if !parent.isCall() {
 			panic(new_IllegalStateException_String(objstr_(parent.box_())).self())
 		}
-		var constructorData *Es6ConvertSuperConstructorCalls_ConstructorData = Preconditions_checkNotNullT(slicePeekTop_(tc_p_Es6ConvertSuperConstructorCalls_ConstructorData, this.constructorDataStack))
+		var constructorData *Es6ConvertSuperConstructorCalls_ConstructorData = slicePeekTop_(tc_p_Es6ConvertSuperConstructorCalls_ConstructorData, this.constructorDataStack)
+		if constructorData == nil {
+			panic(new_NullPointerException_0().self())
+		}
 		constructorData.superCalls.add(parent)
 	}
 	return true

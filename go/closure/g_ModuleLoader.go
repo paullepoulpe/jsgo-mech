@@ -13,11 +13,26 @@ type ModuleLoader struct {
 }
 
 func (this *ModuleLoader) init_ModuleLoader(builder *ModuleLoader_Builder) {
-	this.errorHandler = Preconditions_checkNotNullT(builder.errorHandler)
-	this.pathResolver = to_ModuleLoader_PathResolver(Preconditions_checkNotNull(builder.pathResolver.self()))
-	this.pathEscaper = to_ModuleLoader_PathEscaper(Preconditions_checkNotNull(builder.pathEscaper.self()))
-	this.moduleRootPaths = this.createRootPaths(Preconditions_checkNotNullT(builder.moduleRoots))
-	var modulePaths ImmutableSetOf[string] = this.resolvePaths(Preconditions_checkNotNullT(builder.inputs))
+	if builder.errorHandler == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	this.errorHandler = builder.errorHandler
+	if builder.pathResolver == 0 {
+		panic(new_NullPointerException_0().self())
+	}
+	this.pathResolver = builder.pathResolver
+	if builder.pathEscaper == 0 {
+		panic(new_NullPointerException_0().self())
+	}
+	this.pathEscaper = builder.pathEscaper
+	if builder.moduleRoots == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	this.moduleRootPaths = this.createRootPaths(builder.moduleRoots)
+	if builder.inputs == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	var modulePaths ImmutableSetOf[string] = this.resolvePaths(builder.inputs)
 	this.moduleResolver = builder.factory.create(modulePaths, this.moduleRootPaths, this.errorHandler, this.pathEscaper)
 }
 

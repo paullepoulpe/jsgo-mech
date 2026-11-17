@@ -156,7 +156,11 @@ func (this *FunctionType) getTypeClass_impl() JSTypeClass {
 }
 
 func (this *FunctionType) getConstructor_impl() *FunctionType {
-	return Preconditions_checkNotNullT(this.registry.getNativeFunctionType(JSTypeNative_FUNCTION_FUNCTION_TYPE))
+	nn_1 := this.registry.getNativeFunctionType(JSTypeNative_FUNCTION_FUNCTION_TYPE)
+	if nn_1 == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	return nn_1
 }
 
 func (this *FunctionType) isInstanceType_impl() bool {
@@ -1315,7 +1319,11 @@ func (this *FunctionType_Builder) finit_FunctionType_Builder() {
 func (this *FunctionType_Builder) init_FunctionType_Builder(registry *JSTypeRegistry) {
 	this.PrototypeObjectType_Builder.init_PrototypeObjectType_Builder(registry)
 	this.finit_FunctionType_Builder()
-	this.setImplicitPrototype(Preconditions_checkNotNullT(registry.getNativeObjectType(JSTypeNative_FUNCTION_PROTOTYPE)))
+	nn_1 := registry.getNativeObjectType(JSTypeNative_FUNCTION_PROTOTYPE)
+	if nn_1 == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	this.setImplicitPrototype(nn_1)
 }
 
 func new_FunctionType_Builder(registry *JSTypeRegistry) *FunctionType_Builder {
@@ -1469,7 +1477,11 @@ func (this *FunctionType_Builder) build_impl() *PrototypeObjectType {
 }
 
 func (this *FunctionType_Builder) buildAndResolve() *FunctionType {
-	return Preconditions_checkNotNullT(to_FunctionType(this.build().self()).toMaybeFunctionType())
+	nn_1 := to_FunctionType(this.build().self()).toMaybeFunctionType()
+	if nn_1 == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	return nn_1
 }
 
 type FunctionType_Parameter struct {

@@ -2251,7 +2251,11 @@ func (this Node) jstypeOrColorObj_() any {
 }
 
 func (this Node) getJSTypeRequired() *JSType {
-	return Preconditions_checkNotNullT_String_Object(this.getJSType(), "no jstypeOrColor: %s", this.box_())
+	nn_1 := this.getJSType()
+	if nn_1 == nil {
+		nullFail_(Strings_lenientFormat("no jstypeOrColor: %s", []any{this.box_()}))
+	}
+	return nn_1
 }
 
 func (this Node) setJSType(x *JSType) Node {

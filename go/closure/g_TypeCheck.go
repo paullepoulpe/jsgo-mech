@@ -972,7 +972,11 @@ func (this *TypeCheck) visitName(t *NodeTraversal, n Node, parent Node) bool {
 		type_ = this.getNativeType(JSTypeNative_UNKNOWN_TYPE)
 		var var_ *TypedVar = cast_[*TypedVar](t.getTypedScope().getVar(n.getString()).self())
 		if var_ != nil {
-			type_ = Preconditions_checkNotNullT(var_.getType())
+			nn_1 := var_.getType()
+			if nn_1 == nil {
+				panic(new_NullPointerException_0().self())
+			}
+			type_ = nn_1
 		}
 	}
 	this.ensureTypedJSType(n, type_)

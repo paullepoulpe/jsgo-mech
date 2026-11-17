@@ -63,7 +63,10 @@ func (this *FlowSensitiveInlineVariables) enterScope(t *NodeTraversal) {
 	this.reachingUses.analyze()
 	for !this.candidates.isEmpty() {
 		var c *FlowSensitiveInlineVariables_Candidate = this.candidates.First()
-		var candidateVar *Var = Preconditions_checkNotNullT(allVarsInFn.get(c.varName_))
+		var candidateVar *Var = allVarsInFn.get(c.varName_)
+		if candidateVar == nil {
+			panic(new_NullPointerException_0().self())
+		}
 		if c.canInline(cast_[*Scope](candidateVar.getScope())) {
 			c.inlineVariable()
 			this.candidates.remove(c)
