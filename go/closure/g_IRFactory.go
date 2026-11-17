@@ -2977,14 +2977,14 @@ func (this *IRFactory_TransformDispatcher) processClassDeclaration(tree *ClassDe
 		return 0
 	}()
 	if !this.classScope.inScope() {
-		this.validatePrivatePropertyUsage(Collections_unmodifiableSet(this.getPrivatePropsAndValidateUniqueness(classMembers)), classMembers)
+		this.validatePrivatePropertyUsage(this.getPrivatePropsAndValidateUniqueness(classMembers), classMembers)
 	}
 	var classNode Node = this.outer_.newNode_4(Token_rhino_CLASS, name, superClass, classMembers)
 	this.attachPossibleTrailingComment(classNode, tree.getEnd())
 	return classNode
 }
 
-func (this *IRFactory_TransformDispatcher) validatePrivatePropertyUsage(privatePropNames SetOf[string], classMembers Node) {
+func (this *IRFactory_TransformDispatcher) validatePrivatePropertyUsage(privatePropNames *TTreeSet[string], classMembers Node) {
 	if !classMembers.isClassMembers() {
 		panic(new_IllegalStateException_0().self())
 	}
@@ -2995,7 +2995,7 @@ func (this *IRFactory_TransformDispatcher) validatePrivatePropertyUsage(privateP
 	visitStack = append(visitStack, classMembers.getFirstChild())
 	for len(visitStack) != 0 {
 		var node Node = slicePop_(tc_Node, &visitStack)
-		if (node.isPrivateIdentifier() && ((node.isGetProp() || node.isOptChainGetProp()) || ((node.isName() && node.hasParent()) && node.getParent().isIn()))) && !Collection_contains_s(privatePropNames, node.getString()) {
+		if (node.isPrivateIdentifier() && ((node.isGetProp() || node.isOptChainGetProp()) || ((node.isName() && node.hasParent()) && node.getParent().isIn()))) && !privatePropNames.contains(node.getString()) {
 			var propType string = func() string {
 				if node.getParent().isCall() {
 					return "methods"
@@ -3014,9 +3014,9 @@ func (this *IRFactory_TransformDispatcher) validatePrivatePropertyUsage(privateP
 			}
 		}
 		if node.isClassMembers() {
-			var innerClassPrivatePropNames SetOf[string] = this.getPrivatePropsAndValidateUniqueness(node)
-			innerClassPrivatePropNames.addAll(Collection(privatePropNames))
-			this.validatePrivatePropertyUsage(Collections_unmodifiableSet(innerClassPrivatePropNames), node)
+			var innerClassPrivatePropNames *TTreeSet[string] = this.getPrivatePropsAndValidateUniqueness(node)
+			innerClassPrivatePropNames.addAllT(privatePropNames)
+			this.validatePrivatePropertyUsage(innerClassPrivatePropNames, node)
 		} else {
 			if node.getNext() != 0 {
 				visitStack = append(visitStack, node.getNext())
@@ -3028,13 +3028,13 @@ func (this *IRFactory_TransformDispatcher) validatePrivatePropertyUsage(privateP
 	}
 }
 
-func (this *IRFactory_TransformDispatcher) getPrivatePropsAndValidateUniqueness(classMembers Node) SetOf[string] {
-	var privateGetterNames SetOf[string] = new_TreeSet()
-	var privateSetterNames SetOf[string] = new_TreeSet()
-	var privateStaticGetterNames SetOf[string] = new_TreeSet()
-	var privateStaticSetterNames SetOf[string] = new_TreeSet()
-	var privateFieldAndMethodNames SetOf[string] = new_TreeSet()
-	var privatePropNames SetOf[string] = new_TreeSet()
+func (this *IRFactory_TransformDispatcher) getPrivatePropsAndValidateUniqueness(classMembers Node) *TTreeSet[string] {
+	var privateGetterNames *TTreeSet[string] = newTTreeSet_(tc_string)
+	var privateSetterNames *TTreeSet[string] = newTTreeSet_(tc_string)
+	var privateStaticGetterNames *TTreeSet[string] = newTTreeSet_(tc_string)
+	var privateStaticSetterNames *TTreeSet[string] = newTTreeSet_(tc_string)
+	var privateFieldAndMethodNames *TTreeSet[string] = newTTreeSet_(tc_string)
+	var privatePropNames *TTreeSet[string] = newTTreeSet_(tc_string)
 	{
 		var curNode Node = classMembers.getFirstChild()
 		for ; curNode != 0; curNode = curNode.getNext() {
@@ -3046,62 +3046,62 @@ func (this *IRFactory_TransformDispatcher) getPrivatePropsAndValidateUniqueness(
 				panic(new_IllegalStateException_String(Strings_lenientFormat("Private property '%s' has an unsupported token type: %s", []any{strobj_(a1_), obj_(a2_)})).self())
 			}
 			var isStatic bool = curNode.isStaticMember()
-			var alreadyDeclared bool = Collection_contains_s(privatePropNames, propName)
+			var alreadyDeclared bool = privatePropNames.contains(propName)
 			switch curNode.ns_().token {
 			case tokOrd1_GETTER_DEF:
 				if alreadyDeclared {
-					var alreadyDeclaredIsOtherThanItsSetter bool = (((Collection_contains_s(privateFieldAndMethodNames, propName) || Collection_contains_s(privateGetterNames, propName)) || Collection_contains_s(privateStaticGetterNames, propName)) || func() bool {
+					var alreadyDeclaredIsOtherThanItsSetter bool = (((privateFieldAndMethodNames.contains(propName) || privateGetterNames.contains(propName)) || privateStaticGetterNames.contains(propName)) || func() bool {
 						if isStatic {
-							return Collection_contains_s(privateSetterNames, propName)
+							return privateSetterNames.contains(propName)
 						}
-						return Collection_contains_s(privateStaticSetterNames, propName)
+						return privateStaticSetterNames.contains(propName)
 					}())
 					if !alreadyDeclaredIsOtherThanItsSetter && !func() bool {
 						if isStatic {
-							return Collection_contains_s(privateStaticSetterNames, propName)
+							return privateStaticSetterNames.contains(propName)
 						}
-						return Collection_contains_s(privateSetterNames, propName)
+						return privateSetterNames.contains(propName)
 					}() {
 						panic(new_IllegalStateException_0().self())
 					}
 					alreadyDeclared = alreadyDeclaredIsOtherThanItsSetter
 				}
 				if isStatic {
-					Collection_add_s(privateStaticGetterNames, propName)
+					privateStaticGetterNames.add(propName)
 				} else {
-					Collection_add_s(privateGetterNames, propName)
+					privateGetterNames.add(propName)
 				}
 			case tokOrd1_SETTER_DEF:
 				if alreadyDeclared {
-					var alreadyDeclaredIsOtherThanItsGetter bool = (((Collection_contains_s(privateFieldAndMethodNames, propName) || Collection_contains_s(privateSetterNames, propName)) || Collection_contains_s(privateStaticSetterNames, propName)) || func() bool {
+					var alreadyDeclaredIsOtherThanItsGetter bool = (((privateFieldAndMethodNames.contains(propName) || privateSetterNames.contains(propName)) || privateStaticSetterNames.contains(propName)) || func() bool {
 						if isStatic {
-							return Collection_contains_s(privateGetterNames, propName)
+							return privateGetterNames.contains(propName)
 						}
-						return Collection_contains_s(privateStaticGetterNames, propName)
+						return privateStaticGetterNames.contains(propName)
 					}())
 					if !alreadyDeclaredIsOtherThanItsGetter && !func() bool {
 						if isStatic {
-							return Collection_contains_s(privateStaticGetterNames, propName)
+							return privateStaticGetterNames.contains(propName)
 						}
-						return Collection_contains_s(privateGetterNames, propName)
+						return privateGetterNames.contains(propName)
 					}() {
 						panic(new_IllegalStateException_0().self())
 					}
 					alreadyDeclared = alreadyDeclaredIsOtherThanItsGetter
 				}
 				if curNode.isStaticMember() {
-					Collection_add_s(privateStaticSetterNames, propName)
+					privateStaticSetterNames.add(propName)
 				} else {
-					Collection_add_s(privateSetterNames, propName)
+					privateSetterNames.add(propName)
 				}
 			case tokOrd1_MEMBER_FIELD_DEF, tokOrd1_MEMBER_FUNCTION_DEF:
-				Collection_add_s(privateFieldAndMethodNames, propName)
+				privateFieldAndMethodNames.add(propName)
 			default:
 			}
 			if alreadyDeclared {
 				this.outer_.errorReporter.error(("Identifier '" + sstr_(propName) + "' has already been declared"), this.outer_.sourceName_, curNode.getLineno(), curNode.getCharno())
 			}
-			Collection_add_s(privatePropNames, propName)
+			privatePropNames.add(propName)
 		}
 	}
 	return privatePropNames

@@ -40,22 +40,22 @@ func (this *LazyParsedDependencyInfo) isGoogModule() bool {
 
 func (this *LazyParsedDependencyInfo) getLoadFlags() ImmutableMapOf[string, string] {
 	if this.loadFlags_ == nil {
-		var loadFlagsBuilder MapOf[string, string] = new_TreeMap()
+		var loadFlagsBuilder *TTreeMap[string, string] = newTTreeMap_(tc_string, tc_string)
 		var hadSourceInMemory bool = this.ast.getSourceFile().hasSourceInMemory()
-		loadFlagsBuilder.putAll(icast_Map(obj_(this.delegate.getLoadFlags())))
+		loadFlagsBuilder.asMap().putAll(icast_Map(obj_(this.delegate.getLoadFlags())))
 		var features *FeatureSet = this.ast.getFeatures(this.compiler_)
 		if features.has(FeatureSet_Feature_MODULES) {
-			var previousModule OptionalOf[string] = Optional_ofNullable[string](str_(Map_get_s(loadFlagsBuilder, "module")))
+			var previousModule OptionalOf[string] = Optional_ofNullable[string](loadFlagsBuilder.get("module"))
 			if previousModule.isPresent() && !(previousModule.get() == "es6") {
 				this.compiler_.report(JSError_make_Optional_int_int_DiagnosticType_StringArr(Optional_of[string](this.getName()), -1, -1, ModuleLoader_MODULE_CONFLICT, []string{this.getName()}))
 			}
-			Map_put_s(loadFlagsBuilder, "module", strobj_("es6"))
+			loadFlagsBuilder.put("module", "es6")
 		}
 		var version string = features.version()
 		if !(version == "es3") {
-			Map_put_s(loadFlagsBuilder, "lang", strobj_(version))
+			loadFlagsBuilder.put("lang", version)
 		}
-		this.loadFlags_ = ImmutableMap_copyOf(loadFlagsBuilder)
+		this.loadFlags_ = ImmutableMap_copyOf(loadFlagsBuilder.asMap())
 		if !hadSourceInMemory {
 			this.ast.getSourceFile().clearCachedSource()
 		}

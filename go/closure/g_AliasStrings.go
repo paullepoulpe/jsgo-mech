@@ -6,7 +6,7 @@ type AliasStrings struct {
 	compiler_                 *AbstractCompiler
 	chunkGraph                *JSChunkGraph
 	outputStringUsageField    bool
-	stringInfoMap             SortedMapOf[string, *AliasStrings_StringInfo]
+	stringInfoMap             *TTreeMap[string, *AliasStrings_StringInfo]
 	usedHashedAliases         map[string]struct{}
 	aliasStringsMode          CompilerOptions_AliasStringsMode
 	chunkVarParentMap         map[*JSChunk]Node
@@ -14,7 +14,7 @@ type AliasStrings struct {
 }
 
 func (this *AliasStrings) finit_AliasStrings() {
-	this.stringInfoMap = new_TreeMap()
+	this.stringInfoMap = newTTreeMap_(tc_string, tc_p_AliasStrings_StringInfo)
 	this.usedHashedAliases = map[string]struct{}{}
 	this.chunkVarParentMap = map[*JSChunk]Node{}
 	this.unitTestHashReductionMask = -1
@@ -88,16 +88,16 @@ func (this *AliasStrings) visit(t *NodeTraversal, n Node, parent Node) {
 }
 
 func (this *AliasStrings) getOrCreateStringInfo(string_ string) *AliasStrings_StringInfo {
-	var info *AliasStrings_StringInfo = cast_[*AliasStrings_StringInfo](Map_get_s(this.stringInfoMap, string_))
+	var info *AliasStrings_StringInfo = this.stringInfoMap.get(string_)
 	if info == nil {
 		info = new_AliasStrings_StringInfo(this, this.stringInfoMap.size())
-		Map_put_s(this.stringInfoMap, string_, obj_(info))
+		this.stringInfoMap.put(string_, info)
 	}
 	return info
 }
 
 func (this *AliasStrings) replaceStringsWithAliases() {
-	for entry := range elemsBy_(this.stringInfoMap.entrySet(), icast_Map_Entry) {
+	for entry := range elemsBy_(this.stringInfoMap.asMap().entrySet(), icast_Map_Entry) {
 		var literal string = str_(entry.getKey())
 		var info *AliasStrings_StringInfo = cast_[*AliasStrings_StringInfo](entry.getValue())
 		if this.shouldReplaceWithAlias(literal, info) {
@@ -109,7 +109,7 @@ func (this *AliasStrings) replaceStringsWithAliases() {
 }
 
 func (this *AliasStrings) addAliasDeclarationNodes() {
-	for entry := range elemsBy_(this.stringInfoMap.entrySet(), icast_Map_Entry) {
+	for entry := range elemsBy_(this.stringInfoMap.asMap().entrySet(), icast_Map_Entry) {
 		var info *AliasStrings_StringInfo = cast_[*AliasStrings_StringInfo](entry.getValue())
 		if !info.isAliased {
 			continue
@@ -149,7 +149,7 @@ func (this *AliasStrings) replaceStringWithAliasName(n Node, name string, info *
 func (this *AliasStrings) outputStringUsage() {
 	var sb strBuilder_
 	sb.append("Strings used more than once:\n")
-	for stringInfoEntry := range elemsBy_(this.stringInfoMap.entrySet(), icast_Map_Entry) {
+	for stringInfoEntry := range elemsBy_(this.stringInfoMap.asMap().entrySet(), icast_Map_Entry) {
 		var info *AliasStrings_StringInfo = cast_[*AliasStrings_StringInfo](stringInfoEntry.getValue())
 		var count int32 = int32(len(info.occurrences))
 		if count > 1 {

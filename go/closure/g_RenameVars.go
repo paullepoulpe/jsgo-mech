@@ -80,8 +80,8 @@ func (this *RenameVars) process_2(externs Node, root Node) {
 	clear(this.originalNameByNode)
 	NodeTraversal_traverse(this.compiler_, root, new_RenameVars_ProcessVars(this))
 	this.reservedNames.addAll(icast_Collection(obj_(this.externNames_)))
-	var varsByFrequency SortedSetOf[*RenameVars_Assignment] = new_TreeSet_Comparator(lambda_RenameVars_process_2_1_)
-	varsByFrequency.addAll(this.assignments.asMap().values())
+	var varsByFrequency *TTreeSet[*RenameVars_Assignment] = newTTreeSetC_(tc_p_RenameVars_Assignment, lambda_RenameVars_process_2_1_)
+	varsByFrequency.asSet().addAll(this.assignments.asMap().values())
 	if this.prevUsedRenameMap != nil {
 		this.reusePreviouslyUsedVariableMap(varsByFrequency)
 	}
@@ -141,11 +141,11 @@ func (this *RenameVars) recordPseudoName(n Node) {
 	this.pseudoNameMap[n] = ("$" + sstr_(n.getString()) + "$$")
 }
 
-func (this *RenameVars) reusePreviouslyUsedVariableMap(varsToRename SortedSetOf[*RenameVars_Assignment]) {
+func (this *RenameVars) reusePreviouslyUsedVariableMap(varsToRename *TTreeSet[*RenameVars_Assignment]) {
 	if this.prevUsedRenameMap.getNewNameToOriginalNameMap() == nil {
 		panic(new_NullPointerException_0().self())
 	}
-	for a := range elemsAs_[*RenameVars_Assignment](varsToRename) {
+	for a := range elemsAs_[*RenameVars_Assignment](varsToRename.asSet()) {
 		var prevNewName OptionalOf[string] = this.prevUsedRenameMap.lookupNewName(a.oldName)
 		if prevNewName.isEmpty() || Collection_contains_s(this.reservedNames, prevNewName.get()) {
 			continue
@@ -157,7 +157,7 @@ func (this *RenameVars) reusePreviouslyUsedVariableMap(varsToRename SortedSetOf[
 	}
 }
 
-func (this *RenameVars) assignNames(varsToRename SortedSetOf[*RenameVars_Assignment]) {
+func (this *RenameVars) assignNames(varsToRename *TTreeSet[*RenameVars_Assignment]) {
 	this.nameGenerator.reset(this.reservedNames, this.prefix_, this.reservedCharacters)
 	var globalNameGenerator NameGenerator = this.nameGenerator
 	var localNameGenerator NameGenerator = func() NameGenerator {
@@ -168,7 +168,7 @@ func (this *RenameVars) assignNames(varsToRename SortedSetOf[*RenameVars_Assignm
 	}()
 	var pendingAssignments []*RenameVars_Assignment = []*RenameVars_Assignment{}
 	var generatedNamesForAssignments []string = []string{}
-	for a := range elemsAs_[*RenameVars_Assignment](varsToRename) {
+	for a := range elemsAs_[*RenameVars_Assignment](varsToRename.asSet()) {
 		if a.newName.isPresent() {
 			continue
 		}
@@ -188,12 +188,12 @@ func (this *RenameVars) assignNames(varsToRename SortedSetOf[*RenameVars_Assignm
 	}
 	var numPendingAssignments int32 = int32(len(generatedNamesForAssignments))
 	for i := int32(0); i < numPendingAssignments; {
-		var varsByOrderOfOccurrence SortedSetOf[*RenameVars_Assignment] = new_TreeSet_Comparator(RenameVars_ORDER_OF_OCCURRENCE_COMPARATOR)
+		var varsByOrderOfOccurrence *TTreeSet[*RenameVars_Assignment] = newTTreeSetC_(tc_p_RenameVars_Assignment, RenameVars_ORDER_OF_OCCURRENCE_COMPARATOR)
 		var len_ int32 = String_length(generatedNamesForAssignments[i])
 		for j := int32(i); (j < numPendingAssignments) && (String_length(generatedNamesForAssignments[j]) == len_); j++ {
-			varsByOrderOfOccurrence.add(obj_(pendingAssignments[j]))
+			varsByOrderOfOccurrence.add(pendingAssignments[j])
 		}
-		for a := range elemsAs_[*RenameVars_Assignment](varsByOrderOfOccurrence) {
+		for a := range elemsAs_[*RenameVars_Assignment](varsByOrderOfOccurrence.asSet()) {
 			this.finalizeNameAssignment(a, generatedNamesForAssignments[i])
 			i++
 		}

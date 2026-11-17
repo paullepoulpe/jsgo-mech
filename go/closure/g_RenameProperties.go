@@ -72,10 +72,10 @@ func (this *RenameProperties) process_2(externs Node, root Node) {
 	var reservedNames SetOf[string] = Sets_newLinkedHashSetWithExpectedSize((this.externedNames.size() + this.quotedNames.size()))
 	reservedNames.addAll(Collection(this.externedNames.asSet()))
 	reservedNames.addAll(Collection(this.quotedNames.asSet()))
-	var propsByFreq SetOf[*RenameProperties_Property] = new_TreeSet_Comparator(RenameProperties_FREQUENCY_COMPARATOR)
-	propsByFreq.addAll(this.propertyMap.asMap().values())
+	var propsByFreq *TTreeSet[*RenameProperties_Property] = newTTreeSetC_(tc_p_RenameProperties_Property, RenameProperties_FREQUENCY_COMPARATOR)
+	propsByFreq.asSet().addAll(this.propertyMap.asMap().values())
 	if this.prevUsedPropertyMap != nil {
-		this.reusePropertyNames(reservedNames, Collection(propsByFreq))
+		this.reusePropertyNames(reservedNames, Collection(propsByFreq.asSet()))
 	}
 	this.generateNames(propsByFreq, reservedNames)
 	for n := range sliceAll_(&this.stringNodesToRename) {
@@ -147,9 +147,9 @@ func (this *RenameProperties) reusePropertyNames(reservedNames SetOf[string], al
 	}
 }
 
-func (this *RenameProperties) generateNames(props SetOf[*RenameProperties_Property], reservedNames SetOf[string]) {
+func (this *RenameProperties) generateNames(props *TTreeSet[*RenameProperties_Property], reservedNames SetOf[string]) {
 	this.nameGenerator.reset_4(reservedNames, "", this.reservedFirstCharacters, this.reservedNonFirstCharacters)
-	for p := range elemsAs_[*RenameProperties_Property](props) {
+	for p := range elemsAs_[*RenameProperties_Property](props.asSet()) {
 		if this.generatePseudoNames {
 			p.newName = Optional_of[string](("$" + sstr_(p.oldName) + "$"))
 		} else {

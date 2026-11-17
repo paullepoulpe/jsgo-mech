@@ -259,11 +259,11 @@ func (this *TypedCodeGenerator) appendClassAnnotations(sb *strBuilder_, funType 
 			sb.append("\n")
 		}
 	}
-	var interfaces SetOf[string] = new_TreeSet()
+	var interfaces *TTreeSet[string] = newTTreeSet_(tc_string)
 	for interfaze := range elemsBy_(funType.getAncestorInterfaces(), to_ObjectType) {
-		Collection_add_s(interfaces, interfaze.toAnnotationString(JSType_Nullability_IMPLICIT))
+		interfaces.add(interfaze.toAnnotationString(JSType_Nullability_IMPLICIT))
 	}
-	for interfaze := range elemsBy_(interfaces, str_) {
+	for interfaze := range elemsBy_(interfaces.asSet(), str_) {
 		sb.append(" * ")
 		TypedCodeGenerator_appendAnnotation(sb, "implements", interfaze)
 		sb.append("\n")
@@ -271,11 +271,11 @@ func (this *TypedCodeGenerator) appendClassAnnotations(sb *strBuilder_, funType 
 }
 
 func (this *TypedCodeGenerator) appendInterfaceAnnotations(sb *strBuilder_, funType *FunctionType) {
-	var interfaces SetOf[string] = new_TreeSet()
+	var interfaces *TTreeSet[string] = newTTreeSet_(tc_string)
 	for interfaceType := range elemsBy_(funType.getAncestorInterfaces(), to_ObjectType) {
-		Collection_add_s(interfaces, interfaceType.toAnnotationString(JSType_Nullability_IMPLICIT))
+		interfaces.add(interfaceType.toAnnotationString(JSType_Nullability_IMPLICIT))
 	}
-	for interfaze := range elemsBy_(interfaces, str_) {
+	for interfaze := range elemsBy_(interfaces.asSet(), str_) {
 		sb.append(" * ")
 		TypedCodeGenerator_appendAnnotation(sb, "extends", interfaze)
 		sb.append("\n")

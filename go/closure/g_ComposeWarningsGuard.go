@@ -8,7 +8,7 @@ type ComposeWarningsGuard struct {
 	numberOfAdds    int32
 	guardComparator ComparatorOf[*WarningsGuard]
 	demoteErrors    bool
-	guards          TreeSetOf[*WarningsGuard]
+	guards          *TTreeSet[*WarningsGuard]
 }
 
 func (this *ComposeWarningsGuard) up_WarningsGuard() *WarningsGuard {
@@ -23,7 +23,7 @@ func (this *ComposeWarningsGuard) finit_ComposeWarningsGuard() {
 	this.numberOfAdds = 0
 	this.guardComparator = new_ComposeWarningsGuard_GuardComparator(this.orderOfAddition)
 	this.demoteErrors = false
-	this.guards = new_TreeSet_Comparator(this.guardComparator)
+	this.guards = newTTreeSetC_(tc_p_WarningsGuard, this.guardComparator)
 }
 
 func (this *ComposeWarningsGuard) init_ComposeWarningsGuard(guards *TList[*WarningsGuard]) {
@@ -58,12 +58,12 @@ func (this *ComposeWarningsGuard) addGuard(guard *WarningsGuard) {
 		if composeGuard.demoteErrors {
 			this.demoteErrors = composeGuard.demoteErrors
 		}
-		this.addGuards(icast_Iterable(new_ArrayList_Collection(Collection(composeGuard.guards.descendingSet())).self()))
+		this.addGuards(icast_Iterable(new_ArrayList_Collection(Collection(composeGuard.guards.asSet().descendingSet())).self()))
 	} else {
 		this.numberOfAdds++
 		this.orderOfAddition[guard] = any(int32(this.numberOfAdds))
-		this.guards.remove_Object(guard.self())
-		this.guards.add(guard.self())
+		this.guards.remove(guard)
+		this.guards.add(guard)
 	}
 }
 
@@ -74,9 +74,9 @@ func (this *ComposeWarningsGuard) addGuards(guards IterableOf[*WarningsGuard]) {
 }
 
 func (this *ComposeWarningsGuard) level_impl(error_ *JSError) CheckLevel {
-	it_1 := foreach_(obj_(this.guards))
+	it_1 := this.guards.each()
 	for it_1.next() {
-		var guard *WarningsGuard = to_WarningsGuard(it_1.v)
+		var guard *WarningsGuard = it_1.v
 		var newLevel CheckLevel = guard.level(error_)
 		if newLevel != 0 {
 			if this.demoteErrors && (newLevel == CheckLevel_ERROR) {
@@ -109,9 +109,9 @@ nextSingleton_:
 	for it_1.next() {
 		var type_ *DiagnosticType = cast_[*DiagnosticType](it_1.v)
 		var singleton *DiagnosticGroup = DiagnosticGroup_forType(type_)
-		it_2 := foreach_(obj_(this.guards))
+		it_2 := this.guards.each()
 		for it_2.next() {
-			var guard *WarningsGuard = to_WarningsGuard(it_2.v)
+			var guard *WarningsGuard = it_2.v
 			switch guard.mustRunChecks(singleton) {
 			case Tri_TRUE:
 				return false
@@ -126,9 +126,9 @@ nextSingleton_:
 }
 
 func (this *ComposeWarningsGuard) enables(group *DiagnosticGroup) bool {
-	it_1 := foreach_(obj_(this.guards))
+	it_1 := this.guards.each()
 	for it_1.next() {
-		var guard *WarningsGuard = to_WarningsGuard(it_1.v)
+		var guard *WarningsGuard = it_1.v
 		switch guard.mustRunChecks(group) {
 		case Tri_TRUE:
 			return true
@@ -140,12 +140,12 @@ func (this *ComposeWarningsGuard) enables(group *DiagnosticGroup) bool {
 	return false
 }
 
-func (this *ComposeWarningsGuard) getGuards() SortedSetOf[*WarningsGuard] {
-	return Collections_unmodifiableSortedSet(icast_SortedSet(obj_(this.guards)))
+func (this *ComposeWarningsGuard) getGuards() *TTreeSet[*WarningsGuard] {
+	return this.guards
 }
 
 func (this *ComposeWarningsGuard) toString() string {
-	return Joiner_on(", ").join(icast_Iterable(obj_(this.guards)))
+	return Joiner_on(", ").join(icast_Iterable(any(this.guards.asSet())))
 }
 
 const ComposeWarningsGuard_serialVersionUID int64 = 1

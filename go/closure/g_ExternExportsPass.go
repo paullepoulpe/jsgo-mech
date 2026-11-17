@@ -61,9 +61,9 @@ func (this *ExternExportsPass) initExportMethods() {
 
 func (this *ExternExportsPass) process_2(externs Node, root Node) {
 	NodeTraversal_traverse(this.compiler_, root, this)
-	var sorted SetOf[*ExternExportsPass_Export] = new_TreeSet_Comparator(Comparator_comparing(lambda_ExternExportsPass_process_2_1_))
-	sorted.addAll(Collection(sliceView_(tc_p_ExternExportsPass_Export, this.exports)))
-	for export := range elemsBy_(sorted, to_ExternExportsPass_Export) {
+	var sorted *TTreeSet[*ExternExportsPass_Export] = newTTreeSetC_(tc_p_ExternExportsPass_Export, Comparator_comparing(lambda_ExternExportsPass_process_2_1_))
+	sorted.asSet().addAll(Collection(sliceView_(tc_p_ExternExportsPass_Export, this.exports)))
+	for export := range elemsBy_(sorted.asSet(), to_ExternExportsPass_Export) {
 		export.generateExterns()
 	}
 	this.setGeneratedExternsOnCompiler()

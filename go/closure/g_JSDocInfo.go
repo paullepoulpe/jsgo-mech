@@ -10,10 +10,10 @@ type JSDocInfo struct {
 	propertyValues     any
 }
 
-func (this *JSDocInfo) init_JSDocInfo(bits int64, props TreeMapOf[*JSDocInfo_Property, any]) {
+func (this *JSDocInfo) init_JSDocInfo(bits int64, props *TTreeMap[*JSDocInfo_Property, any]) {
 	var keys int64 = 0
 	var values ListOf[any] = new_ArrayList_0()
-	for entry := range elemsBy_(props.entrySet(), icast_Map_Entry) {
+	for entry := range elemsBy_(props.asMap().entrySet(), icast_Map_Entry) {
 		var prop *JSDocInfo_Property = to_JSDocInfo_Property(entry.getKey())
 		var value any = entry.getValue()
 		if !prop.isDefault(value) {
@@ -29,7 +29,7 @@ func (this *JSDocInfo) init_JSDocInfo(bits int64, props TreeMapOf[*JSDocInfo_Pro
 	this.propertyValues = JSDocInfo_packPropertyValues(values)
 }
 
-func new_JSDocInfo(bits int64, props TreeMapOf[*JSDocInfo_Property, any]) *JSDocInfo {
+func new_JSDocInfo(bits int64, props *TTreeMap[*JSDocInfo_Property, any]) *JSDocInfo {
 	this := &JSDocInfo{}
 	this.init_JSDocInfo(bits, props)
 	return this
@@ -39,14 +39,14 @@ func (this *JSDocInfo) checkBit(bit JSDocInfo_Bit) bool {
 	return ((this.propertyBits & JSDocInfo_Bit_mask_[bit-1]) != 0)
 }
 
-func (this *JSDocInfo) asMap() TreeMapOf[*JSDocInfo_Property, any] {
-	var map_ TreeMapOf[*JSDocInfo_Property, any] = new_TreeMap()
+func (this *JSDocInfo) asMap() *TTreeMap[*JSDocInfo_Property, any] {
+	var map_ *TTreeMap[*JSDocInfo_Property, any] = newTTreeMap_(tc_p_JSDocInfo_Property, tc_any)
 	var bits int64 = this.propertyKeysBitset
 	var index int32 = 0
 	for bits > 0 {
 		var low int32 = Long_numberOfTrailingZeros(bits)
 		bits &= (^(int64(1) << (uint32(low) & 63)))
-		map_.put(JSDocInfo_Property_values[low].self(), this.getPropertyValueByIndex(index))
+		map_.put(JSDocInfo_Property_values[low], this.getPropertyValueByIndex(index))
 		index++
 	}
 	return map_
@@ -65,7 +65,7 @@ func (this *JSDocInfo) toBuilder_1(transform func(*JSTypeExpression) *JSTypeExpr
 	builder.bits = (this.propertyBits & (^JSDocInfo_Bit_mask_[JSDocInfo_Bit_INLINE_TYPE-1]))
 	builder.props = this.asMap()
 	builder.populated = true
-	for entry := range elemsBy_(builder.props.entrySet(), icast_Map_Entry) {
+	for entry := range elemsBy_(builder.props.asMap().entrySet(), icast_Map_Entry) {
 		entry.setValue(to_JSDocInfo_Property(entry.getKey()).clone(entry.getValue(), transform))
 	}
 	return builder
@@ -2084,7 +2084,7 @@ func JSDocInfo_Marker_areEquivalent(p1 *JSDocInfo_ComparableSourcePosition, p2 *
 }
 
 type JSDocInfo_Builder struct {
-	props         TreeMapOf[*JSDocInfo_Property, any]
+	props         *TTreeMap[*JSDocInfo_Property, any]
 	bits          int64
 	populated     bool
 	currentMarker *JSDocInfo_Marker
@@ -2092,7 +2092,7 @@ type JSDocInfo_Builder struct {
 }
 
 func (this *JSDocInfo_Builder) finit_JSDocInfo_Builder() {
-	this.props = new_TreeMap()
+	this.props = newTTreeMap_(tc_p_JSDocInfo_Property, tc_any)
 	this.bits = 0
 }
 
@@ -2171,7 +2171,7 @@ func (this *JSDocInfo_Builder) isPopulatedWithFileOverview() bool {
 }
 
 func (this *JSDocInfo_Builder) isDescriptionRecorded() bool {
-	return (this.props.get(JSDocInfo_DESCRIPTION.self()) != nil)
+	return (this.props.get(JSDocInfo_DESCRIPTION) != nil)
 }
 
 func (this *JSDocInfo_Builder) isNoInline() bool {
@@ -2311,7 +2311,7 @@ func (this *JSDocInfo_Builder) recordTemplateTypeName_2(name string, bound *JSTy
 		bound = JSTypeExpression_IMPLICIT_TEMPLATE_BOUND
 	}
 	var transformations MapOf[string, Node] = icast_Map(this.getProp(JSDocInfo_TYPE_TRANSFORMATIONS.up_JSDocInfo_Property()))
-	if ((transformations != nil) && Map_containsKey_s(transformations, name)) || this.props.containsKey(obj_(JSDocInfo_TYPEDEF_TYPE)) {
+	if ((transformations != nil) && Map_containsKey_s(transformations, name)) || this.props.containsKey(to_JSDocInfo_Property(obj_(JSDocInfo_TYPEDEF_TYPE))) {
 		return false
 	}
 	return this.populatePropEntry(JSDocInfo_TEMPLATE_TYPE_NAMES.up_JSDocInfo_Property(), RhinoStringPool_addOrGet(name), obj_(bound))
@@ -2529,7 +2529,7 @@ func (this *JSDocInfo_Builder) recordEnhance(namespace string) bool {
 }
 
 func (this *JSDocInfo_Builder) isModsRecorded() bool {
-	return (this.props.get(JSDocInfo_MODS.self()) != nil)
+	return (this.props.get(JSDocInfo_MODS) != nil)
 }
 
 func (this *JSDocInfo_Builder) recordMods(namespace string) bool {
@@ -2828,7 +2828,7 @@ func (this *JSDocInfo_Builder) recordClosureUnawareCode_1(mode JSDocInfo_PerFile
 }
 
 func (this *JSDocInfo_Builder) removeClosureUnawareCode() bool {
-	var existing any = this.props.remove(JSDocInfo_CLOSURE_UNAWARE_CONFIG_VALUE.self())
+	var existing any = this.props.remove(JSDocInfo_CLOSURE_UNAWARE_CONFIG_VALUE)
 	return (existing != nil)
 }
 
@@ -2837,9 +2837,9 @@ func (this *JSDocInfo_Builder) recordUsedViaDotConstructor() bool {
 }
 
 func (this *JSDocInfo_Builder) setType(type_ *JSTypeExpression) *JSDocInfo_Builder {
-	this.props.remove(obj_(JSDocInfo_RETURN_TYPE))
-	this.props.remove(obj_(JSDocInfo_ENUM_PARAMETER_TYPE))
-	this.props.remove(obj_(JSDocInfo_TYPEDEF_TYPE))
+	this.props.remove(to_JSDocInfo_Property(obj_(JSDocInfo_RETURN_TYPE)))
+	this.props.remove(to_JSDocInfo_Property(obj_(JSDocInfo_ENUM_PARAMETER_TYPE)))
+	this.props.remove(to_JSDocInfo_Property(obj_(JSDocInfo_TYPEDEF_TYPE)))
 	this.setProp(JSDocInfo_TYPE.up_JSDocInfo_Property(), obj_(type_))
 	return this
 }
@@ -2871,11 +2871,11 @@ func (this *JSDocInfo_Builder) isConstructorOrInterface() bool {
 }
 
 func (this *JSDocInfo_Builder) setProp(prop *JSDocInfo_Property, value any) {
-	this.props.put(prop.self(), value)
+	this.props.put(prop, value)
 }
 
 func (this *JSDocInfo_Builder) getProp(prop *JSDocInfo_Property) any {
-	return this.props.get(prop.self())
+	return this.props.get(prop)
 }
 
 func (this *JSDocInfo_Builder) getPropWithDefault(prop *JSDocInfo_Property, supplier func() any) any {
@@ -2904,7 +2904,7 @@ func (this *JSDocInfo_Builder) populatePropEntry(prop *JSDocInfo_Property, key s
 
 func (this *JSDocInfo_Builder) populateProp(prop *JSDocInfo_Property, value any) bool {
 	this.populated = true
-	return (Map_putIfAbsent(icast_Map(obj_(this.props)), prop.self(), value) == nil)
+	return (Map_putIfAbsent(this.props.asMap(), prop.self(), value) == nil)
 }
 
 func (this *JSDocInfo_Builder) checkBit(bit JSDocInfo_Bit) bool {
