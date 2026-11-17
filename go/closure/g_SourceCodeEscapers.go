@@ -36,7 +36,7 @@ func SourceCodeEscapers_clinit() {
 		return
 	}
 	SourceCodeEscapers_clinit_done = true
-	SourceCodeEscapers_HEX_DIGITS = String_toCharArray("0123456789abcdef")
+	SourceCodeEscapers_HEX_DIGITS = []uint16{'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'}
 	SourceCodeEscapers_JAVASCRIPT_ESCAPER = new_SourceCodeEscapers_JavaScriptEscaper()
 
 }
@@ -141,18 +141,18 @@ func SourceCodeEscapers_JavaScriptEscaper_clinit() {
 			r[0] = '\\'
 			SourceCodeEscapers_JavaScriptEscaper_REPLACEMENT_CHARS[i] = r
 		}
-		SourceCodeEscapers_JavaScriptEscaper_REPLACEMENT_CHARS['\''] = String_toCharArray("\\x27")
-		SourceCodeEscapers_JavaScriptEscaper_REPLACEMENT_CHARS['"'] = String_toCharArray("\\x22")
-		SourceCodeEscapers_JavaScriptEscaper_REPLACEMENT_CHARS['<'] = String_toCharArray("\\x3c")
-		SourceCodeEscapers_JavaScriptEscaper_REPLACEMENT_CHARS['='] = String_toCharArray("\\x3d")
-		SourceCodeEscapers_JavaScriptEscaper_REPLACEMENT_CHARS['>'] = String_toCharArray("\\x3e")
-		SourceCodeEscapers_JavaScriptEscaper_REPLACEMENT_CHARS['&'] = String_toCharArray("\\x26")
-		SourceCodeEscapers_JavaScriptEscaper_REPLACEMENT_CHARS[0x0008] = String_toCharArray("\\b")
-		SourceCodeEscapers_JavaScriptEscaper_REPLACEMENT_CHARS['\t'] = String_toCharArray("\\t")
-		SourceCodeEscapers_JavaScriptEscaper_REPLACEMENT_CHARS['\n'] = String_toCharArray("\\n")
-		SourceCodeEscapers_JavaScriptEscaper_REPLACEMENT_CHARS[0x000C] = String_toCharArray("\\f")
-		SourceCodeEscapers_JavaScriptEscaper_REPLACEMENT_CHARS['\r'] = String_toCharArray("\\r")
-		SourceCodeEscapers_JavaScriptEscaper_REPLACEMENT_CHARS['\\'] = String_toCharArray("\\\\")
+		SourceCodeEscapers_JavaScriptEscaper_REPLACEMENT_CHARS['\''] = []uint16{'\\', 'x', '2', '7'}
+		SourceCodeEscapers_JavaScriptEscaper_REPLACEMENT_CHARS['"'] = []uint16{'\\', 'x', '2', '2'}
+		SourceCodeEscapers_JavaScriptEscaper_REPLACEMENT_CHARS['<'] = []uint16{'\\', 'x', '3', 'c'}
+		SourceCodeEscapers_JavaScriptEscaper_REPLACEMENT_CHARS['='] = []uint16{'\\', 'x', '3', 'd'}
+		SourceCodeEscapers_JavaScriptEscaper_REPLACEMENT_CHARS['>'] = []uint16{'\\', 'x', '3', 'e'}
+		SourceCodeEscapers_JavaScriptEscaper_REPLACEMENT_CHARS['&'] = []uint16{'\\', 'x', '2', '6'}
+		SourceCodeEscapers_JavaScriptEscaper_REPLACEMENT_CHARS[0x0008] = []uint16{'\\', 'b'}
+		SourceCodeEscapers_JavaScriptEscaper_REPLACEMENT_CHARS['\t'] = []uint16{'\\', 't'}
+		SourceCodeEscapers_JavaScriptEscaper_REPLACEMENT_CHARS['\n'] = []uint16{'\\', 'n'}
+		SourceCodeEscapers_JavaScriptEscaper_REPLACEMENT_CHARS[0x000C] = []uint16{'\\', 'f'}
+		SourceCodeEscapers_JavaScriptEscaper_REPLACEMENT_CHARS['\r'] = []uint16{'\\', 'r'}
+		SourceCodeEscapers_JavaScriptEscaper_REPLACEMENT_CHARS['\\'] = []uint16{'\\', '\\'}
 	}
 
 }

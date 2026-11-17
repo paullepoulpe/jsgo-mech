@@ -43,9 +43,9 @@ func ReportDecoder_parseMapping(mappingFileContent string) *Outcome_base[Map] {
 	if !strings.HasPrefix(typesLine, "Types:") {
 		panic(new_IllegalStateException_0())
 	}
-	var fileNamesAsJsonArray string = String_substring_int(fileNamesLine, (String_indexOf_String(fileNamesLine, ":") + 1))
-	var functionNamesAsJsonArray string = String_substring_int(functionNamesLine, (String_indexOf_String(functionNamesLine, ":") + 1))
-	var typesAsJsonArray string = String_substring_int(typesLine, (String_indexOf_String(typesLine, ":") + 1))
+	var fileNamesAsJsonArray string = fileNamesLine[(int32(strings.Index(fileNamesLine, ":")) + 1):]
+	var functionNamesAsJsonArray string = functionNamesLine[(int32(strings.Index(functionNamesLine, ":")) + 1):]
+	var typesAsJsonArray string = typesLine[(int32(strings.Index(typesLine, ":")) + 1):]
 	var localFileNamesOutcome *Outcome_base[List] = ReportDecoder_parseJsonStringList(fileNamesAsJsonArray)
 	if localFileNamesOutcome.isErr() {
 		return Outcome_base_err[Map](localFileNamesOutcome.error())
@@ -66,7 +66,7 @@ func ReportDecoder_parseMapping(mappingFileContent string) *Outcome_base[Map] {
 	}
 	for i := int32(3); i < int32(len(linesOfFile)); i++ {
 		var lineItem string = sliceAt_(linesOfFile, i)
-		var id string = String_substring(lineItem, 0, String_indexOf(lineItem, 58))
+		var id string = cutBytes_(lineItem, 0, int32(strings.IndexByte(lineItem, ':')))
 		var encodedDetails string = lineItem[strings.IndexByte(lineItem, ':')+1:]
 		var encodedDetailsAsCharIt *ReportDecoder_StringCharIterator = new_ReportDecoder_StringCharIterator(encodedDetails)
 		var temp *InstrumentationPoint = cast_[*InstrumentationPoint](InstrumentationPoint_newBuilder().setFileName(str_(localFileNames.get(Base64VLQ_decode(encodedDetailsAsCharIt)))).setFunctionName(str_(functionNames.get(Base64VLQ_decode(encodedDetailsAsCharIt)))).setType(types[Base64VLQ_decode(encodedDetailsAsCharIt)]).setLineNumber(Base64VLQ_decode(encodedDetailsAsCharIt)).setColumnNumber(Base64VLQ_decode(encodedDetailsAsCharIt)).build())

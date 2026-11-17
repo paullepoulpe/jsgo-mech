@@ -790,8 +790,8 @@ func (this *PeepholeFoldConstants) isSimpleTemplateStringValue(s string) bool {
 
 func (this *PeepholeFoldConstants) endsWithUnescapedBackslash(raw string) bool {
 	var backslashCount int32 = 0
-	for i := int32((String_length(raw) - 1)); i >= 0; i-- {
-		if String_charAt(raw, i) == '\\' {
+	for i := int32((int32(len(raw)) - 1)); i >= 0; i-- {
+		if byteAt_(raw, i) == '\\' {
 			backslashCount++
 		} else {
 			break
@@ -805,8 +805,8 @@ func (this *PeepholeFoldConstants) endsWithUnescapedDollar(raw string) bool {
 		return false
 	}
 	var backslashCount int32 = 0
-	for i := int32((String_length(raw) - 2)); i >= 0; i-- {
-		if String_charAt(raw, i) == '\\' {
+	for i := int32((int32(len(raw)) - 2)); i >= 0; i-- {
+		if byteAt_(raw, i) == '\\' {
 			backslashCount++
 		} else {
 			break
@@ -872,7 +872,7 @@ func (this *PeepholeFoldConstants) isRestrictedOctalEscape(prefixRaw string, suf
 	if suffixRaw == "" {
 		return false
 	}
-	var firstChar uint16 = String_charAt(suffixRaw, 0)
+	var firstChar uint16 = uint16(byteAt_(suffixRaw, 0))
 	if (int32(firstChar) < 48) || (int32(firstChar) > 57) {
 		return false
 	}

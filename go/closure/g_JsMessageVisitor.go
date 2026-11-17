@@ -229,14 +229,14 @@ func JsMessageVisitor_getExternalMessageId(messageKey string) OptionalOf[string]
 	if strings.HasPrefix(messageKey, JsMessageVisitor_MSG_EXTERNAL_PREFIX) {
 		var start int32 = int32(len(JsMessageVisitor_MSG_EXTERNAL_PREFIX))
 		var end int32 = start
-		for ; end < String_length(messageKey); end++ {
-			var c uint16 = String_charAt(messageKey, end)
+		for ; end < int32(len(messageKey)); end++ {
+			var c uint16 = uint16(messageKey[end])
 			if (int32(c) > 57) || (int32(c) < 48) {
 				break
 			}
 		}
 		if end > start {
-			return Optional_of[string](String_substring(messageKey, start, end))
+			return Optional_of[string](cutBytes_(messageKey, start, end))
 		}
 	}
 	return Optional_empty[string]()
@@ -666,27 +666,27 @@ func JsMessageVisitor_extractGoogGetMsgParsedText(originalMsgText string) *Outco
 	var partsBuilder ImmutableList_BuilderOf[JsMessage_Part] = ImmutableList_builder()
 	var placeholderNamesBuilder ImmutableSet_BuilderOf[string] = ImmutableSet_builder()
 	for {
-		var phBegin int32 = String_indexOf_String(msgText, JsMessage_PH_JS_PREFIX)
+		var phBegin int32 = int32(strings.Index(msgText, JsMessage_PH_JS_PREFIX))
 		if phBegin < 0 {
 			partsBuilder.add(obj_(JsMessage_StringPart_create(msgText)))
 			break
 		} else {
 			if phBegin > 0 {
-				partsBuilder.add(obj_(JsMessage_StringPart_create(String_substring(msgText, 0, phBegin))))
+				partsBuilder.add(obj_(JsMessage_StringPart_create(msgText[:phBegin])))
 			}
-			var phEnd int32 = String_indexOf_String_int(msgText, JsMessage_PH_JS_SUFFIX, phBegin)
+			var phEnd int32 = indexFrom_(msgText, JsMessage_PH_JS_SUFFIX, phBegin)
 			if phEnd < 0 {
 				return Outcome_base_err[JsMessageVisitor_GoogGetMsgParsedText](new_JsMessage_PlaceholderFormatException("Placeholder incorrectly formatted").up_Throwable())
 			}
-			var phName string = String_substring(msgText, (phBegin + int32(len(JsMessage_PH_JS_PREFIX))), phEnd)
+			var phName string = cutBytes_(msgText, (phBegin + int32(len(JsMessage_PH_JS_PREFIX))), phEnd)
 			if !JsMessage_isLowerCamelCaseWithNumericSuffixes(phName) {
 				return Outcome_base_err[JsMessageVisitor_GoogGetMsgParsedText](new_JsMessage_PlaceholderFormatException(("Placeholder name not in lowerCamelCase: " + sstr_(phName))).up_Throwable())
 			}
 			placeholderNamesBuilder.add(strobj_(phName))
 			partsBuilder.add(obj_(JsMessage_PlaceholderReference_createForJsName(phName)))
 			var nextPos int32 = (phEnd + int32(len(JsMessage_PH_JS_SUFFIX)))
-			if nextPos < String_length(msgText) {
-				msgText = String_substring_int(msgText, nextPos)
+			if nextPos < int32(len(msgText)) {
+				msgText = msgText[nextPos:]
 			} else {
 				break
 			}

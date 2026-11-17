@@ -235,8 +235,8 @@ func (this *ReplaceStrings) parseConfigurationList(functionsToInspect []string) 
 }
 
 func (this *ReplaceStrings) parseConfiguration(function string) *ReplaceStrings_Config {
-	var first int32 = String_indexOf(function, 40)
-	var last int32 = String_indexOf(function, 41)
+	var first int32 = int32(strings.IndexByte(function, '('))
+	var last int32 = int32(strings.IndexByte(function, ')'))
 	var colon int32 = int32(strings.Index(function, ReplaceStrings_EXCLUSION_PREFIX))
 	if first == -1 || last == -1 {
 		panic(new_IllegalStateException_0())
@@ -245,8 +245,8 @@ func (this *ReplaceStrings) parseConfiguration(function string) *ReplaceStrings_
 		this.compiler_.report(JSError_make_DiagnosticType_StringArr(ReplaceStrings_BAD_REPLACEMENT_CONFIGURATION, []string{function, "Cannot replace strings passed to prototype methods."}))
 		return nil
 	}
-	var name string = String_substring(function, 0, first)
-	var params string = String_substring(function, (first + 1), last)
+	var name string = function[:first]
+	var params string = cutBytes_(function, (first + 1), last)
 	var paramCount int32 = 0
 	var replacementParameters ListOf[BoxedOf[int32]] = new_ArrayList_0()
 	var parts []string = sliceImm_(tc_string, Splitter_on(',').splitToList_s(params))

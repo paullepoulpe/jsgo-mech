@@ -98,12 +98,12 @@ func (this *GoogleCodingConvention) getPackageName_impl(source StaticSourceFile)
 	if m.find() {
 		return Optional_ofNullable[string](m.group(1))
 	} else {
-		var lastSlash int32 = String_lastIndexOf(name, 47)
+		var lastSlash int32 = int32(strings.LastIndexByte(name, '/'))
 		return func() OptionalOf[string] {
 			if lastSlash == -1 {
 				return Optional_of[string]("")
 			}
-			return Optional_of[string](String_substring(name, 0, lastSlash))
+			return Optional_of[string](name[:lastSlash])
 		}()
 	}
 }

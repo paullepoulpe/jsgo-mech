@@ -618,7 +618,7 @@ func CommandLineRunner_findJsFiles_Collection_boolean(patterns CollectionOf[stri
 }
 
 func CommandLineRunner_matchPaths(pattern string, allJsInputs MapOf[string, string], excludes map[string]struct{}) *Outcome_base[any] {
-	var remove bool = (String_indexOf(pattern, 33) == 0)
+	var remove bool = (int32(strings.IndexByte(pattern, '!')) == 0)
 	if remove {
 		pattern = String_substring_int(pattern, 1)
 	}

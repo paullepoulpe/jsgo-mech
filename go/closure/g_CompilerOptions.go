@@ -2484,7 +2484,7 @@ func CompilerOptions_clinit() {
 	CompilerOptions_clinit_done = true
 	CompilerOptions_ECMASCRIPT_PATTERN = Pattern_compile("ECMASCRIPT")
 	CompilerOptions_LEADING_ES_PATTERN = Pattern_compile("^ES")
-	CompilerOptions_POLYMER_PROPERTY_RESERVED_FIRST_CHARS = ImmutableSet_copyOf(Collection(Chars_asList(String_toCharArray("ABCDEFGHIJKLMNOPQRSTUVWXYZ$"))))
+	CompilerOptions_POLYMER_PROPERTY_RESERVED_FIRST_CHARS = ImmutableSet_copyOf(Collection(Chars_asList([]uint16{'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', '$'})))
 	CompilerOptions_POLYMER_PROPERTY_RESERVED_NON_FIRST_CHARS = ImmutableSet_of_Object_Object(any(uint16('_')), any(uint16('$')))
 	CompilerOptions_ANGULAR_PROPERTY_RESERVED_FIRST_CHARS = ImmutableSet_of_Object(any(uint16('$')))
 

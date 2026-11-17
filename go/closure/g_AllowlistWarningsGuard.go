@@ -119,9 +119,9 @@ func (this *AllowlistWarningsGuard) normalizeSourceName(sourceName OptionalOf[st
 }
 
 func AllowlistWarningsGuard_getFirstLine(warning string) string {
-	var lineLength int32 = String_indexOf(warning, 10)
+	var lineLength int32 = int32(strings.IndexByte(warning, '\n'))
 	if lineLength > 0 {
-		warning = String_substring(warning, 0, lineLength)
+		warning = warning[:lineLength]
 	}
 	return warning
 }

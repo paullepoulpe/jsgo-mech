@@ -308,7 +308,7 @@ func NodeUtil_getStringNumberValue(rawJsString string) any {
 	}
 	if (String_length(s) >= 2) && (s[0] == '0') {
 		var radix int32 = 0
-		var prefix uint16 = String_charAt(s, 1)
+		var prefix uint16 = uint16(byteAt_(s, 1))
 		if (prefix == 'x') || (prefix == 'X') {
 			radix = 16
 		} else if (prefix == 'b') || (prefix == 'B') {
@@ -333,7 +333,7 @@ func NodeUtil_getStringNumberValue(rawJsString string) any {
 			}
 		}
 	}
-	if (((String_length(s) > 3) && ((s[0] == '-') || (s[0] == '+'))) && (s[1] == '0')) && ((String_charAt(s, 2) == 'x') || (String_charAt(s, 2) == 'X')) {
+	if (((String_length(s) > 3) && ((s[0] == '-') || (s[0] == '+'))) && (s[1] == '0')) && ((byteAt_(s, 2) == 'x') || (byteAt_(s, 2) == 'X')) {
 		return nil
 	}
 	if ((s == "infinity") || (s == "-infinity")) || (s == "+infinity") {
@@ -448,7 +448,7 @@ func NodeUtil_getStringBigIntValue(rawJsString string) *BigInteger {
 	}
 	if (String_length(s) > 2) && (s[0] == '0') {
 		var radix int32 = func() int32 {
-			switch String_charAt(s, 1) {
+			switch byteAt_(s, 1) {
 			case 'x', 'X':
 				return 16
 			case 'o', 'O':
@@ -2905,9 +2905,9 @@ func NodeUtil_newNameCodingConvention_CodingConvention_String_Node_String(conven
 }
 
 func NodeUtil_isLatin(s string) bool {
-	var len_ int32 = String_length(s)
+	var len_ int32 = int32(len(s))
 	for index := int32(0); index < len_; index++ {
-		var c uint16 = String_charAt(s, index)
+		var c uint16 = uint16(s[index])
 		if int32(c) > int32(NodeUtil_LARGEST_BASIC_LATIN) {
 			return false
 		}
@@ -4487,14 +4487,14 @@ func NodeUtil_getOriginalName(name string) string {
 	name = NodeUtil_UNIQUE_NAME_SUFFIX_PATTERN.matcher_s(name).replaceAll("")
 	name = MakeDeclaredNamesUnique_ContextualRenameInverter_getOriginalName(name)
 	if strings.HasPrefix(name, "module$exports$") {
-		var lastDollar int32 = String_lastIndexOf(name, 36)
+		var lastDollar int32 = int32(strings.LastIndexByte(name, '$'))
 		if lastDollar != -1 {
-			name = String_substring_int(name, (lastDollar + 1))
+			name = name[(lastDollar + 1):]
 		}
 	} else if strings.HasPrefix(name, "module$contents$") {
-		var lastUnderscore int32 = String_lastIndexOf(name, 95)
+		var lastUnderscore int32 = int32(strings.LastIndexByte(name, '_'))
 		if lastUnderscore != -1 {
-			name = String_substring_int(name, (lastUnderscore + 1))
+			name = name[(lastUnderscore + 1):]
 		}
 	}
 	return name

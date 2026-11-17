@@ -384,7 +384,7 @@ func (this *CodePrinter_PrettyCodePrinter) endCaseBody_impl() {
 }
 
 func (this *CodePrinter_PrettyCodePrinter) appendOp_impl(op string, binOp bool) {
-	if ((this.getLastChar() != ' ') && binOp) && (String_charAt(op, 0) != ',') {
+	if ((this.getLastChar() != ' ') && binOp) && (byteAt_(op, 0) != ',') {
 		this.add(" ")
 	}
 	this.add(op)

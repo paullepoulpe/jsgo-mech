@@ -764,7 +764,7 @@ func (this *PolymerClassRewriter) validateReflectedString(methodSignature Node) 
 	}
 	var methodSignatureString string = strings.Trim(methodSignature.getString(), javaSpace_)
 	var openParenIndex int32 = String_indexOf(methodSignatureString, 40)
-	if (String_charAt(methodSignatureString, (String_length(methodSignatureString)-1)) != ')') || (openParenIndex < 1) {
+	if (byteAt_(methodSignatureString, (int32(len(methodSignatureString))-1)) != ')') || (openParenIndex < 1) {
 		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(methodSignature, PolymerPassErrors_POLYMER_UNPARSABLE_STRING, []string{}))
 		return
 	}

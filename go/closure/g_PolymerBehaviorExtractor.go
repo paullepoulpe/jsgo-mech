@@ -279,12 +279,12 @@ func (this *PolymerBehaviorExtractor) resolveModuleNamespaceBinding(b *Binding, 
 		return PolymerBehaviorExtractor_FAILED_RESOLVE_RESULT
 	}
 	rest = String_substring_int(rest, 1)
-	var dot int32 = String_indexOf(rest, 46)
+	var dot int32 = int32(strings.IndexByte(rest, '.'))
 	var exportedName string = func() string {
 		if dot == -1 {
 			return rest
 		}
-		return String_substring(rest, 0, dot)
+		return rest[:dot]
 	}()
 	var originalModule *Module = this.moduleMap.getModule(b.metadata().path())
 	var exportBinding *Binding = cast_[*Binding](Map_get_s(originalModule.namespace(), exportedName))
@@ -295,7 +295,7 @@ func (this *PolymerBehaviorExtractor) resolveModuleNamespaceBinding(b *Binding, 
 		if dot == -1 {
 			return ""
 		}
-		return String_substring_int(rest, dot)
+		return rest[dot:]
 	}()))), b.metadata())
 }
 
