@@ -1854,7 +1854,7 @@ func Map_get_s(m any, k string) any {
 		if h := hashMapOf_(m); h != nil {
 			return h.get_s(k)
 		}
-		if im, ok := m.(*ImmutableMap); ok && im != nil {
+		if im, ok := m.(*ErasedImmutableMap); ok && im != nil {
 			return im.get_s(k)
 		}
 		if tm, ok := m.(*TreeMap); ok && tm.strKeyed() {
@@ -1872,7 +1872,7 @@ func Map_containsKey_s(m any, k string) bool {
 		if h := hashMapOf_(m); h != nil {
 			return h.t.findStr(k) >= 0
 		}
-		if im, ok := m.(*ImmutableMap); ok && im != nil {
+		if im, ok := m.(*ErasedImmutableMap); ok && im != nil {
 			return im.containsKey_s(k)
 		}
 		if tm, ok := m.(*TreeMap); ok && tm.strKeyed() {
