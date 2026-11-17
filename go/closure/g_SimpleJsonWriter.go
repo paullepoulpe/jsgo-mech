@@ -3,7 +3,7 @@
 package closure
 
 type SimpleJsonWriter struct {
-	out            *StringBuilder
+	out            *strBuilder_
 	stack          ArrayListOf[BoxedOf[int32]]
 	indent_        string
 	htmlSafe       bool
@@ -17,7 +17,7 @@ func (this *SimpleJsonWriter) zero_SimpleJsonWriter() {
 }
 
 func (this *SimpleJsonWriter) finit_SimpleJsonWriter() {
-	this.out = new_StringBuilder()
+	this.out = &strBuilder_{}
 	this.stack = new_ArrayList_0()
 	this.indent_ = ""
 	this.htmlSafe = false

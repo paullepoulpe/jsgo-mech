@@ -100,7 +100,7 @@ func ApplySuggestedFixes_applyCodeReplacements(replacements CollectionOf[*CodeRe
 	if ok_, a1_ := !ApplySuggestedFixes_containsOverlaps(sortedReplacements), ApplySuggestedFixes_DOUBLE_LINE_JOINER.join(icast_Iterable(obj_(sortedReplacements))); !ok_ {
 		panic(new_IllegalArgumentException_String(Strings_lenientFormat("Found overlap between code replacements:\n%s", []any{strobj_(a1_)})).self())
 	}
-	var sb *StringBuilder = new_StringBuilder()
+	var sb strBuilder_
 	var lastIndex int32 = 0
 	for replacement := range elemsAs_[*CodeReplacement](obj_(sortedReplacements)) {
 		sb.append_CharSequence_int_int_s(code, lastIndex, replacement.getStartPosition())
@@ -110,7 +110,7 @@ func ApplySuggestedFixes_applyCodeReplacements(replacements CollectionOf[*CodeRe
 	if lastIndex <= String_length(code) {
 		sb.append_CharSequence_int_int_s(code, lastIndex, String_length(code))
 	}
-	return tostrNN_(sb)
+	return sb.toString()
 }
 
 func ApplySuggestedFixes_containsOverlaps(replacements ImmutableSortedSetOf[*CodeReplacement]) bool {

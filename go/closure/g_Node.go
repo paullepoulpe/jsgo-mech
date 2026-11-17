@@ -1195,12 +1195,12 @@ func (this Node) toString() string {
 }
 
 func (this Node) toString_3(printSource bool, printAnnotations bool, printType bool) string {
-	var sb *StringBuilder = new_StringBuilder()
-	this.toString_4(sb, printSource, printAnnotations, printType)
-	return tostrNN_(sb)
+	var sb strBuilder_
+	this.toString_4(&sb, printSource, printAnnotations, printType)
+	return sb.toString()
 }
 
-func (this Node) toString_4(sb *StringBuilder, printSource bool, printAnnotations bool, printType bool) {
+func (this Node) toString_4(sb *strBuilder_, printSource bool, printAnnotations bool, printType bool) {
 	sb.append_Object(obj_(Token_rhino(this.ns_().token)))
 	if (*this.payload_s_()) != nullstr_ {
 		sb.append_char(' ')
@@ -1354,7 +1354,7 @@ func (this Node) toStringTreeImpl() string {
 		}()
 		var s *StringBuilder = new_StringBuilder()
 		this.appendStringTree(s)
-		ret_1 = tostrNN_(s)
+		ret_1 = s.toString()
 		return 1
 	}()
 	if code_1 == 1 {

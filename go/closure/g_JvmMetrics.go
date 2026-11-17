@@ -191,12 +191,13 @@ func JvmMetrics_normalizeName(name string) string {
 }
 
 func JvmMetrics_normalizeTabularColonPos(string_ string) string {
-	var sb *StringBuilder = new_StringBuilder_String(string_)
+	var sb strBuilder_
+	sb.append(string_)
 	var index int32 = sb.indexOf(":")
 	for ; index < JvmMetrics_TABULAR_COLON_POS; index++ {
 		sb.insert(index, ' ')
 	}
-	return tostrNN_(sb)
+	return sb.toString()
 }
 
 func JvmMetrics_formatBytes(numBytes int64) string {

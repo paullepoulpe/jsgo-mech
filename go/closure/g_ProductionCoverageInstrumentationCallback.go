@@ -249,7 +249,7 @@ func (this *ProductionCoverageInstrumentationCallback_ParameterMapping) getEncod
 	this.fileNameToIndex.putIfAbsent(fileName, any(int32(this.fileNameToIndex.size())))
 	this.functionNameToIndex.putIfAbsent(functionName, any(int32(this.functionNameToIndex.size())))
 	this.typeToIndex.putIfAbsent(type_.name(), any(int32(this.typeToIndex.size())))
-	var sb *StringBuilder = new_StringBuilder()
+	var sb *strBuilder_ = &strBuilder_{}
 	_ = func() (code_ int) {
 		defer func() {
 			if r_ := recover(); r_ != nil {
@@ -261,20 +261,20 @@ func (this *ProductionCoverageInstrumentationCallback_ParameterMapping) getEncod
 				panic(r_)
 			}
 		}()
-		Base64VLQ_encode(icast_Appendable(obj_(sb)), unbox_[int32](this.fileNameToIndex.get(fileName)))
-		Base64VLQ_encode(icast_Appendable(obj_(sb)), unbox_[int32](this.functionNameToIndex.get(functionName)))
-		Base64VLQ_encode(icast_Appendable(obj_(sb)), unbox_[int32](this.typeToIndex.get(type_.name())))
-		Base64VLQ_encode(icast_Appendable(obj_(sb)), lineNo)
-		Base64VLQ_encode(icast_Appendable(obj_(sb)), colNo)
+		Base64VLQ_encode_sb(sb, unbox_[int32](this.fileNameToIndex.get(fileName)))
+		Base64VLQ_encode_sb(sb, unbox_[int32](this.functionNameToIndex.get(functionName)))
+		Base64VLQ_encode_sb(sb, unbox_[int32](this.typeToIndex.get(type_.name())))
+		Base64VLQ_encode_sb(sb, lineNo)
+		Base64VLQ_encode_sb(sb, colNo)
 		return 0
 	}()
-	var encodedParam string = tostrNN_(sb)
+	var encodedParam string = sb.toString()
 	if !this.paramValueEncodings.containsKey(encodedParam) {
 		var uniqueIdentifier int64 = this.generateUniqueIdentifier()
 		if uniqueIdentifier > int64(int32(2147483647)) {
 			panic(new_ArithmeticException_String("Unique Identifier exceeds value of Integer.MAX_VALUE, could not encode with Base 64 VLQ").self())
 		}
-		sb = new_StringBuilder()
+		sb = &strBuilder_{}
 		_ = func() (code_ int) {
 			defer func() {
 				if r_ := recover(); r_ != nil {
@@ -286,10 +286,10 @@ func (this *ProductionCoverageInstrumentationCallback_ParameterMapping) getEncod
 					panic(r_)
 				}
 			}()
-			Base64VLQ_encode(icast_Appendable(obj_(sb)), Math_toIntExact(uniqueIdentifier))
+			Base64VLQ_encode_sb(sb, Math_toIntExact(uniqueIdentifier))
 			return 0
 		}()
-		this.paramValueEncodings.put(encodedParam, tostrNN_(sb))
+		this.paramValueEncodings.put(encodedParam, sb.toString())
 	}
 	return this.paramValueEncodings.get(encodedParam)
 }

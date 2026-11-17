@@ -1737,7 +1737,8 @@ func (this *CodeGenerator) regexpEscape(s string) string {
 }
 
 func (this *CodeGenerator) strEscape(s string, doublequoteEscape string, singlequoteEscape string, backtickEscape string, backslashEscape string, dollarEscape string, isRegexp bool) string {
-	var sb *StringBuilder = new_StringBuilder_int((String_length(s) + 2))
+	var sb strBuilder_
+	sb.grow((String_length(s) + 2))
 	for i, c := range stringUnits_(s) {
 		switch c {
 		case 0x0000:
@@ -1769,13 +1770,13 @@ func (this *CodeGenerator) strEscape(s string, doublequoteEscape string, singleq
 		case '`':
 			sb.append(backtickEscape)
 		case '=':
-			this.appendEscapedEq(sb, isRegexp)
+			this.appendEscapedEq(&sb, isRegexp)
 		case '&':
-			this.appendEscapedAmp(sb, isRegexp)
+			this.appendEscapedAmp(&sb, isRegexp)
 		case '>':
-			this.appendEscapedGt(sb, s, i, isRegexp)
+			this.appendEscapedGt(&sb, s, i, isRegexp)
 		case '<':
-			this.appendEscapedLt(sb, s, i, isRegexp)
+			this.appendEscapedLt(&sb, s, i, isRegexp)
 		default:
 			if isRegexp || !this.outputFeatureSet.contains(FeatureSet_Feature_UNESCAPED_UNICODE_LINE_OR_PARAGRAPH_SEP) {
 				if c == 0x2028 {
@@ -1790,14 +1791,14 @@ func (this *CodeGenerator) strEscape(s string, doublequoteEscape string, singleq
 			if ((this.outputCharsetEncoder != nil) && this.outputCharsetEncoder.canEncode(c)) || ((int32(c) > 31) && (int32(c) < 127)) {
 				sb.append_char(c)
 			} else {
-				Util_appendHexJavaScriptRepresentation(sb, c)
+				Util_appendHexJavaScriptRepresentation(&sb, c)
 			}
 		}
 	}
-	return tostrNN_(sb)
+	return sb.toString()
 }
 
-func (this *CodeGenerator) appendEscapedEq(sb *StringBuilder, isRegexp bool) {
+func (this *CodeGenerator) appendEscapedEq(sb *strBuilder_, isRegexp bool) {
 	if this.trustedStrings || isRegexp {
 		sb.append_char('=')
 	} else {
@@ -1805,7 +1806,7 @@ func (this *CodeGenerator) appendEscapedEq(sb *StringBuilder, isRegexp bool) {
 	}
 }
 
-func (this *CodeGenerator) appendEscapedAmp(sb *StringBuilder, isRegexp bool) {
+func (this *CodeGenerator) appendEscapedAmp(sb *strBuilder_, isRegexp bool) {
 	if this.trustedStrings || isRegexp {
 		sb.append_char('&')
 	} else {
@@ -1813,7 +1814,7 @@ func (this *CodeGenerator) appendEscapedAmp(sb *StringBuilder, isRegexp bool) {
 	}
 }
 
-func (this *CodeGenerator) appendEscapedGt(sb *StringBuilder, s string, index int32, isRegexp bool) {
+func (this *CodeGenerator) appendEscapedGt(sb *strBuilder_, s string, index int32, isRegexp bool) {
 	if !this.trustedStrings && !isRegexp {
 		sb.append(CodeGenerator_GT_ESCAPED)
 		return
@@ -1825,7 +1826,7 @@ func (this *CodeGenerator) appendEscapedGt(sb *StringBuilder, s string, index in
 	}
 }
 
-func (this *CodeGenerator) appendEscapedLt(sb *StringBuilder, s string, index int32, isRegexp bool) {
+func (this *CodeGenerator) appendEscapedLt(sb *strBuilder_, s string, index int32, isRegexp bool) {
 	if !this.trustedStrings && !isRegexp {
 		sb.append(CodeGenerator_LT_ESCAPED)
 		return
@@ -1841,7 +1842,7 @@ func (this *CodeGenerator) appendEscapedLt(sb *StringBuilder, s string, index in
 }
 
 func (this *CodeGenerator) escapeUnrecognizedCharacters(s string) string {
-	var sb *StringBuilder = new_StringBuilder()
+	var sb strBuilder_
 	var escapeStart int32 = -1
 	for i, c := range stringUnits_(s) {
 		var start int32 = sb.length()
@@ -1849,18 +1850,18 @@ func (this *CodeGenerator) escapeUnrecognizedCharacters(s string) string {
 		case 0x0008, 0x000C, '\n', '\r', '\t', '\\', '"', '\'', '$', '`', 0x2028, 0x2029:
 			sb.append_char(c)
 		case '=':
-			this.appendEscapedEq(sb, false)
+			this.appendEscapedEq(&sb, false)
 		case '&':
-			this.appendEscapedAmp(sb, false)
+			this.appendEscapedAmp(&sb, false)
 		case '>':
-			this.appendEscapedGt(sb, s, i, false)
+			this.appendEscapedGt(&sb, s, i, false)
 		case '<':
-			this.appendEscapedLt(sb, s, i, false)
+			this.appendEscapedLt(&sb, s, i, false)
 		default:
 			if ((this.outputCharsetEncoder != nil) && this.outputCharsetEncoder.canEncode(c)) || ((int32(c) > 31) && (int32(c) < 127)) {
 				sb.append_char(c)
 			} else {
-				Util_appendHexJavaScriptRepresentation(sb, c)
+				Util_appendHexJavaScriptRepresentation(&sb, c)
 			}
 		}
 		if escapeStart >= 0 {
@@ -1872,22 +1873,22 @@ func (this *CodeGenerator) escapeUnrecognizedCharacters(s string) string {
 			escapeStart = start
 		}
 	}
-	return tostrNN_(sb)
+	return sb.toString()
 }
 
 func CodeGenerator_identifierEscape(s string) string {
 	if NodeUtil_isLatin(s) {
 		return s
 	}
-	var sb *StringBuilder = new_StringBuilder()
+	var sb strBuilder_
 	for _, c := range stringUnits_(s) {
 		if (int32(c) > 31) && (int32(c) < 127) {
 			sb.append_char(c)
 		} else {
-			Util_appendHexJavaScriptRepresentation(sb, c)
+			Util_appendHexJavaScriptRepresentation(&sb, c)
 		}
 	}
-	return tostrNN_(sb)
+	return sb.toString()
 }
 
 func CodeGenerator_getNonEmptyChildCount(n Node, maxCount int32) int32 {

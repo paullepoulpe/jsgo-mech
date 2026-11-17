@@ -52,7 +52,7 @@ func DotFormatter_toDot_Node_ControlFlowGraph(n Node, inCFG *ControlFlowGraph) s
 	var builder *StringBuilder = new_StringBuilder()
 	var unused *DotFormatter = new_DotFormatter_Node_ControlFlowGraph_Appendable_boolean(n, inCFG, builder, false)
 	_ = unused
-	return tostrNN_(builder)
+	return builder.toString()
 }
 
 func DotFormatter_toDot_GraphvizGraph(graph GraphvizGraph) string {

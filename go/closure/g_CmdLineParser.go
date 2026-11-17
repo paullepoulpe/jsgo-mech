@@ -76,8 +76,8 @@ func (this *CmdLineParser) setUsageWidth(usageWidth int32) {
 	this.usageWidth = usageWidth
 }
 
-func (this *CmdLineParser) printUsage(out *StringBuilder, filter func(any) bool) {
-	var w *StringBuilder = out
+func (this *CmdLineParser) printUsage(out *strBuilder_, filter func(any) bool) {
+	var w *strBuilder_ = out
 	var len_ int32 = 0
 	for option := range this.sortedOptions().All() {
 		var curLen int32 = func() int32 {
@@ -93,7 +93,7 @@ func (this *CmdLineParser) printUsage(out *StringBuilder, filter func(any) bool)
 	}
 }
 
-func (this *CmdLineParser) printOption(out *StringBuilder, option *CmdLineParser_Option, len_ int32, filter func(any) bool) {
+func (this *CmdLineParser) printOption(out *strBuilder_, option *CmdLineParser_Option, len_ int32, filter func(any) bool) {
 	if (len(option.usageField) == 0) || !filter(obj_(option)) {
 		return
 	}
@@ -547,14 +547,14 @@ func (this *CmdLineParser_Option) parseEnum(values []*Enum, params CmdLineParser
 }
 
 func CmdLineParser_Option_enumMetaVariable(values []*Enum) string {
-	var rv *StringBuilder = new_StringBuilder()
+	var rv strBuilder_
 	rv.append("[")
 	for _, value := range values {
 		rv.append_Object(value.self()).append(" | ")
 	}
 	rv.delete((rv.length() - 3), rv.length())
 	rv.append("]")
-	return tostrNN_(rv)
+	return rv.toString()
 }
 
 func CmdLineParser_Option_addValue(get func() any, set func(any), value any) {

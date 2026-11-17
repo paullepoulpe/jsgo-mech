@@ -52,12 +52,12 @@ func (this *SuggestedFix) toString() string {
 	if this.isNoOp() {
 		return "<no-op SuggestedFix>"
 	}
-	var sb *StringBuilder = new_StringBuilder()
+	var sb strBuilder_
 	for entry := range elemsBy_(this.replacements.asMap().entrySet(), icast_Map_Entry) {
 		sb.append("Replacements for file: ").append(str_(entry.getKey())).append("\n")
-		Joiner_on("\n\n").appendTo(sb, icast_Iterable(entry.getValue()))
+		Joiner_on("\n\n").appendToStr_(&sb, icast_Iterable(entry.getValue()))
 	}
-	return tostrNN_(sb)
+	return sb.toString()
 }
 
 func SuggestedFix_getStartPositionForNodeConsideringComments(node Node) int32 {

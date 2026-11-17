@@ -290,14 +290,14 @@ func (this *JSDocInfoPrinter) print(info *JSDocInfo) string {
 			parts.insert(1, cleaned)
 		}
 	}
-	var sb *StringBuilder = new_StringBuilder()
+	var sb strBuilder_
 	if multiline {
-		Joiner_on("\n").appendTo(sb, Iterable(parts.asList()))
+		Joiner_on("\n").appendToStr_(&sb, Iterable(parts.asList()))
 	} else {
-		Joiner_on(" ").appendTo(sb, Iterable(parts.asList()))
+		Joiner_on(" ").appendToStr_(&sb, Iterable(parts.asList()))
 		sb.append(" */")
 	}
-	var s string = JSDocInfoPrinter_STAR_WITHOUT_SPACE_PATTERN.matcher_s(strings.ReplaceAll(tostrNN_(sb), "\n", "\n *")).replaceAll("\n * $1")
+	var s string = JSDocInfoPrinter_STAR_WITHOUT_SPACE_PATTERN.matcher_s(strings.ReplaceAll(sb.toString(), "\n", "\n *")).replaceAll("\n * $1")
 	if multiline {
 		s += "\n */\n"
 	} else {
@@ -326,17 +326,17 @@ func (this *JSDocInfoPrinter) buildAnnotationWithType(annotation string, type_ N
 }
 
 func (this *JSDocInfoPrinter) buildAnnotationWithTypeNode(annotation string, type_ Node, description OptionalOf[string]) string {
-	var sb *StringBuilder = new_StringBuilder()
+	var sb strBuilder_
 	sb.append("@")
 	sb.append(annotation)
 	sb.append(" {")
-	this.appendTypeNode(sb, type_)
+	this.appendTypeNode(&sb, type_)
 	sb.append("}")
 	if description.isPresent() {
 		sb.append(" ")
 		sb.append(description.get())
 	}
-	return tostrNN_(sb)
+	return sb.toString()
 }
 
 func (this *JSDocInfoPrinter) buildParamType(info *JSDocInfo, name string) string {
@@ -355,12 +355,12 @@ func (this *JSDocInfoPrinter) buildParamType(info *JSDocInfo, name string) strin
 }
 
 func (this *JSDocInfoPrinter) typeNode(typeNode Node) string {
-	var sb *StringBuilder = new_StringBuilder()
-	this.appendTypeNode(sb, typeNode)
-	return tostrNN_(sb)
+	var sb strBuilder_
+	this.appendTypeNode(&sb, typeNode)
+	return sb.toString()
 }
 
-func (this *JSDocInfoPrinter) appendTypeNode(sb *StringBuilder, typeNode Node) {
+func (this *JSDocInfoPrinter) appendTypeNode(sb *strBuilder_, typeNode Node) {
 	if this.useOriginalName && typeNode.getOriginalName() != "" {
 		sb.append(typeNode.getOriginalName())
 		return
@@ -446,7 +446,7 @@ func (this *JSDocInfoPrinter) appendTypeNode(sb *StringBuilder, typeNode Node) {
 	}
 }
 
-func (this *JSDocInfoPrinter) appendFunctionNode(sb *StringBuilder, function Node) {
+func (this *JSDocInfoPrinter) appendFunctionNode(sb *strBuilder_, function Node) {
 	var hasNewOrThis bool = false
 	sb.append("function(")
 	var first Node = function.getFirstChild()

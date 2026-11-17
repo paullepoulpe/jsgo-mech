@@ -44,6 +44,19 @@ func Base64VLQ_encode(out Appendable, value int32) {
 	}
 }
 
+// Base64VLQ_encode_sb is Base64VLQ_encode appending to a *strBuilder_ (post-flip step sbuild).
+func Base64VLQ_encode_sb(out *strBuilder_, value int32) {
+	value = Base64VLQ_toVLQSigned(value)
+	for do_2 := true; do_2; do_2 = (value > 0) {
+		var digit int32 = (value & Base64VLQ_VLQ_BASE_MASK)
+		value = int32(uint32(value) >> 5)
+		if value > 0 {
+			digit |= Base64VLQ_VLQ_CONTINUATION_BIT
+		}
+		out.append_char(Base64_toBase64(digit))
+	}
+}
+
 func Base64VLQ_decode(in Base64VLQ_CharIterator) int32 {
 	var result int32 = 0
 	var continuation bool

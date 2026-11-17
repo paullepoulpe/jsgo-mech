@@ -20,9 +20,10 @@ func Util_escapeString(s string) string {
 	var doublequoteEscape string = "\\\""
 	var singlequoteEscape string = "'"
 	var backslashEscape string = "\\\\"
-	var sb *StringBuilder = new_StringBuilder_int((String_length(s) + 2))
+	var sb strBuilder_
+	sb.grow((String_length(s) + 2))
 	sb.append_char(quote)
-	var region *Util_1UnescapedRegion = new_Util_1UnescapedRegion(sb, s)
+	var region *Util_1UnescapedRegion = new_Util_1UnescapedRegion(&sb, s)
 	var length int32 = String_length(s)
 	for i := int32(0); i < length; i++ {
 		var c uint16 = String_charAt(s, i)
@@ -61,16 +62,16 @@ func Util_escapeString(s string) string {
 			} else {
 				region.appendUnescaped()
 				region.incrementForEscapedChar()
-				Util_appendHexJavaScriptRepresentation(sb, c)
+				Util_appendHexJavaScriptRepresentation(&sb, c)
 			}
 		}
 	}
 	region.appendUnescaped()
 	sb.append_char(quote)
-	return tostrNN_(sb)
+	return sb.toString()
 }
 
-func Util_appendHexJavaScriptRepresentation(sb *StringBuilder, c uint16) {
+func Util_appendHexJavaScriptRepresentation(sb *strBuilder_, c uint16) {
 	_ = func() (code_ int) {
 		defer func() {
 			if r_ := recover(); r_ != nil {
@@ -82,12 +83,12 @@ func Util_appendHexJavaScriptRepresentation(sb *StringBuilder, c uint16) {
 				panic(r_)
 			}
 		}()
-		Util_appendHexJavaScriptRepresentationInt(int32(c), icast_Appendable(obj_(sb)))
+		Util_appendHexJavaScriptRepresentationInt(int32(c), sb)
 		return 0
 	}()
 }
 
-func Util_appendHexJavaScriptRepresentationInt(codePoint int32, out Appendable) {
+func Util_appendHexJavaScriptRepresentationInt(codePoint int32, out *strBuilder_) {
 	if Character_isSupplementaryCodePoint(codePoint) {
 		var surrogates []uint16 = Character_toChars(codePoint)
 		Util_appendHexJavaScriptRepresentationInt(int32(surrogates[0]), out)
@@ -111,7 +112,7 @@ func Util_clinit() {
 }
 
 type Util_1UnescapedRegion struct {
-	cap_sb               *StringBuilder
+	cap_sb               *strBuilder_
 	cap_s                string
 	unescapedRegionStart int32
 	unescapedRegionEnd   int32
@@ -126,7 +127,7 @@ func (this *Util_1UnescapedRegion) init_Util_1UnescapedRegion() {
 	this.finit_Util_1UnescapedRegion()
 }
 
-func new_Util_1UnescapedRegion(cap_sb *StringBuilder, cap_s string) *Util_1UnescapedRegion {
+func new_Util_1UnescapedRegion(cap_sb *strBuilder_, cap_s string) *Util_1UnescapedRegion {
 	this := &Util_1UnescapedRegion{}
 	this.cap_sb = cap_sb
 	this.cap_s = cap_s

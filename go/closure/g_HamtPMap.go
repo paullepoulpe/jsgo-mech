@@ -54,14 +54,14 @@ func HamtPMap_emptyChildren[K, V comparable]() []*HamtPMap[K, V] {
 }
 
 func (this *HamtPMap[K, V]) toString() string {
-	var sb *StringBuilder = new_StringBuilder().append("{")
+	var sb *strBuilder_ = (&strBuilder_{}).append("{")
 	if !this.isEmpty() {
 		this.appendTo(sb)
 	}
 	return tostrNN_(sb.append("}"))
 }
 
-func (this *HamtPMap[K, V]) appendTo(sb *StringBuilder) {
+func (this *HamtPMap[K, V]) appendTo(sb *strBuilder_) {
 	if sb.length() > 1 {
 		sb.append(", ")
 	}
