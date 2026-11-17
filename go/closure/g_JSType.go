@@ -677,6 +677,9 @@ func (this *JSType) isOrdinaryFunction_impl() bool {
 }
 
 func (this *JSType) equals(other any) bool {
+	if this.self() == other {
+		return true
+	}
 	p, ok := other.(JSType_as)
 	return ok && this.equals_JSType(p.as_JSType())
 }

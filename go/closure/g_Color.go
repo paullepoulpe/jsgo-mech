@@ -55,6 +55,9 @@ func (this *Color) toString() string {
 }
 
 func (this *Color) equals(o any) bool {
+	if o == any(this) {
+		return true
+	}
 	p, ok := o.(*Color)
 	return ok && this.equals_Color(p)
 }

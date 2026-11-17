@@ -30,6 +30,9 @@ func (this *InputId) hashCode() int32 {
 }
 
 func (this *InputId) equals(obj any) bool {
+	if any(this) == obj {
+		return true
+	}
 	p, ok := obj.(*InputId)
 	return ok && this.equals_InputId(p)
 }
