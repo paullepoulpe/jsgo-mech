@@ -82,7 +82,7 @@ func ClassUtil_getFullyQualifiedNameOfMethod(function Node) string {
 		panic(new_IllegalArgumentException_0().self())
 	}
 	var className string = ClassUtil_getMemberFunctionClassName(function)
-	if className == "" || className == "" {
+	if className == "" {
 		panic(new_IllegalStateException_0().self())
 	}
 	var memberFunctionDef Node = function.getParent()
