@@ -446,7 +446,7 @@ func (this *ConformanceRules_AbstractRule) report_3(n Node, result *ConformanceR
 		return nil
 	}()
 	var isAllowlisted bool = !((allowlist == nil) && ((this.onlyApplyTo == nil) || this.onlyApplyTo.matches(path)))
-	var shouldReport bool = this.compiler_.getErrorManager().shouldReportConformanceViolation(this.requirement_, func() *Optional_base {
+	var shouldReport bool = this.compiler_.getErrorManager().shouldReportConformanceViolation(this.requirement_, func() Optional_base {
 		if allowlist != nil {
 			return Optional_base_fromNullable(obj_(allowlist.allowlistEntry))
 		}

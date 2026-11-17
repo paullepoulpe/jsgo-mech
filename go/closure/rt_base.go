@@ -475,39 +475,60 @@ func (this *MoreObjects_ToStringHelper) toString() string {
 
 // ---- com.google.common.base.Optional_base
 
+// Optional_base is Guava's com.google.common.base.Optional as a value (post-flip, as
+// java.util.Optional in step 7): its zero value is Java's null (a field never assigned), so
+// absent() and of(v) allocate nothing. Guava's failures are kept: of(null) throws
+// NullPointerException, get() of an absent value IllegalStateException, or(null) and the
+// null results of transform NullPointerException with Guava's messages, and every method of a
+// null Optional throws NullPointerException, as a call on null does (nn_). Two absent values
+// are equal by ==, where Guava's absent() is one object: the generated code compares them only
+// with equals.
 type Optional_base struct {
-	present bool
 	value   any
+	present bool
+	set     bool // not null
 }
 
-var optionalAbsent_ = &Optional_base{}
+// optBaseNil_ is a null Guava Optional; optBaseNull_ reports whether o is null (post-flip tool
+// optional -guava wrote them for nil and == nil).
+var optBaseNil_ Optional_base
 
-func Optional_base_absent() *Optional_base { return optionalAbsent_ }
+func optBaseNull_(o Optional_base) bool { return !o.set }
 
-func Optional_base_fromNullable(v any) *Optional_base {
-	if v == nil {
-		return optionalAbsent_
+func (this Optional_base) nn_() {
+	if !this.set {
+		panic(new_NullPointerException_0())
 	}
-	return &Optional_base{true, v}
 }
 
-func Optional_base_of(v any) *Optional_base {
+func Optional_base_absent() Optional_base { return Optional_base{set: true} }
+
+func Optional_base_fromNullable(v any) Optional_base {
 	if v == nil {
-		panic(new_NullPointerException_0().self())
+		return Optional_base{set: true}
 	}
-	return &Optional_base{true, v}
+	return Optional_base{v, true, true}
 }
 
-func (this *Optional_base) get() any {
+func Optional_base_of(v any) Optional_base {
+	if v == nil {
+		panic(new_NullPointerException_0())
+	}
+	return Optional_base{v, true, true}
+}
+
+func (this Optional_base) get() any {
+	this.nn_()
 	if !this.present {
 		stateFail_("Optional.get() cannot be called on an absent value")
 	}
 	return this.value
 }
 
-func (this *Optional_base) isPresent() bool { return this.present }
+func (this Optional_base) isPresent() bool { this.nn_(); return this.present }
 
-func (this *Optional_base) or(def any) any {
+func (this Optional_base) or(def any) any {
+	this.nn_()
 	if def == nil {
 		nullFail_("use Optional.orNull() instead of Optional.or(null)")
 	}
@@ -517,11 +538,12 @@ func (this *Optional_base) or(def any) any {
 	return def
 }
 
-func (this *Optional_base) orNull() any { return this.value }
+func (this Optional_base) orNull() any { this.nn_(); return this.value }
 
-func (this *Optional_base) or_Optional(o *Optional_base) *Optional_base {
-	if o == nil {
-		panic(new_NullPointerException_0().self())
+func (this Optional_base) or_Optional(o Optional_base) Optional_base {
+	this.nn_()
+	if !o.set {
+		panic(new_NullPointerException_0())
 	}
 	if this.present {
 		return this
@@ -530,7 +552,8 @@ func (this *Optional_base) or_Optional(o *Optional_base) *Optional_base {
 }
 
 // transform_f is transform of a lambda, as a Go func value (post-flip step funcparams).
-func (this *Optional_base) transform_f(f func(any) any) *Optional_base {
+func (this Optional_base) transform_f(f func(any) any) Optional_base {
+	this.nn_()
 	if !this.present {
 		return this
 	}
@@ -538,12 +561,13 @@ func (this *Optional_base) transform_f(f func(any) any) *Optional_base {
 	if r == nil {
 		nullFail_("the Function passed to Optional.transform() must not return null.")
 	}
-	return &Optional_base{true, r}
+	return Optional_base{r, true, true}
 }
 
-func (this *Optional_base) transform(f Function_base) *Optional_base {
+func (this Optional_base) transform(f Function_base) Optional_base {
+	this.nn_()
 	if f == nil {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	if !this.present {
 		return this
@@ -552,12 +576,13 @@ func (this *Optional_base) transform(f Function_base) *Optional_base {
 	if r == nil {
 		nullFail_("the Function passed to Optional.transform() must not return null.")
 	}
-	return &Optional_base{true, r}
+	return Optional_base{r, true, true}
 }
 
-func (this *Optional_base) equals(o any) bool {
-	x, ok := o.(*Optional_base)
-	if !ok || x == nil {
+func (this Optional_base) equals(o any) bool {
+	this.nn_()
+	x, ok := o.(Optional_base)
+	if !ok || !x.set {
 		return false
 	}
 	if !this.present || !x.present {
@@ -566,14 +591,16 @@ func (this *Optional_base) equals(o any) bool {
 	return objequals_(this.value, x.value)
 }
 
-func (this *Optional_base) hashCode() int32 {
+func (this Optional_base) hashCode() int32 {
+	this.nn_()
 	if !this.present {
 		return 0x79a31aac
 	}
 	return 0x598df91c + objhash_(this.value)
 }
 
-func (this *Optional_base) toString() string {
+func (this Optional_base) toString() string {
+	this.nn_()
 	if !this.present {
 		return "Optional.absent()"
 	}
