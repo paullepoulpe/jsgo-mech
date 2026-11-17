@@ -496,15 +496,15 @@ func (this *MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfoStackMa
 }
 
 func (this *MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfoStackMap) getVariableInfoStack(name string) DequeOf[MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo] {
-	return mapComputeIfAbsent_(tc_string, tc_DequeOf_MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo_, this.mapOfStacks, name, lambda_MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfoStackMap_getVariableInfoStack_1_)
+	return mapComputeIfAbsent_f(tc_string, tc_DequeOf_MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo_, this.mapOfStacks, name, lambda_MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfoStackMap_getVariableInfoStack_1_)
 }
 
 // lambda_MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfoStackMap_getVariableInfoStack_1_ is a lambda of MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfoStackMap_getVariableInfoStack that captures nothing (post-flip step lambdas).
-var lambda_MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfoStackMap_getVariableInfoStack_1_ = &Function_fn{func(ignoredKey_ any) any {
+func lambda_MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfoStackMap_getVariableInfoStack_1_(ignoredKey_ any) any {
 	var ignoredKey string = str_(ignoredKey_)
 	_ = ignoredKey
 	return obj_(new_ArrayDeque())
-}}
+}
 
 func (this *MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfoStackMap) getOrCreateCurrentVariableInfo(name string) MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo {
 	var variableInfoStack DequeOf[MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo] = this.getVariableInfoStack(name)
@@ -780,7 +780,7 @@ func (this *MakeDeclaredNamesUnique_InlineRenamer) addDeclaredName(name string, 
 	if hoisted && (any(this.hoistRenamer) != any(this)) {
 		this.hoistRenamer.addDeclaredName(name, hoisted)
 	} else {
-		mapComputeIfAbsent_(tc_string, tc_string, this.declarations, name, &Function_fn{func(p0 any) any { return strobj_(this.getUniqueName(str_(p0))) }})
+		mapComputeIfAbsent_f(tc_string, tc_string, this.declarations, name, func(p0 any) any { return strobj_(this.getUniqueName(str_(p0))) })
 	}
 }
 

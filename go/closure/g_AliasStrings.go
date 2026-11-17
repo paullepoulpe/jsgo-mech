@@ -79,7 +79,7 @@ func (this *AliasStrings) visit(t *NodeTraversal, n Node, parent Node) {
 				return
 			}
 		}
-		var varParent Node = Node_of_(mapComputeIfAbsentObj_(tc_p_JSChunk, tc_Node, this.chunkVarParentMap, obj_(chunk), &Function_fn{func(p0 any) any { return this.compiler_.getNodeForCodeInsertion(cast_[*JSChunk](p0)).box_() }}))
+		var varParent Node = Node_of_(mapComputeIfAbsentObj_f(tc_p_JSChunk, tc_Node, this.chunkVarParentMap, obj_(chunk), func(p0 any) any { return this.compiler_.getNodeForCodeInsertion(cast_[*JSChunk](p0)).box_() }))
 		info.chunkToContainDecl = chunk
 		info.parentForNewVarDecl = varParent
 		info.siblingToInsertVarDeclBefore = varParent.getFirstChild()
