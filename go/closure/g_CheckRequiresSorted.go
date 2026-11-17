@@ -328,7 +328,7 @@ func (this CheckRequiresSorted_ImportPrimitive) init_CheckRequiresSorted_ImportP
 
 func CheckRequiresSorted_ImportPrimitive_fromName(name OptionalOf[string]) CheckRequiresSorted_ImportPrimitive {
 	for _, primitive := range CheckRequiresSorted_ImportPrimitive_values() {
-		if optequalsOn_(Optional_of(strobj_(CheckRequiresSorted_ImportPrimitive_nameField_[primitive-1])), optErase_(name)) {
+		if optOfEquals_(CheckRequiresSorted_ImportPrimitive_nameField_[primitive-1], name) {
 			return primitive
 		}
 	}

@@ -1070,7 +1070,7 @@ func (this *Compiler) maybePrintSourceAfterEachPass(passName string) {
 		return
 	}
 	var currentJsSource string = this.getCurrentJsSource()
-	if optequalsOn_(Optional_of(strobj_(currentJsSource)), optErase_(this.lastJsSource)) {
+	if optOfEquals_(currentJsSource, this.lastJsSource) {
 		return
 	}
 	if this.isDebugLoggingEnabled() {

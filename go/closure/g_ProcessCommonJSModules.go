@@ -931,7 +931,7 @@ func (this *ProcessCommonJSModules_RewriteModule) visit_impl(t *NodeTraversal, n
 			var functionExpr Node = sliceAt_(this.functionsToHoist, i)
 			var scopeRoot Node = t.getClosestHoistScopeRoot()
 			var insertionPoint Node = scopeRoot.getFirstChild()
-			if (insertionPoint == 0) || !(insertionPoint.isVar() && optequalsOn_(Optional_of(strobj_(insertionPoint.getFirstChild().getString())), optErase_(moduleName))) {
+			if (insertionPoint == 0) || !(insertionPoint.isVar() && optOfEquals_(insertionPoint.getFirstChild().getString(), moduleName)) {
 				insertionPoint = 0
 			}
 			if insertionPoint == 0 {
