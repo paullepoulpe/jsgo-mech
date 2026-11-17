@@ -16,7 +16,9 @@ func (this *ColorGraphNode) finit_ColorGraphNode() {
 
 func (this *ColorGraphNode) init_ColorGraphNode(single *Color, index int32) {
 	this.finit_ColorGraphNode()
-	Preconditions_checkNotNull(obj_(single))
+	if single == nil {
+		panic(new_NullPointerException_0().self())
+	}
 	this.index_ = index
 	this.color_ = single
 }
@@ -28,22 +30,31 @@ func new_ColorGraphNode(single *Color, index int32) *ColorGraphNode {
 }
 
 func ColorGraphNode_create(single *Color, index int32) *ColorGraphNode {
-	Preconditions_checkArgument((index >= 0))
+	if index < 0 {
+		panic(new_IllegalArgumentException_0().self())
+	}
 	return new_ColorGraphNode(single, index)
 }
 
 func ColorGraphNode_createForTesting_int(index int32) *ColorGraphNode {
-	Preconditions_checkArgument((index < 0))
+	if index >= 0 {
+		panic(new_IllegalArgumentException_0().self())
+	}
 	return new_ColorGraphNode(StandardColors_UNKNOWN, index)
 }
 
 func ColorGraphNode_createForTesting_Color_int(single *Color, index int32) *ColorGraphNode {
-	Preconditions_checkArgument((index < 0))
+	if index >= 0 {
+		panic(new_IllegalArgumentException_0().self())
+	}
 	return new_ColorGraphNode(single, index)
 }
 
 func (this *ColorGraphNode) getColor() *Color {
-	return cast_[*Color](Preconditions_checkNotNull(obj_(this.color_)))
+	if this.color_ == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	return this.color_
 }
 
 func (this *ColorGraphNode) getIndex() int32 {

@@ -73,7 +73,7 @@ func (this *RescopeGlobalSymbolsRewriteCallback) visitNameDeclaration(t *NodeTra
 	for it_1.next() {
 		var lhs Node = it_1.v
 		if !lhs.isName() {
-			Preconditions_checkState_boolean_String_Object(false, "Unexpected lhs node %s, expected NAME", lhs.box_())
+			panic(new_IllegalStateException_String(Strings_lenientFormat("Unexpected lhs node %s, expected NAME", []any{lhs.box_()})).self())
 		}
 		if (isGlobalDeclaration && this.isCrossChunkName(lhs.getString())) || this.isExternVar(lhs.getString(), t) {
 			hasImportantName = true
@@ -87,7 +87,7 @@ func (this *RescopeGlobalSymbolsRewriteCallback) visitNameDeclaration(t *NodeTra
 
 func (this *RescopeGlobalSymbolsRewriteCallback) globalVarStaysLocalInDefiningChunk(name string, t *NodeTraversal) bool {
 	if !cast_[*Var](t.getScope().getVar(name).self()).isGlobal() {
-		Preconditions_checkState_boolean_String_Object(false, "Expected global variable: %s", strobj_(name))
+		panic(new_IllegalStateException_String(Strings_lenientFormat("Expected global variable: %s", []any{strobj_(name)})).self())
 	}
 	if this.isExternVar(name, t) {
 		return false
@@ -165,7 +165,7 @@ func (this *RescopeGlobalSymbolsRewriteCallback) rewriteNameDeclaration(t *NodeT
 			} else if child.isDestructuringLhs() {
 				if child.hasOneChild() {
 					if ok_, a1_ := NodeUtil_isEnhancedFor(declaration.getParent()), declaration.toStringTree(); !ok_ {
-						Preconditions_checkState_boolean_String_Object(false, "DESTRUCTURING_LHS should have two children: %s", strobj_(a1_))
+						panic(new_IllegalStateException_String(Strings_lenientFormat("DESTRUCTURING_LHS should have two children: %s", []any{strobj_(a1_)})).self())
 					}
 					child.replaceWith(child.removeFirstChild())
 				} else {
@@ -248,7 +248,7 @@ func (this *RescopeGlobalSymbolsRewriteCallback) visitName(t *NodeTraversal, n N
 		return
 	}
 	if !Collection_contains_s(this.symbolInfo.wrappedCrossChunkNames(), name) {
-		Preconditions_checkState_boolean_String_Object(false, "Unexpected unaliased cross-chunk symbol under ALL_CHUNKS_WITH_WRAPPED_REASSIGNABLE_SYMBOLS: %s", strobj_(name))
+		panic(new_IllegalStateException_String(Strings_lenientFormat("Unexpected unaliased cross-chunk symbol under ALL_CHUNKS_WITH_WRAPPED_REASSIGNABLE_SYMBOLS: %s", []any{strobj_(name)})).self())
 	}
 	mapComputeIfAbsent_(tc_string, tc_SetOf_p_JSChunk_, this.chunksUsingWrappedReassignableSymbols, name, lambda_RescopeGlobalSymbolsRewriteCallback_visitName_3_).add(obj_(currentChunk))
 	mapComputeIfAbsent_(tc_string, tc_SetOf_p_JSChunk_, this.chunksRequiringWrapperInitialization, name, lambda_RescopeGlobalSymbolsRewriteCallback_visitName_4_).add(obj_(currentChunk))
@@ -314,7 +314,7 @@ func (this *RescopeGlobalSymbolsRewriteCallback) addGlobalNamespaceAlias(n Node,
 		this.compiler_.reportChangeToEnclosingScope(parent)
 	} else if NodeUtil_isNameDeclaration(parent) {
 		if !n.hasChildren() {
-			Preconditions_checkState_boolean_String_Object(false, "Expected initialized declaration for %s", n.box_())
+			panic(new_IllegalStateException_String(Strings_lenientFormat("Expected initialized declaration for %s", []any{n.box_()})).self())
 		}
 		var rhs Node = n.removeFirstChild()
 		var globalNamespaceAssign Node = IR_assign(globalTarget, rhs)

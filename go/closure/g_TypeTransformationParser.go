@@ -77,35 +77,35 @@ func (this *TypeTransformationParser) isValidPredicate(name string) bool {
 
 func (this *TypeTransformationParser) getFunctionParamCount(n Node) int32 {
 	if !n.isFunction() {
-		Preconditions_checkArgument_boolean_String_Object(false, "Expected a function node, found %s", n.box_())
+		panic(new_IllegalArgumentException_String(Strings_lenientFormat("Expected a function node, found %s", []any{n.box_()})).self())
 	}
 	return n.getSecondChild().getChildCount()
 }
 
 func (this *TypeTransformationParser) getFunctionBody(n Node) Node {
 	if !n.isFunction() {
-		Preconditions_checkArgument_boolean_String_Object(false, "Expected a function node, found %s", n.box_())
+		panic(new_IllegalArgumentException_String(Strings_lenientFormat("Expected a function node, found %s", []any{n.box_()})).self())
 	}
 	return n.getChildAtIndex(2)
 }
 
 func (this *TypeTransformationParser) getCallName(n Node) string {
 	if !n.isCall() {
-		Preconditions_checkArgument_boolean_String_Object(false, "Expected a call node, found %s", n.box_())
+		panic(new_IllegalArgumentException_String(Strings_lenientFormat("Expected a call node, found %s", []any{n.box_()})).self())
 	}
 	return n.getFirstChild().getString()
 }
 
 func (this *TypeTransformationParser) getCallArgument(n Node, i int32) Node {
 	if !n.isCall() {
-		Preconditions_checkArgument_boolean_String_Object(false, "Expected a call node, found %s", n.box_())
+		panic(new_IllegalArgumentException_String(Strings_lenientFormat("Expected a call node, found %s", []any{n.box_()})).self())
 	}
 	return n.getChildAtIndex((i + 1))
 }
 
 func (this *TypeTransformationParser) getCallParamCount(n Node) int32 {
 	if !n.isCall() {
-		Preconditions_checkArgument_boolean_String_Object(false, "Expected a call node, found %s", n.box_())
+		panic(new_IllegalArgumentException_String(Strings_lenientFormat("Expected a call node, found %s", []any{n.box_()})).self())
 	}
 	return (n.getChildCount() - 1)
 }

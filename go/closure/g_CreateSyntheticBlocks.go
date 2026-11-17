@@ -72,7 +72,9 @@ func (this *CreateSyntheticBlocks) rewriteFunctionDeclaration(n Node) {
 }
 
 func (this *CreateSyntheticBlocks) rewriteFunctionDeclarationsInBlock(block Node) {
-	Preconditions_checkState(block.isBlock())
+	if !block.isBlock() {
+		panic(new_IllegalStateException_0().self())
+	}
 	var next Node = 0
 	{
 		var current Node = block.getFirstChild()
@@ -97,15 +99,21 @@ func (this *CreateSyntheticBlocks) addBlocks(marker *CreateSyntheticBlocks_Marke
 	outerBlock.addChildToBack(outerBlock.getNext().detach())
 	this.rewriteFunctionDeclarationsInBlock(innerBlock)
 	if ok_, a1_ := (outerBlock.getParent().isBlock() || outerBlock.getParent().isScript()), outerBlock.getParent(); !ok_ {
-		Preconditions_checkState_boolean_Object(false, a1_.box_())
+		panic(new_IllegalStateException_String(objstr_(a1_.box_())).self())
 	}
-	Preconditions_checkState(innerBlock.getParent().isBlock())
+	if !innerBlock.getParent().isBlock() {
+		panic(new_IllegalStateException_0().self())
+	}
 	this.compiler_.reportChangeToEnclosingScope(outerBlock)
 }
 
 func (this *CreateSyntheticBlocks) moveSiblingExclusive(dest Node, start Node, end Node) {
-	Preconditions_checkNotNull(start.box_())
-	Preconditions_checkNotNull(end.box_())
+	if start == 0 {
+		panic(new_NullPointerException_0().self())
+	}
+	if end == 0 {
+		panic(new_NullPointerException_0().self())
+	}
 	for start.getNext() != end {
 		var child Node = start.getNext().detach()
 		dest.addChildToBack(child)

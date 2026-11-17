@@ -33,7 +33,9 @@ func (this *RewriteJsonToModule) getPackageJsonMainEntries() ImmutableMapOf[stri
 }
 
 func (this *RewriteJsonToModule) process_2(externs Node, root Node) {
-	Preconditions_checkState(root.isScript())
+	if !root.isScript() {
+		panic(new_IllegalStateException_0().self())
+	}
 	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(obj_(this)))
 }
 
@@ -89,8 +91,8 @@ func (this *RewriteJsonToModule) visitScript(t *NodeTraversal, n Node) {
 					this.packageJsonMainEntries.put(inputPath, (sstr_(dirName) + sstr_(entry.getString())))
 					break
 				} else if entry.isObjectLit() {
-					if !(entryName == "browser") {
-						Preconditions_checkState_boolean_Object(false, strobj_(entryName))
+					if entryName != "browser" {
+						panic(new_IllegalStateException_String(sstr_(entryName)).self())
 					}
 					this.processBrowserFieldAdvancedUsage(dirName, entry)
 				}
@@ -105,7 +107,9 @@ func (this *RewriteJsonToModule) processBrowserFieldAdvancedUsage(dirName string
 		var child Node = entry.getFirstChild()
 		for ; child != 0; child = child.getNext() {
 			var value Node = child.getFirstChild()
-			Preconditions_checkState((child.isStringKey() && (value.isStringLit() || value.isFalse())))
+			if !(child.isStringKey() && (value.isStringLit() || value.isFalse())) {
+				panic(new_IllegalStateException_0().self())
+			}
 			var path string = child.getString()
 			if String_startsWith(path, ModuleLoader_DEFAULT_FILENAME_PREFIX) {
 				path = String_substring_int(path, String_length(ModuleLoader_DEFAULT_FILENAME_PREFIX))

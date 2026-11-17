@@ -36,7 +36,10 @@ func (this *CheckClosureImports) verifyRequireOrder(namespace string, call Node,
 		return
 	}
 	var requiredInputId *InputId = NodeUtil_getInputId(requiredModule.rootNode())
-	var requiredInput *CompilerInput = cast_[*CompilerInput](Preconditions_checkNotNull_Object_String_Object(obj_(this.compiler_.getInput(requiredInputId)), "Cannot find CompilerInput for %s", obj_(requiredModule)))
+	var requiredInput *CompilerInput = this.compiler_.getInput(requiredInputId)
+	if requiredInput == nil {
+		panic(new_NullPointerException_String(Strings_lenientFormat("Cannot find CompilerInput for %s", []any{obj_(requiredModule)})).self())
+	}
 	var requiredChunk *JSChunk = requiredInput.getChunk()
 	var currentChunk *JSChunk = t.getChunk()
 	if (currentChunk != requiredChunk) && !this.chunkGraph.dependsOn(currentChunk, requiredChunk) {
@@ -232,7 +235,9 @@ func (this *CheckClosureImports_Checker) visit_4_impl(t *NodeTraversal, n Node, 
 }
 
 func (this *CheckClosureImports_Checker) kindOfCall(callNode Node) *CheckClosureImports_ClosureImport {
-	Preconditions_checkState(callNode.isCall())
+	if !callNode.isCall() {
+		panic(new_IllegalStateException_0().self())
+	}
 	if callNode.getFirstChild().matchesQualifiedNameNode(CheckClosureImports_GOOG_REQUIRE) {
 		return CheckClosureImports_ClosureImport_REQUIRE
 	} else if callNode.getFirstChild().matchesQualifiedNameNode(CheckClosureImports_GOOG_FORWARD_DECLARE) {
@@ -328,7 +333,9 @@ func (this *CheckClosureImports_Checker) checkGoogModuleGet(t *NodeTraversal, ca
 }
 
 func (this *CheckClosureImports_Checker) isValidDestructuringImport(destructuringLhs Node) bool {
-	Preconditions_checkArgument(destructuringLhs.isDestructuringLhs())
+	if !destructuringLhs.isDestructuringLhs() {
+		panic(new_IllegalArgumentException_0().self())
+	}
 	var objectPattern Node = destructuringLhs.getFirstChild()
 	if !objectPattern.isObjectPattern() {
 		return false

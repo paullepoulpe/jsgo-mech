@@ -31,34 +31,53 @@ func new_SubtypeChecker(registry *JSTypeRegistry) *SubtypeChecker {
 
 func (this *SubtypeChecker) setSupertype(value *JSType) *SubtypeChecker {
 	this.checkHasNotRun()
-	Preconditions_checkState((this.initialSupertype == nil))
-	this.initialSupertype = to_JSType(Preconditions_checkNotNull(value.self()))
+	if this.initialSupertype != nil {
+		panic(new_IllegalStateException_0().self())
+	}
+	if value == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	this.initialSupertype = value
 	return this
 }
 
 func (this *SubtypeChecker) setSubtype(value *JSType) *SubtypeChecker {
 	this.checkHasNotRun()
-	Preconditions_checkState((this.initialSubtype == nil))
-	this.initialSubtype = to_JSType(Preconditions_checkNotNull(value.self()))
+	if this.initialSubtype != nil {
+		panic(new_IllegalStateException_0().self())
+	}
+	if value == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	this.initialSubtype = value
 	return this
 }
 
 func (this *SubtypeChecker) setUsingStructuralSubtyping(value bool) *SubtypeChecker {
 	this.checkHasNotRun()
-	Preconditions_checkState((this.isUsingStructuralTyping == nil))
+	if this.isUsingStructuralTyping != nil {
+		panic(new_IllegalStateException_0().self())
+	}
 	this.isUsingStructuralTyping = any(bool(value))
 	return this
 }
 
 func (this *SubtypeChecker) setSubtypingMode(value JSType_SubtypingMode) *SubtypeChecker {
 	this.checkHasNotRun()
-	Preconditions_checkState((this.subtypingMode == 0))
-	this.subtypingMode = cast_[JSType_SubtypingMode](Preconditions_checkNotNull(obj_(value)))
+	if this.subtypingMode != 0 {
+		panic(new_IllegalStateException_0().self())
+	}
+	if value == 0 {
+		panic(new_NullPointerException_0().self())
+	}
+	this.subtypingMode = value
 	return this
 }
 
 func (this *SubtypeChecker) checkHasNotRun() {
-	Preconditions_checkState(!this.hasRun)
+	if this.hasRun {
+		panic(new_IllegalStateException_0().self())
+	}
 }
 
 // checkAndRelease_ is check(), after which the checker goes back to its registry's free list
@@ -77,8 +96,12 @@ func (this *SubtypeChecker) check() bool {
 }
 
 func (this *SubtypeChecker) isSubtypeCaching(subtype *JSType, supertype *JSType) bool {
-	Preconditions_checkNotNull(subtype.self())
-	Preconditions_checkNotNull(supertype.self())
+	if subtype == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	if supertype == nil {
+		panic(new_NullPointerException_0().self())
+	}
 	if this.recursionDepth > SubtypeChecker_POTENTIALLY_CYCLIC_RECURSION_DEPTH {
 		if this.subtypeCache == nil {
 			this.subtypeCache = newTMap_(tch_p_SubtypeChecker_CacheKey, tc_p_JSType_MatchStatus)

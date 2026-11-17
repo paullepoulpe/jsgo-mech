@@ -24,7 +24,7 @@ func (this *ControlFlowAnalysis) finit_ControlFlowAnalysis() {
 		_ = digraphNode
 		pos, ok := this.astPosition[Node_of_(digraphNode.getValue())]
 		if !ok {
-			Preconditions_checkNotNull_Object_Object(nil, digraphNode.getValue())
+			panic(new_NullPointerException_String(objstr_(digraphNode.getValue())).self())
 		}
 		return pos
 	})
@@ -55,7 +55,7 @@ func (this *ControlFlowAnalysis) getCfg() *ControlFlowGraph {
 
 func (this *ControlFlowAnalysis) computeCfg(root Node) {
 	if !NodeUtil_isValidCfgRoot(root) {
-		Preconditions_checkArgument_boolean_String_Object(false, "Unexpected control flow graph root %s", root.box_())
+		panic(new_IllegalArgumentException_String(Strings_lenientFormat("Unexpected control flow graph root %s", []any{root.box_()})).self())
 	}
 	this.root = root
 	this.astPosition = map[Node]int32{}
@@ -151,7 +151,9 @@ func (this *ControlFlowAnalysis) shouldTraverseIntoChildren(n Node, parent Node)
 			return false
 		case tokOrd1_TRY:
 			if (!NodeUtil_hasFinally(parent) && (n == NodeUtil_getCatchBlock(parent))) || NodeUtil_isTryFinallyNode(parent, n) {
-				Preconditions_checkState((slicePeekTop_(tc_Node, this.exceptionHandler) == parent))
+				if slicePeekTop_(tc_Node, this.exceptionHandler) != parent {
+					panic(new_IllegalStateException_0().self())
+				}
 				slicePop_(tc_Node, &this.exceptionHandler)
 			}
 		default:
@@ -288,7 +290,9 @@ func (this *ControlFlowAnalysis) handleCase(caseNode Node) {
 	this.createEdge(caseNode, ControlFlowGraph_Branch_ON_TRUE, caseNode.getSecondChild())
 	var next Node = ControlFlowAnalysis_getNextSiblingOfType(caseNode.getNext(), []Token_rhino{Token_rhino_CASE})
 	if next != 0 {
-		Preconditions_checkState(next.isCase())
+		if !next.isCase() {
+			panic(new_IllegalStateException_0().self())
+		}
 		this.createEdge(caseNode, ControlFlowGraph_Branch_ON_FALSE, next)
 	} else {
 		var switchBody Node = caseNode.getParent()
@@ -341,10 +345,16 @@ func (this *ControlFlowAnalysis) handleStmtList(node Node) {
 }
 
 func (this *ControlFlowAnalysis) handleFunction(node Node) {
-	Preconditions_checkState(node.isFunction())
-	Preconditions_checkState(node.hasXChildren(3))
+	if !node.isFunction() {
+		panic(new_IllegalStateException_0().self())
+	}
+	if !node.hasXChildren(3) {
+		panic(new_IllegalStateException_0().self())
+	}
 	this.createEdge(node, ControlFlowGraph_Branch_UNCOND, ControlFlowAnalysis_computeFallThrough(node.getLastChild()))
-	Preconditions_checkState((slicePeekTop_(tc_Node, this.exceptionHandler) == node))
+	if slicePeekTop_(tc_Node, this.exceptionHandler) != node {
+		panic(new_IllegalStateException_0().self())
+	}
 	slicePop_(tc_Node, &this.exceptionHandler)
 }
 
@@ -431,7 +441,9 @@ func (this *ControlFlowAnalysis) handleContinue(node Node) {
 				}
 				lastJump = cur
 			}
-			Preconditions_checkState_boolean_Object(cur.hasParent(), strobj_("Cannot find continue target."))
+			if !cur.hasParent() {
+				panic(new_IllegalStateException_String("Cannot find continue target.").self())
+			}
 			previous = cur
 		}
 	}
@@ -595,7 +607,9 @@ func (this *ControlFlowAnalysis) connectToPossibleExceptionHandlerUnconditionall
 		if handler.isFunction() {
 			return
 		}
-		Preconditions_checkState(handler.isTry())
+		if !handler.isTry() {
+			panic(new_IllegalStateException_0().self())
+		}
 		var catchBlock Node = NodeUtil_getCatchBlock(handler)
 		var lastJumpInCatchBlock bool = false
 		it_3 := foreach_(obj_(lastJump.getAncestors()))
@@ -764,8 +778,12 @@ func (this *ControlFlowAnalysis_Builder) setIncludeEdgeAnnotations(includeEdgeAn
 }
 
 func (this *ControlFlowAnalysis_Builder) computeCfg() *ControlFlowGraph {
-	Preconditions_checkNotNull_Object_Object(this.compiler_.self(), strobj_("Need to call setCompiler()"))
-	Preconditions_checkNotNull_Object_Object(this.cfgRoot.box_(), strobj_("Need to call setCfgRoot()"))
+	if this.compiler_ == nil {
+		panic(new_NullPointerException_String("Need to call setCompiler()").self())
+	}
+	if this.cfgRoot == 0 {
+		panic(new_NullPointerException_String("Need to call setCfgRoot()").self())
+	}
 	var cfa *ControlFlowAnalysis = new_ControlFlowAnalysis(this.compiler_, this.shouldTraverseFunctions, this.edgeAnnotations)
 	cfa.computeCfg(this.cfgRoot)
 	return cfa.cfg

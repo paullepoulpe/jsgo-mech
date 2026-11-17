@@ -49,7 +49,11 @@ func ModuleRenaming_getNameRootType(qname string, globalTypedScope *TypedScope) 
 		return nil
 	}
 	var root string = NodeUtil_getRootOfQualifiedNameString(qname)
-	return cast_[*TypedVar](Preconditions_checkNotNull_Object_String_Object(globalTypedScope.getVar(root).self(), "missing var for %s", strobj_(root))).getType()
+	nn_ := globalTypedScope.getVar(root)
+	if nn_ == nil {
+		panic(new_NullPointerException_String(Strings_lenientFormat("missing var for %s", []any{strobj_(root)})).self())
+	}
+	return cast_[*TypedVar](nn_.self()).getType()
 }
 
 func ModuleRenaming_getGlobalNameForJsDoc(moduleMap *ModuleMap, binding *Binding, propertyChain ListOf[string]) OptionalOf[string] {
@@ -100,7 +104,9 @@ func (this *ModuleRenaming_GlobalizedModuleName) toQname(astFactory *AstFactory)
 }
 
 func (this *ModuleRenaming_GlobalizedModuleName) getprop(property string) *ModuleRenaming_GlobalizedModuleName {
-	Preconditions_checkArgument((!String_isEmpty(property) && !String_contains_s(property, ".")))
+	if String_isEmpty(property) || String_contains_s(property, ".") {
+		panic(new_IllegalArgumentException_0().self())
+	}
 	return ModuleRenaming_GlobalizedModuleName_create_QualifiedName_JSType(this.aliasName().getprop(property), this.rootNameType())
 }
 
@@ -109,7 +115,9 @@ func ModuleRenaming_GlobalizedModuleName_create_QualifiedName_JSType(aliasName *
 }
 
 func ModuleRenaming_GlobalizedModuleName_create_ModuleMetadata_Optional_TypedScope(moduleMetadata *ModuleMetadataMap_ModuleMetadata, googNamespace OptionalOf[string], globalTypedScope *TypedScope) *ModuleRenaming_GlobalizedModuleName {
-	Preconditions_checkState((googNamespace.isEmpty() || moduleMetadata.googNamespaces().contains_s(googNamespace.get())))
+	if !googNamespace.isEmpty() && !moduleMetadata.googNamespaces().contains_s(googNamespace.get()) {
+		panic(new_IllegalStateException_0().self())
+	}
 	switch moduleMetadata.moduleType() {
 	case ModuleMetadataMap_ModuleType_GOOG_MODULE:
 		var moduleBody Node = moduleMetadata.rootNode().getFirstChild()

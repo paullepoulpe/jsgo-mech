@@ -50,8 +50,8 @@ func DiagnosticGroups_forName(name string) *DiagnosticGroup {
 
 func (this *DiagnosticGroups) setWarningLevel(options *CompilerOptions, name string, level CheckLevel) {
 	var group *DiagnosticGroup = DiagnosticGroups_forName(name)
-	if obj_(group) == nil {
-		Preconditions_checkNotNull_Object_String_Object(nil, "No warning class for name: %s", strobj_(name))
+	if group == nil {
+		panic(new_NullPointerException_String(Strings_lenientFormat("No warning class for name: %s", []any{strobj_(name)})).self())
 	}
 	options.setWarningLevel(group, level)
 }

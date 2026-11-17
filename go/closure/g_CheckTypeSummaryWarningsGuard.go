@@ -27,7 +27,9 @@ func new_CheckTypeSummaryWarningsGuard(level CheckLevel) *CheckTypeSummaryWarnin
 }
 
 func (this *CheckTypeSummaryWarningsGuard) level_impl(error_ *JSError) CheckLevel {
-	Preconditions_checkNotNull(obj_(error_))
+	if error_ == nil {
+		panic(new_NullPointerException_0().self())
+	}
 	if !this.shouldDemoteIfTypeSummary(error_) {
 		return 0
 	}

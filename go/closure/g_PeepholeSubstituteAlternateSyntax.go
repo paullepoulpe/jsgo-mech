@@ -78,7 +78,9 @@ func (this *PeepholeSubstituteAlternateSyntax) tryMinimizeWindowRefs(node Node) 
 	if !this.isASTNormalized() {
 		return node
 	}
-	Preconditions_checkArgument(node.isGetProp())
+	if !node.isGetProp() {
+		panic(new_IllegalArgumentException_0().self())
+	}
 	if node.getFirstChild().isName() {
 		var nameNode Node = node.getFirstChild()
 		if ("window" == nameNode.getString()) && Collection_contains_s(PeepholeSubstituteAlternateSyntax_BUILTIN_EXTERNS, node.getString()) {
@@ -121,7 +123,9 @@ func (this *PeepholeSubstituteAlternateSyntax) tryRotateAssociativeOperator(n No
 	if !this.late {
 		return n
 	}
-	Preconditions_checkArgument(NodeUtil_isAssociative(n.getToken()))
+	if !NodeUtil_isAssociative(n.getToken()) {
+		panic(new_IllegalArgumentException_0().self())
+	}
 	var rhs Node = n.getLastChild()
 	if n.getToken() == rhs.getToken() {
 		var first Node = n.removeFirstChild()
@@ -140,7 +144,7 @@ func (this *PeepholeSubstituteAlternateSyntax) tryRotateAssociativeOperator(n No
 
 func (this *PeepholeSubstituteAlternateSyntax) tryFoldSimpleFunctionCall(n Node) Node {
 	if !n.isCall() {
-		Preconditions_checkState_boolean_Object(false, n.box_())
+		panic(new_IllegalStateException_String(objstr_(n.box_())).self())
 	}
 	var callTarget Node = n.getFirstChild()
 	if (callTarget == 0) || !callTarget.isName() {
@@ -175,7 +179,9 @@ func (this *PeepholeSubstituteAlternateSyntax) tryFoldSimpleFunctionCall(n Node)
 }
 
 func (this *PeepholeSubstituteAlternateSyntax) tryFoldImmediateCallToBoundFunction(n Node) Node {
-	Preconditions_checkState(n.isCall())
+	if !n.isCall() {
+		panic(new_IllegalStateException_0().self())
+	}
 	var callTarget Node = n.getFirstChild()
 	var bind *CodingConvention_Bind = this.getCodingConvention().describeFunctionBind(callTarget, false)
 	if bind != nil {
@@ -232,12 +238,16 @@ func (this *PeepholeSubstituteAlternateSyntax) trySplitComma(n Node) Node {
 	if this.late {
 		return n
 	}
-	Preconditions_checkState(n.isExprResult())
+	if !n.isExprResult() {
+		panic(new_IllegalStateException_0().self())
+	}
 	if n.getParent().isLabel() {
 		return n
 	}
 	var comma Node = n.getFirstChild()
-	Preconditions_checkState(comma.isComma())
+	if !comma.isComma() {
+		panic(new_IllegalStateException_0().self())
+	}
 	var leftmost Node = this.splitComma(comma, false, n)
 	n.removeChildren()
 	n.addChildToFront(leftmost)
@@ -290,7 +300,9 @@ func (this *PeepholeSubstituteAlternateSyntax) tryReduceReturn(n Node) Node {
 }
 
 func (this *PeepholeSubstituteAlternateSyntax) tryFoldStandardConstructors(n Node) Node {
-	Preconditions_checkState(n.isNew())
+	if !n.isNew() {
+		panic(new_IllegalStateException_0().self())
+	}
 	if this.canFoldStandardConstructors(n) {
 		n.setToken(Token_rhino_CALL)
 		n.putBooleanProp(Node_FREE_CALL, true)
@@ -315,7 +327,9 @@ func (this *PeepholeSubstituteAlternateSyntax) canFoldStandardConstructors(n Nod
 }
 
 func (this *PeepholeSubstituteAlternateSyntax) tryFoldLiteralConstructor(n Node) Node {
-	Preconditions_checkArgument((n.isCall() || n.isNew()))
+	if !n.isCall() && !n.isNew() {
+		panic(new_IllegalArgumentException_0().self())
+	}
 	var constructorNameNode Node = n.getFirstChild()
 	var newLiteralNode Node = 0
 	if this.isASTNormalized() && constructorNameNode.isName() {
@@ -467,7 +481,7 @@ func (this *PeepholeSubstituteAlternateSyntax) tryMinimizeStringArrayLiteral(n N
 
 func (this *PeepholeSubstituteAlternateSyntax) tryTurnTemplateStringsToStrings(n Node) Node {
 	if !n.isTemplateLit() {
-		Preconditions_checkState_boolean_Object(false, n.box_())
+		panic(new_IllegalStateException_String(objstr_(n.box_())).self())
 	}
 	if n.getParent().isTaggedTemplateLit() {
 		return n

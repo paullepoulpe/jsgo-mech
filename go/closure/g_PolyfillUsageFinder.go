@@ -50,8 +50,8 @@ func (this *PolyfillUsageFinder) traverseOnlyGuarded(root Node, polyfillConsumer
 }
 
 func (this *PolyfillUsageFinder) maybeCreateStaticPolyfillUsageForGetPropChain(traversal *NodeTraversal, getPropNode Node) *PolyfillUsageFinder_PolyfillUsage {
-	if !(getPropNode.isGetProp() || getPropNode.isOptChainGetProp()) {
-		Preconditions_checkArgument_boolean_Object(false, getPropNode.box_())
+	if !getPropNode.isGetProp() && !getPropNode.isOptChainGetProp() {
+		panic(new_IllegalArgumentException_String(objstr_(getPropNode.box_())).self())
 	}
 	var lastComponent string = getPropNode.getString()
 	if !Collection_contains_s(this.polyfills.suffixes, lastComponent) {

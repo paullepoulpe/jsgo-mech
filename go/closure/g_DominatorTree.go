@@ -19,7 +19,9 @@ func new_DominatorTree(idoms MapOf[any, any], subtreeSizes MapOf[any, BoxedOf[in
 }
 
 func DominatorTree_compute(graph *DiGraph, entry any) *DominatorTree {
-	Preconditions_checkNotNull_Object_Object(any(graph.getNode(entry)), strobj_("Entry node not in graph"))
+	if graph.getNode(entry) == nil {
+		panic(new_NullPointerException_String("Entry node not in graph").self())
+	}
 	var postOrder ListOf[any] = icast_List(new_ArrayList_0().self())
 	var postOrderIndex MapOf[any, BoxedOf[int32]] = icast_Map(obj_(new_LinkedHashMap()))
 	DominatorTree_buildPostOrder(graph, entry, postOrder, icast_Map(obj_(new_LinkedHashMap())))

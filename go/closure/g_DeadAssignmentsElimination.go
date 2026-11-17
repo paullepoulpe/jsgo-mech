@@ -30,9 +30,15 @@ func new_DeadAssignmentsElimination(compiler *AbstractCompiler) *DeadAssignments
 }
 
 func (this *DeadAssignmentsElimination) process_2(externs Node, root Node) {
-	Preconditions_checkNotNull(externs.box_())
-	Preconditions_checkNotNull(root.box_())
-	Preconditions_checkState(this.compiler_.getLifeCycleStage().isNormalized())
+	if externs == 0 {
+		panic(new_NullPointerException_0().self())
+	}
+	if root == 0 {
+		panic(new_NullPointerException_0().self())
+	}
+	if !this.compiler_.getLifeCycleStage().isNormalized() {
+		panic(new_IllegalStateException_0().self())
+	}
 	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(obj_(this)))
 }
 
@@ -61,8 +67,12 @@ func (this *DeadAssignmentsElimination) exitScopeWithCfg_impl(t *NodeTraversal) 
 }
 
 func (this *DeadAssignmentsElimination) eliminateDeadAssignments(t *NodeTraversal) {
-	Preconditions_checkArgument(t.inFunctionBlockScope())
-	Preconditions_checkState(len(this.functionStack) != 0)
+	if !t.inFunctionBlockScope() {
+		panic(new_IllegalArgumentException_0().self())
+	}
+	if len(this.functionStack) == 0 {
+		panic(new_IllegalStateException_0().self())
+	}
 	if !this.compiler_.hasScopeChanged(t.getScopeRoot().getParent()) {
 		return
 	}
@@ -155,7 +165,9 @@ func (this *DeadAssignmentsElimination) tryRemoveAssignment_5(t *NodeTraversal, 
 		}
 		var name string = lhs.getString()
 		var scope *Scope = t.getScope()
-		Preconditions_checkState((scope.isFunctionBlockScope() || scope.isBlockScope()))
+		if !scope.isFunctionBlockScope() && !scope.isBlockScope() {
+			panic(new_IllegalStateException_0().self())
+		}
 		if !allVarsInFn.containsKey(name) {
 			return
 		}
@@ -267,7 +279,7 @@ func (this *DeadAssignmentsElimination) isVariableReadBeforeKill(n Node, variabl
 	if n.isName() && (variable == n.getString()) {
 		if NodeUtil_isNameDeclOrSimpleAssignLhs(n, n.getParent()) {
 			if ok_, a1_ := n.getParent().isAssign(), n.getParent(); !ok_ {
-				Preconditions_checkState_boolean_Object(false, a1_.box_())
+				panic(new_IllegalStateException_String(objstr_(a1_.box_())).self())
 			}
 			var rhs Node = n.getNext()
 			var state DeadAssignmentsElimination_VariableLiveness = this.isVariableReadBeforeKill(rhs, variable)

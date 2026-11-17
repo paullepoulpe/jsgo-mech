@@ -38,8 +38,12 @@ func (this *ClosureCheckModule) enterModule_impl(currentModule *ModuleMetadataMa
 	if !currentModule.isGoogModule() {
 		return
 	}
-	Preconditions_checkState((this.currentModuleInfo == nil))
-	Preconditions_checkState(!currentModule.googNamespaces().isEmpty())
+	if this.currentModuleInfo != nil {
+		panic(new_IllegalStateException_0().self())
+	}
+	if currentModule.googNamespaces().isEmpty() {
+		panic(new_IllegalStateException_0().self())
+	}
 	this.currentModuleInfo = new_ClosureCheckModule_ModuleInfo(str_(Iterables_getFirst(icast_Iterable(obj_(currentModule.googNamespaces())), strobj_(""))))
 }
 
@@ -205,9 +209,13 @@ func ClosureCheckModule_isExportLhs(lhs Node) bool {
 }
 
 func (this *ClosureCheckModule) checkModuleExport(t *NodeTraversal, n Node, parent Node) {
-	Preconditions_checkArgument(n.isAssign())
+	if !n.isAssign() {
+		panic(new_IllegalArgumentException_0().self())
+	}
 	var lhs Node = n.getFirstChild()
-	Preconditions_checkState(ClosureCheckModule_isExportLhs(lhs))
+	if !ClosureCheckModule_isExportLhs(lhs) {
+		panic(new_IllegalStateException_0().self())
+	}
 	var previousDefinition Node = this.currentModuleInfo.exportNodesByName[lhs.getQualifiedName()]
 	if previousDefinition != 0 {
 		var previousLine int32 = previousDefinition.getLineno()
@@ -239,8 +247,12 @@ func ClosureCheckModule_extractFirstArgumentName(callNode Node) OptionalOf[strin
 }
 
 func (this *ClosureCheckModule) checkRequireCall(t *NodeTraversal, callNode Node, parent Node) {
-	Preconditions_checkState(callNode.isCall())
-	Preconditions_checkState(callNode.getLastChild().isStringLit())
+	if !callNode.isCall() {
+		panic(new_IllegalStateException_0().self())
+	}
+	if !callNode.getLastChild().isStringLit() {
+		panic(new_IllegalStateException_0().self())
+	}
 	switch parent.ns_().token {
 	case tokOrd1_EXPR_RESULT:
 		var key OptionalOf[string] = ClosureCheckModule_extractFirstArgumentName(callNode)
@@ -309,7 +321,9 @@ func ClosureCheckModule_checkShortName(t *NodeTraversal, shortNameNode Node, nam
 }
 
 func ClosureCheckModule_isValidDestructuringImport(destructuringLhs Node) bool {
-	Preconditions_checkArgument(destructuringLhs.isDestructuringLhs())
+	if !destructuringLhs.isDestructuringLhs() {
+		panic(new_IllegalArgumentException_0().self())
+	}
 	var objectPattern Node = destructuringLhs.getFirstChild()
 	if !objectPattern.isObjectPattern() {
 		return false
@@ -328,7 +342,9 @@ func ClosureCheckModule_isValidDestructuringImport(destructuringLhs Node) bool {
 }
 
 func ClosureCheckModule_checkLegacyNamespaceCall(t *NodeTraversal, callNode Node, parent Node) {
-	Preconditions_checkArgument(callNode.isCall())
+	if !callNode.isCall() {
+		panic(new_IllegalArgumentException_0().self())
+	}
 	if callNode.getChildCount() > 1 {
 		t.report(callNode, ClosureCheckModule_LEGACY_NAMESPACE_ARGUMENT, []string{})
 	}

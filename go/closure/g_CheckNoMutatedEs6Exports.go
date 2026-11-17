@@ -68,7 +68,9 @@ func (this *CheckNoMutatedEs6Exports) visitExport(export Node) {
 		{
 			var exportSpec Node = export.getFirstFirstChild()
 			for ; exportSpec != 0; exportSpec = exportSpec.getNext() {
-				Preconditions_checkState(exportSpec.hasTwoChildren())
+				if !exportSpec.hasTwoChildren() {
+					panic(new_IllegalStateException_0().self())
+				}
 				this.exportedLocalNames.add(exportSpec.getFirstChild().getString())
 			}
 		}
@@ -78,7 +80,9 @@ func (this *CheckNoMutatedEs6Exports) visitExport(export Node) {
 			NodeUtil_visitLhsNodesInNode(declaration, func(lhs_ any) {
 				var lhs Node = Node_of_(lhs_)
 				_ = lhs
-				Preconditions_checkState(lhs.isName())
+				if !lhs.isName() {
+					panic(new_IllegalStateException_0().self())
+				}
 				this.exportedLocalNames.add(lhs.getString())
 			})
 		} else if export.getBooleanProp(Node_EXPORT_DEFAULT) {
@@ -90,7 +94,9 @@ func (this *CheckNoMutatedEs6Exports) visitExport(export Node) {
 				this.exportedLocalNames.add(nameNode.getString())
 			}
 		} else {
-			Preconditions_checkState((declaration.isClass() || declaration.isFunction()))
+			if !declaration.isClass() && !declaration.isFunction() {
+				panic(new_IllegalStateException_0().self())
+			}
 			var nameNode Node = declaration.getFirstChild()
 			this.exportedLocalNames.add(nameNode.getString())
 		}

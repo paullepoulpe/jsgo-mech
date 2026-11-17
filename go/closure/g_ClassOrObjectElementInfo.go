@@ -31,7 +31,9 @@ func ClassOrObjectElementInfo_createObjectLiteralElementInfo(start *SourcePositi
 }
 
 func (this *ClassOrObjectElementInfo) setName(name *IdentifierToken) {
-	Preconditions_checkState((this.nameExpr == nil))
+	if this.nameExpr != nil {
+		panic(new_IllegalStateException_0().self())
+	}
 	this.name_ = name
 }
 
@@ -40,11 +42,16 @@ func (this *ClassOrObjectElementInfo) hasName() bool {
 }
 
 func (this *ClassOrObjectElementInfo) getName() *IdentifierToken {
-	return cast_[*IdentifierToken](Preconditions_checkNotNull(obj_(this.name_)))
+	if this.name_ == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	return this.name_
 }
 
 func (this *ClassOrObjectElementInfo) setNameExpr(nameExpr *ParseTree) {
-	Preconditions_checkState((this.name_ == nil))
+	if this.name_ != nil {
+		panic(new_IllegalStateException_0().self())
+	}
 	this.nameExpr = nameExpr
 }
 
@@ -53,5 +60,8 @@ func (this *ClassOrObjectElementInfo) hasNameExpr() bool {
 }
 
 func (this *ClassOrObjectElementInfo) getNameExpr() *ParseTree {
-	return to_ParseTree(Preconditions_checkNotNull(this.nameExpr.self()))
+	if this.nameExpr == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	return this.nameExpr
 }

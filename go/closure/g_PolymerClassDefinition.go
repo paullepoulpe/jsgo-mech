@@ -29,7 +29,9 @@ func (this *PolymerClassDefinition) init_PolymerClassDefinition(defType PolymerC
 	this.definition = definition
 	this.target = target
 	this.hasGeneratedLhs = hasGeneratedLhs
-	Preconditions_checkState(((descriptor == 0) || descriptor.isObjectLit()))
+	if descriptor != 0 && !descriptor.isObjectLit() {
+		panic(new_IllegalStateException_0().self())
+	}
 	this.descriptor = descriptor
 	this.constructor_ = constructor
 	this.nativeBaseElement = nativeBaseElement
@@ -158,7 +160,9 @@ func PolymerClassDefinition_createDummyGoogModuleExportsTarget(compiler *Abstrac
 }
 
 func PolymerClassDefinition_extractFromClassNode(classNode Node, compiler *AbstractCompiler) *PolymerClassDefinition {
-	Preconditions_checkState(((classNode != 0) && classNode.isClass()))
+	if classNode == 0 || !classNode.isClass() {
+		panic(new_IllegalStateException_0().self())
+	}
 	var propertiesDescriptor Node = 0
 	var propertiesGetter Node = NodeUtil_getFirstGetterMatchingKey(NodeUtil_getClassMembers(classNode), "properties")
 	if propertiesGetter != 0 {

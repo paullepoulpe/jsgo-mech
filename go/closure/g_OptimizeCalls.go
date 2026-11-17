@@ -25,7 +25,9 @@ func OptimizeCalls_builder() *OptimizeCalls_Builder {
 }
 
 func (this *OptimizeCalls) process_2(externs Node, root Node) {
-	Preconditions_checkState(this.compiler_.getLifeCycleStage().isNormalized())
+	if !this.compiler_.getLifeCycleStage().isNormalized() {
+		panic(new_IllegalStateException_0().self())
+	}
 	if len(this.passes) == 0 {
 		return
 	}
@@ -78,7 +80,7 @@ func OptimizeCalls_isAllowedReference(n Node) bool {
 			return false
 		} else {
 			if !n.isSecondChildOf(parent) {
-				Preconditions_checkState_boolean_Object(false, parent.box_())
+				panic(new_IllegalStateException_String(objstr_(parent.box_())).self())
 			}
 			if NodeUtil_getEs6ClassConstructorMemberFunctionDef(parent) == 0 {
 				return false
@@ -142,8 +144,12 @@ func (this *OptimizeCalls_Builder) addPass(pass OptimizeCalls_CallGraphCompilerP
 }
 
 func (this *OptimizeCalls_Builder) build() *OptimizeCalls {
-	Preconditions_checkNotNull(this.compiler_.self())
-	Preconditions_checkNotNull(this.considerExterns)
+	if this.compiler_ == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	if this.considerExterns == nil {
+		panic(new_NullPointerException_0().self())
+	}
 	return new_OptimizeCalls(this.compiler_, sliceImm_(tc_OptimizeCalls_CallGraphCompilerPass, this.passes.build()), unbox_[bool](this.considerExterns))
 }
 
@@ -234,7 +240,7 @@ func OptimizeCalls_ReferenceMap_definitionFunctionNodesFor(definitionSite Node) 
 			fns.add(definitionSite.getLastChild().box_())
 		} else {
 			if !definitionSite.isMemberFieldDef() {
-				Preconditions_checkArgument_boolean_Object(false, definitionSite.box_())
+				panic(new_IllegalArgumentException_String(objstr_(definitionSite.box_())).self())
 			}
 			var value Node = definitionSite.getFirstChild()
 			if value != 0 {
@@ -242,8 +248,8 @@ func OptimizeCalls_ReferenceMap_definitionFunctionNodesFor(definitionSite Node) 
 			}
 		}
 	case tokOrd1_OBJECTLIT:
-		if !(definitionSite.isStringKey() || definitionSite.isMemberFunctionDef()) {
-			Preconditions_checkArgument_boolean_Object(false, definitionSite.box_())
+		if !definitionSite.isStringKey() && !definitionSite.isMemberFunctionDef() {
+			panic(new_IllegalArgumentException_String(objstr_(definitionSite.box_())).self())
 		}
 		OptimizeCalls_ReferenceMap_addValueFunctionNodes(fns, definitionSite.getLastChild())
 	case tokOrd1_ASSIGN:
@@ -314,7 +320,7 @@ func OptimizeCalls_ReferenceMap_isNewTarget(n Node) bool {
 func OptimizeCalls_ReferenceMap_getCallOrNewNodeForTarget(n Node) Node {
 	var maybeCall Node = n.getParent()
 	if !n.isFirstChildOf(maybeCall) {
-		Preconditions_checkState_boolean_String_Object_Object(false, "%s\n\n%s", maybeCall.box_(), n.box_())
+		panic(new_IllegalStateException_String(Strings_lenientFormat("%s\n\n%s", []any{maybeCall.box_(), n.box_()})).self())
 	}
 	if NodeUtil_isCallOrNew(maybeCall) {
 		return maybeCall
@@ -322,13 +328,13 @@ func OptimizeCalls_ReferenceMap_getCallOrNewNodeForTarget(n Node) Node {
 		var child Node = maybeCall
 		maybeCall = child.getParent()
 		if !NodeUtil_isNormalOrOptChainGetProp(child) {
-			Preconditions_checkState_boolean_Object(false, child.box_())
+			panic(new_IllegalStateException_String(objstr_(child.box_())).self())
 		}
 		if !NodeUtil_isNormalOrOptChainCall(maybeCall) {
-			Preconditions_checkState_boolean_Object(false, maybeCall.box_())
+			panic(new_IllegalStateException_String(objstr_(maybeCall.box_())).self())
 		}
 		if !child.isFirstChildOf(maybeCall) {
-			Preconditions_checkState_boolean_String_Object_Object(false, "%s\n\n%s", maybeCall.box_(), child.box_())
+			panic(new_IllegalStateException_String(Strings_lenientFormat("%s\n\n%s", []any{maybeCall.box_(), child.box_()})).self())
 		}
 		return maybeCall
 	}
@@ -403,9 +409,14 @@ func (this *OptimizeCalls_ReferenceMapBuildingCallback) visit(t *NodeTraversal, 
 func (this *OptimizeCalls_ReferenceMapBuildingCallback) visitSuper(superNode Node) {
 	var parent Node = superNode.getParent()
 	if parent.isCall() && superNode.isFirstChildOf(parent) {
-		var enclosingClass Node = Node_of_(Preconditions_checkNotNull(NodeUtil_getEnclosingClass(parent).box_()))
+		var enclosingClass Node = NodeUtil_getEnclosingClass(parent)
+		if enclosingClass == 0 {
+			panic(new_NullPointerException_0().self())
+		}
 		var extendsNode Node = enclosingClass.getSecondChild()
-		Preconditions_checkState_boolean_Object(!extendsNode.isEmpty(), strobj_("super call appears in class without extends clause"))
+		if extendsNode.isEmpty() {
+			panic(new_IllegalStateException_String("super call appears in class without extends clause").self())
+		}
 		if extendsNode.isName() {
 			this.maybeAddNameReference(extendsNode.getString(), superNode)
 		} else if extendsNode.isGetProp() {

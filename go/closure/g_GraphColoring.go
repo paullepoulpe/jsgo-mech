@@ -53,8 +53,12 @@ func (this *GraphColoring) haveSameColor(first any, second any) bool {
 	Preconditions_checkNotNull_Object_Object(any(this.colorToNodeMap), strobj_("No coloring founded. color() should be called first."))
 	var colorFirst *GraphColoring_Color = cast_[*GraphColoring_Color](Annotatable_getAnnotation(Annotatable(this.graph.getNode(first))))
 	var colorSecond *GraphColoring_Color = cast_[*GraphColoring_Color](Annotatable_getAnnotation(Annotatable(this.graph.getNode(second))))
-	Preconditions_checkNotNull(obj_(colorFirst))
-	Preconditions_checkNotNull(obj_(colorSecond))
+	if colorFirst == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	if colorSecond == nil {
+		panic(new_NullPointerException_0().self())
+	}
 	return colorFirst.equals(obj_(colorSecond))
 }
 

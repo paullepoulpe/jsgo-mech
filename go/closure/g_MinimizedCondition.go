@@ -19,7 +19,9 @@ func new_MinimizedCondition(p *MinimizedCondition_MeasuredNode, n *MinimizedCond
 }
 
 func MinimizedCondition_fromConditionNode(n Node) *MinimizedCondition {
-	Preconditions_checkState(n.hasParent())
+	if !n.hasParent() {
+		panic(new_IllegalStateException_0().self())
+	}
 	return func() *MinimizedCondition {
 		switch n.ns_().token {
 		case tokOrd1_NOT, tokOrd1_AND, tokOrd1_OR, tokOrd1_HOOK, tokOrd1_COMMA:
@@ -41,7 +43,9 @@ func (this *MinimizedCondition) getMinimized(style MinimizedCondition_Minimizati
 }
 
 func MinimizedCondition_unoptimized(n Node) *MinimizedCondition {
-	Preconditions_checkNotNull(n.getParent().box_())
+	if n.getParent() == 0 {
+		panic(new_NullPointerException_0().self())
+	}
 	var pos *MinimizedCondition_MeasuredNode = new_MinimizedCondition_MeasuredNode(n, nil, 0, false)
 	var neg *MinimizedCondition_MeasuredNode = new_MinimizedCondition_MeasuredNode(0, nil, int32(2147483647), true)
 	return new_MinimizedCondition(pos, neg)
@@ -208,7 +212,9 @@ func (this *MinimizedCondition_MeasuredNode) isNot() bool {
 }
 
 func (this *MinimizedCondition_MeasuredNode) withoutNot() *MinimizedCondition_MeasuredNode {
-	Preconditions_checkState(this.isNot())
+	if !this.isNot() {
+		panic(new_IllegalStateException_0().self())
+	}
 	return MinimizedCondition_MeasuredNode_normalizeChildren(this.node_, this.children_)[0].change()
 }
 
@@ -301,13 +307,19 @@ func MinimizedCondition_MeasuredNode_forNode(n Node) *MinimizedCondition_Measure
 }
 
 func (this *MinimizedCondition_MeasuredNode) willChange(original Node) bool {
-	Preconditions_checkNotNull(original.box_())
+	if original == 0 {
+		panic(new_NullPointerException_0().self())
+	}
 	return ((original != this.node_) || this.isChanged())
 }
 
 func (this *MinimizedCondition_MeasuredNode) applyTo(original Node) Node {
-	Preconditions_checkNotNull(original.box_())
-	Preconditions_checkState(this.willChange(original))
+	if original == 0 {
+		panic(new_NullPointerException_0().self())
+	}
+	if !this.willChange(original) {
+		panic(new_IllegalStateException_0().self())
+	}
 	var replacement Node = this.buildReplacement()
 	if original != replacement {
 		this.safeDetach(replacement)

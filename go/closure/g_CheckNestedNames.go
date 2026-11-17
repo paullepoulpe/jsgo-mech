@@ -28,7 +28,9 @@ func (this *CheckNestedNames) shouldTraverse(nodeTraversal *NodeTraversal, n Nod
 }
 
 func (this *CheckNestedNames) visit(t *NodeTraversal, n Node, parent Node) {
-	Preconditions_checkArgument(t.inGlobalOrModuleScope())
+	if !t.inGlobalOrModuleScope() {
+		panic(new_IllegalArgumentException_0().self())
+	}
 	if !n.isGetProp() || !n.isQualifiedName() {
 		return
 	}
@@ -49,7 +51,7 @@ func (this *CheckNestedNames) visit(t *NodeTraversal, n Node, parent Node) {
 
 func CheckNestedNames_getTargetGetProp(n Node) Node {
 	if !n.isGetProp() {
-		Preconditions_checkArgument_boolean_Object(false, n.box_())
+		panic(new_IllegalArgumentException_String(objstr_(n.box_())).self())
 	}
 	if n.getFirstChild().isGetProp() {
 		return CheckNestedNames_getTargetGetProp(n.getFirstChild())
@@ -63,7 +65,7 @@ func CheckNestedNames_isDotPrototype(getProp Node) bool {
 
 func (this *CheckNestedNames) getNestedDeclarationKind(lhs Node, parent Node) CheckNestedNames_DeclarationKind {
 	if !lhs.isFirstChildOf(parent) {
-		Preconditions_checkArgument_boolean_Object(false, lhs.box_())
+		panic(new_IllegalArgumentException_String(objstr_(lhs.box_())).self())
 	}
 	if lhs.getTypedefTypeProp() != nil {
 		return CheckNestedNames_DeclarationKind_TYPEDEF

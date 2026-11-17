@@ -136,7 +136,7 @@ func (this *ReferenceCollector) popLastBlock(root Node) {
 	this.blockStack[len(this.blockStack)-1] = nil
 	this.blockStack = this.blockStack[:len(this.blockStack)-1]
 	if !JSCompObjects_identical(root.box_(), last.getRoot().box_()) {
-		Preconditions_checkState_boolean_Object(false, root.box_())
+		panic(new_IllegalStateException_String(objstr_(root.box_())).self())
 	}
 }
 

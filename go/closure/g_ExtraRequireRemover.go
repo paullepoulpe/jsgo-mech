@@ -111,19 +111,21 @@ func (this *ExtraRequireRemover) removeExtraRequire(call Node, require string) {
 	}
 	if call.getParent().isName() {
 		var nameDeclaration Node = call.getGrandparent()
-		Preconditions_checkState(NodeUtil_isNameDeclaration(call.getGrandparent()))
+		if !NodeUtil_isNameDeclaration(call.getGrandparent()) {
+			panic(new_IllegalStateException_0().self())
+		}
 		this.compiler_.reportChangeToEnclosingScope(nameDeclaration.getParent())
 		nameDeclaration.detach()
 		return
 	}
 	if ok_, a1_ := call.getParent().isStringKey(), call.getParent(); !ok_ {
-		Preconditions_checkState_boolean_Object(false, a1_.box_())
+		panic(new_IllegalStateException_String(objstr_(a1_.box_())).self())
 	}
 	var objectPattern Node = call.getGrandparent()
 	if objectPattern.hasOneChild() {
 		var nameDeclaration Node = objectPattern.getGrandparent()
 		if !NodeUtil_isNameDeclaration(nameDeclaration) {
-			Preconditions_checkState_boolean_Object(false, nameDeclaration.box_())
+			panic(new_IllegalStateException_String(objstr_(nameDeclaration.box_())).self())
 		}
 		this.compiler_.reportChangeToEnclosingScope(nameDeclaration.getParent())
 		nameDeclaration.detach()
@@ -182,7 +184,7 @@ func (this *ExtraRequireRemover) addUsagesOfAllPrefixes(qualifiedName *Qualified
 
 func (this *ExtraRequireRemover) visitQualifiedName(n Node) {
 	if !n.isQualifiedName() {
-		Preconditions_checkArgument_boolean_Object(false, n.box_())
+		panic(new_IllegalArgumentException_String(objstr_(n.box_())).self())
 	}
 	this.addUsagesOfAllPrefixes(n.getQualifiedNameObject())
 }

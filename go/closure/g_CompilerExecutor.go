@@ -51,7 +51,9 @@ func (this *CompilerExecutor) setDebugMessage(debugMessage string) {
 func (this *CompilerExecutor) runInCompilerThread(callable func() any, dumpTraceReport bool) any {
 	var result any = nil
 	var exception *Throwable
-	Preconditions_checkState_boolean_Object(((this.compilerThread == nil) || (this.compilerThread == Thread_currentThread())), strobj_("Please do not share the Compiler across threads"))
+	if this.compilerThread != nil && this.compilerThread != Thread_currentThread() {
+		panic(new_IllegalStateException_String("Please do not share the Compiler across threads").self())
+	}
 	if this.useThreads && (this.compilerThread == nil) {
 		func() {
 			defer func() {

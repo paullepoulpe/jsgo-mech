@@ -231,28 +231,40 @@ func (this *CodeConsumer) endCaseBody_impl() {
 }
 
 func (this *CodeConsumer) beginTemplateLit() {
-	Preconditions_checkState((this.templateLitDepth == this.templateLitSubDepth))
+	if this.templateLitDepth != this.templateLitSubDepth {
+		panic(new_IllegalStateException_0().self())
+	}
 	this.maybeEndStatement()
 	this.append("`")
 	this.templateLitDepth++
 }
 
 func (this *CodeConsumer) beginTemplateLitSub() {
-	Preconditions_checkState(this.isInTemplateLiteral())
+	if !this.isInTemplateLiteral() {
+		panic(new_IllegalStateException_0().self())
+	}
 	this.append("${")
 	this.templateLitSubDepth++
 }
 
 func (this *CodeConsumer) endTemplateLitSub() {
-	Preconditions_checkState((this.templateLitSubDepth > 0))
-	Preconditions_checkState((this.templateLitDepth == this.templateLitSubDepth))
+	if this.templateLitSubDepth <= 0 {
+		panic(new_IllegalStateException_0().self())
+	}
+	if this.templateLitDepth != this.templateLitSubDepth {
+		panic(new_IllegalStateException_0().self())
+	}
 	this.append("}")
 	this.templateLitSubDepth--
 }
 
 func (this *CodeConsumer) endTemplateLit() {
-	Preconditions_checkState((this.templateLitDepth > 0))
-	Preconditions_checkState(this.isInTemplateLiteral())
+	if this.templateLitDepth <= 0 {
+		panic(new_IllegalStateException_0().self())
+	}
+	if !this.isInTemplateLiteral() {
+		panic(new_IllegalStateException_0().self())
+	}
 	this.append("`")
 	this.templateLitDepth--
 }
@@ -284,7 +296,7 @@ func (this *CodeConsumer) addOp(op string, binOp bool) {
 
 func (this *CodeConsumer) addNumber_impl(x float64, n Node) {
 	if !JSCompDoubles_isPositive(x) {
-		Preconditions_checkState_boolean_Object(false, any(float64(x)))
+		panic(new_IllegalStateException_String(objstr_(any(float64(x)))).self())
 	}
 	this.addConstant(CodeConsumer_formatNumber(x))
 }

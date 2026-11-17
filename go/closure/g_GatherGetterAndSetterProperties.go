@@ -21,7 +21,9 @@ func (this *GatherGetterAndSetterProperties) process_2(externs Node, root Node) 
 }
 
 func GatherGetterAndSetterProperties_update(compiler *AbstractCompiler, externs Node, root Node) {
-	Preconditions_checkState((externs.getParent() == root.getParent()))
+	if externs.getParent() != root.getParent() {
+		panic(new_IllegalStateException_0().self())
+	}
 	var accessorSummary *AccessorSummary
 	if compiler.getOptions().getAssumePropertiesAreStaticallyAnalyzable() {
 		accessorSummary = AccessorSummary_create(tmapFrom_(tc_string, tc_p_AccessorSummary_PropertyAccessKind, GatherGetterAndSetterProperties_gather(compiler, externs.getParent()), true))
@@ -91,13 +93,17 @@ func (this *GatherGetterAndSetterProperties_GatherCallback) visit_impl(t *NodeTr
 }
 
 func (this *GatherGetterAndSetterProperties_GatherCallback) recordGetterDef(getterDef Node) {
-	Preconditions_checkState(getterDef.isGetterDef())
+	if !getterDef.isGetterDef() {
+		panic(new_IllegalStateException_0().self())
+	}
 	var name string = getterDef.getString()
 	this.record(name, AccessorSummary_PropertyAccessKind_GETTER_ONLY)
 }
 
 func (this *GatherGetterAndSetterProperties_GatherCallback) recordSetterDef(setterDef Node) {
-	Preconditions_checkState(setterDef.isSetterDef())
+	if !setterDef.isSetterDef() {
+		panic(new_IllegalStateException_0().self())
+	}
 	var name string = setterDef.getString()
 	this.record(name, AccessorSummary_PropertyAccessKind_SETTER_ONLY)
 }

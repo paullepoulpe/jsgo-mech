@@ -95,7 +95,7 @@ func (this *JsMessageVisitor) checkMessageInitialization(traversal *NodeTraversa
 			return
 		}
 		if !parent.isObjectLit() {
-			Preconditions_checkState_boolean_Object(false, parent.box_())
+			panic(new_IllegalStateException_String(objstr_(parent.box_())).self())
 		}
 		possiblyObfuscatedMessageKey = node.getString()
 		originalMessageKey = node.getOriginalName()
@@ -139,7 +139,9 @@ func (this *JsMessageVisitor) checkMessageInitialization(traversal *NodeTraversa
 	} else {
 		sourceName = (sstr_(traversal.getSourceName().orElse("null")) + ":" + istr_(int64(node.getLineno())))
 	}
-	Preconditions_checkState(msgNode.isCall())
+	if !msgNode.isCall() {
+		panic(new_IllegalStateException_0().self())
+	}
 	var fnNameNode Node = msgNode.getFirstChild()
 	if this.isDeclareIcuTemplateCallee(fnNameNode) {
 		var icuTemplateDefinitionOutcome *Outcome_base = this.extractIcuTemplateDefinition(msgNode, jsDocInfo, messageKeyFromLhs, sourceName)

@@ -126,16 +126,26 @@ func (this *XtbMessageBundle_Handler) endPrefixMapping(prefix string) {
 func (this *XtbMessageBundle_Handler) startElement(uri string, localName string, qName string, atts Attributes) {
 	switch qName {
 	case XtbMessageBundle_Handler_BUNDLE_ELEM_NAME:
-		Preconditions_checkState(this.lang.isEmpty())
+		if !this.lang.isEmpty() {
+			panic(new_IllegalStateException_0().self())
+		}
 		this.lang = Optional_ofNullable[string](atts.getValue(XtbMessageBundle_Handler_LANG_ATT_NAME))
-		Preconditions_checkState((this.lang.isPresent() && !String_isEmpty(this.lang.get())))
+		if !this.lang.isPresent() || String_isEmpty(this.lang.get()) {
+			panic(new_IllegalStateException_0().self())
+		}
 	case XtbMessageBundle_Handler_TRANSLATION_ELEM_NAME:
-		Preconditions_checkState((this.msgBuilder == nil))
+		if this.msgBuilder != nil {
+			panic(new_IllegalStateException_0().self())
+		}
 		var id OptionalOf[string] = Optional_ofNullable[string](atts.getValue(XtbMessageBundle_Handler_MESSAGE_ID_ATT_NAME))
-		Preconditions_checkState((id.isPresent() && !String_isEmpty(id.get())))
+		if !id.isPresent() || String_isEmpty(id.get()) {
+			panic(new_IllegalStateException_0().self())
+		}
 		this.msgBuilder = new_JsMessage_Builder().setKey(id.get()).setId(id)
 	case XtbMessageBundle_Handler_PLACEHOLDER_ELEM_NAME:
-		Preconditions_checkState((this.msgBuilder != nil))
+		if this.msgBuilder == nil {
+			panic(new_IllegalStateException_0().self())
+		}
 		var phRef string = atts.getValue(XtbMessageBundle_Handler_PLACEHOLDER_NAME_ATT_NAME)
 		if this.msgBuilder.hasGenderedVariants() {
 			this.msgBuilder.appendCanonicalPlaceholderReference_2(JsMessage_GrammaticalGenderCase_valueOf(this.genderCase), phRef)
@@ -143,12 +153,16 @@ func (this *XtbMessageBundle_Handler) startElement(uri string, localName string,
 			this.msgBuilder.appendCanonicalPlaceholderReference(phRef)
 		}
 	case XtbMessageBundle_Handler_BRANCH_ELEM_NAME:
-		Preconditions_checkState((this.msgBuilder != nil))
+		if this.msgBuilder == nil {
+			panic(new_IllegalStateException_0().self())
+		}
 		var gender string = atts.getValue(XtbMessageBundle_Handler_BRANCH_NAME_ATT_NAME)
 		var matcher *Matcher_re2j = XtbMessageBundle_Handler_GET_STRING_PATTERN.matcher_s(gender)
 		if matcher.find() {
 			this.genderCase = matcher.group(1)
-			Preconditions_checkState_boolean_Object(((((this.genderCase == XtbMessageBundle_Handler_MALE_GENDER_CASE) || (this.genderCase == XtbMessageBundle_Handler_FEMALE_GENDER_CASE)) || (this.genderCase == XtbMessageBundle_Handler_NEUTER_GENDER_CASE)) || (this.genderCase == XtbMessageBundle_Handler_OTHER_GENDER_CASE)), strobj_("Gender case must be one of the following: MASCULINE, FEMININE, NEUTER, or OTHER."))
+			if !((((this.genderCase == XtbMessageBundle_Handler_MALE_GENDER_CASE) || (this.genderCase == XtbMessageBundle_Handler_FEMALE_GENDER_CASE)) || (this.genderCase == XtbMessageBundle_Handler_NEUTER_GENDER_CASE)) || (this.genderCase == XtbMessageBundle_Handler_OTHER_GENDER_CASE)) {
+				panic(new_IllegalStateException_String("Gender case must be one of the following: MASCULINE, FEMININE, NEUTER, or OTHER.").self())
+			}
 			this.msgBuilder.addGenderedMessageKey(JsMessage_GrammaticalGenderCase_valueOf(this.genderCase))
 		}
 	default:
@@ -157,7 +171,9 @@ func (this *XtbMessageBundle_Handler) startElement(uri string, localName string,
 
 func (this *XtbMessageBundle_Handler) endElement(uri string, localName string, qName string) {
 	if XtbMessageBundle_Handler_TRANSLATION_ELEM_NAME == qName {
-		Preconditions_checkState((this.msgBuilder != nil))
+		if this.msgBuilder == nil {
+			panic(new_IllegalStateException_0().self())
+		}
 		if !this.msgBuilder.hasParts() {
 			this.msgBuilder.appendStringPart("")
 		}

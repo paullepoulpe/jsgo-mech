@@ -29,10 +29,14 @@ func new_InlineSimpleMethods(compiler *AbstractCompiler) *InlineSimpleMethods {
 
 func (this *InlineSimpleMethods) process_2(externs Node, root Node) {
 	if ok_, a1_ := this.compiler_.getLifeCycleStage().isNormalized(), this.compiler_.getLifeCycleStage(); !ok_ {
-		Preconditions_checkState_boolean_Object(false, obj_(a1_))
+		panic(new_IllegalStateException_String(objstr_(obj_(a1_))).self())
 	}
-	Preconditions_checkState(this.methodDefinitions.isEmpty())
-	Preconditions_checkState((externs != 0))
+	if !this.methodDefinitions.isEmpty() {
+		panic(new_IllegalStateException_0().self())
+	}
+	if externs == 0 {
+		panic(new_IllegalStateException_0().self())
+	}
 	NodeTraversal_traverseRoots(this.compiler_, icast_NodeTraversal_Callback(obj_(new_InlineSimpleMethods_GatherSignatures(this))), externs, root)
 	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(obj_(new_InlineSimpleMethods_InlineTrivialAccessors(this))))
 }

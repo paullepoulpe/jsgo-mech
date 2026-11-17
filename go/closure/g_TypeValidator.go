@@ -256,7 +256,7 @@ func (this *TypeValidator) expectSwitchMatchesCase(n Node, switchType *JSType, c
 
 func (this *TypeValidator) expectIndexMatch(n Node, objType *JSType, indexType *JSType) {
 	if !(((n.isGetElem() || n.isOptChainGetElem()) || n.isComputedProp()) || n.isComputedFieldDef()) {
-		Preconditions_checkState_boolean_Object(false, n.box_())
+		panic(new_IllegalStateException_String(objstr_(n.box_())).self())
 	}
 	var indexNode Node = func() Node {
 		if n.isGetElem() {
@@ -424,7 +424,9 @@ func (this *TypeValidator) expectUndeclaredVariable(sourceName OptionalOf[string
 			} else if parent.isExprResult() {
 				n.setJSType(varType)
 			} else {
-				Preconditions_checkState((parent.isFunction() || parent.isClass()))
+				if !parent.isFunction() && !parent.isClass() {
+					panic(new_IllegalStateException_0().self())
+				}
 				parent.setJSType(varType)
 			}
 		} else {
@@ -521,7 +523,9 @@ func (this *TypeValidator) checkPropertyType(n Node, instance *JSType, parent *O
 }
 
 func (this *TypeValidator) expectAbstractMethodsImplemented(n Node, ctorType *FunctionType) {
-	Preconditions_checkArgument(ctorType.isConstructor())
+	if !ctorType.isConstructor() {
+		panic(new_IllegalArgumentException_0().self())
+	}
 	var abstractMethodSuperTypeMap *TMap[Property_Key, *ObjectType] = newTMap_(tch_Property_Key, tc_p_ObjectType)
 	var currSuperCtor *FunctionType = ctorType.getSuperClassConstructor()
 	if (currSuperCtor == nil) || !currSuperCtor.isAbstract() {
@@ -643,7 +647,11 @@ func TypeValidator_formatFoundRequired(description string, found *JSType, requir
 }
 
 func (this *TypeValidator) getJSType(n Node) *JSType {
-	return to_JSType(Preconditions_checkNotNull_Object_String_Object(n.getJSType().self(), "%s has no JSType attached", n.box_()))
+	nn_ := n.getJSType()
+	if nn_ == nil {
+		panic(new_NullPointerException_String(Strings_lenientFormat("%s has no JSType attached", []any{n.box_()})).self())
+	}
+	return nn_
 }
 
 func (this *TypeValidator) getNativeType(typeId JSTypeNative) *JSType {

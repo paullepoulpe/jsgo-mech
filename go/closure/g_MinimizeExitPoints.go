@@ -25,7 +25,9 @@ func new_MinimizeExitPoints() *MinimizeExitPoints {
 }
 
 func (this *MinimizeExitPoints) optimizeSubtree_impl(n Node) Node {
-	Preconditions_checkState_boolean_Object(this.isASTNormalized(), strobj_("MinimizeExitPoints requires the AST to be normalized"))
+	if !this.isASTNormalized() {
+		panic(new_IllegalStateException_String("MinimizeExitPoints requires the AST to be normalized").self())
+	}
 	switch n.ns_().token {
 	case tokOrd1_LABEL:
 		this.tryMinimizeExits(n.getLastChild(), Token_rhino_BREAK, Optional_of[string](n.getFirstChild().getString()))
@@ -68,7 +70,9 @@ func (this *MinimizeExitPoints) tryMinimizeExits(n Node, exitType Token_rhino, l
 		this.tryMinimizeExits(tryBlock, exitType, labelName)
 		var allCatchNodes Node = NodeUtil_getCatchBlock(n)
 		if NodeUtil_hasCatchHandler(allCatchNodes) {
-			Preconditions_checkState(allCatchNodes.hasOneChild())
+			if !allCatchNodes.hasOneChild() {
+				panic(new_IllegalStateException_0().self())
+			}
 			var catchNode Node = allCatchNodes.getFirstChild()
 			var catchCodeBlock Node = catchNode.getLastChild()
 			this.tryMinimizeExits(catchCodeBlock, exitType, labelName)
@@ -116,7 +120,9 @@ func (this *MinimizeExitPoints) tryMinimizeExits(n Node, exitType Token_rhino, l
 }
 
 func (this *MinimizeExitPoints) tryMinimizeSwitchExits(n Node, exitType Token_rhino, labelName OptionalOf[string]) {
-	Preconditions_checkState(n.isSwitch())
+	if !n.isSwitch() {
+		panic(new_IllegalStateException_0().self())
+	}
 	var switchBody Node = n.getSecondChild()
 	{
 		var c Node = switchBody.getFirstChild()
@@ -131,8 +137,12 @@ func (this *MinimizeExitPoints) tryMinimizeSwitchExits(n Node, exitType Token_rh
 }
 
 func (this *MinimizeExitPoints) tryMinimizeSwitchCaseExits(n Node, exitType Token_rhino, labelName OptionalOf[string]) {
-	Preconditions_checkState(NodeUtil_isSwitchCase(n))
-	Preconditions_checkState((n != n.getParent().getLastChild()))
+	if !NodeUtil_isSwitchCase(n) {
+		panic(new_IllegalStateException_0().self())
+	}
+	if n == n.getParent().getLastChild() {
+		panic(new_IllegalStateException_0().self())
+	}
 	var block Node = n.getLastChild()
 	var maybeBreak Node = block.getLastChild()
 	if ((maybeBreak == 0) || !maybeBreak.isBreak()) || maybeBreak.hasChildren() {

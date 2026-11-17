@@ -116,72 +116,122 @@ func (this *JSTypeRegistry) getObjectElementKey() *TemplateType {
 }
 
 func (this *JSTypeRegistry) getObjectIndexKey() *TemplateType {
-	Preconditions_checkNotNull(obj_(this.iObjectIndexTemplateKey))
+	if this.iObjectIndexTemplateKey == nil {
+		panic(new_NullPointerException_0().self())
+	}
 	return this.iObjectIndexTemplateKey
 }
 
 func (this *JSTypeRegistry) getIterableValueTemplate() *TemplateType {
-	return cast_[*TemplateType](Preconditions_checkNotNull(obj_(this.iterableValueTemplate)))
+	if this.iterableValueTemplate == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	return this.iterableValueTemplate
 }
 
 func (this *JSTypeRegistry) getIterableReturnTemplate() *TemplateType {
-	return cast_[*TemplateType](Preconditions_checkNotNull(obj_(this.iterableReturnTemplate)))
+	if this.iterableReturnTemplate == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	return this.iterableReturnTemplate
 }
 
 func (this *JSTypeRegistry) getIteratorIterableValueTemplate() *TemplateType {
-	return cast_[*TemplateType](Preconditions_checkNotNull(obj_(this.iteratorIterableValueTemplate)))
+	if this.iteratorIterableValueTemplate == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	return this.iteratorIterableValueTemplate
 }
 
 func (this *JSTypeRegistry) getIteratorIterableReturnTemplate() *TemplateType {
-	return cast_[*TemplateType](Preconditions_checkNotNull(obj_(this.iteratorIterableReturnTemplate)))
+	if this.iteratorIterableReturnTemplate == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	return this.iteratorIterableReturnTemplate
 }
 
 func (this *JSTypeRegistry) getIIterableResultValueTemplate() *TemplateType {
-	return cast_[*TemplateType](Preconditions_checkNotNull(obj_(this.iiterableResultValueTemplate)))
+	if this.iiterableResultValueTemplate == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	return this.iiterableResultValueTemplate
 }
 
 func (this *JSTypeRegistry) getIteratorLikeValueTemplate() *TemplateType {
-	return cast_[*TemplateType](Preconditions_checkNotNull(obj_(this.iteratorLikeValueTemplate)))
+	if this.iteratorLikeValueTemplate == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	return this.iteratorLikeValueTemplate
 }
 
 func (this *JSTypeRegistry) getIteratorLikeReturnTemplate() *TemplateType {
-	return cast_[*TemplateType](Preconditions_checkNotNull(obj_(this.iteratorLikeReturnTemplate)))
+	if this.iteratorLikeReturnTemplate == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	return this.iteratorLikeReturnTemplate
 }
 
 func (this *JSTypeRegistry) getIteratorValueTemplate() *TemplateType {
-	return cast_[*TemplateType](Preconditions_checkNotNull(obj_(this.iteratorValueTemplate)))
+	if this.iteratorValueTemplate == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	return this.iteratorValueTemplate
 }
 
 func (this *JSTypeRegistry) getIteratorReturnTemplate() *TemplateType {
-	return cast_[*TemplateType](Preconditions_checkNotNull(obj_(this.iteratorReturnTemplate)))
+	if this.iteratorReturnTemplate == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	return this.iteratorReturnTemplate
 }
 
 func (this *JSTypeRegistry) getGeneratorValueTemplate() *TemplateType {
-	return cast_[*TemplateType](Preconditions_checkNotNull(obj_(this.generatorValueTemplate)))
+	if this.generatorValueTemplate == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	return this.generatorValueTemplate
 }
 
 func (this *JSTypeRegistry) getGeneratorReturnTemplate() *TemplateType {
-	return cast_[*TemplateType](Preconditions_checkNotNull(obj_(this.generatorReturnTemplate)))
+	if this.generatorReturnTemplate == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	return this.generatorReturnTemplate
 }
 
 func (this *JSTypeRegistry) getAsyncIterableValueTemplate() *TemplateType {
-	return cast_[*TemplateType](Preconditions_checkNotNull(obj_(this.asyncIterableValueTemplate)))
+	if this.asyncIterableValueTemplate == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	return this.asyncIterableValueTemplate
 }
 
 func (this *JSTypeRegistry) getAsyncIterableReturnTemplate() *TemplateType {
-	return cast_[*TemplateType](Preconditions_checkNotNull(obj_(this.asyncIterableReturnTemplate)))
+	if this.asyncIterableReturnTemplate == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	return this.asyncIterableReturnTemplate
 }
 
 func (this *JSTypeRegistry) getAsyncIteratorValueTemplate() *TemplateType {
-	return cast_[*TemplateType](Preconditions_checkNotNull(obj_(this.asyncIteratorValueTemplate)))
+	if this.asyncIteratorValueTemplate == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	return this.asyncIteratorValueTemplate
 }
 
 func (this *JSTypeRegistry) getAsyncIteratorReturnTemplate() *TemplateType {
-	return cast_[*TemplateType](Preconditions_checkNotNull(obj_(this.asyncIteratorReturnTemplate)))
+	if this.asyncIteratorReturnTemplate == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	return this.asyncIteratorReturnTemplate
 }
 
 func (this *JSTypeRegistry) getIThenableTemplate() *TemplateType {
-	return cast_[*TemplateType](Preconditions_checkNotNull(obj_(this.iThenableTemplateKey)))
+	if this.iThenableTemplateKey == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	return this.iThenableTemplateKey
 }
 
 func (this *JSTypeRegistry) maybeGetTemplateTypesOfBuiltin(scope StaticScope, fnName string) ImmutableListOf[*TemplateType] {
@@ -534,7 +584,9 @@ func (this *JSTypeRegistry) isDeclaredForScope(scope StaticScope, name string) b
 }
 
 func JSTypeRegistry_checkTypeName(typeName string) {
-	Preconditions_checkArgument_boolean_Object(!String_contains_s(typeName, "<"), strobj_("Type names cannot contain template annotations."))
+	if String_contains_s(typeName, "<") {
+		panic(new_IllegalArgumentException_String("Type names cannot contain template annotations.").self())
+	}
 }
 
 func (this *JSTypeRegistry) getTypeInternal(scope StaticScope, name string) *JSType {
@@ -619,7 +671,9 @@ func (this *JSTypeRegistry) resolveViaClosureNamespace(reference string) *JSType
 }
 
 func (this *JSTypeRegistry) resolveViaProperties(declarationScope StaticTypedScope, qualifiedName string) *JSType {
-	Preconditions_checkArgument(!String_isEmpty(qualifiedName))
+	if String_isEmpty(qualifiedName) {
+		panic(new_IllegalArgumentException_0().self())
+	}
 	var rootName string = JSTypeRegistry_getRootElementOfName(qualifiedName)
 	var slot StaticTypedSlot = icast_StaticTypedSlot(declarationScope.getOwnSlot(rootName))
 	if slot == nil {
@@ -860,7 +914,9 @@ func JSTypeRegistry_getSuperStack(a *ObjectType) []*ObjectType {
 }
 
 func (this *JSTypeRegistry) declareType(scope StaticScope, name string, type_ *JSType) bool {
-	Preconditions_checkState(!String_isEmpty(name))
+	if String_isEmpty(name) {
+		panic(new_IllegalStateException_0().self())
+	}
 	if this.getTypeForScopeInternal(JSTypeRegistry_getLookupScope(scope, name), name) != nil {
 		return false
 	}
@@ -869,7 +925,9 @@ func (this *JSTypeRegistry) declareType(scope StaticScope, name string, type_ *J
 }
 
 func (this *JSTypeRegistry) declareTypeForExactScope(scope StaticScope, name string, type_ *JSType) bool {
-	Preconditions_checkState(!String_isEmpty(name))
+	if String_isEmpty(name) {
+		panic(new_IllegalStateException_0().self())
+	}
 	if this.getTypeForScopeInternal(scope, name) != nil {
 		return false
 	}
@@ -879,7 +937,7 @@ func (this *JSTypeRegistry) declareTypeForExactScope(scope StaticScope, name str
 
 func (this *JSTypeRegistry) overwriteDeclaredType(scope StaticScope, name string, type_ *JSType) {
 	if !this.isDeclaredForScope(scope, name) {
-		Preconditions_checkState_boolean_String_Object(false, "missing name %s", strobj_(name))
+		panic(new_IllegalStateException_String(Strings_lenientFormat("missing name %s", []any{strobj_(name)})).self())
 	}
 	this.register(scope, type_, name)
 }
@@ -909,8 +967,8 @@ func JSTypeRegistry_getSimpleReadableJSTypeName(type_ *JSType) OptionalOf[string
 		}
 		var source Node = type_.toObjectType().getConstructor().getSource()
 		if source != 0 {
-			if !(source.isFunction() || source.isClass()) {
-				Preconditions_checkState_boolean_Object(false, source.box_())
+			if !source.isFunction() && !source.isClass() {
+				panic(new_IllegalStateException_String(objstr_(source.box_())).self())
 			}
 			var readable string = source.getFirstChild().getOriginalName()
 			if !String_isEmpty(readable) {
@@ -1028,7 +1086,7 @@ func (this *JSTypeRegistry) getType_5(scope StaticTypedScope, jsTypeName string,
 		type_ = thisType.getTemplateTypeMap().getLastTemplateTypeKeyByName(jsTypeName).up_JSType()
 		if type_ != nil {
 			if !type_.isTemplateType() {
-				Preconditions_checkState_boolean_String_Object(false, "expected:%s", type_.self())
+				panic(new_IllegalStateException_String(Strings_lenientFormat("expected:%s", []any{type_.self()})).self())
 			}
 			return type_
 		}
@@ -1206,7 +1264,9 @@ func (this *JSTypeRegistry) resetImplicitPrototype(type_ *JSType, newImplicitPro
 }
 
 func (this *JSTypeRegistry) createConstructorType(name string, source Node, parameters *TList[*FunctionType_Parameter], returnType *JSType, templateKeys ImmutableListOf[*TemplateType], isAbstract bool) *FunctionType {
-	Preconditions_checkArgument((((source == 0) || source.isFunction()) || source.isClass()))
+	if !(((source == 0) || source.isFunction()) || source.isClass()) {
+		panic(new_IllegalArgumentException_0().self())
+	}
 	return to_FunctionType(FunctionType_builder(this).forConstructor().withName(Optional_of[string](name)).withSourceNode(source).withParameters_1(parameters).withReturnType(returnType).withTemplateKeysImmutableList(templateKeys).withIsAbstract(isAbstract).build().self())
 }
 
@@ -1227,7 +1287,9 @@ func (this *JSTypeRegistry) getEmptyTemplateTypeMap() *TemplateTypeMap {
 }
 
 func (this *JSTypeRegistry) createTemplatizedTypeImmutableList(baseType *ObjectType, templatizedTypes ImmutableListOf[*JSType]) *TemplatizedType {
-	Preconditions_checkNotNull(baseType.self())
+	if baseType == nil {
+		panic(new_NullPointerException_0().self())
+	}
 	return new_TemplatizedType(this, baseType, templatizedTypes)
 }
 
@@ -1415,10 +1477,12 @@ func (this *JSTypeRegistry) createTypeFromCommentNode_3(n Node, sourceName Optio
 }
 
 func (this *JSTypeRegistry) addNullabilityBasedOnParseContext(n Node, type_ *JSType, scope StaticScope) *JSType {
-	if !(n.isName() || n.isStringLit()) {
-		Preconditions_checkState_boolean_Object(false, n.box_())
+	if !n.isName() && !n.isStringLit() {
+		panic(new_IllegalStateException_String(objstr_(n.box_())).self())
 	}
-	Preconditions_checkNotNull(type_.self())
+	if type_ == nil {
+		panic(new_NullPointerException_0().self())
+	}
 	if this.isNonNullableName(scope, n.getString()) {
 		return type_
 	} else if type_.isTemplateType() {

@@ -382,7 +382,9 @@ func (this *InlineVariables_InliningBehavior) createVarExpert(v *Var, referenceI
 }
 
 func (this *InlineVariables_InliningBehavior) isSafeUseOfArguments(argumentsNode Node) bool {
-	Preconditions_checkArgument(argumentsNode.matchesName("arguments"))
+	if !argumentsNode.matchesName("arguments") {
+		panic(new_IllegalArgumentException_0().self())
+	}
 	return (this.isTargetOfPropertyRead(argumentsNode) || this.isSecondArgumentToDotApplyMethod(argumentsNode))
 }
 
@@ -409,12 +411,18 @@ func (this *InlineVariables_InliningBehavior) isSecondArgumentToDotApplyMethod(n
 
 func (this *InlineVariables_InliningBehavior) inline(decl *Reference, init_ *Reference, ref *Reference) {
 	var value Node = init_.getAssignedValue()
-	Preconditions_checkState((value != 0))
+	if value == 0 {
+		panic(new_IllegalStateException_0().self())
+	}
 	var isFunctionDeclaration bool = NodeUtil_isFunctionDeclaration(value)
 	if isFunctionDeclaration {
 		var funcName Node = value.getFirstChild()
-		Preconditions_checkNotNull(funcName.box_())
-		Preconditions_checkState(funcName.isName())
+		if funcName == 0 {
+			panic(new_NullPointerException_0().self())
+		}
+		if !funcName.isName() {
+			panic(new_IllegalStateException_0().self())
+		}
 		funcName.setString("")
 		this.outer_.compiler_.reportChangeToChangeScope(value)
 		this.outer_.compiler_.reportChangeToEnclosingScope(value.getParent())
@@ -422,7 +430,9 @@ func (this *InlineVariables_InliningBehavior) inline(decl *Reference, init_ *Ref
 	this.inlineValue(ref.getNode(), value.detach())
 	if decl != init_ {
 		var expressRoot Node = init_.getGrandparent()
-		Preconditions_checkState(expressRoot.isExprResult())
+		if !expressRoot.isExprResult() {
+			panic(new_IllegalStateException_0().self())
+		}
 		NodeUtil_removeChild(expressRoot.getParent(), expressRoot)
 	}
 	if !isFunctionDeclaration {
@@ -449,7 +459,7 @@ func (this *InlineVariables_InliningBehavior) inlineWellDefinedVariable(v *Var, 
 func (this *InlineVariables_InliningBehavior) removeDeclaration(decl *Reference) {
 	var varNode Node = decl.getParent()
 	if !NodeUtil_isNameDeclaration(varNode) {
-		Preconditions_checkState_boolean_Object(false, varNode.box_())
+		panic(new_IllegalStateException_String(objstr_(varNode.box_())).self())
 	}
 	var grandparent Node = decl.getGrandparent()
 	this.outer_.compiler_.reportChangeToEnclosingScope(decl.getNode())
@@ -476,7 +486,9 @@ func (this *InlineVariables_InliningBehavior) canInline(declaration *Reference, 
 	if (declaration.getBasicBlock() != initialization.getBasicBlock()) || (declaration.getBasicBlock() != reference.getBasicBlock()) {
 		return false
 	}
-	Preconditions_checkState((initValue != 0))
+	if initValue == 0 {
+		panic(new_IllegalStateException_0().self())
+	}
 	if (initValue.isGetProp() && reference.getParent().isCall()) && (reference.getParent().getFirstChild() == reference.getNode()) {
 		return false
 	}
@@ -508,7 +520,9 @@ func (this *InlineVariables_InliningBehavior) canMoveModerately(initialization *
 	if NodeUtil_isNameDeclaration(initialization.getParent()) {
 		it = icast_Iterator(obj_(NodeIterators_LocalVarMotion_forVar(this.outer_.compiler_, initialization.getNode(), initialization.getParent(), initialization.getGrandparent())))
 	} else if initialization.getParent().isAssign() {
-		Preconditions_checkState(initialization.getGrandparent().isExprResult())
+		if !initialization.getGrandparent().isExprResult() {
+			panic(new_IllegalStateException_0().self())
+		}
 		it = icast_Iterator(obj_(NodeIterators_LocalVarMotion_forAssign(this.outer_.compiler_, initialization.getNode(), initialization.getParent(), initialization.getGrandparent(), initialization.getGrandparent().getParent())))
 	} else {
 		panic(new_IllegalStateException_String(("Unexpected initialization parent\n" + sstr_(initialization.getParent().toStringTree()))).self())
@@ -541,7 +555,9 @@ func (this *InlineVariables_InliningBehavior) isValidInitialization(initializati
 		}
 	} else {
 		var parent Node = initialization.getParent()
-		Preconditions_checkState((parent.isAssign() && (parent.getFirstChild() == initialization.getNode())))
+		if !parent.isAssign() || parent.getFirstChild() != initialization.getNode() {
+			panic(new_IllegalStateException_0().self())
+		}
 	}
 	return true
 }
@@ -581,7 +597,7 @@ func new_InlineVariables_InliningBehavior_AliasInlineRetryHandler(outer_ *Inline
 func (this *InlineVariables_InliningBehavior_AliasInlineRetryHandler) handleAliasedVarCompletion(aliasedVar *Var, aliasedVarAnalyis *InlineVariables_InlineVarAnalysis) {
 	var newAnalysis *InlineVariables_InlineVarAnalysis = this.expert.reanalyzeAfterAliasedVar(aliasedVar, aliasedVarAnalyis)
 	if newAnalysis.shouldWaitForAliasedVar() {
-		Preconditions_checkState_boolean_String_Object(false, "expert for %s asked to wait a second time", obj_(this.v))
+		panic(new_IllegalStateException_String(Strings_lenientFormat("expert for %s asked to wait a second time", []any{obj_(this.v)})).self())
 	}
 	if newAnalysis.shouldInline() {
 		newAnalysis.performInline()
@@ -1009,14 +1025,18 @@ func (this *InlineVariables_InitiallyUnknown) isKnownNotToBe(other any) bool {
 }
 
 func (this *InlineVariables_InitiallyUnknown) setKnownValueOnce(value any) any {
-	Preconditions_checkState_boolean_Object(!this.isKnownField, strobj_("already known"))
+	if this.isKnownField {
+		panic(new_IllegalStateException_String("already known").self())
+	}
 	this.value_ = value
 	this.isKnownField = true
 	return value
 }
 
 func (this *InlineVariables_InitiallyUnknown) getKnownValue() any {
-	Preconditions_checkState_boolean_Object(this.isKnownField, strobj_("not yet known"))
+	if !this.isKnownField {
+		panic(new_IllegalStateException_String("not yet known").self())
+	}
 	return this.value_
 }
 

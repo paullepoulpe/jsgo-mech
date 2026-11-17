@@ -83,7 +83,9 @@ func (this *FunctionType) init_FunctionType(builder *FunctionType_Builder) {
 	this.finit_FunctionType()
 	this.setPrettyPrint(true)
 	var source Node = builder.sourceNode_
-	Preconditions_checkArgument((((source == 0) || source.isFunction()) || source.isClass()))
+	if !(((source == 0) || source.isFunction()) || source.isClass()) {
+		panic(new_IllegalArgumentException_0().self())
+	}
 	this.source = source
 	this.googModuleId = builder.googModuleId
 	this.kind_ = builder.kind_
@@ -123,7 +125,9 @@ func (this *FunctionType) init_FunctionType(builder *FunctionType_Builder) {
 	this.isStructuralInterfaceField = false
 	this.isAbstractField = builder.isAbstract_
 	var canonicalRepresentation *FunctionType = builder.canonicalRepresentation
-	Preconditions_checkArgument_boolean_Object(((canonicalRepresentation == nil) || (this.kind_ == FunctionType_Kind_CONSTRUCTOR)), strobj_("Only constructors should have canonical representations"))
+	if canonicalRepresentation != nil && this.kind_ != FunctionType_Kind_CONSTRUCTOR {
+		panic(new_IllegalArgumentException_String("Only constructors should have canonical representations").self())
+	}
 	this.canonicalRepresentation = canonicalRepresentation
 	if builder.setPrototypeBasedOn_ != nil {
 		this.setPrototypeBasedOn(builder.setPrototypeBasedOn_)
@@ -144,7 +148,11 @@ func (this *FunctionType) getTypeClass_impl() JSTypeClass {
 }
 
 func (this *FunctionType) getConstructor_impl() *FunctionType {
-	return to_FunctionType(Preconditions_checkNotNull(this.registry.getNativeFunctionType(JSTypeNative_FUNCTION_FUNCTION_TYPE).self()))
+	nn_ := this.registry.getNativeFunctionType(JSTypeNative_FUNCTION_FUNCTION_TYPE)
+	if nn_ == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	return nn_
 }
 
 func (this *FunctionType) isInstanceType_impl() bool {
@@ -450,7 +458,9 @@ func (this *FunctionType) getOwnImplementedInterfaces() ImmutableListOf[*ObjectT
 }
 
 func (this *FunctionType) setImplementedInterfaces(implementedInterfaces *TList[*ObjectType]) {
-	Preconditions_checkState(this.isConstructor())
+	if !this.isConstructor() {
+		panic(new_IllegalStateException_0().self())
+	}
 	this.implementedInterfaces = ImmutableList_copyOf(Collection(implementedInterfaces.asList()))
 	it_1 := implementedInterfaces.each()
 	for it_1.next() {
@@ -468,7 +478,9 @@ func (this *FunctionType) getExtendedInterfacesCount() int32 {
 }
 
 func (this *FunctionType) setExtendedInterfaces(extendedInterfaces *TList[*ObjectType]) {
-	Preconditions_checkState(this.isInterface())
+	if !this.isInterface() {
+		panic(new_IllegalStateException_0().self())
+	}
 	this.extendedInterfaces = ImmutableList_copyOf(Collection(extendedInterfaces.asList()))
 	it_1 := extendedInterfaces.each()
 	for it_1.next() {
@@ -560,7 +572,9 @@ func (this *FunctionType) defineProperty_impl(name Property_Key, type_ *JSType, 
 }
 
 func (this *FunctionType) supAndInfHelper(that *FunctionType, leastSuper bool) *FunctionType {
-	Preconditions_checkNotNull(that.self())
+	if that == nil {
+		panic(new_NullPointerException_0().self())
+	}
 	if this.equals(that.self()) {
 		return this
 	}
@@ -643,7 +657,9 @@ func (this *FunctionType) tryMergeFunctionPiecewise(other *FunctionType, leastSu
 }
 
 func (this *FunctionType) getSuperClassConstructor_impl() *FunctionType {
-	Preconditions_checkArgument((this.isConstructor() || this.isInterface()))
+	if !this.isConstructor() && !this.isInterface() {
+		panic(new_IllegalArgumentException_0().self())
+	}
 	var maybeSuperInstanceType *ObjectType = this.getPrototype().getImplicitPrototype()
 	if maybeSuperInstanceType == nil {
 		return nil
@@ -746,7 +762,9 @@ func (this *FunctionType) visitUntyped_2_impl(visitor RelationshipVisitor, that 
 }
 
 func (this *FunctionType) getInstanceType() *ObjectType {
-	Preconditions_checkState(this.hasInstanceType())
+	if !this.hasInstanceType() {
+		panic(new_IllegalStateException_0().self())
+	}
 	return this.typeOfThis.toObjectType()
 }
 
@@ -858,7 +876,9 @@ func (this *FunctionType) hasProperties() bool {
 }
 
 func (this *FunctionType) setImplicitMatch(flag bool) {
-	Preconditions_checkState(this.isInterface())
+	if !this.isInterface() {
+		panic(new_IllegalStateException_0().self())
+	}
 	this.isStructuralInterfaceField = flag
 }
 
@@ -968,7 +988,7 @@ func (this *FunctionType) forgetParameterAndReturnTypes() *FunctionType {
 
 func (this *FunctionType) getConstructorOnlyTemplateParameters() ImmutableListOf[*TemplateType] {
 	if !this.isConstructor() {
-		Preconditions_checkState_boolean_Object(false, this.self())
+		panic(new_IllegalStateException_String(objstr_(this.self())).self())
 	}
 	if this.source == 0 {
 		return ImmutableList_of()
@@ -1310,7 +1330,11 @@ func (this *FunctionType_Builder) finit_FunctionType_Builder() {
 func (this *FunctionType_Builder) init_FunctionType_Builder(registry *JSTypeRegistry) {
 	this.PrototypeObjectType_Builder.init_PrototypeObjectType_Builder(registry)
 	this.finit_FunctionType_Builder()
-	this.setImplicitPrototype(to_ObjectType(Preconditions_checkNotNull(registry.getNativeObjectType(JSTypeNative_FUNCTION_PROTOTYPE).self())))
+	nn_ := registry.getNativeObjectType(JSTypeNative_FUNCTION_PROTOTYPE)
+	if nn_ == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	this.setImplicitPrototype(nn_)
 }
 
 func new_FunctionType_Builder(registry *JSTypeRegistry) *FunctionType_Builder {
@@ -1437,24 +1461,38 @@ func (this *FunctionType_Builder) build_impl() *PrototypeObjectType {
 	switch this.kind_ {
 	case FunctionType_Kind_CONSTRUCTOR, FunctionType_Kind_INTERFACE:
 	case FunctionType_Kind_NONE:
-		Preconditions_checkState(this.returnsOwnInstanceType)
+		if !this.returnsOwnInstanceType {
+			panic(new_IllegalStateException_0().self())
+		}
 	case FunctionType_Kind_ORDINARY:
-		Preconditions_checkState(!this.returnsOwnInstanceType)
+		if this.returnsOwnInstanceType {
+			panic(new_IllegalStateException_0().self())
+		}
 	}
 	if this.returnsOwnInstanceType {
-		Preconditions_checkState((this.returnType == nil))
-		Preconditions_checkState((this.typeOfThis == nil))
+		if this.returnType != nil {
+			panic(new_IllegalStateException_0().self())
+		}
+		if this.typeOfThis != nil {
+			panic(new_IllegalStateException_0().self())
+		}
 	}
 	switch this.kind_ {
 	case FunctionType_Kind_CONSTRUCTOR, FunctionType_Kind_INTERFACE:
 	case FunctionType_Kind_NONE, FunctionType_Kind_ORDINARY:
-		Preconditions_checkState(this.constructorOnlyKeys.isEmpty())
+		if !this.constructorOnlyKeys.isEmpty() {
+			panic(new_IllegalStateException_0().self())
+		}
 	}
 	return new_FunctionType(this).up_PrototypeObjectType()
 }
 
 func (this *FunctionType_Builder) buildAndResolve() *FunctionType {
-	return to_FunctionType(Preconditions_checkNotNull(to_FunctionType(this.build().self()).toMaybeFunctionType().self()))
+	nn_ := to_FunctionType(this.build().self()).toMaybeFunctionType()
+	if nn_ == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	return nn_
 }
 
 type FunctionType_Parameter struct {

@@ -53,7 +53,10 @@ func (this *AbstractScope) finit_AbstractScope() {
 
 func (this *AbstractScope) init_AbstractScope(rootNode Node) {
 	this.finit_AbstractScope()
-	this.rootNode_ = Node_of_(Preconditions_checkNotNull(rootNode.box_()))
+	if rootNode == 0 {
+		panic(new_NullPointerException_0().self())
+	}
+	this.rootNode_ = rootNode
 }
 
 func (this *AbstractScope) toString() string {
@@ -69,7 +72,10 @@ func (this *AbstractScope) typed_impl() *TypedScope {
 }
 
 func (this *AbstractScope) contains(other *AbstractScope) bool {
-	var s *AbstractScope = to_AbstractScope(Preconditions_checkNotNull(other.self()))
+	if other == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	var s *AbstractScope = other
 	for s != nil {
 		if s == this {
 			return true
@@ -96,8 +102,12 @@ func (this *AbstractScope) getParentScope() StaticScope {
 }
 
 func (this *AbstractScope) undeclare(var_ *AbstractVar) {
-	Preconditions_checkState((to_AbstractScope(var_.getScope()) == this))
-	Preconditions_checkState(this.ownVar_(var_.getName()).equals(var_.self()))
+	if to_AbstractScope(var_.getScope()) != this {
+		panic(new_IllegalStateException_0().self())
+	}
+	if !this.ownVar_(var_.getName()).equals(var_.self()) {
+		panic(new_IllegalStateException_0().self())
+	}
 	this.undeclareInteral(var_)
 }
 
@@ -109,7 +119,7 @@ func (this *AbstractScope) undeclareInteral(var_ *AbstractVar) {
 
 func (this *AbstractScope) declareInternal(name string, var_ *AbstractVar) {
 	if ok_, a1_ := (this.hasOwnSlot(name) || this.canDeclare(name)), var_.getNode(); !ok_ {
-		Preconditions_checkState_boolean_String_Object(false, "Illegal shadow: %s", a1_.box_())
+		panic(new_IllegalStateException_String(Strings_lenientFormat("Illegal shadow: %s", []any{a1_.box_()})).self())
 	}
 	if this.vars == nil {
 		this.vars = newScopeVars_()
@@ -326,7 +336,7 @@ func (this *AbstractScope) getClosestContainerScope() *AbstractScope {
 	if scope.isFunctionBlockScope() {
 		scope = scope.getParent()
 		if scope.isBlockScope() {
-			Preconditions_checkState_boolean_Object(false, scope.self())
+			panic(new_IllegalStateException_String(objstr_(scope.self())).self())
 		}
 	}
 	return scope
@@ -337,18 +347,20 @@ func (this *AbstractScope) thisScope() *AbstractScope {
 }
 
 func (this *AbstractScope) checkChildScope(parent *AbstractScope) {
-	Preconditions_checkNotNull(parent.self())
-	if !NodeUtil_createsScope(this.rootNode_) {
-		Preconditions_checkArgument_boolean_Object(false, this.rootNode_.box_())
+	if parent == nil {
+		panic(new_NullPointerException_0().self())
 	}
-	if !(this.rootNode_ != parent.getRootNode()) {
-		Preconditions_checkArgument_boolean_String_Object(false, "rootNode should not be the parent's root node: %s", this.rootNode_.box_())
+	if !NodeUtil_createsScope(this.rootNode_) {
+		panic(new_IllegalArgumentException_String(objstr_(this.rootNode_.box_())).self())
+	}
+	if this.rootNode_ == parent.getRootNode() {
+		panic(new_IllegalArgumentException_String(Strings_lenientFormat("rootNode should not be the parent's root node: %s", []any{this.rootNode_.box_()})).self())
 	}
 }
 
 func (this *AbstractScope) checkRootScope() {
 	if !((NodeUtil_createsScope(this.rootNode_) || this.rootNode_.isScript()) || this.rootNode_.isRoot()) {
-		Preconditions_checkArgument_boolean_Object(false, this.rootNode_.box_())
+		panic(new_IllegalArgumentException_String(objstr_(this.rootNode_.box_())).self())
 	}
 }
 
@@ -365,7 +377,9 @@ func (this *AbstractScope) getCommonParent(other *AbstractScope) *AbstractScope 
 			right = right.getParent()
 		}
 	}
-	Preconditions_checkState(((left != nil) && (left == right)))
+	if left == nil || left != right {
+		panic(new_IllegalStateException_0().self())
+	}
 	return left
 }
 

@@ -170,7 +170,9 @@ func CheckNullabilityModifiers_getReportedTypeName(node Node) string {
 	if CheckNullabilityModifiers_isRecordLiteral(node) {
 		return "Record literal"
 	}
-	Preconditions_checkState((CheckNullabilityModifiers_isPrimitiveType(node) || CheckNullabilityModifiers_isReferenceType(node)))
+	if !CheckNullabilityModifiers_isPrimitiveType(node) && !CheckNullabilityModifiers_isReferenceType(node) {
+		panic(new_IllegalStateException_0().self())
+	}
 	return node.getString()
 }
 

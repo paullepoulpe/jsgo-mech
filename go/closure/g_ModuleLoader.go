@@ -11,11 +11,26 @@ type ModuleLoader struct {
 }
 
 func (this *ModuleLoader) init_ModuleLoader(builder *ModuleLoader_Builder) {
-	this.errorHandler = icast_ErrorHandler(Preconditions_checkNotNull(any(builder.errorHandler)))
-	this.pathResolver = to_ModuleLoader_PathResolver(Preconditions_checkNotNull(builder.pathResolver.self()))
-	this.pathEscaper = to_ModuleLoader_PathEscaper(Preconditions_checkNotNull(builder.pathEscaper.self()))
-	this.moduleRootPaths = this.createRootPaths(icast_Iterable(Preconditions_checkNotNull(any(builder.moduleRoots))))
-	var modulePaths ImmutableSetOf[string] = this.resolvePaths(icast_Iterable(Preconditions_checkNotNull(any(builder.inputs))))
+	if builder.errorHandler == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	this.errorHandler = builder.errorHandler
+	if builder.pathResolver == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	this.pathResolver = builder.pathResolver
+	if builder.pathEscaper == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	this.pathEscaper = builder.pathEscaper
+	if builder.moduleRoots == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	this.moduleRootPaths = this.createRootPaths(builder.moduleRoots)
+	if builder.inputs == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	var modulePaths ImmutableSetOf[string] = this.resolvePaths(builder.inputs)
 	this.moduleResolver = builder.factory.create(modulePaths, this.moduleRootPaths, this.errorHandler, this.pathEscaper)
 }
 
@@ -85,8 +100,8 @@ func (this *ModuleLoader) resolvePaths(inputs IterableOf[DependencyInfo]) Immuta
 	}
 	List_sort(sortedModulePaths.asList(), ModuleLoader_BEST_MATCH_PATH_ORDERING)
 	var dupeModulePaths *SimpleMultiset = SimpleMultiset_copyOf(Iterable(sortedModulePaths.asList()))
-	if !(dupeModulePaths.size() == dupeModulePaths.elementSet().size()) {
-		Preconditions_checkState_boolean_String_Object(false, "Duplicate module paths after resolving: %s", obj_(dupeModulePaths))
+	if dupeModulePaths.size() != dupeModulePaths.elementSet().size() {
+		panic(new_IllegalStateException_String(Strings_lenientFormat("Duplicate module paths after resolving: %s", []any{obj_(dupeModulePaths)})).self())
 	}
 	return ImmutableSet_copyOf(Collection(dupeModulePaths.elementSet()))
 }

@@ -93,7 +93,9 @@ func StatementFusion_fuseIntoOneStatement(first Node, last Node) Node {
 }
 
 func StatementFusion_fuseExpressionIntoControlFlowStatement(before Node, control Node) {
-	Preconditions_checkArgument_boolean_Object(before.isExprResult(), strobj_("before must be expression result"))
+	if !before.isExprResult() {
+		panic(new_IllegalArgumentException_String("before must be expression result").self())
+	}
 	switch control.ns_().token {
 	case tokOrd1_IF, tokOrd1_RETURN, tokOrd1_THROW, tokOrd1_SWITCH, tokOrd1_EXPR_RESULT, tokOrd1_FOR:
 		before.detach()

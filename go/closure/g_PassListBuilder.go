@@ -89,13 +89,17 @@ func (this *PassListBuilder) contains(factory *PassFactory) bool {
 
 func (this *PassListBuilder) assertAllOneTimePasses() {
 	for _, pass := range this.passes {
-		Preconditions_checkState(!pass.isRunInFixedPointLoop())
+		if pass.isRunInFixedPointLoop() {
+			panic(new_IllegalStateException_0().self())
+		}
 	}
 }
 
 func (this *PassListBuilder) assertAllLoopablePasses() {
 	for _, pass := range this.passes {
-		Preconditions_checkState(pass.isRunInFixedPointLoop())
+		if !pass.isRunInFixedPointLoop() {
+			panic(new_IllegalStateException_0().self())
+		}
 	}
 }
 
@@ -103,8 +107,8 @@ func (this *PassListBuilder) assertPassOrder(pass1 *PassFactory, pass2 *PassFact
 	var pass1Index int32 = sliceView_(tc_p_PassFactory, this.passes).indexOf(obj_(pass1))
 	var pass2Index int32 = sliceView_(tc_p_PassFactory, this.passes).indexOf(obj_(pass2))
 	if (pass1Index != -1) && (pass2Index != -1) {
-		if !(pass1Index < pass2Index) {
-			Preconditions_checkState_boolean_Object(false, strobj_(msg))
+		if pass1Index >= pass2Index {
+			panic(new_IllegalStateException_String(sstr_(msg)).self())
 		}
 	}
 }

@@ -57,7 +57,9 @@ func (this *SubstituteEs6Syntax) visit_impl(t *NodeTraversal, n Node, parent Nod
 }
 
 func (this *SubstituteEs6Syntax) maybeSimplifyArrowFunctionBody(arrowFunction Node, body Node) {
-	Preconditions_checkArgument(arrowFunction.isArrowFunction())
+	if !arrowFunction.isArrowFunction() {
+		panic(new_IllegalArgumentException_0().self())
+	}
 	if (!body.isBlock() || !body.hasOneChild()) || !body.getFirstChild().isReturn() {
 		return
 	}

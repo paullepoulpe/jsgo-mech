@@ -67,7 +67,9 @@ func (this *AstFactory) isAddingColors() bool {
 }
 
 func (this *AstFactory) assertNotAddingColors() {
-	Preconditions_checkState_boolean_Object(!this.isAddingColors(), strobj_("method not supported for colors"))
+	if this.isAddingColors() {
+		panic(new_IllegalStateException_String("method not supported for colors").self())
+	}
 }
 
 func (this *AstFactory) exprResult(expr Node) Node {
@@ -111,9 +113,15 @@ func (this *AstFactory) createTryFinally(tryBlock Node, finallyBlock Node) Node 
 }
 
 func (this *AstFactory) createTryCatchFinally(tryBlock Node, catchNode Node, finallyBlock Node) Node {
-	Preconditions_checkState(tryBlock.isBlock())
-	Preconditions_checkState(catchNode.isCatch())
-	Preconditions_checkState(finallyBlock.isBlock())
+	if !tryBlock.isBlock() {
+		panic(new_IllegalStateException_0().self())
+	}
+	if !catchNode.isCatch() {
+		panic(new_IllegalStateException_0().self())
+	}
+	if !finallyBlock.isBlock() {
+		panic(new_IllegalStateException_0().self())
+	}
 	return IR_tryCatchFinally(tryBlock, catchNode, finallyBlock)
 }
 
@@ -202,7 +210,7 @@ func (this *AstFactory) createNewTarget(newTargetType AstFactory_Type) Node {
 
 func (this *AstFactory) createThisForEs6Class(functionNode Node) Node {
 	if !functionNode.isClass() {
-		Preconditions_checkState_boolean_Object(false, functionNode.box_())
+		panic(new_IllegalStateException_String(objstr_(functionNode.box_())).self())
 	}
 	var result Node = IR_thisNode()
 	this.setJSTypeOrColor(this.getTypeOfThisForEs6Class(functionNode), result)
@@ -210,8 +218,12 @@ func (this *AstFactory) createThisForEs6Class(functionNode Node) Node {
 }
 
 func (this *AstFactory) createThisForEs6ClassMember(memberNode Node) Node {
-	Preconditions_checkArgument(memberNode.getParent().isClassMembers())
-	Preconditions_checkArgument(((memberNode.isMemberFunctionDef() || memberNode.isMemberFieldDef()) || memberNode.isComputedFieldDef()))
+	if !memberNode.getParent().isClassMembers() {
+		panic(new_IllegalArgumentException_0().self())
+	}
+	if !((memberNode.isMemberFunctionDef() || memberNode.isMemberFieldDef()) || memberNode.isComputedFieldDef()) {
+		panic(new_IllegalArgumentException_0().self())
+	}
 	var classNode Node = memberNode.getGrandparent()
 	if memberNode.isStaticMember() {
 		var result Node = IR_thisNode()
@@ -227,7 +239,11 @@ func (this *AstFactory) getTypeOfThisForFunctionNode(functionNode Node) *JSType 
 	this.assertNotAddingColors()
 	if this.isAddingTypes() {
 		var functionType *FunctionType = this.getFunctionType(functionNode)
-		return to_JSType(Preconditions_checkNotNull_Object_Object(functionType.getTypeOfThis().self(), functionType.self()))
+		nn_ := functionType.getTypeOfThis()
+		if nn_ == nil {
+			panic(new_NullPointerException_String(objstr_(functionType.self())).self())
+		}
+		return nn_
 	} else {
 		return nil
 	}
@@ -236,7 +252,7 @@ func (this *AstFactory) getTypeOfThisForFunctionNode(functionNode Node) *JSType 
 
 func (this *AstFactory) getTypeOfThisForEs6Class(functionNode Node) AstFactory_Type {
 	if !functionNode.isClass() {
-		Preconditions_checkArgument_boolean_Object(false, functionNode.box_())
+		panic(new_IllegalArgumentException_String(objstr_(functionNode.box_())).self())
 	}
 	return func() AstFactory_Type {
 		switch this.typeMode {
@@ -252,8 +268,8 @@ func (this *AstFactory) getTypeOfThisForEs6Class(functionNode Node) AstFactory_T
 }
 
 func (this *AstFactory) getFunctionType(functionNode Node) *FunctionType {
-	if !(functionNode.isFunction() || functionNode.isClass()) {
-		Preconditions_checkState_boolean_String_Object(false, "not a function or class: %s", functionNode.box_())
+	if !functionNode.isFunction() && !functionNode.isClass() {
+		panic(new_IllegalStateException_String(Strings_lenientFormat("not a function or class: %s", []any{functionNode.box_()})).self())
 	}
 	this.assertNotAddingColors()
 	var typeBeforeCast *JSType = functionNode.getJSTypeBeforeCast()
@@ -309,7 +325,7 @@ func (this *AstFactory) createSingleConstNameDeclaration(variableName string, va
 
 func (this *AstFactory) createSingleConstObjectPatternDeclaration(objectPattern Node, value Node) Node {
 	if !objectPattern.isObjectPattern() {
-		Preconditions_checkState_boolean_String_Object(false, "not an object pattern: %s", objectPattern.box_())
+		panic(new_IllegalStateException_String(Strings_lenientFormat("not an object pattern: %s", []any{objectPattern.box_()})).self())
 	}
 	return IR_constNode(objectPattern, value)
 }
@@ -332,7 +348,7 @@ func (this *AstFactory) createArgumentsAliasDeclaration(aliasName string) Node {
 
 func (this *AstFactory) createName(name string, type_ AstFactory_Type) Node {
 	if name == "$jscomp" {
-		Preconditions_checkArgument_boolean_String_Object(false, "Use createQName(RuntimeJsLibManager.Field) to reference $jscomp.* methods. Found: %s", strobj_(name))
+		panic(new_IllegalArgumentException_String(Strings_lenientFormat("Use createQName(RuntimeJsLibManager.Field) to reference $jscomp.* methods. Found: %s", []any{strobj_(name)})).self())
 	}
 	var result Node = IR_name(name)
 	this.setJSTypeOrColor(type_, result)
@@ -344,7 +360,7 @@ func (this *AstFactory) createName(name string, type_ AstFactory_Type) Node {
 
 func (this *AstFactory) createConstantName(name string, type_ AstFactory_Type) Node {
 	if name == "$jscomp" {
-		Preconditions_checkArgument_boolean_String_Object(false, "Use createQName(RuntimeJsLibManager.Field) to reference $jscomp.* methods. Found: %s", strobj_(name))
+		panic(new_IllegalArgumentException_String(Strings_lenientFormat("Use createQName(RuntimeJsLibManager.Field) to reference $jscomp.* methods. Found: %s", []any{strobj_(name)})).self())
 	}
 	var result Node = IR_name(name)
 	this.setJSTypeOrColor(type_, result)
@@ -356,21 +372,27 @@ func (this *AstFactory) createConstantName(name string, type_ AstFactory_Type) N
 
 func (this *AstFactory) createNameStaticScope(scope StaticScope, name string) Node {
 	if name == "$jscomp" {
-		Preconditions_checkArgument_boolean_String_Object(false, "Use createQName(RuntimeJsLibManager.Field) to reference $jscomp.* methods. Found: %s", strobj_(name))
+		panic(new_IllegalArgumentException_String(Strings_lenientFormat("Use createQName(RuntimeJsLibManager.Field) to reference $jscomp.* methods. Found: %s", []any{strobj_(name)})).self())
 	}
 	var result Node = IR_name(name)
 	if this.lifeCycleStage.isNormalized() || !Object_equals(obj_(this.typeMode), obj_(AstFactory_TypeMode_NONE)) {
-		if any(scope) == nil {
-			Preconditions_checkNotNull_Object_String_Object_Object(nil, "A scope is required [lifeCycleStage: %s, typeMode: %s]", obj_(this.lifeCycleStage), obj_(this.typeMode))
+		if scope == nil {
+			panic(new_NullPointerException_String(Strings_lenientFormat("A scope is required [lifeCycleStage: %s, typeMode: %s]", []any{obj_(this.lifeCycleStage), obj_(this.typeMode)})).self())
 		}
 		var var_ StaticSlot = scope.getSlot(name)
 		if var_ == nil {
 			if !Object_equals(obj_(this.typeMode), obj_(AstFactory_TypeMode_NONE)) {
-				Preconditions_checkState_boolean_String_Object_Object(false, "Missing var %s in scope %s", strobj_(name), any(scope))
+				panic(new_IllegalStateException_String(Strings_lenientFormat("Missing var %s in scope %s", []any{strobj_(name), any(scope)})).self())
 			}
 		} else {
-			var declaration StaticRef = icast_StaticRef(Preconditions_checkNotNull_Object_String_Object(any(var_.getDeclaration()), "Cannot find type for var with missing declaration %s", any(var_)))
-			var varDefinitionNode Node = Node_of_(Preconditions_checkNotNull_Object_String_Object(declaration.getNode().box_(), "Missing node for declaration %s", any(declaration)))
+			var declaration StaticRef = var_.getDeclaration()
+			if declaration == nil {
+				panic(new_NullPointerException_String(Strings_lenientFormat("Cannot find type for var with missing declaration %s", []any{any(var_)})).self())
+			}
+			var varDefinitionNode Node = declaration.getNode()
+			if varDefinitionNode == 0 {
+				panic(new_NullPointerException_String(Strings_lenientFormat("Missing node for declaration %s", []any{any(declaration)})).self())
+			}
 			if varDefinitionNode.getBooleanProp(Node_IS_CONSTANT_NAME) {
 				result.putBooleanProp(Node_IS_CONSTANT_NAME, true)
 			}
@@ -403,17 +425,26 @@ func (this *AstFactory) createNameWithUnknownType(name string) Node {
 }
 
 func (this *AstFactory) createQNameUsingJSTypeInfo(globalTypedScope *TypedScope, qname string) Node {
-	if !((globalTypedScope == nil) || globalTypedScope.isGlobal()) {
-		Preconditions_checkArgument_boolean_Object(false, obj_(globalTypedScope))
+	if globalTypedScope != nil && !globalTypedScope.isGlobal() {
+		panic(new_IllegalArgumentException_String(objstr_(obj_(globalTypedScope))).self())
 	}
 	this.assertNotAddingColors()
 	var nameParts []string = sliceImm_(tc_string, AstFactory_DOT_SPLITTER.splitToList_s(qname))
-	Preconditions_checkState(len(nameParts) != 0)
+	if len(nameParts) == 0 {
+		panic(new_IllegalStateException_0().self())
+	}
 	var receiverPart string = sliceAt_(nameParts, 0)
 	var receiver Node = IR_name(receiverPart)
 	if this.isAddingTypes() {
-		var var_ *TypedVar = cast_[*TypedVar](Preconditions_checkNotNull_Object_Object(globalTypedScope.getVar(receiverPart).self(), strobj_(receiverPart)))
-		receiver.setJSType(to_JSType(Preconditions_checkNotNull_Object_Object(var_.getType().self(), obj_(var_))))
+		var var_ *TypedVar = cast_[*TypedVar](globalTypedScope.getVar(receiverPart).self())
+		if var_ == nil {
+			panic(new_NullPointerException_String(sstr_(receiverPart)).self())
+		}
+		nn_ := var_.getType()
+		if nn_ == nil {
+			panic(new_NullPointerException_String(objstr_(obj_(var_))).self())
+		}
+		receiver.setJSType(nn_)
 	}
 	var otherParts ListOf[string] = sliceView_(tc_string, nameParts).subList(1, int32(len(nameParts)))
 	return this.createGetPropsWithoutColors(receiver, Iterable(otherParts))
@@ -447,7 +478,11 @@ func (this *AstFactory) createQName_4(scope StaticScope, baseName string, baseNa
 		name += sstr_(("." + sstr_(propertyName)))
 		var type_ AstFactory_Type = nil
 		if this.isAddingTypes() || this.isAddingColors() {
-			var def Node = icast_StaticSlot(Preconditions_checkNotNull_Object_String_Object(any(scope.getSlot(name)), "Cannot find name %s in StaticScope.", strobj_(name))).getDeclaration().getNode()
+			nn_ := scope.getSlot(name)
+			if nn_ == nil {
+				panic(new_NullPointerException_String(Strings_lenientFormat("Cannot find name %s in StaticScope.", []any{strobj_(name)})).self())
+			}
+			var def Node = nn_.getDeclaration().getNode()
 			type_ = AstFactory_type_Node(def)
 		}
 		qname = this.createGetProp(qname, propertyName, type_)
@@ -460,7 +495,7 @@ func (this *AstFactory) createQName(scope StaticScope, field RuntimeJsLibManager
 	var parts *TList[string] = tlistImm_(tc_string, AstFactory_DOT_SPLITTER.splitToList_s(qname))
 	var baseName string = str_(Optional_ofNullable(Iterables_getFirst(Iterable(parts.asList()), nil)).orElseThrow())
 	if !String_startsWith(baseName, "$jscomp") {
-		Preconditions_checkState_boolean_String_Object(false, "Unexpected Field name %s", strobj_(baseName))
+		panic(new_IllegalStateException_String(Strings_lenientFormat("Unexpected Field name %s", []any{strobj_(baseName)})).self())
 	}
 	var baseNameNode Node = func() Node {
 		if baseName == "$jscomp" {
@@ -483,7 +518,7 @@ func (this *AstFactory) createQNameWithUnknownTypeJsLibField(field RuntimeJsLibM
 	var parts *TList[string] = tlistImm_(tc_string, AstFactory_DOT_SPLITTER.splitToList_s(field.assertInjected().qualifiedName()))
 	var baseName string = str_(Optional_ofNullable(Iterables_getFirst(Iterable(parts.asList()), nil)).orElseThrow())
 	if !String_startsWith(baseName, "$jscomp") {
-		Preconditions_checkState_boolean_String_Object(false, "Unexpected Field name %s", strobj_(baseName))
+		panic(new_IllegalStateException_String(Strings_lenientFormat("Unexpected Field name %s", []any{strobj_(baseName)})).self())
 	}
 	var baseNameNode Node = func() Node {
 		if baseName == "$jscomp" {
@@ -524,8 +559,8 @@ func (this *AstFactory) createPrototypeAccess(receiver Node) Node {
 	case AstFactory_TypeMode_JSTYPE:
 		result.setJSType(this.getJsTypeForProperty(receiver, "prototype"))
 	case AstFactory_TypeMode_COLOR:
-		if obj_(receiver.getColor()) == nil {
-			Preconditions_checkNotNull_Object_String_Object(nil, "Missing color on %s", receiver.box_())
+		if receiver.getColor() == nil {
+			panic(new_NullPointerException_String(Strings_lenientFormat("Missing color on %s", []any{receiver.box_()})).self())
 		}
 		var possiblePrototypes ImmutableSetOf[*Color] = receiver.getColor().getPrototypes()
 		result.setColor(func() *Color {
@@ -682,12 +717,24 @@ func (this *AstFactory) createAnd(left Node, right Node) Node {
 	var result Node = IR_and(left, right)
 	switch this.typeMode {
 	case AstFactory_TypeMode_JSTYPE:
-		var leftType *JSType = to_JSType(Preconditions_checkNotNull_Object_Object(left.getJSType().self(), left.box_()))
-		var rightType *JSType = to_JSType(Preconditions_checkNotNull_Object_Object(right.getJSType().self(), right.box_()))
+		var leftType *JSType = left.getJSType()
+		if leftType == nil {
+			panic(new_NullPointerException_String(objstr_(left.box_())).self())
+		}
+		var rightType *JSType = right.getJSType()
+		if rightType == nil {
+			panic(new_NullPointerException_String(objstr_(right.box_())).self())
+		}
 		result.setJSType(this.registry.createUnionType([]*JSType{leftType, rightType}))
 	case AstFactory_TypeMode_COLOR:
-		var leftColor *Color = cast_[*Color](Preconditions_checkNotNull_Object_Object(obj_(left.getColor()), left.box_()))
-		var rightColor *Color = cast_[*Color](Preconditions_checkNotNull_Object_Object(obj_(right.getColor()), right.box_()))
+		var leftColor *Color = left.getColor()
+		if leftColor == nil {
+			panic(new_NullPointerException_String(objstr_(left.box_())).self())
+		}
+		var rightColor *Color = right.getColor()
+		if rightColor == nil {
+			panic(new_NullPointerException_String(objstr_(right.box_())).self())
+		}
 		result.setColor(Color_createUnion(tsetFrom_(tch_p_Color, ImmutableSet_of_Object_Object(obj_(leftColor), obj_(rightColor)), true)))
 	case AstFactory_TypeMode_NONE:
 	}
@@ -698,12 +745,24 @@ func (this *AstFactory) createOr(left Node, right Node) Node {
 	var result Node = IR_or(left, right)
 	switch this.typeMode {
 	case AstFactory_TypeMode_JSTYPE:
-		var leftType *JSType = to_JSType(Preconditions_checkNotNull_Object_Object(left.getJSType().self(), left.box_()))
-		var rightType *JSType = to_JSType(Preconditions_checkNotNull_Object_Object(right.getJSType().self(), right.box_()))
+		var leftType *JSType = left.getJSType()
+		if leftType == nil {
+			panic(new_NullPointerException_String(objstr_(left.box_())).self())
+		}
+		var rightType *JSType = right.getJSType()
+		if rightType == nil {
+			panic(new_NullPointerException_String(objstr_(right.box_())).self())
+		}
 		result.setJSType(this.registry.createUnionType([]*JSType{leftType, rightType}))
 	case AstFactory_TypeMode_COLOR:
-		var leftColor *Color = cast_[*Color](Preconditions_checkNotNull_Object_Object(obj_(left.getColor()), left.box_()))
-		var rightColor *Color = cast_[*Color](Preconditions_checkNotNull_Object_Object(obj_(right.getColor()), right.box_()))
+		var leftColor *Color = left.getColor()
+		if leftColor == nil {
+			panic(new_NullPointerException_String(objstr_(left.box_())).self())
+		}
+		var rightColor *Color = right.getColor()
+		if rightColor == nil {
+			panic(new_NullPointerException_String(objstr_(right.box_())).self())
+		}
 		result.setColor(Color_createUnion(tsetFrom_(tch_p_Color, ImmutableSet_of_Object_Object(obj_(leftColor), obj_(rightColor)), true)))
 	case AstFactory_TypeMode_NONE:
 	}
@@ -815,8 +874,14 @@ func (this *AstFactory) createConstructorCall(classType AstFactory_Type, callee 
 	switch this.typeMode {
 	case AstFactory_TypeMode_JSTYPE:
 		var classJSType *JSType = classType.getJSType(this.registry)
-		var constructorType *FunctionType = to_FunctionType(Preconditions_checkNotNull(classJSType.toMaybeFunctionType().self()))
-		var instanceType *ObjectType = to_ObjectType(Preconditions_checkNotNull(constructorType.getInstanceType().self()))
+		var constructorType *FunctionType = classJSType.toMaybeFunctionType()
+		if constructorType == nil {
+			panic(new_NullPointerException_0().self())
+		}
+		var instanceType *ObjectType = constructorType.getInstanceType()
+		if instanceType == nil {
+			panic(new_NullPointerException_0().self())
+		}
 		result.setJSType(instanceType.up_JSType())
 	case AstFactory_TypeMode_COLOR:
 		result.setColor(this.getInstanceOfColor(classType.getColor(this.colorRegistry)))
@@ -868,7 +933,7 @@ func (this *AstFactory) createEmptyFunction(type_ AstFactory_Type) Node {
 	var result Node = NodeUtil_emptyFunction()
 	if this.isAddingTypes() {
 		if !type_.getJSType(this.registry).isFunctionType() {
-			Preconditions_checkArgument_boolean_Object(false, any(type_))
+			panic(new_IllegalArgumentException_String(objstr_(any(type_))).self())
 		}
 	}
 	this.setJSTypeOrColor(type_, result)
@@ -886,7 +951,7 @@ func (this *AstFactory) createFunction(name string, paramList Node, body Node, t
 	var result Node = IR_function(nameNode, paramList, body)
 	if this.isAddingTypes() {
 		if !type_.getJSType(this.registry).isFunctionType() {
-			Preconditions_checkArgument_boolean_Object(false, any(type_))
+			panic(new_IllegalArgumentException_String(objstr_(any(type_))).self())
 		}
 	}
 	this.setJSTypeOrColor(type_, result)
@@ -932,7 +997,7 @@ func (this *AstFactory) createZeroArgArrowFunctionForExpression(expression Node)
 
 func (this *AstFactory) createMemberFunctionDef(name string, function Node) Node {
 	if !String_isEmpty(function.getFirstChild().getString()) {
-		Preconditions_checkArgument_boolean_Object(false, function.box_())
+		panic(new_IllegalArgumentException_String(objstr_(function.box_())).self())
 	}
 	var result Node = IR_memberFunctionDef(name, function)
 	this.setJSTypeOrColor(AstFactory_type_Node(function), result)
@@ -1125,8 +1190,14 @@ func (this *AstFactory) createJscompAsyncExecutePromiseGeneratorFunctionCall(sco
 }
 
 func (this *AstFactory) getNativeType(nativeType JSTypeNative) *JSType {
-	Preconditions_checkNotNull_Object_Object(obj_(this.registry), strobj_("registry is null"))
-	return to_JSType(Preconditions_checkNotNull_Object_String_Object(this.registry.getNativeType(nativeType).self(), "native type not found: %s", obj_(nativeType)))
+	if this.registry == nil {
+		panic(new_NullPointerException_String("registry is null").self())
+	}
+	nn_ := this.registry.getNativeType(nativeType)
+	if nn_ == nil {
+		panic(new_NullPointerException_String(Strings_lenientFormat("native type not found: %s", []any{obj_(nativeType)})).self())
+	}
+	return nn_
 }
 
 func (this *AstFactory) getJsTypeForProperty(receiver Node, propertyName string) *JSType {
@@ -1357,6 +1428,9 @@ func (this *AstFactory_JSTypeOrColor) getColor(registry *ColorRegistry) *Color {
 		if this.color_ != nil {
 			return this.color_
 		}
-		return registry.get(cast_[*ColorId](Preconditions_checkNotNull(obj_(this.colorId))))
+		if this.colorId == nil {
+			panic(new_NullPointerException_0().self())
+		}
+		return registry.get(this.colorId)
 	}()
 }

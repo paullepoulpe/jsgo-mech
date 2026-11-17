@@ -33,8 +33,14 @@ func (this *CompilerInput) finit_CompilerInput() {
 
 func (this *CompilerInput) init_CompilerInput_SourceFile_InputId_boolean(sourceFile *SourceFile_jscomp, inputId *InputId, isExtern bool) {
 	this.finit_CompilerInput()
-	this.sourceFile = cast_[*SourceFile_jscomp](Preconditions_checkNotNull(obj_(sourceFile)))
-	this.id = cast_[*InputId](Preconditions_checkNotNull(obj_(inputId)))
+	if sourceFile == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	this.sourceFile = sourceFile
+	if inputId == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	this.id = inputId
 	if isExtern {
 		this.setIsExtern()
 	}
@@ -95,9 +101,16 @@ func (this *CompilerInput) getPathRelativeToClosureBase() string {
 }
 
 func (this *CompilerInput) getAstRoot(compiler *AbstractCompiler) Node {
-	var root Node = Node_of_(Preconditions_checkNotNull(this.ast.getAstRoot(compiler).box_()))
-	Preconditions_checkState(root.isScript())
-	Preconditions_checkNotNull(obj_(root.getInputId()))
+	var root Node = this.ast.getAstRoot(compiler)
+	if root == 0 {
+		panic(new_NullPointerException_0().self())
+	}
+	if !root.isScript() {
+		panic(new_IllegalStateException_0().self())
+	}
+	if root.getInputId() == nil {
+		panic(new_NullPointerException_0().self())
+	}
 	return root
 }
 
@@ -107,10 +120,10 @@ func (this *CompilerInput) clearAst() {
 
 func (this *CompilerInput) initShadowAst(shadowScript Node) {
 	if !shadowScript.isScript() {
-		Preconditions_checkArgument_boolean_Object(false, shadowScript.box_())
+		panic(new_IllegalArgumentException_String(objstr_(shadowScript.box_())).self())
 	}
 	if !shadowScript.getIsInClosureUnawareSubtree() {
-		Preconditions_checkState_boolean_Object(false, shadowScript.box_())
+		panic(new_IllegalStateException_String(objstr_(shadowScript.box_())).self())
 	}
 	this.ast.root = shadowScript
 }
@@ -231,11 +244,11 @@ func (this *CompilerInput) getDependencyInfo() DependencyInfo {
 }
 
 func (this *CompilerInput) generateDependencyInfo() DependencyInfo {
-	if this.compiler_.self() == nil {
-		Preconditions_checkNotNull_Object_String_Object(nil, "Expected setCompiler to be called first: %s", any(this))
+	if this.compiler_ == nil {
+		panic(new_NullPointerException_String(Strings_lenientFormat("Expected setCompiler to be called first: %s", []any{any(this)})).self())
 	}
-	if any(this.compiler_.getErrorManager()) == nil {
-		Preconditions_checkNotNull_Object_String_Object(nil, "Expected compiler to call an error manager: %s", any(this))
+	if this.compiler_.getErrorManager() == nil {
+		panic(new_NullPointerException_String(Strings_lenientFormat("Expected compiler to call an error manager: %s", []any{any(this)})).self())
 	}
 	if JsFileRegexParser_isSupported() && this.compiler_.preferRegexParser() {
 		var codeRes *Outcome_base = this.getSourceFile().readCode()
@@ -267,7 +280,9 @@ func (this *CompilerInput) getChunk() *JSChunk {
 }
 
 func (this *CompilerInput) setChunk(chunk *JSChunk) {
-	Preconditions_checkArgument((((chunk == nil) || (this.chunk_ == nil)) || (this.chunk_ == chunk)))
+	if !(((chunk == nil) || (this.chunk_ == nil)) || (this.chunk_ == chunk)) {
+		panic(new_IllegalArgumentException_0().self())
+	}
 	this.chunk_ = chunk
 }
 
@@ -355,7 +370,9 @@ func new_CompilerInput_DepsFinder(modulePath *ModuleLoader_ModulePath) *Compiler
 
 func (this *CompilerInput_DepsFinder) visitTree(n Node) {
 	this.visitSubtree(n, 0)
-	Preconditions_checkArgument(n.isScript())
+	if !n.isScript() {
+		panic(new_IllegalArgumentException_0().self())
+	}
 	var features *FeatureSet = cast_[*FeatureSet](n.getFeatureSet())
 	if features != nil {
 		var version string = features.version()
@@ -443,8 +460,12 @@ func (this *CompilerInput_DepsFinder) visitSubtree(n Node, parent Node) {
 }
 
 func (this *CompilerInput_DepsFinder) visitEs6ModuleName(n Node, parent Node) {
-	Preconditions_checkArgument(n.isStringLit())
-	Preconditions_checkArgument((parent.isExport() || parent.isImport()))
+	if !n.isStringLit() {
+		panic(new_IllegalArgumentException_0().self())
+	}
+	if !parent.isExport() && !parent.isImport() {
+		panic(new_IllegalArgumentException_0().self())
+	}
 	var moduleName string = n.getString()
 	if String_startsWith(moduleName, "goog:") {
 		this.requires.add(DependencyInfo_Require_googRequireSymbol(String_substring_int(moduleName, 5)))
@@ -564,7 +585,9 @@ func (this *CompilerInput_JsAst) getAstRoot(compiler *AbstractCompiler) Node {
 	} else {
 		this.parse(compiler)
 	}
-	Preconditions_checkState(JSCompObjects_identical(any(this.root.getStaticSourceFile()), obj_(this.outer_.sourceFile)))
+	if !JSCompObjects_identical(any(this.root.getStaticSourceFile()), obj_(this.outer_.sourceFile)) {
+		panic(new_IllegalStateException_0().self())
+	}
 	this.root.setInputId(this.outer_.id)
 	this.outer_.sourceFile.clearCachedSource()
 	return this.root

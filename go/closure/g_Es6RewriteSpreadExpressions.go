@@ -57,14 +57,16 @@ func (this *Es6RewriteSpreadExpressions) visitArrayLitOrCallWithSpread(t *NodeTr
 		this.visitCallContainingSpread(t, spreadParent)
 	} else {
 		if !spreadParent.isNew() {
-			Preconditions_checkArgument_boolean_Object(false, spreadParent.box_())
+			panic(new_IllegalArgumentException_String(objstr_(spreadParent.box_())).self())
 		}
 		this.visitNewWithSpread(spreadParent)
 	}
 }
 
 func (this *Es6RewriteSpreadExpressions) extractSpreadGroups(spreadParent Node) []Node {
-	Preconditions_checkArgument(((spreadParent.isCall() || spreadParent.isArrayLit()) || spreadParent.isNew()))
+	if !((spreadParent.isCall() || spreadParent.isArrayLit()) || spreadParent.isNew()) {
+		panic(new_IllegalArgumentException_0().self())
+	}
 	var groups []Node = []Node{}
 	var currGroup Node = 0
 	{
@@ -100,7 +102,9 @@ func (this *Es6RewriteSpreadExpressions) extractSpreadGroups(spreadParent Node) 
 }
 
 func (this *Es6RewriteSpreadExpressions) visitArrayLitContainingSpread(spreadParent Node) {
-	Preconditions_checkArgument(spreadParent.isArrayLit())
+	if !spreadParent.isArrayLit() {
+		panic(new_IllegalArgumentException_0().self())
+	}
 	var groups []Node = this.extractSpreadGroups(spreadParent)
 	var baseArrayLit Node
 	if sliceAt_(groups, 0).isArrayLit() {
@@ -121,9 +125,13 @@ func (this *Es6RewriteSpreadExpressions) visitArrayLitContainingSpread(spreadPar
 }
 
 func (this *Es6RewriteSpreadExpressions) visitCallContainingSpread(t *NodeTraversal, spreadParent Node) {
-	Preconditions_checkArgument(spreadParent.isCall())
+	if !spreadParent.isCall() {
+		panic(new_IllegalArgumentException_0().self())
+	}
 	var callee Node = spreadParent.getFirstChild()
-	Preconditions_checkState_boolean_Object(!callee.isSuper(), strobj_("Cannot spread into super calls"))
+	if callee.isSuper() {
+		panic(new_IllegalStateException_String("Cannot spread into super calls").self())
+	}
 	var calleeMayHaveSideEffects bool = this.compiler_.getAstAnalyzer().mayHaveSideEffects(callee)
 	callee.detach()
 	for callee.isCast() {
@@ -134,7 +142,9 @@ func (this *Es6RewriteSpreadExpressions) visitCallContainingSpread(t *NodeTraver
 		joinedGroups = spreadParent.removeFirstChild().removeFirstChild()
 	} else {
 		var groups []Node = this.extractSpreadGroups(spreadParent)
-		Preconditions_checkState(len(groups) != 0)
+		if len(groups) == 0 {
+			panic(new_IllegalStateException_0().self())
+		}
 		if int32(len(groups)) == 1 {
 			joinedGroups = sliceRemoveAt_(&groups, 0)
 		} else {
@@ -178,7 +188,9 @@ func (this *Es6RewriteSpreadExpressions) isSpreadOfArguments(n Node) bool {
 }
 
 func (this *Es6RewriteSpreadExpressions) visitNewWithSpread(spreadParent Node) {
-	Preconditions_checkArgument(spreadParent.isNew())
+	if !spreadParent.isNew() {
+		panic(new_IllegalArgumentException_0().self())
+	}
 	var callee Node = spreadParent.removeFirstChild()
 	var groups []Node = this.extractSpreadGroups(spreadParent)
 	var baseArrayLit Node

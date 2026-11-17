@@ -32,8 +32,14 @@ func (this *NodeTraversal) finit_NodeTraversal() {
 
 func (this *NodeTraversal) init_NodeTraversal(builder *NodeTraversal_Builder) {
 	this.finit_NodeTraversal()
-	this.compiler_ = to_AbstractCompiler(Preconditions_checkNotNull(builder.compiler_.self()))
-	this.callback = icast_NodeTraversal_Callback(Preconditions_checkNotNull(any(builder.callback)))
+	if builder.compiler_ == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	this.compiler_ = builder.compiler_
+	if builder.callback == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	this.callback = builder.callback
 	var scopedCallback NodeTraversal_ScopedCallback
 	_ = scopedCallback
 	this.scopeCallback = func() NodeTraversal_ScopedCallback {
@@ -131,12 +137,16 @@ func (this *NodeTraversal) traverseRoots(externs Node, root Node) {
 			}
 		}()
 		var scopeRoot Node = externs.getParent()
-		Preconditions_checkNotNull(scopeRoot.box_())
+		if scopeRoot == 0 {
+			panic(new_NullPointerException_0().self())
+		}
 		this.initTraversal(scopeRoot)
 		this.currentNode = scopeRoot
 		this.pushScope(scopeRoot)
 		this.traverseBranch(externs, scopeRoot)
-		Preconditions_checkState((root.getParent() == scopeRoot))
+		if root.getParent() != scopeRoot {
+			panic(new_IllegalStateException_0().self())
+		}
 		this.traverseBranch(root, scopeRoot)
 		this.popScope()
 		return 0
@@ -162,8 +172,8 @@ func (this *NodeTraversal) formatNodePosition(n Node) string {
 }
 
 func (this *NodeTraversal) traverseWithScope(root Node, s *AbstractScope) {
-	if !(s.isGlobal() || s.isModuleScope()) {
-		Preconditions_checkState_boolean_Object(false, s.self())
+	if !s.isGlobal() && !s.isModuleScope() {
+		panic(new_IllegalStateException_String(objstr_(s.self())).self())
 	}
 	_ = func() (code_ int) {
 		defer func() {
@@ -260,8 +270,8 @@ func (this *NodeTraversal) traverseAtScope(s *AbstractScope) {
 			this.callback.visit(this, n, 0)
 		}
 	default:
-		if !(s.isGlobal() || s.isModuleScope()) {
-			Preconditions_checkState_boolean_String_Object(false, "Expected global or module scope. Got: (%s)", s.self())
+		if !s.isGlobal() && !s.isModuleScope() {
+			panic(new_IllegalStateException_String(Strings_lenientFormat("Expected global or module scope. Got: (%s)", []any{s.self()})).self())
 		}
 		this.traverseWithScope(n, s)
 	}
@@ -391,8 +401,8 @@ func (this *NodeTraversal) handleDestructuringOrDefaultValue(n Node, parent Node
 		var first Node = n.getFirstChild()
 		var second Node = first.getNext()
 		if second != 0 {
-			if !(second.getNext() == 0) {
-				Preconditions_checkState_boolean_Object(false, second.box_())
+			if second.getNext() != 0 {
+				panic(new_IllegalStateException_String(objstr_(second.box_())).self())
 			}
 			this.traverseBranch(second, n)
 		}
@@ -600,8 +610,12 @@ func (this *NodeTraversal) getEnclosingFunction() Node {
 }
 
 func (this *NodeTraversal) pushScope(node Node) {
-	Preconditions_checkNotNull(this.currentNode.box_())
-	Preconditions_checkNotNull(node.box_())
+	if this.currentNode == 0 {
+		panic(new_NullPointerException_0().self())
+	}
+	if node == 0 {
+		panic(new_NullPointerException_0().self())
+	}
 	this.scopes = append(this.scopes, ntScope_{root: node})
 	if this.scopeCallback != nil {
 		this.scopeCallback.enterScope(this)
@@ -613,7 +627,9 @@ func (this *NodeTraversal) pushScopeAbstractScope(s *AbstractScope) {
 }
 
 func (this *NodeTraversal) pushScope_2(s *AbstractScope, quietly bool) {
-	Preconditions_checkNotNull(this.currentNode.box_())
+	if this.currentNode == 0 {
+		panic(new_NullPointerException_0().self())
+	}
 	this.scopes = append(this.scopes, ntScopeOf_(s))
 	if !quietly && (this.scopeCallback != nil) {
 		this.scopeCallback.enterScope(this)
@@ -661,7 +677,9 @@ func (this *NodeTraversal) getScopeRoot() Node {
 
 func (this *NodeTraversal) getScopeDepth() int32 {
 	var depth int32 = int32(len(this.scopes))
-	Preconditions_checkState((depth > 0))
+	if depth <= 0 {
+		panic(new_IllegalStateException_0().self())
+	}
 	return (depth - 1)
 }
 
@@ -812,9 +830,11 @@ func (this *NodeTraversal) report_4(start Node, end Node, diagnosticType *Diagno
 
 func (this *NodeTraversal) reportCodeChange() {
 	var changeScope Node = this.currentChangeScope
-	Preconditions_checkNotNull(changeScope.box_())
+	if changeScope == 0 {
+		panic(new_NullPointerException_0().self())
+	}
 	if !ChangeTracker_isChangeScopeRoot(changeScope) {
-		Preconditions_checkState_boolean_Object(false, changeScope.box_())
+		panic(new_IllegalStateException_String(objstr_(changeScope.box_())).self())
 	}
 	this.compiler_.reportChangeToChangeScope(changeScope)
 }
@@ -1229,7 +1249,9 @@ func (this *NodeTraversal_AbstractCfgCallback) init_NodeTraversal_AbstractCfgCal
 func (this *NodeTraversal_AbstractCfgCallback) getControlFlowGraph(compiler *AbstractCompiler) *ControlFlowGraph {
 	var result *ControlFlowGraph
 	var o any = this.cfgs.peek()
-	Preconditions_checkState((o != nil))
+	if o == nil {
+		panic(new_IllegalStateException_0().self())
+	}
 	var cfgRoot Node
 	_ = cfgRoot
 	if func() bool {
@@ -1471,7 +1493,9 @@ func (this *NodeTraversal_AbstractModuleCallback) shouldTraverse(t *NodeTraversa
 	switch n.ns_().token {
 	case tokOrd1_SCRIPT:
 		this.currentModule = cast_[*ModuleMetadataMap_ModuleMetadata](Map_get_s(this.moduleMetadataMap.getModulesByPath(), t.getInput().getPath().toString()))
-		Preconditions_checkNotNull(obj_(this.currentModule))
+		if this.currentModule == nil {
+			panic(new_NullPointerException_0().self())
+		}
 		this.scopeRoot = func() Node {
 			if n.hasChildren() && n.getFirstChild().isModuleBody() {
 				return n.getFirstChild()
@@ -1487,7 +1511,9 @@ func (this *NodeTraversal_AbstractModuleCallback) shouldTraverse(t *NodeTraversa
 	case tokOrd1_CALL:
 		if this.inLoadModule && NodeTraversal_AbstractModuleCallback_GOOG_MODULE.matches(n.getFirstChild()) {
 			var newModule *ModuleMetadataMap_ModuleMetadata = cast_[*ModuleMetadataMap_ModuleMetadata](Map_get_s(this.moduleMetadataMap.getModulesByGoogNamespace(), n.getLastChild().getString()))
-			Preconditions_checkNotNull(obj_(newModule))
+			if newModule == nil {
+				panic(new_NullPointerException_0().self())
+			}
 			if !JSCompObjects_identical(obj_(newModule), obj_(this.currentModule)) {
 				this.currentModule = newModule
 				this.enterModule(this.currentModule, this.scopeRoot)
@@ -1505,18 +1531,24 @@ func (this *NodeTraversal_AbstractModuleCallback) shouldTraverse_4_impl(t *NodeT
 func (this *NodeTraversal_AbstractModuleCallback) visit(t *NodeTraversal, n Node, parent Node) {
 	switch n.ns_().token {
 	case tokOrd1_SCRIPT:
-		Preconditions_checkNotNull(obj_(this.currentModule))
+		if this.currentModule == nil {
+			panic(new_NullPointerException_0().self())
+		}
 		this.exitModule(this.currentModule, this.scopeRoot)
 		this.currentModule = nil
 		this.scopeRoot = 0
 	case tokOrd1_BLOCK:
 		if NodeUtil_isBundledGoogModuleScopeRoot(n) {
-			Preconditions_checkNotNull(obj_(this.currentModule))
+			if this.currentModule == nil {
+				panic(new_NullPointerException_0().self())
+			}
 			this.exitModule(this.currentModule, this.scopeRoot)
 			this.scopeRoot = n.getGrandparent().getGrandparent()
 			this.inLoadModule = false
 			this.currentModule = cast_[*ModuleMetadataMap_ModuleMetadata](Map_get_s(this.moduleMetadataMap.getModulesByPath(), t.getInput().getPath().toString()))
-			Preconditions_checkNotNull(obj_(this.currentModule))
+			if this.currentModule == nil {
+				panic(new_NullPointerException_0().self())
+			}
 		}
 	default:
 	}

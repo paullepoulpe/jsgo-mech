@@ -27,12 +27,19 @@ func (this *TemplateAstMatcher) finit_TemplateAstMatcher() {
 func (this *TemplateAstMatcher) init_TemplateAstMatcher(compiler *AbstractCompiler, templateFunctionNode Node, typeMatchingStrategy TypeMatchingStrategy) {
 	this.finit_TemplateAstMatcher()
 	if !templateFunctionNode.isFunction() {
-		Preconditions_checkState_boolean_String_Object(false, "Template node must be a function node. Received: %s", templateFunctionNode.box_())
+		panic(new_IllegalStateException_String(Strings_lenientFormat("Template node must be a function node. Received: %s", []any{templateFunctionNode.box_()})).self())
 	}
 	this.topScope = compiler.getTopScope()
-	this.typeRegistry = cast_[*JSTypeRegistry](Preconditions_checkNotNull(obj_(compiler.getTypeRegistry())))
+	nn_ := compiler.getTypeRegistry()
+	if nn_ == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	this.typeRegistry = nn_
 	this.templateStart = this.initTemplate(templateFunctionNode)
-	this.typeMatchingStrategy = cast_[TypeMatchingStrategy](Preconditions_checkNotNull(obj_(typeMatchingStrategy)))
+	if typeMatchingStrategy == 0 {
+		panic(new_NullPointerException_0().self())
+	}
+	this.typeMatchingStrategy = typeMatchingStrategy
 }
 
 func new_TemplateAstMatcher(compiler *AbstractCompiler, templateFunctionNode Node, typeMatchingStrategy TypeMatchingStrategy) *TemplateAstMatcher {
@@ -97,8 +104,8 @@ func (this *TemplateAstMatcher) prepTemplatePlaceholders(fn Node) {
 	var templateParametersNode Node = fn.getSecondChild()
 	var info *JSDocInfo = NodeUtil_getBestJSDocInfo(fn)
 	if templateParametersNode.hasChildren() {
-		if obj_(info) == nil {
-			Preconditions_checkNotNull_Object_String_Object(nil, "Missing JSDoc declaration for template function %s", strobj_(fnName))
+		if info == nil {
+			panic(new_NullPointerException_String(Strings_lenientFormat("Missing JSDoc declaration for template function %s", []any{strobj_(fnName)})).self())
 		}
 	}
 	{
@@ -106,11 +113,13 @@ func (this *TemplateAstMatcher) prepTemplatePlaceholders(fn Node) {
 		for ; paramNode != 0; paramNode = paramNode.getNext() {
 			var name string = paramNode.getString()
 			var expression *JSTypeExpression = info.getParameterType(Optional_of[string](name))
-			if obj_(expression) == nil {
-				Preconditions_checkNotNull_Object_String_Object_Object(nil, "Missing JSDoc for parameter %s of template function %s", strobj_(name), strobj_(fnName))
+			if expression == nil {
+				panic(new_NullPointerException_String(Strings_lenientFormat("Missing JSDoc for parameter %s of template function %s", []any{strobj_(name), strobj_(fnName)})).self())
 			}
 			var type_ *JSType = this.typeRegistry.evaluateTypeExpression(expression, icast_StaticTypedScope(obj_(this.topScope)))
-			Preconditions_checkNotNull(type_.self())
+			if type_ == nil {
+				panic(new_NullPointerException_0().self())
+			}
 			params.add(name)
 			paramTypes[name] = type_
 		}
@@ -155,8 +164,12 @@ func (this *TemplateAstMatcher) isTemplateParameterStringLiteralNode(n Node) boo
 }
 
 func (this *TemplateAstMatcher) createTemplateParameterNode(index int32, type_ *JSType, isStringLiteral bool) Node {
-	Preconditions_checkState((index >= 0))
-	Preconditions_checkNotNull(type_.self())
+	if index < 0 {
+		panic(new_IllegalStateException_0().self())
+	}
+	if type_ == nil {
+		panic(new_NullPointerException_0().self())
+	}
 	var n Node = Node_newNumber(float64(index))
 	if isStringLiteral {
 		n.setToken(TemplateAstMatcher_TEMPLATE_STRING_LITERAL)
@@ -172,7 +185,9 @@ func (this *TemplateAstMatcher) isTemplateLocalNameNode(n Node) bool {
 }
 
 func (this *TemplateAstMatcher) createTemplateLocalNameNode(index int32) Node {
-	Preconditions_checkState((index >= 0))
+	if index < 0 {
+		panic(new_IllegalStateException_0().self())
+	}
 	var n Node = Node_newNumber(float64(index))
 	n.setToken(TemplateAstMatcher_TEMPLATE_LOCAL_NAME)
 	return n
@@ -236,7 +251,9 @@ func (this *TemplateAstMatcher) matchesNode(template Node, ast Node) bool {
 			return ast.isEquivalentTo(previousMatch)
 		}
 		var templateType *JSType = template.getJSType()
-		Preconditions_checkNotNull_Object_Object(templateType.self(), strobj_("null template parameter type."))
+		if templateType == nil {
+			panic(new_NullPointerException_String("null template parameter type.").self())
+		}
 		if this.isUnresolvedType(templateType) {
 			return false
 		}

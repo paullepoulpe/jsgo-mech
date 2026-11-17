@@ -10,9 +10,18 @@ type LazyParsedDependencyInfo struct {
 }
 
 func (this *LazyParsedDependencyInfo) init_LazyParsedDependencyInfo(delegate DependencyInfo, ast *CompilerInput, compiler *AbstractCompiler) {
-	this.delegate = icast_DependencyInfo(Preconditions_checkNotNull(any(delegate)))
-	this.ast = cast_[*CompilerInput](Preconditions_checkNotNull(obj_(ast)))
-	this.compiler_ = to_AbstractCompiler(Preconditions_checkNotNull(compiler.self()))
+	if delegate == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	this.delegate = delegate
+	if ast == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	this.ast = ast
+	if compiler == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	this.compiler_ = compiler
 }
 
 func new_LazyParsedDependencyInfo(delegate DependencyInfo, ast *CompilerInput, compiler *AbstractCompiler) *LazyParsedDependencyInfo {

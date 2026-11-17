@@ -56,7 +56,10 @@ func (this *CheckConformance) visit(t *NodeTraversal, n Node, parent Node) {
 		if category.precondition.shouldCheck(n) {
 			for r := int32((int32(len(category.rules)) - 1)); r >= 0; r-- {
 				var rule CheckConformance_Rule = sliceAt_(category.rules, r)
-				var behavior *ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior = cast_[*ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior](Preconditions_checkNotNull(Map_getOrDefault(this.ruleToBehavior.asMap(), any(rule), obj_(ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior_UNSPECIFIED))))
+				var behavior *ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior = cast_[*ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior](Map_getOrDefault(this.ruleToBehavior.asMap(), any(rule), obj_(ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior_UNSPECIFIED)))
+				if behavior == nil {
+					panic(new_NullPointerException_0().self())
+				}
 				rule.check(t, n, behavior)
 			}
 		}
@@ -79,7 +82,9 @@ func (this *CheckConformance) initRules(compiler *AbstractCompiler, configs Immu
 			builder.put(any(rule.getPrecondition()), any(rule))
 			if isLibraryLevelReportingMode && this.mergedBehaviors.containsKey(requirement) {
 				behavior = this.mergedBehaviors.get(requirement)
-				Preconditions_checkNotNull_Object_Object(obj_(behavior), strobj_("The mergeBehaviors method inserted a null behavior in the mergedBehaviors map"))
+				if behavior == nil {
+					panic(new_NullPointerException_String("The mergeBehaviors method inserted a null behavior in the mergedBehaviors map").self())
+				}
 			}
 			this.ruleToBehavior.put(rule, behavior)
 		}
@@ -94,7 +99,9 @@ func (this *CheckConformance) initRules(compiler *AbstractCompiler, configs Immu
 }
 
 func CheckConformance_validateBehaviorSettingOfConfigs(compiler *AbstractCompiler, configs ImmutableListOf[*ConformanceConfig], reportingMode CompilerOptions_ConformanceReportingMode) bool {
-	Preconditions_checkState(Object_equals(obj_(reportingMode), obj_(CompilerOptions_ConformanceReportingMode_RESPECT_LIBRARY_LEVEL_BEHAVIOR_SPECIFIED_IN_CONFIG)))
+	if !Object_equals(obj_(reportingMode), obj_(CompilerOptions_ConformanceReportingMode_RESPECT_LIBRARY_LEVEL_BEHAVIOR_SPECIFIED_IN_CONFIG)) {
+		panic(new_IllegalStateException_0().self())
+	}
 	var baseRequirementBehaviors map[string]*ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior = map[string]*ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior{}
 	it_1 := foreach_(obj_(configs))
 	for it_1.next() {
@@ -203,7 +210,9 @@ func (this *CheckConformance) mergeRequirements(compiler *AbstractCompiler, conf
 }
 
 func CheckConformance_mergeExtendingRequirementIntoExtended(extendedRequirement *Requirement_Builder, extendingRequirement *Requirement) {
-	Preconditions_checkState_boolean_Object((extendingRequirement.getExtends() == extendedRequirement.getRuleId()), strobj_("Attempting to merge an requirement with the wrong extended requirement"))
+	if extendingRequirement.getExtends() != extendedRequirement.getRuleId() {
+		panic(new_IllegalStateException_String("Attempting to merge an requirement with the wrong extended requirement").self())
+	}
 	extendedRequirement.addAllWhitelist(Iterable(extendingRequirement.getWhitelistList())).addAllWhitelistRegexp(Iterable(extendingRequirement.getWhitelistRegexpList())).addAllAllowlist(Iterable(extendingRequirement.getAllowlistList())).addAllAllowlistRegexp(Iterable(extendingRequirement.getAllowlistRegexpList())).addAllOnlyApplyTo(Iterable(extendingRequirement.getOnlyApplyToList())).addAllOnlyApplyToRegexp(Iterable(extendingRequirement.getOnlyApplyToRegexpList())).addAllWhitelistEntry(Iterable(extendingRequirement.getWhitelistEntryList())).addAllAllowlistEntry(Iterable(extendingRequirement.getAllowlistEntryList())).addAllValue(Iterable(extendingRequirement.getValueList())).addAllConfigFile(Iterable(extendingRequirement.getConfigFileList()))
 	if extendingRequirement.hasErrorMessage() && extendedRequirement.hasErrorMessage() {
 		extendedRequirement.setErrorMessage((sstr_(extendedRequirement.getErrorMessage()) + " " + sstr_(extendingRequirement.getErrorMessage())))
@@ -211,7 +220,9 @@ func CheckConformance_mergeExtendingRequirementIntoExtended(extendedRequirement 
 }
 
 func CheckConformance_validateExtendableRequirement(compiler *AbstractCompiler, requirement *Requirement, extendable map[string]*Requirement_Builder) bool {
-	Preconditions_checkState_boolean_Object(requirement.hasRuleId(), strobj_("Extendable requirement must have a rule_id"))
+	if !requirement.hasRuleId() {
+		panic(new_IllegalStateException_String("Extendable requirement must have a rule_id").self())
+	}
 	if String_isEmpty(requirement.getRuleId()) {
 		CheckConformance_reportInvalidRequirement(compiler, requirement, "empty rule_id")
 		return false
@@ -224,7 +235,9 @@ func CheckConformance_validateExtendableRequirement(compiler *AbstractCompiler, 
 }
 
 func CheckConformance_validateExtendingRequirement(compiler *AbstractCompiler, extendingRequirement *Requirement, extendableRequirement *Requirement_Builder) bool {
-	Preconditions_checkState_boolean_Object(extendingRequirement.hasExtends(), strobj_("Extending requirement must have an extends"))
+	if !extendingRequirement.hasExtends() {
+		panic(new_IllegalStateException_String("Extending requirement must have an extends").self())
+	}
 	if extendableRequirement == nil {
 		CheckConformance_reportInvalidRequirement(compiler, extendingRequirement, ("no extendable requirement with rule_id: " + sstr_(extendingRequirement.getExtends())))
 		return false

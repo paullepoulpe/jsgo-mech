@@ -52,7 +52,9 @@ func (this *RewriteObjectSpread) visitObject(obj Node) {
 }
 
 func (this *RewriteObjectSpread) visitObjectWithSpread(obj Node) {
-	Preconditions_checkArgument(obj.isObjectLit())
+	if !obj.isObjectLit() {
+		panic(new_IllegalArgumentException_0().self())
+	}
 	var result Node = func() Node {
 		if this.useJscompAssign {
 			return this.astFactory_.createJscompAssignCall(this.namespace_, AstFactory_type_Node(obj), []Node{this.astFactory_.createObjectLit([]Node{})})

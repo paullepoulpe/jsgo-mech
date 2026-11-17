@@ -27,7 +27,9 @@ func new_DisambiguateProperties(compiler *AbstractCompiler, propertiesThatMustDi
 }
 
 func (this *DisambiguateProperties) process_2(externs Node, root Node) {
-	Preconditions_checkArgument((externs.getParent() == root.getParent()))
+	if externs.getParent() != root.getParent() {
+		panic(new_IllegalArgumentException_0().self())
+	}
 	var flattener *ColorGraphNodeFactory = ColorGraphNodeFactory_createFactory(this.registry)
 	var findRefs *ColorFindPropertyReferences = new_ColorFindPropertyReferences(flattener, func() func(Node) bool {
 		recv_1 := this.compiler_.getCodingConvention()
@@ -153,7 +155,9 @@ func (this *DisambiguateProperties) invalidateBasedOnType(flattener *ColorGraphN
 
 func (this *DisambiguateProperties) invalidateNonDeclaredPropertyAccesses(colorGraphNode *ColorGraphNode) {
 	var color *Color = colorGraphNode.getColor()
-	Preconditions_checkArgument_boolean_Object(!color.isInvalidating(), strobj_("Not applicable to invalidating types. All their properties are invalidated"))
+	if color.isInvalidating() {
+		panic(new_IllegalArgumentException_String("Not applicable to invalidating types. All their properties are invalidated").self())
+	}
 	it_1 := colorGraphNode.getAssociatedProps().each()
 	for it_1.next() {
 		var prop *PropertyClustering = it_1.k
@@ -211,7 +215,9 @@ func (this *DisambiguateProperties) mayHaveProperty(color *Color, propertyName s
 }
 
 func (this *DisambiguateProperties) registerOwnDeclaredProperties(colorGraphNode *ColorGraphNode, propIndex *TMap[string, *PropertyClustering]) {
-	Preconditions_checkArgument(!colorGraphNode.getColor().isUnion())
+	if colorGraphNode.getColor().isUnion() {
+		panic(new_IllegalArgumentException_0().self())
+	}
 	it_1 := foreach_(obj_(colorGraphNode.getColor().getOwnProperties()))
 	for it_1.next() {
 		var propName string = str_(it_1.v)
@@ -457,7 +463,9 @@ func new_DisambiguateProperties_TypeEdgeJson(e DiGraph_DiGraphEdge) *Disambiguat
 func (this *DisambiguateProperties_TypeEdgeJson) compareTo(x_ any) int32 {
 	var x *DisambiguateProperties_TypeEdgeJson = cast_[*DisambiguateProperties_TypeEdgeJson](x_)
 	_ = x
-	Preconditions_checkArgument((this.dest != x.dest))
+	if this.dest == x.dest {
+		panic(new_IllegalArgumentException_0().self())
+	}
 	return (this.dest - x.dest)
 }
 

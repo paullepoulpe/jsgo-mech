@@ -38,7 +38,9 @@ func (this *PeepholeCollectPropertyAssignments) optimizeSubtree_impl(subtree Nod
 			if !PeepholeCollectPropertyAssignments_isPropertyAssignmentToName(child.getNext()) {
 				continue
 			}
-			Preconditions_checkState(child.hasOneChild())
+			if !child.hasOneChild() {
+				panic(new_IllegalStateException_0().self())
+			}
 			var name Node = PeepholeCollectPropertyAssignments_getName(child)
 			if !name.isName() {
 				continue
@@ -207,8 +209,8 @@ func (this *PeepholeCollectPropertyAssignments) collectObjectProperty(objectLite
 	var lhs Node = assignment.getFirstChild()
 	var rhs Node = lhs.getNext()
 	var obj Node = lhs.getFirstChild()
-	if !(lhs.isGetProp() || lhs.isGetElem()) {
-		Preconditions_checkState_boolean_Object(false, lhs.box_())
+	if !lhs.isGetProp() && !lhs.isGetElem() {
+		panic(new_IllegalStateException_String(objstr_(lhs.box_())).self())
 	}
 	var propertyName OptionalOf[string]
 	if lhs.isGetElem() {

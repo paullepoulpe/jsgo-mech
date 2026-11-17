@@ -573,7 +573,9 @@ func (this *RegExpTree_BackReference) up_RegExpTree() *RegExpTree {
 
 func (this *RegExpTree_BackReference) init_RegExpTree_BackReference(groupIndex int32) {
 	this.RegExpTree_RegExpTreeAtom.init_RegExpTree_RegExpTreeAtom()
-	Preconditions_checkArgument(((groupIndex >= 0) && (groupIndex <= 99)))
+	if groupIndex < 0 || groupIndex > 99 {
+		panic(new_IllegalArgumentException_0().self())
+	}
 	this.groupIndex = groupIndex
 }
 
@@ -1627,8 +1629,12 @@ func (this *RegExpTree_UnicodePropertyEscape) zero_RegExpTree_UnicodePropertyEsc
 
 func (this *RegExpTree_UnicodePropertyEscape) init_RegExpTree_UnicodePropertyEscape(propertyName OptionalOf[string], propertyValue string, negated bool) {
 	this.RegExpTree_RegExpTreeAtom.init_RegExpTree_RegExpTreeAtom()
-	Preconditions_checkArgument_boolean_Object((propertyName.isEmpty() || !String_isEmpty(propertyName.get())), strobj_("if '=' is present in a unicode property escape, the name cannot be empty"))
-	Preconditions_checkArgument_boolean_Object(!String_isEmpty(propertyValue), strobj_("unicode property escape value cannot be empty"))
+	if !propertyName.isEmpty() && String_isEmpty(propertyName.get()) {
+		panic(new_IllegalArgumentException_String("if '=' is present in a unicode property escape, the name cannot be empty").self())
+	}
+	if String_isEmpty(propertyValue) {
+		panic(new_IllegalArgumentException_String("unicode property escape value cannot be empty").self())
+	}
 	this.propertyName_ = propertyName
 	this.propertyValue = propertyValue
 	this.negated = negated
@@ -2312,7 +2318,9 @@ topLoop_:
 }
 
 func (this *RegExpTree_1Parser) parseParenthetical() *RegExpTree {
-	Preconditions_checkState((String_charAt(this.cap_pattern, this.pos) == '('))
+	if String_charAt(this.cap_pattern, this.pos) != '(' {
+		panic(new_IllegalStateException_0().self())
+	}
 	var start int32 = this.pos
 	this.pos++
 	var type_ RegExpTree_ParentheticalType
@@ -2404,7 +2412,9 @@ func (this *RegExpTree_1Parser) scanNamedGroupName() string {
 }
 
 func (this *RegExpTree_1Parser) parseCharset() *RegExpTree {
-	Preconditions_checkState((String_charAt(this.cap_pattern, this.pos) == '['))
+	if String_charAt(this.cap_pattern, this.pos) != '[' {
+		panic(new_IllegalStateException_0().self())
+	}
 	this.pos++
 	var isCaseInsensitive bool = (String_indexOf(this.cap_flags, 105) >= 0)
 	var inverse bool = ((this.pos < this.limit) && (String_charAt(this.cap_pattern, this.pos) == '^'))
@@ -2517,7 +2527,9 @@ func (this *RegExpTree_1Parser) parseEscapeChar() int32 {
 }
 
 func (this *RegExpTree_1Parser) parseEscape() *RegExpTree {
-	Preconditions_checkState((String_charAt(this.cap_pattern, this.pos) == '\\'))
+	if String_charAt(this.cap_pattern, this.pos) != '\\' {
+		panic(new_IllegalStateException_0().self())
+	}
 	var start int32 = this.pos
 	this.pos++
 	var ch uint16 = String_charAt(this.cap_pattern, this.pos)
@@ -2642,7 +2654,9 @@ func (this *RegExpTree_1Parser) parseHex(n int32) int32 {
 func (this *RegExpTree_1Parser) parseBracedUnicodeEscape() int32 {
 	var openBrace int32 = this.pos
 	this.pos++
-	Preconditions_checkState((String_charAt(this.cap_pattern, openBrace) == '{'))
+	if String_charAt(this.cap_pattern, openBrace) != '{' {
+		panic(new_IllegalStateException_0().self())
+	}
 	var closeBrace int32 = this.pos
 	for (closeBrace < this.limit) && (String_charAt(this.cap_pattern, closeBrace) != '}') {
 		closeBrace++
