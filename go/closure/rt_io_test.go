@@ -323,7 +323,7 @@ func TestIoMisc(t *testing.T) {
 			if !data.isPresent() {
 				return nil
 			}
-			return ioSummary_(Outcome_base_ok_Object(data.get()))
+			return ioSummary_(Outcome_base_ok_Object(any(data.get())))
 		},
 	})
 }
