@@ -277,7 +277,7 @@ func (this *Compiler) initOptions(options *CompilerOptions) {
 
 func (this *Compiler) printConfig() {
 	if this.isDebugLoggingEnabled() {
-		this.logToFile("externs.log", func() any { return strobj_(Object_toString(any(this.externs.asList()))) })
+		this.logToFile("externs.log", func() any { return strobj_(Object_toString(this.externs.asList())) })
 		this.logToFile("inputs.json", func() func() any {
 			recv_1 := Compiler_toPrettyJson(this.chunkGraph.toJson())
 			return func() any { return strobj_(String_toString(recv_1)) }
@@ -291,7 +291,7 @@ func (this *Compiler) printConfig() {
 	} else {
 		var err *Output = Output_stderr()
 		err.println("==== Externs ====")
-		err.println(String_valueOf_Object(any(this.externs.asList())))
+		err.println(String_valueOf_Object(this.externs.asList()))
 		err.println("==== Inputs ====")
 		err.println(Compiler_toPrettyJson(this.chunkGraph.toJson()))
 		err.println("==== CompilerOptions ====")
@@ -1109,7 +1109,7 @@ func (this *Compiler) getCurrentJsSource() string {
 			}
 		}
 		if builder.length() == 0 {
-			builder.append("// No files matched any of: ").append_Object(any(sliceView_(tc_string, fileNameRegexList)))
+			builder.append("// No files matched any of: ").append_Object(sliceView_(tc_string, fileNameRegexList))
 		}
 	}
 	if len(chunkNameRegexList) != 0 {
@@ -2812,7 +2812,7 @@ func (this *Compiler) addComments_impl(filename string, comments ListOf[*Comment
 	if !this.getOptions().preservesDetailedSourceInfo() {
 		panic(new_UnsupportedOperationException_String("addComments may only be called in IDE mode.").self())
 	}
-	Map_put_s(this.commentsPerFile, filename, any(comments))
+	Map_put_s(this.commentsPerFile, filename, comments)
 }
 
 func (this *Compiler) getComments_impl(filename OptionalOf[string]) ListOf[*Comment] {

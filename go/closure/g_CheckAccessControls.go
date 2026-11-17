@@ -422,7 +422,7 @@ func (this *CheckAccessControls) checkPropertyVisibility(propRef *CheckAccessCon
 	var definingSource StaticSourceFile = AccessControlUtils_getDefiningSource(propRef.sourceNode(), referenceType, propertyName)
 	var isOverride bool = (propRef.isDocumentedDeclaration() || propRef.override())
 	var objectType *ObjectType = AccessControlUtils_getObjectType(referenceType, isOverride, propertyName)
-	var fileOverviewVisibility JSDocInfo_Visibility = cast_[JSDocInfo_Visibility](this.defaultVisibilityForFiles.get(any(definingSource)))
+	var fileOverviewVisibility JSDocInfo_Visibility = cast_[JSDocInfo_Visibility](this.defaultVisibilityForFiles.get(definingSource))
 	var visibility JSDocInfo_Visibility = CheckAccessControls_getEffectivePropertyVisibility(propRef, referenceType, this.defaultVisibilityForFiles)
 	if isOverride {
 		var overriding JSDocInfo_Visibility = CheckAccessControls_getOverridingPropertyVisibility(propRef)
@@ -463,7 +463,7 @@ func (this *CheckAccessControls) checkEs6ConstructorInvocationVisibility(target 
 	var fauxCtorRef *CheckAccessControls_PropertyReference = CheckAccessControls_PropertyReference_builder().setSourceNode(target).setName("constructor").setReceiverType(prototypeType).setMutation(false).setDeclaration(false).setOverride(false).setReadableTypeName(&Supplier_fn{func() any {
 		return strobj_(ctorType.getInstanceType().toString())
 	}}).build()
-	var annotatedCtorVisibility JSDocInfo_Visibility = CheckAccessControls_getEffectiveVisibilityForNonOverriddenProperty(fauxCtorRef, prototypeType, cast_[JSDocInfo_Visibility](this.defaultVisibilityForFiles.get(any(definingSource))))
+	var annotatedCtorVisibility JSDocInfo_Visibility = CheckAccessControls_getEffectiveVisibilityForNonOverriddenProperty(fauxCtorRef, prototypeType, cast_[JSDocInfo_Visibility](this.defaultVisibilityForFiles.get(definingSource)))
 	var effectiveCtorVisibility JSDocInfo_Visibility = func() JSDocInfo_Visibility {
 		if Object_equals(obj_(annotatedCtorVisibility), obj_(JSDocInfo_Visibility_INHERITED)) {
 			return JSDocInfo_Visibility_PUBLIC
@@ -735,7 +735,7 @@ func CheckAccessControls_getEffectivePropertyVisibility(propRef *CheckAccessCont
 	var propertyName string = propRef.name()
 	var isOverride bool = propRef.override()
 	var definingSource StaticSourceFile = AccessControlUtils_getDefiningSource(propRef.sourceNode(), referenceType, propertyName)
-	var fileOverviewVisibility JSDocInfo_Visibility = cast_[JSDocInfo_Visibility](fileVisibilityMap.get(any(definingSource)))
+	var fileOverviewVisibility JSDocInfo_Visibility = cast_[JSDocInfo_Visibility](fileVisibilityMap.get(definingSource))
 	var objectType *ObjectType = AccessControlUtils_getObjectType(referenceType, isOverride, propertyName)
 	if isOverride {
 		var overridden JSDocInfo_Visibility = AccessControlUtils_getOverriddenPropertyVisibility(objectType, propertyName)
@@ -1122,7 +1122,7 @@ func (this *CheckAccessControls_PropertyReference) hashCode() int32 {
 }
 
 func (this *CheckAccessControls_PropertyReference) toString() string {
-	return "PropertyReference[" + "sourceNode=" + tostr_(this.sourceNode_) + ", name=" + sstr_(this.name_) + ", receiverType=" + objstr_(this.receiverType_.self()) + ", mutation=" + boolstr_(bool(this.mutation_)) + ", declaration=" + boolstr_(bool(this.declaration_)) + ", override=" + boolstr_(bool(this.override_)) + ", readableTypeName=" + objstr_(any(this.readableTypeName_)) + "]"
+	return "PropertyReference[" + "sourceNode=" + tostr_(this.sourceNode_) + ", name=" + sstr_(this.name_) + ", receiverType=" + objstr_(this.receiverType_.self()) + ", mutation=" + boolstr_(bool(this.mutation_)) + ", declaration=" + boolstr_(bool(this.declaration_)) + ", override=" + boolstr_(bool(this.override_)) + ", readableTypeName=" + objstr_(this.readableTypeName_) + "]"
 }
 
 type CheckAccessControls_PropertyReference_Builder struct {

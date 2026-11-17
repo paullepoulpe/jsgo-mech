@@ -230,5 +230,5 @@ func (this *SimpleMultiset) toString() string {
 			return strobj_((sstr_(element) + " x " + objstr_(e.getValue())))
 		}()))
 	}
-	return Object_toString(any(sliceView_(tc_string, parts)))
+	return Object_toString(sliceView_(tc_string, parts))
 }

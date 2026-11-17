@@ -367,7 +367,7 @@ func (this *CmdLineParser_Option) required(required bool) *CmdLineParser_Option 
 func (this *CmdLineParser_Option) string(get func() any, set func(any)) {
 	this.metaVariable = Optional_of[string]("VAL")
 	this.defaultValues = func() any {
-		return any(CmdLineParser_Option_asList(get()))
+		return CmdLineParser_Option_asList(get())
 	}
 	this.handler = func(params CmdLineParser_Parameters) *Outcome_base {
 		var value *Outcome_base = params.getParameter(0)
@@ -413,7 +413,7 @@ func (this *CmdLineParser_Option) stringEach(add func(any)) {
 func (this *CmdLineParser_Option) integer(get func() any, set func(any)) {
 	this.metaVariable = Optional_of[string]("N")
 	this.defaultValues = func() any {
-		return any(CmdLineParser_Option_asList(get()))
+		return CmdLineParser_Option_asList(get())
 	}
 	this.handler = func(params CmdLineParser_Parameters) *Outcome_base {
 		var tokenOutcome *Outcome_base = params.getParameter(0)
@@ -438,7 +438,7 @@ func (this *CmdLineParser_Option) integer(get func() any, set func(any)) {
 func (this *CmdLineParser_Option) flag(get func() any, set func(any)) {
 	this.metaVariable = Optional_empty[string]()
 	this.defaultValues = func() any {
-		return any(CmdLineParser_Option_asList(get()))
+		return CmdLineParser_Option_asList(get())
 	}
 	this.handler = func(params CmdLineParser_Parameters) *Outcome_base {
 		set(any(bool(true)))
@@ -450,7 +450,7 @@ func (this *CmdLineParser_Option) flag(get func() any, set func(any)) {
 func (this *CmdLineParser_Option) bool(get func() any, set func(any)) {
 	this.metaVariable = Optional_empty[string]()
 	this.defaultValues = func() any {
-		return any(CmdLineParser_Option_asList(get()))
+		return CmdLineParser_Option_asList(get())
 	}
 	this.handler = func(params CmdLineParser_Parameters) *Outcome_base {
 		var param OptionalOf[string] = params.getParameterOrNull(0)
@@ -476,7 +476,7 @@ func (this *CmdLineParser_Option) bool(get func() any, set func(any)) {
 func (this *CmdLineParser_Option) enumValue(values []*Enum, get func() any, set func(any)) {
 	this.metaVariable = Optional_of[string](CmdLineParser_Option_enumMetaVariable(values))
 	this.defaultValues = func() any {
-		return any(CmdLineParser_Option_asList(get()))
+		return CmdLineParser_Option_asList(get())
 	}
 	this.handler = func(params CmdLineParser_Parameters) *Outcome_base {
 		var value *Outcome_base = this.parseEnum(values, params)
@@ -508,13 +508,13 @@ func (this *CmdLineParser_Option) enumList(values []*Enum, get func() any, set f
 func (this *CmdLineParser_Option) map_(get func() any, set func(any)) {
 	this.metaVariable = Optional_empty[string]()
 	this.defaultValues = func() any {
-		return any(CmdLineParser_Option_asList(get()))
+		return CmdLineParser_Option_asList(get())
 	}
 	this.handler = func(params CmdLineParser_Parameters) *Outcome_base {
 		var map_ MapOf[string, string] = icast_Map(get())
 		if map_ == nil {
 			map_ = icast_Map(obj_(new_LinkedHashMap()))
-			set(any(map_))
+			set(map_)
 		}
 		var argumentOutcome *Outcome_base = params.getParameter(0)
 		if argumentOutcome.isErr() {
@@ -572,7 +572,7 @@ func CmdLineParser_Option_addValue(get func() any, set func(any), value any) {
 	var list ListOf[any] = icast_List(get())
 	if list == nil {
 		list = icast_List(new_ArrayList_0().self())
-		set(any(list))
+		set(list)
 	}
 	list.add(value)
 }

@@ -31,7 +31,7 @@ func (this *ChangeTracker) addChangeHandler(handler CodeChangeHandler) {
 }
 
 func (this *ChangeTracker) removeChangeHandler(handler CodeChangeHandler) {
-	sliceRemoveObject_(tc_CodeChangeHandler, &this.codeChangeHandlers, any(handler))
+	sliceRemoveObject_(tc_CodeChangeHandler, &this.codeChangeHandlers, handler)
 }
 
 func (this *ChangeTracker) getRecentChange() *RecentChange {

@@ -1749,7 +1749,7 @@ func (this *InlineAndCollapseProperties_InlineAliases_AliasesInliner) resolveAli
 	var aliasPath *TSet[string] = newTSet_(tc_string)
 	for has_(this.outer_.aliases_, name) {
 		if !aliasPath.add(name) {
-			this.outer_.outer_.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, InlineAndCollapseProperties_ALIAS_CYCLE, []string{Object_toString(any(aliasPath.asSet())), name}))
+			this.outer_.outer_.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, InlineAndCollapseProperties_ALIAS_CYCLE, []string{Object_toString(aliasPath.asSet()), name}))
 			delete(this.outer_.aliases_, name)
 			break
 		}

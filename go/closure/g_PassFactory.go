@@ -33,7 +33,7 @@ func new_PassFactory(getName string, getCondition FunctionOf[*CompilerOptions, B
 }
 
 func (this *PassFactory) toString() string {
-	return ("PassFactory{name=" + sstr_(this.getName_) + ", condition=" + objstr_(any(this.getCondition_)) + ", preconditionCheck=" + objstr_(any(this.getPreconditionCheck_)) + ", runInFixedPointLoop=" + boolstr_(this.isRunInFixedPointLoop_) + ", internalFactory=" + objstr_(any(this.getInternalFactory_)) + "}")
+	return ("PassFactory{name=" + sstr_(this.getName_) + ", condition=" + objstr_(this.getCondition_) + ", preconditionCheck=" + objstr_(this.getPreconditionCheck_) + ", runInFixedPointLoop=" + boolstr_(this.isRunInFixedPointLoop_) + ", internalFactory=" + objstr_(this.getInternalFactory_) + "}")
 }
 
 func (this *PassFactory) toBuilder() *PassFactory_Builder {

@@ -263,7 +263,7 @@ func (this *SourceMapConsumerV3) createReverseMapping() {
 				}
 				var mappingsLine CollectionOf[*Mapping_OriginalMapping] = icast_Collection(lineToCollectionMap.get(any(int32(sourceLine))))
 				var builder *Mapping_OriginalMapping_Builder = Mapping_OriginalMapping_newBuilder().setLineNumber(targetLine).setColumnPosition(this.mappings.getGeneratedColumn(i))
-				mappingsLine.add(any(builder.build()))
+				mappingsLine.add(builder.build())
 			}
 		}
 	}

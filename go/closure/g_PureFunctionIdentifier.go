@@ -1095,7 +1095,7 @@ func (this *PureFunctionIdentifier_AmbiguatedFunctionSummary) sideEffectsToStrin
 	if this.functionThrows() {
 		status = append(status, "throw")
 	}
-	return Object_toString(any(sliceView_(tc_string, status)))
+	return Object_toString(sliceView_(tc_string, status))
 }
 
 const PureFunctionIdentifier_AmbiguatedFunctionSummary_THROWS int32 = 1

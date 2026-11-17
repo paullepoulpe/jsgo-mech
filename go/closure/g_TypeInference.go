@@ -1748,7 +1748,7 @@ func (this *TypeInference) getPropertyType(objType *JSType, propName string, n N
 		var varType *JSType = var_.getType()
 		if varType != nil {
 			var isDeclared bool = !var_.isTypeInferred()
-			isLocallyInferred = (any(var_) != obj_(TypeInference_getDeclaredVar(scope, qualifiedName)))
+			isLocallyInferred = (var_ != obj_(TypeInference_getDeclaredVar(scope, qualifiedName)))
 			if isDeclared || isLocallyInferred {
 				propertyType = varType
 			}
@@ -2219,7 +2219,7 @@ func (this *TypeInference_1) branchFlow(branch ControlFlowGraph_Branch) any {
 	switch branch {
 	case ControlFlowGraph_Branch_ON_TRUE:
 		if NodeUtil_isEnhancedFor(this.cap_source) {
-			return any(this.outer_.initializeEnhancedForScope(this.cap_source, this.cap_output))
+			return this.outer_.initializeEnhancedForScope(this.cap_source, this.cap_output)
 		}
 		fallthrough
 	case ControlFlowGraph_Branch_ON_FALSE:
@@ -2230,7 +2230,7 @@ func (this *TypeInference_1) branchFlow(branch ControlFlowGraph_Branch) any {
 			} else {
 				this.condition = NodeUtil_getConditionExpression(this.cap_source)
 				if this.condition == 0 {
-					return any(this.cap_output)
+					return this.cap_output
 				}
 			}
 		}
@@ -2243,14 +2243,14 @@ func (this *TypeInference_1) branchFlow(branch ControlFlowGraph_Branch) any {
 					return this.outer_.traverseOr(this.condition, this.cap_output)
 				}()
 			}
-			return any(this.outer_.reverseInterpreter.getPreciserScopeKnowingConditionOutcome(this.condition, this.conditionOutcomes.getOutcomeFlowScope(this.condition.getToken(), (branch == ControlFlowGraph_Branch_ON_TRUE)), Outcome_rhino_forBoolean(Object_equals(obj_(branch), obj_(ControlFlowGraph_Branch_ON_TRUE)))))
+			return this.outer_.reverseInterpreter.getPreciserScopeKnowingConditionOutcome(this.condition, this.conditionOutcomes.getOutcomeFlowScope(this.condition.getToken(), (branch == ControlFlowGraph_Branch_ON_TRUE)), Outcome_rhino_forBoolean(Object_equals(obj_(branch), obj_(ControlFlowGraph_Branch_ON_TRUE))))
 		}
 		if this.conditionFlowScope == nil {
 			this.conditionFlowScope = this.outer_.traverse(this.condition, this.cap_output)
 		}
-		return any(this.outer_.reverseInterpreter.getPreciserScopeKnowingConditionOutcome(this.condition, this.conditionFlowScope, Outcome_rhino_forBoolean(Object_equals(obj_(branch), obj_(ControlFlowGraph_Branch_ON_TRUE)))))
+		return this.outer_.reverseInterpreter.getPreciserScopeKnowingConditionOutcome(this.condition, this.conditionFlowScope, Outcome_rhino_forBoolean(Object_equals(obj_(branch), obj_(ControlFlowGraph_Branch_ON_TRUE))))
 	default:
-		return any(this.cap_output)
+		return this.cap_output
 	}
 	panic("unreachable")
 }

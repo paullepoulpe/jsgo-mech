@@ -325,7 +325,7 @@ func AbstractCommandLineRunner_getBuiltinExterns(env CompilerOptions_Environment
 		}
 		mapFromExternsZip.put(filename, SourceFile_jscomp_builder().withPath(("externs.zip//" + sstr_(filename))).withContent(Io_utf8String(data.get())).build())
 	}
-	return Outcome_base_ok_Object(any(DefaultExterns_prepareExterns(env, mapFromExternsZip)))
+	return Outcome_base_ok_Object(DefaultExterns_prepareExterns(env, mapFromExternsZip))
 }
 
 func AbstractCommandLineRunner_getExternsInput() *Outcome_base {
@@ -428,7 +428,7 @@ func (this *AbstractCommandLineRunner) parseJsonFilesFromInputStream() *Outcome_
 		}
 		jsonFiles.add(jsonFile.get())
 	}
-	return Outcome_base_ok_Object(any(jsonFiles))
+	return Outcome_base_ok_Object(jsonFiles)
 }
 
 func (this *AbstractCommandLineRunner) createInputs(files *TList[*AbstractCommandLineRunner_FlagEntry], allowStdIn bool, jsChunkSpecs *TList[*AbstractCommandLineRunner_JsChunkSpec]) *Outcome_base {
@@ -527,7 +527,7 @@ func (this *AbstractCommandLineRunner) createInputs_4(files *TList[*AbstractComm
 			inputs.add(obj_(SourceFile_jscomp_fromCode_String_String(jsonFile.getPath().get(), jsonFile.getSrc().orElseThrow())))
 		}
 	}
-	return Outcome_base_ok_Object(any(inputs))
+	return Outcome_base_ok_Object(inputs)
 }
 
 func (this *AbstractCommandLineRunner) deduplicateIjsFiles(files *TList[*AbstractCommandLineRunner_FlagEntry], moduleRoots ListOf[string], hasChunkSpecs bool) *Outcome_base {
@@ -728,7 +728,7 @@ func AbstractCommandLineRunner_parseChunkWrappers(specs *TList[string], chunks I
 		}
 		Map_put_s(wrappers, name, strobj_(wrapper))
 	}
-	return Outcome_base_ok_Object(any(wrappers))
+	return Outcome_base_ok_Object(wrappers)
 }
 
 func AbstractCommandLineRunner_parseChunkOutputFiles(specs *TList[string]) *Outcome_base {
@@ -1420,7 +1420,7 @@ func (this *AbstractCommandLineRunner) outputSingleBinary(options *CompilerOptio
 func (this *AbstractCommandLineRunner) createJsonFile(options *CompilerOptions, outputMarker string, escaper Function_baseOf[string, string]) *AbstractCommandLineRunner_JsonFileSpec {
 	var jsOutput Appendable = icast_Appendable(obj_(new_StringBuilder()))
 	this.writeOutput_8(jsOutput, this.compiler_, icast_CodePrinter_LicenseTracker(obj_(new_Compiler_SingleBinaryLicenseTracker(this.compiler_.up_AbstractCompiler()))), nil, this.config.outputWrapper, outputMarker, escaper, this.config.jsOutputFile)
-	var jsonOutput *AbstractCommandLineRunner_JsonFileSpec = new_AbstractCommandLineRunner_JsonFileSpec_String_String(Object_toString(any(jsOutput)), func() string {
+	var jsonOutput *AbstractCommandLineRunner_JsonFileSpec = new_AbstractCommandLineRunner_JsonFileSpec_String_String(Object_toString(jsOutput), func() string {
 		if Strings_isNullOrEmpty(this.config.jsOutputFile) {
 			return "compiled.js"
 		}

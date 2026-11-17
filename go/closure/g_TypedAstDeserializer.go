@@ -185,7 +185,7 @@ func (this *TypedAstDeserializer) initLazyAstDeserializer(lazyAst *LazyAst, file
 
 // lambda_TypedAstDeserializer_initLazyAstDeserializer_1_ is a lambda of TypedAstDeserializer_initLazyAstDeserializer that captures nothing (post-flip step lambdas).
 func lambda_TypedAstDeserializer_initLazyAstDeserializer_1_(p0 any) any {
-	return any(TypedAstDeserializer_createStubWeakScriptNode(cast_[*SourceFile_jscomp](p0)))
+	return TypedAstDeserializer_createStubWeakScriptNode(cast_[*SourceFile_jscomp](p0))
 }
 
 func TypedAstDeserializer_addInputSourceMap(deserializer *ScriptNodeDeserializer, compiler *AbstractCompiler, resolveSourceMapAnnotations bool, parseInlineSourceMaps bool) {
@@ -361,7 +361,7 @@ func new_TypedAstDeserializer_DeserializedAst(getFilesystem ConcurrentMapOf[*Sou
 }
 
 func (this *TypedAstDeserializer_DeserializedAst) toString() string {
-	return ("DeserializedAst{filesystem=" + objstr_(any(this.getFilesystem_)) + ", colorRegistry=" + tostr_(this.getColorRegistry_) + ", externProperties=" + tostr_(this.getExternProperties_) + ", runtimeLibraries=" + tostr_(this.getRuntimeLibraries_) + "}")
+	return ("DeserializedAst{filesystem=" + objstr_(this.getFilesystem_) + ", colorRegistry=" + tostr_(this.getColorRegistry_) + ", externProperties=" + tostr_(this.getExternProperties_) + ", runtimeLibraries=" + tostr_(this.getRuntimeLibraries_) + "}")
 }
 
 func TypedAstDeserializer_DeserializedAst_create(filesystem ConcurrentMapOf[*SourceFile_jscomp, SupplierOf[Node]], colorRegistry Optional_baseOf[*ColorRegistry], externProperties ImmutableSetOf[string], runtimeLibraries ImmutableSetOf[string]) *TypedAstDeserializer_DeserializedAst {

@@ -316,7 +316,7 @@ func (this *Graph_SimpleSubGraph) isIndependentOf(value any) bool {
 	it_1 := eachOf_(&this.nodes_)
 	for it_1.next() {
 		var n GraphNode = it_1.v
-		if sliceView_(tc_GraphNode, this.graph.getNeighborNodes(n.getValue())).contains(any(node)) {
+		if sliceView_(tc_GraphNode, this.graph.getNeighborNodes(n.getValue())).contains(node) {
 			return false
 		}
 	}

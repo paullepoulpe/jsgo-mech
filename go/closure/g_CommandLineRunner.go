@@ -335,7 +335,7 @@ func (this *CommandLineRunner) createOptions_impl() *Outcome_base {
 		if languageMode != 0 {
 			options.setLanguageIn(languageMode)
 		} else {
-			return Outcome_base_err(new_FlagUsageException(("Unknown language `" + sstr_(this.flags.languageIn) + "' specified. Expected one of: " + objstr_(any(sliceView_(tc_string, CompilerOptions_LanguageMode_validCommandLineNames()))))).up_Throwable())
+			return Outcome_base_err(new_FlagUsageException(("Unknown language `" + sstr_(this.flags.languageIn) + "' specified. Expected one of: " + objstr_(sliceView_(tc_string, CompilerOptions_LanguageMode_validCommandLineNames())))).up_Throwable())
 		}
 	}
 	var languageMode CompilerOptions_LanguageMode = CompilerOptions_LanguageMode_fromString(Optional_of[string](this.flags.languageOut))
@@ -345,7 +345,7 @@ func (this *CommandLineRunner) createOptions_impl() *Outcome_base {
 	if languageMode != 0 {
 		options.setLanguageOut(languageMode)
 	} else {
-		return Outcome_base_err(new_FlagUsageException(("Unknown language `" + sstr_(this.flags.languageOut) + "' specified. Expected one of: " + objstr_(any(sliceView_(tc_string, CompilerOptions_LanguageMode_validCommandLineNames()))))).up_Throwable())
+		return Outcome_base_err(new_FlagUsageException(("Unknown language `" + sstr_(this.flags.languageOut) + "' specified. Expected one of: " + objstr_(sliceView_(tc_string, CompilerOptions_LanguageMode_validCommandLineNames())))).up_Throwable())
 	}
 	options.setCodingConvention(icast_CodingConvention(obj_(new_ClosureCodingConvention_0())))
 	options.setExtraAnnotationNames(Iterable(this.flags.extraAnnotationName))
@@ -515,7 +515,7 @@ func (this *CommandLineRunner) createExterns_impl(options *CompilerOptions) *Out
 	}
 	var externs ListOf[*SourceFile_jscomp] = icast_List(externsOutcome.get())
 	if this.isInTestMode() {
-		return Outcome_base_ok_Object(any(externs))
+		return Outcome_base_ok_Object(externs)
 	} else {
 		var builtinExternsRes *Outcome_base = AbstractCommandLineRunner_getBuiltinExterns(options.getEnvironment())
 		if builtinExternsRes.isErr() {
@@ -523,7 +523,7 @@ func (this *CommandLineRunner) createExterns_impl(options *CompilerOptions) *Out
 		}
 		var builtinExterns ListOf[*SourceFile_jscomp] = icast_List(builtinExternsRes.get())
 		builtinExterns.addAll(Collection(externs))
-		return Outcome_base_ok_Object(any(builtinExterns))
+		return Outcome_base_ok_Object(builtinExterns)
 	}
 	panic("unreachable")
 }
@@ -567,7 +567,7 @@ func CommandLineRunner_loadConformanceConfig(configFile string) *Outcome_base {
 		TextFormat_merge(strobj_(textProto), icast_Message_Builder(obj_(builder)))
 		return 0
 	}()
-	return Outcome_base_ok_Object(any(builder.build()))
+	return Outcome_base_ok_Object(builder.build())
 }
 
 func CommandLineRunner_getDefaultExterns() *Outcome_base {
@@ -996,7 +996,7 @@ func (this *CommandLineRunner_Flags) init_CommandLineRunner_Flags() {
 		this.loggingLevel = v
 	})
 	this.parser.option("--externs").usage("The file containing JavaScript externs. You may specify multiple").stringList(func() any {
-		return any(this.externs)
+		return this.externs
 	}, func(v_ any) {
 		var v List = icast_List(v_)
 		_ = v
@@ -1020,7 +1020,7 @@ func (this *CommandLineRunner_Flags) init_CommandLineRunner_Flags() {
 		this.jsOutputFile = v
 	})
 	this.parser.option("--chunk").usage("A JavaScript chunk specification. The format is <name>:<num-js-files>[:[<dep>,...][:]]]. Chunk names must be unique. Each dep is the name of a chunk that this chunk depends on. Chunks must be listed in dependency order, and JS source files must be listed in the corresponding order. Where --chunk flags occur in relation to --js flags is unimportant. <num-js-files> may be set to 'auto' for the first chunk if it has no dependencies. Provide the value 'auto' to trigger chunk creation from CommonJS modules.").stringList(func() any {
-		return any(this.chunk_)
+		return this.chunk_
 	}, func(v_ any) {
 		var v List = icast_List(v_)
 		_ = v
@@ -1110,7 +1110,7 @@ func (this *CommandLineRunner_Flags) init_CommandLineRunner_Flags() {
 		this.outputWrapperFile = Optional_of[string](v)
 	})
 	this.parser.option("--chunk_wrapper").usage("An output wrapper for a JavaScript chunk (optional). The format is <name>:<wrapper>. The chunk name must correspond with a chunk specified using --chunk. The wrapper must contain %s as the code placeholder. Alternately, %output% can be used in place of %s. %n% can be used to represent a newline. The %basename% placeholder can also be used to substitute the base name of the chunk output file.").stringList(func() any {
-		return any(this.chunkWrapper)
+		return this.chunkWrapper
 	}, func(v_ any) {
 		var v List = icast_List(v_)
 		_ = v
@@ -1138,14 +1138,14 @@ func (this *CommandLineRunner_Flags) init_CommandLineRunner_Flags() {
 		this.sourceMapFormat = v
 	})
 	this.parser.option("--source_map_location_mapping").usage("Source map location mapping separated by a '|' (i.e. filesystem-path|webserver-path)").stringList(func() any {
-		return any(this.sourceMapLocationMapping)
+		return this.sourceMapLocationMapping
 	}, func(v_ any) {
 		var v List = icast_List(v_)
 		_ = v
 		this.sourceMapLocationMapping = v
 	})
 	this.parser.option("--source_map_input").usage("Source map locations for input files, separated by a '|', (i.e. input-file-path|input-source-map)").stringList(func() any {
-		return any(this.sourceMapInputs)
+		return this.sourceMapInputs
 	}, func(v_ any) {
 		var v List = icast_List(v_)
 		_ = v
@@ -1177,7 +1177,7 @@ func (this *CommandLineRunner_Flags) init_CommandLineRunner_Flags() {
 		this.jscompOff = CommandLineRunner_Flags_addMultiFlagValue(this.jscompOff, Optional_of[string](v), obj_(CheckLevel_OFF), this.guardLevels)
 	})
 	this.parser.option("--define").aliases([]string{"--D", "-D"}).usage("Override the value of a variable annotated @define. The format is <name>[=<val>], where <name> is the name of a @define variable and <val> is a boolean, number, or a single-quoted string that contains no single quotes. If [=<val>] is omitted, the variable is marked true").stringList(func() any {
-		return any(this.define)
+		return this.define
 	}, func(v_ any) {
 		var v List = icast_List(v_)
 		_ = v
@@ -1259,7 +1259,7 @@ func (this *CommandLineRunner_Flags) init_CommandLineRunner_Flags() {
 		this.exportLocalPropertyDefinitions = unbox_[bool](v)
 	})
 	this.parser.option("--formatting").usage("Specifies which formatting options, if any, should be applied to the output JS. Options: PRETTY_PRINT, PRINT_INPUT_DELIMITER, SINGLE_QUOTES").enumList(arrmap_(CommandLineRunner_FormattingOption_values(), func(v_ CommandLineRunner_FormattingOption) *Enum { return v_.enum_() }), func() any {
-		return any(this.formatting)
+		return this.formatting
 	}, func(v_ any) {
 		var v List = icast_List(v_)
 		_ = v
@@ -1271,7 +1271,7 @@ func (this *CommandLineRunner_Flags) init_CommandLineRunner_Flags() {
 		this.processCommonJsModules = unbox_[bool](v)
 	})
 	this.parser.option("--js_module_root").usage("Path prefixes to be removed from ES6 & CommonJS modules.").stringList(func() any {
-		return any(this.moduleRoot)
+		return this.moduleRoot
 	}, func(v_ any) {
 		var v List = icast_List(v_)
 		_ = v
@@ -1357,7 +1357,7 @@ func (this *CommandLineRunner_Flags) init_CommandLineRunner_Flags() {
 		this.translationsProject = Optional_of[string](v)
 	})
 	this.parser.option("--flagfile").hidden_1(true).usage("A file (or files) containing additional command-line options.").stringList(func() any {
-		return any(this.flagFiles)
+		return this.flagFiles
 	}, func(v_ any) {
 		var v List = icast_List(v_)
 		_ = v
@@ -1371,14 +1371,14 @@ func (this *CommandLineRunner_Flags) init_CommandLineRunner_Flags() {
 		this.warningsAllowlistFile = v
 	})
 	this.parser.option("--hide_warnings_for").usage("If specified, files whose path contains this string will have their warnings hidden. You may specify multiple.").stringList(func() any {
-		return any(this.hideWarningsFor)
+		return this.hideWarningsFor
 	}, func(v_ any) {
 		var v List = icast_List(v_)
 		_ = v
 		this.hideWarningsFor = v
 	})
 	this.parser.option("--extra_annotation_name").usage("A allowlist of tag names in JSDoc. You may specify multiple").stringList(func() any {
-		return any(this.extraAnnotationName)
+		return this.extraAnnotationName
 	}, func(v_ any) {
 		var v List = icast_List(v_)
 		_ = v
@@ -1406,7 +1406,7 @@ func (this *CommandLineRunner_Flags) init_CommandLineRunner_Flags() {
 		this.renamePrefixNamespace = Optional_of[string](v)
 	})
 	this.parser.option("--conformance_configs").usage("A list of JS Conformance configurations in text protocol buffer format.").stringList(func() any {
-		return any(this.conformanceConfigs)
+		return this.conformanceConfigs
 	}, func(v_ any) {
 		var v List = icast_List(v_)
 		_ = v
@@ -1437,7 +1437,7 @@ func (this *CommandLineRunner_Flags) init_CommandLineRunner_Flags() {
 		this.injectLibraries_ = unbox_[bool](v)
 	})
 	this.parser.option("--force_inject_library").usage("Force injection of named runtime libraries. The format is <name> where <name> is the name of a runtime library. Possible libraries include: base, es6_runtime").stringList(func() any {
-		return any(this.forceInjectLibraries)
+		return this.forceInjectLibraries
 	}, func(v_ any) {
 		var v List = icast_List(v_)
 		_ = v
@@ -1451,7 +1451,7 @@ func (this *CommandLineRunner_Flags) init_CommandLineRunner_Flags() {
 		this.dependencyMode = v
 	})
 	this.parser.option("--entry_point").usage("A file or namespace to use as the starting point for determining which src files to include in the compilation. ES6 and CommonJS modules are specified as file paths (without the extension). Closure-library namespaces are specified with a \"goog:\" prefix. Example: --entry_point=goog:goog.Promise").stringList(func() any {
-		return any(this.entryPoint)
+		return this.entryPoint
 	}, func(v_ any) {
 		var v List = icast_List(v_)
 		_ = v
@@ -1480,7 +1480,7 @@ func (this *CommandLineRunner_Flags) init_CommandLineRunner_Flags() {
 		this.moduleResolutionMode = v
 	})
 	this.parser.option("--browser_resolver_prefix_replacements").usage("Prefixes to replace in ES6 import paths before resolving. module_resolution must be BROWSER_WITH_TRANSFORMED_PREFIXES to take effect.").map_(func() any {
-		return any(this.browserResolverPrefixReplacements)
+		return this.browserResolverPrefixReplacements
 	}, func(v_ any) {
 		var v Map = icast_Map(v_)
 		_ = v
@@ -1568,14 +1568,14 @@ func (this *CommandLineRunner_Flags) init_CommandLineRunner_Flags() {
 		this.propertyMapInputFile = v
 	})
 	this.parser.option("--expected_diagnostics").usage("Expected diagnostics in the format [(line,col)]CODE:regex. CODE is the JSCompiler DiagnosticType key. regex matches the description.").stringList(func() any {
-		return any(this.expectedDiagnostics)
+		return this.expectedDiagnostics
 	}, func(v_ any) {
 		var v List = icast_List(v_)
 		_ = v
 		this.expectedDiagnostics = v
 	})
 	this.parser.argument(func() any {
-		return any(this.arguments)
+		return this.arguments
 	}, func(v_ any) {
 		var v List = icast_List(v_)
 		_ = v
@@ -1749,7 +1749,7 @@ func (this *CommandLineRunner_Flags) getMixedJsSources() *Outcome_base {
 	if (!this.mixedJsSources.isEmpty() && !this.arguments.isEmpty()) && mixedSources.isEmpty() {
 		return Outcome_base_err(new_CmdLineException_CmdLineParser_String(this.parser, "No inputs matched").up_Throwable())
 	}
-	return Outcome_base_ok_Object(any(mixedSources))
+	return Outcome_base_ok_Object(mixedSources)
 }
 
 func (this *CommandLineRunner_Flags) getSourceMapLocationMappings() *Outcome_base {
@@ -1779,7 +1779,7 @@ func (this *CommandLineRunner_Flags) splitPipeParts(input IterableOf[string], fl
 		var inputSourceMap string = str_(it_1.v)
 		var parts []string = sliceImm_(tc_string, splitter.splitToList_s(inputSourceMap))
 		if int32(len(parts)) != 2 {
-			return Outcome_base_err(new_CmdLineException_CmdLineParser_String(this.parser, ("Bad value for " + sstr_(flagName) + " (duplicate key): " + objstr_(any(input)))).up_Throwable())
+			return Outcome_base_err(new_CmdLineException_CmdLineParser_String(this.parser, ("Bad value for " + sstr_(flagName) + " (duplicate key): " + objstr_(input))).up_Throwable())
 		}
 		result.put(strobj_(sliceAt_(parts, 0)), strobj_(sliceAt_(parts, 1)))
 	}

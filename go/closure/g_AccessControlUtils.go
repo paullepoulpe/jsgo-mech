@@ -26,7 +26,7 @@ func AccessControlUtils_getEffectiveNameVisibility(name Node, var_ *Var, fileVis
 	if raw != JSDocInfo_Visibility_INHERITED {
 		return raw
 	}
-	var defaultVisibilityForFile JSDocInfo_Visibility = cast_[JSDocInfo_Visibility](fileVisibilityMap.get(any(var_.getSourceFile())))
+	var defaultVisibilityForFile JSDocInfo_Visibility = cast_[JSDocInfo_Visibility](fileVisibilityMap.get(var_.getSourceFile()))
 	var type_ *JSType = name.getJSType()
 	var createdFromGoogProvide bool = ((type_ != nil) && type_.isLiteralObject())
 	return func() JSDocInfo_Visibility {
@@ -40,7 +40,7 @@ func AccessControlUtils_getEffectiveNameVisibility(name Node, var_ *Var, fileVis
 func AccessControlUtils_getEffectivePropertyVisibility(property Node, referenceType *ObjectType, fileVisibilityMap ImmutableMapOf[StaticSourceFile, JSDocInfo_Visibility]) JSDocInfo_Visibility {
 	var propertyName string = property.getString()
 	var definingSource StaticSourceFile = AccessControlUtils_getDefiningSource(property, referenceType, propertyName)
-	var fileOverviewVisibility JSDocInfo_Visibility = cast_[JSDocInfo_Visibility](fileVisibilityMap.get(any(definingSource)))
+	var fileOverviewVisibility JSDocInfo_Visibility = cast_[JSDocInfo_Visibility](fileVisibilityMap.get(definingSource))
 	var parent Node = property.getParent()
 	var isOverride bool = (((parent.getJSDocInfo() != nil) && parent.isAssign()) && (parent.getFirstChild() == property))
 	var objectType *ObjectType = AccessControlUtils_getObjectType(referenceType, isOverride, propertyName)

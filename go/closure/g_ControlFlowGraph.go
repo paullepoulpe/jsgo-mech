@@ -108,7 +108,7 @@ func ControlFlowGraph_isEnteringNewCfgNode(n Node) bool {
 func (this *ControlFlowGraph) toString() string {
 	var s string = "CFG:\n"
 	for _, e := range this.getGraphvizEdges() {
-		s += sstr_((sstr_(Object_toString(any(e))) + "\n"))
+		s += sstr_((sstr_(Object_toString(e)) + "\n"))
 	}
 	return s
 }

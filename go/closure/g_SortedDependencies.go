@@ -37,13 +37,13 @@ func (this *SortedDependencies) getStrongDependenciesOf(rootInputs ListOf[any], 
 	var worklist DequeOf[any] = icast_Deque(obj_(new_ArrayDeque_Collection(Collection(rootInputs))))
 	for !worklist.isEmpty() {
 		var input DependencyInfo = icast_DependencyInfo(worklist.pop())
-		if includedInputs.add(any(input)) {
+		if includedInputs.add(input) {
 			it_2 := foreach_(obj_(input.getRequiredSymbols()))
 			for it_2.next() {
 				var symbolName string = str_(it_2.v)
 				var importedSymbolName DependencyInfo = icast_DependencyInfo(this.exportingInputBySymbolName[symbolName])
 				if importedSymbolName != nil {
-					worklist.add(any(importedSymbolName))
+					worklist.add(importedSymbolName)
 				}
 			}
 		}
@@ -57,8 +57,8 @@ func (this *SortedDependencies) getStrongDependenciesOf(rootInputs ListOf[any], 
 	}().each()
 	for it_4.next() {
 		var input DependencyInfo = icast_DependencyInfo(obj_(it_4.v))
-		if includedInputs.contains(any(input)) {
-			builder.add(any(input))
+		if includedInputs.contains(input) {
+			builder.add(input)
 		}
 	}
 	return cast_[*ImmutableList](obj_(builder.build()))
@@ -67,7 +67,7 @@ func (this *SortedDependencies) getStrongDependenciesOf(rootInputs ListOf[any], 
 func (this *SortedDependencies) getInputProviding(symbolName string) *Outcome_base {
 	var input DependencyInfo = this.maybeGetInputProviding(symbolName)
 	if input != nil {
-		return Outcome_base_ok_Object(any(input))
+		return Outcome_base_ok_Object(input)
 	}
 	return Outcome_base_err(new_SortedDependencies_MissingProvideException_String(symbolName).up_Throwable())
 }
@@ -86,22 +86,22 @@ func (this *SortedDependencies) getSortedWeakDependenciesOf(rootInputs ListOf[an
 	var worklist DequeOf[any] = icast_Deque(obj_(new_ArrayDeque_Collection(Collection(strongInputs))))
 	for !worklist.isEmpty() {
 		var input DependencyInfo = icast_DependencyInfo(worklist.pop())
-		var isStrong bool = strongInputs.contains(any(input))
+		var isStrong bool = strongInputs.contains(input)
 		var edges IterableOf[string] = func() Iterable {
 			if isStrong {
 				return icast_Iterable(obj_(input.getTypeRequires()))
 			}
 			return Iterables_concat(icast_Iterable(obj_(input.getRequiredSymbols())), icast_Iterable(obj_(input.getTypeRequires())))
 		}()
-		if !isStrong && !weakInputs.add(any(input)) {
+		if !isStrong && !weakInputs.add(input) {
 			continue
 		}
 		it_2 := foreach_(any(edges))
 		for it_2.next() {
 			var symbolName string = str_(it_2.v)
 			var importedSymbolName DependencyInfo = icast_DependencyInfo(this.exportingInputBySymbolName[symbolName])
-			if ((importedSymbolName != nil) && !strongInputs.contains(any(importedSymbolName))) && !weakInputs.contains(any(importedSymbolName)) {
-				worklist.add(any(importedSymbolName))
+			if ((importedSymbolName != nil) && !strongInputs.contains(importedSymbolName)) && !weakInputs.contains(importedSymbolName) {
+				worklist.add(importedSymbolName)
 			}
 		}
 	}
@@ -109,8 +109,8 @@ func (this *SortedDependencies) getSortedWeakDependenciesOf(rootInputs ListOf[an
 	it_4 := this.importOrderedInputs.each()
 	for it_4.next() {
 		var input DependencyInfo = icast_DependencyInfo(obj_(it_4.v))
-		if weakInputs.contains(any(input)) {
-			builder.add(any(input))
+		if weakInputs.contains(input) {
+			builder.add(input)
 		}
 	}
 	return cast_[*ImmutableList](obj_(builder.build()))
@@ -128,11 +128,11 @@ func (this *SortedDependencies) maybeGetInputProviding(symbol string) Dependency
 }
 
 func (this *SortedDependencies) orderInput(input DependencyInfo) {
-	if this.completedInputs.contains(any(input)) {
+	if this.completedInputs.contains(input) {
 		return
 	}
-	this.completedInputs.add(any(input))
-	it_1 := foreach_(any(this.importedInputByImportingInput.get(any(input))))
+	this.completedInputs.add(input)
+	it_1 := foreach_(any(this.importedInputByImportingInput.get(input)))
 	for it_1.next() {
 		var importedInput DependencyInfo = icast_DependencyInfo(it_1.v)
 		this.orderInput(importedInput)
@@ -152,7 +152,7 @@ func (this *SortedDependencies) processInputs() {
 		it_3 := foreach_(obj_(userOrderedInput.getProvides()))
 		for it_3.next() {
 			var providedSymbolName string = str_(it_3.v)
-			this.exportingInputBySymbolName[providedSymbolName] = any(userOrderedInput)
+			this.exportingInputBySymbolName[providedSymbolName] = userOrderedInput
 		}
 	}
 	it_5 := this.userOrderedInputs.each()
@@ -163,7 +163,7 @@ func (this *SortedDependencies) processInputs() {
 			var symbolName string = str_(it_7.v)
 			var importedInput DependencyInfo = icast_DependencyInfo(this.exportingInputBySymbolName[symbolName])
 			if importedInput != nil {
-				this.importedInputByImportingInput.put(any(userOrderedInput), any(importedInput))
+				this.importedInputByImportingInput.put(userOrderedInput, importedInput)
 			}
 		}
 	}

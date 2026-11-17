@@ -376,7 +376,7 @@ func SourceFile_jscomp_fromZipEntryNames(zipName string, entryNames *TList[strin
 		}
 		sourceFiles.add(obj_(SourceFile_jscomp_builder().withCharset(inputCharset).withOriginalPath((sstr_(zipName) + sstr_(SourceFile_jscomp_BANG_SLASH) + sstr_(entryName))).withZipEntryPath(absoluteZipPath, entryName).build()))
 	}
-	return Outcome_base_ok_Object(any(sourceFiles))
+	return Outcome_base_ok_Object(sourceFiles)
 }
 
 func SourceFile_jscomp_fromFile_String_String(fileName string, charset string) *SourceFile_jscomp {

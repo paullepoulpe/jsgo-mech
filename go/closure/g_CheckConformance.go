@@ -56,7 +56,7 @@ func (this *CheckConformance) visit(t *NodeTraversal, n Node, parent Node) {
 		if category.precondition.shouldCheck(n) {
 			for r := int32((int32(len(category.rules)) - 1)); r >= 0; r-- {
 				var rule CheckConformance_Rule = sliceAt_(category.rules, r)
-				var behavior *ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior = cast_[*ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior](Preconditions_checkNotNull(Map_getOrDefault(this.ruleToBehavior.asMap(), any(rule), obj_(ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior_UNSPECIFIED))))
+				var behavior *ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior = cast_[*ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior](Preconditions_checkNotNull(Map_getOrDefault(this.ruleToBehavior.asMap(), rule, obj_(ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior_UNSPECIFIED))))
 				rule.check(t, n, behavior)
 			}
 		}
@@ -76,7 +76,7 @@ func (this *CheckConformance) initRules(compiler *AbstractCompiler, configs Immu
 		var behavior *ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior = ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior_UNSPECIFIED
 		var rule CheckConformance_Rule = CheckConformance_initRule(compiler, requirement)
 		if rule != nil {
-			builder.put(any(rule.getPrecondition()), any(rule))
+			builder.put(rule.getPrecondition(), rule)
 			if isLibraryLevelReportingMode && this.mergedBehaviors.containsKey(requirement) {
 				behavior = this.mergedBehaviors.get(requirement)
 				Preconditions_checkNotNull_Object_Object(obj_(behavior), strobj_("The mergeBehaviors method inserted a null behavior in the mergedBehaviors map"))

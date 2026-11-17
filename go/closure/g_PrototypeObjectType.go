@@ -570,7 +570,7 @@ func (this *PrototypeObjectType_PropertyForPrettyPrinting) hashCode() int32 {
 }
 
 func (this *PrototypeObjectType_PropertyForPrettyPrinting) toString() string {
-	return "PropertyForPrettyPrinting[" + "key=" + objstr_(any(this.key_)) + ", type=" + objstr_(this.type__.self()) + "]"
+	return "PropertyForPrettyPrinting[" + "key=" + objstr_(this.key_) + ", type=" + objstr_(this.type__.self()) + "]"
 }
 
 // getTypeClass: an object that is exactly a PrototypeObjectType calls its getTypeClass_impl directly (post-flip); others dispatch.

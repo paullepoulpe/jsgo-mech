@@ -185,7 +185,7 @@ func (this *DotFormatter) key(n Node) int32 {
 			this.builder.append_CharSequence(strobj_(type_.toString()))
 		}
 		if (this.printAnnotations && (this.cfg != nil)) && this.cfg.hasNode(n.box_()) {
-			var annotation any = any(Annotatable_getAnnotation(Annotatable(this.cfg.getNode(n.box_()))))
+			var annotation any = Annotatable_getAnnotation(Annotatable(this.cfg.getNode(n.box_())))
 			if annotation != nil {
 				this.builder.append_CharSequence(strobj_("\\n"))
 				this.builder.append_CharSequence(strobj_(Object_toString(annotation)))

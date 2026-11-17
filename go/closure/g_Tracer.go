@@ -104,8 +104,8 @@ func Tracer_appendSpaces(sb *StringBuilder, numSpaces int32) {
 
 func Tracer_addTracingStatistic(tracingStatistic Tracer_TracingStatistic) int32 {
 	if tracingStatistic.enable() {
-		Tracer_extraTracingStatistics.add(any(tracingStatistic))
-		return Tracer_extraTracingStatistics.lastIndexOf(any(tracingStatistic))
+		Tracer_extraTracingStatistics.add(tracingStatistic)
+		return Tracer_extraTracingStatistics.lastIndexOf(tracingStatistic)
 	} else {
 		return -1
 	}

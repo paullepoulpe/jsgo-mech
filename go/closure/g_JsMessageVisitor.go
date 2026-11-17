@@ -427,7 +427,7 @@ func (this *JsMessageVisitor) extractJsMessageDefinition(msgNode Node, jsDocInfo
 	}
 	var jsExtractedMessage *JsMessage = this.buildJsMessage(icast_JsMessageVisitor_InputForBuildJsMsg(obj_(new_JsMessageVisitor_1(this, messageKeyFromLhs, sourceName, googGetMsgParsedText, jsMessageOptions, optErase_(description), optErase_(meaning), optErase_(alternateMessageId)))))
 	var result JsMessageDefinition = icast_JsMessageDefinition(obj_(new_JsMessageVisitor_2(this, jsExtractedMessage, msgNode, msgTextNode, valuesObjLit, placeholderValuesMap, jsMessageOptions)))
-	return Outcome_base_ok_Object(any(result))
+	return Outcome_base_ok_Object(result)
 }
 
 // lambda_JsMessageVisitor_extractJsMessageDefinition_1_ is a lambda of JsMessageVisitor_extractJsMessageDefinition that captures nothing (post-flip step lambdas).
@@ -478,7 +478,7 @@ func (this *JsMessageVisitor) extractIcuTemplateDefinition(msgNode Node, jsDocIn
 	}
 	var extractedMessage *JsMessage = this.buildJsMessage(icast_JsMessageVisitor_InputForBuildJsMsg(obj_(new_JsMessageVisitor_3(this, messageKeyFromLhs, sourceName, icuMessageTemplateString, extractedIcuTemplateParts, icuTemplateOptions))))
 	var result IcuTemplateDefinition = icast_IcuTemplateDefinition(obj_(new_JsMessageVisitor_4(this, extractedMessage, msgNode, stringLiteralExpression)))
-	return Outcome_base_ok_Object(any(result))
+	return Outcome_base_ok_Object(result)
 }
 
 func (this *JsMessageVisitor) extractIcuMessageTemplateString(stringExpression Node) *Outcome_base {
@@ -533,7 +533,7 @@ func (this *JsMessageVisitor) extractJsMessageOptions(optionsBag Node) *Outcome_
 	}
 	var placeholderOriginalCodeMap ImmutableMapOf[string, string] = cast_[*ImmutableMap](placeholderOriginalCodeMapOutcome.get())
 	var result JsMessageVisitor_JsMessageOptions = icast_JsMessageVisitor_JsMessageOptions(obj_(new_JsMessageVisitor_5(this, isEscapeLessThan, isUnescapeHtmlEntities, placeholderExamplesMap, placeholderOriginalCodeMap, exampleObjectLiteralMap, originalCodeObjectLiteralMap)))
-	return Outcome_base_ok_Object(any(result))
+	return Outcome_base_ok_Object(result)
 }
 
 // lambda_JsMessageVisitor_extractJsMessageOptions_1_ is a lambda of JsMessageVisitor_extractJsMessageOptions that captures nothing (post-flip step lambdas).
@@ -615,7 +615,7 @@ func (this *JsMessageVisitor) extractIcuTemplateOptions(optionsBag Node) *Outcom
 		}
 	}
 	var result JsMessageVisitor_IcuTemplateOptions = icast_JsMessageVisitor_IcuTemplateOptions(obj_(new_JsMessageVisitor_6(this, description, optErase_(meaning), optErase_(alternateMessageId), placeholderExamplesMap, placeholderOriginalCodeMap, placeholderNames, exampleObjectLiteralMap, originalCodeObjectLiteralMap)))
-	return Outcome_base_ok_Object(any(result))
+	return Outcome_base_ok_Object(result)
 }
 
 // lambda_JsMessageVisitor_extractIcuTemplateOptions_1_ is a lambda of JsMessageVisitor_extractIcuTemplateOptions that captures nothing (post-flip step lambdas).
@@ -708,7 +708,7 @@ func JsMessageVisitor_extractGoogGetMsgParsedText(originalMsgText string) *Outco
 	var placeholderNames ImmutableSetOf[string] = cast_[*ImmutableSet](obj_(placeholderNamesBuilder.build()))
 	var parts ImmutableListOf[JsMessage_Part] = cast_[*ImmutableList](obj_(partsBuilder.build()))
 	var parsedText JsMessageVisitor_GoogGetMsgParsedText = icast_JsMessageVisitor_GoogGetMsgParsedText(obj_(new_JsMessageVisitor_7(originalMsgText, placeholderNames, parts)))
-	return Outcome_base_ok_Object(any(parsedText))
+	return Outcome_base_ok_Object(parsedText)
 }
 
 func (this *JsMessageVisitor) visitFallbackFunctionCall(t *NodeTraversal, call Node) {
