@@ -28,8 +28,8 @@ func SimpleBiMap_create() *SimpleBiMap {
 
 func SimpleBiMap_copyOf(map_ *TMap[string, string]) *SimpleBiMap {
 	var copy_ *SimpleBiMap = new_SimpleBiMap()
-	for e := range elemsBy_(map_.asMap().entrySet(), icast_Map_Entry) {
-		copy_.put(e.getKey(), e.getValue())
+	for eKey, eValue := range map_.All() {
+		copy_.put(strobj_(eKey), strobj_(eValue))
 	}
 	return copy_
 }

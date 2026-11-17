@@ -359,9 +359,9 @@ func (this *InlineFunctions) decomposeExpressions() {
 }
 
 func (this *InlineFunctions) removeInlinedFunctions() {
-	for entry := range elemsBy_(this.fns.asMap().entrySet(), icast_Map_Entry) {
-		var name string = str_(entry.getKey())
-		var functionState *InlineFunctions_FunctionState = cast_[*InlineFunctions_FunctionState](entry.getValue())
+	for entryKey, entryValue := range this.fns.All() {
+		var name string = entryKey
+		var functionState *InlineFunctions_FunctionState = entryValue
 		if functionState.canRemove() {
 			var fn InlineFunctions_Function = functionState.getFn()
 			if !functionState.canInline() {

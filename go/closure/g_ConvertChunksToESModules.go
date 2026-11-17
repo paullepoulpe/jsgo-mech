@@ -80,21 +80,21 @@ func (this *ConvertChunksToESModules) convertChunkSourcesToModules() {
 }
 
 func (this *ConvertChunksToESModules) addExportStatements() {
-	for jsModuleExports := range elemsBy_(this.crossChunkExports.asMap().entrySet(), icast_Map_Entry) {
-		var firstInput *CompilerInput = cast_[*JSChunk](jsModuleExports.getKey()).getFirst()
+	for jsModuleExportsKey, jsModuleExportsValue := range this.crossChunkExports.All() {
+		var firstInput *CompilerInput = jsModuleExportsKey.getFirst()
 		var moduleBody Node = firstInput.getAstRoot(this.compiler_).getFirstChild()
 		if moduleBody == 0 || !moduleBody.isModuleBody() {
 			panic(new_IllegalStateException_0().self())
 		}
 		var exportSpecs Node = new_Node_Token(Token_rhino_EXPORT_SPECS)
-		for name := range elemsBy_(icast_Set(jsModuleExports.getValue()), str_) {
+		for name := range elemsBy_(jsModuleExportsValue, str_) {
 			var exportSpec Node = new_Node_Token(Token_rhino_EXPORT_SPEC)
 			exportSpec.addChildToFront(IR_name(name))
 			exportSpec.addChildToFront(IR_name(name))
 			exportSpec.putIntProp(Node_IS_SHORTHAND_PROPERTY, 1)
 			exportSpecs.addChildToBack(exportSpec)
 		}
-		var importsByChunk MapOf[*JSChunk, SetOf[string]] = this.crossChunkImports.get(cast_[*JSChunk](jsModuleExports.getKey()))
+		var importsByChunk MapOf[*JSChunk, SetOf[string]] = this.crossChunkImports.get(jsModuleExportsKey)
 		if (exportSpecs.hasChildren() || (importsByChunk == nil)) || importsByChunk.isEmpty() {
 			var export Node = IR_export(exportSpecs).srcrefTree(moduleBody)
 			moduleBody.addChildToBack(export)
@@ -108,15 +108,15 @@ func ConvertChunksToESModules_getChunkName(chunk *JSChunk) string {
 }
 
 func (this *ConvertChunksToESModules) addImportStatements() {
-	for chunkImportsEntry := range elemsBy_(this.crossChunkImports.asMap().entrySet(), icast_Map_Entry) {
+	for chunkImportsEntryKey, chunkImportsEntryValue := range this.crossChunkImports.All() {
 		var importStatements []Node = []Node{}
-		var importingChunk *JSChunk = cast_[*JSChunk](chunkImportsEntry.getKey())
+		var importingChunk *JSChunk = chunkImportsEntryKey
 		var firstInput *CompilerInput = importingChunk.getFirst()
 		var moduleBody Node = firstInput.getAstRoot(this.compiler_).getFirstChild()
 		if moduleBody == 0 || !moduleBody.isModuleBody() {
 			panic(new_IllegalStateException_0().self())
 		}
-		for importsByChunk := range elemsBy_(icast_Map(chunkImportsEntry.getValue()).entrySet(), icast_Map_Entry) {
+		for importsByChunk := range elemsBy_(chunkImportsEntryValue.entrySet(), icast_Map_Entry) {
 			var importSpecs Node = new_Node_Token(Token_rhino_IMPORT_SPECS)
 			for name := range elemsBy_(icast_Set(importsByChunk.getValue()), str_) {
 				var importSpec Node = new_Node_Token(Token_rhino_IMPORT_SPEC)

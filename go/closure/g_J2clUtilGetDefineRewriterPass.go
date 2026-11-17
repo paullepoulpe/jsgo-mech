@@ -152,17 +152,17 @@ func (this *J2clUtilGetDefineRewriterPass_CheckGetDefineCalls) visit_impl(t *Nod
 }
 
 func (this *J2clUtilGetDefineRewriterPass_CheckGetDefineCalls) validateRegisteredDefines() {
-	for entry := range elemsBy_(this.defineNameToAddSystemPropertyCall.asMap().entrySet(), icast_Map_Entry) {
-		if !Collection_contains_s(this.outer_.defines, str_(entry.getKey())) {
-			this.outer_.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(Node_of_(entry.getValue()), J2clUtilGetDefineRewriterPass_J2CL_ADD_SYSTEM_PROPERTY_UNKNOWN_DEFINE, []string{str_(entry.getKey())}))
+	for entryKey, entryValue := range this.defineNameToAddSystemPropertyCall.All() {
+		if !Collection_contains_s(this.outer_.defines, entryKey) {
+			this.outer_.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(entryValue, J2clUtilGetDefineRewriterPass_J2CL_ADD_SYSTEM_PROPERTY_UNKNOWN_DEFINE, []string{entryKey}))
 		}
 	}
-	for entry := range elemsBy_(this.defineNameToGetDefineCall.asMap().entrySet(), icast_Map_Entry) {
-		if !Collection_contains_s(this.outer_.defines, str_(entry.getKey())) {
+	for entryKey2, entryValue2 := range this.defineNameToGetDefineCall.All() {
+		if !Collection_contains_s(this.outer_.defines, entryKey2) {
 			continue
 		}
-		if !this.defineNameToAddSystemPropertyCall.containsKey(str_(entry.getKey())) {
-			this.outer_.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(Node_of_(entry.getValue()), J2clUtilGetDefineRewriterPass_J2CL_SYSTEM_GET_PROPERTY_UNKNOWN_PROPERTY, []string{str_(entry.getKey())}))
+		if !this.defineNameToAddSystemPropertyCall.containsKey(entryKey2) {
+			this.outer_.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(entryValue2, J2clUtilGetDefineRewriterPass_J2CL_SYSTEM_GET_PROPERTY_UNKNOWN_PROPERTY, []string{entryKey2}))
 		}
 	}
 }

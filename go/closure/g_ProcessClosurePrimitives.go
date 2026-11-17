@@ -384,14 +384,14 @@ func ProcessClosurePrimitives_processSetCssNameMapping(compiler *AbstractCompile
 		}
 	} else if style == CssRenamingMap_Style_BY_WHOLE {
 		var errors []string = []string{}
-		for b := range elemsBy_(cssNames.asMap().entrySet(), icast_Map_Entry) {
-			if String_length(str_(b.getKey())) > 10 {
+		for bKey, bValue := range cssNames.All() {
+			if String_length(bKey) > 10 {
 				continue
 			}
-			for a := range elemsBy_(cssNames.asMap().entrySet(), icast_Map_Entry) {
-				var combined OptionalOf[string] = Optional_ofNullable[string](cssNames.get((sstr_(str_(a.getKey())) + "-" + sstr_(str_(b.getKey())))))
-				if combined.isPresent() && !(combined.get() == (sstr_(str_(a.getValue())) + "-" + sstr_(str_(b.getValue())))) {
-					errors = append(errors, ("map(" + sstr_(str_(a.getKey())) + "-" + sstr_(str_(b.getKey())) + ") != map(" + sstr_(str_(a.getKey())) + ")-map(" + sstr_(str_(b.getKey())) + ")"))
+			for aKey, aValue := range cssNames.All() {
+				var combined OptionalOf[string] = Optional_ofNullable[string](cssNames.get((sstr_(aKey) + "-" + sstr_(bKey))))
+				if combined.isPresent() && !(combined.get() == (sstr_(aValue) + "-" + sstr_(bValue))) {
+					errors = append(errors, ("map(" + sstr_(aKey) + "-" + sstr_(bKey) + ") != map(" + sstr_(aKey) + ")-map(" + sstr_(bKey) + ")"))
 				}
 			}
 		}

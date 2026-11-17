@@ -1429,9 +1429,9 @@ func (this *TypeInference) matchFunction(expectedType *FunctionType, currentType
 
 func (this *TypeInference) buildTypeVariables(inferredTypes *TMap[*TemplateType, *JSType]) *TMap[string, *JSType] {
 	var typeVars *TMap[string, *JSType] = newTMap_(tc_string, tc_p_JSType)
-	for e := range elemsBy_(inferredTypes.asMap().entrySet(), icast_Map_Entry) {
-		if !cast_[*TemplateType](e.getKey()).isTypeTransformation() {
-			typeVars.put(cast_[*TemplateType](e.getKey()).getReferenceName().orElseThrow(), to_JSType(e.getValue()))
+	for eKey, eValue := range inferredTypes.All() {
+		if !eKey.isTypeTransformation() {
+			typeVars.put(eKey.getReferenceName().orElseThrow(), eValue)
 		}
 	}
 	return typeVars

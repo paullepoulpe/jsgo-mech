@@ -33,9 +33,9 @@ func (this *UseSiteRenamer) renameUses(prop *PropertyClustering) UseSiteRenamer_
 		return UseSiteRenamer_RenameUsesResult_ONLY_ONE_CLUSTER
 	}
 	this.renamingIndex.putAll_2(strobj_(prop.getName()), Iterable(clusterNames.values()))
-	for usage := range elemsBy_(prop.getUseSites().asMap().entrySet(), icast_Map_Entry) {
-		var site Node = Node_of_(usage.getKey())
-		var flatRep *ColorGraphNode = cast_[*ColorGraphNode](prop.getClusters().find(usage.getValue()))
+	for usageKey, usageValue := range prop.getUseSites().All() {
+		var site Node = usageKey
+		var flatRep *ColorGraphNode = cast_[*ColorGraphNode](prop.getClusters().find(obj_(usageValue)))
 		var newName string = str_(clusterNames.get(obj_(flatRep)))
 		if !(site.getString() == newName) {
 			site.setString(newName)

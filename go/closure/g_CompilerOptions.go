@@ -797,9 +797,9 @@ func (this *CompilerOptions) setRemoveUnusedClassProperties(removeUnusedClassPro
 
 func (this *CompilerOptions) getDefineReplacements() ImmutableMapOf[string, Node] {
 	var map_ ImmutableMap_BuilderOf[string, Node] = ImmutableMap_builder()
-	for entry := range elemsBy_(this.defineReplacements.asMap().entrySet(), icast_Map_Entry) {
-		var name string = str_(entry.getKey())
-		var value any = entry.getValue()
+	for entryKey, entryValue := range this.defineReplacements.All() {
+		var name string = entryKey
+		var value any = entryValue
 		var b any
 		_ = b
 		if func() bool {

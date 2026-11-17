@@ -34,12 +34,12 @@ func (this *ExtractPrototypeMemberDeclarations) maybeDoExtraction(info *ExtractP
 		injectionPoint.addChildToFront(var_)
 		this.compiler_.reportChangeToEnclosingScope(var_)
 	}
-	for entry := range elemsBy_(info.instancesByChunk.asMap().entrySet(), icast_Map_Entry) {
+	for entryKey, entryValue := range info.instancesByChunk.All() {
 		var alias string = ExtractPrototypeMemberDeclarations_PROTOTYPE_ALIAS
 		if this.pattern == ExtractPrototypeMemberDeclarations_Pattern_USE_CHUNK_TEMP {
-			if info.shouldExtractChunk(cast_[*JSChunk](entry.getKey())) {
-				var injectionPoint Node = this.compiler_.getNodeForCodeInsertion(cast_[*JSChunk](entry.getKey()))
-				alias = (sstr_(ExtractPrototypeMemberDeclarations_PROTOTYPE_ALIAS) + istr_(int64(cast_[*JSChunk](entry.getKey()).getIndex())))
+			if info.shouldExtractChunk(entryKey) {
+				var injectionPoint Node = this.compiler_.getNodeForCodeInsertion(entryKey)
+				alias = (sstr_(ExtractPrototypeMemberDeclarations_PROTOTYPE_ALIAS) + istr_(int64(entryKey.getIndex())))
 				var var_ Node = NodeUtil_newVarNode(alias, 0).srcrefTreeIfMissing(injectionPoint)
 				injectionPoint.addChildToFront(var_)
 				this.compiler_.reportChangeToEnclosingScope(var_)
@@ -47,7 +47,7 @@ func (this *ExtractPrototypeMemberDeclarations) maybeDoExtraction(info *ExtractP
 				continue
 			}
 		}
-		for instance := range sliceAll_(&cast_[*ExtractPrototypeMemberDeclarations_ExtractionInstanceInfo](entry.getValue()).instances) {
+		for instance := range sliceAll_(&entryValue.instances) {
 			this.extractInstance(instance, alias)
 		}
 	}

@@ -91,9 +91,9 @@ func (this *J2clClinitPrunerPass) collectClinitReferences(root Node) *SimpleSetM
 
 func (this *J2clClinitPrunerPass) cleanEmptyClinitReferences(clinitReferences *SimpleSetMultimap) *TList[Node] {
 	var newChangedScopes *TList[Node] = newTList_(tc_Node)
-	for clinitReplacementEntry := range elemsBy_(this.emptiedClinitMethods.asMap().entrySet(), icast_Map_Entry) {
-		var clinitName string = str_(clinitReplacementEntry.getKey())
-		var replacement Node = Node_of_(clinitReplacementEntry.getValue())
+	for clinitReplacementEntryKey, clinitReplacementEntryValue := range this.emptiedClinitMethods.All() {
+		var clinitName string = clinitReplacementEntryKey
+		var replacement Node = clinitReplacementEntryValue
 		var references CollectionOf[Node] = Collection(clinitReferences.removeAll_s(clinitName))
 		for reference := range elemsBy_(references, Node_of_) {
 			var changedScope Node = ChangeTracker_getEnclosingChangeScopeRoot(reference.getParent())

@@ -80,12 +80,12 @@ var lambda_NodeModuleResolver_buildNodeModulesFoldersRegistry_1_ = &Comparator_f
 
 func (this *NodeModuleResolver) buildPackageJsonMainEntries(packageJsonMainEntries *TMap[string, string]) ImmutableMapOf[string, string] {
 	var builder ImmutableMap_BuilderOf[string, string] = ImmutableMap_builder()
-	for packageJsonMainEntry := range elemsBy_(packageJsonMainEntries.asMap().entrySet(), icast_Map_Entry) {
-		var entryKey string = str_(packageJsonMainEntry.getKey())
+	for packageJsonMainEntryKey, packageJsonMainEntryValue := range packageJsonMainEntries.All() {
+		var entryKey string = packageJsonMainEntryKey
 		if ModuleLoader_isAmbiguousIdentifier(entryKey) {
 			entryKey = (sstr_(ModuleLoader_MODULE_SLASH) + sstr_(entryKey))
 		}
-		builder.put(strobj_(entryKey), packageJsonMainEntry.getValue())
+		builder.put(strobj_(entryKey), strobj_(packageJsonMainEntryValue))
 	}
 	return builder.buildOrThrow()
 }

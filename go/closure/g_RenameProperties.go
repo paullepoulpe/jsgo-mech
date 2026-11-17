@@ -94,9 +94,9 @@ func (this *RenameProperties) process_2(externs Node, root Node) {
 			}
 		}
 	}
-	for nodeEntry := range elemsBy_(this.callNodeToParentMap.asMap().entrySet(), icast_Map_Entry) {
-		var parent Node = Node_of_(nodeEntry.getValue())
-		var firstArg Node = Node_of_(nodeEntry.getKey()).getSecondChild()
+	for nodeEntryKey, nodeEntryValue := range this.callNodeToParentMap.All() {
+		var parent Node = nodeEntryValue
+		var firstArg Node = nodeEntryKey.getSecondChild()
 		var sb strBuilder_
 		for oldName := range elemsBy_(RenameProperties_DOT_SPLITTER.split_s(firstArg.getString()), str_) {
 			var p *RenameProperties_Property = this.propertyMap.get(oldName)
@@ -118,7 +118,7 @@ func (this *RenameProperties) process_2(externs Node, root Node) {
 			}
 			sb.append(replacement)
 		}
-		Node_of_(nodeEntry.getKey()).replaceWith(IR_string(sb.toString()))
+		nodeEntryKey.replaceWith(IR_string(sb.toString()))
 		this.compiler_.reportChangeToEnclosingScope(parent)
 	}
 	for n := range sliceAll_(&this.toRemove) {

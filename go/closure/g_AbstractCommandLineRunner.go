@@ -225,9 +225,9 @@ func (this *AbstractCommandLineRunner) setRunOptions(options *CompilerOptions) *
 	options.setParseInlineSourceMaps(this.config.parseInlineSourceMaps_)
 	options.setApplyInputSourceMaps(this.config.applyInputSourceMaps)
 	var inputSourceMaps ImmutableMap_BuilderOf[string, *SourceMapInput] = new_ImmutableMap_Builder()
-	for files := range elemsBy_(this.config.sourceMapInputFiles.asMap().entrySet(), icast_Map_Entry) {
-		var sourceMap *SourceFile_jscomp = SourceFile_jscomp_builder().withKind(StaticSourceFile_SourceKind_NON_CODE).withPath(str_(files.getValue())).build()
-		inputSourceMaps.put(files.getKey(), obj_(new_SourceMapInput(sourceMap)))
+	for filesKey, filesValue := range this.config.sourceMapInputFiles.All() {
+		var sourceMap *SourceFile_jscomp = SourceFile_jscomp_builder().withKind(StaticSourceFile_SourceKind_NON_CODE).withPath(filesValue).build()
+		inputSourceMaps.put(strobj_(filesKey), obj_(new_SourceMapInput(sourceMap)))
 	}
 	options.setInputSourceMaps(inputSourceMaps.buildOrThrow())
 	if this.config.variableMapInputFile != "" {

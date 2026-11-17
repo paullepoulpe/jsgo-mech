@@ -115,9 +115,9 @@ func ReportDecoder_createProfileOfStaticallyUsedCode(mapping *TMap[string, *Inst
 		encodedPoints[matcher.group(1)] = struct{}{}
 	}
 	var instrumentationPoints []*InstrumentationPointStats = []*InstrumentationPointStats{}
-	for entry := range elemsBy_(mapping.asMap().entrySet(), icast_Map_Entry) {
-		instrumentationPoints = append(instrumentationPoints, cast_[*InstrumentationPointStats](InstrumentationPointStats_newBuilder().setPoint(cast_[*InstrumentationPoint](entry.getValue())).setTimesExecuted(0).setPointPresence(func() InstrumentationPointStats_Presence {
-			if has_(encodedPoints, str_(entry.getKey())) {
+	for entryKey, entryValue := range mapping.All() {
+		instrumentationPoints = append(instrumentationPoints, cast_[*InstrumentationPointStats](InstrumentationPointStats_newBuilder().setPoint(entryValue).setTimesExecuted(0).setPointPresence(func() InstrumentationPointStats_Presence {
+			if has_(encodedPoints, entryKey) {
 				return InstrumentationPointStats_Presence_PRESENT
 			}
 			return InstrumentationPointStats_Presence_STATICALLY_REMOVED
@@ -158,8 +158,8 @@ func ReportDecoder_mergeProfiles(profiles []*ReportProfile) *ReportProfile {
 		}
 	}
 	var finalPoints []*InstrumentationPointStats = []*InstrumentationPointStats{}
-	for entry := range elemsBy_(frequencies.asMap().entrySet(), icast_Map_Entry) {
-		finalPoints = append(finalPoints, cast_[*InstrumentationPointStats](InstrumentationPointStats_newBuilder().setPoint(cast_[*InstrumentationPoint](entry.getKey())).setTimesExecuted(unbox_[int64](entry.getValue())).setPointPresence(presences.get(cast_[*InstrumentationPoint](entry.getKey()))).build()))
+	for entryKey, entryValue := range frequencies.All() {
+		finalPoints = append(finalPoints, cast_[*InstrumentationPointStats](InstrumentationPointStats_newBuilder().setPoint(entryKey).setTimesExecuted(unbox_[int64](entryValue)).setPointPresence(presences.get(entryKey)).build()))
 	}
 	return ReportDecoder_createReportProfile(finalPoints)
 }
@@ -172,8 +172,8 @@ func ReportDecoder_createReportProfile(instrumentationPoints []*InstrumentationP
 		pointsByFileName.computeIfAbsent_f(pointStats.getPoint().getFileName(), lambda_ReportDecoder_createReportProfile_3_).add(obj_(pointStats))
 	}
 	var fileProfiles *TList[*FileProfile] = newTList_(tc_p_FileProfile)
-	for entry := range elemsBy_(pointsByFileName.asMap().entrySet(), icast_Map_Entry) {
-		fileProfiles.add(cast_[*FileProfile](FileProfile_newBuilder().setFileName(str_(entry.getKey())).addAllInstrumentationPointsStats(icast_Iterable(entry.getValue())).build()))
+	for entryKey, entryValue := range pointsByFileName.All() {
+		fileProfiles.add(cast_[*FileProfile](FileProfile_newBuilder().setFileName(entryKey).addAllInstrumentationPointsStats(icast_Iterable(any(entryValue))).build()))
 	}
 	List_sort(fileProfiles.asList(), Comparator_comparing(lambda_ReportDecoder_createReportProfile_4_))
 	return cast_[*ReportProfile](ReportProfile_newBuilder().addAllFileProfile(Iterable(fileProfiles.asList())).build())

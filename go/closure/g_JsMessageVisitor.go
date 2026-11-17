@@ -971,8 +971,8 @@ func (this *JsMessageVisitor_ObjectLiteralMapImpl) getBooleanValueOrFalse(key st
 func (this *JsMessageVisitor_ObjectLiteralMapImpl) extractAsValueMap() ImmutableMapOf[string, Node] {
 	if this.valueMap == nil {
 		var builder ImmutableMap_BuilderOf[string, Node] = ImmutableMap_builder()
-		for entry := range elemsBy_(this.stringToStringKeyMap.asMap().entrySet(), icast_Map_Entry) {
-			builder.put(entry.getKey(), Node_of_(entry.getValue()).getOnlyChild().box_())
+		for entryKey, entryValue := range this.stringToStringKeyMap.All() {
+			builder.put(strobj_(entryKey), entryValue.getOnlyChild().box_())
 		}
 		this.valueMap = builder.buildOrThrow()
 	}

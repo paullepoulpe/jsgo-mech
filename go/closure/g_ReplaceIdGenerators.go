@@ -25,9 +25,9 @@ func (this *ReplaceIdGenerators) init_ReplaceIdGenerators(compiler *AbstractComp
 	this.previousMap = previousMap
 	if idGens != nil {
 	L_2:
-		for gen := range elemsBy_(idGens.asMap().entrySet(), icast_Map_Entry) {
-			var name string = str_(gen.getKey())
-			var map_ RenamingMap = icast_RenamingMap(gen.getValue())
+		for genKey, genValue := range idGens.All() {
+			var name string = genKey
+			var map_ RenamingMap = genValue
 			var renamingToken RenamingToken
 			_ = renamingToken
 			if func() bool {

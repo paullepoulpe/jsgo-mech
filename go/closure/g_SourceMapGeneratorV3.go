@@ -145,12 +145,12 @@ func (this *SourceMapGeneratorV3) mergeMapSection_4(line int32, column int32, ma
 		return Outcome_base_err(parsed.error())
 	}
 	section.visitMappings(new_SourceMapGeneratorV3_ConsumerEntryVisitor(this).visit)
-	for entry := range elemsBy_(section.getExtensions().asMap().entrySet(), icast_Map_Entry) {
-		var extensionKey string = str_(entry.getKey())
+	for entryKey, entryValue := range section.getExtensions().All() {
+		var extensionKey string = entryKey
 		if this.extensions.containsKey(extensionKey) {
-			this.extensions.put(extensionKey, mergeAction(extensionKey, this.extensions.get(extensionKey), entry.getValue()))
+			this.extensions.put(extensionKey, mergeAction(extensionKey, this.extensions.get(extensionKey), entryValue))
 		} else {
-			this.extensions.put(extensionKey, entry.getValue())
+			this.extensions.put(extensionKey, entryValue)
 		}
 	}
 	return Outcome_base_ok_0()
@@ -238,12 +238,12 @@ func (this *SourceMapGeneratorV3) addSourcesContentMap(out Appendable) {
 	var size int32 = this.sourceFileMap.size()
 	var contents []string = make([]string, 0, size)
 	sliceAddAll_(tc_string, &contents, Collection(Collections_nCopies(size, strobj_(""))))
-	for entry := range elemsBy_(this.sourceFileMap.asMap().entrySet(), icast_Map_Entry) {
-		var index any = entry.getValue()
+	for entryKey, entryValue := range this.sourceFileMap.All() {
+		var index any = entryValue
 		if unbox_[int32](index) >= size {
 			panic(new_IllegalStateException_0().self())
 		}
-		var content OptionalOf[string] = Optional_ofNullable[string](mapStr_(this.sourceFileContentMap, str_(entry.getKey())))
+		var content OptionalOf[string] = Optional_ofNullable[string](mapStr_(this.sourceFileContentMap, entryKey))
 		if content.isPresent() {
 			contents[unbox_[int32](index)] = content.get()
 			found = true
@@ -271,8 +271,8 @@ func (this *SourceMapGeneratorV3) addSymbolNameMap(out Appendable) {
 
 func SourceMapGeneratorV3_addNameMap(out Appendable, map_ *TMap[string, any]) {
 	var i int32 = 0
-	for entry := range elemsBy_(map_.asMap().entrySet(), icast_Map_Entry) {
-		var key string = str_(entry.getKey())
+	for entryKey := range map_.Keys() {
+		var key string = entryKey
 		if i != 0 {
 			out.append_CharSequence_s(",")
 		}
