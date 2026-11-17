@@ -260,6 +260,52 @@ func stringUnits_(s string) iter.Seq2[int32, uint16] {
 	}
 }
 
+// stringUnitsFrom_ is stringUnits_(s) from unit from (>= 0) on: Java's
+// for (int i = from; i < s.length(); i++) { ... s.charAt(i) ... } (post-flip step strunits).
+func stringUnitsFrom_(s string, from int32) iter.Seq2[int32, uint16] {
+	return func(yield func(int32, uint16) bool) {
+		if from < 0 {
+			String_charAt(s, from) // throws; the step only starts loops at an index >= 0
+		}
+		if from >= String_length(s) {
+			return
+		}
+		off, low := locate_(s, from)
+		i := from
+		if low {
+			// unit from is the second half of a surrogate pair
+			cp, size := decode_(s, off)
+			if !yield(i, uint16(0xDC00+(cp-0x10000)&0x3FF)) {
+				return
+			}
+			i++
+			off += size
+		}
+		for ; off < len(s); i++ {
+			if b := s[off]; b < 0x80 {
+				if !yield(i, uint16(b)) {
+					return
+				}
+				off++
+				continue
+			}
+			cp, size := decode_(s, off)
+			off += size
+			if cp >= 0x10000 {
+				cp -= 0x10000
+				if !yield(i, uint16(0xD800+cp>>10)) {
+					return
+				}
+				i++
+				cp = 0xDC00 + cp&0x3FF
+			}
+			if !yield(i, uint16(cp)) {
+				return
+			}
+		}
+	}
+}
+
 // asciiCharAt_ is String_charAt of a string that is all ASCII (post-flip steps strunits and
 // strnative): unit i is byte i. An index outside the string throws what String_charAt throws.
 func asciiCharAt_(s string, i int32) uint16 {
