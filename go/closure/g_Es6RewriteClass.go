@@ -269,7 +269,7 @@ func (this *Es6RewriteClass) visitNonMethodMember(member Node, metadata *Es6Rewr
 	if member.isComputedProp() {
 		panic(new_IllegalStateException_String(objstr_(member.box_())).self())
 	}
-	var membersToDeclare MapOf[string, *Es6RewriteClass_ClassProperty] = metadata.classMembersToDeclare()
+	var membersToDeclare *TMap[string, *Es6RewriteClass_ClassProperty] = metadata.classMembersToDeclare()
 	var builder *Es6RewriteClass_ClassProperty_Builder = Es6RewriteClass_ClassProperty_builder()
 	var memberName string = member.getString()
 	if member.isQuotedStringKey() {
@@ -281,7 +281,7 @@ func (this *Es6RewriteClass) visitNonMethodMember(member Node, metadata *Es6Rewr
 	var jsDoc *JSDocInfo_Builder = JSDocInfo_builder()
 	jsDoc.recordNoCollapse()
 	builder.jsDocInfo(jsDoc.build())
-	Map_put_s(membersToDeclare, memberName, obj_(builder.build()))
+	membersToDeclare.put(memberName, builder.build())
 }
 
 func (this *Es6RewriteClass) visitMethod(member Node, metadata *Es6RewriteClass_ClassDeclarationMetadata) {
@@ -303,7 +303,7 @@ func (this *Es6RewriteClass) visitMethod(member Node, metadata *Es6RewriteClass_
 }
 
 func (this *Es6RewriteClass) addTypeDeclarations(metadata *Es6RewriteClass_ClassDeclarationMetadata, insertionPoint Node) {
-	for property := range elemsAs_[*Es6RewriteClass_ClassProperty](metadata.classMembersToDeclare().values()) {
+	for property := range elemsAs_[*Es6RewriteClass_ClassProperty](metadata.classMembersToDeclare().asMap().values()) {
 		var declaration Node = property.getDeclaration(this.astFactory_, metadata.fullClassNameNode().cloneTree())
 		declaration.srcrefTreeIfMissing(metadata.classNameNode())
 		declaration.insertAfter(insertionPoint)
@@ -576,7 +576,7 @@ type Es6RewriteClass_ClassDeclarationMetadata struct {
 	insertionPointField                  *Es6RewriteClass_InsertionPoint
 	definePropertiesObjForPrototypeField Node
 	definePropertiesObjForClassField     Node
-	classMembersToDeclareField           MapOf[string, *Es6RewriteClass_ClassProperty]
+	classMembersToDeclareField           *TMap[string, *Es6RewriteClass_ClassProperty]
 	fullClassNameNodeField               Node
 	classPrototypeNodeField              Node
 	anonymousField                       bool
@@ -584,7 +584,7 @@ type Es6RewriteClass_ClassDeclarationMetadata struct {
 	superClassNameNodeField              Node
 }
 
-func (this *Es6RewriteClass_ClassDeclarationMetadata) init_Es6RewriteClass_ClassDeclarationMetadata(insertionPoint *Es6RewriteClass_InsertionPoint, definePropertiesObjForPrototype Node, definePropertiesObjForClass Node, classMembersToDeclare MapOf[string, *Es6RewriteClass_ClassProperty], fullClassNameNode Node, classPrototypeNode Node, anonymous bool, classNameNode Node, superClassNameNode Node) {
+func (this *Es6RewriteClass_ClassDeclarationMetadata) init_Es6RewriteClass_ClassDeclarationMetadata(insertionPoint *Es6RewriteClass_InsertionPoint, definePropertiesObjForPrototype Node, definePropertiesObjForClass Node, classMembersToDeclare *TMap[string, *Es6RewriteClass_ClassProperty], fullClassNameNode Node, classPrototypeNode Node, anonymous bool, classNameNode Node, superClassNameNode Node) {
 	if insertionPoint == nil {
 		panic(new_NullPointerException_String("insertionPoint").self())
 	}
@@ -620,7 +620,7 @@ func (this *Es6RewriteClass_ClassDeclarationMetadata) init_Es6RewriteClass_Class
 	this.anonymousField = anonymous
 }
 
-func new_Es6RewriteClass_ClassDeclarationMetadata(insertionPoint *Es6RewriteClass_InsertionPoint, definePropertiesObjForPrototype Node, definePropertiesObjForClass Node, classMembersToDeclare MapOf[string, *Es6RewriteClass_ClassProperty], fullClassNameNode Node, classPrototypeNode Node, anonymous bool, classNameNode Node, superClassNameNode Node) *Es6RewriteClass_ClassDeclarationMetadata {
+func new_Es6RewriteClass_ClassDeclarationMetadata(insertionPoint *Es6RewriteClass_InsertionPoint, definePropertiesObjForPrototype Node, definePropertiesObjForClass Node, classMembersToDeclare *TMap[string, *Es6RewriteClass_ClassProperty], fullClassNameNode Node, classPrototypeNode Node, anonymous bool, classNameNode Node, superClassNameNode Node) *Es6RewriteClass_ClassDeclarationMetadata {
 	this := &Es6RewriteClass_ClassDeclarationMetadata{}
 	this.init_Es6RewriteClass_ClassDeclarationMetadata(insertionPoint, definePropertiesObjForPrototype, definePropertiesObjForClass, classMembersToDeclare, fullClassNameNode, classPrototypeNode, anonymous, classNameNode, superClassNameNode)
 	return this
@@ -646,7 +646,7 @@ func (this *Es6RewriteClass_ClassDeclarationMetadata) resetDefinePropertiesObjFo
 	this.definePropertiesObjForClassField = astFactory.createObjectLit_2(AstFactory_type_Node(this.fullClassNameNodeField), []Node{})
 }
 
-func (this *Es6RewriteClass_ClassDeclarationMetadata) classMembersToDeclare() MapOf[string, *Es6RewriteClass_ClassProperty] {
+func (this *Es6RewriteClass_ClassDeclarationMetadata) classMembersToDeclare() *TMap[string, *Es6RewriteClass_ClassProperty] {
 	return this.classMembersToDeclareField
 }
 
@@ -671,7 +671,7 @@ func (this *Es6RewriteClass_ClassDeclarationMetadata) superClassNameNode() Node 
 }
 
 func Es6RewriteClass_ClassDeclarationMetadata_builder() *Es6RewriteClass_ClassDeclarationMetadata_Builder {
-	return new_Es6RewriteClass_ClassDeclarationMetadata_Builder().setClassMembersToDeclare(new_LinkedHashMap())
+	return new_Es6RewriteClass_ClassDeclarationMetadata_Builder().setClassMembersToDeclare(newTMap_(tc_string, tc_p_Es6RewriteClass_ClassProperty))
 }
 
 func Es6RewriteClass_ClassDeclarationMetadata_create(classNode Node, parent Node, astFactory *AstFactory) *Es6RewriteClass_ClassDeclarationMetadata {
@@ -712,7 +712,7 @@ type Es6RewriteClass_ClassDeclarationMetadata_Builder struct {
 	insertionPoint_                  *Es6RewriteClass_InsertionPoint
 	definePropertiesObjForPrototype_ Node
 	definePropertiesObjForClass_     Node
-	classMembersToDeclare_           MapOf[string, *Es6RewriteClass_ClassProperty]
+	classMembersToDeclare_           *TMap[string, *Es6RewriteClass_ClassProperty]
 	fullClassNameNodeField           Node
 	classPrototypeNode_              Node
 	anonymous_                       bool
@@ -754,7 +754,7 @@ func (this *Es6RewriteClass_ClassDeclarationMetadata_Builder) fullClassNameNode(
 	return this.fullClassNameNodeField
 }
 
-func (this *Es6RewriteClass_ClassDeclarationMetadata_Builder) setClassMembersToDeclare(classMembersToDeclare MapOf[string, *Es6RewriteClass_ClassProperty]) *Es6RewriteClass_ClassDeclarationMetadata_Builder {
+func (this *Es6RewriteClass_ClassDeclarationMetadata_Builder) setClassMembersToDeclare(classMembersToDeclare *TMap[string, *Es6RewriteClass_ClassProperty]) *Es6RewriteClass_ClassDeclarationMetadata_Builder {
 	if classMembersToDeclare == nil {
 		panic(new_NullPointerException_String("Null classMembersToDeclare").self())
 	}

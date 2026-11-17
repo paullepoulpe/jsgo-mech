@@ -37,8 +37,8 @@ func new_Parser(config *Parser_Config, errorReporter *ErrorReporter_util, source
 	return this
 }
 
-func (this *Parser) getComments() ListOf[*Comment] {
-	return icast_List(obj_(this.commentRecorder.getComments()))
+func (this *Parser) getComments() *TList[*Comment] {
+	return tlistImm_(tc_p_Comment, this.commentRecorder.getComments())
 }
 
 func (this *Parser) getFeatures() *FeatureSet {

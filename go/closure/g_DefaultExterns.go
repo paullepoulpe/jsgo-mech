@@ -15,22 +15,22 @@ func new_DefaultExterns() *DefaultExterns {
 	return this
 }
 
-func DefaultExterns_prepareExterns(env CompilerOptions_Environment, externs *TMap[string, *SourceFile_jscomp]) ListOf[*SourceFile_jscomp] {
-	var out ListOf[*SourceFile_jscomp] = new_ArrayList_0()
+func DefaultExterns_prepareExterns(env CompilerOptions_Environment, externs *TMap[string, *SourceFile_jscomp]) *TList[*SourceFile_jscomp] {
+	var out *TList[*SourceFile_jscomp] = newTList_(tc_p_SourceFile_jscomp)
 	for key := range elemsBy_(obj_(DefaultExterns_BUILTIN_LANG_EXTERNS), str_) {
 		if !externs.containsKey(key) {
 			panic(new_IllegalStateException_String(Strings_lenientFormat("Externs must contain builtin: %s", []any{strobj_(key)})).self())
 		}
-		out.add(obj_(externs.remove(key)))
+		out.add(externs.remove(key))
 	}
 	if env == CompilerOptions_Environment_BROWSER {
 		for key := range elemsBy_(obj_(DefaultExterns_BROWSER_EXTERN_DEP_ORDER), str_) {
 			if !externs.containsKey(key) {
 				panic(new_IllegalStateException_String(Strings_lenientFormat("Externs must contain builtin for env %s: %s", []any{obj_(env), strobj_(key)})).self())
 			}
-			out.add(obj_(externs.remove(key)))
+			out.add(externs.remove(key))
 		}
-		out.addAll(externs.asMap().values())
+		out.asList().addAll(externs.asMap().values())
 	}
 	return out
 }

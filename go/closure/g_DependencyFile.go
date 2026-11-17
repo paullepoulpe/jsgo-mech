@@ -49,11 +49,11 @@ func (this *DependencyFile) loadGraph() {
 	DependencyFile_logger.info("Loading dependency graph")
 	var errorManager ErrorManager = new_LoggerErrorManager_Logger(DependencyFile_logger)
 	var parser *DepsFileRegexParser = new_DepsFileRegexParser_ErrorManager(errorManager)
-	var depInfos ListOf[DependencyInfo] = parser.parseFile_2(this.getName(), this.getContent())
+	var depInfos *TList[DependencyInfo] = parser.parseFile_2(this.getName(), this.getContent())
 	if !parser.didParseSucceed() {
 		panic(obj_(new_ServiceException(("Problem parsing " + sstr_(this.getName()) + ". See logs for details."))))
 	}
-	for depInfo := range elemsBy_(depInfos, icast_DependencyInfo) {
+	for depInfo := range elemsBy_(depInfos.asList(), icast_DependencyInfo) {
 		for provide := range elemsBy_(obj_(depInfo.getProvides()), str_) {
 			var existing DependencyInfo = this.dependencies[provide]
 			if (existing != nil) && !equalsDyn_(existing, depInfo) {

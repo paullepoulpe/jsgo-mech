@@ -1699,13 +1699,13 @@ func CommandLineRunner_Flags_printShortUsageAfterErrors(ps *Output) {
 }
 
 func (this *CommandLineRunner_Flags) getMixedJsSources() *Outcome_base {
-	var mixedSources ListOf[*AbstractCommandLineRunner_FlagEntry] = new_ArrayList_0()
+	var mixedSources *TList[*AbstractCommandLineRunner_FlagEntry] = newTList_(tc_p_AbstractCommandLineRunner_FlagEntry)
 	var excludes map[string]struct{} = map[string]struct{}{}
 	it_1 := this.mixedJsSources.each()
 	for it_1.next() {
 		var source *AbstractCommandLineRunner_FlagEntry = it_1.v
 		if strings.HasSuffix(source.getValue(), ".zip") {
-			mixedSources.add(obj_(source))
+			mixedSources.add(source)
 		} else if strings.HasPrefix(source.getValue(), "!") {
 			var found *Outcome_base = CommandLineRunner_findJsFiles_Collection(ImmutableList_of_Object(strobj_(String_substring_int(source.getValue(), 1))))
 			if found.isErr() {
@@ -1713,7 +1713,7 @@ func (this *CommandLineRunner_Flags) getMixedJsSources() *Outcome_base {
 			}
 			for filename := range elemsBy_(icast_List(found.get()), str_) {
 				excludes[filename] = struct{}{}
-				mixedSources.remove_Object(obj_(new_AbstractCommandLineRunner_FlagEntry(obj_(AbstractCommandLineRunner_JsSourceType_JS), filename)))
+				mixedSources.asList().remove_Object(obj_(new_AbstractCommandLineRunner_FlagEntry(obj_(AbstractCommandLineRunner_JsSourceType_JS), filename)))
 			}
 		} else {
 			var found *Outcome_base = CommandLineRunner_findJsFiles_Collection_boolean(Collection(Collections_singletonList(strobj_(source.getValue()))), true)
@@ -1722,7 +1722,7 @@ func (this *CommandLineRunner_Flags) getMixedJsSources() *Outcome_base {
 			}
 			for filename := range elemsBy_(icast_List(found.get()), str_) {
 				if !has_(excludes, filename) {
-					mixedSources.add(obj_(new_AbstractCommandLineRunner_FlagEntry(obj_(AbstractCommandLineRunner_JsSourceType_JS), filename)))
+					mixedSources.add(new_AbstractCommandLineRunner_FlagEntry(obj_(AbstractCommandLineRunner_JsSourceType_JS), filename))
 				}
 			}
 		}
@@ -1732,12 +1732,12 @@ func (this *CommandLineRunner_Flags) getMixedJsSources() *Outcome_base {
 		return Outcome_base_err(fromArguments.error())
 	}
 	for filename := range elemsBy_(icast_List(fromArguments.get()), str_) {
-		mixedSources.add(obj_(new_AbstractCommandLineRunner_FlagEntry(obj_(AbstractCommandLineRunner_JsSourceType_JS), filename)))
+		mixedSources.add(new_AbstractCommandLineRunner_FlagEntry(obj_(AbstractCommandLineRunner_JsSourceType_JS), filename))
 	}
 	if (!this.mixedJsSources.isEmpty() && !this.arguments.isEmpty()) && mixedSources.isEmpty() {
 		return Outcome_base_err(new_CmdLineException_CmdLineParser_String(this.parser, "No inputs matched").up_Throwable())
 	}
-	return Outcome_base_ok_Object(mixedSources)
+	return Outcome_base_ok_Object(mixedSources.asList())
 }
 
 func (this *CommandLineRunner_Flags) getSourceMapLocationMappings() *Outcome_base {

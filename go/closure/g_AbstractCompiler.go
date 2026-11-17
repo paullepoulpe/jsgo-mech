@@ -495,7 +495,7 @@ func (this *AbstractCompiler) setAccessorSummary(p0 *AccessorSummary) {
 	this.self_.(*Compiler).setAccessorSummary_impl(p0)
 }
 
-func (this *AbstractCompiler) addComments(p0 string, p1 List) {
+func (this *AbstractCompiler) addComments(p0 string, p1 *TList[*Comment]) {
 	this.self_.(*Compiler).addComments_impl(p0, p1)
 }
 

@@ -66,7 +66,7 @@ func ProductionInstrumentationReporter_parseJsonStringToLongMap(json string) *Ou
 		return Outcome_base_err(parsed.error())
 	}
 	var document *SimpleJsonValue = cast_[*SimpleJsonValue](parsed.get())
-	var map_ MapOf[string, BoxedOf[int64]] = new_LinkedHashMap()
+	var map_ *TMap[string, any] = newTMap_(tc_string, tc_any)
 	if document.kind() == SimpleJsonValue_Kind_OBJECT {
 		it_1 := foreach_(document.members().entrySet())
 		for it_1.next() {
@@ -75,9 +75,9 @@ func ProductionInstrumentationReporter_parseJsonStringToLongMap(json string) *Ou
 			if value.isErr() {
 				return Outcome_base_err(value.error())
 			}
-			Map_put_s(map_, str_(member.getKey()), value.get())
+			map_.put(str_(member.getKey()), value.get())
 		}
-		return Outcome_base_ok_Object(map_)
+		return Outcome_base_ok_Object(map_.asMap())
 	} else if document.kind() != SimpleJsonValue_Kind_ARRAY {
 		return Outcome_base_err(new_SimpleJsonException("Malformed report: expected a JSON object").up_Throwable())
 	}
@@ -95,12 +95,12 @@ func ProductionInstrumentationReporter_parseJsonStringToLongMap(json string) *Ou
 		if value.isErr() {
 			return Outcome_base_err(value.error())
 		}
-		var replaced any = Map_put_s(map_, str_(key.get()), value.get())
+		var replaced any = map_.put(str_(key.get()), value.get())
 		if replaced != nil {
 			return Outcome_base_err(new_SimpleJsonException(("duplicate key: " + sstr_(str_(key.get())))).up_Throwable())
 		}
 	}
-	return Outcome_base_ok_Object(map_)
+	return Outcome_base_ok_Object(map_.asMap())
 }
 
 func ProductionInstrumentationReporter_readJsonLong(value *SimpleJsonValue) *Outcome_base {

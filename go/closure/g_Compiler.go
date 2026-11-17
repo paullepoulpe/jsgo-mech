@@ -2836,11 +2836,11 @@ func (this *Compiler) getNodeForRuntimeCodeInsertion() Node {
 	return this.getSynthesizedTypeSummaryInput().getAstRoot(this.up_AbstractCompiler())
 }
 
-func (this *Compiler) addComments_impl(filename string, comments ListOf[*Comment]) {
+func (this *Compiler) addComments_impl(filename string, comments *TList[*Comment]) {
 	if !this.getOptions().preservesDetailedSourceInfo() {
 		panic(new_UnsupportedOperationException_String("addComments may only be called in IDE mode.").self())
 	}
-	Map_put_s(this.commentsPerFile, filename, comments)
+	Map_put_s(this.commentsPerFile, filename, comments.asList())
 }
 
 func (this *Compiler) getComments_impl(filename OptionalOf[string]) ListOf[*Comment] {
@@ -3625,7 +3625,7 @@ func (this *Compiler_ChunkGraphAwareLicenseTracker) trackLicensesForNode(node No
 		this.lastSeenFile = sourceFile
 	}
 	if !this.haveInitializedCurrentChunkLicenses {
-		for depChunk := range elemsAs_[*JSChunk](this.currentChunk.getAllDependencies()) {
+		for depChunk := range elemsAs_[*JSChunk](this.currentChunk.getAllDependencies().asSet()) {
 			this.log_.log_2("Chunk %s depends on chunk %s", []any{obj_(this.currentChunk), obj_(depChunk)})
 			if !has_(this.licensesFromChunks, depChunk) {
 				panic(new_IllegalStateException_String("Chunk aware license analysis error - analysis out of order.").self())
@@ -4718,7 +4718,7 @@ func (this *Compiler) setAccessorSummary(p0 *AccessorSummary) {
 }
 
 // addComments: an object that is exactly a Compiler calls its addComments_impl directly (post-flip); others dispatch.
-func (this *Compiler) addComments(p0 string, p1 List) {
+func (this *Compiler) addComments(p0 string, p1 *TList[*Comment]) {
 	if p, _ := this.self_.(*Compiler); p == this {
 		this.addComments_impl(p0, p1)
 		return

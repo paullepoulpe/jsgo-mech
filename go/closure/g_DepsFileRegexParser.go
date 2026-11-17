@@ -8,7 +8,7 @@ type DepsFileRegexParser struct {
 	JsFileLineParser
 	depMatcher     *Matcher_re2j
 	depArgsMatch   *Matcher_re2j
-	depInfos       ListOf[DependencyInfo]
+	depInfos       *TList[DependencyInfo]
 	pathTranslator Function_baseOf[string, string]
 }
 
@@ -53,11 +53,11 @@ func (this *DepsFileRegexParser) parseFile(filePath string) *Outcome_base {
 	if fileContents.isErr() {
 		return Outcome_base_err(fileContents.error())
 	}
-	return Outcome_base_ok_Object(this.parseFile_2(filePath, str_(fileContents.get())))
+	return Outcome_base_ok_Object(this.parseFile_2(filePath, str_(fileContents.get())).asList())
 }
 
-func (this *DepsFileRegexParser) parseFile_2(filePath string, fileContents string) ListOf[DependencyInfo] {
-	this.depInfos = new_ArrayList_0()
+func (this *DepsFileRegexParser) parseFile_2(filePath string, fileContents string) *TList[DependencyInfo] {
+	this.depInfos = newTList_(tc_DependencyInfo)
 	if DepsFileRegexParser_logger.isLoggable(Level_FINE) {
 		DepsFileRegexParser_logger.fine(("Parsing Dep: " + sstr_(filePath)))
 	}
@@ -103,7 +103,7 @@ func (this *DepsFileRegexParser) parseLine_impl(line string) *Outcome_base {
 			if DepsFileRegexParser_logger.isLoggable(Level_FINE) {
 				DepsFileRegexParser_logger.fine(("Found dep: " + objstr_(depInfo)))
 			}
-			this.depInfos.add(depInfo)
+			this.depInfos.add(icast_DependencyInfo(depInfo))
 		}
 	}
 	return Outcome_base_ok_Object(any(bool(((!this.shortcutMode || hasDependencies) || CharMatcher_whitespace().matchesAllOf_s(line)))))

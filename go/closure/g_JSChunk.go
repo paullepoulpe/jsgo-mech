@@ -125,15 +125,15 @@ func (this *JSChunk) getSortedDependencyNames() *TList[string] {
 	return names
 }
 
-func (this *JSChunk) getAllDependencies() SetOf[*JSChunk] {
-	var allDeps LinkedHashSetOf[*JSChunk] = new_LinkedHashSet()
-	allDeps.addAll(Collection(this.deps.asList()))
+func (this *JSChunk) getAllDependencies() *TSet[*JSChunk] {
+	var allDeps *TSet[*JSChunk] = newTSet_(tc_p_JSChunk)
+	allDeps.asSet().addAll(Collection(this.deps.asList()))
 	var stack ArrayDequeOf[*JSChunk] = new_ArrayDeque_Collection(Collection(this.deps.asList()))
 	for !stack.isEmpty() {
 		var chunk *JSChunk = cast_[*JSChunk](stack.pop())
 		var chunkDeps *TList[*JSChunk] = chunk.deps
 		for dep := range chunkDeps.All() {
-			if allDeps.add(obj_(dep)) {
+			if allDeps.add(dep) {
 				stack.push(obj_(dep))
 			}
 		}
@@ -141,9 +141,9 @@ func (this *JSChunk) getAllDependencies() SetOf[*JSChunk] {
 	return allDeps
 }
 
-func (this *JSChunk) getThisAndAllDependencies() SetOf[*JSChunk] {
-	var deps SetOf[*JSChunk] = this.getAllDependencies()
-	deps.add(any(this))
+func (this *JSChunk) getThisAndAllDependencies() *TSet[*JSChunk] {
+	var deps *TSet[*JSChunk] = this.getAllDependencies()
+	deps.add(this)
 	return deps
 }
 

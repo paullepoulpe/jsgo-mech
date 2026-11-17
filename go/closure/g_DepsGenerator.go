@@ -196,7 +196,7 @@ func (this *DepsGenerator) shouldSkipDepsFile(file *SourceFile_jscomp) bool {
 
 func (this *DepsGenerator) parseDepsFiles() *Outcome_base {
 	var depsParser *DepsFileRegexParser = this.createDepsFileParser()
-	var depsFiles MapOf[string, DependencyInfo] = new_LinkedHashMap()
+	var depsFiles *TMap[string, DependencyInfo] = newTMap_(tc_string, tc_DependencyInfo)
 	it_1 := foreach_(this.deps)
 	for it_1.next() {
 		var file *SourceFile_jscomp = cast_[*SourceFile_jscomp](it_1.v)
@@ -210,7 +210,7 @@ func (this *DepsGenerator) parseDepsFiles() *Outcome_base {
 				this.reportNoDepsInDepsFile(file.getName())
 			} else {
 				for info := range elemsBy_(depInfos, icast_DependencyInfo) {
-					Map_put_s(depsFiles, info.getPathRelativeToClosureBase(), this.removeRelativePathProvide(info))
+					depsFiles.put(info.getPathRelativeToClosureBase(), icast_DependencyInfo(this.removeRelativePathProvide(info)))
 				}
 			}
 		}
@@ -225,11 +225,11 @@ func (this *DepsGenerator) parseDepsFiles() *Outcome_base {
 			}
 			var srcInfos ListOf[DependencyInfo] = icast_List(srcInfosRes.get())
 			for info := range elemsBy_(srcInfos, icast_DependencyInfo) {
-				Map_put_s(depsFiles, info.getPathRelativeToClosureBase(), this.removeRelativePathProvide(info))
+				depsFiles.put(info.getPathRelativeToClosureBase(), icast_DependencyInfo(this.removeRelativePathProvide(info)))
 			}
 		}
 	}
-	return Outcome_base_ok_Object(depsFiles)
+	return Outcome_base_ok_Object(depsFiles.asMap())
 }
 
 func DepsGenerator_parseDepsFile(depsParser *DepsFileRegexParser, file *SourceFile_jscomp) *Outcome_base {
@@ -241,7 +241,7 @@ func DepsGenerator_parseDepsFile(depsParser *DepsFileRegexParser, file *SourceFi
 	if code.isErr() {
 		return Outcome_base_err(code.error())
 	}
-	return Outcome_base_ok_Object(depsParser.parseFile_2(file.getName(), str_(code.get())))
+	return Outcome_base_ok_Object(depsParser.parseFile_2(file.getName(), str_(code.get())).asList())
 }
 
 func (this *DepsGenerator) removeRelativePathProvide(info DependencyInfo) DependencyInfo {
@@ -259,7 +259,7 @@ func DepsGenerator_providesWithoutRelativePath(info DependencyInfo) *TList[strin
 }
 
 func (this *DepsGenerator) parseSources(preparsedFiles SetOf[string]) *Outcome_base {
-	var parsedFiles MapOf[string, DependencyInfo] = new_LinkedHashMap()
+	var parsedFiles *TMap[string, DependencyInfo] = newTMap_(tc_string, tc_DependencyInfo)
 	var jsParser *JsFileRegexParser = new_JsFileRegexParser(this.errorManager).setModuleLoader(this.loader)
 	var compiler *Compiler = new_Compiler_0()
 	compiler.init(ImmutableList_of(), ImmutableList_of(), new_CompilerOptions())
@@ -281,10 +281,10 @@ func (this *DepsGenerator) parseSources(preparsedFiles SetOf[string]) *Outcome_b
 				continue
 			}
 			file.clearCachedSource()
-			Map_put_s(parsedFiles, closureRelativePath, depInfo)
+			parsedFiles.put(closureRelativePath, icast_DependencyInfo(depInfo))
 		}
 	}
-	return Outcome_base_ok_Object(parsedFiles)
+	return Outcome_base_ok_Object(parsedFiles.asMap())
 }
 
 func (this *DepsGenerator) writeDepsContent(depsFiles MapOf[string, DependencyInfo], jsFiles MapOf[string, DependencyInfo], out *strBuilder_) {
@@ -325,7 +325,7 @@ func DepsGenerator_createSourceFilesFromPathsStringVarargs(paths []string) []*So
 }
 
 func DepsGenerator_createSourceFilesFromZipPaths(paths CollectionOf[string]) *Outcome_base {
-	var zipSourceFiles ListOf[*SourceFile_jscomp] = new_ArrayList_0()
+	var zipSourceFiles *TList[*SourceFile_jscomp] = newTList_(tc_p_SourceFile_jscomp)
 	it_1 := foreach_(paths)
 	for it_1.next() {
 		var path string = str_(it_1.v)
@@ -333,9 +333,9 @@ func DepsGenerator_createSourceFilesFromZipPaths(paths CollectionOf[string]) *Ou
 		if zipFiles.isErr() {
 			return Outcome_base_err(zipFiles.error())
 		}
-		zipSourceFiles.addAll(icast_Collection(zipFiles.get()))
+		zipSourceFiles.asList().addAll(icast_Collection(zipFiles.get()))
 	}
-	return Outcome_base_ok_Object(zipSourceFiles)
+	return Outcome_base_ok_Object(zipSourceFiles.asList())
 }
 
 var DepsGenerator_logger *Logger
