@@ -28,7 +28,7 @@ package main
 //   - Reads are typed: get, size, isEmpty; contains, containsKey, get and getOrDefault of a
 //     set or map when the argument is a value of the element type (an Object of another
 //     class gives false or null in Java, so those go through the twin); for-each loops over
-//     the elements (range immElems_(x) is range x.All(), the element unboxed where the code
+//     the elements (range immElems_(x) is range x.items, x.keys of a set, the element unboxed where the code
 //     unboxed it; foreach_ cursors as for the other kinds). Changes (add, put...) and every
 //     other method go through the twin, which throws or answers as before.
 //   - An ImmutableSortedSet or ImmutableSortedMap stored into an ImmutableSet or ImmutableMap
@@ -354,7 +354,7 @@ func immUse(k int, recv ast.Expr, m string, call *ast.CallExpr, read func(int, s
 }
 
 // immRange handles `for _, el := range immElems_(x)` over a collection of class k: a range over
-// x.All(), each use of el unboxed where the code unboxed it, boxed elsewhere.
+// x.items (x.keys of a set), each use of el unboxed where the code unboxed it, boxed elsewhere.
 func immRange(k int, e ast.Expr, call *ast.CallExpr) bool {
 	r, ok := rw.Parent[call].(*ast.RangeStmt)
 	if !ok || r.X != call || r.Tok == token.ASSIGN || K.base == "map" {
@@ -362,8 +362,9 @@ func immRange(k int, e ast.Expr, call *ast.CallExpr) bool {
 	}
 	inner := unwrap(e)
 	if r.Key == nil {
+		field := map[string]string{"list": "items", "set": "keys"}[K.base]
 		edit(k, func(c *class) rw.Edit {
-			return rw.Edit{Node: call, Gen: func() string { return rw.Render(inner) + ".All()" }}
+			return rw.Edit{Node: call, Gen: func() string { return rw.Render(inner) + "." + field }}
 		})
 		return true
 	}
@@ -389,10 +390,12 @@ func immRange(k int, e ast.Expr, call *ast.CallExpr) bool {
 			return false // &el
 		}
 	}
+	// An immutable collection never changes: a plain range over its elements (a set's keys,
+	// with no removed entries), which is what the loop over immElems_ read; a nil collection
+	// throws NullPointerException as immElems_ did.
+	field := map[string]string{"list": "items", "set": "keys"}[K.base]
 	edit(k, func(c *class) rw.Edit {
-		return rw.Edit{Node: r, Gen: func() string {
-			return "for " + val.Name + " := range " + rw.Render(inner) + ".All() " + rw.Render(r.Body)
-		}}
+		return rw.Edit{Node: call, Gen: func() string { return rw.Render(inner) + "." + field }}
 	})
 	for _, u := range uses {
 		u := u
@@ -765,7 +768,8 @@ func builtUse(k int, recv ast.Expr, m string, call *ast.CallExpr) {
 				return rw.Edit{Node: conv, Gen: R}
 			}
 		}
-		return rw.Edit{Node: call, Gen: func() string { return R() + ".asImm()" }}
+		// Made for erased code: the erased collection itself, without a typed one and its twin.
+		return rw.Edit{Node: call, Gen: func() string { return rw.Render(recv) + "." + m + "Erased()" }}
 	})
 }
 
@@ -975,4 +979,167 @@ func immAddAllInto(k int, y, top ast.Expr) {
 		})
 		return
 	}
+}
+
+// immIntoTyped: a value of class k converted into a typed class of an earlier step
+// (tlistImm_(tc, y), tsetFrom_(tc, y, true), tmapFrom_(kc, vc, y, true), sliceImm_(tc, y))
+// with the class's own conversions is y itself (immItems_(y) for the slice): the typed copy of its
+// twin would be y again. Copied into a new mutable typed collection (tlistFrom_, tsetFrom_(...,
+// false), tmapFrom_(..., false)) it is copied typed (tlistCopyT_...), not through its twin.
+func immIntoTyped(k int, y, top ast.Expr) {
+	a := top
+	for {
+		c, ok := rw.Up(a).(*ast.CallExpr)
+		if !ok {
+			return
+		}
+		n, _ := rw.CallName(c)
+		switch n {
+		case "icast_Collection", "Collection", "icast_Iterable", "Iterable", "icast_Set", "Set", "icast_List", "List", "icast_Map", "Map":
+			if len(c.Args) == 1 && rw.Unparen(c.Args[0]) == a {
+				a = c
+				continue
+			}
+			return
+		}
+		at := map[string]int{"tlistImm_": 1, "sliceImm_": 1, "tlistFrom_": 1, "tsetFrom_": 1, "tmapFrom_": 2}[n]
+		want := map[string]string{"list": "tlistImm_ sliceImm_ tlistFrom_", "set": "tsetFrom_", "map": "tmapFrom_"}[K.base]
+		if at == 0 || !strings.Contains(want, n) || len(c.Args) <= at || rw.Unparen(c.Args[at]) != a {
+			return
+		}
+		imm := n == "tlistImm_" || n == "sliceImm_"
+		if n == "tsetFrom_" || n == "tmapFrom_" {
+			if len(c.Args) != at+2 {
+				return
+			}
+			switch rw.Text(c.Args[at+1]) {
+			case "true":
+				imm = true
+			case "false":
+			default:
+				return
+			}
+		}
+		pc, convs := c, c.Args[:at]
+		edit(k, func(cl *class) rw.Edit {
+			return rw.Edit{Node: pc, Gen: func() string {
+				for i, e := range convs {
+					if rw.Text(e) != cl.convName(i) {
+						return rw.RenderChildren(pc)
+					}
+				}
+				ys := rw.RenderChildren(y) // y without its twin
+				var cs []string
+				for _, e := range convs {
+					cs = append(cs, rw.Text(e))
+				}
+				switch {
+				case n == "sliceImm_":
+					return "immItems_(" + ys + ")"
+				case imm:
+					return ys
+				}
+				return map[string]string{"list": "tlistCopyT_(", "set": "tsetCopyT_(", "map": "tmapCopyT_("}[K.base] + strings.Join(cs, ", ") + ", " + ys + ")"
+			}}
+		})
+		return
+	}
+}
+
+var convsByType map[string][]string
+
+// existingConv is the conversion variable an earlier step declared for element type t (with
+// prefix tc_ or tch_), the first by name, or "".
+func existingConv(t types.Type, prefix string) string {
+	if convsByType == nil {
+		convsByType = map[string][]string{}
+		for _, name := range rw.Pkg.Scope().Names() {
+			if !strings.HasPrefix(name, "tc_") && !strings.HasPrefix(name, "tch_") {
+				continue
+			}
+			v, ok := rw.Pkg.Scope().Lookup(name).(*types.Var)
+			if !ok {
+				continue
+			}
+			if et := convType2(v.Type()); et != nil {
+				p := "tc_"
+				if strings.HasPrefix(name, "tch_") {
+					p = "tch_"
+				}
+				k := p + types.TypeString(et, nil)
+				convsByType[k] = append(convsByType[k], name) // Names() is sorted
+			}
+		}
+	}
+	if ns := convsByType[prefix+types.TypeString(t, nil)]; len(ns) > 0 {
+		return ns[0]
+	}
+	return ""
+}
+
+// convType2 is T of the type *tconv_[T], or nil.
+func convType2(t types.Type) types.Type {
+	p, ok := types.Unalias(t).(*types.Pointer)
+	if !ok {
+		return nil
+	}
+	n, ok := types.Unalias(p.Elem()).(*types.Named)
+	if !ok || n.Obj().Name() != "tconv_" || n.TypeArgs().Len() != 1 {
+		return nil
+	}
+	return n.TypeArgs().At(0)
+}
+
+// immEqHash: objequalsBy_(X, obj_(Y), F.equals), equalsBy_(...), objhashBy_(X, F.hashCode) and
+// hashBy_(X, ...) of X of class k (and Y of a typed class of the same element types) are the
+// typed equals and hashCode (rt_timm.go: tlistEq_, tsetEq_, tmapEq_, *Hash_), which compare
+// and hash the elements as the erased collection does, without its twin.
+func immEqHash(k int, x, top ast.Expr) {
+	c, ok := rw.Up(top).(*ast.CallExpr)
+	if !ok || len(c.Args) < 2 || rw.Unparen(c.Args[0]) != top {
+		return
+	}
+	n, _ := rw.CallName(c)
+	pre := map[string]string{"list": "tlist", "set": "tset", "map": "tmap"}[K.base]
+	switch n {
+	case "objhashBy_", "hashBy_":
+		if len(c.Args) != 2 || !methodExpr(c.Args[1], "hashCode") {
+			return
+		}
+		obj := n == "objhashBy_"
+		edit(k, func(cl *class) rw.Edit {
+			return rw.Edit{Node: c, Gen: func() string {
+				return pre + "Hash_(" + rw.RenderChildren(x) + fmt.Sprintf(", %v)", obj)
+			}}
+		})
+	case "objequalsBy_", "equalsBy_":
+		if len(c.Args) != 3 || !methodExpr(c.Args[2], "equals") {
+			return
+		}
+		ya := rw.Unparen(c.Args[1])
+		if oc, ok := ya.(*ast.CallExpr); ok && len(oc.Args) == 1 {
+			if on, _ := rw.CallName(oc); on == "obj_" {
+				ya = rw.Unparen(oc.Args[0])
+			}
+		}
+		yv := valueOf(ya)
+		if yv.kind != vSlot || !isList(typeOf(ya)) {
+			return
+		}
+		obj := n == "objequalsBy_"
+		edit(k, func(cl *class) rw.Edit {
+			return rw.Edit{Node: c, Gen: func() string {
+				if yc, ok := converted[find(yv.k)]; !ok || strings.Join(yc.elemText, ",") != strings.Join(cl.elemText, ",") {
+					return rw.RenderChildren(c)
+				}
+				return pre + "Eq_(" + rw.RenderChildren(x) + ", " + rw.RenderChildren(ya) + fmt.Sprintf(", %v)", obj)
+			}}
+		})
+	}
+}
+
+// methodExpr reports whether e is a method expression (T).m.
+func methodExpr(e ast.Expr, m string) bool {
+	s, ok := rw.Unparen(e).(*ast.SelectorExpr)
+	return ok && s.Sel.Name == m && rw.Info.Types[s.X].IsType()
 }
