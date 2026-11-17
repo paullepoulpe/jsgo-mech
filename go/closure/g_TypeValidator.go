@@ -786,7 +786,7 @@ func (this *TypeValidator_WellFormedTemplatizedTypeVerifier) caseTemplateType_im
 
 // caseDefault: an object that is exactly a TypeValidator_WellFormedTemplatizedTypeVerifier calls its caseDefault_impl directly (post-flip); others dispatch.
 func (this *TypeValidator_WellFormedTemplatizedTypeVerifier) caseDefault(p0 *JSType) any {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*TypeValidator_WellFormedTemplatizedTypeVerifier); p == this {
 		return this.caseDefault_impl(p0)
 	}
 	return this.self_.caseDefault_impl(p0)
@@ -794,7 +794,7 @@ func (this *TypeValidator_WellFormedTemplatizedTypeVerifier) caseDefault(p0 *JST
 
 // caseEnumElementType: an object that is exactly a TypeValidator_WellFormedTemplatizedTypeVerifier calls its caseEnumElementType_impl directly (post-flip); others dispatch.
 func (this *TypeValidator_WellFormedTemplatizedTypeVerifier) caseEnumElementType(p0 *EnumElementType) any {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*TypeValidator_WellFormedTemplatizedTypeVerifier); p == this {
 		return this.caseEnumElementType_impl(p0)
 	}
 	return this.self_.caseEnumElementType_impl(p0)
@@ -802,7 +802,7 @@ func (this *TypeValidator_WellFormedTemplatizedTypeVerifier) caseEnumElementType
 
 // caseFunctionType: an object that is exactly a TypeValidator_WellFormedTemplatizedTypeVerifier calls its caseFunctionType_impl directly (post-flip); others dispatch.
 func (this *TypeValidator_WellFormedTemplatizedTypeVerifier) caseFunctionType(p0 *FunctionType) any {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*TypeValidator_WellFormedTemplatizedTypeVerifier); p == this {
 		return this.caseFunctionType_impl(p0)
 	}
 	return this.self_.caseFunctionType_impl(p0)
@@ -810,7 +810,7 @@ func (this *TypeValidator_WellFormedTemplatizedTypeVerifier) caseFunctionType(p0
 
 // caseNamedType: an object that is exactly a TypeValidator_WellFormedTemplatizedTypeVerifier calls its caseNamedType_impl directly (post-flip); others dispatch.
 func (this *TypeValidator_WellFormedTemplatizedTypeVerifier) caseNamedType(p0 *NamedType) any {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*TypeValidator_WellFormedTemplatizedTypeVerifier); p == this {
 		return this.caseNamedType_impl(p0)
 	}
 	return this.self_.caseNamedType_impl(p0)
@@ -818,7 +818,7 @@ func (this *TypeValidator_WellFormedTemplatizedTypeVerifier) caseNamedType(p0 *N
 
 // caseUnionType: an object that is exactly a TypeValidator_WellFormedTemplatizedTypeVerifier calls its caseUnionType_impl directly (post-flip); others dispatch.
 func (this *TypeValidator_WellFormedTemplatizedTypeVerifier) caseUnionType(p0 *UnionType) any {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*TypeValidator_WellFormedTemplatizedTypeVerifier); p == this {
 		return this.caseUnionType_impl(p0)
 	}
 	return this.self_.caseUnionType_impl(p0)
@@ -826,7 +826,7 @@ func (this *TypeValidator_WellFormedTemplatizedTypeVerifier) caseUnionType(p0 *U
 
 // caseTemplatizedType: an object that is exactly a TypeValidator_WellFormedTemplatizedTypeVerifier calls its caseTemplatizedType_impl directly (post-flip); others dispatch.
 func (this *TypeValidator_WellFormedTemplatizedTypeVerifier) caseTemplatizedType(p0 *TemplatizedType) any {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*TypeValidator_WellFormedTemplatizedTypeVerifier); p == this {
 		return this.caseTemplatizedType_impl(p0)
 	}
 	return this.self_.caseTemplatizedType_impl(p0)
@@ -834,7 +834,7 @@ func (this *TypeValidator_WellFormedTemplatizedTypeVerifier) caseTemplatizedType
 
 // caseTemplateType: an object that is exactly a TypeValidator_WellFormedTemplatizedTypeVerifier calls its caseTemplateType_impl directly (post-flip); others dispatch.
 func (this *TypeValidator_WellFormedTemplatizedTypeVerifier) caseTemplateType(p0 *TemplateType) any {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*TypeValidator_WellFormedTemplatizedTypeVerifier); p == this {
 		return this.caseTemplateType_impl(p0)
 	}
 	return this.self_.caseTemplateType_impl(p0)

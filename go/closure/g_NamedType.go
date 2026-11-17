@@ -552,7 +552,7 @@ func (this *NamedType_Builder) build() *NamedType {
 
 // getTypeClass: an object that is exactly a NamedType calls its getTypeClass_impl directly (post-flip); others dispatch.
 func (this *NamedType) getTypeClass() JSTypeClass {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*NamedType); p == this {
 		return this.getTypeClass_impl()
 	}
 	return this.self_.getTypeClass_impl()
@@ -560,7 +560,7 @@ func (this *NamedType) getTypeClass() JSTypeClass {
 
 // getTemplateTypes: an object that is exactly a NamedType calls its getTemplateTypes_impl directly (post-flip); others dispatch.
 func (this *NamedType) getTemplateTypes() *ImmutableList {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*NamedType); p == this {
 		return this.getTemplateTypes_impl()
 	}
 	return this.self_.getTemplateTypes_impl()
@@ -568,7 +568,7 @@ func (this *NamedType) getTemplateTypes() *ImmutableList {
 
 // defineProperty: an object that is exactly a NamedType calls its defineProperty_impl directly (post-flip); others dispatch.
 func (this *NamedType) defineProperty(p0 Property_Key, p1 *JSType, p2 bool, p3 Node) bool {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*NamedType); p == this {
 		return this.defineProperty_impl(p0, p1, p2, p3)
 	}
 	return this.self_.defineProperty_impl(p0, p1, p2, p3)
@@ -576,7 +576,7 @@ func (this *NamedType) defineProperty(p0 Property_Key, p1 *JSType, p2 bool, p3 N
 
 // getReferenceName: an object that is exactly a NamedType calls its getReferenceName_impl directly (post-flip); others dispatch.
 func (this *NamedType) getReferenceName() OptionalOf[string] {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*NamedType); p == this {
 		return this.getReferenceName_impl()
 	}
 	return this.self_.getReferenceName_impl()
@@ -584,7 +584,7 @@ func (this *NamedType) getReferenceName() OptionalOf[string] {
 
 // appendTo: an object that is exactly a NamedType calls its appendTo_impl directly (post-flip); others dispatch.
 func (this *NamedType) appendTo(p0 *TypeStringBuilder) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*NamedType); p == this {
 		this.appendTo_impl(p0)
 		return
 	}
@@ -593,7 +593,7 @@ func (this *NamedType) appendTo(p0 *TypeStringBuilder) {
 
 // toMaybeNamedType: an object that is exactly a NamedType calls its toMaybeNamedType_impl directly (post-flip); others dispatch.
 func (this *NamedType) toMaybeNamedType() *NamedType {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*NamedType); p == this {
 		return this.toMaybeNamedType_impl()
 	}
 	return this.self_.toMaybeNamedType_impl()
@@ -601,7 +601,7 @@ func (this *NamedType) toMaybeNamedType() *NamedType {
 
 // isNominalType: an object that is exactly a NamedType calls its isNominalType_impl directly (post-flip); others dispatch.
 func (this *NamedType) isNominalType() bool {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*NamedType); p == this {
 		return this.isNominalType_impl()
 	}
 	return this.self_.isNominalType_impl()
@@ -609,7 +609,7 @@ func (this *NamedType) isNominalType() bool {
 
 // recursionUnsafeHashCode: an object that is exactly a NamedType calls its recursionUnsafeHashCode_impl directly (post-flip); others dispatch.
 func (this *NamedType) recursionUnsafeHashCode() int32 {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*NamedType); p == this {
 		return this.recursionUnsafeHashCode_impl()
 	}
 	return this.self_.recursionUnsafeHashCode_impl()
@@ -617,7 +617,7 @@ func (this *NamedType) recursionUnsafeHashCode() int32 {
 
 // resolveInternal: an object that is exactly a NamedType calls its resolveInternal_impl directly (post-flip); others dispatch.
 func (this *NamedType) resolveInternal(p0 ErrorReporter_rhino) *JSType {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*NamedType); p == this {
 		return this.resolveInternal_impl(p0)
 	}
 	return this.self_.resolveInternal_impl(p0)
@@ -625,7 +625,7 @@ func (this *NamedType) resolveInternal(p0 ErrorReporter_rhino) *JSType {
 
 // setValidator: an object that is exactly a NamedType calls its setValidator_impl directly (post-flip); others dispatch.
 func (this *NamedType) setValidator(p0 Predicate_base) bool {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*NamedType); p == this {
 		return this.setValidator_impl(p0)
 	}
 	return this.self_.setValidator_impl(p0)
@@ -633,7 +633,7 @@ func (this *NamedType) setValidator(p0 Predicate_base) bool {
 
 // isObject: an object that is exactly a NamedType calls its isObject_impl directly (post-flip); others dispatch.
 func (this *NamedType) isObject() bool {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*NamedType); p == this {
 		return this.isObject_impl()
 	}
 	return this.self_.isObject_impl()
@@ -641,7 +641,7 @@ func (this *NamedType) isObject() bool {
 
 // visitUntyped: an object that is exactly a NamedType calls its visitUntyped_impl directly (post-flip); others dispatch.
 func (this *NamedType) visitUntyped(p0 Visitor) any {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*NamedType); p == this {
 		return this.visitUntyped_impl(p0)
 	}
 	return this.self_.visitUntyped_impl(p0)

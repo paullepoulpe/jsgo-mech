@@ -231,7 +231,7 @@ func (this *CheckSideEffects_GetNoSideEffectExterns) visit_impl(t *NodeTraversal
 
 // visit: an object that is exactly a CheckSideEffects calls its visit_impl directly (post-flip); others dispatch.
 func (this *CheckSideEffects) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*CheckSideEffects); p == this {
 		this.visit_impl(p0, p1, p2)
 		return
 	}
@@ -240,7 +240,7 @@ func (this *CheckSideEffects) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
 
 // visit: an object that is exactly a CheckSideEffects_StripProtection calls its visit_impl directly (post-flip); others dispatch.
 func (this *CheckSideEffects_StripProtection) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*CheckSideEffects_StripProtection); p == this {
 		this.visit_impl(p0, p1, p2)
 		return
 	}
@@ -249,7 +249,7 @@ func (this *CheckSideEffects_StripProtection) visit(p0 *NodeTraversal, p1 Node, 
 
 // visit: an object that is exactly a CheckSideEffects_GetNoSideEffectExterns calls its visit_impl directly (post-flip); others dispatch.
 func (this *CheckSideEffects_GetNoSideEffectExterns) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*CheckSideEffects_GetNoSideEffectExterns); p == this {
 		this.visit_impl(p0, p1, p2)
 		return
 	}

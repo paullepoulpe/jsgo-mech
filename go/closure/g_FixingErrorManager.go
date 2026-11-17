@@ -215,7 +215,7 @@ func FixingErrorManager_FixTypes_clinit() {
 
 // report_2: an object that is exactly a FixingErrorManager calls its report_2_impl directly (post-flip); others dispatch.
 func (this *FixingErrorManager) report_2(p0 CheckLevel, p1 *JSError) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*FixingErrorManager); p == this {
 		this.report_2_impl(p0, p1)
 		return
 	}
@@ -224,7 +224,7 @@ func (this *FixingErrorManager) report_2(p0 CheckLevel, p1 *JSError) {
 
 // printSummary: an object that is exactly a FixingErrorManager calls its printSummary_impl directly (post-flip); others dispatch.
 func (this *FixingErrorManager) printSummary() {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*FixingErrorManager); p == this {
 		this.printSummary_impl()
 		return
 	}
@@ -233,7 +233,7 @@ func (this *FixingErrorManager) printSummary() {
 
 // println: an object that is exactly a FixingErrorManager calls its println_impl directly (post-flip); others dispatch.
 func (this *FixingErrorManager) println(p0 CheckLevel, p1 *JSError) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*FixingErrorManager); p == this {
 		this.println_impl(p0, p1)
 		return
 	}

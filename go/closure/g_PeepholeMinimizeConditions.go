@@ -753,7 +753,7 @@ func PeepholeMinimizeConditions_clinit() {
 
 // optimizeSubtree: an object that is exactly a PeepholeMinimizeConditions calls its optimizeSubtree_impl directly (post-flip); others dispatch.
 func (this *PeepholeMinimizeConditions) optimizeSubtree(p0 Node) Node {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*PeepholeMinimizeConditions); p == this {
 		return this.optimizeSubtree_impl(p0)
 	}
 	return this.self_.optimizeSubtree_impl(p0)

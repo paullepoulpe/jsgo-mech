@@ -183,7 +183,7 @@ func (this *ClosureReverseAbstractInterpreter_2) caseFunctionType_impl(type_ *Fu
 
 // getPreciserScopeKnowingConditionOutcome: an object that is exactly a ClosureReverseAbstractInterpreter calls its getPreciserScopeKnowingConditionOutcome_impl directly (post-flip); others dispatch.
 func (this *ClosureReverseAbstractInterpreter) getPreciserScopeKnowingConditionOutcome(p0 Node, p1 FlowScope, p2 *Outcome_rhino) FlowScope {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*ClosureReverseAbstractInterpreter); p == this {
 		return this.getPreciserScopeKnowingConditionOutcome_impl(p0, p1, p2)
 	}
 	return this.self_.getPreciserScopeKnowingConditionOutcome_impl(p0, p1, p2)
@@ -191,7 +191,7 @@ func (this *ClosureReverseAbstractInterpreter) getPreciserScopeKnowingConditionO
 
 // caseTopType: an object that is exactly a ClosureReverseAbstractInterpreter_1 calls its caseTopType_impl directly (post-flip); others dispatch.
 func (this *ClosureReverseAbstractInterpreter_1) caseTopType(p0 *JSType) *JSType {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*ClosureReverseAbstractInterpreter_1); p == this {
 		return this.caseTopType_impl(p0)
 	}
 	return this.self_.caseTopType_impl(p0)
@@ -199,7 +199,7 @@ func (this *ClosureReverseAbstractInterpreter_1) caseTopType(p0 *JSType) *JSType
 
 // caseObjectType: an object that is exactly a ClosureReverseAbstractInterpreter_1 calls its caseObjectType_impl directly (post-flip); others dispatch.
 func (this *ClosureReverseAbstractInterpreter_1) caseObjectType(p0 *ObjectType) any {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*ClosureReverseAbstractInterpreter_1); p == this {
 		return this.caseObjectType_impl(p0)
 	}
 	return this.self_.caseObjectType_impl(p0)
@@ -207,7 +207,7 @@ func (this *ClosureReverseAbstractInterpreter_1) caseObjectType(p0 *ObjectType) 
 
 // caseFunctionType: an object that is exactly a ClosureReverseAbstractInterpreter_1 calls its caseFunctionType_impl directly (post-flip); others dispatch.
 func (this *ClosureReverseAbstractInterpreter_1) caseFunctionType(p0 *FunctionType) any {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*ClosureReverseAbstractInterpreter_1); p == this {
 		return this.caseFunctionType_impl(p0)
 	}
 	return this.self_.caseFunctionType_impl(p0)
@@ -215,7 +215,7 @@ func (this *ClosureReverseAbstractInterpreter_1) caseFunctionType(p0 *FunctionTy
 
 // caseObjectType: an object that is exactly a ClosureReverseAbstractInterpreter_2 calls its caseObjectType_impl directly (post-flip); others dispatch.
 func (this *ClosureReverseAbstractInterpreter_2) caseObjectType(p0 *ObjectType) any {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*ClosureReverseAbstractInterpreter_2); p == this {
 		return this.caseObjectType_impl(p0)
 	}
 	return this.self_.caseObjectType_impl(p0)
@@ -223,7 +223,7 @@ func (this *ClosureReverseAbstractInterpreter_2) caseObjectType(p0 *ObjectType) 
 
 // caseFunctionType: an object that is exactly a ClosureReverseAbstractInterpreter_2 calls its caseFunctionType_impl directly (post-flip); others dispatch.
 func (this *ClosureReverseAbstractInterpreter_2) caseFunctionType(p0 *FunctionType) any {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*ClosureReverseAbstractInterpreter_2); p == this {
 		return this.caseFunctionType_impl(p0)
 	}
 	return this.self_.caseFunctionType_impl(p0)

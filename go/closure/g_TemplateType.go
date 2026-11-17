@@ -165,7 +165,7 @@ func TemplateType_clinit() {
 
 // getTypeClass: an object that is exactly a TemplateType calls its getTypeClass_impl directly (post-flip); others dispatch.
 func (this *TemplateType) getTypeClass() JSTypeClass {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*TemplateType); p == this {
 		return this.getTypeClass_impl()
 	}
 	return this.self_.getTypeClass_impl()
@@ -173,7 +173,7 @@ func (this *TemplateType) getTypeClass() JSTypeClass {
 
 // getReferenceName: an object that is exactly a TemplateType calls its getReferenceName_impl directly (post-flip); others dispatch.
 func (this *TemplateType) getReferenceName() OptionalOf[string] {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*TemplateType); p == this {
 		return this.getReferenceName_impl()
 	}
 	return this.self_.getReferenceName_impl()
@@ -181,7 +181,7 @@ func (this *TemplateType) getReferenceName() OptionalOf[string] {
 
 // appendTo: an object that is exactly a TemplateType calls its appendTo_impl directly (post-flip); others dispatch.
 func (this *TemplateType) appendTo(p0 *TypeStringBuilder) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*TemplateType); p == this {
 		this.appendTo_impl(p0)
 		return
 	}
@@ -190,7 +190,7 @@ func (this *TemplateType) appendTo(p0 *TypeStringBuilder) {
 
 // toMaybeTemplateType: an object that is exactly a TemplateType calls its toMaybeTemplateType_impl directly (post-flip); others dispatch.
 func (this *TemplateType) toMaybeTemplateType() *TemplateType {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*TemplateType); p == this {
 		return this.toMaybeTemplateType_impl()
 	}
 	return this.self_.toMaybeTemplateType_impl()
@@ -198,7 +198,7 @@ func (this *TemplateType) toMaybeTemplateType() *TemplateType {
 
 // hasAnyTemplateTypesInternal: an object that is exactly a TemplateType calls its hasAnyTemplateTypesInternal_impl directly (post-flip); others dispatch.
 func (this *TemplateType) hasAnyTemplateTypesInternal() bool {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*TemplateType); p == this {
 		return this.hasAnyTemplateTypesInternal_impl()
 	}
 	return this.self_.hasAnyTemplateTypesInternal_impl()
@@ -206,7 +206,7 @@ func (this *TemplateType) hasAnyTemplateTypesInternal() bool {
 
 // visitUntyped: an object that is exactly a TemplateType calls its visitUntyped_impl directly (post-flip); others dispatch.
 func (this *TemplateType) visitUntyped(p0 Visitor) any {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*TemplateType); p == this {
 		return this.visitUntyped_impl(p0)
 	}
 	return this.self_.visitUntyped_impl(p0)
@@ -214,7 +214,7 @@ func (this *TemplateType) visitUntyped(p0 Visitor) any {
 
 // visitUntyped_2: an object that is exactly a TemplateType calls its visitUntyped_2_impl directly (post-flip); others dispatch.
 func (this *TemplateType) visitUntyped_2(p0 RelationshipVisitor, p1 *JSType) any {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*TemplateType); p == this {
 		return this.visitUntyped_2_impl(p0, p1)
 	}
 	return this.self_.visitUntyped_2_impl(p0, p1)
@@ -222,7 +222,7 @@ func (this *TemplateType) visitUntyped_2(p0 RelationshipVisitor, p1 *JSType) any
 
 // setValidator: an object that is exactly a TemplateType calls its setValidator_impl directly (post-flip); others dispatch.
 func (this *TemplateType) setValidator(p0 Predicate_base) bool {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*TemplateType); p == this {
 		return this.setValidator_impl(p0)
 	}
 	return this.self_.setValidator_impl(p0)
@@ -230,7 +230,7 @@ func (this *TemplateType) setValidator(p0 Predicate_base) bool {
 
 // recursionUnsafeHashCode: an object that is exactly a TemplateType calls its recursionUnsafeHashCode_impl directly (post-flip); others dispatch.
 func (this *TemplateType) recursionUnsafeHashCode() int32 {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*TemplateType); p == this {
 		return this.recursionUnsafeHashCode_impl()
 	}
 	return this.self_.recursionUnsafeHashCode_impl()

@@ -433,7 +433,7 @@ func DeadAssignmentsElimination_VariableLiveness_clinit() {
 
 // visit: an object that is exactly a DeadAssignmentsElimination calls its visit_impl directly (post-flip); others dispatch.
 func (this *DeadAssignmentsElimination) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*DeadAssignmentsElimination); p == this {
 		this.visit_impl(p0, p1, p2)
 		return
 	}
@@ -442,7 +442,7 @@ func (this *DeadAssignmentsElimination) visit(p0 *NodeTraversal, p1 Node, p2 Nod
 
 // enterScopeWithCfg: an object that is exactly a DeadAssignmentsElimination calls its enterScopeWithCfg_impl directly (post-flip); others dispatch.
 func (this *DeadAssignmentsElimination) enterScopeWithCfg(p0 *NodeTraversal) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*DeadAssignmentsElimination); p == this {
 		this.enterScopeWithCfg_impl(p0)
 		return
 	}
@@ -451,7 +451,7 @@ func (this *DeadAssignmentsElimination) enterScopeWithCfg(p0 *NodeTraversal) {
 
 // exitScopeWithCfg: an object that is exactly a DeadAssignmentsElimination calls its exitScopeWithCfg_impl directly (post-flip); others dispatch.
 func (this *DeadAssignmentsElimination) exitScopeWithCfg(p0 *NodeTraversal) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*DeadAssignmentsElimination); p == this {
 		this.exitScopeWithCfg_impl(p0)
 		return
 	}

@@ -80,7 +80,7 @@ func (this *StringType) visitUntyped_impl(visitor Visitor) any {
 
 // getTypeClass: an object that is exactly a StringType calls its getTypeClass_impl directly (post-flip); others dispatch.
 func (this *StringType) getTypeClass() JSTypeClass {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*StringType); p == this {
 		return this.getTypeClass_impl()
 	}
 	return this.self_.getTypeClass_impl()
@@ -88,7 +88,7 @@ func (this *StringType) getTypeClass() JSTypeClass {
 
 // testForEquality: an object that is exactly a StringType calls its testForEquality_impl directly (post-flip); others dispatch.
 func (this *StringType) testForEquality(p0 *JSType) Tri {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*StringType); p == this {
 		return this.testForEquality_impl(p0)
 	}
 	return this.self_.testForEquality_impl(p0)
@@ -96,7 +96,7 @@ func (this *StringType) testForEquality(p0 *JSType) Tri {
 
 // isStringValueType: an object that is exactly a StringType calls its isStringValueType_impl directly (post-flip); others dispatch.
 func (this *StringType) isStringValueType() bool {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*StringType); p == this {
 		return this.isStringValueType_impl()
 	}
 	return this.self_.isStringValueType_impl()
@@ -104,7 +104,7 @@ func (this *StringType) isStringValueType() bool {
 
 // matchesNumberContext: an object that is exactly a StringType calls its matchesNumberContext_impl directly (post-flip); others dispatch.
 func (this *StringType) matchesNumberContext() bool {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*StringType); p == this {
 		return this.matchesNumberContext_impl()
 	}
 	return this.self_.matchesNumberContext_impl()
@@ -112,7 +112,7 @@ func (this *StringType) matchesNumberContext() bool {
 
 // matchesStringContext: an object that is exactly a StringType calls its matchesStringContext_impl directly (post-flip); others dispatch.
 func (this *StringType) matchesStringContext() bool {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*StringType); p == this {
 		return this.matchesStringContext_impl()
 	}
 	return this.self_.matchesStringContext_impl()
@@ -120,7 +120,7 @@ func (this *StringType) matchesStringContext() bool {
 
 // matchesObjectContext: an object that is exactly a StringType calls its matchesObjectContext_impl directly (post-flip); others dispatch.
 func (this *StringType) matchesObjectContext() bool {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*StringType); p == this {
 		return this.matchesObjectContext_impl()
 	}
 	return this.self_.matchesObjectContext_impl()
@@ -128,7 +128,7 @@ func (this *StringType) matchesObjectContext() bool {
 
 // getDisplayName: an object that is exactly a StringType calls its getDisplayName_impl directly (post-flip); others dispatch.
 func (this *StringType) getDisplayName() OptionalOf[string] {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*StringType); p == this {
 		return this.getDisplayName_impl()
 	}
 	return this.self_.getDisplayName_impl()
@@ -136,7 +136,7 @@ func (this *StringType) getDisplayName() OptionalOf[string] {
 
 // autoboxesTo: an object that is exactly a StringType calls its autoboxesTo_impl directly (post-flip); others dispatch.
 func (this *StringType) autoboxesTo() *JSType {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*StringType); p == this {
 		return this.autoboxesTo_impl()
 	}
 	return this.self_.autoboxesTo_impl()
@@ -144,7 +144,7 @@ func (this *StringType) autoboxesTo() *JSType {
 
 // getPossibleToBooleanOutcomes: an object that is exactly a StringType calls its getPossibleToBooleanOutcomes_impl directly (post-flip); others dispatch.
 func (this *StringType) getPossibleToBooleanOutcomes() BooleanLiteralSet {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*StringType); p == this {
 		return this.getPossibleToBooleanOutcomes_impl()
 	}
 	return this.self_.getPossibleToBooleanOutcomes_impl()
@@ -152,7 +152,7 @@ func (this *StringType) getPossibleToBooleanOutcomes() BooleanLiteralSet {
 
 // visitUntyped: an object that is exactly a StringType calls its visitUntyped_impl directly (post-flip); others dispatch.
 func (this *StringType) visitUntyped(p0 Visitor) any {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*StringType); p == this {
 		return this.visitUntyped_impl(p0)
 	}
 	return this.self_.visitUntyped_impl(p0)

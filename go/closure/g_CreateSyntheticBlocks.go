@@ -181,7 +181,7 @@ func new_CreateSyntheticBlocks_Marker(startMarker Node, endMarker Node) *CreateS
 
 // visit: an object that is exactly a CreateSyntheticBlocks calls its visit_impl directly (post-flip); others dispatch.
 func (this *CreateSyntheticBlocks) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*CreateSyntheticBlocks); p == this {
 		this.visit_impl(p0, p1, p2)
 		return
 	}

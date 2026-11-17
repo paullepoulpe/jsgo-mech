@@ -105,7 +105,7 @@ func ReplaceMessagesForChrome_clinit() {
 
 // processIcuTemplateDefinition: an object that is exactly a ReplaceMessagesForChrome calls its processIcuTemplateDefinition_impl directly (post-flip); others dispatch.
 func (this *ReplaceMessagesForChrome) processIcuTemplateDefinition(p0 IcuTemplateDefinition) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*ReplaceMessagesForChrome); p == this {
 		this.processIcuTemplateDefinition_impl(p0)
 		return
 	}
@@ -114,7 +114,7 @@ func (this *ReplaceMessagesForChrome) processIcuTemplateDefinition(p0 IcuTemplat
 
 // processJsMessageDefinition: an object that is exactly a ReplaceMessagesForChrome calls its processJsMessageDefinition_impl directly (post-flip); others dispatch.
 func (this *ReplaceMessagesForChrome) processJsMessageDefinition(p0 JsMessageDefinition) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*ReplaceMessagesForChrome); p == this {
 		this.processJsMessageDefinition_impl(p0)
 		return
 	}

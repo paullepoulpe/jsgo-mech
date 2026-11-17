@@ -306,7 +306,7 @@ func (this *InlineSimpleMethods_GatherSignatures) processPrototypeParent(n Node)
 
 // visit_4: an object that is exactly a InlineSimpleMethods_InlineTrivialAccessors calls its visit_4_impl directly (post-flip); others dispatch.
 func (this *InlineSimpleMethods_InlineTrivialAccessors) visit_4(p0 *NodeTraversal, p1 Node, p2 Node, p3 string) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*InlineSimpleMethods_InlineTrivialAccessors); p == this {
 		this.visit_4_impl(p0, p1, p2, p3)
 		return
 	}
@@ -315,7 +315,7 @@ func (this *InlineSimpleMethods_InlineTrivialAccessors) visit_4(p0 *NodeTraversa
 
 // visit: an object that is exactly a InlineSimpleMethods_GatherSignatures calls its visit_impl directly (post-flip); others dispatch.
 func (this *InlineSimpleMethods_GatherSignatures) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*InlineSimpleMethods_GatherSignatures); p == this {
 		this.visit_impl(p0, p1, p2)
 		return
 	}

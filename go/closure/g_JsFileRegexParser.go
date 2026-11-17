@@ -332,7 +332,7 @@ func JsFileRegexParser_ModuleType_clinit() {
 
 // parseJsDocCommentLine: an object that is exactly a JsFileRegexParser calls its parseJsDocCommentLine_impl directly (post-flip); others dispatch.
 func (this *JsFileRegexParser) parseJsDocCommentLine(p0 string) bool {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*JsFileRegexParser); p == this {
 		return this.parseJsDocCommentLine_impl(p0)
 	}
 	return this.self_.parseJsDocCommentLine_impl(p0)
@@ -340,7 +340,7 @@ func (this *JsFileRegexParser) parseJsDocCommentLine(p0 string) bool {
 
 // parseLine: an object that is exactly a JsFileRegexParser calls its parseLine_impl directly (post-flip); others dispatch.
 func (this *JsFileRegexParser) parseLine(p0 string) *Outcome_base {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*JsFileRegexParser); p == this {
 		return this.parseLine_impl(p0)
 	}
 	return this.self_.parseLine_impl(p0)

@@ -181,7 +181,7 @@ var lambda_GraphColoring_GreedyGraphColoring_color_impl_1_ = &Function_fn{func(p
 
 // color: an object that is exactly a GraphColoring_GreedyGraphColoring calls its color_impl directly (post-flip); others dispatch.
 func (this *GraphColoring_GreedyGraphColoring) color() int32 {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*GraphColoring_GreedyGraphColoring); p == this {
 		return this.color_impl()
 	}
 	return this.self_.(*GraphColoring_GreedyGraphColoring).color_impl()

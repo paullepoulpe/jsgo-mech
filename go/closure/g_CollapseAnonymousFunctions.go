@@ -88,7 +88,7 @@ func (this *CollapseAnonymousFunctions) containsName(n Node, name string) bool {
 
 // visit: an object that is exactly a CollapseAnonymousFunctions calls its visit_impl directly (post-flip); others dispatch.
 func (this *CollapseAnonymousFunctions) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*CollapseAnonymousFunctions); p == this {
 		this.visit_impl(p0, p1, p2)
 		return
 	}

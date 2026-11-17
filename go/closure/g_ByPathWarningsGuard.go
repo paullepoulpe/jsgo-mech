@@ -70,7 +70,7 @@ const ByPathWarningsGuard_serialVersionUID int64 = 1
 
 // level: an object that is exactly a ByPathWarningsGuard calls its level_impl directly (post-flip); others dispatch.
 func (this *ByPathWarningsGuard) level(p0 *JSError) CheckLevel {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*ByPathWarningsGuard); p == this {
 		return this.level_impl(p0)
 	}
 	return this.self_.level_impl(p0)
@@ -78,7 +78,7 @@ func (this *ByPathWarningsGuard) level(p0 *JSError) CheckLevel {
 
 // getPriority: an object that is exactly a ByPathWarningsGuard calls its getPriority_impl directly (post-flip); others dispatch.
 func (this *ByPathWarningsGuard) getPriority() int32 {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*ByPathWarningsGuard); p == this {
 		return this.getPriority_impl()
 	}
 	return this.self_.getPriority_impl()

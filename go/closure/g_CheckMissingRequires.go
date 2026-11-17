@@ -591,7 +591,7 @@ func CheckMissingRequires_Strength_clinit() {
 
 // shouldTraverse_4: an object that is exactly a CheckMissingRequires calls its shouldTraverse_4_impl directly (post-flip); others dispatch.
 func (this *CheckMissingRequires) shouldTraverse_4(p0 *NodeTraversal, p1 Node, p2 *ModuleMetadataMap_ModuleMetadata, p3 Node) bool {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*CheckMissingRequires); p == this {
 		return this.shouldTraverse_4_impl(p0, p1, p2, p3)
 	}
 	return this.self_.shouldTraverse_4_impl(p0, p1, p2, p3)
@@ -599,7 +599,7 @@ func (this *CheckMissingRequires) shouldTraverse_4(p0 *NodeTraversal, p1 Node, p
 
 // visit_4: an object that is exactly a CheckMissingRequires calls its visit_4_impl directly (post-flip); others dispatch.
 func (this *CheckMissingRequires) visit_4(p0 *NodeTraversal, p1 Node, p2 *ModuleMetadataMap_ModuleMetadata, p3 Node) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*CheckMissingRequires); p == this {
 		this.visit_4_impl(p0, p1, p2, p3)
 		return
 	}

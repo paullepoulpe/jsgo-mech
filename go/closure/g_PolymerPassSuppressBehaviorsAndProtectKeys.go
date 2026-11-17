@@ -120,7 +120,7 @@ func (this *PolymerPassSuppressBehaviorsAndProtectKeys) addSuppressionJsDocAnnot
 
 // visit: an object that is exactly a PolymerPassSuppressBehaviorsAndProtectKeys calls its visit_impl directly (post-flip); others dispatch.
 func (this *PolymerPassSuppressBehaviorsAndProtectKeys) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*PolymerPassSuppressBehaviorsAndProtectKeys); p == this {
 		this.visit_impl(p0, p1, p2)
 		return
 	}

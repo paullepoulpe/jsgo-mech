@@ -423,7 +423,7 @@ func (this *DataFlowAnalysis_1) visit_impl(t *NodeTraversal, n Node, parent Node
 
 // visit: an object that is exactly a DataFlowAnalysis_1 calls its visit_impl directly (post-flip); others dispatch.
 func (this *DataFlowAnalysis_1) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*DataFlowAnalysis_1); p == this {
 		this.visit_impl(p0, p1, p2)
 		return
 	}

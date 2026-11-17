@@ -64,7 +64,7 @@ func Transpiler_bundle_clinit() {
 
 // getRuntime: an object that is exactly a Transpiler_bundle calls its getRuntime_impl directly (post-flip); others dispatch.
 func (this *Transpiler_bundle) getRuntime() OptionalOf[string] {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*Transpiler_bundle); p == this {
 		return this.getRuntime_impl()
 	}
 	return this.self_.getRuntime_impl()
@@ -72,7 +72,7 @@ func (this *Transpiler_bundle) getRuntime() OptionalOf[string] {
 
 // getTranformationName: an object that is exactly a Transpiler_bundle calls its getTranformationName_impl directly (post-flip); others dispatch.
 func (this *Transpiler_bundle) getTranformationName() string {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*Transpiler_bundle); p == this {
 		return this.getTranformationName_impl()
 	}
 	return this.self_.getTranformationName_impl()

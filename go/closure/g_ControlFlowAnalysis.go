@@ -833,7 +833,7 @@ func lambda_ControlFlowAnalysis_AstControlFlowGraph_getOptionalNodeComparator_im
 
 // getOptionalNodeComparator: an object that is exactly a ControlFlowAnalysis_AstControlFlowGraph calls its getOptionalNodeComparator_impl directly (post-flip); others dispatch.
 func (this *ControlFlowAnalysis_AstControlFlowGraph) getOptionalNodeComparator(p0 bool) Comparator {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*ControlFlowAnalysis_AstControlFlowGraph); p == this {
 		return this.getOptionalNodeComparator_impl(p0)
 	}
 	return this.self_.getOptionalNodeComparator_impl(p0)

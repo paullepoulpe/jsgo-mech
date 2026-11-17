@@ -210,7 +210,7 @@ func (this *ColorFindPropertyReferences_IsPropertyReflector_fn) test(p0 Node) bo
 
 // visit: an object that is exactly a ColorFindPropertyReferences calls its visit_impl directly (post-flip); others dispatch.
 func (this *ColorFindPropertyReferences) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*ColorFindPropertyReferences); p == this {
 		this.visit_impl(p0, p1, p2)
 		return
 	}

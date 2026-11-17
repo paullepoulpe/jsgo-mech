@@ -482,7 +482,7 @@ func (this *Source_Lazy_2) get_impl() any {
 
 // get: an object that is exactly a Source_Lazy_1 calls its get_impl directly (post-flip); others dispatch.
 func (this *Source_Lazy_1) get() any {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*Source_Lazy_1); p == this {
 		return this.get_impl()
 	}
 	return this.self_.get_impl()
@@ -490,7 +490,7 @@ func (this *Source_Lazy_1) get() any {
 
 // get: an object that is exactly a Source_Lazy_2 calls its get_impl directly (post-flip); others dispatch.
 func (this *Source_Lazy_2) get() any {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*Source_Lazy_2); p == this {
 		return this.get_impl()
 	}
 	return this.self_.get_impl()

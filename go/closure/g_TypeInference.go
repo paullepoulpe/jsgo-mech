@@ -2257,7 +2257,7 @@ func (this *TypeInference_1) branchFlow(branch ControlFlowGraph_Branch) any {
 
 // createInitialEstimateLattice: an object that is exactly a TypeInference calls its createInitialEstimateLattice_impl directly (post-flip); others dispatch.
 func (this *TypeInference) createInitialEstimateLattice() LatticeElement {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*TypeInference); p == this {
 		return this.createInitialEstimateLattice_impl()
 	}
 	return this.self_.createInitialEstimateLattice_impl()
@@ -2265,7 +2265,7 @@ func (this *TypeInference) createInitialEstimateLattice() LatticeElement {
 
 // createEntryLattice: an object that is exactly a TypeInference calls its createEntryLattice_impl directly (post-flip); others dispatch.
 func (this *TypeInference) createEntryLattice() LatticeElement {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*TypeInference); p == this {
 		return this.createEntryLattice_impl()
 	}
 	return this.self_.createEntryLattice_impl()
@@ -2273,7 +2273,7 @@ func (this *TypeInference) createEntryLattice() LatticeElement {
 
 // flowThrough: an object that is exactly a TypeInference calls its flowThrough_impl directly (post-flip); others dispatch.
 func (this *TypeInference) flowThrough(p0 any, p1 LatticeElement) LatticeElement {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*TypeInference); p == this {
 		return this.flowThrough_impl(p0, p1)
 	}
 	return this.self_.flowThrough_impl(p0, p1)
@@ -2281,7 +2281,7 @@ func (this *TypeInference) flowThrough(p0 any, p1 LatticeElement) LatticeElement
 
 // isForward: an object that is exactly a TypeInference calls its isForward_impl directly (post-flip); others dispatch.
 func (this *TypeInference) isForward() bool {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*TypeInference); p == this {
 		return this.isForward_impl()
 	}
 	return this.self_.isForward_impl()
@@ -2289,7 +2289,7 @@ func (this *TypeInference) isForward() bool {
 
 // isBranched: an object that is exactly a TypeInference calls its isBranched_impl directly (post-flip); others dispatch.
 func (this *TypeInference) isBranched() bool {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*TypeInference); p == this {
 		return this.isBranched_impl()
 	}
 	return this.self_.isBranched_impl()
@@ -2297,7 +2297,7 @@ func (this *TypeInference) isBranched() bool {
 
 // createFlowJoiner: an object that is exactly a TypeInference calls its createFlowJoiner_impl directly (post-flip); others dispatch.
 func (this *TypeInference) createFlowJoiner() DataFlowAnalysis_FlowJoiner {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*TypeInference); p == this {
 		return this.createFlowJoiner_impl()
 	}
 	return this.self_.createFlowJoiner_impl()
@@ -2305,7 +2305,7 @@ func (this *TypeInference) createFlowJoiner() DataFlowAnalysis_FlowJoiner {
 
 // createFlowBrancher: an object that is exactly a TypeInference calls its createFlowBrancher_impl directly (post-flip); others dispatch.
 func (this *TypeInference) createFlowBrancher(p0 any, p1 LatticeElement) DataFlowAnalysis_FlowBrancher {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*TypeInference); p == this {
 		return this.createFlowBrancher_impl(p0, p1)
 	}
 	return this.self_.createFlowBrancher_impl(p0, p1)

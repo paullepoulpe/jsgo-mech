@@ -51,7 +51,7 @@ func (this *CheckTypeSummaryWarningsGuard) shouldDemoteIfTypeSummary(error_ *JSE
 
 // level: an object that is exactly a CheckTypeSummaryWarningsGuard calls its level_impl directly (post-flip); others dispatch.
 func (this *CheckTypeSummaryWarningsGuard) level(p0 *JSError) CheckLevel {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*CheckTypeSummaryWarningsGuard); p == this {
 		return this.level_impl(p0)
 	}
 	return this.self_.level_impl(p0)
@@ -59,7 +59,7 @@ func (this *CheckTypeSummaryWarningsGuard) level(p0 *JSError) CheckLevel {
 
 // getPriority: an object that is exactly a CheckTypeSummaryWarningsGuard calls its getPriority_impl directly (post-flip); others dispatch.
 func (this *CheckTypeSummaryWarningsGuard) getPriority() int32 {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*CheckTypeSummaryWarningsGuard); p == this {
 		return this.getPriority_impl()
 	}
 	return this.self_.getPriority_impl()

@@ -88,7 +88,7 @@ func (this *CoverageInstrumenter_CompilerSupplier) transformed_impl(result *Resu
 
 // getRuntime: an object that is exactly a CoverageInstrumenter calls its getRuntime_impl directly (post-flip); others dispatch.
 func (this *CoverageInstrumenter) getRuntime() OptionalOf[string] {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*CoverageInstrumenter); p == this {
 		return this.getRuntime_impl()
 	}
 	return this.self_.getRuntime_impl()
@@ -96,7 +96,7 @@ func (this *CoverageInstrumenter) getRuntime() OptionalOf[string] {
 
 // getTranformationName: an object that is exactly a CoverageInstrumenter calls its getTranformationName_impl directly (post-flip); others dispatch.
 func (this *CoverageInstrumenter) getTranformationName() string {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*CoverageInstrumenter); p == this {
 		return this.getTranformationName_impl()
 	}
 	return this.self_.getTranformationName_impl()
@@ -104,7 +104,7 @@ func (this *CoverageInstrumenter) getTranformationName() string {
 
 // setOptions: an object that is exactly a CoverageInstrumenter_CompilerSupplier calls its setOptions_impl directly (post-flip); others dispatch.
 func (this *CoverageInstrumenter_CompilerSupplier) setOptions(p0 *CompilerOptions) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*CoverageInstrumenter_CompilerSupplier); p == this {
 		this.setOptions_impl(p0)
 		return
 	}
@@ -113,7 +113,7 @@ func (this *CoverageInstrumenter_CompilerSupplier) setOptions(p0 *CompilerOption
 
 // transformed: an object that is exactly a CoverageInstrumenter_CompilerSupplier calls its transformed_impl directly (post-flip); others dispatch.
 func (this *CoverageInstrumenter_CompilerSupplier) transformed(p0 *Result) bool {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*CoverageInstrumenter_CompilerSupplier); p == this {
 		return this.transformed_impl(p0)
 	}
 	return this.self_.transformed_impl(p0)

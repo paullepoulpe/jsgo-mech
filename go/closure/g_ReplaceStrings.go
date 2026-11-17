@@ -365,7 +365,7 @@ func new_ReplaceStrings_Result(original string, replacement string) *ReplaceStri
 
 // visit: an object that is exactly a ReplaceStrings calls its visit_impl directly (post-flip); others dispatch.
 func (this *ReplaceStrings) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*ReplaceStrings); p == this {
 		this.visit_impl(p0, p1, p2)
 		return
 	}

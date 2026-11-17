@@ -596,7 +596,7 @@ func (this *CheckJSDoc_CheckJsdocTypes) visit(typeRefNode Node) {
 
 // visit: an object that is exactly a CheckJSDoc calls its visit_impl directly (post-flip); others dispatch.
 func (this *CheckJSDoc) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*CheckJSDoc); p == this {
 		this.visit_impl(p0, p1, p2)
 		return
 	}

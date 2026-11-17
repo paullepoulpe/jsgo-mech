@@ -64,7 +64,7 @@ func (this *RemovePropertyRenamingCalls_RemoveCompilerPropertyRenamingCallback) 
 
 // visit: an object that is exactly a RemovePropertyRenamingCalls_RemoveCompilerPropertyRenamingCallback calls its visit_impl directly (post-flip); others dispatch.
 func (this *RemovePropertyRenamingCalls_RemoveCompilerPropertyRenamingCallback) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*RemovePropertyRenamingCalls_RemoveCompilerPropertyRenamingCallback); p == this {
 		this.visit_impl(p0, p1, p2)
 		return
 	}

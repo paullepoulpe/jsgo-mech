@@ -4369,7 +4369,7 @@ func ConformanceRules_BannedProperty_RequirementPrecondition_5_clinit() {
 
 // checkConformance: an object that is exactly a ConformanceRules_NoOp calls its checkConformance_impl directly (post-flip); others dispatch.
 func (this *ConformanceRules_NoOp) checkConformance(p0 *NodeTraversal, p1 Node) *ConformanceRules_ConformanceResult {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*ConformanceRules_NoOp); p == this {
 		return this.checkConformance_impl(p0, p1)
 	}
 	return this.self_.checkConformance_impl(p0, p1)
@@ -4377,7 +4377,7 @@ func (this *ConformanceRules_NoOp) checkConformance(p0 *NodeTraversal, p1 Node) 
 
 // checkConformance: an object that is exactly a ConformanceRules_InferredConstCheck calls its checkConformance_impl directly (post-flip); others dispatch.
 func (this *ConformanceRules_InferredConstCheck) checkConformance(p0 *NodeTraversal, p1 Node) *ConformanceRules_ConformanceResult {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*ConformanceRules_InferredConstCheck); p == this {
 		return this.checkConformance_impl(p0, p1)
 	}
 	return this.self_.checkConformance_impl(p0, p1)
@@ -4385,7 +4385,7 @@ func (this *ConformanceRules_InferredConstCheck) checkConformance(p0 *NodeTraver
 
 // checkConformance: an object that is exactly a ConformanceRules_BannedDependency calls its checkConformance_impl directly (post-flip); others dispatch.
 func (this *ConformanceRules_BannedDependency) checkConformance(p0 *NodeTraversal, p1 Node) *ConformanceRules_ConformanceResult {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*ConformanceRules_BannedDependency); p == this {
 		return this.checkConformance_impl(p0, p1)
 	}
 	return this.self_.checkConformance_impl(p0, p1)
@@ -4393,7 +4393,7 @@ func (this *ConformanceRules_BannedDependency) checkConformance(p0 *NodeTraversa
 
 // checkConformance: an object that is exactly a ConformanceRules_BannedDependencyRegex calls its checkConformance_impl directly (post-flip); others dispatch.
 func (this *ConformanceRules_BannedDependencyRegex) checkConformance(p0 *NodeTraversal, p1 Node) *ConformanceRules_ConformanceResult {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*ConformanceRules_BannedDependencyRegex); p == this {
 		return this.checkConformance_impl(p0, p1)
 	}
 	return this.self_.checkConformance_impl(p0, p1)
@@ -4401,7 +4401,7 @@ func (this *ConformanceRules_BannedDependencyRegex) checkConformance(p0 *NodeTra
 
 // getPrecondition: an object that is exactly a ConformanceRules_BannedName calls its getPrecondition_impl directly (post-flip); others dispatch.
 func (this *ConformanceRules_BannedName) getPrecondition() CheckConformance_Precondition {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*ConformanceRules_BannedName); p == this {
 		return this.getPrecondition_impl()
 	}
 	return this.self_.getPrecondition_impl()
@@ -4409,7 +4409,7 @@ func (this *ConformanceRules_BannedName) getPrecondition() CheckConformance_Prec
 
 // checkConformance: an object that is exactly a ConformanceRules_BannedName calls its checkConformance_impl directly (post-flip); others dispatch.
 func (this *ConformanceRules_BannedName) checkConformance(p0 *NodeTraversal, p1 Node) *ConformanceRules_ConformanceResult {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*ConformanceRules_BannedName); p == this {
 		return this.checkConformance_impl(p0, p1)
 	}
 	return this.self_.checkConformance_impl(p0, p1)
@@ -4417,7 +4417,7 @@ func (this *ConformanceRules_BannedName) checkConformance(p0 *NodeTraversal, p1 
 
 // getPrecondition: an object that is exactly a ConformanceRules_BannedProperty calls its getPrecondition_impl directly (post-flip); others dispatch.
 func (this *ConformanceRules_BannedProperty) getPrecondition() CheckConformance_Precondition {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*ConformanceRules_BannedProperty); p == this {
 		return this.getPrecondition_impl()
 	}
 	return this.self_.getPrecondition_impl()
@@ -4425,7 +4425,7 @@ func (this *ConformanceRules_BannedProperty) getPrecondition() CheckConformance_
 
 // checkConformance: an object that is exactly a ConformanceRules_BannedProperty calls its checkConformance_impl directly (post-flip); others dispatch.
 func (this *ConformanceRules_BannedProperty) checkConformance(p0 *NodeTraversal, p1 Node) *ConformanceRules_ConformanceResult {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*ConformanceRules_BannedProperty); p == this {
 		return this.checkConformance_impl(p0, p1)
 	}
 	return this.self_.checkConformance_impl(p0, p1)
@@ -4433,7 +4433,7 @@ func (this *ConformanceRules_BannedProperty) checkConformance(p0 *NodeTraversal,
 
 // checkConformance: an object that is exactly a ConformanceRules_BannedStringRegex calls its checkConformance_impl directly (post-flip); others dispatch.
 func (this *ConformanceRules_BannedStringRegex) checkConformance(p0 *NodeTraversal, p1 Node) *ConformanceRules_ConformanceResult {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*ConformanceRules_BannedStringRegex); p == this {
 		return this.checkConformance_impl(p0, p1)
 	}
 	return this.self_.checkConformance_impl(p0, p1)
@@ -4441,7 +4441,7 @@ func (this *ConformanceRules_BannedStringRegex) checkConformance(p0 *NodeTravers
 
 // checkConformance: an object that is exactly a ConformanceRules_RestrictedNameCall calls its checkConformance_impl directly (post-flip); others dispatch.
 func (this *ConformanceRules_RestrictedNameCall) checkConformance(p0 *NodeTraversal, p1 Node) *ConformanceRules_ConformanceResult {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*ConformanceRules_RestrictedNameCall); p == this {
 		return this.checkConformance_impl(p0, p1)
 	}
 	return this.self_.checkConformance_impl(p0, p1)
@@ -4449,7 +4449,7 @@ func (this *ConformanceRules_RestrictedNameCall) checkConformance(p0 *NodeTraver
 
 // checkConformance: an object that is exactly a ConformanceRules_RestrictedMethodCall calls its checkConformance_impl directly (post-flip); others dispatch.
 func (this *ConformanceRules_RestrictedMethodCall) checkConformance(p0 *NodeTraversal, p1 Node) *ConformanceRules_ConformanceResult {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*ConformanceRules_RestrictedMethodCall); p == this {
 		return this.checkConformance_impl(p0, p1)
 	}
 	return this.self_.checkConformance_impl(p0, p1)
@@ -4457,7 +4457,7 @@ func (this *ConformanceRules_RestrictedMethodCall) checkConformance(p0 *NodeTrav
 
 // checkConformance: an object that is exactly a ConformanceRules_RestrictedPropertyWrite calls its checkConformance_impl directly (post-flip); others dispatch.
 func (this *ConformanceRules_RestrictedPropertyWrite) checkConformance(p0 *NodeTraversal, p1 Node) *ConformanceRules_ConformanceResult {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*ConformanceRules_RestrictedPropertyWrite); p == this {
 		return this.checkConformance_impl(p0, p1)
 	}
 	return this.self_.checkConformance_impl(p0, p1)
@@ -4465,7 +4465,7 @@ func (this *ConformanceRules_RestrictedPropertyWrite) checkConformance(p0 *NodeT
 
 // checkConformance: an object that is exactly a ConformanceRules_BannedCodePattern calls its checkConformance_impl directly (post-flip); others dispatch.
 func (this *ConformanceRules_BannedCodePattern) checkConformance(p0 *NodeTraversal, p1 Node) *ConformanceRules_ConformanceResult {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*ConformanceRules_BannedCodePattern); p == this {
 		return this.checkConformance_impl(p0, p1)
 	}
 	return this.self_.checkConformance_impl(p0, p1)
@@ -4473,7 +4473,7 @@ func (this *ConformanceRules_BannedCodePattern) checkConformance(p0 *NodeTravers
 
 // checkConformance: an object that is exactly a ConformanceRules_BanForOf calls its checkConformance_impl directly (post-flip); others dispatch.
 func (this *ConformanceRules_BanForOf) checkConformance(p0 *NodeTraversal, p1 Node) *ConformanceRules_ConformanceResult {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*ConformanceRules_BanForOf); p == this {
 		return this.checkConformance_impl(p0, p1)
 	}
 	return this.self_.checkConformance_impl(p0, p1)
@@ -4481,7 +4481,7 @@ func (this *ConformanceRules_BanForOf) checkConformance(p0 *NodeTraversal, p1 No
 
 // checkConformance: an object that is exactly a ConformanceRules_RequireUseStrict calls its checkConformance_impl directly (post-flip); others dispatch.
 func (this *ConformanceRules_RequireUseStrict) checkConformance(p0 *NodeTraversal, p1 Node) *ConformanceRules_ConformanceResult {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*ConformanceRules_RequireUseStrict); p == this {
 		return this.checkConformance_impl(p0, p1)
 	}
 	return this.self_.checkConformance_impl(p0, p1)
@@ -4489,7 +4489,7 @@ func (this *ConformanceRules_RequireUseStrict) checkConformance(p0 *NodeTraversa
 
 // checkConformance: an object that is exactly a ConformanceRules_BanThrowOfNonErrorTypes calls its checkConformance_impl directly (post-flip); others dispatch.
 func (this *ConformanceRules_BanThrowOfNonErrorTypes) checkConformance(p0 *NodeTraversal, p1 Node) *ConformanceRules_ConformanceResult {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*ConformanceRules_BanThrowOfNonErrorTypes); p == this {
 		return this.checkConformance_impl(p0, p1)
 	}
 	return this.self_.checkConformance_impl(p0, p1)
@@ -4497,7 +4497,7 @@ func (this *ConformanceRules_BanThrowOfNonErrorTypes) checkConformance(p0 *NodeT
 
 // checkConformance: an object that is exactly a ConformanceRules_BanNullDeref calls its checkConformance_impl directly (post-flip); others dispatch.
 func (this *ConformanceRules_BanNullDeref) checkConformance(p0 *NodeTraversal, p1 Node) *ConformanceRules_ConformanceResult {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*ConformanceRules_BanNullDeref); p == this {
 		return this.checkConformance_impl(p0, p1)
 	}
 	return this.self_.checkConformance_impl(p0, p1)
@@ -4505,7 +4505,7 @@ func (this *ConformanceRules_BanNullDeref) checkConformance(p0 *NodeTraversal, p
 
 // tsIsAllowlisted: an object that is exactly a ConformanceRules_BanUnknownThis calls its tsIsAllowlisted_impl directly (post-flip); others dispatch.
 func (this *ConformanceRules_BanUnknownThis) tsIsAllowlisted() bool {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*ConformanceRules_BanUnknownThis); p == this {
 		return this.tsIsAllowlisted_impl()
 	}
 	return this.self_.tsIsAllowlisted_impl()
@@ -4513,7 +4513,7 @@ func (this *ConformanceRules_BanUnknownThis) tsIsAllowlisted() bool {
 
 // checkConformance: an object that is exactly a ConformanceRules_BanUnknownThis calls its checkConformance_impl directly (post-flip); others dispatch.
 func (this *ConformanceRules_BanUnknownThis) checkConformance(p0 *NodeTraversal, p1 Node) *ConformanceRules_ConformanceResult {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*ConformanceRules_BanUnknownThis); p == this {
 		return this.checkConformance_impl(p0, p1)
 	}
 	return this.self_.checkConformance_impl(p0, p1)
@@ -4521,7 +4521,7 @@ func (this *ConformanceRules_BanUnknownThis) checkConformance(p0 *NodeTraversal,
 
 // checkConformance: an object that is exactly a ConformanceRules_BanUnknownDirectThisPropsReferences calls its checkConformance_impl directly (post-flip); others dispatch.
 func (this *ConformanceRules_BanUnknownDirectThisPropsReferences) checkConformance(p0 *NodeTraversal, p1 Node) *ConformanceRules_ConformanceResult {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*ConformanceRules_BanUnknownDirectThisPropsReferences); p == this {
 		return this.checkConformance_impl(p0, p1)
 	}
 	return this.self_.checkConformance_impl(p0, p1)
@@ -4529,7 +4529,7 @@ func (this *ConformanceRules_BanUnknownDirectThisPropsReferences) checkConforman
 
 // tsIsAllowlisted: an object that is exactly a ConformanceRules_BanUnknownTypedClassPropsReferences calls its tsIsAllowlisted_impl directly (post-flip); others dispatch.
 func (this *ConformanceRules_BanUnknownTypedClassPropsReferences) tsIsAllowlisted() bool {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*ConformanceRules_BanUnknownTypedClassPropsReferences); p == this {
 		return this.tsIsAllowlisted_impl()
 	}
 	return this.self_.tsIsAllowlisted_impl()
@@ -4537,7 +4537,7 @@ func (this *ConformanceRules_BanUnknownTypedClassPropsReferences) tsIsAllowliste
 
 // checkConformance: an object that is exactly a ConformanceRules_BanUnknownTypedClassPropsReferences calls its checkConformance_impl directly (post-flip); others dispatch.
 func (this *ConformanceRules_BanUnknownTypedClassPropsReferences) checkConformance(p0 *NodeTraversal, p1 Node) *ConformanceRules_ConformanceResult {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*ConformanceRules_BanUnknownTypedClassPropsReferences); p == this {
 		return this.checkConformance_impl(p0, p1)
 	}
 	return this.self_.checkConformance_impl(p0, p1)
@@ -4545,7 +4545,7 @@ func (this *ConformanceRules_BanUnknownTypedClassPropsReferences) checkConforman
 
 // checkConformance: an object that is exactly a ConformanceRules_BanUnresolvedType calls its checkConformance_impl directly (post-flip); others dispatch.
 func (this *ConformanceRules_BanUnresolvedType) checkConformance(p0 *NodeTraversal, p1 Node) *ConformanceRules_ConformanceResult {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*ConformanceRules_BanUnresolvedType); p == this {
 		return this.checkConformance_impl(p0, p1)
 	}
 	return this.self_.checkConformance_impl(p0, p1)
@@ -4553,7 +4553,7 @@ func (this *ConformanceRules_BanUnresolvedType) checkConformance(p0 *NodeTravers
 
 // checkConformance: an object that is exactly a ConformanceRules_StrictBanUnresolvedType calls its checkConformance_impl directly (post-flip); others dispatch.
 func (this *ConformanceRules_StrictBanUnresolvedType) checkConformance(p0 *NodeTraversal, p1 Node) *ConformanceRules_ConformanceResult {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*ConformanceRules_StrictBanUnresolvedType); p == this {
 		return this.checkConformance_impl(p0, p1)
 	}
 	return this.self_.checkConformance_impl(p0, p1)
@@ -4561,7 +4561,7 @@ func (this *ConformanceRules_StrictBanUnresolvedType) checkConformance(p0 *NodeT
 
 // checkConformance: an object that is exactly a ConformanceRules_BanGlobalVars calls its checkConformance_impl directly (post-flip); others dispatch.
 func (this *ConformanceRules_BanGlobalVars) checkConformance(p0 *NodeTraversal, p1 Node) *ConformanceRules_ConformanceResult {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*ConformanceRules_BanGlobalVars); p == this {
 		return this.checkConformance_impl(p0, p1)
 	}
 	return this.self_.checkConformance_impl(p0, p1)
@@ -4569,7 +4569,7 @@ func (this *ConformanceRules_BanGlobalVars) checkConformance(p0 *NodeTraversal, 
 
 // checkConformance: an object that is exactly a ConformanceRules_BannedEnhance calls its checkConformance_impl directly (post-flip); others dispatch.
 func (this *ConformanceRules_BannedEnhance) checkConformance(p0 *NodeTraversal, p1 Node) *ConformanceRules_ConformanceResult {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*ConformanceRules_BannedEnhance); p == this {
 		return this.checkConformance_impl(p0, p1)
 	}
 	return this.self_.checkConformance_impl(p0, p1)
@@ -4577,7 +4577,7 @@ func (this *ConformanceRules_BannedEnhance) checkConformance(p0 *NodeTraversal, 
 
 // getPrecondition: an object that is exactly a ConformanceRules_BannedEnhance calls its getPrecondition_impl directly (post-flip); others dispatch.
 func (this *ConformanceRules_BannedEnhance) getPrecondition() CheckConformance_Precondition {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*ConformanceRules_BannedEnhance); p == this {
 		return this.getPrecondition_impl()
 	}
 	return this.self_.getPrecondition_impl()
@@ -4585,7 +4585,7 @@ func (this *ConformanceRules_BannedEnhance) getPrecondition() CheckConformance_P
 
 // checkConformance: an object that is exactly a ConformanceRules_BannedModsRegex calls its checkConformance_impl directly (post-flip); others dispatch.
 func (this *ConformanceRules_BannedModsRegex) checkConformance(p0 *NodeTraversal, p1 Node) *ConformanceRules_ConformanceResult {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*ConformanceRules_BannedModsRegex); p == this {
 		return this.checkConformance_impl(p0, p1)
 	}
 	return this.self_.checkConformance_impl(p0, p1)
@@ -4593,7 +4593,7 @@ func (this *ConformanceRules_BannedModsRegex) checkConformance(p0 *NodeTraversal
 
 // getPrecondition: an object that is exactly a ConformanceRules_BannedModsRegex calls its getPrecondition_impl directly (post-flip); others dispatch.
 func (this *ConformanceRules_BannedModsRegex) getPrecondition() CheckConformance_Precondition {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*ConformanceRules_BannedModsRegex); p == this {
 		return this.getPrecondition_impl()
 	}
 	return this.self_.getPrecondition_impl()
@@ -4601,7 +4601,7 @@ func (this *ConformanceRules_BannedModsRegex) getPrecondition() CheckConformance
 
 // checkConformance: an object that is exactly a ConformanceRules_BanCreateElement calls its checkConformance_impl directly (post-flip); others dispatch.
 func (this *ConformanceRules_BanCreateElement) checkConformance(p0 *NodeTraversal, p1 Node) *ConformanceRules_ConformanceResult {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*ConformanceRules_BanCreateElement); p == this {
 		return this.checkConformance_impl(p0, p1)
 	}
 	return this.self_.checkConformance_impl(p0, p1)
@@ -4609,7 +4609,7 @@ func (this *ConformanceRules_BanCreateElement) checkConformance(p0 *NodeTraversa
 
 // checkConformance: an object that is exactly a ConformanceRules_BanCreateDom calls its checkConformance_impl directly (post-flip); others dispatch.
 func (this *ConformanceRules_BanCreateDom) checkConformance(p0 *NodeTraversal, p1 Node) *ConformanceRules_ConformanceResult {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*ConformanceRules_BanCreateDom); p == this {
 		return this.checkConformance_impl(p0, p1)
 	}
 	return this.self_.checkConformance_impl(p0, p1)
@@ -4617,7 +4617,7 @@ func (this *ConformanceRules_BanCreateDom) checkConformance(p0 *NodeTraversal, p
 
 // checkConformance: an object that is exactly a ConformanceRules_BanElementSetAttribute calls its checkConformance_impl directly (post-flip); others dispatch.
 func (this *ConformanceRules_BanElementSetAttribute) checkConformance(p0 *NodeTraversal, p1 Node) *ConformanceRules_ConformanceResult {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*ConformanceRules_BanElementSetAttribute); p == this {
 		return this.checkConformance_impl(p0, p1)
 	}
 	return this.self_.checkConformance_impl(p0, p1)
@@ -4625,7 +4625,7 @@ func (this *ConformanceRules_BanElementSetAttribute) checkConformance(p0 *NodeTr
 
 // checkConformance: an object that is exactly a ConformanceRules_BanSettingAttributes calls its checkConformance_impl directly (post-flip); others dispatch.
 func (this *ConformanceRules_BanSettingAttributes) checkConformance(p0 *NodeTraversal, p1 Node) *ConformanceRules_ConformanceResult {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*ConformanceRules_BanSettingAttributes); p == this {
 		return this.checkConformance_impl(p0, p1)
 	}
 	return this.self_.checkConformance_impl(p0, p1)
@@ -4633,7 +4633,7 @@ func (this *ConformanceRules_BanSettingAttributes) checkConformance(p0 *NodeTrav
 
 // checkConformance: an object that is exactly a ConformanceRules_BanExecCommand calls its checkConformance_impl directly (post-flip); others dispatch.
 func (this *ConformanceRules_BanExecCommand) checkConformance(p0 *NodeTraversal, p1 Node) *ConformanceRules_ConformanceResult {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*ConformanceRules_BanExecCommand); p == this {
 		return this.checkConformance_impl(p0, p1)
 	}
 	return this.self_.checkConformance_impl(p0, p1)
@@ -4641,7 +4641,7 @@ func (this *ConformanceRules_BanExecCommand) checkConformance(p0 *NodeTraversal,
 
 // checkConformance: an object that is exactly a ConformanceRules_BanStaticThis calls its checkConformance_impl directly (post-flip); others dispatch.
 func (this *ConformanceRules_BanStaticThis) checkConformance(p0 *NodeTraversal, p1 Node) *ConformanceRules_ConformanceResult {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*ConformanceRules_BanStaticThis); p == this {
 		return this.checkConformance_impl(p0, p1)
 	}
 	return this.self_.checkConformance_impl(p0, p1)
@@ -4649,7 +4649,7 @@ func (this *ConformanceRules_BanStaticThis) checkConformance(p0 *NodeTraversal, 
 
 // shouldCheck: an object that is exactly a ConformanceRules_BannedProperty_RequirementPrecondition_1 calls its shouldCheck_impl directly (post-flip); others dispatch.
 func (this *ConformanceRules_BannedProperty_RequirementPrecondition_1) shouldCheck(p0 Node) bool {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*ConformanceRules_BannedProperty_RequirementPrecondition_1); p == this {
 		return this.shouldCheck_impl(p0)
 	}
 	return this.selfI_(p0)
@@ -4657,7 +4657,7 @@ func (this *ConformanceRules_BannedProperty_RequirementPrecondition_1) shouldChe
 
 // shouldCheck: an object that is exactly a ConformanceRules_BannedProperty_RequirementPrecondition_2 calls its shouldCheck_impl directly (post-flip); others dispatch.
 func (this *ConformanceRules_BannedProperty_RequirementPrecondition_2) shouldCheck(p0 Node) bool {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*ConformanceRules_BannedProperty_RequirementPrecondition_2); p == this {
 		return this.shouldCheck_impl(p0)
 	}
 	return this.selfI_(p0)
@@ -4665,7 +4665,7 @@ func (this *ConformanceRules_BannedProperty_RequirementPrecondition_2) shouldChe
 
 // shouldCheck: an object that is exactly a ConformanceRules_BannedProperty_RequirementPrecondition_3 calls its shouldCheck_impl directly (post-flip); others dispatch.
 func (this *ConformanceRules_BannedProperty_RequirementPrecondition_3) shouldCheck(p0 Node) bool {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*ConformanceRules_BannedProperty_RequirementPrecondition_3); p == this {
 		return this.shouldCheck_impl(p0)
 	}
 	return this.selfI_(p0)
@@ -4673,7 +4673,7 @@ func (this *ConformanceRules_BannedProperty_RequirementPrecondition_3) shouldChe
 
 // shouldCheck: an object that is exactly a ConformanceRules_BannedProperty_RequirementPrecondition_4 calls its shouldCheck_impl directly (post-flip); others dispatch.
 func (this *ConformanceRules_BannedProperty_RequirementPrecondition_4) shouldCheck(p0 Node) bool {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*ConformanceRules_BannedProperty_RequirementPrecondition_4); p == this {
 		return this.shouldCheck_impl(p0)
 	}
 	return this.selfI_(p0)
@@ -4681,7 +4681,7 @@ func (this *ConformanceRules_BannedProperty_RequirementPrecondition_4) shouldChe
 
 // shouldCheck: an object that is exactly a ConformanceRules_BannedProperty_RequirementPrecondition_5 calls its shouldCheck_impl directly (post-flip); others dispatch.
 func (this *ConformanceRules_BannedProperty_RequirementPrecondition_5) shouldCheck(p0 Node) bool {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*ConformanceRules_BannedProperty_RequirementPrecondition_5); p == this {
 		return this.shouldCheck_impl(p0)
 	}
 	return this.selfI_(p0)

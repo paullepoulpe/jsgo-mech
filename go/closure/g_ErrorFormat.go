@@ -338,7 +338,7 @@ func ErrorFormat_4_clinit() {
 
 // toFormatter: an object that is exactly a ErrorFormat_1 calls its toFormatter_impl directly (post-flip); others dispatch.
 func (this *ErrorFormat_1) toFormatter(p0 SourceExcerptProvider, p1 bool) MessageFormatter {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*ErrorFormat_1); p == this {
 		return this.toFormatter_impl(p0, p1)
 	}
 	return this.selfI_(p0, p1)
@@ -346,7 +346,7 @@ func (this *ErrorFormat_1) toFormatter(p0 SourceExcerptProvider, p1 bool) Messag
 
 // toFormatter: an object that is exactly a ErrorFormat_2 calls its toFormatter_impl directly (post-flip); others dispatch.
 func (this *ErrorFormat_2) toFormatter(p0 SourceExcerptProvider, p1 bool) MessageFormatter {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*ErrorFormat_2); p == this {
 		return this.toFormatter_impl(p0, p1)
 	}
 	return this.selfI_(p0, p1)
@@ -354,7 +354,7 @@ func (this *ErrorFormat_2) toFormatter(p0 SourceExcerptProvider, p1 bool) Messag
 
 // toFormatter: an object that is exactly a ErrorFormat_3 calls its toFormatter_impl directly (post-flip); others dispatch.
 func (this *ErrorFormat_3) toFormatter(p0 SourceExcerptProvider, p1 bool) MessageFormatter {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*ErrorFormat_3); p == this {
 		return this.toFormatter_impl(p0, p1)
 	}
 	return this.selfI_(p0, p1)
@@ -362,7 +362,7 @@ func (this *ErrorFormat_3) toFormatter(p0 SourceExcerptProvider, p1 bool) Messag
 
 // toFormatter: an object that is exactly a ErrorFormat_4 calls its toFormatter_impl directly (post-flip); others dispatch.
 func (this *ErrorFormat_4) toFormatter(p0 SourceExcerptProvider, p1 bool) MessageFormatter {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*ErrorFormat_4); p == this {
 		return this.toFormatter_impl(p0, p1)
 	}
 	return this.selfI_(p0, p1)

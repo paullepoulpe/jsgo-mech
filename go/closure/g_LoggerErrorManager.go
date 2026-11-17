@@ -72,7 +72,7 @@ func (this *LoggerErrorManager) printSummary_impl() {
 
 // println: an object that is exactly a LoggerErrorManager calls its println_impl directly (post-flip); others dispatch.
 func (this *LoggerErrorManager) println(p0 CheckLevel, p1 *JSError) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*LoggerErrorManager); p == this {
 		this.println_impl(p0, p1)
 		return
 	}
@@ -81,7 +81,7 @@ func (this *LoggerErrorManager) println(p0 CheckLevel, p1 *JSError) {
 
 // printSummary: an object that is exactly a LoggerErrorManager calls its printSummary_impl directly (post-flip); others dispatch.
 func (this *LoggerErrorManager) printSummary() {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*LoggerErrorManager); p == this {
 		this.printSummary_impl()
 		return
 	}

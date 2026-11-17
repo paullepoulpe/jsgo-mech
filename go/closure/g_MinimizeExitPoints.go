@@ -244,7 +244,7 @@ func MinimizeExitPoints_hasBlockScopedVarsFollowing(start Node) bool {
 
 // optimizeSubtree: an object that is exactly a MinimizeExitPoints calls its optimizeSubtree_impl directly (post-flip); others dispatch.
 func (this *MinimizeExitPoints) optimizeSubtree(p0 Node) Node {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*MinimizeExitPoints); p == this {
 		return this.optimizeSubtree_impl(p0)
 	}
 	return this.self_.optimizeSubtree_impl(p0)

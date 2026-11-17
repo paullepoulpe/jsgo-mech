@@ -643,7 +643,7 @@ func SourceMap_DetailLevel_2_clinit() {
 
 // getInstance: an object that is exactly a SourceMap_Format_1 calls its getInstance_impl directly (post-flip); others dispatch.
 func (this *SourceMap_Format_1) getInstance() *SourceMap {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*SourceMap_Format_1); p == this {
 		return this.getInstance_impl()
 	}
 	return this.selfI_()
@@ -651,7 +651,7 @@ func (this *SourceMap_Format_1) getInstance() *SourceMap {
 
 // getInstance: an object that is exactly a SourceMap_Format_2 calls its getInstance_impl directly (post-flip); others dispatch.
 func (this *SourceMap_Format_2) getInstance() *SourceMap {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*SourceMap_Format_2); p == this {
 		return this.getInstance_impl()
 	}
 	return this.selfI_()
@@ -659,7 +659,7 @@ func (this *SourceMap_Format_2) getInstance() *SourceMap {
 
 // apply: an object that is exactly a SourceMap_DetailLevel_1 calls its apply_impl directly (post-flip); others dispatch.
 func (this *SourceMap_DetailLevel_1) apply(p0 any) bool {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*SourceMap_DetailLevel_1); p == this {
 		return this.apply_impl(p0)
 	}
 	return this.selfI_(p0)
@@ -667,7 +667,7 @@ func (this *SourceMap_DetailLevel_1) apply(p0 any) bool {
 
 // apply: an object that is exactly a SourceMap_DetailLevel_2 calls its apply_impl directly (post-flip); others dispatch.
 func (this *SourceMap_DetailLevel_2) apply(p0 any) bool {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*SourceMap_DetailLevel_2); p == this {
 		return this.apply_impl(p0)
 	}
 	return this.selfI_(p0)

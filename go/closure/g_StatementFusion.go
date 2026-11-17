@@ -124,7 +124,7 @@ func StatementFusion_fuseExpressionIntoSecondChild(exp Node, stmt Node) {
 
 // optimizeSubtree: an object that is exactly a StatementFusion calls its optimizeSubtree_impl directly (post-flip); others dispatch.
 func (this *StatementFusion) optimizeSubtree(p0 Node) Node {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*StatementFusion); p == this {
 		return this.optimizeSubtree_impl(p0)
 	}
 	return this.self_.optimizeSubtree_impl(p0)

@@ -253,7 +253,7 @@ func ReportUntranspilableFeatures_clinit() {
 
 // getTranspiledAwayFeatures: an object that is exactly a ReportUntranspilableFeatures calls its getTranspiledAwayFeatures_impl directly (post-flip); others dispatch.
 func (this *ReportUntranspilableFeatures) getTranspiledAwayFeatures() *FeatureSet {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*ReportUntranspilableFeatures); p == this {
 		return this.getTranspiledAwayFeatures_impl()
 	}
 	return this.self_.getTranspiledAwayFeatures_impl()
@@ -261,7 +261,7 @@ func (this *ReportUntranspilableFeatures) getTranspiledAwayFeatures() *FeatureSe
 
 // getAdditionalFeaturesToRunOn: an object that is exactly a ReportUntranspilableFeatures calls its getAdditionalFeaturesToRunOn_impl directly (post-flip); others dispatch.
 func (this *ReportUntranspilableFeatures) getAdditionalFeaturesToRunOn() *FeatureSet {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*ReportUntranspilableFeatures); p == this {
 		return this.getAdditionalFeaturesToRunOn_impl()
 	}
 	return this.self_.getAdditionalFeaturesToRunOn_impl()
@@ -269,7 +269,7 @@ func (this *ReportUntranspilableFeatures) getAdditionalFeaturesToRunOn() *Featur
 
 // transpileSubtree: an object that is exactly a ReportUntranspilableFeatures calls its transpileSubtree_impl directly (post-flip); others dispatch.
 func (this *ReportUntranspilableFeatures) transpileSubtree(p0 Node) Node {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*ReportUntranspilableFeatures); p == this {
 		return this.transpileSubtree_impl(p0)
 	}
 	return this.self_.transpileSubtree_impl(p0)

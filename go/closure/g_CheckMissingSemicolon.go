@@ -90,7 +90,7 @@ func CheckMissingSemicolon_clinit() {
 
 // visit: an object that is exactly a CheckMissingSemicolon calls its visit_impl directly (post-flip); others dispatch.
 func (this *CheckMissingSemicolon) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*CheckMissingSemicolon); p == this {
 		this.visit_impl(p0, p1, p2)
 		return
 	}

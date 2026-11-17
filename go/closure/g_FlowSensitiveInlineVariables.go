@@ -595,7 +595,7 @@ func (this *FlowSensitiveInlineVariables_Candidate_2) isAssignChain(child Node, 
 
 // visit: an object that is exactly a FlowSensitiveInlineVariables_GatherCandidatesCfgNodeCallback calls its visit_impl directly (post-flip); others dispatch.
 func (this *FlowSensitiveInlineVariables_GatherCandidatesCfgNodeCallback) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*FlowSensitiveInlineVariables_GatherCandidatesCfgNodeCallback); p == this {
 		this.visit_impl(p0, p1, p2)
 		return
 	}
@@ -604,7 +604,7 @@ func (this *FlowSensitiveInlineVariables_GatherCandidatesCfgNodeCallback) visit(
 
 // visit: an object that is exactly a FlowSensitiveInlineVariables_GatherCandidates calls its visit_impl directly (post-flip); others dispatch.
 func (this *FlowSensitiveInlineVariables_GatherCandidates) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*FlowSensitiveInlineVariables_GatherCandidates); p == this {
 		this.visit_impl(p0, p1, p2)
 		return
 	}
@@ -613,7 +613,7 @@ func (this *FlowSensitiveInlineVariables_GatherCandidates) visit(p0 *NodeTravers
 
 // visit: an object that is exactly a FlowSensitiveInlineVariables_Candidate_1 calls its visit_impl directly (post-flip); others dispatch.
 func (this *FlowSensitiveInlineVariables_Candidate_1) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*FlowSensitiveInlineVariables_Candidate_1); p == this {
 		this.visit_impl(p0, p1, p2)
 		return
 	}
@@ -622,7 +622,7 @@ func (this *FlowSensitiveInlineVariables_Candidate_1) visit(p0 *NodeTraversal, p
 
 // visit: an object that is exactly a FlowSensitiveInlineVariables_Candidate_2 calls its visit_impl directly (post-flip); others dispatch.
 func (this *FlowSensitiveInlineVariables_Candidate_2) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*FlowSensitiveInlineVariables_Candidate_2); p == this {
 		this.visit_impl(p0, p1, p2)
 		return
 	}

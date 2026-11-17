@@ -333,7 +333,7 @@ func (this *LiveVariablesAnalysis_LiveVariableLattice) hashCode() int32 {
 
 // isForward: an object that is exactly a LiveVariablesAnalysis calls its isForward_impl directly (post-flip); others dispatch.
 func (this *LiveVariablesAnalysis) isForward() bool {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*LiveVariablesAnalysis); p == this {
 		return this.isForward_impl()
 	}
 	return this.self_.isForward_impl()
@@ -341,7 +341,7 @@ func (this *LiveVariablesAnalysis) isForward() bool {
 
 // createEntryLattice: an object that is exactly a LiveVariablesAnalysis calls its createEntryLattice_impl directly (post-flip); others dispatch.
 func (this *LiveVariablesAnalysis) createEntryLattice() LatticeElement {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*LiveVariablesAnalysis); p == this {
 		return this.createEntryLattice_impl()
 	}
 	return this.self_.createEntryLattice_impl()
@@ -349,7 +349,7 @@ func (this *LiveVariablesAnalysis) createEntryLattice() LatticeElement {
 
 // createInitialEstimateLattice: an object that is exactly a LiveVariablesAnalysis calls its createInitialEstimateLattice_impl directly (post-flip); others dispatch.
 func (this *LiveVariablesAnalysis) createInitialEstimateLattice() LatticeElement {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*LiveVariablesAnalysis); p == this {
 		return this.createInitialEstimateLattice_impl()
 	}
 	return this.self_.createInitialEstimateLattice_impl()
@@ -357,7 +357,7 @@ func (this *LiveVariablesAnalysis) createInitialEstimateLattice() LatticeElement
 
 // createFlowJoiner: an object that is exactly a LiveVariablesAnalysis calls its createFlowJoiner_impl directly (post-flip); others dispatch.
 func (this *LiveVariablesAnalysis) createFlowJoiner() DataFlowAnalysis_FlowJoiner {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*LiveVariablesAnalysis); p == this {
 		return this.createFlowJoiner_impl()
 	}
 	return this.self_.createFlowJoiner_impl()
@@ -365,7 +365,7 @@ func (this *LiveVariablesAnalysis) createFlowJoiner() DataFlowAnalysis_FlowJoine
 
 // flowThrough: an object that is exactly a LiveVariablesAnalysis calls its flowThrough_impl directly (post-flip); others dispatch.
 func (this *LiveVariablesAnalysis) flowThrough(p0 any, p1 LatticeElement) LatticeElement {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*LiveVariablesAnalysis); p == this {
 		return this.flowThrough_impl(p0, p1)
 	}
 	return this.self_.flowThrough_impl(p0, p1)

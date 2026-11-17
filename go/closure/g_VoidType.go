@@ -91,7 +91,7 @@ func (this *VoidType) visitUntyped_impl(visitor Visitor) any {
 
 // getTypeClass: an object that is exactly a VoidType calls its getTypeClass_impl directly (post-flip); others dispatch.
 func (this *VoidType) getTypeClass() JSTypeClass {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*VoidType); p == this {
 		return this.getTypeClass_impl()
 	}
 	return this.self_.getTypeClass_impl()
@@ -99,7 +99,7 @@ func (this *VoidType) getTypeClass() JSTypeClass {
 
 // restrictByNotNullOrUndefined: an object that is exactly a VoidType calls its restrictByNotNullOrUndefined_impl directly (post-flip); others dispatch.
 func (this *VoidType) restrictByNotNullOrUndefined() *JSType {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*VoidType); p == this {
 		return this.restrictByNotNullOrUndefined_impl()
 	}
 	return this.self_.restrictByNotNullOrUndefined_impl()
@@ -107,7 +107,7 @@ func (this *VoidType) restrictByNotNullOrUndefined() *JSType {
 
 // restrictByNotUndefined: an object that is exactly a VoidType calls its restrictByNotUndefined_impl directly (post-flip); others dispatch.
 func (this *VoidType) restrictByNotUndefined() *JSType {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*VoidType); p == this {
 		return this.restrictByNotUndefined_impl()
 	}
 	return this.self_.restrictByNotUndefined_impl()
@@ -115,7 +115,7 @@ func (this *VoidType) restrictByNotUndefined() *JSType {
 
 // testForEquality: an object that is exactly a VoidType calls its testForEquality_impl directly (post-flip); others dispatch.
 func (this *VoidType) testForEquality(p0 *JSType) Tri {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*VoidType); p == this {
 		return this.testForEquality_impl(p0)
 	}
 	return this.self_.testForEquality_impl(p0)
@@ -123,7 +123,7 @@ func (this *VoidType) testForEquality(p0 *JSType) Tri {
 
 // matchesNumberContext: an object that is exactly a VoidType calls its matchesNumberContext_impl directly (post-flip); others dispatch.
 func (this *VoidType) matchesNumberContext() bool {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*VoidType); p == this {
 		return this.matchesNumberContext_impl()
 	}
 	return this.self_.matchesNumberContext_impl()
@@ -131,7 +131,7 @@ func (this *VoidType) matchesNumberContext() bool {
 
 // matchesObjectContext: an object that is exactly a VoidType calls its matchesObjectContext_impl directly (post-flip); others dispatch.
 func (this *VoidType) matchesObjectContext() bool {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*VoidType); p == this {
 		return this.matchesObjectContext_impl()
 	}
 	return this.self_.matchesObjectContext_impl()
@@ -139,7 +139,7 @@ func (this *VoidType) matchesObjectContext() bool {
 
 // matchesStringContext: an object that is exactly a VoidType calls its matchesStringContext_impl directly (post-flip); others dispatch.
 func (this *VoidType) matchesStringContext() bool {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*VoidType); p == this {
 		return this.matchesStringContext_impl()
 	}
 	return this.self_.matchesStringContext_impl()
@@ -147,7 +147,7 @@ func (this *VoidType) matchesStringContext() bool {
 
 // isVoidType: an object that is exactly a VoidType calls its isVoidType_impl directly (post-flip); others dispatch.
 func (this *VoidType) isVoidType() bool {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*VoidType); p == this {
 		return this.isVoidType_impl()
 	}
 	return this.self_.isVoidType_impl()
@@ -155,7 +155,7 @@ func (this *VoidType) isVoidType() bool {
 
 // isVoidable: an object that is exactly a VoidType calls its isVoidable_impl directly (post-flip); others dispatch.
 func (this *VoidType) isVoidable() bool {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*VoidType); p == this {
 		return this.isVoidable_impl()
 	}
 	return this.self_.isVoidable_impl()
@@ -163,7 +163,7 @@ func (this *VoidType) isVoidable() bool {
 
 // isExplicitlyVoidable: an object that is exactly a VoidType calls its isExplicitlyVoidable_impl directly (post-flip); others dispatch.
 func (this *VoidType) isExplicitlyVoidable() bool {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*VoidType); p == this {
 		return this.isExplicitlyVoidable_impl()
 	}
 	return this.self_.isExplicitlyVoidable_impl()
@@ -171,7 +171,7 @@ func (this *VoidType) isExplicitlyVoidable() bool {
 
 // getDisplayName: an object that is exactly a VoidType calls its getDisplayName_impl directly (post-flip); others dispatch.
 func (this *VoidType) getDisplayName() OptionalOf[string] {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*VoidType); p == this {
 		return this.getDisplayName_impl()
 	}
 	return this.self_.getDisplayName_impl()
@@ -179,7 +179,7 @@ func (this *VoidType) getDisplayName() OptionalOf[string] {
 
 // getPossibleToBooleanOutcomes: an object that is exactly a VoidType calls its getPossibleToBooleanOutcomes_impl directly (post-flip); others dispatch.
 func (this *VoidType) getPossibleToBooleanOutcomes() BooleanLiteralSet {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*VoidType); p == this {
 		return this.getPossibleToBooleanOutcomes_impl()
 	}
 	return this.self_.getPossibleToBooleanOutcomes_impl()
@@ -187,7 +187,7 @@ func (this *VoidType) getPossibleToBooleanOutcomes() BooleanLiteralSet {
 
 // visitUntyped: an object that is exactly a VoidType calls its visitUntyped_impl directly (post-flip); others dispatch.
 func (this *VoidType) visitUntyped(p0 Visitor) any {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*VoidType); p == this {
 		return this.visitUntyped_impl(p0)
 	}
 	return this.self_.visitUntyped_impl(p0)

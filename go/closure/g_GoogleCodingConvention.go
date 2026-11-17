@@ -130,7 +130,7 @@ func GoogleCodingConvention_clinit() {
 
 // isConstant: an object that is exactly a GoogleCodingConvention calls its isConstant_impl directly (post-flip); others dispatch.
 func (this *GoogleCodingConvention) isConstant(p0 string) bool {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*GoogleCodingConvention); p == this {
 		return this.isConstant_impl(p0)
 	}
 	return this.self_.isConstant_impl(p0)
@@ -138,7 +138,7 @@ func (this *GoogleCodingConvention) isConstant(p0 string) bool {
 
 // isConstantKey: an object that is exactly a GoogleCodingConvention calls its isConstantKey_impl directly (post-flip); others dispatch.
 func (this *GoogleCodingConvention) isConstantKey(p0 string) bool {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*GoogleCodingConvention); p == this {
 		return this.isConstantKey_impl(p0)
 	}
 	return this.self_.isConstantKey_impl(p0)
@@ -146,7 +146,7 @@ func (this *GoogleCodingConvention) isConstantKey(p0 string) bool {
 
 // isValidEnumKey: an object that is exactly a GoogleCodingConvention calls its isValidEnumKey_impl directly (post-flip); others dispatch.
 func (this *GoogleCodingConvention) isValidEnumKey(p0 OptionalOf[string]) bool {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*GoogleCodingConvention); p == this {
 		return this.isValidEnumKey_impl(p0)
 	}
 	return this.self_.isValidEnumKey_impl(p0)
@@ -154,7 +154,7 @@ func (this *GoogleCodingConvention) isValidEnumKey(p0 OptionalOf[string]) bool {
 
 // isOptionalParameter: an object that is exactly a GoogleCodingConvention calls its isOptionalParameter_impl directly (post-flip); others dispatch.
 func (this *GoogleCodingConvention) isOptionalParameter(p0 Node) bool {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*GoogleCodingConvention); p == this {
 		return this.isOptionalParameter_impl(p0)
 	}
 	return this.self_.isOptionalParameter_impl(p0)
@@ -162,7 +162,7 @@ func (this *GoogleCodingConvention) isOptionalParameter(p0 Node) bool {
 
 // isVarArgsParameter: an object that is exactly a GoogleCodingConvention calls its isVarArgsParameter_impl directly (post-flip); others dispatch.
 func (this *GoogleCodingConvention) isVarArgsParameter(p0 Node) bool {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*GoogleCodingConvention); p == this {
 		return this.isVarArgsParameter_impl(p0)
 	}
 	return this.self_.isVarArgsParameter_impl(p0)
@@ -170,7 +170,7 @@ func (this *GoogleCodingConvention) isVarArgsParameter(p0 Node) bool {
 
 // isExported_2: an object that is exactly a GoogleCodingConvention calls its isExported_2_impl directly (post-flip); others dispatch.
 func (this *GoogleCodingConvention) isExported_2(p0 string, p1 bool) bool {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*GoogleCodingConvention); p == this {
 		return this.isExported_2_impl(p0, p1)
 	}
 	return this.self_.isExported_2_impl(p0, p1)
@@ -178,7 +178,7 @@ func (this *GoogleCodingConvention) isExported_2(p0 string, p1 bool) bool {
 
 // isClassFactoryCall: an object that is exactly a GoogleCodingConvention calls its isClassFactoryCall_impl directly (post-flip); others dispatch.
 func (this *GoogleCodingConvention) isClassFactoryCall(p0 Node) bool {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*GoogleCodingConvention); p == this {
 		return this.isClassFactoryCall_impl(p0)
 	}
 	return this.self_.isClassFactoryCall_impl(p0)
@@ -186,7 +186,7 @@ func (this *GoogleCodingConvention) isClassFactoryCall(p0 Node) bool {
 
 // getPackageName: an object that is exactly a GoogleCodingConvention calls its getPackageName_impl directly (post-flip); others dispatch.
 func (this *GoogleCodingConvention) getPackageName(p0 StaticSourceFile) OptionalOf[string] {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*GoogleCodingConvention); p == this {
 		return this.getPackageName_impl(p0)
 	}
 	return this.self_.getPackageName_impl(p0)

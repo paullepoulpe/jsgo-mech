@@ -414,7 +414,7 @@ func (this *CheckJSDocStyle_ExternsCallback) visit(t *NodeTraversal, n Node, par
 
 // visit: an object that is exactly a CheckJSDocStyle calls its visit_impl directly (post-flip); others dispatch.
 func (this *CheckJSDocStyle) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*CheckJSDocStyle); p == this {
 		this.visit_impl(p0, p1, p2)
 		return
 	}
@@ -423,7 +423,7 @@ func (this *CheckJSDocStyle) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
 
 // shouldTraverse: an object that is exactly a CheckJSDocStyle_FindNonTrivialReturn calls its shouldTraverse_impl directly (post-flip); others dispatch.
 func (this *CheckJSDocStyle_FindNonTrivialReturn) shouldTraverse(p0 *NodeTraversal, p1 Node, p2 Node) bool {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*CheckJSDocStyle_FindNonTrivialReturn); p == this {
 		return this.shouldTraverse_impl(p0, p1, p2)
 	}
 	return this.self_.shouldTraverse_impl(p0, p1, p2)

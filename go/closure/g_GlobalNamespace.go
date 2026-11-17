@@ -2365,7 +2365,7 @@ func (this *GlobalNamespace_ObjLitStringKeyAnalysis) toString() string {
 
 // shouldTraverse: an object that is exactly a GlobalNamespace_BuildGlobalNamespace calls its shouldTraverse_impl directly (post-flip); others dispatch.
 func (this *GlobalNamespace_BuildGlobalNamespace) shouldTraverse(p0 *NodeTraversal, p1 Node, p2 Node) bool {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*GlobalNamespace_BuildGlobalNamespace); p == this {
 		return this.shouldTraverse_impl(p0, p1, p2)
 	}
 	return this.self_.shouldTraverse_impl(p0, p1, p2)

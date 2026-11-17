@@ -651,7 +651,7 @@ func ConvertToTypedInterface_SimplifyDeclarations_TypingLevel_clinit() {
 
 // processConstWithRhs: an object that is exactly a ConvertToTypedInterface_PropagateConstJsdoc calls its processConstWithRhs_impl directly (post-flip); others dispatch.
 func (this *ConvertToTypedInterface_PropagateConstJsdoc) processConstWithRhs(p0 *NodeTraversal, p1 Node) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*ConvertToTypedInterface_PropagateConstJsdoc); p == this {
 		this.processConstWithRhs_impl(p0, p1)
 		return
 	}

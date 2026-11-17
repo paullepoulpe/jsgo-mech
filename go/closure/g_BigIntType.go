@@ -80,7 +80,7 @@ func (this *BigIntType) autoboxesTo_impl() *JSType {
 
 // getTypeClass: an object that is exactly a BigIntType calls its getTypeClass_impl directly (post-flip); others dispatch.
 func (this *BigIntType) getTypeClass() JSTypeClass {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*BigIntType); p == this {
 		return this.getTypeClass_impl()
 	}
 	return this.self_.getTypeClass_impl()
@@ -88,7 +88,7 @@ func (this *BigIntType) getTypeClass() JSTypeClass {
 
 // testForEquality: an object that is exactly a BigIntType calls its testForEquality_impl directly (post-flip); others dispatch.
 func (this *BigIntType) testForEquality(p0 *JSType) Tri {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*BigIntType); p == this {
 		return this.testForEquality_impl(p0)
 	}
 	return this.self_.testForEquality_impl(p0)
@@ -96,7 +96,7 @@ func (this *BigIntType) testForEquality(p0 *JSType) Tri {
 
 // isBigIntValueType: an object that is exactly a BigIntType calls its isBigIntValueType_impl directly (post-flip); others dispatch.
 func (this *BigIntType) isBigIntValueType() bool {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*BigIntType); p == this {
 		return this.isBigIntValueType_impl()
 	}
 	return this.self_.isBigIntValueType_impl()
@@ -104,7 +104,7 @@ func (this *BigIntType) isBigIntValueType() bool {
 
 // matchesNumberContext: an object that is exactly a BigIntType calls its matchesNumberContext_impl directly (post-flip); others dispatch.
 func (this *BigIntType) matchesNumberContext() bool {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*BigIntType); p == this {
 		return this.matchesNumberContext_impl()
 	}
 	return this.self_.matchesNumberContext_impl()
@@ -112,7 +112,7 @@ func (this *BigIntType) matchesNumberContext() bool {
 
 // matchesStringContext: an object that is exactly a BigIntType calls its matchesStringContext_impl directly (post-flip); others dispatch.
 func (this *BigIntType) matchesStringContext() bool {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*BigIntType); p == this {
 		return this.matchesStringContext_impl()
 	}
 	return this.self_.matchesStringContext_impl()
@@ -120,7 +120,7 @@ func (this *BigIntType) matchesStringContext() bool {
 
 // matchesObjectContext: an object that is exactly a BigIntType calls its matchesObjectContext_impl directly (post-flip); others dispatch.
 func (this *BigIntType) matchesObjectContext() bool {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*BigIntType); p == this {
 		return this.matchesObjectContext_impl()
 	}
 	return this.self_.matchesObjectContext_impl()
@@ -128,7 +128,7 @@ func (this *BigIntType) matchesObjectContext() bool {
 
 // getDisplayName: an object that is exactly a BigIntType calls its getDisplayName_impl directly (post-flip); others dispatch.
 func (this *BigIntType) getDisplayName() OptionalOf[string] {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*BigIntType); p == this {
 		return this.getDisplayName_impl()
 	}
 	return this.self_.getDisplayName_impl()
@@ -136,7 +136,7 @@ func (this *BigIntType) getDisplayName() OptionalOf[string] {
 
 // getPossibleToBooleanOutcomes: an object that is exactly a BigIntType calls its getPossibleToBooleanOutcomes_impl directly (post-flip); others dispatch.
 func (this *BigIntType) getPossibleToBooleanOutcomes() BooleanLiteralSet {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*BigIntType); p == this {
 		return this.getPossibleToBooleanOutcomes_impl()
 	}
 	return this.self_.getPossibleToBooleanOutcomes_impl()
@@ -144,7 +144,7 @@ func (this *BigIntType) getPossibleToBooleanOutcomes() BooleanLiteralSet {
 
 // visitUntyped: an object that is exactly a BigIntType calls its visitUntyped_impl directly (post-flip); others dispatch.
 func (this *BigIntType) visitUntyped(p0 Visitor) any {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*BigIntType); p == this {
 		return this.visitUntyped_impl(p0)
 	}
 	return this.self_.visitUntyped_impl(p0)
@@ -152,7 +152,7 @@ func (this *BigIntType) visitUntyped(p0 Visitor) any {
 
 // autoboxesTo: an object that is exactly a BigIntType calls its autoboxesTo_impl directly (post-flip); others dispatch.
 func (this *BigIntType) autoboxesTo() *JSType {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*BigIntType); p == this {
 		return this.autoboxesTo_impl()
 	}
 	return this.self_.autoboxesTo_impl()

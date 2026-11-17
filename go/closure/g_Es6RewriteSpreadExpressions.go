@@ -226,7 +226,7 @@ func Es6RewriteSpreadExpressions_clinit() {
 
 // visit: an object that is exactly a Es6RewriteSpreadExpressions calls its visit_impl directly (post-flip); others dispatch.
 func (this *Es6RewriteSpreadExpressions) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*Es6RewriteSpreadExpressions); p == this {
 		this.visit_impl(p0, p1, p2)
 		return
 	}

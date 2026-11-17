@@ -135,7 +135,7 @@ func ShowByPathWarningsGuard_ShowType_clinit() {
 
 // level: an object that is exactly a ShowByPathWarningsGuard calls its level_impl directly (post-flip); others dispatch.
 func (this *ShowByPathWarningsGuard) level(p0 *JSError) CheckLevel {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*ShowByPathWarningsGuard); p == this {
 		return this.level_impl(p0)
 	}
 	return this.self_.level_impl(p0)
@@ -143,7 +143,7 @@ func (this *ShowByPathWarningsGuard) level(p0 *JSError) CheckLevel {
 
 // getPriority: an object that is exactly a ShowByPathWarningsGuard calls its getPriority_impl directly (post-flip); others dispatch.
 func (this *ShowByPathWarningsGuard) getPriority() int32 {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*ShowByPathWarningsGuard); p == this {
 		return this.getPriority_impl()
 	}
 	return this.self_.getPriority_impl()

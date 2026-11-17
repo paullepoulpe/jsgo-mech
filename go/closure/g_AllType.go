@@ -87,7 +87,7 @@ func (this *AllType) isVoidable_impl() bool {
 
 // getTypeClass: an object that is exactly a AllType calls its getTypeClass_impl directly (post-flip); others dispatch.
 func (this *AllType) getTypeClass() JSTypeClass {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*AllType); p == this {
 		return this.getTypeClass_impl()
 	}
 	return this.self_.getTypeClass_impl()
@@ -95,7 +95,7 @@ func (this *AllType) getTypeClass() JSTypeClass {
 
 // isAllType: an object that is exactly a AllType calls its isAllType_impl directly (post-flip); others dispatch.
 func (this *AllType) isAllType() bool {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*AllType); p == this {
 		return this.isAllType_impl()
 	}
 	return this.self_.isAllType_impl()
@@ -103,7 +103,7 @@ func (this *AllType) isAllType() bool {
 
 // matchesStringContext: an object that is exactly a AllType calls its matchesStringContext_impl directly (post-flip); others dispatch.
 func (this *AllType) matchesStringContext() bool {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*AllType); p == this {
 		return this.matchesStringContext_impl()
 	}
 	return this.self_.matchesStringContext_impl()
@@ -111,7 +111,7 @@ func (this *AllType) matchesStringContext() bool {
 
 // matchesObjectContext: an object that is exactly a AllType calls its matchesObjectContext_impl directly (post-flip); others dispatch.
 func (this *AllType) matchesObjectContext() bool {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*AllType); p == this {
 		return this.matchesObjectContext_impl()
 	}
 	return this.self_.matchesObjectContext_impl()
@@ -119,7 +119,7 @@ func (this *AllType) matchesObjectContext() bool {
 
 // testForEquality: an object that is exactly a AllType calls its testForEquality_impl directly (post-flip); others dispatch.
 func (this *AllType) testForEquality(p0 *JSType) Tri {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*AllType); p == this {
 		return this.testForEquality_impl(p0)
 	}
 	return this.self_.testForEquality_impl(p0)
@@ -127,7 +127,7 @@ func (this *AllType) testForEquality(p0 *JSType) Tri {
 
 // appendTo: an object that is exactly a AllType calls its appendTo_impl directly (post-flip); others dispatch.
 func (this *AllType) appendTo(p0 *TypeStringBuilder) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*AllType); p == this {
 		this.appendTo_impl(p0)
 		return
 	}
@@ -136,7 +136,7 @@ func (this *AllType) appendTo(p0 *TypeStringBuilder) {
 
 // getDisplayName: an object that is exactly a AllType calls its getDisplayName_impl directly (post-flip); others dispatch.
 func (this *AllType) getDisplayName() OptionalOf[string] {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*AllType); p == this {
 		return this.getDisplayName_impl()
 	}
 	return this.self_.getDisplayName_impl()
@@ -144,7 +144,7 @@ func (this *AllType) getDisplayName() OptionalOf[string] {
 
 // hasDisplayName: an object that is exactly a AllType calls its hasDisplayName_impl directly (post-flip); others dispatch.
 func (this *AllType) hasDisplayName() bool {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*AllType); p == this {
 		return this.hasDisplayName_impl()
 	}
 	return this.self_.hasDisplayName_impl()
@@ -152,7 +152,7 @@ func (this *AllType) hasDisplayName() bool {
 
 // visitUntyped: an object that is exactly a AllType calls its visitUntyped_impl directly (post-flip); others dispatch.
 func (this *AllType) visitUntyped(p0 Visitor) any {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*AllType); p == this {
 		return this.visitUntyped_impl(p0)
 	}
 	return this.self_.visitUntyped_impl(p0)
@@ -160,7 +160,7 @@ func (this *AllType) visitUntyped(p0 Visitor) any {
 
 // visitUntyped_2: an object that is exactly a AllType calls its visitUntyped_2_impl directly (post-flip); others dispatch.
 func (this *AllType) visitUntyped_2(p0 RelationshipVisitor, p1 *JSType) any {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*AllType); p == this {
 		return this.visitUntyped_2_impl(p0, p1)
 	}
 	return this.self_.visitUntyped_2_impl(p0, p1)
@@ -168,7 +168,7 @@ func (this *AllType) visitUntyped_2(p0 RelationshipVisitor, p1 *JSType) any {
 
 // getPossibleToBooleanOutcomes: an object that is exactly a AllType calls its getPossibleToBooleanOutcomes_impl directly (post-flip); others dispatch.
 func (this *AllType) getPossibleToBooleanOutcomes() BooleanLiteralSet {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*AllType); p == this {
 		return this.getPossibleToBooleanOutcomes_impl()
 	}
 	return this.self_.getPossibleToBooleanOutcomes_impl()
@@ -176,7 +176,7 @@ func (this *AllType) getPossibleToBooleanOutcomes() BooleanLiteralSet {
 
 // resolveInternal: an object that is exactly a AllType calls its resolveInternal_impl directly (post-flip); others dispatch.
 func (this *AllType) resolveInternal(p0 ErrorReporter_rhino) *JSType {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*AllType); p == this {
 		return this.resolveInternal_impl(p0)
 	}
 	return this.self_.resolveInternal_impl(p0)
@@ -184,7 +184,7 @@ func (this *AllType) resolveInternal(p0 ErrorReporter_rhino) *JSType {
 
 // recursionUnsafeHashCode: an object that is exactly a AllType calls its recursionUnsafeHashCode_impl directly (post-flip); others dispatch.
 func (this *AllType) recursionUnsafeHashCode() int32 {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*AllType); p == this {
 		return this.recursionUnsafeHashCode_impl()
 	}
 	return this.self_.recursionUnsafeHashCode_impl()
@@ -192,7 +192,7 @@ func (this *AllType) recursionUnsafeHashCode() int32 {
 
 // isNullable: an object that is exactly a AllType calls its isNullable_impl directly (post-flip); others dispatch.
 func (this *AllType) isNullable() bool {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*AllType); p == this {
 		return this.isNullable_impl()
 	}
 	return this.self_.isNullable_impl()
@@ -200,7 +200,7 @@ func (this *AllType) isNullable() bool {
 
 // isVoidable: an object that is exactly a AllType calls its isVoidable_impl directly (post-flip); others dispatch.
 func (this *AllType) isVoidable() bool {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*AllType); p == this {
 		return this.isVoidable_impl()
 	}
 	return this.self_.isVoidable_impl()

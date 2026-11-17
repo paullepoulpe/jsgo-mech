@@ -506,7 +506,7 @@ func (this *ReplaceCssNames_CountCssNamesBySymbol) visit(t *NodeTraversal, n Nod
 
 // visit: an object that is exactly a ReplaceCssNames_FindSetCssNameTraversal calls its visit_impl directly (post-flip); others dispatch.
 func (this *ReplaceCssNames_FindSetCssNameTraversal) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*ReplaceCssNames_FindSetCssNameTraversal); p == this {
 		this.visit_impl(p0, p1, p2)
 		return
 	}

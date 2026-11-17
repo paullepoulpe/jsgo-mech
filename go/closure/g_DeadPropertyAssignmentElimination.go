@@ -375,7 +375,7 @@ func (this *DeadPropertyAssignmentElimination_FindCandidateAssignmentTraversal) 
 
 // enterChangedScopeRoot: an object that is exactly a DeadPropertyAssignmentElimination_FunctionVisitor calls its enterChangedScopeRoot_impl directly (post-flip); others dispatch.
 func (this *DeadPropertyAssignmentElimination_FunctionVisitor) enterChangedScopeRoot(p0 *AbstractCompiler, p1 Node) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*DeadPropertyAssignmentElimination_FunctionVisitor); p == this {
 		this.enterChangedScopeRoot_impl(p0, p1)
 		return
 	}
