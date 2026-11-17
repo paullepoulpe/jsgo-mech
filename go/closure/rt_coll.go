@@ -1672,6 +1672,20 @@ func Comparator_comparing_Function_Comparator(f Function, c Comparator) Comparat
 	return &keyCmp_{key: f, c: c}
 }
 
+// keyCmpF_ is Comparator.comparing(key, c) of two lambdas, as Go func values.
+type keyCmpF_ struct {
+	key func(any) any
+	c   func(any, any) int32
+}
+
+func (k *keyCmpF_) compare(a, b any) int32 { return k.c(k.key(a), k.key(b)) }
+
+// Comparator_comparing_Function_Comparator_f is Comparator_comparing_Function_Comparator of
+// lambdas, as Go func values (post-flip step funcparams).
+func Comparator_comparing_Function_Comparator_f(f func(any) any, c func(any, any) int32) Comparator {
+	return &keyCmpF_{key: f, c: c}
+}
+
 func Comparator_comparingInt(f ToIntFunction) Comparator {
 	if fn, ok := f.(*ToIntFunction_fn); ok && fn != nil {
 		return &intKeyCmp_{key: fn.f}
@@ -2103,6 +2117,13 @@ func Arrays_fill_intArr_int_int_int(a []int32, from int32, to int32, v int32) {
 func Arrays_setAll(a []any, f IntFunction) {
 	for i := range a {
 		a[i] = f.apply(int32(i))
+	}
+}
+
+// Arrays_setAll_f is Arrays_setAll of a lambda, as a Go func value (post-flip step funcparams).
+func Arrays_setAll_f(a []any, f func(int32) any) {
+	for i := range a {
+		a[i] = f(int32(i))
 	}
 }
 
