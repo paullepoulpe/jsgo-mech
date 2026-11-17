@@ -1277,6 +1277,53 @@ abstract class ExprEmitter extends Base {
     return n;
   }
 
+  /**
+   * For a lambda or method reference whose target is a library functional interface: the typed
+   * adapter X_tfn[...] (Stubs) when a parameter or the result that the erased signature has as
+   * `any` has a Java type the adapter reaches with one assertion (Ctx.assertable). Returns the
+   * adapter's name with its type arguments, and fills params/ret with the func's Go types; null
+   * when the plain adapter X_fn is used.
+   */
+  String typedAdapter(TypeElement fi, ExecutableElement m, TypeMirror ft0, List<TypeMirror> inst, List<TypeMirror> params, TypeMirror[] ret) {
+    if (System.getenv("J2GO_ERASED") != null || cx.isSource(fi) || !(ft0 instanceof DeclaredType ft)) return null;
+    List<TypeMirror> gp = cx.groupParams(m);
+    TypeMirror gr = cx.groupReturn(m);
+    TypeMirror ir;
+    try {
+      ir = ((ExecutableType) cx.types.asMemberOf(ft, m)).getReturnType();
+    } catch (RuntimeException ex) {
+      return null;
+    }
+    StringBuilder ta = new StringBuilder();
+    boolean any = false;
+    List<TypeMirror> ps = new ArrayList<>();
+    for (int i = 0; i < gp.size(); i++) {
+      TypeMirror g = gp.get(i), p = i < inst.size() ? inst.get(i) : null;
+      if (!cx.goType(g).equals("any")) {
+        ps.add(g);
+        continue;
+      }
+      boolean typed = p != null && cx.assertable(p) && p.getKind() != TypeKind.WILDCARD;
+      ps.add(typed ? cx.erase(p) : g);
+      ta.append(ta.length() > 0 ? ", " : "").append(typed ? cx.goType(p) : "any");
+      any |= typed;
+    }
+    TypeMirror r = gr;
+    if (gr.getKind() != TypeKind.VOID && cx.goType(gr).equals("any")) {
+      boolean typed = ir != null && ir.getKind() != TypeKind.WILDCARD && ir.getKind() != TypeKind.TYPEVAR && cx.assertable(ir);
+      if (typed) r = cx.erase(ir);
+      ta.append(ta.length() > 0 ? ", " : "").append(typed ? cx.goType(ir) : "any");
+      any |= typed;
+    }
+    if (!any) return null;
+    params.clear();
+    params.addAll(ps);
+    ret[0] = r;
+    cx.className(fi);
+    if (cx.extTypedAdapters.add(fi)) adapterName(fi);
+    return cx.className(fi) + "_tfn[" + ta + "]";
+  }
+
   String lambda(LambdaExpressionTree t) {
     TypeMirror ft = cx.erase(typeOf(t));
     TypeElement fi = Ctx.typeElement(ft);
@@ -1284,6 +1331,11 @@ abstract class ExprEmitter extends Base {
     if (m == null) throw unsupported(t, "lambda target " + ft);
     List<TypeMirror> params = cx.groupParams(m, ft);
     TypeMirror ret = cx.groupReturn(m, ft);
+    List<TypeMirror> declared = new ArrayList<>();
+    for (VariableTree p : t.getParameters()) declared.add(elemOf(p).asType());
+    TypeMirror[] tret = {ret};
+    String tad = typedAdapter(fi, m, typeOf(t), declared, params, tret);
+    ret = tret[0];
     MethodCtx saved = mc;
     MethodCtx inner = new MethodCtx();
     inner.names = saved.names;
@@ -1295,7 +1347,7 @@ abstract class ExprEmitter extends Base {
     inner.isVoid = ret.getKind() == TypeKind.VOID;
     inner.ret = inner.isVoid ? null : ret;
     mc = inner;
-    StringBuilder sb = new StringBuilder("&" + adapterName(fi, ft) + "{func(");
+    StringBuilder sb = new StringBuilder("&" + (tad != null ? tad : adapterName(fi, ft)) + "{func(");
     StringBuilder entry = new StringBuilder();
     for (int i = 0; i < t.getParameters().size(); i++) {
       VariableTree p = t.getParameters().get(i);
@@ -1351,6 +1403,9 @@ abstract class ExprEmitter extends Base {
     } catch (RuntimeException ex) {
       inst.addAll(params);
     }
+    TypeMirror[] tret = {ret};
+    String tad = typedAdapter(fi, m, ft, inst, params, tret);
+    ret = tret[0];
     Element el = elemOf(t);
     ExpressionTree q = t.getQualifierExpression();
     Element qe = elemOf(q);
@@ -1414,12 +1469,13 @@ abstract class ExprEmitter extends Base {
         r = special(e, new Recv(rc, typeOf(q)), as);
       }
     }
-    String fn = "&" + adapterName(fi, cx.erase(ft)) + "{func(" + sig + ")";
+    String an = tad != null ? tad : adapterName(fi, cx.erase(ft));
+    String fn = "&" + an + "{func(" + sig + ")";
     String gr = cx.goType(ret);
     String body = ret.getKind() == TypeKind.VOID ? r.code : "return " + cx.coerce(r.code, r.type, ret);
     fn += (gr.isEmpty() ? "" : " " + gr) + " { " + body + " }}";
     if (prefix.isEmpty()) return fn;
-    return "func() *" + adapterName(fi, cx.erase(ft)) + " { " + prefix + "return " + fn + " }()";
+    return "func() *" + an + " { " + prefix + "return " + fn + " }()";
   }
 
   boolean isTypeTree(Tree q) {

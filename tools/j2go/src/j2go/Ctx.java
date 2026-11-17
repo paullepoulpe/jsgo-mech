@@ -1450,6 +1450,22 @@ final class Ctx {
   final TreeMap<String, String> extVars = new TreeMap<>();
   final Map<TypeElement, TreeMap<String, String>> extFields = new HashMap<>();
   final LinkedHashSet<TypeElement> extAdapters = new LinkedHashSet<>();
+  /** Library functional interfaces that lambdas use through a typed adapter X_tfn (Stubs). */
+  final LinkedHashSet<TypeElement> extTypedAdapters = new LinkedHashSet<>();
+
+  /**
+   * A type that a value in an erased slot reaches with one type assertion (unboxT_ takes the fast
+   * path): a String, a handle, a class without subclasses, an interface, an array, a kept type
+   * variable. A class with subclasses needs its view (to_C), and Object or a boxed value is `any`.
+   */
+  boolean assertable(TypeMirror t) {
+    if (t == null) return false;
+    switch (kind(t)) {
+      case STR, IFACE, ARR, TVAR: return true;
+      case CLS: return isHandleType(t) || isLeaf(typeElement(erase(t)));
+      default: return false;
+    }
+  }
 
   void noteType(TypeElement te) {
     if (isSource(te) || !extTypes.add(te)) return;

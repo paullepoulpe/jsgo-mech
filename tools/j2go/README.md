@@ -26,14 +26,58 @@ segment appended.
 | class, enum, record | pointer to a struct |
 | handle class (see below) | `uint32` handle |
 | interface | Go interface |
-| `Object`, boxed primitives, type variables | `any` |
+| `Object`, boxed primitives, erased type variables | `any` |
 | array | slice |
 
-**Generics are erased**, as in the JVM: `List<String>` is `List`, its elements
+**Generics are erased** by default, as in the JVM: `List<String>` is `List`, its elements
 are `any`, and reads convert back (`str_(list.get(0))`). The emitter inserts
 those conversions wherever the static type and the erased declaration differ,
 the way javac inserts `checkcast`. `Ctx.coerce` is the single place that knows
 how to convert between two Java types.
+
+**Typed generics.** The program's own generic classes, interfaces and methods keep their type
+parameters where that is sound (`GenScan`; `J2GO_GENERICS=1` reports every declaration,
+`J2GO_ERASED=1` translates everything erased). A type parameter is kept when every mention of
+its declaration names, at its position, a concrete type or a kept type variable; a wildcard or
+raw use there, or an erased type variable, erases that parameter alone (`DiGraph<Node, ?>`
+somewhere makes `DiGraph[N]`, with the second parameter `any` everywhere). Then:
+
+- `C<X>` is `*C[X]`, `I<X>` is `I[X]`; a subclass struct embeds its superclass at its view of it
+  (`ControlFlowGraph[N]` embeds `LinkedDirectedGraph[N, *ControlFlowGraph_Branch]`), and
+  `to_C[X]`, `up_C`, dispatch through `self_` work as for other classes; `x instanceof C` is the
+  marker method `isa_C_` (any instantiation).
+- A method group whose root a typed declaration declares has the root's signature at the
+  receiver's (or implementing class's) view of that declaration; the lambda adapter of a typed
+  functional interface is generic (`I_fn[X]`).
+- Local and anonymous classes take the type parameters of the scope they are declared in.
+- A bounded type parameter is kept when its bound is an interface of the program (the Go
+  constraint: `DataFlowAnalysis[N any, L LatticeElement]`); a class bound erases it to the
+  bound, and one that every use instantiates with exactly its bound stands for the bound as a
+  type argument (`Outcome<B>` in `AbstractCommandLineRunner<A, B extends CompilerOptions>` is
+  `Outcome[*CompilerOptions]`).
+- Generic methods are Go generic functions when their type variables are needed as type
+  arguments of a kept parameter (or are factories of a typed class); an instance method that
+  overrides nothing and that nothing overrides becomes a function taking the receiver first
+  (`CmdLineParser_Option_enumValue[E any](this, values []E, ...)`). Other method type variables
+  are erased to their bound.
+- A value of a type parameter meets `Object` as the erased code boxed it (`boxT_`, `unboxT_`,
+  `null_`, `isnull_`, `eqT_`, and `hashCodeT_`/`equalsT_`/`toStringT_` without boxing a String;
+  `go/closure/rt_generic.go`).
+
+A lambda whose target is a library functional interface is a func of its Java types inside a
+typed adapter (`&Consumer_tfn[Node]{func(name Node) {...}}`) when a parameter or the result
+that the erased signature has as `any` has a type that one type assertion reaches (a String, a
+handle, a class without subclasses, an interface, an array); the adapter converts at the erased
+signature (`unboxT_`/`boxT_`).
+
+**Type arguments in declarations.** Library types stay erased; the declared type of a field,
+local or parameter whose Java type is a parameterized library type is written through a generic
+alias: `List<Reference>` becomes
+`ListOf[*Reference]`, with `type ListOf[T0 any] = List` in `g_0aliases.go`
+(`BoxedOf[int32]` for `Integer`; a type variable or unbounded wildcard is
+`any`). An alias is its right-hand side, so nothing changes for the compiler or
+at run time; the Java type arguments stay in the source, checked as Go types,
+for the post-flip steps that give collections real element types.
 
 **Inheritance.** A subclass struct embeds its superclass struct. A method
 overridden somewhere below gets a stub on the top-most class that dispatches
@@ -86,15 +130,6 @@ fields, and the handle's own value that `box_` points at, go to a third record
 `C_cs_`, so that `C_ns_`, the record a traversal reads for every node, stays
 small: `Node_ns_` is 16 bytes (next, first, parent, token), four nodes to a
 cache line. Only the layout changes; reads and writes of the field are the same.
-
-**Type arguments in declarations.** Generics are erased, but the declared type
-of a field, local or parameter whose Java type is a parameterized library type
-is written through a generic alias: `List<Reference>` becomes
-`ListOf[*Reference]`, with `type ListOf[T0 any] = List` in `g_0aliases.go`
-(`BoxedOf[int32]` for `Integer`; a type variable or unbounded wildcard is
-`any`). An alias is its right-hand side, so nothing changes for the compiler or
-at run time; the Java type arguments stay in the source, checked as Go types,
-for the post-flip steps that give collections real element types.
 
 **Constructors.** `new_C(args)` allocates, `init_C(args)` runs the constructor
 body (calling the superclass's `init_`), `finit_C()` runs field initializers.
