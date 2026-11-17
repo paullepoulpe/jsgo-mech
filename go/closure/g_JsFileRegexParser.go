@@ -214,7 +214,7 @@ func (this *JsFileRegexParser) parseLine_impl(line string) *Outcome_base[any] {
 			var arg OptionalOf[string] = Optional_ofNullable[string](this.es6Matcher.group(1))
 			if arg.isPresent() {
 				if strings.HasPrefix(arg.get(), "goog:") {
-					this.requires.add(DependencyInfo_Require_googRequireSymbol(String_substring_int(arg.get(), 5)))
+					this.requires.add(DependencyInfo_Require_googRequireSymbol(arg.get()[5:]))
 				} else {
 					var path *ModuleLoader_ModulePath = this.file.resolveJsModule(arg.get(), this.filePath, this.lineNum, this.es6Matcher.start())
 					if path == nil {
