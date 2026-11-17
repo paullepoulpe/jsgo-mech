@@ -2768,7 +2768,7 @@ func (this *Compiler) removeSyntheticCodeInput_1(mergeContentIntoFirstInput bool
 	if !astRoot.isFirstChildOf(this.jsRoot) {
 		panic(new_IllegalStateException_0().self())
 	}
-	if !Compiler_SYNTHETIC_CODE_INPUT_ID.equals(obj_(input.getInputId())) {
+	if !Compiler_SYNTHETIC_CODE_INPUT_ID.equals_InputId(input.getInputId()) {
 		panic(new_IllegalStateException_0().self())
 	}
 	if mergeContentIntoFirstInput && astRoot.hasChildren() {

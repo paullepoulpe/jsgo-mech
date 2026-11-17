@@ -241,7 +241,7 @@ func (this *ChainableReverseAbstractInterpreter_RestrictByTypeOfResultVisitor) c
 
 func (this *ChainableReverseAbstractInterpreter_RestrictByTypeOfResultVisitor) caseEnumElementType(enumElementType *EnumElementType) any {
 	var type_ *JSType = to_JSType(enumElementType.getPrimitiveType().visit(icast_Visitor(this.self())))
-	if (type_ != nil) && enumElementType.getPrimitiveType().equals(type_.self()) {
+	if (type_ != nil) && enumElementType.getPrimitiveType().equals_JSType(type_) {
 		return obj_(enumElementType)
 	} else {
 		return type_.self()

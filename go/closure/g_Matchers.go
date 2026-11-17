@@ -144,12 +144,12 @@ func Matchers_getJsTypeJSTypeNative(metadata *NodeMetadata, nativeType JSTypeNat
 }
 
 func Matchers_areTypesEquivalentIgnoringGenerics(a *JSType, b *JSType) bool {
-	var equivalent bool = a.equals(b.self())
+	var equivalent bool = a.equals_JSType(b)
 	if equivalent {
 		return true
 	}
 	if a.isTemplatizedType() {
-		return a.toMaybeTemplatizedType().getReferencedType().equals(b.self())
+		return a.toMaybeTemplatizedType().getReferencedType().equals_JSType(b)
 	}
 	return false
 }
@@ -465,7 +465,7 @@ func (this *Matchers_12) matches(node Node, metadata *NodeMetadata) bool {
 	}
 	providedJsType = providedJsType.restrictByNotNullOrUndefined()
 	var jsType *JSType = node.getJSType()
-	return (((jsType != nil) && jsType.isEnumType()) && providedJsType.equals(jsType.toMaybeEnumType().getElementsType().getPrimitiveType().self()))
+	return (((jsType != nil) && jsType.isEnumType()) && providedJsType.equals_JSType(jsType.toMaybeEnumType().getElementsType().getPrimitiveType()))
 }
 
 type Matchers_13 struct {
@@ -515,7 +515,7 @@ func (this *Matchers_14) matches(node Node, metadata *NodeMetadata) bool {
 		return node.getJSDocInfo()
 	}()
 	var jsType *JSType = node.getJSType()
-	return ((((jsDoc != nil) && jsDoc.hasType()) && (jsType != nil)) && providedJsType.equals(jsType.restrictByNotNullOrUndefined().self()))
+	return ((((jsDoc != nil) && jsDoc.hasType()) && (jsType != nil)) && providedJsType.equals_JSType(jsType.restrictByNotNullOrUndefined()))
 }
 
 type Matchers_15 struct {

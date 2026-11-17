@@ -160,17 +160,13 @@ func (this *FeatureSet) getFeatures() ImmutableSetOf[FeatureSet_Feature] {
 }
 
 func (this *FeatureSet) equals(other any) bool {
-	var featureSet *FeatureSet
-	_ = featureSet
-	return (func() bool {
-		v_ := other
-		p, ok := v_.(*FeatureSet)
-		if !ok {
-			return false
-		}
-		featureSet = p
-		return true
-	}() && equalsBy_(featureSet.features_, obj_(this.features_), (ImmutableSetOf[FeatureSet_Feature]).equals))
+	p, ok := other.(*FeatureSet)
+	return ok && this.equals_FeatureSet(p)
+}
+
+// equals_FeatureSet is equals of a FeatureSet (post-flip step eqtyped).
+func (this *FeatureSet) equals_FeatureSet(featureSet *FeatureSet) bool {
+	return ((featureSet != nil) && equalsBy_(featureSet.features_, obj_(this.features_), (ImmutableSetOf[FeatureSet_Feature]).equals))
 }
 
 func (this *FeatureSet) hashCode() int32 {

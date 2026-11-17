@@ -83,17 +83,13 @@ func ColorId_union(ids *TSet[*ColorId]) *ColorId {
 }
 
 func (this *ColorId) equals(x any) bool {
-	var that *ColorId
-	_ = that
-	if !(func() bool {
-		v_ := x
-		p, ok := v_.(*ColorId)
-		if !ok {
-			return false
-		}
-		that = p
-		return true
-	}()) {
+	p, ok := x.(*ColorId)
+	return ok && this.equals_ColorId(p)
+}
+
+// equals_ColorId is equals of a ColorId (post-flip step eqtyped).
+func (this *ColorId) equals_ColorId(that *ColorId) bool {
+	if !(that != nil) {
 		return false
 	}
 	return (this.rightAligned == that.rightAligned)

@@ -30,20 +30,16 @@ func (this *InputId) hashCode() int32 {
 }
 
 func (this *InputId) equals(obj any) bool {
-	if any(this) == obj {
+	p, ok := obj.(*InputId)
+	return ok && this.equals_InputId(p)
+}
+
+// equals_InputId is equals of a InputId (post-flip step eqtyped).
+func (this *InputId) equals_InputId(inputId *InputId) bool {
+	if inputId == this {
 		return true
 	}
-	var inputId *InputId
-	_ = inputId
-	if !(func() bool {
-		v_ := obj
-		p, ok := v_.(*InputId)
-		if !ok {
-			return false
-		}
-		inputId = p
-		return true
-	}()) {
+	if !(inputId != nil) {
 		return false
 	}
 	return (this.id == inputId.id)
