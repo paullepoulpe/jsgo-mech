@@ -43,10 +43,11 @@
 // (identity is Go's == on pointers; insertion order); get and put are typed, computeIfAbsent,
 // merge and forEach are its own (rt_idmap.go). Key and value types are inferred as above.
 //
-// -kind treeset, -kind treemap: a TreeSet / TreeMap whose class holds only new TreeSets /
-// TreeMaps (natural ordering, or a comparator over elements boxed without allocating:
-// pointers, interfaces) becomes a *TTreeSet[K] / *TTreeMap[K, V] (rt_ttree.go), the same
-// sorted slice with the same comparator, typed; the set and map operations as above.
+// -kind treeset, -kind treemap: a TreeSet / TreeMap of strings in natural order whose class
+// holds only new TreeSets / TreeMaps becomes a *TTreeSet[string] / *TTreeMap[string, V]
+// (rt_ttree.go), the same sorted slice compared by String.compareTo without boxing; the set and
+// map operations as above. Not with a Comparator, nor other keys: those compare Objects, so a
+// typed collection would box both elements of every comparison again.
 //
 // usage: colls -kind list|map|set|deque|treeset|treemap|idmap [-n] [-v] <dir of package closure>
 //
@@ -1709,16 +1710,6 @@ func (c *class) element(i int) (ast.Expr, types.Type, string) {
 	return el, et, ""
 }
 
-// boxFree reports whether a value of type t is boxed into an Object without allocating (a
-// pointer or an interface).
-func boxFree(t types.Type) bool {
-	switch types.Unalias(t).Underlying().(type) {
-	case *types.Pointer, *types.Interface:
-		return true
-	}
-	return false
-}
-
 func isString(t types.Type) bool {
 	b, ok := types.Unalias(t).(*types.Basic)
 	return ok && b.Kind() == types.String
@@ -2036,9 +2027,17 @@ func main() {
 					why = "pushed at its head (" + c.dqHeadPush + ") and used at its tail (" + c.dqTail + ")"
 				}
 			}
-			if why == "" && c.cmpNew && !boxFree(c.elem[0]) {
-				// The comparator takes Objects: each comparison would box both elements.
-				why = "a comparator over " + c.elemText[0] + " elements would box each compared element"
+			// A sorted collection is typed only where that removes boxing: strings in natural order
+			// (String.compareTo on the unboxed strings). A Comparator takes Objects, and natural
+			// ordering of other classes is compareTo(Object), so typed every comparison would box
+			// both elements again, where the erased sorted slice compares the boxes it holds
+			// (measured: JSDocInfo's property map 0.76 -> 1.17 us per build); pointers box without
+			// allocating, so typing them saves nothing elsewhere.
+			if why == "" && c.cmpNew && (K.name == "treeset" || K.name == "treemap") {
+				why = "made with a Comparator, which compares Objects"
+			}
+			if why == "" && (K.name == "treeset" || K.name == "treemap") && !isString(c.elem[0]) {
+				why = "natural ordering of " + c.elemText[0] + " compares Objects"
 			}
 			if why == "" && c.strKey && !isString(c.elem[0]) {
 				why = "string-key helper on a collection whose key is not a string"
