@@ -99,24 +99,28 @@ final class Emitter extends StmtEmitter {
 
   void interfaceDecl(ClassTree ct, TypeElement te) {
     String n = cx.className(te);
-    StringBuilder sb = new StringBuilder("type " + n + " interface {\n");
+    // A typed generic interface (GenScan) is a generic Go interface: I<X> is I[X].
+    TypeMirror site = te.asType();
+    String tps = tparams(te), tpu = cx.typedClasses.contains(te) ? cx.typeParamsUse(te.getTypeParameters()) : "";
+    StringBuilder sb = new StringBuilder("type " + n + tps + " interface {\n");
     for (TypeMirror st : te.getInterfaces()) {
-      if (cx.kind(st) == Ctx.K.IFACE) sb.append("\t").append(cx.className(Ctx.typeElement(st))).append("\n");
+      if (cx.kind(st) == Ctx.K.IFACE) sb.append("\t").append(cx.goType(st)).append("\n");
     }
     for (Element e : te.getEnclosedElements()) {
       if (!Ctx.isInstanceMethod(e) || e.getModifiers().contains(Modifier.PRIVATE)) continue;
       ExecutableElement m = (ExecutableElement) e;
       if (rootIsObject(m)) continue;
-      sb.append("\t").append(cx.methodName(m)).append(cx.goSig(cx.groupParams(m), cx.groupReturn(m), true)).append("\n");
+      sb.append("\t").append(cx.methodName(m)).append(cx.goSig(cx.groupParams(m, site), cx.groupReturn(m, site), true)).append("\n");
     }
     sb.append("}\n\n");
     file.append(sb);
     ExecutableElement fm = cx.functionalMethod(te);
     if (fm != null) {
       String fn = n + "_fn";
-      List<TypeMirror> ps = cx.groupParams(fm);
-      TypeMirror ret = cx.groupReturn(fm);
-      file.append("type ").append(fn).append(" struct {\n\tf func").append(cx.goSig(ps, ret)).append("\n}\n\n");
+      List<TypeMirror> ps = cx.groupParams(fm, site);
+      TypeMirror ret = cx.groupReturn(fm, site);
+      file.append("type ").append(fn).append(tps).append(" struct {\n\tf func").append(cx.goSig(ps, ret)).append("\n}\n\n");
+      fn += tpu;
       file.append("func (this *").append(fn).append(") ").append(cx.methodName(fm)).append(paramList(ps)).append(retSuffix(ret))
           .append(" {\n\t").append(ret.getKind() == TypeKind.VOID ? "" : "return ").append("this.f(").append(argNames(ps.size())).append(")\n}\n\n");
       // Default methods of the interface and its super-interfaces.
@@ -130,11 +134,11 @@ final class Emitter extends StmtEmitter {
           if (!Ctx.isInstanceMethod(e) || !((ExecutableElement) e).isDefault()) continue;
           ExecutableElement dm = (ExecutableElement) e;
           if (!seen.add(cx.root(dm)) || cx.root(dm).equals(cx.root(fm))) continue;
-          List<TypeMirror> dps = cx.groupParams(dm);
-          TypeMirror dret = cx.groupReturn(dm);
+          List<TypeMirror> dps = cx.groupParams(dm, site);
+          TypeMirror dret = cx.groupReturn(dm, site);
           file.append("func (this *").append(fn).append(") ").append(cx.methodName(dm)).append(paramList(dps)).append(retSuffix(dret))
               .append(" {\n\t").append(dret.getKind() == TypeKind.VOID ? "" : "return ").append(cx.className(it)).append("_").append(cx.methodName(dm))
-              .append("_default(this").append(dps.isEmpty() ? "" : ", " + argNames(dps.size())).append(")\n}\n\n");
+              .append("_default").append(cx.viewArgs(site, it)).append("(this").append(dps.isEmpty() ? "" : ", " + argNames(dps.size())).append(")\n}\n\n");
         }
       }
     }
@@ -142,7 +146,7 @@ final class Emitter extends StmtEmitter {
       for (ExecutableElement dm : cx.extDefaultOverrides(te)) {
         if (cx.root(dm).equals(cx.root(fm))) continue;
         List<TypeMirror> ps = cx.groupParams(dm);
-        file.append("func (this *").append(n).append("_fn) ").append(cx.methodName(dm)).append(paramList(ps)).append(retSuffix(cx.groupReturn(dm)))
+        file.append("func (this *").append(n).append("_fn").append(tpu).append(") ").append(cx.methodName(dm)).append(paramList(ps)).append(retSuffix(cx.groupReturn(dm)))
             .append(" {\n\t").append(cx.defaultBridgeBody(dm, cx.className(cx.ownerOf(dm)) + "(this)")).append("\n}\n\n");
       }
     }
@@ -581,17 +585,18 @@ final class Emitter extends StmtEmitter {
     if (isStatic) {
       ret = cx.erase(e.getReturnType());
       p = params(mt.getParameters(), null);
-      String mtps = cx.typedClasses.contains(te) ? cx.typeParamsDecl(e.getTypeParameters()) : "";
+      String mtps = cx.typeParamsDecl(e.getTypeParameters());
       head = "func " + cx.staticMethodName(e) + mtps + "(" + p.decl + ")";
     } else if (iface) {
       boolean priv = e.getModifiers().contains(Modifier.PRIVATE);
-      ret = priv ? cx.erase(e.getReturnType()) : cx.groupReturn(e);
-      p = params(mt.getParameters(), priv ? null : cx.groupParams(e));
+      ret = priv ? cx.erase(e.getReturnType()) : cx.groupReturn(e, te.asType());
+      p = params(mt.getParameters(), priv ? null : cx.groupParams(e, te.asType()));
       String fn = priv ? cx.staticMethodName(e) : n + "_" + cx.methodName(e) + "_default";
-      head = "func " + fn + "(" + join("this " + n, p.decl) + ")";
+      // a generic function of the interface's type parameters for a typed interface
+      head = "func " + fn + tparams(te) + "(" + join("this " + cx.goType(te.asType()), p.decl) + ")";
     } else {
-      ret = cx.groupReturn(e);
-      p = params(mt.getParameters(), cx.groupParams(e));
+      ret = cx.groupReturn(e, te.asType());
+      p = params(mt.getParameters(), cx.groupParams(e, te.asType()));
       head = recv(te) + cx.implName(e, te) + "(" + p.decl + ")";
     }
     mc.isVoid = ret.getKind() == TypeKind.VOID;
@@ -616,8 +621,8 @@ final class Emitter extends StmtEmitter {
     String n = cx.className(te);
     for (ExecutableElement r : roots) {
       String name = cx.methodName(r);
-      List<TypeMirror> ps = cx.groupParams(r);
-      TypeMirror ret = cx.groupReturn(r);
+      List<TypeMirror> ps = cx.groupParams(r, te.asType());
+      TypeMirror ret = cx.groupReturn(r, te.asType());
       String body;
       String ret0 = ret.getKind() == TypeKind.VOID ? "" : "return ";
       String iface = "interface{ " + name + "_impl" + cx.goSig(ps, ret) + " }";
@@ -644,11 +649,12 @@ final class Emitter extends StmtEmitter {
     String n = cx.className(te);
     for (ExecutableElement dm : dms) {
       TypeElement it = cx.ownerOf(dm);
-      List<TypeMirror> ps = cx.groupParams(dm);
-      TypeMirror ret = cx.groupReturn(dm);
-      String self = cx.coerce("this", te.asType(), it.asType());
+      List<TypeMirror> ps = cx.groupParams(dm, te.asType());
+      TypeMirror ret = cx.groupReturn(dm, te.asType());
+      DeclaredType view = cx.superView(te.asType(), it);
+      String self = cx.coerce("this", te.asType(), view != null && cx.typedDecl(view) ? view : it.asType());
       file.append(recv(te)).append(cx.implName(dm, te)).append(paramList(ps)).append(retSuffix(ret)).append(" {\n\t")
-          .append(ret.getKind() == TypeKind.VOID ? "" : "return ").append(cx.className(it)).append("_").append(cx.methodName(dm)).append("_default(")
+          .append(ret.getKind() == TypeKind.VOID ? "" : "return ").append(cx.className(it)).append("_").append(cx.methodName(dm)).append("_default").append(cx.viewArgs(te.asType(), it)).append("(")
           .append(join(self, argNames(ps.size()))).append(")\n}\n\n");
     }
   }

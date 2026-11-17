@@ -367,7 +367,7 @@ abstract class ExprEmitter extends Base {
     String code = "this";
     TypeMirror ot = cx.erase(owner.asType());
     for (ClassCtx c : classStack) {
-      if (cx.types.isSubtype(cx.erase(c.te.asType()), ot)) return new Recv(code, c.te.asType());
+      if (cx.sub(c.te.asType(), ot)) return new Recv(code, c.te.asType());
       code += ".outer_";
     }
     ClassCtx c = cc();
@@ -460,8 +460,8 @@ abstract class ExprEmitter extends Base {
 
   /** The type of field f read through a value of type recv: a field of a typed class at the receiver's type arguments. */
   TypeMirror memberType(TypeMirror recv, VariableElement f) {
-    if (recv != null && !f.getModifiers().contains(Modifier.STATIC) && cx.typedDecl(recv) && cx.typedClasses.contains(cx.ownerOf(f))) {
-      return cx.types.asMemberOf((DeclaredType) recv, f);
+    if (recv != null && !f.getModifiers().contains(Modifier.STATIC) && cx.typedClasses.contains(cx.ownerOf(f))) {
+      return cx.atSite(f.asType(), cx.ownerOf(f), recv);
     }
     return f.asType();
   }
@@ -928,19 +928,23 @@ abstract class ExprEmitter extends Base {
       TypeMirror ret = cx.erase(e.getReturnType());
       String name = cx.staticMethodName(e);
       if (!src) noteMethod("func " + name, e, params, ret, "static");
-      if (src && cx.typedClasses.contains(owner) && !e.getTypeParameters().isEmpty()) {
-        // A generic function: instantiated with javac's inferred type arguments.
+      if (src && !cx.keptOf(e.getTypeParameters()).isEmpty()) {
+        // A generic function: instantiated with javac's inferred type arguments (kept ones).
         ExecutableType inst = curInst;
         curInst = null;
         if (inst == null || inst.getParameterTypes().size() != params.size()) throw new IllegalStateException("no instantiated type for a call of " + e);
         Map<Element, TypeMirror> m = new HashMap<>();
         unify(e.getReturnType(), inst.getReturnType(), m);
         for (int i = 0; i < params.size(); i++) unify(e.getParameters().get(i).asType(), inst.getParameterTypes().get(i), m);
+        Map<Element, TypeMirror> mk = new HashMap<>();
         StringBuilder ta = new StringBuilder("[");
-        for (TypeParameterElement tp : e.getTypeParameters()) ta.append(ta.length() > 1 ? ", " : "").append(cx.goTypeArg(m.get(tp)));
+        for (TypeParameterElement tp : cx.keptOf(e.getTypeParameters())) {
+          ta.append(ta.length() > 1 ? ", " : "").append(cx.goTypeArg(m.get(tp)));
+          if (m.get(tp) != null) mk.put(tp, m.get(tp));
+        }
         params = new ArrayList<>();
-        for (TypeMirror pt : inst.getParameterTypes()) params.add(cx.erase(pt));
-        ret = cx.erase(inst.getReturnType());
+        for (VariableElement pe : e.getParameters()) params.add(cx.erase(cx.subst(pe.asType(), mk, 0)));
+        ret = cx.erase(cx.subst(e.getReturnType(), mk, 0));
         return new CallResult(name + ta + "]" + "(" + argList(e, params, args) + ")", ret);
       }
       return new CallResult(name + "(" + argList(e, params, args) + ")", ret);
@@ -999,15 +1003,10 @@ abstract class ExprEmitter extends Base {
       noteMethod("func " + name, e, full, ret, "receiver-first");
       return new CallResult(name + "(" + r + (al.isEmpty() ? "" : ", " + al) + ")", ret);
     }
-    List<TypeMirror> params = cx.groupParams(e);
-    TypeMirror ret = cx.groupReturn(e);
-    if (src && cx.typedClasses.contains(cx.ownerOf(cx.root(e))) && recv != null && cx.typedDecl(recv.type)) {
-      // A method of a typed class: its parameters and result at the receiver's type arguments.
-      ExecutableType mt = (ExecutableType) cx.types.asMemberOf((DeclaredType) recv.type, e);
-      params = new ArrayList<>();
-      for (TypeMirror pt : mt.getParameterTypes()) params.add(cx.erase(pt));
-      ret = cx.erase(mt.getReturnType());
-    }
+    // A method of a typed class or interface: its parameters and result at the receiver's view of it.
+    TypeMirror site = superCall ? cc().te.asType() : recv != null ? recv.type : null;
+    List<TypeMirror> params = cx.groupParams(e, site);
+    TypeMirror ret = cx.groupReturn(e, site);
     String name = cx.methodName(e);
     if (!src) noteMethod("method " + cx.className(cx.ownerOf(cx.root(e))) + "." + name, cx.root(e), params, ret, "method");
     String target;
@@ -1030,7 +1029,7 @@ abstract class ExprEmitter extends Base {
       String rc = recv.code;
       if (rk == Ctx.K.ANY || rk == Ctx.K.STR || rk == Ctx.K.ARR || rk == Ctx.K.PRIM) {
         rc = cx.coerce(rc, recv.type, owner.asType());
-      } else if (rk == Ctx.K.CLS && owner.getKind().isInterface() && !cx.types.isSubtype(cx.erase(recv.type), cx.erase(owner.asType()))) {
+      } else if (rk == Ctx.K.CLS && owner.getKind().isInterface() && !cx.sub(recv.type, owner.asType())) {
         rc = cx.coerce(rc, recv.type, owner.asType());
       }
       target = rc + "." + name;
@@ -1082,10 +1081,12 @@ abstract class ExprEmitter extends Base {
       if (q instanceof MemberSelectTree qm && qm.getIdentifier().contentEquals("super")) {
         // I.super.m(): the default method of interface I.
         TypeElement owner = cx.ownerOf(e);
-        List<TypeMirror> params = cx.groupParams(e);
-        String self = cx.coerce("this", cc().te.asType(), owner.asType());
+        TypeMirror site = cc().te.asType();
+        List<TypeMirror> params = cx.groupParams(e, site);
+        DeclaredType view = cx.superView(site, owner);
+        String self = cx.coerce("this", site, view != null && cx.typedDecl(view) ? view : owner.asType());
         String al = argList(e, params, as);
-        return new CallResult(cx.className(owner) + "_" + cx.methodName(e) + "_default(" + self + (al.isEmpty() ? "" : ", " + al) + ")", cx.groupReturn(e));
+        return new CallResult(cx.className(owner) + "_" + cx.methodName(e) + "_default" + cx.viewArgs(site, owner) + "(" + self + (al.isEmpty() ? "" : ", " + al) + ")", cx.groupReturn(e, site));
       }
       TypeMirror qt = typeOf(q);
       if (qt != null && qt.getKind() == TypeKind.ARRAY && e.getSimpleName().contentEquals("clone")) {
@@ -1151,9 +1152,8 @@ abstract class ExprEmitter extends Base {
     if (!cx.isSource(te)) noteMethod("func " + name, ctor, params, ty, "constructor");
     if (cx.typedDecl(ty)) {
       // new C<X>(...): new_C[X], its parameters at those type arguments
-      ExecutableType mt = (ExecutableType) cx.types.asMemberOf((DeclaredType) ty, ctor);
       params = new ArrayList<>();
-      for (TypeMirror pt : mt.getParameterTypes()) params.add(cx.erase(pt));
+      for (VariableElement pe : ctor.getParameters()) params.add(cx.erase(cx.atSite(pe.asType(), te, ty)));
       name += cx.typeArgsOf(ty);
     }
     String al = argList(ctor, params, args(t.getArguments()));
@@ -1170,7 +1170,7 @@ abstract class ExprEmitter extends Base {
     TypeElement outer = cx.enclosingClass(te);
     String code = "this";
     for (ClassCtx c : classStack) {
-      if (cx.types.isSubtype(cx.erase(c.te.asType()), cx.erase(outer.asType()))) {
+      if (cx.sub(c.te.asType(), outer.asType())) {
         return c.te.equals(outer) ? code : cx.coerce(code, c.te.asType(), outer.asType());
       }
       code += ".outer_";
@@ -1207,6 +1207,12 @@ abstract class ExprEmitter extends Base {
 
   // ------------------------------------------------------------ lambdas
 
+  /** The adapter struct of functional interface fi for a lambda of type ft: I_fn, or I_fn[X] for a typed interface. */
+  String adapterName(TypeElement fi, TypeMirror ft) {
+    if (cx.typedDecl(ft)) return cx.className(fi) + "_fn" + cx.typeArgsOf(ft);
+    return adapterName(fi);
+  }
+
   String adapterName(TypeElement fi) {
     String n = cx.className(fi) + "_fn";
     if (!cx.isSource(fi) && cx.extAdapters.add(fi)) {
@@ -1221,8 +1227,8 @@ abstract class ExprEmitter extends Base {
     TypeElement fi = Ctx.typeElement(ft);
     ExecutableElement m = fi == null ? null : cx.functionalMethod(fi);
     if (m == null) throw unsupported(t, "lambda target " + ft);
-    List<TypeMirror> params = cx.groupParams(m);
-    TypeMirror ret = cx.groupReturn(m);
+    List<TypeMirror> params = cx.groupParams(m, ft);
+    TypeMirror ret = cx.groupReturn(m, ft);
     MethodCtx saved = mc;
     MethodCtx inner = new MethodCtx();
     inner.names = saved.names;
@@ -1234,7 +1240,7 @@ abstract class ExprEmitter extends Base {
     inner.isVoid = ret.getKind() == TypeKind.VOID;
     inner.ret = inner.isVoid ? null : ret;
     mc = inner;
-    StringBuilder sb = new StringBuilder("&" + adapterName(fi) + "{func(");
+    StringBuilder sb = new StringBuilder("&" + adapterName(fi, ft) + "{func(");
     StringBuilder entry = new StringBuilder();
     for (int i = 0; i < t.getParameters().size(); i++) {
       VariableTree p = t.getParameters().get(i);
@@ -1280,8 +1286,8 @@ abstract class ExprEmitter extends Base {
     TypeElement fi = Ctx.typeElement(cx.erase(ft));
     ExecutableElement m = fi == null ? null : cx.functionalMethod(fi);
     if (m == null) throw unsupported(t, "method reference target " + ft);
-    List<TypeMirror> params = cx.groupParams(m);
-    TypeMirror ret = cx.groupReturn(m);
+    List<TypeMirror> params = cx.groupParams(m, cx.erase(ft));
+    TypeMirror ret = cx.groupReturn(m, cx.erase(ft));
     // Instantiated parameter types, to coerce from the erased ones.
     List<TypeMirror> inst = new ArrayList<>();
     try {
@@ -1316,11 +1322,21 @@ abstract class ExprEmitter extends Base {
         List<TypeMirror> cp = ownParams(ctor);
         String name = cx.ctorName(ctor, "new_");
         if (!cx.isSource(te)) noteMethod("func " + name, ctor, cp, te.asType(), "constructor");
+        TypeMirror made = te.asType();
+        if (cx.typedClasses.contains(te)) {
+          // C::new for a typed class: C at the type arguments the functional method returns
+          TypeMirror want = ((ExecutableType) cx.types.asMemberOf((DeclaredType) ft, m)).getReturnType();
+          if (want.getKind() != TypeKind.DECLARED || !Ctx.typeElement(want).equals(te)) throw unsupported(t, "constructor reference to a typed class at " + want);
+          made = want;
+          cp = new ArrayList<>();
+          for (VariableElement pe : ctor.getParameters()) cp.add(cx.erase(cx.atSite(pe.asType(), te, want)));
+          name += cx.typeArgsOf(want);
+        }
         List<String> pre = new ArrayList<>();
         if (cx.isSource(te) && cx.hasOuter(te)) pre.add(outerFor(te));
         String al = argList(ctor, cp, as);
         if (!al.isEmpty()) pre.add(al);
-        r = new CallResult(name + "(" + String.join(", ", pre) + ")", te.asType());
+        r = new CallResult(name + "(" + String.join(", ", pre) + ")", made);
       }
     } else {
       ExecutableElement e = (ExecutableElement) el;
@@ -1343,12 +1359,12 @@ abstract class ExprEmitter extends Base {
         r = special(e, new Recv(rc, typeOf(q)), as);
       }
     }
-    String fn = "&" + adapterName(fi) + "{func(" + sig + ")";
+    String fn = "&" + adapterName(fi, cx.erase(ft)) + "{func(" + sig + ")";
     String gr = cx.goType(ret);
     String body = ret.getKind() == TypeKind.VOID ? r.code : "return " + cx.coerce(r.code, r.type, ret);
     fn += (gr.isEmpty() ? "" : " " + gr) + " { " + body + " }}";
     if (prefix.isEmpty()) return fn;
-    return "func() *" + adapterName(fi) + " { " + prefix + "return " + fn + " }()";
+    return "func() *" + adapterName(fi, cx.erase(ft)) + " { " + prefix + "return " + fn + " }()";
   }
 
   boolean isTypeTree(Tree q) {

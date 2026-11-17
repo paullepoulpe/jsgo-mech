@@ -246,7 +246,10 @@ public final class Main {
     for (CompilationUnitTree cu : units) gs.scan(cu);
     if (System.getenv("J2GO_GENERICS") != null) gs.report();
     // J2GO_ERASED=1 translates every generic class erased (the translation before typed generics).
-    if (System.getenv("J2GO_ERASED") == null) cx.typedClasses.addAll(gs.typed());
+    if (System.getenv("J2GO_ERASED") == null) {
+      cx.typedClasses.addAll(gs.typed());
+      cx.keptVars.addAll(gs.kept());
+    }
     cx.assignClassNames();
     cx.analyzeMethods();
     Files.createDirectories(out);

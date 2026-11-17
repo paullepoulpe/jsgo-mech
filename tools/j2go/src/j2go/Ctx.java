@@ -30,13 +30,62 @@ final class Ctx {
    * type variables (and those of their static generic methods) are Go type parameters.
    */
   final Set<TypeElement> typedClasses = new HashSet<>();
+  /** The type parameters that are Go type parameters (GenScan.kept); the others are erased. */
+  final Set<TypeParameterElement> keptVars = new HashSet<>();
 
-  /** A type variable of a typed class, or of a static generic method of one. */
+  /** A type variable that is a Go type parameter: of a typed declaration, or of a static generic method of one. */
   boolean typedVar(TypeMirror t) {
-    if (t == null || t.getKind() != TypeKind.TYPEVAR) return false;
-    Element o = ((TypeVariable) t).asElement().getEnclosingElement();
-    if (o instanceof TypeElement te) return typedClasses.contains(te);
-    return o instanceof ExecutableElement m && m.getModifiers().contains(Modifier.STATIC) && typedClasses.contains((TypeElement) m.getEnclosingElement());
+    return t != null && t.getKind() == TypeKind.TYPEVAR && ((TypeVariable) t).asElement() instanceof TypeParameterElement tp && keptVars.contains(tp);
+  }
+
+  /** The kept type parameters among tps. */
+  List<TypeParameterElement> keptOf(List<? extends TypeParameterElement> tps) {
+    List<TypeParameterElement> out = new ArrayList<>();
+    for (TypeParameterElement tp : tps) if (keptVars.contains(tp)) out.add(tp);
+    return out;
+  }
+
+  /**
+   * t with the kept type parameters of owner replaced by site's view of owner's type arguments
+   * (asMemberOf, but an erased type parameter stays itself: erase() makes it its bound).
+   */
+  TypeMirror atSite(TypeMirror t, TypeElement owner, TypeMirror site) {
+    if (site == null || !typedClasses.contains(owner)) return t;
+    DeclaredType v = superView(erase(site), owner);
+    if (v == null || v.getTypeArguments().isEmpty()) return t;
+    Map<Element, TypeMirror> m = new HashMap<>();
+    List<? extends TypeParameterElement> ps = owner.getTypeParameters();
+    for (int i = 0; i < ps.size(); i++) if (keptVars.contains(ps.get(i))) m.put(ps.get(i), v.getTypeArguments().get(i));
+    return subst(t, m, 0);
+  }
+
+  TypeMirror subst(TypeMirror t, Map<Element, TypeMirror> m, int depth) {
+    if (t == null || m.isEmpty() || depth > 12) return t;
+    switch (t.getKind()) {
+      case TYPEVAR: {
+        TypeMirror r = m.get(((TypeVariable) t).asElement());
+        return r != null ? r : t;
+      }
+      case ARRAY:
+        return types.getArrayType(subst(((ArrayType) t).getComponentType(), m, depth + 1));
+      case WILDCARD: {
+        WildcardType w = (WildcardType) t;
+        return types.getWildcardType(subst(w.getExtendsBound(), m, depth + 1), subst(w.getSuperBound(), m, depth + 1));
+      }
+      case DECLARED: {
+        DeclaredType d = (DeclaredType) t;
+        if (d.getTypeArguments().isEmpty()) return t;
+        TypeMirror[] as = new TypeMirror[d.getTypeArguments().size()];
+        for (int i = 0; i < as.length; i++) as[i] = subst(d.getTypeArguments().get(i), m, depth + 1);
+        TypeElement te = typeElement(d);
+        if (d.getEnclosingType() instanceof DeclaredType enc && !enc.getTypeArguments().isEmpty()) {
+          return types.getDeclaredType((DeclaredType) subst(enc, m, depth + 1), te, as);
+        }
+        return types.getDeclaredType(te, as);
+      }
+      default:
+        return t;
+    }
   }
 
   /** A parameterized type of a typed class. */
@@ -54,16 +103,18 @@ final class Ctx {
     return tvName((TypeParameterElement) ((TypeVariable) t).asElement());
   }
 
-  /** The Go type parameter list for tps: "[K any, V any]", or "". */
-  String typeParamsDecl(List<? extends TypeParameterElement> tps) {
+  /** The Go type parameter list for the kept ones of tps: "[K any, V any]", or "". */
+  String typeParamsDecl(List<? extends TypeParameterElement> tps0) {
+    List<TypeParameterElement> tps = keptOf(tps0);
     if (tps.isEmpty()) return "";
     StringBuilder sb = new StringBuilder("[");
     for (int i = 0; i < tps.size(); i++) sb.append(i > 0 ? ", " : "").append(tvName(tps.get(i))).append(" any");
     return sb.append("]").toString();
   }
 
-  /** The Go type arguments naming tps themselves: "[K, V]", or "". */
-  String typeParamsUse(List<? extends TypeParameterElement> tps) {
+  /** The Go type arguments naming the kept ones of tps themselves: "[K, V]", or "". */
+  String typeParamsUse(List<? extends TypeParameterElement> tps0) {
+    List<TypeParameterElement> tps = keptOf(tps0);
     if (tps.isEmpty()) return "";
     StringBuilder sb = new StringBuilder("[");
     for (int i = 0; i < tps.size(); i++) sb.append(i > 0 ? ", " : "").append(tvName(tps.get(i)));
@@ -83,11 +134,17 @@ final class Ctx {
     return goType(a);
   }
 
-  /** "[X, Y]" for the type arguments of typed type t. */
+  /** "[X, Y]" for the type arguments of typed type t at its declaration's kept type parameters. */
   String typeArgsOf(TypeMirror t) {
     StringBuilder sb = new StringBuilder("[");
     List<? extends TypeMirror> as = ((DeclaredType) t).getTypeArguments();
-    for (int i = 0; i < as.size(); i++) sb.append(i > 0 ? ", " : "").append(goTypeArg(as.get(i)));
+    List<? extends TypeParameterElement> ps = typeElement(t).getTypeParameters();
+    boolean first = true;
+    for (int i = 0; i < as.size(); i++) {
+      if (!keptVars.contains(ps.get(i))) continue;
+      sb.append(first ? "" : ", ").append(goTypeArg(as.get(i)));
+      first = false;
+    }
     return sb.append("]").toString();
   }
 
@@ -354,7 +411,7 @@ final class Ctx {
 
   boolean isExtendable(TypeElement te) {
     if (EXTENDABLE.contains(te.getQualifiedName().toString())) return true;
-    return types.isSubtype(erase(te.asType()), elems.getTypeElement("java.lang.Throwable").asType());
+    return sub(te.asType(), elems.getTypeElement("java.lang.Throwable").asType());
   }
 
   boolean isLeaf(TypeElement te) {
@@ -479,6 +536,11 @@ final class Ctx {
       default:
         // the types the Go code keeps: type variables of typed classes, their parameterized types
         if (typedVar(t) || typedDecl(t)) return t;
+        if (t.getKind() == TypeKind.TYPEVAR) {
+          // an erased type variable is its bound, which may be a typed declaration (T extends G<N>)
+          TypeMirror b = ((TypeVariable) t).getUpperBound();
+          if (b != null && b.getKind() == TypeKind.DECLARED && typedDecl(b)) return b;
+        }
         return types.erasure(t);
     }
   }
@@ -531,7 +593,7 @@ final class Ctx {
       case STR: return "string";
       case ARR: return "[]" + goType(((ArrayType) t).getComponentType());
       case CLS: return typedDecl(t) ? "*" + className(typeElement(t)) + typeArgsOf(t) : ref(typeElement(t));
-      case IFACE: return className(typeElement(t));
+      case IFACE: return typedDecl(t) ? className(typeElement(t)) + typeArgsOf(t) : className(typeElement(t));
       case TVAR: return tvName(t);
       case VOID: return "";
       default: return "any";
@@ -628,8 +690,9 @@ final class Ctx {
         // Performance rule: a cast to an interface goes through a generated non-generic function
         // (icast_I, in g_0casts.go). Go caches a type assertion to an interface per assertion
         // site; inside the generic cast_ it cannot, and looks the method table up each time.
-        String cast = "icast_" + gt;
-        icasts.add(gt);
+        // A generic interface of the program (typed) has no icast_: its instantiations are many.
+        String cast = typedDecl(to) ? "cast_[" + gt + "]" : "icast_" + gt;
+        if (!typedDecl(to)) icasts.add(gt);
         switch (kf) {
           case CLS: return cast + "(" + canon(code, from) + ")";
           case IFACE:
@@ -754,6 +817,55 @@ final class Ctx {
     return erase(root(m).getReturnType());
   }
 
+  /**
+   * The group's signature as a value of type site sees it: for a group whose root is declared by a
+   * typed generic class or interface, the root's signature at site's view of that declaration
+   * (PMap.get(K) through a PMap<String, V> is get(string)); otherwise null (the erased signature).
+   */
+  boolean groupAt(ExecutableElement m, TypeMirror site) {
+    return site != null && typedClasses.contains(ownerOf(root(m)));
+  }
+
+  /** groupParams(m) as a value of type site sees them (groupAt). */
+  List<TypeMirror> groupParams(ExecutableElement m, TypeMirror site) {
+    if (!groupAt(m, site)) return groupParams(m);
+    ExecutableElement r = root(m);
+    List<TypeMirror> out = new ArrayList<>();
+    for (VariableElement p : r.getParameters()) out.add(erase(atSite(p.asType(), ownerOf(r), site)));
+    return out;
+  }
+
+  /** groupReturn(m) as a value of type site sees it (groupAt). */
+  TypeMirror groupReturn(ExecutableElement m, TypeMirror site) {
+    if (!groupAt(m, site)) return groupReturn(m);
+    ExecutableElement r = root(m);
+    return erase(atSite(r.getReturnType(), ownerOf(r), site));
+  }
+
+  /** The supertype of site (or site itself) whose class is target, with site's type arguments substituted; null if none. */
+  DeclaredType superView(TypeMirror site, TypeElement target) {
+    if (site == null || site.getKind() != TypeKind.DECLARED) return null;
+    if (typeElement(site).equals(target)) return (DeclaredType) site;
+    for (TypeMirror st : types.directSupertypes(site)) {
+      DeclaredType d = superView(st, target);
+      if (d != null) return d;
+    }
+    return null;
+  }
+
+  /** "[X, Y]" for site's view of typed declaration target (superView), or "" when target is not typed. */
+  String viewArgs(TypeMirror site, TypeElement target) {
+    if (!typedClasses.contains(target)) return "";
+    DeclaredType d = superView(site, target);
+    if (d == null) throw new IllegalStateException("no view of " + target + " from " + site);
+    return typeArgsOf(d);
+  }
+
+  /** Subtyping of the erasures (class hierarchy), whatever type arguments the Go code keeps. */
+  boolean sub(TypeMirror a, TypeMirror b) {
+    return types.isSubtype(types.erasure(a), types.erasure(b));
+  }
+
   // ---- naming of methods
 
   /** Go names of method groups (keyed by root). */
@@ -778,7 +890,7 @@ final class Ctx {
 
   String sigToken(ExecutableElement m) {
     StringBuilder sb = new StringBuilder();
-    for (VariableElement p : m.getParameters()) sb.append('_').append(typeToken(erase(p.asType())));
+    for (VariableElement p : m.getParameters()) sb.append('_').append(typeToken(types.erasure(p.asType())));
     return sb.toString();
   }
 
@@ -819,7 +931,7 @@ final class Ctx {
       TypeElement sup = superclass(te);
       for (TypeElement st : allSupertypes(te)) {
         if (!st.getKind().isInterface() || !isSource(st)) continue;
-        if (sup != null && types.isSubtype(erase(sup.asType()), erase(st.asType()))) continue;
+        if (sup != null && sub(sup.asType(), st.asType())) continue;
         for (Element e : st.getEnclosedElements()) {
           if (!isInstanceMethod(e) || !((ExecutableElement) e).isDefault()) continue;
           ExecutableElement dm = (ExecutableElement) e;
@@ -832,7 +944,7 @@ final class Ctx {
           if (!has) {
             for (TypeElement other : allSupertypes(te)) {
               if (other.equals(st) || !isSource(other) || !other.getKind().isInterface()) continue;
-              if (!types.isSubtype(erase(other.asType()), erase(st.asType()))) continue;
+              if (!sub(other.asType(), st.asType())) continue;
               ExecutableElement od = declared.get(other).get(r);
               if (od != null && od.isDefault()) has = true;
             }
@@ -849,7 +961,7 @@ final class Ctx {
       TypeElement sup = superclass(te);
       for (ExecutableElement dm : extDefaultOverrides(te)) {
         ExecutableElement r = root(dm);
-        if (sup != null && types.isSubtype(erase(sup.asType()), erase(ownerOf(dm).asType()))) continue;
+        if (sup != null && sub(sup.asType(), ownerOf(dm).asType())) continue;
         boolean has = false;
         for (TypeElement c = te; c != null && !has; c = superclass(c)) {
           if (isSource(c) && declared.get(c).containsKey(r)) has = true;
@@ -955,7 +1067,7 @@ final class Ctx {
     if (isSource(c) && declared.get(c).containsKey(r)) return true;
     TypeElement owner = ownerOf(r);
     if (owner.getQualifiedName().contentEquals("java.lang.Object")) return false;
-    return types.isSubtype(erase(c.asType()), erase(owner.asType()));
+    return sub(c.asType(), owner.asType());
   }
 
   /** The top-most source class above-or-at {@code te} of which group r is a member. */
@@ -1030,7 +1142,7 @@ final class Ctx {
     return subsCache.computeIfAbsent(o, k -> {
       Set<TypeElement> out = new HashSet<>();
       TypeMirror ot = erase(o.asType());
-      for (TypeElement t : seenTypes) if (types.isSubtype(erase(t.asType()), ot)) out.add(t);
+      for (TypeElement t : seenTypes) if (sub(t.asType(), ot)) out.add(t);
       out.add(o);
       return out;
     });
