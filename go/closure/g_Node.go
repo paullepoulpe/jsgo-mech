@@ -1231,59 +1231,59 @@ func Node_createJsonPairRawValue(name string, value string) string {
 
 func (this Node) toJson(sb Appendable) {
 	sb.append_char('{')
-	sb.append_CharSequence(strobj_(Node_createJsonPair("token", tostrNN_(Token_rhino(this.ns_().token)))))
+	sb.append_CharSequence_s(Node_createJsonPair("token", tostrNN_(Token_rhino(this.ns_().token))))
 	if (*this.payload_s_()) != nullstr_ {
 		sb.append_char(',')
-		sb.append_CharSequence(strobj_(Node_createJsonPair("string", this.getString())))
+		sb.append_CharSequence_s(Node_createJsonPair("string", this.getString()))
 	} else if this.ns_().token == tokOrd1_FUNCTION {
 		sb.append_char(',')
 		if (this.ns_().first == 0) || (Token_rhino(this.ns_().first.ns_().token) != Token_rhino_NAME) {
-			sb.append_CharSequence(strobj_(Node_createJsonPair("functionName", "<invalid>")))
+			sb.append_CharSequence_s(Node_createJsonPair("functionName", "<invalid>"))
 		} else {
-			sb.append_CharSequence(strobj_(Node_createJsonPair("functionName", this.ns_().first.getString())))
+			sb.append_CharSequence_s(Node_createJsonPair("functionName", this.ns_().first.getString()))
 		}
 	} else if this.ns_().token == tokOrd1_NUMBER {
 		sb.append_char(',')
-		sb.append_CharSequence(strobj_(Node_createJsonPair("number", String_valueOf_double(this.getDouble()))))
+		sb.append_CharSequence_s(Node_createJsonPair("number", String_valueOf_double(this.getDouble())))
 	}
 	var lineno int32 = this.getLineno()
 	if lineno != -1 {
 		sb.append_char(',')
-		sb.append_CharSequence(strobj_("\"sourceLocation\":{"))
-		sb.append_CharSequence(strobj_(Node_createJsonPairRawValue("line", String_valueOf(lineno))))
+		sb.append_CharSequence_s("\"sourceLocation\":{")
+		sb.append_CharSequence_s(Node_createJsonPairRawValue("line", String_valueOf(lineno)))
 		sb.append_char(',')
-		sb.append_CharSequence(strobj_(Node_createJsonPairRawValue("col", String_valueOf(this.getCharno()))))
+		sb.append_CharSequence_s(Node_createJsonPairRawValue("col", String_valueOf(this.getCharno())))
 		if this.cs_().length_ != 0 {
 			sb.append_char(',')
-			sb.append_CharSequence(strobj_(Node_createJsonPairRawValue("length", String_valueOf(this.cs_().length_))))
+			sb.append_CharSequence_s(Node_createJsonPairRawValue("length", String_valueOf(this.cs_().length_)))
 		}
-		sb.append_CharSequence(strobj_("}"))
+		sb.append_CharSequence_s("}")
 	}
 	if !String_isEmpty(this.ps_().originalName) {
-		sb.append_CharSequence(strobj_(","))
-		sb.append_CharSequence(strobj_(Node_createJsonPair("original_name", this.ps_().originalName)))
+		sb.append_CharSequence_s(",")
+		sb.append_CharSequence_s(Node_createJsonPair("original_name", this.ps_().originalName))
 	}
 	var keys []int8 = this.getSortedPropTypes()
 	if int32(len(keys)) != 0 {
-		sb.append_CharSequence(strobj_(","))
-		sb.append_CharSequence(strobj_("\"props\":{"))
+		sb.append_CharSequence_s(",")
+		sb.append_CharSequence_s("\"props\":{")
 		for i := int32(0); i < int32(len(keys)); i++ {
 			var type_ Node_Prop = Node_propValues[keys[i]]
 			var x *Node_PropListItem = this.lookupProperty(type_)
-			sb.append_CharSequence(strobj_(Node_createJsonPair(Ascii_toLowerCase(tostr_(type_)), String_replace_s(String_replace_s(Object_toString(x.self()), "\n", "\\n"), "\"", "\\\""))))
+			sb.append_CharSequence_s(Node_createJsonPair(Ascii_toLowerCase(tostr_(type_)), String_replace_s(String_replace_s(Object_toString(x.self()), "\n", "\\n"), "\"", "\\\"")))
 			if (i + 1) < int32(len(keys)) {
 				sb.append_char(',')
 			}
 		}
-		sb.append_CharSequence(strobj_("}"))
+		sb.append_CharSequence_s("}")
 	}
 	if this.ps_().jstypeOrColor != nil {
 		sb.append_char(',')
-		sb.append_CharSequence(strobj_(Node_createJsonPair("typeString", String_replace_s(Object_toString(this.jstypeOrColorObj_()), "\"", "\\\""))))
+		sb.append_CharSequence_s(Node_createJsonPair("typeString", String_replace_s(Object_toString(this.jstypeOrColorObj_()), "\"", "\\\"")))
 	}
 	if this.ns_().first != 0 {
 		sb.append_char(',')
-		sb.append_CharSequence(strobj_("\"children\":["))
+		sb.append_CharSequence_s("\"children\":[")
 		{
 			var child Node = this.ns_().first
 			for ; child != 0; child = child.ns_().next_ {
@@ -1293,7 +1293,7 @@ func (this Node) toJson(sb Appendable) {
 				}
 			}
 		}
-		sb.append_CharSequence(strobj_("]"))
+		sb.append_CharSequence_s("]")
 	}
 	sb.append_char('}')
 }
@@ -1334,9 +1334,9 @@ func (this Node) appendStringTree(appendable Appendable) {
 
 func Node_toStringTreeHelper(n Node, level int32, sb Appendable) {
 	for i := int32(0); i != level; i++ {
-		sb.append_CharSequence(strobj_("    "))
+		sb.append_CharSequence_s("    ")
 	}
-	sb.append_CharSequence(strobj_(n.toString()))
+	sb.append_CharSequence_s(n.toString())
 	sb.append_char('\n')
 	{
 		var cursor Node = n.ns_().first

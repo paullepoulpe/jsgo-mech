@@ -151,7 +151,7 @@ func (this *SourceMapGeneratorV3) mergeMapSection_4(line int32, column int32, ma
 
 func (this *SourceMapGeneratorV3) appendTo(out Appendable, name OptionalOf[string]) {
 	var maxLine int32 = (this.prepMappings() + 1)
-	out.append_CharSequence(strobj_("{\n"))
+	out.append_CharSequence_s("{\n")
 	SourceMapGeneratorV3_appendFirstField(out, "version", "3")
 	if name.isPresent() {
 		SourceMapGeneratorV3_appendField(out, "file", SourceMapGeneratorV3_escapeString(name.get()))
@@ -164,15 +164,15 @@ func (this *SourceMapGeneratorV3) appendTo(out Appendable, name OptionalOf[strin
 	new_SourceMapGeneratorV3_LineMapper(this, out, maxLine).appendLineMappings()
 	SourceMapGeneratorV3_appendFieldEnd(out)
 	SourceMapGeneratorV3_appendFieldStart_Appendable_String(out, "sources")
-	out.append_CharSequence(strobj_("["))
+	out.append_CharSequence_s("[")
 	this.addSourceNameMap(out)
-	out.append_CharSequence(strobj_("]"))
+	out.append_CharSequence_s("]")
 	SourceMapGeneratorV3_appendFieldEnd(out)
 	this.addSourcesContentMap(out)
 	SourceMapGeneratorV3_appendFieldStart_Appendable_String(out, "names")
-	out.append_CharSequence(strobj_("["))
+	out.append_CharSequence_s("[")
 	this.addSymbolNameMap(out)
-	out.append_CharSequence(strobj_("]"))
+	out.append_CharSequence_s("]")
 	SourceMapGeneratorV3_appendFieldEnd(out)
 	it_1 := this.extensions.each()
 	for it_1.next() {
@@ -195,7 +195,7 @@ func (this *SourceMapGeneratorV3) appendTo(out Appendable, name OptionalOf[strin
 		}
 		SourceMapGeneratorV3_appendField(out, key, value)
 	}
-	out.append_CharSequence(strobj_("\n}\n"))
+	out.append_CharSequence_s("\n}\n")
 }
 
 func (this *SourceMapGeneratorV3) setSourceRoot(path string) {
@@ -248,15 +248,15 @@ func (this *SourceMapGeneratorV3) addSourcesContentMap(out Appendable) {
 		return
 	}
 	SourceMapGeneratorV3_appendFieldStart_Appendable_String(out, "sourcesContent")
-	out.append_CharSequence(strobj_("["))
+	out.append_CharSequence_s("[")
 	for i := int32(0); i < size; i++ {
 		if i != 0 {
-			out.append_CharSequence(strobj_(","))
+			out.append_CharSequence_s(",")
 		}
 		var sourceContent OptionalOf[string] = Optional_ofNullable[string](sliceAt_(contents, i))
-		out.append_CharSequence(strobj_(SourceMapGeneratorV3_escapeString(sourceContent.orElse(""))))
+		out.append_CharSequence_s(SourceMapGeneratorV3_escapeString(sourceContent.orElse("")))
 	}
-	out.append_CharSequence(strobj_("]"))
+	out.append_CharSequence_s("]")
 	SourceMapGeneratorV3_appendFieldEnd(out)
 }
 
@@ -271,9 +271,9 @@ func SourceMapGeneratorV3_addNameMap(out Appendable, map_ *TMap[string, any]) {
 		var entry Map_Entry = icast_Map_Entry(it_1.v)
 		var key string = str_(entry.getKey())
 		if i != 0 {
-			out.append_CharSequence(strobj_(","))
+			out.append_CharSequence_s(",")
 		}
-		out.append_CharSequence(strobj_(SourceMapGeneratorV3_escapeString(key)))
+		out.append_CharSequence_s(SourceMapGeneratorV3_escapeString(key))
 		i++
 	}
 }
@@ -284,12 +284,12 @@ func SourceMapGeneratorV3_escapeString(value string) string {
 
 func SourceMapGeneratorV3_appendFirstField(out Appendable, name string, value string) {
 	SourceMapGeneratorV3_appendFieldStart_Appendable_String_boolean(out, name, true)
-	out.append_CharSequence(strobj_(value))
+	out.append_CharSequence_s(value)
 }
 
 func SourceMapGeneratorV3_appendField(out Appendable, name string, value string) {
 	SourceMapGeneratorV3_appendFieldStart_Appendable_String_boolean(out, name, false)
-	out.append_CharSequence(strobj_(value))
+	out.append_CharSequence_s(value)
 }
 
 func SourceMapGeneratorV3_appendFieldStart_Appendable_String(out Appendable, name string) {
@@ -298,12 +298,12 @@ func SourceMapGeneratorV3_appendFieldStart_Appendable_String(out Appendable, nam
 
 func SourceMapGeneratorV3_appendFieldStart_Appendable_String_boolean(out Appendable, name string, first bool) {
 	if !first {
-		out.append_CharSequence(strobj_(",\n"))
+		out.append_CharSequence_s(",\n")
 	}
-	out.append_CharSequence(strobj_("\""))
-	out.append_CharSequence(strobj_(name))
-	out.append_CharSequence(strobj_("\""))
-	out.append_CharSequence(strobj_(":"))
+	out.append_CharSequence_s("\"")
+	out.append_CharSequence_s(name)
+	out.append_CharSequence_s("\"")
+	out.append_CharSequence_s(":")
 }
 
 func SourceMapGeneratorV3_appendFieldEnd(out Appendable) {
@@ -326,19 +326,19 @@ func (this *SourceMapGeneratorV3) prepMappings() int32 {
 }
 
 func (this *SourceMapGeneratorV3) appendIndexMapTo(out Appendable, name string, sections []*SourceMapSection) {
-	out.append_CharSequence(strobj_("{\n"))
+	out.append_CharSequence_s("{\n")
 	SourceMapGeneratorV3_appendFirstField(out, "version", "3")
 	SourceMapGeneratorV3_appendField(out, "file", SourceMapGeneratorV3_escapeString(name))
 	SourceMapGeneratorV3_appendFieldStart_Appendable_String(out, "sections")
-	out.append_CharSequence(strobj_("[\n"))
+	out.append_CharSequence_s("[\n")
 	var first bool = true
 	for _, section := range sections {
 		if first {
 			first = false
 		} else {
-			out.append_CharSequence(strobj_(",\n"))
+			out.append_CharSequence_s(",\n")
 		}
-		out.append_CharSequence(strobj_("{\n"))
+		out.append_CharSequence_s("{\n")
 		SourceMapGeneratorV3_appendFieldStart_Appendable_String_boolean(out, "offset", true)
 		SourceMapGeneratorV3_appendOffsetValue(out, section.getLine(), section.getColumn())
 		if section.getSectionType() == SourceMapSection_SectionType_URL {
@@ -348,18 +348,18 @@ func (this *SourceMapGeneratorV3) appendIndexMapTo(out Appendable, name string, 
 		} else {
 			panic(new_IOException_String("Unexpected section type").self())
 		}
-		out.append_CharSequence(strobj_("\n}"))
+		out.append_CharSequence_s("\n}")
 	}
-	out.append_CharSequence(strobj_("\n]"))
+	out.append_CharSequence_s("\n]")
 	SourceMapGeneratorV3_appendFieldEnd(out)
-	out.append_CharSequence(strobj_("\n}\n"))
+	out.append_CharSequence_s("\n}\n")
 }
 
 func SourceMapGeneratorV3_appendOffsetValue(out Appendable, line int32, column int32) {
-	out.append_CharSequence(strobj_("{\n"))
+	out.append_CharSequence_s("{\n")
 	SourceMapGeneratorV3_appendFirstField(out, "line", String_valueOf(line))
 	SourceMapGeneratorV3_appendField(out, "column", String_valueOf(column))
-	out.append_CharSequence(strobj_("\n}"))
+	out.append_CharSequence_s("\n}")
 }
 
 func (this *SourceMapGeneratorV3) getSourceId(sourceName string) int32 {

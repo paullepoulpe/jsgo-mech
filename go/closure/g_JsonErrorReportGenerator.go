@@ -104,7 +104,7 @@ func (this *JsonErrorReportGenerator) generateReport(manager *SortingErrorManage
 		jsonWriter.endObject()
 		jsonWriter.endArray()
 	}
-	this.stream.append_CharSequence(strobj_(Io_utf8String(Io_utf8Bytes(jsonWriter.toString()))))
+	this.stream.append_CharSequence_s(Io_utf8String(Io_utf8Bytes(jsonWriter.toString())))
 	this.stream.flush()
 }
 

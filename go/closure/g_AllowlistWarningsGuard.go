@@ -199,15 +199,15 @@ func (this *AllowlistWarningsGuard_AllowlistBuilder) writeAllowlist(out string) 
 }
 
 func (this *AllowlistWarningsGuard_AllowlistBuilder) appendAllowlist(out *Output) {
-	out.append_CharSequence(strobj_("# This is a list of legacy warnings that have yet to be fixed.\n"))
+	out.append_CharSequence_s("# This is a list of legacy warnings that have yet to be fixed.\n")
 	if (this.productName.isPresent() && !String_isEmpty(this.productName.get())) && !this.warnings_.isEmpty() {
-		out.append_CharSequence(strobj_(("# Please find some time and fix at least one of them and it will be the happiest day for " + sstr_(this.productName.get()) + ".\n")))
+		out.append_CharSequence_s(("# Please find some time and fix at least one of them and it will be the happiest day for " + sstr_(this.productName.get()) + ".\n"))
 	}
 	if this.generatorTarget.isPresent() && !String_isEmpty(this.generatorTarget.get()) {
-		out.append_CharSequence(strobj_(("# When you fix any of these warnings, run " + sstr_(this.generatorTarget.get()) + " task.\n")))
+		out.append_CharSequence_s(("# When you fix any of these warnings, run " + sstr_(this.generatorTarget.get()) + " task.\n"))
 	}
 	if this.headerNote.isPresent() {
-		out.append_CharSequence(strobj_(("#" + sstr_(Joiner_on("\n# ").join(Splitter_on('\n').split_s(this.headerNote.get()))) + "\n")))
+		out.append_CharSequence_s(("#" + sstr_(Joiner_on("\n# ").join(Splitter_on('\n').split_s(this.headerNote.get()))) + "\n"))
 	}
 	var warningsByType *SimpleSetMultimap = SimpleSetMultimap_createSorted()
 	it_1 := this.warnings_.each()
@@ -221,7 +221,7 @@ func (this *AllowlistWarningsGuard_AllowlistBuilder) appendAllowlist(out *Output
 		if DiagnosticGroups_DEPRECATED.matchesDiagnosticType(type_) {
 			continue
 		}
-		cast_[*Output](cast_[*Output](cast_[*Output](out.append_CharSequence(strobj_("\n# Warning "))).append_CharSequence(strobj_(type_.key_))).append_CharSequence(strobj_(": "))).println(str_(AllowlistWarningsGuard_LINE_SPLITTER.split_s(type_.formatField).iterator().next()))
+		cast_[*Output](cast_[*Output](cast_[*Output](out.append_CharSequence_s("\n# Warning ")).append_CharSequence_s(type_.key_)).append_CharSequence_s(": ")).println(str_(AllowlistWarningsGuard_LINE_SPLITTER.split_s(type_.formatField).iterator().next()))
 		it_5 := foreach_(any(warningsByType.get(obj_(type_))))
 		for it_5.next() {
 			var warning string = str_(it_5.v)

@@ -792,7 +792,7 @@ func (this *AbstractCommandLineRunner) writeChunkOutput(fileName string, out App
 
 func (this *AbstractCommandLineRunner) writeOutput_8(out Appendable, compiler *Compiler, licenseTracker CodePrinter_LicenseTracker, chunk *JSChunk, wrapper string, codePlaceholder string, escaper Function_baseOf[string, string], filename string) {
 	if compiler.getOptions().getOutputJs() == CompilerOptions_OutputJs_SENTINEL {
-		out.append_CharSequence(strobj_("// No JS output because the compiler was run in checks-only mode.\n"))
+		out.append_CharSequence_s("// No JS output because the compiler was run in checks-only mode.\n")
 		return
 	}
 	Preconditions_checkState((compiler.getOptions().getOutputJs() == CompilerOptions_OutputJs_NORMAL))
@@ -811,7 +811,7 @@ func (this *AbstractCommandLineRunner) writeOutput(out Appendable, compiler *Com
 		var prefix string = ""
 		if pos > 0 {
 			prefix = String_substring(wrapper, 0, pos)
-			out.append_CharSequence(strobj_(prefix))
+			out.append_CharSequence_s(prefix)
 		}
 		out.append_CharSequence(func() any {
 			if escaper == nil {
@@ -821,7 +821,7 @@ func (this *AbstractCommandLineRunner) writeOutput(out Appendable, compiler *Com
 		}())
 		var suffixStart int32 = (pos + String_length(codePlaceholder))
 		if suffixStart != String_length(wrapper) {
-			out.append_CharSequence(strobj_(String_substring_int(wrapper, suffixStart)))
+			out.append_CharSequence_s(String_substring_int(wrapper, suffixStart))
 		}
 		if this.getCommandLineConfig().includeTrailingNewline {
 			out.append_char('\n')
@@ -830,7 +830,7 @@ func (this *AbstractCommandLineRunner) writeOutput(out Appendable, compiler *Com
 			compiler.getSourceMap().setWrapperPrefix(prefix)
 		}
 	} else {
-		out.append_CharSequence(strobj_(code))
+		out.append_CharSequence_s(code)
 		if this.getCommandLineConfig().includeTrailingNewline {
 			out.append_char('\n')
 		}
@@ -1267,7 +1267,7 @@ func (this *AbstractCommandLineRunner) processResults(result *Result, chunks Lis
 			}
 			var jsOutput Appendable = icast_Appendable(jsOutputOutcome.get())
 			this.compiler_.getJsRoot().appendStringTree(jsOutput)
-			jsOutput.append_CharSequence(strobj_("\n"))
+			jsOutput.append_CharSequence_s("\n")
 			var jsOutputClosed *Outcome_base = AbstractCommandLineRunner_closeAppendable(jsOutput)
 			if jsOutputClosed.isErr() {
 				return Outcome_base_err(jsOutputClosed.error())
@@ -1345,7 +1345,7 @@ func (this *AbstractCommandLineRunner) processResults(result *Result, chunks Lis
 				defer func() {
 					eeOutClosed = AbstractCommandLineRunner_closeOutput(eeOut)
 				}()
-				eeOut.append_CharSequence(strobj_(result.externExport.orElse(nullstr_)))
+				eeOut.append_CharSequence_s(result.externExport.orElse(nullstr_))
 				return 0
 			}()
 			if eeOutClosed.isErr() {
@@ -1978,7 +1978,7 @@ func (this *AbstractCommandLineRunner) outputChunkGraphJson() *Outcome_base {
 }
 
 func (this *AbstractCommandLineRunner) printChunkGraphJsonTo(out Appendable) {
-	out.append_CharSequence(strobj_(this.compiler_.getChunkGraph().toJson().toString()))
+	out.append_CharSequence_s(this.compiler_.getChunkGraph().toJson().toString())
 }
 
 func (this *AbstractCommandLineRunner) printChunkGraphManifestOrBundleTo(graph *JSChunkGraph, out Appendable, isManifest bool) *Outcome_base {
@@ -1991,16 +1991,16 @@ func (this *AbstractCommandLineRunner) printChunkGraphManifestOrBundleTo(graph *
 			continue
 		}
 		if requiresNewline {
-			out.append_CharSequence(strobj_("\n"))
+			out.append_CharSequence_s("\n")
 		}
 		if isManifest {
 			var dependencies string = commas.join(Iterable(chunk.getSortedDependencyNames().asList()))
-			out.append_CharSequence(strobj_(String_format("{%s%s}\n", []any{strobj_(chunk.getName()), func() any {
+			out.append_CharSequence_s(String_format("{%s%s}\n", []any{strobj_(chunk.getName()), func() any {
 				if String_isEmpty(dependencies) {
 					return strobj_("")
 				}
 				return strobj_((":" + sstr_(dependencies)))
-			}()})))
+			}()}))
 			this.printManifestTo(chunk, out)
 		} else {
 			var printBundleToOutcome *Outcome_base = this.printBundleTo(chunk, out)
@@ -2023,8 +2023,8 @@ func (this *AbstractCommandLineRunner) printManifestTo(chunk *JSChunk, out Appen
 		}
 		var rootRelativePath OptionalOf[string] = Optional_ofNullable[string](mapStr_(this.rootRelativePathsMap, name))
 		var displayName string = rootRelativePath.orElse(name)
-		out.append_CharSequence(strobj_(displayName))
-		out.append_CharSequence(strobj_("\n"))
+		out.append_CharSequence_s(displayName)
+		out.append_CharSequence_s("\n")
 	}
 }
 
@@ -2066,14 +2066,14 @@ func (this *AbstractCommandLineRunner) printBundleTo(chunk *JSChunk, out Appenda
 			}
 			return input.getName()
 		}()
-		out.append_CharSequence(strobj_("//"))
-		out.append_CharSequence(strobj_(displayName))
-		out.append_CharSequence(strobj_("\n"))
+		out.append_CharSequence_s("//")
+		out.append_CharSequence_s(displayName)
+		out.append_CharSequence_s("\n")
 		var prepForBundleAndAppendToOutcome *Outcome_base = this.prepForBundleAndAppendTo(out, input, code)
 		if prepForBundleAndAppendToOutcome.isErr() {
 			return Outcome_base_err(prepForBundleAndAppendToOutcome.error())
 		}
-		out.append_CharSequence(strobj_("\n"))
+		out.append_CharSequence_s("\n")
 	}
 	return Outcome_base_ok_0()
 }

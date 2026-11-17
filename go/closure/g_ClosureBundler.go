@@ -386,17 +386,17 @@ func new_ClosureBundler_EvalMode_1(name_ string, ordinal_ int32) *ClosureBundler
 }
 
 func (this *ClosureBundler_EvalMode_1) appendTraditional_impl(s string, out Appendable, sourceUrl OptionalOf[string]) {
-	out.append_CharSequence(strobj_("eval(this.CLOSURE_EVAL_PREFILTER(\""))
+	out.append_CharSequence_s("eval(this.CLOSURE_EVAL_PREFILTER(\"")
 	ClosureBundler_EscapeMode_ESCAPED.append(s, out)
 	ClosureBundler_appendSourceUrl(out, ClosureBundler_EscapeMode_ESCAPED, sourceUrl)
-	out.append_CharSequence(strobj_("\"));\n"))
+	out.append_CharSequence_s("\"));\n")
 }
 
 func (this *ClosureBundler_EvalMode_1) appendGoogModule_impl(s string, out Appendable, sourceUrl OptionalOf[string]) {
-	out.append_CharSequence(strobj_("goog.loadModule(\""))
+	out.append_CharSequence_s("goog.loadModule(\"")
 	ClosureBundler_EscapeMode_ESCAPED.append(s, out)
 	ClosureBundler_appendSourceUrl(out, ClosureBundler_EscapeMode_ESCAPED, sourceUrl)
-	out.append_CharSequence(strobj_("\");\n"))
+	out.append_CharSequence_s("\");\n")
 }
 
 func ClosureBundler_EvalMode_1_values() []*ClosureBundler_EvalMode_1 {
@@ -462,9 +462,9 @@ func (this *ClosureBundler_EvalMode_2) appendTraditional_impl(s string, out Appe
 }
 
 func (this *ClosureBundler_EvalMode_2) appendGoogModule_impl(s string, out Appendable, sourceUrl OptionalOf[string]) {
-	out.append_CharSequence(strobj_("goog.loadModule(function(exports) {'use strict';"))
+	out.append_CharSequence_s("goog.loadModule(function(exports) {'use strict';")
 	ClosureBundler_EscapeMode_NORMAL.append(s, out)
-	out.append_CharSequence(strobj_("\n;return exports;});\n"))
+	out.append_CharSequence_s("\n;return exports;});\n")
 	ClosureBundler_appendSourceUrl(out, ClosureBundler_EscapeMode_NORMAL, sourceUrl)
 }
 
@@ -587,7 +587,7 @@ func new_ClosureBundler_EscapeMode_2(name_ string, ordinal_ int32) *ClosureBundl
 }
 
 func (this *ClosureBundler_EscapeMode_2) append_impl(s string, out Appendable) {
-	out.append_CharSequence(strobj_(s))
+	out.append_CharSequence_s(s)
 }
 
 func ClosureBundler_EscapeMode_2_values() []*ClosureBundler_EscapeMode_2 {
