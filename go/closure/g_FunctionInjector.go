@@ -138,7 +138,8 @@ func (this *FunctionInjector) inlineReturnValue(ref *FunctionInjector_Reference,
 	var block Node = fnNode.getLastChild()
 	var paramToArgMap ImmutableMapOf[string, *FunctionArgumentInjector_ParamArgPair] = this.functionArgumentInjector_.getFunctionCallParameterMap(fnNode, callNode, this.safeNameIdSupplier_)
 	var paramReplacements map[string]Node = map[string]Node{}
-	for entry := range elemsBy_(obj_(cast_[*ImmutableSet](paramToArgMap.entrySet())), icast_Map_Entry) {
+	for _, el := range immElems_(cast_[*ImmutableSet](paramToArgMap.entrySet())) {
+		entry := icast_Map_Entry(el)
 		paramReplacements[str_(entry.getKey())] = cast_[*FunctionArgumentInjector_ParamArgPair](entry.getValue()).arg()
 	}
 	var newExpression Node

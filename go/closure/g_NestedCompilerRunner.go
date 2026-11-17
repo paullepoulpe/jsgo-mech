@@ -100,10 +100,12 @@ func (this *NestedCompilerRunner) runCompilation() {
 }
 
 func (this *NestedCompilerRunner) delegateDiagnosticsToOriginal() {
-	for error_ := range elemsAs_[*JSError](obj_(this.shadowCompiler.getErrors())) {
+	for _, el := range immElems_(this.shadowCompiler.getErrors()) {
+		error_ := cast_[*JSError](el)
 		this.original_.report(error_)
 	}
-	for error_ := range elemsAs_[*JSError](obj_(this.shadowCompiler.getWarnings())) {
+	for _, el2 := range immElems_(this.shadowCompiler.getWarnings()) {
+		error_ := cast_[*JSError](el2)
 		this.original_.report(error_)
 	}
 }

@@ -1701,9 +1701,9 @@ func CommandLineRunner_Flags_printShortUsageAfterErrors(ps *Output) {
 func (this *CommandLineRunner_Flags) getMixedJsSources() *Outcome_base {
 	var mixedSources ListOf[*AbstractCommandLineRunner_FlagEntry] = new_ArrayList_0()
 	var excludes map[string]struct{} = map[string]struct{}{}
-	it_1 := this.mixedJsSources.each()
-	for it_1.next() {
-		var source *AbstractCommandLineRunner_FlagEntry = it_1.v
+	l_1 := this.mixedJsSources
+	for i_1 := 0; i_1 < len(l_1.items); i_1++ {
+		var source *AbstractCommandLineRunner_FlagEntry = l_1.items[i_1]
 		if strings.HasSuffix(source.getValue(), ".zip") {
 			mixedSources.add(obj_(source))
 		} else if strings.HasPrefix(source.getValue(), "!") {
@@ -1747,7 +1747,8 @@ func (this *CommandLineRunner_Flags) getSourceMapLocationMappings() *Outcome_bas
 		return Outcome_base_err(splitOutcome.error())
 	}
 	var split ImmutableMapOf[string, string] = cast_[*ImmutableMap](splitOutcome.get())
-	for mapping := range elemsBy_(obj_(cast_[*ImmutableSet](split.entrySet())), icast_Map_Entry) {
+	for _, el := range immElems_(cast_[*ImmutableSet](split.entrySet())) {
+		mapping := icast_Map_Entry(el)
 		locationMappings.add(obj_(new_SourceMap_PrefixLocationMapping(str_(mapping.getKey()), str_(mapping.getValue()))))
 	}
 	return Outcome_base_ok_Object(obj_(locationMappings.build()))

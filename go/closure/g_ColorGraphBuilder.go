@@ -52,11 +52,13 @@ func (this *ColorGraphBuilder) connectUnionWithAncestors(unionNode *LinkedDirect
 		panic(new_IllegalStateException_0().self())
 	}
 	var graphNodesBuilder ImmutableSet_BuilderOf[*ColorGraphNode] = ImmutableSet_builder()
-	for element := range elemsAs_[*Color](obj_(flatUnion.getColor().getUnionElements())) {
+	for _, el := range immElems_(flatUnion.getColor().getUnionElements()) {
+		element := cast_[*Color](el)
 		graphNodesBuilder.add(obj_(this.nodeFactory.createNode(element)))
 	}
 	var graphNodes ImmutableSetOf[*ColorGraphNode] = graphNodesBuilder.build()
-	for lca := range elemsAs_[*ColorGraphNode](obj_(this.lcaFinder.findAll(icast_Set(obj_(graphNodes))))) {
+	for _, el2 := range immElems_(this.lcaFinder.findAll(icast_Set(obj_(graphNodes)))) {
+		lca := cast_[*ColorGraphNode](el2)
 		nn_ := this.colorHoldsInstanceGraph.getNode(obj_(lca))
 		if nn_ == nil {
 			panic(new_NullPointerException_0().self())
@@ -76,7 +78,8 @@ func (this *ColorGraphBuilder) addInternalColorGraphNode(node *ColorGraphNode) *
 	}
 	flatNode = to_LinkedDirectedGraph_LinkedDiGraphNode(this.colorHoldsInstanceGraph.createNode(obj_(node)))
 	if node.getColor().isUnion() {
-		for alt := range elemsAs_[*Color](obj_(node.getColor().getUnionElements())) {
+		for _, el := range immElems_(node.getColor().getUnionElements()) {
+			alt := cast_[*Color](el)
 			this.connectSourceToDest(flatNode, ColorGraphBuilder_EdgeReason_ALGEBRAIC, this.addInternal(alt))
 		}
 		return flatNode
@@ -90,10 +93,12 @@ func (this *ColorGraphBuilder) addInternalColorGraphNode(node *ColorGraphNode) *
 			this.connectSourceToDest(this.addInternal(supertype), ColorGraphBuilder_EdgeReason_CAN_HOLD, flatNode)
 		}
 	}
-	for prototype := range elemsAs_[*Color](obj_(color.getPrototypes())) {
+	for _, el2 := range immElems_(color.getPrototypes()) {
+		prototype := cast_[*Color](el2)
 		this.addInternal(prototype)
 	}
-	for instanceColor := range elemsAs_[*Color](obj_(color.getInstanceColors())) {
+	for _, el3 := range immElems_(color.getInstanceColors()) {
+		instanceColor := cast_[*Color](el3)
 		this.addInternal(instanceColor)
 	}
 	return flatNode

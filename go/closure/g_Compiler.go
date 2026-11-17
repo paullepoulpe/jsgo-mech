@@ -262,7 +262,8 @@ func (this *Compiler) initOptions(options *CompilerOptions) {
 	}
 	if options.getMergedPrecompiledLibraries() && !options.getConformanceConfigs().isEmpty() {
 		var conformanceConfigFiles ImmutableSet_BuilderOf[string] = ImmutableSet_builder()
-		for conformanceConfig := range elemsAs_[*ConformanceConfig](obj_(options.getConformanceConfigs())) {
+		for _, el := range immElems_(options.getConformanceConfigs()) {
+			conformanceConfig := cast_[*ConformanceConfig](el)
 			for requirement := range elemsAs_[*Requirement](conformanceConfig.getRequirementList()) {
 				conformanceConfigFiles.addAll(Iterable(requirement.getConfigFileList()))
 			}
@@ -384,7 +385,8 @@ func (this *Compiler) initChunksWithTypedAstFilesystem(externs ListOf[*SourceFil
 	var filesBuilder ImmutableSet_BuilderOf[*SourceFile_jscomp] = ImmutableSet_builder()
 	filesBuilder.addAll(Iterable(externs))
 	for chunk := range elemsAs_[*JSChunk](chunks) {
-		for input := range elemsAs_[*CompilerInput](obj_(chunk.getInputs())) {
+		for _, el := range immElems_(chunk.getInputs()) {
+			input := cast_[*CompilerInput](el)
 			filesBuilder.add(obj_(input.getSourceFile()))
 		}
 	}
@@ -421,7 +423,8 @@ func (this *Compiler) mergeAndDeserializeTypedAsts(requiredInputFiles ImmutableS
 	this.externProperties = astData.getExternProperties()
 	this.colorRegistry = cast_[*ColorRegistry](astData.getColorRegistry().orNull())
 	this.setTypeCheckingHasRun(deserializeTypes)
-	for library := range elemsBy_(obj_(astData.getRuntimeLibraries()), str_) {
+	for _, el := range immElems_(astData.getRuntimeLibraries()) {
+		library := str_(el)
 		this.runtimeJsLibManager.ensureLibraryInjected(library, false)
 	}
 	this.getSynthesizedExternsInput()
@@ -511,7 +514,8 @@ func (this *Compiler) initBasedOnOptions() {
 		if this.options_.getApplyInputSourceMaps() {
 			this.sourceMap_.setSourceFileMapping(this.getSourceMapping_Optional_int_int)
 			if this.options_.getSourceMapIncludeSourcesContent() {
-				for inputSourceMap := range elemsAs_[*SourceMapInput](obj_(cast_[*ImmutableCollection](ImmutableSortedMap_copyOf(icast_Map(obj_(this.inputSourceMaps))).values()))) {
+				for _, el := range immElems_(cast_[*ImmutableCollection](ImmutableSortedMap_copyOf(icast_Map(obj_(this.inputSourceMaps))).values())) {
+					inputSourceMap := cast_[*SourceMapInput](el)
 					this.addSourceMapSourceFiles(inputSourceMap)
 				}
 			}
@@ -853,7 +857,8 @@ func (this *Compiler) whitespaceOnlyPasses() {
 		defer func() {
 			this.stopTracer(t, "runWhitespaceOnlyPasses")
 		}()
-		for pf := range elemsAs_[*PassFactory](obj_(this.getPassConfig().getWhitespaceOnlyPasses().build())) {
+		for _, el := range immElems_(this.getPassConfig().getWhitespaceOnlyPasses().build()) {
+			pf := cast_[*PassFactory](el)
 			pf.create(this.up_AbstractCompiler()).process_2(this.externsRoot, this.jsRoot)
 		}
 		return 0
@@ -883,9 +888,8 @@ func (this *Compiler) transpileAndDontCheck() {
 		defer func() {
 			this.stopTracer(t, "runTranspileOnlyPasses")
 		}()
-		it_2 := foreach_(obj_(this.getPassConfig().getTranspileOnlyPasses().build()))
-		for it_2.next() {
-			var pf *PassFactory = cast_[*PassFactory](it_2.v)
+		for _, el_2 := range immElems_(this.getPassConfig().getTranspileOnlyPasses().build()) {
+			var pf *PassFactory = cast_[*PassFactory](el_2)
 			if this.hasErrors() {
 				return 1
 			}
@@ -942,7 +946,8 @@ func (this *Compiler) runCustomPasses(executionTime CustomPassExecutionTime) {
 		defer func() {
 			this.stopTracer(t, "runCustomPasses")
 		}()
-		for p := range elemsBy_(obj_(customPasses), icast_CompilerPass) {
+		for _, el := range immElems_(customPasses) {
+			p := icast_CompilerPass(el)
 			this.process(p)
 		}
 		return 0
@@ -1104,7 +1109,8 @@ func (this *Compiler) getCurrentJsSource() string {
 		if this.jsRoot == 0 {
 			panic(new_NullPointerException_0().self())
 		}
-		for r := range elemsBy_(obj_(ImmutableList_of_Object_Object(this.externsRoot.box_(), this.jsRoot.box_())), Node_of_) {
+		for _, el := range immElems_(ImmutableList_of_Object_Object(this.externsRoot.box_(), this.jsRoot.box_())) {
+			r := Node_of_(el)
 			{
 				var fileNode Node = r.getFirstChild()
 				for ; fileNode != 0; fileNode = fileNode.getNext() {
@@ -1517,9 +1523,9 @@ func (this *Compiler) parseInputs() Node {
 		if this.options_.getNumParallelThreads() > 1 {
 			new_PrebuildAst(this.up_AbstractCompiler(), this.options_.getNumParallelThreads()).prebuild(this.externs.asList())
 		}
-		it_2 := this.externs.each()
-		for it_2.next() {
-			var input *CompilerInput = it_2.v
+		l_2 := this.externs
+		for i_2 := 0; i_2 < len(l_2.items); i_2++ {
+			var input *CompilerInput = l_2.items[i_2]
 			var n Node = input.getAstRoot(this.up_AbstractCompiler())
 			if n == 0 {
 				panic(new_NullPointerException_0().self())
@@ -1551,7 +1557,8 @@ func (this *Compiler) parseInputs() Node {
 			}
 			var inputsToRewrite *TMap[string, *CompilerInput] = newTMap_(tc_string, tc_p_CompilerInput)
 			for input := range elemsAs_[*CompilerInput](this.chunkGraph.getAllInputs()) {
-				for require := range elemsBy_(obj_(input.getKnownRequiredSymbols()), str_) {
+				for _, el := range immElems_(input.getKnownRequiredSymbols()) {
+					require := str_(el)
 					if has_(inputModuleIdentifiers, require) && !inputsToRewrite.containsKey(require) {
 						inputsToRewrite.put(require, inputModuleIdentifiers[require])
 					}
@@ -1690,7 +1697,8 @@ func (this *Compiler) findModulesFromEntryPoints(supportEs6Modules bool, support
 			inputsByProvide[provide] = input
 		}
 	}
-	for moduleIdentifier := range elemsAs_[*ModuleIdentifier](obj_(this.options_.getDependencyOptions().entryPoints())) {
+	for _, el := range immElems_(this.options_.getDependencyOptions().entryPoints()) {
+		moduleIdentifier := cast_[*ModuleIdentifier](el)
 		var input *CompilerInput = inputsByProvide[moduleIdentifier.toString()]
 		if input == nil {
 			input = inputsByIdentifier[moduleIdentifier.toString()]
@@ -1750,7 +1758,8 @@ func (this *Compiler) findModulesFromInput(input *CompilerInput, wasImportedByMo
 
 func (this *Compiler) hoistExterns(originalInputs ImmutableListOf[*CompilerInput]) {
 	var staleInputs bool = false
-	for input := range elemsAs_[*CompilerInput](obj_(originalInputs)) {
+	for _, el := range immElems_(originalInputs) {
+		input := cast_[*CompilerInput](el)
 		if this.hoistIfExtern(input) {
 			staleInputs = true
 		}
@@ -1787,7 +1796,8 @@ func (this *Compiler) markClosureUnawareCode() {
 }
 
 func (this *Compiler) markExterns(originalInputs ImmutableListOf[*CompilerInput]) {
-	for input := range elemsAs_[*CompilerInput](obj_(originalInputs)) {
+	for _, el := range immElems_(originalInputs) {
+		input := cast_[*CompilerInput](el)
 		if input.getHasExternsAnnotation() {
 			input.setIsExtern()
 		}
@@ -1797,7 +1807,8 @@ func (this *Compiler) markExterns(originalInputs ImmutableListOf[*CompilerInput]
 func (this *Compiler) hoistNoCompileFiles() {
 	var staleInputs bool = false
 	this.maybeDoThreadedParsing()
-	for input := range elemsAs_[*CompilerInput](obj_(ImmutableList_copyOf_Iterable(this.chunkGraph.getAllInputs()))) {
+	for _, el := range immElems_(ImmutableList_copyOf_Iterable(this.chunkGraph.getAllInputs())) {
+		input := cast_[*CompilerInput](el)
 		if input.getHasNoCompileAnnotation() {
 			input.getChunk().remove(input)
 			staleInputs = true
@@ -2018,7 +2029,8 @@ func (this *Compiler) toSource_4(cb *Compiler_CodeBuilder, licenseTracker CodePr
 		}
 		var sourceAndMappings *CodePrinter_SourceAndMappings = this.toSourceAndMappings(root, (inputSeqNum == 0), licenseTracker)
 		var code string = sourceAndMappings.source
-		for license := range elemsBy_(obj_(licenseTracker.emitLicenses()), str_) {
+		for _, el := range immElems_(licenseTracker.emitLicenses()) {
+			license := str_(el)
 			cb.append("/*\n").append(license).append("*/\n")
 		}
 		if code == "" {
@@ -2054,7 +2066,8 @@ func (this *Compiler) toSource_1_impl(n Node) string {
 	var sb strBuilder_
 	var lt *Compiler_ScriptNodeLicensesOnlyTracker = new_Compiler_ScriptNodeLicensesOnlyTracker(this.up_AbstractCompiler())
 	var code string = this.toSourceAndMappings(n, false, lt).source
-	for license := range elemsBy_(obj_(lt.emitLicenses()), str_) {
+	for _, el := range immElems_(lt.emitLicenses()) {
+		license := str_(el)
 		sb.append("/*\n").append(license).append("*/\n")
 	}
 	sb.append(code)
@@ -2917,7 +2930,8 @@ func Compiler_toProto(stage AbstractCompiler_LifeCycleStage) LifeCycleStageProto
 func Compiler_toVariableMapEntries(map_ *VariableMap) *TList[*VariableMapEntryProto] {
 	var entries *TList[*VariableMapEntryProto] = newTList_(tc_p_VariableMapEntryProto)
 	if map_ != nil {
-		for entry := range elemsBy_(obj_(cast_[*ImmutableSet](map_.getOriginalNameToNewNameMap().entrySet())), icast_Map_Entry) {
+		for _, el := range immElems_(cast_[*ImmutableSet](map_.getOriginalNameToNewNameMap().entrySet())) {
+			entry := icast_Map_Entry(el)
 			entries.add(cast_[*VariableMapEntryProto](VariableMapEntryProto_newBuilder().setOriginalName(str_(entry.getKey())).setNewName(str_(entry.getValue())).build()))
 		}
 	}
@@ -2967,7 +2981,8 @@ func Compiler_fromVariableMapEntries(entries ListOf[*VariableMapEntryProto]) *Va
 
 func (this *Compiler) getCompilerStateProtoBuilder() *JSCompilerStateProto_Builder {
 	var builder *JSCompilerStateProto_Builder = JSCompilerStateProto_newBuilder()
-	for feature := range elemsAs_[FeatureSet_Feature](obj_(this.allowableFeatures.getFeatures())) {
+	for _, el := range immElems_(this.allowableFeatures.getFeatures()) {
+		feature := cast_[FeatureSet_Feature](el)
 		builder.addAllowableFeatures(Compiler_toProtoFeature(feature))
 	}
 	builder.setTypeCheckingHasRun(this.typeCheckingHasRun).setHasRegExpGlobalReferences(this.hasRegExpGlobalReferencesField).setLifeCycleStage(Compiler_toProto(this.getLifeCycleStage())).setMergedPrecompiledLibraries(this.options_.getMergedPrecompiledLibraries())
@@ -2986,7 +3001,8 @@ func (this *Compiler) getCompilerStateProtoBuilder() *JSCompilerStateProto_Build
 			}
 			chunkBuilder.addDependencies(unbox_[int32](depIdx))
 		}
-		for input := range elemsAs_[*CompilerInput](obj_(chunk.getInputs())) {
+		for _, el2 := range immElems_(chunk.getInputs()) {
+			input := cast_[*CompilerInput](el2)
 			chunkBuilder.addInputIds(input.getInputId().getIdName())
 		}
 		builder.addChunks(cast_[*ChunkProto](chunkBuilder.build()))
@@ -3232,7 +3248,8 @@ func (this *Compiler) deserializeCompilerState(state []int8) {
 			cast_[*JSChunk](chunks.get(i)).addCompilerInput(input)
 		}
 	}
-	for library := range elemsBy_(obj_(deserializedAst.getRuntimeLibraries()), str_) {
+	for _, el := range immElems_(deserializedAst.getRuntimeLibraries()) {
+		library := str_(el)
 		this.runtimeJsLibManager.ensureLibraryInjected(library, false)
 	}
 	this.typedAstFilesystem = nil
@@ -3297,7 +3314,8 @@ func (this *Compiler) resetAndIntitializeSourceMap() {
 	this.sourceMap_.reset()
 	if this.options_.getSourceMapIncludeSourcesContent() {
 		if this.options_.getApplyInputSourceMaps() {
-			for inputSourceMap := range elemsAs_[*SourceMapInput](obj_(cast_[*ImmutableCollection](ImmutableSortedMap_copyOf(icast_Map(obj_(this.inputSourceMaps))).values()))) {
+			for _, el := range immElems_(cast_[*ImmutableCollection](ImmutableSortedMap_copyOf(icast_Map(obj_(this.inputSourceMaps))).values())) {
+				inputSourceMap := cast_[*SourceMapInput](el)
 				this.addSourceMapSourceFiles(inputSourceMap)
 			}
 		}
@@ -3305,7 +3323,8 @@ func (this *Compiler) resetAndIntitializeSourceMap() {
 		if allChunks != nil {
 			var sourceFiles *TList[*SourceFile_jscomp] = newTList_(tc_p_SourceFile_jscomp)
 			for chunk := range elemsAs_[*JSChunk](allChunks) {
-				for input := range elemsAs_[*CompilerInput](obj_(chunk.getInputs())) {
+				for _, el2 := range immElems_(chunk.getInputs()) {
+					input := cast_[*CompilerInput](el2)
 					var sourceFile *SourceFile_jscomp = input.getSourceFile()
 					if sourceFile.isStubSourceFileForAlreadyProvidedInput() {
 						continue

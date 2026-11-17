@@ -1054,7 +1054,8 @@ func new_RegExpTree_Alternation(alternatives *TList[*RegExpTree]) *RegExpTree_Al
 
 func (this *RegExpTree_Alternation) simplify_impl(flags string) *RegExpTree {
 	var alternatives *TList[*RegExpTree] = newTList_(tc_p_RegExpTree)
-	for alternative := range elemsBy_(obj_(this.alternatives), to_RegExpTree) {
+	for _, el := range immElems_(this.alternatives) {
+		alternative := to_RegExpTree(el)
 		alternative = alternative.simplify(flags)
 		var alternation *RegExpTree_Alternation
 		_ = alternation
@@ -1196,9 +1197,8 @@ func (this *RegExpTree_Alternation) simplify_impl(flags string) *RegExpTree {
 }
 
 func (this *RegExpTree_Alternation) isCaseSensitive_impl() bool {
-	it_1 := foreach_(obj_(this.alternatives))
-	for it_1.next() {
-		var alternative *RegExpTree = to_RegExpTree(it_1.v)
+	for _, el_1 := range immElems_(this.alternatives) {
+		var alternative *RegExpTree = to_RegExpTree(el_1)
 		if alternative.isCaseSensitive() {
 			return true
 		}
@@ -1207,9 +1207,8 @@ func (this *RegExpTree_Alternation) isCaseSensitive_impl() bool {
 }
 
 func (this *RegExpTree_Alternation) containsAnchor_impl() bool {
-	it_1 := foreach_(obj_(this.alternatives))
-	for it_1.next() {
-		var alternative *RegExpTree = to_RegExpTree(it_1.v)
+	for _, el_1 := range immElems_(this.alternatives) {
+		var alternative *RegExpTree = to_RegExpTree(el_1)
 		if alternative.containsAnchor() {
 			return true
 		}
@@ -1219,7 +1218,8 @@ func (this *RegExpTree_Alternation) containsAnchor_impl() bool {
 
 func (this *RegExpTree_Alternation) numCapturingGroups_impl() int32 {
 	var n int32 = 0
-	for alternative := range elemsBy_(obj_(this.alternatives), to_RegExpTree) {
+	for _, el := range immElems_(this.alternatives) {
+		alternative := to_RegExpTree(el)
 		n += alternative.numCapturingGroups()
 	}
 	return n
@@ -1786,7 +1786,8 @@ func (this *RegExpTree_Charset) decompose_2(ranges *CharRanges, inverted bool) *
 		var groupName uint16 = 0x0000
 		var simplest *CharRanges = nil
 		var minComplexity int32 = RegExpTree_DecomposedCharset_complexity(ranges)
-		for namedGroup := range elemsBy_(obj_(cast_[*ImmutableSet](RegExpTree_NAMED_CHAR_GROUPS.entrySet())), icast_Map_Entry) {
+		for _, el := range immElems_(cast_[*ImmutableSet](RegExpTree_NAMED_CHAR_GROUPS.entrySet())) {
+			namedGroup := icast_Map_Entry(el)
 			var group *CharRanges = cast_[*CharRanges](namedGroup.getValue())
 			if ranges.containsAll(group) {
 				var withoutGroup *CharRanges = ranges.difference(group).union(rangesInterIeExplicits)
@@ -2076,7 +2077,8 @@ func new_RegExpTree_Concatenation_List(elements *TList[*RegExpTree]) *RegExpTree
 
 func (this *RegExpTree_Concatenation) simplify_impl(flags string) *RegExpTree {
 	var s *RegExpTree_Concatenation_1Simplifier = new_RegExpTree_Concatenation_1Simplifier(this, flags)
-	for element := range elemsBy_(obj_(this.elements_), to_RegExpTree) {
+	for _, el := range immElems_(this.elements_) {
+		element := to_RegExpTree(el)
 		s.simplify(element.simplify(flags))
 	}
 	return func() *RegExpTree {
@@ -2092,9 +2094,8 @@ func (this *RegExpTree_Concatenation) simplify_impl(flags string) *RegExpTree {
 }
 
 func (this *RegExpTree_Concatenation) isCaseSensitive_impl() bool {
-	it_1 := foreach_(obj_(this.elements_))
-	for it_1.next() {
-		var element *RegExpTree = to_RegExpTree(it_1.v)
+	for _, el_1 := range immElems_(this.elements_) {
+		var element *RegExpTree = to_RegExpTree(el_1)
 		if element.isCaseSensitive() {
 			return true
 		}
@@ -2103,9 +2104,8 @@ func (this *RegExpTree_Concatenation) isCaseSensitive_impl() bool {
 }
 
 func (this *RegExpTree_Concatenation) containsAnchor_impl() bool {
-	it_1 := foreach_(obj_(this.elements_))
-	for it_1.next() {
-		var element *RegExpTree = to_RegExpTree(it_1.v)
+	for _, el_1 := range immElems_(this.elements_) {
+		var element *RegExpTree = to_RegExpTree(el_1)
 		if element.containsAnchor() {
 			return true
 		}
@@ -2115,7 +2115,8 @@ func (this *RegExpTree_Concatenation) containsAnchor_impl() bool {
 
 func (this *RegExpTree_Concatenation) numCapturingGroups_impl() int32 {
 	var n int32 = 0
-	for element := range elemsBy_(obj_(this.elements_), to_RegExpTree) {
+	for _, el := range immElems_(this.elements_) {
+		element := to_RegExpTree(el)
 		n += element.numCapturingGroups()
 	}
 	return n
@@ -2127,7 +2128,8 @@ func (this *RegExpTree_Concatenation) children_impl() List {
 
 func (this *RegExpTree_Concatenation) appendSourceCode_impl(sb *strBuilder_) {
 	var digitsMightBleed bool = false
-	for element := range elemsBy_(obj_(this.elements_), to_RegExpTree) {
+	for _, el := range immElems_(this.elements_) {
+		element := to_RegExpTree(el)
 		var parenthesize bool = false
 		if is_[*RegExpTree_Alternation](element.self()) || is_[*RegExpTree_Concatenation](element.self()) {
 			parenthesize = true
@@ -2780,7 +2782,8 @@ func (this *RegExpTree_Concatenation_1Simplifier) simplify(t *RegExpTree) {
 		concatenation = p
 		return true
 	}() {
-		for child := range elemsBy_(obj_(concatenation.elements_), to_RegExpTree) {
+		for _, el := range immElems_(concatenation.elements_) {
+			child := to_RegExpTree(el)
 			this.simplify(child)
 		}
 	} else if _, ok2 := t.self().(*RegExpTree_Empty); ok2 {

@@ -165,9 +165,9 @@ func InlineAndCollapseProperties_mayBeGlobalAlias(alias *GlobalNamespace_Ref) bo
 }
 
 func InlineAndCollapseProperties_referencesCollapsibleProperty(aliasRefs *ReferenceCollection, aliasedName *GlobalNamespace_Name, namespace *GlobalNamespace) bool {
-	it_1 := aliasRefs.references.each()
-	for it_1.next() {
-		var ref *Reference = it_1.v
+	l_1 := aliasRefs.references
+	for i_1 := 0; i_1 < len(l_1.items); i_1++ {
+		var ref *Reference = l_1.items[i_1]
 		if ref.getParent() == 0 {
 			continue
 		}

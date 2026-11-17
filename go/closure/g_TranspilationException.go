@@ -77,10 +77,12 @@ func TranspilationException_format(source SourceExcerptProvider, errors Immutabl
 		}
 		return ErrorFormat_SOURCELESS.toFormatter(source, false)
 	}()
-	for error_ := range elemsAs_[*JSError](obj_(errors)) {
+	for _, el := range immElems_(errors) {
+		error_ := cast_[*JSError](el)
 		sb.append("\n").append(formatter.formatError(error_))
 	}
-	for warning := range elemsAs_[*JSError](obj_(warnings)) {
+	for _, el2 := range immElems_(warnings) {
+		warning := cast_[*JSError](el2)
 		sb.append("\n").append(formatter.formatError(warning))
 	}
 	return sb.toString()

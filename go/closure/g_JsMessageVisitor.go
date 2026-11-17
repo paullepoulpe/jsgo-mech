@@ -596,9 +596,8 @@ func (this *JsMessageVisitor) extractIcuTemplateOptions(optionsBag Node) *Outcom
 	}
 	var placeholderOriginalCodeMap ImmutableMapOf[string, string] = cast_[*ImmutableMap](placeholderOriginalCodeMapOutcome.get())
 	var placeholderNames ImmutableSetOf[string] = ImmutableSet_builder().addAll(Iterable(placeholderExamplesMap.keySet())).addAll(Iterable(placeholderOriginalCodeMap.keySet())).build()
-	it_1 := foreach_(obj_(placeholderNames))
-	for it_1.next() {
-		var placeholderName string = str_(it_1.v)
+	for _, el_1 := range immElems_(placeholderNames) {
+		var placeholderName string = str_(el_1)
 		if !JsMessage_isCanonicalPlaceholderNameFormat(placeholderName) {
 			return Outcome_base_err(new_JsMessageVisitor_MalformedException(("Placeholder not in UPPER_SNAKE_CASE: " + sstr_(placeholderName)), optionsBag).up_Throwable())
 		}
@@ -998,9 +997,12 @@ func (this *JsMessageVisitor_ObjectLiteralMapImpl) extractAsStringToStringMap() 
 }
 
 func (this *JsMessageVisitor_ObjectLiteralMapImpl) checkForUnexpectedKeys(expectedKeys map[string]struct{}, createErrorMessage func(any) any) *Outcome_base {
-	it_1 := this.stringToStringKeyMap.each()
-	for it_1.next() {
-		var key string = it_1.k
+	l_1 := this.stringToStringKeyMap
+	for i_1 := l_1.first(); i_1 < len(l_1.keys); i_1++ {
+		if l_1.isDead(i_1) {
+			continue
+		}
+		var key string = l_1.keys[i_1]
 		if !has_(expectedKeys, key) {
 			return Outcome_base_err(new_JsMessageVisitor_MalformedException(str_(createErrorMessage(strobj_(key))), this.stringToStringKeyMap.get(key)).up_Throwable())
 		}
@@ -1009,9 +1011,11 @@ func (this *JsMessageVisitor_ObjectLiteralMapImpl) checkForUnexpectedKeys(expect
 }
 
 func (this *JsMessageVisitor_ObjectLiteralMapImpl) checkForRequiredKeys(requiredKeys *TSet[string], createException func(any) any) *Outcome_base {
-	it_1 := requiredKeys.each()
-	for it_1.next() {
-		var requiredKey string = it_1.v
+	for i_1 := requiredKeys.first(); i_1 < len(requiredKeys.keys); i_1++ {
+		if requiredKeys.isDead(i_1) {
+			continue
+		}
+		var requiredKey string = requiredKeys.keys[i_1]
 		if !this.stringToStringKeyMap.containsKey(requiredKey) {
 			return Outcome_base_err(to_Throwable(createException(strobj_(requiredKey))))
 		}

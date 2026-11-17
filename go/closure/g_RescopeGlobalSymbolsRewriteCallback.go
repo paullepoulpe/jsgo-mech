@@ -397,7 +397,8 @@ func (this *RescopeGlobalSymbolsRewriteCallback) declareLocalAliasesAndWrappers(
 	var defaultRootChunk *JSChunk = cast_[*JSChunk](first_(chunks))
 	var wrapperAssignmentChunks map[string]*JSChunk = map[string]*JSChunk{}
 	if this.optimizeLocalAccess.shouldWrapReassignableSymbols() && !this.symbolInfo.wrappedCrossChunkNames().isEmpty() {
-		for name := range elemsBy_(obj_(this.symbolInfo.wrappedCrossChunkNames()), str_) {
+		for _, el := range immElems_(this.symbolInfo.wrappedCrossChunkNames()) {
+			name := str_(el)
 			var chunksRequiringWrapper SetOf[*JSChunk] = mapGetOr_(this.chunksRequiringWrapperInitialization, name, Set(ImmutableSet_of()))
 			var wrapperAssignmentChunk *JSChunk = func() *JSChunk {
 				if chunksRequiringWrapper.isEmpty() {
@@ -467,7 +468,8 @@ func (this *RescopeGlobalSymbolsRewriteCallback) declareLocalAliasesAndWrappersF
 	var wrappedReassignableLocalAliases *TSet[string] = tsetFrom_(tc_string, ImmutableSet_of(), true)
 	if this.optimizeLocalAccess.shouldWrapReassignableSymbols() {
 		wrappedReassignableLocalAliases = newTSet_(tc_string)
-		for name := range elemsBy_(obj_(this.symbolInfo.wrappedCrossChunkNames()), str_) {
+		for _, el := range immElems_(this.symbolInfo.wrappedCrossChunkNames()) {
+			name := str_(el)
 			var assignmentChunk *JSChunk = wrapperAssignmentChunks[name]
 			var usingChunks SetOf[*JSChunk] = this.chunksUsingWrappedReassignableSymbols[name]
 			if equalsId_(chunk, assignmentChunk) {

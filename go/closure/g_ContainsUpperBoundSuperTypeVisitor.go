@@ -60,9 +60,8 @@ func (this *ContainsUpperBoundSuperTypeVisitor) caseUnionType_impl(type_ *UnionT
 	if JSCompObjects_identical(obj_(type_), this.target.self()) {
 		return obj_(ContainsUpperBoundSuperTypeVisitor_Result_PRESENT)
 	}
-	it_1 := foreach_(obj_(type_.getAlternates()))
-	for it_1.next() {
-		var alt *JSType = to_JSType(it_1.v)
+	for _, el_1 := range immElems_(type_.getAlternates()) {
+		var alt *JSType = to_JSType(el_1)
 		var foundInAlt ContainsUpperBoundSuperTypeVisitor_Result = cast_[ContainsUpperBoundSuperTypeVisitor_Result](alt.visit(this))
 		if foundInAlt != ContainsUpperBoundSuperTypeVisitor_Result_ABSENT {
 			return obj_(foundInAlt)

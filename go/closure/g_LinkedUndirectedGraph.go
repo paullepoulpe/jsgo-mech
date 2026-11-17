@@ -136,9 +136,9 @@ func (this *LinkedUndirectedGraph) getEdges_impl() *TList[Graph_GraphEdge] {
 func (this *LinkedUndirectedGraph) getFirstEdge_impl(n1 any, n2 any) Graph_GraphEdge {
 	var dNode1 UndiGraph_UndiGraphNode = icast_UndiGraph_UndiGraphNode(this.getNodeOrFail(n1))
 	var dNode2 UndiGraph_UndiGraphNode = icast_UndiGraph_UndiGraphNode(this.getNodeOrFail(n2))
-	it_1 := dNode1.getNeighborEdges().each()
-	for it_1.next() {
-		var outEdge UndiGraph_UndiGraphEdge = it_1.v
+	l_1 := dNode1.getNeighborEdges()
+	for i_1 := 0; i_1 < len(l_1.items); i_1++ {
+		var outEdge UndiGraph_UndiGraphEdge = l_1.items[i_1]
 		if (outEdge.getNodeA() == dNode2) || (outEdge.getNodeB() == dNode2) {
 			return Graph_GraphEdge(outEdge)
 		}
@@ -167,9 +167,9 @@ func (this *LinkedUndirectedGraph) isConnectedPredicate(n1 any, edgePredicate Pr
 	if dNode2 == nil {
 		return false
 	}
-	it_1 := dNode1.getNeighborEdges().each()
-	for it_1.next() {
-		var outEdge UndiGraph_UndiGraphEdge = it_1.v
+	l_1 := dNode1.getNeighborEdges()
+	for i_1 := 0; i_1 < len(l_1.items); i_1++ {
+		var outEdge UndiGraph_UndiGraphEdge = l_1.items[i_1]
 		if ((outEdge.getNodeA() == dNode1) && (outEdge.getNodeB() == dNode2)) || ((outEdge.getNodeA() == dNode2) && (outEdge.getNodeB() == dNode1)) {
 			if edgePredicate.apply(outEdge.getValue()) {
 				return true

@@ -26,7 +26,8 @@ func new_InlineProperties(compiler *AbstractCompiler) *InlineProperties {
 }
 
 func (this *InlineProperties) invalidateExternProperties() {
-	for name := range elemsBy_(obj_(this.compiler_.getExternProperties()), str_) {
+	for _, el := range immElems_(this.compiler_.getExternProperties()) {
+		name := str_(el)
 		this.props[name] = InlineProperties_INVALIDATED
 	}
 }

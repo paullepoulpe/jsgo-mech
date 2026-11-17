@@ -107,9 +107,8 @@ func (this *MakeDeclaredNamesUnique) visitNameOrImportStar(t *NodeTraversal, n N
 }
 
 func (this *MakeDeclaredNamesUnique) getReplacementName(oldName string) OptionalOf[string] {
-	it_1 := eachRevOf_(&this.renamerStack)
-	for it_1.next() {
-		var renamer MakeDeclaredNamesUnique_Renamer = it_1.v
+	for i_1 := 0; i_1 < len(this.renamerStack); i_1++ {
+		var renamer MakeDeclaredNamesUnique_Renamer = this.renamerStack[len(this.renamerStack)-1-i_1]
 		var newName OptionalOf[string] = renamer.getReplacementName(oldName)
 		if newName.isPresent() {
 			return newName

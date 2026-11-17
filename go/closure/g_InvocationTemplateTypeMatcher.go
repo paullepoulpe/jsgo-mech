@@ -69,13 +69,15 @@ func (this *InvocationTemplateTypeMatcher) matchTemplateTypesRecursive(paramType
 	}
 	if paramType.isUnionType() {
 		var unionType *UnionType = paramType.toMaybeUnionType()
-		for alternate := range elemsBy_(obj_(unionType.getAlternates()), to_JSType) {
+		for _, el := range immElems_(unionType.getAlternates()) {
+			alternate := to_JSType(el)
 			this.matchTemplateTypesRecursive(alternate, argType)
 		}
 		return
 	} else if argType.isUnionType() {
 		var unionType *UnionType = argType.toMaybeUnionType()
-		for alternate := range elemsBy_(obj_(unionType.getAlternates()), to_JSType) {
+		for _, el2 := range immElems_(unionType.getAlternates()) {
+			alternate := to_JSType(el2)
 			this.matchTemplateTypesRecursive(paramType, alternate)
 		}
 		return
@@ -94,7 +96,8 @@ func (this *InvocationTemplateTypeMatcher) matchTemplateTypesRecursive(paramType
 			var argObjectType *ObjectType = argType.restrictByNotNullOrUndefined().toObjectType()
 			if ((argObjectType != nil) && !argObjectType.isUnknownType()) && !argObjectType.isEmptyType() {
 				var names ImmutableSortedSetOf[string] = paramRecordType.getPropertyNames()
-				for name := range elemsBy_(obj_(names), str_) {
+				for _, el3 := range immElems_(names) {
+					name := str_(el3)
 					if paramRecordType.hasOwnProperty(name) && argObjectType.hasProperty(name) {
 						this.matchTemplateTypesRecursive(paramRecordType.getPropertyType(name), argObjectType.getPropertyType(name))
 					}

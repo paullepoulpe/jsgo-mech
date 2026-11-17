@@ -95,7 +95,8 @@ func (this *JSTypeReconserializer) recordUnionType(type_ *UnionType) *JSTypeReco
 		panic(new_NullPointerException_0().self())
 	}
 	var altRecords *TSet[*JSTypeReconserializer_SeenTypeRecord] = newTSet_(tc_p_JSTypeReconserializer_SeenTypeRecord)
-	for altType := range elemsBy_(obj_(type_.getAlternates()), to_JSType) {
+	for _, el := range immElems_(type_.getAlternates()) {
+		altType := to_JSType(el)
 		var alt *JSTypeReconserializer_SeenTypeRecord = this.recordType(altType)
 		if alt.unionMembers == nil {
 			altRecords.add(alt)
@@ -246,7 +247,8 @@ func (this *JSTypeReconserializer) seedCachesWithAxiomaticTypes() {
 	if !this.seenTypeRecords.isEmpty() {
 		panic(new_IllegalStateException_0().self())
 	}
-	for axiomatic := range elemsAs_[*Color](obj_(TypePointers_OFFSET_TO_AXIOMATIC_COLOR)) {
+	for _, el := range immElems_(TypePointers_OFFSET_TO_AXIOMATIC_COLOR) {
+		axiomatic := cast_[*Color](el)
 		var index int32 = this.seenTypeRecords.size()
 		var record *JSTypeReconserializer_SeenTypeRecord = new_JSTypeReconserializer_SeenTypeRecord(axiomatic.getId(), index)
 		this.seenTypeRecords.put(axiomatic.getId(), record)
@@ -330,7 +332,8 @@ func (this *JSTypeReconserializer) getColorIdToJSTypeMapForDebugging() *SimpleLi
 		unordered.put_s(record.colorId.toString(), jstype.self())
 	})
 	var colorIdToTypes *SimpleListMultimap = SimpleListMultimap_create()
-	for colorId := range elemsBy_(obj_(ImmutableList_sortedCopyOf_Iterable(Iterable(unordered.keySet()))), str_) {
+	for _, el := range immElems_(ImmutableList_sortedCopyOf_Iterable(Iterable(unordered.keySet()))) {
+		colorId := str_(el)
 		colorIdToTypes.putAll_s(colorId, Iterable(unordered.get_s(colorId)))
 	}
 	return colorIdToTypes.immutableCopy()

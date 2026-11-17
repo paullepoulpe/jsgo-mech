@@ -33,9 +33,8 @@ func (this *ConcretizeStaticInheritanceForInlining) process_2(externs Node, root
 }
 
 func (this *ConcretizeStaticInheritanceForInlining) processInherits(findStaticMembers *ConcretizeStaticInheritanceForInlining_FindStaticMembers) {
-	it_1 := eachOf_(&findStaticMembers.inheritsCalls)
-	for it_1.next() {
-		var inheritsCall Node = it_1.v
+	for i_1 := 0; i_1 < len(findStaticMembers.inheritsCalls); i_1++ {
+		var inheritsCall Node = findStaticMembers.inheritsCalls[i_1]
 		var superclassNameNode Node = inheritsCall.getLastChild()
 		var superclassQname string = superclassNameNode.getQualifiedName()
 		var subclassNameNode Node = superclassNameNode.getPrevious()

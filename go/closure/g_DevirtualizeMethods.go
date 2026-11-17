@@ -55,7 +55,8 @@ func (this *DevirtualizeMethods) processReferenceList(name string, sites ListOf[
 	var devirtualizedName string = DevirtualizeMethods_rewrittenMethodNameOf(name)
 	var bestJSDoc *JSDocInfo = NodeUtil_getBestJSDocInfo(canonicalDefinitionSite)
 	var isConstantName bool = ((bestJSDoc != nil) && bestJSDoc.isConstant())
-	for callSite := range elemsBy_(obj_(callSites), Node_of_) {
+	for _, el := range immElems_(callSites) {
+		callSite := Node_of_(el)
 		this.rewriteCall(callSite, devirtualizedName, isConstantName)
 	}
 	this.rewriteDefinition(canonicalDefinitionSite, devirtualizedName, isConstantName)

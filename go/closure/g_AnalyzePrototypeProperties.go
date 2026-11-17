@@ -44,7 +44,8 @@ func (this *AnalyzePrototypeProperties) init_AnalyzePrototypeProperties(compiler
 	this.externNode.markReference(nil)
 	this.symbolGraph.createNode(obj_(this.globalNode))
 	this.symbolGraph.createNode(obj_(this.externNode))
-	for property := range elemsBy_(obj_(AnalyzePrototypeProperties_IMPLICITLY_USED_PROPERTIES), str_) {
+	for _, el := range immElems_(AnalyzePrototypeProperties_IMPLICITLY_USED_PROPERTIES) {
+		property := str_(el)
 		var nameInfo *AnalyzePrototypeProperties_NameInfo = this.getNameInfoForName(property, AnalyzePrototypeProperties_PROPERTY)
 		if chunkGraph == nil {
 			this.symbolGraph.connect(obj_(this.externNode), nil, obj_(nameInfo))

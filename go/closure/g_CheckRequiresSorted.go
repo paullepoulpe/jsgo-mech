@@ -143,7 +143,8 @@ func CheckRequiresSorted_canonicalizeImports(importsByNamespace *SimpleListMulti
 		var destructuringNodesBuilder ImmutableList_BuilderOf[Node] = ImmutableList_builder()
 		for i := range elemsAs_[*CheckRequiresSorted_ImportStatement](allImports) {
 			if i.isDestructuring() {
-				for node := range elemsBy_(obj_(i.nodes()), Node_of_) {
+				for _, el := range immElems_(i.nodes()) {
+					node := Node_of_(el)
 					destructuringNodesBuilder.add(node.box_())
 				}
 			}
@@ -152,7 +153,8 @@ func CheckRequiresSorted_canonicalizeImports(importsByNamespace *SimpleListMulti
 		var sortedDestructures []*CheckRequiresSorted_DestructuringBinding = []*CheckRequiresSorted_DestructuringBinding{}
 		for i := range elemsAs_[*CheckRequiresSorted_ImportStatement](allImports) {
 			if i.isDestructuring() {
-				for binding := range elemsAs_[*CheckRequiresSorted_DestructuringBinding](obj_(i.destructures())) {
+				for _, el2 := range immElems_(i.destructures()) {
+					binding := cast_[*CheckRequiresSorted_DestructuringBinding](el2)
 					sortedDestructures = append(sortedDestructures, binding.canonicalizeShorthandProperties())
 				}
 			}
@@ -167,7 +169,8 @@ func CheckRequiresSorted_canonicalizeImports(importsByNamespace *SimpleListMulti
 			var standaloneNodesBuilder ImmutableList_BuilderOf[Node] = ImmutableList_builder()
 			for i := range elemsAs_[*CheckRequiresSorted_ImportStatement](allImports) {
 				if i.isStandalone() {
-					for node := range elemsBy_(obj_(i.nodes()), Node_of_) {
+					for _, el3 := range immElems_(i.nodes()) {
+						node := Node_of_(el3)
 						standaloneNodesBuilder.add(node.box_())
 					}
 				}
@@ -536,7 +539,8 @@ func (this *CheckRequiresSorted_ImportStatement) formatWithoutDoc() string {
 	if this.destructures() != nil {
 		sb.append("{")
 		var first bool = true
-		for binding := range elemsAs_[*CheckRequiresSorted_DestructuringBinding](obj_(this.destructures())) {
+		for _, el := range immElems_(this.destructures()) {
+			binding := cast_[*CheckRequiresSorted_DestructuringBinding](el)
 			var exportedName string = binding.exportedName()
 			var localName string = binding.localName()
 			if first {
@@ -564,7 +568,8 @@ func (this *CheckRequiresSorted_ImportStatement) formatWithoutDoc() string {
 
 func (this *CheckRequiresSorted_ImportStatement) format() string {
 	var sb strBuilder_
-	for node := range elemsBy_(obj_(this.nodes()), Node_of_) {
+	for _, el := range immElems_(this.nodes()) {
+		node := Node_of_(el)
 		var comment string = node.getNonJSDocCommentString()
 		if comment != "" {
 			sb.append(node.getNonJSDocCommentString()).append("\n")

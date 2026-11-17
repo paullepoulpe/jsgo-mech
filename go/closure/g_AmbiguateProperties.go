@@ -66,7 +66,8 @@ func (this *AmbiguateProperties) process_2(externs Node, root Node) {
 		chunkGraphLog.logString(DotFormatter_toDot_GraphvizGraph(icast_GraphvizGraph(colorGraph.self())))
 		return 0
 	}()
-	for node := range elemsAs_[*ColorGraphNode](obj_(this.graphNodeFactory.getAllKnownTypes())) {
+	for _, el := range immElems_(this.graphNodeFactory.getAllKnownTypes()) {
+		node := cast_[*ColorGraphNode](el)
 		node.getSubtypeIndices().set(node.getIndex())
 	}
 	FixedPointGraphTraversal_newReverseTraversal(lambda_AmbiguateProperties_process_2_2_).computeFixedPoint(colorGraph.up_DiGraph())

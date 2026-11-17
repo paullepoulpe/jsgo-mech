@@ -170,16 +170,16 @@ func (this *LinkedDirectedGraph) getEdges_impl() *TList[Graph_GraphEdge] {
 func (this *LinkedDirectedGraph) getFirstEdge_impl(n1 any, n2 any) Graph_GraphEdge {
 	var dNode1 *LinkedDirectedGraph_LinkedDiGraphNode = to_LinkedDirectedGraph_LinkedDiGraphNode(this.getNodeOrFail(n1))
 	var dNode2 *LinkedDirectedGraph_LinkedDiGraphNode = to_LinkedDirectedGraph_LinkedDiGraphNode(this.getNodeOrFail(n2))
-	it_1 := dNode1.getOutEdges().each()
-	for it_1.next() {
-		var outEdge DiGraph_DiGraphEdge = it_1.v
+	l_1 := dNode1.getOutEdges()
+	for i_1 := 0; i_1 < len(l_1.items); i_1++ {
+		var outEdge DiGraph_DiGraphEdge = l_1.items[i_1]
 		if outEdge.getDestination() == dNode2.self() {
 			return Graph_GraphEdge(outEdge)
 		}
 	}
-	it_3 := dNode2.getOutEdges().each()
-	for it_3.next() {
-		var outEdge DiGraph_DiGraphEdge = it_3.v
+	l_3 := dNode2.getOutEdges()
+	for i_3 := 0; i_3 < len(l_3.items); i_3++ {
+		var outEdge DiGraph_DiGraphEdge = l_3.items[i_3]
 		if outEdge.getDestination() == dNode1.self() {
 			return Graph_GraphEdge(outEdge)
 		}
@@ -237,17 +237,15 @@ func (this *LinkedDirectedGraph) isConnectedInDirectionLinkedDiGraphNode(source 
 	var inEdges *TList[DiGraph_DiGraphEdge] = dest.getInEdges()
 	var inEdgesLen int32 = inEdges.size()
 	if outEdgesLen < inEdgesLen {
-		it_1 := outEdges.each()
-		for it_1.next() {
-			var outEdge DiGraph_DiGraphEdge = it_1.v
+		for i_1 := 0; i_1 < len(outEdges.items); i_1++ {
+			var outEdge DiGraph_DiGraphEdge = outEdges.items[i_1]
 			if (outEdge.getDestination() == dest.self()) && edgeFilter.apply(outEdge.getValue()) {
 				return true
 			}
 		}
 	} else {
-		it_3 := inEdges.each()
-		for it_3.next() {
-			var inEdge DiGraph_DiGraphEdge = it_3.v
+		for i_3 := 0; i_3 < len(inEdges.items); i_3++ {
+			var inEdge DiGraph_DiGraphEdge = inEdges.items[i_3]
 			if (inEdge.getSource() == source.self()) && edgeFilter.apply(inEdge.getValue()) {
 				return true
 			}

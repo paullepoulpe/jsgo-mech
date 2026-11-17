@@ -197,7 +197,8 @@ func (this *PureFunctionIdentifier) getSummariesForCallee(invocation Node) []*Pu
 		panic(new_IllegalStateException_String("Unexpected empty callees for valid result").self())
 	}
 	var results []*PureFunctionIdentifier_AmbiguatedFunctionSummary
-	for callee := range elemsBy_(obj_(callees), Node_of_) {
+	for _, el := range immElems_(callees) {
+		callee := Node_of_(el)
 		if callee.isFunction() {
 			if !callee.isFunction() {
 				panic(new_IllegalStateException_String(objstr_(callee.box_())).self())
@@ -258,7 +259,8 @@ func (this *PureFunctionIdentifier) populateFunctionDefinitions(name string, ref
 					break
 				}
 				if this.validateArtificialPurityField && !reference.isFromExterns() {
-					for callable := range elemsBy_(obj_(callables), Node_of_) {
+					for _, el := range immElems_(callables) {
+						callable := Node_of_(el)
 						var jsdoc *JSDocInfo = NodeUtil_getBestJSDocInfo(callable)
 						var isArtificiallyPure bool = ((jsdoc != nil) && jsdoc.isNoSideEffects())
 						if isArtificiallyPure {
@@ -275,7 +277,8 @@ func (this *PureFunctionIdentifier) populateFunctionDefinitions(name string, ref
 		summaryForName.setMutatesGlobalStateAndAllOtherFlags(0)
 	} else {
 		for callables := range elemsAs_[*ImmutableList](rvaluesAssignedToName) {
-			for rvalue := range elemsBy_(obj_(callables), Node_of_) {
+			for _, el2 := range immElems_(callables) {
+				rvalue := Node_of_(el2)
 				if rvalue.isFunction() {
 					this.summariesForAllNamesOfFunctionByNode.put(rvalue.box_(), obj_(summaryForName))
 				} else if NodeUtil_isUndefined(rvalue) {

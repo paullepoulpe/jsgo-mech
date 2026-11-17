@@ -1272,7 +1272,8 @@ func (this *TypeCheck) checkInterfaceConflictProperties(n Node, functionName str
 	} else {
 		currentPropertyNames = implicitProto.getOwnPropertyKeys()
 	}
-	for name := range elemsBy_(obj_(currentPropertyNames), icast_Property_Key) {
+	for _, el := range immElems_(currentPropertyNames) {
+		name := icast_Property_Key(el)
 		var oType *ObjectType = properties.get(name)
 		currentProperties.put(name, interfaceType)
 		if oType != nil {
@@ -1347,7 +1348,8 @@ func (this *TypeCheck) checkConstructor(n Node, functionType *FunctionType) {
 			this.checkStructDictSubtyping(n, functionType, baseConstructor)
 		}
 		var alreadySeenInterfaces *TSet[*JSType] = newTSet_(tch_p_JSType)
-		for baseInterface := range elemsBy_(obj_(functionType.getOwnImplementedInterfaces()), to_JSType) {
+		for _, el := range immElems_(functionType.getOwnImplementedInterfaces()) {
+			baseInterface := to_JSType(el)
 			var badImplementedType bool = false
 			var baseInterfaceObj *ObjectType = ObjectType_cast(baseInterface)
 			if baseInterfaceObj != nil {
@@ -1389,7 +1391,8 @@ func (this *TypeCheck) checkStructDictSubtyping(n Node, subtype *FunctionType, s
 }
 
 func (this *TypeCheck) checkInterface(n Node, functionType *FunctionType) {
-	for extInterface := range elemsBy_(obj_(functionType.getExtendedInterfaces()), to_ObjectType) {
+	for _, el := range immElems_(functionType.getExtendedInterfaces()) {
+		extInterface := to_ObjectType(el)
 		if (extInterface.getConstructor() != nil) && !extInterface.getConstructor().isInterface() {
 			this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, TypeCheck_CONFLICTING_EXTENDED_TYPE, []string{"interface", this.getBestFunctionName(n)}))
 		}
@@ -1397,7 +1400,8 @@ func (this *TypeCheck) checkInterface(n Node, functionType *FunctionType) {
 	if functionType.getExtendedInterfacesCount() > 1 {
 		var properties *TMap[Property_Key, *ObjectType] = newTMap_(tch_Property_Key, tc_p_ObjectType)
 		var currentProperties *TMap[Property_Key, *ObjectType] = newTMap_(tch_Property_Key, tc_p_ObjectType)
-		for interfaceType := range elemsBy_(obj_(functionType.getExtendedInterfaces()), to_ObjectType) {
+		for _, el2 := range immElems_(functionType.getExtendedInterfaces()) {
+			interfaceType := to_ObjectType(el2)
 			currentProperties.clear()
 			this.checkInterfaceConflictProperties(n, this.getBestFunctionName(n), properties, currentProperties, interfaceType)
 			properties.asMap().putAll(currentProperties.asMap())
@@ -1840,9 +1844,8 @@ func (this *TypeCheck) isReasonableObjectPropertyKey(type_ *JSType) bool {
 		return this.isReasonableObjectPropertyKey(namedType.getReferencedType())
 	}
 	if type_.isUnionType() {
-		it_1 := foreach_(obj_(type_.toMaybeUnionType().getAlternates()))
-		for it_1.next() {
-			var alternateType *JSType = to_JSType(it_1.v)
+		for _, el_1 := range immElems_(type_.toMaybeUnionType().getAlternates()) {
+			var alternateType *JSType = to_JSType(el_1)
 			if !this.isReasonableObjectPropertyKey(alternateType) {
 				return false
 			}
@@ -1883,9 +1886,8 @@ func (this *TypeCheck) findObjectWithNonStringifiableKey(type_ *JSType, alreadyC
 		return type_
 	}
 	if type_.isUnionType() {
-		it_1 := foreach_(obj_(type_.toMaybeUnionType().getAlternates()))
-		for it_1.next() {
-			var alternateType *JSType = to_JSType(it_1.v)
+		for _, el_1 := range immElems_(type_.toMaybeUnionType().getAlternates()) {
+			var alternateType *JSType = to_JSType(el_1)
 			var result *JSType = this.findObjectWithNonStringifiableKey(alternateType, alreadyCheckedTypes)
 			if result != nil {
 				return result
@@ -1893,9 +1895,8 @@ func (this *TypeCheck) findObjectWithNonStringifiableKey(type_ *JSType, alreadyC
 		}
 	}
 	if type_.isTemplatizedType() {
-		it_3 := foreach_(obj_(type_.toMaybeTemplatizedType().getTemplateTypes()))
-		for it_3.next() {
-			var templateType *JSType = to_JSType(it_3.v)
+		for _, el_3 := range immElems_(type_.toMaybeTemplatizedType().getTemplateTypes()) {
+			var templateType *JSType = to_JSType(el_3)
 			var result *JSType = this.findObjectWithNonStringifiableKey(templateType, alreadyCheckedTypes)
 			if result != nil {
 				return result
@@ -1904,9 +1905,8 @@ func (this *TypeCheck) findObjectWithNonStringifiableKey(type_ *JSType, alreadyC
 	}
 	if type_.isOrdinaryFunction() {
 		var function *FunctionType = type_.toMaybeFunctionType()
-		it_5 := foreach_(obj_(function.getParameters()))
-		for it_5.next() {
-			var parameter *FunctionType_Parameter = cast_[*FunctionType_Parameter](it_5.v)
+		for _, el_5 := range immElems_(function.getParameters()) {
+			var parameter *FunctionType_Parameter = cast_[*FunctionType_Parameter](el_5)
 			var result *JSType = this.findObjectWithNonStringifiableKey(parameter.getJSType(), alreadyCheckedTypes)
 			if result != nil {
 				return result

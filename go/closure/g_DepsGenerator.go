@@ -78,7 +78,8 @@ func (this *DepsGenerator) removeMungedSymbols(depFiles MapOf[string, Dependency
 	this.addToProvideMap(Iterable(jsFiles.values()), providesMap, false)
 	for dependencyInfo := range elemsBy_(jsFiles.values(), icast_DependencyInfo) {
 		var newRequires *TList[*DependencyInfo_Require] = newTList_(tc_p_DependencyInfo_Require)
-		for require := range elemsAs_[*DependencyInfo_Require](obj_(dependencyInfo.getRequires())) {
+		for _, el := range immElems_(dependencyInfo.getRequires()) {
+			require := cast_[*DependencyInfo_Require](el)
 			if require.getType() == DependencyInfo_Require_Type_ES6_IMPORT {
 				var provider DependencyInfo = providesMap[require.getSymbol()]
 				if provider == nil {
@@ -94,7 +95,8 @@ func (this *DepsGenerator) removeMungedSymbols(depFiles MapOf[string, Dependency
 		if dependencyInfo.isEs6Module() {
 			var mungedProvide string = this.loader.resolve(dependencyInfo.getName()).toModuleName()
 			var builder ImmutableList_BuilderOf[string] = ImmutableList_builder()
-			for provide := range elemsBy_(obj_(provides), str_) {
+			for _, el2 := range immElems_(provides) {
+				provide := str_(el2)
 				if !(provide == mungedProvide) && !(provide == dependencyInfo.getPathRelativeToClosureBase()) {
 					builder.add(strobj_(provide))
 				}
@@ -111,7 +113,8 @@ func (this *DepsGenerator) validateDependencies(preparsedFileDependencies Iterab
 	this.addToProvideMap(preparsedFileDependencies, providesMap, true)
 	this.addToProvideMap(parsedFileDependencies, providesMap, false)
 	for depInfo := range elemsBy_(parsedFileDependencies, icast_DependencyInfo) {
-		for require := range elemsAs_[*DependencyInfo_Require](obj_(depInfo.getRequires())) {
+		for _, el := range immElems_(depInfo.getRequires()) {
+			require := cast_[*DependencyInfo_Require](el)
 			var namespace string = require.getSymbol()
 			var provider DependencyInfo = providesMap[namespace]
 			if provider == nil {
@@ -250,7 +253,8 @@ func (this *DepsGenerator) removeRelativePathProvide(info DependencyInfo) Depend
 
 func DepsGenerator_providesWithoutRelativePath(info DependencyInfo) *TList[string] {
 	var result *TList[string] = newTList_(tc_string)
-	for p := range elemsBy_(obj_(info.getProvides()), str_) {
+	for _, el := range immElems_(info.getProvides()) {
+		p := str_(el)
 		if !(p == info.getPathRelativeToClosureBase()) {
 			result.add(p)
 		}

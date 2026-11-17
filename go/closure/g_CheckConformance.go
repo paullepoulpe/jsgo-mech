@@ -104,7 +104,8 @@ func CheckConformance_validateBehaviorSettingOfConfigs(compiler *AbstractCompile
 		panic(new_IllegalStateException_0().self())
 	}
 	var baseRequirementBehaviors map[string]ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior = map[string]ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior{}
-	for config := range elemsAs_[*ConformanceConfig](obj_(configs)) {
+	for _, el := range immElems_(configs) {
+		config := cast_[*ConformanceConfig](el)
 		if !config.hasLibraryLevelNonAllowlistedConformanceViolationsBehavior() {
 			continue
 		}
@@ -115,9 +116,8 @@ func CheckConformance_validateBehaviorSettingOfConfigs(compiler *AbstractCompile
 			}
 		}
 	}
-	it_5 := foreach_(obj_(configs))
-	for it_5.next() {
-		var config *ConformanceConfig = cast_[*ConformanceConfig](it_5.v)
+	for _, el_5 := range immElems_(configs) {
+		var config *ConformanceConfig = cast_[*ConformanceConfig](el_5)
 		if !config.hasLibraryLevelNonAllowlistedConformanceViolationsBehavior() {
 			continue
 		}

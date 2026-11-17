@@ -40,7 +40,8 @@ func new_TemplateTypeReplacer(registry *JSTypeRegistry, bindings *TemplateTypeMa
 func TemplateTypeReplacer_forInference(registry *JSTypeRegistry, bindings *TMap[*TemplateType, *JSType]) *TemplateTypeReplacer {
 	var keys ImmutableListOf[*TemplateType] = ImmutableList_copyOf(Collection(bindings.asMap().keySet()))
 	var values []*JSType
-	for key := range elemsAs_[*TemplateType](obj_(keys)) {
+	for _, el := range immElems_(keys) {
+		key := cast_[*TemplateType](el)
 		var value *JSType = bindings.get(key)
 		values = immAddObj_(tc_p_JSType, values, func() any {
 			if value != nil {
@@ -204,7 +205,8 @@ func (this *TemplateTypeReplacer) caseTemplatizedTypeUnguarded(type_ *Templatize
 		changed = true
 	}
 	var builder ImmutableList_BuilderOf[*JSType] = ImmutableList_builder()
-	for beforeTemplateType := range elemsBy_(obj_(type_.getTemplateTypes()), to_JSType) {
+	for _, el := range immElems_(type_.getTemplateTypes()) {
+		beforeTemplateType := to_JSType(el)
 		var afterTemplateType *JSType = to_JSType(beforeTemplateType.visit(this))
 		if !JSCompObjects_identical(beforeTemplateType.self(), afterTemplateType.self()) {
 			changed = true

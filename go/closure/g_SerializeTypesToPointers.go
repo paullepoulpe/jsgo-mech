@@ -90,7 +90,8 @@ func SerializeTypesToPointers_typeMismatchesToJson(typeMismatches ImmutableSorte
 	writer.setHtmlSafe(true)
 	writer.setSerializeNulls(false)
 	writer.beginArray()
-	for typeMismatch := range elemsAs_[*SerializeTypesToPointers_TypeMismatchJson](obj_(typeMismatches)) {
+	for _, el := range immElems_(typeMismatches) {
+		typeMismatch := cast_[*SerializeTypesToPointers_TypeMismatchJson](el)
 		typeMismatch.writeJson(writer)
 	}
 	writer.endArray()

@@ -30,7 +30,8 @@ func (this *PruningAnalysis) analyze() *PruningAnalysis_Result {
 
 func (this *PruningAnalysis) calculateTotalBlame() ImmutableMapOf[string, BoxedOf[int32]] {
 	var reachabilityPerEntryPoint ImmutableMap_BuilderOf[string, BoxedOf[int32]] = ImmutableMap_builder()
-	for provider := range elemsAs_[*CompilerInput](obj_(this.entryPoints_)) {
+	for _, el := range immElems_(this.entryPoints_) {
+		provider := cast_[*CompilerInput](el)
 		var transitiveClosure ImmutableSetOf[*CompilerInput] = ImmutableSet_builder().addAll(icast_Iterable(obj_(this.sorter_.getStrongDependenciesOf(ImmutableList_of_Object(obj_(provider)), false)))).addAll(icast_Iterable(obj_(this.sorter_.getSortedWeakDependenciesOf(ImmutableList_of_Object(obj_(provider)))))).build()
 		reachabilityPerEntryPoint.put(strobj_(provider.getName()), any(int32(transitiveClosure.size())))
 	}
@@ -41,7 +42,8 @@ func (this *PruningAnalysis) calculateBottlenecks() ImmutableMapOf[string, Boxed
 	var graph *DiGraph = this.buildGraph()
 	var dominatorTree *DominatorTree = DominatorTree_compute(graph, strobj_(PruningAnalysis_VIRTUAL_ROOT))
 	var bottleneckBlame *TMap[string, any] = newTMap_(tc_string, tc_any)
-	for entry := range elemsBy_(obj_(cast_[*ImmutableSet](dominatorTree.getAllSubtreeSizes().entrySet())), icast_Map_Entry) {
+	for _, el := range immElems_(cast_[*ImmutableSet](dominatorTree.getAllSubtreeSizes().entrySet())) {
+		entry := icast_Map_Entry(el)
 		var node string = str_(entry.getKey())
 		var retainedCount int32 = unbox_[int32](entry.getValue())
 		if !(node == PruningAnalysis_VIRTUAL_ROOT) && (retainedCount > 1) {
@@ -71,13 +73,15 @@ func (this *PruningAnalysis) buildGraph() *DiGraph {
 	for input := range this.sorter_.getSortedList().All() {
 		graph.createNode(strobj_(input.getName()))
 	}
-	for input := range elemsAs_[*CompilerInput](obj_(this.entryPoints_)) {
+	for _, el := range immElems_(this.entryPoints_) {
+		input := cast_[*CompilerInput](el)
 		graph.connect(strobj_(PruningAnalysis_VIRTUAL_ROOT), nil, strobj_(input.getName()))
 	}
 	for input := range this.sorter_.getSortedList().All() {
 		var name string = input.getName()
 		var depSymbols *TSet[string] = newTSet_(tc_string)
-		for req := range elemsAs_[*DependencyInfo_Require](obj_(input.getRequires())) {
+		for _, el2 := range immElems_(input.getRequires()) {
+			req := cast_[*DependencyInfo_Require](el2)
 			depSymbols.add(req.getSymbol())
 		}
 		depSymbols.asSet().addAll(icast_Collection(obj_(input.getTypeRequires())))

@@ -82,9 +82,8 @@ func (this *TypeValidator) expectAnyObject(n Node, type_ *JSType, msg string) {
 
 func (this *TypeValidator) expectAutoboxesToIterable(n Node, type_ *JSType, msg string) bool {
 	if type_.isUnionType() {
-		it_1 := foreach_(obj_(type_.toMaybeUnionType().getAlternates()))
-		for it_1.next() {
-			var alt *JSType = to_JSType(it_1.v)
+		for _, el_1 := range immElems_(type_.toMaybeUnionType().getAlternates()) {
+			var alt *JSType = to_JSType(el_1)
 			alt = func() *JSType {
 				if alt.isBoxableScalar() {
 					return alt.autoboxesTo()
@@ -239,9 +238,8 @@ func (this *TypeValidator) expectNotNullOrUndefined(t *NodeTraversal, n Node, ty
 
 func TypeValidator_containsForwardDeclaredUnresolvedName(type_ *JSType) bool {
 	if type_.isUnionType() {
-		it_1 := foreach_(obj_(type_.toMaybeUnionType().getAlternates()))
-		for it_1.next() {
-			var alt *JSType = to_JSType(it_1.v)
+		for _, el_1 := range immElems_(type_.toMaybeUnionType().getAlternates()) {
+			var alt *JSType = to_JSType(el_1)
 			if TypeValidator_containsForwardDeclaredUnresolvedName(alt) {
 				return true
 			}
@@ -450,17 +448,20 @@ func (this *TypeValidator) expectAllInterfaceProperties(n Node, type_ *FunctionT
 	for implemented := range elemsBy_(type_.getAllImplementedInterfaces(), to_ObjectType) {
 		this.expectInterfaceProperties(n, instance, implemented)
 	}
-	for extended := range elemsBy_(obj_(type_.getExtendedInterfaces()), to_ObjectType) {
+	for _, el := range immElems_(type_.getExtendedInterfaces()) {
+		extended := to_ObjectType(el)
 		this.expectInterfaceProperties(n, instance, extended)
 	}
 }
 
 func (this *TypeValidator) expectInterfaceProperties(n Node, instance *ObjectType, ancestorInterface *ObjectType) {
-	for prop := range elemsBy_(obj_(ancestorInterface.getOwnPropertyKeys()), icast_Property_Key) {
+	for _, el := range immElems_(ancestorInterface.getOwnPropertyKeys()) {
+		prop := icast_Property_Key(el)
 		this.expectInterfaceProperty(n, instance, ancestorInterface, prop)
 	}
 	if ancestorInterface.getImplicitPrototype() != nil {
-		for prop := range elemsBy_(obj_(ancestorInterface.getImplicitPrototype().getOwnPropertyKeys()), icast_Property_Key) {
+		for _, el2 := range immElems_(ancestorInterface.getImplicitPrototype().getOwnPropertyKeys()) {
+			prop := icast_Property_Key(el2)
 			this.expectInterfaceProperty(n, instance, ancestorInterface, prop)
 		}
 	}
@@ -527,7 +528,8 @@ func (this *TypeValidator) expectAbstractMethodsImplemented(n Node, ctorType *Fu
 	}
 	for (currSuperCtor != nil) && currSuperCtor.isAbstract() {
 		var superType *ObjectType = currSuperCtor.getInstanceType()
-		for prop := range elemsBy_(obj_(currSuperCtor.getPrototype().getOwnPropertyKeys()), icast_Property_Key) {
+		for _, el := range immElems_(currSuperCtor.getPrototype().getOwnPropertyKeys()) {
+			prop := icast_Property_Key(el)
 			var maybeAbstractMethod *FunctionType = superType.findPropertyTypeKey(prop).toMaybeFunctionType()
 			if ((maybeAbstractMethod != nil) && maybeAbstractMethod.isAbstract()) && !abstractMethodSuperTypeMap.containsKey(prop) {
 				abstractMethodSuperTypeMap.put(prop, superType)
@@ -569,7 +571,8 @@ func (this *TypeValidator) mismatchJSType(n Node, msg string, found *JSType, req
 			var requiredObject *ObjectType = structuralType.toMaybeObjectType()
 			var foundObject *ObjectType = found.toMaybeObjectType()
 			if (requiredObject != nil) && (foundObject != nil) {
-				for property := range elemsBy_(obj_(requiredObject.getPropertyNames()), str_) {
+				for _, el := range immElems_(requiredObject.getPropertyNames()) {
+					property := str_(el)
 					var propRequired *JSType = requiredObject.getPropertyType(property)
 					var hasProperty bool = foundObject.hasProperty(property)
 					if !propRequired.isExplicitlyVoidable() || hasProperty {
@@ -730,9 +733,8 @@ func (this *TypeValidator_WellFormedTemplatizedTypeVerifier) caseEnumElementType
 }
 
 func (this *TypeValidator_WellFormedTemplatizedTypeVerifier) caseFunctionType_impl(type_ *FunctionType) any {
-	it_1 := foreach_(obj_(type_.getParameters()))
-	for it_1.next() {
-		var param *FunctionType_Parameter = cast_[*FunctionType_Parameter](it_1.v)
+	for _, el_1 := range immElems_(type_.getParameters()) {
+		var param *FunctionType_Parameter = cast_[*FunctionType_Parameter](el_1)
 		if !unbox_[bool](param.getJSType().visit(this)) {
 			return any(bool(false))
 		}

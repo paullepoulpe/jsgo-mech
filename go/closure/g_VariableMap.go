@@ -52,7 +52,8 @@ func VariableMap_load(filename string) *Outcome_base {
 
 func (this *VariableMap) toBytes() []int8 {
 	var writer strBuilder_
-	for entry := range elemsBy_(obj_(ImmutableSortedSet_copyOf_Comparator_Collection(Map_Entry_comparingByKey(), Collection(this.map__.asMap().entrySet()))), icast_Map_Entry) {
+	for _, el := range immElems_(ImmutableSortedSet_copyOf_Comparator_Collection(Map_Entry_comparingByKey(), Collection(this.map__.asMap().entrySet()))) {
+		entry := icast_Map_Entry(el)
 		writer.append(VariableMap_escape(str_(entry.getKey())))
 		writer.append_char(VariableMap_SEPARATOR)
 		writer.append(VariableMap_escape(str_(entry.getValue())))

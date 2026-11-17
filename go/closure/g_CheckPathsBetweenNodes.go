@@ -88,9 +88,9 @@ func (this *CheckPathsBetweenNodes) checkAllPathsWithoutBackEdges(a DiGraph_DiGr
 	if a == b {
 		return false
 	}
-	it_1 := a.getOutEdges().each()
-	for it_1.next() {
-		var e DiGraph_DiGraphEdge = it_1.v
+	l_1 := a.getOutEdges()
+	for i_1 := 0; i_1 < len(l_1.items); i_1++ {
+		var e DiGraph_DiGraphEdge = l_1.items[i_1]
 		if Annotatable_getAnnotation(Annotatable(e)) == CheckPathsBetweenNodes_VISITED_EDGE {
 			continue
 		}
@@ -116,9 +116,9 @@ func (this *CheckPathsBetweenNodes) checkSomePathsWithoutBackEdges(a DiGraph_DiG
 	if a == b {
 		return false
 	}
-	it_1 := a.getOutEdges().each()
-	for it_1.next() {
-		var e DiGraph_DiGraphEdge = it_1.v
+	l_1 := a.getOutEdges()
+	for i_1 := 0; i_1 < len(l_1.items); i_1++ {
+		var e DiGraph_DiGraphEdge = l_1.items[i_1]
 		if Annotatable_getAnnotation(Annotatable(e)) == CheckPathsBetweenNodes_VISITED_EDGE {
 			continue
 		}

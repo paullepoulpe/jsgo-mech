@@ -96,9 +96,8 @@ func (this *PolyfillUsageFinder) isPolyfillVisibleInScope(t *NodeTraversal, glob
 }
 
 func PolyfillUsageFinder_findGlobalPrefix(qualifiedName string) OptionalOf[string] {
-	it_1 := foreach_(obj_(PolyfillUsageFinder_GLOBAL_NAMES))
-	for it_1.next() {
-		var global string = str_(it_1.v)
+	for _, el_1 := range immElems_(PolyfillUsageFinder_GLOBAL_NAMES) {
+		var global string = str_(el_1)
 		if strings.HasPrefix(qualifiedName, global) {
 			return Optional_of[string](global)
 		}
@@ -137,9 +136,8 @@ func (this *PolyfillUsageFinder) isDisjointFromIterator(receiver *Color) bool {
 		return false
 	}
 	if receiver.isUnion() {
-		it_1 := foreach_(obj_(receiver.getUnionElements()))
-		for it_1.next() {
-			var alt *Color = cast_[*Color](it_1.v)
+		for _, el_1 := range immElems_(receiver.getUnionElements()) {
+			var alt *Color = cast_[*Color](el_1)
 			if !this.isDisjointFromIterator(alt) {
 				return false
 			}
@@ -172,9 +170,8 @@ func (this *PolyfillUsageFinder) hasInSupertypesList(subCtor *Color, superCtor *
 		for it_2.next() {
 			var immediateSupertype *Color = cast_[*Color](it_2.v)
 			if immediateSupertype.isUnion() {
-				it_4 := foreach_(obj_(immediateSupertype.getUnionElements()))
-				for it_4.next() {
-					var alt *Color = cast_[*Color](it_4.v)
+				for _, el_4 := range immElems_(immediateSupertype.getUnionElements()) {
+					var alt *Color = cast_[*Color](el_4)
 					if this.hasInSupertypesList(alt, superCtor) {
 						ret_1 = true
 						return 1
@@ -324,7 +321,8 @@ func (this *PolyfillUsageFinder_Polyfills) init_PolyfillUsageFinder_Polyfills(me
 	this.statics = statics
 	this.byNativeVersion = byNativeVersion
 	var suffixList []string = []string{}
-	for arg := range elemsBy_(obj_(cast_[*ImmutableSet](statics.keySet())), str_) {
+	for _, el := range immElems_(cast_[*ImmutableSet](statics.keySet())) {
+		arg := str_(el)
 		suffixList = append(suffixList, String_substring_int(arg, (String_lastIndexOf(arg, 46)+1)))
 	}
 	this.suffixes = ImmutableSet_copyOf(Collection(sliceView_(tc_string, suffixList)))

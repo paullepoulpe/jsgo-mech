@@ -823,9 +823,12 @@ func (this *InlineFunctions_FunctionState) removeBlockInliningReferences() {
 }
 
 func (this *InlineFunctions_FunctionState) hasBlockInliningReferences() bool {
-	it_1 := this.getReferencesInternal().each()
-	for it_1.next() {
-		var r *InlineFunctions_Reference = it_1.v
+	l_1 := this.getReferencesInternal()
+	for i_1 := l_1.first(); i_1 < len(l_1.keys); i_1++ {
+		if l_1.isDead(i_1) {
+			continue
+		}
+		var r *InlineFunctions_Reference = l_1.vals[i_1]
 		if r.mode_ == FunctionInjector_InliningMode_BLOCK {
 			return true
 		}

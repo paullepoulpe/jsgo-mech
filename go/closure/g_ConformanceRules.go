@@ -3057,9 +3057,8 @@ func (this *ConformanceRules_BannedEnhance) checkConformance_impl(t *NodeTravers
 	if (docInfo == nil) || !docInfo.hasEnhance() {
 		return ConformanceRules_ConformanceResult_CONFORMANCE
 	}
-	it_1 := foreach_(obj_(this.bannedEnhancedNamespaces))
-	for it_1.next() {
-		var banned string = str_(it_1.v)
+	for _, el_1 := range immElems_(this.bannedEnhancedNamespaces) {
+		var banned string = str_(el_1)
 		if docInfo.getEnhance() == banned {
 			return new_ConformanceRules_ConformanceResult_ConformanceLevel_String(ConformanceRules_ConformanceLevel_VIOLATION, ("The enhanced namespace \"" + sstr_(banned) + "\""))
 		}
@@ -3321,9 +3320,8 @@ func (this *ConformanceRules_BanCreateDom) checkConformance_impl(t *NodeTraversa
 	if attrs.isNull() || ((attrsType != nil) && attrsType.isVoidType()) {
 		return ConformanceRules_ConformanceResult_CONFORMANCE
 	}
-	it_1 := foreach_(obj_(this.bannedTagAttrs))
-	for it_1.next() {
-		var tagAttr []string = cast_[[]string](it_1.v)
+	for _, el_1 := range immElems_(this.bannedTagAttrs) {
+		var tagAttr []string = cast_[[]string](el_1)
 		if ((tagNames != nil) && !Collection_contains_s(tagNames, tagAttr[0])) && !(tagAttr[0] == "*") {
 			continue
 		}
@@ -3686,9 +3684,8 @@ func (this *ConformanceRules_BanElementSetAttribute) checkConformanceOnGetElemen
 		if keyType.isString() {
 			return ConformanceRules_ConformanceResult_VIOLATION
 		} else if keyType.isUnionType() {
-			it_1 := foreach_(obj_(keyType.toMaybeUnionType().getAlternates()))
-			for it_1.next() {
-				var alternate *JSType = to_JSType(it_1.v)
+			for _, el_1 := range immElems_(keyType.toMaybeUnionType().getAlternates()) {
+				var alternate *JSType = to_JSType(el_1)
 				if alternate.isString() {
 					return ConformanceRules_ConformanceResult_VIOLATION
 				}

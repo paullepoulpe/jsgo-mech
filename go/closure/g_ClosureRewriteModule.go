@@ -77,7 +77,8 @@ func (this *ClosureRewriteModule) isUnrequiredWeakNamespace(call Node, namespace
 
 func (this *ClosureRewriteModule) process_2(externs Node, root Node) {
 	var scriptDescriptions []*ClosureRewriteModule_ScriptDescription = []*ClosureRewriteModule_ScriptDescription{}
-	for parent := range elemsBy_(obj_(ImmutableList_of_Object_Object(externs.box_(), root.box_())), Node_of_) {
+	for _, el := range immElems_(ImmutableList_of_Object_Object(externs.box_(), root.box_())) {
+		parent := Node_of_(el)
 		{
 			var script Node = parent.getFirstChild()
 			for ; script != 0; script = script.getNext() {

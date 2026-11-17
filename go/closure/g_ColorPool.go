@@ -221,13 +221,15 @@ func (this *ColorPool_Builder) build() *ColorPool {
 			this.idToProto.put(obj_(id), obj_(shard), obj_(shard.typePool.getType(i)))
 		}
 	})
-	for id := range elemsAs_[*ColorId](obj_(cast_[*ImmutableSet](StandardColors_AXIOMATIC_COLORS.keySet()))) {
+	for _, el := range immElems_(cast_[*ImmutableSet](StandardColors_AXIOMATIC_COLORS.keySet())) {
+		id := cast_[*ColorId](el)
 		MalformedTypedAstException_checkWellFormed_boolean_String_Object(!this.idToProto.containsRow(obj_(id)), "Found serialized definiton for axiomatic color", obj_(id))
 	}
 	for id := range elemsAs_[*ColorId](this.idToProto.rowKeySet()) {
 		this.lookupOrReconcileColor(id)
 	}
-	for colorId := range elemsAs_[*ColorId](obj_(ColorRegistry_REQUIRED_IDS)) {
+	for _, el2 := range immElems_(ColorRegistry_REQUIRED_IDS) {
+		colorId := cast_[*ColorId](el2)
 		this.registry.setNativeColor(cast_[*Color](Map_computeIfAbsent_f(this.idToColor.asMap(), obj_(colorId), func(unused_ any) any {
 			var unused *ColorId = cast_[*ColorId](unused_)
 			_ = unused

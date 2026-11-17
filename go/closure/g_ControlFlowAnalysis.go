@@ -591,9 +591,8 @@ func (this *ControlFlowAnalysis) connectToPossibleExceptionHandlerUnconditionall
 		return
 	}
 	var lastJump Node = cfgNode
-	it_1 := eachRevOf_(&this.exceptionHandler)
-	for it_1.next() {
-		var handler Node = it_1.v
+	for i_1 := 0; i_1 < len(this.exceptionHandler); i_1++ {
+		var handler Node = this.exceptionHandler[len(this.exceptionHandler)-1-i_1]
 		if handler.isFunction() {
 			return
 		}

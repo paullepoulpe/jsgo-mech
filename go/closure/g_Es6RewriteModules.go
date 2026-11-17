@@ -251,7 +251,8 @@ func (this *Es6RewriteModules) createExportsObject(moduleName string, t *NodeTra
 	moduleVar.getFirstChild().setDeclaredConstantVar(true)
 	script.addChildToBack(moduleVar.srcrefTreeIfMissing(script))
 	var thisModule *Module = this.moduleMap.getModule(t.getInput().getPath())
-	for entry := range elemsBy_(obj_(cast_[*ImmutableSet](thisModule.namespace().entrySet())), icast_Map_Entry) {
+	for _, el := range immElems_(cast_[*ImmutableSet](thisModule.namespace().entrySet())) {
+		entry := icast_Map_Entry(el)
 		var exportedName string = str_(entry.getKey())
 		var binding *Binding = cast_[*Binding](entry.getValue())
 		var nodeForSourceInfo Node = binding.sourceNode()
