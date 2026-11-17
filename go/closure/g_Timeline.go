@@ -55,7 +55,7 @@ func (this *Timeline) getSince(timeName string) *TList[Node] {
 	{
 		var event *Timeline_Event = firstEvent
 		for ; event != nil; event = event.nextEvent {
-			if !is_[*Timeline_Time](event.value_) {
+			if _, ok := event.value_.(*Timeline_Time); !ok {
 				values.add(Node_of_(event.value_))
 			}
 		}
@@ -122,10 +122,11 @@ func (this *Timeline_Time) equals(anObject any) bool {
 	_ = time
 	if func() bool {
 		v_ := anObject
-		if !is_[*Timeline_Time](v_) {
+		p, ok := v_.(*Timeline_Time)
+		if !ok {
 			return false
 		}
-		time = cast_[*Timeline_Time](v_)
+		time = p
 		return true
 	}() {
 		return (this.name_ == time.name_)

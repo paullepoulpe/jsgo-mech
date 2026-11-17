@@ -2282,10 +2282,11 @@ func (this *IRFactory_TransformDispatcher) processBinaryExpressionHelper(exprTre
 		_ = binaryOperatorTree
 		if func() bool {
 			v_ := exprTree.left.self()
-			if !is_[*BinaryOperatorTree](v_) {
+			p, ok := v_.(*BinaryOperatorTree)
+			if !ok {
 				return false
 			}
-			binaryOperatorTree = cast_[*BinaryOperatorTree](v_)
+			binaryOperatorTree = p
 			return true
 		}() {
 			exprTree = binaryOperatorTree

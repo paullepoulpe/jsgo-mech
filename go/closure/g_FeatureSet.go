@@ -164,10 +164,11 @@ func (this *FeatureSet) equals(other any) bool {
 	_ = featureSet
 	return (func() bool {
 		v_ := other
-		if !is_[*FeatureSet](v_) {
+		p, ok := v_.(*FeatureSet)
+		if !ok {
 			return false
 		}
-		featureSet = cast_[*FeatureSet](v_)
+		featureSet = p
 		return true
 	}() && Object_equals(obj_(featureSet.features_), obj_(this.features_)))
 }

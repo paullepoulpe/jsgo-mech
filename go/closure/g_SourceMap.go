@@ -340,10 +340,11 @@ func (this *SourceMap_PrefixLocationMapping) equals(other any) bool {
 	_ = prefixLocationMapping
 	if func() bool {
 		v_ := other
-		if !is_[*SourceMap_PrefixLocationMapping](v_) {
+		p, ok := v_.(*SourceMap_PrefixLocationMapping)
+		if !ok {
 			return false
 		}
-		prefixLocationMapping = cast_[*SourceMap_PrefixLocationMapping](v_)
+		prefixLocationMapping = p
 		return true
 	}() {
 		return ((prefixLocationMapping.prefix_ == this.prefix_) && (prefixLocationMapping.replacement_ == this.replacement_))

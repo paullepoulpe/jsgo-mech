@@ -249,10 +249,11 @@ func (this *SimpleSetMultimap) equals(o any) bool {
 	_ = that
 	return (func() bool {
 		v_ := o
-		if !is_[*SimpleSetMultimap](v_) {
+		p, ok := v_.(*SimpleSetMultimap)
+		if !ok {
 			return false
 		}
-		that = cast_[*SimpleSetMultimap](v_)
+		that = p
 		return true
 	}() && Object_equals(any(this.map__), any(that.map__)))
 }

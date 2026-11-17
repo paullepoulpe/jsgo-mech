@@ -95,10 +95,11 @@ func TranspilationException_tryCastToTranspilationException(t *Throwable) *Trans
 	_ = transpilationException
 	if func() bool {
 		v_ := t.self()
-		if !is_[*TranspilationException](v_) {
+		p, ok := v_.(*TranspilationException)
+		if !ok {
 			return false
 		}
-		transpilationException = cast_[*TranspilationException](v_)
+		transpilationException = p
 		return true
 	}() {
 		return transpilationException

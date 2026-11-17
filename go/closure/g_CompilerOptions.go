@@ -801,7 +801,7 @@ func (this *CompilerOptions) getDefineReplacements() ImmutableMapOf[string, Node
 		_ = b
 		if func() bool {
 			v_ := value
-			if !is_[bool](v_) {
+			if _, ok := v_.(bool); !ok {
 				return false
 			}
 			b = v_

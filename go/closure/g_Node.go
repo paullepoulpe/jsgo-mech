@@ -841,7 +841,7 @@ func (this Node) serializeProperties() int64 {
 			case Node_Prop_CLOSURE_UNAWARE_SHADOW:
 				propSet = Node_setNodePropertyBit(propSet, NodeProperty_CLOSURE_UNAWARE_SHADOW)
 			default:
-				if is_[*Node_IntPropListItem](propListItem.self()) {
+				if _, ok := propListItem.self().(*Node_IntPropListItem); ok {
 					var nodeProperty *NodeProperty = PropTranslator_serialize(prop)
 					if nodeProperty != nil {
 						propSet = Node_setNodePropertyBit(propSet, nodeProperty)
@@ -1032,7 +1032,7 @@ func (this Node) getDouble() float64 {
 	_ = number
 	if !(func() bool {
 		v_ := this.ps_().payload
-		if !is_[float64](v_) {
+		if _, ok := v_.(float64); !ok {
 			return false
 		}
 		number = v_
@@ -1050,7 +1050,7 @@ func (this Node) setDouble(x float64) {
 	if !JSCompDoubles_isPositive(x) {
 		Preconditions_checkState_boolean_Object(false, any(float64(x)))
 	}
-	if !is_[float64](this.ps_().payload) {
+	if _, ok := this.ps_().payload.(float64); !ok {
 		panic(this.payloadKindMismatch("number").self())
 	}
 	this.payload_set_(any(float64(x)))
@@ -1061,10 +1061,11 @@ func (this Node) getBigInt() *BigInteger {
 	_ = bigint
 	if !(func() bool {
 		v_ := this.ps_().payload
-		if !is_[*BigInteger](v_) {
+		p, ok := v_.(*BigInteger)
+		if !ok {
 			return false
 		}
-		bigint = cast_[*BigInteger](v_)
+		bigint = p
 		return true
 	}()) {
 		panic(this.payloadKindMismatch("bigint").self())
@@ -1077,7 +1078,7 @@ func (this Node) setBigInt(number *BigInteger) {
 	if !(number.signum() >= 0) {
 		Preconditions_checkState_boolean_Object(false, obj_(number))
 	}
-	if !is_[*BigInteger](this.ps_().payload) {
+	if _, ok := this.ps_().payload.(*BigInteger); !ok {
 		panic(this.payloadKindMismatch("bigint").self())
 	}
 	this.payload_set_(obj_(number))
@@ -1122,10 +1123,11 @@ func (this Node) getRawString() string {
 	_ = substring
 	if !(func() bool {
 		v_ := this.ps_().payload
-		if !is_[*Node_TemplateLiteralSubstring](v_) {
+		p, ok := v_.(*Node_TemplateLiteralSubstring)
+		if !ok {
 			return false
 		}
-		substring = cast_[*Node_TemplateLiteralSubstring](v_)
+		substring = p
 		return true
 	}()) {
 		panic(this.payloadKindMismatch("template literal string").self())
@@ -1138,10 +1140,11 @@ func (this Node) getCookedString() OptionalOf[string] {
 	_ = substring
 	if !(func() bool {
 		v_ := this.ps_().payload
-		if !is_[*Node_TemplateLiteralSubstring](v_) {
+		p, ok := v_.(*Node_TemplateLiteralSubstring)
+		if !ok {
 			return false
 		}
-		substring = cast_[*Node_TemplateLiteralSubstring](v_)
+		substring = p
 		return true
 	}()) {
 		panic(this.payloadKindMismatch("template literal string").self())
@@ -1308,8 +1311,8 @@ func (this Node) toStringTreeImpl() string {
 		defer func() {
 			if r_ := recover(); r_ != nil {
 				ex_ := catch_(r_)
-				if is_IOException(ex_) {
-					var e *IOException = to_IOException(ex_)
+				if p, ok := ex_.(IOException_as); ok {
+					var e *IOException = p.as_IOException()
 					panic(new_IllegalStateException_String(("Should not happen\n" + objstr_(e.self()))).self())
 					return
 				}
@@ -1845,7 +1848,7 @@ func (this Node) isEquivalentTo_5(node Node, recursion Node_RecursionMode, typeC
 		_ = number
 		if func() bool {
 			v_ := this.ps_().payload
-			if !is_[float64](v_) {
+			if _, ok := v_.(float64); !ok {
 				return false
 			}
 			number = v_
@@ -1857,10 +1860,11 @@ func (this Node) isEquivalentTo_5(node Node, recursion Node_RecursionMode, typeC
 			_ = bigint
 			if func() bool {
 				v_ := this.ps_().payload
-				if !is_[*BigInteger](v_) {
+				p, ok2 := v_.(*BigInteger)
+				if !ok2 {
 					return false
 				}
-				bigint = cast_[*BigInteger](v_)
+				bigint = p
 				return true
 			}() {
 				return equalsBy_(bigint, node.payload_get_(), (*BigInteger).equals)
@@ -1869,10 +1873,11 @@ func (this Node) isEquivalentTo_5(node Node, recursion Node_RecursionMode, typeC
 				_ = substring
 				if func() bool {
 					v_ := this.ps_().payload
-					if !is_[*Node_TemplateLiteralSubstring](v_) {
+					p2, ok3 := v_.(*Node_TemplateLiteralSubstring)
+					if !ok3 {
 						return false
 					}
-					substring = cast_[*Node_TemplateLiteralSubstring](v_)
+					substring = p2
 					return true
 				}() {
 					var other *Node_TemplateLiteralSubstring = cast_[*Node_TemplateLiteralSubstring](node.payload_get_())
@@ -2243,10 +2248,11 @@ func (this Node) getColor() *Color {
 	return func() *Color {
 		if func() bool {
 			v_ := this.ps_().jstypeOrColor
-			if !is_[*Color](v_) {
+			p, ok := v_.(*Color)
+			if !ok {
 				return false
 			}
-			color = cast_[*Color](v_)
+			color = p
 			return true
 		}() {
 			return color
