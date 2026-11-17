@@ -332,7 +332,7 @@ func (this *Compiler) logToFile(logFileName string, logStringSupplier func() any
 func (this *Compiler) initWarningsGuard(warningsGuard *WarningsGuard) {
 	var guards ImmutableList_BuilderOf[*WarningsGuard] = ImmutableList_builder()
 	guards.add(obj_(new_J2clSuppressWarningsGuard())).add(obj_(new_ClosureUnawareCodeWarningsGuard())).add(obj_(new_SuppressDocWarningsGuard(this.up_AbstractCompiler(), tmapFrom_(tc_string, tc_p_DiagnosticGroup, DiagnosticGroups_getRegisteredGroups(), true)))).add(warningsGuard.self())
-	this.warningsGuard = new_ComposeWarningsGuard(tlistImm_(tc_p_WarningsGuard, guards.build())).up_WarningsGuard()
+	this.warningsGuard = new_ComposeWarningsGuard(slicePtrImm_(tc_p_WarningsGuard, guards.build())).up_WarningsGuard()
 }
 
 func (this *Compiler) reconcileOptionsWithGuards() {

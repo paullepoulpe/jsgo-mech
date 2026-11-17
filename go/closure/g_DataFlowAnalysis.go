@@ -105,7 +105,7 @@ func (this *DataFlowAnalysis) initialize() {
 		}
 	}
 	if this.isBranched() {
-		for el_3 := range this.cfg.getEdges().All() {
+		for _, el_3 := range *this.cfg.getEdges() {
 			var edge DiGraph_DiGraphEdge = icast_DiGraph_DiGraphEdge(el_3)
 			edge.setAnnotation(Annotation_graph(this.createInitialEstimateLattice()))
 		}

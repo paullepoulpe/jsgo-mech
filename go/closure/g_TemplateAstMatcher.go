@@ -11,7 +11,7 @@ type TemplateAstMatcher struct {
 	templateParams       *[]string
 	paramNodeMatches     []Node
 	templateLocals       *[]string
-	localVarMatches      *TList[string]
+	localVarMatches      *[]string
 	stringLiteralMatches *TMap[string, Node]
 	isLooseMatchField    bool
 	typeMatchingStrategy TypeMatchingStrategy
@@ -21,7 +21,7 @@ func (this *TemplateAstMatcher) finit_TemplateAstMatcher() {
 	this.templateParams = &[]string{}
 	this.paramNodeMatches = []Node{}
 	this.templateLocals = &[]string{}
-	this.localVarMatches = newTList_(tc_string)
+	this.localVarMatches = &[]string{}
 	this.stringLiteralMatches = newTMap_(tc_string, tc_Node)
 	this.isLooseMatchField = false
 }
@@ -52,7 +52,7 @@ func new_TemplateAstMatcher(compiler *AbstractCompiler, templateFunctionNode Nod
 
 func (this *TemplateAstMatcher) matches(n Node) bool {
 	if this.matchesTemplateShape(this.templateStart, n) {
-		if (len(this.paramNodeMatches) == 0) && this.localVarMatches.isEmpty() {
+		if (len(this.paramNodeMatches) == 0) && len(*this.localVarMatches) == 0 {
 			return true
 		}
 		this.reset()
@@ -73,7 +73,7 @@ func (this *TemplateAstMatcher) getTemplateNodeToMatchMap() map[string]Node {
 	}
 	for i := int32(0); i < int32(len(*this.templateLocals)); i++ {
 		var name string = sliceAt_(*this.templateLocals, i)
-		map_[name] = IR_name(this.localVarMatches.get(i))
+		map_[name] = IR_name(sliceAt_(*this.localVarMatches, i))
 	}
 	return map_
 }
@@ -89,7 +89,7 @@ func (this *TemplateAstMatcher) initTemplate(templateFunctionNode Node) Node {
 		startNode = body.getFirstChild()
 	}
 	for i := int32(0); i < int32(len(*this.templateLocals)); i++ {
-		this.localVarMatches.add(str_(nil))
+		*this.localVarMatches = append(*this.localVarMatches, str_(nil))
 	}
 	for i := int32(0); i < int32(len(*this.templateParams)); i++ {
 		this.paramNodeMatches = append(this.paramNodeMatches, Node_of_(nil))
@@ -151,7 +151,7 @@ func (this *TemplateAstMatcher) traverse(n Node, callback func(Node)) {
 
 func (this *TemplateAstMatcher) reset() {
 	this.isLooseMatchField = false
-	Collections_fill(this.localVarMatches.asList(), nil)
+	Collections_fill(slicePtrView_(tc_string, this.localVarMatches), nil)
 	for i := int32(0); i < int32(len(this.paramNodeMatches)); i++ {
 		this.paramNodeMatches[i] = Node_of_(nil)
 	}
@@ -268,9 +268,9 @@ func (this *TemplateAstMatcher) matchesNode(template Node, ast Node) bool {
 		return isMatch
 	} else if this.isTemplateLocalNameNode(template) {
 		var paramIndex int32 = f2i_[int32](float64(template.getDouble()))
-		var previouslyMatched bool = (this.localVarMatches.get(paramIndex) != nullstr_)
+		var previouslyMatched bool = (sliceAt_(*this.localVarMatches, paramIndex) != nullstr_)
 		if previouslyMatched {
-			return (ast.getString() == this.localVarMatches.get(paramIndex))
+			return (ast.getString() == sliceAt_(*this.localVarMatches, paramIndex))
 		} else {
 			var originalName string = ast.getOriginalName()
 			var name string = func() string {
@@ -279,7 +279,7 @@ func (this *TemplateAstMatcher) matchesNode(template Node, ast Node) bool {
 				}
 				return ast.getString()
 			}()
-			this.localVarMatches.set(paramIndex, name)
+			(*this.localVarMatches)[paramIndex] = name
 		}
 	} else if this.isTemplateParameterStringLiteralNode(template) {
 		var paramIndex int32 = f2i_[int32](float64(template.getDouble()))

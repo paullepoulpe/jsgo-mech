@@ -315,14 +315,14 @@ func DependencyInfo_Util_writeAddDependency(out *strBuilder_, info DependencyInf
 }
 
 func DependencyInfo_Util_writeJsObject(out *strBuilder_, map_ *TMap[string, string]) {
-	var entries *TList[string] = newTList_(tc_string)
+	var entries []string = []string{}
 	for entryKey, entryValue := range map_.All() {
 		var key string = strings.ReplaceAll(entryKey, "'", "\\'")
 		var value string = strings.ReplaceAll(entryValue, "'", "\\'")
-		entries.add(("'" + sstr_(key) + "': '" + sstr_(value) + "'"))
+		entries = append(entries, ("'" + sstr_(key) + "': '" + sstr_(value) + "'"))
 	}
 	out.append_CharSequence_s("{")
-	out.append_CharSequence_s(Joiner_on(", ").join(Iterable(entries.asList())))
+	out.append_CharSequence_s(Joiner_on(", ").join(Iterable(sliceView_(tc_string, entries))))
 	out.append_CharSequence_s("}")
 }
 

@@ -297,12 +297,12 @@ func (this *Es6ConvertSuperConstructorCalls) createNewSuperCall(superClassQNameN
 	if !callee.isSuper() {
 		panic(new_IllegalStateException_String(tostr_(callee)).self())
 	}
-	var args *TList[Node] = newTList_(tc_Node)
+	var args *[]Node = &[]Node{}
 	var hasSpreadArg bool = false
 	for superCall.hasChildren() {
 		var arg Node = superCall.removeFirstChild()
 		hasSpreadArg = (hasSpreadArg || arg.isSpread())
-		args.add(arg)
+		*args = append(*args, arg)
 	}
 	if hasSpreadArg {
 		var superClassDotApply Node = this.astFactory_.createGetPropWithUnknownType(superClassQNameNode.cloneTree(), "apply").srcrefTree(callee)
@@ -310,9 +310,9 @@ func (this *Es6ConvertSuperConstructorCalls) createNewSuperCall(superClassQNameN
 		newSuperCall.addChildToBack(this.astFactory_.createThis(thisType).srcref(callee))
 		newSuperCall.putBooleanProp(Node_FREE_CALL, false)
 		if Es6ConvertSuperConstructorCalls_isSingleSpreadOfArguments(args) {
-			newSuperCall.addChildToBack(Node_of_(Iterables_getOnlyElement(Iterable(args.asList()))).getOnlyChild().detach())
+			newSuperCall.addChildToBack(Node_of_(Iterables_getOnlyElement(Iterable(sliceViewP_(tc_Node, args)))).getOnlyChild().detach())
 		} else {
-			newSuperCall.addChildToBack(this.astFactory_.createArraylitIterable(Iterable(args.asList())).srcref(superCall))
+			newSuperCall.addChildToBack(this.astFactory_.createArraylitIterable(Iterable(slicePtrView_(tc_Node, args))).srcref(superCall))
 		}
 		return newSuperCall
 	} else {
@@ -320,7 +320,7 @@ func (this *Es6ConvertSuperConstructorCalls) createNewSuperCall(superClassQNameN
 		var newSuperCall Node = this.astFactory_.createCall(superClassDotCall, resultType, []Node{}).srcref(superCall)
 		newSuperCall.addChildToBack(this.astFactory_.createThis(thisType).srcref(callee))
 		newSuperCall.putBooleanProp(Node_FREE_CALL, false)
-		for arg := range args.All() {
+		for arg := range sliceAll_(args) {
 			newSuperCall.addChildToBack(arg)
 		}
 		return newSuperCall
@@ -343,22 +343,22 @@ func (this *Es6ConvertSuperConstructorCalls) createJSCompConstructorCall(superCl
 	}
 	var jscompDotConstruct Node = this.astFactory_.createQName(this.transpilationNamespace, this.jscompConstruct).srcrefTree(callee)
 	var superClassQName Node = superClassQNameNode.cloneTree()
-	var superCallArgList *TList[Node] = newTList_(tc_Node)
+	var superCallArgList *[]Node = &[]Node{}
 	for superCall.hasChildren() {
-		superCallArgList.add(superCall.removeFirstChild())
+		*superCallArgList = append(*superCallArgList, superCall.removeFirstChild())
 	}
 	var superArgs Node = func() Node {
 		if Es6ConvertSuperConstructorCalls_isSingleSpreadOfArguments(superCallArgList) {
-			return Node_of_(Iterables_getOnlyElement(Iterable(superCallArgList.asList()))).getOnlyChild().detach()
+			return Node_of_(Iterables_getOnlyElement(Iterable(sliceViewP_(tc_Node, superCallArgList)))).getOnlyChild().detach()
 		}
-		return this.astFactory_.createArraylitIterable(Iterable(superCallArgList.asList())).srcref(superCall)
+		return this.astFactory_.createArraylitIterable(Iterable(slicePtrView_(tc_Node, superCallArgList))).srcref(superCall)
 	}()
 	var thisDotConstructor Node = this.astFactory_.createGetProp(this.astFactory_.createThis(thisType), "constructor", AstFactory_type_Node(superClassQNameNode)).srcrefTree(superCall)
 	return this.astFactory_.createCall(jscompDotConstruct, AstFactory_type_Node(superCall), []Node{superClassQName, superArgs, thisDotConstructor}).srcref(superCall)
 }
 
-func Es6ConvertSuperConstructorCalls_isSingleSpreadOfArguments(nodeList *TList[Node]) bool {
-	return ((nodeList.size() == 1) && Es6ConvertSuperConstructorCalls_isSpreadOfArguments(Node_of_(Iterables_getOnlyElement(Iterable(nodeList.asList())))))
+func Es6ConvertSuperConstructorCalls_isSingleSpreadOfArguments(nodeList *[]Node) bool {
+	return ((int32(len(*nodeList)) == 1) && Es6ConvertSuperConstructorCalls_isSpreadOfArguments(Node_of_(Iterables_getOnlyElement(Iterable(sliceViewP_(tc_Node, nodeList))))))
 }
 
 func Es6ConvertSuperConstructorCalls_isSpreadOfArguments(node Node) bool {

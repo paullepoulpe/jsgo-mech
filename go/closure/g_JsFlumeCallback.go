@@ -5,12 +5,12 @@ package closure
 type JsFlumeCallback struct {
 	scanner            *Scanner_refactoring
 	includeFilePattern *Pattern
-	matches_           *TList[*Match]
+	matches_           *[]*Match
 	fixes              *[]*SuggestedFix
 }
 
 func (this *JsFlumeCallback) finit_JsFlumeCallback() {
-	this.matches_ = newTList_(tc_p_Match)
+	this.matches_ = &[]*Match{}
 	this.fixes = &[]*SuggestedFix{}
 }
 
@@ -26,7 +26,7 @@ func new_JsFlumeCallback(scanner *Scanner_refactoring, includeFilePattern *Patte
 	return this
 }
 
-func (this *JsFlumeCallback) getMatches() *TList[*Match] {
+func (this *JsFlumeCallback) getMatches() *[]*Match {
 	return this.matches_
 }
 
@@ -52,6 +52,6 @@ func (this *JsFlumeCallback) visit(t *NodeTraversal, n Node, parent Node) {
 	if this.scanner.matches(n, metadata) {
 		var match *Match = new_Match(n, metadata)
 		*this.fixes = append(*this.fixes, *this.scanner.processMatch(match)...)
-		this.matches_.add(match)
+		*this.matches_ = append(*this.matches_, match)
 	}
 }

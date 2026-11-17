@@ -95,27 +95,27 @@ func JSChunkGraph_makeWeakChunk(chunksInDepOrder ListOf[*JSChunk]) ListOf[*JSChu
 		}
 	}
 	if hasWeakChunk {
-		var misplacedWeakFiles *TList[string] = newTList_(tc_string)
-		var misplacedStrongFiles *TList[string] = newTList_(tc_string)
+		var misplacedWeakFiles []string = []string{}
+		var misplacedStrongFiles []string = []string{}
 		for chunk := range elemsAs_[*JSChunk](chunksInDepOrder) {
 			var isWeakChunk bool = (chunk.getName() == JSChunk_WEAK_CHUNK_NAME)
 			for _, el := range immElems_(chunk.getInputs()) {
 				input := cast_[*CompilerInput](el)
 				if isWeakChunk && !input.getSourceFile().isWeak() {
-					misplacedStrongFiles.add(input.getSourceFile().getName())
+					misplacedStrongFiles = append(misplacedStrongFiles, input.getSourceFile().getName())
 				} else if !isWeakChunk && input.getSourceFile().isWeak() {
-					misplacedWeakFiles.add((sstr_(input.getSourceFile().getName()) + " (in chunk " + sstr_(chunk.getName()) + ")"))
+					misplacedWeakFiles = append(misplacedWeakFiles, (sstr_(input.getSourceFile().getName()) + " (in chunk " + sstr_(chunk.getName()) + ")"))
 				}
 			}
 		}
-		if !(misplacedStrongFiles.isEmpty() && misplacedWeakFiles.isEmpty()) {
+		if !(len(misplacedStrongFiles) == 0 && len(misplacedWeakFiles) == 0) {
 			var sb strBuilder_
 			sb.append("A weak chunk exists but some sources are misplaced.")
-			if !misplacedStrongFiles.isEmpty() {
-				sb.append("\nFound these strong sources in the weak chunk:\n  ").append(Joiner_on("\n  ").join(Iterable(misplacedStrongFiles.asList())))
+			if len(misplacedStrongFiles) != 0 {
+				sb.append("\nFound these strong sources in the weak chunk:\n  ").append(Joiner_on("\n  ").join(Iterable(sliceView_(tc_string, misplacedStrongFiles))))
 			}
-			if !misplacedWeakFiles.isEmpty() {
-				sb.append("\nFound these weak sources in other chunks:\n  ").append(Joiner_on("\n  ").join(Iterable(misplacedWeakFiles.asList())))
+			if len(misplacedWeakFiles) != 0 {
+				sb.append("\nFound these weak sources in other chunks:\n  ").append(Joiner_on("\n  ").join(Iterable(sliceView_(tc_string, misplacedWeakFiles))))
 			}
 			panic(new_IllegalStateException_String(sb.toString()).self())
 		}

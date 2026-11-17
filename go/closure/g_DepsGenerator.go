@@ -77,7 +77,7 @@ func (this *DepsGenerator) removeMungedSymbols(depFiles MapOf[string, Dependency
 	this.addToProvideMap(Iterable(depFiles.values()), providesMap, true)
 	this.addToProvideMap(Iterable(jsFiles.values()), providesMap, false)
 	for dependencyInfo := range elemsBy_(jsFiles.values(), icast_DependencyInfo) {
-		var newRequires *TList[*DependencyInfo_Require] = newTList_(tc_p_DependencyInfo_Require)
+		var newRequires *[]*DependencyInfo_Require = &[]*DependencyInfo_Require{}
 		for _, el := range immElems_(dependencyInfo.getRequires()) {
 			require := cast_[*DependencyInfo_Require](el)
 			if require.getType() == DependencyInfo_Require_Type_ES6_IMPORT {
@@ -85,10 +85,10 @@ func (this *DepsGenerator) removeMungedSymbols(depFiles MapOf[string, Dependency
 				if provider == nil {
 					this.reportMissingFile(dependencyInfo, require.getRawText())
 				} else {
-					newRequires.add(require.withSymbol(provider.getPathRelativeToClosureBase()))
+					*newRequires = append(*newRequires, require.withSymbol(provider.getPathRelativeToClosureBase()))
 				}
 			} else {
-				newRequires.add(require)
+				*newRequires = append(*newRequires, require)
 			}
 		}
 		var provides ImmutableListOf[string] = dependencyInfo.getProvides()
@@ -103,7 +103,7 @@ func (this *DepsGenerator) removeMungedSymbols(depFiles MapOf[string, Dependency
 			}
 			provides = builder.build()
 		}
-		Map_put_s(newJsFiles, dependencyInfo.getPathRelativeToClosureBase(), obj_(SimpleDependencyInfo_builder(dependencyInfo.getPathRelativeToClosureBase(), Optional_of[string](dependencyInfo.getName())).setProvides(icast_Collection(obj_(provides))).setRequires(newRequires.asList()).setLoadFlags(icast_Map(obj_(dependencyInfo.getLoadFlags()))).build()))
+		Map_put_s(newJsFiles, dependencyInfo.getPathRelativeToClosureBase(), obj_(SimpleDependencyInfo_builder(dependencyInfo.getPathRelativeToClosureBase(), Optional_of[string](dependencyInfo.getName())).setProvides(icast_Collection(obj_(provides))).setRequires(slicePtrView_(tc_p_DependencyInfo_Require, newRequires)).setLoadFlags(icast_Map(obj_(dependencyInfo.getLoadFlags()))).build()))
 	}
 	return newJsFiles
 }
@@ -248,15 +248,15 @@ func DepsGenerator_parseDepsFile(depsParser *DepsFileRegexParser, file *SourceFi
 }
 
 func (this *DepsGenerator) removeRelativePathProvide(info DependencyInfo) DependencyInfo {
-	return icast_DependencyInfo(obj_(SimpleDependencyInfo_Builder_from(info).setProvides(Collection(DepsGenerator_providesWithoutRelativePath(info).asList())).build()))
+	return icast_DependencyInfo(obj_(SimpleDependencyInfo_Builder_from(info).setProvides(Collection(slicePtrView_(tc_string, DepsGenerator_providesWithoutRelativePath(info)))).build()))
 }
 
-func DepsGenerator_providesWithoutRelativePath(info DependencyInfo) *TList[string] {
-	var result *TList[string] = newTList_(tc_string)
+func DepsGenerator_providesWithoutRelativePath(info DependencyInfo) *[]string {
+	var result *[]string = &[]string{}
 	for _, el := range immElems_(info.getProvides()) {
 		p := str_(el)
 		if !(p == info.getPathRelativeToClosureBase()) {
-			result.add(p)
+			*result = append(*result, p)
 		}
 	}
 	return result

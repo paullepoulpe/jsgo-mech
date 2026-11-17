@@ -159,10 +159,10 @@ func (this *LinkedDirectedGraph) getEdges_2_impl(n1 any, n2 any) []UndiGraph_Und
 	return edges
 }
 
-func (this *LinkedDirectedGraph) getEdges_impl() *TList[Graph_GraphEdge] {
-	var result *TList[Graph_GraphEdge] = newTList_(tc_Graph_GraphEdge)
+func (this *LinkedDirectedGraph) getEdges_impl() *[]Graph_GraphEdge {
+	var result *[]Graph_GraphEdge = &[]Graph_GraphEdge{}
 	for node := range elemsBy_(this.nodes_.values(), to_LinkedDirectedGraph_LinkedDiGraphNode) {
-		result.asList().addAll(Collection(sliceViewP_(tc_DiGraph_DiGraphEdge, node.getOutEdges())))
+		sliceAddAll_(tc_Graph_GraphEdge, result, Collection(sliceViewP_(tc_DiGraph_DiGraphEdge, node.getOutEdges())))
 	}
 	return result
 }
@@ -746,7 +746,7 @@ func (this *LinkedDirectedGraph) getEdges_2(p0 any, p1 any) []UndiGraph_UndiGrap
 }
 
 // getEdges: an object that is exactly a LinkedDirectedGraph calls its getEdges_impl directly (post-flip); others dispatch.
-func (this *LinkedDirectedGraph) getEdges() *TList[Graph_GraphEdge] {
+func (this *LinkedDirectedGraph) getEdges() *[]Graph_GraphEdge {
 	if p, _ := this.self_.(*LinkedDirectedGraph); p == this {
 		return this.getEdges_impl()
 	}

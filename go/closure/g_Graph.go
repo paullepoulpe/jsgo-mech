@@ -15,7 +15,7 @@ type Graph_I interface {
 	createNode_impl(any) GraphNode
 	disconnect_impl(any, any)
 	getEdges_2_impl(any, any) []UndiGraph_UndiGraphEdge
-	getEdges_impl() *TList[Graph_GraphEdge]
+	getEdges_impl() *[]Graph_GraphEdge
 	getFirstEdge_impl(any, any) Graph_GraphEdge
 	getNeighborNodes_impl(any) []GraphNode
 	getNodeCount_impl() int32
@@ -118,7 +118,7 @@ func (this *Graph) clearNodeAnnotations() {
 }
 
 func (this *Graph) clearEdgeAnnotations() {
-	for e := range this.getEdges().All() {
+	for _, e := range *this.getEdges() {
 		e.setAnnotation(nil)
 	}
 }
@@ -141,7 +141,7 @@ func (this *Graph) pushEdgeAnnotations() {
 	if this.edgeAnnotationStack == nil {
 		this.edgeAnnotationStack = &[]*Graph_GraphAnnotationState{}
 	}
-	Graph_pushAnnotations(this.edgeAnnotationStack, Collection(this.getEdges().asList()))
+	Graph_pushAnnotations(this.edgeAnnotationStack, Collection(slicePtrView_(tc_Graph_GraphEdge, this.getEdges())))
 }
 
 func (this *Graph) popEdgeAnnotations() {
@@ -177,7 +177,7 @@ func (this *Graph) getNode(p0 any) GraphNode {
 	return this.self_.getNode_impl(p0)
 }
 
-func (this *Graph) getEdges() *TList[Graph_GraphEdge] {
+func (this *Graph) getEdges() *[]Graph_GraphEdge {
 	return this.self_.getEdges_impl()
 }
 

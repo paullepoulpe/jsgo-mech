@@ -72,23 +72,23 @@ func new_CommandLineRunner_StringArr_Input_Output_Output(args []string, in *Io_I
 	return this
 }
 
-func CommandLineRunner_processArgs(args []string) *TList[string] {
+func CommandLineRunner_processArgs(args []string) *[]string {
 	var argPattern *Pattern = Pattern_compile_String_int("(--?[a-zA-Z_]+)=(.*)", int32(2))
 	var quotesPattern *Pattern = Pattern_compile(("^['\"](" + sstr_(JavaRegex_DOT) + "*)['\"]$"))
-	var processedArgs *TList[string] = newTList_(tc_string)
+	var processedArgs *[]string = &[]string{}
 	for _, arg := range args {
 		var matcher *Matcher_re2j = argPattern.matcher_s(arg)
 		if matcher.matches() {
-			processedArgs.add(matcher.group(1))
+			*processedArgs = append(*processedArgs, matcher.group(1))
 			var value string = matcher.group(2)
 			var quotesMatcher *Matcher_re2j = quotesPattern.matcher_s(value)
 			if quotesMatcher.matches() {
-				processedArgs.add(quotesMatcher.group(1))
+				*processedArgs = append(*processedArgs, quotesMatcher.group(1))
 			} else {
-				processedArgs.add(value)
+				*processedArgs = append(*processedArgs, value)
 			}
 		} else {
-			processedArgs.add(arg)
+			*processedArgs = append(*processedArgs, arg)
 		}
 	}
 	return processedArgs
@@ -123,7 +123,7 @@ func (this *CommandLineRunner) processFlagFile(flagFileString string) *Outcome_b
 	var flagFileText string = buffer.get()
 	var flagFileIndex int32 = 0
 	var builder strBuilder_
-	var tokens *TList[string] = newTList_(tc_string)
+	var tokens *[]string = &[]string{}
 	var quoted bool = false
 	var escaped bool = false
 	var isFirstCharacter bool = true
@@ -144,7 +144,7 @@ func (this *CommandLineRunner) processFlagFile(flagFileString string) *Outcome_b
 			if quoted {
 				builder.append_char(uint16(c))
 			} else if builder.length() != 0 {
-				tokens.add(builder.toString())
+				*tokens = append(*tokens, builder.toString())
 				builder.setLength(0)
 			}
 		} else if c == 34 {
@@ -163,10 +163,10 @@ func (this *CommandLineRunner) processFlagFile(flagFileString string) *Outcome_b
 		escaped = (c == 92)
 	}
 	if builder.length() != 0 {
-		tokens.add(builder.toString())
+		*tokens = append(*tokens, builder.toString())
 	}
 	this.flags.flagFiles = new_ArrayList_0()
-	tokens = CommandLineRunner_processArgs(arrmap_(tokens.asList().toArray(arrmap_(newstrarr_(0), func(v_ string) any { return strobj_(v_) })), func(v_ any) string { return str_(v_) }))
+	tokens = CommandLineRunner_processArgs(arrmap_(sliceViewP_(tc_string, tokens).toArray(arrmap_(newstrarr_(0), func(v_ string) any { return strobj_(v_) })), func(v_ any) string { return str_(v_) }))
 	var previousGuardLevels *[]*AbstractCommandLineRunner_FlagEntry[any] = sliceRef_(sliceFrom_(tc_p_AbstractCommandLineRunner_FlagEntry, Collection(sliceViewP_(tc_p_AbstractCommandLineRunner_FlagEntry, this.flags.guardLevels))))
 	var previousMixedJsSources *[]*AbstractCommandLineRunner_FlagEntry[any] = sliceRef_(sliceFrom_(tc_p_AbstractCommandLineRunner_FlagEntry, Collection(sliceViewP_(tc_p_AbstractCommandLineRunner_FlagEntry, this.flags.mixedJsSources))))
 	sliceClear_(this.flags.guardLevels)
@@ -187,7 +187,7 @@ func (this *CommandLineRunner) getVersionText_impl() string {
 	return ("Closure Compiler (http://github.com/google/closure-compiler)" + "\n" + sstr_("Version: "+sstr_("v20261104")))
 }
 
-func (this *CommandLineRunner) readFlagInputs(processedArgs *TList[string], flagInputs *CommandLineRunner_FlagInputs) *Outcome_base[any] {
+func (this *CommandLineRunner) readFlagInputs(processedArgs *[]string, flagInputs *CommandLineRunner_FlagInputs) *Outcome_base[any] {
 	var parsed *Outcome_base[any] = this.flags.parse(processedArgs)
 	if parsed.isErr() {
 		return Outcome_base_err[any](parsed.error())
@@ -218,7 +218,7 @@ func (this *CommandLineRunner) readFlagInputs(processedArgs *TList[string], flag
 
 func (this *CommandLineRunner) initConfigFromFlags(args []string, out *Output, err *Output) {
 	this.errorStream = err
-	var processedArgs *TList[string] = CommandLineRunner_processArgs(args)
+	var processedArgs *[]string = CommandLineRunner_processArgs(args)
 	sliceClear_(this.flags.guardLevels)
 	sliceClear_(this.flags.mixedJsSources)
 	var flagInputs *CommandLineRunner_FlagInputs = new_CommandLineRunner_FlagInputs()
@@ -1588,8 +1588,8 @@ func new_CommandLineRunner_Flags() *CommandLineRunner_Flags {
 	return this
 }
 
-func (this *CommandLineRunner_Flags) parse(args *TList[string]) *Outcome_base[any] {
-	var parsed *Outcome_base[any] = this.parser.parseArgumentCollection(Collection(args.asList()))
+func (this *CommandLineRunner_Flags) parse(args *[]string) *Outcome_base[any] {
+	var parsed *Outcome_base[any] = this.parser.parseArgumentCollection(Collection(slicePtrView_(tc_string, args)))
 	if parsed.isErr() {
 		return Outcome_base_err[any](parsed.error())
 	}

@@ -1979,7 +1979,7 @@ func (this *AbstractCommandLineRunner) printChunkGraphManifestOrBundleTo(graph *
 			out.append_CharSequence_s("\n")
 		}
 		if isManifest {
-			var dependencies string = commas.join(Iterable(chunk.getSortedDependencyNames().asList()))
+			var dependencies string = commas.join(Iterable(sliceView_(tc_string, chunk.getSortedDependencyNames())))
 			out.append_CharSequence_s(String_format("{%s%s}\n", []any{strobj_(chunk.getName()), func() any {
 				if dependencies == "" {
 					return strobj_("")

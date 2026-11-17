@@ -1278,9 +1278,9 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) isGoogModuleGetProperty(exte
 
 func (this *TypedScopeCreator_AbstractScopeBuilder) getCtorForGoogModuleGet(extendsNode Node) *JSType {
 	var call Node = extendsNode
-	var properties *TList[string] = newTList_(tc_string)
+	var properties []string = []string{}
 	for !call.isCall() {
-		properties.insert(0, call.getString())
+		sliceInsert_(&properties, 0, call.getString())
 		call = call.getFirstChild()
 	}
 	var extendsCall *ScopedName = this.outer_.moduleImportResolver.getClosureNamespaceTypeFromCall(call)
@@ -1288,8 +1288,8 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) getCtorForGoogModuleGet(exte
 		return nil
 	}
 	var moduleScope *TypedScope = this.outer_.memoized.get(extendsCall.getScopeRoot())
-	properties.insert(0, extendsCall.getName())
-	var superclassName *QualifiedName = QualifiedName_of(Joiner_on_char('.').join(properties.asList()))
+	sliceInsert_(&properties, 0, extendsCall.getName())
+	var superclassName *QualifiedName = QualifiedName_of(Joiner_on_char('.').join(sliceView_(tc_string, properties)))
 	return moduleScope.lookupQualifiedName(superclassName)
 }
 
