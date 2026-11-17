@@ -562,10 +562,6 @@ func (this *CacheLoader) self() any {
 	return this.self_
 }
 
-type Callable interface {
-	call() any
-}
-
 type ChunkProtoOrBuilder interface {
 	MessageOrBuilder
 	getDependenciesList() List
@@ -1099,13 +1095,6 @@ func new_ExecutionException_String_Throwable(p0 string, p1 *Throwable) *Executio
 type Executor interface {
 }
 
-type ExecutorService interface {
-	Executor
-	AutoCloseable
-	shutdown()
-	submit(Callable) Future
-}
-
 type ExternsSummaryOrBuilder interface {
 	MessageOrBuilder
 	getPropNamePtrList() List
@@ -1186,11 +1175,6 @@ type Function interface {
 
 type Function_base interface {
 	Function
-}
-
-type Future interface {
-	get() any
-	get_long_TimeUnit(int64, *TimeUnit) any
 }
 
 type GarbageCollectorMXBean interface {
@@ -1763,14 +1747,6 @@ type List interface {
 
 type ListIterator interface {
 	Iterator
-}
-
-type ListenableFuture interface {
-	Future
-}
-
-type ListeningExecutorService interface {
-	ExecutorService
 }
 
 type LoadingCache interface {
@@ -2771,50 +2747,6 @@ type TemplateStringValueOrBuilder interface {
 	getRawStringPointer() int32
 }
 
-func to_Thread(v any) *Thread {
-	switch p := v.(type) {
-	case *Thread:
-		return p
-	case nil:
-		return nil
-	}
-	return v.(interface{ as_Thread() *Thread }).as_Thread()
-}
-
-func is_Thread(v any) bool {
-	_, ok := v.(*Thread)
-	return ok
-}
-
-func (this *Thread) self() any {
-	if this == nil {
-		return nil
-	}
-	return this.self_
-}
-
-type ThreadFactory interface {
-	newThread(Runnable) *Thread
-}
-
-func to_ThreadPoolExecutor(v any) *ThreadPoolExecutor {
-	switch p := v.(type) {
-	case *ThreadPoolExecutor:
-		return p
-	case nil:
-		return nil
-	}
-	return v.(interface{ as_ThreadPoolExecutor() *ThreadPoolExecutor }).as_ThreadPoolExecutor()
-}
-
-func is_ThreadPoolExecutor(v any) bool {
-	_, ok := v.(*ThreadPoolExecutor)
-	return ok
-}
-
-type Thread_UncaughtExceptionHandler interface {
-}
-
 func (this *Throwable) as_Throwable() *Throwable { return this }
 
 func to_Throwable(v any) *Throwable {
@@ -3284,14 +3216,6 @@ func (this *IntFunction_fn) apply(p0 int32) any {
 	return this.f(p0)
 }
 
-type Callable_fn struct {
-	f func() any
-}
-
-func (this *Callable_fn) call() any {
-	return this.f()
-}
-
 type BiFunction_fn struct {
 	f func(any, any) any
 }
@@ -3345,14 +3269,6 @@ type ToLongFunction_fn struct {
 }
 
 func (this *ToLongFunction_fn) applyAsLong(p0 any) int64 {
-	return this.f(p0)
-}
-
-type ThreadFactory_fn struct {
-	f func(Runnable) *Thread
-}
-
-func (this *ThreadFactory_fn) newThread(p0 Runnable) *Thread {
 	return this.f(p0)
 }
 

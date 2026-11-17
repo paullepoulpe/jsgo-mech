@@ -275,13 +275,6 @@ func icast_ErrorReporter_rhino(v any) ErrorReporter_rhino {
 	return v.(ErrorReporter_rhino)
 }
 
-func icast_ExecutorService(v any) ExecutorService {
-	if v == nil {
-		return nil
-	}
-	return v.(ExecutorService)
-}
-
 func icast_FixedPointGraphTraversal_EdgeCallback(v any) FixedPointGraphTraversal_EdgeCallback {
 	if v == nil {
 		return nil
@@ -959,13 +952,6 @@ func icast_TemplateAstMatcher_Visitor(v any) TemplateAstMatcher_Visitor {
 		return nil
 	}
 	return v.(TemplateAstMatcher_Visitor)
-}
-
-func icast_ThreadFactory(v any) ThreadFactory {
-	if v == nil {
-		return nil
-	}
-	return v.(ThreadFactory)
 }
 
 func icast_Tracer_InternalClock(v any) Tracer_InternalClock {
