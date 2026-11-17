@@ -4,17 +4,17 @@ package closure
 
 type PassFactory struct {
 	getName_               string
-	getCondition_          FunctionOf[*CompilerOptions, BoxedOf[bool]]
-	getPreconditionCheck_  FunctionOf[*CompilerOptions, *PassFactory_PreconditionResult]
+	getCondition_          PassFactory_Condition
+	getPreconditionCheck_  PassFactory_PreconditionCheck
 	isRunInFixedPointLoop_ bool
-	getInternalFactory_    FunctionOf[*AbstractCompiler, CompilerPass]
+	getInternalFactory_    PassFactory_InternalFactory
 }
 
 func (this *PassFactory) zero_PassFactory() {
 	this.getName_ = nullstr_
 }
 
-func (this *PassFactory) init_PassFactory(getName string, getCondition FunctionOf[*CompilerOptions, BoxedOf[bool]], getPreconditionCheck FunctionOf[*CompilerOptions, *PassFactory_PreconditionResult], isRunInFixedPointLoop bool, getInternalFactory FunctionOf[*AbstractCompiler, CompilerPass]) {
+func (this *PassFactory) init_PassFactory(getName string, getCondition PassFactory_Condition, getPreconditionCheck PassFactory_PreconditionCheck, isRunInFixedPointLoop bool, getInternalFactory PassFactory_InternalFactory) {
 	if getCondition == nil {
 		panic(new_NullPointerException_String("getCondition").self())
 	}
@@ -31,7 +31,7 @@ func (this *PassFactory) init_PassFactory(getName string, getCondition FunctionO
 	this.getInternalFactory_ = getInternalFactory
 }
 
-func new_PassFactory(getName string, getCondition FunctionOf[*CompilerOptions, BoxedOf[bool]], getPreconditionCheck FunctionOf[*CompilerOptions, *PassFactory_PreconditionResult], isRunInFixedPointLoop bool, getInternalFactory FunctionOf[*AbstractCompiler, CompilerPass]) *PassFactory {
+func new_PassFactory(getName string, getCondition PassFactory_Condition, getPreconditionCheck PassFactory_PreconditionCheck, isRunInFixedPointLoop bool, getInternalFactory PassFactory_InternalFactory) *PassFactory {
 	this := &PassFactory{}
 	this.zero_PassFactory()
 	this.init_PassFactory(getName, getCondition, getPreconditionCheck, isRunInFixedPointLoop, getInternalFactory)
@@ -51,21 +51,17 @@ func PassFactory_builder() *PassFactory_Builder {
 }
 
 // lambda_PassFactory_builder_1_ is a lambda of PassFactory_builder that captures nothing (post-flip step lambdas).
-var lambda_PassFactory_builder_1_ = &Function_fn{func(o_ any) any {
-	var o *CompilerOptions = cast_[*CompilerOptions](o_)
-	_ = o
-	return any(bool(true))
-}}
+var lambda_PassFactory_builder_1_ = newFuncObj_(func(o *CompilerOptions) bool {
+	return true
+})
 
 // lambda_PassFactory_builder_2_ is a lambda of PassFactory_builder that captures nothing (post-flip step lambdas).
-var lambda_PassFactory_builder_2_ = &Function_fn{func(o_ any) any {
-	var o *CompilerOptions = cast_[*CompilerOptions](o_)
-	_ = o
-	return obj_(PassFactory_PreconditionResult_SUCCESS)
-}}
+var lambda_PassFactory_builder_2_ = newFuncObj_(func(o *CompilerOptions) *PassFactory_PreconditionResult {
+	return PassFactory_PreconditionResult_SUCCESS
+})
 
 func (this *PassFactory) validatePreconditions(options *CompilerOptions) {
-	var canRun *PassFactory_PreconditionResult = cast_[*PassFactory_PreconditionResult](this.getPreconditionCheck().apply(obj_(options)))
+	var canRun *PassFactory_PreconditionResult = this.getPreconditionCheck().call(options)
 	if !canRun.success_ {
 		panic(new_IllegalArgumentException_String(("Precondition for pass " + sstr_(this.getName()) + " failed: " + sstr_(canRun.message().orElse("null")))).self())
 	}
@@ -76,29 +72,27 @@ func PassFactory_createEmptyPass(name string) *PassFactory {
 }
 
 // lambda_PassFactory_createEmptyPass_1_ is a lambda of PassFactory_createEmptyPass that captures nothing (post-flip step lambdas).
-var lambda_PassFactory_createEmptyPass_1_ = &Function_fn{func(c_ any) any {
-	var c *AbstractCompiler = to_AbstractCompiler(c_)
-	_ = c
-	return any(lambda_PassFactory_createEmptyPass_2_)
-}}
+var lambda_PassFactory_createEmptyPass_1_ = newFuncObj_(func(c *AbstractCompiler) CompilerPass {
+	return lambda_PassFactory_createEmptyPass_2_
+})
 
 // lambda_PassFactory_createEmptyPass_2_ is a lambda of PassFactory_createEmptyPass that captures nothing (post-flip step lambdas).
 var lambda_PassFactory_createEmptyPass_2_ = &CompilerPass_fn{func(externs Node, root Node) {
 }}
 
 func (this *PassFactory) create(compiler *AbstractCompiler) CompilerPass {
-	return icast_CompilerPass(this.getInternalFactory().apply(compiler.self()))
+	return this.getInternalFactory().call(compiler)
 }
 
 func (this *PassFactory) getName() string {
 	return this.getName_
 }
 
-func (this *PassFactory) getCondition() Function {
+func (this *PassFactory) getCondition() PassFactory_Condition {
 	return this.getCondition_
 }
 
-func (this *PassFactory) getPreconditionCheck() Function {
+func (this *PassFactory) getPreconditionCheck() PassFactory_PreconditionCheck {
 	return this.getPreconditionCheck_
 }
 
@@ -106,7 +100,7 @@ func (this *PassFactory) isRunInFixedPointLoop() bool {
 	return this.isRunInFixedPointLoop_
 }
 
-func (this *PassFactory) getInternalFactory() Function {
+func (this *PassFactory) getInternalFactory() PassFactory_InternalFactory {
 	return this.getInternalFactory_
 }
 
@@ -186,10 +180,10 @@ func PassFactory_PreconditionResult_clinit() {
 
 type PassFactory_Builder struct {
 	name_               OptionalOf[string]
-	condition           FunctionOf[*CompilerOptions, BoxedOf[bool]]
-	preconditionCheck   FunctionOf[*CompilerOptions, *PassFactory_PreconditionResult]
+	condition           PassFactory_Condition
+	preconditionCheck   PassFactory_PreconditionCheck
 	runInFixedPointLoop bool
-	internalFactory     FunctionOf[*AbstractCompiler, CompilerPass]
+	internalFactory     PassFactory_InternalFactory
 	set0                int8
 }
 
@@ -234,7 +228,7 @@ func (this *PassFactory_Builder) setRunInFixedPointLoop(b bool) *PassFactory_Bui
 	return this
 }
 
-func (this *PassFactory_Builder) setCondition(cond FunctionOf[*CompilerOptions, BoxedOf[bool]]) *PassFactory_Builder {
+func (this *PassFactory_Builder) setCondition(cond PassFactory_Condition) *PassFactory_Builder {
 	if cond == nil {
 		panic(new_NullPointerException_String("Null condition").self())
 	}
@@ -242,7 +236,7 @@ func (this *PassFactory_Builder) setCondition(cond FunctionOf[*CompilerOptions, 
 	return this
 }
 
-func (this *PassFactory_Builder) setPreconditionCheck(assertion FunctionOf[*CompilerOptions, *PassFactory_PreconditionResult]) *PassFactory_Builder {
+func (this *PassFactory_Builder) setPreconditionCheck(assertion PassFactory_PreconditionCheck) *PassFactory_Builder {
 	if assertion == nil {
 		panic(new_NullPointerException_String("Null preconditionCheck").self())
 	}
@@ -250,7 +244,7 @@ func (this *PassFactory_Builder) setPreconditionCheck(assertion FunctionOf[*Comp
 	return this
 }
 
-func (this *PassFactory_Builder) setInternalFactory(x FunctionOf[*AbstractCompiler, CompilerPass]) *PassFactory_Builder {
+func (this *PassFactory_Builder) setInternalFactory(x PassFactory_InternalFactory) *PassFactory_Builder {
 	if x == nil {
 		panic(new_NullPointerException_String("Null internalFactory").self())
 	}
@@ -288,3 +282,10 @@ func (this *PassFactory_Builder) build() *PassFactory {
 	}
 	return result
 }
+
+// The functions a PassFactory holds, each with the identity of the Java lambda object it was
+// made from: PassFactory's equals, hashCode and toString compare, hash and print them (post-flip
+// step passfn).
+type PassFactory_Condition = *funcObj_[func(*CompilerOptions) bool]
+type PassFactory_InternalFactory = *funcObj_[func(*AbstractCompiler) CompilerPass]
+type PassFactory_PreconditionCheck = *funcObj_[func(*CompilerOptions) *PassFactory_PreconditionResult]

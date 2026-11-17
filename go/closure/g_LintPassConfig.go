@@ -26,31 +26,25 @@ func (this *LintPassConfig) up_PassConfig() *PassConfig {
 
 func (this *LintPassConfig) finit_LintPassConfig() {
 	this.gatherModuleMetadataPass = PassFactory_builder().setName(PassNames_GATHER_MODULE_METADATA).setInternalFactory(lambda_LintPassConfig_finit_LintPassConfig_1_).build()
-	this.earlyLintChecks = PassFactory_builder().setName("earlyLintChecks").setInternalFactory(&Function_fn{func(compiler_ any) any {
-		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
-		_ = compiler
-		return obj_(new_CombinedCompilerPass(compiler, sliceImm_(tc_NodeTraversal_Callback, ImmutableList_of_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_ObjectArr(obj_(new_CheckConstPrivateProperties(compiler)), obj_(new_CheckConstantCaseNames(compiler)), obj_(new_CheckDuplicateCase(compiler)), obj_(new_CheckEmptyStatements(compiler)), obj_(new_CheckEnums(compiler)), obj_(new_CheckExtraRequires(compiler, this.options_.getUnusedImportsToRemove())), obj_(new_CheckGoogModuleTypeScriptName(compiler)), obj_(new_CheckJSDocStyle(compiler)), obj_(new_CheckJSDoc(compiler)), obj_(new_CheckMissingSemicolon(compiler)), obj_(new_CheckSuper(compiler)), obj_(new_CheckPrimitiveAsObject(compiler)), []any{obj_(new_ClosureCheckModule(compiler, compiler.getModuleMetadataMap())), obj_(new_CheckNullabilityModifiers(compiler)), obj_(new_CheckProvidesSorted(CheckProvidesSorted_Mode_COLLECT_AND_REPORT)), obj_(new_CheckRequiresSorted(CheckRequiresSorted_Mode_COLLECT_AND_REPORT)), obj_(new_CheckSideEffects(compiler, true, false)), obj_(new_CheckTypeImportCodeReferences(compiler)), obj_(new_CheckUnusedLabels(compiler)), obj_(new_CheckUnusedPrivateProperties(compiler)), obj_(new_CheckUselessBlocks(compiler)), obj_(new_CheckVar(compiler))}))))
-	}}).build()
+	this.earlyLintChecks = PassFactory_builder().setName("earlyLintChecks").setInternalFactory(newFuncObj_(func(compiler *AbstractCompiler) CompilerPass {
+		return new_CombinedCompilerPass(compiler, sliceImm_(tc_NodeTraversal_Callback, ImmutableList_of_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_ObjectArr(obj_(new_CheckConstPrivateProperties(compiler)), obj_(new_CheckConstantCaseNames(compiler)), obj_(new_CheckDuplicateCase(compiler)), obj_(new_CheckEmptyStatements(compiler)), obj_(new_CheckEnums(compiler)), obj_(new_CheckExtraRequires(compiler, this.options_.getUnusedImportsToRemove())), obj_(new_CheckGoogModuleTypeScriptName(compiler)), obj_(new_CheckJSDocStyle(compiler)), obj_(new_CheckJSDoc(compiler)), obj_(new_CheckMissingSemicolon(compiler)), obj_(new_CheckSuper(compiler)), obj_(new_CheckPrimitiveAsObject(compiler)), []any{obj_(new_ClosureCheckModule(compiler, compiler.getModuleMetadataMap())), obj_(new_CheckNullabilityModifiers(compiler)), obj_(new_CheckProvidesSorted(CheckProvidesSorted_Mode_COLLECT_AND_REPORT)), obj_(new_CheckRequiresSorted(CheckRequiresSorted_Mode_COLLECT_AND_REPORT)), obj_(new_CheckSideEffects(compiler, true, false)), obj_(new_CheckTypeImportCodeReferences(compiler)), obj_(new_CheckUnusedLabels(compiler)), obj_(new_CheckUnusedPrivateProperties(compiler)), obj_(new_CheckUselessBlocks(compiler)), obj_(new_CheckVar(compiler))})))
+	})).build()
 	this.variableReferenceCheck = PassFactory_builder().setName("variableReferenceCheck").setRunInFixedPointLoop(true).setInternalFactory(lambda_LintPassConfig_finit_LintPassConfig_2_).build()
 	this.lateLintChecks = PassFactory_builder().setName("lateLintChecks").setInternalFactory(lambda_LintPassConfig_finit_LintPassConfig_3_).build()
 }
 
 // lambda_LintPassConfig_finit_LintPassConfig_1_ is a lambda of LintPassConfig_finit_LintPassConfig that captures nothing (post-flip step lambdas).
-var lambda_LintPassConfig_finit_LintPassConfig_1_ = &Function_fn{func(compiler_ any) any {
-	var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
-	_ = compiler
-	return obj_(new_GatherModuleMetadata(compiler, compiler.getOptions().getProcessCommonJSModules(), compiler.getOptions().getModuleResolutionMode()))
-}}
+var lambda_LintPassConfig_finit_LintPassConfig_1_ = newFuncObj_(func(compiler *AbstractCompiler) CompilerPass {
+	return new_GatherModuleMetadata(compiler, compiler.getOptions().getProcessCommonJSModules(), compiler.getOptions().getModuleResolutionMode())
+})
 
 // lambda_LintPassConfig_finit_LintPassConfig_2_ is a lambda of LintPassConfig_finit_LintPassConfig that captures nothing (post-flip step lambdas).
-var lambda_LintPassConfig_finit_LintPassConfig_2_ = &Function_fn{func(p0 any) any { return obj_(new_VariableReferenceCheck(to_AbstractCompiler(p0))) }}
+var lambda_LintPassConfig_finit_LintPassConfig_2_ = newFuncObj_(func(p0 *AbstractCompiler) CompilerPass { return new_VariableReferenceCheck(p0) })
 
 // lambda_LintPassConfig_finit_LintPassConfig_3_ is a lambda of LintPassConfig_finit_LintPassConfig that captures nothing (post-flip step lambdas).
-var lambda_LintPassConfig_finit_LintPassConfig_3_ = &Function_fn{func(compiler_ any) any {
-	var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
-	_ = compiler
-	return obj_(new_CombinedCompilerPass(compiler, sliceOf_(tc_NodeTraversal_Callback, NodeTraversal_Callback(new_CheckInterfaces(compiler)), NodeTraversal_Callback(new_CheckPrototypeProperties(compiler)))))
-}}
+var lambda_LintPassConfig_finit_LintPassConfig_3_ = newFuncObj_(func(compiler *AbstractCompiler) CompilerPass {
+	return new_CombinedCompilerPass(compiler, sliceOf_(tc_NodeTraversal_Callback, NodeTraversal_Callback(new_CheckInterfaces(compiler)), NodeTraversal_Callback(new_CheckPrototypeProperties(compiler))))
+})
 
 func (this *LintPassConfig) init_LintPassConfig(options *CompilerOptions) {
 	this.PassConfig_PassConfigDelegate.init_PassConfig_PassConfigDelegate(new_DefaultPassConfig(options).up_PassConfig())

@@ -147,14 +147,12 @@ func (this *Compiler) finit_Compiler() {
 }
 
 // lambda_Compiler_finit_Compiler_1_ is a lambda of Compiler_finit_Compiler that captures nothing (post-flip step lambdas).
-var lambda_Compiler_finit_Compiler_1_ = &Function_fn{func(p0 any) any { return obj_(new_ValidityCheck(to_AbstractCompiler(p0))) }}
+var lambda_Compiler_finit_Compiler_1_ = newFuncObj_(func(p0 *AbstractCompiler) CompilerPass { return new_ValidityCheck(p0) })
 
 // lambda_Compiler_finit_Compiler_2_ is a lambda of Compiler_finit_Compiler that captures nothing (post-flip step lambdas).
-var lambda_Compiler_finit_Compiler_2_ = &Function_fn{func(o_ any) any {
-	var o *CompilerOptions = cast_[*CompilerOptions](o_)
-	_ = o
+var lambda_Compiler_finit_Compiler_2_ = newFuncObj_(func(o *CompilerOptions) bool {
 	panic(new_IllegalStateException_String("Unexpected").self())
-}}
+})
 
 func (this *Compiler) init_Compiler_0() {
 	this.init_Compiler_Output(nil)
