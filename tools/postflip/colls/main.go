@@ -879,6 +879,9 @@ func handle(e ast.Expr) {
 			viewed(src, top)
 		}
 		if K.imm != "" {
+			if K.base == "list" {
+				immAddAllInto(src, unwrap(e), top)
+			}
 			// The twin, with every conversion around the value kept: it has the value's type.
 			inner := unwrap(e)
 			edit(src, func(c *class) rw.Edit {
