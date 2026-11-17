@@ -36,9 +36,7 @@ func new_ReplaceCssNames(compiler *AbstractCompiler, symbolMap CssRenamingMap, c
 func (this *ReplaceCssNames) process_2(externs Node, root Node) {
 	NodeTraversal_traverse(this.compiler_, root, new_ReplaceCssNames_FindSetCssNameTraversal(this))
 	var getCssNameInstances *TList[*ReplaceCssNames_GetCssNameInstance] = this.gatherGetCssNameInstances(root)
-	it_1 := getCssNameInstances.each()
-	for it_1.next() {
-		var getCssNameInstance *ReplaceCssNames_GetCssNameInstance = it_1.v
+	for getCssNameInstance := range getCssNameInstances.All() {
 		var cssClassName OptionalOf[string] = getCssNameInstance.getCssClassName()
 		if getCssNameInstance.isCssClosureFileClassesMember() {
 			this.cssNamesBySymbol[getCssNameInstance.getCssClosureClassesMemberName().orElse(nullstr_)] = cssClassName.orElse(nullstr_)

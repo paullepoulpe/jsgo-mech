@@ -119,9 +119,7 @@ func (this *ClosureModuleProcessor_UnresolvedGoogModule) resolve_2_impl(moduleRe
 
 func (this *ClosureModuleProcessor_UnresolvedGoogModule) getAllResolvedImports(moduleRequestResolver ModuleRequestResolver) *TMap[string, *Binding] {
 	var imports *TMap[string, *Binding] = newTMap_(tc_string, tc_p_Binding)
-	it_1 := foreach_(obj_(cast_[*ImmutableSet](this.requiresByLocalName.keySet())))
-	for it_1.next() {
-		var name string = str_(it_1.v)
+	for name := range elemsBy_(obj_(cast_[*ImmutableSet](this.requiresByLocalName.keySet())), str_) {
 		var b *ResolveExportResult = this.resolveImport(moduleRequestResolver, name)
 		if b.resolved() {
 			imports.put(name, b.getBinding())

@@ -382,9 +382,7 @@ func (this *CommandLineRunner) createOptions_impl() *Outcome_base {
 	options.setExportLocalPropertyDefinitions(this.flags.exportLocalPropertyDefinitions)
 	var wLevel WarningLevel = this.flags.warningLevel
 	wLevel.setOptionsForWarningLevel(options)
-	it_1 := foreach_(this.flags.formatting)
-	for it_1.next() {
-		var formattingOption CommandLineRunner_FormattingOption = cast_[CommandLineRunner_FormattingOption](it_1.v)
+	for formattingOption := range elemsAs_[CommandLineRunner_FormattingOption](this.flags.formatting) {
 		formattingOption.applyToOptions(options)
 	}
 	options.setClosurePass(this.flags.processClosurePrimitives)
@@ -535,9 +533,7 @@ func (this *CommandLineRunner) createExterns_impl(options *CompilerOptions) *Out
 
 func CommandLineRunner_loadConformanceConfigs(configPaths ListOf[string]) []*ConformanceConfig {
 	var configs []*ConformanceConfig
-	it_1 := foreach_(configPaths)
-	for it_1.next() {
-		var configPath string = str_(it_1.v)
+	for configPath := range elemsBy_(configPaths, str_) {
 		var config *Outcome_base = CommandLineRunner_loadConformanceConfig(configPath)
 		if config.isErr() {
 			panic(new_RuntimeException_String_Throwable("Error loading conformance config", config.error()).self())
@@ -641,9 +637,7 @@ func CommandLineRunner_matchPaths(pattern string, allJsInputs MapOf[string, stri
 	}
 	var directory string = FilePaths_clean(prefix)
 	var glob string = (sstr_(prefix) + sstr_(separator) + sstr_(pattern))
-	it_2 := foreach_(Io_listFiles(directory))
-	for it_2.next() {
-		var file string = str_(it_2.v)
+	for file := range elemsBy_(Io_listFiles(directory), str_) {
 		var p string = FilePaths_resolve(directory, file)
 		if !Glob_matches(glob, p) && !Glob_matches(glob, FilePaths_normalize(p)) {
 			continue
@@ -1613,9 +1607,7 @@ func (this *CommandLineRunner_Flags) parse(args *TList[string]) *Outcome_base {
 func (this *CommandLineRunner_Flags) printUsage(ps *Output) {
 	var outputStream *StringBuilder = new_StringBuilder()
 	var isFirst bool = true
-	it_1 := foreach_(CommandLineRunner_Flags_categories.asMap().entrySet())
-	for it_1.next() {
-		var entry Map_Entry = icast_Map_Entry(it_1.v)
+	for entry := range elemsBy_(CommandLineRunner_Flags_categories.asMap().entrySet(), icast_Map_Entry) {
 		var prefix string = "\n\n"
 		var suffix string = ""
 		if isFirst {
@@ -1647,9 +1639,7 @@ func (this *CommandLineRunner_Flags) printCategoryUsage(categoryName string, opt
 	}
 	if this.helpMarkdown {
 		outputStream.append(("# " + sstr_(categoryName) + "\n"))
-		it_1 := foreach_(options)
-		for it_1.next() {
-			var optionName string = str_(it_1.v)
+		for optionName := range elemsBy_(options, str_) {
 			var stringWriter *StringBuilder = new_StringBuilder()
 			this.parser.printUsage(stringWriter, func(option_ any) bool {
 				var option *CmdLineParser_Option = cast_[*CmdLineParser_Option](option_)
@@ -1721,9 +1711,7 @@ func (this *CommandLineRunner_Flags) getMixedJsSources() *Outcome_base {
 			if found.isErr() {
 				return Outcome_base_err(found.error())
 			}
-			it_3 := foreach_(icast_List(found.get()))
-			for it_3.next() {
-				var filename string = str_(it_3.v)
+			for filename := range elemsBy_(icast_List(found.get()), str_) {
 				excludes[filename] = struct{}{}
 				mixedSources.remove_Object(obj_(new_AbstractCommandLineRunner_FlagEntry(obj_(AbstractCommandLineRunner_JsSourceType_JS), filename)))
 			}
@@ -1732,9 +1720,7 @@ func (this *CommandLineRunner_Flags) getMixedJsSources() *Outcome_base {
 			if found.isErr() {
 				return Outcome_base_err(found.error())
 			}
-			it_5 := foreach_(icast_List(found.get()))
-			for it_5.next() {
-				var filename string = str_(it_5.v)
+			for filename := range elemsBy_(icast_List(found.get()), str_) {
 				if !has_(excludes, filename) {
 					mixedSources.add(obj_(new_AbstractCommandLineRunner_FlagEntry(obj_(AbstractCommandLineRunner_JsSourceType_JS), filename)))
 				}
@@ -1745,9 +1731,7 @@ func (this *CommandLineRunner_Flags) getMixedJsSources() *Outcome_base {
 	if fromArguments.isErr() {
 		return Outcome_base_err(fromArguments.error())
 	}
-	it_7 := foreach_(icast_List(fromArguments.get()))
-	for it_7.next() {
-		var filename string = str_(it_7.v)
+	for filename := range elemsBy_(icast_List(fromArguments.get()), str_) {
 		mixedSources.add(obj_(new_AbstractCommandLineRunner_FlagEntry(obj_(AbstractCommandLineRunner_JsSourceType_JS), filename)))
 	}
 	if (!this.mixedJsSources.isEmpty() && !this.arguments.isEmpty()) && mixedSources.isEmpty() {
@@ -1763,9 +1747,7 @@ func (this *CommandLineRunner_Flags) getSourceMapLocationMappings() *Outcome_bas
 		return Outcome_base_err(splitOutcome.error())
 	}
 	var split ImmutableMapOf[string, string] = cast_[*ImmutableMap](splitOutcome.get())
-	it_1 := foreach_(obj_(cast_[*ImmutableSet](split.entrySet())))
-	for it_1.next() {
-		var mapping Map_Entry = icast_Map_Entry(it_1.v)
+	for mapping := range elemsBy_(obj_(cast_[*ImmutableSet](split.entrySet())), icast_Map_Entry) {
 		locationMappings.add(obj_(new_SourceMap_PrefixLocationMapping(str_(mapping.getKey()), str_(mapping.getValue()))))
 	}
 	return Outcome_base_ok_Object(obj_(locationMappings.build()))

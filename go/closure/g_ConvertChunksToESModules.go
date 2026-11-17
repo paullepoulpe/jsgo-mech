@@ -28,9 +28,7 @@ func new_ConvertChunksToESModules(compiler *AbstractCompiler) *ConvertChunksToES
 
 func (this *ConvertChunksToESModules) process_2(externs Node, root Node) {
 	NodeTraversal_traverse(this.compiler_, root, new_ConvertChunksToESModules_FindCrossChunkReferences(this))
-	it_1 := foreach_(this.compiler_.getChunkGraph().getAllChunks())
-	for it_1.next() {
-		var chunk *JSChunk = cast_[*JSChunk](it_1.v)
+	for chunk := range elemsAs_[*JSChunk](this.compiler_.getChunkGraph().getAllChunks()) {
 		if (!this.crossChunkExports.containsKey(chunk) && !this.crossChunkImports.containsKey(chunk)) && !chunk.getInputs().isEmpty() {
 			this.crossChunkExports.put(chunk, new_LinkedHashSet())
 		}
@@ -43,16 +41,12 @@ func (this *ConvertChunksToESModules) process_2(externs Node, root Node) {
 }
 
 func (this *ConvertChunksToESModules) convertChunkSourcesToModules() {
-	it_1 := foreach_(this.compiler_.getChunkGraph().getAllChunks())
-	for it_1.next() {
-		var chunk *JSChunk = cast_[*JSChunk](it_1.v)
+	for chunk := range elemsAs_[*JSChunk](this.compiler_.getChunkGraph().getAllChunks()) {
 		if chunk.getInputs().isEmpty() {
 			continue
 		}
 		var firstInput *CompilerInput = nil
-		it_3 := foreach_(obj_(chunk.getInputs()))
-		for it_3.next() {
-			var input *CompilerInput = cast_[*CompilerInput](it_3.v)
+		for input := range elemsAs_[*CompilerInput](obj_(chunk.getInputs())) {
 			var astRoot Node = input.getAstRoot(this.compiler_)
 			var scriptFeatures *FeatureSet = NodeUtil_getFeatureSetOfScript(astRoot)
 			if scriptFeatures.containsFeatureSet(FeatureSet_ES2015_MODULES) {
@@ -85,18 +79,14 @@ func (this *ConvertChunksToESModules) convertChunkSourcesToModules() {
 }
 
 func (this *ConvertChunksToESModules) addExportStatements() {
-	it_1 := foreach_(this.crossChunkExports.asMap().entrySet())
-	for it_1.next() {
-		var jsModuleExports Map_Entry = icast_Map_Entry(it_1.v)
+	for jsModuleExports := range elemsBy_(this.crossChunkExports.asMap().entrySet(), icast_Map_Entry) {
 		var firstInput *CompilerInput = cast_[*JSChunk](jsModuleExports.getKey()).getFirst()
 		var moduleBody Node = firstInput.getAstRoot(this.compiler_).getFirstChild()
 		if moduleBody == 0 || !moduleBody.isModuleBody() {
 			panic(new_IllegalStateException_0().self())
 		}
 		var exportSpecs Node = new_Node_Token(Token_rhino_EXPORT_SPECS)
-		it_3 := foreach_(icast_Set(jsModuleExports.getValue()))
-		for it_3.next() {
-			var name string = str_(it_3.v)
+		for name := range elemsBy_(icast_Set(jsModuleExports.getValue()), str_) {
 			var exportSpec Node = new_Node_Token(Token_rhino_EXPORT_SPEC)
 			exportSpec.addChildToFront(IR_name(name))
 			exportSpec.addChildToFront(IR_name(name))
@@ -117,9 +107,7 @@ func ConvertChunksToESModules_getChunkName(chunk *JSChunk) string {
 }
 
 func (this *ConvertChunksToESModules) addImportStatements() {
-	it_1 := foreach_(this.crossChunkImports.asMap().entrySet())
-	for it_1.next() {
-		var chunkImportsEntry Map_Entry = icast_Map_Entry(it_1.v)
+	for chunkImportsEntry := range elemsBy_(this.crossChunkImports.asMap().entrySet(), icast_Map_Entry) {
 		var importStatements []Node = []Node{}
 		var importingChunk *JSChunk = cast_[*JSChunk](chunkImportsEntry.getKey())
 		var firstInput *CompilerInput = importingChunk.getFirst()
@@ -127,13 +115,9 @@ func (this *ConvertChunksToESModules) addImportStatements() {
 		if moduleBody == 0 || !moduleBody.isModuleBody() {
 			panic(new_IllegalStateException_0().self())
 		}
-		it_3 := foreach_(icast_Map(chunkImportsEntry.getValue()).entrySet())
-		for it_3.next() {
-			var importsByChunk Map_Entry = icast_Map_Entry(it_3.v)
+		for importsByChunk := range elemsBy_(icast_Map(chunkImportsEntry.getValue()).entrySet(), icast_Map_Entry) {
 			var importSpecs Node = new_Node_Token(Token_rhino_IMPORT_SPECS)
-			it_5 := foreach_(icast_Set(importsByChunk.getValue()))
-			for it_5.next() {
-				var name string = str_(it_5.v)
+			for name := range elemsBy_(icast_Set(importsByChunk.getValue()), str_) {
 				var importSpec Node = new_Node_Token(Token_rhino_IMPORT_SPEC)
 				importSpec.addChildToFront(IR_name(name))
 				importSpec.addChildToFront(IR_name(name))
@@ -187,9 +171,7 @@ func ConvertChunksToESModules_getDynamicImportCallbackModuleNamespace(compiler *
 
 func (this *ConvertChunksToESModules) rewriteDynamicImportCallbacks() {
 	var astFactory *AstFactory = this.compiler_.createAstFactory()
-	it_1 := eachOf_(&this.dynamicImportCallbacks)
-	for it_1.next() {
-		var dynamicImportCallback Node = it_1.v
+	for dynamicImportCallback := range sliceAll_(&this.dynamicImportCallbacks) {
 		if !dynamicImportCallback.isCall() {
 			panic(new_IllegalStateException_0().self())
 		}

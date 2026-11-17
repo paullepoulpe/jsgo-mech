@@ -818,9 +818,7 @@ func (this *TypeCheck) checkDeclaredPropertyAgainstNominalInheritance(n Node, ct
 			}
 		}
 	}
-	it_1 := foreach_(ctorType.getAllImplementedInterfaces())
-	for it_1.next() {
-		var implementedInterface *ObjectType = to_ObjectType(it_1.v)
+	for implementedInterface := range elemsBy_(ctorType.getAllImplementedInterfaces(), to_ObjectType) {
 		if implementedInterface.isUnknownType() || implementedInterface.isEmptyType() {
 			continue
 		}
@@ -849,9 +847,7 @@ func TypeCheck_isDeclaredLocally(ctorType *FunctionType, propertyName Property_K
 func (this *TypeCheck) checkDeclaredPropertyAgainstPrototypalInheritance(n Node, receiverType *ObjectType, propertyName Property_Key, info *JSDocInfo, propertyType *JSType) {
 	var declaredOverride bool = TypeCheck_declaresOverride(info)
 	var supertypeWithProperty *ObjectType = nil
-	it_1 := foreach_(receiverType.getImplicitPrototypeChain())
-	for it_1.next() {
-		var type_ *ObjectType = to_ObjectType(it_1.v)
+	for type_ := range elemsBy_(receiverType.getImplicitPrototypeChain(), to_ObjectType) {
 		if type_.hasOwnPropertyKey(propertyName) {
 			supertypeWithProperty = type_
 			break
@@ -1276,9 +1272,7 @@ func (this *TypeCheck) checkInterfaceConflictProperties(n Node, functionName str
 	} else {
 		currentPropertyNames = implicitProto.getOwnPropertyKeys()
 	}
-	it_1 := foreach_(obj_(currentPropertyNames))
-	for it_1.next() {
-		var name Property_Key = icast_Property_Key(it_1.v)
+	for name := range elemsBy_(obj_(currentPropertyNames), icast_Property_Key) {
 		var oType *ObjectType = properties.get(name)
 		currentProperties.put(name, interfaceType)
 		if oType != nil {
@@ -1290,9 +1284,7 @@ func (this *TypeCheck) checkInterfaceConflictProperties(n Node, functionName str
 			this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, TypeCheck_INCOMPATIBLE_EXTENDED_PROPERTY_TYPE, []string{functionName, name.humanReadableName(), oType.toString(), interfaceType.toString()}))
 		}
 	}
-	it_3 := foreach_(interfaceType.getCtorExtendedInterfaces())
-	for it_3.next() {
-		var iType *ObjectType = to_ObjectType(it_3.v)
+	for iType := range elemsBy_(interfaceType.getCtorExtendedInterfaces(), to_ObjectType) {
 		this.checkInterfaceConflictProperties(n, functionName, properties, currentProperties, iType)
 	}
 }
@@ -1355,9 +1347,7 @@ func (this *TypeCheck) checkConstructor(n Node, functionType *FunctionType) {
 			this.checkStructDictSubtyping(n, functionType, baseConstructor)
 		}
 		var alreadySeenInterfaces *TSet[*JSType] = newTSet_(tch_p_JSType)
-		it_1 := foreach_(obj_(functionType.getOwnImplementedInterfaces()))
-		for it_1.next() {
-			var baseInterface *JSType = to_JSType(it_1.v)
+		for baseInterface := range elemsBy_(obj_(functionType.getOwnImplementedInterfaces()), to_JSType) {
 			var badImplementedType bool = false
 			var baseInterfaceObj *ObjectType = ObjectType_cast(baseInterface)
 			if baseInterfaceObj != nil {
@@ -1399,9 +1389,7 @@ func (this *TypeCheck) checkStructDictSubtyping(n Node, subtype *FunctionType, s
 }
 
 func (this *TypeCheck) checkInterface(n Node, functionType *FunctionType) {
-	it_1 := foreach_(obj_(functionType.getExtendedInterfaces()))
-	for it_1.next() {
-		var extInterface *ObjectType = to_ObjectType(it_1.v)
+	for extInterface := range elemsBy_(obj_(functionType.getExtendedInterfaces()), to_ObjectType) {
 		if (extInterface.getConstructor() != nil) && !extInterface.getConstructor().isInterface() {
 			this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, TypeCheck_CONFLICTING_EXTENDED_TYPE, []string{"interface", this.getBestFunctionName(n)}))
 		}
@@ -1409,9 +1397,7 @@ func (this *TypeCheck) checkInterface(n Node, functionType *FunctionType) {
 	if functionType.getExtendedInterfacesCount() > 1 {
 		var properties *TMap[Property_Key, *ObjectType] = newTMap_(tch_Property_Key, tc_p_ObjectType)
 		var currentProperties *TMap[Property_Key, *ObjectType] = newTMap_(tch_Property_Key, tc_p_ObjectType)
-		it_3 := foreach_(obj_(functionType.getExtendedInterfaces()))
-		for it_3.next() {
-			var interfaceType *ObjectType = to_ObjectType(it_3.v)
+		for interfaceType := range elemsBy_(obj_(functionType.getExtendedInterfaces()), to_ObjectType) {
 			currentProperties.clear()
 			this.checkInterfaceConflictProperties(n, this.getBestFunctionName(n), properties, currentProperties, interfaceType)
 			properties.asMap().putAll(currentProperties.asMap())
@@ -1420,9 +1406,7 @@ func (this *TypeCheck) checkInterface(n Node, functionType *FunctionType) {
 	var loopPath *TList[*FunctionType] = functionType.checkExtendsLoop()
 	if loopPath != nil {
 		var displayNames []string = []string{}
-		it_5 := loopPath.each()
-		for it_5.next() {
-			var loopType *FunctionType = it_5.v
+		for loopType := range loopPath.All() {
 			displayNames = append(displayNames, loopType.getDisplayName().orElse(nullstr_))
 		}
 		var strPath string = String_join_s(" -> ", Iterable(sliceView_(tc_string, displayNames)))
@@ -1810,9 +1794,7 @@ func (this *TypeCheck) checkJsdocInfoContainsObjectWithBadKey(n Node) {
 		this.checkTypeContainsObjectWithBadKey(n, info.getType())
 		this.checkTypeContainsObjectWithBadKey(n, info.getReturnType())
 		this.checkTypeContainsObjectWithBadKey(n, info.getTypedefType())
-		it_1 := info.getParameterNames().each()
-		for it_1.next() {
-			var param string = it_1.v
+		for param := range info.getParameterNames().All() {
 			this.checkTypeContainsObjectWithBadKey(n, info.getParameterType(Optional_of[string](param)))
 		}
 	}

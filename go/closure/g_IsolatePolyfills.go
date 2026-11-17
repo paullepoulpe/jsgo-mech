@@ -66,9 +66,7 @@ func (this *IsolatePolyfills) process_2(externs Node, root Node) {
 	var shouldDisambiguateProperties bool = this.compiler_.getOptions().shouldDisambiguateProperties()
 	new_PolyfillUsageFinder(this.compiler_, this.polyfills, shouldDisambiguateProperties).traverseIncludingGuarded(root, func(p0 any) { polyfillUsages = append(polyfillUsages, cast_[*PolyfillUsageFinder_PolyfillUsage](p0)) })
 	var visitedNodes map[Node]struct{} = map[Node]struct{}{}
-	it_1 := eachOf_(&polyfillUsages)
-	for it_1.next() {
-		var usage *PolyfillUsageFinder_PolyfillUsage = it_1.v
+	for usage := range sliceAll_(&polyfillUsages) {
 		if (has_(visitedNodes, usage.node()) || usage.polyfill().library == "") || !Collection_contains_s(injectedPolyfills, usage.polyfill().nativeSymbol) {
 			continue
 		}

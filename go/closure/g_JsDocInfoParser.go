@@ -1009,9 +1009,7 @@ func (this *JsDocInfoParser) checkExtendedTypes(extendedTypes *TList[*JsDocInfoP
 			return
 		}
 	}
-	it_1 := extendedTypes.each()
-	for it_1.next() {
-		var typeInfo *JsDocInfoParser_ExtendedTypeInfo = it_1.v
+	for typeInfo := range extendedTypes.All() {
 		if this.jsdocBuilder.isInterfaceRecorded() {
 			if !this.jsdocBuilder.recordExtendedInterface(typeInfo.type__) {
 				this.addParserWarning_3(Msg_JSDOC_EXTENDS_DUPLICATE, typeInfo.lineno_, typeInfo.charno_)

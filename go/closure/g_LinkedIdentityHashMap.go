@@ -68,9 +68,7 @@ func (this *LinkedIdentityHashMap) merge(key any, value any, fn func(any, any) a
 }
 
 func (this *LinkedIdentityHashMap) forEach(fn func(any, any)) {
-	it_1 := eachOf_(&this.iterationOrder)
-	for it_1.next() {
-		var entry *LinkedIdentityHashMap_Entry = it_1.v
+	for entry := range sliceAll_(&this.iterationOrder) {
 		fn(entry.key_, entry.value_)
 	}
 }

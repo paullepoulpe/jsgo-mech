@@ -128,45 +128,31 @@ var lambda_CheckRequiresSorted_checkCanonical_1_ = &Function_base_fn{func(p0 any
 
 func CheckRequiresSorted_canonicalizeImports(importsByNamespace *SimpleListMultimap) *TList[*CheckRequiresSorted_ImportStatement] {
 	var canonicalImports *TList[*CheckRequiresSorted_ImportStatement] = newTList_(tc_p_CheckRequiresSorted_ImportStatement)
-	it_1 := foreach_(importsByNamespace.keySet())
-	for it_1.next() {
-		var namespace string = str_(it_1.v)
+	for namespace := range elemsBy_(importsByNamespace.keySet(), str_) {
 		var allImports CollectionOf[*CheckRequiresSorted_ImportStatement] = Collection(importsByNamespace.get_s(namespace))
 		var strongestPrimitive CheckRequiresSorted_ImportPrimitive = CheckRequiresSorted_ImportPrimitive_WEAKEST
-		it_3 := foreach_(allImports)
-		for it_3.next() {
-			var i *CheckRequiresSorted_ImportStatement = cast_[*CheckRequiresSorted_ImportStatement](it_3.v)
+		for i := range elemsAs_[*CheckRequiresSorted_ImportStatement](allImports) {
 			strongestPrimitive = CheckRequiresSorted_ImportPrimitive_stronger(strongestPrimitive, i.primitive())
 		}
 		var hasAliasing bool = false
-		it_5 := foreach_(Iterables_filter_f(Iterable(allImports), lambda_CheckRequiresSorted_canonicalizeImports_1_))
-		for it_5.next() {
-			var stmt *CheckRequiresSorted_ImportStatement = cast_[*CheckRequiresSorted_ImportStatement](it_5.v)
+		for stmt := range elemsAs_[*CheckRequiresSorted_ImportStatement](Iterables_filter_f(Iterable(allImports), lambda_CheckRequiresSorted_canonicalizeImports_1_)) {
 			canonicalImports.add(stmt.upgrade(strongestPrimitive))
 			hasAliasing = true
 		}
 		var hasDestructuring bool = false
 		var destructuringNodesBuilder ImmutableList_BuilderOf[Node] = ImmutableList_builder()
-		it_7 := foreach_(allImports)
-		for it_7.next() {
-			var i *CheckRequiresSorted_ImportStatement = cast_[*CheckRequiresSorted_ImportStatement](it_7.v)
+		for i := range elemsAs_[*CheckRequiresSorted_ImportStatement](allImports) {
 			if i.isDestructuring() {
-				it_9 := foreach_(obj_(i.nodes()))
-				for it_9.next() {
-					var node Node = Node_of_(it_9.v)
+				for node := range elemsBy_(obj_(i.nodes()), Node_of_) {
 					destructuringNodesBuilder.add(node.box_())
 				}
 			}
 		}
 		var destructuringNodes ImmutableListOf[Node] = destructuringNodesBuilder.build()
 		var sortedDestructures []*CheckRequiresSorted_DestructuringBinding = []*CheckRequiresSorted_DestructuringBinding{}
-		it_11 := foreach_(allImports)
-		for it_11.next() {
-			var i *CheckRequiresSorted_ImportStatement = cast_[*CheckRequiresSorted_ImportStatement](it_11.v)
+		for i := range elemsAs_[*CheckRequiresSorted_ImportStatement](allImports) {
 			if i.isDestructuring() {
-				it_13 := foreach_(obj_(i.destructures()))
-				for it_13.next() {
-					var binding *CheckRequiresSorted_DestructuringBinding = cast_[*CheckRequiresSorted_DestructuringBinding](it_13.v)
+				for binding := range elemsAs_[*CheckRequiresSorted_DestructuringBinding](obj_(i.destructures())) {
 					sortedDestructures = append(sortedDestructures, binding.canonicalizeShorthandProperties())
 				}
 			}
@@ -179,13 +165,9 @@ func CheckRequiresSorted_canonicalizeImports(importsByNamespace *SimpleListMulti
 		}
 		if !hasAliasing && !hasDestructuring {
 			var standaloneNodesBuilder ImmutableList_BuilderOf[Node] = ImmutableList_builder()
-			it_15 := foreach_(allImports)
-			for it_15.next() {
-				var i *CheckRequiresSorted_ImportStatement = cast_[*CheckRequiresSorted_ImportStatement](it_15.v)
+			for i := range elemsAs_[*CheckRequiresSorted_ImportStatement](allImports) {
 				if i.isStandalone() {
-					it_17 := foreach_(obj_(i.nodes()))
-					for it_17.next() {
-						var node Node = Node_of_(it_17.v)
+					for node := range elemsBy_(obj_(i.nodes()), Node_of_) {
 						standaloneNodesBuilder.add(node.box_())
 					}
 				}
@@ -554,9 +536,7 @@ func (this *CheckRequiresSorted_ImportStatement) formatWithoutDoc() string {
 	if this.destructures() != nil {
 		sb.append("{")
 		var first bool = true
-		it_1 := foreach_(obj_(this.destructures()))
-		for it_1.next() {
-			var binding *CheckRequiresSorted_DestructuringBinding = cast_[*CheckRequiresSorted_DestructuringBinding](it_1.v)
+		for binding := range elemsAs_[*CheckRequiresSorted_DestructuringBinding](obj_(this.destructures())) {
 			var exportedName string = binding.exportedName()
 			var localName string = binding.localName()
 			if first {
@@ -584,9 +564,7 @@ func (this *CheckRequiresSorted_ImportStatement) formatWithoutDoc() string {
 
 func (this *CheckRequiresSorted_ImportStatement) format() string {
 	var sb strBuilder_
-	it_1 := foreach_(obj_(this.nodes()))
-	for it_1.next() {
-		var node Node = Node_of_(it_1.v)
+	for node := range elemsBy_(obj_(this.nodes()), Node_of_) {
 		var comment string = node.getNonJSDocCommentString()
 		if comment != "" {
 			sb.append(node.getNonJSDocCommentString()).append("\n")

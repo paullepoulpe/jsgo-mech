@@ -122,9 +122,7 @@ func (this *MakeDeclaredNamesUnique) findDeclaredNames(t *NodeTraversal, n Node)
 	if !NodeUtil_createsScope(n) && !n.isScript() {
 		panic(new_IllegalStateException_String(objstr_(n.box_())).self())
 	}
-	it_1 := foreach_(t.getScope().getVarIterable())
-	for it_1.next() {
-		var v *Var = cast_[*Var](it_1.v)
+	for v := range elemsAs_[*Var](t.getScope().getVarIterable()) {
 		slicePeekTop_(tc_MakeDeclaredNamesUnique_Renamer, this.renamerStack).addDeclaredName(v.getName(), false)
 	}
 }
@@ -228,9 +226,7 @@ func (this *MakeDeclaredNamesUnique_ContextualRenameInverter) enterScope(t *Node
 	}
 	var scope *Scope = t.getScope()
 	var declaredVariablesBuilder []*MakeDeclaredNamesUnique_ContextualRenameInverter_DeclaredVariableInfo
-	it_1 := foreach_(scope.getVarIterable())
-	for it_1.next() {
-		var var_ *Var = cast_[*Var](it_1.v)
+	for var_ := range elemsAs_[*Var](scope.getVarIterable()) {
 		var variableInfo *MakeDeclaredNamesUnique_ContextualRenameInverter_DeclaredVariableInfo = this.createDeclaredVariableInfo(var_)
 		declaredVariablesBuilder = immAdd_(tc_p_MakeDeclaredNamesUnique_ContextualRenameInverter_DeclaredVariableInfo, declaredVariablesBuilder, variableInfo)
 		this.variablesStackedByName.pushVariableInfo(icast_MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo(obj_(variableInfo)))
@@ -364,9 +360,7 @@ func (this *MakeDeclaredNamesUnique_ContextualRenameInverter_RenamingInfo) attem
 	if newName == this.currentName {
 		return this.currentName
 	}
-	it_5 := eachOf_(&this.referenceNodes)
-	for it_5.next() {
-		var referenceNode Node = it_5.v
+	for referenceNode := range sliceAll_(&this.referenceNodes) {
 		referenceNode.setString(newName)
 		this.outer_.compiler_.reportChangeToEnclosingScope(referenceNode)
 		var parent Node = referenceNode.getParent()

@@ -39,9 +39,7 @@ func (this *ReplaceMessages) createMsgPropertiesNode(message *JsMessage, msgOpti
 	msgPropsBuilder.addString("key", message.getKey())
 	if msgOptions.isIcuTemplate() && !message.canonicalPlaceholderNames().isEmpty() {
 		var namesArrayLit Node = this.astFactory_.createArraylit([]Node{})
-		it_1 := foreach_(obj_(message.canonicalPlaceholderNames()))
-		for it_1.next() {
-			var name string = str_(it_1.v)
+		for name := range elemsBy_(obj_(message.canonicalPlaceholderNames()), str_) {
 			namesArrayLit.addChildToBack(this.astFactory_.createString(name))
 		}
 		msgPropsBuilder.addNode("icu_placeholder_names", namesArrayLit)
@@ -115,9 +113,7 @@ func (this *ReplaceMessages) createNodeForGenderedMsgString(message *JsMessage, 
 	var type_ AstFactory_Type = AstFactory_type_Node(nodeToReplace)
 	var uniqueId string = this.compiler_.getUniqueIdSupplier().getUniqueId(this.compiler_.getInput(NodeUtil_getInputId(nodeToReplace)))
 	var placeholderMapIds map[string]string = map[string]string{}
-	it_1 := placeholderMap.each()
-	for it_1.next() {
-		var placeholderName string = it_1.k
+	for placeholderName := range placeholderMap.Keys() {
 		var placeholderId string = (sstr_(placeholderName) + sstr_(uniqueId))
 		paramList.addChildToBack(this.astFactory_.createName(placeholderId, type_))
 		placeholderMapIds[placeholderName] = placeholderId
@@ -134,9 +130,7 @@ func (this *ReplaceMessages) createNodeForGenderedMsgString(message *JsMessage, 
 	function.setColor(nodeToReplace.getColor())
 	this.compiler_.reportChangeToChangeScope(function)
 	var callNode Node = this.astFactory_.createCall(function, type_, []Node{})
-	it_3 := placeholderMap.each()
-	for it_3.next() {
-		var node Node = it_3.v
+	for node := range placeholderMap.Values() {
 		callNode.addChildToBack(node.cloneTree())
 	}
 	return Outcome_base_ok_Object(callNode.box_())
@@ -535,9 +529,7 @@ func (this *ReplaceMessages_QuotedKeyObjectLitBuilder) addNode(key string, node 
 
 func (this *ReplaceMessages_QuotedKeyObjectLitBuilder) build() Node {
 	var result Node = this.outer_.astFactory_.createObjectLit([]Node{})
-	it_1 := foreach_(this.keyToValueNodeMap.asMap().entrySet())
-	for it_1.next() {
-		var entry Map_Entry = icast_Map_Entry(it_1.v)
+	for entry := range elemsBy_(this.keyToValueNodeMap.asMap().entrySet(), icast_Map_Entry) {
 		result.addChildToBack(this.outer_.astFactory_.createQuotedStringKey(str_(entry.getKey()), Node_of_(entry.getValue())))
 	}
 	return result
@@ -925,9 +917,7 @@ func ReplaceMessages_ProtectedJsMessage_fromAstNode(node Node, idGenerator JsMes
 				if !valueNode.isArrayLit() {
 					panic(new_IllegalStateException_String("icu_placeholder_names must be an array").self())
 				}
-				it_2 := foreach_(valueNode.children())
-				for it_2.next() {
-					var valueNodeChild Node = Node_of_(it_2.v)
+				for valueNodeChild := range elemsBy_(valueNode.children(), Node_of_) {
 					icuPlaceholderNames.add(valueNodeChild.getString())
 				}
 				continue

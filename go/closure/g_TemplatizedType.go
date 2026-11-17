@@ -34,9 +34,7 @@ func (this *TemplatizedType) init_TemplatizedType(registry *JSTypeRegistry, obje
 	this.ProxyObjectType.init_ProxyObjectType_JSTypeRegistry_JSType_TemplateTypeMap(registry, objectType.up_JSType(), objectType.getTemplateTypeMap().copyFilledWithValues(templateTypes))
 	var builder ImmutableList_BuilderOf[*JSType] = ImmutableList_builder()
 	var maybeIsSpecializedOnlyWithUnknown bool = true
-	it_1 := foreach_(obj_(objectType.getTypeParameters()))
-	for it_1.next() {
-		var newlyFilledTemplateKey *TemplateType = cast_[*TemplateType](it_1.v)
+	for newlyFilledTemplateKey := range elemsAs_[*TemplateType](obj_(objectType.getTypeParameters())) {
 		var resolvedType *JSType = this.getTemplateTypeMap().getResolvedTemplateType(newlyFilledTemplateKey)
 		builder.add(resolvedType.self())
 		if maybeIsSpecializedOnlyWithUnknown {
@@ -62,9 +60,7 @@ func (this *TemplatizedType) getTypeClass_impl() JSTypeClass {
 
 func (this *TemplatizedType) getCtorImplementedInterfaces_impl() IterableOf[*ObjectType] {
 	var resolvedImplementedInterfaces *TSet[*ObjectType] = newTSet_(tch_p_ObjectType)
-	it_1 := foreach_(this.getReferencedObjTypeInternal().getCtorImplementedInterfaces())
-	for it_1.next() {
-		var obj *ObjectType = to_ObjectType(it_1.v)
+	for obj := range elemsBy_(this.getReferencedObjTypeInternal().getCtorImplementedInterfaces(), to_ObjectType) {
 		resolvedImplementedInterfaces.add(to_JSType(obj.visit(icast_Visitor(obj_(this.replacer)))).toObjectType())
 	}
 	return resolvedImplementedInterfaces.asSet()
@@ -72,9 +68,7 @@ func (this *TemplatizedType) getCtorImplementedInterfaces_impl() IterableOf[*Obj
 
 func (this *TemplatizedType) getCtorExtendedInterfaces_impl() IterableOf[*ObjectType] {
 	var resolvedExtendedInterfaces *TSet[*ObjectType] = newTSet_(tch_p_ObjectType)
-	it_1 := foreach_(this.getReferencedObjTypeInternal().getCtorExtendedInterfaces())
-	for it_1.next() {
-		var obj *ObjectType = to_ObjectType(it_1.v)
+	for obj := range elemsBy_(this.getReferencedObjTypeInternal().getCtorExtendedInterfaces(), to_ObjectType) {
 		resolvedExtendedInterfaces.add(to_JSType(obj.visit(icast_Visitor(obj_(this.replacer)))).toObjectType())
 	}
 	return resolvedExtendedInterfaces.asSet()
@@ -167,9 +161,7 @@ func (this *TemplatizedType) resolveInternal_impl(reporter ErrorReporter_rhino) 
 	this.ProxyObjectType.resolveInternal_impl(reporter)
 	var rebuild bool = (baseTypeBefore != this.getReferencedType().up_JSType())
 	var builder ImmutableList_BuilderOf[*JSType] = ImmutableList_builder()
-	it_1 := foreach_(obj_(this.templateTypes))
-	for it_1.next() {
-		var type_ *JSType = to_JSType(it_1.v)
+	for type_ := range elemsBy_(obj_(this.templateTypes), to_JSType) {
 		var resolved *JSType = type_.resolve(reporter)
 		rebuild = bor_(rebuild, !JSCompObjects_identical(resolved.self(), type_.self()))
 		builder.add(resolved.self())

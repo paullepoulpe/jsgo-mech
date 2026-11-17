@@ -30,9 +30,7 @@ func (this *PruningAnalysis) analyze() *PruningAnalysis_Result {
 
 func (this *PruningAnalysis) calculateTotalBlame() ImmutableMapOf[string, BoxedOf[int32]] {
 	var reachabilityPerEntryPoint ImmutableMap_BuilderOf[string, BoxedOf[int32]] = ImmutableMap_builder()
-	it_1 := foreach_(obj_(this.entryPoints_))
-	for it_1.next() {
-		var provider *CompilerInput = cast_[*CompilerInput](it_1.v)
+	for provider := range elemsAs_[*CompilerInput](obj_(this.entryPoints_)) {
 		var transitiveClosure ImmutableSetOf[*CompilerInput] = ImmutableSet_builder().addAll(icast_Iterable(obj_(this.sorter_.getStrongDependenciesOf(ImmutableList_of_Object(obj_(provider)), false)))).addAll(icast_Iterable(obj_(this.sorter_.getSortedWeakDependenciesOf(ImmutableList_of_Object(obj_(provider)))))).build()
 		reachabilityPerEntryPoint.put(strobj_(provider.getName()), any(int32(transitiveClosure.size())))
 	}
@@ -43,9 +41,7 @@ func (this *PruningAnalysis) calculateBottlenecks() ImmutableMapOf[string, Boxed
 	var graph *DiGraph = this.buildGraph()
 	var dominatorTree *DominatorTree = DominatorTree_compute(graph, strobj_(PruningAnalysis_VIRTUAL_ROOT))
 	var bottleneckBlame *TMap[string, any] = newTMap_(tc_string, tc_any)
-	it_1 := foreach_(obj_(cast_[*ImmutableSet](dominatorTree.getAllSubtreeSizes().entrySet())))
-	for it_1.next() {
-		var entry Map_Entry = icast_Map_Entry(it_1.v)
+	for entry := range elemsBy_(obj_(cast_[*ImmutableSet](dominatorTree.getAllSubtreeSizes().entrySet())), icast_Map_Entry) {
 		var node string = str_(entry.getKey())
 		var retainedCount int32 = unbox_[int32](entry.getValue())
 		if !(node == PruningAnalysis_VIRTUAL_ROOT) && (retainedCount > 1) {
@@ -72,30 +68,20 @@ func lambda_PruningAnalysis_calculateBottlenecks_1_(entry_ any) int32 {
 func (this *PruningAnalysis) buildGraph() *DiGraph {
 	var graph *DiGraph = LinkedDirectedGraph_create().up_DiGraph()
 	graph.createNode(strobj_(PruningAnalysis_VIRTUAL_ROOT))
-	it_1 := this.sorter_.getSortedList().each()
-	for it_1.next() {
-		var input *CompilerInput = it_1.v
+	for input := range this.sorter_.getSortedList().All() {
 		graph.createNode(strobj_(input.getName()))
 	}
-	it_3 := foreach_(obj_(this.entryPoints_))
-	for it_3.next() {
-		var input *CompilerInput = cast_[*CompilerInput](it_3.v)
+	for input := range elemsAs_[*CompilerInput](obj_(this.entryPoints_)) {
 		graph.connect(strobj_(PruningAnalysis_VIRTUAL_ROOT), nil, strobj_(input.getName()))
 	}
-	it_5 := this.sorter_.getSortedList().each()
-	for it_5.next() {
-		var input *CompilerInput = it_5.v
+	for input := range this.sorter_.getSortedList().All() {
 		var name string = input.getName()
 		var depSymbols *TSet[string] = newTSet_(tc_string)
-		it_7 := foreach_(obj_(input.getRequires()))
-		for it_7.next() {
-			var req *DependencyInfo_Require = cast_[*DependencyInfo_Require](it_7.v)
+		for req := range elemsAs_[*DependencyInfo_Require](obj_(input.getRequires())) {
 			depSymbols.add(req.getSymbol())
 		}
 		depSymbols.asSet().addAll(icast_Collection(obj_(input.getTypeRequires())))
-		it_9 := depSymbols.each()
-		for it_9.next() {
-			var symbol string = it_9.v
+		for symbol := range depSymbols.All() {
 			var depRes *Outcome_base = this.sorter_.getInputProviding(symbol)
 			if depRes.isErr() {
 			} else {

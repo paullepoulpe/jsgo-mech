@@ -31,9 +31,7 @@ func (this *CheckUnusedPrivateProperties) process_2(externs Node, root Node) {
 }
 
 func (this *CheckUnusedPrivateProperties) reportUnused(t *NodeTraversal) {
-	it_1 := eachOf_(&this.candidates)
-	for it_1.next() {
-		var n Node = it_1.v
+	for n := range sliceAll_(&this.candidates) {
 		var propName string = this.getPropName(n)
 		if !has_(this.used, propName) {
 			t.report(n, CheckUnusedPrivateProperties_UNUSED_PRIVATE_PROPERTY, []string{propName})

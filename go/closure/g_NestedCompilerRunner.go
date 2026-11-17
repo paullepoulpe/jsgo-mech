@@ -69,9 +69,7 @@ func (this *NestedCompilerRunner) initializeCompiler() {
 func (this *NestedCompilerRunner) createChunks() ImmutableListOf[*JSChunk] {
 	this.baseChunk.addCompilerInput(new_CompilerInput_SourceFile(SourceFile_jscomp_fromCode_String_String_SourceKind("synthetic_base", "", StaticSourceFile_SourceKind_STRONG)))
 	var chunks ImmutableList_BuilderOf[*JSChunk] = ImmutableList_builder().add(obj_(this.baseChunk))
-	it_1 := eachOf_(&this.inputs)
-	for it_1.next() {
-		var input *CompilerInput = it_1.v
+	for input := range sliceAll_(&this.inputs) {
 		var chunk *JSChunk = new_JSChunk(("shadow_chunk_" + sstr_(input.getSourceFile().getName())))
 		chunk.addCompilerInput(input)
 		chunk.addDependency(this.baseChunk)
@@ -102,14 +100,10 @@ func (this *NestedCompilerRunner) runCompilation() {
 }
 
 func (this *NestedCompilerRunner) delegateDiagnosticsToOriginal() {
-	it_1 := foreach_(obj_(this.shadowCompiler.getErrors()))
-	for it_1.next() {
-		var error_ *JSError = cast_[*JSError](it_1.v)
+	for error_ := range elemsAs_[*JSError](obj_(this.shadowCompiler.getErrors())) {
 		this.original_.report(error_)
 	}
-	it_3 := foreach_(obj_(this.shadowCompiler.getWarnings()))
-	for it_3.next() {
-		var error_ *JSError = cast_[*JSError](it_3.v)
+	for error_ := range elemsAs_[*JSError](obj_(this.shadowCompiler.getWarnings())) {
 		this.original_.report(error_)
 	}
 }

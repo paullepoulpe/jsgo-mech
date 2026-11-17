@@ -131,9 +131,7 @@ func InlineAndCollapseProperties_maybeAddPropertiesToWorklist(name *GlobalNamesp
 	if name.getAliasingGets() == 0 {
 		workList.addAll(Collection(sliceView_(tc_p_GlobalNamespace_Name, name.props)))
 	} else {
-		it_1 := eachOf_(&name.props)
-		for it_1.next() {
-			var property *GlobalNamespace_Name = it_1.v
+		for property := range sliceAll_(&name.props) {
 			if property.canCollapse() {
 				workList.add(obj_(property))
 			}
@@ -381,9 +379,7 @@ func (this *InlineAndCollapseProperties_AggressiveInlineAliases) inlineAliasesFo
 		} else if (ref.isAliasingGet() && cast_[*Scope](ref.scope_.getClosestHoistScope().self()).isGlobal()) && !ref.isTwin() {
 			this.inlineGlobalAliasIfPossible(name, ref, namespace)
 		} else if (name.isClass() && ref.isSubclassingGet()) && (name.props != nil) {
-			it_3 := eachOf_(&name.props)
-			for it_3.next() {
-				var prop *GlobalNamespace_Name = it_3.v
+			for prop := range sliceAll_(&name.props) {
 				this.rewriteAllSubclassInheritedAccesses(name, ref, prop, namespace)
 			}
 		}
@@ -418,9 +414,7 @@ func (this *InlineAndCollapseProperties_AggressiveInlineAliases) maybeInlineInne
 	collector.processScope(innerScope)
 	var innerNameRefs *ReferenceCollection = collector.getReferences_Var(innerNameVar)
 	var newNodes *TSet[GlobalNamespace_AstChange] = newTSet_(tch_GlobalNamespace_AstChange)
-	it_1 := foreach_(obj_(innerNameRefs))
-	for it_1.next() {
-		var innerNameRef *Reference = cast_[*Reference](it_1.v)
+	for innerNameRef := range elemsAs_[*Reference](obj_(innerNameRefs)) {
 		var innerNameRefNode Node = innerNameRef.getNode()
 		if NodeUtil_isNormalGet(innerNameRefNode.getParent()) {
 			newNodes.add(this.replaceAliasReference(globalNameDeclaration, innerNameRef))
@@ -445,9 +439,7 @@ func (this *InlineAndCollapseProperties_AggressiveInlineAliases) rewriteAllSubcl
 	}
 	var subclassNameObj *GlobalNamespace_Name = cast_[*GlobalNamespace_Name](namespace.getOwnSlot(subclassName))
 	if (subclassNameObj != nil) && (subclassNameObj.subclassingGetCount() > 0) {
-		it_1 := foreach_(subclassNameObj.getRefs())
-		for it_1.next() {
-			var ref *GlobalNamespace_Ref = cast_[*GlobalNamespace_Ref](it_1.v)
+		for ref := range elemsAs_[*GlobalNamespace_Ref](subclassNameObj.getRefs()) {
 			if ref.isSubclassingGet() {
 				this.rewriteAllSubclassInheritedAccesses(superclassNameObj, ref, prop, namespace)
 			}
@@ -569,9 +561,7 @@ func (this *InlineAndCollapseProperties_AggressiveInlineAliases) partiallyInline
 	var readNodes *TSet[GlobalNamespace_AstChange] = newTSet_(tch_GlobalNamespace_AstChange)
 	var alreadySeenInitialAlias bool = false
 	var foundNonReplaceableAlias bool = false
-	it_3 := foreach_(obj_(aliasRefs))
-	for it_3.next() {
-		var aliasRef *Reference = cast_[*Reference](it_3.v)
+	for aliasRef := range elemsAs_[*Reference](obj_(aliasRefs)) {
 		var aliasRefNode Node = aliasRef.getNode()
 		if aliasRefNode == aliasLhsNode {
 			alreadySeenInitialAlias = true
@@ -738,9 +728,7 @@ func (this *InlineAndCollapseProperties_AggressiveInlineAliases) rewriteAliasPro
 	if ok_, a1_, a2_ := !value.matchesQualifiedName(name.getFullName()), value, name.getFullName(); !ok_ {
 		panic(new_IllegalStateException_String(Strings_lenientFormat("%s should not match name %s", []any{a1_.box_(), strobj_(a2_)})).self())
 	}
-	it_1 := eachOf_(&name.props)
-	for it_1.next() {
-		var prop *GlobalNamespace_Name = it_1.v
+	for prop := range sliceAll_(&name.props) {
 		this.rewriteNestedAliasReference(value, depth, newNodes, prop)
 	}
 }
@@ -936,9 +924,7 @@ func (this *InlineAndCollapseProperties_CollapseProperties) process_2(externs No
 	this.nameMap = Preconditions_checkNotNullT_Object(this.outer_.namespace_, strobj_("namespace was not initialized")).getNameIndex()
 	var globalNames *TList[*GlobalNamespace_Name] = this.outer_.namespace_.getNameForest()
 	var escaped ImmutableSetOf[*GlobalNamespace_Name] = this.checkNamespaces()
-	it_1 := globalNames.each()
-	for it_1.next() {
-		var name *GlobalNamespace_Name = it_1.v
+	for name := range globalNames.All() {
 		this.flattenReferencesToCollapsibleDescendantNames(name, name.getBaseName(), setImm_(tc_p_GlobalNamespace_Name, escaped))
 		this.collapseDeclarationOfNameAndDescendants(name, name.getBaseName(), setImm_(tc_p_GlobalNamespace_Name, escaped))
 	}
@@ -991,18 +977,14 @@ func (this *InlineAndCollapseProperties_CollapseProperties) checkNamespaces() Im
 	var escaped ImmutableSet_BuilderOf[*GlobalNamespace_Name] = ImmutableSet_builder()
 	var dynamicallyImportedModuleRefs map[string]struct{} = setFrom_(tc_string, Collection(this.dynamicallyImportedModules.asSet()))
 	if !this.dynamicallyImportedModules.isEmpty() {
-		it_1 := this.nameMap.each()
-		for it_1.next() {
-			var name *GlobalNamespace_Name = it_1.v
+		for name := range this.nameMap.Values() {
 			if this.dynamicallyImportedModules.contains(name.getFullName()) {
 				this.logDecisionForName(name, "escapes - dynamically imported module namespace")
 				escaped.add(obj_(name))
 				if name.props == nil {
 					continue
 				}
-				it_3 := eachOf_(&name.props)
-				for it_3.next() {
-					var prop *GlobalNamespace_Name = it_3.v
+				for prop := range sliceAll_(&name.props) {
 					var propDeclaration *GlobalNamespace_Ref = cast_[*GlobalNamespace_Ref](prop.getDeclaration())
 					if propDeclaration == nil {
 						continue
@@ -1018,9 +1000,7 @@ func (this *InlineAndCollapseProperties_CollapseProperties) checkNamespaces() Im
 			}
 		}
 	}
-	it_5 := this.nameMap.each()
-	for it_5.next() {
-		var name *GlobalNamespace_Name = it_5.v
+	for name := range this.nameMap.Values() {
 		if len(dynamicallyImportedModuleRefs) != 0 && has_(dynamicallyImportedModuleRefs, name.getFullName()) {
 			escaped.add(obj_(name))
 		}
@@ -1031,9 +1011,7 @@ func (this *InlineAndCollapseProperties_CollapseProperties) checkNamespaces() Im
 			continue
 		}
 		var initialized bool = (cast_[*GlobalNamespace_Ref](name.getDeclaration()) != nil)
-		it_7 := foreach_(name.getRefs())
-		for it_7.next() {
-			var ref *GlobalNamespace_Ref = cast_[*GlobalNamespace_Ref](it_7.v)
+		for ref := range elemsAs_[*GlobalNamespace_Ref](name.getRefs()) {
 			if ref.isDeleteProp() {
 				if initialized {
 					this.warnAboutNamespaceRedefinition(name, ref)
@@ -1074,9 +1052,7 @@ func (this *InlineAndCollapseProperties_CollapseProperties) flattenReferencesToC
 		this.logDecisionForName(n, "escapes: will not flatten descendant name references")
 		return
 	}
-	it_1 := eachOf_(&n.props)
-	for it_1.next() {
-		var p *GlobalNamespace_Name = it_1.v
+	for p := range sliceAll_(&n.props) {
 		var propAlias string = this.appendPropForAlias(alias, p.getBaseName())
 		var inlinability GlobalNamespace_Inlinability = p.canCollapseOrInline()
 		var isAllowedToCollapse bool = ((this.outer_.propertyCollapseLevel != CompilerOptions_PropertyCollapseLevel_MODULE_EXPORT) || p.isModuleExport())
@@ -1143,9 +1119,7 @@ func (this *InlineAndCollapseProperties_CollapseProperties) flattenReferencesTo(
 		}
 		return 0
 	}(), alias)
-	it_1 := foreach_(n.getRefs())
-	for it_1.next() {
-		var r *GlobalNamespace_Ref = cast_[*GlobalNamespace_Ref](it_1.v)
+	for r := range elemsAs_[*GlobalNamespace_Ref](n.getRefs()) {
 		if r == cast_[*GlobalNamespace_Ref](n.getDeclaration()) {
 			continue
 		}
@@ -1159,9 +1133,7 @@ func (this *InlineAndCollapseProperties_CollapseProperties) flattenReferencesTo(
 		}
 	}
 	if n.props != nil {
-		it_3 := eachOf_(&n.props)
-		for it_3.next() {
-			var p *GlobalNamespace_Name = it_3.v
+		for p := range sliceAll_(&n.props) {
 			this.flattenPrefixes(alias, (sstr_(originalName) + sstr_(p.getBaseName())), p, 1, isConstantName)
 		}
 	}
@@ -1172,18 +1144,14 @@ func (this *InlineAndCollapseProperties_CollapseProperties) flattenPrefixes(alia
 	if ((decl != nil) && (decl.getNode() != 0)) && decl.getNode().isGetProp() {
 		this.flattenNameRefAtDepth(alias, decl.getNode(), depth, originalName, isConstantName)
 	}
-	it_1 := foreach_(n.getRefs())
-	for it_1.next() {
-		var r *GlobalNamespace_Ref = cast_[*GlobalNamespace_Ref](it_1.v)
+	for r := range elemsAs_[*GlobalNamespace_Ref](n.getRefs()) {
 		if r == decl {
 			continue
 		}
 		this.flattenNameRefAtDepth(alias, r.getNode(), depth, originalName, isConstantName)
 	}
 	if n.props != nil {
-		it_3 := eachOf_(&n.props)
-		for it_3.next() {
-			var p *GlobalNamespace_Name = it_3.v
+		for p := range sliceAll_(&n.props) {
 			this.flattenPrefixes(alias, (sstr_(originalName) + sstr_(p.getBaseName())), p, (depth + 1), isConstantName)
 		}
 	}
@@ -1244,9 +1212,7 @@ func (this *InlineAndCollapseProperties_CollapseProperties) collapseDeclarationO
 		return
 	}
 	this.logDecisionForName(n, "collapsing descendants")
-	it_1 := eachOf_(&n.props)
-	for it_1.next() {
-		var p *GlobalNamespace_Name = it_1.v
+	for p := range sliceAll_(&n.props) {
 		this.collapseDeclarationOfNameAndDescendants(p, this.appendPropForAlias(alias, p.getBaseName()), escaped)
 	}
 }
@@ -1562,9 +1528,7 @@ func (this *InlineAndCollapseProperties_CollapseProperties) addStubsForUndeclare
 	if n.props == nil {
 		return
 	}
-	it_1 := eachOf_(&n.props)
-	for it_1.next() {
-		var p *GlobalNamespace_Name = it_1.v
+	for p := range sliceAll_(&n.props) {
 		if !p.needsToBeStubbed() {
 			continue
 		}

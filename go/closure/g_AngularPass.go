@@ -34,9 +34,7 @@ func new_AngularPass(compiler *AbstractCompiler) *AngularPass {
 
 func (this *AngularPass) process_2(externs Node, root Node) {
 	NodeTraversal_traverse(this.compiler_, root, this)
-	it_1 := eachOf_(&this.injectables)
-	for it_1.next() {
-		var entry *AngularPass_NodeContext = it_1.v
+	for entry := range sliceAll_(&this.injectables) {
 		var name string = entry.getName()
 		var fn Node = entry.getFunctionNode()
 		var dependencies *TList[Node] = this.createDependenciesList(fn)

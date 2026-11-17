@@ -303,9 +303,7 @@ func (this *PerformanceTracker) calcTotalStats() {
 	}
 	this.endTime = System_currentTimeMillis()
 	this.populatePassSummary()
-	it_1 := foreach_(obj_(cast_[*ImmutableCollection](this.passSummary.values())))
-	for it_1.next() {
-		var stats *PerformanceTracker_Stats = cast_[*PerformanceTracker_Stats](it_1.v)
+	for stats := range elemsAs_[*PerformanceTracker_Stats](obj_(cast_[*ImmutableCollection](this.passSummary.values()))) {
 		this.passesRuntime = int32((int64(this.passesRuntime) + stats.runtime_))
 		this.maxMem = Math_max(this.maxMem, stats.allocMem)
 		this.runs += stats.runs
@@ -331,9 +329,7 @@ func (this *PerformanceTracker) calcTotalStats() {
 
 func (this *PerformanceTracker) populatePassSummary() {
 	var tmpPassSummary *TMap[string, *PerformanceTracker_Stats] = newTMap_(tc_string, tc_p_PerformanceTracker_Stats)
-	it_1 := eachOf_(&this.log_)
-	for it_1.next() {
-		var logStat *PerformanceTracker_Stats = it_1.v
+	for logStat := range sliceAll_(&this.log_) {
 		var passName string = logStat.pass
 		var entry *PerformanceTracker_Stats = tmpPassSummary.computeIfAbsent_f(passName, func(k_ any) any {
 			var k string = str_(k_)
@@ -367,18 +363,14 @@ func (this *PerformanceTracker) setPruningAnalysisSummary(summary string) {
 }
 
 func (this *PerformanceTracker) recordPrePruningInputCount(originalInputs IterableOf[*CompilerInput], originalExterns IterableOf[*CompilerInput]) {
-	it_1 := foreach_(originalExterns)
-	for it_1.next() {
-		var input *CompilerInput = cast_[*CompilerInput](it_1.v)
+	for input := range elemsAs_[*CompilerInput](originalExterns) {
 		var name string = input.getSourceFile().getName()
 		if strings.HasSuffix(name, ".i.js") {
 			this.transitiveSummarySourcesParsed += 1
 			this.transitiveSummaryLinesParsed += input.getSourceFile().getNumLines()
 		}
 	}
-	it_3 := foreach_(originalInputs)
-	for it_3.next() {
-		var input *CompilerInput = cast_[*CompilerInput](it_3.v)
+	for input := range elemsAs_[*CompilerInput](originalInputs) {
 		var name string = input.getSourceFile().getName()
 		if strings.HasSuffix(name, ".i.js") {
 			this.transitiveSummarySourcesParsed += 1
@@ -420,17 +412,13 @@ func (this *PerformanceTracker) outputTracerReport(output *Output) {
 		output.println((sstr_(key) + "," + istr_(int64(int64(stats.runtime_))) + "," + istr_(int64(int32(stats.allocMem))) + "," + istr_(int64(int32(stats.runs))) + "," + istr_(int64(int32(stats.changes))) + "," + istr_(int64(int32(stats.astDiff))) + "," + istr_(int64(int32(stats.diff))) + "," + istr_(int64(int32(stats.gzDiff)))))
 	}
 	output.println(JSCompStrings_lines([]string{"", "Log:", "pass,runtime,allocMem,codeChanged,astReduction,reduction,gzReduction,astSize,size,gzSize"}))
-	it_3 := eachOf_(&this.log_)
-	for it_3.next() {
-		var stats *PerformanceTracker_Stats = it_3.v
+	for stats := range sliceAll_(&this.log_) {
 		output.print((sstr_(stats.pass) + "," + istr_(int64(int64(stats.runtime_))) + "," + istr_(int64(int32(stats.allocMem))) + "," + sstr_(strconv.FormatBool((stats.changes == 1))) + "," + istr_(int64(int32(stats.astDiff))) + "," + istr_(int64(int32(stats.diff))) + "," + istr_(int64(int32(stats.gzDiff))) + "," + istr_(int64(int32(stats.astSize))) + "," + istr_(int64(int32(stats.size_))) + "," + istr_(int64(int32(stats.gzSize))) + "\n"))
 	}
 	if this.astManifest != nil {
 		output.println(JSCompStrings_lines([]string{"", "Input AST Manifest:", "token,count"}))
 		var manifestLines []string = []string{}
-		it_5 := foreach_(this.astManifest.entrySet())
-		for it_5.next() {
-			var e Map_Entry = icast_Map_Entry(it_5.v)
+		for e := range elemsBy_(this.astManifest.entrySet(), icast_Map_Entry) {
 			manifestLines = append(manifestLines, String_format("%s,%d", []any{e.getKey(), e.getValue()}))
 		}
 		Collections_sort(sliceView_(tc_string, manifestLines))

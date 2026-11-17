@@ -240,17 +240,13 @@ func (this *PeepholeReplaceKnownMethods) tryFoldKnownMathMethods(subtree Node, c
 		switch methodName {
 		case "max":
 			var result float64 = neginf_
-			it_4 := foreach_(args)
-			for it_4.next() {
-				var d any = it_4.v
+			for d := range elems_(args) {
 				result = Math_max_double_double(result, unbox_[float64](d))
 			}
 			replacement = any(float64(result))
 		case "min":
 			var result float64 = posinf_
-			it_6 := foreach_(args)
-			for it_6.next() {
-				var d any = it_6.v
+			for d := range elems_(args) {
 				result = Math_min_double_double(result, unbox_[float64](d))
 			}
 			replacement = any(float64(result))

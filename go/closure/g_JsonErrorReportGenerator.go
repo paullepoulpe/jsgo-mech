@@ -22,9 +22,7 @@ func (this *JsonErrorReportGenerator) generateReport(manager *SortingErrorManage
 	var jsonWriter *SimpleJsonWriter = new_SimpleJsonWriter()
 	{
 		jsonWriter.beginArray()
-		it_1 := foreach_(manager.getSortedDiagnostics())
-		for it_1.next() {
-			var message *SortingErrorManager_ErrorWithLevel = cast_[*SortingErrorManager_ErrorWithLevel](it_1.v)
+		for message := range elemsAs_[*SortingErrorManager_ErrorWithLevel](manager.getSortedDiagnostics()) {
 			var sourceName OptionalOf[string] = message.error_.sourceName()
 			var lineNumber int32 = message.error_.getLineNumber()
 			var charno int32 = message.error_.charno()
@@ -41,9 +39,7 @@ func (this *JsonErrorReportGenerator) generateReport(manager *SortingErrorManage
 				jsonWriter.name("requirement").beginObject()
 				jsonWriter.name("ruleId").stringValue(Optional_ofNullable[string](message.error_.requirement().getRuleId()))
 				jsonWriter.name("configFiles").beginArray()
-				it_3 := foreach_(ProtocolStringList(message.error_.requirement().getConfigFileList()))
-				for it_3.next() {
-					var configFile string = str_(it_3.v)
+				for configFile := range elemsBy_(ProtocolStringList(message.error_.requirement().getConfigFileList()), str_) {
 					jsonWriter.stringValue(Optional_of[string](configFile))
 				}
 				jsonWriter.endArray()

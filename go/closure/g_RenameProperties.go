@@ -78,9 +78,7 @@ func (this *RenameProperties) process_2(externs Node, root Node) {
 		this.reusePropertyNames(reservedNames, Collection(propsByFreq))
 	}
 	this.generateNames(propsByFreq, reservedNames)
-	it_1 := eachOf_(&this.stringNodesToRename)
-	for it_1.next() {
-		var n Node = it_1.v
+	for n := range sliceAll_(&this.stringNodesToRename) {
 		var oldName string = n.getString()
 		if has_(this.filteredOutNames, oldName) {
 			continue
@@ -96,15 +94,11 @@ func (this *RenameProperties) process_2(externs Node, root Node) {
 			}
 		}
 	}
-	it_3 := foreach_(this.callNodeToParentMap.asMap().entrySet())
-	for it_3.next() {
-		var nodeEntry Map_Entry = icast_Map_Entry(it_3.v)
+	for nodeEntry := range elemsBy_(this.callNodeToParentMap.asMap().entrySet(), icast_Map_Entry) {
 		var parent Node = Node_of_(nodeEntry.getValue())
 		var firstArg Node = Node_of_(nodeEntry.getKey()).getSecondChild()
 		var sb strBuilder_
-		it_5 := foreach_(RenameProperties_DOT_SPLITTER.split_s(firstArg.getString()))
-		for it_5.next() {
-			var oldName string = str_(it_5.v)
+		for oldName := range elemsBy_(RenameProperties_DOT_SPLITTER.split_s(firstArg.getString()), str_) {
 			var p *RenameProperties_Property = this.propertyMap.get(oldName)
 			var replacement string
 			if (p != nil) && p.newName.isPresent() {
@@ -127,9 +121,7 @@ func (this *RenameProperties) process_2(externs Node, root Node) {
 		Node_of_(nodeEntry.getKey()).replaceWith(IR_string(sb.toString()))
 		this.compiler_.reportChangeToEnclosingScope(parent)
 	}
-	it_7 := eachOf_(&this.toRemove)
-	for it_7.next() {
-		var n Node = it_7.v
+	for n := range sliceAll_(&this.toRemove) {
 		var parent Node = n.getParent()
 		this.compiler_.reportChangeToEnclosingScope(n)
 		n.detach()
@@ -143,9 +135,7 @@ func (this *RenameProperties) process_2(externs Node, root Node) {
 }
 
 func (this *RenameProperties) reusePropertyNames(reservedNames SetOf[string], allProps CollectionOf[*RenameProperties_Property]) {
-	it_1 := foreach_(allProps)
-	for it_1.next() {
-		var prop *RenameProperties_Property = cast_[*RenameProperties_Property](it_1.v)
+	for prop := range elemsAs_[*RenameProperties_Property](allProps) {
 		var prevName OptionalOf[string] = this.prevUsedPropertyMap.lookupNewName(prop.oldName)
 		if !this.generatePseudoNames && prevName.isPresent() {
 			if Collection_contains_s(reservedNames, prevName.get()) {
@@ -159,9 +149,7 @@ func (this *RenameProperties) reusePropertyNames(reservedNames SetOf[string], al
 
 func (this *RenameProperties) generateNames(props SetOf[*RenameProperties_Property], reservedNames SetOf[string]) {
 	this.nameGenerator.reset_4(reservedNames, "", this.reservedFirstCharacters, this.reservedNonFirstCharacters)
-	it_1 := foreach_(props)
-	for it_1.next() {
-		var p *RenameProperties_Property = cast_[*RenameProperties_Property](it_1.v)
+	for p := range elemsAs_[*RenameProperties_Property](props) {
 		if this.generatePseudoNames {
 			p.newName = Optional_of[string](("$" + sstr_(p.oldName) + "$"))
 		} else {
@@ -175,9 +163,7 @@ func (this *RenameProperties) generateNames(props SetOf[*RenameProperties_Proper
 
 func (this *RenameProperties) getPropertyMap() *VariableMap {
 	var map_ ImmutableMap_BuilderOf[string, string] = ImmutableMap_builder()
-	it_1 := this.propertyMap.each()
-	for it_1.next() {
-		var p *RenameProperties_Property = it_1.v
+	for p := range this.propertyMap.Values() {
 		if p.newName.isPresent() {
 			map_.put(strobj_(p.oldName), strobj_(p.newName.get()))
 		}
@@ -256,9 +242,7 @@ func (this *RenameProperties_ProcessProperties) visit_impl(t *NodeTraversal, n N
 			this.countCallCandidates(t, n)
 			var stringArgument Node = n.getSecondChild()
 			if !this.outer_.propertyRenameEligibilityFilter(n.box_()) {
-				it_2 := foreach_(RenameProperties_DOT_SPLITTER.split_s(stringArgument.getString()))
-				for it_2.next() {
-					var name string = str_(it_2.v)
+				for name := range elemsBy_(RenameProperties_DOT_SPLITTER.split_s(stringArgument.getString()), str_) {
 					this.outer_.filteredOutNames[name] = struct{}{}
 				}
 			}
@@ -317,9 +301,7 @@ func (this *RenameProperties_ProcessProperties) countCallCandidates(t *NodeTrave
 		t.report(callNode, RenameProperties_BAD_CALL, []string{fnName})
 		return
 	}
-	it_1 := foreach_(RenameProperties_DOT_SPLITTER.split_s(firstArg.getString()))
-	for it_1.next() {
-		var name string = str_(it_1.v)
+	for name := range elemsBy_(RenameProperties_DOT_SPLITTER.split_s(firstArg.getString()), str_) {
 		if !TokenStream_isJSIdentifier(name) {
 			t.report(callNode, RenameProperties_BAD_ARG, []string{fnName})
 			continue

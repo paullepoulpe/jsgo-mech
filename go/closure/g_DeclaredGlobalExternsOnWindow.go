@@ -41,9 +41,7 @@ func (this *DeclaredGlobalExternsOnWindow) process_2(externs Node, root Node) {
 
 func (this *DeclaredGlobalExternsOnWindow) addWindowProperties() {
 	if !this.nodes_.isEmpty() {
-		it_1 := this.nodes_.each()
-		for it_1.next() {
-			var node Node = it_1.v
+		for node := range this.nodes_.All() {
 			DeclaredGlobalExternsOnWindow_addExtern(node, this.windowInExterns)
 			this.compiler_.reportChangeToEnclosingScope(node)
 		}

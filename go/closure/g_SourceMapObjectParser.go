@@ -79,9 +79,7 @@ func SourceMapObjectParser_parse(contents string) *Outcome_base {
 	}
 	builder.setNames(cast_[[]string](names.get()))
 	var extensions *TMap[string, any] = newTMap_(tc_string, tc_any)
-	it_1 := foreach_(sourceMapRoot.members().entrySet())
-	for it_1.next() {
-		var entry Map_Entry = icast_Map_Entry(it_1.v)
+	for entry := range elemsBy_(sourceMapRoot.members().entrySet(), icast_Map_Entry) {
 		if strings.HasPrefix(str_(entry.getKey()), "x_") {
 			extensions.put(str_(entry.getKey()), entry.getValue())
 		}

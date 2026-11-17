@@ -447,28 +447,20 @@ func (this *TypeValidator) expectUndeclaredVariable(sourceName OptionalOf[string
 
 func (this *TypeValidator) expectAllInterfaceProperties(n Node, type_ *FunctionType) {
 	var instance *ObjectType = type_.getInstanceType()
-	it_1 := foreach_(type_.getAllImplementedInterfaces())
-	for it_1.next() {
-		var implemented *ObjectType = to_ObjectType(it_1.v)
+	for implemented := range elemsBy_(type_.getAllImplementedInterfaces(), to_ObjectType) {
 		this.expectInterfaceProperties(n, instance, implemented)
 	}
-	it_3 := foreach_(obj_(type_.getExtendedInterfaces()))
-	for it_3.next() {
-		var extended *ObjectType = to_ObjectType(it_3.v)
+	for extended := range elemsBy_(obj_(type_.getExtendedInterfaces()), to_ObjectType) {
 		this.expectInterfaceProperties(n, instance, extended)
 	}
 }
 
 func (this *TypeValidator) expectInterfaceProperties(n Node, instance *ObjectType, ancestorInterface *ObjectType) {
-	it_1 := foreach_(obj_(ancestorInterface.getOwnPropertyKeys()))
-	for it_1.next() {
-		var prop Property_Key = icast_Property_Key(it_1.v)
+	for prop := range elemsBy_(obj_(ancestorInterface.getOwnPropertyKeys()), icast_Property_Key) {
 		this.expectInterfaceProperty(n, instance, ancestorInterface, prop)
 	}
 	if ancestorInterface.getImplicitPrototype() != nil {
-		it_3 := foreach_(obj_(ancestorInterface.getImplicitPrototype().getOwnPropertyKeys()))
-		for it_3.next() {
-			var prop Property_Key = icast_Property_Key(it_3.v)
+		for prop := range elemsBy_(obj_(ancestorInterface.getImplicitPrototype().getOwnPropertyKeys()), icast_Property_Key) {
 			this.expectInterfaceProperty(n, instance, ancestorInterface, prop)
 		}
 	}
@@ -535,9 +527,7 @@ func (this *TypeValidator) expectAbstractMethodsImplemented(n Node, ctorType *Fu
 	}
 	for (currSuperCtor != nil) && currSuperCtor.isAbstract() {
 		var superType *ObjectType = currSuperCtor.getInstanceType()
-		it_2 := foreach_(obj_(currSuperCtor.getPrototype().getOwnPropertyKeys()))
-		for it_2.next() {
-			var prop Property_Key = icast_Property_Key(it_2.v)
+		for prop := range elemsBy_(obj_(currSuperCtor.getPrototype().getOwnPropertyKeys()), icast_Property_Key) {
 			var maybeAbstractMethod *FunctionType = superType.findPropertyTypeKey(prop).toMaybeFunctionType()
 			if ((maybeAbstractMethod != nil) && maybeAbstractMethod.isAbstract()) && !abstractMethodSuperTypeMap.containsKey(prop) {
 				abstractMethodSuperTypeMap.put(prop, superType)
@@ -546,9 +536,7 @@ func (this *TypeValidator) expectAbstractMethodsImplemented(n Node, ctorType *Fu
 		currSuperCtor = currSuperCtor.getSuperClassConstructor()
 	}
 	var instance *ObjectType = ctorType.getInstanceType()
-	it_4 := foreach_(abstractMethodSuperTypeMap.asMap().entrySet())
-	for it_4.next() {
-		var entry Map_Entry = icast_Map_Entry(it_4.v)
+	for entry := range elemsBy_(abstractMethodSuperTypeMap.asMap().entrySet(), icast_Map_Entry) {
 		var method Property_Key = icast_Property_Key(entry.getKey())
 		var superType *ObjectType = to_ObjectType(entry.getValue())
 		var abstractMethod *FunctionType = instance.findPropertyTypeKey(method).toMaybeFunctionType()
@@ -581,9 +569,7 @@ func (this *TypeValidator) mismatchJSType(n Node, msg string, found *JSType, req
 			var requiredObject *ObjectType = structuralType.toMaybeObjectType()
 			var foundObject *ObjectType = found.toMaybeObjectType()
 			if (requiredObject != nil) && (foundObject != nil) {
-				it_1 := foreach_(obj_(requiredObject.getPropertyNames()))
-				for it_1.next() {
-					var property string = str_(it_1.v)
+				for property := range elemsBy_(obj_(requiredObject.getPropertyNames()), str_) {
 					var propRequired *JSType = requiredObject.getPropertyType(property)
 					var hasProperty bool = foundObject.hasProperty(property)
 					if !propRequired.isExplicitlyVoidable() || hasProperty {

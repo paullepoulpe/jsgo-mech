@@ -2692,9 +2692,7 @@ func NodeUtil_redeclareVarsInsideBranch(branch Node) {
 		return
 	}
 	var parent Node = NodeUtil_getAddingRoot(branch)
-	it_1 := foreach_(vars)
-	for it_1.next() {
-		var nameNode Node = Node_of_(it_1.v)
+	for nameNode := range elemsBy_(vars, Node_of_) {
 		var var_ Node = IR_var_Node(IR_name(nameNode.getString()).srcref(nameNode)).srcref(nameNode)
 		NodeUtil_copyNameAnnotations(nameNode, var_.getFirstChild())
 		parent.addChildToFront(var_)
@@ -4183,9 +4181,7 @@ func NodeUtil_collectExternVariableNames(compiler *AbstractCompiler, externs Nod
 	var externsRefs *ReferenceCollector = new_ReferenceCollector_AbstractCompiler_Behavior_ScopeCreator(compiler, ReferenceCollector_DO_NOTHING_BEHAVIOR, new_SyntacticScopeCreator_AbstractCompiler(compiler))
 	externsRefs.process(externs)
 	var externsNames ImmutableSet_BuilderOf[string] = ImmutableSet_builder()
-	it_1 := foreach_(externsRefs.getAllSymbols())
-	for it_1.next() {
-		var v *Var = cast_[*Var](it_1.v)
+	for v := range elemsAs_[*Var](externsRefs.getAllSymbols()) {
 		if !v.isParam() {
 			externsNames.add(strobj_(v.getName()))
 		}
@@ -4235,9 +4231,7 @@ func NodeUtil_markFunctionsDeletedChangeTracker(node Node, changeTracker *Change
 
 func NodeUtil_getParentChangeScopeNodes(scopeNodes *TList[Node]) []Node {
 	var parentScopeNodes *TSet[Node] = tsetFrom_(tc_Node, Collection(scopeNodes.asList()), false)
-	it_1 := scopeNodes.each()
-	for it_1.next() {
-		var scopeNode Node = it_1.v
+	for scopeNode := range scopeNodes.All() {
 		parentScopeNodes.add(ChangeTracker_getEnclosingChangeScopeRoot(scopeNode))
 	}
 	return sliceFrom_(tc_Node, Collection(parentScopeNodes.asSet()))
@@ -4416,9 +4410,7 @@ func NodeUtil_addFeaturesToScript(scriptNode Node, features *FeatureSet, compile
 	if !scriptNode.isScript() {
 		panic(new_IllegalStateException_String(objstr_(scriptNode.box_())).self())
 	}
-	it_1 := foreach_(obj_(features.getFeatures()))
-	for it_1.next() {
-		var feature FeatureSet_Feature = cast_[FeatureSet_Feature](it_1.v)
+	for feature := range elemsAs_[FeatureSet_Feature](obj_(features.getFeatures())) {
 		NodeUtil_addFeatureToScript(scriptNode, feature, compiler)
 	}
 }
@@ -4984,9 +4976,7 @@ func new_NodeUtil_1(cap_nameVars map[string]struct{}) *NodeUtil_1 {
 func (this *NodeUtil_1) enterScope(t *NodeTraversal) {
 	var currentScope *Scope = t.getScope()
 	if currentScope.isModuleScope() {
-		it_1 := foreach_(currentScope.getVarIterable())
-		for it_1.next() {
-			var v *Var = cast_[*Var](it_1.v)
+		for v := range elemsAs_[*Var](currentScope.getVarIterable()) {
 			this.cap_nameVars[v.getName()] = struct{}{}
 		}
 	}
@@ -5025,9 +5015,7 @@ func new_NodeUtil_2(cap_nameVarMap *TMap[string, *Var], cap_orderedVars *TList[*
 
 func (this *NodeUtil_2) enterScope(t *NodeTraversal) {
 	var currentScope *Scope = t.getScope()
-	it_1 := foreach_(currentScope.getVarIterable())
-	for it_1.next() {
-		var v *Var = cast_[*Var](it_1.v)
+	for v := range elemsAs_[*Var](currentScope.getVarIterable()) {
 		this.cap_nameVarMap.put(v.getName(), v)
 		this.cap_orderedVars.add(v)
 	}

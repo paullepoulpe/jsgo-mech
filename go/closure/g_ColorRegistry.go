@@ -100,9 +100,7 @@ func (this *ColorRegistry_Builder) addMismatchLocation(id *ColorId, location str
 }
 
 func (this *ColorRegistry_Builder) setDefaultNativeColorsForTesting() *ColorRegistry_Builder {
-	it_1 := foreach_(obj_(ColorRegistry_REQUIRED_IDS))
-	for it_1.next() {
-		var id *ColorId = cast_[*ColorId](it_1.v)
+	for id := range elemsAs_[*ColorId](obj_(ColorRegistry_REQUIRED_IDS)) {
 		this.setNativeColor(Color_singleBuilder().setId(id).build())
 	}
 	return this

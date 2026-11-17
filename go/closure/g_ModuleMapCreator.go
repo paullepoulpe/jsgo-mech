@@ -31,9 +31,7 @@ func new_ModuleMapCreator(compiler *AbstractCompiler, moduleMetadataMap *ModuleM
 func (this *ModuleMapCreator) create() *ModuleMap {
 	this.unresolvedModules.clear()
 	this.unresolvedModulesByClosureNamespace.clear()
-	it_1 := foreach_(obj_(this.moduleMetadataMap.getAllModuleMetadata()))
-	for it_1.next() {
-		var moduleMetadata *ModuleMetadataMap_ModuleMetadata = cast_[*ModuleMetadataMap_ModuleMetadata](it_1.v)
+	for moduleMetadata := range elemsAs_[*ModuleMetadataMap_ModuleMetadata](obj_(this.moduleMetadataMap.getAllModuleMetadata())) {
 		this.process(moduleMetadata)
 	}
 	return this.resolve()
@@ -45,23 +43,17 @@ func (this *ModuleMapCreator) resolve() *ModuleMap {
 	var resolvedClosureModules *TMap[string, *Module] = newTMap_(tc_string, tc_p_Module)
 	for do_2 := true; do_2; do_2 = !resolvedModules.asMap().keySet().containsAll(Collection(this.unresolvedModules.asMap().keySet())) {
 		var toResolve ImmutableSetOf[string] = Sets_difference(this.unresolvedModules.asMap().keySet(), resolvedModules.asMap().keySet()).immutableCopy()
-		it_3 := foreach_(obj_(toResolve))
-		for it_3.next() {
-			var key string = str_(it_3.v)
+		for key := range elemsBy_(obj_(toResolve), str_) {
 			var resolved *Module = this.unresolvedModules.get(key).resolve(requestResolver)
 			resolvedModules.put(key, resolved)
-			it_5 := foreach_(obj_(resolved.metadata().googNamespaces()))
-			for it_5.next() {
-				var namespace string = str_(it_5.v)
+			for namespace := range elemsBy_(obj_(resolved.metadata().googNamespaces()), str_) {
 				resolvedClosureModules.put(namespace, resolved)
 			}
 		}
 	}
 	for do_8 := true; do_8; do_8 = !resolvedClosureModules.asMap().keySet().containsAll(Collection(this.unresolvedModulesByClosureNamespace.asMap().keySet())) {
 		var toResolve ImmutableSetOf[string] = Sets_difference(this.unresolvedModulesByClosureNamespace.asMap().keySet(), resolvedClosureModules.asMap().keySet()).immutableCopy()
-		it_9 := foreach_(obj_(toResolve))
-		for it_9.next() {
-			var namespace string = str_(it_9.v)
+		for namespace := range elemsBy_(obj_(toResolve), str_) {
 			resolvedClosureModules.put(namespace, this.unresolvedModulesByClosureNamespace.get(namespace).resolve(requestResolver))
 		}
 	}
@@ -88,9 +80,7 @@ func (this *ModuleMapCreator) process(moduleMetadata *ModuleMetadataMap_ModuleMe
 	if moduleMetadata.path() != nil {
 		this.unresolvedModules.put(moduleMetadata.path().toModuleName(), module)
 	}
-	it_2 := foreach_(obj_(moduleMetadata.googNamespaces()))
-	for it_2.next() {
-		var namespace string = str_(it_2.v)
+	for namespace := range elemsBy_(obj_(moduleMetadata.googNamespaces()), str_) {
 		this.unresolvedModulesByClosureNamespace.put(namespace, module)
 	}
 }

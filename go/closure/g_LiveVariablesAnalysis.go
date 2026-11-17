@@ -43,9 +43,7 @@ func new_LiveVariablesAnalysis(cfg *ControlFlowGraph, jsScope *Scope, jsScopeChi
 
 func (this *LiveVariablesAnalysis) addScopeVariables() {
 	var num int32 = 0
-	it_1 := this.orderedVars.each()
-	for it_1.next() {
-		var v *Var = it_1.v
+	for v := range this.orderedVars.All() {
 		this.scopeVariables[v.getName()] = any(int32(num))
 		num++
 	}
@@ -92,9 +90,7 @@ func (this *LiveVariablesAnalysis) flowThrough_impl(node_ any, input_ LatticeEle
 	var kill *BitSet = new_BitSet_int(input.liveSet.size())
 	var conditional bool = false
 	var edgeList *TList[DiGraph_DiGraphEdge] = this.getCfg().getOutEdges(node.box_())
-	it_1 := edgeList.each()
-	for it_1.next() {
-		var edge DiGraph_DiGraphEdge = it_1.v
+	for edge := range edgeList.All() {
 		if equalsIdAny_(ControlFlowGraph_Branch_ON_EX, edge.getValue()) {
 			conditional = true
 		}

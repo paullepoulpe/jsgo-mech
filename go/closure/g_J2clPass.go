@@ -108,9 +108,7 @@ func (this *J2clPass_ClassStaticFunctionsInliner) init_J2clPass_ClassStaticFunct
 	this.injector = new_FunctionInjector_Builder(this.outer_.compiler_).safeNameIdSupplier(this.outer_.safeNameIdSupplier_).assumeStrictThis(true).build()
 	var fnNamesToInlineBuilder ImmutableSet_BuilderOf[string] = ImmutableSet_builder()
 	for _, b := range inlineSpecs {
-		it_3 := b.fnNamesToInline_.each()
-		for it_3.next() {
-			var fnName string = it_3.v
+		for fnName := range b.fnNamesToInline_.All() {
 			fnNamesToInlineBuilder.add(strobj_(fnName))
 		}
 	}

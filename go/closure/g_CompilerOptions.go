@@ -797,9 +797,7 @@ func (this *CompilerOptions) setRemoveUnusedClassProperties(removeUnusedClassPro
 
 func (this *CompilerOptions) getDefineReplacements() ImmutableMapOf[string, Node] {
 	var map_ ImmutableMap_BuilderOf[string, Node] = ImmutableMap_builder()
-	it_1 := foreach_(this.defineReplacements.asMap().entrySet())
-	for it_1.next() {
-		var entry Map_Entry = icast_Map_Entry(it_1.v)
+	for entry := range elemsBy_(this.defineReplacements.asMap().entrySet(), icast_Map_Entry) {
 		var name string = str_(entry.getKey())
 		var value any = entry.getValue()
 		var b any
@@ -917,9 +915,7 @@ func (this *CompilerOptions) shouldReplaceIdGenerators() bool {
 
 func (this *CompilerOptions) setIdGenerators(idGenerators *TSet[string]) {
 	var builder ImmutableMap_BuilderOf[string, RenamingMap] = ImmutableMap_builder()
-	it_1 := idGenerators.each()
-	for it_1.next() {
-		var name string = it_1.v
+	for name := range idGenerators.All() {
 		builder.put(strobj_(name), obj_(RenamingToken_INCONSISTENT))
 	}
 	this.idGenerators = builder.buildOrThrow()
@@ -3641,9 +3637,7 @@ func (this CompilerOptions_LanguageMode) isDefaultStrict() bool {
 
 func CompilerOptions_LanguageMode_validCommandLineNames() []string {
 	var names []string = []string{}
-	it_1 := foreach_(obj_(EnumSet_allOf(classOf_("com.google.javascript.jscomp.CompilerOptions.LanguageMode"))))
-	for it_1.next() {
-		var mode CompilerOptions_LanguageMode = cast_[CompilerOptions_LanguageMode](it_1.v)
+	for mode := range elemsAs_[CompilerOptions_LanguageMode](obj_(EnumSet_allOf(classOf_("com.google.javascript.jscomp.CompilerOptions.LanguageMode")))) {
 		if mode != CompilerOptions_LanguageMode_UNSUPPORTED {
 			names = append(names, mode.name())
 			if strings.HasPrefix(mode.name(), "ECMASCRIPT") {

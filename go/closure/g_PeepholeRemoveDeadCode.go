@@ -795,9 +795,7 @@ func (this *PeepholeRemoveDeadCode) redeclareIfBlockScopedVar(decl Node, parent 
 		})
 	}
 	var addBefore Node = NodeUtil_getInsertionPointAfterAllInnerFunctionDeclarations(parent)
-	it_1 := eachOf_(&blockScopedVars)
-	for it_1.next() {
-		var nameNode Node = it_1.v
+	for nameNode := range sliceAll_(&blockScopedVars) {
 		var var_ Node = IR_let_Node(IR_name(nameNode.getString()).srcref(nameNode)).srcref(nameNode)
 		NodeUtil_copyNameAnnotations(nameNode, var_.getFirstChild())
 		if addBefore != 0 {

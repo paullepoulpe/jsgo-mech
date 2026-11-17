@@ -77,9 +77,7 @@ func (this *ProcessDefines) initNamespace(externs Node, root Node) {
 
 func (this *ProcessDefines) overrideDefines() {
 	if ProcessDefines_Mode_optimize_[this.mode_-1] {
-		it_1 := this.defineByDefineName.each()
-		for it_1.next() {
-			var define *ProcessDefines_Define = it_1.v
+		for define := range this.defineByDefineName.Values() {
 			if define.valueParent == 0 {
 				continue
 			}
@@ -118,9 +116,7 @@ func (this *ProcessDefines) overrideDefines() {
 	}
 	if ProcessDefines_Mode_optimize_[this.mode_-1] {
 		var unusedReplacements SetOf[string] = Sets_difference(Sets_union(this.replacementValuesFromFlags.keySet(), this.replacementValuesFromClosureDefines.asMap().keySet()), Sets_union(Sets_union(icast_Set(obj_(ProcessDefines_KNOWN_DEFINES)), this.defineByDefineName.asMap().keySet()), icast_Set(obj_(this.unknownDefinesToIgnore))))
-		it_3 := foreach_(unusedReplacements)
-		for it_3.next() {
-			var unknownDefine string = str_(it_3.v)
+		for unknownDefine := range elemsBy_(unusedReplacements, str_) {
 			this.compiler_.report(JSError_make_DiagnosticType_StringArr(ProcessDefines_UNKNOWN_DEFINE_WARNING, []string{unknownDefine}))
 		}
 	}
@@ -175,9 +171,7 @@ func (this *ProcessDefines) collectDefines(root Node) {
 	if this.recognizeClosureDefines {
 		NodeTraversal_builder().setCompiler(this.compiler_).setCallback(new_ProcessDefines_ClosureDefinesCollector(this)).traverse(root)
 	}
-	it_1 := foreach_(icast_Collection(this.namespace_.getAllSymbols()))
-	for it_1.next() {
-		var name *GlobalNamespace_Name = cast_[*GlobalNamespace_Name](it_1.v)
+	for name := range elemsAs_[*GlobalNamespace_Name](icast_Collection(this.namespace_.getAllSymbols())) {
 		var declaration *GlobalNamespace_Ref = this.selectDefineDeclaration(name)
 		if declaration == nil {
 			continue
@@ -203,9 +197,7 @@ func (this *ProcessDefines) collectDefines(root Node) {
 			totalSets += existingDefine.name_.getTotalSets()
 		}
 		if totalSets > 1 {
-			it_3 := foreach_(name.getRefs())
-			for it_3.next() {
-				var ref *GlobalNamespace_Ref = cast_[*GlobalNamespace_Ref](it_3.v)
+			for ref := range elemsAs_[*GlobalNamespace_Ref](name.getRefs()) {
 				if ref.isSet() && !equalsId_(ref, declaration) {
 					this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(ref.getNode(), ProcessDefines_NON_CONST_DEFINE, []string{defineName, declaration.getNode().getLocation()}))
 				}
@@ -252,20 +244,14 @@ func ProcessDefines_getValueParentForDefine(declaration *GlobalNamespace_Ref) No
 
 func (this *ProcessDefines) collectValidDefineValueExpressions() {
 	var namesToCheck *TSet[*GlobalNamespace_Name] = newTSet_(tc_p_GlobalNamespace_Name)
-	it_1 := foreach_(icast_Collection(this.namespace_.getAllSymbols()))
-	for it_1.next() {
-		var name *GlobalNamespace_Name = cast_[*GlobalNamespace_Name](it_1.v)
+	for name := range elemsAs_[*GlobalNamespace_Name](icast_Collection(this.namespace_.getAllSymbols())) {
 		if ProcessDefines_isGlobalConst(name) {
 			namesToCheck.add(name)
 		}
 	}
-	it_3 := this.defineByDefineName.each()
-	for it_3.next() {
-		var define *ProcessDefines_Define = it_3.v
+	for define := range this.defineByDefineName.Values() {
 		namesToCheck.remove(define.name_)
-		it_5 := foreach_(define.name_.getRefs())
-		for it_5.next() {
-			var r *GlobalNamespace_Ref = cast_[*GlobalNamespace_Ref](it_5.v)
+		for r := range elemsAs_[*GlobalNamespace_Ref](define.name_.getRefs()) {
 			if !r.isSet() {
 				this.validDefineValueExpressions[r.getNode()] = struct{}{}
 			}
@@ -273,15 +259,11 @@ func (this *ProcessDefines) collectValidDefineValueExpressions() {
 	}
 	for {
 		var namesToCheckAgain *TSet[*GlobalNamespace_Name] = newTSet_(tc_p_GlobalNamespace_Name)
-		it_8 := namesToCheck.each()
-		for it_8.next() {
-			var name *GlobalNamespace_Name = it_8.v
+		for name := range namesToCheck.All() {
 			var declValue Node = ProcessDefines_getConstantDeclValue(cast_[*GlobalNamespace_Ref](name.getDeclaration()).getNode())
 			switch this.isValidDefineValue(declValue) {
 			case Tri_TRUE:
-				it_11 := foreach_(name.getRefs())
-				for it_11.next() {
-					var ref *GlobalNamespace_Ref = cast_[*GlobalNamespace_Ref](it_11.v)
+				for ref := range elemsAs_[*GlobalNamespace_Ref](name.getRefs()) {
 					this.validDefineValueExpressions[ref.getNode()] = struct{}{}
 				}
 			case Tri_UNKNOWN:
@@ -301,9 +283,7 @@ func (this *ProcessDefines) validateDefineDeclarations() {
 	if !ProcessDefines_Mode_check__[this.mode_-1] {
 		return
 	}
-	it_1 := this.defineByDefineName.each()
-	for it_1.next() {
-		var define *ProcessDefines_Define = it_1.v
+	for define := range this.defineByDefineName.Values() {
 		var declarationNode Node = define.declaration_.getNode()
 		if (!this.isGoogDefineCall(define.value_) && !Collection_contains_s(ProcessDefines_KNOWN_DEFINES, define.defineName_)) && !strings.HasPrefix(define.defineName_, "$jscomp.") {
 			this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(Node_of_(MoreObjects_firstNonNull(define.value_.box_(), MoreObjects_firstNonNull(define.valueParent.box_(), declarationNode.box_()))), ProcessDefines_DEFINE_WITHOUT_GOOG_DEFINE, []string{define.defineName_, "go/js-practices/locals#defines"}))

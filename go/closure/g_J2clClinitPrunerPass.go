@@ -52,9 +52,7 @@ func (this *J2clClinitPrunerPass) removeRedundantClinits(root Node, changedScope
 func (this *J2clClinitPrunerPass) pruneEmptyClinits(root Node, changedScopes *TList[Node]) {
 	this.emptiedClinitMethods.clear()
 	this.traverseScopeRootsWithFallback(root, changedScopes, new_J2clClinitPrunerPass_EmptyClinitPruner(this), false)
-	it_1 := foreach_(this.emptiedClinitMethods.asMap().entrySet())
-	for it_1.next() {
-		var clinitReplacementEntry Map_Entry = icast_Map_Entry(it_1.v)
+	for clinitReplacementEntry := range elemsBy_(this.emptiedClinitMethods.asMap().entrySet(), icast_Map_Entry) {
 		clinitReplacementEntry.setValue(this.resolveReplacement(Node_of_(clinitReplacementEntry.getValue())).box_())
 	}
 }
@@ -93,15 +91,11 @@ func (this *J2clClinitPrunerPass) collectClinitReferences(root Node) *SimpleSetM
 
 func (this *J2clClinitPrunerPass) cleanEmptyClinitReferences(clinitReferences *SimpleSetMultimap) *TList[Node] {
 	var newChangedScopes *TList[Node] = newTList_(tc_Node)
-	it_1 := foreach_(this.emptiedClinitMethods.asMap().entrySet())
-	for it_1.next() {
-		var clinitReplacementEntry Map_Entry = icast_Map_Entry(it_1.v)
+	for clinitReplacementEntry := range elemsBy_(this.emptiedClinitMethods.asMap().entrySet(), icast_Map_Entry) {
 		var clinitName string = str_(clinitReplacementEntry.getKey())
 		var replacement Node = Node_of_(clinitReplacementEntry.getValue())
 		var references CollectionOf[Node] = Collection(clinitReferences.removeAll_s(clinitName))
-		it_3 := foreach_(references)
-		for it_3.next() {
-			var reference Node = Node_of_(it_3.v)
+		for reference := range elemsBy_(references, Node_of_) {
 			var changedScope Node = ChangeTracker_getEnclosingChangeScopeRoot(reference.getParent())
 			if replacement == 0 {
 				NodeUtil_deleteFunctionCall(reference, this.compiler_)

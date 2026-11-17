@@ -186,9 +186,7 @@ func (this *Es6RewriteBlockScopedDeclaration) getInsertSpotBeforeLoop(loopNode N
 
 func (this *Es6RewriteBlockScopedDeclaration) rewriteDeclsToVars() {
 	if !this.letConsts.isEmpty() {
-		it_1 := this.letConsts.each()
-		for it_1.next() {
-			var n Node = it_1.v
+		for n := range this.letConsts.All() {
 			this.handleLetConstDeclarationList(n, n.getParent())
 		}
 	}
@@ -324,9 +322,7 @@ func (this *Es6RewriteBlockScopedDeclaration_LoopClosureTransformer) transformLo
 		return
 	}
 	var wrapperFunctions *TSet[Node] = this.createWrapperFunctions()
-	it_1 := this.loopObjectMap.each()
-	for it_1.next() {
-		var loopNode Node = it_1.k
+	for loopNode := range this.loopObjectMap.Keys() {
 		var loopObject *Es6RewriteBlockScopedDeclaration_LoopClosureTransformer_LoopObject = this.loopObjectMap.get(loopNode)
 		var objectLitNextIteration Node = this.outer_.astFactory_.createObjectLit([]Node{})
 		this.renameVarsToProperties(loopObject, objectLitNextIteration, loopNode)
@@ -346,9 +342,7 @@ func (this *Es6RewriteBlockScopedDeclaration_LoopClosureTransformer) transformLo
 }
 
 func (this *Es6RewriteBlockScopedDeclaration_LoopClosureTransformer) updateNamesInWrapperFunctions(wrapperFunctions *TSet[Node]) {
-	it_1 := wrapperFunctions.each()
-	for it_1.next() {
-		var func_ Node = it_1.v
+	for func_ := range wrapperFunctions.All() {
 		var paramList Node = func_.getSecondChild()
 		{
 			var param Node = paramList.getFirstChild()
@@ -362,9 +356,7 @@ func (this *Es6RewriteBlockScopedDeclaration_LoopClosureTransformer) updateNames
 
 func (this *Es6RewriteBlockScopedDeclaration_LoopClosureTransformer) createWrapperFunctions() *TSet[Node] {
 	var wrapperFunctions *TSet[Node] = newTSet_(tc_Node)
-	it_1 := foreach_(this.nodesRequiringLoopObjectsClosureMap.keySet())
-	for it_1.next() {
-		var functionOrObjectLit Node = Node_of_(it_1.v)
+	for functionOrObjectLit := range elemsBy_(this.nodesRequiringLoopObjectsClosureMap.keySet(), Node_of_) {
 		if functionOrObjectLit.isObjectLit() {
 			var enclosingFunction Node = NodeUtil_getEnclosingFunction(functionOrObjectLit)
 			var scopeBody Node = func() Node {
@@ -394,9 +386,7 @@ func (this *Es6RewriteBlockScopedDeclaration_LoopClosureTransformer) createWrapp
 		var parameterNames []Node = make([]Node, objects.size())
 		var objectNamesForCall []Node = make([]Node, objects.size())
 		var loopObjectIndex int32 = 0
-		it_4 := foreach_(objects)
-		for it_4.next() {
-			var object *Es6RewriteBlockScopedDeclaration_LoopClosureTransformer_LoopObject = cast_[*Es6RewriteBlockScopedDeclaration_LoopClosureTransformer_LoopObject](it_4.v)
+		for object := range elemsAs_[*Es6RewriteBlockScopedDeclaration_LoopClosureTransformer_LoopObject](objects) {
 			parameterNames[loopObjectIndex] = this.createUniqueParameterNameToUseWithinLoop(functionOrObjectLit, object)
 			objectNamesForCall[loopObjectIndex] = this.createLoopObjectNameNode(object)
 			loopObjectIndex++
@@ -453,13 +443,9 @@ func (this *Es6RewriteBlockScopedDeclaration_LoopClosureTransformer) changeVanil
 }
 
 func (this *Es6RewriteBlockScopedDeclaration_LoopClosureTransformer) changeLoopLocalVariablesToProperties(loopNode Node, loopObject *Es6RewriteBlockScopedDeclaration_LoopClosureTransformer_LoopObject) {
-	it_1 := loopObject.vars.each()
-	for it_1.next() {
-		var var_ *Var = it_1.v
+	for var_ := range loopObject.vars.All() {
 		var newPropertyName string = this.getLoopObjPropName(var_)
-		it_3 := foreach_(this.referenceMap.get(obj_(var_)))
-		for it_3.next() {
-			var reference Node = Node_of_(it_3.v)
+		for reference := range elemsBy_(this.referenceMap.get(obj_(var_)), Node_of_) {
 			if loopNode.isForOf() {
 				panic(new_IllegalStateException_String(objstr_(loopNode.box_())).self())
 			}
@@ -520,9 +506,7 @@ func (this *Es6RewriteBlockScopedDeclaration_LoopClosureTransformer) assignLoopV
 }
 
 func (this *Es6RewriteBlockScopedDeclaration_LoopClosureTransformer) renameVarsToProperties(loopObject *Es6RewriteBlockScopedDeclaration_LoopClosureTransformer_LoopObject, objectLitNextIteration Node, scopeRoot Node) {
-	it_1 := loopObject.vars.each()
-	for it_1.next() {
-		var var_ *Var = it_1.v
+	for var_ := range loopObject.vars.All() {
 		var newPropertyName string = this.getLoopObjPropName(var_)
 		var newPropertyValue Node = func() Node {
 			if var_.getScopeRoot() == scopeRoot {

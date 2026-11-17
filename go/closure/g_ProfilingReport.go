@@ -23,19 +23,13 @@ func ProfilingReport_createTabSeparatedProfilingReport(instrumentationMapping Ma
 		profiles = append(profiles, ReportDecoder_decodeReport(instrumentationMapping, report))
 	}
 	var metricsBuilder ImmutableMap_BuilderOf[*InstrumentationPoint, *ProfilingReport_InstrumentationPointMetrics] = ImmutableMap_builder()
-	it_3 := foreach_(instrumentationMapping.values())
-	for it_3.next() {
-		var point *InstrumentationPoint = cast_[*InstrumentationPoint](it_3.v)
+	for point := range elemsAs_[*InstrumentationPoint](instrumentationMapping.values()) {
 		metricsBuilder.put(obj_(point), obj_(new_ProfilingReport_InstrumentationPointMetrics()))
 	}
 	var metrics *TMap[*InstrumentationPoint, *ProfilingReport_InstrumentationPointMetrics] = tmapFrom_(tch_p_InstrumentationPoint, tc_p_ProfilingReport_InstrumentationPointMetrics, metricsBuilder.buildOrThrow(), true)
 	for _, profile := range profiles {
-		it_7 := foreach_(profile.getFileProfileList())
-		for it_7.next() {
-			var fileProfile *FileProfile = cast_[*FileProfile](it_7.v)
-			it_9 := foreach_(fileProfile.getInstrumentationPointsStatsList())
-			for it_9.next() {
-				var pointStats *InstrumentationPointStats = cast_[*InstrumentationPointStats](it_9.v)
+		for fileProfile := range elemsAs_[*FileProfile](profile.getFileProfileList()) {
+			for pointStats := range elemsAs_[*InstrumentationPointStats](fileProfile.getInstrumentationPointsStatsList()) {
 				var metric *ProfilingReport_InstrumentationPointMetrics = metrics.get(pointStats.getPoint())
 				metric.totalTimesExecuted += pointStats.getTimesExecuted()
 				metric.numberOfReports++

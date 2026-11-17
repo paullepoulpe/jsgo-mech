@@ -730,9 +730,7 @@ func JSTypeRegistry_isObjectLiteralThatCanBeSkipped(t *JSType) bool {
 
 func (this *JSTypeRegistry) registerDroppedPropertiesInUnion(subtype *RecordType, supertype *RecordType) {
 	var foundDroppedProperty bool = false
-	it_1 := foreach_(subtype.getPropertyMap().getOwnPropertyNames())
-	for it_1.next() {
-		var pname string = str_(it_1.v)
+	for pname := range elemsBy_(subtype.getPropertyMap().getOwnPropertyNames(), str_) {
 		if !supertype.hasProperty(pname) {
 			foundDroppedProperty = true
 			this.droppedPropertiesOfUnions[pname] = struct{}{}
@@ -745,9 +743,7 @@ func (this *JSTypeRegistry) registerDroppedPropertiesInUnion(subtype *RecordType
 
 func (this *JSTypeRegistry) registerPropertyOnType(propertyName string, type_ *JSType) {
 	if type_.isUnionType() {
-		it_1 := foreach_(obj_(type_.toMaybeUnionType().getAlternates()))
-		for it_1.next() {
-			var alternate *JSType = to_JSType(it_1.v)
+		for alternate := range elemsBy_(obj_(type_.toMaybeUnionType().getAlternates()), to_JSType) {
 			this.registerPropertyOnType(propertyName, alternate)
 		}
 		return
@@ -817,9 +813,7 @@ func (this *JSTypeRegistry) canPropertyBeDefined(type_ *JSType, propertyName str
 		if type_.toMaybeRecordType() != nil {
 			var rec *RecordType = type_.toMaybeRecordType()
 			var mayBeInUnion bool = false
-			it_5 := foreach_(rec.getPropertyMap().getOwnPropertyNames())
-			for it_5.next() {
-				var pname string = str_(it_5.v)
+			for pname := range elemsBy_(rec.getPropertyMap().getOwnPropertyNames(), str_) {
 				if has_(this.propertiesOfSupertypesInUnions, pname) {
 					mayBeInUnion = true
 					break
@@ -1169,9 +1163,7 @@ func (this *JSTypeRegistry) buildRecordTypeFromObject(objType *ObjectType) *JSTy
 		return this.getNativeType(JSTypeNative_OBJECT_TYPE)
 	}
 	var props ImmutableMap_BuilderOf[string, *JSType] = new_ImmutableMap_Builder()
-	it_1 := foreach_(propNames)
-	for it_1.next() {
-		var propName string = str_(it_1.v)
+	for propName := range elemsBy_(propNames, str_) {
 		props.put(strobj_(propName), objType.getPropertyType(propName).self())
 	}
 	return this.createRecordType(tmapFrom_(tc_string, tc_p_JSType, props.buildOrThrow(), true))
@@ -1180,9 +1172,7 @@ func (this *JSTypeRegistry) buildRecordTypeFromObject(objType *ObjectType) *JSTy
 func (this *JSTypeRegistry) createRecordType(props *TMap[string, *JSType]) *JSType {
 	var propMap *TMap[string, *JSType] = props
 	var builder *RecordTypeBuilder = new_RecordTypeBuilder(this)
-	it_1 := foreach_(propMap.asMap().entrySet())
-	for it_1.next() {
-		var e Map_Entry = icast_Map_Entry(it_1.v)
+	for e := range elemsBy_(propMap.asMap().entrySet(), icast_Map_Entry) {
 		builder.addProperty(str_(e.getKey()), to_JSType(e.getValue()), 0)
 	}
 	return builder.build()
@@ -1507,9 +1497,7 @@ func (this *JSTypeRegistry) createRecordTypeFromNodes(n Node, sourceName Optiona
 }
 
 func (this *JSTypeRegistry) registerTemplateTypeNamesInScope(keys IterableOf[*TemplateType], scopeRoot Node) {
-	it_1 := foreach_(keys)
-	for it_1.next() {
-		var key *TemplateType = cast_[*TemplateType](it_1.v)
+	for key := range elemsAs_[*TemplateType](keys) {
 		this.scopedNameTable.put_s(scopeRoot.box_(), key.getReferenceName().orElseThrow(), obj_(key))
 	}
 }
@@ -1658,9 +1646,7 @@ func (this *JSTypeRegistry_SyntheticTemplateScope) init_JSTypeRegistry_Synthetic
 		}
 		return HamtPMap_empty[string, *TemplateType]()
 	}()
-	it_1 := foreach_(templates)
-	for it_1.next() {
-		var key *TemplateType = cast_[*TemplateType](it_1.v)
+	for key := range elemsAs_[*TemplateType](templates) {
 		types = types.plus(key.getReferenceName().orElseThrow(), key)
 	}
 	this.types = types

@@ -240,9 +240,7 @@ func (this *FunctionTypeBuilder) inferInheritance(info *JSDocInfo, classExtendsT
 	if (info != nil) && (info.getImplementedInterfaceCount() > 0) {
 		if this.isConstructor_ {
 			this.implementedInterfaces = newTList_(tc_p_ObjectType)
-			it_1 := foreach_(info.getImplementedInterfaces())
-			for it_1.next() {
-				var t *JSTypeExpression = cast_[*JSTypeExpression](it_1.v)
+			for t := range elemsAs_[*JSTypeExpression](info.getImplementedInterfaces()) {
 				var maybeInterType *JSType = t.evaluate(this.templateScope, this.typeRegistry)
 				if maybeInterType.setValidator(icast_Predicate_base(obj_(this.createImplementedTypeValidator()))) {
 					this.implementedInterfaces.add(to_ObjectType(maybeInterType.self()))
@@ -257,9 +255,7 @@ func (this *FunctionTypeBuilder) inferInheritance(info *JSDocInfo, classExtendsT
 	if this.isInterface_ {
 		this.extendedInterfaces = newTList_(tc_p_ObjectType)
 		if info != nil {
-			it_3 := foreach_(info.getExtendedInterfaces())
-			for it_3.next() {
-				var t *JSTypeExpression = cast_[*JSTypeExpression](it_3.v)
+			for t := range elemsAs_[*JSTypeExpression](info.getExtendedInterfaces()) {
 				var maybeInterfaceType *JSType = t.evaluate(this.templateScope, this.typeRegistry)
 				if maybeInterfaceType != nil {
 					var isValid bool = maybeInterfaceType.setValidator(icast_Predicate_base(obj_(this.createExtendedTypeValidator())))
@@ -309,9 +305,7 @@ func (this *FunctionTypeBuilder) inferThisType(info *JSDocInfo) *FunctionTypeBui
 
 func (this *FunctionTypeBuilder) inferParameterTypes(info *JSDocInfo) *FunctionTypeBuilder {
 	var lp Node = IR_paramList([]Node{})
-	it_1 := info.getParameterNames().each()
-	for it_1.next() {
-		var name string = it_1.v
+	for name := range info.getParameterNames().All() {
 		lp.addChildToBack(IR_name(name))
 	}
 	return this.inferParameterTypes_2(lp, info)
@@ -420,9 +414,7 @@ func (this *FunctionTypeBuilder) inferParameterTypes_2(paramsParent Node, info *
 			}()
 		}
 	}
-	it_3 := allJsDocParams.each()
-	for it_3.next() {
-		var inexistentName string = it_3.v
+	for inexistentName := range allJsDocParams.All() {
 		this.reportWarning(FunctionTypeBuilder_INEXISTENT_PARAM, []string{inexistentName, this.formatFnName()})
 	}
 	this.parameters = builder.build()
@@ -492,17 +484,13 @@ func (this *FunctionTypeBuilder) buildTemplateTypesFromJSDocInfo(info *JSDocInfo
 		return ImmutableList_of()
 	}
 	var unboundedTemplates *TList[*TemplateType] = newTList_(tc_p_TemplateType)
-	it_1 := foreach_(obj_(cast_[*ImmutableSet](infoTypeKeys.keySet())))
-	for it_1.next() {
-		var templateKey string = str_(it_1.v)
+	for templateKey := range elemsBy_(obj_(cast_[*ImmutableSet](infoTypeKeys.keySet())), str_) {
 		unboundedTemplates.add(this.typeRegistry.createTemplateType(templateKey))
 	}
 	this.templateScope = this.typeRegistry.createScopeWithTemplates(this.templateScope, Iterable(unboundedTemplates.asList()))
 	var templates ImmutableList_BuilderOf[*TemplateType] = ImmutableList_builder()
 	var templatesToBounds *TMap[*TemplateType, *JSType] = newTMap_(tch_p_TemplateType, tc_p_JSType)
-	it_3 := foreach_(obj_(cast_[*ImmutableSet](infoTypeKeys.entrySet())))
-	for it_3.next() {
-		var entry Map_Entry = icast_Map_Entry(it_3.v)
+	for entry := range elemsBy_(obj_(cast_[*ImmutableSet](infoTypeKeys.entrySet())), icast_Map_Entry) {
 		var expr *JSTypeExpression = cast_[*JSTypeExpression](entry.getValue())
 		var typeBound *JSType = this.typeRegistry.evaluateTypeExpression(cast_[*JSTypeExpression](entry.getValue()), this.templateScope)
 		if expr.isExplicitUnknownTemplateBound() {
@@ -515,17 +503,13 @@ func (this *FunctionTypeBuilder) buildTemplateTypesFromJSDocInfo(info *JSDocInfo
 			templatesToBounds.put(this.typeRegistry.createTemplateType_2(str_(entry.getKey()), typeBound), typeBound)
 		}
 	}
-	it_5 := foreach_(templatesToBounds.asMap().entrySet())
-	for it_5.next() {
-		var entry Map_Entry = icast_Map_Entry(it_5.v)
+	for entry := range elemsBy_(templatesToBounds.asMap().entrySet(), icast_Map_Entry) {
 		var template *TemplateType = cast_[*TemplateType](entry.getKey())
 		var bound *JSType = to_JSType(entry.getValue())
 		template.setBound(bound)
 		templates.add(obj_(template))
 	}
-	it_7 := foreach_(obj_(cast_[*ImmutableSet](infoTypeTransformations.entrySet())))
-	for it_7.next() {
-		var entry Map_Entry = icast_Map_Entry(it_7.v)
+	for entry := range elemsBy_(obj_(cast_[*ImmutableSet](infoTypeTransformations.entrySet())), icast_Map_Entry) {
 		if allowTypeTransformations {
 			templates.add(obj_(this.typeRegistry.createTemplateTypeWithTransformation(str_(entry.getKey()), Node_of_(entry.getValue()))))
 		} else {
@@ -533,9 +517,7 @@ func (this *FunctionTypeBuilder) buildTemplateTypesFromJSDocInfo(info *JSDocInfo
 		}
 	}
 	var builtTemplates ImmutableListOf[*TemplateType] = templates.build()
-	it_9 := foreach_(obj_(builtTemplates))
-	for it_9.next() {
-		var template *TemplateType = cast_[*TemplateType](it_9.v)
+	for template := range elemsAs_[*TemplateType](obj_(builtTemplates)) {
 		if template.containsCycle() {
 			this.reportError(RhinoErrorReporter_CYCLIC_INHERITANCE_ERROR, []string{("Cycle detected in inheritance chain of type " + sstr_(template.getReferenceName().orElse("null")))})
 		}

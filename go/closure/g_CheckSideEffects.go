@@ -109,9 +109,7 @@ func (this *CheckSideEffects) protectSideEffects() {
 		if !this.preserveFunctionInjected {
 			CheckSideEffects_addExtern(this.compiler_)
 		}
-		it_1 := eachOf_(&this.problemNodes)
-		for it_1.next() {
-			var n Node = it_1.v
+		for n := range sliceAll_(&this.problemNodes) {
 			var name Node = IR_name(CheckSideEffects_PROTECTOR_FN).srcref(n)
 			name.putBooleanProp(Node_IS_CONSTANT_NAME, true)
 			var replacement Node = IR_call(name, []Node{}).srcref(n)

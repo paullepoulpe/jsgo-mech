@@ -98,18 +98,15 @@ func (this *DataFlowAnalysis) analyze() {
 
 func (this *DataFlowAnalysis) initialize() {
 	this.workQueue.clear()
-	it_1 := foreach_(this.cfg.getNodes())
-	for it_1.next() {
-		var node DiGraph_DiGraphNode = icast_DiGraph_DiGraphNode(it_1.v)
+	for node := range elemsBy_(this.cfg.getNodes(), icast_DiGraph_DiGraphNode) {
 		node.setAnnotation(new_DataFlowAnalysis_LinearFlowState(this.createInitialEstimateLattice(), this.createInitialEstimateLattice()))
 		if node != this.cfg.getImplicitReturn() {
 			this.workQueue.add(node)
 		}
 	}
 	if this.isBranched() {
-		it_3 := this.cfg.getEdges().each()
-		for it_3.next() {
-			var edge DiGraph_DiGraphEdge = icast_DiGraph_DiGraphEdge(it_3.v)
+		for el_3 := range this.cfg.getEdges().All() {
+			var edge DiGraph_DiGraphEdge = icast_DiGraph_DiGraphEdge(el_3)
 			edge.setAnnotation(Annotation_graph(this.createInitialEstimateLattice()))
 		}
 	}
@@ -123,9 +120,7 @@ func (this *DataFlowAnalysis) flow(node DiGraph_DiGraphNode) bool {
 		var changed bool = !Object_equals(outBefore, state.getOut())
 		if this.isBranched() {
 			var brancher DataFlowAnalysis_FlowBrancher = this.createFlowBrancher(node.getValue(), icast_LatticeElement(state.getOut()))
-			it_1 := node.getOutEdges().each()
-			for it_1.next() {
-				var outEdge DiGraph_DiGraphEdge = it_1.v
+			for outEdge := range node.getOutEdges().All() {
 				var outBranchBefore LatticeElement = icast_LatticeElement(Annotatable_getAnnotation(Annotatable(outEdge)))
 				outEdge.setAnnotation(icast_Annotation_graph(brancher.branchFlow(cast_[ControlFlowGraph_Branch](outEdge.getValue()))))
 				if !changed {
@@ -161,9 +156,7 @@ func (this *DataFlowAnalysis) joinInputs(node DiGraph_DiGraphNode) {
 		result = this.getInputFromEdge(inEdges.get(0))
 	default:
 		var joiner DataFlowAnalysis_FlowJoiner = this.createFlowJoiner()
-		it_2 := inEdges.each()
-		for it_2.next() {
-			var inEdge DiGraph_DiGraphEdge = it_2.v
+		for inEdge := range inEdges.All() {
 			joiner.joinFlow(this.getInputFromEdge(inEdge))
 		}
 		result = icast_LatticeElement(joiner.finish())
@@ -197,9 +190,7 @@ func DataFlowAnalysis_computeEscaped(jsScope *Scope, escaped *TSet[*Var], compil
 	}
 	var finder *NodeTraversal_AbstractPostOrderCallback = new_DataFlowAnalysis_1(jsScope, escaped).up_NodeTraversal_AbstractPostOrderCallback()
 	NodeTraversal_builder().setCompiler(compiler).setCallback(icast_NodeTraversal_Callback(finder.self())).setScopeCreator(scopeCreator).traverseAtScope(jsScope.up_AbstractScope())
-	it_1 := allVarsInFn.each()
-	for it_1.next() {
-		var var_ *Var = it_1.v
+	for var_ := range allVarsInFn.Values() {
 		if var_.getParentNode().isCatch() || compiler.getCodingConvention().isExported(var_.getName()) {
 			escaped.add(var_)
 		}

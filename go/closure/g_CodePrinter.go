@@ -168,9 +168,7 @@ func (this *CodePrinter_MappedCodePrinter) getSourceMappings(code string) []*Sou
 	}
 	var lineLengths ImmutableListOf[BoxedOf[int32]] = CodePrinter_MappedCodePrinter_computeLineLengths(code)
 	var fixedMappings []*SourceMap_Mapping = []*SourceMap_Mapping{}
-	it_1 := eachOf_(&this.allMappings)
-	for it_1.next() {
-		var mapping *SourceMap_Mapping = it_1.v
+	for mapping := range sliceAll_(&this.allMappings) {
 		var adjusted *SourceMap_Mapping = new_SourceMap_Mapping()
 		adjusted.node_ = mapping.node_
 		adjusted.start_ = mapping.start_

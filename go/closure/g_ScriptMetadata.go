@@ -158,12 +158,8 @@ func (this *ScriptMetadata_FillerCallback) maybeCollectNames(n Node) {
 	}
 	var jsdoc *JSDocInfo = n.getJSDocInfo()
 	if jsdoc != nil {
-		it_1 := foreach_(jsdoc.getTypeExpressions())
-		for it_1.next() {
-			var expr *JSTypeExpression = cast_[*JSTypeExpression](it_1.v)
-			it_3 := foreach_(obj_(expr.getAllTypeNames()))
-			for it_3.next() {
-				var type_ string = str_(it_3.v)
+		for expr := range elemsAs_[*JSTypeExpression](jsdoc.getTypeExpressions()) {
+			for type_ := range elemsBy_(obj_(expr.getAllTypeNames()), str_) {
 				this.toFill.namesInUse[str_(first_(ScriptMetadata_DOT_SPLITTER.split_s(type_)))] = struct{}{}
 			}
 		}

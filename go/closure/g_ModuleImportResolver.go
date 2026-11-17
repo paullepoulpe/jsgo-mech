@@ -94,9 +94,7 @@ func (this *ModuleImportResolver) declareEsModuleImports(module *Module, scope *
 		panic(new_IllegalArgumentException_String(objstr_(obj_(scope))).self())
 	}
 	var missingNames ImmutableMap_BuilderOf[Node, *ScopedName] = ImmutableMap_builder()
-	it_1 := foreach_(obj_(cast_[*ImmutableSet](module.boundNames().entrySet())))
-	for it_1.next() {
-		var boundName Map_Entry = icast_Map_Entry(it_1.v)
+	for boundName := range elemsBy_(obj_(cast_[*ImmutableSet](module.boundNames().entrySet())), icast_Map_Entry) {
 		var binding *Binding = cast_[*Binding](boundName.getValue())
 		var localName string = str_(boundName.getKey())
 		if !binding.isCreatedByEsImport() {
@@ -132,9 +130,7 @@ func (this *ModuleImportResolver) updateEsModuleNamespaceType(namespace *ObjectT
 	if !scope.isModuleScope() {
 		panic(new_IllegalArgumentException_String(objstr_(obj_(scope))).self())
 	}
-	it_1 := foreach_(obj_(cast_[*ImmutableSet](module.namespace().entrySet())))
-	for it_1.next() {
-		var boundName Map_Entry = icast_Map_Entry(it_1.v)
+	for boundName := range elemsBy_(obj_(cast_[*ImmutableSet](module.namespace().entrySet())), icast_Map_Entry) {
 		var exportKey string = str_(boundName.getKey())
 		if namespace.isPropertyTypeDeclared(exportKey) {
 			continue

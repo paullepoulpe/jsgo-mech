@@ -110,9 +110,7 @@ func (this *CheckMissingRequires) visitJsDocInfo(t *NodeTraversal, currentModule
 	if info.hasType() {
 		this.visitJsDocExpr(t, currentModule, info.getType(), CheckMissingRequires_Strength_WEAK_TYPE)
 	}
-	it_1 := info.getParameterNames().each()
-	for it_1.next() {
-		var param string = it_1.v
+	for param := range info.getParameterNames().All() {
 		if info.hasParameterType(Optional_of[string](param)) {
 			this.visitJsDocExpr(t, currentModule, info.getParameterType(Optional_of[string](param)), CheckMissingRequires_Strength_WEAK_TYPE)
 		}
@@ -132,14 +130,10 @@ func (this *CheckMissingRequires) visitJsDocInfo(t *NodeTraversal, currentModule
 	if info.hasBaseType() {
 		this.visitJsDocExpr(t, currentModule, info.getBaseType(), CheckMissingRequires_Strength_IMPLEMENTS_EXTENDS)
 	}
-	it_3 := foreach_(info.getExtendedInterfaces())
-	for it_3.next() {
-		var expr *JSTypeExpression = cast_[*JSTypeExpression](it_3.v)
+	for expr := range elemsAs_[*JSTypeExpression](info.getExtendedInterfaces()) {
 		this.visitJsDocExpr(t, currentModule, expr, CheckMissingRequires_Strength_IMPLEMENTS_EXTENDS)
 	}
-	it_5 := foreach_(info.getImplementedInterfaces())
-	for it_5.next() {
-		var expr *JSTypeExpression = cast_[*JSTypeExpression](it_5.v)
+	for expr := range elemsAs_[*JSTypeExpression](info.getImplementedInterfaces()) {
 		this.visitJsDocExpr(t, currentModule, expr, CheckMissingRequires_Strength_IMPLEMENTS_EXTENDS)
 	}
 }

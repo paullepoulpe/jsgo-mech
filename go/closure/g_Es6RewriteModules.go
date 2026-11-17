@@ -251,9 +251,7 @@ func (this *Es6RewriteModules) createExportsObject(moduleName string, t *NodeTra
 	moduleVar.getFirstChild().setDeclaredConstantVar(true)
 	script.addChildToBack(moduleVar.srcrefTreeIfMissing(script))
 	var thisModule *Module = this.moduleMap.getModule(t.getInput().getPath())
-	it_1 := foreach_(obj_(cast_[*ImmutableSet](thisModule.namespace().entrySet())))
-	for it_1.next() {
-		var entry Map_Entry = icast_Map_Entry(it_1.v)
+	for entry := range elemsBy_(obj_(cast_[*ImmutableSet](thisModule.namespace().entrySet())), icast_Map_Entry) {
 		var exportedName string = str_(entry.getKey())
 		var binding *Binding = cast_[*Binding](entry.getValue())
 		var nodeForSourceInfo Node = binding.sourceNode()
@@ -319,9 +317,7 @@ func (this *Es6RewriteModules) rewriteRequires(script Node) {
 	NodeTraversal_builder().setCompiler(this.compiler_).setCallbackAbstractPostOrderCallbackInterface(func(t *NodeTraversal, n Node, parent Node) {
 		var info *JSDocInfo = n.getJSDocInfo()
 		if info != nil {
-			it_1 := foreach_(info.getTypeNodes())
-			for it_1.next() {
-				var typeNode Node = Node_of_(it_1.v)
+			for typeNode := range elemsBy_(info.getTypeNodes(), Node_of_) {
 				this.inlineAliasedTypes(t, typeNode)
 			}
 		}
@@ -700,9 +696,7 @@ func new_Es6RewriteModules_RenameGlobalVars(outer_ *Es6RewriteModules, thisModul
 func (this *Es6RewriteModules_RenameGlobalVars) visit_impl(t *NodeTraversal, n Node, parent Node) {
 	var info *JSDocInfo = n.getJSDocInfo()
 	if info != nil {
-		it_1 := foreach_(info.getTypeNodes())
-		for it_1.next() {
-			var typeNode Node = Node_of_(it_1.v)
+		for typeNode := range elemsBy_(info.getTypeNodes(), Node_of_) {
 			this.fixTypeNode(t, typeNode)
 		}
 	}

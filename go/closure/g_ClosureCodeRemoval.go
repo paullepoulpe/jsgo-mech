@@ -39,22 +39,16 @@ func (this *ClosureCodeRemoval) process_2(externs Node, root Node) {
 		passes = append(passes, NodeTraversal_Callback(new_ClosureCodeRemoval_FindAssertionCalls(this)))
 	}
 	CombinedCompilerPass_traverse(this.compiler_, root, passes)
-	it_1 := eachOf_(&this.abstractMethodAssignmentNodes)
-	for it_1.next() {
-		var assignment *ClosureCodeRemoval_RemovableAssignment = it_1.v
+	for assignment := range sliceAll_(&this.abstractMethodAssignmentNodes) {
 		assignment.remove()
 	}
-	it_3 := eachOf_(&this.abstractMemberFunctionNodes)
-	for it_3.next() {
-		var memberFunction Node = it_3.v
+	for memberFunction := range sliceAll_(&this.abstractMemberFunctionNodes) {
 		this.compiler_.reportFunctionDeleted(memberFunction.getFirstChild())
 		var parent Node = memberFunction.getParent()
 		memberFunction.detach()
 		this.compiler_.reportChangeToEnclosingScope(parent)
 	}
-	it_5 := eachOf_(&this.assertionCalls)
-	for it_5.next() {
-		var call Node = it_5.v
+	for call := range sliceAll_(&this.assertionCalls) {
 		this.compiler_.reportChangeToEnclosingScope(call)
 		var parent Node = call.getParent()
 		if parent.isExprResult() {
@@ -110,9 +104,7 @@ func new_ClosureCodeRemoval_RemovableAssignment(outer_ *ClosureCodeRemoval, name
 func (this *ClosureCodeRemoval_RemovableAssignment) remove() {
 	var rhs Node = this.node_.getNext()
 	var last Node = this.parent
-	it_1 := eachOf_(&this.assignAncestors)
-	for it_1.next() {
-		var ancestor Node = it_1.v
+	for ancestor := range sliceAll_(&this.assignAncestors) {
 		if ancestor.isExprResult() {
 			ancestor.detach()
 			NodeUtil_markFunctionsDeleted(ancestor, this.outer_.compiler_)

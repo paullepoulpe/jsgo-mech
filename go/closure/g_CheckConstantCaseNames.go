@@ -74,9 +74,7 @@ func (this *CheckConstantCaseNames) visit(t *NodeTraversal, n Node, parent Node)
 }
 
 func (this *CheckConstantCaseNames) reportWarningsAndClear() {
-	it_1 := this.invalidNamesPerModule.each()
-	for it_1.next() {
-		var nameNode Node = it_1.v
+	for nameNode := range this.invalidNamesPerModule.Values() {
 		var name string = nameNode.getString()
 		if has_(this.reassignedNames, name) {
 			this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(nameNode, CheckConstantCaseNames_REASSIGNED_CONSTANT_CASE_NAME, []string{name}))

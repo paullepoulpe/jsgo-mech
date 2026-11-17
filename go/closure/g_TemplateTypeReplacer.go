@@ -40,9 +40,7 @@ func new_TemplateTypeReplacer(registry *JSTypeRegistry, bindings *TemplateTypeMa
 func TemplateTypeReplacer_forInference(registry *JSTypeRegistry, bindings *TMap[*TemplateType, *JSType]) *TemplateTypeReplacer {
 	var keys ImmutableListOf[*TemplateType] = ImmutableList_copyOf(Collection(bindings.asMap().keySet()))
 	var values []*JSType
-	it_1 := foreach_(obj_(keys))
-	for it_1.next() {
-		var key *TemplateType = cast_[*TemplateType](it_1.v)
+	for key := range elemsAs_[*TemplateType](obj_(keys)) {
 		var value *JSType = bindings.get(key)
 		values = immAddObj_(tc_p_JSType, values, func() any {
 			if value != nil {
@@ -175,9 +173,7 @@ func (this *TemplateTypeReplacer) caseObjectTypeUnguarded(objType *ObjectType) *
 	}
 	var changed bool = false
 	var builder *RecordTypeBuilder = new_RecordTypeBuilder(this.registry)
-	it_1 := foreach_(objType.getOwnPropertyNames())
-	for it_1.next() {
-		var prop string = str_(it_1.v)
+	for prop := range elemsBy_(objType.getOwnPropertyNames(), str_) {
 		var propertyNode Node = objType.getPropertyNode(prop)
 		var beforeType *JSType = objType.getPropertyType(prop)
 		var afterType *JSType = to_JSType(beforeType.visit(this))
@@ -208,9 +204,7 @@ func (this *TemplateTypeReplacer) caseTemplatizedTypeUnguarded(type_ *Templatize
 		changed = true
 	}
 	var builder ImmutableList_BuilderOf[*JSType] = ImmutableList_builder()
-	it_1 := foreach_(obj_(type_.getTemplateTypes()))
-	for it_1.next() {
-		var beforeTemplateType *JSType = to_JSType(it_1.v)
+	for beforeTemplateType := range elemsBy_(obj_(type_.getTemplateTypes()), to_JSType) {
 		var afterTemplateType *JSType = to_JSType(beforeTemplateType.visit(this))
 		if !JSCompObjects_identical(beforeTemplateType.self(), afterTemplateType.self()) {
 			changed = true

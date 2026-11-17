@@ -34,9 +34,7 @@ func (this *ExtractPrototypeMemberDeclarations) maybeDoExtraction(info *ExtractP
 		injectionPoint.addChildToFront(var_)
 		this.compiler_.reportChangeToEnclosingScope(var_)
 	}
-	it_1 := foreach_(info.instancesByChunk.asMap().entrySet())
-	for it_1.next() {
-		var entry Map_Entry = icast_Map_Entry(it_1.v)
+	for entry := range elemsBy_(info.instancesByChunk.asMap().entrySet(), icast_Map_Entry) {
 		var alias string = ExtractPrototypeMemberDeclarations_PROTOTYPE_ALIAS
 		if this.pattern == ExtractPrototypeMemberDeclarations_Pattern_USE_CHUNK_TEMP {
 			if info.shouldExtractChunk(cast_[*JSChunk](entry.getKey())) {
@@ -49,9 +47,7 @@ func (this *ExtractPrototypeMemberDeclarations) maybeDoExtraction(info *ExtractP
 				continue
 			}
 		}
-		it_3 := eachOf_(&cast_[*ExtractPrototypeMemberDeclarations_ExtractionInstanceInfo](entry.getValue()).instances)
-		for it_3.next() {
-			var instance *ExtractPrototypeMemberDeclarations_ExtractionInstance = it_3.v
+		for instance := range sliceAll_(&cast_[*ExtractPrototypeMemberDeclarations_ExtractionInstanceInfo](entry.getValue()).instances) {
 			this.extractInstance(instance, alias)
 		}
 	}
@@ -75,16 +71,12 @@ func (this *ExtractPrototypeMemberDeclarations) extractInstance(instance *Extrac
 		stmt.srcrefTreeIfMissing(first.node_)
 		stmt.insertBefore(first.node_)
 		this.compiler_.reportChangeToEnclosingScope(stmt)
-		it_1 := eachOf_(&instance.declarations)
-		for it_1.next() {
-			var declar *ExtractPrototypeMemberDeclarations_PrototypeMemberDeclaration = it_1.v
+		for declar := range sliceAll_(&instance.declarations) {
 			this.compiler_.reportChangeToEnclosingScope(declar.node_)
 			block.addChildToBack(declar.node_.detach())
 		}
 	}
-	it_3 := eachOf_(&instance.declarations)
-	for it_3.next() {
-		var declar *ExtractPrototypeMemberDeclarations_PrototypeMemberDeclaration = it_3.v
+	for declar := range sliceAll_(&instance.declarations) {
 		this.replacePrototypeMemberDeclaration(declar, alias)
 	}
 }
@@ -280,9 +272,7 @@ func lambda_ExtractPrototypeMemberDeclarations_GatherExtractionInfo_visit_impl_1
 
 func (this *ExtractPrototypeMemberDeclarations_GatherExtractionInfo) shouldExtractGlobal() bool {
 	var allModulesDelta int32 = 0
-	it_1 := this.instancesByChunk.each()
-	for it_1.next() {
-		var instanceInfo *ExtractPrototypeMemberDeclarations_ExtractionInstanceInfo = it_1.v
+	for instanceInfo := range this.instancesByChunk.Values() {
 		allModulesDelta += instanceInfo.totalDelta
 	}
 	return ((allModulesDelta + ExtractPrototypeMemberDeclarations_Pattern_globalOverhead_[this.outer_.pattern-1]) < 0)

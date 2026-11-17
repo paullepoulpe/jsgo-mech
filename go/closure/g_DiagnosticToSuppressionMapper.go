@@ -32,24 +32,18 @@ func (this *DiagnosticToSuppressionMapper) createSuppressionMap() ImmutableSorte
 	delete(validSuppressions, "accessControls")
 	delete(validSuppressions, "missingSourcesWarnings")
 	var diagnosticToSuppression *TMap[*DiagnosticType, string] = newTMap_(tch_p_DiagnosticType, tc_string)
-	it_1 := foreach_(obj_(cast_[*ImmutableSet](this.diagnosticGroups.entrySet())))
-	for it_1.next() {
-		var entry Map_Entry = icast_Map_Entry(it_1.v)
+	for entry := range elemsBy_(obj_(cast_[*ImmutableSet](this.diagnosticGroups.entrySet())), icast_Map_Entry) {
 		var suppression string = str_(entry.getKey())
 		if !has_(validSuppressions, suppression) {
 			continue
 		}
 		var group *DiagnosticGroup = cast_[*DiagnosticGroup](entry.getValue())
-		it_3 := foreach_(obj_(group.getTypes()))
-		for it_3.next() {
-			var diagnosticType *DiagnosticType = cast_[*DiagnosticType](it_3.v)
+		for diagnosticType := range elemsAs_[*DiagnosticType](obj_(group.getTypes())) {
 			Map_merge_f(diagnosticToSuppression.asMap(), obj_(diagnosticType), strobj_(suppression), func(p0 any, p1 any) any { return strobj_(this.preferMoreTargetedGroup(str_(p0), str_(p1))) })
 		}
 	}
 	var result ImmutableSortedMap_BuilderOf[string, string] = ImmutableSortedMap_naturalOrder()
-	it_5 := foreach_(diagnosticToSuppression.asMap().entrySet())
-	for it_5.next() {
-		var entrySet Map_Entry = icast_Map_Entry(it_5.v)
+	for entrySet := range elemsBy_(diagnosticToSuppression.asMap().entrySet(), icast_Map_Entry) {
 		result.put(strobj_(cast_[*DiagnosticType](entrySet.getKey()).key_), entrySet.getValue())
 	}
 	return result.buildOrThrow()
@@ -71,9 +65,7 @@ func DiagnosticToSuppressionMapper_printAsJson(diagnosticToSuppression Immutable
 	writer.setHtmlSafe(true)
 	writer.setSerializeNulls(false)
 	writer.beginObject()
-	it_1 := foreach_(obj_(cast_[*ImmutableSet](diagnosticToSuppression.entrySet())))
-	for it_1.next() {
-		var entry Map_Entry = icast_Map_Entry(it_1.v)
+	for entry := range elemsBy_(obj_(cast_[*ImmutableSet](diagnosticToSuppression.entrySet())), icast_Map_Entry) {
 		writer.name(str_(entry.getKey())).stringValue(Optional_ofNullable[string](str_(entry.getValue())))
 	}
 	writer.endObject()
@@ -83,9 +75,7 @@ func DiagnosticToSuppressionMapper_printAsJson(diagnosticToSuppression Immutable
 func DiagnosticToSuppressionMapper_printAsMarkdown(diagnosticToSuppression ImmutableSortedMapOf[string, string]) {
 	Output_stdout().println("| Error | Suppression tag |")
 	Output_stdout().println("|---|---|")
-	it_1 := foreach_(obj_(cast_[*ImmutableSet](diagnosticToSuppression.entrySet())))
-	for it_1.next() {
-		var e Map_Entry = icast_Map_Entry(it_1.v)
+	for e := range elemsBy_(obj_(cast_[*ImmutableSet](diagnosticToSuppression.entrySet())), icast_Map_Entry) {
 		Output_stdout().println(String_format("|%s|%s|", []any{e.getKey(), e.getValue()}))
 	}
 }

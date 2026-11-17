@@ -126,9 +126,7 @@ func (this *NamedType) defineProperty_impl(propertyName Property_Key, type_ *JST
 func (this *NamedType) finishPropertyContinuations() {
 	var referencedObjType *ObjectType = this.getReferencedObjTypeInternal()
 	if ((referencedObjType != nil) && !referencedObjType.isUnknownType()) && (this.propertyContinuations != nil) {
-		it_1 := eachOf_(&this.propertyContinuations)
-		for it_1.next() {
-			var c *NamedType_PropertyContinuation = it_1.v
+		for c := range sliceAll_(&this.propertyContinuations) {
 			c.commit(this.up_ObjectType())
 		}
 	}

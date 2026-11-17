@@ -27,9 +27,7 @@ func (this *BasicErrorManager) init_BasicErrorManager() {
 }
 
 func (this *BasicErrorManager) generateReport_impl() {
-	it_1 := foreach_(this.SortingErrorManager.getSortedDiagnostics())
-	for it_1.next() {
-		var message *SortingErrorManager_ErrorWithLevel = cast_[*SortingErrorManager_ErrorWithLevel](it_1.v)
+	for message := range elemsAs_[*SortingErrorManager_ErrorWithLevel](this.SortingErrorManager.getSortedDiagnostics()) {
 		this.println(message.level_, message.error_)
 	}
 	this.printSummary()

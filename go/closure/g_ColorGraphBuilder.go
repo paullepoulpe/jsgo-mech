@@ -52,15 +52,11 @@ func (this *ColorGraphBuilder) connectUnionWithAncestors(unionNode *LinkedDirect
 		panic(new_IllegalStateException_0().self())
 	}
 	var graphNodesBuilder ImmutableSet_BuilderOf[*ColorGraphNode] = ImmutableSet_builder()
-	it_1 := foreach_(obj_(flatUnion.getColor().getUnionElements()))
-	for it_1.next() {
-		var element *Color = cast_[*Color](it_1.v)
+	for element := range elemsAs_[*Color](obj_(flatUnion.getColor().getUnionElements())) {
 		graphNodesBuilder.add(obj_(this.nodeFactory.createNode(element)))
 	}
 	var graphNodes ImmutableSetOf[*ColorGraphNode] = graphNodesBuilder.build()
-	it_3 := foreach_(obj_(this.lcaFinder.findAll(icast_Set(obj_(graphNodes)))))
-	for it_3.next() {
-		var lca *ColorGraphNode = cast_[*ColorGraphNode](it_3.v)
+	for lca := range elemsAs_[*ColorGraphNode](obj_(this.lcaFinder.findAll(icast_Set(obj_(graphNodes))))) {
 		nn_ := this.colorHoldsInstanceGraph.getNode(obj_(lca))
 		if nn_ == nil {
 			panic(new_NullPointerException_0().self())
@@ -80,9 +76,7 @@ func (this *ColorGraphBuilder) addInternalColorGraphNode(node *ColorGraphNode) *
 	}
 	flatNode = to_LinkedDirectedGraph_LinkedDiGraphNode(this.colorHoldsInstanceGraph.createNode(obj_(node)))
 	if node.getColor().isUnion() {
-		it_1 := foreach_(obj_(node.getColor().getUnionElements()))
-		for it_1.next() {
-			var alt *Color = cast_[*Color](it_1.v)
+		for alt := range elemsAs_[*Color](obj_(node.getColor().getUnionElements())) {
 			this.connectSourceToDest(flatNode, ColorGraphBuilder_EdgeReason_ALGEBRAIC, this.addInternal(alt))
 		}
 		return flatNode
@@ -92,20 +86,14 @@ func (this *ColorGraphBuilder) addInternalColorGraphNode(node *ColorGraphNode) *
 	if supertypes.isEmpty() {
 		this.connectSourceToDest(this.topNode, ColorGraphBuilder_EdgeReason_ALGEBRAIC, flatNode)
 	} else {
-		it_3 := foreach_(supertypes)
-		for it_3.next() {
-			var supertype *Color = cast_[*Color](it_3.v)
+		for supertype := range elemsAs_[*Color](supertypes) {
 			this.connectSourceToDest(this.addInternal(supertype), ColorGraphBuilder_EdgeReason_CAN_HOLD, flatNode)
 		}
 	}
-	it_5 := foreach_(obj_(color.getPrototypes()))
-	for it_5.next() {
-		var prototype *Color = cast_[*Color](it_5.v)
+	for prototype := range elemsAs_[*Color](obj_(color.getPrototypes())) {
 		this.addInternal(prototype)
 	}
-	it_7 := foreach_(obj_(color.getInstanceColors()))
-	for it_7.next() {
-		var instanceColor *Color = cast_[*Color](it_7.v)
+	for instanceColor := range elemsAs_[*Color](obj_(color.getInstanceColors())) {
 		this.addInternal(instanceColor)
 	}
 	return flatNode

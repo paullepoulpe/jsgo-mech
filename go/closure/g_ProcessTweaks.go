@@ -26,13 +26,9 @@ func (this *ProcessTweaks) process_2(externs Node, root Node) {
 }
 
 func (this *ProcessTweaks) stripAllCalls(tweakInfos *TMap[string, *ProcessTweaks_TweakInfo]) {
-	it_1 := tweakInfos.each()
-	for it_1.next() {
-		var tweakInfo *ProcessTweaks_TweakInfo = it_1.v
+	for tweakInfo := range tweakInfos.Values() {
 		var isRegistered bool = tweakInfo.isRegistered()
-		it_3 := eachOf_(&tweakInfo.functionCalls)
-		for it_3.next() {
-			var functionCall *ProcessTweaks_TweakFunctionCall = it_3.v
+		for functionCall := range sliceAll_(&tweakInfo.functionCalls) {
 			var callNode Node = functionCall.callNode_
 			var parent Node = callNode.getParent()
 			if functionCall.tweakFunc.isGetterFunction() {
@@ -58,9 +54,7 @@ func (this *ProcessTweaks) collectTweaks(root Node) *ProcessTweaks_CollectTweaks
 	var pass *ProcessTweaks_CollectTweaks = new_ProcessTweaks_CollectTweaks(this)
 	NodeTraversal_traverse(this.compiler_, root, pass)
 	var tweakInfos *TMap[string, *ProcessTweaks_TweakInfo] = pass.allTweaks
-	it_1 := tweakInfos.each()
-	for it_1.next() {
-		var tweakInfo *ProcessTweaks_TweakInfo = it_1.v
+	for tweakInfo := range tweakInfos.Values() {
 		tweakInfo.emitAllWarnings()
 	}
 	return new_ProcessTweaks_CollectTweaksResult(tweakInfos)
@@ -91,9 +85,7 @@ func ProcessTweaks_clinit() {
 	ProcessTweaks_INVALID_TWEAK_ID_ERROR = DiagnosticType_error("JSC_INVALID_TWEAK_ID_ERROR", "tweak ID contains illegal characters. Only letters, numbers, _ and . are allowed")
 	{
 		ProcessTweaks_TWEAK_FUNCTIONS_MAP = new_LinkedHashMap()
-		it_1 := foreach_(obj_(EnumSet_allOf(classOf_("com.google.javascript.jscomp.ProcessTweaks.TweakFunction"))))
-		for it_1.next() {
-			var func_ ProcessTweaks_TweakFunction = cast_[ProcessTweaks_TweakFunction](it_1.v)
+		for func_ := range elemsAs_[ProcessTweaks_TweakFunction](obj_(EnumSet_allOf(classOf_("com.google.javascript.jscomp.ProcessTweaks.TweakFunction")))) {
 			Map_put_s(ProcessTweaks_TWEAK_FUNCTIONS_MAP, func_.getName(), obj_(func_))
 		}
 	}
@@ -403,9 +395,7 @@ func (this *ProcessTweaks_TweakInfo) emitAllWarnings() {
 }
 
 func (this *ProcessTweaks_TweakInfo) emitAllTypeWarnings() {
-	it_1 := eachOf_(&this.functionCalls)
-	for it_1.next() {
-		var call *ProcessTweaks_TweakFunctionCall = it_1.v
+	for call := range sliceAll_(&this.functionCalls) {
 		var valueNode Node = call.valueNode
 		var tweakFunc ProcessTweaks_TweakFunction = call.tweakFunc
 		var registerFunc ProcessTweaks_TweakFunction = this.registerCall.tweakFunc

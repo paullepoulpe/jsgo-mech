@@ -57,9 +57,7 @@ func ModuleLoader_isPathIdentifier(name string) bool {
 
 func (this *ModuleLoader) createRootPaths(roots IterableOf[string]) ImmutableListOf[string] {
 	var result ImmutableSortedSet_BuilderOf[string] = new_ImmutableSortedSet_Builder(ModuleLoader_BEST_MATCH_PATH_ORDERING)
-	it_1 := foreach_(roots)
-	for it_1.next() {
-		var root string = str_(it_1.v)
+	for root := range elemsBy_(roots, str_) {
 		var n string = this.pathEscaper.escape(str_(this.pathResolver.apply(strobj_(root))))
 		result.add(func() any {
 			if ModuleLoader_isAmbiguousIdentifier(n) {
@@ -73,9 +71,7 @@ func (this *ModuleLoader) createRootPaths(roots IterableOf[string]) ImmutableLis
 
 func (this *ModuleLoader) resolvePaths(inputs IterableOf[DependencyInfo]) ImmutableSetOf[string] {
 	var sortedModulePaths *TList[string] = newTList_(tc_string)
-	it_1 := foreach_(inputs)
-	for it_1.next() {
-		var input DependencyInfo = icast_DependencyInfo(it_1.v)
+	for input := range elemsBy_(inputs, icast_DependencyInfo) {
 		var p string = this.pathEscaper.escape(str_(this.pathResolver.apply(strobj_(input.getName()))))
 		var n string = ModuleLoader_normalize(p, icast_Iterable(obj_(this.moduleRootPaths)))
 		sortedModulePaths.add(str_(func() any {

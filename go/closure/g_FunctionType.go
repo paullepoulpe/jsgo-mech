@@ -270,9 +270,7 @@ func (this *FunctionType) getParameters() ImmutableListOf[*FunctionType_Paramete
 func (this *FunctionType) getMinArity() int32 {
 	var i int32 = 0
 	var min_ int32 = 0
-	it_1 := foreach_(obj_(this.getParameters()))
-	for it_1.next() {
-		var parameter *FunctionType_Parameter = cast_[*FunctionType_Parameter](it_1.v)
+	for parameter := range elemsAs_[*FunctionType_Parameter](obj_(this.getParameters())) {
 		i++
 		if !parameter.isOptional() && !parameter.isVariadic() {
 			min_ = i
@@ -401,9 +399,7 @@ func (this *FunctionType) setPrototypeNoCheck(prototype *ObjectType, propertyNod
 
 func (this *FunctionType) getAllImplementedInterfaces() IterableOf[*ObjectType] {
 	var interfaces *TSet[*ObjectType] = newTSet_(tch_p_ObjectType)
-	it_1 := foreach_(obj_(this.getImplementedInterfaces()))
-	for it_1.next() {
-		var type_ *ObjectType = to_ObjectType(it_1.v)
+	for type_ := range elemsBy_(obj_(this.getImplementedInterfaces()), to_ObjectType) {
 		this.addRelatedInterfaces(type_, interfaces)
 	}
 	return Iterable(interfaces.asSet())
@@ -418,9 +414,7 @@ func (this *FunctionType) addRelatedInterfaces(instance *ObjectType, set *TSet[*
 		if !set.add(instance) {
 			return
 		}
-		it_1 := foreach_(instance.getCtorExtendedInterfaces())
-		for it_1.next() {
-			var interfaceType *ObjectType = to_ObjectType(it_1.v)
+		for interfaceType := range elemsBy_(instance.getCtorExtendedInterfaces(), to_ObjectType) {
 			this.addRelatedInterfaces(interfaceType, set)
 		}
 	}
@@ -464,9 +458,7 @@ func (this *FunctionType) setImplementedInterfaces(implementedInterfaces *TList[
 		panic(new_IllegalStateException_0().self())
 	}
 	this.implementedInterfaces = ImmutableList_copyOf(Collection(implementedInterfaces.asList()))
-	it_1 := implementedInterfaces.each()
-	for it_1.next() {
-		var type_ *ObjectType = it_1.v
+	for type_ := range implementedInterfaces.All() {
 		this.typeOfThis.mergeSupertypeTemplateTypes(type_)
 	}
 }
@@ -484,9 +476,7 @@ func (this *FunctionType) setExtendedInterfaces(extendedInterfaces *TList[*Objec
 		panic(new_IllegalStateException_0().self())
 	}
 	this.extendedInterfaces = ImmutableList_copyOf(Collection(extendedInterfaces.asList()))
-	it_1 := extendedInterfaces.each()
-	for it_1.next() {
-		var extendedInterface *ObjectType = it_1.v
+	for extendedInterface := range extendedInterfaces.All() {
 		this.typeOfThis.mergeSupertypeTemplateTypes(extendedInterface)
 	}
 }
@@ -845,9 +835,7 @@ func (this *FunctionType) resolveInternal_impl(reporter ErrorReporter_rhino) *JS
 func (this *FunctionType) resolveTypeListHelper(list ImmutableListOf[*ObjectType], reporter ErrorReporter_rhino) ImmutableListOf[*ObjectType] {
 	var changed bool = false
 	var resolvedList ImmutableList_BuilderOf[*ObjectType] = ImmutableList_builder()
-	it_1 := foreach_(obj_(list))
-	for it_1.next() {
-		var type_ *ObjectType = to_ObjectType(it_1.v)
+	for type_ := range elemsBy_(obj_(list), to_ObjectType) {
 		var rt *JSType = type_.resolve(reporter)
 		if !rt.isObjectType() {
 			reporter.warning(("not an object type: " + objstr_(rt.self()) + " (at " + sstr_(this.toString()) + ")"), Optional_of[string](this.source.getSourceFileName()).filterFn_(func(s string) bool {
@@ -904,9 +892,7 @@ func FunctionType_updatePropertyTypeMap(type_ *FunctionType, propTypeMap *TMap[s
 	var prototype *ObjectType = type_.getPrototype()
 	if prototype != nil {
 		var propNames SetOf[string] = prototype.getOwnPropertyNames()
-		it_1 := foreach_(propNames)
-		for it_1.next() {
-			var name string = str_(it_1.v)
+		for name := range elemsBy_(propNames, str_) {
 			if !propTypeMap.containsKey(name) {
 				var propType *JSType = prototype.getPropertyType(name)
 				propTypeMap.put(name, propType)
@@ -915,9 +901,7 @@ func FunctionType_updatePropertyTypeMap(type_ *FunctionType, propTypeMap *TMap[s
 	}
 	var iterable ImmutableListOf[*ObjectType] = type_.getExtendedInterfaces()
 	if iterable != nil {
-		it_3 := foreach_(obj_(iterable))
-		for it_3.next() {
-			var interfaceType *ObjectType = to_ObjectType(it_3.v)
+		for interfaceType := range elemsBy_(obj_(iterable), to_ObjectType) {
 			var superConstructor *FunctionType = interfaceType.getConstructor()
 			if (superConstructor == nil) || cache.contains(superConstructor) {
 				continue

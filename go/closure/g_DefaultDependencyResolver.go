@@ -35,9 +35,7 @@ func (this *DefaultDependencyResolver) getDependencies_2(symbols CollectionOf[st
 	for _, depsFile := range this.depsFiles {
 		depsFile.ensureUpToDate()
 	}
-	it_3 := foreach_(symbols)
-	for it_3.next() {
-		var symbol string = str_(it_3.v)
+	for symbol := range elemsBy_(symbols, str_) {
 		this.addDependency(symbol, seen, list)
 	}
 	return Collection(list.asList())
@@ -51,9 +49,7 @@ func (this *DefaultDependencyResolver) addDependency(symbol string, seen *TSet[s
 		}
 	} else if !seen.asSet().containsAll(icast_Collection(obj_(dependency.getProvides()))) {
 		seen.asSet().addAll(icast_Collection(obj_(dependency.getProvides())))
-		it_1 := foreach_(obj_(dependency.getRequiredSymbols()))
-		for it_1.next() {
-			var require string = str_(it_1.v)
+		for require := range elemsBy_(obj_(dependency.getRequiredSymbols()), str_) {
 			this.addDependency(require, seen, list)
 		}
 		list.add(dependency.getPathRelativeToClosureBase())

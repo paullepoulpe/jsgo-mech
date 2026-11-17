@@ -60,9 +60,7 @@ func (this *TypeInference) inferDeclarativelyUnboundVarsWithoutTypes(flow FlowSc
 	if !setAdd_(this.inferredUnboundVars, scope) {
 		return flow
 	}
-	it_1 := foreach_(scope.getDeclarativelyUnboundVarsWithoutTypes())
-	for it_1.next() {
-		var var_ *TypedVar = cast_[*TypedVar](it_1.v)
+	for var_ := range elemsAs_[*TypedVar](scope.getDeclarativelyUnboundVarsWithoutTypes()) {
 		if this.isUnflowable(var_) {
 			continue
 		}
@@ -640,12 +638,8 @@ func TypeInference_addMissingInterfaceProperties(constructor *JSType) {
 	}
 	var f *FunctionType = constructor.toMaybeFunctionType()
 	var proto *ObjectType = f.getPrototype()
-	it_1 := foreach_(obj_(f.getImplementedInterfaces()))
-	for it_1.next() {
-		var interf *ObjectType = to_ObjectType(it_1.v)
-		it_3 := foreach_(obj_(interf.getPropertyNames()))
-		for it_3.next() {
-			var pname string = str_(it_3.v)
+	for interf := range elemsBy_(obj_(f.getImplementedInterfaces()), to_ObjectType) {
+		for pname := range elemsBy_(obj_(interf.getPropertyNames()), str_) {
 			if !proto.hasProperty(pname) {
 				proto.defineDeclaredProperty(pname, interf.getPropertyType(pname), 0)
 			}
@@ -931,9 +925,7 @@ func TypeInference_getBigIntPresence(type_ *JSType) TypeInference_BigIntPresence
 		var containsBigInt bool = false
 		var containsNumber bool = false
 		var containsOther bool = false
-		it_1 := foreach_(obj_(typeAsUnion.getAlternates()))
-		for it_1.next() {
-			var alternate *JSType = to_JSType(it_1.v)
+		for alternate := range elemsBy_(obj_(typeAsUnion.getAlternates()), to_JSType) {
 			if TypeInference_getBigIntPresence(alternate) != TypeInference_BigIntPresence_NO_BIGINT {
 				containsBigInt = true
 			} else if alternate.isNumber() && !alternate.isUnknownType() {
@@ -1388,9 +1380,7 @@ func (this *TypeInference) updateTypeOfArguments(n Node, fnType *FunctionType) {
 		var restrictedParameter *FunctionType = nil
 		if iParameterType.isUnionType() {
 			var union *UnionType = iParameterType.toMaybeUnionType()
-			it_2 := foreach_(obj_(union.getAlternates()))
-			for it_2.next() {
-				var alternative *JSType = to_JSType(it_2.v)
+			for alternative := range elemsBy_(obj_(union.getAlternates()), to_JSType) {
 				if alternative.isFunctionType() {
 					restrictedParameter = alternative.toMaybeFunctionType()
 					break
@@ -1423,9 +1413,7 @@ func (this *TypeInference) matchFunction(expectedType *FunctionType, currentType
 
 func (this *TypeInference) buildTypeVariables(inferredTypes *TMap[*TemplateType, *JSType]) *TMap[string, *JSType] {
 	var typeVars *TMap[string, *JSType] = newTMap_(tc_string, tc_p_JSType)
-	it_1 := foreach_(inferredTypes.asMap().entrySet())
-	for it_1.next() {
-		var e Map_Entry = icast_Map_Entry(it_1.v)
+	for e := range elemsBy_(inferredTypes.asMap().entrySet(), icast_Map_Entry) {
 		if !cast_[*TemplateType](e.getKey()).isTypeTransformation() {
 			typeVars.put(cast_[*TemplateType](e.getKey()).getReferenceName().orElseThrow(), to_JSType(e.getValue()))
 		}
@@ -1437,9 +1425,7 @@ func (this *TypeInference) evaluateTypeTransformations(templateTypes ImmutableLi
 	var typeVars *TMap[string, *JSType] = nil
 	var result *TMap[*TemplateType, *JSType] = nil
 	var ttlObj *TypeTransformation = nil
-	it_1 := foreach_(obj_(templateTypes))
-	for it_1.next() {
-		var type_ *TemplateType = cast_[*TemplateType](it_1.v)
+	for type_ := range elemsAs_[*TemplateType](obj_(templateTypes)) {
 		if type_.isTypeTransformation() {
 			if ttlObj == nil {
 				ttlObj = new_TypeTransformation(this.compiler_, scope.getDeclarationScope())
@@ -1461,9 +1447,7 @@ func (this *TypeInference) inferTemplatedTypesForCall(n Node, fnType *FunctionTy
 	}
 	var bindings ImmutableMapOf[*TemplateType, *JSType] = new_InvocationTemplateTypeMatcher(this.registry, fnType, scope.getTypeOfThis(), n).match()
 	var inferred *TMap[*TemplateType, *JSType] = newTMap_(tch_p_TemplateType, tc_p_JSType)
-	it_1 := foreach_(obj_(keys))
-	for it_1.next() {
-		var key *TemplateType = cast_[*TemplateType](it_1.v)
+	for key := range elemsAs_[*TemplateType](obj_(keys)) {
 		inferred.put(key, to_JSType(Map_getOrDefault(icast_Map(obj_(bindings)), obj_(key), this.unknownType.self())))
 	}
 	Map_replaceAll(inferred.asMap(), lambda_TypeInference_inferTemplatedTypesForCall_1_)
@@ -1605,9 +1589,7 @@ func (this *TypeInference) dereferenceKnownSymbolProp(obj *JSType, indexSymbol *
 		return ImmutableList_of_Object(obj.self())
 	}()
 	var key Property_Key = new_Property_SymbolKey(indexSymbol)
-	it_1 := foreach_(alternates)
-	for it_1.next() {
-		var option *JSType = to_JSType(it_1.v)
+	for option := range elemsBy_(alternates, to_JSType) {
 		if option.toMaybeObjectType() == nil {
 			argumentTypes = nil
 			break
@@ -1635,9 +1617,7 @@ func (this *TypeInference) dereferenceIndexSignature(obj *JSType) *JSType {
 		}
 		return ImmutableList_of_Object(obj.self())
 	}()
-	it_1 := foreach_(alternates)
-	for it_1.next() {
-		var option *JSType = to_JSType(it_1.v)
+	for option := range elemsBy_(alternates, to_JSType) {
 		var typeMap *TemplateTypeMap = option.getTemplateTypeMap()
 		if !typeMap.hasTemplateType(this.registry.getObjectElementKey()) {
 			argumentTypes = nil

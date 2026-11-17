@@ -54,9 +54,7 @@ func TypeDeclarationsIR_namedTypeIterable(segments IterableOf[string]) Node {
 
 func TypeDeclarationsIR_recordType(properties *TMap[string, Node]) Node {
 	var node Node = new_Node_Token(Token_rhino_RECORD_TYPE)
-	it_1 := foreach_(properties.asMap().entrySet())
-	for it_1.next() {
-		var prop Map_Entry = icast_Map_Entry(it_1.v)
+	for prop := range elemsBy_(properties.asMap().entrySet(), icast_Map_Entry) {
 		var stringKey Node = IR_stringKey_String(str_(prop.getKey()))
 		node.addChildToBack(stringKey)
 		if Node_of_(prop.getValue()) != 0 {
@@ -81,15 +79,11 @@ func TypeDeclarationsIR_functionType(returnType Node, requiredParams *TMap[strin
 	if optionalParams.asMap() == nil {
 		panic(new_NullPointerException_0().self())
 	}
-	it_1 := foreach_(requiredParams.asMap().entrySet())
-	for it_1.next() {
-		var param Map_Entry = icast_Map_Entry(it_1.v)
+	for param := range elemsBy_(requiredParams.asMap().entrySet(), icast_Map_Entry) {
 		var name Node = IR_name(str_(param.getKey()))
 		node.addChildToBack(TypeDeclarationsIR_maybeAddType(name, Node_of_(param.getValue())))
 	}
-	it_3 := foreach_(optionalParams.asMap().entrySet())
-	for it_3.next() {
-		var param Map_Entry = icast_Map_Entry(it_3.v)
+	for param := range elemsBy_(optionalParams.asMap().entrySet(), icast_Map_Entry) {
 		var name Node = IR_name(str_(param.getKey()))
 		name.putBooleanProp(Node_OPT_ES6_TYPED, true)
 		node.addChildToBack(TypeDeclarationsIR_maybeAddType(name, Node_of_(param.getValue())))
@@ -106,9 +100,7 @@ func TypeDeclarationsIR_parameterizedType(baseType Node, typeParameters Iterable
 		return baseType
 	}
 	var node Node = new_Node_Token_Node(Token_rhino_PARAMETERIZED_TYPE, baseType)
-	it_1 := foreach_(typeParameters)
-	for it_1.next() {
-		var typeParameter Node = Node_of_(it_1.v)
+	for typeParameter := range elemsBy_(typeParameters, Node_of_) {
 		node.addChildToBack(typeParameter)
 	}
 	return node
@@ -123,9 +115,7 @@ func TypeDeclarationsIR_unionType(options IterableOf[Node]) Node {
 		panic(new_IllegalArgumentException_String("union must have at least one option").self())
 	}
 	var node Node = new_Node_Token(Token_rhino_UNION_TYPE)
-	it_1 := foreach_(options)
-	for it_1.next() {
-		var option Node = Node_of_(it_1.v)
+	for option := range elemsBy_(options, Node_of_) {
 		node.addChildToBack(option)
 	}
 	return node

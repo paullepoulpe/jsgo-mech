@@ -23,9 +23,7 @@ func (this *InjectRuntimeLibraries) process_2(externs Node, root Node) {
 }
 
 func (this *InjectRuntimeLibraries) injectLibraries() {
-	it_1 := foreach_(obj_(this.forceInjectedLibraries))
-	for it_1.next() {
-		var forced string = str_(it_1.v)
+	for forced := range elemsBy_(obj_(this.forceInjectedLibraries), str_) {
 		this.runtimeLibs.ensureLibraryInjected(forced, true)
 	}
 }

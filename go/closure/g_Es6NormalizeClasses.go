@@ -352,9 +352,7 @@ func (this *Es6NormalizeClasses) insertPrivateDeclarations(t *NodeTraversal, rec
 		mapVar.insertBefore(classInsertionPoint)
 		if record.hasInstancePrivateMethodsOrAccessors {
 			var descriptorsLit Node = this.astFactory_.createObjectLit([]Node{})
-			it_1 := eachOf_(&record.privateMembers)
-			for it_1.next() {
-				var pm *Es6NormalizeClasses_ClassRecord_PrivateMember = it_1.v
+			for pm := range sliceAll_(&record.privateMembers) {
 				if !pm.isStatic {
 					if ((pm.kind_ == Es6NormalizeClasses_ClassRecord_PrivateMemberKind_METHOD) && (pm.methodNode != 0)) && pm.methodNode.hasChildren() {
 						this.rewriteSuperReferencesInPrivateMember(pm.methodNode, record)
@@ -808,13 +806,9 @@ func (this *Es6NormalizeClasses) rewriteInstanceMembers(t *NodeTraversal, record
 		}
 	}
 	if this.transpilePrivateClassFields {
-		it_2 := eachOf_(&record.privateMembers)
-		for it_2.next() {
-			var pm *Es6NormalizeClasses_ClassRecord_PrivateMember = it_2.v
+		for pm := range sliceAll_(&record.privateMembers) {
 			if !pm.isStatic {
-				it_4 := eachOf_(&pm.declarationNodes)
-				for it_4.next() {
-					var declNode Node = it_4.v
+				for declNode := range sliceAll_(&pm.declarationNodes) {
 					if declNode.getParent() != 0 {
 						NodeUtil_deleteNode(declNode, this.compiler_)
 					}
@@ -1034,9 +1028,7 @@ func (this *Es6NormalizeClasses) rewriteStaticMembers(t *NodeTraversal, record *
 	if hasPriv {
 		var staticMapName OptionalOf[string] = record.getStaticPrivateMapVarName(this.compiler_, t)
 		var privName OptionalOf[string] = record.getStaticPrivateVarName(this.compiler_, t)
-		it_1 := eachOf_(&record.privateMembers)
-		for it_1.next() {
-			var pm *Es6NormalizeClasses_ClassRecord_PrivateMember = it_1.v
+		for pm := range sliceAll_(&record.privateMembers) {
 			if pm.isStatic && (pm.kind_ == Es6NormalizeClasses_ClassRecord_PrivateMemberKind_ACCESSOR) {
 				if ((pm.getterNode != 0) && pm.getterNode.hasChildren()) && this.hasThisReference(pm.getterNode.getFirstChild()) {
 					record.needsStaticSelf = true
@@ -1107,13 +1099,9 @@ func (this *Es6NormalizeClasses) rewriteStaticMembers(t *NodeTraversal, record *
 		}
 	}
 	if this.transpilePrivateClassFields {
-		it_5 := eachOf_(&record.privateMembers)
-		for it_5.next() {
-			var pm *Es6NormalizeClasses_ClassRecord_PrivateMember = it_5.v
+		for pm := range sliceAll_(&record.privateMembers) {
 			if pm.isStatic {
-				it_7 := eachOf_(&pm.declarationNodes)
-				for it_7.next() {
-					var declNode Node = it_7.v
+				for declNode := range sliceAll_(&pm.declarationNodes) {
 					if declNode.getParent() != 0 {
 						NodeUtil_deleteNode(declNode, this.compiler_)
 					}
@@ -1163,9 +1151,7 @@ var lambda_Es6NormalizeClasses_rewriteStaticMembers_2_ = &Predicate_base_fn{func
 }}
 
 func (this *Es6NormalizeClasses) addStaticPrivateMembers(record *Es6NormalizeClasses_ClassRecord, privName string, staticInitTempParent Node) {
-	it_1 := eachOf_(&record.privateMembers)
-	for it_1.next() {
-		var pm *Es6NormalizeClasses_ClassRecord_PrivateMember = it_1.v
+	for pm := range sliceAll_(&record.privateMembers) {
 		if pm.isStatic {
 			if ((pm.kind_ == Es6NormalizeClasses_ClassRecord_PrivateMemberKind_METHOD) && (pm.methodNode != 0)) && pm.methodNode.hasChildren() {
 				this.rewriteSuperReferencesInPrivateMember(pm.methodNode, record)

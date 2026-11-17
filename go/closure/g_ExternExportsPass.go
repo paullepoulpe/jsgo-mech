@@ -63,9 +63,7 @@ func (this *ExternExportsPass) process_2(externs Node, root Node) {
 	NodeTraversal_traverse(this.compiler_, root, this)
 	var sorted SetOf[*ExternExportsPass_Export] = new_TreeSet_Comparator(Comparator_comparing(lambda_ExternExportsPass_process_2_1_))
 	sorted.addAll(Collection(sliceView_(tc_p_ExternExportsPass_Export, this.exports)))
-	it_1 := foreach_(sorted)
-	for it_1.next() {
-		var export *ExternExportsPass_Export = to_ExternExportsPass_Export(it_1.v)
+	for export := range elemsBy_(sorted, to_ExternExportsPass_Export) {
 		export.generateExterns()
 	}
 	this.setGeneratedExternsOnCompiler()
@@ -359,9 +357,7 @@ func (this *ExternExportsPass_Export) createExternsParamListFromFunctionType(fun
 func (this *ExternExportsPass_Export) createExternsParamListFromOriginalParamList(originalParamNames ListOf[string]) Node {
 	var paramList Node = IR_paramList([]Node{})
 	var nameGenerator NameGenerator = new_DefaultNameGenerator_Set_String_Set(icast_Set(obj_(ImmutableSet_copyOf(Collection(originalParamNames)))), "", ImmutableSet_of())
-	it_1 := foreach_(originalParamNames)
-	for it_1.next() {
-		var originalParamName string = str_(it_1.v)
+	for originalParamName := range elemsBy_(originalParamNames, str_) {
 		var externParamName string = func() string {
 			if originalParamName == "" {
 				return nameGenerator.generateNextName()

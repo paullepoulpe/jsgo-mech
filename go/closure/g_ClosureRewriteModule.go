@@ -57,9 +57,7 @@ func ClosureRewriteModule_getBinaryModuleNamespace(namespaceId string) string {
 
 func (this *ClosureRewriteModule) rewriteJsdoc(info *JSDocInfo, scope *Scope) {
 	var replacer *ClosureRewriteModule_ReplaceJsDocRefs = new_ClosureRewriteModule_ReplaceJsDocRefs(this, scope)
-	it_1 := foreach_(info.getTypeNodes())
-	for it_1.next() {
-		var typeNode Node = Node_of_(it_1.v)
+	for typeNode := range elemsBy_(info.getTypeNodes(), Node_of_) {
 		NodeUtil_visitPreOrder_Node_Visitor(typeNode, replacer)
 	}
 }
@@ -79,9 +77,7 @@ func (this *ClosureRewriteModule) isUnrequiredWeakNamespace(call Node, namespace
 
 func (this *ClosureRewriteModule) process_2(externs Node, root Node) {
 	var scriptDescriptions []*ClosureRewriteModule_ScriptDescription = []*ClosureRewriteModule_ScriptDescription{}
-	it_1 := foreach_(obj_(ImmutableList_of_Object_Object(externs.box_(), root.box_())))
-	for it_1.next() {
-		var parent Node = Node_of_(it_1.v)
+	for parent := range elemsBy_(obj_(ImmutableList_of_Object_Object(externs.box_(), root.box_())), Node_of_) {
 		{
 			var script Node = parent.getFirstChild()
 			for ; script != 0; script = script.getNext() {
@@ -110,9 +106,7 @@ func (this *ClosureRewriteModule) process_2(externs Node, root Node) {
 
 func (this *ClosureRewriteModule) declareSyntheticExterns() {
 	var varsBuilder ImmutableList_BuilderOf[Node] = ImmutableList_builder()
-	it_1 := this.syntheticExterns.each()
-	for it_1.next() {
-		var lhs Node = it_1.v
+	for lhs := range this.syntheticExterns.Values() {
 		if !this.isNameInGlobalScope(lhs.getString()) {
 			varsBuilder.add(IR_var_Node(this.astFactory_.createNameWithUnknownType(lhs.getString())).srcrefTree(lhs).box_())
 		}
@@ -796,9 +790,7 @@ func (this *ClosureRewriteModule) updateModuleBody(moduleBody Node) {
 	}
 	moduleBody.setToken(Token_rhino_BLOCK)
 	NodeUtil_tryMergeBlock(moduleBody, true)
-	it_1 := this.currentScript.exportsToInline.each()
-	for it_1.next() {
-		var export *ClosureRewriteModule_ExportDefinition = it_1.v
+	for export := range this.currentScript.exportsToInline.Values() {
 		var nameNode Node = export.nameDecl.getNameNode()
 		this.safeSetMaybeQualifiedString(nameNode, (sstr_(this.currentScript.getBinaryNamespace().orElse("null")) + sstr_(export.getExportPostfix())), false)
 	}
@@ -899,9 +891,7 @@ func (this *ClosureRewriteModule) recordNameToInline(aliasName string, newName s
 }
 
 func (this *ClosureRewriteModule) reportUnrecognizedRequires() {
-	it_1 := eachOf_(&this.unrecognizedRequires)
-	for it_1.next() {
-		var unrecognizedRequire *ClosureRewriteModule_UnrecognizedRequire = it_1.v
+	for unrecognizedRequire := range sliceAll_(&this.unrecognizedRequires) {
 		var namespaceId string = unrecognizedRequire.namespaceId
 		var requireNode Node = unrecognizedRequire.requireNode
 		var targetGoogModuleExists bool = this.rewriteState.containsModule(namespaceId)

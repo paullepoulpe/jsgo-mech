@@ -279,9 +279,7 @@ func NodeTraversal_traverseAtScope(compiler *AbstractCompiler, cb NodeTraversal_
 func NodeTraversal_traverseScopeRoots(compiler *AbstractCompiler, scopeNodes *TList[Node], cb NodeTraversal_Callback, traverseNested bool) {
 	var scb *NodeTraversal_1TraverseScopeRootsCallback = new_NodeTraversal_1TraverseScopeRootsCallback(traverseNested, cb)
 	var scopeCreator *MemoizedScopeCreator = new_MemoizedScopeCreator(new_SyntacticScopeCreator_AbstractCompiler(compiler).createScopeAbstractScope)
-	it_1 := scopeNodes.each()
-	for it_1.next() {
-		var scopeNode Node = it_1.v
+	for scopeNode := range scopeNodes.All() {
 		scb.scopeNode = scopeNode
 		NodeTraversal_builder().setCompiler(compiler).setCallback(scb).setScopeCreator(scopeCreator).build().traverseScopeRoot(scopeNode)
 	}
@@ -885,9 +883,7 @@ func (this *NodeTraversal) initScopeRoots(n Node) {
 		}
 		n = n.getParent()
 	}
-	it_2 := eachRevOf_(&queuedScopeRoots)
-	for it_2.next() {
-		var queuedScopeRoot Node = it_2.v
+	for queuedScopeRoot := range sliceAllRev_(&queuedScopeRoots) {
 		this.pushScope(queuedScopeRoot)
 	}
 }

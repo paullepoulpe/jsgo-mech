@@ -20,9 +20,7 @@ func (this *ColorSerializer) init_ColorSerializer(serializationMode *Serializati
 	this.serializationMode = serializationMode
 	this.getStringPoolIndexFn = stringPoolIndexFn
 	this.propertyFilter = propertyFilter
-	it_1 := foreach_(obj_(TypePointers_OFFSET_TO_AXIOMATIC_COLOR))
-	for it_1.next() {
-		var color *Color = cast_[*Color](it_1.v)
+	for color := range elemsAs_[*Color](obj_(TypePointers_OFFSET_TO_AXIOMATIC_COLOR)) {
 		this.addColor(color)
 	}
 }
@@ -35,9 +33,7 @@ func new_ColorSerializer(serializationMode *SerializationOptions, stringPoolInde
 
 func (this *ColorSerializer) addColors(colors CollectionOf[*Color]) ImmutableListOf[BoxedOf[int32]] {
 	var builder ImmutableList_BuilderOf[BoxedOf[int32]] = ImmutableList_builder()
-	it_1 := foreach_(colors)
-	for it_1.next() {
-		var color *Color = cast_[*Color](it_1.v)
+	for color := range elemsAs_[*Color](colors) {
 		builder.add(any(int32(this.addColor(color))))
 	}
 	return builder.build()
@@ -59,9 +55,7 @@ func (this *ColorSerializer) generateTypePool(getDisambiguationSupertypesFn func
 		var color *Color = sliceAt_(this.colorsInSerializedOrder, i)
 		var typePointer any = this.colorIdToTypePointer.get(color.getId())
 		typePoolBuilder.addType(this.generateTypeProto(color))
-		it_2 := foreach_(icast_Set(getDisambiguationSupertypesFn(obj_(color))))
-		for it_2.next() {
-			var supertype *Color = cast_[*Color](it_2.v)
+		for supertype := range elemsAs_[*Color](icast_Set(getDisambiguationSupertypesFn(obj_(color)))) {
 			typePoolBuilder.addDisambiguationEdgesBuilder().setSubtype(unbox_[int32](typePointer)).setSupertype(this.addColor(supertype))
 		}
 	}
@@ -71,20 +65,14 @@ func (this *ColorSerializer) generateTypePool(getDisambiguationSupertypesFn func
 		}
 		var debugInfoBuilder *TypePool_DebugInfo_Builder = typePoolBuilder.getDebugInfoBuilder()
 		var srcRefToTypePointerList *TMap[string, ArrayListOf[BoxedOf[int32]]] = newTMap_(tc_string, tc_ArrayListOf_BoxedOf_int32__)
-		it_4 := eachOf_(&this.colorsInSerializedOrder)
-		for it_4.next() {
-			var color *Color = it_4.v
+		for color := range sliceAll_(&this.colorsInSerializedOrder) {
 			var typePointer any = this.colorIdToTypePointer.get(color.getId())
-			it_6 := foreach_(icast_Set(getMismatchSourceRefsFn.apply(obj_(color))))
-			for it_6.next() {
-				var srcRef string = str_(it_6.v)
+			for srcRef := range elemsBy_(icast_Set(getMismatchSourceRefsFn.apply(obj_(color))), str_) {
 				var typePointerList ArrayListOf[BoxedOf[int32]] = srcRefToTypePointerList.computeIfAbsent_f(srcRef, lambda_ColorSerializer_generateTypePool_1_)
 				typePointerList.add(typePointer)
 			}
 		}
-		it_8 := foreach_(srcRefToTypePointerList.asMap().entrySet())
-		for it_8.next() {
-			var entry Map_Entry = icast_Map_Entry(it_8.v)
+		for entry := range elemsBy_(srcRefToTypePointerList.asMap().entrySet(), icast_Map_Entry) {
 			debugInfoBuilder.addMismatchBuilder().setSourceRef(str_(entry.getKey())).addAllInvolvedColor(icast_Iterable(entry.getValue()))
 		}
 	}
@@ -111,9 +99,7 @@ func (this *ColorSerializer) generateTypeProto(color *Color) *TypeProto {
 
 func (this *ColorSerializer) getOwnPropertyStringPoolOffsets(color *Color) ImmutableListOf[BoxedOf[int32]] {
 	var builder ImmutableList_BuilderOf[BoxedOf[int32]] = ImmutableList_builder()
-	it_1 := foreach_(obj_(color.getOwnProperties()))
-	for it_1.next() {
-		var ownProperty string = str_(it_1.v)
+	for ownProperty := range elemsBy_(obj_(color.getOwnProperties()), str_) {
 		if this.propertyFilter(strobj_(ownProperty)) {
 			builder.add(this.getStringPoolIndexFn(strobj_(ownProperty)))
 		}

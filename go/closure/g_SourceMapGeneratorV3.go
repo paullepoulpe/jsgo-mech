@@ -145,9 +145,7 @@ func (this *SourceMapGeneratorV3) mergeMapSection_4(line int32, column int32, ma
 		return Outcome_base_err(parsed.error())
 	}
 	section.visitMappings(new_SourceMapGeneratorV3_ConsumerEntryVisitor(this).visit)
-	it_1 := foreach_(section.getExtensions().asMap().entrySet())
-	for it_1.next() {
-		var entry Map_Entry = icast_Map_Entry(it_1.v)
+	for entry := range elemsBy_(section.getExtensions().asMap().entrySet(), icast_Map_Entry) {
 		var extensionKey string = str_(entry.getKey())
 		if this.extensions.containsKey(extensionKey) {
 			this.extensions.put(extensionKey, mergeAction(extensionKey, this.extensions.get(extensionKey), entry.getValue()))
@@ -183,9 +181,7 @@ func (this *SourceMapGeneratorV3) appendTo(out Appendable, name OptionalOf[strin
 	this.addSymbolNameMap(out)
 	out.append_CharSequence_s("]")
 	SourceMapGeneratorV3_appendFieldEnd(out)
-	it_1 := this.extensions.each()
-	for it_1.next() {
-		var key string = it_1.k
+	for key := range this.extensions.Keys() {
 		var objValue any = this.extensions.get(key)
 		var value string
 		var string_ string
@@ -242,9 +238,7 @@ func (this *SourceMapGeneratorV3) addSourcesContentMap(out Appendable) {
 	var size int32 = this.sourceFileMap.size()
 	var contents []string = make([]string, 0, size)
 	sliceAddAll_(tc_string, &contents, Collection(Collections_nCopies(size, strobj_(""))))
-	it_1 := foreach_(this.sourceFileMap.asMap().entrySet())
-	for it_1.next() {
-		var entry Map_Entry = icast_Map_Entry(it_1.v)
+	for entry := range elemsBy_(this.sourceFileMap.asMap().entrySet(), icast_Map_Entry) {
 		var index any = entry.getValue()
 		if unbox_[int32](index) >= size {
 			panic(new_IllegalStateException_0().self())
@@ -277,9 +271,7 @@ func (this *SourceMapGeneratorV3) addSymbolNameMap(out Appendable) {
 
 func SourceMapGeneratorV3_addNameMap(out Appendable, map_ *TMap[string, any]) {
 	var i int32 = 0
-	it_1 := foreach_(map_.asMap().entrySet())
-	for it_1.next() {
-		var entry Map_Entry = icast_Map_Entry(it_1.v)
+	for entry := range elemsBy_(map_.asMap().entrySet(), icast_Map_Entry) {
 		var key string = str_(entry.getKey())
 		if i != 0 {
 			out.append_CharSequence_s(",")
@@ -514,9 +506,7 @@ func new_SourceMapGeneratorV3_MappingTraversal(outer_ *SourceMapGeneratorV3) *So
 
 func (this *SourceMapGeneratorV3_MappingTraversal) traverse(v func(*SourceMapGeneratorV3_Mapping, int32, int32, int32, int32)) {
 	var stack []*SourceMapGeneratorV3_Mapping = []*SourceMapGeneratorV3_Mapping{}
-	it_1 := eachOf_(&this.outer_.mappings)
-	for it_1.next() {
-		var m *SourceMapGeneratorV3_Mapping = it_1.v
+	for m := range sliceAll_(&this.outer_.mappings) {
 		for len(stack) != 0 && !this.isOverlapped(slicePeekTop_(tc_p_SourceMapGeneratorV3_Mapping, stack), m) {
 			var previous *SourceMapGeneratorV3_Mapping = slicePop_(tc_p_SourceMapGeneratorV3_Mapping, &stack)
 			this.maybeVisit(v, previous)

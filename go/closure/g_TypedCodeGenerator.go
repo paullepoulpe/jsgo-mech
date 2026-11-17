@@ -205,9 +205,7 @@ func (this *TypedCodeGenerator) appendTemplateAnnotations(sb *StringBuilder, typ
 	if !typeParams.isEmpty() {
 		sb.append(" * @template ")
 		var formattedTypeParams []string = []string{}
-		it_1 := foreach_(typeParams)
-		for it_1.next() {
-			var typeParam *JSType = to_JSType(it_1.v)
+		for typeParam := range elemsBy_(typeParams, to_JSType) {
 			formattedTypeParams = append(formattedTypeParams, this.formatTypeVar(typeParam))
 		}
 		sb.append(String_join_s(",", Iterable(sliceView_(tc_string, formattedTypeParams))))
@@ -260,14 +258,10 @@ func (this *TypedCodeGenerator) appendClassAnnotations(sb *StringBuilder, funTyp
 		}
 	}
 	var interfaces SetOf[string] = new_TreeSet()
-	it_1 := foreach_(funType.getAncestorInterfaces())
-	for it_1.next() {
-		var interfaze *ObjectType = to_ObjectType(it_1.v)
+	for interfaze := range elemsBy_(funType.getAncestorInterfaces(), to_ObjectType) {
 		Collection_add_s(interfaces, interfaze.toAnnotationString(JSType_Nullability_IMPLICIT))
 	}
-	it_3 := foreach_(interfaces)
-	for it_3.next() {
-		var interfaze string = str_(it_3.v)
+	for interfaze := range elemsBy_(interfaces, str_) {
 		sb.append(" * ")
 		TypedCodeGenerator_appendAnnotation(sb, "implements", interfaze)
 		sb.append("\n")
@@ -276,14 +270,10 @@ func (this *TypedCodeGenerator) appendClassAnnotations(sb *StringBuilder, funTyp
 
 func (this *TypedCodeGenerator) appendInterfaceAnnotations(sb *StringBuilder, funType *FunctionType) {
 	var interfaces SetOf[string] = new_TreeSet()
-	it_1 := foreach_(funType.getAncestorInterfaces())
-	for it_1.next() {
-		var interfaceType *ObjectType = to_ObjectType(it_1.v)
+	for interfaceType := range elemsBy_(funType.getAncestorInterfaces(), to_ObjectType) {
 		Collection_add_s(interfaces, interfaceType.toAnnotationString(JSType_Nullability_IMPLICIT))
 	}
-	it_3 := foreach_(interfaces)
-	for it_3.next() {
-		var interfaze string = str_(it_3.v)
+	for interfaze := range elemsBy_(interfaces, str_) {
 		sb.append(" * ")
 		TypedCodeGenerator_appendAnnotation(sb, "extends", interfaze)
 		sb.append("\n")

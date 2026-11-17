@@ -45,12 +45,8 @@ func new_NodeModuleResolver(modulePaths ImmutableSetOf[string], moduleRootPaths 
 
 func NodeModuleResolver_buildNodeModulesFoldersRegistry(modulePaths IterableOf[string], moduleRootPaths IterableOf[string]) ImmutableSortedSetOf[string] {
 	var registry SortedSetOf[string] = new_TreeSet_Comparator(lambda_NodeModuleResolver_buildNodeModulesFoldersRegistry_1_)
-	it_1 := foreach_(modulePaths)
-	for it_1.next() {
-		var modulePath string = str_(it_1.v)
-		it_3 := foreach_(moduleRootPaths)
-		for it_3.next() {
-			var moduleRootPath string = str_(it_3.v)
+	for modulePath := range elemsBy_(modulePaths, str_) {
+		for moduleRootPath := range elemsBy_(moduleRootPaths, str_) {
 			if strings.HasPrefix(modulePath, moduleRootPath) {
 				modulePath = String_substring_int(modulePath, String_length(moduleRootPath))
 				break
@@ -84,9 +80,7 @@ var lambda_NodeModuleResolver_buildNodeModulesFoldersRegistry_1_ = &Comparator_f
 
 func (this *NodeModuleResolver) buildPackageJsonMainEntries(packageJsonMainEntries *TMap[string, string]) ImmutableMapOf[string, string] {
 	var builder ImmutableMap_BuilderOf[string, string] = ImmutableMap_builder()
-	it_1 := foreach_(packageJsonMainEntries.asMap().entrySet())
-	for it_1.next() {
-		var packageJsonMainEntry Map_Entry = icast_Map_Entry(it_1.v)
+	for packageJsonMainEntry := range elemsBy_(packageJsonMainEntries.asMap().entrySet(), icast_Map_Entry) {
 		var entryKey string = str_(packageJsonMainEntry.getKey())
 		if ModuleLoader_isAmbiguousIdentifier(entryKey) {
 			entryKey = (sstr_(ModuleLoader_MODULE_SLASH) + sstr_(entryKey))

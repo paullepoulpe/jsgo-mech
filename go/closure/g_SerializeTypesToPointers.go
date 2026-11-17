@@ -41,9 +41,7 @@ func (this *SerializeTypesToPointers) gatherTypesOnAst(root Node) {
 	}
 	NodeTraversal_traverse(this.compiler_, root, new_SerializeTypesToPointers_PropertySearchCallback(this))
 	NodeTraversal_traverse(this.compiler_, root, new_SerializeTypesToPointers_TypeSearchCallback(this))
-	it_1 := foreach_(this.compiler_.getTypeMismatches())
-	for it_1.next() {
-		var mismatch *TypeMismatch = cast_[*TypeMismatch](it_1.v)
+	for mismatch := range elemsAs_[*TypeMismatch](this.compiler_.getTypeMismatches()) {
 		this.jstypeReconserializer.serializeType(mismatch.found())
 		this.jstypeReconserializer.serializeType(mismatch.required())
 	}
@@ -81,9 +79,7 @@ func (this *SerializeTypesToPointers) logSerializationDebugInfo(serializer *JSTy
 
 func (this *SerializeTypesToPointers) logTypeMismatches(typeMismatches IterableOf[*TypeMismatch], serializer *JSTypeReconserializer, typePool *TypePool) ImmutableSortedSetOf[*SerializeTypesToPointers_TypeMismatchJson] {
 	var result ImmutableSortedSet_BuilderOf[*SerializeTypesToPointers_TypeMismatchJson] = ImmutableSortedSet_naturalOrder()
-	it_1 := foreach_(typeMismatches)
-	for it_1.next() {
-		var mismatch *TypeMismatch = cast_[*TypeMismatch](it_1.v)
+	for mismatch := range elemsAs_[*TypeMismatch](typeMismatches) {
 		result.add(obj_(SerializeTypesToPointers_TypeMismatchJson_create(mismatch, serializer, typePool)))
 	}
 	return result.build()
@@ -94,9 +90,7 @@ func SerializeTypesToPointers_typeMismatchesToJson(typeMismatches ImmutableSorte
 	writer.setHtmlSafe(true)
 	writer.setSerializeNulls(false)
 	writer.beginArray()
-	it_1 := foreach_(obj_(typeMismatches))
-	for it_1.next() {
-		var typeMismatch *SerializeTypesToPointers_TypeMismatchJson = cast_[*SerializeTypesToPointers_TypeMismatchJson](it_1.v)
+	for typeMismatch := range elemsAs_[*SerializeTypesToPointers_TypeMismatchJson](obj_(typeMismatches)) {
 		typeMismatch.writeJson(writer)
 	}
 	writer.endArray()
@@ -183,15 +177,11 @@ func new_SerializeTypesToPointers_StreamObjectUuidsJson(allSerializedTypes MapOf
 
 func (this *SerializeTypesToPointers_StreamObjectUuidsJson) writeJson(jsonWriter *SimpleJsonWriter) {
 	jsonWriter.beginObject()
-	it_1 := foreach_(this.allSerializedTypes.entrySet())
-	for it_1.next() {
-		var entry Map_Entry = icast_Map_Entry(it_1.v)
+	for entry := range elemsBy_(this.allSerializedTypes.entrySet(), icast_Map_Entry) {
 		jsonWriter.name(str_(entry.getKey()))
 		jsonWriter.beginArray()
 		var jstypes []string = []string{}
-		it_3 := foreach_(icast_List(entry.getValue()))
-		for it_3.next() {
-			var jstype *JSType = to_JSType(it_3.v)
+		for jstype := range elemsBy_(icast_List(entry.getValue()), to_JSType) {
 			jstypes = append(jstypes, jstype.toString())
 		}
 		Collections_sort(sliceView_(tc_string, jstypes))
@@ -250,9 +240,7 @@ func SerializeTypesToPointers_TypeMismatchJson_typePointerToId(poolOffset int32,
 	switch typeProto.getKindCase() {
 	case TypeProto_KindCase_UNION:
 		var memberIds ImmutableSet_BuilderOf[*ColorId] = ImmutableSet_builder()
-		it_2 := foreach_(typeProto.getUnion().getUnionMemberList())
-		for it_2.next() {
-			var pointer any = it_2.v
+		for pointer := range elems_(typeProto.getUnion().getUnionMemberList()) {
 			memberIds.add(obj_(SerializeTypesToPointers_TypeMismatchJson_typePointerToId(unbox_[int32](pointer), typePool)))
 		}
 		return ColorId_union(tsetFrom_(tch_p_ColorId, memberIds.build(), true))

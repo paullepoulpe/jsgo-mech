@@ -54,9 +54,7 @@ func RescopeGlobalSymbolsInfo_collectWrappedCrossChunkNames(externNames *TSet[st
 	var candidates *TSet[string] = newTSet_(tc_string)
 	candidates.addAllT(crossChunkNamesWithWriteFromOtherChunk)
 	candidates.addAllT(crossChunkNamesUsedInNonDependentChunk)
-	it_1 := globalNamesWithInnerScopeWriteInDefiningChunk.each()
-	for it_1.next() {
-		var name string = it_1.v
+	for name := range globalNamesWithInnerScopeWriteInDefiningChunk.All() {
 		if crossChunkNames.contains(name) {
 			candidates.add(name)
 		}

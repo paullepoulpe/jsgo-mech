@@ -44,16 +44,12 @@ func (this *AnalyzePrototypeProperties) init_AnalyzePrototypeProperties(compiler
 	this.externNode.markReference(nil)
 	this.symbolGraph.createNode(obj_(this.globalNode))
 	this.symbolGraph.createNode(obj_(this.externNode))
-	it_1 := foreach_(obj_(AnalyzePrototypeProperties_IMPLICITLY_USED_PROPERTIES))
-	for it_1.next() {
-		var property string = str_(it_1.v)
+	for property := range elemsBy_(obj_(AnalyzePrototypeProperties_IMPLICITLY_USED_PROPERTIES), str_) {
 		var nameInfo *AnalyzePrototypeProperties_NameInfo = this.getNameInfoForName(property, AnalyzePrototypeProperties_PROPERTY)
 		if chunkGraph == nil {
 			this.symbolGraph.connect(obj_(this.externNode), nil, obj_(nameInfo))
 		} else {
-			it_3 := foreach_(chunkGraph.getAllChunks())
-			for it_3.next() {
-				var chunk *JSChunk = cast_[*JSChunk](it_3.v)
+			for chunk := range elemsAs_[*JSChunk](chunkGraph.getAllChunks()) {
 				this.symbolGraph.connect(obj_(this.externNode), obj_(chunk), obj_(nameInfo))
 			}
 		}
@@ -185,9 +181,7 @@ func (this *AnalyzePrototypeProperties_ProcessProperties) shouldTraverse(t *Node
 func (this *AnalyzePrototypeProperties_ProcessProperties) visit(t *NodeTraversal, n Node, parent Node) {
 	switch n.getToken() {
 	case Token_rhino_SUPER:
-		it_2 := eachRevOf_(&this.symbolStack)
-		for it_2.next() {
-			var context *AnalyzePrototypeProperties_NameContext = it_2.v
+		for context := range sliceAllRev_(&this.symbolStack) {
 			context.name_.referencesSuperField = true
 			if NodeUtil_isMethodDeclaration(context.scope_.getRootNode()) {
 				break
@@ -261,9 +255,7 @@ func (this *AnalyzePrototypeProperties_ProcessProperties) visit(t *NodeTraversal
 					}
 				}
 			} else if cast_[*Scope](var_.getScope()) != t.getScope() {
-				it_7 := eachRevOf_(&this.symbolStack)
-				for it_7.next() {
-					var context *AnalyzePrototypeProperties_NameContext = it_7.v
+				for context := range sliceAllRev_(&this.symbolStack) {
 					if context.scope_ == cast_[*Scope](var_.getScope()) {
 						break
 					}
@@ -281,9 +273,7 @@ func (this *AnalyzePrototypeProperties_ProcessProperties) visit(t *NodeTraversal
 func (this *AnalyzePrototypeProperties_ProcessProperties) addSymbolUse(name string, chunk *JSChunk, type_ AnalyzePrototypeProperties_SymbolType) {
 	var info *AnalyzePrototypeProperties_NameInfo = this.outer_.getNameInfoForName(name, type_)
 	var def *AnalyzePrototypeProperties_NameInfo = nil
-	it_1 := eachRevOf_(&this.symbolStack)
-	for it_1.next() {
-		var context *AnalyzePrototypeProperties_NameContext = it_1.v
+	for context := range sliceAllRev_(&this.symbolStack) {
 		def = context.name_
 		if def != this.outer_.anonymousNode {
 			break

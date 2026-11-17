@@ -61,16 +61,12 @@ func (this *DepsGenerator) computeDependencyCalls() *Outcome_base {
 
 func (this *DepsGenerator) cleanUpDuplicatedFiles(depsFiles MapOf[string, DependencyInfo], jsFiles MapOf[string, DependencyInfo]) {
 	var depsPathsCopy *TSet[string] = tsetFrom_(tc_string, Collection(depsFiles.keySet()), false)
-	it_1 := depsPathsCopy.each()
-	for it_1.next() {
-		var path string = it_1.v
+	for path := range depsPathsCopy.All() {
 		if this.mergeStrategy != DepsGenerator_InclusionStrategy_WHEN_IN_SRCS {
 			Map_remove_s(jsFiles, path)
 		}
 	}
-	it_3 := foreach_(jsFiles.keySet())
-	for it_3.next() {
-		var path string = str_(it_3.v)
+	for path := range elemsBy_(jsFiles.keySet(), str_) {
 		Map_remove_s(depsFiles, path)
 	}
 }
@@ -80,13 +76,9 @@ func (this *DepsGenerator) removeMungedSymbols(depFiles MapOf[string, Dependency
 	var providesMap map[string]DependencyInfo = map[string]DependencyInfo{}
 	this.addToProvideMap(Iterable(depFiles.values()), providesMap, true)
 	this.addToProvideMap(Iterable(jsFiles.values()), providesMap, false)
-	it_1 := foreach_(jsFiles.values())
-	for it_1.next() {
-		var dependencyInfo DependencyInfo = icast_DependencyInfo(it_1.v)
+	for dependencyInfo := range elemsBy_(jsFiles.values(), icast_DependencyInfo) {
 		var newRequires *TList[*DependencyInfo_Require] = newTList_(tc_p_DependencyInfo_Require)
-		it_3 := foreach_(obj_(dependencyInfo.getRequires()))
-		for it_3.next() {
-			var require *DependencyInfo_Require = cast_[*DependencyInfo_Require](it_3.v)
+		for require := range elemsAs_[*DependencyInfo_Require](obj_(dependencyInfo.getRequires())) {
 			if require.getType() == DependencyInfo_Require_Type_ES6_IMPORT {
 				var provider DependencyInfo = providesMap[require.getSymbol()]
 				if provider == nil {
@@ -102,9 +94,7 @@ func (this *DepsGenerator) removeMungedSymbols(depFiles MapOf[string, Dependency
 		if dependencyInfo.isEs6Module() {
 			var mungedProvide string = this.loader.resolve(dependencyInfo.getName()).toModuleName()
 			var builder ImmutableList_BuilderOf[string] = ImmutableList_builder()
-			it_5 := foreach_(obj_(provides))
-			for it_5.next() {
-				var provide string = str_(it_5.v)
+			for provide := range elemsBy_(obj_(provides), str_) {
 				if !(provide == mungedProvide) && !(provide == dependencyInfo.getPathRelativeToClosureBase()) {
 					builder.add(strobj_(provide))
 				}
@@ -120,12 +110,8 @@ func (this *DepsGenerator) validateDependencies(preparsedFileDependencies Iterab
 	var providesMap map[string]DependencyInfo = map[string]DependencyInfo{}
 	this.addToProvideMap(preparsedFileDependencies, providesMap, true)
 	this.addToProvideMap(parsedFileDependencies, providesMap, false)
-	it_1 := foreach_(parsedFileDependencies)
-	for it_1.next() {
-		var depInfo DependencyInfo = icast_DependencyInfo(it_1.v)
-		it_3 := foreach_(obj_(depInfo.getRequires()))
-		for it_3.next() {
-			var require *DependencyInfo_Require = cast_[*DependencyInfo_Require](it_3.v)
+	for depInfo := range elemsBy_(parsedFileDependencies, icast_DependencyInfo) {
+		for require := range elemsAs_[*DependencyInfo_Require](obj_(depInfo.getRequires())) {
 			var namespace string = require.getSymbol()
 			var provider DependencyInfo = providesMap[namespace]
 			if provider == nil {
@@ -179,9 +165,7 @@ func (this *DepsGenerator) reportNoDepsInDepsFile(filePath string) {
 }
 
 func (this *DepsGenerator) addToProvideMap(depInfos IterableOf[DependencyInfo], providesMap map[string]DependencyInfo, isFromDepsFile bool) {
-	it_1 := foreach_(depInfos)
-	for it_1.next() {
-		var depInfo DependencyInfo = icast_DependencyInfo(it_1.v)
+	for depInfo := range elemsBy_(depInfos, icast_DependencyInfo) {
 		var provides []string = sliceFrom_(tc_string, icast_Collection(obj_(depInfo.getProvides())))
 		if isFromDepsFile {
 			provides = append(provides, this.loader.resolve(PathUtil_makeAbsolute_String_String(depInfo.getPathRelativeToClosureBase(), this.closurePathAbs)).toModuleName())
@@ -225,9 +209,7 @@ func (this *DepsGenerator) parseDepsFiles() *Outcome_base {
 			if depInfos.isEmpty() {
 				this.reportNoDepsInDepsFile(file.getName())
 			} else {
-				it_3 := foreach_(depInfos)
-				for it_3.next() {
-					var info DependencyInfo = icast_DependencyInfo(it_3.v)
+				for info := range elemsBy_(depInfos, icast_DependencyInfo) {
 					Map_put_s(depsFiles, info.getPathRelativeToClosureBase(), this.removeRelativePathProvide(info))
 				}
 			}
@@ -242,9 +224,7 @@ func (this *DepsGenerator) parseDepsFiles() *Outcome_base {
 				return Outcome_base_err(srcInfosRes.error())
 			}
 			var srcInfos ListOf[DependencyInfo] = icast_List(srcInfosRes.get())
-			it_7 := foreach_(srcInfos)
-			for it_7.next() {
-				var info DependencyInfo = icast_DependencyInfo(it_7.v)
+			for info := range elemsBy_(srcInfos, icast_DependencyInfo) {
 				Map_put_s(depsFiles, info.getPathRelativeToClosureBase(), this.removeRelativePathProvide(info))
 			}
 		}
@@ -270,9 +250,7 @@ func (this *DepsGenerator) removeRelativePathProvide(info DependencyInfo) Depend
 
 func DepsGenerator_providesWithoutRelativePath(info DependencyInfo) *TList[string] {
 	var result *TList[string] = newTList_(tc_string)
-	it_1 := foreach_(obj_(info.getProvides()))
-	for it_1.next() {
-		var p string = str_(it_1.v)
+	for p := range elemsBy_(obj_(info.getProvides()), str_) {
 		if !(p == info.getPathRelativeToClosureBase()) {
 			result.add(p)
 		}
@@ -313,14 +291,10 @@ func (this *DepsGenerator) writeDepsContent(depsFiles MapOf[string, DependencyIn
 	DepsGenerator_writeDepInfos(out, jsFiles.values())
 	if this.mergeStrategy == DepsGenerator_InclusionStrategy_ALWAYS {
 		var infosIndex *SimpleListMultimap = SimpleListMultimap_create()
-		it_1 := foreach_(depsFiles.values())
-		for it_1.next() {
-			var info DependencyInfo = icast_DependencyInfo(it_1.v)
+		for info := range elemsBy_(depsFiles.values(), icast_DependencyInfo) {
 			infosIndex.put_s(info.getName(), info)
 		}
-		it_3 := foreach_(infosIndex.keySet())
-		for it_3.next() {
-			var depsPath string = str_(it_3.v)
+		for depsPath := range elemsBy_(infosIndex.keySet(), str_) {
 			var path string = this.formatPathToDepsFile(depsPath)
 			out.append(("\n// Included from: " + sstr_(path))).append(System_lineSeparator())
 			DepsGenerator_writeDepInfos(out, Collection(infosIndex.get_s(depsPath)))
@@ -333,18 +307,14 @@ func (this *DepsGenerator) formatPathToDepsFile(path string) string {
 }
 
 func DepsGenerator_writeDepInfos(out *StringBuilder, depInfos CollectionOf[DependencyInfo]) {
-	it_1 := foreach_(depInfos)
-	for it_1.next() {
-		var depInfo DependencyInfo = icast_DependencyInfo(it_1.v)
+	for depInfo := range elemsBy_(depInfos, icast_DependencyInfo) {
 		DependencyInfo_Util_writeAddDependency(icast_Appendable(obj_(out)), depInfo)
 	}
 }
 
 func DepsGenerator_createSourceFilesFromPaths(paths CollectionOf[string]) []*SourceFile_jscomp {
 	var files []*SourceFile_jscomp = []*SourceFile_jscomp{}
-	it_1 := foreach_(paths)
-	for it_1.next() {
-		var path string = str_(it_1.v)
+	for path := range elemsBy_(paths, str_) {
 		files = append(files, SourceFile_jscomp_fromFile_String(path))
 	}
 	return files

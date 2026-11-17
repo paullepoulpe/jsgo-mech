@@ -68,9 +68,7 @@ func (this *TypedAstSerializer) serializeRoots(externsRoot Node, jsRoot Node) *T
 	var sourceFiles *SourceFilePool = cast_[*SourceFilePool](SourceFilePool_newBuilder().addAllSourceFile(icast_Iterable(obj_(this.sourceFileProtos()))).build())
 	if this.compiler_.getExternProperties() != nil {
 		var externsSummary *ExternsSummary_Builder = ExternsSummary_newBuilder()
-		it_3 := foreach_(obj_(this.compiler_.getExternProperties()))
-		for it_3.next() {
-			var prop string = str_(it_3.v)
+		for prop := range elemsBy_(obj_(this.compiler_.getExternProperties()), str_) {
 			externsSummary.addPropNamePtr(this.stringPool.put(prop))
 		}
 		builder.setExternsSummary(externsSummary)
@@ -80,9 +78,7 @@ func (this *TypedAstSerializer) serializeRoots(externsRoot Node, jsRoot Node) *T
 
 func (this *TypedAstSerializer) sourceFileProtos() ImmutableListOf[*SourceFileProto] {
 	var result ImmutableList_BuilderOf[*SourceFileProto] = ImmutableList_builder()
-	it_1 := this.sourceFilePointers.each()
-	for it_1.next() {
-		var sourceFile *SourceFile_jscomp = it_1.k
+	for sourceFile := range this.sourceFilePointers.Keys() {
 		result.add(obj_(sourceFile.getProto()))
 	}
 	return result.build()

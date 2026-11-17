@@ -42,9 +42,7 @@ func new_AllowlistWarningsGuard_Set(allowlist *TSet[string]) *AllowlistWarningsG
 
 func AllowlistWarningsGuard_normalizeAllowlist(allowlist *TSet[string]) ImmutableSetOf[string] {
 	var result *TSet[string] = newTSet_(tc_string)
-	it_1 := allowlist.each()
-	for it_1.next() {
-		var line string = it_1.v
+	for line := range allowlist.All() {
 		var trimmed string = String_trim(line)
 		if trimmed == "" || (String_charAt(trimmed, 0) == '#') {
 			continue
@@ -212,21 +210,15 @@ func (this *AllowlistWarningsGuard_AllowlistBuilder) appendAllowlist(out *Output
 		out.append_CharSequence_s(("#" + sstr_(Joiner_on("\n# ").join(Splitter_on('\n').split_s(this.headerNote.get()))) + "\n"))
 	}
 	var warningsByType *SimpleSetMultimap = SimpleSetMultimap_createSorted()
-	it_1 := this.warnings_.each()
-	for it_1.next() {
-		var warning *JSError = it_1.v
+	for warning := range this.warnings_.All() {
 		warningsByType.put(obj_(warning.type_()), strobj_(this.outer_.formatWarning_2(warning, true)))
 	}
-	it_3 := foreach_(warningsByType.keySet())
-	for it_3.next() {
-		var type_ *DiagnosticType = cast_[*DiagnosticType](it_3.v)
+	for type_ := range elemsAs_[*DiagnosticType](warningsByType.keySet()) {
 		if DiagnosticGroups_DEPRECATED.matchesDiagnosticType(type_) {
 			continue
 		}
 		cast_[*Output](cast_[*Output](cast_[*Output](out.append_CharSequence_s("\n# Warning ")).append_CharSequence_s(type_.key_)).append_CharSequence_s(": ")).println(str_(first_(AllowlistWarningsGuard_LINE_SPLITTER.split_s(type_.formatField))))
-		it_5 := foreach_(warningsByType.get(obj_(type_)))
-		for it_5.next() {
-			var warning string = str_(it_5.v)
+		for warning := range elemsBy_(warningsByType.get(obj_(type_)), str_) {
 			out.println(warning)
 		}
 	}

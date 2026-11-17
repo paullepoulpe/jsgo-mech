@@ -47,9 +47,7 @@ func (this *JSDocInfoPrinter) print(info *JSDocInfo) string {
 	}
 	if info.getAuthors() != nil {
 		multiline = true
-		it_1 := foreach_(info.getAuthors())
-		for it_1.next() {
-			var name string = str_(it_1.v)
+		for name := range elemsBy_(info.getAuthors(), str_) {
 			parts.add(("@author " + sstr_(name)))
 		}
 	}
@@ -72,9 +70,7 @@ func (this *JSDocInfoPrinter) print(info *JSDocInfo) string {
 	}
 	if info.getReferences() != nil {
 		multiline = true
-		it_3 := foreach_(info.getReferences())
-		for it_3.next() {
-			var desc string = str_(it_3.v)
+		for desc := range elemsBy_(info.getReferences(), str_) {
 			parts.add(("@see " + sstr_(desc)))
 		}
 	}
@@ -140,16 +136,12 @@ func (this *JSDocInfoPrinter) print(info *JSDocInfo) string {
 		var typeNode Node = this.stripBang(info.getBaseType().getRoot())
 		parts.add(this.buildAnnotationWithType("extends", typeNode))
 	}
-	it_5 := foreach_(info.getExtendedInterfaces())
-	for it_5.next() {
-		var type_ *JSTypeExpression = cast_[*JSTypeExpression](it_5.v)
+	for type_ := range elemsAs_[*JSTypeExpression](info.getExtendedInterfaces()) {
 		multiline = true
 		var typeNode Node = this.stripBang(type_.getRoot())
 		parts.add(this.buildAnnotationWithType("extends", typeNode))
 	}
-	it_7 := foreach_(info.getImplementedInterfaces())
-	for it_7.next() {
-		var type_ *JSTypeExpression = cast_[*JSTypeExpression](it_7.v)
+	for type_ := range elemsAs_[*JSTypeExpression](info.getImplementedInterfaces()) {
 		multiline = true
 		var typeNode Node = this.stripBang(type_.getRoot())
 		parts.add(this.buildAnnotationWithType("implements", typeNode))
@@ -161,9 +153,7 @@ func (this *JSDocInfoPrinter) print(info *JSDocInfo) string {
 	}
 	if info.getParameterCount() > 0 {
 		multiline = true
-		it_9 := info.getParameterNames().each()
-		for it_9.next() {
-			var name string = it_9.v
+		for name := range info.getParameterNames().All() {
 			parts.add(("@param " + sstr_(this.buildParamType(info, name))))
 		}
 	}
@@ -194,9 +184,7 @@ func (this *JSDocInfoPrinter) print(info *JSDocInfo) string {
 	var typeTransformations ImmutableMapOf[string, Node] = info.getTypeTransformations()
 	if !typeTransformations.isEmpty() {
 		multiline = true
-		it_11 := foreach_(obj_(cast_[*ImmutableSet](typeTransformations.entrySet())))
-		for it_11.next() {
-			var e Map_Entry = icast_Map_Entry(it_11.v)
+		for e := range elemsBy_(obj_(cast_[*ImmutableSet](typeTransformations.entrySet())), icast_Map_Entry) {
 			var name string = str_(e.getKey())
 			var tranformationDefinition string = new_CodePrinter_Builder(Node_of_(e.getValue())).build()
 			parts.add(("@template " + sstr_(name) + " := " + sstr_(tranformationDefinition) + " =:"))
@@ -229,9 +217,7 @@ func (this *JSDocInfoPrinter) print(info *JSDocInfo) string {
 	}
 	var suppressions ImmutableMapOf[ImmutableSetOf[string], string] = info.getSuppressionsAndTheirDescription()
 	if !suppressions.isEmpty() {
-		it_13 := foreach_(obj_(cast_[*ImmutableSet](suppressions.entrySet())))
-		for it_13.next() {
-			var suppression Map_Entry = icast_Map_Entry(it_13.v)
+		for suppression := range elemsBy_(obj_(cast_[*ImmutableSet](suppressions.entrySet())), icast_Map_Entry) {
 			var warnings []string = arrmap_(cast_[*ImmutableSet](suppression.getKey()).toArray(arrmap_(newstrarr_(0), func(v_ string) any { return strobj_(v_) })), func(v_ any) string { return str_(v_) })
 			func() {
 				arr_15 := warnings
@@ -290,9 +276,7 @@ func (this *JSDocInfoPrinter) print(info *JSDocInfo) string {
 	if info.isLegacyNamedTsExport() {
 		parts.add("@legacyNamedTsExport")
 	}
-	it_17 := foreach_(obj_(info.getTsTypes()))
-	for it_17.next() {
-		var tsType string = str_(it_17.v)
+	for tsType := range elemsBy_(obj_(info.getTsTypes()), str_) {
 		parts.add(("@tsType " + sstr_(tsType)))
 	}
 	if this.printDesc && info.getBlockDescription().isPresent() {

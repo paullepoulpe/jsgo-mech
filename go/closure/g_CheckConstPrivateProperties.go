@@ -41,9 +41,7 @@ func (this *CheckConstPrivateProperties) process_2(externs Node, root Node) {
 }
 
 func (this *CheckConstPrivateProperties) reportMissingConst(t *NodeTraversal) {
-	it_1 := eachOf_(&this.candidates)
-	for it_1.next() {
-		var n Node = it_1.v
+	for n := range sliceAll_(&this.candidates) {
 		var propName string = n.getString()
 		if !has_(this.modified, propName) {
 			t.report(n, CheckConstPrivateProperties_MISSING_CONST_PROPERTY, []string{propName})

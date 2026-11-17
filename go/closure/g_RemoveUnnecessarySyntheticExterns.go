@@ -29,9 +29,7 @@ func (this *RemoveUnnecessarySyntheticExterns) process_2(externs Node, root Node
 	if this.nodesToDetach.isEmpty() {
 		return
 	}
-	it_1 := this.nodesToDetach.each()
-	for it_1.next() {
-		var n Node = it_1.v
+	for n := range this.nodesToDetach.All() {
 		n.detach()
 	}
 	var syntheticExternsScript Node = this.compiler_.getSynthesizedExternsInput().getAstRoot(this.compiler_)

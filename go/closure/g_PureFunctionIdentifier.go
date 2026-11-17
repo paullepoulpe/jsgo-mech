@@ -60,12 +60,8 @@ func (this *PureFunctionIdentifier) validateArtificialPurity() {
 	if !this.validateArtificialPurityField {
 		return
 	}
-	it_1 := this.artificiallyPureLiteralsForDebugging.each()
-	for it_1.next() {
-		var function Node = it_1.v
-		it_3 := foreach_(this.summariesForAllNamesOfFunctionByNode.get(function.box_()))
-		for it_3.next() {
-			var summary *PureFunctionIdentifier_AmbiguatedFunctionSummary = cast_[*PureFunctionIdentifier_AmbiguatedFunctionSummary](it_3.v)
+	for function := range this.artificiallyPureLiteralsForDebugging.All() {
+		for summary := range elemsAs_[*PureFunctionIdentifier_AmbiguatedFunctionSummary](this.summariesForAllNamesOfFunctionByNode.get(function.box_())) {
 			if summary.hasNoFlagsSet() {
 				continue
 			}
@@ -198,9 +194,7 @@ func (this *PureFunctionIdentifier) getSummariesForCallee(invocation Node) []*Pu
 		panic(new_IllegalStateException_String("Unexpected empty callees for valid result").self())
 	}
 	var results []*PureFunctionIdentifier_AmbiguatedFunctionSummary
-	it_1 := foreach_(obj_(callees))
-	for it_1.next() {
-		var callee Node = Node_of_(it_1.v)
+	for callee := range elemsBy_(obj_(callees), Node_of_) {
 		if callee.isFunction() {
 			if !callee.isFunction() {
 				panic(new_IllegalStateException_String(objstr_(callee.box_())).self())
@@ -225,14 +219,10 @@ func (this *PureFunctionIdentifier) getSummariesForCallee(invocation Node) []*Pu
 
 func (this *PureFunctionIdentifier) populateDatastructuresForAnalysisTraversal(referenceMap *OptimizeCalls_ReferenceMap) {
 	var referencesByName *SimpleListMultimap = SimpleListMultimap_create()
-	it_1 := foreach_(referenceMap.getNameReferences())
-	for it_1.next() {
-		var entry Map_Entry = icast_Map_Entry(it_1.v)
+	for entry := range elemsBy_(referenceMap.getNameReferences(), icast_Map_Entry) {
 		referencesByName.putAll(entry.getKey(), icast_Iterable(entry.getValue()))
 	}
-	it_3 := foreach_(referenceMap.getPropReferences())
-	for it_3.next() {
-		var entry Map_Entry = icast_Map_Entry(it_3.v)
+	for entry := range elemsBy_(referenceMap.getPropReferences(), icast_Map_Entry) {
 		referencesByName.putAll_s((sstr_(PureFunctionIdentifier_PROP_NAME_PREFIX) + sstr_(str_(entry.getKey()))), icast_Iterable(entry.getValue()))
 	}
 	if referencesByName.containsKey_s("") {
@@ -241,9 +231,7 @@ func (this *PureFunctionIdentifier) populateDatastructuresForAnalysisTraversal(r
 	if referencesByName.containsKey_s(PureFunctionIdentifier_PROP_NAME_PREFIX) {
 		panic(new_IllegalStateException_0().self())
 	}
-	it_5 := foreach_(referencesByName.keySet())
-	for it_5.next() {
-		var name string = str_(it_5.v)
+	for name := range elemsBy_(referencesByName.keySet(), str_) {
 		this.summariesByName[name] = PureFunctionIdentifier_AmbiguatedFunctionSummary_createInGraph(this.reverseCallGraph.up_DiGraph(), name)
 	}
 	Map_forEach_f(referencesByName.asMap(), func(p0 any, p1 any) { this.populateFunctionDefinitions(str_(p0), icast_List(p1)) })
@@ -254,9 +242,7 @@ func (this *PureFunctionIdentifier) populateFunctionDefinitions(name string, ref
 	var summaryForName *PureFunctionIdentifier_AmbiguatedFunctionSummary = Preconditions_checkNotNullT(this.summariesByName[name])
 	var invalid bool = false
 	var rvaluesAssignedToName ListOf[ImmutableListOf[Node]] = new_ArrayList_0()
-	it_1 := foreach_(references)
-	for it_1.next() {
-		var reference Node = Node_of_(it_1.v)
+	for reference := range elemsBy_(references, Node_of_) {
 		if !PureFunctionIdentifier_isDefinitelyRValue(reference) {
 			var rvalue Node = NodeUtil_getRValueOfLValue(reference)
 			if rvalue == 0 {
@@ -269,9 +255,7 @@ func (this *PureFunctionIdentifier) populateFunctionDefinitions(name string, ref
 					break
 				}
 				if this.validateArtificialPurityField && !reference.isFromExterns() {
-					it_3 := foreach_(obj_(callables))
-					for it_3.next() {
-						var callable Node = Node_of_(it_3.v)
+					for callable := range elemsBy_(obj_(callables), Node_of_) {
 						var jsdoc *JSDocInfo = NodeUtil_getBestJSDocInfo(callable)
 						var isArtificiallyPure bool = ((jsdoc != nil) && jsdoc.isNoSideEffects())
 						if isArtificiallyPure {
@@ -287,12 +271,8 @@ func (this *PureFunctionIdentifier) populateFunctionDefinitions(name string, ref
 	if rvaluesAssignedToName.isEmpty() || invalid {
 		summaryForName.setMutatesGlobalStateAndAllOtherFlags(0)
 	} else {
-		it_5 := foreach_(rvaluesAssignedToName)
-		for it_5.next() {
-			var callables *ImmutableList = cast_[*ImmutableList](it_5.v)
-			it_7 := foreach_(obj_(callables))
-			for it_7.next() {
-				var rvalue Node = Node_of_(it_7.v)
+		for callables := range elemsAs_[*ImmutableList](rvaluesAssignedToName) {
+			for rvalue := range elemsBy_(obj_(callables), Node_of_) {
 				if rvalue.isFunction() {
 					this.summariesForAllNamesOfFunctionByNode.put(rvalue.box_(), obj_(summaryForName))
 				} else if NodeUtil_isUndefined(rvalue) {
@@ -327,9 +307,7 @@ func lambda_PureFunctionIdentifier_propagateSideEffects_1_(source_ any, edge_ an
 }
 
 func (this *PureFunctionIdentifier) markPureFunctionCalls() {
-	it_1 := eachOf_(&this.allFunctionCalls)
-	for it_1.next() {
-		var callNode Node = it_1.v
+	for callNode := range sliceAll_(&this.allFunctionCalls) {
 		var calleeSummaries []*PureFunctionIdentifier_AmbiguatedFunctionSummary = this.getSummariesForCallee(callNode)
 		var flags *Node_SideEffectFlags = new_Node_SideEffectFlags_0()
 		if len(calleeSummaries) == 0 {
@@ -505,9 +483,7 @@ func (this *PureFunctionIdentifier_ExternFunctionAnnotationAnalyzer) visit(trave
 	if !node.isFunction() {
 		return
 	}
-	it_1 := foreach_(this.outer_.summariesForAllNamesOfFunctionByNode.get(node.box_()))
-	for it_1.next() {
-		var definitionSummary *PureFunctionIdentifier_AmbiguatedFunctionSummary = cast_[*PureFunctionIdentifier_AmbiguatedFunctionSummary](it_1.v)
+	for definitionSummary := range elemsAs_[*PureFunctionIdentifier_AmbiguatedFunctionSummary](this.outer_.summariesForAllNamesOfFunctionByNode.get(node.box_())) {
 		this.updateSideEffectsForExternFunction(node, definitionSummary)
 	}
 }
@@ -573,9 +549,7 @@ func (this *PureFunctionIdentifier_FunctionBodyAnalyzer) visit(traversal *NodeTr
 	if (root == 0) || enclosingFunction.isArtificiallyPure {
 		return
 	}
-	it_1 := foreach_(this.outer_.summariesForAllNamesOfFunctionByNode.get(root.box_()))
-	for it_1.next() {
-		var summary *PureFunctionIdentifier_AmbiguatedFunctionSummary = cast_[*PureFunctionIdentifier_AmbiguatedFunctionSummary](it_1.v)
+	for summary := range elemsAs_[*PureFunctionIdentifier_AmbiguatedFunctionSummary](this.outer_.summariesForAllNamesOfFunctionByNode.get(root.box_())) {
 		this.updateSideEffectsForNode(Preconditions_checkNotNullT(summary), traversal, node)
 	}
 }
@@ -718,18 +692,14 @@ func (this *PureFunctionIdentifier_FunctionBodyAnalyzer) exitScope(t *NodeTraver
 	if equalsId_(t.getScopeRoot(), functionEntry.root) {
 		SequencedCollection_removeLast(icast_SequencedCollection(obj_(this.functionScopeStack)))
 	}
-	it_1 := foreach_(this.outer_.summariesForAllNamesOfFunctionByNode.get(functionEntry.root.box_()))
-	for it_1.next() {
-		var sideEffectInfo *PureFunctionIdentifier_AmbiguatedFunctionSummary = cast_[*PureFunctionIdentifier_AmbiguatedFunctionSummary](it_1.v)
+	for sideEffectInfo := range elemsAs_[*PureFunctionIdentifier_AmbiguatedFunctionSummary](this.outer_.summariesForAllNamesOfFunctionByNode.get(functionEntry.root.box_())) {
 		if v_, a1_ := sideEffectInfo, functionEntry.root; v_ == nil {
 			panic(new_NullPointerException_String(Strings_lenientFormat("%s has no side effect info.", []any{a1_.box_()})).self())
 		}
 		if sideEffectInfo.mutatesGlobalState() {
 			continue
 		}
-		it_3 := foreach_(t.getScope().getVarIterable())
-		for it_3.next() {
-			var v *Var = cast_[*Var](it_3.v)
+		for v := range elemsAs_[*Var](t.getScope().getVarIterable()) {
 			var isFromDestructuring bool = NodeUtil_isLhsByDestructuring(v.getNameNode())
 			if ((v.isParam() && !isFromDestructuring) && !functionEntry.skiplistedVars.contains(v)) && functionEntry.taintedVars.contains(v) {
 				sideEffectInfo.setMutatesArgumentAt(PureFunctionIdentifier_getParamIndex(v), v.getNode())

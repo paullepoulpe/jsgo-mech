@@ -285,9 +285,7 @@ func (this *InlineFunctions) inliningLowersCost(functionState *InlineFunctions_F
 }
 
 func (this *InlineFunctions) resolveInlineConflicts() {
-	it_1 := this.fns.each()
-	for it_1.next() {
-		var functionState *InlineFunctions_FunctionState = it_1.v
+	for functionState := range this.fns.Values() {
 		this.resolveInlineConflictsForFunction(functionState)
 	}
 }
@@ -314,9 +312,7 @@ func (this *InlineFunctions) resolveInlineConflictsForFunction(functionState *In
 	var fnNode Node = functionState.getFn().getFunctionNode()
 	var names *TSet[string] = this.findCalledFunctions(fnNode)
 	if !names.isEmpty() {
-		it_1 := names.each()
-		for it_1.next() {
-			var name string = it_1.v
+		for name := range names.All() {
 			var fsCalled *InlineFunctions_FunctionState = this.fns.get(name)
 			if (fsCalled != nil) && fsCalled.canRemove() {
 				fsCalled.setRemove(false, this.compiler_, InlineFunctions_CannotRemoveReason_CALLED_BY_INLINED_FUNCTION, InlineFunctions_ShouldWarnWhenRequireInliningCannotInline_NO)
@@ -351,13 +347,9 @@ func InlineFunctions_findCalledFunctions(node Node, changed *TSet[string]) {
 }
 
 func (this *InlineFunctions) decomposeExpressions() {
-	it_1 := this.fns.each()
-	for it_1.next() {
-		var functionState *InlineFunctions_FunctionState = it_1.v
+	for functionState := range this.fns.Values() {
 		if functionState.canInline() {
-			it_3 := foreach_(functionState.getReferences())
-			for it_3.next() {
-				var ref *InlineFunctions_Reference = cast_[*InlineFunctions_Reference](it_3.v)
+			for ref := range elemsAs_[*InlineFunctions_Reference](functionState.getReferences()) {
 				if ref.requiresDecomposition {
 					this.injector.maybePrepareCall(ref.up_FunctionInjector_Reference())
 				}
@@ -367,9 +359,7 @@ func (this *InlineFunctions) decomposeExpressions() {
 }
 
 func (this *InlineFunctions) removeInlinedFunctions() {
-	it_1 := foreach_(this.fns.asMap().entrySet())
-	for it_1.next() {
-		var entry Map_Entry = icast_Map_Entry(it_1.v)
+	for entry := range elemsBy_(this.fns.asMap().entrySet(), icast_Map_Entry) {
 		var name string = str_(entry.getKey())
 		var functionState *InlineFunctions_FunctionState = cast_[*InlineFunctions_FunctionState](entry.getValue())
 		if functionState.canRemove() {
@@ -388,9 +378,7 @@ func (this *InlineFunctions) removeInlinedFunctions() {
 }
 
 func (this *InlineFunctions) verifyAllReferencesInlined(name string, functionState *InlineFunctions_FunctionState) {
-	it_1 := foreach_(functionState.getReferences())
-	for it_1.next() {
-		var ref *InlineFunctions_Reference = cast_[*InlineFunctions_Reference](it_1.v)
+	for ref := range elemsAs_[*InlineFunctions_Reference](functionState.getReferences()) {
 		if !ref.inlined {
 			var parent Node = ref.callNode_.getParent()
 			panic(new_IllegalStateException_String(("Call site missed (" + sstr_(name) + ").\n call: " + sstr_(ref.callNode_.toStringTree()) + "\n parent:  " + sstr_(func() string {

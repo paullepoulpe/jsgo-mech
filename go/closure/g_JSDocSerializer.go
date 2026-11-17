@@ -83,9 +83,7 @@ func JSDocSerializer_serializeJsdoc(jsdoc *JSDocInfo, stringPool *StringPool_Bui
 		builder.addKind(JsdocTag_JSDOC_NO_SIDE_EFFECTS)
 	}
 	if jsdoc.hasModifies() {
-		it_1 := jsdoc.getModifies().each()
-		for it_1.next() {
-			var modifies string = it_1.v
+		for modifies := range jsdoc.getModifies().All() {
 			switch modifies {
 			case "this":
 				builder.addKind(JsdocTag_JSDOC_MODIFIES_THIS)

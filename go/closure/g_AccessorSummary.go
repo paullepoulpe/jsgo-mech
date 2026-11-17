@@ -44,9 +44,7 @@ func (this *AccessorSummary) toProto() *AccessorSummaryProto {
 			panic(new_IllegalStateException_0().self())
 		}
 	} else {
-		it_1 := foreach_(obj_(cast_[*ImmutableSet](this.accessors.entrySet())))
-		for it_1.next() {
-			var entry Map_Entry = icast_Map_Entry(it_1.v)
+		for entry := range elemsBy_(obj_(cast_[*ImmutableSet](this.accessors.entrySet())), icast_Map_Entry) {
 			builder.addAccessors(cast_[*AccessorSummaryEntryProto](AccessorSummaryEntryProto_newBuilder().setName(str_(entry.getKey())).setKind(AccessorSummary_toProto(cast_[AccessorSummary_PropertyAccessKind](entry.getValue()))).build()))
 		}
 	}
@@ -74,9 +72,7 @@ func AccessorSummary_fromProto(proto *AccessorSummaryProto) *AccessorSummary {
 		return AccessorSummary_createAssumingAlwaysGetterAndSetter()
 	}
 	var builder ImmutableMap_BuilderOf[string, AccessorSummary_PropertyAccessKind] = ImmutableMap_builder()
-	it_1 := foreach_(proto.getAccessorsList())
-	for it_1.next() {
-		var entry *AccessorSummaryEntryProto = cast_[*AccessorSummaryEntryProto](it_1.v)
+	for entry := range elemsAs_[*AccessorSummaryEntryProto](proto.getAccessorsList()) {
 		builder.put(strobj_(entry.getName()), obj_(AccessorSummary_fromProtoPropertyAccessKindProto(entry.getKind())))
 	}
 	return AccessorSummary_create(tmapFrom_(tc_string, tc_p_AccessorSummary_PropertyAccessKind, builder.buildOrThrow(), true))

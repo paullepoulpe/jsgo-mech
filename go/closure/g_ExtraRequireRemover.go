@@ -81,9 +81,7 @@ func (this *ExtraRequireRemover) reset() {
 }
 
 func (this *ExtraRequireRemover) removeExtraRequiresInScript() {
-	it_1 := foreach_(this.requires.asMap().entrySet())
-	for it_1.next() {
-		var entry Map_Entry = icast_Map_Entry(it_1.v)
+	for entry := range elemsBy_(this.requires.asMap().entrySet(), icast_Map_Entry) {
 		var require string = str_(entry.getKey())
 		var call Node = Node_of_(entry.getValue())
 		this.removeExtraRequire(call, require)
@@ -196,12 +194,8 @@ func (this *ExtraRequireRemover) maybeAddJsDocUsages(n Node) {
 	if info == nil {
 		return
 	}
-	it_1 := foreach_(info.getTypeExpressions())
-	for it_1.next() {
-		var e *JSTypeExpression = cast_[*JSTypeExpression](it_1.v)
-		it_3 := foreach_(obj_(e.getAllTypeNames()))
-		for it_3.next() {
-			var typeName string = str_(it_3.v)
+	for e := range elemsAs_[*JSTypeExpression](info.getTypeExpressions()) {
+		for typeName := range elemsBy_(obj_(e.getAllTypeNames()), str_) {
 			this.addUsagesOfAllPrefixes(QualifiedName_of(typeName))
 		}
 	}

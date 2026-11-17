@@ -97,15 +97,11 @@ func (this *AliasStrings) getOrCreateStringInfo(string_ string) *AliasStrings_St
 }
 
 func (this *AliasStrings) replaceStringsWithAliases() {
-	it_1 := foreach_(this.stringInfoMap.entrySet())
-	for it_1.next() {
-		var entry Map_Entry = icast_Map_Entry(it_1.v)
+	for entry := range elemsBy_(this.stringInfoMap.entrySet(), icast_Map_Entry) {
 		var literal string = str_(entry.getKey())
 		var info *AliasStrings_StringInfo = cast_[*AliasStrings_StringInfo](entry.getValue())
 		if this.shouldReplaceWithAlias(literal, info) {
-			it_3 := eachOf_(&info.occurrences)
-			for it_3.next() {
-				var node Node = it_3.v
+			for node := range sliceAll_(&info.occurrences) {
 				this.replaceStringWithAliasName(node, info.getVariableName(literal).get(), info)
 			}
 		}
@@ -113,9 +109,7 @@ func (this *AliasStrings) replaceStringsWithAliases() {
 }
 
 func (this *AliasStrings) addAliasDeclarationNodes() {
-	it_1 := foreach_(this.stringInfoMap.entrySet())
-	for it_1.next() {
-		var entry Map_Entry = icast_Map_Entry(it_1.v)
+	for entry := range elemsBy_(this.stringInfoMap.entrySet(), icast_Map_Entry) {
 		var info *AliasStrings_StringInfo = cast_[*AliasStrings_StringInfo](entry.getValue())
 		if !info.isAliased {
 			continue
@@ -155,9 +149,7 @@ func (this *AliasStrings) replaceStringWithAliasName(n Node, name string, info *
 func (this *AliasStrings) outputStringUsage() {
 	var sb strBuilder_
 	sb.append("Strings used more than once:\n")
-	it_1 := foreach_(this.stringInfoMap.entrySet())
-	for it_1.next() {
-		var stringInfoEntry Map_Entry = icast_Map_Entry(it_1.v)
+	for stringInfoEntry := range elemsBy_(this.stringInfoMap.entrySet(), icast_Map_Entry) {
 		var info *AliasStrings_StringInfo = cast_[*AliasStrings_StringInfo](stringInfoEntry.getValue())
 		var count int32 = int32(len(info.occurrences))
 		if count > 1 {

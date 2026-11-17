@@ -86,9 +86,7 @@ func (this *TypedScopeCreator) getScope(var__ StaticSlot) StaticScope {
 
 func (this *TypedScopeCreator) getAllSymbols() IterableOf[*TypedVar] {
 	var vars *TList[*TypedVar] = newTList_(tc_p_TypedVar)
-	it_1 := this.memoized.each()
-	for it_1.next() {
-		var s *TypedScope = it_1.v
+	for s := range this.memoized.Values() {
 		Iterables_addAll(Collection(vars.asList()), s.getAllSymbols())
 	}
 	return Iterable(vars.asList())
@@ -217,9 +215,7 @@ func (this *TypedScopeCreator) gatherAllProvides(root Node) {
 	var externs Node = root.getFirstChild()
 	var js Node = root.getSecondChild()
 	var providedNames *TMap[string, *ProcessClosureProvidesAndRequires_ProvidedName] = new_ProcessClosureProvidesAndRequires(this.compiler_, true).collectProvidedNames(externs, js)
-	it_1 := providedNames.each()
-	for it_1.next() {
-		var name *ProcessClosureProvidesAndRequires_ProvidedName = it_1.v
+	for name := range providedNames.Values() {
 		if name.hasImplicitInitialization() {
 			continue
 		}
@@ -266,9 +262,7 @@ func (this *TypedScopeCreator) createInitialScope(root Node) *TypedScope {
 }
 
 func (this *TypedScopeCreator) addWellKnownSymbols(scope *TypedScope) {
-	it_1 := foreach_(obj_(TypedScopeCreator_WELL_KNOWN_SYMBOLS))
-	for it_1.next() {
-		var symbol string = str_(it_1.v)
+	for symbol := range elemsBy_(obj_(TypedScopeCreator_WELL_KNOWN_SYMBOLS), str_) {
 		var type_ *JSType = new_KnownSymbolType(this.typeRegistry, symbol).up_JSType()
 		TypedScopeCreator_declareNativeType(scope, symbol, type_)
 	}
@@ -296,26 +290,18 @@ func (this *TypedScopeCreator) setDeferredType(node Node, type_ *JSType) {
 }
 
 func (this *TypedScopeCreator) resolveWeakImportsPreResolution() {
-	it_1 := eachOf_(&this.weakImports)
-	for it_1.next() {
-		var weakImport *TypedScopeCreator_WeakModuleImport = it_1.v
+	for weakImport := range sliceAll_(&this.weakImports) {
 		weakImport.resolve()
 	}
 }
 
 func (this *TypedScopeCreator) finishAndFreeze() {
-	it_1 := eachOf_(&this.unresolvedNodes)
-	for it_1.next() {
-		var node Node = it_1.v
+	for node := range sliceAll_(&this.unresolvedNodes) {
 		var resolved *JSType = node.getJSType().resolve(this.typeParsingErrorReporter)
 		node.setJSType(resolved)
 	}
-	it_3 := foreach_(this.getAllMemoizedScopes())
-	for it_3.next() {
-		var scope *TypedScope = cast_[*TypedScope](it_3.v)
-		it_5 := foreach_(scope.getVarIterable())
-		for it_5.next() {
-			var var_ *TypedVar = cast_[*TypedVar](it_5.v)
+	for scope := range elemsAs_[*TypedScope](this.getAllMemoizedScopes()) {
+		for var_ := range elemsAs_[*TypedVar](scope.getVarIterable()) {
 			var_.resolveType(this.typeParsingErrorReporter)
 		}
 		scope.validateCompletelyBuilt()
@@ -671,9 +657,7 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) initializeModuleScope(module
 		this.outer_.markGoogModuleExportsAsConst(moduleBody)
 	case ModuleMetadataMap_ModuleType_ES6_MODULE:
 		var unresolvedImports ImmutableMapOf[Node, *ScopedName] = this.outer_.moduleImportResolver.declareEsModuleImports(this.getModule(), this.currentScope, this.outer_.compiler_.getInput(NodeUtil_getInputId(moduleBody)))
-		it_2 := foreach_(obj_(cast_[*ImmutableSet](unresolvedImports.entrySet())))
-		for it_2.next() {
-			var entry Map_Entry = icast_Map_Entry(it_2.v)
+		for entry := range elemsBy_(obj_(cast_[*ImmutableSet](unresolvedImports.entrySet())), icast_Map_Entry) {
 			this.outer_.weakImports = append(this.outer_.weakImports, new_TypedScopeCreator_WeakModuleImport(this.outer_, Node_of_(entry.getKey()), to_ScopedName(entry.getValue()), this.currentScope))
 		}
 	default:
@@ -1467,9 +1451,7 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) findOverriddenProperty(owner
 	if (propType != nil) && !propType.isUnknownType() {
 		result = propType
 	} else {
-		it_1 := foreach_(ownerType.getCtorImplementedInterfaces())
-		for it_1.next() {
-			var iface *ObjectType = to_ObjectType(it_1.v)
+		for iface := range elemsBy_(ownerType.getCtorImplementedInterfaces(), to_ObjectType) {
 			propType = iface.getPropertyType(propName)
 			if (propType != nil) && !propType.isUnknownType() {
 				result = propType
@@ -2255,9 +2237,7 @@ func (this *TypedScopeCreator_NormalScopeBuilder) visitPostorder_impl(t *NodeTra
 	case tokOrd1_EXPR_RESULT:
 		var names CollectionOf[*ProcessClosureProvidesAndRequires_ProvidedName] = Collection(this.outer_.providedNamesFromCall.get(n.box_()))
 		if names != nil {
-			it_2 := foreach_(names)
-			for it_2.next() {
-				var name *ProcessClosureProvidesAndRequires_ProvidedName = cast_[*ProcessClosureProvidesAndRequires_ProvidedName](it_2.v)
+			for name := range elemsAs_[*ProcessClosureProvidesAndRequires_ProvidedName](names) {
 				this.declareProvidedNs(n, name)
 			}
 		}
@@ -2367,9 +2347,7 @@ func (this *TypedScopeCreator_FunctionScopeBuilder) declareTemplatesInFunctionBo
 	var isPossiblePrototypeMethod bool = (!functionType.hasInstanceType() && ((info == nil) || !info.hasThisType()))
 	if isPossiblePrototypeMethod {
 		var ownerNode Node = NodeUtil_getBestLValue(functionNode)
-		it_1 := foreach_(obj_(this.findOwnerTypeKeys(ownerNode)))
-		for it_1.next() {
-			var templateKey *TemplateType = cast_[*TemplateType](it_1.v)
+		for templateKey := range elemsAs_[*TemplateType](obj_(this.findOwnerTypeKeys(ownerNode))) {
 			templateNames.add(templateKey.getReferenceName().orElseThrow())
 		}
 	}
@@ -2382,9 +2360,7 @@ func (this *TypedScopeCreator_FunctionScopeBuilder) declareTemplatesInFunctionBo
 	}
 	var input *CompilerInput = this.getCompilerInput()
 	var voidType *JSType = this.outer_.getNativeType(JSTypeNative_VOID_TYPE)
-	it_3 := templateNames.each()
-	for it_3.next() {
-		var name string = it_3.v
+	for name := range templateNames.All() {
 		if !this.currentScope.canDeclare(name) {
 			this.outer_.validator.expectUndeclaredVariable(Optional_of[string](NodeUtil_getSourceName(functionNode)).filterFn_(func(s string) bool {
 				_ = s
@@ -2651,9 +2627,7 @@ func new_TypedScopeCreator_FirstOrderFunctionAnalyzer(outer_ *TypedScopeCreator)
 func (this *TypedScopeCreator_FirstOrderFunctionAnalyzer) enterScope_impl(t *NodeTraversal) {
 	var scope *Scope = t.getScope()
 	var root Node = scope.getRootNode()
-	it_1 := foreach_(scope.getVarIterable())
-	for it_1.next() {
-		var symbol *Var = cast_[*Var](it_1.v)
+	for symbol := range elemsAs_[*Var](scope.getVarIterable()) {
 		this.outer_.reservedNamesForScope.put(root.box_(), strobj_(symbol.getName()))
 	}
 }

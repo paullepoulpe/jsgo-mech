@@ -107,9 +107,7 @@ func IRFactory_transformTree(tree *ProgramTree, sourceFile StaticSourceFile, con
 	var n Node = irFactory.transformDispatcher.process(tree.up_ParseTree())
 	irFactory.setSourceInfo(n, tree.up_ParseTree())
 	if tree.sourceComments != nil {
-		it_1 := foreach_(obj_(tree.sourceComments))
-		for it_1.next() {
-			var comment *Comment = cast_[*Comment](it_1.v)
+		for comment := range elemsAs_[*Comment](obj_(tree.sourceComments)) {
 			if ((comment.type__ == Comment_Type_JSDOC) || (comment.type__ == Comment_Type_IMPORTANT)) && !has_(irFactory.parsedComments, comment) {
 				var useLicensesOnlyConfig bool = irFactory.withinClosureUnawareCodeRange(comment.location_.start_.line_, comment.location_.start_.column_)
 				irFactory.handlePossibleFileOverviewJsDoc_2(comment, useLicensesOnlyConfig)
@@ -1944,9 +1942,7 @@ func (this *IRFactory_TransformDispatcher) processFunctionCall(callNode *CallExp
 	var argumentsTree *ArgumentListTree = callNode.arguments
 	var zones []*SourcePosition_util = this.getEndOfArgCommentZones(argumentsTree.arguments, argumentsTree.commaPositions, argumentsTree.location_.end_)
 	var argCount int32 = 0
-	it_1 := foreach_(obj_(callNode.arguments.arguments))
-	for it_1.next() {
-		var child *ParseTree = to_ParseTree(it_1.v)
+	for child := range elemsBy_(obj_(callNode.arguments.arguments), to_ParseTree) {
 		var childNode Node = this.outer_.transform(child)
 		node.addChildToBack(childNode)
 		this.attachPossibleTrailingCommentsForArg(childNode, sliceAt_(zones, argCount))
@@ -1981,9 +1977,7 @@ func (this *IRFactory_TransformDispatcher) isNormalOrOptChainGet(n Node) bool {
 func (this *IRFactory_TransformDispatcher) getEndOfArgCommentZones(args ImmutableListOf[*ParseTree], commaPositions ImmutableListOf[*SourcePosition_util], argListEndPosition *SourcePosition_util) []*SourcePosition_util {
 	var zones []*SourcePosition_util
 	var commaCount int32 = 0
-	it_1 := foreach_(obj_(args))
-	for it_1.next() {
-		var arg *ParseTree = to_ParseTree(it_1.v)
+	for arg := range elemsBy_(obj_(args), to_ParseTree) {
 		if args.size() > (commaCount + 1) {
 			var nextParam *ParseTree = to_ParseTree(args.get((commaCount + 1)))
 			if nextParam.location_.start_.line_ > arg.location_.end_.line_ {
@@ -2057,9 +2051,7 @@ func (this *IRFactory_TransformDispatcher) processOptChainFunctionCall(callNode 
 	this.outer_.maybeWarnForFeature(callNode.up_ParseTree(), FeatureSet_Feature_OPTIONAL_CHAINING)
 	var node Node = this.outer_.newNode_2(Token_rhino_OPTCHAIN_CALL, this.outer_.transform(callNode.operand))
 	node.setTrailingComma(callNode.hasTrailingComma_)
-	it_1 := foreach_(obj_(callNode.arguments.arguments))
-	for it_1.next() {
-		var child *ParseTree = to_ParseTree(it_1.v)
+	for child := range elemsBy_(obj_(callNode.arguments.arguments), to_ParseTree) {
 		node.addChildToBack(this.outer_.transform(child))
 	}
 	node.setIsOptionalChainStart(callNode.isStartOfOptionalChain)
@@ -2180,9 +2172,7 @@ func (this *IRFactory_TransformDispatcher) processFormalParameterList(tree *Form
 	var parameters ImmutableListOf[*ParseTree] = tree.parameters
 	var zones []*SourcePosition_util = this.getEndOfArgCommentZones(parameters, tree.commaPositions, tree.location_.end_)
 	var argCount int32 = 0
-	it_1 := foreach_(obj_(tree.parameters))
-	for it_1.next() {
-		var param *ParseTree = to_ParseTree(it_1.v)
+	for param := range elemsBy_(obj_(tree.parameters), to_ParseTree) {
 		var paramNode Node
 		switch param.type__ {
 		case ParseTreeType_DEFAULT_PARAMETER:
@@ -2436,9 +2426,7 @@ func (this *IRFactory_TransformDispatcher) processNewExpression(exprNode *NewExp
 	var node Node = this.outer_.newNode_2(Token_rhino_NEW, this.outer_.transform(exprNode.operand))
 	node.setTrailingComma(exprNode.hasTrailingComma_)
 	if exprNode.arguments != nil {
-		it_1 := foreach_(obj_(exprNode.arguments.arguments))
-		for it_1.next() {
-			var arg *ParseTree = to_ParseTree(it_1.v)
+		for arg := range elemsBy_(obj_(exprNode.arguments.arguments), to_ParseTree) {
 			node.addChildToBack(this.outer_.transform(arg))
 		}
 	}
@@ -2657,9 +2645,8 @@ func (this *IRFactory_TransformDispatcher) processRegExpLiteral(literalTree *Lit
 }
 
 func (this *IRFactory_TransformDispatcher) validateRegExpFlags(tree *LiteralExpressionTree, flags string) {
-	it_1 := foreach_(obj_(Lists_charactersOf(flags)))
-	for it_1.next() {
-		var flag uint16 = unbox_[uint16](it_1.v)
+	for el_1 := range elems_(obj_(Lists_charactersOf(flags))) {
+		var flag uint16 = unbox_[uint16](el_1)
 		switch flag {
 		case 'g', 'i', 'm':
 		case 'u', 'y':

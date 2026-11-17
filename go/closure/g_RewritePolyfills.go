@@ -72,9 +72,7 @@ func (this *RewritePolyfills) process_2(externs Node, root Node) {
 
 func (this *RewritePolyfills) injectAll(librariesToInject IterableOf[string], forceInjection bool) {
 	var lastNode Node = 0
-	it_1 := foreach_(librariesToInject)
-	for it_1.next() {
-		var library string = str_(it_1.v)
+	for library := range elemsBy_(librariesToInject, str_) {
 		if library == "" {
 			panic(new_IllegalStateException_String("unexpected empty library").self())
 		}

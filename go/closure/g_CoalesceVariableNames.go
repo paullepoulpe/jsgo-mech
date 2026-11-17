@@ -128,9 +128,7 @@ func (this *CoalesceVariableNames) visit_impl(t *NodeTraversal, n Node, parent N
 		this.updateDeclarationsPostCoalescing(n, coalescedVar, var_, parent)
 	} else {
 		var allMergedNames SetOf[string] = new_TreeSet()
-		it_1 := this.liveness.getAllVariablesInOrder().each()
-		for it_1.next() {
-			var iVar *Var = it_1.v
+		for iVar := range this.liveness.getAllVariablesInOrder().All() {
 			if (slicePeekTop_(tc_p_GraphColoring, this.colorings).getGraph().getNode(obj_(iVar)) != nil) && slicePeekTop_(tc_p_GraphColoring, this.colorings).haveSameColor(obj_(iVar), obj_(coalescedVar)) {
 				Collection_add_s(allMergedNames, iVar.getName())
 			}
@@ -200,9 +198,7 @@ func (this *CoalesceVariableNames) computeVariableNamesInterferenceGraph(cfg *Co
 		interferenceGraph.createNode(obj_(v))
 		interferenceGraphNodes.set(vIndex)
 	}
-	it_4 := foreach_(cfg.getNodes())
-	for it_4.next() {
-		var cfgNode DiGraph_DiGraphNode = icast_DiGraph_DiGraphNode(it_4.v)
+	for cfgNode := range elemsBy_(cfg.getNodes(), icast_DiGraph_DiGraphNode) {
 		if cfg.isImplicitReturn(cfgNode) {
 			continue
 		}

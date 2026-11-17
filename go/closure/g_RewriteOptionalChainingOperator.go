@@ -81,9 +81,7 @@ func (this *RewriteOptionalChainingOperator_TranspilationCallback) visit(t *Node
 		this.optChains = append(this.optChains, this.rewriterBuilder.build(n))
 	} else if n.isScript() {
 		if len(this.optChains) != 0 {
-			it_1 := eachOf_(&this.optChains)
-			for it_1.next() {
-				var optChain *OptionalChainRewriter = it_1.v
+			for optChain := range sliceAll_(&this.optChains) {
 				optChain.rewrite()
 			}
 			sliceClear_(&this.optChains)

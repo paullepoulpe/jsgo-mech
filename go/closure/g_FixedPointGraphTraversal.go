@@ -28,9 +28,7 @@ func FixedPointGraphTraversal_newReverseTraversal(callback func(any, any, any) b
 
 func (this *FixedPointGraphTraversal) computeFixedPoint(graph *DiGraph) {
 	var nodes SetOf[any] = new_LinkedHashSet()
-	it_1 := foreach_(graph.getNodes())
-	for it_1.next() {
-		var node DiGraph_DiGraphNode = icast_DiGraph_DiGraphNode(it_1.v)
+	for node := range elemsBy_(graph.getNodes(), icast_DiGraph_DiGraphNode) {
 		nodes.add(node.getValue())
 	}
 	this.computeFixedPointSet(graph, nodes)
@@ -47,9 +45,7 @@ func (this *FixedPointGraphTraversal) computeFixedPointSet(graph *DiGraph, entry
 	var nodeCount int64 = Math_min_long_long(int64(graph.getNodeCount()), FixedPointGraphTraversal_MAX_NODE_COUNT_FOR_ITERATION_LIMIT)
 	var maxIterations int64 = Math_max_long_long(((nodeCount * nodeCount) * nodeCount), 100)
 	var workSet *TSet[DiGraph_DiGraphNode] = newTSet_(tc_DiGraph_DiGraphNode)
-	it_1 := foreach_(entrySet)
-	for it_1.next() {
-		var n any = it_1.v
+	for n := range elems_(entrySet) {
 		workSet.add(icast_DiGraph_DiGraphNode(graph.getNode(n)))
 	}
 	for ; !workSet.isEmpty() && (cycleCount < maxIterations); cycleCount++ {
@@ -65,9 +61,7 @@ func (this *FixedPointGraphTraversal) visitNode(node DiGraph_DiGraphNode, workSe
 	switch this.traversalDirection {
 	case FixedPointGraphTraversal_TraversalDirection_OUTWARDS:
 		var sourceValue any = node.getValue()
-		it_2 := node.getOutEdges().each()
-		for it_2.next() {
-			var edge DiGraph_DiGraphEdge = it_2.v
+		for edge := range node.getOutEdges().All() {
 			var destValue any = edge.getDestination().getValue()
 			if this.callback(sourceValue, edge.getValue(), destValue) {
 				workSet.add(edge.getDestination())
@@ -76,9 +70,7 @@ func (this *FixedPointGraphTraversal) visitNode(node DiGraph_DiGraphNode, workSe
 		return
 	case FixedPointGraphTraversal_TraversalDirection_INWARDS:
 		var revSourceValue any = node.getValue()
-		it_4 := node.getInEdges().each()
-		for it_4.next() {
-			var edge DiGraph_DiGraphEdge = it_4.v
+		for edge := range node.getInEdges().All() {
 			var revDestValue any = edge.getSource().getValue()
 			if this.callback(revSourceValue, edge.getValue(), revDestValue) {
 				workSet.add(edge.getSource())

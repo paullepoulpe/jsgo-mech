@@ -65,9 +65,7 @@ func (this *DeadPropertyAssignmentElimination_FunctionVisitor) enterChangedScope
 	}
 	var traversal *DeadPropertyAssignmentElimination_FindCandidateAssignmentTraversal = new_DeadPropertyAssignmentElimination_FindCandidateAssignmentTraversal(this.skiplistedPropNames)
 	NodeTraversal_traverse(compiler, body, traversal)
-	it_1 := traversal.propertyMap.each()
-	for it_1.next() {
-		var property *DeadPropertyAssignmentElimination_Property = it_1.v
+	for property := range traversal.propertyMap.Values() {
 		if property.writes.size() <= 1 {
 			continue
 		}
@@ -140,9 +138,7 @@ func (this *DeadPropertyAssignmentElimination_Property) markChildrenRead() {
 	for !propertyQueue.isEmpty() {
 		var childProperty *DeadPropertyAssignmentElimination_Property = cast_[*DeadPropertyAssignmentElimination_Property](propertyQueue.remove_0())
 		childProperty.markLastWriteRead()
-		it_2 := childProperty.children_.each()
-		for it_2.next() {
-			var grandchildProperty *DeadPropertyAssignmentElimination_Property = it_2.v
+		for grandchildProperty := range childProperty.children_.All() {
 			if propertiesSet.add(grandchildProperty) {
 				propertyQueue.add(obj_(grandchildProperty))
 			}
@@ -369,9 +365,7 @@ func (this *DeadPropertyAssignmentElimination_FindCandidateAssignmentTraversal) 
 }
 
 func (this *DeadPropertyAssignmentElimination_FindCandidateAssignmentTraversal) markAllPropsRead() {
-	it_1 := this.propertyMap.each()
-	for it_1.next() {
-		var property *DeadPropertyAssignmentElimination_Property = it_1.v
+	for property := range this.propertyMap.Values() {
 		if property.writes.isEmpty() {
 			continue
 		}

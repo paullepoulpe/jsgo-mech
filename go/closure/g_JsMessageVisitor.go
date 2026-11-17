@@ -44,9 +44,7 @@ func (this *JsMessageVisitor) init_JsMessageVisitor(compiler *AbstractCompiler, 
 
 func (this *JsMessageVisitor) process_2_impl(externs Node, root Node) {
 	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(this.self()))
-	it_1 := this.googMsgNodes.each()
-	for it_1.next() {
-		var msgNode Node = it_1.v
+	for msgNode := range this.googMsgNodes.All() {
 		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(msgNode, JsMessageVisitor_MESSAGE_NODE_IS_ORPHANED, []string{msgNode.getFirstChild().getQualifiedName()}))
 	}
 }
@@ -974,9 +972,7 @@ func (this *JsMessageVisitor_ObjectLiteralMapImpl) getBooleanValueOrFalse(key st
 func (this *JsMessageVisitor_ObjectLiteralMapImpl) extractAsValueMap() ImmutableMapOf[string, Node] {
 	if this.valueMap == nil {
 		var builder ImmutableMap_BuilderOf[string, Node] = ImmutableMap_builder()
-		it_1 := foreach_(this.stringToStringKeyMap.asMap().entrySet())
-		for it_1.next() {
-			var entry Map_Entry = icast_Map_Entry(it_1.v)
+		for entry := range elemsBy_(this.stringToStringKeyMap.asMap().entrySet(), icast_Map_Entry) {
 			builder.put(entry.getKey(), Node_of_(entry.getValue()).getOnlyChild().box_())
 		}
 		this.valueMap = builder.buildOrThrow()

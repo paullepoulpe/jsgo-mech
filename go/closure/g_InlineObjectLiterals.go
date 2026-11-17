@@ -47,9 +47,7 @@ func new_InlineObjectLiterals_InliningBehavior(outer_ *InlineObjectLiterals) *In
 }
 
 func (this *InlineObjectLiterals_InliningBehavior) afterExitScope(t *NodeTraversal, referenceMap ReferenceMap) {
-	it_1 := foreach_(t.getScope().getVarIterable())
-	for it_1.next() {
-		var v *Var = cast_[*Var](it_1.v)
+	for v := range elemsAs_[*Var](t.getScope().getVarIterable()) {
 		if this.isVarInlineForbidden(v) {
 			continue
 		}
@@ -152,9 +150,7 @@ func (this *InlineObjectLiterals_InliningBehavior) isVarOrAssignExprLhs(n Node) 
 
 func (this *InlineObjectLiterals_InliningBehavior) computeVarList(referenceInfo *ReferenceCollection) *TMap[string, string] {
 	var varmap *TMap[string, string] = newTMap_(tc_string, tc_string)
-	it_1 := referenceInfo.references.each()
-	for it_1.next() {
-		var ref *Reference = it_1.v
+	for ref := range referenceInfo.references.All() {
 		if ref.isLvalue() || ref.isInitializingDeclaration() {
 			var val Node = ref.getAssignedValue()
 			if val != 0 {
@@ -224,9 +220,7 @@ func (this *InlineObjectLiterals_InliningBehavior) replaceAssignmentExpression(v
 			all.remove(var_)
 		}
 	}
-	it_2 := all.each()
-	for it_2.next() {
-		var var_ string = it_2.v
+	for var_ := range all.All() {
 		nodes.add(IR_assign(IR_name(varmap.get(var_)), NodeUtil_newUndefinedNode(0)).box_())
 	}
 	var replacement Node
@@ -288,9 +282,7 @@ func (this *InlineObjectLiterals_InliningBehavior) splitObject(v *Var, init_ *Re
 			NodeUtil_addFeatureToScript(script, FeatureSet_Feature_LET_DECLARATIONS, this.outer_.compiler_)
 		}
 	}
-	it_1 := foreach_(varmap.asMap().entrySet())
-	for it_1.next() {
-		var entry Map_Entry = icast_Map_Entry(it_1.v)
+	for entry := range elemsBy_(varmap.asMap().entrySet(), icast_Map_Entry) {
 		var val Node = initvals[str_(entry.getKey())]
 		var lhs Node = IR_name(str_(entry.getValue()))
 		var declarationType Token_rhino = func() Token_rhino {
@@ -313,9 +305,7 @@ func (this *InlineObjectLiterals_InliningBehavior) splitObject(v *Var, init_ *Re
 		this.outer_.compiler_.reportChangeToEnclosingScope(vnode.getParent())
 		vnode.detach()
 	}
-	it_3 := referenceInfo.references.each()
-	for it_3.next() {
-		var ref *Reference = it_3.v
+	for ref := range referenceInfo.references.All() {
 		if defined && (ref == init_) {
 			continue
 		}

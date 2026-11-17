@@ -707,9 +707,7 @@ var lambda_DefaultPassConfig_finit_DefaultPassConfig_25_ = &Function_fn{func(com
 	_ = compiler
 	return any(&CompilerPass_fn{func(externs Node, root Node) {
 		compiler.setTopScope(nil)
-		it_1 := foreach_(compiler.getInputsInOrder())
-		for it_1.next() {
-			var compilerInput *CompilerInput = cast_[*CompilerInput](it_1.v)
+		for compilerInput := range elemsAs_[*CompilerInput](compiler.getInputsInOrder()) {
 			compilerInput.setTypedScope(nil)
 		}
 	}})
@@ -2189,9 +2187,7 @@ func new_DefaultPassConfig_13(cap_passes Collection) *DefaultPassConfig_13 {
 }
 
 func (this *DefaultPassConfig_13) process_2(externs Node, root Node) {
-	it_1 := foreach_(this.cap_passes)
-	for it_1.next() {
-		var pass CompilerPass = icast_CompilerPass(it_1.v)
+	for pass := range elemsBy_(this.cap_passes, icast_CompilerPass) {
 		pass.process_2(externs, root)
 	}
 }

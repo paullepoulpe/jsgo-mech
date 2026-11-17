@@ -79,9 +79,7 @@ func (this *CmdLineParser) setUsageWidth(usageWidth int32) {
 func (this *CmdLineParser) printUsage(out *StringBuilder, filter func(any) bool) {
 	var w *StringBuilder = out
 	var len_ int32 = 0
-	it_1 := this.sortedOptions().each()
-	for it_1.next() {
-		var option *CmdLineParser_Option = it_1.v
+	for option := range this.sortedOptions().All() {
 		var curLen int32 = func() int32 {
 			if len(option.usageField) == 0 {
 				return 0
@@ -90,9 +88,7 @@ func (this *CmdLineParser) printUsage(out *StringBuilder, filter func(any) bool)
 		}()
 		len_ = Math_max(len_, curLen)
 	}
-	it_3 := this.sortedOptions().each()
-	for it_3.next() {
-		var option *CmdLineParser_Option = it_3.v
+	for option := range this.sortedOptions().All() {
 		this.printOption(w, option, len_, filter)
 	}
 }
@@ -607,9 +603,7 @@ func (this *CmdLineParser_Option) printDefaultValue() OptionalOf[string] {
 	if (values != nil) && !values.isEmpty() {
 		var buf strBuilder_
 		if values.size() > 1 {
-			it_1 := foreach_(values)
-			for it_1.next() {
-				var v any = it_1.v
+			for v := range elems_(values) {
 				buf.append_char(func() uint16 {
 					if buf.length() == 0 {
 						return '['

@@ -33,9 +33,7 @@ func (this *LowestCommonAncestorFinder) findAll(roots SetOf[any]) ImmutableSetOf
 	}
 	var allColor *LowestCommonAncestorFinder_Color = LowestCommonAncestorFinder_Color_create(((int32(1) << (uint32(roots.size()) & 31)) - 1))
 	var bitForRoot int32 = 1
-	it_1 := foreach_(roots)
-	for it_1.next() {
-		var root any = it_1.v
+	for root := range elems_(roots) {
 		var rootNode DiGraph_DiGraphNode = icast_DiGraph_DiGraphNode(this.graph.getNode(root))
 		if rootNode == nil {
 			panic(new_NullPointerException_String(Strings_lenientFormat("Root not present in graph: %s", []any{root})).self())
@@ -82,9 +80,7 @@ func (this *LowestCommonAncestorFinder) paintAncestors(root DiGraph_DiGraphNode,
 	for len(this.searchQueue) != 0 {
 		var curr DiGraph_DiGraphNode = slicePopFirst_(tc_DiGraph_DiGraphNode, &this.searchQueue)
 		var parentEdges *TList[DiGraph_DiGraphEdge] = curr.getInEdges()
-		it_2 := parentEdges.each()
-		for it_2.next() {
-			var parentEdge DiGraph_DiGraphEdge = it_2.v
+		for parentEdge := range parentEdges.All() {
 			var parent DiGraph_DiGraphNode = parentEdge.getSource()
 			if equalsId_(parent, root) {
 				continue

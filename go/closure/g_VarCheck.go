@@ -52,9 +52,7 @@ func (this *VarCheck) process_2(externs Node, root Node) {
 		NodeTraversal_builder().setCompiler(this.compiler_).setCallback(new_VarCheck_NameRefInExternsCheck(this)).setScopeCreator(scopeCreator).traverse(externs)
 	}
 	NodeTraversal_builder().setCompiler(this.compiler_).setCallback(this).setScopeCreator(scopeCreator).traverseRoots(externs, root)
-	it_1 := this.undefinedNamesFromExterns.each()
-	for it_1.next() {
-		var varName string = it_1.v
+	for varName := range this.undefinedNamesFromExterns.All() {
 		this.createSynthesizedExternVar(varName, false)
 	}
 	if this.dupHandler != nil {
@@ -157,9 +155,7 @@ func (this *VarCheck) enterScope(t *NodeTraversal) {
 func (this *VarCheck) exitScope(t *NodeTraversal) {
 	if !this.validityCheck && t.inGlobalScope() {
 		var scope *Scope = t.getScope()
-		it_1 := foreach_(obj_(VarCheck_REQUIRED_SYMBOLS))
-		for it_1.next() {
-			var requiredSymbol string = str_(it_1.v)
+		for requiredSymbol := range elemsBy_(obj_(VarCheck_REQUIRED_SYMBOLS), str_) {
 			var var_ *Var = cast_[*Var](scope.getVar(requiredSymbol).self())
 			if var_ == nil {
 				this.undefinedNamesFromExterns.add(requiredSymbol)
@@ -380,9 +376,7 @@ func (this *VarCheck_RedeclarationCheckHandler) onRedeclaration(s *Scope, name s
 }
 
 func (this *VarCheck_RedeclarationCheckHandler) removeDuplicates() {
-	it_1 := eachOf_(&this.dupDeclNodes)
-	for it_1.next() {
-		var n Node = it_1.v
+	for n := range sliceAll_(&this.dupDeclNodes) {
 		var parent Node = n.getParent()
 		if parent != 0 {
 			n.detach()

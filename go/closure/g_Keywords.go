@@ -291,9 +291,7 @@ func Keywords_clinit() {
 	{
 		var keywordsByName ImmutableMap_BuilderOf[string, Keywords] = ImmutableMap_builder()
 		var keywordsByType EnumMapOf[TokenType, Keywords] = new_EnumMap(classOf_("com.google.javascript.jscomp.parsing.parser.TokenType"))
-		it_1 := foreach_(obj_(EnumSet_allOf(classOf_("com.google.javascript.jscomp.parsing.parser.Keywords"))))
-		for it_1.next() {
-			var kw Keywords = cast_[Keywords](it_1.v)
+		for kw := range elemsAs_[Keywords](obj_(EnumSet_allOf(classOf_("com.google.javascript.jscomp.parsing.parser.Keywords")))) {
 			keywordsByName.put(strobj_(Keywords_value__[kw-1]), obj_(kw))
 			keywordsByType.put(obj_(Keywords_type___[kw-1]), obj_(kw))
 		}

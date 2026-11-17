@@ -111,9 +111,7 @@ func (this *DepsFileRegexParser) parseLine_impl(line string) *Outcome_base {
 
 func DepsFileRegexParser_requiresParsedFromDeps(symbols ListOf[string]) ImmutableListOf[*DependencyInfo_Require] {
 	var result ImmutableList_BuilderOf[*DependencyInfo_Require] = ImmutableList_builder()
-	it_1 := foreach_(symbols)
-	for it_1.next() {
-		var symbol string = str_(it_1.v)
+	for symbol := range elemsBy_(symbols, str_) {
 		result.add(obj_(DependencyInfo_Require_parsedFromDeps(symbol)))
 	}
 	return result.build()

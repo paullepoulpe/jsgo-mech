@@ -68,9 +68,7 @@ func (this *ControlFlowAnalysis) computeCfg(root Node) {
 	var entry DiGraph_DiGraphNode = this.cfg.getEntry()
 	this.prioritizeFromEntryNode(entry)
 	if this.shouldTraverseFunctions {
-		it_1 := foreach_(this.cfg.getNodes())
-		for it_1.next() {
-			var candidate DiGraph_DiGraphNode = icast_DiGraph_DiGraphNode(it_1.v)
+		for candidate := range elemsBy_(this.cfg.getNodes(), icast_DiGraph_DiGraphNode) {
 			var value Node = Node_of_(candidate.getValue())
 			if (value != 0) && value.isFunction() {
 				this.prioritizeFromEntryNode(candidate)
@@ -78,9 +76,7 @@ func (this *ControlFlowAnalysis) computeCfg(root Node) {
 		}
 	}
 	this.astPosition = nil
-	it_3 := foreach_(this.cfg.getNodes())
-	for it_3.next() {
-		var candidate DiGraph_DiGraphNode = icast_DiGraph_DiGraphNode(it_3.v)
+	for candidate := range elemsBy_(this.cfg.getNodes(), icast_DiGraph_DiGraphNode) {
 		if !candidate.hasPriority() {
 			this.priorityCounter++
 			candidate.setPriority(this.priorityCounter)
@@ -460,9 +456,7 @@ func (this *ControlFlowAnalysis) handleContinue(node Node) {
 
 func (this *ControlFlowAnalysis) handleReturn(node Node) {
 	var lastJump Node = 0
-	it_1 := eachRevOf_(&this.exceptionHandler)
-	for it_1.next() {
-		var curHandler Node = it_1.v
+	for curHandler := range sliceAllRev_(&this.exceptionHandler) {
 		if curHandler.isFunction() {
 			break
 		}
@@ -537,9 +531,7 @@ func ControlFlowAnalysis_computeFollowNode_Node_Node_ControlFlowAnalysis(fromNod
 			}
 		} else if parent.getLastChild() == node {
 			if cfa != nil {
-				it_2 := foreach_(cfa.finallyMap.get(parent.box_()))
-				for it_2.next() {
-					var finallyNode Node = Node_of_(it_2.v)
+				for finallyNode := range elemsBy_(cfa.finallyMap.get(parent.box_()), Node_of_) {
 					cfa.createEdge(fromNode, ControlFlowGraph_Branch_ON_EX, finallyNode)
 				}
 			}
@@ -610,9 +602,7 @@ func (this *ControlFlowAnalysis) connectToPossibleExceptionHandlerUnconditionall
 		}
 		var catchBlock Node = NodeUtil_getCatchBlock(handler)
 		var lastJumpInCatchBlock bool = false
-		it_3 := foreach_(obj_(lastJump.getAncestors()))
-		for it_3.next() {
-			var ancestor Node = Node_of_(it_3.v)
+		for ancestor := range elemsBy_(obj_(lastJump.getAncestors()), Node_of_) {
 			if ancestor == handler {
 				break
 			} else if ancestor == catchBlock {

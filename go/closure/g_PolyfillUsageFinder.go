@@ -324,9 +324,7 @@ func (this *PolyfillUsageFinder_Polyfills) init_PolyfillUsageFinder_Polyfills(me
 	this.statics = statics
 	this.byNativeVersion = byNativeVersion
 	var suffixList []string = []string{}
-	it_1 := foreach_(obj_(cast_[*ImmutableSet](statics.keySet())))
-	for it_1.next() {
-		var arg string = str_(it_1.v)
+	for arg := range elemsBy_(obj_(cast_[*ImmutableSet](statics.keySet())), str_) {
 		suffixList = append(suffixList, String_substring_int(arg, (String_lastIndexOf(arg, 46)+1)))
 	}
 	this.suffixes = ImmutableSet_copyOf(Collection(sliceView_(tc_string, suffixList)))
@@ -342,9 +340,7 @@ func PolyfillUsageFinder_Polyfills_fromTable(table string) *PolyfillUsageFinder_
 	var methods *SimpleListMultimap = SimpleListMultimap_create()
 	var statics ImmutableMap_BuilderOf[string, *PolyfillUsageFinder_Polyfill] = ImmutableMap_builder()
 	var byNativeVersion *SimpleListMultimap = SimpleListMultimap_create()
-	it_1 := foreach_(Splitter_on('\n').omitEmptyStrings().split_s(table))
-	for it_1.next() {
-		var line string = str_(it_1.v)
+	for line := range elemsBy_(Splitter_on('\n').omitEmptyStrings().split_s(table), str_) {
 		var tokens []string = sliceImm_(tc_string, Splitter_on(' ').omitEmptyStrings().splitToList_s(String_trim(line)))
 		if (int32(len(tokens)) == 1) && sliceAt_(tokens, 0) == "" {
 			continue
@@ -379,9 +375,7 @@ func PolyfillUsageFinder_Polyfills_fromTable(table string) *PolyfillUsageFinder_
 func (this *PolyfillUsageFinder_Polyfills) getPolyfillsNewerThan(languageMode CompilerOptions_LanguageMode) []*PolyfillUsageFinder_Polyfill {
 	var featureSet *FeatureSet = languageMode.toFeatureSet()
 	var result []*PolyfillUsageFinder_Polyfill
-	it_1 := foreach_(this.byNativeVersion.keySet())
-	for it_1.next() {
-		var nativeVersionStr string = str_(it_1.v)
+	for nativeVersionStr := range elemsBy_(this.byNativeVersion.keySet(), str_) {
 		var polyfillNativeFeatureSet *FeatureSet = PolyfillUsageFinder_getPolyfillSupportedFeatureSet(nativeVersionStr)
 		if !featureSet.containsFeatureSet(polyfillNativeFeatureSet) {
 			result = immAddAll_(tc_p_PolyfillUsageFinder_Polyfill, result, Iterable(this.byNativeVersion.get_s(nativeVersionStr)))
@@ -612,9 +606,7 @@ func (this *PolyfillUsageFinder_Traverser) visitGetPropChain(traversal *NodeTrav
 		var propertyName string = getPropNode.getString()
 		var methodPolyfills ListOf[*PolyfillUsageFinder_Polyfill] = this.outer_.polyfills.methods.get_s(propertyName)
 		if !methodPolyfills.isEmpty() && this.includeGuardedUsages.shouldInclude(this.isGuarded(("." + sstr_(propertyName)))) {
-			it_1 := foreach_(methodPolyfills)
-			for it_1.next() {
-				var polyfill *PolyfillUsageFinder_Polyfill = cast_[*PolyfillUsageFinder_Polyfill](it_1.v)
+			for polyfill := range elemsAs_[*PolyfillUsageFinder_Polyfill](methodPolyfills) {
 				var ownerName OptionalOf[string] = PolyfillUsageFinder_getMethodOwner(polyfill.nativeSymbol)
 				if this.outer_.disambiguateProperties_ && this.outer_.isDisjointFromIterator_2(getPropNode, ownerName) {
 					continue

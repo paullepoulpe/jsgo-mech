@@ -55,9 +55,7 @@ func (this *RuntimeJsLibManager) getExternedFields() []RuntimeJsLibManager_Exter
 		return []RuntimeJsLibManager_ExternedField{}
 	}
 	var result []RuntimeJsLibManager_ExternedField
-	it_1 := this.internedFields.each()
-	for it_1.next() {
-		var field *RuntimeJsLibManager_InternalField = it_1.v
+	for field := range this.internedFields.Values() {
 		if field.isInjected() {
 			result = immAddObj_(tc_RuntimeJsLibManager_ExternedField, result, obj_(field))
 		}
@@ -297,9 +295,7 @@ func new_RuntimeJsLibManager_FieldsTable() *RuntimeJsLibManager_FieldsTable {
 func RuntimeJsLibManager_FieldsTable_loadFields() ImmutableMapOf[string, string] {
 	var transpilationLibsTxt string = ResourceLoader_loadTextResource((sstr_(ResourceLoader_JSCOMP) + "js/transpilation_libs.txt"))
 	var allFields ImmutableMap_BuilderOf[string, string] = ImmutableMap_builder()
-	it_1 := foreach_(Splitter_on('\n').omitEmptyStrings().split_s(transpilationLibsTxt))
-	for it_1.next() {
-		var line string = str_(it_1.v)
+	for line := range elemsBy_(Splitter_on('\n').omitEmptyStrings().split_s(transpilationLibsTxt), str_) {
 		var tokens []string = sliceImm_(tc_string, Splitter_on(',').limit(2).splitToList_s(line))
 		if int32(len(tokens)) != 2 {
 			panic(new_IllegalStateException_String(objstr_(sliceView_(tc_string, tokens))).self())

@@ -63,9 +63,7 @@ func (this *DependencyInfo_Require) toString() string {
 
 func DependencyInfo_Require_asSymbolList(requires IterableOf[*DependencyInfo_Require]) ImmutableListOf[string] {
 	var result ImmutableList_BuilderOf[string] = ImmutableList_builder()
-	it_1 := foreach_(requires)
-	for it_1.next() {
-		var require *DependencyInfo_Require = cast_[*DependencyInfo_Require](it_1.v)
+	for require := range elemsAs_[*DependencyInfo_Require](requires) {
 		result.add(strobj_(require.getSymbol()))
 	}
 	return result.build()
@@ -318,9 +316,7 @@ func DependencyInfo_Util_writeAddDependency(out Appendable, info DependencyInfo)
 
 func DependencyInfo_Util_writeJsObject(out Appendable, map_ *TMap[string, string]) {
 	var entries *TList[string] = newTList_(tc_string)
-	it_1 := foreach_(map_.asMap().entrySet())
-	for it_1.next() {
-		var entry Map_Entry = icast_Map_Entry(it_1.v)
+	for entry := range elemsBy_(map_.asMap().entrySet(), icast_Map_Entry) {
 		var key string = strings.ReplaceAll(str_(entry.getKey()), "'", "\\'")
 		var value string = strings.ReplaceAll(str_(entry.getValue()), "'", "\\'")
 		entries.add(("'" + sstr_(key) + "': '" + sstr_(value) + "'"))

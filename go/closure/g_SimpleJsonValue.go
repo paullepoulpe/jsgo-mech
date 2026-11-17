@@ -163,18 +163,14 @@ func (this *SimpleJsonValue) writeTo(writer *SimpleJsonWriter) {
 	switch this.tag {
 	case SimpleJsonValue_Kind_OBJECT:
 		writer.beginObject()
-		it_2 := foreach_(this.named.entrySet())
-		for it_2.next() {
-			var member Map_Entry = icast_Map_Entry(it_2.v)
+		for member := range elemsBy_(this.named.entrySet(), icast_Map_Entry) {
 			writer.name(str_(member.getKey()))
 			cast_[*SimpleJsonValue](member.getValue()).writeTo(writer)
 		}
 		writer.endObject()
 	case SimpleJsonValue_Kind_ARRAY:
 		writer.beginArray()
-		it_4 := foreach_(this.items.self())
-		for it_4.next() {
-			var item *SimpleJsonValue = cast_[*SimpleJsonValue](it_4.v)
+		for item := range elemsAs_[*SimpleJsonValue](this.items.self()) {
 			item.writeTo(writer)
 		}
 		writer.endArray()

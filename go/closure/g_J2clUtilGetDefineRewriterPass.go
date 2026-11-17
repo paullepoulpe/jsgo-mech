@@ -152,16 +152,12 @@ func (this *J2clUtilGetDefineRewriterPass_CheckGetDefineCalls) visit_impl(t *Nod
 }
 
 func (this *J2clUtilGetDefineRewriterPass_CheckGetDefineCalls) validateRegisteredDefines() {
-	it_1 := foreach_(this.defineNameToAddSystemPropertyCall.asMap().entrySet())
-	for it_1.next() {
-		var entry Map_Entry = icast_Map_Entry(it_1.v)
+	for entry := range elemsBy_(this.defineNameToAddSystemPropertyCall.asMap().entrySet(), icast_Map_Entry) {
 		if !Collection_contains_s(this.outer_.defines, str_(entry.getKey())) {
 			this.outer_.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(Node_of_(entry.getValue()), J2clUtilGetDefineRewriterPass_J2CL_ADD_SYSTEM_PROPERTY_UNKNOWN_DEFINE, []string{str_(entry.getKey())}))
 		}
 	}
-	it_3 := foreach_(this.defineNameToGetDefineCall.asMap().entrySet())
-	for it_3.next() {
-		var entry Map_Entry = icast_Map_Entry(it_3.v)
+	for entry := range elemsBy_(this.defineNameToGetDefineCall.asMap().entrySet(), icast_Map_Entry) {
 		if !Collection_contains_s(this.outer_.defines, str_(entry.getKey())) {
 			continue
 		}

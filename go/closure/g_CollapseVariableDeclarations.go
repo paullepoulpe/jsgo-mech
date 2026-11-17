@@ -38,9 +38,7 @@ func (this *CollapseVariableDeclarations) process_2(externs Node, root Node) {
 }
 
 func (this *CollapseVariableDeclarations) applyCollapses() {
-	it_1 := eachOf_(&this.collapses)
-	for it_1.next() {
-		var collapse *CollapseVariableDeclarations_Collapse = it_1.v
+	for collapse := range sliceAll_(&this.collapses) {
 		var var_ Node = collapse.startNode
 		this.compiler_.reportChangeToEnclosingScope(var_)
 		for (var_.getNext() != 0) && (var_.getNext().getToken() == var_.getToken()) {

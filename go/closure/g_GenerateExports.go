@@ -41,9 +41,7 @@ func (this *GenerateExports) process_2(externs Node, root Node) {
 	var exports *TMap[string, Node] = findExportableNodes.getExports()
 	var es6Exports *TMap[Node, string] = findExportableNodes.getEs6ClassExports()
 	var localExports *TSet[string] = findExportableNodes.getLocalExports()
-	it_1 := localExports.each()
-	for it_1.next() {
-		var export string = it_1.v
+	for export := range localExports.All() {
 		this.addExtern(export)
 	}
 	if !exports.isEmpty() || !es6Exports.isEmpty() {
@@ -51,14 +49,10 @@ func (this *GenerateExports) process_2(externs Node, root Node) {
 			return
 		}
 	}
-	it_3 := foreach_(es6Exports.asMap().entrySet())
-	for it_3.next() {
-		var entry Map_Entry = icast_Map_Entry(it_3.v)
+	for entry := range elemsBy_(es6Exports.asMap().entrySet(), icast_Map_Entry) {
 		this.addExportForEs6Method(Node_of_(entry.getKey()), str_(entry.getValue()))
 	}
-	it_5 := foreach_(exports.asMap().entrySet())
-	for it_5.next() {
-		var entry Map_Entry = icast_Map_Entry(it_5.v)
+	for entry := range elemsBy_(exports.asMap().entrySet(), icast_Map_Entry) {
 		var export string = str_(entry.getKey())
 		var context Node = Node_of_(entry.getValue())
 		this.addExportMethod(exports, export, context)

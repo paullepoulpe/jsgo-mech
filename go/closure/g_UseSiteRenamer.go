@@ -33,9 +33,7 @@ func (this *UseSiteRenamer) renameUses(prop *PropertyClustering) UseSiteRenamer_
 		return UseSiteRenamer_RenameUsesResult_ONLY_ONE_CLUSTER
 	}
 	this.renamingIndex.putAll_2(strobj_(prop.getName()), Iterable(clusterNames.values()))
-	it_1 := foreach_(prop.getUseSites().asMap().entrySet())
-	for it_1.next() {
-		var usage Map_Entry = icast_Map_Entry(it_1.v)
+	for usage := range elemsBy_(prop.getUseSites().asMap().entrySet(), icast_Map_Entry) {
 		var site Node = Node_of_(usage.getKey())
 		var flatRep *ColorGraphNode = cast_[*ColorGraphNode](prop.getClusters().find(usage.getValue()))
 		var newName string = str_(clusterNames.get(obj_(flatRep)))
@@ -53,9 +51,7 @@ func (this *UseSiteRenamer) getRenamingIndex() *SimpleSetMultimap {
 
 func UseSiteRenamer_createAllClusterNames(prop *PropertyClustering) ImmutableMapOf[*ColorGraphNode, string] {
 	var result ImmutableMap_BuilderOf[*ColorGraphNode, string] = ImmutableMap_builder()
-	it_1 := foreach_(obj_(prop.getClusters().allRepresentatives()))
-	for it_1.next() {
-		var r *ColorGraphNode = cast_[*ColorGraphNode](it_1.v)
+	for r := range elemsAs_[*ColorGraphNode](obj_(prop.getClusters().allRepresentatives())) {
 		result.put(obj_(r), strobj_(UseSiteRenamer_createClusterName(prop, r)))
 	}
 	return result.buildOrThrow()

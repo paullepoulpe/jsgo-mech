@@ -22,9 +22,7 @@ func (this *Tracer) init_Tracer_Optional_Optional(type_ OptionalOf[string], comm
 		var size int32 = Tracer_extraTracingStatistics.size()
 		this.extraTracingValues = make([]int64, size)
 		var i int32 = 0
-		it_1 := foreach_(Tracer_extraTracingStatistics)
-		for it_1.next() {
-			var tracingStatistic Tracer_TracingStatistic = icast_Tracer_TracingStatistic(it_1.v)
+		for tracingStatistic := range elemsBy_(Tracer_extraTracingStatistics, icast_Tracer_TracingStatistic) {
 			this.extraTracingValues[i] = tracingStatistic.start()
 			i++
 		}
@@ -532,9 +530,7 @@ func (this *Tracer_ThreadTrace) toString() string {
 		}
 		return nil
 	}()
-	it_1 := eachOf_(&this.events)
-	for it_1.next() {
-		var e *Tracer_Event = it_1.v
+	for e := range sliceAll_(&this.events) {
 		if (this.prettyPrint && !e.isStart) && !indent.isEmpty() {
 			indent.pop()
 		}
@@ -553,15 +549,11 @@ func (this *Tracer_ThreadTrace) toString() string {
 	if !this.outstandingEvents.isEmpty() {
 		var now int64 = Tracer_clock()
 		sb.append(" Unstopped timers:\n")
-		it_3 := this.outstandingEvents.each()
-		for it_3.next() {
-			var t *Tracer = it_3.v
+		for t := range this.outstandingEvents.All() {
 			sb.append("  ").append_Object(obj_(t)).append(" (").append_long((now - t.startTimeMs)).append(" ms, started at ").append(Tracer_formatTime(t.startTimeMs)).append(")\n")
 		}
 	}
-	it_5 := foreach_(this.stats.asMap().entrySet())
-	for it_5.next() {
-		var statEntry Map_Entry = icast_Map_Entry(it_5.v)
+	for statEntry := range elemsBy_(this.stats.asMap().entrySet(), icast_Map_Entry) {
 		var stat *Tracer_Stat = cast_[*Tracer_Stat](statEntry.getValue())
 		if stat.count_ > 1 {
 			sb.append(" TOTAL ").append(str_(statEntry.getKey())).append(" ").append_int(stat.count_).append(" (").append_int(stat.clockTime).append(" ms")

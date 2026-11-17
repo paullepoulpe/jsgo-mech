@@ -540,9 +540,7 @@ func (this *TypeTransformation) putNewPropInPropertyMap(props *TMap[string, *JST
 func (this *TypeTransformation) joinRecordTypes(recTypes []*ObjectType) *JSType {
 	var props *TMap[string, *JSType] = newTMap_(tc_string, tc_p_JSType)
 	for _, recType := range recTypes {
-		it_3 := foreach_(recType.getOwnPropertyNames())
-		for it_3.next() {
-			var newPropName string = str_(it_3.v)
+		for newPropName := range elemsBy_(recType.getOwnPropertyNames(), str_) {
 			var newPropValue *JSType = recType.getPropertyType(newPropName)
 			this.putNewPropInPropertyMap(props, newPropName, newPropValue)
 		}
@@ -591,9 +589,7 @@ func (this *TypeTransformation) evalMaprecord(ttlAst Node, nameResolver *TypeTra
 			return this.getUnknownType()
 		}
 		var bodyAsObj *ObjectType = body.toMaybeObjectType()
-		it_3 := foreach_(bodyAsObj.getOwnPropertyNames())
-		for it_3.next() {
-			var newPropName string = str_(it_3.v)
+		for newPropName := range elemsBy_(bodyAsObj.getOwnPropertyNames(), str_) {
 			var newPropValue *JSType = bodyAsObj.getPropertyType(newPropName)
 			this.putNewPropInPropertyMap(newProps, newPropName, newPropValue)
 		}

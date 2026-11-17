@@ -17,14 +17,10 @@ func new_IdMappingUtil() *IdMappingUtil {
 
 func IdMappingUtil_generateSerializedIdMappings(idGeneratorMaps *TMap[string, MapOf[string, string]]) string {
 	var sb *StringBuilder = new_StringBuilder()
-	it_1 := foreach_(idGeneratorMaps.asMap().entrySet())
-	for it_1.next() {
-		var replacements Map_Entry = icast_Map_Entry(it_1.v)
+	for replacements := range elemsBy_(idGeneratorMaps.asMap().entrySet(), icast_Map_Entry) {
 		if !icast_Map(replacements.getValue()).isEmpty() {
 			cast_[*StringBuilder](cast_[*StringBuilder](cast_[*StringBuilder](sb.append_char('[')).append(str_(replacements.getKey())).append_char(']')).append_char(IdMappingUtil_NEW_LINE)).append_char(IdMappingUtil_NEW_LINE)
-			it_3 := foreach_(icast_Map(replacements.getValue()).entrySet())
-			for it_3.next() {
-				var replacement Map_Entry = icast_Map_Entry(it_3.v)
+			for replacement := range elemsBy_(icast_Map(replacements.getValue()).entrySet(), icast_Map_Entry) {
 				cast_[*StringBuilder](sb.append(str_(replacement.getKey())).append_char(':')).append(str_(replacement.getValue())).append_char(IdMappingUtil_NEW_LINE)
 			}
 			sb.append_char(IdMappingUtil_NEW_LINE)

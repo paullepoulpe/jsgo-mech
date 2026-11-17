@@ -112,17 +112,13 @@ func (this *Graph) getNodeOrFail(val any) GraphNode {
 }
 
 func (this *Graph) clearNodeAnnotations() {
-	it_1 := foreach_(this.getNodes())
-	for it_1.next() {
-		var n GraphNode = icast_GraphNode(it_1.v)
+	for n := range elemsBy_(this.getNodes(), icast_GraphNode) {
 		n.setAnnotation(nil)
 	}
 }
 
 func (this *Graph) clearEdgeAnnotations() {
-	it_1 := this.getEdges().each()
-	for it_1.next() {
-		var e Graph_GraphEdge = it_1.v
+	for e := range this.getEdges().All() {
 		e.setAnnotation(nil)
 	}
 }
@@ -157,18 +153,14 @@ func (this *Graph) popEdgeAnnotations() {
 
 func Graph_pushAnnotations(stack *TList[*Graph_GraphAnnotationState], haveAnnotations CollectionOf[Annotatable]) {
 	stack.push_(new_Graph_GraphAnnotationState(haveAnnotations.size()))
-	it_1 := foreach_(haveAnnotations)
-	for it_1.next() {
-		var h Annotatable = icast_Annotatable(it_1.v)
+	for h := range elemsBy_(haveAnnotations, icast_Annotatable) {
 		stack.peekTop_().add(obj_(new_Graph_AnnotationState(h, Annotatable_getAnnotation(h))))
 		h.setAnnotation(nil)
 	}
 }
 
 func Graph_popAnnotations(stack *TList[*Graph_GraphAnnotationState]) {
-	it_1 := foreach_(obj_(stack.pop_()))
-	for it_1.next() {
-		var as *Graph_AnnotationState = cast_[*Graph_AnnotationState](it_1.v)
+	for as := range elemsAs_[*Graph_AnnotationState](obj_(stack.pop_())) {
 		as.first.setAnnotation(as.second)
 	}
 }

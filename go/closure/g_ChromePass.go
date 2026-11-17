@@ -110,9 +110,7 @@ func ChromePass_setJsDocWithType(target Node, type_ Node) {
 
 func (this *ChromePass) createAndInsertObjectsForQualifiedName(scriptChild Node, namespace string) {
 	var objectsForQualifiedName *TList[Node] = this.createObjectsForQualifiedName(namespace)
-	it_1 := objectsForQualifiedName.each()
-	for it_1.next() {
-		var n Node = it_1.v
+	for n := range objectsForQualifiedName.All() {
 		n.srcrefTree(scriptChild).insertBefore(scriptChild)
 	}
 	if !objectsForQualifiedName.isEmpty() {

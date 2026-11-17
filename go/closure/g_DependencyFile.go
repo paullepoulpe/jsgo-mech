@@ -53,12 +53,8 @@ func (this *DependencyFile) loadGraph() {
 	if !parser.didParseSucceed() {
 		panic(obj_(new_ServiceException(("Problem parsing " + sstr_(this.getName()) + ". See logs for details."))))
 	}
-	it_1 := foreach_(depInfos)
-	for it_1.next() {
-		var depInfo DependencyInfo = icast_DependencyInfo(it_1.v)
-		it_3 := foreach_(obj_(depInfo.getProvides()))
-		for it_3.next() {
-			var provide string = str_(it_3.v)
+	for depInfo := range elemsBy_(depInfos, icast_DependencyInfo) {
+		for provide := range elemsBy_(obj_(depInfo.getProvides()), str_) {
 			var existing DependencyInfo = this.dependencies[provide]
 			if (existing != nil) && !equalsDyn_(existing, depInfo) {
 				panic(obj_(new_ServiceException(("Duplicate provide of " + sstr_(provide) + ". Was provided by " + sstr_(existing.getPathRelativeToClosureBase()) + " and " + sstr_(depInfo.getPathRelativeToClosureBase())))))

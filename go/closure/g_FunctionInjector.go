@@ -138,9 +138,7 @@ func (this *FunctionInjector) inlineReturnValue(ref *FunctionInjector_Reference,
 	var block Node = fnNode.getLastChild()
 	var paramToArgMap ImmutableMapOf[string, *FunctionArgumentInjector_ParamArgPair] = this.functionArgumentInjector_.getFunctionCallParameterMap(fnNode, callNode, this.safeNameIdSupplier_)
 	var paramReplacements map[string]Node = map[string]Node{}
-	it_1 := foreach_(obj_(cast_[*ImmutableSet](paramToArgMap.entrySet())))
-	for it_1.next() {
-		var entry Map_Entry = icast_Map_Entry(it_1.v)
+	for entry := range elemsBy_(obj_(cast_[*ImmutableSet](paramToArgMap.entrySet())), icast_Map_Entry) {
 		paramReplacements[str_(entry.getKey())] = cast_[*FunctionArgumentInjector_ParamArgPair](entry.getValue()).arg()
 	}
 	var newExpression Node
@@ -438,9 +436,7 @@ func (this *FunctionInjector) inliningLowersCost(fnChunk *JSChunk, fnNode Node, 
 	var referencesUsingBlockInlining int32 = 0
 	var checkChunks bool = (isRemovable && (fnChunk != nil))
 	var chunkGraph *JSChunkGraph = this.compiler_.getChunkGraph()
-	it_1 := foreach_(refs)
-	for it_1.next() {
-		var ref *FunctionInjector_Reference = to_FunctionInjector_Reference(it_1.v)
+	for ref := range elemsBy_(refs, to_FunctionInjector_Reference) {
 		if ref.mode_ == FunctionInjector_InliningMode_BLOCK {
 			referencesUsingBlockInlining++
 		}

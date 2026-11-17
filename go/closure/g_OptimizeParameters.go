@@ -37,9 +37,7 @@ func (this *OptimizeParameters) process_3(externs Node, root Node, refMap *Optim
 		this.decisionsLog = decisionsLog
 		this.globalScope = refMap.getGlobalScope()
 		var toOptimize []ArrayListOf[Node] = []ArrayListOf[Node]{}
-		it_2 := foreach_(refMap.getNameReferences())
-		for it_2.next() {
-			var entry Map_Entry = icast_Map_Entry(it_2.v)
+		for entry := range elemsBy_(refMap.getNameReferences(), icast_Map_Entry) {
 			var key string = str_(entry.getKey())
 			var refs ArrayListOf[Node] = to_ArrayList(entry.getValue())
 			var candidateAnalysis *OptimizeParameters_CandidateAnalysis = this.analyzeCandidateName(key, refs)
@@ -50,9 +48,7 @@ func (this *OptimizeParameters) process_3(externs Node, root Node, refMap *Optim
 				toOptimize = append(toOptimize, refs)
 			}
 		}
-		it_4 := foreach_(refMap.getPropReferences())
-		for it_4.next() {
-			var entry Map_Entry = icast_Map_Entry(it_4.v)
+		for entry := range elemsBy_(refMap.getPropReferences(), icast_Map_Entry) {
 			var key string = str_(entry.getKey())
 			var refs ArrayListOf[Node] = to_ArrayList(entry.getValue())
 			var candidateAnalysis *OptimizeParameters_CandidateAnalysis = this.analyzeCandidateProperty(key, refs)
@@ -292,9 +288,7 @@ func (this *OptimizeParameters) tryEliminateOptionalArgs(refs ArrayListOf[Node])
 			}
 		}
 	}
-	it_4 := foreach_(OptimizeCalls_ReferenceMap_getFunctionNodes(icast_List(refs.self())).values())
-	for it_4.next() {
-		var fn Node = Node_of_(it_4.v)
+	for fn := range elemsBy_(OptimizeCalls_ReferenceMap_getFunctionNodes(icast_List(refs.self())).values(), Node_of_) {
 		this.eliminateParamsAfterInt(fn, maxArgs)
 	}
 }
@@ -313,9 +307,7 @@ func (this *OptimizeParameters) tryEliminateConstantArgs(refs ArrayListOf[Node])
 	if !continueLooking {
 		return
 	}
-	it_1 := foreach_(refs.self())
-	for it_1.next() {
-		var n Node = Node_of_(it_1.v)
+	for n := range elemsBy_(refs.self(), Node_of_) {
 		if !OptimizeParameters_alreadyRemoved(n) && OptimizeCalls_ReferenceMap_isNormalOrOptChainCallOrNewTarget(n) {
 			this.optimizeCallSite(parameters, n)
 		}
@@ -327,9 +319,7 @@ func (this *OptimizeParameters) findFixedArguments(refs ArrayListOf[Node]) *TLis
 	var parameters *TList[*OptimizeParameters_Parameter] = newTList_(tc_p_OptimizeParameters_Parameter)
 	var firstCall bool = true
 	var continueLooking bool = false
-	it_1 := foreach_(refs.self())
-	for it_1.next() {
-		var n Node = Node_of_(it_1.v)
+	for n := range elemsBy_(refs.self(), Node_of_) {
 		if OptimizeCalls_ReferenceMap_isNormalOrOptChainCallOrNewTarget(n) {
 			if OptimizeParameters_hasSpreadInFirstCallParam(n) {
 				continueLooking = false
@@ -623,17 +613,13 @@ func (this *OptimizeParameters) insertStatements(function Node, stmts *TList[Nod
 }
 
 func (this *OptimizeParameters) addStatementsToBack(block Node, stmts *TList[Node]) {
-	it_1 := stmts.each()
-	for it_1.next() {
-		var stmt Node = it_1.v
+	for stmt := range stmts.All() {
 		block.addChildToBack(stmt)
 	}
 }
 
 func (this *OptimizeParameters) addStatementsBefore(insertionPoint Node, stmts *TList[Node]) {
-	it_1 := foreach_(Lists_reverse(stmts.asList()))
-	for it_1.next() {
-		var item Node = Node_of_(it_1.v)
+	for item := range elemsBy_(Lists_reverse(stmts.asList()), Node_of_) {
 		item.insertBefore(insertionPoint)
 	}
 }
@@ -796,17 +782,13 @@ func (this *OptimizeParameters_UnusedParameterOptimizer) tryEliminateUnusedArgs(
 	if lowestUsedRest == int32(2147483647) {
 		removeAllAfterIndex = (maxFormalsCount - 1)
 	}
-	it_7 := foreach_(refs.self())
-	for it_7.next() {
-		var n Node = Node_of_(it_7.v)
+	for n := range elemsBy_(refs.self(), Node_of_) {
 		if OptimizeCalls_ReferenceMap_isNormalOrOptChainCallOrNewTarget(n) && !OptimizeParameters_alreadyRemoved(n) {
 			var arg Node = OptimizeCalls_ReferenceMap_getFirstArgumentForCallOrNewOrDotCall(n)
 			this.recordRemovalCallArguments(lowestUsedRest, removeAllAfterIndex, unused, unremovable, arg, 0)
 		}
 	}
-	it_9 := foreach_(fns.values())
-	for it_9.next() {
-		var fn Node = Node_of_(it_9.v)
+	for fn := range elemsBy_(fns.values(), Node_of_) {
 		var paramList Node = NodeUtil_getFunctionParameters(fn)
 		var param Node = paramList.getFirstChild()
 		this.removeUnusedFunctionParameters(unremovable, param, 0)
@@ -890,9 +872,7 @@ func (this *OptimizeParameters_UnusedParameterOptimizer) removeUnusedFunctionPar
 }
 
 func (this *OptimizeParameters_UnusedParameterOptimizer) applyChanges() {
-	it_1 := eachOf_(&this.toRemove)
-	for it_1.next() {
-		var n Node = it_1.v
+	for n := range sliceAll_(&this.toRemove) {
 		if OptimizeParameters_alreadyRemoved(n) {
 			continue
 		}
@@ -900,9 +880,7 @@ func (this *OptimizeParameters_UnusedParameterOptimizer) applyChanges() {
 		n.detach()
 		NodeUtil_markFunctionsDeleted(n, this.outer_.compiler_)
 	}
-	it_3 := eachOf_(&this.toReplaceWithZero)
-	for it_3.next() {
-		var n Node = it_3.v
+	for n := range sliceAll_(&this.toReplaceWithZero) {
 		if n.isNumber() && n.getDouble() == 0.0 {
 			panic(new_IllegalStateException_0().self())
 		}
@@ -938,9 +916,7 @@ func (this *OptimizeParameters_CandidateAnalysis) shouldConvertTaggedTemplateLit
 }
 
 func (this *OptimizeParameters_CandidateAnalysis) convertTaggedTemplateLiterals() {
-	it_1 := this.taggedTemplateLiterals.each()
-	for it_1.next() {
-		var taggedTemplateLiteral Node = it_1.v
+	for taggedTemplateLiteral := range this.taggedTemplateLiterals.All() {
 		this.outer_.convertTaggedTemplateLiteralToNormalCall(taggedTemplateLiteral)
 	}
 	this.taggedTemplateLiterals.clear()

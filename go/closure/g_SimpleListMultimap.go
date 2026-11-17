@@ -28,9 +28,7 @@ func SimpleListMultimap_create() *SimpleListMultimap {
 
 func (this *SimpleListMultimap) immutableCopy() *SimpleListMultimap {
 	var copy_ *SimpleListMultimap = new_SimpleListMultimap()
-	it_1 := foreach_(this.map__.entrySet())
-	for it_1.next() {
-		var e Map_Entry = icast_Map_Entry(it_1.v)
+	for e := range elemsBy_(this.map__.entrySet(), icast_Map_Entry) {
 		copy_.map__.put(e.getKey(), new_ArrayList_Collection(icast_Collection(e.getValue())).self())
 	}
 	copy_.frozen = true
@@ -65,9 +63,7 @@ func (this *SimpleListMultimap) put_s(key string, value any) *SimpleListMultimap
 }
 
 func (this *SimpleListMultimap) putAll(key any, values IterableOf[any]) *SimpleListMultimap {
-	it_1 := foreach_(values)
-	for it_1.next() {
-		var value any = it_1.v
+	for value := range elems_(values) {
 		this.put(key, value)
 	}
 	return this
@@ -75,9 +71,7 @@ func (this *SimpleListMultimap) putAll(key any, values IterableOf[any]) *SimpleL
 
 // putAll_s is putAll for a string key that is not boxed (post-flip manual step).
 func (this *SimpleListMultimap) putAll_s(key string, values IterableOf[any]) *SimpleListMultimap {
-	it_1 := foreach_(values)
-	for it_1.next() {
-		var value any = it_1.v
+	for value := range elems_(values) {
 		this.put_s(key, value)
 	}
 	return this
@@ -165,9 +159,7 @@ func (this *SimpleListMultimap) asMap() MapOf[any, ListOf[any]] {
 
 func (this *SimpleListMultimap) size() int32 {
 	var size int32 = 0
-	it_1 := foreach_(this.map__.values())
-	for it_1.next() {
-		var values List = icast_List(it_1.v)
+	for values := range elemsBy_(this.map__.values(), icast_List) {
 		size += values.size()
 	}
 	return size

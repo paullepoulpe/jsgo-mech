@@ -70,9 +70,7 @@ func (this *Es6ConvertSuperConstructorCalls) visitSuper(t *NodeTraversal, constr
 		return
 	}
 	if constructor.isFromExterns() {
-		it_1 := superCalls.each()
-		for it_1.next() {
-			var superCall Node = it_1.v
+		for superCall := range superCalls.All() {
 			var enclosingStatement Node = NodeUtil_getEnclosingStatement(superCall)
 			var enclosingScope Node = enclosingStatement.getParent()
 			enclosingStatement.detach()
@@ -98,9 +96,7 @@ func (this *Es6ConvertSuperConstructorCalls) visitSuper(t *NodeTraversal, constr
 }
 
 func (this *Es6ConvertSuperConstructorCalls) replaceSuperCallsWithThis(superCalls *TList[Node], thisType AstFactory_Type) {
-	it_1 := superCalls.each()
-	for it_1.next() {
-		var superCall Node = it_1.v
+	for superCall := range superCalls.All() {
 		var sideEffectArgs []Node = []Node{}
 		var callee Node = superCall.removeFirstChild()
 		if !callee.isSuper() {
@@ -154,9 +150,7 @@ func (this *Es6ConvertSuperConstructorCalls) rewriteSuperCallsToJsCompConstructC
 			constructorBody.addChildToBack(declaration)
 		}
 		constructorBody.addChildToBack(this.astFactory_.createReturn(this.astFactory_.createName(uniqueSuperThisName, typeOfThis)).srcrefTree(constructorBody))
-		it_1 := superCalls.each()
-		for it_1.next() {
-			var superCall Node = it_1.v
+		for superCall := range superCalls.All() {
 			superCall.replaceWith(this.astFactory_.createAssign(this.astFactory_.createName(uniqueSuperThisName, typeOfThis).srcref(superCall), this.createJSCompConstructorCall(superClassNameNode, superCall, thisType)).srcref(superCall))
 		}
 	}
@@ -164,18 +158,14 @@ func (this *Es6ConvertSuperConstructorCalls) rewriteSuperCallsToJsCompConstructC
 }
 
 func (this *Es6ConvertSuperConstructorCalls) rewriteNativeErrorSuperCalls(t *NodeTraversal, superCalls *TList[Node], superClassNameNode Node, thisType AstFactory_Type) {
-	it_1 := superCalls.each()
-	for it_1.next() {
-		var superCall Node = it_1.v
+	for superCall := range superCalls.All() {
 		var newSuperCall Node = this.createNewSuperCall(superClassNameNode, superCall, thisType, AstFactory_type_Node(superCall))
 		this.replaceNativeErrorSuperCall(superCall, newSuperCall, t.getInput())
 	}
 }
 
 func (this *Es6ConvertSuperConstructorCalls) rewriteSuperCalls(superCalls *TList[Node], superClassNameNode Node, thisType AstFactory_Type) {
-	it_1 := superCalls.each()
-	for it_1.next() {
-		var superCall Node = it_1.v
+	for superCall := range superCalls.All() {
 		var newSuperCall Node = this.createNewSuperCall(superClassNameNode, superCall, thisType, AstFactory_typeColor(StandardColors_NULL_OR_VOID))
 		var superCallParent Node = superCall.getParent()
 		if superCallParent.hasOneChild() && NodeUtil_isStatement(superCallParent) {
@@ -215,9 +205,7 @@ func (this *Es6ConvertSuperConstructorCalls) rewriteSuperAndPreserveReturnedThis
 		}
 		constructorBody.addChildToBack(IR_returnNode_Node(this.astFactory_.createName(uniqueSuperThisName, typeOfThis)).srcrefTree(constructorBody))
 		this.updateThisToSuperThis(typeOfThis, constructorBody, superCalls, uniqueSuperThisName)
-		it_1 := superCalls.each()
-		for it_1.next() {
-			var superCall Node = it_1.v
+		for superCall := range superCalls.All() {
 			var newSuperCall Node = this.createNewSuperCall(superClassNameNode, superCall, typeOfThis, AstFactory_typeColor(StandardColors_UNKNOWN))
 			superCall.replaceWith(this.astFactory_.createAssign(this.astFactory_.createName(uniqueSuperThisName, typeOfThis), this.astFactory_.createOr(newSuperCall, this.astFactory_.createThis(typeOfThis))).srcrefTreeIfMissing(superCall))
 		}
@@ -235,9 +223,7 @@ func (this *Es6ConvertSuperConstructorCalls) isKnownToReturnOnlyUndefined(functi
 	}
 	var declarationRef *GlobalNamespace_Ref = cast_[*GlobalNamespace_Ref](globalName.getDeclaration())
 	if declarationRef == nil {
-		it_1 := foreach_(globalName.getRefs())
-		for it_1.next() {
-			var ref *GlobalNamespace_Ref = cast_[*GlobalNamespace_Ref](it_1.v)
+		for ref := range elemsAs_[*GlobalNamespace_Ref](globalName.getRefs()) {
 			if ref.isSet() {
 				declarationRef = ref
 			}
@@ -331,9 +317,7 @@ func (this *Es6ConvertSuperConstructorCalls) createNewSuperCall(superClassQNameN
 		var newSuperCall Node = this.astFactory_.createCall(superClassDotCall, resultType, []Node{}).srcref(superCall)
 		newSuperCall.addChildToBack(this.astFactory_.createThis(thisType).srcref(callee))
 		newSuperCall.putBooleanProp(Node_FREE_CALL, false)
-		it_2 := args.each()
-		for it_2.next() {
-			var arg Node = it_2.v
+		for arg := range args.All() {
 			newSuperCall.addChildToBack(arg)
 		}
 		return newSuperCall

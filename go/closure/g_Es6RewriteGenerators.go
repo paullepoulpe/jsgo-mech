@@ -859,9 +859,7 @@ func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_Transpilation
 	if this.allCases.isEmpty() {
 		panic(new_IllegalStateException_String(objstr_(this.allCases.asList())).self())
 	}
-	it_1 := this.allCases.each()
-	for it_1.next() {
-		var currentCase *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_Case = it_1.v
+	for currentCase := range this.allCases.All() {
 		if currentCase.jumpToField != nil {
 			for currentCase.jumpToField.jumpToField != nil {
 				currentCase.jumpToField = currentCase.jumpToField.jumpToField
@@ -870,9 +868,7 @@ func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_Transpilation
 				currentCase.jumpToField.embedInto = currentCase.embedInto
 			}
 			currentCase.embedInto = 0
-			it_4 := eachOf_(&currentCase.references)
-			for it_4.next() {
-				var reference Node = it_4.v
+			for reference := range sliceAll_(&currentCase.references) {
 				reference.setDouble(float64(currentCase.jumpToField.id))
 			}
 			sliceAddAll_(tc_Node, &currentCase.jumpToField.references, Collection(sliceView_(tc_Node, currentCase.references)))
@@ -919,9 +915,7 @@ func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_Transpilation
 			}
 			prevCase.caseBlock.addChildrenToBack(currentCase.caseBlock.removeChildren())
 			prevCase.mayFallThrough = currentCase.mayFallThrough
-			it_7 := eachOf_(&currentCase.references)
-			for it_7.next() {
-				var reference Node = it_7.v
+			for reference := range sliceAll_(&currentCase.references) {
 				reference.setDouble(float64(prevCase.id))
 			}
 			prevCase.jumpToField = currentCase.jumpToField
@@ -934,9 +928,7 @@ func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_Transpilation
 }
 
 func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext) eliminateSwitchBreaks() {
-	it_1 := eachOf_(&this.switchBreaks)
-	for it_1.next() {
-		var breakNode Node = it_1.v
+	for breakNode := range sliceAll_(&this.switchBreaks) {
 		var prevStatement Node = breakNode.getPrevious()
 		if prevStatement == 0 {
 			panic(new_IllegalStateException_0().self())
@@ -966,9 +958,7 @@ func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_Transpilation
 	var switchNode Node = IR_switchNode(this.callContextMethod(generatorBody, "getNextAddressJsc", AstFactory_type_JSTypeNative_Color(JSTypeNative_NUMBER_TYPE, StandardColors_NUMBER), []Node{}), []Node{}).srcref(generatorBody)
 	generatorBody.addChildToBack(switchNode)
 	var switchBody Node = switchNode.getSecondChild().srcref(generatorBody)
-	it_1 := this.allCases.each()
-	for it_1.next() {
-		var currentCase *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_Case = it_1.v
+	for currentCase := range this.allCases.All() {
 		switchBody.addChildToBack(currentCase.createCaseNode())
 	}
 	this.allCases.clear()
@@ -1292,9 +1282,7 @@ func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_Transpilation
 }
 
 func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext) pushLabels(labelNames *TList[Node], breakCase *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_Case, continueCase *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_Case) {
-	it_1 := labelNames.each()
-	for it_1.next() {
-		var labelName Node = it_1.v
+	for labelName := range labelNames.All() {
 		if !labelName.isLabelName() {
 			panic(new_IllegalStateException_0().self())
 		}
@@ -1303,9 +1291,7 @@ func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_Transpilation
 }
 
 func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext) popLabels(labelNames *TList[Node]) {
-	it_1 := labelNames.each()
-	for it_1.next() {
-		var labelName Node = it_1.v
+	for labelName := range labelNames.All() {
 		if !labelName.isLabelName() {
 			panic(new_IllegalStateException_0().self())
 		}

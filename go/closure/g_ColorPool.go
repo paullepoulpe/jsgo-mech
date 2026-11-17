@@ -200,12 +200,8 @@ func (this *ColorPool_Builder) addShard(typePool *TypePool, stringPool *StringPo
 	var shard *ColorPool_ShardView = new_ColorPool_ShardView(typePool, stringPool, trimmedOffsetToId)
 	this.protoToShard.put(obj_(typePool), obj_(shard))
 	if typePool.hasDebugInfo() {
-		it_1 := foreach_(typePool.getDebugInfo().getMismatchList())
-		for it_1.next() {
-			var m *TypePool_DebugInfo_Mismatch = cast_[*TypePool_DebugInfo_Mismatch](it_1.v)
-			it_3 := foreach_(m.getInvolvedColorList())
-			for it_3.next() {
-				var pointer any = it_3.v
+		for m := range elemsAs_[*TypePool_DebugInfo_Mismatch](typePool.getDebugInfo().getMismatchList()) {
+			for pointer := range elems_(m.getInvolvedColorList()) {
 				this.registry.addMismatchLocation(shard.getId(unbox_[int32](pointer)), m.getSourceRef())
 			}
 		}
@@ -225,19 +221,13 @@ func (this *ColorPool_Builder) build() *ColorPool {
 			this.idToProto.put(obj_(id), obj_(shard), obj_(shard.typePool.getType(i)))
 		}
 	})
-	it_2 := foreach_(obj_(cast_[*ImmutableSet](StandardColors_AXIOMATIC_COLORS.keySet())))
-	for it_2.next() {
-		var id *ColorId = cast_[*ColorId](it_2.v)
+	for id := range elemsAs_[*ColorId](obj_(cast_[*ImmutableSet](StandardColors_AXIOMATIC_COLORS.keySet()))) {
 		MalformedTypedAstException_checkWellFormed_boolean_String_Object(!this.idToProto.containsRow(obj_(id)), "Found serialized definiton for axiomatic color", obj_(id))
 	}
-	it_4 := foreach_(this.idToProto.rowKeySet())
-	for it_4.next() {
-		var id *ColorId = cast_[*ColorId](it_4.v)
+	for id := range elemsAs_[*ColorId](this.idToProto.rowKeySet()) {
 		this.lookupOrReconcileColor(id)
 	}
-	it_6 := foreach_(obj_(ColorRegistry_REQUIRED_IDS))
-	for it_6.next() {
-		var colorId *ColorId = cast_[*ColorId](it_6.v)
+	for colorId := range elemsAs_[*ColorId](obj_(ColorRegistry_REQUIRED_IDS)) {
 		this.registry.setNativeColor(cast_[*Color](Map_computeIfAbsent_f(this.idToColor.asMap(), obj_(colorId), func(unused_ any) any {
 			var unused *ColorId = cast_[*ColorId](unused_)
 			_ = unused
@@ -247,9 +237,7 @@ func (this *ColorPool_Builder) build() *ColorPool {
 	this.forEachShard(func(shard_ any) {
 		var shard *ColorPool_ShardView = cast_[*ColorPool_ShardView](shard_)
 		_ = shard
-		it_8 := foreach_(shard.typePool.getDisambiguationEdgesList())
-		for it_8.next() {
-			var edge *SubtypingEdge = cast_[*SubtypingEdge](it_8.v)
+		for edge := range elemsAs_[*SubtypingEdge](shard.typePool.getDisambiguationEdgesList()) {
 			this.registry.addDisambiguationEdge(this.idToColor.get(shard.getId(ColorPool_validatePointer(edge.getSubtype(), shard))), this.idToColor.get(shard.getId(ColorPool_validatePointer(edge.getSupertype(), shard))))
 		}
 	})
@@ -278,9 +266,7 @@ func (this *ColorPool_Builder) forEachShard(fn func(any)) {
 
 func (this *ColorPool_Builder) reconcilationDebugStackProtos() []ImmutableMapOf[*ColorPool_ShardView, *TypeProto] {
 	var result []ImmutableMapOf[*ColorPool_ShardView, *TypeProto]
-	it_1 := eachOf_(&this.reconcilationDebugStack)
-	for it_1.next() {
-		var stackId *ColorId = it_1.v
+	for stackId := range sliceAll_(&this.reconcilationDebugStack) {
 		result = immAdd_(tc_ImmutableMapOf_p_ColorPool_ShardView__p_TypeProto_, result, ImmutableMap_copyOf(this.idToProto.row(stackId)))
 	}
 	return immBuilt_(result)
@@ -337,9 +323,7 @@ func (this *ColorPool_Builder) reconcileObjectProtos(id *ColorId, viewToProto Ma
 	var isConstructor bool = false
 	var isInvalidating bool = false
 	var propertiesKeepOriginalName bool = false
-	it_1 := foreach_(viewToProto.entrySet())
-	for it_1.next() {
-		var entry Map_Entry = icast_Map_Entry(it_1.v)
+	for entry := range elemsBy_(viewToProto.entrySet(), icast_Map_Entry) {
 		var shard *ColorPool_ShardView = cast_[*ColorPool_ShardView](entry.getKey())
 		var proto *TypeProto = cast_[*TypeProto](entry.getValue())
 		if !proto.hasObject() {

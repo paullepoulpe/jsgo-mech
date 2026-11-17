@@ -222,9 +222,7 @@ func (this *ChainableReverseAbstractInterpreter_RestrictByTypeOfResultVisitor) c
 
 func (this *ChainableReverseAbstractInterpreter_RestrictByTypeOfResultVisitor) caseUnionType_impl(type_ *UnionType) any {
 	var restricted *JSType = nil
-	it_1 := foreach_(obj_(type_.getAlternates()))
-	for it_1.next() {
-		var alternate *JSType = to_JSType(it_1.v)
+	for alternate := range elemsBy_(obj_(type_.getAlternates()), to_JSType) {
 		var restrictedAlternate *JSType = to_JSType(alternate.visit(icast_Visitor(this.self())))
 		if restrictedAlternate != nil {
 			if restricted == nil {

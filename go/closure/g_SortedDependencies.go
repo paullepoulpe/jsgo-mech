@@ -40,9 +40,7 @@ func (this *SortedDependencies) getStrongDependenciesOf(rootInputs ListOf[any], 
 	for !worklist.isEmpty() {
 		var input DependencyInfo = icast_DependencyInfo(worklist.pop())
 		if includedInputs.add(input) {
-			it_2 := foreach_(obj_(input.getRequiredSymbols()))
-			for it_2.next() {
-				var symbolName string = str_(it_2.v)
+			for symbolName := range elemsBy_(obj_(input.getRequiredSymbols()), str_) {
 				var importedSymbolName DependencyInfo = icast_DependencyInfo(this.exportingInputBySymbolName[symbolName])
 				if importedSymbolName != nil {
 					worklist.add(importedSymbolName)
@@ -51,14 +49,13 @@ func (this *SortedDependencies) getStrongDependenciesOf(rootInputs ListOf[any], 
 		}
 	}
 	var builder ImmutableList_BuilderOf[any] = ImmutableList_builder()
-	it_4 := func() *TList[*CompilerInput] {
+	for el_4 := range func() *TList[*CompilerInput] {
 		if sorted {
 			return this.importOrderedInputs
 		}
 		return this.userOrderedInputs
-	}().each()
-	for it_4.next() {
-		var input DependencyInfo = icast_DependencyInfo(obj_(it_4.v))
+	}().All() {
+		var input DependencyInfo = icast_DependencyInfo(obj_(el_4))
 		if includedInputs.contains(input) {
 			builder.add(input)
 		}
@@ -98,9 +95,7 @@ func (this *SortedDependencies) getSortedWeakDependenciesOf(rootInputs ListOf[an
 		if !isStrong && !weakInputs.add(input) {
 			continue
 		}
-		it_2 := foreach_(edges)
-		for it_2.next() {
-			var symbolName string = str_(it_2.v)
+		for symbolName := range elemsBy_(edges, str_) {
 			var importedSymbolName DependencyInfo = icast_DependencyInfo(this.exportingInputBySymbolName[symbolName])
 			if ((importedSymbolName != nil) && !strongInputs.contains(importedSymbolName)) && !weakInputs.contains(importedSymbolName) {
 				worklist.add(importedSymbolName)
@@ -108,9 +103,8 @@ func (this *SortedDependencies) getSortedWeakDependenciesOf(rootInputs ListOf[an
 		}
 	}
 	var builder ImmutableList_BuilderOf[any] = ImmutableList_builder()
-	it_4 := this.importOrderedInputs.each()
-	for it_4.next() {
-		var input DependencyInfo = icast_DependencyInfo(obj_(it_4.v))
+	for el_4 := range this.importOrderedInputs.All() {
+		var input DependencyInfo = icast_DependencyInfo(obj_(el_4))
 		if weakInputs.contains(input) {
 			builder.add(input)
 		}
@@ -134,44 +128,35 @@ func (this *SortedDependencies) orderInput(input DependencyInfo) {
 		return
 	}
 	this.completedInputs.add(input)
-	it_1 := foreach_(this.importedInputByImportingInput.get(input))
-	for it_1.next() {
-		var importedInput DependencyInfo = icast_DependencyInfo(it_1.v)
+	for importedInput := range elemsBy_(this.importedInputByImportingInput.get(input), icast_DependencyInfo) {
 		this.orderInput(importedInput)
 	}
 	this.importOrderedInputs.add(cast_[*CompilerInput](input))
 }
 
 func (this *SortedDependencies) processInputs() {
-	it_1 := this.userOrderedInputs.each()
-	for it_1.next() {
-		var userOrderedInput DependencyInfo = icast_DependencyInfo(obj_(it_1.v))
+	for el_1 := range this.userOrderedInputs.All() {
+		var userOrderedInput DependencyInfo = icast_DependencyInfo(obj_(el_1))
 		var provides ImmutableListOf[string] = userOrderedInput.getProvides()
 		var firstProvide OptionalOf[string] = Optional_ofNullable[string](str_(Iterables_getFirst(icast_Iterable(obj_(provides)), nil)))
 		if firstProvide.isEmpty() || (((provides.size() == 1) && strings.HasPrefix(firstProvide.get(), "module$")) && !userOrderedInput.isEs6Module()) {
 			this.nonExportingInputs.put(ModuleNames_fileToModuleName(userOrderedInput.getName()), any(userOrderedInput))
 		}
-		it_3 := foreach_(obj_(userOrderedInput.getProvides()))
-		for it_3.next() {
-			var providedSymbolName string = str_(it_3.v)
+		for providedSymbolName := range elemsBy_(obj_(userOrderedInput.getProvides()), str_) {
 			this.exportingInputBySymbolName[providedSymbolName] = userOrderedInput
 		}
 	}
-	it_5 := this.userOrderedInputs.each()
-	for it_5.next() {
-		var userOrderedInput DependencyInfo = icast_DependencyInfo(obj_(it_5.v))
-		it_7 := foreach_(obj_(userOrderedInput.getRequiredSymbols()))
-		for it_7.next() {
-			var symbolName string = str_(it_7.v)
+	for el_5 := range this.userOrderedInputs.All() {
+		var userOrderedInput DependencyInfo = icast_DependencyInfo(obj_(el_5))
+		for symbolName := range elemsBy_(obj_(userOrderedInput.getRequiredSymbols()), str_) {
 			var importedInput DependencyInfo = icast_DependencyInfo(this.exportingInputBySymbolName[symbolName])
 			if importedInput != nil {
 				this.importedInputByImportingInput.put(userOrderedInput, importedInput)
 			}
 		}
 	}
-	it_9 := this.userOrderedInputs.each()
-	for it_9.next() {
-		var userOrderedInput DependencyInfo = icast_DependencyInfo(obj_(it_9.v))
+	for el_9 := range this.userOrderedInputs.All() {
+		var userOrderedInput DependencyInfo = icast_DependencyInfo(obj_(el_9))
 		this.orderInput(userOrderedInput)
 	}
 	this.completedInputs.clear()

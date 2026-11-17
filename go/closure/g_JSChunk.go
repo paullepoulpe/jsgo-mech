@@ -51,9 +51,7 @@ func (this *JSChunk) getHasNoCompileAnnotation() bool {
 
 func (this *JSChunk) getRequires() ImmutableListOf[*DependencyInfo_Require] {
 	var builder ImmutableList_BuilderOf[*DependencyInfo_Require] = ImmutableList_builder()
-	it_1 := this.deps.each()
-	for it_1.next() {
-		var chunk *JSChunk = it_1.v
+	for chunk := range this.deps.All() {
 		builder.add(obj_(DependencyInfo_Require_compilerChunk(chunk.getName())))
 	}
 	return builder.build()
@@ -108,9 +106,7 @@ func (this *JSChunk) remove(input *CompilerInput) {
 }
 
 func (this *JSChunk) removeAll() {
-	it_1 := this.inputs.each()
-	for it_1.next() {
-		var input *CompilerInput = it_1.v
+	for input := range this.inputs.Values() {
 		input.setChunk(nil)
 	}
 	this.inputs.clear()
@@ -136,9 +132,7 @@ func (this *JSChunk) getAllDependencies() SetOf[*JSChunk] {
 	for !stack.isEmpty() {
 		var chunk *JSChunk = cast_[*JSChunk](stack.pop())
 		var chunkDeps *TList[*JSChunk] = chunk.deps
-		it_2 := chunkDeps.each()
-		for it_2.next() {
-			var dep *JSChunk = it_2.v
+		for dep := range chunkDeps.All() {
 			if allDeps.add(obj_(dep)) {
 				stack.push(obj_(dep))
 			}
@@ -191,16 +185,12 @@ func (this *JSChunk) toString() string {
 }
 
 func (this *JSChunk) sortInputsByDeps(compiler *AbstractCompiler) {
-	it_1 := this.inputs.each()
-	for it_1.next() {
-		var input *CompilerInput = it_1.v
+	for input := range this.inputs.Values() {
 		input.setCompiler(compiler)
 	}
 	var sortedList *TList[*CompilerInput] = new_SortedDependencies(icast_List(obj_(this.getInputs()))).getSortedList()
 	this.inputs.clear()
-	it_3 := sortedList.each()
-	for it_3.next() {
-		var input *CompilerInput = it_3.v
+	for input := range sortedList.All() {
 		this.inputs.put(input.getName(), input)
 	}
 }

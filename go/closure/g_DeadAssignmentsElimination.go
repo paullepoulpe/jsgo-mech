@@ -103,10 +103,8 @@ func (this *DeadAssignmentsElimination) isRemovableAssign(n Node) bool {
 
 func (this *DeadAssignmentsElimination) tryRemoveDeadAssignments(t *NodeTraversal, cfg *ControlFlowGraph, allVarsInFn *TMap[string, *Var]) {
 	var nodes IterableOf[DiGraph_DiGraphNode] = Iterable(cfg.getNodes())
-	it_1 := foreach_(nodes)
 L_2:
-	for it_1.next() {
-		var cfgNode DiGraph_DiGraphNode = icast_DiGraph_DiGraphNode(it_1.v)
+	for cfgNode := range elemsBy_(nodes, icast_DiGraph_DiGraphNode) {
 		var state *DataFlowAnalysis_LinearFlowState = cast_[*DataFlowAnalysis_LinearFlowState](Annotatable_getAnnotation(Annotatable(cfgNode)))
 		var n Node = Node_of_(cfgNode.getValue())
 		if n == 0 {

@@ -53,9 +53,7 @@ func (this *SuggestedFix) toString() string {
 		return "<no-op SuggestedFix>"
 	}
 	var sb *StringBuilder = new_StringBuilder()
-	it_1 := foreach_(this.replacements.asMap().entrySet())
-	for it_1.next() {
-		var entry Map_Entry = icast_Map_Entry(it_1.v)
+	for entry := range elemsBy_(this.replacements.asMap().entrySet(), icast_Map_Entry) {
 		sb.append("Replacements for file: ").append(str_(entry.getKey())).append("\n")
 		Joiner_on("\n\n").appendTo(sb, icast_Iterable(entry.getValue()))
 	}

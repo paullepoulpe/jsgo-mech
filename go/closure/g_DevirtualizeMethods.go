@@ -22,9 +22,7 @@ func (this *DevirtualizeMethods) process_3(externs Node, root Node, refMap *Opti
 		panic(new_IllegalStateException_String("`process` should only be called once.").self())
 	}
 	this.refMap = refMap
-	it_1 := foreach_(refMap.getPropReferences())
-	for it_1.next() {
-		var referenceGroup Map_Entry = icast_Map_Entry(it_1.v)
+	for referenceGroup := range elemsBy_(refMap.getPropReferences(), icast_Map_Entry) {
 		this.processReferenceList(str_(referenceGroup.getKey()), icast_List(referenceGroup.getValue()))
 	}
 }
@@ -36,9 +34,7 @@ func (this *DevirtualizeMethods) processReferenceList(name string, sites ListOf[
 	}
 	var canonicalDefinitionSite Node = Node_of_(Iterables_get(Iterable(functionsBySite.keySet()), 0))
 	var callSitesBuilder ImmutableList_BuilderOf[Node] = ImmutableList_builder()
-	it_1 := foreach_(sites)
-	for it_1.next() {
-		var s Node = Node_of_(it_1.v)
+	for s := range elemsBy_(sites, Node_of_) {
 		if !functionsBySite.containsKey(s.box_()) {
 			callSitesBuilder.add(s.box_())
 		}
@@ -59,9 +55,7 @@ func (this *DevirtualizeMethods) processReferenceList(name string, sites ListOf[
 	var devirtualizedName string = DevirtualizeMethods_rewrittenMethodNameOf(name)
 	var bestJSDoc *JSDocInfo = NodeUtil_getBestJSDocInfo(canonicalDefinitionSite)
 	var isConstantName bool = ((bestJSDoc != nil) && bestJSDoc.isConstant())
-	it_3 := foreach_(obj_(callSites))
-	for it_3.next() {
-		var callSite Node = Node_of_(it_3.v)
+	for callSite := range elemsBy_(obj_(callSites), Node_of_) {
 		this.rewriteCall(callSite, devirtualizedName, isConstantName)
 	}
 	this.rewriteDefinition(canonicalDefinitionSite, devirtualizedName, isConstantName)
