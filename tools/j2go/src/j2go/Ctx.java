@@ -103,11 +103,12 @@ final class Ctx {
 
   /** True if field f of a handle class holds no Go pointer: it lives in the record the collector never scans. */
   boolean pointerFree(VariableElement f) {
-    return kind(f.asType()) == K.PRIM || isHandleType(f.asType()) || storedEnum(f.asType()) != null;
+    return kind(f.asType()) == K.PRIM || isHandleType(f.asType()) || storedEnum(f.asType()) != null || strId(f);
   }
 
   /** Go type of the stored form of handle-class field f. */
   String storedType(VariableElement f) {
+    if (strId(f)) return "uint32";
     TypeElement en = storedEnum(f.asType());
     if (en == null) return declType(f.asType());
     return enumConstants(en) < 256 ? "uint8" : "uint16";
@@ -139,14 +140,34 @@ final class Ctx {
     return coldFields.contains(f);
   }
 
-  /** The Go lvalue of the string slot of field f of recv: a column of its own. */
+  /**
+   * Fields of handle classes stored as a uint32 id instead of a Go string (handles.txt, "Class::field
+   * string-id"). A String field holds an id into the process-wide table of interned strings
+   * (rt_ids.go: strid_, strid_str_); an Object field that is also a string-slot field holds a value
+   * code (rt_ids.go: valcode_): a String as its id, a number inline or in a table of doubles, any
+   * other object in a table of objects.
+   */
+  final Set<VariableElement> strIds = new HashSet<>();
+
+  boolean strId(VariableElement f) {
+    return strIds.contains(f);
+  }
+
+  /** A string-id field declared Object: its string slot is part of a value code. */
+  boolean valCode(VariableElement f) {
+    return strId(f) && strSlot(f);
+  }
+
+  /** The Go rvalue of the string slot of field f of recv: a column of its own, or decoded from a value code. */
   String strSlotLoc(String recv, VariableElement f) {
+    if (valCode(f)) return recv + "." + fieldName(f) + "_s_()";
     return "(*" + recv + "." + fieldName(f) + "_s_())";
   }
 
   /** The storage location of instance field f of the object recv (a Go lvalue). */
   String fieldLoc(String recv, VariableElement f) {
     if (!isHandle(ownerOf(f))) return recv + "." + fieldName(f);
+    if (valCode(f)) return "(*" + recv + "." + fieldName(f) + "_c_())";
     return recv + (cold(f) ? ".cs_()." : pointerFree(f) ? ".ns_()." : ".ps_().") + fieldName(f);
   }
 
@@ -154,6 +175,7 @@ final class Ctx {
   String fieldGet(String recv, VariableElement f) {
     if (strSlot(f)) return recv + "." + fieldName(f) + "_get_()";
     String loc = fieldLoc(recv, f);
+    if (strId(f)) return "strid_str_(" + loc + ")";
     TypeElement en = isHandle(ownerOf(f)) ? storedEnum(f.asType()) : null;
     return en == null ? loc : className(en) + "_byOrd1_[" + loc + "]";
   }
@@ -165,6 +187,7 @@ final class Ctx {
   }
 
   String stored(VariableElement f, String value) {
+    if (strId(f)) return "strid_(" + value + ")";
     TypeElement en = f.getModifiers().contains(Modifier.STATIC) || !isHandle(ownerOf(f)) ? null : storedEnum(f.asType());
     return en == null ? value : className(en) + "_ord1_(" + value + ")";
   }
@@ -202,20 +225,40 @@ final class Ctx {
         if (en != null) handleEnums.add(en);
       }
     }
+    // Storage kinds first, then cold (which needs to know whether a field is pointer-free).
+    slots.sort(Comparator.comparingInt((String l) -> l.matches(".*\\scold\\s*") ? 1 : 0));
+    TypeMirror object = elems.getTypeElement("java.lang.Object").asType();
     for (String line : slots) {
-      java.util.regex.Matcher m = java.util.regex.Pattern.compile("(\\S+)::(\\w+)\\s+(string-slot|cold)").matcher(line);
+      java.util.regex.Matcher m = java.util.regex.Pattern.compile("(\\S+)::(\\w+)\\s+(string-slot|string-id|cold)").matcher(line);
       TypeElement te = m.matches() ? elems.getTypeElement(m.group(1)) : null;
       VariableElement field = null;
       if (te != null && handles.contains(te)) {
         for (VariableElement f : instanceFields(te)) if (f.getSimpleName().contentEquals(m.group(2))) field = f;
       }
-      if (field == null) handleErrors.add(line + ": not \"Class::field string-slot\" or \"Class::field cold\" naming a field of a handle class");
-      else if (m.group(3).equals("cold")) {
-        if (!pointerFree(field)) handleErrors.add(line + ": a cold field must be pointer-free");
-        else coldFields.add(field);
-      } else if (!types.isSameType(field.asType(), elems.getTypeElement("java.lang.Object").asType())) handleErrors.add(line + ": the field is not declared Object");
-      else strSlots.add(field);
+      if (field == null) {
+        handleErrors.add(line + ": not \"Class::field string-slot|string-id|cold\" naming a field of a handle class");
+        continue;
+      }
+      boolean isObject = types.isSameType(field.asType(), object);
+      switch (m.group(3)) {
+        case "cold" -> {
+          if (!pointerFree(field)) handleErrors.add(line + ": a cold field must be pointer-free");
+          else coldFields.add(field);
+        }
+        case "string-id" -> {
+          if (kind(field.asType()) == K.STR) strIds.add(field);
+          else if (isObject) {
+            strIds.add(field);
+            strSlots.add(field);
+          } else handleErrors.add(line + ": the field is not declared String or Object");
+        }
+        default -> {
+          if (!isObject) handleErrors.add(line + ": the field is not declared Object");
+          else strSlots.add(field);
+        }
+      }
     }
+
   }
 
   Ctx(Trees trees, Types types, Elements elems) {

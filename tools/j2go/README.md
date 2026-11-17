@@ -67,7 +67,8 @@ nothing in the translator knows a class by name. `JSGO_HANDLE_STATS=1` makes the
 Go program print, at exit, how many objects of each handle class exist and how
 often each field is set. `go/closure/rt_handles.go` is the handwritten part.
 
-A line `Class::field string-slot` in `handles.txt` (today `Node::payload`) names
+A line `Class::field string-slot` in `handles.txt` (`Node::payload` until it became a
+string-id field, below) names
 a field of a handle class that is declared `Object` and often holds a `String`.
 Its record gets a second slot `field_s_ string` (the null-string sentinel when
 the field holds no String): assigning an expression of static type `String`
@@ -79,6 +80,20 @@ its own (`field_s_()` returns a pointer into a chunk of strings): most reads of
 such a field are of its String, and a column keeps them dense instead of
 spreading them over the larger `C_ps_` records. The Java keeps one field, so
 the object does not grow on the JVM (a 57th byte in `Node` costs Java 4%).
+
+A line `Class::field string-id` (today `Node::payload` and `Node::originalName`) stores a
+field as a `uint32` instead of a Go string or interface, so that the record holding it has no
+Go pointer (`go/closure/rt_ids.go`). A field declared `String` holds an id into one
+process-wide table of interned strings: `strid_(s)` interns (a hash lookup per store),
+`strid_str_(id)` reads (one more load); id 0 is the null string and id 1 the empty one, so a
+zeroed record reads as Java's default. A field declared `Object` that holds Strings and other
+values holds a value code: a String's id, an integral number inline (29 bits), any other number
+as an index into a table of doubles, any other object as an index into a table of objects (a
+new entry per store, so identity is kept). Reads, tests, casts and copies are those of a
+string-slot field, on the code: `field instanceof String` and `field instanceof Double` read
+no table, storing a `double` needs no box, `field == null` is `code == 0`, and a copy from the
+same field of another object copies the code (for a `String` field, the id). The value code
+of an `Object` field is a column of its own, as its string slot was.
 
 A line `Class::field cold` names a pointer-free field of a handle class that
 traversals do not read (today `Node::previous`, `linenoCharno`, `length`). Cold

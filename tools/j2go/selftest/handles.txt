@@ -3,3 +3,9 @@ lang.Handles.Item
 lang.Handles.Tag
 # String slot (see tools/j2go/handles.txt).
 lang.Handles.Item::payload string-slot
+lang.Handles.Cell
+# String ids (see tools/j2go/handles.txt).
+lang.Handles.Cell::label string-id
+lang.Handles.Cell::note string-id
+lang.Handles.Cell::value string-id
+lang.Handles.Cell::label cold

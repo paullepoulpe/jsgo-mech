@@ -49,6 +49,7 @@ final class Emitter extends StmtEmitter {
   boolean needsZero(TypeElement te) {
     if (te == null || !cx.isSource(te)) return false;
     for (Element e : te.getEnclosedElements()) {
+      if (e.getKind() == ElementKind.FIELD && cx.strId((VariableElement) e)) continue;
       if (e.getKind() == ElementKind.FIELD && !e.getModifiers().contains(Modifier.STATIC) && cx.kind(e.asType()) == Ctx.K.STR) return true;
       if (e.getKind() == ElementKind.FIELD && cx.strSlot((VariableElement) e)) return true;
     }
@@ -224,6 +225,8 @@ final class Emitter extends StmtEmitter {
       sb.append(recv(te)).append("zero_").append(n).append("() {\n");
       if (needsZero(sup)) sb.append("\tthis.").append(cx.className(sup)).append(".zero_").append(cx.className(sup)).append("()\n");
       for (Element e : te.getEnclosedElements()) {
+        // A string-id field needs nothing: id 0 is the null string, value code 0 is null.
+        if (e.getKind() == ElementKind.FIELD && cx.strId((VariableElement) e)) continue;
         if (e.getKind() == ElementKind.FIELD && !e.getModifiers().contains(Modifier.STATIC) && cx.kind(e.asType()) == Ctx.K.STR) {
           sb.append("\t").append(cx.fieldLoc("this", (VariableElement) e)).append(" = nullstr_\n");
         }
@@ -269,7 +272,10 @@ final class Emitter extends StmtEmitter {
   String handleDecl(TypeElement te) {
     String n = cx.className(te);
     List<VariableElement> ns = new ArrayList<>(), cs = new ArrayList<>(), ps = new ArrayList<>();
-    for (VariableElement f : Ctx.instanceFields(te)) (cx.cold(f) ? cs : cx.pointerFree(f) ? ns : ps).add(f);
+    for (VariableElement f : Ctx.instanceFields(te)) {
+      // A value-code field is a column of its own (below).
+      if (!cx.valCode(f)) (cx.cold(f) ? cs : cx.pointerFree(f) ? ns : ps).add(f);
+    }
     // Widest first, so that the pointer-free records have no padding between fields.
     ns.sort(Comparator.comparingInt((VariableElement f) -> -storedSize(f)));
     cs.sort(Comparator.comparingInt((VariableElement f) -> -storedSize(f)));
@@ -280,6 +286,8 @@ final class Emitter extends StmtEmitter {
     StringBuilder alloc = new StringBuilder();
     String[][] recs = {{"_ns_", "ns_"}, {"_cs_", "cs_"}, {"_ps_", "ps_"}};
     List<List<VariableElement>> lists = List.of(ns, cs, ps);
+    List<VariableElement> vcs = new ArrayList<>();
+    for (VariableElement f : Ctx.instanceFields(te)) if (cx.valCode(f)) vcs.add(f);
     for (int k = 0; k < 3; k++) {
       if (k == 1 && cs.isEmpty()) continue;
       String rec = n + recs[k][0], acc = recs[k][1], tab = n + "_" + acc + "chunks_";
@@ -290,6 +298,29 @@ final class Emitter extends StmtEmitter {
       sb.append("var ").append(tab).append(" [handleChunks_]*[handleChunkSize_]").append(rec).append("\n\n");
       sb.append(recv(te)).append(acc).append("() *").append(rec).append(" {\n\treturn &").append(tab).append("[this>>handleShift_][uint16(this)]\n}\n\n");
       alloc.append("\t\t").append(tab).append("[h>>handleShift_] = new([handleChunkSize_]").append(rec).append(")\n");
+    }
+    for (VariableElement f : Ctx.instanceFields(te)) {
+      if (!cx.valCode(f)) continue;
+      // A string-id field declared Object: one uint32 value code (rt_ids.go) in a column of its own,
+      // pointer-free; every accessor of a string-slot field, on the code.
+      String fn = cx.fieldName(f), tab = n + "_" + fn + "_c_chunks_", c = "(*this." + fn + "_c_())";
+      sb.append("var ").append(tab).append(" [handleChunks_]*[handleChunkSize_]uint32\n\n");
+      sb.append(recv(te)).append(fn).append("_c_() *uint32 {\n\treturn &").append(tab).append("[this>>handleShift_][uint16(this)]\n}\n\n");
+      alloc.append("\t\t").append(tab).append("[h>>handleShift_] = new([handleChunkSize_]uint32)\n");
+      String[][] acc = {
+        {"_get_() any", "return valcode_get_(" + c + ")"},
+        {"_set_(v any)", c + " = valcode_(v)"},
+        {"_sets_(s string)", c + " = valcode_s_(s)"},
+        {"_setd_(d float64)", c + " = valcode_d_(d)"},
+        {"_s_() string", "return valcode_str_(" + c + ")"},
+        {"_iss_() bool", "return " + c + "&1 != 0"},
+        {"_isd_() bool", "return valcode_isd_(" + c + ")"},
+        {"_d_() float64", "return valcode_dbl_(" + c + ")"},
+        {"_obj_() any", "return valcode_obj_(" + c + ")"},
+        {"_str_() string", "return valcode_caststr_(" + c + ")"},
+        {"_copy_(o " + n + ")", c + " = *o." + fn + "_c_()"},
+      };
+      for (String[] a : acc) sb.append(recv(te)).append(fn).append(a[0]).append(" {\n\t").append(a[1]).append("\n}\n\n");
     }
     for (VariableElement f : ps) {
       if (!cx.strSlot(f)) continue;
@@ -320,14 +351,15 @@ final class Emitter extends StmtEmitter {
     sb.append(recv(te)).append("box_() any {\n\tif this == 0 {\n\t\treturn nil\n\t}\n\treturn handleBox_(").append(n).append("_proto_, &this.").append(selfAcc).append("().self_)\n}\n\n");
     sb.append("func ").append(n).append("_of_(v any) ").append(n).append(" {\n\tif v == nil {\n\t\treturn 0\n\t}\n\treturn v.(").append(n).append(")\n}\n\n");
     // For JSGO_HANDLE_STATS: how many objects exist and how often each field is set.
-    sb.append("func init() {\n\thandleStats_ = append(handleStats_, func() string {\n\t\tvar c [").append(ns.size() + cs.size() + ps.size()).append("]int\n")
+    sb.append("func init() {\n\thandleStats_ = append(handleStats_, func() string {\n\t\tvar c [").append(ns.size() + cs.size() + ps.size() + vcs.size()).append("]int\n")
         .append("\t\tfor h := ").append(n).append("(handleChunkSize_); uint32(h) < ").append(n).append("_count_; h++ {\n");
     StringBuilder names = new StringBuilder();
     int i = 0;
-    for (List<VariableElement> l : lists) {
+    for (List<VariableElement> l : List.of(ns, cs, ps, vcs)) {
       for (VariableElement f : l) {
         String loc = cx.fieldLoc("h", f), gt = cx.storedType(f);
-        String unset = cx.kind(f.asType()) == Ctx.K.STR ? loc + " == nullstr_ || " + loc + " == \"\"" : loc + " == " + (gt.equals("bool") ? "false" : cx.pointerFree(f) ? "0" : "nil");
+        String unset = cx.strId(f) && !cx.valCode(f) ? loc + " <= 1" : cx.kind(f.asType()) == Ctx.K.STR ? loc + " == nullstr_ || " + loc + " == \"\""
+            : loc + " == " + (gt.equals("bool") ? "false" : cx.pointerFree(f) ? "0" : "nil");
         sb.append("\t\t\tif !(").append(unset).append(") {\n\t\t\t\tc[").append(i++).append("]++\n\t\t\t}\n");
         names.append(quote(f.getSimpleName() + " (" + gt + (l != ps ? ", pointer-free)" : ")"))).append(", ");
       }
