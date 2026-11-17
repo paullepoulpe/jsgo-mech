@@ -118,7 +118,6 @@ func (this *FileInstrumentationData) getNumBranches(lineNumber int32) int32 {
 	} else {
 		return unbox_[int32](numBranches)
 	}
-	panic("unreachable")
 }
 
 type FileInstrumentationData_BranchIndexPair struct {

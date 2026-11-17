@@ -312,7 +312,6 @@ func (this *FunctionType) getSlot_impl(name Property_Key) *Property {
 	} else {
 		return this.PrototypeObjectType.getSlot_impl(name)
 	}
-	panic("unreachable")
 }
 
 func (this *FunctionType) getOwnPropertyNames_impl() SetOf[string] {
@@ -324,7 +323,6 @@ func (this *FunctionType) getOwnPropertyNames_impl() SetOf[string] {
 		names.addAll(Iterable(this.PrototypeObjectType.getOwnPropertyNames_impl()))
 		return icast_Set(obj_(names.build()))
 	}
-	panic("unreachable")
 }
 
 func (this *FunctionType) getPrototypeProperty() *ObjectType {
@@ -685,7 +683,6 @@ func (this *FunctionType) recursionUnsafeHashCode_impl() int32 {
 		default:
 			panic(new_AssertionError_0().self())
 		}
-		panic("unreachable")
 	}()
 }
 

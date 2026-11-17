@@ -86,7 +86,6 @@ func lambda_Es6ConvertSuper_visitSuper_1_(n_ any) bool {
 		default:
 			return false
 		}
-		panic("unreachable")
 	}()
 }
 

@@ -70,6 +70,5 @@ func InferConsts_isInferredConst(v *Var, refCollection *ReferenceCollection) boo
 		default:
 			panic(new_IllegalStateException_String(("Unrecognized declaration type " + tostr_(declarationType))).self())
 		}
-		panic("unreachable")
 	}()
 }

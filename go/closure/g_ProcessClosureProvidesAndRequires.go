@@ -227,7 +227,6 @@ func (this *ProcessClosureProvidesAndRequires) handleCandidateProvideDefinition(
 		default:
 			return Optional_empty[string]()
 		}
-		panic("unreachable")
 	}()
 	if name.isEmpty() {
 		return
@@ -610,7 +609,6 @@ func (this *ProcessClosureProvidesAndRequires_ProvidedName) createDeclarationNod
 	} else {
 		return this.makeAssignmentExprNode(value)
 	}
-	panic("unreachable")
 }
 
 func (this *ProcessClosureProvidesAndRequires_ProvidedName) makeVarDeclNode(value Node) Node {

@@ -343,7 +343,6 @@ func JsMessageVisitor_extractStringFromStringExprNode(node Node) *Outcome_base {
 	default:
 		return Outcome_base_err(new_JsMessageVisitor_MalformedException("literal string or concatenation expected", node).up_Throwable())
 	}
-	panic("unreachable")
 }
 
 func (this *JsMessageVisitor) extractJsMessageDefinition(msgNode Node, jsDocInfo *JSDocInfo, messageKeyFromLhs string, sourceName string) *Outcome_base {
@@ -630,7 +629,6 @@ func JsMessageVisitor_extractBooleanStringKeyValue(stringKeyNode Node) *Outcome_
 			return Outcome_base_err(new_JsMessageVisitor_MalformedException((sstr_(stringKeyNode.getString()) + ": Literal true or false expected"), valueNode).up_Throwable())
 		}
 	}
-	panic("unreachable")
 }
 
 func JsMessageVisitor_extractObjectLiteralMap(objLit Node) *Outcome_base {
@@ -747,7 +745,6 @@ func (this *JsMessageVisitor) getJsMessageFromNode(t *NodeTraversal, node Node) 
 	} else {
 		return this.getTrackedNormalMessage(messageKey)
 	}
-	panic("unreachable")
 }
 
 func JsMessageVisitor_isUnnamedMessageName(identifier string) bool {

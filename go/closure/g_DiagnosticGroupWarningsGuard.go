@@ -53,7 +53,6 @@ func (this *DiagnosticGroupWarningsGuard) mustRunChecks_impl(otherGroup *Diagnos
 			return Tri_UNKNOWN
 		}()
 	}
-	panic("unreachable")
 }
 
 func (this *DiagnosticGroupWarningsGuard) groupMatchesAny(types ImmutableSetOf[*DiagnosticType]) bool {

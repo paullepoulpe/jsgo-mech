@@ -1282,7 +1282,6 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) isGoogModuleGetProperty(exte
 	} else {
 		return false
 	}
-	panic("unreachable")
 }
 
 func (this *TypedScopeCreator_AbstractScopeBuilder) getCtorForGoogModuleGet(extendsNode Node) *JSType {
@@ -2602,7 +2601,6 @@ func (this *TypedScopeCreator_ClassScopeBuilder) defineGetterSetter(n Node) {
 		default:
 			panic(new_AssertionError_Object(strobj_(n.toStringTree())).self())
 		}
-		panic("unreachable")
 	}()
 	var ownerType *ObjectType = this.determineOwnerTypeForClassMember(n)
 	ownerType.defineDeclaredProperty(name, propertyType, n)
@@ -2624,7 +2622,6 @@ func (this *TypedScopeCreator_ClassScopeBuilder) determineOwnerTypeForClassMembe
 		}
 		return ownerType.getPrototype()
 	}
-	panic("unreachable")
 }
 
 type TypedScopeCreator_FirstOrderFunctionAnalyzer struct {

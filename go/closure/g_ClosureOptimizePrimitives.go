@@ -131,7 +131,6 @@ func (this *ClosureOptimizePrimitives) isOptimizableKey(curParam Node) bool {
 	} else {
 		return (curParam.isStringLit() || curParam.isNumber())
 	}
-	panic("unreachable")
 }
 
 var ClosureOptimizePrimitives_DUPLICATE_SET_MEMBER *DiagnosticType

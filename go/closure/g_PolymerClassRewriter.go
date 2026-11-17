@@ -95,7 +95,6 @@ func (this *PolymerClassRewriter) getNodeForInsertion(enclosingScript Node) Node
 	} else {
 		return this.compiler_.getNodeForCodeInsertion(nil)
 	}
-	panic("unreachable")
 }
 
 func (this *PolymerClassRewriter) insertGeneratedPropsAndBehaviorCode(enclosingNode Node, statements Node) {
@@ -413,7 +412,6 @@ func (this *PolymerClassRewriter) generateDeclarationCode(exprRoot Node, cls *Po
 		}
 		return var_
 	}
-	panic("unreachable")
 }
 
 func (this *PolymerClassRewriter) replaceJSDocAndAddNewVars(prop *PolymerPass_MemberDefinition, propType *JSTypeExpression, block Node) *JSDocInfo {

@@ -64,7 +64,6 @@ func (this *Parser) parseProgram() *ProgramTree {
 						return
 					}
 					panic(e.self())
-					return
 				}
 				panic(r_)
 			}
@@ -74,7 +73,6 @@ func (this *Parser) parseProgram() *ProgramTree {
 		this.eat(TokenType_END_OF_FILE)
 		ret_1 = new_ProgramTree(this.getTreeLocation(start), sourceElements, this.commentRecorder.getComments())
 		return 1
-		return 0
 	}()
 	if code_1 == 1 {
 		return ret_1
@@ -297,7 +295,6 @@ func (this *Parser) parseClassElements() []*ParseTree {
 		}
 		result = immAdd_(tc_p_ParseTree, result, this.parseClassElement())
 	}
-	panic("unreachable")
 }
 
 func (this *Parser) isClassElementStart(token *Token_parser) bool {
@@ -333,7 +330,6 @@ func (this *Parser) parseClassElement() *ParseTree {
 	} else {
 		return this.parseClassMemberDeclaration(elementInfo)
 	}
-	panic("unreachable")
 }
 
 func (this *Parser) eatStaticIfNotElementName() bool {
@@ -381,7 +377,6 @@ func (this *Parser) parseFieldDefinition(elementInfo *ClassOrObjectElementInfo) 
 		}
 		return new_ComputedPropertyFieldTree(this.getTreeLocation(elementInfo.start_), elementInfo.getNameExpr(), elementInfo.isStatic, initializer).up_ParseTree()
 	}
-	panic("unreachable")
 }
 
 func (this *Parser) parseMethodDefinition(elementInfo *ClassOrObjectElementInfo, isGenerator bool) *ParseTree {
@@ -410,7 +405,6 @@ func (this *Parser) parseMethodDefinition(elementInfo *ClassOrObjectElementInfo,
 		}
 		return new_ComputedPropertyMethodTree(this.getTreeLocation(elementInfo.start_), elementInfo.getNameExpr(), function).up_ParseTree()
 	}
-	panic("unreachable")
 }
 
 func (this *Parser) parseObjectLiteralMethodDeclaration() *ParseTree {
@@ -431,7 +425,6 @@ func (this *Parser) parseClassMemberDeclaration(elementInfo *ClassOrObjectElemen
 	} else {
 		return this.parseFieldDefinition(elementInfo)
 	}
-	panic("unreachable")
 }
 
 func (this *Parser) parseObjectLiteralAsyncMethod() *ParseTree {
@@ -479,7 +472,6 @@ func (this *Parser) parseAsyncMethod(elementInfo *ClassOrObjectElementInfo) *Par
 		var function *ParseTree = builder.build(this.getTreeLocation(nameExpr.getStart())).up_ParseTree()
 		return new_ComputedPropertyMethodTree(this.getTreeLocation(nameExpr.getStart()), nameExpr, function).up_ParseTree()
 	}
-	panic("unreachable")
 }
 
 func (this *Parser) parseClassStaticInitializerBlock() *ParseTree {
@@ -730,7 +722,6 @@ func (this *Parser) parseStatementStandard() *ParseTree {
 			}
 			return this.parseExpressionStatement().up_ParseTree()
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -746,7 +737,6 @@ func (this *Parser) peekStatementStandard() bool {
 		default:
 			return false
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -992,7 +982,6 @@ func (this *Parser) peekVariableDeclarationList() bool {
 		default:
 			return false
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -1107,7 +1096,6 @@ func (this *Parser) parseCaseClauses() []*ParseTree {
 			return immBuilt_(result)
 		}
 	}
-	panic("unreachable")
 }
 
 func (this *Parser) parseCaseStatementsOpt() []*ParseTree {
@@ -1217,7 +1205,6 @@ func (this *Parser) parsePrimaryExpression() *ParseTree {
 		default:
 			return this.parseMissingPrimaryExpression()
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -1389,7 +1376,6 @@ func (this *Parser) peekPropertyName(tokenIndex int32) bool {
 		default:
 			return Keywords_isKeyword(type_)
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -1431,7 +1417,6 @@ func (this *Parser) parseObjectLiteralPropertyAssignment() *ParseTree {
 	} else {
 		panic(new_RuntimeException_String("unreachable").self())
 	}
-	panic("unreachable")
 }
 
 func (this *Parser) parseObjectLiteralPropertyAssignmentGenerator() *ParseTree {
@@ -1447,7 +1432,6 @@ func (this *Parser) parseObjectLiteralPropertyAssignmentGenerator() *ParseTree {
 		var value *ParseTree = builder.build(this.getTreeLocation(start)).up_ParseTree()
 		return new_ComputedPropertyMethodTree(this.getTreeLocation(start), name, value).up_ParseTree()
 	}
-	panic("unreachable")
 }
 
 func (this *Parser) parseComputedPropertyName() *ParseTree {
@@ -1499,7 +1483,6 @@ func (this *Parser) parseGetAccessor(elementInfo *ClassOrObjectElementInfo) *Par
 		this.recordFeatureUsed(FeatureSet_Feature_GETTER)
 		return new_ComputedPropertyGetterTree(this.getTreeLocation(elementInfo.start_), property, elementInfo.isStatic, body).up_ParseTree()
 	}
-	panic("unreachable")
 }
 
 func (this *Parser) peekSetAccessor() bool {
@@ -1525,7 +1508,6 @@ func (this *Parser) parseSetAccessor(elementInfo *ClassOrObjectElementInfo) *Par
 		this.recordFeatureUsed(FeatureSet_Feature_SETTER)
 		return new_ComputedPropertySetterTree(this.getTreeLocation(elementInfo.start_), property, elementInfo.isStatic, parameter, body).up_ParseTree()
 	}
-	panic("unreachable")
 }
 
 func (this *Parser) parseObjectLiteralPropertyNameAssignment() *ParseTree {
@@ -1614,7 +1596,6 @@ func (this *Parser) peekExpression() bool {
 		default:
 			return false
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -1685,7 +1666,6 @@ func (this *Parser) isStartOfAsyncArrowFunction(partialExpression *ParseTree) bo
 	} else {
 		return false
 	}
-	panic("unreachable")
 }
 
 func (this *Parser) completeAssignmentExpressionParseAtArrow_2(leftOfArrow *ParseTree, expressionIn Parser_Expression) *ParseTree {
@@ -1694,7 +1674,6 @@ func (this *Parser) completeAssignmentExpressionParseAtArrow_2(leftOfArrow *Pars
 	} else {
 		return this.completeArrowFunctionParseAtArrow(leftOfArrow, expressionIn)
 	}
-	panic("unreachable")
 }
 
 func (this *Parser) completeArrowFunctionParseAtArrow(leftOfArrow *ParseTree, expressionIn Parser_Expression) *ParseTree {
@@ -1786,7 +1765,6 @@ func (this *Parser) transformLeftHandSideExpression(tree *ParseTree) *ParseTree 
 		default:
 			return tree
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -1816,7 +1794,6 @@ func (this *Parser) peekAssignmentOperator() bool {
 		default:
 			return false
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -1867,7 +1844,6 @@ func (this *Parser) parseShortCircuit(expressionIn Parser_Expression) *ParseTree
 	} else {
 		return left
 	}
-	panic("unreachable")
 }
 
 func (this *Parser) parseNullishCoalesce(expressionIn Parser_Expression, left *ParseTree, start *SourcePosition_util) *ParseTree {
@@ -1956,7 +1932,6 @@ func (this *Parser) peekEqualityOperator() bool {
 		default:
 			return false
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -1981,7 +1956,6 @@ func (this *Parser) peekRelationalOperator(expressionIn Parser_Expression) bool 
 		default:
 			return false
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -2004,7 +1978,6 @@ func (this *Parser) peekShiftOperator() bool {
 		default:
 			return false
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -2027,7 +2000,6 @@ func (this *Parser) peekAdditiveOperator() bool {
 		default:
 			return false
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -2050,7 +2022,6 @@ func (this *Parser) peekMultiplicativeOperator() bool {
 		default:
 			return false
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -2069,7 +2040,6 @@ func (this *Parser) parseExponentiationExpression() *ParseTree {
 	} else {
 		return left
 	}
-	panic("unreachable")
 }
 
 func (this *Parser) parseUnaryExpression() *ParseTree {
@@ -2083,7 +2053,6 @@ func (this *Parser) parseUnaryExpression() *ParseTree {
 	} else {
 		return this.parseUpdateExpression()
 	}
-	panic("unreachable")
 }
 
 func (this *Parser) peekUnaryOperator() bool {
@@ -2094,7 +2063,6 @@ func (this *Parser) peekUnaryOperator() bool {
 		default:
 			return false
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -2124,7 +2092,6 @@ func (this *Parser) parseUpdateExpression() *ParseTree {
 			return lhs
 		}
 	}
-	panic("unreachable")
 }
 
 func (this *Parser) peekUpdateOperator() bool {
@@ -2135,7 +2102,6 @@ func (this *Parser) peekUpdateOperator() bool {
 		default:
 			return false
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -2306,7 +2272,6 @@ func (this *Parser) parseNewExpression() *ParseTree {
 		}
 		return new_NewExpressionTree(this.getTreeLocation(start), operand, arguments, ((arguments != nil) && arguments.hasTrailingComma_)).up_ParseTree()
 	}
-	panic("unreachable")
 }
 
 func (this *Parser) parseNewDotSomething() *ParseTree {
@@ -2372,7 +2337,6 @@ func (this *Parser) parsePattern(kind Parser_PatternKind) *ParseTree {
 	default:
 		return this.parseObjectPattern(kind)
 	}
-	panic("unreachable")
 }
 
 func (this *Parser) peekArrayPatternElement() bool {
@@ -2600,7 +2564,6 @@ func (this *Parser) eatId() *IdentifierToken {
 			return nil
 		}
 	}
-	panic("unreachable")
 }
 
 func (this *Parser) eatObjectLiteralPropertyName() *Token_parser {
@@ -2611,7 +2574,6 @@ func (this *Parser) eatObjectLiteralPropertyName() *Token_parser {
 	default:
 		return this.eatIdOrKeywordAsId().up_Token_parser()
 	}
-	panic("unreachable")
 }
 
 func (this *Parser) eatIdOrKeywordAsId() *IdentifierToken {

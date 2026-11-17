@@ -107,7 +107,6 @@ func Tracer_addTracingStatistic(tracingStatistic Tracer_TracingStatistic) int32 
 	} else {
 		return -1
 	}
-	panic("unreachable")
 }
 
 func Tracer_clearTracingStatisticsTestingOnly() {
@@ -145,7 +144,6 @@ func (this *Tracer) toString() string {
 	} else {
 		return ("[" + sstr_(this.type__.get()) + "] " + sstr_(this.comment))
 	}
-	panic("unreachable")
 }
 
 func Tracer_setDefaultSilenceThreshold(threshold int32) {

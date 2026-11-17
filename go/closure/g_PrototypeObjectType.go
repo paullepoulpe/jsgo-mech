@@ -272,7 +272,6 @@ func (this *PrototypeObjectType) getReferenceName_impl() OptionalOf[string] {
 	} else {
 		return Optional_empty[string]()
 	}
-	panic("unreachable")
 }
 
 func (this *PrototypeObjectType) isAnonymous() bool {
@@ -363,7 +362,6 @@ func (this *PrototypeObjectType) recursionUnsafeHashCode_impl() int32 {
 	} else {
 		return System_identityHashCode(this.self())
 	}
-	panic("unreachable")
 }
 
 var PrototypeObjectType_TYPE_CLASS JSTypeClass
@@ -418,7 +416,6 @@ var lambda_PrototypeObjectType_clinit_1_ = &Comparator_fn{func(thisProp_ any, ot
 		}
 		panic("unreachable")
 	}()
-	panic("unreachable")
 }}
 
 type PrototypeObjectType_Builder struct {

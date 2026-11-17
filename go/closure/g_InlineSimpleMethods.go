@@ -169,7 +169,6 @@ func InlineSimpleMethods_getPropName(getPropElem Node) OptionalOf[string] {
 	} else {
 		return Optional_empty[string]()
 	}
-	panic("unreachable")
 }
 
 type InlineSimpleMethods_InlineTrivialAccessors struct {

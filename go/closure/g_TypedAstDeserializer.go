@@ -207,7 +207,6 @@ func TypedAstDeserializer_createStubWeakScriptNode(file *SourceFile_jscomp) Supp
 		var stubScript Node = IR_script_0().setStaticSourceFile(icast_StaticSourceFile(obj_(file)))
 		stubScript.setFeatureSet(FeatureSet_BARE_MINIMUM)
 		return stubScript.box_()
-		panic("unreachable")
 	}}
 }
 
@@ -219,7 +218,6 @@ func TypedAstDeserializer_deserializeTypedAsts(typedAstsStream []int8, deseriali
 				if p, ok := ex_.(IOException_as); ok {
 					var ex *IOException = p.as_IOException()
 					panic(new_IllegalArgumentException_String_Throwable("Cannot read from TypedAST input stream", ex.up_Throwable()).self())
-					return
 				}
 				panic(r_)
 			}

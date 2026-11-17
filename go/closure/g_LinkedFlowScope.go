@@ -368,9 +368,7 @@ func LinkedFlowScope_join(linkedA *LinkedFlowScope, linkedB *LinkedFlowScope, co
 				}
 				return new_LinkedFlowScope_OverlaySlot(name, joinedType)
 			}()
-			panic("unreachable")
 		}}))
-		panic("unreachable")
 	}})
 }
 

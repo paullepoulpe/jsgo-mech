@@ -162,7 +162,6 @@ func (this *ExternExportsPass) isCallToOneOf(n Node, functionQnames ImmutableSet
 		var callee Node = n.getFirstChild()
 		return (callee.isQualifiedName() && Collection_contains_s(functionQnames, callee.getQualifiedName()))
 	}
-	panic("unreachable")
 }
 
 func (this *ExternExportsPass) lookForAtExportOnThisDotProperty(t *NodeTraversal, thisDotPropName Node) {
@@ -397,7 +396,6 @@ func (this *ExternExportsPass_Export) getOriginalNameForParam(paramNode Node) st
 		}
 		return ""
 	}
-	panic("unreachable")
 }
 
 func (this *ExternExportsPass_Export) createExternFunctionForEs6Class(exportedClass Node) Node {
@@ -411,7 +409,6 @@ func (this *ExternExportsPass_Export) createExternFunctionForEs6Class(exportedCl
 	} else {
 		return this.createExternFunction(constructorMethodDefinition.getOnlyChild())
 	}
-	panic("unreachable")
 }
 
 func (this *ExternExportsPass_Export) buildEmptyJSDoc() *JSDocInfo {

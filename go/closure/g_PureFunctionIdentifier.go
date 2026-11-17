@@ -145,7 +145,6 @@ func PureFunctionIdentifier_collectCallableLeavesInternal(expr Node, results *TL
 	default:
 		return false
 	}
-	panic("unreachable")
 }
 
 func PureFunctionIdentifier_isDefinitelyRValue(rvalue Node) bool {
@@ -165,7 +164,6 @@ func PureFunctionIdentifier_isDefinitelyRValue(rvalue Node) bool {
 		default:
 			return false
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -416,7 +414,6 @@ func PureFunctionIdentifier_nameForReference(nameRef Node) OptionalOf[string] {
 		default:
 			panic(new_IllegalStateException_String(("Unexpected name reference: " + tostr_(nameRef))).self())
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -483,7 +480,6 @@ var lambda_PureFunctionIdentifier_clinit_6_ = &Predicate_fn{func(lhs_ any) bool 
 	_ = lhs
 	var rhs Node = NodeUtil_getRValueOfLValue(lhs)
 	return ((rhs == 0) || NodeUtil_evaluatesToLocalValue(rhs))
-	panic("unreachable")
 }}
 
 type PureFunctionIdentifier_ExternFunctionAnnotationAnalyzer struct {

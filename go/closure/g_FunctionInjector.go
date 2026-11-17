@@ -51,7 +51,6 @@ func (this *FunctionInjector) doesFunctionMeetMinimumRequirements(fnName string,
 			return true
 		}
 		return false
-		panic("unreachable")
 	}
 	return (!referencesArguments && !NodeUtil_has(block, blocksInjection, Predicates_alwaysTrue()))
 }
@@ -79,7 +78,6 @@ func (this *FunctionInjector) canInlineReferenceToFunction(ref *FunctionInjector
 	} else {
 		return this.canInlineReferenceAsStatementBlock(ref, fnNode, needAliases)
 	}
-	panic("unreachable")
 }
 
 func (this *FunctionInjector) isSupportedCallType(callNode Node, fnNode Node) bool {
@@ -309,7 +307,6 @@ func (this *FunctionInjector) canInlineReferenceAsStatementBlock(ref *FunctionIn
 	} else {
 		return FunctionInjector_CanInlineResult_YES
 	}
-	panic("unreachable")
 }
 
 func (this *FunctionInjector) referencesEval(fn Node) bool {
@@ -362,7 +359,6 @@ func (this *FunctionInjector) innerFunctionOf(containerFn Node) Node {
 		default:
 			return FunctionInjector_MULTIPLE_FUNCTIONS
 		}
-		panic("unreachable")
 	}()
 	this.innerFunctionCache[containerFn] = cached
 	return cached
@@ -531,7 +527,6 @@ func FunctionInjector_inlineCostDelta(fnNode Node, namesToAlias map[string]struc
 		var overhead int32 = (((baseOverhead + (returnCount * perReturnOverhead)) + (resultCount * perReturnResultOverhead)) + (aliasCount * perAliasOverhead))
 		return (overhead - costDeltaFunctionOverhead)
 	}
-	panic("unreachable")
 }
 
 func (this *FunctionInjector) setKnownConstantFunctions(knownConstantFunctions ImmutableSetOf[string]) {

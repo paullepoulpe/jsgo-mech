@@ -80,7 +80,6 @@ func (this *ReplaceIdGenerators) createNameSupplier(renameStrategy ReplaceIdGene
 	} else {
 		return new_ReplaceIdGenerators_ObfuscatedNameSupplier(renameStrategy, previousMappings)
 	}
-	panic("unreachable")
 }
 
 func ReplaceIdGenerators_createNameSupplierRenamingMap(renameStrategy ReplaceIdGenerators_RenameStrategy, mappings RenamingMap) ReplaceIdGenerators_NameSupplier {
@@ -107,7 +106,6 @@ func ReplaceIdGenerators_getIdForGeneratorNode(consistent bool, n Node, name str
 	} else {
 		return (sstr_(n.getSourceFileName()) + ":" + istr_(int64(n.getLineno())) + ":" + istr_(int64(n.getCharno())))
 	}
-	panic("unreachable")
 }
 
 var ReplaceIdGenerators_NON_GLOBAL_ID_GENERATOR_CALL *DiagnosticType

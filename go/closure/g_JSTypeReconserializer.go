@@ -173,7 +173,6 @@ func (this *JSTypeReconserializer) getOrCreateRecord(id *ColorId, jstype *JSType
 		_ = unused
 		var pointer int32 = this.seenTypeRecords.size()
 		return obj_(new_JSTypeReconserializer_SeenTypeRecord(id, pointer))
-		panic("unreachable")
 	}))
 	this.typeToRecordCache.put(jstype.self(), obj_(record))
 	record.jstypes = append(record.jstypes, jstype)

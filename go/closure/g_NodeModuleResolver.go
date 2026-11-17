@@ -80,7 +80,6 @@ var lambda_NodeModuleResolver_buildNodeModulesFoldersRegistry_1_ = &Comparator_f
 		return comparison
 	}
 	return String_compareTo(a, b)
-	panic("unreachable")
 }}
 
 func (this *NodeModuleResolver) buildPackageJsonMainEntries(packageJsonMainEntries *TMap[string, string]) ImmutableMapOf[string, string] {

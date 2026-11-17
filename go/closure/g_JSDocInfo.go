@@ -2740,7 +2740,6 @@ func (this *JSDocInfo_Builder) addUnique(prop *JSDocInfo_Property, elem *JSTypeE
 		this.populated = true
 		return true
 	}
-	panic("unreachable")
 }
 
 // lambda_JSDocInfo_Builder_addUnique_1_ is a lambda of JSDocInfo_Builder_addUnique that captures nothing (post-flip step lambdas).

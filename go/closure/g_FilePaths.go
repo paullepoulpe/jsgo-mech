@@ -87,7 +87,6 @@ func FilePaths_names(plain string) []string {
 		names = append(names, String_substring(plain, start, slash))
 		start = (slash + 1)
 	}
-	panic("unreachable")
 }
 
 func FilePaths_joinNames(names []string, from int32) string {

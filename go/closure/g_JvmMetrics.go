@@ -219,7 +219,6 @@ func JvmMetrics_formatBytes(numBytes int64) string {
 	} else {
 		return (istr_(int64(int64((numBytes / JvmMetrics_ONE_GIGA_BYTE)))) + " GB")
 	}
-	panic("unreachable")
 }
 
 const JvmMetrics_TABULAR_COLON_POS int32 = 40

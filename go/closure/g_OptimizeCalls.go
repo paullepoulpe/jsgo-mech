@@ -338,7 +338,6 @@ func OptimizeCalls_ReferenceMap_getCallOrNewNodeForTarget(n Node) Node {
 		}
 		return maybeCall
 	}
-	panic("unreachable")
 }
 
 func OptimizeCalls_ReferenceMap_getFirstArgumentForCallOrNewOrDotCall(n Node) Node {
@@ -444,7 +443,6 @@ func (this *OptimizeCalls_ReferenceMapBuildingCallback) shouldTraverse(t *NodeTr
 	} else {
 		return true
 	}
-	panic("unreachable")
 }
 
 func (this *OptimizeCalls_ReferenceMapBuildingCallback) enterScope(t *NodeTraversal) {

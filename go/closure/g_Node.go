@@ -778,7 +778,6 @@ func Node_rebuildListWithoutProp(item *Node_PropListItem, prop Node_Prop) *Node_
 			return item.chain(result)
 		}()
 	}
-	panic("unreachable")
 }
 
 func (this Node) getProp(propType Node_Prop) any {
@@ -1349,7 +1348,6 @@ func (this Node) toStringTreeImpl() string {
 				if p, ok := ex_.(IOException_as); ok {
 					var e *IOException = p.as_IOException()
 					panic(new_IllegalStateException_String(("Should not happen\n" + objstr_(e.self()))).self())
-					return
 				}
 				panic(r_)
 			}
@@ -1358,7 +1356,6 @@ func (this Node) toStringTreeImpl() string {
 		this.appendStringTree(s)
 		ret_1 = tostrNN_(s)
 		return 1
-		return 0
 	}()
 	if code_1 == 1 {
 		return ret_1
@@ -1509,7 +1506,6 @@ func (this Node) getLineno() int32 {
 	} else {
 		return int32(uint32(this.cs_().linenoCharno) >> 12)
 	}
-	panic("unreachable")
 }
 
 func (this Node) getCharno() int32 {
@@ -1518,7 +1514,6 @@ func (this Node) getCharno() int32 {
 	} else {
 		return (this.cs_().linenoCharno & Node_MAX_COLUMN_NUMBER)
 	}
-	panic("unreachable")
 }
 
 func (this Node) getLocation() string {
@@ -1559,7 +1554,6 @@ func (this Node) children() IterableOf[Node] {
 	} else {
 		return new_Node_SiblingNodeIterable(this.ns_().first)
 	}
-	panic("unreachable")
 }
 
 func (this Node) getPropListHeadForTesting() *Node_PropListItem {
@@ -1955,7 +1949,6 @@ func (this Node) getQualifiedName() string {
 		default:
 			return ""
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -2042,7 +2035,6 @@ func (this Node) getOriginalQualifiedName() string {
 	} else {
 		return ""
 	}
-	panic("unreachable")
 }
 
 func (this Node) isQualifiedName() bool {
@@ -2056,7 +2048,6 @@ func (this Node) isQualifiedName() bool {
 	default:
 		return false
 	}
-	panic("unreachable")
 }
 
 func (this Node) matchesName(name string) bool {
@@ -2095,7 +2086,6 @@ func (this Node) matchesQualifiedName_2(qname string, endIndex int32) bool {
 	default:
 		return false
 	}
-	panic("unreachable")
 }
 
 func (this Node) matchesQualifiedNameNode(n Node) bool {
@@ -2112,7 +2102,6 @@ func (this Node) matchesQualifiedNameNode(n Node) bool {
 	default:
 		return false
 	}
-	panic("unreachable")
 }
 
 func (this Node) isUnscopedQualifiedName() bool {
@@ -2125,7 +2114,6 @@ func (this Node) isUnscopedQualifiedName() bool {
 		default:
 			return false
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -2137,7 +2125,6 @@ func (this Node) isValidAssignmentTarget() bool {
 		default:
 			return false
 		}
-		panic("unreachable")
 	}()
 }
 

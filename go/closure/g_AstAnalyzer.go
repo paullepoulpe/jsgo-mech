@@ -151,7 +151,6 @@ func (this *AstAnalyzer) checkForStateChangeHelper(n Node, checkForNewObjects bo
 				default:
 					panic(new_IllegalStateException_String(("Illegal COMPUTED_PROP parent " + tostr_(parent))).self())
 				}
-				panic("unreachable")
 			}()
 		case Token_rhino_MEMBER_FIELD_DEF:
 			return ((n.isStaticMember() && n.hasChildren()) && this.checkForStateChangeHelper(n.getFirstChild(), checkForNewObjects))
@@ -187,7 +186,6 @@ func (this *AstAnalyzer) checkForStateChangeHelper(n Node, checkForNewObjects bo
 			}
 			return true
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -271,7 +269,6 @@ func (this *AstAnalyzer) nodeTypeMayHaveSideEffects(n Node) bool {
 		default:
 			return false
 		}
-		panic("unreachable")
 	}()
 }
 

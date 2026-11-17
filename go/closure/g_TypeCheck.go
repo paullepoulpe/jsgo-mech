@@ -904,7 +904,6 @@ func TypeCheck_hasUnknownOrEmptySupertype(ctor *FunctionType) bool {
 			panic(new_IllegalStateException_0().self())
 		}
 	}
-	panic("unreachable")
 }
 
 func TypeCheck_getObjectLitKeyTypeFromValueType(key Node, valueType *JSType) *JSType {
@@ -1765,7 +1764,6 @@ func (this *TypeCheck) getJSType(n Node) *JSType {
 	} else {
 		return jsType
 	}
-	panic("unreachable")
 }
 
 func (this *TypeCheck) getPropertyTypeIfDeclared(objectType *ObjectType, propertyName Property_Key) *JSType {
@@ -1891,7 +1889,6 @@ func (this *TypeCheck) isObjectTypeWithNonStringifiableKey(type_ *JSType) bool {
 	} else {
 		return false
 	}
-	panic("unreachable")
 }
 
 func (this *TypeCheck) findObjectWithNonStringifiableKey(type_ *JSType, alreadyCheckedTypes *TSet[*JSType]) *JSType {

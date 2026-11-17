@@ -116,7 +116,6 @@ func InlineAndCollapseProperties_maybeGetInnerNameNode(maybeFunctionOrClassNode 
 	} else {
 		return 0
 	}
-	panic("unreachable")
 }
 
 func InlineAndCollapseProperties_maybeAddPropertiesToWorklist(name *GlobalNamespace_Name, workList DequeOf[*GlobalNamespace_Name]) {

@@ -47,7 +47,6 @@ func (this *GraphColoring) getPartitionSuperNode(node any) any {
 	} else {
 		return headNode
 	}
-	panic("unreachable")
 }
 
 func (this *GraphColoring) haveSameColor(first any, second any) bool {
@@ -106,7 +105,6 @@ func (this *GraphColoring_Color) equals(other any) bool {
 	} else {
 		return (this.value_ == color.value_)
 	}
-	panic("unreachable")
 }
 
 func (this *GraphColoring_Color) hashCode() int32 {
@@ -158,7 +156,6 @@ func (this *GraphColoring_GreedyGraphColoring) color_impl() int32 {
 			}
 			return result
 		}()
-		panic("unreachable")
 	}}))
 	var count int32 = 0
 	for do_2 := true; do_2; do_2 = !worklist.isEmpty() {

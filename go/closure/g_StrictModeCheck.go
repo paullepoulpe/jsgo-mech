@@ -67,7 +67,6 @@ func StrictModeCheck_isDeclaration(n Node) bool {
 		default:
 			return false
 		}
-		panic("unreachable")
 	}()
 }
 

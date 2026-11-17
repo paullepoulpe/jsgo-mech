@@ -96,7 +96,6 @@ func SourceFile_jscomp_isLineTerminator(ch uint16) bool {
 		default:
 			return false
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -219,7 +218,6 @@ func (this *SourceFile_jscomp) getLineOfOffset(offset int32) int32 {
 		var insertionPoint int32 = (-1 * (search + 1))
 		return (Math_min((insertionPoint-1), (int32(len(this.lineOffsets))-1)) + 1)
 	}
-	panic("unreachable")
 }
 
 func (this *SourceFile_jscomp) getColumnOfOffset(offset int32) int32 {
@@ -255,7 +253,6 @@ func (this *SourceFile_jscomp) getLine(lineNumber int32) OptionalOf[string] {
 			return Optional_of[string](String_substring_int(js, pos))
 		}
 	}
-	panic("unreachable")
 }
 
 func (this *SourceFile_jscomp) getLines(lineNumber int32, length int32) Region {
@@ -346,7 +343,6 @@ func (this *SourceFile_jscomp) getRegion(lineNumber int32) Region {
 	} else {
 		return new_SimpleRegion(startLine, endLine, String_substring(js, pos, end))
 	}
-	panic("unreachable")
 }
 
 func (this *SourceFile_jscomp) toString() string {

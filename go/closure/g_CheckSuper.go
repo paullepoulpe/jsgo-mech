@@ -72,7 +72,6 @@ func (this *CheckSuper) getContextForFunctionNode(currentContext *CheckSuper_Con
 			return new_CheckSuper_SuperNotAllowedContext(fn).up_CheckSuper_Context()
 		}()
 	}
-	panic("unreachable")
 }
 
 func (this *CheckSuper) visit(t *NodeTraversal, n Node, parent Node) {
@@ -386,7 +385,6 @@ func (this *CheckSuper_MethodContext) getPropertyName() OptionalOf[string] {
 	} else {
 		return Optional_empty[string]()
 	}
-	panic("unreachable")
 }
 
 type CheckSuper_ConstructorContext struct {

@@ -127,7 +127,6 @@ func (this *DepsFileRegexParser) parseLoadFlags(loadFlags OptionalOf[string]) *O
 	} else {
 		return this.parseJsStringMap(loadFlags.get())
 	}
-	panic("unreachable")
 }
 
 var DepsFileRegexParser_logger *Logger

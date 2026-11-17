@@ -186,7 +186,6 @@ func (this *TypeTransformation) evalInternal(ttlAst Node, nameResolver *TypeTran
 		default:
 			panic(new_IllegalStateException_String("Could not evaluate the type transformation expression").self())
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -212,7 +211,6 @@ func (this *TypeTransformation) evalOperationExpression(ttlAst Node, nameResolve
 		default:
 			panic(new_IllegalStateException_String("Invalid type transformation operation").self())
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -242,7 +240,6 @@ func (this *TypeTransformation) evalTypeExpression(ttlAst Node, nameResolver *Ty
 		default:
 			panic(new_IllegalStateException_String("Invalid type expression").self())
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -351,7 +348,6 @@ func (this *TypeTransformation) evalTypePredicate(ttlAst Node, nameResolver *Typ
 		default:
 			panic(new_IllegalStateException_String("Invalid type predicate in the type transformation").self())
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -371,7 +367,6 @@ func (this *TypeTransformation) evalStringPredicate(ttlAst Node, nameResolver *T
 		default:
 			panic(new_IllegalStateException_String("Invalid string predicate in the type transformation").self())
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -385,7 +380,6 @@ func (this *TypeTransformation) evalTypevarPredicate(ttlAst Node, nameResolver *
 		default:
 			panic(new_IllegalStateException_String("Invalid typevar predicate in the type transformation").self())
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -420,7 +414,6 @@ func (this *TypeTransformation) evalBoolean(ttlAst Node, nameResolver *TypeTrans
 		default:
 			panic(new_IllegalStateException_String("Invalid boolean predicate in the type transformation").self())
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -431,7 +424,6 @@ func (this *TypeTransformation) evalConditional(ttlAst Node, nameResolver *TypeT
 	} else {
 		return this.evalInternal(sliceAt_(params, 2), nameResolver)
 	}
-	panic("unreachable")
 }
 
 func (this *TypeTransformation) evalMapunion(ttlAst Node, nameResolver *TypeTransformation_NameResolver) *JSType {

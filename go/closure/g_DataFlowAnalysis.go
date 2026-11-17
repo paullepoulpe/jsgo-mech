@@ -139,7 +139,6 @@ func (this *DataFlowAnalysis) flow(node DiGraph_DiGraphNode) bool {
 		state.setIn(this.flowThrough(node.getValue(), icast_LatticeElement(state.getOut())))
 		return !Object_equals(any(inBefore), state.getIn())
 	}
-	panic("unreachable")
 }
 
 func (this *DataFlowAnalysis) joinInputs(node DiGraph_DiGraphNode) {
@@ -190,7 +189,6 @@ func (this *DataFlowAnalysis) getInputFromEdge(edge DiGraph_DiGraphEdge) Lattice
 		var state *DataFlowAnalysis_LinearFlowState = cast_[*DataFlowAnalysis_LinearFlowState](Annotatable_getAnnotation(Annotatable(node)))
 		return icast_LatticeElement(state.getIn())
 	}
-	panic("unreachable")
 }
 
 func DataFlowAnalysis_computeEscaped(jsScope *Scope, escaped *TSet[*Var], compiler *AbstractCompiler, scopeCreator ScopeCreator, allVarsInFn *TMap[string, *Var]) {

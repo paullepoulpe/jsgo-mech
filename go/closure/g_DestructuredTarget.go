@@ -140,7 +140,6 @@ func (this *DestructuredTarget) inferTypeWithoutUsingDefaultValue() *JSType {
 	} else {
 		return this.inferArrayPatternTargetType()
 	}
-	panic("unreachable")
 }
 
 func (this *DestructuredTarget) inferType() *JSType {
@@ -154,7 +153,6 @@ func (this *DestructuredTarget) inferType() *JSType {
 	} else {
 		return inferredType
 	}
-	panic("unreachable")
 }
 
 func (this *DestructuredTarget) inferObjectPatternKeyType() *JSType {
@@ -185,7 +183,6 @@ func (this *DestructuredTarget) inferObjectPatternKeyType() *JSType {
 		default:
 			panic(new_IllegalStateException_String(("Unexpected key " + tostr_(this.objectPatternKey))).self())
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -197,7 +194,6 @@ func (this *DestructuredTarget) inferArrayPatternTargetType() *JSType {
 	} else {
 		return templateTypeOfIterable
 	}
-	panic("unreachable")
 }
 
 type DestructuredTarget_Builder struct {

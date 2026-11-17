@@ -1300,7 +1300,6 @@ func (this *CodeGenerator) arrowFunctionNeedsParens(n Node) bool {
 	} else {
 		return false
 	}
-	panic("unreachable")
 }
 
 func (this *CodeGenerator) addArrowFunction(n Node, first Node, last Node, context CodeGenerator_Context) {
@@ -1490,10 +1489,8 @@ func CodeGenerator_isBlockDeclOrDo(n Node) bool {
 			default:
 				return false
 			}
-			panic("unreachable")
 		}()
 	}
-	panic("unreachable")
 }
 
 func (this *CodeGenerator) addExpr(n Node, minPrecedence int32, context CodeGenerator_Context) {
@@ -1518,7 +1515,6 @@ func (this *CodeGenerator) opRequiresParentheses(n Node, minPrecedence int32, co
 	} else {
 		return (this.precedence(n) < minPrecedence)
 	}
-	panic("unreachable")
 }
 
 func (this *CodeGenerator) isLogicalAndOrLogicalOrChildOfNullishCoalesce(n Node) bool {

@@ -53,7 +53,6 @@ func NodeUtil_getBooleanValue(n Node) Tri {
 				default:
 					return Tri_UNKNOWN
 				}
-				panic("unreachable")
 			}()
 		case Token_rhino_BITNOT, Token_rhino_POS, Token_rhino_NEG:
 			var doubleVal any = NodeUtil_getNumberValue(n)
@@ -96,7 +95,6 @@ func NodeUtil_getBooleanValue(n Node) Tri {
 		default:
 			return Tri_UNKNOWN
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -169,7 +167,6 @@ func NodeUtil_getStringValue(n Node) OptionalOf[string] {
 		default:
 			return Optional_empty[string]()
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -237,7 +234,6 @@ func NodeUtil_doGetNumberValue(n Node, numberConversions bool) any {
 			default:
 				return nil
 			}
-			panic("unreachable")
 		}()
 	case Token_rhino_POS:
 		return NodeUtil_doGetNumberValue(n.getOnlyChild(), numberConversions)
@@ -374,7 +370,6 @@ func NodeUtil_isValidDigit(c uint16, radix int32) bool {
 		default:
 			return false
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -440,7 +435,6 @@ func NodeUtil_getBigIntValue(n Node) *BigInteger {
 		default:
 			return nil
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -464,7 +458,6 @@ func NodeUtil_getStringBigIntValue(rawJsString string) *BigInteger {
 			default:
 				return 0
 			}
-			panic("unreachable")
 		}()
 		if radix != 0 {
 			if !NodeUtil_isParsableBigInteger(String_substring_int(s, 2), radix) {
@@ -545,7 +538,6 @@ func NodeUtil_getNameNode(n Node) Node {
 				return funNameNode
 			}()
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -581,7 +573,6 @@ func NodeUtil_getNearestFunctionName(n Node) OptionalOf[string] {
 		default:
 			return Optional_empty[string]()
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -650,7 +641,6 @@ func NodeUtil_isImmutableValue(n Node) bool {
 		default:
 			return false
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -676,7 +666,6 @@ func NodeUtil_getNumericLiteralValue(n Node) float64 {
 		default:
 			panic(new_AssertionError_Object(strobj_(("Unreachable: " + tostr_(n)))).self())
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -688,7 +677,6 @@ func NodeUtil_isSymmetricOperation(n Node) bool {
 		default:
 			return false
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -700,7 +688,6 @@ func NodeUtil_isRelationalOperation(n Node) bool {
 		default:
 			return false
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -718,7 +705,6 @@ func NodeUtil_getInverseOperator(type_ Token_rhino) Token_rhino {
 		default:
 			panic(new_IllegalArgumentException_String(("Unexpected token: " + tostr_(type_))).self())
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -791,7 +777,6 @@ func NodeUtil_isLiteralValue(n Node, includeFunctions bool) bool {
 		default:
 			return NodeUtil_isImmutableValue(n)
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -868,7 +853,6 @@ func NodeUtil_isBinaryOperatorType(type_ Token_rhino) bool {
 		default:
 			return false
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -884,7 +868,6 @@ func NodeUtil_isUnaryOperatorType(type_ Token_rhino) bool {
 		default:
 			return false
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -900,7 +883,6 @@ func NodeUtil_isUpdateOperatorType(type_ Token_rhino) bool {
 		default:
 			return false
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -916,7 +898,6 @@ func NodeUtil_isSimpleOperatorType(type_ Token_rhino) bool {
 		default:
 			return false
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -995,7 +976,6 @@ func NodeUtil_iteratesImpureIterable(node Node) bool {
 			default:
 				panic(new_IllegalStateException_String(("Unexpected parent of ITRE_REST: " + sstr_(parent.toStringTree()))).self())
 			}
-			panic("unreachable")
 		}()
 	default:
 		panic(new_IllegalStateException_String(("Expected a kind of node that may trigger iteration: " + sstr_(node.toStringTree()))).self())
@@ -1011,7 +991,6 @@ func NodeUtil_isPureIterable(node Node) bool {
 		default:
 			return false
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -1121,7 +1100,6 @@ func NodeUtil_precedence(type_ Token_rhino) int32 {
 			}
 			panic(new_IllegalStateException_String(("Unknown precedence for " + tostr_(type_))).self())
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -1135,7 +1113,6 @@ func NodeUtil_isUndefined(n Node) bool {
 		default:
 			return false
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -1233,7 +1210,6 @@ func NodeUtil_getKnownValueType(n Node) NodeUtil_ValueType {
 		}
 		return NodeUtil_ValueType_UNDETERMINED
 	}
-	panic("unreachable")
 }
 
 func NodeUtil_and(a NodeUtil_ValueType, b NodeUtil_ValueType) NodeUtil_ValueType {
@@ -1327,7 +1303,6 @@ func NodeUtil_isAssociative(type_ Token_rhino) bool {
 		default:
 			return false
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -1339,7 +1314,6 @@ func NodeUtil_isCommutative(type_ Token_rhino) bool {
 		default:
 			return false
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -1351,7 +1325,6 @@ func NodeUtil_isAssignmentOp(n Node) bool {
 		default:
 			return false
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -1363,7 +1336,6 @@ func NodeUtil_isLogicalAssignmentOp(n Node) bool {
 		default:
 			return false
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -1407,7 +1379,6 @@ func NodeUtil_getOpFromAssignmentOp(n Node) Token_rhino {
 		default:
 			panic(new_IllegalArgumentException_String(("Not an assignment op:" + tostr_(n))).self())
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -1630,7 +1601,6 @@ func NodeUtil_getEndOfOptChainSegment(n Node) Node {
 	} else {
 		return NodeUtil_getEndOfOptChainSegment(n.getParent())
 	}
-	panic("unreachable")
 }
 
 func NodeUtil_isEndOfFullOptChain(n Node) bool {
@@ -1640,7 +1610,6 @@ func NodeUtil_isEndOfFullOptChain(n Node) bool {
 	} else {
 		return false
 	}
-	panic("unreachable")
 }
 
 func NodeUtil_isEndOfOptChainSegment(n Node) bool {
@@ -1654,7 +1623,6 @@ func NodeUtil_isEndOfOptChainSegment(n Node) bool {
 			return true
 		}
 	}
-	panic("unreachable")
 }
 
 func NodeUtil_convertToNonOptionalChainSegment(endOfOptChainSegment Node) {
@@ -1692,7 +1660,6 @@ func NodeUtil_getNonOptChainToken(optChainToken Token_rhino) Token_rhino {
 		default:
 			panic(new_IllegalStateException_String(("Should be an OPTCHAIN token: " + tostr_(optChainToken))).self())
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -1708,7 +1675,6 @@ func NodeUtil_isBlockScopedDeclaration(n Node) bool {
 		default:
 			return false
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -1742,7 +1708,6 @@ func NodeUtil_getAssignedValue(n Node) Node {
 	} else {
 		return 0
 	}
-	panic("unreachable")
 }
 
 func NodeUtil_isExprAssign(n Node) bool {
@@ -1773,7 +1738,6 @@ func NodeUtil_isLoopStructure(n Node) bool {
 		default:
 			return false
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -1787,7 +1751,6 @@ func NodeUtil_getLoopCodeBlock(n Node) Node {
 		default:
 			return 0
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -1813,7 +1776,6 @@ func NodeUtil_isControlStructure(n Node) bool {
 		default:
 			return false
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -1836,7 +1798,6 @@ func NodeUtil_isControlStructureCodeBlock(parent Node, n Node) bool {
 			}
 			return false
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -1854,7 +1815,6 @@ func NodeUtil_getConditionExpression(n Node) Node {
 		default:
 			panic(new_IllegalArgumentException_String((tostr_(n) + " does not have a condition.")).self())
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -1876,7 +1836,6 @@ func NodeUtil_createsBlockScope(n Node) bool {
 		default:
 			return false
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -1904,7 +1863,6 @@ func NodeUtil_isDeclarationParent(parent Node) bool {
 		default:
 			return NodeUtil_isStatementParent(parent)
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -2101,7 +2059,6 @@ func NodeUtil_tryMergeBlock(block Node, ignoreBlockScopedDeclarations bool) bool
 	} else {
 		return false
 	}
-	panic("unreachable")
 }
 
 func NodeUtil_canMergeBlock(block Node) bool {
@@ -2186,12 +2143,10 @@ func NodeUtil_isMethodDeclaration(n Node) bool {
 			default:
 				return false
 			}
-			panic("unreachable")
 		}()
 	} else {
 		return false
 	}
-	panic("unreachable")
 }
 
 func NodeUtil_isClassDeclaration(n Node) bool {
@@ -2362,7 +2317,6 @@ func NodeUtil_isLValue(n Node) bool {
 		default:
 			return (NodeUtil_isAssignmentOp(parent) && (parent.getFirstChild() == n))
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -2396,7 +2350,6 @@ func NodeUtil_isDeclarationLValue(n Node) bool {
 		default:
 			return false
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -2538,7 +2491,6 @@ func NodeUtil_getEnclosingTarget(targetNode Node) Node {
 			}
 			return 0
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -2550,7 +2502,6 @@ func NodeUtil_isLhsByDestructuring(n Node) bool {
 		default:
 			return false
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -2570,7 +2521,6 @@ func NodeUtil_isLhsByDestructuringHelper(n Node) bool {
 		default:
 			return false
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -2582,7 +2532,6 @@ func NodeUtil_mayBeObjectLitKey(node Node) bool {
 		default:
 			return false
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -2624,7 +2573,6 @@ func NodeUtil_isGetOrSetKey(node Node) bool {
 		default:
 			return false
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -2724,7 +2672,6 @@ func NodeUtil_opToStr(operator Token_rhino) OptionalOf[string] {
 		default:
 			return Optional_empty[string]()
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -2763,7 +2710,6 @@ func NodeUtil_canContainHoistedVarsDecls(n Node) bool {
 			default:
 				return true
 			}
-			panic("unreachable")
 		}()
 	}
 	return true
@@ -2998,7 +2944,6 @@ func NodeUtil_isValidPropertyName(mode *FeatureSet, name string) bool {
 	} else {
 		return (mode.has(FeatureSet_Feature_KEYWORDS_AS_PROPERTIES) && TokenStream_isKeyword(name))
 	}
-	panic("unreachable")
 }
 
 func NodeUtil_getVarsDeclaredInBranch(root Node) CollectionOf[Node] {
@@ -3091,7 +3036,6 @@ func NodeUtil_isKnownGlobalObjectReference(n Node) bool {
 		default:
 			return false
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -3182,7 +3126,6 @@ func NodeUtil_isPropertyTest(compiler *AbstractCompiler, propAccess Node) bool {
 		default:
 			return false
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -3201,7 +3144,6 @@ func NodeUtil_isPropertyAbsenceTest(propAccess Node) bool {
 		default:
 			return false
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -3257,7 +3199,6 @@ func NodeUtil_newVarNodeNode(lhs Node, value Node) Node {
 		}
 		return IR_var_Node(lhs).srcref(lhs)
 	}
-	panic("unreachable")
 }
 
 func NodeUtil_emptyFunction() Node {
@@ -3607,7 +3548,6 @@ func NodeUtil_evaluatesToLocalValue(value Node) bool {
 			}
 			panic(new_IllegalStateException_String(("Unexpected expression node: " + tostr_(value) + "\n parent:" + tostr_(value.getParent()))).self())
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -3641,7 +3581,6 @@ func NodeUtil_isDefinedValue(value Node) bool {
 			}
 			panic(new_IllegalStateException_String(("Unexpected expression node: " + tostr_(value) + "\n parent:" + tostr_(value.getParent()))).self())
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -3916,7 +3855,6 @@ func NodeUtil_getBestLValueRoot(lValue Node) Node {
 		default:
 			return 0
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -4348,7 +4286,6 @@ func NodeUtil_getInvocationArgsCount(invocation Node) int32 {
 	} else {
 		return (invocation.getChildCount() - 1)
 	}
-	panic("unreachable")
 }
 
 func NodeUtil_getAllVarNamesDeclaredInModule(moduleNode Node, compiler *AbstractCompiler, scopeCreator ScopeCreator, globalScope *Scope) map[string]struct{} {
@@ -5149,5 +5086,4 @@ func (this *NodeUtil_TemplateArgsIterable_1) computeNext() any {
 		this.nextChild = this.nextChild.getNext()
 		return result.box_()
 	}
-	panic("unreachable")
 }

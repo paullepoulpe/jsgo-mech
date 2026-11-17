@@ -218,7 +218,6 @@ func (this *QualifiedName_StringListQname) matches_impl(n Node) bool {
 		default:
 			return false
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -323,7 +322,6 @@ func (this *QualifiedName_NodeQname) getComponent_impl() string {
 		default:
 			panic(new_IllegalStateException_String(("Not a qualified name: " + tostr_(this.node_))).self())
 		}
-		panic("unreachable")
 	}()
 }
 

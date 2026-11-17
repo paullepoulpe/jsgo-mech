@@ -273,7 +273,6 @@ var lambda_MaybeReachingVariableUse_ReachingUses_join_1_ = &PMap_Reconciler_fn[*
 		return thisVal
 	}
 	return thisVal.reconcile(thatVal, lambda_MaybeReachingVariableUse_ReachingUses_join_2_)
-	panic("unreachable")
 }}
 
 // lambda_MaybeReachingVariableUse_ReachingUses_join_2_ is a lambda of MaybeReachingVariableUse_ReachingUses_join that captures nothing (post-flip step lambdas).

@@ -251,7 +251,6 @@ func (this *GlobalNamespace) getOutermostObjectLit(objLitKey Node) Node {
 			return outermostObjectLit
 		}
 	}
-	panic("unreachable")
 }
 
 func GlobalNamespace_isQnameDeclarationWithoutAssignment(node Node) bool {
@@ -325,7 +324,6 @@ func GlobalNamespace_SourceKind_fromScriptNode(n Node) GlobalNamespace_SourceKin
 	} else {
 		return GlobalNamespace_SourceKind_EXTERN
 	}
-	panic("unreachable")
 }
 
 func GlobalNamespace_SourceKind_values() []GlobalNamespace_SourceKind {
@@ -678,7 +676,6 @@ func (this *GlobalNamespace_BuildGlobalNamespace) createObjLitStringKeyAnalysis(
 		}
 		return GlobalNamespace_ObjLitStringKeyAnalysis_forNonReference()
 	}
-	panic("unreachable")
 }
 
 func (this *GlobalNamespace_BuildGlobalNamespace) createNamesFromProvide(namespace string) {
@@ -728,7 +725,6 @@ func (this *GlobalNamespace_BuildGlobalNamespace) getNameForObjectPatternKey(str
 	} else {
 		return Optional_empty[string]()
 	}
-	panic("unreachable")
 }
 
 func (this *GlobalNamespace_BuildGlobalNamespace) getValueType(n Node) GlobalNamespace_NameProp {
@@ -2073,7 +2069,6 @@ func (this *GlobalNamespace_Ref) isTwin() bool {
 		default:
 			return false
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -2085,7 +2080,6 @@ func (this *GlobalNamespace_Ref) isGet() bool {
 		default:
 			return false
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -2097,7 +2091,6 @@ func (this *GlobalNamespace_Ref) isAliasingGet() bool {
 		default:
 			return false
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -2109,7 +2102,6 @@ func (this *GlobalNamespace_Ref) isSet() bool {
 		default:
 			return false
 		}
-		panic("unreachable")
 	}()
 }
 
