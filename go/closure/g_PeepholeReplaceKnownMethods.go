@@ -505,9 +505,9 @@ func (this *PeepholeReplaceKnownMethods) tryFoldParseNumber(n Node, functionName
 	var isNegative bool = false
 	if strings.HasPrefix(stringVal.get(), "-") {
 		isNegative = true
-		stringVal = Optional_of[string](String_substring_int(stringVal.get(), 1))
+		stringVal = Optional_of[string](stringVal.get()[1:])
 	} else if strings.HasPrefix(stringVal.get(), "+") {
-		stringVal = Optional_of[string](String_substring_int(stringVal.get(), 1))
+		stringVal = Optional_of[string](stringVal.get()[1:])
 	}
 	if (radix == 0) || (radix == 16) {
 		if (String_length(stringVal.get()) > 1) && Ascii_equalsIgnoreCase(strobj_(String_substring(stringVal.get(), 0, 2)), strobj_("0x")) {

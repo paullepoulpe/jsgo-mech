@@ -312,15 +312,15 @@ func (this *AnalyzePrototypeProperties_ProcessProperties) getPrototypePropertyNa
 	if lValueName.isEmpty() {
 		return Optional_empty[string]()
 	}
-	var lastDot int32 = String_lastIndexOf(lValueName.get(), 46)
+	var lastDot int32 = int32(strings.LastIndexByte(lValueName.get(), '.'))
 	if lastDot == -1 {
 		return Optional_empty[string]()
 	}
-	var firstPart string = String_substring(lValueName.get(), 0, lastDot)
+	var firstPart string = lValueName.get()[:lastDot]
 	if !strings.HasSuffix(firstPart, ".prototype") {
 		return Optional_empty[string]()
 	}
-	return Optional_of[string](String_substring_int(lValueName.get(), (lastDot + 1)))
+	return Optional_of[string](lValueName.get()[(lastDot + 1):])
 }
 
 func (this *AnalyzePrototypeProperties_ProcessProperties) processGlobalFunctionDeclaration(t *NodeTraversal, nameNode Node, v *Var) bool {
