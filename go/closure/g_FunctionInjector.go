@@ -170,7 +170,7 @@ func (this *FunctionInjector) inlineReturnValue(ref *FunctionInjector_Reference,
 	return newExpression
 }
 
-func (this *FunctionInjector) classifyCallSite(ref *FunctionInjector_Reference) *FunctionInjector_CallSiteType {
+func (this *FunctionInjector) classifyCallSite(ref *FunctionInjector_Reference) FunctionInjector_CallSiteType {
 	var callNode Node = ref.callNode_
 	var parent Node = callNode.getParent()
 	var grandParent Node = parent.getParent()
@@ -198,7 +198,7 @@ func (this *FunctionInjector) getDecomposer(scope *Scope) *ExpressionDecomposer 
 }
 
 func (this *FunctionInjector) maybePrepareCall(ref *FunctionInjector_Reference) {
-	var callSiteType *FunctionInjector_CallSiteType = this.classifyCallSite(ref)
+	var callSiteType FunctionInjector_CallSiteType = this.classifyCallSite(ref)
 	callSiteType.prepare(this, ref)
 }
 
@@ -206,7 +206,7 @@ func (this *FunctionInjector) inlineFunction(ref *FunctionInjector_Reference, fn
 	var callNode Node = ref.callNode_
 	var parent Node = callNode.getParent()
 	var grandParent Node = parent.getParent()
-	var callSiteType *FunctionInjector_CallSiteType = this.classifyCallSite(ref)
+	var callSiteType FunctionInjector_CallSiteType = this.classifyCallSite(ref)
 	Preconditions_checkArgument((callSiteType != FunctionInjector_CallSiteType_UNSUPPORTED))
 	var resultName OptionalOf[string] = Optional_empty[string]()
 	var needsDefaultReturnResult bool = true
@@ -280,7 +280,7 @@ func FunctionInjector_isDirectCallNodeReplacementPossible(fnNode Node) bool {
 }
 
 func (this *FunctionInjector) canInlineReferenceAsStatementBlock(ref *FunctionInjector_Reference, fnNode Node, namesToAlias ImmutableSetOf[string]) FunctionInjector_CanInlineResult {
-	var callSiteType *FunctionInjector_CallSiteType = this.classifyCallSite(ref)
+	var callSiteType FunctionInjector_CallSiteType = this.classifyCallSite(ref)
 	if callSiteType == FunctionInjector_CallSiteType_UNSUPPORTED {
 		return FunctionInjector_CanInlineResult_NO
 	}
@@ -724,79 +724,109 @@ func (this *FunctionInjector_Reference) toString() string {
 	return ("Reference @ " + objstr_(this.callNode_.box_()))
 }
 
-type FunctionInjector_CallSiteType struct {
-	Enum
-	selfI_ func(*FunctionInjector, *FunctionInjector_Reference)
+type FunctionInjector_CallSiteType uint8
+
+// FunctionInjector_CallSiteType_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var FunctionInjector_CallSiteType_enum_ = [6]Enum{
+	{self_: FunctionInjector_CallSiteType_UNSUPPORTED, name_: "UNSUPPORTED", ordinal_: 0},
+	{self_: FunctionInjector_CallSiteType_SIMPLE_CALL, name_: "SIMPLE_CALL", ordinal_: 1},
+	{self_: FunctionInjector_CallSiteType_SIMPLE_ASSIGNMENT, name_: "SIMPLE_ASSIGNMENT", ordinal_: 2},
+	{self_: FunctionInjector_CallSiteType_VAR_DECL_SIMPLE_ASSIGNMENT, name_: "VAR_DECL_SIMPLE_ASSIGNMENT", ordinal_: 3},
+	{self_: FunctionInjector_CallSiteType_EXPRESSION, name_: "EXPRESSION", ordinal_: 4},
+	{self_: FunctionInjector_CallSiteType_DECOMPOSABLE_EXPRESSION, name_: "DECOMPOSABLE_EXPRESSION", ordinal_: 5},
 }
 
-// FunctionInjector_CallSiteType_I holds the methods the dispatchers of enum FunctionInjector_CallSiteType call on its
-// constant (selfI_, set with self_); every constant of the enum implements them (post-flip).
-type FunctionInjector_CallSiteType_I interface {
-	prepare_impl(*FunctionInjector, *FunctionInjector_Reference)
+func (this FunctionInjector_CallSiteType) enum_() *Enum {
+	if this == 0 {
+		return nil
+	}
+	return &FunctionInjector_CallSiteType_enum_[this-1]
 }
 
-func (this *FunctionInjector_CallSiteType) as_FunctionInjector_CallSiteType() *FunctionInjector_CallSiteType {
+func (this FunctionInjector_CallSiteType) name() string { return this.enum_().name_ }
+
+func (this FunctionInjector_CallSiteType) ordinal() int32 {
+	if this == 0 {
+		return this.enum_().ordinal_ // null: dereferences nil, as a null enum object did
+	}
+	return int32(this) - 1 // constants are ordinal+1
+}
+
+func (this FunctionInjector_CallSiteType) toString() string { return this.enum_().name_ }
+
+func (this FunctionInjector_CallSiteType) compareTo(o any) int32 { return this.enum_().compareTo(o) }
+
+func (this FunctionInjector_CallSiteType) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func to_FunctionInjector_CallSiteType(v any) *FunctionInjector_CallSiteType {
+func (this FunctionInjector_CallSiteType) as_FunctionInjector_CallSiteType() FunctionInjector_CallSiteType {
+	return this
+}
+
+func to_FunctionInjector_CallSiteType(v any) FunctionInjector_CallSiteType {
 	if v == nil {
-		return nil
+		return 0
 	}
 	return v.(interface {
-		as_FunctionInjector_CallSiteType() *FunctionInjector_CallSiteType
+		as_FunctionInjector_CallSiteType() FunctionInjector_CallSiteType
 	}).as_FunctionInjector_CallSiteType()
 }
 
 func is_FunctionInjector_CallSiteType(v any) bool {
 	_, ok := v.(interface {
-		as_FunctionInjector_CallSiteType() *FunctionInjector_CallSiteType
+		as_FunctionInjector_CallSiteType() FunctionInjector_CallSiteType
 	})
 	return ok
 }
 
-func (this *FunctionInjector_CallSiteType) self() any {
-	if this == nil {
-		return nil
+func (this FunctionInjector_CallSiteType) prepare(injector *FunctionInjector, ref *FunctionInjector_Reference) {
+	switch this {
+	case FunctionInjector_CallSiteType_UNSUPPORTED:
+		panic(new_IllegalStateException_String(("unexpected: " + objstr_(ref.self()))).self())
+	case FunctionInjector_CallSiteType_SIMPLE_CALL, FunctionInjector_CallSiteType_SIMPLE_ASSIGNMENT, FunctionInjector_CallSiteType_VAR_DECL_SIMPLE_ASSIGNMENT:
+
+	case FunctionInjector_CallSiteType_EXPRESSION:
+		var callNode Node = ref.callNode_
+		injector.getDecomposer(ref.scope_).moveExpression(callNode)
+		var callSiteType FunctionInjector_CallSiteType = injector.classifyCallSite(ref)
+		Preconditions_checkState((this != callSiteType))
+		callSiteType.prepare(injector, ref)
+	case FunctionInjector_CallSiteType_DECOMPOSABLE_EXPRESSION:
+		var callNode Node = ref.callNode_
+		injector.getDecomposer(ref.scope_).maybeExposeExpression(callNode)
+		var callSiteType FunctionInjector_CallSiteType = injector.classifyCallSite(ref)
+		Preconditions_checkState((this != callSiteType))
+		callSiteType.prepare(injector, ref)
+	default:
+		panic(new_NullPointerException_0().self()) // a call on null
 	}
-	return this.self_
 }
 
-func (this *FunctionInjector_CallSiteType) up_Enum() *Enum {
-	if this == nil {
-		return nil
-	}
-	return &this.Enum
+func FunctionInjector_CallSiteType_values() []FunctionInjector_CallSiteType {
+	return append([]FunctionInjector_CallSiteType(nil), FunctionInjector_CallSiteType_values_...)
 }
 
-func (this *FunctionInjector_CallSiteType) init_FunctionInjector_CallSiteType(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
-}
-
-func (this *FunctionInjector_CallSiteType) prepare(p0 *FunctionInjector, p1 *FunctionInjector_Reference) {
-	this.selfI_(p0, p1)
-}
-
-func FunctionInjector_CallSiteType_values() []*FunctionInjector_CallSiteType {
-	return append([]*FunctionInjector_CallSiteType(nil), FunctionInjector_CallSiteType_values_...)
-}
-
-func FunctionInjector_CallSiteType_valueOf(name string) *FunctionInjector_CallSiteType {
+func FunctionInjector_CallSiteType_valueOf(name string) FunctionInjector_CallSiteType {
 	for _, v := range FunctionInjector_CallSiteType_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("CallSiteType", name))
 }
 
-var FunctionInjector_CallSiteType_UNSUPPORTED *FunctionInjector_CallSiteType
-var FunctionInjector_CallSiteType_SIMPLE_CALL *FunctionInjector_CallSiteType
-var FunctionInjector_CallSiteType_SIMPLE_ASSIGNMENT *FunctionInjector_CallSiteType
-var FunctionInjector_CallSiteType_VAR_DECL_SIMPLE_ASSIGNMENT *FunctionInjector_CallSiteType
-var FunctionInjector_CallSiteType_EXPRESSION *FunctionInjector_CallSiteType
-var FunctionInjector_CallSiteType_DECOMPOSABLE_EXPRESSION *FunctionInjector_CallSiteType
-var FunctionInjector_CallSiteType_values_ []*FunctionInjector_CallSiteType
+const FunctionInjector_CallSiteType_UNSUPPORTED FunctionInjector_CallSiteType = 1
+const FunctionInjector_CallSiteType_SIMPLE_CALL FunctionInjector_CallSiteType = 2
+const FunctionInjector_CallSiteType_SIMPLE_ASSIGNMENT FunctionInjector_CallSiteType = 3
+const FunctionInjector_CallSiteType_VAR_DECL_SIMPLE_ASSIGNMENT FunctionInjector_CallSiteType = 4
+const FunctionInjector_CallSiteType_EXPRESSION FunctionInjector_CallSiteType = 5
+const FunctionInjector_CallSiteType_DECOMPOSABLE_EXPRESSION FunctionInjector_CallSiteType = 6
+
+var FunctionInjector_CallSiteType_values_ []FunctionInjector_CallSiteType
 
 var FunctionInjector_CallSiteType_clinit_done bool
 
@@ -805,13 +835,7 @@ func FunctionInjector_CallSiteType_clinit() {
 		return
 	}
 	FunctionInjector_CallSiteType_clinit_done = true
-	FunctionInjector_CallSiteType_UNSUPPORTED = new_FunctionInjector_CallSiteType_1("UNSUPPORTED", 0).up_FunctionInjector_CallSiteType()
-	FunctionInjector_CallSiteType_SIMPLE_CALL = new_FunctionInjector_CallSiteType_2("SIMPLE_CALL", 1).up_FunctionInjector_CallSiteType()
-	FunctionInjector_CallSiteType_SIMPLE_ASSIGNMENT = new_FunctionInjector_CallSiteType_3("SIMPLE_ASSIGNMENT", 2).up_FunctionInjector_CallSiteType()
-	FunctionInjector_CallSiteType_VAR_DECL_SIMPLE_ASSIGNMENT = new_FunctionInjector_CallSiteType_4("VAR_DECL_SIMPLE_ASSIGNMENT", 3).up_FunctionInjector_CallSiteType()
-	FunctionInjector_CallSiteType_EXPRESSION = new_FunctionInjector_CallSiteType_5("EXPRESSION", 4).up_FunctionInjector_CallSiteType()
-	FunctionInjector_CallSiteType_DECOMPOSABLE_EXPRESSION = new_FunctionInjector_CallSiteType_6("DECOMPOSABLE_EXPRESSION", 5).up_FunctionInjector_CallSiteType()
-	FunctionInjector_CallSiteType_values_ = []*FunctionInjector_CallSiteType{FunctionInjector_CallSiteType_UNSUPPORTED, FunctionInjector_CallSiteType_SIMPLE_CALL, FunctionInjector_CallSiteType_SIMPLE_ASSIGNMENT, FunctionInjector_CallSiteType_VAR_DECL_SIMPLE_ASSIGNMENT, FunctionInjector_CallSiteType_EXPRESSION, FunctionInjector_CallSiteType_DECOMPOSABLE_EXPRESSION}
+	FunctionInjector_CallSiteType_values_ = []FunctionInjector_CallSiteType{FunctionInjector_CallSiteType_UNSUPPORTED, FunctionInjector_CallSiteType_SIMPLE_CALL, FunctionInjector_CallSiteType_SIMPLE_ASSIGNMENT, FunctionInjector_CallSiteType_VAR_DECL_SIMPLE_ASSIGNMENT, FunctionInjector_CallSiteType_EXPRESSION, FunctionInjector_CallSiteType_DECOMPOSABLE_EXPRESSION}
 	registerEnum_("com.google.javascript.jscomp.FunctionInjector.CallSiteType", enumValues_(FunctionInjector_CallSiteType_values_))
 
 }
@@ -913,432 +937,4 @@ func (this *FunctionInjector_1) get() any {
 	var result string = String_valueOf(this.nextId)
 	this.nextId++
 	return strobj_(result)
-}
-
-type FunctionInjector_CallSiteType_1 struct {
-	FunctionInjector_CallSiteType
-}
-
-func (this *FunctionInjector_CallSiteType_1) up_FunctionInjector_CallSiteType() *FunctionInjector_CallSiteType {
-	if this == nil {
-		return nil
-	}
-	return &this.FunctionInjector_CallSiteType
-}
-
-func (this *FunctionInjector_CallSiteType_1) up_Enum() *Enum {
-	if this == nil {
-		return nil
-	}
-	return &this.Enum
-}
-
-func (this *FunctionInjector_CallSiteType_1) init_FunctionInjector_CallSiteType_1(name_ string, ordinal_ int32) {
-	this.FunctionInjector_CallSiteType.init_FunctionInjector_CallSiteType(name_, ordinal_)
-}
-
-func new_FunctionInjector_CallSiteType_1(name_ string, ordinal_ int32) *FunctionInjector_CallSiteType_1 {
-	this := &FunctionInjector_CallSiteType_1{}
-	this.self_ = this
-	this.selfI_ = this.prepare_impl
-	this.init_FunctionInjector_CallSiteType_1(name_, ordinal_)
-	return this
-}
-
-func (this *FunctionInjector_CallSiteType_1) prepare_impl(injector *FunctionInjector, ref *FunctionInjector_Reference) {
-	panic(new_IllegalStateException_String(("unexpected: " + objstr_(ref.self()))).self())
-}
-
-func FunctionInjector_CallSiteType_1_values() []*FunctionInjector_CallSiteType_1 {
-	return append([]*FunctionInjector_CallSiteType_1(nil), FunctionInjector_CallSiteType_1_values_...)
-}
-
-func FunctionInjector_CallSiteType_1_valueOf(name string) *FunctionInjector_CallSiteType_1 {
-	for _, v := range FunctionInjector_CallSiteType_1_values_ {
-		if v.Enum.name() == name {
-			return v
-		}
-	}
-	panic(enumValueOfFail_("", name))
-}
-
-var FunctionInjector_CallSiteType_1_values_ []*FunctionInjector_CallSiteType_1
-
-var FunctionInjector_CallSiteType_1_clinit_done bool
-
-func FunctionInjector_CallSiteType_1_clinit() {
-	if FunctionInjector_CallSiteType_1_clinit_done {
-		return
-	}
-	FunctionInjector_CallSiteType_1_clinit_done = true
-	FunctionInjector_CallSiteType_1_values_ = []*FunctionInjector_CallSiteType_1{}
-	registerEnum_("<anonymous com.google.javascript.jscomp.FunctionInjector.CallSiteType>", enumValues_(FunctionInjector_CallSiteType_1_values_))
-
-}
-
-type FunctionInjector_CallSiteType_2 struct {
-	FunctionInjector_CallSiteType
-}
-
-func (this *FunctionInjector_CallSiteType_2) up_FunctionInjector_CallSiteType() *FunctionInjector_CallSiteType {
-	if this == nil {
-		return nil
-	}
-	return &this.FunctionInjector_CallSiteType
-}
-
-func (this *FunctionInjector_CallSiteType_2) up_Enum() *Enum {
-	if this == nil {
-		return nil
-	}
-	return &this.Enum
-}
-
-func (this *FunctionInjector_CallSiteType_2) init_FunctionInjector_CallSiteType_2(name_ string, ordinal_ int32) {
-	this.FunctionInjector_CallSiteType.init_FunctionInjector_CallSiteType(name_, ordinal_)
-}
-
-func new_FunctionInjector_CallSiteType_2(name_ string, ordinal_ int32) *FunctionInjector_CallSiteType_2 {
-	this := &FunctionInjector_CallSiteType_2{}
-	this.self_ = this
-	this.selfI_ = this.prepare_impl
-	this.init_FunctionInjector_CallSiteType_2(name_, ordinal_)
-	return this
-}
-
-func (this *FunctionInjector_CallSiteType_2) prepare_impl(injector *FunctionInjector, ref *FunctionInjector_Reference) {
-
-}
-
-func FunctionInjector_CallSiteType_2_values() []*FunctionInjector_CallSiteType_2 {
-	return append([]*FunctionInjector_CallSiteType_2(nil), FunctionInjector_CallSiteType_2_values_...)
-}
-
-func FunctionInjector_CallSiteType_2_valueOf(name string) *FunctionInjector_CallSiteType_2 {
-	for _, v := range FunctionInjector_CallSiteType_2_values_ {
-		if v.Enum.name() == name {
-			return v
-		}
-	}
-	panic(enumValueOfFail_("", name))
-}
-
-var FunctionInjector_CallSiteType_2_values_ []*FunctionInjector_CallSiteType_2
-
-var FunctionInjector_CallSiteType_2_clinit_done bool
-
-func FunctionInjector_CallSiteType_2_clinit() {
-	if FunctionInjector_CallSiteType_2_clinit_done {
-		return
-	}
-	FunctionInjector_CallSiteType_2_clinit_done = true
-	FunctionInjector_CallSiteType_2_values_ = []*FunctionInjector_CallSiteType_2{}
-	registerEnum_("<anonymous com.google.javascript.jscomp.FunctionInjector.CallSiteType>", enumValues_(FunctionInjector_CallSiteType_2_values_))
-
-}
-
-type FunctionInjector_CallSiteType_3 struct {
-	FunctionInjector_CallSiteType
-}
-
-func (this *FunctionInjector_CallSiteType_3) up_FunctionInjector_CallSiteType() *FunctionInjector_CallSiteType {
-	if this == nil {
-		return nil
-	}
-	return &this.FunctionInjector_CallSiteType
-}
-
-func (this *FunctionInjector_CallSiteType_3) up_Enum() *Enum {
-	if this == nil {
-		return nil
-	}
-	return &this.Enum
-}
-
-func (this *FunctionInjector_CallSiteType_3) init_FunctionInjector_CallSiteType_3(name_ string, ordinal_ int32) {
-	this.FunctionInjector_CallSiteType.init_FunctionInjector_CallSiteType(name_, ordinal_)
-}
-
-func new_FunctionInjector_CallSiteType_3(name_ string, ordinal_ int32) *FunctionInjector_CallSiteType_3 {
-	this := &FunctionInjector_CallSiteType_3{}
-	this.self_ = this
-	this.selfI_ = this.prepare_impl
-	this.init_FunctionInjector_CallSiteType_3(name_, ordinal_)
-	return this
-}
-
-func (this *FunctionInjector_CallSiteType_3) prepare_impl(injector *FunctionInjector, ref *FunctionInjector_Reference) {
-
-}
-
-func FunctionInjector_CallSiteType_3_values() []*FunctionInjector_CallSiteType_3 {
-	return append([]*FunctionInjector_CallSiteType_3(nil), FunctionInjector_CallSiteType_3_values_...)
-}
-
-func FunctionInjector_CallSiteType_3_valueOf(name string) *FunctionInjector_CallSiteType_3 {
-	for _, v := range FunctionInjector_CallSiteType_3_values_ {
-		if v.Enum.name() == name {
-			return v
-		}
-	}
-	panic(enumValueOfFail_("", name))
-}
-
-var FunctionInjector_CallSiteType_3_values_ []*FunctionInjector_CallSiteType_3
-
-var FunctionInjector_CallSiteType_3_clinit_done bool
-
-func FunctionInjector_CallSiteType_3_clinit() {
-	if FunctionInjector_CallSiteType_3_clinit_done {
-		return
-	}
-	FunctionInjector_CallSiteType_3_clinit_done = true
-	FunctionInjector_CallSiteType_3_values_ = []*FunctionInjector_CallSiteType_3{}
-	registerEnum_("<anonymous com.google.javascript.jscomp.FunctionInjector.CallSiteType>", enumValues_(FunctionInjector_CallSiteType_3_values_))
-
-}
-
-type FunctionInjector_CallSiteType_4 struct {
-	FunctionInjector_CallSiteType
-}
-
-func (this *FunctionInjector_CallSiteType_4) up_FunctionInjector_CallSiteType() *FunctionInjector_CallSiteType {
-	if this == nil {
-		return nil
-	}
-	return &this.FunctionInjector_CallSiteType
-}
-
-func (this *FunctionInjector_CallSiteType_4) up_Enum() *Enum {
-	if this == nil {
-		return nil
-	}
-	return &this.Enum
-}
-
-func (this *FunctionInjector_CallSiteType_4) init_FunctionInjector_CallSiteType_4(name_ string, ordinal_ int32) {
-	this.FunctionInjector_CallSiteType.init_FunctionInjector_CallSiteType(name_, ordinal_)
-}
-
-func new_FunctionInjector_CallSiteType_4(name_ string, ordinal_ int32) *FunctionInjector_CallSiteType_4 {
-	this := &FunctionInjector_CallSiteType_4{}
-	this.self_ = this
-	this.selfI_ = this.prepare_impl
-	this.init_FunctionInjector_CallSiteType_4(name_, ordinal_)
-	return this
-}
-
-func (this *FunctionInjector_CallSiteType_4) prepare_impl(injector *FunctionInjector, ref *FunctionInjector_Reference) {
-
-}
-
-func FunctionInjector_CallSiteType_4_values() []*FunctionInjector_CallSiteType_4 {
-	return append([]*FunctionInjector_CallSiteType_4(nil), FunctionInjector_CallSiteType_4_values_...)
-}
-
-func FunctionInjector_CallSiteType_4_valueOf(name string) *FunctionInjector_CallSiteType_4 {
-	for _, v := range FunctionInjector_CallSiteType_4_values_ {
-		if v.Enum.name() == name {
-			return v
-		}
-	}
-	panic(enumValueOfFail_("", name))
-}
-
-var FunctionInjector_CallSiteType_4_values_ []*FunctionInjector_CallSiteType_4
-
-var FunctionInjector_CallSiteType_4_clinit_done bool
-
-func FunctionInjector_CallSiteType_4_clinit() {
-	if FunctionInjector_CallSiteType_4_clinit_done {
-		return
-	}
-	FunctionInjector_CallSiteType_4_clinit_done = true
-	FunctionInjector_CallSiteType_4_values_ = []*FunctionInjector_CallSiteType_4{}
-	registerEnum_("<anonymous com.google.javascript.jscomp.FunctionInjector.CallSiteType>", enumValues_(FunctionInjector_CallSiteType_4_values_))
-
-}
-
-type FunctionInjector_CallSiteType_5 struct {
-	FunctionInjector_CallSiteType
-}
-
-func (this *FunctionInjector_CallSiteType_5) up_FunctionInjector_CallSiteType() *FunctionInjector_CallSiteType {
-	if this == nil {
-		return nil
-	}
-	return &this.FunctionInjector_CallSiteType
-}
-
-func (this *FunctionInjector_CallSiteType_5) up_Enum() *Enum {
-	if this == nil {
-		return nil
-	}
-	return &this.Enum
-}
-
-func (this *FunctionInjector_CallSiteType_5) init_FunctionInjector_CallSiteType_5(name_ string, ordinal_ int32) {
-	this.FunctionInjector_CallSiteType.init_FunctionInjector_CallSiteType(name_, ordinal_)
-}
-
-func new_FunctionInjector_CallSiteType_5(name_ string, ordinal_ int32) *FunctionInjector_CallSiteType_5 {
-	this := &FunctionInjector_CallSiteType_5{}
-	this.self_ = this
-	this.selfI_ = this.prepare_impl
-	this.init_FunctionInjector_CallSiteType_5(name_, ordinal_)
-	return this
-}
-
-func (this *FunctionInjector_CallSiteType_5) prepare_impl(injector *FunctionInjector, ref *FunctionInjector_Reference) {
-	var callNode Node = ref.callNode_
-	injector.getDecomposer(ref.scope_).moveExpression(callNode)
-	var callSiteType *FunctionInjector_CallSiteType = injector.classifyCallSite(ref)
-	Preconditions_checkState((this.up_FunctionInjector_CallSiteType() != callSiteType))
-	callSiteType.prepare(injector, ref)
-}
-
-func FunctionInjector_CallSiteType_5_values() []*FunctionInjector_CallSiteType_5 {
-	return append([]*FunctionInjector_CallSiteType_5(nil), FunctionInjector_CallSiteType_5_values_...)
-}
-
-func FunctionInjector_CallSiteType_5_valueOf(name string) *FunctionInjector_CallSiteType_5 {
-	for _, v := range FunctionInjector_CallSiteType_5_values_ {
-		if v.Enum.name() == name {
-			return v
-		}
-	}
-	panic(enumValueOfFail_("", name))
-}
-
-var FunctionInjector_CallSiteType_5_values_ []*FunctionInjector_CallSiteType_5
-
-var FunctionInjector_CallSiteType_5_clinit_done bool
-
-func FunctionInjector_CallSiteType_5_clinit() {
-	if FunctionInjector_CallSiteType_5_clinit_done {
-		return
-	}
-	FunctionInjector_CallSiteType_5_clinit_done = true
-	FunctionInjector_CallSiteType_5_values_ = []*FunctionInjector_CallSiteType_5{}
-	registerEnum_("<anonymous com.google.javascript.jscomp.FunctionInjector.CallSiteType>", enumValues_(FunctionInjector_CallSiteType_5_values_))
-
-}
-
-type FunctionInjector_CallSiteType_6 struct {
-	FunctionInjector_CallSiteType
-}
-
-func (this *FunctionInjector_CallSiteType_6) up_FunctionInjector_CallSiteType() *FunctionInjector_CallSiteType {
-	if this == nil {
-		return nil
-	}
-	return &this.FunctionInjector_CallSiteType
-}
-
-func (this *FunctionInjector_CallSiteType_6) up_Enum() *Enum {
-	if this == nil {
-		return nil
-	}
-	return &this.Enum
-}
-
-func (this *FunctionInjector_CallSiteType_6) init_FunctionInjector_CallSiteType_6(name_ string, ordinal_ int32) {
-	this.FunctionInjector_CallSiteType.init_FunctionInjector_CallSiteType(name_, ordinal_)
-}
-
-func new_FunctionInjector_CallSiteType_6(name_ string, ordinal_ int32) *FunctionInjector_CallSiteType_6 {
-	this := &FunctionInjector_CallSiteType_6{}
-	this.self_ = this
-	this.selfI_ = this.prepare_impl
-	this.init_FunctionInjector_CallSiteType_6(name_, ordinal_)
-	return this
-}
-
-func (this *FunctionInjector_CallSiteType_6) prepare_impl(injector *FunctionInjector, ref *FunctionInjector_Reference) {
-	var callNode Node = ref.callNode_
-	injector.getDecomposer(ref.scope_).maybeExposeExpression(callNode)
-	var callSiteType *FunctionInjector_CallSiteType = injector.classifyCallSite(ref)
-	Preconditions_checkState((this.up_FunctionInjector_CallSiteType() != callSiteType))
-	callSiteType.prepare(injector, ref)
-}
-
-func FunctionInjector_CallSiteType_6_values() []*FunctionInjector_CallSiteType_6 {
-	return append([]*FunctionInjector_CallSiteType_6(nil), FunctionInjector_CallSiteType_6_values_...)
-}
-
-func FunctionInjector_CallSiteType_6_valueOf(name string) *FunctionInjector_CallSiteType_6 {
-	for _, v := range FunctionInjector_CallSiteType_6_values_ {
-		if v.Enum.name() == name {
-			return v
-		}
-	}
-	panic(enumValueOfFail_("", name))
-}
-
-var FunctionInjector_CallSiteType_6_values_ []*FunctionInjector_CallSiteType_6
-
-var FunctionInjector_CallSiteType_6_clinit_done bool
-
-func FunctionInjector_CallSiteType_6_clinit() {
-	if FunctionInjector_CallSiteType_6_clinit_done {
-		return
-	}
-	FunctionInjector_CallSiteType_6_clinit_done = true
-	FunctionInjector_CallSiteType_6_values_ = []*FunctionInjector_CallSiteType_6{}
-	registerEnum_("<anonymous com.google.javascript.jscomp.FunctionInjector.CallSiteType>", enumValues_(FunctionInjector_CallSiteType_6_values_))
-
-}
-
-// prepare: an object that is exactly a FunctionInjector_CallSiteType_1 calls its prepare_impl directly (post-flip); others dispatch.
-func (this *FunctionInjector_CallSiteType_1) prepare(p0 *FunctionInjector, p1 *FunctionInjector_Reference) {
-	if p, _ := this.self_.(*FunctionInjector_CallSiteType_1); p == this {
-		this.prepare_impl(p0, p1)
-		return
-	}
-	this.selfI_(p0, p1)
-}
-
-// prepare: an object that is exactly a FunctionInjector_CallSiteType_2 calls its prepare_impl directly (post-flip); others dispatch.
-func (this *FunctionInjector_CallSiteType_2) prepare(p0 *FunctionInjector, p1 *FunctionInjector_Reference) {
-	if p, _ := this.self_.(*FunctionInjector_CallSiteType_2); p == this {
-		this.prepare_impl(p0, p1)
-		return
-	}
-	this.selfI_(p0, p1)
-}
-
-// prepare: an object that is exactly a FunctionInjector_CallSiteType_3 calls its prepare_impl directly (post-flip); others dispatch.
-func (this *FunctionInjector_CallSiteType_3) prepare(p0 *FunctionInjector, p1 *FunctionInjector_Reference) {
-	if p, _ := this.self_.(*FunctionInjector_CallSiteType_3); p == this {
-		this.prepare_impl(p0, p1)
-		return
-	}
-	this.selfI_(p0, p1)
-}
-
-// prepare: an object that is exactly a FunctionInjector_CallSiteType_4 calls its prepare_impl directly (post-flip); others dispatch.
-func (this *FunctionInjector_CallSiteType_4) prepare(p0 *FunctionInjector, p1 *FunctionInjector_Reference) {
-	if p, _ := this.self_.(*FunctionInjector_CallSiteType_4); p == this {
-		this.prepare_impl(p0, p1)
-		return
-	}
-	this.selfI_(p0, p1)
-}
-
-// prepare: an object that is exactly a FunctionInjector_CallSiteType_5 calls its prepare_impl directly (post-flip); others dispatch.
-func (this *FunctionInjector_CallSiteType_5) prepare(p0 *FunctionInjector, p1 *FunctionInjector_Reference) {
-	if p, _ := this.self_.(*FunctionInjector_CallSiteType_5); p == this {
-		this.prepare_impl(p0, p1)
-		return
-	}
-	this.selfI_(p0, p1)
-}
-
-// prepare: an object that is exactly a FunctionInjector_CallSiteType_6 calls its prepare_impl directly (post-flip); others dispatch.
-func (this *FunctionInjector_CallSiteType_6) prepare(p0 *FunctionInjector, p1 *FunctionInjector_Reference) {
-	if p, _ := this.self_.(*FunctionInjector_CallSiteType_6); p == this {
-		this.prepare_impl(p0, p1)
-		return
-	}
-	this.selfI_(p0, p1)
 }

@@ -19,7 +19,7 @@ func (this *BrowserWithTransformedPrefixesModuleResolver) zero_BrowserWithTransf
 	this.expectedPrefixes = nullstr_
 }
 
-func (this *BrowserWithTransformedPrefixesModuleResolver) init_BrowserWithTransformedPrefixesModuleResolver(modulePaths ImmutableSetOf[string], moduleRootPaths ImmutableListOf[string], errorHandler ErrorHandler, pathEscaper *ModuleLoader_PathEscaper, prefixReplacements ImmutableMapOf[string, string]) {
+func (this *BrowserWithTransformedPrefixesModuleResolver) init_BrowserWithTransformedPrefixesModuleResolver(modulePaths ImmutableSetOf[string], moduleRootPaths ImmutableListOf[string], errorHandler ErrorHandler, pathEscaper ModuleLoader_PathEscaper, prefixReplacements ImmutableMapOf[string, string]) {
 	this.ModuleResolver.init_ModuleResolver(modulePaths, moduleRootPaths, errorHandler, pathEscaper)
 	var sortedReplacements []*BrowserWithTransformedPrefixesModuleResolver_PrefixReplacement = []*BrowserWithTransformedPrefixesModuleResolver_PrefixReplacement{}
 	it_1 := foreach_(obj_(cast_[*ImmutableSet](prefixReplacements.entrySet())))
@@ -51,7 +51,7 @@ var lambda_BrowserWithTransformedPrefixesModuleResolver_init_BrowserWithTransfor
 	return strobj_(cast_[*BrowserWithTransformedPrefixesModuleResolver_PrefixReplacement](p0).prefix())
 }}
 
-func new_BrowserWithTransformedPrefixesModuleResolver(modulePaths ImmutableSetOf[string], moduleRootPaths ImmutableListOf[string], errorHandler ErrorHandler, pathEscaper *ModuleLoader_PathEscaper, prefixReplacements ImmutableMapOf[string, string]) *BrowserWithTransformedPrefixesModuleResolver {
+func new_BrowserWithTransformedPrefixesModuleResolver(modulePaths ImmutableSetOf[string], moduleRootPaths ImmutableListOf[string], errorHandler ErrorHandler, pathEscaper ModuleLoader_PathEscaper, prefixReplacements ImmutableMapOf[string, string]) *BrowserWithTransformedPrefixesModuleResolver {
 	this := &BrowserWithTransformedPrefixesModuleResolver{}
 	this.self_ = this
 	this.zero_BrowserWithTransformedPrefixesModuleResolver()
@@ -137,7 +137,7 @@ func new_BrowserWithTransformedPrefixesModuleResolver_Factory(prefixReplacements
 	return this
 }
 
-func (this *BrowserWithTransformedPrefixesModuleResolver_Factory) create(modulePaths ImmutableSetOf[string], moduleRootPaths ImmutableListOf[string], errorHandler ErrorHandler, pathEscaper *ModuleLoader_PathEscaper) *ModuleResolver {
+func (this *BrowserWithTransformedPrefixesModuleResolver_Factory) create(modulePaths ImmutableSetOf[string], moduleRootPaths ImmutableListOf[string], errorHandler ErrorHandler, pathEscaper ModuleLoader_PathEscaper) *ModuleResolver {
 	return new_BrowserWithTransformedPrefixesModuleResolver(modulePaths, moduleRootPaths, errorHandler, pathEscaper, this.prefixReplacements).up_ModuleResolver()
 }
 
