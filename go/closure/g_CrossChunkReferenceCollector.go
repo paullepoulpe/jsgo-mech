@@ -340,7 +340,7 @@ func (this *CrossChunkReferenceCollector_TopLevelStatement) isDeclarationStateme
 }
 
 func (this *CrossChunkReferenceCollector_TopLevelStatement) getDeclaredNameReference() *Reference {
-	return cast_[*Reference](Preconditions_checkNotNull(obj_(this.declaredNameReference)))
+	return Preconditions_checkNotNullT(this.declaredNameReference)
 }
 
 func (this *CrossChunkReferenceCollector_TopLevelStatement) getDeclaredValueNode() Node {

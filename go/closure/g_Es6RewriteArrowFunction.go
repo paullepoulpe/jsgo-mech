@@ -34,7 +34,7 @@ func (this *Es6RewriteArrowFunction) shouldTraverse(t *NodeTraversal, n Node, pa
 			this.contextStack = append(this.contextStack, this.contextForFunction(n, t.getInput()))
 		}
 	case tokOrd1_SUPER:
-		var context *ThisAndArgumentsReferenceUpdater_ThisAndArgumentsContext = cast_[*ThisAndArgumentsReferenceUpdater_ThisAndArgumentsContext](Preconditions_checkNotNull(obj_(slicePeekTop_(tc_p_ThisAndArgumentsReferenceUpdater_ThisAndArgumentsContext, this.contextStack))))
+		var context *ThisAndArgumentsReferenceUpdater_ThisAndArgumentsContext = Preconditions_checkNotNullT(slicePeekTop_(tc_p_ThisAndArgumentsReferenceUpdater_ThisAndArgumentsContext, this.contextStack))
 		if (context.isConstructor_ && parent.isCall()) && (parent.getFirstChild() == n) {
 			context.lastSuperStatement = this.getEnclosingStatement(parent, context.scopeBody)
 		}
@@ -53,7 +53,7 @@ func (this *Es6RewriteArrowFunction) getEnclosingStatement(n Node, block Node) N
 func (this *Es6RewriteArrowFunction) visit(t *NodeTraversal, n Node, parent Node) {
 	var context *ThisAndArgumentsReferenceUpdater_ThisAndArgumentsContext = slicePeekTop_(tc_p_ThisAndArgumentsReferenceUpdater_ThisAndArgumentsContext, this.contextStack)
 	if n.isArrowFunction() {
-		this.visitArrowFunction(t, n, cast_[*ThisAndArgumentsReferenceUpdater_ThisAndArgumentsContext](Preconditions_checkNotNull(obj_(context))))
+		this.visitArrowFunction(t, n, Preconditions_checkNotNullT(context))
 	} else if (context != nil) && (context.scopeBody == n) {
 		slicePop_(tc_p_ThisAndArgumentsReferenceUpdater_ThisAndArgumentsContext, &this.contextStack)
 		context.addVarDeclarations(this.compiler_, this.astFactory_, t.getCurrentScript())

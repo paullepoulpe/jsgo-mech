@@ -30,9 +30,9 @@ func (this *TemplateAstMatcher) init_TemplateAstMatcher(compiler *AbstractCompil
 		Preconditions_checkState_boolean_String_Object(false, "Template node must be a function node. Received: %s", templateFunctionNode.box_())
 	}
 	this.topScope = compiler.getTopScope()
-	this.typeRegistry = cast_[*JSTypeRegistry](Preconditions_checkNotNull(obj_(compiler.getTypeRegistry())))
+	this.typeRegistry = Preconditions_checkNotNullT(compiler.getTypeRegistry())
 	this.templateStart = this.initTemplate(templateFunctionNode)
-	this.typeMatchingStrategy = cast_[TypeMatchingStrategy](Preconditions_checkNotNull(obj_(typeMatchingStrategy)))
+	this.typeMatchingStrategy = Preconditions_checkNotNullT(typeMatchingStrategy)
 }
 
 func new_TemplateAstMatcher(compiler *AbstractCompiler, templateFunctionNode Node, typeMatchingStrategy TypeMatchingStrategy) *TemplateAstMatcher {

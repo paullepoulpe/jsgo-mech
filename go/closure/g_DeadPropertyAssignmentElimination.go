@@ -321,7 +321,7 @@ func (this *DeadPropertyAssignmentElimination_FindCandidateAssignmentTraversal) 
 			}
 			return true
 		case tokOrd1_THIS, tokOrd1_NAME:
-			var nameProp *DeadPropertyAssignmentElimination_Property = cast_[*DeadPropertyAssignmentElimination_Property](Preconditions_checkNotNull(obj_(this.getOrCreateProperty(n))))
+			var nameProp *DeadPropertyAssignmentElimination_Property = Preconditions_checkNotNullT(this.getOrCreateProperty(n))
 			nameProp.markLastWriteRead()
 			if !parent.isGetProp() {
 				nameProp.markChildrenRead()

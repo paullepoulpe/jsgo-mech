@@ -10,9 +10,9 @@ type RewriteAsyncFunctions struct {
 }
 
 func (this *RewriteAsyncFunctions) init_RewriteAsyncFunctions(compiler *AbstractCompiler, astFactory *AstFactory, namespace StaticScope) {
-	this.compiler_ = to_AbstractCompiler(Preconditions_checkNotNull(compiler.self()))
-	this.astFactory_ = cast_[*AstFactory](Preconditions_checkNotNull(obj_(astFactory)))
-	this.namespace_ = icast_StaticScope(Preconditions_checkNotNull(any(namespace)))
+	this.compiler_ = Preconditions_checkNotNullT(compiler)
+	this.astFactory_ = Preconditions_checkNotNullT(astFactory)
+	this.namespace_ = Preconditions_checkNotNullT(namespace)
 	this.contextStack = []*RewriteAsyncFunctions_LexicalContext{}
 }
 
@@ -345,7 +345,7 @@ func (this *RewriteAsyncFunctions_ParameterListContext) zero_RewriteAsyncFunctio
 
 func (this *RewriteAsyncFunctions_ParameterListContext) init_RewriteAsyncFunctions_ParameterListContext(functionContext *RewriteAsyncFunctions_FunctionContext, contextRootNode Node, uniqueId string) {
 	this.RewriteAsyncFunctions_LexicalContext.init_RewriteAsyncFunctions_LexicalContext(contextRootNode, uniqueId)
-	this.functionContext = cast_[*RewriteAsyncFunctions_FunctionContext](Preconditions_checkNotNull(obj_(functionContext)))
+	this.functionContext = Preconditions_checkNotNullT(functionContext)
 }
 
 func new_RewriteAsyncFunctions_ParameterListContext(outer_ *RewriteAsyncFunctions, functionContext *RewriteAsyncFunctions_FunctionContext, contextRootNode Node, uniqueId string) *RewriteAsyncFunctions_ParameterListContext {

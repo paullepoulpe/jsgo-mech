@@ -222,7 +222,7 @@ func (this *JsFileFullParser_DelegatingReporter) finit_JsFileFullParser_Delegati
 
 func (this *JsFileFullParser_DelegatingReporter) init_JsFileFullParser_DelegatingReporter(delegate JsFileFullParser_Reporter) {
 	this.finit_JsFileFullParser_DelegatingReporter()
-	this.delegate = icast_JsFileFullParser_Reporter(Preconditions_checkNotNull(any(delegate)))
+	this.delegate = Preconditions_checkNotNullT(delegate)
 }
 
 func new_JsFileFullParser_DelegatingReporter(delegate JsFileFullParser_Reporter) *JsFileFullParser_DelegatingReporter {

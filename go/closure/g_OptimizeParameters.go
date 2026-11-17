@@ -10,7 +10,7 @@ type OptimizeParameters struct {
 }
 
 func (this *OptimizeParameters) init_OptimizeParameters(compiler *AbstractCompiler) {
-	this.compiler_ = to_AbstractCompiler(Preconditions_checkNotNull(compiler.self()))
+	this.compiler_ = Preconditions_checkNotNullT(compiler)
 	this.astAnalyzer = compiler.getAstAnalyzer()
 }
 

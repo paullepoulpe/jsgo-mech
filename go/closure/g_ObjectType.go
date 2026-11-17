@@ -237,7 +237,7 @@ func (this *ObjectType) defineInferredProperty(propertyName string, type_ *JSTyp
 		if this.isPropertyTypeDeclared(propertyName) {
 			return true
 		}
-		var originalType *JSType = to_JSType(Preconditions_checkNotNull(this.getPropertyType(propertyName).self()))
+		var originalType *JSType = Preconditions_checkNotNullT(this.getPropertyType(propertyName))
 		type_ = originalType.getLeastSupertype(type_)
 	}
 	var result bool = this.definePropertyString(propertyName, type_, true, propertyNode)

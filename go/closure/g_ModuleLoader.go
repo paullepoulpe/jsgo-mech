@@ -11,11 +11,11 @@ type ModuleLoader struct {
 }
 
 func (this *ModuleLoader) init_ModuleLoader(builder *ModuleLoader_Builder) {
-	this.errorHandler = icast_ErrorHandler(Preconditions_checkNotNull(any(builder.errorHandler)))
-	this.pathResolver = to_ModuleLoader_PathResolver(Preconditions_checkNotNull(builder.pathResolver.self()))
-	this.pathEscaper = to_ModuleLoader_PathEscaper(Preconditions_checkNotNull(builder.pathEscaper.self()))
-	this.moduleRootPaths = this.createRootPaths(icast_Iterable(Preconditions_checkNotNull(any(builder.moduleRoots))))
-	var modulePaths ImmutableSetOf[string] = this.resolvePaths(icast_Iterable(Preconditions_checkNotNull(any(builder.inputs))))
+	this.errorHandler = Preconditions_checkNotNullT(builder.errorHandler)
+	this.pathResolver = Preconditions_checkNotNullT(builder.pathResolver)
+	this.pathEscaper = Preconditions_checkNotNullT(builder.pathEscaper)
+	this.moduleRootPaths = this.createRootPaths(Preconditions_checkNotNullT(builder.moduleRoots))
+	var modulePaths ImmutableSetOf[string] = this.resolvePaths(Preconditions_checkNotNullT(builder.inputs))
 	this.moduleResolver = builder.factory.create(modulePaths, this.moduleRootPaths, this.errorHandler, this.pathEscaper)
 }
 

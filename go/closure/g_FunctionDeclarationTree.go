@@ -29,9 +29,9 @@ func (this *FunctionDeclarationTree) init_FunctionDeclarationTree(builder *Funct
 	this.isStatic = builder.isStatic
 	this.isGenerator = builder.isGenerator
 	this.isOptional_ = builder.isOptional_
-	this.kind_ = cast_[FunctionDeclarationTree_Kind](Preconditions_checkNotNull(obj_(builder.kind_)))
-	this.formalParameterList = cast_[*FormalParameterListTree](Preconditions_checkNotNull(obj_(builder.formalParameterList)))
-	this.functionBody = to_ParseTree(Preconditions_checkNotNull(builder.functionBody.self()))
+	this.kind_ = Preconditions_checkNotNullT(builder.kind_)
+	this.formalParameterList = Preconditions_checkNotNullT(builder.formalParameterList)
+	this.functionBody = Preconditions_checkNotNullT(builder.functionBody)
 	this.isAsync = builder.isAsync
 }
 

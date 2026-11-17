@@ -12,7 +12,7 @@ func (this *BaseTranspiler) zero_BaseTranspiler() {
 }
 
 func (this *BaseTranspiler) init_BaseTranspiler(compilerSupplier *BaseTranspiler_CompilerSupplier, runtimeLibraryName string) {
-	this.compilerSupplier = cast_[*BaseTranspiler_CompilerSupplier](Preconditions_checkNotNull(obj_(compilerSupplier)))
+	this.compilerSupplier = Preconditions_checkNotNullT(compilerSupplier)
 	this.runtimeLibraryName = runtimeLibraryName
 }
 

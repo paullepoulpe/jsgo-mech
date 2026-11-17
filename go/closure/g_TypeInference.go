@@ -36,13 +36,13 @@ func (this *TypeInference) init_TypeInference(compiler *AbstractCompiler, cfg *C
 	if ok_, a1_, a2_ := (syntacticScope.getRootNode() == Node_of_(cfg.getEntry().getValue())), cfg.getEntry(), syntacticScope.getRootNode(); !ok_ {
 		Preconditions_checkArgument_boolean_String_Object_Object(false, "Expected syntactic scope to be rooted at CFG root node of %s, but instead got syntactic scope root node of %s", any(a1_), a2_.box_())
 	}
-	this.compiler_ = to_AbstractCompiler(Preconditions_checkNotNull(compiler.self()))
-	this.registry = cast_[*JSTypeRegistry](Preconditions_checkNotNull(obj_(compiler.getTypeRegistry())))
-	this.reverseInterpreter = icast_ReverseAbstractInterpreter(Preconditions_checkNotNull(any(reverseInterpreter)))
+	this.compiler_ = Preconditions_checkNotNullT(compiler)
+	this.registry = Preconditions_checkNotNullT(compiler.getTypeRegistry())
+	this.reverseInterpreter = Preconditions_checkNotNullT(reverseInterpreter)
 	this.moduleImportResolver = new_ModuleImportResolver(compiler.getModuleMap(), scopeCreator.getNodeToScopeMapper(), this.registry)
 	this.containerScope = syntacticScope
-	this.scopeCreator = cast_[*TypedScopeCreator](Preconditions_checkNotNull(obj_(scopeCreator)))
-	this.assertionFunctionLookup = cast_[*CodingConvention_AssertionFunctionLookup](Preconditions_checkNotNull(obj_(assertionFunctionLookup)))
+	this.scopeCreator = Preconditions_checkNotNullT(scopeCreator)
+	this.assertionFunctionLookup = Preconditions_checkNotNullT(assertionFunctionLookup)
 	this.unknownType = this.registry.getNativeObjectType(JSTypeNative_UNKNOWN_TYPE)
 	this.numberAdditionSupertype = this.registry.getNativeType(JSTypeNative_NUMBER_ADDITION_SUPERTYPE)
 	this.bottomScope = LinkedFlowScope_createEntryLattice(icast_CompilerInputProvider(compiler.self()), TypedScope_createLatticeBottom(syntacticScope.getRootNode()))

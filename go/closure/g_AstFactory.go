@@ -227,7 +227,7 @@ func (this *AstFactory) getTypeOfThisForFunctionNode(functionNode Node) *JSType 
 	this.assertNotAddingColors()
 	if this.isAddingTypes() {
 		var functionType *FunctionType = this.getFunctionType(functionNode)
-		return to_JSType(Preconditions_checkNotNull_Object_Object(functionType.getTypeOfThis().self(), functionType.self()))
+		return Preconditions_checkNotNullT_Object(functionType.getTypeOfThis(), functionType.self())
 	} else {
 		return nil
 	}
@@ -369,7 +369,7 @@ func (this *AstFactory) createNameStaticScope(scope StaticScope, name string) No
 				Preconditions_checkState_boolean_String_Object_Object(false, "Missing var %s in scope %s", strobj_(name), any(scope))
 			}
 		} else {
-			var declaration StaticRef = icast_StaticRef(Preconditions_checkNotNull_Object_String_Object(any(var_.getDeclaration()), "Cannot find type for var with missing declaration %s", any(var_)))
+			var declaration StaticRef = Preconditions_checkNotNullT_String_Object(var_.getDeclaration(), "Cannot find type for var with missing declaration %s", any(var_))
 			var varDefinitionNode Node = Node_of_(Preconditions_checkNotNull_Object_String_Object(declaration.getNode().box_(), "Missing node for declaration %s", any(declaration)))
 			if varDefinitionNode.getBooleanProp(Node_IS_CONSTANT_NAME) {
 				result.putBooleanProp(Node_IS_CONSTANT_NAME, true)
@@ -413,7 +413,7 @@ func (this *AstFactory) createQNameUsingJSTypeInfo(globalTypedScope *TypedScope,
 	var receiver Node = IR_name(receiverPart)
 	if this.isAddingTypes() {
 		var var_ *TypedVar = cast_[*TypedVar](Preconditions_checkNotNull_Object_Object(globalTypedScope.getVar(receiverPart).self(), strobj_(receiverPart)))
-		receiver.setJSType(to_JSType(Preconditions_checkNotNull_Object_Object(var_.getType().self(), obj_(var_))))
+		receiver.setJSType(Preconditions_checkNotNullT_Object(var_.getType(), obj_(var_)))
 	}
 	var otherParts ListOf[string] = sliceView_(tc_string, nameParts).subList(1, int32(len(nameParts)))
 	return this.createGetPropsWithoutColors(receiver, Iterable(otherParts))
@@ -447,7 +447,7 @@ func (this *AstFactory) createQName_4(scope StaticScope, baseName string, baseNa
 		name += sstr_(("." + sstr_(propertyName)))
 		var type_ AstFactory_Type = nil
 		if this.isAddingTypes() || this.isAddingColors() {
-			var def Node = icast_StaticSlot(Preconditions_checkNotNull_Object_String_Object(any(scope.getSlot(name)), "Cannot find name %s in StaticScope.", strobj_(name))).getDeclaration().getNode()
+			var def Node = Preconditions_checkNotNullT_String_Object(scope.getSlot(name), "Cannot find name %s in StaticScope.", strobj_(name)).getDeclaration().getNode()
 			type_ = AstFactory_type_Node(def)
 		}
 		qname = this.createGetProp(qname, propertyName, type_)
@@ -682,12 +682,12 @@ func (this *AstFactory) createAnd(left Node, right Node) Node {
 	var result Node = IR_and(left, right)
 	switch this.typeMode {
 	case AstFactory_TypeMode_JSTYPE:
-		var leftType *JSType = to_JSType(Preconditions_checkNotNull_Object_Object(left.getJSType().self(), left.box_()))
-		var rightType *JSType = to_JSType(Preconditions_checkNotNull_Object_Object(right.getJSType().self(), right.box_()))
+		var leftType *JSType = Preconditions_checkNotNullT_Object(left.getJSType(), left.box_())
+		var rightType *JSType = Preconditions_checkNotNullT_Object(right.getJSType(), right.box_())
 		result.setJSType(this.registry.createUnionType([]*JSType{leftType, rightType}))
 	case AstFactory_TypeMode_COLOR:
-		var leftColor *Color = cast_[*Color](Preconditions_checkNotNull_Object_Object(obj_(left.getColor()), left.box_()))
-		var rightColor *Color = cast_[*Color](Preconditions_checkNotNull_Object_Object(obj_(right.getColor()), right.box_()))
+		var leftColor *Color = Preconditions_checkNotNullT_Object(left.getColor(), left.box_())
+		var rightColor *Color = Preconditions_checkNotNullT_Object(right.getColor(), right.box_())
 		result.setColor(Color_createUnion(tsetFrom_(tch_p_Color, ImmutableSet_of_Object_Object(obj_(leftColor), obj_(rightColor)), true)))
 	case AstFactory_TypeMode_NONE:
 	}
@@ -698,12 +698,12 @@ func (this *AstFactory) createOr(left Node, right Node) Node {
 	var result Node = IR_or(left, right)
 	switch this.typeMode {
 	case AstFactory_TypeMode_JSTYPE:
-		var leftType *JSType = to_JSType(Preconditions_checkNotNull_Object_Object(left.getJSType().self(), left.box_()))
-		var rightType *JSType = to_JSType(Preconditions_checkNotNull_Object_Object(right.getJSType().self(), right.box_()))
+		var leftType *JSType = Preconditions_checkNotNullT_Object(left.getJSType(), left.box_())
+		var rightType *JSType = Preconditions_checkNotNullT_Object(right.getJSType(), right.box_())
 		result.setJSType(this.registry.createUnionType([]*JSType{leftType, rightType}))
 	case AstFactory_TypeMode_COLOR:
-		var leftColor *Color = cast_[*Color](Preconditions_checkNotNull_Object_Object(obj_(left.getColor()), left.box_()))
-		var rightColor *Color = cast_[*Color](Preconditions_checkNotNull_Object_Object(obj_(right.getColor()), right.box_()))
+		var leftColor *Color = Preconditions_checkNotNullT_Object(left.getColor(), left.box_())
+		var rightColor *Color = Preconditions_checkNotNullT_Object(right.getColor(), right.box_())
 		result.setColor(Color_createUnion(tsetFrom_(tch_p_Color, ImmutableSet_of_Object_Object(obj_(leftColor), obj_(rightColor)), true)))
 	case AstFactory_TypeMode_NONE:
 	}
@@ -815,8 +815,8 @@ func (this *AstFactory) createConstructorCall(classType AstFactory_Type, callee 
 	switch this.typeMode {
 	case AstFactory_TypeMode_JSTYPE:
 		var classJSType *JSType = classType.getJSType(this.registry)
-		var constructorType *FunctionType = to_FunctionType(Preconditions_checkNotNull(classJSType.toMaybeFunctionType().self()))
-		var instanceType *ObjectType = to_ObjectType(Preconditions_checkNotNull(constructorType.getInstanceType().self()))
+		var constructorType *FunctionType = Preconditions_checkNotNullT(classJSType.toMaybeFunctionType())
+		var instanceType *ObjectType = Preconditions_checkNotNullT(constructorType.getInstanceType())
 		result.setJSType(instanceType.up_JSType())
 	case AstFactory_TypeMode_COLOR:
 		result.setColor(this.getInstanceOfColor(classType.getColor(this.colorRegistry)))
@@ -1126,7 +1126,7 @@ func (this *AstFactory) createJscompAsyncExecutePromiseGeneratorFunctionCall(sco
 
 func (this *AstFactory) getNativeType(nativeType JSTypeNative) *JSType {
 	Preconditions_checkNotNull_Object_Object(obj_(this.registry), strobj_("registry is null"))
-	return to_JSType(Preconditions_checkNotNull_Object_String_Object(this.registry.getNativeType(nativeType).self(), "native type not found: %s", obj_(nativeType)))
+	return Preconditions_checkNotNullT_String_Object(this.registry.getNativeType(nativeType), "native type not found: %s", obj_(nativeType))
 }
 
 func (this *AstFactory) getJsTypeForProperty(receiver Node, propertyName string) *JSType {
@@ -1357,6 +1357,6 @@ func (this *AstFactory_JSTypeOrColor) getColor(registry *ColorRegistry) *Color {
 		if this.color_ != nil {
 			return this.color_
 		}
-		return registry.get(cast_[*ColorId](Preconditions_checkNotNull(obj_(this.colorId))))
+		return registry.get(Preconditions_checkNotNullT(this.colorId))
 	}()
 }

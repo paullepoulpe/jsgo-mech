@@ -33,8 +33,8 @@ func (this *CompilerInput) finit_CompilerInput() {
 
 func (this *CompilerInput) init_CompilerInput_SourceFile_InputId_boolean(sourceFile *SourceFile_jscomp, inputId *InputId, isExtern bool) {
 	this.finit_CompilerInput()
-	this.sourceFile = cast_[*SourceFile_jscomp](Preconditions_checkNotNull(obj_(sourceFile)))
-	this.id = cast_[*InputId](Preconditions_checkNotNull(obj_(inputId)))
+	this.sourceFile = Preconditions_checkNotNullT(sourceFile)
+	this.id = Preconditions_checkNotNullT(inputId)
 	if isExtern {
 		this.setIsExtern()
 	}

@@ -40,7 +40,7 @@ func (this *ClassOrObjectElementInfo) hasName() bool {
 }
 
 func (this *ClassOrObjectElementInfo) getName() *IdentifierToken {
-	return cast_[*IdentifierToken](Preconditions_checkNotNull(obj_(this.name_)))
+	return Preconditions_checkNotNullT(this.name_)
 }
 
 func (this *ClassOrObjectElementInfo) setNameExpr(nameExpr *ParseTree) {
@@ -53,5 +53,5 @@ func (this *ClassOrObjectElementInfo) hasNameExpr() bool {
 }
 
 func (this *ClassOrObjectElementInfo) getNameExpr() *ParseTree {
-	return to_ParseTree(Preconditions_checkNotNull(this.nameExpr.self()))
+	return Preconditions_checkNotNullT(this.nameExpr)
 }

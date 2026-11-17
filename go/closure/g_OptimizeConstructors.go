@@ -14,7 +14,7 @@ func (this *OptimizeConstructors) finit_OptimizeConstructors() {
 
 func (this *OptimizeConstructors) init_OptimizeConstructors(compiler *AbstractCompiler) {
 	this.finit_OptimizeConstructors()
-	this.compiler_ = to_AbstractCompiler(Preconditions_checkNotNull(compiler.self()))
+	this.compiler_ = Preconditions_checkNotNullT(compiler)
 	this.astAnalyzer = compiler.getAstAnalyzer()
 }
 

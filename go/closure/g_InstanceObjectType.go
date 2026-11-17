@@ -30,7 +30,7 @@ func (this *InstanceObjectType) up_JSType() *JSType {
 
 func (this *InstanceObjectType) init_InstanceObjectType(builder *InstanceObjectType_Builder) {
 	this.PrototypeObjectType.init_PrototypeObjectType(builder.up_PrototypeObjectType_Builder())
-	this.constructor_ = to_FunctionType(Preconditions_checkNotNull(builder.constructor_.self()))
+	this.constructor_ = Preconditions_checkNotNullT(builder.constructor_)
 	this.registry.getResolver().resolveIfClosed(this.up_JSType(), InstanceObjectType_TYPE_CLASS_FIELD)
 }
 

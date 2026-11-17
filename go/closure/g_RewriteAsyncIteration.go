@@ -21,9 +21,9 @@ func (this *RewriteAsyncIteration) finit_RewriteAsyncIteration() {
 
 func (this *RewriteAsyncIteration) init_RewriteAsyncIteration(compiler *AbstractCompiler, astFactory *AstFactory, namespace StaticScope) {
 	this.finit_RewriteAsyncIteration()
-	this.compiler_ = to_AbstractCompiler(Preconditions_checkNotNull(compiler.self()))
-	this.astFactory_ = cast_[*AstFactory](Preconditions_checkNotNull(obj_(astFactory)))
-	this.namespace_ = icast_StaticScope(Preconditions_checkNotNull(any(namespace)))
+	this.compiler_ = Preconditions_checkNotNullT(compiler)
+	this.astFactory_ = Preconditions_checkNotNullT(astFactory)
+	this.namespace_ = Preconditions_checkNotNullT(namespace)
 	this.contextStack = []*RewriteAsyncIteration_LexicalContext{}
 	var runtimeLibManager *RuntimeJsLibManager = compiler.getRuntimeJsLibManager()
 	this.asyncGeneratorWrapper = runtimeLibManager.getJsLibField("$jscomp.AsyncGeneratorWrapper")

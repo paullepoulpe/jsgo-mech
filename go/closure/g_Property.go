@@ -17,7 +17,7 @@ func (this *Property) finit_Property() {
 func (this *Property) init_Property(name any, type_ *JSType, inferred bool, propertyNode Node) {
 	this.finit_Property()
 	this.name_ = Preconditions_checkNotNull(name)
-	this.type__ = to_JSType(Preconditions_checkNotNull_Object_String_Object(type_.self(), "Null type specified for %s", name))
+	this.type__ = Preconditions_checkNotNullT_String_Object(type_, "Null type specified for %s", name)
 	this.inferred = inferred
 	this.propertyNode = propertyNode
 }
@@ -109,7 +109,7 @@ func (this *Property) isFromExterns() bool {
 }
 
 func (this *Property) setType(type_ *JSType) {
-	this.type__ = to_JSType(Preconditions_checkNotNull_Object_String_Object(type_.self(), "Null type specified for property %s", this.name_))
+	this.type__ = Preconditions_checkNotNullT_String_Object(type_, "Null type specified for property %s", this.name_)
 }
 
 func (this *Property) getJSDocInfo() *JSDocInfo {

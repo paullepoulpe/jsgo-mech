@@ -519,7 +519,7 @@ func (this *GlobalNamespace_BuildGlobalNamespace) setupModuleMetadata(moduleRoot
 		return
 	}
 	this.curModuleRoot = moduleRoot
-	this.curMetadata = cast_[*ModuleMetadataMap_ModuleMetadata](Preconditions_checkNotNull(obj_(ModuleImportResolver_getModuleFromScopeRoot(moduleMap, icast_CompilerInputProvider(this.outer_.compiler_.self()), moduleRoot).metadata())))
+	this.curMetadata = Preconditions_checkNotNullT(ModuleImportResolver_getModuleFromScopeRoot(moduleMap, icast_CompilerInputProvider(this.outer_.compiler_.self()), moduleRoot).metadata())
 	if this.curMetadata.isGoogModule() {
 		this.getOrCreateName("exports", this.curMetadata)
 	}
@@ -1296,7 +1296,7 @@ func (this *GlobalNamespace_Name) castRefsForNodeMap() MapOf[Node, *GlobalNamesp
 }
 
 func (this *GlobalNamespace_Name) createNewRef(chunk *JSChunk, scope *Scope, node Node, type_ GlobalNamespace_Ref_Type) *GlobalNamespace_Ref {
-	return new_GlobalNamespace_Ref(chunk, cast_[*Scope](Preconditions_checkNotNull(obj_(scope))), Node_of_(Preconditions_checkNotNull(node.box_())), type_)
+	return new_GlobalNamespace_Ref(chunk, Preconditions_checkNotNullT(scope), Node_of_(Preconditions_checkNotNull(node.box_())), type_)
 }
 
 func (this *GlobalNamespace_Name) putRef(node Node, ref *GlobalNamespace_Ref) {
@@ -1321,7 +1321,7 @@ func (this *GlobalNamespace_Name) addSingleRefForTesting(node Node, type_ Global
 }
 
 func (this *GlobalNamespace_Name) addAliasingGetClonedFromDeclaration(newRefNode Node) {
-	var declRef *GlobalNamespace_Ref = cast_[*GlobalNamespace_Ref](Preconditions_checkNotNull(obj_(this.declaration_)))
+	var declRef *GlobalNamespace_Ref = Preconditions_checkNotNullT(this.declaration_)
 	this.addRef(declRef.chunk_, declRef.scope_, newRefNode, GlobalNamespace_Ref_Type_ALIASING_GET)
 }
 

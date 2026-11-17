@@ -28,7 +28,7 @@ func (this *PureFunctionIdentifier) finit_PureFunctionIdentifier() {
 
 func (this *PureFunctionIdentifier) init_PureFunctionIdentifier(compiler *AbstractCompiler, assumeGettersArePure bool, validateArtificialPurity bool) {
 	this.finit_PureFunctionIdentifier()
-	this.compiler_ = to_AbstractCompiler(Preconditions_checkNotNull(compiler.self()))
+	this.compiler_ = Preconditions_checkNotNullT(compiler)
 	this.assumeGettersArePure_ = assumeGettersArePure
 	this.astAnalyzer = compiler.getAstAnalyzer()
 	this.validateArtificialPurityField = validateArtificialPurity
@@ -238,7 +238,7 @@ func (this *PureFunctionIdentifier) populateDatastructuresForAnalysisTraversal(r
 }
 
 func (this *PureFunctionIdentifier) populateFunctionDefinitions(name string, references ListOf[Node]) {
-	var summaryForName *PureFunctionIdentifier_AmbiguatedFunctionSummary = cast_[*PureFunctionIdentifier_AmbiguatedFunctionSummary](Preconditions_checkNotNull(obj_(this.summariesByName[name])))
+	var summaryForName *PureFunctionIdentifier_AmbiguatedFunctionSummary = Preconditions_checkNotNullT(this.summariesByName[name])
 	var invalid bool = false
 	var rvaluesAssignedToName ListOf[ImmutableListOf[Node]] = new_ArrayList_0()
 	it_1 := foreach_(any(references))
@@ -559,7 +559,7 @@ func (this *PureFunctionIdentifier_FunctionBodyAnalyzer) visit(traversal *NodeTr
 	it_1 := foreach_(any(this.outer_.summariesForAllNamesOfFunctionByNode.get(root.box_())))
 	for it_1.next() {
 		var summary *PureFunctionIdentifier_AmbiguatedFunctionSummary = cast_[*PureFunctionIdentifier_AmbiguatedFunctionSummary](it_1.v)
-		this.updateSideEffectsForNode(cast_[*PureFunctionIdentifier_AmbiguatedFunctionSummary](Preconditions_checkNotNull(obj_(summary))), traversal, node)
+		this.updateSideEffectsForNode(Preconditions_checkNotNullT(summary), traversal, node)
 	}
 }
 
