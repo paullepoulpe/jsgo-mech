@@ -51,7 +51,7 @@ func (this *NamedType) init_NamedType(builder *NamedType_Builder) {
 	this.finit_NamedType()
 	Preconditions_checkNotNull(obj_(builder.resolutionKind))
 	Preconditions_checkNotNull(obj_(builder.templateTypes))
-	if Object_equals(obj_(builder.resolutionKind), obj_(NamedType_ResolutionKind_TYPEOF)) {
+	if equalsId_(builder.resolutionKind, NamedType_ResolutionKind_TYPEOF) {
 		Preconditions_checkState(String_startsWith(builder.referenceName, "typeof "))
 	}
 	this.restrictByNull = builder.restrictByNull
@@ -171,7 +171,7 @@ func (this *NamedType) resolveInternal_impl(reporter ErrorReporter_rhino) *JSTyp
 		_ = t
 		return t.resolve(reporter).self()
 	}, this.templateTypes)
-	if Object_equals(obj_(this.resolutionKind), obj_(NamedType_ResolutionKind_NONE)) {
+	if equalsId_(this.resolutionKind, NamedType_ResolutionKind_NONE) {
 		return this.ProxyObjectType.resolveInternal_impl(reporter)
 	}
 	Preconditions_checkState_boolean_Object(this.getReferencedType().isUnknownType(), strobj_("NamedTypes given a referenced type pre-resolution should have ResolutionKind.NONE"))
@@ -216,7 +216,7 @@ func (this *NamedType) resolveViaRegistry(reporter ErrorReporter_rhino) bool {
 }
 
 func (this *NamedType) resolveTypeof(reporter ErrorReporter_rhino) bool {
-	if !Object_equals(obj_(this.resolutionKind), obj_(NamedType_ResolutionKind_TYPEOF)) {
+	if !equalsId_(this.resolutionKind, NamedType_ResolutionKind_TYPEOF) {
 		return false
 	}
 	var scopeName string = String_substring_int(this.reference, String_length("typeof "))

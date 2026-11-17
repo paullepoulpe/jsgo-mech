@@ -111,8 +111,12 @@ func (this *ClosureRequireProcessor_Require) zero_ClosureRequireProcessor_Requir
 }
 
 func (this *ClosureRequireProcessor_Require) init_ClosureRequireProcessor_Require(localName string, importRecord *Import, createdBy Binding_CreatedBy) {
-	Objects_requireNonNull(obj_(importRecord), "importRecord")
-	Objects_requireNonNull(obj_(createdBy), "createdBy")
+	if importRecord == nil {
+		panic(new_NullPointerException_String("importRecord").self())
+	}
+	if createdBy == 0 {
+		panic(new_NullPointerException_String("createdBy").self())
+	}
 	Preconditions_checkArgument(createdBy.isClosureImport())
 	this.localName_ = localName
 	this.importRecord_ = importRecord
@@ -147,14 +151,14 @@ func (this *ClosureRequireProcessor_Require) equals(p0 any) bool {
 	if !ok || o == nil {
 		return false
 	}
-	return true && this.localName_ == o.localName_ && objequalsBy_(this.importRecord_, obj_(o.importRecord_), (*Import).equals) && Objects_equals(obj_(this.createdBy_), obj_(o.createdBy_))
+	return true && this.localName_ == o.localName_ && objequalsBy_(this.importRecord_, obj_(o.importRecord_), (*Import).equals) && this.createdBy_ == o.createdBy_
 }
 
 func (this *ClosureRequireProcessor_Require) hashCode() int32 {
 	var h int32
 	h = h*31 + objhashStr_(this.localName_)
 	h = h*31 + objhashBy_(this.importRecord_, (*Import).hashCode)
-	h = h*31 + Objects_hashCode(obj_(this.createdBy_))
+	h = h*31 + objhashId_(this.createdBy_)
 	return h
 }
 

@@ -110,21 +110,21 @@ func (this *RescopeGlobalSymbolsInfo) equals(p0 any) bool {
 	if !ok || o == nil {
 		return false
 	}
-	return true && this.globalSymbolNamespace_ == o.globalSymbolNamespace_ && Objects_equals(obj_(this.externNames_), obj_(o.externNames_)) && Objects_equals(obj_(this.crossChunkNames_), obj_(o.crossChunkNames_)) && Objects_equals(obj_(this.crossChunkNamesWithWriteFromOtherChunk_), obj_(o.crossChunkNamesWithWriteFromOtherChunk_)) && Objects_equals(obj_(this.crossChunkNamesUsedInNonDependentChunk_), obj_(o.crossChunkNamesUsedInNonDependentChunk_)) && Objects_equals(obj_(this.globalNamesWithReadInDefiningChunk_), obj_(o.globalNamesWithReadInDefiningChunk_)) && Objects_equals(obj_(this.globalNamesWithInnerScopeWriteInDefiningChunk_), obj_(o.globalNamesWithInnerScopeWriteInDefiningChunk_)) && Objects_equals(obj_(this.globalNamesWithUnsafeWriteForLocalAliasInDefiningChunk_), obj_(o.globalNamesWithUnsafeWriteForLocalAliasInDefiningChunk_)) && Objects_equals(obj_(this.maybeReferencesThis_), obj_(o.maybeReferencesThis_)) && Objects_equals(obj_(this.wrappedCrossChunkNames_), obj_(o.wrappedCrossChunkNames_))
+	return true && this.globalSymbolNamespace_ == o.globalSymbolNamespace_ && objequalsBy_(this.externNames_, obj_(o.externNames_), (ImmutableSetOf[string]).equals) && objequalsBy_(this.crossChunkNames_, obj_(o.crossChunkNames_), (ImmutableSetOf[string]).equals) && objequalsBy_(this.crossChunkNamesWithWriteFromOtherChunk_, obj_(o.crossChunkNamesWithWriteFromOtherChunk_), (ImmutableSetOf[string]).equals) && objequalsBy_(this.crossChunkNamesUsedInNonDependentChunk_, obj_(o.crossChunkNamesUsedInNonDependentChunk_), (ImmutableSetOf[string]).equals) && objequalsBy_(this.globalNamesWithReadInDefiningChunk_, obj_(o.globalNamesWithReadInDefiningChunk_), (ImmutableSetOf[string]).equals) && objequalsBy_(this.globalNamesWithInnerScopeWriteInDefiningChunk_, obj_(o.globalNamesWithInnerScopeWriteInDefiningChunk_), (ImmutableSetOf[string]).equals) && objequalsBy_(this.globalNamesWithUnsafeWriteForLocalAliasInDefiningChunk_, obj_(o.globalNamesWithUnsafeWriteForLocalAliasInDefiningChunk_), (ImmutableSetOf[string]).equals) && objequalsBy_(this.maybeReferencesThis_, obj_(o.maybeReferencesThis_), (ImmutableSetOf[string]).equals) && objequalsBy_(this.wrappedCrossChunkNames_, obj_(o.wrappedCrossChunkNames_), (ImmutableSetOf[string]).equals)
 }
 
 func (this *RescopeGlobalSymbolsInfo) hashCode() int32 {
 	var h int32
 	h = h*31 + objhashStr_(this.globalSymbolNamespace_)
-	h = h*31 + Objects_hashCode(obj_(this.externNames_))
-	h = h*31 + Objects_hashCode(obj_(this.crossChunkNames_))
-	h = h*31 + Objects_hashCode(obj_(this.crossChunkNamesWithWriteFromOtherChunk_))
-	h = h*31 + Objects_hashCode(obj_(this.crossChunkNamesUsedInNonDependentChunk_))
-	h = h*31 + Objects_hashCode(obj_(this.globalNamesWithReadInDefiningChunk_))
-	h = h*31 + Objects_hashCode(obj_(this.globalNamesWithInnerScopeWriteInDefiningChunk_))
-	h = h*31 + Objects_hashCode(obj_(this.globalNamesWithUnsafeWriteForLocalAliasInDefiningChunk_))
-	h = h*31 + Objects_hashCode(obj_(this.maybeReferencesThis_))
-	h = h*31 + Objects_hashCode(obj_(this.wrappedCrossChunkNames_))
+	h = h*31 + objhashBy_(this.externNames_, (ImmutableSetOf[string]).hashCode)
+	h = h*31 + objhashBy_(this.crossChunkNames_, (ImmutableSetOf[string]).hashCode)
+	h = h*31 + objhashBy_(this.crossChunkNamesWithWriteFromOtherChunk_, (ImmutableSetOf[string]).hashCode)
+	h = h*31 + objhashBy_(this.crossChunkNamesUsedInNonDependentChunk_, (ImmutableSetOf[string]).hashCode)
+	h = h*31 + objhashBy_(this.globalNamesWithReadInDefiningChunk_, (ImmutableSetOf[string]).hashCode)
+	h = h*31 + objhashBy_(this.globalNamesWithInnerScopeWriteInDefiningChunk_, (ImmutableSetOf[string]).hashCode)
+	h = h*31 + objhashBy_(this.globalNamesWithUnsafeWriteForLocalAliasInDefiningChunk_, (ImmutableSetOf[string]).hashCode)
+	h = h*31 + objhashBy_(this.maybeReferencesThis_, (ImmutableSetOf[string]).hashCode)
+	h = h*31 + objhashBy_(this.wrappedCrossChunkNames_, (ImmutableSetOf[string]).hashCode)
 	return h
 }
 

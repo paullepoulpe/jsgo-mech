@@ -1188,7 +1188,7 @@ func (this *RegExpTree_Alternation) simplify_impl(flags string) *RegExpTree {
 		}
 	}
 	return func() *RegExpTree {
-		if Object_equals(any(alternatives.asList()), obj_(this.alternatives)) {
+		if equalsVia_(alternatives.asList(), obj_(this.alternatives)) {
 			return this.up_RegExpTree()
 		}
 		return new_RegExpTree_Alternation(alternatives).up_RegExpTree()
@@ -1258,11 +1258,11 @@ func (this *RegExpTree_Alternation) equals_impl(o any) bool {
 		}
 		alternation = cast_[*RegExpTree_Alternation](v_)
 		return true
-	}() && Object_equals(obj_(this.alternatives), obj_(alternation.alternatives))))
+	}() && equalsBy_(this.alternatives, obj_(alternation.alternatives), (ImmutableListOf[*RegExpTree]).equals)))
 }
 
 func (this *RegExpTree_Alternation) hashCode_impl() int32 {
-	return (1370848465 ^ Object_hashCode(obj_(this.alternatives)))
+	return (1370848465 ^ hashBy_(this.alternatives, (ImmutableListOf[*RegExpTree]).hashCode))
 }
 
 type RegExpTree_LookaheadAssertion struct {
@@ -1675,11 +1675,11 @@ func (this *RegExpTree_UnicodePropertyEscape) equals_impl(o any) bool {
 		}
 		unicodePropertyEscape = cast_[*RegExpTree_UnicodePropertyEscape](v_)
 		return true
-	}() && (this.negated == unicodePropertyEscape.negated)) && Object_equals(obj_(optErase_(this.propertyName_)), obj_(optErase_(unicodePropertyEscape.propertyName_)))) && (this.propertyValue == unicodePropertyEscape.propertyValue))
+	}() && (this.negated == unicodePropertyEscape.negated)) && optequalsOn_(this.propertyName_, unicodePropertyEscape.propertyName_)) && (this.propertyValue == unicodePropertyEscape.propertyValue))
 }
 
 func (this *RegExpTree_UnicodePropertyEscape) hashCode_impl() int32 {
-	return Objects_hash([]any{any(bool(this.negated)), obj_(optErase_(this.propertyName_)), strobj_(this.propertyValue)})
+	return hashOf_(Boolean_hashCode(bool(this.negated)), objhashBy_(this.propertyName_, (OptionalOf[string]).hashCode), objhashStr_(this.propertyValue))
 }
 
 type RegExpTree_Charset struct {
@@ -2188,11 +2188,11 @@ func (this *RegExpTree_Concatenation) equals_impl(o any) bool {
 		}
 		concatenation = cast_[*RegExpTree_Concatenation](v_)
 		return true
-	}() && Object_equals(obj_(this.elements_), obj_(concatenation.elements_)))
+	}() && equalsBy_(this.elements_, obj_(concatenation.elements_), (ImmutableListOf[*RegExpTree]).equals))
 }
 
 func (this *RegExpTree_Concatenation) hashCode_impl() int32 {
-	return (546930238 ^ Object_hashCode(obj_(this.elements_)))
+	return (546930238 ^ hashBy_(this.elements_, (ImmutableListOf[*RegExpTree]).hashCode))
 }
 
 type RegExpTree_1Parser struct {

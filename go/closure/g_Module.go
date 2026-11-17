@@ -12,10 +12,18 @@ type Module struct {
 }
 
 func (this *Module) init_Module(metadata *ModuleMetadataMap_ModuleMetadata, path *ModuleLoader_ModulePath, namespace ImmutableMapOf[string, *Binding], boundNames ImmutableMapOf[string, *Binding], localNameToLocalExport ImmutableMapOf[string, *Export], closureNamespace OptionalOf[string]) {
-	Objects_requireNonNull(obj_(metadata), "metadata")
-	Objects_requireNonNull(obj_(namespace), "namespace")
-	Objects_requireNonNull(obj_(boundNames), "boundNames")
-	Objects_requireNonNull(obj_(localNameToLocalExport), "localNameToLocalExport")
+	if metadata == nil {
+		panic(new_NullPointerException_String("metadata").self())
+	}
+	if namespace == nil {
+		panic(new_NullPointerException_String("namespace").self())
+	}
+	if boundNames == nil {
+		panic(new_NullPointerException_String("boundNames").self())
+	}
+	if localNameToLocalExport == nil {
+		panic(new_NullPointerException_String("localNameToLocalExport").self())
+	}
 	this.metadata_ = metadata
 	this.path_ = path
 	this.namespace_ = namespace
@@ -67,7 +75,7 @@ func (this *Module) equals(p0 any) bool {
 	if !ok || o == nil {
 		return false
 	}
-	return true && objequalsBy_(this.metadata_, obj_(o.metadata_), (*ModuleMetadataMap_ModuleMetadata).equals) && this.path_ == o.path_ && objequalsBy_(this.namespace_, obj_(o.namespace_), (ImmutableMapOf[string, *Binding]).equals) && objequalsBy_(this.boundNames_, obj_(o.boundNames_), (ImmutableMapOf[string, *Binding]).equals) && objequalsBy_(this.localNameToLocalExport_, obj_(o.localNameToLocalExport_), (ImmutableMapOf[string, *Export]).equals) && Objects_equals(obj_(optErase_(this.closureNamespace_)), obj_(optErase_(o.closureNamespace_)))
+	return true && objequalsBy_(this.metadata_, obj_(o.metadata_), (*ModuleMetadataMap_ModuleMetadata).equals) && this.path_ == o.path_ && objequalsBy_(this.namespace_, obj_(o.namespace_), (ImmutableMapOf[string, *Binding]).equals) && objequalsBy_(this.boundNames_, obj_(o.boundNames_), (ImmutableMapOf[string, *Binding]).equals) && objequalsBy_(this.localNameToLocalExport_, obj_(o.localNameToLocalExport_), (ImmutableMapOf[string, *Export]).equals) && optequals_(this.closureNamespace_, o.closureNamespace_)
 }
 
 func (this *Module) hashCode() int32 {
@@ -77,7 +85,7 @@ func (this *Module) hashCode() int32 {
 	h = h*31 + objhashBy_(this.namespace_, (ImmutableMapOf[string, *Binding]).hashCode)
 	h = h*31 + objhashBy_(this.boundNames_, (ImmutableMapOf[string, *Binding]).hashCode)
 	h = h*31 + objhashBy_(this.localNameToLocalExport_, (ImmutableMapOf[string, *Export]).hashCode)
-	h = h*31 + Objects_hashCode(obj_(optErase_(this.closureNamespace_)))
+	h = h*31 + objhashBy_(this.closureNamespace_, (OptionalOf[string]).hashCode)
 	return h
 }
 

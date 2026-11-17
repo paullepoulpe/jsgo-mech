@@ -401,8 +401,12 @@ func (this *PolyfillUsageFinder_PolyfillUsage) zero_PolyfillUsageFinder_Polyfill
 }
 
 func (this *PolyfillUsageFinder_PolyfillUsage) init_PolyfillUsageFinder_PolyfillUsage(polyfill *PolyfillUsageFinder_Polyfill, node Node, name string, isExplicitGlobal bool) {
-	Objects_requireNonNull(obj_(polyfill), "polyfill")
-	Objects_requireNonNull(node.box_(), "node")
+	if polyfill == nil {
+		panic(new_NullPointerException_String("polyfill").self())
+	}
+	if node == 0 {
+		panic(new_NullPointerException_String("node").self())
+	}
 	this.polyfill_ = polyfill
 	this.node_ = node
 	this.name_ = name

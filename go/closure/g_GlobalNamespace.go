@@ -1129,7 +1129,7 @@ func (this *GlobalNamespace_Name) init_GlobalNamespace_Name(name string, parent 
 	this.parent = parent
 	this.setBooleanProperty(GlobalNamespace_NameProp_NOT_A_TYPE)
 	this.setBooleanProperty(GlobalNamespace_NameProp_OTHER_OBJECT)
-	if Object_equals(obj_(sourceKind), obj_(GlobalNamespace_SourceKind_EXTERN)) {
+	if equalsId_(sourceKind, GlobalNamespace_SourceKind_EXTERN) {
 		this.setBooleanProperty(GlobalNamespace_NameProp_IS_EXTERN)
 	}
 }
@@ -1338,7 +1338,7 @@ func (this *GlobalNamespace_Name) updateStateForAddedRef(ref *GlobalNamespace_Re
 			this.firstDeclarationJSDocInfo = this.getDocInfoForDeclaration(ref)
 		}
 		this.globalSets++
-		if Object_equals(obj_(ref.type__), obj_(GlobalNamespace_Ref_Type_GET_AND_SET_FROM_GLOBAL)) {
+		if equalsId_(ref.type__, GlobalNamespace_Ref_Type_GET_AND_SET_FROM_GLOBAL) {
 			this.aliasingGets++
 			this.totalGets++
 		}
@@ -1353,7 +1353,7 @@ func (this *GlobalNamespace_Name) updateStateForAddedRef(ref *GlobalNamespace_Re
 		if (info != nil) && info.isNoCollapse() {
 			this.localSetsWithNoCollapse++
 		}
-		if Object_equals(obj_(ref.type__), obj_(GlobalNamespace_Ref_Type_GET_AND_SET_FROM_LOCAL)) {
+		if equalsId_(ref.type__, GlobalNamespace_Ref_Type_GET_AND_SET_FROM_LOCAL) {
 			this.aliasingGets++
 			this.totalGets++
 		}
@@ -1455,7 +1455,7 @@ func (this *GlobalNamespace_Name) removeRefAndUpdateState(ref *GlobalNamespace_R
 		if (info != nil) && info.isNoCollapse() {
 			this.localSetsWithNoCollapse--
 		}
-		if Object_equals(obj_(ref.type__), obj_(GlobalNamespace_Ref_Type_GET_AND_SET_FROM_LOCAL)) {
+		if equalsId_(ref.type__, GlobalNamespace_Ref_Type_GET_AND_SET_FROM_LOCAL) {
 			this.aliasingGets--
 			this.totalGets--
 		}
@@ -2349,13 +2349,13 @@ func (this *GlobalNamespace_ObjLitStringKeyAnalysis) equals(p0 any) bool {
 	if !ok || o == nil {
 		return false
 	}
-	return true && Objects_equals(obj_(optErase_(this.nameString_)), obj_(optErase_(o.nameString_))) && Objects_equals(obj_(this.nameType_), obj_(o.nameType_))
+	return true && optequals_(this.nameString_, o.nameString_) && this.nameType_ == o.nameType_
 }
 
 func (this *GlobalNamespace_ObjLitStringKeyAnalysis) hashCode() int32 {
 	var h int32
-	h = h*31 + Objects_hashCode(obj_(optErase_(this.nameString_)))
-	h = h*31 + Objects_hashCode(obj_(this.nameType_))
+	h = h*31 + objhashBy_(this.nameString_, (OptionalOf[string]).hashCode)
+	h = h*31 + objhashId_(this.nameType_)
 	return h
 }
 

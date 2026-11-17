@@ -402,7 +402,7 @@ func InlineFunctions_checkOptimizationLevelSupportsRequireInlining(options *Comp
 	if options.getInstrumentForCoverageOption() != CompilerOptions_InstrumentOption_NONE {
 		problems = append(problems, "instrumentForCoverageOption enabled")
 	}
-	if !Object_equals(obj_(options.getPropertyCollapseLevel()), obj_(CompilerOptions_PropertyCollapseLevel_ALL)) {
+	if !equalsId_(options.getPropertyCollapseLevel(), CompilerOptions_PropertyCollapseLevel_ALL) {
 		problems = append(problems, "missing property collapsing")
 	}
 	if !options.shouldRemoveClosureAsserts() {

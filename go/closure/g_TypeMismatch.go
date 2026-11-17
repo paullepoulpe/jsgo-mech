@@ -9,9 +9,15 @@ type TypeMismatch struct {
 }
 
 func (this *TypeMismatch) init_TypeMismatch(found *JSType, required *JSType, location Node) {
-	Objects_requireNonNull(found.self(), "found")
-	Objects_requireNonNull(required.self(), "required")
-	Objects_requireNonNull(location.box_(), "location")
+	if found == nil {
+		panic(new_NullPointerException_String("found").self())
+	}
+	if required == nil {
+		panic(new_NullPointerException_String("required").self())
+	}
+	if location == 0 {
+		panic(new_NullPointerException_String("location").self())
+	}
 	this.found_ = found
 	this.required_ = required
 	this.location_ = location
@@ -60,13 +66,13 @@ func (this *TypeMismatch) equals(p0 any) bool {
 	if !ok || o == nil {
 		return false
 	}
-	return true && Objects_equals(this.found_.self(), o.found_.self()) && Objects_equals(this.required_.self(), o.required_.self()) && this.location_ == o.location_
+	return true && objequalsBy_(this.found_, o.found_.self(), (*JSType).equals) && objequalsBy_(this.required_, o.required_.self(), (*JSType).equals) && this.location_ == o.location_
 }
 
 func (this *TypeMismatch) hashCode() int32 {
 	var h int32
-	h = h*31 + Objects_hashCode(this.found_.self())
-	h = h*31 + Objects_hashCode(this.required_.self())
+	h = h*31 + objhashBy_(this.found_, (*JSType).hashCode)
+	h = h*31 + objhashBy_(this.required_, (*JSType).hashCode)
 	h = h*31 + objhashId_(this.location_)
 	return h
 }

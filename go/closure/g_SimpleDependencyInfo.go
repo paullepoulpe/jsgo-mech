@@ -19,10 +19,18 @@ func (this *SimpleDependencyInfo) zero_SimpleDependencyInfo() {
 }
 
 func (this *SimpleDependencyInfo) init_SimpleDependencyInfo(getName string, getPathRelativeToClosureBase string, getProvides ImmutableListOf[string], getRequires ImmutableListOf[*DependencyInfo_Require], getTypeRequires ImmutableListOf[string], getLoadFlags ImmutableMapOf[string, string], getHasExternsAnnotation bool, getHasNoCompileAnnotation bool) {
-	Objects_requireNonNull(obj_(getProvides), "getProvides")
-	Objects_requireNonNull(obj_(getRequires), "getRequires")
-	Objects_requireNonNull(obj_(getTypeRequires), "getTypeRequires")
-	Objects_requireNonNull(obj_(getLoadFlags), "getLoadFlags")
+	if getProvides == nil {
+		panic(new_NullPointerException_String("getProvides").self())
+	}
+	if getRequires == nil {
+		panic(new_NullPointerException_String("getRequires").self())
+	}
+	if getTypeRequires == nil {
+		panic(new_NullPointerException_String("getTypeRequires").self())
+	}
+	if getLoadFlags == nil {
+		panic(new_NullPointerException_String("getLoadFlags").self())
+	}
 	this.getName_ = getName
 	this.getPathRelativeToClosureBase_ = getPathRelativeToClosureBase
 	this.getProvides_ = getProvides
@@ -97,16 +105,16 @@ func (this *SimpleDependencyInfo) equals(p0 any) bool {
 	if !ok || o == nil {
 		return false
 	}
-	return true && this.getName_ == o.getName_ && this.getPathRelativeToClosureBase_ == o.getPathRelativeToClosureBase_ && Objects_equals(obj_(this.getProvides_), obj_(o.getProvides_)) && Objects_equals(obj_(this.getRequires_), obj_(o.getRequires_)) && Objects_equals(obj_(this.getTypeRequires_), obj_(o.getTypeRequires_)) && objequalsBy_(this.getLoadFlags_, obj_(o.getLoadFlags_), (ImmutableMapOf[string, string]).equals) && this.getHasExternsAnnotation_ == o.getHasExternsAnnotation_ && this.getHasNoCompileAnnotation_ == o.getHasNoCompileAnnotation_
+	return true && this.getName_ == o.getName_ && this.getPathRelativeToClosureBase_ == o.getPathRelativeToClosureBase_ && objequalsBy_(this.getProvides_, obj_(o.getProvides_), (ImmutableListOf[string]).equals) && objequalsBy_(this.getRequires_, obj_(o.getRequires_), (ImmutableListOf[*DependencyInfo_Require]).equals) && objequalsBy_(this.getTypeRequires_, obj_(o.getTypeRequires_), (ImmutableListOf[string]).equals) && objequalsBy_(this.getLoadFlags_, obj_(o.getLoadFlags_), (ImmutableMapOf[string, string]).equals) && this.getHasExternsAnnotation_ == o.getHasExternsAnnotation_ && this.getHasNoCompileAnnotation_ == o.getHasNoCompileAnnotation_
 }
 
 func (this *SimpleDependencyInfo) hashCode() int32 {
 	var h int32
 	h = h*31 + objhashStr_(this.getName_)
 	h = h*31 + objhashStr_(this.getPathRelativeToClosureBase_)
-	h = h*31 + Objects_hashCode(obj_(this.getProvides_))
-	h = h*31 + Objects_hashCode(obj_(this.getRequires_))
-	h = h*31 + Objects_hashCode(obj_(this.getTypeRequires_))
+	h = h*31 + objhashBy_(this.getProvides_, (ImmutableListOf[string]).hashCode)
+	h = h*31 + objhashBy_(this.getRequires_, (ImmutableListOf[*DependencyInfo_Require]).hashCode)
+	h = h*31 + objhashBy_(this.getTypeRequires_, (ImmutableListOf[string]).hashCode)
 	h = h*31 + objhashBy_(this.getLoadFlags_, (ImmutableMapOf[string, string]).hashCode)
 	h = h*31 + Boolean_hashCode(bool(this.getHasExternsAnnotation_))
 	h = h*31 + Boolean_hashCode(bool(this.getHasNoCompileAnnotation_))

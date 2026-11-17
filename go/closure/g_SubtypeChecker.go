@@ -156,7 +156,7 @@ func (this *SubtypeChecker) isSubtypeHelper(subtype *JSType, supertype *JSType) 
 	if (this.subtypingMode == JSType_SubtypingMode_IGNORE_NULL_UNDEFINED) && (subtype.isNullType() || subtype.isVoidType()) {
 		return true
 	}
-	if Objects_equals(subtype.self(), supertype.self()) {
+	if objequalsBy_(subtype, supertype.self(), (*JSType).equals) {
 		return true
 	}
 	if subtype.isNamedType() {
@@ -752,5 +752,5 @@ func (this *SubtypeChecker_CacheKey) equals(other any) bool {
 	if JSCompObjects_identical(this.left.self(), that.left.self()) && JSCompObjects_identical(this.right.self(), that.right.self()) {
 		return true
 	}
-	return (Objects_equals(this.left.self(), that.left.self()) && Objects_equals(this.right.self(), that.right.self()))
+	return (objequalsBy_(this.left, that.left.self(), (*JSType).equals) && objequalsBy_(this.right, that.right.self(), (*JSType).equals))
 }

@@ -331,7 +331,7 @@ func (this *MustBeReachingVariableDef_Definition) toString() string {
 }
 
 func (this *MustBeReachingVariableDef_Definition) hashCode() int32 {
-	return Object_hashCode(this.node_.box_())
+	return hashId_(this.node_)
 }
 
 type MustBeReachingVariableDef_MustDef struct {

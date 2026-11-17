@@ -19,8 +19,12 @@ func (this *JSError) zero_JSError() {
 }
 
 func (this *JSError) init_JSError(type_ *DiagnosticType, description string, sourceName OptionalOf[string], lineno int32, charno int32, length int32, node Node, defaultLevel CheckLevel, requirement *Requirement) {
-	Objects_requireNonNull(obj_(type_), "type")
-	Objects_requireNonNull(obj_(defaultLevel), "defaultLevel")
+	if type_ == nil {
+		panic(new_NullPointerException_String("type").self())
+	}
+	if defaultLevel == 0 {
+		panic(new_NullPointerException_String("defaultLevel").self())
+	}
 	this.type__ = type_
 	this.description_ = description
 	this.sourceName_ = sourceName
@@ -189,19 +193,19 @@ func (this *JSError) equals(p0 any) bool {
 	if !ok || o == nil {
 		return false
 	}
-	return true && objequalsBy_(this.type__, obj_(o.type__), (*DiagnosticType).equals) && this.description_ == o.description_ && Objects_equals(obj_(optErase_(this.sourceName_)), obj_(optErase_(o.sourceName_))) && this.lineno_ == o.lineno_ && this.charno_ == o.charno_ && this.length_ == o.length_ && this.node_ == o.node_ && Objects_equals(obj_(this.defaultLevel_), obj_(o.defaultLevel_)) && objequalsBy_(this.requirement_, obj_(o.requirement_), (*Requirement).equals)
+	return true && objequalsBy_(this.type__, obj_(o.type__), (*DiagnosticType).equals) && this.description_ == o.description_ && optequals_(this.sourceName_, o.sourceName_) && this.lineno_ == o.lineno_ && this.charno_ == o.charno_ && this.length_ == o.length_ && this.node_ == o.node_ && this.defaultLevel_ == o.defaultLevel_ && objequalsBy_(this.requirement_, obj_(o.requirement_), (*Requirement).equals)
 }
 
 func (this *JSError) hashCode() int32 {
 	var h int32
 	h = h*31 + objhashBy_(this.type__, (*DiagnosticType).hashCode)
 	h = h*31 + objhashStr_(this.description_)
-	h = h*31 + Objects_hashCode(obj_(optErase_(this.sourceName_)))
+	h = h*31 + objhashBy_(this.sourceName_, (OptionalOf[string]).hashCode)
 	h = h*31 + int32(this.lineno_)
 	h = h*31 + int32(this.charno_)
 	h = h*31 + int32(this.length_)
 	h = h*31 + objhashId_(this.node_)
-	h = h*31 + Objects_hashCode(obj_(this.defaultLevel_))
+	h = h*31 + objhashId_(this.defaultLevel_)
 	h = h*31 + objhashBy_(this.requirement_, (*Requirement).hashCode)
 	return h
 }
@@ -262,7 +266,7 @@ func new_JSError_Builder(type_ *DiagnosticType, args []string) *JSError_Builder 
 }
 
 func (this *JSError_Builder) setNode(n Node) *JSError_Builder {
-	Preconditions_checkState_boolean_Object(Object_equals(obj_(JSError_DEFAULT_SOURCENAME), obj_(optErase_(this.sourceName_))), strobj_("Cannot provide a Node when there's already a source name"))
+	Preconditions_checkState_boolean_Object(optequalsOn_(JSError_DEFAULT_SOURCENAME, optErase_(this.sourceName_)), strobj_("Cannot provide a Node when there's already a source name"))
 	this.n = n
 	this.sourceName_ = Optional_of[string](n.getSourceFileName()).filterFn_(func(s string) bool {
 		_ = s
@@ -275,7 +279,7 @@ func (this *JSError_Builder) setNode(n Node) *JSError_Builder {
 }
 
 func (this *JSError_Builder) setNodeRange(start Node, end Node) *JSError_Builder {
-	Preconditions_checkState_boolean_Object(Object_equals(obj_(JSError_DEFAULT_SOURCENAME), obj_(optErase_(this.sourceName_))), strobj_("Cannot provide a Node when there's already a source name"))
+	Preconditions_checkState_boolean_Object(optequalsOn_(JSError_DEFAULT_SOURCENAME, optErase_(this.sourceName_)), strobj_("Cannot provide a Node when there's already a source name"))
 	this.n = start
 	this.sourceName_ = Optional_of[string](this.n.getSourceFileName()).filterFn_(func(s string) bool {
 		_ = s

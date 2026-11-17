@@ -464,7 +464,7 @@ func (this *LinkedDirectedGraph_LinkedDiGraphNode) getColor() string {
 }
 
 func (this *LinkedDirectedGraph_LinkedDiGraphNode) getId() string {
-	return ("LDN" + istr_(int64(Object_hashCode(this.self()))))
+	return ("LDN" + istr_(int64(objhashId_(this.self()))))
 }
 
 func (this *LinkedDirectedGraph_LinkedDiGraphNode) getLabel_impl() string {

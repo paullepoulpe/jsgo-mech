@@ -17,16 +17,31 @@ type Color struct {
 }
 
 func (this *Color) init_Color(id *ColorId, prototypes ImmutableSetOf[*Color], instanceColors ImmutableSetOf[*Color], invalidating bool, propertiesKeepOriginalName bool, constructor bool, ownProperties ImmutableSetOf[string], boxId *ColorId, closureAssert bool, unionElements ImmutableSetOf[*Color]) {
-	this.id = cast_[*ColorId](Objects_requireNonNull(obj_(id), "id"))
-	this.prototypes = cast_[*ImmutableSet](Objects_requireNonNull(obj_(prototypes), "prototypes"))
-	this.instanceColors = cast_[*ImmutableSet](Objects_requireNonNull(obj_(instanceColors), "instanceColors"))
+	if id == nil {
+		panic(new_NullPointerException_String("id").self())
+	}
+	this.id = id
+	if prototypes == nil {
+		panic(new_NullPointerException_String("prototypes").self())
+	}
+	this.prototypes = prototypes
+	if instanceColors == nil {
+		panic(new_NullPointerException_String("instanceColors").self())
+	}
+	this.instanceColors = instanceColors
 	this.invalidating = invalidating
 	this.propertiesKeepOriginalName = propertiesKeepOriginalName
 	this.constructor_ = constructor
-	this.ownProperties = cast_[*ImmutableSet](Objects_requireNonNull(obj_(ownProperties), "ownProperties"))
+	if ownProperties == nil {
+		panic(new_NullPointerException_String("ownProperties").self())
+	}
+	this.ownProperties = ownProperties
 	this.boxId = boxId
 	this.closureAssert = closureAssert
-	this.unionElements = cast_[*ImmutableSet](Objects_requireNonNull(obj_(unionElements), "unionElements"))
+	if unionElements == nil {
+		panic(new_NullPointerException_String("unionElements").self())
+	}
+	this.unionElements = unionElements
 }
 
 func new_Color(id *ColorId, prototypes ImmutableSetOf[*Color], instanceColors ImmutableSetOf[*Color], invalidating bool, propertiesKeepOriginalName bool, constructor bool, ownProperties ImmutableSetOf[string], boxId *ColorId, closureAssert bool, unionElements ImmutableSetOf[*Color]) *Color {
@@ -45,12 +60,12 @@ func (this *Color) equals(o any) bool {
 	}
 	if is_[*Color](o) {
 		var that *Color = cast_[*Color](o)
-		return (((((((((this.id.equals(obj_(that.getId())) && Object_equals(obj_(this.prototypes), obj_(that.getPrototypes()))) && Object_equals(obj_(this.instanceColors), obj_(that.getInstanceColors()))) && (this.invalidating == that.isInvalidating())) && (this.propertiesKeepOriginalName == that.getPropertiesKeepOriginalName())) && (this.constructor_ == that.isConstructor())) && Object_equals(obj_(this.ownProperties), obj_(that.getOwnProperties()))) && func() bool {
+		return (((((((((this.id.equals(obj_(that.getId())) && equalsBy_(this.prototypes, obj_(that.getPrototypes()), (ImmutableSetOf[*Color]).equals)) && equalsBy_(this.instanceColors, obj_(that.getInstanceColors()), (ImmutableSetOf[*Color]).equals)) && (this.invalidating == that.isInvalidating())) && (this.propertiesKeepOriginalName == that.getPropertiesKeepOriginalName())) && (this.constructor_ == that.isConstructor())) && equalsBy_(this.ownProperties, obj_(that.getOwnProperties()), (ImmutableSetOf[string]).equals)) && func() bool {
 			if this.boxId == nil {
 				return (that.getBoxId() == nil)
 			}
 			return this.boxId.equals(obj_(that.getBoxId()))
-		}()) && (this.closureAssert == that.isClosureAssert())) && Object_equals(obj_(this.unionElements), obj_(that.getUnionElements())))
+		}()) && (this.closureAssert == that.isClosureAssert())) && equalsBy_(this.unionElements, obj_(that.getUnionElements()), (ImmutableSetOf[*Color]).equals))
 	}
 	return false
 }
@@ -60,9 +75,9 @@ func (this *Color) hashCode() int32 {
 	h *= 1000003
 	h ^= this.id.hashCode()
 	h *= 1000003
-	h ^= Object_hashCode(obj_(this.prototypes))
+	h ^= hashBy_(this.prototypes, (ImmutableSetOf[*Color]).hashCode)
 	h *= 1000003
-	h ^= Object_hashCode(obj_(this.instanceColors))
+	h ^= hashBy_(this.instanceColors, (ImmutableSetOf[*Color]).hashCode)
 	h *= 1000003
 	h ^= func() int32 {
 		if this.invalidating {
@@ -85,7 +100,7 @@ func (this *Color) hashCode() int32 {
 		return 1237
 	}()
 	h *= 1000003
-	h ^= Object_hashCode(obj_(this.ownProperties))
+	h ^= hashBy_(this.ownProperties, (ImmutableSetOf[string]).hashCode)
 	h *= 1000003
 	h ^= func() int32 {
 		if this.boxId == nil {
@@ -101,7 +116,7 @@ func (this *Color) hashCode() int32 {
 		return 1237
 	}()
 	h *= 1000003
-	h ^= Object_hashCode(obj_(this.unionElements))
+	h ^= hashBy_(this.unionElements, (ImmutableSetOf[*Color]).hashCode)
 	return h
 }
 
@@ -206,7 +221,7 @@ func (this *Color) subtractNullOrVoid() *Color {
 	if this.memoizedSubtractNullOrVoid == nil {
 		{
 			if this.memoizedSubtractNullOrVoid == nil {
-				this.memoizedSubtractNullOrVoid = cast_[*Color](Objects_requireNonNull_Object(obj_(this.subtractNullOrVoidUncached())))
+				this.memoizedSubtractNullOrVoid = requireNonNull0_(this.subtractNullOrVoidUncached())
 			}
 		}
 	}

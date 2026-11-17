@@ -348,7 +348,7 @@ func (this *PrototypeObjectType) matchRecordTypeConstraint(constraintObj *Object
 
 func (this *PrototypeObjectType) recursionUnsafeHashCode_impl() int32 {
 	if this.isStructuralType() {
-		return Objects_hash([]any{obj_(optErase_(this.className)), obj_(this.properties)})
+		return hashOf_(objhashBy_(this.className, (OptionalOf[string]).hashCode), objhashBy_(this.properties, (*PropertyMap).hashCode))
 	} else {
 		return System_identityHashCode(this.self())
 	}
@@ -559,13 +559,13 @@ func (this *PrototypeObjectType_PropertyForPrettyPrinting) equals(p0 any) bool {
 	if !ok || o == nil {
 		return false
 	}
-	return true && Objects_equals(any(this.key_), any(o.key_)) && Objects_equals(this.type__.self(), o.type__.self())
+	return true && objequalsVia_(this.key_, any(o.key_)) && objequalsBy_(this.type__, o.type__.self(), (*JSType).equals)
 }
 
 func (this *PrototypeObjectType_PropertyForPrettyPrinting) hashCode() int32 {
 	var h int32
-	h = h*31 + Objects_hashCode(any(this.key_))
-	h = h*31 + Objects_hashCode(this.type__.self())
+	h = h*31 + objhashVia_(this.key_)
+	h = h*31 + objhashBy_(this.type__, (*JSType).hashCode)
 	return h
 }
 

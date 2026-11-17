@@ -16,7 +16,9 @@ type Export struct {
 }
 
 func (this *Export) init_Export(exportName OptionalOf[string], moduleRequest OptionalOf[string], importName OptionalOf[string], localName OptionalOf[string], modulePath *ModuleLoader_ModulePath, exportNode Node, nameNode Node, moduleMetadata *ModuleMetadataMap_ModuleMetadata, closureNamespace OptionalOf[string], mutated bool) {
-	Objects_requireNonNull(obj_(moduleMetadata), "moduleMetadata")
+	if moduleMetadata == nil {
+		panic(new_NullPointerException_String("moduleMetadata").self())
+	}
 	this.exportName_ = exportName
 	this.moduleRequest_ = moduleRequest
 	this.importName_ = importName
@@ -92,20 +94,20 @@ func (this *Export) equals(p0 any) bool {
 	if !ok || o == nil {
 		return false
 	}
-	return true && Objects_equals(obj_(optErase_(this.exportName_)), obj_(optErase_(o.exportName_))) && Objects_equals(obj_(optErase_(this.moduleRequest_)), obj_(optErase_(o.moduleRequest_))) && Objects_equals(obj_(optErase_(this.importName_)), obj_(optErase_(o.importName_))) && Objects_equals(obj_(optErase_(this.localName_)), obj_(optErase_(o.localName_))) && this.modulePath_ == o.modulePath_ && this.exportNode_ == o.exportNode_ && this.nameNode_ == o.nameNode_ && objequalsBy_(this.moduleMetadata_, obj_(o.moduleMetadata_), (*ModuleMetadataMap_ModuleMetadata).equals) && Objects_equals(obj_(optErase_(this.closureNamespace_)), obj_(optErase_(o.closureNamespace_))) && this.mutated_ == o.mutated_
+	return true && optequals_(this.exportName_, o.exportName_) && optequals_(this.moduleRequest_, o.moduleRequest_) && optequals_(this.importName_, o.importName_) && optequals_(this.localName_, o.localName_) && this.modulePath_ == o.modulePath_ && this.exportNode_ == o.exportNode_ && this.nameNode_ == o.nameNode_ && objequalsBy_(this.moduleMetadata_, obj_(o.moduleMetadata_), (*ModuleMetadataMap_ModuleMetadata).equals) && optequals_(this.closureNamespace_, o.closureNamespace_) && this.mutated_ == o.mutated_
 }
 
 func (this *Export) hashCode() int32 {
 	var h int32
-	h = h*31 + Objects_hashCode(obj_(optErase_(this.exportName_)))
-	h = h*31 + Objects_hashCode(obj_(optErase_(this.moduleRequest_)))
-	h = h*31 + Objects_hashCode(obj_(optErase_(this.importName_)))
-	h = h*31 + Objects_hashCode(obj_(optErase_(this.localName_)))
+	h = h*31 + objhashBy_(this.exportName_, (OptionalOf[string]).hashCode)
+	h = h*31 + objhashBy_(this.moduleRequest_, (OptionalOf[string]).hashCode)
+	h = h*31 + objhashBy_(this.importName_, (OptionalOf[string]).hashCode)
+	h = h*31 + objhashBy_(this.localName_, (OptionalOf[string]).hashCode)
 	h = h*31 + objhashId_(this.modulePath_)
 	h = h*31 + objhashId_(this.exportNode_)
 	h = h*31 + objhashId_(this.nameNode_)
 	h = h*31 + objhashBy_(this.moduleMetadata_, (*ModuleMetadataMap_ModuleMetadata).hashCode)
-	h = h*31 + Objects_hashCode(obj_(optErase_(this.closureNamespace_)))
+	h = h*31 + objhashBy_(this.closureNamespace_, (OptionalOf[string]).hashCode)
 	h = h*31 + Boolean_hashCode(bool(this.mutated_))
 	return h
 }

@@ -976,7 +976,7 @@ func (this *AbstractCommandLineRunner) doRun() *Outcome_base {
 		if this.isInTestMode() {
 			chunks = icast_List(this.chunksSupplierForTesting())
 		} else {
-			if Object_equals(obj_(CompilerOptions_JsonStreamMode_IN), obj_(this.config.jsonStreamMode)) || Object_equals(obj_(CompilerOptions_JsonStreamMode_NONE), obj_(this.config.jsonStreamMode)) {
+			if CompilerOptions_JsonStreamMode_IN == this.config.jsonStreamMode || CompilerOptions_JsonStreamMode_NONE == this.config.jsonStreamMode {
 				it_4 := jsChunkSpecs.each()
 				for it_4.next() {
 					var m *AbstractCommandLineRunner_JsChunkSpec = it_4.v

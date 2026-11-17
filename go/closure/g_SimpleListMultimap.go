@@ -181,7 +181,7 @@ func (this *SimpleListMultimap) equals(o any) bool {
 }
 
 func (this *SimpleListMultimap) hashCode() int32 {
-	return Object_hashCode(obj_(this.map__))
+	return hashBy_(this.map__, (LinkedHashMapOf[any, ListOf[any]]).hashCode)
 }
 
 func (this *SimpleListMultimap) toString() string {

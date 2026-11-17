@@ -1217,7 +1217,7 @@ func PeepholeFoldConstants_tryStrictEqualityComparison(peepholeOptimization *Abs
 					return Tri_UNKNOWN
 				} else {
 					return func() Tri {
-						if Object_equals(obj_(optErase_(lv)), obj_(optErase_(rv))) {
+						if optequalsOn_(lv, rv) {
 							return Tri_TRUE
 						}
 						return Tri_FALSE
@@ -1454,7 +1454,7 @@ func (this *PeepholeFoldConstants) tryFlattenArrayOrObjectLit(parentLit Node) No
 				continue
 			}
 			var innerLit Node = spread.getOnlyChild()
-			if !Object_equals(obj_(parentLit.getToken()), obj_(innerLit.getToken())) {
+			if !equalsId_(parentLit.getToken(), innerLit.getToken()) {
 				continue
 			}
 			if parentLit.isObjectLit() && !PeepholeFoldConstants_isSafeToFlattenObjectLitSpread(innerLit) {

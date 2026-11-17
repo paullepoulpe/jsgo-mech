@@ -627,14 +627,14 @@ func (this *JSChunkGraph_DependencyManagementResult) equals(p0 any) bool {
 	if !ok || o == nil {
 		return false
 	}
-	return true && Objects_equals(obj_(this.orderedInputs_), obj_(o.orderedInputs_)) && this.sorter_ == o.sorter_ && Objects_equals(obj_(this.entryPointInputs_), obj_(o.entryPointInputs_))
+	return true && objequalsBy_(this.orderedInputs_, obj_(o.orderedInputs_), (ImmutableListOf[*CompilerInput]).equals) && this.sorter_ == o.sorter_ && objequalsBy_(this.entryPointInputs_, obj_(o.entryPointInputs_), (ImmutableSetOf[*CompilerInput]).equals)
 }
 
 func (this *JSChunkGraph_DependencyManagementResult) hashCode() int32 {
 	var h int32
-	h = h*31 + Objects_hashCode(obj_(this.orderedInputs_))
+	h = h*31 + objhashBy_(this.orderedInputs_, (ImmutableListOf[*CompilerInput]).hashCode)
 	h = h*31 + objhashId_(this.sorter_)
-	h = h*31 + Objects_hashCode(obj_(this.entryPointInputs_))
+	h = h*31 + objhashBy_(this.entryPointInputs_, (ImmutableSetOf[*CompilerInput]).hashCode)
 	return h
 }
 

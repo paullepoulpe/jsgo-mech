@@ -177,7 +177,7 @@ func (this *ProcessClosureProvidesAndRequires) checkNestedTypedefProvide(exprRes
 	var parentName string = String_substring(name, 0, String_lastIndexOf_String(name, "."))
 	var parent *ProcessClosureProvidesAndRequires_ProvidedName = this.providedNames.get(parentName)
 	var parentDefinition Node = parent.getCandidateDefinition()
-	if ((parentDefinition == 0) || !Object_equals(any(parentDefinition.getStaticSourceFile()), any(exprResult.getStaticSourceFile()))) || this.isTypedefStubDeclaration(parentDefinition) {
+	if ((parentDefinition == 0) || !equalsId_(parentDefinition.getStaticSourceFile(), exprResult.getStaticSourceFile())) || this.isTypedefStubDeclaration(parentDefinition) {
 		return
 	}
 	this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(exprResult, ProcessClosureProvidesAndRequires_TYPEDEF_CHILD_OF_PROVIDE, []string{name, parentName}))

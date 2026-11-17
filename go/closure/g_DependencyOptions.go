@@ -8,8 +8,12 @@ type DependencyOptions struct {
 }
 
 func (this *DependencyOptions) init_DependencyOptions(mode DependencyOptions_DependencyMode, entryPoints ImmutableListOf[*ModuleIdentifier]) {
-	Objects_requireNonNull(obj_(mode), "mode")
-	Objects_requireNonNull(obj_(entryPoints), "entryPoints")
+	if mode == 0 {
+		panic(new_NullPointerException_String("mode").self())
+	}
+	if entryPoints == nil {
+		panic(new_NullPointerException_String("entryPoints").self())
+	}
 	this.mode_ = mode
 	this.entryPoints_ = entryPoints
 }
@@ -146,13 +150,13 @@ func (this *DependencyOptions) equals(p0 any) bool {
 	if !ok || o == nil {
 		return false
 	}
-	return true && Objects_equals(obj_(this.mode_), obj_(o.mode_)) && Objects_equals(obj_(this.entryPoints_), obj_(o.entryPoints_))
+	return true && this.mode_ == o.mode_ && objequalsBy_(this.entryPoints_, obj_(o.entryPoints_), (ImmutableListOf[*ModuleIdentifier]).equals)
 }
 
 func (this *DependencyOptions) hashCode() int32 {
 	var h int32
-	h = h*31 + Objects_hashCode(obj_(this.mode_))
-	h = h*31 + Objects_hashCode(obj_(this.entryPoints_))
+	h = h*31 + objhashId_(this.mode_)
+	h = h*31 + objhashBy_(this.entryPoints_, (ImmutableListOf[*ModuleIdentifier]).hashCode)
 	return h
 }
 

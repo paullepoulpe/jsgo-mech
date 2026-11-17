@@ -1739,13 +1739,13 @@ func (this *Es6NormalizeClasses_NormalizedNames) equals(p0 any) bool {
 	if !ok || o == nil {
 		return false
 	}
-	return true && this.classNameNode_ == o.classNameNode_ && Objects_equals(obj_(optErase_(this.superClassNode_)), obj_(optErase_(o.superClassNode_))) && this.shouldExtractClass_ == o.shouldExtractClass_ && this.shouldExtractExtends_ == o.shouldExtractExtends_
+	return true && this.classNameNode_ == o.classNameNode_ && optequals_(this.superClassNode_, o.superClassNode_) && this.shouldExtractClass_ == o.shouldExtractClass_ && this.shouldExtractExtends_ == o.shouldExtractExtends_
 }
 
 func (this *Es6NormalizeClasses_NormalizedNames) hashCode() int32 {
 	var h int32
 	h = h*31 + objhashId_(this.classNameNode_)
-	h = h*31 + Objects_hashCode(obj_(optErase_(this.superClassNode_)))
+	h = h*31 + objhashBy_(this.superClassNode_, (OptionalOf[Node]).hashCode)
 	h = h*31 + Boolean_hashCode(bool(this.shouldExtractClass_))
 	h = h*31 + Boolean_hashCode(bool(this.shouldExtractExtends_))
 	return h

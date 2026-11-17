@@ -80,7 +80,7 @@ func (this *LowestCommonAncestorFinder) paintAncestors(root DiGraph_DiGraphNode,
 		for it_2.next() {
 			var parentEdge DiGraph_DiGraphEdge = it_2.v
 			var parent DiGraph_DiGraphNode = parentEdge.getSource()
-			if Object_equals(any(parent), any(root)) {
+			if equalsId_(parent, root) {
 				continue
 			}
 			var oldColor *LowestCommonAncestorFinder_Color = cast_[*LowestCommonAncestorFinder_Color](Map_getOrDefault(this.searchColoring.asMap(), any(parent), obj_(LowestCommonAncestorFinder_Color_BLANK)))

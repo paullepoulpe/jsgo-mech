@@ -67,7 +67,7 @@ func (this *ClosureCheckModule) visit_4_impl(t *NodeTraversal, n Node, currentMo
 	case tokOrd1_CALL:
 		var callee Node = n.getFirstChild()
 		if ClosureCheckModule_GOOG_MODULE_FIELD.matches(callee) {
-			if !Object_equals(obj_(Optional_of(strobj_(this.currentModuleInfo.name_))), obj_(optErase_(ClosureCheckModule_extractFirstArgumentName(n)))) {
+			if !optequalsOn_(Optional_of(strobj_(this.currentModuleInfo.name_)), optErase_(ClosureCheckModule_extractFirstArgumentName(n))) {
 				t.report(n, ClosureCheckModule_MULTIPLE_MODULES_IN_FILE, []string{})
 			} else if !ClosureCheckModule_isFirstExpressionInGoogModule(parent) {
 				t.report(n, ClosureCheckModule_GOOG_MODULE_MISPLACED, []string{})
@@ -249,7 +249,7 @@ func (this *ClosureCheckModule) checkRequireCall(t *NodeTraversal, callNode Node
 		this.checkShortGoogRequireCall(t, callNode, parent.getParent())
 	case tokOrd1_AWAIT:
 		var grandParentToken Token_rhino = parent.getParent().getToken()
-		if Object_equals(obj_(grandParentToken), obj_(Token_rhino_DESTRUCTURING_LHS)) || Object_equals(obj_(grandParentToken), obj_(Token_rhino_NAME)) {
+		if equalsId_(grandParentToken, Token_rhino_DESTRUCTURING_LHS) || equalsId_(grandParentToken, Token_rhino_NAME) {
 			this.checkShortGoogRequireCall(t, callNode, parent.getGrandparent())
 		}
 	default:

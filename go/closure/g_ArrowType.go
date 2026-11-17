@@ -46,11 +46,11 @@ func (this *ArrowType) getTypeClass_impl() JSTypeClass {
 }
 
 func (this *ArrowType) recursionUnsafeHashCode_impl() int32 {
-	var hashCode int32 = Objects_hashCode(this.returnType.self())
+	var hashCode int32 = objhashBy_(this.returnType, (*JSType).hashCode)
 	it_1 := foreach_(obj_(this.parameterList))
 	for it_1.next() {
 		var param *FunctionType_Parameter = cast_[*FunctionType_Parameter](it_1.v)
-		hashCode = ((hashCode * 31) + Objects_hashCode(param.getJSType().self()))
+		hashCode = ((hashCode * 31) + objhashBy_(param.getJSType(), (*JSType).hashCode))
 	}
 	return hashCode
 }

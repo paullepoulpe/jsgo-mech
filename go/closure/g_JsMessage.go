@@ -25,11 +25,21 @@ func (this *JsMessage) zero_JsMessage() {
 }
 
 func (this *JsMessage) init_JsMessage(getSourceName OptionalOf[string], getKey string, isAnonymous bool, isExternal bool, getId string, getParts ImmutableListOf[JsMessage_Part], getGenderedMessagesMap ImmutableMapOf[JsMessage_GrammaticalGenderCase, ImmutableListOf[JsMessage_Part]], getAlternateId OptionalOf[string], getDesc OptionalOf[string], getMeaning OptionalOf[string], getPlaceholderNameToExampleMap ImmutableMapOf[string, string], getPlaceholderNameToOriginalCodeMap ImmutableMapOf[string, string], jsPlaceholderNames ImmutableSetOf[string], canonicalPlaceholderNames ImmutableSetOf[string]) {
-	Objects_requireNonNull(obj_(getParts), "getParts")
-	Objects_requireNonNull(obj_(getPlaceholderNameToExampleMap), "getPlaceholderNameToExampleMap")
-	Objects_requireNonNull(obj_(getPlaceholderNameToOriginalCodeMap), "getPlaceholderNameToOriginalCodeMap")
-	Objects_requireNonNull(obj_(jsPlaceholderNames), "jsPlaceholderNames")
-	Objects_requireNonNull(obj_(canonicalPlaceholderNames), "canonicalPlaceholderNames")
+	if getParts == nil {
+		panic(new_NullPointerException_String("getParts").self())
+	}
+	if getPlaceholderNameToExampleMap == nil {
+		panic(new_NullPointerException_String("getPlaceholderNameToExampleMap").self())
+	}
+	if getPlaceholderNameToOriginalCodeMap == nil {
+		panic(new_NullPointerException_String("getPlaceholderNameToOriginalCodeMap").self())
+	}
+	if jsPlaceholderNames == nil {
+		panic(new_NullPointerException_String("jsPlaceholderNames").self())
+	}
+	if canonicalPlaceholderNames == nil {
+		panic(new_NullPointerException_String("canonicalPlaceholderNames").self())
+	}
 	this.getSourceName_ = getSourceName
 	this.getKey_ = getKey
 	this.isAnonymous_ = isAnonymous
@@ -261,25 +271,25 @@ func (this *JsMessage) equals(p0 any) bool {
 	if !ok || o == nil {
 		return false
 	}
-	return true && Objects_equals(obj_(optErase_(this.getSourceName_)), obj_(optErase_(o.getSourceName_))) && this.getKey_ == o.getKey_ && this.isAnonymous_ == o.isAnonymous_ && this.isExternal_ == o.isExternal_ && this.getId_ == o.getId_ && Objects_equals(obj_(this.getParts_), obj_(o.getParts_)) && objequalsBy_(this.getGenderedMessagesMap_, obj_(o.getGenderedMessagesMap_), (ImmutableMapOf[JsMessage_GrammaticalGenderCase, ImmutableListOf[JsMessage_Part]]).equals) && Objects_equals(obj_(optErase_(this.getAlternateId_)), obj_(optErase_(o.getAlternateId_))) && Objects_equals(obj_(optErase_(this.getDesc_)), obj_(optErase_(o.getDesc_))) && Objects_equals(obj_(optErase_(this.getMeaning_)), obj_(optErase_(o.getMeaning_))) && objequalsBy_(this.getPlaceholderNameToExampleMap_, obj_(o.getPlaceholderNameToExampleMap_), (ImmutableMapOf[string, string]).equals) && objequalsBy_(this.getPlaceholderNameToOriginalCodeMap_, obj_(o.getPlaceholderNameToOriginalCodeMap_), (ImmutableMapOf[string, string]).equals) && Objects_equals(obj_(this.jsPlaceholderNames_), obj_(o.jsPlaceholderNames_)) && Objects_equals(obj_(this.canonicalPlaceholderNames_), obj_(o.canonicalPlaceholderNames_))
+	return true && optequals_(this.getSourceName_, o.getSourceName_) && this.getKey_ == o.getKey_ && this.isAnonymous_ == o.isAnonymous_ && this.isExternal_ == o.isExternal_ && this.getId_ == o.getId_ && objequalsBy_(this.getParts_, obj_(o.getParts_), (ImmutableListOf[JsMessage_Part]).equals) && objequalsBy_(this.getGenderedMessagesMap_, obj_(o.getGenderedMessagesMap_), (ImmutableMapOf[JsMessage_GrammaticalGenderCase, ImmutableListOf[JsMessage_Part]]).equals) && optequals_(this.getAlternateId_, o.getAlternateId_) && optequals_(this.getDesc_, o.getDesc_) && optequals_(this.getMeaning_, o.getMeaning_) && objequalsBy_(this.getPlaceholderNameToExampleMap_, obj_(o.getPlaceholderNameToExampleMap_), (ImmutableMapOf[string, string]).equals) && objequalsBy_(this.getPlaceholderNameToOriginalCodeMap_, obj_(o.getPlaceholderNameToOriginalCodeMap_), (ImmutableMapOf[string, string]).equals) && objequalsBy_(this.jsPlaceholderNames_, obj_(o.jsPlaceholderNames_), (ImmutableSetOf[string]).equals) && objequalsBy_(this.canonicalPlaceholderNames_, obj_(o.canonicalPlaceholderNames_), (ImmutableSetOf[string]).equals)
 }
 
 func (this *JsMessage) hashCode() int32 {
 	var h int32
-	h = h*31 + Objects_hashCode(obj_(optErase_(this.getSourceName_)))
+	h = h*31 + objhashBy_(this.getSourceName_, (OptionalOf[string]).hashCode)
 	h = h*31 + objhashStr_(this.getKey_)
 	h = h*31 + Boolean_hashCode(bool(this.isAnonymous_))
 	h = h*31 + Boolean_hashCode(bool(this.isExternal_))
 	h = h*31 + objhashStr_(this.getId_)
-	h = h*31 + Objects_hashCode(obj_(this.getParts_))
+	h = h*31 + objhashBy_(this.getParts_, (ImmutableListOf[JsMessage_Part]).hashCode)
 	h = h*31 + objhashBy_(this.getGenderedMessagesMap_, (ImmutableMapOf[JsMessage_GrammaticalGenderCase, ImmutableListOf[JsMessage_Part]]).hashCode)
-	h = h*31 + Objects_hashCode(obj_(optErase_(this.getAlternateId_)))
-	h = h*31 + Objects_hashCode(obj_(optErase_(this.getDesc_)))
-	h = h*31 + Objects_hashCode(obj_(optErase_(this.getMeaning_)))
+	h = h*31 + objhashBy_(this.getAlternateId_, (OptionalOf[string]).hashCode)
+	h = h*31 + objhashBy_(this.getDesc_, (OptionalOf[string]).hashCode)
+	h = h*31 + objhashBy_(this.getMeaning_, (OptionalOf[string]).hashCode)
 	h = h*31 + objhashBy_(this.getPlaceholderNameToExampleMap_, (ImmutableMapOf[string, string]).hashCode)
 	h = h*31 + objhashBy_(this.getPlaceholderNameToOriginalCodeMap_, (ImmutableMapOf[string, string]).hashCode)
-	h = h*31 + Objects_hashCode(obj_(this.jsPlaceholderNames_))
-	h = h*31 + Objects_hashCode(obj_(this.canonicalPlaceholderNames_))
+	h = h*31 + objhashBy_(this.jsPlaceholderNames_, (ImmutableSetOf[string]).hashCode)
+	h = h*31 + objhashBy_(this.canonicalPlaceholderNames_, (ImmutableSetOf[string]).hashCode)
 	return h
 }
 
@@ -747,7 +757,7 @@ func (this *JsMessage_Builder) build() *JsMessage {
 	Preconditions_checkState_boolean_Object(this.key_.isPresent(), strobj_("key has not been set"))
 	Preconditions_checkState_boolean_Object(this.id.isPresent(), strobj_("id has not been set"))
 	Preconditions_checkState_boolean_Object((!this.isExternal_ || !this.isAnonymous_), strobj_("a message cannot be both anonymous and external"))
-	if this.alternateId.isPresent() && Object_equals(obj_(optErase_(this.alternateId)), obj_(optErase_(this.id))) {
+	if this.alternateId.isPresent() && optequalsOn_(this.alternateId, this.id) {
 		this.alternateId = Optional_empty[string]()
 	}
 	var immutableGenderedPartsBuilder ImmutableMap_BuilderOf[JsMessage_GrammaticalGenderCase, ImmutableListOf[JsMessage_Part]] = ImmutableMap_builder()

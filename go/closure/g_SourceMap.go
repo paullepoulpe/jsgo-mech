@@ -370,7 +370,7 @@ func (this *SourceMap_PrefixLocationMapping) equals(other any) bool {
 }
 
 func (this *SourceMap_PrefixLocationMapping) hashCode() int32 {
-	return Objects_hash([]any{strobj_(this.prefix_), strobj_(this.replacement_)})
+	return hashOf_(objhashStr_(this.prefix_), objhashStr_(this.replacement_))
 }
 
 type SourceMap_Mapping struct {

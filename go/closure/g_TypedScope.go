@@ -135,14 +135,14 @@ func (this *TypedScope) declare(name string, nameNode Node, type_ *JSType, input
 func (this *TypedScope) makeImplicitVar_impl(var_ AbstractScope_ImplicitVar) *AbstractVar {
 	if this.isGlobal() {
 		return nil
-	} else if Object_equals(obj_(var_), obj_(AbstractScope_ImplicitVar_EXPORTS)) {
+	} else if equalsId_(var_, AbstractScope_ImplicitVar_EXPORTS) {
 		return nil
 	}
 	return new_TypedVar(false, AbstractScope_ImplicitVar_nameField_[var_-1], 0, this.getImplicitVarType(var_), this, -1, nil).up_AbstractVar()
 }
 
 func (this *TypedScope) hasOwnImplicitSlot_impl(name AbstractScope_ImplicitVar) bool {
-	return (((name != 0) && !Object_equals(obj_(name), obj_(AbstractScope_ImplicitVar_EXPORTS))) && name.isMadeByScope(this.up_AbstractScope()))
+	return (((name != 0) && !equalsId_(name, AbstractScope_ImplicitVar_EXPORTS)) && name.isMadeByScope(this.up_AbstractScope()))
 }
 
 func (this *TypedScope) getImplicitVarType(var_ AbstractScope_ImplicitVar) *JSType {

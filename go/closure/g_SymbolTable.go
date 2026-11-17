@@ -1115,11 +1115,11 @@ func (this *SymbolTable_Symbol) equals(o any) bool {
 	}()) {
 		return false
 	}
-	return ((((this.isTypeInferred() == other.isTypeInferred()) && (this.getName() == other.getName())) && Objects_equals(this.getType().self(), other.getType().self())) && this.scope_ == other.scope_)
+	return ((((this.isTypeInferred() == other.isTypeInferred()) && (this.getName() == other.getName())) && objequalsBy_(this.getType(), other.getType().self(), (*JSType).equals)) && this.scope_ == other.scope_)
 }
 
 func (this *SymbolTable_Symbol) hashCode() int32 {
-	return Objects_hash([]any{Boolean_valueOf(this.isTypeInferred()), strobj_(this.getName()), this.getType().self(), obj_(this.scope_)})
+	return hashOf_(Boolean_hashCode(this.isTypeInferred()), objhashStr_(this.getName()), objhashBy_(this.getType(), (*JSType).hashCode), objhashId_(this.scope_))
 }
 
 func (this *SymbolTable_Symbol) getDeclaration_impl() StaticRef {

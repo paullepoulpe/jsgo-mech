@@ -40,7 +40,7 @@ func new_AstValidator_AbstractCompiler(compiler *AbstractCompiler) *AstValidator
 }
 
 func (this *AstValidator) init_AstValidator_AbstractCompiler_boolean(compiler *AbstractCompiler, validateScriptFeatures bool) {
-	this.init_AstValidator_AbstractCompiler_ViolationHandler_boolean_boolean(compiler, new_AstValidator_1(this).handleViolation, validateScriptFeatures, Object_equals(obj_(compiler.getOptions().getShouldValidateRequiredInlinings()), obj_(Tri_TRUE)))
+	this.init_AstValidator_AbstractCompiler_ViolationHandler_boolean_boolean(compiler, new_AstValidator_1(this).handleViolation, validateScriptFeatures, equalsId_(compiler.getOptions().getShouldValidateRequiredInlinings(), Tri_TRUE))
 }
 
 func new_AstValidator_AbstractCompiler_boolean(compiler *AbstractCompiler, validateScriptFeatures bool) *AstValidator {
@@ -331,10 +331,10 @@ func (this *AstValidator) validateTypeInformation(n Node) {
 	if n.getIsInClosureUnawareSubtree() {
 		return
 	}
-	if Object_equals(obj_(this.typeValidationMode), obj_(AstValidator_TypeInfoValidation_NONE)) {
+	if equalsId_(this.typeValidationMode, AstValidator_TypeInfoValidation_NONE) {
 		return
 	}
-	if Object_equals(obj_(this.typeValidationMode), obj_(AstValidator_TypeInfoValidation_JSTYPE)) {
+	if equalsId_(this.typeValidationMode, AstValidator_TypeInfoValidation_JSTYPE) {
 		var type_ *JSType = n.getJSType()
 		if (type_ != nil) && !type_.isResolved() {
 			this.violation(("Found unresolved type " + objstr_(type_.self())), n)
@@ -389,7 +389,7 @@ func (this *AstValidator) expectSomeTypeInformation(n Node) {
 
 func (this *AstValidator) expectMatchingTypeInformation(n Node, expectedTypeI *JSType) {
 	var typeI *JSType = n.getJSType()
-	if !Objects_equals(expectedTypeI.self(), typeI.self()) {
+	if !objequalsBy_(expectedTypeI, typeI.self(), (*JSType).equals) {
 		this.violation(("Expected type: " + sstr_(AstValidator_getTypeAnnotationString(expectedTypeI)) + " Actual type: " + sstr_(AstValidator_getTypeAnnotationString(typeI))), n)
 	}
 }
@@ -1158,9 +1158,9 @@ func (this *AstValidator) validateNameDeclarationHelper(statement Node, declarat
 			this.validateNameDeclarationChild(statement, declaration, c)
 		}
 	}
-	if Object_equals(obj_(declaration), obj_(Token_rhino_LET)) {
+	if equalsId_(declaration, Token_rhino_LET) {
 		this.validateFeature(FeatureSet_Feature_LET_DECLARATIONS, n)
-	} else if Object_equals(obj_(declaration), obj_(Token_rhino_CONST)) {
+	} else if equalsId_(declaration, Token_rhino_CONST) {
 		this.validateFeature(FeatureSet_Feature_CONST_DECLARATIONS, n)
 	}
 }
@@ -1170,13 +1170,13 @@ func (this *AstValidator) validateNameDeclarationChild(statement Node, declarati
 	var inForIn bool = statement.isForIn()
 	var minValues int32
 	var maxValues int32
-	if inForIn && Object_equals(obj_(declaration), obj_(Token_rhino_VAR)) {
+	if inForIn && equalsId_(declaration, Token_rhino_VAR) {
 		minValues = 0
 		maxValues = 1
 	} else if inEnhancedFor {
 		minValues = 0
 		maxValues = 0
-	} else if n.isDestructuringLhs() || Object_equals(obj_(declaration), obj_(Token_rhino_CONST)) {
+	} else if n.isDestructuringLhs() || equalsId_(declaration, Token_rhino_CONST) {
 		minValues = 1
 		maxValues = 1
 	} else {

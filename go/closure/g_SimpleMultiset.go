@@ -210,11 +210,11 @@ func (this *SimpleMultiset) equals(o any) bool {
 		}
 		that = cast_[*SimpleMultiset](v_)
 		return true
-	}() && Object_equals(any(this.counts), any(that.counts)))
+	}() && equalsDyn_(this.counts, any(that.counts)))
 }
 
 func (this *SimpleMultiset) hashCode() int32 {
-	return Object_hashCode(any(this.counts))
+	return hashDyn_(this.counts)
 }
 
 func (this *SimpleMultiset) toString() string {

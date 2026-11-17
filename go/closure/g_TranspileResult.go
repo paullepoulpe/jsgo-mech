@@ -88,7 +88,7 @@ func (this *TranspileResult) equals(other any) bool {
 }
 
 func (this *TranspileResult) hashCode() int32 {
-	return Objects_hash([]any{strobj_(this.pathField), strobj_(this.originalField), strobj_(this.transpiledField), strobj_(this.sourceMapField)})
+	return hashOf_(objhashStr_(this.pathField), objhashStr_(this.originalField), objhashStr_(this.transpiledField), objhashStr_(this.sourceMapField))
 }
 
 func (this *TranspileResult) toString() string {

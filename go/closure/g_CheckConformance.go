@@ -65,7 +65,7 @@ func (this *CheckConformance) visit(t *NodeTraversal, n Node, parent Node) {
 
 func (this *CheckConformance) initRules(compiler *AbstractCompiler, configs ImmutableListOf[*ConformanceConfig], reportingMode CompilerOptions_ConformanceReportingMode) []*CheckConformance_Category {
 	var builder *SimpleSetMultimap = SimpleSetMultimap_createInsertionOrdered()
-	var isLibraryLevelReportingMode bool = ((reportingMode != 0) && Object_equals(obj_(reportingMode), obj_(CompilerOptions_ConformanceReportingMode_RESPECT_LIBRARY_LEVEL_BEHAVIOR_SPECIFIED_IN_CONFIG)))
+	var isLibraryLevelReportingMode bool = ((reportingMode != 0) && equalsId_(reportingMode, CompilerOptions_ConformanceReportingMode_RESPECT_LIBRARY_LEVEL_BEHAVIOR_SPECIFIED_IN_CONFIG))
 	if isLibraryLevelReportingMode {
 		if !CheckConformance_validateBehaviorSettingOfConfigs(compiler, configs, reportingMode) {
 			return []*CheckConformance_Category{}
@@ -94,7 +94,7 @@ func (this *CheckConformance) initRules(compiler *AbstractCompiler, configs Immu
 }
 
 func CheckConformance_validateBehaviorSettingOfConfigs(compiler *AbstractCompiler, configs ImmutableListOf[*ConformanceConfig], reportingMode CompilerOptions_ConformanceReportingMode) bool {
-	Preconditions_checkState(Object_equals(obj_(reportingMode), obj_(CompilerOptions_ConformanceReportingMode_RESPECT_LIBRARY_LEVEL_BEHAVIOR_SPECIFIED_IN_CONFIG)))
+	Preconditions_checkState(equalsId_(reportingMode, CompilerOptions_ConformanceReportingMode_RESPECT_LIBRARY_LEVEL_BEHAVIOR_SPECIFIED_IN_CONFIG))
 	var baseRequirementBehaviors map[string]*ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior = map[string]*ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior{}
 	it_1 := foreach_(obj_(configs))
 	for it_1.next() {

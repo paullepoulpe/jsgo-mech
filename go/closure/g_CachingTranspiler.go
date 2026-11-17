@@ -87,7 +87,7 @@ func (this *CachingTranspiler_Key) equals(other any) bool {
 }
 
 func (this *CachingTranspiler_Key) hashCode() int32 {
-	return Objects_hash([]any{strobj_(this.path_), strobj_(this.code_)})
+	return hashOf_(objhashStr_(this.path_), objhashStr_(this.code_))
 }
 
 type CachingTranspiler_1 struct {

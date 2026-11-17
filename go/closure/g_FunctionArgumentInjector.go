@@ -363,13 +363,13 @@ func (this *FunctionArgumentInjector_SetContainer) equals(p0 any) bool {
 	if !ok || o == nil {
 		return false
 	}
-	return true && Objects_equals(obj_(this.parametersReferencedAfterSideEffect_), obj_(o.parametersReferencedAfterSideEffect_)) && Objects_equals(obj_(this.parametersWithNamesReferencedBeforeParameter_), obj_(o.parametersWithNamesReferencedBeforeParameter_))
+	return true && objequalsBy_(this.parametersReferencedAfterSideEffect_, obj_(o.parametersReferencedAfterSideEffect_), (ImmutableSetOf[string]).equals) && objequalsBy_(this.parametersWithNamesReferencedBeforeParameter_, obj_(o.parametersWithNamesReferencedBeforeParameter_), (ImmutableSetOf[string]).equals)
 }
 
 func (this *FunctionArgumentInjector_SetContainer) hashCode() int32 {
 	var h int32
-	h = h*31 + Objects_hashCode(obj_(this.parametersReferencedAfterSideEffect_))
-	h = h*31 + Objects_hashCode(obj_(this.parametersWithNamesReferencedBeforeParameter_))
+	h = h*31 + objhashBy_(this.parametersReferencedAfterSideEffect_, (ImmutableSetOf[string]).hashCode)
+	h = h*31 + objhashBy_(this.parametersWithNamesReferencedBeforeParameter_, (ImmutableSetOf[string]).hashCode)
 	return h
 }
 
