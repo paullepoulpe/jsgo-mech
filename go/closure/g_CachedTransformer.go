@@ -7,7 +7,7 @@ type CachedTransformer struct {
 }
 
 func (this *CachedTransformer) init_CachedTransformer_Transformer_CacheBuilder(delegate Source_Transformer, builder CacheBuilderOf[any, any]) {
-	this.cache = builder.build(CacheLoader_from(&Function_base_fn{func(p0 any) any { return obj_(delegate.transform(cast_[*Source](p0))) }}))
+	this.cache = builder.build(CacheLoader_from_f(func(p0 any) any { return obj_(delegate.transform(cast_[*Source](p0))) }))
 }
 
 func new_CachedTransformer_Transformer_CacheBuilder(delegate Source_Transformer, builder CacheBuilderOf[any, any]) *CachedTransformer {

@@ -35,9 +35,9 @@ func (this *Es6RewriteGenerators) init_Es6RewriteGenerators(compiler *AbstractCo
 	this.jscompAsyncExecuteFunction = runtimeJsLibManager.getJsLibField("$jscomp.asyncExecutePromiseGeneratorFunction")
 	this.jscompAsyncExecuteProgram = runtimeJsLibManager.getJsLibField("$jscomp.asyncExecutePromiseGeneratorProgram")
 	this.jscompCreateGenerator = runtimeJsLibManager.getJsLibField("$jscomp.generator.createGenerator")
-	this.generatorContextType = Suppliers_memoize(&Supplier_base_fn{func() any {
+	this.generatorContextType = Suppliers_memoize_f(func() any {
 		return AstFactory_type_Node(this.astFactory_.createNewNode(this.astFactory_.createQName(this.namespace_, this.generatorContext), []Node{}))
-	}})
+	})
 	this.propertyIteratorType = AstFactory_type_JSTypeNative_Color(JSTypeNative_FUNCTION_TYPE, StandardColors_TOP_OBJECT)
 	this.uniqueIdSupplier = compiler.getUniqueIdSupplier()
 }

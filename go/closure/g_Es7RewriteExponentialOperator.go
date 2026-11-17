@@ -10,7 +10,7 @@ type Es7RewriteExponentialOperator struct {
 }
 
 func (this *Es7RewriteExponentialOperator) finit_Es7RewriteExponentialOperator() {
-	this.mathPowCall = Supplier(Suppliers_memoize(&Supplier_base_fn{func() any { return this.createMathPowCall().box_() }}))
+	this.mathPowCall = Supplier(Suppliers_memoize_f(func() any { return this.createMathPowCall().box_() }))
 }
 
 func (this *Es7RewriteExponentialOperator) init_Es7RewriteExponentialOperator(compiler *AbstractCompiler) {

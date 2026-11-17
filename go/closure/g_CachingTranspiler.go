@@ -12,7 +12,7 @@ func (this *CachingTranspiler) init_CachingTranspiler(delegate Transpiler_transp
 		panic(new_NullPointerException_0())
 	}
 	this.cache = builder.build(new_CachingTranspiler_1(this, delegate).up_CacheLoader())
-	this.runtimeField = Suppliers_memoize(&Supplier_base_fn{func() any { return strobj_(delegate.runtime()) }})
+	this.runtimeField = Suppliers_memoize_f(func() any { return strobj_(delegate.runtime()) })
 }
 
 func new_CachingTranspiler(delegate Transpiler_transpile, builder CacheBuilderOf[any, any]) *CachingTranspiler {

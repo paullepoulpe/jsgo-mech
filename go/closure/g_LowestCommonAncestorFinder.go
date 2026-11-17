@@ -172,7 +172,7 @@ func LowestCommonAncestorFinder_Color_clinit() {
 		func() {
 			arr_1 := LowestCommonAncestorFinder_Color_COMMON_COLOR_CACHE
 			tmp_2 := arrmap_(arr_1, func(v_ *LowestCommonAncestorFinder_Color) any { return obj_(v_) })
-			Arrays_setAll(tmp_2, lambda_LowestCommonAncestorFinder_Color_clinit_1_)
+			Arrays_setAll_f(tmp_2, lambda_LowestCommonAncestorFinder_Color_clinit_1_)
 			for i_ := range tmp_2 {
 				arr_1[i_] = cast_[*LowestCommonAncestorFinder_Color](tmp_2[i_])
 			}
@@ -188,4 +188,4 @@ func LowestCommonAncestorFinder_Color_clinit() {
 }
 
 // lambda_LowestCommonAncestorFinder_Color_clinit_1_ is a lambda of LowestCommonAncestorFinder_Color_clinit that captures nothing (post-flip step lambdas).
-var lambda_LowestCommonAncestorFinder_Color_clinit_1_ = &IntFunction_fn{func(p0 int32) any { return obj_(new_LowestCommonAncestorFinder_Color(p0)) }}
+func lambda_LowestCommonAncestorFinder_Color_clinit_1_(p0 int32) any { return obj_(new_LowestCommonAncestorFinder_Color(p0)) }

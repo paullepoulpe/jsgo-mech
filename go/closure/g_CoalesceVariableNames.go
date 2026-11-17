@@ -175,7 +175,7 @@ func (this *CoalesceVariableNames) computeVariableNamesInterferenceGraph(cfg *Co
 	func() {
 		arr_1 := interferenceBitSet
 		tmp_2 := arrmap_(arr_1, func(v_ *BitSet) any { return obj_(v_) })
-		Arrays_setAll(tmp_2, lambda_CoalesceVariableNames_computeVariableNamesInterferenceGraph_1_)
+		Arrays_setAll_f(tmp_2, lambda_CoalesceVariableNames_computeVariableNamesInterferenceGraph_1_)
 		for i_ := range tmp_2 {
 			arr_1[i_] = cast_[*BitSet](tmp_2[i_])
 		}
@@ -240,9 +240,9 @@ func (this *CoalesceVariableNames) computeVariableNamesInterferenceGraph(cfg *Co
 }
 
 // lambda_CoalesceVariableNames_computeVariableNamesInterferenceGraph_1_ is a lambda of CoalesceVariableNames_computeVariableNamesInterferenceGraph that captures nothing (post-flip step lambdas).
-var lambda_CoalesceVariableNames_computeVariableNamesInterferenceGraph_1_ = &IntFunction_fn{func(i int32) any {
+func lambda_CoalesceVariableNames_computeVariableNamesInterferenceGraph_1_(i int32) any {
 	return obj_(new_BitSet())
-}}
+}
 
 func (this *CoalesceVariableNames) isInMultipleLvalueDecl(v *Var) bool {
 	var declarationType Token_rhino = v.declarationType()

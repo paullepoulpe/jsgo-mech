@@ -221,7 +221,7 @@ func (this *Source_Builder) setEstimatedSize(estimatedSize int32) *Source_Builde
 	return this
 }
 
-func (this *Source_Builder) setCodeFromSupplier(code Supplier_baseOf[string]) *Source_Builder {
+func (this *Source_Builder) setCodeFromSupplier(code func() any) *Source_Builder {
 	return this.setCodeSupplier(Source_Lazy_memoize(code))
 }
 
@@ -427,8 +427,8 @@ func Source_Lazy_ofInstance(instance string) *Source_Lazy {
 	return new_Source_Lazy_1(strobj_(instance)).up_Source_Lazy()
 }
 
-func Source_Lazy_memoize(supplier Supplier_baseOf[any]) *Source_Lazy {
-	var memoized Supplier_baseOf[any] = Suppliers_memoize(supplier)
+func Source_Lazy_memoize(supplier func() any) *Source_Lazy {
+	var memoized Supplier_baseOf[any] = Suppliers_memoize_f(supplier)
 	return new_Source_Lazy_2(memoized).up_Source_Lazy()
 }
 

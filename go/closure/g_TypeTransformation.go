@@ -264,9 +264,9 @@ func (this *TypeTransformation) evalTemplatizedType(ttlAst Node, nameResolver *T
 	func() {
 		arr_1 := templatizedTypes
 		tmp_2 := arrmap_(arr_1, func(v_ *JSType) any { return v_.self() })
-		Arrays_setAll(tmp_2, &IntFunction_fn{func(i int32) any {
+		Arrays_setAll_f(tmp_2, func(i int32) any {
 			return this.evalInternal(sliceAt_(params, (i+1)), nameResolver).self()
-		}})
+		})
 		for i_ := range tmp_2 {
 			arr_1[i_] = to_JSType(tmp_2[i_])
 		}

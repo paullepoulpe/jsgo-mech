@@ -1286,14 +1286,14 @@ func AstFactory_clinit() {
 	}
 	AstFactory_clinit_done = true
 	AstFactory_DOT_SPLITTER = Splitter_on_String(".")
-	AstFactory_bigintNumberStringColor = Supplier(Suppliers_memoize(lambda_AstFactory_clinit_1_))
+	AstFactory_bigintNumberStringColor = Supplier(Suppliers_memoize_f(lambda_AstFactory_clinit_1_))
 
 }
 
 // lambda_AstFactory_clinit_1_ is a lambda of AstFactory_clinit that captures nothing (post-flip step lambdas).
-var lambda_AstFactory_clinit_1_ = &Supplier_base_fn{func() any {
+func lambda_AstFactory_clinit_1_() any {
 	return obj_(Color_createUnion(tsetFrom_(tch_p_Color, ImmutableSet_of_Object_Object_Object(obj_(StandardColors_BIGINT), obj_(StandardColors_STRING), obj_(StandardColors_NUMBER)), true)))
-}}
+}
 
 type AstFactory_TypeMode uint8
 
