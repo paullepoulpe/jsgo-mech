@@ -290,6 +290,26 @@ func (it *tlistIter_[T]) next() any {
 	return it.l.c.box(v)
 }
 
+// cursor is l.asList().iterator() as a typed pointer, without the view (post-flip step iters):
+// a function that only advances it keeps it on the stack. A null list throws
+// NullPointerException here, as asList().iterator() did.
+func (l *TList[T]) cursor() *tlistIter_[T] {
+	if l == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	return &tlistIter_[T]{l: l}
+}
+
+// nextT is next without boxing the element (the code unboxed it).
+func (it *tlistIter_[T]) nextT() T {
+	if it.i >= len(it.l.items) {
+		panic(new_NoSuchElementException_0().self())
+	}
+	v := it.l.items[it.i]
+	it.i++
+	return v
+}
+
 func (it *tlistIter_[T]) remove() {
 	it.i--
 	it.l.removeAt(int32(it.i))
