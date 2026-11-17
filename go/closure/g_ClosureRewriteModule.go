@@ -177,8 +177,8 @@ func (this *ClosureRewriteModule) recordGoogDeclareLegacyNamespace() {
 
 func (this *ClosureRewriteModule) updateLegacyScriptNamespacesAndPrefixes(namespace string) {
 	this.legacyScriptNamespacesAndPrefixes[namespace] = struct{}{}
-	for dot := int32(String_lastIndexOf(namespace, 46)); dot != -1; dot = String_lastIndexOf(namespace, 46) {
-		namespace = String_substring(namespace, 0, dot)
+	for dot := int32(strings.LastIndexByte(namespace, '.')); dot != -1; dot = int32(strings.LastIndexByte(namespace, '.')) {
+		namespace = namespace[:dot]
 		this.legacyScriptNamespacesAndPrefixes[namespace] = struct{}{}
 	}
 }

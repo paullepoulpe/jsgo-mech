@@ -47,18 +47,18 @@ func TextFiles_write(path string, charset string, text string) *Outcome_base[any
 func TextFiles_splitLines(text string) []string {
 	var lines []string = []string{}
 	var start int32 = 0
-	for i := int32(0); i < String_length(text); i++ {
-		var c uint16 = String_charAt(text, i)
+	for i := int32(0); i < int32(len(text)); i++ {
+		var c uint16 = uint16(text[i])
 		if (c == '\n') || (c == '\r') {
-			lines = append(lines, String_substring(text, start, i))
-			if ((c == '\r') && ((i + 1) < String_length(text))) && (String_charAt(text, (i+1)) == '\n') {
+			lines = append(lines, cutBytes_(text, start, i))
+			if ((c == '\r') && ((i + 1) < int32(len(text)))) && (byteAt_(text, (i+1)) == '\n') {
 				i++
 			}
 			start = (i + 1)
 		}
 	}
-	if start < String_length(text) {
-		lines = append(lines, String_substring_int(text, start))
+	if start < int32(len(text)) {
+		lines = append(lines, text[start:])
 	}
 	return lines
 }

@@ -631,11 +631,11 @@ nextSymbol_:
 		}
 		var dot int32 = -1
 		for {
-			dot = String_lastIndexOf(currentName, 46)
+			dot = int32(strings.LastIndexByte(currentName, '.'))
 			if dot == -1 {
 				break
 			}
-			currentName = String_substring(currentName, 0, dot)
+			currentName = currentName[:dot]
 			var owner *SymbolTable_Symbol = s.scope_.getQualifiedSlot(currentName)
 			if ((owner != nil) && (this.getType(icast_StaticSlot(obj_(owner))) != nil)) && ((this.getType(icast_StaticSlot(obj_(owner))).isNominalConstructorOrInterface() || this.getType(icast_StaticSlot(obj_(owner))).isFunctionPrototypeType()) || this.getType(icast_StaticSlot(obj_(owner))).isEnumType()) {
 				this.removeSymbol(s)

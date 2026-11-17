@@ -684,12 +684,12 @@ func (this *GlobalNamespace_BuildGlobalNamespace) createNamesFromProvide(namespa
 	var name *GlobalNamespace_Name
 	var dot int32 = 0
 	for dot >= 0 {
-		dot = String_indexOf_int_int(namespace, 46, (dot + 1))
+		dot = indexByteFrom_(namespace, '.', (dot + 1))
 		var subNamespace string = func() string {
 			if dot < 0 {
 				return namespace
 			}
-			return String_substring(namespace, 0, dot)
+			return namespace[:dot]
 		}()
 		if subNamespace == "" {
 			panic(new_IllegalStateException_0().self())
@@ -929,16 +929,16 @@ func (this *GlobalNamespace_BuildGlobalNamespace) maybeHandlePrototypePrefix(chu
 		numLevelsToRemove = 1
 		prefix = name[:len(name)-10]
 	} else {
-		var i int32 = String_indexOf_String(name, ".prototype.")
+		var i int32 = int32(strings.Index(name, ".prototype."))
 		if i == -1 {
 			return false
 		}
-		prefix = String_substring(name, 0, i)
+		prefix = name[:i]
 		numLevelsToRemove = 2
-		i = String_indexOf_int_int(name, 46, (i + 11))
+		i = indexByteFrom_(name, '.', (i + 11))
 		for i >= 0 {
 			numLevelsToRemove++
-			i = String_indexOf_int_int(name, 46, (i + 1))
+			i = indexByteFrom_(name, '.', (i + 1))
 		}
 	}
 	if NodeUtil_mayBeObjectLitKey(n) {

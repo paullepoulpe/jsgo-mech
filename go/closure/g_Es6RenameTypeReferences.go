@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type Es6RenameTypeReferences struct {
 	NodeTraversal_AbstractPostOrderCallback
 	renameTable *SimpleTable[Node, any, string]
@@ -54,13 +56,13 @@ func (this *Es6RenameTypeReferences) renameTypeReference(t *NodeTraversal, n Nod
 	var fullName string = n.getString()
 	var rootName string
 	var rest OptionalOf[string]
-	var endPos int32 = String_indexOf(fullName, 46)
+	var endPos int32 = int32(strings.IndexByte(fullName, '.'))
 	if endPos == -1 {
 		rootName = fullName
 		rest = Optional_empty[string]()
 	} else {
-		rootName = String_substring(fullName, 0, endPos)
-		rest = Optional_of[string](String_substring_int(fullName, endPos))
+		rootName = fullName[:endPos]
+		rest = Optional_of[string](fullName[endPos:])
 	}
 	this.renameReference(t, n, rootName, rest)
 }

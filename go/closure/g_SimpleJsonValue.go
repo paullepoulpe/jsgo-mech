@@ -100,7 +100,7 @@ func (this *SimpleJsonValue) asInt() *Outcome_base[any] {
 }
 
 func SimpleJsonValue_wrapToInt(number string) int32 {
-	var negative bool = (String_charAt(number, 0) == '-')
+	var negative bool = (byteAt_(number, 0) == '-')
 	var end int32 = String_length(number)
 	var exponent int64 = 0
 	var e int32 = Math_max(String_indexOf(number, 101), String_indexOf(number, 69))

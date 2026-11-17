@@ -1117,28 +1117,28 @@ func (this *IRFactory) normalizeNumber(token *LiteralToken) float64 {
 
 func (this *IRFactory) normalizeBigInt(token *LiteralToken) *BigInteger {
 	var value string = token.value_
-	value = String_substring(value, 0, String_indexOf(value, 110))
+	value = cutBytes_(value, 0, int32(strings.IndexByte(value, 'n')))
 	if strings.Contains(value, "_") {
 		value = this.removeNumericSeparators(value, token)
 	}
-	var length int32 = String_length(value)
+	var length int32 = int32(len(value))
 	if length <= 0 {
 		panic(new_IllegalStateException_0().self())
 	}
-	if String_charAt(value, 0) == '-' || String_charAt(value, 0) == '+' {
+	if byteAt_(value, 0) == '-' || byteAt_(value, 0) == '+' {
 		panic(new_IllegalStateException_0().self())
 	}
-	if (String_charAt(value, 0) == '0') && (length > 1) {
+	if (byteAt_(value, 0) == '0') && (length > 1) {
 		return func() *BigInteger {
-			switch String_charAt(value, 1) {
+			switch byteAt_(value, 1) {
 			case 'b', 'B':
 				this.maybeWarnForFeatureToken(token.up_Token_parser(), FeatureSet_Feature_BINARY_LITERALS)
-				return new_BigInteger(String_substring_int(value, 2), 2)
+				return new_BigInteger(value[2:], 2)
 			case 'o', 'O':
 				this.maybeWarnForFeatureToken(token.up_Token_parser(), FeatureSet_Feature_OCTAL_LITERALS)
-				return new_BigInteger(String_substring_int(value, 2), 8)
+				return new_BigInteger(value[2:], 8)
 			case 'x', 'X':
-				return new_BigInteger(String_substring_int(value, 2), 16)
+				return new_BigInteger(value[2:], 16)
 			case '0', '1', '2', '3', '4', '5', '6', '7', '8', '9':
 				panic(new_IllegalStateException_String("Nonzero BigInts can't have a leading zero").self())
 			default:
@@ -2636,10 +2636,10 @@ func (this *IRFactory_TransformDispatcher) processRegExpLiteral(literalTree *Lit
 	this.outer_.setSourceInfoToken(literalStringNode, token.up_Token_parser())
 	var node Node = this.outer_.newNode_2(Token_rhino_REGEXP, literalStringNode)
 	var rawRegex string = token.value_
-	var lastSlash int32 = String_lastIndexOf(rawRegex, 47)
+	var lastSlash int32 = int32(strings.LastIndexByte(rawRegex, '/'))
 	var flags string = ""
-	if lastSlash < String_length(rawRegex) {
-		flags = String_substring_int(rawRegex, (lastSlash + 1))
+	if lastSlash < int32(len(rawRegex)) {
+		flags = rawRegex[(lastSlash + 1):]
 	}
 	this.validateRegExpFlags(literalTree, flags)
 	if flags != "" {

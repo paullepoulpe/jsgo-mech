@@ -78,11 +78,11 @@ func (this *ProcessClosureProvidesAndRequires) visitGoogMethodCall(t *NodeTraver
 		var arg Node = n.getSecondChild()
 		if arg.isStringLit() {
 			var argString string = arg.getString()
-			var dot int32 = String_indexOf(argString, 46)
+			var dot int32 = int32(strings.IndexByte(argString, '.'))
 			if dot == -1 {
 				this.exportedVariables.add(argString)
 			} else {
-				this.exportedVariables.add(String_substring(argString, 0, dot))
+				this.exportedVariables.add(argString[:dot])
 			}
 		}
 	case "require", "requireType":
@@ -251,10 +251,10 @@ func (this *ProcessClosureProvidesAndRequires) verifyOnlyArgumentIsString(call N
 }
 
 func (this *ProcessClosureProvidesAndRequires) registerAnyProvidedPrefixes(ns string, node Node, chunk *JSChunk) {
-	var pos int32 = String_indexOf(ns, 46)
+	var pos int32 = int32(strings.IndexByte(ns, '.'))
 	for pos != -1 {
-		var prefixNs string = String_substring(ns, 0, pos)
-		pos = String_indexOf_int_int(ns, 46, (pos + 1))
+		var prefixNs string = ns[:pos]
+		pos = indexByteFrom_(ns, '.', (pos + 1))
 		if this.providedNames.containsKey(prefixNs) {
 			this.providedNames.get(prefixNs).addProvide(node, chunk, false, this.chunkGraph)
 		} else {

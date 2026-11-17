@@ -663,13 +663,13 @@ func (this *JSTypeRegistry) resolveViaClosureNamespace(reference string) *JSType
 				return this.resolveViaPropertyGivenSlot(namespace.type_(), namespace.definitionNode(), sliceImm_(tc_string, unusedComponents.build().reverse()))
 			}
 		}
-		var lastDot int32 = String_lastIndexOf_String(prefix, ".")
+		var lastDot int32 = int32(strings.LastIndex(prefix, "."))
 		if lastDot < 0 {
 			return nil
 		}
-		var postfix string = String_substring_int(prefix, (lastDot + 1))
+		var postfix string = prefix[(lastDot + 1):]
 		unusedComponents.add(strobj_(postfix))
-		prefix = String_substring(prefix, 0, lastDot)
+		prefix = prefix[:lastDot]
 	}
 }
 
