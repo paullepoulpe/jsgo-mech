@@ -250,24 +250,13 @@ func (this *ProductionCoverageInstrumentationCallback_ParameterMapping) getEncod
 	this.functionNameToIndex.putIfAbsent(functionName, any(int32(this.functionNameToIndex.size())))
 	this.typeToIndex.putIfAbsent(type_.name(), any(int32(this.typeToIndex.size())))
 	var sb *strBuilder_ = &strBuilder_{}
-	_ = func() (code_ int) {
-		defer func() {
-			if r_ := recover(); r_ != nil {
-				ex_ := catch_(r_)
-				if p, ok := ex_.(IOException_as); ok {
-					var e *IOException = p.as_IOException()
-					panic(new_AssertionError_Object(e.self()).self())
-				}
-				panic(r_)
-			}
-		}()
+	{
 		Base64VLQ_encode_sb(sb, unbox_[int32](this.fileNameToIndex.get(fileName)))
 		Base64VLQ_encode_sb(sb, unbox_[int32](this.functionNameToIndex.get(functionName)))
 		Base64VLQ_encode_sb(sb, unbox_[int32](this.typeToIndex.get(type_.name())))
 		Base64VLQ_encode_sb(sb, lineNo)
 		Base64VLQ_encode_sb(sb, colNo)
-		return 0
-	}()
+	}
 	var encodedParam string = sb.toString()
 	if !this.paramValueEncodings.containsKey(encodedParam) {
 		var uniqueIdentifier int64 = this.generateUniqueIdentifier()
@@ -275,20 +264,9 @@ func (this *ProductionCoverageInstrumentationCallback_ParameterMapping) getEncod
 			panic(new_ArithmeticException_String("Unique Identifier exceeds value of Integer.MAX_VALUE, could not encode with Base 64 VLQ").self())
 		}
 		sb = &strBuilder_{}
-		_ = func() (code_ int) {
-			defer func() {
-				if r_ := recover(); r_ != nil {
-					ex_ := catch_(r_)
-					if p2, ok2 := ex_.(IOException_as); ok2 {
-						var e *IOException = p2.as_IOException()
-						panic(new_AssertionError_Object(e.self()).self())
-					}
-					panic(r_)
-				}
-			}()
+		{
 			Base64VLQ_encode_sb(sb, Math_toIntExact(uniqueIdentifier))
-			return 0
-		}()
+		}
 		this.paramValueEncodings.put(encodedParam, sb.toString())
 	}
 	return this.paramValueEncodings.get(encodedParam)
