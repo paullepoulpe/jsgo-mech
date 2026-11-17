@@ -229,11 +229,12 @@ func (this *CodePrinter_MappedCodePrinter) getCurrentLineIndex() int32 {
 func CodePrinter_MappedCodePrinter_computeLineLengths(code string) ImmutableListOf[BoxedOf[int32]] {
 	var builder ImmutableList_BuilderOf[BoxedOf[int32]] = ImmutableList_builder()
 	var lineStartPos int32 = 0
-	var lineEndPos int32 = String_indexOf(code, 10)
+	codeU16 := utf16Of_(code)
+	var lineEndPos int32 = codeU16.indexOf(10)
 	for lineEndPos > -1 {
 		builder.add(any(int32((lineEndPos - lineStartPos))))
 		lineStartPos = (lineEndPos + 1)
-		lineEndPos = String_indexOf_int_int(code, 10, lineStartPos)
+		lineEndPos = codeU16.indexOf_int_int(10, lineStartPos)
 	}
 	return builder.build()
 }
@@ -484,10 +485,11 @@ func CodePrinter_PrettyCodePrinter_getNumberFromSource(n Node) OptionalOf[string
 	}
 	var offset int32 = n.getSourceOffset()
 	var endOffset int32 = (offset + n.getLength())
-	if (offset < 0) || (endOffset > String_length(srcCode)) {
+	srcCodeU16 := utf16Of_(srcCode)
+	if (offset < 0) || (endOffset > srcCodeU16.length()) {
 		return Optional_empty[string]()
 	}
-	return Optional_of[string](String_substring(srcCode, offset, endOffset))
+	return Optional_of[string](srcCodeU16.substring(offset, endOffset))
 }
 
 const CodePrinter_PrettyCodePrinter_INDENT string = "  "

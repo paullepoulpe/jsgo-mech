@@ -345,7 +345,7 @@ func new_SourceMap_PrefixLocationMapping(prefix string, replacement string) *Sou
 
 func (this *SourceMap_PrefixLocationMapping) map_(location OptionalOf[string]) OptionalOf[string] {
 	if strings.HasPrefix(location.get(), this.prefix_) {
-		return Optional_of[string]((sstr_(this.replacement_) + sstr_(String_substring_int(location.get(), String_length(this.prefix_)))))
+		return Optional_of[string]((sstr_(this.replacement_) + sstr_(location.get()[len(this.prefix_):])))
 	}
 	return Optional_empty[string]()
 }

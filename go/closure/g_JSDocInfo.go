@@ -2247,15 +2247,16 @@ func (this *JSDocInfo_Builder) markName(name string, templateNode Node, lineno i
 	if this.currentMarker != nil {
 		var position *JSDocInfo_TrimmedStringPosition = new_JSDocInfo_TrimmedStringPosition()
 		position.setItem(strobj_(name))
-		position.setPositionInformation(lineno, charno, lineno, (charno + String_length(name)))
+		nameU16 := utf16Of_(name)
+		position.setPositionInformation(lineno, charno, lineno, (charno + nameU16.length()))
 		var nodePos *JSDocInfo_NamePosition = new_JSDocInfo_NamePosition()
 		var node Node = Node_newString_Token_String(Token_rhino_NAME, name).setLinenoCharno(lineno, charno)
-		node.setLength(String_length(name))
+		node.setLength(nameU16.length())
 		if templateNode != 0 {
 			node.setStaticSourceFileFrom(templateNode)
 		}
 		nodePos.setItem(node.box_())
-		nodePos.setPositionInformation(lineno, charno, lineno, (charno + String_length(name)))
+		nodePos.setPositionInformation(lineno, charno, lineno, (charno + nameU16.length()))
 		this.currentMarker.setNameNode(nodePos)
 	}
 }

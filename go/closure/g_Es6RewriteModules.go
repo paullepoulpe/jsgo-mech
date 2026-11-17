@@ -123,7 +123,7 @@ func (this *Es6RewriteModules) visitImport(t *NodeTraversal, importDecl Node, pa
 	var importName string = importDecl.getLastChild().getString()
 	var isNamespaceImport bool = strings.HasPrefix(importName, "goog:")
 	if isNamespaceImport {
-		var namespace string = String_substring_int(importName, int32(len("goog:")))
+		var namespace string = importName[len("goog:"):]
 		var m *ModuleMetadataMap_ModuleMetadata = cast_[*ModuleMetadataMap_ModuleMetadata](Map_get_s(this.moduleMetadataMap.getModulesByGoogNamespace(), namespace))
 		if m == nil {
 			t.report(importDecl, ClosurePrimitiveErrors_MISSING_MODULE_OR_PROVIDE, []string{namespace})
@@ -770,8 +770,9 @@ func (this *Es6RewriteModules_RenameGlobalVars) fixTypeNode(t *NodeTraversal, ty
 		var splitted []string = sliceImm_(tc_string, Es6RewriteModules_DOT_SPLITTER.splitToList_s(name))
 		var baseName string = sliceAt_(splitted, 0)
 		var rest string = ""
+		baseNameU16 := utf16Of_(baseName)
 		if int32(len(splitted)) > 1 {
-			rest = String_substring_int(name, String_length(baseName))
+			rest = String_substring_int(name, baseNameU16.length())
 		}
 		var var_ *Var = cast_[*Var](t.getScope().getVar(baseName).self())
 		if (var_ != nil) && var_.isGlobal() {
@@ -782,7 +783,7 @@ func (this *Es6RewriteModules_RenameGlobalVars) fixTypeNode(t *NodeTraversal, ty
 			this.maybeSetNewName(t, typeNode, name, globalName.get())
 			if this.outer_.preprocessorSymbolTable != nil {
 				var onlyBaseName Node = Node_newString_String(baseName).srcref(typeNode)
-				onlyBaseName.setLength(String_length(baseName))
+				onlyBaseName.setLength(baseNameU16.length())
 				this.outer_.maybeAddAliasToSymbolTable(onlyBaseName, t.getSourceName())
 			}
 		}

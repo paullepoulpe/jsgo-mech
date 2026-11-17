@@ -191,6 +191,7 @@ func (this *FunctionArgumentInjector) gatherCallArgumentsNeedingTemps(compiler *
 	var parametersThatMayNeedTemps *FunctionArgumentInjector_SetContainer = this.findParametersReferencedAfterSideEffect(cast_[*ImmutableSet](argMap.keySet()), block)
 	var namesAfterSideEffects ImmutableSetOf[string] = parametersThatMayNeedTemps.parametersReferencedAfterSideEffect()
 	var parametersWithNamesReferencedBefore ImmutableSetOf[string] = parametersThatMayNeedTemps.parametersWithNamesReferencedBeforeParameter()
+	var getStringU16 utf16_
 	for _, el := range immElems_(cast_[*ImmutableSet](argMap.entrySet())) {
 		entry := icast_Map_Entry(el)
 		var parameterName string = str_(entry.getKey())
@@ -220,7 +221,7 @@ func (this *FunctionArgumentInjector) gatherCallArgumentsNeedingTemps(compiler *
 			case tokOrd1_THIS:
 				requiresTemporary = false
 			case tokOrd1_STRINGLIT:
-				requiresTemporary = (String_length(cArg.getString()) >= 2)
+				requiresTemporary = (getStringU16.of(cArg.getString()).length() >= 2)
 			default:
 				requiresTemporary = !NodeUtil_isImmutableValue(cArg)
 			}

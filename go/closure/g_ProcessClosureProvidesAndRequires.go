@@ -577,11 +577,12 @@ func (this *ProcessClosureProvidesAndRequires_ProvidedName) createNamespaceIniti
 	if this.firstChunk == this.minimumChunk {
 		this.replacementNode.insertBefore(this.firstNode)
 	} else {
-		var indexOfDot int32 = String_lastIndexOf(this.namespace_, 46)
+		namespace_U16 := utf16Of_(this.namespace_)
+		var indexOfDot int32 = namespace_U16.lastIndexOf(46)
 		if indexOfDot == -1 {
 			this.compiler_.getNodeForCodeInsertion(this.minimumChunk).addChildToBack(this.replacementNode)
 		} else {
-			var parentName *ProcessClosureProvidesAndRequires_ProvidedName = providedNames.get(String_substring(this.namespace_, 0, indexOfDot))
+			var parentName *ProcessClosureProvidesAndRequires_ProvidedName = providedNames.get(namespace_U16.substring(0, indexOfDot))
 			if parentName == nil {
 				panic(new_NullPointerException_0())
 			}
@@ -642,10 +643,11 @@ func (this *ProcessClosureProvidesAndRequires_ProvidedName) setSourceInfo(newNod
 	var sourceInfoNode Node = this.firstNode
 	var provideStringNode Node = this.getProvideStringNode()
 	if provideStringNode != 0 {
-		var firstCharIndex int32 = (String_lastIndexOf(this.namespace_, 46) + 1)
+		namespace_U16 := utf16Of_(this.namespace_)
+		var firstCharIndex int32 = (namespace_U16.lastIndexOf(46) + 1)
 		sourceInfoNode = provideStringNode.cloneNode()
 		sourceInfoNode.setLinenoCharno(sourceInfoNode.getLineno(), ((sourceInfoNode.getCharno() + firstCharIndex) + 1))
-		sourceInfoNode.setLength((String_length(this.namespace_) - firstCharIndex))
+		sourceInfoNode.setLength((namespace_U16.length() - firstCharIndex))
 	}
 	newNode.srcrefTree(sourceInfoNode)
 }

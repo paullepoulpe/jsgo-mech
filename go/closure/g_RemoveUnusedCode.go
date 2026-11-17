@@ -2998,7 +2998,7 @@ func (this *RemoveUnusedCode_RealVarInfo) setIsExplicitlyNotRemovable(reasonSupp
 	if this.isEntirelyRemovable {
 		this.isEntirelyRemovable = false
 		if _, off := this.outer_.unremovableLog.self_.(*NoOpLogFile); !off { // build the message only for a log that is on
-			this.outer_.unremovableLog.logString(String_format("%s: %s", []any{strobj_(this.varName_), reasonSupplier.get()}))
+			this.outer_.unremovableLog.logString((sstr_(this.varName_) + ": " + objstr_(reasonSupplier.get())))
 		}
 		for r := range sliceAll_(&this.removables) {
 			this.outer_.considerForIndependentRemoval(r)

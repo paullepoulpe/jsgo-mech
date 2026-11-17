@@ -871,18 +871,19 @@ func (this *JsMessageVisitor_IcuMessageTemplateString) extractParts(placholderNa
 	var partsBuilder ImmutableList_BuilderOf[JsMessage_Part] = ImmutableList_builder()
 	var matcher *Matcher_re2j = JsMessageVisitor_ICU_PLACEHOLDER_RE.matcher_s(this.template)
 	var remainingTemplateStartIndex int32 = 0
+	templateU16 := utf16Of_(this.template)
 	for matcher.find() {
 		var placeholderName string = matcher.group(1)
 		if placholderNamesToExtract.contains(placeholderName) {
 			extractedPlaceholderNames.add(strobj_(placeholderName))
-			var nonPlaceholderPrefix string = String_substring(this.template, remainingTemplateStartIndex, matcher.start())
+			var nonPlaceholderPrefix string = templateU16.substring(remainingTemplateStartIndex, matcher.start())
 			remainingTemplateStartIndex = matcher.end()
 			partsBuilder.add(obj_(JsMessage_StringPart_create(nonPlaceholderPrefix)))
 			partsBuilder.add(obj_(JsMessage_PlaceholderReference_createForCanonicalName(placeholderName)))
 		}
 	}
-	if remainingTemplateStartIndex < String_length(this.template) {
-		var remainingTemplate string = String_substring_int(this.template, remainingTemplateStartIndex)
+	if remainingTemplateStartIndex < templateU16.length() {
+		var remainingTemplate string = templateU16.substring_int(remainingTemplateStartIndex)
 		partsBuilder.add(obj_(JsMessage_StringPart_create(remainingTemplate)))
 	}
 	return new_JsMessageVisitor_ExtractedIcuTemplateParts(extractedPlaceholderNames.build(), partsBuilder.build())

@@ -1404,8 +1404,9 @@ func (this *JsDocInfoParser) padLine(builder *strBuilder_, lineStartChar int32, 
 
 func JsDocInfoParser_trimEnd(s string) string {
 	var trimCount int32 = 0
-	for trimCount < String_length(s) {
-		var ch uint16 = String_charAt(s, ((String_length(s) - trimCount) - 1))
+	sU16 := utf16Of_(s)
+	for trimCount < sU16.length() {
+		var ch uint16 = sU16.charAt(((sU16.length() - trimCount) - 1))
 		if TokenUtil_isWhitespace(int32(ch)) {
 			trimCount++
 		} else {
@@ -1415,7 +1416,7 @@ func JsDocInfoParser_trimEnd(s string) string {
 	if trimCount == 0 {
 		return s
 	}
-	return String_substring(s, 0, (String_length(s) - trimCount))
+	return sU16.substring(0, (sU16.length() - trimCount))
 }
 
 func (this *JsDocInfoParser) parseTypeExpressionAnnotation(token JsDocToken) Node {

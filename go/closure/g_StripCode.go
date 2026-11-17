@@ -512,24 +512,25 @@ func (this *StripCode_Strip) nameIncludesFieldNameToStrip(n Node) bool {
 		return (this.isStripName(n.getString()) || this.nameIncludesFieldNameToStrip(n.getFirstChild()))
 	} else if n.isName() {
 		var nameString string = n.getString()
-		var end int32 = String_indexOf(nameString, 36)
+		nameStringU16 := utf16Of_(nameString)
+		var end int32 = nameStringU16.indexOf(36)
 		if end == -1 {
 			return false
 		}
 		var start int32 = 0
 		for {
-			if this.isStripName(String_substring(nameString, start, end)) {
+			if this.isStripName(nameStringU16.substring(start, end)) {
 				return true
 			}
-			if end == String_length(nameString) {
+			if end == nameStringU16.length() {
 				break
 			}
 			var newStart int32 = (end + 1)
-			var newEnd int32 = String_indexOf_int_int(nameString, 36, newStart)
+			var newEnd int32 = nameStringU16.indexOf_int_int(36, newStart)
 			start = newStart
 			end = func() int32 {
 				if newEnd == -1 {
-					return String_length(nameString)
+					return nameStringU16.length()
 				}
 				return newEnd
 			}()

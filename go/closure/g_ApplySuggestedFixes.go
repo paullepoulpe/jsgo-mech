@@ -109,8 +109,9 @@ func ApplySuggestedFixes_applyCodeReplacements(replacements CollectionOf[*CodeRe
 		sb.append(replacement.getNewContent())
 		lastIndex = replacement.getEndPosition()
 	}
-	if lastIndex <= String_length(code) {
-		sb.append_CharSequence_int_int_s(code, lastIndex, String_length(code))
+	codeU16 := utf16Of_(code)
+	if lastIndex <= codeU16.length() {
+		sb.append_CharSequence_int_int_s(code, lastIndex, codeU16.length())
 	}
 	return sb.toString()
 }

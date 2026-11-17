@@ -93,8 +93,9 @@ func new_StringPool_Builder() *StringPool_Builder {
 }
 
 func (this *StringPool_Builder) put(string_ string) int32 {
-	if String_length(string_) > this.maxLength {
-		this.maxLength = String_length(string_)
+	string_U16 := utf16Of_(string_)
+	if string_U16.length() > this.maxLength {
+		this.maxLength = string_U16.length()
 	}
 	return unbox_[int32](this.pool.computeIfAbsent_f(string_, func(unused_ any) any {
 		var unused string = str_(unused_)

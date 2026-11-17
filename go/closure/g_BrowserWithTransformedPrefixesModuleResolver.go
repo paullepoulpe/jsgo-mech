@@ -64,10 +64,12 @@ func (this *BrowserWithTransformedPrefixesModuleResolver) replacePathPrefixes(mo
 		return Optional_empty[string]()
 	}
 	var transformedAddress string = moduleAddress.get()
+	var moduleAddressU16 utf16_
+	var prefixU16 utf16_
 	for _, el := range immElems_(this.prefixReplacements) {
 		prefixReplacement := cast_[*BrowserWithTransformedPrefixesModuleResolver_PrefixReplacement](el)
 		if strings.HasPrefix(moduleAddress.get(), prefixReplacement.prefix()) {
-			transformedAddress = (sstr_(prefixReplacement.replacement()) + sstr_(String_substring_int(moduleAddress.get(), String_length(prefixReplacement.prefix()))))
+			transformedAddress = (sstr_(prefixReplacement.replacement()) + sstr_(moduleAddressU16.of(moduleAddress.get()).substring_int(prefixU16.of(prefixReplacement.prefix()).length())))
 			break
 		}
 	}
@@ -98,10 +100,12 @@ func (this *BrowserWithTransformedPrefixesModuleResolver) resolveModuleAsPath_im
 		return this.ModuleResolver.resolveModuleAsPath_impl(scriptAddress, moduleAddress)
 	}
 	var transformedAddress string = moduleAddress
+	moduleAddressU16 := utf16Of_(moduleAddress)
+	var prefixU16 utf16_
 	for _, el := range immElems_(this.prefixReplacements) {
 		prefixReplacement := cast_[*BrowserWithTransformedPrefixesModuleResolver_PrefixReplacement](el)
 		if strings.HasPrefix(moduleAddress, prefixReplacement.prefix()) {
-			transformedAddress = (sstr_(prefixReplacement.replacement()) + sstr_(String_substring_int(moduleAddress, String_length(prefixReplacement.prefix()))))
+			transformedAddress = (sstr_(prefixReplacement.replacement()) + sstr_(moduleAddressU16.substring_int(prefixU16.of(prefixReplacement.prefix()).length())))
 			break
 		}
 	}
