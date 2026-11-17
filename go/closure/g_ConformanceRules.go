@@ -25,7 +25,7 @@ func ConformanceRules_createTsAllowlist() *ConformanceRules_AllowList {
 				ex_ := catch_(r_)
 				if p, ok := ex_.(Throwable_as); ok {
 					var t *Throwable = p.as_Throwable()
-					panic(new_AssertionError_Object(t.self()).self())
+					panic(new_AssertionError_Object(t.self()))
 				}
 				panic(r_)
 			}
@@ -72,7 +72,7 @@ func ConformanceRules_buildPattern(reqPatterns ListOf[string]) *Outcome_base[*Pa
 			if r_ := recover(); r_ != nil {
 				ex_ := catch_(r_)
 				if e, ok2 := ex_.(*PatternSyntaxException); ok2 {
-					panic(new_RuntimeException_String_Throwable("bad joined regexp", e.up_Throwable()).self())
+					panic(new_RuntimeException_String_Throwable("bad joined regexp", e.up_Throwable()))
 				}
 				panic(r_)
 			}
@@ -86,7 +86,7 @@ func ConformanceRules_buildPattern(reqPatterns ListOf[string]) *Outcome_base[*Pa
 
 func ConformanceRules_isTaggedTemplateLitString(node Node) bool {
 	if !node.isTemplateLitString() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	return ((node.getGrandparent() != 0) && node.getGrandparent().isTaggedTemplateLit())
 }
@@ -420,7 +420,7 @@ func ConformanceRules_AbstractRule_getTypeMatchingStrategy(requirement *Requirem
 		case Requirement_TypeMatchingStrategy_EXACT:
 			return TypeMatchingStrategy_EXACT
 		default:
-			panic(new_IllegalStateException_String("Unknown TypeMatchingStrategy").self())
+			panic(new_IllegalStateException_String("Unknown TypeMatchingStrategy"))
 		}
 	}()
 }
@@ -1039,7 +1039,7 @@ func (this *ConformanceRules_BannedProperty) initBannedProperty(compiler *Abstra
 		case Requirement_Type_BANNED_PROPERTY_CALL:
 			return ConformanceRules_BannedProperty_RequirementPrecondition_BANNED_PROPERTY_CALL
 		default:
-			panic(new_AssertionError_Object(obj_(requirement.getType())).self())
+			panic(new_AssertionError_Object(obj_(requirement.getType())))
 		}
 	}()
 	this.registry = compiler.getTypeRegistry()
@@ -1148,7 +1148,7 @@ func (this *ConformanceRules_BannedProperty) extractType(n Node) *JSType {
 				case tokOrd1_CLASS_MEMBERS:
 					return nil
 				default:
-					panic(new_AssertionError_0().self())
+					panic(new_AssertionError_0())
 				}
 			}()
 		default:
@@ -1258,7 +1258,7 @@ func (this ConformanceRules_BannedProperty_RequirementPrecondition) shouldCheck(
 	case ConformanceRules_BannedProperty_RequirementPrecondition_BANNED_PROPERTY_CALL:
 		return ConformanceRules_ConformanceUtil_isCallTarget(n)
 	default:
-		panic(new_NullPointerException_0().self()) // a call on null
+		panic(new_NullPointerException_0()) // a call on null
 	}
 }
 
@@ -1378,7 +1378,7 @@ func (this *ConformanceRules_BannedStringRegex) checkConformance_impl(traversal 
 			}
 		} else {
 			if ok_, a1_ := ConformanceRules_isTaggedTemplateLitString(node), node.getRawString(); !ok_ {
-				panic(new_IllegalStateException_String(Strings_lenientFormat("Found untagged template literal with invalid (uncookable) escape sequence: %s", []any{strobj_(a1_)})).self())
+				panic(new_IllegalStateException_String(Strings_lenientFormat("Found untagged template literal with invalid (uncookable) escape sequence: %s", []any{strobj_(a1_)})))
 			}
 			var rawString string = node.getRawString()
 			if this.stringPattern.matcher_s(rawString).matches() {
@@ -1422,7 +1422,7 @@ func ConformanceRules_ConformanceUtil_evaluateTypeString(compiler *AbstractCompi
 
 func ConformanceRules_ConformanceUtil_validateCall(compiler *AbstractCompiler, callOrNew Node, functionType *FunctionType, isCallInvocation bool) bool {
 	if !callOrNew.isCall() && !callOrNew.isNew() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	return (ConformanceRules_ConformanceUtil_validateParameterList(compiler, callOrNew, functionType, isCallInvocation) && ConformanceRules_ConformanceUtil_validateThis(callOrNew, functionType, isCallInvocation))
 }
@@ -1464,7 +1464,7 @@ func ConformanceRules_ConformanceUtil_validateParameterList(compiler *AbstractCo
 func ConformanceRules_ConformanceUtil_getPropertyFromDeclarationName(specName string) OptionalOf[string] {
 	var parts []string = sliceImm_(tc_string, ConformanceRules_ON_PROTOTYPE.splitToList_s(specName))
 	if int32(len(parts)) != 1 && int32(len(parts)) != 2 {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	if int32(len(parts)) == 2 {
 		return Optional_ofNullable[string](sliceAt_(parts, 1))
@@ -1476,7 +1476,7 @@ func ConformanceRules_ConformanceUtil_getClassFromDeclarationName(specName strin
 	var tmp string = specName
 	var parts []string = sliceImm_(tc_string, ConformanceRules_ON_PROTOTYPE.splitToList_s(tmp))
 	if int32(len(parts)) != 1 && int32(len(parts)) != 2 {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	if int32(len(parts)) == 2 {
 		return Optional_ofNullable[string](sliceAt_(parts, 0))
@@ -4016,7 +4016,7 @@ func (this *ConformanceRules_BanStaticThis) checkConformance_impl(t *NodeTravers
 
 func ConformanceRules_BanStaticThis_isStaticMethod(n Node) bool {
 	if !n.isFunction() {
-		panic(new_IllegalArgumentException_0().self())
+		panic(new_IllegalArgumentException_0())
 	}
 	var parent Node = n.getParent()
 	return (((parent != 0) && parent.isMemberFunctionDef()) && parent.isStaticMember())

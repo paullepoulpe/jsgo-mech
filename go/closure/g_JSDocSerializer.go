@@ -135,7 +135,7 @@ func JSDocSerializer_serializeJsdoc(jsdoc *JSDocInfo, stringPool *StringPool_Bui
 		return nil
 	}
 	if result == nil {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	return result
 }
@@ -152,7 +152,7 @@ func JSDocSerializer_serializeIdGenerator(doc *JSDocInfo) JsdocTag {
 	} else if doc.isIdGenerator() {
 		return JsdocTag_JSDOC_ID_GENERATOR_INCONSISTENT
 	}
-	panic(new_IllegalStateException_String(("Failed to identify idGenerator inside JSDoc: " + tostr_(doc))).self())
+	panic(new_IllegalStateException_String(("Failed to identify idGenerator inside JSDoc: " + tostr_(doc))))
 }
 
 func JSDocSerializer_createPlaceholderType() *JSTypeExpression {
@@ -317,7 +317,7 @@ L_1:
 			_ = unused
 			continue L_1
 		case JsdocTag_JSDOC_UNSPECIFIED, JsdocTag_UNRECOGNIZED:
-			panic(obj_(new_MalformedTypedAstException_Object(strobj_(("Unsupported JSDoc tag can't be deserialized: " + tostr_(tag))))))
+			panic(new_MalformedTypedAstException_Object(strobj_(("Unsupported JSDoc tag can't be deserialized: " + tostr_(tag)))))
 		}
 	}
 	if modifies != nil {

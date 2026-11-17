@@ -43,7 +43,7 @@ func (this *ClosureUnawareOptions) setTranspilationOptions() {
 	case RuntimeJsLibManager_RuntimeLibraryMode_RECORD_ONLY, RuntimeJsLibManager_RuntimeLibraryMode_RECORD_AND_VALIDATE_FIELDS, RuntimeJsLibManager_RuntimeLibraryMode_INJECT:
 		this.shadowOptions.setRuntimeLibraryMode(RuntimeJsLibManager_RuntimeLibraryMode_EXTERN_FIELD_NAMES)
 	case RuntimeJsLibManager_RuntimeLibraryMode_EXTERN_FIELD_NAMES:
-		panic(new_AssertionError_0().self())
+		panic(new_AssertionError_0())
 	}
 	this.shadowOptions.setSkipNonTranspilationPasses(this.original_.getSkipNonTranspilationPasses())
 	this.shadowOptions.setEs6SubclassTranspilation(CompilerOptions_Es6SubclassTranspilation_SAFE_REFLECT_CONSTRUCT)

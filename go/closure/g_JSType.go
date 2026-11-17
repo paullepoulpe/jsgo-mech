@@ -1089,7 +1089,7 @@ func (this *JSType) resolve(reporter ErrorReporter_rhino) *JSType {
 		this.resolveResult = this
 		this.resolveResult = this.resolveInternal(reporter)
 		if !this.isResolved() {
-			panic(new_IllegalStateException_0().self())
+			panic(new_IllegalStateException_0())
 		}
 	}
 	return this.resolveResult
@@ -1097,7 +1097,7 @@ func (this *JSType) resolve(reporter ErrorReporter_rhino) *JSType {
 
 func (this *JSType) eagerlyResolveToSelf() {
 	if this.isResolved() {
-		panic(new_IllegalStateException_String(objstr_(this.self())).self())
+		panic(new_IllegalStateException_String(objstr_(this.self())))
 	}
 	this.resolveResult = this
 	this.registry.getResolver().resolveIfClosed(this, this.getTypeClass())

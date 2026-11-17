@@ -71,14 +71,14 @@ func (this *PrototypeObjectType) init_PrototypeObjectType(builder *PrototypeObje
 	}
 	if this.anonymousType {
 		if !this.className.isEmpty() {
-			panic(new_IllegalStateException_0().self())
+			panic(new_IllegalStateException_0())
 		}
 	}
 	if this.templateTypeMap == nil {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	if this.templateTypeMap.size() < this.templateParamCount {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	this.registry.getResolver().resolveIfClosed(this.up_JSType(), PrototypeObjectType_TYPE_CLASS)
 }
@@ -246,7 +246,7 @@ func (this *PrototypeObjectType) getImplicitPrototype_impl() *ObjectType {
 
 func (this *PrototypeObjectType) setImplicitPrototype(implicitPrototype *ObjectType) {
 	if this.hasCachedValues() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	this.implicitPrototypeFallback = implicitPrototype
 	if implicitPrototype != nil {
@@ -278,7 +278,7 @@ func (this *PrototypeObjectType) isNativeObjectType_impl() bool {
 
 func (this *PrototypeObjectType) setOwnerFunction_impl(type_ *FunctionType) {
 	if this.ownerFunction != nil && type_ != nil {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	this.ownerFunction = type_
 }

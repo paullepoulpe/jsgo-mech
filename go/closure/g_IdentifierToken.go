@@ -49,7 +49,7 @@ func (this *IdentifierToken) valueEquals(str string) bool {
 
 func (this *IdentifierToken) getValue() string {
 	if this.privateIdentifier {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	return this.value_
 }

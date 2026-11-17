@@ -65,10 +65,10 @@ func (this *Scope) getParent_impl() *AbstractScope {
 
 func (this *Scope) declare(name string, nameNode Node, input *CompilerInput) *Var {
 	if name == "" {
-		panic(new_IllegalArgumentException_0().self())
+		panic(new_IllegalArgumentException_0())
 	}
 	if cast_[*Var](this.getOwnSlot(name)) != nil {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	var var_ *Var = new_Var(name, nameNode, this, this.getVarCount(), input, 0)
 	this.declareInternal(name, var_.up_AbstractVar())
@@ -77,10 +77,10 @@ func (this *Scope) declare(name string, nameNode Node, input *CompilerInput) *Va
 
 func (this *Scope) declareImplicitGoogNamespaceIfAbsent(name string, definition Node) *Var {
 	if name == "" {
-		panic(new_IllegalArgumentException_0().self())
+		panic(new_IllegalArgumentException_0())
 	}
 	if !this.isGlobal() {
-		panic(new_IllegalStateException_String(Strings_lenientFormat("Cannot declare implicit goog namespace in local scope %s", []any{obj_(this)})).self())
+		panic(new_IllegalStateException_String(Strings_lenientFormat("Cannot declare implicit goog namespace in local scope %s", []any{obj_(this)})))
 	}
 	var var_ *Var = cast_[*Var](this.getOwnSlot(name))
 	if var_ == nil {

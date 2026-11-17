@@ -31,7 +31,7 @@ func (this *InstanceObjectType) up_JSType() *JSType {
 func (this *InstanceObjectType) init_InstanceObjectType(builder *InstanceObjectType_Builder) {
 	this.PrototypeObjectType.init_PrototypeObjectType(builder.up_PrototypeObjectType_Builder())
 	if builder.constructor_ == nil {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	this.constructor_ = builder.constructor_
 	this.registry.getResolver().resolveIfClosed(this.up_JSType(), InstanceObjectType_TYPE_CLASS_FIELD)

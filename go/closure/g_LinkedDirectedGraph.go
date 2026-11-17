@@ -266,7 +266,7 @@ func (this *LinkedDirectedGraph) getDirectedPredNodes_impl(nodeValue any) []DiGr
 
 func (this *LinkedDirectedGraph) getDirectedPredNodesDiGraphNode_impl(dNode DiGraph_DiGraphNode) []DiGraph_DiGraphNode {
 	if dNode == nil {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	var lNode *LinkedDirectedGraph_LinkedDiGraphNode = to_LinkedDirectedGraph_LinkedDiGraphNode(dNode)
 	var nodeList []DiGraph_DiGraphNode = make([]DiGraph_DiGraphNode, 0, lNode.getInEdges().size())
@@ -283,7 +283,7 @@ func (this *LinkedDirectedGraph) getDirectedSuccNodes_impl(nodeValue any) []DiGr
 
 func (this *LinkedDirectedGraph) getDirectedSuccNodesDiGraphNode_impl(dNode DiGraph_DiGraphNode) []DiGraph_DiGraphNode {
 	if dNode == nil {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	var lNode *LinkedDirectedGraph_LinkedDiGraphNode = to_LinkedDirectedGraph_LinkedDiGraphNode(dNode)
 	var nodeList []DiGraph_DiGraphNode = make([]DiGraph_DiGraphNode, 0, lNode.getOutEdges().size())
@@ -419,11 +419,11 @@ func (this *LinkedDirectedGraph_LinkedDiGraphNode) getValue() any {
 }
 
 func (this *LinkedDirectedGraph_LinkedDiGraphNode) getAnnotationUntyped_impl() Annotation_graph {
-	panic(new_UnsupportedOperationException_String("Graph initialized with node annotations turned off").self())
+	panic(new_UnsupportedOperationException_String("Graph initialized with node annotations turned off"))
 }
 
 func (this *LinkedDirectedGraph_LinkedDiGraphNode) setAnnotation_impl(data Annotation_graph) {
-	panic(new_UnsupportedOperationException_String("Graph initialized with node annotations turned off").self())
+	panic(new_UnsupportedOperationException_String("Graph initialized with node annotations turned off"))
 }
 
 func (this *LinkedDirectedGraph_LinkedDiGraphNode) getColor() string {
@@ -456,14 +456,14 @@ func (this *LinkedDirectedGraph_LinkedDiGraphNode) hasPriority() bool {
 
 func (this *LinkedDirectedGraph_LinkedDiGraphNode) getPriority() int32 {
 	if this.priority < 0 {
-		panic(new_IllegalStateException_String("priority not set").self())
+		panic(new_IllegalStateException_String("priority not set"))
 	}
 	return this.priority
 }
 
 func (this *LinkedDirectedGraph_LinkedDiGraphNode) setPriority(priority int32) {
 	if priority < 0 {
-		panic(new_IllegalArgumentException_String("priorities must be non-negative").self())
+		panic(new_IllegalArgumentException_String("priorities must be non-negative"))
 	}
 	this.priority = priority
 }
@@ -588,11 +588,11 @@ func (this *LinkedDirectedGraph_LinkedDiGraphEdge) getValue() any {
 }
 
 func (this *LinkedDirectedGraph_LinkedDiGraphEdge) getAnnotationUntyped_impl() Annotation_graph {
-	panic(new_UnsupportedOperationException_String("Graph initialized with edge annotations turned off").self())
+	panic(new_UnsupportedOperationException_String("Graph initialized with edge annotations turned off"))
 }
 
 func (this *LinkedDirectedGraph_LinkedDiGraphEdge) setAnnotation_impl(data Annotation_graph) {
-	panic(new_UnsupportedOperationException_String("Graph initialized with edge annotations turned off").self())
+	panic(new_UnsupportedOperationException_String("Graph initialized with edge annotations turned off"))
 }
 
 func (this *LinkedDirectedGraph_LinkedDiGraphEdge) getColor() string {

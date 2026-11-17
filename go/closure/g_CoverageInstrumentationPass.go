@@ -54,7 +54,7 @@ func (this *CoverageInstrumentationPass) addProductionHeaderCode(script Node, ar
 
 func (this *CoverageInstrumentationPass) checkIfArrayNameExternDeclared(externsNode Node, arrayName string) {
 	if !Collection_contains_s(NodeUtil_collectExternVariableNames(this.compiler_, externsNode), arrayName) {
-		panic(new_AssertionError_Object(strobj_("The array name passed to --production_instrumentation_array_name was not declared as an extern. This will result in undefined behaviour")).self())
+		panic(new_AssertionError_Object(strobj_("The array name passed to --production_instrumentation_array_name was not declared as an extern. This will result in undefined behaviour")))
 	}
 }
 
@@ -73,7 +73,7 @@ func (this *CoverageInstrumentationPass) process_2(externsNode Node, rootNode No
 		}
 		var firstScript Node = rootNode.getFirstChild()
 		if !firstScript.isScript() {
-			panic(new_IllegalStateException_0().self())
+			panic(new_IllegalStateException_0())
 		}
 		if firstScript.hasChildren() && firstScript.getFirstChild().isModuleBody() {
 			firstScript = firstScript.getFirstChild()
@@ -94,7 +94,7 @@ func (this *CoverageInstrumentationPass) createConditionalObjectDecl(name string
 		case CompilerOptions_InstrumentOption_LINE_ONLY:
 			return IR_objectlit([]Node{IR_quotedStringKey("fileNames", IR_arraylit([]Node{})), IR_quotedStringKey("instrumentedLines", IR_arraylit([]Node{})), IR_quotedStringKey("executedLines", IR_arraylit([]Node{}))})
 		default:
-			panic(new_AssertionError_Object(strobj_(("Unexpected option: " + tostr_(this.instrumentOption)))).self())
+			panic(new_AssertionError_Object(strobj_(("Unexpected option: " + tostr_(this.instrumentOption)))))
 		}
 	}()
 	var var_ Node = IR_var_Node_Node(IR_name(name), IR_or(IR_getelem(IR_getprop_Node_String(IR_name("window"), "top"), IR_string("__jscov")), IR_assign(IR_getelem(IR_getprop_Node_String(IR_name("window"), "top"), IR_string("__jscov")), jscovData)))

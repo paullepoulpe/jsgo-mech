@@ -408,7 +408,7 @@ func (this *FunctionRewriter_GetterReducer) reduce_impl(node Node) Node {
 	var getprop Node = this.getGetPropertyName(node)
 	if getprop != 0 {
 		if !getprop.isGetProp() {
-			panic(new_IllegalStateException_String(("Expected GETPROP, got " + tostr_(getprop.getToken()))).self())
+			panic(new_IllegalStateException_String(("Expected GETPROP, got " + tostr_(getprop.getToken()))))
 		}
 		var arg Node = IR_string(getprop.getString()).srcref(getprop)
 		return this.buildCallNode(FunctionRewriter_GetterReducer_FACTORY_METHOD_NAME, arg, node)
@@ -461,7 +461,7 @@ func (this *FunctionRewriter_SetterReducer) reduce_impl(node Node) Node {
 	var propName Node = this.getSetPropertyName(node)
 	if propName != 0 {
 		if !propName.isStringLit() {
-			panic(new_IllegalStateException_String(("Expected STRING, got " + tostr_(propName.getToken()))).self())
+			panic(new_IllegalStateException_String(("Expected STRING, got " + tostr_(propName.getToken()))))
 		}
 		return this.buildCallNode(FunctionRewriter_SetterReducer_FACTORY_METHOD_NAME, propName, node)
 	} else {

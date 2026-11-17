@@ -21,7 +21,7 @@ func new_DominatorTree[N comparable](idoms MapOf[any, any], subtreeSizes MapOf[a
 func DominatorTree_compute[N comparable](graph *DiGraph, entry N) *DominatorTree[N] {
 	entryBox_ := boxNull_(entry)
 	if graph.getNode(entryBox_) == nil {
-		panic(new_NullPointerException_String("Entry node not in graph").self())
+		panic(new_NullPointerException_String("Entry node not in graph"))
 	}
 	var postOrder ListOf[any] = new_ArrayList_0()
 	var postOrderIndex MapOf[any, BoxedOf[int32]] = new_LinkedHashMap()

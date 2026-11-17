@@ -239,7 +239,7 @@ func (this *DefaultPassConfig) finit_DefaultPassConfig() {
 		} else if this.options_.shouldInlineLocalVariables() {
 			mode = InlineVariables_Mode_LOCALS_ONLY
 		} else {
-			panic(new_IllegalStateException_String("No variable inlining option set.").self())
+			panic(new_IllegalStateException_String("No variable inlining option set."))
 		}
 		return new_InlineVariables(compiler, mode)
 	})).build()
@@ -340,7 +340,7 @@ func (this *DefaultPassConfig) finit_DefaultPassConfig() {
 		} else if this.options_.shouldInlineLocalVariables() {
 			mode = InlineVariables_Mode_LOCALS_ONLY
 		} else {
-			panic(new_IllegalStateException_String("No variable inlining option set.").self())
+			panic(new_IllegalStateException_String("No variable inlining option set."))
 		}
 		return new_InlineVariables(compiler, mode)
 	})).build()
@@ -388,7 +388,7 @@ func (this *DefaultPassConfig) finit_DefaultPassConfig() {
 			case CompilerOptions_ExtractPrototypeMemberDeclarationsMode_USE_IIFE:
 				return ExtractPrototypeMemberDeclarations_Pattern_USE_IIFE
 			default:
-				panic(new_IllegalStateException_String("unexpected").self())
+				panic(new_IllegalStateException_String("unexpected"))
 			}
 		}()
 		return new_ExtractPrototypeMemberDeclarations(compiler, pattern)
@@ -413,7 +413,7 @@ func (this *DefaultPassConfig) finit_DefaultPassConfig() {
 	this.invertContextualRenaming = PassFactory_builder().setName("invertContextualRenaming").setInternalFactory(lambda_DefaultPassConfig_finit_DefaultPassConfig_64_).build()
 	this.renameProperties = PassFactory_builder().setName("renameProperties").setInternalFactory(newFuncObj_(func(compiler *AbstractCompiler) CompilerPass {
 		if this.options_.getPropertyRenaming() != PropertyRenamingPolicy_ALL_UNQUOTED {
-			panic(new_IllegalStateException_0().self())
+			panic(new_IllegalStateException_0())
 		}
 		var prevPropertyMap *VariableMap = this.options_.getInputPropertyMap()
 		return new_DefaultPassConfig_11(this, compiler, prevPropertyMap)
@@ -927,7 +927,7 @@ func (this *DefaultPassConfig) getTranspileOnlyPasses_impl() *PassListBuilder {
 	passes.maybeAdd(this.transpileOnlyClosureUnaware)
 	if this.options_.needsTranspilationFrom(FeatureSet_ES2015) && this.options_.getRewritePolyfills() {
 		if this.options_.getIsolatePolyfills() {
-			panic(new_IllegalStateException_String("Polyfill isolation cannot be used in transpileOnly mode").self())
+			panic(new_IllegalStateException_String("Polyfill isolation cannot be used in transpileOnly mode"))
 		}
 		TranspilationPasses_addRewritePolyfillPass(passes)
 	} else if this.options_.getInjectPolyfillsNewerThan() != 0 {
@@ -971,7 +971,7 @@ func (this *DefaultPassConfig) addModuleRewritingPasses(checks *PassListBuilder,
 func (this *DefaultPassConfig) getChecks_impl() *PassListBuilder {
 	var checks *PassListBuilder = new_PassListBuilder(this.options_)
 	if this.options_.getSkipNonTranspilationPasses() {
-		panic(new_IllegalStateException_String("options.getSkipNonTranspilationPasses() cannot be mixed with PassConfig::getChecks. Call PassConfig::getTranspileOnlyPasses instead.").self())
+		panic(new_IllegalStateException_String("options.getSkipNonTranspilationPasses() cannot be mixed with PassConfig::getChecks. Call PassConfig::getTranspileOnlyPasses instead."))
 	}
 	if this.options_.isPropertyRenamingOnlyCompilationMode() {
 		checks.maybeAdd(this.addSyntheticScript)
@@ -1178,7 +1178,7 @@ func (this *DefaultPassConfig) getFinalizations_impl() *PassListBuilder {
 		passes.maybeAdd(this.renameProperties)
 		if this.options_.getRenamePrefixNamespace().isPresent() && (this.options_.getChunkOutputType() == CompilerOptions_ChunkOutputType_GLOBAL_NAMESPACE) {
 			if !DefaultPassConfig_GLOBAL_SYMBOL_NAMESPACE_PATTERN.matcher_s(this.options_.getRenamePrefixNamespace().get()).matches() {
-				panic(new_IllegalArgumentException_String(("Illegal character in renamePrefixNamespace name: " + sstr_(this.options_.getRenamePrefixNamespace().get()))).self())
+				panic(new_IllegalArgumentException_String(("Illegal character in renamePrefixNamespace name: " + sstr_(this.options_.getRenamePrefixNamespace().get()))))
 			}
 			passes.maybeAdd(this.rescopeGlobalSymbols)
 		}
@@ -1277,7 +1277,7 @@ func (this *DefaultPassConfig) getFinalizations_impl() *PassListBuilder {
 	}
 	if this.options_.getRenamePrefixNamespace().isPresent() && (this.options_.getChunkOutputType() == CompilerOptions_ChunkOutputType_GLOBAL_NAMESPACE) {
 		if !DefaultPassConfig_GLOBAL_SYMBOL_NAMESPACE_PATTERN.matcher_s(this.options_.getRenamePrefixNamespace().get()).matches() {
-			panic(new_IllegalArgumentException_String(("Illegal character in renamePrefixNamespace name: " + sstr_(this.options_.getRenamePrefixNamespace().get()))).self())
+			panic(new_IllegalArgumentException_String(("Illegal character in renamePrefixNamespace name: " + sstr_(this.options_.getRenamePrefixNamespace().get()))))
 		}
 		passes.maybeAdd(this.rescopeGlobalSymbols)
 	}
@@ -1531,7 +1531,7 @@ func (this *DefaultPassConfig) assertValidOrderForChecks(checks *PassListBuilder
 	checks.assertPassOrder(this.closureRewriteModule, TranspilationPasses_getEs6RewriteDestructuring(Es6RewriteDestructuring_ObjectDestructuringRewriteMode_REWRITE_OBJECT_REST), "RewriteCallerCodeLocation must happen before Es6RewriteDestructuring, because we need ReWriteCallerCodeLocation to run before default parameters get rewritten.")
 	if checks.contains(this.closureGoogScopeAliases) {
 		if !checks.contains(this.checkVariableReferences) {
-			panic(new_IllegalStateException_String("goog.scope processing requires variable checking").self())
+			panic(new_IllegalStateException_String("goog.scope processing requires variable checking"))
 		}
 	}
 	checks.assertPassOrder(this.gatherModuleMetadataPass, this.closureCheckModule, "Need to gather module metadata before checking closure modules.")
@@ -1572,7 +1572,7 @@ func (this *DefaultPassConfig) getReplaceProtectedMessagesPass() *PassFactory {
 
 func DefaultPassConfig_createPeepholeOptimizationsPass(compiler *AbstractCompiler, passName string, expectAstIsNormalized bool) CompilerPass {
 	if ok_, a1_ := (expectAstIsNormalized == compiler.getLifeCycleStage().isNormalized()), compiler.getLifeCycleStage(); !ok_ {
-		panic(new_IllegalArgumentException_String(tostr_(a1_)).self())
+		panic(new_IllegalArgumentException_String(tostr_(a1_)))
 	}
 	var late bool = false
 	var useTypesForOptimization bool = compiler.getOptions().shouldUseTypesForLocalOptimization()
@@ -1596,7 +1596,7 @@ func DefaultPassConfig_createPeepholeOptimizationsPass(compiler *AbstractCompile
 
 func DefaultPassConfig_combineChecks(compiler *AbstractCompiler, callbacks []NodeTraversal_Callback) CompilerPass {
 	if len(callbacks) == 0 {
-		panic(new_IllegalArgumentException_0().self())
+		panic(new_IllegalArgumentException_0())
 	}
 	return new_CombinedCompilerPass(compiler, callbacks)
 }

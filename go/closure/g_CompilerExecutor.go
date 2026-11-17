@@ -95,10 +95,10 @@ func (this *CompilerExecutor) runInCompilerThread(callable func() any, dumpTrace
 	}
 	if exception != nil {
 		if this.debugMessage.isPresent() {
-			panic(new_RuntimeException_String_Throwable(("Exception during compilation: " + sstr_(this.debugMessage.get())), exception).self())
+			panic(new_RuntimeException_String_Throwable(("Exception during compilation: " + sstr_(this.debugMessage.get())), exception))
 		}
 		Throwables_throwIfUnchecked(exception)
-		panic(new_RuntimeException_Throwable(exception).self())
+		panic(new_RuntimeException_Throwable(exception))
 	}
 	return result
 }

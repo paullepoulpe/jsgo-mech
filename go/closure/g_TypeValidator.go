@@ -256,7 +256,7 @@ func (this *TypeValidator) expectSwitchMatchesCase(n Node, switchType *JSType, c
 
 func (this *TypeValidator) expectIndexMatch(n Node, objType *JSType, indexType *JSType) {
 	if !(((n.isGetElem() || n.isOptChainGetElem()) || n.isComputedProp()) || n.isComputedFieldDef()) {
-		panic(new_IllegalStateException_String(tostr_(n)).self())
+		panic(new_IllegalStateException_String(tostr_(n)))
 	}
 	var indexNode Node = func() Node {
 		if n.isGetElem() {
@@ -425,7 +425,7 @@ func (this *TypeValidator) expectUndeclaredVariable(sourceName OptionalOf[string
 				n.setJSType(varType)
 			} else {
 				if !parent.isFunction() && !parent.isClass() {
-					panic(new_IllegalStateException_0().self())
+					panic(new_IllegalStateException_0())
 				}
 				parent.setJSType(varType)
 			}
@@ -519,7 +519,7 @@ func (this *TypeValidator) checkPropertyType(n Node, instance *JSType, parent *O
 
 func (this *TypeValidator) expectAbstractMethodsImplemented(n Node, ctorType *FunctionType) {
 	if !ctorType.isConstructor() {
-		panic(new_IllegalArgumentException_0().self())
+		panic(new_IllegalArgumentException_0())
 	}
 	var abstractMethodSuperTypeMap *TMap[Property_Key, *ObjectType] = newTMap_(tch_Property_Key, tc_p_ObjectType)
 	var currSuperCtor *FunctionType = ctorType.getSuperClassConstructor()

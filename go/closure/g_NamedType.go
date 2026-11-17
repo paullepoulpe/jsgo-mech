@@ -52,14 +52,14 @@ func (this *NamedType) init_NamedType(builder *NamedType_Builder) {
 	this.ProxyObjectType.init_ProxyObjectType_JSTypeRegistry_JSType(builder.registry, builder.referencedType)
 	this.finit_NamedType()
 	if builder.resolutionKind == 0 {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	if builder.templateTypes == nil {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	if equalsId_(builder.resolutionKind, NamedType_ResolutionKind_TYPEOF) {
 		if !strings.HasPrefix(builder.referenceName, "typeof ") {
-			panic(new_IllegalStateException_0().self())
+			panic(new_IllegalStateException_0())
 		}
 	}
 	this.restrictByNull = builder.restrictByNull
@@ -83,7 +83,7 @@ func new_NamedType(builder *NamedType_Builder) *NamedType {
 
 func NamedType_nominalHashCode(type_ *ObjectType) int32 {
 	if !type_.hasReferenceName() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	var name string = type_.getReferenceName().orElseThrow()
 	return utf16Hash_(name)
@@ -182,7 +182,7 @@ func (this *NamedType) resolveInternal_impl(reporter ErrorReporter_rhino) *JSTyp
 		return this.ProxyObjectType.resolveInternal_impl(reporter)
 	}
 	if !this.getReferencedType().isUnknownType() {
-		panic(new_IllegalStateException_String("NamedTypes given a referenced type pre-resolution should have ResolutionKind.NONE").self())
+		panic(new_IllegalStateException_String("NamedTypes given a referenced type pre-resolution should have ResolutionKind.NONE"))
 	}
 	if this.resolutionScope == nil {
 		return this.up_JSType()
@@ -322,7 +322,7 @@ func (this *NamedType) localVariableShadowsGlobalNamespace(root string) bool {
 	var rootVar StaticSlot = this.resolutionScope.getSlot(root)
 	if rootVar != nil {
 		if rootVar.getScope() == nil {
-			panic(new_NullPointerException_String(objstr_(rootVar)).self())
+			panic(new_NullPointerException_String(objstr_(rootVar)))
 		}
 		var parent StaticScope = rootVar.getScope().getParentScope()
 		if parent != nil {
@@ -366,7 +366,7 @@ func NamedType_builder(registry *JSTypeRegistry, reference string) *NamedType_Bu
 
 func (this *NamedType) toBuilder() *NamedType_Builder {
 	if this.isResolved() {
-		panic(new_IllegalStateException_String("Only call toBuilder on unresolved NamedTypes").self())
+		panic(new_IllegalStateException_String("Only call toBuilder on unresolved NamedTypes"))
 	}
 	return new_NamedType_Builder(this.registry, this.reference).setScope(this.resolutionScope).setResolutionKind(this.resolutionKind).setErrorReportingLocation(this.sourceName_, this.lineno_, this.charno_).setTemplateTypes(this.templateTypes).setReferencedType(this.getReferencedType()).setRestrictByNull(this.restrictByNull)
 }

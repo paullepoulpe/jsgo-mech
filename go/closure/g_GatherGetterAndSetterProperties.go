@@ -22,7 +22,7 @@ func (this *GatherGetterAndSetterProperties) process_2(externs Node, root Node) 
 
 func GatherGetterAndSetterProperties_update(compiler *AbstractCompiler, externs Node, root Node) {
 	if externs.getParent() != root.getParent() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	var accessorSummary *AccessorSummary
 	if compiler.getOptions().getAssumePropertiesAreStaticallyAnalyzable() {
@@ -94,7 +94,7 @@ func (this *GatherGetterAndSetterProperties_GatherCallback) visit_impl(t *NodeTr
 
 func (this *GatherGetterAndSetterProperties_GatherCallback) recordGetterDef(getterDef Node) {
 	if !getterDef.isGetterDef() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	var name string = getterDef.getString()
 	this.record(name, AccessorSummary_PropertyAccessKind_GETTER_ONLY)
@@ -102,7 +102,7 @@ func (this *GatherGetterAndSetterProperties_GatherCallback) recordGetterDef(gett
 
 func (this *GatherGetterAndSetterProperties_GatherCallback) recordSetterDef(setterDef Node) {
 	if !setterDef.isSetterDef() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	var name string = setterDef.getString()
 	this.record(name, AccessorSummary_PropertyAccessKind_SETTER_ONLY)

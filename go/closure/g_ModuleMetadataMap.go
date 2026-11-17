@@ -155,31 +155,31 @@ type ModuleMetadataMap_ModuleMetadata struct {
 
 func (this *ModuleMetadataMap_ModuleMetadata) init_ModuleMetadataMap_ModuleMetadata(moduleType ModuleMetadataMap_ModuleType, rootNode Node, usesClosure bool, isTestOnly bool, googNamespaces *SimpleMultiset[any], stronglyRequiredGoogNamespaces *SimpleMultiset[any], dynamicallyRequiredGoogNamespaces *SimpleMultiset[any], maybeRequiredGoogNamespaces *SimpleMultiset[any], weaklyRequiredGoogNamespaces *SimpleMultiset[any], es6ImportSpecifiers *SimpleMultiset[any], nestedModules ImmutableListOf[*ModuleMetadataMap_ModuleMetadata], readToggles *SimpleMultiset[any], path *ModuleLoader_ModulePath) {
 	if moduleType == 0 {
-		panic(new_NullPointerException_String("moduleType").self())
+		panic(new_NullPointerException_String("moduleType"))
 	}
 	if googNamespaces == nil {
-		panic(new_NullPointerException_String("googNamespaces").self())
+		panic(new_NullPointerException_String("googNamespaces"))
 	}
 	if stronglyRequiredGoogNamespaces == nil {
-		panic(new_NullPointerException_String("stronglyRequiredGoogNamespaces").self())
+		panic(new_NullPointerException_String("stronglyRequiredGoogNamespaces"))
 	}
 	if dynamicallyRequiredGoogNamespaces == nil {
-		panic(new_NullPointerException_String("dynamicallyRequiredGoogNamespaces").self())
+		panic(new_NullPointerException_String("dynamicallyRequiredGoogNamespaces"))
 	}
 	if maybeRequiredGoogNamespaces == nil {
-		panic(new_NullPointerException_String("maybeRequiredGoogNamespaces").self())
+		panic(new_NullPointerException_String("maybeRequiredGoogNamespaces"))
 	}
 	if weaklyRequiredGoogNamespaces == nil {
-		panic(new_NullPointerException_String("weaklyRequiredGoogNamespaces").self())
+		panic(new_NullPointerException_String("weaklyRequiredGoogNamespaces"))
 	}
 	if es6ImportSpecifiers == nil {
-		panic(new_NullPointerException_String("es6ImportSpecifiers").self())
+		panic(new_NullPointerException_String("es6ImportSpecifiers"))
 	}
 	if nestedModules == nil {
-		panic(new_NullPointerException_String("nestedModules").self())
+		panic(new_NullPointerException_String("nestedModules"))
 	}
 	if readToggles == nil {
-		panic(new_NullPointerException_String("readToggles").self())
+		panic(new_NullPointerException_String("readToggles"))
 	}
 	this.moduleType_ = moduleType
 	this.rootNode_ = rootNode
@@ -401,7 +401,7 @@ func (this *ModuleMetadataMap_ModuleMetadata_Builder) build() *ModuleMetadataMap
 		if (int32(this.set0) & 2) == 0 {
 			missing.append(" isTestOnly")
 		}
-		panic(new_IllegalStateException_String(("Missing required properties:" + missing.toString())).self())
+		panic(new_IllegalStateException_String(("Missing required properties:" + missing.toString())))
 	}
 	return new_ModuleMetadataMap_ModuleMetadata(this.moduleTypeField, this.rootNodeField, this.usesClosureField, this.isTestOnlyField, this.googNamespaces_, this.stronglyRequiredGoogNamespaces_, this.dynamicallyRequiredGoogNamespaces_, this.maybeRequiredGoogNamespaces_, this.weaklyRequiredGoogNamespaces_, this.es6ImportSpecifiers_, this.nestedModules_, this.readToggles_, this.pathField)
 }
@@ -486,14 +486,14 @@ func (this *ModuleMetadataMap_ModuleMetadata_Builder) isTestOnly(value bool) *Mo
 
 func (this *ModuleMetadataMap_ModuleMetadata_Builder) moduleType() ModuleMetadataMap_ModuleType {
 	if this.moduleTypeField == 0 {
-		panic(new_IllegalStateException_String("Property \"moduleType\" has not been set").self())
+		panic(new_IllegalStateException_String("Property \"moduleType\" has not been set"))
 	}
 	return this.moduleTypeField
 }
 
 func (this *ModuleMetadataMap_ModuleMetadata_Builder) moduleType_1(value ModuleMetadataMap_ModuleType) *ModuleMetadataMap_ModuleMetadata_Builder {
 	if value == 0 {
-		panic(new_NullPointerException_String("Null moduleType").self())
+		panic(new_NullPointerException_String("Null moduleType"))
 	}
 	this.moduleTypeField = value
 	return this

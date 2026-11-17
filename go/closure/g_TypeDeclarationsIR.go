@@ -74,10 +74,10 @@ func TypeDeclarationsIR_maybeAddType(node Node, type_ Node) Node {
 func TypeDeclarationsIR_functionType(returnType Node, requiredParams *TMap[string, Node], optionalParams *TMap[string, Node], restName OptionalOf[string], restType Node) Node {
 	var node Node = new_Node_Token_Node(Token_rhino_FUNCTION_TYPE, returnType)
 	if requiredParams.asMap() == nil {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	if optionalParams.asMap() == nil {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	for paramKey, paramValue := range requiredParams.All() {
 		var name Node = IR_name(paramKey)
@@ -112,7 +112,7 @@ func TypeDeclarationsIR_arrayType(elementType Node) Node {
 
 func TypeDeclarationsIR_unionType(options IterableOf[Node]) Node {
 	if Iterables_isEmpty(options) {
-		panic(new_IllegalArgumentException_String("union must have at least one option").self())
+		panic(new_IllegalArgumentException_String("union must have at least one option"))
 	}
 	var node Node = new_Node_Token(Token_rhino_UNION_TYPE)
 	for option := range elemsBy_(options, Node_of_) {

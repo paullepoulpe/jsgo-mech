@@ -16,7 +16,7 @@ func (this *XtbMessageBundle) init_XtbMessageBundle(xtb []int8, projectId Option
 				ex_ := catch_(r_)
 				if is_IOException(ex_) || is_SAXException(ex_) {
 					var e *Exception = to_Exception(ex_)
-					panic(new_RuntimeException_Throwable(e.up_Throwable()).self())
+					panic(new_RuntimeException_Throwable(e.up_Throwable()))
 				}
 				panic(r_)
 			}
@@ -126,24 +126,24 @@ func (this *XtbMessageBundle_Handler) startElement(uri string, localName string,
 	switch qName {
 	case XtbMessageBundle_Handler_BUNDLE_ELEM_NAME:
 		if !this.lang.isEmpty() {
-			panic(new_IllegalStateException_0().self())
+			panic(new_IllegalStateException_0())
 		}
 		this.lang = Optional_ofNullable[string](atts.getValue(XtbMessageBundle_Handler_LANG_ATT_NAME))
 		if !this.lang.isPresent() || this.lang.get() == "" {
-			panic(new_IllegalStateException_0().self())
+			panic(new_IllegalStateException_0())
 		}
 	case XtbMessageBundle_Handler_TRANSLATION_ELEM_NAME:
 		if this.msgBuilder != nil {
-			panic(new_IllegalStateException_0().self())
+			panic(new_IllegalStateException_0())
 		}
 		var id OptionalOf[string] = Optional_ofNullable[string](atts.getValue(XtbMessageBundle_Handler_MESSAGE_ID_ATT_NAME))
 		if !id.isPresent() || id.get() == "" {
-			panic(new_IllegalStateException_0().self())
+			panic(new_IllegalStateException_0())
 		}
 		this.msgBuilder = new_JsMessage_Builder().setKey(id.get()).setId(id)
 	case XtbMessageBundle_Handler_PLACEHOLDER_ELEM_NAME:
 		if this.msgBuilder == nil {
-			panic(new_IllegalStateException_0().self())
+			panic(new_IllegalStateException_0())
 		}
 		var phRef string = atts.getValue(XtbMessageBundle_Handler_PLACEHOLDER_NAME_ATT_NAME)
 		if this.msgBuilder.hasGenderedVariants() {
@@ -153,14 +153,14 @@ func (this *XtbMessageBundle_Handler) startElement(uri string, localName string,
 		}
 	case XtbMessageBundle_Handler_BRANCH_ELEM_NAME:
 		if this.msgBuilder == nil {
-			panic(new_IllegalStateException_0().self())
+			panic(new_IllegalStateException_0())
 		}
 		var gender string = atts.getValue(XtbMessageBundle_Handler_BRANCH_NAME_ATT_NAME)
 		var matcher *Matcher_re2j = XtbMessageBundle_Handler_GET_STRING_PATTERN.matcher_s(gender)
 		if matcher.find() {
 			this.genderCase = matcher.group(1)
 			if !((((this.genderCase == XtbMessageBundle_Handler_MALE_GENDER_CASE) || (this.genderCase == XtbMessageBundle_Handler_FEMALE_GENDER_CASE)) || (this.genderCase == XtbMessageBundle_Handler_NEUTER_GENDER_CASE)) || (this.genderCase == XtbMessageBundle_Handler_OTHER_GENDER_CASE)) {
-				panic(new_IllegalStateException_String("Gender case must be one of the following: MASCULINE, FEMININE, NEUTER, or OTHER.").self())
+				panic(new_IllegalStateException_String("Gender case must be one of the following: MASCULINE, FEMININE, NEUTER, or OTHER."))
 			}
 			this.msgBuilder.addGenderedMessageKey(JsMessage_GrammaticalGenderCase_valueOf(this.genderCase))
 		}
@@ -171,7 +171,7 @@ func (this *XtbMessageBundle_Handler) startElement(uri string, localName string,
 func (this *XtbMessageBundle_Handler) endElement(uri string, localName string, qName string) {
 	if XtbMessageBundle_Handler_TRANSLATION_ELEM_NAME == qName {
 		if this.msgBuilder == nil {
-			panic(new_IllegalStateException_0().self())
+			panic(new_IllegalStateException_0())
 		}
 		if !this.msgBuilder.hasParts() {
 			this.msgBuilder.appendStringPart("")

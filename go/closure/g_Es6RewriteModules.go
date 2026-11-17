@@ -29,7 +29,7 @@ func new_Es6RewriteModules_AbstractCompiler_ModuleMetadataMap_ModuleMap_Preproce
 
 func (this *Es6RewriteModules) init_Es6RewriteModules_AbstractCompiler_ModuleMetadataMap_ModuleMap_PreprocessorSymbolTable_TypedScope_ChunkOutputType(compiler *AbstractCompiler, moduleMetadataMap *ModuleMetadataMap, moduleMap *ModuleMap, preprocessorSymbolTable *PreprocessorSymbolTable, globalTypedScope *TypedScope, chunkOutputType CompilerOptions_ChunkOutputType) {
 	if moduleMetadataMap == nil {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	this.compiler_ = compiler
 	this.astFactory_ = compiler.createAstFactory()
@@ -49,7 +49,7 @@ func new_Es6RewriteModules_AbstractCompiler_ModuleMetadataMap_ModuleMap_Preproce
 
 func Es6RewriteModules_isEs6ModuleRoot(scriptNode Node) bool {
 	if !scriptNode.isScript() {
-		panic(new_IllegalArgumentException_String(tostr_(scriptNode)).self())
+		panic(new_IllegalArgumentException_String(tostr_(scriptNode)))
 	}
 	if scriptNode.getBooleanProp(Node_GOOG_MODULE) {
 		return false
@@ -59,10 +59,10 @@ func Es6RewriteModules_isEs6ModuleRoot(scriptNode Node) bool {
 
 func (this *Es6RewriteModules) process_2(externs Node, root Node) {
 	if !externs.isRoot() {
-		panic(new_IllegalArgumentException_String(tostr_(externs)).self())
+		panic(new_IllegalArgumentException_String(tostr_(externs)))
 	}
 	if !root.isRoot() {
-		panic(new_IllegalArgumentException_String(tostr_(root)).self())
+		panic(new_IllegalArgumentException_String(tostr_(root)))
 	}
 	NodeTraversal_traverseRoots(this.compiler_, this, externs, root)
 	NodeUtil_removeFeatureFromAllScripts(root, FeatureSet_Feature_MODULES, this.compiler_)
@@ -109,7 +109,7 @@ func (this *Es6RewriteModules) visit(t *NodeTraversal, n Node, parent Node) {
 
 func (this *Es6RewriteModules) maybeWarnExternModule(t *NodeTraversal, n Node, parent Node) {
 	if !parent.isModuleBody() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	if parent.isFromExterns() && !NodeUtil_isFromTypeSummary(parent.getParent()) {
 		t.report(n, TranspilationUtil_CANNOT_CONVERT_YET, []string{"ES6 modules in externs"})
@@ -118,7 +118,7 @@ func (this *Es6RewriteModules) maybeWarnExternModule(t *NodeTraversal, n Node, p
 
 func (this *Es6RewriteModules) visitImport(t *NodeTraversal, importDecl Node, parent Node) {
 	if !parent.isModuleBody() {
-		panic(new_IllegalArgumentException_String(tostr_(parent)).self())
+		panic(new_IllegalArgumentException_String(tostr_(parent)))
 	}
 	var importName string = importDecl.getLastChild().getString()
 	var isNamespaceImport bool = strings.HasPrefix(importName, "goog:")
@@ -129,7 +129,7 @@ func (this *Es6RewriteModules) visitImport(t *NodeTraversal, importDecl Node, pa
 			t.report(importDecl, ClosurePrimitiveErrors_MISSING_MODULE_OR_PROVIDE, []string{namespace})
 		} else {
 			if !((m.isEs6Module() || m.isGoogModule()) || m.isGoogProvide()) {
-				panic(new_IllegalStateException_0().self())
+				panic(new_IllegalStateException_0())
 			}
 		}
 	} else {
@@ -151,7 +151,7 @@ func (this *Es6RewriteModules) visitImport(t *NodeTraversal, importDecl Node, pa
 					for ; grandChild != 0; grandChild = grandChild.getNext() {
 						this.maybeAddAliasToSymbolTable(grandChild.getFirstChild(), t.getSourceName())
 						if !grandChild.hasTwoChildren() {
-							panic(new_IllegalStateException_0().self())
+							panic(new_IllegalStateException_0())
 						}
 					}
 				}
@@ -166,7 +166,7 @@ func (this *Es6RewriteModules) visitImport(t *NodeTraversal, importDecl Node, pa
 
 func (this *Es6RewriteModules) visitExport(t *NodeTraversal, export Node, parent Node) {
 	if !parent.isModuleBody() {
-		panic(new_IllegalArgumentException_String(tostr_(parent)).self())
+		panic(new_IllegalArgumentException_String(tostr_(parent)))
 	}
 	if export.getBooleanProp(Node_EXPORT_DEFAULT) {
 		var child Node = export.getFirstChild()
@@ -214,7 +214,7 @@ func (this *Es6RewriteModules) visitExportDeclaration(t *NodeTraversal, export N
 
 func (this *Es6RewriteModules) inlineModuleToGlobalScope(moduleNode Node) {
 	if !moduleNode.isModuleBody() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	var scriptNode Node = moduleNode.getParent()
 	moduleNode.detach()
@@ -229,7 +229,7 @@ func (this *Es6RewriteModules) visitScript(t *NodeTraversal, script Node) {
 	var thisModule *Module = this.moduleMap.getModule(t.getInput().getPath())
 	var qualifiedName *QualifiedName = ModuleRenaming_getGlobalName_ModuleMetadata_Optional(thisModule.metadata(), Optional_empty[string]())
 	if !qualifiedName.isSimple() {
-		panic(new_IllegalStateException_String(Strings_lenientFormat("Unexpected qualified name %s", []any{qualifiedName.self()})).self())
+		panic(new_IllegalStateException_String(Strings_lenientFormat("Unexpected qualified name %s", []any{qualifiedName.self()})))
 	}
 	var moduleName string = qualifiedName.getRoot()
 	var moduleVar Node = this.createExportsObject(moduleName, t, script, moduleObjectType)
@@ -259,7 +259,7 @@ func (this *Es6RewriteModules) createExportsObject(moduleName string, t *NodeTra
 		var mutated bool = binding.isMutated()
 		var boundVariableQualifiedName *QualifiedName = ModuleRenaming_getGlobalName_Binding(binding)
 		if !boundVariableQualifiedName.isSimple() {
-			panic(new_IllegalStateException_String(Strings_lenientFormat("unexpected qualified name: %s", []any{boundVariableQualifiedName.self()})).self())
+			panic(new_IllegalStateException_String(Strings_lenientFormat("unexpected qualified name: %s", []any{boundVariableQualifiedName.self()})))
 		}
 		var boundVariableName string = boundVariableQualifiedName.getRoot()
 		var getProp Node = this.astFactory_.createGetPropWithoutColor(this.astFactory_.createName(moduleName, moduleObjectType), exportedName)
@@ -401,14 +401,14 @@ func (this *Es6RewriteModules) visitRequireOrGet(t *NodeTraversal, requireCall N
 			var toDetach Node
 			if parent.isDestructuringLhs() {
 				if !parent.getFirstChild().isObjectPattern() {
-					panic(new_IllegalStateException_0().self())
+					panic(new_IllegalStateException_0())
 				}
 				toDetach = parent.getParent()
 				{
 					var child Node = parent.getFirstFirstChild()
 					for ; child != 0; child = child.getNext() {
 						if !child.isStringKey() || !child.getFirstChild().isName() {
-							panic(new_IllegalStateException_String(tostr_(child)).self())
+							panic(new_IllegalStateException_String(tostr_(child)))
 						}
 						var rep *ModuleRenaming_GlobalizedModuleName = this.getGlobalNameAndType(m, Optional_of[string](namespace), isFromFallbackMetadata).getprop(child.getString())
 						this.namesToInlineByAlias[child.getFirstChild().getString()] = rep
@@ -420,7 +420,7 @@ func (this *Es6RewriteModules) visitRequireOrGet(t *NodeTraversal, requireCall N
 				toDetach = parent.getParent()
 			} else {
 				if !parent.isExprResult() {
-					panic(new_IllegalStateException_0().self())
+					panic(new_IllegalStateException_0())
 				}
 				toDetach = parent
 			}
@@ -432,7 +432,7 @@ func (this *Es6RewriteModules) visitRequireOrGet(t *NodeTraversal, requireCall N
 		}
 	} else {
 		if !requireCall.getParent().isExprResult() {
-			panic(new_IllegalStateException_0().self())
+			panic(new_IllegalStateException_0())
 		}
 		requireCall.getParent().detach()
 	}
@@ -476,13 +476,13 @@ func (this *Es6RewriteModules) maybeAddImportedFileReferenceToSymbolTable(import
 
 func (this *Es6RewriteModules) declareGlobalVariable(n Node, t *NodeTraversal) {
 	if !n.isName() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	if !this.astFactory_.isAddingTypes() {
 		return
 	}
 	if this.globalTypedScope == nil {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	var name string = n.getString()
 	if this.globalTypedScope.hasOwnSlot(name) {
@@ -490,7 +490,7 @@ func (this *Es6RewriteModules) declareGlobalVariable(n Node, t *NodeTraversal) {
 	} else {
 		var type_ *JSType = n.getJSType()
 		if type_ == nil {
-			panic(new_NullPointerException_0().self())
+			panic(new_NullPointerException_0())
 		}
 		this.globalTypedScope.declare(name, n, type_, t.getInput(), false)
 	}
@@ -609,10 +609,10 @@ func (this *Es6RewriteModules_RewriteRequiresForEs6Modules) visit_impl(t *NodeTr
 					var child Node = statementNode.getFirstFirstChild().getFirstChild()
 					for ; child != 0; child = child.getNext() {
 						if !child.isStringKey() {
-							panic(new_IllegalStateException_0().self())
+							panic(new_IllegalStateException_0())
 						}
 						if !child.getFirstChild().isName() {
-							panic(new_IllegalStateException_0().self())
+							panic(new_IllegalStateException_0())
 						}
 						this.renameTable.put_s(t.getScopeRoot(), child.getFirstChild().getString(), ModuleRenaming_getGlobalName_ModuleMetadata_Optional(moduleMetadata, Optional_of[string](name)).getprop(child.getString()).join().orElse(nullstr_))
 					}
@@ -622,10 +622,10 @@ func (this *Es6RewriteModules_RewriteRequiresForEs6Modules) visit_impl(t *NodeTr
 					var child Node = statementNode.getFirstFirstChild().getFirstChild()
 					for ; child != 0; child = child.getNext() {
 						if !child.isStringKey() {
-							panic(new_IllegalStateException_0().self())
+							panic(new_IllegalStateException_0())
 						}
 						if !child.getFirstChild().isName() {
-							panic(new_IllegalStateException_0().self())
+							panic(new_IllegalStateException_0())
 						}
 						var globalName *ModuleRenaming_GlobalizedModuleName = this.outer_.getGlobalNameAndType(moduleMetadata, Optional_of[string](name), false).getprop(child.getString())
 						var constNode Node = this.outer_.astFactory_.createSingleConstNameDeclaration(child.getFirstChild().getString(), globalName.toQname(this.outer_.astFactory_))
@@ -732,7 +732,7 @@ func (this *Es6RewriteModules_RenameGlobalVars) visit_impl(t *NodeTraversal, n N
 
 func (this *Es6RewriteModules_RenameGlobalVars) replace(n Node, binding *Binding) Node {
 	if !n.isName() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	for (binding.isModuleNamespace() && binding.metadata().isEs6Module()) && n.getParent().isGetProp() {
 		var propertyName string = n.getParent().getString()

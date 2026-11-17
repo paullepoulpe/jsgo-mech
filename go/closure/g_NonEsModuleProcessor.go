@@ -48,7 +48,7 @@ func new_NonEsModuleProcessor_NonEsModule(metadata *ModuleMetadataMap_ModuleMeta
 }
 
 func (this *NonEsModuleProcessor_NonEsModule) resolveExport_impl(moduleRequestResolver ModuleRequestResolver, exportName OptionalOf[string]) *ResolveExportResult {
-	panic(new_UnsupportedOperationException_0().self())
+	panic(new_UnsupportedOperationException_0())
 }
 
 func (this *NonEsModuleProcessor_NonEsModule) resolveExport_5_impl(moduleRequestResolver ModuleRequestResolver, moduleSpecifier OptionalOf[string], exportName OptionalOf[string], resolveSet *TSet[*ExportTrace], exportStarSet map[*UnresolvedModule]struct{}) *ResolveExportResult {
@@ -83,11 +83,11 @@ func (this *NonEsModuleProcessor_NonEsModule) metadata_impl() *ModuleMetadataMap
 }
 
 func (this *NonEsModuleProcessor_NonEsModule) getExportedNames_impl(moduleRequestResolver ModuleRequestResolver) ImmutableSetOf[string] {
-	panic(new_UnsupportedOperationException_0().self())
+	panic(new_UnsupportedOperationException_0())
 }
 
 func (this *NonEsModuleProcessor_NonEsModule) getExportedNames_2_impl(moduleRequestResolver ModuleRequestResolver, visited map[*UnresolvedModule]struct{}) ImmutableSetOf[string] {
-	panic(new_UnsupportedOperationException_0().self())
+	panic(new_UnsupportedOperationException_0())
 }
 
 // resolveExport: an object that is exactly a NonEsModuleProcessor_NonEsModule calls its resolveExport_impl directly (post-flip); others dispatch.

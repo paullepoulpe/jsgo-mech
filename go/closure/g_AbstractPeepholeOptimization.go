@@ -55,21 +55,21 @@ func (this *AbstractPeepholeOptimization) report(diagnostic *DiagnosticType, n N
 
 func (this *AbstractPeepholeOptimization) areNodesEqualForInlining(n1 Node, n2 Node) bool {
 	if this.compiler_ == nil {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	return this.compiler_.areNodesEqualForInlining(n1, n2)
 }
 
 func (this *AbstractPeepholeOptimization) isASTNormalized() bool {
 	if this.compiler_ == nil {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	return this.compiler_.getLifeCycleStage().isNormalized()
 }
 
 func (this *AbstractPeepholeOptimization) beginTraversal_impl(compiler *AbstractCompiler) {
 	if compiler == nil {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	this.compiler_ = compiler
 	this.astAnalyzer = compiler.getAstAnalyzer()
@@ -77,7 +77,7 @@ func (this *AbstractPeepholeOptimization) beginTraversal_impl(compiler *Abstract
 
 func (this *AbstractPeepholeOptimization) endTraversal() {
 	if ok_, a1_, a2_ := this.newFeatures.isEmpty(), this.newFeatures.asSet(), Object_getClass(this.self()).getName(); !ok_ {
-		panic(new_IllegalStateException_String(Strings_lenientFormat("Expected getNewFeatures() to be empty in endTraversal() but found %s for %s", []any{a1_, strobj_(a2_)})).self())
+		panic(new_IllegalStateException_String(Strings_lenientFormat("Expected getNewFeatures() to be empty in endTraversal() but found %s for %s", []any{a1_, strobj_(a2_)})))
 	}
 	this.compiler_ = nil
 	this.astAnalyzer = nil
@@ -149,21 +149,21 @@ func (this *AbstractPeepholeOptimization) reportChangeToEnclosingScope(n Node) {
 
 func (this *AbstractPeepholeOptimization) deleteNode(property Node) {
 	if this.compiler_ == nil {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	NodeUtil_deleteNode(property, this.compiler_)
 }
 
 func (this *AbstractPeepholeOptimization) markFunctionsDeleted(function Node) {
 	if this.compiler_ == nil {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	NodeUtil_markFunctionsDeleted(function, this.compiler_)
 }
 
 func (this *AbstractPeepholeOptimization) markNewScopesChanged(n Node) {
 	if this.compiler_ == nil {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	NodeUtil_markNewScopesChanged(n, this.compiler_)
 }

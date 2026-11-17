@@ -320,7 +320,7 @@ func (this *QualifiedName_NodeQname) getComponent_impl() string {
 		case Token_rhino_NAME, Token_rhino_GETPROP, Token_rhino_MEMBER_FUNCTION_DEF:
 			return this.node_.getString()
 		default:
-			panic(new_IllegalStateException_String(("Not a qualified name: " + tostr_(this.node_))).self())
+			panic(new_IllegalStateException_String(("Not a qualified name: " + tostr_(this.node_))))
 		}
 	}()
 }

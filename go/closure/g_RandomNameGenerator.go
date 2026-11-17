@@ -84,11 +84,11 @@ func RandomNameGenerator_asSet(chars []uint16) ImmutableSetOf[BoxedOf[uint16]] {
 func (this *RandomNameGenerator) checkPrefix(prefix string) {
 	if len(prefix) != 0 {
 		if !this.firstChars.contains(any(uint16(String_charAt(prefix, 0)))) {
-			panic(new_IllegalArgumentException_String(("prefix must start with one of: " + sstr_(Joiner_on(", ").join(icast_Iterable(obj_(this.firstChars)))))).self())
+			panic(new_IllegalArgumentException_String(("prefix must start with one of: " + sstr_(Joiner_on(", ").join(icast_Iterable(obj_(this.firstChars)))))))
 		}
 		for _, u_ := range stringUnitsFrom_(prefix, int32(1)) {
 			if !this.nonFirstChars.contains(any(uint16(u_))) {
-				panic(new_IllegalArgumentException_String(("prefix has invalid characters, must be one of: " + sstr_(Joiner_on(", ").join(icast_Iterable(obj_(this.nonFirstChars)))))).self())
+				panic(new_IllegalArgumentException_String(("prefix has invalid characters, must be one of: " + sstr_(Joiner_on(", ").join(icast_Iterable(obj_(this.nonFirstChars)))))))
 			}
 		}
 	}

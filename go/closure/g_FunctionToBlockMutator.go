@@ -10,7 +10,7 @@ type FunctionToBlockMutator struct {
 
 func (this *FunctionToBlockMutator) init_FunctionToBlockMutator(compiler *AbstractCompiler, safeNameIdSupplier SupplierOf[string]) {
 	if compiler == nil {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	this.compiler_ = compiler
 	this.safeNameIdSupplier_ = safeNameIdSupplier
@@ -51,7 +51,7 @@ func (this *FunctionToBlockMutator) mutateInternal(fnName string, fnNode Node, c
 	if hasArgs {
 		var inlineResult Node = this.aliasAndInlineArguments(newBlock, args, setImm_(tc_string, allNamesToAlias))
 		if newBlock != inlineResult {
-			panic(new_IllegalStateException_0().self())
+			panic(new_IllegalStateException_0())
 		}
 	}
 	if isCallInLoop {
@@ -60,7 +60,7 @@ func (this *FunctionToBlockMutator) mutateInternal(fnName string, fnNode Node, c
 	var labelName string = this.getLabelNameForFunction(fnName)
 	var injectableBlock Node = FunctionToBlockMutator_replaceReturns(newBlock, resultName, labelName, needsDefaultResult)
 	if injectableBlock == 0 {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	return injectableBlock
 }
@@ -196,7 +196,7 @@ func (this *FunctionToBlockMutator) aliasAndInlineArguments(fnTemplateRoot Node,
 		}
 		var result Node = this.functionArgumentInjector_.inject(this.compiler_, fnTemplateRoot, 0, replacements)
 		if result != fnTemplateRoot {
-			panic(new_IllegalStateException_0().self())
+			panic(new_IllegalStateException_0())
 		}
 		return result
 	} else {
@@ -232,7 +232,7 @@ func (this *FunctionToBlockMutator) aliasAndInlineArguments(fnTemplateRoot Node,
 		}
 		var result Node = this.functionArgumentInjector_.inject(this.compiler_, fnTemplateRoot, 0, paramReplacements)
 		if result != fnTemplateRoot {
-			panic(new_IllegalStateException_0().self())
+			panic(new_IllegalStateException_0())
 		}
 		for _, n := range newAliasesToAdd {
 			fnTemplateRoot.addChildToFront(n)
@@ -243,7 +243,7 @@ func (this *FunctionToBlockMutator) aliasAndInlineArguments(fnTemplateRoot Node,
 
 func FunctionToBlockMutator_replaceReturns(block Node, resultName OptionalOf[string], labelName string, resultMustBeSet bool) Node {
 	if block == 0 {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	var root Node = block
 	var hasReturnAtExit bool = false
@@ -271,7 +271,7 @@ func FunctionToBlockMutator_replaceReturns(block Node, resultName OptionalOf[str
 
 func FunctionToBlockMutator_addDummyAssignment(node Node, resultName string) {
 	if !node.isBlock() {
-		panic(new_IllegalArgumentException_0().self())
+		panic(new_IllegalArgumentException_0())
 	}
 	var srcLocation Node = node
 	var retVal Node = NodeUtil_newUndefinedNode(srcLocation)
@@ -283,7 +283,7 @@ func FunctionToBlockMutator_addDummyAssignment(node Node, resultName string) {
 func FunctionToBlockMutator_convertLastReturnToStatement(block Node, resultName OptionalOf[string]) {
 	var ret Node = block.getLastChild()
 	if !ret.isReturn() {
-		panic(new_IllegalArgumentException_0().self())
+		panic(new_IllegalArgumentException_0())
 	}
 	var resultNode Node = FunctionToBlockMutator_getReplacementReturnStatement(ret, resultName)
 	if resultNode == 0 {
@@ -330,7 +330,7 @@ func FunctionToBlockMutator_replaceReturnWithBreak(current Node, parent Node, re
 	}
 	if current.isReturn() {
 		if !NodeUtil_isStatementBlock(parent) {
-			panic(new_IllegalStateException_0().self())
+			panic(new_IllegalStateException_0())
 		}
 		var resultNode Node = FunctionToBlockMutator_getReplacementReturnStatement(current, resultName)
 		var breakNode Node = IR_breakNode_Node(IR_labelName(labelName))

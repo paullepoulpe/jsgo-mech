@@ -23,7 +23,7 @@ func new_JSTypeColorIdHasher(registry *JSTypeRegistry) *JSTypeColorIdHasher {
 
 func (this *JSTypeColorIdHasher) hashObjectType(type_ *ObjectType) *ColorId {
 	if !((((((type_ != nil) && !type_.isEnumElementType()) && !type_.isNoResolvedType()) && !type_.isTemplatizedType()) && !type_.isUnknownType()) && !type_.isTemplateType()) {
-		panic(new_IllegalStateException_String(objstr_(type_.self())).self())
+		panic(new_IllegalStateException_String(objstr_(type_.self())))
 	}
 	var boxId *ColorId = cast_[*ColorId](this.standardColorObjectIds.get(type_.self()))
 	if boxId != nil {
@@ -65,7 +65,7 @@ func JSTypeColorIdHasher_sourceRefFor(type_ *ObjectType) JSType_WithSourceRef {
 	if type_.isEnumType() {
 		return icast_JSType_WithSourceRef(obj_(type_.toMaybeEnumType()))
 	} else if type_.isEnumElementType() {
-		panic(new_AssertionError_Object(type_.self()).self())
+		panic(new_AssertionError_Object(type_.self()))
 	}
 	if type_.isFunctionType() {
 		return icast_JSType_WithSourceRef(type_.toMaybeFunctionType().self())

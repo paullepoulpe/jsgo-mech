@@ -49,7 +49,7 @@ func (this *LightweightMessageFormatter) init_LightweightMessageFormatter_Source
 	this.AbstractMessageFormatter.init_AbstractMessageFormatter(source)
 	this.finit_LightweightMessageFormatter()
 	if source == nil {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	this.defaultFormat = defaultFormat
 }

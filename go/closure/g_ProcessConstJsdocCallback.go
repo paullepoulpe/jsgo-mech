@@ -65,11 +65,11 @@ func (this *ProcessConstJsdocCallback) visit_impl(t *NodeTraversal, n Node, pare
 			this.currentFile.recordNameDeclaration(expr)
 		case tokOrd1_GETELEM:
 		default:
-			panic(new_IllegalArgumentException_String(("Unexpected declaration: " + tostr_(expr))).self())
+			panic(new_IllegalArgumentException_String(("Unexpected declaration: " + tostr_(expr))))
 		}
 	case Token_rhino_VAR, Token_rhino_CONST, Token_rhino_LET:
 		if !n.hasOneChild() {
-			panic(new_IllegalStateException_String(tostr_(n)).self())
+			panic(new_IllegalStateException_String(tostr_(n)))
 		}
 		this.recordDeclaration(t, n.getFirstChild(), n.getFirstChild().getLastChild())
 	case Token_rhino_STRING_KEY:
@@ -96,7 +96,7 @@ func (this *ProcessConstJsdocCallback) recordDeclaration(t *NodeTraversal, lhs N
 
 func (this *ProcessConstJsdocCallback) recordNameDeclaration(lhs Node, rhs Node) {
 	if !NodeUtil_isNameDeclaration(lhs.getParent()) && !lhs.getParent().isAssign() {
-		panic(new_IllegalArgumentException_0().self())
+		panic(new_IllegalArgumentException_0())
 	}
 	var isImport bool = PotentialDeclaration_isImportRhs(rhs)
 	var isAlias bool = PotentialDeclaration_isAliasDeclaration(lhs, rhs)
@@ -113,10 +113,10 @@ func (this *ProcessConstJsdocCallback) recordNameDeclaration(lhs Node, rhs Node)
 
 func (this *ProcessConstJsdocCallback) processDeclarationWithRhs(t *NodeTraversal, lhs Node) {
 	if !((lhs.isQualifiedName() || lhs.isStringKey()) || lhs.isMemberFieldDef()) {
-		panic(new_IllegalArgumentException_String(tostr_(lhs)).self())
+		panic(new_IllegalArgumentException_String(tostr_(lhs)))
 	}
 	if NodeUtil_getRValueOfLValue(lhs) == 0 {
-		panic(new_IllegalStateException_String(tostr_(lhs)).self())
+		panic(new_IllegalStateException_String(tostr_(lhs)))
 	}
 	if PotentialDeclaration_isConstToBeInferred(lhs) {
 		this.processConstWithRhs(t, lhs)

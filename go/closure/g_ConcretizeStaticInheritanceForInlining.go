@@ -55,7 +55,7 @@ func (this *ConcretizeStaticInheritanceForInlining) processInherits(findStaticMe
 func (this *ConcretizeStaticInheritanceForInlining) copyStaticMembers(superClass *ConcretizeStaticInheritanceForInlining_JavascriptClass, subClass *ConcretizeStaticInheritanceForInlining_JavascriptClass, inheritsCall Node, findStaticMembers *ConcretizeStaticInheritanceForInlining_FindStaticMembers) {
 	for staticMember := range superClass.staticMembers.All() {
 		if !staticMember.isAssign() {
-			panic(new_IllegalStateException_String(tostr_(staticMember)).self())
+			panic(new_IllegalStateException_String(tostr_(staticMember)))
 		}
 		var memberName string = staticMember.getFirstChild().getString()
 		if has_(superClass.definedProperties, memberName) {
@@ -230,7 +230,7 @@ func (this *ConcretizeStaticInheritanceForInlining_FindStaticMembers) visitFunct
 
 func (this *ConcretizeStaticInheritanceForInlining_FindStaticMembers) setAlias(original string, alias string) {
 	if !has_(this.outer_.classByAlias, original) {
-		panic(new_IllegalArgumentException_0().self())
+		panic(new_IllegalArgumentException_0())
 	}
 	this.outer_.classByAlias[alias] = this.outer_.classByAlias[original]
 }

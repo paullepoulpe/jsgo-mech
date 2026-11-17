@@ -82,7 +82,7 @@ func (this *J2clEqualitySameRewriterPass) trySubstituteEqualitySame(callNode Nod
 		return this.rewriteAsStrictEq(firstExpr, secondExpr)
 	}
 	if firstExprValue != J2clEqualitySameRewriterPass_NodeValue_NUMBER && secondExprValue != J2clEqualitySameRewriterPass_NodeValue_NUMBER {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	return this.rewriteNumberCheck(firstExpr, secondExpr)
 }

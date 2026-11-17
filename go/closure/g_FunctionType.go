@@ -92,7 +92,7 @@ func (this *FunctionType) init_FunctionType(builder *FunctionType_Builder) {
 	this.setPrettyPrint(true)
 	var source Node = builder.sourceNode_
 	if !(((source == 0) || source.isFunction()) || source.isClass()) {
-		panic(new_IllegalArgumentException_0().self())
+		panic(new_IllegalArgumentException_0())
 	}
 	this.source = source
 	this.googModuleId = builder.googModuleId
@@ -134,7 +134,7 @@ func (this *FunctionType) init_FunctionType(builder *FunctionType_Builder) {
 	this.isAbstractField = builder.isAbstract_
 	var canonicalRepresentation *FunctionType = builder.canonicalRepresentation
 	if canonicalRepresentation != nil && this.kind_ != FunctionType_Kind_CONSTRUCTOR {
-		panic(new_IllegalArgumentException_String("Only constructors should have canonical representations").self())
+		panic(new_IllegalArgumentException_String("Only constructors should have canonical representations"))
 	}
 	this.canonicalRepresentation = canonicalRepresentation
 	if builder.setPrototypeBasedOn_ != nil {
@@ -158,7 +158,7 @@ func (this *FunctionType) getTypeClass_impl() JSTypeClass {
 func (this *FunctionType) getConstructor_impl() *FunctionType {
 	nn_1 := this.registry.getNativeFunctionType(JSTypeNative_FUNCTION_FUNCTION_TYPE)
 	if nn_1 == nil {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	return nn_1
 }
@@ -461,7 +461,7 @@ func (this *FunctionType) getOwnImplementedInterfaces() ImmutableListOf[*ObjectT
 
 func (this *FunctionType) setImplementedInterfaces(implementedInterfaces *TList[*ObjectType]) {
 	if !this.isConstructor() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	this.implementedInterfaces = ImmutableList_copyOf(Collection(implementedInterfaces.asList()))
 	for type_ := range implementedInterfaces.All() {
@@ -479,7 +479,7 @@ func (this *FunctionType) getExtendedInterfacesCount() int32 {
 
 func (this *FunctionType) setExtendedInterfaces(extendedInterfaces *TList[*ObjectType]) {
 	if !this.isInterface() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	this.extendedInterfaces = ImmutableList_copyOf(Collection(extendedInterfaces.asList()))
 	for extendedInterface := range extendedInterfaces.All() {
@@ -571,7 +571,7 @@ func (this *FunctionType) defineProperty_impl(name Property_Key, type_ *JSType, 
 
 func (this *FunctionType) supAndInfHelper(that *FunctionType, leastSuper bool) *FunctionType {
 	if that == nil {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	if this.equals_JSType(that.up_JSType()) {
 		return this
@@ -656,7 +656,7 @@ func (this *FunctionType) tryMergeFunctionPiecewise(other *FunctionType, leastSu
 
 func (this *FunctionType) getSuperClassConstructor_impl() *FunctionType {
 	if !this.isConstructor() && !this.isInterface() {
-		panic(new_IllegalArgumentException_0().self())
+		panic(new_IllegalArgumentException_0())
 	}
 	var maybeSuperInstanceType *ObjectType = this.getPrototype().getImplicitPrototype()
 	if maybeSuperInstanceType == nil {
@@ -677,7 +677,7 @@ func (this *FunctionType) recursionUnsafeHashCode_impl() int32 {
 			hc = ((31 * hc) + objhashId_(this.getClosurePrimitive()))
 			return hc
 		default:
-			panic(new_AssertionError_0().self())
+			panic(new_AssertionError_0())
 		}
 	}()
 }
@@ -760,7 +760,7 @@ func (this *FunctionType) visitUntyped_2_impl(visitor RelationshipVisitor, that 
 
 func (this *FunctionType) getInstanceType() *ObjectType {
 	if !this.hasInstanceType() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	return this.typeOfThis.toObjectType()
 }
@@ -873,7 +873,7 @@ func (this *FunctionType) hasProperties() bool {
 
 func (this *FunctionType) setImplicitMatch(flag bool) {
 	if !this.isInterface() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	this.isStructuralInterfaceField = flag
 }
@@ -980,7 +980,7 @@ func (this *FunctionType) forgetParameterAndReturnTypes() *FunctionType {
 
 func (this *FunctionType) getConstructorOnlyTemplateParameters() ImmutableListOf[*TemplateType] {
 	if !this.isConstructor() {
-		panic(new_IllegalStateException_String(objstr_(this.self())).self())
+		panic(new_IllegalStateException_String(objstr_(this.self())))
 	}
 	if this.source == 0 {
 		return ImmutableList_of()
@@ -1324,7 +1324,7 @@ func (this *FunctionType_Builder) init_FunctionType_Builder(registry *JSTypeRegi
 	this.finit_FunctionType_Builder()
 	nn_1 := registry.getNativeObjectType(JSTypeNative_FUNCTION_PROTOTYPE)
 	if nn_1 == nil {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	this.setImplicitPrototype(nn_1)
 }
@@ -1454,26 +1454,26 @@ func (this *FunctionType_Builder) build_impl() *PrototypeObjectType {
 	case FunctionType_Kind_CONSTRUCTOR, FunctionType_Kind_INTERFACE:
 	case FunctionType_Kind_NONE:
 		if !this.returnsOwnInstanceType {
-			panic(new_IllegalStateException_0().self())
+			panic(new_IllegalStateException_0())
 		}
 	case FunctionType_Kind_ORDINARY:
 		if this.returnsOwnInstanceType {
-			panic(new_IllegalStateException_0().self())
+			panic(new_IllegalStateException_0())
 		}
 	}
 	if this.returnsOwnInstanceType {
 		if this.returnType != nil {
-			panic(new_IllegalStateException_0().self())
+			panic(new_IllegalStateException_0())
 		}
 		if this.typeOfThis != nil {
-			panic(new_IllegalStateException_0().self())
+			panic(new_IllegalStateException_0())
 		}
 	}
 	switch this.kind_ {
 	case FunctionType_Kind_CONSTRUCTOR, FunctionType_Kind_INTERFACE:
 	case FunctionType_Kind_NONE, FunctionType_Kind_ORDINARY:
 		if !this.constructorOnlyKeys.isEmpty() {
-			panic(new_IllegalStateException_0().self())
+			panic(new_IllegalStateException_0())
 		}
 	}
 	return new_FunctionType(this).up_PrototypeObjectType()
@@ -1482,7 +1482,7 @@ func (this *FunctionType_Builder) build_impl() *PrototypeObjectType {
 func (this *FunctionType_Builder) buildAndResolve() *FunctionType {
 	nn_1 := to_FunctionType(this.build().self()).toMaybeFunctionType()
 	if nn_1 == nil {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	return nn_1
 }
@@ -1495,7 +1495,7 @@ type FunctionType_Parameter struct {
 
 func (this *FunctionType_Parameter) init_FunctionType_Parameter(getJSType *JSType, isOptional bool, isVariadic bool) {
 	if getJSType == nil {
-		panic(new_NullPointerException_String("getJSType").self())
+		panic(new_NullPointerException_String("getJSType"))
 	}
 	this.getJSType_ = getJSType
 	this.isOptional_ = isOptional

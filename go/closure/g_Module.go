@@ -13,16 +13,16 @@ type Module struct {
 
 func (this *Module) init_Module(metadata *ModuleMetadataMap_ModuleMetadata, path *ModuleLoader_ModulePath, namespace ImmutableMapOf[string, *Binding], boundNames ImmutableMapOf[string, *Binding], localNameToLocalExport ImmutableMapOf[string, *Export], closureNamespace OptionalOf[string]) {
 	if metadata == nil {
-		panic(new_NullPointerException_String("metadata").self())
+		panic(new_NullPointerException_String("metadata"))
 	}
 	if namespace == nil {
-		panic(new_NullPointerException_String("namespace").self())
+		panic(new_NullPointerException_String("namespace"))
 	}
 	if boundNames == nil {
-		panic(new_NullPointerException_String("boundNames").self())
+		panic(new_NullPointerException_String("boundNames"))
 	}
 	if localNameToLocalExport == nil {
-		panic(new_NullPointerException_String("localNameToLocalExport").self())
+		panic(new_NullPointerException_String("localNameToLocalExport"))
 	}
 	this.metadata_ = metadata
 	this.path_ = path
@@ -134,7 +134,7 @@ func new_Module_Builder_Module(source *Module) *Module_Builder {
 
 func (this *Module_Builder) metadata(value *ModuleMetadataMap_ModuleMetadata) *Module_Builder {
 	if value == nil {
-		panic(new_NullPointerException_String("Null metadata").self())
+		panic(new_NullPointerException_String("Null metadata"))
 	}
 	this.metadataField = value
 	return this
@@ -147,7 +147,7 @@ func (this *Module_Builder) path(value *ModuleLoader_ModulePath) *Module_Builder
 
 func (this *Module_Builder) namespace(value ImmutableMapOf[string, *Binding]) *Module_Builder {
 	if value == nil {
-		panic(new_NullPointerException_String("Null namespace").self())
+		panic(new_NullPointerException_String("Null namespace"))
 	}
 	this.namespaceField = value
 	return this
@@ -155,7 +155,7 @@ func (this *Module_Builder) namespace(value ImmutableMapOf[string, *Binding]) *M
 
 func (this *Module_Builder) boundNames(value ImmutableMapOf[string, *Binding]) *Module_Builder {
 	if value == nil {
-		panic(new_NullPointerException_String("Null boundNames").self())
+		panic(new_NullPointerException_String("Null boundNames"))
 	}
 	this.boundNamesField = value
 	return this
@@ -163,7 +163,7 @@ func (this *Module_Builder) boundNames(value ImmutableMapOf[string, *Binding]) *
 
 func (this *Module_Builder) localNameToLocalExport(value ImmutableMapOf[string, *Export]) *Module_Builder {
 	if value == nil {
-		panic(new_NullPointerException_String("Null localNameToLocalExport").self())
+		panic(new_NullPointerException_String("Null localNameToLocalExport"))
 	}
 	this.localNameToLocalExportField = value
 	return this
@@ -189,7 +189,7 @@ func (this *Module_Builder) build() *Module {
 		if this.localNameToLocalExportField == nil {
 			missing.append(" localNameToLocalExport")
 		}
-		panic(new_IllegalStateException_String(("Missing required properties:" + missing.toString())).self())
+		panic(new_IllegalStateException_String(("Missing required properties:" + missing.toString())))
 	}
 	return new_Module(this.metadataField, this.pathField, this.namespaceField, this.boundNamesField, this.localNameToLocalExportField, this.closureNamespaceField)
 }

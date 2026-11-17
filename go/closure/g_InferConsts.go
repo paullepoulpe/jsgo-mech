@@ -64,7 +64,7 @@ func InferConsts_isInferredConst(v *Var, refCollection *ReferenceCollection) boo
 		case Token_rhino_VAR:
 			return (refCollection.firstReferenceIsAssigningDeclaration() && refCollection.isWellDefined())
 		default:
-			panic(new_IllegalStateException_String(("Unrecognized declaration type " + tostr_(declarationType))).self())
+			panic(new_IllegalStateException_String(("Unrecognized declaration type " + tostr_(declarationType))))
 		}
 	}()
 }

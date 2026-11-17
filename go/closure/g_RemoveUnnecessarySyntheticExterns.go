@@ -53,7 +53,7 @@ func new_RemoveUnnecessarySyntheticExterns_RedeclarationCheckHandler(outer_ *Rem
 
 func (this *RemoveUnnecessarySyntheticExterns_RedeclarationCheckHandler) onRedeclaration(s *Scope, name string, n Node, input *CompilerInput) {
 	if !s.isGlobal() {
-		panic(new_IllegalArgumentException_String(Strings_lenientFormat("Unexpected non-global redeclaration %s in scope %s", []any{n.box_(), obj_(s)})).self())
+		panic(new_IllegalArgumentException_String(Strings_lenientFormat("Unexpected non-global redeclaration %s in scope %s", []any{n.box_(), obj_(s)})))
 	}
 	var isSynthetic bool = equalsId_(input, this.outer_.compiler_.getSynthesizedExternsInput())
 	var origVar *Var = cast_[*Var](s.getVar(name).self())

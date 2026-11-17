@@ -13,7 +13,7 @@ func (this *BaseTranspiler) zero_BaseTranspiler() {
 
 func (this *BaseTranspiler) init_BaseTranspiler(compilerSupplier *BaseTranspiler_CompilerSupplier, runtimeLibraryName string) {
 	if compilerSupplier == nil {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	this.compilerSupplier = compilerSupplier
 	this.runtimeLibraryName = runtimeLibraryName
@@ -130,7 +130,7 @@ func (this *BaseTranspiler_CompilerSupplier) compile(path string, code string) *
 	}
 	var transpiled bool = result.transpiledFiles
 	if !result.errors_.isEmpty() {
-		panic(obj_(new_TranspilationException_SourceExcerptProvider_ImmutableList_ImmutableList(icast_SourceExcerptProvider(obj_(compiler)), result.errors_, result.warnings_)))
+		panic(new_TranspilationException_SourceExcerptProvider_ImmutableList_ImmutableList(icast_SourceExcerptProvider(obj_(compiler)), result.errors_, result.warnings_))
 	}
 	return new_BaseTranspiler_CompileResult(source, transpiled, func() string {
 		if transpiled {

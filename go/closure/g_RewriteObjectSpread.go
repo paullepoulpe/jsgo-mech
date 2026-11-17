@@ -53,7 +53,7 @@ func (this *RewriteObjectSpread) visitObject(obj Node) {
 
 func (this *RewriteObjectSpread) visitObjectWithSpread(obj Node) {
 	if !obj.isObjectLit() {
-		panic(new_IllegalArgumentException_0().self())
+		panic(new_IllegalArgumentException_0())
 	}
 	var result Node = func() Node {
 		if this.useJscompAssign {

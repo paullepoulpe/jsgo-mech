@@ -206,7 +206,7 @@ func (this *AstValidator) validateStatement_2(n Node, isAmbient bool) {
 	default:
 		if n.isModuleBody() && this.compiler_.getOptions().getSkipNonTranspilationPasses() {
 			if this.compiler_.getOptions().shouldWrapGoogModulesForWhitespaceOnly() {
-				panic(new_IllegalStateException_String("Modules can exist in transpiler only if setWrapGoogModulesForWhitespaceOnly is false").self())
+				panic(new_IllegalStateException_String("Modules can exist in transpiler only if setWrapGoogModulesForWhitespaceOnly is false"))
 			}
 			this.validateModuleContents(n)
 			return
@@ -312,13 +312,13 @@ func (this *AstValidator) validatePseudoExpression(n Node, allowedPseudoexpressi
 	switch n.ns_().token {
 	case tokOrd1_EMPTY:
 		if !allowedTokensSet.contains(obj_(Token_rhino_EMPTY)) {
-			panic(new_IllegalArgumentException_String(Strings_lenientFormat("Unexpected pseudoexpression %s", []any{n.box_()})).self())
+			panic(new_IllegalArgumentException_String(Strings_lenientFormat("Unexpected pseudoexpression %s", []any{n.box_()})))
 		}
 		this.validateProperties(n)
 		this.validateChildless(n)
 	case tokOrd1_ITER_SPREAD:
 		if !allowedTokensSet.contains(obj_(Token_rhino_ITER_SPREAD)) {
-			panic(new_IllegalArgumentException_String(Strings_lenientFormat("Unexpected pseudoexpression %s", []any{n.box_()})).self())
+			panic(new_IllegalArgumentException_String(Strings_lenientFormat("Unexpected pseudoexpression %s", []any{n.box_()})))
 		}
 		this.validateProperties(n)
 		this.validateChildCount(n)
@@ -367,10 +367,10 @@ func (this *AstValidator) validateCallType(callNode Node) {
 	case AstValidator_TypeInfoValidation_COLOR:
 		var callee Node = callNode.getFirstChild()
 		if v_, a1_ := callee.getColor(), callNode.toStringTree(); v_ == nil {
-			panic(new_NullPointerException_String(Strings_lenientFormat("Callee of\n\n%s\nhas no color.", []any{strobj_(a1_)})).self())
+			panic(new_NullPointerException_String(Strings_lenientFormat("Callee of\n\n%s\nhas no color.", []any{strobj_(a1_)})))
 		}
 	case AstValidator_TypeInfoValidation_NONE:
-		panic(new_AssertionError_0().self())
+		panic(new_AssertionError_0())
 	}
 }
 
@@ -385,7 +385,7 @@ func (this *AstValidator) expectSomeTypeInformation(n Node) {
 			this.violation(("Color information missing\n" + sstr_(this.compiler_.toSource_1(NodeUtil_getEnclosingStatement(n)))), n)
 		}
 	case AstValidator_TypeInfoValidation_NONE:
-		panic(new_AssertionError_0().self())
+		panic(new_AssertionError_0())
 	}
 }
 
@@ -451,13 +451,13 @@ func (this *AstValidator) validateAwaitWithinAsyncFunction(n Node) {
 func (this *AstValidator) isInParameterListOfFunction(child Node, functionNode Node) bool {
 	var paramList Node = functionNode.getSecondChild()
 	if paramList == 0 {
-		panic(new_NullPointerException_String(tostr_(functionNode)).self())
+		panic(new_NullPointerException_String(tostr_(functionNode)))
 	}
 	{
 		var parent Node = child.getParent()
 		for ; parent != functionNode; parent = parent.getParent() {
 			if parent == 0 {
-				panic(new_NullPointerException_String(Strings_lenientFormat("%s not contained in function %s", []any{child.box_(), functionNode.box_()})).self())
+				panic(new_NullPointerException_String(Strings_lenientFormat("%s not contained in function %s", []any{child.box_(), functionNode.box_()})))
 			}
 			if parent == paramList {
 				return true
@@ -1241,7 +1241,7 @@ func (this *AstValidator) validateGetPropGetElemInLHS(contextType Token_rhino, n
 	case tokOrd1_GETELEM:
 		this.validateGetElem(n)
 	default:
-		panic(new_IllegalStateException_String(("Expected GETPROP or GETELEM but instead got node " + tostr_(n.getToken()))).self())
+		panic(new_IllegalStateException_String(("Expected GETPROP or GETELEM but instead got node " + tostr_(n.getToken()))))
 	}
 }
 
@@ -1550,7 +1550,7 @@ func (this *AstValidator) validateAssignmentOpTarget(lhs Node, contextType Token
 
 func (this *AstValidator) validateGetElem(n Node) {
 	if !n.isGetElem() {
-		panic(new_IllegalArgumentException_String(tostr_(n)).self())
+		panic(new_IllegalArgumentException_String(tostr_(n)))
 	}
 	this.validateProperties(n)
 	this.validateChildCount_2(n, 2)
@@ -1561,7 +1561,7 @@ func (this *AstValidator) validateGetElem(n Node) {
 func (this *AstValidator) validateOptChainGetElem(node Node) {
 	this.validateFeature(FeatureSet_Feature_OPTIONAL_CHAINING, node)
 	if !node.isOptChainGetElem() {
-		panic(new_IllegalArgumentException_String(tostr_(node)).self())
+		panic(new_IllegalArgumentException_String(tostr_(node)))
 	}
 	this.validateProperties(node)
 	this.validateChildCount_2(node, 2)
@@ -2129,5 +2129,5 @@ func (this *AstValidator_1) handleViolation(message string, n Node) {
 			return n.getParent().toStringTree()
 		}
 		return " no parent "
-	}()))).self())
+	}()))))
 }

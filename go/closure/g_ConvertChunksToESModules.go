@@ -51,7 +51,7 @@ func (this *ConvertChunksToESModules) convertChunkSourcesToModules() {
 			var astRoot Node = input.getAstRoot(this.compiler_)
 			var scriptFeatures *FeatureSet = NodeUtil_getFeatureSetOfScript(astRoot)
 			if scriptFeatures.containsFeatureSet(FeatureSet_ES2015_MODULES) {
-				panic(new_IllegalStateException_0().self())
+				panic(new_IllegalStateException_0())
 			}
 			if firstInput == nil {
 				firstInput = input
@@ -69,7 +69,7 @@ func (this *ConvertChunksToESModules) convertChunkSourcesToModules() {
 				astRoot.setFeatureSet(combinedFeatureSet)
 				var moduleBody Node = firstInputAstRoot.getFirstChild()
 				if moduleBody == 0 || !moduleBody.isModuleBody() {
-					panic(new_IllegalStateException_0().self())
+					panic(new_IllegalStateException_0())
 				}
 				moduleBody.addChildrenToBack(astRoot.removeChildren())
 				this.compiler_.reportChangeToEnclosingScope(firstInputAstRoot)
@@ -84,7 +84,7 @@ func (this *ConvertChunksToESModules) addExportStatements() {
 		var firstInput *CompilerInput = jsModuleExportsKey.getFirst()
 		var moduleBody Node = firstInput.getAstRoot(this.compiler_).getFirstChild()
 		if moduleBody == 0 || !moduleBody.isModuleBody() {
-			panic(new_IllegalStateException_0().self())
+			panic(new_IllegalStateException_0())
 		}
 		var exportSpecs Node = new_Node_Token(Token_rhino_EXPORT_SPECS)
 		for name := range elemsBy_(jsModuleExportsValue, str_) {
@@ -114,7 +114,7 @@ func (this *ConvertChunksToESModules) addImportStatements() {
 		var firstInput *CompilerInput = importingChunk.getFirst()
 		var moduleBody Node = firstInput.getAstRoot(this.compiler_).getFirstChild()
 		if moduleBody == 0 || !moduleBody.isModuleBody() {
-			panic(new_IllegalStateException_0().self())
+			panic(new_IllegalStateException_0())
 		}
 		for importsByChunk := range elemsBy_(chunkImportsEntryValue.entrySet(), icast_Map_Entry) {
 			var importSpecs Node = new_Node_Token(Token_rhino_IMPORT_SPECS)
@@ -153,7 +153,7 @@ func (this *ConvertChunksToESModules) addImportStatements() {
 
 func ConvertChunksToESModules_getDynamicImportCallbackModuleNamespace(compiler *AbstractCompiler, call Node) Node {
 	if !call.isCall() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	var callbackFn Node = NodeUtil_getArgumentForCallOrNew(call, 0)
 	if ((callbackFn == 0) || !callbackFn.isFunction()) || NodeUtil_getFunctionParameters(callbackFn).hasChildren() {
@@ -174,7 +174,7 @@ func (this *ConvertChunksToESModules) rewriteDynamicImportCallbacks() {
 	var astFactory *AstFactory = this.compiler_.createAstFactory()
 	for dynamicImportCallback := range sliceAll_(&this.dynamicImportCallbacks) {
 		if !dynamicImportCallback.isCall() {
-			panic(new_IllegalStateException_0().self())
+			panic(new_IllegalStateException_0())
 		}
 		var moduleNamespace Node = ConvertChunksToESModules_getDynamicImportCallbackModuleNamespace(this.compiler_, dynamicImportCallback)
 		if moduleNamespace == 0 {
@@ -206,7 +206,7 @@ func ConvertChunksToESModules_isDynamicImportCallback(call Node) bool {
 
 func (this *ConvertChunksToESModules) visitCallAndTraverse(t *NodeTraversal, call Node) bool {
 	if !call.isCall() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	if !ConvertChunksToESModules_isDynamicImportCallback(call) {
 		return true
@@ -226,7 +226,7 @@ func (this *ConvertChunksToESModules) visitCallAndTraverse(t *NodeTraversal, cal
 
 func (this *ConvertChunksToESModules) visitName(t *NodeTraversal, nameNode Node, importType ConvertChunksToESModules_ImportType) bool {
 	if !nameNode.isName() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	var name string = nameNode.getString()
 	if name == "" {
@@ -408,7 +408,7 @@ func (this *ConvertChunksToESModules_FindCrossChunkReferences) shouldTraverse_im
 
 func (this *ConvertChunksToESModules_FindCrossChunkReferences) visitScript(t *NodeTraversal, script Node) {
 	if !script.isScript() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	var chunk *JSChunk = t.getChunk()
 	var chunkDependencies []*JSChunk = chunk.getDependencies()

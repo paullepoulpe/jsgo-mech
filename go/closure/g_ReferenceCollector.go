@@ -136,7 +136,7 @@ func (this *ReferenceCollector) popLastBlock(root Node) {
 	this.blockStack[len(this.blockStack)-1] = nil
 	this.blockStack = this.blockStack[:len(this.blockStack)-1]
 	if !JSCompObjects_identical(root.box_(), last.getRoot().box_()) {
-		panic(new_IllegalStateException_String(tostr_(root)).self())
+		panic(new_IllegalStateException_String(tostr_(root)))
 	}
 }
 
@@ -171,7 +171,7 @@ func (this *ReferenceCollector) addReference(v *Var, n Node, t *NodeTraversal) *
 // last), with ArrayDeque's NoSuchElementException when the stack is empty.
 func blockStackEnd_(s []*BasicBlock, i int) *BasicBlock {
 	if len(s) == 0 {
-		panic(new_NoSuchElementException_0().self())
+		panic(new_NoSuchElementException_0())
 	}
 	return s[i]
 }

@@ -54,7 +54,7 @@ func (this *AbstractVar) zero_AbstractVar() {
 func (this *AbstractVar) init_AbstractVar(name string, nameNode Node, scope *AbstractScope, index int32, input *CompilerInput, implicitGoogNamespaceDefinition Node) {
 	this.ScopedName.init_ScopedName()
 	if index < -1 {
-		panic(new_IllegalArgumentException_String(istr_(int64(int32(index)))).self())
+		panic(new_IllegalArgumentException_String(istr_(int64(int32(index)))))
 	}
 	this.name_ = name
 	if implicitGoogNamespaceDefinition != 0 {
@@ -250,7 +250,7 @@ func (this *AbstractVar) declarationType() Token_rhino {
 		}
 	}
 	if !this.isImplicit() {
-		panic(new_IllegalStateException_String(Strings_lenientFormat("The nameNode for %s must be a descendant of one of: %s", []any{this.self(), obj_(AbstractVar_DECLARATION_TYPES)})).self())
+		panic(new_IllegalStateException_String(Strings_lenientFormat("The nameNode for %s must be a descendant of one of: %s", []any{this.self(), obj_(AbstractVar_DECLARATION_TYPES)})))
 	}
 	return 0
 }
@@ -265,14 +265,14 @@ func (this *AbstractVar) isImplicitGoogNamespace() bool {
 
 func (this *AbstractVar) addImplicitGoogNamespaceDefinition(definition Node) {
 	if !this.isImplicitGoogNamespace() {
-		panic(new_IllegalStateException_String(objstr_(this.self())).self())
+		panic(new_IllegalStateException_String(objstr_(this.self())))
 	}
 	this.implicitGoogNamespaceStrength = AbstractVar_strongerOf(this.implicitGoogNamespaceStrength, AbstractVar_strengthOf(definition))
 }
 
 func (this *AbstractVar) getImplicitGoogNamespaceStrength() StaticSourceFile_SourceKind {
 	if !this.isImplicitGoogNamespace() {
-		panic(new_IllegalStateException_String(objstr_(this.self())).self())
+		panic(new_IllegalStateException_String(objstr_(this.self())))
 	}
 	return this.implicitGoogNamespaceStrength
 }

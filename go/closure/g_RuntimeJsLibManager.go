@@ -65,19 +65,19 @@ func (this *RuntimeJsLibManager) getExternedFields() []RuntimeJsLibManager_Exter
 
 func (this *RuntimeJsLibManager) createField(fieldName string) *RuntimeJsLibManager_InternalField {
 	if fieldName == "" {
-		panic(new_IllegalArgumentException_String(sstr_(fieldName)).self())
+		panic(new_IllegalArgumentException_String(sstr_(fieldName)))
 	}
 	var parts []string = sliceImm_(tc_string, Splitter_on('.').splitToList_s(fieldName))
 	if int32(len(parts)) < 2 {
-		panic(new_IllegalArgumentException_String(Strings_lenientFormat("Field name must start with $jscomp., found %s", []any{strobj_(fieldName)})).self())
+		panic(new_IllegalArgumentException_String(Strings_lenientFormat("Field name must start with $jscomp., found %s", []any{strobj_(fieldName)})))
 	}
 	if sliceAt_(parts, 0) != "$jscomp" {
-		panic(new_IllegalArgumentException_String(Strings_lenientFormat("Field name must start with $jscomp, found %s", []any{strobj_(fieldName)})).self())
+		panic(new_IllegalArgumentException_String(Strings_lenientFormat("Field name must start with $jscomp, found %s", []any{strobj_(fieldName)})))
 	}
 	var propName string = sliceAt_(parts, 1)
 	var resource OptionalOf[string] = Optional_ofNullable[string](str_(Map_get_s(RuntimeJsLibManager_FieldsTable_INSTANCE, propName)))
 	if resource.isEmpty() {
-		panic(new_NullPointerException_String(("Cannot find definition of " + sstr_(fieldName))).self())
+		panic(new_NullPointerException_String(("Cannot find definition of " + sstr_(fieldName))))
 	}
 	var resourceName string = resource.get()
 	var compiledName string = func() string {
@@ -109,7 +109,7 @@ func (this *RuntimeJsLibManager) injectLibForField(fieldName string) {
 	if this.mode_ == RuntimeJsLibManager_RuntimeLibraryMode_EXTERN_FIELD_NAMES {
 		var externRoot Node = Node_of_(this.nodeForCodeInsertion.get())
 		if !externRoot.isFromExterns() {
-			panic(new_IllegalStateException_String(tostr_(externRoot)).self())
+			panic(new_IllegalStateException_String(tostr_(externRoot)))
 		}
 		var declaration Node = IR_var_Node(IR_name(field.qualifiedName()))
 		declaration.getFirstChild().putBooleanProp(Node_IS_CONSTANT_NAME, true)
@@ -173,7 +173,7 @@ func (this *RuntimeJsLibManager) injectLibraryDependencies(ast Node, force bool)
 			case "require":
 				this.ensureLibraryInjected(sliceAt_(words, 1), force)
 			default:
-				panic(new_IllegalStateException_String(("Bad directive: " + sstr_(directive))).self())
+				panic(new_IllegalStateException_String(("Bad directive: " + sstr_(directive))))
 			}
 			node.detach()
 		}
@@ -298,7 +298,7 @@ func RuntimeJsLibManager_FieldsTable_loadFields() ImmutableMapOf[string, string]
 	for line := range elemsBy_(Splitter_on('\n').omitEmptyStrings().split_s(transpilationLibsTxt), str_) {
 		var tokens []string = sliceImm_(tc_string, Splitter_on(',').limit(2).splitToList_s(line))
 		if int32(len(tokens)) != 2 {
-			panic(new_IllegalStateException_String(objstr_(sliceView_(tc_string, tokens))).self())
+			panic(new_IllegalStateException_String(objstr_(sliceView_(tc_string, tokens))))
 		}
 		var fieldName string = sliceAt_(tokens, 0)
 		var resourcePath string = sliceAt_(tokens, 1)
@@ -366,7 +366,7 @@ func (this *RuntimeJsLibManager_InternalField) assertInjected() RuntimeJsLibMana
 	case RuntimeJsLibManager_RuntimeLibraryMode_NO_OP, RuntimeJsLibManager_RuntimeLibraryMode_RECORD_ONLY:
 	case RuntimeJsLibManager_RuntimeLibraryMode_RECORD_AND_VALIDATE_FIELDS, RuntimeJsLibManager_RuntimeLibraryMode_INJECT, RuntimeJsLibManager_RuntimeLibraryMode_EXTERN_FIELD_NAMES:
 		if !this.injected {
-			panic(new_IllegalStateException_String(Strings_lenientFormat("Field %s is not injected", []any{strobj_(this.uncompiledNameField)})).self())
+			panic(new_IllegalStateException_String(Strings_lenientFormat("Field %s is not injected", []any{strobj_(this.uncompiledNameField)})))
 		}
 	}
 	return this

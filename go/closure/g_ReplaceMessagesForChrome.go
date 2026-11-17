@@ -69,7 +69,7 @@ func (this *ReplaceMessagesForChrome) getNewValueNode(message *JsMessage, defini
 		for name := range elemsBy_(placeholderNames, str_) {
 			nn_ := Map_get_s(placeholderValueMap, name)
 			if nn_ == nil {
-				panic(new_NullPointerException_0().self())
+				panic(new_NullPointerException_0())
 			}
 			var value Node = Node_of_(nn_).cloneTree()
 			placeholderValueArray.addChildToBack(value)

@@ -33,11 +33,11 @@ func (this *NodeTraversal) finit_NodeTraversal() {
 func (this *NodeTraversal) init_NodeTraversal(builder *NodeTraversal_Builder) {
 	this.finit_NodeTraversal()
 	if builder.compiler_ == nil {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	this.compiler_ = builder.compiler_
 	if builder.callback == nil {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	this.callback = builder.callback
 	var scopedCallback NodeTraversal_ScopedCallback
@@ -139,14 +139,14 @@ func (this *NodeTraversal) traverseRoots(externs Node, root Node) {
 		}()
 		var scopeRoot Node = externs.getParent()
 		if scopeRoot == 0 {
-			panic(new_NullPointerException_0().self())
+			panic(new_NullPointerException_0())
 		}
 		this.initTraversal(scopeRoot)
 		this.currentNode = scopeRoot
 		this.pushScope(scopeRoot)
 		this.traverseBranch(externs, scopeRoot)
 		if root.getParent() != scopeRoot {
-			panic(new_IllegalStateException_0().self())
+			panic(new_IllegalStateException_0())
 		}
 		this.traverseBranch(root, scopeRoot)
 		this.popScope()
@@ -174,7 +174,7 @@ func (this *NodeTraversal) formatNodePosition(n Node) string {
 
 func (this *NodeTraversal) traverseWithScope(root Node, s *AbstractScope) {
 	if !s.isGlobal() && !s.isModuleScope() {
-		panic(new_IllegalStateException_String(objstr_(s.self())).self())
+		panic(new_IllegalStateException_String(objstr_(s.self())))
 	}
 	_ = func() (code_ int) {
 		defer func() {
@@ -272,7 +272,7 @@ func (this *NodeTraversal) traverseAtScope(s *AbstractScope) {
 		}
 	default:
 		if !s.isGlobal() && !s.isModuleScope() {
-			panic(new_IllegalStateException_String(Strings_lenientFormat("Expected global or module scope. Got: (%s)", []any{s.self()})).self())
+			panic(new_IllegalStateException_String(Strings_lenientFormat("Expected global or module scope. Got: (%s)", []any{s.self()})))
 		}
 		this.traverseWithScope(n, s)
 	}
@@ -355,7 +355,7 @@ func (this *NodeTraversal) getCurrentNode() Node {
 
 func (this *NodeTraversal) handleScript(n Node, parent Node) {
 	if Platform_isThreadInterrupted() {
-		panic(new_RuntimeException_Throwable(new_InterruptedException_0().up_Throwable()).self())
+		panic(new_RuntimeException_Throwable(new_InterruptedException_0().up_Throwable()))
 	}
 	this.setChangeScope(n)
 	this.currentNode = n
@@ -401,7 +401,7 @@ func (this *NodeTraversal) handleDestructuringOrDefaultValue(n Node, parent Node
 		var second Node = first.getNext()
 		if second != 0 {
 			if second.getNext() != 0 {
-				panic(new_IllegalStateException_String(tostr_(second)).self())
+				panic(new_IllegalStateException_String(tostr_(second)))
 			}
 			this.traverseBranch(second, n)
 		}
@@ -574,7 +574,7 @@ func (this *NodeTraversal) handleClassMembers(n Node, parent Node) {
 			case tokOrd1_BLOCK, tokOrd1_MEMBER_FUNCTION_DEF, tokOrd1_MEMBER_VARIABLE_DEF, tokOrd1_GETTER_DEF, tokOrd1_SETTER_DEF:
 				this.traverseBranch(child, n)
 			default:
-				panic(new_IllegalStateException_String(("Invalid class member: " + tostr_(child.getToken()))).self())
+				panic(new_IllegalStateException_String(("Invalid class member: " + tostr_(child.getToken()))))
 			}
 			child = next
 		}
@@ -609,10 +609,10 @@ func (this *NodeTraversal) getEnclosingFunction() Node {
 
 func (this *NodeTraversal) pushScope(node Node) {
 	if this.currentNode == 0 {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	if node == 0 {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	this.scopes = append(this.scopes, ntScope_{root: node})
 	if this.scopeCallback != nil {
@@ -626,7 +626,7 @@ func (this *NodeTraversal) pushScopeAbstractScope(s *AbstractScope) {
 
 func (this *NodeTraversal) pushScope_2(s *AbstractScope, quietly bool) {
 	if this.currentNode == 0 {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	this.scopes = append(this.scopes, ntScopeOf_(s))
 	if !quietly && (this.scopeCallback != nil) {
@@ -675,7 +675,7 @@ func (this *NodeTraversal) getScopeRoot() Node {
 func (this *NodeTraversal) getScopeDepth() int32 {
 	var depth int32 = int32(len(this.scopes))
 	if depth <= 0 {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	return (depth - 1)
 }
@@ -826,10 +826,10 @@ func (this *NodeTraversal) report_4(start Node, end Node, diagnosticType *Diagno
 func (this *NodeTraversal) reportCodeChange() {
 	var changeScope Node = this.currentChangeScope
 	if changeScope == 0 {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	if !ChangeTracker_isChangeScopeRoot(changeScope) {
-		panic(new_IllegalStateException_String(tostr_(changeScope)).self())
+		panic(new_IllegalStateException_String(tostr_(changeScope)))
 	}
 	this.compiler_.reportChangeToChangeScope(changeScope)
 }
@@ -840,7 +840,7 @@ func (this *NodeTraversal) reportCodeChange_1(n Node) {
 
 func (this *NodeTraversal) getCurrentScript() Node {
 	if this.currentScript == 0 {
-		panic(new_UnsupportedOperationException_String("getCurrentScript not supported").self())
+		panic(new_UnsupportedOperationException_String("getCurrentScript not supported"))
 	}
 	return this.currentScript
 }
@@ -858,7 +858,7 @@ func (this *NodeTraversal) getEnclosingScript(n Node) Node {
 
 func (this *NodeTraversal) initTraversal(traversalRoot Node) {
 	if Platform_isThreadInterrupted() {
-		panic(new_RuntimeException_Throwable(new_InterruptedException_0().up_Throwable()).self())
+		panic(new_RuntimeException_Throwable(new_InterruptedException_0().up_Throwable()))
 	}
 	var hoistScopeRoot Node = NodeUtil_getEnclosingHoistScopeRoot(traversalRoot)
 	this.currentHoistScopeRoot = hoistScopeRoot
@@ -1163,7 +1163,7 @@ func (this *NodeTraversal_AbstractCfgCallback) getControlFlowGraph(compiler *Abs
 	var result *ControlFlowGraph
 	var o any = this.cfgs.peek()
 	if o == nil {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	var cfgRoot Node
 	_ = cfgRoot
@@ -1345,7 +1345,7 @@ func (this *NodeTraversal_AbstractModuleCallback) shouldTraverse(t *NodeTraversa
 	case tokOrd1_SCRIPT:
 		this.currentModule = cast_[*ModuleMetadataMap_ModuleMetadata](Map_get_s(this.moduleMetadataMap.getModulesByPath(), t.getInput().getPath().toString()))
 		if this.currentModule == nil {
-			panic(new_NullPointerException_0().self())
+			panic(new_NullPointerException_0())
 		}
 		this.scopeRoot = func() Node {
 			if n.hasChildren() && n.getFirstChild().isModuleBody() {
@@ -1363,7 +1363,7 @@ func (this *NodeTraversal_AbstractModuleCallback) shouldTraverse(t *NodeTraversa
 		if this.inLoadModule && NodeTraversal_AbstractModuleCallback_GOOG_MODULE.matches(n.getFirstChild()) {
 			var newModule *ModuleMetadataMap_ModuleMetadata = cast_[*ModuleMetadataMap_ModuleMetadata](Map_get_s(this.moduleMetadataMap.getModulesByGoogNamespace(), n.getLastChild().getString()))
 			if newModule == nil {
-				panic(new_NullPointerException_0().self())
+				panic(new_NullPointerException_0())
 			}
 			if !JSCompObjects_identical(obj_(newModule), obj_(this.currentModule)) {
 				this.currentModule = newModule
@@ -1383,7 +1383,7 @@ func (this *NodeTraversal_AbstractModuleCallback) visit(t *NodeTraversal, n Node
 	switch n.ns_().token {
 	case tokOrd1_SCRIPT:
 		if this.currentModule == nil {
-			panic(new_NullPointerException_0().self())
+			panic(new_NullPointerException_0())
 		}
 		this.exitModule(this.currentModule, this.scopeRoot)
 		this.currentModule = nil
@@ -1391,14 +1391,14 @@ func (this *NodeTraversal_AbstractModuleCallback) visit(t *NodeTraversal, n Node
 	case tokOrd1_BLOCK:
 		if NodeUtil_isBundledGoogModuleScopeRoot(n) {
 			if this.currentModule == nil {
-				panic(new_NullPointerException_0().self())
+				panic(new_NullPointerException_0())
 			}
 			this.exitModule(this.currentModule, this.scopeRoot)
 			this.scopeRoot = n.getGrandparent().getGrandparent()
 			this.inLoadModule = false
 			this.currentModule = cast_[*ModuleMetadataMap_ModuleMetadata](Map_get_s(this.moduleMetadataMap.getModulesByPath(), t.getInput().getPath().toString()))
 			if this.currentModule == nil {
-				panic(new_NullPointerException_0().self())
+				panic(new_NullPointerException_0())
 			}
 		}
 	default:

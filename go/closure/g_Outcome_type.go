@@ -55,7 +55,7 @@ func (this Outcome_type) isTruthy() bool {
 	case Outcome_type_FALSE:
 		return false
 	default:
-		panic(new_NullPointerException_0().self()) // a call on null
+		panic(new_NullPointerException_0()) // a call on null
 	}
 }
 
@@ -66,7 +66,7 @@ func (this Outcome_type) isNullish() Tri {
 	case Outcome_type_FALSE:
 		return Tri_UNKNOWN
 	default:
-		panic(new_NullPointerException_0().self()) // a call on null
+		panic(new_NullPointerException_0()) // a call on null
 	}
 }
 
@@ -77,7 +77,7 @@ func (this Outcome_type) not() Outcome_type {
 	case Outcome_type_FALSE:
 		return Outcome_type_TRUE
 	default:
-		panic(new_NullPointerException_0().self()) // a call on null
+		panic(new_NullPointerException_0()) // a call on null
 	}
 }
 

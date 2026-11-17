@@ -114,7 +114,7 @@ func (this *LinkedFlowScope) getRootNode() Node {
 }
 
 func (this *LinkedFlowScope) getParentScope() StaticScope {
-	panic(new_UnsupportedOperationException_0().self())
+	panic(new_UnsupportedOperationException_0())
 }
 
 func (this *LinkedFlowScope) getSlot(name string) StaticSlot {
@@ -169,7 +169,7 @@ func (this *LinkedFlowScope) getOverlayScopeForScope(scope *TypedScope, create b
 }
 
 func (this *LinkedFlowScope) getOwnSlot(name string) StaticSlot {
-	panic(new_UnsupportedOperationException_0().self())
+	panic(new_UnsupportedOperationException_0())
 }
 
 func (this *LinkedFlowScope) withSyntacticScope(scope StaticTypedScope) FlowScope {
@@ -234,7 +234,7 @@ func LinkedFlowScope_equalSlots(slotA StaticTypedSlot, slotB StaticTypedSlot) bo
 }
 
 func (this *LinkedFlowScope) hashCode() int32 {
-	panic(new_UnsupportedOperationException_0().self())
+	panic(new_UnsupportedOperationException_0())
 }
 
 func LinkedFlowScope_join(linkedA *LinkedFlowScope, linkedB *LinkedFlowScope, commonParent *TypedScope) PMap[*TypedScope, *LinkedFlowScope_OverlayScope] {
@@ -443,7 +443,7 @@ type LinkedFlowScope_OverlayScope struct {
 
 func (this *LinkedFlowScope_OverlayScope) init_LinkedFlowScope_OverlayScope_TypedScope(scope *TypedScope) {
 	if scope == nil {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	this.scope_ = scope
 	this.slots = LinkedFlowScope_EMPTY_SLOTS
@@ -457,7 +457,7 @@ func new_LinkedFlowScope_OverlayScope_TypedScope(scope *TypedScope) *LinkedFlowS
 
 func (this *LinkedFlowScope_OverlayScope) init_LinkedFlowScope_OverlayScope_TypedScope_PMap(scope *TypedScope, slots PMap[string, *LinkedFlowScope_OverlaySlot]) {
 	if scope == nil {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	this.scope_ = scope
 	this.slots = slots
@@ -529,5 +529,5 @@ func (this *LinkedFlowScope_OverlaySlot) getJSDocInfo() *JSDocInfo {
 }
 
 func (this *LinkedFlowScope_OverlaySlot) getScope() StaticScope {
-	panic(new_UnsupportedOperationException_0().self())
+	panic(new_UnsupportedOperationException_0())
 }

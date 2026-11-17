@@ -92,7 +92,7 @@ func (this *Es6RelativizeImportPaths_Rewriter) visitImport(t *NodeTraversal, imp
 	}
 	var relativeSpecifier OptionalOf[string] = FilePaths_relativize(FilePaths_parent(scriptPath.get()).get(), newSpecifier)
 	if relativeSpecifier.isEmpty() {
-		panic(new_IllegalArgumentException_String(("No relative path from " + sstr_(scriptPath.get()) + " to " + sstr_(newSpecifier))).self())
+		panic(new_IllegalArgumentException_String(("No relative path from " + sstr_(scriptPath.get()) + " to " + sstr_(newSpecifier))))
 	}
 	newSpecifier = relativeSpecifier.get()
 	if ModuleLoader_isAmbiguousIdentifier(newSpecifier) {

@@ -15,7 +15,7 @@ func (this *OptimizeConstructors) finit_OptimizeConstructors() {
 func (this *OptimizeConstructors) init_OptimizeConstructors(compiler *AbstractCompiler) {
 	this.finit_OptimizeConstructors()
 	if compiler == nil {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	this.compiler_ = compiler
 	this.astAnalyzer = compiler.getAstAnalyzer()
@@ -29,7 +29,7 @@ func new_OptimizeConstructors(compiler *AbstractCompiler) *OptimizeConstructors 
 
 func (this *OptimizeConstructors) process_2(externs Node, root Node) {
 	if this.compiler_.getLifeCycleStage() != AbstractCompiler_LifeCycleStage_NORMALIZED {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	OptimizeCalls_builder().setCompiler(this.compiler_).setConsiderExterns(false).addPass(this).build().process_2(externs, root)
 }
@@ -179,7 +179,7 @@ func OptimizeConstructors_isDefinitionClassLiteralOrFunction(n Node) bool {
 
 func OptimizeConstructors_functionHasRest(fn Node) bool {
 	if !fn.isFunction() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	var params Node = NodeUtil_getFunctionParameters(fn)
 	var lastParam Node = params.getLastChild()
@@ -249,7 +249,7 @@ func OptimizeConstructors_getOnlySuperCall(fn Node) Node {
 
 func (this *OptimizeConstructors) removeConstructorMethod(member Node) {
 	if !member.isMemberFunctionDef() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	this.compiler_.reportFunctionDeleted(member.getFirstChild())
 	this.compiler_.reportChangeToEnclosingScope(member)
@@ -274,7 +274,7 @@ func new_OptimizeConstructors_ClassConstructorSummary(isVarArgs bool, formalPara
 
 func OptimizeConstructors_ClassConstructorSummary_build(classDefinition Node) *OptimizeConstructors_ClassConstructorSummary {
 	if !classDefinition.isClass() && !classDefinition.isFunction() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	var fn Node
 	if classDefinition.isClass() {

@@ -29,19 +29,19 @@ func ReportDecoder_parseMapping(mappingFileContent string) *Outcome_base[Map] {
 	var mapping *TMap[string, *InstrumentationPoint] = newTMap_(tc_string, tc_p_InstrumentationPoint)
 	var linesOfFile []string = sliceImm_(tc_string, Splitter_on('\n').omitEmptyStrings().splitToList_s(mappingFileContent))
 	if int32(len(linesOfFile)) < 3 {
-		panic(new_IllegalStateException_String(Strings_lenientFormat("Malformed report %s", []any{sliceView_(tc_string, linesOfFile)})).self())
+		panic(new_IllegalStateException_String(Strings_lenientFormat("Malformed report %s", []any{sliceView_(tc_string, linesOfFile)})))
 	}
 	var fileNamesLine string = strings.Trim(sliceAt_(linesOfFile, 0), javaSpace_)
 	var functionNamesLine string = strings.Trim(sliceAt_(linesOfFile, 1), javaSpace_)
 	var typesLine string = strings.Trim(sliceAt_(linesOfFile, 2), javaSpace_)
 	if !strings.HasPrefix(fileNamesLine, "FileNames:") {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	if !strings.HasPrefix(functionNamesLine, "FunctionNames:") {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	if !strings.HasPrefix(typesLine, "Types:") {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	var fileNamesAsJsonArray string = String_substring_int(fileNamesLine, (String_indexOf_String(fileNamesLine, ":") + 1))
 	var functionNamesAsJsonArray string = String_substring_int(functionNamesLine, (String_indexOf_String(functionNamesLine, ":") + 1))

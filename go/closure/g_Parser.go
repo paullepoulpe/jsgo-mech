@@ -373,7 +373,7 @@ func (this *Parser) parseFieldDefinition(elementInfo *ClassOrObjectElementInfo) 
 		return new_FieldDeclarationTree(this.getTreeLocation(elementInfo.start_), elementInfo.getName(), elementInfo.isStatic, initializer).up_ParseTree()
 	} else {
 		if !elementInfo.hasNameExpr() {
-			panic(new_IllegalStateException_0().self())
+			panic(new_IllegalStateException_0())
 		}
 		return new_ComputedPropertyFieldTree(this.getTreeLocation(elementInfo.start_), elementInfo.getNameExpr(), elementInfo.isStatic, initializer).up_ParseTree()
 	}
@@ -401,7 +401,7 @@ func (this *Parser) parseMethodDefinition(elementInfo *ClassOrObjectElementInfo,
 		return function
 	} else {
 		if !elementInfo.hasNameExpr() {
-			panic(new_IllegalStateException_0().self())
+			panic(new_IllegalStateException_0())
 		}
 		return new_ComputedPropertyMethodTree(this.getTreeLocation(elementInfo.start_), elementInfo.getNameExpr(), function).up_ParseTree()
 	}
@@ -605,7 +605,7 @@ func (this *Parser) parseParameter() *ParseTree {
 	} else if this.peekPatternStart() {
 		parameter = this.parsePattern(Parser_PatternKind_INITIALIZER)
 	} else {
-		panic(new_IllegalStateException_String("parseParameterCalled() without confirming a parameter exists.").self())
+		panic(new_IllegalStateException_String("parseParameterCalled() without confirming a parameter exists."))
 	}
 	if !parameter.isRestParameter() && this.peek(TokenType_EQUAL) {
 		this.eat(TokenType_EQUAL)
@@ -1415,7 +1415,7 @@ func (this *Parser) parseObjectLiteralPropertyAssignment() *ParseTree {
 			return new_ComputedPropertyMethodTree(this.getTreeLocation(start), name, value).up_ParseTree()
 		}
 	} else {
-		panic(new_RuntimeException_String("unreachable").self())
+		panic(new_RuntimeException_String("unreachable"))
 	}
 }
 
@@ -2144,7 +2144,7 @@ func (this *Parser) parseLeftHandSideExpression() *ParseTree {
 			case TokenType_NO_SUBSTITUTION_TEMPLATE, TokenType_TEMPLATE_HEAD:
 				operand = this.parseTemplateLiteral(operand).up_ParseTree()
 			default:
-				panic(new_AssertionError_Object(strobj_(("unexpected case: " + tostr_(this.peekType())))).self())
+				panic(new_AssertionError_Object(strobj_(("unexpected case: " + tostr_(this.peekType())))))
 			}
 		}
 		operand = this.maybeParseOptionalExpression(operand)
@@ -2205,7 +2205,7 @@ func (this *Parser) parseRemainingOptionalChainSegment(optionalExpression *Parse
 			this.eat(TokenType_CLOSE_SQUARE)
 			optionalExpression = new_OptionalMemberLookupExpressionTree(this.getTreeLocation(start), optionalExpression, member, false).up_ParseTree()
 		default:
-			panic(new_AssertionError_Object(strobj_(("unexpected case: " + tostr_(this.peekType())))).self())
+			panic(new_AssertionError_Object(strobj_(("unexpected case: " + tostr_(this.peekType())))))
 		}
 	}
 	return optionalExpression
@@ -2241,7 +2241,7 @@ func (this *Parser) parseMemberExpressionNoNew() *ParseTree {
 		case TokenType_NO_SUBSTITUTION_TEMPLATE, TokenType_TEMPLATE_HEAD:
 			operand = this.parseTemplateLiteral(operand).up_ParseTree()
 		default:
-			panic(new_RuntimeException_String("unreachable").self())
+			panic(new_RuntimeException_String("unreachable"))
 		}
 	}
 	return operand
@@ -2691,7 +2691,7 @@ func (this *Parser) reportTemplateErrorIfPresent(templateToken *TemplateLiteralT
 		this.reportErrorSourcePosition(templateToken.errorPosition, "%s", []any{strobj_(templateToken.errorMessage_)})
 		return
 	}
-	panic(new_AssertionError_0().self())
+	panic(new_AssertionError_0())
 }
 
 func (this *Parser) recordFeatureUsed(feature FeatureSet_Feature) *Parser {

@@ -36,7 +36,7 @@ func (this *RewriteJsonToModule) getPackageJsonMainEntries() ImmutableMapOf[stri
 
 func (this *RewriteJsonToModule) process_2(externs Node, root Node) {
 	if !root.isScript() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	NodeTraversal_traverse(this.compiler_, root, this)
 }
@@ -94,7 +94,7 @@ func (this *RewriteJsonToModule) visitScript(t *NodeTraversal, n Node) {
 					break
 				} else if entry.isObjectLit() {
 					if entryName != "browser" {
-						panic(new_IllegalStateException_String(sstr_(entryName)).self())
+						panic(new_IllegalStateException_String(sstr_(entryName)))
 					}
 					this.processBrowserFieldAdvancedUsage(dirName, entry)
 				}
@@ -110,7 +110,7 @@ func (this *RewriteJsonToModule) processBrowserFieldAdvancedUsage(dirName string
 		for ; child != 0; child = child.getNext() {
 			var value Node = child.getFirstChild()
 			if !(child.isStringKey() && (value.isStringLit() || value.isFalse())) {
-				panic(new_IllegalStateException_0().self())
+				panic(new_IllegalStateException_0())
 			}
 			var path string = child.getString()
 			if strings.HasPrefix(path, ModuleLoader_DEFAULT_FILENAME_PREFIX) {

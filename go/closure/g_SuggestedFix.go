@@ -173,7 +173,7 @@ func (this *SuggestedFix_Builder) attachMatchedNodeInfo(node Node, compiler *Abs
 
 func (this *SuggestedFix_Builder) addAlternative(alternative *SuggestedFix) *SuggestedFix_Builder {
 	if len(alternative.getNonDefaultAlternatives()) != 0 {
-		panic(new_IllegalStateException_String("Alternative SuggestedFix must have no alternatives of their own.").self())
+		panic(new_IllegalStateException_String("Alternative SuggestedFix must have no alternatives of their own."))
 	}
 	this.alternatives.add(obj_(alternative))
 	return this
@@ -187,7 +187,7 @@ func (this *SuggestedFix_Builder) replaceText(node Node, length int32, newConten
 
 func (this *SuggestedFix_Builder) addChildToFront(parentNode Node, content string) *SuggestedFix_Builder {
 	if !parentNode.isBlock() {
-		panic(new_IllegalStateException_String("addChildToFront is only supported for BLOCK statements.").self())
+		panic(new_IllegalStateException_String("addChildToFront is only supported for BLOCK statements."))
 	}
 	var startPosition int32 = (parentNode.getSourceOffset() + 1)
 	this.replacements.put_s(parentNode.getSourceFileName(), obj_(CodeReplacement_create_int_int_String(startPosition, 0, ("\n"+sstr_(content)))))
@@ -215,7 +215,7 @@ func (this *SuggestedFix_Builder) insertBefore(nodeToInsertBefore Node, content 
 func (this *SuggestedFix_Builder) insertBeforeString(nodeToInsertBefore Node, content string, sortKey string) *SuggestedFix_Builder {
 	var startPosition int32 = SuggestedFix_getStartPositionForNodeConsideringComments(nodeToInsertBefore)
 	if nodeToInsertBefore.getSourceFileName() == "" {
-		panic(new_IllegalStateException_String(Strings_lenientFormat("No source file name for node: %s", []any{nodeToInsertBefore.box_()})).self())
+		panic(new_IllegalStateException_String(Strings_lenientFormat("No source file name for node: %s", []any{nodeToInsertBefore.box_()})))
 	}
 	this.replacements.put_s(nodeToInsertBefore.getSourceFileName(), obj_(CodeReplacement_create_int_int_String_String(startPosition, 0, content, sortKey)))
 	return this
@@ -293,13 +293,13 @@ func (this *SuggestedFix_Builder) rename_3(n Node, name string, replaceNameSubtr
 		}()
 	case tokOrd1_STRINGLIT:
 		if !n.getParent().isGetProp() {
-			panic(new_IllegalStateException_String(tostr_(n)).self())
+			panic(new_IllegalStateException_String(tostr_(n)))
 		}
 		range_ = n
 	case tokOrd1_STRING_KEY, tokOrd1_NAME:
 		range_ = n
 	default:
-		panic(new_UnsupportedOperationException_String(("Rename is not implemented for this node type: " + tostr_(n))).self())
+		panic(new_UnsupportedOperationException_String(("Rename is not implemented for this node type: " + tostr_(n))))
 	}
 	this.replacements.put_s(range_.getSourceFileName(), obj_(CodeReplacement_create_int_int_String(range_.getSourceOffset(), range_.getLength(), name)))
 	return this
@@ -307,7 +307,7 @@ func (this *SuggestedFix_Builder) rename_3(n Node, name string, replaceNameSubtr
 
 func (this *SuggestedFix_Builder) replaceRange(first Node, last Node, newContent string) *SuggestedFix_Builder {
 	if first.getParent() != last.getParent() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	var start int32 = SuggestedFix_getStartPositionForNodeConsideringComments(first)
 	if start == 0 {
@@ -364,7 +364,7 @@ func (this *SuggestedFix_Builder) addCast(n Node, compiler *AbstractCompiler, ty
 
 func (this *SuggestedFix_Builder) removeCast(n Node, compiler *AbstractCompiler) *SuggestedFix_Builder {
 	if !n.isCast() {
-		panic(new_IllegalArgumentException_0().self())
+		panic(new_IllegalArgumentException_0())
 	}
 	var jsDoc *JSDocInfo = n.getJSDocInfo()
 	this.replacements.put_s(n.getSourceFileName(), obj_(CodeReplacement_create_int_int_String(jsDoc.getOriginalCommentPosition(), (n.getFirstChild().getSourceOffset()-jsDoc.getOriginalCommentPosition()), "")))
@@ -390,12 +390,12 @@ func (this *SuggestedFix_Builder) addOrReplaceJsDoc(n Node, newJsDoc string) *Su
 func (this *SuggestedFix_Builder) changeJsDocType(n Node, compiler *AbstractCompiler, type_ string) *SuggestedFix_Builder {
 	var typeNode Node = JsDocInfoParser_parseTypeString(type_)
 	if typeNode == 0 {
-		panic(new_NullPointerException_String(Strings_lenientFormat("Invalid type: %s", []any{strobj_(type_)})).self())
+		panic(new_NullPointerException_String(Strings_lenientFormat("Invalid type: %s", []any{strobj_(type_)})))
 	}
 	var typeExpr *JSTypeExpression = new_JSTypeExpression(typeNode, "jsflume")
 	var newJsType *JSType = typeExpr.evaluate(nil, compiler.getTypeRegistry())
 	if newJsType == nil {
-		panic(new_RuntimeException_String(("JS Compiler does not recognize type: " + sstr_(type_))).self())
+		panic(new_RuntimeException_String(("JS Compiler does not recognize type: " + sstr_(type_))))
 	}
 	this.replaceTypePattern(n, type_, Pattern_compile("@(type) *\\{?[^@\\s\\x0B}]+\\}?"))
 	this.replaceTypePattern(n, type_, Pattern_compile("@(export|package|private|protected|public|const|return) *\\{[^}]+\\}"))
@@ -405,7 +405,7 @@ func (this *SuggestedFix_Builder) changeJsDocType(n Node, compiler *AbstractComp
 func (this *SuggestedFix_Builder) replaceTypePattern(n Node, type_ string, pattern *Pattern) {
 	var info *JSDocInfo = NodeUtil_getBestJSDocInfo(n)
 	if info == nil {
-		panic(new_NullPointerException_String(Strings_lenientFormat("Node %s does not have JS Doc associated with it.", []any{n.box_()})).self())
+		panic(new_NullPointerException_String(Strings_lenientFormat("Node %s does not have JS Doc associated with it.", []any{n.box_()})))
 	}
 	var originalComment OptionalOf[string] = info.getOriginalCommentString()
 	var originalPosition int32 = info.getOriginalCommentPosition()
@@ -419,7 +419,7 @@ func (this *SuggestedFix_Builder) replaceTypePattern(n Node, type_ string, patte
 
 func (this *SuggestedFix_Builder) insertArguments(n Node, position int32, args []string) *SuggestedFix_Builder {
 	if !n.isCall() {
-		panic(new_IllegalArgumentException_String("insertArguments is only applicable to function call nodes.").self())
+		panic(new_IllegalArgumentException_String("insertArguments is only applicable to function call nodes."))
 	}
 	var startPosition int32
 	var argument Node = n.getSecondChild()
@@ -430,7 +430,7 @@ func (this *SuggestedFix_Builder) insertArguments(n Node, position int32, args [
 	}
 	if argument == 0 {
 		if position != i {
-			panic(new_IllegalArgumentException_String("The specified position must be less than the number of arguments.").self())
+			panic(new_IllegalArgumentException_String("The specified position must be less than the number of arguments."))
 		}
 		startPosition = ((n.getSourceOffset() + n.getLength()) - 1)
 	} else {
@@ -448,14 +448,14 @@ func (this *SuggestedFix_Builder) insertArguments(n Node, position int32, args [
 
 func (this *SuggestedFix_Builder) deleteArgument(n Node, position int32) *SuggestedFix_Builder {
 	if !n.isCall() && !n.isNew() {
-		panic(new_IllegalArgumentException_String("deleteArgument is only applicable to function call nodes.").self())
+		panic(new_IllegalArgumentException_String("deleteArgument is only applicable to function call nodes."))
 	}
 	var numArguments int32 = (n.getChildCount() - 1)
 	if numArguments <= 0 {
-		panic(new_IllegalStateException_String("deleteArgument() cannot be used on a function call with no arguments").self())
+		panic(new_IllegalStateException_String("deleteArgument() cannot be used on a function call with no arguments"))
 	}
 	if position < 0 || position >= numArguments {
-		panic(new_IllegalArgumentException_String("The specified position must be less than the number of arguments.").self())
+		panic(new_IllegalArgumentException_String("The specified position must be less than the number of arguments."))
 	}
 	var argument Node = n.getSecondChild()
 	var startOfArgumentToRemove int32 = -1
@@ -517,7 +517,7 @@ func SuggestedFix_Builder_firstUnusedAlias(namespace string, scriptMetadata *Scr
 			return a
 		}
 	}
-	panic(new_AssertionError_0().self())
+	panic(new_AssertionError_0())
 }
 
 func (this *SuggestedFix_Builder) addImport(m *Match, namespace string, importType SuggestedFix_ImportType, scriptMetadata *ScriptMetadata) *SuggestedFix_Builder {
@@ -645,7 +645,7 @@ func SuggestedFix_Builder_findGoogRequireNode(n Node, metadata *NodeMetadata, na
 
 func SuggestedFix_Builder_subtreeRangeOfIdentifier(n Node) Node {
 	if !n.isGetProp() {
-		panic(new_IllegalStateException_String("Support other identifier nodes").self())
+		panic(new_IllegalStateException_String("Support other identifier nodes"))
 	}
 	var leftmost Node = n
 	for leftmost.hasChildren() {

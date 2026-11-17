@@ -75,7 +75,7 @@ func (this *SemanticReverseAbstractInterpreter) getPreciserScopeKnowingCondition
 		if operatorToken == Token_rhino_CASE {
 			left = condition.getParent().getPrevious()
 			if ok_, a1_ := condition.getParent().isSwitchBody(), condition.getParent(); !ok_ {
-				panic(new_IllegalStateException_String(tostr_(a1_)).self())
+				panic(new_IllegalStateException_String(tostr_(a1_)))
 			}
 			right = condition.getFirstChild()
 		} else {
@@ -600,7 +600,7 @@ func new_SemanticReverseAbstractInterpreter_RefinementTrackingFlowScope(delegate
 }
 
 func (this *SemanticReverseAbstractInterpreter_RefinementTrackingFlowScope) withSyntacticScope(scope StaticTypedScope) FlowScope {
-	panic(new_UnsupportedOperationException_0().self())
+	panic(new_UnsupportedOperationException_0())
 }
 
 func (this *SemanticReverseAbstractInterpreter_RefinementTrackingFlowScope) inferSlotType(symbol string, type_ *JSType) FlowScope {
@@ -631,7 +631,7 @@ func (this *SemanticReverseAbstractInterpreter_RefinementTrackingFlowScope) getR
 }
 
 func (this *SemanticReverseAbstractInterpreter_RefinementTrackingFlowScope) getParentScope() StaticScope {
-	panic(new_UnsupportedOperationException_0().self())
+	panic(new_UnsupportedOperationException_0())
 }
 
 func (this *SemanticReverseAbstractInterpreter_RefinementTrackingFlowScope) getSlot(name string) StaticSlot {

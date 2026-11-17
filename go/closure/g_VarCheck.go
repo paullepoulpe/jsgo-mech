@@ -74,7 +74,7 @@ func (this *VarCheck) checkName(t *NodeTraversal, n Node, parent Node) {
 	var varName string = n.getString()
 	if varName == "" {
 		if !NodeUtil_isFunctionExpression(parent) && !NodeUtil_isMethodDeclaration(parent) {
-			panic(new_IllegalStateException_0().self())
+			panic(new_IllegalStateException_0())
 		}
 		return
 	}
@@ -132,7 +132,7 @@ func VarCheck_strengthOf(n Node) StaticSourceFile_SourceKind {
 
 func (this *VarCheck) handleUndeclaredVariableRef(t *NodeTraversal, n Node) {
 	if !n.isName() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	var varName string = n.getString()
 	if n.getParent().isTypeOf() {
@@ -142,7 +142,7 @@ func (this *VarCheck) handleUndeclaredVariableRef(t *NodeTraversal, n Node) {
 		t.report(n, VarCheck_UNDEFINED_VAR_ERROR, []string{varName})
 	}
 	if this.validityCheck {
-		panic(new_IllegalStateException_String(("Unexpected variable " + sstr_(varName))).self())
+		panic(new_IllegalStateException_String(("Unexpected variable " + sstr_(varName))))
 	} else if !this.undefinedNamesFromExterns.contains(varName) {
 		this.createSynthesizedExternVar(varName, true)
 	}

@@ -112,7 +112,7 @@ func (this *SourceCodeEscapers_JavaScriptEscaper) escape(string_ string) string 
 				ex_ := catch_(r_)
 				if p, ok := ex_.(IOException_as); ok {
 					var e *IOException = p.as_IOException()
-					panic(new_IllegalStateException_String_Throwable("This should never throw - StringBuilder.append doesn't actually throw IOException", e.up_Throwable()).self())
+					panic(new_IllegalStateException_String_Throwable("This should never throw - StringBuilder.append doesn't actually throw IOException", e.up_Throwable()))
 				}
 				panic(r_)
 			}

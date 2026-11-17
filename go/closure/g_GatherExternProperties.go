@@ -80,7 +80,7 @@ func (this *GatherExternProperties) gatherPropertiesFromJsTypeExpressionNode(jsT
 
 func (this *GatherExternProperties) gatherPropertiesFromJsDocRecordType(jsDocRecordNode Node) {
 	if jsDocRecordNode.ns_().token != tokOrd1_LB {
-		panic(new_IllegalStateException_String(tostr_(jsDocRecordNode)).self())
+		panic(new_IllegalStateException_String(tostr_(jsDocRecordNode)))
 	}
 	{
 		var fieldNode Node = jsDocRecordNode.getFirstChild()
@@ -95,7 +95,7 @@ func (this *GatherExternProperties) gatherPropertiesFromJsDocRecordType(jsDocRec
 				fieldTypeNode = 0
 			}
 			if !fieldNameNode.isStringKey() {
-				panic(new_IllegalStateException_String(tostr_(fieldNameNode)).self())
+				panic(new_IllegalStateException_String(tostr_(fieldNameNode)))
 			}
 			var fieldName string = fieldNameNode.getString()
 			if strings.HasPrefix(fieldName, "'") || strings.HasPrefix(fieldName, "\"") {

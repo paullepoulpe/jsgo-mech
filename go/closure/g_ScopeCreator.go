@@ -41,5 +41,5 @@ func new_ScopeCreator_1() *ScopeCreator_1 {
 }
 
 func (this *ScopeCreator_1) createScopeAbstractScope(n Node, parent *AbstractScope) *AbstractScope {
-	panic(new_IllegalStateException_String("ScopeCreator.ASSERT_NO_SCOPES_CREATED cannot create child scopes.").self())
+	panic(new_IllegalStateException_String("ScopeCreator.ASSERT_NO_SCOPES_CREATED cannot create child scopes."))
 }

@@ -75,22 +75,22 @@ func (this *AbstractCommandLineRunner) init_AbstractCommandLineRunner_Input_Outp
 	this.finit_AbstractCommandLineRunner()
 	this.config = new_AbstractCommandLineRunner_CommandLineConfig()
 	if in == nil {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	this.in = in
 	if out == nil {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	this.defaultJsOutput = out
 	if err == nil {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	this.err = err
 }
 
 func (this *AbstractCommandLineRunner) enableTestMode(externsSupplier func() any, inputsSupplier func() any, chunksSupplier func() any, exitCodeReceiver Function_baseOf[BoxedOf[int32], any]) {
 	if (inputsSupplier == nil) == (chunksSupplier == nil) {
-		panic(new_IllegalArgumentException_0().self())
+		panic(new_IllegalArgumentException_0())
 	}
 	this.testMode = true
 	this.externsSupplierForTesting = externsSupplier
@@ -101,7 +101,7 @@ func (this *AbstractCommandLineRunner) enableTestMode(externsSupplier func() any
 
 func (this *AbstractCommandLineRunner) setExitCodeReceiver(newExitCodeReceiver Function_baseOf[BoxedOf[int32], any]) {
 	if newExitCodeReceiver == nil {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	this.exitCodeReceiver = newExitCodeReceiver
 }
@@ -463,7 +463,7 @@ func (this *AbstractCommandLineRunner) createInputs_4(files *TList[*AbstractComm
 					for zipEntry := range elemsAs_[*SourceFile_jscomp](newFiles) {
 						var zipEntryName string = zipEntry.getName()
 						if !strings.Contains(zipEntryName, csStr_(filename)) {
-							panic(new_IllegalStateException_0().self())
+							panic(new_IllegalStateException_0())
 						}
 						var zipmap string = strings.ReplaceAll(zipEntryName, csStr_(filename), csStr_(rootFilename))
 						this.rootRelativePathsMap[zipEntryName] = zipmap
@@ -502,7 +502,7 @@ func (this *AbstractCommandLineRunner) createInputs_4(files *TList[*AbstractComm
 			this.err.println(AbstractCommandLineRunner_WAITING_FOR_INPUT_WARNING)
 			var stdinCode *Outcome_base[string] = this.readStdin()
 			if stdinCode.isErr() {
-				panic(new_RuntimeException_Throwable(stdinCode.error()).self())
+				panic(new_RuntimeException_Throwable(stdinCode.error()))
 			}
 			inputs.add(SourceFile_jscomp_builder().withPath("stdin").withContent(stdinCode.get()).withCharset(this.inputCharset).build())
 			usingStdin = true
@@ -619,13 +619,13 @@ func (this *AbstractCommandLineRunner) createExternInputs(files *TList[string]) 
 
 func AbstractCommandLineRunner_createJsChunks(specs *TList[*AbstractCommandLineRunner_JsChunkSpec], inputs []*CompilerInput) *Outcome_base[List] {
 	if specs == nil {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	if specs.isEmpty() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	if inputs == nil {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	var chunkNames []string = make([]string, 0, specs.size())
 	var chunksByName *TMap[string, *JSChunk] = newTMap_(tc_string, tc_p_JSChunk)
@@ -695,7 +695,7 @@ func (this *AbstractCommandLineRunner) checkChunkName_impl(name string) *Outcome
 
 func AbstractCommandLineRunner_parseChunkWrappers(specs *TList[string], chunks IterableOf[*JSChunk]) *Outcome_base[Map] {
 	if specs == nil {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	var wrappers *TMap[string, string] = newTMap_(tc_string, tc_string)
 	for c := range elemsAs_[*JSChunk](chunks) {
@@ -723,7 +723,7 @@ func AbstractCommandLineRunner_parseChunkWrappers(specs *TList[string], chunks I
 
 func AbstractCommandLineRunner_parseChunkOutputFiles(specs *TList[string]) *Outcome_base[*ImmutableMap] {
 	if specs == nil {
-		panic(new_IllegalArgumentException_0().self())
+		panic(new_IllegalArgumentException_0())
 	}
 	var outputFilesBuilder ImmutableMap_BuilderOf[string, string] = ImmutableMap_builder()
 	for i_1 := 0; i_1 < len(specs.items); i_1++ {
@@ -787,7 +787,7 @@ func (this *AbstractCommandLineRunner) writeOutput_8(out Appendable, compiler *C
 		return
 	}
 	if compiler.getOptions().getOutputJs() != CompilerOptions_OutputJs_NORMAL {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	var code string = func() string {
 		if chunk == nil {
@@ -1807,7 +1807,7 @@ func AbstractCommandLineRunner_createDefineReplacements(definitions []string, op
 				}
 			}
 		}
-		panic(new_RuntimeException_String(("--define flag syntax invalid: " + sstr_(override))).self())
+		panic(new_RuntimeException_String(("--define flag syntax invalid: " + sstr_(override))))
 	}
 }
 
@@ -2065,12 +2065,12 @@ func (this *AbstractCommandLineRunner) constructRootRelativePathsMap() map[strin
 	for _, mapString := range this.config.manifestMaps {
 		var colonIndex int32 = int32(strings.IndexByte(mapString, ':'))
 		if colonIndex <= 0 {
-			panic(new_IllegalStateException_0().self())
+			panic(new_IllegalStateException_0())
 		}
 		var execPath string = mapString[:colonIndex]
 		var rootRelativePath string = mapString[colonIndex+1:]
 		if strings.Contains(rootRelativePath, ":") {
-			panic(new_IllegalStateException_0().self())
+			panic(new_IllegalStateException_0())
 		}
 		rootRelativePathsMap[execPath] = rootRelativePath
 	}
@@ -2348,7 +2348,7 @@ func (this *AbstractCommandLineRunner_CommandLineConfig) setJsOutputFile(jsOutpu
 func (this *AbstractCommandLineRunner_CommandLineConfig) setContinueSavedCompilationFileName(fileName OptionalOf[string], restoredCompilationStage int32) *AbstractCommandLineRunner_CommandLineConfig {
 	if fileName.isPresent() {
 		if restoredCompilationStage <= 0 || restoredCompilationStage >= 3 {
-			panic(new_IllegalArgumentException_String(Strings_lenientFormat("invalid compilation stage: %s", []any{restoredCompilationStage})).self())
+			panic(new_IllegalArgumentException_String(Strings_lenientFormat("invalid compilation stage: %s", []any{restoredCompilationStage})))
 		}
 		this.continueSavedCompilationFileName = fileName
 		this.restoredCompilationStage = restoredCompilationStage
@@ -2359,10 +2359,10 @@ func (this *AbstractCommandLineRunner_CommandLineConfig) setContinueSavedCompila
 func (this *AbstractCommandLineRunner_CommandLineConfig) shouldSaveAfterStage1() bool {
 	if this.saveCompilationStateToFilename.isPresent() && (this.saveAfterCompilationStage == 1) {
 		if this.restoredCompilationStage >= 0 {
-			panic(new_IllegalStateException_String(Strings_lenientFormat("cannot perform stage 1 after restoring from stage %s", []any{this.restoredCompilationStage})).self())
+			panic(new_IllegalStateException_String(Strings_lenientFormat("cannot perform stage 1 after restoring from stage %s", []any{this.restoredCompilationStage})))
 		}
 		if !this.continueSavedCompilationFileName.isEmpty() {
-			panic(new_IllegalStateException_String("cannot restore a saved compilation and also save after stage 1").self())
+			panic(new_IllegalStateException_String("cannot restore a saved compilation and also save after stage 1"))
 		}
 		return true
 	} else {
@@ -2381,7 +2381,7 @@ func (this *AbstractCommandLineRunner_CommandLineConfig) shouldRestoreAndPerform
 func (this *AbstractCommandLineRunner_CommandLineConfig) shouldContinueCompilation() bool {
 	if this.continueSavedCompilationFileName.isPresent() {
 		if this.restoredCompilationStage <= 0 || this.restoredCompilationStage >= 3 {
-			panic(new_IllegalStateException_String(Strings_lenientFormat("invalid restored compilation stage: %s", []any{this.restoredCompilationStage})).self())
+			panic(new_IllegalStateException_String(Strings_lenientFormat("invalid restored compilation stage: %s", []any{this.restoredCompilationStage})))
 		}
 		return true
 	} else {
@@ -2404,7 +2404,7 @@ func (this *AbstractCommandLineRunner_CommandLineConfig) shouldRestoreAndPerform
 func (this *AbstractCommandLineRunner_CommandLineConfig) shouldRestoreAndPerformStage3() bool {
 	if this.shouldContinueCompilation() && (this.restoredCompilationStage == 2) {
 		if this.saveAfterCompilationStage >= 0 {
-			panic(new_IllegalStateException_String(Strings_lenientFormat("request to save after stage %s is invalid when restoring from stage 2", []any{this.saveAfterCompilationStage})).self())
+			panic(new_IllegalStateException_String(Strings_lenientFormat("request to save after stage %s is invalid when restoring from stage 2", []any{this.saveAfterCompilationStage})))
 		}
 		return true
 	} else {
@@ -3085,7 +3085,7 @@ func new_AbstractCommandLineRunner_SystemExitCodeReceiver() *AbstractCommandLine
 
 func (this *AbstractCommandLineRunner_SystemExitCodeReceiver) apply(exitCode any) any {
 	if exitCode == nil {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	var exitCodeValue int32 = unbox_[int32](exitCode)
 	var exitCodeByte int8 = int8(exitCodeValue)

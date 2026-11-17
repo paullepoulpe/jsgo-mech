@@ -175,7 +175,7 @@ func (this *CodeGenerator) add_3(node Node, context CodeGenerator_Context, print
 		var script Node = shadow.getOnlyChild()
 		var sinkCall Node = script.getOnlyChild().getOnlyChild()
 		if !sinkCall.isCall() {
-			panic(new_IllegalStateException_String(tostr_(sinkCall)).self())
+			panic(new_IllegalStateException_String(tostr_(sinkCall)))
 		}
 		this.add_3(sinkCall.getLastChild(), context, printComments)
 		return
@@ -191,7 +191,7 @@ func (this *CodeGenerator) add_3(node Node, context CodeGenerator_Context, print
 	var last Node = node.getLastChild()
 	if opstr.isPresent() && (first != last) {
 		if ok_, a1_, a2_ := (childCount == 2), opstr.get(), childCount; !ok_ {
-			panic(new_IllegalStateException_String(Strings_lenientFormat("Bad binary operator \"%s\": expected 2 arguments but got %s", []any{strobj_(a1_), a2_})).self())
+			panic(new_IllegalStateException_String(Strings_lenientFormat("Bad binary operator \"%s\": expected 2 arguments but got %s", []any{strobj_(a1_), a2_})))
 		}
 		var p int32 = this.precedence(node)
 		var rhsContext CodeGenerator_Context = CodeGenerator_getContextForNoInOperator(context)
@@ -215,10 +215,10 @@ func (this *CodeGenerator) add_3(node Node, context CodeGenerator_Context, print
 	switch type_ {
 	case Token_rhino_TRY:
 		if !first.getNext().isBlock() || first.getNext().hasMoreThanOneChild() {
-			panic(new_IllegalStateException_0().self())
+			panic(new_IllegalStateException_0())
 		}
 		if childCount < 2 || childCount > 3 {
-			panic(new_IllegalStateException_0().self())
+			panic(new_IllegalStateException_0())
 		}
 		this.add("try")
 		this.addNode(first)
@@ -233,7 +233,7 @@ func (this *CodeGenerator) add_3(node Node, context CodeGenerator_Context, print
 		}
 	case Token_rhino_CATCH:
 		if childCount != 2 {
-			panic(new_IllegalStateException_String(tostr_(node)).self())
+			panic(new_IllegalStateException_String(tostr_(node)))
 		}
 		this.cc.maybeInsertSpace()
 		this.add("catch")
@@ -246,7 +246,7 @@ func (this *CodeGenerator) add_3(node Node, context CodeGenerator_Context, print
 		this.addNode(last)
 	case Token_rhino_THROW:
 		if childCount != 1 {
-			panic(new_IllegalStateException_String(tostr_(node)).self())
+			panic(new_IllegalStateException_String(tostr_(node)))
 		}
 		this.add("throw")
 		this.cc.maybeInsertSpace()
@@ -265,7 +265,7 @@ func (this *CodeGenerator) add_3(node Node, context CodeGenerator_Context, print
 			}
 		} else {
 			if childCount != 0 {
-				panic(new_IllegalStateException_String(tostr_(node)).self())
+				panic(new_IllegalStateException_String(tostr_(node)))
 			}
 		}
 		this.cc.endStatement(this.hasTrailingCommentOnSameLine(node))
@@ -289,14 +289,14 @@ func (this *CodeGenerator) add_3(node Node, context CodeGenerator_Context, print
 		}
 	case Token_rhino_LABEL_NAME:
 		if node.getString() == "" {
-			panic(new_IllegalStateException_String(tostr_(node)).self())
+			panic(new_IllegalStateException_String(tostr_(node)))
 		}
 		this.addIdentifier(node.getString())
 	case Token_rhino_DESTRUCTURING_LHS:
 		this.addNode(first)
 		if first != last {
 			if childCount != 2 {
-				panic(new_IllegalStateException_String(tostr_(node)).self())
+				panic(new_IllegalStateException_String(tostr_(node)))
 			}
 			this.cc.addOp("=", true)
 			this.addExpr(last, NodeUtil_precedence(Token_rhino_ASSIGN), CodeGenerator_getContextForNoInOperator(context))
@@ -311,7 +311,7 @@ func (this *CodeGenerator) add_3(node Node, context CodeGenerator_Context, print
 		this.maybeAddTypeDecl(node)
 		if (first != 0) && !first.isEmpty() {
 			if childCount != 1 {
-				panic(new_IllegalStateException_String(tostr_(node)).self())
+				panic(new_IllegalStateException_String(tostr_(node)))
 			}
 			this.cc.addOp("=", true)
 			this.addExpr(first, NodeUtil_precedence(Token_rhino_ASSIGN), CodeGenerator_getContextForNoInOperator(context))
@@ -340,28 +340,28 @@ func (this *CodeGenerator) add_3(node Node, context CodeGenerator_Context, print
 		this.addExpr(first.getNext(), 1, CodeGenerator_Context_OTHER)
 	case Token_rhino_COMMA:
 		if childCount != 2 {
-			panic(new_IllegalStateException_String(tostr_(node)).self())
+			panic(new_IllegalStateException_String(tostr_(node)))
 		}
 		this.unrollBinaryOperator(node, Token_rhino_COMMA, ",", context, CodeGenerator_getContextForNoInOperator(context), 0, 0)
 	case Token_rhino_NUMBER:
 		if childCount != 0 {
-			panic(new_IllegalStateException_String(tostr_(node)).self())
+			panic(new_IllegalStateException_String(tostr_(node)))
 		}
 		this.cc.addNumber(node.getDouble(), node)
 	case Token_rhino_BIGINT:
 		if childCount != 0 {
-			panic(new_IllegalStateException_String(tostr_(node)).self())
+			panic(new_IllegalStateException_String(tostr_(node)))
 		}
 		this.cc.addBigInt(node.getBigInt())
 	case Token_rhino_TYPEOF, Token_rhino_VOID, Token_rhino_NOT, Token_rhino_BITNOT, Token_rhino_POS, Token_rhino_NEG:
 		if childCount != 1 {
-			panic(new_IllegalStateException_String(tostr_(node)).self())
+			panic(new_IllegalStateException_String(tostr_(node)))
 		}
 		this.cc.addOp(NodeUtil_opToStrNoFail(type_), false)
 		this.addExpr(first, NodeUtil_precedence(type_), CodeGenerator_Context_OTHER)
 	case Token_rhino_HOOK:
 		if childCount != 3 {
-			panic(new_IllegalStateException_String(Strings_lenientFormat("%s wrong number of children: %s", []any{node.box_(), childCount})).self())
+			panic(new_IllegalStateException_String(Strings_lenientFormat("%s wrong number of children: %s", []any{node.box_(), childCount})))
 		}
 		var p int32 = NodeUtil_precedence(type_)
 		var rhsContext CodeGenerator_Context = CodeGenerator_getContextForNoInOperator(context)
@@ -372,23 +372,23 @@ func (this *CodeGenerator) add_3(node Node, context CodeGenerator_Context, print
 		this.addExpr(last, 1, rhsContext)
 	case Token_rhino_REGEXP:
 		if !first.isStringLit() || !last.isStringLit() {
-			panic(new_Error_String("Expected children to be strings").self())
+			panic(new_Error_String("Expected children to be strings"))
 		}
 		var regexp string = this.regexpEscape(first.getString())
 		if childCount == 2 {
 			this.add((sstr_(regexp) + sstr_(last.getString())))
 		} else {
 			if childCount != 1 {
-				panic(new_IllegalStateException_String(tostr_(node)).self())
+				panic(new_IllegalStateException_String(tostr_(node)))
 			}
 			this.add(regexp)
 		}
 	case Token_rhino_FUNCTION:
 		if Object_getClass(node.box_()) != classOf_("com.google.javascript.rhino.Node") {
-			panic(new_Error_String("Unexpected Node subclass.").self())
+			panic(new_Error_String("Unexpected Node subclass."))
 		}
 		if childCount != 3 {
-			panic(new_IllegalStateException_String(tostr_(node)).self())
+			panic(new_IllegalStateException_String(tostr_(node)))
 		}
 		if node.isArrowFunction() {
 			this.addArrowFunction(node, first, last, context)
@@ -410,7 +410,7 @@ func (this *CodeGenerator) add_3(node Node, context CodeGenerator_Context, print
 		if node.getBooleanProp(Node_EXPORT_ALL_FROM) {
 			this.add("*")
 			if first == 0 || !first.isEmpty() {
-				panic(new_IllegalStateException_String(tostr_(node)).self())
+				panic(new_IllegalStateException_String(tostr_(node)))
 			}
 		} else {
 			this.addNode(first)
@@ -469,7 +469,7 @@ func (this *CodeGenerator) add_3(node Node, context CodeGenerator_Context, print
 	case Token_rhino_CLASS:
 		{
 			if childCount != 3 {
-				panic(new_IllegalStateException_String(tostr_(node)).self())
+				panic(new_IllegalStateException_String(tostr_(node)))
 			}
 			var classNeedsParens bool = (context == CodeGenerator_Context_START_OF_EXPR)
 			if classNeedsParens {
@@ -534,7 +534,7 @@ func (this *CodeGenerator) add_3(node Node, context CodeGenerator_Context, print
 		this.cc.endBlock_1(false)
 	case Token_rhino_GETTER_DEF, Token_rhino_SETTER_DEF, Token_rhino_MEMBER_FUNCTION_DEF, Token_rhino_MEMBER_VARIABLE_DEF:
 		if !((((node.getParent().isObjectLit() || node.getParent().isClassMembers()) || node.getParent().isInterfaceMembers()) || node.getParent().isRecordType()) || node.getParent().isIndexSignature()) {
-			panic(new_IllegalStateException_0().self())
+			panic(new_IllegalStateException_0())
 		}
 		this.maybeAddAccessibilityModifier(node)
 		if node.isStaticMember() {
@@ -545,19 +545,19 @@ func (this *CodeGenerator) add_3(node Node, context CodeGenerator_Context, print
 		}
 		if !node.isMemberVariableDef() && node.getFirstChild().isGeneratorFunction() {
 			if type_ != Token_rhino_MEMBER_FUNCTION_DEF {
-				panic(new_IllegalStateException_String(tostr_(node)).self())
+				panic(new_IllegalStateException_String(tostr_(node)))
 			}
 			this.add("*")
 		}
 		switch type_ {
 		case Token_rhino_GETTER_DEF:
 			if first.getSecondChild().hasChildren() {
-				panic(new_IllegalStateException_String(tostr_(node)).self())
+				panic(new_IllegalStateException_String(tostr_(node)))
 			}
 			this.add("get ")
 		case Token_rhino_SETTER_DEF:
 			if !first.getSecondChild().hasOneChild() {
-				panic(new_IllegalStateException_String(tostr_(node)).self())
+				panic(new_IllegalStateException_String(tostr_(node)))
 			}
 			this.add("set ")
 		case Token_rhino_MEMBER_FUNCTION_DEF, Token_rhino_MEMBER_VARIABLE_DEF:
@@ -570,13 +570,13 @@ func (this *CodeGenerator) add_3(node Node, context CodeGenerator_Context, print
 			this.maybeAddTypeDecl(node)
 		} else {
 			if childCount != 1 {
-				panic(new_IllegalStateException_String(tostr_(node)).self())
+				panic(new_IllegalStateException_String(tostr_(node)))
 			}
 			if !first.isFunction() {
-				panic(new_IllegalStateException_String(tostr_(first)).self())
+				panic(new_IllegalStateException_String(tostr_(first)))
 			}
 			if first.getFirstChild().getString() != "" {
-				panic(new_IllegalStateException_String(tostr_(first)).self())
+				panic(new_IllegalStateException_String(tostr_(first)))
 			}
 			var fn Node = first
 			var parameters Node = fn.getSecondChild()
@@ -602,7 +602,7 @@ func (this *CodeGenerator) add_3(node Node, context CodeGenerator_Context, print
 		}
 	case Token_rhino_MEMBER_FIELD_DEF, Token_rhino_COMPUTED_FIELD_DEF:
 		if !node.getParent().isClassMembers() {
-			panic(new_IllegalStateException_0().self())
+			panic(new_IllegalStateException_0())
 		}
 		if node.getBooleanProp(Node_STATIC_MEMBER) {
 			this.add("static ")
@@ -626,7 +626,7 @@ func (this *CodeGenerator) add_3(node Node, context CodeGenerator_Context, print
 		this.add(";")
 	case Token_rhino_SCRIPT, Token_rhino_MODULE_BODY, Token_rhino_BLOCK, Token_rhino_ROOT:
 		if Object_getClass(node.box_()) != classOf_("com.google.javascript.rhino.Node") {
-			panic(new_Error_String("Unexpected Node subclass.").self())
+			panic(new_Error_String("Unexpected Node subclass."))
 		}
 		if node.hasParent() {
 			var staticBlock bool = (node.isBlock() && node.getParent().isClassMembers())
@@ -656,7 +656,7 @@ func (this *CodeGenerator) add_3(node Node, context CodeGenerator_Context, print
 		}
 	case Token_rhino_FOR:
 		if childCount != 4 {
-			panic(new_IllegalStateException_String(tostr_(node)).self())
+			panic(new_IllegalStateException_String(tostr_(node)))
 		}
 		this.add("for")
 		this.cc.maybeInsertSpace()
@@ -680,7 +680,7 @@ func (this *CodeGenerator) add_3(node Node, context CodeGenerator_Context, print
 		this.addNonEmptyStatement(last, CodeGenerator_getContextForNonEmptyExpression(context), false)
 	case Token_rhino_FOR_IN:
 		if childCount != 3 {
-			panic(new_IllegalStateException_String(tostr_(node)).self())
+			panic(new_IllegalStateException_String(tostr_(node)))
 		}
 		this.add("for")
 		this.cc.maybeInsertSpace()
@@ -692,7 +692,7 @@ func (this *CodeGenerator) add_3(node Node, context CodeGenerator_Context, print
 		this.addNonEmptyStatement(last, CodeGenerator_getContextForNonEmptyExpression(context), false)
 	case Token_rhino_FOR_OF:
 		if childCount != 3 {
-			panic(new_IllegalStateException_String(tostr_(node)).self())
+			panic(new_IllegalStateException_String(tostr_(node)))
 		}
 		this.add("for")
 		this.cc.maybeInsertSpace()
@@ -706,7 +706,7 @@ func (this *CodeGenerator) add_3(node Node, context CodeGenerator_Context, print
 		this.addNonEmptyStatement(last, CodeGenerator_getContextForNonEmptyExpression(context), false)
 	case Token_rhino_FOR_AWAIT_OF:
 		if childCount != 3 {
-			panic(new_IllegalStateException_String(tostr_(node)).self())
+			panic(new_IllegalStateException_String(tostr_(node)))
 		}
 		this.add("for await")
 		this.cc.maybeInsertSpace()
@@ -720,7 +720,7 @@ func (this *CodeGenerator) add_3(node Node, context CodeGenerator_Context, print
 		this.addNonEmptyStatement(last, CodeGenerator_getContextForNonEmptyExpression(context), false)
 	case Token_rhino_DO:
 		if childCount != 2 {
-			panic(new_IllegalStateException_String(tostr_(node)).self())
+			panic(new_IllegalStateException_String(tostr_(node)))
 		}
 		this.add("do")
 		this.addNonEmptyStatement(first, CodeGenerator_Context_OTHER, false)
@@ -733,7 +733,7 @@ func (this *CodeGenerator) add_3(node Node, context CodeGenerator_Context, print
 		this.cc.endStatement(this.hasTrailingCommentOnSameLine(node))
 	case Token_rhino_WHILE:
 		if childCount != 2 {
-			panic(new_IllegalStateException_String(tostr_(node)).self())
+			panic(new_IllegalStateException_String(tostr_(node)))
 		}
 		this.add("while")
 		this.cc.maybeInsertSpace()
@@ -743,7 +743,7 @@ func (this *CodeGenerator) add_3(node Node, context CodeGenerator_Context, print
 		this.addNonEmptyStatement(last, CodeGenerator_getContextForNonEmptyExpression(context), false)
 	case Token_rhino_EMPTY:
 		if childCount != 0 {
-			panic(new_IllegalStateException_String(tostr_(node)).self())
+			panic(new_IllegalStateException_String(tostr_(node)))
 		}
 	case Token_rhino_OPTCHAIN_GETPROP:
 		this.addExpr(first, NodeUtil_precedence(type_), context)
@@ -779,7 +779,7 @@ func (this *CodeGenerator) add_3(node Node, context CodeGenerator_Context, print
 		}
 	case Token_rhino_OPTCHAIN_GETELEM:
 		if childCount != 2 {
-			panic(new_IllegalStateException_String(Strings_lenientFormat("Bad GETELEM node: Expected 2 children but got %s. For node: %s", []any{childCount, node.box_()})).self())
+			panic(new_IllegalStateException_String(Strings_lenientFormat("Bad GETELEM node: Expected 2 children but got %s. For node: %s", []any{childCount, node.box_()})))
 		}
 		this.addExpr(first, NodeUtil_precedence(type_), context)
 		if node.isOptionalChainStart() {
@@ -790,7 +790,7 @@ func (this *CodeGenerator) add_3(node Node, context CodeGenerator_Context, print
 		this.add("]")
 	case Token_rhino_GETELEM:
 		if childCount != 2 {
-			panic(new_IllegalStateException_String(Strings_lenientFormat("Bad GETELEM node: Expected 2 children but got %s. For node: %s", []any{childCount, node.box_()})).self())
+			panic(new_IllegalStateException_String(Strings_lenientFormat("Bad GETELEM node: Expected 2 children but got %s. For node: %s", []any{childCount, node.box_()})))
 		}
 		var needsParens bool = NodeUtil_isOptChainNode(first)
 		if needsParens {
@@ -805,7 +805,7 @@ func (this *CodeGenerator) add_3(node Node, context CodeGenerator_Context, print
 		this.add("]")
 	case Token_rhino_WITH:
 		if childCount != 2 {
-			panic(new_IllegalStateException_String(tostr_(node)).self())
+			panic(new_IllegalStateException_String(tostr_(node)))
 		}
 		this.add("with(")
 		this.addNode(first)
@@ -813,7 +813,7 @@ func (this *CodeGenerator) add_3(node Node, context CodeGenerator_Context, print
 		this.addNonEmptyStatement(last, CodeGenerator_getContextForNonEmptyExpression(context), false)
 	case Token_rhino_INC, Token_rhino_DEC:
 		if childCount != 1 {
-			panic(new_IllegalStateException_String(tostr_(node)).self())
+			panic(new_IllegalStateException_String(tostr_(node)))
 		}
 		var o string = func() string {
 			if type_ == Token_rhino_INC {
@@ -851,7 +851,7 @@ func (this *CodeGenerator) add_3(node Node, context CodeGenerator_Context, print
 		this.add(")")
 	case Token_rhino_IF:
 		if childCount != 2 && childCount != 3 {
-			panic(new_IllegalStateException_String(tostr_(node)).self())
+			panic(new_IllegalStateException_String(tostr_(node)))
 		}
 		var hasElse bool = (childCount == 3)
 		var ambiguousElseClause bool = ((context == CodeGenerator_Context_BEFORE_DANGLING_ELSE) && !hasElse)
@@ -876,29 +876,29 @@ func (this *CodeGenerator) add_3(node Node, context CodeGenerator_Context, print
 		}
 	case Token_rhino_NULL:
 		if childCount != 0 {
-			panic(new_IllegalStateException_String(tostr_(node)).self())
+			panic(new_IllegalStateException_String(tostr_(node)))
 		}
 		this.cc.addConstant("null")
 	case Token_rhino_THIS:
 		if childCount != 0 {
-			panic(new_IllegalStateException_String(tostr_(node)).self())
+			panic(new_IllegalStateException_String(tostr_(node)))
 		}
 		this.add("this")
 	case Token_rhino_SUPER:
 		if childCount != 0 {
-			panic(new_IllegalStateException_String(tostr_(node)).self())
+			panic(new_IllegalStateException_String(tostr_(node)))
 		}
 		this.add("super")
 	case Token_rhino_NEW_TARGET:
 		if childCount != 0 {
-			panic(new_IllegalStateException_String(tostr_(node)).self())
+			panic(new_IllegalStateException_String(tostr_(node)))
 		}
 		this.add("new.target")
 	case Token_rhino_YIELD:
 		this.add("yield")
 		if node.isYieldAll() {
 			if first == 0 {
-				panic(new_NullPointerException_0().self())
+				panic(new_NullPointerException_0())
 			}
 			this.add("*")
 		}
@@ -911,22 +911,22 @@ func (this *CodeGenerator) add_3(node Node, context CodeGenerator_Context, print
 		this.addExpr(first, NodeUtil_precedence(type_), CodeGenerator_Context_OTHER)
 	case Token_rhino_FALSE:
 		if childCount != 0 {
-			panic(new_IllegalStateException_String(tostr_(node)).self())
+			panic(new_IllegalStateException_String(tostr_(node)))
 		}
 		this.cc.addConstant("false")
 	case Token_rhino_TRUE:
 		if childCount != 0 {
-			panic(new_IllegalStateException_String(tostr_(node)).self())
+			panic(new_IllegalStateException_String(tostr_(node)))
 		}
 		this.cc.addConstant("true")
 	case Token_rhino_CONTINUE:
 		if childCount > 1 {
-			panic(new_IllegalStateException_String(tostr_(node)).self())
+			panic(new_IllegalStateException_String(tostr_(node)))
 		}
 		this.add("continue")
 		if childCount == 1 {
 			if !first.isLabelName() {
-				panic(new_Error_String("Unexpected token type. Should be LABEL_NAME.").self())
+				panic(new_Error_String("Unexpected token type. Should be LABEL_NAME."))
 			}
 			this.add(" ")
 			this.addNode(first)
@@ -934,18 +934,18 @@ func (this *CodeGenerator) add_3(node Node, context CodeGenerator_Context, print
 		this.cc.endStatement(this.hasTrailingCommentOnSameLine(node))
 	case Token_rhino_DEBUGGER:
 		if childCount != 0 {
-			panic(new_IllegalStateException_String(tostr_(node)).self())
+			panic(new_IllegalStateException_String(tostr_(node)))
 		}
 		this.add("debugger")
 		this.cc.endStatement(this.hasTrailingCommentOnSameLine(node))
 	case Token_rhino_BREAK:
 		if childCount > 1 {
-			panic(new_IllegalStateException_String(tostr_(node)).self())
+			panic(new_IllegalStateException_String(tostr_(node)))
 		}
 		this.add("break")
 		if childCount == 1 {
 			if !first.isLabelName() {
-				panic(new_Error_String("Unexpected token type. Should be LABEL_NAME.").self())
+				panic(new_Error_String("Unexpected token type. Should be LABEL_NAME."))
 			}
 			this.add(" ")
 			this.addNode(first)
@@ -953,7 +953,7 @@ func (this *CodeGenerator) add_3(node Node, context CodeGenerator_Context, print
 		this.cc.endStatement(this.hasTrailingCommentOnSameLine(node))
 	case Token_rhino_EXPR_RESULT:
 		if childCount != 1 {
-			panic(new_IllegalStateException_String(tostr_(node)).self())
+			panic(new_IllegalStateException_String(tostr_(node)))
 		}
 		this.add_2(first, CodeGenerator_Context_START_OF_EXPR)
 		this.cc.endStatement(this.hasTrailingCommentOnSameLine(node))
@@ -983,12 +983,12 @@ func (this *CodeGenerator) add_3(node Node, context CodeGenerator_Context, print
 		this.addStringKey(node)
 	case Token_rhino_STRINGLIT:
 		if childCount != 0 {
-			panic(new_IllegalStateException_String(Strings_lenientFormat("String node %s may not have children", []any{node.box_()})).self())
+			panic(new_IllegalStateException_String(Strings_lenientFormat("String node %s may not have children", []any{node.box_()})))
 		}
 		this.addJsString(node)
 	case Token_rhino_DELPROP:
 		if childCount != 1 {
-			panic(new_IllegalStateException_String(tostr_(node)).self())
+			panic(new_IllegalStateException_String(tostr_(node)))
 		}
 		this.add("delete ")
 		this.addNode(first)
@@ -1005,7 +1005,7 @@ func (this *CodeGenerator) add_3(node Node, context CodeGenerator_Context, print
 					this.cc.listSeparator()
 				}
 				if !NodeUtil_isObjLitProperty(c) && !c.isSpread() {
-					panic(new_IllegalStateException_String(tostr_(c)).self())
+					panic(new_IllegalStateException_String(tostr_(c)))
 				}
 				this.addNode(c)
 			}
@@ -1049,13 +1049,13 @@ func (this *CodeGenerator) add_3(node Node, context CodeGenerator_Context, print
 			var initializer Node = first.getNext()
 			if initializer != 0 {
 				if isInClass {
-					panic(new_IllegalStateException_String("initializers should only exist in object literals, not classes").self())
+					panic(new_IllegalStateException_String("initializers should only exist in object literals, not classes"))
 				}
 				this.cc.add(":")
 				this.addExpr(initializer, 1, CodeGenerator_Context_OTHER)
 			} else {
 				if !node.getBooleanProp(Node_COMPUTED_PROP_VARIABLE) {
-					panic(new_IllegalStateException_String(tostr_(node)).self())
+					panic(new_IllegalStateException_String(tostr_(node)))
 				}
 			}
 		}
@@ -1073,23 +1073,23 @@ func (this *CodeGenerator) add_3(node Node, context CodeGenerator_Context, print
 		this.cc.endBlock_1((context == CodeGenerator_Context_STATEMENT))
 	case Token_rhino_CASE:
 		if childCount != 2 {
-			panic(new_IllegalStateException_String(tostr_(node)).self())
+			panic(new_IllegalStateException_String(tostr_(node)))
 		}
 		this.add("case ")
 		this.addNode(first)
 		this.addCaseBody(last)
 	case Token_rhino_DEFAULT_CASE:
 		if childCount != 1 {
-			panic(new_IllegalStateException_String(tostr_(node)).self())
+			panic(new_IllegalStateException_String(tostr_(node)))
 		}
 		this.add("default")
 		this.addCaseBody(first)
 	case Token_rhino_LABEL:
 		if childCount != 2 {
-			panic(new_IllegalStateException_String(tostr_(node)).self())
+			panic(new_IllegalStateException_String(tostr_(node)))
 		}
 		if !first.isLabelName() {
-			panic(new_Error_String("Unexpected token type. Should be LABEL_NAME.").self())
+			panic(new_Error_String("Unexpected token type. Should be LABEL_NAME."))
 		}
 		this.addNode(first)
 		this.add(":")
@@ -1170,7 +1170,7 @@ func (this *CodeGenerator) add_3(node Node, context CodeGenerator_Context, print
 	case Token_rhino_INTERFACE:
 		{
 			if childCount != 3 {
-				panic(new_IllegalStateException_String(tostr_(node)).self())
+				panic(new_IllegalStateException_String(tostr_(node)))
 			}
 			var name Node = first
 			var superTypes Node = first.getNext()
@@ -1196,7 +1196,7 @@ func (this *CodeGenerator) add_3(node Node, context CodeGenerator_Context, print
 		}
 	case Token_rhino_ENUM:
 		if childCount != 2 {
-			panic(new_IllegalStateException_String(tostr_(node)).self())
+			panic(new_IllegalStateException_String(tostr_(node)))
 		}
 		var name Node = first
 		var members Node = last
@@ -1205,7 +1205,7 @@ func (this *CodeGenerator) add_3(node Node, context CodeGenerator_Context, print
 		this.addNode(members)
 	case Token_rhino_NAMESPACE:
 		if childCount != 2 {
-			panic(new_IllegalStateException_String(tostr_(node)).self())
+			panic(new_IllegalStateException_String(tostr_(node)))
 		}
 		var name Node = first
 		var elements Node = last
@@ -1237,7 +1237,7 @@ func (this *CodeGenerator) add_3(node Node, context CodeGenerator_Context, print
 		this.maybeAddTypeDecl(node)
 		this.cc.endStatement_2(true, this.hasTrailingCommentOnSameLine(node))
 	default:
-		panic(new_IllegalStateException_String(("Unknown token " + tostr_(type_) + "\n" + sstr_(node.toStringTree()))).self())
+		panic(new_IllegalStateException_String(("Unknown token " + tostr_(type_) + "\n" + sstr_(node.toStringTree()))))
 	}
 	this.printTrailingComment(node)
 	this.cc.endSourceMapping(node)
@@ -1304,7 +1304,7 @@ func (this *CodeGenerator) arrowFunctionNeedsParens(n Node) bool {
 
 func (this *CodeGenerator) addArrowFunction(n Node, first Node, last Node, context CodeGenerator_Context) {
 	if first.getString() != "" {
-		panic(new_IllegalStateException_String(tostr_(first)).self())
+		panic(new_IllegalStateException_String(tostr_(first)))
 	}
 	var funcNeedsParens bool = this.arrowFunctionNeedsParens(n)
 	if funcNeedsParens {
@@ -1430,7 +1430,7 @@ func CodeGenerator_isIndirectEval(n Node) bool {
 func (this *CodeGenerator) addNonEmptyStatement(n Node, context CodeGenerator_Context, allowNonBlockChild bool) {
 	var nodeToProcess Node = n
 	if !allowNonBlockChild && !n.isBlock() {
-		panic(new_Error_String("Missing BLOCK child.").self())
+		panic(new_Error_String("Missing BLOCK child."))
 	}
 	if n.isBlock() {
 		var count int32 = CodeGenerator_getNonEmptyChildCount(n, 2)
@@ -1643,7 +1643,7 @@ func (this *CodeGenerator) addArrayList(firstInList Node) {
 
 func (this *CodeGenerator) addCaseBody(caseBody Node) {
 	if !caseBody.isBlock() {
-		panic(new_IllegalStateException_String(tostr_(caseBody)).self())
+		panic(new_IllegalStateException_String(tostr_(caseBody)))
 	}
 	this.cc.beginCaseBody()
 	this.addAllSiblings(caseBody.getFirstChild())
@@ -1665,7 +1665,7 @@ func (this *CodeGenerator) addNonJsDocNonTrailing(node Node, nonJsDocComment *No
 	var nodeLineNumber int32 = (node.getLineno() - 1)
 	if nonJsDocComment.isEndingAsLineComment() {
 		if !this.gentsMode && commentEndPosition.line_ >= nodeLineNumber {
-			panic(new_IllegalStateException_String("Non trailing line comments can not be on the same line as the node.").self())
+			panic(new_IllegalStateException_String("Non trailing line comments can not be on the same line as the node."))
 		}
 		this.add((sstr_(content) + "\n"))
 	} else {

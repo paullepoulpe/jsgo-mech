@@ -34,7 +34,7 @@ func (this *DataFlowAnalysis) init_DataFlowAnalysis(cfg *ControlFlowGraph) {
 	this.workQueue = new_DataFlowAnalysis_UniqueQueue(cfg.getOptionalNodeComparator(this.isForward()))
 	if this.isBranched() {
 		if !this.isForward() {
-			panic(new_IllegalStateException_0().self())
+			panic(new_IllegalStateException_0())
 		}
 	}
 }
@@ -55,7 +55,7 @@ func (this *DataFlowAnalysis) join(latticeA LatticeElement, latticeB LatticeElem
 }
 
 func (this *DataFlowAnalysis) createFlowBrancher_impl(node any, output LatticeElement) DataFlowAnalysis_FlowBrancher {
-	panic(new_UnsupportedOperationException_0().self())
+	panic(new_UnsupportedOperationException_0())
 }
 
 func (this *DataFlowAnalysis) analyze() {
@@ -66,7 +66,7 @@ func (this *DataFlowAnalysis) analyze() {
 		var stepCount int32 = curState.stepCount
 		curState.stepCount++
 		if stepCount > DataFlowAnalysis_MAX_STEPS_PER_NODE {
-			panic(new_IllegalStateException_String(("Dataflow analysis appears to diverge around: " + objstr_(curNode))).self())
+			panic(new_IllegalStateException_String(("Dataflow analysis appears to diverge around: " + objstr_(curNode))))
 		}
 		this.joinInputs(curNode)
 		if this.flow(curNode) {
@@ -186,7 +186,7 @@ func (this *DataFlowAnalysis) getInputFromEdge(edge DiGraph_DiGraphEdge) Lattice
 
 func DataFlowAnalysis_computeEscaped(jsScope *Scope, escaped *TSet[*Var], compiler *AbstractCompiler, scopeCreator ScopeCreator, allVarsInFn *TMap[string, *Var]) {
 	if !jsScope.isFunctionScope() {
-		panic(new_IllegalArgumentException_0().self())
+		panic(new_IllegalArgumentException_0())
 	}
 	var finder *NodeTraversal_AbstractPostOrderCallback = new_DataFlowAnalysis_1(jsScope, escaped).up_NodeTraversal_AbstractPostOrderCallback()
 	NodeTraversal_builder().setCompiler(compiler).setCallback(icast_NodeTraversal_Callback(finder.self())).setScopeCreator(scopeCreator).traverseAtScope(jsScope.up_AbstractScope())
@@ -270,10 +270,10 @@ func (this *DataFlowAnalysis_LinearFlowState[L]) finit_DataFlowAnalysis_LinearFl
 func (this *DataFlowAnalysis_LinearFlowState[L]) init_DataFlowAnalysis_LinearFlowState(in L, out L) {
 	this.finit_DataFlowAnalysis_LinearFlowState()
 	if in == null_[L]() {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	if out == null_[L]() {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	this.in = in
 	this.out = out
@@ -295,7 +295,7 @@ func (this *DataFlowAnalysis_LinearFlowState[L]) getIn() L {
 
 func (this *DataFlowAnalysis_LinearFlowState[L]) setIn(in LatticeElement) {
 	if in == nil {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	this.in = unboxT_[L](in)
 }
@@ -306,7 +306,7 @@ func (this *DataFlowAnalysis_LinearFlowState[L]) getOut() L {
 
 func (this *DataFlowAnalysis_LinearFlowState[L]) setOut(out L) {
 	if out == null_[L]() {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	this.out = out
 }

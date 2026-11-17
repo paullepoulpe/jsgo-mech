@@ -26,7 +26,7 @@ func (this *AmbiguateProperties) finit_AmbiguateProperties() {
 func (this *AmbiguateProperties) init_AmbiguateProperties(compiler *AbstractCompiler, reservedFirstCharacters SetOf[BoxedOf[uint16]], reservedNonFirstCharacters SetOf[BoxedOf[uint16]], externProperties *TSet[string]) {
 	this.finit_AmbiguateProperties()
 	if !compiler.getLifeCycleStage().isNormalized() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	this.compiler_ = compiler
 	this.reservedFirstCharacters = reservedFirstCharacters
@@ -49,7 +49,7 @@ func AmbiguateProperties_makePassForTesting(compiler *AbstractCompiler, reserved
 
 func (this *AmbiguateProperties) getRenamingMap() *TMap[string, string] {
 	if this.renamingMap.asMap() == nil {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	return this.renamingMap
 }
@@ -114,7 +114,7 @@ func (this *AmbiguateProperties) process_2(externs Node, root Node) {
 		var p *AmbiguateProperties_Property = this.propertyMap.get(oldName)
 		if (p != nil) && p.newName.isPresent() {
 			if oldName != p.oldName {
-				panic(new_IllegalStateException_0().self())
+				panic(new_IllegalStateException_0())
 			}
 			if !(p.newName.get() == oldName) {
 				n.setString(p.newName.get())
@@ -217,7 +217,7 @@ func (this *AmbiguateProperties_PropertyGraph) getNodeCount() int32 {
 func (this *AmbiguateProperties_PropertyGraph) getNode(property_ any) GraphNode {
 	var property *AmbiguateProperties_Property = cast_[*AmbiguateProperties_Property](property_)
 	_ = property
-	panic(new_RuntimeException_String("PropertyGraph#getNode is never called.").self())
+	panic(new_RuntimeException_String("PropertyGraph#getNode is never called."))
 }
 
 func (this *AmbiguateProperties_PropertyGraph) newSubGraph() SubGraph {
@@ -381,7 +381,7 @@ func (this *AmbiguateProperties_ProcessPropertiesAndConstructors) processCall(ca
 
 func (this *AmbiguateProperties_ProcessPropertiesAndConstructors) processObjectProperty(objectLit Node, key Node, type_ *Color) {
 	if !objectLit.isObjectLit() && !objectLit.isObjectPattern() {
-		panic(new_IllegalArgumentException_String(tostr_(objectLit)).self())
+		panic(new_IllegalArgumentException_String(tostr_(objectLit)))
 	}
 	switch key.ns_().token {
 	case tokOrd1_COMPUTED_PROP:
@@ -396,7 +396,7 @@ func (this *AmbiguateProperties_ProcessPropertiesAndConstructors) processObjectP
 		}
 	case tokOrd1_OBJECT_REST, tokOrd1_OBJECT_SPREAD:
 	default:
-		panic(new_IllegalStateException_String(("Unexpected child of " + tostr_(objectLit.getToken()) + ": " + sstr_(key.toStringTree()))).self())
+		panic(new_IllegalStateException_String(("Unexpected child of " + tostr_(objectLit.getToken()) + ": " + sstr_(key.toStringTree()))))
 	}
 }
 
@@ -459,7 +459,7 @@ func (this *AmbiguateProperties_ProcessPropertiesAndConstructors) processClass(c
 				}()
 			} else {
 				if !((member.isMemberFunctionDef() || member.isGetterDef()) || member.isSetterDef()) {
-					panic(new_IllegalStateException_0().self())
+					panic(new_IllegalStateException_0())
 				}
 				memberOwnerColor = classPrototype
 			}

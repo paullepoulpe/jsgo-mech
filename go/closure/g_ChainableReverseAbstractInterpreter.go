@@ -42,7 +42,7 @@ func (this *ChainableReverseAbstractInterpreter) init_ChainableReverseAbstractIn
 
 func (this *ChainableReverseAbstractInterpreter) append(lastLink *ChainableReverseAbstractInterpreter) *ChainableReverseAbstractInterpreter {
 	if lastLink.nextLink != nil {
-		panic(new_IllegalArgumentException_0().self())
+		panic(new_IllegalArgumentException_0())
 	}
 	this.nextLink = lastLink
 	lastLink.firstLink = this.firstLink
@@ -108,7 +108,7 @@ func (this *ChainableReverseAbstractInterpreter) declareNameInScope(scope FlowSc
 		case tokOrd1_GETPROP:
 			var qualifiedName string = node.getQualifiedName()
 			if qualifiedName == "" {
-				panic(new_IllegalStateException_0().self())
+				panic(new_IllegalStateException_0())
 			}
 			var origType *JSType = node.getJSType()
 			origType = func() *JSType {
@@ -121,7 +121,7 @@ func (this *ChainableReverseAbstractInterpreter) declareNameInScope(scope FlowSc
 		case tokOrd1_THIS:
 			return scope
 		default:
-			panic(new_IllegalArgumentException_String(("Node cannot be refined. \n" + sstr_(node.toStringTree()))).self())
+			panic(new_IllegalArgumentException_String(("Node cannot be refined. \n" + sstr_(node.toStringTree()))))
 		}
 	}()
 }

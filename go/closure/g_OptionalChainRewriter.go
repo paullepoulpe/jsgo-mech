@@ -15,19 +15,19 @@ type OptionalChainRewriter struct {
 
 func (this *OptionalChainRewriter) init_OptionalChainRewriter(builder *OptionalChainRewriter_Builder, wholeChain Node) {
 	if !NodeUtil_isEndOfFullOptChain(wholeChain) {
-		panic(new_IllegalArgumentException_String(tostr_(wholeChain)).self())
+		panic(new_IllegalArgumentException_String(tostr_(wholeChain)))
 	}
 	this.compiler_ = builder.compiler_
 	this.astFactory_ = builder.astFactory_
 	if builder.tmpVarNameCreator == nil {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	this.tmpVarNameCreator = builder.tmpVarNameCreator
 	this.scope_ = builder.scope_
 	this.wholeChain = wholeChain
 	nn_ := wholeChain.getParent()
 	if nn_ == 0 {
-		panic(new_NullPointerException_String(tostr_(wholeChain)).self())
+		panic(new_NullPointerException_String(tostr_(wholeChain)))
 	}
 	this.chainParent = nn_
 	var enclosingStatement Node = NodeUtil_getEnclosingStatement(wholeChain)
@@ -51,7 +51,7 @@ func OptionalChainRewriter_builder(compiler *AbstractCompiler) *OptionalChainRew
 
 func (this *OptionalChainRewriter) rewrite() {
 	if !NodeUtil_isOptChainNode(this.wholeChain) {
-		panic(new_IllegalStateException_String(Strings_lenientFormat("already rewritten: %s", []any{this.wholeChain.box_()})).self())
+		panic(new_IllegalStateException_String(Strings_lenientFormat("already rewritten: %s", []any{this.wholeChain.box_()})))
 	}
 	var startNodeStack []Node = []Node{}
 	var subchainEnd Node = this.wholeChain
@@ -61,7 +61,7 @@ func (this *OptionalChainRewriter) rewrite() {
 		subchainEnd = subchainStart.getFirstChild()
 	}
 	if len(startNodeStack) == 0 {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	var optChainReplacement Node = this.rewriteInitialSegment(slicePop_(tc_Node, &startNodeStack), this.wholeChain)
 	for len(startNodeStack) != 0 {
@@ -80,7 +80,7 @@ func (this *OptionalChainRewriter) rewrite() {
 		for len(this.deletesToDelete) != 0 {
 			var delete_ Node = slicePopFirst_(tc_Node, &this.deletesToDelete)
 			if !delete_.getFirstChild().isHook() {
-				panic(new_IllegalStateException_String(tostr_(delete_)).self())
+				panic(new_IllegalStateException_String(tostr_(delete_)))
 			}
 			var hook Node = delete_.getFirstChild()
 			hook.detach()
@@ -100,7 +100,7 @@ func (this *OptionalChainRewriter) rewriteInitialSegment(fullChainStart Node, fu
 		this.deletesToDelete = append(this.deletesToDelete, fullChainEnd.getParent())
 	}
 	if NodeUtil_isOptChainNode(receiverNode) {
-		panic(new_IllegalArgumentException_String(tostr_(receiverNode)).self())
+		panic(new_IllegalArgumentException_String(tostr_(receiverNode)))
 	}
 	NodeUtil_convertToNonOptionalChainSegment(initialChainEnd)
 	var placeholder Node = IR_empty()
@@ -175,7 +175,7 @@ type OptionalChainRewriter_Builder struct {
 
 func (this *OptionalChainRewriter_Builder) init_OptionalChainRewriter_Builder(compiler *AbstractCompiler) {
 	if compiler == nil {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	this.compiler_ = compiler
 	this.astFactory_ = compiler.createAstFactory()
@@ -189,7 +189,7 @@ func new_OptionalChainRewriter_Builder(compiler *AbstractCompiler) *OptionalChai
 
 func (this *OptionalChainRewriter_Builder) setTmpVarNameCreator(tmpVarNameCreator OptionalChainRewriter_TmpVarNameCreator) *OptionalChainRewriter_Builder {
 	if tmpVarNameCreator == nil {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	this.tmpVarNameCreator = tmpVarNameCreator
 	return this
@@ -197,7 +197,7 @@ func (this *OptionalChainRewriter_Builder) setTmpVarNameCreator(tmpVarNameCreato
 
 func (this *OptionalChainRewriter_Builder) setScope(scope *Scope) *OptionalChainRewriter_Builder {
 	if scope == nil {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	this.scope_ = scope
 	return this

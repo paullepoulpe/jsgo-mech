@@ -106,7 +106,7 @@ func (this *Graph) hasNode(n any) bool {
 func (this *Graph) getNodeOrFail(val any) GraphNode {
 	var node GraphNode = this.getNode(val)
 	if node == nil {
-		panic(new_IllegalArgumentException_String((objstr_(val) + " does not exist in graph")).self())
+		panic(new_IllegalArgumentException_String((objstr_(val) + " does not exist in graph")))
 	}
 	return node
 }
@@ -132,7 +132,7 @@ func (this *Graph) pushNodeAnnotations() {
 
 func (this *Graph) popNodeAnnotations() {
 	if this.nodeAnnotationStack == nil {
-		panic(new_NullPointerException_String("Popping node annotations without pushing.").self())
+		panic(new_NullPointerException_String("Popping node annotations without pushing."))
 	}
 	Graph_popAnnotations(this.nodeAnnotationStack)
 }
@@ -146,7 +146,7 @@ func (this *Graph) pushEdgeAnnotations() {
 
 func (this *Graph) popEdgeAnnotations() {
 	if this.edgeAnnotationStack == nil {
-		panic(new_NullPointerException_String("Popping edge annotations without pushing.").self())
+		panic(new_NullPointerException_String("Popping edge annotations without pushing."))
 	}
 	Graph_popAnnotations(this.edgeAnnotationStack)
 }

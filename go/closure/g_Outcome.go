@@ -28,7 +28,7 @@ func Outcome_base_ok_0() *Outcome_base[any] {
 
 func Outcome_base_err[T comparable](error_ *Throwable) *Outcome_base[T] {
 	if error_ == nil {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	return new_Outcome_base[T](null_[T](), error_)
 }
@@ -43,7 +43,7 @@ func (this *Outcome_base[T]) isErr() bool {
 
 func (this *Outcome_base[T]) get() T {
 	if this.errorField != nil {
-		panic(new_IllegalStateException_String_Throwable("Outcome.get() called on an error outcome", this.errorField).self())
+		panic(new_IllegalStateException_String_Throwable("Outcome.get() called on an error outcome", this.errorField))
 	}
 	return this.value_
 }

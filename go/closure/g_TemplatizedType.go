@@ -122,7 +122,7 @@ func (this *TemplatizedType) wrapsSameRawType(that *JSType) bool {
 
 func (this *TemplatizedType) getGreatestSubtypeHelper(rawThat *JSType) *JSType {
 	if rawThat == nil {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	if !this.wrapsSameRawType(rawThat) {
 		if this.isSubtype(rawThat) {
@@ -137,7 +137,7 @@ func (this *TemplatizedType) getGreatestSubtypeHelper(rawThat *JSType) *JSType {
 	}
 	var that *TemplatizedType = rawThat.toMaybeTemplatizedType()
 	if that == nil {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	if this.equals_JSType(that.up_JSType()) {
 		return this.up_JSType()

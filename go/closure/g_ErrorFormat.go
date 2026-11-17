@@ -60,7 +60,7 @@ func (this ErrorFormat) toFormatter(source SourceExcerptProvider, colorize bool)
 		formatter.setColorize(colorize)
 		return formatter
 	default:
-		panic(new_NullPointerException_0().self()) // a call on null
+		panic(new_NullPointerException_0()) // a call on null
 	}
 }
 

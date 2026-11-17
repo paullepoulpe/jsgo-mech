@@ -134,7 +134,7 @@ func new_JsIterables_MaybeBoxedType(templatedType *JSType, mismatchType *JSType)
 
 func (this *JsIterables_MaybeBoxedType) getTemplatedType() *JSType {
 	if !this.isMatch() {
-		panic(new_IllegalStateException_String("Type was not boxable to iterable or async iterable!").self())
+		panic(new_IllegalStateException_String("Type was not boxable to iterable or async iterable!"))
 	}
 	return this.templatedType
 }

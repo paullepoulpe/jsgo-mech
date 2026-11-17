@@ -118,7 +118,7 @@ func (this *MaybeReachingVariableUse) computeMayUse(n Node, cfgNode Node, output
 	case tokOrd1_VAR, tokOrd1_LET, tokOrd1_CONST:
 		var varName Node = n.getFirstChild()
 		if !n.hasChildren() {
-			panic(new_IllegalStateException_String(Strings_lenientFormat("AST should be normalized (%s)", []any{n.box_()})).self())
+			panic(new_IllegalStateException_String(Strings_lenientFormat("AST should be normalized (%s)", []any{n.box_()})))
 		}
 		if varName.isDestructuringLhs() {
 			this.computeMayUse(varName.getFirstChild(), cfgNode, output, conditional)
@@ -146,7 +146,7 @@ func (this *MaybeReachingVariableUse) computeMayUse(n Node, cfgNode Node, output
 	default:
 		if NodeUtil_isAssignmentOp(n) && n.getFirstChild().isName() {
 			if NodeUtil_isLogicalAssignmentOp(n) {
-				panic(new_IllegalStateException_0().self())
+				panic(new_IllegalStateException_0())
 			}
 			var name Node = n.getFirstChild()
 			if !conditional {
@@ -193,7 +193,7 @@ func (this *MaybeReachingVariableUse) removeFromUseIfLocal(name string, use *May
 func (this *MaybeReachingVariableUse) getUses(name string, defNode Node) IterableOf[Node] {
 	var n GraphNode = this.getCfg().getNode(defNode.box_())
 	if n == nil {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	var state *DataFlowAnalysis_LinearFlowState[any] = cast_[*DataFlowAnalysis_LinearFlowState[any]](Annotatable_getAnnotation(Annotatable(n)))
 	return cast_[*MaybeReachingVariableUse_ReachingUses](state.getOut()).get(this.allVarsInFn.get(name))
@@ -318,7 +318,7 @@ func MaybeReachingVariableUse_ReachingUses_equalNodes(n1 Node, n2 Node) bool {
 }
 
 func (this *MaybeReachingVariableUse_ReachingUses) hashCode() int32 {
-	panic(new_UnsupportedOperationException_String("the hashcode of this object is not stable").self())
+	panic(new_UnsupportedOperationException_String("the hashcode of this object is not stable"))
 }
 
 type MaybeReachingVariableUse_ReachingUsesJoinOp struct {

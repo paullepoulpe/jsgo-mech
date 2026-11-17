@@ -26,7 +26,7 @@ func new_MinimizeExitPoints() *MinimizeExitPoints {
 
 func (this *MinimizeExitPoints) optimizeSubtree_impl(n Node) Node {
 	if !this.isASTNormalized() {
-		panic(new_IllegalStateException_String("MinimizeExitPoints requires the AST to be normalized").self())
+		panic(new_IllegalStateException_String("MinimizeExitPoints requires the AST to be normalized"))
 	}
 	switch n.ns_().token {
 	case tokOrd1_LABEL:
@@ -71,7 +71,7 @@ func (this *MinimizeExitPoints) tryMinimizeExits(n Node, exitType Token_rhino, l
 		var allCatchNodes Node = NodeUtil_getCatchBlock(n)
 		if NodeUtil_hasCatchHandler(allCatchNodes) {
 			if !allCatchNodes.hasOneChild() {
-				panic(new_IllegalStateException_0().self())
+				panic(new_IllegalStateException_0())
 			}
 			var catchNode Node = allCatchNodes.getFirstChild()
 			var catchCodeBlock Node = catchNode.getLastChild()
@@ -121,7 +121,7 @@ func (this *MinimizeExitPoints) tryMinimizeExits(n Node, exitType Token_rhino, l
 
 func (this *MinimizeExitPoints) tryMinimizeSwitchExits(n Node, exitType Token_rhino, labelName OptionalOf[string]) {
 	if !n.isSwitch() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	var switchBody Node = n.getSecondChild()
 	{
@@ -138,10 +138,10 @@ func (this *MinimizeExitPoints) tryMinimizeSwitchExits(n Node, exitType Token_rh
 
 func (this *MinimizeExitPoints) tryMinimizeSwitchCaseExits(n Node, exitType Token_rhino, labelName OptionalOf[string]) {
 	if !NodeUtil_isSwitchCase(n) {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	if n == n.getParent().getLastChild() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	var block Node = n.getLastChild()
 	var maybeBreak Node = block.getLastChild()

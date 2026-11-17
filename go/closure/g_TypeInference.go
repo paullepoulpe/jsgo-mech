@@ -34,29 +34,29 @@ func (this *TypeInference) init_TypeInference(compiler *AbstractCompiler, cfg *C
 	this.DataFlowAnalysis.init_DataFlowAnalysis(cfg)
 	this.finit_TypeInference()
 	if ok_, a1_, a2_ := (syntacticScope.getRootNode() == Node_of_(cfg.getEntry().getValue())), cfg.getEntry(), syntacticScope.getRootNode(); !ok_ {
-		panic(new_IllegalArgumentException_String(Strings_lenientFormat("Expected syntactic scope to be rooted at CFG root node of %s, but instead got syntactic scope root node of %s", []any{a1_, a2_.box_()})).self())
+		panic(new_IllegalArgumentException_String(Strings_lenientFormat("Expected syntactic scope to be rooted at CFG root node of %s, but instead got syntactic scope root node of %s", []any{a1_, a2_.box_()})))
 	}
 	if compiler == nil {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	this.compiler_ = compiler
 	nn_1 := compiler.getTypeRegistry()
 	if nn_1 == nil {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	this.registry = nn_1
 	if reverseInterpreter == nil {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	this.reverseInterpreter = reverseInterpreter
 	this.moduleImportResolver = new_ModuleImportResolver(compiler.getModuleMap(), scopeCreator.getNodeToScopeMapper(), this.registry)
 	this.containerScope = syntacticScope
 	if scopeCreator == nil {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	this.scopeCreator = scopeCreator
 	if assertionFunctionLookup == nil {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	this.assertionFunctionLookup = assertionFunctionLookup
 	this.unknownType = this.registry.getNativeObjectType(JSTypeNative_UNKNOWN_TYPE)
@@ -160,7 +160,7 @@ func (this *TypeInference) updateDestructuringParameter(pattern Node, inferredTy
 	entryFlowScope = this.traverseDestructuringPatternHelper(pattern, entryFlowScope, inferredType, func(scope FlowScope, lvalue Node, type_ *JSType) FlowScope {
 		var var_ *TypedVar = cast_[*TypedVar](this.containerScope.getVar(lvalue.getString()).self())
 		if var_ == nil {
-			panic(new_NullPointerException_0().self())
+			panic(new_NullPointerException_0())
 		}
 		if var_.isTypeInferred() {
 			var_.setType(type_)
@@ -177,7 +177,7 @@ func (this *TypeInference) updateDestructuringParameter(pattern Node, inferredTy
 func (this *TypeInference) updateNamedParameter(paramName Node, hasDefaultValue bool, inferredType *JSType, entryFlowScope FlowScope) FlowScope {
 	var var_ *TypedVar = cast_[*TypedVar](this.containerScope.getVar(paramName.getString()).self())
 	if var_ == nil {
-		panic(new_NullPointerException_String(Strings_lenientFormat("Missing var for parameter %s", []any{paramName.box_()})).self())
+		panic(new_NullPointerException_String(Strings_lenientFormat("Missing var for parameter %s", []any{paramName.box_()})))
 	}
 	paramName.setJSType(inferredType)
 	if var_.isTypeInferred() {
@@ -229,7 +229,7 @@ func (this *TypeInference) updateModuleScope(module *Module, syntacticBlockScope
 	case ModuleMetadataMap_ModuleType_GOOG_MODULE, ModuleMetadataMap_ModuleType_LEGACY_GOOG_MODULE:
 		nn_, nn1_ := syntacticBlockScope.getVar("exports"), module.metadata()
 		if nn_ == nil {
-			panic(new_NullPointerException_String(Strings_lenientFormat("Missing exports var for %s", []any{obj_(nn1_)})).self())
+			panic(new_NullPointerException_String(Strings_lenientFormat("Missing exports var for %s", []any{obj_(nn1_)})))
 		}
 		var exportsVar *TypedVar = cast_[*TypedVar](nn_.self())
 		var exportsType *JSType = func() *JSType {
@@ -243,7 +243,7 @@ func (this *TypeInference) updateModuleScope(module *Module, syntacticBlockScope
 			rootNode.setJSType(exportsType)
 		} else {
 			if !rootNode.isBlock() {
-				panic(new_IllegalStateException_String(tostr_(rootNode)).self())
+				panic(new_IllegalStateException_String(tostr_(rootNode)))
 			}
 			var paramList Node = NodeUtil_getFunctionParameters(rootNode.getParent())
 			paramList.getOnlyChild().setJSType(exportsType)
@@ -396,7 +396,7 @@ func (this *TypeInference) traverse(n Node, scope FlowScope) FlowScope {
 		scope = this.traverseChildren(n, scope)
 		var info *JSDocInfo = n.getJSDocInfo()
 		if info == nil {
-			panic(new_NullPointerException_String("CAST node should always have JSDocInfo").self())
+			panic(new_NullPointerException_String("CAST node should always have JSDocInfo"))
 		}
 		if info.hasType() {
 			n.setJSType(info.getType().evaluate(scope.getDeclarationScope(), this.registry).resolve(this.registry.getErrorReporter()))
@@ -427,10 +427,10 @@ func (this *TypeInference) traverse(n Node, scope FlowScope) FlowScope {
 		this.traverseDynamicImport(n, scope)
 	case tokOrd1_TRUE, tokOrd1_FALSE, tokOrd1_STRINGLIT, tokOrd1_NUMBER, tokOrd1_BIGINT, tokOrd1_NULL, tokOrd1_REGEXP, tokOrd1_TEMPLATELIT_STRING:
 	default:
-		panic(new_IllegalStateException_String(("Type inference doesn't know to handle token " + tostr_(n.getToken()))).self())
+		panic(new_IllegalStateException_String(("Type inference doesn't know to handle token " + tostr_(n.getToken()))))
 	}
 	if (isTypeable && (n.getJSType() == nil)) && !TypeInference_TOKENS_ALLOWING_NULL_TYPES.contains(obj_(n.getToken())) {
-		panic(new_IllegalStateException_String(("Failed to infer JSType for " + tostr_(n))).self())
+		panic(new_IllegalStateException_String(("Failed to infer JSType for " + tostr_(n))))
 	}
 	return scope
 }
@@ -468,7 +468,7 @@ func (this *TypeInference) initializeEnhancedForScope(source Node, output FlowSc
 		var iterableType *JSType = JsIterables_maybeBoxIterableOrAsyncIterable(this.getJSType(obj), this.registry).orElse(this.unknownType.up_JSType())
 		newType = Promises_getResolvedType(this.registry, iterableType)
 	default:
-		panic(new_IllegalArgumentException_String(("Unexpected source node " + tostr_(source))).self())
+		panic(new_IllegalArgumentException_String(("Unexpected source node " + tostr_(source))))
 	}
 	if item.isDestructuringPattern() {
 		informed = this.traverseDestructuringPattern(item, informed, newType, assignmentType)
@@ -497,7 +497,7 @@ func (this *TypeInference) traverseAssignUnsignedRightShift(n Node, scope FlowSc
 
 func (this *TypeInference) traverseCall(callNode Node, originalScope FlowScope) FlowScope {
 	if !callNode.isCall() && !callNode.isOptChainCall() {
-		panic(new_IllegalArgumentException_String(tostr_(callNode)).self())
+		panic(new_IllegalArgumentException_String(tostr_(callNode)))
 	}
 	var scopeAfterChildren FlowScope = this.traverseChildren(callNode, originalScope)
 	var scopeAfterExecution FlowScope = this.setCallNodeTypeAfterChildrenTraversed(callNode, scopeAfterChildren)
@@ -506,7 +506,7 @@ func (this *TypeInference) traverseCall(callNode Node, originalScope FlowScope) 
 
 func (this *TypeInference) traverseTaggedTemplateLit(tagTempLitNode Node, originalScope FlowScope) FlowScope {
 	if !tagTempLitNode.isTaggedTemplateLit() {
-		panic(new_IllegalArgumentException_String(tostr_(tagTempLitNode)).self())
+		panic(new_IllegalArgumentException_String(tostr_(tagTempLitNode)))
 	}
 	var scopeAfterChildren FlowScope = this.traverseChildren(tagTempLitNode, originalScope)
 	var scopeAfterExecution FlowScope = this.setCallNodeTypeAfterChildrenTraversed(tagTempLitNode, scopeAfterChildren)
@@ -536,7 +536,7 @@ func (this *TypeInference) traverseSuper(superNode Node, currentScope FlowScope)
 		var currentSyntacticScope StaticTypedScope = currentScope.getDeclarationScope()
 		superNodeType = ObjectType_cast(icast_StaticTypedSlot(currentSyntacticScope.getSlot("super")).getType())
 	default:
-		panic(new_IllegalStateException_String(("Unexpected parent of SUPER: " + sstr_(superNode.getParent().toStringTree()))).self())
+		panic(new_IllegalStateException_String(("Unexpected parent of SUPER: " + sstr_(superNode.getParent().toStringTree()))))
 	}
 	superNode.setJSType(func() *JSType {
 		if superNodeType != nil {
@@ -608,7 +608,7 @@ func (this *TypeInference) traverseCatch(catchNode Node, scope FlowScope) FlowSc
 		return this.traverseDestructuringPattern(pattern, scope, this.unknownType.up_JSType(), TypeInference_AssignmentType_DECLARATION)
 	} else {
 		if !catchTarget.isEmpty() {
-			panic(new_IllegalStateException_String(tostr_(catchTarget)).self())
+			panic(new_IllegalStateException_String(tostr_(catchTarget)))
 		}
 		return scope
 	}
@@ -671,10 +671,10 @@ func (this *TypeInference) updateScopeForAssignment(scope FlowScope, target Node
 
 func (this *TypeInference) updateScopeForAssignment_5(scope FlowScope, target Node, resultType *JSType, updateNode Node, type_ TypeInference_AssignmentType) FlowScope {
 	if resultType == nil {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	if updateNode != 0 && updateNode != target {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	var targetType *JSType = target.getJSType()
 	var right Node = NodeUtil_getRValueOfLValue(target)
@@ -824,7 +824,7 @@ func (this *TypeInference) traverseDeclarationChild(n Node, scope FlowScope) Flo
 		return this.traverseName(n, scope)
 	}
 	if !n.isDestructuringLhs() {
-		panic(new_IllegalStateException_String(tostr_(n)).self())
+		panic(new_IllegalStateException_String(tostr_(n)))
 	}
 	scope = this.traverse(n.getSecondChild(), scope)
 	return this.traverseDestructuringPattern(n.getFirstChild(), scope, this.getJSType(n.getSecondChild()), TypeInference_AssignmentType_DECLARATION)
@@ -844,10 +844,10 @@ func (this *TypeInference) traverseDestructuringPattern(pattern Node, scope Flow
 
 func (this *TypeInference) traverseDestructuringPatternHelper(pattern Node, scope FlowScope, patternType *JSType, declarer func(FlowScope, Node, *JSType) FlowScope) FlowScope {
 	if !pattern.isDestructuringPattern() {
-		panic(new_IllegalArgumentException_String(tostr_(pattern)).self())
+		panic(new_IllegalArgumentException_String(tostr_(pattern)))
 	}
 	if patternType == nil {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	for _, target := range DestructuredTarget_createAllNonEmptyTargetsInPattern(this.registry, patternType, pattern) {
 		if target.hasComputedProperty() {
@@ -1048,7 +1048,7 @@ func (this *TypeInference) traverseClassMemberRhs(member Node, scope FlowScope) 
 		case tokOrd1_MEMBER_FUNCTION_DEF, tokOrd1_COMPUTED_PROP, tokOrd1_BLOCK, tokOrd1_GETTER_DEF, tokOrd1_SETTER_DEF:
 			return scope
 		default:
-			panic(new_AssertionError_0().self())
+			panic(new_AssertionError_0())
 		}
 	}()
 }
@@ -1067,7 +1067,7 @@ func TypeInference_getRhsOfField(fieldNode Node) Node {
 			}
 			return 0
 		default:
-			panic(new_AssertionError_0().self())
+			panic(new_AssertionError_0())
 		}
 	}()
 }
@@ -1081,7 +1081,7 @@ func (this *TypeInference) traverseArrayLiteral(n Node, scope FlowScope) FlowSco
 func (this *TypeInference) traverseObjectLiteral(n Node, scope FlowScope) FlowScope {
 	var type_ *JSType = n.getJSType()
 	if type_ == nil {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	var spreadOperatorSeen bool = false
 	{
@@ -1202,7 +1202,7 @@ func (this *TypeInference) traverseHook(n Node, scope FlowScope) FlowScope {
 
 func (this *TypeInference) traverseNullishCoalesce(n Node, scope FlowScope) FlowScope {
 	if !n.isNullishCoalesce() && !n.isAssignNullishCoalesce() {
-		panic(new_IllegalArgumentException_0().self())
+		panic(new_IllegalArgumentException_0())
 	}
 	var left Node = n.getFirstChild()
 	var right Node = n.getLastChild()
@@ -1373,7 +1373,7 @@ func (this *TypeInference) updateBind(n Node) {
 
 func (this *TypeInference) updateTypeOfArguments(n Node, fnType *FunctionType) {
 	if !NodeUtil_isInvocation(n) {
-		panic(new_IllegalStateException_String(tostr_(n)).self())
+		panic(new_IllegalStateException_String(tostr_(n)))
 	}
 	var parameters *immCursor_ = immCursorOf_(fnType.getParameters())
 	if n.isTaggedTemplateLit() {
@@ -1481,7 +1481,7 @@ func (this *TypeInference) inferTemplatedTypesForCall(n Node, fnType *FunctionTy
 	var callTarget Node = n.getFirstChild()
 	var replacementFnType *FunctionType = to_JSType(fnType.visit(replacer)).toMaybeFunctionType()
 	if replacementFnType == nil {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	callTarget.setJSType(replacementFnType.up_JSType())
 	n.setJSType(replacementFnType.getReturnType())
@@ -1575,7 +1575,7 @@ func (this *TypeInference) traverseGetElem(n Node, originalScope FlowScope) Flow
 
 func (this *TypeInference) setGetElemNodeTypeAfterChildrenTraversed(n Node, scopeAfterChildren FlowScope) FlowScope {
 	if !n.isGetElem() && !n.isOptChainGetElem() {
-		panic(new_IllegalArgumentException_0().self())
+		panic(new_IllegalArgumentException_0())
 	}
 	this.inferGetElemType(n)
 	scopeAfterChildren = this.tightenTypeAfterDereference(n.getFirstChild(), scopeAfterChildren)
@@ -1662,7 +1662,7 @@ func (this *TypeInference) traverseGetProp(n Node, scope FlowScope) FlowScope {
 
 func (this *TypeInference) setGetPropNodeTypeAfterChildrenTraversed(n Node, scopeAfterChildren FlowScope) FlowScope {
 	if !n.isGetProp() && !n.isOptChainGetProp() {
-		panic(new_IllegalArgumentException_0().self())
+		panic(new_IllegalArgumentException_0())
 	}
 	var objNode Node = n.getFirstChild()
 	n.setJSType(this.getPropertyType(objNode.getJSType(), n.getString(), n, scopeAfterChildren))
@@ -1679,14 +1679,14 @@ func (this *TypeInference) setOptChainNodeTypeAfterChildrenTraversed(n Node, sco
 		case tokOrd1_OPTCHAIN_CALL:
 			return this.setCallNodeTypeAfterChildrenTraversed(n, scopeAfterChildren)
 		default:
-			panic(new_IllegalStateException_String("Illegal token inside finishTraversingOptChain").self())
+			panic(new_IllegalStateException_String("Illegal token inside finishTraversingOptChain"))
 		}
 	}()
 }
 
 func (this *TypeInference) traverseOptChain(n Node, scope FlowScope) FlowScope {
 	if !NodeUtil_isOptChainNode(n) {
-		panic(new_IllegalArgumentException_0().self())
+		panic(new_IllegalArgumentException_0())
 	}
 	if NodeUtil_isEndOfOptChainSegment(n) {
 		var startOfChain Node = NodeUtil_getStartOfOptChainSegment(n)
@@ -1711,14 +1711,14 @@ func (this *TypeInference) traverseOptChain(n Node, scope FlowScope) FlowScope {
 		var startOfChain Node = NodeUtil_getStartOfOptChainSegment(n)
 		var currentChain *TypeInference_OptChainInfo = slicePop_(tc_p_TypeInference_OptChainInfo, &this.optChainArrayDeque)
 		if currentChain.endOfChain != n {
-			panic(new_IllegalStateException_0().self())
+			panic(new_IllegalStateException_0())
 		}
 		if currentChain.startOfChain != startOfChain {
-			panic(new_IllegalStateException_0().self())
+			panic(new_IllegalStateException_0())
 		}
 		var startNode Node = startOfChain.getFirstChild()
 		if startNode == 0 {
-			panic(new_NullPointerException_0().self())
+			panic(new_NullPointerException_0())
 		}
 		return this.updateTypeWhenEndOfOptChain(n, startNode, currentChain, executedScope)
 	} else {
@@ -1822,7 +1822,7 @@ func (this *TypeInference) traverseShortCircuitingBinOpAssignment(n Node, scope 
 
 func (this *TypeInference) traverseShortCircuitingBinOp(n Node, left Node, leftOutcome *TypeInference_BooleanOutcomePair) *TypeInference_BooleanOutcomePair {
 	if !(((n.isAnd() || n.isOr()) || n.isAssignAnd()) || n.isAssignOr()) {
-		panic(new_IllegalArgumentException_0().self())
+		panic(new_IllegalArgumentException_0())
 	}
 	var nIsAnd bool = (n.isAnd() || n.isAssignAnd())
 	var right Node = n.getLastChild()
@@ -1938,7 +1938,7 @@ func (this *TypeInference) newBooleanOutcomePair(jsType *JSType, flowScope FlowS
 
 func (this *TypeInference) redeclareSimpleVar(scope FlowScope, nameNode Node, varType *JSType) FlowScope {
 	if !nameNode.isName() {
-		panic(new_IllegalStateException_String(tostr_(nameNode)).self())
+		panic(new_IllegalStateException_String(tostr_(nameNode)))
 	}
 	var varName string = nameNode.getString()
 	if varType == nil {

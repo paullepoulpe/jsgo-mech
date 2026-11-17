@@ -31,7 +31,7 @@ func ScriptMetadata_createNodeMetadata(script Node, metadata *NodeMetadata) *Scr
 
 func ScriptMetadata_create(script Node, compiler *AbstractCompiler) *ScriptMetadata {
 	if !script.isScript() {
-		panic(new_IllegalArgumentException_0().self())
+		panic(new_IllegalArgumentException_0())
 	}
 	var toFill *ScriptMetadata = new_ScriptMetadata(script)
 	NodeTraversal_traverse(compiler, script, new_ScriptMetadata_FillerCallback(toFill))
@@ -59,7 +59,7 @@ func (this *ScriptMetadata) getAlias(namespace string) OptionalOf[string] {
 
 func (this *ScriptMetadata) addAlias(namespace string, alias string) {
 	if !this.supportsRequireAliasesField {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	this.namesInUse[alias] = struct{}{}
 	this.requireAliases[namespace] = alias

@@ -136,7 +136,7 @@ func (this CheckClosureImports_ClosureImport) allowDestructuring() bool {
 	case CheckClosureImports_ClosureImport_FORWARD_DECLARE:
 		return false
 	default:
-		panic(new_NullPointerException_0().self()) // a call on null
+		panic(new_NullPointerException_0()) // a call on null
 	}
 }
 
@@ -147,7 +147,7 @@ func (this CheckClosureImports_ClosureImport) aliasMustBeConstant() bool {
 	case CheckClosureImports_ClosureImport_FORWARD_DECLARE:
 		return false
 	default:
-		panic(new_NullPointerException_0().self()) // a call on null
+		panic(new_NullPointerException_0()) // a call on null
 	}
 }
 
@@ -158,7 +158,7 @@ func (this CheckClosureImports_ClosureImport) mustBeOrdered() bool {
 	case CheckClosureImports_ClosureImport_FORWARD_DECLARE, CheckClosureImports_ClosureImport_REQUIRE_TYPE, CheckClosureImports_ClosureImport_REQUIRE_DYNAMIC:
 		return false
 	default:
-		panic(new_NullPointerException_0().self()) // a call on null
+		panic(new_NullPointerException_0()) // a call on null
 	}
 }
 
@@ -173,7 +173,7 @@ func (this CheckClosureImports_ClosureImport) callName() string {
 	case CheckClosureImports_ClosureImport_REQUIRE_DYNAMIC:
 		return "goog.requireDynamic"
 	default:
-		panic(new_NullPointerException_0().self()) // a call on null
+		panic(new_NullPointerException_0()) // a call on null
 	}
 }
 
@@ -258,7 +258,7 @@ func (this *CheckClosureImports_Checker) visit_4_impl(t *NodeTraversal, n Node, 
 
 func (this *CheckClosureImports_Checker) kindOfCall(callNode Node) CheckClosureImports_ClosureImport {
 	if !callNode.isCall() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	if callNode.getFirstChild().matchesQualifiedNameNode(CheckClosureImports_GOOG_REQUIRE) {
 		return CheckClosureImports_ClosureImport_REQUIRE
@@ -356,7 +356,7 @@ func (this *CheckClosureImports_Checker) checkGoogModuleGet(t *NodeTraversal, ca
 
 func (this *CheckClosureImports_Checker) isValidDestructuringImport(destructuringLhs Node) bool {
 	if !destructuringLhs.isDestructuringLhs() {
-		panic(new_IllegalArgumentException_0().self())
+		panic(new_IllegalArgumentException_0())
 	}
 	var objectPattern Node = destructuringLhs.getFirstChild()
 	if !objectPattern.isObjectPattern() {

@@ -82,7 +82,7 @@ func (this *ReplaceIdGenerators) createNameSupplier(renameStrategy ReplaceIdGene
 
 func ReplaceIdGenerators_createNameSupplierRenamingMap(renameStrategy ReplaceIdGenerators_RenameStrategy, mappings RenamingMap) ReplaceIdGenerators_NameSupplier {
 	if renameStrategy != ReplaceIdGenerators_RenameStrategy_MAPPED {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	return new_ReplaceIdGenerators_MappedNameSupplier(mappings)
 }
@@ -435,7 +435,7 @@ func (this *ReplaceIdGenerators_GatherGenerators) visit_impl(unused *NodeTravers
 			return
 		}
 	} else {
-		panic(new_IllegalStateException_String("unexpected").self())
+		panic(new_IllegalStateException_String("unexpected"))
 	}
 	this.outer_.idGeneratorMaps.put(name.orElse(nullstr_), new_LinkedHashMap())
 }
@@ -504,7 +504,7 @@ func (this *ReplaceIdGenerators_ReplaceGenerators) visit_impl(t *NodeTraversal, 
 func (this *ReplaceIdGenerators_ReplaceGenerators) maybeReplaceTaggedTemplateLit(t *NodeTraversal, n Node, callName OptionalOf[string], nameGenerator ReplaceIdGenerators_NameSupplier) {
 	var arg Node = n.getLastChild()
 	if (arg == 0) || !arg.isTemplateLit() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	} else if arg.hasOneChild() {
 		var cooked OptionalOf[string] = arg.getFirstChild().getCookedString()
 		if cooked.isEmpty() {
@@ -583,7 +583,7 @@ func (this *ReplaceIdGenerators_ReplaceGenerators) maybeReplaceCall(t *NodeTrave
 		var ttlFunctionCall Node = ttlVar.getFirstFirstChild()
 		var paramsArrayLiteral Node = ttlFunctionCall.getSecondChild()
 		if (paramsArrayLiteral == 0) || !paramsArrayLiteral.isArrayLit() {
-			panic(new_IllegalStateException_String("bad transpiled structure").self())
+			panic(new_IllegalStateException_String("bad transpiled structure"))
 		}
 		if paramsArrayLiteral.getChildCount() == 1 {
 			var originalName string = paramsArrayLiteral.getFirstChild().getString()
@@ -616,7 +616,7 @@ func (this *ReplaceIdGenerators_ReplaceGenerators) findTtlVar(t *NodeTraversal, 
 		return 0
 	}
 	if !ttlVarName.getParent().hasOneChild() {
-		panic(new_IllegalStateException_String("The AST is normalized so there should only be one name per var").self())
+		panic(new_IllegalStateException_String("The AST is normalized so there should only be one name per var"))
 	}
 	var callNode Node = ttlVarName.getFirstChild()
 	if !callNode.isCall() {
