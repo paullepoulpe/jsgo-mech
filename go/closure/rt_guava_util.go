@@ -370,13 +370,7 @@ func Sets_immutableEnumSet(p0 *Enum, p1 []*Enum) *ImmutableSet {
 	}
 	checkNoNulls_(items)
 	sortSlice_(items, ordinalCmp_())
-	set := immSet_(items)
-	last := set.items[len(set.items)-1].(interface{ ordinal() int32 }).ordinal()
-	set.byOrd = make([]any, last+1)
-	for _, x := range set.items {
-		set.byOrd[x.(interface{ ordinal() int32 }).ordinal()] = x
-	}
-	return set
+	return withOrdinals_(immSet_(items))
 }
 
 func Sets_newIdentityHashSet() Set { return identitySet_() }
