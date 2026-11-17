@@ -216,7 +216,7 @@ func CodePrinter_MappedCodePrinter_convertPositionAfterLineCut(position *FilePos
 }
 
 func (this *CodePrinter_MappedCodePrinter) getCode() string {
-	return Object_toString(obj_(this.code_))
+	return tostrNN_(this.code_)
 }
 
 func (this *CodePrinter_MappedCodePrinter) getLastChar_impl() uint16 {

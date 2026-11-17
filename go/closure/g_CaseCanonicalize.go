@@ -32,7 +32,7 @@ func CaseCanonicalize_caseCanonicalizeString(s string) string {
 					}
 					sb.setCharAt(i, CaseCanonicalize_caseCanonicalize(String_charAt(s, i)))
 				}
-				return Object_toString(obj_(sb))
+				return tostrNN_(sb)
 			}
 		}
 	}

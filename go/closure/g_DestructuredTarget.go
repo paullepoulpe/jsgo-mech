@@ -106,7 +106,7 @@ func DestructuredTarget_createTarget(registry *JSTypeRegistry, destructuringPatt
 		builder.setNode(destructuringChild.getFirstChild())
 		builder.setIsRest(true)
 	default:
-		panic(new_IllegalArgumentException_String(("Unexpected child of destructuring pattern " + objstr_(destructuringChild.box_()))).self())
+		panic(new_IllegalArgumentException_String(("Unexpected child of destructuring pattern " + tostr_(destructuringChild))).self())
 	}
 	return builder.build()
 }
@@ -183,7 +183,7 @@ func (this *DestructuredTarget) inferObjectPatternKeyType() *JSType {
 				return this.registry.getNativeType(JSTypeNative_UNKNOWN_TYPE)
 			}()
 		default:
-			panic(new_IllegalStateException_String(("Unexpected key " + objstr_(this.objectPatternKey.box_()))).self())
+			panic(new_IllegalStateException_String(("Unexpected key " + tostr_(this.objectPatternKey))).self())
 		}
 		panic("unreachable")
 	}()

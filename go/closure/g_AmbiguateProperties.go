@@ -406,7 +406,7 @@ func (this *AmbiguateProperties_ProcessPropertiesAndConstructors) processObjectP
 		}
 	case tokOrd1_OBJECT_REST, tokOrd1_OBJECT_SPREAD:
 	default:
-		panic(new_IllegalStateException_String(("Unexpected child of " + objstr_(obj_(objectLit.getToken())) + ": " + sstr_(key.toStringTree()))).self())
+		panic(new_IllegalStateException_String(("Unexpected child of " + tostr_(objectLit.getToken()) + ": " + sstr_(key.toStringTree()))).self())
 	}
 }
 

@@ -84,7 +84,7 @@ func (this *ReplaceCssNames) validateGetCssNameCall(callNode Node) *JSError {
 func (this *ReplaceCssNames) validateSingleArgGetCssNameCall(callNode Node) *JSError {
 	var stringLiteralArg Node = Node_of_(Preconditions_checkNotNull(callNode.getLastChild().box_()))
 	if !stringLiteralArg.isStringLit() {
-		return JSError_make_Node_DiagnosticType_StringArr(callNode, ReplaceCssNames_STRING_LITERAL_EXPECTED_ERROR, []string{Object_toString(obj_(stringLiteralArg.getToken()))})
+		return JSError_make_Node_DiagnosticType_StringArr(callNode, ReplaceCssNames_STRING_LITERAL_EXPECTED_ERROR, []string{tostrNN_(stringLiteralArg.getToken())})
 	}
 	return nil
 }
@@ -93,7 +93,7 @@ func (this *ReplaceCssNames) validateTwoArgGetCssNameCall(callNode Node) *JSErro
 	var firstArg Node = Node_of_(Preconditions_checkNotNull(callNode.getSecondChild().box_()))
 	var secondArg Node = Node_of_(Preconditions_checkNotNull(firstArg.getNext().box_()))
 	if !secondArg.isStringLit() {
-		return JSError_make_Node_DiagnosticType_StringArr(callNode, ReplaceCssNames_STRING_LITERAL_EXPECTED_ERROR, []string{Object_toString(obj_(secondArg.getToken()))})
+		return JSError_make_Node_DiagnosticType_StringArr(callNode, ReplaceCssNames_STRING_LITERAL_EXPECTED_ERROR, []string{tostrNN_(secondArg.getToken())})
 	}
 	if firstArg.isStringLit() {
 		return JSError_make_Node_DiagnosticType_StringArr(callNode, ReplaceCssNames_UNEXPECTED_STRING_LITERAL_ERROR, []string{firstArg.getString(), secondArg.getString()})

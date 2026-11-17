@@ -111,7 +111,7 @@ func (this *Export) hashCode() int32 {
 }
 
 func (this *Export) toString() string {
-	return "Export[" + "exportName=" + objstr_(obj_(optErase_(this.exportName_))) + ", moduleRequest=" + objstr_(obj_(optErase_(this.moduleRequest_))) + ", importName=" + objstr_(obj_(optErase_(this.importName_))) + ", localName=" + objstr_(obj_(optErase_(this.localName_))) + ", modulePath=" + objstr_(obj_(this.modulePath_)) + ", exportNode=" + objstr_(this.exportNode_.box_()) + ", nameNode=" + objstr_(this.nameNode_.box_()) + ", moduleMetadata=" + objstr_(obj_(this.moduleMetadata_)) + ", closureNamespace=" + objstr_(obj_(optErase_(this.closureNamespace_))) + ", mutated=" + objstr_(any(bool(this.mutated_))) + "]"
+	return "Export[" + "exportName=" + tostr_(optErase_(this.exportName_)) + ", moduleRequest=" + tostr_(optErase_(this.moduleRequest_)) + ", importName=" + tostr_(optErase_(this.importName_)) + ", localName=" + tostr_(optErase_(this.localName_)) + ", modulePath=" + tostr_(this.modulePath_) + ", exportNode=" + tostr_(this.exportNode_) + ", nameNode=" + tostr_(this.nameNode_) + ", moduleMetadata=" + tostr_(this.moduleMetadata_) + ", closureNamespace=" + tostr_(optErase_(this.closureNamespace_)) + ", mutated=" + boolstr_(bool(this.mutated_)) + "]"
 }
 
 const Export_DEFAULT_EXPORT_NAME string = "*default*"

@@ -147,7 +147,7 @@ func (this *AstAnalyzer) checkForStateChangeHelper(n Node, checkForNewObjects bo
 				case tokOrd1_OBJECTLIT:
 					return this.checkForChangeStateInChildren(n, checkForNewObjects)
 				default:
-					panic(new_IllegalStateException_String(("Illegal COMPUTED_PROP parent " + objstr_(parent.box_()))).self())
+					panic(new_IllegalStateException_String(("Illegal COMPUTED_PROP parent " + tostr_(parent))).self())
 				}
 				panic("unreachable")
 			}()
@@ -359,7 +359,7 @@ func (this *AstAnalyzer_Options) hashCode() int32 {
 }
 
 func (this *AstAnalyzer_Options) toString() string {
-	return "Options[" + "useTypesForLocalOptimization=" + objstr_(any(bool(this.useTypesForLocalOptimization_))) + ", assumeGettersArePure=" + objstr_(any(bool(this.assumeGettersArePure_))) + ", hasRegexpGlobalReferences=" + objstr_(any(bool(this.hasRegexpGlobalReferences_))) + ", assumeKnownBuiltinsArePure=" + objstr_(any(bool(this.assumeKnownBuiltinsArePure_))) + "]"
+	return "Options[" + "useTypesForLocalOptimization=" + boolstr_(bool(this.useTypesForLocalOptimization_)) + ", assumeGettersArePure=" + boolstr_(bool(this.assumeGettersArePure_)) + ", hasRegexpGlobalReferences=" + boolstr_(bool(this.hasRegexpGlobalReferences_)) + ", assumeKnownBuiltinsArePure=" + boolstr_(bool(this.assumeKnownBuiltinsArePure_)) + "]"
 }
 
 type AstAnalyzer_Options_Builder struct {

@@ -26,7 +26,7 @@ func new_BrowserModuleResolver(modulePaths ImmutableSetOf[string], moduleRootPat
 
 func (this *BrowserModuleResolver) resolveJsModule_impl(scriptAddress string, moduleAddress string, sourcename OptionalOf[string], lineno int32, colno int32) OptionalOf[string] {
 	if ModuleLoader_isAmbiguousIdentifier(moduleAddress) {
-		this.errorHandler.report_2(CheckLevel_WARNING, JSError_make_Optional_int_int_DiagnosticType_StringArr(sourcename, lineno, colno, ModuleLoader_INVALID_MODULE_PATH, []string{moduleAddress, Object_toString(obj_(ModuleLoader_ResolutionMode_BROWSER))}))
+		this.errorHandler.report_2(CheckLevel_WARNING, JSError_make_Optional_int_int_DiagnosticType_StringArr(sourcename, lineno, colno, ModuleLoader_INVALID_MODULE_PATH, []string{moduleAddress, tostrNN_(ModuleLoader_ResolutionMode_BROWSER)}))
 		return Optional_empty[string]()
 	}
 	var loadAddress OptionalOf[string] = this.locate(scriptAddress, moduleAddress)

@@ -121,7 +121,7 @@ func (this *SourceCodeEscapers_JavaScriptEscaper) escape(string_ string) string 
 		this.appendTo(strobj_(string_), icast_Appendable(obj_(sb)))
 		return 0
 	}()
-	return Object_toString(obj_(sb))
+	return tostrNN_(sb)
 }
 
 var SourceCodeEscapers_JavaScriptEscaper_REPLACEMENT_CHARS [][]uint16

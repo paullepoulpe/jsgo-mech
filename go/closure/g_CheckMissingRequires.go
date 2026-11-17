@@ -65,7 +65,7 @@ func (this *CheckMissingRequires) isInGlobalControlFlowScope(n Node) bool {
 			}
 			return CheckMissingRequires_isIIFE(n)
 		default:
-			panic(new_AssertionError_Object(strobj_(("Unexpected control flow root: " + objstr_(n.box_())))).self())
+			panic(new_AssertionError_Object(strobj_(("Unexpected control flow root: " + tostr_(n)))).self())
 		}
 		panic("unreachable")
 	}()

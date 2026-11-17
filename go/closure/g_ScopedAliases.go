@@ -121,7 +121,7 @@ func ScopedAliases_getAliasedNamespace(rhs Node) string {
 			}
 			return rhs.getLastChild().getString()
 		default:
-			panic(new_RuntimeException_String(("Invalid alias RHS:" + objstr_(rhs.box_()))).self())
+			panic(new_RuntimeException_String(("Invalid alias RHS:" + tostr_(rhs))).self())
 		}
 		panic("unreachable")
 	}()
@@ -669,7 +669,7 @@ func (this *ScopedAliases_Traversal) containsInvalidGoogModuleGet(expression Nod
 			var namespace string = expression.getSecondChild().getString()
 			return !Collection_contains_s(this.outer_.closureNamespaces, namespace)
 		default:
-			panic(new_IllegalStateException_String(("Unrecognized alias rhs " + objstr_(expression.box_()))).self())
+			panic(new_IllegalStateException_String(("Unrecognized alias rhs " + tostr_(expression))).self())
 		}
 		panic("unreachable")
 	}()

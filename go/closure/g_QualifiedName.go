@@ -99,7 +99,7 @@ func (this *QualifiedName) join_impl() OptionalOf[string] {
 func (this *QualifiedName) join_1(separator any) string {
 	var sb *StringBuilder = new_StringBuilder()
 	this.appendTo(sb, separator)
-	return Object_toString(obj_(sb))
+	return tostrNN_(sb)
 }
 
 func (this *QualifiedName) getprop(propertyName string) *QualifiedName {
@@ -340,7 +340,7 @@ func (this *QualifiedName_NodeQname) getComponent_impl() string {
 		case Token_rhino_NAME, Token_rhino_GETPROP, Token_rhino_MEMBER_FUNCTION_DEF:
 			return this.node_.getString()
 		default:
-			panic(new_IllegalStateException_String(("Not a qualified name: " + objstr_(this.node_.box_()))).self())
+			panic(new_IllegalStateException_String(("Not a qualified name: " + tostr_(this.node_))).self())
 		}
 		panic("unreachable")
 	}()

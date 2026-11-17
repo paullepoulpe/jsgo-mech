@@ -34,7 +34,7 @@ func (this *Es6RewriteDestructuring) init_Es6RewriteDestructuring(builder *Es6Re
 		this.featuresToTriggerRunningPass = FeatureSet_BARE_MINIMUM.with(FeatureSet_Feature_OBJECT_PATTERN_REST)
 		this.featuresToMarkAsRemoved = this.featuresToTriggerRunningPass
 	default:
-		panic(new_AssertionError_Object(strobj_(("Es6RewriteDestructuring cannot handle ObjectDestructuringRewriteMode " + objstr_(obj_(this.rewriteMode))))).self())
+		panic(new_AssertionError_Object(strobj_(("Es6RewriteDestructuring cannot handle ObjectDestructuringRewriteMode " + tostr_(this.rewriteMode)))).self())
 	}
 }
 

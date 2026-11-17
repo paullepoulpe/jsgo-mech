@@ -177,7 +177,7 @@ func (this *FeatureSet) hashCode() int32 {
 }
 
 func (this *FeatureSet) toString() string {
-	return Object_toString(obj_(this.features_))
+	return tostrNN_(this.features_)
 }
 
 func FeatureSet_valueOf(name string) *FeatureSet {

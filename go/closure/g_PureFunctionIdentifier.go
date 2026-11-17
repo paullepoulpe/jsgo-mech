@@ -397,7 +397,7 @@ func PureFunctionIdentifier_nameForReference(nameRef Node) OptionalOf[string] {
 		case tokOrd1_GETPROP, tokOrd1_OPTCHAIN_GETPROP:
 			return Optional_of[string]((sstr_(PureFunctionIdentifier_PROP_NAME_PREFIX) + sstr_(nameRef.getString())))
 		default:
-			panic(new_IllegalStateException_String(("Unexpected name reference: " + objstr_(nameRef.box_()))).self())
+			panic(new_IllegalStateException_String(("Unexpected name reference: " + tostr_(nameRef))).self())
 		}
 		panic("unreachable")
 	}()
@@ -650,7 +650,7 @@ func (this *PureFunctionIdentifier_FunctionBodyAnalyzer) updateSideEffectsForNod
 			break
 		}
 		if this.outer_.compiler_.getAstAnalyzer().nodeTypeMayHaveSideEffects(node) {
-			panic(new_IllegalArgumentException_String(("Unhandled side effect node type " + objstr_(node.box_()))).self())
+			panic(new_IllegalArgumentException_String(("Unhandled side effect node type " + tostr_(node))).self())
 		}
 	}
 }
@@ -1078,7 +1078,7 @@ func (this *PureFunctionIdentifier_AmbiguatedFunctionSummary) setCollectImpureDe
 }
 
 func (this *PureFunctionIdentifier_AmbiguatedFunctionSummary) toString() string {
-	return Object_toString(obj_(MoreObjects_toStringHelper_Class(Object_getClass(any(this))).add("name", strobj_(this.name_)).add_String_int("graphNode", Object_hashCode(any(this.graphNode))).add("sideEffects", strobj_(this.sideEffectsToString()))))
+	return tostrNN_(MoreObjects_toStringHelper_Class(Object_getClass(any(this))).add("name", strobj_(this.name_)).add_String_int("graphNode", Object_hashCode(any(this.graphNode))).add("sideEffects", strobj_(this.sideEffectsToString())))
 }
 
 func (this *PureFunctionIdentifier_AmbiguatedFunctionSummary) sideEffectsToString() string {

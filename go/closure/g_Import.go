@@ -83,7 +83,7 @@ func (this *Import) hashCode() int32 {
 }
 
 func (this *Import) toString() string {
-	return "Import[" + "moduleRequest=" + objstr_(strobj_(this.moduleRequest_)) + ", importName=" + objstr_(strobj_(this.importName_)) + ", localName=" + objstr_(strobj_(this.localName_)) + ", modulePath=" + objstr_(obj_(this.modulePath_)) + ", importNode=" + objstr_(this.importNode_.box_()) + ", nameNode=" + objstr_(this.nameNode_.box_()) + "]"
+	return "Import[" + "moduleRequest=" + sstr_(this.moduleRequest_) + ", importName=" + sstr_(this.importName_) + ", localName=" + sstr_(this.localName_) + ", modulePath=" + tostr_(this.modulePath_) + ", importNode=" + tostr_(this.importNode_) + ", nameNode=" + tostr_(this.nameNode_) + "]"
 }
 
 type Import_Builder struct {

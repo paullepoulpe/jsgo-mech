@@ -1122,7 +1122,7 @@ func (this *CheckAccessControls_PropertyReference) hashCode() int32 {
 }
 
 func (this *CheckAccessControls_PropertyReference) toString() string {
-	return "PropertyReference[" + "sourceNode=" + objstr_(this.sourceNode_.box_()) + ", name=" + objstr_(strobj_(this.name_)) + ", receiverType=" + objstr_(this.receiverType_.self()) + ", mutation=" + objstr_(any(bool(this.mutation_))) + ", declaration=" + objstr_(any(bool(this.declaration_))) + ", override=" + objstr_(any(bool(this.override_))) + ", readableTypeName=" + objstr_(any(this.readableTypeName_)) + "]"
+	return "PropertyReference[" + "sourceNode=" + tostr_(this.sourceNode_) + ", name=" + sstr_(this.name_) + ", receiverType=" + objstr_(this.receiverType_.self()) + ", mutation=" + boolstr_(bool(this.mutation_)) + ", declaration=" + boolstr_(bool(this.declaration_)) + ", override=" + boolstr_(bool(this.override_)) + ", readableTypeName=" + objstr_(any(this.readableTypeName_)) + "]"
 }
 
 type CheckAccessControls_PropertyReference_Builder struct {

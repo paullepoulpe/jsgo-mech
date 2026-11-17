@@ -320,7 +320,7 @@ func CodeConsumer_formatNumber(x float64) string {
 
 func (this *CodeConsumer) addBigInt(bi *BigInteger) {
 	var hexEncoded string = ("0x" + sstr_(bi.toString_int(16)) + "n")
-	var decimalEncoded string = (objstr_(obj_(bi)) + "n")
+	var decimalEncoded string = (tostr_(bi) + "n")
 	this.addConstant(func() string {
 		if String_length(hexEncoded) < String_length(decimalEncoded) {
 			return hexEncoded

@@ -54,7 +54,7 @@ func (this *InjectClosureUnawareRuntimeLibraries) injectAll(callSite *InjectClos
 	var parameterParent Node = NodeUtil_getFunctionParameters(callSite.closureUnawareFunction())
 	var argumentParent Node = callSite.callNode()
 	if parameterParent.hasChildren() && parameterParent.getLastChild().isRest() {
-		panic(new_IllegalStateException_String(("rest parameters not allowed in closureUnaware function parameters, found " + objstr_(parameterParent.getLastChild().box_()))).self())
+		panic(new_IllegalStateException_String(("rest parameters not allowed in closureUnaware function parameters, found " + tostr_(parameterParent.getLastChild()))).self())
 	}
 	it_1 := toInject.each()
 	for it_1.next() {
@@ -129,5 +129,5 @@ func (this *InjectClosureUnawareRuntimeLibraries_ClosureUnawareCallSite) hashCod
 }
 
 func (this *InjectClosureUnawareRuntimeLibraries_ClosureUnawareCallSite) toString() string {
-	return "ClosureUnawareCallSite[" + "callNode=" + objstr_(this.callNode_.box_()) + ", closureUnawareFunction=" + objstr_(this.closureUnawareFunction_.box_()) + "]"
+	return "ClosureUnawareCallSite[" + "callNode=" + tostr_(this.callNode_) + ", closureUnawareFunction=" + tostr_(this.closureUnawareFunction_) + "]"
 }

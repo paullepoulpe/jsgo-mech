@@ -191,7 +191,7 @@ func (this *BrowserWithTransformedPrefixesModuleResolver_PrefixReplacement) hash
 }
 
 func (this *BrowserWithTransformedPrefixesModuleResolver_PrefixReplacement) toString() string {
-	return "PrefixReplacement[" + "prefix=" + objstr_(strobj_(this.prefix_)) + ", replacement=" + objstr_(strobj_(this.replacement_)) + "]"
+	return "PrefixReplacement[" + "prefix=" + sstr_(this.prefix_) + ", replacement=" + sstr_(this.replacement_) + "]"
 }
 
 // resolveJsModule: an object that is exactly a BrowserWithTransformedPrefixesModuleResolver calls its resolveJsModule_impl directly (post-flip); others dispatch.

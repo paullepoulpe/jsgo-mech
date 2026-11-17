@@ -149,7 +149,7 @@ func (this *RandomNameGenerator) generateSuffix(position int32, nameIdx int32) s
 		nameIdx /= alphabetSize
 		position++
 	}
-	return Object_toString(obj_(name))
+	return tostrNN_(name)
 }
 
 func (this *RandomNameGenerator) generateNextName() string {

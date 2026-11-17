@@ -580,7 +580,7 @@ func IR_objectlit(propdefs []Node) Node {
 		switch propdef.ns_().token {
 		case tokOrd1_STRING_KEY, tokOrd1_MEMBER_FUNCTION_DEF, tokOrd1_GETTER_DEF, tokOrd1_SETTER_DEF, tokOrd1_OBJECT_SPREAD, tokOrd1_COMPUTED_PROP:
 		default:
-			panic(new_IllegalStateException_String(("Unexpected OBJECTLIT child: " + objstr_(propdef.box_()))).self())
+			panic(new_IllegalStateException_String(("Unexpected OBJECTLIT child: " + tostr_(propdef))).self())
 		}
 		objectlit.addChildToBack(propdef)
 	}

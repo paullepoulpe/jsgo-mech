@@ -92,7 +92,7 @@ func (this *TypeStringBuilder) indent(cb func()) *TypeStringBuilder {
 }
 
 func (this *TypeStringBuilder) build() string {
-	return Object_toString(obj_(this.builder))
+	return tostrNN_(this.builder)
 }
 
 func (this *TypeStringBuilder) cloneWithConfig() *TypeStringBuilder {

@@ -1073,7 +1073,7 @@ func (this *Es6NormalizeClasses) rewriteStaticMembers(t *NodeTraversal, record *
 				case tokOrd1_COMPUTED_FIELD_DEF:
 					return this.convCompFieldToGetElem(nameToUse, staticMember, true)
 				default:
-					panic(new_IllegalStateException_String(String_valueOf_Object(staticMember.box_())).self())
+					panic(new_IllegalStateException_String(tostr_(staticMember)).self())
 				}
 				panic("unreachable")
 			}()
@@ -1258,7 +1258,7 @@ func Es6NormalizeClasses_isInStaticInitializationContext(rootNode Node) bool {
 			Preconditions_checkState(rootNode.getParent().isClassMembers())
 			return true
 		default:
-			panic(new_IllegalArgumentException_String(("invalid root " + objstr_(rootNode.box_()))).self())
+			panic(new_IllegalArgumentException_String(("invalid root " + tostr_(rootNode))).self())
 		}
 		panic("unreachable")
 	}()
@@ -1445,7 +1445,7 @@ func (this *Es6NormalizeClasses_ClassRecord) recordPrivateMember(n Node) {
 	} else if n.isGetterDef() || n.isSetterDef() {
 		kind = Es6NormalizeClasses_ClassRecord_PrivateMemberKind_ACCESSOR
 	} else {
-		panic(new_IllegalStateException_String(("Unexpected node for private member: " + objstr_(n.box_()))).self())
+		panic(new_IllegalStateException_String(("Unexpected node for private member: " + tostr_(n))).self())
 	}
 	var pm *Es6NormalizeClasses_ClassRecord_PrivateMember
 	if has_(this.privateMembersByName, name) {
@@ -1752,5 +1752,5 @@ func (this *Es6NormalizeClasses_NormalizedNames) hashCode() int32 {
 }
 
 func (this *Es6NormalizeClasses_NormalizedNames) toString() string {
-	return "NormalizedNames[" + "classNameNode=" + objstr_(this.classNameNode_.box_()) + ", superClassNode=" + objstr_(obj_(optErase_(this.superClassNode_))) + ", shouldExtractClass=" + objstr_(any(bool(this.shouldExtractClass_))) + ", shouldExtractExtends=" + objstr_(any(bool(this.shouldExtractExtends_))) + "]"
+	return "NormalizedNames[" + "classNameNode=" + tostr_(this.classNameNode_) + ", superClassNode=" + tostr_(optErase_(this.superClassNode_)) + ", shouldExtractClass=" + boolstr_(bool(this.shouldExtractClass_)) + ", shouldExtractExtends=" + boolstr_(bool(this.shouldExtractExtends_)) + "]"
 }

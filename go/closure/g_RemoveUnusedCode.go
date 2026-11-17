@@ -770,7 +770,7 @@ func (this *RemoveUnusedCode) traverseObjectPattern(pattern Node, scope *Scope) 
 			case tokOrd1_ITER_REST, tokOrd1_OBJECT_REST:
 				this.traverseIndirectAssignment(elem, elem.getOnlyChild(), scope)
 			default:
-				panic(new_IllegalStateException_String(("Unexpected child of " + objstr_(obj_(pattern.getToken())) + ": " + sstr_(elem.toStringTree()))).self())
+				panic(new_IllegalStateException_String(("Unexpected child of " + tostr_(pattern.getToken()) + ": " + sstr_(elem.toStringTree()))).self())
 			}
 		}
 	}
@@ -790,7 +790,7 @@ func (this *RemoveUnusedCode) traverseIndirectAssignmentList(list Node, scope *S
 			case tokOrd1_ITER_REST, tokOrd1_OBJECT_REST:
 				this.traverseIndirectAssignment(elem, elem.getOnlyChild(), scope)
 			default:
-				panic(new_IllegalStateException_String(("Unexpected child of " + objstr_(obj_(list.getToken())) + ": " + sstr_(elem.toStringTree()))).self())
+				panic(new_IllegalStateException_String(("Unexpected child of " + tostr_(list.getToken()) + ": " + sstr_(elem.toStringTree()))).self())
 			}
 		}
 	}
@@ -1916,7 +1916,7 @@ func (this *RemoveUnusedCode_UnusedReadReference) removeInternal_impl(compiler *
 }
 
 func (this *RemoveUnusedCode_UnusedReadReference) toString() string {
-	return ("UnusedReadReference:" + objstr_(this.referenceNode.box_()))
+	return ("UnusedReadReference:" + tostr_(this.referenceNode))
 }
 
 type RemoveUnusedCode_InstanceofName struct {
@@ -1966,7 +1966,7 @@ func (this *RemoveUnusedCode_InstanceofName) preventsRemovalOfVariableWithNonLoc
 }
 
 func (this *RemoveUnusedCode_InstanceofName) toString() string {
-	return ("InstanceofName:" + objstr_(this.instanceofNode.box_()))
+	return ("InstanceofName:" + tostr_(this.instanceofNode))
 }
 
 type RemoveUnusedCode_WeakUsageCall struct {
@@ -2007,7 +2007,7 @@ func (this *RemoveUnusedCode_WeakUsageCall) removeInternal_impl(compiler *Abstra
 }
 
 func (this *RemoveUnusedCode_WeakUsageCall) toString() string {
-	return ("weakUsageCall:" + objstr_(this.weakCallNode.box_()))
+	return ("weakUsageCall:" + tostr_(this.weakCallNode))
 }
 
 type RemoveUnusedCode_IncOrDecOp struct {
@@ -2062,7 +2062,7 @@ func (this *RemoveUnusedCode_IncOrDecOp) removeInternal_impl(compiler *AbstractC
 }
 
 func (this *RemoveUnusedCode_IncOrDecOp) toString() string {
-	return ("IncOrDecOp:" + objstr_(this.incOrDecNode.box_()))
+	return ("IncOrDecOp:" + tostr_(this.incOrDecNode))
 }
 
 type RemoveUnusedCode_IndirectAssign struct {
@@ -2209,7 +2209,7 @@ func (this *RemoveUnusedCode_Polyfill) toString() string {
 			return "Patch:"
 		}
 		return "Polyfill:"
-	}()) + objstr_(this.polyfillNode.box_()))
+	}()) + tostr_(this.polyfillNode))
 }
 
 type RemoveUnusedCode_ClassDeclaration struct {
@@ -2256,7 +2256,7 @@ func (this *RemoveUnusedCode_ClassDeclaration) getLocalAssignedValue_impl() Node
 }
 
 func (this *RemoveUnusedCode_ClassDeclaration) toString() string {
-	return ("ClassDeclaration:" + objstr_(this.classDeclarationNode.box_()))
+	return ("ClassDeclaration:" + tostr_(this.classDeclarationNode))
 }
 
 type RemoveUnusedCode_NamedClassExpression struct {
@@ -2297,7 +2297,7 @@ func (this *RemoveUnusedCode_NamedClassExpression) removeInternal_impl(compiler 
 }
 
 func (this *RemoveUnusedCode_NamedClassExpression) toString() string {
-	return ("NamedClassExpression:" + objstr_(this.classNode.box_()))
+	return ("NamedClassExpression:" + tostr_(this.classNode))
 }
 
 type RemoveUnusedCode_ClassOrPrototypeNamedProperty struct {
@@ -2340,7 +2340,7 @@ func (this *RemoveUnusedCode_ClassOrPrototypeNamedProperty) removeInternal_impl(
 }
 
 func (this *RemoveUnusedCode_ClassOrPrototypeNamedProperty) toString() string {
-	return ("ClassOrPrototypeNamedProperty:" + objstr_(this.propertyNode.box_()))
+	return ("ClassOrPrototypeNamedProperty:" + tostr_(this.propertyNode))
 }
 
 type RemoveUnusedCode_ObjectDefinePropertiesDefinition struct {
@@ -2422,7 +2422,7 @@ func (this *RemoveUnusedCode_FunctionDeclaration) getLocalAssignedValue_impl() N
 }
 
 func (this *RemoveUnusedCode_FunctionDeclaration) toString() string {
-	return ("FunctionDeclaration:" + objstr_(this.functionDeclarationNode.box_()))
+	return ("FunctionDeclaration:" + tostr_(this.functionDeclarationNode))
 }
 
 type RemoveUnusedCode_NameDeclarationStatement struct {
@@ -2497,7 +2497,7 @@ func (this *RemoveUnusedCode_NameDeclarationStatement) getLocalAssignedValue_imp
 }
 
 func (this *RemoveUnusedCode_NameDeclarationStatement) toString() string {
-	return ("NameDeclStmt:" + objstr_(this.declarationStatement.box_()))
+	return ("NameDeclStmt:" + tostr_(this.declarationStatement))
 }
 
 type RemoveUnusedCode_Kind uint8
@@ -2684,7 +2684,7 @@ func (this *RemoveUnusedCode_Assign) removeInternal_impl(compiler *AbstractCompi
 }
 
 func (this *RemoveUnusedCode_Assign) toString() string {
-	return ("Assign:" + objstr_(this.assignNode.box_()))
+	return ("Assign:" + tostr_(this.assignNode))
 }
 
 type RemoveUnusedCode_AnonymousPrototypeNamedPropertyAssign struct {
@@ -2756,7 +2756,7 @@ func (this *RemoveUnusedCode_AnonymousPrototypeNamedPropertyAssign) isPrototypeP
 }
 
 func (this *RemoveUnusedCode_AnonymousPrototypeNamedPropertyAssign) toString() string {
-	return ("AnonymousPrototypeNamedPropertyAssign:" + objstr_(this.assignNode.box_()))
+	return ("AnonymousPrototypeNamedPropertyAssign:" + tostr_(this.assignNode))
 }
 
 type RemoveUnusedCode_ClassSetupCall struct {
@@ -2834,7 +2834,7 @@ func (this *RemoveUnusedCode_ClassSetupCall) preventsRemovalOfVariableWithNonLoc
 }
 
 func (this *RemoveUnusedCode_ClassSetupCall) toString() string {
-	return ("ClassSetupCall:" + objstr_(this.callNode_.box_()))
+	return ("ClassSetupCall:" + tostr_(this.callNode_))
 }
 
 type RemoveUnusedCode_VarInfo interface {

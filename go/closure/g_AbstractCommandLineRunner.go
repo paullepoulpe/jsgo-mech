@@ -307,7 +307,7 @@ func AbstractCommandLineRunner_getBuiltinExterns(env CompilerOptions_Environment
 	if zip.isEmpty() {
 		return Outcome_base_err(new_IOException_String("Cannot read zip file externs.zip").up_Throwable())
 	}
-	var envPrefix string = (sstr_(Ascii_toLowerCase(Object_toString(obj_(env)))) + "/")
+	var envPrefix string = (sstr_(Ascii_toLowerCase(tostrNN_(env))) + "/")
 	var mapFromExternsZip *TMap[string, *SourceFile_jscomp] = newTMap_(tc_string, tc_p_SourceFile_jscomp)
 	it_1 := zip.get().names().each()
 	for it_1.next() {
@@ -1429,7 +1429,7 @@ func (this *AbstractCommandLineRunner) createJsonFile(options *CompilerOptions, 
 	if options.shouldGatherSourceMapInfo() {
 		var sourcemap *StringBuilder = new_StringBuilder()
 		this.compiler_.getSourceMap().appendTo(icast_Appendable(obj_(sourcemap)), jsonOutput.getPath())
-		jsonOutput.setSourceMap(Object_toString(obj_(sourcemap)))
+		jsonOutput.setSourceMap(tostrNN_(sourcemap))
 	}
 	return jsonOutput
 }
@@ -1560,14 +1560,14 @@ func (this *AbstractCommandLineRunner) createJsonFileFromChunk(chunk *JSChunk) *
 	if writeChunkOutputOutcome.isErr() {
 		return Outcome_base_err(writeChunkOutputOutcome.error())
 	}
-	var jsonFile *AbstractCommandLineRunner_JsonFileSpec = new_AbstractCommandLineRunner_JsonFileSpec_String_String(Object_toString(obj_(output)), filename)
+	var jsonFile *AbstractCommandLineRunner_JsonFileSpec = new_AbstractCommandLineRunner_JsonFileSpec_String_String(tostrNN_(output), filename)
 	var chunkSourceMap *StringBuilder = new_StringBuilder()
 	var chunkOutputFileName *Outcome_base = this.getChunkOutputFileName(chunk)
 	if chunkOutputFileName.isErr() {
 		return Outcome_base_err(chunkOutputFileName.error())
 	}
 	this.compiler_.getSourceMap().appendTo(icast_Appendable(obj_(chunkSourceMap)), Optional_ofNullable[string](str_(chunkOutputFileName.get())))
-	jsonFile.setSourceMap(Object_toString(obj_(chunkSourceMap)))
+	jsonFile.setSourceMap(tostrNN_(chunkSourceMap))
 	return Outcome_base_ok_Object(obj_(jsonFile))
 }
 

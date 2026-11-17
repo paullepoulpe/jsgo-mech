@@ -230,7 +230,7 @@ func new_CodingConvention_AssertionFunctionSpec(getFunctionName OptionalOf[strin
 }
 
 func (this *CodingConvention_AssertionFunctionSpec) toString() string {
-	return ("AssertionFunctionSpec{functionName=" + sstr_(this.getFunctionName_.orElse("null")) + ", closurePrimitive=" + objstr_(obj_(this.getClosurePrimitive_)) + ", assertionKind=" + objstr_(obj_(this.getAssertionKind_)) + ", paramIndex=" + istr_(int64(this.getParamIndex_)) + "}")
+	return ("AssertionFunctionSpec{functionName=" + sstr_(this.getFunctionName_.orElse("null")) + ", closurePrimitive=" + tostr_(this.getClosurePrimitive_) + ", assertionKind=" + tostr_(this.getAssertionKind_) + ", paramIndex=" + istr_(int64(this.getParamIndex_)) + "}")
 }
 
 func CodingConvention_AssertionFunctionSpec_builder() *CodingConvention_AssertionFunctionSpec_Builder {

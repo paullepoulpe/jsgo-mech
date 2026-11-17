@@ -96,7 +96,7 @@ func (this *ReplaceMessages) lookupMessage(callNode Node, bundle MessageBundle, 
 			if jsCodePlaceholderNames.isEmpty() && ReplaceMessages_isStartOfIcuMessage(message.asIcuMessageString()) {
 				return alternateMessage
 			} else {
-				this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(callNode, ReplaceMessages_INVALID_ALTERNATE_MESSAGE_PLACEHOLDERS, []string{alternateId.get(), String_valueOf_Object(obj_(alternateMsgPlaceholderNames)), message.getKey(), String_valueOf_Object(obj_(jsCodePlaceholderNames))}))
+				this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(callNode, ReplaceMessages_INVALID_ALTERNATE_MESSAGE_PLACEHOLDERS, []string{alternateId.get(), tostr_(alternateMsgPlaceholderNames), message.getKey(), tostr_(jsCodePlaceholderNames)}))
 				return nil
 			}
 		}
@@ -161,7 +161,7 @@ func (this *ReplaceMessages) createConditionForGrammaticalGender(type_ AstFactor
 	} else {
 		var googNode Node = this.astFactory_.createName("goog", type_)
 		googNode.putBooleanProp(Node_IS_CONSTANT_NAME, true)
-		return this.astFactory_.createGetProp(this.astFactory_.createGetProp(googNode, "msgKind", AstFactory_type_Node(nodeToReplace)), Object_toString(obj_(grammaticalGender)), AstFactory_type_Node(nodeToReplace))
+		return this.astFactory_.createGetProp(this.astFactory_.createGetProp(googNode, "msgKind", AstFactory_type_Node(nodeToReplace)), tostrNN_(grammaticalGender), AstFactory_type_Node(nodeToReplace))
 	}
 	panic("unreachable")
 }
@@ -393,7 +393,7 @@ func (this *ReplaceMessages_MsgProtectionData) hashCode() int32 {
 }
 
 func (this *ReplaceMessages_MsgProtectionData) toString() string {
-	return "MsgProtectionData[" + "message=" + objstr_(obj_(this.message_)) + ", messageNode=" + objstr_(this.messageNode_.box_()) + ", templateTextNode=" + objstr_(this.templateTextNode_.box_()) + ", placeholderValuesNode=" + objstr_(this.placeholderValuesNode_.box_()) + ", messageOptions=" + objstr_(obj_(this.messageOptions_)) + "]"
+	return "MsgProtectionData[" + "message=" + tostr_(this.message_) + ", messageNode=" + tostr_(this.messageNode_) + ", templateTextNode=" + tostr_(this.templateTextNode_) + ", placeholderValuesNode=" + tostr_(this.placeholderValuesNode_) + ", messageOptions=" + tostr_(this.messageOptions_) + "]"
 }
 
 type ReplaceMessages_MsgProtectionPass struct {
@@ -704,7 +704,7 @@ func (this *ReplaceMessages_FullReplacementMsgData) hashCode() int32 {
 }
 
 func (this *ReplaceMessages_FullReplacementMsgData) toString() string {
-	return "FullReplacementMsgData[" + "message=" + objstr_(obj_(this.message_)) + ", messageNode=" + objstr_(this.messageNode_.box_()) + ", messageOptions=" + objstr_(obj_(this.messageOptions_)) + ", placeholderValueMap=" + objstr_(obj_(this.placeholderValueMap_)) + "]"
+	return "FullReplacementMsgData[" + "message=" + tostr_(this.message_) + ", messageNode=" + tostr_(this.messageNode_) + ", messageOptions=" + tostr_(this.messageOptions_) + ", placeholderValueMap=" + tostr_(this.placeholderValueMap_) + "]"
 }
 
 type ReplaceMessages_FullReplacementPass struct {
@@ -851,7 +851,7 @@ func (this *ReplaceMessages_MsgOptions) hashCode() int32 {
 }
 
 func (this *ReplaceMessages_MsgOptions) toString() string {
-	return "MsgOptions[" + "isIcuTemplate=" + objstr_(any(bool(this.isIcuTemplate_))) + ", escapeLessThan=" + objstr_(any(bool(this.escapeLessThan_))) + ", unescapeHtmlEntities=" + objstr_(any(bool(this.unescapeHtmlEntities_))) + "]"
+	return "MsgOptions[" + "isIcuTemplate=" + boolstr_(bool(this.isIcuTemplate_)) + ", escapeLessThan=" + boolstr_(bool(this.escapeLessThan_)) + ", unescapeHtmlEntities=" + boolstr_(bool(this.unescapeHtmlEntities_)) + "]"
 }
 
 type ReplaceMessages_ProtectedJsMessage struct {
@@ -940,7 +940,7 @@ func ReplaceMessages_ProtectedJsMessage_fromAstNode(node Node, idGenerator JsMes
 			case "unescapeHtmlEntities":
 				unescapeHtmlEntitiesOption = true
 			default:
-				panic(new_IllegalStateException_String(("unknown protected message key: " + objstr_(strKey.box_()))).self())
+				panic(new_IllegalStateException_String(("unknown protected message key: " + tostr_(strKey))).self())
 			}
 		}
 	}

@@ -406,10 +406,10 @@ func (this *TypeInference) traverse(n Node, scope FlowScope) FlowScope {
 		this.traverseDynamicImport(n, scope)
 	case tokOrd1_TRUE, tokOrd1_FALSE, tokOrd1_STRINGLIT, tokOrd1_NUMBER, tokOrd1_BIGINT, tokOrd1_NULL, tokOrd1_REGEXP, tokOrd1_TEMPLATELIT_STRING:
 	default:
-		panic(new_IllegalStateException_String(("Type inference doesn't know to handle token " + objstr_(obj_(n.getToken())))).self())
+		panic(new_IllegalStateException_String(("Type inference doesn't know to handle token " + tostr_(n.getToken()))).self())
 	}
 	if (isTypeable && (n.getJSType() == nil)) && !TypeInference_TOKENS_ALLOWING_NULL_TYPES.contains(obj_(n.getToken())) {
-		panic(new_IllegalStateException_String(("Failed to infer JSType for " + objstr_(n.box_()))).self())
+		panic(new_IllegalStateException_String(("Failed to infer JSType for " + tostr_(n))).self())
 	}
 	return scope
 }
@@ -447,7 +447,7 @@ func (this *TypeInference) initializeEnhancedForScope(source Node, output FlowSc
 		var iterableType *JSType = JsIterables_maybeBoxIterableOrAsyncIterable(this.getJSType(obj), this.registry).orElse(this.unknownType.up_JSType())
 		newType = Promises_getResolvedType(this.registry, iterableType)
 	default:
-		panic(new_IllegalArgumentException_String(("Unexpected source node " + objstr_(source.box_()))).self())
+		panic(new_IllegalArgumentException_String(("Unexpected source node " + tostr_(source))).self())
 	}
 	if item.isDestructuringPattern() {
 		informed = this.traverseDestructuringPattern(item, informed, newType, assignmentType)

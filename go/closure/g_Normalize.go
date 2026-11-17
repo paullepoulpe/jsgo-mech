@@ -226,7 +226,7 @@ func (this *Normalize_NormalizeStatements) annotateConstantsByConvention(n Node)
 }
 
 func (this *Normalize_NormalizeStatements) annotateFunctionExpressionNameAsConstant(n Node) {
-	if ok_, a1_ := n.isName(), Object_toString(obj_(n.getToken())); !ok_ {
+	if ok_, a1_ := n.isName(), tostrNN_(n.getToken()); !ok_ {
 		Preconditions_checkState_boolean_String_Object(false, "Expected NAME node but got %s", strobj_(a1_))
 	}
 	if Normalize_isFunctionExpressionNameNode(n) {

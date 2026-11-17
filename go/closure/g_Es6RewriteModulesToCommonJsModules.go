@@ -119,7 +119,7 @@ func (this *Es6RewriteModulesToCommonJsModules_ModuleRequest) hashCode() int32 {
 }
 
 func (this *Es6RewriteModulesToCommonJsModules_ModuleRequest) toString() string {
-	return "ModuleRequest[" + "specifier=" + objstr_(strobj_(this.specifier_)) + ", varName=" + objstr_(strobj_(this.varName_)) + "]"
+	return "ModuleRequest[" + "specifier=" + sstr_(this.specifier_) + ", varName=" + sstr_(this.varName_) + "]"
 }
 
 type Es6RewriteModulesToCommonJsModules_Rewriter struct {

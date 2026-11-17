@@ -789,7 +789,7 @@ func (this *PeepholeReplaceKnownMethods) tryFoldArrayJoin(n Node) Node {
 			if sb != nil {
 				Preconditions_checkNotNull(prev.box_())
 				foldedSize += (sb.length() + 2)
-				arrayFoldedChildren = append(arrayFoldedChildren, IR_string(Object_toString(obj_(sb))).srcrefIfMissing(prev))
+				arrayFoldedChildren = append(arrayFoldedChildren, IR_string(tostrNN_(sb)).srcrefIfMissing(prev))
 				sb = nil
 			}
 			foldedSize += InlineCostEstimator_getCost_Node(elem)
@@ -801,7 +801,7 @@ func (this *PeepholeReplaceKnownMethods) tryFoldArrayJoin(n Node) Node {
 	if sb != nil {
 		Preconditions_checkNotNull(prev.box_())
 		foldedSize += (sb.length() + 2)
-		arrayFoldedChildren = append(arrayFoldedChildren, IR_string(Object_toString(obj_(sb))).srcrefIfMissing(prev))
+		arrayFoldedChildren = append(arrayFoldedChildren, IR_string(tostrNN_(sb)).srcrefIfMissing(prev))
 	}
 	foldedSize += (int32(len(arrayFoldedChildren)) - 1)
 	var originalSize int32 = InlineCostEstimator_getCost_Node(n)

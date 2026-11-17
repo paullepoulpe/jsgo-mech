@@ -91,7 +91,7 @@ func (this *JsMessage) asJsMessageString() string {
 
 func (this *JsMessage) asJsMessageString_1(genderCase JsMessage_GrammaticalGenderCase) string {
 	if !this.getGenderedMessagesMap().containsKey(obj_(genderCase)) {
-		panic(new_IllegalArgumentException_String(("No message for grammtical gender case: " + objstr_(obj_(genderCase)))).self())
+		panic(new_IllegalArgumentException_String(("No message for grammtical gender case: " + tostr_(genderCase))).self())
 	}
 	var sb strBuilder_
 	it_1 := foreach_(obj_(cast_[*ImmutableList](this.getGenderedMessagesMap().get(obj_(genderCase)))))
@@ -120,12 +120,12 @@ func (this *JsMessage) asIcuMessageString() string {
 			sb.append(p.getString())
 		}
 	}
-	return Object_toString(obj_(sb))
+	return tostrNN_(sb)
 }
 
 func (this *JsMessage) asIcuMessageString_1(genderCase JsMessage_GrammaticalGenderCase) string {
 	if !this.getGenderedMessagesMap().containsKey(obj_(genderCase)) {
-		panic(new_IllegalArgumentException_String(("No message for grammtical gender case: " + objstr_(obj_(genderCase)))).self())
+		panic(new_IllegalArgumentException_String(("No message for grammtical gender case: " + tostr_(genderCase))).self())
 	}
 	var sb *StringBuilder = new_StringBuilder()
 	it_1 := foreach_(obj_(cast_[*ImmutableList](this.getGenderedMessagesMap().get(obj_(genderCase)))))
@@ -137,7 +137,7 @@ func (this *JsMessage) asIcuMessageString_1(genderCase JsMessage_GrammaticalGend
 			sb.append(p.getString())
 		}
 	}
-	return Object_toString(obj_(sb))
+	return tostrNN_(sb)
 }
 
 func (this *JsMessage) isEmpty() bool {
@@ -284,7 +284,7 @@ func (this *JsMessage) hashCode() int32 {
 }
 
 func (this *JsMessage) toString() string {
-	return "JsMessage[" + "getSourceName=" + objstr_(obj_(optErase_(this.getSourceName_))) + ", getKey=" + objstr_(strobj_(this.getKey_)) + ", isAnonymous=" + objstr_(any(bool(this.isAnonymous_))) + ", isExternal=" + objstr_(any(bool(this.isExternal_))) + ", getId=" + objstr_(strobj_(this.getId_)) + ", getParts=" + objstr_(obj_(this.getParts_)) + ", getGenderedMessagesMap=" + objstr_(obj_(this.getGenderedMessagesMap_)) + ", getAlternateId=" + objstr_(obj_(optErase_(this.getAlternateId_))) + ", getDesc=" + objstr_(obj_(optErase_(this.getDesc_))) + ", getMeaning=" + objstr_(obj_(optErase_(this.getMeaning_))) + ", getPlaceholderNameToExampleMap=" + objstr_(obj_(this.getPlaceholderNameToExampleMap_)) + ", getPlaceholderNameToOriginalCodeMap=" + objstr_(obj_(this.getPlaceholderNameToOriginalCodeMap_)) + ", jsPlaceholderNames=" + objstr_(obj_(this.jsPlaceholderNames_)) + ", canonicalPlaceholderNames=" + objstr_(obj_(this.canonicalPlaceholderNames_)) + "]"
+	return "JsMessage[" + "getSourceName=" + tostr_(optErase_(this.getSourceName_)) + ", getKey=" + sstr_(this.getKey_) + ", isAnonymous=" + boolstr_(bool(this.isAnonymous_)) + ", isExternal=" + boolstr_(bool(this.isExternal_)) + ", getId=" + sstr_(this.getId_) + ", getParts=" + tostr_(this.getParts_) + ", getGenderedMessagesMap=" + tostr_(this.getGenderedMessagesMap_) + ", getAlternateId=" + tostr_(optErase_(this.getAlternateId_)) + ", getDesc=" + tostr_(optErase_(this.getDesc_)) + ", getMeaning=" + tostr_(optErase_(this.getMeaning_)) + ", getPlaceholderNameToExampleMap=" + tostr_(this.getPlaceholderNameToExampleMap_) + ", getPlaceholderNameToOriginalCodeMap=" + tostr_(this.getPlaceholderNameToOriginalCodeMap_) + ", jsPlaceholderNames=" + tostr_(this.jsPlaceholderNames_) + ", canonicalPlaceholderNames=" + tostr_(this.canonicalPlaceholderNames_) + "]"
 }
 
 const JsMessage_PH_JS_PREFIX string = "{$"
@@ -467,7 +467,7 @@ func (this *JsMessage_StringPart) hashCode() int32 {
 }
 
 func (this *JsMessage_StringPart) toString() string {
-	return "StringPart[" + "string=" + objstr_(strobj_(this.string_)) + "]"
+	return "StringPart[" + "string=" + sstr_(this.string_) + "]"
 }
 
 type JsMessage_PlaceholderReference struct {
@@ -565,7 +565,7 @@ func (this *JsMessage_PlaceholderReference) hashCode() int32 {
 }
 
 func (this *JsMessage_PlaceholderReference) toString() string {
-	return "PlaceholderReference[" + "storedPlaceholderName=" + objstr_(strobj_(this.storedPlaceholderName_)) + ", canonicalFormat=" + objstr_(any(bool(this.canonicalFormat_))) + "]"
+	return "PlaceholderReference[" + "storedPlaceholderName=" + sstr_(this.storedPlaceholderName_) + ", canonicalFormat=" + boolstr_(bool(this.canonicalFormat_)) + "]"
 }
 
 type JsMessage_Builder struct {

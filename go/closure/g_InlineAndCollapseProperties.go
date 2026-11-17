@@ -756,7 +756,7 @@ func (this *InlineAndCollapseProperties_AggressiveInlineAliases) rewriteNestedAl
 					target = gparent
 				}
 			} else {
-				panic(new_IllegalStateException_String(("unexpected node: " + objstr_(target.box_()))).self())
+				panic(new_IllegalStateException_String(("unexpected node: " + tostr_(target))).self())
 			}
 		}
 		Preconditions_checkState((target.isGetProp() || target.isName()))

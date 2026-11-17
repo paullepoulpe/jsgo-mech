@@ -127,7 +127,7 @@ func (this *TypedCodeGenerator) getFunctionAnnotation(fnNode Node) string {
 	}
 	this.appendTemplateAnnotations(sb, icast_Collection(obj_(funType.getTypeParameters())))
 	sb.append(" */\n")
-	return Object_toString(obj_(sb))
+	return tostrNN_(sb)
 }
 
 func (this *TypedCodeGenerator) getMemberFunctionAnnotation(fnNode Node) string {
@@ -154,7 +154,7 @@ func (this *TypedCodeGenerator) getMemberFunctionAnnotation(fnNode Node) string 
 		}
 	}
 	sb.append(" */\n")
-	return Object_toString(obj_(sb))
+	return tostrNN_(sb)
 }
 
 func (this *TypedCodeGenerator) appendFunctionParamAnnotations(sb *StringBuilder, funType *FunctionType, paramNode Node) {
@@ -190,7 +190,7 @@ func (this *TypedCodeGenerator) getClassAnnotation(classType *JSType) string {
 		this.appendClassAnnotations(sb, funType)
 	}
 	this.appendTemplateAnnotations(sb, icast_Collection(obj_(funType.getTypeParameters())))
-	var jsdocContent string = Object_toString(obj_(sb))
+	var jsdocContent string = tostrNN_(sb)
 	if String_isEmpty(jsdocContent) {
 		return jsdocContent
 	} else {

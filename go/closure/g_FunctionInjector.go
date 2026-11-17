@@ -721,7 +721,7 @@ func new_FunctionInjector_Reference(callNode Node, scope *Scope, chunk *JSChunk,
 }
 
 func (this *FunctionInjector_Reference) toString() string {
-	return ("Reference @ " + objstr_(this.callNode_.box_()))
+	return ("Reference @ " + tostr_(this.callNode_))
 }
 
 type FunctionInjector_CallSiteType struct {

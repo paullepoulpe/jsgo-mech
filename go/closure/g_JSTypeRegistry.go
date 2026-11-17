@@ -1408,7 +1408,7 @@ func (this *JSTypeRegistry) createTypeFromCommentNode_3(n Node, sourceName Optio
 				return FunctionType_Kind_ORDINARY
 			}()).build().up_JSType()
 		default:
-			panic(new_IllegalStateException_String(("Unexpected node in type expression: " + objstr_(n.box_()))).self())
+			panic(new_IllegalStateException_String(("Unexpected node in type expression: " + tostr_(n))).self())
 		}
 		panic("unreachable")
 	}()
@@ -1708,7 +1708,7 @@ func new_JSTypeRegistry_ClosureNamespace(isLegacy bool, definitionNode Node, typ
 }
 
 func (this *JSTypeRegistry_ClosureNamespace) toString() string {
-	return ("ClosureNamespace{isLegacy=" + boolstr_(this.isLegacy_) + ", definitionNode=" + objstr_(this.definitionNode_.box_()) + ", type=" + objstr_(this.type__.self()) + "}")
+	return ("ClosureNamespace{isLegacy=" + boolstr_(this.isLegacy_) + ", definitionNode=" + tostr_(this.definitionNode_) + ", type=" + objstr_(this.type__.self()) + "}")
 }
 
 func JSTypeRegistry_ClosureNamespace_create(isLegacy bool, definitionNode Node, type_ *JSType) *JSTypeRegistry_ClosureNamespace {

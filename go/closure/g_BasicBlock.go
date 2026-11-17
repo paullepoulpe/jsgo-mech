@@ -61,5 +61,5 @@ func (this *BasicBlock) getRoot() Node {
 }
 
 func (this *BasicBlock) toString() string {
-	return ("BasicBlock @ " + objstr_(this.root.box_()))
+	return ("BasicBlock @ " + tostr_(this.root))
 }

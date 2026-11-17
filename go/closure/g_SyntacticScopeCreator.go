@@ -147,7 +147,7 @@ func (this *SyntacticScopeCreator_ScopeScanner) populate() {
 	case tokOrd1_COMPUTED_FIELD_DEF, tokOrd1_MEMBER_FIELD_DEF:
 		return
 	default:
-		panic(new_RuntimeException_String(("Illegal scope root: " + objstr_(n.box_()))).self())
+		panic(new_RuntimeException_String(("Illegal scope root: " + tostr_(n))).self())
 	}
 }
 

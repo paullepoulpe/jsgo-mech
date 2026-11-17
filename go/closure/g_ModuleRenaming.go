@@ -120,7 +120,7 @@ func ModuleRenaming_GlobalizedModuleName_create_ModuleMetadata_Optional_TypedSco
 		return new_ModuleRenaming_GlobalizedModuleName(QualifiedName_of(moduleMetadata.path().toModuleName()), ModuleRenaming_getNameRootType(moduleMetadata.path().toModuleName(), globalTypedScope))
 	case ModuleMetadataMap_ModuleType_SCRIPT:
 	}
-	panic(new_IllegalStateException_String(("Unexpected module type: " + objstr_(obj_(moduleMetadata.moduleType())))).self())
+	panic(new_IllegalStateException_String(("Unexpected module type: " + tostr_(moduleMetadata.moduleType()))).self())
 }
 
 func (this *ModuleRenaming_GlobalizedModuleName) aliasName() *QualifiedName {

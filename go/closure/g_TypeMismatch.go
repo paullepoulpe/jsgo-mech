@@ -72,7 +72,7 @@ func (this *TypeMismatch) hashCode() int32 {
 }
 
 func (this *TypeMismatch) toString() string {
-	return "TypeMismatch[" + "found=" + objstr_(this.found_.self()) + ", required=" + objstr_(this.required_.self()) + ", location=" + objstr_(this.location_.box_()) + "]"
+	return "TypeMismatch[" + "found=" + objstr_(this.found_.self()) + ", required=" + objstr_(this.required_.self()) + ", location=" + tostr_(this.location_) + "]"
 }
 
 var TypeMismatch_TEST_LOCATION Node

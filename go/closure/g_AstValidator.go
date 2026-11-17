@@ -111,7 +111,7 @@ func (this *AstValidator) validateScriptFeatureSet(scriptNode Node) {
 	if !allowableFeatures.containsFeatureSet(scriptFeatures) {
 		if !scriptNode.isFromExterns() {
 			var differentFeatures *FeatureSet = scriptFeatures.without(allowableFeatures)
-			this.violation(("SCRIPT node contains these unallowable features:" + objstr_(obj_(differentFeatures.getFeatures()))), this.currentScript)
+			this.violation(("SCRIPT node contains these unallowable features:" + tostr_(differentFeatures.getFeatures())), this.currentScript)
 		}
 	}
 }
@@ -202,14 +202,14 @@ func (this *AstValidator) validateStatement_2(n Node, isAmbient bool) {
 				return
 			}
 		}
-		this.violation(("Expected statement but was " + objstr_(obj_(n.getToken())) + "."), n)
+		this.violation(("Expected statement but was " + tostr_(n.getToken()) + "."), n)
 	default:
 		if n.isModuleBody() && this.compiler_.getOptions().getSkipNonTranspilationPasses() {
 			Preconditions_checkState_boolean_Object(!this.compiler_.getOptions().shouldWrapGoogModulesForWhitespaceOnly(), strobj_("Modules can exist in transpiler only if setWrapGoogModulesForWhitespaceOnly is false"))
 			this.validateModuleContents(n)
 			return
 		}
-		this.violation(("Expected statement but was " + objstr_(obj_(n.getToken())) + "."), n)
+		this.violation(("Expected statement but was " + tostr_(n.getToken()) + "."), n)
 	}
 }
 
@@ -301,7 +301,7 @@ func (this *AstValidator) validateExpression(n Node) {
 		this.validateFeature(FeatureSet_Feature_DYNAMIC_IMPORT, n)
 		this.validateUnaryOp(n)
 	default:
-		this.violation(("Expected expression but was " + objstr_(obj_(n.getToken()))), n)
+		this.violation(("Expected expression but was " + tostr_(n.getToken())), n)
 	}
 }
 
@@ -648,7 +648,7 @@ func (this *AstValidator) validateInterfaceMember(n Node) {
 		this.validateProperties(n)
 		this.validateChildCount(n)
 	default:
-		this.violation(("Interface contained member of invalid type " + objstr_(obj_(n.getToken()))), n)
+		this.violation(("Interface contained member of invalid type " + tostr_(n.getToken())), n)
 	}
 }
 
@@ -760,7 +760,7 @@ func (this *AstValidator) validateClassMember(n Node, isAmbient bool) {
 		this.validateBlock(n)
 	case tokOrd1_EMPTY:
 	default:
-		this.violation(("Class contained member of invalid type " + objstr_(obj_(n.getToken()))), n)
+		this.violation(("Class contained member of invalid type " + tostr_(n.getToken())), n)
 	}
 }
 
@@ -1200,13 +1200,13 @@ func (this *AstValidator) validateNameDeclarationChild(statement Node, declarati
 		case tokOrd1_OBJECT_PATTERN:
 			this.validateObjectPattern(declaration, c)
 		default:
-			this.violation(("Invalid destructuring lhs first child for " + objstr_(obj_(declaration)) + " node"), n)
+			this.violation(("Invalid destructuring lhs first child for " + tostr_(declaration) + " node"), n)
 		}
 		if n.hasTwoChildren() {
 			this.validateExpression(n.getSecondChild())
 		}
 	} else {
-		this.violation(("Invalid child for " + objstr_(obj_(declaration)) + " node"), n)
+		this.violation(("Invalid child for " + tostr_(declaration) + " node"), n)
 	}
 }
 
@@ -1223,13 +1223,13 @@ func (this *AstValidator) validateLHS(contextType Token_rhino, n Node) {
 	case tokOrd1_CAST:
 		this.validateLHS(contextType, n.getOnlyChild())
 	default:
-		this.violation(("Invalid child for " + objstr_(obj_(contextType)) + " node"), n)
+		this.violation(("Invalid child for " + tostr_(contextType) + " node"), n)
 	}
 }
 
 func (this *AstValidator) validateGetPropGetElemInLHS(contextType Token_rhino, n Node) {
 	if (((contextType == Token_rhino_CONST) || (contextType == Token_rhino_LET)) || (contextType == Token_rhino_VAR)) || (contextType == Token_rhino_PARAM_LIST) {
-		this.violation(("Invalid child for " + objstr_(obj_(contextType)) + " node"), n)
+		this.violation(("Invalid child for " + tostr_(contextType) + " node"), n)
 		return
 	}
 	switch n.ns_().token {
@@ -1238,7 +1238,7 @@ func (this *AstValidator) validateGetPropGetElemInLHS(contextType Token_rhino, n
 	case tokOrd1_GETELEM:
 		this.validateGetElem(n)
 	default:
-		panic(new_IllegalStateException_String(("Expected GETPROP or GETELEM but instead got node " + objstr_(obj_(n.getToken())))).self())
+		panic(new_IllegalStateException_String(("Expected GETPROP or GETELEM but instead got node " + tostr_(n.getToken()))).self())
 	}
 }
 
@@ -1277,7 +1277,7 @@ func (this *AstValidator) validateObjectPattern(type_ Token_rhino, n Node) {
 			case tokOrd1_COMPUTED_PROP:
 				this.validateObjectPatternComputedPropKey(type_, c)
 			default:
-				this.violation(("Invalid object pattern child for " + objstr_(obj_(type_)) + " node"), n)
+				this.violation(("Invalid object pattern child for " + tostr_(type_) + " node"), n)
 			}
 		}
 	}
@@ -1451,7 +1451,7 @@ func (this *AstValidator) validateCatch(n Node) {
 	} else if caught.isEmpty() {
 		this.validateNoCatchBinding(caught)
 	} else {
-		this.violation(("Unexpected catch binding: " + objstr_(caught.box_())), n)
+		this.violation(("Unexpected catch binding: " + tostr_(caught)), n)
 	}
 	this.validateBlock(n.getLastChild())
 }
@@ -1491,7 +1491,7 @@ func (this *AstValidator) validateSwitchMember(n Node) {
 	case Token_rhino_DEFAULT_CASE:
 		this.validateDefaultCase(n)
 	default:
-		this.violation(("Expected switch member but was " + objstr_(obj_(n.getToken()))), n)
+		this.violation(("Expected switch member but was " + tostr_(n.getToken())), n)
 	}
 }
 
@@ -1541,7 +1541,7 @@ func (this *AstValidator) validateAssignmentOpTarget(lhs Node, contextType Token
 		this.validateChildCount_2(lhs, 1)
 		this.validateAssignmentOpTarget(lhs.getFirstChild(), contextType)
 	default:
-		this.violation(("Invalid child for " + objstr_(obj_(contextType)) + " node"), lhs)
+		this.violation(("Invalid child for " + tostr_(contextType) + " node"), lhs)
 	}
 }
 
@@ -1666,7 +1666,7 @@ func (this *AstValidator) validateObjectLitKey(n Node) {
 	case tokOrd1_OBJECT_SPREAD:
 		this.validateObjectSpread(n)
 	default:
-		this.violation(("Expected object literal key expression but was " + objstr_(obj_(n.getToken()))), n)
+		this.violation(("Expected object literal key expression but was " + tostr_(n.getToken())), n)
 	}
 }
 
@@ -1921,14 +1921,14 @@ func (this *AstValidator) violation(message string, n Node) {
 func (this *AstValidator) validateFirstNodeOfOptChain(n Node) {
 	if !NodeUtil_isOptChainNode(n.getFirstChild()) {
 		if !n.isOptionalChainStart() {
-			this.violation(("Start of optional chain node " + objstr_(obj_(n.getToken())) + " is not marked as the start."), n)
+			this.violation(("Start of optional chain node " + tostr_(n.getToken()) + " is not marked as the start."), n)
 		}
 	}
 }
 
 func (this *AstValidator) validateNodeType(type_ Token_rhino, n Node) {
 	if n.getToken() != type_ {
-		this.violation(("Expected " + objstr_(obj_(type_)) + " but was " + objstr_(obj_(n.getToken()))), n)
+		this.violation(("Expected " + tostr_(type_) + " but was " + tostr_(n.getToken())), n)
 	}
 }
 
@@ -1988,14 +1988,14 @@ func (this *AstValidator) validateMaximumChildCount(n Node, i int32) {
 func (this *AstValidator) validateFeature(feature FeatureSet_Feature, n Node) {
 	var allowbleFeatures *FeatureSet = this.compiler_.getAllowableFeatures()
 	if !n.isFromExterns() && !allowbleFeatures.has(feature) {
-		this.violation(("AST should not contain " + objstr_(obj_(feature))), n)
+		this.violation(("AST should not contain " + tostr_(feature)), n)
 	}
 	if !this.isScriptFeatureValidationEnabled || (this.currentScript == 0) {
 		return
 	}
 	var scriptFeatures *FeatureSet = NodeUtil_getFeatureSetOfScript(this.currentScript)
 	if (scriptFeatures == nil) || !NodeUtil_getFeatureSetOfScript(this.currentScript).has(feature) {
-		this.violation(("SCRIPT node should be marked as containing feature " + objstr_(obj_(feature))), this.currentScript)
+		this.violation(("SCRIPT node should be marked as containing feature " + tostr_(feature)), this.currentScript)
 	}
 }
 

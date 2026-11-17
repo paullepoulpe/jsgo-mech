@@ -47,7 +47,7 @@ func (this *MapDiagnosticToSuppression) printSuppressions(args []string) {
 	var parsed *Outcome_base = parser.parseArgument(args)
 	if parsed.isErr() {
 		var ex *CmdLineException = cast_[*CmdLineException](parsed.error().self())
-		Output_stderr().println(("Could not parse arguments: " + objstr_(obj_(ex))))
+		Output_stderr().println(("Could not parse arguments: " + tostr_(ex)))
 		MapDiagnosticToSuppression_printHelp()
 		return
 	}

@@ -82,7 +82,7 @@ func (this *Module) hashCode() int32 {
 }
 
 func (this *Module) toString() string {
-	return "Module[" + "metadata=" + objstr_(obj_(this.metadata_)) + ", path=" + objstr_(obj_(this.path_)) + ", namespace=" + objstr_(obj_(this.namespace_)) + ", boundNames=" + objstr_(obj_(this.boundNames_)) + ", localNameToLocalExport=" + objstr_(obj_(this.localNameToLocalExport_)) + ", closureNamespace=" + objstr_(obj_(optErase_(this.closureNamespace_))) + "]"
+	return "Module[" + "metadata=" + tostr_(this.metadata_) + ", path=" + tostr_(this.path_) + ", namespace=" + tostr_(this.namespace_) + ", boundNames=" + tostr_(this.boundNames_) + ", localNameToLocalExport=" + tostr_(this.localNameToLocalExport_) + ", closureNamespace=" + tostr_(optErase_(this.closureNamespace_)) + "]"
 }
 
 type Module_Builder struct {

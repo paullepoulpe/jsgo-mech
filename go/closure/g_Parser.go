@@ -2171,7 +2171,7 @@ func (this *Parser) parseLeftHandSideExpression() *ParseTree {
 			case TokenType_NO_SUBSTITUTION_TEMPLATE, TokenType_TEMPLATE_HEAD:
 				operand = this.parseTemplateLiteral(operand).up_ParseTree()
 			default:
-				panic(new_AssertionError_Object(strobj_(("unexpected case: " + objstr_(obj_(this.peekType()))))).self())
+				panic(new_AssertionError_Object(strobj_(("unexpected case: " + tostr_(this.peekType())))).self())
 			}
 		}
 		operand = this.maybeParseOptionalExpression(operand)
@@ -2232,7 +2232,7 @@ func (this *Parser) parseRemainingOptionalChainSegment(optionalExpression *Parse
 			this.eat(TokenType_CLOSE_SQUARE)
 			optionalExpression = new_OptionalMemberLookupExpressionTree(this.getTreeLocation(start), optionalExpression, member, false).up_ParseTree()
 		default:
-			panic(new_AssertionError_Object(strobj_(("unexpected case: " + objstr_(obj_(this.peekType()))))).self())
+			panic(new_AssertionError_Object(strobj_(("unexpected case: " + tostr_(this.peekType())))).self())
 		}
 	}
 	return optionalExpression

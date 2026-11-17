@@ -366,7 +366,7 @@ func (this *ScriptNodeDeserializer) deserializeSingleNode(n *AstNode, templateNo
 		return this.newNodeFromTemplate(Token_rhino_OBJECT_SPREAD, templateNode)
 	case NodeKind_NODE_KIND_UNSPECIFIED, NodeKind_UNRECOGNIZED:
 	}
-	panic(new_IllegalStateException_String(("Unexpected serialized kind for AstNode: " + objstr_(obj_(n)))).self())
+	panic(new_IllegalStateException_String(("Unexpected serialized kind for AstNode: " + tostr_(n))).self())
 }
 
 func (this *ScriptNodeDeserializer) filterOutCastProp(nodeProperties int64) int64 {

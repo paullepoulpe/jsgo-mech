@@ -74,7 +74,7 @@ func DependencyOptions_fromFlags(dependencyModeFlag DependencyOptions_Dependency
 		return Outcome_base_err(new_FlagUsageException("--dependency_mode=PRUNE requires --entry_point.").up_Throwable())
 	}
 	if hasEntryPoint && ((dependencyModeFlag == DependencyOptions_DependencyMode_NONE) || (dependencyModeFlag == DependencyOptions_DependencyMode_SORT_ONLY)) {
-		return Outcome_base_err(new_FlagUsageException(("--dependency_mode=" + objstr_(obj_(dependencyModeFlag)) + " cannot be used with --entry_point, --closure_entry_point or --common_js_entry_module.")).up_Throwable())
+		return Outcome_base_err(new_FlagUsageException(("--dependency_mode=" + tostr_(dependencyModeFlag) + " cannot be used with --entry_point, --closure_entry_point or --common_js_entry_module.")).up_Throwable())
 	}
 	if !entryPointFlag.isEmpty() && len(closureEntryPointFlag) != 0 {
 		return Outcome_base_err(new_FlagUsageException("--closure_entry_point cannot be used with --entry_point.").up_Throwable())
@@ -157,7 +157,7 @@ func (this *DependencyOptions) hashCode() int32 {
 }
 
 func (this *DependencyOptions) toString() string {
-	return "DependencyOptions[" + "mode=" + objstr_(obj_(this.mode_)) + ", entryPoints=" + objstr_(obj_(this.entryPoints_)) + "]"
+	return "DependencyOptions[" + "mode=" + tostr_(this.mode_) + ", entryPoints=" + tostr_(this.entryPoints_) + "]"
 }
 
 type DependencyOptions_DependencyMode uint8

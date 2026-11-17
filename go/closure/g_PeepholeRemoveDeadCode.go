@@ -835,7 +835,7 @@ func (this *PeepholeRemoveDeadCode) tryOptimizeConditionalAfterAssign(n Node) {
 		}
 		return
 	default:
-		panic(new_AssertionError_Object(strobj_(("Unhandled condition " + objstr_(conditionalRoot.box_())))).self())
+		panic(new_AssertionError_Object(strobj_(("Unhandled condition " + tostr_(conditionalRoot)))).self())
 	}
 }
 

@@ -38,7 +38,7 @@ func new_Config(languageMode Config_LanguageMode, strictMode Config_StrictMode, 
 }
 
 func (this *Config) toString() string {
-	return ("Config{languageMode=" + objstr_(obj_(this.languageMode_)) + ", strictMode=" + objstr_(obj_(this.strictMode_)) + ", jsDocParsingMode=" + objstr_(obj_(this.jsDocParsingMode_)) + ", runMode=" + objstr_(obj_(this.runMode_)) + ", annotations=" + objstr_(obj_(this.annotations_)) + ", suppressionNames=" + objstr_(obj_(this.suppressionNames_)) + ", closurePrimitiveNames=" + objstr_(obj_(this.closurePrimitiveNames_)) + ", parseInlineSourceMaps=" + boolstr_(this.parseInlineSourceMaps_) + "}")
+	return ("Config{languageMode=" + tostr_(this.languageMode_) + ", strictMode=" + tostr_(this.strictMode_) + ", jsDocParsingMode=" + tostr_(this.jsDocParsingMode_) + ", runMode=" + tostr_(this.runMode_) + ", annotations=" + tostr_(this.annotations_) + ", suppressionNames=" + tostr_(this.suppressionNames_) + ", closurePrimitiveNames=" + tostr_(this.closurePrimitiveNames_) + ", parseInlineSourceMaps=" + boolstr_(this.parseInlineSourceMaps_) + "}")
 }
 
 func (this *Config) annotationNames() ImmutableSetOf[string] {
@@ -250,7 +250,7 @@ func Config_LanguageMode_minimumRequiredFor(feature FeatureSet_Feature) Config_L
 			return mode
 		}
 	}
-	panic(new_IllegalStateException_String(("No input language mode supports feature: " + objstr_(obj_(feature)))).self())
+	panic(new_IllegalStateException_String(("No input language mode supports feature: " + tostr_(feature))).self())
 }
 
 func Config_LanguageMode_minimumRequiredForSet(featureSet *FeatureSet) Config_LanguageMode {
@@ -259,7 +259,7 @@ func Config_LanguageMode_minimumRequiredForSet(featureSet *FeatureSet) Config_La
 			return mode
 		}
 	}
-	panic(new_IllegalStateException_String(("No input language mode supports feature set: " + objstr_(obj_(featureSet)))).self())
+	panic(new_IllegalStateException_String(("No input language mode supports feature set: " + tostr_(featureSet))).self())
 }
 
 func Config_LanguageMode_latestEcmaScript() Config_LanguageMode {

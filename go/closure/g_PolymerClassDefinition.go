@@ -293,12 +293,12 @@ func PolymerClassDefinition_removeBehaviorPropsOverlappingWithElementProps(behav
 }
 
 func (this *PolymerClassDefinition) toString() string {
-	return Object_toString(obj_(MoreObjects_toStringHelper(any(this)).add("defType", obj_(this.defType)).add("definition", this.definition.box_()).add("target", this.target.box_()).add("nativeBaseElement", func() any {
+	return tostrNN_(MoreObjects_toStringHelper(any(this)).add("defType", obj_(this.defType)).add("definition", this.definition.box_()).add("target", this.target.box_()).add("nativeBaseElement", func() any {
 		if this.nativeBaseElement.isPresent() {
 			return strobj_(this.nativeBaseElement.get())
 		}
 		return nil
-	}()).omitNullValues()))
+	}()).omitNullValues())
 }
 
 func (this *PolymerClassDefinition) getInterfaceName(uniqueIdSupplier *UniqueIdSupplier) OptionalOf[string] {

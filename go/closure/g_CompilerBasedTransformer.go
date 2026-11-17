@@ -58,7 +58,7 @@ func (this *CompilerBasedTransformer) transform(input *Source) *Source {
 		for _, error_ := range result.errors_ {
 			message.append(formatter.formatError(error_))
 		}
-		panic(new_IllegalStateException_String(Object_toString(obj_(message))).self())
+		panic(new_IllegalStateException_String(tostrNN_(message)).self())
 	}
 	if !result.transformed_ {
 		return input
@@ -169,7 +169,7 @@ func (this *CompilerBasedTransformer_CompilerSupplier) compile(path string, code
 	var transformed bool = this.transformed(result)
 	return new_CompilerBasedTransformer_CompileResult(source, result.errors_, transformed, func() string {
 		if transformed {
-			return Object_toString(obj_(sourceMap))
+			return tostrNN_(sourceMap)
 		}
 		return ""
 	}())

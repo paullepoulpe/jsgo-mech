@@ -545,7 +545,7 @@ func (this *JSDocInfo) toStringVerbose() string {
 		helper = helper.add(JSDocInfo_Property_values[low].name_, this.getPropertyValueByIndex(index))
 		index++
 	}
-	return Object_toString(obj_(helper.omitNullValues()))
+	return tostrNN_(helper.omitNullValues())
 }
 
 func (this *JSDocInfo) hasBaseType() bool {

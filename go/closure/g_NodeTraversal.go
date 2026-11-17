@@ -566,7 +566,7 @@ func (this *NodeTraversal) handleClassMembers(n Node, parent Node) {
 			case tokOrd1_BLOCK, tokOrd1_MEMBER_FUNCTION_DEF, tokOrd1_MEMBER_VARIABLE_DEF, tokOrd1_GETTER_DEF, tokOrd1_SETTER_DEF:
 				this.traverseBranch(child, n)
 			default:
-				panic(new_IllegalStateException_String(("Invalid class member: " + objstr_(obj_(child.getToken())))).self())
+				panic(new_IllegalStateException_String(("Invalid class member: " + tostr_(child.getToken()))).self())
 			}
 			child = next
 		}

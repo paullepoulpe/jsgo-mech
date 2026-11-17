@@ -84,7 +84,7 @@ func (this *ProcessConstJsdocCallback) visit_impl(t *NodeTraversal, n Node, pare
 			this.currentFile.recordNameDeclaration(expr)
 		case tokOrd1_GETELEM:
 		default:
-			panic(new_IllegalArgumentException_String(("Unexpected declaration: " + objstr_(expr.box_()))).self())
+			panic(new_IllegalArgumentException_String(("Unexpected declaration: " + tostr_(expr))).self())
 		}
 	case Token_rhino_VAR, Token_rhino_CONST, Token_rhino_LET:
 		if !n.hasOneChild() {

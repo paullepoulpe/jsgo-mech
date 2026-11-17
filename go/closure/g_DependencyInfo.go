@@ -54,7 +54,7 @@ func new_DependencyInfo_Require(getSymbol string, getRawText string, getType Dep
 }
 
 func (this *DependencyInfo_Require) toString() string {
-	return ("Require{symbol=" + sstr_(this.getSymbol_) + ", rawText=" + sstr_(this.getRawText_) + ", type=" + objstr_(obj_(this.getType_)) + "}")
+	return ("Require{symbol=" + sstr_(this.getSymbol_) + ", rawText=" + sstr_(this.getRawText_) + ", type=" + tostr_(this.getType_) + "}")
 }
 
 func DependencyInfo_Require_asSymbolList(requires IterableOf[*DependencyInfo_Require]) ImmutableListOf[string] {

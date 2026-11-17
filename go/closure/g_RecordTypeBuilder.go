@@ -70,5 +70,5 @@ func (this *RecordTypeBuilder_RecordProperty) getPropertyNode() Node {
 }
 
 func (this *RecordTypeBuilder_RecordProperty) toString() string {
-	return ("RecordProperty{type: " + objstr_(this.type__.self()) + ", node: " + objstr_(this.propertyNode.box_()) + "}")
+	return ("RecordProperty{type: " + objstr_(this.type__.self()) + ", node: " + tostr_(this.propertyNode) + "}")
 }

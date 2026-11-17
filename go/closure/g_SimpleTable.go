@@ -114,5 +114,5 @@ func (this *SimpleTable) isEmpty() bool {
 }
 
 func (this *SimpleTable) toString() string {
-	return Object_toString(obj_(this.rows))
+	return tostrNN_(this.rows)
 }
