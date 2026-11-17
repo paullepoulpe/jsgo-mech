@@ -882,6 +882,8 @@ func handle(e ast.Expr) {
 			if K.base == "list" {
 				immAddAllInto(src, unwrap(e), top)
 			}
+			immIntoTyped(src, unwrap(e), top)
+			immEqHash(src, unwrap(e), top)
 			// The twin, with every conversion around the value kept: it has the value's type.
 			inner := unwrap(e)
 			edit(src, func(c *class) rw.Edit {
@@ -1842,6 +1844,11 @@ func (c *class) convName(i int) string {
 	n := prefix + nonIdent.ReplaceAllString(strings.ReplaceAll(text, "*", "p_"), "_")
 	if rw.Pkg.Scope().Lookup(n) != nil {
 		return n // declared by an earlier step
+	}
+	if K.imm != "" {
+		if old := existingConv(t, prefix); old != "" {
+			return old // the same element type under an earlier name: one conversion object
+		}
 	}
 	if _, ok := convs[n]; !ok {
 		cv := convFor(t)
