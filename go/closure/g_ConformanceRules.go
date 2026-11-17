@@ -3195,7 +3195,7 @@ func (this *ConformanceRules_BanCreateElement) initBanCreateElement(compiler *Ab
 	for value := range elemsBy_(ProtocolStringList(requirement.getValueList()), str_) {
 		this.bannedTags[Ascii_toLowerCase(value)] = struct{}{}
 	}
-	if len(this.bannedTags) == 0 {
+	if len(mapNN_(this.bannedTags)) == 0 {
 		return Outcome_base_err[any](new_CheckConformance_InvalidRequirementSpec_String("Specify one or more values.").up_Throwable())
 	}
 	this.domHelperType = compiler.getTypeRegistry().getGlobalType("goog.dom.DomHelper")

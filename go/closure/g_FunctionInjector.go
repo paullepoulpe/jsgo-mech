@@ -512,7 +512,7 @@ func FunctionInjector_inlineCostDelta(fnNode Node, namesToAlias map[string]struc
 	if mode == FunctionInjector_InliningMode_DIRECT {
 		return (-(costDeltaFunctionOverhead + 7))
 	} else {
-		var aliasCount int32 = int32(len(namesToAlias))
+		var aliasCount int32 = int32(len(mapNN_(namesToAlias)))
 		var inlineBlockOverhead int32 = 4
 		var perReturnOverhead int32 = 2
 		var perReturnResultOverhead int32 = 3

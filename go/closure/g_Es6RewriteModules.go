@@ -325,7 +325,7 @@ func (this *Es6RewriteModules) rewriteRequires(script Node) {
 		if n.isName() && has_(this.namesToInlineByAlias, n.getString()) {
 			var v *Var = cast_[*Var](t.getScope().getVar(n.getString()).self())
 			if (v == nil) || (v.getNameNode() != n) {
-				var replacementName *ModuleRenaming_GlobalizedModuleName = this.namesToInlineByAlias[n.getString()]
+				var replacementName *ModuleRenaming_GlobalizedModuleName = mapAt_(this.namesToInlineByAlias, n.getString())
 				var replacement Node = replacementName.toQname(this.astFactory_).srcrefTree(n)
 				n.replaceWith(replacement)
 			}
@@ -338,7 +338,7 @@ func (this *Es6RewriteModules) inlineAliasedTypes(t *NodeTraversal, typeNode Nod
 		var name string = typeNode.getString()
 		var split []string = sliceImm_(tc_string, Es6RewriteModules_DOT_SPLITTER.limit(2).splitToList_s(name))
 		if cast_[*Var](t.getScope().getVar(sliceAt_(split, 0)).self()) == nil {
-			var replacement *ModuleRenaming_GlobalizedModuleName = this.namesToInlineByAlias[sliceAt_(split, 0)]
+			var replacement *ModuleRenaming_GlobalizedModuleName = mapAt_(this.namesToInlineByAlias, sliceAt_(split, 0))
 			if replacement != nil {
 				var rest string = ""
 				if int32(len(split)) == 2 {

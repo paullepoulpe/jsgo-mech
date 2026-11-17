@@ -175,7 +175,7 @@ func (this *SourceMapConsumerV3) getReverseMapping(originalFile string, line int
 	if this.reverseSourceMapping == nil {
 		this.createReverseMapping()
 	}
-	var sourceLineToCollectionMap MapOf[BoxedOf[int32], CollectionOf[*Mapping_OriginalMapping]] = this.reverseSourceMapping[originalFile]
+	var sourceLineToCollectionMap MapOf[BoxedOf[int32], CollectionOf[*Mapping_OriginalMapping]] = mapNN_(this.reverseSourceMapping)[originalFile]
 	if sourceLineToCollectionMap == nil {
 		return Collection(Collections_emptyList())
 	} else {

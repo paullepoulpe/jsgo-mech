@@ -106,7 +106,7 @@ func ZipArchive_int32(bytes []int8, position int32) int32 {
 
 func ZipArchive_open(path string) *Outcome_base[*ZipArchive] {
 	var modified int64 = Io_lastModified(path)
-	var known *ZipArchive_Opened = ZipArchive_opened[path]
+	var known *ZipArchive_Opened = mapNN_(ZipArchive_opened)[path]
 	if (known != nil) && (known.modified == modified) {
 		return Outcome_base_ok_Object[*ZipArchive](known.archive)
 	}
