@@ -126,7 +126,7 @@ func (this *ProductionInstrumentationReporter) createFile(fileName string, fileC
 
 func (this *ProductionInstrumentationReporter) doMain(args []string) *Outcome_base[any] {
 	this.parseCmdLineArguments(args)
-	var mapping *Outcome_base[Map] = ReportDecoder_parseMappingFromFile(this.instrumentationMappingLocation)
+	var mapping *Outcome_base[*TMap[string, *InstrumentationPoint]] = ReportDecoder_parseMappingFromFile(this.instrumentationMappingLocation)
 	if mapping.isErr() {
 		return Outcome_base_err[any](mapping.error())
 	}

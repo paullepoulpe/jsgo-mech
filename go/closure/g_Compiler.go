@@ -3578,12 +3578,12 @@ func (this *Compiler_SingleBinaryLicenseTracker) shouldUseLicenseInfo_impl(node 
 
 type Compiler_ChunkGraphAwareLicenseTracker struct {
 	compiler_                           *AbstractCompiler
-	licensesFromChunks                  map[*JSChunk]SetOf[string]
+	licensesFromChunks                  map[*JSChunk]*TSet[string]
 	haveInitializedCurrentChunkLicenses bool
 	currentChunkLicencesInTDeps         map[string]struct{}
 	lastSeenFile                        string
 	licensesNewInCurrentFile            *TSet[string]
-	licensesNewInCurrentChunk           SetOf[string]
+	licensesNewInCurrentChunk           *TSet[string]
 	log_                                *LogFile
 	currentChunk                        *JSChunk
 }
@@ -3593,12 +3593,12 @@ func (this *Compiler_ChunkGraphAwareLicenseTracker) zero_Compiler_ChunkGraphAwar
 }
 
 func (this *Compiler_ChunkGraphAwareLicenseTracker) finit_Compiler_ChunkGraphAwareLicenseTracker() {
-	this.licensesFromChunks = map[*JSChunk]SetOf[string]{}
+	this.licensesFromChunks = map[*JSChunk]*TSet[string]{}
 	this.haveInitializedCurrentChunkLicenses = false
 	this.currentChunkLicencesInTDeps = map[string]struct{}{}
 	this.lastSeenFile = ""
 	this.licensesNewInCurrentFile = newTSet_(tc_string)
-	this.licensesNewInCurrentChunk = new_LinkedHashSet()
+	this.licensesNewInCurrentChunk = newTSet_(tc_string)
 	this.log_ = LogFile_createNoOp()
 }
 
@@ -3627,7 +3627,7 @@ func (this *Compiler_ChunkGraphAwareLicenseTracker) setCurrentChunkContext(chunk
 	if has_(this.licensesFromChunks, chunk) {
 		panic(new_IllegalStateException_String("Visiting a chunk more than once is not allowed.").self())
 	}
-	this.licensesNewInCurrentChunk = new_LinkedHashSet()
+	this.licensesNewInCurrentChunk = newTSet_(tc_string)
 	this.licensesFromChunks[chunk] = this.licensesNewInCurrentChunk
 }
 
@@ -3650,7 +3650,7 @@ func (this *Compiler_ChunkGraphAwareLicenseTracker) trackLicensesForNode(node No
 			if !has_(this.licensesFromChunks, depChunk) {
 				panic(new_IllegalStateException_String("Chunk aware license analysis error - analysis out of order.").self())
 			}
-			setAddAllFrom_(tc_string, this.currentChunkLicencesInTDeps, Collection(this.licensesFromChunks[depChunk]))
+			setAddAllFrom_(tc_string, this.currentChunkLicencesInTDeps, Collection(this.licensesFromChunks[depChunk].asSet()))
 		}
 		this.haveInitializedCurrentChunkLicenses = true
 	}
@@ -3664,7 +3664,7 @@ func (this *Compiler_ChunkGraphAwareLicenseTracker) trackLicensesForNode(node No
 	if has_(this.currentChunkLicencesInTDeps, license.get()) {
 		return
 	}
-	if Collection_contains_s(this.licensesNewInCurrentChunk, license.get()) {
+	if this.licensesNewInCurrentChunk.contains(license.get()) {
 		return
 	}
 	var newlyAddedLicense bool = this.licensesNewInCurrentFile.add(license.get())
@@ -3677,7 +3677,7 @@ func (this *Compiler_ChunkGraphAwareLicenseTracker) trackLicensesForNode(node No
 
 func (this *Compiler_ChunkGraphAwareLicenseTracker) emitLicenses() ImmutableSetOf[string] {
 	var licensesNewInFile ImmutableSetOf[string] = ImmutableSet_copyOf(Collection(this.licensesNewInCurrentFile.asSet()))
-	this.licensesNewInCurrentChunk.addAll(icast_Collection(obj_(licensesNewInFile)))
+	this.licensesNewInCurrentChunk.asSet().addAll(icast_Collection(obj_(licensesNewInFile)))
 	this.licensesNewInCurrentFile.clear()
 	return licensesNewInFile
 }

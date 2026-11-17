@@ -640,8 +640,8 @@ func (this *JsMessage_Builder) appendPart(part JsMessage_Part) *JsMessage_Builde
 	return this
 }
 
-func (this *JsMessage_Builder) appendParts(parts ListOf[JsMessage_Part]) *JsMessage_Builder {
-	for part := range elemsBy_(parts, icast_JsMessage_Part) {
+func (this *JsMessage_Builder) appendParts(parts *TList[JsMessage_Part]) *JsMessage_Builder {
+	for part := range elemsBy_(parts.asList(), icast_JsMessage_Part) {
 		this.appendPart(part)
 	}
 	return this

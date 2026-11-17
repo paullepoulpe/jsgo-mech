@@ -4,14 +4,14 @@ package closure
 
 type ConvertChunksToESModules struct {
 	compiler_              *AbstractCompiler
-	crossChunkExports      *TMap[*JSChunk, SetOf[string]]
-	crossChunkImports      *TMap[*JSChunk, MapOf[*JSChunk, SetOf[string]]]
+	crossChunkExports      *TMap[*JSChunk, *TSet[string]]
+	crossChunkImports      *TMap[*JSChunk, *TMap[*JSChunk, SetOf[string]]]
 	dynamicImportCallbacks []Node
 }
 
 func (this *ConvertChunksToESModules) finit_ConvertChunksToESModules() {
-	this.crossChunkExports = newTMap_(tc_p_JSChunk, tc_SetOf_string_)
-	this.crossChunkImports = newTMap_(tc_p_JSChunk, tc_MapOf_p_JSChunk__SetOf_string__)
+	this.crossChunkExports = newTMap_(tc_p_JSChunk, tcv_p_TSet_string_)
+	this.crossChunkImports = newTMap_(tc_p_JSChunk, tcv_p_TMap_p_JSChunk__SetOf_string__)
 	this.dynamicImportCallbacks = []Node{}
 }
 
@@ -30,7 +30,7 @@ func (this *ConvertChunksToESModules) process_2(externs Node, root Node) {
 	NodeTraversal_traverse(this.compiler_, root, new_ConvertChunksToESModules_FindCrossChunkReferences(this))
 	for chunk := range elemsAs_[*JSChunk](this.compiler_.getChunkGraph().getAllChunks()) {
 		if (!this.crossChunkExports.containsKey(chunk) && !this.crossChunkImports.containsKey(chunk)) && !chunk.getInputs().isEmpty() {
-			this.crossChunkExports.put(chunk, new_LinkedHashSet())
+			this.crossChunkExports.put(chunk, newTSet_(tc_string))
 		}
 	}
 	this.convertChunkSourcesToModules()
@@ -87,14 +87,14 @@ func (this *ConvertChunksToESModules) addExportStatements() {
 			panic(new_IllegalStateException_0().self())
 		}
 		var exportSpecs Node = new_Node_Token(Token_rhino_EXPORT_SPECS)
-		for name := range elemsBy_(jsModuleExportsValue, str_) {
+		for name := range elemsBy_(jsModuleExportsValue.asSet(), str_) {
 			var exportSpec Node = new_Node_Token(Token_rhino_EXPORT_SPEC)
 			exportSpec.addChildToFront(IR_name(name))
 			exportSpec.addChildToFront(IR_name(name))
 			exportSpec.putIntProp(Node_IS_SHORTHAND_PROPERTY, 1)
 			exportSpecs.addChildToBack(exportSpec)
 		}
-		var importsByChunk MapOf[*JSChunk, SetOf[string]] = this.crossChunkImports.get(jsModuleExportsKey)
+		var importsByChunk *TMap[*JSChunk, SetOf[string]] = this.crossChunkImports.get(jsModuleExportsKey)
 		if (exportSpecs.hasChildren() || (importsByChunk == nil)) || importsByChunk.isEmpty() {
 			var export Node = IR_export(exportSpecs).srcrefTree(moduleBody)
 			moduleBody.addChildToBack(export)
@@ -116,7 +116,7 @@ func (this *ConvertChunksToESModules) addImportStatements() {
 		if moduleBody == 0 || !moduleBody.isModuleBody() {
 			panic(new_IllegalStateException_0().self())
 		}
-		for importsByChunk := range elemsBy_(chunkImportsEntryValue.entrySet(), icast_Map_Entry) {
+		for importsByChunk := range elemsBy_(chunkImportsEntryValue.asMap().entrySet(), icast_Map_Entry) {
 			var importSpecs Node = new_Node_Token(Token_rhino_IMPORT_SPECS)
 			for name := range elemsBy_(icast_Set(importsByChunk.getValue()), str_) {
 				var importSpec Node = new_Node_Token(Token_rhino_IMPORT_SPEC)
@@ -247,11 +247,11 @@ func (this *ConvertChunksToESModules) visitName(t *NodeTraversal, nameNode Node,
 		if NodeUtil_isLhsOfAssign(nameNode) {
 			t.report(nameNode, ConvertChunksToESModules_ASSIGNMENT_TO_IMPORT, []string{nameNode.getString(), ConvertChunksToESModules_getChunkName(referencingChunk), ConvertChunksToESModules_getChunkName(definingChunk)})
 		}
-		var namesToExport SetOf[string] = icast_Set(Map_computeIfAbsent_f(this.crossChunkExports.asMap(), obj_(definingChunk), lambda_ConvertChunksToESModules_visitName_1_))
-		Collection_add_s(namesToExport, name)
-		var namesToImportByChunk MapOf[*JSChunk, SetOf[string]] = icast_Map(Map_computeIfAbsent_f(this.crossChunkImports.asMap(), obj_(referencingChunk), lambda_ConvertChunksToESModules_visitName_2_))
+		var namesToExport *TSet[string] = tsetOf_[string](Map_computeIfAbsent_f(this.crossChunkExports.asMap(), obj_(definingChunk), lambda_ConvertChunksToESModules_visitName_1_))
+		namesToExport.add(name)
+		var namesToImportByChunk *TMap[*JSChunk, SetOf[string]] = tmapOf_[*JSChunk, SetOf[string]](Map_computeIfAbsent_f(this.crossChunkImports.asMap(), obj_(referencingChunk), lambda_ConvertChunksToESModules_visitName_2_))
 		if importType == ConvertChunksToESModules_ImportType_STATIC {
-			var importsForChunk SetOf[string] = icast_Set(Map_computeIfAbsent_f(namesToImportByChunk, obj_(definingChunk), lambda_ConvertChunksToESModules_visitName_3_))
+			var importsForChunk SetOf[string] = icast_Set(Map_computeIfAbsent_f(namesToImportByChunk.asMap(), obj_(definingChunk), lambda_ConvertChunksToESModules_visitName_3_))
 			Collection_add_s(importsForChunk, name)
 		}
 	}
@@ -262,14 +262,14 @@ func (this *ConvertChunksToESModules) visitName(t *NodeTraversal, nameNode Node,
 func lambda_ConvertChunksToESModules_visitName_1_(k_ any) any {
 	var k *JSChunk = cast_[*JSChunk](k_)
 	_ = k
-	return obj_(new_LinkedHashSet())
+	return any(newTSet_(tc_string).asSet())
 }
 
 // lambda_ConvertChunksToESModules_visitName_2_ is a lambda of ConvertChunksToESModules_visitName that captures nothing (post-flip step lambdas).
 func lambda_ConvertChunksToESModules_visitName_2_(k_ any) any {
 	var k *JSChunk = cast_[*JSChunk](k_)
 	_ = k
-	return obj_(new_LinkedHashMap())
+	return any(newTMap_(tc_p_JSChunk, tc_SetOf_string_).asMap())
 }
 
 // lambda_ConvertChunksToESModules_visitName_3_ is a lambda of ConvertChunksToESModules_visitName that captures nothing (post-flip step lambdas).
@@ -412,11 +412,11 @@ func (this *ConvertChunksToESModules_FindCrossChunkReferences) visitScript(t *No
 	}
 	var chunk *JSChunk = t.getChunk()
 	var chunkDependencies []*JSChunk = chunk.getDependencies()
-	Map_putIfAbsent(this.outer_.crossChunkExports.asMap(), obj_(chunk), obj_(new_LinkedHashSet()))
+	Map_putIfAbsent(this.outer_.crossChunkExports.asMap(), obj_(chunk), any(newTSet_(tc_string).asSet()))
 	if len(chunkDependencies) != 0 {
-		var namesToImportByChunk MapOf[*JSChunk, SetOf[string]] = icast_Map(Map_computeIfAbsent_f(this.outer_.crossChunkImports.asMap(), obj_(chunk), lambda_ConvertChunksToESModules_FindCrossChunkReferences_visitScript_1_))
+		var namesToImportByChunk *TMap[*JSChunk, SetOf[string]] = tmapOf_[*JSChunk, SetOf[string]](Map_computeIfAbsent_f(this.outer_.crossChunkImports.asMap(), obj_(chunk), lambda_ConvertChunksToESModules_FindCrossChunkReferences_visitScript_1_))
 		for _, dependency := range chunkDependencies {
-			Map_computeIfAbsent_f(namesToImportByChunk, obj_(dependency), lambda_ConvertChunksToESModules_FindCrossChunkReferences_visitScript_2_)
+			Map_computeIfAbsent_f(namesToImportByChunk.asMap(), obj_(dependency), lambda_ConvertChunksToESModules_FindCrossChunkReferences_visitScript_2_)
 		}
 	}
 }
@@ -425,7 +425,7 @@ func (this *ConvertChunksToESModules_FindCrossChunkReferences) visitScript(t *No
 func lambda_ConvertChunksToESModules_FindCrossChunkReferences_visitScript_1_(k_ any) any {
 	var k *JSChunk = cast_[*JSChunk](k_)
 	_ = k
-	return obj_(new_LinkedHashMap())
+	return any(newTMap_(tc_p_JSChunk, tc_SetOf_string_).asMap())
 }
 
 // lambda_ConvertChunksToESModules_FindCrossChunkReferences_visitScript_2_ is a lambda of ConvertChunksToESModules_FindCrossChunkReferences_visitScript that captures nothing (post-flip step lambdas).

@@ -118,7 +118,7 @@ func InlineAndCollapseProperties_maybeGetInnerNameNode(maybeFunctionOrClassNode 
 	}
 }
 
-func InlineAndCollapseProperties_maybeAddPropertiesToWorklist(name *GlobalNamespace_Name, workList DequeOf[*GlobalNamespace_Name]) {
+func InlineAndCollapseProperties_maybeAddPropertiesToWorklist(name *GlobalNamespace_Name, workList *TList[*GlobalNamespace_Name]) {
 	if !((name.isObjectLiteral() || name.isFunction()) || name.isClass()) {
 		return
 	}
@@ -129,11 +129,11 @@ func InlineAndCollapseProperties_maybeAddPropertiesToWorklist(name *GlobalNamesp
 		return
 	}
 	if name.getAliasingGets() == 0 {
-		workList.addAll(Collection(sliceView_(tc_p_GlobalNamespace_Name, name.props)))
+		tdequeView_(workList, false).addAll(Collection(sliceView_(tc_p_GlobalNamespace_Name, name.props)))
 	} else {
 		for property := range sliceAll_(&name.props) {
 			if property.canCollapse() {
-				workList.add(obj_(property))
+				workList.push_(property)
 			}
 		}
 	}
@@ -355,9 +355,9 @@ func (this *InlineAndCollapseProperties_AggressiveInlineAliases) process_2(exter
 }
 
 func (this *InlineAndCollapseProperties_AggressiveInlineAliases) inlineAliases(namespace *GlobalNamespace) {
-	var workList DequeOf[*GlobalNamespace_Name] = new_ArrayDeque_Collection(Collection(sliceViewP_(tc_p_GlobalNamespace_Name, namespace.getNameForest())))
+	var workList *TList[*GlobalNamespace_Name] = tlistFrom_(tc_p_GlobalNamespace_Name, Collection(sliceViewP_(tc_p_GlobalNamespace_Name, namespace.getNameForest())))
 	for !workList.isEmpty() {
-		var name *GlobalNamespace_Name = cast_[*GlobalNamespace_Name](workList.pop())
+		var name *GlobalNamespace_Name = workList.popFirst_()
 		if name.isGetOrSetDefinition() {
 			continue
 		}

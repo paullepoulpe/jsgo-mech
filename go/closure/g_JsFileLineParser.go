@@ -204,19 +204,19 @@ func (this *JsFileLineParser) parseJsString(jsStringLiteral string) *Outcome_bas
 	}()))
 }
 
-func (this *JsFileLineParser) parseJsStringArray(input string) *Outcome_base[List] {
+func (this *JsFileLineParser) parseJsStringArray(input string) *Outcome_base[*TList[string]] {
 	var results *TList[string] = newTList_(tc_string)
 	var indexStart int32 = String_indexOf(input, 91)
 	var indexEnd int32 = String_lastIndexOf(input, 93)
 	if (indexStart == -1) || (indexEnd == -1) {
-		return Outcome_base_err[List](new_JsFileLineParser_ParseException("Syntax error when parsing JS array", true).up_Throwable())
+		return Outcome_base_err[*TList[string]](new_JsFileLineParser_ParseException("Syntax error when parsing JS array", true).up_Throwable())
 	}
 	var innerValues string = String_substring(input, (indexStart + 1), indexEnd)
 	if strings.Trim(innerValues, javaSpace_) != "" {
 		this.valueMatcher.reset_s(innerValues)
 		for {
 			if !this.valueMatcher.lookingAt() {
-				return Outcome_base_err[List](new_JsFileLineParser_ParseException("Syntax error in JS String literal", true).up_Throwable())
+				return Outcome_base_err[*TList[string]](new_JsFileLineParser_ParseException("Syntax error in JS String literal", true).up_Throwable())
 			}
 			results.add(str_(func() any {
 				if this.valueMatcher.group(1) != nullstr_ {
@@ -228,13 +228,13 @@ func (this *JsFileLineParser) parseJsStringArray(input string) *Outcome_base[Lis
 				break
 			}
 			if String_charAt(innerValues, this.valueMatcher.end()) != ',' {
-				return Outcome_base_err[List](new_JsFileLineParser_ParseException("Missing comma in string array", true).up_Throwable())
+				return Outcome_base_err[*TList[string]](new_JsFileLineParser_ParseException("Missing comma in string array", true).up_Throwable())
 			}
 			innerValues = String_substring_int(innerValues, (this.valueMatcher.end() + 1))
 			this.valueMatcher.reset_s(innerValues)
 		}
 	}
-	return Outcome_base_ok_Object[List](results.asList())
+	return Outcome_base_ok_Object[*TList[string]](results)
 }
 
 func (this *JsFileLineParser) parseJsStringMap(input string) *Outcome_base[Map] {

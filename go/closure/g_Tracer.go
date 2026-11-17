@@ -527,26 +527,26 @@ func (this *Tracer_ThreadTrace) toString() string {
 	var numDigits int32 = this.getMaxDigits()
 	var sb strBuilder_
 	var etime int64 = -1
-	var indent DequeOf[string] = func() Deque {
+	var indent *TList[string] = func() *TList[string] {
 		if this.prettyPrint {
-			return new_ArrayDeque()
+			return newTList_(tc_string)
 		}
 		return nil
 	}()
 	for e := range sliceAll_(&this.events) {
 		if (this.prettyPrint && !e.isStart) && !indent.isEmpty() {
-			indent.pop()
+			indent.pop_()
 		}
 		sb.append(" ")
 		if this.prettyPrint {
-			sb.append(e.toString(etime, Joiner_on("").join(Iterable(indent)), numDigits))
+			sb.append(e.toString(etime, Joiner_on("").join(Iterable(tdequeView_(indent, true))), numDigits))
 		} else {
 			sb.append(e.toString(etime, "", 4))
 		}
 		etime = e.eventTime()
 		sb.append_char('\n')
 		if this.prettyPrint && e.isStart {
-			indent.push(strobj_("|  "))
+			indent.push_("|  ")
 		}
 	}
 	if !this.outstandingEvents.isEmpty() {

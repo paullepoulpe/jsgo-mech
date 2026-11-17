@@ -205,7 +205,7 @@ func (this *JsMessageVisitor) buildJsMessage(input JsMessageVisitor_InputForBuil
 			return Optional_of[string](this.idGenerator_.generateId(meaningForIdGeneration, tlistImm_(tc_JsMessage_Part, messageParts)))
 		}()
 	}
-	return new_JsMessage_Builder().appendParts(icast_List(obj_(messageParts))).setPlaceholderNameToExampleMap(input.getPlaceholderExampleMap()).setPlaceholderNameToOriginalCodeMap(input.getPlaceholderOriginalCodeMap()).setIsAnonymous(isAnonymous).setIsExternalMsg(isExternal).setKey(messageKeyFinal).setSourceName(input.getSourceName()).setDesc(input.getDescription()).setMeaning(input.getMeaning()).setAlternateId(input.getAlternateMessageId()).setId(messageId).build()
+	return new_JsMessage_Builder().appendParts(tlistImm_(tc_JsMessage_Part, messageParts)).setPlaceholderNameToExampleMap(input.getPlaceholderExampleMap()).setPlaceholderNameToOriginalCodeMap(input.getPlaceholderOriginalCodeMap()).setIsAnonymous(isAnonymous).setIsExternalMsg(isExternal).setKey(messageKeyFinal).setSourceName(input.getSourceName()).setDesc(input.getDescription()).setMeaning(input.getMeaning()).setAlternateId(input.getAlternateMessageId()).setId(messageId).build()
 }
 
 func (this *JsMessageVisitor) trackMessage(traversal *NodeTraversal, possiblyObfuscatedMessageKey string, msgNode Node, extractedMessage *JsMessage) {
@@ -652,13 +652,13 @@ func JsMessageVisitor_extractObjectLiteralMap(objLit Node) *Outcome_base[any] {
 	return Outcome_base_ok_Object(obj_(new_JsMessageVisitor_ObjectLiteralMapImpl(stringToStringKeyMap)))
 }
 
-func JsMessageVisitor_parseJsMessageTextIntoParts(originalMsgText string) *Outcome_base[List] {
+func JsMessageVisitor_parseJsMessageTextIntoParts(originalMsgText string) *Outcome_base[*TList[JsMessage_Part]] {
 	var googGetMsgParsedTextRes *Outcome_base[JsMessageVisitor_GoogGetMsgParsedText] = JsMessageVisitor_extractGoogGetMsgParsedText(originalMsgText)
 	if googGetMsgParsedTextRes.isErr() {
-		return Outcome_base_err[List](googGetMsgParsedTextRes.error())
+		return Outcome_base_err[*TList[JsMessage_Part]](googGetMsgParsedTextRes.error())
 	}
 	var googGetMsgParsedText JsMessageVisitor_GoogGetMsgParsedText = googGetMsgParsedTextRes.get()
-	return Outcome_base_ok_Object[List](icast_List(obj_(googGetMsgParsedText.getParts())))
+	return Outcome_base_ok_Object[*TList[JsMessage_Part]](tlistImm_(tc_JsMessage_Part, googGetMsgParsedText.getParts()))
 }
 
 func JsMessageVisitor_extractGoogGetMsgParsedText(originalMsgText string) *Outcome_base[JsMessageVisitor_GoogGetMsgParsedText] {

@@ -15,12 +15,12 @@ func new_IdMappingUtil() *IdMappingUtil {
 	return this
 }
 
-func IdMappingUtil_generateSerializedIdMappings(idGeneratorMaps *TMap[string, MapOf[string, string]]) string {
+func IdMappingUtil_generateSerializedIdMappings(idGeneratorMaps *TMap[string, *TMap[string, string]]) string {
 	var sb strBuilder_
 	for replacementsKey, replacementsValue := range idGeneratorMaps.All() {
 		if !replacementsValue.isEmpty() {
 			sb.append_char('[').append(replacementsKey).append_char(']').append_char(IdMappingUtil_NEW_LINE).append_char(IdMappingUtil_NEW_LINE)
-			for replacement := range elemsBy_(replacementsValue.entrySet(), icast_Map_Entry) {
+			for replacement := range elemsBy_(replacementsValue.asMap().entrySet(), icast_Map_Entry) {
 				sb.append(str_(replacement.getKey())).append_char(':').append(str_(replacement.getValue())).append_char(IdMappingUtil_NEW_LINE)
 			}
 			sb.append_char(IdMappingUtil_NEW_LINE)

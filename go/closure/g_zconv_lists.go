@@ -139,3 +139,6 @@ var tc_p_AbstractCommandLineRunner_JsonFileSpec = &tconv_[*AbstractCommandLineRu
 	return cast_[*AbstractCommandLineRunner_JsonFileSpec](v)
 }}
 var tc_p_Comment = &tconv_[*Comment]{box: func(v *Comment) any { return obj_(v) }, unbox: func(v any) *Comment { return cast_[*Comment](v) }}
+var tc_p_SourceMapSection = &tconv_[*SourceMapSection]{box: func(v *SourceMapSection) any { return obj_(v) }, unbox: func(v any) *SourceMapSection { return cast_[*SourceMapSection](v) }}
+var tcv_p_TList_p_InstrumentationPointStats_ = tlistConv_[*InstrumentationPointStats]()
+var tcv_p_TList_p_JSChunk_ = tlistConv_[*JSChunk]()

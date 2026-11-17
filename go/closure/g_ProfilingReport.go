@@ -17,13 +17,13 @@ func new_ProfilingReport() *ProfilingReport {
 	return this
 }
 
-func ProfilingReport_createTabSeparatedProfilingReport(instrumentationMapping MapOf[string, *InstrumentationPoint], allInstrumentationReports []MapOf[string, BoxedOf[int64]]) string {
+func ProfilingReport_createTabSeparatedProfilingReport(instrumentationMapping *TMap[string, *InstrumentationPoint], allInstrumentationReports []MapOf[string, BoxedOf[int64]]) string {
 	var profiles []*ReportProfile = []*ReportProfile{}
 	for _, report := range allInstrumentationReports {
 		profiles = append(profiles, ReportDecoder_decodeReport(instrumentationMapping, report))
 	}
 	var metricsBuilder ImmutableMap_BuilderOf[*InstrumentationPoint, *ProfilingReport_InstrumentationPointMetrics] = ImmutableMap_builder()
-	for point := range elemsAs_[*InstrumentationPoint](instrumentationMapping.values()) {
+	for point := range elemsAs_[*InstrumentationPoint](instrumentationMapping.asMap().values()) {
 		metricsBuilder.put(obj_(point), obj_(new_ProfilingReport_InstrumentationPointMetrics()))
 	}
 	var metrics *TMap[*InstrumentationPoint, *ProfilingReport_InstrumentationPointMetrics] = tmapFrom_(tch_p_InstrumentationPoint, tc_p_ProfilingReport_InstrumentationPointMetrics, metricsBuilder.buildOrThrow(), true)
@@ -38,14 +38,14 @@ func ProfilingReport_createTabSeparatedProfilingReport(instrumentationMapping Ma
 	}
 	var result []Map_EntryOf[*InstrumentationPoint, *ProfilingReport_InstrumentationPointMetrics] = sliceFrom_(tc_Map_EntryOf_p_InstrumentationPoint__p_ProfilingReport_InstrumentationPointMetrics_, Collection(metrics.asMap().entrySet()))
 	Collections_sort_List_Comparator(sliceView_(tc_Map_EntryOf_p_InstrumentationPoint__p_ProfilingReport_InstrumentationPointMetrics_, result), Comparator_thenComparingInt(Comparator_thenComparingInt(Comparator_thenComparingLong(Comparator_comparing(lambda_ProfilingReport_createTabSeparatedProfilingReport_1_), lambda_ProfilingReport_createTabSeparatedProfilingReport_2_), lambda_ProfilingReport_createTabSeparatedProfilingReport_3_), lambda_ProfilingReport_createTabSeparatedProfilingReport_4_))
-	var output []ListOf[string] = []ListOf[string]{}
-	output = append(output, List(ImmutableList_of_Object_Object_Object_Object_Object_Object(strobj_("File"), strobj_("Function name"), strobj_("Line"), strobj_("Type"), strobj_("Total executed"), strobj_("Reports occurred"))))
+	var output []*TList[string] = []*TList[string]{}
+	output = append(output, tlistImm_(tc_string, ImmutableList_of_Object_Object_Object_Object_Object_Object(strobj_("File"), strobj_("Function name"), strobj_("Line"), strobj_("Type"), strobj_("Total executed"), strobj_("Reports occurred"))))
 	for _, entry := range result {
-		output = append(output, List(ImmutableList_of_Object_Object_Object_Object_Object_Object(strobj_(cast_[*InstrumentationPoint](entry.getKey()).getFileName()), strobj_(cast_[*InstrumentationPoint](entry.getKey()).getFunctionName()), strobj_(strconv.Itoa(int(cast_[*InstrumentationPoint](entry.getKey()).getLineNumber()))), strobj_(cast_[*InstrumentationPoint](entry.getKey()).getType().name()), strobj_(strconv.FormatInt(cast_[*ProfilingReport_InstrumentationPointMetrics](entry.getValue()).totalTimesExecuted, 10)), strobj_(strconv.Itoa(int(cast_[*ProfilingReport_InstrumentationPointMetrics](entry.getValue()).numberOfReports))))))
+		output = append(output, tlistImm_(tc_string, ImmutableList_of_Object_Object_Object_Object_Object_Object(strobj_(cast_[*InstrumentationPoint](entry.getKey()).getFileName()), strobj_(cast_[*InstrumentationPoint](entry.getKey()).getFunctionName()), strobj_(strconv.Itoa(int(cast_[*InstrumentationPoint](entry.getKey()).getLineNumber()))), strobj_(cast_[*InstrumentationPoint](entry.getKey()).getType().name()), strobj_(strconv.FormatInt(cast_[*ProfilingReport_InstrumentationPointMetrics](entry.getValue()).totalTimesExecuted, 10)), strobj_(strconv.Itoa(int(cast_[*ProfilingReport_InstrumentationPointMetrics](entry.getValue()).numberOfReports))))))
 	}
 	var rows []string = []string{}
 	for _, row := range output {
-		rows = append(rows, String_join_s("\t", Iterable(row)))
+		rows = append(rows, String_join_s("\t", Iterable(row.asList())))
 	}
 	return joinStrings_(rows, "\n")
 }

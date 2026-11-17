@@ -955,9 +955,9 @@ func ReplaceMessages_ProtectedJsMessage_fromAstNode(node Node, idGenerator JsMes
 		}
 		var icuMessageTemplateString *JsMessageVisitor_IcuMessageTemplateString = new_JsMessageVisitor_IcuMessageTemplateString(messageText.orElse(nullstr_))
 		var extractedIcuTemplateParts *JsMessageVisitor_ExtractedIcuTemplateParts = icuMessageTemplateString.extractParts(icuPlaceholderNames)
-		jsMessageBuilder.appendParts(icast_List(obj_(extractedIcuTemplateParts.extractedParts)))
+		jsMessageBuilder.appendParts(tlistImm_(tc_JsMessage_Part, extractedIcuTemplateParts.extractedParts))
 	} else {
-		var partsRes *Outcome_base[List] = JsMessageVisitor_parseJsMessageTextIntoParts(messageText.orElse(nullstr_))
+		var partsRes *Outcome_base[*TList[JsMessage_Part]] = JsMessageVisitor_parseJsMessageTextIntoParts(messageText.orElse(nullstr_))
 		if partsRes.isErr() {
 			panic(new_IllegalStateException_String((sstr_(messageTextNode.getLocation()) + ": Placeholder incorrectly formatted: >" + sstr_(messageText.orElse("null")) + "<")).self())
 		}

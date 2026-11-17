@@ -196,12 +196,12 @@ func (this *CommandLineRunner) readFlagInputs(processedArgs *[]string, flagInput
 	if flagFilesProcessed.isErr() {
 		return Outcome_base_err[any](flagFilesProcessed.error())
 	}
-	var mixedSources *Outcome_base[List] = this.flags.getMixedJsSources()
+	var mixedSources *Outcome_base[*TList[*AbstractCommandLineRunner_FlagEntry[any]]] = this.flags.getMixedJsSources()
 	if mixedSources.isErr() {
 		return Outcome_base_err[any](mixedSources.error())
 	}
 	flagInputs.mixedSources = mixedSources.get()
-	var mappings *Outcome_base[List] = this.flags.getSourceMapLocationMappings()
+	var mappings *Outcome_base[*TList[SourceMap_LocationMapping]] = this.flags.getSourceMapLocationMappings()
 	if mappings.isErr() {
 		return Outcome_base_err[any](mappings.error())
 	}
@@ -229,8 +229,8 @@ func (this *CommandLineRunner) initConfigFromFlags(args []string, out *Output, e
 		var e *CmdLineException = cast_[*CmdLineException](flagInputsRead.error().self())
 		this.reportError(e.getMessage())
 	}
-	var mixedSources ListOf[*AbstractCommandLineRunner_FlagEntry[any]] = flagInputs.mixedSources
-	var mappings ListOf[SourceMap_LocationMapping] = flagInputs.mappings
+	var mixedSources *TList[*AbstractCommandLineRunner_FlagEntry[any]] = flagInputs.mixedSources
+	var mappings *TList[SourceMap_LocationMapping] = flagInputs.mappings
 	var sourceMapInputs ImmutableMapOf[string, string] = flagInputs.sourceMapInputs
 	var parseInlineSourceMaps bool = flagInputs.parseInlineSourceMaps_
 	var applyInputSourceMaps bool = flagInputs.applyInputSourceMaps
@@ -1698,7 +1698,7 @@ func CommandLineRunner_Flags_printShortUsageAfterErrors(ps *Output) {
 	ps.flush()
 }
 
-func (this *CommandLineRunner_Flags) getMixedJsSources() *Outcome_base[List] {
+func (this *CommandLineRunner_Flags) getMixedJsSources() *Outcome_base[*TList[*AbstractCommandLineRunner_FlagEntry[any]]] {
 	var mixedSources *TList[*AbstractCommandLineRunner_FlagEntry[any]] = newTList_(tc_p_AbstractCommandLineRunner_FlagEntry)
 	var excludes map[string]struct{} = map[string]struct{}{}
 	l_1 := this.mixedJsSources
@@ -1709,7 +1709,7 @@ func (this *CommandLineRunner_Flags) getMixedJsSources() *Outcome_base[List] {
 		} else if strings.HasPrefix(source.getValue(), "!") {
 			var found *Outcome_base[List] = CommandLineRunner_findJsFiles_Collection(ImmutableList_of_Object(strobj_(String_substring_int(source.getValue(), 1))))
 			if found.isErr() {
-				return Outcome_base_err[List](found.error())
+				return Outcome_base_err[*TList[*AbstractCommandLineRunner_FlagEntry[any]]](found.error())
 			}
 			for filename := range elemsBy_(found.get(), str_) {
 				excludes[filename] = struct{}{}
@@ -1718,7 +1718,7 @@ func (this *CommandLineRunner_Flags) getMixedJsSources() *Outcome_base[List] {
 		} else {
 			var found *Outcome_base[List] = CommandLineRunner_findJsFiles_Collection_boolean(Collection(Collections_singletonList(strobj_(source.getValue()))), true)
 			if found.isErr() {
-				return Outcome_base_err[List](found.error())
+				return Outcome_base_err[*TList[*AbstractCommandLineRunner_FlagEntry[any]]](found.error())
 			}
 			for filename := range elemsBy_(found.get(), str_) {
 				if !has_(excludes, filename) {
@@ -1729,29 +1729,29 @@ func (this *CommandLineRunner_Flags) getMixedJsSources() *Outcome_base[List] {
 	}
 	var fromArguments *Outcome_base[List] = CommandLineRunner_findJsFiles_Collection(Collection(this.arguments))
 	if fromArguments.isErr() {
-		return Outcome_base_err[List](fromArguments.error())
+		return Outcome_base_err[*TList[*AbstractCommandLineRunner_FlagEntry[any]]](fromArguments.error())
 	}
 	for filename := range elemsBy_(fromArguments.get(), str_) {
 		mixedSources.add(new_AbstractCommandLineRunner_FlagEntry(obj_(AbstractCommandLineRunner_JsSourceType_JS), filename))
 	}
 	if (len(*this.mixedJsSources) != 0 && !this.arguments.isEmpty()) && mixedSources.isEmpty() {
-		return Outcome_base_err[List](new_CmdLineException_CmdLineParser_String(this.parser, "No inputs matched").up_Throwable())
+		return Outcome_base_err[*TList[*AbstractCommandLineRunner_FlagEntry[any]]](new_CmdLineException_CmdLineParser_String(this.parser, "No inputs matched").up_Throwable())
 	}
-	return Outcome_base_ok_Object[List](mixedSources.asList())
+	return Outcome_base_ok_Object[*TList[*AbstractCommandLineRunner_FlagEntry[any]]](mixedSources)
 }
 
-func (this *CommandLineRunner_Flags) getSourceMapLocationMappings() *Outcome_base[List] {
+func (this *CommandLineRunner_Flags) getSourceMapLocationMappings() *Outcome_base[*TList[SourceMap_LocationMapping]] {
 	var locationMappings ImmutableList_BuilderOf[SourceMap_LocationMapping] = ImmutableList_builder()
 	var splitOutcome *Outcome_base[*ImmutableMap] = this.splitPipeParts(Iterable(this.sourceMapLocationMapping), "--source_map_location_mapping")
 	if splitOutcome.isErr() {
-		return Outcome_base_err[List](splitOutcome.error())
+		return Outcome_base_err[*TList[SourceMap_LocationMapping]](splitOutcome.error())
 	}
 	var split ImmutableMapOf[string, string] = splitOutcome.get()
 	for _, el := range immElems_(cast_[*ImmutableSet](split.entrySet())) {
 		mapping := icast_Map_Entry(el)
 		locationMappings.add(obj_(new_SourceMap_PrefixLocationMapping(str_(mapping.getKey()), str_(mapping.getValue()))))
 	}
-	return Outcome_base_ok_Object[List](icast_List(obj_(locationMappings.build())))
+	return Outcome_base_ok_Object[*TList[SourceMap_LocationMapping]](tlistImm_(tc_SourceMap_LocationMapping, locationMappings.build()))
 }
 
 func (this *CommandLineRunner_Flags) getSourceMapInputs() *Outcome_base[*ImmutableMap] {
@@ -1896,8 +1896,8 @@ func CommandLineRunner_FormattingOption_clinit() {
 }
 
 type CommandLineRunner_FlagInputs struct {
-	mixedSources           ListOf[*AbstractCommandLineRunner_FlagEntry[any]]
-	mappings               ListOf[SourceMap_LocationMapping]
+	mixedSources           *TList[*AbstractCommandLineRunner_FlagEntry[any]]
+	mappings               *TList[SourceMap_LocationMapping]
 	sourceMapInputs        ImmutableMapOf[string, string]
 	parseInlineSourceMaps_ bool
 	applyInputSourceMaps   bool
