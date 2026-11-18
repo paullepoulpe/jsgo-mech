@@ -22,6 +22,12 @@ type AbstractScope_I interface {
 	untyped_impl() *Scope
 }
 
+// AbstractScope_as is implemented by AbstractScope and the classes that extend it: a cast to AbstractScope asserts to it
+// (post-flip).
+type AbstractScope_as interface {
+	as_AbstractScope() *AbstractScope
+}
+
 func (this *AbstractScope) as_AbstractScope() *AbstractScope { return this }
 
 func to_AbstractScope(v any) *AbstractScope {
@@ -33,12 +39,7 @@ func to_AbstractScope(v any) *AbstractScope {
 	case nil:
 		return nil
 	}
-	return v.(interface{ as_AbstractScope() *AbstractScope }).as_AbstractScope()
-}
-
-func is_AbstractScope(v any) bool {
-	_, ok := v.(interface{ as_AbstractScope() *AbstractScope })
-	return ok
+	return v.(AbstractScope_as).as_AbstractScope()
 }
 
 func (this *AbstractScope) self() any {

@@ -19,25 +19,6 @@ type PassConfig_I interface {
 
 func (this *PassConfig) as_PassConfig() *PassConfig { return this }
 
-func to_PassConfig(v any) *PassConfig {
-	switch p := v.(type) {
-	case *DefaultPassConfig:
-		return p.as_PassConfig()
-	case *LintPassConfig:
-		return p.as_PassConfig()
-	case *TranspileAndOptimizeClosureUnaware_RuntimeLibInjectionPassConfig:
-		return p.as_PassConfig()
-	case nil:
-		return nil
-	}
-	return v.(interface{ as_PassConfig() *PassConfig }).as_PassConfig()
-}
-
-func is_PassConfig(v any) bool {
-	_, ok := v.(interface{ as_PassConfig() *PassConfig })
-	return ok
-}
-
 func (this *PassConfig) self() any {
 	if this == nil {
 		return nil
@@ -119,6 +100,12 @@ type PassConfig_PassConfigDelegate struct {
 	delegate *PassConfig
 }
 
+// PassConfig_PassConfigDelegate_as is implemented by PassConfig_PassConfigDelegate and the classes that extend it: a cast to PassConfig_PassConfigDelegate asserts to it
+// (post-flip).
+type PassConfig_PassConfigDelegate_as interface {
+	as_PassConfig_PassConfigDelegate() *PassConfig_PassConfigDelegate
+}
+
 func (this *PassConfig_PassConfigDelegate) as_PassConfig_PassConfigDelegate() *PassConfig_PassConfigDelegate {
 	return this
 }
@@ -132,15 +119,11 @@ func to_PassConfig_PassConfigDelegate(v any) *PassConfig_PassConfigDelegate {
 	case nil:
 		return nil
 	}
-	return v.(interface {
-		as_PassConfig_PassConfigDelegate() *PassConfig_PassConfigDelegate
-	}).as_PassConfig_PassConfigDelegate()
+	return v.(PassConfig_PassConfigDelegate_as).as_PassConfig_PassConfigDelegate()
 }
 
 func is_PassConfig_PassConfigDelegate(v any) bool {
-	_, ok := v.(interface {
-		as_PassConfig_PassConfigDelegate() *PassConfig_PassConfigDelegate
-	})
+	_, ok := v.(PassConfig_PassConfigDelegate_as)
 	return ok
 }
 

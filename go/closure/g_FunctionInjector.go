@@ -665,6 +665,12 @@ type FunctionInjector_Reference struct {
 	mode_     FunctionInjector_InliningMode
 }
 
+// FunctionInjector_Reference_as is implemented by FunctionInjector_Reference and the classes that extend it: a cast to FunctionInjector_Reference asserts to it
+// (post-flip).
+type FunctionInjector_Reference_as interface {
+	as_FunctionInjector_Reference() *FunctionInjector_Reference
+}
+
 func (this *FunctionInjector_Reference) as_FunctionInjector_Reference() *FunctionInjector_Reference {
 	return this
 }
@@ -678,16 +684,7 @@ func to_FunctionInjector_Reference(v any) *FunctionInjector_Reference {
 	case nil:
 		return nil
 	}
-	return v.(interface {
-		as_FunctionInjector_Reference() *FunctionInjector_Reference
-	}).as_FunctionInjector_Reference()
-}
-
-func is_FunctionInjector_Reference(v any) bool {
-	_, ok := v.(interface {
-		as_FunctionInjector_Reference() *FunctionInjector_Reference
-	})
-	return ok
+	return v.(FunctionInjector_Reference_as).as_FunctionInjector_Reference()
 }
 
 func (this *FunctionInjector_Reference) self() any {
@@ -756,22 +753,6 @@ func (this FunctionInjector_CallSiteType) self() any {
 
 func (this FunctionInjector_CallSiteType) as_FunctionInjector_CallSiteType() FunctionInjector_CallSiteType {
 	return this
-}
-
-func to_FunctionInjector_CallSiteType(v any) FunctionInjector_CallSiteType {
-	if v == nil {
-		return 0
-	}
-	return v.(interface {
-		as_FunctionInjector_CallSiteType() FunctionInjector_CallSiteType
-	}).as_FunctionInjector_CallSiteType()
-}
-
-func is_FunctionInjector_CallSiteType(v any) bool {
-	_, ok := v.(interface {
-		as_FunctionInjector_CallSiteType() FunctionInjector_CallSiteType
-	})
-	return ok
 }
 
 func (this FunctionInjector_CallSiteType) prepare(injector *FunctionInjector, ref *FunctionInjector_Reference) {

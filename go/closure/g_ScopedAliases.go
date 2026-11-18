@@ -305,6 +305,12 @@ type ScopedAliases_AliasUsage_I interface {
 	applyAlias_impl(*AbstractCompiler)
 }
 
+// ScopedAliases_AliasUsage_as is implemented by ScopedAliases_AliasUsage and the classes that extend it: a cast to ScopedAliases_AliasUsage asserts to it
+// (post-flip).
+type ScopedAliases_AliasUsage_as interface {
+	as_ScopedAliases_AliasUsage() *ScopedAliases_AliasUsage
+}
+
 func (this *ScopedAliases_AliasUsage) as_ScopedAliases_AliasUsage() *ScopedAliases_AliasUsage {
 	return this
 }
@@ -318,16 +324,7 @@ func to_ScopedAliases_AliasUsage(v any) *ScopedAliases_AliasUsage {
 	case nil:
 		return nil
 	}
-	return v.(interface {
-		as_ScopedAliases_AliasUsage() *ScopedAliases_AliasUsage
-	}).as_ScopedAliases_AliasUsage()
-}
-
-func is_ScopedAliases_AliasUsage(v any) bool {
-	_, ok := v.(interface {
-		as_ScopedAliases_AliasUsage() *ScopedAliases_AliasUsage
-	})
-	return ok
+	return v.(ScopedAliases_AliasUsage_as).as_ScopedAliases_AliasUsage()
 }
 
 func (this *ScopedAliases_AliasUsage) self() any {

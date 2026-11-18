@@ -18,11 +18,6 @@ type GuardedCallback_vt_[T comparable] interface {
 
 func (this *GuardedCallback[T]) isa_GuardedCallback_() {}
 
-func is_GuardedCallback(v any) bool {
-	_, ok := v.(interface{ isa_GuardedCallback_() })
-	return ok
-}
-
 func (this *GuardedCallback[T]) as_GuardedCallback() *GuardedCallback[T] { return this }
 
 func (this *GuardedCallback[T]) as_GuardedCallback_() any { return this }

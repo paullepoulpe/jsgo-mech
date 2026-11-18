@@ -780,27 +780,6 @@ func (this *FunctionTypeBuilder_ValidatorBase) as_FunctionTypeBuilder_ValidatorB
 	return this
 }
 
-func to_FunctionTypeBuilder_ValidatorBase(v any) *FunctionTypeBuilder_ValidatorBase {
-	switch p := v.(type) {
-	case *FunctionTypeBuilder_ExtendedTypeValidator:
-		return p.as_FunctionTypeBuilder_ValidatorBase()
-	case *FunctionTypeBuilder_ImplementedTypeValidator:
-		return p.as_FunctionTypeBuilder_ValidatorBase()
-	case nil:
-		return nil
-	}
-	return v.(interface {
-		as_FunctionTypeBuilder_ValidatorBase() *FunctionTypeBuilder_ValidatorBase
-	}).as_FunctionTypeBuilder_ValidatorBase()
-}
-
-func is_FunctionTypeBuilder_ValidatorBase(v any) bool {
-	_, ok := v.(interface {
-		as_FunctionTypeBuilder_ValidatorBase() *FunctionTypeBuilder_ValidatorBase
-	})
-	return ok
-}
-
 func (this *FunctionTypeBuilder_ValidatorBase) self() any {
 	if this == nil {
 		return nil

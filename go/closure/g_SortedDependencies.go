@@ -16,11 +16,6 @@ type SortedDependencies[InputT interface {
 
 func (this *SortedDependencies[InputT]) isa_SortedDependencies_() {}
 
-func is_SortedDependencies(v any) bool {
-	_, ok := v.(interface{ isa_SortedDependencies_() })
-	return ok
-}
-
 func (this *SortedDependencies[InputT]) finit_SortedDependencies() {
 	this.userOrderedInputs = jnewTList_(tcT_[InputT]())
 	this.importOrderedInputs = jnewTList_(tcT_[InputT]())

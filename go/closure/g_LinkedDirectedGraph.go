@@ -11,11 +11,6 @@ type LinkedDirectedGraph[N comparable, E comparable] struct {
 
 func (this *LinkedDirectedGraph[N, E]) isa_LinkedDirectedGraph_() {}
 
-func is_LinkedDirectedGraph(v any) bool {
-	_, ok := v.(interface{ isa_LinkedDirectedGraph_() })
-	return ok
-}
-
 func (this *LinkedDirectedGraph[N, E]) as_LinkedDirectedGraph() *LinkedDirectedGraph[N, E] {
 	return this
 }
@@ -370,11 +365,6 @@ type LinkedDirectedGraph_LinkedDiGraphNode_vt_[N comparable, E comparable] inter
 func (this *LinkedDirectedGraph_LinkedDiGraphNode[N, E]) isa_LinkedDirectedGraph_LinkedDiGraphNode_() {
 }
 
-func is_LinkedDirectedGraph_LinkedDiGraphNode(v any) bool {
-	_, ok := v.(interface{ isa_LinkedDirectedGraph_LinkedDiGraphNode_() })
-	return ok
-}
-
 func (this *LinkedDirectedGraph_LinkedDiGraphNode[N, E]) as_LinkedDirectedGraph_LinkedDiGraphNode() *LinkedDirectedGraph_LinkedDiGraphNode[N, E] {
 	return this
 }
@@ -491,11 +481,6 @@ type LinkedDirectedGraph_AnnotatedLinkedDiGraphNode[N comparable, E comparable] 
 func (this *LinkedDirectedGraph_AnnotatedLinkedDiGraphNode[N, E]) isa_LinkedDirectedGraph_AnnotatedLinkedDiGraphNode_() {
 }
 
-func is_LinkedDirectedGraph_AnnotatedLinkedDiGraphNode(v any) bool {
-	_, ok := v.(interface{ isa_LinkedDirectedGraph_AnnotatedLinkedDiGraphNode_() })
-	return ok
-}
-
 func (this *LinkedDirectedGraph_AnnotatedLinkedDiGraphNode[N, E]) up_LinkedDirectedGraph_LinkedDiGraphNode() *LinkedDirectedGraph_LinkedDiGraphNode[N, E] {
 	if this == nil {
 		return nil
@@ -550,11 +535,6 @@ type LinkedDirectedGraph_LinkedDiGraphEdge_vt_[N comparable, E comparable] inter
 }
 
 func (this *LinkedDirectedGraph_LinkedDiGraphEdge[N, E]) isa_LinkedDirectedGraph_LinkedDiGraphEdge_() {
-}
-
-func is_LinkedDirectedGraph_LinkedDiGraphEdge(v any) bool {
-	_, ok := v.(interface{ isa_LinkedDirectedGraph_LinkedDiGraphEdge_() })
-	return ok
 }
 
 func (this *LinkedDirectedGraph_LinkedDiGraphEdge[N, E]) as_LinkedDirectedGraph_LinkedDiGraphEdge() *LinkedDirectedGraph_LinkedDiGraphEdge[N, E] {
@@ -660,11 +640,6 @@ type LinkedDirectedGraph_AnnotatedLinkedDiGraphEdge[N comparable, E comparable] 
 }
 
 func (this *LinkedDirectedGraph_AnnotatedLinkedDiGraphEdge[N, E]) isa_LinkedDirectedGraph_AnnotatedLinkedDiGraphEdge_() {
-}
-
-func is_LinkedDirectedGraph_AnnotatedLinkedDiGraphEdge(v any) bool {
-	_, ok := v.(interface{ isa_LinkedDirectedGraph_AnnotatedLinkedDiGraphEdge_() })
-	return ok
 }
 
 func (this *LinkedDirectedGraph_AnnotatedLinkedDiGraphEdge[N, E]) up_LinkedDirectedGraph_LinkedDiGraphEdge() *LinkedDirectedGraph_LinkedDiGraphEdge[N, E] {

@@ -403,11 +403,6 @@ type J2clClinitPrunerPass_HierarchicalSet[T comparable] struct {
 
 func (this *J2clClinitPrunerPass_HierarchicalSet[T]) isa_J2clClinitPrunerPass_HierarchicalSet_() {}
 
-func is_J2clClinitPrunerPass_HierarchicalSet(v any) bool {
-	_, ok := v.(interface{ isa_J2clClinitPrunerPass_HierarchicalSet_() })
-	return ok
-}
-
 func (this *J2clClinitPrunerPass_HierarchicalSet[T]) finit_J2clClinitPrunerPass_HierarchicalSet() {
 	this.currentSet = jnewTSet_(tceT_[T]())
 }

@@ -12,6 +12,12 @@ type AbstractCompiler_I interface {
 	initRuntimeLibraryTypedAsts_impl(*Optional_base)
 }
 
+// AbstractCompiler_as is implemented by AbstractCompiler and the classes that extend it: a cast to AbstractCompiler asserts to it
+// (post-flip).
+type AbstractCompiler_as interface {
+	as_AbstractCompiler() *AbstractCompiler
+}
+
 func (this *AbstractCompiler) as_AbstractCompiler() *AbstractCompiler { return this }
 
 func to_AbstractCompiler(v any) *AbstractCompiler {
@@ -21,12 +27,7 @@ func to_AbstractCompiler(v any) *AbstractCompiler {
 	case nil:
 		return nil
 	}
-	return v.(interface{ as_AbstractCompiler() *AbstractCompiler }).as_AbstractCompiler()
-}
-
-func is_AbstractCompiler(v any) bool {
-	_, ok := v.(interface{ as_AbstractCompiler() *AbstractCompiler })
-	return ok
+	return v.(AbstractCompiler_as).as_AbstractCompiler()
 }
 
 func (this *AbstractCompiler) self() any {
